@@ -1,0 +1,6 @@
+﻿C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V140\Microsoft.CppBuild.targets(1189,5): warning MSB8012: TargetPath(C:\multispec_win64\20170327_MultiSpec_Windows\LarryMultiSpecD9\x64Release\multispec\MULTSPEC.exe) does not match the Linker's OutputFile property value (C:\multispec_win64\20170327_MultiSpec_Windows\LarryMultiSpecD9\MultiSpecW64.exe). This may cause your project to build incorrectly. To correct this, please make sure that $(OutDir), $(TargetName) and $(TargetExt) property values match the value specified in %(Link.OutputFile).
+C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V140\Microsoft.CppBuild.targets(1191,5): warning MSB8012: TargetName(MULTSPEC) does not match the Linker's OutputFile property value (MultiSpecW64). This may cause your project to build incorrectly. To correct this, please make sure that $(OutDir), $(TargetName) and $(TargetExt) property values match the value specified in %(Link.OutputFile).
+     Creating library x64Release\multispec\MULTSPEC.lib and object x64Release\multispec\MULTSPEC.exp
+LINK : warning LNK4098: defaultlib 'nafxcw.lib' conflicts with use of other libs; use /NODEFAULTLIB:library
+  multspec.vcxproj -> C:\multispec_win64\20170327_MultiSpec_Windows\LarryMultiSpecD9\x64Release\multispec\MULTSPEC.exe
+  multspec.vcxproj -> ./MultiSpecW64.pdb (Full PDB)
