@@ -1,4 +1,0 @@
-﻿CDisplay.obj : warning LNK4075: ignoring '/EDITANDCONTINUE' due to '/OPT:LBR' specification
-     Creating library .\MultispecW32d.lib and object .\MultispecW32d.exp
-  multspec.vcxproj -> C:\multispec_win64\20170327_MultiSpec_Windows\LarryMultiSpecD9\.\MultispecW32d.exe
-  multspec.vcxproj -> ./MultispecW32d.pdb (Full PDB)
