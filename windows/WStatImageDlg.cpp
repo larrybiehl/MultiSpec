@@ -1,4 +1,5 @@
 #include	"SMulSpec.h"
+#include "WMultiSpec.h"
 #include	"WStatImageDlg.h"
 #include	"SExtGlob.h"
 
@@ -57,6 +58,7 @@ extern void			StatisticsImageDialogOK(
 CMStatImageDialog::CMStatImageDialog(CWnd* pParent /*=NULL*/)
 	: CMDialog(CMStatImageDialog::IDD, pParent)
 {
+#if 1
 	UInt16**					classPtrPtr;
 
 	m_classPtr = NULL;
@@ -80,6 +82,7 @@ CMStatImageDialog::CMStatImageDialog(CWnd* pParent /*=NULL*/)
 	m_userMaximum = 0.0;
 
 	m_initializedFlag = CMDialog::m_initializedFlag;
+
 	m_channelsAllAvailableFlag = FALSE;
 
 	if (gStatisticsImageSpecsPtr->areaCode == kTrainingType)
@@ -88,13 +91,15 @@ CMStatImageDialog::CMStatImageDialog(CWnd* pParent /*=NULL*/)
 		classPtrPtr = NULL;
 
 	m_initializedFlag = GetDialogLocalVectors(&m_localFeaturesPtr,
-		&m_localTransformFeaturesPtr,
-		classPtrPtr,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL);
+			&m_localTransformFeaturesPtr,
+			classPtrPtr,
+			NULL,
+			NULL,
+			NULL,
+			NULL,
+			NULL);
+#endif
+
 }
 
 CMStatImageDialog::~CMStatImageDialog() {
@@ -127,18 +132,18 @@ void CMStatImageDialog::DoDataExchange(CDataExchange* pDX)
 	DDX_Radio(pDX, IDC_ClassesRadio, m_classCode);
 	DDX_Radio(pDX, IDC_SelectedClassRadio, m_perClassCode);
 	DDX_Radio(pDX, IDC_SelectedFieldRadio, m_perFieldCode);
-	DDX_Radio(pDX, IDC_SelectedAreaRadio, m_perFieldCode);
-
+	DDX_Radio(pDX, IDC_SelectedAreaRadio, m_areaCode);
+#if 1
 	DDX_Radio(pDX, IDC_OverallRadio, m_overallMinMaxCode);
 	DDX_Radio(pDX, IDC_IndividualRadio, m_individualMinMaxCode);
 	DDX_Radio(pDX, IDC_UserSettingRadio, m_userMinMaxCode);
 
 	DDX_CBIndex(pDX, IDC_ChannelCombo, m_channelSelection);
 	DDX_CBIndex(pDX, IDC_ClassCombo, m_classSelection);
-	DDX_CBIndex(pDX, IDC_Fields, m_classSelection);
+	//DDX_CBIndex(pDX, IDC_Fields, m_classSelection);
 	DDX_Text(pDX, IDC_StatisticMin, m_userMinimum);
 	DDX_Text(pDX, IDC_StatisticMax, m_userMaximum);
-
+#endif
 
 
 }
@@ -155,9 +160,10 @@ BOOL CMStatImageDialog::DoDialog()
 		return (continueFlag);
 
 	returnCode = DoModal();
-
+#if 1
 	if (returnCode == IDOK)
 	{
+		continueFlag = TRUE;
 		StatisticsImageDialogOK(
 			this,
 			gStatisticsImageSpecsPtr,
@@ -180,8 +186,9 @@ BOOL CMStatImageDialog::DoDialog()
 			m_userMinimum,
 			m_userMaximum);
 
-		continueFlag = TRUE;
+		
 	}
+#endif
 
 	return (continueFlag);
 }
@@ -193,6 +200,8 @@ BOOL CMStatImageDialog::OnInitDialog() {
 						channelSelection,
 						selectItem;
 
+	CMDialog::OnInitDialog();
+#if 1
 	StatisticsImageDialogInitialize(this,
 		gStatisticsImageSpecsPtr,
 		&m_dialogSelectArea,
@@ -211,7 +220,7 @@ BOOL CMStatImageDialog::OnInitDialog() {
 		&m_MinMaxCode,
 		&m_userMinimum,
 		&m_userMaximum,
-		&m_areaCode,
+		(SInt16*)&m_areaCode,
 		&selectItem,
 		(Boolean*)&m_featureTransformationFlag,
 		&m_featureTransformAllowedFlag);
@@ -228,14 +237,70 @@ BOOL CMStatImageDialog::OnInitDialog() {
 	m_localActiveNumberFeatures = m_localNumberFeatures;
 	m_localActiveFeaturesPtr = m_localFeaturesPtr;
 	m_channelSelection = channelSelection;
-
+#endif
 	return TRUE;
-}BEGIN_MESSAGE_MAP(CMStatImageDialog, CMDialog)
-ON_BN_CLICKED(IDC_UserSettingRadio, &CMStatImageDialog::OnBnClickedUsersettingradio)
+}
+
+BEGIN_MESSAGE_MAP(CMStatImageDialog, CMDialog)
+#if 1
+ON_EN_CHANGE(IDC_ColumnEnd, CheckColumnEnd)
+ON_EN_CHANGE(IDC_ColumnStart, CheckColumnStart)
+ON_EN_CHANGE(IDC_LineEnd, CheckLineEnd)
+ON_EN_CHANGE(IDC_LineStart, CheckLineStart)
+ON_CBN_SELENDOK(IDC_ClassCombo, OnSelendokClassCombo)
+ON_CBN_SELENDOK(IDC_ChannelCombo, OnSelendokChannelCombo)
+ON_BN_CLICKED(IDC_UserSettingRadio, OnClickUserSettingRadio)
+ON_BN_CLICKED(IDC_IndividualRadio, OnClickIndividualRadio)
+ON_BN_CLICKED(IDC_OverallRadio, OnClickOverallRadio)
+ON_BN_CLICKED(IDEntireImage, ToEntireImage)
+ON_BN_CLICKED(IDSelectedImage, ToSelectedImage)
+#endif
 END_MESSAGE_MAP()
 
 
-void CMStatImageDialog::OnBnClickedUsersettingradio()
+void CMStatImageDialog::OnSelendokClassCombo()
 {
-	// TODO: Add your control notification handler code here
+	HandleClassesMenu(&m_localNumberClasses,
+		(SInt16*)m_classListPtr,
+		(SInt16)1,
+		(SInt16)gProjectInfoPtr->numberStatisticsClasses,
+		IDC_ClassCombo,
+		(int*)&m_classSelection);
+}// end "OnSelendokClassCombo"
+#if 1
+void CMStatImageDialog::OnSelendokChannelCombo()
+{
+	HandleChannelsMenu(IDC_ChannelCombo,
+		kNoTransformation,
+		(SInt16)gImageWindowInfoPtr->totalNumberChannels,
+		2,
+		TRUE);
+	//m_channelsAllAvailableFlag);
+
+
+}		// end "OnSelendokChannelCombo"
+
+void CMStatImageDialog::OnClickUserSettingRadio()
+{
+	ShowDialogItem(this, IDC_MinPrompt);
+	ShowDialogItem(this, IDC_StatisticMin);
+	ShowDialogItem(this, IDC_MaxPrompt);
+	ShowDialogItem(this, IDC_StatisticMax);
+
 }
+
+void CMStatImageDialog::OnClickIndividualRadio() {
+	HideDialogItem(this, IDC_MinPrompt);
+	HideDialogItem(this, IDC_StatisticMin);
+	HideDialogItem(this, IDC_MaxPrompt);
+	HideDialogItem(this, IDC_StatisticMax);
+}
+
+void CMStatImageDialog::OnClickOverallRadio() {
+	HideDialogItem(this, IDC_MinPrompt);
+	HideDialogItem(this, IDC_StatisticMin);
+	HideDialogItem(this, IDC_MaxPrompt);
+	HideDialogItem(this, IDC_StatisticMax);
+}
+
+#endif

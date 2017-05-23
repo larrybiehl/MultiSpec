@@ -15,11 +15,11 @@ public:
 
 	BOOL DoDialog();
 
-	enum { IDD = IDS_ProcessorCreateImageStat};
+	enum { IDD = IDD_ProcessorCreateImageStat};
 
 	BOOL				m_classCode;
-	SInt16			m_areaCode;
-	BOOL				m_channelSelection;
+	BOOL				m_areaCode;
+	//BOOL				m_channelSelection;
 	BOOL				m_featureTransformationFlag;
 	SInt16			m_maximumNumberChannels;
 	BOOL				m_classSelection;
@@ -43,9 +43,19 @@ protected:
 	virtual BOOL OnInitDialog();
 
 	Boolean		m_initializedFlag;
-public:
+#if 1
+	afx_msg void OnSelendokClassCombo();
+	afx_msg void OnSelendokChannelCombo();
+	afx_msg void OnClickUserSettingRadio();
+	afx_msg void OnClickIndividualRadio();
+	afx_msg void OnClickOverallRadio();
+	afx_msg void OnCbnSelchangeChannelcombo();
+#endif
 	DECLARE_MESSAGE_MAP()
-	afx_msg void OnBnClickedUsersettingradio();
+
+	
+//public:
+	//afx_msg void OnCbnSelchangeClasscombo2();
 };
 
 

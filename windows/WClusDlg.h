@@ -79,6 +79,8 @@ protected:
 							m_clusterProcedureSetFlag,
 							m_newProjectFlag;
 	
-};    
+public:
+	afx_msg void OnBnClickedLinecolframe();
+};
   
 #endif // !defined __WCLUSDLG_H__
