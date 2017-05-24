@@ -133,7 +133,7 @@ void CMStatImageDialog::DoDataExchange(CDataExchange* pDX)
 	DDX_Radio(pDX, IDC_SelectedClassRadio, m_perClassCode);
 	DDX_Radio(pDX, IDC_SelectedFieldRadio, m_perFieldCode);
 	DDX_Radio(pDX, IDC_SelectedAreaRadio, m_areaCode);
-#if 1
+
 	DDX_Radio(pDX, IDC_OverallRadio, m_overallMinMaxCode);
 	DDX_Radio(pDX, IDC_IndividualRadio, m_individualMinMaxCode);
 	DDX_Radio(pDX, IDC_UserSettingRadio, m_userMinMaxCode);
@@ -143,7 +143,7 @@ void CMStatImageDialog::DoDataExchange(CDataExchange* pDX)
 	//DDX_CBIndex(pDX, IDC_Fields, m_classSelection);
 	DDX_Text(pDX, IDC_StatisticMin, m_userMinimum);
 	DDX_Text(pDX, IDC_StatisticMax, m_userMaximum);
-#endif
+
 
 
 }
