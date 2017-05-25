@@ -5026,7 +5026,7 @@ BEGIN
 	IDS_StatisticsImage16       "Creating images for field statistics."
 	IDS_StatisticsImage17       "Creating image for selected area."
 	IDS_StatisticsImage18       "    Image Statistics Error = '%d'."
-	IDS_StatisticsImage19       "    Image statistics file, '%s', written to disk.
+	IDS_StatisticsImage19       "    Image statistics file, '%s', written to disk. "
    
 END
 
