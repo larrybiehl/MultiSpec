@@ -14,7 +14,7 @@
 //
 //	Revision number:		3.0
 //
-//	Revision date:			08/24/2016
+//	Revision date:			06/16/2016
 //
 //	Language:				C
 //
@@ -43,16 +43,19 @@
 
 #include	"SMulSpec.h" 
 #include "SExtGlob.h"
-
+#ifdef multispec_win
+	#include "SRConsnt.h"
+	#include "SDefines.h"
+	#include "WMultiSpec.h"
+	#include "SProtype.h"
+	#define  kStatisticsImageStrID          172
+#endif
 
 #ifdef multispec_lin
 	#include "MultiSpec2.h"
 	#include "SRConsnt.h"
 	#include "SDefines.h"
 
-	#define  kStatisticsImageStrID          172
-#endif
-#ifdef multispec_win
 	#define  kStatisticsImageStrID          172
 #endif
 
@@ -90,8 +93,6 @@ long	L_band_no_location;
 #define grid_color 120
 #define mean_color NO_PALETTE_CLASSES
 #define mean_sd_color 2
-#define SHIFT_OFFSET3 15
-
 
 unsigned char  G_white_char=(unsigned char)iw;
 unsigned char  G_black_char=(unsigned char)ib;
@@ -117,37 +118,6 @@ short int n6[15] 	= { 1,1,1,1,0,0,1,1,1,1,0,1,1,1,1};
 short int n7[15] 	= { 1,1,1,0,0,1,0,0,1,0,0,1,0,0,1};
 short int n8[15] 	= { 1,1,1,1,0,1,1,1,1,1,0,1,1,1,1};
 short int n9[15] 	= { 1,1,1,1,0,1,1,1,1,0,0,1,1,1,1};
-
-short int nA[15]  = { 0,1,0,1,0,1,1,1,1,1,0,1,1,0,1};
-short int nB[15]  = { 1,1,0,1,0,1,1,1,1,1,0,1,1,1,0};
-short int nC[15]  = { 0,1,1,1,0,0,1,0,0,1,0,0,0,1,1};
-short int nD[15]  = { 1,1,0,1,0,1,1,0,1,1,0,1,1,1,0};
-short int nE[15]  = { 1,1,1,1,0,0,1,1,0,1,0,0,1,1,1};
-short int nF[15]  = { 1,1,1,1,0,0,1,1,0,1,0,0,1,0,0};
-short int nG[15]  = { 0,1,1,1,0,0,1,0,1,1,0,1,0,1,1};
-short int nH[15]  = { 1,0,1,1,0,1,1,1,1,1,0,1,1,0,1};
-short int nI[15]  = { 1,1,1,0,1,0,0,1,0,0,1,0,1,1,1};
-short int nJ[15]  = { 0,1,1,0,0,1,0,0,1,1,0,1,0,1,0};
-short int nK[15]  = { 1,0,1,1,0,1,1,1,0,1,0,1,1,0,1};
-short int nL[15]  = { 1,0,0,1,0,0,1,0,0,1,0,0,1,1,1};
-short int nM[15]  = { 1,0,1,1,1,1,1,1,1,1,0,1,1,0,1};
-short int nN[15]  = { 1,1,1,1,0,1,1,0,1,1,0,1,1,0,1};
-short int nO[15]  = { 0,1,0,1,0,1,1,0,1,1,0,1,0,1,0};
-short int nP[15]  = { 0,1,0,1,0,1,1,0,1,1,0,1,0,1,0};
-short int nQ[15]  = { 0,1,0,1,0,1,1,0,1,0,1,1,0,0,1};
-short int nR[15]  = { 1,1,0,1,0,1,1,1,0,1,0,1,1,0,1};
-short int nS[15]  = { 0,1,1,1,0,0,0,1,0,0,0,1,1,1,0};
-short int nT[15]  = { 1,1,1,0,1,0,0,1,0,0,1,0,0,1,0};
-short int nU[15]  = { 1,0,1,1,0,1,1,0,1,1,0,1,1,1,1};
-short int nV[15]  = { 1,0,1,1,0,1,1,0,1,1,0,1,0,1,0};
-short int nW[15]  = { 1,0,1,1,0,1,1,1,1,1,1,1,1,0,1};
-short int nX[15]  = { 1,0,1,1,0,1,0,1,0,1,0,1,1,0,1};
-short int nY[15]  = { 1,0,1,1,0,1,0,1,0,0,1,0,0,1,0};
-short int nZ[15]  = { 1,1,1,0,0,1,0,1,0,1,0,0,1,1,1};
-short int nSpace[15]  = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}; // " "
-short int nDot[15]  = { 0,0,0,0,0,0,0,0,0,0,0,0,0,1,0}; // "."
-short int nUnderScore[15]  = { 0,0,0,0,0,0,0,0,0,0,0,0,1,1,1}; // "_"
-short int nMinus[15]  = { 0,0,0,0,0,0,1,1,1,0,0,0,0,0,0}; // "-"
 
 unsigned char mean_bit_map[24] = { ib,iw,ib,ib,ib,iw, iw,ib,iw,ib,iw,ib, iw,ib,iw,ib,iw,ib, iw,ib,iw,ib,iw,ib};
 unsigned char sd_bit_map[20] 	= { iw,ib,ib,ib, ib,iw,ib,iw, ib,iw,iw,ib, ib,iw,iw,ib, iw,ib,ib,iw};
@@ -236,8 +206,7 @@ void					put_real(
 							SInt32								max_digit,
 							SInt32								enlargement,
 							SInt32								number_floating_point);
-
-
+							
 
 
 //------------------------------------------------------------------------------------
@@ -403,7 +372,6 @@ void FS_find_STI_size(
 			// assign memory
 			
 	L_final_size_col = L_size_col * L_enlargement;
-   
 	L_final_size_row = (L_size_row+n)*L_enlargement + TOTAL_WIDTH_COLOR_CODE +
 					       COL_NUMBER_HEIGHT*2 + 2*L_number_enlargement + 2 + n*0.01;
 	
@@ -421,15 +389,15 @@ void FS_find_STI_size(
 */ 	
 			// color code bar at the bottom
 
-	L_wave_length_location = L_size_row*L_enlargement+3+L_number_enlargement ;
+	L_wave_length_location = L_size_row*L_enlargement+3+L_number_enlargement;
 
-   L_color_start_location = L_final_size_row-WIDTH_COLOR_CODE + SHIFT_OFFSET3;
+	L_color_start_location = L_final_size_row-WIDTH_COLOR_CODE;
 	
 	L_mean_graph_location = L_final_size_row - COL_NUMBER_HEIGHT -
-													(SPACE_BET_COLOR_CODE + WIDTH_COLOR_CODE) + SHIFT_OFFSET3;
-   // channel number loccation
+													(SPACE_BET_COLOR_CODE + WIDTH_COLOR_CODE);
 	L_band_no_location = L_final_size_row-COL_NUMBER_HEIGHT + 2*L_number_enlargement -
-													(SPACE_BET_COLOR_CODE + WIDTH_COLOR_CODE) + SHIFT_OFFSET3;
+													(SPACE_BET_COLOR_CODE + WIDTH_COLOR_CODE);
+
 }		// end "FS_find_STI_size"
 
 
@@ -457,7 +425,7 @@ void FS_find_STI_size(
 // Called By:	
 //
 //	Coded By:			Chulhee Lee				Date: ??/??/19??
-//	Revised By:			Larry L. Biehl			Date: 08/24/2016
+//	Revised By:			Larry L. Biehl			Date: 03/07/1998
 
 void FS_gen_make_stat_image_same_scale(
 				CLASS_INFO_STR* 					class_info,
@@ -468,10 +436,7 @@ void FS_gen_make_stat_image_same_scale(
 				SInt32*								ERROR_FLAG)
 								
 {
-	CMFileStream*						fileStreamPtr;
-	
-	FileStringPtr						filePathPtr,
-											newFileNamePtr;
+	StringPtr							newFileNamePtr;
 	
 	double								max_mean_std_height,
 											min_mean_std_height,
@@ -479,8 +444,6 @@ void FS_gen_make_stat_image_same_scale(
 	
 	SInt32 								i,
 											j;
-											
-	Boolean								addProjectIdentifierFlag = FALSE;
 	
 	
 	*ERROR_FLAG = 0;
@@ -519,11 +482,9 @@ void FS_gen_make_stat_image_same_scale(
       unsigned char     *cor, *final_cor, erdas_header[128];
       SInt16				errCode;
       UInt32				count;
-      UInt32            L_image_size_row;
       
       // create memory for statistic image files
       FS_find_STI_size (n, &final_cor_size);
-      
       
       
       cor = (unsigned char*)MNewPointer(no_class * L_size_row * L_size_col * sizeof(char) );
@@ -535,9 +496,6 @@ void FS_gen_make_stat_image_same_scale(
 			
 			}		// end "if (cor == NULL)"
 
-      //Allocate memory for image
-      L_image_size_row = L_final_size_row + 20;
-      final_cor_size = L_image_size_row * L_final_size_col;
       final_cor = (unsigned char*)MNewPointer( no_class * final_cor_size * sizeof(char) );
       
       if (final_cor == NULL)
@@ -564,7 +522,7 @@ void FS_gen_make_stat_image_same_scale(
 			
 				// Make ERDAS Header
       
-      newFileInfoPtr->numberLines = L_image_size_row;
+      newFileInfoPtr->numberLines = L_final_size_row;
       newFileInfoPtr->numberColumns = L_final_size_col * no_class;
      
       newFileInfoPtr->numberClasses = NO_PALETTE_CLASSES + 2;
@@ -573,45 +531,52 @@ void FS_gen_make_stat_image_same_scale(
      
       CMFileStream* newFileStreamPtr = GetFileStreamPointer (newFileInfoPtr);
   
-      FileStringPtr newFilePathPtr = (FileStringPtr)GetFilePathPPointer (newFileStreamPtr);
+      StringPtr newFilePathPtr = (StringPtr)GetFilePathPPointer (newFileStreamPtr);
       
       if (gProjectInfoPtr != NULL)
 			{
-         fileStreamPtr = GetFileStreamPointer(gProjectInfoPtr);
-         filePathPtr = (FileStringPtr)GetFilePathPPointer (fileStreamPtr);
+         CMFileStream* fileStreamPtr = GetFileStreamPointer(gProjectInfoPtr);
+         StringPtr projectFilePathPtr = (StringPtr) GetFilePathPPointer (fileStreamPtr);
 			
-			if (filePathPtr[0] == 0)
+			if (projectFilePathPtr[0] == 0)
 				{
 						// This is case when project has not been saved so there
 						// is no name yet. Use the image name.
+#ifdef multispec_lin				
+				CopyPToP ((char*)newFilePathPtr, (char*)&gProjectInfoPtr->imageFileName);
+#endif
+
+#ifdef multispec_win
+				CopyPToP((UCharPtr)newFilePathPtr, (UCharPtr)&gProjectInfoPtr->imageFileName);
+#endif
+				}
+
+			else 
+				{
+						// Project name exists; will use it.
 						
-				filePathPtr = (FileStringPtr)GetFilePathPPointer (gImageFileInfoPtr);
-				addProjectIdentifierFlag = TRUE;
-				
+				BlockMoveData (
+               projectFilePathPtr,
+					newFilePathPtr,
+               projectFilePathPtr[0] + 1);
 				}
 				
 			}		// end "if (gProjectInfoPtr != NULL)"
     
       else		// gProjectInfoPtr == NULL
-         filePathPtr = (FileStringPtr)GetFilePathPPointer (gImageFileInfoPtr);
+			{
+         StringPtr imageFilePathPtr = (StringPtr) GetFilePathPPointer (gImageFileInfoPtr);
          
-		BlockMoveData((UCharPtr)filePathPtr,
+			BlockMoveData((UCharPtr)imageFilePathPtr,
                         newFilePathPtr,
-                        filePathPtr[0] + 1); 
+                        imageFilePathPtr[0] + 1); 
+        
+			}		// end " else gProjectInfoPtr == NULL"
 			
 		RemoveSuffix (newFilePathPtr);
-		
-		if (addProjectIdentifierFlag)
-			{
-			sprintf ((char*)&newFilePathPtr[newFilePathPtr[0]+1],
-						(char*)"_project\0");
-			 						
-			newFilePathPtr[0] += 8;
-			
-			}		// end "if (addProjectIdentifierFlag)"
   
-		sprintf ((char*)&newFilePathPtr[ newFilePathPtr[0]+1 ],
-					(char*)".sti\0");
+		sprintf ( (char*)&newFilePathPtr[ newFilePathPtr[0]+1 ],
+					".STI\0");
 			 						
 		newFilePathPtr[0] += 4;
 		  
@@ -623,7 +588,7 @@ void FS_gen_make_stat_image_same_scale(
 			newFileStreamPtr->uniFileName.length = 0;
 		#endif		// TARGET_API_MAC_CARBON
       
-      newFileNamePtr = (FileStringPtr)GetFileNamePPointer (newFileStreamPtr);
+      newFileNamePtr = (StringPtr) GetFileNamePPointer(newFileStreamPtr);
 
 		#if defined multispec_lin
 					// If the support file was not found by MultiSpec on mygeohub, we need to also check the working 
@@ -668,7 +633,7 @@ void FS_gen_make_stat_image_same_scale(
 	
       if (errCode == noErr)
 			{
-         count = L_image_size_row * L_final_size_col *no_class;
+         count = L_final_size_row * L_final_size_col *no_class;
 			//count = final_cor_size * 2;
       
          errCode = MWriteData (newFileStreamPtr, 
@@ -810,7 +775,6 @@ void FS_make_cor_mean_std (
    
 	FS_find_STI_size (numberFeatures, &final_cor_size);
 	
-   //printf("final_cor_size:%d\n", final_cor_size);
    
    // initialize
    for (i=0; i< (final_cor_size*index); i++)
@@ -840,7 +804,7 @@ void FS_make_cor_mean_std (
    for(class_index = 0; class_index < index; class_index ++)
 		{
       fmean = (class_info+class_index)->fmean;
-      
+	
       *ERROR_FLAG = 0;
    
 				// initialize
@@ -866,16 +830,13 @@ void FS_make_cor_mean_std (
 
 				// enlarge correlation matrix if necessary	
 	
-      
-
       enlarge_cor( (UInt32)L_enlargement, 
  						cor + (class_index * L_size_row * L_size_col),
  						(UInt32)L_size_row, 
  						(UInt32)L_size_col, 
- 						final_cor + (class_index * L_final_size_col) + 15 * (index * L_final_size_col), //+ (index*(L_size_col+(L_size_col/index))-5) * L_final_size_col, //+ enlarge_cor_shift*L_final_size_col, 
+ 						final_cor + (class_index * L_final_size_col), 
  						(UInt32)L_final_size_row, 
  						(UInt32)(L_final_size_col*index) );
-
 
 				// put color code	
 
@@ -1157,38 +1118,6 @@ void FS_make_cor_mean_std (
 																							grid_color;
 
          row_pos = L_band_no_location;
-     
-        
-
-         
-         int textLength;
-     
-         
-         if(gProjectInfoPtr){
-         
-            textLength = strlen((char*)gProjectInfoPtr->classNamesPtr[class_index].name);
-         
-            //block characters
-            if(textLength > (L_final_size_col/5)){
-               
-               textLength = (L_final_size_col/5)-2;
-            }
-            //printf("Text shift:%d, %d\n",(L_final_size_col- (5*textLength))/2 , textLength);
-            // generate class text   
-            for(i = 1; i < textLength; i++){     
-               gen_put_number(final_cor + (class_index * L_final_size_col),
-								L_final_size_col*index,
-								//row_pos + 20,
-                        5,
-								((L_final_size_col- (5*textLength))/2-10)+5*(i - 1), // make it cental alignment
-                        (SInt32)gProjectInfoPtr->classNamesPtr[class_index].name[i],
-								1,
-								L_number_enlargement);
-
-            }
-         }
-   
-
          for (	i=col_grid_label_space; 
 //	 			i<=n-col_grid_label_space;
 	 			i<=numberFeatures;  
@@ -1199,9 +1128,8 @@ void FS_make_cor_mean_std (
 	 				// and position it in the middle of it.
 	 		
 	 				// Start of band position
-	 				
+	 						
             x = i - 1;
-            
             j = 1;
             if (i > 1)
                j = (log10(fabs(x))+.999);
@@ -1224,9 +1152,9 @@ void FS_make_cor_mean_std (
             col_pos = (col_pos_start + col_pos_end)/2;
             if (col_pos < 0)
                col_pos = 0;
-            
+
 					// Now insert the band number into the image.
-				//printf("class_index:%d, %d, %d, %d, %d, %d\n", class_index, index, row_pos, col_pos, start_zero_flag, max_digit);
+					
             put_integer(start_zero_flag, 
 								final_cor + (class_index * L_final_size_col), 
 								L_final_size_col*index, 
@@ -1280,7 +1208,7 @@ void FS_make_cor_mean_std (
 		
 		}		// end "for (x=low_bound+grid_space; x<upper_bound; x+=grid_space)"
     
-
+ 
       //  put mean graph as bit map	
 			
       bottomGraphLimit = L_mean_graph_location - 1;
@@ -1313,14 +1241,13 @@ void FS_make_cor_mean_std (
                      + class_index * L_final_size_col;
                   
                  
-                  if (cor_index >= 0 && cor_index < (final_cor_size*index)){
+                  if (cor_index >= 0 && cor_index < final_cor_size*index){
                      final_cor[cor_index] = (unsigned char)stddev_color;
                      
                   }
 					}		// end "for (a=0; a<L_enlargement; a++)"
 					
 				}		// end "if (j+k < bottomGraphLimit && j+k > topGraphLimit)"
-
     
           
 											
@@ -1333,7 +1260,7 @@ void FS_make_cor_mean_std (
 					{
                   cor_index = (j-k)*L_final_size_col*index + i*L_enlargement + a
                      + class_index * L_final_size_col;
-                  if (cor_index >= 0 && cor_index < (final_cor_size*index))
+                  if (cor_index >= 0 && cor_index < final_cor_size*index)
                      final_cor[cor_index] = (unsigned char)stddev_color;
 				
 					}		// end "for (a=0; a<L_enlargement; a++)"
@@ -1352,7 +1279,7 @@ void FS_make_cor_mean_std (
 			{
 				cor_index = j*L_final_size_col*index + i*L_enlargement + a
                + class_index * L_final_size_col;
-				if (cor_index >= 0 && cor_index < (final_cor_size*index))
+				if (cor_index >= 0 && cor_index < final_cor_size*index)
 					final_cor[cor_index] = (unsigned char)mean_color;
 																
 				}		// end "for (a=0; a<L_enlargement; a++)"
@@ -1362,7 +1289,7 @@ void FS_make_cor_mean_std (
          
 
 		}		// end "for (i=0; i<n; i++)"
-
+      
       // put frame	
 		
       for (i=0; i<numberFeatures*L_enlargement; i++)
@@ -1376,7 +1303,6 @@ void FS_make_cor_mean_std (
 																				grid_color; // G_black_char;
       
    } // end for class_index
-
 	
 }		// end "FS_make_cor_mean_std"
 
@@ -1868,272 +1794,6 @@ void gen_put_number(
 		case	9:
 			no_bit_map = n9;
 			break;
-         
-      case	48:
-			no_bit_map = n0;
-			break;   
-         
-      case	49:
-			no_bit_map = n1;
-			break;
-			
-		case	50:
-			no_bit_map = n2;
-			break;
-			
-		case	51:
-			no_bit_map = n3;
-			break;
-			
-		case	52:
-			no_bit_map = n4;
-			break;
-			
-		case	53:
-			no_bit_map = n5;
-			break;
-			
-		case	54:
-			no_bit_map = n6;
-			break;
-			
-		case	55:
-			no_bit_map = n7;
-			break;
-			
-		case	56:
-			no_bit_map = n8;
-			break;
-			
-		case	57:
-			no_bit_map = n9;
-			break;
-         
-      case 65:
-         no_bit_map = nA;
-         break;
-         
-      case 66:
-         no_bit_map = nB;
-         break;   
-      
-      case 67:
-         no_bit_map = nC;
-         break;
-      
-      case 68:
-         no_bit_map = nD;
-         break; 
-         
-      case 69:
-         no_bit_map = nE;
-         break;
-         
-      case 70:
-         no_bit_map = nF;
-         break;   
-      
-      case 71:
-         no_bit_map = nG;
-         break;
-      
-      case 72:
-         no_bit_map = nH;
-         break; 
-         
-      case 73:
-         no_bit_map = nI;
-         break;
-         
-      case 74:
-         no_bit_map = nJ;
-         break;   
-      
-      case 75:
-         no_bit_map = nK;
-         break;
-      
-      case 76:
-         no_bit_map = nL;
-         break; 
-         
-      case 77:
-         no_bit_map = nM;
-         break;
-         
-      case 78:
-         no_bit_map = nN;
-         break;   
-      
-      case 79:
-         no_bit_map = nO;
-         break;
-      
-      case 80:
-         no_bit_map = nP;
-         break; 
-         
-      case 81:
-         no_bit_map = nQ;
-         break;
-         
-      case 82:
-         no_bit_map = nR;
-         break;   
-      
-      case 83:
-         no_bit_map = nS;
-         break;
-      
-      case 84:
-         no_bit_map = nT;
-         break; 
-         
-      case 85:
-         no_bit_map = nU;
-         break;
-         
-      case 86:
-         no_bit_map = nV;
-         break;   
-      
-      case 87:
-         no_bit_map = nW;
-         break;
-      
-      case 88:
-         no_bit_map = nX;
-         break; 
-         
-      case 89:
-         no_bit_map = nY;
-         break;
-         
-      case 90:
-         no_bit_map = nZ;
-         break; 
-         
-      case 97:
-         no_bit_map = nA;
-         break;
-         
-      case 98:
-         no_bit_map = nB;
-         break;   
-      
-      case 99:
-         no_bit_map = nC;
-         break;
-      
-      case 100:
-         no_bit_map = nD;
-         break; 
-         
-      case 101:
-         no_bit_map = nE;
-         break;
-         
-      case 102:
-         no_bit_map = nF;
-         break;   
-      
-      case 103:
-         no_bit_map = nG;
-         break;
-      
-      case 104:
-         no_bit_map = nH;
-         break; 
-         
-      case 105:
-         no_bit_map = nI;
-         break;
-         
-      case 106:
-         no_bit_map = nJ;
-         break;   
-      
-      case 107:
-         no_bit_map = nK;
-         break;
-      
-      case 108:
-         no_bit_map = nL;
-         break; 
-         
-      case 109:
-         no_bit_map = nM;
-         break;
-         
-      case 110:
-         no_bit_map = nN;
-         break;   
-      
-      case 111:
-         no_bit_map = nO;
-         break;
-      
-      case 112:
-         no_bit_map = nP;
-         break; 
-         
-      case 113:
-         no_bit_map = nQ;
-         break;
-         
-      case 114:
-         no_bit_map = nR;
-         break;   
-      
-      case 115:
-         no_bit_map = nS;
-         break;
-      
-      case 116:
-         no_bit_map = nT;
-         break; 
-         
-      case 117:
-         no_bit_map = nU;
-         break;
-         
-      case 118:
-         no_bit_map = nV;
-         break;   
-      
-      case 119:
-         no_bit_map = nW;
-         break;
-      
-      case 120:
-         no_bit_map = nX;
-         break; 
-         
-      case 121:
-         no_bit_map = nY;
-         break;
-         
-      case 122:
-         no_bit_map = nZ;
-         break; 
-         
-      case 32:
-         no_bit_map = nSpace;
-         break;
-         
-      case 45:
-         no_bit_map = nMinus;
-         break;
-         
-      case 46:
-         no_bit_map = nDot;
-         break;
-         
-      case 95:
-         no_bit_map = nUnderScore;
-         break;
-      
-      
 			
 		}		// end "switch (number)"
 	 
