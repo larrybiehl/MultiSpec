@@ -1,5 +1,6 @@
-// wfseldlg.cpp : implementation file
+// WFSelDlg.cpp : implementation file
 //   
+// Revised by Larry Biehl on 05/26/2017
                    
 #include "SMulSpec.h"
                      
@@ -270,8 +271,8 @@ END_MESSAGE_MAP()
 // 
 //	Called By:			Dialog in MDisMult.cpp
 //
-//	Coded By:			Larry L. Biehl			Date: 04/28/98
-//	Revised By:			Larry L. Biehl			Date: 05/04/98	
+//	Coded By:			Larry L. Biehl			Date: 04/28/1998
+//	Revised By:			Larry L. Biehl			Date: 05/26/2017	
 
 Boolean 
 CMFeatureSelectionDialog::DoDialog(
@@ -279,7 +280,7 @@ CMFeatureSelectionDialog::DoDialog(
 				UInt16*								allChanCombinationsPtr)
 
 {                                                  
-	SInt16								returnCode;
+	INT_PTR								returnCode;
 	
 	Boolean								continueFlag = FALSE; 
 
@@ -981,8 +982,8 @@ END_MESSAGE_MAP()
 // 
 //	Called By:			 
 //
-//	Coded By:			Larry L. Biehl			Date: 05/06/98
-//	Revised By:			Larry L. Biehl			Date: 05/06/98	
+//	Coded By:			Larry L. Biehl			Date: 05/06/1998
+//	Revised By:			Larry L. Biehl			Date: 05/26/2017	
 
 Boolean 
 CMFeatureSelectionListDialog::DoDialog(
@@ -990,14 +991,14 @@ CMFeatureSelectionListDialog::DoDialog(
 				SInt32*								combinationsToListPtr)
 
 {                                                  
-	SInt16								returnCode;
+	INT_PTR								returnCode;
 	
 	Boolean								continueFlag = FALSE; 
 
 	                          
 			// Make sure intialization has been completed.
 							                         
-	if ( !m_initializedFlag )
+	if (!m_initializedFlag)
 																			return(FALSE);
 	
 	m_separabilitySpecsPtr = separabilitySpecsPtr;

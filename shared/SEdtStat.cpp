@@ -81,6 +81,7 @@
 
 #include "SExtGlob.h"
 
+
 extern void 		EditClassFieldDialogInitialize (
 							DialogPtr							dialogPtr, 
 							SInt16								classFieldFlag,
@@ -110,6 +111,8 @@ void					ChangeFieldType (
 
 void 					CutClass (
 							SInt16								removeClass);
+							
+void					CutEmptyClassesFromProject ();
 
 void 					CutField (
 							SInt16								removeField, 
@@ -822,8 +825,10 @@ void ClearProjectStatistics (
 				// If there are no fields for the class then cut the class from 	
 				// the project.  This class was generated from a nonsupervised 	
 				// type processor such as cluster.  There is no description of 	
-				// the points in the class.													
-		
+				// the points in the class.
+				
+		CutEmptyClassesFromProject ();
+		/*
 		classIndex = 0;
 		do
 			{
@@ -831,7 +836,7 @@ void ClearProjectStatistics (
 						
 			classStorage = gProjectInfoPtr->storageClass[classIndex];
 					
-			if ( classNamesPtr[classStorage].numberOfFields == 0 )
+			if (classNamesPtr[classStorage].numberOfFields == 0)
 				{
 				continueFlag = ListSpecifiedStringNumber ( 
 							kProjectStrID, 
@@ -850,7 +855,7 @@ void ClearProjectStatistics (
 				classIndex++;
 																		
 			}		while (classIndex < numberClasses);
-												
+		*/										
 		if (gProcessorCode != kChangeBaseImageProcessor)
 			UpdateOutputWScrolls (gOutputWindow, 1, kDisplayMessage);
 			
@@ -1216,6 +1221,80 @@ void CutClass (
 			
 }		// end "CutClass" 
 
+
+
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		void CutEmptyClassesFromProject
+//
+//	Software purpose:	The purpose of this routine is to cut empty classes from the 
+//							project. Empty classes occur when cluster or mask fields are
+//							cut from the project and statistics cannot be calculated.
+//
+//	Parameters in:					
+//
+//	Parameters out:				
+//
+// Value Returned:	None
+// 
+// Called By:	
+//
+//	Coded By:			Larry L. Biehl			Date: 05/03/2017
+//	Revised By:			Larry L. Biehl			Date: 05/03/2017			
+
+void CutEmptyClassesFromProject ()
+
+{		
+	HPClassNamesPtr					classNamesPtr;
+	
+	SInt16								classIndex,
+											classStorage,
+											numberClasses;
+											
+	Boolean								continueFlag = TRUE;
+	
+	
+			// Initialize local variables.													
+			
+	numberClasses = gProjectInfoPtr->numberStatisticsClasses;
+	classNamesPtr = gProjectInfoPtr->classNamesPtr;
+		
+	if (numberClasses > 0)
+		{
+		classIndex = 0;
+		do
+			{
+					// Get the class storage number.											
+						
+			classStorage = gProjectInfoPtr->storageClass[classIndex];
+					
+			if (classNamesPtr[classStorage].numberOfFields == 0)
+				{
+				continueFlag = ListSpecifiedStringNumber ( 
+							kProjectStrID, 
+							IDS_Project43,
+							NULL, 
+							gOutputForce1Code, 
+							(UCharPtr)classNamesPtr[classStorage].name, 
+							continueFlag );
+									
+				CutClass (classIndex);
+				numberClasses = gProjectInfoPtr->numberStatisticsClasses;
+				
+				}		// end "if (!classNamesPtr[classStorage].numberOfFields == 0)" 
+				
+			else		// classNamesPtr[classStorage].numberOfFields > 0 
+				classIndex++;
+																		
+			}		while (classIndex < numberClasses);
+			
+		}	// end "if (numberClasses > 0)"
+			
+}		// end "CutEmptyClassesFromProject" 
+
 	
 
 //------------------------------------------------------------------------------------
@@ -1508,6 +1587,163 @@ void CutPolygonPoint (
 }		// end "CutPolygonPoint" 
 
 	
+/*
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		void CutMaskClasses
+//
+//	Software purpose:	The purpose of this routine is to remove classes from the
+//							project that now contain no training or test fields. This happens
+//							if the training and or test mask is changed.
+//
+//	Parameters in:					
+//
+//	Parameters out:				
+//
+// Value Returned:	None	
+// 
+// Called By:			LoadNewMaskFields in SMask.cpp
+//							StatisticsDialogMaskCheck in SStatist.cpp
+//
+//	Coded By:			Larry L. Biehl			Date: 12/16/1998
+//	Revised By:			Larry L. Biehl			Date: 03/16/2017
+
+void CutMaskClasses (
+				SInt16								maskSetCode)
+
+{
+	HPClassNamesPtr					classNamesPtr;
+	HPFieldIdentifiersPtr			fieldIdentPtr;
+	
+	SInt16								classIndex,
+											classStorage,
+											fieldNumber,
+											fieldType,
+											numberClasses,
+											stringID;
+											
+	Boolean								continueFlag = TRUE,
+											fieldsCutFlag = FALSE,
+											statsLoadedFlag = FALSE;
+	
+	
+			// Initialize local variables.													
+			
+	numberClasses = gProjectInfoPtr->numberStatisticsClasses;
+	classNamesPtr = gProjectInfoPtr->classNamesPtr;
+	
+			// Continue only if number of classes is one or more.											
+	
+	if (numberClasses > 0)
+		{				
+		ForceTextToEnd (); 
+									
+		for (classIndex=0; classIndex<numberClasses; classIndex++)
+			{
+					// Get the class storage number.											
+						
+			classStorage = gProjectInfoPtr->storageClass[classIndex];
+			
+					// Clear class statistics variables.
+				
+			if (maskSetCode == kTrainingMaskSet)
+				fieldType = kTrainingType;
+				
+			else if (maskSetCode == kTestMaskSet)
+				fieldType = kTestingType;
+			
+			if (classNamesPtr[classStorage].numberOfFields > 0)
+				{
+				fieldNumber = classNamesPtr[classStorage].firstFieldNumber;
+		
+				while (fieldNumber != -1)
+					{
+					fieldIdentPtr = &gProjectInfoPtr->fieldIdentPtr[fieldNumber];
+					
+							// Make certain that field is requested training or test field
+							// type.				
+							
+					if (fieldIdentPtr->pointType == kMaskType &&
+										fieldIdentPtr->fieldType == fieldType )
+						{
+						CutField (fieldNumber, classIndex);
+						fieldsCutFlag = TRUE;
+								
+						}		// end "if ( fieldIdentPtr->field..." 
+				
+					fieldNumber = fieldIdentPtr->nextField;
+			
+					}		// end "while (fieldNumber != -1)"
+				
+						// Check if any statistics are still loaded for the class.
+						
+				if (classNamesPtr->numberStatisticsPixels > 0)
+					 statsLoadedFlag = TRUE;
+			
+				}		// end "if (classNamesPtr[classStorage].number ..." 
+			
+			}		// end "for ( classIndex=0; ...
+			
+		}		// end "if (numberClasses > 0)"
+		
+	if (fieldsCutFlag)
+		{
+				// Get pointer to the project file name and list a message in the
+				// output text window that the mask fields for the project were cleared.
+		
+		char* projectNamePtr = (char*)GetFileNameCPointer (gProjectInfoPtr);
+			
+		stringID = IDS_Project60;
+		if (maskSetCode == kTestMaskSet)
+			stringID = IDS_Project61;
+		
+		continueFlag = ListSpecifiedStringNumber (kProjectStrID,
+																	stringID,
+																	NULL, 
+																	gOutputForce1Code, 
+																	projectNamePtr,
+																	continueFlag,
+																	kUTF8CharString);
+		
+				// Set project statistics information.											
+		
+		if (fieldType == kTrainingType)
+			{		
+			gProjectInfoPtr->statsUpToDate = FALSE;
+			if (gProjectInfoPtr->numberStatisticsClasses == 0)
+				gProjectInfoPtr->statsUpToDate = TRUE;
+						
+			gProjectInfoPtr->statsLoaded = statsLoadedFlag;
+	
+					// Make any changes needed in the stats to use parameters.
+					
+			SetProjectCovarianceStatsToUse (gProjectInfoPtr->covarianceStatsToUse);
+			
+			if (gProjectInfoPtr->covarianceStatsToUse == kEnhancedStats)
+				gProjectInfoPtr->covarianceStatsToUse = kOriginalStats;
+				
+			gProjectInfoPtr->changedFlag = TRUE;
+				
+			}		// end "if (fieldType == kTrainingType)"
+					
+		}		// end "if (fieldsCutFlag)"
+	
+			// Hilite the 'update statistics' control if needed.						
+	
+	if (!gProjectInfoPtr->statsUpToDate && gProjectInfoPtr->updateControlH)
+		MHiliteControl (gProjectWindow, gProjectInfoPtr->updateControlH, 0);
+			
+			// Update processor menu items.													
+			
+	gUpdateProcessorMenuItemsFlag = TRUE;
+	gUpdateProjectMenuItemsFlag = TRUE;
+		
+}		// end "CutMaskClasses" 
+*/
+	
 
 //------------------------------------------------------------------------------------
 //								 Copyright (1988-2017)
@@ -1525,7 +1761,8 @@ void CutPolygonPoint (
 //
 // Value Returned:	None	
 // 
-// Called By:			LoadMask in SMask.cpp
+// Called By:			LoadNewMaskFields in SMask.cpp
+//							StatisticsDialogMaskCheck in SStatist.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/16/1998
 //	Revised By:			Larry L. Biehl			Date: 03/16/2017
@@ -1585,7 +1822,7 @@ void CutMaskFields (
 							// Make certain that field is requested training or test field
 							// type.				
 							
-					if ( fieldIdentPtr->pointType == kMaskType &&
+					if (fieldIdentPtr->pointType == kMaskType &&
 										fieldIdentPtr->fieldType == fieldType )
 						{
 						CutField (fieldNumber, classIndex);
@@ -1604,7 +1841,11 @@ void CutMaskFields (
 			
 				}		// end "if (classNamesPtr[classStorage].number ..." 
 			
-			}		// end "for ( classIndex=0; ...
+			}		// end "for (classIndex=0; ...
+			
+				// Now make sure any empty classes are cut from the project
+				
+		CutEmptyClassesFromProject ();
 			
 		}		// end "if (numberClasses > 0)"
 		

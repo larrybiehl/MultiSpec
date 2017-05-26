@@ -10,7 +10,7 @@
 //
 //	Revision number:		3.0
 //
-//	Revision date:			04/26/2016
+//	Revision date:			05/26/2017
 //
 //	Language:				C
 //
@@ -21,15 +21,17 @@
 //
 //	Functions in file:	CMFileStream* 	GetFileStreamPointer
 
+#include "SMulSpec.h"
+
 #if defined multispec_win
-	#include	"SMulSpec.h" 
+	//#include	"SMulSpec.h" 
 	#include	"CFileStr.h"
 	#include	"CImagWin.h"
 	#include "SExtGlob.h"
 #endif	// defined multispec_win 
  
 #if defined multispec_lin
-	#include "SMulSpec.h"
+	//#include "SMulSpec.h"
 	#include "CFileStr.h"
 	#define FALSE false
 	#define TRUE true

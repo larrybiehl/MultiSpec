@@ -13,7 +13,7 @@
 //
 //	Revision number:		3.0
 //
-//	Revision date:			12/16/2016
+//	Revision date:			05/26/2017
 //
 //	Language:				C
 //
@@ -52,6 +52,8 @@
 */
 //------------------------------------------------------------------------------------
 
+#include "SMulSpec.h"
+
 #if defined multispec_mac 
 	#define IDC_ChannelPrompt					4
 	#define IDC_FeatureTransformation		9
@@ -82,7 +84,7 @@
 #endif	// defined multispec_mac 
   
 #if defined multispec_win   
-	#include "SMulSpec.h"
+	//#include "SMulSpec.h"
 	#include "WGrafDoc.h"
 	#include "WBiPlotDialog.h"
 	#include "SExtGlob.h"
@@ -91,7 +93,7 @@
 
 #ifdef multispec_lin   
    #include "LGraphView.h"
-   #include "SMulSpec.h"    
+   //#include "SMulSpec.h"    
    #include "SExtGlob.h"
    #include "LBiplotDlg.h"
 
@@ -353,7 +355,7 @@ void BiPlotDataControl (void)
 	
 	SInt32								numberVectors;
 											
-	UInt32								startTime;
+	time_t								startTime;
 											
 	SInt16								activeImageGlobalHandleStatus,
 											savedThresholdSize,
@@ -2438,7 +2440,7 @@ SInt16 BiPlotFieldData (
 					else		// polygonField && !PtInRgn (point, rgnHandle) 
 						bufferDoublePtr += localNumberChannels;
 						
-					point.h += columnInterval;
+					point.h += (SInt16)columnInterval;
 						
 					if (error != noErr)
 						break;
@@ -2541,7 +2543,7 @@ Boolean BiPlotProjectData ()
 			// Initialize local variables.													
    
 	UInt16* channelsPtr;		
-	numberClasses = gBiPlotDataSpecsPtr->numberClasses;
+	numberClasses = (SInt16)gBiPlotDataSpecsPtr->numberClasses;
 	returnFlag = TRUE;
 	
 			// Continue only if number of classes is one or more.						
@@ -2808,7 +2810,7 @@ void GetBiPlotGraphTitle (
 								gBiPlotDataSpecsPtr->axisFeaturePtr[1] + 1,
 								gBiPlotDataSpecsPtr->axisFeaturePtr[0] + 1);
 								
-		graphRecordPtr->title[0] = strlen ( (char*)&graphRecordPtr->title[1] );
+		graphRecordPtr->title[0] = (UInt8)strlen ((char*)&graphRecordPtr->title[1]);
 		
 				// Create title line 2.															
 								
@@ -2999,7 +3001,7 @@ Boolean LoadBiPlotClassStats (
 							gTransformationMatrix.eigenVectorPtr, 
 							gTransformationMatrix.numberFeatures, 
 							numberChannels, 
-							numberFeatures, 
+							(SInt16)numberFeatures, 
 							NULL,
 							(gTransformationMatrix.createdByCode >= 16) );           
 							
@@ -3038,7 +3040,7 @@ Boolean LoadBiPlotClassStats (
 		graphRecordPtr->classThresholdValue = 
 											sqrt (graphRecordPtr->classThresholdValue);
 	
-		graphRecordPtr->numberStatisticsChannels = numberFeatures;
+		graphRecordPtr->numberStatisticsChannels = (SInt16)numberFeatures;
 						
 		graphRecordPtr->xEllipseMin = DBL_MAX;
 		graphRecordPtr->xEllipseMax = -DBL_MAX;
@@ -3077,12 +3079,12 @@ Boolean LoadBiPlotClassStats (
 										gTempChannelStatsPtr, 
 										gInverseMatrixMemory.inversePtr, 
 										(UInt16*)statFeaturePtr, 
-										statClassNumber,
+										(UInt16)statClassNumber,
 										kSquareOutputMatrix,
 										kMeanCovariance,
 										gTransformationMatrix.eigenVectorPtr,
 										gTransformationMatrix.tempMatrixPtr,
-										numberFeatures);
+										(UInt16)numberFeatures);
 										
 					// Get the eigenvectors and eigenvalues for the covariance		
 					// (or transformed covariance) matrix.									
@@ -3093,7 +3095,7 @@ Boolean LoadBiPlotClassStats (
 								
 			if ( !ComputeEigenvectors (
 									eigenValuePtr,
-									numberFeatures, 
+									(UInt16)numberFeatures, 
 									eigenVectorPtr,
 									gInverseMatrixMemory.ipvotPtr,
 									gInverseMatrixMemory.pivotPtr,
@@ -3166,7 +3168,7 @@ Boolean LoadBiPlotClassStats (
 									gTransformationMatrix.eigenVectorPtr,
 									gTransformationMatrix.tempMatrixPtr,
 									gTransformationMatrix.offsetVectorPtr,
-									numberFeatures);
+									(SInt16)numberFeatures);
 			
 						// Save the mean vector in the class statistics arrary for	
 						// use in creating biplot graphs.									

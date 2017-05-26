@@ -67,12 +67,8 @@
   
 #if defined multispec_win   
 	#include	"SMulSpec.h"    
-	#include	"WStatImageDlg.h" 
+//	#include	"WMosaicTwoImagesDialog.h" 
 	#include "SExtGlob.h"
-	#include "resource.h"
-
-	#define  kStatisticsImageStrID          172
-
 #endif	// defined multispec_win
 
 #ifdef multispec_lin 
@@ -2477,16 +2473,17 @@ Boolean StatisticsImageDialog (
 	CloseRequestedDialog (dialogPtr, kSetUpDFilterTable);
 #endif	// defined multispec_mac
 
-
+/*
 	#if defined multispec_win   
 	
-	CMStatImageDialog*		dialogPtr = NULL;
+		CMMosaicTwoImagesDialog*		dialogPtr = NULL;
 		
 		TRY
 			{ 
-			dialogPtr = new CMStatImageDialog();
+			dialogPtr = new CMBiPlotDialog(); 
 			
-			returnFlag = dialogPtr->DoDialog (); 
+			returnFlag = dialogPtr->DoDialog (fileInfoPtr,
+															outFileInfoPtr); 
 		                       
 			delete dialogPtr;
 			}
@@ -2499,7 +2496,7 @@ Boolean StatisticsImageDialog (
 		END_CATCH_ALL
 	
 	#endif	// defined multispec_win  
-
+*/	
    
 #if defined multispec_lin
    try{
@@ -2615,14 +2612,14 @@ void StatisticsImageDialogInitialize (
 											25,
 											entireIconItem,
 											kDontAdjustToBaseImage);
-
+	
 	*localNumberClassesPtr = statisticsImageSpecsPtr->numberClasses;
 	
 			//	Channels to use. Make all channels the default													
 	
 	*channelSelectionPtr = statisticsImageSpecsPtr->channelSet;
 	*localNumberChannelsPtr = statisticsImageSpecsPtr->numberFeatures;
-  
+   
    //if (gProjectInfoPtr != NULL &&
 	//			gProjectInfoPtr->numberStatTrainClasses > 0 &&
 	//				gProjectInfoPtr->statisticsCode == kMeanCovariance)
@@ -2694,7 +2691,7 @@ void StatisticsImageDialogInitialize (
 		*maxNumberChannelsPtr = imageWindowInfoPtr->totalNumberChannels;
 									
 		}		// end "else gProjectInfoPtr == NULL || ..."
- 	
+	
 			// Set control bullet for "Use overall min/max".							
 			
 	*minMaxSettingCodePtr = statisticsImageSpecsPtr->minMaxSettingCode;
@@ -2710,7 +2707,7 @@ void StatisticsImageDialogInitialize (
 			
 	SetDLogControl (dialogPtr, IDC_UserSettingRadio,
 								(statisticsImageSpecsPtr->minMaxSettingCode == 3));
-							
+								
 	if (statisticsImageSpecsPtr->minMaxSettingCode == 3)
 		{
 		ShowDialogItem (dialogPtr, IDC_MinPrompt);

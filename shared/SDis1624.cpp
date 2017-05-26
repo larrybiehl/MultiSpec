@@ -13,7 +13,7 @@
 //
 //	Revision number:		3.0
 //
-//	Revision date:			06/11/2013
+//	Revision date:			05/26/2017
 //
 //	Language:				C
 //
@@ -29,16 +29,17 @@
 //	Revision date:			01/05/2006
 //      Linux Note: wxImage constructor always requires image data in rgb raster format
 //      This is similar to mac
+
 #include	"SMulSpec.h"
 #include "SExtGlob.h"
+
 #if defined multispec_lin
 
    
 #endif
 
-
 #if defined multispec_win
-	#include	"SMulSpec.h" 
+	//#include	"SMulSpec.h" 
 	#include "SExtGlob.h"    
 #endif	// defined multispec_win    
 

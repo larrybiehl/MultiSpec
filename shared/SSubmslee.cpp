@@ -52,9 +52,6 @@
 
 	#define  kStatisticsImageStrID          172
 #endif
-#ifdef multispec_win
-	#define  kStatisticsImageStrID          172
-#endif
 
 
 #include "SFS.h"

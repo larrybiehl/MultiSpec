@@ -126,6 +126,14 @@ BOOL CAboutDlg::OnInitDialog()
 {    
 	CString				str, 
 							strFmt;
+
+	char					string[256];
+
+	MEMORYSTATUSEX		memoryStatusEx;
+
+	int					numberChars;
+
+	USES_CONVERSION;
 	
 	  
 	CDialog::OnInitDialog();
@@ -134,9 +142,9 @@ BOOL CAboutDlg::OnInitDialog()
 		MHideDialogItem (NULL, IDOK);  
 
 #	if defined _WIN64
-		LoadDItemString (IDC_BitVersion, "\0(64-bit version)");
+		LoadDItemString (IDC_BitVersion, "(64-bit version)");
 #	else
-		LoadDItemString (IDC_BitVersion, "\0(32-bit version)");
+		LoadDItemString (IDC_BitVersion, "(32-bit version)");
 #	endif 
 	
 	if (gProjectInfoPtr == NULL && (GetKeyState(VK_CONTROL) & 0x8000))
@@ -144,19 +152,23 @@ BOOL CAboutDlg::OnInitDialog()
 	else	// gProjectInfoPtr != NULL || !(GetKeyState(VK_CONTROL) & 0x8000)
 		MHideDialogItem (NULL, IDC_SimplerVersion);
 
+	memoryStatusEx.dwLength = sizeof(memoryStatusEx);
+	GlobalMemoryStatusEx(&memoryStatusEx);
+
 			// fill available memory
 	                                             		               
 	strFmt.LoadString(IDS_AboutMemory);
-
 #	if defined _WIN64
-		wsprintf(str.GetBuffer(80), strFmt, GetFreeSpace(0) / 1024L);
+		//wsprintf(str.GetBuffer(80), strFmt, GetFreeSpace(0) / 1024L);
+		numberChars = sprintf(string, "%lld", memoryStatusEx.ullAvailPageFile / 1024L);
+		InsertCommasInNumberString(string, numberChars, -1, numberChars);
+		wsprintf(str.GetBuffer(80), strFmt, A2T(string));
 #	else
 		MEMORYSTATUS lpBuffer; 
 		lpBuffer.dwLength=sizeof(MEMORYSTATUS);
 		GlobalMemoryStatus(&lpBuffer); 	// pointer to the memory status structure  
 		wsprintf(str.GetBuffer(80), strFmt, lpBuffer.dwAvailPageFile/1024L);
 #	endif
-	
 	str.ReleaseBuffer();
 	SetDlgItemText(IDC_AboutMemory, str);    
 
@@ -164,7 +176,10 @@ BOOL CAboutDlg::OnInitDialog()
 			               
 	strFmt.LoadString(IDS_AboutContiguousMemory);
 #	if defined _WIN64
-		wsprintf(str.GetBuffer(80), strFmt, ::GlobalCompact(0) / 1024L);
+		//wsprintf(str.GetBuffer(80), strFmt, memoryStatusEx.ullAvailPhys / 1024L);
+		numberChars = sprintf(string, "%lld", memoryStatusEx.ullAvailPhys / 1024L);
+		InsertCommasInNumberString(string, numberChars, -1, numberChars);
+		wsprintf(str.GetBuffer(80), strFmt, A2T(string));
 #	else
 		wsprintf(str.GetBuffer(80), strFmt, lpBuffer.dwAvailPhys/1024L);
 #	endif
@@ -184,11 +199,7 @@ BOOL CAboutDlg::OnInitDialog()
 			// fill disk free information
 			
 	struct _diskfree_t diskfree;                                      
-//	#if !defined WIN32
-//		if (_dos_getdiskfree(_getdrive(), &diskfree) == 0)
-//	#else
-		if (_getdiskfree(_getdrive(), &diskfree) == 0)
-//	#endif	// !defined WIN32
+	if (_getdiskfree(_getdrive(), &diskfree) == 0)
 		{
 		strFmt.LoadString(IDS_AboutDiskSpace);
 
@@ -196,12 +207,9 @@ BOOL CAboutDlg::OnInitDialog()
 					diskfree.sectors_per_cluster *
 							diskfree.bytes_per_sector / 1024L;
 
-		#if defined _UNICODE
-			wsprintf(str.GetBuffer(80), strFmt, diskBytesAvailable);
-		#endif
-		#if !defined _UNICODE
-			sprintf (str.GetBuffer(80), strFmt, diskBytesAvailable);
-		#endif
+		numberChars = sprintf(string, "%lld", diskBytesAvailable);
+		InsertCommasInNumberString(string, numberChars, -1, numberChars);
+		wsprintf(str.GetBuffer(80), strFmt, A2T(string));
 
 //		wsprintf(str.GetBuffer(80), strFmt,
 //			(DWORD)diskfree.avail_clusters *

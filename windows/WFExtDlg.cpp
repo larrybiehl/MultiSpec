@@ -1,15 +1,15 @@
 // WFExtDlg.cpp : implementation file
 //  
-// Revised by Larry Biehl on 04/01/2016
+// Revised by Larry Biehl on 05/26/2017
+//
                    
 #include "SMulSpec.h"
-                      
+
+#include "WChanDlg.h" 
 #include "WFExtDlg.h"
-#include "WChanDlg.h"
+#include "WProjectionPursuitDialog.h"
 
 #include	"SExtGlob.h"  
-#include ".\wfextdlg.h"
-#include "WProjectionPursuitDialog.h"
 
 extern void 		FeatureExtractionDialogAlgorithm (
 							DialogPtr							dialogPtr, 
@@ -196,15 +196,15 @@ END_MESSAGE_MAP()
 // 
 //	Called By:			Dialog in MDisMult.cpp
 //
-//	Coded By:			Larry L. Biehl			Date: 03/02/99
-//	Revised By:			Larry L. Biehl			Date: 03/03/99	
+//	Coded By:			Larry L. Biehl			Date: 03/02/1999
+//	Revised By:			Larry L. Biehl			Date: 05/26/2017	
 
 Boolean 
 CMFeatureExtractionDialog::DoDialog(
 				FeatureExtractionSpecsPtr		featureExtractionSpecsPtr)
 
 {                                                  
-	SInt16								returnCode;
+	INT_PTR								returnCode;
 	
 	Boolean								continueFlag = FALSE; 
 

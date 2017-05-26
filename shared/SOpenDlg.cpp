@@ -834,7 +834,7 @@ Boolean CheckForLandsatETMFileList (
 
             }		// end "if (tReturnCode == 1 && ..."
 
-        }		// end "if (errCode == noErr)"
+			}		// end "if (errCode == noErr)"
 
 		if (!continueFlag)
 			break;
@@ -1198,16 +1198,9 @@ Boolean CheckForLandsat8FileList(
 				char*									bandStringPtr,
 				SInt16*								instrumentCodePtr)
 {
-
-//#	if defined multispec_win
-//		TBYTE*								startBandIdentiferPtr;
-//		TBYTE									fileName[256],
-//												savedFileName[256];
-//#	else
-		UCharPtr								startBandIdentiferPtr;
-		UInt8									fileName[256],
-												savedFileName[256];
-//#	endif
+	UCharPtr								startBandIdentiferPtr;
+	UInt8									fileName[256],
+											savedFileName[256];
 
    UInt32								fileIndex,
 											fileVectorIndex;
@@ -1219,21 +1212,21 @@ Boolean CheckForLandsat8FileList(
 											savedIndex8,
 											tReturnCode;
 
-    Boolean continueFlag;
+	Boolean								continueFlag;
 
 
-    // Check if Landsat 8
-    // This can be just the reflective bands (1,2,3,4,5,6,7,9) or
-    // 9 or 10 channels including 1 or 2 of the thermal channels 10 and 11.
-    // Band 8 if included will be ignored.
+			// Check if Landsat 8
+			// This can be just the reflective bands (1,2,3,4,5,6,7,9) or
+			// 9 or 10 channels including 1 or 2 of the thermal channels 10 and 11.
+			// Band 8 if included will be ignored.
 
    for (fileIndex = 0; fileIndex < itemCount; fileIndex++) 
 		{
-       continueFlag = FALSE;
-       errCode = GetFileNameFromFSRef (&fileAsFSRefPtr[fileIndex],
+		continueFlag = FALSE;
+		errCode = GetFileNameFromFSRef (&fileAsFSRefPtr[fileIndex],
 														fileName);
 
-       if (errCode == noErr) 
+		if (errCode == noErr)
 			{
          RemoveSuffix ((FileStringPtr)fileName);
 
@@ -1245,11 +1238,7 @@ Boolean CheckForLandsat8FileList(
 
 						// Remove _Bn or _Bnn from the saved file name.
 
-//#				if defined multispec_win_unicode
-//					startBandIdentiferPtr = wcsstr (savedFileName, _T("_B"));
-//#				else
-					startBandIdentiferPtr = (UCharPtr)strstr ((char*)savedFileName, "_B");
-//#				endif
+				startBandIdentiferPtr = (UCharPtr)strstr ((char*)savedFileName, "_B");
 
             bandNameStart = startBandIdentiferPtr - savedFileName - 1;
             savedFileName[0] = (UInt8) bandNameStart;
@@ -1263,80 +1252,78 @@ Boolean CheckForLandsat8FileList(
 
             bandNameStart++;
 
-            } // end "if (fileIndex == 0)"
+            }	// end "if (fileIndex == 0)"
 
-            // For Landsat 8, the band name is like _Bn where n can be 1 through 11.
-            // Fill vector with the order of the n's
+					// For Landsat 8, the band name is like _Bn where n can be 1 through 11.
+					// Fill vector with the order of the n's
 			
-//#				if defined multispec_win_unicode
-//					tReturnCode = swscanf (&fileName[bandNameStart],
-//                   _T("_B%hd"),
-//                    &bandNumber);
-//#				else
-					tReturnCode = sscanf ((char*)&fileName[bandNameStart],
-                    "_B%hd",
-                    &bandNumber);
-//#				endif
+			tReturnCode = sscanf ((char*)&fileName[bandNameStart],
+										  "_B%hd",
+										  &bandNumber);
 
-            if (tReturnCode == 0) {
-                // Check if this is the BQA band.
+			if (tReturnCode == 0)
+				{
+						// Check if this is the BQA band.
 
-                if (CompareStringsNoCase (&fileName[bandNameStart], (UCharPtr)"_BQA", 4) == 0)
-                    continueFlag = TRUE;
+				if (CompareStringsNoCase (&fileName[bandNameStart], (UCharPtr)"_BQA", 4) == 0)
+					continueFlag = TRUE;
 
-            } // end "if (tReturnCode == 0)"
+            }	// end "if (tReturnCode == 0)"
 
-            if (tReturnCode == 1 &&
-                    !CompareStringsNoCase(&savedFileName[1], &fileName[1], savedFileName[0]) &&
-                    bandNumber >= 1 && bandNumber <= 11) {
-                fileVectorIndex = bandNumber - 1;
+			if (tReturnCode == 1 &&
+					  !CompareStringsNoCase(&savedFileName[1], &fileName[1], savedFileName[0]) &&
+					  bandNumber >= 1 && bandNumber <= 11)
+				{
+				fileVectorIndex = bandNumber - 1;
 
-                // Verify that there are no duplicate bands
+						// Verify that there are no duplicate bands
 
-                if (fileVectorPtr[fileVectorIndex] == -1) {
-                    fileVectorPtr[fileVectorIndex] = (SInt16) fileIndex;
-                    continueFlag = TRUE;
+				if (fileVectorPtr[fileVectorIndex] == -1)
+					{
+					fileVectorPtr[fileVectorIndex] = (SInt16) fileIndex;
+					continueFlag = TRUE;
 
-                } // end "if (fileVector[fileVectorIndex] == -1)"
+					}	// end "if (fileVector[fileVectorIndex] == -1)"
 
             } // end "if (tReturnCode == 1 && ..."
 
-        } // end "if (errCode == noErr)"
+			} // end "if (errCode == noErr)"
 
-        if (!continueFlag)
-            break;
+		if (!continueFlag)
+			break;
 
-    } // end "for (fileIndex=0; fileIndex<itemCount; fileIndex++)"
+		} // end "for (fileIndex=0; fileIndex<itemCount; fileIndex++)"
 
-    if (continueFlag) {
-        // This is a Landsat 8 list of files.
-        // Now put the bands in order.
-        // Put band 9 in wavelenght order with the rest and leave band 8 out.
+	if (continueFlag)
+		{
+				// This is a Landsat 8 list of files.
+				// Now put the bands in order.
+				// Put band 9 in wavelenght order with the rest and leave band 8 out.
 
-        savedIndex8 = fileVectorPtr[7];
-        savedIndex = fileVectorPtr[8];
-        fileVectorPtr[7] = fileVectorPtr[6];
-        fileVectorPtr[6] = fileVectorPtr[5];
-        fileVectorPtr[5] = savedIndex;
-        fileVectorPtr[8] = fileVectorPtr[9];
-        fileVectorPtr[9] = fileVectorPtr[10];
-        fileVectorPtr[10] = savedIndex8;
+		savedIndex8 = fileVectorPtr[7];
+		savedIndex = fileVectorPtr[8];
+		fileVectorPtr[7] = fileVectorPtr[6];
+		fileVectorPtr[6] = fileVectorPtr[5];
+		fileVectorPtr[5] = savedIndex;
+		fileVectorPtr[8] = fileVectorPtr[9];
+		fileVectorPtr[9] = fileVectorPtr[10];
+		fileVectorPtr[10] = savedIndex8;
 
-        *instrumentCodePtr = kLandsatLC8_OLI_TIRS;
+		*instrumentCodePtr = kLandsatLC8_OLI_TIRS;
 
-        if (fileVectorPtr[8] == -1 && fileVectorPtr[9] == -1)
-            *instrumentCodePtr = kLandsatLC8_OLI;
+		if (fileVectorPtr[8] == -1 && fileVectorPtr[9] == -1)
+			*instrumentCodePtr = kLandsatLC8_OLI;
 
-        else if (fileVectorPtr[0] == -1 && fileVectorPtr[1] == -1 && fileVectorPtr[2] == -1 &&
-                fileVectorPtr[3] == -1 && fileVectorPtr[4] == -1 && fileVectorPtr[5] == -1 &&
-                fileVectorPtr[6] == -1 && fileVectorPtr[7] == -1)
-            *instrumentCodePtr = kLandsatLC8_TIRS;
+		else if (fileVectorPtr[0] == -1 && fileVectorPtr[1] == -1 && fileVectorPtr[2] == -1 &&
+				 fileVectorPtr[3] == -1 && fileVectorPtr[4] == -1 && fileVectorPtr[5] == -1 &&
+				 fileVectorPtr[6] == -1 && fileVectorPtr[7] == -1)
+			*instrumentCodePtr = kLandsatLC8_TIRS;
 
-     } // end "if (continueFlag)"
+		} // end "if (continueFlag)"
 
-    return (continueFlag);
+	return (continueFlag);
 
-} // end "CheckForLandsat8FileList"
+}	// end "CheckForLandsat8FileList"
 
 
 
@@ -1416,7 +1403,7 @@ pascal void DrawHDFDataSetPopUp (
 								gHdfDataSetSelection,
 								TRUE);
 
-} // end "DrawHDFDataSetPopUp"
+}	// end "DrawHDFDataSetPopUp"
 #endif	// defined multispec_mac
 
 
@@ -1539,138 +1526,138 @@ Boolean FileSpecificationDialog (
 
 			// Initialize local variables.
 
-    forceGroupTableUpdateFlag = FALSE;
-    changedFlag = FALSE;
+	forceGroupTableUpdateFlag = FALSE;
+	changedFlag = FALSE;
 
-    if (parameterChangeFlagPtr != NULL)
-        *parameterChangeFlagPtr = FALSE;
+	if (parameterChangeFlagPtr != NULL)
+		*parameterChangeFlagPtr = FALSE;
 
-    // Get the modal dialog for the image file format description			
+			// Get the modal dialog for the image file format description
 
-    dialogPtr = LoadRequestedDialog(kFormatDescriptionID, kCopyScrap, 1, 2);
-    if (dialogPtr == NULL)
-        return (FALSE);
+	dialogPtr = LoadRequestedDialog(kFormatDescriptionID, kCopyScrap, 1, 2);
+	if (dialogPtr == NULL)
+																										return (FALSE);
 
-    // Intialize local user item proc pointers.
+			// Intialize local user item proc pointers.
 
-    drawHDFDataSetPopUpPtr = NewUserItemUPP(DrawHDFDataSetPopUp);
-    drawDataValueTypePopUpPtr = NewUserItemUPP(DrawDataValueTypePopUp);
-    drawCollapseClassOptionPopUpPtr = NewUserItemUPP(DrawCollapseClassOptionPopUp);
+	drawHDFDataSetPopUpPtr = NewUserItemUPP(DrawHDFDataSetPopUp);
+	drawDataValueTypePopUpPtr = NewUserItemUPP(DrawDataValueTypePopUp);
+	drawCollapseClassOptionPopUpPtr = NewUserItemUPP(DrawCollapseClassOptionPopUp);
 
-    //	Set the draw routines.				
+			//	Set the draw routines.
 
-    SetDialogItemDrawRoutine(
+	SetDialogItemDrawRoutine(
             dialogPtr, 28, &interleaveBox, gDrawBandInterleavePopUpPtr);
-    SetDialogItemDrawRoutine(dialogPtr, 33, &bitsBox, drawDataValueTypePopUpPtr);
-    SetDialogItemDrawRoutine(dialogPtr, 43, &theBox, drawHDFDataSetPopUpPtr);
-    SetDialogItemDrawRoutine(dialogPtr, 45, &theBox, drawCollapseClassOptionPopUpPtr);
+	SetDialogItemDrawRoutine(dialogPtr, 33, &bitsBox, drawDataValueTypePopUpPtr);
+	SetDialogItemDrawRoutine(dialogPtr, 43, &theBox, drawHDFDataSetPopUpPtr);
+	SetDialogItemDrawRoutine(dialogPtr, 45, &theBox, drawCollapseClassOptionPopUpPtr);
 
-    // Update the specification dialog with the information given			
-    // in the format dialog	
+			// Update the specification dialog with the information given
+			// in the format dialog
 
-    FileSpecificationDialogInitialize(dialogPtr,
-            fileInfoHandle,
-            windowInfoHandle,
-            &fileInfoPtr,
-            &windowInfoPtr,
-            &numberLines,
-            &numberColumns,
-            &numberChannelsClasses,
-            &startLine,
-            &startColumn,
-            &numberHeaderBytes,
-            &numberTrailerBytes,
-            &numberPreLineBytes,
-            &numberPostLineBytes,
-            &numberPreChannelBytes,
-            &numberPostChannelBytes,
-            &blockHeight,
-            &blockWidth,
-            &gBandInterleaveSelection,
-            &gDataValueTypeSelection,
-            &eightBitsPerDataSelection,
-            &swapBytesFlag,
-            &signedDataFlag,
-            &linesBottomToTopFlag,
-            &fillDataValueFlag,
-            &fillDataValue,
-            &gHdfDataSetSelection,
-            &gCollapseClassSelection,
-            &callGetHDFLineFlag);
+	FileSpecificationDialogInitialize (dialogPtr,
+													fileInfoHandle,
+													windowInfoHandle,
+													&fileInfoPtr,
+													&windowInfoPtr,
+													&numberLines,
+													&numberColumns,
+													&numberChannelsClasses,
+													&startLine,
+													&startColumn,
+													&numberHeaderBytes,
+													&numberTrailerBytes,
+													&numberPreLineBytes,
+													&numberPostLineBytes,
+													&numberPreChannelBytes,
+													&numberPostChannelBytes,
+													&blockHeight,
+													&blockWidth,
+													&gBandInterleaveSelection,
+													&gDataValueTypeSelection,
+													&eightBitsPerDataSelection,
+													&swapBytesFlag,
+													&signedDataFlag,
+													&linesBottomToTopFlag,
+													&fillDataValueFlag,
+													&fillDataValue,
+													&gHdfDataSetSelection,
+													&gCollapseClassSelection,
+													&callGetHDFLineFlag);
 
-    fileNamePtr = (FileStringPtr)GetFileNamePPointer (fileInfoPtr);
+	fileNamePtr = (FileStringPtr)GetFileNamePPointer (fileInfoPtr);
 
-    // Save handle for the OK button for use later.								
+			// Save handle for the OK button for use later.
 
-    GetDialogItem(dialogPtr, 1, &theType, &okHandle, &theBox);
+	GetDialogItem(dialogPtr, 1, &theType, &okHandle, &theBox);
 
-    // Number of image lines.															
+			// Number of image lines.
 
-    LoadDItemValue(dialogPtr, 5, numberLines);
+	LoadDItemValue(dialogPtr, 5, numberLines);
 
-    // Number of image columns															
+			// Number of image columns
 
-    LoadDItemValue(dialogPtr, 7, numberColumns);
+	LoadDItemValue(dialogPtr, 7, numberColumns);
 
-    // Number of image channels, multispectral format.							
-    // Number of classes, Thematic format.											
+			// Number of image channels, multispectral format.
+			// Number of classes, Thematic format.											
 
-    if (!fileInfoPtr->thematicType)
-        LoadDItemValue(dialogPtr, 10, numberChannelsClasses);
+	if (!fileInfoPtr->thematicType)
+		LoadDItemValue(dialogPtr, 10, numberChannelsClasses);
 
-    else // fileInfoPtr->thematicType 
-        LoadDItemValue(dialogPtr, 10, numberChannelsClasses);
+	else // fileInfoPtr->thematicType
+		LoadDItemValue(dialogPtr, 10, numberChannelsClasses);
 
-    // Start line of image																
+			// Start line of image
 
-    LoadDItemValue(dialogPtr, 12, startLine);
+	LoadDItemValue(dialogPtr, 12, startLine);
 
-    // Start column of image															
+			// Start column of image
 
-    LoadDItemValue(dialogPtr, 14, startColumn);
+	LoadDItemValue(dialogPtr, 14, startColumn);
 
-    // Number of file header bytes													
+			// Number of file header bytes
 
-    LoadDItemValue(dialogPtr, 16, numberHeaderBytes);
+	LoadDItemValue(dialogPtr, 16, numberHeaderBytes);
 
-    // Number of file trailer bytes													
+			// Number of file trailer bytes
 
-    LoadDItemValue(dialogPtr, 18, numberTrailerBytes);
+	LoadDItemValue(dialogPtr, 18, numberTrailerBytes);
 
-    // Number of preline calibration bytes											
+			// Number of preline calibration bytes
 
-    LoadDItemValue(dialogPtr, 20, numberPreLineBytes);
+	LoadDItemValue(dialogPtr, 20, numberPreLineBytes);
 
-    // Number of postline calibration bytes.										
+			// Number of postline calibration bytes.
 
-    LoadDItemValue(dialogPtr, 22, numberPostLineBytes);
+	LoadDItemValue(dialogPtr, 22, numberPostLineBytes);
 
-    // Number of preline calibration bytes											
+			// Number of preline calibration bytes
 
-    LoadDItemValue(dialogPtr, 24, numberPreChannelBytes);
+	LoadDItemValue(dialogPtr, 24, numberPreChannelBytes);
 
-    // Number of postline calibration bytes.										
+			// Number of postline calibration bytes.
 
-    LoadDItemValue(dialogPtr, 26, numberPostChannelBytes);
+	LoadDItemValue(dialogPtr, 26, numberPostChannelBytes);
 
-    // Make certain that the band interleave for BSQ is enabled,
-    // Make sure that the BNonSQ, BNonSQBlocked and BIBlock options
-    //	are disabled. They can be displayed to indicate if those
-    // interleave options are used in the current image file, but
-    // one cannot set that parameter for now.
+			// Make certain that the band interleave for BSQ is enabled,
+			// Make sure that the BNonSQ, BNonSQBlocked and BIBlock options
+			//	are disabled. They can be displayed to indicate if those
+			// interleave options are used in the current image file, but
+			// one cannot set that parameter for now.
 
-    EnableMenuItem(gPopUpBandInterleaveMenu, kBSQ);
-    DisableMenuItem(gPopUpBandInterleaveMenu, kBNonSQ);
-    DisableMenuItem(gPopUpBandInterleaveMenu, kBNonSQBlocked);
-    DisableMenuItem(gPopUpBandInterleaveMenu, kBIBlock);
+	EnableMenuItem(gPopUpBandInterleaveMenu, kBSQ);
+	DisableMenuItem(gPopUpBandInterleaveMenu, kBNonSQ);
+	DisableMenuItem(gPopUpBandInterleaveMenu, kBNonSQBlocked);
+	DisableMenuItem(gPopUpBandInterleaveMenu, kBIBlock);
 
-    // Set swap bytes check box.														
+			// Set swap bytes check box.
 
-    SetDLogControl(dialogPtr, 31, (SInt16) swapBytesFlag);
+	SetDLogControl(dialogPtr, 31, (SInt16) swapBytesFlag);
 
-    EnableMenuItem(gPopUpDataValueTypeMenu, k4BitUnsignedIntegerMenuItem);
-    //	EnableMenuItem (gPopUpDataValueTypeMenu, 6);
-    //	DisableMenuItem (gPopUpDataValueTypeMenu, 9);			
+	EnableMenuItem(gPopUpDataValueTypeMenu, k4BitUnsignedIntegerMenuItem);
+	//EnableMenuItem (gPopUpDataValueTypeMenu, 6);
+	//DisableMenuItem (gPopUpDataValueTypeMenu, 9);
 
 			// Set the image file name.														
 
@@ -1679,39 +1666,39 @@ Boolean FileSpecificationDialog (
 													fileNamePtr[0], 
 													37, 
 													NULL) != noErr)
-		LoadDItemString(dialogPtr, 37, (Str255*)fileNamePtr);
+	LoadDItemString(dialogPtr, 37, (Str255*)fileNamePtr);
 
-			// Set signed data check box.														
+			// Set signed data check box.
 
-    SetDLogControl(dialogPtr, 38, (SInt16) signedDataFlag);
+	SetDLogControl(dialogPtr, 38, (SInt16) signedDataFlag);
 
 			// Block height in lines
 			// Block width in columns											
 
-    LoadDItemValue(dialogPtr, 40, blockHeight);
-    LoadDItemValue(dialogPtr, 42, blockWidth);
+	LoadDItemValue(dialogPtr, 40, blockHeight);
+	LoadDItemValue(dialogPtr, 42, blockWidth);
 
-    // Treat lines as bottom to top flag.														
+			// Treat lines as bottom to top flag.
 
-    SetDLogControl(dialogPtr, 47, (SInt16) linesBottomToTopFlag);
+	SetDLogControl(dialogPtr, 47, (SInt16) linesBottomToTopFlag);
 
-    // Set fill data value flag and data value.														
+			// Set fill data value flag and data value.
 
-    SetDLogControl(dialogPtr, 29, (SInt16) fillDataValueFlag);
-    LoadDItemRealValue(dialogPtr, 30, fillDataValue, 0);
+	SetDLogControl(dialogPtr, 29, (SInt16) fillDataValueFlag);
+	LoadDItemRealValue(dialogPtr, 30, fillDataValue, 0);
 
-    // Center the dialog and then show it.											
+			// Center the dialog and then show it.
 
-    ShowDialogWindow(dialogPtr, kFormatDescriptionID, kSetUpDFilterTable);
+	ShowDialogWindow(dialogPtr, kFormatDescriptionID, kSetUpDFilterTable);
 
-    gDialogItemDescriptorPtr[30] = kDItemMinus + kDItemReal;
+	gDialogItemDescriptorPtr[30] = kDItemMinus + kDItemReal;
 
-    // Do not allow specifications to be changed if the active				
-    // window represents the base image for an open project.					
+			// Do not allow specifications to be changed if the active
+			// window represents the base image for an open project.					
 
-    okHiliteFlag = TRUE;
-    if (GetControlHilite((ControlHandle) okHandle) == 255)
-        okHiliteFlag = FALSE;
+	okHiliteFlag = TRUE;
+	if (GetControlHilite((ControlHandle) okHandle) == 255)
+		okHiliteFlag = FALSE;
 
 	if (gProcessorCode == kChangeImageDescriptionProcessor &&
             windowInfoPtr->projectWindowFlag)
@@ -1777,11 +1764,11 @@ Boolean FileSpecificationDialog (
 																			 &callGetHDFLineFlag);
 
 		if (returnCode != noErr)
-            // Force the main dialog box to be redrawn.
+					// Force the main dialog box to be redrawn.
 			InvalWindowRect (GetDialogWindow(dialogPtr),
 									GetPortBounds(GetDialogPort(dialogPtr), &gTempRect));
 
-		} // end "if (gProcessorCode == kOpenImageFileProcessor && (...format == kHDF4Type || ...))"
+		}	// end "if (gProcessorCode == kOpenImageFileProcessor && (...format == kHDF4Type || ...))"
 	/*
 	itemHit = VerifyFileInfoDialogValues (dialogPtr,
 															  numberLines,
@@ -1818,7 +1805,7 @@ Boolean FileSpecificationDialog (
 
 			// Set default text selection to first edit text item
 
-	SelectDialogItemText(dialogPtr, 5, 0, SHRT_MAX);
+	SelectDialogItemText (dialogPtr, 5, 0, SHRT_MAX);
 
 	modalDone = FALSE;
 	itemHit = 0;
@@ -1863,51 +1850,50 @@ Boolean FileSpecificationDialog (
 					break;
 
 				case 10: //	 Number of image channels or number of classes 		
-				  numberChannelsClasses = theNum;
-
-				  break;
+					numberChannelsClasses = theNum;
+					break;
 
 				case 12: //	 Start line of image  
-				  startLine = theNum;
-				  break;
+					startLine = theNum;
+					break;
 
 				case 14: //	 Start column of image  
-				  startColumn = theNum;
-				  break;
+					startColumn = theNum;
+					break;
 
 				case 16: //	 Number of file header bytes.  
-				  numberHeaderBytes = theNum;
-				  if (theNum != fileInfoPtr->numberHeaderBytes)
+					numberHeaderBytes = theNum;
+					if (theNum != fileInfoPtr->numberHeaderBytes)
 						changedFlag = TRUE;
-				  break;
+					break;
 
 				case 18: //	 Number of file trailer bytes.  
-				  numberTrailerBytes = theNum;
-				  break;
+					numberTrailerBytes = theNum;
+					break;
 
 				case 20: //	 Number of preline calibration bytes.  
-				  numberPreLineBytes = theNum;
-				  if (theNum != fileInfoPtr->numberPreLineBytes)
+					numberPreLineBytes = theNum;
+					if (theNum != fileInfoPtr->numberPreLineBytes)
 						changedFlag = TRUE;
-				  break;
+					break;
 
 				case 22: //	 Number of postline calibration bytes.  
-				  numberPostLineBytes = theNum;
-				  if (theNum != fileInfoPtr->numberPostLineBytes)
+					numberPostLineBytes = theNum;
+					if (theNum != fileInfoPtr->numberPostLineBytes)
 						changedFlag = TRUE;
-				  break;
+					break;
 
 				case 24: //	 Number of prechannel calibration bytes.  
-				  numberPreChannelBytes = theNum;
-				  if (theNum != fileInfoPtr->numberPreChannelBytes)
+					numberPreChannelBytes = theNum;
+					if (theNum != fileInfoPtr->numberPreChannelBytes)
 						changedFlag = TRUE;
-				  break;
+					break;
 
 				case 26: //	 Number of postchannel calibration bytes.  
-				  numberPostChannelBytes = theNum;
-				  if (theNum != fileInfoPtr->numberPostChannelBytes)
+					numberPostChannelBytes = theNum;
+					if (theNum != fileInfoPtr->numberPostChannelBytes)
 						changedFlag = TRUE;
-				  break;
+					break;
 
 				case 28: // Band interleave format 
 					itemHit2 = StandardPopUpMenu (dialogPtr,
@@ -1925,7 +1911,7 @@ Boolean FileSpecificationDialog (
 																				  fileInfoPtr->blockedFlag);
 
 						} // end "if (itemHit2 > 0)"
-				  break;
+					break;
 
 				case 29: // No Data (or Fill) Value flag 
 					ChangeDLogCheckBox((ControlHandle) theHandle);
@@ -1951,7 +1937,7 @@ Boolean FileSpecificationDialog (
 						gDataValueTypeSelection = itemHit2;
 
 						if (gDataValueTypeSelection > 3)
-							 SetDLogControlHilite(dialogPtr, 31, 0);
+							SetDLogControlHilite(dialogPtr, 31, 0);
 
 						else // gDataValueTypeSelection <= 3
 							{
@@ -1973,7 +1959,6 @@ Boolean FileSpecificationDialog (
 
 					if (fileInfoPtr->classesComputedFlag)
 						SetDLogControlHilite(dialogPtr, 34, 255);
-
 					break;
 
 				case 43: // HDF Data Set
@@ -1984,21 +1969,22 @@ Boolean FileSpecificationDialog (
 							 gHdfDataSetSelection,
 							 kColorMenuID);
 
-				  // Determine if shift key is down. The user uses this to 
-				  // specify that data sets are not to be grouped.
+							// Determine if shift key is down. The user uses this to
+							// specify that data sets are not to be grouped.
 
-				  eventSource = kCGEventSourceStateCombinedSessionState;
-				  shiftKeyDownFlag = (CGEventSourceKeyState(eventSource, 0x38));
+					eventSource = kCGEventSourceStateCombinedSessionState;
+					shiftKeyDownFlag = (CGEventSourceKeyState(eventSource, 0x38));
 
-				  if (itemHit2 > 0 &&
-							 (gHdfDataSetSelection != itemHit2 || shiftKeyDownFlag)) {
+					if (itemHit2 > 0 &&
+							 (gHdfDataSetSelection != itemHit2 || shiftKeyDownFlag))
+						{
 						savedHdfDataSetSelection = gHdfDataSetSelection;
 						gHdfDataSetSelection = itemHit2;
 
 						InvalWindowRect(GetDialogWindow(dialogPtr), &theBox);
 
-						// Note that the info in the following handles may have
-						// changed since it can vary by data set selection.
+								// Note that the info in the following handles may have
+								// changed since it can vary by data set selection.
 
 						newMapProjectionHandle =
 								  DisposeMapProjectionHandle(newMapProjectionHandle);
@@ -2006,83 +1992,85 @@ Boolean FileSpecificationDialog (
 						newChannelToHdfDataSetHandle =
 								  UnlockAndDispose(newChannelToHdfDataSetHandle);
 
-						returnCode = FileSpecificationDialogSetHDFValues(
-								  dialogPtr,
-								  fileInfoPtr,
-								  itemHit2,
-								  okHandle,
-								  shiftKeyDownFlag,
-								  &newMapProjectionHandle,
-								  &newHfaHandle,
-								  &newChannelToHdfDataSetHandle,
-								  &gBandInterleaveSelection,
-								  //&gBytesPerDataValueSelection,
-								  &gDataValueTypeSelection,
-								  &dataCompressionCode,
-								  &gdalDataTypeCode,
-								  &callGetHDFLineFlag);
+						returnCode = FileSpecificationDialogSetHDFValues (
+																		  dialogPtr,
+																		  fileInfoPtr,
+																		  itemHit2,
+																		  okHandle,
+																		  shiftKeyDownFlag,
+																		  &newMapProjectionHandle,
+																		  &newHfaHandle,
+																		  &newChannelToHdfDataSetHandle,
+																		  &gBandInterleaveSelection,
+																		  //&gBytesPerDataValueSelection,
+																		  &gDataValueTypeSelection,
+																		  &dataCompressionCode,
+																		  &gdalDataTypeCode,
+																		  &callGetHDFLineFlag);
 
-						if (returnCode == noErr || returnCode == 20 || returnCode == 2) {
-							 gHdfDataSetSelection = itemHit2;
-							 InvalWindowRect(GetDialogWindow(dialogPtr), &interleaveBox);
-							 InvalWindowRect(GetDialogWindow(dialogPtr), &bytesBox);
-							 InvalWindowRect(GetDialogWindow(dialogPtr), &bitsBox);
+						if (returnCode == noErr || returnCode == 20 || returnCode == 2)
+							{
+							gHdfDataSetSelection = itemHit2;
+							InvalWindowRect(GetDialogWindow(dialogPtr), &interleaveBox);
+							InvalWindowRect(GetDialogWindow(dialogPtr), &bytesBox);
+							InvalWindowRect(GetDialogWindow(dialogPtr), &bitsBox);
 
-							 SelectDialogItemText(dialogPtr, 5, 0, SHRT_MAX);
+							SelectDialogItemText(dialogPtr, 5, 0, SHRT_MAX);
 
-						}// end "if (returnCode == noErr || ..."
+							}	// end "if (returnCode == noErr || ..."
 
 						else // returnCode != noErr && returnCode != 20
-							 gHdfDataSetSelection = savedHdfDataSetSelection;
+							gHdfDataSetSelection = savedHdfDataSetSelection;
 
-						FileSpecificationDialogSetInterleaveItems(dialogPtr,
-								  gBandInterleaveSelection,
-								  fileInfoPtr->blockedFlag);
+						FileSpecificationDialogSetInterleaveItems (dialogPtr,
+																					gBandInterleaveSelection,
+																					fileInfoPtr->blockedFlag);
 
 						if (returnCode != noErr)
-							 // Force the main dialog box to be redrawn.
-							 InvalWindowRect(GetDialogWindow(dialogPtr),
-								  GetPortBounds(GetDialogPort(dialogPtr), &gTempRect));
+									// Force the main dialog box to be redrawn.
+							InvalWindowRect (GetDialogWindow (dialogPtr),
+													GetPortBounds (GetDialogPort(dialogPtr), &gTempRect));
 
 						InvalWindowRect(GetDialogWindow(dialogPtr), &theBox);
 
-				  } // end "if (itemHit2 > 0)"
-
-				  break;
+						} // end "if (itemHit2 > 0)"
+					break;
 
 				case 45: // collapse class option
-				  itemHit2 = StandardPopUpMenu(dialogPtr,
-							 44,
-							 45,
-							 gPopUpCollapseClassMenu,
-							 gCollapseClassSelection,
-							 kPopUpCollapseClassMenuID);
-				  if (itemHit2 > 0) {
-						if (gCollapseClassSelection != itemHit2) {
-							 SetDLogControlHilite(dialogPtr, 34, 0);
+					itemHit2 = StandardPopUpMenu (dialogPtr,
+															 44,
+															 45,
+															 gPopUpCollapseClassMenu,
+															 gCollapseClassSelection,
+															 kPopUpCollapseClassMenuID);
+					if (itemHit2 > 0)
+						{
+						if (gCollapseClassSelection != itemHit2)
+							{
+							SetDLogControlHilite(dialogPtr, 34, 0);
 
-						} // end "if (itemHit2 > 0)"
+							}	// end "if (itemHit2 > 0)"
 
 						gCollapseClassSelection = itemHit2;
 
-				  } // end "if (itemHit2 > 0)" 
-				  break;
+						}	// end "if (itemHit2 > 0)"
+					break;
 
 				case 46: // help message for hdf data set
-				  HiliteControl((ControlHandle) okHandle, 255);
-				  DisplayAlert(kErrorAlertID,
-							 kNoteAlert,
-							 kAlertStrID,
-							 IDS_Alert103,
-							 IDS_Alert104,
-							 NULL);
-				  HiliteControl((ControlHandle) okHandle, 0);
+					HiliteControl ((ControlHandle)okHandle, 255);
+					DisplayAlert (kErrorAlertID,
+										 kNoteAlert,
+										 kAlertStrID,
+										 IDS_Alert103,
+										 IDS_Alert104,
+										 NULL);
+					HiliteControl((ControlHandle) okHandle, 0);
 
-				  // Force the main dialog box to be redrawn.
+							// Force the main dialog box to be redrawn.
 
-				  InvalWindowRect(GetDialogWindow(dialogPtr),
-							 GetPortBounds(GetDialogPort(dialogPtr), &gTempRect));
-				  break;
+					InvalWindowRect (GetDialogWindow(dialogPtr),
+											GetPortBounds(GetDialogPort(dialogPtr), &gTempRect));
+					break;
 
             } // end "switch (itemHit)" 
 
@@ -2091,8 +2079,8 @@ Boolean FileSpecificationDialog (
 
 			/*
 			if (!parametersOKFlag)
-			  {
-			  itemHit = VerifyFileInfoDialogValues (dialogPtr,
+				{
+				itemHit = VerifyFileInfoDialogValues (dialogPtr,
 																 numberLines,
 																 numberColumns,
 																 numberChannelsClasses,
@@ -2106,182 +2094,185 @@ Boolean FileSpecificationDialog (
 																 numberPostChannelBytes,
 																 gDataValueTypeSelection, 
 																 fileInfoPtr->thematicType);
-			  parametersOKFlag = (itemHit == 0);
-			  if (parametersOKFlag)
-						 SetDLogControlHilite (dialogPtr, 1, 0);
+				parametersOKFlag = (itemHit == 0);
+				if (parametersOKFlag)
+					SetDLogControlHilite (dialogPtr, 1, 0);
 
-			  else		// !parametersOKFlag 
-						 NumberErrorAlert (GetDItemValue (dialogPtr, itemHit), 
-																									dialogPtr, 
-																									itemHit);
+				else		// !parametersOKFlag
+					NumberErrorAlert (GetDItemValue (dialogPtr, itemHit),
+											dialogPtr,
+											itemHit);
 
-			  }		// end "if (!parametersOKFlag)" 
+				}		// end "if (!parametersOKFlag)"
 			*/
 			}		// end "if (itemHit > 2)"
 
 		else if (itemHit == 1) // User selected OK for information
 			{
-            // Make sure that we have the latest values for number lines, etc.
-            // They could have been set in the hdf specification selection.
+					// Make sure that we have the latest values for number lines, etc.
+					// They could have been set in the hdf specification selection.
 
-            numberLines = GetDItemValue(dialogPtr, 5);
-            numberColumns = GetDItemValue(dialogPtr, 7);
-            numberChannelsClasses = GetDItemValue(dialogPtr, 10);
-            numberHeaderBytes = GetDItemValue(dialogPtr, 16);
-            numberTrailerBytes = GetDItemValue(dialogPtr, 18);
-            numberPreLineBytes = GetDItemValue(dialogPtr, 20);
-            numberPostLineBytes = GetDItemValue(dialogPtr, 22);
-            numberPreChannelBytes = GetDItemValue(dialogPtr, 24);
-            numberPostChannelBytes = GetDItemValue(dialogPtr, 26);
-            fillDataValue = GetDItemRealValue(dialogPtr, 30);
+			numberLines = GetDItemValue(dialogPtr, 5);
+			numberColumns = GetDItemValue(dialogPtr, 7);
+			numberChannelsClasses = GetDItemValue(dialogPtr, 10);
+			numberHeaderBytes = GetDItemValue(dialogPtr, 16);
+			numberTrailerBytes = GetDItemValue(dialogPtr, 18);
+			numberPreLineBytes = GetDItemValue(dialogPtr, 20);
+			numberPostLineBytes = GetDItemValue(dialogPtr, 22);
+			numberPreChannelBytes = GetDItemValue(dialogPtr, 24);
+			numberPostChannelBytes = GetDItemValue(dialogPtr, 26);
+			fillDataValue = GetDItemRealValue(dialogPtr, 30);
 
-            itemHit = VerifyFileInfoDialogValues(dialogPtr,
-                    numberLines,
-                    numberColumns,
-                    numberChannelsClasses,
-                    startLine,
-                    startColumn,
-                    numberHeaderBytes,
-                    numberTrailerBytes,
-                    numberPreLineBytes,
-                    numberPostLineBytes,
-                    numberPreChannelBytes,
-                    numberPostChannelBytes,
-                    gDataValueTypeSelection,
-                    fileInfoPtr->thematicType,
-                    &minLimit,
-                    &maxLimit);
+			itemHit = VerifyFileInfoDialogValues (dialogPtr,
+															  numberLines,
+															  numberColumns,
+															  numberChannelsClasses,
+															  startLine,
+															  startColumn,
+															  numberHeaderBytes,
+															  numberTrailerBytes,
+															  numberPreLineBytes,
+															  numberPostLineBytes,
+															  numberPreChannelBytes,
+															  numberPostChannelBytes,
+															  gDataValueTypeSelection,
+															  fileInfoPtr->thematicType,
+															  &minLimit,
+															  &maxLimit);
 
-            if (itemHit > 1) {
-                HiliteControl((ControlHandle) okHandle, 255);
+			if (itemHit > 1)
+				{
+				HiliteControl((ControlHandle) okHandle, 255);
 
-                if (itemHit == IDC_DataValueTypePopUp) {
-                    returnCode = DisplayAlert(kErrorAlertID,
-                            kStopAlert,
-                            kAlertStrID,
-                            IDS_Alert135,
-                            0,
-                            NULL);
+				if (itemHit == IDC_DataValueTypePopUp)
+					{
+					returnCode = DisplayAlert (kErrorAlertID,
+														 kStopAlert,
+														 kAlertStrID,
+														 IDS_Alert135,
+														 0,
+														 NULL);
 
-                }// end "if (itemHit == IDC_DataValueTypePopUp)"
+					}	// end "if (itemHit == IDC_DataValueTypePopUp)"
 
-                else // itemHit != IDC_DataValueTypePopup
-                {
-                    NumberErrorAlert(GetDItemValue(dialogPtr, itemHit),
-                            dialogPtr,
-                            itemHit);
+				else // itemHit != IDC_DataValueTypePopup
+					{
+					NumberErrorAlert (GetDItemValue(dialogPtr, itemHit),
+											dialogPtr,
+											itemHit);
 
-                    if (LoadSpecifiedStringNumberLongP(
-                            kAlertStrID,
-                            IDS_Alert91,
-                            (char*) gTextString,
-                            (char*) gTextString2,
-                            TRUE,
-                            minLimit,
-                            maxLimit))
-                        DisplayAlert(kErrorAlertID,
-                            kStopAlert,
-                            0,
-                            0,
-                            0,
-                            gTextString);
+					if (LoadSpecifiedStringNumberLongP (
+											kAlertStrID,
+											IDS_Alert91,
+											(char*) gTextString,
+											(char*) gTextString2,
+											TRUE,
+											minLimit,
+											maxLimit))
+						DisplayAlert (kErrorAlertID,
+												kStopAlert,
+												0,
+												0,
+												0,
+												gTextString);
 
-                } // end "else itemHit != IDC_DataValueTypePopUp"
+					} // end "else itemHit != IDC_DataValueTypePopUp"
 
-                if (okHiliteFlag)
-                    HiliteControl((ControlHandle) okHandle, 0);
+				if (okHiliteFlag)
+					HiliteControl ((ControlHandle) okHandle, 0);
 
-                // Force the main dialog box to be redrawn.
+						// Force the main dialog box to be redrawn.
 
-                InvalWindowRect(GetDialogWindow(dialogPtr),
+				InvalWindowRect(GetDialogWindow(dialogPtr),
                         GetPortBounds(GetDialogPort(dialogPtr), &gTempRect));
 
             } // end "if (itemHit > 1)"
 
-        } // end "if (itemHit == 1)" 
+			} // end "if (itemHit == 1)"
 
-        if (itemHit == 1) {
-            // Check file parameters against the size of the file.  		
-            // Display an alert message if the parameters specify a		
-            // file that is larger than the file actually is.	
+		if (itemHit == 1)
+			{
+					// Check file parameters against the size of the file.
+					// Display an alert message if the parameters specify a		
+					// file that is larger than the file actually is.	
 
-            // Do not check HDF files with more than one data set
-            // for now. A more complex check will need to be made to
-            // get the name of external files.			
+					// Do not check HDF files with more than one data set
+					// for now. A more complex check will need to be made to
+					// get the name of external files.			
 
-            sizeDifference = 0;
-            if ((fileInfoPtr->format != kHDF4Type && fileInfoPtr->format != kNETCDFType &&
+			sizeDifference = 0;
+			if ((fileInfoPtr->format != kHDF4Type && fileInfoPtr->format != kNETCDFType &&
                     fileInfoPtr->format != kHDF5Type && fileInfoPtr->format != kNETCDF2Type && 
 								fileInfoPtr->format != kHDF4Type2) ||
-                    fileInfoPtr->numberHdfDataSets <= 1) {
-                theNum = 1;
-                if (!fileInfoPtr->thematicType)
-                    theNum = numberChannelsClasses;
+                    fileInfoPtr->numberHdfDataSets <= 1)
+				{
+				theNum = 1;
+				if (!fileInfoPtr->thematicType)
+					theNum = numberChannelsClasses;
 
-                numberBytes = FileSpecificationDialogGetNumberBytes(
-                        gDataValueTypeSelection);
+				numberBytes = FileSpecificationDialogGetNumberBytes (gDataValueTypeSelection);
 
-                sizeDifference = CompareFileInfoAndFileSize(
-                        fileInfoPtr,
-                        numberLines,
-                        numberColumns,
-                        theNum,
-                        numberBytes,
-                        numberPreLineBytes,
-                        numberPostLineBytes,
-                        numberPreChannelBytes,
-                        numberPostChannelBytes,
-                        numberHeaderBytes,
-                        numberTrailerBytes,
-                        gBandInterleaveSelection,
-                        (gDataValueTypeSelection == 1));
+				sizeDifference = CompareFileInfoAndFileSize (
+													fileInfoPtr,
+													numberLines,
+													numberColumns,
+													theNum,
+													numberBytes,
+													numberPreLineBytes,
+													numberPostLineBytes,
+													numberPreChannelBytes,
+													numberPostChannelBytes,
+													numberHeaderBytes,
+													numberTrailerBytes,
+													gBandInterleaveSelection,
+													(gDataValueTypeSelection == 1));
 
             } // end "if ((...format != kHDF4Type && != kNETCDFType) || ...."
 
-            if (sizeDifference > 0 && SizeOfImageFileCanBeCalculated(fileInfoPtr))
-                /*						
-					 fileInfoPtr->dataCompressionCode == kNoCompression &&
-						  fileInfoPtr->format != kGRIBType &&
-						  fileInfoPtr->format != kImagineType &&
-						  fileInfoPtr->format != kArcGISASCIIGridType &&
-						  fileInfoPtr->format != kGRASSASCIIGridType) */ 
-					{
-                // Display an alert.												
+			if (sizeDifference > 0 && SizeOfImageFileCanBeCalculated(fileInfoPtr))
+				/*
+				fileInfoPtr->dataCompressionCode == kNoCompression &&
+				  fileInfoPtr->format != kGRIBType &&
+				  fileInfoPtr->format != kImagineType &&
+				  fileInfoPtr->format != kArcGISASCIIGridType &&
+				  fileInfoPtr->format != kGRASSASCIIGridType) */ 
+				{
+						// Display an alert.
 
-                GetIndString(gTextString, kAlertStrID, 1);
-                ConcatPStrings(gTextString, fileNamePtr, 255);
+				GetIndString(gTextString, kAlertStrID, 1);
+				ConcatPStrings(gTextString, fileNamePtr, 255);
 
-                GetIndString(gTextString2, kAlertStrID, 2);
-                ConcatPStrings(gTextString, gTextString2, 255);
+				GetIndString(gTextString2, kAlertStrID, 2);
+				ConcatPStrings(gTextString, gTextString2, 255);
 
-                sprintf((char*) &gTextString2, "%.0lf", sizeDifference);
-                CopyCStringToPascal((char*) &gTextString2, gTextString2);
-                ConcatPStrings(gTextString, gTextString2, 255);
+				sprintf((char*) &gTextString2, "%.0lf", sizeDifference);
+				CopyCStringToPascal((char*) &gTextString2, gTextString2);
+				ConcatPStrings(gTextString, gTextString2, 255);
 
-                GetIndString(gTextString3, kAlertStrID, 3);
-                ConcatPStrings(gTextString, gTextString3, 255);
+				GetIndString(gTextString3, kAlertStrID, 3);
+				ConcatPStrings(gTextString, gTextString3, 255);
 
-                HiliteControl((ControlHandle) okHandle, 255);
-                returnCode = DisplayAlert(1162, kCautionAlert, 0, 0, 0, &gTextString[0]);
+				HiliteControl((ControlHandle) okHandle, 255);
+				returnCode = DisplayAlert(1162, kCautionAlert, 0, 0, 0, &gTextString[0]);
 
-                if (okHiliteFlag)
-                    HiliteControl((ControlHandle) okHandle, 0);
+				if (okHiliteFlag)
+					HiliteControl((ControlHandle) okHandle, 0);
 
-                // Force the main dialog box to be redrawn.
+						// Force the main dialog box to be redrawn.
 
-                InvalWindowRect(GetDialogWindow(dialogPtr),
-                        GetPortBounds(GetDialogPort(dialogPtr), &gTempRect));
+				InvalWindowRect(GetDialogWindow(dialogPtr),
+						GetPortBounds(GetDialogPort(dialogPtr), &gTempRect));
 
-                if (returnCode == 1)
-                    itemHit = 3;
-                else if (returnCode == 2)
-                    itemHit = 2;
-                else if (returnCode == 3)
-                    itemHit = 1;
+				if (returnCode == 1)
+					itemHit = 3;
+				else if (returnCode == 2)
+					itemHit = 2;
+				else if (returnCode == 3)
+					itemHit = 1;
 
-				} // end "if (sizeDifference > 0 && ...)"
+				}	// end "if (sizeDifference > 0 && ...)"
 
-			} // end "if (itemHit == 1)"
+			}	// end "if (itemHit == 1)"
 
 		if (itemHit == 1)
 			{
@@ -2329,14 +2320,14 @@ Boolean FileSpecificationDialog (
 			if (parameterChangeFlagPtr != NULL)
 				*parameterChangeFlagPtr = parameterChangeFlag;
 
-			} // end "if (itemHit == 1)"
+			}	// end "if (itemHit == 1)"
 
 		if (itemHit == 2) // User selected Cancel for information
 			{
 			modalDone = TRUE;
 			returnFlag = FALSE;
 
-			}		// end "if	(itemHit == 2)"
+			}	// end "if	(itemHit == 2)"
 
 		} while (!modalDone);
 
@@ -2344,13 +2335,13 @@ Boolean FileSpecificationDialog (
 
 	SInt16 numberMenuItems = CountMenuItems(gPopUpTemporaryMenu);
 
-	#if TARGET_API_MAC_CARBON
+#	if TARGET_API_MAC_CARBON
 		DeleteMenuItems(gPopUpTemporaryMenu, 1, numberMenuItems);
-	#else	// !TARGET_API_MAC_CARBON	
+#	else	// !TARGET_API_MAC_CARBON
 		SInt16 index;
 		for (index = 0; index < numberMenuItems; index++)
 			DeleteMenuItem(gPopUpTemporaryMenu, 1);
-	#endif	// TARGET_API_MAC_CARBON, else...	
+#	endif	// TARGET_API_MAC_CARBON, else...
 
 	DisposeUserItemUPP(drawCollapseClassOptionPopUpPtr);
 	DisposeUserItemUPP(drawHDFDataSetPopUpPtr);
@@ -2359,58 +2350,58 @@ Boolean FileSpecificationDialog (
 	CloseRequestedDialog(dialogPtr, kSetUpDFilterTable);
 #endif	// defined multispec_mac					
 
-#if defined multispec_win  
-	CMFileFormatSpecsDlg* dialogPtr = NULL;
+#	if defined multispec_win
+		CMFileFormatSpecsDlg* dialogPtr = NULL;
 
-	TRY
-		{
-		dialogPtr = new CMFileFormatSpecsDlg();
+		TRY
+			{
+			dialogPtr = new CMFileFormatSpecsDlg();
 
-		returnFlag = dialogPtr->DoDialog (fileInfoHandle,
-														windowInfoHandle,
-														&newMapProjectionHandle,
-														&newHfaHandle,
-														&newChannelToHdfDataSetHandle,
-														parameterChangeFlagPtr);
+			returnFlag = dialogPtr->DoDialog (fileInfoHandle,
+															windowInfoHandle,
+															&newMapProjectionHandle,
+															&newHfaHandle,
+															&newChannelToHdfDataSetHandle,
+															parameterChangeFlagPtr);
 
-        if (dialogPtr != NULL)
-            delete dialogPtr;
-		}
+			  if (dialogPtr != NULL)
+					delete dialogPtr;
+			}
 
-	CATCH_ALL(e)
-		{
-		MemoryMessage(0, kObjectMessage);
-		}
-    
-	END_CATCH_ALL
-#endif   //	defined multispec_win
+		CATCH_ALL(e)
+			{
+			MemoryMessage(0, kObjectMessage);
+			}
+		 
+		END_CATCH_ALL
+#	endif   //	defined multispec_win
 
-#if defined multispec_lin
-	CMFileFormatSpecsDlg* dialogPtr = NULL;
-	try
-		{
-				// Try to get the current top window.
-				
-		//wxFrame* parentFrame = GetActiveFrame();
-		//dialogPtr = new CMFileFormatSpecsDlg((wxWindow *) gActiveImageViewCPtr->m_frame);
-		//dialogPtr = new CMFileFormatSpecsDlg (parentFrame);
-		dialogPtr = new CMFileFormatSpecsDlg ((wxWindow*)GetMainFrame());
-    
-		returnFlag = dialogPtr->DoDialog(fileInfoHandle,
-														windowInfoHandle,
-														&newMapProjectionHandle,
-														&newHfaHandle,
-														&newChannelToHdfDataSetHandle,
-														parameterChangeFlagPtr);
+#	if defined multispec_lin
+		CMFileFormatSpecsDlg* dialogPtr = NULL;
+		try
+			{
+					// Try to get the current top window.
+					
+			//wxFrame* parentFrame = GetActiveFrame();
+			//dialogPtr = new CMFileFormatSpecsDlg((wxWindow *) gActiveImageViewCPtr->m_frame);
+			//dialogPtr = new CMFileFormatSpecsDlg (parentFrame);
+			dialogPtr = new CMFileFormatSpecsDlg ((wxWindow*)GetMainFrame());
+		 
+			returnFlag = dialogPtr->DoDialog(fileInfoHandle,
+															windowInfoHandle,
+															&newMapProjectionHandle,
+															&newHfaHandle,
+															&newChannelToHdfDataSetHandle,
+															parameterChangeFlagPtr);
 
-		if (dialogPtr != NULL)
-			delete dialogPtr;
-		}
-	catch (int e)
-		{
-		MemoryMessage(0, kObjectMessage);
-		}
-#endif
+			if (dialogPtr != NULL)
+				delete dialogPtr;
+			}
+		catch (int e)
+			{
+			MemoryMessage(0, kObjectMessage);
+			}
+#	endif
 			// Unlock the file and window information handles if needed.
 
 	MHSetState(fileInfoHandle, fileInfoStatus);
@@ -2523,11 +2514,11 @@ void FileSpecificationDialogInitialize (
    if (windowInfoPtr != NULL &&
          gProcessorCode == kChangeImageDescriptionProcessor &&
          windowInfoPtr->projectWindowFlag)
-     SetDLogControlHilite(dialogPtr, IDOK, 255);
+		SetDLogControlHilite(dialogPtr, IDOK, 255);
 
          // Number of image lines.
 
-   *numberLinesPtr = fileInfoPtr->numberLines;
+	*numberLinesPtr = fileInfoPtr->numberLines;
 
          // Number of image columns
 
@@ -2621,10 +2612,10 @@ void FileSpecificationDialogInitialize (
       {
         // Get the requested prompt string.											
 
-      #if defined multispec_mac
+#		if defined multispec_mac
          GetIndString(gTextString, kDialogStrID, kDialogStr1);
          SetWTitle(GetDialogWindow(dialogPtr), gTextString);
-      #endif 	// defined multispec_mac
+#		endif 	// defined multispec_mac
 
       HideDialogItem(dialogPtr, IDC_STATIC8);
       HideDialogItem(dialogPtr, IDC_PreChannelPrompt);
@@ -2764,394 +2755,411 @@ void FileSpecificationDialogInitialize (
 //	Coded By:			Larry L. Biehl			Date: 10/27/1999
 //	Revised By:			Larry L. Biehl			Date: 06/02/2016
 
-Boolean FileSpecificationDialogOK(
-        DialogPtr dialogPtr,
-        FileInfoPtr fileInfoPtr,
-        Handle fileInfoHandle,
-        Handle* newMapProjectionHandlePtr,
-        Handle* newHfaHandlePtr,
-        Handle* newChannelToHdfDataSetHandlePtr,
-        WindowInfoPtr windowInfoPtr,
-        Handle windowInfoHandle,
-        UInt32 numberLines,
-        UInt32 numberColumns,
-        UInt32 numberChannels,
-        SInt32 startLine,
-        SInt32 startColumn,
-        UInt32 numberHeaderBytes,
-        UInt32 numberTrailerBytes,
-        UInt32 numberPreLineBytes,
-        UInt32 numberPostLineBytes,
-        UInt32 numberPreChannelBytes,
-        UInt32 numberPostChannelBytes,
-        UInt32 blockHeight,
-        UInt32 blockWidth,
-        Boolean forceGroupTableUpdateFlag,
-        SInt16 bandInterleaveSelection,
-        SInt16 dataValueTypeSelection,
-        Boolean swapBytesFlag,
-        Boolean signedDataFlag,
-        Boolean linesBottomToTopFlag,
-        Boolean computeNumberClassesFlag,
-        Boolean fillDataValueExistsFlag,
-        double fillDataValue,
-        SInt16 hdfDataSetSelection,
-        UInt32 hdfDataSetIndex,
-        SInt16 collapseClassesSelection,
-        UInt16 dataCompressionCode,
-        SInt16 gdalDataTypeCode,
-        Boolean callGetHDFLineFlag)
- {
-    SInt16 coordinateViewUnites,
-            dataTypeCode,
-            offset,
-            numberBits;
+Boolean FileSpecificationDialogOK (
+				DialogPtr							dialogPtr,
+				FileInfoPtr							fileInfoPtr,
+				Handle								fileInfoHandle,
+				Handle*								newMapProjectionHandlePtr,
+				Handle*								newHfaHandlePtr,
+				Handle*								newChannelToHdfDataSetHandlePtr,
+				WindowInfoPtr						windowInfoPtr,
+				Handle								windowInfoHandle,
+				UInt32								numberLines,
+				UInt32								numberColumns,
+				UInt32								numberChannels,
+				SInt32 								startLine,
+				SInt32 								startColumn,
+				UInt32 								numberHeaderBytes,
+				UInt32 								numberTrailerBytes,
+				UInt32 								numberPreLineBytes,
+				UInt32 								numberPostLineBytes,
+				UInt32 								numberPreChannelBytes,
+				UInt32 								numberPostChannelBytes,
+				UInt32 								blockHeight,
+				UInt32 								blockWidth,
+				Boolean 								forceGroupTableUpdateFlag,
+				SInt16 								bandInterleaveSelection,
+				SInt16 								dataValueTypeSelection,
+				Boolean 								swapBytesFlag,
+				Boolean 								signedDataFlag,
+				Boolean 								linesBottomToTopFlag,
+				Boolean 								computeNumberClassesFlag,
+				Boolean 								fillDataValueExistsFlag,
+				double 								fillDataValue,
+				SInt16 								hdfDataSetSelection,
+				UInt32 								hdfDataSetIndex,
+				SInt16 								collapseClassesSelection,
+				UInt16 								dataCompressionCode,
+				SInt16 								gdalDataTypeCode,
+				Boolean 								callGetHDFLineFlag)
+{
+	SInt16								coordinateViewUnites,
+											dataTypeCode,
+											offset,
+											numberBits;
 
-    SInt32 bytesPerDataValue;
+	SInt32								bytesPerDataValue;
 
-    UInt32 currentBlockHeight,
-            currentBlockOffset,
-            currentBlockSize,
-            currentBlockWidth;
+	UInt32								currentBlockHeight,
+											currentBlockOffset,
+											currentBlockSize,
+											currentBlockWidth;
 
-    Boolean callUpdateLayerInfoStructureFlag,
-            changedFlag,
-            latLongPossibleFlag,
-            reloadChannelDescriptionsFlag;
+	Boolean								callUpdateLayerInfoStructureFlag,
+											changedFlag,
+											latLongPossibleFlag,
+											reloadChannelDescriptionsFlag;
 
 
+   changedFlag = FALSE;
+	reloadChannelDescriptionsFlag = FALSE;
+	callUpdateLayerInfoStructureFlag = FALSE;
 
-	//printf("just starting OK\n");
+			// Number of image lines
 
-    changedFlag = FALSE;
-    reloadChannelDescriptionsFlag = FALSE;
-    callUpdateLayerInfoStructureFlag = FALSE;
+	if (fileInfoPtr->numberLines != numberLines)
+		changedFlag = TRUE;
+	fileInfoPtr->numberLines = numberLines;
 
-    //	 Number of image lines									
+			// Number of image columns
 
-    if (fileInfoPtr->numberLines != numberLines)
-        changedFlag = TRUE;
-    fileInfoPtr->numberLines = numberLines;
+	if (fileInfoPtr->numberColumns != numberColumns)
+		changedFlag = TRUE;
+	fileInfoPtr->numberColumns = numberColumns;
 
-    // Number of image columns								
+			// Number of image channels or Number of classes.
 
-    if (fileInfoPtr->numberColumns != numberColumns)
-        changedFlag = TRUE;
-    fileInfoPtr->numberColumns = numberColumns;
+	if (!fileInfoPtr->thematicType)
+		{
+		if (fileInfoPtr->numberChannels != numberChannels)
+			{
+			changedFlag = TRUE;
+			fileInfoPtr->channelDescriptionH =
+					  UnlockAndDispose(fileInfoPtr->channelDescriptionH);
+			fileInfoPtr->channelValuesHandle =
+					  UnlockAndDispose(fileInfoPtr->channelValuesHandle);
 
-    // Number of image channels or Number of classes.
+			fileInfoPtr->descriptionsFlag = FALSE;
+			fileInfoPtr->numberChannels = (UInt16) numberChannels;
+			reloadChannelDescriptionsFlag = TRUE;
 
-    if (!fileInfoPtr->thematicType) {
-        if (fileInfoPtr->numberChannels != numberChannels) {
-            changedFlag = TRUE;
-            fileInfoPtr->channelDescriptionH =
-                    UnlockAndDispose(fileInfoPtr->channelDescriptionH);
-            fileInfoPtr->channelValuesHandle =
-                    UnlockAndDispose(fileInfoPtr->channelValuesHandle);
+			}	// end "if (fileInfoPtr->numberChannels != numberChannels)"
 
-            fileInfoPtr->descriptionsFlag = FALSE;
-            fileInfoPtr->numberChannels = (UInt16) numberChannels;
-            reloadChannelDescriptionsFlag = TRUE;
+		}	// end "if (!fileInfoPtr->thematicType)"
 
-        } // end "if (fileInfoPtr->numberChannels != numberChannels)" 
+	else // fileInfoPtr->thematicType
+		{
+				// Check number of classes.  If the number is different,
+				// then reload the class names.
+				// Note that maxClassNumberValue will be updated in 	
+				// LoadClassNameDescriptions if needed.
 
-    }// end "if (!fileInfoPtr->thematicType)" 
-
-    else // fileInfoPtr->thematicType 
-    {
-        // Check number of classes.  If the number is different,	
-        // then reload the class names.
-        // Note that maxClassNumberValue will be updated in 	
-        // LoadClassNameDescriptions if needed.
-
-        if (fileInfoPtr->numberClasses != numberChannels ||
-                fileInfoPtr->collapseClassSelection != collapseClassesSelection) {
-            if (fileInfoPtr->numberClasses != numberChannels &&
+		if (fileInfoPtr->numberClasses != numberChannels ||
+                fileInfoPtr->collapseClassSelection != collapseClassesSelection)
+			{
+			if (fileInfoPtr->numberClasses != numberChannels &&
                     collapseClassesSelection == 2)
-                fileInfoPtr->classesComputedFlag = FALSE;
+				fileInfoPtr->classesComputedFlag = FALSE;
 
-            fileInfoPtr->classDescriptionH =
-                    UnlockAndDispose(fileInfoPtr->classDescriptionH);
-            fileInfoPtr->descriptionsFlag = FALSE;
-            fileInfoPtr->numberClasses = numberChannels;
-            fileInfoPtr->collapseClassSelection = collapseClassesSelection;
+			fileInfoPtr->classDescriptionH =
+					  UnlockAndDispose(fileInfoPtr->classDescriptionH);
+			fileInfoPtr->descriptionsFlag = FALSE;
+			fileInfoPtr->numberClasses = numberChannels;
+			fileInfoPtr->collapseClassSelection = collapseClassesSelection;
 
-            //			if (fileInfoPtr->format != kMultiSpecClassificationType &&
-            //					fileInfoPtr->format != kTIFFType &&
-            //						fileInfoPtr->format != kGeoTIFFType)
-            fileInfoPtr->asciiSymbols = FALSE;
+			//if (fileInfoPtr->format != kMultiSpecClassificationType &&
+			//					fileInfoPtr->format != kTIFFType &&
+			//						fileInfoPtr->format != kGeoTIFFType)
+			fileInfoPtr->asciiSymbols = FALSE;
 
-            if (fileInfoPtr->numberClasses > 0)
-                fileInfoPtr->maxClassNumberValue = fileInfoPtr->numberClasses - 1;
+			if (fileInfoPtr->numberClasses > 0)
+				fileInfoPtr->maxClassNumberValue = fileInfoPtr->numberClasses - 1;
 
-            LoadClassNameDescriptions(windowInfoHandle);
+			LoadClassNameDescriptions(windowInfoHandle);
 
-            forceGroupTableUpdateFlag = TRUE;
+			forceGroupTableUpdateFlag = TRUE;
 
-        } // end "if (fileInfoPtr->numberClasses != numberChannels ||"		
+			}	// end "if (fileInfoPtr->numberClasses != numberChannels ||"
 
-        fileInfoPtr->numberChannels = 1;
+		fileInfoPtr->numberChannels = 1;
 
-        if (forceGroupTableUpdateFlag)
-            changedFlag = TRUE;
+		if (forceGroupTableUpdateFlag)
+			changedFlag = TRUE;
 
-    } // end "else fileInfoPtr->thematicType" 
+		}	// end "else fileInfoPtr->thematicType"
 
-    // Start line of image									
+			// Start line of image
 
-    fileInfoPtr->startLine = startLine;
+	fileInfoPtr->startLine = startLine;
 
-    // Start column of image									
+			// Start column of image
 
-    fileInfoPtr->startColumn = startColumn;
+	fileInfoPtr->startColumn = startColumn;
 
-    // Force band interleave selection not to be changed 
-    // between kBNonSq, kBNonSqBlock, and kBIBlock for now.
+			// Force band interleave selection not to be changed
+			// between kBNonSq, kBNonSqBlock, and kBIBlock for now.
 
-    if (fileInfoPtr->bandInterleave >= kBNonSQ &&
+	if (fileInfoPtr->bandInterleave >= kBNonSQ &&
             fileInfoPtr->bandInterleave <= kBIBlock &&
             bandInterleaveSelection >= kBNonSQ)
-        bandInterleaveSelection = fileInfoPtr->bandInterleave;
+		bandInterleaveSelection = fileInfoPtr->bandInterleave;
 
-    // Number of file header bytes							
+			// Number of file header bytes
 
-    if (bandInterleaveSelection == kBIL ||
+	if (bandInterleaveSelection == kBIL ||
             bandInterleaveSelection == kBSQ ||
-            bandInterleaveSelection == kBIS) {
-        if (fileInfoPtr->numberHeaderBytes != numberHeaderBytes) {
-            changedFlag = TRUE;
-            reloadChannelDescriptionsFlag = TRUE;
+            bandInterleaveSelection == kBIS)
+		{
+		if (fileInfoPtr->numberHeaderBytes != numberHeaderBytes)
+			{
+			changedFlag = TRUE;
+			reloadChannelDescriptionsFlag = TRUE;
 
-        } // end "if (fileInfoPtr->numberHeaderBytes != numberHeaderBytes)"
+			}	// end "if (fileInfoPtr->numberHeaderBytes != numberHeaderBytes)"
 
-        fileInfoPtr->numberHeaderBytes = numberHeaderBytes;
-        if (changedFlag && fileInfoPtr->numberHeaderBytes == 0) {
-            if (fileInfoPtr->format != kHDF4Type &&
+		fileInfoPtr->numberHeaderBytes = numberHeaderBytes;
+		if (changedFlag && fileInfoPtr->numberHeaderBytes == 0)
+			{
+			if (fileInfoPtr->format != kHDF4Type &&
                     fileInfoPtr->format != kNETCDFType &&
                     fileInfoPtr->format != kHDF5Type &&
                     fileInfoPtr->format != kNETCDF2Type &&
 						  fileInfoPtr->format != kHDF4Type2 &&
                     fileInfoPtr->gdalDataSetH != NULL)
-                fileInfoPtr->format = 0;
+				fileInfoPtr->format = 0;
 
-        } // end "if (changedFlag && fileInfoPtr->numberHeaderBytes == 0)"
+			} // end "if (changedFlag && fileInfoPtr->numberHeaderBytes == 0)"
 
-    } // end "if (bandInterleaveSelection == kBIL || ..."fileInfoPtr->gdalDataTypeCode
+		} // end "if (bandInterleaveSelection == kBIL || ..."fileInfoPtr->gdalDataTypeCode
 
-    // Number of file trailer bytes							
+			// Number of file trailer bytes
 
-    if (bandInterleaveSelection == kBIL ||
+	if (bandInterleaveSelection == kBIL ||
             bandInterleaveSelection == kBSQ ||
-            bandInterleaveSelection == kBIS) {
-        if (fileInfoPtr->numberTrailerBytes != numberTrailerBytes)
-            changedFlag = TRUE;
-        fileInfoPtr->numberTrailerBytes = numberTrailerBytes;
+            bandInterleaveSelection == kBIS)
+		{
+		if (fileInfoPtr->numberTrailerBytes != numberTrailerBytes)
+			changedFlag = TRUE;
+		fileInfoPtr->numberTrailerBytes = numberTrailerBytes;
 
-    } // end "if (bandInterleaveSelection == kBIL || ..."
+		} // end "if (bandInterleaveSelection == kBIL || ..."
 
-    if (bandInterleaveSelection == kBIL ||
+	if (bandInterleaveSelection == kBIL ||
             bandInterleaveSelection == kBSQ ||
             bandInterleaveSelection == kBIS ||
-            bandInterleaveSelection == kBNonSQ) {
-        // Number of preline bytes								
+            bandInterleaveSelection == kBNonSQ)
+		{
+				// Number of preline bytes
 
-        if (fileInfoPtr->numberPreLineBytes != numberPreLineBytes) {
-            changedFlag = TRUE;
-            reloadChannelDescriptionsFlag = TRUE;
+		if (fileInfoPtr->numberPreLineBytes != numberPreLineBytes)
+			{
+			changedFlag = TRUE;
+			reloadChannelDescriptionsFlag = TRUE;
 
-        } // end "if (...->numberPreLineBytes != numberPreLineBytes)"
+			} // end "if (...->numberPreLineBytes != numberPreLineBytes)"
 
-        fileInfoPtr->numberPreLineBytes = numberPreLineBytes;
+		fileInfoPtr->numberPreLineBytes = numberPreLineBytes;
 
-        // Number of postline bytes				
+				// Number of postline bytes
 
-        if (fileInfoPtr->numberPostLineBytes != numberPostLineBytes) {
-            changedFlag = TRUE;
-            reloadChannelDescriptionsFlag = TRUE;
+		if (fileInfoPtr->numberPostLineBytes != numberPostLineBytes)
+			{
+			changedFlag = TRUE;
+			reloadChannelDescriptionsFlag = TRUE;
 
-        } // end "if (...->numberPostLineBytes != numberPostLineBytes)"
+			} // end "if (...->numberPostLineBytes != numberPostLineBytes)"
 
-        fileInfoPtr->numberPostLineBytes = numberPostLineBytes;
+		fileInfoPtr->numberPostLineBytes = numberPostLineBytes;
 
-    } // end "if (bandInterleaveSelection == kBIL || ..."
+		} // end "if (bandInterleaveSelection == kBIL || ..."
 
-    if (bandInterleaveSelection == kBIL ||
+	if (bandInterleaveSelection == kBIL ||
             bandInterleaveSelection == kBSQ ||
-            bandInterleaveSelection == kBNonSQ) {
-        // Number of prechannel calibration bytes			
+            bandInterleaveSelection == kBNonSQ)
+		{
+				// Number of prechannel calibration bytes
 
-        if (fileInfoPtr->numberPreChannelBytes != numberPreChannelBytes) {
-            changedFlag = TRUE;
-            reloadChannelDescriptionsFlag = TRUE;
+		if (fileInfoPtr->numberPreChannelBytes != numberPreChannelBytes)
+			{
+			changedFlag = TRUE;
+			reloadChannelDescriptionsFlag = TRUE;
 
-        } // end "if (...->numberPreChannelBytes != numberPreChannelBytes)"
+			} // end "if (...->numberPreChannelBytes != numberPreChannelBytes)"
 
-        fileInfoPtr->numberPreChannelBytes = numberPreChannelBytes;
+		fileInfoPtr->numberPreChannelBytes = numberPreChannelBytes;
 
-        // Number of postchannel calibration bytes			
+				// Number of postchannel calibration bytes
 
-        if (fileInfoPtr->numberPostChannelBytes != numberPostChannelBytes) {
-            changedFlag = TRUE;
-            reloadChannelDescriptionsFlag = TRUE;
+		if (fileInfoPtr->numberPostChannelBytes != numberPostChannelBytes)
+			{
+			changedFlag = TRUE;
+			reloadChannelDescriptionsFlag = TRUE;
 
-        } // end "if (...->numberPostChannelBytes != numberPostChannelBytes)"
+			} // end "if (...->numberPostChannelBytes != numberPostChannelBytes)"
 
-        fileInfoPtr->numberPostChannelBytes = numberPostChannelBytes;
+		fileInfoPtr->numberPostChannelBytes = numberPostChannelBytes;
 
-    } // end "if (bandInterleaveSelection == kBIL || ..."
+		} // end "if (bandInterleaveSelection == kBIL || ..."
 
-    if (bandInterleaveSelection == kBNonSQBlocked ||
-            bandInterleaveSelection == kBIBlock) {
-        GetBlockInformation(fileInfoPtr,
-                &currentBlockHeight,
-                &currentBlockWidth,
-                &currentBlockSize,
-                &currentBlockOffset);
+	if (bandInterleaveSelection == kBNonSQBlocked ||
+            bandInterleaveSelection == kBIBlock)
+		{
+		GetBlockInformation (fileInfoPtr,
+									 &currentBlockHeight,
+									 &currentBlockWidth,
+									 &currentBlockSize,
+									 &currentBlockOffset);
 
-        // Number of block height lines			
+				// Number of block height lines
 
-        if (currentBlockHeight != blockHeight)
-            changedFlag = TRUE;
+		if (currentBlockHeight != blockHeight)
+			changedFlag = TRUE;
 
-        // Number of block height columns			
+				// Number of block height columns
 
-        if (currentBlockWidth != blockWidth)
-            changedFlag = TRUE;
+		if (currentBlockWidth != blockWidth)
+			changedFlag = TRUE;
 
-    } // end "if (bandInterleaveSelection == kBNonSQBlocked || ..."
+		}	// end "if (bandInterleaveSelection == kBNonSQBlocked || ..."
 
-    // Image file format (BIL, BSQ, BIS, kBNonSQ, kBNonSQBlocked,
-    // kBIBlock)		
+			// Image file format (BIL, BSQ, BIS, kBNonSQ, kBNonSQBlocked,
+			// kBIBlock)
 
-    if (fileInfoPtr->bandInterleave != bandInterleaveSelection)
-        changedFlag = TRUE;
-    fileInfoPtr->bandInterleave = bandInterleaveSelection;
+	if (fileInfoPtr->bandInterleave != bandInterleaveSelection)
+		changedFlag = TRUE;
+	fileInfoPtr->bandInterleave = bandInterleaveSelection;
 
-    // Swap bytes (yes or no)								
+			// Swap bytes (yes or no)
 
-    if (fileInfoPtr->swapBytesFlag != swapBytesFlag) {
-        changedFlag = TRUE;
-        fileInfoPtr->swapBytesFlag = swapBytesFlag;
+	if (fileInfoPtr->swapBytesFlag != swapBytesFlag)
+		{
+		changedFlag = TRUE;
+		fileInfoPtr->swapBytesFlag = swapBytesFlag;
 
-    } // end "if (fileInfoPtr->swapBytesFlag != ..." 	
+		}	// end "if (fileInfoPtr->swapBytesFlag != ..."
 
-    dataTypeCode = kIntegerType;
-    switch (dataValueTypeSelection) {
-        case k4BitUnsignedIntegerMenuItem:
-            numberBits = 4;
-            bytesPerDataValue = 1;
-            signedDataFlag = FALSE;
-            break;
+	dataTypeCode = kIntegerType;
+	switch (dataValueTypeSelection)
+		{
+		case k4BitUnsignedIntegerMenuItem:
+			numberBits = 4;
+			bytesPerDataValue = 1;
+			signedDataFlag = FALSE;
+			break;
 
-        case k1ByteSignedIntegerMenuItem:
-            numberBits = 8;
-            bytesPerDataValue = 1;
-            signedDataFlag = TRUE;
-            break;
+		case k1ByteSignedIntegerMenuItem:
+			numberBits = 8;
+			bytesPerDataValue = 1;
+			signedDataFlag = TRUE;
+			break;
 
-        case k1ByteUnsignedIntegerMenuItem:
-            numberBits = 8;
-            bytesPerDataValue = 1;
-            signedDataFlag = FALSE;
-            break;
+		case k1ByteUnsignedIntegerMenuItem:
+			numberBits = 8;
+			bytesPerDataValue = 1;
+			signedDataFlag = FALSE;
+			break;
 
-        case k2ByteSignedIntegerMenuItem:
-            numberBits = 16;
-            bytesPerDataValue = 2;
-            signedDataFlag = TRUE;
-            break;
+		case k2ByteSignedIntegerMenuItem:
+			numberBits = 16;
+			bytesPerDataValue = 2;
+			signedDataFlag = TRUE;
+			break;
 
-        case k2ByteUnsignedIntegerMenuItem:
-            numberBits = 16;
-            bytesPerDataValue = 2;
-            signedDataFlag = FALSE;
-            break;
+		case k2ByteUnsignedIntegerMenuItem:
+			numberBits = 16;
+			bytesPerDataValue = 2;
+			signedDataFlag = FALSE;
+			break;
 
-        case k4ByteSignedIntegerMenuItem:
-            numberBits = 32;
-            bytesPerDataValue = 4;
-            signedDataFlag = TRUE;
-            break;
+		case k4ByteSignedIntegerMenuItem:
+			numberBits = 32;
+			bytesPerDataValue = 4;
+			signedDataFlag = TRUE;
+			break;
 
-        case k4ByteUnsignedIntegerMenuItem:
-            numberBits = 32;
-            bytesPerDataValue = 4;
-            signedDataFlag = FALSE;
-            break;
+		case k4ByteUnsignedIntegerMenuItem:
+			numberBits = 32;
+			bytesPerDataValue = 4;
+			signedDataFlag = FALSE;
+			break;
 
-        case k4ByteRealMenuItem:
-            numberBits = 32;
-            bytesPerDataValue = 4;
-            signedDataFlag = TRUE;
-            dataTypeCode = kRealType;
-            break;
+		case k4ByteRealMenuItem:
+			numberBits = 32;
+			bytesPerDataValue = 4;
+			signedDataFlag = TRUE;
+			dataTypeCode = kRealType;
+			break;
 
-        case k8ByteRealMenuItem:
-            numberBits = 64;
-            bytesPerDataValue = 8;
-            signedDataFlag = TRUE;
-            dataTypeCode = kRealType;
-            break;
+		case k8ByteRealMenuItem:
+			numberBits = 64;
+			bytesPerDataValue = 8;
+			signedDataFlag = TRUE;
+			dataTypeCode = kRealType;
+			break;
 
-    } // end "switch (bitsPerDataValueSelection)"
+		}	// end "switch (bitsPerDataValueSelection)"
 
-    if (fileInfoPtr->numberBits != numberBits)
-        changedFlag = TRUE;
-    fileInfoPtr->numberBits = numberBits;
+	if (fileInfoPtr->numberBits != numberBits)
+		changedFlag = TRUE;
+	fileInfoPtr->numberBits = numberBits;
 
-    // Number of bytes per value.
+			// Number of bytes per value.
 
-    if (fileInfoPtr->numberBytes != bytesPerDataValue) {
-        changedFlag = TRUE;
-        reloadChannelDescriptionsFlag = TRUE;
+	if (fileInfoPtr->numberBytes != bytesPerDataValue)
+		{
+		changedFlag = TRUE;
+		reloadChannelDescriptionsFlag = TRUE;
 
-    } // end "if (...->numberBytes != bytesPerDataValue)"
-    fileInfoPtr->numberBytes = (UInt16) bytesPerDataValue;
+		}	// end "if (...->numberBytes != bytesPerDataValue)"
+	
+	fileInfoPtr->numberBytes = (UInt16) bytesPerDataValue;
 
-    // Integer or real data type.
+			// Integer or real data type.
 
-    if (fileInfoPtr->dataTypeCode != dataTypeCode) {
-        changedFlag = TRUE;
-        reloadChannelDescriptionsFlag = TRUE;
+	if (fileInfoPtr->dataTypeCode != dataTypeCode)
+		{
+		changedFlag = TRUE;
+		reloadChannelDescriptionsFlag = TRUE;
 
-    } // end "if (...->dataTypeCode != dataTypeCode)"
-    fileInfoPtr->dataTypeCode = dataTypeCode;
-    /* 	
-                            // Get the number of bins.	  Now done in IntermediateFileUpdate											
+		} // end "if (...->dataTypeCode != dataTypeCode)"
+	
+	fileInfoPtr->dataTypeCode = dataTypeCode;
+	/*
+			// Get the number of bins.	  Now done in IntermediateFileUpdate
 			
-            fileInfoPtr->numberBins = 0;
+	fileInfoPtr->numberBins = 0;
 				
-            if (fileInfoPtr->numberBits  > 0 && fileInfoPtr->numberBits <= 16)
-                    fileInfoPtr->numberBins = (UInt32)ldexp( (double)1, fileInfoPtr->numberBits);
-            else	if (fileInfoPtr->numberBits > 16)
-                    fileInfoPtr->numberBins = 2048;
-     */
-    //	if (numberBits > 0 && numberBits <= 32)
-    //		fileInfoPtr->numberBins = 
-    //							(UInt32)ldexp( (double)1, numberBits);
+	if (fileInfoPtr->numberBits  > 0 && fileInfoPtr->numberBits <= 16)
+		fileInfoPtr->numberBins = (UInt32)ldexp( (double)1, fileInfoPtr->numberBits);
+	else if (fileInfoPtr->numberBits > 16)
+		fileInfoPtr->numberBins = 2048;
+	*/
+	//	if (numberBits > 0 && numberBits <= 32)
+	//		fileInfoPtr->numberBins =
+	//							(UInt32)ldexp( (double)1, numberBits);
 
-    // Swap bytes (yes or no)								
+			// Swap bytes (yes or no)
 
-    if (fileInfoPtr->signedDataFlag != signedDataFlag) {
-        changedFlag = TRUE;
-        fileInfoPtr->signedDataFlag = signedDataFlag;
+	if (fileInfoPtr->signedDataFlag != signedDataFlag)
+		{
+		changedFlag = TRUE;
+		fileInfoPtr->signedDataFlag = signedDataFlag;
 
-    } // end "if (fileInfoPtr->swapBytesFlag != ..."
+		} // end "if (fileInfoPtr->swapBytesFlag != ..."
 
-	#if defined multispec_mac 
-		 //		offset = 4;
-		 offset = 0;
-	#endif 	// defined multispec_mac 
+#	if defined multispec_mac
+		//offset = 4;
+		offset = 0;
+#	endif 	// defined multispec_mac
 
-	#if defined multispec_win || defined multispec_lin
-		 offset = 0;
-	#endif 	// defined multispec_win
+#	if defined multispec_win || defined multispec_lin
+		offset = 0;
+#	endif 	// defined multispec_win
 
 	if (fileInfoPtr->format == kHDF4Type || fileInfoPtr->format == kNETCDFType ||
             fileInfoPtr->format == kHDF5Type || fileInfoPtr->format == kNETCDF2Type || 
 						fileInfoPtr->format == kHDF4Type2) 
 		{
-	
 		if (// (gProcessorCode == kOpenImageFileProcessor) ||
                 (fileInfoPtr->hdfDataSetSelection != hdfDataSetSelection - offset)) 
 			{
@@ -3204,7 +3212,7 @@ Boolean FileSpecificationDialogOK(
 						MSetWindowTitle(gActiveImageViewCPtr,&gTextString[0]);
 #				endif
 
-				} // end "if (windowInfoPtr != NULL)"
+				}	// end "if (windowInfoPtr != NULL)"
 
 					// The map information may have changed with this new data set.  Load the
 					// new map information.
@@ -3313,11 +3321,11 @@ Boolean FileSpecificationDialogOK(
 	if (changedFlag && windowInfoHandle != NULL) 
 		{
 		DisposeOfImageWindowSupportMemory(windowInfoPtr);
-		#if defined multispec_mac
+#		if defined multispec_mac
 			InvalidateWindow((WindowPtr)windowInfoPtr->windowPtr, kFrameArea, FALSE);
-		#else
+#		else
 			InvalidateWindow(gActiveImageViewCPtr, kFrameArea, FALSE);
-		#endif
+#		endif
 
 		} // end "if (changedFlag && windowInfoHandle != NULL)"
 
@@ -3325,20 +3333,20 @@ Boolean FileSpecificationDialogOK(
 		{
 		fileInfoPtr->classesComputedFlag = FALSE;
 
-        // The parameters have changed. Cannot deal with changing
-        // tile parameters for now, so set the blocked to false
-        // to indicate that the data are not in a tiled.
-        // I am commenting the statement below out on 11/13/2002
-        // so that it does not cause problems later. If blockedFlag
-        // needs to be set to false here, then the block height, and
-        // band interleave settings need to be changed.
+				// The parameters have changed. Cannot deal with changing
+				// tile parameters for now, so set the blocked to false
+				// to indicate that the data are not in a tiled.
+				// I am commenting the statement below out on 11/13/2002
+				// so that it does not cause problems later. If blockedFlag
+				// needs to be set to false here, then the block height, and
+				// band interleave settings need to be changed.
 
-        //		fileInfoPtr->blockedFlag = FALSE;
+		//fileInfoPtr->blockedFlag = FALSE;
 
-        if (windowInfoHandle != NULL)
-            windowInfoPtr->fileInfoVersion++;
+		if (windowInfoHandle != NULL)
+			windowInfoPtr->fileInfoVersion++;
 
-    } // end "if (changedFlag)" 
+		}	// end "if (changedFlag)"
 
 	if (fileInfoPtr->thematicType && computeNumberClassesFlag) 
 		{
@@ -3347,48 +3355,51 @@ Boolean FileSpecificationDialogOK(
 			{
 			Handle displaySpecsHandle = GetDisplaySpecsHandle(windowInfoHandle);
 
-			DisplaySpecsPtr displaySpecsPtr = (DisplaySpecsPtr) GetHandlePointer(
+			DisplaySpecsPtr displaySpecsPtr = (DisplaySpecsPtr)GetHandlePointer(
                     displaySpecsHandle, kNoLock, kNoMoveHi);
 
 			if (displaySpecsPtr != NULL)
-                displaySpecsPtr->firstTime = TRUE;
+				displaySpecsPtr->firstTime = TRUE;
 
 			forceGroupTableUpdateFlag = TRUE;
 
-			} // end "if (GetClassesFromHistogram (fileInfoPtr) )" 
+			}	// end "if (GetClassesFromHistogram (fileInfoPtr) )"
 
-		} // end "if (fileInfoPtr->thematicType && computeNumberClassesFlag)"  
+		}	// end "if (fileInfoPtr->thematicType && computeNumberClassesFlag)"
 
-    if (fileInfoPtr->thematicType && forceGroupTableUpdateFlag) {
-        // The number of classes was determined by histogramming the 
-        // image. A new class symbol table may have been set up. The
-        // current group table may not be valid, force a new one to
-        // be created. Note that the new set of class names has
-        // been read or created.
+	if (fileInfoPtr->thematicType && forceGroupTableUpdateFlag)
+		{
+				// The number of classes was determined by histogramming the
+				// image. A new class symbol table may have been set up. The
+				// current group table may not be valid, force a new one to
+				// be created. Note that the new set of class names has
+				// been read or created.
 
-        fileInfoPtr->groupTablesHandle =
+		fileInfoPtr->groupTablesHandle =
                 UnlockAndDispose(fileInfoPtr->groupTablesHandle);
-        fileInfoPtr->groupNameHandle =
+		fileInfoPtr->groupNameHandle =
                 UnlockAndDispose(fileInfoPtr->groupNameHandle);
-        fileInfoPtr->numberGroups = 0;
+		fileInfoPtr->numberGroups = 0;
 
-    } // end "if (forceGroupTableUpdateFlag)"
+		}	// end "if (forceGroupTableUpdateFlag)"
 
-	if (reloadChannelDescriptionsFlag) {
-        ReadChannelDescriptionsAndValues(fileInfoHandle);
+	if (reloadChannelDescriptionsFlag)
+		{
+		ReadChannelDescriptionsAndValues(fileInfoHandle);
 
-        if (windowInfoHandle != NULL) {
-            windowInfoPtr->descriptionCode = 0;
-            if (fileInfoPtr->descriptionsFlag)
-                windowInfoPtr->descriptionCode = -1;
+		if (windowInfoHandle != NULL)
+			{
+			windowInfoPtr->descriptionCode = 0;
+			if (fileInfoPtr->descriptionsFlag)
+				windowInfoPtr->descriptionCode = -1;
 
-        } // end "if (windowInfoHandle != NULL)"
+			}	// end "if (windowInfoHandle != NULL)"
 
-    } // end "if (reloadChannelDescriptionsFlag)"
+		}	// end "if (reloadChannelDescriptionsFlag)"
 
-    return (changedFlag);
+	return (changedFlag);
 
-} // end "FileSpecificationDialogOK"
+}	// end "FileSpecificationDialogOK"
 
 
 
@@ -3441,57 +3452,58 @@ SInt16 FileSpecificationDialogSetHDFValues (
 
 	Boolean								useGroupedDataSetsFlag;
 
-	#if defined multispec_win                             
+#	if defined multispec_win
 		CComboBox*							comboBoxPtr;
-	#endif	// defined multispec_win 
-	#if defined multispec_lin
+#	endif	// defined multispec_win
+#	if defined multispec_lin
 		wxComboBox*							comboBoxPtr;
-	#endif
+#	endif
 
 
 #	if defined multispec_win
 		USES_CONVERSION;
 #	endif
 
-    returnCode = 1;
+	returnCode = 1;
 
-    InitializeFileInfoStructure((Handle) & hdfFileInfo, kPointer);
-    hdfFileInfoPtr = &hdfFileInfo;
+	InitializeFileInfoStructure((Handle) & hdfFileInfo, kPointer);
+	hdfFileInfoPtr = &hdfFileInfo;
 
-    // Load the handle to the map information structure in the file information
-    // structure in case in has already been set up.  The same is true for the
-    // instrument code. 
+		 // Load the handle to the map information structure in the file information
+		 // structure in case in has already been set up.  The same is true for the
+		 // instrument code. 
 
-    hdfFileInfoPtr->mapProjectionHandle = *mapInformationHandlePtr;
-    hdfFileInfoPtr->instrumentCode = fileInfoPtr->instrumentCode;
-    hdfFileInfoPtr->channelToHdfDataSetHandle = *channelToHdfDataSetHandlePtr;
-    hdfFileInfoPtr->format = fileInfoPtr->format;
+	hdfFileInfoPtr->mapProjectionHandle = *mapInformationHandlePtr;
+	hdfFileInfoPtr->instrumentCode = fileInfoPtr->instrumentCode;
+	hdfFileInfoPtr->channelToHdfDataSetHandle = *channelToHdfDataSetHandlePtr;
+	hdfFileInfoPtr->format = fileInfoPtr->format;
 
-    // Now update the new file stream pointer so that it reflects the
-    // same file and directory as that in the current file information
-    // structure. However, indicate that the file is closed.
+		 // Now update the new file stream pointer so that it reflects the
+		 // same file and directory as that in the current file information
+		 // structure. However, indicate that the file is closed.
 
-    hdfFileStreamPtr = GetFileStreamPointer(&hdfFileInfo);
-    CopyFileStream(hdfFileStreamPtr, GetFileStreamPointer(fileInfoPtr));
-    IndicateFileClosed(hdfFileStreamPtr);
+	hdfFileStreamPtr = GetFileStreamPointer(&hdfFileInfo);
+	CopyFileStream(hdfFileStreamPtr, GetFileStreamPointer(fileInfoPtr));
+	IndicateFileClosed(hdfFileStreamPtr);
 
-    hdfDataSetsPtr = (HdfDataSets*) GetHandlePointer(
-            fileInfoPtr->hdfHandle,
-            kNoLock,
-            kNoMoveHi);
+	hdfDataSetsPtr = (HdfDataSets*) GetHandlePointer (
+														fileInfoPtr->hdfHandle,
+														kNoLock,
+														kNoMoveHi);
 
-    if (hdfDataSetsPtr != NULL) {
-        hdfFileInfo.thematicType = FALSE;
-        hdfFileInfo.numberHdfDataSets = fileInfoPtr->numberHdfDataSets;
+	if (hdfDataSetsPtr != NULL)
+		{
+		hdfFileInfo.thematicType = FALSE;
+		hdfFileInfo.numberHdfDataSets = fileInfoPtr->numberHdfDataSets;
 
-		#if defined multispec_mac 
-        GetMenuItemRefCon(gPopUpTemporaryMenu, hdfDataSetSelection, &dataSetIndex);
-		#endif	// defined multispec_mac 
+#		if defined multispec_mac
+			GetMenuItemRefCon(gPopUpTemporaryMenu, hdfDataSetSelection, &dataSetIndex);
+#		endif	// defined multispec_mac
 
-		#if defined multispec_win   
-        comboBoxPtr = (CComboBox*) dialogPtr->GetDlgItem(IDC_HDFDataSet);
-        dataSetIndex = comboBoxPtr->GetItemData(hdfDataSetSelection);
-		#endif	// defined multispec_win 
+#		if defined multispec_win
+			comboBoxPtr = (CComboBox*) dialogPtr->GetDlgItem(IDC_HDFDataSet);
+			dataSetIndex = comboBoxPtr->GetItemData(hdfDataSetSelection);
+#		endif	// defined multispec_win
 
 #		if defined multispec_lin
 			comboBoxPtr = (wxComboBox*) dialogPtr->FindWindow(IDC_HDFDataSet);
@@ -3501,108 +3513,108 @@ SInt16 FileSpecificationDialogSetHDFValues (
 
 				// Set the name for the hdf header file.
 
-        SetCFileName (&hdfFileInfo, (FileStringPtr)&hdfDataSetsPtr[0].name[1]);
+		SetCFileName (&hdfFileInfo, (FileStringPtr)&hdfDataSetsPtr[0].name[1]);
 
-        // Check if the shift key is down. If so then the selected hdf data sets 
-        // will not be grouped with others.
+				// Check if the shift key is down. If so then the selected hdf data sets
+				// will not be grouped with others.
 
-        useGroupedDataSetsFlag = !shiftKeyDownFlag;
-        returnCode = LoadSelectedDataSetInformation(fileInfoPtr,
-                &hdfFileInfo,
-                dataSetIndex,
-                useGroupedDataSetsFlag);
+		useGroupedDataSetsFlag = !shiftKeyDownFlag;
+		returnCode = LoadSelectedDataSetInformation (fileInfoPtr,
+																	 &hdfFileInfo,
+																	 dataSetIndex,
+																	 useGroupedDataSetsFlag);
 
-        if (returnCode == noErr || returnCode == 20 || returnCode == 2)
-		  {
-            // Number of image lines.															
+		if (returnCode == noErr || returnCode == 20 || returnCode == 2)
+			{
+					// Number of image lines.
 
-            LoadDItemValue(dialogPtr, IDC_NumberLines, hdfFileInfo.numberLines);
+			LoadDItemValue(dialogPtr, IDC_NumberLines, hdfFileInfo.numberLines);
 
-            // Number of image columns															
+					// Number of image columns
 
-            LoadDItemValue(dialogPtr, IDC_NumberColumns, hdfFileInfo.numberColumns);
+			LoadDItemValue(dialogPtr, IDC_NumberColumns, hdfFileInfo.numberColumns);
 
-            // Number of image channels, multispectral format.							
-            // Number of classes, Thematic format.											
+					// Number of image channels, multispectral format.
+					// Number of classes, Thematic format.
 
-            if (!fileInfoPtr->thematicType)
-                LoadDItemValue(dialogPtr, IDC_NumberChannels, hdfFileInfo.numberChannels);
+			if (!fileInfoPtr->thematicType)
+				LoadDItemValue(dialogPtr, IDC_NumberChannels, hdfFileInfo.numberChannels);
 
-            else // fileInfoPtr->thematicType 
-                LoadDItemValue(dialogPtr, IDC_NumberChannels, hdfFileInfo.numberChannels);
+			else // fileInfoPtr->thematicType 
+				LoadDItemValue(dialogPtr, IDC_NumberChannels, hdfFileInfo.numberChannels);
 
-            // Start line of image																
+					// Start line of image
 
-            LoadDItemValue(dialogPtr, IDC_StartLineNumber, hdfFileInfo.startLine);
+			LoadDItemValue(dialogPtr, IDC_StartLineNumber, hdfFileInfo.startLine);
 
-            // Start column of image															
+					// Start column of image
 
-            LoadDItemValue(dialogPtr, IDC_StartColumnNumber, hdfFileInfo.startColumn);
+			LoadDItemValue(dialogPtr, IDC_StartColumnNumber, hdfFileInfo.startColumn);
 
-            // Number of file header bytes													
+					// Number of file header bytes
 
-            LoadDItemValue(dialogPtr, IDC_HeaderBytes, hdfFileInfo.numberHeaderBytes);
+			LoadDItemValue(dialogPtr, IDC_HeaderBytes, hdfFileInfo.numberHeaderBytes);
 
-            // Number of file trailer bytes													
+					// Number of file trailer bytes
 
-            LoadDItemValue(dialogPtr, IDC_TrailerBytes, hdfFileInfo.numberTrailerBytes);
+			LoadDItemValue(dialogPtr, IDC_TrailerBytes, hdfFileInfo.numberTrailerBytes);
 
-            // Number of preline calibration bytes											
+					// Number of preline calibration bytes
 
-            LoadDItemValue(dialogPtr, IDC_PreLineBytes, hdfFileInfo.numberPreLineBytes);
+			LoadDItemValue(dialogPtr, IDC_PreLineBytes, hdfFileInfo.numberPreLineBytes);
 
-            // Number of postline calibration bytes.										
+					// Number of postline calibration bytes.
 
-            LoadDItemValue(dialogPtr, IDC_PostLineBytes, hdfFileInfo.numberPostLineBytes);
+			LoadDItemValue(dialogPtr, IDC_PostLineBytes, hdfFileInfo.numberPostLineBytes);
 
-            // Number of preline calibration bytes											
+					// Number of preline calibration bytes
 
-            LoadDItemValue(dialogPtr, IDC_PreChannelBytes, hdfFileInfo.numberPreChannelBytes);
+			LoadDItemValue(dialogPtr, IDC_PreChannelBytes, hdfFileInfo.numberPreChannelBytes);
 
-            // Number of postline calibration bytes.	
+					// Number of postline calibration bytes.
 
-            LoadDItemValue(dialogPtr, IDC_PostChannelBytes, hdfFileInfo.numberPostChannelBytes);
+			LoadDItemValue(dialogPtr, IDC_PostChannelBytes, hdfFileInfo.numberPostChannelBytes);
 
-            // Set band interleave popup.														
+					// Set band interleave popup.
 
-            *bandInterleaveSelectionPtr = hdfFileInfo.bandInterleave;
+			*bandInterleaveSelectionPtr = hdfFileInfo.bandInterleave;
 
-            // Set swap bytes check box.														
+					// Set swap bytes check box.
 
-            SetDLogControl(dialogPtr, IDC_SwapBytes, (SInt16) hdfFileInfo.swapBytesFlag);
+			SetDLogControl(dialogPtr, IDC_SwapBytes, (SInt16) hdfFileInfo.swapBytesFlag);
 
-            // Set signed data check box.														
+					// Set signed data check box.
 
-            SetDLogControl(dialogPtr, IDC_SignedData, (SInt16) hdfFileInfo.signedDataFlag);
+			SetDLogControl(dialogPtr, IDC_SignedData, (SInt16) hdfFileInfo.signedDataFlag);
 
-            // Set data type.
+					// Set data type.
 
-            *dataValueTypeSelectionPtr = FileSpecificationDialogSetDataType(
-                    hdfFileInfo.dataTypeCode,
-                    hdfFileInfo.numberBits,
-                    hdfFileInfo.signedDataFlag);
+			*dataValueTypeSelectionPtr = FileSpecificationDialogSetDataType(
+					  hdfFileInfo.dataTypeCode,
+					  hdfFileInfo.numberBits,
+					  hdfFileInfo.signedDataFlag);
 
-            // Set swap bytes check box.
+					// Set swap bytes check box.
 
-            if (hdfFileInfo.numberBytes >= 2)
-                SetDLogControlHilite(dialogPtr, IDC_SwapBytes, 0);
+			if (hdfFileInfo.numberBytes >= 2)
+				SetDLogControlHilite(dialogPtr, IDC_SwapBytes, 0);
 
-            else // hdfFileInfo.numberBytes < 2 
-                SetDLogControlHilite(dialogPtr, IDC_SwapBytes, 255);
+			else // hdfFileInfo.numberBytes < 2 
+				SetDLogControlHilite(dialogPtr, IDC_SwapBytes, 255);
 
-            // Treat lines as bottom to top flag.														
+					// Treat lines as bottom to top flag.
 
-            SetDLogControl(dialogPtr, IDC_LinesBottomToTop, (SInt16) hdfFileInfo.treatLinesAsBottomToTopFlag);
+			SetDLogControl(dialogPtr, IDC_LinesBottomToTop, (SInt16) hdfFileInfo.treatLinesAsBottomToTopFlag);
 
-            // Set No Data (or Fill Data) information.
+					// Set No Data (or Fill Data) information.
 
-            SetDLogControl(dialogPtr, IDC_FillDataValueExists, (SInt16) hdfFileInfo.noDataValueFlag);
-            LoadDItemRealValue(dialogPtr, IDC_FillDataValue, hdfFileInfo.noDataValue, 0);
-            ShowHideDialogItem(dialogPtr, IDC_FillDataValue, (Boolean) hdfFileInfo.noDataValueFlag);
+			SetDLogControl(dialogPtr, IDC_FillDataValueExists, (SInt16) hdfFileInfo.noDataValueFlag);
+			LoadDItemRealValue(dialogPtr, IDC_FillDataValue, hdfFileInfo.noDataValue, 0);
+			ShowHideDialogItem(dialogPtr, IDC_FillDataValue, (Boolean) hdfFileInfo.noDataValueFlag);
 
 			*callGetHDFLineFlagPtr = hdfFileInfo.callGetHDFLineFlag;
 
-			} // end "if (returnCode == noErr || ..."
+			}	// end "if (returnCode == noErr || ..."
 
 		if (returnCode != noErr)
 			{
@@ -3610,16 +3622,16 @@ SInt16 FileSpecificationDialogSetHDFValues (
 			DisplayHDFAlerts(returnCode, &hdfFileInfo);
 			HiliteControl((ControlHandle) okHandle, 0);
 
-			} // end "if (returnCode != noErr)"
+			}	// end "if (returnCode != noErr)"
 
-		} // end "if (hdfDataSetsPtr != NULL)"
+		}	// end "if (hdfDataSetsPtr != NULL)"
 
 	CloseFile(hdfFileStreamPtr);
 
-	#if defined multispec_win || defined multispec_lin
+#	if defined multispec_win || defined multispec_lin
 		if (hdfFileStreamPtr != NULL)
 			delete hdfFileStreamPtr;
-	#endif	// defined multispec_win
+#	endif	// defined multispec_win
 
 			// Save some variables in case they are needed for the new data set
 			// selection.
@@ -3636,7 +3648,7 @@ SInt16 FileSpecificationDialogSetHDFValues (
 
 	return (returnCode);
 
-} // end "FileSpecificationDialogSetHDFValues"
+}	// end "FileSpecificationDialogSetHDFValues"
 
 
 
@@ -3663,71 +3675,73 @@ SInt16 FileSpecificationDialogSetHDFValues (
 //	Revised By:			Larry L. Biehl			Date: 01/31/2003
 
 void FileSpecificationDialogSetInterleaveItems(
-        DialogPtr dialogPtr,
-        SInt16 bandInterleaveSelection,
-        Boolean blockedFlag)
- {
-    switch (bandInterleaveSelection) {
-        case kBIL:
-        case kBSQ:
-            ShowDialogItem(dialogPtr, IDC_HeaderPrompt);
-            ShowDialogItem(dialogPtr, IDC_HeaderBytes);
-            ShowDialogItem(dialogPtr, IDC_TrailerPrompt);
-            ShowDialogItem(dialogPtr, IDC_TrailerBytes);
-            ShowDialogItem(dialogPtr, IDC_PreLinePrompt);
-            ShowDialogItem(dialogPtr, IDC_PreLineBytes);
-            ShowDialogItem(dialogPtr, IDC_PostLinePrompt);
-            ShowDialogItem(dialogPtr, IDC_PostLineBytes);
-            ShowDialogItem(dialogPtr, IDC_PreChannelPrompt);
-            ShowDialogItem(dialogPtr, IDC_PreChannelBytes);
-            ShowDialogItem(dialogPtr, IDC_PostChannelPrompt);
-            ShowDialogItem(dialogPtr, IDC_PostChannelBytes);
-            HideDialogItem(dialogPtr, IDC_BlockHeightPrompt);
-            HideDialogItem(dialogPtr, IDC_BlockHeight);
-            HideDialogItem(dialogPtr, IDC_BlockWidthPrompt);
-            HideDialogItem(dialogPtr, IDC_BlockWidth);
-            break;
+				DialogPtr							dialogPtr,
+				SInt16								bandInterleaveSelection,
+				Boolean								blockedFlag)
+{
+	switch (bandInterleaveSelection)
+		{
+		case kBIL:
+		case kBSQ:
+			ShowDialogItem(dialogPtr, IDC_HeaderPrompt);
+			ShowDialogItem(dialogPtr, IDC_HeaderBytes);
+			ShowDialogItem(dialogPtr, IDC_TrailerPrompt);
+			ShowDialogItem(dialogPtr, IDC_TrailerBytes);
+			ShowDialogItem(dialogPtr, IDC_PreLinePrompt);
+			ShowDialogItem(dialogPtr, IDC_PreLineBytes);
+			ShowDialogItem(dialogPtr, IDC_PostLinePrompt);
+			ShowDialogItem(dialogPtr, IDC_PostLineBytes);
+			ShowDialogItem(dialogPtr, IDC_PreChannelPrompt);
+			ShowDialogItem(dialogPtr, IDC_PreChannelBytes);
+			ShowDialogItem(dialogPtr, IDC_PostChannelPrompt);
+			ShowDialogItem(dialogPtr, IDC_PostChannelBytes);
+			HideDialogItem(dialogPtr, IDC_BlockHeightPrompt);
+			HideDialogItem(dialogPtr, IDC_BlockHeight);
+			HideDialogItem(dialogPtr, IDC_BlockWidthPrompt);
+			HideDialogItem(dialogPtr, IDC_BlockWidth);
+			break;
 
-        case kBIS:
-            ShowDialogItem(dialogPtr, IDC_HeaderPrompt);
-            ShowDialogItem(dialogPtr, IDC_HeaderBytes);
+		case kBIS:
+			ShowDialogItem(dialogPtr, IDC_HeaderPrompt);
+			ShowDialogItem(dialogPtr, IDC_HeaderBytes);
 
-            if (blockedFlag) {
-                HideDialogItem(dialogPtr, IDC_TrailerPrompt);
-                HideDialogItem(dialogPtr, IDC_TrailerBytes);
-                HideDialogItem(dialogPtr, IDC_PreLinePrompt);
-                HideDialogItem(dialogPtr, IDC_PreLineBytes);
-                HideDialogItem(dialogPtr, IDC_PostLinePrompt);
-                HideDialogItem(dialogPtr, IDC_PostLineBytes);
-                HideDialogItem(dialogPtr, IDC_PreChannelPrompt);
-                HideDialogItem(dialogPtr, IDC_PreChannelBytes);
-                HideDialogItem(dialogPtr, IDC_PostChannelPrompt);
-                HideDialogItem(dialogPtr, IDC_PostChannelBytes);
-                ShowDialogItem(dialogPtr, IDC_BlockHeightPrompt);
-                ShowDialogItem(dialogPtr, IDC_BlockHeight);
-                ShowDialogItem(dialogPtr, IDC_BlockWidthPrompt);
-                ShowDialogItem(dialogPtr, IDC_BlockWidth);
+			if (blockedFlag)
+				{
+				HideDialogItem(dialogPtr, IDC_TrailerPrompt);
+				HideDialogItem(dialogPtr, IDC_TrailerBytes);
+				HideDialogItem(dialogPtr, IDC_PreLinePrompt);
+				HideDialogItem(dialogPtr, IDC_PreLineBytes);
+				HideDialogItem(dialogPtr, IDC_PostLinePrompt);
+				HideDialogItem(dialogPtr, IDC_PostLineBytes);
+				HideDialogItem(dialogPtr, IDC_PreChannelPrompt);
+				HideDialogItem(dialogPtr, IDC_PreChannelBytes);
+				HideDialogItem(dialogPtr, IDC_PostChannelPrompt);
+				HideDialogItem(dialogPtr, IDC_PostChannelBytes);
+				ShowDialogItem(dialogPtr, IDC_BlockHeightPrompt);
+				ShowDialogItem(dialogPtr, IDC_BlockHeight);
+				ShowDialogItem(dialogPtr, IDC_BlockWidthPrompt);
+				ShowDialogItem(dialogPtr, IDC_BlockWidth);
 
-            }// end "if (blockedFlag)"
+            }	// end "if (blockedFlag)"
 
-            else // !blockedFlag
+			else // !blockedFlag
             {
-                ShowDialogItem(dialogPtr, IDC_TrailerPrompt);
-                ShowDialogItem(dialogPtr, IDC_TrailerBytes);
-                ShowDialogItem(dialogPtr, IDC_PreLinePrompt);
-                ShowDialogItem(dialogPtr, IDC_PreLineBytes);
-                ShowDialogItem(dialogPtr, IDC_PostLinePrompt);
-                ShowDialogItem(dialogPtr, IDC_PostLineBytes);
-                HideDialogItem(dialogPtr, IDC_PreChannelPrompt);
-                HideDialogItem(dialogPtr, IDC_PreChannelBytes);
-                HideDialogItem(dialogPtr, IDC_PostChannelPrompt);
-                HideDialogItem(dialogPtr, IDC_PostChannelBytes);
-                HideDialogItem(dialogPtr, IDC_BlockHeightPrompt);
-                HideDialogItem(dialogPtr, IDC_BlockHeight);
-                HideDialogItem(dialogPtr, IDC_BlockWidthPrompt);
-                HideDialogItem(dialogPtr, IDC_BlockWidth);
+				ShowDialogItem(dialogPtr, IDC_TrailerPrompt);
+				ShowDialogItem(dialogPtr, IDC_TrailerBytes);
+				ShowDialogItem(dialogPtr, IDC_PreLinePrompt);
+				ShowDialogItem(dialogPtr, IDC_PreLineBytes);
+				ShowDialogItem(dialogPtr, IDC_PostLinePrompt);
+				ShowDialogItem(dialogPtr, IDC_PostLineBytes);
+				HideDialogItem(dialogPtr, IDC_PreChannelPrompt);
+				HideDialogItem(dialogPtr, IDC_PreChannelBytes);
+				HideDialogItem(dialogPtr, IDC_PostChannelPrompt);
+				HideDialogItem(dialogPtr, IDC_PostChannelBytes);
+				HideDialogItem(dialogPtr, IDC_BlockHeightPrompt);
+				HideDialogItem(dialogPtr, IDC_BlockHeight);
+				HideDialogItem(dialogPtr, IDC_BlockWidthPrompt);
+				HideDialogItem(dialogPtr, IDC_BlockWidth);
 
-            } // else !blockedFlag
+            }	// else !blockedFlag
             break;
 
         case kBNonSQ:
@@ -3787,9 +3801,9 @@ void FileSpecificationDialogSetInterleaveItems(
             ShowDialogItem(dialogPtr, IDC_BlockWidth);
             break;
 
-    } // end "switch (bandInterleaveSelection)"
+			}	// end "switch (bandInterleaveSelection)"
 
-} // end "FileSpecificationDialogSetInterleaveItems" 
+}	// end "FileSpecificationDialogSetInterleaveItems"
 
 
 
@@ -4067,25 +4081,25 @@ SInt16 LinkSelectedFilesToNewWindow (
 						// The first file for the window has been found. Create the structures
 						// for the new window.
 
-				#if defined multispec_mac
+#				if defined multispec_mac
 					windowInfoHandle = GetWindowInfoStructures(fileInfoHandle,
 																				gGetFileImageType,
 																				gGetFileImageType);
-				#endif	// defined multispec_mac 
+#				endif	// defined multispec_mac
 
-				#if defined multispec_win
+#				if defined multispec_win
 					windowInfoHandle = ((CMultiSpecApp*)AfxGetApp())->SetUpNewImageDocument(
 																				fileInfoHandle,
 																				gGetFileImageType,
 																				gGetFileImageType);
-				#endif	// defined multispec_win 
+#				endif	// defined multispec_win
 
-				#if defined multispec_lin
+#				if defined multispec_lin
 					windowInfoHandle = ((CMultiSpecApp*)wxTheApp)->SetUpNewImageDocument(
 																				fileInfoHandle,
 																				gGetFileImageType,
 																				gGetFileImageType);
-				#endif	// defined multispec_lin 
+#				endif	// defined multispec_lin
 
 						// The file information structure is now associated with the
 						// new window information structure. Get a new structure to use to
@@ -4108,7 +4122,8 @@ SInt16 LinkSelectedFilesToNewWindow (
 
 				fileInfoHandle = UnlockAndDispose(fileInfoHandle);
 
-				if (continueFlag) {
+				if (continueFlag)
+					{
 					if (gGetFileImageType == kMultispectralImageType)
 						continueFlag = SetUpImageWindow(windowInfoHandle);
 
@@ -4117,21 +4132,22 @@ SInt16 LinkSelectedFilesToNewWindow (
 
 					//gMultiSpecWorkflowInfo.workFlowCode = 2;
 
-					} // end "if (continueFlag)" 
+					}	// end "if (continueFlag)"
 
-				if (!continueFlag) {
+				if (!continueFlag)
+					{
 					Handle layerInfoHandle = GetLayerInfoHandle(windowInfoHandle);
 					UnlockAndDispose(layerInfoHandle);
 
 					windowInfoHandle = UnlockAndDispose(windowInfoHandle);
 
-					} // end "if (!continueFlag)"
+					}	// end "if (!continueFlag)"
 
 				doneFlag = TRUE;
 
 				}	// end "if (fileInfoLoadedFlag && fileFormat != kArcViewShapeType)"
 
-			else // !fileInfoLoadedFlag || fileFormat == kArcViewShapeType
+			else	// !fileInfoLoadedFlag || fileFormat == kArcViewShapeType
 				{
 						// Indicate that processing of the file list can continue. This particular
 						// file in the list is being ignored.
@@ -4143,16 +4159,16 @@ SInt16 LinkSelectedFilesToNewWindow (
 				if (fileFormat != kArcViewShapeType)
 					ListFileIgnoredMessage(fileInfoHandle, 1);
 
-				} // end "else !fileInfoLoadedFlag || fileFormat == kArcViewShapeType"
+				}	// end "else !fileInfoLoadedFlag || fileFormat == kArcViewShapeType"
 
 			fileNumber++;
 			setUpFileInfoStructureFlag = TRUE;
 			if (fileNumber >= itemCount || !continueFlag)
 				doneFlag = TRUE;
 
-			} // end "while (!doneFlag)" 
+			}	// end "while (!doneFlag)" 
 
-		} // end "if (fileInfoHandle != NULL)"
+		}	// end "if (fileInfoHandle != NULL)"
 
 			// The handles within the file information structure are now being used in
 			// another file info structure for the window. We do not want to clear them out.
@@ -4161,7 +4177,7 @@ SInt16 LinkSelectedFilesToNewWindow (
 
 	return (continueFlag);
 
-} // end "LinkSelectedFilesToNewWindow" 
+}	// end "LinkSelectedFilesToNewWindow"
 
 
 
@@ -4187,8 +4203,8 @@ SInt16 LinkSelectedFilesToNewWindow (
 //	Revised By:			Larry L. Biehl			Date: 03/16/2017
 
 void ListFileIgnoredMessage(
-        Handle fileInfoHandle,
-        SInt16 messageCode)
+				Handle								fileInfoHandle,
+				SInt16								messageCode)
 {
 	char*									fileNamePtr;
 
@@ -4198,26 +4214,26 @@ void ListFileIgnoredMessage(
 	if (fileNamePtr != NULL)
 		{
 		if (messageCode == 1)
-			sprintf((char*) &gTextString,
-				 "    The file '%s' could not be read; it will be ignored.%s",
-				 fileNamePtr,
-				 gEndOfLine);
+			sprintf ((char*) &gTextString,
+						 "    The file '%s' could not be read; it will be ignored.%s",
+						 fileNamePtr,
+						 gEndOfLine);
 
 		else if (messageCode == 2)
-			sprintf((char*) &gTextString,
-				 "    The file '%s' has a different number of lines or columns than"
-				 " first image in the list; it will be ignored.%s",
-				 fileNamePtr,
-				 gEndOfLine);
+			sprintf ((char*) &gTextString,
+						 "    The file '%s' has a different number of lines or columns than"
+						 " first image in the list; it will be ignored.%s",
+						 fileNamePtr,
+						 gEndOfLine);
 
 		ListString ((char*)&gTextString,
 							strlen((char*)&gTextString),
 							gOutputTextH,
 							kUTF8CharString);
 
-		} // end "if (fileNamePtr != NULL)"
+		}	// end "if (fileNamePtr != NULL)"
 
-} // end "ListFileIgnoredMessage" 
+}	// end "ListFileIgnoredMessage"
 
 
 
@@ -4254,23 +4270,23 @@ SInt16 LoadSelectedDataSetInformation(
 
 	returnCode = noErr;
 
-	hdfDataSetsPtr = (HdfDataSets*) GetHandlePointer(
-			inputFileInfoPtr->hdfHandle,
-			kNoLock,
-			kNoMoveHi);
+	hdfDataSetsPtr = (HdfDataSets*) GetHandlePointer (
+													inputFileInfoPtr->hdfHandle,
+													kNoLock,
+													kNoMoveHi);
 
-	#if include_hdf_capability
+#	if include_hdf_capability
 		if (inputFileInfoPtr->format == kHDF4Type || inputFileInfoPtr->format == kNETCDFType)
-			returnCode = LoadHDF4DataSetInformation(inputFileInfoPtr->hdfFileID,
-				hdfDataSetsPtr,
-				outputFileInfoPtr,
-				inputFileInfoPtr->format,
-				(SInt32) dataSetIndex,
-				useGroupedDataSetsFlag);
-	#endif		// include_hdf_capability
+			returnCode = LoadHDF4DataSetInformation (inputFileInfoPtr->hdfFileID,
+																	hdfDataSetsPtr,
+																	outputFileInfoPtr,
+																	inputFileInfoPtr->format,
+																	(SInt32) dataSetIndex,
+																	useGroupedDataSetsFlag);
+#	endif		// include_hdf_capability
 
-	#if include_gdal_capability
-		#if include_hdf5_capability
+#	if include_gdal_capability
+#		if include_hdf5_capability
 			if (inputFileInfoPtr->format == kHDF4Type2 || inputFileInfoPtr->format == kHDF5Type || 
 							inputFileInfoPtr->format == kNETCDF2Type)
 				{
@@ -4280,12 +4296,12 @@ SInt16 LoadSelectedDataSetInformation(
 																	dataSetIndex,
 																	useGroupedDataSetsFlag);
 				}
-		#endif		// include_hdf5_capability
-	#endif		// include_gdal_capability && ...
+#		endif		// include_hdf5_capability
+#	endif		// include_gdal_capability && ...
 
 	return (returnCode);
 
-} // end "LoadSelectedDataSetInformation"
+}	// end "LoadSelectedDataSetInformation"
 
 
 //------------------------------------------------------------------------------------
@@ -4380,7 +4396,7 @@ SInt32 OpenImageFile (
 	fileInfoHandle = MNewHandle(sizeof (MFileInfo));
 	if (fileInfoHandle != NULL) 
 		{
-		#if defined multispec_mac
+#		if defined multispec_mac
 				// If the option key was down when the 'Open Image' menu item		
 				// was selected then include all files in the file list.  			
 				// Otherwise just show the selected file types.							
@@ -4388,7 +4404,7 @@ SInt32 OpenImageFile (
         numberFileTypes = gNumberFileTypes;
         if (gEventRecord.modifiers & optionKey)
             numberFileTypes = -1;
-		#endif	// defined multispec_mac
+#		endif	// defined multispec_mac
 
 		while (!doneFlag) 
 			{
@@ -4445,8 +4461,8 @@ SInt32 OpenImageFile (
 
 					projectFileCode = 1;
 
-					#if defined multispec_mac
-						if (gGetFileStatus == 1) 
+#					if defined multispec_mac
+						if (gGetFileStatus == 1)
 							{
 							gLocalAppFile.vRefNum = fileStreamPtr->vRefNum;
 							gLocalAppFile.parID = fileStreamPtr->parID;
@@ -4457,7 +4473,7 @@ SInt32 OpenImageFile (
 							gLocalAppFile.fNamePtr = gAppFileName;
 
 							} // end "if (gGetFileStatus <= 1)" 
-					#endif	// defined multispec_mac 
+#					endif	// defined multispec_mac
 
 					fileFlag = FALSE;
 					CloseFile(fileStreamPtr);
@@ -4492,16 +4508,16 @@ SInt32 OpenImageFile (
 								// an alert for the user. The number in the list will be adjusted
 								// to fit within the limit. 
 
-						itemHit = DisplayAlert(kContinueCancelAlertID,
-								  kNoteAlert,
-								  kAlertStrID,
-								  IDS_Alert148,
-								  0,
-								  NULL);
+						itemHit = DisplayAlert (kContinueCancelAlertID,
+														  kNoteAlert,
+														  kAlertStrID,
+														  IDS_Alert148,
+														  0,
+														  NULL);
 
 						itemCount = kMaxNumberIWindows - gNumberOfIWindows;
 						if (itemCount <= 0 || itemHit == 2)
-							 continueFlag = FALSE;
+							continueFlag = FALSE;
 
 						}		// end "if (gNumberOfIWindows >= kMaxNumberIWindows)"
 				  
@@ -4605,7 +4621,7 @@ SInt32 OpenImageFile (
 	 
 	return ((SInt16) projectFileCode);
 
-} // end "OpenImageFile" 
+}	// end "OpenImageFile"
 
 
 
@@ -4636,7 +4652,7 @@ SInt32 OpenImageFile (
 //	Coded By:			Larry L. Biehl			Date: 12/08/2012
 //	Revised By:			Larry L. Biehl			Date: 03/24/2017
 
-Boolean OpenSeparateImageWindows(
+Boolean OpenSeparateImageWindows (
 				Handle								fileInfoHandle,
 				UInt32								itemCount,
 				FSRef*								fileAsFSRefPtr,
@@ -4705,30 +4721,26 @@ Boolean OpenSeparateImageWindows(
 				{
 						// Vector types are not handled here.
 
-				#if defined multispec_mac
+#				if defined multispec_mac
                 windowInfoHandle = GetWindowInfoStructures(fileInfoHandle,
                         gGetFileImageType,
                         gGetFileImageType);
-				#endif	// defined multispec_mac 
+#				endif	// defined multispec_mac
 
-				#if defined multispec_win
+#				if defined multispec_win
                 windowInfoHandle =
                         ((CMultiSpecApp*) AfxGetApp())->SetUpNewImageDocument(
                         fileInfoHandle,
                         gGetFileImageType,
                         gGetFileImageType);
-				#endif	// defined multispec_win 
+#				endif	// defined multispec_win
 
-				#if defined multispec_lin
+#				if defined multispec_lin
                 windowInfoHandle = ((CMultiSpecApp*) wxTheApp)->SetUpNewImageDocument(
                         fileInfoHandle,
                         gGetFileImageType,
                         gGetFileImageType);
-
-                // This is forced to be multispectral type until thematic image displays
-                // are implemented.
-                //gGetFileImageType = kMultispectralImageType;
-				#endif	// multispec_lin
+#				endif	// multispec_lin
 
 				continueFlag = (windowInfoHandle != NULL);
 
@@ -4793,9 +4805,9 @@ Boolean OpenSeparateImageWindows(
 				// For U2U project to create min temperature threshold data.
 		//gMultiSpecWorkflowInfo.workFlowCode = 1;
 
-		} // end "if (fileInfoHandle != NULL)"
+		}	// end "if (fileInfoHandle != NULL)"
 
-    return (TRUE);
+	return (TRUE);
 
 }		// end "OpenSeparateImageWindows"  
 
@@ -4966,15 +4978,15 @@ void SetHDFDataSetFileInformation(
 
 			// Initialize local variables.	
 
-	#if defined multispec_mac 
+#	if defined multispec_mac
 		GetMenuItemRefCon(gPopUpTemporaryMenu, hdfDataSetSelection, &dataSetIndex);
 		//		offset = 4;
 		offset = 0;
-	#endif	// defined multispec_mac 
+#	endif	// defined multispec_mac
 
-	#if defined multispec_win || defined multispec_lin
+#	if defined multispec_win || defined multispec_lin
 		offset = 0;
-	#endif	// defined multispec_win 
+#	endif	// defined multispec_win
 
 	hdfDataSetsPtr = (HdfDataSets*)GetHandlePointer(
 													fileInfoPtr->hdfHandle,
@@ -4985,14 +4997,14 @@ void SetHDFDataSetFileInformation(
 		{
 		dataSet = hdfDataSetsPtr[dataSetIndex].dataSet;
 
-		#if include_hdf_capability
+#		if include_hdf_capability
 					// This will check if this data set uses an extension. If so the current
 					// file will be closed and the new one will be added to the file 
 					// information structure. The file will then be opened.
 
 			if (fileInfoPtr->format == kHDF4Type || fileInfoPtr->format == kNETCDFType)
 				GetHDFDataSetSpecialInfo(fileInfoPtr, dataSetIndex);
-		#endif		// include_hdf_capability
+#		endif		// include_hdf_capability
 
 		fileInfoPtr->hdfDataSetSelection = (UInt16) (hdfDataSetSelection - offset);
 
@@ -5033,15 +5045,15 @@ void SetUpHDFDataSetPopupMenu(
 				DialogPtr							dialogPtr,
 				FileInfoPtr							fileInfoPtr)
 {
-	#if defined multispec_win                                
+#	if defined multispec_win
 		CComboBox*							comboBoxPtr;
 		SInt32								windowsMenuIndex;
-	#endif	// defined multispec_win
+#	endif	// defined multispec_win
 		 
-	#if defined multispec_lin
+#	if defined multispec_lin
 		wxComboBox*							comboBoxPtr;
 		SInt32								windowsMenuIndex;
-	#endif
+#	endif
 
 	HdfDataSets*						hdfDataSetsPtr;
 
@@ -5066,17 +5078,17 @@ void SetUpHDFDataSetPopupMenu(
 
 	if (hdfDataSetsPtr != NULL) 
 		{
-		#if defined multispec_win  
+#		if defined multispec_win
 			comboBoxPtr = (CComboBox*) dialogPtr->GetDlgItem(IDC_HDFDataSet);
 			windowsMenuIndex = 0;
-		#endif	// defined multispec_win  
+#		endif	// defined multispec_win
         
-		#if defined multispec_lin
+#		if defined multispec_lin
 			comboBoxPtr = (wxComboBox*) dialogPtr->FindWindow(IDC_HDFDataSet);
 			windowsMenuIndex = 0;
 			((CMFileFormatSpecsDlg *)dialogPtr)->m_menuclientdata = calloc(numberHdfDataSets,sizeof(unsigned int));
 			unsigned int* menuptr = (unsigned int*)((CMFileFormatSpecsDlg *)dialogPtr)->m_menuclientdata;
-		#endif
+#		endif
 
 		dataSetType = 0;
 		menuIndex = 0;
@@ -5093,26 +5105,25 @@ void SetUpHDFDataSetPopupMenu(
 
                         // Indicate that there are no 8-bit images.
 
-						#if defined multispec_mac  
-                        //							menuIndex++;
-                        //							AppendMenu (gPopUpTemporaryMenu, "\pNo 8-bit images");
-                        //							DisableMenuItem (gPopUpTemporaryMenu, menuIndex);
+#						if defined multispec_mac
+							//menuIndex++;
+							//AppendMenu (gPopUpTemporaryMenu, "\pNo 8-bit images");
+							//DisableMenuItem (gPopUpTemporaryMenu, menuIndex);
 
-                        //							menuIndex++;
-                        //							AppendMenu (gPopUpTemporaryMenu, "\p-");
-						#endif	// defined multispec_mac 
+							//menuIndex++;
+							//AppendMenu (gPopUpTemporaryMenu, "\p-");
+#						endif	// defined multispec_mac
 
-						#if defined multispec_win 
-                        //							dialogPtr->SetComboItemText (
-                        //														IDC_HDFDataSet,
-                        //														windowsMenuIndex,
-                        //														(char*)"\0No 8-bit images");
-                        //							windowsMenuIndex++;
-						#endif	// defined multispec_win  
+#						if defined multispec_win
+							//dialogPtr->SetComboItemText (IDC_HDFDataSet,
+							//											windowsMenuIndex,
+							//											(char*)"\0No 8-bit images");
+							//windowsMenuIndex++;
+#						endif	// defined multispec_win
 
-						} // end "if (hdfDataSetsPtr[index].dataSetType != 1)" 
+						}	// end "if (hdfDataSetsPtr[index].dataSetType != 1)"
 
-					} // end "if (dataSetType == 0)"
+					}	// end "if (dataSetType == 0)"
 
 				if (dataSetType == 1 && hdfDataSetsPtr[dataSetIndex].dataSetType >= 2) 
 					{
@@ -5120,49 +5131,47 @@ void SetUpHDFDataSetPopupMenu(
 						{
                         // Indicate that there are not 8-bit images.
 
-						#if defined multispec_mac  
-                        //							menuIndex++;
-                        //							AppendMenu (gPopUpTemporaryMenu, "\pNo 24-bit images");
-                        //							DisableMenuItem (gPopUpTemporaryMenu, menuIndex);
-						#endif	// defined multispec_mac 
+#						if defined multispec_mac
+							//menuIndex++;
+							//AppendMenu (gPopUpTemporaryMenu, "\pNo 24-bit images");
+							//DisableMenuItem (gPopUpTemporaryMenu, menuIndex);
+#						endif	// defined multispec_mac
 
 						#if defined multispec_win  
-                        //							dialogPtr->SetComboItemText (
-                        //														IDC_HDFDataSet,
-                        //														windowsMenuIndex,
-                        //														(char*)"\0No 24-bit images");
-                        //							windowsMenuIndex++;
-						#endif	// defined multispec_win  
+							//dialogPtr->SetComboItemText (IDC_HDFDataSet,
+							//											windowsMenuIndex,
+							//											(char*)"\0No 24-bit images");
+							//windowsMenuIndex++;
+						#endif	// defined multispec_win
 
-						} // end "if (hdfDataSetsPtr[index].dataSetType > 2)" 
+						}	// end "if (hdfDataSetsPtr[index].dataSetType > 2)"
 
 					dataSetType = 2;
 
-					} // end "if (dataSetType == 1 && ..."
+					}	// end "if (dataSetType == 1 && ..."
 
 				if (dataSetType == 2 && hdfDataSetsPtr[dataSetIndex].dataSetType >= 3) 
 					{
                     // Add separator.
 
-					#if defined multispec_mac  
-                    //						menuIndex++;
-                    //						AppendMenu (gPopUpTemporaryMenu, "\p-");
-					#endif	// defined multispec_mac 
+#					if defined multispec_mac
+						//menuIndex++;
+						//AppendMenu (gPopUpTemporaryMenu, "\p-");
+#					endif	// defined multispec_mac
 
 					#if defined multispec_win  
-                    //						dialogPtr->SetComboItemText (
-                    //														IDC_HDFDataSet,
-                    //														windowsMenuIndex,
-                    //														(char*)"\0-");
-                    //						windowsMenuIndex++;
-					#endif	// defined multispec_win  
+                    //dialogPtr->SetComboItemText (IDC_HDFDataSet,
+                    //											windowsMenuIndex,
+                    //											(char*)"\0-");
+                    //windowsMenuIndex++;
+					#endif	// defined multispec_win
 
-					}		// end "if (dataSetType == 2 && ..."
+					}	// end "if (dataSetType == 2 && ..."
 
-				}		// end "if (hdfDataSetsPtr[index].dataSetType != dataSetType)"
+				}	// end "if (hdfDataSetsPtr[index].dataSetType != dataSetType)"
 
-			#if defined multispec_mac 
-            menuIndex++;
+#			if defined multispec_mac
+				menuIndex++;
             AppendMenu (gPopUpTemporaryMenu, "\pNewFile");
             SetMenuItemText (gPopUpTemporaryMenu,
 										menuIndex,
@@ -5185,22 +5194,20 @@ void SetUpHDFDataSetPopupMenu(
 				CFRelease (cfStringRef);
 				*/
             SetMenuItemRefCon (gPopUpTemporaryMenu, menuIndex, dataSetIndex);
-			#endif	// defined multispec_mac   
+#			endif	// defined multispec_mac
 
-			#if defined multispec_win       
-            dialogPtr->SetComboItemText(
-                    IDC_HDFDataSet,
-                    (SInt16) windowsMenuIndex,
-                    &hdfDataSetsPtr[dataSetIndex].name[1]);
-            comboBoxPtr->SetItemData(windowsMenuIndex, dataSetIndex);
+#			if defined multispec_win
+            dialogPtr->SetComboItemText (IDC_HDFDataSet,
+														(SInt16) windowsMenuIndex,
+														&hdfDataSetsPtr[dataSetIndex].name[1]);
+            comboBoxPtr->SetItemData (windowsMenuIndex, dataSetIndex);
             windowsMenuIndex++;
-			#endif	// defined multispec_win   
+#			endif	// defined multispec_win
             
 			#if defined multispec_lin
-            dialogPtr->SetComboItemText(
-                    IDC_HDFDataSet,
-                    (SInt16) windowsMenuIndex,
-                    (char*) &hdfDataSetsPtr[dataSetIndex].name[1]);
+            dialogPtr->SetComboItemText (IDC_HDFDataSet,
+													  (SInt16) windowsMenuIndex,
+													  (char*) &hdfDataSetsPtr[dataSetIndex].name[1]);
             *menuptr = (unsigned int)dataSetIndex;
             comboBoxPtr->SetClientData(windowsMenuIndex, (void*)dataSetIndex);
             windowsMenuIndex++;
@@ -5215,39 +5222,33 @@ void SetUpHDFDataSetPopupMenu(
 			{
 					// Indicate that there are no 24-bit images.
 
-			#if defined multispec_mac  
-					//				AppendMenu (gPopUpTemporaryMenu, "\p-");
-					//				AppendMenu (gPopUpTemporaryMenu, "\pNo 24-bit images");
-			#endif	// defined multispec_mac 
-
-			#if defined multispec_win  
-			#endif	// defined multispec_win 
+#			if defined multispec_mac
+				//AppendMenu (gPopUpTemporaryMenu, "\p-");
+				//AppendMenu (gPopUpTemporaryMenu, "\pNo 24-bit images");
+#			endif	// defined multispec_mac
 
 			dataSetType = 2;
 
-			}		// end "if (dataSetType == 1)"
+			}	// end "if (dataSetType == 1)"
 
 		if (dataSetType == 2) 
 			{
 					// Indicate that there are not scientific data sets.
 
-			#if defined multispec_mac  
-					//				AppendMenu (gPopUpTemporaryMenu, "\p-");
-					AppendMenu(gPopUpTemporaryMenu, "\pNo scientific data sets");
-			#endif	// defined multispec_mac 
-
-			#if defined multispec_win  
-			#endif	// defined multispec_win 
+#			if defined multispec_mac
+				//AppendMenu (gPopUpTemporaryMenu, "\p-");
+				AppendMenu(gPopUpTemporaryMenu, "\pNo scientific data sets");
+#			endif	// defined multispec_mac
 
 			dataSetType = 3;
 
-			} // end "if (dataSetType == 1"
+			}	// end "if (dataSetType == 1"
 
 		CheckAndUnlockHandle(fileInfoPtr->hdfHandle);
 
-		} // end "if (hdfDataSetsPtr != NULL)"
+		}	// end "if (hdfDataSetsPtr != NULL)"
 
-} // end "SetUpHDFDataSetPopupMenu" 
+}	// end "SetUpHDFDataSetPopupMenu"
 
 
 
@@ -5275,156 +5276,133 @@ void SetUpHDFDataSetPopupMenu(
 //	Revised By:			Larry L. Biehl			Date: 06/22/2006	
 
 SInt16 VerifyFileInfoDialogValues(
-        DialogPtr dialogPtr,
-        SInt32 numberLines,
-        SInt32 numberColumns,
-        SInt32 numberChannels_Classes,
-        SInt32 startLine,
-        SInt32 startColumn,
-        SInt32 numberHeaderBytes,
-        SInt32 numberTrailerBytes,
-        SInt32 numberPreLineBytes,
-        SInt32 numberPostLineBytes,
-        SInt32 numberPreChannelBytes,
-        SInt32 numberPostChannelBytes,
-        SInt16 dataTypeSelection,
-        Boolean thematicType,
-        SInt32* minLimitPtr,
-        SInt32* maxLimitPtr)
- {
-    //	SInt32								lowerLimit,
-    //											theNum,
-    //											upperLimit;
-
-    SInt16 //					index,
-    //					itemList[11]={5,7,10,12,14,16,18,20,22,24,26},
-    returnValue;
+				DialogPtr dialogPtr,
+				SInt32 numberLines,
+				SInt32 numberColumns,
+				SInt32 numberChannels_Classes,
+				SInt32 startLine,
+				SInt32 startColumn,
+				SInt32 numberHeaderBytes,
+				SInt32 numberTrailerBytes,
+				SInt32 numberPreLineBytes,
+				SInt32 numberPostLineBytes,
+				SInt32 numberPreChannelBytes,
+				SInt32 numberPostChannelBytes,
+				SInt16 dataTypeSelection,
+				Boolean thematicType,
+				SInt32* minLimitPtr,
+				SInt32* maxLimitPtr)
+{
+	SInt16								returnValue;
 
 
-    returnValue = 1;
-    /*	lowerLimit = 1;
-            upperLimit = kMaxNumberLines;
-	
-            for (index=0; index<11; index++)
-                    {
-                    if (index == 5)
-                            lowerLimit = 0;
-			
-                    if (index == 2)
-                            {
-                            if (thematicType)
-                                    upperLimit = kMaxNumberClasses;
-				
-                            else		// !thematicType
-                                    upperLimit = kMaxNumberChannels;
-			
-                            }		// end "if (index == 2)"
-			
-                    if (index == 3)
-                            upperLimit = LONG_MAX;
-			
-                    theNum = GetDItemValue (dialogPtr, itemList[index]);
-                    if ( theNum < lowerLimit || theNum > upperLimit)
-                            returnValue = itemList[index];
-			
-                    if (returnValue != 0)
-                            break;
-			
-                    }		// end "for (index=0; index<11; index++)" 
-     */
-    if (numberLines < 1 || numberLines > kMaxNumberLines) {
-        returnValue = IDC_NumberLines;
-        *minLimitPtr = 1;
-        *maxLimitPtr = kMaxNumberLines;
+	returnValue = 1;
 
-    }// end "else if (numberLines < 1 || ..."
+	if (numberLines < 1 || numberLines > kMaxNumberLines)
+		{
+		returnValue = IDC_NumberLines;
+		*minLimitPtr = 1;
+		*maxLimitPtr = kMaxNumberLines;
 
-    else if (numberColumns < 1 || numberColumns > kMaxNumberColumns) {
-        returnValue = IDC_NumberColumns;
-        *minLimitPtr = 1;
-        *maxLimitPtr = kMaxNumberColumns;
+		}	// end "else if (numberLines < 1 || ..."
 
-    }// end "else if (numberColumns < 1 || ..."
+	else if (numberColumns < 1 || numberColumns > kMaxNumberColumns)
+		{
+		returnValue = IDC_NumberColumns;
+		*minLimitPtr = 1;
+		*maxLimitPtr = kMaxNumberColumns;
 
-    else if (thematicType && (numberChannels_Classes < 1 ||
-            numberChannels_Classes > kMaxNumberClasses)) {
-        returnValue = IDC_NumberChannels;
-        *minLimitPtr = 1;
-        *maxLimitPtr = kMaxNumberClasses;
+		}	// end "else if (numberColumns < 1 || ..."
 
-    }// end "else if thematicType && (..."
+	else if (thematicType && (numberChannels_Classes < 1 ||
+								numberChannels_Classes > kMaxNumberClasses))
+		{
+		returnValue = IDC_NumberChannels;
+		*minLimitPtr = 1;
+		*maxLimitPtr = kMaxNumberClasses;
 
-    else if (!thematicType && (numberChannels_Classes < 1 ||
-            numberChannels_Classes > kMaxNumberChannels)) {
-        returnValue = IDC_NumberChannels;
-        *minLimitPtr = 1;
-        *maxLimitPtr = kMaxNumberChannels;
+		}	// end "else if thematicType && (..."
 
-    }// end "else if !thematicType && (..."
+	else if (!thematicType && (numberChannels_Classes < 1 ||
+								numberChannels_Classes > kMaxNumberChannels))
+		{
+		returnValue = IDC_NumberChannels;
+		*minLimitPtr = 1;
+		*maxLimitPtr = kMaxNumberChannels;
 
-    else if (startLine < 1 || startLine > LONG_MAX) {
-        returnValue = IDC_StartLineNumber;
-        *minLimitPtr = 1;
-        *maxLimitPtr = LONG_MAX;
+		}	// end "else if !thematicType && (..."
 
-    }// end "else if (startLine < 1 || ..."
+	else if (startLine < 1 || startLine > LONG_MAX)
+		{
+		returnValue = IDC_StartLineNumber;
+		*minLimitPtr = 1;
+		*maxLimitPtr = LONG_MAX;
 
-    else if (startColumn < 1 || startColumn > LONG_MAX) {
-        returnValue = IDC_StartColumnNumber;
-        *minLimitPtr = 1;
-        *maxLimitPtr = LONG_MAX;
+		}	// end "else if (startLine < 1 || ..."
 
-    }// end "else if (startColumn < 1 || ..."
+	else if (startColumn < 1 || startColumn > LONG_MAX)
+		{
+		returnValue = IDC_StartColumnNumber;
+		*minLimitPtr = 1;
+		*maxLimitPtr = LONG_MAX;
 
-    else if (numberHeaderBytes > LONG_MAX) {
-        returnValue = IDC_HeaderBytes;
-        *minLimitPtr = 0;
-        *maxLimitPtr = LONG_MAX;
+		}	// end "else if (startColumn < 1 || ..."
 
-    }// end "else if (numberHeaderBytes > LONG_MAX)"
+	else if (numberHeaderBytes > LONG_MAX)
+		{
+		returnValue = IDC_HeaderBytes;
+		*minLimitPtr = 0;
+		*maxLimitPtr = LONG_MAX;
 
-    else if (numberTrailerBytes > LONG_MAX) {
-        returnValue = IDC_TrailerBytes;
-        *minLimitPtr = 0;
-        *maxLimitPtr = LONG_MAX;
+		}	// end "else if (numberHeaderBytes > LONG_MAX)"
 
-    }// end "else if (numberTrailerBytes > LONG_MAX)"
+	else if (numberTrailerBytes > LONG_MAX)
+		{
+		returnValue = IDC_TrailerBytes;
+		*minLimitPtr = 0;
+		*maxLimitPtr = LONG_MAX;
 
-    else if (numberPreLineBytes > LONG_MAX) {
-        returnValue = IDC_PreLineBytes;
-        *minLimitPtr = 0;
-        *maxLimitPtr = LONG_MAX;
+		}	// end "else if (numberTrailerBytes > LONG_MAX)"
 
-    }// end "else if (numberPreLineBytes > LONG_MAX)"
+	else if (numberPreLineBytes > LONG_MAX)
+		{
+		  returnValue = IDC_PreLineBytes;
+		  *minLimitPtr = 0;
+		  *maxLimitPtr = LONG_MAX;
 
-    else if (numberPostLineBytes > LONG_MAX) {
-        returnValue = IDC_PostLineBytes;
-        *minLimitPtr = 0;
-        *maxLimitPtr = LONG_MAX;
+		}	// end "else if (numberPreLineBytes > LONG_MAX)"
 
-    }// end "else if (numberPostLineBytes > LONG_MAX)"
+	else if (numberPostLineBytes > LONG_MAX)
+		{
+		returnValue = IDC_PostLineBytes;
+		*minLimitPtr = 0;
+		*maxLimitPtr = LONG_MAX;
 
-    else if (numberPreChannelBytes > LONG_MAX) {
-        returnValue = IDC_PreChannelBytes;
-        *minLimitPtr = 0;
-        *maxLimitPtr = LONG_MAX;
+		}	// end "else if (numberPostLineBytes > LONG_MAX)"
 
-    }// end "else if (numberPreChannelBytes > LONG_MAX)"
+	else if (numberPreChannelBytes > LONG_MAX)
+		{
+		returnValue = IDC_PreChannelBytes;
+		*minLimitPtr = 0;
+		*maxLimitPtr = LONG_MAX;
 
-    else if (numberPostChannelBytes > LONG_MAX) {
-        returnValue = IDC_PostChannelBytes;
-        *minLimitPtr = 0;
-        *maxLimitPtr = LONG_MAX;
+		}	// end "else if (numberPreChannelBytes > LONG_MAX)"
 
-    }// end "else if (numberPostChannelBytes > LONG_MAX)"
+	else if (numberPostChannelBytes > LONG_MAX)
+		{
+		returnValue = IDC_PostChannelBytes;
+		*minLimitPtr = 0;
+		*maxLimitPtr = LONG_MAX;
 
-    else if (thematicType && (dataTypeSelection < k4BitUnsignedIntegerMenuItem ||
-            dataTypeSelection > k2ByteUnsignedIntegerMenuItem))
-        returnValue = IDC_DataValueTypePopUp;
+		}	// end "else if (numberPostChannelBytes > LONG_MAX)"
 
-    return (returnValue);
+	else if (thematicType && (dataTypeSelection < k4BitUnsignedIntegerMenuItem ||
+								dataTypeSelection > k2ByteUnsignedIntegerMenuItem))
+		returnValue = IDC_DataValueTypePopUp;
 
-}		// end "VerifyFileInfoDialogValues" 
+	return (returnValue);
+
+}	// end "VerifyFileInfoDialogValues"
 
 
 
@@ -5466,11 +5444,11 @@ Boolean VerifyImageFileSizeAgainstBaseImage (
 		{
 		returnFlag = TRUE;
 
-		windowInfoPtr = (WindowInfoPtr) GetHandlePointer(
-				 windowInfoHandle, kNoLock, kNoMoveHi);
+		windowInfoPtr = (WindowInfoPtr) GetHandlePointer (
+													windowInfoHandle, kNoLock, kNoMoveHi);
 
-		fileInfoPtr = (FileInfoPtr) GetHandlePointer(
-				 fileInfoHandle, kNoLock, kNoMoveHi);
+		fileInfoPtr = (FileInfoPtr) GetHandlePointer (
+													fileInfoHandle, kNoLock, kNoMoveHi);
 
 		if (fileInfoPtr->numberLines != windowInfoPtr->maxNumberLines ||
 							fileInfoPtr->numberColumns != windowInfoPtr->maxNumberColumns)
@@ -5480,4 +5458,4 @@ Boolean VerifyImageFileSizeAgainstBaseImage (
 
 	return (returnFlag);
 
-}		// end "VerifyImageFileSizeAgainstBaseImage"
+}	// end "VerifyImageFileSizeAgainstBaseImage"

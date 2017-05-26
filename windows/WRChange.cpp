@@ -181,7 +181,7 @@ void CMChangeFormatDlg::DoDataExchange(CDataExchange* pDX)
 	if (pDX->m_bSaveAndValidate)
 	{
 		CComboBox* comboBoxPtr = (CComboBox*)GetDlgItem(IDC_ChangeHeader);
-		m_headerOptionsSelection = comboBoxPtr->GetItemData (m_headerListSelection);
+		m_headerOptionsSelection = (int)comboBoxPtr->GetItemData (m_headerListSelection);
 
 	}		// end "if (pDX->m_bSaveAndValidate)"
 }
@@ -619,7 +619,7 @@ CMChangeFormatDlg::OnSelendokHeader(void)
 	
 	DDX_CBIndex(m_dialogFromPtr, IDC_ChangeHeader, m_headerListSelection);
 	comboBoxPtr = (CComboBox*)GetDlgItem(IDC_ChangeHeader);
-	m_headerOptionsSelection = comboBoxPtr->GetItemData (m_headerListSelection);
+	m_headerOptionsSelection = (int)comboBoxPtr->GetItemData (m_headerListSelection);
 
 	outputFileSelection = m_outputFileSelection + 1;
 	bandInterleaveSelection = m_bandInterleaveSelection;

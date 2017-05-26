@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -13,7 +13,7 @@
 //
 //	Revision number:		3.0
 //
-//	Revision date:			06/06/2017
+//	Revision date:			04/11/2017
 //
 //	Language:				C
 //
@@ -305,7 +305,7 @@ SInt16					gfile_EntireIconItem;
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -728,7 +728,7 @@ void CEMClassifyDialogOK (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2565,7 +2565,7 @@ SInt16 ClassifyDialogOnClassificationProcedure (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2621,7 +2621,7 @@ void ClassifyDialogOnOverlay (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2639,7 +2639,7 @@ void ClassifyDialogOnOverlay (
 // Called By:			ClassifyDialog   in classify.c
 //
 //	Coded By:			Larry L. Biehl			Date: 03/18/1999
-//	Revised By:			Larry L. Biehl			Date: 03/23/2006	
+//	Revised By:			Larry L. Biehl			Date: 04/11/2017	
 	                
 SInt16 ClassifyDialogOnTargetFile (
 				DialogPtr							dialogPtr,
@@ -2691,7 +2691,7 @@ SInt16 ClassifyDialogOnTargetFile (
 
 		#if defined multispec_win  
 			comboBoxPtr = (CComboBox*)dialogPtr->GetDlgItem(IDC_TargetCombo); 
-			windowIndex = comboBoxPtr->GetItemData (fileNamesSelection - 1);
+			windowIndex = (UInt32)comboBoxPtr->GetItemData (fileNamesSelection - 1);
 		#endif	// defined multispec_win     
 
 		#if defined multispec_lin  
@@ -3262,7 +3262,7 @@ void ClassifyDialogOK (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3451,7 +3451,7 @@ Boolean CorrelationClassifyDialog (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3768,7 +3768,7 @@ Boolean DecisionTreeDialog (void)
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3806,7 +3806,7 @@ pascal void DrawClassificationProcedurePopUp (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3845,7 +3845,7 @@ pascal void DrawCorrelationMatrixClassAreaPopUp (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3884,7 +3884,7 @@ pascal void DrawCovarianceEstimatePopUp (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3923,7 +3923,7 @@ pascal void DrawEchoAlgorithmPopUp (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3961,7 +3961,7 @@ pascal void DrawDiskFilePopUp (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4400,7 +4400,7 @@ Boolean EchoClassifyDialog (void)
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4602,7 +4602,7 @@ void ListResultsOptionsDialog (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4727,7 +4727,7 @@ Boolean LoadCEMParameterSpecs (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

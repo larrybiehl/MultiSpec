@@ -7036,11 +7036,8 @@ void* MForeColor(
 			
 		}		// end "switch (color)" 
 	
-	if (newPenPtr != NULL) {
+	if (newPenPtr != NULL)
 		oldPenPtr = pDC->SelectObject(newPenPtr);
-		pDC->SetTextColor(color);
-		pDC->SetBkColor(RGB(255, 255, 255));
-	}
 		
 	return ( (void*)oldPenPtr ); 
 #endif	// defined multispec_win 
@@ -7179,7 +7176,7 @@ void MHiliteControl (
 	#endif	// defined multispec_mac 
 	
 	#if defined multispec_win   
-	   windowPtr->GetDlgItem( (SInt16)controlHandle )->EnableWindow(hiliteValue==0);
+	   windowPtr->GetDlgItem ((int)controlHandle )->EnableWindow(hiliteValue==0);
 	#endif	// defined multispec_win
    
    #if defined multispec_lin   

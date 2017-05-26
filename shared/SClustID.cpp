@@ -13,7 +13,7 @@
 //
 //	Revision number:		3.0
 //
-//	Revision date:			12/16/2016
+//	Revision date:			05/26/2017
 //
 //	Language:				C
 //
@@ -76,6 +76,8 @@
 //	Include files:			"MultiSpecHeaders"
 //								"multiSpec.h"
 
+#include	"SMulSpec.h"
+
 #if defined multispec_mac   
 	#define IDC_ProjectClassMeans				8
 	#define IDC_ClusterTrainingAreas			10          
@@ -94,7 +96,7 @@
 #endif	// defined multispec_mac  
   
 #if defined multispec_win        
-	#include	"SMulSpec.h" 
+	//#include	"SMulSpec.h" 
 //	#include "CImagWin.h" 
 	#include "CImagVew.h"
 	#include "WClIDDlg.h" 
@@ -102,7 +104,7 @@
 #endif	// defined multispec_win      
 
 #if defined multispec_lin        
-	#include	"SMulSpec.h" 
+	//#include	"SMulSpec.h" 
 	//	#include "CImagWin.h" 
 	#include "LImageView.h"
 	#include "LClidDlg.h" 
@@ -3279,7 +3281,8 @@ SInt16 ISODATAClusterPass (
 		  			
 				if (gOutputCode & kCreateImageOverlayCode)
 					{
-					CopyToOffscreenBuffer (imageOverlayInfoPtr,
+					CopyToOffscreenBuffer (fileIOInstructionsPtr,
+													imageOverlayInfoPtr,
 													gClusterSpecsPtr->imageOverlayIndex,
 													FindProjectBaseImageWindowInfoHandle (),
 													line,

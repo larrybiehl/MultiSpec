@@ -13,7 +13,7 @@
 //
 //	Revision number:		3.0
 //
-//	Revision date:			03/16/2017
+//	Revision date:			05/26/2017
 //
 //	Language:				C
 //
@@ -90,6 +90,7 @@
 //								"multiSpec.h"
 //
 
+#include	"SMulSpec.h"
 
 #if defined multispec_mac 
 	#define	IDC_ClassifyTrainingAreas		10
@@ -106,13 +107,13 @@
 #endif	// defined multispec_mac 
   
 #if defined multispec_win   
-	#include	"SMulSpec.h" 
+	//#include	"SMulSpec.h" 
 	#include "WClusDlg.h" 
 	#include "SExtGlob.h"
 #endif	// defined multispec_win      
 
 #if defined multispec_lin   
-	#include	"SMulSpec.h" 
+	//#include	"SMulSpec.h" 
 	#include "LClusDlg.h" 
 	#include "SExtGlob.h"
 	#include "wx/wx.h"
@@ -6053,7 +6054,7 @@ Boolean ListClusterStatistics (
 // Called By:			ClusterControl
 //
 //	Coded By:			Larry L. Biehl			Date: 09/14/1989
-//	Revised By:			Larry L. Biehl			Date: 12/23/2014
+//	Revised By:			Larry L. Biehl			Date: 05/16/2017
 
 Boolean LoadClusterSpecs (
 				FileInfoPtr							fileInfoPtr)
@@ -6387,7 +6388,7 @@ Boolean LoadClusterSpecs (
 			{
 			gClusterSpecsPtr->clusterColumnInterval = MAX(1,
 				(gClusterSpecsPtr->clusterColumnEnd - gClusterSpecsPtr->clusterColumnStart) * 
-					(gClusterSpecsPtr->clusterLineEnd - gClusterSpecsPtr->clusterLineStart)/2500000);
+					(gClusterSpecsPtr->clusterLineEnd - gClusterSpecsPtr->clusterLineStart)/10000000);
 			gClusterSpecsPtr->clusterColumnInterval = MIN(5,
 														gClusterSpecsPtr->clusterColumnInterval);
 														

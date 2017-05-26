@@ -1,10 +1,10 @@
-// wcliddlg.cpp : implementation file
+// WCliDDlg.cpp : implementation file
+//
+// Revised by Larry Biehl on 05/26/2017
 //
                     
-#include "SMulSpec.h"
-                      
+#include "SMulSpec.h"       
 #include "WClIDDlg.h"
-
 #include	"SExtGlob.h" 
 
 extern void 		ISODATAClusterDialogInitialize (
@@ -198,7 +198,7 @@ END_MESSAGE_MAP()
 //	Called By:			Dialog in MDisMult.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 08/02/1996
-//	Revised By:			Larry L. Biehl			Date: 08/25/2010	
+//	Revised By:			Larry L. Biehl			Date: 05/26/2017	
 
 SInt16 
 CMISODATAClusterDialog::DoDialog(void)
@@ -206,8 +206,7 @@ CMISODATAClusterDialog::DoDialog(void)
 {  
 	Boolean						continueFlag = FALSE;  
 	
-	SInt16			//			clustersFrom,
-									returnCode;
+	INT_PTR						returnCode;
 								
 
 	                          

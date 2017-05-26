@@ -13,7 +13,7 @@
 //
 //	Revision number:		3.0
 //
-//	Revision date:			03/18/2017
+//	Revision date:			03/28/2017
 //
 //	Include files:			"MultiSpecHeaders"
 //
@@ -3953,7 +3953,7 @@ SInt16 RectifyImageDialogOnReferenceFile (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 07/13/2005
-//	Revised By:			Larry L. Biehl			Date: 04/13/2007
+//	Revised By:			Larry L. Biehl			Date: 03/28/2017
 
 void RectifyUpdateMapProjectionStructure (
 				Handle								inputWindowInfoHandle,

@@ -13,7 +13,7 @@
 //
 //	Revision number:		2.7
 //
-//	Revision date:			03/21/2017
+//	Revision date:			04/11/2017
 //
 //	Language:				C
 //
@@ -1463,7 +1463,7 @@ SInt16 CMFileStream::MGetSizeOfFile (
 // Called By:	
 //
 //	Coded By:			Larry L. Biehl			Date: 05/04/1995
-//	Revised By:			Larry L. Biehl			Date: 03/16/2015
+//	Revised By:			Larry L. Biehl			Date: 04/11/2017
 
 SInt16 CMFileStream::MOpenFile (
 				UInt16			readWriteCode,
@@ -1504,7 +1504,7 @@ SInt16 CMFileStream::MOpenFile (
 		else		// !Open (...
 			{
 			errCode = error.m_cause;
-			errCode = (SInt16)GetLastError ();
+			//errCode = (SInt16)GetLastError ();
 				               
 			if (messageCode == kErrorMessages)                                      
 	   		IOCheck (errCode);
@@ -1976,7 +1976,7 @@ SInt16 CMFileStream::MWriteData (
 // Called By:		
 //
 //	Coded By:			Larry L. Biehl			Date: 03/15/1999
-//	Revised By:			Larry L. Biehl			Date: 03/16/2017
+//	Revised By:			Larry L. Biehl			Date: 04/11/2017
 
 void CMFileStream::SetFileName (
 				FileStringPtr						inFileNamePtr)
@@ -2007,7 +2007,7 @@ void CMFileStream::SetFileName (
 			sizeNeeded = MIN(sizeNeeded, _MAX_PATH-2);
 			MultiByteToWideChar (
 					CP_UTF8, 0, (LPCSTR)&mUTF8PathName[1], -1, &mFilePathName[1], sizeNeeded);
-			mFilePathName[0] = wcslen (&mFilePathName[1]);
+			mFilePathName[0] = (TBYTE)wcslen (&mFilePathName[1]);
 
 					// Force the unicode version of the file name to be generated and
 					// the path length (no file name) to be computed.
@@ -2305,7 +2305,7 @@ void CMFileStream::SetUTF8FileName ()
 // Called By:		
 //
 //	Coded By:			Larry L. Biehl			Date: 03/14/2017
-//	Revised By:			Larry L. Biehl			Date: 03/14/2017
+//	Revised By:			Larry L. Biehl			Date: 04/11/2017
 
 void CMFileStream::SetUTF8FilePath ()
                      
@@ -2319,7 +2319,7 @@ void CMFileStream::SetUTF8FilePath ()
 		filePathCPtr = &mFilePathName[1];
 		utf8StringPtr = &mUTF8PathName[1];
 		//std::string utf8 = UTF8FromUTF16 (filePathCPtr);  requires visualc++ 2010
-		int size = wcslen (filePathCPtr);
+		int size = (int)wcslen (filePathCPtr);
 		int sizeNeeded = WideCharToMultiByte (
 									CP_UTF8, 0, filePathCPtr, size, NULL, 0, NULL, NULL);
 		WideCharToMultiByte (CP_UTF8, 0, filePathCPtr, size, (LPSTR)utf8StringPtr, sizeNeeded, NULL, NULL);

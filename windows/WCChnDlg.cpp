@@ -1,6 +1,7 @@
 // WCChnDlg.cpp : implementation file
 //
-
+// Revised by Larry Biehl on 05/26/2017
+//
                    
 #include "SMulSpec.h"
 #include "WCChnDlg.h"
@@ -109,8 +110,8 @@ CMChangeChannelDescriptionDlg::DoDialog(
 				float*								channelValuesPtr)
 
 {  
-	SInt16							returnCode,
-										returnValue;
+	INT_PTR							returnCode;
+	SInt16							returnValue;
 
 
 			// Make sure intialization has been completed.
