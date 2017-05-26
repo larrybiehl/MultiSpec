@@ -1,7 +1,5 @@
-// WFileDlg.cpp : implementation file
-//      
-// Revised by Larry Biehl on 05/26/2017
-//
+// wfiledlg.cpp : implementation file
+//                    
  
 #include "SMulSpec.h"
 	                  
@@ -221,7 +219,7 @@ END_MESSAGE_MAP()
 //	Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 11/20/1995
-//	Revised By:			Larry L. Biehl			Date: 05/26/2017	
+//	Revised By:			Larry L. Biehl			Date: 03/12/2013	
 
 Boolean 
 CMOpenFileDialog::DoDialog(
@@ -230,7 +228,7 @@ CMOpenFileDialog::DoDialog(
 {                                  
 	Boolean				continueFlag = FALSE;
 							
-	INT_PTR				returnCode;
+	SInt16				returnCode;
 	
 	
 			// Make sure intialization has been completed.
@@ -293,12 +291,13 @@ CMOpenFileDialog::OnSelendokImageType(void)
 
   
 
-void CMOpenFileDialog::OnSelendokLinkOption(void)
+void 
+CMOpenFileDialog::OnSelendokLinkOption(void)
 
 { 
 	DDX_CBIndex(m_dialogFromPtr, 14, m_linkOption);
 	m_linkOptionSelectionDataCode = 
-						(UInt32)((CComboBox*)GetDlgItem(14))->GetItemData(m_linkOption);
+						((CComboBox*)GetDlgItem(14))->GetItemData(m_linkOption);
 	
 	if (m_linkOptionSelectionDataCode == 1)
 		SetImageLinkToFalse();

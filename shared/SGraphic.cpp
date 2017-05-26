@@ -19,7 +19,7 @@
 //			
 //			
 //		revised by Larry L. Biehl  08/05/1992
-//		revised by Larry L. Biehl  05/24/2017
+//		revised by Larry L. Biehl  02/23/2016
 //
 // ========================================================================
 
@@ -2192,8 +2192,8 @@ static	void	LabelLinAxis_TrimString(
 	SInt16	loop;
 	
 
-	not_sp = (SInt16)strspn (str, " ");
-	len = (SInt16)strlen (str);
+	not_sp = strspn (str, " ");
+	len = strlen (str);
 	for (loop = 0; (loop < len) || (str[loop] != '\0'); loop++) 
 		{
 		str[loop] = str[loop + not_sp];
@@ -2301,7 +2301,7 @@ void	LabelLinAxis(
 			LabelLinAxis_TrimString (number);
          //printf("y_pos:%lf, %lf\n", (graph->yScaleMax + yint/10), y_pos);
 			
-			width = TextWidth ((UCharPtr)number, 0, (SInt16)strlen (number));
+			width = TextWidth ((UCharPtr)number, 0, strlen (number)); 
          #if defined multispec_lin
 				line = (SInt16)(y_offset - floor(y_pos * y_scale) - height);
          #endif
@@ -2316,7 +2316,7 @@ void	LabelLinAxis(
 			#endif	// defined multispec_mac 
 			 
 			#if defined multispec_win
-				pDC->TextOut (offset - width, line, (LPCTSTR)A2T(number), (SInt16)strlen(number));
+				pDC->TextOut (offset - width, line, (LPCTSTR)A2T(number), strlen(number));
 			#endif	// defined multispec_win
 			
          #if defined multispec_lin
@@ -2360,7 +2360,7 @@ void	LabelLinAxis(
 			FormatR (number, &x_pos, xESigfigs, xFSigfigs, noEFormatFlag, error);
 			LabelLinAxis_TrimString (number);
 			
-			width = TextWidth ((UCharPtr)number, 0, (SInt16)strlen (number));
+			width = TextWidth ((UCharPtr)number, 0, strlen (number)); 
 			line = (SInt16)(floor(x_pos * x_scale) - x_offset - width/2);
 			
 			#if defined multispec_mac
@@ -2369,7 +2369,7 @@ void	LabelLinAxis(
 			#endif	// defined multispec_mac 
 			 
 			#if defined multispec_win
-				pDC->TextOut (line, offset, (LPCTSTR)A2T(number), (SInt16)strlen(number));
+				pDC->TextOut (line, offset, (LPCTSTR)A2T(number), strlen(number));
 			#endif	// defined multispec_win 
 			
 			#if defined multispec_lin
@@ -2723,7 +2723,7 @@ GraphPtr	NewGraph(
 //			
 //			
 //		revised by Larry L. Biehl  12/09/1991
-//		revised by Larry L. Biehl  05/24/2017
+//		revised by Larry L. Biehl  10/17/2016
 //
 // ========================================================================
 
@@ -2766,32 +2766,19 @@ void	ScatterPlotV(
 									x_point, 
 									y_point;
 	
-#	if defined multispec_lin
+	#if defined multispec_lin
 		char							symbolString[2];
 		wxString						wx_sym;
 		symbolString[0] = 0;
 		symbolString[1] = 0;
-#	endif
-
-#	if defined multispec_win
-		USES_CONVERSION;
-
-		char							symbolString[2];
-		symbolString[0] = 0;
-		symbolString[1] = 0;
-#	endif
+	#endif
 
 	numberVectors = graph->numberVectors;
 
-	#ifdef multispec_mac	
+	#ifndef multispec_lin	
 		CDC* pDC = graph->pDC;
 	#endif
-
-#	ifdef multispec_win	
-		CDC* pDC = graph->pDC;
-		pDC->SetBkMode (TRANSPARENT);
-#	endif
-
+	
 	#ifdef multispec_lin
 		wxDC* pDC = graph->pDC;
 	#endif 
@@ -2853,33 +2840,25 @@ void	ScatterPlotV(
 		{
 		if (vectorDisplayPtr[lines] > 0)
 			{
-#			if defined multispec_mac
-				MForeColor (pDC, vectorPaletteColorPtr[lines]);
-#			endif
-
-#			if defined multispec_win
-				pDC->SetTextColor (vectorPaletteColorPtr[lines]);
-#			endif
-				
-#			if defined multispec_lin
+			MForeColor (pDC, vectorPaletteColorPtr[lines]);
+			
+			#if defined multispec_lin
 				wxColour color;
 				color.Set(vectorPaletteColorPtr[lines]);
 				pDC->SetTextForeground(color);
-#			endif
+			#endif
 
 			xValuePtr = &x->basePtr[xVectorDataPtr[lines]];
 			
 			points = vectorLengthsPtr[lines];
 			sym = vectorSymbolPtr[lines];	
-#			if defined multispec_lin
+			#if defined multispec_lin
 				symbolString[0] = sym;
 				wx_sym = wxString::FromAscii(symbolString);
-#			endif
-#			if defined multispec_win
-				symbolString[0] = sym;
-#			endif
+			#endif
 			
-			width = CharWidth (sym) / 2;            
+			width = CharWidth (sym) / 2;
+			
 			x_offset = graph->xScaleMin * x_scale + width - 
 																graph->leftInset - clientRectPtr->left;
 			
@@ -2900,8 +2879,14 @@ void	ScatterPlotV(
 				#endif	// defined multispec_mac 
 				 
 				#if defined multispec_win
-					//pDC->TextOut (x_point, y_point, (LPCTSTR)&sym, 1);
-					pDC->TextOut(x_point, y_point, A2T(symbolString), 1);
+					#ifdef UNICODE
+						WCHAR tc[1] = { 0 };
+						tc[0] = sym;
+						pDC->TextOut(x_point, y_point, tc, 1);
+					#else
+						pDC->TextOut (x_point, y_point, (LPCTSTR)&sym, 1);
+					#endif
+					
 				#endif	// defined multispec_win
 			
 				#if defined multispec_lin
@@ -2918,17 +2903,6 @@ void	ScatterPlotV(
 		}		// end "for (lines=0; lines<numberVectors; lines++)"
 		
 	MForeColor (pDC, blackColor);
-
-#	if defined multispec_win
-		pDC->SetBkMode (OPAQUE);
-		pDC->SetTextColor (blackColor);
-#	endif
-
-#	if defined multispec_lin
-		wxColour color;
-		color.Set(blackColor);
-		pDC->SetTextForeground(color);
-#	endif
 	
 	CheckAndUnlockHandle (graph->vectorPaletteColorHandle);
 	CheckAndUnlockHandle (graph->vectorLengthsHandle);

@@ -1,7 +1,5 @@
 // WFColDlg.cpp : implementation file
-//      
-// Revised by Larry Biehl on 05/26/2017
-//
+//                       
 
 #include	"SMulSpec.h" 
                         
@@ -91,8 +89,8 @@ END_MESSAGE_MAP()
 // 
 //	Called By:			Dialog in MDisMult.cpp
 //
-//	Coded By:			Larry L. Biehl			Date: 01/17/1997
-//	Revised By:			Larry L. Biehl			Date: 05/26/2017	
+//	Coded By:			Larry L. Biehl			Date: 01/17/97
+//	Revised By:			Larry L. Biehl			Date: 01/17/97	
 
 Boolean 
 CMFalseColorDlg::DoDialog(void)
@@ -100,7 +98,7 @@ CMFalseColorDlg::DoDialog(void)
 {  
 	Boolean			continueFlag = FALSE;
 	
-	INT_PTR			returnCode;
+	SInt16			returnCode;
 
 	                          
 			// Make sure intialization has been completed.

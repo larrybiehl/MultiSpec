@@ -30,28 +30,29 @@
 #endif
 
 #if defined multispec_win
-	#include "Stdafx.h"
+#include "stdafx.h"
+
 	//	#ifndef WINVER
 	//		#define  WINVER  0x0400
 	//	#endif	// !WINVER
 
 	//	#ifndef _WIN32_WINNT
-	//#define _WIN32_WINNT	0x0501 // _WIN32_WINNT_NT4
+	//#define _WIN32_WINNT	0x0500 // _WIN32_WINNT_NT4
 	//	#endif	// !_WIN32_WINNT
 
 	//	#ifndef _WIN32_WINDOWS
-	//#define _WIN32_WINDOWS	0x0501 // _WIN32_WINNT_NT4
+	//#define _WIN32_WINDOWS	0x0500 // _WIN32_WINNT_NT4
 	//	#endif	// !_WIN32_WINDOWS
 
 	//	#ifndef _WIN32_IE
-	//#define _WIN32_IE		0x0501 // _WIN32_WINNT_NT4
+	//#define _WIN32_IE		0x0500 // _WIN32_WINNT_NT4
 	//	#endif	// !_WIN32_IE
 
-	//#ifndef DOUBLE
-	//	typedef double DOUBLE;
-	//#endif // !DOUBLE_ 
+	#ifndef DOUBLE
+		typedef double DOUBLE;
+	#endif // !DOUBLE_ 
 
-	#define include_hdf_capability 1 
+	#define include_hdf_capability 1
 	#define include_gdal_capability 1
 	#define include_hdf5_capability 1
 

@@ -1,7 +1,6 @@
 // WDisplayMultispectralDialog.cpp : implementation file
 //
-//	Revised by Larry Biehl on 05/26/2017
-//
+//	Revised by Larry Biehl on 03/16/2017
                    
 #include "SMulSpec.h"
                                                                                
@@ -492,15 +491,15 @@ CMDisplaySpecsDlg::CheckChannel(
 //	Called By:			Dialog in MDisMult.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 06/01/1995
-//	Revised By:			Larry L. Biehl			Date: 05/26/2017	
+//	Revised By:			Larry L. Biehl			Date: 11/30/2006	
 
 Boolean 
 CMDisplaySpecsDlg::DoDialog(
 				DisplaySpecsPtr					displaySpecsPtr)
 
 {  
-	Boolean								continueFlag = FALSE; 
-	INT_PTR								returnCode;
+	Boolean			continueFlag = FALSE; 
+	SInt16			returnCode; 
 
 	                          
 			// Make sure intialization has been completed.

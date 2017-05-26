@@ -1,7 +1,5 @@
 // WClassGroupDialog.cpp : implementation file
-//   
-// Revised by Larry Biehl on 05/26/2017
-//
+//                     
                    
 #include "SMulSpec.h" 
 #include "WClassGroupDialog.h"
@@ -70,8 +68,8 @@ END_MESSAGE_MAP()
 // 
 //	Called By:			Dialog in MDisMult.cpp
 //
-//	Coded By:			Larry L. Biehl			Date: 04/0519/96
-//	Revised By:			Larry L. Biehl			Date: 05/26/2017	
+//	Coded By:			Larry L. Biehl			Date: 04/05/96
+//	Revised By:			Larry L. Biehl			Date: 06/11/2002	
 
 Boolean 
 CMClassGroupDlg::DoDialog(
@@ -84,7 +82,7 @@ CMClassGroupDlg::DoDialog(
 {  
 	Boolean			OKFlag = FALSE; 
 	
-	INT_PTR			returnCode;
+	SInt16			returnCode; 
 	 
 	
 			// Make sure intialization has been completed.

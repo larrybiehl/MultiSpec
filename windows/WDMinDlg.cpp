@@ -1,11 +1,12 @@
-// WDMinDlg.cpp : implementation file
-//   
-// Revised by Larry Biehl on 05/26/2017
-//
+// wdmindlg.cpp : implementation file
+//                   
                    
-#include "SMulSpec.h"               
+#include "SMulSpec.h"
+                      
 #include "WDMinDlg.h"
+
 #include "SExtGlob.h" 
+#include "wdmindlg.h"
 
 extern void 			MinMaxEnhancementDialogInitialize (
 								DialogPtr							dialogPtr,
@@ -155,7 +156,7 @@ END_MESSAGE_MAP()
 //	Called By:			Dialog in MDisMult.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 07/10/1998
-//	Revised By:			Larry L. Biehl			Date: 05/26/2017	
+//	Revised By:			Larry L. Biehl			Date: 11/21/2006	
 
 Boolean 
 CMDisplayMinMaxDialog::DoDialog(
@@ -168,9 +169,9 @@ CMDisplayMinMaxDialog::DoDialog(
 				double*								minMaxValuesPtr)
 
 {  
-	INT_PTR					returnCode;
+	int				returnCode; 
 
-	Boolean					continueFlag = FALSE;
+	Boolean			continueFlag = FALSE;
 	 
 	                          
 			// Make sure intialization has been completed.

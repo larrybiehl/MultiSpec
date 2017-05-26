@@ -1,10 +1,9 @@
 // WGaussianParameterDlg.cpp : implementation file
 //
-// Revised by Larry Biehl on 05/26/2017
-//
-
-#include "SMulSpec.h"                   
+#include "SMulSpec.h"
+                      
 #include "WGaussianParameterDlg.h"
+
 #include	"SExtGlob.h" 
 
 #ifdef _DEBUG
@@ -66,13 +65,13 @@ END_MESSAGE_MAP()
 //	Called By:			Dialog in MDisMult.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 05/07/2003
-//	Revised By:			Larry L. Biehl			Date: 05/26/2017	
+//	Revised By:			Larry L. Biehl			Date: 05/07/2003	
 
 Boolean 
 CMGaussianParameterDlg::DoDialog(
 				double*								gaussianStretchPtr)
 {  
-	INT_PTR			returnCode;
+	SInt16			returnCode; 
 
 	Boolean			continueFlag = FALSE;
 	 

@@ -92,16 +92,16 @@
 	// oul: added definition of SIZE_UNSIGNED_LONG and SIZEOF_VOIDP
 	// which are not defined in cpl_config.h
 	
-#	if defined multispec_lin
-#		if defined NetBeansProject
-				// The size of a 'unsigned long', as computed by sizeof.
-#			define SIZEOF_UNSIGNED_LONG 8
-				// The size of a 'void p', as computed by sizeof.
-#			define SIZEOF_VOIDP 8
-#		endif
-#	endif
+	#if defined multispec_lin
+		#if defined NetBeansProject
+			/* The size of a 'unsigned long', as computed by sizeof. */
+			#define SIZEOF_UNSIGNED_LONG 8
+			/* The size of a 'void p', as computed by sizeof. */
+			#define SIZEOF_VOIDP 8
+		#endif
+	#endif
 
-#	include "ogr_spatialref.h"
+	#include "ogr_spatialref.h"
 /*
 #	ifdef multispec_lin
 #		include "dbfopen.h"
@@ -149,12 +149,12 @@ extern void 					OverlayDialogOK (
 
 	 
 #if defined multispec_win || defined multispec_lin
-#	pragma pack(4)
+	#pragma pack(4)
 #endif	// defined multispec_win || defined multispec_lin
 
 #if PRAGMA_STRUCT_ALIGN
-	//#pragma options align=mac68k
-#	pragma pack(2)
+//#pragma options align=mac68k
+#pragma pack(2)
 #endif
 
 //#if PRAGMA_STRUCT_PACK
@@ -207,7 +207,7 @@ typedef struct ArcViewRecordHeader
 	} ArcViewRecordHeader, *ArcViewRecordHeaderPtr;
 	
 #if PRAGMA_STRUCT_ALIGN
-#	pragma options align=reset
+	#pragma options align=reset
 #endif
 	 
 //#if PRAGMA_STRUCT_PACK
@@ -215,7 +215,7 @@ typedef struct ArcViewRecordHeader
 //#endif	// PRAGMA_STRUCT_PACK
 	 
 #if defined multispec_win || defined multispec_lin
-#	pragma pack()
+	#pragma pack()
 #endif	// defined multispec_win || defined multispec_lin
 							
 
@@ -343,7 +343,8 @@ SInt16						gOverlayColorList[7] = {blackColor,
 void AddCurrentVectorOverlaysToImageWindow (
 				WindowInfoPtr						windowInfoPtr)
 
-{
+{	
+//	SDoubleRect							lBoundingRect;
 	DoubleRect							lBoundingRect;
 											
 	Handle*								shapeHandlePtr;
@@ -532,6 +533,7 @@ void AddCurrentVectorOverlaysToImageWindow (
 
 SInt16 AddToWindowOverlayList (
 				WindowPtr							windowPtr,
+//				SDoubleRect*						boundingRectPtr,
 				DoubleRect*							boundingRectPtr,
 				SInt32								overlayNumber,
 				Boolean								mapUnitsFlag)
@@ -621,11 +623,13 @@ SInt16 AddToWindowOverlayList (
 
 SInt16 CheckIfOverlayFileLoaded (
 				CMFileStream*						fileStreamPointer,
+//				SDoubleRect*						boundingRectPtr,
 				DoubleRect*							boundingRectPtr,
 				SInt16*								overlayNumberPtr,
 				UInt16*								versionNumberLoadedPtr)
 
-{
+{	
+//	SDoubleRect							lBoundingRect;
 	DoubleRect							lBoundingRect;
 	FileStringPtr						fileNamePPointer,
 											newOverlayFileNamePPointer;
@@ -820,6 +824,7 @@ SInt16 CheckIfOverlayFileLoaded (
 		if (!WindowBoundingAreaAndRectIntersect (gActiveImageWindow,
 																	boundingRectPtr,
 																	mapUnitsFlag))
+//																	TRUE))
 			overlayCheckReturn = 5;
 			
 		else		// WindowBoundingAreaAndRectIntersect (...
@@ -886,7 +891,8 @@ SInt16 CheckIfOverlayFileLoaded (
 Boolean CheckIfVectorOverlaysIntersectImage (
 				WindowInfoPtr						windowInfoPtr)
 
-{
+{	
+//	SDoubleRect							lBoundingRect;
 	DoubleRect							lBoundingRect;
 											
 	Handle*								shapeHandlePtr;
@@ -1042,14 +1048,14 @@ Boolean CheckIfOverlayMayBeLatLong (
 	Boolean								mayBeLatLongUnitsFlag = FALSE;
 	
 	
-#	if include_gdal_capability
+	#if include_gdal_capability
 				// If gdal capability exists, then use this library to get information
 				// from an associated prj file.
 				
 		latLongCode = CheckIfprjFileDefinesLatLong (shapeFileStreamPtr);
 		if (latLongCode == 1)
 			mayBeLatLongUnitsFlag = TRUE;				
-#	endif	// include_gdal_capability
+	#endif	// include_gdal_capability
 	
 	if (latLongCode == -1)
 		{
@@ -1203,6 +1209,7 @@ SInt16 CheckIfprjFileDefinesLatLong (
 SInt16 CheckIfOverlayNeedsReloaded (
 				WindowPtr							newWindow,
 				SInt16								overlayNumber,
+//				SDoubleRect*		 				boundingRectPtr)
 				DoubleRect*							boundingRectPtr)
 
 {
@@ -2027,15 +2034,15 @@ void DoShowOverlaySelection (
 					
 				}		// end "for (index=0; index<numberVectorOverlays; index++)"
 				
-#			if defined multispec_mac
+			#if defined multispec_mac				
 				invalidateFlag = FALSE;
 				if (numberImageOverlays > 0) 	
 					invalidateFlag = TRUE;         
-#			endif	// defined multispec_mac
+			#endif	// defined multispec_mac
 				
-#			if defined multispec_win || defined multispec_lin
+			#if defined multispec_win || defined multispec_lin			
 				invalidateFlag = TRUE;          
-#			endif	// defined multispec_win || defined multispec_lin
+			#endif	// defined multispec_win || defined multispec_lin
 			
 			}		// end "else if (selection == 2)"
 			
@@ -2168,15 +2175,15 @@ void DrawArcViewShapes (
 				CGContextRef						context)
 				
 { 					
-#	if defined multispec_win
+	#if defined multispec_win
 		CPen									overlayPen;
 		CPen*									overlayPenPtr = NULL;
-#	endif	// defined multispec_win
+	#endif	// defined multispec_win
 	
-#	if defined multispec_lin
+	#if defined multispec_lin
 		wxPen									overlayPen;
 		wxPen*								overlayPenPtr = NULL;
-#	endif	// defined multispec_win
+	#endif	// defined multispec_win
 				
 	DoubleRect							boundingWindowBox;
 	
@@ -2187,9 +2194,9 @@ void DrawArcViewShapes (
 											
 	MapToWindowUnitsVariables		mapToWindowUnitsVariables;
 											
-#	if defined multispec_mac
+	#if defined multispec_mac
 		Pattern								black;
-#	endif	// defined multispec_mac
+	#endif	// defined multispec_mac    
 	
 	ArcViewDoublePoint*				arcViewDoublePointPtr;
 	ArcViewPointPtr					arcViewPointPtr;
@@ -2227,39 +2234,44 @@ void DrawArcViewShapes (
 		Handle                        displaySpecsH;
 	#endif
 */			
-#	if defined multispec_mac
+	#if defined multispec_mac
 		PenState								penState; 
-#	endif	// defined multispec_mac
+	#endif	// defined multispec_mac        
 
-#	if defined multispec_win
+	#if defined multispec_win																
 		if (gCDCPointer == NULL)            
 																								return; 
-#	endif	// defined multispec_win
+	#endif	// defined multispec_win                                 
 	
-#	if defined multispec_lin
-		//wxMemoryDC displaydc;
-		//bool bitok = (windowPtr->m_ScaledBitmap).IsOk();
-		//displaydc.SelectObject(windowPtr->m_ScaledBitmap);
-		//wxDC* oldgCDCpt = gCDCPointer; // Save the global DC pointer
-		//gCDCPointer = &displaydc;
+	#if defined multispec_lin		
+//		wxMemoryDC displaydc;
+//		bool bitok = (windowPtr->m_ScaledBitmap).IsOk();
+//		displaydc.SelectObject(windowPtr->m_ScaledBitmap);
+//		wxDC* oldgCDCpt = gCDCPointer; // Save the global DC pointer 
+//		gCDCPointer = &displaydc;
 		if (gCDCPointer == NULL)
 																								return;
-#	endif	// defined multispec_lin
+	#endif	// defined multispec_lin
 	
 	shapeHandlePtr = NULL;
 	SetChannelWindowVariables (windowCode, windowInfoHandle, kNotCoreGraphics);
 	
-#	if defined multispec_win
+			// Do not draw overlays in side by side channel displays for now.
+			
+//	if (gSideBySideChannels > 1)
+//																								return;
+	
+	#if defined multispec_win  				
 		CPen* 				pOldPen = NULL;
 		
 		Boolean				continueFlag = TRUE;
-#	endif	// defined multispec_win
+	#endif	// defined multispec_win 
 	
-#	if defined multispec_lin
+	#if defined multispec_lin  				
 		wxPen* 				pOldPen = NULL;
 		
 		Boolean				continueFlag = TRUE;
-#	endif	// defined multispec_lin
+	#endif	// defined multispec_lin 
 	
 	windowInfoPtr = (WindowInfoPtr)GetHandleStatusAndPointer (
 										windowInfoHandle, &windowHandleStatus, kNoMoveHi);
@@ -2286,7 +2298,7 @@ void DrawArcViewShapes (
 			
 		winUseOriginFlag = FALSE;
 		
-#		if defined multispec_win
+		#if defined multispec_win  				
 			GetWindowClipRectangle (windowPtr, kImageArea, &gViewRect);
 			if (!gMFC_Rgn.CreateRectRgn(gViewRect.left,
 												gViewRect.top,
@@ -2313,9 +2325,9 @@ void DrawArcViewShapes (
 				gCDCPointer->SetBkMode(TRANSPARENT);
 					
 				}		// end " if (continueFlag)"                                
-#		endif	// defined multispec_win
+		#endif	// defined multispec_win  
 			
-#		if defined multispec_mac
+		#if defined multispec_mac
 			if (context == NULL)
 				{
 						// Save the current pen state.												
@@ -2327,22 +2339,21 @@ void DrawArcViewShapes (
 					
 				}		// end "if (context == NULL"
 			
-#			if TARGET_API_MAC_CARBON
+			#if TARGET_API_MAC_CARBON	
 				else		// context != NULL
 					gCGContextBeginPathPtr (context);
-#			endif		// TARGET_API_MAC_CARBON
-#		endif	// defined multispec_mac
+			#endif		// TARGET_API_MAC_CARBON
+		#endif	// defined multispec_mac   
       
-#		if defined multispec_lin
+		#if defined multispec_lin
 					// Initialize pen to white 
          GetWindowClipRectangle (windowPtr, kImageArea, &gViewRect);
-			//inputBoundingRectPtr = &gViewRect;
+//         inputBoundingRectPtr = &gViewRect;
 			overlayPenPtr = new wxPen(*wxWHITE);
-#		endif
+		#endif
 											
 				// Set some parameters for converting from map units to window units.
-		/*
-		#if defined multispec_lin
+/*		#if defined multispec_lin
 			// Save the scrolling in displayspecsptr and set it to 1 for linux
 			displaySpecsH = GetDisplaySpecsHandle(windowInfoHandle);
 			displaySpecsPtr = (DisplaySpecsPtr)GetHandlePointer(
@@ -2352,18 +2363,18 @@ void DrawArcViewShapes (
 			displaySpecsPtr->origin[kHorizontal] = 0;
 			displaySpecsPtr->origin[kVertical] = 0;
 		#endif
-		*/
+*/				
 		SetMapToWindowUnitsVariables (windowInfoHandle,
 												windowCode,
 												kVectorOverlay,
 												kNotCoreGraphics, 
 												&mapToWindowUnitsVariables);
-		/*
+/*      
 		#if defined multispec_lin
 			displaySpecsPtr->origin[kVertical] = savedVScroll;
 			displaySpecsPtr->origin[kHorizontal] = savedHScroll;
 		#endif
-		*/
+*/		
 				// Get the rectangle in map units that is being updated in
 				// the current window.	
 
@@ -2385,24 +2396,24 @@ void DrawArcViewShapes (
 					
 			clipRect = gViewRect;   
 				
-#			ifdef multispec_mac
+			#ifdef multispec_mac
 				clipRect.left = (SInt16)MAX (0, gStartChannelWindow);
 				clipRect.right = (SInt16)MIN (gViewRect.right, 
 														gStartChannelWindow + gChannelWindowWidth);
 				ClipRect (&clipRect);
-#			endif	// multispec_mac
+			#endif	// multispec_mac 
 
-#			if defined multispec_win || defined multispec_lin
+			#if defined multispec_win || defined multispec_lin
 				clipRect.left = (int)MAX (0, gStartChannelWindow);
 				clipRect.right = (int)MIN (gViewRect.right, 
 														gStartChannelWindow + gChannelWindowWidth);
 				if (windowCode != kToPrintWindow)
 					ClipRect (&clipRect);
-#			endif	// defined multispec_win || defined multispec_lin
+			#endif	// defined multispec_win || defined multispec_lin
 			
 			}		// end "if (gSideBySideChannels > 1)"     
 
-		//SInt16 countPolygons = 0;
+//		SInt16 countPolygons = 0;
 		
 		for (overlayIndex=0; overlayIndex<numberOverlays; overlayIndex++)
 			{
@@ -2472,11 +2483,11 @@ void DrawArcViewShapes (
 					wxColour pwxcolor((unsigned char)pcolor.red, (unsigned char)pcolor.green, (unsigned char)pcolor.blue);
 
                int pthick = (int)windowInfoPtr->overlayList[overlayIndex].lineThickness;
-							// Now make sure pthick is thick enough when zoomed out
-					/*
+               // Now make sure pthick is thick enough when zoomed out
+/*
                if(pthick*(mapToWindowUnitsVariables.magnification) < 1)
                   pthick = ceil(1/mapToWindowUnitsVariables.magnification);
-					*/
+*/               
 					overlayPenPtr = new wxPen(pwxcolor, pthick);               
                //overlayPenPtr = new wxPen(pwxcolor);
                gCDCPointer->SetUserScale(1, 1);
@@ -2782,7 +2793,7 @@ void* GetFileNamePPointer (
 		{              
 		CMFileStream* fileStreamPtr = GetFileStreamPointer (shapeInfoPtr);
 		fileNamePtr = GetFileNamePPointer (fileStreamPtr, returnCode);
-		/*
+/*		                                   
 		if (fileStreamPtr != NULL)
 			{
 			#if defined multispec_mac
@@ -2794,7 +2805,7 @@ void* GetFileNamePPointer (
 			#endif	// defined multispec_win || defined multispec_lin
 			
 			}		// end "if (fileStreamPtr != NULL)"
-		*/
+*/		
 		}		// end "if (shapeInfoPtr != NULL)" 
 
 	return (fileNamePtr);
@@ -2957,7 +2968,9 @@ Boolean GetArcViewMapInformation (
 	Boolean								infoExistsFlag = FALSE;
 	
 	
+	
 	*geoSpotHeaderFlagPtr = FALSE;
+	
 	
 			// Find "ULXMAP" in the buffer.								
 		
@@ -3303,7 +3316,8 @@ void InitializeOverlay (
 				SInt32								overlayNumber)
 
 {	
-	UInt32								index;
+	UInt32					//			colorIndex,
+											index;
 	
 														
 	index = windowInfoPtr->numberOverlays;
@@ -5711,9 +5725,20 @@ Boolean ReadArcViewWorldFile (
 	
 	CharPtr								blwRecordPtr;
 	
+//#	if !defined multispec_win
 	UInt8									*blwFileNamePtr,
 											*imageFileNamePtr;
-
+//#	endif
+//#	if defined multispec_win
+//#		if defined _UNICODE
+//			TBYTE*								blwFileNamePtr,
+//													imageFileNamePtr;
+//#		else
+//			StringPtr							blwFileNamePtr,
+//													imageFileNamePtr;
+//#		endif
+//#	endif
+										
 	CMFileStream						*fileStreamPtr,
 											*blwFileStreamPtr;
 											
@@ -5739,7 +5764,8 @@ Boolean ReadArcViewWorldFile (
 	Boolean								fileReadFlag = FALSE;
 	
 
-	if (fileInfoPtr != NULL)
+//	if (fileInfoPtr != NULL && fileInfoPtr->mapProjectionHandle == NULL)
+	if (fileInfoPtr != NULL)		
 		{
 		errCode = noErr;
 		fileStreamPtr = GetFileStreamPointer (fileInfoPtr);
@@ -6004,6 +6030,8 @@ SInt16 ReadArcViewShapeFile (
 	Boolean								includeFlag,
 											notDoneFlag,
 											quitFlag = FALSE;
+											
+//	SInt16								numberChars;
 	
 	
 	if (shapeFileIndex < 0)
@@ -6580,7 +6608,8 @@ SInt16 ReadArcViewShapeHeader (
 	UInt8									headerRecord[128];
 	
 	FileStringPtr						shapeFileNamePtr;
-	
+											
+//	SDoubleRect							boundingBox;
 	DoubleRect							boundingBox;
 	
 	CMFileStream						*fileStreamPtr,
@@ -7023,7 +7052,8 @@ SInt16 ReadArcViewShapeHeader (
 //			SInt32		numberFields;
 //			int			fieldWidth, numberDecimals;
 //			DBFFieldType		fieldType;
-											
+			//TTY change
+#if 0										
 			#if include_gdal_capability		
 				returnCode = GetHDFFilePathCPointer (fileInfoPtr, 
 																filePathString,
@@ -7034,7 +7064,7 @@ SInt16 ReadArcViewShapeHeader (
 				if (returnCode == noErr)
 					dbfHandle = DBFOpen ((char*)filePathPtr, "rb");
 			#endif	// include_gdal_capability
-			
+#endif			
 /*			if (dbfHandle != NULL)
 				{
 				numberRecords = DBFGetRecordCount (dbfHandle);				
@@ -7655,12 +7685,15 @@ void ReleaseShapeFileMemory (
 								UnlockAndDispose (shapeInfoPtr->vectorDataHandle);
 		
 		if (memoryReleaseCode == kAllShapeHandleMemory)
-			{		
+			{
+			//TTY changed
+#if 0
 			#if include_gdal_capability
 				if (shapeInfoPtr->dbfInfoPtr != NULL)
 					DBFClose (shapeInfoPtr->dbfInfoPtr);
 			#endif	// include_gdal_capability
-				
+#endif
+
 			shapeInfoPtr->dbfInfoPtr = NULL;
 						
 			fileStreamPtr = GetFileStreamPointer (shapeInfoPtr);
@@ -7886,6 +7919,7 @@ void SetLastVectorColorAndWidth (
 
 Boolean ShapeAndWindowAreasIntersect (
 				SInt16								overlayNumber,
+//				SDoubleRect*		 				boundingRectPtr)
 				DoubleRect*							boundingRectPtr)
 
 {

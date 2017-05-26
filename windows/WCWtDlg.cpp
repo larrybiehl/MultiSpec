@@ -136,8 +136,8 @@ END_MESSAGE_MAP()
 // 
 //	Called By:			Dialog in MDisMult.cpp
 //
-//	Coded By:			Larry L. Biehl			Date: 12/15/1999
-//	Revised By:			Larry L. Biehl			Date: 05/26/2017	
+//	Coded By:			Larry L. Biehl			Date: 12/15/99
+//	Revised By:			Larry L. Biehl			Date: 12/15/99	
 
 SInt16 
 CMClassWeightsDlg::DoDialog(                     
@@ -148,7 +148,7 @@ CMClassWeightsDlg::DoDialog(
 				Boolean								useEnhancedStatFlag)
 
 {  
-	INT_PTR								returnCode;
+	SInt16								returnCode; 
 	
 	Boolean								OKFlag = FALSE; 
 	 

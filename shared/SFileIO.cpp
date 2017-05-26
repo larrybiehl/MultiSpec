@@ -13,7 +13,7 @@
 //
 //	Revision number:		3.0
 //
-//	Revision date:			04/11/2017
+//	Revision date:			03/27/2017
 //
 //	Language:				C
 //
@@ -1584,9 +1584,7 @@ Boolean CopyFileStream (
 					newFileStreamPtr->SetFilePath (oldFilePathPtr, FALSE);
 					newFileStreamPtr->mCreator = inputFileStreamPtr->mCreator;
 					newFileStreamPtr->mFileType = inputFileStreamPtr->mFileType; 
- 		         //newFileStreamPtr->m_hFile = inputFileStreamPtr->m_hFile;
-							// Do not allow the two classes to have the same file reference
-					newFileStreamPtr->m_hFile = CFile::hFileNull;
+ 		         newFileStreamPtr->m_hFile = inputFileStreamPtr->m_hFile;
 					newFileStreamPtr->mUnicodePathLength = inputFileStreamPtr->mUnicodePathLength;
 					newFileStreamPtr->mUTF8PathLength = inputFileStreamPtr->mUTF8PathLength;
  		         returnFlag = TRUE;
@@ -4287,10 +4285,10 @@ SInt16 GetFile (
 				filterStringIndex = IDS_TRLFilterString;
 				
 			else if (stringIndex == IDS_FileIO95)
-				filterStringIndex = IDS_MultispectralFilterString;
+				filterStringIndex = IDS_ClassificationFilterString;
 				
 			else if (stringIndex == IDS_FileIO96)
-				filterStringIndex = IDS_MultispectralFilterString;
+				filterStringIndex = IDS_ClassificationFilterString;
 				
 			else if (stringIndex == IDS_SelectNewBaseImage) 
 				filterStringIndex = IDS_MultispectralFilterString;
@@ -4758,7 +4756,7 @@ Boolean GetFileDlgDetermineLinkVisibility ()
 // Called By:		
 //
 //	Coded By:			Larry L. Biehl			Date: 02/04/2013
-//	Revised By:			Larry L. Biehl			Date: 04/11/2017
+//	Revised By:			Larry L. Biehl			Date: 03/25/2017
 
 SInt16 GetFileNameFromFSRef (
 				FSRef*								fileAsFSRefPtr,
@@ -4822,7 +4820,7 @@ SInt16 GetFileNameFromFSRef (
 									CP_UTF8, 0, (LPCWSTR)&inputFileStringPtr[1], size, NULL, 0, NULL, NULL);
 		WideCharToMultiByte (CP_UTF8, 0, (LPCWSTR)&inputFileStringPtr[1], size, (LPSTR)uft8String, sizeNeeded, NULL, NULL);
 
-		pathLength = (SInt16)strlen ((char*)uft8String);
+		pathLength = strlen ((char*)uft8String);
 		localFileNamePtr = uft8String;
 		
 		if (pathLength > 0)
@@ -14669,7 +14667,7 @@ SInt16 ResolveAnyAliases (
 // Called By:		
 //
 //	Coded By:			Larry L. Biehl			Date: 11/28/2001
-//	Revised By:			Larry L. Biehl			Date: 04/11/2017	
+//	Revised By:			Larry L. Biehl			Date: 03/17/2017	
 
 void SetCFileName (
 				FileInfoPtr							fileInfoPtr,
@@ -14739,7 +14737,7 @@ void SetCFileName (
 		
 				// Now update the character count.
 				
-		filePathPPtr[0] = (UInt8)strlen ((char*)&filePathPPtr[1]);
+		filePathPPtr[0] = strlen ((char*)&filePathPPtr[1]);
 
 		}		// end "if (fileStreamPtr != NULL && fileNameCPtr != NULL)"
 	

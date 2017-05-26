@@ -1247,8 +1247,8 @@ Handle GetCountVectorTableMemory (
 
 Ptr GetHandlePointer (
 				Handle								handle,
-				Boolean								lockFlag,
-				Boolean								moveHiFlag) 
+				Boolean								lockFlag = FALSE,
+				Boolean								moveHiFlag = FALSE) 
 
 {            
 #if defined multispec_mac 

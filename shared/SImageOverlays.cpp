@@ -13,7 +13,7 @@
 //
 //	Revision number:		3.0
 //
-//	Revision date:			05/12/2017
+//	Revision date:			03/18/2017
 //
 //	Language:				C
 //
@@ -63,9 +63,6 @@ SInt16 							GetOverlayOffscreenGWorld (
 										UInt32								lineStart,
 										UInt32								lineEnd,
 										SInt16								thematicPaletteType,
-										ImageOverlayInfoPtr				imageOverlayInfoPtr); 
-
-void								ReleaseImageOverlayStructureMemory(
 										ImageOverlayInfoPtr				imageOverlayInfoPtr);
 
 typedef struct UInt8ColorTable
@@ -317,7 +314,7 @@ void CloseImageOverlayFile (
 //
 //	Function name:		void CopyToOffscreenBuffer
 //
-//	Software purpose:	The purpose of this routine is to move the requested lines of 
+//	Software purpose:	The purpose of this routine is to the requested lines of 
 //							thematic information to the correct location in the offscreen 
 //							buffer.
 //
@@ -327,16 +324,12 @@ void CloseImageOverlayFile (
 //
 //	Value Returned:	
 //
-// Called By:			ClassifyPerPointArea in SClassify.cpp
-//							ISODATAClusterPass in SClustID.cpp
-//							OnePassClusterAreas in SClustSP.cpp
-//							PostEchoClassifier in SEClssfy.cpp
+// Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 01/16/2003
-//	Revised By:			Larry L. Biehl			Date: 05/12/2017
+//	Revised By:			Larry L. Biehl			Date: 03/23/2006
 
 void CopyToOffscreenBuffer (
-				FileIOInstructionsPtr			fileIOInstructionsPtr,
 				ImageOverlayInfoPtr				imageOverlayInfoPtr,
 				SInt16								imageOverlayIndex,
 				Handle								activeImageWindowInfoHandle,
@@ -355,7 +348,7 @@ void CopyToOffscreenBuffer (
 	HPtr									offScreenLineBufferPtr;	
 	WindowInfoPtr						imageWindowInfoPtr;
 	
-	//Handle								activeImageWindowInfoHandle;
+//	Handle								activeImageWindowInfoHandle;
 	
 	SInt16								windowOverlayIndex;
 											
@@ -368,8 +361,7 @@ void CopyToOffscreenBuffer (
 											columnStart,
 											line);
 									
-	FillLineOfOffscreenBuffer (fileIOInstructionsPtr,
-										imageOverlayInfoPtr,
+	FillLineOfOffscreenBuffer (imageOverlayInfoPtr,
 										line,
 										columnStart,
 										columnInterval,
@@ -383,7 +375,7 @@ void CopyToOffscreenBuffer (
 		{
 				// Make sure that the overlay can now be drawn.
 				
-		//activeImageWindowInfoHandle = FindProjectBaseImageWindowInfoHandle ();
+//		activeImageWindowInfoHandle = FindProjectBaseImageWindowInfoHandle ();
 			
 		imageWindowInfoPtr = (WindowInfoPtr)GetHandlePointer (
 								activeImageWindowInfoHandle, kNoLock, kNoMoveHi);	
@@ -424,9 +416,9 @@ void CopyToOffscreenBuffer (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 01/06/2003
-//	Revised By:			Larry L. Biehl			Date: 05/19/2017
+//	Revised By:			Larry L. Biehl			Date: 03/31/2007
 
-void DrawImageOverlays  (
+void DrawImageOverlays (
 				WindowPtr							windowPtr,
 				Handle								windowInfoHandle,
 				CGContextRef						context,
@@ -467,9 +459,9 @@ void DrawImageOverlays  (
    Handle                        displaySpecsH;
 #endif
 */									
-#	if defined multispec_mac 
+	#if defined multispec_mac 
 		float 								inputHeight;
-#	endif		// defined multispec_mac          
+	#endif		// defined multispec_mac          
 	
 	
 	SetChannelWindowVariables (windowCode, windowInfoHandle, gOSXCoreGraphicsFlag);
@@ -494,8 +486,7 @@ void DrawImageOverlays  (
 				// Set some parameters for converting from map units to window units.
 				// 	Set offset for computing closest window units (not for pen location).
 				// 	The image top offset is already handled by Core Graphics.
-/*
-#if defined multispec_lin
+/*#if defined multispec_lin
       // Save the scrolling in displayspecsptr and set it to 1 for linux
       displaySpecsH = GetDisplaySpecsHandle(windowInfoHandle);
       displaySpecsPtr = (DisplaySpecsPtr)GetHandlePointer(
@@ -524,7 +515,8 @@ void DrawImageOverlays  (
       displaySpecsPtr->origin[kVertical] = savedVScroll;
       displaySpecsPtr->origin[kHorizontal] = savedHScroll;
 #endif
-*/											
+*/
+												
 		if (gOSXCoreGraphicsFlag)
 			{
 			lcToWindowUnitsVariables.magnification = 1.;
@@ -533,9 +525,9 @@ void DrawImageOverlays  (
 			lcToWindowUnitsVariables.imageTopOffset = 0;
 			legendWidth = lcToWindowUnitsVariables.imageLeftOffset;
 									
-#			if defined multispec_mac 
+			#if defined multispec_mac 
 				inputHeight = rectanglePtr->size.height;
-#			endif		// defined multispec_mac 
+			#endif		// defined multispec_mac 
 			
 			}		// end "if (gOSXCoreGraphicsFlag)"
 					
@@ -557,11 +549,12 @@ void DrawImageOverlays  (
 				overlayInfoPtr = NULL;
 										
 			if (overlayInfoPtr != NULL)
-				{																			
-#				if defined multispec_mac 
+				{						
+																	
+				#if defined multispec_mac 
 					GWorldFlags							offscreenGWorldFlags;
 
-#					if TARGET_API_MAC_CARBON		
+					#if TARGET_API_MAC_CARBON		
 						if (gOSXCoreGraphicsFlag && 
 									overlayInfoPtr->offscreenStorageHandle != NULL)
 							{
@@ -630,7 +623,7 @@ void DrawImageOverlays  (
 							
 						else		// !gOSXCoreGraphicsFlag || imageBaseAddressH != NULL
 							{
-#					endif		// TARGET_API_MAC_CARBON
+					#endif		// TARGET_API_MAC_CARBON
 										
 							copyBitsFlag = TRUE;
 							if (overlayInfoPtr->usePlanarCoordinateInfoFlag)
@@ -784,25 +777,29 @@ void DrawImageOverlays  (
 				
 				}		// end "if (overlayWindowPtr != NULL)"
 */			
-#					if TARGET_API_MAC_CARBON
+					#if TARGET_API_MAC_CARBON
 						}		// end "else !gOSXCoreGraphicsFlag" 
-#					endif	// TARGET_API_MAC_CARBON
-#				endif // defined multispec_mac 
+					#endif	// TARGET_API_MAC_CARBON
+					
+				#endif // defined multispec_mac 
 
-#				if defined multispec_win     
-					BITMAP			transparentBitMap;
+				#if defined multispec_win     
+				  
+					LPBITMAPINFO   lpDIBHdr;            // Pointer to BITMAPINFOHEADER
+					LPSTR    		lpDIBBits;           // Pointer to DIB bits
 					SInt16	     	bSuccess=0;     		// Success/fail flag
 					HDC				hDC;
 //					SInt16			titleHeight;
-					BLENDFUNCTION	blendFunction;
+//					BLENDFUNCTION	blendFunction;
 					
-							// Get the bitmap for for HBITMAP
+							// Lock down the DIB, and get a pointer to the beginning of the 
+							// bit buffer
 				 
-					if (!GetObject ((HBITMAP)overlayInfoPtr->offScreenMapHandle,
-											sizeof(BITMAP),
-											(LPSTR)&transparentBitMap))
-																												return;
-
+					lpDIBHdr = (LPBITMAPINFO)::GlobalLock(
+													(HGLOBAL)overlayInfoPtr->offScreenMapHandle);
+					lpDIBBits  = (LPSTR)::GlobalLock(
+													(HGLOBAL)overlayInfoPtr->offscreenStorageHandle);
+					
 					copyBitsFlag = TRUE;
 
 					if (overlayInfoPtr->usePlanarCoordinateInfoFlag)
@@ -877,10 +874,9 @@ void DrawImageOverlays  (
 						destinationRect.right = overlayDestinationRect.right;
 				
 						sourceRectPtr->top = 0;
-						//sourceRectPtr->bottom = lpDIBHdr->bmiHeader.biHeight;
-						sourceRectPtr->bottom = transparentBitMap.bmHeight;
+						sourceRectPtr->bottom = lpDIBHdr->bmiHeader.biHeight;
 						sourceRectPtr->left = 0;
-						sourceRectPtr->right = transparentBitMap.bmWidth;
+						sourceRectPtr->right = lpDIBHdr->bmiHeader.biWidth;
 						
 						}		// end "else !...->usePlanarCoordinateInfoFlag" 
 				
@@ -895,15 +891,13 @@ void DrawImageOverlays  (
 							// is stored in memory in reverse order last line to first line.
 							
 					sourceRectPtr->top = 
-									(int)transparentBitMap.bmHeight - sourceRectPtr->bottom;
+									(int)lpDIBHdr->bmiHeader.biHeight - sourceRectPtr->bottom;
 
 					hDC = gCDCPointer->GetSafeHdc();
 			
 					if (copyBitsFlag)
-						{
-						/*
-						bSuccess = ::StretchDIBits (
-											hDC,            						// hDC
+				  		bSuccess = ::StretchDIBits(
+			  								hDC,            						// hDC
 											destinationRect.left,        		// DestX
 											destinationRect.top,         		// DestY
 											destinationRectWidth,     			// nDestWidth
@@ -915,68 +909,23 @@ void DrawImageOverlays  (
 											lpDIBBits,                      	// lpBits
 											lpDIBHdr,         					// lpBitsInfo
 											DIB_PAL_COLORS,                 	// wUsage
-											SRCCOPY);                       	// dwROP (SRCCOPY) (SRCINVERT is close)
-						*/
-						//sourceHDC = CreateCompatibleDC (hDC);
-						//transparentBitMap = CreateDIBSection(sourceHDC, lpDIBHdr, DIB_RGB_COLORS, &overlayBitsPtr, NULL, 0x0);
-						//BlockMoveData(lpDIBBits, overlayBitsPtr, lpDIBHdr->bmiHeader.biSizeImage);
-						//SelectObject (sourceHDC, transparentBitMap);
-
-						blendFunction.BlendOp = AC_SRC_OVER;
-						blendFunction.BlendFlags = 0;
-						blendFunction.SourceConstantAlpha = (UInt8)(overlayListPtr[overlayIndex].opacity*255);
-						blendFunction.AlphaFormat = AC_SRC_ALPHA;
-
-						bSuccess = ::AlphaBlend (
-											hDC,            						// hDC
-											destinationRect.left,        		// DestX
-											destinationRect.top,         		// DestY
-											destinationRectWidth,     			// nDestWidth
-											destinationRectHeight,    			// nDestHeight
-											overlayInfoPtr->overlayDC,			// source device context
-											sourceRectPtr->left,             // SrcX
-											sourceRectPtr->top,   				// SrcY
-											sourceRectWidth,         			// wSrcWidth
-											sourceRectHeight,        			// wSrcHeight
-											blendFunction);                  // blendFunction
-
-						//DeleteObject(transparentBitMap);
-						//DeleteDC(sourceHDC);
-						
-						/*
-						sourceHDC = CreateCompatibleDC (hDC);
-						SelectObject (sourceHDC, lpDIBBits);
-
-						bSuccess = ::TransparentBlt (
-											hDC,            						// hDC
-											destinationRect.left,        		// DestX
-											destinationRect.top,         		// DestY
-											destinationRectWidth,     			// nDestWidth
-											destinationRectHeight,    			// nDestHeight
-											sourceHDC,								// source device context
-											sourceRectPtr->left,             // SrcX
-											sourceRectPtr->top,   				// SrcY
-											sourceRectWidth,         			// wSrcWidth
-											sourceRectHeight,        			// wSrcHeight
-											RGB(0, 0, 0));                    // color which is transparent 
-						*/
-						}
+											SRCCOPY);                       	// dwROP 
 											
-			   	//::GlobalUnlock ((HGLOBAL)overlayInfoPtr->offScreenMapHandle);
-			   	//::GlobalUnlock ((HGLOBAL)overlayInfoPtr->offscreenStorageHandle);
-#				endif // defined multispec_win 
+			   	::GlobalUnlock ((HGLOBAL)overlayInfoPtr->offScreenMapHandle);
+			   	::GlobalUnlock ((HGLOBAL)overlayInfoPtr->offscreenStorageHandle);
+				#endif // defined multispec_win 
 
-#				if defined multispec_lin     
+				#if defined multispec_lin     
 					BITMAPINFOHEADER* bitMapInfoHeadPtr;
 					SInt16 bSuccess = 0; // Success/fail flag
+
 
 					bitMapInfoHeadPtr = (BITMAPINFOHEADER*) GetHandlePointer(overlayInfoPtr->offScreenMapHandle, kLock, kNoMoveHi);
 
 
 					copyBitsFlag = TRUE;
 
-					if (overlayInfoPtr->usePlanarCoordinateInfoFlag) 
-						{
+					if (overlayInfoPtr->usePlanarCoordinateInfoFlag) {
 								// Define the rectangle to draw the image overlay within.
 								// In Linux, overlay is drawn on bitmap file so no magnification is required
 						double oldmagn = mapToWindowUnitsVariables.magnification;
@@ -995,14 +944,13 @@ void DrawImageOverlays  (
 								  intersectWindowRectangle.top > intersectWindowRectangle.bottom)
 							copyBitsFlag = FALSE;
 
-						if (copyBitsFlag) 
-							{
+						if (copyBitsFlag) {
 							destinationRect.top = intersectWindowRectangle.top;
 							destinationRect.left = intersectWindowRectangle.left;
 							destinationRect.bottom = intersectWindowRectangle.bottom;
 							destinationRect.right = intersectWindowRectangle.right;
 
-							ConvertWinRectToMapRect (
+							ConvertWinRectToMapRect(
 									  windowInfoHandle,
 									  &intersectWindowRectangle,
 									  &boundingMapRectangle,
@@ -1011,7 +959,7 @@ void DrawImageOverlays  (
 
 									// Force upper left and lower right for map rectangle.
 
-							ConvertMapRectToLCRect (
+							ConvertMapRectToLCRect(
 									  windowInfoHandle,
 									  &boundingMapRectangle,
 									  &overlayDestinationRect,
@@ -1030,9 +978,9 @@ void DrawImageOverlays  (
 									  overlayInfoPtr->lineColumnRect.right -
 									  overlayInfoPtr->lineColumnRect.left);
 
-							}	// end "if (copyBitsFlag)"
+							} // end "if (copyBitsFlag)"
 
-						}	// end "if (overlayInfoPtr->usePlanarCoordinateInfoFlag)"
+						}// end "if (overlayInfoPtr->usePlanarCoordinateInfoFlag)"
 
 					else // !overlayInfoPtr->usePlanarCoordinateInfoFlag
 						{
@@ -1053,7 +1001,7 @@ void DrawImageOverlays  (
 						sourceRectPtr->left = 0;
 						sourceRectPtr->right = bitMapInfoHeadPtr->biWidth;
 
-						}	// end "else !...->usePlanarCoordinateInfoFlag" 
+					} // end "else !...->usePlanarCoordinateInfoFlag" 
 
 					int destinationRectWidth = MAX((destinationRect.right - destinationRect.left), 0);
 					int destinationRectHeight = MAX((destinationRect.bottom - destinationRect.top), 0);
@@ -1065,7 +1013,6 @@ void DrawImageOverlays  (
 
 							// First define a new image buffer data to get rgb values from offscreenstoragehandle
 							// The format of data in offscreenstoragehandle is rgb,alpha.
-
 					int tpixels = destinationRectWidth * destinationRectHeight;
 					int pind = 0;
 					Handle imagebuffer = malloc(tpixels * 3);
@@ -1089,8 +1036,7 @@ void DrawImageOverlays  (
 					bool bitok = (windowPtr->m_ScaledBitmap).IsOk();
 					displaydc.SelectObject(windowPtr->m_ScaledBitmap);
 
-					if (copyBitsFlag) 
-						{
+					if (copyBitsFlag) {
 						bSuccess = displaydc.Blit(destinationRect.left, // DestX
 								  destinationRect.top, // DestY
 								  destinationRectWidth, // nDestWidth
@@ -1101,7 +1047,7 @@ void DrawImageOverlays  (
 								  );
 						
 						}
-#				endif // defined multispec_lin 
+				#endif // defined multispec_lin 
 				
 				CheckAndUnlockHandle (imageOverlayHandlePtr[imageOverlayIndex]);
 				
@@ -1137,13 +1083,12 @@ void DrawImageOverlays  (
 //
 // Value Returned:	None			
 // 
-// Called By:			CopyToOffscreenBuffer in SImageOverlays.cpp
+// Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 01/06/2003
-//	Revised By:			Larry L. Biehl			Date: 05/12/2017	
+//	Revised By:			Larry L. Biehl			Date: 02/21/2012	
 
 void FillLineOfOffscreenBuffer (
-				FileIOInstructionsPtr			fileIOInstructionsPtr,
 				ImageOverlayInfoPtr				imageOverlayInfoPtr,
 				SInt32								line,
 				UInt32								column,
@@ -1155,120 +1100,85 @@ void FillLineOfOffscreenBuffer (
 				Boolean								twoByteInputBufferFlag)
 
 {	
-	HUInt16Ptr							maskBufferPtr,
-											twoByteInputBufferPtr;
+	HUInt16Ptr							twoByteInputBufferPtr;
 
 	SInt32*								colorOffscreenPtr;
 	
    Point									point;
-	
-	SInt16								pointType;
-	
-	UInt16								maskRequestValue;
 
 	UInt32								colorTableIndex,
-											columnEnd,
 											sample;
-											
-	Boolean								includePixelFlag,
-											skipLineFlag;
 
 	
 	if (offScreenPtr != NULL)
 		{  
 		colorOffscreenPtr = (SInt32*)offScreenPtr;
 		point.v = (SInt16)line; 
-						
-		pointType =  gAreaDescription.pointType;	
-		skipLineFlag = FALSE;
-		if (pointType == kMaskType)
-			{
-			maskBufferPtr = fileIOInstructionsPtr->maskBufferPtr;
-			
-			if (*maskBufferPtr == 0)
-				skipLineFlag = TRUE;
-				
-			maskBufferPtr += gAreaDescription.maskColumnStart;
-			maskRequestValue = (UInt16)fileIOInstructionsPtr->maskValueRequest;	
-			
-			columnEnd = gAreaDescription.columnEnd;
-			
-			}	// end "if (pointType == kMaskType)"
 	  		
-				// For now 'twoByteInputBufferFlag' implies that this was called from
-				// the cluster processor where only those data points that were
-				// clustered are in 'inputBufferPtr'.
-				
-				// For now '!twoByteInputBufferFlag' implies that this was called from
-				// the classify processor where all points in the enclosing rectangle
-				// of the area are included in 'inputBufferPtr'. 
-				
-				// This is particularly 
-				// important for polygonal type areas. We do want to increment 
-				// 'inputBufferPtr' for every pixel in the enclosing rectangle of
-				// the area.
-				
-		twoByteInputBufferPtr = (HUInt16Ptr)inputBufferPtr;
-		for (sample=1; sample<=numberSamples; sample++)
-			{									
-					// Set horizotal (column) point in case it is needed for			
-					// polygonal field.	
+	  	if (twoByteInputBufferFlag)
+	  		{
+	  				// For now 'twoByteInputBufferFlag' implies that this was called from
+	  				// the cluster processor where only those data points that were
+	  				// clustered are in 'inputBufferPtr'. This is particularly important
+	  				// for polygonal type areas. We do not want to increment 
+	  				// 'inputBufferPtr' unless the pixel is included in the area.
+	  				
+	  		twoByteInputBufferPtr = (HUInt16Ptr)inputBufferPtr;
+			for (sample=1; sample<=numberSamples; sample++)
+				{									
+						// Set horizotal (column) point in case it is needed for			
+						// polygonal field.	
 
-			point.h = (SInt16)column;
-					
-			includePixelFlag = FALSE;
-			if (pointType == kRectangleType)
-				includePixelFlag = TRUE;
-				
-			else if (pointType == kPolygonType && PtInRgn (point, rgnHandle))
-				includePixelFlag = TRUE;
-			
-			else if (pointType == kMaskType)
-				{
-						// Note that only the included mask pixels are included in the
-						// input line. Step through the columns until an included mask
-						// pixel is found.
-						
-				while (*maskBufferPtr != maskRequestValue && column <= columnEnd)
-					{
-					colorOffscreenPtr += columnInterval;
-					maskBufferPtr += columnInterval;
-					column += columnInterval;
-					
-					}	// end "while (*maskBufferPtr != maskRequestValue)"
-					
-				if (column <= columnEnd)
-					includePixelFlag = TRUE;
-				
-				}	// end "else if (pointType == kMaskType && ..."
-				
-			if (includePixelFlag)
-				{
-				if (twoByteInputBufferFlag)
+			   point.h = (SInt16)column;
+			   
+				if (rgnHandle == NULL || PtInRgn (point, rgnHandle))
 					{
 					colorTableIndex = *twoByteInputBufferPtr % 256;
 					*colorOffscreenPtr = 
 								imageOverlayInfoPtr->colorTable[colorTableIndex];
 
 					twoByteInputBufferPtr++;
-					
-					}	// end "if (twoByteInputBufferFlag)"
-					
-				else	// !twoByteInputBufferFlag
-					*colorOffscreenPtr = imageOverlayInfoPtr->colorTable[*inputBufferPtr];
-					
-				}		// end "if (includePixelFlag)" 
+			         
+			      }		// end "if (!polygonFieldFlag || PtInRgn (point, rgnHandle))" 
+			      
+				colorOffscreenPtr += columnInterval;
+			   column += columnInterval;
+		      
+				}		// end "for (sample=1; sample<=numberSamples; sample++)"
 				
-			inputBufferPtr++;
-				
-			colorOffscreenPtr += columnInterval;
-			column += columnInterval;
-									
-			if (pointType == kMaskType)
-				maskBufferPtr += columnInterval;
+			}		// end "if (twoByteInputBufferFlag)"
 			
-			}		// end "for (sample=1; sample<=numberSamples; sample++)"
+		else		// !twoByteInputBufferFlag
+	  		{	
+	  				// For now '!twoByteInputBufferFlag' implies that this was called from
+	  				// the classify processor where all points in the enclosing rectangle
+	  				// of the area are included in 'inputBufferPtr'.This is particularly 
+	  				// important for polygonal type areas. We do want to increment 
+	  				// 'inputBufferPtr' for every pixel in the enclosing rectangle of
+	  				// the area.
+	  				
+			for (sample=1; sample<=numberSamples; sample++)
+				{									
+						// Set horizotal (column) point in case it is needed for			
+						// polygonal field.	
 
+			   point.h = (SInt16)column;
+			   
+				if (rgnHandle == NULL || PtInRgn (point, rgnHandle))
+					{
+					*colorOffscreenPtr = imageOverlayInfoPtr->colorTable[*inputBufferPtr];
+			         
+			      }		// end "if (!polygonFieldFlag || PtInRgn (point, rgnHandle))" 
+			      
+				inputBufferPtr++;
+			      	
+				colorOffscreenPtr += columnInterval;
+			   column += columnInterval;
+		      
+				}		// end "for (sample=1; sample<=numberSamples; sample++)"
+				
+			}		// end "else !twoByteInputBufferFlag"
+			
 		}		// end "if (offScreenPtr != NULL)"
 		
 }		// end "FillLineOfOffscreenBuffer"	
@@ -1854,17 +1764,17 @@ HPtr GetImageOverlayOffscreenPointer (
 	
 	if (imageOverlayInfoPtr != NULL)
 		{
-#		if defined multispec_mac 
+		#if defined multispec_mac 
 			if (gOSXCoreGraphicsFlag)
 				{
-#				if TARGET_API_MAC_CARBON
+				#if TARGET_API_MAC_CARBON
 							// Note that this handle is already locked.	
 					offScreenBufferPtr = (HPtr)GetHandlePointer(
 								imageOverlayInfoPtr->offscreenStorageHandle, kNoLock, kNoMoveHi);
 				 
 					offScreenPixMapH = 
 								(PixMapHandle)imageOverlayInfoPtr->offScreenMapHandle;
-#				endif	// TARGET_API_MAC_CARBON
+				#endif	// TARGET_API_MAC_CARBON	
 				
 				}		// end "if (gOSXCoreGraphicsFlag)"
 				
@@ -1874,13 +1784,13 @@ HPtr GetImageOverlayOffscreenPointer (
 				offScreenBufferPtr = GetPixBaseAddr (offScreenPixMapH);
 				
 				}		// end "else !gOSXCoreGraphicsFlag"
-#		endif // defined multispec_mac 
+		#endif // defined multispec_mac 
 		
-#		if defined multispec_win || defined multispec_lin
+		#if defined multispec_win || defined multispec_lin
 			offScreenBufferPtr = (HPtr)GetHandlePointer(
 								imageOverlayInfoPtr->offscreenStorageHandle, kLock, kNoMoveHi);
 			offScreenPixMapH = (PixMapHandle)imageOverlayInfoPtr->offScreenMapHandle;
-#		endif // defined multispec_win || defined multispec_lin
+		#endif // defined multispec_win || defined multispec_lin
 		
 		}		// end "if (imageOverlayInfoPtr != NULL)"
 	
@@ -1927,14 +1837,14 @@ HPtr GetImageOverlayLineOffscreenPointer (
 		
 	if (offScreenBufferPtr != NULL)
 		{		
-#		if defined multispec_mac || defined multispec_lin
+		#if defined multispec_mac || defined multispec_lin
 			lineOffset = (SInt32)(lineStart - imageOverlayInfoPtr->lineColumnRect.top);
-#		endif // defined multispec_mac || defined multispec_lin
+		#endif // defined multispec_mac || defined multispec_lin
 			
-#		if defined multispec_win 
+		#if defined multispec_win 
 					// Allow for reverse order of lines in Windows bitmap.
 			lineOffset = (SInt32)(imageOverlayInfoPtr->lineColumnRect.bottom - lineStart);
-#		endif // defined multispec_win
+		#endif // defined multispec_win
 
 		if (lineOffset >= 0)
 			{
@@ -1977,7 +1887,7 @@ HPtr GetImageOverlayLineOffscreenPointer (
 // Called By:			DisplayColorImage
 //
 //	Coded By:			Larry L. Biehl			Date: 03/29/2002
-//	Revised By:			Larry L. Biehl			Date: 05/19/2017
+//	Revised By:			Larry L. Biehl			Date: 07/22/2015
 
 SInt16 GetOverlayOffscreenGWorld (
 				UInt32								numberClasses, 
@@ -2045,6 +1955,7 @@ SInt16 GetOverlayOffscreenGWorld (
 									(UInt16)numberEntries,
 									(UInt16)numberClasses,
 									thematicPaletteType,
+//									kDefaultColors,
 									(UInt16)numberClasses,
 									kClassDisplay,
 									&paletteCode);
@@ -2062,26 +1973,26 @@ SInt16 GetOverlayOffscreenGWorld (
 	tableIndex = 4;			
 	for (index=0; index<numberEntries; index++)
 		{
-#		if defined multispec_mac
+		#if defined multispec_mac
 			colorTablePtr[tableIndex] = 0xff;
 			colorTablePtr[tableIndex+1] = (colorSpecPtr[index].rgb.red >> 8);
 			colorTablePtr[tableIndex+2] = (colorSpecPtr[index].rgb.green >> 8);
 			colorTablePtr[tableIndex+3] = (colorSpecPtr[index].rgb.blue >> 8);
-#		endif	// defined multispec_mac
+		#endif	// defined multispec_mac
 		
-#		if defined multispec_lin
+		#if defined multispec_lin
 			colorTablePtr[tableIndex] = 0xff;
 			colorTablePtr[tableIndex+1] = colorSpecPtr[index].rgb.red;
 			colorTablePtr[tableIndex+2] = colorSpecPtr[index].rgb.green;
 			colorTablePtr[tableIndex+3] = colorSpecPtr[index].rgb.blue;
-#		endif	// defined multispec_lin
+		#endif	// defined multispec_lin
 
-#		if defined multispec_win 
+		#if defined multispec_win 
 			colorTablePtr[tableIndex] = (colorSpecPtr[index].rgb.blue >> 8);
 			colorTablePtr[tableIndex+1] = (colorSpecPtr[index].rgb.green >> 8);
 			colorTablePtr[tableIndex+2] = (colorSpecPtr[index].rgb.red >> 8);
-			colorTablePtr[tableIndex+3] = 0x7f;		// 0xff
-#		endif	// defined multispec_mac 
+			colorTablePtr[tableIndex+3] = 0xff;
+		#endif	// defined multispec_mac 
 
 		tableIndex += 4;
 		
@@ -2089,7 +2000,7 @@ SInt16 GetOverlayOffscreenGWorld (
 									
 	CheckAndUnlockHandle ((Handle)tempCTableHandle);
 	
-#	if defined multispec_mac 
+	#if defined multispec_mac 
 		SInt64								sInt64FreeBytesNeeded;
 		
 		Rect									rect;
@@ -2122,6 +2033,7 @@ SInt16 GetOverlayOffscreenGWorld (
 						
 		pixRowBytes = GetNumberPixRowBytes (
 									(UInt32)offscreenRect.right,
+//									8);
 									32);
 									
 		if (pixRowBytes > gMaxRowBytes)
@@ -2136,7 +2048,7 @@ SInt16 GetOverlayOffscreenGWorld (
 			{
 			freeBytesNeeded = (SInt32)sInt64FreeBytesNeeded;
 		
-			//#if TARGET_API_MAC_CARBON	
+			#if TARGET_API_MAC_CARBON	
 			if (gOSXCoreGraphicsFlag)
 				{
 						// If this is from the classify processor, we will need to 0 out the
@@ -2272,7 +2184,7 @@ SInt16 GetOverlayOffscreenGWorld (
 					}		// end "if (resultCode == noErr)" 
 				
 				}		// end "if (gOSXCoreGraphicsFlag)"
-			//#endif	// TARGET_API_MAC_CARBON	
+			#endif	// TARGET_API_MAC_CARBON	
 					
 			if (!gOSXCoreGraphicsFlag)
 				{
@@ -2327,7 +2239,7 @@ SInt16 GetOverlayOffscreenGWorld (
 						resultCode = 1;
 						
 					}		// end "if (resultCode == noErr)" 
-				/*
+				
 				#if !TARGET_API_MAC_CARBON	
 					else		// resultCode != noErr 
 						{
@@ -2344,26 +2256,26 @@ SInt16 GetOverlayOffscreenGWorld (
 						
 						}		// end "else resultCode != noErr" 
 				#endif	// !TARGET_API_MAC_CARBON	
-				*/
+				
 				}		// end "else !gOSXCoreGraphicsFlag"
 				
 			}		// end "if resultCode == noError
 			
 		SetGWorld (savedPort, savedDevice);
-#	endif	// defined multispec_mac 
+	#endif	// defined multispec_mac 
 	
 	UnlockAndDispose ((Handle)tempCTableHandle);
 
-#	if defined multispec_win 
+	#if defined multispec_win 
 		SInt64								sInt64FreeBytesNeeded;
 		
-		//BITMAPINFO*							bitMapInfoPtr;
-		BITMAPINFO							bitMapInfo;
+//		BITMAPINFO*							bitMapInfoPtr;
+//		BITMAPINFO							bitMapInfo;
 
 		BITMAPINFOHEADER*					bitMapInfoHeadPtr;
-		void*									bitMapPtr;
+//		void*									bitMapPtr;
 		
-		UInt32								//bytesNeeded,
+		UInt32								bytesNeeded,
 												maxRowBytes;
 										
 		//SInt16								resultCode; 
@@ -2384,7 +2296,7 @@ SInt16 GetOverlayOffscreenGWorld (
 				// Now get memory for the offscreen bit map and header. 
 				
 		resultCode = noErr;     
-		//numberEntries = (SInt16)numberClasses;
+//		numberEntries = (SInt16)numberClasses;
 																							
 				// Check if the number of bytes needed for the new BITMAP
 				// is the same as that in the current BITMAP; if not release the
@@ -2392,30 +2304,28 @@ SInt16 GetOverlayOffscreenGWorld (
 				// Change on 2/16/2000 so that the old BITMAP was always cleared out.
 		
 		sInt64FreeBytesNeeded = 
-					(SInt64)pixRowBytes * ((SInt64)offscreenRect.bottom - offscreenRect.top);
+					(SInt64)pixRowBytes * ((SInt64)offscreenRect.bottom - offscreenRect.top + 1);
 		
 		if (sInt64FreeBytesNeeded > SInt32_MAX)
 			resultCode = 1;
 		
-		ReleaseImageOverlayStructureMemory (imageOverlayInfoPtr);
-
-		//if (resultCode == noErr)
-			//{
-			//bytesNeeded = (SInt32)sInt64FreeBytesNeeded;
-			//UnlockAndDispose (imageOverlayInfoPtr->offscreenStorageHandle);
-			//imageOverlayInfoPtr->offscreenStorageHandle = MNewHandle(bytesNeeded);
-			//imageOverlayInfoPtr->offscreenMapSize = bytesNeeded;
+		if (resultCode == noErr)
+			{
+			bytesNeeded = (SInt32)sInt64FreeBytesNeeded;
+			UnlockAndDispose (imageOverlayInfoPtr->offscreenStorageHandle);
+			imageOverlayInfoPtr->offscreenStorageHandle = MNewHandle(bytesNeeded);
+			imageOverlayInfoPtr->offscreenMapSize = bytesNeeded;
 		
-			//if (imageOverlayInfoPtr->offscreenStorageHandle == NULL)
-			//	resultCode = 1;
+			if (imageOverlayInfoPtr->offscreenStorageHandle == NULL)
+				resultCode = 1;
 			
-			//}		// end "if (resultCode == noErr)"
+			}		// end "if (resultCode == noErr)"
 		
 				// Dispose of old BITMAPINFOHEADER if it exists and get a new one.	
 		
-		//imageOverlayInfoPtr->offScreenMapHandle = 
-		//							UnlockAndDispose (imageOverlayInfoPtr->offScreenMapHandle);
-		/*									
+		imageOverlayInfoPtr->offScreenMapHandle = 
+									UnlockAndDispose (imageOverlayInfoPtr->offScreenMapHandle);
+											
 		if (resultCode == noErr)
 			{
 					// Get BITMAPINFOHEADER
@@ -2428,15 +2338,15 @@ SInt16 GetOverlayOffscreenGWorld (
 				resultCode = 1; 
 			
 			}		// end "if (resultCode == noErr)"
-		*/															
+																	
 		if (resultCode == noErr)
 			{
-			bitMapInfoHeadPtr = (BITMAPINFOHEADER*)&bitMapInfo;
+//			bitMapInfoHeadPtr = (BITMAPINFOHEADER*)&bitMapInfo;
 
 					// Load info in BITMAPINFOHEADER
 					
-			//bitMapInfoHeadPtr = (BITMAPINFOHEADER*)GetHandlePointer(
-			//					imageOverlayInfoPtr->offScreenMapHandle, kLock, kNoMoveHi); 
+			bitMapInfoHeadPtr = (BITMAPINFOHEADER*)GetHandlePointer(
+								imageOverlayInfoPtr->offScreenMapHandle, kLock, kNoMoveHi); 
 														
 			bitMapInfoHeadPtr->biSize = 40;		
 			bitMapInfoHeadPtr->biWidth = offscreenRect.right - offscreenRect.left;	
@@ -2444,58 +2354,46 @@ SInt16 GetOverlayOffscreenGWorld (
 			bitMapInfoHeadPtr->biPlanes = 1;	
 			bitMapInfoHeadPtr->biBitCount = 32;			// 8
 			bitMapInfoHeadPtr->biCompression = BI_RGB;	
-			bitMapInfoHeadPtr->biSizeImage = (DWORD)sInt64FreeBytesNeeded;
+			bitMapInfoHeadPtr->biSizeImage = 0;	
 			bitMapInfoHeadPtr->biXPelsPerMeter = 0;	
 			bitMapInfoHeadPtr->biYPelsPerMeter = 0;	
 			bitMapInfoHeadPtr->biClrUsed = 0; // numberEntries	
-			bitMapInfoHeadPtr->biClrImportant = 0;
+			bitMapInfoHeadPtr->biClrImportant = 0;	
 
-			imageOverlayInfoPtr->offscreenMapSize = (UInt32)sInt64FreeBytesNeeded;
-
-			CDC*	pDC = gActiveImageViewCPtr->GetDC ();
+/*			CDC*	pDC = gActiveImageViewCPtr->GetDC ();
 			HDC	hDC = pDC->GetSafeHdc ();
-			imageOverlayInfoPtr->overlayDC = CreateCompatibleDC (hDC);
 
-			HBITMAP transparentBitMap = CreateDIBSection (imageOverlayInfoPtr->overlayDC,
-																		(BITMAPINFO*)bitMapInfoHeadPtr,
-																		DIB_RGB_COLORS,
-																		&bitMapPtr,
-																		NULL,
-																		0);
+			HBITMAP hBitMapPtr = CreateDIBSection (hDC,
+																(BITMAPINFO*)bitMapInfoHeadPtr,
+																DIB_RGB_COLORS,
+																&bitMapPtr,
+																NULL,
+																0);
 
-			SelectObject (imageOverlayInfoPtr->overlayDC, transparentBitMap);
-
-			imageOverlayInfoPtr->offScreenMapHandle = (Handle)transparentBitMap;
+			imageOverlayInfoPtr->offScreenMapHandle = (Handle)hBitMapPtr;
 			imageOverlayInfoPtr->offscreenStorageHandle = (Handle)bitMapPtr;
 
-			if (transparentBitMap == NULL)
+			if (hBitMapPtr == NULL)
 				resultCode = 1;
-				
-			//CheckAndUnlockHandle (imageOverlayInfoPtr->offScreenMapHandle);                                    
+*/				
+			CheckAndUnlockHandle (imageOverlayInfoPtr->offScreenMapHandle);                                    
 				
 			}		// end "if (resultCode == noErr)" 
 			
 		if (resultCode != noErr) 
 			{
-			ReleaseImageOverlayStructureMemory (imageOverlayInfoPtr);
-			/*
-			DeleteObject (transparentBitMap);
-			DeleteDC (imageOverlayInfoPtr->overlayDC);
-			imageOverlayInfoPtr->offScreenMapHandle = NULL;
-			imageOverlayInfoPtr->offscreenStorageHandle = NULL;
-			imageOverlayInfoPtr->overlayDC = NULL;
-			//imageOverlayInfoPtr->offScreenMapHandle =  
-			//					UnlockAndDispose (imageOverlayInfoPtr->offScreenMapHandle);
+			imageOverlayInfoPtr->offScreenMapHandle =  
+								UnlockAndDispose (imageOverlayInfoPtr->offScreenMapHandle);
 			
-			//imageOverlayInfoPtr->offscreenStorageHandle = 							
-			//					UnlockAndDispose (imageOverlayInfoPtr->offscreenStorageHandle);
+			imageOverlayInfoPtr->offscreenStorageHandle = 							
+								UnlockAndDispose (imageOverlayInfoPtr->offscreenStorageHandle);
 			
 			imageOverlayInfoPtr->offscreenMapSize = 0;
-			*/
+			
 			}		// end "if (resultCode != noErr)"
-#	endif	// defined multispec_win 
+	#endif	// defined multispec_win 
 
-#	if defined multispec_lin 
+	#if defined multispec_lin 
 		SInt64					sInt64FreeBytesNeeded;
 		BITMAPINFOHEADER*		bitMapInfoHeadPtr;
 
@@ -2529,8 +2427,7 @@ SInt16 GetOverlayOffscreenGWorld (
 		if (sInt64FreeBytesNeeded > SInt32_MAX)
 			resultCode = 1;
 
-		if (resultCode == noErr)
-			{
+		if (resultCode == noErr) {
 			bytesNeeded = (SInt32) sInt64FreeBytesNeeded;
 			UnlockAndDispose(imageOverlayInfoPtr->offscreenStorageHandle);
 			imageOverlayInfoPtr->offscreenStorageHandle = MNewHandle(bytesNeeded);
@@ -2546,8 +2443,7 @@ SInt16 GetOverlayOffscreenGWorld (
 		imageOverlayInfoPtr->offScreenMapHandle =
 				  UnlockAndDispose(imageOverlayInfoPtr->offScreenMapHandle);
 
-		if (resultCode == noErr)
-			{
+		if (resultCode == noErr) {
 			// Get BITMAPINFOHEADER
 			// Space is always allowed for a 256 entry table.
 
@@ -2559,8 +2455,7 @@ SInt16 GetOverlayOffscreenGWorld (
 
 			} // end "if (resultCode == noErr)"
 
-		if (resultCode == noErr)
-			{
+		if (resultCode == noErr) {
 			//			bitMapInfoHeadPtr = (BITMAPINFOHEADER*)&bitMapInfo;
 
 			// Load info in BITMAPINFOHEADER
@@ -2584,8 +2479,7 @@ SInt16 GetOverlayOffscreenGWorld (
 
 			} // end "if (resultCode == noErr)" 
 
-		if (resultCode != noErr)
-			{
+		if (resultCode != noErr) {
 			imageOverlayInfoPtr->offScreenMapHandle =
 					  UnlockAndDispose(imageOverlayInfoPtr->offScreenMapHandle);
 
@@ -2594,8 +2488,8 @@ SInt16 GetOverlayOffscreenGWorld (
 
 			imageOverlayInfoPtr->offscreenMapSize = 0;
 
-			} // end "if (resultCode != noErr)"
-#	endif	// defined multispec_lin 
+		} // end "if (resultCode != noErr)"
+	#endif	// defined multispec_lin 
 	
 	imageOverlayInfoPtr->rowBytes = pixRowBytes;
 
@@ -2671,7 +2565,7 @@ Boolean HideAllImageOverlays (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 01/03/2003
-//	Revised By:			Larry L. Biehl			Date: 05/19/2017
+//	Revised By:			Larry L. Biehl			Date: 01/14/2003
 
 void InitializeImageOverlayInfoStructure (
 				ImageOverlayInfoPtr				imageOverlayInfoPtr)
@@ -2679,15 +2573,11 @@ void InitializeImageOverlayInfoStructure (
 {
 	if (imageOverlayInfoPtr != NULL)
 		{
-#		if TARGET_API_MAC_CARBON
+		#if TARGET_API_MAC_CARBON
 			imageOverlayInfoPtr->cgInfo.contextRef = NULL;
 			imageOverlayInfoPtr->cgInfo.imageRef = NULL;
 			imageOverlayInfoPtr->cgInfo.contextRowBytes = 0;
-#		endif	// TARGET_API_MAC_CARBON
-
-#		if defined multispec_win
-			imageOverlayInfoPtr->overlayDC = NULL;
-#		endif	// defined multispec_win
+		#endif	// TARGET_API_MAC_CARBON
 		
 		imageOverlayInfoPtr->paletteObject = NULL;
 		
@@ -2718,7 +2608,7 @@ void InitializeImageOverlayInfoStructure (
 
 
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2001)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2736,7 +2626,7 @@ void InitializeImageOverlayInfoStructure (
 // Called By:						
 //
 //	Coded By:			Larry L. Biehl			Date: 01/03/2003
-//	Revised By:			Larry L. Biehl			Date: 05/19/2017	
+//	Revised By:			Larry L. Biehl			Date: 01/20/2003	
 
 void ReleaseImageOverlayStructureMemory (
 				Handle*								imageOverlayHandlePtr,
@@ -2753,7 +2643,7 @@ void ReleaseImageOverlayStructureMemory (
 	
 	if (imageOverlayInfoPtr != NULL)
 		{															
-#		if defined multispec_mac 
+		#if defined multispec_mac 
 			GWorldPtr							offscreenGWorld;
 			PixMapHandle						pixMapHandle;
 		
@@ -2774,14 +2664,30 @@ void ReleaseImageOverlayStructureMemory (
 				UnlockPixels (pixMapHandle);
 				AllowPurgePixels (pixMapHandle);
 				DisposeGWorld (offscreenGWorld);
-									
+				
+				#if !TARGET_API_MAC_CARBON	
+/*							// Now try to get the GWorld memory back again to be used	
+							// for the next time a new image is displayed.					
+					
+					if (gNumberAvailableGWorldPtrs < kMaxNumberIWindows)
+						{
+						gGWorldPlaceHolderList[gNumberAvailableGWorldPtrs] =
+																	MNewPointer ( sizeof(CGrafPort) );
+						
+						if ( gGWorldPlaceHolderList[gNumberAvailableGWorldPtrs] )
+							gNumberAvailableGWorldPtrs++;
+						
+						}		// end "if (gNumberAvailableGWorldPtrs < ..." 
+*/
+				#endif	// !TARGET_API_MAC_CARBON	
+					
 				imageOverlayInfoPtr->offscreenGWorld = NULL;
 				imageOverlayInfoPtr->offScreenMapHandle = NULL;
 				imageOverlayInfoPtr->offscreenMapSize = 0;
 				
 				}		// end "if (windowInfoPtr->offscreenGWorld != NULL)" 
 				
-#			if TARGET_API_MAC_CARBON	
+			#if TARGET_API_MAC_CARBON	
 				if (gOSXCoreGraphicsFlag)
 					{
 							// Release the core graphics image.
@@ -2802,22 +2708,10 @@ void ReleaseImageOverlayStructureMemory (
 					imageOverlayInfoPtr->offscreenMapSize = 0;
 				
 					}		// end "if (gOSXCoreGraphicsFlag)"
-#			endif	// TARGET_API_MAC_CARBON
-#		endif // defined multispec_mac 
+			#endif	// TARGET_API_MAC_CARBON
+		#endif // defined multispec_mac 
 				                               
-#		if defined multispec_lin
-				imageOverlayInfoPtr->offScreenMapHandle =
-					UnlockAndDispose(imageOverlayInfoPtr->offScreenMapHandle);
-
-				imageOverlayInfoPtr->offscreenStorageHandle =
-					UnlockAndDispose(imageOverlayInfoPtr->offscreenStorageHandle);
-
-				imageOverlayInfoPtr->offscreenMapSize = 0;
-#		endif // defined multispec_lin
-				                               
-#		if defined multispec_win
-			ReleaseImageOverlayStructureMemory (imageOverlayInfoPtr);
-			/*
+		#if defined multispec_win || defined multispec_lin
 			imageOverlayInfoPtr->offScreenMapHandle =  
 								UnlockAndDispose (imageOverlayInfoPtr->offScreenMapHandle);
 			
@@ -2825,56 +2719,13 @@ void ReleaseImageOverlayStructureMemory (
 								UnlockAndDispose (imageOverlayInfoPtr->offscreenStorageHandle);
 			
 			imageOverlayInfoPtr->offscreenMapSize = 0;
-			*/
-#		endif // defined multispec_win
+		#endif // defined multispec_win || defined multispec_lin
 		
 		UnlockAndDispose (imageOverlayHandlePtr[overlayIndex]);
 		imageOverlayHandlePtr[overlayIndex] = NULL;
 		
 		}		// end "if (imageOverlayInfoPtr != NULL)"
 	
-}		// end "ReleaseImageOverlayStructureMemory" 
-
-
-
-//-----------------------------------------------------------------------------
-//								 Copyright (1988-2017)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
-//
-//	Function name:		void ReleaseImageOverlayStructureMemory
-//
-//	Software purpose:	The purpose of this routine is to dispose of the offscreen
-//							memory for the specified overlay.
-//
-//	Parameters in:					
-//
-//	Parameters out:				
-//
-//	Value Returned:	
-// 
-// Called By:						
-//
-//	Coded By:			Larry L. Biehl			Date: 05/19/2017
-//	Revised By:			Larry L. Biehl			Date: 05/19/2017	
-
-void ReleaseImageOverlayStructureMemory(
-				ImageOverlayInfoPtr				imageOverlayInfoPtr)
-
-{
-#	if defined multispec_win
-		if (imageOverlayInfoPtr->offScreenMapHandle != NULL)
-			DeleteObject(imageOverlayInfoPtr->offScreenMapHandle);
-
-		if (imageOverlayInfoPtr->overlayDC != NULL)
-			DeleteDC(imageOverlayInfoPtr->overlayDC);
-
-		imageOverlayInfoPtr->offScreenMapHandle = NULL;
-		imageOverlayInfoPtr->offscreenStorageHandle = NULL;
-		imageOverlayInfoPtr->overlayDC = NULL;
-		imageOverlayInfoPtr->offscreenMapSize = 0;
-#	endif	// defined multispec_win
-
 }		// end "ReleaseImageOverlayStructureMemory" 
 
 
@@ -2916,6 +2767,7 @@ SInt16 SetUpImageOverlayInformation (
 	Handle								imageFileInfoHandle,
 											imageMapProjectionHandle,
 											imageOverlayInfoHandle = NULL;
+//											imageWindowInfoHandle;
 											
 	SInt32								numberColumns,
 											numberLines;
@@ -2926,6 +2778,10 @@ SInt16 SetUpImageOverlayInformation (
 	Boolean								continueFlag = FALSE,
 											newOverlayFlag;
 	
+	
+			// Get window info handle for the image window to draw the image overlay in.
+
+//	imageWindowInfoHandle = FindProjectBaseImageWindowInfoHandle();
 	
 			// Now get the image overlay memory and the index to that memory in the
 			// image overlay structure list.	
@@ -3155,7 +3011,7 @@ void UnlockImageOverlayInfoHandle (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 01/11/2003
-//	Revised By:			Larry L. Biehl			Date: 05/19/2017			
+//	Revised By:			Larry L. Biehl			Date: 01/11/2003			
 
 void UnlockImageOverlayOffscreenBuffer (
 				ImageOverlayInfoPtr				imageOverlayInfoPtr)
@@ -3163,7 +3019,7 @@ void UnlockImageOverlayOffscreenBuffer (
 {  
 	if (imageOverlayInfoPtr != NULL)
 		{
-#		if defined multispec_mac 
+		#if defined multispec_mac 
 			if (gOSXCoreGraphicsFlag)
 				{
 				#if TARGET_API_MAC_CARBON	
@@ -3177,16 +3033,11 @@ void UnlockImageOverlayOffscreenBuffer (
 				{
 				
 				}		// end "else !gOSXCoreGraphicsFlag"
-#		endif // defined multispec_mac 
+		#endif // defined multispec_mac 
 		
-#		if defined multispec_lin
+		#if defined multispec_win || defined multispec_lin
 			CheckAndUnlockHandle (imageOverlayInfoPtr->offscreenStorageHandle);
-#		endif	// defined multispec_lin
-		
-#		if defined multispec_win
-					// Do not unlock this handle which is now a HBITMAP
-			//CheckAndUnlockHandle(imageOverlayInfoPtr->offscreenStorageHandle);
-#		endif // defined multispec_win
+		#endif // defined multispec_win || defined multispec_lin
 		
 		}		// end "if (overlayIndex >= 0 && ..."
 	

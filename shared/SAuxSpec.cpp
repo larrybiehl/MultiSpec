@@ -3,8 +3,8 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2017)
-//								(c) Purdue Research Foundation
+//								 Copyright (1988-2010)
+//								� Purdue Research Foundation
 //									All rights reserved.
 //
 //	File:						SAuxSpec.cpp
@@ -14,7 +14,7 @@
 //
 //	Revision number:		2.8
 //
-//	Revision date:			05/26/2017
+//	Revision date:			08/04/2010
 //
 //	Language:				C
 //
@@ -27,24 +27,26 @@
 //								void						threshold
 //								double 					translate_threshold
 
-#include	"SMulSpec.h"
   
 #if defined multispec_win | defined multispec_lin
-	//#include	"SMulSpec.h"  
+	#include	"SMulSpec.h"  
 	#include "SExtGlob.h"
 #endif	// defined multispec_win    
 
 #include		"SEcho.h"
 
+// extern char	*gError_message;
+
+
 double 		translate_threshold(
-				double								det,
-				double								std_thd);
+						double				det,
+						double				std_thd);
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
-//								(c) Purdue Research Foundation
+//								 Copyright (1988-2010)
+//								� Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		SInt16 read_lines_of_data1
@@ -94,8 +96,8 @@ SInt16 read_lines_of_data1(
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
-//								(c) Purdue Research Foundation
+//								 Copyright (1988-2010)
+//								� Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void symtrix
@@ -168,8 +170,8 @@ void symtrix(
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
-//								(c) Purdue Research Foundation
+//								 Copyright (1988-2010)
+//								� Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void threshold
@@ -211,7 +213,7 @@ void threshold(
   	SInt32								classIndex;
    
    
-	//thd_standard = inv_chi_square(degree_of_freedom, significance_level);
+//  thd_standard = inv_chi_square(degree_of_freedom, significance_level);
    
    chiSquaredValue = GetChiSquaredValue (degree_of_freedom, significance_level);
    
@@ -243,8 +245,8 @@ void threshold(
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
-//								(c) Purdue Research Foundation
+//								 Copyright (1988-2010)
+//								� Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		double translate_threshold
@@ -274,10 +276,10 @@ double translate_threshold(
    double							 	answer;
    
    
-	//answer = -(coeff * det + std_thd)/2;
+//   answer = -(coeff * det + std_thd)/2;
 
    answer = det - std_thd;
-   return (answer);
+   return( answer);
    
 }		// end "translate_threshold"
 

@@ -1204,7 +1204,6 @@ SInt16 DisplayAlert (
 				case kSaveAlertID:
 					//alertStdAlertParamRec.defaultText = "\pSave";
 					//alertStdAlertParamRec.otherText = "\pDon't Save";
-					stdCFStringAlertParamRec.cancelText = CFSTR("Cancel");
 					stdCFStringAlertParamRec.defaultText = CFSTR("Save");
 					stdCFStringAlertParamRec.otherText = CFSTR("Don't Save");
 					break;

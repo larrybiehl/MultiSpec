@@ -13,7 +13,7 @@
 //
 //	Revision number:		3.0
 //
-//	Revision date:			05/04/2017
+//	Revision date:			03/15/2017
 //
 //	Language:				C
 //
@@ -1841,7 +1841,7 @@ Boolean GetClassChannelStatistics (
 //							LoadStatEnhanceClassStatistics in statisticsEnhancement.c
 //
 //	Coded By:			Larry L. Biehl			Date: 02/07/1992
-//	Revised By:			Larry L. Biehl			Date: 05/04/2017	
+//	Revised By:			Larry L. Biehl			Date: 08/23/2010	
 
 void GetClassCovarianceMatrix (
 				UInt16								numberOutputChannels, 
@@ -1962,7 +1962,9 @@ void GetClassCovarianceMatrix (
 							// covariance in.
 							
 					inputCommonCovariancePtr = (HCovarianceStatisticsPtr)GetHandlePointer (
-												gProjectInfoPtr->commonCovarianceStatsHandle); // Handle is already locked.
+												gProjectInfoPtr->commonCovarianceStatsHandle,
+												kNoLock,			// Handle is already locked.
+												kNoMoveHi);
 					
 					if (inputCommonCovariancePtr != NULL)							
 						commonCovariancePtr = 
@@ -2526,7 +2528,7 @@ Boolean GetCommonCovariance (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 04/28/1993
-//	Revised By:			Larry L. Biehl			Date: 05/04/2017	
+//	Revised By:			Larry L. Biehl			Date: 01/16/1998	
 
 Boolean GetEigenStatisticsFeatures (
 				UInt16*								statEigenFeaturePtr,
@@ -2552,7 +2554,9 @@ Boolean GetEigenStatisticsFeatures (
 		{
 		numberStatisticsChannels = gProjectInfoPtr->numberStatisticsChannels;
 		eigenFeaturePtr = (UInt16*)GetHandlePointer(
-													gTransformationMatrix.eigenFeatureHandle);
+													gTransformationMatrix.eigenFeatureHandle,
+													kNoLock,
+													kNoMoveHi);
 		
 		index2 = 0;
 		if (gTransformationMatrix.createdByCode < 16)
@@ -3515,7 +3519,7 @@ void SetClassListMessageFlag (
 //							CopyEnhancedStatsToProject in statisticsEnhancement
 //
 //	Coded By:			Larry L. Biehl			Date: 09/22/1997
-//	Revised By:			Larry L. Biehl			Date: 05/04/2017	
+//	Revised By:			Larry L. Biehl			Date: 04/06/2001	
 
 void SetProjectCovarianceStatsToUse (
 				UInt16								covarianceStatsToUse)
@@ -3527,7 +3531,7 @@ void SetProjectCovarianceStatsToUse (
 											classStorage,
 											numberClasses;
 											
-	SInt16								projectCovarianceStatsToUse = kOriginalStats,
+	SInt16								projectCovarianceStatsToUse,
 											savedCovarianceStatsToUse;
 	
 	Boolean								enhancedStatsExistFlag = FALSE;

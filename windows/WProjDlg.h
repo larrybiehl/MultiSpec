@@ -116,9 +116,6 @@ protected:
 	SInt16				*m_featurePtr,
 							m_localStatCode,
 							m_totalNumberChannels;
-
-	UInt16				m_maxNumberTestLayers,
-							m_maxNumberTrainLayers;
 	
 	Boolean				m_initializedFlag,
 							m_keepClassStatsFlag,        

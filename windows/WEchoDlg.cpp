@@ -1,7 +1,5 @@
 // WEchoDlg.cpp : implementation file
-//           
-// Revised by Larry Biehl on 05/26/2017
-//
+//                    
                    
 #include "SMulSpec.h"
                       
@@ -94,8 +92,8 @@ END_MESSAGE_MAP()
 // 
 //	Called By:			Dialog in MDisMult.cpp
 //
-//	Coded By:			Larry L. Biehl			Date: 04/18/1996
-//	Revised By:			Larry L. Biehl			Date: 05/26/2017	
+//	Coded By:			Larry L. Biehl			Date: 04/18/96
+//	Revised By:			Larry L. Biehl			Date: 04/08/98	
 
 SInt16 
 CMEchoClassifyDialog::DoDialog(
@@ -104,7 +102,7 @@ CMEchoClassifyDialog::DoDialog(
 {  
 	Boolean						continueFlag = FALSE; 
 	
-	INT_PTR						returnCode;
+	SInt16						returnCode;							
 
 	                          
 			// Make sure intialization has been completed.

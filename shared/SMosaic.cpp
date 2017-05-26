@@ -13,7 +13,7 @@
 //
 //	Revision number:		3.0
 //
-//	Revision date:			05/26/2017
+//	Revision date:			03/23/2017
 //
 //	Language:				C
 //
@@ -36,8 +36,6 @@
 //								"multiSpec.h"
 //
 //------------------------------------------------------------------------------------
-
-#include	"SMulSpec.h"
 
 #if defined multispec_mac
 //#if defined multispec_mac || defined multispec_lin
@@ -80,13 +78,13 @@
 #endif	// defined multispec_mac 
   
 #if defined multispec_win   
-	//#include	"SMulSpec.h"    
+	#include	"SMulSpec.h"    
 	#include	"WMosaicTwoImagesDialog.h" 
 	#include "SExtGlob.h"
 #endif	// defined multispec_win    
 
 #if defined multispec_lin   
-	//#include	"SMulSpec.h"    
+	#include	"SMulSpec.h"    
 	#include	"LMosaicTwoImagesDialog.h" 
 	 #include "MultiSpec2.h"
 	 #include "LImageView.h"
@@ -2820,7 +2818,7 @@ void MosaicTwoImagesDialogOnSelectRightBottomImage (
 
 					// Note that the item data for the list already contains 'kImageWindowStart'.
 
-			windowIndex = (UInt32)comboBoxPtr->GetItemData (fileNamesSelection - 1);
+			windowIndex = comboBoxPtr->GetItemData (fileNamesSelection - 1);
 		#endif	// defined multispec_win 
 
 		// Note: To double check the GetClientData in linux

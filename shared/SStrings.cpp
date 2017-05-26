@@ -13,7 +13,7 @@
 //
 //	Revision number:		3.0
 //
-//	Revision date:			05/24/2017
+//	Revision date:			03/28/2017
 //
 //	Language:				C
 //
@@ -769,7 +769,7 @@ Boolean CompareSuffixNoCase (
 		{
 				// This must be a C string.  Get the length.
 				
-		lengthSuffixString = (UInt32)strlen( (char*)&suffixStringPtr[1] );
+		lengthSuffixString = strlen( (char*)&suffixStringPtr[1] );
 		
 		lengthSuffixString = MIN(lengthSuffixString, 255);
 		
@@ -858,7 +858,7 @@ Boolean CompareSuffixNoCase (
 		{
 				// This must be a C string.  Get the length.
 				
-		lengthSuffixString = (UInt32)strlen ((char*)&suffixStringPtr[1]);
+		lengthSuffixString = strlen ((char*)&suffixStringPtr[1]);
 		lengthSuffixString = MIN(lengthSuffixString, 255);
 		
 		}		// end "if (lengthSuffixString == 0)"
@@ -1072,7 +1072,7 @@ void ConcatPStrings (
 				// it is a C string and get the length.
 
 		if (charsToCopy == 0)
-			charsToCopy = (SInt16)strlen( (CharPtr)&inSecondStr[1] );
+			charsToCopy = strlen( (CharPtr)&inSecondStr[1] );
 
 		if ( (SInt16)*ioFirstStr + charsToCopy > inDestSize)
 			charsToCopy = inDestSize - *ioFirstStr;
@@ -1143,7 +1143,7 @@ wchar_t* ConvertMultibyteStringToUnicodeString (
 											(LPWSTR)&gWideTextString[1], 
 											sizeNeeded);
 
-			gWideTextString[0] = (wchar_t)wcslen (&gWideTextString[1]);
+			gWideTextString[0] = wcslen (&gWideTextString[1]);
 
 			}	// end "if (inputMultibyteStringPtr != NULL)"
 
@@ -1763,7 +1763,7 @@ void GetActiveImageWindowTitle (
 			UInt16 titleLength = titleString.GetLength();
 			LPTSTR titleBufferPtr = titleString.GetBuffer(titleLength);
 
-			int size = (int)wcslen (titleBufferPtr);
+			int size = wcslen (titleBufferPtr);
 			int sizeNeeded = WideCharToMultiByte (
 									CP_UTF8, 0, titleBufferPtr, size, NULL, 0, NULL, NULL);
 			WideCharToMultiByte (CP_UTF8, 0, titleBufferPtr, size, (LPSTR)&titleStringPtr[1], sizeNeeded, NULL, NULL);
@@ -1774,7 +1774,7 @@ void GetActiveImageWindowTitle (
 							
 			titleString.ReleaseBuffer();
 				
-			titleStringPtr[0] = (UInt8)strlen ((char*)&titleStringPtr[1]);
+			titleStringPtr[0] = strlen ((char*)&titleStringPtr[1]);
 			titleStringPtr[titleStringPtr[0]+1] = 0; 
 			
 			}		// end "if (gActiveImageViewCPtr != NULL)"
@@ -1875,7 +1875,7 @@ void GetImageWindowName (
 	if (length == 0)
 		{
 		char* fileNamePtr = (char*)GetFileNameCPointer (fileInfoPtr);
-		length = (SInt16)strlen (fileNamePtr);
+		length = strlen (fileNamePtr);
 		sprintf ((char*)&namePtr[totalLength],
 						"%s",
 						fileNamePtr);
@@ -2064,7 +2064,7 @@ void GetImageWindowName (
 			// verify that the name will not be two long. If so remove the "(...)"
 			// info.
 			
-	totalLength = (SInt16)strlen ((char*)&namePtr[1]);
+	totalLength = strlen ((char*)&namePtr[1]);
 	
 	if (removeSuffixFlag)
 		{
@@ -2806,7 +2806,7 @@ char* GetStringToComma (
 			outputStringPtr = inputStringEndPtr;
 		
 		if (outputStringPtr != NULL)
-			numberCharacters = (SInt16)(outputStringPtr - inputStringPtr);
+			numberCharacters = outputStringPtr - inputStringPtr;
 			
 		if (numberCharacters >= 0)
 			{
@@ -2959,14 +2959,14 @@ void GetGraphWindowTitle (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 03/09/2007
-//	Revised By:			Larry L. Biehl			Date: 05/24/2017
+//	Revised By:			Larry L. Biehl			Date: 03/28/2017
 
 void InitializeDateVersionStrings ()
 
 {
 		// Date version string
 		
-	sprintf (gDateVersionString, "5.24.2017");
+	sprintf (gDateVersionString, "3.28.2017");
 
 		// Application identifier string
 		
@@ -4086,7 +4086,7 @@ Boolean ListMapProjectionString (
 					
 			if (continueFlag)	
 				continueFlag = ListString( 
-					(char*)&gTextString,  (UInt32)strlen((char*)&gTextString), gOutputTextH);
+					(char*)&gTextString,  strlen((char*)&gTextString), gOutputTextH);
 					
 			}		// end "if (projectionCode > 0)"
 					
@@ -4141,7 +4141,7 @@ Boolean ListMapReferenceSystemString (
 					
 			if (continueFlag)	
 				continueFlag = ListString( 
-					(char*)&gTextString, (UInt32)strlen((char*)&gTextString), gOutputTextH);
+					(char*)&gTextString,  strlen((char*)&gTextString), gOutputTextH);
 			
 			}		// end "if (projectionCode <= 0)"
 			
@@ -4168,7 +4168,7 @@ Boolean ListMapReferenceSystemString (
 					
 			if (continueFlag)	
 				continueFlag = ListString( 
-					(char*)&gTextString, (UInt32)strlen((char*)&gTextString), gOutputTextH);
+					(char*)&gTextString,  strlen((char*)&gTextString), gOutputTextH);
 					
 			}		// end "else projectionCode > 0"
 					
@@ -5898,7 +5898,7 @@ Boolean LoadSpecifiedStringNumberLongP (
 	
 	if (continueFlag)
 		{
-		stringLength = (UInt16)strlen (&stringPtr1[1]);
+		stringLength = strlen (&stringPtr1[1]);
 		stringPtr1[0] = (UInt8)stringLength;
 					
 		}		// end "if (continueFlag)" 
@@ -6055,7 +6055,7 @@ Boolean LoadSpecifiedStringNumberStringP (
 	
 	if (continueFlag)
 		{
-		stringLength = (UInt16)strlen (&stringPtr1[1]);
+		stringLength = strlen (&stringPtr1[1]);
 		stringPtr1[0] = (UInt8)stringLength;
 					
 		}		// end "if (continueFlag)"
@@ -6113,7 +6113,7 @@ Boolean LoadSpecifiedStringNumberStringP (
 	
 	if (continueFlag)
 		{
-		stringLength = (UInt16)strlen (&stringPtr1[1]);
+		stringLength = strlen (&stringPtr1[1]);
 		stringPtr1[0] = (UInt8)stringLength;
 					
 		}		// end "if (continueFlag)"
@@ -6567,7 +6567,7 @@ void	NumToString(
 					"%lu",
 					numberValue);
 					
-	stringPtr[0] = (UInt8)strlen((CharPtr)&stringPtr[1]);
+	stringPtr[0] = strlen((CharPtr)&stringPtr[1]);
 
 }		// end "NumToString" 
 
@@ -6603,7 +6603,7 @@ void	NumToString(
 					"%lld",
 					numberValue);
 					
-	stringPtr[0] = (UInt8)strlen((CharPtr)&stringPtr[1]);
+	stringPtr[0] = strlen((CharPtr)&stringPtr[1]);
 
 }		// end "NumToString"  
 
@@ -6894,7 +6894,7 @@ void RemoveCharsAddVersion (
 		{
 				// This must be a C string.  Get the length.
 				
-		lengthRemoveString = (UInt16)strlen( (char*)&removeStringPtr[1] );
+		lengthRemoveString = strlen( (char*)&removeStringPtr[1] );
 		lengthRemoveString = MIN(lengthRemoveString, 255);
 		
 		}		// end "if (lengthRemoveString == 0)"
@@ -7101,7 +7101,7 @@ void SetActiveImageWindowTitle (
 	   	{                      
    		titleStringPtr[ titleStringPtr[0]+1 ] = 0;
 			CMImageDoc* documentCPtr = gActiveImageViewCPtr->GetDocument();                   
-			documentCPtr->SetTitle ((LPCTSTR)&titleStringPtr[1]);
+			documentCPtr->SetTitle( (LPCTSTR)&titleStringPtr[1] );
 			
 			}		// end " if (gActiveImageViewCPtr != NULL)" 		
 	#endif	// defined multispec_win  
@@ -7142,7 +7142,7 @@ void SetActiveImageWindowTitle (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 01/15/2013
-//	Revised By:			Larry L. Biehl			Date: 04/27/2017 
+//	Revised By:			Larry L. Biehl			Date: 03/13/2017 
  
 void SetImageWindowTitle (
 				Handle								windowInfoHandle,
@@ -7165,8 +7165,7 @@ void SetImageWindowTitle (
 				//{                      
 				titleStringPtr[titleStringPtr[0]+1] = 0;
 				CMImageDoc* documentCPtr = gActiveImageViewCPtr->GetDocument();                   
-				//documentCPtr->SetTitle ((LPCTSTR)&titleStringPtr[1]);
-				MSetWindowTitle (documentCPtr, titleStringPtr);
+				documentCPtr->SetTitle ((LPCTSTR)&titleStringPtr[1]);
 				
 				//}		// end " if (windowPtr != NULL)" 
 		#endif	// defined multispec_win  	
@@ -7424,12 +7423,12 @@ int StringLength (
 	
 {				
 	if (asciiCharStringFlag)
-		return ((int)strlen ((char*)stringPtr));
+		return strlen ((char*)stringPtr);
 	
 	else // !asciiCharStringFlag
 		{
 				// Do according to the use_wide_character directive
-		return ((int)wcslen ((wchar_t*)stringPtr));
+		return wcslen ((wchar_t*)stringPtr);
 
 		}		// end "else !asciiCharStringFlag"
 	
@@ -7710,7 +7709,7 @@ Boolean WriteSpecifiedStringNumber (
 	
 	if (continueFlag)
 		{		
-		stringLength = (UInt32)strlen (finalStringPtr);
+		stringLength = strlen (finalStringPtr);
 		errCode = MWriteData (resultsFileStreamPtr, 
 									 &stringLength, 
 									 finalStringPtr, 

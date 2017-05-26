@@ -8,7 +8,7 @@
 // used by MultiSpec for both the Macintosh and Windows versions.
 //	
 //	Written 03/29/1988 by Larry L. Biehl
-//	Revised 05/19/2017 by Larry L. Biehl
+//	Revised 03/27/2017 by Larry L. Biehl
 // Revised 06/24/2013 by Abdur Maud
 // Revised 09/25/2015 by Tsung Tai Yeh
 //	
@@ -954,9 +954,9 @@ typedef struct HParamBlockRec {
 	
 		// Define some variables that are defined in the Macintosh Toolbox and not
 		// in the Windows compiler  
-	
-	typedef SInt16			  	Boolean;   		// BOOLean (0 or !=0)
-	                               
+
+	typedef SInt16		  		Boolean;   		// BOOLean (0 or !=0)
+
 	
 		// Define some variables for MultiSpec
 	
@@ -4040,13 +4040,9 @@ typedef struct ImageOverlayInfo
 	{
 	Str255									overlayName;
 		
-#	if TARGET_API_MAC_CARBON
+	#if TARGET_API_MAC_CARBON
 		CGInfo							cgInfo;
-#	endif	// TARGET_API_MAC_CARBON
-		
-#	if defined multispec_win
-		HDC								overlayDC;
-#	endif	// defined multispec_win
+	#endif	// TARGET_API_MAC_CARBON
 
 			// Handle for color palette for overlay image.
 	CMPaletteInfo						paletteObject;

@@ -1,7 +1,5 @@
 // WClasDlg.cpp : implementation file
-//       
-// Revised by Larry Biehl on 05/26/2017
-//
+//                     
                    
 #include "SMulSpec.h" 
 #include "WClasDlg.h"  
@@ -63,10 +61,11 @@ END_MESSAGE_MAP()
 // 
 //	Called By:			Dialog in MDisMult.cpp
 //
-//	Coded By:			Larry L. Biehl			Date: 03/07/1996
-//	Revised By:			Larry L. Biehl			Date: 05/26/2017	
+//	Coded By:			Larry L. Biehl			Date: 03/07/96
+//	Revised By:			Larry L. Biehl			Date: 04/30/98	
 
-Boolean CMClassesDlg::DoDialog(
+Boolean 
+CMClassesDlg::DoDialog(
 				UInt32*						numberOutputClassesPtr, 
 				SInt16* 						classListPtr, 
 				SInt16						minimumNumberClasses,
@@ -75,7 +74,7 @@ Boolean CMClassesDlg::DoDialog(
 {  
 	Boolean			OKFlag = FALSE; 
 	
-	INT_PTR			returnCode;
+	SInt16			returnCode; 
 	 
 	
 			// Make sure intialization has been completed.

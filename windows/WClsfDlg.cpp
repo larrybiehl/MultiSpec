@@ -1,7 +1,6 @@
 // WClsfDlg.cpp : implementation file
 //   
-// Revised by Larry Biehl on 05/26/2017
-//
+// Revised by Larry Biehl on 03/06/2017
                    
 #include "SMulSpec.h"
                       
@@ -416,13 +415,13 @@ END_MESSAGE_MAP()
 //	Called By:			Dialog in MDisMult.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 02/27/1996
-//	Revised By:			Larry L. Biehl			Date: 05/26/2017	
+//	Revised By:			Larry L. Biehl			Date: 04/10/1998	
 
 SInt16 
 CMClassifyDialog::DoDialog(void)
 
 {  
-	INT_PTR								returnCode;
+	SInt16								returnCode;
 	
 	Boolean								continueFlag = FALSE;
 								

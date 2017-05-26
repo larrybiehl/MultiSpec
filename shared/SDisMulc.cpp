@@ -13,7 +13,7 @@
 //
 //	Revision number:		3.0
 //
-//	Revision date:			05/01/2017
+//	Revision date:			03/13/2017
 //
 //	Language:				C
 //
@@ -620,77 +620,77 @@ void UpdateThematicTypeMinMaxes(
 // Called By:			DisplayColorImage in display.c
 //
 //	Coded By:			Larry L. Biehl			Date: 06/26/1990
-//	Revised By:			Larry L. Biehl			Date: 05/01/2017
+//	Revised By:			Larry L. Biehl			Date: 10/16/2001	
 
 void DisplayImagesSideBySide(
-				DisplaySpecsPtr					displaySpecsPtr,
-				FileInfoPtr							fileInfoPtr,
-				HPtr									offScreenBufferPtr,
-				UInt32								pixRowBytes,
-				PixMapHandle						savedPortPixMapH,
-				PixMapHandle						offScreenPixMapH,
-				LongRect*							rectPtr)
-{
-	LongRect								longSourceRect;
+        DisplaySpecsPtr displaySpecsPtr,
+        FileInfoPtr fileInfoPtr,
+        HPtr offScreenBufferPtr,
+        UInt32 pixRowBytes,
+        PixMapHandle savedPortPixMapH,
+        PixMapHandle offScreenPixMapH,
+        LongRect* rectPtr)
+ {
+    LongRect longSourceRect;
 
-#	if defined multispec_mac
-		Rect									sourceRect;
-#	endif	// defined multispec_mac
+#if defined multispec_mac 
+    Rect sourceRect;
+#endif	// defined multispec_mac 
 
-	FileInfoPtr							localFileInfoPtr;
-	FileIOInstructionsPtr			fileIOInstructionsPtr;
+    FileInfoPtr localFileInfoPtr;
+    FileIOInstructionsPtr fileIOInstructionsPtr;
 
-	HUCharPtr							base_ioBufferPtr,
-											buffer1Ptr,
-											dataDisplayPtr,
-											dataToLevelPtr,
-											ioBufferPtr,
-											offScreenLinePtr,
-											offScreenPtr,
-											savedOffScreenLinePtr;
+    HUCharPtr base_ioBufferPtr,
+            buffer1Ptr,
+            dataDisplayPtr,
+            dataToLevelPtr,
+            ioBufferPtr,
+            offScreenLinePtr,
+            offScreenPtr,
+            savedOffScreenLinePtr;
 
-	HUInt16Ptr							buffer2Ptr;
-											//offScreen2BytePtr;
+    HUInt16Ptr buffer2Ptr;
+    //											offScreen2BytePtr;
 
-	UInt16*								channelsPtr;
+    UInt16 *channelsPtr;
 
-	SInt32								displayBottomMax;
+    SInt32 displayBottomMax;
 
-	UInt32								bytesOffset,
-											columnEnd,
-											columnIntervalUsed,
-											columnStart,
-											dataValue,
-											firstColumnIndex,
-											interval,
-											line,
-											lineCount,
-											lineEnd,
-											lineInterval,
-											lineStart,
-											j,
-											maxValue,
-											numberSamples;
+    UInt32 bytesOffset,
+            columnEnd,
+            columnIntervalUsed,
+            columnStart,
+            dataValue,
+            firstColumnIndex,
+            interval,
+            line,
+            lineCount,
+            lineEnd,
+            lineInterval,
+            lineStart,
+            j,
+            maxValue,
+            numberSamples;
 
-	SInt16								channel,
-											channelNumber,
-											errCode,
-											imageFileNumberChannels;
+    SInt16 channel,
+            channelNumber,
+            errCode,
+            imageFileNumberChannels;
 
-	UInt16								channelsIndex,
-											fileInfoIndex,
-											numberChannels;
+    UInt16 channelsIndex,
+            fileInfoIndex,
+            numberChannels;
 
-	Boolean								BILSpecialFlag,
-											BISFlag,
-											packDataFlag,
-											stopFlag;
+    Boolean BILSpecialFlag,
+            BISFlag,
+            packDataFlag,
+            stopFlag;
 
-	SInt8									//addressMode,
-											separatorByte;
+    SInt8 //			addressMode,
+    separatorByte;
 
 
-			// Initialize local variables.
+    // Initialize local variables.													
 
     firstColumnIndex = displaySpecsPtr->columnStart - 1;
     columnStart = displaySpecsPtr->columnStart;
@@ -715,14 +715,15 @@ void DisplayImagesSideBySide(
     // Lock channel list handle and get a pointer.
     // This handle is already locked.	
 
-	channelsPtr = (UInt16*)GetHandlePointer (displaySpecsPtr->channelsHandle);
+    channelsPtr = (UInt16*) GetHandlePointer(
+            displaySpecsPtr->channelsHandle, kNoLock, kNoMoveHi);
 
-#	if defined multispec_mac
-		GrafPtr savedPort;
+#if defined multispec_mac	
+    GrafPtr savedPort;
 
-				// Force any updates to be done.
+    // Force any updates to be done.
 
-		if (!CheckSomeDisplayEvents(gImageWindowInfoPtr,
+    if (!CheckSomeDisplayEvents(gImageWindowInfoPtr,
             displaySpecsPtr,
             savedPortPixMapH,
             offScreenPixMapH,
@@ -752,7 +753,7 @@ void DisplayImagesSideBySide(
     if (!gOSXCoreGraphicsFlag)
         CopyHandleToHandle((Handle) offScreenPixMapH,
             (Handle) imageWindowPortPixMap);
-#	endif	// defined multispec_mac
+#endif	// defined multispec_mac
 
     // Get display bottom maximum of image window								
 
@@ -1258,12 +1259,13 @@ void Display4_8ByteImagesSideBySide(
     separatorByte = (char) 0xFF;
 #endif
 
-			// Lock channel list handle and get a pointer.
-			// This handle is already locked.	
+    // Lock channel list handle and get a pointer.
+    // This handle is already locked.	
 
-	channelsPtr = (UInt16*) GetHandlePointer (displaySpecsPtr->channelsHandle);
+    channelsPtr = (UInt16*) GetHandlePointer(
+            displaySpecsPtr->channelsHandle, kNoLock, kNoMoveHi);
 
-#	if defined multispec_mac
+#if defined multispec_mac	
     GrafPtr savedPort;
 
     // Force any updates to be done.
@@ -1773,7 +1775,10 @@ Boolean DisplayMultispectralImage (void)
 					// Get the histogram array pointer again.
 
 			histogramSpecsPtr->histogramArrayPtr =
-                    (UInt32*)GetHandlePointer (histogramSpecsPtr->histogramArrayH);
+                    (UInt32*) GetHandlePointer(
+                    histogramSpecsPtr->histogramArrayH,
+                    kNoLock,
+                    kNoMoveHi);
 
 			} // end "if (displaySpecsPtr->enhancementCode == ..."
 
@@ -2394,47 +2399,59 @@ void DisplayCImage(
             ioBuffer2Ptr = (HFileIOBufferPtr)&outputBufferPtr->data.onebyte[buffer2Offset];
             ioBuffer3Ptr = (HFileIOBufferPtr)&outputBufferPtr->data.onebyte[buffer3Offset]; 
      */
-	bytesOffset = gToDisplayLevels.bytesOffset;
+    bytesOffset = gToDisplayLevels.bytesOffset;
 
-	dataDisplay1Ptr = (HUCharPtr) GetHandlePointer(
-			gToDisplayLevels.vectorHandle, kLock, kNoMoveHi);
+    dataDisplay1Ptr = (HUCharPtr) GetHandlePointer(
+            gToDisplayLevels.vectorHandle, kLock, kNoMoveHi);
 
-	dataDisplay2Ptr = (HUCharPtr) & dataDisplay1Ptr[bytesOffset];
+    dataDisplay2Ptr = (HUCharPtr) & dataDisplay1Ptr[bytesOffset];
 
-	dataDisplay3Ptr = (HUCharPtr) & dataDisplay1Ptr [2 * bytesOffset];
+    dataDisplay3Ptr = (HUCharPtr) & dataDisplay1Ptr [2 * bytesOffset];
 
-	backgroundValueCode = displaySpecsPtr->backgroundValueCode;
+    // Make certain that we have valid 32 bit pointers in case we go to	
+    // 32 bit mode.																		
 
-	lineCount = 0;
-	longSourceRect.bottom = kCopyInterval;
-	lineEnd = displaySpecsPtr->lineEnd;
-	lineInterval = displaySpecsPtr->lineInterval;
+    //	dataDisplay1Ptr = (HUCharPtr)StripAddress ((void*)dataDisplay1Ptr);
+    //	dataDisplay2Ptr = (HUCharPtr)StripAddress ((void*)dataDisplay2Ptr);
+    //	dataDisplay3Ptr = (HUCharPtr)StripAddress ((void*)dataDisplay3Ptr);
+    //	outputBufferPtr = (HFileIOBufferPtr)StripAddress ((void*)outputBufferPtr);
+    //	ioBuffer1Ptr = (HFileIOBufferPtr)StripAddress ((void*)ioBuffer1Ptr);
+    //	ioBuffer2Ptr = (HFileIOBufferPtr)StripAddress ((void*)ioBuffer2Ptr);
+    //	ioBuffer3Ptr = (HFileIOBufferPtr)StripAddress ((void*)ioBuffer3Ptr);
+    //	addressMode = true32b;
 
-			 // Draw the image in the image window. Note that Windows DIB
-			 // images are loaded with first line at the end of the bitmap 
-			 // to last line at the beginning of the bitmap.	
+    backgroundValueCode = displaySpecsPtr->backgroundValueCode;
 
-#	if defined multispec_mac || defined multispec_lin
+    lineCount = 0;
+    longSourceRect.bottom = kCopyInterval;
+    lineEnd = displaySpecsPtr->lineEnd;
+    lineInterval = displaySpecsPtr->lineInterval;
+
+    // Draw the image in the image window. Note that Windows DIB
+    // images are loaded with first line at the end of the bitmap 
+    // to last line at the beginning of the bitmap.	
+
+	#if defined multispec_mac || defined multispec_lin
 		offScreenLinePtr = (HUCharPtr) offScreenBufferPtr;
 	#endif	// defined multispec_mac || defined multispec_lin
 
-#	if defined multispec_win
+	#if defined multispec_win 
 		UInt32 numberLines =
             (lineEnd - displaySpecsPtr->lineStart + lineInterval) / lineInterval;
 		offScreenLinePtr = (HUCharPtr) (offScreenBufferPtr + (numberLines - 1) * pixRowBytes);
-#	endif	// defined multispec_win
+	#endif	// defined multispec_win 
 
-	errCode = SetUpFileIOInstructions (fileIOInstructionsPtr,
-													NULL,
-													displaySpecsPtr->lineStart,
-													lineEnd,
-													lineInterval,
-													startColumn,
-													endColumn,
-													columnInterval,
-													numberListChannels,
-													channelListPtr,
-													kDetermineSpecialBILFlag);
+	errCode = SetUpFileIOInstructions(fileIOInstructionsPtr,
+            NULL,
+            displaySpecsPtr->lineStart,
+            lineEnd,
+            lineInterval,
+            startColumn,
+            endColumn,
+            columnInterval,
+            numberListChannels,
+            channelListPtr,
+            kDetermineSpecialBILFlag);
 
 
 	if (errCode == noErr) 
@@ -2494,13 +2511,13 @@ void DisplayCImage(
                 buffer2Offset = (channelPtr[1]) * localFileInfoPtr1->numberBytes;
                 buffer3Offset = (channelPtr[2]) * localFileInfoPtr1->numberBytes;
 
-            }	// end "if (forceOutputByteCode == kDoNotForceBytes)"
+            }// end "if (forceOutputByteCode == kDoNotForceBytes)"
 
-			else // forceOutputByteCode == kForceReal8Bytes
+            else // forceOutputByteCode == kForceReal8Bytes
             {
-				buffer1Offset = 0;
-				buffer2Offset = 8;
-				buffer3Offset = 16;
+                buffer1Offset = 0;
+                buffer2Offset = 8;
+                buffer3Offset = 16;
 
             } // end "else forceOutputByteCode == kForceReal8Bytes"
 
@@ -2509,26 +2526,24 @@ void DisplayCImage(
             // will be read in one line of data for all channels in the image
             // that were read in.
 
-			if (packDataFlag)
-				{
-				interval = numberListChannels;
-				numberSamples *= numberListChannels;
+            if (packDataFlag) {
+                interval = numberListChannels;
+                numberSamples *= numberListChannels;
 
-            }	// end "if (packDataFlag)"
+            }// end "if (packDataFlag)"
 
-			else // !packDataFlag
-				{
-				interval = displaySpecsPtr->columnInterval * localFileInfoPtr1->numberChannels;
-				numberSamples *= localFileInfoPtr1->numberChannels;
+            else // !packDataFlag
+            {
+                interval = displaySpecsPtr->columnInterval * localFileInfoPtr1->numberChannels;
+                numberSamples *= localFileInfoPtr1->numberChannels;
 
             } // end "else !packDataFlag"
 
-			}	// end "if (localFileInfoPtr1->bandInterleave == kBIS)"
+        }// end "if (localFileInfoPtr1->bandInterleave == kBIS)" 
 
-		else // localFileInfoPtr1->bandInterleave != kBIL || ... != kBIS
-			{
-			if (localFileInfoPtr1->gdalDataSetH != NULL)
-				{
+        else // localFileInfoPtr1->bandInterleave != kBIL || ... != kBIS
+        {
+            if (localFileInfoPtr1->gdalDataSetH != NULL) {
                 UInt32 channelToSortIndex;
                 UInt32 gdalNumberOfChannels = fileIOInstructionsPtr->numberGdalChannels;
 
@@ -2575,414 +2590,408 @@ void DisplayCImage(
 
             }// end "if (localFileInfoPtr1->gdalDataSetH != NULL)"
 
-			else // localFileInfoPtr1->gdalDataSetH == NULL
+            else // localFileInfoPtr1->gdalDataSetH == NULL
             {
-				buffer1Offset = 0;
-				if (forceOutputByteCode == kDoNotForceBytes)
-					{
-					buffer2Offset = numberSamples * localFileInfoPtr1->numberBytes;
-					buffer3Offset =
+                buffer1Offset = 0;
+                if (forceOutputByteCode == kDoNotForceBytes) {
+                    buffer2Offset = numberSamples * localFileInfoPtr1->numberBytes;
+                    buffer3Offset =
                             buffer2Offset + numberSamples * localFileInfoPtr2->numberBytes;
 
-					}	// end "if (forceOutputByteCode == kDoNotForceBytes)"
+                }// end "if (forceOutputByteCode == kDoNotForceBytes)"
 
-				else // forceOutputByteCode == kForceReal8Bytes
-					{
-					buffer2Offset = numberSamples * 8;
-					buffer3Offset = buffer2Offset + numberSamples * 8;
+                else // forceOutputByteCode == kForceReal8Bytes
+                {
+                    buffer2Offset = numberSamples * 8;
+                    buffer3Offset = buffer2Offset + numberSamples * 8;
 
-					}	// end "else forceOutputByteCode == kForceReal8Bytes"
+                } // end "else forceOutputByteCode == kForceReal8Bytes"
 
-            }	// end "else localFileInfoPtr1->gdalDataSetH == NULL"
+            } // end "else localFileInfoPtr1->gdalDataSetH == NULL"
 
-			interval = displaySpecsPtr->columnInterval;
-			if (packDataFlag)
-				interval = 1;
+            interval = displaySpecsPtr->columnInterval;
+            if (packDataFlag)
+                interval = 1;
 
-			} // end "else localFileInfoPtr1->bandInterleave != kBIL || ... != kBIS"
+        } // end "else localFileInfoPtr1->bandInterleave != kBIL || ... != kBIS"
 
 
-#		ifndef multispec_lin
-			ioBuffer1Ptr = (HFileIOBufferPtr) & outputBufferPtr->data.onebyte[buffer1Offset];
-			ioBuffer2Ptr = (HFileIOBufferPtr) & outputBufferPtr->data.onebyte[buffer2Offset];
-			ioBuffer3Ptr = (HFileIOBufferPtr) & outputBufferPtr->data.onebyte[buffer3Offset];
-#		else	// not defined multispec_lin
-			ioBuffer1Ptr = (HFileIOBufferPtr) ((unsigned char*) (outputBufferPtr->data.onebyte) + buffer1Offset);
-			ioBuffer2Ptr = (HFileIOBufferPtr) ((unsigned char*) (outputBufferPtr->data.onebyte) + buffer2Offset);
-			ioBuffer3Ptr = (HFileIOBufferPtr) ((unsigned char*) (outputBufferPtr->data.onebyte) + buffer3Offset);
-#		endif
+#ifndef multispec_lin
+        ioBuffer1Ptr = (HFileIOBufferPtr) & outputBufferPtr->data.onebyte[buffer1Offset];
+        ioBuffer2Ptr = (HFileIOBufferPtr) & outputBufferPtr->data.onebyte[buffer2Offset];
+        ioBuffer3Ptr = (HFileIOBufferPtr) & outputBufferPtr->data.onebyte[buffer3Offset];
+#else	// not defined multispec_lin
+        ioBuffer1Ptr = (HFileIOBufferPtr) ((unsigned char*) (outputBufferPtr->data.onebyte) + buffer1Offset);
+        ioBuffer2Ptr = (HFileIOBufferPtr) ((unsigned char*) (outputBufferPtr->data.onebyte) + buffer2Offset);
+        ioBuffer3Ptr = (HFileIOBufferPtr) ((unsigned char*) (outputBufferPtr->data.onebyte) + buffer3Offset);
+#endif
 
-		} // end "if (errCode == noErr)"
+    } // end "if (errCode == noErr)"
 
-	if (errCode == noErr)
-		{
+    if (errCode == noErr) {
         // Intialize the nextTime variable to indicate when the next check	
         // should occur for a command-.													
 
-		gNextTime = TickCount() + kDisplayTimeOffset;
+        gNextTime = TickCount() + kDisplayTimeOffset;
 
-		for (line = displaySpecsPtr->lineStart; line <= lineEnd; line += lineInterval)
-			{
-					// Get the three channels for the line of image data.  Return
-					// if there is a file IO error.
+        for (line = displaySpecsPtr->lineStart; line <= lineEnd; line += lineInterval) {
+            // Get the three channels for the line of image data.  Return 		
+            // if there is a file IO error.												
 
-			errCode = GetLineOfData (
+            errCode = GetLineOfData(
                     fileIOInstructionsPtr,
                     line,
                     startColumn,
                     endColumn,
                     columnInterval,
-                    (HUInt8Ptr)inputBufferPtr,
-                    (HUInt8Ptr)outputBufferPtr);
+                    (HUInt8Ptr) inputBufferPtr,
+                    (HUInt8Ptr) outputBufferPtr);
 
-			if (errCode != noErr)
-				break;
+            if (errCode != noErr)
+                break;
 
-			else // errCode == noErr
+            else // errCode == noErr
             {
-						//	Draw the line of data
+                //	Draw the line of data													
 
-				offScreenPtr = offScreenLinePtr;
+                offScreenPtr = offScreenLinePtr;
 
-				switch (displayCode)
-					{
-					case 1:
-					case 51:
-						Display1Channel8BitLine(numberSamples,
-								  interval,
-								  localFileInfoPtr1,
-								  (HUCharPtr) ioBuffer1Ptr,
-								  dataDisplay1Ptr,
-								  maxBin1,
-								  offScreenPtr);
-						break;
+                switch (displayCode) {
+                    case 1:
+                    case 51:
+                        Display1Channel8BitLine(numberSamples,
+                                interval,
+                                localFileInfoPtr1,
+                                (HUCharPtr) ioBuffer1Ptr,
+                                dataDisplay1Ptr,
+                                maxBin1,
+                                offScreenPtr);
+                        break;
 
-					case 2:
-						Display2Channel8BitLine(numberSamples,
-								  interval,
-								  bytesEqualOneFlag1,
-								  bytesEqualOneFlag2,
-								  backgroundValueCode,
-								  ioBuffer1Ptr,
-								  ioBuffer2Ptr,
-								  dataDisplay1Ptr,
-								  dataDisplay2Ptr,
-								  maxBin1,
-								  maxBin2,
-								  offScreenPtr);
-						break;
+                    case 2:
+                        Display2Channel8BitLine(numberSamples,
+                                interval,
+                                bytesEqualOneFlag1,
+                                bytesEqualOneFlag2,
+                                backgroundValueCode,
+                                ioBuffer1Ptr,
+                                ioBuffer2Ptr,
+                                dataDisplay1Ptr,
+                                dataDisplay2Ptr,
+                                maxBin1,
+                                maxBin2,
+                                offScreenPtr);
+                        break;
 
-					case 3:
-						gImageWindowInfoPtr->windowType = kImageWindowType;
-						Display3Channel8BitLine(numberSamples,
-								  interval,
-								  bytesEqualOneFlag1,
-								  bytesEqualOneFlag2,
-								  bytesEqualOneFlag3,
-								  backgroundValueCode,
-								  ioBuffer1Ptr,
-								  ioBuffer2Ptr,
-								  ioBuffer3Ptr,
-								  dataDisplay1Ptr,
-								  dataDisplay2Ptr,
-								  dataDisplay3Ptr,
-								  maxBin1,
-								  maxBin2,
-								  maxBin3,
-								  offScreenPtr);
-						break;
+                    case 3:
+                        gImageWindowInfoPtr->windowType = kImageWindowType;
+                        Display3Channel8BitLine(numberSamples,
+                                interval,
+                                bytesEqualOneFlag1,
+                                bytesEqualOneFlag2,
+                                bytesEqualOneFlag3,
+                                backgroundValueCode,
+                                ioBuffer1Ptr,
+                                ioBuffer2Ptr,
+                                ioBuffer3Ptr,
+                                dataDisplay1Ptr,
+                                dataDisplay2Ptr,
+                                dataDisplay3Ptr,
+                                maxBin1,
+                                maxBin2,
+                                maxBin3,
+                                offScreenPtr);
+                        break;
 
-					case 12:
-						Display1Channel16BitLine(numberSamples,
-								  interval,
-								  bytesEqualOneFlag1,
-								  backgroundValueCode,
-								  ioBuffer1Ptr,
-								  dataDisplay1Ptr,
-								  maxBin1,
-								  (HUInt16Ptr) offScreenPtr);
-						break;
+                    case 12:
+                        Display1Channel16BitLine(numberSamples,
+                                interval,
+                                bytesEqualOneFlag1,
+                                backgroundValueCode,
+                                ioBuffer1Ptr,
+                                dataDisplay1Ptr,
+                                maxBin1,
+                                (HUInt16Ptr) offScreenPtr);
+                        break;
 
-					case 22:
-						Display2Channel16BitLine(numberSamples,
-								  interval,
-								  bytesEqualOneFlag1,
-								  bytesEqualOneFlag2,
-								  backgroundValueCode,
-								  ioBuffer1Ptr,
-								  ioBuffer2Ptr,
-								  dataDisplay1Ptr,
-								  dataDisplay2Ptr,
-								  maxBin1,
-								  maxBin2,
-								  (HUInt16Ptr) offScreenPtr,
-								  displaySpecsPtr->rgbColors);
-						break;
+                    case 22:
+                        Display2Channel16BitLine(numberSamples,
+                                interval,
+                                bytesEqualOneFlag1,
+                                bytesEqualOneFlag2,
+                                backgroundValueCode,
+                                ioBuffer1Ptr,
+                                ioBuffer2Ptr,
+                                dataDisplay1Ptr,
+                                dataDisplay2Ptr,
+                                maxBin1,
+                                maxBin2,
+                                (HUInt16Ptr) offScreenPtr,
+                                displaySpecsPtr->rgbColors);
+                        break;
 
-					case 23:
-						Display2Channel24BitLine(numberSamples,
-								  interval,
-								  bytesEqualOneFlag1,
-								  bytesEqualOneFlag2,
-								  backgroundValueCode,
-								  ioBuffer1Ptr,
-								  ioBuffer2Ptr,
-								  dataDisplay1Ptr,
-								  dataDisplay2Ptr,
-								  maxBin1,
-								  maxBin2,
-								  offScreenPtr,
-								  displaySpecsPtr->rgbColors);
-						break;
+                    case 23:
+                        Display2Channel24BitLine(numberSamples,
+                                interval,
+                                bytesEqualOneFlag1,
+                                bytesEqualOneFlag2,
+                                backgroundValueCode,
+                                ioBuffer1Ptr,
+                                ioBuffer2Ptr,
+                                dataDisplay1Ptr,
+                                dataDisplay2Ptr,
+                                maxBin1,
+                                maxBin2,
+                                offScreenPtr,
+                                displaySpecsPtr->rgbColors);
+                        break;
 
-					case 32:
-						Display3Channel16BitLine(numberSamples,
-								  interval,
-								  bytesEqualOneFlag1,
-								  bytesEqualOneFlag2,
-								  bytesEqualOneFlag3,
-								  backgroundValueCode,
-								  ioBuffer1Ptr,
-								  ioBuffer2Ptr,
-								  ioBuffer3Ptr,
-								  dataDisplay1Ptr,
-								  dataDisplay2Ptr,
-								  dataDisplay3Ptr,
-								  maxBin1,
-								  maxBin2,
-								  maxBin3,
-								  (HUInt16Ptr) offScreenPtr);
-						break;
+                    case 32:
+                        Display3Channel16BitLine(numberSamples,
+                                interval,
+                                bytesEqualOneFlag1,
+                                bytesEqualOneFlag2,
+                                bytesEqualOneFlag3,
+                                backgroundValueCode,
+                                ioBuffer1Ptr,
+                                ioBuffer2Ptr,
+                                ioBuffer3Ptr,
+                                dataDisplay1Ptr,
+                                dataDisplay2Ptr,
+                                dataDisplay3Ptr,
+                                maxBin1,
+                                maxBin2,
+                                maxBin3,
+                                (HUInt16Ptr) offScreenPtr);
+                        break;
 
-					case 33:
-						Display3Channel24BitLine(numberSamples,
-								  interval,
-								  bytesEqualOneFlag1,
-								  bytesEqualOneFlag2,
-								  bytesEqualOneFlag3,
-								  backgroundValueCode,
-								  ioBuffer1Ptr,
-								  ioBuffer2Ptr,
-								  ioBuffer3Ptr,
-								  dataDisplay1Ptr,
-								  dataDisplay2Ptr,
-								  dataDisplay3Ptr,
-								  maxBin1,
-								  maxBin2,
-								  maxBin3,
-								  offScreenPtr);
-						break;
+                    case 33:
+                        Display3Channel24BitLine(numberSamples,
+                                interval,
+                                bytesEqualOneFlag1,
+                                bytesEqualOneFlag2,
+                                bytesEqualOneFlag3,
+                                backgroundValueCode,
+                                ioBuffer1Ptr,
+                                ioBuffer2Ptr,
+                                ioBuffer3Ptr,
+                                dataDisplay1Ptr,
+                                dataDisplay2Ptr,
+                                dataDisplay3Ptr,
+                                maxBin1,
+                                maxBin2,
+                                maxBin3,
+                                offScreenPtr);
+                        break;
 
-						//					case 51:	
-						//						Display1Channel8BitLine (numberSamples,
-						//												interval, 
-						//												localFileInfoPtr1,
-						//												(HUCharPtr)ioBuffer1Ptr, 
-						//												dataDisplay1Ptr,
-						//												maxBin1,
-						//												offScreenPtr);
-						//						break;
+                        //					case 51:	
+                        //						Display1Channel8BitLine (numberSamples,
+                        //												interval, 
+                        //												localFileInfoPtr1,
+                        //												(HUCharPtr)ioBuffer1Ptr, 
+                        //												dataDisplay1Ptr,
+                        //												maxBin1,
+                        //												offScreenPtr);
+                        //						break;
 
-					case 101:
-					case 151:
-						Display1Channel4Byte8BitLine(
-								  numberSamples,
-								  interval,
-								  minValue1,
-								  binFactor1,
-								  (HDoublePtr) ioBuffer1Ptr,
-								  dataDisplay1Ptr,
-								  maxBin1,
-								  offScreenPtr);
-						break;
+                    case 101:
+                    case 151:
+                        Display1Channel4Byte8BitLine(
+                                numberSamples,
+                                interval,
+                                minValue1,
+                                binFactor1,
+                                (HDoublePtr) ioBuffer1Ptr,
+                                dataDisplay1Ptr,
+                                maxBin1,
+                                offScreenPtr);
+                        break;
 
-					case 102:
-						Display2Channel4Byte8BitLine(
-								  numberSamples,
-								  interval,
-								  minValue1,
-								  minValue2,
-								  binFactor1,
-								  binFactor2,
-								  backgroundValueCode,
-								  (HDoublePtr) ioBuffer1Ptr,
-								  (HDoublePtr) ioBuffer2Ptr,
-								  dataDisplay1Ptr,
-								  dataDisplay2Ptr,
-								  maxBin1,
-								  maxBin2,
-								  offScreenPtr);
-						break;
+                    case 102:
+                        Display2Channel4Byte8BitLine(
+                                numberSamples,
+                                interval,
+                                minValue1,
+                                minValue2,
+                                binFactor1,
+                                binFactor2,
+                                backgroundValueCode,
+                                (HDoublePtr) ioBuffer1Ptr,
+                                (HDoublePtr) ioBuffer2Ptr,
+                                dataDisplay1Ptr,
+                                dataDisplay2Ptr,
+                                maxBin1,
+                                maxBin2,
+                                offScreenPtr);
+                        break;
 
-					case 103:
-						Display3Channel4Byte8BitLine(numberSamples,
-								  interval,
-								  minValue1,
-								  minValue2,
-								  minValue3,
-								  binFactor1,
-								  binFactor2,
-								  binFactor3,
-								  backgroundValueCode,
-								  (HDoublePtr) ioBuffer1Ptr,
-								  (HDoublePtr) ioBuffer2Ptr,
-								  (HDoublePtr) ioBuffer3Ptr,
-								  dataDisplay1Ptr,
-								  dataDisplay2Ptr,
-								  dataDisplay3Ptr,
-								  maxBin1,
-								  maxBin2,
-								  maxBin3,
-								  offScreenPtr);
-						break;
+                    case 103:
+                        Display3Channel4Byte8BitLine(numberSamples,
+                                interval,
+                                minValue1,
+                                minValue2,
+                                minValue3,
+                                binFactor1,
+                                binFactor2,
+                                binFactor3,
+                                backgroundValueCode,
+                                (HDoublePtr) ioBuffer1Ptr,
+                                (HDoublePtr) ioBuffer2Ptr,
+                                (HDoublePtr) ioBuffer3Ptr,
+                                dataDisplay1Ptr,
+                                dataDisplay2Ptr,
+                                dataDisplay3Ptr,
+                                maxBin1,
+                                maxBin2,
+                                maxBin3,
+                                offScreenPtr);
+                        break;
 
-					case 122:
-						Display2Channel4Byte16BitLine(numberSamples,
-								  interval,
-								  minValue1,
-								  minValue2,
-								  binFactor1,
-								  binFactor2,
-								  backgroundValueCode,
-								  (HDoublePtr) ioBuffer1Ptr,
-								  (HDoublePtr) ioBuffer2Ptr,
-								  dataDisplay1Ptr,
-								  dataDisplay2Ptr,
-								  maxBin1,
-								  maxBin2,
-								  (HUInt16Ptr) offScreenPtr,
-								  displaySpecsPtr->rgbColors);
+                    case 122:
+                        Display2Channel4Byte16BitLine(numberSamples,
+                                interval,
+                                minValue1,
+                                minValue2,
+                                binFactor1,
+                                binFactor2,
+                                backgroundValueCode,
+                                (HDoublePtr) ioBuffer1Ptr,
+                                (HDoublePtr) ioBuffer2Ptr,
+                                dataDisplay1Ptr,
+                                dataDisplay2Ptr,
+                                maxBin1,
+                                maxBin2,
+                                (HUInt16Ptr) offScreenPtr,
+                                displaySpecsPtr->rgbColors);
 
-					case 123:
-						Display2Channel4Byte24BitLine(
-								  numberSamples,
-								  interval,
-								  minValue1,
-								  minValue2,
-								  binFactor1,
-								  binFactor2,
-								  backgroundValueCode,
-								  (HDoublePtr) ioBuffer1Ptr,
-								  (HDoublePtr) ioBuffer2Ptr,
-								  dataDisplay1Ptr,
-								  dataDisplay2Ptr,
-								  maxBin1,
-								  maxBin2,
-								  offScreenPtr,
-								  displaySpecsPtr->rgbColors);
-						break;
+                    case 123:
+                        Display2Channel4Byte24BitLine(
+                                numberSamples,
+                                interval,
+                                minValue1,
+                                minValue2,
+                                binFactor1,
+                                binFactor2,
+                                backgroundValueCode,
+                                (HDoublePtr) ioBuffer1Ptr,
+                                (HDoublePtr) ioBuffer2Ptr,
+                                dataDisplay1Ptr,
+                                dataDisplay2Ptr,
+                                maxBin1,
+                                maxBin2,
+                                offScreenPtr,
+                                displaySpecsPtr->rgbColors);
+                        break;
 
-					case 132:
-						Display3Channel4Byte16BitLine(
-								  numberSamples,
-								  interval,
-								  minValue1,
-								  minValue2,
-								  minValue3,
-								  binFactor1,
-								  binFactor2,
-								  binFactor3,
-								  backgroundValueCode,
-								  (HDoublePtr) ioBuffer1Ptr,
-								  (HDoublePtr) ioBuffer2Ptr,
-								  (HDoublePtr) ioBuffer3Ptr,
-								  dataDisplay1Ptr,
-								  dataDisplay2Ptr,
-								  dataDisplay3Ptr,
-								  maxBin1,
-								  maxBin2,
-								  maxBin3,
-								  (HUInt16Ptr) offScreenPtr);
-						break;
+                    case 132:
+                        Display3Channel4Byte16BitLine(
+                                numberSamples,
+                                interval,
+                                minValue1,
+                                minValue2,
+                                minValue3,
+                                binFactor1,
+                                binFactor2,
+                                binFactor3,
+                                backgroundValueCode,
+                                (HDoublePtr) ioBuffer1Ptr,
+                                (HDoublePtr) ioBuffer2Ptr,
+                                (HDoublePtr) ioBuffer3Ptr,
+                                dataDisplay1Ptr,
+                                dataDisplay2Ptr,
+                                dataDisplay3Ptr,
+                                maxBin1,
+                                maxBin2,
+                                maxBin3,
+                                (HUInt16Ptr) offScreenPtr);
+                        break;
 
-					case 133:
-						Display3Channel4Byte24BitLine (
-								  numberSamples,
-								  interval,
-								  minValue1,
-								  minValue2,
-								  minValue3,
-								  binFactor1,
-								  binFactor2,
-								  binFactor3,
-								  backgroundValueCode,
-								  (HDoublePtr)ioBuffer1Ptr,
-								  (HDoublePtr)ioBuffer2Ptr,
-								  (HDoublePtr)ioBuffer3Ptr,
-								  dataDisplay1Ptr,
-								  dataDisplay2Ptr,
-								  dataDisplay3Ptr,
-								  maxBin1,
-								  maxBin2,
-								  maxBin3,
-								  offScreenPtr);
-						break;
+                    case 133:
+                        Display3Channel4Byte24BitLine(
+                                numberSamples,
+                                interval,
+                                minValue1,
+                                minValue2,
+                                minValue3,
+                                binFactor1,
+                                binFactor2,
+                                binFactor3,
+                                backgroundValueCode,
+                                (HDoublePtr) ioBuffer1Ptr,
+                                (HDoublePtr) ioBuffer2Ptr,
+                                (HDoublePtr) ioBuffer3Ptr,
+                                dataDisplay1Ptr,
+                                dataDisplay2Ptr,
+                                dataDisplay3Ptr,
+                                maxBin1,
+                                maxBin2,
+                                maxBin3,
+                                offScreenPtr);
+                        break;
 
-					} // end "switch (displayCode)"
+                } // end "switch (displayCode)"
 
-							// Copy a portion of the image and
-							// check if user wants to exit drawing
+                // Copy a portion of the image and	
+                // check if user wants to exit drawing									
 
-				lineCount++;
-				if (TickCount() >= gNextTime)
-					{
-					longSourceRect.bottom = lineCount;
-					if (!CheckSomeDisplayEvents(gImageWindowInfoPtr,
+                lineCount++;
+                if (TickCount() >= gNextTime) {
+                    longSourceRect.bottom = lineCount;
+                    if (!CheckSomeDisplayEvents(gImageWindowInfoPtr,
                             displaySpecsPtr,
                             savedPortPixMapH,
                             offScreenPixMapH,
                             &longSourceRect,
                             displayBottomMax))
-						break;
+                        break;
 
-					}	// end "if (TickCount() >= gNextTime)"
+                } // end "if (TickCount() >= gNextTime)" 
 
-#				if defined multispec_mac || defined multispec_lin
-					offScreenLinePtr += pixRowBytes;
-#				endif	// defined multispec_mac
+#if defined multispec_mac || defined multispec_lin
+                offScreenLinePtr += pixRowBytes;
+#endif	// defined multispec_mac 
 
-#				if defined multispec_win
-					offScreenLinePtr -= pixRowBytes;
-#				endif	// defined multispec_win
+#if defined multispec_win 
+                offScreenLinePtr -= pixRowBytes;
+#endif	// defined multispec_win  
 
-				} // end "else errCode == noErr"
+            } // end "else errCode == noErr"
 
-			if (gUseThreadedIOFlag)
-				{
-						// Switch buffers.
+            if (gUseThreadedIOFlag) {
+                // Switch buffers.
 
-				numberBytes = 0;
-				if (fileIOInstructionsPtr->bufferUsedForIO == 1)
-					numberBytes = fileIOInstructionsPtr->bufferOffset;
+                numberBytes = 0;
+                if (fileIOInstructionsPtr->bufferUsedForIO == 1)
+                    numberBytes = fileIOInstructionsPtr->bufferOffset;
 
-				ioBuffer1Ptr = (HFileIOBufferPtr) & outputBufferPtr->data.onebyte[
-						buffer1Offset + numberBytes];
-				ioBuffer2Ptr = (HFileIOBufferPtr) & outputBufferPtr->data.onebyte[
-						buffer2Offset + numberBytes];
-				ioBuffer3Ptr = (HFileIOBufferPtr) & outputBufferPtr->data.onebyte[
-						buffer3Offset + numberBytes];
+                ioBuffer1Ptr = (HFileIOBufferPtr) & outputBufferPtr->data.onebyte[
+                        buffer1Offset + numberBytes];
+                ioBuffer2Ptr = (HFileIOBufferPtr) & outputBufferPtr->data.onebyte[
+                        buffer2Offset + numberBytes];
+                ioBuffer3Ptr = (HFileIOBufferPtr) & outputBufferPtr->data.onebyte[
+                        buffer3Offset + numberBytes];
 
-            }	// end "if (gUseThreadedIOFlag)"
+            } // end "if (gUseThreadedIOFlag)" 
 
-			}	// end "for ( line=displaySpecsPtr->lineStart;..."
+        } // end "for ( line=displaySpecsPtr->lineStart;..."
 
-		}	// end "if (errCode == noErr)"
+    } // end "if (errCode == noErr)"
 
-	CloseUpFileIOInstructions(fileIOInstructionsPtr, NULL);
+    CloseUpFileIOInstructions(fileIOInstructionsPtr, NULL);
 
-			// Set up return for inSourceRect to indicate if last few lines need
-			// to be drawn
+    // Set up return for inSourceRect to indicate if last few lines need	
+    // to be drawn																			
 
-	rectPtr->top = longSourceRect.top;
-	rectPtr->bottom = longSourceRect.bottom;
+    rectPtr->top = longSourceRect.top;
+    rectPtr->bottom = longSourceRect.bottom;
 
-	CheckSizeAndUnlockHandle(gToDisplayLevels.vectorHandle);
+    CheckSizeAndUnlockHandle(gToDisplayLevels.vectorHandle);
 
-	CloseUpGeneralFileIOInstructions(fileIOInstructionsPtr);
+    CloseUpGeneralFileIOInstructions(fileIOInstructionsPtr);
 
-	CheckAndDisposePtr((Ptr) inputBufferPtr);
+    CheckAndDisposePtr((Ptr) inputBufferPtr);
 
-}	// end "DisplayCImage"
+} // end "DisplayCImage" 
 
 
 
@@ -4862,7 +4871,8 @@ void DisplayMultispectralDialogOK (
 
 			// Channels
 
-	channelsPtr = (UInt16*) GetHandlePointer (displaySpecsPtr->channelsHandle);
+	channelsPtr = (UInt16*) GetHandlePointer(
+			displaySpecsPtr->channelsHandle, kNoLock, kNoMoveHi);
 	if (channelSelection == kAllMenuItem) // All channels 
 	{
 	  displaySpecsPtr->numberChannels = windowInfoPtr->totalNumberChannels;
@@ -5747,7 +5757,7 @@ void DoNextDisplayChannelEvent(
          //#endif
          {
          displaySpecsHandle = GetDisplaySpecsHandle(windowInfoHandle);
-         displaySpecsPtr = (DisplaySpecsPtr)GetHandlePointer(displaySpecsHandle);
+         displaySpecsPtr = (DisplaySpecsPtr) GetHandlePointer(displaySpecsHandle, kNoLock, kNoMoveHi);
          totalNumberChannels = GetTotalNumberOfChannels(windowInfoHandle);
 
          if (displaySpecsPtr != NULL &&
@@ -8157,7 +8167,10 @@ SInt16 GetHistogramComputeCode(
 
     histogramSpecsHandle = GetHistogramSpecsHandle(gImageWindowInfoPtr);
 
-    histogramSpecsPtr = (HistogramSpecsPtr) GetHandlePointer (histogramSpecsHandle);
+    histogramSpecsPtr = (HistogramSpecsPtr) GetHandlePointer(
+            histogramSpecsHandle,
+            kNoLock,
+            kNoMoveHi);
 
     if (histogramSpecsPtr != NULL && histogramSpecsPtr->loadedFlag)
         histogramComputeCode = kDoNotComputeHistogram;
@@ -8610,11 +8623,13 @@ void GetThematicTypeMinMaxIndices(
 
     histogramSpecsHandle = GetHistogramSpecsHandle(gImageWindowInfoPtr);
 
-	if (histogramSpecsHandle != NULL)
-		{
+    if (histogramSpecsHandle != NULL) {
         // The handle is already locked.
 
-        histogramSpecsPtr = (HistogramSpecsPtr) GetHandlePointer (histogramSpecsHandle);
+        histogramSpecsPtr = (HistogramSpecsPtr) GetHandlePointer(
+                histogramSpecsHandle,
+                kNoLock,
+                kNoMoveHi);
 
         if (!histogramSpecsPtr->loadedFlag)
             histogramSpecsPtr = NULL;
@@ -8739,7 +8754,8 @@ Boolean HistogramVector(
 
     // Set up the channels pointer. channelsHandle is already locked.												
 
-    channelsPtr = (UInt16*)GetHandlePointer (displaySpecsPtr->channelsHandle);
+    channelsPtr = (UInt16*) GetHandlePointer(
+            displaySpecsPtr->channelsHandle, kNoLock, kNoMoveHi);
 
     if (displaySpecsPtr->displayType != 7)
         channelsPtr = channelNumber;
@@ -9025,7 +9041,7 @@ Boolean HistogramVector(
 //
 //	Coded By:			Larry L. Biehl			Date: 04/20/1988
 //	Revised By:			Ravi S. Budruk			Date: 08/09/1988	
-//	Revised By:			Larry L. Biehl			Date: 05/01/2017
+//	Revised By:			Larry L. Biehl			Date: 06/07/2016
 
 DisplaySpecsPtr LoadMultispectralDisplaySpecs (void)
 {
@@ -9201,19 +9217,6 @@ DisplaySpecsPtr LoadMultispectralDisplaySpecs (void)
             }     // end "else gImageFileInfoPtr->format != kPNGType"
 
          }      // end "else if (gImageWindowInfoPtr->totalNumberChannels == 3)"
-		
-		else if (gImageWindowInfoPtr->totalNumberChannels == 4 && gImageFileInfoPtr->format == kPNGType)
-            {
-						// Assume channel 4 is a mask channel
-				
-            displaySpecsPtr->blueChannelNumber = 3;
-            displaySpecsPtr->greenChannelNumber = 2;
-            displaySpecsPtr->redChannelNumber = 1;
-
-            displaySpecsPtr->displayType = 3;
-            displaySpecsPtr->rgbColors = kRGBColor;
-
-            }     // end "else if (gImageFileInfoPtr->format == kTIFFType ..."
 
       else // (gImageWindowInfoPtr->totalNumberChannels >= 4)
          {
@@ -10232,7 +10235,10 @@ void MinMaxEnhancementDialogInitialize(
     if (histogramSpecsHandle != NULL) {
         // The handle is already locked.
 
-        *histogramSpecsPtrPtr = (HistogramSpecsPtr)GetHandlePointer (histogramSpecsHandle);
+        *histogramSpecsPtrPtr = (HistogramSpecsPtr) GetHandlePointer(
+                histogramSpecsHandle,
+                kNoLock,
+                kNoMoveHi);
 
         *histogramSummaryPtrPtr = (*histogramSpecsPtrPtr)->histogramSummaryPtr;
 
@@ -11620,124 +11626,123 @@ void UpdatePopUpDisplayTypeMenu(
 // Called By:	
 //
 //	Coded By:			Larry L. Biehl			Date: 10/02/2006
-//	Revised By:			Larry L. Biehl			Date: 03/28/2017	
+//	Revised By:			Larry L. Biehl			Date: 02/26/2013	
 
 void UpdateThematicTypeMinMaxes(
-				SInt16								numberClassBins,
-				SInt16								channelNumber,
-				double*								minValuePtr,
-				double*								maxValuePtr)
-{
-	double								classBinWidth,
-											difference,
-											logMaxValue,
-											maxValue,
-											minValue,
-											newMaxValue;
+        SInt16 numberClassBins,
+        SInt16 channelNumber,
+        double* minValuePtr,
+        double* maxValuePtr)
+ {
+    double classBinWidth,
+            difference,
+            logMaxValue,
+            maxValue,
+            minValue,
+            newMaxValue;
 
-   HistogramSpecsPtr					histogramSpecsPtr;
-   HistogramSummaryPtr				histogramSummaryPtr;
+    HistogramSpecsPtr histogramSpecsPtr;
+    HistogramSummaryPtr histogramSummaryPtr;
 
-   Handle								histogramSpecsHandle;
+    Handle histogramSpecsHandle;
 
-   UInt32								channelIndex;
+    UInt32 channelIndex;
 
 
-	 histogramSpecsHandle = GetHistogramSpecsHandle(gImageWindowInfoPtr);
+    histogramSpecsHandle = GetHistogramSpecsHandle(gImageWindowInfoPtr);
 
-	 if (histogramSpecsHandle != NULL) 
-		{
-				// The handle is already locked.
+    if (histogramSpecsHandle != NULL) {
+        // The handle is already locked.
 
-		histogramSpecsPtr = (HistogramSpecsPtr)GetHandlePointer(histogramSpecsHandle);
+        histogramSpecsPtr = (HistogramSpecsPtr) GetHandlePointer(
+                histogramSpecsHandle,
+                kNoLock,
+                kNoMoveHi);
 
-		if (!histogramSpecsPtr->loadedFlag)
-			histogramSpecsPtr = NULL;
+        if (!histogramSpecsPtr->loadedFlag)
+            histogramSpecsPtr = NULL;
 
-		} // end "if (histogramSpecsHandle != NULL)" 
+    } // end "if (histogramSpecsHandle != NULL)" 
 
-	if (histogramSpecsPtr != NULL) 
-		{
-		if (histogramSpecsPtr->histogramSummaryPtr != NULL) 
-			{
-			channelIndex = channelNumber - 1;
+    if (histogramSpecsPtr != NULL) {
+        if (histogramSpecsPtr->histogramSummaryPtr != NULL) {
+            channelIndex = channelNumber - 1;
 
-			histogramSummaryPtr =
-						  &histogramSpecsPtr->histogramSummaryPtr[channelIndex];
+            histogramSummaryPtr =
+                    &histogramSpecsPtr->histogramSummaryPtr[channelIndex];
 
-			minValue = 0;
-			if (histogramSummaryPtr->minNonSatValue < 0)
-				minValue = histogramSummaryPtr->minNonSatValue;
+            minValue = 0;
+            if (histogramSummaryPtr->minNonSatValue < 0)
+                minValue = histogramSummaryPtr->minNonSatValue;
 
-					// Now determine if minValue should actually be the minNotSatValue
-					// to provide a better display range of class differences.
+            // Now determine if minValue should actually be the minNotSatValue
+            // to provide a better display range of class differences.
 
-			if (numberClassBins <= 2) 
-				{
-				minValue = (histogramSummaryPtr->minNonSatValue +
-											histogramSummaryPtr->maxNonSatValue) / 2;
-				maxValue = minValue;
-				classBinWidth = 0;
+            if (numberClassBins <= 2) {
+                minValue = (histogramSummaryPtr->minNonSatValue +
+                        histogramSummaryPtr->maxNonSatValue) / 2;
+                maxValue = minValue;
+                classBinWidth = 0;
 
-				}	// end "if (numberClassBins <= 2)"
+            }// end "if (numberClassBins <= 2)"
 
-			else // numberClassBins > 2
-				{
-				classBinWidth = (histogramSummaryPtr->maxNonSatValue - minValue) / (numberClassBins - 2);
+            else // numberClassBins > 2
+            {
+                classBinWidth = (histogramSummaryPtr->maxNonSatValue - minValue) / (numberClassBins - 2);
 
-				if (histogramSummaryPtr->minNonSatValue > minValue + 2 * classBinWidth)
-					minValue = histogramSummaryPtr->minNonSatValue;
+                if (histogramSummaryPtr->minNonSatValue > minValue + 2 * classBinWidth)
+                    minValue = histogramSummaryPtr->minNonSatValue;
 
-						// Check if power number like 1, 10, 100, etc will be within 15%
-						// of the maximum value.
+                // Check if power number like 1, 10, 100, etc will be within 15%
+                // of the maximum value.
 
-				maxValue = histogramSummaryPtr->maxNonSatValue;
-				logMaxValue = (SInt32) (log10(maxValue) + 1);
-				newMaxValue = pow((double) 10, logMaxValue);
-				difference = fabs(maxValue - newMaxValue);
-				if (difference / maxValue < .15)
-					maxValue = newMaxValue;
+                maxValue = histogramSummaryPtr->maxNonSatValue;
+                logMaxValue = (SInt32) (log10(maxValue) + 1);
+                newMaxValue = pow((double) 10, logMaxValue);
+                difference = fabs(maxValue - newMaxValue);
+                if (difference / maxValue < .15)
+                    maxValue = newMaxValue;
 
-				else // ratio is > .15
-					{
-							// Now try half of the power number ... .5, 5, 50, etc.
+                else // ratio is > .15
+                {
+                    // Now try half of the power number ... .5, 5, 50, etc.
 
-					newMaxValue = newMaxValue / 2;
-					difference = fabs(maxValue - newMaxValue);
-					if (difference / maxValue < .15)
-						maxValue = newMaxValue;
+                    newMaxValue = newMaxValue / 2;
+                    difference = fabs(maxValue - newMaxValue);
+                    if (difference / maxValue < .15)
+                        maxValue = newMaxValue;
 
-					} // else "else ratio is > .15"
+                } // else "else ratio is > .15"
 
-				classBinWidth = (maxValue - minValue) / (numberClassBins - 2);
+                classBinWidth = (maxValue - minValue) / (numberClassBins - 2);
 
-				if (histogramSummaryPtr->numberFDecimalDigits == 0)
-					classBinWidth = ceil(classBinWidth);
+                if (histogramSummaryPtr->numberFDecimalDigits == 0)
+                    classBinWidth = ceil(classBinWidth);
 
-				} // end "else numberClassBins > 2"
+            } // end "else numberClassBins > 2"
 
-				//			DetermineHistogramBinWidth (
-				//				double								inMinValue,
-				//				double								inMaxValue,
-				//				double*								outMinValuePtr,
-				//				double*								outMaxValuePtr,
-				//				UInt32								maxNumberHistogramBins)
+            //			DetermineHistogramBinWidth (
+            //				double								inMinValue,
+            //				double								inMaxValue,
+            //				double*								outMinValuePtr,
+            //				double*								outMaxValuePtr,
+            //				UInt32								maxNumberHistogramBins)
 
-			maxValue = minValue + (numberClassBins - 2) * classBinWidth;
+            maxValue = minValue + (numberClassBins - 2) * classBinWidth;
 
-			*minValuePtr = minValue;
-			*maxValuePtr = MIN(maxValue, histogramSummaryPtr->maxValue);
+            *minValuePtr = minValue;
+            *maxValuePtr = MIN(maxValue, histogramSummaryPtr->maxValue);
 
-				//			*minBinIndexPtr = GetBinIndexForDataValue (
-				//											minValue + gImageFileInfoPtr->signedValueOffset,
-				//											histogramSummaryPtr);
+            //			*minBinIndexPtr = GetBinIndexForDataValue (
+            //											minValue + gImageFileInfoPtr->signedValueOffset,
+            //											histogramSummaryPtr);
 
-				//			*maxBinIndexPtr = GetBinIndexForDataValue (
-				//											maxValue + gImageFileInfoPtr->signedValueOffset,
-				//											histogramSummaryPtr);
+            //			*maxBinIndexPtr = GetBinIndexForDataValue (
+            //											maxValue + gImageFileInfoPtr->signedValueOffset,
+            //											histogramSummaryPtr);
 
-			}	// "if (histogramSpecsPtr->histogramSummaryPtr != NULL)"
+        } // "if (histogramSpecsPtr->histogramSummaryPtr != NULL)"
 
-		}	// end "if (histogramSpecsPtr != NULL)"
+    } // end "if (histogramSpecsPtr != NULL)"
 
 } // end "UpdateThematicTypeMinMaxes"

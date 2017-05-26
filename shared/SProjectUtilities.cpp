@@ -13,7 +13,7 @@
 //
 //	Revision number:		3.0
 //
-//	Revision date:			05/03/2017
+//	Revision date:			03/18/2017
 //
 //	Language:				C
 //
@@ -92,185 +92,184 @@
 #include	"SMulSpec.h" 
 
 #if defined multispec_mac 
-#	define IDOK								1
+#define IDOK							1
 
-#	define IDC_NewWeight					9
-#	define IDC_AddButton					10
-#	define IDC_RemoveButton				11
-#	define IDC_DefaultWeight			14
+#define IDC_NewWeight				9
+#define IDC_AddButton				10
+#define IDC_RemoveButton			11
+#define IDC_DefaultWeight			14
 
-#	define IDC_EnterNewWeightButton	8
-#	define IDC_Weight						9
-#	define IDC_EqualWeightButton		10
-#	define IDC_UnitsRelative			12
-#	define IDC_UnitsPercent				13
-#	define IDC_WeightTotal				15
+#define IDC_EnterNewWeightButton 8
+#define IDC_Weight					9
+#define IDC_EqualWeightButton		10
+#define IDC_UnitsRelative			12
+#define IDC_UnitsPercent			13
+#define IDC_WeightTotal				15
 
-#	define IDS_Project78					78
-#	define IDS_Project79					79
+#define IDS_Project78				78
+#define IDS_Project79				79
 
-	//	#include "mwCarbonCompatibility.h"
+//	#include "mwCarbonCompatibility.h"
 #endif	// defined multispec_mac  
 
 #if defined multispec_win 
-#	include "CImagVew.h"
-#	include "WCPWtDlg.h"
-#	include "WCWtDlg.h"
-#	include "WStatDoc.h"
-#	include "WStatVew.h"
+#include "CImagVew.h"
+#include "WCPWtDlg.h" 
+#include "WCWtDlg.h" 
+#include "WStatDoc.h"
+#include "WStatVew.h"
 
-	extern void LGetCell (
-					char*									stringPtr,
-					SInt16*								stringLengthPtr,
-					Cell									cell,
-					CListBox*							listBoxCPtr);
+extern void LGetCell(
+   char* stringPtr,
+   SInt16* stringLengthPtr,
+   Cell cell,
+   CListBox* listBoxCPtr);
 
-	extern void SetPort (
-					DialogPtr							dialogPtr);
+extern void SetPort(
+   DialogPtr dialogPtr);
 #endif	// defined multispec_win 
 
 #if defined multispec_lin
-#	include "LImageView.h"
-#	include "LCWtDlg.h"
-#	include "LCPWtDlg.h"
+	#include "LImageView.h"
+   #include "LCWtDlg.h" 
+#include "LCPWtDlg.h" 
 #endif
 
 #include "SExtGlob.h" 
 
+extern void ClassPairWeightsDialogChangeWeight(
+   DialogPtr dialogPtr,
+   ListHandle classListHandle,
+   ListHandle weightListHandle,
+   SInt16 newWeight);
 
-extern void ClassPairWeightsDialogChangeWeight (
-				DialogPtr							dialogPtr,
-				ListHandle							classListHandle,
-				ListHandle							weightListHandle,
-				SInt16								newWeight);
+extern SInt16 ClassPairWeightsDialogClassSelectionChange(
+   DialogPtr dialogPtr,
+   ListHandle listHandle,
+   SInt16 newWeight);
 
-extern SInt16 ClassPairWeightsDialogClassSelectionChange (
-				DialogPtr							dialogPtr,
-				ListHandle							listHandle,
-				SInt16								newWeight);
+extern SInt16 ClassPairWeightsDialogWeightSelectionChange(
+   DialogPtr dialogPtr,
+   ListHandle listHandle);
 
-extern SInt16 ClassPairWeightsDialogWeightSelectionChange (
-				DialogPtr							dialogPtr,
-				ListHandle							listHandle);
+extern void ClassPairWeightsDialogInitialize(
+   DialogPtr dialogPtr,
+   SInt16 defaultClassPairWeight,
+   SInt16* localDefaultClassPairWeightPtr);
 
-extern void ClassPairWeightsDialogInitialize (
-				DialogPtr							dialogPtr,
-				SInt16								defaultClassPairWeight,
-				SInt16*								localDefaultClassPairWeightPtr);
+extern void ClassPairWeightsDialogOK(
+   DialogPtr dialogPtr,
+   ListHandle listHandle,
+   SInt16** weightsListPtrPtr,
+   SInt16* interClassWeightsSelectionPtr,
+   SInt16 localDefaultClassPairWeight,
+   SInt16* defaultClassPairWeightPtr);
 
-extern void ClassPairWeightsDialogOK (
-				DialogPtr							dialogPtr,
-				ListHandle							listHandle,
-				SInt16**								weightsListPtrPtr,
-				SInt16*								interClassWeightsSelectionPtr,
-				SInt16								localDefaultClassPairWeight,
-				SInt16*								defaultClassPairWeightPtr);
+extern SInt16 ClassPairWeightsDialogRemoveWeightSelection(
+   DialogPtr dialogPtr,
+   ListHandle listHandle,
+   SInt16 selectedWeightGroupCell);
 
-extern SInt16 ClassPairWeightsDialogRemoveWeightSelection (
-				DialogPtr							dialogPtr,
-				ListHandle							listHandle,
-				SInt16								selectedWeightGroupCell);
+extern double ClassWeightsDialogChangeWeights(
+   DialogPtr dialogPtr,
+   ListHandle listHandle,
+   double* weightSumPtr,
+   double newWeight,
+   SInt16 okItemNumber);
 
-extern double ClassWeightsDialogChangeWeights (
-				DialogPtr							dialogPtr,
-				ListHandle							listHandle,
-				double*								weightSumPtr,
-				double								newWeight,
-				SInt16								okItemNumber);
+extern SInt16 ClassWeightsDialogClassSelectionChange(
+   DialogPtr dialogPtr,
+   ListHandle listHandle,
+   double newWeight);
 
-extern SInt16 ClassWeightsDialogClassSelectionChange (
-				DialogPtr							dialogPtr,
-				ListHandle							listHandle,
-				double								newWeight);
+extern void ClassWeightsDialogInitialize(
+   DialogPtr dialogPtr,
+   SInt16* weightUnitsPtr);
 
-extern void ClassWeightsDialogInitialize (
-				DialogPtr							dialogPtr,
-				SInt16*								weightUnitsPtr);
+extern SInt16 ClassWeightsDialogOK(
+   DialogPtr dialogPtr,
+   ListHandle listHandle,
+   UInt16 numberOfClassesToUse,
+   SInt16* classPtr,
+   float* weightsPtr);
 
-extern SInt16 ClassWeightsDialogOK (
-				DialogPtr							dialogPtr,
-				ListHandle							listHandle,
-				UInt16								numberOfClassesToUse,
-				SInt16*								classPtr,
-				float*								weightsPtr);
+extern void ClassWeightsDialogSetEqualWeights(
+   DialogPtr dialogPtr,
+   ListHandle listHandle,
+   double* weightSumPtr,
+   double defaultEqualWeight,
+   SInt16 okItemNumber);
 
-extern void ClassWeightsDialogSetEqualWeights (
-				DialogPtr							dialogPtr,
-				ListHandle							listHandle,
-				double*								weightSumPtr,
-				double								defaultEqualWeight,
-				SInt16								okItemNumber);
-
-extern double LoadClassWeightsIntoList (
-				ListHandle							listHandle,
-				UInt16								numberOfClassesToUse,
-				SInt16*								classPtr,
-				float*								weightsPtr,
-				Boolean								useEnhancedStatFlag);
-
+extern double LoadClassWeightsIntoList(
+   ListHandle listHandle,
+   UInt16 numberOfClassesToUse,
+   SInt16* classPtr,
+   float* weightsPtr,
+   Boolean useEnhancedStatFlag);
 
 
-		// Prototypes for routines in this file that are only called by
-		// other routines in this file.		
 
-Boolean CheckClassStats (
-				UInt32*								numberClasses,
-				SInt16*								classPtr,
-				SInt16								covarianceStatsToUse,
-				Boolean								checkOnlyFlag,
-				SInt32*								minimumNumberTrainPixelsPtr,
-				Boolean*								computeCommonCovarianceFlagPtr);
+// Prototypes for routines in this file that are only called by		
+// other routines in this file.		
 
-Boolean ClassToBeUsed (
-				SInt16								classIndex,
-				SInt16*								classPtr,
-				UInt16								numberClasses);
+Boolean CheckClassStats(
+   UInt32* numberClasses,
+   SInt16* classPtr,
+   SInt16 covarianceStatsToUse,
+   Boolean checkOnlyFlag,
+   SInt32* minimumNumberTrainPixelsPtr,
+   Boolean* computeCommonCovarianceFlagPtr);
 
-Boolean ClassPairWeightsDialogModal (
-				DialogPtr							dialogPtr,
-				UInt16								numberOfClassesToUse);
+Boolean ClassToBeUsed(
+   SInt16 classIndex,
+   SInt16* classPtr,
+   UInt16 numberClasses);
 
-Boolean ClassWeightsDialogModal (
-				DialogPtr							dialogPtr,
-				UInt16								numberOfClassesToUse,
-				double*								weightSum);
+Boolean ClassPairWeightsDialogModal(
+   DialogPtr dialogPtr,
+   UInt16 numberOfClassesToUse);
 
-Boolean IsClassData (
-				AreaDescriptionPtr projectAreaDescriptionPtr,
-				UInt32								classNumber,
-				UInt32								pixelLine,
-				UInt32								pixelColumn);
+Boolean ClassWeightsDialogModal(
+   DialogPtr dialogPtr,
+   UInt16 numberOfClassesToUse,
+   double* weightSum);
+
+Boolean IsClassData(
+   AreaDescriptionPtr projectAreaDescriptionPtr,
+   UInt32 classNumber,
+   UInt32 pixelLine,
+   UInt32 pixelColumn);
 
 Boolean IsFieldData(
-				AreaDescriptionPtr				projectAreaDescriptionPtr,
-				SInt16								fieldNumber,
-				UInt32								pixelLine,
-				UInt32								pixelColumn);
+   AreaDescriptionPtr projectAreaDescriptionPtr,
+   SInt16 fieldNumber,
+   UInt32 pixelLine,
+   UInt32 pixelColumn);
 
 Boolean ListFieldsTitle(
-				CMFileStream*						outputFilePtr,
-				SInt16*								outputCodePtr,
-				SInt16								stringNumber,
-				SInt16								classNumber,
-				SInt16								fieldTypeCode);
+   CMFileStream* outputFilePtr,
+   SInt16* outputCodePtr,
+   SInt16 stringNumber,
+   SInt16 classNumber,
+   SInt16 fieldTypeCode);
 
 void LoadSymbolList(
-				DialogPtr							dialogPtr,
-				ListHandle							dialogListHandle);
+   DialogPtr dialogPtr,
+   ListHandle dialogListHandle);
 
 Boolean ModalSymbolsDialog(
-				DialogPtr							dialogPtr,
-				UInt16								numberOfClassesToUse);
+   DialogPtr dialogPtr,
+   UInt16 numberOfClassesToUse);
 
 #if defined multispec_mac
-	pascal Boolean SymbolsDialogFilter (
-					DialogPtr							theDialog,
-					EventRecord*						theEvent,
-					SInt16*								itemHitPtr);
+pascal Boolean SymbolsDialogFilter(
+   DialogPtr theDialog,
+   EventRecord* theEvent,
+   SInt16* itemHitPtr);
 #endif	// defined multispec_mac
 
-Boolean VerifyAreaDescription (
-					AreaDescriptionPtr				areaDescriptionPtr);
+Boolean VerifyAreaDescription(
+   AreaDescriptionPtr areaDescriptionPtr);
 
 
 
@@ -305,30 +304,27 @@ Boolean VerifyAreaDescription (
 //	Coded By:			Chulhee Lee				Date: ?
 //	Revised By:			Larry L. Biehl			Date: 03/29/1994	
 
-void Area_Of_SND_by_Direct_Calculation (
-				double								r,
-				double*								ret)
+void Area_Of_SND_by_Direct_Calculation(
+   double r,
+   double* ret)
  {
-   double								incre = 0.02,
-											localR,
-											offset,
-											rStop,
-											start,
-											t,
-											x;
+   double incre = 0.02,
+      localR,
+      offset,
+      rStop,
+      start,
+      t,
+      x;
 
 
-   if (r >= 8.327) 
-		{
+   if (r >= 8.327) {
       *ret = .5;
       return;
 
-		}	// end "if (r >= 8.327)" 
+   } // end "if (r >= 8.327)" 
 
-   if (r >= 3.5)
-		{
-      if (r >= 5.5)
-			{
+   if (r >= 3.5) {
+      if (r >= 5.5) {
          incre = 0.04;
 
          if (r >= (start = 8.00))
@@ -349,10 +345,10 @@ void Area_Of_SND_by_Direct_Calculation (
          else if (r >= (start = 5.50))
             offset = .4999999810104375;
 
-			}	// end "if (r >= 5.5)"
+      }// end "if (r >= 5.5)" 
 
       else // r < 5.5 
-			{
+      {
          if (r >= (start = 5.00))
             offset = .4999997133484281;
 
@@ -374,14 +370,13 @@ void Area_Of_SND_by_Direct_Calculation (
          else if (r >= (start = 3.5))
             offset = .4997673709209645;
 
-			}	// end "else r < 5.5"
+      } // end "else r < 5.5" 
 
-		}	// end "if (r >= 3.5)"
+   }// end "if (r >= 3.5)" 
 
    else // r < 3.5 
-		{
-      if (r >= 1.75)
-			{
+   {
+      if (r >= 1.75) {
          if (r >= (start = 3.25))
             offset = .4994229749576092;
 
@@ -403,10 +398,10 @@ void Area_Of_SND_by_Direct_Calculation (
          else if (r >= (start = 1.75))
             offset = .4599408431361829;
 
-			}	// end "if ( r >= 1.75 )"
+      }// end "if ( r >= 1.75 )" 
 
       else // r < 1.75 
-			{
+      {
          if (r >= (start = 1.5))
             offset = .4331927987311419;
 
@@ -428,23 +423,22 @@ void Area_Of_SND_by_Direct_Calculation (
          else if (r >= (start = 0))
             offset = .0;
 
-			}	// end "else r < 1.75"
+      } // end "else r < 1.75" 
 
-		}	// end "else r < 3.5"
+   } // end "else r < 3.5" 
 
    t = 0;
    localR = start - .5 * incre;
    rStop = r - incre;
-   for (x = start; x < rStop; x += incre)
-		{
+   for (x = start; x < rStop; x += incre) {
       localR += incre;
       t += exp(-localR * localR / 2);
 
-		}	// end "for (x=start; x<rStop; x+=incre)"
+   } // end "for (x=start; x<rStop; x+=incre)" 
 
    t *= incre;
 
-			// Get last piece of numerical integration.
+   // Get last piece of numerical integration.									
 
    localR += 0.5 * (r + incre - x);
    t += exp(-localR * localR / 2) * (r - x);
@@ -481,20 +475,20 @@ void Area_Of_SND_by_Direct_Calculation (
 //	Coded By:			C.H. Lee					Date: 07/02/1996
 //	Revised By:			Larry L. Biehl			Date: 08/23/2010	
 
-Boolean AssignClassInfoMemory (
-				ClassInfoPtr						classInfoPtr,
-				SInt16*								classPtr,
-				SInt32								numberClasses,
-				SInt32								numberChannels,
-				SInt32								numberFeatures,
-				SInt16								floatDataValueCode,
-				SInt16								covarianceCode,
-				SInt16								inverseCode,
-				SInt16								meanCode,
-				SInt16								transformedCovCode,
-				SInt16								transformedMeanCode)
-{
-	SInt64								numberPixels;
+Boolean AssignClassInfoMemory(
+   ClassInfoPtr classInfoPtr,
+   SInt16* classPtr,
+   SInt32 numberClasses,
+   SInt32 numberChannels,
+   SInt32 numberFeatures,
+   SInt16 floatDataValueCode,
+   SInt16 covarianceCode,
+   SInt16 inverseCode,
+   SInt16 meanCode,
+   SInt16 transformedCovCode,
+   SInt16 transformedMeanCode)
+ {
+   SInt64 numberPixels;
 
    SInt32 matrixSize,
       numberCovarianceEntries,
@@ -2633,7 +2627,7 @@ double ClassWeightsDialogChangeWeights(
    } // end "while ( LGetSelect (TRUE, ...) )" 
    
    sprintf((char*) &gTextString3[1], "%.3f", newWeight);
-   gTextString3[0] = (UChar)strlen((char*) &gTextString3[1]);
+   gTextString3[0] = strlen((char*) &gTextString3[1]);
    LoadDItemString(dialogPtr, IDC_Weight, &gTextString3);
 
    SelectDialogItemText(dialogPtr, IDC_Weight, 0, SHRT_MAX);
@@ -5295,59 +5289,57 @@ SInt16 GetProjectClassWeightsIndex(void)
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 12/14/2000
-//	Revised By:			Larry L. Biehl			Date: 05/06/2017 
+//	Revised By:			Larry L. Biehl			Date: 12/14/2000 
 
 void GetProjectWindowTitle (
 			UCharPtr						titleStringPtr)
 {
-	if (gProjectWindow != NULL)
+#if defined multispec_mac  	   
+   if (gProjectWindow != NULL)
+      GetWTitle (gProjectWindow, titleStringPtr);
+#endif	// defined multispec_mac 
+
+#if defined multispec_win
+#	if defined multispec_win
+		USES_CONVERSION;
+#	endif
+
+   if (gProjectWindow != NULL) 
 		{
-#		if defined multispec_mac  	   
-			GetWTitle (gProjectWindow, titleStringPtr);
-#		endif	// defined multispec_mac 
+      CMStatisticsDoc* documentCPtr =
+         ((CMStatisticsForm*) gProjectWindow)->GetDocument();
+      CString titleString = documentCPtr->GetTitle();
 
-#		if defined multispec_win
-			USES_CONVERSION;
+      UInt16 titleLength = titleString.GetLength();
+      LPTSTR titleBufferPtr = titleString.GetBuffer(titleLength);
 
-			CMStatisticsDoc* documentCPtr =
-									((CMStatisticsForm*) gProjectWindow)->GetDocument();
-			CString titleString = documentCPtr->GetTitle();
+      // Move the window title making sure that there are no
+      // spaces in the name.
 
-			UInt16 titleLength = titleString.GetLength();
-			LPTSTR titleBufferPtr = titleString.GetBuffer(titleLength);
-		
-				// Convert unicode to char string
-			strcpy ((char*)&titleStringPtr[1], T2A(titleBufferPtr));
-			titleString.ReleaseBuffer();
+      UInt16 inIndex,
+         outIndex = 1;
 
-					// Move the window title making sure that there are no
-					// spaces in the name.
-
-			UInt16		inIndex,
-							outIndex = 1;
-
-			for (inIndex = 1; inIndex <= titleLength; inIndex++)
+      for (inIndex = 0; inIndex < titleLength; inIndex++) 
+			{
+         if (titleBufferPtr[inIndex] != ' ') 
 				{
-				if (titleStringPtr[inIndex] != ' ')
-					{
-					titleStringPtr[outIndex] = (UChar)titleStringPtr[inIndex];
-					outIndex++;
+            titleStringPtr[outIndex] = (unsigned char)T2A(&titleBufferPtr[inIndex]);
+            outIndex++;
 
-					}		// end "if (titleBufferPtr[inIndex] != ' ')"
+				}		// end "if (titleBufferPtr[inIndex] != ' ')"
 
-				}		// end "for (inIndex=0; inIndex<titleLength; inIndex++)"
+			}		// end "for (inIndex=0; inIndex<titleLength; inIndex++)"
 
-					// Make the string a pascal string and terminate it with as
-					// if it were a c string.
+      titleString.ReleaseBuffer();
 
-			titleStringPtr[0] = (UInt8) (outIndex - 1);
-			titleStringPtr[outIndex] = 0;
-#		endif	// defined multispec_win 
+				// Make the string a pascal string and terminate it with as
+				// if it were a c string.
 
-		}	// end "if (gProjectWindow != NULL)"
+      titleStringPtr[0] = (UInt8) (outIndex - 1);
+      titleStringPtr[outIndex] = 0;
 
-	else
-		titleStringPtr[0] = sprintf((char*)&titleStringPtr[1], "New Project");
+   } // end "if (gProjectWindow != NULL)"
+#endif	// defined multispec_win  
 
 } // end "GetProjectWindowTitle" 
 
@@ -6246,7 +6238,7 @@ Boolean ListClassesUsed(
 
    sprintf(stringPtr, gEndOfLine);
 
-   stringLength = (Ptr)stringPtr - (Ptr)&gTextString + gNumberOfEndOfLineCharacters - 1;
+   stringLength = (Ptr) stringPtr - (Ptr) & gTextString + gNumberOfEndOfLineCharacters - 1;
    continueFlag = OutputString(outputFilePtr,
       (char*) &gTextString[1],
       stringLength,
@@ -6366,30 +6358,30 @@ Boolean ListClassesUsed(
          if (index < numberClasses - 1)
             index++;
 
-			}	// end "if ( classNumber == classPtr[index] )" 
+      }// end "if ( classNumber == classPtr[index] )" 
 
       else // classNumber != classPtr[index] 
-			{
+      {
          sprintf(stringPtr, "\t \t    ");
          stringPtr += 7;
 
-			}	// end "else classNumber != classPtr[index]" 
+      } // end "else classNumber != classPtr[index]" 
 
       sprintf(stringPtr, gEndOfLine);
       stringLength =
-         (Ptr)stringPtr - (Ptr)&gTextString + gNumberOfEndOfLineCharacters;
-      continueFlag = OutputString (outputFilePtr, 
-												(char*)gTextString,
-												stringLength,
-												*outputCodePtr,
-												continueFlag);
+         (Ptr) stringPtr - (Ptr) & gTextString + gNumberOfEndOfLineCharacters;
+      continueFlag = OutputString(outputFilePtr,
+         (char*) &gTextString,
+         stringLength,
+         *outputCodePtr,
+         continueFlag);
 
       if (!continueFlag)
          break;
 
-		}	// end "for (index=0;..." 
+   } // end "for (index=0;..." 
 
-			// Insert a blank line after the table.
+   // Insert a blank line after the table.
 
    continueFlag = OutputString(outputFilePtr,
       gEndOfLine,

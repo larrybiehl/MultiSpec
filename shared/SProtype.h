@@ -7,7 +7,7 @@
 //	Header file for MultiSpec which contain the function prototype information.
 //	
 //	Written 03/29/1988 by Larry L. Biehl
-//	Revised 05/12/2017 by Larry L. Biehl
+//	Revised 03/22/2017 by Larry L. Biehl
 // Revised 06/24/2013 by Abdur Maud
 // Revised 09/23/2015 by Tsung Tai Yeh
 //	
@@ -4125,21 +4125,20 @@ extern void CloseAllImageOverlayFiles(void);
 extern void CloseImageOverlayFile(
         UInt32 imageOverlayIndex);
 
-extern void CopyToOffscreenBuffer (
-				FileIOInstructionsPtr			fileIOInstructionsPtr,
-				ImageOverlayInfoPtr				imageOverlayInfoPtr,
-				SInt16								windowOverlayIndex,
-				Handle								imageWindowInfoHandle,
-				UInt32								line,
-				UInt32								columnStart,
-				UInt32								columnInterval,
-				UInt32								numberSamples,
-				UInt32								lineStart,
-				RgnHandle							rgnHandle,
-				HUCharPtr							inputBufferPtr,
-				HPtr									offScreenBufferPtr,
-				SInt32								numberLinesToCopy,
-				Boolean								twoByteInputBufferFlag);
+extern void CopyToOffscreenBuffer(
+        ImageOverlayInfoPtr imageOverlayInfoPtr,
+        SInt16 windowOverlayIndex,
+        Handle imageWindowInfoHandle,
+        UInt32 line,
+        UInt32 columnStart,
+        UInt32 columnInterval,
+        UInt32 numberSamples,
+        UInt32 lineStart,
+        RgnHandle rgnHandle,
+        HUCharPtr inputBufferPtr,
+        HPtr offScreenBufferPtr,
+        SInt32 numberLinesToCopy,
+        Boolean twoByteInputBufferFlag);
 
 extern void DrawImageOverlays(
         WindowPtr windowPtr,
@@ -4151,16 +4150,15 @@ extern void DrawImageOverlays(
         SInt16 windowCode);
 
 extern void FillLineOfOffscreenBuffer(
-				FileIOInstructionsPtr			fileIOInstructionsPtr,
-				ImageOverlayInfoPtr				imageOverlayInfoPtr,
-				SInt32								line,
-				UInt32								column,
-				UInt32								columnInterval,
-				UInt32								numberSamples,
-				RgnHandle							rgnHandle,
-				HUCharPtr							inputBufferPtr,
-				HPtr									offScreenPtr,
-				Boolean								twoByteInputBufferFlag);
+        ImageOverlayInfoPtr imageOverlayInfoPtr,
+        SInt32 line,
+        UInt32 column,
+        UInt32 columnInterval,
+        UInt32 numberSamples,
+        RgnHandle rgnHandle,
+        HUCharPtr inputBufferPtr,
+        HPtr offScreenPtr,
+        Boolean twoByteInputBufferFlag);
 
 extern void GetDefaultImageOverlayName(
         SInt16 imageOverlayIndex);
@@ -5226,10 +5224,10 @@ extern Handle GetCountVectorTableMemory(
         Boolean trainingFieldFlag,
         Boolean testFieldFlag);
 
-extern Ptr GetHandlePointer (
-				Handle									handle,
-				Boolean									lockFlag=kNoLock,
-				Boolean									moveHiFlag=kNoMoveHi);
+extern Ptr GetHandlePointer(
+        Handle handle,
+        Boolean lockFlag,
+        Boolean moveHiFlag);
 
 extern Ptr GetHandleStatusAndPointer(
         Handle handle,

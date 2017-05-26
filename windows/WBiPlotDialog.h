@@ -1,7 +1,4 @@
-// WBiPlotDialog.h : header file
-//         
-// Revised by Larry Biehl on 05/22/2017
-//
+
 #if !defined __WBIPLOTDLG_H__
 #define	__WBIPLOTDLG_H__  
 
@@ -29,33 +26,34 @@ public:
 	float*		m_classWeightsPtr;
 
 	double		m_thresholdPercent,
-					m_saveThresholdPercent;
+				m_saveThresholdPercent;
 
 	int			m_classWeightsSelection;
 
-	UINT			m_maxChannelFeatureNum,
-					m_newXAxisFeature,
-					m_newYAxisFeature;
+	SInt32		m_maxChannelFeatureNum;
 
 	SInt16		m_displayPixelCode,
-					m_entireIconItem,
-					m_outlineClassCode,
-					m_plotDataCode;
+				m_entireIconItem,
+				m_outlineClassCode,
+				m_plotDataCode,
+				m_newXAxisFeature,
+				m_newYAxisFeature;
 
-	BOOL			m_checkChannelStatisticsFlag,
-					m_checkClassesPopUpFlag,
-					m_checkFeatureTransformFlag,
-					m_createNewGraphWindowFlag,
-					m_featureTransformAllowedFlag,
-					m_featureTransformationFlag,
-					m_createNewGraphicsWindowFlag,
-					m_thresholdFlag,
-					m_trainingAreaFlag,
-					m_testFlag,
-					m_imageAreaFlag;
+	BOOL		m_checkChannelStatisticsFlag,
+				m_checkClassesPopUpFlag,
+				m_checkFeatureTransformFlag,
+				m_createNewGraphWindowFlag,
+				m_featureTransformAllowedFlag,
+				m_featureTransformationFlag,
+				m_createNewGraphicsWindowFlag,
+				m_thresholdFlag,
+				m_trainingAreaFlag,
+				m_testFlag,
+				m_imageAreaFlag;
+	BOOL		mb_displayPixelCode,
+				mb_outlineClassCode;
 
-	BOOL			mb_displayPixelCode,
-					mb_outlineClassCode;
+	
 
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
@@ -76,8 +74,6 @@ protected:
 	afx_msg void OnSelendokClassWeightsCombo();
 	afx_msg void OnSelendokClassCombo();
 	DECLARE_MESSAGE_MAP()
-public:
-	afx_msg void OnEnChangeHorizontalchannel();
 };
 
 #endif // !defined __WBIPLOTDLG_H__

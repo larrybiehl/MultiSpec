@@ -1,15 +1,17 @@
 ﻿// WBiPlotDialog.cpp : implementation file
 //
-// Revised by Larry Biehl on 05/24/2017
+
 
 #include	"SMulSpec.h"
+//#include "MULTSPEC.h"
 #include	"WBiPlotDialog.h"
+//#include	"WDialog.h"
 #include	"SExtGlob.h"
 
 
 extern void				BiPlotDataDialogInitialize(
 	DialogPtr							dialogPtr,
-	BiPlotDataSpecsPtr				biPlotDataSpecsPtr,
+	BiPlotDataSpecsPtr					biPlotDataSpecsPtr,
 	DialogSelectArea*					dialogSelectAreaPtr,
 	WindowInfoPtr						imageWindowInfoPtr,
 	WindowPtr							activeImageWindow,
@@ -17,24 +19,24 @@ extern void				BiPlotDataDialogInitialize(
 	unsigned char*						localSymbolsPtr,
 	SInt16*								newXAxisFeaturePtr,
 	SInt16*								newYAxisFeaturePtr,
-	Boolean*								featureTransformationFlagPtr,
-	Boolean*								featureTransformAllowedFlagPtr,
-	Boolean*								checkFeatureTransformFlagPtr,
+	Boolean*							featureTransformationFlagPtr,
+	Boolean*							featureTransformAllowedFlagPtr,
+	Boolean*							checkFeatureTransformFlagPtr,
 	SInt32*								maxChannelFeatureNumPtr,
 	SInt16*								plotDataCodePtr,
 	SInt16*								displayPixelCodePtr,
 	SInt16*								outlineClassCodePtr,
-	Boolean*								thresholdFlagPtr,
+	Boolean*							thresholdFlagPtr,
 	double*								saveThresholdPercentPtr,
 	SInt16*								classSelectionPtr,
 	UInt32*								localNumberClassesPtr,
 	SInt16*								symbolSelectionPtr,
 	SInt16*								weightsSelectionPtr,
-	Boolean*								createNewGraphicsWindowFlagPtr);
+	Boolean*							createNewGraphicsWindowFlagPtr);
 
 extern void				BiPlotDataDialogOK(
 	DialogPtr							dialogPtr,
-	BiPlotDataSpecsPtr				biPlotDataSpecsPtr,
+	BiPlotDataSpecsPtr					biPlotDataSpecsPtr,
 	DialogSelectArea*					dialogSelectAreaPtr,
 	SInt16								newXAxisFeature,
 	SInt16								newYAxisFeature,
@@ -58,7 +60,7 @@ extern  Boolean		BiPlotDataDialogCheckFeatureTransform(
 	WindowInfoPtr						imageWindowInfoPtr,
 	TransformationSpecs*				transformationMatrixPtr,
 	Boolean								featureTransformAllowedFlag,
-	Boolean*								featureTransformationFlagPtr,
+	Boolean*							featureTransformationFlagPtr,
 	SInt32*								maxChannelFeatureNumPtr);
 
 extern void				BiPlotDataDialogHideShowClassItems(
@@ -101,13 +103,13 @@ CMBiPlotDialog::CMBiPlotDialog(CWnd* pParent /*=NULL*/)
 
 	m_thresholdPercent = 0;
 	m_saveThresholdPercent = 0.;
-	m_maxChannelFeatureNum = 1;
+	m_maxChannelFeatureNum = 0;
 
 	m_displayPixelCode = 0;
 	m_outlineClassCode = 0;
 	m_plotDataCode = 0;
-	m_newXAxisFeature = 1;
-	m_newYAxisFeature = 1;
+	m_newXAxisFeature = 0;
+	m_newYAxisFeature = 0;
 	m_initializedFlag = CMDialog::m_initializedFlag;
 
 	m_trainingAreaFlag = FALSE;
@@ -149,9 +151,7 @@ void CMBiPlotDialog::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_ColumnEnd, m_ColumnEnd);
 	DDX_Text(pDX, IDC_ColumnInterval, m_ColumnInterval);
 	DDX_Text(pDX, IDC_Horizontal_channel, m_newXAxisFeature);
-	DDV_MinMaxUInt(pDX, m_newXAxisFeature, 1, m_maxChannelFeatureNum);
 	DDX_Text(pDX, IDC_Vertical_channel, m_newYAxisFeature);
-	DDV_MinMaxUInt(pDX, m_newYAxisFeature, 1, m_maxChannelFeatureNum);
 	DDX_Text(pDX, IDC_ThresholdLevel, m_thresholdPercent);
 
 
@@ -188,7 +188,7 @@ void CMBiPlotDialog::DoDataExchange(CDataExchange* pDX)
 
 BEGIN_MESSAGE_MAP(CMBiPlotDialog, CMDialog)
 	ON_EN_CHANGE(IDC_Vertical_channel, OnChangeVerticalAxis)
-	ON_EN_CHANGE(IDC_Horizontal_channel, OnChangeHorizontalAxis)
+	ON_EN_CHANGE(IDC_Vertical_channel, OnChangeHorizontalAxis)
 	ON_EN_CHANGE(IDC_ColumnEnd, CheckColumnEnd)
 	ON_EN_CHANGE(IDC_ColumnStart, CheckColumnStart)
 	ON_EN_CHANGE(IDC_LineEnd, CheckLineEnd)
@@ -206,12 +206,11 @@ BEGIN_MESSAGE_MAP(CMBiPlotDialog, CMDialog)
 	ON_BN_CLICKED(IDEntireImage, ToEntireImage)
 	ON_BN_CLICKED(IDSelectedImage, ToSelectedImage)
 
-	ON_EN_CHANGE(IDC_Horizontal_channel, &CMBiPlotDialog::OnEnChangeHorizontalchannel)
 END_MESSAGE_MAP()
 
 BOOL CMBiPlotDialog::DoDialog()
 {
-	INT_PTR		returnCode;
+	SInt16		returnCode;
 
 	BOOL		continueFlag = FALSE;
 
@@ -234,26 +233,26 @@ BOOL CMBiPlotDialog::DoDialog()
 		m_dialogSelectArea.columnEnd = m_ColumnEnd;
 		m_dialogSelectArea.columnInterval = m_ColumnInterval;
 
-		BiPlotDataDialogOK (this,
-									gBiPlotDataSpecsPtr,
-									&m_dialogSelectArea,
-									m_newXAxisFeature,
-									m_newYAxisFeature,
-									m_featureTransformationFlag,
-									m_createNewGraphicsWindowFlag,
-									m_plotDataCode,
-									m_displayPixelCode,
-									m_outlineClassCode,
-									m_thresholdPercent,
-									m_thresholdFlag,
-									m_classSelection,
-									(UInt16)m_localNumberClasses,
-									m_classListPtr,
-									m_symbolSelection,
-									m_localSymbolsPtr,
-									m_classWeightsSelection + 1,
-									m_classWeightsPtr);
-		}
+		BiPlotDataDialogOK(this,
+			gBiPlotDataSpecsPtr,
+			&m_dialogSelectArea,
+			m_newXAxisFeature,
+			m_newYAxisFeature,
+			m_featureTransformationFlag,
+			m_createNewGraphicsWindowFlag,
+			m_plotDataCode,
+			m_displayPixelCode,
+			m_outlineClassCode,
+			m_saveThresholdPercent,
+			m_thresholdFlag,
+			m_classSelection,
+			m_localNumberClasses,
+			m_classListPtr,
+			m_symbolSelection,
+			m_localSymbolsPtr,
+			m_classWeightsSelection + 1,
+			m_classWeightsPtr);
+	}
 
 	return (continueFlag);
 
@@ -261,56 +260,38 @@ BOOL CMBiPlotDialog::DoDialog()
 
 BOOL CMBiPlotDialog::OnInitDialog()
 {
-	SInt32				maxChannelFeatureNum;
 
 	SInt16				classSelection,
-							//controlValue,
-							//fieldTypesPresentCode,
-							newXAxisFeature,
-							newYAxisFeature,
-							symbolSelection = 0,
-							weightsSelection = 0;
+						controlValue,
+						fieldTypesPresentCode,
+						symbolSelection = 0,
+						weightsSelection = 0;
 
 	CMDialog::OnInitDialog();
-
-			// Make sure that we have the bitmaps for the entire image buttons.
-
-	VERIFY(toEntireButton.AutoLoad(IDEntireImage, this));
-	VERIFY(toSelectedButton.AutoLoad(IDSelectedImage, this));
-	/*
-	SetEntireImageButtons (NULL,
-									m_LineStart,
-									m_LineEnd,
-									m_ColumnStart,
-									m_ColumnEnd);
-	*/
-	BiPlotDataDialogInitialize (this,
-											gBiPlotDataSpecsPtr,
-											&m_dialogSelectArea,
-											gImageWindowInfoPtr,
-											gActiveImageWindow,
-											m_classListPtr,
-											m_localSymbolsPtr,
-											&newXAxisFeature,
-											&newYAxisFeature,
-											(Boolean*)&m_featureTransformationFlag,
-											(Boolean*)&m_featureTransformAllowedFlag,
-											(Boolean*)&m_checkFeatureTransformFlag,
-											&maxChannelFeatureNum,
-											&m_plotDataCode,
-											&m_displayPixelCode,
-											&m_outlineClassCode,
-											(Boolean*)&m_thresholdFlag,
-											&m_saveThresholdPercent,
-											&classSelection,
-											&m_localNumberClasses,
-											&symbolSelection,
-											&weightsSelection,
-											(Boolean*)&m_createNewGraphicsWindowFlag);
-
-	m_newXAxisFeature = newXAxisFeature;
-	m_newYAxisFeature = newYAxisFeature;
-	m_maxChannelFeatureNum = maxChannelFeatureNum;
+	
+	BiPlotDataDialogInitialize(this,
+		gBiPlotDataSpecsPtr,
+		&m_dialogSelectArea,
+		gImageWindowInfoPtr,
+		gActiveImageWindow,
+		m_classListPtr,
+		m_localSymbolsPtr,
+		&m_newXAxisFeature,
+		&m_newYAxisFeature,
+		(Boolean*)&m_featureTransformationFlag,
+		(Boolean*)&m_featureTransformAllowedFlag,
+		(Boolean*)&m_checkFeatureTransformFlag,
+		&m_maxChannelFeatureNum,
+		&m_plotDataCode,
+		&m_displayPixelCode,
+		&m_outlineClassCode,
+		(Boolean*)&m_thresholdFlag,
+		&m_saveThresholdPercent,
+		&classSelection,
+		&m_localNumberClasses,
+		&symbolSelection,
+		&weightsSelection,
+		(Boolean*)&m_createNewGraphicsWindowFlag);
 
 	m_LineStart = m_dialogSelectArea.lineStart;
 	m_LineEnd = m_dialogSelectArea.lineEnd;
@@ -321,21 +302,23 @@ BOOL CMBiPlotDialog::OnInitDialog()
 
 	m_thresholdPercent = m_saveThresholdPercent;
 	
-			// Classes to use.
+	// Classes to use.
 
 	m_classSelection = classSelection;
+	
 
-			// Class weights.
-			// Adjust for 0 base index.
+	// Class weights.
+	// Adjust for 0 base index.
 
 	m_classWeightsSelection = weightsSelection - 1;
 
-			// Symbols to use.
-			// User defined symbols are not available yet.
+	// Symbols to use.
+	// Adjust for 0 base index.
+	// User defined symbols are not available yet.
 
-	m_symbolSelection = symbolSelection;
+	m_symbolSelection = symbolSelection - 1;
 
-			// Set check boxes for "pixels to plot".	      
+	// Set check boxes for "pixels to plot".	      
 	if (m_plotDataCode & kTrainingType)
 		m_trainingAreaFlag = TRUE;
 
@@ -345,17 +328,21 @@ BOOL CMBiPlotDialog::OnInitDialog()
 	if (m_plotDataCode & kAreaType)
 		m_imageAreaFlag = TRUE;
 
-			// Hide some of the area selection boxes if needed.						
+	// Hide some of the area selection boxes if needed.						
 
 	if (!(m_plotDataCode & kAreaType))
+	{
 		HideSomeAreaSelectionItems();
 
+	}		// end "if (!(plotDataCode & kAreaType))" 
+
 	if (UpdateData(FALSE))
+	{
 		PositionDialogWindow();
+		return FALSE;
+	}
 
-	SelectDialogItemText (this, IDC_Horizontal_channel, 0, SInt16_MAX);
-
-	return FALSE; 
+	return TRUE; 
 }
 
 
@@ -528,12 +515,3 @@ void CMBiPlotDialog::OnSelendokClassCombo()
 
 
 
-void CMBiPlotDialog::OnEnChangeHorizontalchannel()
-{
-	// TODO:  If this is a RICHEDIT control, the control will not
-	// send this notification unless you override the CMDialog::OnInitDialog()
-	// function and call CRichEditCtrl().SetEventMask()
-	// with the ENM_CHANGE flag ORed into the mask.
-
-	// TODO:  Add your control notification handler code here
-}

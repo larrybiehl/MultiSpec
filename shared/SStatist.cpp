@@ -13,7 +13,7 @@
 //
 //	Revision number:		3.0
 //
-//	Revision date:			05/18/2017
+//	Revision date:			03/25/2017
 //
 //	Language:				C
 //
@@ -186,13 +186,12 @@
 	#define	IDC_ClassNumberPixels			11
 	#define	IDC_FieldNumberPixels			12
 
-	#define	IDC_LayerPrompt					16
 	#define	IDC_TrainMaskPopUp				18	
-	#define	IDC_TrainMaskLayer				19		
+	#define	IDC_TrainMaskLayerStatic		19		
 	#define	IDC_TestMaskPopUp					21
-	#define	IDC_TestMaskLayer					22
-	#define	IDC_TrainMaskLayerEdit			23
-	#define	IDC_TestMaskLayerEdit			24
+	#define	IDC_TestMaskLayerStatic			22
+	#define	IDC_TrainMaskLayerEDIT			23
+	#define	IDC_TestMaskLayerEDIT			24
 
 	#define	IDC_OptimumValue					5
 	#define	IDC_UserValue						7
@@ -210,111 +209,99 @@
 
 #include "SExtGlob.h"	
 
-extern Handle LoadMaskFileInfo (
-				CMFileStream*						maskFileStreamPtr);
-
-extern SInt16 HistogramStatsControl (
-				SInt16								statsWindowMode,
-				SInt16								histogramRequest);
+extern SInt16 HistogramStatsControl(
+   SInt16 statsWindowMode,
+   SInt16 histogramRequest);
 
 extern void WriteProjectName(void);
 
 extern void SetProjectWindowBoxes(
-				SInt16*								borderPtr,
-				SInt16*								windowCenterPtr,
-				SInt16*								windowWidthPtr,
-				SInt16*								topStartPtr,
-				SInt16								pushButtonSpacing);
+   SInt16* borderPtr,
+   SInt16* windowCenterPtr,
+   SInt16* windowWidthPtr,
+   SInt16* topStartPtr,
+   SInt16 pushButtonSpacing);
 
-extern void LOOCOptionsDialogInitialize (
-				DialogPtr							dialogPtr,
-				SInt16								statsWindowMode,
-				SInt16*								mixingParameterCodePtr,
-				double*								loocMixingParameterPtr,
-				double*								userMixingParameterPtr);
+extern void LOOCOptionsDialogInitialize(
+   DialogPtr dialogPtr,
+   SInt16 statsWindowMode,
+   SInt16* mixingParameterCodePtr,
+   double* loocMixingParameterPtr,
+   double* userMixingParameterPtr);
 
-extern void LOOCOptionsDialogOK (
-				SInt16								statsWindowMode,
-				SInt16								mixingParameterCode,
-				double								userMixingParameter);
+extern void LOOCOptionsDialogOK(
+   SInt16 statsWindowMode,
+   SInt16 mixingParameterCode,
+   double userMixingParameter);
 
-extern void NewClassFieldDialogChangeClass (
-				DialogPtr							dialogPtr,
-				SInt16								newCurrentClass,
-				SInt16								fieldType,
-				SInt64								numberSelectionPixels);
+extern void NewClassFieldDialogChangeClass(
+   DialogPtr dialogPtr,
+   SInt16 newCurrentClass,
+   SInt16 fieldType,
+   SInt64 numberSelectionPixels);
 
 extern void NewClassFieldDialogInitialize (
-				DialogPtr							dialogPtr,
-				Boolean								newClassOnlyFlag,
-				UInt16*								selectedItemPtr,
-				UCharPtr								fieldNamePtr,
-				SInt16								fieldType,
-				SInt64*								numberSelectionPixelsPtr);
+				DialogPtr									dialogPtr,
+				Boolean										newClassOnlyFlag,
+				UInt16*										selectedItemPtr,
+				UCharPtr										fieldNamePtr,
+				SInt16										fieldType,
+				SInt64*										numberSelectionPixelsPtr);
 
-extern void StatisticsOptionsDialogOK (
-				SInt16								localStatCode,
-				Boolean								localKeepStatsFlag,
-				Boolean								localZeroVarianceFlag,
-				double								localVariance,
-				double								localMinLogDeterminant,
-				Boolean								localCommonCovarianceInLOOCFlag,
-				SInt16*								statCodePtr,
-				Boolean*								keepClassStatsFlagPtr,
-				double*								variancePtr,
-				double*								minLogDeterminantPtr,
-				Boolean*								useCommonCovarianceInLOOCFlagPtr);
+extern void StatisticsOptionsDialogOK(
+   SInt16 localStatCode,
+   Boolean localKeepStatsFlag,
+   Boolean localZeroVarianceFlag,
+   double localVariance,
+   double localMinLogDeterminant,
+   Boolean localCommonCovarianceInLOOCFlag,
+   SInt16* statCodePtr,
+   Boolean* keepClassStatsFlagPtr,
+   double* variancePtr,
+   double* minLogDeterminantPtr,
+   Boolean* useCommonCovarianceInLOOCFlagPtr);
 
-extern Boolean	CheckMaskFileInfo (
-				Handle								fileInfoHandle,
-				SInt16*								errCodePtr);
+extern void StatisticsDialogInitialize(
+   DialogPtr dialogPtr,
+   SInt16 totalNumberChannels,
+   SInt16* localStatCodePtr,
+   Boolean* keepClassStatsFlagPtr,
+   Boolean* useCommonCovarianceInLOOCFlagPtr,
+   double* variancePtr,
+   double* minLogDeterminantPtr,
+   SInt16* channelSelectionPtr,
+   SInt16* channelListTypePtr,
+   UInt16* featurePtr,
+   UInt16* localNumberChannelsPtr,
+   SInt16* localOutlineFieldTypePtr,
+   SInt16* localLabelFieldCodePtr,
+   SInt16* outlineColorSelectionPtr,
+   SInt16* maskTrainImageSelectionPtr,
+   SInt16* maskTestImageSelectionPtr);
 
-extern void StatisticsDialogInitialize (
-				DialogPtr							dialogPtr,
-				SInt16								totalNumberChannels,
-				SInt16*								localStatCodePtr,
-				Boolean*								keepClassStatsFlagPtr,
-				Boolean*								useCommonCovarianceInLOOCFlagPtr,
-				double*								variancePtr,
-				double*								minLogDeterminantPtr,
-				SInt16*								channelSelectionPtr,
-				SInt16*								channelListTypePtr,
-				UInt16*								featurePtr,
-				UInt16*								localNumberChannelsPtr,
-				SInt16*								localOutlineFieldTypePtr,
-				SInt16*								localLabelFieldCodePtr,
-				SInt16*								outlineColorSelectionPtr,
-				SInt16*								maskTrainImageSelectionPtr,
-				SInt16*								maskTestImageSelectionPtr,
-				UInt16*								maxNumberTrainLayersPtr,
-				UInt16*								maxNumberTestLayersPtr);
+extern SInt16 StatisticsDialogSelectMaskItem(
+   Handle* maskFileInfoHandlePtr,
+   DialogPtr dialogPtr,
+   MenuHandle popUpSelectMaskImageMenu,
+   SInt16 itemHit,
+   SInt16 maskImageSelection,
+   SInt16 selectStringNumber,
+   SInt16 maskPopupItemNumber,
+   SInt16 layerItemNumber);
 
-extern SInt16 StatisticsDialogSelectMaskItem (
-				Handle*								maskFileInfoHandlePtr,
-				DialogPtr							dialogPtr,
-				MenuHandle							popUpSelectMaskImageMenu,
-				SInt16								itemHit,
-				SInt16								maskImageSelection,
-				SInt16								selectStringNumber,
-				SInt16								maskPopupItemNumber,
-				SInt16								layerItemNumber,
-				UInt16*								maxNumberLayersPtr);
+extern SInt16 StatisticsDialogMaskCheck(
+   Handle trainMaskFileInfoHandle,
+   Handle testMaskFileInfoHandle,
+   SInt16 maskTrainImageSelection,
+   SInt16 maskTestImageSelection);
 
-extern SInt16 StatisticsDialogMaskCheck (
-				Handle								trainMaskFileInfoHandle,
-				Handle								testMaskFileInfoHandle,
-				SInt16								maskTrainImageSelection,
-				SInt16								maskTestImageSelection,
-				UInt16								trainLayerNumber,
-				UInt16								testLayerNumber);
-
-extern void ForceStatHistogramCodeResourceLoad (void);
+extern void ForceStatHistogramCodeResourceLoad(void);
 
 #define	kStatisticsWindowWidth		169 // 134 
 
 
 
-		// Global variables for this routine.
+// Global variables for this routine.
 
 SInt16 gOutlineColorSelection = 1;
 SInt16 gMaskTestImageSelection = 1;
@@ -325,106 +312,106 @@ SInt16 gStatisticsWindowControlHeight = 263;
 SInt16 gStatisticsWindHeight = 147;  // 117
 
 
-		// Prototypes for routines in this file that are only called by
-		// other routines in this file.
+// Prototypes for routines in this file that are only called by		
+// other routines in this file.													
 
-Boolean AddPointsToProject (
-				SInt16								pointType,
-				SInt16								currentStorageField);
+Boolean AddPointsToProject(
+   SInt16 pointType,
+   SInt16 currentStorageField);
 
-void ClassListStatMode (void);
+void ClassListStatMode(void);
 
-Boolean CreateProjectWControls (void);
+Boolean CreateProjectWControls(void);
 
-void DrawClassPopUp (void);
+void DrawClassPopUp(void);
 
-void DrawClassPrompt (void);
+void DrawClassPrompt(void);
 
-void DrawFieldPrompt (void);
+void DrawFieldPrompt(void);
 
-PascalVoid DrawDialogClassPopUp2 (
-				DialogPtr							dialogPtr,
-				SInt16								itemNumber);
+PascalVoid DrawDialogClassPopUp2(
+   DialogPtr dialogPtr,
+   SInt16 itemNumber);
 
-PascalVoid DrawSelectTestImageMaskPopUp (
-				DialogPtr							dialogPtr,
-				SInt16								itemNumber);
+PascalVoid DrawSelectTestImageMaskPopUp(
+   DialogPtr dialogPtr,
+   SInt16 itemNumber);
 
-PascalVoid DrawSelectTrainImageMaskPopUp (
-				DialogPtr							dialogPtr,
-				SInt16								itemNumber);
+PascalVoid DrawSelectTrainImageMaskPopUp(
+   DialogPtr dialogPtr,
+   SInt16 itemNumber);
 
-void DrawStatPopUp (
-				SInt16								statsWindowMode);
+void DrawStatPopUp(
+   SInt16 statsWindowMode);
 
-void DrawStatPrompt (
-				SInt16								menuItem);
+void DrawStatPrompt(
+   SInt16 menuItem);
 
-void FieldListStatMode (
-				SInt16								classNumber);
+void FieldListStatMode(
+   SInt16 classNumber);
 
-SInt16 GetControlValue (
-				WindowPtr							windowPtr,
-				ControlHandle						controlHandle);
+SInt16 GetControlValue(
+   WindowPtr windowPtr,
+   ControlHandle controlHandle);
 
-SInt16 GetCurrentClassField (
-				SInt16								classNumber,
-				SInt16								inputFieldNumber);
+SInt16 GetCurrentClassField(
+   SInt16 classNumber,
+   SInt16 inputFieldNumber);
 
-SInt16 GetCurrentField (
-				SInt16								classNumber,
-				SInt16								classFieldNumber);
+SInt16 GetCurrentField(
+   SInt16 classNumber,
+   SInt16 classFieldNumber);
 
-SInt16 GetCovarianceStatsFromMenuItem (
-				SInt16								menuItem);
+SInt16 GetCovarianceStatsFromMenuItem(
+   SInt16 menuItem);
 
-void HideStatControl (
-				ControlHandle						controlHandle);
+void HideStatControl(
+   ControlHandle controlHandle);
 
-void LoadPolyStatNewFieldW (void);
+void LoadPolyStatNewFieldW(void);
 
-void LoadRectStatNewFieldW (void);
+void LoadRectStatNewFieldW(void);
 
-PascalVoid DrawOutlineColorPopUp (
-				DialogPtr							dialogPtr,
-				SInt16								itemNumber);
+PascalVoid DrawOutlineColorPopUp(
+   DialogPtr dialogPtr,
+   SInt16 itemNumber);
 
 void PolygonListStatMode(
-				SInt16								classFieldNumber);
+   SInt16 classFieldNumber);
 
-void SetOutlineAreaOptions (
-				DialogPtr							dialogPtr,
-				SInt16								labelFieldCode);
+void SetOutlineAreaOptions(
+   DialogPtr dialogPtr,
+   SInt16 labelFieldCode);
 
-void SetStatControlTitle (
-				ControlHandle						controlHandle,
-				char*									titleStringPtr);
+void SetStatControlTitle(
+   ControlHandle controlHandle,
+   char* titleStringPtr);
 
-void ShowStatControl (
-				ControlHandle						controlHandle);
+void ShowStatControl(
+   ControlHandle controlHandle);
 
-SInt16 StatisticsDialog (
-				SInt16*								featurePtr,
-				SInt16								totalNumberChannels);
+SInt16 StatisticsDialog(
+   SInt16* featurePtr,
+   SInt16 totalNumberChannels);
 
-void StatisticsDialogOK (
-				SInt16								channelSelection,
-				SInt16								totalNumberChannels,
-				UInt16*								featurePtr,
-				UInt32								localNumberChannels,
-				Boolean								showTrainingFieldsFlag,
-				Boolean								showTestFieldsFlag,
-				Boolean								showClassNamesFlag,
-				Boolean								showFieldNamesFlag,
-				Boolean								showTrainTestTextFlag,
-				SInt16								outlineColorSelection,
-				SInt16								localStatCode,
-				Boolean								keepClassStatsFlag,
-				double								variance,
-				double								minLogDeterminant,
-				Boolean								useCommonCovarianceInLOOCFlag);
+void StatisticsDialogOK(
+   SInt16 channelSelection,
+   SInt16 totalNumberChannels,
+   UInt16* featurePtr,
+   UInt32 localNumberChannels,
+   Boolean showTrainingFieldsFlag,
+   Boolean showTestFieldsFlag,
+   Boolean showClassNamesFlag,
+   Boolean showFieldNamesFlag,
+   Boolean showTrainTestTextFlag,
+   SInt16 outlineColorSelection,
+   SInt16 localStatCode,
+   Boolean keepClassStatsFlag,
+   double variance,
+   double minLogDeterminant,
+   Boolean useCommonCovarianceInLOOCFlag);
 
-Boolean StatisticsOptionsDialog (
+Boolean StatisticsOptionsDialog(
 				SInt16*								statCodePtr,
 				Boolean*								keepClassStatsFlagPtr,
 				double*								variancePtr,
@@ -442,8 +429,7 @@ SInt16 StatisticsDialogSetMaskItems (
 				MenuHandle							popUpSelectMaskImageMenu,
 				DialogPtr							dialogPtr,
 				SInt16								maskPopupItemNumber,
-				SInt16								staticLayerItemNumber,
-				UInt16*								maxNumberLayersPtr);
+				SInt16								layerItemNumber);
 
 
 
@@ -543,13 +529,13 @@ void ActivateStatControls(void)
 
       case kClassListMode: // "Class List" mode (List of Classes)
 
-					// Hide the controls that are not a part of the "Class List" mode
+					// Hide the controls that are not a part of the "Class List" mode 																			
 
          HideStatControl(gProjectInfoPtr->toProjectControlH);
          HideStatControl(gProjectInfoPtr->addToControlH);
          HideStatControl(gProjectInfoPtr->polygonTypeControlH);
 
-#			if defined multispec_win || defined multispec_lin
+			#if defined multispec_win || defined multispec_lin
 				HideStatControl((ControlHandle) IDC_STATIC_Class);
 				HideStatControl((ControlHandle) IDC_ClassList);
 				HideStatControl((ControlHandle) IDC_ClassName);
@@ -559,7 +545,7 @@ void ActivateStatControls(void)
 				HideStatControl((ControlHandle) IDC_StatsType);
 				ShowStatControl((ControlHandle) IDC_StatsCombo);
 				MHiliteControl(gProjectWindow, gProjectInfoPtr->addToControlH, 255);
-#			endif	// defined multispec_win || ...
+			#endif	// defined multispec_win || ...
 
 					// Show the controls that are part of the "Class List" mode 
 
@@ -572,15 +558,15 @@ void ActivateStatControls(void)
             hiliteValue = 0;
          MHiliteControl(gProjectWindow, gProjectInfoPtr->toClassControlH, hiliteValue);
 
-#			if defined multispec_mac
+			#if defined multispec_mac
 				CtoPstring ((UCharPtr) "Update Project Stats", gTextString);
 				SetStatControlTitle(gProjectInfoPtr->updateControlH, (char*) &gTextString);
-#			endif	// defined multispec_mac
+			#endif	// defined multispec_mac
 			
-#			if defined multispec_win || defined multispec_lin
+			#if defined multispec_win || defined multispec_lin
 				CtoPstring ((UCharPtr)"Update Project Stats", gTextString);
 				SetStatControlTitle(gProjectInfoPtr->updateControlH, (char*) &gTextString);
-#			endif	// defined multispec_win || ...
+			#endif	// defined multispec_win || ...
          
 			ShowStatControl(gProjectInfoPtr->updateControlH);
          
@@ -593,49 +579,45 @@ void ActivateStatControls(void)
 
 					// Set control for listing statistics.			
 
-#			if defined multispec_mac
-				CtoPstring ((UCharPtr)"List Classes Stats", gTextString);
-				SetStatControlTitle(gProjectInfoPtr->listControlH, (char*) &gTextString);
-#			endif	// defined multispec_mac
-
-#			if defined multispec_win  || multispec_lin
-				//CtoPstring ((char*)"List Classes Stats", (char*)&gTextString);
-				//SetStatControlTitle (gProjectInfoPtr->listControlH, (char*)&gTextString);
-#			endif	// defined multispec_win
+		#if defined multispec_mac
+         CtoPstring ((UCharPtr)"List Classes Stats", gTextString);
+         SetStatControlTitle(gProjectInfoPtr->listControlH, (char*) &gTextString);
+		#endif	// defined multispec_mac
+		#if defined multispec_win  || multispec_lin
+         //				CtoPstring ((char*)"List Classes Stats", (char*)&gTextString);                                    
+         //				SetStatControlTitle (gProjectInfoPtr->listControlH, (char*)&gTextString);	
+		#endif	// defined multispec_win
          ShowStatControl(gProjectInfoPtr->listControlH);
 
-					// Set control for histogram list.
+         // Set control for histogram list.												
 
-#			if defined multispec_mac
-				CtoPstring ((UCharPtr)"Histogram Classes", gTextString);
-				SetStatControlTitle(gProjectInfoPtr->histogramControlH, (char*) &gTextString);
-#			endif	// defined multispec_mac
-
-#			if defined multispec_win  || multispec_lin
-				//CtoPstring ((char*)"Histogram Classes", (char*)&gTextString);
-				//SetStatControlTitle (gProjectInfoPtr->histogramControlH, (char*)&gTextString);
-#			endif	// defined multispec_win
+		#if defined multispec_mac
+         CtoPstring ((UCharPtr)"Histogram Classes", gTextString);
+         SetStatControlTitle(gProjectInfoPtr->histogramControlH, (char*) &gTextString);
+		#endif	// defined multispec_mac
+		#if defined multispec_win  || multispec_lin
+         //				CtoPstring ((char*)"Histogram Classes", (char*)&gTextString);                                      
+         //				SetStatControlTitle (gProjectInfoPtr->histogramControlH, (char*)&gTextString);	
+		#endif	// defined multispec_win
          ShowStatControl(gProjectInfoPtr->histogramControlH);
          hiliteValue = 255;
          if (gProjectInfoPtr->numberStatTrainFields > 0)
             hiliteValue = 0;
-         //#if defined multispec_win
-         //   hiliteValue = 255;
-         //#endif	// defined multispec_win
+         //			#if defined multispec_win                                         
+         //				hiliteValue = 255;	
+         //			#endif	// defined multispec_win 
          MHiliteControl(gProjectWindow, gProjectInfoPtr->histogramControlH, hiliteValue);
 
-					// set edit class name control.
+         // set edit class name control.											
 
-#			if defined multispec_mac
-				CtoPstring ((UCharPtr)"Edit Class Name...", gTextString);
-				SetStatControlTitle(gProjectInfoPtr->editNameControlH, (char*) &gTextString);
-#			endif	// defined multispec_mac
-
-#			if defined multispec_win || multispec_lin
-				CtoPstring ((UCharPtr)"Edit Class Name...", gTextString);
-				SetStatControlTitle(gProjectInfoPtr->editNameControlH, (char*) &gTextString);
-#			endif	// defined multispec_win
-
+		#if defined multispec_mac
+         CtoPstring ((UCharPtr)"Edit Class Name...", gTextString);
+         SetStatControlTitle(gProjectInfoPtr->editNameControlH, (char*) &gTextString);
+		#endif	// defined multispec_mac
+		#if defined multispec_win    || multispec_lin
+         CtoPstring ((UCharPtr)"Edit Class Name...", gTextString);
+         SetStatControlTitle(gProjectInfoPtr->editNameControlH, (char*) &gTextString);
+		#endif	// defined multispec_win
          ShowStatControl(gProjectInfoPtr->editNameControlH);
          hiliteValue = 255;
          if (gProjectInfoPtr->currentClass >= 0)
@@ -646,55 +628,55 @@ void ActivateStatControls(void)
 
       case kFieldListMode: // "Field List" mode (List of Fields)
 
-					// Hide the controls that are not a part of the "Field List" mode
+         // Hide the controls that are not a part of the "Field List"	
+         // mode 																			
 
          HideStatControl(gProjectInfoPtr->addToControlH);
          HideStatControl(gProjectInfoPtr->polygonTypeControlH);
          HideStatControl(gProjectInfoPtr->toClassControlH);
 
-#			if defined multispec_win || multispec_lin
-				ShowStatControl((ControlHandle) IDC_STATIC_Class);
-				HideStatControl((ControlHandle) IDC_ClassList);
-				ShowStatControl((ControlHandle) IDC_ClassName);
-				HideStatControl((ControlHandle) IDC_STATIC_Field);
-				HideStatControl((ControlHandle) IDC_FieldName);
-				ShowStatControl((ControlHandle) IDC_StatsPrompt);
-				HideStatControl((ControlHandle) IDC_StatsType);
-				ShowStatControl((ControlHandle) IDC_StatsCombo);
-				MHiliteControl(gProjectWindow, gProjectInfoPtr->addToControlH, 255);
-#			endif	// defined multispec_win
+		#if defined multispec_win  || multispec_lin
+         ShowStatControl((ControlHandle) IDC_STATIC_Class);
+         HideStatControl((ControlHandle) IDC_ClassList);
+         ShowStatControl((ControlHandle) IDC_ClassName);
+         HideStatControl((ControlHandle) IDC_STATIC_Field);
+         HideStatControl((ControlHandle) IDC_FieldName);
+         ShowStatControl((ControlHandle) IDC_StatsPrompt);
+         HideStatControl((ControlHandle) IDC_StatsType);
+         ShowStatControl((ControlHandle) IDC_StatsCombo);
+         MHiliteControl(gProjectWindow, gProjectInfoPtr->addToControlH, 255);
+		#endif	// defined multispec_win
 
-					// Get the storage location for the current class.
+         // Get the storage location for the current class.					
 
          currentStorageClass =
             gProjectInfoPtr->storageClass[gProjectInfoPtr->currentClass];
 
-					// Show the controls that are part of the "Field List" mode
+         // Show the controls that are part of the "Field List" mode	
 
          ShowStatControl(gProjectInfoPtr->toFieldControlH);
          hiliteValue = 255;
          if (gProjectInfoPtr->currentField >= 0 &&
-						fieldIdentPtr[gProjectInfoPtr->currentField].pointType != kClusterType)
+            fieldIdentPtr[gProjectInfoPtr->currentField].pointType != kClusterType)
             hiliteValue = 0;
          MHiliteControl(gProjectWindow, gProjectInfoPtr->toFieldControlH, hiliteValue);
 
-#			if defined multispec_mac
-				CtoPstring ((UCharPtr)"Update Class Stats", gTextString);
-				SetStatControlTitle(gProjectInfoPtr->updateControlH, (char*) &gTextString);
-#			endif	// defined multispec_mac
-
-#			if defined multispec_win || multispec_lin
-				CtoPstring ((UCharPtr)"Update Class Stats", gTextString);
-				SetStatControlTitle(gProjectInfoPtr->updateControlH, (char*) &gTextString);
-#			endif	// defined multispec_win
+		#if defined multispec_mac
+         CtoPstring ((UCharPtr)"Update Class Stats", gTextString);
+         SetStatControlTitle(gProjectInfoPtr->updateControlH, (char*) &gTextString);
+		#endif	// defined multispec_mac
+		#if defined multispec_win || multispec_lin
+         CtoPstring ((UCharPtr)"Update Class Stats", gTextString);
+         SetStatControlTitle(gProjectInfoPtr->updateControlH, (char*) &gTextString);
+		#endif	// defined multispec_win
 
          ShowStatControl(gProjectInfoPtr->updateControlH);
          hiliteValue = 0;
          if (classNamesPtr[currentStorageClass].statsUpToDate) 
 				{
             if (classNamesPtr[currentStorageClass].covarianceStatsToUse !=
-						kLeaveOneOutStats ||
-							classNamesPtr[currentStorageClass].looCovarianceValue >= 0)
+               kLeaveOneOutStats ||
+               classNamesPtr[currentStorageClass].looCovarianceValue >= 0)
                hiliteValue = 255;
 
 				} // end "if (classNamesPtr[currentStorageClass].statsUpToDate)"
@@ -893,10 +875,10 @@ void ActivateStatControls(void)
 //							AddFieldToProject in statistics.c
 //
 //	Coded By:			Larry L. Biehl			Date: 02/22/1989
-//	Revised By:			Larry L. Biehl			Date: 03/29/2017	
+//	Revised By:			Larry L. Biehl			Date: 03/15/2017	
 
 Boolean AddClassToProject(
-				UCharPtr								classNamePtr)
+				UCharPtr								classNamePtr) 
 {
 	HPClassNamesPtr					classNamesPtr;
 
@@ -908,11 +890,7 @@ Boolean AddClassToProject(
 											continueFlag;
 
 
-#	if defined multispec_win
-		USES_CONVERSION;
-#	endif
-
-			// Initialize local variables.													
+   // Initialize local variables.													
 
    continueFlag = TRUE;
    currentClass = gProjectInfoPtr->numberStatisticsClasses;
@@ -992,48 +970,44 @@ Boolean AddClassToProject(
 
    gProjectInfoPtr->currentClass = (SInt16) currentClass;
 
-			// Add the class name to the class pop up menu.								
-			// An AppendMenu and then SetMenuItemText is used so that no characters		
-			// will be interpreted as "metacharacters" by AppendMenu.												
+   // Add the class name to the class pop up menu.								
+   // An AppendMenu and then SetMenuItemText is used so that no characters		
+   // will be interpreted as "metacharacters" by AppendMenu.												
 
-#	if defined multispec_mac
-		AppendMenu(gPopUpClassMenu, "\pNewClass");
-		SetMenuItemText (gPopUpClassMenu, currentClass + 2, classNamePtr);
+#if defined multispec_mac
+   AppendMenu(gPopUpClassMenu, "\pNewClass");
+   SetMenuItemText (gPopUpClassMenu, currentClass + 2, classNamePtr);
 
-		if (gProjectInfoPtr->numberStatisticsClasses >= kMaxNumberStatClasses - 1)
-			DisableMenuItem(gPopUpClassMenu, 1);
-#	endif	// defined multispec_mac 
+   if (gProjectInfoPtr->numberStatisticsClasses >= kMaxNumberStatClasses - 1)
+      DisableMenuItem(gPopUpClassMenu, 1);
+#endif	// defined multispec_mac 
 
    // Update the project window if it exists.								
 
-   if (gProjectWindow != NULL) 
-		{
-#		if defined multispec_win                                   
-			((CComboBox*) gProjectWindow->GetDlgItem(IDC_ClassList))->
-						//AddString(&((LPCTSTR)classNamePtr)[1]);
-						AddString(((LPCTSTR)A2T((LPSTR)&classNamePtr[1])));
-			//comboBoxPtr->AddString ((LPCTSTR)A2T((LPSTR)stringPtr));
-#		endif	// defined multispec_win
+   if (gProjectWindow != NULL) {
+#if defined multispec_win                                   
+      ((CComboBox*) gProjectWindow->GetDlgItem(IDC_ClassList))->
+         AddString(&((LPCTSTR)classNamePtr)[1]);
+#endif	// defined multispec_win
 
-#		if defined multispec_lin                                   
-			((wxComboBox*) gProjectWindow->GetFrame()->FindWindow(IDC_ClassList))->
-						AppendString(&((char*) classNamePtr)[1]);
-			//AddString(&((char*) classNamePtr)[1]);
-#		endif	// defined multispec_lin
+#if defined multispec_lin                                   
+      ((wxComboBox*) gProjectWindow->GetFrame()->FindWindow(IDC_ClassList))->AppendString(&((char*) classNamePtr)[1]);
+//         AddString(&((char*) classNamePtr)[1]);
+#endif	// defined multispec_lin
       
-				// Hilite the "to Class Field List" button.								
+      // Hilite the "to Class Field List" button.								
 
       MHiliteControl(gProjectWindow, gProjectInfoPtr->toClassControlH, 0);
 
-				// Make certain that the "To Project" control is hilited				
+      // Make certain that the "To Project" control is hilited				
 
       MHiliteControl(gProjectWindow, gProjectInfoPtr->toProjectControlH, 0);
 
-				// Force class pop up menu box to be redrawn
-						
+      //		// Force class pop up menu box to be redrawn
+      //				
       //InvalWindowRect (gProjectWindow, &gProjectInfoPtr->popUpClassBox);
 
-		}	// end "if (gProjectWindow != NULL)" 
+   } // end "if (gProjectWindow != NULL)" 
 
    return (TRUE);
 
@@ -1292,8 +1266,7 @@ Boolean AddFieldToProject(
       // update some statistcs window parameters.								
 
       if (gProjectWindow != NULL &&
-         (pointType == kRectangleType || pointType == kPolygonType)) 
-			{
+         (pointType == kRectangleType || pointType == kPolygonType)) {
          GetPort(&savedPort);
          SetPortWindowPort(gProjectWindow);
 
@@ -1472,7 +1445,7 @@ Boolean AddPointsToProject(
 // Called By:			PolygonSelection.c in selectionArea.c
 //
 //	Coded By:			Larry L. Biehl			Date: 10/04/1988
-//	Revised By:			Larry L. Biehl			Date: 04/28/2017
+//	Revised By:			Larry L. Biehl			Date: 03/02/2017	
 
 void AddPolyPointStatNewFieldW(
 				LongPoint							selectedLineCol) 
@@ -1502,7 +1475,7 @@ void AddPolyPointStatNewFieldW(
 			// to lock it here since no other routines are called.	
 
    fileInfoHandle = GetFileInfoHandle(gActiveImageWindowInfoH);
-   fileInfoPtr = (FileInfoPtr) GetHandlePointer (fileInfoHandle);
+   fileInfoPtr = (FileInfoPtr) GetHandlePointer(fileInfoHandle, kNoLock, kNoMoveHi);
 
    if (fileInfoPtr == NULL || gProjectInfoPtr == NULL)
       return;
@@ -2806,27 +2779,27 @@ void CreateProjectWindow(void)
 //      !statisticsDocTemplatePtr->OpenDocumentFile(NULL))
 //      gProjectWindow = NULL;
      ((CMStatisticsView*) gProjectWindow)->GetFrame()->Update();
-#	endif
+#endif
    
-			// Set the project window title	
+   // Set the project window title	
 
    SetProjectWTitle();
 
-			// Load the window list with the project window.					
+   // Load the window list with the project window.					
 
    gWindowList[2] = gProjectWindow;
 
-			// Set up the proper window mode.
+   // Set up the proper window mode.
 
-   if (gProjectWindow != NULL) 
-		{
+   if (gProjectWindow != NULL) {
       if (gProjectInfoPtr->numberStatTrainClasses == 0)
          NewFieldStatMode();
 
       else // gProjectInfoPtr->numberStatTrainClasses > 0
          ClassListStatMode();
 
-		}	// end "if (gProjectWindow != NULL)"
+   } // end "if (gProjectWindow != NULL)"
+
 
 } // end "CreateProjectWindow" 
 
@@ -3386,16 +3359,15 @@ pascal void DrawSelectTrainImageMaskPopUp(
 //	Revised By:			Larry L. Biehl			Date: 12/14/2000	
 
 void DrawStatPopUp(
-				SInt16								statsWindowMode) 
-{
-			// Declare local variables and structures									
+   SInt16 statsWindowMode) {
+   // Declare local variables and structures									
 
    Rect popUpBox;
 
    SInt16 menuItem;
 
 
-			// Draw the prompt string and current covariance stats to be used.
+   // Draw the prompt string and current covariance stats to be used.
 
    if (statsWindowMode == kClassListMode)
       menuItem = GetProjectStatisticsTypeMenuItem();
@@ -3405,15 +3377,15 @@ void DrawStatPopUp(
 
    DrawStatPrompt(menuItem);
 
-			// Draw the pop up box and currently selected class name				
-			// Subtract one pixel from right and bottom to allow for drop		
-			// shadow with the pop up box rectangle									
+   // Draw the pop up box and currently selected class name				
+   // Subtract one pixel from right and bottom to allow for drop		
+   // shadow with the pop up box rectangle									
 
    popUpBox = gProjectInfoPtr->popUpCovarianceToUseBox;
 
    DrawDropShadowBox(popUpBox);
 
-   DrawDropDownTriangle2 (&popUpBox);
+   DrawDropDownTriangle2(&popUpBox);
 
 } // end "DrawStatPopUp"			
 
@@ -3442,26 +3414,25 @@ void DrawStatPopUp(
 //	Revised By:			Larry L. Biehl			Date: 12/14/2000	
 
 void DrawStatPrompt(
-				SInt16								menuItem) 
-{
-			// Declare local variables and structures										
+   SInt16 menuItem) {
+   // Declare local variables and structures										
 
-   SInt16								bottomSpace = 4,
-											leftSpace = 2;
+   SInt16 bottomSpace = 4,
+      leftSpace = 2;
 
 
-			// Draw the prompt (title) string												
+   // Draw the prompt (title) string												
 
    MoveTo(gProjectInfoPtr->promptCovarianceToUseBox.left + leftSpace,
       gProjectInfoPtr->promptCovarianceToUseBox.bottom - bottomSpace);
    DrawString("\pStats:");
 
-			// Draw the covariance statistics to be used.								
+   // Draw the covariance statistics to be used.								
 
    GetProjectStatisticsTypeText (gMenuItemString, menuItem);
 
    MoveTo(gProjectInfoPtr->popUpCovarianceToUseBox.left + leftSpace + 1,
-			gProjectInfoPtr->popUpCovarianceToUseBox.bottom - bottomSpace - 1);
+      gProjectInfoPtr->popUpCovarianceToUseBox.bottom - bottomSpace - 1);
 
    DrawString(gMenuItemString);
 
@@ -3489,126 +3460,122 @@ void DrawStatPrompt(
 // Called By:			MouseDnEvents  in multiSpec.c
 //
 //	Coded By:			Larry L. Biehl			Date: 09/29/1988
-//	Revised By:			Larry L. Biehl			Date: 05/04/2017
+//	Revised By:			Larry L. Biehl			Date: 03/15/2017
 
 void FieldListStatMode (
 				SInt16								classNumber) 
 {
-			// Local variables and structures												
+   // Local variables and structures												
 
-	Cell									cell;
+   Cell cell;
 
-   HPClassNamesPtr					classNamesPtr;
-   HPFieldIdentifiersPtr			fieldIdentPtr;
+   HPClassNamesPtr classNamesPtr;
+   HPFieldIdentifiersPtr fieldIdentPtr;
 
-   SInt16								classStorage,
-											currentClassField,
-											field,
-											numberOfFields,
-											previousStatsMode,
-											row;
+   SInt16 classStorage,
+      currentClassField,
+      field,
+      numberOfFields,
+      previousStatsMode,
+      row;
 
 
-			// Execute routine if input class number is within proper range		
+   // Execute routine if input class number is within proper range		
 
    if (classNumber < (SInt16) gProjectInfoPtr->numberStatisticsClasses &&
-																				classNumber >= 0) 
-		{
+      classNumber >= 0) {
       classNamesPtr = gProjectInfoPtr->classNamesPtr;
       fieldIdentPtr = gProjectInfoPtr->fieldIdentPtr;
 
-				// Force drawing of class prompt and class name.						
+      // Force drawing of class prompt and class name.						
 
       InvalWindowRect(gProjectWindow, &gProjectInfoPtr->popUpClassBox);
       InvalWindowRect(gProjectWindow, &gProjectInfoPtr->promptClassBox);
 
-				// Invalidate the field pop up box and the field prompt box.		
+      // Invalidate the field pop up box and the field prompt box.		
 
       InvalWindowRect(gProjectWindow, &gProjectInfoPtr->popUpFieldBox);
       InvalWindowRect(gProjectWindow, &gProjectInfoPtr->promptFieldBox);
 
-				// Force drawing of statistics pop up and prompt boxes.
+      // Force drawing of statistics pop up and prompt boxes.
 
       InvalWindowRect(gProjectWindow, &gProjectInfoPtr->popUpCovarianceToUseBox);
       InvalWindowRect(gProjectWindow, &gProjectInfoPtr->promptCovarianceToUseBox);
 
-				// Indicate the stats window now contains a field list 				
+      // Indicate the stats window now contains a field list 				
 
       previousStatsMode = gProjectInfoPtr->statsWindowMode;
       gProjectInfoPtr->statsWindowMode = kFieldListMode;
 
-				// Invalidate the "add to project" button area to get rid of the	
-				// default button outline.														
+      // Invalidate the "add to project" button area to get rid of the	
+      // default button outline.														
 
-#		if defined multispec_mac  
-			if (!gOSXFlag && previousStatsMode == kSelectFieldMode) 
-				{
-				GetControlBounds(gProjectInfoPtr->addToControlH, &gTempRect);
-				InsetRect(&gTempRect, -4, -4);
-				InvalWindowRect(gProjectWindow, &gTempRect);
+#if defined multispec_mac  
+      if (!gOSXFlag && previousStatsMode == kSelectFieldMode) {
+         GetControlBounds(gProjectInfoPtr->addToControlH, &gTempRect);
+         InsetRect(&gTempRect, -4, -4);
+         InvalWindowRect(gProjectWindow, &gTempRect);
 
-			} // end "if (previousStatsMode == kSelectFieldMode)"
-#		endif	// defined multispec_mac   
+      } // end "if (previousStatsMode == kSelectFieldMode)"
+#endif	// defined multispec_mac   
 
-				// Make the input class number the current class						
+      // Make the input class number the current class						
 
       gProjectInfoPtr->currentClass = classNumber;
 
-				// Remove cells from previous list											
+      // Remove cells from previous list											
 
       LSetDrawingMode(FALSE, gStatisticsListHandle);
       RemoveListCells();
 
-				// Change the list to reflect the fields for the selected class.	
+      // Change the list to reflect the fields for the selected class.	
 
-				// First, get the class storage number.									
+      // First, get the class storage number.									
 
       classStorage = gProjectInfoPtr->storageClass[classNumber];
 
       numberOfFields = classNamesPtr[classStorage].numberOfTrainFields +
          classNamesPtr[classStorage].numberOfTestFields;
 
-      if (numberOfFields > 0) 
-			{
+      if (numberOfFields > 0) {
          row = LAddRow(numberOfFields, 0, gStatisticsListHandle);
          cell.h = 0;
          cell.v = 0;
 
          field = classNamesPtr[classStorage].firstFieldNumber;
-         while (field != -1) 
-				{
-						// Add name to the field list.  Include identifier at 		
-						// beginning to indicate the field type.							
+         while (field != -1) {
+            // Add name to the field list.  Include identifier at 		
+            // beginning to indicate the field type.							
 
             GetFieldNameWithType (field, gTextString);
 
-            LSetCell ((char*)&gTextString[1],
-								(short int)gTextString[0],
-								cell,
-								gStatisticsListHandle);
+            LSetCell((char*) &gTextString[1],
+               (short int) gTextString[0],
+               cell,
+               gStatisticsListHandle);
             field = fieldIdentPtr[field].nextField;
             cell.v++;
 
-				} // end "while (field != -1)" 
+         } // end "while (field != -1)" 
 
-			} // end "if (numberOfFields > 0)" 
+      } // end "if (numberOfFields > 0)" 
 
-				// Turn list drawing mode back on											
+      // Turn list drawing mode back on											
 
       LSetDrawingMode(TRUE, gStatisticsListHandle);
 
-				// Invalidate the list rectangle so that it will be updated			
+      // Invalidate the list rectangle so that it will be updated			
 
 #		if defined multispec_mac		
 			gTempRect = ((ListPtr) * gStatisticsListHandle)->rView;
 			InvalWindowRect(gProjectWindow, &gTempRect);
 #		endif	// defined multispec_mac
 
-				// Force the project window mode title to be redrawn.	
+      // Force the project window mode title to be redrawn.	
 
       InvalWindowRect(gProjectWindow, &gProjectInfoPtr->projectWindowModeTitleBox);
 
-				// Force the list title to be redrawn.										
+      // Force the list title to be redrawn.										
 
       InvalWindowRect(gProjectWindow, &gProjectInfoPtr->listTitleBox);
 
@@ -3619,29 +3586,29 @@ void FieldListStatMode (
 												SetWindowText((LPCTSTR)_T("FIELD LIST"));
 #		endif	// defined multispec_win 
 
-#		if defined multispec_lin
-			(gProjectWindow->GetFrame()->FindWindow(IDC_ListTitle))->SetLabel("Fields");
+#	if defined multispec_lin
+      (gProjectWindow->GetFrame()->FindWindow(IDC_ListTitle))->SetLabel("Fields");
 
-			(gProjectWindow->GetFrame()->FindWindow(IDC_ProjectWindowMode))->
-				SetLabel("FIELD LIST");
-			
-					// Load the current class name
-			 CtoPstring (gProjectInfoPtr->classNamesPtr[classStorage].name, gTextString);
-			 SetStatControlTitle((Handle)IDC_ClassName, (char*) &gTextString[1]);
-#		endif	// defined multispec_lin
+      (gProjectWindow->GetFrame()->FindWindow(IDC_ProjectWindowMode))->
+         SetLabel("FIELD LIST");
       
-				// Change the window title														
+            // Load the current class name
+       CtoPstring (gProjectInfoPtr->classNamesPtr[classStorage].name, gTextString);
+       SetStatControlTitle((Handle)IDC_ClassName, (char*) &gTextString[1]);
+#	endif	// defined multispec_lin
+      
+      // Change the window title														
 
-      //CtoPstring ( "Class", (char*)gTextString );     
-      //MSetWindowTitle ((StatisticsWindowPtr)gProjectWindow, 
+      //		CtoPstring ( "Class", (char*)gTextString );     
+      //		MSetWindowTitle ((StatisticsWindowPtr)gProjectWindow, 
       //								(UChar*)gTextString);
 
-				// Set processor mode to indicate that Statistics processor is 	
-				// active in "Class Fields List" mode. 									
+      // Set processor mode to indicate that Statistics processor is 	
+      // active in "Class Fields List" mode. 									
 
       gStatisticsMode = kStatFieldListMode;
 
-				// Get the current field class list index number.
+      // Get the current field class list index number.
 
       currentClassField = GetCurrentClassField(
          gProjectInfoPtr->currentClass,
@@ -3650,39 +3617,37 @@ void FieldListStatMode (
       if (gProjectInfoPtr->currentField >= 0 && currentClassField < 0)
          gProjectInfoPtr->currentField = -1;
 
-				// Hilite the current active field if one is selected.
+      // Hilite the current active field if one is selected.
 
-      if (currentClassField >= 0) 
-			{
-#			if defined multispec_mac
-				Cell cell;
+      if (currentClassField >= 0) {
+#if defined multispec_mac
+         Cell cell;
 
-				cell.h = 0;
-				cell.v = currentClassField;
-				LSetSelect(true, cell, gStatisticsListHandle);
-#			endif	// defined multispec_mac 
+         cell.h = 0;
+         cell.v = currentClassField;
+         LSetSelect(true, cell, gStatisticsListHandle);
+#endif	// defined multispec_mac 
 
-#			if defined multispec_win                              
-				gStatisticsListHandle->SetCurSel(currentClassField);
-#			endif	// defined multispec_win
-
-#			if defined multispec_lin                         
-				gStatisticsListHandle->SetSelection(currentClassField);
-#			endif	// defined multispec_lin 
+#if defined multispec_win                              
+         gStatisticsListHandle->SetCurSel(currentClassField);
+#endif	// defined multispec_win
+#if defined multispec_lin                         
+         gStatisticsListHandle->SetSelection(currentClassField);
+#endif	// defined multispec_lin 
          
-			} // end "if (gProjectInfoPtr->currentClass >= 0)"	
+      } // end "if (gProjectInfoPtr->currentClass >= 0)"	
 
-				// Scroll to the hilited list item.											
+      // Scroll to the hilited list item.											
 
       LAutoScroll(gStatisticsListHandle);
 
-				// Do activate events for "Class Fields List" mode.					
+      // Do activate events for "Class Fields List" mode.					
 
       DoStatWActivateEvent();
 
-				// If project image window is displayed and fields are to be		
-				// outlined in the image window, force an update event so that		
-				// the requested fields are outlined for the current class.			
+      // If project image window is displayed and fields are to be		
+      // outlined in the image window, force an update event so that		
+      // the requested fields are outlined for the current class.			
 
       if (previousStatsMode <= kClassListMode)
          ForceFieldOutlineUpdate(FALSE);
@@ -3690,12 +3655,9 @@ void FieldListStatMode (
       else // previousStatsMode > kClassListMode 
          OutlineFieldsInProjectWindows(gProjectInfoPtr->statsWindowMode);
 
-		}	// end "if (classNumber<=gProjectInfoPtr->numberStatistics..." 
-		
-	else if (classNumber < 0)
-      RemoveListCells();
+   } // end "if (classNumber<=gProjectInfoPtr->numberStatistics..." 
 
-}	// end "FieldListStatMode" 
+} // end "FieldListStatMode" 
 
 
 
@@ -3758,29 +3720,31 @@ void ForceStatisticsCodeResourceLoad(void) {
 //	Coded By:			Larry L. Biehl			Date: 02/08/1996
 //	Revised By:			Larry L. Biehl			Date: 02/08/1996	
 
-SInt16 GetControlValue (
-				WindowPtr							windowPtr,
-				ControlHandle						controlHandle) 
-{
-			// Declare local variables and structures
+SInt16 GetControlValue(
+   WindowPtr windowPtr,
+   ControlHandle controlHandle) {
+   // Declare local variables and structures
 
-#	if defined multispec_mac	
-		return ( GetControlValue(controlHandle));
-#	endif	// defined multispec_mac 
+#if defined multispec_mac	
+
+   return ( GetControlValue(controlHandle));
+
+#endif	// defined multispec_mac 
 
 
-#	if defined multispec_win   
-		int	nID = (int)controlHandle;
-		return ((SInt16)
-				((CButton*)windowPtr->GetDlgItem(nID))->GetCheck());
-#	endif	// defined multispec_win  
+#if defined multispec_win   
 
-#	if defined multispec_lin
-		SInt64 windowid64 = (SInt64)((int*)controlHandle);
-		SInt64 data_value = (SInt64)((int*)(windowPtr->GetFrame()->FindWindow((SInt16)windowid64)->GetClientData()));
-		return (SInt16)(data_value);
-#	endif
-}		// end "GetControlValue" 
+   return ( (SInt16)
+      ((CButton*) windowPtr->GetDlgItem((SInt16) controlHandle))->GetCheck());
+
+#endif	// defined multispec_win  
+
+#if defined multispec_lin
+   SInt64 windowid64 = (SInt64)((int*)controlHandle);
+   SInt64 data_value = (SInt64)((int*)(windowPtr->GetFrame()->FindWindow((SInt16)windowid64)->GetClientData()));
+   return (SInt16)(data_value);
+#endif
+} // end "GetControlValue" 
 
 
 
@@ -4581,7 +4545,7 @@ void HideStatControl(
 #	if defined multispec_win
 		if (controlHandle != NULL)
 			((CMStatisticsForm*) gProjectWindow)->
-					GetDlgItem((int)controlHandle)->ShowWindow(SW_HIDE);
+					GetDlgItem((SInt16)controlHandle)->ShowWindow(SW_HIDE);
 #	endif	// defined multispec_win
 
 #	if defined multispec_lin
@@ -4676,105 +4640,90 @@ void InvalPopUpCovarianceToUse(void)
 // Called By:	
 //
 //	Coded By:			Larry L. Biehl			Date: 01/16/1989
-//	Revised By:			Larry L. Biehl			Date: 05/04/2017	
+//	Revised By:			Larry L. Biehl			Date: 02/10/1996	
 
 void LoadClassNamesIntoList(
-				ListHandle							listHandle) 
-{
-	Cell									cell;
+   ListHandle listHandle) {
+   Cell cell;
 
-   HPClassNamesPtr					classNamesPtr;
+   HPClassNamesPtr classNamesPtr;
 
-   UInt32								classIndex,
-											classStorage,
-											numberOfClasses,
-											row;
-											
-											
-			//	Continue if list handle is not null.										
+   UInt32 classIndex,
+      classStorage,
+      numberOfClasses,
+      row;
+   //	Continue if list handle is not null.										
 
-   if (listHandle != NULL) 
-		{
-				// Put the class names into the list										
+   if (listHandle != NULL) {
+      // Put the class names into the list										
 
       numberOfClasses = gProjectInfoPtr->numberStatisticsClasses;
       classNamesPtr = gProjectInfoPtr->classNamesPtr;
 
-      if (numberOfClasses > 0) 
-			{
+      if (numberOfClasses > 0) {
          row = LAddRow((SInt16) numberOfClasses, 0, listHandle);
 
          cell.h = 0;
-         for (classIndex = 0; classIndex < numberOfClasses; classIndex++) 
-				{
-						// Get the class storage number.										
+         for (classIndex = 0; classIndex < numberOfClasses; classIndex++) {
+            // Get the class storage number.										
 
             classStorage = gProjectInfoPtr->storageClass[classIndex];
 
-						// Add name to the class list											
+            // Add name to the class list											
 
-            cell.v = (SInt16)classIndex;
-            LSetCell ((Ptr)&(classNamesPtr[classStorage].name[1]),
-							(short int) (classNamesPtr[classStorage].name[0]),
-							cell,
-							listHandle);
+            cell.v = (SInt16) classIndex;
+            LSetCell((Ptr)&(classNamesPtr[classStorage].name[1]),
+               (short int) (classNamesPtr[classStorage].name[0]),
+               cell,
+               listHandle);
 
-				}	// end "for ( classIndex=0; ... 
+         } // end "for ( classIndex=0; ... 
 
-			}	// end "if (numberOfClasses > 0)" 
+      } // end "if (numberOfClasses > 0)" 
 
-		}	// end "if (listHandle != NULL)" 
+   } // end "if (listHandle != NULL)" 
 
-}	// end "LoadClassNamesIntoList" 
+} // end "LoadClassNamesIntoList" 
 
 
 
 #if defined multispec_lin
 void LoadClassNamesIntoList(
-				wxListBox* listHandle) 
-{
-	Cell									cell;
-   HPClassNamesPtr					classNamesPtr;
+   wxListBox* listHandle) {
+   Cell cell;
+   HPClassNamesPtr classNamesPtr;
 
-   UInt32								classIndex,
-											classStorage,
-											numberOfClasses,
-											row;
-											
-			//	Continue if list handle is not null.										
+   UInt32 classIndex,
+      classStorage,
+      numberOfClasses,
+      row;
+   //	Continue if list handle is not null.										
 
-   if (listHandle != NULL) 
-		{
-				// Put the class names into the list										
+   if (listHandle != NULL) {
+      // Put the class names into the list										
 
       numberOfClasses = gProjectInfoPtr->numberStatisticsClasses;
       classNamesPtr = gProjectInfoPtr->classNamesPtr;
 
-      if (numberOfClasses > 0) 
-			{
+      if (numberOfClasses > 0) {
          row = LAddRow((SInt16) numberOfClasses, 0, listHandle);
          cell.h = 0;
-         for (classIndex = 0; classIndex < numberOfClasses; classIndex++) 
-				{
-						// Get the class storage number.										
+         for (classIndex = 0; classIndex < numberOfClasses; classIndex++) {
+            // Get the class storage number.										
 
             classStorage = gProjectInfoPtr->storageClass[classIndex];
-				
-						// Add name to the class list											
+            // Add name to the class list											
 
-            cell.v = (SInt16)classIndex;
-            LSetCell ((Ptr)&(classNamesPtr[classStorage].name[1]),
-								(short int) (classNamesPtr[classStorage].name[0]),
-								cell,
-								listHandle);
+            cell.v = (SInt16) classIndex;
+            LSetCell((Ptr)&(classNamesPtr[classStorage].name[1]),
+               (short int) (classNamesPtr[classStorage].name[0]),
+               cell,
+               listHandle);
 
-				}	// end "for ( classIndex=0; ... 
-				
-			}	// end "if (numberOfClasses > 0)" 
-			
-		}	// end "if (listHandle != NULL)" 
-		
-}	// end "LoadClassNamesIntoList" 
+         } // end "for ( classIndex=0; ... 
+      } // end "if (numberOfClasses > 0)" 
+   } // end "if (listHandle != NULL)" 
+} // end "LoadClassNamesIntoList" 
 #endif	// defined multispec_lin
 
 
@@ -4800,7 +4749,7 @@ void LoadClassNamesIntoList(
 //							DoImageWActivateEvent in multiSpec.c
 //
 //	Coded By:			Larry L. Biehl			Date: 09/05/1989
-//	Revised By:			Larry L. Biehl			Date: 04/28/2017
+//	Revised By:			Larry L. Biehl			Date: 03/02/2017	
 
 void LoadPolyStatNewFieldW(void) 
 {
@@ -4846,7 +4795,9 @@ void LoadPolyStatNewFieldW(void)
    selectionInfoH = GetSelectionInfoHandle(windowInfoHandle);
    if (selectionInfoH != NULL) 
 		{
-      selectionInfoPtr = (SelectionInfoPtr) GetHandlePointer (selectionInfoH);
+      selectionInfoPtr = (SelectionInfoPtr) GetHandlePointer (selectionInfoH,
+																					kNoLock,
+																					kNoMoveHi);
       polygonCoordinatesHandle = selectionInfoPtr->polygonCoordinatesHandle;
       numberOfPoints = selectionInfoPtr->numberPoints;
 
@@ -4856,7 +4807,7 @@ void LoadPolyStatNewFieldW(void)
          polygonCoordinatesHandle != NULL) 
 			{
          selectionPointsPtr = (HPFieldPointsPtr) GetHandlePointer(
-																	polygonCoordinatesHandle);
+										polygonCoordinatesHandle, kLock, kNoMoveHi);
 
 					// Don't forget that both the offscreen coordinates and the	
 					// line-column coordinates are saved into the structure.		
@@ -4910,7 +4861,9 @@ void LoadPolyStatNewFieldW(void)
 						// to lock it here since no other routines are called.
 
             fileInfoHandle = GetFileInfoHandle(windowInfoHandle);
-            fileInfoPtr = (FileInfoPtr) GetHandlePointer (fileInfoHandle);
+            fileInfoPtr = (FileInfoPtr) GetHandlePointer (fileInfoHandle,
+																				kNoLock,
+																				kNoMoveHi);
 
             columnOffset = (SInt32)
 						(fileInfoPtr->startColumn - gProjectInfoPtr->startColumn);
@@ -5546,19 +5499,25 @@ void MSetControlValue(
    if (controlHandle != NULL) {
       // Declare local variables and structures
 
-#	if defined multispec_mac	
-      SetControlValue(controlHandle, (SInt16) value);
-#	endif	// defined multispec_mac 
+#if defined multispec_mac	
 
-#	if defined multispec_win   
-      ((CButton*) windowPtr->GetDlgItem((int)controlHandle))->SetCheck(value);
-#	endif	// defined multispec_win
+      SetControlValue(controlHandle, (SInt16) value);
+
+#endif	// defined multispec_mac 
+
+
+#if defined multispec_win   
+
+      ((CButton*) windowPtr->GetDlgItem((SInt16) controlHandle))->SetCheck(value);
+
+#endif	// defined multispec_win
       
-#	if defined multispec_lin   
+#if defined multispec_lin   
       SInt64 windowid64 = (SInt64)((int*)(controlHandle));
       SInt16 windowid = (SInt16)windowid64;
       windowPtr->GetFrame()->FindWindow(windowid)->SetClientData((void*)value);
-#	endif	// defined multispec_lin
+
+#endif	// defined multispec_lin
       
    } // end "if (controlHandle != NULL)"
 
@@ -6879,7 +6838,7 @@ void SetStatControlTitle(
 			USES_CONVERSION;
 #		endif
 		((CMStatisticsForm*)gProjectWindow)->
-			SetDlgItemText((int)controlHandle, (LPCTSTR)A2T(&titleStringPtr[1]));
+			SetDlgItemText((SInt16)controlHandle, (LPCTSTR)A2T(&titleStringPtr[1]));
 #	endif	// defined multispec_win
 
 #	if defined multispec_lin
@@ -6924,8 +6883,8 @@ void ShowStatControl(
 	#endif	// defined multispec_mac
 
 	#if defined multispec_win
-		((CMStatisticsForm*)gProjectWindow)->
-							GetDlgItem((int)controlHandle)->ShowWindow(SW_SHOW);
+		((CMStatisticsForm*) gProjectWindow)->
+			GetDlgItem((SInt16) controlHandle)->ShowWindow(SW_SHOW);
 	#endif	// defined multispec_win
 
   #if defined multispec_lin
@@ -6957,7 +6916,7 @@ void ShowStatControl(
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 09/26/1988
-//	Revised By:			Larry L. Biehl			Date: 04/28/2017
+//	Revised By:			Larry L. Biehl			Date: 12/14/2000
 
 void StatisticsControl(void) {
 				WindowInfoPtr						projectWindowInfoPtr;
@@ -6992,12 +6951,11 @@ void StatisticsControl(void) {
    // channel description in the channels dialog list if the 			
    // descriptions exist.															
 
-   if (GetProjectImageFileInfo(kDoNotPrompt, kSetupGlobalInfoPointersIfCan))
-		{
+   if (GetProjectImageFileInfo(kDoNotPrompt, kSetupGlobalInfoPointersIfCan)) {
       // Get pointer to memory for temporary storage of channel list.	
 
       projectWindowInfoPtr = (WindowInfoPtr) GetHandlePointer(
-															gProjectInfoPtr->windowInfoHandle);
+         gProjectInfoPtr->windowInfoHandle, kNoLock, kNoMoveHi);
       totalNumberChannels = (SInt16) projectWindowInfoPtr->totalNumberChannels;
       channelPtr = (SInt16*) MNewPointer((SInt32) totalNumberChannels * sizeof (SInt16));
       statisticsRequest = 0;
@@ -7070,20 +7028,19 @@ void StatisticsControl(void) {
 // Called By:			StatisticsControl   in statistics.c
 //
 //	Coded By:			Larry L. Biehl			Date: 09/26/1988
-//	Revised By:			Larry L. Biehl			Date: 05/02/2017
+//	Revised By:			Larry L. Biehl			Date: 12/07/1999
 
-SInt16 StatisticsDialog (
-				SInt16*								featurePtr,
-				SInt16								totalNumberChannels)
-{
-	Handle								testMaskFileInfoHandle,
-											trainMaskFileInfoHandle;
+SInt16 StatisticsDialog(
+   SInt16* featurePtr,
+   SInt16 totalNumberChannels) {
+   Handle testMaskFileInfoHandle,
+      trainMaskFileInfoHandle;
 
-   SInt16								savedLabelFieldCode,
-											savedOutlineFieldType,
-											statisticsRequest = 0;
+   SInt16 savedLabelFieldCode,
+      savedOutlineFieldType,
+      statisticsRequest = 0;
 
-   Boolean								labelAreasFlagChanged;
+   Boolean labelAreasFlagChanged;
 
 
    savedOutlineFieldType = gProjectInfoPtr->outlineFieldType;
@@ -7094,60 +7051,51 @@ SInt16 StatisticsDialog (
    trainMaskFileInfoHandle = NULL;
 
 #if defined multispec_mac
-   Rect									theBox;
+   Rect theBox;
 
-   double								minLogDeterminant,
-											variance;
+   double minLogDeterminant,
+      variance;
 
-   DialogPtr							dialogPtr;
+   DialogPtr dialogPtr;
 
-   UserItemUPP							drawProjectChangesPopUpPtr,
-											outlineColorPopUpPtr,
-											selectTestImageMaskPopUpPtr,
-											selectTrainImageMaskPopUpPtr;
+   UserItemUPP drawProjectChangesPopUpPtr,
+      outlineColorPopUpPtr,
+      selectTestImageMaskPopUpPtr,
+      selectTrainImageMaskPopUpPtr;
 
-   Handle								okHandle,
-											theHandle;
+   Handle okHandle,
+      theHandle;
 
-   SInt16								channelListType,
-											index,
-											itemHit,
-											localLabelFieldCode,
-											localNumberChannels,
-											localOutlineFieldType,
-											localStatCode,
-											savedChannelListType,
-											setting,
-											theType;
-											
-	UInt16								maxNumberTestLayers,
-											maxNumberTrainLayers,
-											trainLayerNumber,
-											testLayerNumber;
+   SInt16 channelListType,
+      index,
+      itemHit,
+      localLabelFieldCode,
+      localNumberChannels,
+      localOutlineFieldType,
+      localStatCode,
+      savedChannelListType,
+      setting,
+      theType;
 
-   Boolean								checkChannelNumberFlag,
-											keepClassStatsFlag,
-											setLayerPromptFlag,
-											modalDone,
-											useCommonCovarianceInLOOCFlag;
+   Boolean keepClassStatsFlag,
+      modalDone,
+      useCommonCovarianceInLOOCFlag;
 
 
-			// Get the modal dialog for the reformat specification
+   // Get the modal dialog for the reformat specification					
 
    dialogPtr = LoadRequestedDialog(kStatisticsSpecificationID, kCopyScrap, 1, 2);
    if (dialogPtr == NULL)
-																									return (0);
+      return (0);
 
-	checkChannelNumberFlag = FALSE;
-	
-					// Initialize local user item proc pointers.
+   // Initialize local user item proc pointers.									
 
    drawProjectChangesPopUpPtr = NewUserItemUPP(DrawProjectChangesPopUp);
    outlineColorPopUpPtr = NewUserItemUPP(DrawOutlineColorPopUp);
    selectTestImageMaskPopUpPtr = NewUserItemUPP(DrawSelectTestImageMaskPopUp);
    selectTrainImageMaskPopUpPtr = NewUserItemUPP(DrawSelectTrainImageMaskPopUp);
 
-			// Set Procedure pointers for those dialog items that need them.
+   // Set Procedure pointers for those dialog items that need them.													
 
    SetDialogItemDrawRoutine(dialogPtr, 4, drawProjectChangesPopUpPtr);
 
@@ -7155,117 +7103,110 @@ SInt16 StatisticsDialog (
 
    SetDialogItemDrawRoutine(dialogPtr, 15, outlineColorPopUpPtr);
 
-   SetDialogItemDrawRoutine(dialogPtr, IDC_TrainMaskPopUp, selectTrainImageMaskPopUpPtr);
+   SetDialogItemDrawRoutine(dialogPtr, 18, selectTrainImageMaskPopUpPtr);
 
    SetDialogItemDrawRoutine(dialogPtr, 21, selectTestImageMaskPopUpPtr);
 
-			// Initialize dialog variables.
+   // Initialize dialog variables.
 
-   StatisticsDialogInitialize (dialogPtr,
-											totalNumberChannels,
-											&localStatCode,
-											&keepClassStatsFlag,
-											&useCommonCovarianceInLOOCFlag,
-											&variance,
-											&minLogDeterminant,
-											&gChannelSelection,
-											&channelListType,
-											(UInt16*) featurePtr,
-											(UInt16*) & localNumberChannels,
-											&localOutlineFieldType,
-											&localLabelFieldCode,
-											&gOutlineColorSelection,
-											&gMaskTrainImageSelection,
-											&gMaskTestImageSelection,
-											&maxNumberTrainLayers,
-											&maxNumberTestLayers);
+   StatisticsDialogInitialize(dialogPtr,
+      totalNumberChannels,
+      &localStatCode,
+      &keepClassStatsFlag,
+      &useCommonCovarianceInLOOCFlag,
+      &variance,
+      &minLogDeterminant,
+      &gChannelSelection,
+      &channelListType,
+      (UInt16*) featurePtr,
+      (UInt16*) & localNumberChannels,
+      &localOutlineFieldType,
+      &localLabelFieldCode,
+      &gOutlineColorSelection,
+      &gMaskTrainImageSelection,
+      &gMaskTestImageSelection);
 
-			// Save handle for the OK button for use later.
+   // Save handle for the OK button for use later.								
 
    GetDialogItem(dialogPtr, 1, &theType, &okHandle, &theBox);
 
-			// Outline training areas.
+   // Outline training areas.															
 
    setting = (localOutlineFieldType & 0x0001) ? 1 : 0;
    SetDLogControl(dialogPtr, 9, setting);
 
-			// Outline test areas.
+   // Outline test areas.							
 
    setting = (localOutlineFieldType & 0x0002) ? 1 : 0;
    SetDLogControl(dialogPtr, 10, setting);
 
-			// Show labels with area outlines.
+   // Show labels with area outlines.
 
    SetOutlineAreaOptions(dialogPtr, localLabelFieldCode);
 
-			// Set up the outline color popup menu.
+   // Set up the outline color popup menu.
 
-   AppendMenu (gPopUpTemporaryMenu, "\pBlack");
-   AppendMenu (gPopUpTemporaryMenu, "\pWhite");
+   AppendMenu(gPopUpTemporaryMenu, "\pBlack");
+   AppendMenu(gPopUpTemporaryMenu, "\pWhite");
 
-			// Center the dialog and then show it.
+   // Center the dialog and then show it.										
 
-   ShowDialogWindow (
-					dialogPtr, kStatisticsSpecificationID, kSetUpDFilterTable);
-	
-	if (gMaskTrainImageSelection == 3)
-		SelectDialogItemText (dialogPtr, IDC_TrainMaskLayer, 0, SInt16_MAX);
-	else if (gMaskTestImageSelection == 3)
-		SelectDialogItemText (dialogPtr, IDC_TestMaskLayer, 0, SInt16_MAX);
+   ShowDialogWindow(
+      dialogPtr, kStatisticsSpecificationID, kDoNotSetUpDFilterTable);
 
-   modalDone = FALSE;
-	setLayerPromptFlag = FALSE;
+   modalDone = false;
    itemHit = 0;
-	do {
+   do {
       ModalDialog(gProcessorDialogFilterPtr, &itemHit);
 
-      if (itemHit > 2)
-			{
-					// If itemHit was a radio button make appropriate control
-					// settings to indicate to the user the present selection.		
-					// Get the handle to the itemHit.										
+      if (itemHit > 2) {
+         // If itemHit was a radio button make appropriate control		
+         // settings to indicate to the user the present selection.		
+         // Get the handle to the itemHit.										
 
          GetDialogItem(dialogPtr, itemHit, &theType, &theHandle, &theBox);
 
-         switch (itemHit)
-				{
-            case 4: // Project changes pop up menu
-               savedChannelListType = channelListType;
-               channelListType = ProjectChangesPopUpMenu (dialogPtr,
-																				&theBox,
-																				&gProjectInfoPtr->newProjectFlag,
-																				channelListType);
+         switch (itemHit) {
+            case 4: // Project changes pop up menu 
 
-							// If project stats were cleared, then reload the local
-							// feature vector to include all channels.
+               savedChannelListType = channelListType;
+               channelListType = ProjectChangesPopUpMenu(
+                  dialogPtr,
+                  &theBox,
+                  &gProjectInfoPtr->newProjectFlag,
+                  channelListType);
+
+               // If project stats were cleared, then reload the local	
+               // feature vector to include all channels.					
 
                if (savedChannelListType == kSelectedItemsListOnly &&
-															channelListType == kSelectItemsList)
-						{
+                  channelListType == kSelectItemsList) {
                   gChannelSelection = kAllMenuItem;
                   for (index = 0;
-									index < gProjectInfoPtr->numberStatisticsChannels;
-									index++)
+                     index < gProjectInfoPtr->numberStatisticsChannels;
+                     index++)
                      featurePtr[index] = index;
-                  localNumberChannels = gProjectInfoPtr->numberStatisticsChannels;
+                  localNumberChannels =
+                     gProjectInfoPtr->numberStatisticsChannels;
 
                   GetDialogItem(dialogPtr, 6, &theType, &theHandle, &theBox);
                   InvalWindowRect(GetDialogWindow(dialogPtr), &theBox);
 
-						} // end "if (savedChannelListType == 3 && ..."
+               } // end "if (savedChannelListType == 3 && ..." 
+
                break;
 
+
             case 6: // Selected channels 
-               itemHit = ChannelsPopUpMenu (dialogPtr,
-															6,
-															1,
-															gChannelSelection,
-															channelListType);
+               itemHit = ChannelsPopUpMenu(dialogPtr,
+                  6,
+                  1,
+                  gChannelSelection,
+                  channelListType);
 
                if (itemHit == 2 ||
-									(itemHit == 1 && channelListType == kSelectedItemsListOnly))
-						{
-								// Subset of channels to be used.
+                  (itemHit == 1 && channelListType == kSelectedItemsListOnly)) {
+                  // Subset of channels to be used.							
 
                   HiliteControl((ControlHandle) okHandle, 255);
 
@@ -7284,13 +7225,13 @@ SInt16 StatisticsDialog (
                   if (localNumberChannels == totalNumberChannels)
                      itemHit = 1;
 
-						} // end "if (  itemHit == 2 || ...)"
+               } // end "if (  itemHit == 2 || ...)" 
 
                if (channelListType == kSelectItemsList && itemHit != 0)
                   gChannelSelection = itemHit;
 
-							// Make certain that the correct label is drawn in the
-							// channel pop up box.
+               // Make certain that the correct label is drawn in the	
+               // channel pop up box.												
 
                InvalWindowRect(GetDialogWindow(dialogPtr), &theBox);
                break;
@@ -7305,7 +7246,7 @@ SInt16 StatisticsDialog (
                   &useCommonCovarianceInLOOCFlag);
 
                HiliteControl((ControlHandle) okHandle, 0);
-               //itemHit = 0;
+               //					itemHit = 0;
                break;
 
             case 9: // Outline training fields. 
@@ -7343,172 +7284,116 @@ SInt16 StatisticsDialog (
                   gOutlineColorSelection = itemHit;
                break;
 
-            case IDC_TrainMaskPopUp: // Mask image for training
-					itemHit = StandardPopUpMenu (dialogPtr,
-															itemHit - 1,
-															itemHit,
-															gPopUpSelectTrainMaskImageMenu,
-															gMaskTrainImageSelection,
-															kPopUpSelectMaskImage1MenuID);
+            case 18: // Mask image for training
+               itemHit = StandardPopUpMenu(dialogPtr,
+                  itemHit - 1,
+                  itemHit,
+                  gPopUpSelectTrainMaskImageMenu,
+                  gMaskTrainImageSelection,
+                  kPopUpSelectMaskImage1MenuID);
 
-               if (itemHit != 0) 
-						{
+               if (itemHit != 0) {
                   itemHit = StatisticsDialogSelectMaskItem (
-												&trainMaskFileInfoHandle,
-												dialogPtr,
-												gPopUpSelectTrainMaskImageMenu,
-												itemHit,
-												gMaskTrainImageSelection,
-												IDS_FileIO95,
-												IDC_TrainMaskPopUp,
-												IDC_TrainMaskLayer,
-												&maxNumberTrainLayers);
+                     &trainMaskFileInfoHandle,
+                     dialogPtr,
+                     gPopUpSelectTrainMaskImageMenu,
+                     itemHit,
+                     gMaskTrainImageSelection,
+                     IDS_FileIO95,
+                     18,
+                     19);
 
                   gMaskTrainImageSelection = itemHit;
                   InvalWindowRect (GetDialogWindow(dialogPtr), &theBox);
-						
-						setLayerPromptFlag = TRUE;
 
-						} // end "if (itemHit != 0)"
+               } // end "if (itemHit != 0)"
+
                break;
 
             case 21: // Mask image for testing
-               itemHit = StandardPopUpMenu (dialogPtr,
-															itemHit - 1,
-															itemHit,
-															gPopUpSelectTestMaskImageMenu,
-															gMaskTestImageSelection,
-															kPopUpSelectMaskImage2MenuID);
+               itemHit = StandardPopUpMenu(dialogPtr,
+                  itemHit - 1,
+                  itemHit,
+                  gPopUpSelectTestMaskImageMenu,
+                  gMaskTestImageSelection,
+                  kPopUpSelectMaskImage2MenuID);
 
-               if (itemHit != 0)
-						{
-                  itemHit = StatisticsDialogSelectMaskItem (
-												&testMaskFileInfoHandle,
-												dialogPtr,
-												gPopUpSelectTestMaskImageMenu,
-												itemHit,
-												gMaskTestImageSelection,
-												IDS_FileIO96,
-												21,
-												IDC_TestMaskLayer,
-												&maxNumberTestLayers);
+               if (itemHit != 0) {
+                  itemHit = StatisticsDialogSelectMaskItem(
+                     &testMaskFileInfoHandle,
+                     dialogPtr,
+                     gPopUpSelectTestMaskImageMenu,
+                     itemHit,
+                     gMaskTestImageSelection,
+                     IDS_FileIO96,
+                     21,
+                     22);
 
                   gMaskTestImageSelection = itemHit;
                   InvalWindowRect(GetDialogWindow(dialogPtr), &theBox);
-						
-						setLayerPromptFlag = TRUE;
 
-						} // end "if (itemHit != 0)"
+               } // end "if (itemHit != 0)"
+
                break;
-					
-				case IDC_TrainMaskLayer: // channel for training mask
-					break;
-					
-				case IDC_TestMaskLayer: // channel for test mask
-					break;
 
-				}	// end "switch (itemHit)"
-			
-			if (setLayerPromptFlag)
-				{
-				if (gMaskTrainImageSelection != 1 || gMaskTestImageSelection != 1)
-					ShowDialogItem (dialogPtr, IDC_LayerPrompt);
-				else
-					HideDialogItem (dialogPtr, IDC_LayerPrompt);
-					
-				setLayerPromptFlag = FALSE;
-					
-				}	// end "if (setLayerPromptFlag)"
+         } // end "switch (itemHit)" 
 
-			}	// end "if (itemHit > 2)"
+      }// end "if (itemHit > 2)" 
 
       else // itemHit <= 2 
-			{
-					// User selected OK for information.
-
-					// Check channels used for train and test mask
-			
-			trainLayerNumber = 1;
-			if (itemHit == 1 && gMaskTrainImageSelection == 3 && maxNumberTrainLayers > 1)
-				{
-				itemHit = CheckMaxValue (dialogPtr,
-													  IDC_TrainMaskLayer,
-													  1,
-													  maxNumberTrainLayers,
-													  kDisplayRangeAlert);
-													  
-				trainLayerNumber =  GetDItemValue (dialogPtr, IDC_TrainMaskLayer);
-													  
-				}	// end "if (itemHit == 1 && gMaskTrainImageSelection == 3 && ..."
-													  
-				
-			testLayerNumber = 1;
-			if (itemHit == 1 && gMaskTestImageSelection == 3 && maxNumberTestLayers > 1)
-				{
-				itemHit = CheckMaxValue (dialogPtr,
-													  IDC_TestMaskLayer,
-													  1,
-													  maxNumberTestLayers,
-													  kDisplayRangeAlert);	
-													  
-				testLayerNumber =  GetDItemValue (dialogPtr, IDC_TestMaskLayer);
-							
-				}	// end "if (itemHit == 1 && gMaskTestImageSelection == 3 && ..."
-			
-					// Load the mask data into memory if a mask file was selected.
+      {
+         // User selected OK for information. Load the mask data into
+         // memory if a mask file was selected.
 
          if (itemHit == 1)
-            itemHit = StatisticsDialogMaskCheck (
-										trainMaskFileInfoHandle,
-										testMaskFileInfoHandle,
-										gMaskTrainImageSelection,
-										gMaskTestImageSelection,
-										trainLayerNumber,
-										testLayerNumber);
+            itemHit = StatisticsDialogMaskCheck(
+            trainMaskFileInfoHandle,
+            testMaskFileInfoHandle,
+            gMaskTrainImageSelection,
+            gMaskTestImageSelection);
 
-         if (itemHit == 1)
-				{
-						// User selected OK for information and any mask file was read
-						// into memory okay.
+         if (itemHit == 1) {
+            // User selected OK for information and any mask file was read
+            // into memory okay.
 
             modalDone = true;
             statisticsRequest = 1;
 
-            StatisticsDialogOK (gChannelSelection,
-												totalNumberChannels,
-												(UInt16*)featurePtr,
-												localNumberChannels,
-												(GetDLogControl(dialogPtr, 9) == 1),
-												(GetDLogControl(dialogPtr, 10) == 1),
-												(GetDLogControl(dialogPtr, 11) == 1),
-												(GetDLogControl(dialogPtr, 12) == 1),
-												(GetDLogControl(dialogPtr, 13) == 1),
-												gOutlineColorSelection,
-												localStatCode,
-												keepClassStatsFlag,
-												variance,
-												minLogDeterminant,
-												useCommonCovarianceInLOOCFlag);
+            StatisticsDialogOK(gChannelSelection,
+               totalNumberChannels,
+               (UInt16*) featurePtr,
+               localNumberChannels,
+               (GetDLogControl(dialogPtr, 9) == 1),
+               (GetDLogControl(dialogPtr, 10) == 1),
+               (GetDLogControl(dialogPtr, 11) == 1),
+               (GetDLogControl(dialogPtr, 12) == 1),
+               (GetDLogControl(dialogPtr, 13) == 1),
+               gOutlineColorSelection,
+               localStatCode,
+               keepClassStatsFlag,
+               variance,
+               minLogDeterminant,
+               useCommonCovarianceInLOOCFlag);
 
-				} // end "if (itemHit == 1)"
+         } // end "if (itemHit == 1)" 
 
          if (itemHit == 2) // User selected Cancel for information 
-				{
+         {
             modalDone = true;
             statisticsRequest = 0;
 
-				} // end "if	(itemHit == 2)"
+         } // end "if	(itemHit == 2)" 
 
-			} // end "else itemHit <= 2"
+      } // end "else itemHit <= 2" 
 
-		} while (!modalDone);
+   } while (!modalDone);
 
    DisposeUserItemUPP(drawProjectChangesPopUpPtr);
    DisposeUserItemUPP(outlineColorPopUpPtr);
    DisposeUserItemUPP(selectTestImageMaskPopUpPtr);
    DisposeUserItemUPP(selectTrainImageMaskPopUpPtr);
 
-			// Now delete the menu items.
+   // Now delete the menu items.
 
    UInt32 item;
    for (item = 0; item < 2; item++)
@@ -7516,55 +7401,58 @@ SInt16 StatisticsDialog (
 
    //	MHSetState (gProjectInfoPtr->windowInfoHandle, handleStatus);
 
-   CloseRequestedDialog(dialogPtr, kSetUpDFilterTable);
-#	endif	// defined multispec_mac
+   CloseRequestedDialog(dialogPtr, kDoNotSetUpDFilterTable);
 
-#	if defined multispec_win
-		CMStatisticsDialog* dialogPtr = NULL;
+#endif	// defined multispec_mac
 
-		TRY
-			{
-			dialogPtr = new CMStatisticsDialog();
 
-			statisticsRequest = dialogPtr->DoDialog(featurePtr,
-			totalNumberChannels,
-			&trainMaskFileInfoHandle,
-			&testMaskFileInfoHandle);
+#if defined multispec_win  
 
-			delete dialogPtr;
-			}
+   CMStatisticsDialog* dialogPtr = NULL;
 
-		CATCH_ALL(e)
-			{
-			MemoryMessage(0, kObjectMessage);
-			statisticsRequest = 0;
-			}
-		END_CATCH_ALL
-#	endif // defined multispec_win
+   TRY{
+      dialogPtr = new CMStatisticsDialog();
 
-#	if defined multispec_lin
-		CMStatisticsDialog* dialogPtr = NULL;
+      statisticsRequest = dialogPtr->DoDialog(featurePtr,
+      totalNumberChannels,
+      &trainMaskFileInfoHandle,
+      &testMaskFileInfoHandle);
 
-		dialogPtr = new CMStatisticsDialog();
-		statisticsRequest = dialogPtr->DoDialog (featurePtr,
-																totalNumberChannels,
-																&trainMaskFileInfoHandle,
-																&testMaskFileInfoHandle);
+      delete dialogPtr;
+   }
 
-		delete dialogPtr;
-#	endif // defined multispec_lin
+   CATCH_ALL(e) {
+      MemoryMessage(0, kObjectMessage);
+      statisticsRequest = 0;
+   }
+   END_CATCH_ALL
 
-			// Dispose of temporary handle for mask file structures if needed.
+#endif // defined multispec_win  
 
-   DisposeFileInfoHandle (trainMaskFileInfoHandle);
+#if defined multispec_lin 
+
+   CMStatisticsDialog* dialogPtr = NULL;
+
+   dialogPtr = new CMStatisticsDialog();
+   statisticsRequest = dialogPtr->DoDialog(featurePtr,
+      totalNumberChannels,
+      &trainMaskFileInfoHandle,
+      &testMaskFileInfoHandle);
+
+   delete dialogPtr;
+
+#endif // defined multispec_win
+   // Dispose of temporary handle for mask file structures if needed.
+
+   DisposeFileInfoHandle(trainMaskFileInfoHandle);
    trainMaskFileInfoHandle = NULL;
 
-   DisposeFileInfoHandle (testMaskFileInfoHandle);
+   DisposeFileInfoHandle(testMaskFileInfoHandle);
    testMaskFileInfoHandle = NULL;
 
-			// Draw field boundaries or inval the project image window				
-			// to get the correct set of field boundaries drawn or 					
-			// removed.																				
+   // Draw field boundaries or inval the project image window				
+   // to get the correct set of field boundaries drawn or 					
+   // removed.																				
 
    labelAreasFlagChanged = (savedLabelFieldCode != 0);
    if (savedLabelFieldCode != gProjectInfoPtr->labelFieldCode)
@@ -7573,10 +7461,10 @@ SInt16 StatisticsDialog (
    if ((savedOutlineFieldType != gProjectInfoPtr->outlineFieldType ||
       labelAreasFlagChanged)) {
       if ((savedOutlineFieldType != 0 && gProjectInfoPtr->outlineFieldType != 3) ||
-					((savedLabelFieldCode & 0x0001) &&
-					!(gProjectInfoPtr->labelFieldCode & 0x0001)) ||
-					((savedLabelFieldCode & 0x0002) &&
-					!(gProjectInfoPtr->labelFieldCode & 0x0002)))
+         ((savedLabelFieldCode & 0x0001) &&
+         !(gProjectInfoPtr->labelFieldCode & 0x0001)) ||
+         ((savedLabelFieldCode & 0x0002) &&
+         !(gProjectInfoPtr->labelFieldCode & 0x0002)))
          ForceFieldOutlineUpdate(TRUE);
 
       else // Just draw in the changes to what is already there. 
@@ -7606,9 +7494,7 @@ void StatisticsDialogInitialize (
 				SInt16*									localLabelFieldCodePtr,
 				SInt16*									outlineColorSelectionPtr,
 				SInt16*									maskTrainImageSelectionPtr,
-				SInt16*									maskTestImageSelectionPtr,
-				UInt16*									maxNumberTrainLayersPtr,
-				UInt16*									maxNumberTestLayersPtr)
+				SInt16*									maskTestImageSelectionPtr)
 {
 	UInt32									index;
 
@@ -7657,30 +7543,25 @@ void StatisticsDialogInitialize (
    *outlineColorSelectionPtr = gProjectInfoPtr->outlineColorCode;
 
 			// Set the train and test mask dialog items.
-	
+
    *maskTrainImageSelectionPtr = StatisticsDialogSetMaskItems (
 													&gProjectInfoPtr->trainingMask,
 													gPopUpSelectTrainMaskImageMenu,
 													dialogPtr,
 													IDC_TrainMaskPopUp,
-													IDC_TrainMaskLayer,
-													maxNumberTrainLayersPtr);
+													IDC_TrainMaskLayerStatic);
 
    *maskTestImageSelectionPtr = StatisticsDialogSetMaskItems (
 													&gProjectInfoPtr->testMask,
 													gPopUpSelectTestMaskImageMenu,
 													dialogPtr,
 													IDC_TestMaskPopUp,
-													IDC_TestMaskLayer,
-													maxNumberTestLayersPtr);
-													
-	if (*maskTrainImageSelectionPtr != 1 || *maskTestImageSelectionPtr != 1)
-      ShowDialogItem (dialogPtr, IDC_LayerPrompt);
-	else
-      HideDialogItem (dialogPtr, IDC_LayerPrompt);
-		
-	HideDialogItem (dialogPtr, IDC_TrainMaskLayerEdit);
-	HideDialogItem (dialogPtr, IDC_TestMaskLayerEdit);
+													IDC_TestMaskLayerStatic);
+
+			// Hide the layer selection dialog items until implemented.
+
+   HideDialogItem(dialogPtr, IDC_TrainMaskLayerEDIT);
+   HideDialogItem(dialogPtr, IDC_TestMaskLayerEDIT);
 
 }	// end "StatisticsDialogInitialize"
 
@@ -7707,173 +7588,94 @@ void StatisticsDialogInitialize (
 // Called By:			StatisticsDialog in statistics.c
 //
 //	Coded By:			Larry L. Biehl			Date: 01/??/1999
-//	Revised By:			Larry L. Biehl			Date: 05/04/2017
+//	Revised By:			Larry L. Biehl			Date: 03/06/2017
 
-SInt16 StatisticsDialogMaskCheck (
-				Handle								trainMaskFileInfoHandle,
-				Handle								testMaskFileInfoHandle,
-				SInt16								maskTrainImageSelection,
-				SInt16								maskTestImageSelection,
-				UInt16								trainLayerNumber,
-				UInt16								testLayerNumber)
-{
-	CMFileStream						*maskFileStreamPtr;
-											
-   SInt16								alertString,
-											itemHit = 1;
+SInt16 StatisticsDialogMaskCheck(
+   Handle trainMaskFileInfoHandle,
+   Handle testMaskFileInfoHandle,
+   SInt16 maskTrainImageSelection,
+   SInt16 maskTestImageSelection) {
+   SInt16 alertString,
+      itemHit = 1;
 
-   Boolean								maskLoadedFlag = FALSE,
-											testMaskFileInfoHandleFlag = FALSE,
-											trainMaskFileInfoHandleFlag = FALSE;
-											
-	SignedByte							maskFileStreamHandleStatus;
+   Boolean maskLoadedFlag = FALSE;
 
 
    alertString = IDS_Alert55;
 
-   if (maskTrainImageSelection == 3 || maskTestImageSelection == 3)
-		{
-				// Change cursor to spin cursor until done with process.
+   if (maskTrainImageSelection == 3 || maskTestImageSelection == 3) {
+      // Change cursor to spin cursor until done with process.
 
       MSetCursor(kWait);
       gPresentCursor = kSpin;
 
-      if (maskTrainImageSelection == 3)
-			{
-					// if the trainMaskFileInfoHandle is null, then this implies
-					// that the same mask file is being used but with a different
-					// layer. Verify this and if so, get a file info handle.
-					
-			maskFileStreamPtr = GetMaskFileStreamPointer (&gProjectInfoPtr->trainingMask,
-																			&maskFileStreamHandleStatus);
-					
-			if (trainMaskFileInfoHandle == NULL && 
-								gProjectInfoPtr->trainingMask.fileLayer != trainLayerNumber &&
-											maskFileStreamPtr != NULL)
-				{
-				trainMaskFileInfoHandle = LoadMaskFileInfo (maskFileStreamPtr);					
-				trainMaskFileInfoHandleFlag = TRUE;
-					
-				}	// end "if (trainMaskFileInfoHandle == NULL && ..."
-			
-			if (trainMaskFileInfoHandle != NULL)
-				itemHit = LoadMask (kTrainingMaskSet,
-											trainMaskFileInfoHandle,
-											&gProjectInfoPtr->trainingMask,
-											trainLayerNumber,
-											kNewMaskFields);
+      if (maskTrainImageSelection == 3) {
+         itemHit = LoadMask(kTrainingMaskSet,
+            trainMaskFileInfoHandle,
+            &gProjectInfoPtr->trainingMask,
+            1,
+            kNewMaskFields);
 
          if (trainMaskFileInfoHandle != NULL)
             maskLoadedFlag = TRUE;
-								
-			MHSetState (gProjectInfoPtr->trainingMask.fileStreamHandle,
-								maskFileStreamHandleStatus);
-			
-			if (trainMaskFileInfoHandleFlag)
-						// It was defined in this routine. Dispose of the handle.
-				DisposeFileInfoHandle (trainMaskFileInfoHandle);
 
-			} // end "if (maskTrainImageSelection == 3)"
+      } // end "if (maskTrainImageSelection == 3)"
 
-      if (itemHit == 1 && maskTestImageSelection == 3)
-			{
+      if (itemHit == 1 && maskTestImageSelection == 3) {
          alertString = IDS_Alert56;
-			
-					// if the trainMaskFileInfoHandle is null, then this implies
-					// that the same mask file is being used but with a different
-					// layer. Verify this and if so, get a file info handle.
-					
-			maskFileStreamPtr = GetMaskFileStreamPointer (&gProjectInfoPtr->testMask,
-																			&maskFileStreamHandleStatus);
-					
-			if (testMaskFileInfoHandle == NULL && 
-								gProjectInfoPtr->testMask.fileLayer != testLayerNumber &&
-											maskFileStreamPtr != NULL)
-				{
-				testMaskFileInfoHandle = LoadMaskFileInfo (maskFileStreamPtr);					
-				testMaskFileInfoHandleFlag = TRUE;
-					
-				}	// end "if (trainMaskFileInfoHandle == NULL && ..."
-				
-			if (testMaskFileInfoHandle != NULL)
-				itemHit = LoadMask (kTestMaskSet,
-											testMaskFileInfoHandle,
-											&gProjectInfoPtr->testMask,
-											testLayerNumber,
-											kNewMaskFields);
+         itemHit = LoadMask(kTestMaskSet,
+            testMaskFileInfoHandle,
+            &gProjectInfoPtr->testMask,
+            1,
+            kNewMaskFields);
 
          if (testMaskFileInfoHandle != NULL)
             maskLoadedFlag = TRUE;
-			
-			if (testMaskFileInfoHandleFlag)
-						// It was defined in this routine. Dispose of the handle.
-				DisposeFileInfoHandle (testMaskFileInfoHandle);
 
-			} // end "if (itemHit == 1 && maskTestImageSelection == 3)"
+      } // end "if	(itemHit == 1 && maskTestImageSelection == 3)"
 
       MInitCursor();
 
-		}	// end "if (maskTrainImageSelection == 3 || ..."
+   } // end "if (maskTrainImageSelection == 3 || ..."
 
    if (itemHit == 0)
-      DisplayAlert (kErrorAlertID,
-							kCautionAlert,
-							kAlertStrID,
-							alertString,
-							0,
-							NULL);
+      DisplayAlert(kErrorAlertID,
+      kCautionAlert,
+      kAlertStrID,
+      alertString,
+      0,
+      NULL);
 
-   if (itemHit == 1)
-		{
-		if (maskTrainImageSelection == 1)
-			{
-			CutMaskFields(kTrainingMaskSet);
-			CloseMaskStructure (&gProjectInfoPtr->trainingMask);
+   if (itemHit == 1 && maskTrainImageSelection == 1) {
+      CutMaskFields(kTrainingMaskSet);
+      CloseMaskStructure(&gProjectInfoPtr->trainingMask);
 
-			}	// end "if (maskTrainImageSelection == 1)"
+   } // end "if (itemHit == 1 && maskTrainImageSelection == 1)"
 
-		if (maskTestImageSelection == 1)
-			{
-			CutMaskFields(kTestMaskSet);
-			CloseMaskStructure (&gProjectInfoPtr->testMask);
+   if (itemHit == 1 && maskTestImageSelection == 1) {
+      CutMaskFields(kTestMaskSet);
+      CloseMaskStructure(&gProjectInfoPtr->testMask);
 
-			}	// end "if (maskTestImageSelection == 1)"
+   } // end "if (itemHit == 1 && maskTestImageSelection == 1)"
 
-		if (gProjectWindow != NULL)
-			{
-					// Update the class list if needed
-				
-			if (gProjectInfoPtr->statsWindowMode == kClassListMode) 
-				ClassListStatMode();
+   if (itemHit == 1 && maskLoadedFlag) {
+      // Get pointer to the project file name and list a message in the
+      // output text window that mask file(s) were read in.
+      // The project file name is the same as that for the output text window.
 
-					// Update the field list if needed
-				
-			else if (gProjectInfoPtr->statsWindowMode == kFieldListMode) 
-				FieldListStatMode (gProjectInfoPtr->currentClass);
-				
-			}	// end "if (gProjectWindow != NULL)"
-			
-		if (maskLoadedFlag)
-			{
-					// Get pointer to the project file name and list a message in the
-					// output text window that mask file(s) were read in.
-					// The project file name is the same as that for the output text window.
+      GetProjectWindowTitle((UCharPtr) & gTextString);
 
-			GetProjectWindowTitle ((UCharPtr)&gTextString);
+      ForceTextToEnd();
 
-			ForceTextToEnd();
+      ListSpecifiedStringNumber(
+         kProjectStrID,
+         IDS_Project63,
+         NULL,
+         gOutputForce1Code,
+         gTextString,
+         TRUE);
 
-			ListSpecifiedStringNumber (
-									kProjectStrID,
-									IDS_Project63,
-									NULL,
-									gOutputForce1Code,
-									gTextString,
-									TRUE);
-									
-			}	// end "if (maskLoadedFlag)"
-
-		}	// end "if (itemHit == 1)"
+   } // end "if (itemHit == 1 && maskLoadedFlag)"
 
    return (itemHit);
 
@@ -7881,13 +7683,12 @@ SInt16 StatisticsDialogMaskCheck (
 
 
 
-SInt16 StatisticsDialogSetMaskItems (
+SInt16 StatisticsDialogSetMaskItems(
 				MaskInfoPtr								maskInfoPtr,
 				MenuHandle								popUpSelectMaskImageMenu,
 				DialogPtr								dialogPtr,
 				SInt16									maskPopupItemNumber,
-				SInt16									layerItemNumber,
-				UInt16*									maxNumberLayersPtr)
+				SInt16									layerItemNumber)
 {
 	FileStringPtr							fileNamePPointer;
 
@@ -7935,25 +7736,10 @@ SInt16 StatisticsDialogSetMaskItems (
 													dialogPtr,
 													maskPopupItemNumber);
 
-      MHSetState (maskInfoPtr->fileStreamHandle, maskFileStreamHandleStatus);
+      MHSetState(maskInfoPtr->fileStreamHandle,
+         maskFileStreamHandleStatus);
 
-		if (maskInfoPtr->numberLayers == 1)
-			{
-			SetDialogItemToStaticText (dialogPtr, layerItemNumber);
-			
-			}		// end "if (maskInfoPtr->numberLayers == 1)"
-		
-		else	// maskInfoPtr->numberLayers > 1
-			{
-			SetDialogItemToEditText (dialogPtr, layerItemNumber);
-			
-			}		// end "else maskInfoPtr->numberLayers > 1"
-		
-		LoadDItemValue (dialogPtr, layerItemNumber, maskInfoPtr->fileLayer);
-		
-		*maxNumberLayersPtr = (UInt16)maskInfoPtr->numberLayers;
-
-		}	// end "if (maskInfoPtr->maskHandle != NULL)"
+		}// end "if (maskInfoPtr->maskHandle != NULL)"
 
    else // maskInfoPtr->maskHandle == NULL
 		{
@@ -7968,9 +7754,7 @@ SInt16 StatisticsDialogSetMaskItems (
 				((CComboBox*) dialogPtr->GetDlgItem(maskPopupItemNumber))->DeleteString(2);
 #		endif	// defined multispec_win
 
-      HideDialogItem (dialogPtr, layerItemNumber);
-		
-		*maxNumberLayersPtr = 1;
+      HideDialogItem(dialogPtr, layerItemNumber);
 
 		}	// end "else maskInfoPtr->maskHandle == NULL"
 
@@ -8026,25 +7810,16 @@ SInt16 StatisticsDialogSelectMaskItem (
 				SInt16									maskImageSelection,
 				SInt16									selectStringNumber,
 				SInt16									maskPopupItemNumber,
-				SInt16									layerItemNumber,
-				UInt16*									maxNumberLayersPtr)
+				SInt16									layerItemNumber)
 
 {
-	FileInfoPtr								fileInfoPtr;
 	FileStringPtr							fileNamePPointer;
-
-	UInt16									layerSetting;
 
    SignedByte								handleStatus;
 
 
-	layerSetting = 1;
-
    if (itemHit == 1)
-		{
-      HideDialogItem (dialogPtr, layerItemNumber);
-		
-		}		// end "if (itemHit == 1)"
+      HideDialogItem(dialogPtr, layerItemNumber);
 
    else if (itemHit == 2)
 		{
@@ -8052,8 +7827,8 @@ SInt16 StatisticsDialogSelectMaskItem (
 
       SetDLogControlHilite(dialogPtr, IDOK, 255);
 
-      *maskFileInfoHandlePtr = GetMaskFile (*maskFileInfoHandlePtr,
-															selectStringNumber);
+      *maskFileInfoHandlePtr = GetMaskFile(*maskFileInfoHandlePtr,
+         selectStringNumber);
 
       SetDLogControlHilite(dialogPtr, IDOK, 0);
 
@@ -8067,45 +7842,25 @@ SInt16 StatisticsDialogSelectMaskItem (
 														popUpSelectMaskImageMenu,
 														dialogPtr,
 														maskPopupItemNumber);
-														
-					// Get the max number of layers (channels)
-			
-			fileInfoPtr = (FileInfoPtr)GetHandlePointer (*maskFileInfoHandlePtr);
-			*maxNumberLayersPtr = fileInfoPtr->numberChannels;
 
-			if (fileInfoPtr->format == kPNGType && fileInfoPtr->numberChannels == 4)
-				layerSetting = 4;
+         // Unlock the class name structure handle if needed.					
 
-					// Unlock the class name structure handle if needed.					
+         MHSetState(*maskFileInfoHandlePtr, handleStatus);
 
-         MHSetState (*maskFileInfoHandlePtr, handleStatus);
+         ShowDialogItem(dialogPtr, layerItemNumber);
 
          itemHit = 3;
 
-			}	// end "if (*maskFileInfoHandlePtr != NULL)"
+			} // end "if (*maskFileInfoHandlePtr != NULL)"
 
       else // *maskFileInfoHandlePtr == NULL
 					// No change was made.
          itemHit = maskImageSelection;
 
-		}	// end "if (itemHit == 2)"
+		} // end "if (itemHit == 2)"
 
-   if (itemHit == 3)
-		{
-		ShowDialogItem (dialogPtr, layerItemNumber);
-		
-		if (*maxNumberLayersPtr == 1)
-			SetDialogItemToStaticText (dialogPtr, layerItemNumber);
-			
-		else		// *maxNumberLayersPtr > 1
-			SetDialogItemToEditText (dialogPtr, layerItemNumber);
-			
-		LoadDItemValue (dialogPtr, layerItemNumber, layerSetting);
-
-		if (*maxNumberLayersPtr > 1)
-			SelectDialogItemText(dialogPtr, layerItemNumber, 0, SInt16_MAX);
-				
-		}		// end "if (itemHit == 3)"
+   else if (itemHit == 3)
+      ShowDialogItem(dialogPtr, layerItemNumber);
 
    return (itemHit);
 
@@ -8306,7 +8061,7 @@ void StatisticsDialogOK (
 //	Revised By:			Larry L. Biehl			Date: 12/16/2016
 
 Boolean StatisticsOptionsDialog(
-				SInt16*								statCodePtr,
+   SInt16* statCodePtr,
    Boolean* keepClassStatsFlagPtr,
    double* variancePtr,
    double* minLogDeterminantPtr,
@@ -8638,7 +8393,7 @@ void StatisticsOptionsDialogOK(
 //	Coded By:			Larry L. Biehl			Date: 09/28/1988
 //	Revised By:			Larry L. Biehl			Date:	03/15/2017			
 
-void StatisticsWControlEvent (
+void StatisticsWControlEvent(
 				ControlHandle						theControl,
 				Boolean								waitOnMouseUpFlag,
 				Point									location,
@@ -9052,43 +8807,39 @@ void StatisticsWMouseDn(
 
          UpdateStatWEditMenu();
 
-      }	// end "if ( PtInRect ( mousePt, &projectInfo..." 
+      }// end "if ( PtInRect ( mousePt, &projectInfo..." 
 
          // Check if mousedown was in statistics pop up menu box.  If so handle	
 
       else if (PtInRect(mousePt, &gProjectInfoPtr->popUpCovarianceToUseBox) &&
-										gProjectInfoPtr->statsWindowMode == kClassListMode) 
-			{
+         gProjectInfoPtr->statsWindowMode == kClassListMode) {
          menuItem = StatisticsPopUpMenu(kClassListMode);
 
-         if (menuItem > 0) 
-				{
-            covarianceStatsToUse = GetCovarianceStatsFromMenuItem (menuItem);
-            SetProjectCovarianceStatsToUse (covarianceStatsToUse);
+         if (menuItem > 0) {
+            covarianceStatsToUse = GetCovarianceStatsFromMenuItem(menuItem);
+            SetProjectCovarianceStatsToUse(covarianceStatsToUse);
 
-				}	// end "if (menuItem > 0)"
+         } // end "if (menuItem > 0)"
 
-			}	// end "if ( PtInRect ( mousePt, &projectInfo..." 
+      }// end "if ( PtInRect ( mousePt, &projectInfo..." 
 
-				// Check if mousedown was in statistics pop up menu box.  If so handle	
+         // Check if mousedown was in statistics pop up menu box.  If so handle	
 
       else if (PtInRect(mousePt, &gProjectInfoPtr->popUpCovarianceToUseBox) &&
-										gProjectInfoPtr->statsWindowMode == kFieldListMode) 
-			{
+         gProjectInfoPtr->statsWindowMode == kFieldListMode) {
          menuItem = StatisticsPopUpMenu(kFieldListMode);
 
-         if (menuItem > 0) 
-				{
+         if (menuItem > 0) {
             covarianceStatsToUse = GetCovarianceStatsFromMenuItem(menuItem);
             SetClassCovarianceStatsToUse(covarianceStatsToUse);
 
-				}	// end "if (menuItem > 0)"
+         } // end "if (menuItem > 0)"
 
-			}	// end "if ( PtInRect ( mousePt, &projectInfo..." 
+      } // end "if ( PtInRect ( mousePt, &projectInfo..." 
 
-		}	// end "else !PtInRect ( mousePt, &rect )"  
+   } // end "else !PtInRect ( mousePt, &rect )"  
 
-}	// end "StatisticsWMouseDn" 
+} // end "StatisticsWMouseDn" 
 
 
 

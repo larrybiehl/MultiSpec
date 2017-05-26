@@ -7,19 +7,20 @@
 #include	"WChanDlg.h"       
 
 #include	"SExtGlob.h" 
+                      		
 
-extern SInt16 		EditLineColumnDialogCheckCoordinates ( 
-							DialogPtr							dialogPtr, 
-							Handle								inputWindowInfoHandle,
-							SInt16								selectionDisplayUnits,
-							LongRect*							selectionRectanglePtr,
-							LongRect*							minMaxSelectionRectanglePtr,
-							DoubleRect*							coordinateRectanglePtr,
-							DoubleRect*							minMaxCoordinateRectanglePtr,
-							double								newColumnStart,
-							double								newColumnEnd,
-							double								newLineStart,
-							double								newLineEnd);
+extern SInt16 				EditLineColumnDialogCheckCoordinates ( 
+									DialogPtr							dialogPtr, 
+									Handle								inputWindowInfoHandle,
+									SInt16								selectionDisplayUnits,
+									LongRect*							selectionRectanglePtr,
+									LongRect*							minMaxSelectionRectanglePtr,
+									DoubleRect*							coordinateRectanglePtr,
+									DoubleRect*							minMaxCoordinateRectanglePtr,
+									double								newColumnStart,
+									double								newColumnEnd,
+									double								newLineStart,
+									double								newLineEnd);
 
 extern void			ChangeFieldType (
 							SInt16								classStorage, 
@@ -47,10 +48,10 @@ extern void 		EditLineColumnDialogOK (
 							SInt16								unitsDisplayCode,
 							Boolean*								changedFlagPtr);	
 
-extern void 		EditLineColumnDialogSetStartLC ( 
-							DialogPtr							dialogPtr,  
-							SInt16								unitsDisplayCode,
-							Boolean								applyToAllWindowsFlag);
+extern void 				EditLineColumnDialogSetStartLC ( 
+									DialogPtr							dialogPtr,  
+									SInt16								unitsDisplayCode,
+									Boolean								applyToAllWindowsFlag);
 
 extern void 		EditSelectionDialogSetCoordinates (
 							DialogPtr							dialogPtr,
@@ -85,24 +86,22 @@ extern void 		StatisticsDialogOK (
 							Boolean								useCommonCovarianceInLOOCFlag );
 
 extern void 		StatisticsDialogInitialize (
-							DialogPtr								dialogPtr,
-							SInt16									totalNumberChannels,
-							SInt16*									localStatCodePtr,
-							Boolean*									keepClassStatsFlagPtr,
-							Boolean*									useCommonCovarianceInLOOCFlagPtr,
-							double*									variancePtr,
-							double*									minLogDeterminantPtr,
-							SInt16*									channelSelectionPtr,
-							SInt16*									channelListTypePtr,
-							UInt16*									featurePtr,
-							UInt16*									localNumberChannelsPtr,
-							SInt16*									localOutlineFieldTypePtr,
-							SInt16*									localLabelFieldCodePtr,
-							SInt16*									outlineColorSelectionPtr,
-							SInt16*									maskTrainImageSelectionPtr,
-							SInt16*									maskTestImageSelectionPtr,
-							UInt16*									maxNumberTrainLayersPtr,
-							UInt16*									maxNumberTestLayersPtr);
+							DialogPtr							dialogPtr,
+							SInt16								totalNumberChannels,
+							SInt16*								localStatCodePtr,
+							Boolean*								keepClassStatsFlagPtr,
+							Boolean*								useCommonCovarianceInLOOCFlagPtr,
+							double*								variancePtr,
+							double*								minLogDeterminantPtr,
+							SInt16*								channelSelectionPtr,
+							SInt16*								channelListTypePtr,
+							UInt16*								featurePtr,
+							UInt16*								localNumberChannelsPtr,
+							SInt16*								localOutlineFieldTypePtr,
+							SInt16*								localLabelFieldCodePtr,
+							SInt16*								outlineColorSelectionPtr,
+							SInt16*								maskTrainImageSelectionPtr,
+							SInt16*								maskTestImageSelectionPtr);
 							
 extern SInt16 		StatisticsDialogSelectMaskItem (
 							Handle*								maskFileInfoHandlePtr,
@@ -112,16 +111,13 @@ extern SInt16 		StatisticsDialogSelectMaskItem (
 							SInt16								maskImageSelection,
 							SInt16								selectStringNumber,
 							SInt16								maskPopupItemNumber,
-							SInt16								layerItemNumber,
-							UInt16*								maxNumberLayersPtr);  
+							SInt16								layerItemNumber);  
 
 extern SInt16 		StatisticsDialogMaskCheck (
 							Handle								trainMaskFileInfoHandle,
 							Handle								testMaskFileInfoHandle,
 							SInt16								maskTrainImageSelection,
-							SInt16								maskTestImageSelection,
-							UInt16								trainLayerNumber,
-							UInt16								testLayerNumber);
+							SInt16								maskTestImageSelection);
 
 extern Boolean	 	StatisticsOptionsDialog (
 							SInt16*								statCodePtr, 
@@ -160,15 +156,15 @@ extern void 		EditLineColumnDialogInitialize (
 							SInt16*								selectionDisplayUnitsPtr,
 							SInt16								stringID);
 
-extern void 		EditSelectionDialogShowSelection (
-							WindowPtr							windowPtr,
-							Handle								windowInfoHandle,
-							LongRect*							selectionRectanglePtr,
-							DoubleRect*							coordinateRectanglePtr,
-							Boolean								applyToAllWindowsFlag,
-							Boolean								useStartLineColumnFlag,
-							SInt16								unitsToUseCode,
-							double								factor);
+extern void 				EditSelectionDialogShowSelection (
+									WindowPtr							windowPtr,
+									Handle								windowInfoHandle,
+									LongRect*							selectionRectanglePtr,
+									DoubleRect*							coordinateRectanglePtr,
+									Boolean								applyToAllWindowsFlag,
+									Boolean								useStartLineColumnFlag,
+									SInt16								unitsToUseCode,
+									double								factor);
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -632,9 +628,7 @@ CMStatisticsDialog::OnInitDialog()
 												&localLabelFieldCode,
 												&localOutlineColorSelection,
 												&localTrainMaskCombo,
-												&localTestMaskCombo,
-												&m_maxNumberTrainLayers,
-												&m_maxNumberTestLayers);
+												&localTestMaskCombo);
 	
 			// Set feature parameters 
 			
@@ -679,13 +673,8 @@ CMStatisticsDialog::OnInitDialog()
 		PositionDialogWindow (); 
 	
 	SetOutlineAreaOptions ();
-
-	if (localTrainMaskCombo == 3)
-		SelectDialogItemText (this, IDC_TrainMaskLayer, 0, SInt16_MAX);
-	else if (localTestMaskCombo == 3)
-		SelectDialogItemText (this, IDC_TestMaskLayer, 0, SInt16_MAX);
 	
-	return FALSE;  // return TRUE  unless you set the focus to a control
+	return TRUE;  // return TRUE  unless you set the focus to a control
 	
 }		// end "OnInitDialog" 
 
@@ -903,8 +892,7 @@ void CMStatisticsDialog::OnSelendokTestMaskCOMBO()
 									savedTestMaskCombo+1,
 									IDS_FileIO96,
 									IDC_TestMaskPopUp,
-									IDC_TestMaskLayer,
-									&m_maxNumberTestLayers);
+									IDC_TestMaskLayerStatic);	
 									
 		m_testMaskCombo = itemHit - 1;
 	                                    
@@ -948,8 +936,7 @@ void CMStatisticsDialog::OnSelendokTrainMaskCOMBO()
 									savedTrainMaskCombo+1,
 									IDS_FileIO95,
 									IDC_TrainMaskPopUp,
-									IDC_TrainMaskLayer,
-									&m_maxNumberTrainLayers);	
+									IDC_TrainMaskLayerStatic);	
 									
 		m_trainMaskCombo = itemHit - 1;
 	                                    
@@ -965,55 +952,19 @@ void CMStatisticsDialog::OnSelendokTrainMaskCOMBO()
 
 void CMStatisticsDialog::OnOK()
 {  
-	SInt16					itemHit = 1;
-
-	UInt16					testLayerNumber,
-								trainLayerNumber;
+	SInt16					itemHit;
 	
 	
-	if (UpdateData(TRUE))
+	if ( UpdateData(TRUE) )
 		{                                   
-				// User selected OK for information. 
-
-				// Check channels used for train and test mask
-			
-		trainLayerNumber = 1;
-		if (itemHit == 1 && m_trainMaskCombo == 2 && m_maxNumberTrainLayers > 1)
-			{
-			itemHit = CheckMaxValue (this,
-												IDC_TrainMaskLayer,
-												1,
-												m_maxNumberTrainLayers,
-												kDisplayRangeAlert);
-
-			trainLayerNumber = (UInt16)GetDItemValue(this, IDC_TrainMaskLayer);
-
-			}	// end "if (itemHit == 1 && gMaskTrainImageSelection == 3 && ..."
-
-
-		testLayerNumber = 1;
-		if (itemHit == 1 && m_testMaskCombo == 2 && m_maxNumberTestLayers > 1)
-			{
-			itemHit = CheckMaxValue (this,
-												IDC_TestMaskLayer,
-												1,
-												m_maxNumberTestLayers,
-												kDisplayRangeAlert);
-
-			testLayerNumber = (UInt16)GetDItemValue (this, IDC_TestMaskLayer);
-
-			}	// end "if (itemHit == 1 && gMaskTestImageSelection == 3 && ..."
-		
-				// Load the mask data into memory if a mask file was selected.
-		
-		if (itemHit == 1)
-			itemHit = StatisticsDialogMaskCheck (
+				// User selected OK for information. Load the mask data into
+				// memory if a mask file was selected.
+						
+		itemHit = StatisticsDialogMaskCheck (
 													m_trainMaskFileInfoHandle,
 													m_testMaskFileInfoHandle,
 													m_trainMaskCombo + 1,
-													m_testMaskCombo + 1,
-													trainLayerNumber,
-													testLayerNumber);
+													m_testMaskCombo + 1);
 		
 		if (itemHit == 1)
 			CMDialog::OnOK(); 

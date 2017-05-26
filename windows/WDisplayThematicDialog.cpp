@@ -1,7 +1,6 @@
 // WDisplayThematicDialog.cpp : implementation file
 //    
-// Revised by Larry Biehl on 05/26/2017
-//
+// Revised by Larry Biehl on 03/16/2017
 
 #include	"SMulSpec.h" 
                         
@@ -256,8 +255,8 @@ END_MESSAGE_MAP()
 // 
 //	Called By:			Dialog in MDisMult.cpp
 //
-//	Coded By:			Larry L. Biehl			Date: 03/28/1996
-//	Revised By:			Larry L. Biehl			Date: 05/26/2017	
+//	Coded By:			Larry L. Biehl			Date: 03/28/96
+//	Revised By:			Larry L. Biehl			Date: 03/28/96	
 
 Boolean 
 CMDisplayThematicDlg::DoDialog(
@@ -266,7 +265,7 @@ CMDisplayThematicDlg::DoDialog(
 {  
 	Boolean			continueFlag = FALSE;
 	
-	INT_PTR			returnCode;
+	SInt16			returnCode;
 
 	                          
 			// Make sure intialization has been completed.

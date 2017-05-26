@@ -1,7 +1,5 @@
-// WFToTDlg.cpp : implementation file
-//
-// Revised by Larry Biehl on 05/26/2017
-//
+// wftotdlg.cpp : implementation file
+//                   
                    
 #include "SMulSpec.h" 
 #include "WFToTDlg.h"
@@ -109,8 +107,8 @@ END_MESSAGE_MAP()
 // 
 //	Called By:			
 //
-//	Coded By:			Larry L. Biehl			Date: 07/29/1998
-//	Revised By:			Larry L. Biehl			Date: 05/26/2017	
+//	Coded By:			Larry L. Biehl			Date: 07/29/98
+//	Revised By:			Larry L. Biehl			Date: 07/29/98	
 
 Boolean 
 CMFieldsToThematicDialog::DoDialog(
@@ -119,7 +117,7 @@ CMFieldsToThematicDialog::DoDialog(
 {  
 	DialogSelectArea					dialogSelectArea;     
 	
-	INT_PTR								returnCode;
+	SInt16								returnCode;	
 	
 	Boolean								continueFlag = FALSE;						
 

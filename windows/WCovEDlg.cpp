@@ -1,10 +1,10 @@
 // WCovEDlg.cpp : implementation file
-//   
-// Revised by Larry Biehl on 05/26/2017
-//
+//             
                    
-#include "SMulSpec.h"                     
+#include "SMulSpec.h"
+                      
 #include "WCovEDlg.h"
+
 #include	"SExtGlob.h"   	
 
 extern void 		EvaluateCovariancesDialogOK (
@@ -128,8 +128,8 @@ END_MESSAGE_MAP()
 // 
 //	Called By:			Dialog in MDisMult.cpp
 //
-//	Coded By:			Larry L. Biehl			Date: 04/26/1996
-//	Revised By:			Larry L. Biehl			Date: 05/26/2017	
+//	Coded By:			Larry L. Biehl			Date: 04/26/96
+//	Revised By:			Larry L. Biehl			Date: 05/13/98	
 
 Boolean 
 CMEvalCovarianceDialog::DoDialog(
@@ -138,7 +138,7 @@ CMEvalCovarianceDialog::DoDialog(
 {  
 	Boolean						continueFlag = FALSE; 
 	
-	INT_PTR						returnCode;
+	SInt16						returnCode;	 
 	
 	UInt16						index;						
 

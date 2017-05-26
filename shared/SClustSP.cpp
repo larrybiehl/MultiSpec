@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -13,7 +13,7 @@
 //
 //	Revision number:		3.0
 //
-//	Revision date:			05/26/2017
+//	Revision date:			12/16/2016
 //
 //	Language:				C
 //
@@ -59,8 +59,6 @@
 //	Include files:			"MultiSpecHeaders"
 //								"multiSpec.h"
 
-#include	"SMulSpec.h"
-
 #if defined multispec_mac 
 #define IDC_ClusterTrainingAreas			12 
 #define IDC_LineStart						19 
@@ -72,14 +70,14 @@
 #endif	// defined multispec_mac 
 
 #if defined multispec_win    
-//#include	"SMulSpec.h" 
+#include	"SMulSpec.h" 
 #include "CImagVew.h"
 #include "WClSPDlg.h" 
 #include "SExtGlob.h"
 #endif	// defined multispec_win    
 
 #if defined multispec_lin    
-//#include	"SMulSpec.h" 
+#include	"SMulSpec.h" 
 #include "LImageView.h"
 #include "LClSPDlg.h" 
 #include "SExtGlob.h"
@@ -247,7 +245,7 @@ ClusterType* gClusterHead; // ptr to head of cluster list.
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -389,7 +387,7 @@ Boolean ClusterOnePassControl(
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -493,7 +491,7 @@ Boolean GetOnePassClusterCenters(
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -657,7 +655,7 @@ SInt16 OnePassCluster(
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -698,24 +696,23 @@ SInt16 OnePassCluster(
 //							GetOnePassClusterCenters in clusterSinglePass.c
 //
 //	Coded By:			Eric E. Demaree		Date: Spring 1989
-//	Revised By:			Larry L. Biehl			Date: 05/12/2017	
+//	Revised By:			Larry L. Biehl			Date: 07/21/2011	
 
 Boolean OnePassClusterAreas(
-				FileIOInstructionsPtr			fileIOInstructionsPtr,
-				HUInt16Ptr*							dataClassPtrPtr,
-				SInt16								firstLineCode) 
-{
-			// Define local structures and variables.	
+        FileIOInstructionsPtr fileIOInstructionsPtr,
+        HUInt16Ptr* dataClassPtrPtr,
+        SInt16 firstLineCode) {
+   // Define local structures and variables.	
 
-	ldiv_t								lDivideStruct;
-   Point									point;
+   ldiv_t lDivideStruct;
+   Point point;
 
-   double								criticalDistance,
-											currentDistance, // Distance from pix to current 
-											//cluster. 
-											closestDistance, // Distance from pix to closest 
-											//cluster.	
-											minutesLeft;
+   double criticalDistance,
+           currentDistance, // Distance from pix to current 
+           //		cluster. 
+           closestDistance, // Distance from pix to closest 
+           //		cluster.	
+           minutesLeft;
 
    ClusterType *closestCluster, // cluster closest to current 	
            //		pixel. 								
@@ -783,32 +780,31 @@ Boolean OnePassClusterAreas(
            returnFlag = TRUE;
 
 
-			// Initialize local variables. 													
+   // Initialize local variables. 													
 
    numberChannels = gClusterSpecsPtr->numberChannels;
    totalNumberAreas = gClusterSpecsPtr->totalNumberAreas;
    columnInterval = gClusterSpecsPtr->clusterColumnInterval;
    lineInterval = gClusterSpecsPtr->clusterLineInterval;
-   channelsPtr = (UInt16*)GetHandlePointer (gClusterSpecsPtr->channelsHandle,
-														  kNoLock,
-														  kNoMoveHi);
+   channelsPtr = (UInt16*) GetHandlePointer(gClusterSpecsPtr->channelsHandle,
+           kNoLock,
+           kNoMoveHi);
    outputBufferPtr = (CType*) gOutputBufferPtr;
 
    criticalDistance = gClusterSpecsPtr->criticalDistance1;
 
    windowPtr = FindProjectBaseImageWindowPtr();
 
-   imageOverlayInfoPtr = GetImageOverlayInfoPtr (gClusterSpecsPtr->imageOverlayIndex,
-																  kLock,
-																  NULL);
+   imageOverlayInfoPtr = GetImageOverlayInfoPtr(gClusterSpecsPtr->imageOverlayIndex,
+           kLock,
+           NULL);
 
    if (gClusterSpecsPtr->clustersFrom == kTrainingType)
-      LoadDItemValue (gStatusDialogPtr,
-								IDC_Status5,
-								(SInt32)gClusterSpecsPtr->totalNumberAreas);
+      LoadDItemValue(gStatusDialogPtr,
+           IDC_Status5,
+           (SInt32) gClusterSpecsPtr->totalNumberAreas);
 
-   if (firstLineCode != 1) 
-		{
+   if (firstLineCode != 1) {
       criticalDistance = gClusterSpecsPtr->criticalDistance2;
 
       ShowStatusDialogItemSet(kStatusField);
@@ -820,12 +816,12 @@ Boolean OnePassClusterAreas(
       if (gClusterSpecsPtr->clustersFrom == kAreaType)
          ShowStatusDialogItemSet(kStatusMinutes);
 
-		} // end "if (firstLineCode != 1)" 
+   } // end "if (firstLineCode != 1)" 
 
    if (distanceType == 2)
       criticalDistance *= criticalDistance;
 
-			//	Used for standard deviation type only.													
+   //			Used for standard deviation type only.													
    //
    // criticalDistance1Squared = gClusterSpecsPtr->criticalDistance1 * 
    //   													gClusterSpecsPtr->criticalDistance1;
@@ -833,54 +829,52 @@ Boolean OnePassClusterAreas(
 
    createImageOverlayFlag = FALSE;
    localDataClassPtr = NULL;
-   if (dataClassPtrPtr != NULL) 
-		{
+   if (dataClassPtrPtr != NULL) {
       localDataClassPtr = *dataClassPtrPtr;
 
       if (localDataClassPtr != NULL)
          createImageOverlayFlag = (gOutputCode & kCreateImageOverlayCode);
 
-		} // end "if (dataClassPtrPtr != NULL)"
+   } // end "if (dataClassPtrPtr != NULL)"
 
    fieldNumber = 0;
    lastClassIndex = -1;
    lastFieldIndex = -1;
 
-			// Intialize the nextTime variable to indicate when the next check	
-			// should occur for a command-.													
+   // Intialize the nextTime variable to indicate when the next check	
+   // should occur for a command-.													
 
    gNextTime = TickCount();
    linuxtick = 0;
 
-			// Save the pointer to the cluster class assignments in case it is needed
-			// for the offscreen buffer assignments.
+   // Save the pointer to the cluster class assignments in case it is needed
+   // for the offscreen buffer assignments.
 
    savedDataClassPtr = localDataClassPtr;
 
    offScreenBufferPtr = GetImageOverlayOffscreenPointer(imageOverlayInfoPtr);
 
-			// Loop by number of cluster areas.												
+   // Loop by number of cluster areas.												
 
-   for (areaNumber = 1; areaNumber <= totalNumberAreas; areaNumber++) 
-		{
-				// Initialize status variables.												
+   for (areaNumber = 1; areaNumber <= totalNumberAreas; areaNumber++) {
+      // Initialize status variables.												
 
       lineCount = 0;
       linesDone = 0;
 
-				// Get information for next cluster area.									
+      // Get information for next cluster area.									
 
-      if (!GetNextClusterArea (gProjectInfoPtr,
-										  channelsPtr,
-										  numberChannels,
-										  areaNumber,
-										  &gNextMinutesLeftTime,
-										  &lastClassIndex,
-										  &lastFieldIndex,
-										  &linesLeft))
+      if (!GetNextClusterArea(gProjectInfoPtr,
+              channelsPtr,
+              numberChannels,
+              areaNumber,
+              &gNextMinutesLeftTime,
+              &lastClassIndex,
+              &lastFieldIndex,
+              &linesLeft))
          return (FALSE);
 
-				// Initialize local image area variables.
+      // Initialize local image area variables.
 
       lineStart = gAreaDescription.lineStart;
       lineEnd = gAreaDescription.lineEnd;
@@ -891,14 +885,13 @@ Boolean OnePassClusterAreas(
       rgnHandle = gAreaDescription.rgnHandle;
       pointType = gAreaDescription.pointType;
 
-      if (firstLineCode == 1) 
-			{
-					// Initialization for first line of single pass cluster.			
+      if (firstLineCode == 1) {
+         // Initialization for first line of single pass cluster.			
 
          lineEnd = lineStart;
          columnInterval = 1;
 
-			} // end "if (firstLineCode == 1)" 
+      } // end "if (firstLineCode == 1)" 
 
       if (firstLineCode == 2) {
          // Initialization for rest of lines for single pass cluster.	
@@ -947,15 +940,13 @@ Boolean OnePassClusterAreas(
       if (lineEnd == 0)
          lineStart = 1;
 
-				// Loop by rest of lines for cluster area.								
+      // Loop by rest of lines for cluster area.								
 
-      for (line = lineStart; line <= lineEnd; line += lineInterval) 
-			{
+      for (line = lineStart; line <= lineEnd; line += lineInterval) {
          // Update dialog status information if needed.						
 
          lineCount++;
-         if (TickCount() >= gNextStatusTime) 
-				{
+         if (TickCount() >= gNextStatusTime) {
             LoadDItemValue(gStatusDialogPtr,
                     IDC_Status8,
                     (SInt32) lineCount);
@@ -964,46 +955,43 @@ Boolean OnePassClusterAreas(
                     (SInt32) gTotalNumberOfClusters);
             gNextStatusTime = TickCount() + gNextStatusTimeOffset;
 
-				} // end "if ( TickCount() >= gNextStatusTime)" 
+         } // end "if ( TickCount() >= gNextStatusTime)" 
 
-					// Exit routine if user has "command period" down					
-#			ifndef multispec_lin
-				if (TickCount() >= gNextTime) 
-#			else
-				if (TickCount() > gNextTime + linuxtick) 
-#			endif
-					{
-					if (gOutputCode & kCreateImageOverlayCode && line > lineStart) 
-						{
-						InvalidateWindow(windowPtr, kImageArea, FALSE);
+         // Exit routine if user has "command period" down					
+#ifndef multispec_lin
+         if (TickCount() >= gNextTime) {
+#else
+          if (TickCount() > gNextTime + linuxtick) {
+#endif
+            if (gOutputCode & kCreateImageOverlayCode && line > lineStart) {
+               InvalidateWindow(windowPtr, kImageArea, FALSE);
 
-#						if defined multispec_win  
-							windowPtr->UpdateWindow();
-#						endif	// defined multispec_win  
+#if defined multispec_win  
+               windowPtr->UpdateWindow();
+#endif	// defined multispec_win  
 
-#						if defined multispec_lin
-							linuxtick++;
-							gActiveImageWindow->OnUpdate(NULL, NULL);
-							(gActiveImageWindow->m_Canvas)->Update();
-#						endif
+#if defined multispec_lin
+               linuxtick++;
+               gActiveImageWindow->OnUpdate(NULL, NULL);
+               (gActiveImageWindow->m_Canvas)->Update();
+#endif
 
-						} // end "if (gOutputCode & kCreateImageOverlayCode && ..."
+            } // end "if (gOutputCode & kCreateImageOverlayCode && ..."
 
-			if (!CheckSomeEvents(osMask + keyDownMask + updateMask + mDownMask + mUpMask)) 
-				{
-				returnFlag = FALSE;
-				break;
+            if (!CheckSomeEvents(osMask + keyDownMask + updateMask + mDownMask + mUpMask)) {
+               returnFlag = FALSE;
+               break;
 
-				} // end "if ( !CheckSomeEvents (..."
+            } // end "if ( !CheckSomeEvents (..."
 
-			} // end "if ( TickCount() >= nextTime)" 
+         } // end "if ( TickCount() >= nextTime)" 
 
-					// Set vertical (line) point in case it is needed for polygonal areas.	
+         // Set vertical (line) point in case it is needed for polygonal areas.	
 
          point.v = (SInt16) line;
 
-					// Get all requested channels for first line of image data.  	
-					// Return if there is a file IO error.									
+         // Get all requested channels for first line of image data.  	
+         // Return if there is a file IO error.									
 
          errCode = GetLineOfData(fileIOInstructionsPtr,
                  line,
@@ -1196,26 +1184,24 @@ Boolean OnePassClusterAreas(
 
             } // end "for (sample=startSample; sample<=numberSamples; sample++)" 
 
-            if (createImageOverlayFlag) 
-					{
-               CopyToOffscreenBuffer (fileIOInstructionsPtr,
-													imageOverlayInfoPtr,
-													gClusterSpecsPtr->imageOverlayIndex,
-													FindProjectBaseImageWindowInfoHandle(),
-													line,
-													firstColumn,
-													columnInterval,
-													numberSamples,
-													lineStart,
-													rgnHandle,
-													(HUCharPtr) savedDataClassPtr,
-													offScreenBufferPtr,
-													1,
-													TRUE);
+            if (createImageOverlayFlag) {
+               CopyToOffscreenBuffer(imageOverlayInfoPtr,
+                       gClusterSpecsPtr->imageOverlayIndex,
+                       FindProjectBaseImageWindowInfoHandle(),
+                       line,
+                       firstColumn,
+                       columnInterval,
+                       numberSamples,
+                       lineStart,
+                       rgnHandle,
+                       (HUCharPtr) savedDataClassPtr,
+                       offScreenBufferPtr,
+                       1,
+                       TRUE);
 
                savedDataClassPtr = localDataClassPtr;
 
-					} // end "if (createImageOverlayFlag)"
+            } // end "if (createImageOverlayFlag)"
 
             if (pointType != kMaskType) {
                // Update firstColumn so that columnInterval samples are			
@@ -1318,7 +1304,7 @@ Boolean OnePassClusterAreas(
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1344,112 +1330,124 @@ Boolean OnePassClusterDialog(
 				FileInfoPtr							fileInfoPtr,
 				DialogPtr							parentDialogPtr) 
 {
-   Boolean returnFlag;
+	Boolean								returnFlag;
 
-#if defined multispec_mac
+#	if defined multispec_mac
+   DialogSelectArea					dialogSelectArea;
 
-   DialogSelectArea dialogSelectArea;
+   DialogPtr							dialogPtr;
 
-   DialogPtr dialogPtr;
+   double								criticalDistance1,
+											criticalDistance2;
 
-   double criticalDistance1,
-           criticalDistance2;
+   UInt16*								localClassAreaPtr = NULL;
 
-   UInt16 *localClassAreaPtr = NULL;
+   Handle								okHandle,
+											theHandle;
 
-   Handle okHandle,
-           theHandle;
+   Rect									theBox;
 
-   Rect theBox;
+   SInt32								minClusterSize,
+											theNum;
 
-   SInt32 minClusterSize,
-           theNum;
+   UInt32								localNumberClassAreas;
 
-   UInt32 localNumberClassAreas;
+   SInt16								clustersFrom,
+											itemHit,
+											theType;
 
-   SInt16 clustersFrom,
-           itemHit,
-           theType;
+   UInt16								distanceDecimalDigits;
 
-   UInt16 distanceDecimalDigits;
-
-   Boolean modalDone;
+   Boolean								modalDone;
 
 
-   // Initialize local variables.													
+			// Initialize local variables.
 
    dialogPtr = NULL;
 
-   returnFlag = GetDialogLocalVectors(NULL,
-           NULL,
-           NULL,
-           &localClassAreaPtr,
-           NULL,
-           NULL,
-           NULL,
-           NULL);
+   returnFlag = GetDialogLocalVectors (NULL,
+												  NULL,
+												  NULL,
+												  &localClassAreaPtr,
+												  NULL,
+												  NULL,
+												  NULL,
+												  NULL);
 
-   // Get the modal dialog for the one pass cluster specification.		
+			// Get the modal dialog for the one pass cluster specification.
 
    if (returnFlag)
-      dialogPtr = LoadRequestedDialog(
-           kOnePassClusterSpecificationID, kCopyScrap, 1, 2);
+      dialogPtr = LoadRequestedDialog (
+								kOnePassClusterSpecificationID, kCopyScrap, 1, 2);
 
-   if (dialogPtr == NULL) {
-      ReleaseDialogLocalVectors(NULL,
-              NULL,
-              NULL,
-              localClassAreaPtr,
-              NULL,
-              NULL,
-              NULL,
-              NULL);
-      return (FALSE);
+   if (dialogPtr == NULL)
+		{
+      ReleaseDialogLocalVectors (NULL,
+											  NULL,
+											  NULL,
+											  localClassAreaPtr,
+											  NULL,
+											  NULL,
+											  NULL,
+											  NULL);
+																					return (FALSE);
 
-   } // end "if (dialogPtr == NULL)" 
+		}	// end "if (dialogPtr == NULL)"
 
-   // Set Procedure pointers for those dialog items that need them.								
+			// Set Procedure pointers for those dialog items that need them.
 
-   SetDialogItemDrawRoutine(dialogPtr, 26, gHiliteOKButtonPtr);
+   SetDialogItemDrawRoutine (dialogPtr, 26, gHiliteOKButtonPtr);
 
-   SetDialogItemDrawRoutine(dialogPtr, 28, gDrawDialogClassPopUpPtr);
+   SetDialogItemDrawRoutine (dialogPtr, 28, gDrawDialogClassPopUpPtr);
 
-   OnePassClusterDialogInitialize(dialogPtr,
-           localClassAreaPtr,
-           &minClusterSize,
-           &criticalDistance1,
-           &criticalDistance2,
-           &distanceDecimalDigits,
-           &clustersFrom,
-           &gClassSelection,
-           &localNumberClassAreas,
-           &dialogSelectArea);
+   OnePassClusterDialogInitialize (dialogPtr,
+											  localClassAreaPtr,
+											  &minClusterSize,
+											  &criticalDistance1,
+											  &criticalDistance2,
+											  &distanceDecimalDigits,
+											  &clustersFrom,
+											  &gClassSelection,
+											  &localNumberClassAreas,
+											  &dialogSelectArea);
 
-   // Save handle for the OK button for use later.								
+			// Save handle for the OK button for use later.
 
    GetDialogItem(dialogPtr, 1, &theType, &okHandle, &theBox);
 
-   //	Load default Minimum Cluster Size.											
+			//	Load default Minimum Cluster Size.
 
    LoadDItemValue(dialogPtr, 6, minClusterSize);
 
-   //	Load default Critical Distance 1.											
+			//	Load default Critical Distance 1.
 
    LoadDItemRealValue(dialogPtr, 8, criticalDistance1, distanceDecimalDigits);
 
-   //	Load default Critical Distance 2.											
+			//	Load default Critical Distance 2.
 
    LoadDItemRealValue(dialogPtr, 10, criticalDistance2, distanceDecimalDigits);
 
-   // Training areas.																	
+			// Training areas.
 
    SetDLogControl(dialogPtr, 12, clustersFrom == kTrainingType);
 
-   // Selected Image area.																
+			// Selected Image area.
 
    SetDLogControl(dialogPtr, 13, clustersFrom == kAreaType);
-
-   // Center the dialog and then show it.											
+																		
+			//	Set the draw routine for the class popup box.
+	/*
+	SetDialogItemDrawRoutine (dialogPtr, 
+										&theBox,
+										27,
+										28,
+										NULL,
+										&gDrawDialogClassPopUpPtr,
+										37,
+										gPopUpAllSubsetMenu,
+										gClassSelection);
+	*/
+			// Center the dialog and then show it.
 
    ShowDialogWindow(
            dialogPtr, kOnePassClusterSpecificationID, kSetUpDFilterTable);
@@ -1457,7 +1455,7 @@ Boolean OnePassClusterDialog(
    gDialogItemDescriptorPtr[8] = kDItemReal;
    gDialogItemDescriptorPtr[10] = kDItemReal;
 
-   // Set default text selection to first edit text item						
+			// Set default text selection to first edit text item
 
    SelectDialogItemText(dialogPtr, 6, 0, INT16_MAX);
 
@@ -1465,12 +1463,13 @@ Boolean OnePassClusterDialog(
    itemHit = 0;
    do {
       ModalDialog(gProcessorDialogFilterPtr, &itemHit);
-      if (itemHit > 2) {
-         // If itemHit was a number item, check for bad values.  If		
-         // itemHit was a radio button make appropriate control 			
-         // settings to indicate to the user the present selection.		
-         // Get the handle to the itemHit.  For number value items, get	
-         //	the string and	convert it to a number.								
+      if (itemHit > 2)
+			{
+					// If itemHit was a number item, check for bad values.  If
+					// itemHit was a radio button make appropriate control 			
+					// settings to indicate to the user the present selection.		
+					// Get the handle to the itemHit.  For number value items, get	
+					//	the string and	convert it to a number.								
 
          GetDialogItem(dialogPtr, itemHit, &theType, &theHandle, &theBox);
          if (theType == 16) {
@@ -1479,7 +1478,8 @@ Boolean OnePassClusterDialog(
 
          } // end "if (theType == 16)" 
 
-         switch (itemHit) {
+         switch (itemHit)
+				{
             case 6: //	 Minimum cluster size  
                //				   if (theNum == 0 || theNum > LONG_MAX)	
                //						NumberErrorAlert ( (SInt32)gClusterSpecsPtr->minClusterSize,
@@ -1501,8 +1501,7 @@ Boolean OnePassClusterDialog(
                //						 							itemHit);
                break;
 
-            case 12: // Clusters from training fields 
-
+            case 12: // Clusters from training fields
                clustersFrom = kTrainingType;
                SetControlValue((ControlHandle) theHandle, 1);
                SetDLogControl(dialogPtr, 13, 0);
@@ -1510,8 +1509,7 @@ Boolean OnePassClusterDialog(
                OnePassClusterDialogOnTrainingAreas(dialogPtr);
                break;
 
-            case 13: // Clusters from selected image area. 
-
+            case 13: // Clusters from selected image area.
                clustersFrom = kAreaType;
                SetControlValue((ControlHandle) theHandle, 1);
                SetDLogControl(dialogPtr, 12, 0);
@@ -1526,8 +1524,7 @@ Boolean OnePassClusterDialog(
             case 23: //	 cluster from columnEnd  
             case 24: //	 cluster from columnInterval  		
             case 25: // Entire area to selected area switch.	
-            case 26: // Entire area to selected area switch.			
-
+            case 26: // Entire area to selected area switch.
                DialogLineColumnHits(&dialogSelectArea,
                        dialogPtr,
                        itemHit,
@@ -1543,8 +1540,9 @@ Boolean OnePassClusterDialog(
                        gClassSelection,
                        kPopUpAllSubsetMenuID);
 
-               if (itemHit == kSubsetMenuItem) {
-                  // Subset of classes to be used.								
+               if (itemHit == kSubsetMenuItem)
+						{
+								// Subset of classes to be used.
 
                   itemHit = ClassDialog(
                           &localNumberClassAreas,
@@ -1554,25 +1552,25 @@ Boolean OnePassClusterDialog(
                           gClassSelection,
                           okHandle);
 
-               } // end "if (itemHit == kSubsetMenuItem)" 
+						} // end "if (itemHit == kSubsetMenuItem)"
 
                if (itemHit != 0)
                   gClassSelection = itemHit;
 
-               // Make certain that the correct label is drawn in the	
-               // class pop up box.													
+							// Make certain that the correct label is drawn in the
+							// class pop up box.
 
-               //					InvalRect (&theBox);
+					//InvalRect (&theBox);
                InvalWindowRect(GetDialogWindow(dialogPtr), &theBox);
                break;
 
-         } // end "switch (itemHit)" 
+				}	// end "switch (itemHit)"
 
-      }// end "if (itemHit > 2)" 
+			}	// end "if (itemHit > 2)"
 
       else if (itemHit > 0) // and itemHit <= 2 
-      {
-         // Check minimum cluster size
+			{
+					// Check minimum cluster size
 
          if (itemHit == 1)
             itemHit = CheckMaxValue(dialogPtr,
@@ -1581,7 +1579,7 @@ Boolean OnePassClusterDialog(
                  LONG_MAX,
                  kDisplayRangeAlert);
 
-         // Check critical distance 1
+					// Check critical distance 1
 
          if (itemHit == 1)
             itemHit = CheckMaxRealValue(dialogPtr,
@@ -1590,7 +1588,7 @@ Boolean OnePassClusterDialog(
                  kZeroNotAllowed,
                  kDisplayRangeAlert);
 
-         // Check critical distance 2
+					// Check critical distance 2
 
          if (itemHit == 1)
             itemHit = CheckMaxRealValue(dialogPtr,
@@ -1599,19 +1597,19 @@ Boolean OnePassClusterDialog(
                  kZeroNotAllowed,
                  kDisplayRangeAlert);
 
-         // If item hit is 1, check if cluster from area line-column 	
-         // values make sense.  If they don't, sound an alert and make 	
-         // item  hit equal to 0 to allow user to make changes.			
+					// If item hit is 1, check if cluster from area line-column
+					// values make sense.  If they don't, sound an alert and make 	
+					// item  hit equal to 0 to allow user to make changes.			
 
          if (itemHit == 1 && clustersFrom == kAreaType)
-            itemHit = CheckLineColValues(
-                 &dialogSelectArea,
-                 gClusterSpecsPtr->clusterLineStart,
-                 gClusterSpecsPtr->clusterColumnStart,
-                 dialogPtr);
+            itemHit = CheckLineColValues (
+									  &dialogSelectArea,
+									  gClusterSpecsPtr->clusterLineStart,
+									  gClusterSpecsPtr->clusterColumnStart,
+									  dialogPtr);
 
          if (itemHit == 1) // User selected OK for information 
-         {
+				{
             modalDone = TRUE;
             returnFlag = TRUE;
 
@@ -1624,49 +1622,51 @@ Boolean OnePassClusterDialog(
                     localNumberClassAreas,
                     &dialogSelectArea);
 
-         } // end "if (itemHit == 1)" 
+				} // end "if (itemHit == 1)"
 
          if (itemHit == 2) // User selected Cancel for information 
-         {
+				{
             modalDone = TRUE;
             returnFlag = FALSE;
-         }
+				}
 
-      } // end "else if (itemHit > 0) and itemHit <= 2" 
+			} // end "else if (itemHit > 0) and itemHit <= 2"
 
-   } while (!modalDone);
+		} while (!modalDone);
 
-   ReleaseDialogLocalVectors(NULL,
-           NULL,
-           NULL,
-           localClassAreaPtr,
-           NULL,
-           NULL,
-           NULL,
-           NULL);
+   ReleaseDialogLocalVectors (NULL,
+										  NULL,
+										  NULL,
+										  localClassAreaPtr,
+										  NULL,
+										  NULL,
+										  NULL,
+										  NULL);
 
    CloseRequestedDialog(dialogPtr, kSetUpDFilterTable);
-#endif	// defined multispec_mac
+#	endif	// defined multispec_mac
 
-	#if defined multispec_win                
+#	if defined multispec_win
 		CMSinglePassClusterDialog* dialogPtr = NULL;
 
-		TRY{
+		TRY
+			{
 			dialogPtr = new CMSinglePassClusterDialog();
 
 			returnFlag = dialogPtr->DoDialog();
 
 			delete dialogPtr;
-		}
+			}
 
-		CATCH_ALL(e) {
+		CATCH_ALL(e)
+			{
 			MemoryMessage(0, kObjectMessage);
 			returnFlag = FALSE;
-		}
+			}
 		END_CATCH_ALL
-	#endif	// defined multispec_win
+#	endif	// defined multispec_win
 
-	#if defined multispec_lin                
+#	if defined multispec_lin
 		CMSinglePassClusterDialog* dialogPtr = NULL;
 
 		//dialogPtr = new CMSinglePassClusterDialog(wxTheApp->GetTopWindow());
@@ -1675,16 +1675,16 @@ Boolean OnePassClusterDialog(
 		returnFlag = dialogPtr->DoDialog();
 
 		delete dialogPtr;
-	#endif	// defined multispec_lin
+#	endif	// defined multispec_lin
 
    return (returnFlag);
 
-} // end "OnePassClusterDialog"    
+}		// end "OnePassClusterDialog"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1704,50 +1704,51 @@ Boolean OnePassClusterDialog(
 //	Coded By:			Larry L. Biehl			Date: 03/23/1999
 //	Revised By:			Larry L. Biehl			Date: 03/14/2012	
 
-void OnePassClusterDialogInitialize(
-        DialogPtr dialogPtr,
-        UInt16* localClassAreaPtr,
-        SInt32* minClusterSizePtr,
-        double* criticalDistance1Ptr,
-        double* criticalDistance2Ptr,
-        UInt16* distanceDecimalDigitsPtr,
-        SInt16* clustersFromPtr,
-        SInt16* classAreaSelectionPtr,
-        UInt32* numberClassAreasPtr,
-        DialogSelectArea* dialogSelectAreaPtr) {
-   SInt16 fieldsExistCode;
+void OnePassClusterDialogInitialize (
+				DialogPtr							dialogPtr,
+				UInt16*								localClassAreaPtr,
+				SInt32*								minClusterSizePtr,
+				double*								criticalDistance1Ptr,
+				double*								criticalDistance2Ptr,
+				UInt16*								distanceDecimalDigitsPtr,
+				SInt16*								clustersFromPtr,
+				SInt16*								classAreaSelectionPtr,
+				UInt32*								numberClassAreasPtr,
+				DialogSelectArea*					dialogSelectAreaPtr)
+{
+	SInt16								fieldsExistCode;
 
 
-   // Load the dialog local vectors
+			// Load the dialog local vectors
 
-   LoadDialogLocalVectors(NULL,
-           NULL,
-           NULL,
-           NULL,
-           NULL,
-           NULL,
-           NULL,
-           localClassAreaPtr,
-           gClusterSpecsPtr->clusterClassHandle,
-           gClusterSpecsPtr->numberClusterClasses,
-           NULL,
-           NULL,
-           NULL,
-           NULL,
-           NULL,
-           0,
-           NULL);
+   LoadDialogLocalVectors (NULL,
+									  NULL,
+									  NULL,
+									  NULL,
+									  NULL,
+									  NULL,
+									  NULL,
+									  localClassAreaPtr,
+									  gClusterSpecsPtr->clusterClassHandle,
+									  gClusterSpecsPtr->numberClusterClasses,
+									  NULL,
+									  NULL,
+									  NULL,
+									  NULL,
+									  NULL,
+									  0,
+									  NULL);
 
-   //	Load default Minimum Cluster Size.											
+			//	Load default Minimum Cluster Size.
 
    *minClusterSizePtr = gClusterSpecsPtr->minClusterSize;
 
-   //	Load default Critical Distances 1 & 2.										
+			//	Load default Critical Distances 1 & 2.
 
    *criticalDistance1Ptr = gClusterSpecsPtr->criticalDistance1;
    *criticalDistance2Ptr = gClusterSpecsPtr->criticalDistance2;
 
-   // Get the number of decimal digits to use for the distance measure.
+			// Get the number of decimal digits to use for the distance measure.
 
    *distanceDecimalDigitsPtr = 1;
    if (MIN(GetNumberWholeDigits(gClusterSpecsPtr->criticalDistance1),
@@ -1756,97 +1757,100 @@ void OnePassClusterDialogInitialize(
            GetNumberLeadingDecimalZeros(gClusterSpecsPtr->criticalDistance1),
            GetNumberLeadingDecimalZeros(gClusterSpecsPtr->criticalDistance2));
 
-   // Training areas.																	
+			// Training areas.
 
    *clustersFromPtr = gClusterSpecsPtr->clustersFrom;
 
    SInt16 lastField = -1;
-   fieldsExistCode = GetNextFieldArea(
-           gProjectInfoPtr,
-           NULL,
-           gProjectInfoPtr->numberStatisticsClasses,
-           &lastField,
-           -1,
-           kTrainingType,
-           kDontIncludeClusterFields);
+   fieldsExistCode = GetNextFieldArea (
+								  gProjectInfoPtr,
+								  NULL,
+								  gProjectInfoPtr->numberStatisticsClasses,
+								  &lastField,
+								  -1,
+								  kTrainingType,
+								  kDontIncludeClusterFields);
 
-   if (fieldsExistCode == -1) {
+   if (fieldsExistCode == -1)
+		{
       SetDLogControlHilite(dialogPtr, IDC_ClusterTrainingAreas, 255);
       if (gClusterSpecsPtr->clustersFrom == kTrainingType)
          *clustersFromPtr = kAreaType;
 
-   } // end "if (fieldsExistCode == -1)" 
+		}	// end "if (fieldsExistCode == -1)"
 
-   // Classes to use.											
-   //	Set routine to draw the class popup box.								
-   //	Make all classes the default												
+			// Classes to use.
+			//	Set routine to draw the class popup box.								
+			//	Make all classes the default												
 
-   if (fieldsExistCode >= 0) {
+   if (fieldsExistCode >= 0)
+		{
       *classAreaSelectionPtr = gClusterSpecsPtr->clusterClassSet;
       *numberClassAreasPtr = gClusterSpecsPtr->numberClusterClasses;
 
-   } // end "if (fieldsExistCode >= 0)"
+		}	// end "if (fieldsExistCode >= 0)"
 
-   // Initialize selected area structure.	
+			// Initialize selected area structure.
 
    SInt16 entireIconItem = 25;
    if (gAppearanceManagerFlag)
       entireIconItem = 26;
 
-   InitializeDialogSelectArea(dialogSelectAreaPtr,
-           gImageWindowInfoPtr,
-           gProjectSelectionWindow,
-           gClusterSpecsPtr->clusterColumnStart,
-           gClusterSpecsPtr->clusterColumnEnd,
-           gClusterSpecsPtr->clusterColumnInterval,
-           gClusterSpecsPtr->clusterLineStart,
-           gClusterSpecsPtr->clusterLineEnd,
-           gClusterSpecsPtr->clusterLineInterval,
-           19,
-           entireIconItem,
-           kAdjustToBaseImage);
+   InitializeDialogSelectArea (dialogSelectAreaPtr,
+										  gImageWindowInfoPtr,
+										  gProjectSelectionWindow,
+										  gClusterSpecsPtr->clusterColumnStart,
+										  gClusterSpecsPtr->clusterColumnEnd,
+										  gClusterSpecsPtr->clusterColumnInterval,
+										  gClusterSpecsPtr->clusterLineStart,
+										  gClusterSpecsPtr->clusterLineEnd,
+										  gClusterSpecsPtr->clusterLineInterval,
+										  19,
+										  entireIconItem,
+										  kAdjustToBaseImage);
 
-   // To entire image icon.															
-   //	Cluster selected area	
+			// To entire image icon.
+			//	Cluster selected area
 
-#if defined multispec_mac 
-   LoadLineColumnItems(dialogSelectAreaPtr, dialogPtr, TRUE);
+#	if defined multispec_mac
+		LoadLineColumnItems(dialogSelectAreaPtr, dialogPtr, TRUE);
 
-   if (gAppearanceManagerFlag)
-      HideDialogItem(dialogPtr, 25);
-   else // !gAppearanceManagerFlag
-      HideDialogItem(dialogPtr, 26);
-#endif	// defined multispec_mac  	
+		if (gAppearanceManagerFlag)
+			HideDialogItem(dialogPtr, 25);
+		else // !gAppearanceManagerFlag
+			HideDialogItem(dialogPtr, 26);
+#	endif	// defined multispec_mac
 
-#if defined multispec_win 
-   LoadLineColumnItems(dialogSelectAreaPtr, dialogPtr, FALSE);
-#endif	// defined multispec_win           
+#	if defined multispec_win
+		LoadLineColumnItems(dialogSelectAreaPtr, dialogPtr, FALSE);
+#	endif	// defined multispec_win
 
-   // Hide/Show dialog items relative to training areas or selected area.												
+			// Hide/Show dialog items relative to training areas or selected area.
 
-   if (*clustersFromPtr == kTrainingType) {
-      // If clusters from training areas, then only allow line and 		
-      // column intervals to show for definition.								
+   if (*clustersFromPtr == kTrainingType)
+		{
+				// If clusters from training areas, then only allow line and
+				// column intervals to show for definition.								
 
       OnePassClusterDialogOnTrainingAreas(dialogPtr);
 
-   }// end "if ( *clustersFromPtr == ... )" 
+		}	// end "if ( *clustersFromPtr == ... )"
 
    else // *clustersFromPtr != kTrainingType 
-   {
-      // If clusters from selection area, then only allow line and 		
-      // column start, end and intervals to show for definition.			
+		{
+				// If clusters from selection area, then only allow line and
+				// column start, end and intervals to show for definition.			
 
       OnePassClusterDialogOnImageArea(dialogPtr);
 
-   } // end "else *clustersFromPtr != ..." 
+		} // end "else *clustersFromPtr != ..."
 
-} // end "OnePassClusterDialogInitialize"   
+}	// end "OnePassClusterDialogInitialize"   
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1934,7 +1938,7 @@ void OnePassClusterDialogOK(
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1981,7 +1985,7 @@ void OnePassClusterDialogOnImageArea(
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

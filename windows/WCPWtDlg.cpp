@@ -1,7 +1,5 @@
 // WCPWtDlg.cpp : implementation file
 //
-// Revised by Larry Biehl on 05/26/2017
-//
 
 #include "SMulSpec.h"
 #include "WCPWtDlg.h" 
@@ -116,8 +114,8 @@ END_MESSAGE_MAP()
 // 
 //	Called By:			Dialog in MDisMult.cpp
 //
-//	Coded By:			Larry L. Biehl			Date: 12/21/1999
-//	Revised By:			Larry L. Biehl			Date: 05/26/2017	
+//	Coded By:			Larry L. Biehl			Date: 12/21/99
+//	Revised By:			Larry L. Biehl			Date: 12/28/99	
 
 SInt16 
 CMClassPairWeightDlg::DoDialog(
@@ -129,7 +127,7 @@ CMClassPairWeightDlg::DoDialog(
 {  
 //	CListBox* 							listBoxPtr;
 	
-	INT_PTR								returnCode;
+	SInt16								returnCode; 
 	
 	Boolean								OKFlag = FALSE; 
 	 

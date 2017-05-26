@@ -1,6 +1,6 @@
 // WApdfDlg.cpp : implementation file
 //    
-//	Revised by Larry Biehl on 05/26/2017
+//	Revised by Larry Biehl on 02/23/2017
 
 #include "SMulSpec.h"              
 #include "WMultiSpec.h" 
@@ -110,8 +110,8 @@ CMAppendFileDialog::DoDialog(
 				SInt32						newAfterLineChannel)
 
 {                                               
-	INT_PTR							returnCode;
-	SInt16							returnValue = -1;
+	SInt16							returnCode,
+									returnValue = -1;
 								
 
 	                          

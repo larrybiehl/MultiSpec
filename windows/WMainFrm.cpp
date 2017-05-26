@@ -145,7 +145,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CMDIFrameWnd)
 	ON_COMMAND(ID_PROC_REFORMAT, OnProcReformat)
 	ON_COMMAND(ID_FILE_OPEN, OnFileOpen)                             
 	ON_COMMAND(ID_FILE_OPEN_PROJECT, OnOpenProject)
-	ON_COMMAND(ID_PROC_UTIL_LIST_IMAGE_DESC, OnProcUtilListImageDesc) 
+	ON_COMMAND(ID_PROC_UTIL_LIST_IMAGE_DESC, OnProcUtilCreateStatImage) 
 	ON_COMMAND(ID_PROC_UTIL_CHECK_COVARIANCES, OnProcUtilCheckCovariances)
 	ON_COMMAND(ID_PROJ_CLEAR_STATS, OnProjClearStats)
 	ON_COMMAND(ID_PROC_STATISTICS, OnProcStatistics)
@@ -163,7 +163,8 @@ BEGIN_MESSAGE_MAP(CMainFrame, CMDIFrameWnd)
 	ON_COMMAND(ID_PROC_UTIL_PRIN_COMP_ANALYSIS, OnProcUtilPrinCompAnalysis)
 	ON_COMMAND(ID_PROC_LISTDATA, OnProcListdata)
 	ON_COMMAND(ID_PROC_FEATURE_SELECTION, OnProcFeatureSelection)
-	ON_COMMAND(ID_PROC_UTIL_BIPLOTS_OF_DATA, OnProcUtilBiplotsOfData)  
+	ON_COMMAND(ID_PROC_UTIL_BIPLOTS_OF_DATA, OnProcUtilBiplotsOfData) 
+	ON_COMMAND(ID_PROC_UTIL_CREATE_STAT_IMAGE, OnProcUtilCreateStatImage)
 	ON_COMMAND(ID_FILE_OPEN_THEMATIC, OnFileOpenThematic)
 	ON_WM_ACTIVATEAPP()
 	ON_COMMAND(ID_PROC_UTIL_CHECKTRANS_MATRIX, OnProcUtilCheckTransMatrix) 
@@ -728,8 +729,8 @@ CMainFrame::OnUpdateCheckTransMatrix(
 
 void CMainFrame::OnUpdateCreateStatImage(CCmdUI* pCmdUI)
 {                                                                                                                      
-	pCmdUI->Enable(FALSE);
-	//pCmdUI->Enable(TRUE);
+	//pCmdUI->Enable(FALSE);
+	pCmdUI->Enable(TRUE);
 	
 }
 
@@ -1266,7 +1267,13 @@ void CMainFrame::OnProcClassify(void)
 	
 }		// end "OnProcClassify" 
 
-
+void CMainFrame::OnProcUtilCreateStatImage(void)
+{
+	gProcessorCode = kStatisticsImageProcessor;
+	StatisticsImageControl();
+	gMemoryTypeNeeded = 0;
+	gProcessorCode = 0;
+}
 
 void 
 CMainFrame::OnProcUtilListImageDesc(void)

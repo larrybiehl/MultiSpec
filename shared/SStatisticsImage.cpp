@@ -14,7 +14,7 @@
 //
 //	Revision number:		3.0
 //
-//	Revision date:			12/16/2016
+//	Revision date:			07/01/2016
 //
 //	Language:				C
 //
@@ -69,6 +69,8 @@
 	#include	"SMulSpec.h"    
 //	#include	"WMosaicTwoImagesDialog.h" 
 	#include "SExtGlob.h"
+	#include "WStatImageDlg.h"
+#define  kStatisticsImageStrID          172
 #endif	// defined multispec_win
 
 #ifdef multispec_lin 
@@ -1766,7 +1768,7 @@ Boolean LoadStatisticsImageSpecs (
 // Called By:			StatisticsImageControl 
 //
 //	Coded By:			Larry L. Biehl			Date: 11/15/1991
-//	Revised By:			Larry L. Biehl			Date: 12/16/2016
+//	Revised By:			Larry L. Biehl			Date: 06/29/2016
 	
 Boolean StatisticsImageDialog (
 				FileInfoPtr							fileInfoPtr)
@@ -2127,7 +2129,7 @@ Boolean StatisticsImageDialog (
 			// Set default text selection to first edit text item						
 	
 	if (selectItem != 0)	
-		SelectDialogItemText (dialogPtr, selectItem, 0, INT16_MAX);
+		SelectDialogItemText (dialogPtr, selectItem, 0, INT_MAX);
 		
 	modalDone = FALSE;
 	itemHit = 0;
@@ -2265,7 +2267,7 @@ Boolean StatisticsImageDialog (
 					if (itemHit == 16)
 						{
 						ShowDialogItems (dialogPtr, 17, 20);
-						SelectDialogItemText (dialogPtr, 18, 0, INT16_MAX);
+						SelectDialogItemText (dialogPtr, 18, 0, INT_MAX);
 						
 						}		// end "if (itemHit == 16)"
 						
@@ -2301,7 +2303,7 @@ Boolean StatisticsImageDialog (
 					SetDLogControl (dialogPtr, 6, 0);
 					HideDialogItems (dialogPtr, 7, 12);
 					ShowDialogItems (dialogPtr, 21, 30);
-					SelectDialogItemText (dialogPtr, 25, 0, INT16_MAX);
+					SelectDialogItemText (dialogPtr, 25, 0, INT_MAX);
 					
 					break;
 						
@@ -2473,17 +2475,16 @@ Boolean StatisticsImageDialog (
 	CloseRequestedDialog (dialogPtr, kSetUpDFilterTable);
 #endif	// defined multispec_mac
 
-/*
+
 	#if defined multispec_win   
 	
-		CMMosaicTwoImagesDialog*		dialogPtr = NULL;
+	CMStatImageDialog*		dialogPtr = NULL;
 		
 		TRY
 			{ 
-			dialogPtr = new CMBiPlotDialog(); 
+			dialogPtr = new CMStatImageDialog();
 			
-			returnFlag = dialogPtr->DoDialog (fileInfoPtr,
-															outFileInfoPtr); 
+			returnFlag = dialogPtr->DoDialog (); 
 		                       
 			delete dialogPtr;
 			}
@@ -2496,7 +2497,7 @@ Boolean StatisticsImageDialog (
 		END_CATCH_ALL
 	
 	#endif	// defined multispec_win  
-*/	
+	
    
 #if defined multispec_lin
    try{

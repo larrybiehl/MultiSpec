@@ -1,11 +1,10 @@
 // MProjectionPursuitDialog.cpp : implementation file
 //
-// Revised by Larry Biehl on 05/26/2017
-//
 
 #include	"SMulSpec.h" 
 #include "WProjectionPursuitDialog.h" 
 #include "SExtGlob.h"
+#include ".\wprojectionpursuitdialog.h"
 
 extern void 		ProjectionPursuitDialogInitialize (
 							DialogPtr							dialogPtr,
@@ -143,14 +142,14 @@ END_MESSAGE_MAP()
 //	Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 03/23/2007
-//	Revised By:			Larry L. Biehl			Date: 05/26/2017	
+//	Revised By:			Larry L. Biehl			Date: 03/23/2007	
 
 Boolean 
 CMProjectionPursuitDialog::DoDialog(
 				ProjectionPursuitSpecsPtr	projectionPursuitSpecsPtr)
 
 {  
-	INT_PTR						returnCode;
+	SInt16						returnCode;
 	Boolean						continueFlag = FALSE;  								
 
 	                          

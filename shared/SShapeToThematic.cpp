@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2016)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -13,7 +13,7 @@
 //
 //	Revision number:		3.0
 //
-//	Revision date:			04/10/2017
+//	Revision date:			12/16/2016
 //
 //	Language:				C
 //
@@ -271,7 +271,7 @@ return isInside;
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2016)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -509,7 +509,7 @@ SInt16 ConvertPolygonShapeToClassNumber (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2016)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -791,7 +791,7 @@ Boolean ConvertShapeToClassNumber (
 /*
 // Currently not used; was done for a test.
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2016)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -868,7 +868,7 @@ UInt32 GetValueForRecordIndex (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2016)
 //							  c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -920,7 +920,7 @@ Boolean IsPointInPolygon (
 
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2016)
 //							  c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -986,7 +986,7 @@ Boolean IsPointInPolygon2 (
 
 #if include_gdal_capability
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2016)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1093,7 +1093,7 @@ Boolean ListShapeDBFFieldNames (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2016)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1114,7 +1114,7 @@ Boolean ListShapeDBFFieldNames (
 // Called By:			CreateThematicSupportFile in SFileIO.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 05/05/2013
-//	Revised By:			Larry L. Biehl			Date: 04/10/2017 
+//	Revised By:			Larry L. Biehl			Date: 04/28/2016 
                        
 void LoadShapeToThematicClassNames (
 				ShapeInfoPtr						shapeInfoPtr,
@@ -1154,7 +1154,7 @@ void LoadShapeToThematicClassNames (
 	
 	Ptr									vectorDataPtr;
 
-	SInt32								numberRecords = 0;
+	SInt32								numberRecords;
 	
 	UInt32								identifier,
 											index,
@@ -1348,7 +1348,7 @@ void LoadShapeToThematicClassNames (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2016)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1697,7 +1697,7 @@ void LoadShapeToThematicDialogOK (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2016)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1805,7 +1805,7 @@ Boolean LoadShapeToThematicSpecs (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2016)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1843,7 +1843,7 @@ Boolean PointInRectangle (
  
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2016)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1997,7 +1997,7 @@ SInt16 SetClassInMaskImage (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2016)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //

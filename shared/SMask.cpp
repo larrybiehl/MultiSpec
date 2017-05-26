@@ -13,7 +13,7 @@
 //
 //	Revision number:		2.9
 //
-//	Revision date:			04/28/2017
+//	Revision date:			03/19/2017
 //
 //	Language:				C
 //
@@ -48,9 +48,6 @@
 
 #include "SExtGlob.h" 
 
-
-extern Handle LoadMaskFileInfo (
-							CMFileStream*						maskFileStreamPtr);
 
 
 			// Prototype descriptions for routines in this file that are only		
@@ -249,7 +246,7 @@ SInt16 CheckCurrentMaskFields (
 // Called By:	
 //
 //	Coded By:			Larry L. Biehl			Date: 01/08/1999
-//	Revised By:			Larry L. Biehl			Date: 04/28/2017
+//	Revised By:			Larry L. Biehl			Date: 12/19/2003
 
 Boolean CheckMaskFileInfo (
 				Handle								fileInfoHandle,
@@ -280,7 +277,8 @@ Boolean CheckMaskFileInfo (
 			
    if (fileInfoLoadedFlag)
    	{
-		fileInfoPtr = (FileInfoPtr)GetHandlePointer (fileInfoHandle);
+		fileInfoPtr = (FileInfoPtr)GetHandlePointer (
+											fileInfoHandle, kNoLock, kNoMoveHi);
 											
 				// Make certain that the file is of the correct size.	
 				
@@ -289,10 +287,7 @@ Boolean CheckMaskFileInfo (
 		fileStreamPtr = GetFileStreamPointer (fileInfoPtr);
 		*errCodePtr = GetSizeOfFile (fileStreamPtr, &fileSize);
 		
-				// Do not compare with expected size of the file since the file
-				// may be compressed.
-		//if (*errCodePtr == noErr && fileSize >= GetSizeOfImage(fileInfoPtr))
-		if (*errCodePtr == noErr)
+		if (*errCodePtr == noErr && fileSize >= GetSizeOfImage(fileInfoPtr))
 			sizeOKFlag = TRUE;
 				
 				// Beep to alert user that the size of the file does not match
@@ -392,7 +387,9 @@ UInt32 ConvertFieldNumberToMaskValue (
 	maxMaskValue = maskInfoPtr->maxMaskValue;
 																					
 	maskValueToFieldPtr = (HUInt16Ptr)GetHandlePointer(
-														maskInfoPtr->maskValueToFieldHandle);
+														maskInfoPtr->maskValueToFieldHandle,
+														kNoLock,
+														kNoMoveHi);
 	
 	for (index=1; index<=maxMaskValue; index++)
 		{	
@@ -438,10 +435,10 @@ void CloseMaskStructure (
 		CloseFile (maskInfoPtr->fileStreamHandle);
 		UnlockAndDispose (maskInfoPtr->fileStreamHandle); 
 		
-#		if defined multispec_win || defined multispec_lin                        		
+#if defined multispec_win || defined multispec_lin                        		
 			if (maskInfoPtr->fileStreamPtr != NULL)
 				delete maskInfoPtr->fileStreamPtr;				
-#		endif	// defined multispec_win || lin 
+		#endif	// defined multispec_win || lin 
 			
 		UnlockAndDispose (maskInfoPtr->maskHandle);
 		UnlockAndDispose (maskInfoPtr->maskValueToFieldHandle); 
@@ -607,7 +604,7 @@ Boolean DetermineIfClassesSameAsProjectClassNames (
 // Called By:			GetFieldBoundary in SProjectUtilities.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/28/1998
-//	Revised By:			Larry L. Biehl			Date: 04/28/2017
+//	Revised By:			Larry L. Biehl			Date: 09/03/2010
 
 UInt32 GetFirstMaskLine (
 				MaskInfoPtr							maskInfoPtr,
@@ -642,7 +639,10 @@ UInt32 GetFirstMaskLine (
 			
 	maskExistsInLine = 0;
 				
-	maskBufferPtr = (HUInt16Ptr)GetHandlePointer (maskInfoPtr->maskHandle);
+	maskBufferPtr = (HUInt16Ptr)GetHandlePointer(
+												maskInfoPtr->maskHandle,
+												kLock,
+												kNoMoveHi);
 			
 	continueFlag = (maskBufferPtr != NULL);
 		
@@ -867,7 +867,7 @@ Boolean GetMaskArea (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 12/08/1998
-//	Revised By:			Larry L. Biehl			Date: 04/28/2017
+//	Revised By:			Larry L. Biehl			Date: 02/25/1999
 
 Handle GetMaskFile (
 				Handle								inputFileInfoHandle,
@@ -898,7 +898,7 @@ Handle GetMaskFile (
 			// for mask image file.								
 	
 	if (continueFlag)
-		fileInfoHandle = MNewHandle (sizeof(MFileInfo));
+		fileInfoHandle = MNewHandle ( sizeof(MFileInfo) );
 		
 	if (fileInfoHandle != NULL)
 		{
@@ -924,7 +924,10 @@ Handle GetMaskFile (
 				
 			InitializeFileInfoStructure (fileInfoHandle, kNotPointer);
 			
-			fileInfoPtr = (FileInfoPtr)GetHandlePointer (fileInfoHandle);
+			fileInfoPtr = (FileInfoPtr)GetHandlePointer(
+													fileInfoHandle,
+													kLock,
+													kNoMoveHi);
 			
 			fileStreamPtr = GetFileStreamPointer (fileInfoPtr);
 		
@@ -933,7 +936,7 @@ Handle GetMaskFile (
 				
 			gGetFileImageType = 0;
 			
-			errCode = GetFile (fileStreamPtr, 
+			errCode = GetFile ( fileStreamPtr, 
 										numberFileTypes, 
 										gListTypes, 
 										NULL,
@@ -1047,16 +1050,16 @@ CMFileStream* GetMaskFileStreamPointer (
 												
 	if (maskInfoPtr != NULL)
 		{	            
-#		if defined multispec_mac  				
-			maskFileStreamPtr = (CMFileStream*)GetHandleStatusAndPointer (
+		#if defined multispec_mac  				
+			maskFileStreamPtr = (CMFileStream*)GetHandleStatusAndPointer(
 								maskInfoPtr->fileStreamHandle, 
 								handleStatusPtr,
 								kNoMoveHi);	
-#		endif	// defined multispec_mac 	
+		#endif	// defined multispec_mac 	
 	              
-#		if defined multispec_win || defined multispec_lin		
+#if defined multispec_win || defined multispec_lin		
 			maskFileStreamPtr = maskInfoPtr->fileStreamPtr;	 
-#		endif	// defined multispec_win || lin
+		#endif	// defined multispec_win || lin
 														
 		}		// end "if (maskInfoPtr != NULL)"                    
 		
@@ -1152,7 +1155,7 @@ MaskInfoPtr GetMaskInfoPointer (
 // Called By:			GetTotalNumberOfPixels in SUtility.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/22/1998
-//	Revised By:			Larry L. Biehl			Date: 04/28/2017
+//	Revised By:			Larry L. Biehl			Date: 08/23/2010
 
 SInt64 GetNumberPixelsInMaskArea (
 				MaskInfoPtr							maskInfoPtr,
@@ -1191,7 +1194,10 @@ SInt64 GetNumberPixelsInMaskArea (
 			
 	pixelCount = 0;
 				
-	maskBufferPtr = (HUInt16Ptr)GetHandlePointer (maskInfoPtr->maskHandle);
+	maskBufferPtr = (HUInt16Ptr)GetHandlePointer(
+												maskInfoPtr->maskHandle,
+												kLock,
+												kNoMoveHi);
 			
 	continueFlag = (maskBufferPtr != NULL);
 		
@@ -1295,7 +1301,7 @@ SInt64 GetNumberPixelsInMaskArea (
 // Called By:			ReadProjectFile in SProjFIO.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/08/1999
-//	Revised By:			Larry L. Biehl			Date: 05/03/2017
+//	Revised By:			Larry L. Biehl			Date: 03/15/2017
 
 Boolean GetSpecifiedMaskFile (
 				SInt16								maskSetCode,
@@ -1310,7 +1316,7 @@ Boolean GetSpecifiedMaskFile (
 	CMFileStream*						fileStreamPtr;
 	FileInfoPtr							fileInfoPtr;
 	
-	Handle								maskFileInfoHandle;
+	Handle								fileInfoHandle;
 											
 	SInt16								errCode,
 											promptStringNumber,
@@ -1326,32 +1332,36 @@ Boolean GetSpecifiedMaskFile (
 			// Get a handle to a block of memory to be used for file information 
 			// for mask image file.								
 	
-	maskFileInfoHandle = InitializeFileInfoStructure (NULL, kNotPointer);	
-		
+	fileInfoHandle = InitializeFileInfoStructure (NULL, kNotPointer);	
 				
-	fileInfoPtr = (FileInfoPtr)GetHandlePointer (maskFileInfoHandle);
+	fileInfoPtr = (FileInfoPtr)GetHandlePointer(
+											fileInfoHandle, kLock, kNoMoveHi);
 	
 	if (fileInfoPtr != NULL)
-		{		
+		{								
 				// For now assume that the mask image file is in the same
 				// directory as the project file. Therefore copy filestream
 				// variables from the project filestream structure to the
 				// mask file stream structure.
 			
 		fileStreamPtr = GetFileStreamPointer (fileInfoPtr);
-		
 		CMFileStream* projectFileStreamPtr = 
-											GetFileStreamPointer (gProjectInfoPtr);
-	
+												GetFileStreamPointer (gProjectInfoPtr);
+		
 				// Initialize variables in the structure.	
-			
-		InitializeFileStream (fileStreamPtr, projectFileStreamPtr);		
-
+				
+		InitializeFileStream (fileStreamPtr, projectFileStreamPtr);
+		
 		fileNamePtr = (FileStringPtr)GetFileNameCPointer (fileStreamPtr);
 		memcpy (fileNamePtr, (CharPtr)&maskFileNamePtr[1], maskFileNamePtr[0]+1);
 		
 		filePathPtr = (FileStringPtr)GetFilePathPPointer (fileStreamPtr);
-		filePathPtr[0] = (UInt8)strlen ((char*)&filePathPtr[1]);
+		filePathPtr[0] = strlen ((char*)&filePathPtr[1]);
+		
+				// Force the unicode name to be regenerated to match the
+				// mask file name.
+		
+		//SetFileDoesNotExist (fileStreamPtr, kKeepUTF8CharName);
 		
 				// Check if image file is in the same volume as the project			
 				// file. If it is, open a path to the file and return the			
@@ -1366,7 +1376,7 @@ Boolean GetSpecifiedMaskFile (
 			{
 					// Check if header and file size make sense.
 					
-			fileFoundFlag = CheckMaskFileInfo (maskFileInfoHandle, &errCode);
+			fileFoundFlag = CheckMaskFileInfo (fileInfoHandle, &errCode);
 				
 			if (!fileFoundFlag)
 				CloseFile (fileInfoPtr);
@@ -1382,7 +1392,7 @@ Boolean GetSpecifiedMaskFile (
 			if (maskSetCode == kTestMaskSet)
 				promptStringNumber = IDS_FileIO104;
 			
-			fileFoundFlag = UserLocateProjectMaskImage (maskFileInfoHandle, 
+			fileFoundFlag = UserLocateProjectMaskImage (fileInfoHandle, 
 																		promptStringNumber);
 			
 			}		// end "if (!fileFoundFlag && userPrompt)"
@@ -1390,19 +1400,19 @@ Boolean GetSpecifiedMaskFile (
 		}		// end "if (fileNamePtr && ...)" 
 	
 	if (fileFoundFlag)
-		{	
+		{		
 		returnCode = LoadMask (maskSetCode,
-										maskFileInfoHandle,
+										fileInfoHandle,
 										maskInfoPtr,
 										maskInfoPtr->fileLayer,
 										kCheckCurrentFields);
 								
 		if (returnCode == 1)
 			fileFoundFlag = FALSE;
-				
-		}	// end "if (fileFoundFlag)" 
+			
+		}		// end "if (fileFoundFlag)" 
 		
-	else	// !fileFoundFlag
+	else		// !fileFoundFlag
 		{
 					// Display an alert indicating that the mask file was not found
 					// and therefore not loaded in.	
@@ -1418,7 +1428,7 @@ Boolean GetSpecifiedMaskFile (
 		
 			// Dispose of temporary handle for mask file structures if needed.
 			
-	DisposeFileInfoHandle (maskFileInfoHandle);
+	DisposeFileInfoHandle (fileInfoHandle);
 		
 	return (fileFoundFlag);
 
@@ -1489,14 +1499,13 @@ void InitializeMaskStructure (
 //
 //	Parameters out:				
 //
-//	Value Returned:	0: Indicates that Mask was not loaded in
-//							1: Indicates that Mask was loaded in
+//	Value Returned:	None
 //
 // Called By:			GetSpecifiedMaskFile in SMask.cpp
 //							StatisticsDialogMaskCheck in SStatist.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/11/1998
-//	Revised By:			Larry L. Biehl			Date: 04/28/2017
+//	Revised By:			Larry L. Biehl			Date: 02/28/2017
 
 SInt16 LoadMask (
 				SInt16								maskSetCode,
@@ -1508,9 +1517,9 @@ SInt16 LoadMask (
 {
 	MaskInfo								maskInfo;  
 	 
-#	if defined multispec_win || defined multispec_lin
+#if defined multispec_win || defined multispec_lin
 		CMImageWindow* 					maskWindowCPtr = NULL;
-#	endif	// defined multispec_win || lin
+	#endif	// defined multispec_win || lin
 	
 	FileInfoPtr							maskFileInfoPtr;
 	FileIOInstructionsPtr			fileIOInstructionsPtr;
@@ -1552,11 +1561,15 @@ SInt16 LoadMask (
 	
 	Boolean								continueFlag;
 	
+	
 			
-	maskFileInfoPtr = (FileInfoPtr)GetHandlePointer (maskFileInfoHandle);
+	maskFileInfoPtr = (FileInfoPtr)GetHandlePointer(
+											maskFileInfoHandle,
+											kLock,
+											kNoMoveHi);
 											
 	if (maskFileInfoPtr == NULL)
-																					return (0);
+																					return (1);
 	
 			// Initialize local variables.
 																							
@@ -1574,7 +1587,7 @@ SInt16 LoadMask (
 																	fileImageType);
 	
 	if (maskWindowInfoHandle == NULL)
-																					return (0);
+																					return (1);
 																						
 			// Initialize local variables.
 	
@@ -1592,8 +1605,8 @@ SInt16 LoadMask (
 										&maskLayerInfoPtr, 
 										&maskFileInfoPtr);
 		
-	projectWindowInfoPtr = (WindowInfoPtr)GetHandlePointer (
-														gProjectInfoPtr->windowInfoHandle);
+	projectWindowInfoPtr = (WindowInfoPtr)GetHandlePointer(
+								gProjectInfoPtr->windowInfoHandle, kNoLock, kNoMoveHi);
 	
 	imageLineStart = 1;
 	imageLineEnd = projectWindowInfoPtr->maxNumberLines;
@@ -1637,7 +1650,10 @@ SInt16 LoadMask (
 		maskHandle = MNewHandle ((SInt64)maskNumberLines * 
 													(maskNumberColumns+1) * sizeof(UInt16) );
 				
-		maskPointer = (HUInt16Ptr)GetHandlePointer (maskHandle);
+		maskPointer = (HUInt16Ptr)GetHandlePointer(
+												maskHandle,
+												kLock,
+												kNoMoveHi);
 			
 		continueFlag = (maskPointer != NULL);
 		
@@ -1807,12 +1823,17 @@ SInt16 LoadMask (
 			
 		if (maskSetCode != kMaskSet)
 			{
-			maskValueToFieldPtr = (HUInt16Ptr)GetHandlePointer (
-																	maskValueToFieldHandle);
+			maskValueToFieldPtr = (HUInt16Ptr)GetHandlePointer(
+															maskValueToFieldHandle,
+															kLock,
+															kNoMoveHi);
 															
 					// Set the pointer value back to the beginning.
 															
-			maskPointer = (HUInt16Ptr)GetHandlePointer (maskHandle);
+			maskPointer = (HUInt16Ptr)GetHandlePointer(
+															maskHandle,
+															kNoLock,
+															kNoMoveHi);
 															
 					// First find which mask values are used.
 										
@@ -1868,17 +1889,17 @@ SInt16 LoadMask (
 	
 			// Dispose of the window structures for the mask file.
 	
-#	if defined multispec_mac
+	#if defined multispec_mac
 		UnlockAndDispose (maskWindowInfoPtr->layerInfoHandle);
 		UnlockAndDispose (maskWindowInfoHandle); 
-#	endif	// defined multispec_mac 
+	#endif	// defined multispec_mac 
 		
-#	if defined multispec_win || defined multispec_lin
+#if defined multispec_win || defined multispec_lin
 				// Make sure that the file information handle is not deleted yet.
 				
 		maskWindowInfoPtr->fileInfoHandle = NULL;
 		delete GetWindowClassPointer (maskWindowInfoHandle);
-#	endif	// defined multispec_win || lin
+	#endif	// defined multispec_win || lin
 		
 	if (continueFlag)
 		{
@@ -1890,7 +1911,7 @@ SInt16 LoadMask (
 		
 				// Close the current mask file.
 				
-		CloseFile (maskInfoPtr);
+		CloseFile(maskInfoPtr);
 	
 				// Unlock the new mask handles.
 				
@@ -1940,85 +1961,6 @@ SInt16 LoadMask (
   	
 	return (returnCode);
 	
-}		// end "LoadMask"  
-
-	
-
-//------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
-//
-//	Function name:		Boolean LoadMaskFileInfo
-//
-//	Software purpose:	The purpose of this routine is to load the mask file information
-//							structure given the file stream (file name).
-//
-//	Parameters in:					
-//
-//	Parameters out:				
-//
-//	Value Returned:	Handle to the mask file information structure
-//
-// Called By:
-//
-//	Coded By:			Larry L. Biehl			Date: 05/03/2017
-//	Revised By:			Larry L. Biehl			Date: 05/03/2017
-
-Handle LoadMaskFileInfo (
-				CMFileStream*						maskFileStreamPtr)
-
-{ 
-	CMFileStream*						fileStreamPtr;
-	FileInfoPtr							fileInfoPtr;
-	Handle								fileInfoHandle;
-	
-	SInt16								errCode;
-	
-	Boolean								fileFoundFlag = FALSE;
-	
-	
-			// Get a handle to a block of memory to be used for file information 
-			// for mask image file.								
-
-	fileInfoHandle = InitializeFileInfoStructure (NULL, kNotPointer);	
-	
-	fileInfoPtr = (FileInfoPtr)GetHandlePointer (fileInfoHandle);
-
-	if (fileInfoPtr != NULL)
-		{								
-				// Initialize variables in the structure.	
-				
-		fileStreamPtr = GetFileStreamPointer (fileInfoPtr);
-		InitializeFileStream (fileStreamPtr, maskFileStreamPtr);
-
-				// Check if image file is in the same volume as the project			
-				// file. If it is, open a path to the file and return the			
-				// handle to the file information.											
-				
-		errCode = OpenFileReadOnly (fileStreamPtr, 
-												kResolveAliasChains, 
-												kLockFile, 
-												kVerifyFileStream);
-																			
-		if (errCode == noErr)
-			{
-					// Check if header and file size make sense.
-					
-			fileFoundFlag = CheckMaskFileInfo (fileInfoHandle, &errCode);
-				
-			if (!fileFoundFlag)
-				CloseFile (fileInfoPtr);
-				
-			}		// end "if (errCode == noErr)"
-		
-		if (!fileFoundFlag)
-			DisposeFileInfoHandle (fileInfoHandle);
-		
-		}	// end "if (fileInfoPtr != NULL)"
-		
-	return (fileInfoHandle);
-	
 }		// end "LoadMask" 
 
 	
@@ -2042,7 +1984,7 @@ Handle LoadMaskFileInfo (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 12/11/1998
-//	Revised By:			Larry L. Biehl			Date: 04/28/2017
+//	Revised By:			Larry L. Biehl			Date: 11/26/2014
 
 Boolean LoadNewMaskFields (
 				SInt16								maskSetCode,
@@ -2100,7 +2042,7 @@ Boolean LoadNewMaskFields (
 	if (numberClasses > 0)
 		classNameHandle = GetClassDescriptionHandle (maskFileInfoHandle);
 	
-	classNamePtr = (HUCharPtr)GetHandlePointer (classNameHandle);
+	classNamePtr = (HUCharPtr)GetHandlePointer(classNameHandle, kLock, kNoMoveHi);
 	if (classNamePtr != NULL)
 		{
 				// Now skip the first class name if it is for the background class;
@@ -2317,7 +2259,7 @@ Boolean LoadNewMaskFields (
 // Called By:			GetSpecifiedMaskFile in SMask.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 03/29/2001
-//	Revised By:			Larry L. Biehl			Date: 04/28/2017
+//	Revised By:			Larry L. Biehl			Date: 03/29/2001
 
 void SetUpMaskAreaDescriptionParameters (
 				AreaDescriptionPtr				maskAreaDescriptionPtr, 
@@ -2376,8 +2318,10 @@ void SetUpMaskAreaDescriptionParameters (
 																		NULL);	
 																					
 				maskAreaDescriptionPtr->maskInfoPtr->maskPointer = 
-							(HUInt16Ptr)GetHandlePointer (
-										maskAreaDescriptionPtr->maskInfoPtr->maskHandle);
+							(HUInt16Ptr)GetHandlePointer(
+										maskAreaDescriptionPtr->maskInfoPtr->maskHandle,
+										kLock,
+										kNoMoveHi);
 				
 						// Adjust buffer to start of mask area within the image area.
 											

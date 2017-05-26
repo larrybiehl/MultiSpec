@@ -13,7 +13,7 @@
 //
 //	Revision number:		3.0
 //
-//	Revision date:			05/26/2017
+//	Revision date:			06/11/2013
 //
 //	Language:				C
 //
@@ -28,11 +28,9 @@
 //
 //-----------------------------------------------------------------------------
 
-#include "SMulSpec.h"
-
 #if defined multispec_lin
-//#	include "SMulSpec.h"
-#	include	"SExtGlob.h" 
+#include "SMulSpec.h"
+#include	"SExtGlob.h" 
 #endif	
 
 #if defined multispec_mac  
@@ -40,8 +38,8 @@
 #endif	// defined multispec_mac   
                              
 #if defined multispec_win
-//#	include "SMulSpec.h"
-#	include	"SExtGlob.h" 
+	#include "SMulSpec.h"
+	#include	"SExtGlob.h" 
 #endif	// defined multispec_win 
 	 
 
