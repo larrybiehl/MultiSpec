@@ -1,5 +1,5 @@
 // WCCemDlg.cpp : implementation file
-// Revised by Larry Biehl on 12/21/2016
+// Revised by Larry Biehl on 05/26/2017
 //    
                    
 #include "SMulSpec.h"
@@ -135,7 +135,7 @@ CMCEMClassifyDialog::DoDialog(
 {  
 	DialogSelectArea				dialogSelectArea;
 	
-	SInt16							returnCode;
+	INT_PTR							returnCode;
 	
 	Boolean							continueFlag = FALSE;
 								

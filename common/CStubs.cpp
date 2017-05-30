@@ -13,7 +13,7 @@
 //
 //	Revision number:		3.5
 //
-//	Revision date:			03/27/2017
+//	Revision date:			05/22/2017
 //
 //	Language:				C
 //
@@ -215,11 +215,8 @@ SInt16 CharWidth(
 
 
 		if (gCDCPointer != NULL)
-#ifdef UNICODE
-		  size = gCDCPointer->GetTextExtent((LPCWSTR)& character, 1);
-#else
 		  size = gCDCPointer->GetTextExtent((LPCTSTR)& character, 1);
-#endif
+
 		else //
 		  size.cx = 6;
 
@@ -858,9 +855,9 @@ void DrawDialog(
 #endif
 } // end "DrawDialog"  
 
+/*
 // TODO: For Linux
-//#ifndef multispec_lin
-#ifdef multispec_mac
+#ifndef multispec_lin
 
 void EllipsePlotV(
         GraphPtr graphRecPtr,
@@ -869,6 +866,7 @@ void EllipsePlotV(
 
 } // end "EllipsePlotV"
 #endif
+*/
 
 void EnableItem(
         MenuHandle menuHandle,
@@ -916,8 +914,7 @@ void ForceFieldOutlineUpdate (
 
 }		// end "ForceFieldOutlineUpdate"
  */
-
-#if 0
+/*
 // TODO: For Linux
 #ifndef multispec_lin
 
@@ -927,8 +924,7 @@ void GetBiPlotGraphTitle(
 
 } // end "GetBiPlotGraphTitle" 
 #endif
-#endif
-
+*/
 SInt32 GetCTSeed(void)
  {
     return (0);
@@ -1750,7 +1746,7 @@ SInt16 ResError(void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2001)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

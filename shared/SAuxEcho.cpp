@@ -3,8 +3,8 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2010)
-//								� Purdue Research Foundation
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	File:						SAuxEcho.cpp
@@ -14,7 +14,7 @@
 //
 //	Revision number:		2.8
 //
-//	Revision date:			08/15/2010
+//	Revision date:			05/26/2017
 //
 //	Language:				C
 //
@@ -30,17 +30,24 @@
 //								void 						stuffing
 //								unsigned	short int 	subtract_log_lik
   
-#if defined multispec_win | defined multispec_lin 
-	#include	"SMulSpec.h" 
-	#include "SExtGlob.h"
-#endif	// defined multispec_win    
+#include "SMulSpec.h"
+
+#if defined multispec_win
+//#	include "SMulSpec.h" 
+#	include "SExtGlob.h"
+#endif	// defined multispec_win
+
+#if defined multispec_lin
+//#	include "SMulSpec.h" 
+#	include "SExtGlob.h"
+#endif	// defined multispec_lin  
 
 #include	"SEcho.h"
 
 
 //------------------------------------------------------------------------------------
-//								 	Copyright (1989-2010)
-//								� Purdue Research Foundation
+//								 	Copyright (1989-2017)
+//								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		Boolean malloc_epix
@@ -220,8 +227,8 @@ Boolean malloc_epix(
 
 
 //------------------------------------------------------------------------------------
-//								 	Copyright (1989-2010)
-//								� Purdue Research Foundation
+//								 	Copyright (1989-2017)
+//								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void free_epix

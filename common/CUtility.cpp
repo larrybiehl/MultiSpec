@@ -13,7 +13,7 @@
 //
 //	Revision number:		3.0
 //
-//	Revision date:			03/27/2017
+//	Revision date:			03/29/2017
 //
 //	Language:				C
 //
@@ -938,9 +938,8 @@ void CopyOffScreenImage(
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 02/10/1996
-//	Revised By:			Larry L. Biehl			Date: 07/03/1996		
-#ifndef multispec_lin
-
+//	Revised By:			Larry L. Biehl			Date: 03/29/2017		
+#ifdef multispec_win
 void CreateClassNameComboBoxList(
         CComboBox* comboBoxCPtr)
 {
@@ -948,8 +947,9 @@ void CreateClassNameComboBoxList(
            UInt16 classIndex,
            classStorage;
 
+	USES_CONVERSION;
 
-           comboBoxCPtr->ResetContent();
+	comboBoxCPtr->ResetContent();
 
            // Add current list of classes to the combo box.
 
@@ -964,14 +964,17 @@ void CreateClassNameComboBoxList(
 
       for (classIndex = 0;
               classIndex < gProjectInfoPtr->numberStatisticsClasses;
-              classIndex++) {
-         // Get the class storage number.											
+              classIndex++) 
+			{
+					// Get the class storage number.											
 
          classStorage = gProjectInfoPtr->storageClass[classIndex];
 
-                 comboBoxCPtr->AddString ((LPCTSTR)&classNamesPtr[classStorage].name[1]);
+         //comboBoxCPtr->AddString ((LPCTSTR)&classNamesPtr[classStorage].name[1]);
+         comboBoxCPtr->AddString ((LPCTSTR)A2T((LPSTR)&classNamesPtr[classStorage].name[1]));
+         //AddString(((LPCTSTR)A2T((LPSTR)&classNamePtr[1])));
 
-      } // end "for (classIndex=0; classIndex<..."  
+			} // end "for (classIndex=0; classIndex<..."  
 
 } // end "CreateClassNameComboBoxList" 
 #else

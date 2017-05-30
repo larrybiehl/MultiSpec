@@ -510,7 +510,7 @@ STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     ICON            IDR_MAINFRAME,IDC_STATIC,11,17,20,20
-    CTEXT           "MultiSpec Application Version 3.5\n3/28/2017",IDC_STATIC,37,6,119,17
+    CTEXT           "MultiSpec Application Version 3.6\n5/24/2017",IDC_STATIC,37,6,119,17
     CTEXT           "Copyright © 1995-2017\nPurdue Research Foundation\nAll Rights Reserved",IDC_STATIC,40,38,121,27
     DEFPUSHBUTTON   "OK",IDOK,176,194,42,14,WS_GROUP
     LTEXT           "Available Memory:",IDC_STATIC,13,144,63,8
@@ -625,7 +625,7 @@ BEGIN
     LTEXT           "Min-max:",IDC_STATIC,190,134,41,8
     GROUPBOX        "Display",IDC_STATIC,11,81,159,170
     LTEXT           "Type:",IDC_STATIC,19,97,21,8
-    CONTROL         "ToEntireImage",IDEntireImage,"Button",BS_OWNERDRAW | WS_TABSTOP,19,43,15,18
+    CONTROL         "ToEntireImage",IDEntireImage,"Button",BS_OWNERDRAW | WS_TABSTOP,20,43,15,18
     CONTROL         "ToSelectedImage",IDSelectedImage,"Button",BS_OWNERDRAW | WS_TABSTOP,20,43,15,18
     LTEXT           "Channels:",IDC_STATIC,46,121,32,8
     CONTROL         "Invert",IDC_RedChannelInvert,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,107,139,34,10
@@ -1016,13 +1016,13 @@ BEGIN
     LTEXT           "Number pixels: 1000000",IDC_FieldNumberPixels,22,111,109,8
 END
 
-IDD_StatisticsDialog DIALOGEX 0, 0, 245, 204
+IDD_StatisticsDialog DIALOGEX 0, 0, 245, 217
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
 CAPTION "Set Project Options"
 FONT 8, "MS Shell Dlg", 0, 0, 0x0
 BEGIN
-    DEFPUSHBUTTON   "OK",IDOK,183,183,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,127,183,50,14
+    DEFPUSHBUTTON   "OK",IDOK,183,193,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,127,193,50,14
     COMBOBOX        IDC_ProjectChanges,7,12,108,42,CBS_DROPDOWNLIST | WS_TABSTOP
     LTEXT           "Channels to Use:",IDC_STATIC,6,36,56,8
     COMBOBOX        IDC_Channels,63,34,53,36,CBS_DROPDOWNLIST | WS_TABSTOP
@@ -1035,14 +1035,15 @@ BEGIN
     CONTROL         "Show Train/Test Label",IDC_ShowTrainTestLabel,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,142,77,85,10
     LTEXT           "Color:",IDC_ColorPrompt,141,96,23,8
     COMBOBOX        IDC_ColorCombo,166,94,63,32,CBS_DROPDOWNLIST | WS_TABSTOP
-    LTEXT           "Training mask file:",IDC_TrainMaskPrompt,6,136,61,8
-    COMBOBOX        IDC_TrainMaskPopUp,68,134,104,49,CBS_DROPDOWNLIST | WS_TABSTOP
-    EDITTEXT        IDC_TrainMaskLayerEDIT,177,135,20,13,ES_AUTOHSCROLL
-    LTEXT           "Layer: 1",IDC_TrainMaskLayerStatic,178,137,30,8
-    LTEXT           "Test mask file:",IDC_TestMaskPrompt,6,160,61,8
-    COMBOBOX        IDC_TestMaskPopUp,68,159,104,45,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    LTEXT           "Layer: 1",IDC_TestMaskLayerStatic,177,160,30,8
-    EDITTEXT        IDC_TestMaskLayerEDIT,177,159,21,13,ES_AUTOHSCROLL
+    LTEXT           "Training mask file:",IDC_TrainMaskPrompt,5,146,61,8
+    COMBOBOX        IDC_TrainMaskPopUp,67,144,104,49,CBS_DROPDOWNLIST | WS_TABSTOP
+    EDITTEXT        IDC_TrainMaskLayer,177,144,27,13,ES_AUTOHSCROLL
+    LTEXT           "Layer: 1",IDC_TrainMaskLayerEdit,17,195,30,8
+    LTEXT           "Test mask file:",IDC_TestMaskPrompt,5,170,61,8
+    COMBOBOX        IDC_TestMaskPopUp,67,168,104,45,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Layer: 1",IDC_TestMaskLayerEdit,67,196,30,8
+    EDITTEXT        IDC_TestMaskLayer,177,168,27,13,ES_AUTOHSCROLL
+    LTEXT           "Layer",IDC_LayerPrompt,177,128,19,8
 END
 
 IDD_StatisticsOptionsDialog DIALOGEX 0, 0, 242, 198
@@ -1293,10 +1294,10 @@ BEGIN
     COMBOBOX        IDC_DiskCombo,261,144,64,57,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
 END
 
-IDD_SinglePassCluster DIALOG 0, 0, 285, 222
+IDD_SinglePassCluster DIALOGEX 0, 0, 285, 222
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
 CAPTION "Set Single Pass Cluster Specifications"
-FONT 8, "MS Sans Serif"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,218,198,50,14
     PUSHBUTTON      "Cancel",IDCANCEL,219,165,50,14
@@ -1315,7 +1316,7 @@ BEGIN
     EDITTEXT        IDC_LineInterval,136,167,25,13,ES_AUTOHSCROLL
     EDITTEXT        IDC_ColumnStart,74,186,28,13,ES_AUTOHSCROLL
     EDITTEXT        IDC_ColumnEnd,106,186,26,13,ES_AUTOHSCROLL
-    EDITTEXT        IDC_ColumnInterval,137,186,24,13,ES_AUTOHSCROLL
+    EDITTEXT        IDC_ColumnInterval,136,186,25,13,ES_AUTOHSCROLL
     GROUPBOX        "Area to Cluster",IDC_LineColFrame,17,149,150,56,WS_GROUP
     LTEXT           "Line",IDC_LinePrompt,48,169,18,9
     LTEXT           "Column",IDC_ColumnPrompt,48,189,25,8
@@ -1326,10 +1327,10 @@ BEGIN
     COMBOBOX        IDC_ClassCombo,125,119,67,45,CBS_DROPDOWNLIST | WS_TABSTOP
 END
 
-IDD_ISODATACluster DIALOG 0, 0, 297, 242
+IDD_ISODATACluster DIALOGEX 0, 0, 297, 242
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
 CAPTION "Set ISODATA Cluster Specifications"
-FONT 8, "MS Sans Serif"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,236,216,50,14
     PUSHBUTTON      "Cancel",IDCANCEL,235,191,50,14
@@ -1356,7 +1357,7 @@ BEGIN
     EDITTEXT        IDC_LineInterval,136,185,25,13,ES_AUTOHSCROLL
     EDITTEXT        IDC_ColumnStart,74,204,28,13,ES_AUTOHSCROLL
     EDITTEXT        IDC_ColumnEnd,106,204,26,13,ES_AUTOHSCROLL
-    EDITTEXT        IDC_ColumnInterval,137,204,24,13,ES_AUTOHSCROLL
+    EDITTEXT        IDC_ColumnInterval,136,204,25,13,ES_AUTOHSCROLL
     GROUPBOX        "Area to Cluster",IDC_LineColFrame,17,167,150,56,WS_GROUP
     LTEXT           "Line",IDC_LinePrompt,48,187,18,9
     LTEXT           "Column",IDC_ColumnPrompt,48,207,25,8
@@ -1364,7 +1365,7 @@ BEGIN
     CONTROL         "ToEntireImage",IDEntireImage,"Button",BS_OWNERDRAW | WS_TABSTOP,25,191,15,15
     LTEXT           "Classes:",IDC_ClassPrompt,94,139,29,8
     COMBOBOX        IDC_ClassCombo,125,137,67,42,CBS_DROPDOWNLIST | WS_GROUP | WS_TABSTOP
-    CONTROL         "ToSelectedImage",IDSelectedImage,"Button",BS_OWNERDRAW | WS_TABSTOP,27,191,15,15
+    CONTROL         "ToSelectedImage",IDSelectedImage,"Button",BS_OWNERDRAW | WS_TABSTOP,25,191,15,15
     CONTROL         "Include project class means",IDC_ProjectClassMeans,
                     "Button",BS_AUTOCHECKBOX | WS_GROUP | WS_TABSTOP,27,76,113,10
 END
@@ -1575,7 +1576,6 @@ BEGIN
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,18,199,131,10
     LTEXT           "Number decimal places to use:",IDC_NumberDecimalPlacesPrompt,18,241,98,8
     EDITTEXT        IDC_NumberDecimalPlaces,117,239,21,14,ES_AUTOHSCROLL
-    COMBOBOX        IDC_COMBO1,233,65,52,19,CBS_DROPDOWN | CBS_SORT | WS_VSCROLL | WS_TABSTOP
 END
 
 IDD_AppendFile DIALOG 0, 0, 221, 119
@@ -2292,52 +2292,53 @@ BEGIN
     LTEXT           "99999",IDC_ColumnEnd3,115,174,31,8
 END
 
-IDD_BiPlot DIALOGEX 0, 0, 407, 213
+IDD_BiPlot DIALOGEX 0, 0, 375, 206
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Set Biplot Specifications"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    DEFPUSHBUTTON   "OK",IDOK,350,192,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,293,192,50,14
-    LTEXT           "Features to Plot:",IDD_FeatureSelection,15,14,55,8
+    DEFPUSHBUTTON   "OK",IDOK,318,185,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,263,185,50,14
+    LTEXT           "Channels to Plot:",IDC_ChannelPrompt,15,14,55,8
     LTEXT           "Horizontal axis:",IDC_STATIC,27,28,50,8
-    LTEXT           "Vertical axis",IDC_STATIC,27,45,39,8
-    EDITTEXT        IDC_Horizontal_channel,80,25,62,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_Vertical_channel,79,42,64,14,ES_AUTOHSCROLL
+    LTEXT           "Vertical axis:",IDC_STATIC,27,45,46,8
+    EDITTEXT        IDC_Horizontal_channel,80,26,38,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_Vertical_channel,80,43,38,14,ES_AUTOHSCROLL
     CONTROL         "Use feature transformation",IDC_FeatureTransformation,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,49,63,103,10
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,43,63,103,10
     LTEXT           "Pixels to Plot:",IDC_STATIC,18,82,44,8
     CONTROL         "Training",IDC_Training,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,28,94,41,10
-    CONTROL         "Test",IDC_TestAreas,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,28,112,30,10
-    CONTROL         "Area",IDC_Area,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,28,129,31,10
-    LTEXT           "Options:",IDC_STATIC,218,23,28,8
-    CONTROL         "Display pixels as symbols",IDC_DisplayPixels,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,228,38,95,10
+    CONTROL         "Test",IDC_TestAreas,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,28,109,30,10
+    CONTROL         "Area",IDC_Area,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,28,125,31,10
+    LTEXT           "Options:",IDC_STATIC,218,14,28,8
+    CONTROL         "Display pixels as symbols",IDC_DisplayPixels,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,228,28,95,10
     CONTROL         "Outline classes as ellipses",IDC_OutlineClassAsEllipse,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,228,55,97,10
-    LTEXT           "Threshold Level:",IDC_ThresholdLevelPrompt,228,72,54,8
-    EDITTEXT        IDC_ThresholdLevel,290,69,40,14,ES_AUTOHSCROLL
-    LTEXT           "%",IDC_PercentPrompt,341,71,8,8
-    CONTROL         "Threshold pixels",IDC_ThresholdPixelCheck,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,228,91,67,10
-    LTEXT           "Classes:",IDC_ClassPrompt,226,111,28,8
-    COMBOBOX        IDC_ClassCombo,301,105,99,30,CBS_DROPDOWN | WS_VSCROLL | WS_TABSTOP
-    LTEXT           "Symbols:",IDC_SymbolPrompt,226,129,30,8
-    LTEXT           "Class weights:",IDC_WeightsPrompt,237,147,47,8
-    COMBOBOX        IDC_WeightsCombo,317,143,83,30,CBS_DROPDOWN | WS_VSCROLL | WS_TABSTOP
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,228,46,97,10
+    LTEXT           "Threshold Level:",IDC_ThresholdLevelPrompt,228,66,54,8
+    EDITTEXT        IDC_ThresholdLevel,284,64,30,14,ES_AUTOHSCROLL
+    LTEXT           "%",IDC_PercentPrompt,315,66,8,8
+    CONTROL         "Threshold pixels",IDC_ThresholdPixelCheck,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,228,85,67,10
+    LTEXT           "Classes:",IDC_ClassPrompt,227,107,28,8
+    COMBOBOX        IDC_ClassCombo,256,105,48,30,CBS_DROPDOWN | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Symbols:",IDC_SymbolPrompt,228,125,30,8
+    LTEXT           "Class weights:",IDC_WeightsPrompt,228,143,47,8
+    COMBOBOX        IDC_WeightsCombo,276,140,83,30,CBS_DROPDOWN | WS_VSCROLL | WS_TABSTOP
     CONTROL         "Create new graphics window",IDC_CreateNewGraphWindow,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,233,164,108,10
-    EDITTEXT        ID3C_LineStart,77,163,40,13,ES_AUTOHSCROLL
-    EDITTEXT        ID3C_LineEnd,120,163,40,13,ES_AUTOHSCROLL
-    EDITTEXT        ID3C_LineInterval,163,163,40,13,ES_AUTOHSCROLL
-    EDITTEXT        ID3C_ColumnStart,77,180,40,13,ES_AUTOHSCROLL
-    EDITTEXT        ID3C_ColumnEnd,120,180,40,13,ES_AUTOHSCROLL
-    EDITTEXT        ID3C_ColumnInterval,163,180,40,13,ES_AUTOHSCROLL
-    GROUPBOX        "Area to Display",ID3C_STATIC4,7,140,208,59
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,233,162,108,10
+    EDITTEXT        ID3C_LineStart,77,162,40,13,ES_AUTOHSCROLL
+    EDITTEXT        ID3C_LineEnd,120,162,40,13,ES_AUTOHSCROLL
+    EDITTEXT        ID3C_LineInterval,163,162,40,13,ES_AUTOHSCROLL
+    EDITTEXT        ID3C_ColumnStart,77,178,40,13,ES_AUTOHSCROLL
+    EDITTEXT        ID3C_ColumnEnd,120,178,40,13,ES_AUTOHSCROLL
+    EDITTEXT        ID3C_ColumnInterval,163,178,40,13,ES_AUTOHSCROLL
+    GROUPBOX        "Area to Display",ID3C_STATIC4,7,140,202,59
     LTEXT           "Lines",ID3C_STATIC6,42,164,18,9
-    LTEXT           "Columns",ID3C_STATIC7,42,181,29,8
-    LTEXT           "Start            End             Interval",ID3C_STATIC8,90,153,107,8
-    CONTROL         "ToEntireImage",IDEntireImage,"Button",BS_OWNERDRAW | WS_TABSTOP,15,166,15,18
+    LTEXT           "Columns",ID3C_STATIC7,42,180,29,8
+    LTEXT           "Start            End             Interval",ID3C_STATIC8,90,151,107,8
+    CONTROL         "ToEntireImage",IDEntireImage,"Button",BS_OWNERDRAW | WS_TABSTOP,17,169,15,15
     LTEXT           "Channels to Plot:",IDC_ChannelsPrompt,15,15,56,8
-    LTEXT           "Default",IDC_SymbolCombo,301,130,24,8
+    LTEXT           "Default",IDC_SymbolCombo,261,125,24,8
+    CONTROL         "ToSelectedImage",IDSelectedImage,"Button",BS_OWNERDRAW | WS_TABSTOP,17,170,15,14
 END
 
 IDD_ProcessorCreateImageStat DIALOGEX 0, 0, 309, 237
@@ -2353,7 +2354,7 @@ BEGIN
     LTEXT           "Create statistics image for each selected",IDC_StatPrompt,22,65,133,8
     CONTROL         "Class",IDC_SelectedClassRadio,"Button",BS_AUTORADIOBUTTON | WS_GROUP,156,65,32,10
     CONTROL         "Field",IDC_SelectedFieldRadio,"Button",BS_AUTORADIOBUTTON | WS_GROUP,190,65,47,10
-    LTEXT           "Base minimum/maximum settings for each image on",IDC_LineIntervalPrompt3,17,157,167,8
+    LTEXT           "Base minimum/maximum settings for each image on",IDC_OptionHeading,17,157,167,8
     CONTROL         "Overall values - same for all images",IDC_OverallRadio,
                     "Button",BS_AUTORADIOBUTTON | WS_GROUP,15,169,149,10
     CONTROL         "Individual values - each image differs",IDC_IndividualRadio,
@@ -2380,51 +2381,6 @@ BEGIN
     CONTROL         "ToSelectedImage",IDSelectedImage,"Button",BS_OWNERDRAW | WS_TABSTOP,25,119,15,15
     COMBOBOX        IDC_ChannelCombo,55,14,48,39,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     COMBOBOX        IDC_ClassCombo,61,44,48,39,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-END
-
-IDD_ListData3 DIALOGEX 0, 0, 311, 274
-STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
-CAPTION "Set List Data Specifications"
-FONT 8, "MS Sans Serif", 0, 0, 0x0
-BEGIN
-    DEFPUSHBUTTON   "OK",IDOK,251,244,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,191,244,50,14
-    CONTROL         "Classes:",IDC_Classes,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,19,18,40,10
-    COMBOBOX        IDC_ClassCombo,62,17,48,41,CBS_DROPDOWNLIST | WS_TABSTOP
-    GROUPBOX        "Area(s)",IDC_STATIC,9,5,184,118
-    CONTROL         "Image Area",IDC_Area,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,19,40,61,10
-    EDITTEXT        IDC_LineStart,82,77,28,13,ES_AUTOHSCROLL | WS_GROUP
-    EDITTEXT        IDC_LineEnd,114,77,27,13,ES_AUTOHSCROLL
-    EDITTEXT        IDC_LineInterval,145,77,29,13,ES_AUTOHSCROLL
-    EDITTEXT        IDC_ColumnStart,82,96,28,13,ES_AUTOHSCROLL
-    EDITTEXT        IDC_ColumnEnd,114,96,27,13,ES_AUTOHSCROLL
-    EDITTEXT        IDC_ColumnInterval,145,96,29,13,ES_AUTOHSCROLL
-    GROUPBOX        "Selected Area",IDC_LineColFrame,21,58,161,56,WS_GROUP
-    LTEXT           "Lines",IDC_LinePrompt,53,79,18,9
-    LTEXT           "Columns",IDC_ColumnPrompt,53,98,28,8
-    LTEXT           "Start        End        Interval",IDC_StartEndInterval,88,67,84,8
-    CONTROL         "ToEntireImage",IDEntireImage,"Button",BS_OWNERDRAW | WS_TABSTOP,31,85,15,15
-    CONTROL         "ToSelectedImage",IDSelectedImage,"Button",BS_OWNERDRAW | WS_TABSTOP,31,85,15,15
-    LTEXT           "Channels:",IDC_ChannelPrompt,10,133,33,8
-    COMBOBOX        IDC_ChannelCombo,45,130,48,39,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    GROUPBOX        "Options",IDC_STATIC,11,153,147,105
-    CONTROL         "Include line and column values",IDC_IncludeLineColumn,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,18,185,131,10
-    CONTROL         "Include class and field identification",IDC_IncludeClassField,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,18,213,131,10
-    CONTROL         "Graph data values",IDC_GraphData,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,18,227,131,10
-    CONTROL         "Training",IDC_Training,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,126,15,48,10
-    CONTROL         "Test",IDC_Test,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,126,26,48,10
-    GROUPBOX        "Output results to",IDC_STATIC,201,130,100,46
-    CONTROL         "Text window",IDC_TextWindow,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,209,143,59,10
-    CONTROL         "Disk file",IDC_DiskFile,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,209,158,50,10
-    LTEXT           "List channels in:",IDC_ListChannelsFormatPrompt,17,169,57,8
-    COMBOBOX        IDC_ListChannelsFormatCombo,75,167,72,40,CBS_DROPDOWNLIST | WS_TABSTOP
-    CONTROL         "Include latitude and longitude values",IDC_IncludeLatitudeLongitude,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,18,199,131,10
-    LTEXT           "Number decimal places to use:",IDC_NumberDecimalPlacesPrompt,18,241,98,8
-    EDITTEXT        IDC_NumberDecimalPlaces,117,239,21,14,ES_AUTOHSCROLL
-    COMBOBOX        IDC_COMBO1,233,65,52,19,CBS_DROPDOWN | CBS_SORT | WS_VSCROLL | WS_TABSTOP
 END
 
 
@@ -2966,10 +2922,6 @@ BEGIN
 0x6f52, 0x7377, "\000" 
     IDC_ListChannelsFormatCombo, 0x403, 8, 0
 0x6f43, 0x756c, 0x6e6d, 0x0073, 
-    IDC_COMBO1, 0x403, 4, 0
-0x6c41, 0x006c, 
-    IDC_COMBO1, 0x403, 10, 0
-0x7553, 0x7362, 0x7465, 0x2e2e, 0x002e, 
     0
 END
 
@@ -3500,27 +3452,6 @@ BEGIN
     0
 END
 
-IDD_ListData3 DLGINIT
-BEGIN
-    IDC_ClassCombo, 0x403, 4, 0
-0x6c41, 0x006c, 
-    IDC_ClassCombo, 0x403, 10, 0
-0x7553, 0x7362, 0x7465, 0x2e2e, 0x002e, 
-    IDC_ChannelCombo, 0x403, 4, 0
-0x6c41, 0x006c, 
-    IDC_ChannelCombo, 0x403, 10, 0
-0x7553, 0x7362, 0x7465, 0x2e2e, 0x002e, 
-    IDC_ListChannelsFormatCombo, 0x403, 5, 0
-0x6f52, 0x7377, "\000" 
-    IDC_ListChannelsFormatCombo, 0x403, 8, 0
-0x6f43, 0x756c, 0x6e6d, 0x0073, 
-    IDC_COMBO1, 0x403, 4, 0
-0x6c41, 0x006c, 
-    IDC_COMBO1, 0x403, 10, 0
-0x7553, 0x7362, 0x7465, 0x2e2e, 0x002e, 
-    0
-END
-
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -3546,278 +3477,216 @@ GUIDELINES DESIGNINFO
 BEGIN
     IDD_ABOUTBOX, DIALOG
     BEGIN
-		 LEFTMARGIN, 7
-		 RIGHTMARGIN, 163
-		 TOPMARGIN, 7
-		 BOTTOMMARGIN, 55
+        RIGHTMARGIN, 218
+        BOTTOMMARGIN, 208
     END
 
     IDD_FileFormatSpecs, DIALOG
     BEGIN
-		 LEFTMARGIN, 7
-		 RIGHTMARGIN, 163
-		 TOPMARGIN, 7
-		 BOTTOMMARGIN, 55
+        RIGHTMARGIN, 303
+        BOTTOMMARGIN, 309
     END
 
     IDD_DisplaySpecs, DIALOG
     BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 163
-        TOPMARGIN, 7
-        BOTTOMMARGIN, 55
+        RIGHTMARGIN, 340
+        BOTTOMMARGIN, 258
     END
 
     IDD_Coordinates, DIALOG
     BEGIN
-    END
-
-    IDD_WindowTools, DIALOG
-    BEGIN
+        BOTTOMMARGIN, 17
     END
 
     IDD_ReformatTransform, DIALOG
     BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 163
-        TOPMARGIN, 7
-        BOTTOMMARGIN, 55
+        BOTTOMMARGIN, 305
     END
 
     IDD_StatisticsWindow, DIALOG
     BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 163
-        TOPMARGIN, 7
-        BOTTOMMARGIN, 55
-    END
-
-    IDD_ClassField, DIALOG
-    BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 163
-        TOPMARGIN, 7
-        BOTTOMMARGIN, 55
+        BOTTOMMARGIN, 275
     END
 
     IDD_StatisticsDialog, DIALOG
     BEGIN
-		 LEFTMARGIN, 7
-		 RIGHTMARGIN, 163
-		 TOPMARGIN, 7
-		 BOTTOMMARGIN, 55
-    END
-
-    IDD_StatisticsOptionsDialog, DIALOG
-    BEGIN
-		 LEFTMARGIN, 7
-		 RIGHTMARGIN, 163
-		 TOPMARGIN, 7
-		 BOTTOMMARGIN, 55
+        BOTTOMMARGIN, 204
     END
 
     IDD_FieldCoordinates, DIALOG
     BEGIN
-		 LEFTMARGIN, 7
-		 RIGHTMARGIN, 163
-		 TOPMARGIN, 7
-		 BOTTOMMARGIN, 55
+        RIGHTMARGIN, 269
     END
 
     IDD_ClassifyDialog, DIALOG
     BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 163
-        TOPMARGIN, 7
-        BOTTOMMARGIN, 55
+        RIGHTMARGIN, 309
+        BOTTOMMARGIN, 235
     END
 
     IDD_DisplayThematic, DIALOG
     BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 163
-        TOPMARGIN, 7
-        BOTTOMMARGIN, 55
+        RIGHTMARGIN, 299
+        BOTTOMMARGIN, 215
     END
 
-    IDD_Cluster, DIALOG
+    IDD_SinglePassCluster, DIALOG
     BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 163
-        TOPMARGIN, 7
-        BOTTOMMARGIN, 55
+    END
+
+    IDD_ISODATACluster, DIALOG
+    BEGIN
     END
 
     IDD_ListData, DIALOG
     BEGIN
-		 LEFTMARGIN, 7
-		 RIGHTMARGIN, 163
-		 TOPMARGIN, 7
-		 BOTTOMMARGIN, 55
+        RIGHTMARGIN, 310
+        BOTTOMMARGIN, 258
     END
 
-    IDD_CEMParameters, DIALOG
+    IDD_AppendFile, DIALOG
     BEGIN
-		 LEFTMARGIN, 7
-		 RIGHTMARGIN, 163
-		 TOPMARGIN, 7
-		 BOTTOMMARGIN, 55
     END
 
     IDD_DisplayEnhancement, DIALOG
     BEGIN
-		 LEFTMARGIN, 7
-		 RIGHTMARGIN, 163
-		 TOPMARGIN, 7
-		 BOTTOMMARGIN, 55
+        RIGHTMARGIN, 327
+        BOTTOMMARGIN, 199
     END
 
     1537, DIALOG
     BEGIN
+        RIGHTMARGIN, 188
+        TOPMARGIN, 2
+        BOTTOMMARGIN, 41
     END
 
     IDD_ThematicRecode, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 163
+        RIGHTMARGIN, 307
         TOPMARGIN, 7
-        BOTTOMMARGIN, 55
+        BOTTOMMARGIN, 117
     END
 
     IDD_EnhanceStatistics, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 163
+        RIGHTMARGIN, 339
         TOPMARGIN, 7
-        BOTTOMMARGIN, 55
+        BOTTOMMARGIN, 235
     END
 
     IDD_ClassWeights, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 163
+        RIGHTMARGIN, 346
         TOPMARGIN, 7
-        BOTTOMMARGIN, 55
+        BOTTOMMARGIN, 189
     END
 
     IDD_ClassPairWeights, DIALOG
     BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 163
+        LEFTMARGIN, 6
+        RIGHTMARGIN, 362
         TOPMARGIN, 7
-        BOTTOMMARGIN, 55
+        BOTTOMMARGIN, 202
     END
 
     IDD_ChangeChannelDescriptions, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 163
+        RIGHTMARGIN, 268
         TOPMARGIN, 7
-        BOTTOMMARGIN, 55
+        BOTTOMMARGIN, 183
     END
 
     IDD_LOOMixingParameter, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 163
+        RIGHTMARGIN, 225
         TOPMARGIN, 7
-        BOTTOMMARGIN, 55
+        BOTTOMMARGIN, 187
     END
 
     IDD_MapCoordinates, DIALOG
     BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 163
+        LEFTMARGIN, 13
+        RIGHTMARGIN, 311
         TOPMARGIN, 7
-        BOTTOMMARGIN, 55
+        BOTTOMMARGIN, 345
     END
 
     IDD_OverlayParameters, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 163
+        RIGHTMARGIN, 207
         TOPMARGIN, 7
-        BOTTOMMARGIN, 55
+        BOTTOMMARGIN, 107
     END
 
     IDD_StatHistogram, DIALOG
     BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 163
-        TOPMARGIN, 7
-        BOTTOMMARGIN, 55
+        LEFTMARGIN, 15
+        RIGHTMARGIN, 282
+        TOPMARGIN, 12
+        BOTTOMMARGIN, 203
     END
 
     IDD_GraphWindow, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 163
+        RIGHTMARGIN, 186
         TOPMARGIN, 7
-        BOTTOMMARGIN, 55
+        BOTTOMMARGIN, 82
     END
 
     IDD_GaussianParameter, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 163
+        RIGHTMARGIN, 253
         TOPMARGIN, 7
-        BOTTOMMARGIN, 55
+        BOTTOMMARGIN, 106
     END
 
     IDD_ReformatRectify, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 163
+        RIGHTMARGIN, 426
         TOPMARGIN, 7
-        BOTTOMMARGIN, 55
+        BOTTOMMARGIN, 242
     END
 
     IDD_ProjectionPursuit, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 163
+        RIGHTMARGIN, 370
         TOPMARGIN, 7
-        BOTTOMMARGIN, 55
+        BOTTOMMARGIN, 227
     END
 
     IDD_FE_ProjectionPursuit, DIALOG
     BEGIN
-		 LEFTMARGIN, 7
-		 RIGHTMARGIN, 163
-		 TOPMARGIN, 7
-		 BOTTOMMARGIN, 55
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 340
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 208
     END
 
     IDD_Mosaic, DIALOG
     BEGIN
-		 LEFTMARGIN, 7
-		 RIGHTMARGIN, 163
-		 TOPMARGIN, 7
-		 BOTTOMMARGIN, 55
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 404
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 204
     END
 
     IDD_BiPlot, DIALOG
     BEGIN
-		 LEFTMARGIN, 7
-		 RIGHTMARGIN, 163
-		 TOPMARGIN, 7
-		 BOTTOMMARGIN, 55
-    END
-
-    IDD_ProcessorCreateImageStat, DIALOG
-    BEGIN
-		 LEFTMARGIN, 7
-		 RIGHTMARGIN, 163
-		 TOPMARGIN, 7
-		 BOTTOMMARGIN, 55
-    END
-
-    IDD_ListData3, DIALOG
-    BEGIN
-		 LEFTMARGIN, 7
-		 RIGHTMARGIN, 163
-		 TOPMARGIN, 7
-		 BOTTOMMARGIN, 55
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 368
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 199
     END
 END
 #endif    // APSTUDIO_INVOKED
@@ -3853,69 +3722,32 @@ END
 // AFX_DIALOG_LAYOUT
 //
 
+IDD_ABOUTBOX AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_StatisticsDialog AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_ISODATACluster AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_SinglePassCluster AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
 IDD_BiPlot AFX_DIALOG_LAYOUT
 BEGIN
     0
 END
 
-IDD_ClassifyDialog AFX_DIALOG_LAYOUT
-BEGIN
-    0
-END
-
-IDD_ProcessorCreateImageStat AFX_DIALOG_LAYOUT
-BEGIN
-    0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 100,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0
-END
-
-IDD_Cluster AFX_DIALOG_LAYOUT
-BEGIN
-    0
-END
-
-IDD_ListData AFX_DIALOG_LAYOUT
-BEGIN
-    0
-END
-
-IDD_ListData1 AFX_DIALOG_LAYOUT
-BEGIN
-    0
-END
-
-IDD_ListData3 AFX_DIALOG_LAYOUT
+IDD_DisplaySpecs AFX_DIALOG_LAYOUT
 BEGIN
     0
 END
@@ -4122,11 +3954,11 @@ END
 STRINGTABLE
 BEGIN
     IDS_AboutNoDiskSpace    "Unavailable"
-    IDS_AboutDiskSpace      "%ld KB Free"
+    IDS_AboutDiskSpace      "%s KB Free"
     IDS_AboutNoCoprocessor  "Not present"
     IDS_AboutCoprocessor    "Present"
-    IDS_AboutMemory         "%lu KB Free"
-    IDS_AboutContiguousMemory "%lu KB Available"
+    IDS_AboutMemory         "%s KB Free"
+    IDS_AboutContiguousMemory "%s KB Available"
 END
 
 STRINGTABLE
@@ -5008,33 +4840,9 @@ END
 
 STRINGTABLE
 BEGIN
-	IDS_StatisticsImage1        "     Statistics Image will be created for each selected class.\r\n"
-	IDS_StatisticsImage2        "     Statistics Image will be created for each selected field.\r\n"
-	IDS_StatisticsImage3        "     The images will be based on overall min-max values.\r\n"
-	IDS_StatisticsImage4        "     Each image will be based on respective statistics' min-max values.\r\n"
-	IDS_StatisticsImage5        "     Statistics Image will be created for the selected area.\r\n"
-	IDS_StatisticsImage6        "Area"
-	IDS_StatisticsImage7        "Getting covariance for selected area."
-	IDS_StatisticsImage8        "Allocating memory"
-	IDS_StatisticsImage9        "Getting covariances for selected classes."
-	IDS_StatisticsImage10       "Getting covariances for selected fields."
-	IDS_StatisticsImage11       "Getting covariance for selected class."
-	IDS_StatisticsImage12       "Getting covariance for selected field."
-	IDS_StatisticsImage13       "Creating image for class statistics."
-	IDS_StatisticsImage14       "Creating image for field statistics."
-	IDS_StatisticsImage15       "Creating images for class statistics."
-	IDS_StatisticsImage16       "Creating images for field statistics."
-	IDS_StatisticsImage17       "Creating image  for selected area."
-	IDS_StatisticsImage18       "    Image Statistics Error = '%d'."
-	IDS_StatisticsImage19       "    Image statistics file, '%s', written to disk. "
-   
-END
-
-STRINGTABLE
-BEGIN
-IDS_StatEnhance1        "     Chi*Chi threshold value = %g.\r\n"
-IDS_StatEnhance2        "      Outlier threshold specified by percent probability correct = %g.\r\n"
-IDS_StatEnhance3        "    Labeled samples are weighted by %g.\r\n"
+    IDS_StatEnhance1        "     Chi*Chi threshold value = %g.\r\n"
+    IDS_StatEnhance2        "      Outlier threshold specified by percent probability correct = %g.\r\n"
+    IDS_StatEnhance3        "    Labeled samples are weighted by %g.\r\n"
 END
 
 STRINGTABLE
@@ -5818,6 +5626,13 @@ END
 STRINGTABLE
 BEGIN
     IDS_ProjectVersion12    "20130424"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_BiPlot1             "Plotting Data for Selected Area."
+    IDS_BiPlot2             "Plotting Data for Project Classes."
+    IDS_BiPlot3             "Plotting Class Outlines."
 END
 
 #endif    // English (United States) resources

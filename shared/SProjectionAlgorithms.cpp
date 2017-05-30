@@ -209,7 +209,7 @@ double asinz (
 //------------------------------------------------------------------------------------
 //								 Copyright (1988-2015)
 //								(c) Purdue Research Foundation
-//									All rights reserved.
+//									Allrights reserved.
 //
 //	Function name:				Boolean ConvertAlbersEqualAreaToLatLong
 //

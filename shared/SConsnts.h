@@ -7,7 +7,7 @@
 //	Header file which contains the constants used by MultiSpec.
 //	
 //	Written 03/29/1988 by Larry L. Biehl
-//	Revised 03/13/2017 by Larry L. Biehl
+//	Revised 05/03/2017 by Larry L. Biehl
 //	Revised 06/18/2013 by Abdur Maud
 //	Revised 07/23/2015 by Tsung Tai Yeh
 //	

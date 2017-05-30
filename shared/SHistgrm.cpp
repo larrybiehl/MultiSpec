@@ -8148,7 +8148,7 @@ Boolean ListHistogramValues(
 				}		// end "if (gNumberOfEndOfLineCharacters == 2)"
 				
 			#ifndef multispec_lin
-				textLength = (UInt32)charPtr - (UInt32)gCharBufferPtr1;
+				textLength = (UInt32)(charPtr - gCharBufferPtr1);
 			#else
             textLength = (UInt64)charPtr - (UInt64)gCharBufferPtr1;
 			#endif
@@ -8451,7 +8451,7 @@ Boolean ListHistogramValuesInColumns (
 				}		// end "if (gNumberOfEndOfLineCharacters == 2)"
 				
 			#ifndef multispec_lin
-				textLength = (UInt32)charPtr - (UInt32)gCharBufferPtr1;
+				textLength = (UInt32)(charPtr - gCharBufferPtr1);
 			#else
             textLength = (UInt64)charPtr - (UInt64)gCharBufferPtr1;
 			#endif
@@ -8646,9 +8646,9 @@ Boolean ListHistogramValuesInLines(
 		
 				// Now get the total number of characters in the buffer.				
 		#ifndef multispec_lin
-			textLength = (UInt32)charPtr - (UInt32)gCharBufferPtr1;
+			textLength = (UInt32)(charPtr - gCharBufferPtr1);
 		#else
-			textLength = (UInt64) charPtr - (UInt64) gCharBufferPtr1;
+			textLength = (UInt64)charPtr - (UInt64)gCharBufferPtr1;
 		#endif
 		continueFlag = OutputString (resultsFileStreamPtr, 
 												gCharBufferPtr1, 

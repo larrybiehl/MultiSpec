@@ -1,7 +1,8 @@
 // WFormDlg.cpp : implementation file
 //
-//	Revised by Larry Biehl on 02/23/2017
-                    
+//	Revised by Larry Biehl on 05/26/2017
+//
+
 #include "SMulSpec.h"
 
 #include "WFormDlg.h"
@@ -10,7 +11,6 @@
 #include "CProcess.h" 
 
 #include	"SExtGlob.h"
-#include "wformdlg.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -417,7 +417,7 @@ BOOL CMFileFormatSpecsDlg::OnInitDialog()
 //	Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 05/23/1995
-//	Revised By:			Larry L. Biehl			Date: 02/22/2012	
+//	Revised By:			Larry L. Biehl			Date: 05/26/2017	
 
 Boolean 
 CMFileFormatSpecsDlg::DoDialog(
@@ -429,7 +429,7 @@ CMFileFormatSpecsDlg::DoDialog(
 				Boolean*								parameterChangedFlagPtr)
 
 {                                  
-	SInt16				returnCode;
+	INT_PTR				returnCode;
 	
 	Boolean				continueFlag = FALSE,
 							changedFlag,

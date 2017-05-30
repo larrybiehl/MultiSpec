@@ -1,5 +1,7 @@
-// wclsfdlg.cpp : implementation file
+// WCCorDlg.cpp : implementation file
 //    
+// Revised by Larry Biehl on 05/26/2017
+//
                    
 #include "SMulSpec.h"
                      
@@ -65,15 +67,15 @@ END_MESSAGE_MAP()
 // 
 //	Called By:			Dialog in MDisMult.cpp
 //
-//	Coded By:			Larry L. Biehl			Date: 04/09/98
-//	Revised By:			Larry L. Biehl			Date: 04/09/98	
+//	Coded By:			Larry L. Biehl			Date: 04/09/1998
+//	Revised By:			Larry L. Biehl			Date: 05/26/2017	
 
 Boolean 
 CMCorrelationClassifyDialog::DoDialog(
 				SInt16*								covarianceEstimatePtr)
 
 {  
-	SInt16								returnCode;
+	INT_PTR								returnCode;
 	
 	Boolean								continueFlag = FALSE;
 								

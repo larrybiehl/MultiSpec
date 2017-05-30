@@ -4257,7 +4257,37 @@ SInt16 ReadHeaderWithGDALLibrary (
 	GDALAllRegister();
 	
 	hDS = GDALOpen ((char*)filePathPtr, GA_ReadOnly);
-
+	/*		
+	sprintf ((char*)&gTextString, " hDS = %d%s",
+						hDS, 
+						gEndOfLine);
+	OutputString (NULL, 
+						(char*)&gTextString, 
+						0, 
+						gOutputForce1Code,
+						true);
+	*/
+	/*					
+	if (hDS == NULL)
+		{
+		rlimit						resourceLimits;
+		getrlimit (RLIMIT_NOFILE, &resourceLimits);
+	
+		sprintf ((char*)&gTextString, " rlim_cur = %d%s gNumberOfOpenFilesLimit = %d%s",
+						(int)resourceLimits.rlim_cur,
+						gEndOfLine, 
+						//resourceLimits.rlim_max,
+						//gEndOfLine,
+						gNumberOfOpenFilesLimit,
+						gEndOfLine);
+		OutputString (NULL, 
+						(char*)&gTextString, 
+						0, 
+						gOutputForce1Code,
+						true);
+		
+		}
+	*/
 	if (hDS != NULL)
 		{		
 		gNumberOfOpenFiles++;

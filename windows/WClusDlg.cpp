@@ -1,6 +1,6 @@
 // WClusDlg.cpp : implementation file
 //      
-// Revised by Larry Biehl on 03/27/2017
+// Revised by Larry Biehl on 05/26/2017
 //
                    
 #include "SMulSpec.h" 
@@ -237,7 +237,7 @@ END_MESSAGE_MAP()
 //	Called By:			Dialog in MDisMult.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 08/02/1996
-//	Revised By:			Larry L. Biehl			Date: 01/27/2003	
+//	Revised By:			Larry L. Biehl			Date: 05/26/2017	
 
 SInt16 
 CMClusterDialog::DoDialog(
@@ -246,7 +246,7 @@ CMClusterDialog::DoDialog(
 {  
 	Boolean						continueFlag = FALSE;  
 	
-	SInt16						returnCode;
+	INT_PTR						returnCode;
 								
 
 	                          

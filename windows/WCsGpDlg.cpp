@@ -1,5 +1,7 @@
 // WCsGpDlg.cpp : implementation file
-//                    
+// 
+// Revised by Larry Biehl on 05/26/2017
+//
 #include "SMulSpec.h"             
 #include "WCsGpDlg.h"
 #include	"SExtGlob.h" 
@@ -150,7 +152,7 @@ BOOL CMEditClassGroupDlg::OnInitDialog()
 //	Called By:			 
 //
 //	Coded By:			Larry L. Biehl			Date: 01/07/1997
-//	Revised By:			Larry L. Biehl			Date: 01/28/2016	
+//	Revised By:			Larry L. Biehl			Date: 05/26/2017	
 
 Boolean 
 CMEditClassGroupDlg::DoDialog(
@@ -171,7 +173,7 @@ CMEditClassGroupDlg::DoDialog(
 	                            
 	Boolean					OKFlag = FALSE;
 	
-	SInt16					returnCode;
+	INT_PTR					returnCode;
 	
 	
 			// Make sure intialization has been completed.

@@ -1,5 +1,7 @@
-// wchandlg.cpp : implementation file
-//                   
+// WChanDlg.cpp : implementation file
+//     
+// Revised by Larry Biehl on 05/26/2017
+//
                    
 #include "SMulSpec.h" 
 
@@ -82,8 +84,8 @@ END_MESSAGE_MAP()
 // 
 //	Called By:			Dialog in MDisMult.cpp
 //
-//	Coded By:			Larry L. Biehl			Date: 10/10/95
-//	Revised By:			Larry L. Biehl			Date: 05/01/98	
+//	Coded By:			Larry L. Biehl			Date: 10/10/1995
+//	Revised By:			Larry L. Biehl			Date: 05/26/2017	
 
 Boolean 
 CMChannelsDlg::DoDialog(
@@ -100,7 +102,7 @@ CMChannelsDlg::DoDialog(
 {  
 	Boolean			OKFlag = FALSE; 
 	
-	SInt16			returnCode;  
+	INT_PTR			returnCode;
 	
 			// Make sure intialization has been completed.
 							                         
@@ -335,8 +337,8 @@ END_MESSAGE_MAP()
 // 
 //	Called By:			
 //
-//	Coded By:			Larry L. Biehl			Date: 04/30/98
-//	Revised By:			Larry L. Biehl			Date: 04/30/98	
+//	Coded By:			Larry L. Biehl			Date: 04/30/1998
+//	Revised By:			Larry L. Biehl			Date: 05/26/2017	
 
 Boolean 
 CMChannelCombinationsDlg::DoDialog(
@@ -351,7 +353,7 @@ CMChannelCombinationsDlg::DoDialog(
 {  
 	Boolean			OKFlag = FALSE; 
 	
-	SInt16			returnCode; 
+	INT_PTR			returnCode;
 	 
 	
 			// Make sure intialization has been completed.

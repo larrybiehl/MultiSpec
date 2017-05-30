@@ -4264,7 +4264,6 @@ void LoadGraphSupportArrays (
 			for (index=0; index<(SInt32)gBiPlotDataSpecsPtr->numberClasses; index++)
 				vectorDisplayPtr[ classPtr[index] ] = 1;
 				
-				
 			}		// end "if (gProcessorCode == kBiPlotDataProcessor)" 
 			
 		else		// gProcessorCode != kBiPlotDataProcessor 
@@ -4284,7 +4283,6 @@ void LoadGraphSupportArrays (
 		if (gProcessorCode == kBiPlotDataProcessor)
 			{
 			*vectorSymbolPtr = '+';
-				
 			vectorSymbolPtr++;
 		
 			symbolsPtr = (UInt8*)GetHandlePointer(

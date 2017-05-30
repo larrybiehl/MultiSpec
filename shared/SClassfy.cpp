@@ -13,7 +13,7 @@
 //
 //	Revision number:		3.0
 //
-//	Revision date:			03/27/2017
+//	Revision date:			05/26/2017
 //
 //	Language:				C
 //
@@ -223,8 +223,10 @@
 //	Include files:			"MultiSpecHeaders"
 //								"SMulSpec.h"
 
+#include	"SMulSpec.h"
+
 #if defined multispec_lin
-	#include "SMulSpec.h"
+	//#include "SMulSpec.h"
 	#include "SExtGlob.h"
 	#include "LImageView.h"
 #endif
@@ -237,7 +239,7 @@
 #endif	// defined multispec_mac  
   
 #if defined multispec_win  
-	#include	"SMulSpec.h" 
+	//#include	"SMulSpec.h" 
 	#include "CImagVew.h"
 	#include "SExtGlob.h"      
 #endif	// defined multispec_win    
@@ -3015,19 +3017,20 @@ SInt16 ClassifyPerPointArea (
 		  			
 			if (gOutputCode & kCreateImageOverlayCode)
 				{
-				CopyToOffscreenBuffer (imageOverlayInfoPtr,
-													gClassifySpecsPtr->imageOverlayIndex,
-													gProjectInfoPtr->overlayImageWindowInfoHandle,
-													line,
-													(UInt32)areaDescriptionPtr->columnStart,
-													(UInt32)areaDescriptionPtr->columnInterval,
-													(UInt32)areaDescriptionPtr->numSamplesPerChan,
-													areaDescriptionPtr->lineStart,
-													areaDescriptionPtr->rgnHandle,
-													outputBufferPtr,
-													offScreenBufferPtr,
-													1,
-													FALSE);
+				CopyToOffscreenBuffer (fileIOInstructionsPtr,
+												imageOverlayInfoPtr,
+												gClassifySpecsPtr->imageOverlayIndex,
+												gProjectInfoPtr->overlayImageWindowInfoHandle,
+												line,
+												(UInt32)areaDescriptionPtr->columnStart,
+												(UInt32)areaDescriptionPtr->columnInterval,
+												(UInt32)areaDescriptionPtr->numSamplesPerChan,
+												areaDescriptionPtr->lineStart,
+												areaDescriptionPtr->rgnHandle,
+												outputBufferPtr,
+												offScreenBufferPtr,
+												1,
+												FALSE);
 													
 				}		// end "if (gOutputCode & kCreateImageOverlayCode)"
 				

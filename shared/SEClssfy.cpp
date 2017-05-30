@@ -627,19 +627,20 @@ SInt16 PostEchoClassifier (
 		
 		if (gOutputCode & kCreateImageOverlayCode)
 			{
-			CopyToOffscreenBuffer (imageOverlayInfoPtr,
-										  gClassifySpecsPtr->imageOverlayIndex,
-										  gProjectInfoPtr->overlayImageWindowInfoHandle,
-										  line,
-										  (UInt32)areaDescriptionPtr->columnStart,
-										  (UInt32)areaDescriptionPtr->columnInterval,
-										  (UInt32)areaDescriptionPtr->numSamplesPerChan,
-										  areaDescriptionPtr->lineStart,
-										  areaDescriptionPtr->rgnHandle,
-										  gOutputBufferPtr,
-										  offScreenBufferPtr,
-										  1,
-										  FALSE);
+			CopyToOffscreenBuffer (NULL, // fileIOInstructionsPtr,
+											imageOverlayInfoPtr,
+											gClassifySpecsPtr->imageOverlayIndex,
+											gProjectInfoPtr->overlayImageWindowInfoHandle,
+											line,
+											(UInt32)areaDescriptionPtr->columnStart,
+											(UInt32)areaDescriptionPtr->columnInterval,
+											(UInt32)areaDescriptionPtr->numSamplesPerChan,
+											areaDescriptionPtr->lineStart,
+											areaDescriptionPtr->rgnHandle,
+											gOutputBufferPtr,
+											offScreenBufferPtr,
+											1,
+											FALSE);
 			
 			}		// end "if (gOutputCode & kCreateImageOverlayCode)"
 		

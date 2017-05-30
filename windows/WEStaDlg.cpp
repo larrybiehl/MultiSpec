@@ -1,10 +1,10 @@
 // WEStaDlg.cpp : implementation file
 //
+// Revised by Larry Biehl on 05/26/2017
+//
                     
 #include "SMulSpec.h"
-
 #include "WEStaDlg.h"
-
 #include	"SExtGlob.h"
 
 		// Enhance Statistics constants												
@@ -256,15 +256,15 @@ END_MESSAGE_MAP()
 // 
 //	Called By:			
 //
-//	Coded By:			Larry L. Biehl			Date: 11/04/99
-//	Revised By:			Larry L. Biehl			Date: 11/04/99	
+//	Coded By:			Larry L. Biehl			Date: 11/04/1999
+//	Revised By:			Larry L. Biehl			Date: 05/26/2017	
 
 SInt16 
 CMEnhanceStatisticsDialog::DoDialog(
 				StatEnhanceSpecsPtr				statEnhanceSpecsPtr)
 
 {  
-	SInt16								returnCode;
+	INT_PTR								returnCode;
 	
 	Boolean								continueFlag = FALSE;
 								
