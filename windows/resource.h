@@ -131,7 +131,6 @@
 #define IDD_BiPlot                      249
 #define IDS_FileIO50                    250
 #define IDS_FileIO51                    251
-#define IDD_ListData2                   251
 #define IDS_FileIO52                    252
 #define IDS_FileIO53                    253
 #define IDS_ChannelDescriptions         254
@@ -472,7 +471,6 @@
 #define IDC_LineInterval                1044
 #define ID3C_ColumnStart                1045
 #define IDC_ColumnStart                 1045
-#define IDC_LineInterval2               1045
 #define ID3C_ColumnEnd                  1046
 #define IDC_ColumnEnd                   1046
 #define ID3C_ColumnInterval             1047
@@ -480,10 +478,7 @@
 #define IDC_LineStart2                  1048
 #define ID3C_DisplayType                1049
 #define IDC_LineEnd2                    1049
-#define IDC_ColumnStart4                1049
 #define ID3C_STATIC16                   1050
-#define IDC_LineInterval3               1050
-#define IDC_ColumnEnd4                  1050
 #define ID3C_BitsOfColor                1051
 #define IDC_ColumnStart2                1051
 #define ID3C_STATIC18                   1052
@@ -888,7 +883,6 @@
 #define IDC_ChannelPrompt               1323
 #define IDC_ChannelCombo                1324
 #define IDC_TargetCombo                 1325
-#define IDC_ChannelCombo2               1325
 #define IDC_TestAreas                   1327
 #define IDC_AreasCombo                  1328
 #define IDC_ImageArea                   1329
@@ -1186,10 +1180,8 @@
 #define IDS_ListResult38                1538
 #define IDC_RedChannelMinE              1538
 #define IDC_StandardParallel2Prompt     1538
-#define IDD_ListData1                   1538
 #define IDS_ListResult39                1539
 #define IDC_RedChannelMaxE              1539
-#define IDD_ListData3                   1539
 #define IDS_ListResult40                1540
 #define IDC_GreenChannelMinE            1540
 #define IDS_ListResult41                1541
@@ -1246,14 +1238,15 @@
 #define IDC_ListChannelsFormatCombo     1587
 #define IDC_MeansStdDevPrompt           1588
 #define IDC_TrainMaskPopUp              1589
-#define IDC_TrainMaskLayerEDIT          1590
-#define IDC_TrainMaskLayerStatic        1591
+#define IDC_TrainMaskLayer              1590
+#define IDC_TrainMaskLayerEdit          1591
 #define IDC_TrainMaskPrompt             1592
 #define IDC_TestMaskPrompt              1593
 #define IDC_TestMaskPopUp               1594
-#define IDC_TestMaskLayerStatic         1595
-#define IDC_TestMaskLayerEDIT           1596
+#define IDC_TestMaskLayerEdit           1595
+#define IDC_TestMaskLayer               1596
 #define IDC_CreateClusterMaskCheckBox   1597
+#define IDC_LayerPrompt                 1597
 #define IDC_ClassNumberPixels           1598
 #define IDC_FieldNumberPixels           1599
 #define IDC_PreprocessingCombo          1600
@@ -1407,10 +1400,8 @@
 #define IDC_LineIntervalPrompt          1727
 #define IDS_Cluster28                   1728
 #define IDC_ColumnIntervalPrompt        1728
-#define IDC_LineIntervalPrompt2         1728
 #define IDC_StatPrompt                  1728
 #define IDS_Cluster29                   1729
-#define IDC_LineIntervalPrompt3         1729
 #define IDS_Cluster30                   1730
 #define IDC_IndividualRadio             1730
 #define IDS_Cluster31                   1731
@@ -1613,6 +1604,7 @@
 #define IDC_SelectedFieldRadio          1889
 #define IDC_StatisticMin                1890
 #define IDC_StatisticMax                1891
+#define IDC_OptionHeading               1892
 #define IDS_PrincipalComponent1         1901
 #define IDS_PrincipalComponent2         1902
 #define IDS_PrincipalComponent3         1903
@@ -1626,9 +1618,6 @@
 #define IDS_PrincipalComponent11        1911
 #define IDS_PrincipalComponent12        1912
 #define IDS_PrincipalComponent13        1913
-#define IDS_BiPlot1                     1914
-#define IDS_BiPlot2                     1915
-#define IDS_BiPlot3                     1916
 #define IDS_ListData1                   2001
 #define IDS_ListData2                   2002
 #define IDS_ListData3                   2003
@@ -1876,7 +1865,6 @@
 #define IDS_FileIO189                   2489
 #define IDS_FileIO190                   2490
 #define IDS_FileIO191                   2491
-#define IDS_FILEIO192                   2492
 #define IDS_FileIO192                   2492
 #define IDS_FileIO193                   2493
 #define IDS_FileIO194                   2494
@@ -2171,6 +2159,9 @@
 #define IDS_DataType06                  6106
 #define IDS_DataType07                  6107
 #define IDS_DataType08                  6108
+#define IDS_BiPlot1                     6201
+#define IDS_BiPlot2                     6202
+#define IDS_BiPlot3                     6203
 #define IDS_StatisticsImage1            7301
 #define IDS_StatisticsImage2            7302
 #define IDS_StatisticsImage3            7303
@@ -2294,7 +2285,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        256
+#define _APS_NEXT_RESOURCE_VALUE        257
 #define _APS_NEXT_COMMAND_VALUE         32931
 #define _APS_NEXT_CONTROL_VALUE         1897
 #define _APS_NEXT_SYMED_VALUE           111

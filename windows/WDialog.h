@@ -58,7 +58,7 @@ public:
 								UInt16								dialogItemNumber,
 								SInt16								comboItem,
 								UCharPtr								stringPtr,
-								UInt16								stringCharCode= kUTF8CharString);
+								UInt16								stringCharCode=kASCIICharString); 
 							
 	void					SetEntireImageButtons (               
 								DialogPtr							dialogPtr,
