@@ -694,11 +694,30 @@ Boolean CMainFrame::GetEnableFlagForStatisticsAndCluster()
 
 
 void CMainFrame::OnUpdateBiplotsOfData(CCmdUI* pCmdUI)
-{                                                                                                                      
-	//pCmdUI->Enable(FALSE);
-	pCmdUI->Enable(TRUE);
+{  
+	Boolean enableFlag = FALSE;
+
+	Handle windowInfoHandle = GetWindowInfoHandle(gActiveImageViewCPtr);
+	WindowInfoPtr windowInfoPtr = (WindowInfoPtr)GetHandlePointer (windowInfoHandle);
+
+	if (windowInfoPtr != NULL &&
+				windowInfoPtr->windowType == kImageWindowType &&
+						windowInfoPtr->totalNumberChannels >= 2)
+		enableFlag = TRUE;
+
+	if (gProjectInfoPtr != NULL && windowInfoPtr == NULL)
+		{
+		WindowInfoPtr projectWindowInfoPtr = (WindowInfoPtr)GetHandlePointer (
+												gProjectInfoPtr->windowInfoHandle);
+			if (projectWindowInfoPtr != NULL && 
+								projectWindowInfoPtr->totalNumberChannels >= 2)
+				enableFlag = TRUE;
+
+		}	// end "if (gProjectInfoPtr != NULL && windowInfoPtr == NULL)"
+
+	pCmdUI->Enable (enableFlag);
 	
-}
+}	// end "OnUpdateBiplotsOfData"
 
 void CMainFrame::OnUpdateCheckCovariances(CCmdUI* pCmdUI)
 {                                                                                                                      
@@ -1440,7 +1459,6 @@ void CMainFrame::OnProcUtilBiplotsOfData()
 		{                                   
 		gMemoryTypeNeeded = 1;
 		BiPlotDataControl (); 
-		//UnloadSeg (BiPlotDataControl);
 		
 		}		// end "if (gMemoryTypeNeeded == 0)"
 	                                                  

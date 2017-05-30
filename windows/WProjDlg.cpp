@@ -1,4 +1,4 @@
-// wprojdlg.cpp : implementation file
+// WProjDlg.cpp : implementation file
 //               
                    
 #include "SMulSpec.h"
