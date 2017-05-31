@@ -41,4 +41,3 @@ char* CIniReader::ReadString(char* szSection, char* szKey, const char* szDefault
 		(LPCWSTR)szDefaultValue, (LPWSTR)szResult, 255, (LPCWSTR)m_szFileName); 
  return szResult;
 }
-
