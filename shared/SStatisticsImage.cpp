@@ -35,6 +35,8 @@
 //
 //------------------------------------------------------------------------------------
 
+#include	"SMulSpec.h" 
+
 #if defined multispec_mac 
 	#define	IDC_ChannelCombo					4
 	#define	IDC_ClassesRadio					6
@@ -65,8 +67,7 @@
 	#define	IDC_FeatureTransformation		34
 #endif	// defined multispec_mac 
   
-#if defined multispec_win   
-	#include	"SMulSpec.h"    
+#if defined multispec_win     
 //	#include	"WMosaicTwoImagesDialog.h" 
 	#include "SExtGlob.h"
 	#include "WStatImageDlg.h"
