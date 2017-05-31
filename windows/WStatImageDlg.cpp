@@ -91,13 +91,13 @@ CMStatImageDialog::CMStatImageDialog(CWnd* pParent /*=NULL*/)
 		classPtrPtr = NULL;
 
 	m_initializedFlag = GetDialogLocalVectors(&m_localFeaturesPtr,
-			&m_localTransformFeaturesPtr,
-			classPtrPtr,
-			NULL,
-			NULL,
-			NULL,
-			NULL,
-			NULL);
+		&m_localTransformFeaturesPtr,
+		classPtrPtr,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL);
 #endif
 
 }
@@ -133,7 +133,7 @@ void CMStatImageDialog::DoDataExchange(CDataExchange* pDX)
 	DDX_Radio(pDX, IDC_SelectedClassRadio, m_perClassCode);
 	DDX_Radio(pDX, IDC_SelectedFieldRadio, m_perFieldCode);
 	DDX_Radio(pDX, IDC_SelectedAreaRadio, m_areaCode);
-
+#if 1
 	DDX_Radio(pDX, IDC_OverallRadio, m_overallMinMaxCode);
 	DDX_Radio(pDX, IDC_IndividualRadio, m_individualMinMaxCode);
 	DDX_Radio(pDX, IDC_UserSettingRadio, m_userMinMaxCode);
@@ -143,7 +143,7 @@ void CMStatImageDialog::DoDataExchange(CDataExchange* pDX)
 	//DDX_CBIndex(pDX, IDC_Fields, m_classSelection);
 	DDX_Text(pDX, IDC_StatisticMin, m_userMinimum);
 	DDX_Text(pDX, IDC_StatisticMax, m_userMaximum);
-
+#endif
 
 
 }
@@ -186,7 +186,7 @@ BOOL CMStatImageDialog::DoDialog()
 			m_userMinimum,
 			m_userMaximum);
 
-		
+
 	}
 #endif
 
@@ -196,9 +196,9 @@ BOOL CMStatImageDialog::DoDialog()
 BOOL CMStatImageDialog::OnInitDialog() {
 
 	SInt16			areaCode,
-						channelsPopUpMenuID,
-						channelSelection,
-						selectItem;
+		channelsPopUpMenuID,
+		channelSelection,
+		selectItem;
 
 	CMDialog::OnInitDialog();
 #if 1
@@ -243,17 +243,17 @@ BOOL CMStatImageDialog::OnInitDialog() {
 
 BEGIN_MESSAGE_MAP(CMStatImageDialog, CMDialog)
 #if 1
-ON_EN_CHANGE(IDC_ColumnEnd, CheckColumnEnd)
-ON_EN_CHANGE(IDC_ColumnStart, CheckColumnStart)
-ON_EN_CHANGE(IDC_LineEnd, CheckLineEnd)
-ON_EN_CHANGE(IDC_LineStart, CheckLineStart)
-ON_CBN_SELENDOK(IDC_ClassCombo, OnSelendokClassCombo)
-ON_CBN_SELENDOK(IDC_ChannelCombo, OnSelendokChannelCombo)
-ON_BN_CLICKED(IDC_UserSettingRadio, OnClickUserSettingRadio)
-ON_BN_CLICKED(IDC_IndividualRadio, OnClickIndividualRadio)
-ON_BN_CLICKED(IDC_OverallRadio, OnClickOverallRadio)
-ON_BN_CLICKED(IDEntireImage, ToEntireImage)
-ON_BN_CLICKED(IDSelectedImage, ToSelectedImage)
+	ON_EN_CHANGE(IDC_ColumnEnd, CheckColumnEnd)
+	ON_EN_CHANGE(IDC_ColumnStart, CheckColumnStart)
+	ON_EN_CHANGE(IDC_LineEnd, CheckLineEnd)
+	ON_EN_CHANGE(IDC_LineStart, CheckLineStart)
+	ON_CBN_SELENDOK(IDC_ClassCombo, OnSelendokClassCombo)
+	ON_CBN_SELENDOK(IDC_ChannelCombo, OnSelendokChannelCombo)
+	ON_BN_CLICKED(IDC_UserSettingRadio, OnClickUserSettingRadio)
+	ON_BN_CLICKED(IDC_IndividualRadio, OnClickIndividualRadio)
+	ON_BN_CLICKED(IDC_OverallRadio, OnClickOverallRadio)
+	ON_BN_CLICKED(IDEntireImage, ToEntireImage)
+	ON_BN_CLICKED(IDSelectedImage, ToSelectedImage)
 #endif
 END_MESSAGE_MAP()
 

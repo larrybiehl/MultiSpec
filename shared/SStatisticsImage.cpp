@@ -73,7 +73,7 @@
 #define  kStatisticsImageStrID          172
 #endif	// defined multispec_win
 
-#ifdef multispec_lin 
+#if defined multispec_lin 
    #include "MultiSpec2.h"
 	#include "SExtGlob.h"
    #include "SRConsnt.h"

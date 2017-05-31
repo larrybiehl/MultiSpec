@@ -114,6 +114,7 @@ protected:
 	afx_msg void OnProjClearStats();
 	afx_msg void OnProcStatistics();
 	afx_msg void OnProcClassify();
+	afx_msg void OnProcUtilCreateStatImage();
 	afx_msg void OnUpdateViewCoordinatesBar(CCmdUI* pCmdUI);
 	afx_msg void OnFileOpenProjectImage();
 	afx_msg void OnProjAddAsAssociatedImage();
