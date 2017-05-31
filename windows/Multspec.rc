@@ -5169,6 +5169,29 @@ END
 
 STRINGTABLE
 BEGIN
+IDS_StatisticsImage1            "    Statistics Image will be created for each selected class"
+IDS_StatisticsImage2            "    Statistics Image will be created for each selected field."
+IDS_StatisticsImage3            "    The images will be based on overall min-max values."
+IDS_StatisticsImage4            "    Each image will be based on respective statistics' min-max values."
+IDS_StatisticsImage5            "    Statistics Image will be created for the selected area."
+IDS_StatisticsImage6            "Area"
+IDS_StatisticsImage7            "Getting covariance for selected area."
+IDS_StatisticsImage8            "Allocating memory"
+IDS_StatisticsImage9            "Getting covariances for selected classes."
+IDS_StatisticsImage10           "Getting covariances for selected fields."
+IDS_StatisticsImage11			  "Getting covariance for selected class."
+IDS_StatisticsImage12				"Getting covariance for selected field."
+IDS_StatisticsImage13				"Creating image for class statistics."
+IDS_StatisticsImage14				"Creating image for field statistics."
+IDS_StatisticsImage15				"Creating images for class statistics."
+IDS_StatisticsImage16				"Creating images for field statistics."
+IDS_StatisticsImage17				"Creating image for selected area."				
+IDS_StatisticsImage18				"    Image Statistics Error = '%d'."
+IDS_StatisticsImage19				"    Image statistics file, '%s', written to disk."
+END
+
+STRINGTABLE
+BEGIN
     IDS_Datum00             "none defined"
     IDS_Datum011            "Beijing 1954"
     IDS_Datum021            "Campo Inchauspe"
