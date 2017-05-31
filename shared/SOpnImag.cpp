@@ -13,7 +13,7 @@
 //
 //	Revision number:		3.0
 //
-//	Revision date:			04/13/2017
+//	Revision date:			05/31/2017
 //
 //	Language:				C
 //
@@ -5882,7 +5882,7 @@ Boolean ModalFileFormat(
 			//	user requested okay.  Otherwise the user requested cancel.		
 			// Assume that he may want to request a different file.					
 
-	returnFlag = FileSpecificationDialog(fileInfoHandle, NULL, NULL);
+	returnFlag = FileSpecificationDialog (fileInfoHandle, NULL, NULL);
 
 			// Unlock the file information handle if needed.
 
@@ -12564,7 +12564,7 @@ Boolean ReadThematicGroupsFromImageFile (
 		colorTableSize = displaySpecsPtr->numberPaletteLevels;
 		colorTableSize = MIN(256, colorTableSize);
 		bytesNeeded = colorTableSize * sizeof(ColorSpec) + sizeof(ColorTable);
-		cTablePtr = (CTabPtr) CheckHandleSize(
+		cTablePtr = (CTabPtr) CheckHandleSize (
 										 (Handle*) & cTableHandle,
 										 &continueFlag,
 										 &changedFlag,
@@ -12951,261 +12951,271 @@ SInt16 ReadVICARHeader(
 					{
 							// Find "LBLSIZE=" in the buffer.
 
-				  fileInfoPtr->numberHeaderBytes = GetFileHeaderValue(
-							 kFileIOStrID,
-							 IDS_VICARLabelSize,
-							 ioBufferPtr,
-							 1,
-							 kDoNotSkipEqual,
-							 &tReturnCode); // 44
+					fileInfoPtr->numberHeaderBytes = GetFileHeaderValue (
+																	kFileIOStrID,
+																	IDS_VICARLabelSize,
+																	ioBufferPtr,
+																	1,
+																	kDoNotSkipEqual,
+																	&tReturnCode); // 44
 
-				  if (tReturnCode == 0)
+					if (tReturnCode == 0)
 						nextSet = 2;
 
-				  else // tReturnCode != 0 
-				  {
+					else // tReturnCode != 0 
+						{
 						if (tReturnCode < 0)
-							 errCode = tReturnCode;
+							errCode = tReturnCode;
 
 						if (tReturnCode > 0)
-							 posOff -= tReturnCode;
+								posOff -= tReturnCode;
 
-				  } // end "else tReturnCode != 0" 
+						}	// end "else tReturnCode != 0" 
 
-				 } // end "if (nextSet == 1)" 
+					}	// end "if (nextSet == 1)" 
 
-				 // Get next set of information.										
+						// Get next set of information.										
 
-				 if (nextSet == 2) {
-					  index = 0;
-					  stringNumber[0] = IDS_FileIO60;
-					  stringNumber[1] = IDS_FileIO45;
-					  do {
-							// Find "FORMAT='HALF'" in the buffer or						
-							// Find "FORMAT='BYTE'" in the buffer.							
+				if (nextSet == 2) 
+					{
+					index = 0;
+					stringNumber[0] = IDS_FileIO60;
+					stringNumber[1] = IDS_FileIO45;
+					do {
+								// Find "FORMAT='HALF'" in the buffer or						
+								// Find "FORMAT='BYTE'" in the buffer.							
 
-							count = GetFileHeaderValue(kFileIOStrID,
-									  stringNumber[index],
-									  ioBufferPtr,
-									  0,
-									  kDoNotSkipEqual,
-									  &tReturnCode);
+						count = GetFileHeaderValue (kFileIOStrID,
+																stringNumber[index],
+																ioBufferPtr,
+																0,
+																kDoNotSkipEqual,
+																&tReturnCode);
 
-							if (tReturnCode == 0) {
-								 fileInfoPtr->numberBytes = index + 1;
-								 fileInfoPtr->numberBits = 8 * fileInfoPtr->numberBytes;
+						if (tReturnCode == 0) 
+							{
+							fileInfoPtr->numberBytes = index + 1;
+							fileInfoPtr->numberBits = 8 * fileInfoPtr->numberBytes;
 
-								 fileInfoPtr->signedDataFlag = TRUE;
-								 if (fileInfoPtr->numberBytes == 1)
-									  fileInfoPtr->signedDataFlag = FALSE;
+							fileInfoPtr->signedDataFlag = TRUE;
+							if (fileInfoPtr->numberBytes == 1)
+								fileInfoPtr->signedDataFlag = FALSE;
 
-								 nextSet = 3;
+							nextSet = 3;
 
-							} // end "if (tReturnCode == 0)" 
+							}	// end "if (tReturnCode == 0)" 
 
-							index++;
+						index++;
 
-					  } while (tReturnCode > 0 && index < 2);
+						} while (tReturnCode > 0 && index < 2);
 
-					  if (tReturnCode < 0)
+					if (tReturnCode < 0)
+						errCode = tReturnCode;
+
+					if (tReturnCode > 0)
+						posOff -= tReturnCode;
+
+					}	// end "if (nextSet == 2)" 
+
+				if (nextSet == 3) 
+					{
+					index = 0;
+					stringNumber[0] = IDS_FileIO46;
+					stringNumber[1] = IDS_FileIO58;
+					stringNumber[2] = IDS_FileIO59;
+					do {
+								// Find "ORG='BIL'" in the buffer or							
+								// Find "ORG='BSQ'" in the buffer or							 
+								// Find "ORG='BIS'" in the buffer.								
+
+						count = GetFileHeaderValue (kFileIOStrID,
+															  stringNumber[index],
+															  ioBufferPtr,
+															  0,
+															  kDoNotSkipEqual,
+															  &tReturnCode);
+
+						if (tReturnCode == 0) 
+							{
+							fileInfoPtr->bandInterleave = index + 1;
+							nextSet = 4;
+
+							}	// end "if (tReturnCode == 0)" 
+
+						index++;
+
+						} while (tReturnCode > 0 && index < 3);
+
+					if (tReturnCode < 0)
+						errCode = tReturnCode;
+
+					if (tReturnCode > 0)
+						posOff -= tReturnCode;
+
+					}	// end "if (nextSet == 3)" 
+
+				if (nextSet == 4) 
+					{
+							// Find "NL=" in the buffer.										
+
+					fileInfoPtr->numberLines = GetFileHeaderValue (
+																kFileIOStrID,
+																IDS_FileIO47,
+																ioBufferPtr,
+																1,
+																kDoNotSkipEqual,
+																&tReturnCode);
+
+					if (tReturnCode == 0)
+						nextSet = 5;
+
+					else // tReturnCode != 0 
+						{
+						if (tReturnCode < 0)
 							errCode = tReturnCode;
 
-					  if (tReturnCode > 0)
+						if (tReturnCode > 0)
 							posOff -= tReturnCode;
 
-				 } // end "if (nextSet == 2)" 
+						}	// end "else tReturnCode != 0" 
 
-				 if (nextSet == 3) {
-					  index = 0;
-					  stringNumber[0] = IDS_FileIO46;
-					  stringNumber[1] = IDS_FileIO58;
-					  stringNumber[2] = IDS_FileIO59;
-					  do {
-							// Find "ORG='BIL'" in the buffer or							
-							// Find "ORG='BSQ'" in the buffer or							 
-							// Find "ORG='BIS'" in the buffer.								
+					}	// end "if (nextSet == 4)" 
 
-							count = GetFileHeaderValue(kFileIOStrID,
-									  stringNumber[index],
-									  ioBufferPtr,
-									  0,
-									  kDoNotSkipEqual,
-									  &tReturnCode);
+				if (nextSet == 5) 
+					{
+							// Find "NS=" in the buffer.										
 
-							if (tReturnCode == 0) {
-								 fileInfoPtr->bandInterleave = index + 1;
-								 nextSet = 4;
+					fileInfoPtr->numberColumns = GetFileHeaderValue (
+																kFileIOStrID,
+																IDS_FileIO48,
+																ioBufferPtr,
+																1,
+																kDoNotSkipEqual,
+																&tReturnCode);
 
-							} // end "if (tReturnCode == 0)" 
+					if (tReturnCode == 0)
+						nextSet = 6;
 
-							index++;
-
-					  } while (tReturnCode > 0 && index < 3);
-
-					  if (tReturnCode < 0)
+					else // tReturnCode != 0 
+						{
+						if (tReturnCode < 0)
 							errCode = tReturnCode;
 
-					  if (tReturnCode > 0)
+						if (tReturnCode > 0)
 							posOff -= tReturnCode;
 
-				 } // end "if (nextSet == 3)" 
+						}	// end "else tReturnCode != 0" 
 
-				 if (nextSet == 4) {
-					  // Find "NL=" in the buffer.										
+					}	// end "if (nextSet == 5)" 
 
-					  fileInfoPtr->numberLines = GetFileHeaderValue(
-								 kFileIOStrID,
-								 IDS_FileIO47,
-								 ioBufferPtr,
-								 1,
-								 kDoNotSkipEqual,
-								 &tReturnCode);
+				if (nextSet == 6) 
+					{
+							// Find "NB=" in the buffer.										
 
-					  if (tReturnCode == 0)
-							nextSet = 5;
+					fileInfoPtr->numberChannels = (UInt16)GetFileHeaderValue (
+																kFileIOStrID,
+																IDS_FileIO49,
+																ioBufferPtr,
+																1,
+																kDoNotSkipEqual,
+																&tReturnCode);
 
-					  else // tReturnCode != 0 
-					  {
-							if (tReturnCode < 0)
-								 errCode = tReturnCode;
+					if (tReturnCode == 0)
+						nextSet = 7;
 
-							if (tReturnCode > 0)
-								 posOff -= tReturnCode;
-
-					  } // end "else tReturnCode != 0" 
-
-				 } // end "if (nextSet == 4)" 
-
-				 if (nextSet == 5) {
-					  // Find "NS=" in the buffer.										
-
-					  fileInfoPtr->numberColumns = GetFileHeaderValue(
-								 kFileIOStrID,
-								 IDS_FileIO48,
-								 ioBufferPtr,
-								 1,
-								 kDoNotSkipEqual,
-								 &tReturnCode);
-
-					  if (tReturnCode == 0)
-							nextSet = 6;
-
-					  else // tReturnCode != 0 
-					  {
-							if (tReturnCode < 0)
-								 errCode = tReturnCode;
-
-							if (tReturnCode > 0)
-								 posOff -= tReturnCode;
-
-					  } // end "else tReturnCode != 0" 
-
-				 } // end "if (nextSet == 5)" 
-
-				 if (nextSet == 6) {
-					  // Find "NB=" in the buffer.										
-
-					  fileInfoPtr->numberChannels = (UInt16) GetFileHeaderValue(
-								 kFileIOStrID,
-								 IDS_FileIO49,
-								 ioBufferPtr,
-								 1,
-								 kDoNotSkipEqual,
-								 &tReturnCode);
-
-					  if (tReturnCode == 0)
-							nextSet = 7;
-
-					  else // tReturnCode != 0 
-					  {
-							if (tReturnCode < 0)
-								 errCode = tReturnCode;
-
-							if (tReturnCode > 0)
-								 posOff -= tReturnCode;
-
-					  } // end "else tReturnCode != 0" 
-
-				 } // end "if (nextSet == 6)" 
-
-				 // Get next set of information.										
-
-				 if (nextSet == 7) {
-					  // Find "INTFMT='HIGH'" in the buffer.							
-
-					  count = GetFileHeaderValue(kFileIOStrID,
-								 IDS_FileIO50,
-								 ioBufferPtr,
-								 0,
-								 kDoNotSkipEqual,
-								 &tReturnCode);
-
-					  if (tReturnCode >= 0) {
-							if (tReturnCode == 0)
-								 fileInfoPtr->swapBytesFlag = !gBigEndianFlag;
-
-							notFound = FALSE;
-
-					  }// end "if (tReturnCode >= 0)" 
-
-					  else // tReturnCode < 0 
+					else // tReturnCode != 0 
+						{
+						if (tReturnCode < 0)
 							errCode = tReturnCode;
 
-				 } // end "if (nextSet == 7)"									
-				 /*						
+						if (tReturnCode > 0)
+							posOff -= tReturnCode;
+
+						}	// end "else tReturnCode != 0" 
+
+					}	// end "if (nextSet == 6)" 
+
+						// Get next set of information.										
+
+				if (nextSet == 7) 
+					{
+							// Find "INTFMT='HIGH'" in the buffer.							
+
+					count = GetFileHeaderValue (kFileIOStrID,
+															 IDS_FileIO50,
+															 ioBufferPtr,
+															 0,
+															 kDoNotSkipEqual,
+															 &tReturnCode);
+
+					if (tReturnCode >= 0) 
+						{
+						if (tReturnCode == 0)
+							fileInfoPtr->swapBytesFlag = !gBigEndianFlag;
+
+						notFound = FALSE;
+
+						}	// end "if (tReturnCode >= 0)" 
+
+					else // tReturnCode < 0 
+						errCode = tReturnCode;
+
+					}	// end "if (nextSet == 7)"									
+				/*						
 				if (nextSet == 7)
-						  {
-												// Find "USER='AVIRIS'" in the buffer.							
+					{
+							// Find "USER='AVIRIS'" in the buffer.							
 
-						  count = GetFileHeaderValue (kFileIOStrID, 
-																 IDS_FileIO50, 
-																 ioBufferPtr, 
-																 0,
-																 kDoNotSkipEqual, 
-																 &tReturnCode);
+					count = GetFileHeaderValue (kFileIOStrID, 
+														 IDS_FileIO50, 
+														 ioBufferPtr, 
+														 0,
+														 kDoNotSkipEqual, 
+														 &tReturnCode);
 
-						  if (tReturnCode >= 0)
-									 {
-									 if (tReturnCode == 0)
-												{
-												fileInfoPtr->numberBits = 14;
-												fileInfoPtr->swapBytesFlag = gBigEndianFlag;
+					if (tReturnCode >= 0)
+						{
+						if (tReturnCode == 0)
+							{
+							fileInfoPtr->numberBits = 14;
+							fileInfoPtr->swapBytesFlag = gBigEndianFlag;
 
-												}		// end "if (tReturnCode == 0)" 
+							}	// end "if (tReturnCode == 0)" 
 
-									 notFound = FALSE;
+						notFound = FALSE;
 
-									 }		// end "if (tReturnCode >= 0)" 
+						}	// end "if (tReturnCode >= 0)" 
 
-						  else		// tReturnCode < 0 
-									 errCode = tReturnCode;
+					else	// tReturnCode < 0 
+						errCode = tReturnCode;
 
-						  }		// end "if (nextSet == 7)" 
-				  */
-			} // end "if (errCode == noErr)" 
+					}	// end "if (nextSet == 7)" 
+				*/
+				}	// end "if (errCode == noErr)" 
 
-			if (atEndOfFile && notFound) {
-				 // Display an alert if the needed parameters were not 		
-				 // found in the file.													
+			if (atEndOfFile && notFound) 
+				{
+						// Display an alert if the needed parameters were not 		
+						// found in the file.													
 
-				 tReturnCode = DisplayAlert(
-							kErrorAlertID, kStopAlert, kAlertStrID, IDS_Alert20, 0, NULL);
-				 errCode = eofErr;
+				tReturnCode = DisplayAlert (
+						kErrorAlertID, kStopAlert, kAlertStrID, IDS_Alert20, 0, NULL);
+				errCode = eofErr;
 
-			} // end "if (atEndOfFile && notFound)" 
+				}	// end "if (atEndOfFile && notFound)" 
 
-	  } // end "while (notFound && errCode == noErr)" 
+			}	// end "while (notFound && errCode == noErr)" 
 
-	  if (returnCode == noErr && errCode != noErr)
+		if (returnCode == noErr && errCode != noErr)
 			returnCode = 1;
 
-	  CheckAndDisposePtr(ioBufferPtr);
+		CheckAndDisposePtr(ioBufferPtr);
 
-	} // end "if (fileType != 0)"
+		}	// end "if (fileType != 0)"
 
 	return (returnCode);
 
-} // end "ReadVICARHeader"
+}	// end "ReadVICARHeader"
 
 
 //------------------------------------------------------------------------------------
@@ -13229,172 +13239,173 @@ SInt16 ReadVICARHeader(
 //	Coded By:			Larry L. Biehl			Date: 06/25/2002
 //	Revised By:			Larry L. Biehl			Date: 09/08/2006
 
-SInt16 ReadWindowsBitMapHeader(
-        FileInfoPtr fileInfoPtr,
-        char* headerRecordPtr,
-        SInt16 formatOnlyCode)
- {
-    unsigned char charKeyCode[2];
+SInt16 ReadWindowsBitMapHeader	(
+				FileInfoPtr							fileInfoPtr,
+				char*									headerRecordPtr,
+				SInt16								formatOnlyCode)
+{
+	unsigned char						charKeyCode[2];
 
-    UInt32 numberBytesPerLine;
+	UInt32								numberBytesPerLine;
 
-    SInt32 compressionCode,
-            numberOfColors,
-            numberOfColorsUsed;
+	SInt32								compressionCode,
+											numberOfColors,
+											numberOfColorsUsed;
 
-    SInt16 errorString,
-            fileType,
-            returnCode;
+	SInt16								errorString,
+											fileType,
+											returnCode;
 
 
-    // Initialize local variables.													
+			// Initialize local variables.													
 
-    returnCode = 1;
-    fileType = 0;
+	returnCode = 1;
+	fileType = 0;
 
-    if (headerRecordPtr != NULL && fileInfoPtr != NULL) {
-        //  Check Windows BitMap identifier.
+	if (headerRecordPtr != NULL && fileInfoPtr != NULL) 
+		{
+				//  Check Windows BitMap identifier.
 
-        charKeyCode[0] = 0x42;
-        charKeyCode[1] = 0x4D;
+		charKeyCode[0] = 0x42;
+		charKeyCode[1] = 0x4D;
 
-        if (strncmp((char*) headerRecordPtr, (CharPtr) charKeyCode, 2) == 0)
-            fileType = kWindowsBitMapType;
+		if (strncmp((char*) headerRecordPtr, (CharPtr) charKeyCode, 2) == 0)
+			fileType = kWindowsBitMapType;
 
-    } // end "if (headerRecordPtr != NULL && fileInfoPtr != NULL)"
+		}	// end "if (headerRecordPtr != NULL && fileInfoPtr != NULL)"
 
-    if (formatOnlyCode != kLoadHeader) {
-        fileInfoPtr->format = fileType;
-        return (returnCode);
+	if (formatOnlyCode != kLoadHeader) 
+		{
+		fileInfoPtr->format = fileType;
+																							return (returnCode);
 
-    } // end "if (formatOnlyCode != kLoadHeader)"
+		}	// end "if (formatOnlyCode != kLoadHeader)"
 
-    if (fileType != 0) {
-        // Set up swap bytes flag depending upon the system
-        // architecture
+	if (fileType != 0) 
+		{
+				// Set up swap bytes flag depending upon the system architecture
 
-        gSwapBytesFlag = gBigEndianFlag;
+		gSwapBytesFlag = gBigEndianFlag;
 
-        // Signify that file is of "Sun Screen Dump type. 						
+				// Signify that file is of "Sun Screen Dump type. 						
 
-        fileInfoPtr->format = kWindowsBitMapType;
-        fileInfoPtr->ancillaryInfoformat = kWindowsBitMapType;
-        fileInfoPtr->numberHeaderBytes = GetLongIntValue(&headerRecordPtr[10]);
+		fileInfoPtr->format = kWindowsBitMapType;
+		fileInfoPtr->ancillaryInfoformat = kWindowsBitMapType;
+		fileInfoPtr->numberHeaderBytes = GetLongIntValue (&headerRecordPtr[10]);
 
-        fileInfoPtr->numberColumns = GetLongIntValue(&headerRecordPtr[18]);
+		fileInfoPtr->numberColumns = GetLongIntValue (&headerRecordPtr[18]);
 
-        fileInfoPtr->numberLines = GetLongIntValue(&headerRecordPtr[22]);
+		fileInfoPtr->numberLines = GetLongIntValue (&headerRecordPtr[22]);
 
-        fileInfoPtr->numberBits = (UInt16) GetLongIntValue(&headerRecordPtr[28]);
+		fileInfoPtr->numberBits = (UInt16)GetLongIntValue (&headerRecordPtr[28]);
 
-        // Check for compression.
+				// Check for compression.
 
-        compressionCode = GetLongIntValue(&headerRecordPtr[30]);
+		compressionCode = GetLongIntValue(&headerRecordPtr[30]);
 
-        // Read the number of colors.
+				// Read the number of colors.
 
-        numberOfColors = GetLongIntValue(&headerRecordPtr[46]);
-        if (numberOfColors > 256 && fileInfoPtr->numberBits <= 8)
-            numberOfColors = 0;
+		numberOfColors = GetLongIntValue(&headerRecordPtr[46]);
+		if (numberOfColors > 256 && fileInfoPtr->numberBits <= 8)
+			numberOfColors = 0;
 
-        // Read the number of colors used.
+				// Read the number of colors used.
 
-        numberOfColorsUsed = GetLongIntValue(&headerRecordPtr[50]);
+		numberOfColorsUsed = GetLongIntValue (&headerRecordPtr[50]);
 
-        fileInfoPtr->numberBytes = 1;
-        fileInfoPtr->numberChannels = 1;
-        fileInfoPtr->numberBins = 0;
-        fileInfoPtr->bandInterleave = kBIL;
+		fileInfoPtr->numberBytes = 1;
+		fileInfoPtr->numberChannels = 1;
+		fileInfoPtr->numberBins = 0;
+		fileInfoPtr->bandInterleave = kBIL;
 
-        fileInfoPtr->thematicType = FALSE;
-        if (fileInfoPtr->numberBits >= 8) {
-            if (gGetFileImageType == kMultispectralImageType ||
-                    (gGetFileImageType != kThematicImageType && numberOfColors == 0) ||
-                    (gGetFileImageType != kThematicImageType &&
-                    numberOfColors == 256 && fileInfoPtr->numberBits == 8)) {
-                if (fileInfoPtr->numberBits > 8) {
-                    fileInfoPtr->numberChannels = 3;
+		fileInfoPtr->thematicType = FALSE;
+		if (fileInfoPtr->numberBits >= 8) 
+			{
+			if (gGetFileImageType == kMultispectralImageType ||
+					  (gGetFileImageType != kThematicImageType && numberOfColors == 0) ||
+							(gGetFileImageType != kThematicImageType &&
+									numberOfColors == 256 && fileInfoPtr->numberBits == 8)) 
+				{
+				if (fileInfoPtr->numberBits > 8) 
+					fileInfoPtr->numberChannels = 3;
 
-                }// end "if (fileInfoPtr->numberBits > 8)"
+				else	// fileInfoPtr->numberBits == 8
+					fileInfoPtr->numberChannels = 1;
 
-                else // fileInfoPtr->numberBits == 8
-                    fileInfoPtr->numberChannels = 1;
+				fileInfoPtr->numberBits = 8;
+				fileInfoPtr->numberClasses = 0;
+				fileInfoPtr->thematicType = FALSE;
+				fileInfoPtr->bandInterleave = kBIS;
+				gGetFileImageType = kMultispectralImageType;
 
-                fileInfoPtr->numberBits = 8;
-                fileInfoPtr->numberClasses = 0;
-                fileInfoPtr->thematicType = FALSE;
-                fileInfoPtr->bandInterleave = kBIS;
-                gGetFileImageType = kMultispectralImageType;
+				}	// end "if (gGetFileImageType != kThematicImageType && ..." 
 
-            }// end "if (gGetFileImageType != kThematicImageType && ..." 
+			else // gGetFileImageType == kThematicImageType || numberOfColors > 0 ...
+				{
+				fileInfoPtr->numberClasses = 256;
+				gGetFileImageType = kThematicImageType;
 
-            else // gGetFileImageType == kThematicImageType || numberOfColors > 0 ...
-            {
-                fileInfoPtr->numberClasses = 256;
-                gGetFileImageType = kThematicImageType;
+				}	// end "else gGetFileImageType == kThematicImageType || ..."
 
-            } // end "else gGetFileImageType == kThematicImageType || ..."
+			}	// end "if (fileInfoPtr->numberBits > 8)" 
 
-        }// end "if (fileInfoPtr->numberBits > 8)" 
+		else	// fileInfoPtr->numberBits < 8 
+			{
+			if (gGetFileImageType == kMultispectralImageType)
+				gGetFileImageType = kThematicImageType;
 
-        else // fileInfoPtr->numberBits < 8 
-        {
-            if (gGetFileImageType == kMultispectralImageType)
-                gGetFileImageType = kThematicImageType;
+			}	// end "else fileInfoPtr->numberBits <= 8" 
 
-        } // end "else fileInfoPtr->numberBits <= 8" 
+		if (fileInfoPtr->numberBits > 1)
+			fileInfoPtr->numberBins = (UInt32)ldexp((double) 1, fileInfoPtr->numberBits);
 
-        if (fileInfoPtr->numberBits > 1)
-            fileInfoPtr->numberBins = (UInt32) ldexp((double) 1, fileInfoPtr->numberBits);
+				// Get the number of post line bytes to make the total number of bytes in
+				// each line of data a multiple of 4.
 
-        // Get the number of post line bytes to make the total number of bytes in
-        // each line of data a multiple of 4.
+		numberBytesPerLine = fileInfoPtr->numberChannels * fileInfoPtr->numberColumns;
+		numberBytesPerLine = ((numberBytesPerLine + 3) / 4) * 4;
+		fileInfoPtr->numberPostLineBytes = numberBytesPerLine -
+											fileInfoPtr->numberChannels * fileInfoPtr->numberColumns;
 
-        numberBytesPerLine = fileInfoPtr->numberChannels * fileInfoPtr->numberColumns;
-        numberBytesPerLine = ((numberBytesPerLine + 3) / 4) * 4;
-        fileInfoPtr->numberPostLineBytes = numberBytesPerLine -
-                fileInfoPtr->numberChannels * fileInfoPtr->numberColumns;
+				// Load the rest of the information for Windows BitMap formatted files.																
 
-        // Load the rest of the information for Windows BitMap  				
-        // formatted files.																
+		fileInfoPtr->startColumn = 1;
+		fileInfoPtr->startLine = 1;
+		fileInfoPtr->swapBytesFlag = FALSE;
+		fileInfoPtr->asciiSymbols = FALSE;
+		fileInfoPtr->numberTrailerBytes = 0;
+		fileInfoPtr->numberPreLineBytes = 0;
+		fileInfoPtr->numberPreChannelBytes = 0;
+		fileInfoPtr->numberPostChannelBytes = 0;
 
-        fileInfoPtr->startColumn = 1;
-        fileInfoPtr->startLine = 1;
-        fileInfoPtr->swapBytesFlag = FALSE;
-        fileInfoPtr->asciiSymbols = FALSE;
-        fileInfoPtr->numberTrailerBytes = 0;
-        fileInfoPtr->numberPreLineBytes = 0;
-        fileInfoPtr->numberPreChannelBytes = 0;
-        fileInfoPtr->numberPostChannelBytes = 0;
+		errorString = 0;
+		if (fileInfoPtr->numberBits < 4)
+			errorString = IDS_Alert113;
 
-        errorString = 0;
-        if (fileInfoPtr->numberBits < 4)
-            errorString = IDS_Alert113;
+		else if (compressionCode != 0)
+			errorString = IDS_Alert112;
 
-        else if (compressionCode != 0)
-            errorString = IDS_Alert112;
+		if (errorString == 0)
+			returnCode = noErr;
 
-        if (errorString == 0)
-            returnCode = noErr;
+		else // end "errorString != 0"
+			{
+			DisplayAlert(kErrorAlertID,
+					  kNoteAlert,
+					  kAlertStrID,
+					  errorString,
+					  0,
+					  NULL);
 
-        else // end "errorString != 0"
-        {
-            DisplayAlert(kErrorAlertID,
-                    kNoteAlert,
-                    kAlertStrID,
-                    errorString,
-                    0,
-                    NULL);
+			}	// end "if (compressionCode != 0)"
 
-        } // end "if (compressionCode != 0)"
+		gSwapBytesFlag = FALSE;
 
-        gSwapBytesFlag = FALSE;
+		}	// end "if (headerRecordPtr != NULL && fileInfoPtr != NULL)" 
 
-    } // end "if (headerRecordPtr != NULL && fileInfoPtr != NULL)" 
+	return (returnCode);
 
-    return (returnCode);
-
-} // end "ReadWindowsBitMapHeader" 
+}	// end "ReadWindowsBitMapHeader" 
 
 
 
@@ -13428,52 +13439,56 @@ Boolean SetUpImageWindow(
 	Boolean continueFlag = FALSE;
 
 
-	if (windowInfoHandle != NULL) {
-		#if defined multispec_mac
-				// Create image window for file.												
+	if (windowInfoHandle != NULL) 
+		{
+#		if defined multispec_mac
+					// Create image window for file.												
 
 			continueFlag = CreateImageWindow(windowInfoHandle, FALSE);
 
-		if (continueFlag) {
-					// Make size of window such that it just fits around the			
-					// default display specification for the image.						
+			if (continueFlag) 
+				{
+						// Make size of window such that it just fits around the			
+						// default display specification for the image.						
 
-			AdjustImageWSize(windowInfoHandle);
+				AdjustImageWSize(windowInfoHandle);
 
-			// Force update of menu items.		
+						// Force update of menu items.		
 
-			gUpdateFileMenuItemsFlag = TRUE;
-			gUpdateProjectMenuItemsFlag = TRUE;
-			gUpdateProcessorMenuItemsFlag = TRUE;
-			gUpdatePaletteMenuItemsFlag = TRUE;
+				gUpdateFileMenuItemsFlag = TRUE;
+				gUpdateProjectMenuItemsFlag = TRUE;
+				gUpdateProcessorMenuItemsFlag = TRUE;
+				gUpdatePaletteMenuItemsFlag = TRUE;
 
-			EnableMenuItem(gMultiSpecMenus[kProcessorM], 0);
-			if (gNumberOfIWindows == 1)
-				gRedrawMenuBar = TRUE;
+				EnableMenuItem(gMultiSpecMenus[kProcessorM], 0);
+				if (gNumberOfIWindows == 1)
+					gRedrawMenuBar = TRUE;
 
-					// Put display dialog up for the user to select portion to		
-					// go into the image window.												
+						// Put display dialog up for the user to select portion to		
+						// go into the image window.												
 
-			gMemoryTypeNeeded = 1;
-			DisplayImage();
-			UnloadSeg(DisplayImage);
-			gMemoryTypeNeeded = 0;
+				gMemoryTypeNeeded = 1;
+				DisplayImage();
+				UnloadSeg(DisplayImage);
+				gMemoryTypeNeeded = 0;
 
-			} // end "if (continueFlag)" 
-		#endif	// defined multispec_mac		
+				}	// end "if (continueFlag)" 
+#		endif	// defined multispec_mac		
 
-		#if defined multispec_win		
+#		if defined multispec_win		
 			WindowInfoPtr windowInfoPtr =
-					(WindowInfoPtr) GetHandlePointer(windowInfoHandle, kNoLock, kNoMoveHi);
+					(WindowInfoPtr)GetHandlePointer (windowInfoHandle);
 
 			CMImageWindow* imageWindowCPtr = windowInfoPtr->cImageWindowPtr;
 
-			if (imageWindowCPtr != NULL) {
+			if (imageWindowCPtr != NULL) 
+				{
 						// Create image window for file.
 
 				continueFlag = imageWindowCPtr->CreateImageWindow(FALSE);
 
-				if (continueFlag) {
+				if (continueFlag) 
+					{
 							// Make size of window such that it just fits around the
 							// default display specification for the image.
 
@@ -13483,23 +13498,25 @@ Boolean SetUpImageWindow(
 					DisplayImage();
 					gMemoryTypeNeeded = 0;
 	
-					} // end "if (continueFlag)"
+					}	// end "if (continueFlag)"
 
-				} // end "if (imageWindowCPtr != NULL)"			
-		#endif	// defined multispec_win
+				}	// end "if (imageWindowCPtr != NULL)"			
+#		endif	// defined multispec_win
 
-		#if defined multispec_lin
+#		if defined multispec_lin
 			WindowInfoPtr windowInfoPtr =
 					(WindowInfoPtr) GetHandlePointer(windowInfoHandle, kNoLock, kNoMoveHi);
 
 			CMImageWindow* imageWindowCPtr = windowInfoPtr->cImageWindowPtr;
 
-			if (imageWindowCPtr != NULL) {
+			if (imageWindowCPtr != NULL) 
+				{
 						// Create image window for file.
 
 				continueFlag = imageWindowCPtr->CreateImageWindow(FALSE);
 
-				if (continueFlag) {
+				if (continueFlag) 
+					{
 							// Make size of window such that it just fits around the
 							// default display specification for the image.
 
@@ -13512,15 +13529,15 @@ Boolean SetUpImageWindow(
 					DisplayImage();
 					gMemoryTypeNeeded = 0;
 
-					} // end "if (continueFlag)"
+					}	// end "if (continueFlag)"
 
-				} // end "if (imageWindowCPtr != NULL)"
-		#endif	// defined multispec_lin
-		} // end "if (windowInfoHandle != NULL)"
+				}	// end "if (imageWindowCPtr != NULL)"
+#		endif	// defined multispec_lin
+		}	// end "if (windowInfoHandle != NULL)"
 
-    return (continueFlag);
+	return (continueFlag);
 
-} // end "SetUpImageWindow" 
+}	// end "SetUpImageWindow" 
 
 
 
@@ -13554,22 +13571,22 @@ Boolean SetUpThematicImageWindow(
 
 	if (windowInfoHandle != NULL)
 		{
-		#if defined multispec_mac
+#		if defined multispec_mac
 
 				// Create image window for file.												
 
-			continueFlag = CreateImageWindow(windowInfoHandle, TRUE);
+			continueFlag = CreateImageWindow (windowInfoHandle, TRUE);
 
 			if (continueFlag)
 				{
 						// Load in the thematic class names.									
 
-				LoadClassNameDescriptions(windowInfoHandle);
+				LoadClassNameDescriptions (windowInfoHandle);
 
 						// Make size of window such that it just fits around the			
 						// default display specification for the Thematic image.			
 
-            AdjustImageWSize(windowInfoHandle);
+            AdjustImageWSize (windowInfoHandle);
 
 						// Force update of menu items.
 
@@ -13577,7 +13594,7 @@ Boolean SetUpThematicImageWindow(
             gUpdateProcessorMenuItemsFlag = TRUE;
             gUpdatePaletteMenuItemsFlag = TRUE;
 
-            EnableMenuItem(gMultiSpecMenus[kProcessorM], 0);
+            EnableMenuItem (gMultiSpecMenus[kProcessorM], 0);
             if (gNumberOfIWindows == 1)
                 gRedrawMenuBar = TRUE;
 
@@ -13589,43 +13606,44 @@ Boolean SetUpThematicImageWindow(
             UnloadSeg(DisplayImage);
             gMemoryTypeNeeded = 0;
 
-				} // end "if (continueFlag)" 
-		#endif	// defined multispec_mac
+				}	// end "if (continueFlag)" 
+#		endif	// defined multispec_mac
 
-		#if defined multispec_win
+#		if defined multispec_win
 			WindowInfoPtr windowInfoPtr =
-					(WindowInfoPtr) GetHandlePointer(windowInfoHandle, kNoLock, kNoMoveHi);
+					(WindowInfoPtr)GetHandlePointer (windowInfoHandle, kNoLock, kNoMoveHi);
 
 			CMImageWindow* imageWindowCPtr = windowInfoPtr->cImageWindowPtr;
 
-			if (imageWindowCPtr != NULL) {
-					// Create image window for file.
+			if (imageWindowCPtr != NULL) 
+				{
+						// Create image window for file.
 
-            continueFlag = imageWindowCPtr->CreateImageWindow(TRUE);
+            continueFlag = imageWindowCPtr->CreateImageWindow (TRUE);
 
-				if (continueFlag) {
+				if (continueFlag) 
+					{
 							// Load in the thematic class names.									
 
-					LoadClassNameDescriptions(windowInfoHandle);
+					LoadClassNameDescriptions (windowInfoHandle);
 
 							// Make size of window such that it just fits around the
 							// default display specification for the image.
 
-					AdjustImageWSize(windowInfoHandle);
+					AdjustImageWSize (windowInfoHandle);
 
 					gMemoryTypeNeeded = 1;
 					DisplayImage();
 					gMemoryTypeNeeded = 0;
 
-					} // end "if (continueFlag)"
+					}	// end "if (continueFlag)"
 
-				} // end "if (imageWindowCPtr != NULL)"
-
-		#endif	// defined multispec_win
+				}	// end "if (imageWindowCPtr != NULL)"
+#		endif	// defined multispec_win
 		
-		#if defined multispec_lin
+#		if defined multispec_lin
 			WindowInfoPtr windowInfoPtr =
-                (WindowInfoPtr) GetHandlePointer(windowInfoHandle, kNoLock, kNoMoveHi);
+										(WindowInfoPtr)GetHandlePointer (windowInfoHandle);
 
 			CMImageWindow* imageWindowCPtr = windowInfoPtr->cImageWindowPtr;
 
@@ -13653,16 +13671,16 @@ Boolean SetUpThematicImageWindow(
 					DisplayImage();
 					gMemoryTypeNeeded = 0;
 
-					} // end "if (continueFlag)"
+					}	// end "if (continueFlag)"
 
-			} // end "if (imageWindowCPtr != NULL)"
-		#endif	// end "multispec_lin"
+				}	// end "if (imageWindowCPtr != NULL)"
+#		endif	// end "multispec_lin"
 
-		} // end "if (windowInfoHandle != NULL)"
+		}	// end "if (windowInfoHandle != NULL)"
 
-    return (continueFlag);
+	return (continueFlag);
 
-} // end "SetUpThematicImageWindow"  
+}	// end "SetUpThematicImageWindow"  
 
 
 
@@ -13691,21 +13709,21 @@ Boolean SetUpThematicImageWindow(
 
 Boolean SizeOfImageFileCanBeCalculated(
 				FileInfoPtr							fileInfoPtr)
- {
-    Boolean returnFlag = TRUE;
+{
+	Boolean returnFlag = TRUE;
 
 
-    if (fileInfoPtr->dataCompressionCode != kNoCompression ||
-            fileInfoPtr->format == kGRIBType ||
-            fileInfoPtr->format == kImagineType ||
-            fileInfoPtr->format == kArcGISASCIIGridType ||
-            fileInfoPtr->format == kGRASSASCIIGridType ||
-            (fileInfoPtr->format == kPDSType && fileInfoPtr->gdalDataSetH != NULL))
-        returnFlag = FALSE;
+	if (fileInfoPtr->dataCompressionCode != kNoCompression ||
+								fileInfoPtr->format == kGRIBType ||
+								fileInfoPtr->format == kImagineType ||
+								fileInfoPtr->format == kArcGISASCIIGridType ||
+								fileInfoPtr->format == kGRASSASCIIGridType ||
+								(fileInfoPtr->format == kPDSType && fileInfoPtr->gdalDataSetH != NULL))
+		returnFlag = FALSE;
 
-    return (returnFlag);
+	return (returnFlag);
 
-} // end "SizeOfImageFileCanBeCalculated" 
+}	// end "SizeOfImageFileCanBeCalculated" 
 
 
 
@@ -13739,13 +13757,13 @@ Boolean UpdateLayerInfoStructure(
 {
 	FileInfoPtr							fileInfoPtr,
 											newFileInfoPtr;
-	//										oldFileInfoPtr;
+											//oldFileInfoPtr;
 
 	LayerInfoPtr						layerInfoPtr;
 
 	Handle								layerInfoHandle,
 											newFileInfoHandle;
-	//										oldFileInfoHandle;
+											//oldFileInfoHandle;
 
 	SInt32 bytesNeeded;
 
@@ -13767,13 +13785,11 @@ Boolean UpdateLayerInfoStructure(
 
 			// Initialize local variables.											
 
-	fileInfoPtr = (FileInfoPtr)GetHandlePointer (fileInfoHandle,
-																kNoLock,
-																kNoMoveHi);
+	fileInfoPtr = (FileInfoPtr)GetHandlePointer (fileInfoHandle);
 
 	oldTotalNumberChannels = windowInfoPtr->totalNumberChannels;
 	newTotalNumberChannels = windowInfoPtr->totalNumberChannels +
-            fileInfoPtr->numberChannels;
+																fileInfoPtr->numberChannels;
 
 			// Make certain that the total number of channels is not over the		
 			// limit.																				
@@ -13781,7 +13797,7 @@ Boolean UpdateLayerInfoStructure(
 	if (newTotalNumberChannels > kMaxNumberChannels)
 																			return (FALSE);
 
-	fileInfoPtr = (FileInfoPtr)GetHandleStatusAndPointer(
+	fileInfoPtr = (FileInfoPtr)GetHandleStatusAndPointer (
 										fileInfoHandle, &handleStatus, kNoMoveHi);
 
 	layerInfoHandle = GetLayerInfoHandle(windowInfoPtr);
@@ -13796,7 +13812,8 @@ Boolean UpdateLayerInfoStructure(
 																	&changedFlag,
 																	bytesNeeded);
 
-	if (continueFlag) {
+	if (continueFlag) 
+		{
 				// Make sure that the gActiveImageLayerInfoH is up to date.
 				
 		if (gActiveImageLayerInfoH != NULL &&
@@ -13810,7 +13827,8 @@ Boolean UpdateLayerInfoStructure(
 
 		windowInfoPtr->totalNumberChannels = newTotalNumberChannels;
 
-		if (newTotalNumberChannels == fileInfoPtr->numberChannels) {
+		if (newTotalNumberChannels == fileInfoPtr->numberChannels) 
+			{
 					// This is first file for the window.		
 
 			windowInfoPtr->maxUsableDataValue = fileInfoPtr->maxUsableDataValue;
@@ -13826,7 +13844,7 @@ Boolean UpdateLayerInfoStructure(
 			windowInfoPtr->dataTypeCode = fileInfoPtr->dataTypeCode;
 			windowInfoPtr->signedDataFlag = fileInfoPtr->signedDataFlag;
 			windowInfoPtr->maxNumberDescriptionCharacters =
-					  fileInfoPtr->maxNumberDescriptionCharacters;
+											fileInfoPtr->maxNumberDescriptionCharacters;
 			windowInfoPtr->localBytesDifferFlag = FALSE;
 
 			if (windowInfoPtr->windowType == 0)
@@ -13940,13 +13958,13 @@ Boolean UpdateLayerInfoStructure(
 						// For the Windows version make sure that the file stream pointer does not
 						// get deleted or used for another file.
 
-				#if defined multispec_mac	 
+#				if defined multispec_mac	 
 					SetFileDoesNotExist (&fileInfoPtr->fileStream);
-				#endif	// defined multispec_mac
+#				endif	// defined multispec_mac
 
-				#if defined multispec_win | defined multispec_lin 
+#				if defined multispec_win || defined multispec_lin 
 					fileInfoPtr->fileStreamCPtr = NULL;
-				#endif	// defined multispec_win | defined multispec_lin
+#				endif	// defined multispec_win || defined multispec_lin
 
 				CheckAndUnlockHandle (newFileInfoHandle);
 				
@@ -13959,9 +13977,9 @@ Boolean UpdateLayerInfoStructure(
 				
 				SetFileInfoHandle (windowInfoPtr, newFileInfoHandle);
 				
-            } // end "if (continueFlag)" 
+            }	// end "if (continueFlag)" 
 
-			} // end "else newTotalNumberChannels != ..." 
+			}	// end "else newTotalNumberChannels != ..." 
 
 		SetBoundingMapRectangle (windowInfoPtr->windowInfoHandle);
 
@@ -13986,28 +14004,30 @@ Boolean UpdateLayerInfoStructure(
 		imageSecondOrderStatsPtr->totalPixels = 0;
 		imageSecondOrderStatsPtr->numberChannels = 0;
 		
-		} // end "if (continueFlag)" 
+		}	// end "if (continueFlag)" 
 
 	MHSetState (fileInfoHandle, handleStatus);
 
-	if (continueFlag) {
+	if (continueFlag) 
+		{
 				// Now update the information in the layer structure.					
 
 		channel = 1;
-		for (index = oldTotalNumberChannels + 1; index <= newTotalNumberChannels; index++) {
+		for (index = oldTotalNumberChannels + 1; index <= newTotalNumberChannels; index++) 
+			{
 			layerInfoPtr[index].fileInfoIndex = windowInfoPtr->numberImageFiles;
 			layerInfoPtr[index].fileChannelNumber = channel;
 			channel++;
 
-			} // end "for (index=oldTotalNumberChannels; ..." 
+			}	// end "for (index=oldTotalNumberChannels; ..." 
 
 		windowInfoPtr->numberImageFiles++;
 
-		} // end "if (continueFlag)" 
+		}	// end "if (continueFlag)" 
 
 	CheckAndUnlockHandle(layerInfoHandle);
 
 	return (continueFlag);
 
-} // end "UpdateLayerInfoStructure"  
+}	// end "UpdateLayerInfoStructure"  
 
