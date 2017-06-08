@@ -58,7 +58,7 @@ extern void			StatisticsImageDialogOK(
 CMStatImageDialog::CMStatImageDialog(CWnd* pParent /*=NULL*/)
 	: CMDialog(CMStatImageDialog::IDD, pParent)
 {
-#if 1
+
 	UInt16**					classPtrPtr;
 
 	m_classPtr = NULL;
@@ -67,6 +67,8 @@ CMStatImageDialog::CMStatImageDialog(CWnd* pParent /*=NULL*/)
 
 	m_channelSelection = 0;
 	m_featureTransformationFlag = FALSE;
+
+	m_classSelection = 0;
 
 	m_classCode = 0;
 
@@ -98,7 +100,7 @@ CMStatImageDialog::CMStatImageDialog(CWnd* pParent /*=NULL*/)
 		NULL,
 		NULL,
 		NULL);
-#endif
+
 
 }
 
@@ -119,7 +121,7 @@ CMStatImageDialog::~CMStatImageDialog() {
 
 void CMStatImageDialog::DoDataExchange(CDataExchange* pDX)
 {
-	CMDialog::DoDataExchange(pDX);
+	CDialog::DoDataExchange(pDX);
 
 	DDX_Text(pDX, IDC_LineStart, m_LineStart);
 	DDX_Text(pDX, IDC_LineEnd, m_LineEnd);
@@ -130,6 +132,7 @@ void CMStatImageDialog::DoDataExchange(CDataExchange* pDX)
 
 	DDX_Check(pDX, IDC_FeatureTransformation, m_featureTransformationFlag);
 	DDX_Radio(pDX, IDC_ClassesRadio, m_classCode);
+	
 	DDX_Radio(pDX, IDC_SelectedClassRadio, m_perClassCode);
 	DDX_Radio(pDX, IDC_SelectedFieldRadio, m_perFieldCode);
 	DDX_Radio(pDX, IDC_SelectedAreaRadio, m_areaCode);
@@ -139,10 +142,38 @@ void CMStatImageDialog::DoDataExchange(CDataExchange* pDX)
 	DDX_Radio(pDX, IDC_UserSettingRadio, m_userMinMaxCode);
 
 	DDX_CBIndex(pDX, IDC_ChannelCombo, m_channelSelection);
+		
 	DDX_CBIndex(pDX, IDC_ClassCombo, m_classSelection);
 	//DDX_CBIndex(pDX, IDC_Fields, m_classSelection);
 	DDX_Text(pDX, IDC_StatisticMin, m_userMinimum);
 	DDX_Text(pDX, IDC_StatisticMax, m_userMaximum);
+
+	if (m_classCode == 0) m_classCode = 1;
+	if (m_perClassCode == 0) {
+		m_perClassCode = 1;
+		m_perFieldCode = 0;
+	}
+	else {
+		m_perClassCode = 1;
+		m_perFieldCode = 0;
+	}
+
+	if (m_overallMinMaxCode == 0) {
+		m_overallMinMaxCode = 1;
+		m_individualMinMaxCode = 0;
+		m_userMinMaxCode = 0;
+	}
+	else if (m_overallMinMaxCode == 1)
+	{
+		m_overallMinMaxCode = 0;
+		m_individualMinMaxCode = 1;
+		m_userMinMaxCode = 0;
+	}
+	else {
+		m_overallMinMaxCode = 0;
+		m_individualMinMaxCode = 0;
+		m_userMinMaxCode = 1;
+	}
 
 
 
@@ -164,7 +195,8 @@ BOOL CMStatImageDialog::DoDialog()
 	if (returnCode == IDOK)
 	{
 		continueFlag = TRUE;
-		StatisticsImageDialogOK(
+		
+ 		StatisticsImageDialogOK(
 			this,
 			gStatisticsImageSpecsPtr,
 			&m_dialogSelectArea,
@@ -196,12 +228,12 @@ BOOL CMStatImageDialog::DoDialog()
 BOOL CMStatImageDialog::OnInitDialog() {
 
 	SInt16			areaCode,
-		channelsPopUpMenuID,
-		channelSelection,
-		selectItem;
+						channelsPopUpMenuID,
+						channelSelection,
+						selectItem;
 
 	CMDialog::OnInitDialog();
-#if 1
+
 	StatisticsImageDialogInitialize(this,
 		gStatisticsImageSpecsPtr,
 		&m_dialogSelectArea,
@@ -237,12 +269,12 @@ BOOL CMStatImageDialog::OnInitDialog() {
 	m_localActiveNumberFeatures = m_localNumberFeatures;
 	m_localActiveFeaturesPtr = m_localFeaturesPtr;
 	m_channelSelection = channelSelection;
-#endif
+
 	return TRUE;
 }
 
 BEGIN_MESSAGE_MAP(CMStatImageDialog, CMDialog)
-#if 1
+
 	ON_EN_CHANGE(IDC_ColumnEnd, CheckColumnEnd)
 	ON_EN_CHANGE(IDC_ColumnStart, CheckColumnStart)
 	ON_EN_CHANGE(IDC_LineEnd, CheckLineEnd)
@@ -254,7 +286,7 @@ BEGIN_MESSAGE_MAP(CMStatImageDialog, CMDialog)
 	ON_BN_CLICKED(IDC_OverallRadio, OnClickOverallRadio)
 	ON_BN_CLICKED(IDEntireImage, ToEntireImage)
 	ON_BN_CLICKED(IDSelectedImage, ToSelectedImage)
-#endif
+
 END_MESSAGE_MAP()
 
 
@@ -267,7 +299,7 @@ void CMStatImageDialog::OnSelendokClassCombo()
 		IDC_ClassCombo,
 		(int*)&m_classSelection);
 }// end "OnSelendokClassCombo"
-#if 1
+
 void CMStatImageDialog::OnSelendokChannelCombo()
 {
 	HandleChannelsMenu(IDC_ChannelCombo,
@@ -286,6 +318,7 @@ void CMStatImageDialog::OnClickUserSettingRadio()
 	ShowDialogItem(this, IDC_StatisticMin);
 	ShowDialogItem(this, IDC_MaxPrompt);
 	ShowDialogItem(this, IDC_StatisticMax);
+	UpdateData(TRUE);
 
 }
 
@@ -294,6 +327,7 @@ void CMStatImageDialog::OnClickIndividualRadio() {
 	HideDialogItem(this, IDC_StatisticMin);
 	HideDialogItem(this, IDC_MaxPrompt);
 	HideDialogItem(this, IDC_StatisticMax);
+	UpdateData(TRUE);
 }
 
 void CMStatImageDialog::OnClickOverallRadio() {
@@ -301,6 +335,6 @@ void CMStatImageDialog::OnClickOverallRadio() {
 	HideDialogItem(this, IDC_StatisticMin);
 	HideDialogItem(this, IDC_MaxPrompt);
 	HideDialogItem(this, IDC_StatisticMax);
+	UpdateData(TRUE);
 }
 
-#endif

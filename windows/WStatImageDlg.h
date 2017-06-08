@@ -25,9 +25,9 @@ public:
 	BOOL				m_classSelection;
 	BOOL				m_perClassCode;
 	BOOL				m_perFieldCode;
-	BOOL				m_overallMinMaxCode;
-	BOOL				m_individualMinMaxCode;
-	BOOL				m_userMinMaxCode;
+	int				m_overallMinMaxCode;
+	int				m_individualMinMaxCode;
+	int				m_userMinMaxCode;
 	SInt16			m_MinMaxCode;
 	double			m_userMinimum;
 	double			m_userMaximum;
@@ -43,14 +43,14 @@ protected:
 	virtual BOOL OnInitDialog();
 
 	Boolean		m_initializedFlag;
-#if 1
+
 	afx_msg void OnSelendokClassCombo();
 	afx_msg void OnSelendokChannelCombo();
 	afx_msg void OnClickUserSettingRadio();
 	afx_msg void OnClickIndividualRadio();
 	afx_msg void OnClickOverallRadio();
 	afx_msg void OnCbnSelchangeChannelcombo();
-#endif
+
 	DECLARE_MESSAGE_MAP()
 
 	

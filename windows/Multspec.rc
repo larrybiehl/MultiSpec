@@ -2350,7 +2350,7 @@ BEGIN
     PUSHBUTTON      "Cancel",IDCANCEL,252,216,50,14
     LTEXT           "Channels:",IDC_ChannelsPrompt,14,16,32,8
     LTEXT           "Area(s)",IDC_LineIntervalPrompt,15,33,45,8
-    CONTROL         "Classes:",IDC_ClassesRadio,"Button",BS_AUTORADIOBUTTON | WS_GROUP,20,47,47,10
+    CONTROL         "Classes:",IDC_ClassesRadio,"Button",BS_AUTORADIOBUTTON | WS_GROUP,20,47,38,10
     LTEXT           "Create statistics image for each selected",IDC_StatPrompt,22,65,133,8
     CONTROL         "Class",IDC_SelectedClassRadio,"Button",BS_AUTORADIOBUTTON | WS_GROUP,156,65,32,10
     CONTROL         "Field",IDC_SelectedFieldRadio,"Button",BS_AUTORADIOBUTTON | WS_GROUP,190,65,47,10
@@ -2358,8 +2358,8 @@ BEGIN
     CONTROL         "Overall values - same for all images",IDC_OverallRadio,
                     "Button",BS_AUTORADIOBUTTON | WS_GROUP,15,169,149,10
     CONTROL         "Individual values - each image differs",IDC_IndividualRadio,
-                    "Button",BS_AUTORADIOBUTTON | WS_GROUP,15,183,149,10
-    CONTROL         "User settings",IDC_UserSettingRadio,"Button",BS_AUTORADIOBUTTON | WS_GROUP,16,196,52,10
+                    "Button",BS_AUTORADIOBUTTON,15,183,149,10
+    CONTROL         "User settings",IDC_UserSettingRadio,"Button",BS_AUTORADIOBUTTON,16,196,52,10
     EDITTEXT        IDC_StatisticMin,97,195,40,14,ES_AUTOHSCROLL
     LTEXT           "max:",IDC_MaxPrompt,139,197,21,8
     EDITTEXT        IDC_StatisticMax,159,195,40,14,ES_AUTOHSCROLL
@@ -2376,11 +2376,11 @@ BEGIN
     GROUPBOX        "",IDC_LineColFrame,20,95,184,56,WS_GROUP
     LTEXT           "Line",IDC_LinePrompt,49,114,18,9
     LTEXT           "Column",IDC_ColumnPrompt,49,135,25,8
-    LTEXT           "Start        End    Interval",IDC_StartEndInterval,82,105,84,8
     CONTROL         "ToEntireImage",IDEntireImage,"Button",BS_OWNERDRAW | WS_TABSTOP,25,119,15,15
     CONTROL         "ToSelectedImage",IDSelectedImage,"Button",BS_OWNERDRAW | WS_TABSTOP,25,119,15,15
     COMBOBOX        IDC_ChannelCombo,55,14,48,39,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    COMBOBOX        IDC_ClassCombo,61,44,48,39,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_ClassCombo,69,45,48,39,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Start        End    Interval",IDC_StartEndInterval,81,102,84,8
 END
 
 
@@ -3530,11 +3530,19 @@ BEGIN
         BOTTOMMARGIN, 215
     END
 
+    IDD_Cluster, DIALOG
+    BEGIN
+    END
+
     IDD_SinglePassCluster, DIALOG
     BEGIN
     END
 
     IDD_ISODATACluster, DIALOG
+    BEGIN
+    END
+
+    IDD_PrincipalComponent, DIALOG
     BEGIN
     END
 
@@ -3688,6 +3696,10 @@ BEGIN
         TOPMARGIN, 7
         BOTTOMMARGIN, 199
     END
+
+    IDD_ProcessorCreateImageStat, DIALOG
+    BEGIN
+    END
 END
 #endif    // APSTUDIO_INVOKED
 
@@ -3748,6 +3760,11 @@ BEGIN
 END
 
 IDD_DisplaySpecs AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_ProcessorCreateImageStat AFX_DIALOG_LAYOUT
 BEGIN
     0
 END
@@ -5169,25 +5186,29 @@ END
 
 STRINGTABLE
 BEGIN
-IDS_StatisticsImage1            "    Statistics Image will be created for each selected class"
-IDS_StatisticsImage2            "    Statistics Image will be created for each selected field."
-IDS_StatisticsImage3            "    The images will be based on overall min-max values."
-IDS_StatisticsImage4            "    Each image will be based on respective statistics' min-max values."
-IDS_StatisticsImage5            "    Statistics Image will be created for the selected area."
-IDS_StatisticsImage6            "Area"
-IDS_StatisticsImage7            "Getting covariance for selected area."
-IDS_StatisticsImage8            "Allocating memory"
-IDS_StatisticsImage9            "Getting covariances for selected classes."
-IDS_StatisticsImage10           "Getting covariances for selected fields."
-IDS_StatisticsImage11			  "Getting covariance for selected class."
-IDS_StatisticsImage12				"Getting covariance for selected field."
-IDS_StatisticsImage13				"Creating image for class statistics."
-IDS_StatisticsImage14				"Creating image for field statistics."
-IDS_StatisticsImage15				"Creating images for class statistics."
-IDS_StatisticsImage16				"Creating images for field statistics."
-IDS_StatisticsImage17				"Creating image for selected area."				
-IDS_StatisticsImage18				"    Image Statistics Error = '%d'."
-IDS_StatisticsImage19				"    Image statistics file, '%s', written to disk."
+    IDS_StatisticsImage1    "    Statistics Image will be created for each selected class"
+    IDS_StatisticsImage2    "    Statistics Image will be created for each selected field."
+    IDS_StatisticsImage3    "    The images will be based on overall min-max values."
+    IDS_StatisticsImage4    "    Each image will be based on respective statistics' min-max values."
+    IDS_StatisticsImage5    "    Statistics Image will be created for the selected area."
+    IDS_StatisticsImage6    "Area"
+    IDS_StatisticsImage7    "Getting covariance for selected area."
+    IDS_StatisticsImage8    "Allocating memory"
+    IDS_StatisticsImage9    "Getting covariances for selected classes."
+    IDS_StatisticsImage10   "Getting covariances for selected fields."
+    IDS_StatisticsImage11   "Getting covariance for selected class."
+END
+
+STRINGTABLE
+BEGIN
+    IDS_StatisticsImage12   "Getting covariance for selected field."
+    IDS_StatisticsImage13   "Creating image for class statistics."
+    IDS_StatisticsImage14   "Creating image for field statistics."
+    IDS_StatisticsImage15   "Creating images for class statistics."
+    IDS_StatisticsImage16   "Creating images for field statistics."
+    IDS_StatisticsImage17   "Creating image for selected area."
+    IDS_StatisticsImage18   "    Image Statistics Error = '%d'."
+    IDS_StatisticsImage19   "    Image statistics file, '%s', written to disk."
 END
 
 STRINGTABLE

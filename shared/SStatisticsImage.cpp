@@ -492,7 +492,7 @@ Boolean CreateStatisticsImages (void)
 				{
 				if ( gStatisticsImageSpecsPtr->perFieldClassCode == 1 )
 					{
-					LoadDItemValue (gStatusDialogPtr, 3, (SInt32)areaNumber);
+					LoadDItemValue (gStatusDialogPtr, IDC_Status3, (SInt32)areaNumber);
 		
 					if (continueFlag && tempCovarianceStatisticsPtr == NULL)
 						{
@@ -641,9 +641,11 @@ Boolean CreateStatisticsImages (void)
 													kIncludeClusterFields);
 									
 						if (fieldNumber >= 0)
-							{							
-							LoadDItemValue (gStatusDialogPtr, 3, (SInt32)areaNumber);
-					
+							{
+							
+							LoadDItemValue (gStatusDialogPtr, IDC_Status3, (SInt32)areaNumber);
+							
+
 									// Get the class storage index for the default name for the 
 									// image.
 							
@@ -2759,6 +2761,11 @@ void StatisticsImageDialogInitialize (
 			ShowDialogItem (dialogPtr, IDC_StartEndInterval);
 			ShowDialogItem (dialogPtr, IDC_IntervalPrompt);
 		#endif
+
+#if defined multispec_win
+			//ShowDialogItem (dialogPtr, IDC_LineColFrame);
+			ShowDialogItem (dialogPtr, IDC_StartEndInterval);
+#endif
 		ShowDialogItem (dialogPtr, entireIconItem);
 		ShowDialogItem (dialogPtr, IDC_LinePrompt);
 		ShowDialogItem (dialogPtr, IDC_LineStart);
@@ -2784,6 +2791,11 @@ void StatisticsImageDialogInitialize (
 			HideDialogItem (dialogPtr, IDC_StartEndInterval);
 			HideDialogItem (dialogPtr, IDC_IntervalPrompt);
 		#endif
+
+#if defined multispec_win
+			//HideDialogItem (dialogPtr, IDC_LineColFrame);
+			HideDialogItem (dialogPtr, IDC_StartEndInterval);
+#endif
 		HideDialogItem (dialogPtr, entireIconItem);
 		HideDialogItem (dialogPtr, IDC_LinePrompt);
 		HideDialogItem (dialogPtr, IDC_LineStart);

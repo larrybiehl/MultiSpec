@@ -1605,6 +1605,7 @@
 #define IDC_StatisticMin                1890
 #define IDC_StatisticMax                1891
 #define IDC_OptionHeading               1892
+#define IDC_MFCBUTTON1                  1897
 #define IDS_PrincipalComponent1         1901
 #define IDS_PrincipalComponent2         1902
 #define IDS_PrincipalComponent3         1903
@@ -2285,9 +2286,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        257
+#define _APS_NEXT_RESOURCE_VALUE        258
 #define _APS_NEXT_COMMAND_VALUE         32931
-#define _APS_NEXT_CONTROL_VALUE         1897
+#define _APS_NEXT_CONTROL_VALUE         1898
 #define _APS_NEXT_SYMED_VALUE           111
 #endif
 #endif
