@@ -1,3 +1,5 @@
+
+
 #include	"SMulSpec.h"
 #include "WMultiSpec.h"
 #include	"WStatImageDlg.h"
@@ -70,16 +72,16 @@ CMStatImageDialog::CMStatImageDialog(CWnd* pParent /*=NULL*/)
 
 	m_classSelection = 0;
 
-	m_classCode = 0;
-
 	m_perClassCode = 0;
 	m_perFieldCode = 0;
 
+	m_classCode = 1;
 	m_areaCode = 0;
 
 	m_overallMinMaxCode = 0;
 	m_individualMinMaxCode = 0;
 	m_userMinMaxCode = 0;
+
 	m_userMinimum = 0.0;
 	m_userMaximum = 0.0;
 
@@ -130,59 +132,63 @@ void CMStatImageDialog::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_ColumnEnd, m_ColumnEnd);
 	DDX_Text(pDX, IDC_ColumnInterval, m_ColumnInterval);
 
+	DDX_CBIndex(pDX, IDC_ChannelCombo, m_channelSelection);
 	DDX_Check(pDX, IDC_FeatureTransformation, m_featureTransformationFlag);
+
 	DDX_Radio(pDX, IDC_ClassesRadio, m_classCode);
+	//DDX_Radio(pDX, IDC_SelectedAreaRadio, m_areaCode);
 	
 	DDX_Radio(pDX, IDC_SelectedClassRadio, m_perClassCode);
-	DDX_Radio(pDX, IDC_SelectedFieldRadio, m_perFieldCode);
-	DDX_Radio(pDX, IDC_SelectedAreaRadio, m_areaCode);
+	//DDX_Radio(pDX, IDC_SelectedFieldRadio, m_perFieldCode);
 
 	DDX_Radio(pDX, IDC_OverallRadio, m_overallMinMaxCode);
-	DDX_Radio(pDX, IDC_IndividualRadio, m_individualMinMaxCode);
-	DDX_Radio(pDX, IDC_UserSettingRadio, m_userMinMaxCode);
-
-	DDX_CBIndex(pDX, IDC_ChannelCombo, m_channelSelection);
+	//DDX_Radio(pDX, IDC_IndividualRadio, m_individualMinMaxCode);
+	//DDX_Radio(pDX, IDC_UserSettingRadio, m_userMinMaxCode);
 		
 	DDX_CBIndex(pDX, IDC_ClassCombo, m_classSelection);
 	//DDX_CBIndex(pDX, IDC_Fields, m_classSelection);
 	DDX_Text(pDX, IDC_StatisticMin, m_userMinimum);
 	DDX_Text(pDX, IDC_StatisticMax, m_userMaximum);
 
-	if (m_classCode == 0) m_classCode = 1;
-	if (m_perClassCode == 0) {
-		m_perClassCode = 1;
-		m_perFieldCode = 0;
-	}
-	else {
-		m_perClassCode = 1;
-		m_perFieldCode = 0;
-	}
+	if (m_classCode == 0) 
+		m_classCode = 1;
 
-	if (m_overallMinMaxCode == 0) {
+	if (m_perClassCode == 0) 
+		{
+		m_perClassCode = 1;
+		m_perFieldCode = 0;
+		}
+	else 
+		{
+		m_perClassCode = 1;
+		m_perFieldCode = 0;
+		}
+
+	if (m_overallMinMaxCode == 0) 
+		{
 		m_overallMinMaxCode = 1;
 		m_individualMinMaxCode = 0;
 		m_userMinMaxCode = 0;
-	}
+		}
 	else if (m_overallMinMaxCode == 1)
-	{
+		{
 		m_overallMinMaxCode = 0;
 		m_individualMinMaxCode = 1;
 		m_userMinMaxCode = 0;
-	}
-	else {
+		}
+	else 
+		{
 		m_overallMinMaxCode = 0;
 		m_individualMinMaxCode = 0;
 		m_userMinMaxCode = 1;
-	}
-
-
+		}
 
 }
 
+
 BOOL CMStatImageDialog::DoDialog()
 {
-
-	SInt16		returnCode;
+	INT_PTR		returnCode;
 
 	BOOL			continueFlag = FALSE;
 
@@ -227,8 +233,8 @@ BOOL CMStatImageDialog::DoDialog()
 
 BOOL CMStatImageDialog::OnInitDialog() {
 
-	SInt16			areaCode,
-						channelsPopUpMenuID,
+	SInt16			//areaCode,
+						//channelsPopUpMenuID,
 						channelSelection,
 						selectItem;
 

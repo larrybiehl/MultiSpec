@@ -17,14 +17,14 @@ public:
 
 	enum { IDD = IDD_ProcessorCreateImageStat};
 
-	BOOL				m_classCode;
-	BOOL				m_areaCode;
+	int				m_classCode;
+	int				m_areaCode;
 	//BOOL				m_channelSelection;
 	BOOL				m_featureTransformationFlag;
 	SInt16			m_maximumNumberChannels;
 	BOOL				m_classSelection;
-	BOOL				m_perClassCode;
-	BOOL				m_perFieldCode;
+	int				m_perClassCode;
+	int				m_perFieldCode;
 	int				m_overallMinMaxCode;
 	int				m_individualMinMaxCode;
 	int				m_userMinMaxCode;

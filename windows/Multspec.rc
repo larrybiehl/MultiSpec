@@ -2351,21 +2351,21 @@ BEGIN
     LTEXT           "Channels:",IDC_ChannelsPrompt,14,16,32,8
     LTEXT           "Area(s)",IDC_LineIntervalPrompt,15,33,45,8
     CONTROL         "Classes:",IDC_ClassesRadio,"Button",BS_AUTORADIOBUTTON | WS_GROUP,20,47,38,10
-    LTEXT           "Create statistics image for each selected",IDC_StatPrompt,22,65,133,8
-    CONTROL         "Class",IDC_SelectedClassRadio,"Button",BS_AUTORADIOBUTTON | WS_GROUP,156,65,32,10
-    CONTROL         "Field",IDC_SelectedFieldRadio,"Button",BS_AUTORADIOBUTTON | WS_GROUP,190,65,47,10
+    LTEXT           "Create statistics image for each selected",IDC_StatPrompt,32,65,133,8
+    CONTROL         "Class",IDC_SelectedClassRadio,"Button",BS_AUTORADIOBUTTON | WS_GROUP,166,65,32,10
+    CONTROL         "Field",IDC_SelectedFieldRadio,"Button",BS_AUTORADIOBUTTON,200,65,47,10
     LTEXT           "Base minimum/maximum settings for each image on",IDC_OptionHeading,17,157,167,8
     CONTROL         "Overall values - same for all images",IDC_OverallRadio,
                     "Button",BS_AUTORADIOBUTTON | WS_GROUP,15,169,149,10
     CONTROL         "Individual values - each image differs",IDC_IndividualRadio,
                     "Button",BS_AUTORADIOBUTTON,15,183,149,10
-    CONTROL         "User settings",IDC_UserSettingRadio,"Button",BS_AUTORADIOBUTTON,16,196,52,10
+    CONTROL         "User settings",IDC_UserSettingRadio,"Button",BS_AUTORADIOBUTTON,15,196,52,10
     EDITTEXT        IDC_StatisticMin,97,195,40,14,ES_AUTOHSCROLL
     LTEXT           "max:",IDC_MaxPrompt,139,197,21,8
     EDITTEXT        IDC_StatisticMax,159,195,40,14,ES_AUTOHSCROLL
     CONTROL         "Use feature transformation",IDC_FeatureTransformation,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,118,15,108,10
-    CONTROL         "Selected Area",IDC_SelectedAreaRadio,"Button",BS_AUTORADIOBUTTON | WS_GROUP,21,80,85,10
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,118,16,108,10
+    CONTROL         "Selected Area",IDC_SelectedAreaRadio,"Button",BS_AUTORADIOBUTTON,20,80,85,10
     LTEXT           "-min:",IDC_MinPrompt,75,197,19,8
     EDITTEXT        IDC_LineStart,75,113,28,13,ES_AUTOHSCROLL | WS_GROUP
     EDITTEXT        IDC_LineEnd,106,113,27,13,ES_AUTOHSCROLL
@@ -3511,6 +3511,10 @@ BEGIN
     IDD_StatisticsDialog, DIALOG
     BEGIN
         BOTTOMMARGIN, 204
+    END
+
+    IDD_StatisticsOptionsDialog, DIALOG
+    BEGIN
     END
 
     IDD_FieldCoordinates, DIALOG
