@@ -136,17 +136,13 @@ void CMStatImageDialog::DoDataExchange(CDataExchange* pDX)
 	DDX_Check(pDX, IDC_FeatureTransformation, m_featureTransformationFlag);
 
 	DDX_Radio(pDX, IDC_ClassesRadio, m_classCode);
-	//DDX_Radio(pDX, IDC_SelectedAreaRadio, m_areaCode);
 	
 	DDX_Radio(pDX, IDC_SelectedClassRadio, m_perClassCode);
-	//DDX_Radio(pDX, IDC_SelectedFieldRadio, m_perFieldCode);
 
 	DDX_Radio(pDX, IDC_OverallRadio, m_overallMinMaxCode);
-	//DDX_Radio(pDX, IDC_IndividualRadio, m_individualMinMaxCode);
-	//DDX_Radio(pDX, IDC_UserSettingRadio, m_userMinMaxCode);
 		
 	DDX_CBIndex(pDX, IDC_ClassCombo, m_classSelection);
-	//DDX_CBIndex(pDX, IDC_Fields, m_classSelection);
+
 	DDX_Text(pDX, IDC_StatisticMin, m_userMinimum);
 	DDX_Text(pDX, IDC_StatisticMax, m_userMaximum);
 
@@ -324,7 +320,6 @@ void CMStatImageDialog::OnClickUserSettingRadio()
 	ShowDialogItem(this, IDC_StatisticMin);
 	ShowDialogItem(this, IDC_MaxPrompt);
 	ShowDialogItem(this, IDC_StatisticMax);
-	UpdateData(TRUE);
 
 }
 
@@ -333,7 +328,6 @@ void CMStatImageDialog::OnClickIndividualRadio() {
 	HideDialogItem(this, IDC_StatisticMin);
 	HideDialogItem(this, IDC_MaxPrompt);
 	HideDialogItem(this, IDC_StatisticMax);
-	UpdateData(TRUE);
 }
 
 void CMStatImageDialog::OnClickOverallRadio() {
@@ -341,6 +335,5 @@ void CMStatImageDialog::OnClickOverallRadio() {
 	HideDialogItem(this, IDC_StatisticMin);
 	HideDialogItem(this, IDC_MaxPrompt);
 	HideDialogItem(this, IDC_StatisticMax);
-	UpdateData(TRUE);
 }
 
