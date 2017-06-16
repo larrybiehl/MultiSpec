@@ -1,0 +1,135 @@
+//
+//	MultiSpecMWHeaders.c
+//
+//	Script to generate the 'MacHeaders' precompiled header for Metrowerks C/C++.
+//  Copyright � 1993 metrowerks inc.  All rights reserved.
+//
+//	Header files used to precompile MultiSpecHeader
+//
+//	Revised by Larry L. Biehl	07/18/2001
+//	Revised by Larry L. Biehl	03/18/2017
+
+
+//	Support for automatically naming the precompiled header file ...
+ 
+#if defined __MWERKS__ 
+	#pragma precompile_target "MultiSpecMachOHeaderD"
+#endif	// defined __MWERKS__ 
+
+#undef __XCODE__
+#ifndef __MWERKS__ 
+	#define __XCODE__
+#endif	// not defined __MWERKS__ 
+
+// #ifdef __XCODE__
+// 	#ifndef __MAC_OS_X_MEMORY_MANAGER_CLEAN__
+// 		#define __MAC_OS_X_MEMORY_MANAGER_CLEAN__ 1
+// 	#endif  /* !defined(__MAC_OS_X_MEMORY_MANAGER_CLEAN__) */
+// #endif	// defined __XCODE__
+
+// ---------------------------------------------------------------------------
+//	Carbon Target
+
+#define PP_Target_Carbon		1
+
+#define TARGET_API_MAC_CARBON	PP_Target_Carbon
+
+#define __Not_Framework 1
+
+#define multispec_mac
+#undef  multispec_win
+#undef  multispec_lin
+
+#define include_hdf_capability 1
+
+#define include_gdal_capability 1
+
+#if include_gdal_capability
+	#define include_hdf5_capability 1
+#endif	// include_gdal_capability
+
+#define use_mlte_for_text_window 1
+
+//#define _MSL_MACHEADERS_INCLUDES_CMATH 1
+//
+//#if defined(__cplusplus) && _MSL_USING_MW_C_HEADERS && _MSL_MACHEADERS_INCLUDES_CMATH
+//	#include <cmath>
+//#endif
+
+//
+//	Apple Framework Headers
+//
+
+#ifndef __NOEXTENSIONS__
+	#define __NOEXTENSIONS__
+#endif
+#ifndef __CF_USE_FRAMEWORK_INCLUDES__
+	#define __CF_USE_FRAMEWORK_INCLUDES__
+#endif
+
+#ifndef topLeft
+	#define topLeft(r)	(((Point *) &(r))[0])
+#endif
+
+#ifndef botRight
+	#define botRight(r)	(((Point *) &(r))[1])
+#endif
+
+#ifndef TRUE
+	#define TRUE		true
+#endif
+
+#ifndef FALSE
+	#define FALSE		false
+#endif
+
+#ifndef _LongCoords_
+	#define _LongCoords_
+#endif
+	
+typedef struct LongPt 
+	{
+	long int 		v;
+	long int 		h;
+	
+	} LongPt; 
+
+typedef struct LongRect
+	{                                              
+	long int		top; 			// "top" of rectangle
+	long int		left;			// "left" of rectangle 
+	long int		bottom;		// "bottom" of rectangle
+	long int		right;		// "right" of rectangle 
+
+	} LongRect, *LongRPtr; 
+	
+#define __WANT_EXTENSIONS__
+	
+//extern long double gamma(double_t x);
+	
+//#define __LIBMLDBL_COMPAT(sym) /* NOTHING */
+//#define __LIBMLDBL_COMPAT(sym) __asm("_" __STRING(sym) "$LDBL128")
+//extern long double gammal( long double ) __LIBMLDBL_COMPAT(gammal);
+//extern long double gammal (long double);
+
+//inline long double gammal(long double x);
+
+//#define POSIX_C_SOURCE
+
+#include <Carbon/Carbon.h>
+#include <ApplicationServices/ApplicationServices.h>
+
+#if !use_mlte_for_text_window
+	#include "WASTE/WASTE.h"
+#endif
+
+//#if use_mlte_for_text_window
+//	TXNObject				WEReference;
+//#endif		// use_mlte_for_text_window
+
+#include "SMulSpec.h"
+
+#include "mwCarbonCompatibility.h"
+
+#include "SExtGlob.h"
+
