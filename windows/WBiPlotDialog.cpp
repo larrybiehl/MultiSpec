@@ -1,6 +1,6 @@
 ﻿// WBiPlotDialog.cpp : implementation file
 //
-// Revised by Larry Biehl on 05/24/2017
+// Revised by Larry Biehl on 08/21/2017
 
 #include	"SMulSpec.h"
 #include	"WBiPlotDialog.h"
@@ -152,7 +152,7 @@ void CMBiPlotDialog::DoDataExchange(CDataExchange* pDX)
 	DDV_MinMaxUInt(pDX, m_newXAxisFeature, 1, m_maxChannelFeatureNum);
 	DDX_Text(pDX, IDC_Vertical_channel, m_newYAxisFeature);
 	DDV_MinMaxUInt(pDX, m_newYAxisFeature, 1, m_maxChannelFeatureNum);
-	DDX_Text(pDX, IDC_ThresholdLevel, m_thresholdPercent);
+	DDX_Text2(pDX, IDC_ThresholdLevel, m_thresholdPercent);
 
 
 	if (m_displayPixelCode & kDisplayPixels)

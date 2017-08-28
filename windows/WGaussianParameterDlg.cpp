@@ -1,6 +1,6 @@
 // WGaussianParameterDlg.cpp : implementation file
 //
-// Revised by Larry Biehl on 05/26/2017
+// Revised by Larry Biehl on 08/21/2017
 //
 
 #include "SMulSpec.h"                   
@@ -32,7 +32,7 @@ void CMGaussianParameterDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CMGaussianParameterDlg)
-	DDX_Text(pDX, IDC_GaussianStretch, m_gaussianStretch);
+	DDX_Text2(pDX, IDC_GaussianStretch, m_gaussianStretch);
 	DDV_MinMaxDouble(pDX, m_gaussianStretch, 1.e-004, 1000.);
 	//}}AFX_DATA_MAP
 }

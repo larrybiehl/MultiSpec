@@ -1,6 +1,6 @@
 // WFExtDlg.cpp : implementation file
 //  
-// Revised by Larry Biehl on 05/26/2017
+// Revised by Larry Biehl on 08/21/2017
 //
                    
 #include "SMulSpec.h"
@@ -142,8 +142,9 @@ void CMFeatureExtractionDialog::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CMFeatureExtractionDialog)
-	DDX_Text(pDX, IDC_InterclassThreshold, m_interclassThrehold);
-	DDX_Text(pDX, IDC_WithinClassThreshold, m_withinClassThreshold);
+	DDX_Text2(pDX, IDC_InterclassThreshold, m_interclassThrehold);
+	//DDX_Text(pDX, IDC_MinThresholdNumber, m_minThresholdNumber);	// This added to work around Microsoft bug (8/18/2017)
+	DDX_Text2(pDX, IDC_WithinClassThreshold, m_withinClassThreshold);
 	DDX_Check(pDX, IDC_OptimizeClasses, m_optimizeClassesFlag);
 	DDX_Text(pDX, IDC_MinThresholdNumber, m_minThresholdNumber);
 	DDX_Text(pDX, IDC_MaxPixels, m_maxPixelsPerClass);
@@ -156,7 +157,7 @@ void CMFeatureExtractionDialog::DoDataExchange(CDataExchange* pDX)
 	DDX_CBIndex(pDX, IDC_ChannelCombo, m_channelSelection);
 	DDX_CBIndex(pDX, IDC_ClassCombo, m_classSelection);      
 	DDX_CBIndex(pDX, IDC_WeightsCombo, m_weightsSelection);
-	DDX_Text(pDX, IDC_PercentAccuracy, m_optimizeThreshold);
+	DDX_Text2(pDX, IDC_PercentAccuracy, m_optimizeThreshold);
 	DDV_MinMaxDouble(pDX, m_optimizeThreshold, 0., 100.);
 	//}}AFX_DATA_MAP
 }

@@ -13,7 +13,7 @@
 //
 //	Revision number:		3.5
 //
-//	Revision date:			03/02/2017
+//	Revision date:			06/21/2017
 //
 //	Language:				C
 //
@@ -53,30 +53,37 @@
 
 #include "SMulSpec.h"      
 
+#if defined multispec_lin
+	#include "LDrawObjects.h"
+	#include "LEditSelectionDialog.h"
+	#include "LGraphView.h"
+	#include "LImageView.h"
+#endif	// defined multispec_lin
+
 #if defined multispec_mac
-#include "SGrafVew.h"
-#define		IDC_NewLineStart			3 
-#define		IDC_NewLineEnd				4 
-#define		IDC_NewColumnStart		5 
-#define		IDC_NewColumnEnd			6 
-#define		IDC_ApplyToAllCheckbox	7
-#define		IDC_Preview					8
-#define		IDC_NewLineDash			13
-#define		IDC_NewColumnDash			14
+	#include "SGrafVew.h"
+	#define		IDC_NewLineStart			3 
+	#define		IDC_NewLineEnd				4 
+	#define		IDC_NewColumnStart		5 
+	#define		IDC_NewColumnEnd			6 
+	#define		IDC_ApplyToAllCheckbox	7
+	#define		IDC_Preview					8
+	#define		IDC_NewLineDash			13
+	#define		IDC_NewColumnDash			14
 
-#define		IDC_CurrentLineStart		15 
-#define		IDC_CurrentLineEnd		16 
-#define		IDC_CurrentColumnStart	17 
-#define		IDC_CurrentColumnEnd		18
-#define		IDC_CurrentLineDash		19
-#define		IDC_CurrentColumnDash	20  
+	#define		IDC_CurrentLineStart		15 
+	#define		IDC_CurrentLineEnd		16 
+	#define		IDC_CurrentColumnStart	17 
+	#define		IDC_CurrentColumnEnd		18
+	#define		IDC_CurrentLineDash		19
+	#define		IDC_CurrentColumnDash	20  
 
-#define		IDC_StartLCCheckBox		23   
+	#define		IDC_StartLCCheckBox		23   
 
-#define		IDS_Alert130				130
-#define		IDS_Alert131				131
-#define		IDS_Alert132				132
-#define		IDS_Alert133				133  
+	#define		IDS_Alert130				130
+	#define		IDS_Alert131				131
+	#define		IDS_Alert132				132
+	#define		IDS_Alert133				133  
 #endif	// defined multispec_mac   
 
 #if defined multispec_win
@@ -88,13 +95,6 @@
 	#include "WImagDoc.h"
 	#include "WProjDlg.h"	
 #endif	// defined multispec_win
-
-#if defined multispec_lin
-	#include "LImageView.h"
-	#include "LEditSelRec.h"
-	#include "LDrawObj.h"
-	#include "LGraphView.h"
-#endif	// defined multispec_lin
 
 #include	"SExtGlob.h"				
 

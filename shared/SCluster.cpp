@@ -13,7 +13,7 @@
 //
 //	Revision number:		3.0
 //
-//	Revision date:			05/26/2017
+//	Revision date:			06/21/2017
 //
 //	Language:				C
 //
@@ -90,7 +90,12 @@
 //								"multiSpec.h"
 //
 
-#include	"SMulSpec.h"
+#include	"SMulSpec.h"     
+
+#if defined multispec_lin   
+	#include "LClusterDialog.h" 
+	#include "wx/wx.h"
+#endif	// defined multispec_lin
 
 #if defined multispec_mac 
 	#define	IDC_ClassifyTrainingAreas		10
@@ -107,17 +112,10 @@
 #endif	// defined multispec_mac 
   
 #if defined multispec_win   
-	//#include	"SMulSpec.h" 
-	#include "WClusDlg.h" 
-	#include "SExtGlob.h"
-#endif	// defined multispec_win      
+	#include "WClusDlg.h"
+#endif	// defined multispec_win 
 
-#if defined multispec_lin   
-	//#include	"SMulSpec.h" 
-	#include "LClusDlg.h" 
-	#include "SExtGlob.h"
-	#include "wx/wx.h"
-#endif	// defined multispec_lin   
+#include "SExtGlob.h"   
 
 #define	kmaxNumberCharactersForLine		2000
 

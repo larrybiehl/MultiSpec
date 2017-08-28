@@ -185,11 +185,8 @@ CMWindowInfo::ReleaseOffscreenSupportMemory(void)
 			GetHandleStatusAndPointer (m_windowInfoHandle, &handleStatus, kNoMoveHi);
 			
 	::ReleaseOffscreenSupportMemory (windowInfoPtr);
-/*				                  
-	// oul: added the condition of _AMD64_ to be compatible with x64
-	// _AMD64_ is the predefined macro for x64 machines according to MSDN
-	
-	#if !defined _X86_ && !defined _AMD64_
+/*				                               
+	#if !defined _X86_ 
 	
 		if (windowInfoPtr->offscreenGWorld != NULL)
 			{
@@ -200,12 +197,9 @@ CMWindowInfo::ReleaseOffscreenSupportMemory(void)
 			
 			}		// end "if (windowInfoPtr->offscreenGWorld != NULL)"
 			                               
-	#endif // !defined _X86_ && !defined _AMD64_
-	
-	// oul: added the condition of _AMD64_ to be compatible with x64
-	// _AMD64_ is the predefined macro for x64 machines according to MSDN
-
-	#if defined _X86_ || defined _AMD64_
+	#endif // !defined _X86_ 
+			                               
+	#if defined _X86_ 
 	                
 		windowInfoPtr->offScreenMapHandle =  
 									UnlockAndDispose (windowInfoPtr->offScreenMapHandle);
@@ -215,7 +209,7 @@ CMWindowInfo::ReleaseOffscreenSupportMemory(void)
 		
 		windowInfoPtr->offscreenMapSize = 0;
 			                               
-	#endif // defined _X86_ || defined _AMD64_
+	#endif // defined _X86_  
 */		
 	MHSetState (m_windowInfoHandle, handleStatus);
 

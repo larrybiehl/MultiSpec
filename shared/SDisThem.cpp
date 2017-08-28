@@ -13,7 +13,7 @@
 //
 //	Revision number:		3.0
 //
-//	Revision date:			02/23/2017
+//	Revision date:			06/21/2017
 //
 //	Language:				C
 //
@@ -90,6 +90,15 @@
 */
 
 #include "SMulSpec.h"
+
+#if defined multispec_lin 
+	#include "CDisplay.h"
+	#include "CPalette.h"
+	#include "LDisplayThematicDialog.h"
+	#include "LImageFrame.h"
+	#include "LImageView.h"  
+	#include "LMultiSpec.h"
+#endif	// defined multispec_lin 
 	
 #if defined multispec_mac
 	#define	IDC_Magnification				18
@@ -109,15 +118,6 @@
 	#include "WImagDoc.h" 
 	#include "WImagFrm.h"
 #endif	// defined multispec_win 
-
-#if defined multispec_lin
-	#include "MultiSpec2.h"
-	#include "LImageView.h"  
-	#include "CDisplay.h"
-	#include "CPalette.h"
-	#include "LDisplayThematicDialog.h" 
-	#include "LImageFrame.h"
-#endif	// defined multispec_lin 
 	 
 #include	"SExtGlob.h"
 

@@ -1,5 +1,7 @@
 // WLOOMDlg.cpp : implementation file
 //
+// Revised by Larry Biehl on 08/21/2017
+//
 
 #include "SMulSpec.h"
                      
@@ -53,7 +55,7 @@ void CMLOOMixingDialog::DoDataExchange(CDataExchange* pDX)
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CMLOOMixingDialog)
 	DDX_Radio(pDX, IDC_OptimumMixing, m_mixingParameterCode);
-	DDX_Text(pDX, IDC_UserValue, m_userMixingParameter);
+	DDX_Text2(pDX, IDC_UserValue, m_userMixingParameter);
 	DDV_MinMaxDouble(pDX, m_userMixingParameter, 0., 3.);
 	//}}AFX_DATA_MAP
 }

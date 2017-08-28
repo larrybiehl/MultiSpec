@@ -3,8 +3,8 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//									Copyright (1988-2013)
-//								� Purdue Research Foundation
+//									Copyright (1988-2017)
+//								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	File:						SProcMem.cpp
@@ -48,8 +48,8 @@ extern void						ClearNonProjProcessorWindowInfoHandleReferences (
 
 
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2013)
-//								� Purdue Research Foundation
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void ClearNonProjProcessorFileInfoHandleReferences
@@ -108,8 +108,8 @@ void ClearNonProjProcessorFileInfoHandleReferences (
 
 
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2013)
-//								� Purdue Research Foundation
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void ClearNonProjProcessorWindowInfoHandleReferences
@@ -210,8 +210,8 @@ void ClearNonProjProcessorWindowInfoHandleReferences (
 
 
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2013)
-//								� Purdue Research Foundation
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void ReleaseBiPlotDataSpecsMemory
@@ -269,8 +269,8 @@ void ReleaseBiPlotDataSpecsMemory (
 
 
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2013)
-//								� Purdue Research Foundation
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void ReleaseClusterSpecsMemory
@@ -346,8 +346,8 @@ void ReleaseClusterSpecsMemory (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2013)
-//								� Purdue Research Foundation
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void ReleaseEvalCovarianceHandleMemory
@@ -408,8 +408,8 @@ void ReleaseEvalCovarianceHandleMemory (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2013)
-//								� Purdue Research Foundation
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void ReleaseEvalTransformHandleMemory
@@ -442,8 +442,8 @@ void ReleaseEvalTransformHandleMemory (
 
 
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2013)
-//								� Purdue Research Foundation
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void ReleaseListDataSpecsMemory
@@ -506,8 +506,8 @@ void ReleaseListDataSpecsMemory (
 
 
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2013)
-//								� Purdue Research Foundation
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void ReleaseListResultsSpecsMemory
@@ -563,8 +563,8 @@ void ReleaseListResultsSpecsMemory (
 
 
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2013)
-//								� Purdue Research Foundation
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void ReleaseNonProjProcessorStructures
@@ -638,8 +638,8 @@ void ReleaseNonProjProcessorStructures (void)
 
 
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2013)
-//								� Purdue Research Foundation
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void ReleasePrincipalCompSpecsMemory
@@ -708,7 +708,7 @@ void ReleasePrincipalCompSpecsMemory (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2013)
+//								 Copyright (1988-2017)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -844,8 +844,8 @@ void ReleaseReformatSpecsMemory (
 
 
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2013)
-//								� Purdue Research Foundation
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void ReleaseStatisticsImageSpecsMemory

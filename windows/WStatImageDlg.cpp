@@ -11,7 +11,7 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
-extern void			StatisticsImageDialogInitialize(
+extern void			StatisticsImageDialogInitialize (
 	DialogPtr							dialogPtr,
 	StatisticsImageSpecsPtr			statisticsImageSpecsPtr,
 	DialogSelectArea*					dialogSelectAreaPtr,
@@ -35,7 +35,7 @@ extern void			StatisticsImageDialogInitialize(
 	Boolean*								featureTransformationFlagPtr,
 	Boolean*								featureTransformAllowedFlagPtr);
 
-extern void			StatisticsImageDialogOK(
+extern void			StatisticsImageDialogOK (
 	DialogPtr							dialogPtr,
 	StatisticsImageSpecsPtr			statisticsImageSpecsPtr,
 	DialogSelectArea*					dialogSelectAreaPtr,
@@ -143,8 +143,8 @@ void CMStatImageDialog::DoDataExchange(CDataExchange* pDX)
 		
 	DDX_CBIndex(pDX, IDC_ClassCombo, m_classSelection);
 
-	DDX_Text(pDX, IDC_StatisticMin, m_userMinimum);
-	DDX_Text(pDX, IDC_StatisticMax, m_userMaximum);
+	DDX_Text2(pDX, IDC_StatisticMin, m_userMinimum);
+	DDX_Text2(pDX, IDC_StatisticMax, m_userMaximum);
 
 	if (m_classCode == 0) 
 		m_classCode = 1;
@@ -195,7 +195,7 @@ BOOL CMStatImageDialog::DoDialog()
 	returnCode = DoModal();
 
 	if (returnCode == IDOK)
-	{
+		{
 		continueFlag = TRUE;
 		
  		StatisticsImageDialogOK(
@@ -220,14 +220,40 @@ BOOL CMStatImageDialog::DoDialog()
 			m_userMinimum,
 			m_userMaximum);
 
-
-	}
-
+		}
 
 	return (continueFlag);
 }
 
-BOOL CMStatImageDialog::OnInitDialog() {
+
+void CMStatImageDialog::OnFeatureTransformation()
+{
+	DDX_Check (m_dialogFromPtr,
+					IDC_FeatureTransformation,
+					m_featureTransformationFlag);
+
+	CheckFeatureTransformationDialog (this,
+												m_featureTransformAllowedFlag,
+												IDC_FeatureTransformation,
+												IDC_ChannelPrompt,
+												(SInt16*)&m_featureTransformationFlag);
+
+	m_channelSelection = UpdateDialogFeatureParameters (
+												m_featureTransformationFlag,
+												&m_localActiveNumberFeatures,
+												&m_localActiveFeaturesPtr,
+												m_localNumberFeatures,
+												m_localFeaturesPtr,
+												gProjectInfoPtr->numberStatisticsChannels,
+												m_localNumberTransformFeatures,
+												m_localTransformFeaturesPtr,
+												gTransformationMatrix.numberFeatures);
+
+}		// end "OnFeatureTransformation" 
+
+
+BOOL CMStatImageDialog::OnInitDialog() 
+{
 
 	SInt16			//areaCode,
 						//channelsPopUpMenuID,
@@ -281,6 +307,7 @@ BEGIN_MESSAGE_MAP(CMStatImageDialog, CMDialog)
 	ON_EN_CHANGE(IDC_ColumnStart, CheckColumnStart)
 	ON_EN_CHANGE(IDC_LineEnd, CheckLineEnd)
 	ON_EN_CHANGE(IDC_LineStart, CheckLineStart)
+	ON_BN_CLICKED(IDC_FeatureTransformation, OnFeatureTransformation)
 	ON_CBN_SELENDOK(IDC_ClassCombo, OnSelendokClassCombo)
 	ON_CBN_SELENDOK(IDC_ChannelCombo, OnSelendokChannelCombo)
 	ON_BN_CLICKED(IDC_UserSettingRadio, OnClickUserSettingRadio)

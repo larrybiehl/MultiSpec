@@ -4250,7 +4250,14 @@ SInt16 ReadHeaderWithGDALLibrary (
 														kGDAL_Library);
 	if (returnCode != noErr)	
 																							return (returnCode);	
-																							
+	/*																						
+	int numberChars = sprintf ((char*)&gTextString3,
+												" GDAL: (filePathPtr hDS): %s %ld%s", 
+												filePathPtr,
+												hDS,
+												gEndOfLine);
+	ListString ((char*)&gTextString3, numberChars, gOutputTextH);	
+	*/
 	if (formatOnlyCode == kLoadHeader)
 		returnCode = noErr;
 

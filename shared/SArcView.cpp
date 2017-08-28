@@ -13,7 +13,7 @@
 //
 //	Revision number:		3.0
 //
-//	Revision date:			03/10/2017
+//	Revision date:			07/26/2017
 //
 //	Language:				C
 //
@@ -40,6 +40,13 @@
 		ListString ((char*)&gTextString3, numberChars, gOutputTextH);	
 */
 #include "SMulSpec.h"
+   
+#if defined multispec_lin
+	#include "CFileStr.h"  
+	#include "LImageView.h"
+   #include "LOverlayParametersDialog.h"
+	//#define include_gdal_capability 0
+#endif
 	
 #if defined multispec_mac	
 	#define	IDC_LineColorPrompt		3
@@ -68,13 +75,6 @@
 											RGBColor*							rgbColorPtr,
 											SInt16								lineThickness);	 
 #endif	// defined multispec_win
-   
-#if defined multispec_lin
-	#include "CFileStr.h"  
-	#include "LImageView.h"
-   #include "LOverlayParameterDlg.h"
-	//#define include_gdal_capability 0
-#endif
 
 #define	kAllShapeHandleMemory				0
 #define	kVectorMemoryOnly						1
@@ -4457,7 +4457,7 @@ Boolean ReadArcViewColorPalette (
 // Called By:			LoadThematicDisplaySpecs in SDisThem.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 05/10/2011
-//	Revised By:			Larry L. Biehl			Date: 03/15/2017
+//	Revised By:			Larry L. Biehl			Date: 07/26/2017
 
 Boolean ReadArcViewGroups (
 				FileInfoPtr							inputFileInfoPtr,
@@ -4530,15 +4530,10 @@ Boolean ReadArcViewGroups (
 											notDoneFlag,
 											returnFlag = FALSE;
 
-	#if defined multispec_win	// || defined multispec_lin
+	#if defined multispec_win || defined multispec_lin
 		UCharPtr								endOfLinePtr;
 		UInt8									savedCharacter;
 	#endif
-
-		//	#if defined multispec_lin
-		//		HPtr									savedptr;
-		//		Handle								groupTablesHandle_temp;
-		//	#endif
 
 	
 	if (inputFileInfoPtr == NULL || outputFileInfoPtr == NULL ||
@@ -4682,7 +4677,7 @@ Boolean ReadArcViewGroups (
 			
 			if (errCode == noErr && inputStringPtr[0] >= '0' && inputStringPtr[0] <= '9')
 				{
-				#if defined multispec_win // || defined multispec_lin
+				#if defined multispec_win || defined multispec_lin
 							// For windows version, we need to add a null terminator at the end
 							// end of the line in place of the carriage return so that those cases
 							// with no class names or group information is handled properly. Otherwise
@@ -4712,11 +4707,6 @@ Boolean ReadArcViewGroups (
 				savedChar = inputStringPtr[254];
 				inputStringPtr[254] = 0;
 				
-					//				#if defined multispec_lin
-					//					savedptr = inputStringPtr;
-					//               groupTablesHandle_temp = groupTablesHandle;
-					//				#endif
-
 				tReturnCode = sscanf ((char*)inputStringPtr, 
 											 "%d%hd%hd%hd%s\r",
 											 &classNumber,
@@ -4725,11 +4715,6 @@ Boolean ReadArcViewGroups (
 											 &blue,
 											 (char*)&textString);
 											 
-					//				#if defined multispec_lin
-					//					inputStringPtr = savedptr;
-					//               groupTablesHandle = groupTablesHandle_temp;
-					//				#endif
-
 				inputStringPtr[254] = savedChar;
 				
 						// Verify parameters make sense and that this is the start of a 
@@ -4752,7 +4737,7 @@ Boolean ReadArcViewGroups (
 					if (startGroupInfoPtr != NULL)
 						{
 						startGroupInfoPtr += 2; 
-						
+				
 						tReturnCode = sscanf (startGroupInfoPtr,
 													 "%d%hd%hd%hd%s\r",
 													 &groupNumber,
@@ -4841,19 +4826,19 @@ Boolean ReadArcViewGroups (
 						
 					}		// end "if (tReturnCode == 5 && dataValue >= 0 && ..."
 
-				#if defined multispec_win // || multispec_lin //09.10.2015
+				#if defined multispec_win || multispec_lin //09.10.2015
 							// Set the end of line character back to the original value.
 					
 					if (endOfLinePtr != NULL)
 						*endOfLinePtr = savedCharacter;
 					endOfLinePtr = NULL;  	 
-				#endif	// defined multispec_win
+				#endif	// defined multispec_win || multispec_lin
 				
-			}		// end "if (errCode == noErr && inputStringPtr[0] >= '0' && ..."
+				}	// end "if (errCode == noErr && inputStringPtr[0] >= '0' && ..."
 			
-		whileLoopCount++;
+			whileLoopCount++;
 			
-		}		// end "while (errCode == noErr)" 
+			}	// end "while (errCode == noErr)" 
 			
 				// Allow for group colors and names being identified after the first
 				// time that group is specified for the class.
@@ -4942,9 +4927,9 @@ Boolean ReadArcViewGroups (
 						groupExistsFlag = TRUE;
 						break;
 						
-					}		// end "if (classToGroupPtr[classNumber] == groupNumber)"
+						}	// end "if (classToGroupPtr[classNumber] == groupNumber)"
 					
-				}		// end "for (classNumber=0; classNumber<numberclasses; classNumber++)"
+					}	// end "for (classNumber=0; classNumber<numberclasses; classNumber++)"
 					
 				if (!groupExistsFlag)
 					UpdateGroupTables ((SInt16)groupNumber,

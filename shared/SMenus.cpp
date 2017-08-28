@@ -13,7 +13,7 @@
 //
 //	Revision number:		3.0
 //
-//	Revision date:			03/25/2017
+//	Revision date:			06/21/2017
 //
 //	Language:				C
 //
@@ -38,28 +38,24 @@ ListString ((char*)&gTextString3, numberChars, gOutputTextH);
  */
 //-----------------------------------------------------------------------------
 
-#include "SMulSpec.h"
-	
-#if defined multispec_mac  
-
-	class  CCmdUI;
-
-//	#include 	"WASTE.h"
-	
-#endif	// defined multispec_mac   
-                             
-#if defined multispec_win
-	#include "WFormDlg.h" 
-#endif	// defined multispec_win   
+#include "SMulSpec.h"   
                              
 #if defined multispec_lin
 	#include <wx/menu.h>    
-   #include "ldialog.h"
+   #include "LDialog.h"
 #endif	// defined multispec_lin 
+	
+#if defined multispec_mac  
+	class  CCmdUI;
+	//#include 	"WASTE.h"
+#endif	// defined multispec_mac  
+                             
+#if defined multispec_win
+	#include "WFormDlg.h" 
+#endif	// defined multispec_win 
 	 
 #include	"SExtGlob.h" 
 
-	 
 #if defined multispec_win || defined multispec_lin
 	#pragma pack(4)
 #endif	// defined multispec_win || defined multispec_lin	 

@@ -13,7 +13,7 @@
 //
 //	Revision number:		3.0
 //
-//	Revision date:			04/11/2017
+//	Revision date:			08/28/2017
 //
 //	Language:				C
 //
@@ -45,6 +45,14 @@
 */
 
 #include	"SMulSpec.h" 
+      
+#if defined multispec_lin
+	#include "wx/wx.h"
+	#include "CFileStr.h"
+	#include "LMultiSpec.h"
+	#include "LOpenFileDialog.h"
+	#include "wx/filedlg.h"
+#endif   // defined multispec_lin
 
 #if defined multispec_mac
 	#define kOpenPrefKey						1
@@ -90,17 +98,7 @@
 				TBYTE*								textStringPtr, 
 				Boolean								continueFlag);
 #endif	// defined multispec_win
-      
-#if defined multispec_lin
-	#include "wx/wx.h"
-	#include "CFileStr.h"
-	#include "lfiledlg.h"
-	#include "MultiSpec2.h"
-	#include "wx/filedlg.h"
-	//#include <direct.h>
-#endif   // defined multispec_lin
 
-#include "SExtGlob.h"
 
 #if include_gdal_capability
 	// oul: added definition of SIZE_UNSIGNED_LONG and SIZEOF_VOIDP
@@ -1425,7 +1423,7 @@ SInt32 ConvertRealAT (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 05/30/1997
-//	Revised By:			Larry L. Biehl			Date: 03/15/2017	
+//	Revised By:			Larry L. Biehl			Date: 06/16/2017
 
 void CopyFileStream (
 				CMFileStream*						newFileStreamPtr,
@@ -1467,11 +1465,12 @@ void CopyFileStream (
 		#endif	// defined multispec_win
 		
       #if defined multispec_lin
-         StringPtr	oldFilePathPtr = oldFileStreamPtr->GetFilePathPtr();              
+         WideFileStringPtr	oldFilePathPtr = (WideFileStringPtr)oldFileStreamPtr->GetFilePathPPtr(kReturnUnicode);
 			newFileStreamPtr->SetFilePath (oldFilePathPtr, FALSE);
 			newFileStreamPtr->mCreator = oldFileStreamPtr->mCreator;
 			newFileStreamPtr->mFileType = oldFileStreamPtr->mFileType; 
-			newFileStreamPtr->pathLength = oldFileStreamPtr->pathLength;
+			newFileStreamPtr->mUnicodePathLength = oldFileStreamPtr->mUnicodePathLength;
+			newFileStreamPtr->mUTF8PathLength = oldFileStreamPtr->mUTF8PathLength;
  		#endif	// defined multispec_lin 
 		
 		}		// end "if (newFileStreamPtr != NULL && ..."
@@ -1558,11 +1557,11 @@ Boolean CopyFileStream (
 					{
 					newFileStreamPtr = *outputFileStreamPtrPtr;
 					
-		         StringPtr	oldFilePathPtr = inputFileStreamPtr->GetFilePathPtr();              
+		         WideFileStringPtr	oldFilePathPtr = (WideFileStringPtr)inputFileStreamPtr->GetFilePathPPtr(kReturnUnicode);
 					newFileStreamPtr->SetFilePath (oldFilePathPtr, FALSE);
 					newFileStreamPtr->mCreator = inputFileStreamPtr->mCreator;
 					newFileStreamPtr->mFileType = inputFileStreamPtr->mFileType; 
-					newFileStreamPtr->pathLength = inputFileStreamPtr->pathLength;
+					newFileStreamPtr->mUnicodePathLength = inputFileStreamPtr->mUnicodePathLength;
  		         returnFlag = TRUE;
 		         
 		      	}		// end "if (*outputFileStreamPtrPtr != NULL)"
@@ -1708,54 +1707,52 @@ SInt16 CreateNewFile (
 			{					
 			fileStreamPtr->pathLength = 0;
 				
-#			if TARGET_API_MAC_CARBON
-				FileInfo*							finderFileInfoPtr;
-				FSCatalogInfo						catalogInformation;
-		
-		
-				finderFileInfoPtr = (FileInfo*)&catalogInformation.finderInfo;
-				finderFileInfoPtr->fileType = fileStreamPtr->type;
-				finderFileInfoPtr->fileCreator = creator;
-				finderFileInfoPtr->finderFlags = 0;
-				finderFileInfoPtr->location.h = 0;
-				finderFileInfoPtr->location.v = 0;
-				finderFileInfoPtr->reservedField = 0;
-				
+			FileInfo*							finderFileInfoPtr;
+			FSCatalogInfo						catalogInformation;
+	
+	
+			finderFileInfoPtr = (FileInfo*)&catalogInformation.finderInfo;
+			finderFileInfoPtr->fileType = fileStreamPtr->type;
+			finderFileInfoPtr->fileCreator = creator;
+			finderFileInfoPtr->finderFlags = 0;
+			finderFileInfoPtr->location.h = 0;
+			finderFileInfoPtr->location.v = 0;
+			finderFileInfoPtr->reservedField = 0;
+			
 //				catalogInformation.volume = vRefNum;
-				
+			
 //				errCode = FSFindFolder (vRefNum,
 //   											OSType folderType,
 //   											kDontCreateFolder,
 //   											&fileStreamPtr->parentFSRef);
-				
-						// Make sure that both UTF8 and unicode strings exist
-				
-				UpdateFileNameInformation (fileStreamPtr, NULL);
+			
+					// Make sure that both UTF8 and unicode strings exist
+			
+			UpdateFileNameInformation (fileStreamPtr, NULL);
 //							// Copy wide character file name string to unichar name string.
 //					CopyWideStringToUnicodeStringInFileStream (fileStreamPtr);
-				
-				errCode = FSCreateFileUnicode (&fileStreamPtr->parentFSRef, 
-							   						fileStreamPtr->uniFileName.length,
-							   						fileStreamPtr->uniFileName.unicode,
-														kFSCatInfoFinderInfo, 
-														&catalogInformation, 
-														&fileStreamPtr->fsRef, 
-														NULL);
-				
-				if (errCode == dupFNErr)
-					{
-					errCode = FSMakeFSRefUnicode (&fileStreamPtr->parentFSRef,  
-							   								fileStreamPtr->uniFileName.length,
-							   								fileStreamPtr->uniFileName.unicode,
-               											kTextEncodingUnicodeDefault, 
-               											&fileStreamPtr->fsRef);
-																
-					if (errCode == noErr)
-						errCode = dupFNErr;
-																
-					}		// end "if (errCode == dupFNErr)"
 			
-#			endif		// TARGET_API_MAC_CARBON
+			errCode = FSCreateFileUnicode (&fileStreamPtr->parentFSRef, 
+													fileStreamPtr->uniFileName.length,
+													fileStreamPtr->uniFileName.unicode,
+													kFSCatInfoFinderInfo, 
+													&catalogInformation, 
+													&fileStreamPtr->fsRef, 
+													NULL);
+			
+			if (errCode == dupFNErr)
+				{
+				errCode = FSMakeFSRefUnicode (&fileStreamPtr->parentFSRef,  
+															fileStreamPtr->uniFileName.length,
+															fileStreamPtr->uniFileName.unicode,
+															kTextEncodingUnicodeDefault, 
+															&fileStreamPtr->fsRef);
+															
+				if (errCode == noErr)
+					errCode = dupFNErr;
+															
+				}		// end "if (errCode == dupFNErr)"
+			
 			}		// end "if (fileStreamPtr->fSRefFlag)"
 		
 		else		// !fileStreamPtr->fSRefFlag		
@@ -3373,7 +3370,7 @@ Boolean FileExists (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 11/16/1995
-//	Revised By:			Larry L. Biehl			Date: 11/16/1995
+//	Revised By:			Larry L. Biehl			Date: 07/05/2017
 
 Boolean FileOpen (
 				CMFileStream*						fileStreamPtr)
@@ -3381,13 +3378,13 @@ Boolean FileOpen (
 {
 	if (fileStreamPtr != NULL)
 		{
-		#if defined multispec_mac
+#		if defined multispec_mac
 			return (fileStreamPtr->refNum != 0); 
-		#endif	// defined multispec_mac
+#		endif	// defined multispec_mac
 		
-      #if defined multispec_win || defined multispec_lin
-			return ( fileStreamPtr->FileOpen() );
-		#endif	// defined multispec_win
+#		if defined multispec_lin || defined multispec_win
+			return (fileStreamPtr->FileOpen());
+#		endif	// defined multispec_win
 		
 		}		// end "if (fileStreamPtr != NULL)"
 		
@@ -4067,7 +4064,7 @@ Boolean GetFSSpecFlag (
 //							LoadTransformationFile in saveWrite.c
 //
 //	Coded By:			Larry L. Biehl			Date: 05/28/1988
-//	Revised By:			Larry L. Biehl			Date: 03/17/2017
+//	Revised By:			Larry L. Biehl			Date: 08/28/2017
 
 SInt16 GetFile (
 				CMFileStream* 						fileStreamPtr, 
@@ -4083,189 +4080,24 @@ SInt16 GetFile (
 	
 
 #	if defined multispec_mac
-#		if TARGET_API_MAC_CARBON
-			if (gNavServicesExistsFlag)
-				{
-				errCode = NavServicesGetFile (fileStreamPtr, 
-															numberTypes, 
-															fileTypesPtr, 
-															localAppFilePtr,
-															fileAsFSRefPtr,
-															itemCountPtr, 
-															stringIndex);
-		
-				if (errCode == noErr && gMultiSpecWorkflowInfo.workFlowCode > 0)
-							// Save the name of this file in case needed for work flow processing.
-					GetCopyOfPFileName (fileStreamPtr,
-												gMultiSpecWorkflowInfo.lastFileReadName);
-		
-																							return (errCode);
-						
-				}		// end "if (gNavServicesExistsFlag)"
+		if (gNavServicesExistsFlag)
+			{
+			errCode = NavServicesGetFile (fileStreamPtr, 
+														numberTypes, 
+														fileTypesPtr, 
+														localAppFilePtr,
+														fileAsFSRefPtr,
+														itemCountPtr, 
+														stringIndex);
 
-#		else	// !TARGET_API_MAC_CARBON
-/*
-			Point						where;
-		
-					// Initialize variables.
+			if (errCode == noErr && gMultiSpecWorkflowInfo.workFlowCode > 0)
+						// Save the name of this file in case needed for work flow processing.
+				GetCopyOfPFileName (fileStreamPtr,
+											gMultiSpecWorkflowInfo.lastFileReadName);
 
-			gGetFileStatus = 3;
-	 
-					// Make certain that MultiSpec is not in the background.					
+																						return (errCode);
 					
-			PauseIfInBackground ();
-				
-					// Check if this routine called from MultiSpec startup, in which		
-					// case the file to open has already been selected.						
-					
-			if (localAppFilePtr != NULL)
-				{
-				fileStreamPtr->vRefNum = localAppFilePtr->vRefNum;
-				fileStreamPtr->parID = localAppFilePtr->parID;
-				CopyPToP (fileStreamPtr->fileName, localAppFilePtr->fNamePtr);
-				fileStreamPtr->fSSpecFlag = localAppFilePtr->fSSpecFlag;
-				
-				}		// end "if (localAppFilePtr != NULL)" 
-			
-					// Else file has not been selected.												
-					// Put the file dialog box up to select the input file.					
-			
-			else		// localAppFilePtr == NULL 
-				{	
-						// Calculate point where dialog will be centered. 						
-					
-				GetDlogOrigin (getDlgID, &where);
-			
-						// Get the requested prompt string.											
-						
-				if (!GetSpecifiedStringNumber (
-									kFileIOStrID, stringIndex, &gTextString, TRUE ))
-																					return (memFullErr);
-				
-				if (gMultipleImageFileCode)
-					{
-					sprintf( (char*)&gTextString[13], 
-							"%3d", 
-							((WindowInfoPtr)*gActiveImageWindowInfoH)->numberImageFiles+1 );
-					gTextString[16] = ' ';
-					gGetFileStatus = 2;
-					
-					}		// end "if (gMultipleImageFileCode)" 
-					
-				else		// !gMultipleImageFileCode 
-					{
-					gGetFileStatus = -1;
-					if (stringIndex == IDS_SelectImage)
-						gGetFileStatus = 0;
-						
-					}		// end "else !gMultipleImageFileCode" 
-					
-				gFileReply.good = FALSE;
-					
-						// Only call standard io get file if there is a minimum amount of	
-						// memory available.																
-						
-				if (CheckIfMemoryAvailable (15000))
-					{	
-					if (stringIndex == IDS_WhereIsProjectImage ||
-							stringIndex == IDS_FileIO103 ||
-								stringIndex == IDS_FileIO104)
-						ParamText (gTextString, fileStreamPtr->fileName, "\p?", "\p");
-						
-					else		// stringIndex == IDS_WhereIsProjectImage 
-						ParamText (gTextString, "\p", "\p", "\p");
-					
-					SFGetFile (where, 
-									NULL, 
-									NULL, 
-									numberTypes, 
-									fileTypesPtr, 
-									gGetFileHookPtr, 
-									&gFileReply);
-									
-					ParamText ("\p", "\p", "\p", "\p");
-						
-							// Make certain that all previous mouse events have been			
-							// removed. This is done in case the user double clicked			
-							// to select the file.														
-											
-					FlushEvents (mUpMask,0);
-					
-					}		// end "if (CheckIfMemoryAvailable (15000))" 
-				
-						// If file is to be added to the active image window, then the		
-						// file type has to be forced to multispectral type.					
-						
-				if (gMultipleImageFileCode != 0)
-					gGetFileImageType = kImageWindowType;
-				
-				CheckSomeEvents (activMask+updateMask);
-			
-				if (!gFileReply.good)
-					{
-					fileStreamPtr->fileName[0] = 0;
-																							return(0);
-																							
-					}		// end "if (!gFileReply.good)"
-				
-				if (!fileStreamPtr->fSSpecFlag)
-					{	
-							// Create the FSSpec record
-							
-					FSMakeFSSpec (gFileReply.vRefNum, 
-										0, 
-										gFileReply.fName, 
-										(FSSpec*)fileStreamPtr);
-					fileStreamPtr->fSSpecFlag = TRUE;
-					
-					}		// end "if (!fileStreamPtr->fSSpecFlag)"
-					
-				//CopyPToP ( (char*)fileStreamPtr->fileName, (char*)gFileReply.fName);
-				//fileStreamPtr->vRefNum = gFileReply.vRefNum;
-				//fileStreamPtr->parID = 0;
-				//fileStreamPtr->fSSpecFlag = FALSE;
-		
-						// Also make the filename a useable c string
-		
-				fileStreamPtr->fileName[fileStreamPtr->fileName[0]+1] = 0x00;
-				
-				}		// end "else localAppFilePtr == NULL" 
-		
-					// Get the file type and creator					
-						
-			if (fileStreamPtr->fSSpecFlag)
-				errCode = FSpGetFInfo ((FSSpec*)fileStreamPtr, &gFinderInfo);
-				
-			else		// !fileInfoPtr->fSSpecFlag 
-				errCode = HGetFInfo (
-						fileStreamPtr->vRefNum, 0, fileStreamPtr->fileName, &gFinderInfo);
-		
-			if (errCode == noErr)
-				{
-				fileStreamPtr->creator = gFinderInfo.fdCreator;
-				fileStreamPtr->type = gFinderInfo.fdType;
-		
-				}		// end "if (errCode == noErr)"
-
-			if (errCode == noErr)
-				errCode = OpenFileReadOnly (fileStreamPtr, 
-													kResolveAliasChains,
-													kLockFile,
-													kDoNotVerifyFileStream);
-							
-			IOCheck (errCode, fileStreamPtr);
-								
-					// To allow this will also involve checking for this refnum in other
-					// windows when closing a file, because it is the same path as that	
-					// obtained for the first open.													
-						
-			//	if (errCode == opWrErr)
-			//		errCode = noErr;
-			
-			if (errCode != noErr)	
-				SetReferenceNumber(fileStreamPtr, 0);
-*/
-#		endif	// else !TARGET_API_MAC_CARBON
+			}		// end "if (gNavServicesExistsFlag)"
 #	endif	// defined multispec_mac
 
 #	if defined multispec_lin || defined multispec_win
@@ -4274,7 +4106,7 @@ SInt16 GetFile (
 				
 			gGetFileStatus = 3;
 		
-			TBYTE	filterString[256];
+			TBYTE	filterString[512];
 
 			SInt16 filterStringIndex = IDS_FilterString;
 			if (stringIndex == IDS_SelectProject)
@@ -4287,10 +4119,10 @@ SInt16 GetFile (
 				filterStringIndex = IDS_TRLFilterString;
 				
 			else if (stringIndex == IDS_FileIO95)
-				filterStringIndex = IDS_MultispectralFilterString;
+				filterStringIndex = IDS_ClassificationFilterString;
 				
 			else if (stringIndex == IDS_FileIO96)
-				filterStringIndex = IDS_MultispectralFilterString;
+				filterStringIndex = IDS_ClassificationFilterString;
 				
 			else if (stringIndex == IDS_SelectNewBaseImage) 
 				filterStringIndex = IDS_MultispectralFilterString;
@@ -4305,7 +4137,7 @@ SInt16 GetFile (
 				filterStringIndex = IDS_TextFileFilterString;
 			
 			if (!GetSpecifiedStringNumber (
-					kFileIOStrID, filterStringIndex, filterString, TRUE))
+					kFileIOStrID, filterStringIndex, filterString, TRUE, 510))
 																					return (1);
 
 			gFileFilterIndex = 1;
@@ -4314,7 +4146,7 @@ SInt16 GetFile (
 		 
 			CMOpenFileDialog		dialog(NULL, (TBYTE*)&filterString[1]);
 #			if defined _UNICODE
-				USES_CONVERSION;
+				//USES_CONVERSION;
 				TBYTE					string[512];
 #			endif
 			CString 					filePathName;
@@ -4376,12 +4208,12 @@ SInt16 GetFile (
 						//									kLockFile,
 						//									kDoNotVerifyFileStream);
 						
-#						if defined multispec_win
-							wcscpy ((wchar_t*)&fileAsFSRefPtr[iCtr].hidden[1], localAppFilePtr);  
-							fileAsFSRefPtr[iCtr].hidden[0] = pathLength;
-#						else
-							CtoPstring ((UCharPtr)localAppFilePtr, (UCharPtr)&fileAsFSRefPtr[iCtr]);
-#						endif
+//#						if defined _UNICODE
+						wcscpy ((wchar_t*)&fileAsFSRefPtr[iCtr].hidden[1], localAppFilePtr);  
+						fileAsFSRefPtr[iCtr].hidden[0] = pathLength;
+//#						else
+//							CtoPstring ((UCharPtr)localAppFilePtr, (UCharPtr)&fileAsFSRefPtr[iCtr]);
+//#						endif
 
 						filePathName.ReleaseBuffer();
 						iCtr++;
@@ -4412,13 +4244,12 @@ SInt16 GetFile (
 					filePathName = dialog.GetPathName();
 					localAppFilePtr = (TBYTE*)filePathName.GetBuffer(255);
 					pathLength = filePathName.GetLength();
-#					if defined _UNICODE
-						//strcpy ((char*)string, T2A(localAppFilePtr));
-						wcscpy (string, localAppFilePtr);  
-						CtoPstring (string, pathName);
-#					else
-						CtoPstring ((CharPtr)localAppFilePtr, (CharPtr)pathName);
-#					endif
+//#					if defined _UNICODE
+					wcscpy (string, localAppFilePtr);  
+					CtoPstring (string, pathName);
+//#					else
+//						CtoPstring ((CharPtr)localAppFilePtr, (CharPtr)pathName);
+//#					endif
 					filePathName.ReleaseBuffer();
 					localFileAsFSRefPtr = (FSRef*)pathName;
 
@@ -4474,13 +4305,14 @@ SInt16 GetFile (
 			else if (stringIndex == IDS_SelectImageStatistics) 
 				filterStringIndex = IDS_StatFilterString;
 				
-			else if (stringIndex == IDS_FileIO146){
+			else if (stringIndex == IDS_FileIO146)
+				{
 				filterStringIndex = IDS_TextFileFilterString;
 				stringIndex = IDS_SelectENVI;
-			}
-				
+				}
+			
 			if (!GetSpecifiedStringNumber (
-					kFileIOStrID, filterStringIndex, (Str255*)&gTextString, TRUE))
+					kFileIOStrID, filterStringIndex, gTextString, TRUE))
 																					return (1);
 
 			gFileFilterIndex = 1;
@@ -4499,8 +4331,11 @@ SInt16 GetFile (
 
 			CMOpenFileDialog *filedlgobj = new CMOpenFileDialog(frame);
 			wxString 					filePathName;
+			wxWCharBuffer				wideCharBuffer;
 			FSRef*						localFileAsFSRefPtr;
-			UChar							pathName[_MAX_PATH]; 
+			wchar_t						pathName[_MAX_PATH+1]; 
+			size_t						stringLength;
+			int							filePathIndex;
 			
 			if (fileAsFSRefPtr != NULL)
 				style = wxFD_MULTIPLE | wxFD_OPEN;	
@@ -4535,32 +4370,35 @@ SInt16 GetFile (
 					
 					}		// end "else !gMultipleImageFileCode"
 					
-				if (!filedlgobj->DoDialog(stringIndex, style))
+				if (!filedlgobj->DoDialog (stringIndex, style))
 					{
 					SetFileDoesNotExist (fileStreamPtr);
 																							return(0);
 																							
 					}		// end "if (!dialog.DoDialog())"
-				localAppFilePtr = MNewPointer(255);
+
+				localAppFilePtr = (LocalAppFile*)MNewPointer ((_MAX_PATH+1)*sizeof(wchar_t));
 				if (fileAsFSRefPtr != NULL)
 					{
 					//POSITION fileNamesPosition = dialog.GetStartPosition();
 					wxArrayString patharray;
 					patharray = filedlgobj->GetPaths();
 					int iCtr = 0;
+
 					for (int i = 0; i < patharray.GetCount(); i++)
 						{
-						//filePathName = filedlgobj->GetNextPathName (fileNamesPosition);
 						filePathName = patharray.Item(i);
-						//localAppFilePtr = filePathName.GetBuffer(255);
-						//localAppFilePtr = MNewPointer(255);
-						strncpy(localAppFilePtr, (const char*)filePathName.mb_str(wxConvUTF8), 255);
+						stringLength = MIN (filePathName.length(), 255);	
+						wideCharBuffer = filePathName.wc_str();
+						wcsncpy (localAppFilePtr, wideCharBuffer.data(), stringLength);
+						localAppFilePtr[stringLength] = 0;
+						
 								// Get copy of the path name so that it can be modified.
 								// Convert to Pascal string so that it is in the same format
 								// as the file name in the Macintosh version.
 								// CtoPstring adds a C string terminator at the end.
 
-						CtoPstring (localAppFilePtr, &fileAsFSRefPtr[iCtr]);
+						CtoPstring ((wchar_t*)localAppFilePtr, (wchar_t*)&fileAsFSRefPtr[iCtr]);
 						//filePathName.ReleaseBuffer();
 						iCtr++;
 						
@@ -4571,7 +4409,7 @@ SInt16 GetFile (
 
 							}
 						
-						}		// end "while (fileNamesPosition != NULL)"
+						}		// end "for (int i = 0; i < patharray.GetCount(); i++)"
 					
 					if (itemCountPtr != NULL)
 						*itemCountPtr = iCtr;
@@ -4588,17 +4426,34 @@ SInt16 GetFile (
 							// Only one file is being selected.
 					
 					filePathName = filedlgobj->GetPath();
+					stringLength = MIN (filePathName.length(), 255);	
+					wideCharBuffer = filePathName.wc_str();
 					
-					//localAppFilePtr = filePathName.GetBuffer(255);
-					//localAppFilePtr = MNewPointer(255);
-					strncpy(localAppFilePtr, (const char*)filePathName.mb_str(wxConvUTF8), 255);
+					//strncpy (localAppFilePtr, (const char*)filePathName.mb_str(wxConvUTF8), 255);
+					wcsncpy (localAppFilePtr, wideCharBuffer.data(), stringLength);
+					localAppFilePtr[stringLength] = 0;
+						
 					CtoPstring (localAppFilePtr, pathName);
-					//filePathName.ReleaseBuffer();
 					localFileAsFSRefPtr = (FSRef*)pathName;
 
 					}		// end "else fileAsFSRefPtr == NULL"
 					
-				CheckAndDisposePtr(localAppFilePtr);
+						// Save the directory part of filePathName so that it will become the
+						// default directory for the next GetFile operation. Work backwards on 
+						// file path until we find the first '/' which we assume is the last
+						// portion of the directory name.
+						// Remember to allow for 0 based index.
+						
+				filePathIndex = filePathName.length() - 1;		
+				while (filePathIndex > 0 && filePathName[filePathIndex] != '/')
+					filePathIndex--;
+				if (filePathIndex > 0 && filePathName[filePathIndex] == '/')
+					filePathIndex--;
+				filePathName.Truncate (filePathIndex+1);
+				if (filePathIndex > 0)
+					gDefaultDataDirectory = filePathName;	
+										
+				localAppFilePtr = (LocalAppFile*)CheckAndDisposePtr ((Ptr)localAppFilePtr);
 
 				}		// end "else localAppFilePtr == NULL"
 				
@@ -4606,12 +4461,12 @@ SInt16 GetFile (
 					// Convert to Pascal string so that it is in the same format
 					// as the file name in the Macintosh version.
 					// Make certain that there is a C string terminator at the end.
-					
-			fileStreamPtr->SetFilePath((StringPtr)localFileAsFSRefPtr, TRUE);
-			
+
+			fileStreamPtr->SetFilePath ((WideFileStringPtr)localFileAsFSRefPtr, TRUE);
+
 			errCode = CMFileStream::GetFileType (
-							(StringPtr)localFileAsFSRefPtr, &fileStreamPtr->mFileType);
-				
+							(WideFileStringPtr)localFileAsFSRefPtr, &fileStreamPtr->mFileType);
+
 					// Force the pascal file name to be updated in case user is
 					// expecting to use it.
 
@@ -4758,7 +4613,7 @@ Boolean GetFileDlgDetermineLinkVisibility ()
 // Called By:		
 //
 //	Coded By:			Larry L. Biehl			Date: 02/04/2013
-//	Revised By:			Larry L. Biehl			Date: 04/11/2017
+//	Revised By:			Larry L. Biehl			Date: 06/19/2017
 
 SInt16 GetFileNameFromFSRef (
 				FSRef*								fileAsFSRefPtr,
@@ -4769,9 +4624,7 @@ SInt16 GetFileNameFromFSRef (
 
 
 #	if defined multispec_mac
-#		if TARGET_API_MAC_CARBON
-			CFStringRef							cfStringRef;
-#		endif 		// TARGET_API_MAC_CARBON
+		CFStringRef							cfStringRef;
 												
 		HFSUniStr255						uniFileName;
 		
@@ -4808,7 +4661,7 @@ SInt16 GetFileNameFromFSRef (
 #	if defined multispec_win	|| defined multispec_lin
 		UInt8									uft8String[_MAX_PATH];
 		FileStringPtr						localFileNamePtr;
-		TBYTE*								inputFileStringPtr;
+		WideFileStringPtr					inputFileStringPtr;
 		
 		SInt16								nameLength,
 												pathLength;
@@ -4818,12 +4671,16 @@ SInt16 GetFileNameFromFSRef (
 		
 		inputFileStringPtr = fileAsFSRefPtr[0].hidden;
 		int size = (int)inputFileStringPtr[0];
+		/*
 		int sizeNeeded = WideCharToMultiByte (
 									CP_UTF8, 0, (LPCWSTR)&inputFileStringPtr[1], size, NULL, 0, NULL, NULL);
 		WideCharToMultiByte (CP_UTF8, 0, (LPCWSTR)&inputFileStringPtr[1], size, (LPSTR)uft8String, sizeNeeded, NULL, NULL);
 
 		pathLength = (SInt16)strlen ((char*)uft8String);
 		localFileNamePtr = uft8String;
+		*/
+		ConvertUnicodeStringToMultibyteString (inputFileStringPtr, uft8String, size);
+		pathLength = uft8String[0];
 		
 		if (pathLength > 0)
 			{              
@@ -4852,12 +4709,9 @@ SInt16 GetFileNameFromFSRef (
 			
 		else		// pathLength == 0
 			{
+			localFileNamePtr = uft8String;
 			nameLength = 0;
 			
-					// Make sure that there is a c terminator.
-					
-			localFileNamePtr[0] = 0;
-
 			errCode = 1;
 			
 			}		// else pathLength == 0
@@ -4939,7 +4793,7 @@ void* GetFilePathPPointer (
 // Called By:		
 //
 //	Coded By:			Larry L. Biehl			Date: 10/05/1995
-//	Revised By:			Larry L. Biehl			Date: 03/15/2017
+//	Revised By:			Larry L. Biehl			Date: 06/22/2017
 
 void* GetFilePathPPointer (
 				CMFileStream* 						fileStreamPtr,
@@ -4950,16 +4804,16 @@ void* GetFilePathPPointer (
 	
 	if (fileStreamPtr != NULL)
 		{
+#		if defined multispec_lin                           
+			filePathPtr = fileStreamPtr->GetFilePathPPtr (returnCode);
+#		endif	// defined multispec_lin
+
 #		if defined multispec_mac  
 			if (returnCode == kReturnASCII)
 				filePathPtr = (void*)fileStreamPtr->fileName;
 			else
 				filePathPtr = (void*)fileStreamPtr->uniFileName.unicode;
 #		endif	// defined multispec_mac 
-		
-#		if defined multispec_lin                           
-			filePathPtr = fileStreamPtr->GetFilePathPtr();
-#		endif	// defined multispec_lin
 	              
 #		if defined multispec_win    
 			filePathPtr = fileStreamPtr->GetFilePathPPtr (returnCode);
@@ -5315,9 +5169,7 @@ SInt16 GetFileTypeAndCreator (
 	SInt16								errCode = noErr;
 	
 	#if defined multispec_mac
-		#if TARGET_API_MAC_CARBON		
-			FSCatalogInfo						fsCatalogInfo;
-		#endif 		// TARGET_API_MAC_CARBON
+		FSCatalogInfo						fsCatalogInfo;
 
 
 				// Get the file type and creator					
@@ -5335,25 +5187,23 @@ SInt16 GetFileTypeAndCreator (
 			
 			}		// end "if (fileStreamPtr->fSSpecFlag)"
 
-		#if TARGET_API_MAC_CARBON	
-			else		// !fileStreamPtr->fSSpecFlag
+		else		// !fileStreamPtr->fSSpecFlag
+			{
+			errCode = FSGetCatalogInfo (&fileStreamPtr->fsRef,
+													kFSCatInfoFinderInfo,
+													&fsCatalogInfo,
+													NULL,
+													NULL,
+													NULL);													
+
+			if (errCode == noErr)
 				{
-				errCode = FSGetCatalogInfo (&fileStreamPtr->fsRef,
-														kFSCatInfoFinderInfo,
-														&fsCatalogInfo,
-														NULL,
-														NULL,
-														NULL);													
+				fileStreamPtr->creator = ((FileInfo*)fsCatalogInfo.finderInfo)->fileCreator;
+				fileStreamPtr->type = ((FileInfo*)fsCatalogInfo.finderInfo)->fileType;
 
-				if (errCode == noErr)
-					{
-					fileStreamPtr->creator = ((FileInfo*)fsCatalogInfo.finderInfo)->fileCreator;
-					fileStreamPtr->type = ((FileInfo*)fsCatalogInfo.finderInfo)->fileType;
-
-					}		// end "if (errCode == noErr)"
-				
-				}		// end else	!fileStreamPtr->fSSpecFlag
-		#endif		// TARGET_API_MAC_CARBON	
+				}		// end "if (errCode == noErr)"
+			
+			}		// end else	!fileStreamPtr->fSSpecFlag
 	#endif	// defined multispec_mac
 	
 	#if defined multispec_win		
@@ -7684,7 +7534,7 @@ CMFileStream* InitializeFileStream (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 10/25/1995
-//	Revised By:			Larry L. Biehl			Date: 03/22/2017
+//	Revised By:			Larry L. Biehl			Date: 07/03/2017
 
 void InitializeFileStream (
 				CMFileStream*						newFileStreamPtr,
@@ -7713,7 +7563,8 @@ void InitializeFileStream (
 		#endif	// defined multispec_mac
 		
       #if defined multispec_lin
-         StringPtr	oldFilePathPtr = oldFileStreamPtr->GetFilePathPtr();              
+         WideFileStringPtr	oldFilePathPtr = 
+							(WideFileStringPtr)oldFileStreamPtr->GetFilePathPPtr(kReturnUnicode);              
 			newFileStreamPtr->SetFilePath (oldFilePathPtr, TRUE);
 			newFileStreamPtr->mCreator = oldFileStreamPtr->mCreator;
 			newFileStreamPtr->mFileType = oldFileStreamPtr->mFileType;
@@ -7949,7 +7800,13 @@ void IOCheck (
 #		endif	// defined multispec_win 
 
 #		if defined multispec_lin
-			// TODO
+				// TODO
+			int numberChars = sprintf ((char*)&gTextString3,
+													" File error: %d for '%s'. %s", 
+													errCode,
+													fileNamePtr,
+													gEndOfLine);
+			ListString ((char*)&gTextString3, numberChars, gOutputTextH);	
 #		endif
 	   	
 	  	}		// end "if (errCode != noErr)" 
@@ -8710,11 +8567,7 @@ SInt16 MDeleteFile (
 					// Create the file on the selected volume
 					
 			if (fileStreamPtr->fSRefFlag)
-				{					
-				#if TARGET_API_MAC_CARBON	
-					errCode = FSDeleteObject (&fileStreamPtr->fsRef);			
-				#endif		// TARGET_API_MAC_CARBON	
-				}		// end "if (fileStreamPtr->fSRefFlag)"
+				errCode = FSDeleteObject (&fileStreamPtr->fsRef);			
 			
 			else		// !fileStreamPtr->fSRefFlag		
 				errCode = HDelete (fileStreamPtr->vRefNum, 
@@ -9163,7 +9016,6 @@ pascal Boolean NavServicesFilterProc(
 							
 						}		// end "if (theItem->descriptorType == typeFSS)"
 						
-					#if TARGET_API_MAC_CARBON
 					else		// theItem->descriptorType == typeFSRef
 						{
 						CFStringRef							cfStringRef;
@@ -9214,7 +9066,6 @@ pascal Boolean NavServicesFilterProc(
 						fileStreamPtr->fSRefFlag = TRUE;
 						
 						}		// end "else theItem->descriptorType == typeFSRef"
-						#endif	// TARGET_API_MAC_CARBON
 						
 					if (NavServicesCheckForIgnoredFiles (fileStreamPtr->fileName))
 						errCode = 1;
@@ -9890,15 +9741,13 @@ SInt16 NavServicesGetFile (
 				SInt16								stringIndex)
 
 {
-	#if TARGET_API_MAC_CARBON		
-		CFStringRef							cfStringRef;
-		FSCatalogInfo						fsCatalogInfo;
-		FSRef 								fileAsFSRef;
-		NavDialogCreationOptions 		dialogCreationOptions;
-		NavDialogRef 						dialog;
-		CFStringRef							menuItemString[5];
-		FSRef*								localFileAsFSRefPtr;
-	#endif 		// TARGET_API_MAC_CARBON		
+	CFStringRef							cfStringRef;
+	FSCatalogInfo						fsCatalogInfo;
+	FSRef 								fileAsFSRef;
+	NavDialogCreationOptions 		dialogCreationOptions;
+	NavDialogRef 						dialog;
+	CFStringRef							menuItemString[5];
+	FSRef*								localFileAsFSRefPtr;
 
 	NavReplyRecord						theReply;
 	NavDialogOptions					dialogOptions;
@@ -10263,7 +10112,6 @@ SInt16 NavServicesGetFile (
 
 			if (gOSXFlag)
 				{	
-				#if TARGET_API_MAC_CARBON		
 						// Get the standard set of default dialog options
 						
 				errCode = NavGetDefaultDialogCreationOptions (&dialogCreationOptions);
@@ -10497,7 +10345,6 @@ SInt16 NavServicesGetFile (
 						}		// end "if (errCode == noErr && itemCount > 0)"
 						
 					}		// end "if (theReply.validRecord && errCode == noErr)"
-				#endif		// TARGET_API_MAC_CARBON		
 
 				}		// end "if (gOSXFlag)"
 				
@@ -10667,15 +10514,13 @@ SInt16 NavServicesGetFile (
 			// In other words from a user double clicking on the file rather than using
 			// the File->Open Image menu command
 
-	#if TARGET_API_MAC_CARBON	
-		if (!fileStreamPtr->fSSpecFlag && localAppFilePtr != NULL)
-			errCode = FSGetCatalogInfo (&fileStreamPtr->fsRef,
-													kFSCatInfoVolume,
-													&fsCatalogInfo,
-													&fileStreamPtr->uniFileName,
-													NULL,
-													&fileStreamPtr->parentFSRef);
-	#endif		// TARGET_API_MAC_CARBON
+	if (!fileStreamPtr->fSSpecFlag && localAppFilePtr != NULL)
+		errCode = FSGetCatalogInfo (&fileStreamPtr->fsRef,
+												kFSCatInfoVolume,
+												&fsCatalogInfo,
+												&fileStreamPtr->uniFileName,
+												NULL,
+												&fileStreamPtr->parentFSRef);
 
 			// Get the file type and creator	
 	
@@ -11177,161 +11022,159 @@ SInt16 NavServicesPutFile (
 		
 		if (gOSXFlag)
 			{
-			#if TARGET_API_MAC_CARBON
-				AEDesc								aeDesc;
-				FSCatalogInfo						fsCatalogInfo;
-				NavDialogCreationOptions 		dialogCreationOptions;
-				NavDialogRef 						dialog;	
-				NavUserData							navUserData;
-	
-						// Get the standard set of default dialog options
-						
-				if (errCode == noErr)
-					errCode = NavGetDefaultDialogCreationOptions (&dialogCreationOptions);
-				
-				dialogCreationOptions.clientName = CFStringCreateWithPascalString (
-															NULL, 
-															(UCharPtr)"\0MultiSpec", 
-															kCFStringEncodingMacRoman);
-																	
-				dialogCreationOptions.windowTitle = CFStringCreateWithPascalString (
-															NULL, 
-															(UCharPtr)gTextString3, 
-															kCFStringEncodingMacRoman);
-				/*
-				dialogCreationOptions.saveFileName = CFStringCreateWithPascalString (
-															NULL, 
-															fileStreamPtr->fileName, 
-															kCFStringEncodingUTF8);
-				*/	
-														
-				dialogCreationOptions.saveFileName = CFStringCreateWithBytes (
-															kCFAllocatorDefault, 
-															(UInt8*)&fileStreamPtr->fileName[1],
-															fileStreamPtr->fileName[0],
-															kCFStringEncodingUTF8,
-															false);
-				/*
-				dialogCreationOptions.saveFileName = CFStringCreateWithCharacters (
-															kCFAllocatorDefault,
-															fileStreamPtr->uniFileName.unicode,
-															fileStreamPtr->uniFileName.length);
-				*/
-				dialogCreationOptions.preferenceKey = kOpenPrefKey;
-				
-				dialogCreationOptions.modality = kWindowModalityAppModal;
-			
-						// We will do the translation ourselves later
-						
-				dialogCreationOptions.optionFlags |= kNavDontAutoTranslate;
-				dialogCreationOptions.optionFlags |= kNavNoTypePopup;
-				
-						// Check if confirm alert is to be shown.
-						
-				if (!gConfirmReplacementAlertFlag)
-					dialogCreationOptions.optionFlags |= kNavDontConfirmReplacement;
-				
-						// Load client information.
-						
-				navUserData.parentFSRef = fileStreamPtr->parentFSRef;
-			
-				if (errCode == noErr)
-					errCode = NavCreatePutFileDialog (
-										&dialogCreationOptions,
-										fileStreamPtr->type,
-										creator,
-										eventUPP,
-			   						&navUserData,
-										&dialog);
+			AEDesc								aeDesc;
+			FSCatalogInfo						fsCatalogInfo;
+			NavDialogCreationOptions 		dialogCreationOptions;
+			NavDialogRef 						dialog;	
+			NavUserData							navUserData;
 
-						// Show the dialog box
-
-				if (errCode == noErr)
-					errCode = NavDialogRun (dialog);
-				
-				if (dialogCreationOptions.clientName != NULL)
-					CFRelease (dialogCreationOptions.clientName);
-				
-				if (dialogCreationOptions.windowTitle != NULL)
-					CFRelease (dialogCreationOptions.windowTitle);
-				
-				if (dialogCreationOptions.saveFileName != NULL)
-					CFRelease (dialogCreationOptions.saveFileName);
-				
-						// Get the reply
-						
-				if (errCode == noErr)
-					{
-					errCode = NavDialogGetReply (dialog, &theReply);
-				
-					if (errCode == noErr && theReply.validRecord)
-						{
-	   				errCode = AECoerceDesc (&theReply.selection, typeFSRef, &aeDesc);
-						
-						if (errCode == noErr)
-							{
-							errCode = AEGetDescData (&aeDesc, 
-																&tempFileStream.parentFSRef, 
-																sizeof(FSRef));
-							
-							AEDisposeDesc (&aeDesc);
-							
-							}		// end "if (errCode == noErr)"
-							  									
-						if (errCode == noErr)
-							{
-							tempFileStream.fSRefFlag = TRUE;
-								
-							tempFileStream.uniFileName.length = CFStringGetLength (theReply.saveFileName);
-							CFStringGetCharacters (theReply.saveFileName, 
-																CFRangeMake(0, tempFileStream.uniFileName.length), 
-																tempFileStream.uniFileName.unicode);
-																
-									// Get the UTF8 version of the file name
-							/*		
-							CFStringGetCString (theReply.saveFileName,
-													   (char*)&tempFileStream.fileName[1],
-													   (CFIndex)255,
-													   kCFStringEncodingUTF8);
-							tempFileStream.fileName[0] = strlen ((char*)&tempFileStream.fileName[1]);
-							*/								   
-							if (theReply.replacing)
-								errCode = FSMakeFSRefUnicode (&tempFileStream.parentFSRef, 
-																			tempFileStream.uniFileName.length, 
-																			tempFileStream.uniFileName.unicode, 
-	                     											kTextEncodingUnicodeDefault, 
-	                     											&tempFileStream.fsRef);
-													
-							if (errCode == noErr)	
-								errCode = FSGetCatalogInfo (&tempFileStream.parentFSRef,
-																		kFSCatInfoVolume,
-																		&fsCatalogInfo,
-																		NULL,
-																		NULL,
-																		NULL);
-																		
-							if (errCode == noErr)
-								{
-								fileSelected = TRUE;
-								
-								tempFileStream.vRefNum = fsCatalogInfo.volume;
-								
-								CFStringGetCString (theReply.saveFileName,
-															   (char*)&tempFileStream.fileName[1],
-															   (CFIndex)255,
-															   kCFStringEncodingUTF8);  
-								tempFileStream.fileName[0] = strlen ((char*)&tempFileStream.fileName[1]);
-									
-								}		// end "if (errCode == noErr)"
-							
-							}		// end "if (errCode == noErr)"
-						
-						}		// end "if (theReply.validRecord && errCode == noErr)"
-			
-					NavDisposeReply (&theReply);
+					// Get the standard set of default dialog options
 					
-					}		// end "if (errCode == noErr)"
-			#endif	// TARGET_API_MAC_CARBON
+			if (errCode == noErr)
+				errCode = NavGetDefaultDialogCreationOptions (&dialogCreationOptions);
+			
+			dialogCreationOptions.clientName = CFStringCreateWithPascalString (
+														NULL, 
+														(UCharPtr)"\0MultiSpec", 
+														kCFStringEncodingMacRoman);
+																
+			dialogCreationOptions.windowTitle = CFStringCreateWithPascalString (
+														NULL, 
+														(UCharPtr)gTextString3, 
+														kCFStringEncodingMacRoman);
+			/*
+			dialogCreationOptions.saveFileName = CFStringCreateWithPascalString (
+														NULL, 
+														fileStreamPtr->fileName, 
+														kCFStringEncodingUTF8);
+			*/	
+													
+			dialogCreationOptions.saveFileName = CFStringCreateWithBytes (
+														kCFAllocatorDefault, 
+														(UInt8*)&fileStreamPtr->fileName[1],
+														fileStreamPtr->fileName[0],
+														kCFStringEncodingUTF8,
+														false);
+			/*
+			dialogCreationOptions.saveFileName = CFStringCreateWithCharacters (
+														kCFAllocatorDefault,
+														fileStreamPtr->uniFileName.unicode,
+														fileStreamPtr->uniFileName.length);
+			*/
+			dialogCreationOptions.preferenceKey = kOpenPrefKey;
+			
+			dialogCreationOptions.modality = kWindowModalityAppModal;
+		
+					// We will do the translation ourselves later
+					
+			dialogCreationOptions.optionFlags |= kNavDontAutoTranslate;
+			dialogCreationOptions.optionFlags |= kNavNoTypePopup;
+			
+					// Check if confirm alert is to be shown.
+					
+			if (!gConfirmReplacementAlertFlag)
+				dialogCreationOptions.optionFlags |= kNavDontConfirmReplacement;
+			
+					// Load client information.
+					
+			navUserData.parentFSRef = fileStreamPtr->parentFSRef;
+		
+			if (errCode == noErr)
+				errCode = NavCreatePutFileDialog (
+									&dialogCreationOptions,
+									fileStreamPtr->type,
+									creator,
+									eventUPP,
+									&navUserData,
+									&dialog);
+
+					// Show the dialog box
+
+			if (errCode == noErr)
+				errCode = NavDialogRun (dialog);
+			
+			if (dialogCreationOptions.clientName != NULL)
+				CFRelease (dialogCreationOptions.clientName);
+			
+			if (dialogCreationOptions.windowTitle != NULL)
+				CFRelease (dialogCreationOptions.windowTitle);
+			
+			if (dialogCreationOptions.saveFileName != NULL)
+				CFRelease (dialogCreationOptions.saveFileName);
+			
+					// Get the reply
+					
+			if (errCode == noErr)
+				{
+				errCode = NavDialogGetReply (dialog, &theReply);
+			
+				if (errCode == noErr && theReply.validRecord)
+					{
+					errCode = AECoerceDesc (&theReply.selection, typeFSRef, &aeDesc);
+					
+					if (errCode == noErr)
+						{
+						errCode = AEGetDescData (&aeDesc, 
+															&tempFileStream.parentFSRef, 
+															sizeof(FSRef));
+						
+						AEDisposeDesc (&aeDesc);
+						
+						}		// end "if (errCode == noErr)"
+															
+					if (errCode == noErr)
+						{
+						tempFileStream.fSRefFlag = TRUE;
+							
+						tempFileStream.uniFileName.length = CFStringGetLength (theReply.saveFileName);
+						CFStringGetCharacters (theReply.saveFileName, 
+															CFRangeMake(0, tempFileStream.uniFileName.length), 
+															tempFileStream.uniFileName.unicode);
+															
+								// Get the UTF8 version of the file name
+						/*		
+						CFStringGetCString (theReply.saveFileName,
+													(char*)&tempFileStream.fileName[1],
+													(CFIndex)255,
+													kCFStringEncodingUTF8);
+						tempFileStream.fileName[0] = strlen ((char*)&tempFileStream.fileName[1]);
+						*/								   
+						if (theReply.replacing)
+							errCode = FSMakeFSRefUnicode (&tempFileStream.parentFSRef, 
+																		tempFileStream.uniFileName.length, 
+																		tempFileStream.uniFileName.unicode, 
+																		kTextEncodingUnicodeDefault, 
+																		&tempFileStream.fsRef);
+												
+						if (errCode == noErr)	
+							errCode = FSGetCatalogInfo (&tempFileStream.parentFSRef,
+																	kFSCatInfoVolume,
+																	&fsCatalogInfo,
+																	NULL,
+																	NULL,
+																	NULL);
+																	
+						if (errCode == noErr)
+							{
+							fileSelected = TRUE;
+							
+							tempFileStream.vRefNum = fsCatalogInfo.volume;
+							
+							CFStringGetCString (theReply.saveFileName,
+															(char*)&tempFileStream.fileName[1],
+															(CFIndex)255,
+															kCFStringEncodingUTF8);  
+							tempFileStream.fileName[0] = strlen ((char*)&tempFileStream.fileName[1]);
+								
+							}		// end "if (errCode == noErr)"
+						
+						}		// end "if (errCode == noErr)"
+					
+					}		// end "if (theReply.validRecord && errCode == noErr)"
+		
+				NavDisposeReply (&theReply);
+				
+				}		// end "if (errCode == noErr)"
 			
 			}		// end "if (gOSXFlag)"
 			
@@ -11588,7 +11431,7 @@ SInt16 NavServicesPutFile (
 //							InsertNewErdasHeader in reformat.c	
 //
 //	Coded By:			Larry L. Biehl			Date: 11/19/1991
-//	Revised By:			Larry L. Biehl			Date: 03/19/2017
+//	Revised By:			Larry L. Biehl			Date: 07/05/2017
 
 SInt16 OpenFileReadOnly (
 				CMFileStream*						fileStreamPtr, 
@@ -11600,7 +11443,7 @@ SInt16 OpenFileReadOnly (
 	SInt16								errCode = noErr;
 	
 	
-	#if defined multispec_mac
+#	if defined multispec_mac
 		HFSUniStr255 						dataForkName;
 	
 		if (fileStreamPtr->refNum == 0)
@@ -11627,9 +11470,7 @@ SInt16 OpenFileReadOnly (
 				
 					// Set to read only permission and reopen		
 					
-			#if TARGET_API_MAC_CARBON	
-				lockFileFlag = FALSE;	
-			#endif	// TARGET_API_MAC_CARBON						
+			lockFileFlag = FALSE;	
 				
 			if (errCode == noErr && lockFileFlag)
 				{
@@ -11643,13 +11484,7 @@ SInt16 OpenFileReadOnly (
 //												kFSCatInfoPermissions, 
 //												const FSCatalogInfo *catalogInfo)
 					fileStreamPtr->fSRefFlag = TRUE;
-					
-				#if !TARGET_API_MAC_CARBON	
-					else		// !fileInfoPtr->fSSpecFlag && !fileStreamPtr->fSRefFlag
-						errCode = SetFLock (fileStreamPtr->fileName, 
-													fileStreamPtr->vRefNum);
-				#endif	// !TARGET_API_MAC_CARBON	
-				
+									
 				if (	errCode == wPrErr || 
 									errCode == fLckdErr || 
 									errCode == afpAccessDenied ||
@@ -11695,9 +11530,20 @@ SInt16 OpenFileReadOnly (
 				gNumberOfOpenFiles++;
 				
 			}		// end "if (fileStreamPtr->refNum == 0)"
-	#endif	// defined multispec_mac
+#	endif	// defined multispec_mac
 	
-	#if defined multispec_win
+#	if defined multispec_lin
+		if (verifyFileStreamFlag)
+				// Force the unicode name to be regenerated to match the
+				// UTF8 char file name.
+			SetFileDoesNotExist (fileStreamPtr, kKeepUTF8CharName);
+		UpdateFileNameInformation (fileStreamPtr, NULL);
+		errCode = fileStreamPtr->MOpenFile (
+										(UInt16)wxFile::read, 
+										(UInt16)kNoErrorMessages);
+#	endif
+	
+#	if defined multispec_win
 		if (verifyFileStreamFlag)
 				// Force the unicode name to be regenerated to match the
 				// UTF8 char file name.
@@ -11705,13 +11551,9 @@ SInt16 OpenFileReadOnly (
 		UpdateFileNameInformation (fileStreamPtr, NULL);
 		errCode = fileStreamPtr->MOpenFile (
 										(UInt16)(kRead),
-										(UInt16)(kNoErrorMessages) );
-	#endif	// defined multispec_win
-	
-   #if defined multispec_lin
-		errCode = fileStreamPtr->MOpenFile((UInt16)wxFile::read, (UInt16)kNoErrorMessages);
-   #endif
-	
+										(UInt16)(kNoErrorMessages));
+#	endif	// defined multispec_win
+
 	return (errCode);
 	
 }		// end "OpenFileReadOnly"           
@@ -14053,7 +13895,7 @@ SInt16 PrepareToReadTextFile (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: ??/??/1988
-//	Revised By:			Larry L. Biehl			Date: 03/14/2017	
+//	Revised By:			Larry L. Biehl			Date: 08/28/2017	
 
 SInt16 PutFile (
 				CMFileStream*		 				fileStreamPtr, 
@@ -14064,26 +13906,8 @@ SInt16 PutFile (
 {
 	SInt16								errCode = noErr;
 	
-#	if !TARGET_API_MAC_CARBON	
-		Boolean								fileSelected;
-#	endif	// !TARGET_API_MAC_CARBON	
 
-
-#	if defined multispec_win
-		USES_CONVERSION;
-#	endif
-	
-	#if defined multispec_mac 	
-		#if !TARGET_API_MAC_CARBON	
-		CMFileStream						tempFileStream;
-		Point									where;
-		SInt64								freeBytes,
-												logicalEndOfFile;
-		
-		SInt32								bytesNeeded;
-		#endif	// !TARGET_API_MAC_CARBON	
-		
-	
+#	if defined multispec_mac 		
 		if (gNavServicesExistsFlag)
 			{
 			errCode = NavServicesPutFile (fileStreamPtr, 
@@ -14094,182 +13918,16 @@ SInt16 PutFile (
 																						return (errCode);
 					
 			}		// end "if (gNavServicesExistsFlag)"
-
-		#if !TARGET_API_MAC_CARBON		
-		
-					// Make certain that MultiSpec is not in the background.					
-					
-			PauseIfInBackground ();
-			
-					// Calculate point where dialog will be centered. 							
-					
-			GetDlogOrigin (putDlgID, &where);
-			
-			fileSelected = FALSE;
-			
-			if ( !CheckIfMemoryAvailable ( 6000 ) )
-																								return(1);
-			
-			do	
-				{
-				gGetFileStatus = -1;
-				if (stringIndex == IDS_SaveProjectFile)
-					gGetFileStatus = 0;
-			
-				ReleaseSpareMemoryForWarningMessage ();
-				
-				GetIndString (gTextString3, kFileIOStrID, stringIndex);
-				
-				SFPutFile (where, 
-								gTextString3, 
-								fileStreamPtr->fileName, 
-								gPutFileHookPtr, 
-								&gFileReply);
-/*															
-				CustomPutFile (gTextString3, 
-									fileStreamPtr->fileName,
-									standardFileReply,
-									0,
-									where,
-									gPutFileHookPtr,
-									NULL,
-									NULL,
-									NULL,
-									NULL);
-*/			
-						// Get the spare memory back again.											
-					
-				SetHandleSize (gSpareWarnMemoryH, (Size)gSpareWarnSize);
-				
-				CheckSomeEvents (activMask+updateMask);
-			
-				if (!gFileReply.good)
-					{
-					fileStreamPtr->fileName[0] = 0;
-																								return(0);
-					
-					}		// end "if (!gFileReply.good)" 
-					
-						// Check if enough space on the volume.									
-						
-				errCode = GetVolumeFreeSpace ( (Str255*)&gFileReply.fName, 
-														gFileReply.vRefNum, 
-														&freeBytes);
-																	
-				if (errCode != noErr)												
-																						return(errCode);
-				
-						// Use tempFileStream structure as temporary storage for file 		
-						// information.			
-						
-		    	tempFileStream.vRefNum = gFileReply.vRefNum;
-		    	tempFileStream.parID = 0;
-				CopyPToP ( (char*)tempFileStream.fileName, (char*)gFileReply.fName);
-		    	tempFileStream.refNum = 0;
-		    	tempFileStream.type = fileStreamPtr->type;
-		    	tempFileStream.fSSpecFlag = FALSE;
-				
-						// If the project file is being saved, the number of bytes for		
-						// the file needs to be calculated here since the user can make	
-						// changes in the PutFile dialog that affects the size of the		
-						// save project file.															
-				
-				if (stringIndex == IDS_SaveProjectFile)
-					numberBytes = GetSizeOfProjectFile ();
-				
-						// Check if there is enough space on the disk.  If there is not	
-						// enough space, even when considering whether an old file is to	
-						// be replaced then allow the user to select the file/disk again.	
-				
-				bytesNeeded = numberBytes + 100 - freeBytes;
-				if (bytesNeeded > 0)
-					{
-							// Get the number of bytes in the old file if one is being		
-							// replaced.																	
-					
-					errCode = GetSizeOfFile (&tempFileStream, &logicalEndOfFile);
-					if (errCode != noErr && errCode != fnfErr )
-																							return (errCode);
-						
-					bytesNeeded = bytesNeeded - logicalEndOfFile;
-					
-					if (bytesNeeded > 0)
-						DiskFullAlert (bytesNeeded, (Str255*)tempFileStream.fileName);
-					else		
-						fileSelected = TRUE;
-					
-					}		// end "if (bytesNeeded > 0)" 
-					
-				else 		
-					fileSelected = TRUE;
-					
-						// Make certain that we can write to the file.							
-						
-				if (fileSelected)
-					{
-					errCode = FSMakeFSSpec (tempFileStream.vRefNum,
-													0,
-													tempFileStream.fileName,
-													&gFileFSSpec);
-						
-					if (errCode == fnfErr ||  
-							errCode == afpAccessDenied)
-						errCode = noErr;
-						
-					if (errCode == noErr)	
-						{
-						tempFileStream.vRefNum = gFileFSSpec.vRefNum;
-						tempFileStream.parID = gFileFSSpec.parID;
-		    			tempFileStream.fSSpecFlag = TRUE;
-					
-						errCode = HRstFLock (tempFileStream.vRefNum, 
-														tempFileStream.parID,
-														tempFileStream.fileName);
-						
-						if (errCode == fnfErr ||  
-								errCode == afpAccessDenied)
-							errCode = noErr;
-																						
-						}		// end "if (errCode == noErr)"
-								
-					if (errCode != noErr)
-						{
-						IOCheck (errCode, (CharPtr)&tempFileStream.fileName);
-						fileSelected = FALSE;
-						
-						}		// end "if (errCode != noErr)" 
-						
-					}		// end "if (fileSelected)" 
-				
-				} while (!fileSelected);
-				
-					// Create the file on the selected volume										
-					
-			errCode = CreateNewFile (&tempFileStream, 
-												tempFileStream.vRefNum, 
-												creator, 
-												kErrorMessages, 
-												kReplaceFlag);
-						
-			if (errCode == noErr)
-				{
-						// Now copy the file parameters to the supplied structure.		
-						
-		    	fileStreamPtr->vRefNum = tempFileStream.vRefNum;
-		    	fileStreamPtr->parID = tempFileStream.parID;
-				CopyPToP ( (char*)fileStreamPtr->fileName, (char*)tempFileStream.fileName);
-		    	fileStreamPtr->type = tempFileStream.type;
-		    	fileStreamPtr->refNum = tempFileStream.refNum;
-		    	fileStreamPtr->fSSpecFlag = tempFileStream.fSSpecFlag;
-				
-				}		// end "if (errCode == noErr)"
-			
-		#endif	// !TARGET_API_MAC_CARBON	
-	#endif	// defined multispec_mac
+#	endif	// defined multispec_mac
 	
-	#if defined multispec_win 
+#	if defined multispec_win 
+		TBYTE								filterString[512];
 		WideFileStringPtr				fileNamePtr;
 		SInt16							filterStringIndex = IDS_FilterString;
+		Boolean							fileSelected;
+		
+		
+		USES_CONVERSION;
 
 		if (stringIndex == IDS_SaveProjectFile)
 			filterStringIndex = IDS_ProjectFilterString;
@@ -14287,15 +13945,16 @@ SInt16 PutFile (
 			filterStringIndex = IDS_ClassificationFilterString; 
 			
 		GetSpecifiedStringNumber (
-								kFileIOStrID, filterStringIndex, gTextString, TRUE);
-		CFileDialog  temp(FALSE,										// bOpenFileDialog
-						NULL,													// lpszDefExt
-						NULL,													// lpszFileName
-						OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT,	// dwFlags
-						(LPCTSTR)A2T((char*)&gTextString[1]),		// lpszFilter
-						NULL,													// pParentWnd
-						0,														// dwSize
-						FALSE);												// bVistaStyle
+								kFileIOStrID, filterStringIndex, filterString, TRUE, 510);
+		CFileDialog  temp (FALSE,													// bOpenFileDialog
+									NULL,													// lpszDefExt
+									NULL,													// lpszFileName
+									OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT,	// dwFlags
+									//(LPCTSTR)A2T((char*)&filterString[1]),	// lpszFilter
+									&filterString[1],									// lpszFilter
+									NULL,													// pParentWnd
+									0,														// dwSize
+									FALSE);												// bVistaStyle
 		temp.m_ofn.nFilterIndex = 1; 
 	
 		fileSelected = FALSE;
@@ -14398,11 +14057,12 @@ SInt16 PutFile (
 				// Create the file on the selected volume										
 				
 		errCode = fileStreamPtr->MCreateNewFile (kReplaceFlag);
-	#endif	// defined multispec_win
+#	endif	// defined multispec_win
 	
-	#if defined multispec_lin
-		StringPtr	fileNamePtr;
-		SInt16		filterStringIndex = IDS_FilterString;
+#	if defined multispec_lin
+		WideFileStringPtr				fileNamePtr;
+		SInt16							filterStringIndex = IDS_FilterString;
+		Boolean							fileSelected;
 
 		if (stringIndex == IDS_SaveProjectFile)
 			filterStringIndex = IDS_ProjectFilterString;
@@ -14419,99 +14079,103 @@ SInt16 PutFile (
 		else if (stringIndex == IDS_SaveProbabilityAs)
 			filterStringIndex = IDS_ClassificationFilterString;
 
-		GetSpecifiedStringNumber(kFileIOStrID, filterStringIndex, &gTextString, TRUE);
-		wxString wdcard((char *)&gTextString[1], wxConvUTF8);
+		GetSpecifiedStringNumber (kFileIOStrID, filterStringIndex, (UCharPtr)gTextString, TRUE);
+		wxString wdcard ((char*)&gTextString[1], wxConvUTF8);
+
+		GetSpecifiedStringNumber (kFileIOStrID, stringIndex, (UCharPtr)gTextString, TRUE);
+		wxString promptString ((char*)&gTextString[1], wxConvUTF8);
+		
 		wxFrame* frame = GetActiveFrame();
 		//wxFileDialog temp(gActiveImageViewCPtr->m_frame, wxT("Save file as"), wxEmptyString,
 		//wxFileDialog temp(GetMainFrame(), wxT("Save file as"), wxEmptyString,
-		wxFileDialog temp(frame, wxT("Save file as"), wxEmptyString,
-									wxEmptyString, wdcard, wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
+		wxFileDialog temp (frame, 
+									//wxT("Save file as"), 
+									promptString,
+									wxEmptyString,
+									wxEmptyString, 
+									wdcard, 
+									wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
 		temp.SetFilterIndex(0);
 
 		fileSelected = FALSE;
-		fileNamePtr = fileStreamPtr->GetFileNamePtr();
+		fileNamePtr = (WideFileStringPtr)fileStreamPtr->GetFileNameCPtr (kReturnUnicode);
 
 		do {
 			gGetFileStatus = -1;
 			if (stringIndex == IDS_SaveProjectFile)
 				gGetFileStatus = 0;
 
-			wxString newName(fileNamePtr, wxConvUTF8);
+			//wxString newName(fileNamePtr, wxConvUTF8);
 
 			StringHandle stringHandle = NULL;
 			CharPtr stringPtr = NULL;
-			temp.SetFilename(newName);
-			//temp.m_ofn.lpstrFile = (char*) fileNamePtr;
-			if (stringIndex == IDS_SaveProjectFile) {
-				//temp.m_ofn.lpstrDefExt = "prj";
-					
-				GetSpecifiedString(IDS_SaveProjectFile, &stringHandle, &stringPtr);
-				//temp.m_ofn.lpstrTitle = &stringPtr[1];
-				wxString title(&stringPtr[1], wxConvUTF8);
-				temp.SetTitle(title);
+			temp.SetFilename (fileNamePtr);
+			if (stringIndex == IDS_SaveProjectFile) 
+				{
+				GetSpecifiedString (IDS_SaveProjectFile, &stringHandle, &stringPtr);
+				wxString title (&stringPtr[1], wxConvUTF8);
+				temp.SetTitle (title);
 				}
 
-			else if (stringIndex == IDS_FileIO69) {
-				//temp.m_ofn.lpstrDefExt = "tif";
-				GetSpecifiedString(IDS_FileIO69, &stringHandle, &stringPtr);
-				//temp.m_ofn.lpstrTitle = &stringPtr[1];
-				wxString title(&stringPtr[1], wxConvUTF8);
-				temp.SetTitle(title);
+			else if (stringIndex == IDS_FileIO69) 
+				{
+				GetSpecifiedString (IDS_FileIO69, &stringHandle, &stringPtr);
+				wxString title (&stringPtr[1], wxConvUTF8);
+				temp.SetTitle (title);
 				}
 
-			else if (stringIndex == IDS_FileIO61) {
-				//temp.m_ofn.lpstrDefExt = "tra";
-				GetSpecifiedString(IDS_FileIO61, &stringHandle, &stringPtr);
-				//temp.m_ofn.lpstrTitle = &stringPtr[1];
-				wxString title(&stringPtr[1], wxConvUTF8);
-				temp.SetTitle(title);
+			else if (stringIndex == IDS_FileIO61) 
+				{
+				GetSpecifiedString (IDS_FileIO61, &stringHandle, &stringPtr);
+				wxString title (&stringPtr[1], wxConvUTF8);
+				temp.SetTitle (title);
 				}
 			  
 			  
-			else if (stringIndex == IDS_FileIO75) {
-				//temp.m_ofn.lpstrDefExt = "tra";
-				GetSpecifiedString(IDS_FileIO75, &stringHandle, &stringPtr);
-				//temp.m_ofn.lpstrTitle = &stringPtr[1];
-				wxString title(&stringPtr[1], wxConvUTF8);
-				temp.SetTitle(title);
+			else if (stringIndex == IDS_FileIO75) 
+				{
+				GetSpecifiedString (IDS_FileIO75, &stringHandle, &stringPtr);
+				wxString title (&stringPtr[1], wxConvUTF8);
+				temp.SetTitle (title);
 				}
 
-			else if (stringIndex == IDS_SaveImageStats) {
-				//temp.m_ofn.lpstrDefExt = "sta";
-				GetSpecifiedString(IDS_SaveImageStats, &stringHandle, &stringPtr);
-				//temp.m_ofn.lpstrTitle = &stringPtr[1];
-				wxString title(&stringPtr[1], wxConvUTF8);
-				temp.SetTitle(title);
+			else if (stringIndex == IDS_SaveImageStats) 
+				{
+				GetSpecifiedString (IDS_SaveImageStats, &stringHandle, &stringPtr);
+				wxString title (&stringPtr[1], wxConvUTF8);
+				temp.SetTitle (title);
 				}
 				
-			else if (stringIndex == IDS_SaveClassificationAs) {
-				//temp.m_ofn.lpstrDefExt = "gis";
-				GetSpecifiedString(IDS_SaveClassificationAs, &stringHandle, &stringPtr);
-				//temp.m_ofn.lpstrTitle = &stringPtr[1];
-				wxString title(&stringPtr[1], wxConvUTF8);
-				temp.SetTitle(title);
+			else if (stringIndex == IDS_SaveClassificationAs) 
+				{
+				GetSpecifiedString (IDS_SaveClassificationAs, &stringHandle, &stringPtr);
+				wxString title (&stringPtr[1], wxConvUTF8);
+				temp.SetTitle (title);
 				}
 				
-			else if (stringIndex == IDS_SaveProbabilityAs) {
-				//temp.m_ofn.lpstrDefExt = "gis";
-				GetSpecifiedString(IDS_SaveProbabilityAs, &stringHandle, &stringPtr);
-				//temp.m_ofn.lpstrTitle = &stringPtr[1];
-				wxString title(&stringPtr[1], wxConvUTF8);
-				temp.SetTitle(title);
+			else if (stringIndex == IDS_SaveProbabilityAs) 
+				{
+				GetSpecifiedString (IDS_SaveProbabilityAs, &stringHandle, &stringPtr);
+				wxString title (&stringPtr[1], wxConvUTF8);
+				temp.SetTitle (title);
 				}
 
 			if (temp.ShowModal() == wxID_CANCEL)
 				return (-1);
 
-			//fileNamePtr = (StringPtr) temp.m_ofn.lpstrFile;
-			strncpy((char *)fileNamePtr, (const char*)(temp.GetPath().mb_str(wxConvUTF8)), (int)(temp.GetPath()).Length());
-			//Get file name length and add zero at the end
+			//strncpy((char *)fileNamePtr, (const char*)(temp.GetPath().mb_str(wxConvUTF8)), (int)(temp.GetPath()).Length());
+			wcsncpy (fileNamePtr, temp.GetPath(), (int)(temp.GetPath()).Length());
+			
+					//Get file name length and add zero at the end
+					
 			int pathlength = (int)(temp.GetPath()).Length();
-			*(fileNamePtr+pathlength) = '\0';
-			// Get the path length.
+			//*(fileNamePtr+pathlength) = '\0';
+			fileNamePtr[pathlength] = 0;
+			
+					// Get the path length.
 
-			size_t stringLength = strlen((CharPtr) fileNamePtr);
-			if (stringLength > gFileNameLengthLimit)
+			//size_t stringLength = strlen ((CharPtr)fileNamePtr);
+			if (pathlength > gFileNameLengthLimit)
 				DisplayAlert (kErrorAlertID,
 									kStopAlert,
 									kAlertStrID,
@@ -14519,18 +14183,17 @@ SInt16 PutFile (
 									0,
 									NULL);
 
-			else // stringLength <= gFileNameLengthLimit
+			else // pathlength <= gFileNameLengthLimit
 				{
-				UChar pathName[_MAX_PATH];
+				wchar_t pathName[_MAX_PATH];
 				CtoPstring (fileNamePtr, pathName);
-				pathName[ pathName[0] + 1 ] = 0;
-				//newName.ReleaseBuffer();
+				pathName[pathName[0]+1] = 0;
 
 				fileNamePtr = pathName;
 
 				fileSelected = TRUE;
 
-				fileStreamPtr->SetFilePath(fileNamePtr, TRUE);
+				fileStreamPtr->SetFilePath (fileNamePtr, TRUE);
 
 				} // end "else stringLength <= gFileNameLengthLimit"
 
@@ -14538,8 +14201,8 @@ SInt16 PutFile (
 
 				// Create the file on the selected volume
 
-		errCode = fileStreamPtr->MCreateNewFile(kReplaceFlag);
-	#endif	// defined multispec_win
+		errCode = fileStreamPtr->MCreateNewFile (kReplaceFlag);
+#	endif	// defined multispec_lin
 
 	return (errCode);
 
@@ -15026,24 +14689,18 @@ void SetFSSpecFlag (
 {  
 	if (fileStreamPtr != NULL)
 		{              
-		#if defined multispec_mac                       
-	                          
+#		if defined multispec_mac                       
 	   	fileStreamPtr->fSSpecFlag = fSSpecFlag;
 			
-			#if TARGET_API_MAC_CARBON	
-						// If carbon version of code being created then fSSpecFlag is always
-						// false and fSRefFlag is always true.
-				fileStreamPtr->fSSpecFlag = FALSE;
-				fileStreamPtr->fSRefFlag = TRUE;
-			#endif	// TARGET_API_MAC_CARBON 
-	   	
-		#endif	// defined multispec_mac 
+					// If carbon version of code being created then fSSpecFlag is always
+					// false and fSRefFlag is always true.
+			fileStreamPtr->fSSpecFlag = FALSE;
+			fileStreamPtr->fSRefFlag = TRUE;
+#		endif	// defined multispec_mac 
 	
-	              
-		#if defined multispec_win  
+#		if defined multispec_win  
 	 
-		#endif	// defined multispec_win
-		
+#		endif	// defined multispec_win
 		}		// end "if (fileStreamPtr != NULL)" 
 	
 }		// end "SetFSSpecFlag" 
@@ -15868,28 +15525,15 @@ SInt16 SetVolume (
 	
 	if (fileStreamPtr != NULL)
 		{	
-		#if defined multispec_mac
-	
+#		if defined multispec_mac
 			if (fileStreamPtr->fSSpecFlag)
 				errCode = HSetVol (NULL, 
 										fileStreamPtr->vRefNum, 
 										fileStreamPtr->parID);  
-			
-			#if !TARGET_API_MAC_CARBON	
-				else		// !fileStreamPtr->fSSpecFlag
-					errCode = SetVol (NIL, fileStreamPtr->vRefNum);
-			#endif	// !TARGET_API_MAC_CARBON	
-		
+					
 			if (messageCode == kErrorMessages)		
 				IOCheck (errCode, (CharPtr)NULL);            
-		
-		#endif	// defined multispec_mac
-		
-		
-		#if defined multispec_win
-		
-		#endif	// defined multispec_win
-		
+#		endif	// defined multispec_mac
 		}		// end "if (fileStreamPtr != NULL)"
 	
 	return (errCode);
@@ -16161,7 +15805,7 @@ void Swap8Bytes (
 // Called By:		
 //
 //	Coded By:			Larry L. Biehl			Date: 03/13/2017
-//	Revised By:			Larry L. Biehl			Date: 03/25/2017
+//	Revised By:			Larry L. Biehl			Date: 07/05/2017
 
 SInt16 UpdateFileNameInformation (
 				CMFileStream*						fileStreamPtr,
@@ -16250,12 +15894,12 @@ SInt16 UpdateFileNameInformation (
 		*/
 #	endif
 			  
-#	if defined multispec_win || defined multispec_lin
+#	if defined multispec_lin || defined multispec_win
 				// for Windows and Linux versions, now copy the proposed file name to the
 				// file path string. 
 
 		fileStreamPtr->SetFileName (fileNamePtr);
-#	endif	// defined multispec_win || defined multispec_lin
+#	endif	// defined multispec_lin || defined multispec_win
 
 	return (errCode);
 						
@@ -16284,7 +15928,7 @@ SInt16 UpdateFileNameInformation (
 // Called By:		
 //
 //	Coded By:			Larry L. Biehl			Date: 02/27/2008
-//	Revised By:			Larry L. Biehl			Date: 03/22/2017
+//	Revised By:			Larry L. Biehl			Date: 07/06/2017
 
 SInt16 VerifyFileStreamForOpen (
 				CMFileStream*						fileStreamPtr,
@@ -16294,46 +15938,44 @@ SInt16 VerifyFileStreamForOpen (
 	SInt16								errCode = noErr;
 	
 #	if defined multispec_mac
-#		if TARGET_API_MAC_CARBON
-			errCode = UpdateFileNameInformation (fileStreamPtr, NULL);
-		
-			if (fileStreamPtr->fSRefFlag)
+		errCode = UpdateFileNameInformation (fileStreamPtr, NULL);
+	
+		if (fileStreamPtr->fSRefFlag)
+			{
+			if (gHasHFSPlusAPIs)
 				{
-				if (gHasHFSPlusAPIs)
-					{
 
-					if (errCode == noErr)
-						{
-						errCode = FSMakeFSRefUnicode (&fileStreamPtr->parentFSRef,  
-																	fileStreamPtr->uniFileName.length,
-																	fileStreamPtr->uniFileName.unicode,
-																	kTextEncodingUnicodeDefault, 
-																	&fileStreamPtr->fsRef);
-														
-						}		// end "if (errCode == noErr)"
-						
-					if (errCode == noErr)
-						errCode = FSGetCatalogInfo (&fileStreamPtr->fsRef,
-																kFSCatInfoNone,
-																NULL,
-																&fileStreamPtr->uniFileName,
-																NULL,
-																NULL);
-																
-					}		// end "if (gHasHFSPlusAPIs)"
-				
-				else		// !gHasHFSPlusAPIs
-					errCode = 1;
+				if (errCode == noErr)
+					{
+					errCode = FSMakeFSRefUnicode (&fileStreamPtr->parentFSRef,  
+																fileStreamPtr->uniFileName.length,
+																fileStreamPtr->uniFileName.unicode,
+																kTextEncodingUnicodeDefault, 
+																&fileStreamPtr->fsRef);
+													
+					}		// end "if (errCode == noErr)"
 					
-				}		// end "if (fileStreamPtr->fSRefFlag)"
-#		endif	// TARGET_API_MAC_CARBON
+				if (errCode == noErr)
+					errCode = FSGetCatalogInfo (&fileStreamPtr->fsRef,
+															kFSCatInfoNone,
+															NULL,
+															&fileStreamPtr->uniFileName,
+															NULL,
+															NULL);
+															
+				}		// end "if (gHasHFSPlusAPIs)"
+			
+			else		// !gHasHFSPlusAPIs
+				errCode = 1;
+				
+			}		// end "if (fileStreamPtr->fSRefFlag)"
 #	endif	// defined multispec_mac 
 
-#	if defined multispec_win
+#	if defined multispec_lin || defined multispec_win
 				// Create UTF8 character formatted file path name string
 
 		UpdateFileNameInformation (fileStreamPtr, fileNamePtr);
-#	endif	// defined multispec_win    
+#	endif	// defined multispec_lin || defined multispec_win    
    	
    return (errCode);
 	

@@ -13,7 +13,7 @@
 //
 //	Revision number:		3.0
 //
-//	Revision date:			03/16/2017
+//	Revision date:			07/05/2017
 //
 //	Language:				C
 //
@@ -29,6 +29,14 @@
 //	Include files:			"MultiSpecHeaders"
 //								"multiSpec.h"
 //
+/*	Template for debugging for MultiSpec Online on mygeohub.
+	int numberChars = sprintf ((char*)&gTextString3,
+												" SHDF4: (filePathPtr hDS): %s %ld%s", 
+												filePathPtr,
+												hDS,
+												gEndOfLine);
+	ListString ((char*)&gTextString3, numberChars, gOutputTextH);	
+*/		
 //------------------------------------------------------------------------------------
 
 #include "SMulSpec.h"
@@ -637,7 +645,7 @@ void GetHdfDataSetName (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 10/08/2008
-//	Revised By:			Larry L. Biehl			Date: 03/18/2017
+//	Revised By:			Larry L. Biehl			Date: 06/23/2017
 
 SInt16 GetHDFFilePathCPointer (
 				FileInfoPtr		 					fileInfoPtr,
@@ -653,7 +661,7 @@ SInt16 GetHDFFilePathCPointer (
 	filePathPPtr = (FileStringPtr)GetFilePathPPointer (fileInfoPtr);
 	*filePathCPtrPtr = &filePathPPtr[1];
 	
-#	if TARGET_API_MAC_CARBON
+#	if defined multispec_mac
 		CMFileStream*						fileStreamPtr;
 		
 		SInt16								errCode,
@@ -688,9 +696,9 @@ SInt16 GetHDFFilePathCPointer (
 				}		// end "else errCode == noErr"
 			
 			}		// end "if (fileStreamPtr->fSRefFlag)"
-#	endif	// TARGET_API_MAC_CARBON	
+#	endif	// defined multispec_mac	
 
-#	if defined multispec_win
+#	if defined multispec_lin || defined multispec_win
 		if (libraryCode == kGDAL_Library)
 			{
 			FileStringPtr								filePathCPtr;
@@ -705,7 +713,7 @@ SInt16 GetHDFFilePathCPointer (
 			*filePathCPtrPtr = filePathCPtr;
 
 			}	// end "if (libraryCode == kGDAL_Library)"
-#	endif
+#	endif		// defined multispec_lin || defined multispec_win
 
 return (0);
     

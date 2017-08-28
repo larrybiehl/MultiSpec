@@ -13,7 +13,7 @@
 //
 //	Revision number:		3.0
 //
-//	Revision date:			03/16/2017
+//	Revision date:			08/25/2017
 //
 //	Language:				C
 //
@@ -73,17 +73,17 @@
 
 #include	"SExtGlob.h"
 
-extern void						SwapBytes (
-										SInt16								numberBytes,
-										HUInt8Ptr							fileIOBufferPtr,
-										UInt32								numberSamples);
+extern void			SwapBytes (
+							SInt16								numberBytes,
+							HUInt8Ptr							fileIOBufferPtr,
+							UInt32								numberSamples);
 
-extern void						GetOutputBufferParameters (
-										FileInfoPtr							outFileInfoPtr, 
-										ReformatOptionsPtr				reformatOptionsPtr,
-										UInt32*								outChannelByteIncrementPtr,
-										UInt32*								outLineByteIncrementPtr,
-										UInt32*								outNumberBytesPerLineAndChannelPtr);
+extern void			GetOutputBufferParameters (
+							FileInfoPtr							outFileInfoPtr, 
+							ReformatOptionsPtr				reformatOptionsPtr,
+							UInt32*								outChannelByteIncrementPtr,
+							UInt32*								outLineByteIncrementPtr,
+							UInt32*								outNumberBytesPerLineAndChannelPtr);
 
 			// Prototype descriptions for routines in this file that are only		
 			// called by routines in this file.
@@ -1400,7 +1400,7 @@ void GetOutputBufferParameters (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 01/24/2013
-//	Revised By:			Larry L. Biehl			Date: 03/15/2017
+//	Revised By:			Larry L. Biehl			Date: 08/25/2017
 
 void GetOutputFileName (
 				FileInfoPtr							inputFileInfoPtr,
@@ -1410,7 +1410,8 @@ void GetOutputFileName (
 	FileInfoPtr							localFileInfoPtr;
 	FileStringPtr						inFileNamePtr;
 	
-	SInt16								stringLength;
+	SInt16								originalStringLength,
+											stringLength;
 	
 				
 	if (gProcessorCode == kRefFieldsToThematicFileProcessor)
@@ -1452,30 +1453,44 @@ void GetOutputFileName (
 				
 						// Check the last file in the sequence.
 				
+				originalStringLength = stringLength;
 				if (gImageWindowInfoPtr->numberImageFiles > 2)
 					{
 					localFileInfoPtr = &inputFileInfoPtr[gImageWindowInfoPtr->numberImageFiles-1];
 					inFileNamePtr = (FileStringPtr)GetFileNamePPointer (localFileInfoPtr);
-							
+					
 					while (stringLength > 1) 
 						{
 						if (strncmp ((char*)&outFileNamePtr[1], (char*)&inFileNamePtr[1], stringLength)) 
 							stringLength--;
 							
-						else		// !strncmp which means the strings are the same.
+						else	// !strncmp which means the strings are the same.
 							break;
 							
-						}		// end "while (stringLength > 1)"
+						}	// end "while (stringLength > 1)"
 						
-					}		// end "if (gImageWindowInfoPtr->numberImageFiles > 2)"
+					}	// end "if (gImageWindowInfoPtr->numberImageFiles > 2)"
 				
 				if (inputFileInfoPtr->instrumentCode == kLandsatTM ||
 						inputFileInfoPtr->instrumentCode == kLandsatTM7 ||
 							inputFileInfoPtr->instrumentCode == kLandsatMSS ||
 								inputFileInfoPtr->instrumentCode == kLandsatLC8_OLI_TIRS ||
 									inputFileInfoPtr->instrumentCode == kLandsatLC8_OLI ||
-										inputFileInfoPtr->instrumentCode == kLandsatLC8_TIRS)
+										inputFileInfoPtr->instrumentCode == kLandsatLC8_TIRS ||
+											inputFileInfoPtr->instrumentCode == kSentinel2_MSI)
 					{
+					if (stringLength == originalStringLength)
+						{
+								// This could just mean the band suffixes are like B02 and B08.
+								// Need to do some further checking.
+						
+						if (outFileNamePtr[stringLength-1] == 'B' &&
+											outFileNamePtr[stringLength-2] == '_' &&
+												stringLength > 2) 
+							stringLength -= 1;
+							
+						}	// else !strncmp which means the strings are the same
+						
 					if (outFileNamePtr[stringLength] == 'B' && 
 											outFileNamePtr[stringLength-1] == '_' &&
 												stringLength > 2)
@@ -1488,10 +1503,31 @@ void GetOutputFileName (
 					
 				outFileNamePtr[0] = (UInt8)stringLength;
 				outFileNamePtr[stringLength+1] = 0;
+					
+				if (inputFileInfoPtr->instrumentCode == kSentinel2_MSI &&
+							gImageWindowInfoPtr->numberImageFiles > 2)
+					{
+					double		horizontalPixelSize,
+									verticalPixelSize;
+									
+					GetPixelSize (inputFileInfoPtr->mapProjectionHandle, 
+											&horizontalPixelSize, 
+											&verticalPixelSize);
+											
+					if (horizontalPixelSize == 10 && verticalPixelSize == 10)
+						ConcatPStrings (outFileNamePtr, (UCharPtr)"\0_10m", 254);
+						
+					else if (horizontalPixelSize == 20 && verticalPixelSize == 20)
+						ConcatPStrings (outFileNamePtr, (UCharPtr)"\0_20m", 254);
+						
+					else if (horizontalPixelSize == 60 && verticalPixelSize == 60)
+						ConcatPStrings (outFileNamePtr, (UCharPtr)"\0_60m", 254);
+					
+					}	// end "if (inputFileInfoPtr->instrumentCode == kSentinel2_MSI)"
 				
-				}		// end "if (gImageWindowInfoPtr != NULL && ...)"
+				}	// end "if (gImageWindowInfoPtr != NULL && ...)"
 				
-			else		// gImageWindowInfoPtr == NULL || ...->numberImageFiles == 1
+			else	// gImageWindowInfoPtr == NULL || ...->numberImageFiles == 1
 				RemoveSuffix (outFileNamePtr);
 							
 			}		// end "if (imageFilePathPtr != NULL && ..."
@@ -1501,9 +1537,9 @@ void GetOutputFileName (
 								gProcessorCode == kENVIROItoThematicProcessor)
 			CopyPToP (outFileNamePtr, (UCharPtr)"\0roi_image");
 			
-		}		// end "if (gProcessorCode != kRefFieldsToThematicFileProcessor)"
+		}	// end "if (gProcessorCode != kRefFieldsToThematicFileProcessor)"
 
-}		// end "GetOutputFileName"
+}	// end "GetOutputFileName"
 
 
 

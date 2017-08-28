@@ -39,18 +39,27 @@
 //
 //	Revision number:		3.0
 //
-//	Revision date:			01/20/2017
+//	Revision date:			07/28/2017
 
 #include	"SMulSpec.h" 
-
 #include	"SGrafVew.h" 
+
+#if defined multispec_lin
+   #include "LGraphDoc.h"
+   #include "LGraphFrame.h"
+   #include "LGraphView.h"
+   #include "LMultiSpec.h"
+   #include "LStatisticsHistogramDialog.h"
+#endif  
 	
 #if defined multispec_mac 
 	#define IDC_ClassesRadio					4
 	#define IDC_FieldsRadio						5
 	#define IDC_ChannelsPrompt					11
+	#define IDC_ListRadio						14
 	#define IDC_IncludeEmptyCheck				15
 	#define IDC_BlankCheck						16
+	#define IDC_PlotRadio						17
 	#define IDC_ChannelsRadio					19
 	#define IDC_Classes							20
 	#define IDC_MatrixRadio						22
@@ -64,15 +73,7 @@
 	#include "WStatHistogramSpecsDlg.h"
 	#include "WGrafDoc.h"
 	#include "SGrafVew.h"
-#endif	// defined multispec_win 
-
-#if defined multispec_lin
-   #include "MultiSpec2.h"
-   #include "LGraphDoc.h"
-   #include "LGraphFrame.h"
-   #include "LGraphView.h"
-   #include "LStatHistogramSpecsDlg.h"
-#endif   
+#endif	// defined multispec_win  
 
 #include "SExtGlob.h"
 
@@ -2092,7 +2093,7 @@ SInt16 HistogramStatsControl (
 		
 					// Set up statistics histogram specification structure.			
 					
-			if ( LoadStatHistogramSpecs (fileInfoPtr) )
+			if (LoadStatHistogramSpecs (fileInfoPtr))
 				{
 				continueFlag = TRUE;
 				
@@ -2438,6 +2439,23 @@ SInt16 HistogramStatsControl (
 																			NULL, 
 																			gOutputForce1Code, 
 																			continueFlag);
+																			
+				if (continueFlag && DetermineFieldTypes() == 4)
+					{
+							// All training areas are defined by clusters. Listing or plotting
+							// histograms will not be possible.
+							
+					continueFlag = ListSpecifiedStringNumber (
+													kProjectStrID, 
+													IDS_Project89, 
+													(unsigned char*)&gTextString, 
+													NULL, 
+													gOutputForce1Code,
+													continueFlag);
+													
+					continueFlag = FALSE;
+					
+					}	// end "if (DetermineFieldTypes() == 4)"
 	
 						// Now get the memory for and load some of the graph window structures.										
 					
@@ -3728,7 +3746,7 @@ Boolean ListChannelInformation (
 		}		// end "else channelDescriptionPtr != NULL" 
 		
 	continueFlag = ListString ( 
-					(char*)&gTextString, strlen ((char*)&gTextString), gOutputTextH );
+					(char*)&gTextString, strlen ((char*)gTextString), gOutputTextH );
 	
 	if (channelDescriptionPtr != NULL)	
 		CheckAndUnlockHandle (fileInfoPtr->channelDescriptionH);
@@ -4053,7 +4071,6 @@ Boolean LoadGraphData (
 
 			// Initialize local variables.
 
-//	numberBins = fileInfoPtr->numberBins;
 	numberBins = gStatHistogramSpecsPtr->initialNumberHistogramDataBins;
 	signedValueOffset = fileInfoPtr->signedValueOffset;
 	numberFeatures = gStatHistogramSpecsPtr->numberFeatures;
@@ -4077,22 +4094,7 @@ Boolean LoadGraphData (
 			// data are signed.
 	
 	histogramIndex = 0;
-//	if (fileInfoPtr->signedDataFlag)
-//		histogramIndex -= minAllowedValue;
-		
-			// Get offset to use so that data will not be on top of each other for
-			// multiple vectors. Decided not to use for now.
-	
-//	xOffset = 0.;		
-/*	if (gGraphRecordPtr->numberVectors > 1)
-		{
-		xOffsetInterval = .2/gGraphRecordPtr->numberVectors;
-		
-		xOffset = -xOffsetInterval/2.;
-		xOffset += indexStart*xOffsetInterval;
-		
-		}		// end "if (gGraphRecordPtr->numberVectors > 1)"
-*/		
+
 			// Check if the x and y graph vector sizes need to be changed. If so
 			// count the number of points that it will need to be enlarged by.
 			// Then adjust the size of the x and y vectors.
@@ -4140,16 +4142,13 @@ Boolean LoadGraphData (
 					// histogram data vector between those 2 values to load the graphics
 					// vector.
 					
-//			minValue = histogramRangePtr[index].minValue;
 			minIndex = GetBinIndexForStatDataValue (histogramRangePtr[index].minValue,
 															&histogramRangePtr[index]);
-//			maxValue = histogramRangePtr[index].maxValue;
 			maxIndex = GetBinIndexForStatDataValue (histogramRangePtr[index].maxValue,
 															&histogramRangePtr[index]);
 			
 			numberDataValuesInChannel = 0;
 			
-//			if (minValue <= maxValue)
 			if (minIndex <= maxIndex)
 				{
 				for (binIndex=minIndex; binIndex<=maxIndex; binIndex++)
@@ -4163,7 +4162,6 @@ Boolean LoadGraphData (
 						
 						SetV (&gGraphRecordPtr->xVector, 
 								graphIndex, 
-//								(double)(value+xOffset), 
 								(double)(value), 
 								&error);
 							
@@ -4192,8 +4190,6 @@ Boolean LoadGraphData (
 			vectorDataPtr[vectorIndex] = gGraphRecordPtr->xVector.numberPoints;
 			
 			histogramBinWidthPtr[index] = 1;		
-//			if (fileInfoPtr->numberBytes > 2 && 
-//										histogramRangePtr[index].binType == kBinWidthNotOne)
 			if (histogramRangePtr[index].binType == kBinWidthNotOne)
 				histogramBinWidthPtr[index] = 1./histogramRangePtr[index].binFactor;
 	
@@ -4432,7 +4428,7 @@ Str31* LoadClassClassFieldNames (
 // Called By:			StatHistogramControl
 //
 //	Coded By:			Larry L. Biehl			Date: 04/02/1990
-//	Revised By:			Larry L. Biehl			Date: 12/07/2015
+//	Revised By:			Larry L. Biehl			Date: 07/28/2017
 
 Boolean LoadStatHistogramSpecs (
 				FileInfoPtr							fileInfoPtr)
@@ -4491,7 +4487,11 @@ Boolean LoadStatHistogramSpecs (
 			gStatHistogramSpecsPtr->classSet = kAllMenuItem;
 			gStatHistogramSpecsPtr->channelSet = kAllMenuItem;
 			gStatHistogramSpecsPtr->fieldSet = 0;
+			
 			gStatHistogramSpecsPtr->histogramOutputCode = kPlotData;
+			if (DetermineFieldTypes() == 4)
+				gStatHistogramSpecsPtr->histogramOutputCode = kListData;
+			
 			gStatHistogramSpecsPtr->lastClassNumberUsed = 0;
 			gStatHistogramSpecsPtr->lastFieldNumberUsed = 0;
 			gStatHistogramSpecsPtr->numberColumns = 0;
@@ -5964,6 +5964,17 @@ void StatHistogramDialogInitialize (
 		
 	if (fileInfoPtr->numberBytes >= 4)
 		*overlayDFAllowedFlagPtr = TRUE;
+		
+			// If all fields are defined by cluster statistics then unhighlight the
+			// plot option and force only the ListData option.
+			
+	if (DetermineFieldTypes() == 4)
+		{
+		gStatHistogramSpecsPtr->histogramOutputCode = kListData;
+		SetDLogControlHilite (dialogPtr, IDC_PlotRadio, 255);
+		
+		}	// end "if (DetermineFieldTypes() == 4)"
+			
 							
 	if (*histogramOutputCodePtr == kListData)
 		{

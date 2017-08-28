@@ -13,7 +13,7 @@
 //
 //	Revision number:		3.0 
 //
-//	Revision date:			03/23/2017
+//	Revision date:			06/21/2017
 //
 //	Language:				C
 //
@@ -107,6 +107,15 @@
  */
 
 #include "SMulSpec.h"
+	 
+#if defined multispec_lin
+	#include "LHistogramDialog.h"
+	#include "CHistgrm.h"
+	#include "CImagWin.h"
+	#include "LImageView.h"
+	#include "LMultiSpec.h"
+	typedef wxString CString;
+#endif
 
 #if defined multispec_mac
 	#define IDC_DefaultFile				5
@@ -140,15 +149,6 @@
 	#include <afxcmn.h>
 	#include "WHistDlg.h"
 #endif	// defined multispec_win
-	 
-#if defined multispec_lin
-	#include "MultiSpec2.h"
-	#include "LImageView.h"
-	#include "CImagWin.h"
-	#include "CHistgrm.h"
-	#include "LHistDlg.h"
-	typedef wxString CString;
-#endif
 
 #include	"SExtGlob.h"
 
@@ -1582,7 +1582,7 @@ UInt32 CountTotalNumberHistogramPixels (
 // Called By:			DoHistogramRequests in histogram.c
 //
 //	Coded By:			Larry L. Biehl			Date: 10/25/1988
-//	Revised By:			Larry L. Biehl			Date: 03/16/2015	
+//	Revised By:			Larry L. Biehl			Date: 06/19/2017	
 
 Boolean CreateSTASupportFile (
 				FileInfoPtr							fileInfoPtr, 
@@ -1717,11 +1717,11 @@ Boolean CreateSTASupportFile (
 	
 
 				#ifndef NetBeansProject
-					StringPtr			fileNamePtr,
-											filePathPtr;
+					FileStringPtr			fileNamePtr,
+												filePathPtr;
 					
-					filePathPtr = supportFileStreamPtr->GetFilePathPtr();
-					wxString wxFilePathName(filePathPtr, wxConvUTF8);
+					filePathPtr = (FileStringPtr)supportFileStreamPtr->GetFilePathPPtr();
+					wxString wxFilePathName (&filePathPtr[1], wxConvUTF8);
 					wxFileName fileName;
 					fileName.Assign (wxFilePathName);
 					
@@ -1729,7 +1729,7 @@ Boolean CreateSTASupportFile (
 						{
 								// Need to change the directory to the working output directory
 								
-						fileNamePtr = supportFileStreamPtr->GetFileNamePtr();
+						fileNamePtr = (FileStringPtr)supportFileStreamPtr->GetFileNameCPtr();
 
 						wxString workingDirectory = wxGetCwd();
 						workingDirectory.Append("/");

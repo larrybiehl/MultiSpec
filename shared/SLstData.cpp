@@ -13,7 +13,7 @@
 //
 //	Revision number:		3.0
 //
-//	Revision date:			01/18/2017
+//	Revision date:			06/22/2017
 //
 //	Language:				C
 //
@@ -44,8 +44,15 @@
 //								"multiSpec.h"
 
 #include	"SMulSpec.h" 
+#include	"SGrafVew.h"    
 
-#include	"SGrafVew.h" 
+#if defined multispec_lin
+   #include "LGraphDoc.h"
+	#include "LImageView.h" 
+	#include "LListDataDialog.h" 
+	#include "LMultiSpec.h"
+   #include <wx/evtloop.h>
+#endif
 
 #if defined multispec_mac 
 	#define	IDS_ListData11		11
@@ -58,15 +65,7 @@
 	#include "WMultiSpec.h" 
 	#include "WGrafDoc.h"
 	#include "WLstDDlg.h"
-#endif	// defined multispec_win    
-
-#if defined multispec_lin
-	#include "MultiSpec2.h"
-	#include "Llstddlg.h"
-   #include "LGraphDoc.h"
-	#include "LImageView.h"  
-   #include <wx/evtloop.h>
-#endif
+#endif	// defined multispec_win 
 
 #include "SExtGlob.h"
 

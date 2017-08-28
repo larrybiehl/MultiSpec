@@ -13,7 +13,7 @@
 //
 //	Revision number:		3.0
 //
-//	Revision date:			03/16/2017
+//	Revision date:			07/28/2017
 //
 //	Language:				C
 //
@@ -47,7 +47,17 @@
 //	Include files:			"MultiSpecHeaders"
 //								"multiSpec.h"
 
-#include	"SMulSpec.h" 
+#include	"SMulSpec.h"     
+
+#if defined multispec_lin
+	#include "wx/wx.h"
+	#include "LDialog.h"
+	#include "LImageView.h"
+	#include "LNewClassFieldDialog.h"
+	#include "LEditClassFieldDialog.h"
+	#include "LStatisticsFrame.h"
+	#include "LStatisticsView.h"
+#endif	// defined multispec_lin
 
 #if defined multispec_mac 	
 	#define IDC_ClassNamePrompt		3
@@ -67,16 +77,6 @@
 	#include "WNewClas.h"
 	#include "WProjDlg.h"
 	#include "WStatVew.h"
-#endif	// defined multispec_win    
-
-#if defined multispec_lin
-#include "wx/wx.h"
-#include "LImageView.h"
-#include "ldialog.h"
-#include "LNewClass.h"
-#include "LProjDlg.h"
-#include "LStatView.h"
-#include "LStatFrm.h"
 #endif	// defined multispec_win
 
 #include "SExtGlob.h"
@@ -2382,11 +2382,9 @@ Boolean EditClassFieldDialog (
 		} while (!modalDone);
 		
 	CloseRequestedDialog (dialogPtr, kSetUpDFilterTable);
-#endif	// defined multispec_mac  
+#	endif	// defined multispec_mac  
 
-                   
-	#if defined multispec_win 
-		
+#	if defined multispec_win
 		CMEditClassFieldDlg*		dialogPtr = NULL; 
 		
 		TRY
@@ -2405,15 +2403,14 @@ Boolean EditClassFieldDialog (
 			{
 			MemoryMessage(0, kObjectMessage);
 			}
-		END_CATCH_ALL 
- 
-	#endif	// defined multispec_win
+		END_CATCH_ALL
+#	endif	// defined multispec_win
 
-	#if defined multispec_lin 
-		
+#	if defined multispec_lin
 		CMEditClassFieldDlg*		dialogPtr = NULL; 
 		
-		try{ 
+		try
+			{
 			dialogPtr = new CMEditClassFieldDlg(); 			                                                        
 			OKFlag = dialogPtr->DoDialog (classFieldFlag, 
 														currentClass, 
@@ -2421,13 +2418,13 @@ Boolean EditClassFieldDialog (
 														(char*)&titleString[1]); 
 		                      
 			delete dialogPtr;
-			}			
+			}
+	
 		catch(int e)
 			{
 			MemoryMessage(0, kObjectMessage);
 			}
- 
-	#endif	// defined multispec_lin
+#	endif	// defined multispec_lin
 
 	if (OKFlag)
 		{

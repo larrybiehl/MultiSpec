@@ -13,7 +13,7 @@
 //
 //	Revision number:		3.0
 //
-//	Revision date:			03/29/2017
+//	Revision date:			06/01/2017
 //
 //	Language:				C
 //
@@ -90,7 +90,7 @@ void RemoveCharsAddVersion(
 // Called By:			DoUpdateEvent
 //
 //	Coded By:			Larry L. Biehl			Date: 08/31/1988
-//	Revised By:			Larry L. Biehl			Date: 03/27/2017		
+//	Revised By:			Larry L. Biehl			Date: 06/01/2017		
 // TODO: For Linux
 
 void CopyOffScreenImage(
@@ -102,9 +102,9 @@ void CopyOffScreenImage(
 				SInt16								copyType) // see descriptions in cases for		
 // switch statement below.				
 {
-//	#ifdef	_WIN32
+	#ifdef	_WIN32
 		SCROLLINFO scrollInfo;
-//	#endif	// _WIN32
+	#endif	// _WIN32
 
    double								magnification;
 
@@ -1628,13 +1628,10 @@ SInt16 TextWidth (
 } // end "TextWidth"                 
 
 #if defined multispec_lin
-
-
-void SetUpToolTip(wxControl* control, SInt16 stringnumber)
-{
-   GetSpecifiedStringNumber(kFileIOStrID, stringnumber, &gTextString, TRUE);
+void SetUpToolTip (wxControl* control, SInt16 stringnumber)
+	{
+   GetSpecifiedStringNumber (kFileIOStrID, stringnumber, (UCharPtr)gTextString, TRUE);
 	wxString wdcard((char *)&gTextString[1], wxConvUTF8);
    control->SetToolTip(wdcard);
-}
-
+	}
 #endif

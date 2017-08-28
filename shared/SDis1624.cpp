@@ -3,8 +3,8 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2011)
-//								� Purdue Research Foundation
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	File:						SDis1624.cpp
@@ -27,21 +27,12 @@
 //								void		UpdatePaletteFor16and24BImage	 
 //
 //	Revision date:			01/05/2006
+//
 //      Linux Note: wxImage constructor always requires image data in rgb raster format
 //      This is similar to mac
 
 #include	"SMulSpec.h"
 #include "SExtGlob.h"
-
-#if defined multispec_lin
-
-   
-#endif
-
-#if defined multispec_win
-	//#include	"SMulSpec.h" 
-	#include "SExtGlob.h"    
-#endif	// defined multispec_win    
 
 			// Prototypes for file routines that are only called from other 		
 			// routines in this file.
@@ -49,8 +40,8 @@
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2011)
-//								� Purdue Research Foundation
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void Display1Channel16BitLine
@@ -100,7 +91,7 @@ void Display1Channel16BitLine (
 				
 			dataValue = dataDisplayPtr[dataValue];
             
-			#ifndef multispec_lin
+#			ifndef multispec_lin
 						// Red bits.															
 						
 				*offScreen2BytePtr = (SInt16)(dataValue << 10);
@@ -122,12 +113,12 @@ void Display1Channel16BitLine (
 						
 					}		// end "if (backgroundValueCode && !backgroundValue)"
 
-				#if TARGET_CPU_X86 || TARGET_CPU_X86_64
+#				if TARGET_CPU_X86 || TARGET_CPU_X86_64
 					Swap2Bytes ((HUInt16Ptr)offScreen2BytePtr, 1);
-				#endif		// TARGET_CPU_X86 ... else 
+#				endif		// TARGET_CPU_X86 ... else 
 					
 				offScreen2BytePtr++;
-			#else	// defined multispec_lin
+#			else	// defined multispec_lin
 						// First define a pointer of size byte
 						
             HUCharPtr imageptr;
@@ -135,7 +126,7 @@ void Display1Channel16BitLine (
             if (backgroundValueCode && !backgroundValue)
 					{
                if (backgroundValueCode == 1) 
-               {
+						{
                   *imageptr = (Byte)(0x00);
                   imageptr++;
 
@@ -144,8 +135,11 @@ void Display1Channel16BitLine (
 
                   *imageptr = (Byte)(0x00);
                   imageptr++;
-               }
-               else{
+						
+						}	// end "if (backgroundValueCode == 1)"
+						
+               else	// else backgroundValueCode != 1
+						{
                   *imageptr = (Byte)(0xff);
                   imageptr++;
 
@@ -154,9 +148,10 @@ void Display1Channel16BitLine (
 
                   *imageptr = (Byte)(0xff);
                   imageptr++;
-               }
+						
+						}	// end "else backgroundValueCode != 1"
 					
-					}		// end "if (zeroAsBackgroundFlag && !backgroundValue)"
+					}	// end "if (zeroAsBackgroundFlag && !backgroundValue)"
 					
             else	// !zeroAsBackgroundFlag || backgroundValue
 					{
@@ -170,22 +165,22 @@ void Display1Channel16BitLine (
 					*imageptr = (Byte)(dataValue);
 					imageptr++;
 
-					}		// else !zeroAsBackgroundFlag || backgroundValue
+					}	// else !zeroAsBackgroundFlag || backgroundValue
 					
             offScreen2BytePtr = (HUInt16Ptr)imageptr;
-			#endif	// !defined multispec_lin, else
+#			endif	// !defined multispec_lin, else
 
-			}		// end "for (j=0; ..."
+			}	// end "for (j=0; ..."
 			
-		}		// end "if (!gOSXCoreGraphicsFlag)"
+		}	// end "if (!gOSXCoreGraphicsFlag)"
 
-}		// end "Display1Channel16BitLine"
+}	// end "Display1Channel16BitLine"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2011)
-//								� Purdue Research Foundation
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void Display2Channel16BitLine
@@ -230,27 +225,29 @@ void Display2Channel16BitLine (
 	switch (rgbColors)
 		{
 		case kGBColor:	
-			for ( j=0; j<numberSamples; j+=interval )
+			for (j=0; j<numberSamples; j+=interval)
 				{
-				#if defined multispec_mac
-				
+#				if defined multispec_mac
 							// Set high order bit and Red bits to 0).						
 						
 					*offScreen2BytePtr = 0;
-					
-				#endif	// defined multispec_win
-#if defined multispec_lin
-      // Set Red bits to zero
-                if (backgroundValueCode == 2 )
-                {
-                    *imageptr = 0xff;
-                    imageptr++;
-                }
-                else{
+#				endif	// defined multispec_mac
+
+#				if defined multispec_lin
+							// Set Red bits to zero
+							
+					if (backgroundValueCode == 2)
+						{
+						*imageptr = 0xff;
+						imageptr++;
+						}
+						
+                else	// backgroundValueCode != 2
+						{
                   *imageptr = (Byte)(0x00);
                   imageptr++;
-                }
-#endif
+						}
+#				endif
 				
 						// Green bits.															
 				
@@ -259,26 +256,35 @@ void Display2Channel16BitLine (
 							(UInt32)ioBuffer2Ptr->data.twobyte[j];
 				if (dataValue > maxBin2)  
 					dataValue = 0;
+					
 				backgroundValue = dataValue;
-                #if defined multispec_lin
-                if (backgroundValueCode && !backgroundValue)
-                {
-                   if(backgroundValueCode == 2){
-                    *imageptr = 0xff;
-                    imageptr++;
-                   }
-                   else {
-                    *imageptr = 0x00;
-                    imageptr++;  
-                   }
-                }
-                else{
-                    *imageptr = (Byte)dataDisplay2Ptr[dataValue];
-                    imageptr++;
-                }
-                #else
-				*offScreen2BytePtr = (dataDisplay2Ptr[ dataValue ] << 5);
-                #endif
+#				if defined multispec_lin
+					if (backgroundValueCode && !backgroundValue)
+						{
+						if (backgroundValueCode == 2)
+							{
+							*imageptr = 0xff;
+							imageptr++;
+							
+							}	// end "if (backgroundValueCode == 2)"
+							
+						else	// backgroundValueCode != 2
+							{
+							*imageptr = 0x00;
+							imageptr++;  
+							
+							}
+							
+						}	// end "if (backgroundValueCode && !backgroundValue)"
+						
+					else
+						{
+						*imageptr = (Byte)dataDisplay2Ptr[dataValue];
+						imageptr++;
+						}
+#				else
+					*offScreen2BytePtr = (dataDisplay2Ptr[ dataValue ] << 5);
+#				endif
 						// Blue bits.															
 				
 				dataValue = (bytesEqualOneFlag1) ?
@@ -287,56 +293,59 @@ void Display2Channel16BitLine (
 				if (dataValue > maxBin1)  
 					dataValue = 0;
 				backgroundValue += dataValue;
-                #if defined multispec_lin
-                if (backgroundValueCode && !backgroundValue)
-                {
-                   if(backgroundValueCode == 2){
-                    *imageptr = 0xff;
-                    imageptr++;
-                   }
-                   else {
-                    *imageptr = 0x00;
-                    imageptr++;
-                   }
-                }
-                else{
-                    *imageptr = (Byte)dataDisplay1Ptr[dataValue];
-                    imageptr++;
-                }
-                offScreen2BytePtr = (HUInt16Ptr)imageptr;
-                #else
-				*offScreen2BytePtr = 
+#				if defined multispec_lin
+					if (backgroundValueCode && !backgroundValue)
+						{
+						if(backgroundValueCode == 2)
+							{
+							*imageptr = 0xff;
+							imageptr++;
+							}
+							
+						else 
+							{
+							*imageptr = 0x00;
+							imageptr++;
+							}
+						}
+						
+					else
+						{
+						*imageptr = (Byte)dataDisplay1Ptr[dataValue];
+						imageptr++;
+						}
+						
+					offScreen2BytePtr = (HUInt16Ptr)imageptr;
+#				else	// !defined multispec_lin
+					*offScreen2BytePtr = 
 								*offScreen2BytePtr | (dataDisplay1Ptr[ dataValue ]);
 
-				if (backgroundValueCode && !backgroundValue)
-					{
-					if (backgroundValueCode == 1) 
-						*offScreen2BytePtr = 0x0000;
-					else		// backgroundValueCode == 2
-						*offScreen2BytePtr = 0x7fff;
+					if (backgroundValueCode && !backgroundValue)
+						{
+						if (backgroundValueCode == 1) 
+							*offScreen2BytePtr = 0x0000;
+						else		// backgroundValueCode == 2
+							*offScreen2BytePtr = 0x7fff;
 						
-					}		// end "if (backgroundValueCode && !backgroundValue)"
+						}	// end "if (backgroundValueCode && !backgroundValue)"
 
-				#if TARGET_CPU_X86 || TARGET_CPU_X86_64
-					Swap2Bytes ((HUInt16Ptr)offScreen2BytePtr, 1);
-				#endif		// TARGET_CPU_X86 ... else 
+#					if TARGET_CPU_X86 || TARGET_CPU_X86_64
+						Swap2Bytes ((HUInt16Ptr)offScreen2BytePtr, 1);
+#					endif		// TARGET_CPU_X86 ... else 
 					
-				offScreen2BytePtr++;
-                #endif
-				}		// end "for ( j=0; ..." 
-			
+					offScreen2BytePtr++;
+#				endif
+				}	// end "for ( j=0; ..." 
 			break;
 			
 		case kRBColor:	
-			for ( j=0; j<numberSamples; j+=interval )
+			for (j=0; j<numberSamples; j+=interval)
 				{
-				#if defined multispec_mac
-				
+#				if defined multispec_mac
 							// Set high order bit and Green bits to 0).						
 						
 					*offScreen2BytePtr = 0;
-					
-				#endif	// defined multispec_win	
+#				endif	// defined multispec_win	
 						
 						// Red bits.															
 						
@@ -346,37 +355,45 @@ void Display2Channel16BitLine (
 				if (dataValue > maxBin2)  
 					dataValue = 0;
 				backgroundValue = dataValue;
-                #if defined multispec_lin
-                if (backgroundValueCode && !backgroundValue)
-                {
-                    if(backgroundValueCode == 2){
-                    *imageptr = 0xff;
-                    imageptr++;
-                   }
-                   else {
-                    *imageptr = 0x00;
-                    imageptr++;
-                   }
-                }
-                else{
-                    *imageptr = (Byte)dataDisplay2Ptr[dataValue];
-                    imageptr++;
-                }
-                #else
-				*offScreen2BytePtr = (dataDisplay2Ptr[ dataValue ] << 10);
-                #endif
-                #if defined multispec_lin
-                // Set Green bits to zero
-                if (backgroundValueCode && !backgroundValue)
-                {
-                    *imageptr = 0xff;
-                    imageptr++;
-                }
-                else{
-                *imageptr = (Byte)(0x00);
-                imageptr++;
-                }
-                #endif
+#				if defined multispec_lin
+					if (backgroundValueCode && !backgroundValue)
+						{
+						if(backgroundValueCode == 2)
+							{
+							*imageptr = 0xff;
+							imageptr++;
+							}
+							
+						else 
+							{
+							*imageptr = 0x00;
+							imageptr++;
+							}
+						}
+						
+					else
+						{
+						*imageptr = (Byte)dataDisplay2Ptr[dataValue];
+						imageptr++;
+						}
+#				else
+					*offScreen2BytePtr = (dataDisplay2Ptr[ dataValue ] << 10);
+#				endif
+
+#				if defined multispec_lin
+							// Set Green bits to zero
+					if (backgroundValueCode && !backgroundValue)
+						{
+						*imageptr = 0xff;
+						imageptr++;
+						}
+						
+					else
+						{
+						*imageptr = (Byte)(0x00);
+						imageptr++;
+						}
+#				endif
 				
 						// Blue bits.															
 				
@@ -386,56 +403,59 @@ void Display2Channel16BitLine (
 				if (dataValue > maxBin1)  
 					dataValue = 0;
 				backgroundValue += dataValue;
-                 #if defined multispec_lin
-                if (backgroundValueCode && !backgroundValue)
-                {
-                    if(backgroundValueCode == 2){
-                    *imageptr = 0xff;
-                    imageptr++;
-                   }
-                   else {
-                    *imageptr = 0x00;
-                    imageptr++;
-                   }
-                }
-                else{
-                    *imageptr = (Byte)dataDisplay1Ptr[dataValue];
-                    imageptr++;
-                }
-                offScreen2BytePtr = (HUInt16Ptr)imageptr;
-                #else
-				*offScreen2BytePtr = 
-								*offScreen2BytePtr | (dataDisplay1Ptr[ dataValue ]);
-
-				if (backgroundValueCode && !backgroundValue)
-					{
-					if (backgroundValueCode == 1) 
-						*offScreen2BytePtr = 0x0000;
-					else		// backgroundValueCode == 2
-						*offScreen2BytePtr = 0x7fff;
+#				if defined multispec_lin
+					if (backgroundValueCode && !backgroundValue)
+						{
+						if (backgroundValueCode == 2)
+							{
+							*imageptr = 0xff;
+							imageptr++;
+							}
+						else 
+							{
+							*imageptr = 0x00;
+							imageptr++;
+							}
+							
+						}	// end "backgroundValueCode && !backgroundValue"
 						
-					}		// end "if (backgroundValueCode && !backgroundValue)"
+					else
+						{
+						*imageptr = (Byte)dataDisplay1Ptr[dataValue];
+						imageptr++;
+						}
+						
+					offScreen2BytePtr = (HUInt16Ptr)imageptr;
+#				else
+					*offScreen2BytePtr = 
+								*offScreen2BytePtr | (dataDisplay1Ptr[dataValue]);
 
-				#if TARGET_CPU_X86 || TARGET_CPU_X86_64
-					Swap2Bytes ((HUInt16Ptr)offScreen2BytePtr, 1);
-				#endif		// TARGET_CPU_X86 ... else 
-					
-				offScreen2BytePtr++;
-                #endif
-				}		// end "for ( j=0; ..." 
-			
+					if (backgroundValueCode && !backgroundValue)
+						{
+						if (backgroundValueCode == 1) 
+							*offScreen2BytePtr = 0x0000;
+						else		// backgroundValueCode == 2
+							*offScreen2BytePtr = 0x7fff;
+							
+						}	// end "if (backgroundValueCode && !backgroundValue)"
+
+#					if TARGET_CPU_X86 || TARGET_CPU_X86_64
+						Swap2Bytes ((HUInt16Ptr)offScreen2BytePtr, 1);
+#					endif		// TARGET_CPU_X86 ... else 
+						
+					offScreen2BytePtr++;
+#				endif
+				}	// end "for (j=0; ..." 
 			break;
 			
 		case kRGColor:	
-			for ( j=0; j<numberSamples; j+=interval )
+			for (j=0; j<numberSamples; j+=interval)
 				{
-				#if defined multispec_mac
-				
+#				if defined multispec_mac
 							// Set high order bit and Blue bits to 0).						
 						
 					*offScreen2BytePtr = 0;
-					
-				#endif	// defined multispec_win	
+#				endif	// defined multispec_win	
 				
 						// Red bits.															
 						
@@ -445,17 +465,20 @@ void Display2Channel16BitLine (
 				if (dataValue > maxBin2)  
 					dataValue = 0;
 				backgroundValue = dataValue;
-				#if defined multispec_lin
+#				if defined multispec_lin
 					if (backgroundValueCode && !backgroundValue)
 						{
-                     if(backgroundValueCode == 2){
-                       *imageptr = 0xff;
-                       imageptr++;
-                      }
-                      else {
-                       *imageptr = 0x00;
-                       imageptr++;
-                      }
+						if (backgroundValueCode == 2)
+							{
+							*imageptr = 0xff;
+							imageptr++;
+							}
+							
+						else 
+							{
+							*imageptr = 0x00;
+							imageptr++;
+							}
 						}
 						
 					else		// !zeroAsBackgroundFlag || backgroundValue
@@ -463,9 +486,9 @@ void Display2Channel16BitLine (
 						*imageptr = (Byte)dataDisplay2Ptr[dataValue];
 						imageptr++;
 						}
-				#else	// !defined multispec_lin
+#				else	// !defined multispec_lin
 					*offScreen2BytePtr = (dataDisplay2Ptr[ dataValue ] << 10);
-				#endif	// defined multispec_lin, else
+#				endif	// defined multispec_lin, else
 				
 						// Green bits.															
 				
@@ -475,76 +498,84 @@ void Display2Channel16BitLine (
 				if (dataValue > maxBin1)  
 					dataValue = 0;
 				backgroundValue += dataValue;
-                #if defined multispec_lin
-                if (backgroundValueCode && !backgroundValue)
-                {
-                    if(backgroundValueCode == 2){
-                    *imageptr = 0xff;
-                    imageptr++;
-                   }
-                   else {
-                    *imageptr = 0x00;
-                    imageptr++;
-                   }
-                }
-                else{
-                    *imageptr = (Byte)dataDisplay2Ptr[dataValue];
-                    imageptr++;
-                }
-                
-                #else
-				*offScreen2BytePtr = 
-						*offScreen2BytePtr | (dataDisplay1Ptr[ dataValue ] << 5);
-
-				if (backgroundValueCode && !backgroundValue)
-					{
-					if (backgroundValueCode == 1) 
-						*offScreen2BytePtr = 0x0000;
-					else		// backgroundValueCode == 2
-						*offScreen2BytePtr = 0x7fff;
+#				if defined multispec_lin
+					if (backgroundValueCode && !backgroundValue)
+						{
+						if (backgroundValueCode == 2)
+							{
+							*imageptr = 0xff;
+							imageptr++;
+							}
+						else 
+							{
+							*imageptr = 0x00;
+							imageptr++;
+							}
+						}
 						
-					}		// end "if (backgroundValueCode && !backgroundValue)"
+					else
+						{
+						*imageptr = (Byte)dataDisplay2Ptr[dataValue];
+						imageptr++;
+						}
+                
+#				else	// !defined multispec_lin
+					*offScreen2BytePtr = 
+							*offScreen2BytePtr | (dataDisplay1Ptr[ dataValue ] << 5);
 
-				#if TARGET_CPU_X86 || TARGET_CPU_X86_64
-					Swap2Bytes ((HUInt16Ptr)offScreen2BytePtr, 1);
-				#endif		// TARGET_CPU_X86 ... else 
+					if (backgroundValueCode && !backgroundValue)
+						{
+						if (backgroundValueCode == 1) 
+							*offScreen2BytePtr = 0x0000;
+						else		// backgroundValueCode == 2
+							*offScreen2BytePtr = 0x7fff;
+							
+						}	// end "if (backgroundValueCode && !backgroundValue)"
+
+#					if TARGET_CPU_X86 || TARGET_CPU_X86_64
+						Swap2Bytes ((HUInt16Ptr)offScreen2BytePtr, 1);
+#					endif	// TARGET_CPU_X86 ... else 
 					
-				offScreen2BytePtr++;
-                #endif
+					offScreen2BytePtr++;
+#				endif	// defined multispec_lin, else
 				
-                // Blue bits
-                 #if defined multispec_lin
-                // Set Blue bits to zero
-                if (backgroundValueCode && !backgroundValue)
-                {
-                    if(backgroundValueCode == 2){
-                    *imageptr = 0xff;
-                    imageptr++;
-                   }
-                   else {
-                    *imageptr = 0x00;
-                    imageptr++;
-                   }
-                }
-                else{
-                *imageptr = (Byte)(0x00);
-                imageptr++;
-                }
-                offScreen2BytePtr = (HUInt16Ptr)imageptr;
-                #endif
-				}		// end "for ( j=0; ..." 
-			
+						// Blue bits
+#				if defined multispec_lin
+						// Set Blue bits to zero
+					if (backgroundValueCode && !backgroundValue)
+						{
+						if(backgroundValueCode == 2)
+							{
+							*imageptr = 0xff;
+							imageptr++;
+							}
+						else 
+							{
+							*imageptr = 0x00;
+							imageptr++;
+							}
+						}
+                
+					else
+						{
+						*imageptr = (Byte)(0x00);
+						imageptr++;
+						}
+						
+					offScreen2BytePtr = (HUInt16Ptr)imageptr;
+#				endif
+				}	// end "for ( j=0; ..." 
 			break;
 			
-		}		// end "switch (displayPalette.rgbColors)" 
+		}	// end "switch (displayPalette.rgbColors)" 
 	
-}		// end "Display2Channel16BitLine"
+}	// end "Display2Channel16BitLine"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2011)
-//								� Purdue Research Foundation
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void Display2Channel24BitLine
@@ -592,10 +623,9 @@ void Display2Channel24BitLine (
 	switch (rgbColors)
 		{
 		case kGBColor:	
-			for ( j=0; j<numberSamples; j+=interval )
+			for (j=0; j<numberSamples; j+=interval)
 				{		 
-				#if defined multispec_mac
-				
+#				if defined multispec_mac
 							// Leave high order byte blank.					
 						
 					offScreenPtr++;
@@ -632,20 +662,18 @@ void Display2Channel24BitLine (
 						if (backgroundValueCode == 1) 
 							*offScreen4BytePtr = 0x00000000;
 						else		// backgroundValueCode == 2
-							#if TARGET_CPU_X86 || TARGET_CPU_X86_64
+#							if TARGET_CPU_X86 || TARGET_CPU_X86_64
 								*offScreen4BytePtr = 0xffffff00;
-							#else		// !TARGET_CPU_X86
+#							else		// !TARGET_CPU_X86
 								*offScreen4BytePtr = 0x00ffffff;
-							#endif		// TARGET_CPU_X86 ... else 
+#							endif		// TARGET_CPU_X86 ... else
 							
-						}		// end "if (backgroundValueCode && !backgroundValue)"
+						}	// end "if (backgroundValueCode && !backgroundValue)"
 		
 					offScreen4BytePtr++;
-					
-				#endif	// defined multispec_mac
+#				endif	// defined multispec_mac
 				
-				#if defined multispec_win 
-					
+#				if defined multispec_win
 							// Blue byte.															
 					
 					dataValue = (bytesEqualOneFlag1) ?
@@ -685,7 +713,7 @@ void Display2Channel24BitLine (
 							*offScreenPtr = (UInt8)0x00;
 							offScreenPtr++;
 							
-							}		//  end "if (backgroundValueCode == 1)"
+							}	//  end "if (backgroundValueCode == 1)"
 							
 						else		// backgroundValueCode == 2 
 							{
@@ -697,53 +725,54 @@ void Display2Channel24BitLine (
 							*offScreenPtr = (UInt8)0xff;
 							offScreenPtr++;
 							
-							}		//  end "else backgroundValueCode == 2"
+							}	//  end "else backgroundValueCode == 2"
 						
-						}		// end "if (backgroundValueCode && ...)"
-					
-				#endif	// defined multispec_win
-#if defined multispec_lin
+						}	// end "if (backgroundValueCode && ...)"
+#				endif	// defined multispec_win
 
-                // Set Red byte to zero.
+#				if defined multispec_lin
+						// Set Red byte to zero.
 
-                *offScreenPtr = 0;
-                offScreenPtr++;
+					*offScreenPtr = 0;
+					offScreenPtr++;
 
-                // Green byte.
+							// Green byte.
 
-                dataValue = (bytesEqualOneFlag2) ?
-                        (UInt32) ioBuffer2Ptr->data.onebyte[j] :
-                        (UInt32) ioBuffer2Ptr->data.twobyte[j];
-                if (dataValue > maxBin2)
-                    dataValue = 0;
-                backgroundValue = dataValue;
-                *offScreenPtr = dataDisplay2Ptr[ dataValue ];
-                offScreenPtr++;
+					dataValue = (bytesEqualOneFlag2) ?
+							(UInt32)ioBuffer2Ptr->data.onebyte[j] :
+									(UInt32)ioBuffer2Ptr->data.twobyte[j];
+					if (dataValue > maxBin2)
+					  dataValue = 0;
+					backgroundValue = dataValue;
+					*offScreenPtr = dataDisplay2Ptr[dataValue];
+					offScreenPtr++;
 
-                // Blue byte.
+							// Blue byte.
 
-                dataValue = (bytesEqualOneFlag1) ?
-                        (UInt32) ioBuffer1Ptr->data.onebyte[j] :
-                        (UInt32) ioBuffer1Ptr->data.twobyte[j];
-                if (dataValue > maxBin1)
-                    dataValue = 0;
-                backgroundValue += dataValue;
-                *offScreenPtr = dataDisplay1Ptr[ dataValue ];
-                offScreenPtr++;
+					dataValue = (bytesEqualOneFlag1) ?
+							(UInt32)ioBuffer1Ptr->data.onebyte[j] :
+									(UInt32)ioBuffer1Ptr->data.twobyte[j];
+					if (dataValue > maxBin1)
+					  dataValue = 0;
+					backgroundValue += dataValue;
+					*offScreenPtr = dataDisplay1Ptr[ dataValue ];
+					offScreenPtr++;
 
-                 if (backgroundValueCode && !backgroundValue) {
-                    if (backgroundValueCode == 1) 
+					if (backgroundValueCode && !backgroundValue)
+						{
+						if (backgroundValueCode == 1)
 							{
-                    offScreenPtr -= 3;
-                    *offScreenPtr = (UInt8) 0xff;
-                    offScreenPtr++;
-                    *offScreenPtr = (UInt8) 0xff;
-                    offScreenPtr++;
-                    *offScreenPtr = (UInt8) 0xff;
-                    offScreenPtr++;
+							offScreenPtr -= 3;
+							*offScreenPtr = (UInt8) 0xff;
+							offScreenPtr++;
+							*offScreenPtr = (UInt8) 0xff;
+							offScreenPtr++;
+							*offScreenPtr = (UInt8) 0xff;
+							offScreenPtr++;
 
-                } // //  end "if (backgroundValueCode == 1)"
-                else		// backgroundValueCode == 2 
+							}	//  end "if (backgroundValueCode == 1)"
+						
+						else	// backgroundValueCode == 2
 							{
 							offScreenPtr -= 3;
 							*offScreenPtr = (UInt8)0xff;
@@ -753,19 +782,19 @@ void Display2Channel24BitLine (
 							*offScreenPtr = (UInt8)0xff;
 							offScreenPtr++;
 							
-						}		//  end "else backgroundValueCode == 2"
-                 }
-#endif
+							}	//  end "else backgroundValueCode == 2"
+						
+						}	// end "if (backgroundValueCode && !backgroundValue)"
+#				endif	// defined multispec_lin
 
-				}		// end "for ( j=0; ..." 
+				}	// end "for (j=0; ..."
 			
 			break;
 			
 		case kRBColor:	
-			for ( j=0; j<numberSamples; j+=interval )
+			for (j=0; j<numberSamples; j+=interval)
 				{
-				#if defined multispec_mac
-				
+#				if defined multispec_mac
 							// Leave high order byte blank.					
 						
 					offScreenPtr++;
@@ -802,25 +831,23 @@ void Display2Channel24BitLine (
 						if (backgroundValueCode == 1) 
 							*offScreen4BytePtr = 0x00000000;
 						else		// backgroundValueCode == 2
-							#if TARGET_CPU_X86 || TARGET_CPU_X86_64
+#							if TARGET_CPU_X86 || TARGET_CPU_X86_64
 								*offScreen4BytePtr = 0xffffff00;
-							#else		// !TARGET_CPU_X86
+#							else		// !TARGET_CPU_X86
 								*offScreen4BytePtr = 0x00ffffff;
-							#endif		// TARGET_CPU_X86 ... else 
+#							endif		// TARGET_CPU_X86 ... else
 							
-						}		// end "if (backgroundValueCode && !backgroundValue)"
+						}	// end "if (backgroundValueCode && !backgroundValue)"
 						
 					offScreen4BytePtr++;
-					
-				#endif	// defined multispec_mac
+#				endif	// defined multispec_mac
 				
-				#if defined multispec_win 
-					
+#				if defined multispec_win
 							// Blue byte.															
 					
 					dataValue = (bytesEqualOneFlag1) ?
 							(UInt32)ioBuffer1Ptr->data.onebyte[j] :
-								(UInt32)ioBuffer1Ptr->data.twobyte[j];
+									(UInt32)ioBuffer1Ptr->data.twobyte[j];
 					if (dataValue > maxBin1)  
 						dataValue = 0;
 					backgroundValue = dataValue;
@@ -870,37 +897,35 @@ void Display2Channel24BitLine (
 							}		//  end "else backgroundValueCode == 2"
 						
 						}		// end "if (backgroundValueCode && ...)"
-					
-				#endif	// defined multispec_win
-					#if defined multispec_lin 
-
-               		// Red byte.															
+#					endif	// defined multispec_win
+				
+#					if defined multispec_lin
+							// Red byte.
 							
 					dataValue = (bytesEqualOneFlag2) ?
 							(UInt32)ioBuffer2Ptr->data.onebyte[j] :
-								(UInt32)ioBuffer2Ptr->data.twobyte[j];
+									(UInt32)ioBuffer2Ptr->data.twobyte[j];
 					if (dataValue > maxBin2)  
 						dataValue = 0;
 					backgroundValue += dataValue;
 					*offScreenPtr = dataDisplay2Ptr[ dataValue ];
 					offScreenPtr++; 
-					
-               		// Set Green byte to zero.											
-					
+
+							// Set Green byte to zero.											
+
 					*offScreenPtr = 0;
 					offScreenPtr++; 
-               
+
 							// Blue byte.															
-					
+
 					dataValue = (bytesEqualOneFlag1) ?
 							(UInt32)ioBuffer1Ptr->data.onebyte[j] :
-								(UInt32)ioBuffer1Ptr->data.twobyte[j];
+									(UInt32)ioBuffer1Ptr->data.twobyte[j];
 					if (dataValue > maxBin1)  
 						dataValue = 0;
 					backgroundValue = dataValue;
 					*offScreenPtr = dataDisplay1Ptr[ dataValue ];
-					offScreenPtr++; 
-												
+					offScreenPtr++;
 									
 					if (backgroundValueCode && !backgroundValue)
 						{
@@ -914,9 +939,9 @@ void Display2Channel24BitLine (
 							*offScreenPtr = (UInt8)0x00;
 							offScreenPtr++;
 							
-							}		//  end "if (backgroundValueCode == 1)"
+							}	//  end "if (backgroundValueCode == 1)"
 							
-						else		// backgroundValueCode == 2 
+						else	// backgroundValueCode == 2
 							{
 							offScreenPtr -= 3;
 							*offScreenPtr = (UInt8)0xff;
@@ -926,20 +951,18 @@ void Display2Channel24BitLine (
 							*offScreenPtr = (UInt8)0xff;
 							offScreenPtr++;
 							
-							}		//  end "else backgroundValueCode == 2"
+							}	//  end "else backgroundValueCode == 2"
 						
-						}		// end "if (backgroundValueCode && ...)"
-					
+						}	// end "if (backgroundValueCode && ...)"
 				#endif	// defined multispec_lin
-				}		// end "for ( j=0; ..." 
+				}	// end "for (j=0; ..."
 			
 			break;
 			
 		case kRGColor:	
-			for ( j=0; j<numberSamples; j+=interval )
+			for (j=0; j<numberSamples; j+=interval)
 				{
-				#if defined multispec_mac
-				
+#				if defined multispec_mac
 							// Leave high order byte blank.					
 						
 					offScreenPtr++; 
@@ -948,7 +971,7 @@ void Display2Channel24BitLine (
 							
 					dataValue = (bytesEqualOneFlag2) ?
 							(UInt32)ioBuffer2Ptr->data.onebyte[j] :
-								(UInt32)ioBuffer2Ptr->data.twobyte[j];
+									(UInt32)ioBuffer2Ptr->data.twobyte[j];
 					if (dataValue > maxBin2)  
 						dataValue = 0;
 					backgroundValue = dataValue;
@@ -959,7 +982,7 @@ void Display2Channel24BitLine (
 					
 					dataValue = (bytesEqualOneFlag1) ?
 							(UInt32)ioBuffer1Ptr->data.onebyte[j] :
-								(UInt32)ioBuffer1Ptr->data.twobyte[j];
+									(UInt32)ioBuffer1Ptr->data.twobyte[j];
 					if (dataValue > maxBin1)  
 						dataValue = 0;
 					backgroundValue += dataValue;
@@ -976,20 +999,18 @@ void Display2Channel24BitLine (
 						if (backgroundValueCode == 1) 
 							*offScreen4BytePtr = 0x00000000;
 						else		// backgroundValueCode == 2
-							#if TARGET_CPU_X86 || TARGET_CPU_X86_64
+#							if TARGET_CPU_X86 || TARGET_CPU_X86_64
 								*offScreen4BytePtr = 0xffffff00;
-							#else		// !TARGET_CPU_X86
+#							else		// !TARGET_CPU_X86
 								*offScreen4BytePtr = 0x00ffffff;
-							#endif		// TARGET_CPU_X86 ... else 
+#							endif		// TARGET_CPU_X86 ... else
 							
-						}		// end "if (backgroundValueCode && !backgroundValue)"
+						}	// end "if (backgroundValueCode && !backgroundValue)"
 						
 					offScreen4BytePtr++;
-					
-				#endif	// defined multispec_mac
+#				endif	// defined multispec_mac
 				
-				#if defined multispec_win 
-					
+#				if defined multispec_win
 							// Set Blue byte to zero.											
 					
 					*offScreenPtr = 0;
@@ -999,7 +1020,7 @@ void Display2Channel24BitLine (
 					
 					dataValue = (bytesEqualOneFlag1) ?
 							(UInt32)ioBuffer1Ptr->data.onebyte[j] :
-								(UInt32)ioBuffer1Ptr->data.twobyte[j];
+									(UInt32)ioBuffer1Ptr->data.twobyte[j];
 					if (dataValue > maxBin1)  
 						dataValue = 0;
 					backgroundValue = dataValue;
@@ -1010,7 +1031,7 @@ void Display2Channel24BitLine (
 							
 					dataValue = (bytesEqualOneFlag2) ?
 							(UInt32)ioBuffer2Ptr->data.onebyte[j] :
-								(UInt32)ioBuffer2Ptr->data.twobyte[j];
+									(UInt32)ioBuffer2Ptr->data.twobyte[j];
 					if (dataValue > maxBin2)  
 						dataValue = 0;
 					backgroundValue += dataValue;
@@ -1029,9 +1050,9 @@ void Display2Channel24BitLine (
 							*offScreenPtr = (UInt8)0x00;
 							offScreenPtr++;
 							
-							}		//  end "if (backgroundValueCode == 1)"
+							}	//  end "if (backgroundValueCode == 1)"
 							
-						else		// backgroundValueCode == 2 
+						else	// backgroundValueCode == 2
 							{
 							offScreenPtr -= 3;
 							*offScreenPtr = (UInt8)0xff;
@@ -1041,13 +1062,12 @@ void Display2Channel24BitLine (
 							*offScreenPtr = (UInt8)0xff;
 							offScreenPtr++;
 							
-							}		//  end "else backgroundValueCode == 2"
+							}	//  end "else backgroundValueCode == 2"
 						
-						}		// end "if (backgroundValueCode && ...)"
-					
-				#endif	// defined multispec_win
-				#if defined multispec_lin 
-					
+						}	// end "if (backgroundValueCode && ...)"
+#				endif	// defined multispec_win
+				
+#				if defined multispec_lin
 						// Red byte.															
 							
 					dataValue = (bytesEqualOneFlag2) ?
@@ -1099,24 +1119,24 @@ void Display2Channel24BitLine (
 							*offScreenPtr = (UInt8)0xff;
 							offScreenPtr++;
 							
-							}		//  end "else backgroundValueCode == 2"
+							}	//  end "else backgroundValueCode == 2"
 						
-						}		// end "if (backgroundValueCode && ...)"
+						}	// end "if (backgroundValueCode && ...)"
 					
-				#endif	// defined multispec_lin
-				}		// end "for ( j=0; ..." 
+				#endif// defined multispec_lin
+				}	// end "for (j=0; ..."
 			
 			break;
 			
-		}		// end "switch (rgbColors)" 
+		}	// end "switch (rgbColors)"
 	
-}		// end "Display2Channel24BitLine"	
+}	// end "Display2Channel24BitLine"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2011)
-//								� Purdue Research Foundation
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void Display3Channel16BitLine
@@ -1155,125 +1175,135 @@ void Display3Channel16BitLine (
 				HUInt16Ptr							offScreen2BytePtr)
 
 {	
+	HUCharPtr							offScreenPtr;
+	
 	UInt32								backgroundValue,
 											dataValue,
 											j;
-    HUCharPtr offScreenPtr;
-    offScreenPtr = (HUCharPtr)offScreen2BytePtr;
-    for (j = 0; j < numberSamples; j += interval) {
-     #ifndef multispec_lin
-		*offScreen2BytePtr = 0;
-		
-				// Red bits.																
-				
-		dataValue = backgroundValue = (bytesEqualOneFlag3) ?
-						(UInt32)ioBuffer3Ptr->data.onebyte[j] :
-							(UInt32)ioBuffer3Ptr->data.twobyte[j];
-		if (dataValue > maxBin3)  
-			dataValue = 0;
-			
-		*offScreen2BytePtr = (dataDisplay3Ptr[dataValue] << 10);
-		
-				// Green bits.																
-				
-		dataValue = (bytesEqualOneFlag2) ?
-						(UInt32)ioBuffer2Ptr->data.onebyte[j] :
-							(UInt32)ioBuffer2Ptr->data.twobyte[j];
-		if (dataValue > maxBin2)  
-			dataValue = 0;
-		backgroundValue += dataValue;
-		*offScreen2BytePtr = 
-					*offScreen2BytePtr | (dataDisplay2Ptr[dataValue] << 5);
-		
-				// Blue bits.																
-				
-		dataValue = (bytesEqualOneFlag1) ?
-						(UInt32)ioBuffer1Ptr->data.onebyte[j] :
-								(UInt32)ioBuffer1Ptr->data.twobyte[j];
-		if (dataValue > maxBin1)  
-			dataValue = 0;
-		backgroundValue += dataValue;
-		*offScreen2BytePtr = *offScreen2BytePtr | dataDisplay1Ptr[dataValue];
-
-		if (backgroundValueCode && !backgroundValue)
-			{
-			if (backgroundValueCode == 1) 
-				*offScreen2BytePtr = 0x0000;
-			else		// backgroundValueCode == 2
-				*offScreen2BytePtr = 0x7fff;
-				
-			}		// end "if (backgroundValueCode && !backgroundValue)"
-
-		#if TARGET_CPU_X86 || TARGET_CPU_X86_64
-			Swap2Bytes ((HUInt16Ptr)offScreen2BytePtr, 1);
-		#endif		// TARGET_CPU_X86 ... else 
-						
-		offScreen2BytePtr++;
-#else
-        // Red bits.
-      
-        dataValue = backgroundValue = (bytesEqualOneFlag3) ?
-                (UInt32) ioBuffer3Ptr->data.onebyte[j] :
-                (UInt32) ioBuffer3Ptr->data.twobyte[j];
-        if (dataValue > maxBin3)
-            dataValue = 0;
-        *offScreenPtr = (Byte)(dataDisplay3Ptr[ dataValue ]);
-        offScreenPtr++;
-        // Green bits.
-
-        dataValue = (bytesEqualOneFlag2) ?
-                (UInt32) ioBuffer2Ptr->data.onebyte[j] :
-                (UInt32) ioBuffer2Ptr->data.twobyte[j];
-        if (dataValue > maxBin2)
-            dataValue = 0;
-        backgroundValue += dataValue;
-        *offScreenPtr = (dataDisplay2Ptr[ dataValue ] );
-        offScreenPtr++;
-        // Blue bits.
-
-        dataValue = (bytesEqualOneFlag1) ?
-                (UInt32) ioBuffer1Ptr->data.onebyte[j] :
-                (UInt32) ioBuffer1Ptr->data.twobyte[j];
-        if (dataValue > maxBin1)
-            dataValue = 0;
-        backgroundValue += dataValue;
-        *offScreenPtr = dataDisplay1Ptr[ dataValue ];
-        offScreenPtr++;
-        if (backgroundValueCode && !backgroundValue) {
-            offScreenPtr -= 3;
-            if (backgroundValueCode == 1) 
-            {
-               *offScreenPtr = (UInt8) 0x00;
-            offScreenPtr++;
-            *offScreenPtr = (UInt8) 0x00;
-            offScreenPtr++;
-            *offScreenPtr = (UInt8) 0x00;
-            offScreenPtr++;
-            }
-            else
-            {
-            *offScreenPtr = (UInt8) 0xff;
-            offScreenPtr++;
-            *offScreenPtr = (UInt8) 0xff;
-            offScreenPtr++;
-            *offScreenPtr = (UInt8) 0xff;
-            offScreenPtr++;
-            }
-
-        } // end "if (zeroAsBackgroundFlag && ...)"
-
-        offScreen2BytePtr = (HUInt16Ptr)offScreenPtr;
-#endif
-		
-		}		// end "for (j=0; ..." 
 	
-}		// end "Display3Channel16BitLine"		
+	
+    offScreenPtr = (HUCharPtr)offScreen2BytePtr;
+    for (j = 0; j < numberSamples; j += interval)
+		{
+#		ifndef multispec_lin
+			*offScreen2BytePtr = 0;
+
+					// Red bits.																
+					
+			dataValue = backgroundValue = (bytesEqualOneFlag3) ?
+							(UInt32)ioBuffer3Ptr->data.onebyte[j] :
+								(UInt32)ioBuffer3Ptr->data.twobyte[j];
+			if (dataValue > maxBin3)  
+				dataValue = 0;
+				
+			*offScreen2BytePtr = (dataDisplay3Ptr[dataValue] << 10);
+
+					// Green bits.																
+					
+			dataValue = (bytesEqualOneFlag2) ?
+							(UInt32)ioBuffer2Ptr->data.onebyte[j] :
+								(UInt32)ioBuffer2Ptr->data.twobyte[j];
+			if (dataValue > maxBin2)  
+				dataValue = 0;
+			backgroundValue += dataValue;
+			*offScreen2BytePtr = 
+						*offScreen2BytePtr | (dataDisplay2Ptr[dataValue] << 5);
+
+					// Blue bits.																
+					
+			dataValue = (bytesEqualOneFlag1) ?
+							(UInt32)ioBuffer1Ptr->data.onebyte[j] :
+									(UInt32)ioBuffer1Ptr->data.twobyte[j];
+			if (dataValue > maxBin1)  
+				dataValue = 0;
+			backgroundValue += dataValue;
+			*offScreen2BytePtr = *offScreen2BytePtr | dataDisplay1Ptr[dataValue];
+
+			if (backgroundValueCode && !backgroundValue)
+				{
+				if (backgroundValueCode == 1) 
+					*offScreen2BytePtr = 0x0000;
+				else		// backgroundValueCode == 2
+					*offScreen2BytePtr = 0x7fff;
+					
+				}		// end "if (backgroundValueCode && !backgroundValue)"
+
+#			if TARGET_CPU_X86 || TARGET_CPU_X86_64
+				Swap2Bytes ((HUInt16Ptr)offScreen2BytePtr, 1);
+#			endif		// TARGET_CPU_X86 ... else
+							
+			offScreen2BytePtr++;
+#		else	// defined multispec_lin
+					// Red bits.
+      
+			dataValue = backgroundValue = (bytesEqualOneFlag3) ?
+					 (UInt32)ioBuffer3Ptr->data.onebyte[j] :
+							(UInt32)ioBuffer3Ptr->data.twobyte[j];
+			if (dataValue > maxBin3)
+				dataValue = 0;
+			*offScreenPtr = (Byte)(dataDisplay3Ptr[ dataValue ]);
+			offScreenPtr++;
+		
+					// Green bits.
+
+			dataValue = (bytesEqualOneFlag2) ?
+					 (UInt32)ioBuffer2Ptr->data.onebyte[j] :
+							(UInt32)ioBuffer2Ptr->data.twobyte[j];
+			if (dataValue > maxBin2)
+				dataValue = 0;
+			backgroundValue += dataValue;
+			*offScreenPtr = dataDisplay2Ptr[dataValue];
+			offScreenPtr++;
+		
+					// Blue bits.
+
+			dataValue = (bytesEqualOneFlag1) ?
+					 (UInt32)ioBuffer1Ptr->data.onebyte[j] :
+							(UInt32)ioBuffer1Ptr->data.twobyte[j];
+			if (dataValue > maxBin1)
+				dataValue = 0;
+			backgroundValue += dataValue;
+			*offScreenPtr = dataDisplay1Ptr[dataValue];
+			offScreenPtr++;
+			if (backgroundValueCode && !backgroundValue)
+				{
+				offScreenPtr -= 3;
+				if (backgroundValueCode == 1) 
+					{
+					*offScreenPtr = (UInt8) 0x00;
+					offScreenPtr++;
+					*offScreenPtr = (UInt8) 0x00;
+					offScreenPtr++;
+					*offScreenPtr = (UInt8) 0x00;
+					offScreenPtr++;
+					
+					}	// end "if (backgroundValueCode == 1) "
+				
+				else
+					{
+					*offScreenPtr = (UInt8) 0xff;
+					offScreenPtr++;
+					*offScreenPtr = (UInt8) 0xff;
+					offScreenPtr++;
+					*offScreenPtr = (UInt8) 0xff;
+					offScreenPtr++;
+					
+					}	// end "if (backgroundValueCode != 1) "
+
+				}	// end "if (zeroAsBackgroundFlag && ...)"
+
+			offScreen2BytePtr = (HUInt16Ptr)offScreenPtr;
+#		endif
+		
+		}	// end "for (j=0; ..."
+	
+}	// end "Display3Channel16BitLine"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2011)
-//								� Purdue Research Foundation
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void Display3Channel24BitLine
@@ -1323,8 +1353,7 @@ void Display3Channel24BitLine (
 		
 	for (j=0; j<numberSamples; j+=interval)
 		{
-		#if defined multispec_mac
-		
+#		if defined multispec_mac
 					// Leave high order byte blank.					
 				
 //			*offScreenPtr = 0;
@@ -1367,20 +1396,18 @@ void Display3Channel24BitLine (
 				if (backgroundValueCode == 1) 
 					*offScreen4BytePtr = 0x00000000;
 				else		// backgroundValueCode == 2
-					#if TARGET_CPU_X86 || TARGET_CPU_X86_64
+#					if TARGET_CPU_X86 || TARGET_CPU_X86_64
 						*offScreen4BytePtr = 0xffffff00;
-					#else		// !TARGET_CPU_X86
+#					else		// !TARGET_CPU_X86
 						*offScreen4BytePtr = 0x00ffffff;
-					#endif		// TARGET_CPU_X86 ... else 
+#					endif		// TARGET_CPU_X86 ... else
 					
-				}		// end "if (backgroundValueCode && !backgroundValue)"
+				}	// end "if (backgroundValueCode && !backgroundValue)"
 
 			offScreen4BytePtr++;
-			
-		#endif	// defined multispec_mac
+#		endif	// defined multispec_mac
 		
-		#if defined multispec_win
-			
+#		if defined multispec_win
 					// Blue byte.																
 					
 			dataValue = backgroundValue = (bytesEqualOneFlag1) ?
@@ -1425,9 +1452,9 @@ void Display3Channel24BitLine (
 					*offScreenPtr = (UInt8)0x00;
 					offScreenPtr++;
 					
-					}		//  end "if (backgroundValueCode == 1)"
+					}	//  end "if (backgroundValueCode == 1)"
 					
-				else		// backgroundValueCode == 2 
+				else	// backgroundValueCode == 2
 					{
 					offScreenPtr -= 3;
 					*offScreenPtr = (UInt8)0xff;
@@ -1437,14 +1464,12 @@ void Display3Channel24BitLine (
 					*offScreenPtr = (UInt8)0xff;
 					offScreenPtr++;
 					
-					}		//  end "else backgroundValueCode == 2"
+					}	//  end "else backgroundValueCode == 2"
 				
-				}		// end "if (backgroundValueCode && ...)"
-			
-		#endif	// defined multispec_win
+				}	// end "if (backgroundValueCode && ...)"
+#		endif	// defined multispec_win
 
-		#if defined multispec_lin
-
+#		if defined multispec_lin
                // Red byte.																
 					
 			dataValue = (bytesEqualOneFlag3) ?
@@ -1476,8 +1501,7 @@ void Display3Channel24BitLine (
 				dataValue = 0;
 			*offScreenPtr = dataDisplay1Ptr [dataValue];
 			offScreenPtr++; 
-					
-							
+		
 			if (backgroundValueCode && !backgroundValue)
 				{
 				if (backgroundValueCode == 1) 
@@ -1490,7 +1514,7 @@ void Display3Channel24BitLine (
 					*offScreenPtr = (UInt8)0x00;
 					offScreenPtr++;
 					
-					}		//  end "if (backgroundValueCode == 1)"
+					}	//  end "if (backgroundValueCode == 1)"
 					
 				else		// backgroundValueCode == 2 
 					{
@@ -1502,21 +1526,21 @@ void Display3Channel24BitLine (
 					*offScreenPtr = (UInt8)0xff;
 					offScreenPtr++;
 					
-					}		//  end "else backgroundValueCode == 2"
+					}	//  end "else backgroundValueCode == 2"
 				
-				}		// end "if (backgroundValueCode && ...)"
+				}	// end "if (backgroundValueCode && ...)"
 			
 		#endif	// defined multispec_lin
-		}		// end "for (j=0; ..." 
+		}	// end "for (j=0; ..."
 	
-}		// end "Display3Channel24BitLine"
+}	// end "Display3Channel24BitLine"
 
 
  
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2011)
-//								� Purdue Research Foundation
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void UpdatePaletteFor16and24BImage
@@ -1576,18 +1600,18 @@ void UpdatePaletteFor16and24BImage (void)
 			// If all monitors are set for more than 8 bits of color then we
 			// do not need to create a palette for 8 bits or fewer.
 																									
-//	if (GetMinSystemPixelSize() > 8)
-//																									return;
+	//if (GetMinSystemPixelSize() > 8)
+	//																								return;
 			
 	continueFlag = SetUpActiveImageInformationGlobals ( 
-									&windowInfoHandle, &handleStatus, kDoNotUseProject );
+									&windowInfoHandle, &handleStatus, kDoNotUseProject);
 									
 	if (continueFlag)
 		{
 		displaySpecsPtr = GetActiveDisplaySpecsPtr (&displaySpecsHandle);
 		continueFlag = (displaySpecsPtr != NULL);
 		
-		}		// end "if (continueFlag)"
+		}	// end "if (continueFlag)"
 				
 	if (continueFlag)
 		{																	
@@ -1599,8 +1623,8 @@ void UpdatePaletteFor16and24BImage (void)
 				// entries.																				
 				
 		numberEntries = 240;
-		if ( displaySpecsPtr->paletteObject && 
-									(*(displaySpecsPtr->paletteObject))->pmEntries < 20 )
+		if (displaySpecsPtr->paletteObject &&
+									(*(displaySpecsPtr->paletteObject))->pmEntries < 20)
 			numberEntries = 14;
 																							
 		resultCode = GetPixMapInfo (
@@ -1624,7 +1648,7 @@ void UpdatePaletteFor16and24BImage (void)
 			numberEntries = (*(displaySpecsPtr->paletteObject))->pmEntries;
 			
 			tempCTableHandle = (CTabHandle)MNewHandle ( 
-						(SInt32)numberEntries*sizeof(ColorSpec) + sizeof(ColorTable) );
+						(SInt32)numberEntries*sizeof(ColorSpec) + sizeof(ColorTable));
 			if ( tempCTableHandle == NULL)					
 																							return;
 					
@@ -1645,7 +1669,7 @@ void UpdatePaletteFor16and24BImage (void)
 					DisposePtr ( gGWorldPlaceHolderList[gNumberAvailableGWorldPtrs] );
 				gGWorldPlaceHolderList[gNumberAvailableGWorldPtrs] = NULL;
 				
-				}		// end "if (gNumberAvailableGWorldPtrs > 0)" 
+				}	// end "if (gNumberAvailableGWorldPtrs > 0)"
 				
 			rect.top = 0;
 			rect.left = 0;	
@@ -1661,7 +1685,7 @@ void UpdatePaletteFor16and24BImage (void)
 												
 			displaySpecsPtr->better8BitPaletteFlag = TRUE;
 							
-			#if !TARGET_API_MAC_CARBON						
+#			if !TARGET_API_MAC_CARBON
 						// Reclaim the placeholder memory.											
 				
 				if (gNumberAvailableGWorldPtrs < kMaxNumberIWindows)
@@ -1672,7 +1696,7 @@ void UpdatePaletteFor16and24BImage (void)
 						gNumberAvailableGWorldPtrs++;
 					
 					}		// end "if (gNumberAvailableGWorldPtrs < kMaxNumberIWindows)" 
-			#endif	// !TARGET_API_MAC_CARBON	
+#			endif	// !TARGET_API_MAC_CARBON
 											
 			UnlockAndDispose ( (Handle)tempCTableHandle );
 			
@@ -1686,7 +1710,7 @@ void UpdatePaletteFor16and24BImage (void)
 			NSetPalette	(gActiveImageWindow, thePictInfo.thePalette, pmAllUpdates);
 			ActivatePalette (gActiveImageWindow);
 			
-			}		// end "if (resultCode == noErr)" 
+			}	// end "if (resultCode == noErr)"
 							
 	   gProcessorCode = 0;
 	   
@@ -1698,5 +1722,5 @@ void UpdatePaletteFor16and24BImage (void)
 		
 	UnlockActiveImageInformationGlobals (handleStatus);
 	
-}		// end "UpdatePaletteFor16and24BImage" 
+}	// end "UpdatePaletteFor16and24BImage" 
 #endif	// defined multispec_mac

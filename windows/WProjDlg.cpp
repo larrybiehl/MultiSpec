@@ -1,5 +1,7 @@
 // WProjDlg.cpp : implementation file
-//               
+//      
+// Revised by Larry Biehl on 08/21/2017
+//
                    
 #include "SMulSpec.h"
  
@@ -1054,8 +1056,8 @@ void CMStatOptionsDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Check(pDX, IDC_ClassStatsOnly, m_classStatsOnlyFlag);
 	DDX_Check(pDX, IDC_SetZeroVariance, m_setZeroVarianceFlag);
 	DDX_Radio(pDX, IDC_MeanStd, m_statCode);
-	DDX_Text(pDX, IDC_minLogDetValue, m_minLogDetValue);
-	DDX_Text(pDX, IDC_Variance, m_varianceValue);
+	DDX_Text2(pDX, IDC_minLogDetValue, m_minLogDetValue);
+	DDX_Text2(pDX, IDC_Variance, m_varianceValue);
 	DDV_MinMaxDouble(pDX, m_varianceValue, 0., 10000.);
 	DDX_Check(pDX, IDC_UseCommonCov, m_useCommonCovarianceInLOOCFlag);
 	//}}AFX_DATA_MAP
@@ -1594,7 +1596,7 @@ void CMEditCoordinatesDlg::OnChangeNewColumnEnd()
 	if (m_selectionUnits == kLineColumnUnits)
 		{
 		if (m_valuePtr[0] != 0)                      
-			DDX_Text(m_dialogFromPtr, IDC_NewColumnEnd, m_newColumnEnd);
+			DDX_Text2(m_dialogFromPtr, IDC_NewColumnEnd, m_newColumnEnd);
 				
 		else		// m_valuePtr[0] == 0
 			m_newColumnEnd = 0; 
@@ -1635,7 +1637,7 @@ void CMEditCoordinatesDlg::OnChangeNewColumnEnd()
 		m_valueChangedFlag = TRUE;
 		
 	if (updateValueFlag)
-		DDX_Text(m_dialogToPtr, IDC_NewColumnEnd, m_newColumnEnd);
+		DDX_Text2(m_dialogToPtr, IDC_NewColumnEnd, m_newColumnEnd);
 
 	if (errorAlertFlag)
 		NumberErrorAlert ((SInt32)m_newColumnEnd, this, IDC_NewColumnEnd);
@@ -1659,7 +1661,7 @@ void CMEditCoordinatesDlg::OnChangeNewLineStart()
 	if (m_selectionUnits == kLineColumnUnits)
 		{     
 		if (m_valuePtr[0] != 0)                      
-			DDX_Text(m_dialogFromPtr, IDC_NewLineStart, m_newLineStart);
+			DDX_Text2(m_dialogFromPtr, IDC_NewLineStart, m_newLineStart);
 				
 		else		// m_valuePtr[0] == 0
 			m_newLineStart = 0; 
@@ -1687,7 +1689,7 @@ void CMEditCoordinatesDlg::OnChangeNewLineStart()
 	else		// m_selectionUnits != kLineColumnUnits
 		{
 		if (m_valuePtr[0] != 0 && !(m_valuePtr[0] == '-' && m_valuePtr[1] == 0))                      
-			DDX_Text(m_dialogFromPtr, IDC_NewLineStart, m_newLineStart);
+			DDX_Text2(m_dialogFromPtr, IDC_NewLineStart, m_newLineStart);
 				
 		else		// m_valuePtr[0] == 0
 			m_newLineStart = 0; 
@@ -1700,7 +1702,7 @@ void CMEditCoordinatesDlg::OnChangeNewLineStart()
 		m_valueChangedFlag = TRUE;
 		
 	if (updateValueFlag)
-		DDX_Text(m_dialogToPtr, IDC_NewLineStart, m_newLineStart);
+		DDX_Text2(m_dialogToPtr, IDC_NewLineStart, m_newLineStart);
 
 	if (errorAlertFlag)
 		NumberErrorAlert ((SInt32)m_newLineStart, this, IDC_NewLineStart);
@@ -1726,7 +1728,7 @@ void CMEditCoordinatesDlg::OnChangeNewLineEnd(void)
 	if (m_selectionUnits == kLineColumnUnits)
 		{  
 		if (m_valuePtr[0] != 0)                      
-			DDX_Text(m_dialogFromPtr, IDC_NewLineEnd, m_newLineEnd);
+			DDX_Text2(m_dialogFromPtr, IDC_NewLineEnd, m_newLineEnd);
 				
 		else		// m_valuePtr[0] == 0
 			m_newLineEnd = 0; 
@@ -1754,7 +1756,7 @@ void CMEditCoordinatesDlg::OnChangeNewLineEnd(void)
 	else		// m_selectionUnits == kLineColumnUnits
 		{
 		if (m_valuePtr[0] != 0 && !(m_valuePtr[0] == '-' && m_valuePtr[1] == 0))                      
-			DDX_Text(m_dialogFromPtr, IDC_NewLineEnd, m_newLineEnd);
+			DDX_Text2(m_dialogFromPtr, IDC_NewLineEnd, m_newLineEnd);
 				
 		else		// m_valuePtr[0] == 0
 			m_newLineEnd = 0; 

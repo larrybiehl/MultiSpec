@@ -13,7 +13,7 @@
 //
 //	Revision number:		3.0
 //
-//	Revision date:			03/15/2017
+//	Revision date:			06/21/2017
 //
 //	Language:				C
 //
@@ -96,11 +96,11 @@
 #endif	// defined multispec_win 
 
 #if defined multispec_lin
-	#include "MultiSpec2.h"
+	#include "LMultiSpec.h"
 	#include "LImageView.h"
 	#include "LImageFrame.h"
 	#define IDOK  wxID_OK
-	#include "LMapCDlg.h"
+	#include "LMapCoordinateDialog.h"
 #endif	// defined multispec_lin
 
 #include	"SExtGlob.h"	
@@ -8301,6 +8301,56 @@ Handle GetMapProjectionHandle (void)
 	return (mapProjectionHandle);
 			
 }		// end "GetMapProjectionHandle" 
+
+ 
+
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		void GetPixelSize
+//
+//	Software purpose:	This routine returns the the pixel sizes.
+//
+//	Parameters in:				
+//
+//	Parameters out:				
+//
+//	Value Returned:	
+// 
+// Called By:
+//
+//	Coded By:			Larry L. Biehl			Date: 08/23/2017
+//	Revised By:			Larry L. Biehl			Date: 08/23/2017		
+
+void GetPixelSize (
+				Handle								mapProjectionHandle,
+				double*								horizontalPixelSizePtr,
+				double*								verticalPixelSizePtr)
+
+{ 
+	MapProjectionInfoPtr				mapProjectionInfoPtr;
+	
+	
+	mapProjectionInfoPtr = (MapProjectionInfoPtr)GetHandlePointer(
+											mapProjectionHandle, kNoLock, kNoMoveHi);
+										
+	if (mapProjectionInfoPtr != NULL)
+		{
+		*horizontalPixelSizePtr = mapProjectionInfoPtr->planarCoordinate.horizontalPixelSize; 
+		*verticalPixelSizePtr = mapProjectionInfoPtr->planarCoordinate.verticalPixelSize;    
+		
+		}	// end "if (mapProjectionInfoPtr != NULL)"
+		
+	else	// mapProjectionInfoPtr == NULL
+		{
+		*horizontalPixelSizePtr = 0; 
+		*verticalPixelSizePtr = 0;
+		
+		}	// end "else mapProjectionInfoPtr == NULL"
+	     	
+}	// end "GetPixelSize" 
 
  
 

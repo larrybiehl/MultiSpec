@@ -1,37 +1,23 @@
 // ===========================================================================
 //	CFileStr.h					Example code from c1993 Metrowerks Inc. All rights reserved.
-// Revised by Larry Biehl  03/14/2017
+//
+// Revised by Larry Biehl  06/22/2017
 // ===========================================================================
 
 #if !defined __MFILESTR_H__
-	#define __MFILESTR_H__ 
-
-	#if defined multispec_mac
-		#include <LFileStream.h>
-		
-		#if !defined (__SCRIPT__)
-			#include <Script.h>
-		#endif 
-		
-	#endif	// defined multispec_mac 
+#	define __MFILESTR_H__ 
 	
-	#define	kUndefined								-1
+#	define	kUndefined								-1
 
-	#if defined multispec_mac
-		#define	kRead									fsRdPerm
-		#define	kWrite								fsWrPerm
-		
-		class	CMFileStream : public LFileStream 
-	#endif	// defined multispec_mac
-
-	#if defined multispec_win 
+#	if defined multispec_win 
 		#define	kRead									CFile::modeRead|CFile::typeBinary
 		#define	kWrite								CFile::modeWrite|CFile::typeBinary
 		 
 		class	CMFileStream : public CFile  
-	#endif	// defined multispec_win 
+#	endif	// defined multispec_win 
 	
-	#if defined multispec_lin
+#	if defined multispec_lin
+		#include "SMulSpec.h"
 		#include <wx/file.h>
 		#include <wx/string.h>
 		#include <wx/filename.h>
@@ -42,14 +28,12 @@
 		#define	kReadWrite     wxFile::read_write
 
 		class CMFileStream : public wxFile
-	#endif	// defined multispec_lin
+#	endif	// defined multispec_lin
       {
 		public:
 										CMFileStream();
-										CMFileStream(
-											CMFileStream				*inputFileStreamPtr);
-										CMFileStream(
-											WideFileStringPtr			inFilePathPtr);
+										CMFileStream(CMFileStream				*inputFileStreamPtr);
+										CMFileStream(WideFileStringPtr		inFilePathPtr);
 									
 			virtual					~CMFileStream();
 			
@@ -76,15 +60,16 @@
 											FileStringPtr				inFilePathPtr);
 			
 			#if defined multispec_win
-				static OSErr		GetFileType (
-											TBYTE*						filePathPtr,
-											long int						*fileTypePtr);    
+				static OSErr			GetFileType (
+												TBYTE*						filePathPtr,
+												long int						*fileTypePtr);    
 			#endif	// defined multispec_win
-			#if !defined multispec_win
-			static OSErr			GetFileType (
-											StringPtr					filePathPtr,
-											long int						*fileTypePtr);   
-			#endif	// !defined multispec_win
+			
+			#if defined multispec_lin
+				static OSErr			GetFileType (
+												WideFileStringPtr			filePathPtr,
+												long int						*fileTypePtr);   
+			#endif	// defined multispec_lin
 			
 			UInt16				GetFileUTF8PathLength (void);  
 			
@@ -152,12 +137,12 @@
 			long int				mCreator,
 									mFileType;  
 
-			UInt16				mUnicodePathLength;
-			UInt16				mUTF8PathLength;
+			int					mUnicodePathLength,
+									mUTF8PathLength;
 
-			UInt32					mFileSize;
-									         
-         #if defined multispec_win
+			UInt32				mFileSize;
+			
+#			if defined multispec_win
 #				if defined _UNICODE
 					TBYTE					mFilePathName[_MAX_PATH];
 #				else
@@ -168,30 +153,34 @@
 						// mUTF8FileName is the UTF8 formatted version
 						// of just the file name
 				UInt8						mUTF8FileName[_MAX_PATH];
-			#endif	// defined multispec_win 
+#			endif	// defined multispec_win 
 									         
-         #if defined multispec_lin
-				Str255			mFilePathName;
-			#endif	// defined multispec_lin
+#			if defined multispec_lin
+				wchar_t					mFilePathName[_MAX_PATH+1];
+				long						m_spaceFiller1;
+				UInt8						mUTF8PathName[_MAX_PATH+1];
+				long						m_spaceFiller2;
+				UInt8						mUTF8FileName[_MAX_PATH+1];
+#			endif	// defined multispec_lin
 									
 		protected:
 			SInt16 				ConvertFileErrorNumber (
 										SInt16						errCode);
 										
-         #if defined multispec_win
+#			if defined multispec_win
 					// buffer pascal version of file  
 #				if defined _UNICODE
 					TBYTE					mPascalFileName[_MAX_PATH];
 #				else
 					char					mPascalFileName[_MAX_PATH]; 
 #				endif
-			#endif	// defined multispec_win
+#			endif	// defined multispec_win
 			
-			#if defined multispec_lin
+#			if defined multispec_lin
 					// buffer pascal version of file             
-				Str255				mPascalFileName;
-				unsigned int open_mode;
-			#endif	// defined multispec_lin
+				wchar_t				mPascalFileName[_MAX_PATH+1];
+				unsigned int		open_mode;
+#			endif	// defined multispec_lin
 		
 		};  
 		

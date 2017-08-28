@@ -7,7 +7,7 @@
 //	Header file for MultiSpec which contain the function prototype information.
 //	
 //	Written 03/29/1988 by Larry L. Biehl
-//	Revised 05/12/2017 by Larry L. Biehl
+//	Revised 08/28/2017 by Larry L. Biehl
 // Revised 06/24/2013 by Abdur Maud
 // Revised 09/23/2015 by Tsung Tai Yeh
 //	
@@ -3270,16 +3270,16 @@ extern UInt32 GetDataConversionCode(
         Boolean* changePossibleFlagPtr);
 
 extern SInt16 GetFile(
-        CMFileStream* fileStreamPtr,
-        SInt16 numberTypes,
-        OSType* fileTypes,
-        LocalAppFile* localAppFilePtr,
-        FSRef* fileAsFSRefPtr,
-        UInt32* itemCountPtr,
-        SInt16 stringIndex);
+				CMFileStream*						fileStreamPtr,
+				SInt16								numberTypes,
+				OSType*								fileTypes,
+				LocalAppFile*						localAppFilePtr,
+				FSRef*								fileAsFSRefPtr,
+				UInt32*								itemCountPtr,
+				SInt16								stringIndex);
 
 extern SInt32 GetFileCreator(
-        CMFileStream* fileStreamPtr);
+				CMFileStream*						fileStreamPtr);
 
 extern void* GetFileNameCPointer(
 				Handle								fileInfoHandle,
@@ -4576,7 +4576,12 @@ extern SInt16 GetGridZone(
 extern double GetMapOrientationAngle(
         Handle mapProjectionHandle);
 
-extern Handle GetMapProjectionHandle(void);
+extern Handle GetMapProjectionHandle(void);		
+
+extern void GetPixelSize (
+				Handle								mapProjectionHandle,
+				double*								horizontalPixelSizePtr,
+				double*								verticalPixelSizePtr);
 
 extern SInt16 GetPlanarMapUnitsCode(
         Handle windowInfoHandle);
@@ -7609,35 +7614,36 @@ extern void GetImageWindowName (
 				UCharPtr								namePtr,
 				Boolean								removeSuffixFlag);
 
-extern SInt16 GetLegendWidthForWindow(
-        Handle windowInfoHandle);
+extern SInt16 GetLegendWidthForWindow (
+				Handle								windowInfoHandle);
 
 extern UInt16 GetNumberLeadingDecimalZeros(
-        double dataValue);
+				double								dataValue);
 
 extern UInt16 GetNumberWholeDigits(
-        double dataValue);
+				double								dataValue);
 
 extern void GetOutputWindowTitle(
-        UCharPtr titleStringPtr);
+				UCharPtr								titleStringPtr);
 
 extern SInt32 GetSpecifiedString(
-        SInt16 stringID,
-        StringHandle* stringHandlePtr,
-        char** stringPtrPtr);
+				SInt16								stringID,
+				StringHandle*						stringHandlePtr,
+				char**								stringPtrPtr);
 
-extern Boolean GetSpecifiedStringNumber(
-        SInt16 strListID,
-        SInt16 index,
-        UCharPtr textStringPtr,
-        Boolean continueFlag);
+extern Boolean GetSpecifiedStringNumber (
+				SInt16								strListID,
+				SInt16								index,
+				UCharPtr								textStringPtr,
+				Boolean								continueFlag);
 
 #if defined multispec_win
-	extern Boolean GetSpecifiedStringNumber(
-			  SInt16				strListID,
-			  SInt16				index,
-			  TBYTE*				textStringPtr,
-			  Boolean			continueFlag);
+	extern Boolean GetSpecifiedStringNumber (
+					SInt16								strListID,
+					SInt16								index,
+					TBYTE*								textStringPtr,
+					Boolean								continueFlag,
+					UInt16								maxStringLength=255);
 #endif
 
 extern char* GetStringToComma(
@@ -8878,44 +8884,52 @@ extern void SetCoordinateViewAreaFactor(
         double coordinateViewAreaFactor);
 
 extern void SetCoordinateViewAreaPopupStart(
-        Handle windowInfoHandle,
-        UInt32 coordinateViewAreaPopupStart);
+				Handle								windowInfoHandle,
+				UInt32								coordinateViewAreaPopupStart);
 
 extern void SetCoordinateViewAreaUnits(
-        Handle windowInfoHandle,
-        SInt16 areaViewUnits);
+				Handle								windowInfoHandle,
+				SInt16								areaViewUnits);
+		  
+extern void SetCoordinateViewAreaUnitsControl (
+				Handle								windowInfoHandle,
+				ControlHandle						coordinateViewAreaUnitsControl);
 
 extern void SetCoordinateViewCursorStart(
-        Handle windowInfoHandle,
-        UInt32 coordinateViewCursorStart);
+				Handle								windowInfoHandle,
+				UInt32								coordinateViewCursorStart);
 
 extern void SetCoordinateViewFactor(
-        Handle windowInfoHandle,
-        double coordinateViewFactor);
+				Handle								windowInfoHandle,
+				double								coordinateViewFactor);
 
 extern void SetCoordinateViewNumberChars(
-        Handle windowInfoHandle,
-        UInt32 coordinateViewNumberChars);
+				Handle								windowInfoHandle,
+				UInt32								coordinateViewNumberChars);
 
 extern void SetCoordinateViewNumberPixelsChars(
-        Handle windowInfoHandle,
-        UInt32 coordinateViewNumberChars);
+				Handle								windowInfoHandle,
+				UInt32								coordinateViewNumberChars);
 
 extern void SetCoordinateViewNumberPixelsStart(
-        Handle windowInfoHandle,
-        UInt32 coordinateViewNumberChars);
+				Handle								windowInfoHandle,
+				UInt32								coordinateViewNumberChars);
 
-extern void SetCoordinateViewScaleStart(
-        Handle windowInfoHandle,
-        UInt32 coordinateViewScaleStart);
+extern void SetCoordinateViewScaleStart (
+				Handle								windowInfoHandle,
+				UInt32								coordinateViewScaleStart);
 
-extern void SetCoordinateViewSelectionStart(
-        Handle windowInfoHandle,
-        UInt32 coordinateViewSelectionStart);
+extern void SetCoordinateViewSelectionStart (
+				Handle								windowInfoHandle,
+				UInt32								coordinateViewSelectionStart);
 
-extern void SetCoordinateViewUnits(
-        Handle windowInfoHandle,
-        SInt16 coordinateViewUnits);
+extern void SetCoordinateViewUnits (
+				Handle								windowInfoHandle,
+				SInt16								coordinateViewUnits);
+		  
+extern void SetCoordinateViewUnitsControl (
+				Handle								windowInfoHandle,
+				ControlHandle						coordinateUnitsControl);
 
 extern void SetHistogramSpecsHandle(
         WindowInfoPtr windowInfoPtr,
@@ -8977,10 +8991,10 @@ extern void UnlockSupportFileStream(
 
 //-----------------------------------------------------------------------------
 #if defined multispec_win || defined multispec_lin
-
-inline void CopyPascalStringToC(ConstStr255Param src, char* dst) {
-    PtoCstring((char*) src, (char*) dst);
-}
+inline void CopyPascalStringToC(ConstStr255Param src, char* dst) 
+	{
+	PtoCstring((char*) src, (char*) dst);
+	}
 #endif	// defined multispec_win
 
 #endif // defined __SPROTOTYPE__

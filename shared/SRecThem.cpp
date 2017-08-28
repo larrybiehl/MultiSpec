@@ -17,7 +17,7 @@
 //
 //	Revision number:		3.3
 //
-//	Revision date:			03/18/2017
+//	Revision date:			06/21/2017
 //
 //	Language:				C
 //
@@ -33,7 +33,12 @@
 //	Include files:			"MultiSpecHeaders"
 //								"multiSpec.h"
 
-#include	"SMulSpec.h" 
+#include	"SMulSpec.h"   
+
+#if defined multispec_lin
+	#define	IDOK									1
+	#include "LRecodeThematicImageDialog.h"
+#endif	// defined multispec_lin
 
 #if defined multispec_mac
 	#define	IDOK									1
@@ -45,12 +50,7 @@
 #if defined multispec_win
 	#include "CImagWin.h"
 	#include "WRecTDlg.h"
-#endif	// defined multispec_win   
-
-#if defined multispec_lin
-	#define	IDOK									1
-	#include "LRecTDlg.h"
-#endif
+#endif	// defined multispec_win 
 
 #include "SExtGlob.h"
 
@@ -1644,7 +1644,7 @@ void RecodeThematicImageDialogSetThresholdFileName (
 				
 			dialogPtr->SetComboItemText (thresholdPopupItemNumber, 
 														menuItemNumber-1, 
-														&fileNamePPointer[1]);
+														(char*)&fileNamePPointer[1]);
 #		endif
 		}		// end "if (fileNamePPointer != NULL)"
 	
@@ -1742,8 +1742,8 @@ void RecodeThematicImageDialogSetThresholdItems (
       #if defined multispec_lin
          SignedByte							handleStatus;
 			
-			fileNamePPointer = GetFileNamePPointer (thresholdFileInfoHandle,
-																	&handleStatus);
+			fileNamePPointer = (FileStringPtr)GetFileNamePPointer (thresholdFileInfoHandle,
+																						&handleStatus);
 
 			RecodeThematicImageDialogSetThresholdFileName (
 													fileNamePPointer,

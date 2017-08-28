@@ -1,6 +1,6 @@
 // WClsfDlg.cpp : implementation file
 //   
-// Revised by Larry Biehl on 05/26/2017
+// Revised by Larry Biehl on 08/21/2017
 //
                    
 #include "SMulSpec.h"
@@ -279,12 +279,12 @@ void CMClassifyDialog::DoDataExchange(CDataExchange* pDX)
 	     
 	if (!pDX->m_bSaveAndValidate)
 		{
-		DDX_Text(pDX, IDC_CorrelationThresold, m_angleThreshold);
-		DDX_Text(pDX, IDC_CorrelationCoefficient, m_correlationThreshold);
+		DDX_Text2(pDX, IDC_CorrelationThresold, m_angleThreshold);
+		DDX_Text2(pDX, IDC_CorrelationCoefficient, m_correlationThreshold);
 	                                        
-		DDX_Text(pDX, IDC_CEMThreshold, m_cemThreshold);       
+		DDX_Text2(pDX, IDC_CEMThreshold, m_cemThreshold);       
 				
-		DDX_Text(pDX, IDC_ThresholdValue, m_thresholdPercent);
+		DDX_Text2(pDX, IDC_ThresholdValue, m_thresholdPercent);
 		
 		}		// end "if (!pDX->m_bSaveAndValidate)" 
 	
@@ -300,24 +300,24 @@ void CMClassifyDialog::DoDataExchange(CDataExchange* pDX)
 		   
 		   if (m_classificationProcedure == kCorrelationMode)
 		   	{                                              
-				DDX_Text(pDX, IDC_CorrelationThresold, m_angleThreshold);          
+				DDX_Text2(pDX, IDC_CorrelationThresold, m_angleThreshold);          
 				DDV_MinMaxDouble(pDX, m_angleThreshold, 0., 180.);
 			                                        
-				DDX_Text(pDX, IDC_CorrelationCoefficient, m_correlationThreshold);                              
+				DDX_Text2(pDX, IDC_CorrelationCoefficient, m_correlationThreshold);                              
 				DDV_MinMaxDouble(pDX, m_correlationThreshold, 0., 1.);
 				
 				}		// end "if (m_classificationProcedure == kCorrelationMode)"
 				
 			else if (m_classificationProcedure == kCEMMode)
 				{                                           
-				DDX_Text(pDX, IDC_CEMThreshold, m_cemThreshold);    
+				DDX_Text2(pDX, IDC_CEMThreshold, m_cemThreshold);    
 				DDV_MinMaxDouble(pDX, m_cemThreshold, 0., 1.);
 				
 				}		// end "else if (m_classificationProcedure == kCEMMode)"
 			
 			else		// m_classificationProcedure != kCEMMode || ...
 				{                                                
-				DDX_Text(pDX, IDC_ThresholdValue, m_thresholdPercent);      
+				DDX_Text2(pDX, IDC_ThresholdValue, m_thresholdPercent);      
 				DDV_MinMaxDouble(pDX, m_thresholdPercent, 0., 100.); 
 				
 				}		// end "m_classificationProcedure != kCEMMode || ..."
@@ -1274,7 +1274,7 @@ void
 CMClassifyDialog::OnChangeCorrelationCoefficient()
 
 {        
-	DDX_Text(m_dialogFromPtr, IDC_CorrelationCoefficient, m_correlationThreshold);
+	DDX_Text2(m_dialogFromPtr, IDC_CorrelationCoefficient, m_correlationThreshold);
 	                                                   
 //	if (thresholdValue > 1)
 //		RealNumberErrorAlert (saveCorrelationThreshold, dialogPtr, 46, 4);
@@ -1285,7 +1285,7 @@ CMClassifyDialog::OnChangeCorrelationCoefficient()
 		m_angleThreshold = (float)(
 						acos(m_saveCorrelationThreshold) * kRadiansToDegrees);
 		m_saveAngleThreshold = m_angleThreshold;
-		DDX_Text(m_dialogToPtr, IDC_CorrelationThresold, m_angleThreshold);
+		DDX_Text2(m_dialogToPtr, IDC_CorrelationThresold, m_angleThreshold);
 				
 		}		// end "if (m_correlationThreshold >= 0 && ..."
 	
@@ -1296,7 +1296,7 @@ CMClassifyDialog::OnChangeCorrelationCoefficient()
 void 
 CMClassifyDialog::OnChangeCorrelationThresold()
 {                                 
-	DDX_Text(m_dialogFromPtr, IDC_CorrelationThresold, m_angleThreshold);
+	DDX_Text2(m_dialogFromPtr, IDC_CorrelationThresold, m_angleThreshold);
 	                          	                         
 //	if (thresholdValue > 180)
 //		RealNumberErrorAlert (saveAngleThreshold, dialogPtr, 47, 1); 
@@ -1307,7 +1307,7 @@ CMClassifyDialog::OnChangeCorrelationThresold()
 		m_correlationThreshold = (float)cos(
 										m_angleThreshold * kDegreesToRadians); 
 		m_saveCorrelationThreshold = m_correlationThreshold;   
-		DDX_Text(m_dialogToPtr, IDC_CorrelationCoefficient, m_correlationThreshold);
+		DDX_Text2(m_dialogToPtr, IDC_CorrelationCoefficient, m_correlationThreshold);
 						
 		}		// end "if (thresholdValue >= 0 && ..."
 	

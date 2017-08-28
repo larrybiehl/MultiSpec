@@ -13,7 +13,7 @@
 //
 //	Revision number:		3.0
 //
-//	Revision date:			03/28/2017
+//	Revision date:			06/21/2017
 //
 //	Include files:			"MultiSpecHeaders"
 //
@@ -42,6 +42,12 @@
 //------------------------------------------------------------------------------------
 
 #include "SMulSpec.h"
+
+#if defined multispec_lin
+	 #include "LImageView.h"
+	 #include "LMultiSpec.h"
+	 #include "LReformatRectifyDialog.h"
+#endif	// defined multispec_lin 
 	
 #if defined multispec_mac 
 	#define	IDC_LineInterval						11
@@ -71,12 +77,6 @@
 #if defined multispec_win
 	 #include "WReformatRectifyDlg.h"
 #endif	// defined multispec_win 
-
-#if defined multispec_lin
-	 #include "LReformatRectifyDlg.h"
-	 #include "MultiSpec2.h"
-	 #include "LImageView.h"
-#endif	// defined multispec_lin 
  
 #include	"SExtGlob.h"	
 
@@ -532,7 +532,7 @@ void GetMappingMatrix (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 02/15/2007
-//	Revised By:			Larry L. Biehl			Date: 03/18/2017	
+//	Revised By:			Larry L. Biehl			Date: 06/16/2017	
 
 SInt16 GetReprojectToImageList (
 				DialogPtr							dialogPtr, 
@@ -657,7 +657,7 @@ SInt16 GetReprojectToImageList (
 					if (includeFlag) 
 						{
 						imageListLength++;
-						FileStringPtr fileNamePtr = GetFileNamePPointer (fileInfoPtr);
+						FileStringPtr fileNamePtr = (FileStringPtr)GetFileNamePPointer (fileInfoPtr);
 						comboBoxPtr->SetValue(&fileNamePtr[1]);
 						comboBoxPtr->Append(&fileNamePtr[1]);
 						//comboBoxPtr->SetValue(wxString::Format(wxT("%s"), (char*)&fileNamePtr[1]));

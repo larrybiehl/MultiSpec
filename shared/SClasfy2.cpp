@@ -13,7 +13,7 @@
 //
 //	Revision number:		3.0
 //
-//	Revision date:			04/11/2017
+//	Revision date:			06/21/2017
 //
 //	Language:				C
 //
@@ -38,8 +38,16 @@
 //	Include files:			"MultiSpecHeaders"
 //								"multiSpec.h"
 
-#include	"SMulSpec.h"
+#include	"SMulSpec.h"  
 #include "SExtGlob.h" 
+
+#if defined multispec_lin    
+	#include "LClassifyCEMDialog.h" 
+	#include "LClassifyCorrelationDialog.h"
+	#include "LClassifyDialog.h"
+	#include "LClassifyEchoDialog.h"
+	#include "LListResultsOptionsDialog.h"
+#endif	// defined multispec_lin 
 
 #if defined multispec_mac 
 	#define	IDC_FeatureTransformation		6
@@ -61,15 +69,7 @@
 	#include "WCCorDlg.h"
 	#include "WEchoDlg.h" 
 	#include "WLiOpDlg.h"   
-#endif	// defined multispec_win    
-
-#if defined multispec_lin  
-	#include "LClsfdlg.h"   
-	#include "Lliopdlg.h"
-	#include "LEchodlg.h"
-	#include "lccemdlg.h"
-	#include "lccordlg.h"
-#endif	// defined multispec_lin  
+#endif	// defined multispec_win   
 	
 		// Classify Output File Format Popup Menu; Note these are 1 based.
 		                            
@@ -1115,7 +1115,7 @@ Boolean ClassifyDialog (
 					break;
 						
 				case 6:		// Feature transformation flag. 
-					ChangeDLogCheckBox ( (ControlHandle)theHandle );
+					ChangeDLogCheckBox ((ControlHandle)theHandle);
 					featureTransformationFlag = !featureTransformationFlag;
 					checkFeatureTransformFlag = TRUE;
 					break;
@@ -1597,7 +1597,7 @@ Boolean ClassifyDialog (
 				
 						// Force the channel popup box to be updated.
 						
-				InvalWindowRect ( GetDialogWindow(dialogPtr), &theChannelPopupBox );
+				InvalWindowRect (GetDialogWindow(dialogPtr), &theChannelPopupBox);
 															
 				}		// end "if (checkFeatureTransformFlag)"
 				

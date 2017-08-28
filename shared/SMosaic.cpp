@@ -13,7 +13,7 @@
 //
 //	Revision number:		3.0
 //
-//	Revision date:			05/26/2017
+//	Revision date:			06/21/2017
 //
 //	Language:				C
 //
@@ -39,8 +39,13 @@
 
 #include	"SMulSpec.h"
 
+#if defined multispec_lin  
+	#include "LImageView.h" 
+	#include	"LMosaicTwoImagesDialog.h" 
+	#include "LMultiSpec.h"
+#endif	// defined multispec_lin  
+
 #if defined multispec_mac
-//#if defined multispec_mac || defined multispec_lin
 	#define	IDC_MosaicDirection					4
 	#define	IDC_LeftTopPrompt						5
 	#define	IDC_LeftTopImage						6
@@ -80,19 +85,9 @@
 #endif	// defined multispec_mac 
   
 #if defined multispec_win   
-	//#include	"SMulSpec.h"    
 	#include	"WMosaicTwoImagesDialog.h" 
 	#include "SExtGlob.h"
-#endif	// defined multispec_win    
-
-#if defined multispec_lin   
-	//#include	"SMulSpec.h"    
-	#include	"LMosaicTwoImagesDialog.h" 
-	 #include "MultiSpec2.h"
-	 #include "LImageView.h"
-//#define TRUE true
-//#define FALSE false
-#endif	// defined multispec_win    
+#endif	// defined multispec_win      
 
 
 

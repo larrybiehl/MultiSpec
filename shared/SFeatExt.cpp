@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -14,7 +14,7 @@
 //
 //	Revision number:		3.0
 //
-//	Revision date:			05/13/2016
+//	Revision date:			06/21/2017
 //
 //	Language:				C
 //
@@ -123,10 +123,14 @@
 														gEndOfLine);
 			ListString ((char*)&gTextString3, numberChars, gOutputTextH); 
 */																		
-
 //------------------------------------------------------------------------------------
 
-#include	"SMulSpec.h" 
+#include	"SMulSpec.h"    
+
+#if defined multispec_lin
+	#include "LFeatureExtractionDialog.h"
+	#include "LProjectionPursuitDialog.h"
+#endif	// defined multispec_lin 
 
 #if defined multispec_mac  
 	#define	IDC_WeightsPrompt				8
@@ -165,12 +169,6 @@
 	#include "WFExtDlg.h"
 	#include "WProjectionPursuitDialog.h"
 #endif	// defined multispec_win    
-
-#if defined multispec_lin
-	#include "LFExtDlg.h"
-	#include "LProjectionPursuitDialog.h"
-#endif	// defined multispec_lin    
-
 
 #include "SExtGlob.h"
 #include	"SFS.h"
@@ -319,7 +317,7 @@ Boolean	 			LoadFeatureExtractionSpecs (void);
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -358,7 +356,7 @@ PascalVoid DrawFEAlgorithmPopUp (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -396,7 +394,7 @@ PascalVoid DrawPreprocessingPopUp (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1020,7 +1018,7 @@ Boolean FeatureExtraction (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1326,7 +1324,7 @@ void FeatureExtractionControl (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2020,7 +2018,7 @@ void FeatureExtractionDialogAlgorithm (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2167,7 +2165,7 @@ void FeatureExtractionDialogInitialize (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2299,7 +2297,7 @@ void FeatureExtractionDialogOK (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2347,7 +2345,7 @@ void FeatureExtractionDialogOptimizeClass (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2443,7 +2441,7 @@ void FeatureExtractionDialogUpdateSpecialOptions (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2531,7 +2529,7 @@ void GetTranformationFeatureMeans (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2665,7 +2663,7 @@ Boolean ListFeatureExtractionOptions (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2963,7 +2961,7 @@ Boolean LoadFeatureExtractionSpecs (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3209,7 +3207,7 @@ Boolean ListPPOptions (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3610,7 +3608,7 @@ Boolean ProjectionPursuitDialog (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3705,7 +3703,7 @@ void ProjectionPursuitDialogInitialize (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

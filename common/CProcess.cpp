@@ -221,4 +221,4 @@ CMProcessor::GetSelectionAreaCPtr (
 	
 }		// end "GetSelectionAreaCPtr"
 
-#endif	// defined _X86_ || defined _AMD64_
+#endif	// defined _X86_ 

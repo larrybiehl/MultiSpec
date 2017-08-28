@@ -20,100 +20,88 @@
 //
 //	Revision number:		3.0
 //
-//	Revision date:			03/13/2017 by Larry Biehl
+//	Revision date:			08/02/2017 by Larry Biehl
 //								01/24/2013 by Abdur Maud
 //
 // Declare Global Variables 
 #ifndef __SDECGLOBAL__
 #define __SDECGLOBAL__
 
-//#include "SMulSpec.h"
 #if defined multispec_lin
+	#include "wx/pen.h"
+	#include "wx/region.h"
+	#include <math.h>
+	#include <float.h>
+	#define CPen wxPen
+	#define CRgn wxRegion
 
-//#define FALSE false;
-//#define TRUE true;
-//#define	noErr 0;
-//# include "SGraphic.h"
-#include "wx/pen.h"
-#include "wx/region.h"
-#include <math.h>
-#include <float.h>
-#define CPen wxPen
-#define CRgn wxRegion
+			// current windows CDC pointer. This is only used by Windows and Linux.
+	wxDC*			gCDCPointer = NULL;
+	
+			// Storage for default (last used directory) for file input
+   wxString		gDefaultDataDirectory;
 
+			// Data to assign to each entry in wxCombo in coordinatebar
+	SInt16      gLineColumnUnitsMenuItem = 1;
+	SInt16      gUnknownUnitsMenuItem = 2;
+	SInt16      gDecimalLatLongUnitsMenuItem = 3;
+	SInt16      gDMSLatLongUnitsMenuItem = 4;
+	SInt16      gKilometersUnitsMenuItem = 5;
+	SInt16      gMetersUnitsMenuItem = 6;
+	SInt16      gCentimetersUnitsMenuItem = 7;
+	SInt16      gMillimetersUnitsMenuItem = 8;
+	SInt16      gMicrometersUnitsMenuItem = 9;
+	SInt16      gMilesUnitsMenuItem = 10;
+	SInt16      gYardsUnitsMenuItem = 11;
+	SInt16      gFeetUnitsMenuItem = 12;
+	SInt16      gInchesUnitsMenuItem = 13;
 
-// current windows CDC pointer. This is only used by Windows and Linux.
-wxDC*                             gCDCPointer = NULL;
+			// Area Units Popup Menu data variables
+	SInt16		gNumberPixelsUnitsMenuItem = 1;
+	SInt16		gAreaUnknownUnitsMenuItem = 2;
+	SInt16		gSqKilometersUnitsMenuItem = 3;
+	SInt16		gHectareUnitsMenuItem = 4;
+	SInt16		gSqMetersUnitsMenuItem = 5;
+	SInt16		gSqCentimetersUnitsMenuItem = 6;
+	SInt16		gSqMillimetersUnitsMenuItem = 7;
+	SInt16		gSqMicrometersUnitsMenuItem = 8;
+	SInt16		gSqMilesUnitsMenuItem = 9;
+	SInt16		gAcresUnitsMenuItem = 10;
+	SInt16		gSqYardsUnitsMenuItem = 11;
+	SInt16		gSqFeetUnitsMenuItem = 12;
+	SInt16		gSqInchesUnitsMenuItem	= 13;
 
-			
+	int			g4BitUnsignedIntegerMenuItem	= k4BitUnsignedIntegerMenuItem;
+	int			g1ByteSignedIntegerMenuItem = k1ByteSignedIntegerMenuItem;
+	int			g1ByteUnsignedIntegerMenuItem = k1ByteUnsignedIntegerMenuItem;
+	int			g2ByteSignedIntegerMenuItem = k2ByteSignedIntegerMenuItem;
+	int			g2ByteUnsignedIntegerMenuItem = k2ByteUnsignedIntegerMenuItem;
+	int			g4ByteSignedIntegerMenuItem = k4ByteSignedIntegerMenuItem;
+	int			g4ByteUnsignedIntegerMenuItem = k4ByteUnsignedIntegerMenuItem;
+	int			g4ByteRealMenuItem	= k4ByteRealMenuItem;
+	int			g8ByteRealMenuItem	= k8ByteRealMenuItem;
 
-// Data to assign to each entry in wxCombo in coordinatebar
-SInt16      gLineColumnUnitsMenuItem = 1;
-SInt16      gUnknownUnitsMenuItem = 2;
-SInt16      gDecimalLatLongUnitsMenuItem = 3;
-SInt16      gDMSLatLongUnitsMenuItem = 4;
-SInt16      gKilometersUnitsMenuItem = 5;
-SInt16      gMetersUnitsMenuItem = 6;
-SInt16      gCentimetersUnitsMenuItem = 7;
-SInt16      gMillimetersUnitsMenuItem = 8;
-SInt16      gMicrometersUnitsMenuItem = 9;
-SInt16      gMilesUnitsMenuItem = 10;
-SInt16      gYardsUnitsMenuItem = 11;
-SInt16      gFeetUnitsMenuItem = 12;
-SInt16      gInchesUnitsMenuItem = 13;
+	int			gNoneMenuItem = kNoneMenuItem;
+	int			gArcViewMenuItem = kArcViewMenuItem;
+	int			gERDAS74MenuItem = kERDAS74MenuItem;
+	int			gGAIAMenuItem = kGAIAMenuItem;
+	int			gTIFFGeoTIFFMenuItem = kTIFFGeoTIFFMenuItem;
+	int			gMatlabMenuItem = kMatlabMenuItem;
 
-// Area Units Popup Menu data variables
-
-SInt16	gNumberPixelsUnitsMenuItem = 1;
-SInt16	gAreaUnknownUnitsMenuItem = 2;
-SInt16	gSqKilometersUnitsMenuItem = 3;
-SInt16	gHectareUnitsMenuItem = 4;
-SInt16	gSqMetersUnitsMenuItem = 5;
-SInt16	gSqCentimetersUnitsMenuItem = 6;
-SInt16	gSqMillimetersUnitsMenuItem = 7;
-SInt16	gSqMicrometersUnitsMenuItem = 8;
-SInt16	gSqMilesUnitsMenuItem = 9;
-SInt16	gAcresUnitsMenuItem = 10;
-SInt16	gSqYardsUnitsMenuItem = 11;
-SInt16	gSqFeetUnitsMenuItem = 12;
-SInt16	gSqInchesUnitsMenuItem	= 13;
-
-		// Pointer the the graph record currently being used.
-//GraphPtr	gGraphRecordPtr = NULL;
-
-int	g4BitUnsignedIntegerMenuItem	= k4BitUnsignedIntegerMenuItem;
-int	g1ByteSignedIntegerMenuItem = k1ByteSignedIntegerMenuItem;
-int	g1ByteUnsignedIntegerMenuItem = k1ByteUnsignedIntegerMenuItem;
-int	g2ByteSignedIntegerMenuItem = k2ByteSignedIntegerMenuItem;
-int	g2ByteUnsignedIntegerMenuItem = k2ByteUnsignedIntegerMenuItem;
-int	g4ByteSignedIntegerMenuItem = k4ByteSignedIntegerMenuItem;
-int	g4ByteUnsignedIntegerMenuItem = k4ByteUnsignedIntegerMenuItem;
-int	g4ByteRealMenuItem	= k4ByteRealMenuItem;
-int	g8ByteRealMenuItem	= k8ByteRealMenuItem;
-
-int	gNoneMenuItem = kNoneMenuItem;
-int	gArcViewMenuItem = kArcViewMenuItem;
-int	gERDAS74MenuItem = kERDAS74MenuItem;
-int	gGAIAMenuItem = kGAIAMenuItem;
-int   gTIFFGeoTIFFMenuItem = kTIFFGeoTIFFMenuItem;
-int	gMatlabMenuItem = kMatlabMenuItem;
-
-
-int   gNoPaletteColorsDefined = 0;
-int   gDefaultColors = 1;
-int   gDefaultGrays = 2;
-int   gCorrelationMatrixColors = 3;
-int   gAVHRR_NDVI_Colors = 4;
-int   gMODIS_NDVI_Colors = 5;
-int   gFalseColors = 6;
-int   gImageDefaultColorTable = 7;
-int   gUserDefinedColors = 8;
-int   gCopyColorsFromClassTable = 9;
-int   gProbablilityColors = 10;
-int   gComputedGrays = 11;
-int   gPaletteHandle = 12;
-int   gProbablilityColors2 = 13;
-
+	int			gNoPaletteColorsDefined = 0;
+	int			gDefaultColors = 1;
+	int			gDefaultGrays = 2;
+	int			gCorrelationMatrixColors = 3;
+	int			gAVHRR_NDVI_Colors = 4;
+	int			gMODIS_NDVI_Colors = 5;
+	int			gFalseColors = 6;
+	int			gImageDefaultColorTable = 7;
+	int			gUserDefinedColors = 8;
+	int			gCopyColorsFromClassTable = 9;
+	int			gProbablilityColors = 10;
+	int			gComputedGrays = 11;
+	int			gPaletteHandle = 12;
+	int			gProbablilityColors2 = 13;
 #endif   // defined multispec_lin
 
 typedef struct 	DecisionTreeVar 
@@ -935,7 +923,7 @@ Str255							gTextString3;
 		// Date version string
 		// Application identifier string
 //#if defined multispec_mac
-	char								gDateVersionString[16];
+	char								gDateVersionString[64];
 	char								gApplicationIdentifierString[64];
 //#else
 //	wchar_t							gDateVersionString[16];

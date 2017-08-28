@@ -13,7 +13,7 @@
 //
 //	Revision number:		3.0
 //
-//	Revision date:			05/18/2017
+//	Revision date:			07/07/2017
 //
 //	Language:				C
 //
@@ -163,12 +163,13 @@
 
 #if defined multispec_lin
 	#define	IDOK	1
-	#include "LProjDlg.h"
-	#include	"MultiSpec2.h"
-	#include "LStatFrm.h"
-	#include "LStatView.h"
 	#include "LImageView.h"
-	#include "LNewClass.h"
+	#include	"LMultiSpec.h"
+	#include "LNewClassFieldDialog.h"
+	#include "LStatisticsDialog.h"
+	#include "LStatisticsOptionsDialog.h"
+	#include "LStatisticsFrame.h"
+	#include "LStatisticsView.h"
 	#include "wx/wx.h"
 	#include "wx/docview.h"
 #endif
@@ -5890,10 +5891,10 @@ Boolean NewClassFieldDialog(
 			dialogPtr = new CMNewClassFieldDlg();
 
 			OKFlag = dialogPtr->DoDialog(
-			newClassOnlyFlag,
-			classNamePtr,
-			fieldNamePtr,
-			fieldTypePtr);
+										newClassOnlyFlag,
+										(char*)classNamePtr,
+										(char*)fieldNamePtr,
+										fieldTypePtr);
 
 			delete dialogPtr;
 			}
@@ -7070,7 +7071,7 @@ void StatisticsControl(void) {
 // Called By:			StatisticsControl   in statistics.c
 //
 //	Coded By:			Larry L. Biehl			Date: 09/26/1988
-//	Revised By:			Larry L. Biehl			Date: 05/02/2017
+//	Revised By:			Larry L. Biehl			Date: 07/06/2017
 
 SInt16 StatisticsDialog (
 				SInt16*								featurePtr,
@@ -7441,7 +7442,6 @@ SInt16 StatisticsDialog (
 													  
 				}	// end "if (itemHit == 1 && gMaskTrainImageSelection == 3 && ..."
 													  
-				
 			testLayerNumber = 1;
 			if (itemHit == 1 && gMaskTestImageSelection == 3 && maxNumberTestLayers > 1)
 				{
@@ -8050,19 +8050,19 @@ SInt16 StatisticsDialogSelectMaskItem (
 		{
 				// Select a new training mask file.
 
-      SetDLogControlHilite(dialogPtr, IDOK, 255);
+      SetDLogControlHilite (dialogPtr, IDOK, 255);
 
       *maskFileInfoHandlePtr = GetMaskFile (*maskFileInfoHandlePtr,
 															selectStringNumber);
 
-      SetDLogControlHilite(dialogPtr, IDOK, 0);
+      SetDLogControlHilite (dialogPtr, IDOK, 0);
 
       if (*maskFileInfoHandlePtr != NULL)
 			{
          fileNamePPointer = (FileStringPtr)GetFileNamePPointer (
 														*maskFileInfoHandlePtr,
 														&handleStatus);
-
+			
          StatisticsDialogSetMaskFileName (fileNamePPointer,
 														popUpSelectMaskImageMenu,
 														dialogPtr,
@@ -8303,95 +8303,97 @@ void StatisticsDialogOK (
 // Called By:			StatisticsControl   in statistics.c
 //
 //	Coded By:			Larry L. Biehl			Date: 07/19/1993
-//	Revised By:			Larry L. Biehl			Date: 12/16/2016
+//	Revised By:			Larry L. Biehl			Date: 07/07/2017
 
 Boolean StatisticsOptionsDialog(
 				SInt16*								statCodePtr,
-   Boolean* keepClassStatsFlagPtr,
-   double* variancePtr,
-   double* minLogDeterminantPtr,
-   Boolean* useCommonCovarianceInLOOCFlagPtr) {
-   Boolean returnFlag = FALSE;
+				Boolean*								keepClassStatsFlagPtr,
+				double*								variancePtr,
+				double*								minLogDeterminantPtr,
+				Boolean*								useCommonCovarianceInLOOCFlagPtr) 
+{
+	Boolean returnFlag = FALSE;
 
 #if defined multispec_mac
+	Rect									theBox;
 
-   Rect theBox;
+   double								localMinLogDeterminant,
+											localVariance,
+											//maximumNaturalLogValue,
+											//minimumNaturalLogValue,
+											theNum;
 
-   double localMinLogDeterminant,
-      localVariance,
-      //											maximumNaturalLogValue,
-      //											minimumNaturalLogValue,
-      theNum;
+   DialogPtr							dialogPtr;
 
-   DialogPtr dialogPtr;
+   Handle								theHandle;
 
-   Handle theHandle;
+   SInt16								itemHit,
+											localStatCode,
+											theType;
 
-   SInt16 itemHit,
-      localStatCode,
-      theType;
-
-   Boolean localSetZeroVarianceFlag,
-      localUseCommonCovarianceInLOOCFlag,
-      modalDone;
+   Boolean								localSetZeroVarianceFlag,
+											localUseCommonCovarianceInLOOCFlag,
+											modalDone;
 
 
-   // Get the modal dialog for the reformat specification					
+			// Get the modal dialog for the reformat specification					
 
-   dialogPtr = LoadRequestedDialog(kStatisticsOptionsDialogID, kCopyScrap, 1, 2);
+   dialogPtr = LoadRequestedDialog (kStatisticsOptionsDialogID, kCopyScrap, 1, 2);
    if (dialogPtr == NULL)
-      return (0);
+																									return (0);
 
-   // Statistics to be computed.														
+			// Statistics to be computed.														
 
    localStatCode = *statCodePtr;
-   SetDLogControl(dialogPtr, 5, (localStatCode == kMeanStdDevOnly));
-   SetDLogControl(dialogPtr, 6, (localStatCode == kMeanCovariance));
+   SetDLogControl (dialogPtr, 5, (localStatCode == kMeanStdDevOnly));
+   SetDLogControl (dialogPtr, 6, (localStatCode == kMeanCovariance));
 
-   // Keep only class statistics in memory.										
+			// Keep only class statistics in memory.										
 
-   SetDLogControl(dialogPtr, 7, *keepClassStatsFlagPtr);
+   SetDLogControl (dialogPtr, 7, *keepClassStatsFlagPtr);
 
    localSetZeroVarianceFlag = (*variancePtr > 0);
-   if (localStatCode == kMeanCovariance) {
-      SetDLogControl(dialogPtr, 8, localSetZeroVarianceFlag);
+   if (localStatCode == kMeanCovariance) 
+		{
+      SetDLogControl (dialogPtr, 8, localSetZeroVarianceFlag);
 
-      ShowHideDialogItem(dialogPtr, 9, localSetZeroVarianceFlag);
+      ShowHideDialogItem (dialogPtr, 9, localSetZeroVarianceFlag);
 
-   }// end "if (localStatCode == kMeanCovariance)" 
+		}	// end "if (localStatCode == kMeanCovariance)" 
 
    else // localStatCode != kMeanCovariance 
-   {
+		{
       SetDLogControl(dialogPtr, 8, 0);
       SetDLogControlHilite(dialogPtr, 8, 255);
       HideDialogItems(dialogPtr, 9, 11);
 
-   } // end "else localStatCode != kMeanCovariance" 
+		}	// end "else localStatCode != kMeanCovariance" 
 
-   localVariance = fabs(*variancePtr);
-   LoadDItemRealValue(dialogPtr, 9, localVariance, 6);
+   localVariance = fabs (*variancePtr);
+   LoadDItemRealValue (dialogPtr, 9, localVariance, 6);
 
-   // Minimum log determinant allowed for valid matrix inversion.
+			// Minimum log determinant allowed for valid matrix inversion.
 
-   //	maximumNaturalLogValue = DBL_MAX_10_EXP * log(10);
-   //	minimumNaturalLogValue = DBL_MIN_10_EXP * log(10);
+   //maximumNaturalLogValue = DBL_MAX_10_EXP * log(10);
+   //minimumNaturalLogValue = DBL_MIN_10_EXP * log(10);
    localMinLogDeterminant = *minLogDeterminantPtr;
-   LoadDItemRealValue(dialogPtr, 11, localMinLogDeterminant, 6);
+   LoadDItemRealValue (dialogPtr, 11, localMinLogDeterminant, 6);
 
    localUseCommonCovarianceInLOOCFlag = (*useCommonCovarianceInLOOCFlagPtr);
-   if (localStatCode == 1) {
-      SetDLogControlHilite(dialogPtr, 12, 255);
+   if (localStatCode == 1) 
+		{
+      SetDLogControlHilite (dialogPtr, 12, 255);
       localUseCommonCovarianceInLOOCFlag = false;
 
-   } // end "if (localStatCode == 1)" 
+		}	// end "if (localStatCode == 1)" 
 
-   // Use covariance in leave-one-out calculations
+			// Use covariance in leave-one-out calculations
 
-   SetDLogControl(dialogPtr, 12, localUseCommonCovarianceInLOOCFlag);
+   SetDLogControl (dialogPtr, 12, localUseCommonCovarianceInLOOCFlag);
 
-   // Center the dialog and then show it.											
+			// Center the dialog and then show it.											
 
-   ShowDialogWindow(dialogPtr, kStatisticsOptionsDialogID, kSetUpDFilterTable);
+   ShowDialogWindow (dialogPtr, kStatisticsOptionsDialogID, kSetUpDFilterTable);
 
    gDialogItemDescriptorPtr[9] = kDItemReal;
    gDialogItemDescriptorPtr[11] = kDItemReal + kDItemMinus;
@@ -8400,78 +8402,87 @@ Boolean StatisticsOptionsDialog(
    if (localStatCode == kMeanCovariance && localSetZeroVarianceFlag)
       itemHit = 9;
 
-   SelectDialogItemText(dialogPtr, itemHit, 0, INT16_MAX);
+   SelectDialogItemText (dialogPtr, itemHit, 0, INT16_MAX);
 
    modalDone = false;
    itemHit = 0;
-   do {
-      ModalDialog(gProcessorDialogFilterPtr, &itemHit);
-      if (itemHit > 2) {
-         // If itemHit was a radio button make appropriate control		
-         // settings to indicate to the user the present selection.		
-         // Get the handle to the itemHit.										
+   do 
+		{
+      ModalDialog (gProcessorDialogFilterPtr, &itemHit);
+      if (itemHit > 2) 
+			{
+					// If itemHit was a radio button make appropriate control		
+					// settings to indicate to the user the present selection.		
+					// Get the handle to the itemHit.										
 
-         GetDialogItem(dialogPtr, itemHit, &theType, &theHandle, &theBox);
+         GetDialogItem (dialogPtr, itemHit, &theType, &theHandle, &theBox);
 
-         switch (itemHit) {
+         switch (itemHit) 
+				{
             case 5: // Compute mean and standard deviation only 
 
-               if (localStatCode == 2) {
-                  if (ProjectMenuClearStatistics()) {
-                     SetControlValue((ControlHandle) theHandle, 1);
-                     SetDLogControl(dialogPtr, 6, 0);
+               if (localStatCode == 2) 
+						{
+                  if (ProjectMenuClearStatistics()) 
+							{
+                     SetControlValue ((ControlHandle) theHandle, 1);
+                     SetDLogControl (dialogPtr, 6, 0);
 
-                     SetDLogControl(dialogPtr, 8, 0);
-                     SetDLogControlHilite(dialogPtr, 8, 255);
-                     HideDialogItems(dialogPtr, 9, 11);
+                     SetDLogControl (dialogPtr, 8, 0);
+                     SetDLogControlHilite (dialogPtr, 8, 255);
+                     HideDialogItems (dialogPtr, 9, 11);
                      localStatCode = 1;
 
-                  } // end "if ( ProjectMenuClearStatistics () )" 
+							}	// end "if (ProjectMenuClearStatistics())" 
 
-               } // end "if ( localStatCode == 2 )" 
+						}	// end "if (localStatCode == 2)" 
                break;
 
             case 6: // Compute mean, standard deviation and covariance 
 
-               if (localStatCode == 1) {
-                  if (ProjectMenuClearStatistics()) {
-                     SetControlValue((ControlHandle) theHandle, 1);
-                     SetDLogControl(dialogPtr, 5, 0);
+               if (localStatCode == 1) 
+						{
+                  if (ProjectMenuClearStatistics()) 
+							{
+                     SetControlValue ((ControlHandle) theHandle, 1);
+                     SetDLogControl (dialogPtr, 5, 0);
 
-                     SetDLogControl(dialogPtr, 8, (localSetZeroVarianceFlag));
-                     SetDLogControlHilite(dialogPtr, 8, 0);
+                     SetDLogControl (dialogPtr, 8, (localSetZeroVarianceFlag));
+                     SetDLogControlHilite (dialogPtr, 8, 0);
 
-                     if (localSetZeroVarianceFlag) {
-                        ShowDialogItem(dialogPtr, 9);
-                        SelectDialogItemText(dialogPtr, 9, 0, INT16_MAX);
+                     if (localSetZeroVarianceFlag) 
+								{
+                        ShowDialogItem (dialogPtr, 9);
+                        SelectDialogItemText (dialogPtr, 9, 0, INT16_MAX);
 
-                     }// end "if (localSetZeroVarianceFlag)" 
+								}	// end "if (localSetZeroVarianceFlag)" 
 
                      else // !localSetZeroVarianceFlag 
-                        HideDialogItem(dialogPtr, 9);
+                        HideDialogItem (dialogPtr, 9);
 
-                     ShowDialogItems(dialogPtr, 10, 11);
+                     ShowDialogItems (dialogPtr, 10, 11);
 
                      localStatCode = 2;
 
-                  } // end "if ( ProjectMenuClearStatistics () )" 
+							}	// end "if (ProjectMenuClearStatistics())" 
 
-               } // end "if ( localStatCode == 1 )" 
+						}	// end "if (localStatCode == 1)" 
                break;
 
             case 7: // Keep class statistics only. 
             case 12: // Use modified class statistics. 
-               ChangeDLogCheckBox((ControlHandle) theHandle);
+               ChangeDLogCheckBox ((ControlHandle) theHandle);
                break;
 
             case 8: // Set zero variances. 
-               ChangeDLogCheckBox((ControlHandle) theHandle);
+               ChangeDLogCheckBox ((ControlHandle) theHandle);
 
-               if (GetDLogControl(dialogPtr, 8)) {
-                  ShowDialogItem(dialogPtr, 9);
-                  SelectDialogItemText(dialogPtr, 9, 0, INT16_MAX);
+               if (GetDLogControl (dialogPtr, 8)) 
+						{
+                  ShowDialogItem (dialogPtr, 9);
+                  SelectDialogItemText (dialogPtr, 9, 0, INT16_MAX);
 
-               }// end "if ( GetDLogControl (dialogPtr, 8) )" 
+						}	// end "if ( GetDLogControl (dialogPtr, 8) )" 
 
                else // !GetDLogControl (dialogPtr, 8) 
                   HideDialogItem(dialogPtr, 9);
@@ -8483,121 +8494,124 @@ Boolean StatisticsOptionsDialog(
                break;
 
             case 11: // Minimum log determinant 
-               theNum = GetDItemRealValue(dialogPtr, 11);
+               theNum = GetDItemRealValue (dialogPtr, 11);
                if (theNum < gMinimumNaturalLogValue || theNum > gMaximumNaturalLogValue)
-                  RealNumberErrorAlert(localMinLogDeterminant, dialogPtr, itemHit, 1);
+                  RealNumberErrorAlert (localMinLogDeterminant, dialogPtr, itemHit, 1);
 
                else // theNum is okay
-                  localMinLogDeterminant = GetDItemRealValue(dialogPtr, 11);
+                  localMinLogDeterminant = GetDItemRealValue (dialogPtr, 11);
 
                break;
 
-         } // end "switch (itemHit)" 
+				}	// end "switch (itemHit)" 
 
-      }// end "if (itemHit > 2)" 
+			}	// end "if (itemHit > 2)" 
 
       else // itemHit <= 2 
-      {
+			{
          if (itemHit == 1) // User selected OK for information 
-         {
+				{
             modalDone = true;
             returnFlag = true;
 
-            // Save the updated parameters.
+						// Save the updated parameters.
 
-            StatisticsOptionsDialogOK(localStatCode,
-               GetDLogControl(dialogPtr, 7),
-               GetDLogControl(dialogPtr, 8),
-               localVariance,
-               localMinLogDeterminant,
-               GetDLogControl(dialogPtr, 12),
-               statCodePtr,
-               keepClassStatsFlagPtr,
-               variancePtr,
-               minLogDeterminantPtr,
-               useCommonCovarianceInLOOCFlagPtr);
+            StatisticsOptionsDialogOK (localStatCode,
+													GetDLogControl(dialogPtr, 7),
+													GetDLogControl(dialogPtr, 8),
+													localVariance,
+													localMinLogDeterminant,
+													GetDLogControl(dialogPtr, 12),
+													statCodePtr,
+													keepClassStatsFlagPtr,
+													variancePtr,
+													minLogDeterminantPtr,
+													useCommonCovarianceInLOOCFlagPtr);
 
-         } // end "if (itemHit == 1)" 
+				}	// end "if (itemHit == 1)" 
 
          if (itemHit == 2) // User selected Cancel for information 
-         {
+				{
             modalDone = true;
             returnFlag = false;
 
-         } // end "if	(itemHit == 2)" 
+				}	// end "if	(itemHit == 2)" 
 
-      } // end "else itemHit <= 2" 
+			}	// end "else itemHit <= 2" 
 
-   } while (!modalDone);
+		} while (!modalDone);
 
-   CloseRequestedDialog(dialogPtr, kSetUpDFilterTable);
+   CloseRequestedDialog (dialogPtr, kSetUpDFilterTable);
 #endif	// defined multispec_mac  
 
 
-#if defined multispec_win  
+#	if defined multispec_win  
+		CMStatOptionsDlg* dialogPtr = NULL;
 
-   CMStatOptionsDlg* dialogPtr = NULL;
+		TRY
+			{
+			dialogPtr = new CMStatOptionsDlg();
 
-   TRY{
-      dialogPtr = new CMStatOptionsDlg();
+			returnFlag = dialogPtr->DoDialog (
+										statCodePtr,
+										keepClassStatsFlagPtr,
+										variancePtr,
+										minLogDeterminantPtr,
+										useCommonCovarianceInLOOCFlagPtr);
 
-      returnFlag = dialogPtr->DoDialog(
-      statCodePtr,
-      keepClassStatsFlagPtr,
-      variancePtr,
-      minLogDeterminantPtr,
-      useCommonCovarianceInLOOCFlagPtr);
+			delete dialogPtr;
+			}
 
-      delete dialogPtr;
-   }
+		CATCH_ALL (e) 
+			{
+			MemoryMessage (0, kObjectMessage);
+			}
+		END_CATCH_ALL
+#	endif // defined multispec_win  
 
-   CATCH_ALL(e) {
-      MemoryMessage(0, kObjectMessage);
-   }
-   END_CATCH_ALL
+#	if defined multispec_lin
+		CMStatOptionsDlg* dialogPtr = NULL;
 
-#endif // defined multispec_win  
+		try
+			{
+			dialogPtr = new CMStatOptionsDlg();
 
-   #if defined multispec_lin
+			returnFlag = dialogPtr->DoDialog (
+										statCodePtr,
+										keepClassStatsFlagPtr,
+										variancePtr,
+										minLogDeterminantPtr,
+										useCommonCovarianceInLOOCFlagPtr);
 
-   CMStatOptionsDlg* dialogPtr = NULL;
+			delete dialogPtr;
+			}
 
-   try{
-      dialogPtr = new CMStatOptionsDlg();
-
-      returnFlag = dialogPtr->DoDialog(
-      statCodePtr,
-      keepClassStatsFlagPtr,
-      variancePtr,
-      minLogDeterminantPtr,
-      useCommonCovarianceInLOOCFlagPtr);
-
-      delete dialogPtr;
-   }
-
-   catch( int e) {
-      MemoryMessage(0, kObjectMessage);
-   }
-
-#endif // defined multispec_win  
+		catch (int e) 
+			{
+			MemoryMessage (0, kObjectMessage);
+			}
+	#	endif // defined multispec_win  
    
    return (returnFlag);
 
 } // end "StatisticsOptionsDialog"
 
-void StatisticsOptionsDialogOK(
-   SInt16 localStatCode,
-   Boolean localKeepStatsFlag,
-   Boolean localZeroVarianceFlag,
-   double localVariance,
-   double localMinLogDeterminant,
-   Boolean localCommonCovarianceInLOOCFlag,
-   SInt16* statCodePtr,
-   Boolean* keepClassStatsFlagPtr,
-   double* variancePtr,
-   double* minLogDeterminantPtr,
-   Boolean* useCommonCovarianceInLOOCFlagPtr) {
-   // Statistics to be computed.										
+
+
+void StatisticsOptionsDialogOK (
+				SInt16								localStatCode,
+				Boolean								localKeepStatsFlag,
+				Boolean								localZeroVarianceFlag,
+				double								localVariance,
+				double								localMinLogDeterminant,
+				Boolean								localCommonCovarianceInLOOCFlag,
+				SInt16*								statCodePtr,
+				Boolean*								keepClassStatsFlagPtr,
+				double*								variancePtr,
+				double*								minLogDeterminantPtr,
+				Boolean*								useCommonCovarianceInLOOCFlagPtr) 
+{
+			// Statistics to be computed.										
 
    *statCodePtr = localStatCode;
 
@@ -8613,7 +8627,7 @@ void StatisticsOptionsDialogOK(
 
    *useCommonCovarianceInLOOCFlagPtr = localCommonCovarianceInLOOCFlag;
 
-} // end "StatisticsOptionsDialogOK"
+}	// end "StatisticsOptionsDialogOK"
 
 
 
@@ -8653,10 +8667,10 @@ void StatisticsWControlEvent (
 
    Cell									cell;
 
-	#if defined multispec_mac
+#	if defined multispec_mac
 		SInt16								itemHit;
 		Boolean								doubleClick;
-	#endif	// defined multispec_mac   				
+#	endif	// defined multispec_mac   				
 
    SInt16								returnCode;
 

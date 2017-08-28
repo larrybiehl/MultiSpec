@@ -1,28 +1,25 @@
 //									Purdue University
 //								West Lafayette, IN 47907
-//							 Copyright (1988-2003)
-//							c Purdue Research Foundation
+//							 Copyright (1988-2017)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
-//					The following was put here for easy access to a template
-//  				DebugStr ("\pSHisInfo.cpp");
-//
 //	File:						SHisInfo.cpp
-//
-//	Functions in file:	
-//
-//	Brief description:	The purpose of the routines in this file is to
-//								provide routines to support the Histogram Specs structure.
-//
-//	Language:				C
-//
-//	System:					Macintosh Operating System
 //
 //	Authors:					Larry L. Biehl
 //
 //	Revision number:		2.9
 //
-//	Revision date:			11/02/99
+//	Revision date:			11/02/1999
+//
+//	Language:				C
+//
+//	System:					Macintosh Operating System
+//
+//	Brief description:	The purpose of the routines in this file is to
+//								provide routines to support the Histogram Specs structure.
+//
+//	Functions in file:	
 
 #include	"SMulSpec.h" 
   
@@ -34,8 +31,8 @@
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2003)
-//								c Purdue Research Foundation
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void ReleaseHistogramSupportMemory
@@ -50,8 +47,8 @@
 //
 // Called By:			
 //
-//	Coded By:			Larry L. Biehl			Date:	06/12/95
-//	Revised By:			Larry L. Biehl			Date: 11/02/99
+//	Coded By:			Larry L. Biehl			Date:	06/12/1995
+//	Revised By:			Larry L. Biehl			Date: 11/02/1999
 
 void ReleaseHistogramSupportMemory(
 				WindowInfoPtr						windowInfoPtr)
@@ -78,8 +75,8 @@ void ReleaseHistogramSupportMemory(
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2003)
-//								c Purdue Research Foundation
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void ReleaseHistogramSupportMemory
@@ -94,8 +91,8 @@ void ReleaseHistogramSupportMemory(
 //
 // Called By:			
 //
-//	Coded By:			Larry L. Biehl			Date:	06/12/95
-//	Revised By:			Larry L. Biehl			Date: 11/02/99
+//	Coded By:			Larry L. Biehl			Date:	06/12/1995
+//	Revised By:			Larry L. Biehl			Date: 11/02/1999
 
 void ReleaseHistogramSupportMemory (
 				Handle*								histogramSpecsHandlePtr,

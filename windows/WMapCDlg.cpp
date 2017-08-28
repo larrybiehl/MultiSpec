@@ -1,6 +1,6 @@
 // WMapCDlg.cpp : implementation file
 //
-// Revised by Larry Biehl on 03/25/2017
+// Revised by Larry Biehl on 08/21/2017
 //
 // Note that m_adjustUpperLeftMapPointFlag has not been fully integrated in this code
 // yet. See Mac version for more info. Is not being used right now till a better
@@ -226,23 +226,23 @@ void CMMapCoordinateDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_CBIndex(pDX, IDC_MapUnitsCombo, m_mapUnitsSelection);
 	DDX_Text(pDX, IDC_Zone, m_gridZone);
 	DDX_Text(pDX, IDC_EPSGCode, m_epsgCode);
-	DDX_Text(pDX, IDC_HorizontalSize, m_horizontalPixelSize);
-	DDX_Text(pDX, IDC_VerticalSize, m_verticalPixelSize);
-	DDX_Text(pDX, IDC_X11Coordinate, m_xMapCoordinate11);
-	DDX_Text(pDX, IDC_Y11Coordinate, m_yMapCoordinate11);
-	DDX_Text(pDX, IDC_FalseEasting, m_falseEasting);
-	DDX_Text(pDX, IDC_FalseNorthing, m_falseNorthing);
-	DDX_Text(pDX, IDC_Latitude, m_latitudeOrigin);
-	DDX_Text(pDX, IDC_Longitude, m_longitudeCentralMeridian);
-	DDX_Text(pDX, IDC_MinorAxis, m_semiMinorAxis);
-	DDX_Text(pDX, IDC_Radius, m_radiusSpheroid);
-	DDX_Text(pDX, IDC_ScaleFactor, m_scaleFactorOfCentralMeridian);
-	DDX_Text(pDX, IDC_StandardParallel1, m_standardParallel1);
-	DDX_Text(pDX, IDC_StandardParallel2, m_standardParallel2);
+	DDX_Text2(pDX, IDC_HorizontalSize, m_horizontalPixelSize);
+	DDX_Text2(pDX, IDC_VerticalSize, m_verticalPixelSize);
+	DDX_Text2(pDX, IDC_X11Coordinate, m_xMapCoordinate11);
+	DDX_Text2(pDX, IDC_Y11Coordinate, m_yMapCoordinate11);
+	DDX_Text2(pDX, IDC_FalseEasting, m_falseEasting);
+	DDX_Text2(pDX, IDC_FalseNorthing, m_falseNorthing);
+	DDX_Text2(pDX, IDC_Latitude, m_latitudeOrigin);
+	DDX_Text2(pDX, IDC_Longitude, m_longitudeCentralMeridian);
+	DDX_Text2(pDX, IDC_MinorAxis, m_semiMinorAxis);
+	DDX_Text2(pDX, IDC_Radius, m_radiusSpheroid);
+	DDX_Text2(pDX, IDC_ScaleFactor, m_scaleFactorOfCentralMeridian);
+	DDX_Text2(pDX, IDC_StandardParallel1, m_standardParallel1);
+	DDX_Text2(pDX, IDC_StandardParallel2, m_standardParallel2);
 	DDX_Text(pDX, IDC_ZoneDirection, m_gridZoneDirection);
 	DDV_MaxChars(pDX, m_gridZoneDirection, 1);
 	DDX_CBIndex(pDX, IDC_DatumCombo, m_datumSelection);
-	DDX_Text(pDX, IDC_OrientationAngle, m_mapOrientationAngle);
+	DDX_Text2(pDX, IDC_OrientationAngle, m_mapOrientationAngle);
 	DDV_MinMaxDouble(pDX, m_mapOrientationAngle, -180., 180.);
 	//}}AFX_DATA_MAP
 

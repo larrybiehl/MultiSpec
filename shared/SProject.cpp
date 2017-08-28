@@ -13,7 +13,7 @@
 //
 //	Revision number:		3.0
 //
-//	Revision date:			03/22/2017
+//	Revision date:			07/21/2017
 //
 //	Language:				C
 //
@@ -65,6 +65,13 @@
 
 #include	"SMulSpec.h" 
 
+#if defined multispec_lin
+#	include "wx/wx.h"
+#	include "CImagWin.h"
+#	include "LImageView.h"
+#	include "LMultiSpec.h"
+#endif
+
 #if defined multispec_mac
 #endif	// defined multispec_mac  
   
@@ -73,13 +80,6 @@
 	#include "CImagVew.h" 
 	#include "WMultiSpec.h"
 #endif	// defined multispec_win 
-
-#if defined multispec_lin
-#include "wx/wx.h"
-#include "CImagWin.h"
-#include "LImageView.h"
-#include "MultiSpec2.h"
-#endif
 
 #include "SExtGlob.h"
 
@@ -2941,7 +2941,7 @@ Boolean GetSpecifiedImageFile (
 		errCode = OpenFileReadOnly (fileStreamPtr, 
 												kResolveAliasChains, 
 												kLockFile, 
-												kVerifyFileStream);			
+												kVerifyFileStream);		
 												
 		if (errCode == noErr)
 			{
@@ -3010,7 +3010,7 @@ Boolean GetSpecifiedImageFile (
 		                                                      
 		UnlockAndDispose (fileInfoHandle);
 		
-		}		// end "if (!fileFound)" 
+		}		// end "if (!fileFound)" 	
 		
 	return (fileFound);
 
@@ -4012,7 +4012,7 @@ void OpenProjectFile (
 //							OpenProjectFile in project.c
 //
 //	Coded By:			Larry L. Biehl			Date: 11/18/1991
-//	Revised By:			Larry L. Biehl			Date: 03/20/2017	
+//	Revised By:			Larry L. Biehl			Date: 07/21/2017	
 
 void	OpenProjectImageWindow (void)
 
@@ -4041,7 +4041,7 @@ void	OpenProjectImageWindow (void)
 		fileInfoHandle = projectFileInfoHandle =
 											GetFileInfoHandle (projectWindowInfoHandle);
 												
-		#if defined multispec_mac   			
+#		if defined multispec_mac   			
 			CMFileStream*				fileStreamPtr;
 			FileInfoPtr					projectFileInfoPtr; 
 			SignedByte					projectHandleStatus;
@@ -4071,7 +4071,7 @@ void	OpenProjectImageWindow (void)
 					
 				}		// end "if (errCode == noErr)" 	
 				
-			#if include_gdal_capability
+#			if include_gdal_capability
 				if (fileInfoPtr->gdalDataSetH != 0)
 					{
 							// Need to set up new gdal references to access the file by for the project.
@@ -4084,13 +4084,13 @@ void	OpenProjectImageWindow (void)
 //						errCode = LoadGDALInformation (fileInfoPtr, NULL, fileInfoPtr->format);
 											
 					}		// end "fileInfoPtr->gdalDataSetH != 0"
-			#endif	// include_gdal_capability
+#			endif	// include_gdal_capability
 
-			#if include_hdf_capability
+#			if include_hdf_capability
 				if (errCode == noErr && 
 								(fileInfoPtr->format == kHDF4Type || fileInfoPtr->format == kNETCDFType))
 					errCode = LoadHDF4Information (fileInfoPtr, fileInfoPtr->format, TRUE);
-			#endif		// include_hdf_capability
+#			endif		// include_hdf_capability
 				
 			if (errCode == noErr)
 				{
@@ -4127,9 +4127,9 @@ void	OpenProjectImageWindow (void)
 				CheckAndUnlockHandle (fileInfoHandle);
 					
 				}		// end "if (windowInfoHandle == NULL && ..."		
-		#endif	// defined multispec_mac 				
+#		endif	// defined multispec_mac 				
 				
-		#if defined multispec_win  
+#		if defined multispec_win  
 			CDocument* 		documentPtr = NULL;
 				 
 				                                        
@@ -4143,19 +4143,19 @@ void	OpenProjectImageWindow (void)
 										&documentPtr,
 										TRUE,
 										fileInfoPtr->hdfDataSetSelection);				
-		#endif	// defined multispec_win   
+#		endif	// defined multispec_win   
 
-      #if defined multispec_lin
-			fileInfoPtr = (FileInfoPtr) GetHandlePointer(
-                fileInfoHandle, kNoLock, kNoMoveHi);
+#		if defined multispec_lin
+			fileInfoPtr = (FileInfoPtr) GetHandlePointer (
+										fileInfoHandle, kNoLock, kNoMoveHi);
 
-			StringPtr filePathPointer = GetFilePathPPointer(fileInfoPtr);
+			wchar_t* filePathPointer = (wchar_t*)GetFilePathPPointer(fileInfoPtr, kReturnUnicode);
 
-			((CMultiSpecApp*)wxTheApp)->OpenImageFileLin(
-                (char*)&filePathPointer[0],
-                TRUE,
-                fileInfoPtr->hdfDataSetSelection);
-      #endif
+			((CMultiSpecApp*)wxTheApp)->OpenImageFileLin (
+										filePathPointer,
+										TRUE,
+										fileInfoPtr->hdfDataSetSelection);
+#		endif
 		
 		}		// end "if (GetProjectImageFileInfo (..."
    

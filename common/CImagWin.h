@@ -6,12 +6,11 @@
 #if !defined __MIMAGWIN_H__
 	#define __MIMAGWIN_H__
 	 
-	#include "CFileStr.h" 
-	#include "CWinInfo.h" 
+	#include "CFileStr.h"
+	#include "CWinInfo.h"
    #ifdef multispec_lin
       #include "../linux_files/LImageDoc.h"
    #endif
-	
 
 //class	CMImageWindow : public CMDataFile, public CMWindowInfo
 class	CMImageWindow : public CMWindowInfo
@@ -19,8 +18,7 @@ class	CMImageWindow : public CMWindowInfo
 //	friend class CMFileDialog;
 	
 	public:
-									CMImageWindow(
-										Handle			fileInfoHandle);		// constructor
+									CMImageWindow (Handle			fileInfoHandle);		// constructor
 										
 		virtual 					~CMImageWindow();		// destructor stub
 		

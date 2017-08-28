@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -14,7 +14,7 @@
 //
 //	Revision number:		3.0
 //
-//	Revision date:			07/01/2016
+//	Revision date:			08/24/2017
 //
 //	Language:				C
 //
@@ -34,10 +34,16 @@
 //								"multiSpec.h"
 //
 //------------------------------------------------------------------------------------
-
-#include	"SMulSpec.h" 
+  
+#include	"SMulSpec.h"  
+	
+#ifdef multispec_lin 
+   #include "LMultiSpec.h"
+   #include "LStatisticsImageDialog.h"
+#endif
 
 #if defined multispec_mac 
+	#define	IDC_ChannelPrompt					3
 	#define	IDC_ChannelCombo					4
 	#define	IDC_ClassesRadio					6
 	#define	IDC_ClassCombo						7
@@ -67,51 +73,19 @@
 	#define	IDC_FeatureTransformation		34
 #endif	// defined multispec_mac 
   
-#if defined multispec_win     
-//	#include	"WMosaicTwoImagesDialog.h" 
+#if defined multispec_win
 	#include "SExtGlob.h"
 	#include "WStatImageDlg.h"
-#define  kStatisticsImageStrID          172
 #endif	// defined multispec_win
-
-#if defined multispec_lin 
-   #include "MultiSpec2.h"
-	#include "SExtGlob.h"
-   #include "SRConsnt.h"
-   #include "LStatImageDlg.h"
-	
-	#define  kStatisticsImageStrID          172
-
-			// Statistics Image string indexes
-	/*			
-	#define	IDS_StatisticsImage1					1
-	#define	IDS_StatisticsImage2					2
-	#define	IDS_StatisticsImage3					3
-	#define	IDS_StatisticsImage4					4
-	#define	IDS_StatisticsImage5					5
-	#define	IDS_StatisticsImage6					6
-	#define	IDS_StatisticsImage7					7
-	#define	IDS_StatisticsImage8					8
-	#define	IDS_StatisticsImage9					9
-	#define	IDS_StatisticsImage10           10
-	#define	IDS_StatisticsImage11           11
-	#define	IDS_StatisticsImage12           12
-	#define	IDS_StatisticsImage13           13
-	#define	IDS_StatisticsImage14           14
-	#define	IDS_StatisticsImage15           15
-	#define	IDS_StatisticsImage16           16
-	#define	IDS_StatisticsImage17           17
-	#define	IDS_StatisticsImage18           18
-	#define	IDS_StatisticsImage19           19
-	*/
-#endif
 
 #include	"SFS.h"
 
-extern void			FS_make_stat_image_same_scale(
+extern void			FS_make_stat_image_same_scale (
 							CLASS_INFO_STR* 					class_info,
+							SInt16*								classPtr,
 							SInt32								no_class,
-							SInt32								n,
+							UInt16*								featurePtr,
+							SInt32								numberFeatures,
 							FileInfoPtr							newFileInfoPtr,
 							SInt32*								ERROR_FLAG,
 							SInt16								minMaxSettingCode,
@@ -201,7 +175,7 @@ Boolean				StatisticsImageDialog (FileInfoPtr);
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -219,7 +193,7 @@ Boolean				StatisticsImageDialog (FileInfoPtr);
 // Called By:	
 //
 //	Coded By:			Larry L. Biehl			Date: 11/15/1991
-//	Revised By:			Larry L. Biehl			Date: 07/01/2016
+//	Revised By:			Larry L. Biehl			Date: 08/24/2017
 
 Boolean CreateStatisticsImages (void)
 
@@ -323,13 +297,12 @@ Boolean CreateStatisticsImages (void)
 																kTrainingType, 
 																kIncludeClusterFields);
 																
-   }		// end "if (gStatisticsImageSpecsPtr->areaCode == kTrainingType)"
+		}	// end "if (gStatisticsImageSpecsPtr->areaCode == kTrainingType)"
    
 			// Show status dialog information.
 			
 	areaNumber = 1;
 	
-//	LoadDItemString ( gStatusDialogPtr, 11, (Str255*)"\pAllocating memory.");
 	LoadDItemStringNumber (	kStatisticsImageStrID, 
 									IDS_StatisticsImage8,
 									gStatusDialogPtr, 
@@ -352,7 +325,7 @@ Boolean CreateStatisticsImages (void)
    
    if (continueFlag)
 		{
-		for ( index=0; index<numberImagesToStore; index++)
+		for (index=0; index<numberImagesToStore; index++)
 			{
 			statImageInformationPtr[index].fmean = NULL;
 			statImageInformationPtr[index].fvar = NULL;
@@ -360,7 +333,7 @@ Boolean CreateStatisticsImages (void)
 			
 			}		// end "for ( index=0; index<..." 
 			
-		for ( index=0; index<numberImagesToStore; index++)
+		for (index=0; index<numberImagesToStore; index++)
 			{
 			statImageInformationPtr[index].fmean = 
 									(double*)MNewPointer( numberFeatures * sizeof(double) );
@@ -372,7 +345,7 @@ Boolean CreateStatisticsImages (void)
 									(double*)MNewPointer( numberFeatures * sizeof(double) );
 				continueFlag = (statImageInformationPtr[index].fvar != NULL);
 				
-				}		// end "if (continueFlag)" 	
+				}	// end "if (continueFlag)" 	
 					
 			if (continueFlag)
 				{
@@ -380,14 +353,14 @@ Boolean CreateStatisticsImages (void)
 					(unsigned char*)MNewPointer( numberOutputCovarianceEntries * sizeof(char) );
 				continueFlag = (statImageInformationPtr[index].half_image != NULL);
 				
-				}		// end "if (continueFlag)" 
+				}	// end "if (continueFlag)" 
 				
 			if (!continueFlag)
 				break;
 			
-			}		// end "for ( index=0; index<..." 
+			}	// end "for ( index=0; index<..." 
 		
-		}		// end "if (continueFlag)" 
+		}	// end "if (continueFlag)" 
    
    if (continueFlag && gStatisticsImageSpecsPtr->perFieldClassCode == 1)
 		{
@@ -518,7 +491,7 @@ Boolean CreateStatisticsImages (void)
 									
 						}		// end "if (...->minMaxSettingCode == 2)" 
 								
-					statClassNumber = classPtr[ index ] - 1;
+					statClassNumber = classPtr[index] - 1;
 				
 							// Get the class storage number.										
 							
@@ -528,7 +501,7 @@ Boolean CreateStatisticsImages (void)
 							
 					statImageIndex = 0;
 					//if ( gStatisticsImageSpecsPtr->minMaxSettingCode == 1 )
-               if ( gStatisticsImageSpecsPtr->minMaxSettingCode >= 1 )
+               if (gStatisticsImageSpecsPtr->minMaxSettingCode >= 1)
 						statImageIndex = index;
 					
 							// Get the class storage index for the default name for the 
@@ -626,7 +599,7 @@ Boolean CreateStatisticsImages (void)
 								// Get the statistics image index.								
 								
 						statImageIndex = 0;
-						if ( gStatisticsImageSpecsPtr->minMaxSettingCode == 1 )
+						if (gStatisticsImageSpecsPtr->minMaxSettingCode == 1)
 							statImageIndex = areaNumber - 1;
 						
 								// Get the next field number.										
@@ -641,11 +614,9 @@ Boolean CreateStatisticsImages (void)
 													kIncludeClusterFields);
 									
 						if (fieldNumber >= 0)
-							{
-							
+							{							
 							LoadDItemValue (gStatusDialogPtr, IDC_Status3, (SInt32)areaNumber);
-							
-
+					
 									// Get the class storage index for the default name for the 
 									// image.
 							
@@ -685,7 +656,7 @@ Boolean CreateStatisticsImages (void)
 										statImageInformationPtr[statImageIndex].fvar,
 										statImageInformationPtr[statImageIndex].half_image);	  
 
-								}		// end "if (continueFlag)" 
+								}	// end "if (continueFlag)" 
 /*									
 							if (continueFlag && gStatisticsImageSpecsPtr->minMaxSettingCode >= 2)
 								{						
@@ -718,22 +689,22 @@ Boolean CreateStatisticsImages (void)
 
 								continueFlag = (returnCode == 0);
 								
-								}		// end "if (continueFlag && ..." 
+								}	// end "if (continueFlag && ..." 
 */															
 							lastFieldIndex = fieldNumber;
 							areaNumber++;
 							
-							}		// end "if (fieldNumber >= 0)" 
+							}	// end "if (fieldNumber >= 0)" 
 						
-						}		while (fieldNumber >= 0);
+						}	while (fieldNumber >= 0);
 						
 					index = numberClasses;
 								
-					}		// end "if ( ...->perFieldClassCode == 2" 
+					}	// end "if ( ...->perFieldClassCode == 2" 
 					
-				}		// end "for ( index=0; index<..." 	
+				}	// end "for ( index=0; index<..." 	
 				
-			}		// end "if (gStatisticsImageSpecsPtr->areaCode == kTrainingType)"						
+			}	// end "if (gStatisticsImageSpecsPtr->areaCode == kTrainingType)"						
 			
 			// Get the statistics for the area if this is a selected area request.
 			
@@ -747,7 +718,7 @@ Boolean CreateStatisticsImages (void)
 											(Str255*)&gTextString );
          
 					
-			HideStatusDialogItemSet ( kStatusClassB );
+			HideStatusDialogItemSet (kStatusClassB);
 			
 					// Get pointer to memory to use to read an image file line		
 					// into.																			
@@ -786,10 +757,10 @@ Boolean CreateStatisticsImages (void)
 													gStatisticsImageSpecsPtr->columnInterval,
 													1,
 													1,
-													0 );	
+													0);	
 			
-			if (continueFlag)	{									
-            
+			if (continueFlag)	
+				{									
 				continueFlag = GetTotalSumSquares (
 													fileIOInstructionsPtr,
 													&totalChanStatsHandle, 
@@ -801,7 +772,7 @@ Boolean CreateStatisticsImages (void)
 													gStatisticsImageSpecsPtr->areaCode,
 													0,
 													FALSE);
-         }
+				}
 				
 					// Dispose of the IO buffer.		
 										
@@ -811,19 +782,19 @@ Boolean CreateStatisticsImages (void)
 		
 			if (continueFlag && tempCovarianceStatisticsPtr == NULL)
 				{
-				tempCovarianceStatisticsPtr = (double*)MNewPointer( sizeOfTempCovariance );
+				tempCovarianceStatisticsPtr = (double*)MNewPointer (sizeOfTempCovariance  );
 				continueFlag = (tempCovarianceStatisticsPtr != NULL);	
 				
 				}		// end "if (continueFlag &&..." 
 			
 			if (continueFlag)
 				{
-				channelStatisticsPtr = (HChannelStatisticsPtr)GetHandlePointer(
+				channelStatisticsPtr = (HChannelStatisticsPtr)GetHandlePointer (
 								totalChanStatsHandle,
 								kNoLock,
 								kNoMoveHi);		
 														
-				totalSumSquaresStatsPtr = (HCovarianceStatisticsPtr)GetHandlePointer(
+				totalSumSquaresStatsPtr = (HCovarianceStatisticsPtr)GetHandlePointer (
 								totalSumSquaresStatsHandle,
 								kNoLock,
 								kNoMoveHi);
@@ -868,26 +839,26 @@ Boolean CreateStatisticsImages (void)
 						// "\pCreating images for class statistics."
 				stringIndex = IDS_StatisticsImage15;
 					
-			else		// gStatisticsImageSpecsPtr->perFieldClassCode == 2
-						// "\pCreating images for field statistics."
+			else	// gStatisticsImageSpecsPtr->perFieldClassCode == 2
+					// "\pCreating images for field statistics."
 				stringIndex = IDS_StatisticsImage16;
 					
 			}		// end "if (gStatisticsImageSpecsPtr->areaCode == kTrainingType)"
 			
-		else		// gStatisticsImageSpecsPtr->areaCode == kAreaType
+		else	// gStatisticsImageSpecsPtr->areaCode == kAreaType
 			{
 					// "\pCreating image for selected area."
 			stringIndex = IDS_StatisticsImage17;
 			
-			}		// end "else gStatisticsImageSpecsPtr->areaCode == kAreaType"
+			}	// end "else gStatisticsImageSpecsPtr->areaCode == kAreaType"
 			
-		LoadDItemStringNumber (	kStatisticsImageStrID, 
+		LoadDItemStringNumber (kStatisticsImageStrID, 
 											stringIndex,
 											gStatusDialogPtr, 
 											IDC_Status11, 
 											(Str255*)&gTextString );
 					
-		HideStatusDialogItemSet ( kStatusClassB );
+		HideStatusDialogItemSet (kStatusClassB);
 								
 		tempCovarianceStatisticsPtr = CheckAndDisposePtr (
 															tempCovarianceStatisticsPtr);
@@ -896,9 +867,12 @@ Boolean CreateStatisticsImages (void)
 			//newFileInfo.fileStreamCPtr = baseFileStreamPtr;
 		//#endif // end "#ifdef NetBeansProject"
       
-		FS_make_stat_image_same_scale( 
+		FS_make_stat_image_same_scale ( 
 								statImageInformationPtr, 
-								(SInt32)numberImagesToStore, 
+								classPtr,
+								(SInt32)numberImagesToStore,
+								//channelsPtr,
+								featurePtr, 
 								(SInt32)numberFeatures,
 								&newFileInfo,  
 								&returnCode,
@@ -912,29 +886,29 @@ Boolean CreateStatisticsImages (void)
 			
 	if (statImageInformationPtr != NULL)
 		{
-		for ( index=0; index<numberImagesToStore; index++)
+		for (index=0; index<numberImagesToStore; index++)
 			{
 			statImageInformationPtr[index].fmean = CheckAndDisposePtr (
-											statImageInformationPtr[index].fmean );
+											statImageInformationPtr[index].fmean);
 											
 			statImageInformationPtr[index].fvar = CheckAndDisposePtr (
-											statImageInformationPtr[index].fvar );
+											statImageInformationPtr[index].fvar);
 											
 			statImageInformationPtr[index].half_image = CheckAndDisposePtr (
-											statImageInformationPtr[index].half_image );
+											statImageInformationPtr[index].half_image);
 			
 			}		// end "for ( index=0; index<..." 
 			
 		statImageInformationPtr = (CLASS_INFO_STR*)CheckAndDisposePtr ( 
-										(Ptr)statImageInformationPtr );
+										(Ptr)statImageInformationPtr);
 		
 		}		// end "if (statImageInformationPtr != NULL)" 
 		
 	gTempChannelStatsPtr = (ChannelStatisticsPtr)CheckAndDisposePtr ( 
-										(Ptr)gTempChannelStatsPtr );
+										(Ptr)gTempChannelStatsPtr);
 										
 	tempCovarianceStatisticsPtr = CheckAndDisposePtr ( 
-										tempCovarianceStatisticsPtr );
+										tempCovarianceStatisticsPtr);
 	
 			// Release memory for transformation matrix information.					
 	
@@ -949,7 +923,7 @@ Boolean CreateStatisticsImages (void)
 														NULL,
 														gOutputForce1Code, 
 														returnCode, 
-														TRUE );
+														TRUE);
 						
 		}		// end "if (returnCode != 0)" 
 		
@@ -960,7 +934,7 @@ Boolean CreateStatisticsImages (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1138,14 +1112,12 @@ void StatisticsImageControl (void)
 			if (continueFlag && gStatisticsImageSpecsPtr->areaCode == kTrainingType)
 				{					
 				if (gStatisticsImageSpecsPtr->perFieldClassCode == 1)
+							//	" Statistics Image will be created for each selected class.\r"
 					stringIndex = IDS_StatisticsImage1;
-//					sprintf((char*)&gTextString, 
-//						" Statistics Image will be created for each selected class.\r");
 				
 				else		// gStatisticsImageSpecsPtr->perFieldClassCode == 2 
+							//	" Statistics Image will be created for each selected field.\r"
 					stringIndex = IDS_StatisticsImage2;
-//					sprintf((char*)&gTextString, 
-//						" Statistics Image will be created for each selected field.\r");
 				
 				continueFlag = ListSpecifiedStringNumber ( 
 												kStatisticsImageStrID, 
@@ -1156,14 +1128,12 @@ void StatisticsImageControl (void)
 												continueFlag );
 				
 				if (gStatisticsImageSpecsPtr->minMaxSettingCode == 1)
+							//	" The images will be based on overall min-max values.\r"
 					stringIndex = IDS_StatisticsImage3;
-//					sprintf((char*)&gTextString, 
-//						" The images will be based on overall min-max values.\r");
 						
 				else		// gStatisticsImageSpecsPtr->minMaxSettingCode == 2 
+							//	" Each image will be based on respective statistics' min-max values.\r"
 					stringIndex = IDS_StatisticsImage4;
-//					sprintf((char*)&gTextString, 
-//						" Each image will be based on respective statistics' min-max values.\r");
 				
 				continueFlag = ListSpecifiedStringNumber ( 
 												kStatisticsImageStrID, 
@@ -1173,7 +1143,7 @@ void StatisticsImageControl (void)
 												gOutputForce1Code,
 												continueFlag );
 		
-				continueFlag = OutputString ( resultsFileStreamPtr, 
+				continueFlag = OutputString (resultsFileStreamPtr, 
 													(char*)gEndOfLine, 
 													0, 
 													gOutputForce1Code,
@@ -1183,16 +1153,15 @@ void StatisticsImageControl (void)
 													
 				if (continueFlag)
 					{
-					continueFlag =  ListClassesUsed ( NULL,
-										gImageFileInfoPtr, 
-										//(short int*)gStatisticsImageSpecsPtr->classHandle, 
-                              (SInt16*)classPtr,
-										kListNoSymbols,
-										kListNoWeights, 
-										gStatisticsImageSpecsPtr->numberClasses, 
-										resultsFileStreamPtr, 
-										&gOutputForce1Code,
-										FALSE);
+					continueFlag =  ListClassesUsed (NULL,
+																gImageFileInfoPtr,  
+																(SInt16*)classPtr,
+																kListNoSymbols,
+																kListNoWeights, 
+																gStatisticsImageSpecsPtr->numberClasses, 
+																resultsFileStreamPtr, 
+																&gOutputForce1Code,
+																FALSE);
 					}
 		
 						// List the fields/areas used.											
@@ -1200,7 +1169,6 @@ void StatisticsImageControl (void)
 				if (continueFlag)
 					{
 					continueFlag = ListProjectFieldsUsed ( gImageFileInfoPtr,
-										//(short int*)gStatisticsImageSpecsPtr->classHandle, 
                               (SInt16*)classPtr,
 										gStatisticsImageSpecsPtr->numberClasses, 
 										NULL, 
@@ -1251,18 +1219,15 @@ void StatisticsImageControl (void)
 			
 			if (continueFlag)
 				{
-            continueFlag = ListChannelsUsed ( gImageFileInfoPtr,
-									//(SInt16*)gStatisticsImageSpecsPtr->featureHandle,
-                           featurePtr,
-									//(SInt16*)gStatisticsImageSpecsPtr->channelsHandle,
-                           channelsPtr,
-									gStatisticsImageSpecsPtr->numberFeatures, 
-									resultsFileStreamPtr,
-									&gOutputForce1Code,
-									gStatisticsImageSpecsPtr->featureTransformationFlag);
-         
-										
-					// List "  Output Information:"
+            continueFlag = ListChannelsUsed (gImageFileInfoPtr,
+															featurePtr,
+															channelsPtr,
+															gStatisticsImageSpecsPtr->numberFeatures, 
+															resultsFileStreamPtr,
+															&gOutputForce1Code,
+															gStatisticsImageSpecsPtr->featureTransformationFlag);
+         										
+						// List "  Output Information:"
 					
             continueFlag = ListSpecifiedStringNumber (kSharedStrID, 
 																		IDS_Shared8, 
@@ -1270,7 +1235,7 @@ void StatisticsImageControl (void)
 																		resultsFileStreamPtr, 
 																		gOutputForce1Code, 
 																		continueFlag);
-			}		
+				}		
 					// Get dialog box to display statistics image status.				
 			
 			if (continueFlag)
@@ -1284,7 +1249,6 @@ void StatisticsImageControl (void)
 			if (continueFlag)
 				{
 				if (gStatisticsImageSpecsPtr->areaCode == kTrainingType)
-//					LoadDItemString(gStatusDialogPtr, 2, (Str255*)"\pArea");
 					LoadDItemStringNumber (	kStatisticsImageStrID, 
 													IDS_StatisticsImage6,
 													gStatusDialogPtr, 
@@ -1354,7 +1318,7 @@ void StatisticsImageControl (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1392,52 +1356,48 @@ void LoadStatImageInformationStructure (
 				HUCharPtr							outputHalf_imagePtr)			
 
 {
-    HSInt16Ptr featurePtr = (HSInt16Ptr)GetHandlePointer(
+    HSInt16Ptr featurePtr = (HSInt16Ptr)GetHandlePointer (
 											gStatisticsImageSpecsPtr->featureHandle,
 											kLock,
 											kNoMoveHi);
     
-    GetTransformedCovarianceMatrix ( 
-					numberOutputFeatures, 
-					covarianceStatisticsPtr,
-					numberInputChannels, 
-               featurePtr,
-					inputChannelStatsPtr, 
-					inputSumSquaresPtr, 
-					numberPixels,
-					kTriangleOutputMatrix,
-					eigenVectorPtr,
-					tempMatrixPtr,
-					numberFeatures);
+    GetTransformedCovarianceMatrix (numberOutputFeatures, 
+												covarianceStatisticsPtr,
+												numberInputChannels, 
+												featurePtr,
+												inputChannelStatsPtr, 
+												inputSumSquaresPtr, 
+												numberPixels,
+												kTriangleOutputMatrix,
+												eigenVectorPtr,
+												tempMatrixPtr,
+												numberFeatures);
 					
-	GetTransformedMeanVector (
-					inputChannelStatsPtr, 
-					outputMeansPtr,
-					numberOutputFeatures,
-               featureListPtr,
-					eigenVectorPtr,
-					tempMatrixPtr,
-					offsetVectorPtr,
-					numberFeatures);
+	GetTransformedMeanVector (inputChannelStatsPtr, 
+										outputMeansPtr,
+										numberOutputFeatures,
+										featureListPtr,
+										eigenVectorPtr,
+										tempMatrixPtr,
+										offsetVectorPtr,
+										numberFeatures);
 			
-	GetDiagonalVectorFromMatrix ( 
-					numberFeatures,
-					covarianceStatisticsPtr, 
-					outputVarianceVectorPtr, 
-					kTriangleOutputMatrix);
+	GetDiagonalVectorFromMatrix (numberFeatures,
+											covarianceStatisticsPtr, 
+											outputVarianceVectorPtr, 
+											kTriangleOutputMatrix);
 				
-	FS_make_half_STI(
-					covarianceStatisticsPtr,
-					outputVarianceVectorPtr,
-					outputHalf_imagePtr,
-					(SInt32)numberFeatures);
+	FS_make_half_STI (covarianceStatisticsPtr,
+							outputVarianceVectorPtr,
+							outputHalf_imagePtr,
+							(SInt32)numberFeatures);
 
-} // end "LoadStatImageInformationStructure"
+}	// end "LoadStatImageInformationStructure"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1617,27 +1577,27 @@ Boolean LoadStatisticsImageSpecs (
 				gStatisticsImageSpecsPtr->numberFeatures = 
 												gProjectInfoPtr->numberStatisticsChannels;
 												
-				}		// end "if (projectFlag && gProjectInfoPtr != NULL)"
+				}	// end "if (projectFlag && gProjectInfoPtr != NULL)"
 				
-			else		// !projectFlag || gProjectInfoPtr == NULL
+			else	// !projectFlag || gProjectInfoPtr == NULL
 				{
 				gStatisticsImageSpecsPtr->numberChannels = gImageFileInfoPtr->numberChannels;
 				gStatisticsImageSpecsPtr->numberClasses = 0;
 				gStatisticsImageSpecsPtr->numberFeatures = gImageFileInfoPtr->numberChannels;
 												
-				}		// end "if (projectFlag && gProjectInfoPtr != NULL)"
+				}	// end "if (projectFlag && gProjectInfoPtr != NULL)"
 				
 			gStatisticsImageSpecsPtr->numberFields = 0;
 			gStatisticsImageSpecsPtr->featureTransformationFlag = FALSE;
 			gStatisticsImageSpecsPtr->firstTime = TRUE;
 			gStatisticsImageSpecsPtr->projectFlag = projectFlag;
 			
-			}		// end "if (gNonProjProcessorSpecs.statisticsImageSpecsH != NULL)" 
+			}	// end "if (gNonProjProcessorSpecs.statisticsImageSpecsH != NULL)" 
 		
-		else		// else gNonProjProcessorSpecs.statisticsImageSpecsH == NULL 
+		else	// else gNonProjProcessorSpecs.statisticsImageSpecsH == NULL 
 			returnFlag = FALSE;
 			
-		}		// end "if (fileInfoPtr != NULL)"  
+		}	// end "if (fileInfoPtr != NULL)"  
 		
 			// Make sure that we can do the selected area. There may not be an image file
 			// available.
@@ -1661,7 +1621,7 @@ Boolean LoadStatisticsImageSpecs (
 		if (changedFlag)
 			gStatisticsImageSpecsPtr->classSet = kAllMenuItem;
 			
-		}		// end "if (returnFlag)" 
+		}	// end "if (returnFlag)" 
 			
 			// If memory is not full, check memory for statistics image				
 			// feature vector pointer.															
@@ -1678,7 +1638,7 @@ Boolean LoadStatisticsImageSpecs (
 		if (changedFlag)
 			gStatisticsImageSpecsPtr->channelSet = kAllMenuItem;
 			
-		}		// end "if (returnFlag)" 
+		}	// end "if (returnFlag)" 
 			
 			// If memory is not full, check memory for statistics image				
 			// channels vector.																	
@@ -1726,24 +1686,21 @@ Boolean LoadStatisticsImageSpecs (
 						(SInt16*)&gStatisticsImageSpecsPtr->numberChannels,
 						channelsPtr);
 		
-       if (gStatisticsImageSpecsPtr->classSet == kAllMenuItem && 
+		if (gStatisticsImageSpecsPtr->classSet == kAllMenuItem && 
 														gStatisticsImageSpecsPtr->projectFlag)
-			{
-			LoadClassVector (&gStatisticsImageSpecsPtr->numberClasses,
-									classPtr);
-			}
+			LoadClassVector (&gStatisticsImageSpecsPtr->numberClasses, classPtr);
 			
-		}		// end "if (returnFlag)" 
+		}	// end "if (returnFlag)" 
 	
 			// If unable to set up information for statistics image					
 			// specifications, release memory allocated to it (if any).				
 			
-	else		// !returnFlag 
+	else	// !returnFlag 
 		{
 		ReleasePrincipalCompSpecsMemory (&gNonProjProcessorSpecs.statisticsImageSpecsH);
 		gStatisticsImageSpecsPtr = NULL;
 		
-		}		// end "else !returnFlag" 
+		}	// end "else !returnFlag" 
 		
 	return (returnFlag);
 	
@@ -1752,7 +1709,7 @@ Boolean LoadStatisticsImageSpecs (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1771,7 +1728,7 @@ Boolean LoadStatisticsImageSpecs (
 // Called By:			StatisticsImageControl 
 //
 //	Coded By:			Larry L. Biehl			Date: 11/15/1991
-//	Revised By:			Larry L. Biehl			Date: 06/29/2016
+//	Revised By:			Larry L. Biehl			Date: 12/16/2016
 	
 Boolean StatisticsImageDialog (
 				FileInfoPtr							fileInfoPtr)
@@ -1914,13 +1871,13 @@ Boolean StatisticsImageDialog (
 		if (localNumberClasses > 0)
 			SetDialogItemDrawRoutine (dialogPtr, 7, gDrawDialogClassPopUpPtr);
 		
-		else		// numberClasses <= 0
+		else	// numberClasses <= 0
 			{
 			SetDLogControlHilite (dialogPtr, 6, 255);
 			
-			}		// end "else numberClasses <= 0"
+			}	// end "else numberClasses <= 0"
 		
-		}		// end "channelsAllAvailableFlag"
+		}	// end "channelsAllAvailableFlag"
 		
 	else	// !channelsAllAvailableFlag
 		{
@@ -1928,106 +1885,22 @@ Boolean StatisticsImageDialog (
 		channelsPopUpMenu = gPopUpAllSubsetMenu;
 		channelsPopUpMenuID = kPopUpAllSubsetMenuID;
 		
-		}		// end "else	// !channelsAllAvailableFlag"
+		}	// end "else !channelsAllAvailableFlag"
 		
 			// Not implemented.
 					
 	HideDialogItems (dialogPtr, 8, 9);
 	HideDialogItems (dialogPtr, 31, 32);
-/*				
-			// Initialize selected area structure.				
-	
-	InitializeDialogSelectArea (&dialogSelectArea,
-											gImageWindowInfoPtr,
-											gActiveImageWindow,
-											gStatisticsImageSpecsPtr->columnStart,
-											gStatisticsImageSpecsPtr->columnEnd,
-											gStatisticsImageSpecsPtr->columnInterval,
-											gStatisticsImageSpecsPtr->lineStart,
-											gStatisticsImageSpecsPtr->lineEnd,
-											gStatisticsImageSpecsPtr->lineInterval,
-											25,
-											23,
-											kAdjustToBaseImage );
-											
-	classPtr = (SInt16*)GetHandlePointer(
-										gStatisticsImageSpecsPtr->classHandle,
-										kNoLock,
-										kNoMoveHi);		
-			
-	featurePtr = (SInt16*)GetHandlePointer(
-										gStatisticsImageSpecsPtr->featureHandle,
-										kNoLock,
-										kNoMoveHi);			
-			
-	channelsPtr = (SInt16*)GetHandlePointer(
-										gStatisticsImageSpecsPtr->channelsHandle,
-										kNoLock,
-										kNoMoveHi);		
-	
-			// Save handle for the OK button for use later.								
-			
-	GetDialogItem (dialogPtr, 1,  &theType, &okHandle, &theBox);
-		
-			// Update the modal dialog with the default settings						
-																		
-			//	Channels to use. Make all channels the default													
-	
-	gChannelSelection = gStatisticsImageSpecsPtr->channelSet;
-*/
+
 	if (gStatisticsImageSpecsPtr->areaCode == kTrainingType)
 		{
 		SetDialogItemDrawRoutine (dialogPtr, 4, drawChannelsPopUp2Ptr);
 		channelsPopUpMenu = gPopUpAllAvailableSubsetMenu;
-		channelsPopUpMenuID = kPopUpAllAvailableSubsetMenuID;
-	
-				//	Classes to use. Make all classes the default													
-					
-		//SetDLogControl (dialogPtr, 6, (gStatisticsImageSpecsPtr->areaCode == kTrainingType) );
-	
-		//if (gStatisticsImageSpecsPtr->numberClasses > 0)
-			SetDialogItemDrawRoutine (dialogPtr, 7, gDrawDialogClassPopUpPtr);
-		/*
-		else		// gStatisticsImageSpecsPtr->numberClasses <= 0
-			{
-			HideDialogItem (dialogPtr, 7);
-			SetDLogControlHilite (dialogPtr, 6, 255);
-			
-			}		// end "else gStatisticsImageSpecsPtr->numberClasses <= 0"
-			
-		gClassSelection = gStatisticsImageSpecsPtr->classSet;
-	
-		if (gStatisticsImageSpecsPtr->areaCode == kTrainingType)
-			{
-			ShowDialogItem (dialogPtr, 7);
-			ShowDialogItems (dialogPtr, 10, 12);
-			
-			}		// end "if (gStatisticsImageSpecsPtr->areaCode == kTrainingType)" 
-			
-		else		// gStatisticsImageSpecsPtr->areaCode != kTrainingType" 
-			{
-			HideDialogItems (dialogPtr, 7, 12);
-			
-			}		// end "else gStatisticsImageSpecsPtr->areaCode != kTrainingType"
-		
-				// Not implemented.
-					
-		HideDialogItems (dialogPtr, 8, 9);
-		*/
-				// Set control for creating one image for each class.						
-				
-		//SetDLogControl (dialogPtr, 11,
-		//							gStatisticsImageSpecsPtr->perFieldClassCode == 1);
-		
-				// Set control for creating one image for each field.						
-				
-		//SetDLogControl (dialogPtr, 12,
-		//							gStatisticsImageSpecsPtr->perFieldClassCode == 2);
-									
-		//projectChannelsPtr = (SInt16*)gProjectInfoPtr->channelsPtr;
-		//maxNumberChannels = gProjectInfoPtr->numberStatisticsChannels;
-									
-		}		// end "if (gStatisticsImageSpecsPtr->areaCode == kTrainingType)"
+		channelsPopUpMenuID = kPopUpAllAvailableSubsetMenuID;	
+
+		SetDialogItemDrawRoutine (dialogPtr, 7, gDrawDialogClassPopUpPtr);
+
+		}	// end "if (gStatisticsImageSpecsPtr->areaCode == kTrainingType)"
 		
 	else		// gStatisticsImageSpecsPtr->areaCode != kTrainingType
 		{
@@ -2035,93 +1908,8 @@ Boolean StatisticsImageDialog (
 		channelsPopUpMenu = gPopUpAllSubsetMenu;
 		channelsPopUpMenuID = kPopUpAllSubsetMenuID;
 		
-		//HideDialogItems (dialogPtr, 6, 12);
-									
-		//projectChannelsPtr = NULL;
-		//maxNumberChannels = gImageWindowInfoPtr->totalNumberChannels;
-									
-		}		// end "else gStatisticsImageSpecsPtr->areaCode != kTrainingType"
-	
-			// Set control bullet for "Use overall min/max".							
-			
-	//SetDLogControl (dialogPtr, 14,
-	//							(gStatisticsImageSpecsPtr->minMaxSettingCode == 1));
-	
-			// Set control bullet for "Use individual min/max".						
-			
-	//SetDLogControl (dialogPtr, 15,
-	//							(gStatisticsImageSpecsPtr->minMaxSettingCode == 2));
-	
-			// Set control bullet for "User defined min/max".						
-			
-	//SetDLogControl (dialogPtr, 16,
-	//							(gStatisticsImageSpecsPtr->minMaxSettingCode == 3));
-	/*
-	if (gStatisticsImageSpecsPtr->minMaxSettingCode == 3)
-		ShowDialogItems (dialogPtr, 17, 20);
-		
-	else		// gStatisticsImageSpecsPtr->minMaxSettingCode != 3
-		HideDialogItems (dialogPtr, 17, 20);
-	*/
-			// Set the current user specified min and max values.
-			
-	//LoadDItemRealValue (dialogPtr, 18, gStatisticsImageSpecsPtr->userMinimum, 1);
-	//LoadDItemRealValue (dialogPtr, 20, gStatisticsImageSpecsPtr->userMaximum, 1);
+		}	// end "else gStatisticsImageSpecsPtr->areaCode != kTrainingType"
 
-			// To entire image icon.															
-			//	Selected Statistics Image area												
-			
-	//LoadLineColumnItems (&dialogSelectArea, dialogPtr);
-
-			// Set radio button for area.														
-			
-	//SetDLogControl (dialogPtr, 33, (gStatisticsImageSpecsPtr->areaCode == kAreaType));
-	
-	//if (gStatisticsImageSpecsPtr->areaCode != kAreaType)
-	//	HideDialogItem (dialogPtr, 33);
-	/*
-	if (gStatisticsImageSpecsPtr->areaCode == kAreaType)
-		{
-		//ShowDialogItems (dialogPtr, 21, 30);
-		selectItem = 25;
-		
-		}		// end "if (gStatisticsImageSpecsPtr->areaCode == kAreaType)" 
-					
-	else		// gStatisticsImageSpecsPtr->areaCode != kAreaType 
-		{
-		//HideDialogItems (dialogPtr, 21, 30);
-		selectItem = 18;
-		
-		}		// end "else gStatisticsImageSpecsPtr->areaCode != kAreaType" 
-	*/
-			// Set check box for "Save image files to disk".							
-	
-			// Dialog items that are not currently used.
-					
-	//HideDialogItems (dialogPtr, 31, 32);
-		
-			// Set the check box for the feature transformation option.				
-	/*
-	EigenvectorInfoExists (kProject, &eigenSource, &numberEigenvectors);
-	featureTransformAllowedFlag = (numberEigenvectors > 0);
-	if (numberEigenvectors <= 0)
-		{		
-		featureTransformationFlag = FALSE;
-		HideDialogItem (dialogPtr, 34);
-		
-		}		// end "if (numberEigenvectors <= 0)" 
-		
-	else		// numberEigenvectors > 0 
-		featureTransformationFlag = 
-									gStatisticsImageSpecsPtr->featureTransformationFlag;
-									
-	CheckFeatureTransformationDialog (
-							dialogPtr, 
-							featureTransformAllowedFlag,
-							34, 
-							4, 
-							&featureTransformationFlag);
-*/		
 			// Center the dialog and then show it.											
 			
 	ShowDialogWindow (dialogPtr, kStatisticsImageDialogID, kSetUpDFilterTable);
@@ -2132,7 +1920,7 @@ Boolean StatisticsImageDialog (
 			// Set default text selection to first edit text item						
 	
 	if (selectItem != 0)	
-		SelectDialogItemText (dialogPtr, selectItem, 0, INT_MAX);
+		SelectDialogItemText (dialogPtr, selectItem, 0, INT16_MAX);
 		
 	modalDone = FALSE;
 	itemHit = 0;
@@ -2204,12 +1992,11 @@ Boolean StatisticsImageDialog (
 															itemHit);
 						//gChannelSelection = itemHit;
 	
-							// Make certain that the correct label is drawn in the	
-							// channel pop up box.												
+								// Make certain that the correct label is drawn in the	
+								// channel pop up box.												
 					
 						InvalWindowRect (GetDialogWindow(dialogPtr), &theBox);
 						}
-					
 					break;
 					
 				case 6:		// check button for "Classes" 
@@ -2218,7 +2005,6 @@ Boolean StatisticsImageDialog (
 					ShowDialogItem (dialogPtr, 7);
 					ShowDialogItems (dialogPtr, 10, 12);
 					HideDialogItems (dialogPtr, 21, 30);
-					
 					break;
 					
 				case 7:		// Classes 
@@ -2248,7 +2034,7 @@ Boolean StatisticsImageDialog (
 							// Make certain that the correct label is drawn in the	
 							// class pop up box.													
 					
-					InvalWindowRect ( GetDialogWindow(dialogPtr), &theBox );
+					InvalWindowRect (GetDialogWindow(dialogPtr), &theBox);
 					break;
 					
 				case 9:		// Field selection.												
@@ -2270,7 +2056,7 @@ Boolean StatisticsImageDialog (
 					if (itemHit == 16)
 						{
 						ShowDialogItems (dialogPtr, 17, 20);
-						SelectDialogItemText (dialogPtr, 18, 0, INT_MAX);
+						SelectDialogItemText (dialogPtr, 18, 0, INT16_MAX);
 						
 						}		// end "if (itemHit == 16)"
 						
@@ -2306,8 +2092,7 @@ Boolean StatisticsImageDialog (
 					SetDLogControl (dialogPtr, 6, 0);
 					HideDialogItems (dialogPtr, 7, 12);
 					ShowDialogItems (dialogPtr, 21, 30);
-					SelectDialogItemText (dialogPtr, 25, 0, INT_MAX);
-					
+					SelectDialogItemText (dialogPtr, 25, 0, INT16_MAX);
 					break;
 						
 				case 34:		// Feature transformation flag. 
@@ -2317,15 +2102,16 @@ Boolean StatisticsImageDialog (
 															dialogPtr, 
 															featureTransformAllowedFlag,
 															34, 
-															4, 
+															IDC_ChannelPrompt, 
 															&featureTransformationFlag);
+					//InvalWindowRect (GetDialogWindow(dialogPtr), &theChannelPopupBox);
 					break;
 						
-				}		// end "switch(itemHit)" 
+				}	// end "switch(itemHit)" 
 				
-			}		// end "if(itemHit > 2)" 
+			}	// end "if(itemHit > 2)" 
 			
-		else		// itemHit <= 2 
+		else	// itemHit <= 2 
 			{	
 					// If item hit is 1, check if line-column values make 			
 					// sense.  If they don't, sound an alert and make item hit 		
@@ -2348,9 +2134,9 @@ Boolean StatisticsImageDialog (
 					SelectDialogItemText (dialogPtr, 18, 0, SHRT_MAX);
 					itemHit = 0;
 					
-					}		// end "if ( GetDItemValue (dialogPtr, 18) >= ..."
+					}	// end "if ( GetDItemValue (dialogPtr, 18) >= ..."
 					
-				}		// end "if (itemHit == 1 && ..."
+				}	// end "if (itemHit == 1 && ..."
 										
 			if (itemHit == 1)
 				{
@@ -2376,100 +2162,19 @@ Boolean StatisticsImageDialog (
 													GetDLogControl (dialogPtr, 16),
 													GetDItemRealValue (dialogPtr, 18),
 													GetDItemRealValue (dialogPtr, 20));
-/*
-						// Statistics images for project statistics.
-				
-				if ( GetDLogControl (dialogPtr, 6) ) 
-					gStatisticsImageSpecsPtr->areaCode = kTrainingType;
-													
-						// Statistics image for selected area.					
-				
-				if (GetDLogControl (dialogPtr, 33)) 
-					gStatisticsImageSpecsPtr->areaCode = kAreaType; 
-					
-						// Channels.												
 
-				gStatisticsImageSpecsPtr->channelSet = gChannelSelection;
-				if (gChannelSelection == kAllMenuItem)		// All channels 
-					LoadFeatureVector (featureTransformationFlag,
-								(SInt16*)&gStatisticsImageSpecsPtr->numberFeatures,
-								featurePtr,
-								maxNumberChannels);
-					
-						// Load the statistics image channels vector to be used 		
-						// by GetLineOfData.														
-															
-				LoadChannelsVector ( 
-								(gStatisticsImageSpecsPtr->areaCode == kTrainingType),
-								featureTransformationFlag,
-								gStatisticsImageSpecsPtr->numberFeatures, 
-								featurePtr, 
-								(SInt16*)&gStatisticsImageSpecsPtr->numberChannels,
-								channelsPtr);
-					
-						// Classes														
-				
-				gStatisticsImageSpecsPtr->classSet = gClassSelection;
-				
-				if (gStatisticsImageSpecsPtr->areaCode == kTrainingType && 
-																	gClassSelection == kAllMenuItem)
-					LoadTrainClassVector (
-							&gStatisticsImageSpecsPtr->numberClasses,
-							&gStatisticsImageSpecsPtr->classSet, 
-							classPtr);
-													
-						// Image for class or field statistics.		
-					
-				if (GetDLogControl (dialogPtr, 11) == 1)
-					gStatisticsImageSpecsPtr->perFieldClassCode = 1;
-					
-				if (GetDLogControl (dialogPtr, 12) == 1)
-					gStatisticsImageSpecsPtr->perFieldClassCode = 2;
-													
-						// Minimum/Maximum settings to use.				
-				
-				if (GetDLogControl (dialogPtr, 14))
-					gStatisticsImageSpecsPtr->minMaxSettingCode = 1;
-				
-				if (GetDLogControl (dialogPtr, 15))
-					gStatisticsImageSpecsPtr->minMaxSettingCode = 2;
-				
-				if ( GetDLogControl (dialogPtr, 16) )
-					gStatisticsImageSpecsPtr->minMaxSettingCode = 3;
-			
-						// User specified minimum and maximum.						
-						
-				gStatisticsImageSpecsPtr->userMinimum = GetDItemRealValue (dialogPtr, 18);
-				gStatisticsImageSpecsPtr->userMaximum = GetDItemRealValue (dialogPtr, 20);
-				
-						// Selected area.												
-				
-				gStatisticsImageSpecsPtr->lineStart = dialogSelectArea.lineStart;
-				gStatisticsImageSpecsPtr->lineEnd = dialogSelectArea.lineEnd;
-				gStatisticsImageSpecsPtr->lineInterval = 
-															dialogSelectArea.lineInterval;
-				gStatisticsImageSpecsPtr->columnStart = dialogSelectArea.columnStart;
-				gStatisticsImageSpecsPtr->columnEnd = dialogSelectArea.columnEnd;
-				gStatisticsImageSpecsPtr->columnInterval = 
-															dialogSelectArea.columnInterval;
-				
-						// Feature transformation option.									
-						
-				gStatisticsImageSpecsPtr->featureTransformationFlag = 
-																	featureTransformationFlag;
-*/				
 				returnFlag = TRUE;
 
-				}		// end if (itemHit == 1) 
+				}	// end if (itemHit == 1) 
 			
 			if (itemHit == 2)
 				{
 				modalDone = TRUE;
 				returnFlag = FALSE;
 				
-				}		// end "if (itemHit == 2)" 
+				}	// end "if (itemHit == 2)" 
 				
-			}		// end "else itemHit <= 2" 
+			}	// end "else itemHit <= 2" 
 				
 		}	while (!modalDone);
 		
@@ -2478,10 +2183,8 @@ Boolean StatisticsImageDialog (
 	CloseRequestedDialog (dialogPtr, kSetUpDFilterTable);
 #endif	// defined multispec_mac
 
-
-	#if defined multispec_win   
-	
-	CMStatImageDialog*		dialogPtr = NULL;
+#	if defined multispec_win   
+		CMStatImageDialog*		dialogPtr = NULL;
 		
 		TRY
 			{ 
@@ -2498,25 +2201,26 @@ Boolean StatisticsImageDialog (
 			returnFlag = FALSE;
 			}
 		END_CATCH_ALL
-	
-	#endif	// defined multispec_win  
-	
+#	endif	// defined multispec_win  
    
-#if defined multispec_lin
-   try{
-      CMStatImageDialog*   dialogPtr = NULL;
-   
-      dialogPtr = new CMStatImageDialog((wxWindow *)GetMainFrame());
-   
-      returnFlag = dialogPtr->DoDialog(); 
-   
-      delete dialogPtr;
-      
-   }catch(int e){
+#	if defined multispec_lin
+		try
+			{
+			CMStatImageDialog*   dialogPtr = NULL;
+		
+			dialogPtr = new CMStatImageDialog((wxWindow *)GetMainFrame());
+		
+			returnFlag = dialogPtr->DoDialog(); 
+		
+			delete dialogPtr;
+			
+			}
+		catch(int e)
+			{
 			MemoryMessage(0, kObjectMessage);
 			returnFlag = FALSE;
-		}
-#endif
+			}
+#	endif
 
    return returnFlag;
 }
@@ -2524,7 +2228,7 @@ Boolean StatisticsImageDialog (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2630,9 +2334,9 @@ void StatisticsImageDialogInitialize (
 	if (statisticsImageSpecsPtr->areaCode == kTrainingType)
 		{
 		*channelsAllAvailableFlagPtr = TRUE;
-//		SetDialogItemDrawRoutine (dialogPtr, 4, drawChannelsPopUp2Ptr);
-//		channelsPopUpMenu = gPopUpAllAvailableSubsetMenu;
-//		channelsPopUpMenuID = kPopUpAllAvailableSubsetMenuID;
+		//SetDialogItemDrawRoutine (dialogPtr, 4, drawChannelsPopUp2Ptr);
+		//channelsPopUpMenu = gPopUpAllAvailableSubsetMenu;
+		//channelsPopUpMenuID = kPopUpAllAvailableSubsetMenuID;
 	
 				//	Classes to use. Make all classes the default													
 					
@@ -2651,16 +2355,16 @@ void StatisticsImageDialogInitialize (
 			ShowDialogItem (dialogPtr, IDC_SelectedClassRadio);
 			ShowDialogItem (dialogPtr, IDC_SelectedFieldRadio);
 			
-			}		// end "if (statisticsImageSpecsPtr->areaCode == kTrainingType)"
+			}	// end "if (statisticsImageSpecsPtr->areaCode == kTrainingType)"
 			
-		else		// statisticsImageSpecsPtr->areaCode != kTrainingType"
+		else	// statisticsImageSpecsPtr->areaCode != kTrainingType"
 			{
 			HideDialogItem (dialogPtr, IDC_ClassCombo);
 			HideDialogItem (dialogPtr, IDC_StatPrompt);
 			HideDialogItem (dialogPtr, IDC_SelectedClassRadio);
 			HideDialogItem (dialogPtr, IDC_SelectedFieldRadio);
 			
-			}		// end "else statisticsImageSpecsPtr->areaCode != kTrainingType"
+			}	// end "else statisticsImageSpecsPtr->areaCode != kTrainingType"
 				
 				// Set control for creating one image for each class.						
 				
@@ -2675,16 +2379,15 @@ void StatisticsImageDialogInitialize (
 		*projectChannelsPtrPtr = (UInt16*)gProjectInfoPtr->channelsPtr;
 		*maxNumberChannelsPtr = gProjectInfoPtr->numberStatisticsChannels;
 									
-		}		// end "if (gProjectInfoPtr != NULL && ..."
+		}	// end "if (gProjectInfoPtr != NULL && ..."
 		
-	else		// gProjectInfoPtr == NULL || ...
+	else	// gProjectInfoPtr == NULL || ...
 		{
 		*channelsAllAvailableFlagPtr = FALSE;
-//		SetDialogItemDrawRoutine (dialogPtr, 4, gDrawChannelsPopUpPtr);
-//		channelsPopUpMenu = gPopUpAllSubsetMenu;
-//		channelsPopUpMenuID = kPopUpAllSubsetMenuID;
+		//SetDialogItemDrawRoutine (dialogPtr, 4, gDrawChannelsPopUpPtr);
+		//channelsPopUpMenu = gPopUpAllSubsetMenu;
+		//channelsPopUpMenuID = kPopUpAllSubsetMenuID;
 		
-		//HideDialogItems (dialogPtr, 6, 12);
 		HideDialogItem (dialogPtr, IDC_ClassesRadio);
 		HideDialogItem (dialogPtr, IDC_ClassCombo);
 		HideDialogItem (dialogPtr, IDC_StatPrompt);
@@ -2694,7 +2397,7 @@ void StatisticsImageDialogInitialize (
 		*projectChannelsPtrPtr = NULL;
 		*maxNumberChannelsPtr = imageWindowInfoPtr->totalNumberChannels;
 									
-		}		// end "else gProjectInfoPtr == NULL || ..."
+		}	// end "else gProjectInfoPtr == NULL || ..."
 	
 			// Set control bullet for "Use overall min/max".							
 			
@@ -2719,9 +2422,9 @@ void StatisticsImageDialogInitialize (
 		ShowDialogItem (dialogPtr, IDC_MaxPrompt);
 		ShowDialogItem (dialogPtr, IDC_StatisticMax);
 		
-		}		// end "if (statisticsImageSpecsPtr->minMaxSettingCode == 3)"
+		}	// end "if (statisticsImageSpecsPtr->minMaxSettingCode == 3)"
 		
-	else		// statisticsImageSpecsPtr->minMaxSettingCode != 3
+	else	// statisticsImageSpecsPtr->minMaxSettingCode != 3
 		{
 		HideDialogItem (dialogPtr, IDC_MinPrompt);
 		HideDialogItem (dialogPtr, IDC_StatisticMin);
@@ -2751,21 +2454,19 @@ void StatisticsImageDialogInitialize (
 		
 	if (statisticsImageSpecsPtr->areaCode == kAreaType)
 		{
-		#if defined multispec_lin
+#		if defined multispec_lin
 			ShowDialogItem (dialogPtr, IDC_LineColFrame);
 			ShowDialogItem (dialogPtr, IDC_StartPrompt);
 			ShowDialogItem (dialogPtr, IDC_EndPrompt);
 			ShowDialogItem (dialogPtr, IDC_IntervalPrompt);
-		#endif
-		#if defined multispec_mac
+#		endif
+#		if defined multispec_mac
 			ShowDialogItem (dialogPtr, IDC_StartEndInterval);
 			ShowDialogItem (dialogPtr, IDC_IntervalPrompt);
-		#endif
-
-#if defined multispec_win
-			//ShowDialogItem (dialogPtr, IDC_LineColFrame);
+#		endif
+#		if defined multispec_win
 			ShowDialogItem (dialogPtr, IDC_StartEndInterval);
-#endif
+#		endif
 		ShowDialogItem (dialogPtr, entireIconItem);
 		ShowDialogItem (dialogPtr, IDC_LinePrompt);
 		ShowDialogItem (dialogPtr, IDC_LineStart);
@@ -2777,25 +2478,23 @@ void StatisticsImageDialogInitialize (
 		ShowDialogItem (dialogPtr, IDC_ColumnInterval);
 		*selectItemPtr = IDC_LineStart;
 		
-		}		// end "if (statisticsImageSpecsPtr->areaCode == kAreaType)" 
+		}	// end "if (statisticsImageSpecsPtr->areaCode == kAreaType)" 
 					
-	else		// statisticsImageSpecsPtr->areaCode != kAreaType 
+	else	// statisticsImageSpecsPtr->areaCode != kAreaType 
 		{
-		#if defined multispec_lin
+#		if defined multispec_lin
 			HideDialogItem (dialogPtr, IDC_LineColFrame);
 			HideDialogItem (dialogPtr, IDC_StartPrompt);
 			HideDialogItem (dialogPtr, IDC_EndPrompt);
 			HideDialogItem (dialogPtr, IDC_IntervalPrompt);
-		#endif
-		#if defined multispec_mac
+#		endif
+#		if defined multispec_mac
 			HideDialogItem (dialogPtr, IDC_StartEndInterval);
 			HideDialogItem (dialogPtr, IDC_IntervalPrompt);
-		#endif
-
-#if defined multispec_win
-			//HideDialogItem (dialogPtr, IDC_LineColFrame);
+#		endif
+#		if defined multispec_win
 			HideDialogItem (dialogPtr, IDC_StartEndInterval);
-#endif
+#		endif
 		HideDialogItem (dialogPtr, entireIconItem);
 		HideDialogItem (dialogPtr, IDC_LinePrompt);
 		HideDialogItem (dialogPtr, IDC_LineStart);
@@ -2807,7 +2506,7 @@ void StatisticsImageDialogInitialize (
 		HideDialogItem (dialogPtr, IDC_ColumnInterval);
 		*selectItemPtr = IDC_StatisticMin;
 		
-		}		// end "else statisticsImageSpecsPtr->areaCode != kAreaType" 
+		}	// end "else statisticsImageSpecsPtr->areaCode != kAreaType" 
 				
 			// Set the check box for the feature transformation option.				
 			
@@ -2818,9 +2517,9 @@ void StatisticsImageDialogInitialize (
 		*featureTransformationFlagPtr = FALSE;
 		HideDialogItem (dialogPtr, IDC_FeatureTransformation);
 		
-		}		// end "if (numberEigenvectors <= 0)" 
+		}	// end "if (numberEigenvectors <= 0)" 
 		
-	else		// numberEigenvectors > 0 
+	else	// numberEigenvectors > 0 
 		*featureTransformationFlagPtr = 
 									statisticsImageSpecsPtr->featureTransformationFlag;
 									
@@ -2828,15 +2527,15 @@ void StatisticsImageDialogInitialize (
 							dialogPtr, 
 							*featureTransformAllowedFlagPtr,
 							IDC_FeatureTransformation,
-							IDC_ChannelCombo,
+							IDC_ChannelPrompt,
 							featureTransformationFlagPtr);
 
-} // end "StatisticsImageDialogInitialize"
+}	// end "StatisticsImageDialogInitialize"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2905,7 +2604,6 @@ void StatisticsImageDialogOK (
 									0,
 									NULL,
 									NULL);
-
 									
 			// Image for class or field statistics.		
 		

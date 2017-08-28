@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -14,7 +14,7 @@
 //
 //	Revision number:		3.0
 //
-//	Revision date:			06/16/2016
+//	Revision date:			08/24/2017
 //
 //	Language:				C
 //
@@ -42,21 +42,9 @@
 //------------------------------------------------------------------------------------
 
 #include	"SMulSpec.h" 
-#include "SExtGlob.h"
-#ifdef multispec_win
-	#include "SRConsnt.h"
-	#include "SDefines.h"
-	#include "WMultiSpec.h"
-	#include "SProtype.h"
-	#define  kStatisticsImageStrID          172
-#endif
 
 #ifdef multispec_lin
-	#include "MultiSpec2.h"
-	#include "SRConsnt.h"
-	#include "SDefines.h"
-
-	#define  kStatisticsImageStrID          172
+	#include "LMultiSpec.h"
 #endif
 
 
@@ -93,6 +81,7 @@ long	L_band_no_location;
 #define grid_color 120
 #define mean_color NO_PALETTE_CLASSES
 #define mean_sd_color 2
+#define SHIFT_OFFSET3 15
 
 unsigned char  G_white_char=(unsigned char)iw;
 unsigned char  G_black_char=(unsigned char)ib;
@@ -119,12 +108,43 @@ short int n7[15] 	= { 1,1,1,0,0,1,0,0,1,0,0,1,0,0,1};
 short int n8[15] 	= { 1,1,1,1,0,1,1,1,1,1,0,1,1,1,1};
 short int n9[15] 	= { 1,1,1,1,0,1,1,1,1,0,0,1,1,1,1};
 
+short int nA[15]  = { 0,1,0,1,0,1,1,1,1,1,0,1,1,0,1};
+short int nB[15]  = { 1,1,0,1,0,1,1,1,1,1,0,1,1,1,0};
+short int nC[15]  = { 0,1,1,1,0,0,1,0,0,1,0,0,0,1,1};
+short int nD[15]  = { 1,1,0,1,0,1,1,0,1,1,0,1,1,1,0};
+short int nE[15]  = { 1,1,1,1,0,0,1,1,0,1,0,0,1,1,1};
+short int nF[15]  = { 1,1,1,1,0,0,1,1,0,1,0,0,1,0,0};
+short int nG[15]  = { 0,1,1,1,0,0,1,0,1,1,0,1,0,1,1};
+short int nH[15]  = { 1,0,1,1,0,1,1,1,1,1,0,1,1,0,1};
+short int nI[15]  = { 1,1,1,0,1,0,0,1,0,0,1,0,1,1,1};
+short int nJ[15]  = { 0,1,1,0,0,1,0,0,1,1,0,1,0,1,0};
+short int nK[15]  = { 1,0,1,1,0,1,1,1,0,1,0,1,1,0,1};
+short int nL[15]  = { 1,0,0,1,0,0,1,0,0,1,0,0,1,1,1};
+short int nM[15]  = { 1,0,1,1,1,1,1,1,1,1,0,1,1,0,1};
+short int nN[15]  = { 1,1,1,1,0,1,1,0,1,1,0,1,1,0,1};
+short int nO[15]  = { 0,1,0,1,0,1,1,0,1,1,0,1,0,1,0};
+short int nP[15]  = { 0,1,0,1,0,1,1,0,1,1,0,1,0,1,0};
+short int nQ[15]  = { 0,1,0,1,0,1,1,0,1,0,1,1,0,0,1};
+short int nR[15]  = { 1,1,0,1,0,1,1,1,0,1,0,1,1,0,1};
+short int nS[15]  = { 0,1,1,1,0,0,0,1,0,0,0,1,1,1,0};
+short int nT[15]  = { 1,1,1,0,1,0,0,1,0,0,1,0,0,1,0};
+short int nU[15]  = { 1,0,1,1,0,1,1,0,1,1,0,1,1,1,1};
+short int nV[15]  = { 1,0,1,1,0,1,1,0,1,1,0,1,0,1,0};
+short int nW[15]  = { 1,0,1,1,0,1,1,1,1,1,1,1,1,0,1};
+short int nX[15]  = { 1,0,1,1,0,1,0,1,0,1,0,1,1,0,1};
+short int nY[15]  = { 1,0,1,1,0,1,0,1,0,0,1,0,0,1,0};
+short int nZ[15]  = { 1,1,1,0,0,1,0,1,0,1,0,0,1,1,1};
+short int nSpace[15]  = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}; // " "
+short int nDot[15]  = { 0,0,0,0,0,0,0,0,0,0,0,0,0,1,0}; // "."
+short int nUnderScore[15]  = { 0,0,0,0,0,0,0,0,0,0,0,0,1,1,1}; // "_"
+short int nMinus[15]  = { 0,0,0,0,0,0,1,1,1,0,0,0,0,0,0}; // "-"
+
 unsigned char mean_bit_map[24] = { ib,iw,ib,ib,ib,iw, iw,ib,iw,ib,iw,ib, iw,ib,iw,ib,iw,ib, iw,ib,iw,ib,iw,ib};
 unsigned char sd_bit_map[20] 	= { iw,ib,ib,ib, ib,iw,ib,iw, ib,iw,iw,ib, ib,iw,iw,ib, iw,ib,ib,iw};
 
 
 
-void					enlarge_cor(
+void					enlarge_cor (
 							UInt32								enlargement,
 							unsigned char* 					cor,
 							UInt32								size_row,
@@ -133,22 +153,26 @@ void					enlarge_cor(
 							UInt32								final_size_row,
 							UInt32								final_size_col);
 
-void 					FS_find_STI_size(
-							SInt32								n,
-							SInt32*								STI_size);
+void 					FS_find_STI_size (
+							SInt32								numberFeatures,
+							UInt32*								STI_size);
 
-void					FS_gen_make_stat_image_same_scale(
+void					FS_gen_make_stat_image_same_scale (
 							CLASS_INFO_STR* 					class_info,
+							SInt16*								classPtr,
 							SInt32								no_class,
-							SInt32								n,
+							UInt16*								featurePtr,
+							SInt32								numberFeatures,
 							STI_INFO_STR 						STI_info,
 							FileInfoPtr							newFileInfoPtr,
 							SInt32*								ERROR_FLAG);
  
 void              FS_make_cor_mean_std (
+							UInt16*								featurePtr,
                      SInt32								numberFeatures,
                      CLASS_INFO_STR* 					class_info,
-                     SInt32								index,
+							SInt16*								classPtr,
+                     SInt32								no_class,
                      FileInfoPtr							newFileInfoPtr,
                      double 								max_mean_std_height,
                      double 								min_mean_std_height,
@@ -157,23 +181,25 @@ void              FS_make_cor_mean_std (
                      unsigned char                 *cor,
                      unsigned char                 *final_cor);
 
-void					FS_make_stat_image_same_scale(
+void					FS_make_stat_image_same_scale (
 							CLASS_INFO_STR* 					class_info,
+							SInt16*								classPtr,
 							SInt32								no_class,
-							SInt32								n,
+							UInt16*								featurePtr,
+							SInt32								numberFeatures,
 							FileInfoPtr							newFileInfoPtr,
 							SInt32*								ERROR_FLAG,
 							SInt16								minMaxSettingCode,
 							double								user_mean_minimum,
 							double								user_mean_maximum);
 
-void              FS_make_half_STI(
+void              FS_make_half_STI (
                      double* 								cov,
                      double* 								var,
                      unsigned char* 					image,
                      SInt32								n);
 								
-void 					gen_put_number(
+void 					gen_put_number (
 							unsigned char* 					final_cor,
 							SInt32								final_size_col,
 							SInt32								row_pos,
@@ -182,10 +208,10 @@ void 					gen_put_number(
 							SInt32								sign,
 							SInt32								enlargement);
 
-void					make_even(
+void					make_even (
 							SInt32*								numberPtr);
 																
-void					put_integer(
+void					put_integer (
 							SInt32								start_zero_flag,
 							unsigned char* 					final_cor,
 							SInt32								final_size_col,
@@ -196,7 +222,7 @@ void					put_integer(
 							SInt32								max_digit,
 							SInt32								enlargement);
 								
-void					put_real(
+void					put_real (
 							unsigned char* 					final_cor,
 							SInt32								final_size_col,
 							SInt32								row_pos,
@@ -206,11 +232,11 @@ void					put_real(
 							SInt32								max_digit,
 							SInt32								enlargement,
 							SInt32								number_floating_point);
-							
+
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -229,7 +255,7 @@ void					put_real(
 //	Coded By:			Chulhee Lee				Date: ??/??/19??
 //	Revised By:			Larry L. Biehl			Date: 01/15/1998
 
-void enlarge_cor(
+void enlarge_cor (
 				UInt32								enlargement,
 				unsigned char* 					cor,
 				UInt32								size_row,
@@ -265,20 +291,20 @@ void enlarge_cor(
 					final_cor[final_corIndex] = corValue;
 					final_corIndex++;
 					
-					}		// end "for (index_b=0; index_b<enlargement; index_b++)"
+					}	// end "for (index_b=0; index_b<enlargement; index_b++)"
 															
-				}		// end "for (a=0; a<enlargement; a++)"
+				}	// end "for (a=0; a<enlargement; a++)"
 															
-			}		// end "for (j=0; j<size_col; j++)"
+			}	// end "for (j=0; j<size_col; j++)"
 															
-		}		// end "for (i=0; i<size_row; i++)"
+		}	// end "for (i=0; i<size_row; i++)"
 
-}		// end "enlarge_cor"
+}	// end "enlarge_cor"
 
 
  
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -295,11 +321,11 @@ void enlarge_cor(
 // Called By:	
 //
 //	Coded By:			Chulhee Lee				Date: ??/??/19??
-//	Revised By:			Larry L. Biehl			Date: 01/16/1998
+//	Revised By:			Larry L. Biehl			Date: 08/24/2017
 
-void FS_find_STI_size(
-				SInt32								n,
-				SInt32*								STI_size)
+void FS_find_STI_size (
+				SInt32								numberFeatures,
+				UInt32*								STI_size)
 				
 				
 {
@@ -309,8 +335,8 @@ void FS_find_STI_size(
 	
 			// put gap for std and mean
 			
-	width = n * 0.12;
-	gap = n * 0.05 + .5;
+	width = (SInt32)(numberFeatures * 0.12);
+	gap = (SInt32)(numberFeatures * 0.05 + .5);
 	
 	if (width<1)
 		width = 1;
@@ -320,8 +346,8 @@ void FS_find_STI_size(
 	 
 	L_total_width = width + gap;
 	
-	L_size_col = n + L_total_width;
-	L_size_row = n;
+	L_size_col = numberFeatures + L_total_width;
+	L_size_row = numberFeatures;
 
 			// number size
 			// Maybe should consider the number enlargement as an option within the
@@ -329,9 +355,9 @@ void FS_find_STI_size(
 			
 	L_number_enlargement = 1;
 
-	if (n>250)
+	if (numberFeatures>250)
 		L_number_enlargement = 2;
-/*		
+	/*		
 	if (n>400)
 		L_number_enlargement = 4;
 		
@@ -349,20 +375,20 @@ void FS_find_STI_size(
 	 
 	if (n>12800)
 		L_number_enlargement = 128;
-*/
+	*/
 	L_number_width = 4 * L_number_enlargement;
 
 			// if dim. is too small, enlarge for mean graph
 			
-	if (n < MINIMUM_STI_HEIGHT)
+	if (numberFeatures < MINIMUM_STI_HEIGHT)
 		L_enlargement=MINIMUM_STI_HEIGHT/L_size_row + 1;
 		
 	else
 		L_enlargement = 1;
 	 
-			// column numbef label & color code at the bottom
+			// column number label & color code at the bottom
 			
-	WIDTH_COLOR_CODE = 0.07*n*L_enlargement;
+	WIDTH_COLOR_CODE = (long)(0.07*numberFeatures*L_enlargement);
 	if (WIDTH_COLOR_CODE < 7)
 		WIDTH_COLOR_CODE = 7;
 		
@@ -372,38 +398,43 @@ void FS_find_STI_size(
 			// assign memory
 			
 	L_final_size_col = L_size_col * L_enlargement;
-	L_final_size_row = (L_size_row+n)*L_enlargement + TOTAL_WIDTH_COLOR_CODE +
-					       COL_NUMBER_HEIGHT*2 + 2*L_number_enlargement + 2 + n*0.01;
+   
+	L_final_size_row = (long)((L_size_row+numberFeatures)*L_enlargement + TOTAL_WIDTH_COLOR_CODE +
+					       COL_NUMBER_HEIGHT*2 + 2*L_number_enlargement + 2 + numberFeatures*0.01);
 	
-	*STI_size = L_final_size_row*L_final_size_col + 128;
+	if (STI_size != NULL)
+		*STI_size = L_final_size_row * L_final_size_col;
 
-	L_V_wave_length_location = n*L_enlargement + 1;
+	L_V_wave_length_location = numberFeatures*L_enlargement + 1;
 	
 			// color code bar in the middle
-/*			
+	/*			
 	L_color_start_location=L_size_row*L_enlargement+SPACE_BET_COLOR_CODE;
 	L_wave_length_location=L_size_row*L_enlargement+
 						   (SPACE_BET_COLOR_CODE+WIDTH_COLOR_CODE)+3+L_number_enlargement;
 	L_mean_graph_location=L_final_size_row-COL_NUMBER_HEIGHT;
 	L_band_no_location=L_final_size_row-COL_NUMBER_HEIGHT+2*L_number_enlargement;
-*/ 	
+	*/ 	
 			// color code bar at the bottom
 
 	L_wave_length_location = L_size_row*L_enlargement+3+L_number_enlargement;
 
-	L_color_start_location = L_final_size_row-WIDTH_COLOR_CODE;
+   L_color_start_location = L_final_size_row-WIDTH_COLOR_CODE + SHIFT_OFFSET3;
 	
 	L_mean_graph_location = L_final_size_row - COL_NUMBER_HEIGHT -
-													(SPACE_BET_COLOR_CODE + WIDTH_COLOR_CODE);
+									(SPACE_BET_COLOR_CODE + WIDTH_COLOR_CODE) + SHIFT_OFFSET3;
+									
+			// channel number loccation
+			
 	L_band_no_location = L_final_size_row-COL_NUMBER_HEIGHT + 2*L_number_enlargement -
-													(SPACE_BET_COLOR_CODE + WIDTH_COLOR_CODE);
-
+									(SPACE_BET_COLOR_CODE + WIDTH_COLOR_CODE) + SHIFT_OFFSET3;
+													
 }		// end "FS_find_STI_size"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -425,18 +456,25 @@ void FS_find_STI_size(
 // Called By:	
 //
 //	Coded By:			Chulhee Lee				Date: ??/??/19??
-//	Revised By:			Larry L. Biehl			Date: 03/07/1998
+//	Revised By:			Larry L. Biehl			Date: 08/24/2017
 
-void FS_gen_make_stat_image_same_scale(
+void FS_gen_make_stat_image_same_scale (
 				CLASS_INFO_STR* 					class_info,
+				SInt16*								classPtr,
 				SInt32								no_class,
-				SInt32								n,
+				UInt16*								featurePtr,
+				SInt32								numberFeatures,
 				STI_INFO_STR 						STI_info,
 				FileInfoPtr							newFileInfoPtr,
 				SInt32*								ERROR_FLAG)
 								
 {
-	StringPtr							newFileNamePtr;
+	CMFileStream*						fileStreamPtr;
+	
+	FileStringPtr						filePathPtr,
+											newFileNamePtr;
+											
+	unsigned char						*cor, *final_cor, erdas_header[128];
 	
 	double								max_mean_std_height,
 											min_mean_std_height,
@@ -444,10 +482,18 @@ void FS_gen_make_stat_image_same_scale(
 	
 	SInt32 								i,
 											j;
+											
+	UInt32								count,
+											final_cor_size,
+											L_image_size_row;
+											
+	SInt16								errCode;
+											
+	Boolean								addProjectIdentifierFlag = FALSE;
 	
-	
-	*ERROR_FLAG = 0;
-	
+			
+				// Make statistics images
+				
 	if (*ERROR_FLAG == 0)
 		{
 				// calculate max. and min. of mean and std	
@@ -455,7 +501,7 @@ void FS_gen_make_stat_image_same_scale(
 		max_mean_std_height= -1e10;
 		min_mean_std_height= 1e10;
 		for (i=0; i<no_class; i++)
-			for (j=0; j<n; j++)
+			for (j=0; j<numberFeatures; j++)
 				{
 				sd = sqrt(fabs((class_info+i)->fvar[j]));
 	  
@@ -474,55 +520,66 @@ void FS_gen_make_stat_image_same_scale(
 			max_mean_std_height = STI_info.meanmax_all;
 			min_mean_std_height = STI_info.meanmin_all;
 			
-			}
-			
-				// Make statistics images
+			}	// end "if (STI_info.mean_min_max_flag == 3)"
+		
+				// Initialize some parameters.
+				
+		FS_find_STI_size (numberFeatures, NULL);
       
-      SInt32            final_cor_size;
-      unsigned char     *cor, *final_cor, erdas_header[128];
-      SInt16				errCode;
-      UInt32				count;
-      
-      // create memory for statistic image files
-      FS_find_STI_size (n, &final_cor_size);
-      
-      
-      cor = (unsigned char*)MNewPointer(no_class * L_size_row * L_size_col * sizeof(char) );
+				// create memory for statistic image files
+				
+		final_cor_size = no_class * L_size_row * L_size_col * sizeof(char);
+      cor = (unsigned char*)MNewPointer (final_cor_size);
       
       if (cor == NULL)
 			{
 			*ERROR_FLAG = 110;																				
-			return;
+																													return;
 			
-			}		// end "if (cor == NULL)"
+			}	// end "if (cor == NULL)"
+   
+				// Initialize cor memory to be all index to white pixels.
+				
+		for (i=0; i<final_cor_size; i++)
+			cor[i] = G_white_char;
 
-      final_cor = (unsigned char*)MNewPointer( no_class * final_cor_size * sizeof(char) );
+				// Allocate memory for image
+				
+      L_image_size_row = L_final_size_row + 20;
+      final_cor_size = no_class * L_image_size_row * L_final_size_col * sizeof(char);
+      final_cor = (unsigned char*)MNewPointer (final_cor_size);
       
       if (final_cor == NULL)
 			{
-			CheckAndDisposePtr (final_cor);
-			*ERROR_FLAG=111;
-			return;
+			*ERROR_FLAG = 111;
+																													return;
 			
-			}		// end "if (final_cor == NULL)"
+			}	// end "if (final_cor == NULL)"
+   
+				// Initialize final_cor memory to be all index to white pixels.
+   
+		for (i=0; i<final_cor_size; i++)
+			final_cor[i] = G_white_char;
       
-      FS_make_cor_mean_std(n,
-		 								class_info, 
-		 								(SInt32)no_class,
-		 								newFileInfoPtr,
-		 								max_mean_std_height,
-		 								min_mean_std_height,
-		 								STI_info,
-		 								ERROR_FLAG,
-                              cor,
-                              final_cor);
+      FS_make_cor_mean_std (featurePtr,
+										numberFeatures,
+										class_info,
+										classPtr, 
+										(SInt32)no_class,
+										newFileInfoPtr,
+										max_mean_std_height,
+										min_mean_std_height,
+										STI_info,
+										ERROR_FLAG,
+										cor,
+										final_cor);
 	 
-		if (*ERROR_FLAG!=0)
-			return;
+		if (*ERROR_FLAG != 0)
+																													return;
 			
 				// Make ERDAS Header
       
-      newFileInfoPtr->numberLines = L_final_size_row;
+      newFileInfoPtr->numberLines = L_image_size_row;
       newFileInfoPtr->numberColumns = L_final_size_col * no_class;
      
       newFileInfoPtr->numberClasses = NO_PALETTE_CLASSES + 2;
@@ -531,83 +588,137 @@ void FS_gen_make_stat_image_same_scale(
      
       CMFileStream* newFileStreamPtr = GetFileStreamPointer (newFileInfoPtr);
   
-      StringPtr newFilePathPtr = (StringPtr)GetFilePathPPointer (newFileStreamPtr);
+      FileStringPtr newFilePathPtr = (FileStringPtr)GetFilePathPPointer (newFileStreamPtr);
       
       if (gProjectInfoPtr != NULL)
 			{
-         CMFileStream* fileStreamPtr = GetFileStreamPointer(gProjectInfoPtr);
-         StringPtr projectFilePathPtr = (StringPtr) GetFilePathPPointer (fileStreamPtr);
+         fileStreamPtr = GetFileStreamPointer(gProjectInfoPtr);
+         filePathPtr = (FileStringPtr)GetFilePathPPointer (fileStreamPtr);
 			
-			if (projectFilePathPtr[0] == 0)
+			if (filePathPtr[0] == 0)
 				{
 						// This is case when project has not been saved so there
 						// is no name yet. Use the image name.
-#ifdef multispec_lin				
-				CopyPToP ((char*)newFilePathPtr, (char*)&gProjectInfoPtr->imageFileName);
-#endif
-
-#ifdef multispec_win
-				CopyPToP((UCharPtr)newFilePathPtr, (UCharPtr)&gProjectInfoPtr->imageFileName);
-#endif
-				}
-
-			else 
-				{
-						// Project name exists; will use it.
 						
-				BlockMoveData (
-               projectFilePathPtr,
-					newFilePathPtr,
-               projectFilePathPtr[0] + 1);
-				}
+				filePathPtr = (FileStringPtr)GetFilePathPPointer (gImageFileInfoPtr);
+				addProjectIdentifierFlag = TRUE;
 				
-			}		// end "if (gProjectInfoPtr != NULL)"
+				}	// end "if (filePathPtr[0] == 0)"
+				
+			}	// end "if (gProjectInfoPtr != NULL)"
     
-      else		// gProjectInfoPtr == NULL
-			{
-         StringPtr imageFilePathPtr = (StringPtr) GetFilePathPPointer (gImageFileInfoPtr);
+      else	// gProjectInfoPtr == NULL
+         filePathPtr = (FileStringPtr)GetFilePathPPointer (gImageFileInfoPtr);
          
-			BlockMoveData((UCharPtr)imageFilePathPtr,
+		BlockMoveData ((UCharPtr)filePathPtr,
                         newFilePathPtr,
-                        imageFilePathPtr[0] + 1); 
-        
-			}		// end " else gProjectInfoPtr == NULL"
+                        filePathPtr[0] + 1); 
 			
 		RemoveSuffix (newFilePathPtr);
+	/*								
+	SInt16 numberChars = sprintf ((char*)&gTextString3,
+												" newFilePathPtr: %s%s", 
+												newFilePathPtr,
+												gEndOfLine);
+	ListString ((char*)&gTextString3, numberChars, gOutputTextH);
+	*/		
+		if (addProjectIdentifierFlag)
+			{
+			sprintf ((char*)&newFilePathPtr[newFilePathPtr[0]+1],
+						(char*)"_project\0");
+			 						
+			newFilePathPtr[0] += 8;
+			
+			}		// end "if (addProjectIdentifierFlag)"
   
-		sprintf ( (char*)&newFilePathPtr[ newFilePathPtr[0]+1 ],
-					".STI\0");
+		sprintf ((char*)&newFilePathPtr[newFilePathPtr[0]+1],
+					(char*)".sti\0");
 			 						
 		newFilePathPtr[0] += 4;
 		  
 		LoadNewErdasHeader (
 						newFileInfoPtr, (unsigned char*)erdas_header, kErdas74Type);
 		  
-		#if TARGET_API_MAC_CARBON
+		#if defined multispec_mac
 					// Force the uniFileName to be recreated to match the support file name.
 			newFileStreamPtr->uniFileName.length = 0;
-		#endif		// TARGET_API_MAC_CARBON
+		#endif	// defined multispec_mac
       
-      newFileNamePtr = (StringPtr) GetFileNamePPointer(newFileStreamPtr);
+      newFileNamePtr = (FileStringPtr)GetFileNamePPointer (newFileStreamPtr);
+	/*								
+	SInt16 numberChars1 = sprintf ((char*)&gTextString3,
+												" newFilePathPtr: %s%s", 
+												newFilePathPtr,
+												gEndOfLine);
+	ListString ((char*)&gTextString3, numberChars1, gOutputTextH);
+							
+	SInt16 numberChars2 = sprintf ((char*)&gTextString3,
+												" newFileNamePtr: %s%s", 
+												newFileNamePtr,
+												gEndOfLine);
+	ListString ((char*)&gTextString3, numberChars2, gOutputTextH);
+	*/
+#		if defined multispec_lin
+					// for mygeohub version, we need to make sure that we are not trying to write
+					// to the default input image file directory since it is read only
+					// For MultiSpec on mygeohub, need to change the working directory for saving files if
+					// the current working directory is the read only data directory
+					// Use wxSetWorkingDirectory (wxString) or wxFileDialog::SetDirectory to do this. Use wxGetCwd or wxFileDialog::GetDirectory to determine 
+					// if the default one is the standard directory.
+#			ifndef NetBeansProject
+				FileStringPtr			fileNamePtr;
+				
+				filePathPtr = (FileStringPtr)newFileStreamPtr->GetFilePathPPtr();
+				wxString wxFilePathName (&filePathPtr[1], wxConvUTF8);
+				wxFileName fileName;
+				fileName.Assign (wxFilePathName);
+			/*						
+			SInt16 numberChars13 = sprintf ((char*)&gTextString3,
+														" filePathPtr (before check if writable): %s%s", 
+														filePathPtr,
+														gEndOfLine);
+			ListString ((char*)&gTextString3, numberChars13, gOutputTextH);
+			*/	
+				if (!fileName.IsDirWritable())
+					{
+							// Need to change the directory to the working output directory
+							
+					fileNamePtr = (FileStringPtr)newFileStreamPtr->GetFileNameCPtr();
+					
+					wxString workingDirectory = wxGetCwd();
+					workingDirectory.Append("/");
+					workingDirectory.Append(fileNamePtr);
+					wxCharBuffer charWorkingDirectory = workingDirectory.ToAscii();
+		
+					newFileStreamPtr->SetFilePathFromCharString (
+													(StringPtr)charWorkingDirectory.data(), 
+													TRUE);
+									
+					//SetFileDoesNotExist (resultsFileStreamPtr, kKeepUTF8CharName);
+				/*					
+				SInt16 numberChars3 = sprintf ((char*)&gTextString3,
+														" charWorkingDirectory: %s%s", 
+														charWorkingDirectory.data(),
+														gEndOfLine);
+				ListString ((char*)&gTextString3, numberChars3, gOutputTextH);
+				*/	
+					}	// end "if (!fileName.IsDirWritable())"
+					
+				else 
+					{
+							// Directory is writable
+				/*					
+				SInt16 numberChars9 = sprintf ((char*)&gTextString3,
+														" Directory is writable: %s", 
+														gEndOfLine);
+				ListString ((char*)&gTextString3, numberChars9, gOutputTextH);
+				*/
+					}
 
-		#if defined multispec_lin
-					// If the support file was not found by MultiSpec on mygeohub, we need to also check the working 
-					// directory if the check above was for the read only data directory for the session.
-					// Use wxSetWorkingDirectory (wxString) or wxFileDialog::SetDirectory to do this. Use wxGetCwd or 
-					// wxFileDialog::GetDirectory to determine if the default one is the standard directory.
-			#ifndef NetBeansProject
-				wxString workingDirectory = wxGetCwd();
-				workingDirectory.Append("/");
-				workingDirectory.Append(&newFileNamePtr[1]);
-		
-				wxCharBuffer charWorkingDirectory = workingDirectory.ToAscii();
-		
-				newFileStreamPtr->SetFilePathFromCharString (
-									(StringPtr)charWorkingDirectory.data(), 
-									TRUE);
-			#endif	// end "#ifndef NetBeansProject"
-		#endif	// end "#if defined multispec_lin"
-     
+
+#			endif	// end "#ifndef NetBeansProject"
+#		endif	// end "#if defined multispec_lin"
+									
       errCode = CreateNewFile (newFileStreamPtr,
 										GetVolumeReferenceNumber (newFileStreamPtr), 
 										gCreator,
@@ -629,11 +740,11 @@ void FS_gen_make_stat_image_same_scale(
 			if (errCode != noErr)
 				*ERROR_FLAG = 201;
 		
-			}		// end "if (errCode == noErr)"
+			}	// end "if (errCode == noErr)"
 	
       if (errCode == noErr)
 			{
-         count = L_final_size_row * L_final_size_col *no_class;
+         count = L_image_size_row * L_final_size_col *no_class;
 			//count = final_cor_size * 2;
       
          errCode = MWriteData (newFileStreamPtr, 
@@ -641,16 +752,16 @@ void FS_gen_make_stat_image_same_scale(
 										final_cor, 
 										kNoErrorMessages);
 		
-		if (errCode != noErr)
-	 		*ERROR_FLAG = 202;
+			if (errCode != noErr)
+				*ERROR_FLAG = 202;
 		
-		}		// end "if (errCode == noErr)"
+			}	// end "if (errCode == noErr)"
 		
-   //}
-      if (*ERROR_FLAG != 200)
-         IOCheck (errCode, newFileStreamPtr);
+		if (*ERROR_FLAG != 200)
+			IOCheck (errCode, newFileStreamPtr);
 	
-			// " Image statistics file, '%s', written to disk.\r", 
+				// " Image statistics file, '%s', written to disk.\r", 
+				
       ListSpecifiedStringNumber ( 
 									kStatisticsImageStrID, 
 									IDS_StatisticsImage19,
@@ -662,12 +773,12 @@ void FS_gen_make_stat_image_same_scale(
       CloseFile (newFileInfoPtr);
       //printf("File Path:%s\n", (Str255*)&newFileInfoPtr->fileStreamCPtr->mFilePathName[1]);
       
-         //free memory
+				//free memory
       
       CheckAndDisposePtr (final_cor);
       CheckAndDisposePtr (cor);
       
-/*				
+		/*				
 		for (i=0; i<no_class; i++)
 			{
 		 	FS_make_cor_mean_std(n, 
@@ -682,17 +793,17 @@ void FS_gen_make_stat_image_same_scale(
 	 		if (*ERROR_FLAG!=0)
 	  			break;
 	  	
-			}		// end "for (i=0; i<no_class; i++)"
- */
+			}	// end "for (i=0; i<no_class; i++)"
+		*/
 		
-		}	// end "if (*ERROR_FLAG==0)"
+		}	// end "if (*ERROR_FLAG == 0)"
 	
-}		// end "FS_gen_make_stat_image_same_scale"
+}	// end "FS_gen_make_stat_image_same_scale"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -709,12 +820,14 @@ void FS_gen_make_stat_image_same_scale(
 // Called By:	
 //
 //	Coded By:			Chulhee Lee				Date: ??/??/19??
-//	Revised By:			Larry L. Biehl			Date: 08/24/2016
+//	Revised By:			Larry L. Biehl			Date: 08/24/2017
 
 void FS_make_cor_mean_std (
+				UInt16*								featurePtr,
 				SInt32								numberFeatures,
 				CLASS_INFO_STR* 					class_info,
-				SInt32								index,
+				SInt16*								classPtr,
+				SInt32								no_class,
 				FileInfoPtr							newFileInfoPtr,
 				double 								max_mean_std_height,
 				double 								min_mean_std_height,
@@ -734,14 +847,8 @@ void FS_make_cor_mean_std (
 											x,
 											y;
 									
-	//CMFileStream*						newFileStreamPtr;
-											
 	double								*fmean;
 									
-	//unsigned char 					*cor,
-	//										*final_cor,
-	//										erdas_header[128];
-	
 	SInt32								a,
 											avail_mean_height,
 											bottomGraphLimit,
@@ -751,9 +858,8 @@ void FS_make_cor_mean_std (
 											col_pos_end,
 											col_pos_start,
 											cor_index,
-											final_cor_size,
 											final_total_width,
-											grid_dot_space=3,
+											grid_dot_space = 3,
 											grid_space_floating_digit,
 											i,
 											imean,
@@ -765,23 +871,27 @@ void FS_make_cor_mean_std (
 											start_zero_flag=0,
 											topGraphLimit;
 									
-	//UInt32								count;
-									
-	//SInt16								errCode;
+	UInt32								class_index,
+											classNameIndex,
+											final_cor_size;
+											
+	SInt16								featureNumber;
 	
 	UInt16								stddev_color;
 	
-	UInt32                        class_index;
    
 	FS_find_STI_size (numberFeatures, &final_cor_size);
 	
+   //printf("final_cor_size:%d\n", final_cor_size);
    
-   // initialize
+			// Initialize; initialization now done in calling routine.
+	/*		
    for (i=0; i< (final_cor_size*index); i++)
-		final_cor[i]=G_white_char;
+		final_cor[i] = G_white_char;
    
-   for (i=0; i< (L_size_row * L_size_col * index); i++)
-         *(cor +i)=G_white_char;
+   for (i=0; i<(L_size_row * L_size_col * index); i++)
+		cor[i] = G_white_char;
+	*/
       
 	if (STI_info.mean_min_max_flag == 1)
 		{
@@ -801,22 +911,12 @@ void FS_make_cor_mean_std (
 		
 		}		// end "if (STI_info.mean_min_max_flag == 0)"
    
-   for(class_index = 0; class_index < index; class_index ++)
+   for(class_index=0; class_index<no_class; class_index++)
 		{
       fmean = (class_info+class_index)->fmean;
-	
+      
       *ERROR_FLAG = 0;
-   
-				// initialize
-		/*	
-		for (i=0; i<L_size_row; i++)
-			for (j=0; j<L_size_col; j++)
-				*(cor +i*L_size_col+j )=G_white_char;
-		 */
-		/*	
-		for (i=0; i<final_cor_size; i++)
-			final_cor[i]=G_white_char;
-		*/
+		
 				// put correlation in color code
 	
       for (k=i=0; i<numberFeatures; i++)
@@ -829,14 +929,14 @@ void FS_make_cor_mean_std (
 			}		// end "for (k=i=0; i<n; i++)"
 
 				// enlarge correlation matrix if necessary	
-	
-      enlarge_cor( (UInt32)L_enlargement, 
+
+      enlarge_cor ((UInt32)L_enlargement, 
  						cor + (class_index * L_size_row * L_size_col),
  						(UInt32)L_size_row, 
  						(UInt32)L_size_col, 
- 						final_cor + (class_index * L_final_size_col), 
+ 						final_cor + (class_index * L_final_size_col) + 15 * (no_class * L_final_size_col), //+ (index*(L_size_col+(L_size_col/index))-5) * L_final_size_col, //+ enlarge_cor_shift*L_final_size_col, 
  						(UInt32)L_final_size_row, 
- 						(UInt32)(L_final_size_col*index) );
+ 						(UInt32)(L_final_size_col*no_class) );
 
 				// put color code	
 
@@ -846,13 +946,13 @@ void FS_make_cor_mean_std (
          x /= numberFeatures * L_enlargement;
          x *= NO_PALETTE_CLASSES;
          x += PALETTE_OFFSET;
-         for (	i=L_color_start_location; 
-	       	i<WIDTH_COLOR_CODE+L_color_start_location; 
-	       	i++)
-            final_cor[i*L_final_size_col*index+j+ (class_index * L_final_size_col)] 
-               = (unsigned char)x;
+         for (i=L_color_start_location; 
+						i<WIDTH_COLOR_CODE+L_color_start_location; 
+						i++)
+            final_cor[i*L_final_size_col*no_class+j+ (class_index * L_final_size_col)] = 
+																								(unsigned char)x;
 			
-			}		// end "for (j=0; j<n*L_enlargement; j++)"
+			}	// end "for (j=0; j<n*L_enlargement; j++)"
 			
 				// find grid space, upper_bound,low_bound
 			
@@ -893,257 +993,292 @@ void FS_make_cor_mean_std (
       
       difference = max_mean_std_height - min_mean_std_height;
       
-      // find grid space in the power of 10
+				// find grid space in the power of 10
 			
       grid_space = 1;
       
       if (difference > 1)
-		{
+			{
          for (i=0; i<100; i++)
-         {
+				{
             if (difference <10)
                break;
             difference /= 10;
             grid_space *= 10;
 			
-			}		// end "for (i=0; i<100; i++)"
+				}	// end "for (i=0; i<100; i++)"
 			
-		}		// end "if (difference>1)"
+			}	// end "if (difference>1)"
 			
-      else		// if (difference <= 1)
-		{
-		for (i=0; i<100; i++)
+      else	// if (difference <= 1)
 			{
-			if (difference >1)
-				break;
-			difference *= 10;
-			grid_space /= 10;
-			
-			}		// end "for (i=0; i<100; i++)"
-			
-		}		// end "else if (difference <= 1)"
+			for (i=0; i<100; i++)
+				{
+				if (difference >1)
+					break;
+				difference *= 10;
+				grid_space /= 10;
+				
+				}	// end "for (i=0; i<100; i++)"
+				
+			}	// end "else if (difference <= 1)"
       
-      // find upper bound and lower bound in multiples of grid space
+				// Find upper bound and lower bound in multiples of grid space
 
-      i = min_mean_std_height/grid_space;
+      i = (SInt32)(min_mean_std_height/grid_space);
       
       if (min_mean_std_height > 0)
          low_bound = i*grid_space;
       else
          low_bound = (i-1)*grid_space;
 
-      j = max_mean_std_height/grid_space;
+      j = (SInt32)(max_mean_std_height/grid_space);
       
       if (max_mean_std_height > 0)
          upper_bound = (j+1)*grid_space;
       else
          upper_bound = j * grid_space;
 
-			// if grid space is to large, reduce it
+				// if grid space is too large, reduce it
 			
       difference = max_mean_std_height - min_mean_std_height;
       
       if (grid_space > 0)
-		{
+			{
          if (difference/grid_space<2)
             grid_space /= 5;
 			
          else if (difference/grid_space<5)
             grid_space /= 2;
 			
-		}		// if (grid_space>0)
+			}	// if (grid_space>0)
       
-      // find new upper bound and lower bound with new grid space
+				// find new upper bound and lower bound with new grid space
 			
       for (k=0; k<100; k++)
-		{
+			{
          if (upper_bound-grid_space<max_mean_std_height)
             break;
          upper_bound -= grid_space;
 		
-		}
+			}
 		
       for (k=0; k<100; k++)
-		{
+			{
          if (low_bound+grid_space>min_mean_std_height)
             break;
          low_bound += grid_space;
 		
-		}		// end "for (k=0; k<100; k++)"
+			}	// end "for (k=0; k<100; k++)"
       
-      // check whether it is possible to save one more grid space
+				// check whether it is possible to save one more grid space
 			
       if (low_bound + 0.5*grid_space<min_mean_std_height &&
 	    						upper_bound - 0.5*grid_space>max_mean_std_height)
-		{
+			{
          upper_bound -= 0.5*grid_space;
          low_bound += 0.5*grid_space;
 		
-		}		// end "if (low_bound + ..."
+			}	// end "if (low_bound + ..."
 
-			// col grid space
+				// col grid space
 			
       if (numberFeatures > 12800)
-		{
+			{
          col_grid_space = 400;
          col_grid_label_space = 3200;
 		
-		}
+			}
 		
       else if (numberFeatures > 6400)
-		{
+			{
          col_grid_space = 200;
          col_grid_label_space = 1600;
 		
-		}
+			}
 		
       else if (numberFeatures > 3200)
-		{
+			{
          col_grid_space = 100;
          col_grid_label_space = 800;
 		
-		}
+			}
 		
       else if (numberFeatures > 1600)
-		{
+			{
          col_grid_space = 50;
          col_grid_label_space = 400;
 		
-		}
+			}
 		
       else if (numberFeatures > 800)
-		{
+			{
          col_grid_space = 20;
          col_grid_label_space = 200;
 		
-		}
+			}
 		
       else if (numberFeatures > 400)
-		{
+			{
          col_grid_space = 20;
          col_grid_label_space = 100;
 		
-		}
+			}
 		
       else if (numberFeatures > 150)
-		{
+			{
          col_grid_space = 10;
          col_grid_label_space = 40;
 		
-		}
+			}
 		
       else if (numberFeatures > 100)
-		{
+			{
          col_grid_space = 10;
          col_grid_label_space = 20;
 		
-		}
+			}
       
       else if (numberFeatures > 20)
-		{
+			{
          col_grid_space = 5;
          col_grid_label_space = 10;
 		
-		}
+			}
 		
       else if (numberFeatures > 10)
-		{
+			{
          col_grid_space = 2;
          col_grid_label_space = 2;
 		
-		}
+			}
 		
       else 
-		{
+			{
          col_grid_space = 1;	// no grid
          col_grid_label_space = 1;
 		
-		}
+			}
       
-      // grid_space_floating_digit
+				// grid_space_floating_digit
 			
       if (grid_space > 1)
          grid_space_floating_digit = 0;
 		
       else
-         grid_space_floating_digit = fabs(log10(grid_space)) + .999;
+         grid_space_floating_digit = (SInt32)(fabs(log10(grid_space)) + .999);
 	 
 			// check user specified upper and lower bound & grid_space
 			
-      if (STI_info.col_grid_space>0)
+      if (STI_info.col_grid_space > 0)
          col_grid_space=STI_info.col_grid_space;
 	
-      if (STI_info.row_grid_space_flag>0)
-		{
+      if (STI_info.row_grid_space_flag > 0)
+			{
          grid_space=STI_info.row_grid_space;
          grid_space_floating_digit=STI_info.row_grid_space_floating_digit;
 		
-		}
+			}	// end "if (STI_info.row_grid_space_flag > 0)"
 		
-      if (STI_info.upper_lower_bound_flag>0)
-		{
+      if (STI_info.upper_lower_bound_flag > 0)
+			{
          upper_bound=STI_info.upper_bound;
          low_bound=STI_info.lower_bound;
 		
-		}
+			}	// end "if (STI_info.upper_lower_bound_flag > 0)"
       
       avail_range = upper_bound-low_bound;
 
-			// put row grid for mean graph	
+				// put row grid for mean graph	
 
       final_total_width = L_enlargement*L_total_width;
       max_digit = (final_total_width-2)/L_number_width;
       
       for (x=grid_space; x<upper_bound-low_bound; x+=grid_space)	// row grid
-		{
-         k = x/avail_range*avail_mean_height;
+			{
+         k = (SInt32)(x/avail_range*avail_mean_height);
          k = L_mean_graph_location-1-k;
          if (k==k/2*2)
             k++;
 
          for (j=1; j<numberFeatures*L_enlargement; j+=grid_dot_space)
-            final_cor[k*L_final_size_col*index+j + class_index * L_final_size_col] = grid_color;
+            final_cor[k*L_final_size_col*no_class+j + class_index * L_final_size_col] = grid_color;
 			
-		}
+			}	// end "for (x=grid_space; x<upper_bound-low_bound; x+=grid_space)"
     
-      // put column grid for mean graph	
+				// put column grid for mean graph	
 
       if (STI_info.no_col_grid_indicator == 0)
-		{
+			{
          for (i=col_grid_space; i<numberFeatures; i+=col_grid_space)	// col grid
             for (j=0; j<numberFeatures*L_enlargement; j+=grid_dot_space)
                final_cor[
-                  (L_mean_graph_location-1-j)*L_final_size_col*index+i*L_enlargement
-                  + class_index * L_final_size_col] =
-																							grid_color;
+                  (L_mean_graph_location-1-j)*L_final_size_col*no_class+i*L_enlargement
+                  + class_index * L_final_size_col] = grid_color;
 
          row_pos = L_band_no_location;
-         for (	i=col_grid_label_space; 
-//	 			i<=n-col_grid_label_space;
-	 			i<=numberFeatures;  
-	 			i+=col_grid_label_space)
-	 		{
-	 				// Get the position for the band number. Do this by computing
-	 				// the column position for the beginning and end of the band
-	 				// and position it in the middle of it.
-	 		
-	 				// Start of band position
-	 						
+     
+         int textLength;
+     
+         if (gProjectInfoPtr != NULL)
+				{
+				classNameIndex = classPtr[class_index] - 1;
+            textLength = strlen((char*)gProjectInfoPtr->classNamesPtr[classNameIndex].name);
+         
+						// block characters
+            if(textLength > (L_final_size_col/5))
+               textLength = (L_final_size_col/5)-2;
+ 
+				//printf("Text shift:%d, %d\n",(L_final_size_col- (5*textLength))/2 , textLength);
+				
+						// generate class text   
+				
+            for (i = 1; i < textLength; i++)
+					{     
+               gen_put_number (final_cor + (class_index * L_final_size_col),
+								L_final_size_col*no_class,
+								//row_pos + 20,
+                        5,
+								((L_final_size_col- (5*textLength))/2-10)+5*(i - 1), // make it cental alignment
+                        (SInt32)gProjectInfoPtr->classNamesPtr[classNameIndex].name[i],
+								1,
+								L_number_enlargement);
+
+					}	// end "for (i = 1; i < textLength; i++)"
+					
+				}	// end "if (gProjectInfoPtr != NULL)"
+   
+         for (i=col_grid_label_space; 
+						//i<=n-col_grid_label_space;
+						i<=numberFeatures;  
+							i+=col_grid_label_space)
+				{
+						// Get the position for the band number. Do this by computing
+						// the column position for the beginning and end of the band
+						// and position it in the middle of it.
+				
+						// Start of band position
+	 				
             x = i - 1;
+            
             j = 1;
             if (i > 1)
-               j = (log10(fabs(x))+.999);
+               j = (SInt32)((log10(fabs(x))+.999));
 	   		
             j *= 4*L_number_enlargement;
             j /= 2;
             col_pos_start = (i-1)*L_enlargement - j;
 	  		
-	  				// End of band position
+						// End of band position
 	 						
-            x = i;
+  						// Get the actual feature/channel number
+						
+				featureNumber = featurePtr[i-1] + 1;
+				x = featureNumber;
+						
             j = 1;
             if (i > 1)
-               j = (log10(fabs(x))+.999);
+               j = (SInt32)((log10(fabs(x))+.999));
 	   		
             j *= 4*L_number_enlargement;
             j /= 2;
@@ -1152,12 +1287,13 @@ void FS_make_cor_mean_std (
             col_pos = (col_pos_start + col_pos_end)/2;
             if (col_pos < 0)
                col_pos = 0;
-
-					// Now insert the band number into the image.
-					
-            put_integer(start_zero_flag, 
+            
+						// Now insert the band number into the image.
+						
+				//printf("class_index:%d, %d, %d, %d, %d, %d\n", class_index, index, row_pos, col_pos, start_zero_flag, max_digit);
+            put_integer (start_zero_flag, 
 								final_cor + (class_index * L_final_size_col), 
-								L_final_size_col*index, 
+								L_final_size_col*no_class, 
 								row_pos, 
 								x, 
 								x, 
@@ -1166,150 +1302,143 @@ void FS_make_cor_mean_std (
 								L_number_enlargement);
            
 										
-			}		// "for (i=col_grid_label_space; ..."
+				}	// "for (i=col_grid_label_space; ..."
 			
-		}		// if (STI_info.no_col_grid_indicator == 0)
+			}	// if (STI_info.no_col_grid_indicator == 0)
       
-      longest_number = MAX( fabs(low_bound+grid_space), fabs(upper_bound) );
+      longest_number = MAX (fabs(low_bound+grid_space), fabs(upper_bound));
 			
       k=1;
       for (i=0; i<grid_space_floating_digit; i++)
          k *= 10;
 		
       for (x=low_bound+grid_space; x<upper_bound; x+=grid_space)
-		{
-				// find row position for number 
+			{
+					// find row position for number 
 				
          y = x-low_bound;
-         i = y/avail_range*avail_mean_height;
+         i = (SInt32)(y/avail_range*avail_mean_height);
          row_pos = L_mean_graph_location-1-i-2*L_number_enlargement;
  
- 				// find the number of digit of integer part
+					// find the number of digit of integer part
  				
          y = log10(fabs(upper_bound));
          if (y < 0)
             i = 1;
          else
-            i = y + 0.999;
+            i = (SInt32)(y + 0.999);
   
          col_pos = numberFeatures*L_enlargement + 1;
          if (L_number_enlargement > 1)
             col_pos = numberFeatures*L_enlargement + 3;
   
-         put_real(final_cor + (class_index * L_final_size_col), 
-						L_final_size_col*index, 
-						row_pos,
-						longest_number, 
-						x, 
-						col_pos, 
-						max_digit, 
-						L_number_enlargement, 
-						grid_space_floating_digit);
+         put_real (final_cor + (class_index * L_final_size_col), 
+							L_final_size_col*no_class, 
+							row_pos,
+							longest_number, 
+							x, 
+							col_pos, 
+							max_digit, 
+							L_number_enlargement, 
+							grid_space_floating_digit);
 		
-		}		// end "for (x=low_bound+grid_space; x<upper_bound; x+=grid_space)"
+			}	// end "for (x=low_bound+grid_space; x<upper_bound; x+=grid_space)"
     
- 
-      //  put mean graph as bit map	
+				//  Put mean graph as bit map	
 			
       bottomGraphLimit = L_mean_graph_location - 1;
       topGraphLimit =  L_mean_graph_location - 1 - numberFeatures*L_enlargement;
 
       for (i=0; i<numberFeatures; i++)
-		{
-         imean = (fmean[i]-low_bound)/avail_range*avail_mean_height;
+			{
+         imean = (SInt32)((fmean[i]-low_bound)/avail_range*avail_mean_height);
 
-//		imean_min = min_mean_std_height;
+			//imean_min = min_mean_std_height;
  
-         isd = HOW_MANY_SD*sqrt((double)(class_info+class_index)->fvar[i]) / 
- 														avail_range*avail_mean_height;
+         isd = (SInt32)(HOW_MANY_SD*sqrt((double)(class_info+class_index)->fvar[i]) /
+ 														avail_range*avail_mean_height);
  
-				// mean +- sd
+					// mean +- sd
 				
          j = L_mean_graph_location - 1 - imean;
          
          for (k=1; k<=isd; k++)
-			{
-            stddev_color = mean_color - 20 - 30.*k/isd;
+				{
+            stddev_color = (UInt16)(mean_color - 20 - 30.*k/isd);
 		
 						// check out of bound
 			
             if (j+k < bottomGraphLimit && j+k > topGraphLimit)
-            {
-               for (a=0; a<L_enlargement; a++)
 					{
-                  cor_index = (j+k)*L_final_size_col*index + i*L_enlargement + a
+               for (a=0; a<L_enlargement; a++)
+						{
+                  cor_index = (j+k)*L_final_size_col*no_class + i*L_enlargement + a
                      + class_index * L_final_size_col;
                   
                  
-                  if (cor_index >= 0 && cor_index < final_cor_size*index){
+                  if (cor_index >= 0 && cor_index < (final_cor_size*no_class))
                      final_cor[cor_index] = (unsigned char)stddev_color;
-                     
-                  }
-					}		// end "for (a=0; a<L_enlargement; a++)"
+						
+						}	// end "for (a=0; a<L_enlargement; a++)"
 					
-				}		// end "if (j+k < bottomGraphLimit && j+k > topGraphLimit)"
-    
-          
-											
+					}	// end "if (j+k < bottomGraphLimit && j+k > topGraphLimit)"
+
 						// check out of bound
 						
             if (j-k < bottomGraphLimit && j-k > topGraphLimit)
-//			if (j+k > L_mean_graph_location-1-n*L_enlargement)
-				{
-               for (a=0; a<L_enlargement; a++)
+				//if (j+k > L_mean_graph_location-1-n*L_enlargement)
 					{
-                  cor_index = (j-k)*L_final_size_col*index + i*L_enlargement + a
+               for (a=0; a<L_enlargement; a++)
+						{
+                  cor_index = (j-k)*L_final_size_col*no_class + i*L_enlargement + a
                      + class_index * L_final_size_col;
-                  if (cor_index >= 0 && cor_index < final_cor_size*index)
+                  if (cor_index >= 0 && cor_index < (final_cor_size*no_class))
                      final_cor[cor_index] = (unsigned char)stddev_color;
 				
-					}		// end "for (a=0; a<L_enlargement; a++)"
+						}	// end "for (a=0; a<L_enlargement; a++)"
 											
-				}		// end "if (j-k < bottomGraphLimit && j-k > topGraphLimit)"
-             
+					}	// end "if (j-k < bottomGraphLimit && j-k > topGraphLimit)"
 				
-			}		// end "for (k=1; k<=isd; k++)"
+				}	// end "for (k=1; k<=isd; k++)"
 
-				// mean
+					// mean
 				
- 		if (imean>0 && imean<numberFeatures*L_enlargement)	// check out of bound
-			{
-			j = L_mean_graph_location - 1 - imean;
-			for (a=0; a<L_enlargement; a++)
-			{
-				cor_index = j*L_final_size_col*index + i*L_enlargement + a
-               + class_index * L_final_size_col;
-				if (cor_index >= 0 && cor_index < final_cor_size*index)
-					final_cor[cor_index] = (unsigned char)mean_color;
-																
-				}		// end "for (a=0; a<L_enlargement; a++)"
-																
-			}		// end "if ( imean > 0 && ..."
-		
-         
+			if (imean>0 && imean<numberFeatures*L_enlargement)	// check out of bound
+				{
+				j = L_mean_graph_location - 1 - imean;
+				for (a=0; a<L_enlargement; a++)
+					{
+					cor_index = j*L_final_size_col*no_class + i*L_enlargement + a
+						+ class_index * L_final_size_col;
+					if (cor_index >= 0 && cor_index < (final_cor_size*no_class))
+						final_cor[cor_index] = (unsigned char)mean_color;
+																	
+					}	// end "for (a=0; a<L_enlargement; a++)"
+																	
+				}	// end "if ( imean > 0 && ..."
+			
+			}	// end "for (i=0; i<n; i++)"
 
-		}		// end "for (i=0; i<n; i++)"
-      
-      // put frame	
+				// Put frame	
 		
       for (i=0; i<numberFeatures*L_enlargement; i++)
-         final_cor[(L_mean_graph_location-1)*L_final_size_col*index+i+ (class_index * L_final_size_col)] =
-            final_cor[(L_mean_graph_location-numberFeatures*L_enlargement)*L_final_size_col*index+i+ (class_index * L_final_size_col)] =
+         final_cor[(L_mean_graph_location-1)*L_final_size_col*no_class+i+ (class_index * L_final_size_col)] =
+            final_cor[(L_mean_graph_location-numberFeatures*L_enlargement)*L_final_size_col*no_class+i+ (class_index * L_final_size_col)] =
 																				grid_color; // G_black_char;
       
       for (i=0; i<numberFeatures*L_enlargement; i++)
-         final_cor[(L_mean_graph_location-1-i)*L_final_size_col*index +0+ (class_index * L_final_size_col)] =
-            final_cor[(L_mean_graph_location-1-i)*L_final_size_col*index+numberFeatures*L_enlargement-1+ (class_index * L_final_size_col)] =
+         final_cor[(L_mean_graph_location-1-i)*L_final_size_col*no_class +0+ (class_index * L_final_size_col)] =
+            final_cor[(L_mean_graph_location-1-i)*L_final_size_col*no_class+numberFeatures*L_enlargement-1+ (class_index * L_final_size_col)] =
 																				grid_color; // G_black_char;
       
-   } // end for class_index
-	
-}		// end "FS_make_cor_mean_std"
+		}	// end for class_index
+
+}	// end "FS_make_cor_mean_std"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1358,7 +1487,7 @@ void FS_make_half_STI(
 			else
 				{
 				x /= y;
-				k = (x+1) * 125;
+				k = (SInt32)((x+1) * 125);
 				
 				}
 	   
@@ -1370,16 +1499,16 @@ void FS_make_half_STI(
 
 			image[l] = (unsigned char)(k+PALETTE_OFFSET);
 	  
-			}		// end "for (j=0; j<=i; j++,l++)"
+			}	// end "for (j=0; j<=i; j++,l++)"
 			
-		}		// end "for (l=0,i=0; i<n; i++)"
+		}	// end "for (l=0,i=0; i<n; i++)"
 	 
-}		// end "FS_make_half_STI"
+}	// end "FS_make_half_STI"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1401,12 +1530,14 @@ void FS_make_half_STI(
 // Called By:	
 //
 //	Coded By:			Chulhee Lee				Date: ??/??/19??
-//	Revised By:			Larry L. Biehl			Date: 03/12/2012
+//	Revised By:			Larry L. Biehl			Date: 08/24/2017
 
 void FS_make_stat_image_same_scale (
 				CLASS_INFO_STR* 					class_info,
+				SInt16*								classPtr,
 				SInt32								no_class,
-				SInt32								n,
+				UInt16*								featurePtr,
+				SInt32								numberFeatures,
 				FileInfoPtr							newFileInfoPtr,
 				SInt32*								ERROR_FLAG,
 				SInt16								minMaxSettingCode,
@@ -1455,13 +1586,13 @@ void FS_make_stat_image_same_scale (
 	STI_info.meanmin_all = user_mean_minimum;
 	STI_info.meanmax_all = user_mean_maximum;
 	
-//	STI_info.std_min_max_flag = 1;
+	//STI_info.std_min_max_flag = 1;
 	STI_info.stdmax_all = 0;
 	STI_info.stdmin_all = 0;
 	
 			// assign memory
 			
-	i = sizeof(SInt32) * n;
+	i = sizeof(SInt32) * numberFeatures;
 	
 	STI_info.no_col_grid_indicator_location = (SInt32*)MNewPointer(i);
    
@@ -1496,7 +1627,7 @@ void FS_make_stat_image_same_scale (
 			
 		}		// end "if (*ERROR_FLAG == 0)"
 	
-	i = sizeof(double) * n;
+	i = sizeof(double) * numberFeatures;
 	
 	if (*ERROR_FLAG == 0)
 		{
@@ -1551,7 +1682,7 @@ void FS_make_stat_image_same_scale (
 				// For now leave the ability for writing wavelengths out. It is too
 				// easy to have the number of channels that match the 12 and 210
 				// criterea and not actually have AVIRIS or FLC1 data.
-/*				
+		/*				
 				// default wave length for AVIRIS data
 				
 		if ((class_info+0)->wave_length_default == (WAVE_LENGTH_DEFAULT_FLAG+210))
@@ -1666,43 +1797,45 @@ void FS_make_stat_image_same_scale (
 			STI_info.no_V_wave_length_location=i;
 			
 			}		// end "if ((class_info+0)->wave_length_default == ..."
-*/	
-		FS_gen_make_stat_image_same_scale( class_info,
+		*/	
+		FS_gen_make_stat_image_same_scale (class_info,
+														classPtr,
 		 												no_class,
-		 												n,
+														featurePtr,
+		 												numberFeatures,
 		 												STI_info,
 		 												newFileInfoPtr, 
 		 												ERROR_FLAG);
 	 												
-		}		// end "if (*ERROR_FLAG == 0)"
+		}	// end "if (*ERROR_FLAG == 0)"
 	
 			// free memory
 	
-	STI_info.H_wave_length_value = CheckAndDisposePtr ( STI_info.H_wave_length_value );
-	STI_info.V_wave_length_value = CheckAndDisposePtr ( STI_info.V_wave_length_value );
+	STI_info.H_wave_length_value = CheckAndDisposePtr (STI_info.H_wave_length_value);
+	STI_info.V_wave_length_value = CheckAndDisposePtr (STI_info.V_wave_length_value);
 
 	STI_info.H_wave_length_location = 
-										CheckAndDisposePtr ( STI_info.H_wave_length_location );
+										CheckAndDisposePtr (STI_info.H_wave_length_location);
 	STI_info.V_wave_length_location = 
-										CheckAndDisposePtr ( STI_info.V_wave_length_location );
+										CheckAndDisposePtr (STI_info.V_wave_length_location);
 
-	STI_info.stdmin = CheckAndDisposePtr ( STI_info.stdmin );
-	STI_info.stdmax = CheckAndDisposePtr ( STI_info.stdmax );
+	STI_info.stdmin = CheckAndDisposePtr (STI_info.stdmin);
+	STI_info.stdmax = CheckAndDisposePtr (STI_info.stdmax);
 	
-	STI_info.meanmin = CheckAndDisposePtr ( STI_info.meanmin );
-	STI_info.meanmax = CheckAndDisposePtr ( STI_info.meanmax );
+	STI_info.meanmin = CheckAndDisposePtr (STI_info.meanmin);
+	STI_info.meanmax = CheckAndDisposePtr (STI_info.meanmax);
 	
 	STI_info.no_col_grid_indicator_value = 
-								CheckAndDisposePtr ( STI_info.no_col_grid_indicator_value );
+								CheckAndDisposePtr (STI_info.no_col_grid_indicator_value);
 	STI_info.no_col_grid_indicator_location = 
-								CheckAndDisposePtr ( STI_info.no_col_grid_indicator_location );
+								CheckAndDisposePtr (STI_info.no_col_grid_indicator_location);
 
 }		// end "FS_make_stat_image_same_scale"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1794,7 +1927,271 @@ void gen_put_number(
 		case	9:
 			no_bit_map = n9;
 			break;
+         
+      case	48:
+			no_bit_map = n0;
+			break;   
+         
+      case	49:
+			no_bit_map = n1;
+			break;
 			
+		case	50:
+			no_bit_map = n2;
+			break;
+			
+		case	51:
+			no_bit_map = n3;
+			break;
+			
+		case	52:
+			no_bit_map = n4;
+			break;
+			
+		case	53:
+			no_bit_map = n5;
+			break;
+			
+		case	54:
+			no_bit_map = n6;
+			break;
+			
+		case	55:
+			no_bit_map = n7;
+			break;
+			
+		case	56:
+			no_bit_map = n8;
+			break;
+			
+		case	57:
+			no_bit_map = n9;
+			break;
+         
+      case 65:
+         no_bit_map = nA;
+         break;
+         
+      case 66:
+         no_bit_map = nB;
+         break;   
+      
+      case 67:
+         no_bit_map = nC;
+         break;
+      
+      case 68:
+         no_bit_map = nD;
+         break; 
+         
+      case 69:
+         no_bit_map = nE;
+         break;
+         
+      case 70:
+         no_bit_map = nF;
+         break;   
+      
+      case 71:
+         no_bit_map = nG;
+         break;
+      
+      case 72:
+         no_bit_map = nH;
+         break; 
+         
+      case 73:
+         no_bit_map = nI;
+         break;
+         
+      case 74:
+         no_bit_map = nJ;
+         break;   
+      
+      case 75:
+         no_bit_map = nK;
+         break;
+      
+      case 76:
+         no_bit_map = nL;
+         break; 
+         
+      case 77:
+         no_bit_map = nM;
+         break;
+         
+      case 78:
+         no_bit_map = nN;
+         break;   
+      
+      case 79:
+         no_bit_map = nO;
+         break;
+      
+      case 80:
+         no_bit_map = nP;
+         break; 
+         
+      case 81:
+         no_bit_map = nQ;
+         break;
+         
+      case 82:
+         no_bit_map = nR;
+         break;   
+      
+      case 83:
+         no_bit_map = nS;
+         break;
+      
+      case 84:
+         no_bit_map = nT;
+         break; 
+         
+      case 85:
+         no_bit_map = nU;
+         break;
+         
+      case 86:
+         no_bit_map = nV;
+         break;   
+      
+      case 87:
+         no_bit_map = nW;
+         break;
+      
+      case 88:
+         no_bit_map = nX;
+         break; 
+         
+      case 89:
+         no_bit_map = nY;
+         break;
+         
+      case 90:
+         no_bit_map = nZ;
+         break; 
+         
+      case 97:
+         no_bit_map = nA;
+         break;
+         
+      case 98:
+         no_bit_map = nB;
+         break;   
+      
+      case 99:
+         no_bit_map = nC;
+         break;
+      
+      case 100:
+         no_bit_map = nD;
+         break; 
+         
+      case 101:
+         no_bit_map = nE;
+         break;
+         
+      case 102:
+         no_bit_map = nF;
+         break;   
+      
+      case 103:
+         no_bit_map = nG;
+         break;
+      
+      case 104:
+         no_bit_map = nH;
+         break; 
+         
+      case 105:
+         no_bit_map = nI;
+         break;
+         
+      case 106:
+         no_bit_map = nJ;
+         break;   
+      
+      case 107:
+         no_bit_map = nK;
+         break;
+      
+      case 108:
+         no_bit_map = nL;
+         break; 
+         
+      case 109:
+         no_bit_map = nM;
+         break;
+         
+      case 110:
+         no_bit_map = nN;
+         break;   
+      
+      case 111:
+         no_bit_map = nO;
+         break;
+      
+      case 112:
+         no_bit_map = nP;
+         break; 
+         
+      case 113:
+         no_bit_map = nQ;
+         break;
+         
+      case 114:
+         no_bit_map = nR;
+         break;   
+      
+      case 115:
+         no_bit_map = nS;
+         break;
+      
+      case 116:
+         no_bit_map = nT;
+         break; 
+         
+      case 117:
+         no_bit_map = nU;
+         break;
+         
+      case 118:
+         no_bit_map = nV;
+         break;   
+      
+      case 119:
+         no_bit_map = nW;
+         break;
+      
+      case 120:
+         no_bit_map = nX;
+         break; 
+         
+      case 121:
+         no_bit_map = nY;
+         break;
+         
+      case 122:
+         no_bit_map = nZ;
+         break; 
+         
+      case 32:
+         no_bit_map = nSpace;
+         break;
+         
+      case 45:
+         no_bit_map = nMinus;
+         break;
+         
+      case 46:
+         no_bit_map = nDot;
+         break;
+         
+      case 95:
+         no_bit_map = nUnderScore;
+         break;
+      
 		}		// end "switch (number)"
 	 
 	for (i=0; i<5; i++)
@@ -1805,12 +2202,12 @@ void gen_put_number(
 															j*enlargement+b+col_pos] =
 	     													(unsigned char)color[no_bit_map[i*3+j]];
 	     													
-}		// end "gen_put_number"
+}	// end "gen_put_number"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1833,15 +2230,15 @@ void make_even(
 				SInt32*								numberPtr)
 								
 {
-	if ( L_number_enlargement > 1 && *numberPtr != *numberPtr/2*2 )
+	if (L_number_enlargement > 1 && *numberPtr != *numberPtr/2*2)
 	  	*numberPtr -=1;
 	   
-}		// end "make_even"
+}	// end "make_even"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1913,12 +2310,12 @@ void put_integer(
 			
 	max_digit_to_be_used = 1;
 	if (largest_poss_no>1)
-		max_digit_to_be_used=log10(fabs(largest_poss_no))+1;
+		max_digit_to_be_used = (SInt32)(log10(fabs(largest_poss_no)) + 1);
 		
 	if (max_digit_to_be_used>max_digit)
 		max_digit_to_be_used=max_digit;
 	  
-		// put number
+			// put number
 		
 	y=1;
 	for (i=0; i<max_digit_to_be_used-1; i++)
@@ -1931,10 +2328,10 @@ void put_integer(
 	for (flag=0,i=0; i<max_digit_to_be_used; i++)
 		{
 		col_pos = start_col_pos+number_width*i*enlargement;
-		j = new_x/y;
+		j = (SInt32)(new_x/y);
 		if (j!=0 || flag==1 || start_zero_flag==1)
 			{
-			gen_put_number(final_cor,
+			gen_put_number (final_cor,
  	   						final_size_col,
  	   						row_pos,
  	   						col_pos,
@@ -1948,13 +2345,14 @@ void put_integer(
 			
 		new_x *=10;
 		
-		}	// for i
+		}	// end "for (flag=0,i=0; i<max_digit_to_be_used; i++)"
 
 	max_sign = 1;
-	j=xnumber;
+	j = (SInt32)(xnumber);
 	col_pos = start_col_pos+enlargement*number_width*(max_digit_to_be_used-1);
+	
 	if (j==0)	// if zero, put zero
-		gen_put_number(final_cor,
+		gen_put_number (final_cor,
 								final_size_col,
 								row_pos,
 								col_pos,
@@ -1962,12 +2360,12 @@ void put_integer(
 								max_sign,
 								enlargement);
 	  
-}		// end "put_integer"
+}	// end "put_integer"
 
 
 		
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2018,10 +2416,11 @@ void put_real(
 		
 			// integer ?
 			
-	tmp = i = fabs(largest_poss_no);
+	tmp = fabs(largest_poss_no);
+	i = (SInt32)tmp;
 	int_digit_used = 1;
 	if (i > 1)
-		int_digit_used=log10(tmp) + .999;
+		int_digit_used = (SInt32)(log10(tmp) + .999);
 	 
 	if (number_floating_point == 0 || int_digit_used >= max_digit)
 		{
@@ -2036,7 +2435,7 @@ void put_real(
 	 					enlargement);
      
   																								return;
-		}		// end "if (number_floating_point == 0 || ..."
+		}	// end "if (number_floating_point == 0 || ..."
 	
 			// check space availablity
 			
@@ -2061,7 +2460,7 @@ void put_real(
 
 			// put floating part 
 			
-	i = xnumber;
+	i = (SInt32)xnumber;
 	xnumber -= i;
 	xnumber *= k;
 	start_col_pos += int_digit_used*4*enlargement + 2*enlargement;
@@ -2093,8 +2492,8 @@ void put_real(
 	  			final_cor[(row_pos+4*enlargement+a)*final_size_col +
 	  									start_col_pos-2*enlargement+b] = (unsigned char)ired;
 	  									
-	  		}		// end "for (b=0; b<enlargement; b++)"
+	  		}	// end "for (b=0; b<enlargement; b++)"
 	  		
-	  	}		// end "for (a=0; a<enlargement; a++)"
+	  	}	// end "for (a=0; a<enlargement; a++)"
 	    
-}		// end "put_real"
+}	// end "put_real"

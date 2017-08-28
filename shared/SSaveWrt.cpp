@@ -13,7 +13,7 @@
 //
 //	Revision number:		3.0
 //
-//	Revision date:			03/28/2017
+//	Revision date:			07/28/2017
 //
 //	Language:				C
 //
@@ -87,8 +87,9 @@
 
 #if defined multispec_lin
 	#include "CFileStr.h"
-	#include "wx/wx.h"
+	#include "LImageDoc.h"
 	#include "LImageView.h"
+	#include "wx/wx.h"
 #endif
 
 #include "SExtGlob.h"
@@ -7417,7 +7418,7 @@ Boolean WriteTextOutputFile (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 11/08/1996
-//	Revised By:			Larry L. Biehl			Date: 03/16/2017
+//	Revised By:			Larry L. Biehl			Date: 07/28/2017
 
 void WriteThematicClassesAs (
 				Handle								windowInfoHandle,
@@ -7491,6 +7492,16 @@ void WriteThematicClassesAs (
 			stringIndex = IDS_FileIO193;
 			
 			}		// end "if (supportFileType == kICLRFileType && ...)"
+			
+		if (!fileInfoPtr->classChangedFlag && !fileInfoPtr->groupChangedFlag)
+			{
+#			if defined multispec_lin
+						// Make sure that wxWidgets knows the document has not changed
+						// since the last save.
+				gActiveImageViewCPtr->GetDocument()->Modify(FALSE);
+#			endif
+			}	// end "if (!fileInfoPtr->classChangedFlag && ..."
+
 
 		ForceTextToEnd (); 
 			
@@ -7542,7 +7553,7 @@ void WriteThematicClassesAs (
 //							SaveIfWindowChanged in SWindow.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 09/09/1992
-//	Revised By:			Larry L. Biehl			Date: 03/16/2017
+//	Revised By:			Larry L. Biehl			Date: 07/28/2017
 
 void WriteThematicGroups (
 				Handle								windowInfoHandle,
@@ -7802,6 +7813,12 @@ void WriteThematicGroups (
 											fileNamePtr,
 											TRUE,
 											kUTF8CharString);
+			
+#		if defined multispec_lin
+					// Make sure that wxWidgets knows the document has not changed
+					// since the last save.
+			gActiveImageViewCPtr->GetDocument()->Modify(FALSE);
+#		endif
 		
 		}		// end "if (continueFlag)" 
 	

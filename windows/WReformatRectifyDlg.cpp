@@ -1,5 +1,7 @@
 // WReformatRectifyDlg.cpp : implementation file
 //
+// Revised by Larry Biehl on 08/21/2017
+//
 
 #include	"SMulSpec.h" 
 #include "WReformatRectifyDlg.h" 
@@ -106,15 +108,15 @@ void CMReformatRectifyDlg::DoDataExchange(CDataExchange* pDX)
 	DDV_MinMaxLong(pDX, m_LineEnd, 1, m_maxNumberLines);
 	DDX_Text(pDX, IDC_LineStart, m_LineStart);                              
 	DDV_MinMaxLong(pDX, m_LineStart, 1, m_maxNumberLines);
-	DDX_Text(pDX, IDC_BackgroundValue, m_backgroundValue);
+	DDX_Text2(pDX, IDC_BackgroundValue, m_backgroundValue);
 	DDV_MinMaxDouble(pDX, m_backgroundValue, m_minBackgroundValue, m_maxBackgroundValue);
 	DDX_Text(pDX, IDC_LineOffset, m_lineShift);
 	DDV_MinMaxLong(pDX, m_lineShift, -100, 100);
 	DDX_Text(pDX, IDC_ColumnOffset, m_columnShift);
 	DDV_MinMaxLong(pDX, m_columnShift, -100, 100);
-	DDX_Text(pDX, IDC_ColumnScale, m_columnScaleFactor);
-	DDX_Text(pDX, IDC_LineScale, m_lineScaleFactor);
-	DDX_Text(pDX, IDC_RotationClockwise, m_rotationAngle);
+	DDX_Text2(pDX, IDC_ColumnScale, m_columnScaleFactor);
+	DDX_Text2(pDX, IDC_LineScale, m_lineScaleFactor);
+	DDX_Text2(pDX, IDC_RotationClockwise, m_rotationAngle);
 	DDV_MinMaxDouble(pDX, m_rotationAngle, -180., 180.);
 	DDX_Check(pDX, IDC_NonSelectedPixels, m_blankOutsideSelectedAreaFlag);
 	DDX_CBIndex(pDX, IDC_Header, m_headerListSelection);
@@ -377,7 +379,7 @@ void CMReformatRectifyDlg::OnEnChangeRotationclockwise()
 
 	if (m_mapOrientationAngle != 0)
 		{
-		DDX_Text(m_dialogFromPtr, IDC_RotationClockwise, m_rotationAngle);
+		DDX_Text2(m_dialogFromPtr, IDC_RotationClockwise, m_rotationAngle);
 
 		if (m_rotationAngle == m_mapOrientationAngle)
 			m_useMapOrientationAngleFlag = TRUE;
@@ -402,7 +404,7 @@ m_rotationAngle = 0.;
 if (m_useMapOrientationAngleFlag)
 	m_rotationAngle = m_mapOrientationAngle;
 
-DDX_Text(m_dialogToPtr, IDC_RotationClockwise, m_rotationAngle);
+DDX_Text2(m_dialogToPtr, IDC_RotationClockwise, m_rotationAngle);
 
 }		// end "OnBnClickedUsemaporientationangle"
 

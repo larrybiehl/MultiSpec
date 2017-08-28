@@ -13,7 +13,7 @@
 //
 //	Revision number:		3.0
 //
-//	Revision date:			05/01/2017
+//	Revision date:			08/23/2017
 //
 //	Language:				C
 //
@@ -57,7 +57,16 @@
 //	Include files:			"MultiSpecHeaders"
 //								"multiSpec.h"
 
-#include "SMulSpec.h"      
+#include "SMulSpec.h"    
+
+#if defined multispec_lin
+	#include "CDisplay.h"
+	#include "CImagWin.h"
+	#include "LDisplayMultispectralDialog.h"          
+	#include "LImageFrame.h"
+	#include "LImageView.h"  
+	#include "LMultiSpec.h"
+#endif // defined multispec_lin  
 
 #if defined multispec_mac  
 	#define ID3C_LineStart            8
@@ -121,248 +130,235 @@
 	#include "WGaussianParameterDlg.h"	
 #endif	// defined multispec_win
 
-#if defined multispec_lin
-	#include "MultiSpec2.h"
-	#include "CDisplay.h"
-	#include "LImageView.h"            
-	#include "LDisplayMultispectralDialog.h"
-	#include "LImageFrame.h"
-	#include "CImagWin.h"
-#endif // defined multispec_lin
-
 #include	"SExtGlob.h" 		
 
-extern void DoNextDisplayChannelEvent(
-        WindowPtr window,
-        char theChar);
 
-extern void GetOneChannelThematicDisplayConversionValues(
-        WindowInfoPtr imageWindowInfoPtr,
-        HistogramSummaryPtr histogramSummaryPtr,
-        DisplaySpecsPtr displaySpecsPtr,
-        double* binFactorPtr,
-        double* minValuePtr,
-        UInt32* maxBinPtr);
+extern void DoNextDisplayChannelEvent (
+				WindowPtr							window,
+				char									theChar);
 
-extern void SetVectorOverlays(
-        WindowInfoPtr windowPtr,
-        DialogPtr dialogPtr,
-        SInt16 vectorOverlayItem,
-        Boolean* includeVectorOverlaysFlagPtr);
+extern void GetOneChannelThematicDisplayConversionValues (
+				WindowInfoPtr						imageWindowInfoPtr,
+				HistogramSummaryPtr				histogramSummaryPtr,
+				DisplaySpecsPtr					displaySpecsPtr,
+				double*								binFactorPtr,
+				double*								minValuePtr,
+				UInt32*								maxBinPtr);
 
-extern void UnSetDialogItemDrawRoutine(
-        DialogPtr dialogPtr,
-        UserItemUPP userItemProcPtr,
-        SInt16 appearanceItemNumber,
-        MenuHandle inputPopupMenuHandle);
+extern void SetVectorOverlays (
+				WindowInfoPtr						windowPtr,
+				DialogPtr							dialogPtr,
+				SInt16								vectorOverlayItem,
+				Boolean*								includeVectorOverlaysFlagPtr);
 
-//extern void 			SetDItemValue (
-//								DialogPtr							dialogPtr, 
-//								SInt16								itemNumber,
-//								SInt32								controlValue); 
+extern void UnSetDialogItemDrawRoutine (
+				DialogPtr							dialogPtr,
+				UserItemUPP							userItemProcPtr,
+				SInt16								appearanceItemNumber,
+				MenuHandle							inputPopupMenuHandle);
 
-extern void DisplayMultispectralDialogCheckDisplayLevels(
-        DisplaySpecsPtr displaySpecsPtr,
-        DialogPtr dialogPtr,
-        SInt16 displayType,
-        SInt16 redChannel,
-        SInt16 greenChannel,
-        SInt16 blueChannel,
-        SInt16* localColorLevelsMaxPtr,
-        SInt16* duplicateChannelCodePtr,
-        SInt16 bitsOfColorSelection,
-        SInt16* numberDisplayLevelsPtr);
+extern void DisplayMultispectralDialogCheckDisplayLevels (
+				DisplaySpecsPtr					displaySpecsPtr,
+				DialogPtr							dialogPtr,
+				SInt16								displayType,
+				SInt16								redChannel,
+				SInt16								greenChannel,
+				SInt16								blueChannel,
+				SInt16*								localColorLevelsMaxPtr,
+				SInt16*								duplicateChannelCodePtr,
+				SInt16								bitsOfColorSelection,
+				SInt16*								numberDisplayLevelsPtr);
 
-extern void DisplayMultispectralDialogCheckMinMaxSettings(
-        SInt16 displayTypeSelection,
-        SInt16 inputEnhanceMinMaxMenuSelection,
-        SInt16* enhanceMinMaxMenuSelectionPtr,
-        SInt16* enhanceMinMaxOptionPtr,
-        Boolean* thematicDisplayWithUserSettingFlagPtr);
+extern void DisplayMultispectralDialogCheckMinMaxSettings (
+				SInt16								displayTypeSelection,
+				SInt16								inputEnhanceMinMaxMenuSelection,
+				SInt16*								enhanceMinMaxMenuSelectionPtr,
+				SInt16*								enhanceMinMaxOptionPtr,
+				Boolean*								thematicDisplayWithUserSettingFlagPtr);
 
-extern void DisplayMultispectralDialogInitialize(
-        DialogPtr dialogPtr,
-        DisplaySpecsPtr displaySpecsPtr,
-        WindowInfoPtr windowInfoPtr,
-        DialogSelectArea* dialogSelectAreaPtr,
-        UInt16* localFeaturePtr,
-        SInt16* localNumberChannelsPtr,
-        SInt16* localPercentClipPtr,
-        double* localMinMaxValuesPtr,
-        SInt16* duplicateChannelCodePtr,
-        SInt16* localGrayChannelNumberPtr,
-        SInt16* localRedChannelNumberPtr,
-        SInt16* localGreenChannelNumberPtr,
-        SInt16* localBlueChannelNumberPtr,
-        SInt16* localrgbColorsPtr,
-        UInt16* localDisplayTypePtr,
-        SInt16* maxSystemPixelSizePtr,
-        SInt16* displayTypeMenuSelectionPtr,
-        SInt16* bitsOfColorSelectionPtr,
-        SInt16* savedBitsOfColorPtr,
-        double* saveMagnificationPtr,
-        SInt16* pixelSizeVectorPtr,
-        double* localGaussianStretchPtr,
-        SInt16* enhanceStretchSelectionPtr,
-        SInt16* enhanceMinMaxOptionCodePtr,
-        SInt16* enhanceMinMaxMenuSelectionPtr,
-        Boolean* thematicDisplayWithUserSettingFlagPtr,
-        SInt16* enhanceZeroAsSelectionPtr,
-        SInt16* localColorLevelsMaxPtr,
-        SInt16* numberDisplayLevelsPtr,
-        Boolean* userComputeFlagPtr,
-        SInt16* channelSelectionPtr,
-        Boolean* redChannelInvertFlagPtr,
-        Boolean* greenChannelInvertFlagPtr,
-        Boolean* blueChannelInvertFlagPtr,
-        double* localThematicValueFactorPtr,
-        Boolean* vectorOverlaysExistFlagPtr);
+extern void DisplayMultispectralDialogInitialize (
+				DialogPtr							dialogPtr,
+				DisplaySpecsPtr					displaySpecsPtr,
+				WindowInfoPtr						windowInfoPtr,
+				DialogSelectArea*					dialogSelectAreaPtr,
+				UInt16*								localFeaturePtr,
+				SInt16*								localNumberChannelsPtr,
+				SInt16*								localPercentClipPtr,
+				double*								localMinMaxValuesPtr,
+				SInt16*								duplicateChannelCodePtr,
+				SInt16*								localGrayChannelNumberPtr,
+				SInt16*								localRedChannelNumberPtr,
+				SInt16*								localGreenChannelNumberPtr,
+				SInt16*								localBlueChannelNumberPtr,
+				SInt16*								localrgbColorsPtr,
+				UInt16*								localDisplayTypePtr,
+				SInt16*								maxSystemPixelSizePtr,
+				SInt16*								displayTypeMenuSelectionPtr,
+				SInt16*								bitsOfColorSelectionPtr,
+				SInt16*								savedBitsOfColorPtr,
+				double*								saveMagnificationPtr,
+				SInt16*								pixelSizeVectorPtr,
+				double*								localGaussianStretchPtr,
+				SInt16*								enhanceStretchSelectionPtr,
+				SInt16*								enhanceMinMaxOptionCodePtr,
+				SInt16*								enhanceMinMaxMenuSelectionPtr,
+				Boolean*								thematicDisplayWithUserSettingFlagPtr,
+				SInt16*								enhanceZeroAsSelectionPtr,
+				SInt16*								localColorLevelsMaxPtr,
+				SInt16*								numberDisplayLevelsPtr,
+				Boolean*								userComputeFlagPtr,
+				SInt16*								channelSelectionPtr,
+				Boolean*								redChannelInvertFlagPtr,
+				Boolean*								greenChannelInvertFlagPtr,
+				Boolean*								blueChannelInvertFlagPtr,
+				double*								localThematicValueFactorPtr,
+				Boolean*								vectorOverlaysExistFlagPtr);
 
-extern void DisplayMultispectralDialogOK(
-        DialogPtr dialogPtr,
-        DisplaySpecsPtr displaySpecsPtr,
-        WindowInfoPtr windowInfoPtr,
-        FileInfoPtr fileInfoPtr,
-        DialogSelectArea* dialogSelectAreaPtr,
-        UInt16* localFeaturesPtr,
-        SInt16 localNumberChannels,
-        SInt16 localPercentClip,
-        double* localMinMaxValuesPtr,
-        SInt16 duplicateChannelCode,
-        SInt16 localGrayChannelNumber,
-        SInt16 localRedChannelNumber,
-        SInt16 localGreenChannelNumber,
-        SInt16 localBlueChannelNumber,
-        SInt16 localrgbColors,
-        UInt16 localDisplayType,
-        SInt16 displayTypeMenuSelection,
-        SInt16 bitsOfColorSelection,
-        double saveMagnification,
-        SInt16* pixelSizeVectorPtr,
-        double localGaussianStretch,
-        SInt16 enhanceStretchSelection,
-        SInt16 enhanceMinMaxOptionCode,
-        SInt16 enhanceZeroAsSelection,
-        SInt16 numberDisplayLevels,
-        SInt16* localColorLevelsMaxPtr,
-        Boolean userComputeFlag,
-        SInt16 channelSelection,
-        Boolean redChannelInvertFlag,
-        Boolean greenChannelInvertFlag,
-        Boolean blueChannelInvertFlag,
-        double localThematicValueFactor,
-        Boolean vectorOverlaysExistFlag);
+extern void DisplayMultispectralDialogOK (
+				DialogPtr							dialogPtr,
+				DisplaySpecsPtr					displaySpecsPtr,
+				WindowInfoPtr						windowInfoPtr,
+				FileInfoPtr							fileInfoPtr,
+				DialogSelectArea*					dialogSelectAreaPtr,
+				UInt16*								localFeaturesPtr,
+				SInt16								localNumberChannels,
+				SInt16								localPercentClip,
+				double*								localMinMaxValuesPtr,
+				SInt16								duplicateChannelCode,
+				SInt16								localGrayChannelNumber,
+				SInt16								localRedChannelNumber,
+				SInt16								localGreenChannelNumber,
+				SInt16								localBlueChannelNumber,
+				SInt16								localrgbColors,
+				UInt16								localDisplayType,
+				SInt16								displayTypeMenuSelection,
+				SInt16								bitsOfColorSelection,
+				double								saveMagnification,
+				SInt16*								pixelSizeVectorPtr,
+				double								localGaussianStretch,
+				SInt16								enhanceStretchSelection,
+				SInt16								enhanceMinMaxOptionCode,
+				SInt16								enhanceZeroAsSelection,
+				SInt16								numberDisplayLevels,
+				SInt16*								localColorLevelsMaxPtr,
+				Boolean								userComputeFlag,
+				SInt16								channelSelection,
+				Boolean								redChannelInvertFlag,
+				Boolean								greenChannelInvertFlag,
+				Boolean								blueChannelInvertFlag,
+				double								localThematicValueFactor,
+				Boolean								vectorOverlaysExistFlag);
 
-extern Boolean DisplayMultispectralDialogUpdateBitsOfColor(
-        MenuHandle popUpBitsOfColorMenu,
-        SInt16 localDisplayType);
+extern Boolean DisplayMultispectralDialogUpdateBitsOfColor (
+				MenuHandle							popUpBitsOfColorMenu,
+				SInt16								localDisplayType);
 
-extern void DisplayMultispectralDialogUpdateDisplayLevels(
-        DialogPtr dialogPtr,
-        DisplaySpecsPtr displaySpecsPtr,
-        SInt16* localColorLevelsMaxPtr,
-        SInt16 displayType,
-        SInt16 duplicateChannelCode,
-        SInt16 bitsOfColorSelection,
-        SInt16* numberDisplayLevelsPtr);
+extern void DisplayMultispectralDialogUpdateDisplayLevels (
+				DialogPtr							dialogPtr,
+				DisplaySpecsPtr					displaySpecsPtr,
+				SInt16*								localColorLevelsMaxPtr,
+				SInt16								displayType,
+				SInt16								duplicateChannelCode,
+				SInt16								bitsOfColorSelection,
+				SInt16*								numberDisplayLevelsPtr);
 
-extern SInt16 DisplayMultispectralDialogUpdateDisplayType(
-        DisplaySpecsPtr displaySpecsPtr,
-        DialogPtr dialogPtr,
-        SInt16 currentDisplayTypeMenuSelection,
-        SInt16 newDisplayTypeMenuSelection,
-        SInt16 savedBitsOfColor,
-        UInt16* localDisplayTypePtr,
-        SInt16* localRGBColorsPtr,
-        SInt16* bitsOfColorSelectionPtr,
-        SInt16 maxSystemPixelSize,
-        SInt16* numberDisplayLevelsPtr,
-        SInt32 redChannel,
-        SInt32 greenChannel,
-        SInt32 blueChannel,
-        SInt16* localColorLevelsMaxPtr,
-        SInt16* duplicateChannelCodePtr,
-        Boolean* checkMinMaxSettingFlagPtr);
+extern SInt16 DisplayMultispectralDialogUpdateDisplayType (
+				DisplaySpecsPtr					displaySpecsPtr,
+				DialogPtr							dialogPtr,
+				SInt16								currentDisplayTypeMenuSelection,
+				SInt16								newDisplayTypeMenuSelection,
+				SInt16								savedBitsOfColor,
+				UInt16*								localDisplayTypePtr,
+				SInt16*								localRGBColorsPtr,
+				SInt16*								bitsOfColorSelectionPtr,
+				SInt16								maxSystemPixelSize,
+				SInt16*								numberDisplayLevelsPtr,
+				SInt32								redChannel,
+				SInt32								greenChannel,
+				SInt32								blueChannel,
+				SInt16*								localColorLevelsMaxPtr,
+				SInt16*								duplicateChannelCodePtr,
+				Boolean*								checkMinMaxSettingFlagPtr);
 
-extern Boolean DisplayMultispectralDialogUpdateComputeHistogram(
-        DisplaySpecsPtr displaySpecsPtr,
-        Boolean userComputeFlag,
-        SInt16 displayType,
-        SInt16 enhanceStretchSelection,
-        SInt16 lMinMaxCode,
-        DialogPtr dialogPtr,
-        SInt16 itemNumber);
+extern Boolean DisplayMultispectralDialogUpdateComputeHistogram (
+				DisplaySpecsPtr					displaySpecsPtr,
+				Boolean								userComputeFlag,
+				SInt16								displayType,
+				SInt16								enhanceStretchSelection,
+				SInt16								lMinMaxCode,
+				DialogPtr							dialogPtr,
+				SInt16								itemNumber);
 
-extern void Display1C16BLine(
-        UInt32 numberSamples,
-        UInt32 interval,
-        Boolean bytesEqualOneFlag,
-        SInt16 backgroundValueCode,
-        HFileIOBufferPtr ioBufferPtr,
-        HUCharPtr dataDisplayPtr,
-        UInt32 maxValue,
-        HUInt16Ptr offScreen2BytePtr);
+extern void Display1C16BLine (
+				UInt32								numberSamples,
+				UInt32								interval,
+				Boolean								bytesEqualOneFlag,
+				SInt16								backgroundValueCode,
+				HFileIOBufferPtr					ioBufferPtr,
+				HUCharPtr							dataDisplayPtr,
+				UInt32								maxValue,
+				HUInt16Ptr							offScreen2BytePtr);
 
-extern void Display4_8ByteImagesSideBySide(
-        DisplaySpecsPtr displaySpecsPtr,
-        FileInfoPtr fileInfoPtr,
-        HistogramSummaryPtr histogramSummaryPtr,
-        HPtr offScreenBufferPtr,
-        UInt32 pixRowBytes,
-        PixMapHandle savedPortPixMapH,
-        PixMapHandle offScreenPixMapH,
-        LongRect* rectPtr);
+extern void Display4_8ByteImagesSideBySide (
+				DisplaySpecsPtr					displaySpecsPtr,
+				FileInfoPtr							fileInfoPtr,
+				HistogramSummaryPtr				histogramSummaryPtr,
+				HPtr									offScreenBufferPtr,
+				UInt32								pixRowBytes,
+				PixMapHandle						savedPortPixMapH,
+				PixMapHandle						offScreenPixMapH,
+				LongRect*							rectPtr);
 
-extern Boolean GaussianParameterDialog(
-        double* gaussianStretchPtr);
+extern Boolean GaussianParameterDialog (
+				double*								gaussianStretchPtr);
 
-extern void MinMaxEnhancementDialogInitialize(
-        DialogPtr dialogPtr,
-        SInt16* channelsPtr,
-        SInt16 displayType,
-        SInt16 numberLevels,
-        SInt16 rgbColors,
-        SInt16 minMaxSelection,
-        double* minMaxValuesPtr,
-        HistogramSpecsPtr* histogramSpecsPtrPtr,
-        HistogramSummaryPtr* histogramSummaryPtrPtr,
-        double* minValuePtr,
-        double* maxValuePtr,
-        SInt16* localMinMaxCodePtr,
-        SInt16* percentTailsClippedPtr,
-        Boolean* histogramAvailableFlagPtr);
+extern void MinMaxEnhancementDialogInitialize (
+				DialogPtr							dialogPtr,
+				SInt16*								channelsPtr,
+				SInt16								displayType,
+				SInt16								numberLevels,
+				SInt16								rgbColors,
+				SInt16								minMaxSelection,
+				double*								minMaxValuesPtr,
+				HistogramSpecsPtr*				histogramSpecsPtrPtr,
+				HistogramSummaryPtr*				histogramSummaryPtrPtr,
+				double*								minValuePtr,
+				double*								maxValuePtr,
+				SInt16*								localMinMaxCodePtr,
+				SInt16*								percentTailsClippedPtr,
+				Boolean*								histogramAvailableFlagPtr);
 
-extern void MinMaxEnhancementDialogOK(
-        HistogramSummaryPtr histogramSummaryPtr,
-        SInt16* channelsPtr,
-        double* minMaxValuesPtr,
-        SInt16* minMaxSelectionPtr,
-        SInt16* percentTailsClippedPtr,
-        double redMinValue,
-        double redMaxValue,
-        double greenMinValue,
-        double greenMaxValue,
-        double blueMinValue,
-        double blueMaxValue,
-        SInt16 localMinMaxCode,
-        SInt16 percentTailsClipped);
+extern void MinMaxEnhancementDialogOK (
+				HistogramSummaryPtr				histogramSummaryPtr,
+				SInt16*								channelsPtr,
+				double*								minMaxValuesPtr,
+				SInt16*								minMaxSelectionPtr,
+				SInt16*								percentTailsClippedPtr,
+				double								redMinValue,
+				double								redMaxValue,
+				double								greenMinValue,
+				double								greenMaxValue,
+				double								blueMinValue,
+				double								blueMaxValue,
+				SInt16								localMinMaxCode,
+				SInt16								percentTailsClipped);
 
-extern Boolean MinMaxEnhancementDialogOnMinMaxCode(
-        DialogPtr dialogPtr,
-        SInt16* currentMinMaxCodePtr,
-        SInt16 newMinMaxCode,
-        SInt16 percentTailsClipped,
-        HistogramSummaryPtr histogramSummaryPtr,
-        Boolean histogramAvailableFlag);
+extern Boolean MinMaxEnhancementDialogOnMinMaxCode (
+				DialogPtr							dialogPtr,
+				SInt16*								currentMinMaxCodePtr,
+				SInt16								newMinMaxCode,
+				SInt16								percentTailsClipped,
+				HistogramSummaryPtr				histogramSummaryPtr,
+				Boolean								histogramAvailableFlag);
 
-extern void MinMaxEnhancementDialogSetSelection(
-        DialogPtr dialogPtr,
-        SInt16 lastMinMaxCode,
-        SInt16 newMinMaxCode);
+extern void MinMaxEnhancementDialogSetSelection (
+				DialogPtr							dialogPtr,
+				SInt16								lastMinMaxCode,
+				SInt16								newMinMaxCode);
 
 extern void SetUpMinMaxPopUpMenu(
-        DialogPtr dialogPtr,
-        SInt16 displayType);
+				DialogPtr							dialogPtr,
+				SInt16								displayType);
 
 
 
@@ -374,229 +370,215 @@ SInt16 gEnhanceZeroAsSelection;
 
 
 
-// Prototypes for routines in this file that are only called by		
-// other routines in this file.										
+		// Prototypes for routines in this file that are only called by
+		// other routines in this file.										
 
-Boolean DisplayMultispectralDialog(
-        DisplaySpecsPtr displaySpecsPtr);
+Boolean DisplayMultispectralDialog (
+				DisplaySpecsPtr					displaySpecsPtr);
 
-PascalVoid DrawBitsColorPopUp(
-        DialogPtr dialogPtr,
-        SInt16 itemNumber);
+PascalVoid DrawBitsColorPopUp (
+				DialogPtr							dialogPtr,
+				SInt16								itemNumber);
 
-PascalVoid DrawDisplayTypePopUp(
-        DialogPtr dialogPtr,
-        SInt16 itemNumber);
+PascalVoid DrawDisplayTypePopUp (
+				DialogPtr							dialogPtr,
+				SInt16								itemNumber);
 
-//PascalVoid				DrawEnhancementPopUp (
-//								DialogPtr							dialogPtr, 
-//								SInt16								itemNumber);
+//PascalVoid DrawEnhancementPopUp (
+//				DialogPtr							dialogPtr,
+//				SInt16								itemNumber);
 
-PascalVoid DrawMinMaxPopUp(
-        DialogPtr dialogPtr,
-        SInt16 itemNumber);
+PascalVoid DrawMinMaxPopUp (
+				DialogPtr							dialogPtr,
+				SInt16								itemNumber);
 
-PascalVoid DrawStretchPopUp(
-        DialogPtr dialogPtr,
-        SInt16 itemNumber);
+PascalVoid DrawStretchPopUp (
+				DialogPtr							dialogPtr,
+				SInt16								itemNumber);
 
-PascalVoid DrawZeroAsPopUp(
-        DialogPtr dialogPtr,
-        SInt16 itemNumber);
-/*
-SInt16	 				EnhancementPopUpMenu (
-                                                                DialogPtr							dialogPtr, 
-                                                                SInt16 								dialogItem,
-                                                                SInt16 								rgbColors,
-                                                                SInt16 								displayType,
-                                                                Handle								okHandle,  
-                                                                SInt16* 								localMinMaxCodePtr, 
-                                                                SInt32* 								localMinMaxValuesPtr, 
-                                                                SInt16* 								localPercentClipPtr, 
-                                                                Boolean* 							lZeroAsBackgroundFlagPtr);
- */
-SInt16 EnhanceMinMaxPopUpMenu(
-        DialogPtr dialogPtr,
-        SInt16 dialogItem,
-        SInt16 rgbColors,
-        SInt16 displayType,
-        SInt16 numberLevels,
-        Handle okHandle,
-        SInt16 minMaxSelection,
-        double* minMaxValuesPtr,
-        SInt16* percentTailsClippedPtr);
+PascalVoid DrawZeroAsPopUp (
+				DialogPtr							dialogPtr,
+				SInt16								itemNumber);
 
-Boolean MinMaxEnhancementDialog(
-        SInt16* channelsPtr,
-        SInt16 rgbColors,
-        SInt16 displayType,
-        SInt16 numberLevels,
-        SInt16* percentTailsClippedPtr,
-        SInt16* minMaxSelectionPtr,
-        double* minMaxValuesPtr);
+SInt16 EnhanceMinMaxPopUpMenu (
+				DialogPtr							dialogPtr,
+				SInt16								dialogItem,
+				SInt16								rgbColors,
+				SInt16								displayType,
+				SInt16								numberLevels,
+				Handle								okHandle,
+				SInt16								minMaxSelection,
+				double*								minMaxValuesPtr,
+				SInt16*								percentTailsClippedPtr);
 
-void Display1Channel8BitLine(
-        UInt32 numberSamples,
-        UInt32 interval,
-        FileInfoPtr fileInfoPtr,
-        HUCharPtr ioBufferPtr,
-        HUCharPtr dataDisplayPtr,
-        UInt32 maxValue,
-        HUCharPtr offScreenPtr);
+Boolean MinMaxEnhancementDialog (
+				SInt16*								channelsPtr,
+				SInt16								rgbColors,
+				SInt16								displayType,
+				SInt16								numberLevels,
+				SInt16*								percentTailsClippedPtr,
+				SInt16*								minMaxSelectionPtr,
+				double*								minMaxValuesPtr);
 
-void Display2Channel8BitLine(
-        UInt32 numberSamples,
-        UInt32 interval,
-        Boolean bytesEqualOneFlag1,
-        Boolean bytesEqualOneFlag2,
-        UInt16 backgroundValueCode,
-        HFileIOBufferPtr ioBuffer1Ptr,
-        HFileIOBufferPtr ioBuffer2Ptr,
-        HUCharPtr dataDisplay1Ptr,
-        HUCharPtr dataDisplay2Ptr,
-        UInt32 maxBin1,
-        UInt32 maxBin2,
-        HUCharPtr offScreenPtr);
+void Display1Channel8BitLine (
+				UInt32								numberSamples,
+				UInt32								interval,
+				FileInfoPtr							fileInfoPtr,
+				HUCharPtr							ioBufferPtr,
+				HUCharPtr							dataDisplayPtr,
+				UInt32								maxValue,
+				HUCharPtr							offScreenPtr);
 
-void Display3Channel8BitLine(
-        UInt32 numberSamples,
-        UInt32 interval,
-        Boolean bytesEqualOneFlag1,
-        Boolean bytesEqualOneFlag2,
-        Boolean bytesEqualOneFlag3,
-        UInt16 backgroundValueCode,
-        HFileIOBufferPtr ioBuffer1Ptr,
-        HFileIOBufferPtr ioBuffer2Ptr,
-        HFileIOBufferPtr ioBuffer3Ptr,
-        HUCharPtr dataDisplay1Ptr,
-        HUCharPtr dataDisplay2Ptr,
-        HUCharPtr dataDisplay3Ptr,
-        UInt32 maxBin1,
-        UInt32 maxBin2,
-        UInt32 maxBin3,
-        HUCharPtr offScreenPtr);
+void Display2Channel8BitLine (
+				UInt32								numberSamples,
+				UInt32								interval,
+				Boolean								bytesEqualOneFlag1,
+				Boolean								bytesEqualOneFlag2,
+				UInt16								backgroundValueCode,
+				HFileIOBufferPtr					ioBuffer1Ptr,
+				HFileIOBufferPtr					ioBuffer2Ptr,
+				HUCharPtr							dataDisplay1Ptr,
+				HUCharPtr							dataDisplay2Ptr,
+				UInt32								maxBin1,
+				UInt32								maxBin2,
+				HUCharPtr							offScreenPtr);
 
-void DisplayMultispectralDialogSetDefaultSelection(
-        DialogPtr dialogPtr,
-        SInt16 rgbColors,
-        SInt16 displayType);
+void Display3Channel8BitLine (
+				UInt32								numberSamples,
+				UInt32								interval,
+				Boolean								bytesEqualOneFlag1,
+				Boolean								bytesEqualOneFlag2,
+				Boolean								bytesEqualOneFlag3,
+				UInt16								backgroundValueCode,
+				HFileIOBufferPtr					ioBuffer1Ptr,
+				HFileIOBufferPtr					ioBuffer2Ptr,
+				HFileIOBufferPtr					ioBuffer3Ptr,
+				HUCharPtr							dataDisplay1Ptr,
+				HUCharPtr							dataDisplay2Ptr,
+				HUCharPtr							dataDisplay3Ptr,
+				UInt32								maxBin1,
+				UInt32								maxBin2,
+				UInt32								maxBin3,
+				HUCharPtr							offScreenPtr);
 
-Boolean EqualAreaDataToDisplayLevels(
-        HistogramSpecsPtr histogramSpecsPtr,
-        HUCharPtr dataDisplayPtr,
-        DisplaySpecsPtr displaySpecsPtr,
-        UInt32 dataDisplayVectorLength,
-        SInt16 numberChannels,
-        UInt16* channelsPtr);
+void DisplayMultispectralDialogSetDefaultSelection (
+				DialogPtr							dialogPtr,
+				SInt16								rgbColors,
+				SInt16								displayType);
 
-Boolean FillDataToDisplayLevels(
-        HistogramSpecsPtr histogramSpecsPtr,
-        HUCharPtr dataDisplayPtr,
-        DisplaySpecsPtr displaySpecsPtr,
-        UInt32 dataDisplayVectorLength,
-        SInt16 numberChannels,
-        UInt16* channelsPtr);
+Boolean EqualAreaDataToDisplayLevels (
+				HistogramSpecsPtr					histogramSpecsPtr,
+				HUCharPtr							dataDisplayPtr,
+				DisplaySpecsPtr					displaySpecsPtr,
+				UInt32								dataDisplayVectorLength,
+				SInt16								numberChannels,
+				UInt16*								channelsPtr);
 
-Boolean GaussianToDisplayLevels(
-        HistogramSpecsPtr histogramSpecsPtr,
-        HUCharPtr dataDisplayPtr,
-        DisplaySpecsPtr displaySpecsPtr,
-        UInt32 dataDisplayVectorLength,
-        SInt16 numberChannels,
-        UInt16* channelsPtr);
+Boolean FillDataToDisplayLevels (
+				HistogramSpecsPtr					histogramSpecsPtr,
+				HUCharPtr							dataDisplayPtr,
+				DisplaySpecsPtr					displaySpecsPtr,
+				UInt32								dataDisplayVectorLength,
+				SInt16								numberChannels,
+				UInt16*								channelsPtr);
 
-HPtr GetDisplayIOBuffer(
-        FileIOInstructionsPtr fileIOInstructionsPtr,
-        DisplaySpecsPtr displaySpecsPtr,
-        FileInfoPtr fileInfoPtr1,
-        FileInfoPtr fileInfoPtr2,
-        FileInfoPtr fileInfoPtr3,
-        UInt16 numberListChannels,
-        UInt16* channelListPtr,
-        Boolean* BILSpecialFlagPtr,
-        UInt32* numberSamplesPtr,
-        UInt32* numberBytesPtr,
-        HUCharPtr* tiledBufferPtrPtr);
+Boolean GaussianToDisplayLevels (
+				HistogramSpecsPtr					histogramSpecsPtr,
+				HUCharPtr							dataDisplayPtr,
+				DisplaySpecsPtr					displaySpecsPtr,
+				UInt32								dataDisplayVectorLength,
+				SInt16								numberChannels,
+				UInt16*								channelsPtr);
 
-Boolean GetHistogramRequiredFlag(
-        SInt16 displayType,
-        SInt16 enhanceStretchSelection,
-        SInt16 lMinMaxCode);
+HPtr GetDisplayIOBuffer (
+				FileIOInstructionsPtr			fileIOInstructionsPtr,
+				DisplaySpecsPtr					displaySpecsPtr,
+				FileInfoPtr							fileInfoPtr1,
+				FileInfoPtr							fileInfoPtr2,
+				FileInfoPtr							fileInfoPtr3,
+				UInt16								numberListChannels,
+				UInt16*								channelListPtr,
+				Boolean*								BILSpecialFlagPtr,
+				UInt32*								numberSamplesPtr,
+				UInt32*								numberBytesPtr,
+				HUCharPtr*							tiledBufferPtrPtr);
 
-void GetMinMaxValuesIndices(
-        DisplaySpecsPtr displaySpecsPtr,
-        HistogramSpecsPtr histogramSpecsPtr,
-        HistogramSummaryPtr histogramSummaryPtr,
-        SInt16 channel,
-        SInt16 channelNumberIndex,
-        Boolean histLoadedFlag,
-        SInt32 signedValueOffset,
-        UInt32 numberBins,
-        UInt16 numberClasses,
-        SInt32* minBinIndexPtr,
-        SInt32* maxBinIndexPtr,
-        //								SInt16*								classForMinThematicValuePtr,
-        //								SInt16*								classForMaxThematicValuePtr,
-        SInt16* classForMinDataValuePtr,
-        SInt16* classForMaxDataValuePtr);
+Boolean GetHistogramRequiredFlag (
+				SInt16								displayType,
+				SInt16								enhanceStretchSelection,
+				SInt16								lMinMaxCode);
 
-SInt16 GetThematicClassForDataValue(
-        double dataValue,
-        double minThematicRange,
-        double maxThematicRange,
-        SInt16 numberThematicClasses);
+void GetMinMaxValuesIndices (
+				DisplaySpecsPtr					displaySpecsPtr,
+				HistogramSpecsPtr					histogramSpecsPtr,
+				HistogramSummaryPtr				histogramSummaryPtr,
+				SInt16								channel,
+				SInt16								channelNumberIndex,
+				Boolean								histLoadedFlag,
+				SInt32								signedValueOffset,
+				UInt32								numberBins,
+				UInt16								numberClasses,
+				SInt32*								minBinIndexPtr,
+				SInt32*								maxBinIndexPtr,
+				SInt16*								classForMinDataValuePtr,
+				SInt16*								classForMaxDataValuePtr);
 
-void GetThematicTypeMinMaxIndices(
-        SInt16 numberClassBins,
-        SInt16 channelNumber,
-        double* minThematicValuePtr,
-        double* maxThematicValuePtr,
-        SInt32* minValueIndexPtr,
-        SInt32* maxValueIndexPtr);
+SInt16 GetThematicClassForDataValue (
+				double								dataValue,
+				double								minThematicRange,
+				double								maxThematicRange,
+				SInt16								numberThematicClasses);
 
-Boolean HistogramVector(
-        DisplaySpecsPtr displaySpecsPtr,
-        HistogramSpecsPtr histogramSpecsPtr);
+void GetThematicTypeMinMaxIndices (
+				SInt16								numberClassBins,
+				SInt16								channelNumber,
+				double*								minThematicValuePtr,
+				double*								maxThematicValuePtr,
+				SInt32*								minValueIndexPtr,
+				SInt32*								maxValueIndexPtr);
 
-DisplaySpecsPtr LoadMultispectralDisplaySpecs(void);
+Boolean HistogramVector (
+				DisplaySpecsPtr					displaySpecsPtr,
+				HistogramSpecsPtr					histogramSpecsPtr);
 
-void SaveDisplayStructureSettings(
-        DisplaySpecsPtr displaySpecsPtr,
-        FileInfoPtr imageFileInfoPtr,
-        WindowInfoPtr imageWindowInfoPtr);
+DisplaySpecsPtr LoadMultispectralDisplaySpecs (void);
 
-void UpdateDialogChannelItems(
-        DialogPtr dialogPtr,
-        //								SInt16								displayTypeSelection,
-        SInt16 rgbColors,
-        SInt16 displayType);
+void SaveDisplayStructureSettings (
+				DisplaySpecsPtr					displaySpecsPtr,
+				FileInfoPtr							imageFileInfoPtr,
+				WindowInfoPtr						imageWindowInfoPtr);
 
-void UpdatePopUpDisplayTypeMenu(
-        UInt16 totalNumberChannels,
-        SInt16 maxSystemPixelSize);
+void UpdateDialogChannelItems (
+				DialogPtr							dialogPtr,
+				SInt16								rgbColors,
+				SInt16								displayType);
 
-void UpdateEnhancementMinMaxes(
-        HistogramSpecsPtr histogramSpecsPtr,
-        DialogPtr dialogPtr,
-        SInt16 localMinMaxCode,
-        SInt16 percentTailsClipped,
-        SInt16 numberLevels,
-        double* minMaxValuesPtr,
-        SInt16* channels,
-        Boolean updateUserDefinedFlag);
+void UpdatePopUpDisplayTypeMenu (
+				UInt16								totalNumberChannels,
+				SInt16								maxSystemPixelSize);
 
-void UpdateMinMaxValueIndices(
-        DisplaySpecsPtr displaySpecsPtr,
-        HistogramSummaryPtr histogramSummaryPtr,
-        SInt16 numberChannels,
-        UInt16* channelsPtr,
-        SInt32 signedValueOffset);
+void UpdateEnhancementMinMaxes (
+				HistogramSpecsPtr					histogramSpecsPtr,
+				DialogPtr							dialogPtr,
+				SInt16								localMinMaxCode,
+				SInt16								percentTailsClipped,
+				SInt16								numberLevels,
+				double*								minMaxValuesPtr,
+				SInt16*								channels,
+				Boolean								updateUserDefinedFlag);
 
-void UpdateThematicTypeMinMaxes(
-        SInt16 numberClassBins,
-        SInt16 channelNumber,
-        double* minBinIndexPtr,
-        double* maxBinIndexPtr);
+void UpdateMinMaxValueIndices (
+				DisplaySpecsPtr					displaySpecsPtr,
+				HistogramSummaryPtr				histogramSummaryPtr,
+				SInt16								numberChannels,
+				UInt16*								channelsPtr,
+				SInt32								signedValueOffset);
+
+void UpdateThematicTypeMinMaxes (
+				SInt16								numberClassBins,
+				SInt16								channelNumber,
+				double*								minBinIndexPtr,
+				double*								maxBinIndexPtr);
 
 
 
@@ -692,28 +674,28 @@ void DisplayImagesSideBySide(
 
 			// Initialize local variables.
 
-    firstColumnIndex = displaySpecsPtr->columnStart - 1;
-    columnStart = displaySpecsPtr->columnStart;
-    columnEnd = displaySpecsPtr->columnEnd;
-    lineStart = displaySpecsPtr->lineStart;
-    lineEnd = displaySpecsPtr->lineEnd;
-    lineInterval = displaySpecsPtr->lineInterval;
-    numberChannels = displaySpecsPtr->numberChannels;
-    maxValue = gImageWindowInfoPtr->numberBins - 1;
-    channelsIndex = 0;
-    stopFlag = FALSE;
-    fileIOInstructionsPtr = NULL;
+	firstColumnIndex = displaySpecsPtr->columnStart - 1;
+	columnStart = displaySpecsPtr->columnStart;
+	columnEnd = displaySpecsPtr->columnEnd;
+	lineStart = displaySpecsPtr->lineStart;
+	lineEnd = displaySpecsPtr->lineEnd;
+	lineInterval = displaySpecsPtr->lineInterval;
+	numberChannels = displaySpecsPtr->numberChannels;
+	maxValue = gImageWindowInfoPtr->numberBins - 1;
+	channelsIndex = 0;
+	stopFlag = FALSE;
+	fileIOInstructionsPtr = NULL;
 
-    separatorByte = 0x00;
-    if (gOSXFlag)
-        separatorByte = (char) 0xFF;
+	separatorByte = 0x00;
+	if (gOSXFlag)
+	  separatorByte = (char) 0xFF;
 
-#if defined multispec_lin
-    separatorByte = (char) 0xFF;
-#endif
+#	if defined multispec_lin
+		separatorByte = (char) 0xFF;
+#	endif
 
-    // Lock channel list handle and get a pointer.
-    // This handle is already locked.	
+			// Lock channel list handle and get a pointer.
+			// This handle is already locked.
 
 	channelsPtr = (UInt16*)GetHandlePointer (displaySpecsPtr->channelsHandle);
 
@@ -722,423 +704,430 @@ void DisplayImagesSideBySide(
 
 				// Force any updates to be done.
 
-		if (!CheckSomeDisplayEvents(gImageWindowInfoPtr,
-            displaySpecsPtr,
-            savedPortPixMapH,
-            offScreenPixMapH,
-            &longSourceRect,
-            -1))
-        return;
+		if (!CheckSomeDisplayEvents (gImageWindowInfoPtr,
+												displaySpecsPtr,
+												savedPortPixMapH,
+												offScreenPixMapH,
+												&longSourceRect,
+												-1))
+																									return;
 
-    // Force the title line to be drawn.
+			// Force the title line to be drawn.
 
-    PixMapHandle imageWindowPortPixMap;
+		PixMapHandle imageWindowPortPixMap;
 
-    if (!gOSXCoreGraphicsFlag) {
-        imageWindowPortPixMap = GetPortPixMap(GetWindowPort(gActiveImageWindow));
-        CopyHandleToHandle((Handle) savedPortPixMapH,
-                (Handle) imageWindowPortPixMap);
+		if (!gOSXCoreGraphicsFlag)
+			{
+			imageWindowPortPixMap = GetPortPixMap(GetWindowPort (gActiveImageWindow));
+			CopyHandleToHandle ((Handle) savedPortPixMapH, (Handle)imageWindowPortPixMap);
 
-    } // end "if (!gOSXCoreGraphicsFlag)"
+			}	// end "if (!gOSXCoreGraphicsFlag)"
 
-    GetWindowClipRectangle(gActiveImageWindow, kImageFrameArea, &sourceRect);
-    sourceRect.top = gImageWindowInfoPtr->coordinateHeight;
-    sourceRect.bottom = gImageWindowInfoPtr->imageTopOffset;
-    GetPort(&savedPort);
-    SetPortWindowPort(gActiveImageWindow);
-    InvalWindowRect(gActiveImageWindow, &sourceRect);
-    SetPort(savedPort);
+		GetWindowClipRectangle (gActiveImageWindow, kImageFrameArea, &sourceRect);
+		sourceRect.top = gImageWindowInfoPtr->coordinateHeight;
+		sourceRect.bottom = gImageWindowInfoPtr->imageTopOffset;
+		GetPort (&savedPort);
+		SetPortWindowPort (gActiveImageWindow);
+		InvalWindowRect (gActiveImageWindow, &sourceRect);
+		SetPort (savedPort);
 
-    if (!gOSXCoreGraphicsFlag)
-        CopyHandleToHandle((Handle) offScreenPixMapH,
-            (Handle) imageWindowPortPixMap);
+		if (!gOSXCoreGraphicsFlag)
+			CopyHandleToHandle ((Handle)offScreenPixMapH, (Handle)imageWindowPortPixMap);
 #	endif	// defined multispec_mac
 
-    // Get display bottom maximum of image window								
+			// Get display bottom maximum of image window
 
-    longSourceRect = *rectPtr;
-    //	longSourceRect.left = rectPtr->left;
-    //	longSourceRect.top = rectPtr->top;
-    //	longSourceRect.right = rectPtr->right;
-    //	longSourceRect.bottom = rectPtr->bottom;	
+	longSourceRect = *rectPtr;
+	//longSourceRect.left = rectPtr->left;
+	//longSourceRect.top = rectPtr->top;
+	//longSourceRect.right = rectPtr->right;
+	//longSourceRect.bottom = rectPtr->bottom;
 
-    displayBottomMax = longSourceRect.bottom;
+	displayBottomMax = longSourceRect.bottom;
 
-    // Get handle to block of memory to use as file IO buffer for the		
-    // requested channels of data.  If the input band interleave format 	
-    // is BIS,  then request memory for all channels in the file.			
+			// Get handle to block of memory to use as file IO buffer for the
+			// requested channels of data.  If the input band interleave format
+			// is BIS,  then request memory for all channels in the file.
 
-    if (!GetIOBufferPointers(&gFileIOInstructions[0],
-            gImageWindowInfoPtr,
-            gImageLayerInfoPtr,
-            fileInfoPtr,
-            &base_ioBufferPtr,
-            &base_ioBufferPtr,
-            columnStart,
-            columnEnd,
-            1,
-            numberChannels,
-            channelsPtr,
-            kDoNotPackData,
-            kDoNotForceBISFormat,
-            kDoNotForceBytes,
-            gHasThreadManager,
-            &fileIOInstructionsPtr))
-        return;
+	if (!GetIOBufferPointers (&gFileIOInstructions[0],
+										gImageWindowInfoPtr,
+										gImageLayerInfoPtr,
+										fileInfoPtr,
+										&base_ioBufferPtr,
+										&base_ioBufferPtr,
+										columnStart,
+										columnEnd,
+										1,
+										numberChannels,
+										channelsPtr,
+										kDoNotPackData,
+										kDoNotForceBISFormat,
+										kDoNotForceBytes,
+										gHasThreadManager,
+										&fileIOInstructionsPtr))
+																										return;
 
-    dataDisplayPtr = (HUCharPtr) GetHandlePointer(
-            gToDisplayLevels.vectorHandle, kLock, kNoMoveHi);
+	dataDisplayPtr = (HUCharPtr)GetHandlePointer (
+										gToDisplayLevels.vectorHandle, kLock, kNoMoveHi);
 
-    // Make certain that we have valid 32 bit pointers in case we go to	
-    // 32 bit mode.																		
+			// Make certain that we have valid 32 bit pointers in case we go to
+			// 32 bit mode.
 
-    //	dataDisplayPtr = (HUCharPtr)StripAddress ( (void*)dataDisplayPtr );
-    //	base_ioBufferPtr = (HUCharPtr)StripAddress ( (void*)base_ioBufferPtr );
-    //	addressMode = true32b;
+			// Get the offset in the vector for each channel of data.  The
+			// offset will be 0 if the 'use overall min-max or entire data
+			// range is used'
 
-    // Get the offset in the vector for each channel of data.  The			
-    // offset will be 0 if the 'use overall min-max or entire data			
-    // range is used'																		
+	bytesOffset = gToDisplayLevels.bytesOffset;
+	if (displaySpecsPtr->enhancementCode == kLinearStretch &&
+													displaySpecsPtr->minMaxCode == kEntireDataRange)
+		bytesOffset = 0;
 
-    bytesOffset = gToDisplayLevels.bytesOffset;
-    if (displaySpecsPtr->enhancementCode == kLinearStretch &&
-            displaySpecsPtr->minMaxCode == kEntireDataRange)
-        bytesOffset = 0;
+			// Draw the image in the image window. Note that Windows DIB
+			// images are loaded with first line at the end of the bitmap
+			// to last line at the beginning of the bitmap.
 
-    // Draw the image in the image window. Note that Windows DIB
-    // images are loaded with first line at the end of the bitmap 
-    // to last line at the beginning of the bitmap.
+#	if defined multispec_mac || defined multispec_lin
+		savedOffScreenLinePtr = (HUCharPtr)offScreenBufferPtr;
+#	endif	// defined multispec_mac | defined multispec_lin
 
-#if defined multispec_mac | defined multispec_lin
-    savedOffScreenLinePtr = (HUCharPtr) offScreenBufferPtr;
-#endif	// defined multispec_mac | defined multispec_lin
+#	if defined multispec_win
+		UInt32 numberLines = (lineEnd - lineStart + lineInterval) / lineInterval;
+		savedOffScreenLinePtr = (HUCharPtr)(offScreenBufferPtr + (numberLines - 1) * pixRowBytes);
+#	endif	// defined multispec_win
 
-#if defined multispec_win 
-    UInt32 numberLines = (lineEnd - lineStart + lineInterval) / lineInterval;
-    savedOffScreenLinePtr = (HUCharPtr) (offScreenBufferPtr + (numberLines - 1) * pixRowBytes);
-#endif	// defined multispec_win 
+			// Intialize the nextTime variable to indicate when the next check
+			// should occur for a command-.
 
-    // Intialize the nextTime variable to indicate when the next check	
-    // should occur for a command-.													
+	gNextTime = TickCount() + kDisplayTimeOffset;
 
-    gNextTime = TickCount() + kDisplayTimeOffset;
+			// Loop through the image files.
 
-    // Loop through the image files.													
+	for (fileInfoIndex = 0;
+			fileInfoIndex < gImageWindowInfoPtr->numberImageFiles;
+			fileInfoIndex++)
+		{
+		longSourceRect.top = rectPtr->top;
 
-    for (fileInfoIndex = 0;
-            fileInfoIndex < gImageWindowInfoPtr->numberImageFiles;
-            fileInfoIndex++) {
-        longSourceRect.top = rectPtr->top;
+				// Get the number of channels used in this image file.
 
-        // Get the number of channels used in this image file.
+		for (imageFileNumberChannels = 0;
+				 channelsIndex < numberChannels;
+				 channelsIndex++)
+			{
+			channelNumber = channelsPtr[channelsIndex] + 1;
 
-        for (imageFileNumberChannels = 0;
-                channelsIndex < numberChannels;
-                channelsIndex++) {
-            channelNumber = channelsPtr[channelsIndex] + 1;
+			if (fileInfoIndex != gImageLayerInfoPtr[channelNumber].fileInfoIndex)
+				 break;
 
-            if (fileInfoIndex != gImageLayerInfoPtr[channelNumber].fileInfoIndex)
-                break;
+			imageFileNumberChannels++;
 
-            imageFileNumberChannels++;
+			}	// end "for (imageFileNumberChannels = 0; ..."
 
-        } // end "for (imageFileNumberChannels = 0; ..." 	
+		if (imageFileNumberChannels > 0)
+			{
+					// Now load the side by side images for this file.
 
-        if (imageFileNumberChannels > 0) {
-            // Now load the side by side images for this file.
+			localFileInfoPtr = &fileInfoPtr[fileInfoIndex];
 
-            localFileInfoPtr = &fileInfoPtr[fileInfoIndex];
+					// Set flag to indicate whether entire line of data for all
+					// channels can be read in at one time, rather than separate
+					// reads for each channel.
 
-            // Set flag to indicate whether entire line of data for all 	
-            // channels can be read in at one time, rather than separate 	
-            // reads for each channel.													
+			BILSpecialFlag = GetBILSpecial (
+										  fileIOInstructionsPtr,
+										  &channelsPtr[channelsIndex - imageFileNumberChannels],
+										  imageFileNumberChannels,
+										  columnStart,
+										  columnEnd,
+										  displaySpecsPtr->columnInterval,
+										  kDetermineSpecialBILFlag);
 
-            BILSpecialFlag = GetBILSpecial(
-                    fileIOInstructionsPtr,
-                    &channelsPtr[channelsIndex - imageFileNumberChannels],
-                    imageFileNumberChannels,
-                    columnStart,
-                    columnEnd,
-                    displaySpecsPtr->columnInterval,
-                    kDetermineSpecialBILFlag);
+			if (localFileInfoPtr->bandInterleave == kBIS)
+				{
+				interval = imageFileNumberChannels;
+				numberSamples = ((UInt32) displaySpecsPtr->columnEnd -
+						displaySpecsPtr->columnStart + displaySpecsPtr->columnInterval) /
+						displaySpecsPtr->columnInterval;
+				numberSamples *= imageFileNumberChannels;
+				columnIntervalUsed = displaySpecsPtr->columnInterval;
+				packDataFlag = TRUE;
+				BISFlag = TRUE;
 
-            if (localFileInfoPtr->bandInterleave == kBIS) {
-                interval = imageFileNumberChannels;
-                numberSamples = ((UInt32) displaySpecsPtr->columnEnd -
-                        displaySpecsPtr->columnStart + displaySpecsPtr->columnInterval) /
-                        displaySpecsPtr->columnInterval;
-                numberSamples *= imageFileNumberChannels;
-                columnIntervalUsed = displaySpecsPtr->columnInterval;
-                packDataFlag = TRUE;
-                BISFlag = TRUE;
+				}	// end "if (localFileInfoPtr->bandInterleave == kBIS)"
 
-            }// end "if (localFileInfoPtr->bandInterleave == kBIS)" 
-
-            else // localFileInfoPtr->bandInterleave != kBIS 
+			else	// localFileInfoPtr->bandInterleave != kBIS
             {
-                if (BILSpecialFlag) {
-                    interval = 1;
-                    numberSamples = ((UInt32) displaySpecsPtr->columnEnd -
-                            displaySpecsPtr->columnStart + displaySpecsPtr->columnInterval) /
-                            displaySpecsPtr->columnInterval;
-                    columnIntervalUsed = displaySpecsPtr->columnInterval;
-                    packDataFlag = TRUE;
+				if (BILSpecialFlag)
+					{
+					interval = 1;
+					numberSamples = ((UInt32)displaySpecsPtr->columnEnd -
+							 displaySpecsPtr->columnStart + displaySpecsPtr->columnInterval) /
+										displaySpecsPtr->columnInterval;
+					columnIntervalUsed = displaySpecsPtr->columnInterval;
+					packDataFlag = TRUE;
 
-                }// end "if (BILSpecialFlag)"
+					}	// end "if (BILSpecialFlag)"
 
-                else // !BILSpecialFlag
-                {
-                    interval = displaySpecsPtr->columnInterval;
-                    numberSamples = (UInt32) displaySpecsPtr->columnEnd -
-                            displaySpecsPtr->columnStart + 1;
-                    columnIntervalUsed = 1;
-                    packDataFlag = FALSE;
+				else	// !BILSpecialFlag
+					{
+					interval = displaySpecsPtr->columnInterval;
+					numberSamples = (UInt32)displaySpecsPtr->columnEnd -
+																displaySpecsPtr->columnStart + 1;
+					columnIntervalUsed = 1;
+					packDataFlag = FALSE;
 
-                } // end "else !BILSpecialFlag"
+					}	// end "else !BILSpecialFlag"
 
-                BISFlag = FALSE;
+				BISFlag = FALSE;
 
-            } // end "else localFileInfoPtr->bandInterleave != kBIS" 
+            }	// end "else localFileInfoPtr->bandInterleave != kBIS"
 
-            offScreenLinePtr = savedOffScreenLinePtr;
+			offScreenLinePtr = savedOffScreenLinePtr;
 
-            lineCount = 0;
+			lineCount = 0;
 
-            // Set some of the File IO Instructions parameters.
+					// Set some of the File IO Instructions parameters.
 
-            fileIOInstructionsPtr->packDataFlag = packDataFlag;
+			fileIOInstructionsPtr->packDataFlag = packDataFlag;
 
-            errCode = SetUpFileIOInstructions(
-                    fileIOInstructionsPtr,
-                    NULL,
-                    displaySpecsPtr->lineStart,
-                    lineEnd,
-                    lineInterval,
-                    columnStart,
-                    columnEnd,
-                    columnIntervalUsed,
-                    imageFileNumberChannels,
-                    (HUInt16Ptr) & channelsPtr[channelsIndex - imageFileNumberChannels],
-                    kDetermineSpecialBILFlag);
+			errCode = SetUpFileIOInstructions (
+									  fileIOInstructionsPtr,
+									  NULL,
+									  displaySpecsPtr->lineStart,
+									  lineEnd,
+									  lineInterval,
+									  columnStart,
+									  columnEnd,
+									  columnIntervalUsed,
+									  imageFileNumberChannels,
+									  (HUInt16Ptr) & channelsPtr[channelsIndex - imageFileNumberChannels],
+									  kDetermineSpecialBILFlag);
 
-            ioBufferPtr = base_ioBufferPtr;
+			ioBufferPtr = base_ioBufferPtr;
 
-            for (line = lineStart; line <= lineEnd; line += lineInterval) {
-                // Get all channels for the line of image data.  Return if	
-                // there is a file IO error.											
+			for (line = lineStart; line <= lineEnd; line += lineInterval)
+				{
+						// Get all channels for the line of image data.  Return if
+						// there is a file IO error.
 
-                errCode = GetLineOfData(
-                        fileIOInstructionsPtr,
-                        line,
-                        columnStart,
-                        columnEnd,
-                        columnIntervalUsed,
-                        ioBufferPtr,
-                        ioBufferPtr);
+				errCode = GetLineOfData (fileIOInstructionsPtr,
+													line,
+													columnStart,
+													columnEnd,
+													columnIntervalUsed,
+													ioBufferPtr,
+													ioBufferPtr);
 
-                if (errCode != noErr)
-                    break;
+				if (errCode != noErr)
+					break;
 
-                else // errCode == noErr 
-                {
-                    offScreenPtr = offScreenLinePtr;
+				else	// errCode == noErr
+					{
+					offScreenPtr = offScreenLinePtr;
 
-                    //	This loop will draw the image lines for one byte 		
-                    // data.																	
+							//	This loop will draw the image lines for one byte data.
 
-                    if (localFileInfoPtr->numberBytes == 1) {
-                        dataToLevelPtr = dataDisplayPtr;
+					if (localFileInfoPtr->numberBytes == 1)
+						{
+						dataToLevelPtr = dataDisplayPtr;
 
-                        for (channel = 0; channel < imageFileNumberChannels; channel++) {
-                            if (BISFlag)
-                                buffer1Ptr = (HUCharPtr) & ioBufferPtr[channel];
+						for (channel = 0; channel < imageFileNumberChannels; channel++)
+							{
+							if (BISFlag)
+								buffer1Ptr = (HUCharPtr) & ioBufferPtr[channel];
 
-                            else // !BISFlag 
-                                buffer1Ptr = (HUCharPtr) & ioBufferPtr[channel * numberSamples];
+							else	// !BISFlag
+								buffer1Ptr = (HUCharPtr) & ioBufferPtr[channel * numberSamples];
 
-                            for (j = 0; j < numberSamples; j += interval) {
-                                dataValue = *buffer1Ptr;
-                                *offScreenPtr = (SInt8) (dataToLevelPtr[dataValue]);
+							for (j = 0; j < numberSamples; j += interval)
+								{
+								dataValue = *buffer1Ptr;
+								*offScreenPtr = (SInt8)(dataToLevelPtr[dataValue]);
 
-                                offScreenPtr++;
-#if defined multispec_lin
-                                *offScreenPtr = (SInt8) (dataToLevelPtr[dataValue]);
+								offScreenPtr++;
+#								if defined multispec_lin
+									*offScreenPtr = (SInt8)(dataToLevelPtr[dataValue]);
 
-                                offScreenPtr++;
-                                *offScreenPtr = (SInt8) (dataToLevelPtr[dataValue]);
+									offScreenPtr++;
+									*offScreenPtr = (SInt8) (dataToLevelPtr[dataValue]);
 
-                                offScreenPtr++;
-#endif
-                                buffer1Ptr += interval;
+								  offScreenPtr++;
+#								endif
+								buffer1Ptr += interval;
 
-                            } // end "for (j=0;..." 
+								}	// end "for (j=0;..."
 
-                            *offScreenPtr = separatorByte;
-                            offScreenPtr++;
-#if defined multispec_lin
-                            *offScreenPtr = separatorByte;
+							*offScreenPtr = separatorByte;
+							offScreenPtr++;
+#							if defined multispec_lin
+								*offScreenPtr = separatorByte;
 
-                            offScreenPtr++;
-                            *offScreenPtr = separatorByte;
+								offScreenPtr++;
+								*offScreenPtr = separatorByte;
 
-                            offScreenPtr++;
+								offScreenPtr++;
 
-                            *offScreenPtr = separatorByte;
+								*offScreenPtr = separatorByte;
 
-                            offScreenPtr++;
-                            *offScreenPtr = separatorByte;
+								offScreenPtr++;
+								*offScreenPtr = separatorByte;
 
-                            offScreenPtr++;
-#endif
-                            *offScreenPtr = separatorByte;
-                            offScreenPtr++;
+								offScreenPtr++;
+#							endif
+							*offScreenPtr = separatorByte;
+							offScreenPtr++;
 
-                            dataToLevelPtr += bytesOffset;
+							dataToLevelPtr += bytesOffset;
 
-                        } // end "for (channel=0; channel<..." 
+							}	// end "for (channel=0; channel<..."
 
-                    }// end "if (localFileInfoPtr->numberBytes == 1)" 
+						}	// end "if (localFileInfoPtr->numberBytes == 1)"
 
-                        // This loop will draw the image lines for two byte data 
+							// This loop will draw the image lines for two byte data
 
-                    else if (localFileInfoPtr->numberBytes == 2) {
-                        dataToLevelPtr = dataDisplayPtr;
+					else if (localFileInfoPtr->numberBytes == 2)
+						{
+						dataToLevelPtr = dataDisplayPtr;
 
-                        for (channel = 0; channel < imageFileNumberChannels; channel++) {
-                            if (BISFlag)
-                                buffer2Ptr = (HUInt16Ptr) & ioBufferPtr[2 * channel];
+						for (channel = 0; channel < imageFileNumberChannels; channel++)
+							{
+							if (BISFlag)
+								buffer2Ptr = (HUInt16Ptr)&ioBufferPtr[2*channel];
 
-                            else // !BISFlag 
-                                buffer2Ptr =
-                                    (HUInt16Ptr) & ioBufferPtr[2 * channel * numberSamples];
+							else // !BISFlag
+								buffer2Ptr =
+										(HUInt16Ptr)&ioBufferPtr[2*channel*numberSamples];
 
-                            for (j = 0; j < numberSamples; j += interval) {
-                                dataValue = (UInt32) * buffer2Ptr;
-                                if (dataValue > maxValue)
-                                    dataValue = 0;
-                                *offScreenPtr = (SInt8) (dataToLevelPtr[dataValue]);
+							for (j = 0; j < numberSamples; j += interval)
+								{
+								dataValue = (UInt32)*buffer2Ptr;
+								if (dataValue > maxValue)
+									dataValue = 0;
+								*offScreenPtr = (SInt8)(dataToLevelPtr[dataValue]);
 
-                                offScreenPtr++;
-#if defined multispec_lin
-                                *offScreenPtr = (SInt8) (dataToLevelPtr[dataValue]);
+								offScreenPtr++;
+#								if defined multispec_lin
+									*offScreenPtr = (SInt8)(dataToLevelPtr[dataValue]);
 
-                                offScreenPtr++;
-                                *offScreenPtr = (SInt8) (dataToLevelPtr[dataValue]);
+									offScreenPtr++;
+									*offScreenPtr = (SInt8)(dataToLevelPtr[dataValue]);
 
-                                offScreenPtr++;
-#endif
-                                buffer2Ptr += interval;
+								  offScreenPtr++;
+#								endif
+								  buffer2Ptr += interval;
 
-                            } // end "for ( j=0;..." 
+								}	// end "for (j=0;..."
 
-                            *offScreenPtr = separatorByte;
-                            offScreenPtr++;
-                            *offScreenPtr = separatorByte;
-                            offScreenPtr++;
-#if defined multispec_lin
-                            *offScreenPtr = separatorByte;
+							*offScreenPtr = separatorByte;
+							offScreenPtr++;
+							*offScreenPtr = separatorByte;
+							offScreenPtr++;
+#							if defined multispec_lin
+								*offScreenPtr = separatorByte;
 
-                            offScreenPtr++;
-                            *offScreenPtr = separatorByte;
+								offScreenPtr++;
+								*offScreenPtr = separatorByte;
 
-                            offScreenPtr++;
+								offScreenPtr++;
 
-                            *offScreenPtr = separatorByte;
+								*offScreenPtr = separatorByte;
 
-                            offScreenPtr++;
-                            *offScreenPtr = separatorByte;
+								offScreenPtr++;
+								*offScreenPtr = separatorByte;
 
-                            offScreenPtr++;
-#endif
+								offScreenPtr++;
+#							endif
 
-                            dataToLevelPtr += bytesOffset;
+							dataToLevelPtr += bytesOffset;
 
-                        } // end "for (channel=0; channel<=..." 
+							}	// end "for (channel=0; channel<=..."
 
-                    } // end "else if (localFileInfoPtr->numberBytes == 2)" 
+						}	// end "else if (localFileInfoPtr->numberBytes == 2)"
 
-                    // Switch back to original address mode if needed.			
+							// Copy a portion of the image and
+							// check if user wants to exit drawing								
 
-                    // Copy a portion of the image and	
-                    // check if user wants to exit drawing								
+					lineCount++;
+					if (TickCount() >= gNextTime)
+						{
+						longSourceRect.bottom = lineCount;
+						if (!CheckSomeDisplayEvents (gImageWindowInfoPtr,
+															  displaySpecsPtr,
+															  savedPortPixMapH,
+															  offScreenPixMapH,
+															  &longSourceRect,
+															  displayBottomMax))
+							{
+							stopFlag = TRUE;
+							break;
 
-                    lineCount++;
-                    if (TickCount() >= gNextTime) {
-                        longSourceRect.bottom = lineCount;
-                        if (!CheckSomeDisplayEvents(gImageWindowInfoPtr,
-                                displaySpecsPtr,
-                                savedPortPixMapH,
-                                offScreenPixMapH,
-                                &longSourceRect,
-                                displayBottomMax)) {
-                            stopFlag = TRUE;
-                            break;
+							}	// end "if (!CheckSomeEvents (osMask..."
 
-                        } // end "if ( !CheckSomeEvents (osMask..." 
+						}	// end "if (TickCount() >= gNextTime)"
 
-                    } // end "if (TickCount() >= gNextTime)" 
+					if (line == lineStart)
+						savedOffScreenLinePtr = offScreenPtr;
 
-                    if (line == lineStart)
-                        savedOffScreenLinePtr = offScreenPtr;
+#					if defined multispec_mac || defined multispec_lin
+						offScreenLinePtr += pixRowBytes;
+#					endif	// defined multispec_mac || defined multispec_lin
 
-#if defined multispec_mac | defined multispec_lin
-                    offScreenLinePtr += pixRowBytes;
-#endif	// defined multispec_mac | defined multispec_lin
+#					if defined multispec_win
+						offScreenLinePtr -= pixRowBytes;
+#					endif	// defined multispec_win
 
-#if defined multispec_win 
-                    offScreenLinePtr -= pixRowBytes;
-#endif	// defined multispec_win  
+					}	// end "if (errCode == noErr)"
 
-                } // end "if (errCode == noErr)" 
+				if (gUseThreadedIOFlag)
+					{
+							// Switch buffers.
 
-                if (gUseThreadedIOFlag) {
-                    // Switch buffers.
+					ioBufferPtr = fileIOInstructionsPtr->inputBufferPtrs[
+															fileIOInstructionsPtr->bufferUsedForIO];
 
-                    ioBufferPtr = fileIOInstructionsPtr->inputBufferPtrs[
-                            fileIOInstructionsPtr->bufferUsedForIO];
+					}	// end "if (gUseThreadedIOFlag)"
 
-                } // end "if (gUseThreadedIOFlag)" 
+				}	// end "for ( line=lineStart;"
 
-            } // end "for ( line=lineStart;" 
+					// Force last lines in image window for image file to be updated.
 
-            // Force last lines in image window for image file to be updated.
+			longSourceRect.bottom = lineCount;
+			if (!CheckSomeDisplayEvents (gImageWindowInfoPtr,
+												  displaySpecsPtr,
+												  savedPortPixMapH,
+												  offScreenPixMapH,
+												  &longSourceRect,
+												  displayBottomMax))
+					{
+					stopFlag = TRUE;
+					break;
 
-            longSourceRect.bottom = lineCount;
-            if (!CheckSomeDisplayEvents(gImageWindowInfoPtr,
-                    displaySpecsPtr,
-                    savedPortPixMapH,
-                    offScreenPixMapH,
-                    &longSourceRect,
-                    displayBottomMax)) {
-                stopFlag = TRUE;
-                break;
-
-            } // end "if ( !CheckSomeEvents (osMask..." 
+					}	// end "if (!CheckSomeEvents (osMask..."
 
             dataDisplayPtr += bytesOffset*imageFileNumberChannels;
 
             CloseUpFileIOInstructions(fileIOInstructionsPtr, NULL);
 
-        } // end "if (imageFileNumberChannels > 0)" 
+			}	// end "if (imageFileNumberChannels > 0)"
 
-        if (stopFlag)
-            break;
+		if (stopFlag)
+			break;
 
-    } // end "for (imageFile=1; ..." 
+		}	// end "for (imageFile=1; ..."
 
-    // Set up return for inSourceRect to indicate if last few lines need	
-    // to be drawn																			
+			// Set up return for inSourceRect to indicate if last few lines need
+			// to be drawn
 
-    rectPtr->top = longSourceRect.top;
-    rectPtr->bottom = longSourceRect.bottom;
+	rectPtr->top = longSourceRect.top;
+	rectPtr->bottom = longSourceRect.bottom;
 
-    CheckSizeAndUnlockHandle(gToDisplayLevels.vectorHandle);
+	CheckSizeAndUnlockHandle(gToDisplayLevels.vectorHandle);
 
-    DisposeIOBufferPointers(fileIOInstructionsPtr,
-            &base_ioBufferPtr,
-            &base_ioBufferPtr);
+	DisposeIOBufferPointers (fileIOInstructionsPtr,
+										&base_ioBufferPtr,
+										&base_ioBufferPtr);
 
-} // end "DisplayImagesSideBySide"
+}	// end "DisplayImagesSideBySide"
 
 
 
@@ -1165,98 +1154,97 @@ void DisplayImagesSideBySide(
 //	Revised By:			Larry L. Biehl			Date: 02/14/2014	
 
 void Display4_8ByteImagesSideBySide(
-        DisplaySpecsPtr displaySpecsPtr,
-        FileInfoPtr fileInfoPtr,
-        HistogramSummaryPtr histogramSummaryPtr,
-        HPtr offScreenBufferPtr,
-        UInt32 pixRowBytes,
-        PixMapHandle savedPortPixMapH,
-        PixMapHandle offScreenPixMapH,
-        LongRect* rectPtr)
- {
-    LongRect longSourceRect;
+				DisplaySpecsPtr					displaySpecsPtr,
+				FileInfoPtr							fileInfoPtr,
+				HistogramSummaryPtr				histogramSummaryPtr,
+				HPtr									offScreenBufferPtr,
+				UInt32								pixRowBytes,
+				PixMapHandle						savedPortPixMapH,
+				PixMapHandle						offScreenPixMapH,
+				LongRect*							rectPtr)
+{
+	LongRect								longSourceRect;
 
-#if defined multispec_mac 
-    Rect sourceRect;
-#endif	// defined multispec_mac 
+#	if defined multispec_mac
+		Rect									sourceRect;
+#	endif	// defined multispec_mac
 
-    FileInfoPtr localFileInfoPtr;
-    FileIOInstructionsPtr fileIOInstructionsPtr;
+	FileInfoPtr							localFileInfoPtr;
+	FileIOInstructionsPtr			fileIOInstructionsPtr;
 
-    HDoublePtr buffer8BytePtr,
-            ioBufferPtr;
+	HDoublePtr							buffer8BytePtr,
+											ioBufferPtr;
 
-    HUCharPtr base_ioBufferPtr,
-            dataDisplayPtr,
-            dataToLevelPtr,
-            input_ioBufferPtr,
-            offScreenLinePtr,
-            offScreenPtr,
-            savedOffScreenLinePtr;
+	HUCharPtr							base_ioBufferPtr,
+											dataDisplayPtr,
+											dataToLevelPtr,
+											input_ioBufferPtr,
+											offScreenLinePtr,
+											offScreenPtr,
+											savedOffScreenLinePtr;
 
-    UInt16 *channelsPtr;
+	UInt16*								channelsPtr;
 
-    double binFactor,
-            doubleBinIndex,
-            minValue;
+	double								binFactor,
+											doubleBinIndex,
+											minValue;
 
-    SInt32 displayBottomMax;
+	SInt32								displayBottomMax;
 
-    UInt32 binIndex,
-            bytesOffset,
-            chanIndex,
-            channelIndexStart,
-            columnEnd,
-            columnIntervalUsed,
-            columnStart,
-            firstColumnIndex,
-            interval,
-            line,
-            lineCount,
-            lineEnd,
-            lineInterval,
-            lineStart,
-            j,
-            maxBin,
-            numberSamples;
+	UInt32								binIndex,
+											bytesOffset,
+											chanIndex,
+											channelIndexStart,
+											columnEnd,
+											columnIntervalUsed,
+											columnStart,
+											firstColumnIndex,
+											interval,
+											line,
+											lineCount,
+											lineEnd,
+											lineInterval,
+											lineStart,
+											j,
+											maxBin,
+											numberSamples;
 
-    SInt16 channel,
-            channelNumber,
-            errCode,
-            imageFileNumberChannels;
+	SInt16								channel,
+											channelNumber,
+											errCode,
+											imageFileNumberChannels;
 
-    UInt16 channelsIndex,
-            fileInfoIndex,
-            numberChannels;
+	UInt16								channelsIndex,
+											fileInfoIndex,
+											numberChannels;
 
-    Boolean BILSpecialFlag,
-            BISFlag,
-            packDataFlag,
-            stopFlag;
+	Boolean								BILSpecialFlag,
+											BISFlag,
+											packDataFlag,
+											stopFlag;
 
-    SInt8 //				addressMode,
-    separatorByte;
+	SInt8									separatorByte;
 
 
-    // Initialize local variables.													
+			// Initialize local variables.
 
-    firstColumnIndex = displaySpecsPtr->columnStart - 1;
-    columnStart = displaySpecsPtr->columnStart;
-    columnEnd = displaySpecsPtr->columnEnd;
-    lineStart = displaySpecsPtr->lineStart;
-    lineEnd = displaySpecsPtr->lineEnd;
-    lineInterval = displaySpecsPtr->lineInterval;
-    numberChannels = displaySpecsPtr->numberChannels;
-    channelsIndex = 0;
-    stopFlag = FALSE;
-    fileIOInstructionsPtr = NULL;
+	firstColumnIndex = displaySpecsPtr->columnStart - 1;
+	columnStart = displaySpecsPtr->columnStart;
+	columnEnd = displaySpecsPtr->columnEnd;
+	lineStart = displaySpecsPtr->lineStart;
+	lineEnd = displaySpecsPtr->lineEnd;
+	lineInterval = displaySpecsPtr->lineInterval;
+	numberChannels = displaySpecsPtr->numberChannels;
+	channelsIndex = 0;
+	stopFlag = FALSE;
+	fileIOInstructionsPtr = NULL;
 
-    separatorByte = 0x00;
-    if (gOSXFlag)
-        separatorByte = (char) 0xFF;
-#if defined multispec_lin
-    separatorByte = (char) 0xFF;
-#endif
+	separatorByte = 0x00;
+	if (gOSXFlag)
+		separatorByte = (char) 0xFF;
+#	if defined multispec_lin
+		separatorByte = (char) 0xFF;
+#	endif
 
 			// Lock channel list handle and get a pointer.
 			// This handle is already locked.	
@@ -1264,387 +1252,389 @@ void Display4_8ByteImagesSideBySide(
 	channelsPtr = (UInt16*) GetHandlePointer (displaySpecsPtr->channelsHandle);
 
 #	if defined multispec_mac
-    GrafPtr savedPort;
+		GrafPtr savedPort;
 
-    // Force any updates to be done.
+				// Force any updates to be done.
 
-    if (!CheckSomeDisplayEvents(gImageWindowInfoPtr,
-            displaySpecsPtr,
-            savedPortPixMapH,
-            offScreenPixMapH,
-            &longSourceRect,
-            -1))
-        return;
+		if (!CheckSomeDisplayEvents (gImageWindowInfoPtr,
+												displaySpecsPtr,
+												savedPortPixMapH,
+												offScreenPixMapH,
+												&longSourceRect,
+												-1))
+																												return;
 
-    // Force the title line to be drawn.
+				// Force the title line to be drawn.
 
-    PixMapHandle imageWindowPortPixMap;
+		PixMapHandle imageWindowPortPixMap;
 
-    if (!gOSXCoreGraphicsFlag) {
-        imageWindowPortPixMap = GetPortPixMap(GetWindowPort(gActiveImageWindow));
-        CopyHandleToHandle((Handle) savedPortPixMapH,
-                (Handle) imageWindowPortPixMap);
+		if (!gOSXCoreGraphicsFlag)
+			{
+			imageWindowPortPixMap = GetPortPixMap(GetWindowPort(gActiveImageWindow));
+			CopyHandleToHandle ((Handle) savedPortPixMapH, (Handle)imageWindowPortPixMap);
 
-    } // end "if (!gOSXCoreGraphicsFlag)"
+			}	// end "if (!gOSXCoreGraphicsFlag)"
 
-    GetWindowClipRectangle(gActiveImageWindow, kImageFrameArea, &sourceRect);
-    sourceRect.top = gImageWindowInfoPtr->coordinateHeight;
-    sourceRect.bottom = gImageWindowInfoPtr->imageTopOffset;
-    GetPort(&savedPort);
-    SetPortWindowPort(gActiveImageWindow);
-    InvalWindowRect(gActiveImageWindow, &sourceRect);
-    SetPort(savedPort);
+		GetWindowClipRectangle(gActiveImageWindow, kImageFrameArea, &sourceRect);
+		sourceRect.top = gImageWindowInfoPtr->coordinateHeight;
+		sourceRect.bottom = gImageWindowInfoPtr->imageTopOffset;
+		GetPort (&savedPort);
+		SetPortWindowPort (gActiveImageWindow);
+		InvalWindowRect (gActiveImageWindow, &sourceRect);
+		SetPort (savedPort);
 
-    if (!gOSXCoreGraphicsFlag)
-        CopyHandleToHandle((Handle) offScreenPixMapH,
-            (Handle) imageWindowPortPixMap);
-#endif	// defined multispec_mac
+		if (!gOSXCoreGraphicsFlag)
+			CopyHandleToHandle ((Handle)offScreenPixMapH, (Handle)imageWindowPortPixMap);
+#	endif	// defined multispec_mac
 
-    // Get display bottom maximum of image window								
+			// Get display bottom maximum of image window
 
-    longSourceRect = *rectPtr;
-    //	longSourceRect.left = rectPtr->left;
-    //	longSourceRect.top = rectPtr->top;
-    //	longSourceRect.right = rectPtr->right;
-    //	longSourceRect.bottom = rectPtr->bottom;	
+	longSourceRect = *rectPtr;
+	//longSourceRect.left = rectPtr->left;
+	//longSourceRect.top = rectPtr->top;
+	//longSourceRect.right = rectPtr->right;
+	//longSourceRect.bottom = rectPtr->bottom;
 
-    displayBottomMax = longSourceRect.bottom;
+	displayBottomMax = longSourceRect.bottom;
 
-    // Get handle to block of memory to use as file IO buffer for the		
-    // requested channels of data.  If the input band interleave format 	
-    // is BIS,  then request memory for all channels in the file.			
+			// Get handle to block of memory to use as file IO buffer for the
+			// requested channels of data.  If the input band interleave format 	
+			// is BIS,  then request memory for all channels in the file.			
 
-    if (!GetIOBufferPointers(&gFileIOInstructions[0],
-            gImageWindowInfoPtr,
-            gImageLayerInfoPtr,
-            fileInfoPtr,
-            &input_ioBufferPtr,
-            &base_ioBufferPtr,
-            columnStart,
-            columnEnd,
-            1,
-            numberChannels,
-            channelsPtr,
-            kPackData,
-            kDoNotForceBISFormat,
-            kForceReal8Bytes,
-            gHasThreadManager,
-            &fileIOInstructionsPtr))
-        return;
+	if (!GetIOBufferPointers (&gFileIOInstructions[0],
+										gImageWindowInfoPtr,
+										gImageLayerInfoPtr,
+										fileInfoPtr,
+										&input_ioBufferPtr,
+										&base_ioBufferPtr,
+										columnStart,
+										columnEnd,
+										1,
+										numberChannels,
+										channelsPtr,
+										kPackData,
+										kDoNotForceBISFormat,
+										kForceReal8Bytes,
+										gHasThreadManager,
+										&fileIOInstructionsPtr))
+																												return;
 
-    dataDisplayPtr = (HUCharPtr) GetHandlePointer(
-            gToDisplayLevels.vectorHandle, kLock, kNoMoveHi);
+	dataDisplayPtr = (HUCharPtr)GetHandlePointer(
+								gToDisplayLevels.vectorHandle, kLock, kNoMoveHi);
 
-    // Make certain that we have valid 32 bit pointers in case we go to	
-    // 32 bit mode.																		
+			// Get the offset in the vector for each channel of data.  The
+			// offset will be 0 if the 'use overall min-max or entire data			
+			// range is used'																		
 
-    //	dataDisplayPtr = (HUCharPtr)StripAddress ( (void*)dataDisplayPtr );
-    //	base_ioBufferPtr = (HUCharPtr)StripAddress ( (void*)base_ioBufferPtr );
-    //	addressMode = true32b;
-
-    // Get the offset in the vector for each channel of data.  The			
-    // offset will be 0 if the 'use overall min-max or entire data			
-    // range is used'																		
-
-    bytesOffset = gToDisplayLevels.bytesOffset;
-    if (displaySpecsPtr->enhancementCode == kLinearStretch &&
+	bytesOffset = gToDisplayLevels.bytesOffset;
+	if (displaySpecsPtr->enhancementCode == kLinearStretch &&
             displaySpecsPtr->minMaxCode == kEntireDataRange)
-        bytesOffset = 0;
+		bytesOffset = 0;
 
-    // Draw the image in the image window. Note that Windows DIB
-    // images are loaded with first line at the end of the bitmap 
-    // to last line at the beginning of the bitmap.
+			// Draw the image in the image window. Note that Windows DIB
+			// images are loaded with first line at the end of the bitmap 
+			// to last line at the beginning of the bitmap.
 
-#if defined multispec_mac || defined multispec_lin             
-    savedOffScreenLinePtr = (HUCharPtr) offScreenBufferPtr;
-#endif	// defined multispec_mac || defined multispec_lin
+#	if defined multispec_mac || defined multispec_lin
+		savedOffScreenLinePtr = (HUCharPtr)offScreenBufferPtr;
+#	endif	// defined multispec_mac || defined multispec_lin
 
-#if defined multispec_win 
-    UInt32 numberLines = (lineEnd - lineStart + lineInterval) / lineInterval;
-    savedOffScreenLinePtr = (HUCharPtr) (offScreenBufferPtr + (numberLines - 1) * pixRowBytes);
-#endif	// defined multispec_win 
+#	if defined multispec_win
+		UInt32 numberLines = (lineEnd - lineStart + lineInterval) / lineInterval;
+		savedOffScreenLinePtr = (HUCharPtr) (offScreenBufferPtr + (numberLines - 1) * pixRowBytes);
+#	endif	// defined multispec_win
 
-    // Intialize the nextTime variable to indicate when the next check	
-    // should occur for a command-.													
+			// Intialize the nextTime variable to indicate when the next check
+			// should occur for a command-.													
 
-    gNextTime = TickCount() + kDisplayTimeOffset;
+	gNextTime = TickCount() + kDisplayTimeOffset;
 
-    // Loop through the image files.													
+			// Loop through the image files.
 
-    for (fileInfoIndex = 0;
+	for (fileInfoIndex = 0;
             fileInfoIndex < gImageWindowInfoPtr->numberImageFiles;
-            fileInfoIndex++) {
-        longSourceRect.top = rectPtr->top;
+            fileInfoIndex++)
+		{
+		longSourceRect.top = rectPtr->top;
+
+				// Get the number of channels used in this image file.
+
+		for (imageFileNumberChannels = 0;
+				 channelsIndex < numberChannels;
+				 channelsIndex++)
+			{
+			channelNumber = channelsPtr[channelsIndex] + 1;
+
+			if (fileInfoIndex != gImageLayerInfoPtr[channelNumber].fileInfoIndex)
+				break;
+
+			imageFileNumberChannels++;
+
+			}	// end "for (imageFileNumberChannels = 0; ..."
+
+		if (imageFileNumberChannels > 0)
+			{
+					// Now load the side by side images for this file.
+
+			localFileInfoPtr = &fileInfoPtr[fileInfoIndex];
+
+			channelIndexStart = channelsIndex - imageFileNumberChannels;
+
+					// Set flag to indicate whether entire line of data for all
+					// channels can be read in at one time, rather than separate
+					// reads for each channel.
+
+			BILSpecialFlag = GetBILSpecial (
+										  fileIOInstructionsPtr,
+										  &channelsPtr[channelIndexStart],
+										  imageFileNumberChannels,
+										  columnStart,
+										  columnEnd,
+										  displaySpecsPtr->columnInterval,
+										  kDetermineSpecialBILFlag);
+
+			if (localFileInfoPtr->bandInterleave == kBIS)
+				{
+				interval = imageFileNumberChannels;
+				numberSamples = ((UInt32) displaySpecsPtr->columnEnd -
+						displaySpecsPtr->columnStart + displaySpecsPtr->columnInterval) /
+								displaySpecsPtr->columnInterval;
+				numberSamples *= imageFileNumberChannels;
+				columnIntervalUsed = displaySpecsPtr->columnInterval;
+				packDataFlag = TRUE;
+				BISFlag = TRUE;
+
+				}	// end "if (localFileInfoPtr->bandInterleave == kBIS)"
+
+			else // localFileInfoPtr->bandInterleave != kBIS
+				{
+				if (BILSpecialFlag)
+					{
+					interval = 1;
+					numberSamples = ((UInt32) displaySpecsPtr->columnEnd -
+							 displaySpecsPtr->columnStart + displaySpecsPtr->columnInterval) /
+									displaySpecsPtr->columnInterval;
+					columnIntervalUsed = displaySpecsPtr->columnInterval;
+					packDataFlag = TRUE;
 
-        // Get the number of channels used in this image file.
+					}	// end "if (BILSpecialFlag)"
+
+				else // !BILSpecialFlag
+					{
+					interval = displaySpecsPtr->columnInterval;
+					numberSamples = (UInt32) displaySpecsPtr->columnEnd -
+																		displaySpecsPtr->columnStart + 1;
+					columnIntervalUsed = 1;
+					packDataFlag = FALSE;
 
-        for (imageFileNumberChannels = 0;
-                channelsIndex < numberChannels;
-                channelsIndex++) {
-            channelNumber = channelsPtr[channelsIndex] + 1;
-
-            if (fileInfoIndex != gImageLayerInfoPtr[channelNumber].fileInfoIndex)
-                break;
-
-            imageFileNumberChannels++;
-
-        } // end "for (imageFileNumberChannels = 0; ..." 	
-
-        if (imageFileNumberChannels > 0) {
-            // Now load the side by side images for this file.
-
-            localFileInfoPtr = &fileInfoPtr[fileInfoIndex];
-
-            channelIndexStart = channelsIndex - imageFileNumberChannels;
+					}	// end "else !BILSpecialFlag"
 
-            // Set flag to indicate whether entire line of data for all 	
-            // channels can be read in at one time, rather than separate 	
-            // reads for each channel.													
-
-            BILSpecialFlag = GetBILSpecial(
-                    fileIOInstructionsPtr,
-                    &channelsPtr[channelIndexStart],
-                    imageFileNumberChannels,
-                    columnStart,
-                    columnEnd,
-                    displaySpecsPtr->columnInterval,
-                    kDetermineSpecialBILFlag);
+				BISFlag = FALSE;
 
-            if (localFileInfoPtr->bandInterleave == kBIS) {
-                interval = imageFileNumberChannels;
-                numberSamples = ((UInt32) displaySpecsPtr->columnEnd -
-                        displaySpecsPtr->columnStart + displaySpecsPtr->columnInterval) /
-                        displaySpecsPtr->columnInterval;
-                numberSamples *= imageFileNumberChannels;
-                columnIntervalUsed = displaySpecsPtr->columnInterval;
-                packDataFlag = TRUE;
-                BISFlag = TRUE;
+            }	// end "else localFileInfoPtr->bandInterleave != kBIS"
 
-            }// end "if (localFileInfoPtr->bandInterleave == kBIS)" 
+			offScreenLinePtr = savedOffScreenLinePtr;
 
-            else // localFileInfoPtr->bandInterleave != kBIS 
-            {
-                if (BILSpecialFlag) {
-                    interval = 1;
-                    numberSamples = ((UInt32) displaySpecsPtr->columnEnd -
-                            displaySpecsPtr->columnStart + displaySpecsPtr->columnInterval) /
-                            displaySpecsPtr->columnInterval;
-                    columnIntervalUsed = displaySpecsPtr->columnInterval;
-                    packDataFlag = TRUE;
+			lineCount = 0;
 
-                }// end "if (BILSpecialFlag)"
+					// Set some of the File IO Instructions parameters.
 
-                else // !BILSpecialFlag
-                {
-                    interval = displaySpecsPtr->columnInterval;
-                    numberSamples = (UInt32) displaySpecsPtr->columnEnd -
-                            displaySpecsPtr->columnStart + 1;
-                    columnIntervalUsed = 1;
-                    packDataFlag = FALSE;
+			fileIOInstructionsPtr->packDataFlag = packDataFlag;
 
-                } // end "else !BILSpecialFlag"
+			errCode = SetUpFileIOInstructions (
+								  fileIOInstructionsPtr,
+								  NULL,
+								  displaySpecsPtr->lineStart,
+								  lineEnd,
+								  lineInterval,
+								  columnStart,
+								  columnEnd,
+								  columnIntervalUsed,
+								  imageFileNumberChannels,
+								  (HUInt16Ptr) & channelsPtr[channelsIndex - imageFileNumberChannels],
+								  kDetermineSpecialBILFlag);
 
-                BISFlag = FALSE;
+			ioBufferPtr = (HDoublePtr) base_ioBufferPtr;
 
-            } // end "else localFileInfoPtr->bandInterleave != kBIS" 
+			for (line = lineStart; line <= lineEnd; line += lineInterval)
+				{
+						// Get all channels for the line of image data.  Return if
+						// there is a file IO error.											
 
-            offScreenLinePtr = savedOffScreenLinePtr;
+				errCode = GetLineOfData (fileIOInstructionsPtr,
+													line,
+													columnStart,
+													columnEnd,
+													columnIntervalUsed,
+													input_ioBufferPtr,
+													(HUCharPtr)ioBufferPtr);
 
-            lineCount = 0;
+				if (errCode != noErr)
+					break;
 
-            // Set some of the File IO Instructions parameters.
+				else // errCode == noErr
+					{
+					offScreenPtr = offScreenLinePtr;
 
-            fileIOInstructionsPtr->packDataFlag = packDataFlag;
+							//	This loop will draw the image lines.
 
-            errCode = SetUpFileIOInstructions(
-                    fileIOInstructionsPtr,
-                    NULL,
-                    displaySpecsPtr->lineStart,
-                    lineEnd,
-                    lineInterval,
-                    columnStart,
-                    columnEnd,
-                    columnIntervalUsed,
-                    imageFileNumberChannels,
-                    (HUInt16Ptr) & channelsPtr[channelsIndex - imageFileNumberChannels],
-                    kDetermineSpecialBILFlag);
+					dataToLevelPtr = dataDisplayPtr;
+					chanIndex = channelIndexStart;
 
-            ioBufferPtr = (HDoublePtr) base_ioBufferPtr;
+					for (channel = 0; channel < imageFileNumberChannels; channel++)
+						{
+						binFactor = histogramSummaryPtr[channelsPtr[chanIndex]].binFactor;
+						minValue = histogramSummaryPtr[channelsPtr[chanIndex]].minNonSatValue;
+						maxBin = histogramSummaryPtr[channelsPtr[chanIndex]].numberBins - 1;
 
-            for (line = lineStart; line <= lineEnd; line += lineInterval) {
-                // Get all channels for the line of image data.  Return if	
-                // there is a file IO error.											
+						if (BISFlag)
+							buffer8BytePtr = &ioBufferPtr[channel];
 
-                errCode = GetLineOfData(
-                        fileIOInstructionsPtr,
-                        line,
-                        columnStart,
-                        columnEnd,
-                        columnIntervalUsed,
-                        input_ioBufferPtr,
-                        (HUCharPtr) ioBufferPtr);
+						else // !BISFlag 
+							buffer8BytePtr = &ioBufferPtr[channel * numberSamples];
 
-                if (errCode != noErr)
-                    break;
+						for (j = 0; j < numberSamples; j += interval)
+							{
+							doubleBinIndex = (*buffer8BytePtr - minValue) * binFactor;
+							if (doubleBinIndex < 0)
+								binIndex = 0;
 
-                else // errCode == noErr 
-                {
-                    offScreenPtr = offScreenLinePtr;
+							else if (doubleBinIndex > (double) maxBin)
+								binIndex = maxBin;
 
-                    //	This loop will draw the image lines.																	
+							else // doubleBinIndex >= 0 && doubleBinIndex <= maxBin
+								{
+								binIndex = (UInt32) doubleBinIndex;
 
-                    dataToLevelPtr = dataDisplayPtr;
-                    chanIndex = channelIndexStart;
+										// This will catch case when doubleBinIndex is nan or -nan. The
+										// conversion from this can be a large unsigned 32-bit int.
 
-                    for (channel = 0; channel < imageFileNumberChannels; channel++) {
-                        binFactor = histogramSummaryPtr[channelsPtr[chanIndex]].binFactor;
-                        minValue = histogramSummaryPtr[channelsPtr[chanIndex]].minNonSatValue;
-                        maxBin = histogramSummaryPtr[channelsPtr[chanIndex]].numberBins - 1;
+								binIndex = MIN(binIndex, maxBin);
 
-                        if (BISFlag)
-                            buffer8BytePtr = &ioBufferPtr[channel];
+								}	// end "else doubleBinIndex >= 0 && doubleBinIndex <= maxBin"
 
-                        else // !BISFlag 
-                            buffer8BytePtr = &ioBufferPtr[channel * numberSamples];
+							*offScreenPtr = (SInt8) dataToLevelPtr[binIndex];
 
-                        for (j = 0; j < numberSamples; j += interval) {
-                            doubleBinIndex = (*buffer8BytePtr - minValue) * binFactor;
-                            if (doubleBinIndex < 0)
-                                binIndex = 0;
+#							if defined multispec_lin
+								offScreenPtr++;
+								*offScreenPtr = (SInt8) (dataToLevelPtr[binIndex]);
 
-                            else if (doubleBinIndex > (double) maxBin)
-                                binIndex = maxBin;
+								offScreenPtr++;
+								*offScreenPtr = (SInt8) (dataToLevelPtr[binIndex]);
+#							endif
 
-                            else // doubleBinIndex >= 0 && doubleBinIndex <= maxBin
-                            {
-                                binIndex = (UInt32) doubleBinIndex;
+							offScreenPtr++;
+							buffer8BytePtr += interval;
 
-                                // This will catch case when doubleBinIndex is nan or -nan. The
-                                // conversion from this can be a large unsigned 32-bit int.
+							}	// end "for (j=0;..."
 
-                                binIndex = MIN(binIndex, maxBin);
+						*offScreenPtr = separatorByte;
+#						if defined multispec_lin
+							offScreenPtr++;
+							*offScreenPtr = separatorByte;
 
-                            } // end "else doubleBinIndex >= 0 && doubleBinIndex <= maxBin"
+							offScreenPtr++;
+							*offScreenPtr = separatorByte;
 
-                            *offScreenPtr = (SInt8) dataToLevelPtr[binIndex];
+							offScreenPtr++;
+							*offScreenPtr = separatorByte;
 
-#if defined multispec_lin
-                            offScreenPtr++;
-                            *offScreenPtr = (SInt8) (dataToLevelPtr[binIndex]);
+							offScreenPtr++;
+							*offScreenPtr = separatorByte;
+#						endif
 
-                            offScreenPtr++;
-                            *offScreenPtr = (SInt8) (dataToLevelPtr[binIndex]);
-#endif
+						offScreenPtr++;
+						*offScreenPtr = separatorByte;
 
-                            offScreenPtr++;
-                            buffer8BytePtr += interval;
+						offScreenPtr++;
+						dataToLevelPtr += bytesOffset;
+						chanIndex++;
 
-                        } // end "for (j=0;..." 
+						}	// end "for (channel=0; channel<..."
 
-                        *offScreenPtr = separatorByte;
-#if defined multispec_lin
-                        offScreenPtr++;
-                        *offScreenPtr = separatorByte;
+							// Copy a portion of the image and check if user wants to exit drawing
 
-                        offScreenPtr++;
-                        *offScreenPtr = separatorByte;
+					lineCount++;
+					if (TickCount() >= gNextTime)
+						{
+						longSourceRect.bottom = lineCount;
+						if (!CheckSomeDisplayEvents (gImageWindowInfoPtr,
+															  displaySpecsPtr,
+															  savedPortPixMapH,
+															  offScreenPixMapH,
+															  &longSourceRect,
+															  displayBottomMax))
+							{
+							stopFlag = TRUE;
+							break;
 
-                        offScreenPtr++;
-                        *offScreenPtr = separatorByte;
+							}	// end "if ( !CheckSomeEvents (osMask..."
 
-                        offScreenPtr++;
-                        *offScreenPtr = separatorByte;
-#endif
+						}	// end "if (TickCount() >= gNextTime)"
 
-                        offScreenPtr++;
-                        *offScreenPtr = separatorByte;
+					if (line == lineStart)
+						savedOffScreenLinePtr = offScreenPtr;
 
-                        offScreenPtr++;
-                        dataToLevelPtr += bytesOffset;
-                        chanIndex++;
+#					if defined multispec_mac || defined multispec_lin
+						offScreenLinePtr += pixRowBytes;
+#					endif	// defined multispec_mac || defined multispec_lin
 
-                    } // end "for (channel=0; channel<..." 
+#					if defined multispec_win
+						offScreenLinePtr -= pixRowBytes;
+#					endif	// defined multispec_win
 
-                    // Copy a portion of the image and	
-                    // check if user wants to exit drawing								
+					}	// end "if (errCode == noErr)"
 
-                    lineCount++;
-                    if (TickCount() >= gNextTime) {
-                        longSourceRect.bottom = lineCount;
-                        if (!CheckSomeDisplayEvents(gImageWindowInfoPtr,
-                                displaySpecsPtr,
-                                savedPortPixMapH,
-                                offScreenPixMapH,
-                                &longSourceRect,
-                                displayBottomMax)) {
-                            stopFlag = TRUE;
-                            break;
+				if (gUseThreadedIOFlag)
+					{
+							// Switch buffers.
 
-                        } // end "if ( !CheckSomeEvents (osMask..." 
+					ioBufferPtr = (HDoublePtr)fileIOInstructionsPtr->inputBufferPtrs[
+															fileIOInstructionsPtr->bufferUsedForIO];
 
-                    } // end "if (TickCount() >= gNextTime)" 
+					}	// end "if (gUseThreadedIOFlag)"
 
-                    if (line == lineStart)
-                        savedOffScreenLinePtr = offScreenPtr;
+            }	// end "for (line=lineStart; ..."
 
-#if defined multispec_mac || defined multispec_lin
-                    offScreenLinePtr += pixRowBytes;
-#endif	// defined multispec_mac || defined multispec_lin
+					// Force last lines in image window for image file to be updated.
 
-#if defined multispec_win 
-                    offScreenLinePtr -= pixRowBytes;
-#endif	// defined multispec_win  
+			longSourceRect.bottom = lineCount;
+			if (!CheckSomeDisplayEvents (gImageWindowInfoPtr,
+												  displaySpecsPtr,
+												  savedPortPixMapH,
+												  offScreenPixMapH,
+												  &longSourceRect,
+												  displayBottomMax))
+				{
+				stopFlag = TRUE;
+				break;
 
-                } // end "if (errCode == noErr)" 
+				}	// end "if ( !CheckSomeEvents (osMask..."
 
-                if (gUseThreadedIOFlag) {
-                    // Switch buffers.
+			dataDisplayPtr += bytesOffset*imageFileNumberChannels;
 
-                    ioBufferPtr = (HDoublePtr) fileIOInstructionsPtr->inputBufferPtrs[
-                            fileIOInstructionsPtr->bufferUsedForIO];
+			CloseUpFileIOInstructions(fileIOInstructionsPtr, NULL);
 
-                } // end "if (gUseThreadedIOFlag)" 
+			}	// end "if (imageFileNumberChannels > 0)"
 
-            } // end "for ( line=lineStart;" 
+		if (stopFlag)
+			break;
 
-            // Force last lines in image window for image file to be updated.
+		}	// end "for (imageFile=1; ..."
 
-            longSourceRect.bottom = lineCount;
-            if (!CheckSomeDisplayEvents(gImageWindowInfoPtr,
-                    displaySpecsPtr,
-                    savedPortPixMapH,
-                    offScreenPixMapH,
-                    &longSourceRect,
-                    displayBottomMax)) {
-                stopFlag = TRUE;
-                break;
+			// Set up return for inSourceRect to indicate if last few lines need
+			// to be drawn																			
 
-            } // end "if ( !CheckSomeEvents (osMask..." 
+	rectPtr->top = longSourceRect.top;
+	rectPtr->bottom = longSourceRect.bottom;
 
-            dataDisplayPtr += bytesOffset*imageFileNumberChannels;
+	CheckSizeAndUnlockHandle(gToDisplayLevels.vectorHandle);
 
-            CloseUpFileIOInstructions(fileIOInstructionsPtr, NULL);
+	DisposeIOBufferPointers (fileIOInstructionsPtr,
+										&input_ioBufferPtr,
+										&base_ioBufferPtr);
 
-        } // end "if (imageFileNumberChannels > 0)" 
-
-        if (stopFlag)
-            break;
-
-    } // end "for (imageFile=1; ..." 
-
-    // Set up return for inSourceRect to indicate if last few lines need	
-    // to be drawn																			
-
-    rectPtr->top = longSourceRect.top;
-    rectPtr->bottom = longSourceRect.bottom;
-
-    CheckSizeAndUnlockHandle(gToDisplayLevels.vectorHandle);
-
-    DisposeIOBufferPointers(fileIOInstructionsPtr,
-            &input_ioBufferPtr,
-            &base_ioBufferPtr);
-
-} // end "Display4_8ByteImagesSideBySide"
+}	// end "Display4_8ByteImagesSideBySide"
 
 
 
@@ -1668,7 +1658,7 @@ void Display4_8ByteImagesSideBySide(
 //
 //	Coded By:			Larry L. Biehl			Date: 02/11/1988
 //	Revised By:			Ravi S. Budruk			Date: 06/17/1988	
-//	Revised By:			Larry L. Biehl			Date: 05/11/2016
+//	Revised By:			Larry L. Biehl			Date: 07/03/2017
 
 Boolean DisplayMultispectralImage (void)
 {
@@ -1713,7 +1703,7 @@ Boolean DisplayMultispectralImage (void)
 			// structure and if the histogram information has been loaded, set  	
 			// up the memory that can be used to compute enhancement information.
 
-	histogramSpecsPtr = SetUpHistogramSpecsPtr(
+	histogramSpecsPtr = SetUpHistogramSpecsPtr (
 			kSetUpHistogramArray, &histogramHandleStatus);
 	continueFlag = (histogramSpecsPtr != NULL);
 
@@ -1827,9 +1817,9 @@ Boolean DisplayMultispectralImage (void)
 
 				if (continueFlag)
 					{
-					#if defined multispec_lin
+#					if defined multispec_lin
 						gActiveImageViewCPtr->m_Scale = displaySpecsPtr->magnification;
-					#endif		// defined multispec_lin
+#					endif		// defined multispec_lin
 					UpdateImageZoomControls(
                             gActiveImageWindow, displaySpecsPtr->magnification, TRUE);
 
@@ -1921,20 +1911,20 @@ Boolean DisplayMultispectralImage (void)
 		if (gCallProcessorDialogFlag)
 			MInitCursor();
 
+				// Unlock display specifications handles.
+
+		CheckAndUnlockHandle (displaySpecsPtr->channelsHandle);
+
 		}		// end 'if (continueFlag)'
 
-			// Unlock display specifications handles.
-
-	CheckAndUnlockHandle(displaySpecsPtr->channelsHandle);
-
 	Handle displaySpecsHandle = GetActiveDisplaySpecsHandle();
-	CheckAndUnlockHandle(displaySpecsHandle);
+	CheckAndUnlockHandle (displaySpecsHandle);
 
 			// Make certain that the parameters used to read in the histogram
 			// array have been closed up.														
 
 	CloseUpHistogramArrayReadParameters();
-	ReleaseHistogramSpecsPtr(gImageWindowInfoPtr);
+	ReleaseHistogramSpecsPtr (gImageWindowInfoPtr);
 
 	return (imageDisplayedFlag);
 
@@ -1985,423 +1975,428 @@ void DisplayCImage(
 
 	LongRect								longSourceRect;
 
-	FileInfoPtr localFileInfoPtr1,
-            localFileInfoPtr2,
-            localFileInfoPtr3;
+	FileInfoPtr							localFileInfoPtr1,
+											localFileInfoPtr2,
+											localFileInfoPtr3;
 
-    FileIOInstructionsPtr fileIOInstructionsPtr;
+	FileIOInstructionsPtr			fileIOInstructionsPtr;
 
-    HFileIOBufferPtr inputBufferPtr,
-            ioBuffer1Ptr,
-            ioBuffer2Ptr,
-            ioBuffer3Ptr,
-            outputBufferPtr;
+	HFileIOBufferPtr					inputBufferPtr,
+											ioBuffer1Ptr,
+											ioBuffer2Ptr,
+											ioBuffer3Ptr,
+											outputBufferPtr;
 
-    HistogramSummaryPtr histogramSummaryPtr;
+	HistogramSummaryPtr				histogramSummaryPtr;
 
-    HUCharPtr dataDisplay1Ptr,
-            dataDisplay2Ptr,
-            dataDisplay3Ptr,
-            offScreenLinePtr,
-            offScreenPtr;
-    //											tiledBufferPtr;
+	HUCharPtr							dataDisplay1Ptr,
+											dataDisplay2Ptr,
+											dataDisplay3Ptr,
+											offScreenLinePtr,
+											offScreenPtr;
 
-    UInt16* channelListPtr;
+	UInt16*								channelListPtr;
 
-    SInt32 displayBottomMax;
+	SInt32								displayBottomMax;
 
-    UInt32 buffer1Offset,
-            buffer2Offset,
-            buffer3Offset,
-            bytesOffset,
-            columnInterval,
-            interval,
-            line,
-            lineCount,
-            lineEnd,
-            lineInterval,
-            maxBin1,
-            maxBin2,
-            maxBin3,
-            numberBytes,
-            numberSamples,
-            endColumn,
-            startColumn;
+	UInt32								buffer1Offset,
+											buffer2Offset,
+											buffer3Offset,
+											bytesOffset,
+											columnInterval,
+											interval,
+											line,
+											lineCount,
+											lineEnd,
+											lineInterval,
+											maxBin1,
+											maxBin2,
+											maxBin3,
+											numberBytes,
+											numberSamples,
+											endColumn,
+											startColumn;
 
-    SInt16 backgroundValueCode,
-            errCode,
-            maxChannel,
-            minChannel,
-            numberListChannels;
+	SInt16								backgroundValueCode,
+											errCode,
+											maxChannel,
+											minChannel,
+											numberListChannels;
 
-    UInt16 channelPtr[3],
-            forceOutputByteCode,
-            sortedChannelPtr[3];
+	UInt16								channelPtr[3],
+											forceOutputByteCode,
+											sortedChannelPtr[3];
 
-    Boolean BILSpecialFlag,
-            bytesEqualOneFlag1,
-            bytesEqualOneFlag2,
-            bytesEqualOneFlag3,
-            forceBISflag,
-            packDataFlag;
-
-    //	SInt8									addressMode;
+	Boolean								BILSpecialFlag,
+											bytesEqualOneFlag1,
+											bytesEqualOneFlag2,
+											bytesEqualOneFlag3,
+											forceBISflag,
+											packDataFlag;
 
 
-    // set up display rectangle for copy bits, rect.bottom will be reset  
-    // later																					
+			 // Set up display rectangle for copy bits, rect.bottom will be reset later
 
-    longSourceRect = *rectPtr;
-    displayBottomMax = longSourceRect.bottom;
+	longSourceRect = *rectPtr;
+	displayBottomMax = longSourceRect.bottom;
 
-    // Get the sorted channel order.
+			// Get the sorted channel order.
 
-    if (numberChannels == 1) {
-        channelPtr[0] = gToDisplayLevels.channel1;
-        channelPtr[1] = gToDisplayLevels.channel1;
-        channelPtr[2] = gToDisplayLevels.channel1;
+	if (numberChannels == 1)
+		{
+		channelPtr[0] = gToDisplayLevels.channel1;
+		channelPtr[1] = gToDisplayLevels.channel1;
+		channelPtr[2] = gToDisplayLevels.channel1;
 
-        sortedChannelPtr[0] = channelPtr[0];
+		sortedChannelPtr[0] = channelPtr[0];
 
-        minChannel = maxChannel = sortedChannelPtr[0];
+		minChannel = maxChannel = sortedChannelPtr[0];
 
-    }// end "if (numberChannels == 1)"
+		}	// end "if (numberChannels == 1)"
 
-    else if (numberChannels == 2) {
-        channelPtr[0] = gToDisplayLevels.channel1;
-        channelPtr[1] = gToDisplayLevels.channel2;
-        channelPtr[2] = gToDisplayLevels.channel1;
+	else if (numberChannels == 2)
+		{
+		channelPtr[0] = gToDisplayLevels.channel1;
+		channelPtr[1] = gToDisplayLevels.channel2;
+		channelPtr[2] = gToDisplayLevels.channel1;
 
-        sortedChannelPtr[0] = MIN(channelPtr[0], channelPtr[1]);
-        sortedChannelPtr[1] = MAX(channelPtr[0], channelPtr[1]);
+		sortedChannelPtr[0] = MIN(channelPtr[0], channelPtr[1]);
+		sortedChannelPtr[1] = MAX(channelPtr[0], channelPtr[1]);
 
-        minChannel = sortedChannelPtr[0];
-        maxChannel = sortedChannelPtr[1];
+		minChannel = sortedChannelPtr[0];
+		maxChannel = sortedChannelPtr[1];
 
-    }// end "else if (numberChannels == 2)"
+		}	// end "else if (numberChannels == 2)"
 
-    else // numberChannels == 3
-    {
-        sortedChannelPtr[0] = channelPtr[0] = gToDisplayLevels.channel1;
-        sortedChannelPtr[1] = channelPtr[1] = gToDisplayLevels.channel2;
-        sortedChannelPtr[2] = channelPtr[2] = gToDisplayLevels.channel3;
+	else	// numberChannels == 3
+		{
+		sortedChannelPtr[0] = channelPtr[0] = gToDisplayLevels.channel1;
+		sortedChannelPtr[1] = channelPtr[1] = gToDisplayLevels.channel2;
+		sortedChannelPtr[2] = channelPtr[2] = gToDisplayLevels.channel3;
 
-        if (sortedChannelPtr[1] < sortedChannelPtr[0]) {
-            sortedChannelPtr[0] = channelPtr[1];
-            sortedChannelPtr[1] = channelPtr[0];
+		if (sortedChannelPtr[1] < sortedChannelPtr[0])
+			{
+			sortedChannelPtr[0] = channelPtr[1];
+			sortedChannelPtr[1] = channelPtr[0];
 
-        } // end "if (sortedChannelPtr[1] < sortedChannelPtr[0])"
+			}	// end "if (sortedChannelPtr[1] < sortedChannelPtr[0])"
 
-        if (sortedChannelPtr[2] < sortedChannelPtr[1]) {
-            maxChannel = sortedChannelPtr[1];
-            sortedChannelPtr[1] = sortedChannelPtr[2];
-            sortedChannelPtr[2] = maxChannel;
+		if (sortedChannelPtr[2] < sortedChannelPtr[1])
+			{
+			maxChannel = sortedChannelPtr[1];
+			sortedChannelPtr[1] = sortedChannelPtr[2];
+			sortedChannelPtr[2] = maxChannel;
 
-        } // end "if (sortedChannelPtr[2] < sortedChannelPtr[1])"
+			}	// end "if (sortedChannelPtr[2] < sortedChannelPtr[1])"
 
-        if (sortedChannelPtr[1] < sortedChannelPtr[0]) {
-            maxChannel = sortedChannelPtr[0];
-            sortedChannelPtr[0] = sortedChannelPtr[1];
-            sortedChannelPtr[1] = maxChannel;
+		if (sortedChannelPtr[1] < sortedChannelPtr[0])
+			{
+			maxChannel = sortedChannelPtr[0];
+			sortedChannelPtr[0] = sortedChannelPtr[1];
+			sortedChannelPtr[1] = maxChannel;
 
-        } // end "if (sortedChannelPtr[1] < sortedChannelPtr[0])"
+			}	// end "if (sortedChannelPtr[1] < sortedChannelPtr[0])"
 
-        minChannel = sortedChannelPtr[0];
-        maxChannel = sortedChannelPtr[2];
+		minChannel = sortedChannelPtr[0];
+		maxChannel = sortedChannelPtr[2];
 
-    } // end "else numberChannels == 3"
+		}	// end "else numberChannels == 3"
 
-    numberListChannels = numberChannels;
+	numberListChannels = numberChannels;
 
-    // Get the pointers to the file information for each channel.			
+			// Get the pointers to the file information for each channel.
 
-    localFileInfoPtr1 =
+	localFileInfoPtr1 =
             &fileInfoPtr[gImageLayerInfoPtr[channelPtr[0] + 1].fileInfoIndex];
 
-    localFileInfoPtr2 =
+	localFileInfoPtr2 =
             &fileInfoPtr[gImageLayerInfoPtr[channelPtr[1] + 1].fileInfoIndex];
 
-    localFileInfoPtr3 =
+	localFileInfoPtr3 =
             &fileInfoPtr[gImageLayerInfoPtr[channelPtr[2] + 1].fileInfoIndex];
 
-    bytesEqualOneFlag1 = (localFileInfoPtr1->numberBytes == 1) ? TRUE : FALSE;
-    bytesEqualOneFlag2 = (localFileInfoPtr2->numberBytes == 1) ? TRUE : FALSE;
-    bytesEqualOneFlag3 = (localFileInfoPtr3->numberBytes == 1) ? TRUE : FALSE;
+	bytesEqualOneFlag1 = (localFileInfoPtr1->numberBytes == 1) ? TRUE : FALSE;
+	bytesEqualOneFlag2 = (localFileInfoPtr2->numberBytes == 1) ? TRUE : FALSE;
+	bytesEqualOneFlag3 = (localFileInfoPtr3->numberBytes == 1) ? TRUE : FALSE;
 
-    histogramSummaryPtr = histogramSpecsPtr->histogramSummaryPtr;
-    binFactor1 = histogramSummaryPtr[channelPtr[0]].binFactor;
-    binFactor2 = histogramSummaryPtr[channelPtr[1]].binFactor;
-    binFactor3 = histogramSummaryPtr[channelPtr[2]].binFactor;
+	histogramSummaryPtr = histogramSpecsPtr->histogramSummaryPtr;
+	binFactor1 = histogramSummaryPtr[channelPtr[0]].binFactor;
+	binFactor2 = histogramSummaryPtr[channelPtr[1]].binFactor;
+	binFactor3 = histogramSummaryPtr[channelPtr[2]].binFactor;
 
-    minValue1 = histogramSummaryPtr[channelPtr[0]].minNonSatValue;
-    minValue2 = histogramSummaryPtr[channelPtr[1]].minNonSatValue;
-    minValue3 = histogramSummaryPtr[channelPtr[2]].minNonSatValue;
+	minValue1 = histogramSummaryPtr[channelPtr[0]].minNonSatValue;
+	minValue2 = histogramSummaryPtr[channelPtr[1]].minNonSatValue;
+	minValue3 = histogramSummaryPtr[channelPtr[2]].minNonSatValue;
 
-    maxBin1 = histogramSummaryPtr[channelPtr[0]].numberBins - 1;
-    maxBin2 = histogramSummaryPtr[channelPtr[1]].numberBins - 1;
-    maxBin3 = histogramSummaryPtr[channelPtr[2]].numberBins - 1;
+	maxBin1 = histogramSummaryPtr[channelPtr[0]].numberBins - 1;
+	maxBin2 = histogramSummaryPtr[channelPtr[1]].numberBins - 1;
+	maxBin3 = histogramSummaryPtr[channelPtr[2]].numberBins - 1;
 
-    if (displayCode == 101) {
-        if (histogramSummaryPtr[channelPtr[0]].binType == kBinWidthOfOne) {
-            // Set up so that the minNonSatValue starts at bin 1 not 0
+	if (displayCode == 101)
+		{
+		if (histogramSummaryPtr[channelPtr[0]].binType == kBinWidthOfOne)
+			{
+					// Set up so that the minNonSatValue starts at bin 1 not 0
 
-            minValue1 -= 1;
+			minValue1 -= 1;
 
-        } // end "if (...[channelPtr[0]].binType == kBinWidthOfOne)"
+			}	// end "if (...[channelPtr[0]].binType == kBinWidthOfOne)"
 
-    }// end "if (displayCode == 101)"
+		}	// end "if (displayCode == 101)"
 
-    else if (displayCode == 151) {
-        // Note that the correct info for the displayCode of 51 was 
-        // loaded above.
+	else if (displayCode == 151)
+		{
+				// Note that the correct info for the displayCode of 51 was
+				// loaded above.
 
-        GetOneChannelThematicDisplayConversionValues(
-                gImageWindowInfoPtr,
-                &histogramSummaryPtr[channelPtr[0]],
-                displaySpecsPtr,
-                &binFactor1,
-                &minValue1,
-                &maxBin1);
-        /*			
-                        if (histogramSummaryPtr[channelPtr[0]].binType == kBinWidthOfOne)
-                                {
-                                binFactor1 = displaySpecsPtr->thematicBinWidth;
-                                minValue1 = displaySpecsPtr->thematicTypeMinMaxValues[0];
-                                maxBin1 = displaySpecsPtr->numberLevels - 1;
+		GetOneChannelThematicDisplayConversionValues(
+				 gImageWindowInfoPtr,
+				 &histogramSummaryPtr[channelPtr[0]],
+				 displaySpecsPtr,
+				 &binFactor1,
+				 &minValue1,
+				 &maxBin1);
+		/*			
+		if (histogramSummaryPtr[channelPtr[0]].binType == kBinWidthOfOne)
+			{
+			binFactor1 = displaySpecsPtr->thematicBinWidth;
+			minValue1 = displaySpecsPtr->thematicTypeMinMaxValues[0];
+			maxBin1 = displaySpecsPtr->numberLevels - 1;
+
+			}		// end "if (...[channelPtr[0]].binType == kBinWidthOfOne)"
+
+		else if (histogramSummaryPtr[channelPtr[0]].binType == kBinWidthNotOne)
+			{
+			minValue1 = displaySpecsPtr->thematicTypeMinMaxValues[0];
+			binFactor1 = displaySpecsPtr->thematicBinWidth;
+
+			}		// end "else if (...[channelPtr[0]].binType == kBinWidthNotOne)"
+		*/
+		}	// end "else if (displayCode == 151"
+
+			// Set up the general parameters in the File IO Instructions structure.
+
+	if (displayCode < 100)
+		{
+		forceOutputByteCode = kDoNotForceBytes;
+		forceBISflag = kDoNotForceBISFormat;
+		packDataFlag = kDoNotPackData;
+		columnInterval = 1;
+
+		}	// end "if (displayCode < 100)"
+
+	else // displayCode >= 100
+		{
+		forceOutputByteCode = kForceReal8Bytes;
+		forceBISflag = kDoNotForceBISFormat;
+		packDataFlag = kPackData;
+		columnInterval = displaySpecsPtr->columnInterval;
+
+		}	// end "if (displayCode < 100)"
+
+			// Get handle to block of memory to use as file IO buffer for three
+			// channels of data.  If the input band interleave format is BIS,
+			// then request memory for all channels in the file.
+
+	startColumn = displaySpecsPtr->columnStart;
+	endColumn = displaySpecsPtr->columnEnd;
+
+	numberSamples = (endColumn - startColumn + columnInterval) / columnInterval;
+
+	if (!GetIOBufferPointers (&gFileIOInstructions[0],
+										gImageWindowInfoPtr,
+										gImageLayerInfoPtr,
+										gImageFileInfoPtr,
+										(HUCharPtr*) & inputBufferPtr,
+										(HUCharPtr*) & outputBufferPtr,
+										startColumn,
+										endColumn,
+										columnInterval,
+										numberChannels,
+										sortedChannelPtr,
+										packDataFlag,
+										forceBISflag,
+										forceOutputByteCode,
+										kDoNotAllowForThreadedIO,
+										&fileIOInstructionsPtr))
+		{
+		gUseThreadedIOFlag = FALSE;
+																											return;
+
+		}	// end "if (!GetIOBufferPointers (..."
+
+	BILSpecialFlag = GetBILSpecial (fileIOInstructionsPtr,
+												sortedChannelPtr,
+												numberListChannels,
+												displaySpecsPtr->columnStart,
+												displaySpecsPtr->columnEnd,
+												columnInterval,
+												kDetermineSpecialBILFlag);
+
+	channelListPtr = channelPtr;
+	if (BILSpecialFlag || localFileInfoPtr1->gdalDataSetH != NULL)
+		channelListPtr = sortedChannelPtr;
+	/*
+	if (localFileInfoPtr1->bandInterleave == kBIL)
+		{
+		if (BILSpecialFlag)
+			 {
+			 numberBytes = (displaySpecsPtr->columnStart - 1) *
+																	localFileInfoPtr1->numberBytes;
+								
+			 buffer1Offset = 
+						(SInt32)(channelPtr[0]-minChannel)*localFileInfoPtr1->numberBytes *
+												gImageWindowInfoPtr->maxNumberColumns + numberBytes;
 			
-                                }		// end "if (...[channelPtr[0]].binType == kBinWidthOfOne)"
+			 buffer2Offset = 
+						(SInt32)(channelPtr[1]-minChannel)*localFileInfoPtr1->numberBytes *
+												gImageWindowInfoPtr->maxNumberColumns + numberBytes;
 			
-                        else if (histogramSummaryPtr[channelPtr[0]].binType == kBinWidthNotOne)
-                                {
-                                minValue1 = displaySpecsPtr->thematicTypeMinMaxValues[0];
-                                binFactor1 = displaySpecsPtr->thematicBinWidth;
-			
-                                }		// end "else if (...[channelPtr[0]].binType == kBinWidthNotOne)"
-         */
-    } // end "else if (displayCode == 151"
+			 buffer3Offset = 
+						(SInt32)(channelPtr[2]-minChannel)*localFileInfoPtr1->numberBytes *
+												gImageWindowInfoPtr->maxNumberColumns + numberBytes;
 
-    // Set up the general parameters in the File IO Instructions structure.
+			 }	// end "if (BILSpecialFlag)"
 
-    if (displayCode < 100) {
-        forceOutputByteCode = kDoNotForceBytes;
-        forceBISflag = kDoNotForceBISFormat;
-        packDataFlag = kDoNotPackData;
-        columnInterval = 1;
+		else	// !BILSpecialFlag
+			{
+			buffer1Offset = 0;
+			if (forceOutputByteCode == kDoNotForceBytes)
+				{
+				buffer2Offset = numberSamples * localFileInfoPtr1->numberBytes;
+				buffer3Offset = 
+						  buffer2Offset + numberSamples * localFileInfoPtr2->numberBytes;
 
-    }// end "if (displayCode < 100)"
+				}	// end "if (forceOutputByteCode == kDoNotForceBytes)"
 
-    else // displayCode >= 100
-    {
-        forceOutputByteCode = kForceReal8Bytes;
-        forceBISflag = kDoNotForceBISFormat;
-        packDataFlag = kPackData;
-        columnInterval = displaySpecsPtr->columnInterval;
+			else	// forceOutputByteCode == kForceReal8Bytes
+				{
+				buffer2Offset = numberSamples * 8;
+				buffer3Offset = buffer2Offset + numberSamples * 8;
 
-    } // end "if (displayCode < 100)"
+				}	// end "else forceOutputByteCode == kForceReal8Bytes"
 
-    // Get handle to block of memory to use as file IO buffer for three	
-    // channels of data.  If the input band interleave format is BIS, 	
-    // then request memory for all channels in the file.						
+			 }	// end "else !BILSpecialFlag"
 
-    startColumn = displaySpecsPtr->columnStart;
-    endColumn = displaySpecsPtr->columnEnd;
+		interval = displaySpecsPtr->columnInterval;
+		if (packDataFlag)
+			interval = 1;
 
-    numberSamples = (endColumn - startColumn + columnInterval) / columnInterval;
+		}	// end "else localFileInfoPtr1->bandInterleave == kBIL"
 
-    if (!GetIOBufferPointers(&gFileIOInstructions[0],
-            gImageWindowInfoPtr,
-            gImageLayerInfoPtr,
-            gImageFileInfoPtr,
-            (HUCharPtr*) & inputBufferPtr,
-            (HUCharPtr*) & outputBufferPtr,
-            startColumn,
-            endColumn,
-            columnInterval,
-            numberChannels,
-            sortedChannelPtr,
-            packDataFlag,
-            forceBISflag,
-            forceOutputByteCode,
-            kDoNotAllowForThreadedIO,
-            &fileIOInstructionsPtr)) {
-        gUseThreadedIOFlag = FALSE;
-        return;
+	else if (localFileInfoPtr1->bandInterleave == kBIS)
+		{
+		if (forceOutputByteCode == kDoNotForceBytes)
+			{
+			buffer1Offset = (channelPtr[0])*localFileInfoPtr1->numberBytes;
+			buffer2Offset = (channelPtr[1])*localFileInfoPtr1->numberBytes;
+			buffer3Offset = (channelPtr[2])*localFileInfoPtr1->numberBytes;
 
-    } // end "if (!GetIOBufferPointers (..."	
+			}	// end "if (forceOutputByteCode == kDoNotForceBytes)"
 
-    BILSpecialFlag = GetBILSpecial(fileIOInstructionsPtr,
-            sortedChannelPtr,
-            numberListChannels,
-            displaySpecsPtr->columnStart,
-            displaySpecsPtr->columnEnd,
-            columnInterval,
-            kDetermineSpecialBILFlag);
+		else	// forceOutputByteCode == kForceReal8Bytes
+			{
+			buffer1Offset = 0;
+			buffer2Offset = 8;
+			buffer3Offset = 16;
 
-    channelListPtr = channelPtr;
-    if (BILSpecialFlag || localFileInfoPtr1->gdalDataSetH != NULL)
-        channelListPtr = sortedChannelPtr;
-    /*													
-            if (localFileInfoPtr1->bandInterleave == kBIL)
-                    { 					
-                    if (BILSpecialFlag)
-                            {
-                            numberBytes = (displaySpecsPtr->columnStart - 1)*
-                                                                                                                    localFileInfoPtr1->numberBytes;
-														
-                            buffer1Offset = 
-                                    (SInt32)(channelPtr[0]-minChannel)*localFileInfoPtr1->numberBytes*
-                                                                            gImageWindowInfoPtr->maxNumberColumns + numberBytes;
-									
-                            buffer2Offset = 
-                                    (SInt32)(channelPtr[1]-minChannel)*localFileInfoPtr1->numberBytes*
-                                                                            gImageWindowInfoPtr->maxNumberColumns + numberBytes;
-									
-                            buffer3Offset = 
-                                    (SInt32)(channelPtr[2]-minChannel)*localFileInfoPtr1->numberBytes*
-                                                                            gImageWindowInfoPtr->maxNumberColumns + numberBytes;
-					
-                            }		// end "if (BILSpecialFlag)"
-			
-                    else		// !BILSpecialFlag
-                            {
-                            buffer1Offset = 0;
-                            if (forceOutputByteCode == kDoNotForceBytes)
-                                    {
-                                    buffer2Offset = numberSamples * localFileInfoPtr1->numberBytes;
-                                    buffer3Offset = 
-                                            buffer2Offset + numberSamples * localFileInfoPtr2->numberBytes;
-					
-                                    }		// end "if (forceOutputByteCode == kDoNotForceBytes)"
-				
-                            else		// forceOutputByteCode == kForceReal8Bytes
-                                    {
-                                    buffer2Offset = numberSamples * 8;
-                                    buffer3Offset = buffer2Offset + numberSamples * 8;
-					
-                                    }		// end "else forceOutputByteCode == kForceReal8Bytes"
-					
-                            }		// end "else !BILSpecialFlag"
-			
-                    interval = displaySpecsPtr->columnInterval;
-                    if (packDataFlag)
-                            interval = 1;
-		
-                    }		// end "else localFileInfoPtr1->bandInterleave == kBIL"
-	
-            else if (localFileInfoPtr1->bandInterleave == kBIS)
-                    {
-                    if (forceOutputByteCode == kDoNotForceBytes)
-                            {
-                            buffer1Offset = (channelPtr[0])*localFileInfoPtr1->numberBytes;
-                            buffer2Offset = (channelPtr[1])*localFileInfoPtr1->numberBytes;
-                            buffer3Offset = (channelPtr[2])*localFileInfoPtr1->numberBytes;
-					
-                            }		// end "if (forceOutputByteCode == kDoNotForceBytes)"
-				
-                    else		// forceOutputByteCode == kForceReal8Bytes
-                            {
-                            buffer1Offset = 0;
-                            buffer2Offset = 8;
-                            buffer3Offset = 16;
-					
-                            }		// end "else forceOutputByteCode == kForceReal8Bytes"
-			
-                                    // Set the interval to use to skip through the data for each sample.
-                                    // Adjust number of samples to reflect the number of samples that
-                                    // will be read in one line of data for all channels in the image
-                                    // that were read in.
-		
-                    if (packDataFlag)
-                            {
-                            interval = numberListChannels;
-                            numberSamples *= numberListChannels;
-			
-                            }		// end "if (packDataFlag)"
-			
-                    else		// !packDataFlag
-                            {
-                            interval = displaySpecsPtr->columnInterval * localFileInfoPtr1->numberChannels;
-                            numberSamples *= localFileInfoPtr1->numberChannels;
-			
-                            }		// end "else !packDataFlag"
-		
-                    }		// end "if (localFileInfoPtr1->bandInterleave == kBIS)" 
-		
-            else		// localFileInfoPtr1->bandInterleave != kBIL || ... != kBIS
-                    {
-                    if (localFileInfoPtr1->gdalDataSetH != NULL)
-                            {		
-                            UInt32			channelToSortIndex;
-			
-                                            // Get channel list to sorted list index
-					
-                            channelToSortIndex = 1;
-                            if (channelPtr[0] == minChannel)
-                                    channelToSortIndex = 0;
-                            else if (channelPtr[0] == maxChannel)
-                                    channelToSortIndex = numberChannels - 1;
-														
-                            buffer1Offset = (SInt32)channelToSortIndex * 
-                                                                                    numberSamples * localFileInfoPtr1->numberBytes;
-					
-                            channelToSortIndex = 1;
-                            if (channelPtr[1] == minChannel)
-                                    channelToSortIndex = 0;
-                            else if (channelPtr[1] == maxChannel)
-                                    channelToSortIndex = numberChannels - 1;
-														
-                            buffer2Offset = (SInt32)channelToSortIndex * 
-                                                                                    numberSamples * localFileInfoPtr2->numberBytes;
-					
-                            channelToSortIndex = 1;
-                            if (channelPtr[2] == minChannel)
-                                    channelToSortIndex = 0;
-                            else if (channelPtr[2] == maxChannel)
-                                    channelToSortIndex = numberChannels - 1;
-														
-                            buffer3Offset = (SInt32)channelToSortIndex * 
-                                                                                    numberSamples * localFileInfoPtr3->numberBytes;
-			
-                            }		// end "if (localFileInfoPtr1->gdalDataSetH != NULL)"
-			
-                    else		// localFileInfoPtr1->gdalDataSetH !== NULL
-                            {
-                            buffer1Offset = 0;
-                            if (forceOutputByteCode == kDoNotForceBytes)
-                                    {
-                                    buffer2Offset = numberSamples * localFileInfoPtr1->numberBytes;
-                                    buffer3Offset = 
-                                                    buffer2Offset + numberSamples * localFileInfoPtr2->numberBytes;
-						
-                                    }		// end "if (forceOutputByteCode == kDoNotForceBytes)"
-					
-                            else		// forceOutputByteCode == kForceReal8Bytes
-                                    {
-                                    buffer2Offset = numberSamples * 8;
-                                    buffer3Offset = buffer2Offset + numberSamples * 8;
-						
-                                    }		// end "else forceOutputByteCode == kForceReal8Bytes"
-				
-                            }		// end "else localFileInfoPtr1->gdalDataSetH == NULL"
-				
-                    interval = displaySpecsPtr->columnInterval;
-                    if (packDataFlag)
-                            interval = 1;
-		
-                    }		// end "else localFileInfoPtr1->bandInterleave != kBIL || ... != kBIS"
-		
-            ioBuffer1Ptr = (HFileIOBufferPtr)&outputBufferPtr->data.onebyte[buffer1Offset];
-            ioBuffer2Ptr = (HFileIOBufferPtr)&outputBufferPtr->data.onebyte[buffer2Offset];
-            ioBuffer3Ptr = (HFileIOBufferPtr)&outputBufferPtr->data.onebyte[buffer3Offset]; 
-     */
+			}	// end "else forceOutputByteCode == kForceReal8Bytes"
+
+				// Set the interval to use to skip through the data for each sample.
+				// Adjust number of samples to reflect the number of samples that
+				// will be read in one line of data for all channels in the image
+				// that were read in.
+
+		if (packDataFlag)
+			{
+			interval = numberListChannels;
+			numberSamples *= numberListChannels;
+
+			}	// end "if (packDataFlag)"
+
+		else	// !packDataFlag
+			{
+			interval = displaySpecsPtr->columnInterval * localFileInfoPtr1->numberChannels;
+			numberSamples *= localFileInfoPtr1->numberChannels;
+
+			}	// end "else !packDataFlag"
+
+		}	// end "if (localFileInfoPtr1->bandInterleave == kBIS)"
+
+	else	// localFileInfoPtr1->bandInterleave != kBIL || ... != kBIS
+		{
+		if (localFileInfoPtr1->gdalDataSetH != NULL)
+			{
+			UInt32			channelToSortIndex;
+
+					// Get channel list to sorted list index
+
+			channelToSortIndex = 1;
+			if (channelPtr[0] == minChannel)
+					channelToSortIndex = 0;
+			else if (channelPtr[0] == maxChannel)
+					channelToSortIndex = numberChannels - 1;
+							
+			buffer1Offset = (SInt32)channelToSortIndex * 
+															numberSamples * localFileInfoPtr1->numberBytes;
+
+			channelToSortIndex = 1;
+			if (channelPtr[1] == minChannel)
+					channelToSortIndex = 0;
+			else if (channelPtr[1] == maxChannel)
+					channelToSortIndex = numberChannels - 1;
+							
+			buffer2Offset = (SInt32)channelToSortIndex * 
+															numberSamples * localFileInfoPtr2->numberBytes;
+
+			channelToSortIndex = 1;
+			if (channelPtr[2] == minChannel)
+					channelToSortIndex = 0;
+			else if (channelPtr[2] == maxChannel)
+					channelToSortIndex = numberChannels - 1;
+							
+			buffer3Offset = (SInt32)channelToSortIndex * 
+															numberSamples * localFileInfoPtr3->numberBytes;
+
+			}	// end "if (localFileInfoPtr1->gdalDataSetH != NULL)"
+
+		else	// localFileInfoPtr1->gdalDataSetH !== NULL
+			{
+			buffer1Offset = 0;
+			if (forceOutputByteCode == kDoNotForceBytes)
+				{
+				buffer2Offset = numberSamples * localFileInfoPtr1->numberBytes;
+				buffer3Offset =  buffer2Offset + numberSamples * localFileInfoPtr2->numberBytes;
+
+				}	// end "if (forceOutputByteCode == kDoNotForceBytes)"
+
+			else	// forceOutputByteCode == kForceReal8Bytes
+				{
+				buffer2Offset = numberSamples * 8;
+				buffer3Offset = buffer2Offset + numberSamples * 8;
+
+				}	// end "else forceOutputByteCode == kForceReal8Bytes"
+
+			}	// end "else localFileInfoPtr1->gdalDataSetH == NULL"
+
+		interval = displaySpecsPtr->columnInterval;
+		if (packDataFlag)
+			interval = 1;
+
+		}	// end "else localFileInfoPtr1->bandInterleave != kBIL || ... != kBIS"
+
+	ioBuffer1Ptr = (HFileIOBufferPtr)&outputBufferPtr->data.onebyte[buffer1Offset];
+	ioBuffer2Ptr = (HFileIOBufferPtr)&outputBufferPtr->data.onebyte[buffer2Offset];
+	ioBuffer3Ptr = (HFileIOBufferPtr)&outputBufferPtr->data.onebyte[buffer3Offset]; 
+	*/
 	bytesOffset = gToDisplayLevels.bytesOffset;
 
-	dataDisplay1Ptr = (HUCharPtr) GetHandlePointer(
-			gToDisplayLevels.vectorHandle, kLock, kNoMoveHi);
+	dataDisplay1Ptr = (HUCharPtr) GetHandlePointer (
+													gToDisplayLevels.vectorHandle, kLock, kNoMoveHi);
 
-	dataDisplay2Ptr = (HUCharPtr) & dataDisplay1Ptr[bytesOffset];
+	dataDisplay2Ptr = (HUCharPtr)&dataDisplay1Ptr[bytesOffset];
 
-	dataDisplay3Ptr = (HUCharPtr) & dataDisplay1Ptr [2 * bytesOffset];
+	dataDisplay3Ptr = (HUCharPtr)&dataDisplay1Ptr [2 * bytesOffset];
 
 	backgroundValueCode = displaySpecsPtr->backgroundValueCode;
 
@@ -2416,7 +2411,7 @@ void DisplayCImage(
 
 #	if defined multispec_mac || defined multispec_lin
 		offScreenLinePtr = (HUCharPtr) offScreenBufferPtr;
-	#endif	// defined multispec_mac || defined multispec_lin
+#	endif	// defined multispec_mac || defined multispec_lin
 
 #	if defined multispec_win
 		UInt32 numberLines =
@@ -2458,9 +2453,9 @@ void DisplayCImage(
                         (SInt32)(channelPtr[2] - minChannel) * localFileInfoPtr1->numberBytes *
                         gImageWindowInfoPtr->maxNumberColumns + numberBytes;
 					
-				}		// end "if (BILSpecialFlag)"
+				}	// end "if (BILSpecialFlag)"
 
-			else // !BILSpecialFlag
+			else	// !BILSpecialFlag
 				{
 				buffer1Offset = 0;
 				if (forceOutputByteCode == kDoNotForceBytes) 
@@ -2469,45 +2464,45 @@ void DisplayCImage(
 					buffer3Offset =
                             buffer2Offset + numberSamples * localFileInfoPtr2->numberBytes;
 
-					}		// end "if (forceOutputByteCode == kDoNotForceBytes)"
+					}	// end "if (forceOutputByteCode == kDoNotForceBytes)"
 
-				else // forceOutputByteCode == kForceReal8Bytes
+				else	// forceOutputByteCode == kForceReal8Bytes
 					{
 					buffer2Offset = numberSamples * 8;
 					buffer3Offset = buffer2Offset + numberSamples * 8;
 
-					}		// end "else forceOutputByteCode == kForceReal8Bytes"
+					}	// end "else forceOutputByteCode == kForceReal8Bytes"
 
-            } // end "else !BILSpecialFlag"
+            }	// end "else !BILSpecialFlag"
 
 			interval = displaySpecsPtr->columnInterval;
 			if (packDataFlag)
 				interval = 1;
 
-			}		// end "else localFileInfoPtr1->bandInterleave == kBIL"
+			}	// end "else localFileInfoPtr1->bandInterleave == kBIL"
 
-		else if (localFileInfoPtr1->bandInterleave == kBIS) 
+		else if (localFileInfoPtr1->bandInterleave == kBIS)
 			{
 			if (forceOutputByteCode == kDoNotForceBytes) 
 				{
-                buffer1Offset = (channelPtr[0]) * localFileInfoPtr1->numberBytes;
-                buffer2Offset = (channelPtr[1]) * localFileInfoPtr1->numberBytes;
-                buffer3Offset = (channelPtr[2]) * localFileInfoPtr1->numberBytes;
+				buffer1Offset = (channelPtr[0]) * localFileInfoPtr1->numberBytes;
+				buffer2Offset = (channelPtr[1]) * localFileInfoPtr1->numberBytes;
+				buffer3Offset = (channelPtr[2]) * localFileInfoPtr1->numberBytes;
 
             }	// end "if (forceOutputByteCode == kDoNotForceBytes)"
 
-			else // forceOutputByteCode == kForceReal8Bytes
+			else	// forceOutputByteCode == kForceReal8Bytes
             {
 				buffer1Offset = 0;
 				buffer2Offset = 8;
 				buffer3Offset = 16;
 
-            } // end "else forceOutputByteCode == kForceReal8Bytes"
+            }	// end "else forceOutputByteCode == kForceReal8Bytes"
 
-            // Set the interval to use to skip through the data for each sample.
-            // Adjust number of samples to reflect the number of samples that
-            // will be read in one line of data for all channels in the image
-            // that were read in.
+					// Set the interval to use to skip through the data for each sample.
+					// Adjust number of samples to reflect the number of samples that
+					// will be read in one line of data for all channels in the image
+					// that were read in.
 
 			if (packDataFlag)
 				{
@@ -2516,64 +2511,65 @@ void DisplayCImage(
 
             }	// end "if (packDataFlag)"
 
-			else // !packDataFlag
+			else	// !packDataFlag
 				{
 				interval = displaySpecsPtr->columnInterval * localFileInfoPtr1->numberChannels;
 				numberSamples *= localFileInfoPtr1->numberChannels;
 
-            } // end "else !packDataFlag"
+            }	// end "else !packDataFlag"
 
 			}	// end "if (localFileInfoPtr1->bandInterleave == kBIS)"
 
-		else // localFileInfoPtr1->bandInterleave != kBIL || ... != kBIS
+		else	// localFileInfoPtr1->bandInterleave != kBIL || ... != kBIS
 			{
 			if (localFileInfoPtr1->gdalDataSetH != NULL)
 				{
-                UInt32 channelToSortIndex;
-                UInt32 gdalNumberOfChannels = fileIOInstructionsPtr->numberGdalChannels;
+				UInt32 channelToSortIndex;
+				UInt32 gdalNumberOfChannels = fileIOInstructionsPtr->numberGdalChannels;
 
-                // Get channel list to sorted list index
+						// Get channel list to sorted list index
 
-                channelToSortIndex = 1;
-                if (channelPtr[0] == minChannel)
-                    channelToSortIndex = 0;
-                else if (channelPtr[0] == maxChannel)
-                    channelToSortIndex = gdalNumberOfChannels - 1;
+				channelToSortIndex = 1;
+				if (channelPtr[0] == minChannel)
+					channelToSortIndex = 0;
+				else if (channelPtr[0] == maxChannel)
+					channelToSortIndex = gdalNumberOfChannels - 1;
 
-                buffer1Offset = (SInt32) channelToSortIndex * numberSamples;
+				buffer1Offset = (SInt32)channelToSortIndex * numberSamples;
 
-                channelToSortIndex = 1;
-                if (channelPtr[1] == minChannel)
-                    channelToSortIndex = 0;
-                else if (channelPtr[1] == maxChannel)
-                    channelToSortIndex = gdalNumberOfChannels - 1;
+				channelToSortIndex = 1;
+				if (channelPtr[1] == minChannel)
+					channelToSortIndex = 0;
+				else if (channelPtr[1] == maxChannel)
+					channelToSortIndex = gdalNumberOfChannels - 1;
 
-                buffer2Offset = (SInt32) channelToSortIndex *numberSamples;
+				buffer2Offset = (SInt32)channelToSortIndex *numberSamples;
 
-                channelToSortIndex = 1;
-                if (channelPtr[2] == minChannel)
-                    channelToSortIndex = 0;
-                else if (channelPtr[2] == maxChannel)
-                    channelToSortIndex = gdalNumberOfChannels - 1;
+				channelToSortIndex = 1;
+				if (channelPtr[2] == minChannel)
+					channelToSortIndex = 0;
+				else if (channelPtr[2] == maxChannel)
+					channelToSortIndex = gdalNumberOfChannels - 1;
 
-                buffer3Offset = (SInt32) channelToSortIndex * numberSamples;
+				buffer3Offset = (SInt32)channelToSortIndex * numberSamples;
 
-                if (forceOutputByteCode == kDoNotForceBytes) {
-                    buffer1Offset *= localFileInfoPtr1->numberBytes;
-                    buffer2Offset *= localFileInfoPtr2->numberBytes;
-                    buffer3Offset *= localFileInfoPtr3->numberBytes;
+				if (forceOutputByteCode == kDoNotForceBytes)
+					{
+					buffer1Offset *= localFileInfoPtr1->numberBytes;
+					buffer2Offset *= localFileInfoPtr2->numberBytes;
+					buffer3Offset *= localFileInfoPtr3->numberBytes;
 
-                }// end "if (forceOutputByteCode == kDoNotForceBytes)"
+					}	// end "if (forceOutputByteCode == kDoNotForceBytes)"
 
-                else // forceOutputByteCode == kForceReal8Bytes
-                {
-                    buffer1Offset *= 8;
-                    buffer2Offset *= 8;
-                    buffer3Offset *= 8;
+				else // forceOutputByteCode == kForceReal8Bytes
+					{
+					buffer1Offset *= 8;
+					buffer2Offset *= 8;
+					buffer3Offset *= 8;
 
-                } // end "else forceOutputByteCode == kForceReal8Bytes"
+					}	// end "else forceOutputByteCode == kForceReal8Bytes"
 
-            }// end "if (localFileInfoPtr1->gdalDataSetH != NULL)"
+            }	// end "if (localFileInfoPtr1->gdalDataSetH != NULL)"
 
 			else // localFileInfoPtr1->gdalDataSetH == NULL
             {
@@ -2586,7 +2582,7 @@ void DisplayCImage(
 
 					}	// end "if (forceOutputByteCode == kDoNotForceBytes)"
 
-				else // forceOutputByteCode == kForceReal8Bytes
+				else	// forceOutputByteCode == kForceReal8Bytes
 					{
 					buffer2Offset = numberSamples * 8;
 					buffer3Offset = buffer2Offset + numberSamples * 8;
@@ -2599,7 +2595,7 @@ void DisplayCImage(
 			if (packDataFlag)
 				interval = 1;
 
-			} // end "else localFileInfoPtr1->bandInterleave != kBIL || ... != kBIS"
+			}	// end "else localFileInfoPtr1->bandInterleave != kBIL || ... != kBIS"
 
 
 #		ifndef multispec_lin
@@ -2612,12 +2608,12 @@ void DisplayCImage(
 			ioBuffer3Ptr = (HFileIOBufferPtr) ((unsigned char*) (outputBufferPtr->data.onebyte) + buffer3Offset);
 #		endif
 
-		} // end "if (errCode == noErr)"
+		}	// end "if (errCode == noErr)"
 
 	if (errCode == noErr)
 		{
-        // Intialize the nextTime variable to indicate when the next check	
-        // should occur for a command-.													
+				// Intialize the nextTime variable to indicate when the next check
+				// should occur for a command-.													
 
 		gNextTime = TickCount() + kDisplayTimeOffset;
 
@@ -2648,280 +2644,275 @@ void DisplayCImage(
 					{
 					case 1:
 					case 51:
-						Display1Channel8BitLine(numberSamples,
-								  interval,
-								  localFileInfoPtr1,
-								  (HUCharPtr) ioBuffer1Ptr,
-								  dataDisplay1Ptr,
-								  maxBin1,
-								  offScreenPtr);
+						Display1Channel8BitLine (numberSamples,
+														  interval,
+														  localFileInfoPtr1,
+														  (HUCharPtr) ioBuffer1Ptr,
+														  dataDisplay1Ptr,
+														  maxBin1,
+														  offScreenPtr);
 						break;
 
 					case 2:
-						Display2Channel8BitLine(numberSamples,
-								  interval,
-								  bytesEqualOneFlag1,
-								  bytesEqualOneFlag2,
-								  backgroundValueCode,
-								  ioBuffer1Ptr,
-								  ioBuffer2Ptr,
-								  dataDisplay1Ptr,
-								  dataDisplay2Ptr,
-								  maxBin1,
-								  maxBin2,
-								  offScreenPtr);
+						Display2Channel8BitLine (numberSamples,
+														  interval,
+														  bytesEqualOneFlag1,
+														  bytesEqualOneFlag2,
+														  backgroundValueCode,
+														  ioBuffer1Ptr,
+														  ioBuffer2Ptr,
+														  dataDisplay1Ptr,
+														  dataDisplay2Ptr,
+														  maxBin1,
+														  maxBin2,
+														  offScreenPtr);
 						break;
 
 					case 3:
 						gImageWindowInfoPtr->windowType = kImageWindowType;
-						Display3Channel8BitLine(numberSamples,
-								  interval,
-								  bytesEqualOneFlag1,
-								  bytesEqualOneFlag2,
-								  bytesEqualOneFlag3,
-								  backgroundValueCode,
-								  ioBuffer1Ptr,
-								  ioBuffer2Ptr,
-								  ioBuffer3Ptr,
-								  dataDisplay1Ptr,
-								  dataDisplay2Ptr,
-								  dataDisplay3Ptr,
-								  maxBin1,
-								  maxBin2,
-								  maxBin3,
-								  offScreenPtr);
+						Display3Channel8BitLine (numberSamples,
+														  interval,
+														  bytesEqualOneFlag1,
+														  bytesEqualOneFlag2,
+														  bytesEqualOneFlag3,
+														  backgroundValueCode,
+														  ioBuffer1Ptr,
+														  ioBuffer2Ptr,
+														  ioBuffer3Ptr,
+														  dataDisplay1Ptr,
+														  dataDisplay2Ptr,
+														  dataDisplay3Ptr,
+														  maxBin1,
+														  maxBin2,
+														  maxBin3,
+														  offScreenPtr);
 						break;
 
 					case 12:
-						Display1Channel16BitLine(numberSamples,
-								  interval,
-								  bytesEqualOneFlag1,
-								  backgroundValueCode,
-								  ioBuffer1Ptr,
-								  dataDisplay1Ptr,
-								  maxBin1,
-								  (HUInt16Ptr) offScreenPtr);
+						Display1Channel16BitLine (numberSamples,
+														  interval,
+														  bytesEqualOneFlag1,
+														  backgroundValueCode,
+														  ioBuffer1Ptr,
+														  dataDisplay1Ptr,
+														  maxBin1,
+														  (HUInt16Ptr)offScreenPtr);
 						break;
 
 					case 22:
-						Display2Channel16BitLine(numberSamples,
-								  interval,
-								  bytesEqualOneFlag1,
-								  bytesEqualOneFlag2,
-								  backgroundValueCode,
-								  ioBuffer1Ptr,
-								  ioBuffer2Ptr,
-								  dataDisplay1Ptr,
-								  dataDisplay2Ptr,
-								  maxBin1,
-								  maxBin2,
-								  (HUInt16Ptr) offScreenPtr,
-								  displaySpecsPtr->rgbColors);
+						Display2Channel16BitLine (numberSamples,
+														  interval,
+														  bytesEqualOneFlag1,
+														  bytesEqualOneFlag2,
+														  backgroundValueCode,
+														  ioBuffer1Ptr,
+														  ioBuffer2Ptr,
+														  dataDisplay1Ptr,
+														  dataDisplay2Ptr,
+														  maxBin1,
+														  maxBin2,
+														  (HUInt16Ptr) offScreenPtr,
+														  displaySpecsPtr->rgbColors);
 						break;
 
 					case 23:
-						Display2Channel24BitLine(numberSamples,
-								  interval,
-								  bytesEqualOneFlag1,
-								  bytesEqualOneFlag2,
-								  backgroundValueCode,
-								  ioBuffer1Ptr,
-								  ioBuffer2Ptr,
-								  dataDisplay1Ptr,
-								  dataDisplay2Ptr,
-								  maxBin1,
-								  maxBin2,
-								  offScreenPtr,
-								  displaySpecsPtr->rgbColors);
+						Display2Channel24BitLine (numberSamples,
+														  interval,
+														  bytesEqualOneFlag1,
+														  bytesEqualOneFlag2,
+														  backgroundValueCode,
+														  ioBuffer1Ptr,
+														  ioBuffer2Ptr,
+														  dataDisplay1Ptr,
+														  dataDisplay2Ptr,
+														  maxBin1,
+														  maxBin2,
+														  offScreenPtr,
+														  displaySpecsPtr->rgbColors);
 						break;
 
 					case 32:
-						Display3Channel16BitLine(numberSamples,
-								  interval,
-								  bytesEqualOneFlag1,
-								  bytesEqualOneFlag2,
-								  bytesEqualOneFlag3,
-								  backgroundValueCode,
-								  ioBuffer1Ptr,
-								  ioBuffer2Ptr,
-								  ioBuffer3Ptr,
-								  dataDisplay1Ptr,
-								  dataDisplay2Ptr,
-								  dataDisplay3Ptr,
-								  maxBin1,
-								  maxBin2,
-								  maxBin3,
-								  (HUInt16Ptr) offScreenPtr);
+						Display3Channel16BitLine (numberSamples,
+														  interval,
+														  bytesEqualOneFlag1,
+														  bytesEqualOneFlag2,
+														  bytesEqualOneFlag3,
+														  backgroundValueCode,
+														  ioBuffer1Ptr,
+														  ioBuffer2Ptr,
+														  ioBuffer3Ptr,
+														  dataDisplay1Ptr,
+														  dataDisplay2Ptr,
+														  dataDisplay3Ptr,
+														  maxBin1,
+														  maxBin2,
+														  maxBin3,
+														  (HUInt16Ptr)offScreenPtr);
 						break;
 
 					case 33:
-						Display3Channel24BitLine(numberSamples,
-								  interval,
-								  bytesEqualOneFlag1,
-								  bytesEqualOneFlag2,
-								  bytesEqualOneFlag3,
-								  backgroundValueCode,
-								  ioBuffer1Ptr,
-								  ioBuffer2Ptr,
-								  ioBuffer3Ptr,
-								  dataDisplay1Ptr,
-								  dataDisplay2Ptr,
-								  dataDisplay3Ptr,
-								  maxBin1,
-								  maxBin2,
-								  maxBin3,
-								  offScreenPtr);
+						Display3Channel24BitLine (numberSamples,
+														  interval,
+														  bytesEqualOneFlag1,
+														  bytesEqualOneFlag2,
+														  bytesEqualOneFlag3,
+														  backgroundValueCode,
+														  ioBuffer1Ptr,
+														  ioBuffer2Ptr,
+														  ioBuffer3Ptr,
+														  dataDisplay1Ptr,
+														  dataDisplay2Ptr,
+														  dataDisplay3Ptr,
+														  maxBin1,
+														  maxBin2,
+														  maxBin3,
+														  offScreenPtr);
 						break;
-
-						//					case 51:	
-						//						Display1Channel8BitLine (numberSamples,
-						//												interval, 
-						//												localFileInfoPtr1,
-						//												(HUCharPtr)ioBuffer1Ptr, 
-						//												dataDisplay1Ptr,
-						//												maxBin1,
-						//												offScreenPtr);
-						//						break;
-
+					/*
+					case 51:
+						Display1Channel8BitLine (numberSamples,
+															interval,
+															localFileInfoPtr1,
+															(HUCharPtr)ioBuffer1Ptr,
+															dataDisplay1Ptr,
+															maxBin1,
+															offScreenPtr);
+						break;
+					*/
 					case 101:
 					case 151:
-						Display1Channel4Byte8BitLine(
-								  numberSamples,
-								  interval,
-								  minValue1,
-								  binFactor1,
-								  (HDoublePtr) ioBuffer1Ptr,
-								  dataDisplay1Ptr,
-								  maxBin1,
-								  offScreenPtr);
+						Display1Channel4Byte8BitLine (numberSamples,
+																  interval,
+																  minValue1,
+																  binFactor1,
+																  (HDoublePtr)ioBuffer1Ptr,
+																  dataDisplay1Ptr,
+																  maxBin1,
+																  offScreenPtr);
 						break;
 
 					case 102:
-						Display2Channel4Byte8BitLine(
-								  numberSamples,
-								  interval,
-								  minValue1,
-								  minValue2,
-								  binFactor1,
-								  binFactor2,
-								  backgroundValueCode,
-								  (HDoublePtr) ioBuffer1Ptr,
-								  (HDoublePtr) ioBuffer2Ptr,
-								  dataDisplay1Ptr,
-								  dataDisplay2Ptr,
-								  maxBin1,
-								  maxBin2,
-								  offScreenPtr);
+						Display2Channel4Byte8BitLine (numberSamples,
+																  interval,
+																  minValue1,
+																  minValue2,
+																  binFactor1,
+																  binFactor2,
+																  backgroundValueCode,
+																  (HDoublePtr)ioBuffer1Ptr,
+																  (HDoublePtr)ioBuffer2Ptr,
+																  dataDisplay1Ptr,
+																  dataDisplay2Ptr,
+																  maxBin1,
+																  maxBin2,
+																  offScreenPtr);
 						break;
 
 					case 103:
-						Display3Channel4Byte8BitLine(numberSamples,
-								  interval,
-								  minValue1,
-								  minValue2,
-								  minValue3,
-								  binFactor1,
-								  binFactor2,
-								  binFactor3,
-								  backgroundValueCode,
-								  (HDoublePtr) ioBuffer1Ptr,
-								  (HDoublePtr) ioBuffer2Ptr,
-								  (HDoublePtr) ioBuffer3Ptr,
-								  dataDisplay1Ptr,
-								  dataDisplay2Ptr,
-								  dataDisplay3Ptr,
-								  maxBin1,
-								  maxBin2,
-								  maxBin3,
-								  offScreenPtr);
+						Display3Channel4Byte8BitLine (numberSamples,
+																  interval,
+																  minValue1,
+																  minValue2,
+																  minValue3,
+																  binFactor1,
+																  binFactor2,
+																  binFactor3,
+																  backgroundValueCode,
+																  (HDoublePtr)ioBuffer1Ptr,
+																  (HDoublePtr)ioBuffer2Ptr,
+																  (HDoublePtr)ioBuffer3Ptr,
+																  dataDisplay1Ptr,
+																  dataDisplay2Ptr,
+																  dataDisplay3Ptr,
+																  maxBin1,
+																  maxBin2,
+																  maxBin3,
+																  offScreenPtr);
 						break;
 
 					case 122:
-						Display2Channel4Byte16BitLine(numberSamples,
-								  interval,
-								  minValue1,
-								  minValue2,
-								  binFactor1,
-								  binFactor2,
-								  backgroundValueCode,
-								  (HDoublePtr) ioBuffer1Ptr,
-								  (HDoublePtr) ioBuffer2Ptr,
-								  dataDisplay1Ptr,
-								  dataDisplay2Ptr,
-								  maxBin1,
-								  maxBin2,
-								  (HUInt16Ptr) offScreenPtr,
-								  displaySpecsPtr->rgbColors);
+						Display2Channel4Byte16BitLine (numberSamples,
+																  interval,
+																  minValue1,
+																  minValue2,
+																  binFactor1,
+																  binFactor2,
+																  backgroundValueCode,
+																  (HDoublePtr)ioBuffer1Ptr,
+																  (HDoublePtr)ioBuffer2Ptr,
+																  dataDisplay1Ptr,
+																  dataDisplay2Ptr,
+																  maxBin1,
+																  maxBin2,
+																  (HUInt16Ptr)offScreenPtr,
+																  displaySpecsPtr->rgbColors);
 
 					case 123:
-						Display2Channel4Byte24BitLine(
-								  numberSamples,
-								  interval,
-								  minValue1,
-								  minValue2,
-								  binFactor1,
-								  binFactor2,
-								  backgroundValueCode,
-								  (HDoublePtr) ioBuffer1Ptr,
-								  (HDoublePtr) ioBuffer2Ptr,
-								  dataDisplay1Ptr,
-								  dataDisplay2Ptr,
-								  maxBin1,
-								  maxBin2,
-								  offScreenPtr,
-								  displaySpecsPtr->rgbColors);
+						Display2Channel4Byte24BitLine (numberSamples,
+																  interval,
+																  minValue1,
+																  minValue2,
+																  binFactor1,
+																  binFactor2,
+																  backgroundValueCode,
+																  (HDoublePtr)ioBuffer1Ptr,
+																  (HDoublePtr)ioBuffer2Ptr,
+																  dataDisplay1Ptr,
+																  dataDisplay2Ptr,
+																  maxBin1,
+																  maxBin2,
+																  offScreenPtr,
+																  displaySpecsPtr->rgbColors);
 						break;
 
 					case 132:
-						Display3Channel4Byte16BitLine(
-								  numberSamples,
-								  interval,
-								  minValue1,
-								  minValue2,
-								  minValue3,
-								  binFactor1,
-								  binFactor2,
-								  binFactor3,
-								  backgroundValueCode,
-								  (HDoublePtr) ioBuffer1Ptr,
-								  (HDoublePtr) ioBuffer2Ptr,
-								  (HDoublePtr) ioBuffer3Ptr,
-								  dataDisplay1Ptr,
-								  dataDisplay2Ptr,
-								  dataDisplay3Ptr,
-								  maxBin1,
-								  maxBin2,
-								  maxBin3,
-								  (HUInt16Ptr) offScreenPtr);
+						Display3Channel4Byte16BitLine (numberSamples,
+																  interval,
+																  minValue1,
+																  minValue2,
+																  minValue3,
+																  binFactor1,
+																  binFactor2,
+																  binFactor3,
+																  backgroundValueCode,
+																  (HDoublePtr)ioBuffer1Ptr,
+																  (HDoublePtr)ioBuffer2Ptr,
+																  (HDoublePtr)ioBuffer3Ptr,
+																  dataDisplay1Ptr,
+																  dataDisplay2Ptr,
+																  dataDisplay3Ptr,
+																  maxBin1,
+																  maxBin2,
+																  maxBin3,
+																  (HUInt16Ptr)offScreenPtr);
 						break;
 
 					case 133:
-						Display3Channel4Byte24BitLine (
-								  numberSamples,
-								  interval,
-								  minValue1,
-								  minValue2,
-								  minValue3,
-								  binFactor1,
-								  binFactor2,
-								  binFactor3,
-								  backgroundValueCode,
-								  (HDoublePtr)ioBuffer1Ptr,
-								  (HDoublePtr)ioBuffer2Ptr,
-								  (HDoublePtr)ioBuffer3Ptr,
-								  dataDisplay1Ptr,
-								  dataDisplay2Ptr,
-								  dataDisplay3Ptr,
-								  maxBin1,
-								  maxBin2,
-								  maxBin3,
-								  offScreenPtr);
+						Display3Channel4Byte24BitLine (numberSamples,
+																  interval,
+																  minValue1,
+																  minValue2,
+																  minValue3,
+																  binFactor1,
+																  binFactor2,
+																  binFactor3,
+																  backgroundValueCode,
+																  (HDoublePtr)ioBuffer1Ptr,
+																  (HDoublePtr)ioBuffer2Ptr,
+																  (HDoublePtr)ioBuffer3Ptr,
+																  dataDisplay1Ptr,
+																  dataDisplay2Ptr,
+																  dataDisplay3Ptr,
+																  maxBin1,
+																  maxBin2,
+																  maxBin3,
+																  offScreenPtr);
 						break;
 
-					} // end "switch (displayCode)"
+					}	// end "switch (displayCode)"
 
-							// Copy a portion of the image and
-							// check if user wants to exit drawing
+						// Copy a portion of the image and
+						// check if user wants to exit drawing
 
 				lineCount++;
 				if (TickCount() >= gNextTime)
@@ -3091,7 +3082,7 @@ Boolean DisplayMultispectralDialog(
 			// Check status of file information structure.								
 
 	if (HGetState(gActiveImageFileInfoH) >= 0)
-		return (FALSE);
+																											return (FALSE);
 
 			// Initialize local variables.													
 
@@ -3124,14 +3115,14 @@ Boolean DisplayMultispectralDialog(
 
 		dialogPtr = LoadRequestedDialog(dialogSpecificationID, kCopyScrap, 1, 2);
 
-		} // end "if (featurePtr != NULL)"
+		}	// end "if (featurePtr != NULL)"
 
 	if (dialogPtr == NULL) 
 		{
 		CheckAndDisposePtr((Ptr) featurePtr);
 		return (FALSE);
 
-		} // end "if (dialogPtr == NULL)" 
+		}	// end "if (dialogPtr == NULL)"
 
 			// Intialize local user item proc pointers.									
 
@@ -3205,8 +3196,8 @@ Boolean DisplayMultispectralDialog(
 	//SetDialogItem (dialogPtr, 3, kControlDialogItem, theHandle, &theBox);
 	//osErr = ::GetDialogItemAsControl (dialogPtr, itemNumber, &theControl);
 	//osErr = GetDialogItemAsControl (dialogPtr, 3, &controlRef);
-//	if (osErr == noErr)
-//		{
+	//if (osErr == noErr)
+	//	{
 		osErr = GetSuperControl (controlRef, &parentControlRef);
 		//DisposeControl (controlRef);
 		HideDialogItem (dialogPtr, 3);
@@ -3216,7 +3207,7 @@ Boolean DisplayMultispectralDialog(
 		ShowControl (controlRef);
 		SetDialogItem (dialogPtr, 3, theType, (Handle)controlRef, &theBox);
 		"Set Display Specifications for "  "
-//		}
+	//	}
 	*/
 	
 	SetDialogItemDrawRoutine (dialogPtr,
@@ -3251,7 +3242,7 @@ Boolean DisplayMultispectralDialog(
 										gPopUpStretchMenu,
 										gEnhanceStretchSelection);
 
-    SetDialogItemDrawRoutine (dialogPtr,
+	SetDialogItemDrawRoutine (dialogPtr,
 										&minMaxPopupBox,
 										22,
 										23,
@@ -3261,9 +3252,9 @@ Boolean DisplayMultispectralDialog(
 										gPopUpMinMaxMenu,
 										gEnhanceMinMaxMenuSelection);
 
-    checkMinMaxSettingFlag = FALSE;
+	checkMinMaxSettingFlag = FALSE;
 
-    SetDialogItemDrawRoutine (dialogPtr,
+	SetDialogItemDrawRoutine (dialogPtr,
 										&theBox,
 										24,
 										25,
@@ -3341,657 +3332,672 @@ Boolean DisplayMultispectralDialog(
 
 		} // end "else gMultiSpecWorkflowInfo.workFlowCode == 1 || ..."
 
-    updateComputeHistogramFlag = FALSE;
+	updateComputeHistogramFlag = FALSE;
 
-    DisplayMultispectralDialogSetDefaultSelection(
+	DisplayMultispectralDialogSetDefaultSelection (
             dialogPtr, localrgbColors, localDisplayType);
-    modalDone = FALSE;
-    do {
-        if (dialogWindowShownFlag)
-            ModalDialog(gProcessorDialogFilterPtr, &itemHit);
-
-        if (itemHit > 2) {
-            // If itemHit was a number item, check for bad values.			
-            // If itemHit was a radio button make appropriate control		
-            // settings to indicate to the user the present selection.		
-            // Get the handle to the itemHit.										
-            // For number value items, get the string and convert it to		
-            // a number.																	
-
-            GetDialogItem(dialogPtr, itemHit, &theType, &theHandle, &theBox);
-            if (theType == kEditTextDialogItem) {
-                GetDialogItemText(theHandle, gTextString);
-                StringToNum(gTextString, &theNum);
-
-            } // end "if (theType == 16)" 
-
-            switch (itemHit) {
-                case 5: // Entire area to selected area switch.			
-                case 8: //	 Display start line of image  
-                case 9: //	 Display end line of image  
-                case 10: //	 Display line interval of image  
-                case 11: //	 Display start column of image  
-                case 12: //	 Display end column of image  
-                case 13: //	 Display column interval of image  
-                    DialogLineColumnHits(&dialogSelectArea,
-                            dialogPtr,
-                            itemHit,
-                            theHandle,
-                            theNum);
-                    break;
-
-                case 15:
-                    if (gDisplayTypeMenuSelection < 0)
-                        break;
-
-                    if (gAppearanceManagerFlag)
-                        itemHit2 = GetDItemValue(dialogPtr, 15);
-
-                    else // !gAppearanceManagerFlag)
-                        itemHit2 = StandardPopUpMenu(dialogPtr,
-                            14,
-                            15,
-                            gPopUpDisplayTypeMenu,
-                            gDisplayTypeMenuSelection,
-                            kPopUpDisplayTypeMenuID);
-
-                    if (itemHit2 > 0 && itemHit2 != gDisplayTypeMenuSelection) {
-                        updateBitsOfColorFlag = TRUE;
-
-                        gDisplayTypeMenuSelection = DisplayMultispectralDialogUpdateDisplayType(
-                                displaySpecsPtr,
-                                dialogPtr,
-                                gDisplayTypeMenuSelection,
-                                itemHit2,
-                                savedBitsOfColor,
-                                &localDisplayType,
-                                &localrgbColors,
-                                &gBitsOfColorSelection,
-                                maxSystemPixelSize,
-                                &localNumberLevels,
-                                GetDItemValue(dialogPtr, 34),
-                                GetDItemValue(dialogPtr, 35),
-                                GetDItemValue(dialogPtr, 36),
-                                &localColorLevelsMax[0][0],
-                                &duplicateChannelCode,
-                                &checkMinMaxSettingFlag);
-
-                        if (gAppearanceManagerFlag)
-                            SetDLogControl(dialogPtr, 19, gBitsOfColorSelection);
-
-                        updateComputeHistogramFlag = TRUE;
-
-                        InvalWindowRect(GetDialogWindow(dialogPtr), &bitsOfColorBox);
-
-                    } // end "if (itemHit > 0 && ..." 
-
-                    // Make certain that the correct label is drawn in the	
-                    // display type pop up box.										
-
-                    InvalWindowRect(GetDialogWindow(dialogPtr), &theBox);
-                    break;
-
-                case 17: // Magnification	
-                    magnification = GetDItemRealValue(dialogPtr, 17);
-                    if (magnification > gMaxMagnification)
-                        RealNumberErrorAlert(saveMagnification, dialogPtr, 17, 3);
-                    if (magnification > gMinMagnification &&
-                            magnification <= gMaxMagnification)
-                        saveMagnification = magnification;
-                    break;
-
-                case 19: // Get bits of color to use. 
-                    if (gBitsOfColorSelection < 0)
-                        break;
-
-                    if (gAppearanceManagerFlag)
-                        itemHit2 = GetDItemValue(dialogPtr, 19);
+	modalDone = FALSE;
+	do {
+		if (dialogWindowShownFlag)
+			ModalDialog(gProcessorDialogFilterPtr, &itemHit);
+
+		if (itemHit > 2) 
+			{
+					// If itemHit was a number item, check for bad values.			
+					// If itemHit was a radio button make appropriate control		
+					// settings to indicate to the user the present selection.		
+					// Get the handle to the itemHit.										
+					// For number value items, get the string and convert it to		
+					// a number.																	
+
+			GetDialogItem(dialogPtr, itemHit, &theType, &theHandle, &theBox);
+			if (theType == kEditTextDialogItem) 
+				{
+				GetDialogItemText(theHandle, gTextString);
+				StringToNum(gTextString, &theNum);
+
+				}	// end "if (theType == 16)" 
+
+			switch (itemHit) 
+				{
+				case 5: // Entire area to selected area switch.			
+				case 8: //	 Display start line of image  
+				case 9: //	 Display end line of image  
+				case 10: //	 Display line interval of image  
+				case 11: //	 Display start column of image  
+				case 12: //	 Display end column of image  
+				case 13: //	 Display column interval of image  
+					DialogLineColumnHits (&dialogSelectArea,
+													dialogPtr,
+													itemHit,
+													theHandle,
+													theNum);
+					break;
+
+				case 15:
+					if (gDisplayTypeMenuSelection < 0)
+						break;
+
+					if (gAppearanceManagerFlag)
+						itemHit2 = GetDItemValue(dialogPtr, 15);
+
+					else // !gAppearanceManagerFlag)
+						itemHit2 = StandardPopUpMenu (dialogPtr,
+																 14,
+																 15,
+																 gPopUpDisplayTypeMenu,
+																 gDisplayTypeMenuSelection,
+																 kPopUpDisplayTypeMenuID);
+
+					if (itemHit2 > 0 && itemHit2 != gDisplayTypeMenuSelection) 
+						{
+						updateBitsOfColorFlag = TRUE;
+
+						gDisplayTypeMenuSelection = DisplayMultispectralDialogUpdateDisplayType (
+																	  displaySpecsPtr,
+																	  dialogPtr,
+																	  gDisplayTypeMenuSelection,
+																	  itemHit2,
+																	  savedBitsOfColor,
+																	  &localDisplayType,
+																	  &localrgbColors,
+																	  &gBitsOfColorSelection,
+																	  maxSystemPixelSize,
+																	  &localNumberLevels,
+																	  GetDItemValue(dialogPtr, 34),
+																	  GetDItemValue(dialogPtr, 35),
+																	  GetDItemValue(dialogPtr, 36),
+																	  &localColorLevelsMax[0][0],
+																	  &duplicateChannelCode,
+																	  &checkMinMaxSettingFlag);
+
+						if (gAppearanceManagerFlag)
+							SetDLogControl(dialogPtr, 19, gBitsOfColorSelection);
+
+						updateComputeHistogramFlag = TRUE;
+
+						InvalWindowRect(GetDialogWindow(dialogPtr), &bitsOfColorBox);
+
+						}	// end "if (itemHit > 0 && ..." 
+
+							// Make certain that the correct label is drawn in the	
+							// display type pop up box.										
+
+					InvalWindowRect(GetDialogWindow(dialogPtr), &theBox);
+					break;
+
+				case 17: // Magnification	
+					magnification = GetDItemRealValue(dialogPtr, 17);
+					if (magnification > gMaxMagnification)
+						RealNumberErrorAlert(saveMagnification, dialogPtr, 17, 3);
+					if (magnification > gMinMagnification && magnification <= gMaxMagnification)
+						saveMagnification = magnification;
+					break;
+
+				case 19: // Get bits of color to use. 
+					if (gBitsOfColorSelection < 0)
+						break;
 
-                    else // !gAppearanceManagerFlag)
-                    {
-                        itemHit2 = StandardPopUpMenu(dialogPtr,
-                                18,
-                                19,
-                                gPopUpBitsOfColorMenu,
-                                gBitsOfColorSelection,
-                                kPopUpBitsOfColorMenuID);
+					if (gAppearanceManagerFlag)
+						itemHit2 = GetDItemValue (dialogPtr, 19);
 
-                    } // end "else !gAppearanceManagerFlag)"
+					else // !gAppearanceManagerFlag)
+						{
+						itemHit2 = StandardPopUpMenu (dialogPtr,
+																  18,
+																  19,
+																  gPopUpBitsOfColorMenu,
+																  gBitsOfColorSelection,
+																  kPopUpBitsOfColorMenuID);
 
-                    if (itemHit2 > 0 && itemHit2 != gBitsOfColorSelection) {
-                        checkNumberLevelsFlag = TRUE;
+						}	// end "else !gAppearanceManagerFlag)"
 
-                        // New selection has been made.								
+					if (itemHit2 > 0 && itemHit2 != gBitsOfColorSelection) 
+						{
+						checkNumberLevelsFlag = TRUE;
 
-                        gBitsOfColorSelection = itemHit2;
-                        savedBitsOfColor = gBitsOfColorSelection;
+								// New selection has been made.								
 
-                    } // end "if (itemHit > 0 && ..."
+						gBitsOfColorSelection = itemHit2;
+						savedBitsOfColor = gBitsOfColorSelection;
 
-                    // Make certain that the correct label is drawn in the	
-                    // display type pop up box.										
+						}	// end "if (itemHit > 0 && ..."
 
-                    InvalWindowRect(GetDialogWindow(dialogPtr), &theBox);
-                    break;
+							// Make certain that the correct label is drawn in the	
+							// display type pop up box.										
 
-                case 21: // Get enhancement stretch to use. 
+					InvalWindowRect(GetDialogWindow(dialogPtr), &theBox);
+					break;
 
-                    // If the option key is down, add the ... after Gaussian to
-                    // allow the user to change the Gaussian setting.
+				case 21: // Get enhancement stretch to use. 
 
-                    optionKeyFlag = FALSE;
-                    if ((gEventRecord.modifiers & optionKey) > 0)
-                        optionKeyFlag = TRUE;
+							// If the option key is down, add the ... after Gaussian to
+							// allow the user to change the Gaussian setting.
 
-                    if (gAppearanceManagerFlag)
-                        itemHit2 = GetDItemValue(dialogPtr, 21);
+					optionKeyFlag = FALSE;
+					if ((gEventRecord.modifiers & optionKey) > 0)
+						optionKeyFlag = TRUE;
 
-                    else // !gAppearanceManagerFlag)
-                    {
-                        // If the option key is down, add the ... after Gaussian to
-                        // allow the user to change the Gaussian setting.
+					if (gAppearanceManagerFlag)
+						itemHit2 = GetDItemValue(dialogPtr, 21);
 
-                        if (optionKeyFlag)
-                            SetMenuItemText(gPopUpStretchMenu,
-                                kGaussianStretch,
-                                "\pGaussian...");
+					else	// !gAppearanceManagerFlag)
+						{
+								// If the option key is down, add the ... after Gaussian to
+								// allow the user to change the Gaussian setting.
 
-                        itemHit2 = StandardPopUpMenu(dialogPtr,
-                                20,
-                                21,
-                                gPopUpStretchMenu,
-                                gEnhanceStretchSelection,
-                                kPopUpStretchMenuID);
+						if (optionKeyFlag)
+							SetMenuItemText (gPopUpStretchMenu,
+													kGaussianStretch,
+													"\pGaussian...");
 
-                        if (optionKeyFlag)
-                            SetMenuItemText(gPopUpStretchMenu,
-                                kGaussianStretch,
-                                "\pGaussian");
+						itemHit2 = StandardPopUpMenu (dialogPtr,
+																  20,
+																  21,
+																  gPopUpStretchMenu,
+																  gEnhanceStretchSelection,
+																  kPopUpStretchMenuID);
 
-                    } // end "else !gAppearanceManagerFlag"
+						if (optionKeyFlag)
+							SetMenuItemText (gPopUpStretchMenu,
+													kGaussianStretch,
+													"\pGaussian");
 
-                    if (itemHit2 == kGaussianStretch && optionKeyFlag) {
-                        HiliteControl((ControlHandle) okHandle, 255);
-                        GaussianParameterDialog(&localGaussianStretch);
-                        HiliteControl((ControlHandle) okHandle, 0);
+						}	// end "else !gAppearanceManagerFlag"
 
-                        SetMenuItemText(gPopUpStretchMenu,
-                                kGaussianStretch,
-                                "\pGaussian");
+					if (itemHit2 == kGaussianStretch && optionKeyFlag)
+						{
+						HiliteControl ((ControlHandle)okHandle, 255);
+						GaussianParameterDialog (&localGaussianStretch);
+						HiliteControl ((ControlHandle)okHandle, 0);
 
-                    } // end "if (itemHit2 == kGaussianStretch && optionKeyFlag)"
+						SetMenuItemText (gPopUpStretchMenu,
+												kGaussianStretch,
+												"\pGaussian");
 
-                    if (itemHit2 > 0 && itemHit2 != gEnhanceStretchSelection) {
-                        // New selection has been made.								
+						}	// end "if (itemHit2 == kGaussianStretch && optionKeyFlag)"
 
-                        gEnhanceStretchSelection = itemHit2;
+					if (itemHit2 > 0 && itemHit2 != gEnhanceStretchSelection)
+						{
+								// New selection has been made.
+	
+						gEnhanceStretchSelection = itemHit2;
 
-                    } // end "if (itemHit > 0 && ..." 
+						}	// end "if (itemHit > 0 && ..."
 
-                    updateComputeHistogramFlag = TRUE;
+					updateComputeHistogramFlag = TRUE;
 
-                    // Make certain that the correct label is drawn in the	
-                    // enhanceme stretch pop up box.											
+							// Make certain that the correct label is drawn in the
+							// enhanceme stretch pop up box.
 
-                    InvalWindowRect(GetDialogWindow(dialogPtr), &theBox);
-                    break;
+					InvalWindowRect(GetDialogWindow (dialogPtr), &theBox);
+					break;
 
-                case 23: // Min & Max 
-                    localNumberLevels = GetDItemValue(dialogPtr, 27);
-                    itemHit2 = EnhanceMinMaxPopUpMenu(
-                            dialogPtr,
-                            23,
-                            localrgbColors,
-                            localDisplayType,
-                            localNumberLevels,
-                            okHandle,
-                            enhanceMinMaxOptionCode,
-                            localMinMaxValues,
-                            &localPercentClip);
+				case 23: // Min & Max
+					localNumberLevels = GetDItemValue (dialogPtr, 27);
+					itemHit2 = EnhanceMinMaxPopUpMenu (dialogPtr,
+																	 23,
+																	 localrgbColors,
+																	 localDisplayType,
+																	 localNumberLevels,
+																	 okHandle,
+																	 enhanceMinMaxOptionCode,
+																	 localMinMaxValues,
+																	 &localPercentClip);
 
-                    if (itemHit2 > 0) {
-                        enhanceMinMaxOptionCode = itemHit2;
+					if (itemHit2 > 0)
+						{
+						enhanceMinMaxOptionCode = itemHit2;
 
-                        if (itemHit2 == kPerChannelMinMax && (localPercentClip != 0 &&
-                                localPercentClip != 2))
-                            itemHit2 = kUserSpecified;
+						if (itemHit2 == kPerChannelMinMax && (localPercentClip != 0 &&
+																				localPercentClip != 2))
+							itemHit2 = kUserSpecified;
 
-                        if (itemHit2 == kPerChannelMinMax && localPercentClip == 0)
-                            itemHit2 = kPerChannelMinMaxNoClip;
+						if (itemHit2 == kPerChannelMinMax && localPercentClip == 0)
+							itemHit2 = kPerChannelMinMaxNoClip;
 
-                        gEnhanceMinMaxMenuSelection = itemHit2;
+						gEnhanceMinMaxMenuSelection = itemHit2;
 
-                    } // end "if (itemHit2 > 0)"
+						}	// end "if (itemHit2 > 0)"
 
-                    // Make certain that the correct label is drawn in the	
-                    // enhance min-max pop up box.	
+							// Make certain that the correct label is drawn in the
+							// enhance min-max pop up box.	
 
-                    if (gAppearanceManagerFlag)
-                        SetDItemValue(dialogPtr, 23, gEnhanceMinMaxMenuSelection);
+					if (gAppearanceManagerFlag)
+						SetDItemValue (dialogPtr, 23, gEnhanceMinMaxMenuSelection);
 
-                    updateComputeHistogramFlag = TRUE;
+					updateComputeHistogramFlag = TRUE;
 
-                    InvalWindowRect(GetDialogWindow(dialogPtr), &theBox);
-                    break;
+					InvalWindowRect(GetDialogWindow(dialogPtr), &theBox);
+					break;
 
-                case 25: // Treat 0's as 
+				case 25:	// Treat 0's as
+					if (gAppearanceManagerFlag)
+						itemHit2 = GetDItemValue (dialogPtr, 25);
 
-                    if (gAppearanceManagerFlag)
-                        itemHit2 = GetDItemValue(dialogPtr, 25);
+					else	// !gAppearanceManagerFlag)
+						itemHit2 = StandardPopUpMenu (dialogPtr,
+																	24,
+																	25,
+																	gPopUpTreatZeroAsMenu,
+																	gEnhanceZeroAsSelection,
+																	kPopUpTreatZeroAsMenuID);
 
-                    else // !gAppearanceManagerFlag)
-                        itemHit2 = StandardPopUpMenu(dialogPtr,
-                            24,
-                            25,
-                            gPopUpTreatZeroAsMenu,
-                            gEnhanceZeroAsSelection,
-                            kPopUpTreatZeroAsMenuID);
+					if (itemHit2 > 0 && itemHit2 != gEnhanceZeroAsSelection)
+						{
+								// New selection has been made.
 
-                    if (itemHit2 > 0 && itemHit2 != gEnhanceZeroAsSelection) {
-                        // New selection has been made.								
+						gEnhanceZeroAsSelection = itemHit2;
 
-                        gEnhanceZeroAsSelection = itemHit2;
+						}	// end "if (itemHit > 0 && ..."
 
-                    } // end "if (itemHit > 0 && ..." 
+							// Make certain that the correct label is drawn in the
+							// enhance treat 0's as pop up box.
 
-                    // Make certain that the correct label is drawn in the	
-                    // enhance treat 0's as pop up box.										
+					InvalWindowRect (GetDialogWindow(dialogPtr), &theBox);
+					break;
 
-                    InvalWindowRect(GetDialogWindow(dialogPtr), &theBox);
-                    break;
+				case 27:	// Number of display levels
+					maxValue = localColorLevelsMax[abs(gBitsOfColorSelection) - 1][0];
 
-                case 27: // Number of display levels 
-                    maxValue = localColorLevelsMax[abs(gBitsOfColorSelection) - 1][0];
+					if (localDisplayType == k2_ChannelDisplayType)
+						maxValue = localColorLevelsMax[gBitsOfColorSelection - 1][1];
 
-                    if (localDisplayType == k2_ChannelDisplayType)
-                        maxValue = localColorLevelsMax[gBitsOfColorSelection - 1][1];
+					if (localDisplayType == k3_ChannelDisplayType)
+						{
+						if (duplicateChannelCode == 0)
+							maxValue = localColorLevelsMax[gBitsOfColorSelection - 1][2];
+						else
+							maxValue = localColorLevelsMax[gBitsOfColorSelection - 1][1];
 
-                    if (localDisplayType == k3_ChannelDisplayType) {
-                        if (duplicateChannelCode == 0)
-                            maxValue = localColorLevelsMax[gBitsOfColorSelection - 1][2];
-                        else
-                            maxValue = localColorLevelsMax[gBitsOfColorSelection - 1][1];
+						}	// end "if (localDisplayType == k3_ChannelDisplayType)"
 
-                    } // end "if (localDisplayType == k3_ChannelDisplayType)" 
+					if (theNum == 0 || theNum > maxValue)
+						NumberErrorAlert ((SInt16)maxValue, dialogPtr, itemHit);
+					break;
 
-                    if (theNum == 0 || theNum > maxValue)
-                        NumberErrorAlert((SInt16) maxValue, dialogPtr, itemHit);
-                    break;
+				case 29:	// Selected channels
+					if (gAppearanceManagerFlag)
+						itemHit = GetDItemValue (dialogPtr, 29);
 
-                case 29: // Selected channels
+					else	// !gAppearanceManagerFlag)
+						{
+						itemHit = StandardPopUpMenu (dialogPtr,
+															  28,
+															  29,
+															  gPopUpAllSubsetMenu,
+															  gChannelSelection,
+															  kPopUpAllSubsetMenuID);
 
-                    if (gAppearanceManagerFlag)
-                        itemHit = GetDItemValue(dialogPtr, 29);
+						}	// end "else !gAppearanceManagerFlag)"
+
+					if (itemHit == 2)
+						{
+								// Subset of channels to be used.
 
-                    else // !gAppearanceManagerFlag)
-                    {
-                        itemHit = StandardPopUpMenu(dialogPtr,
-                                28,
-                                29,
-                                gPopUpAllSubsetMenu,
-                                gChannelSelection,
-                                kPopUpAllSubsetMenuID);
+						HiliteControl((ControlHandle) okHandle, 255);
+						ChannelsDialog (&localNumberChannels,
+											  (SInt16*) featurePtr,
+											  gImageLayerInfoPtr,
+											  fileInfoPtr,
+											  1,
+											  kNoTransformation,
+											  NULL,
+											  windowInfoPtr->totalNumberChannels,
+											  gChannelSelection);
+
+						if (localNumberChannels == windowInfoPtr->totalNumberChannels)
+							{
+							itemHit = 1;
+
+							if (gAppearanceManagerFlag)
+								SetDItemValue (dialogPtr, 29, 1);
+
+							}	// end "if (localNumberChannels == ...->totalNumberChannels)"
+
+						HiliteControl((ControlHandle) okHandle, 0);
+
+								// Force the main dialog box to be redrawn.
+
+						InvalWindowRect(GetDialogWindow(dialogPtr),
+								  GetPortBounds(GetDialogPort(dialogPtr), &gTempRect));
+
+						}	// end "if ( itemHit == 2 )"
+
+					if (itemHit == 1)
+						localNumberChannels = windowInfoPtr->totalNumberChannels;
+
+					if (itemHit != 0)
+						gChannelSelection = itemHit;
+
+							// Make certain that the correct label is drawn in the
+							// channel pop up box.
 
-                    } // end "else !gAppearanceManagerFlag)"
-
-                    if (itemHit == 2) {
-                        // Subset of channels to be used.							
-
-                        HiliteControl((ControlHandle) okHandle, 255);
-                        ChannelsDialog(&localNumberChannels,
-                                (SInt16*) featurePtr,
-                                gImageLayerInfoPtr,
-                                fileInfoPtr,
-                                1,
-                                kNoTransformation,
-                                NULL,
-                                windowInfoPtr->totalNumberChannels,
-                                gChannelSelection);
-
-                        if (localNumberChannels == windowInfoPtr->totalNumberChannels) {
-                            itemHit = 1;
-
-                            if (gAppearanceManagerFlag)
-                                SetDItemValue(dialogPtr, 29, 1);
-
-                        } // end "if (localNumberChannels == ...->totalNumberChannels)"
-
-                        HiliteControl((ControlHandle) okHandle, 0);
-
-                        // Force the main dialog box to be redrawn.
-
-                        InvalWindowRect(GetDialogWindow(dialogPtr),
-                                GetPortBounds(GetDialogPort(dialogPtr), &gTempRect));
-
-                    } // end "if ( itemHit == 2 )" 
-
-                    if (itemHit == 1)
-                        localNumberChannels = windowInfoPtr->totalNumberChannels;
-
-                    if (itemHit != 0)
-                        gChannelSelection = itemHit;
-
-                    // Make certain that the correct label is drawn in the	
-                    // channel pop up box.												
-
-                    InvalWindowRect(GetDialogWindow(dialogPtr), &theBox);
-                    break;
-
-                case 33: // channel to display for 1-channel display 
-                    //					if (theNum == 0 || theNum > windowInfoPtr->totalNumberChannels)
-                    //							NumberErrorAlert ( 
-                    //						 		(SInt32)displaySpecsPtr->channelNumber, &gTextString, 
-                    //										dialogPtr, itemHit);
-                    break;
-
-                case 34: // channel to display for red part 3-channel display 
-                case 35: // channel to display for green part 3-channel display 
-                case 36: // channel to display for blue part 3-channel display 
-                    checkNumberLevelsFlag = TRUE;
-                    break;
-
-                case 38: // Display channel descriptions. 
-                    HiliteControl((ControlHandle) okHandle, 255);
-                    returnFlag = ChannelsDialog(&tempInt,
-                            NIL,
-                            gImageLayerInfoPtr,
-                            fileInfoPtr,
-                            2,
-                            kNoTransformation,
-                            NIL,
-                            windowInfoPtr->totalNumberChannels,
-                            kSubsetMenuItem);
-                    HiliteControl((ControlHandle) okHandle, 0);
-
-                    // Force the main dialog box to be redrawn.
-
-                    InvalWindowRect(GetDialogWindow(dialogPtr),
-                            GetPortBounds(GetDialogPort(dialogPtr), &gTempRect));
-                    break;
-
-                case 39: // Check box for compute histogram	
-                    ChangeDLogCheckBox((ControlHandle) theHandle);
-                    userComputeFlag = !userComputeFlag;
-                    break;
-
-                case IDC_RedChannelInvert: // Check box for compute histogram	
-                case IDC_GreenChannelInvert: // Check box for compute histogram	
-                case IDC_BlueChannelInvert: // Check box for compute histogram	
-                    ChangeDLogCheckBox((ControlHandle) theHandle);
-                    break;
-
-                case IDC_LegendFactor:
-                    localThematicValueFactor =
-                            GetDItemRealValue(dialogPtr, IDC_LegendFactor);
-                    break;
-
-                case IDC_VectorOverlays: // Check box for overlays	
-                    ChangeDLogCheckBox((ControlHandle) theHandle);
-                    break;
-
-            } // end "switch (itemHit)" 
-
-            if (checkNumberLevelsFlag) {
-                DisplayMultispectralDialogCheckDisplayLevels(
-                        displaySpecsPtr,
-                        dialogPtr,
-                        localDisplayType,
-                        GetDItemValue(dialogPtr, 34),
-                        GetDItemValue(dialogPtr, 35),
-                        GetDItemValue(dialogPtr, 36),
-                        &localColorLevelsMax[0][0],
-                        &duplicateChannelCode,
-                        gBitsOfColorSelection,
-                        &localNumberLevels);
-
-                checkNumberLevelsFlag = FALSE;
-
-            } // end "if (checkNumberLevelsFlag)" 
-
-            if (checkMinMaxSettingFlag) {
-                DisplayMultispectralDialogCheckMinMaxSettings(
-                        gDisplayTypeMenuSelection,
-                        gEnhanceMinMaxMenuSelection,
-                        &gEnhanceMinMaxMenuSelection,
-                        &enhanceMinMaxOptionCode,
-                        &thematicDisplayWithUserSettingFlag);
-
-                // Make certain that the correct label is drawn in the	
-                // enhance min-max pop up box.	
-
-                if (gAppearanceManagerFlag)
-                    SetDItemValue(dialogPtr, 23, gEnhanceMinMaxMenuSelection);
-
-                InvalWindowRect(GetDialogWindow(dialogPtr), &minMaxPopupBox);
-
-                checkMinMaxSettingFlag = FALSE;
-
-            } // end "if (checkMinMaxSettingFlag)" 
-
-            if (updateBitsOfColorFlag)
-                updateBitsOfColorFlag =
-                    DisplayMultispectralDialogUpdateBitsOfColor(
-                    gPopUpBitsOfColorMenu,
-                    localDisplayType);
-
-            // Indicate whether the compute histogram box needs to	
-            // be checked and hilited.											
-
-            if (updateComputeHistogramFlag) {
-                DisplayMultispectralDialogUpdateComputeHistogram(
-                        displaySpecsPtr,
-                        userComputeFlag,
-                        gDisplayTypeMenuSelection,
-                        gEnhanceStretchSelection,
-                        enhanceMinMaxOptionCode,
-                        dialogPtr,
-                        39);
-
-                updateComputeHistogramFlag = FALSE;
-
-            } // end "if (updateComputeHistogramFlag)"						
-
-        }// end "if (itemHit > 2)" 
-
-        else if (itemHit > 0) // and itemHit <= 2 
-        {
-            // If item hit is 1, check if display line-column values make 	
-            // sense.  If they don't, sound an alert and make item hit 		
-            // equal to 0 to allow user to make changes.							
-
-            if (itemHit == 1)
-                itemHit = CheckLineColValues(
-                    &dialogSelectArea,
-                    displaySpecsPtr->lineStart,
-                    displaySpecsPtr->columnStart,
-                    dialogPtr);
-
-            // Check channels used for red, green and blue or gray scale.
-
-            if (itemHit == 1 && localDisplayType <= k1_ChannelGrayLevelDisplayType)
-                itemHit = CheckMaxValue(dialogPtr,
-                    33,
-                    1,
-                    gImageWindowInfoPtr->totalNumberChannels,
-                    kDisplayRangeAlert);
-
-            if (itemHit == 1 && localrgbColors & 0x0004)
-                itemHit = CheckMaxValue(dialogPtr,
-                    34,
-                    1,
-                    gImageWindowInfoPtr->totalNumberChannels,
-                    kDisplayRangeAlert);
-
-            if (itemHit == 1 && localrgbColors & 0x0002)
-                itemHit = CheckMaxValue(dialogPtr,
-                    35,
-                    1,
-                    gImageWindowInfoPtr->totalNumberChannels,
-                    kDisplayRangeAlert);
-
-            if (itemHit == 1 && localrgbColors & 0x0001)
-                itemHit = CheckMaxValue(dialogPtr,
-                    36,
-                    1,
-                    gImageWindowInfoPtr->totalNumberChannels,
-                    kDisplayRangeAlert);
-
-            if (itemHit == 1) {
-                interval = GetDItemValue(dialogPtr, 10);
-                itemHit = CheckNumberDisplayLines(
-                        dialogSelectArea.lineStart,
-                        dialogSelectArea.lineEnd,
-                        interval,
-                        dialogPtr,
-                        8);
-
-            } // end "if (itemHit == 1)" 
-
-            if (itemHit == 1) {
-                interval = GetDItemValue(dialogPtr, 13);
-                itemHit = CheckNumberDisplayColumns(
-                        (UInt32) dialogSelectArea.columnStart,
-                        (UInt32) dialogSelectArea.columnEnd,
-                        (UInt32) interval,
-                        pixelSizeVector[abs(gBitsOfColorSelection) - 1],
-                        localDisplayType,
-                        localNumberChannels,
-                        dialogPtr,
-                        11);
-
-            } // end "if (itemHit == 1)" 
-
-            if (itemHit == 1) // User selected OK for information 
+					InvalWindowRect(GetDialogWindow(dialogPtr), &theBox);
+					break;
+
+				case 33: // channel to display for 1-channel display
+					//if (theNum == 0 || theNum > windowInfoPtr->totalNumberChannels)
+					//		NumberErrorAlert (
+					//					(SInt32)displaySpecsPtr->channelNumber,
+					//					&gTextString,
+					//					dialogPtr,
+					//					itemHit);
+					break;
+
+				case 34: // channel to display for red part 3-channel display
+				case 35: // channel to display for green part 3-channel display
+				case 36: // channel to display for blue part 3-channel display
+					checkNumberLevelsFlag = TRUE;
+					break;
+
+				case 38: // Display channel descriptions.
+					HiliteControl((ControlHandle) okHandle, 255);
+					returnFlag = ChannelsDialog (&tempInt,
+															 NIL,
+															 gImageLayerInfoPtr,
+															 fileInfoPtr,
+															 2,
+															 kNoTransformation,
+															 NIL,
+															 windowInfoPtr->totalNumberChannels,
+															 kSubsetMenuItem);
+					HiliteControl ((ControlHandle)okHandle, 0);
+
+							// Force the main dialog box to be redrawn.
+
+					InvalWindowRect (GetDialogWindow(dialogPtr),
+											GetPortBounds(GetDialogPort(dialogPtr),
+											&gTempRect));
+					break;
+
+				case 39:	// Check box for compute histogram
+					ChangeDLogCheckBox ((ControlHandle) theHandle);
+					userComputeFlag = !userComputeFlag;
+					break;
+
+				case IDC_RedChannelInvert: // Check box for compute histogram
+				case IDC_GreenChannelInvert: // Check box for compute histogram
+				case IDC_BlueChannelInvert: // Check box for compute histogram
+					ChangeDLogCheckBox((ControlHandle)theHandle);
+					break;
+
+				case IDC_LegendFactor:
+					localThematicValueFactor =
+								 GetDItemRealValue (dialogPtr, IDC_LegendFactor);
+					break;
+
+				case IDC_VectorOverlays: // Check box for overlays
+					ChangeDLogCheckBox ((ControlHandle)theHandle);
+					break;
+
+				}	// end "switch (itemHit)"
+
+			if (checkNumberLevelsFlag)
+				{
+				DisplayMultispectralDialogCheckDisplayLevels (displaySpecsPtr,
+																				dialogPtr,
+																				localDisplayType,
+																				GetDItemValue(dialogPtr, 34),
+																				GetDItemValue(dialogPtr, 35),
+																				GetDItemValue(dialogPtr, 36),
+																				&localColorLevelsMax[0][0],
+																				&duplicateChannelCode,
+																				gBitsOfColorSelection,
+																				&localNumberLevels);
+
+				checkNumberLevelsFlag = FALSE;
+
+				}	// end "if (checkNumberLevelsFlag)"
+
+			if (checkMinMaxSettingFlag)
+				{
+				DisplayMultispectralDialogCheckMinMaxSettings (
+														gDisplayTypeMenuSelection,
+														gEnhanceMinMaxMenuSelection,
+														&gEnhanceMinMaxMenuSelection,
+														&enhanceMinMaxOptionCode,
+														&thematicDisplayWithUserSettingFlag);
+
+						// Make certain that the correct label is drawn in the
+						// enhance min-max pop up box.
+
+				if (gAppearanceManagerFlag)
+					SetDItemValue (dialogPtr, 23, gEnhanceMinMaxMenuSelection);
+
+				InvalWindowRect (GetDialogWindow(dialogPtr), &minMaxPopupBox);
+
+				checkMinMaxSettingFlag = FALSE;
+
+				}	// end "if (checkMinMaxSettingFlag)"
+
+			if (updateBitsOfColorFlag)
+				updateBitsOfColorFlag =
+					  DisplayMultispectralDialogUpdateBitsOfColor (
+																  gPopUpBitsOfColorMenu,
+																  localDisplayType);
+
+					// Indicate whether the compute histogram box needs to
+					// be checked and hilited.
+
+			if (updateComputeHistogramFlag)
+				{
+				DisplayMultispectralDialogUpdateComputeHistogram (
+																	displaySpecsPtr,
+																	userComputeFlag,
+																	gDisplayTypeMenuSelection,
+																	gEnhanceStretchSelection,
+																	enhanceMinMaxOptionCode,
+																	dialogPtr,
+																	39);
+
+				updateComputeHistogramFlag = FALSE;
+
+				}	// end "if (updateComputeHistogramFlag)"
+
+			}	// end "if (itemHit > 2)"
+
+		else if (itemHit > 0) // and itemHit <= 2
+			{
+					// If item hit is 1, check if display line-column values make
+					// sense.  If they don't, sound an alert and make item hit
+					// equal to 0 to allow user to make changes.
+
+			if (itemHit == 1)
+				itemHit = CheckLineColValues (&dialogSelectArea,
+														  displaySpecsPtr->lineStart,
+														  displaySpecsPtr->columnStart,
+														  dialogPtr);
+
+					// Check channels used for red, green and blue or gray scale.
+
+			if (itemHit == 1 && localDisplayType <= k1_ChannelGrayLevelDisplayType)
+				itemHit = CheckMaxValue (dialogPtr,
+												  33,
+												  1,
+												  gImageWindowInfoPtr->totalNumberChannels,
+												  kDisplayRangeAlert);
+
+			if (itemHit == 1 && localrgbColors & 0x0004)
+				itemHit = CheckMaxValue (dialogPtr,
+												  34,
+												  1,
+												  gImageWindowInfoPtr->totalNumberChannels,
+												  kDisplayRangeAlert);
+
+			if (itemHit == 1 && localrgbColors & 0x0002)
+				itemHit = CheckMaxValue (dialogPtr,
+												  35,
+												  1,
+												  gImageWindowInfoPtr->totalNumberChannels,
+												  kDisplayRangeAlert);
+
+			if (itemHit == 1 && localrgbColors & 0x0001)
+				 itemHit = CheckMaxValue (dialogPtr,
+												  36,
+												  1,
+												  gImageWindowInfoPtr->totalNumberChannels,
+												  kDisplayRangeAlert);
+
+			if (itemHit == 1)
+				{
+				interval = GetDItemValue (dialogPtr, 10);
+				itemHit = CheckNumberDisplayLines (dialogSelectArea.lineStart,
+																dialogSelectArea.lineEnd,
+																interval,
+																dialogPtr,
+																8);
+
+				}	// end "if (itemHit == 1)"
+
+			if (itemHit == 1)
+				{
+				interval = GetDItemValue (dialogPtr, 13);
+				itemHit = CheckNumberDisplayColumns (
+													(UInt32) dialogSelectArea.columnStart,
+													(UInt32) dialogSelectArea.columnEnd,
+													(UInt32) interval,
+													pixelSizeVector[abs(gBitsOfColorSelection) - 1],
+													localDisplayType,
+													localNumberChannels,
+													dialogPtr,
+													11);
+
+				}	// end "if (itemHit == 1)"
+
+			if (itemHit == 1)	// User selected OK for information
             {
-                modalDone = TRUE;
+				modalDone = TRUE;
 
-                DisplayMultispectralDialogOK(
-                        dialogPtr,
-                        displaySpecsPtr,
-                        windowInfoPtr,
-                        fileInfoPtr,
-                        &dialogSelectArea,
-                        featurePtr,
-                        localNumberChannels,
-                        localPercentClip,
-                        &localMinMaxValues[0],
-                        duplicateChannelCode,
-                        (SInt16) GetDItemValue(dialogPtr, 33),
-                        (SInt16) GetDItemValue(dialogPtr, 34),
-                        (SInt16) GetDItemValue(dialogPtr, 35),
-                        (SInt16) GetDItemValue(dialogPtr, 36),
-                        localrgbColors,
-                        localDisplayType,
-                        gDisplayTypeMenuSelection,
-                        gBitsOfColorSelection,
-                        saveMagnification,
-                        &pixelSizeVector[0],
-                        localGaussianStretch,
-                        gEnhanceStretchSelection,
-                        enhanceMinMaxOptionCode,
-                        gEnhanceZeroAsSelection,
-                        GetDItemValue(dialogPtr, 27),
-                        &localColorLevelsMax[0][0],
-                        GetDLogControl(dialogPtr, 39),
-                        gChannelSelection,
-                        GetDLogControl(dialogPtr, IDC_RedChannelInvert),
-                        GetDLogControl(dialogPtr, IDC_GreenChannelInvert),
-                        GetDLogControl(dialogPtr, IDC_BlueChannelInvert),
-                        localThematicValueFactor,
-                        GetDLogControl(dialogPtr, IDC_VectorOverlays));
+				DisplayMultispectralDialogOK (
+											dialogPtr,
+											displaySpecsPtr,
+											windowInfoPtr,
+											fileInfoPtr,
+											&dialogSelectArea,
+											featurePtr,
+											localNumberChannels,
+											localPercentClip,
+											&localMinMaxValues[0],
+											duplicateChannelCode,
+											(SInt16) GetDItemValue(dialogPtr, 33),
+											(SInt16) GetDItemValue(dialogPtr, 34),
+											(SInt16) GetDItemValue(dialogPtr, 35),
+											(SInt16) GetDItemValue(dialogPtr, 36),
+											localrgbColors,
+											localDisplayType,
+											gDisplayTypeMenuSelection,
+											gBitsOfColorSelection,
+											saveMagnification,
+											&pixelSizeVector[0],
+											localGaussianStretch,
+											gEnhanceStretchSelection,
+											enhanceMinMaxOptionCode,
+											gEnhanceZeroAsSelection,
+											GetDItemValue(dialogPtr, 27),
+											&localColorLevelsMax[0][0],
+											GetDLogControl(dialogPtr, 39),
+											gChannelSelection,
+											GetDLogControl(dialogPtr, IDC_RedChannelInvert),
+											GetDLogControl(dialogPtr, IDC_GreenChannelInvert),
+											GetDLogControl(dialogPtr, IDC_BlueChannelInvert),
+											localThematicValueFactor,
+											GetDLogControl(dialogPtr, IDC_VectorOverlays));
 
-                returnFlag = TRUE;
+				returnFlag = TRUE;
 
-            } // end "if (itemHit == 1)" 
+				}	// end "if (itemHit == 1)"
 
-            if (itemHit == 2) // User selected Cancel for information 
+			if (itemHit == 2) // User selected Cancel for information
             {
-                modalDone = TRUE;
-                returnFlag = FALSE;
+				modalDone = TRUE;
+				returnFlag = FALSE;
 
-            } // end "if	(itemHit == 2)" 
+            }	// end "if	(itemHit == 2)"
 
-        } // end "else if (itemHit > 0) and itemHit <= 2" 
+			}	// end "else if (itemHit > 0) and itemHit <= 2"
 
-    } while (!modalDone);
+		} while (!modalDone);
 
-    featurePtr = CheckAndDisposePtr(featurePtr);
+	featurePtr = CheckAndDisposePtr (featurePtr);
 
-    UnSetDialogItemDrawRoutine(dialogPtr,
-            drawDisplayTypePopUpPtr,
-            15,
-            gPopUpDisplayTypeMenu);
+	UnSetDialogItemDrawRoutine (dialogPtr,
+											drawDisplayTypePopUpPtr,
+											15,
+											gPopUpDisplayTypeMenu);
 
-    UnSetDialogItemDrawRoutine(dialogPtr,
-            drawBitsColorPopUpPtr,
-            19,
-            gPopUpBitsOfColorMenu);
+	UnSetDialogItemDrawRoutine (dialogPtr,
+											drawBitsColorPopUpPtr,
+											19,
+											gPopUpBitsOfColorMenu);
 
-    UnSetDialogItemDrawRoutine(dialogPtr,
-            drawStretchPopUpPtr,
-            21,
-            gPopUpStretchMenu);
+	UnSetDialogItemDrawRoutine (dialogPtr,
+											drawStretchPopUpPtr,
+											21,
+											gPopUpStretchMenu);
 
-    UnSetDialogItemDrawRoutine(dialogPtr,
-            drawMinMaxPopUpPtr,
-            23,
-            gPopUpMinMaxMenu);
+	UnSetDialogItemDrawRoutine (dialogPtr,
+											drawMinMaxPopUpPtr,
+											23,
+											gPopUpMinMaxMenu);
 
-    UnSetDialogItemDrawRoutine(dialogPtr,
-            drawZeroAsPopUpPtr,
-            25,
-            gPopUpTreatZeroAsMenu);
+	UnSetDialogItemDrawRoutine (dialogPtr,
+											drawZeroAsPopUpPtr,
+											25,
+											gPopUpTreatZeroAsMenu);
 
-    UnSetDialogItemDrawRoutine(dialogPtr,
-            NULL,
-            29,
-            gPopUpAllSubsetMenu);
+	UnSetDialogItemDrawRoutine (dialogPtr,
+											NULL,
+											29,
+											gPopUpAllSubsetMenu);
 
-    CloseRequestedDialog(dialogPtr, setUpDFilterTableFlag);
-
+	CloseRequestedDialog (dialogPtr, setUpDFilterTableFlag);
 #endif	// defined multispec_mac
 
 
-#if defined multispec_win   
+#	if defined multispec_win
+		CMDisplaySpecsDlg* dialogPtr = NULL;
 
-    CMDisplaySpecsDlg* dialogPtr = NULL;
+		TRY
+			{
+			dialogPtr = new CMDisplaySpecsDlg();
 
-    TRY{
-        dialogPtr = new CMDisplaySpecsDlg();
+			gActiveImageViewCPtr->
+			m_displayMultiCPtr->SetDisplaySpecsPtr (displaySpecsPtr);
 
-        gActiveImageViewCPtr->
-        m_displayMultiCPtr->SetDisplaySpecsPtr(displaySpecsPtr);
+			returnFlag = dialogPtr->DoDialog (displaySpecsPtr);
 
-        returnFlag = dialogPtr->DoDialog(displaySpecsPtr);
+			delete dialogPtr;
+			}
 
-        delete dialogPtr;
-    }
+		CATCH_ALL(e)
+			{
+			MemoryMessage(0, kObjectMessage);
+			}
+		END_CATCH_ALL
+#	endif	// defined multispec_win
 
-    CATCH_ALL(e) {
-        MemoryMessage(0, kObjectMessage);
-    }
-    END_CATCH_ALL
+#	if defined multispec_lin
+		CMDisplaySpecsDlg* dialogPtr = NULL;
+		try
+			{
+			//dialogPtr = new CMDisplaySpecsDlg((wxWindow *)gActiveImageViewCPtr->m_frame);
+			dialogPtr = new CMDisplaySpecsDlg((wxWindow *)GetMainFrame());
+			gActiveImageViewCPtr->m_displayMultiCPtr->SetDisplaySpecsPtr (displaySpecsPtr);
 
-#endif	// defined multispec_win  
+			returnFlag = dialogPtr->DoDialog (displaySpecsPtr);
 
-#if defined multispec_lin
-            CMDisplaySpecsDlg* dialogPtr = NULL;
-    try {
-        //dialogPtr = new CMDisplaySpecsDlg((wxWindow *) gActiveImageViewCPtr->m_frame);
-        dialogPtr = new CMDisplaySpecsDlg((wxWindow *) GetMainFrame());
-        gActiveImageViewCPtr->m_displayMultiCPtr->SetDisplaySpecsPtr(displaySpecsPtr);
+			delete dialogPtr;
+			}
+		catch (int e)
+			{
+			MemoryMessage(0, kObjectMessage);
+			}
+#	endif
 
-        returnFlag = dialogPtr->DoDialog(displaySpecsPtr);
+	return (returnFlag);
 
-        delete dialogPtr;
-    }    catch (int e) {
-        MemoryMessage(0, kObjectMessage);
-    }
-
-#endif
-    return (returnFlag);
-
-} // end "DisplayMultispectralDialog" 
+}	// end "DisplayMultispectralDialog"
 
 
 
@@ -4016,42 +4022,42 @@ Boolean DisplayMultispectralDialog(
 //	Coded By:			Larry L. Biehl			Date: 11/22/2006
 //	Revised By:			Larry L. Biehl			Date: 12/01/2006
 
-void DisplayMultispectralDialogCheckDisplayLevels(
-        DisplaySpecsPtr displaySpecsPtr,
-        DialogPtr dialogPtr,
-        SInt16 displayType,
-        SInt16 redChannel,
-        SInt16 greenChannel,
-        SInt16 blueChannel,
-        SInt16* localColorLevelsMaxPtr,
-        SInt16* duplicateChannelCodePtr,
-        SInt16 bitsOfColorSelection,
-        SInt16* numberDisplayLevelsPtr)
- {
-    *duplicateChannelCodePtr = 0;
+void DisplayMultispectralDialogCheckDisplayLevels (
+				DisplaySpecsPtr					displaySpecsPtr,
+				DialogPtr							dialogPtr,
+				SInt16								displayType,
+				SInt16								redChannel,
+				SInt16								greenChannel,
+				SInt16								blueChannel,
+				SInt16*								localColorLevelsMaxPtr,
+				SInt16*								duplicateChannelCodePtr,
+				SInt16								bitsOfColorSelection,
+				SInt16*								numberDisplayLevelsPtr)
+{
+	*duplicateChannelCodePtr = 0;
 
-    if (displayType == k3_ChannelDisplayType) {
-        if (greenChannel == blueChannel)
-            *duplicateChannelCodePtr = kRGColor;
+	if (displayType == k3_ChannelDisplayType)
+		{
+		if (greenChannel == blueChannel)
+			*duplicateChannelCodePtr = kRGColor;
 
-        if (redChannel == blueChannel)
-            *duplicateChannelCodePtr = kGBColor;
+		if (redChannel == blueChannel)
+			*duplicateChannelCodePtr = kGBColor;
 
-        if (redChannel == greenChannel)
-            *duplicateChannelCodePtr = kRBColor;
+		if (redChannel == greenChannel)
+			*duplicateChannelCodePtr = kRBColor;
 
-    } // end "if (displayType == k3_ChannelDisplayType)" 
+		}	// end "if (displayType == k3_ChannelDisplayType)"
 
-    DisplayMultispectralDialogUpdateDisplayLevels(
-            dialogPtr,
-            displaySpecsPtr,
-            localColorLevelsMaxPtr,
-            displayType,
-            *duplicateChannelCodePtr,
-            bitsOfColorSelection,
-            numberDisplayLevelsPtr);
+	DisplayMultispectralDialogUpdateDisplayLevels (dialogPtr,
+																	displaySpecsPtr,
+																	localColorLevelsMaxPtr,
+																	displayType,
+																	*duplicateChannelCodePtr,
+																	bitsOfColorSelection,
+																	numberDisplayLevelsPtr);
 
-} // end "DisplayMultispectralDialogCheckDisplayLevels"
+}	// end "DisplayMultispectralDialogCheckDisplayLevels"
 
 
 
@@ -4076,43 +4082,47 @@ void DisplayMultispectralDialogCheckDisplayLevels(
 //	Coded By:			Larry L. Biehl			Date: 11/22/2006
 //	Revised By:			Larry L. Biehl			Date: 11/22/2006
 
-void DisplayMultispectralDialogCheckMinMaxSettings(
-        SInt16 displayTypeSelection,
-        SInt16 inputEnhanceMinMaxMenuSelection,
-        SInt16* enhanceMinMaxMenuSelectionPtr,
-        SInt16* enhanceMinMaxOptionPtr,
-        Boolean* thematicDisplayWithUserSettingFlagPtr)
- {
-    if (inputEnhanceMinMaxMenuSelection == kThematicDefault &&
-            displayTypeSelection != k1_ChannelThematicDisplayType) {
-        *enhanceMinMaxMenuSelectionPtr = kPerChannelMinMax;
-        *enhanceMinMaxOptionPtr = kPerChannelMinMax;
+void DisplayMultispectralDialogCheckMinMaxSettings (
+				SInt16								displayTypeSelection,
+				SInt16								inputEnhanceMinMaxMenuSelection,
+				SInt16*								enhanceMinMaxMenuSelectionPtr,
+				SInt16*								enhanceMinMaxOptionPtr,
+				Boolean*								thematicDisplayWithUserSettingFlagPtr)
+{
+	if (inputEnhanceMinMaxMenuSelection == kThematicDefault &&
+											displayTypeSelection != k1_ChannelThematicDisplayType)
+		{
+		*enhanceMinMaxMenuSelectionPtr = kPerChannelMinMax;
+		*enhanceMinMaxOptionPtr = kPerChannelMinMax;
 
-    }// end "if (inputEnhanceMinMaxMenuSelection == kThematicDefault && ..."
+		}	// end "if (inputEnhanceMinMaxMenuSelection == kThematicDefault && ..."
 
-    else if (inputEnhanceMinMaxMenuSelection == kUserSpecified &&
-            displayTypeSelection != k1_ChannelThematicDisplayType &&
-            *thematicDisplayWithUserSettingFlagPtr) {
-        *enhanceMinMaxMenuSelectionPtr = kPerChannelMinMax;
-        *enhanceMinMaxOptionPtr = kPerChannelMinMax;
-        *thematicDisplayWithUserSettingFlagPtr = FALSE;
+	else if (inputEnhanceMinMaxMenuSelection == kUserSpecified &&
+					displayTypeSelection != k1_ChannelThematicDisplayType &&
+							*thematicDisplayWithUserSettingFlagPtr)
+		{
+		*enhanceMinMaxMenuSelectionPtr = kPerChannelMinMax;
+		*enhanceMinMaxOptionPtr = kPerChannelMinMax;
+		*thematicDisplayWithUserSettingFlagPtr = FALSE;
 
-    }// end "if (inputEnhanceMinMaxMenuSelection == kThematicDefault && ..."
+		}	// end "if (inputEnhanceMinMaxMenuSelection == kThematicDefault && ..."
 
-    else if (inputEnhanceMinMaxMenuSelection != kThematicDefault &&
-            displayTypeSelection == k1_ChannelThematicDisplayType) {
-        *enhanceMinMaxMenuSelectionPtr = kThematicDefault;
-        *enhanceMinMaxOptionPtr = kThematicDefault;
+	else if (inputEnhanceMinMaxMenuSelection != kThematicDefault &&
+									displayTypeSelection == k1_ChannelThematicDisplayType)
+		{
+		*enhanceMinMaxMenuSelectionPtr = kThematicDefault;
+		*enhanceMinMaxOptionPtr = kThematicDefault;
 
-    }// end "if (inputEnhanceMinMaxMenuSelection == kThematicDefault && ..."
+		}	// end "if (inputEnhanceMinMaxMenuSelection == kThematicDefault && ..."
 
-    else if (inputEnhanceMinMaxMenuSelection == kUserSpecified &&
-            displayTypeSelection == k1_ChannelThematicDisplayType) {
-        *thematicDisplayWithUserSettingFlagPtr = TRUE;
+	else if (inputEnhanceMinMaxMenuSelection == kUserSpecified &&
+										displayTypeSelection == k1_ChannelThematicDisplayType)
+		{
+		*thematicDisplayWithUserSettingFlagPtr = TRUE;
 
-    } // end "if (inputEnhanceMinMaxMenuSelection == kThematicDefault && ..."
+		}	// end "if (inputEnhanceMinMaxMenuSelection == kThematicDefault && ..."
 
-} // end "DisplayMultispectralDialogCheckMinMaxSettings"
+}	// end "DisplayMultispectralDialogCheckMinMaxSettings"
 
 
 
@@ -4597,55 +4607,56 @@ void DisplayMultispectralDialogInitialize(
 
     // Set up edit text fields for channels to be used for diplay			
 
-    // Set the color text item 														
-#ifndef multispec_lin
-    LoadDItemString(dialogPtr, ID3C_GrayPrompt, (Str255*) "\0Grey  ");
-#endif
+			// Set the color text item 														
+#	ifndef multispec_lin
+		LoadDItemString(dialogPtr, ID3C_GrayPrompt, (Str255*) "\0Grey  ");
+#	endif
     UpdateDialogChannelItems(dialogPtr, *localrgbColorsPtr, *localDisplayTypePtr);
 
-    // Set legend factor			
+			// Set legend factor			
 
-    *localThematicValueFactorPtr = displaySpecsPtr->thematicValueFactor;
+	*localThematicValueFactorPtr = displaySpecsPtr->thematicValueFactor;
 
-    // Only show option to overlay vectors if no image currently exists
-    // for the window and shape files do exist.
+			// Only show option to overlay vectors if no image currently exists
+			// for the window and shape files do exist.
 
-    SetVectorOverlays(windowInfoPtr,
-            dialogPtr,
-            IDC_VectorOverlays,
-            includeVectorOverlaysFlagPtr);
+	SetVectorOverlays (windowInfoPtr,
+								dialogPtr,
+								IDC_VectorOverlays,
+								includeVectorOverlaysFlagPtr);
 
-    /*	if (gActiveOffscreenMapExists || gNumberShapeFiles <= 0)
-                    {
-                    SetDLogControl (dialogPtr, IDC_VectorOverlays, 0);
-                    HideDialogItem (dialogPtr, IDC_VectorOverlays);
-     *includeVectorOverlaysFlagPtr = FALSE;
-		
-                    }		// end "if (gActiveOffscreenMapExists || gNumberShapeFiles <= 0)"
-		
-            else		// !gActiveOffscreenMapExists
-                    {
-                                    // Check vector overlays are available for this image.
-		
-                    if (CheckIfVectorOverlaysIntersectImage (windowInfoPtr))
-                            {
-                            SetDLogControl (dialogPtr, IDC_VectorOverlays, 1);
-                            SetDLogControlHilite (dialogPtr, IDC_VectorOverlays, 0);
-     *includeVectorOverlaysFlagPtr = TRUE;
-			
-                            }		// end "if (CheckIfVectorOverlaysIntersectImage (windowInfoPtr))"
-			
-                    else		// !CheckIfVectorOverlaysIntersectImage (windowInfoPtr)
-                            {
-                            SetDLogControl (dialogPtr, IDC_VectorOverlays, 0);
-                            SetDLogControlHilite (dialogPtr, IDC_VectorOverlays, 255);
-     *includeVectorOverlaysFlagPtr = FALSE;
-			
-                            }		// end "if (CheckIfVectorOverlaysIntersectImage (windowInfoPtr))"
-			
-                    }		// end "else !gActiveOffscreenMapExists"
+	/*	
+	if (gActiveOffscreenMapExists || gNumberShapeFiles <= 0)
+		{
+		SetDLogControl (dialogPtr, IDC_VectorOverlays, 0);
+		HideDialogItem (dialogPtr, IDC_VectorOverlays);
+		*includeVectorOverlaysFlagPtr = FALSE;
+
+		}	// end "if (gActiveOffscreenMapExists || gNumberShapeFiles <= 0)"
+
+	else	// !gActiveOffscreenMapExists
+		{
+				// Check vector overlays are available for this image.
+
+		if (CheckIfVectorOverlaysIntersectImage (windowInfoPtr))
+			{
+			SetDLogControl (dialogPtr, IDC_VectorOverlays, 1);
+			SetDLogControlHilite (dialogPtr, IDC_VectorOverlays, 0);
+			*includeVectorOverlaysFlagPtr = TRUE;
+
+			}		// end "if (CheckIfVectorOverlaysIntersectImage (windowInfoPtr))"
+
+		else	// !CheckIfVectorOverlaysIntersectImage (windowInfoPtr)
+			{
+			SetDLogControl (dialogPtr, IDC_VectorOverlays, 0);
+			SetDLogControlHilite (dialogPtr, IDC_VectorOverlays, 255);
+			*includeVectorOverlaysFlagPtr = FALSE;
+
+			}	// end "if (CheckIfVectorOverlaysIntersectImage (windowInfoPtr))"
+
+		}	// end "else !gActiveOffscreenMapExists"
      */
-} // end "DisplayMultispectralDialogInitialize"
+}	// end "DisplayMultispectralDialogInitialize"
 
 
 
@@ -9025,7 +9036,7 @@ Boolean HistogramVector(
 //
 //	Coded By:			Larry L. Biehl			Date: 04/20/1988
 //	Revised By:			Ravi S. Budruk			Date: 08/09/1988	
-//	Revised By:			Larry L. Biehl			Date: 05/01/2017
+//	Revised By:			Larry L. Biehl			Date: 08/23/2017
 
 DisplaySpecsPtr LoadMultispectralDisplaySpecs (void)
 {
@@ -9276,9 +9287,31 @@ DisplaySpecsPtr LoadMultispectralDisplaySpecs (void)
                if (displaySpecsPtr->pixelSize >= 16)
                   displaySpecsPtr->blueChannelNumber = 1;
 
-               }     // end "else if (gImageFileInfoPtr->instrumentCode == kLandsatMSS)
+               }	// end "else if (gImageFileInfoPtr->instrumentCode == kLandsatMSS)
 
-            else // gImageFileInfoPtr->instrumentCode != kSPOT && != kLandsatMSS
+            else if (gImageFileInfoPtr->instrumentCode == kSentinel2_MSI)
+               {
+					if (useNaturalColorBandsFlag)
+						{
+						displaySpecsPtr->blueChannelNumber = 1;
+						displaySpecsPtr->greenChannelNumber = 2;
+						displaySpecsPtr->redChannelNumber = 3;
+						
+						}	// end "if (useNaturalColorBandsFlag)"
+					
+					else	// !useNaturalColorBandsFlag
+						{
+						displaySpecsPtr->blueChannelNumber = 3;
+						displaySpecsPtr->greenChannelNumber = 3;
+						displaySpecsPtr->redChannelNumber = 4;
+						if (displaySpecsPtr->pixelSize >= 16)
+							displaySpecsPtr->blueChannelNumber = 2;
+							
+						}	// end "else !useNaturalColorBandsFlag"
+
+               }	// end "else if (gImageFileInfoPtr->instrumentCode == kSentinel2_MSI)
+
+            else // gImageFileInfoPtr->instrumentCode != kSPOT && != kLandsatMSS != kSentinel2_MSI
                {
                if (gImageWindowInfoPtr->totalNumberChannels == 4)
                   {
@@ -9290,7 +9323,7 @@ DisplaySpecsPtr LoadMultispectralDisplaySpecs (void)
                   if (displaySpecsPtr->pixelSize >= 16)
                       displaySpecsPtr->blueChannelNumber = 2;
 
-                  }     // end "if (gImageWindowInfoPtr->totalNumberChannels == 4)"
+                  }	// end "if (gImageWindowInfoPtr->totalNumberChannels == 4)"
 
                else // gImageWindowInfoPtr->totalNumberChannels == 5
                   {
@@ -9687,9 +9720,9 @@ DisplaySpecsPtr LoadMultispectralDisplaySpecs (void)
 
             // Set flag for default histogram file.
 
-   displaySpecsPtr->defaultHistogramFileFlag = GetDefaultSupportFile(
-            gImageWindowInfoPtr->windowInfoHandle,
-            kISTAFileType);
+   displaySpecsPtr->defaultHistogramFileFlag = GetDefaultSupportFile (
+														gImageWindowInfoPtr->windowInfoHandle,
+														kISTAFileType);
 
          // Determine whether histogram statistics are loaded into memory
          // or whether they can be read from disk or will need to be			
@@ -10628,26 +10661,28 @@ Boolean MinMaxEnhancementDialogOnMinMaxCode(
 
 } // end "MinMaxEnhancementDialogOnMinMaxCode"  
 
-void MinMaxEnhancementDialogSetSelection(
-        DialogPtr dialogPtr,
-        SInt16 lastMinMaxCode,
-        SInt16 newMinMaxCode)
- {
-    SInt16 selectedItem = 0;
 
 
-    if (lastMinMaxCode != kPerChannelMinMax &&
-            newMinMaxCode == kPerChannelMinMax)
-        selectedItem = IDC_PercentClipped;
+void MinMaxEnhancementDialogSetSelection (
+				DialogPtr							dialogPtr,
+				SInt16								lastMinMaxCode,
+				SInt16								newMinMaxCode)
+{
+	SInt16 selectedItem = 0;
 
-    else if (lastMinMaxCode != kEntireDataRange &&
-            newMinMaxCode == kEntireDataRange)
-        selectedItem = IDC_RedChannelMinE;
 
-    if (selectedItem != 0)
-        SelectDialogItemText(dialogPtr, selectedItem, 0, SInt16_MAX);
+	if (lastMinMaxCode != kPerChannelMinMax &&
+												newMinMaxCode == kPerChannelMinMax)
+		selectedItem = IDC_PercentClipped;
 
-} // end "MinMaxEnhancementDialogSetSelection"  
+	else if (lastMinMaxCode != kEntireDataRange &&
+												newMinMaxCode == kEntireDataRange)
+		selectedItem = IDC_RedChannelMinE;
+
+	if (selectedItem != 0)
+		SelectDialogItemText(dialogPtr, selectedItem, 0, SInt16_MAX);
+
+}	// end "MinMaxEnhancementDialogSetSelection"  
 
 
 

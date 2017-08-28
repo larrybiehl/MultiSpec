@@ -13,7 +13,7 @@
 //
 //	Revision number:		3.0
 //
-//	Revision date:			05/24/2017
+//	Revision date:			08/28/2017
 //
 //	Language:				C
 //
@@ -57,10 +57,23 @@
 //								void 							SetOutputWTitle
 
 #include	"SMulSpec.h"
+#include	"SGrafVew.h"
 #include	<ctype.h>  
 
+#if defined multispec_lin
+	#include <wx/string.h>
+	#include <wx/textfile.h>
+   #include "LGraphDoc.h"
+   #include "LGraphFrame.h"
+   #include "LGraphView.h"
+	#include "LImageView.h"
+	#include "LImageFrame.h"
+	#include "LImageDoc.h"
+	#include "LTextView.h"
+	#include "wx/stdpaths.h"
+#endif   // defined multispec_lin
+
 #if defined multispec_mac
-	#include	"SGrafVew.h"
 	#define	IDS_Processor20						20
 	#define	IDS_Processor21						21
 	#define	IDS_Processor22						22
@@ -71,7 +84,6 @@
 #endif	// defined multispec_mac    
                             
 #if defined multispec_win
-	#include	"SGrafVew.h"
 	#include	"CDisplay.h"
 	#include	"CImagVew.h"
 	#include	"CImagWin.h"
@@ -84,30 +96,18 @@
 	Boolean MGetString (
 				TBYTE*								outTextPtr, 
 				UInt16								stringListID, 
-				UInt16								stringID);		
-
+				UInt16								stringID,
+				UInt16								maxStringLength=255);
+	/*
 	Boolean GetSpecifiedStringNumber ( 
 				SInt16								strListID, 
 				SInt16								index,
 				TBYTE*								textStringPtr, 
-				Boolean								continueFlag);
+				Boolean								continueFlag,
+				UInt16								maxStringLength=255);
+	*/
 #endif	// defined multispec_win
 
-#if defined multispec_lin
-	#include <wx/string.h>
-	#include <wx/textfile.h>
-	#include "resource.h"
-	#include "LTextView.h"
-	#include "LImageView.h"
-	#include "LImageFrame.h"
-	#include "LImageDoc.h"
-   #include "LGraphView.h"
-   #include "LGraphFrame.h"
-   #include "LGraphDoc.h"
-	#include "wx/stdpaths.h"
-#endif   // defined multispec_lin
-
-#include	"SExtGlob.h"	
 
 extern void		GetWindowTitle (
 						WindowPtr							windowPtr,
@@ -1123,12 +1123,26 @@ void ConcatPStrings (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 03/21/2017
-//	Revised By:			Larry L. Biehl			Date: 03/28/2017
+//	Revised By:			Larry L. Biehl			Date: 06/19/2017
 
 wchar_t* ConvertMultibyteStringToUnicodeString (
 				UCharPtr								inputMultibyteStringPtr)
 
 {
+
+#	if defined multispec_lin
+		wxWCharBuffer						unicodeString;
+		size_t								numberUnicodeChars;
+		
+
+		unicodeString = wxConvUTF8.cMB2WC ((char*)inputMultibyteStringPtr, 
+														wxNO_LEN, 
+														&numberUnicodeChars);
+																			
+		wcsncpy (&gWideTextString[1], unicodeString, numberUnicodeChars);
+		gWideTextString[0] = numberUnicodeChars;
+#	endif // end "multispec_lin"
+
 #	if defined multispec_win
 		if (inputMultibyteStringPtr != NULL)
 			{
@@ -1184,7 +1198,7 @@ wchar_t* ConvertMultibyteStringToUnicodeString (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 03/22/2017
-//	Revised By:			Larry L. Biehl			Date: 03/22/2017
+//	Revised By:			Larry L. Biehl			Date: 06/19/2017
 
 void ConvertUnicodeStringToMultibyteString (
 				wchar_t*								inputUnicodeStringPtr,
@@ -1193,35 +1207,57 @@ void ConvertUnicodeStringToMultibyteString (
 
 {
 #	if defined multispec_mac
-	UniChar*								uniCharInputStringPtr;
-	CFStringRef							cfStringRef;
-	UInt16								numberChars;
-	
-										
-	outputUTF8StringPtr[0] = 0;
-	outputUTF8StringPtr[1] = 0;
-	
-	if (numberCharactersToCopy == 0)
-		numberChars = inputUnicodeStringPtr[0];
-	else
-		numberChars = MIN (inputUnicodeStringPtr[0], numberCharactersToCopy);
-	
-	uniCharInputStringPtr = (UniChar*)inputUnicodeStringPtr;
-	cfStringRef = CFStringCreateWithCharacters (
-										kCFAllocatorDefault,
-										(UniChar*)&uniCharInputStringPtr[1],
-										numberChars);
-										
-	if (cfStringRef != NULL)
-		{
-		CFStringGetCString (cfStringRef,
-								(char*)&outputUTF8StringPtr[1],
-								(CFIndex)255,
-								kCFStringEncodingUTF8);
-		outputUTF8StringPtr[0] = strlen ((char*)&outputUTF8StringPtr[1]);
+		UniChar*								uniCharInputStringPtr;
+		CFStringRef							cfStringRef;
+		UInt16								numberChars;
 		
-		}	// end "if (cfStringRef != NULL)"
+											
+		outputUTF8StringPtr[0] = 0;
+		outputUTF8StringPtr[1] = 0;
+		
+		if (numberCharactersToCopy == 0)
+			numberChars = inputUnicodeStringPtr[0];
+		else
+			numberChars = MIN (inputUnicodeStringPtr[0], numberCharactersToCopy);
+		
+		uniCharInputStringPtr = (UniChar*)inputUnicodeStringPtr;
+		cfStringRef = CFStringCreateWithCharacters (
+											kCFAllocatorDefault,
+											(UniChar*)&uniCharInputStringPtr[1],
+											numberChars);
+											
+		if (cfStringRef != NULL)
+			{
+			CFStringGetCString (cfStringRef,
+									(char*)&outputUTF8StringPtr[1],
+									(CFIndex)255,
+									kCFStringEncodingUTF8);
+			outputUTF8StringPtr[0] = strlen ((char*)&outputUTF8StringPtr[1]);
+			
+			}	// end "if (cfStringRef != NULL)"
 #	endif
+
+#	if defined multispec_lin
+		wxCharBuffer						multiByteString;
+		UInt16								numberChars;
+		size_t								numberMultiByteChars;
+		
+											
+		outputUTF8StringPtr[0] = 0;
+		outputUTF8StringPtr[1] = 0;
+		
+		if (numberCharactersToCopy == 0)
+			numberChars = inputUnicodeStringPtr[0];
+		else
+			numberChars = MIN (inputUnicodeStringPtr[0], numberCharactersToCopy);
+
+		multiByteString = wxConvUTF8.cWC2MB (&inputUnicodeStringPtr[1], 
+															numberChars, 
+															&numberMultiByteChars);
+																			
+		strncpy ((char*)&outputUTF8StringPtr[1], multiByteString, numberMultiByteChars);
+		outputUTF8StringPtr[0] = numberMultiByteChars;
+#	endif // end "multispec_lin"
 
 #	if defined multispec_win
 		UInt16								numberChars;
@@ -1247,7 +1283,7 @@ void ConvertUnicodeStringToMultibyteString (
 										NULL, 
 										NULL);
 		outputUTF8StringPtr[0] = sizeNeeded;
-#	endif
+#	endif	// end "multispec_win"
 	
 }		// end "ConvertUnicodeStringToMultibyteString"
 
@@ -2733,18 +2769,19 @@ Boolean GetSpecifiedStringNumber (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 01/26/2016
-//	Revised By:			Larry L. Biehl			Date: 01/29/2016			
+//	Revised By:			Larry L. Biehl			Date: 08/28/2017			
 
 Boolean GetSpecifiedStringNumber ( 
 				SInt16								strListID, 
 				SInt16								index,
 				TBYTE*								textStringPtr, 
-				Boolean								continueFlag )
+				Boolean								continueFlag,
+				UInt16								maxStringLength)
 													
 {
 	if (continueFlag)
 		{												
-		MGetString (textStringPtr, strListID, index);
+		MGetString (textStringPtr, strListID, index, maxStringLength);
 		continueFlag = (textStringPtr[0] != 0);
 		
 		}		// end "if (continueFlag)" 
@@ -2959,31 +2996,31 @@ void GetGraphWindowTitle (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 03/09/2007
-//	Revised By:			Larry L. Biehl			Date: 05/24/2017
+//	Revised By:			Larry L. Biehl			Date: 08/28/2017
 
 void InitializeDateVersionStrings ()
 
 {
 		// Date version string
 		
-	sprintf (gDateVersionString, "5.24.2017");
+	sprintf (gDateVersionString, "8.28.2017");
 
 		// Application identifier string
 		
-	#if defined multispec_mac
-		#ifndef __XCODE__
-			#ifdef TARGET_CPU_PPC
+#	if defined multispec_mac
+#		ifndef __XCODE__
+#			ifdef TARGET_CPU_PPC
 				sprintf (gApplicationIdentifierString, "MultiSpecPPC_%s", gDateVersionString);
-			#endif		// TARGET_CPU_PPC
+#			endif		// TARGET_CPU_PPC
 			
-			#if TARGET_API_MAC_CARBON
+#			if TARGET_API_MAC_CARBON
 				sprintf (gApplicationIdentifierString, "MultiSpecCarb_%s", gDateVersionString);
-			#endif /* TARGET_API_MAC_CARBON */
-		#endif		// !__XCODE__
+#			endif /* TARGET_API_MAC_CARBON */
+#		endif		// !__XCODE__
 			
 		#ifdef __XCODE__		
 			if (gSystemArchitectureCode == kIntel)
-				sprintf (gApplicationIdentifierString, "MultiSpecUniversalIntel_%s", gDateVersionString);
+				sprintf (gApplicationIdentifierString, "MultiSpecIntel_%s", gDateVersionString);
 				
 			if (gSystemArchitectureCode == kPPC)
 				sprintf (gApplicationIdentifierString, "MultiSpecUniversalPPC_%s", gDateVersionString);
@@ -3215,7 +3252,7 @@ SInt16 InsertCommasInNumberString (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 10/04/1989
-//	Revised By:			Larry L. Biehl			Date: 04/11/2007	
+//	Revised By:			Larry L. Biehl			Date: 08/28/2017	
 
 Boolean ListChannelsUsed (
 				FileInfoPtr							fileInfoPtr, 
@@ -3230,7 +3267,8 @@ Boolean ListChannelsUsed (
 			// Declare local variables and structures										
 	
 	ChannelDescriptionPtr			channelDescriptionPtr;
-	FileInfoPtr							localFileInfoPtr;
+	FileInfoPtr							localFileInfoPtr;							
+	LayerInfoPtr						localImageLayerInfoPtr;
 	SInt16*								lChannelsPtr;
 	
 	SInt32								stringLength;
@@ -3304,7 +3342,8 @@ Boolean ListChannelsUsed (
 		shortListFlag = FALSE;
 		
 	if (fileInfoPtr != gImageFileInfoPtr && 
-						gImageWindowInfoPtr->numberImageFiles > 1)
+						gImageWindowInfoPtr->numberImageFiles > 1 && 
+								gProcessorCode != kListDescriptionProcessor)
 				// This indicates that the gImageLayerInfoPtr does not go with
 				// fileInfoPtr.  This is from a new image being created by a reformat
 				// processor. More work needs to be done to be able to determine 
@@ -3429,18 +3468,21 @@ Boolean ListChannelsUsed (
 				// call. That will be when the input fileInfoPtr is equal to that
 				// for the respective fileInfoIndex.
 			
+		localImageLayerInfoPtr = gImageLayerInfoPtr;
 	   if (gProcessorCode == kListDescriptionProcessor &&
 	   										gImageWindowInfoPtr->numberImageFiles > 1)
 	   	{
+			localImageLayerInfoPtr = NULL;
+			
 	   			// Find the index into gImageLayerInfoPtr for the correct set
 	   			// of channels.
 	   	
 	   	for (index=0; index<gImageWindowInfoPtr->totalNumberChannels; index++)
 	   		{
-				if (gImageLayerInfoPtr != NULL && fileInfoIndex != 
-								(SInt16)gImageLayerInfoPtr[layerChanIndex].fileInfoIndex)
+				if (localImageLayerInfoPtr != NULL && fileInfoIndex != 
+								(SInt16)localImageLayerInfoPtr[layerChanIndex].fileInfoIndex)
 					{
-					fileInfoIndex = gImageLayerInfoPtr[layerChanIndex].fileInfoIndex;
+					fileInfoIndex = localImageLayerInfoPtr[layerChanIndex].fileInfoIndex;
 					localFileInfoPtr = &gImageFileInfoPtr[fileInfoIndex];
 					if (localFileInfoPtr == fileInfoPtr)
 						break;
@@ -3472,16 +3514,16 @@ Boolean ListChannelsUsed (
 	   	if (gProcessorCode != kListDescriptionProcessor)
 	   		layerChanIndex = channelNum;
 			
-			if (gImageLayerInfoPtr != NULL && fileInfoIndex != 
-							(SInt16)gImageLayerInfoPtr[layerChanIndex].fileInfoIndex)
+			if (localImageLayerInfoPtr != NULL && fileInfoIndex != 
+							(SInt16)localImageLayerInfoPtr[layerChanIndex].fileInfoIndex)
 				{
 				if (fileInfoIndex != -1)	
 					CheckAndUnlockHandle (localFileInfoPtr->channelDescriptionH);
 					
-				fileInfoIndex = gImageLayerInfoPtr[layerChanIndex].fileInfoIndex;
+				fileInfoIndex = localImageLayerInfoPtr[layerChanIndex].fileInfoIndex;
 				localFileInfoPtr = &fileInfoPtr[fileInfoIndex];
 					
-				}		// end "if (gImageLayerInfoPtr && fileInfoIndex != ..." 
+				}		// end "if (localImageLayerInfoPtr && fileInfoIndex != ..." 
 				
 			if (localFileInfoPtr && !useTransformFlag)
 				{
@@ -3508,7 +3550,10 @@ Boolean ListChannelsUsed (
 											
 			else		// channelDescriptionPtr != NULL
 				{
-				fileChanNum = gImageLayerInfoPtr[layerChanIndex].fileChannelNumber;
+				fileChanNum = (SInt16)(index + 1);
+				if (localImageLayerInfoPtr != NULL)
+					fileChanNum = localImageLayerInfoPtr[layerChanIndex].fileChannelNumber;
+					
 				BlockMoveData (&channelDescriptionPtr[fileChanNum-1], &gTextString2, 16);
 				sprintf ((char*)&gTextString, 
 								"     %*ld: %s%s", 
@@ -5556,7 +5601,7 @@ Boolean ListString (
 			SetOutputWindowChangedFlag (TRUE);
 #		endif	// defined multispec_mac
 	
-#		if defined multispec_win | defined multispec_lin
+#		if defined multispec_win || defined multispec_lin
 			if (gOutputViewCPtr == NULL)
 																				return (returnFlag);
 																								
@@ -6186,10 +6231,10 @@ void* MemoryCopy (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 04/14/1995
-//	Revised By:			Larry L. Biehl			Date: 03/08/2017
+//	Revised By:			Larry L. Biehl			Date: 08/25/2017
 //
-// For Linux: The String Table must be defined in stringtable.def
-// Format for linux string table is given in stringtable.def
+// For Linux: The String Table must be defined in LStringTable.def
+// Format for linux string table is given in LStringTable.def
 //
 Boolean MGetString (
 				UCharPtr								outTextPtr, 
@@ -6198,150 +6243,149 @@ Boolean MGetString (
 				Boolean								returnAsWideCharStringFlag)
 
 {		       
-#if defined multispec_mac 
-	char								tempString[256];
-	UCharPtr							tempStringPtr;
+	outTextPtr[0] = 0;
+	outTextPtr[1] = 0;
 	
-	
-	tempStringPtr = outTextPtr;
-	if (returnAsWideCharStringFlag)
-		tempStringPtr = (UCharPtr)tempString;
-	
-	::GetIndString (tempStringPtr, (SInt16)stringListID, (SInt16)stringID);
-	//CFBundleCopyLocalizedString (CFBundleGetBundleWithIdentifier(CFSTR("com.my.bundle.id")), CFSTR("my_key"), CFSTR("my_key"), NULL);
-	//CFStringRef string = ::CFBundleCopyLocalizedString (gApplicationServicesBundle, (SInt16)stringListID, (SInt16)stringID);
-	
-			// Force a c-string terminator. Do not allow strings over 254
-			// characters in length.
-			
-	SInt16 stringLength = tempStringPtr[0];
-	stringLength = MIN(stringLength, 254);		
-	outTextPtr[stringLength+1] = kNullTerminator;
-	
-	if (returnAsWideCharStringFlag)
-		{
-		wchar_t*		wideOutputTextPtr = (wchar_t*)outTextPtr;
-		mbstowcs (&wideOutputTextPtr[1], (const char*)&tempStringPtr[1], stringLength);
-		wideOutputTextPtr[0] = stringLength;
+#	if defined multispec_mac 
+		char								tempString[256];
+		UCharPtr							tempStringPtr;
 		
-		//CFStringRef temp = CFStringCreateWithPascalString (NULL, 
-		//																	outTextPtr, 
-		//																	kCFStringEncodingMacRoman); // kCFStringEncodingUTF32
 		
-		//wideOutputTextPtr[0] = CFStringGetLength (temp);
-		//CFStringGetCharacters (temp, 
-		//								CFRangeMake(0, wideOutputTextPtr[0]), 
-		//								(UniChar*)&wideOutputTextPtr[1]);
-		//CFStringGetCString (temp,  
-		//								&wideOutputTextPtr[1],
-		//								wideOutputTextPtr[0],
-		//								kCFStringEncodingUTF32);
-		//CFRelease (temp);
+		tempStringPtr = outTextPtr;
+		if (returnAsWideCharStringFlag)
+			tempStringPtr = (UCharPtr)tempString;
 		
-		}		// end "if (returnAsWideCharStringFlag)"
-	
-	return (stringLength != 0);
-#endif	// defined multispec_mac
-
+		::GetIndString (tempStringPtr, (SInt16)stringListID, (SInt16)stringID);
+		//CFBundleCopyLocalizedString (CFBundleGetBundleWithIdentifier(CFSTR("com.my.bundle.id")), CFSTR("my_key"), CFSTR("my_key"), NULL);
+		//CFStringRef string = ::CFBundleCopyLocalizedString (gApplicationServicesBundle, (SInt16)stringListID, (SInt16)stringID);
 		
-#if defined multispec_win
-	USES_CONVERSION;
-
-	TBYTE			string[256];
-   SInt16 		numberCharacters;
-
-
-//#	if defined multispec_win_unicode
-		numberCharacters = ::LoadString (AfxGetInstanceHandle(), 
-													stringID, 
-													(LPWSTR)string,
-													255);
-		strcpy ((char*)&outTextPtr[1], T2A(string));
-//#	else
-//		numberCharacters = ::LoadString (AfxGetInstanceHandle(),
-//													stringID,
-//													(LPSTR)string,
-//													255);
-//		strcpy ((char*)&outTextPtr[1], (const char*)string);
-//#	endif
-   
-   outTextPtr[0] = (Byte)numberCharacters;
-   											
-   return (numberCharacters > 0);
-#endif	// defined multispec_win
-   
-#if defined multispec_lin
-   // First get the path to this executable file
-   wxStandardPaths std = wxStandardPaths::Get();
-   wxString exePath = std.GetExecutablePath();
-   wxString exeDir = exePath.BeforeLast('/');
-   exeDir.Append("/stringtable.def");
-#	ifdef NetBeansProject
-		wxTextFile file(wxT("stringtable.def"));
-#	else
-		wxTextFile file(exeDir);
-#	endif
-   if (!file.Exists())
-																									return false;
-   if (!file.Open())
-																									return false;
-   bool found = false;
-   wxString str, strout;
-   char* outTextPtrt;
-   wxString index(wxT("#"));
-   index << stringID; // Append string id
-   for (str = file.GetFirstLine(); !file.Eof(); str = file.GetNextLine()) 
-		{
-      if (str.Contains(index)) 
-			{
-					// Now extract string
-         if (str.Contains(wxT("\""))) 
-				{
-            str = str.AfterFirst('"');
-            if (str.Contains(wxT("\""))) 
-					{
-               strout = str.BeforeLast('"');
-               strncpy((char *) &outTextPtr[1], (const char*) strout.mb_str(wxConvUTF8), 255);
-               outTextPtr[0] = (unsigned char) strout.Len();
-               found = true;
-					}
-					 
-				else // read next line for search of second"
-					{
-               strout = str;
-               while (!file.Eof() && !found) 
-						{
-                  strout << '\n';
-                  str = file.GetNextLine();
-                  //str = str.Trim(false);
-                  if (str.Contains(wxT("\""))) 
-							{
-                     found = true;
-                     strout << str.BeforeLast('"');
-                     strncpy((char*) &outTextPtr[1], (const char*) strout.mb_str(wxConvUTF8), 255);
-                     outTextPtr[0] = (unsigned char) strout.Len();
-							} 
-						else
-                     strout << str;
-						}	// end "while (!file.Eof() && !found)"
-						
-					}	// end "else read next line for search of second"
-					
-				}	// end "if (str.Contains(wxT("\"")))"
+				// Force a c-string terminator. Do not allow strings over 254
+				// characters in length.
 				
-         //outTextPtr = (unsigned char*)outTextPtrt;
-			
-			}	// end "if (str.Contains(index))"
-			
-		if (found)
-			break;
-		}	// end "for (str = file.GetFirstLine();..."
+		SInt16 stringLength = tempStringPtr[0];
+		stringLength = MIN(stringLength, 254);		
+		outTextPtr[stringLength+1] = kNullTerminator;
 		
-   file.Close();
-   return (outTextPtr[1] != 0 && found);
-#endif // defined multispec_lin
+		if (returnAsWideCharStringFlag)
+			{
+			wchar_t*		wideOutputTextPtr = (wchar_t*)outTextPtr;
+			mbstowcs (&wideOutputTextPtr[1], (const char*)&tempStringPtr[1], stringLength);
+			wideOutputTextPtr[0] = stringLength;
+			
+			//CFStringRef temp = CFStringCreateWithPascalString (NULL, 
+			//																	outTextPtr, 
+			//																	kCFStringEncodingMacRoman); // kCFStringEncodingUTF32
+			
+			//wideOutputTextPtr[0] = CFStringGetLength (temp);
+			//CFStringGetCharacters (temp, 
+			//								CFRangeMake(0, wideOutputTextPtr[0]), 
+			//								(UniChar*)&wideOutputTextPtr[1]);
+			//CFStringGetCString (temp,  
+			//								&wideOutputTextPtr[1],
+			//								wideOutputTextPtr[0],
+			//								kCFStringEncodingUTF32);
+			//CFRelease (temp);
+			
+			}		// end "if (returnAsWideCharStringFlag)"
+		
+		return (stringLength != 0);
+#	endif	// defined multispec_mac
 
-}		// end "MGetString"  
+		
+#	if defined multispec_win
+		USES_CONVERSION;
+
+		TBYTE			string[512];
+		SInt16 		numberCharacters;
+
+
+		numberCharacters = ::LoadString (AfxGetInstanceHandle(), 
+														stringID, 
+														(LPWSTR)string,
+														510);
+		strcpy ((char*)&outTextPtr[1], T2A(string));
+	
+				// Note that the incorrect count of characters could cause a problem. The only current case
+				// with the number of characters are more than 255 is one of the filter strings used for
+				// GetFile and PutFile. In that case the number of characters is not used ... only the c terminator.
+	
+		outTextPtr[0] = (Byte)MIN (numberCharacters, 255);
+													
+		return (numberCharacters > 0);
+#	endif	// defined multispec_win
+   
+#	if defined multispec_lin
+				// First get the path to this executable file
+		wxStandardPaths std = wxStandardPaths::Get();
+		wxString exePath = std.GetExecutablePath();
+		wxString exeDir = exePath.BeforeLast('/');
+		exeDir.Append("/LStringTable.def");
+#		ifdef NetBeansProject
+			wxTextFile file(wxT("LStringTable.def"));
+#		else
+			wxTextFile file(exeDir);
+#		endif
+		if (!file.Exists())
+
+																									return false;
+		
+		if (!file.Open())
+																									return false;
+   
+		bool found = false;
+		wxString str, strout;
+		wxString index(wxT("#"));
+		index << stringID; // Append string id
+		for (str = file.GetFirstLine(); !file.Eof(); str = file.GetNextLine()) 
+			{
+			if (str.Contains(index)) 
+				{
+						// Now extract string
+				if (str.Contains(wxT("\""))) 
+					{
+					str = str.AfterFirst('"');
+					if (str.Contains(wxT("\""))) 
+						{
+						strout = str.BeforeLast('"');
+						strncpy((char *) &outTextPtr[1], (const char*) strout.mb_str(wxConvUTF8), 255);
+						outTextPtr[0] = (unsigned char) strout.Len();
+						found = true;
+						}
+						 
+					else // read next line for search of second"
+						{
+						strout = str;
+						while (!file.Eof() && !found) 
+							{
+							strout << '\n';
+							str = file.GetNextLine();
+							//str = str.Trim(false);
+							if (str.Contains(wxT("\""))) 
+								{
+								found = true;
+								strout << str.BeforeLast('"');
+								strncpy((char*) &outTextPtr[1], (const char*) strout.mb_str(wxConvUTF8), 255);
+								outTextPtr[0] = (unsigned char) strout.Len();
+								} 
+							else
+								strout << str;
+							}	// end "while (!file.Eof() && !found)"
+							
+						}	// end "else read next line for search of second"
+						
+					}	// end "if (str.Contains(wxT("\"")))"
+				
+				}	// end "if (str.Contains(index))"
+				
+			if (found)
+				break;
+			}	// end "for (str = file.GetFirstLine();..."
+			
+		file.Close();
+		return (outTextPtr[1] != 0 && found);
+#	endif // defined multispec_lin
+
+}	// end "MGetString"  
 
 
 #if defined multispec_win 
@@ -6365,12 +6409,13 @@ Boolean MGetString (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 04/14/1995
-//	Revised By:			Larry L. Biehl			Date: 06/18/2015
+//	Revised By:			Larry L. Biehl			Date: 08/28/2017
 
 Boolean MGetString (
 				TBYTE*								outTextPtr, 
 				UInt16								stringListID, 
-				UInt16								stringID)
+				UInt16								stringID,
+				UInt16								maxStringLength)
 
 {		        
    SInt16 		numberCharacters;
@@ -6378,7 +6423,7 @@ Boolean MGetString (
    numberCharacters = ::LoadString (AfxGetInstanceHandle(), 
    											stringID, 
    											&outTextPtr[1],
-   											255);
+												maxStringLength);
    
    outTextPtr[0] = (Byte)numberCharacters;
    											
@@ -6409,7 +6454,7 @@ Boolean MGetString (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 05/10/1995
-//	Revised By:			Larry L. Biehl			Date: 03/25/2017
+//	Revised By:			Larry L. Biehl			Date: 06/19/2017
                    
 void MSetWindowTitle (
 				WindowPtr							windowPtr,
@@ -6500,14 +6545,7 @@ void MSetWindowTitle (
 		
 		tempUnicodeCharacterStringPtr = 
 							ConvertMultibyteStringToUnicodeString (&titleStringPtr[1]);
-		/*
-		int sizeNeeded = MultiByteToWideChar (
-									CP_UTF8, 0, (LPCSTR)&titleStringPtr[1], -1, NULL, 0);
 
-		sizeNeeded = MIN(sizeNeeded, 1000);
-		MultiByteToWideChar (CP_UTF8, 0, (LPCSTR)&titleStringPtr[1], -1, (LPWSTR)tempWideCharacterString, sizeNeeded);
-		*/
-		//documentCPtr->SetTitle ((LPCTSTR)A2T((LPCSTR)&titleStringPtr[1]));
 		documentCPtr->SetTitle (&tempUnicodeCharacterStringPtr[1]);
 		
 		}		// end "if (documentCPtr != NULL)"

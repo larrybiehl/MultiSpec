@@ -1,6 +1,6 @@
 // WDMinDlg.cpp : implementation file
 //   
-// Revised by Larry Biehl on 05/26/2017
+// Revised by Larry Biehl on 08/23/2017
 //
                    
 #include "SMulSpec.h"               
@@ -99,21 +99,21 @@ void CMDisplayMinMaxDialog::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CMDisplayMinMaxDialog)
-	DDX_Text(pDX, IDC_BlueChannelMaxE, m_newBlueChannelMax);
-	DDV_MinMaxDouble(pDX, m_newBlueChannelMax, m_minValue, m_maxValue);
-	DDX_Text(pDX, IDC_BlueChannelMinE, m_newBlueChannelMin);
-	DDV_MinMaxDouble(pDX, m_newBlueChannelMin, m_minValue, m_maxValue);
-	DDX_Text(pDX, IDC_GreenChannelMaxE, m_newGreenChannelMax);
-	DDV_MinMaxDouble(pDX, m_newGreenChannelMax, m_minValue, m_maxValue);
-	DDX_Text(pDX, IDC_GreenChannelMinE, m_newGreenChannelMin);
-	DDV_MinMaxDouble(pDX, m_newGreenChannelMin, m_minValue, m_maxValue);
-	DDX_Text(pDX, IDC_RedChannelMaxE, m_newRedChannelMax);
-	DDV_MinMaxDouble(pDX, m_newRedChannelMax, m_minValue, m_maxValue);
-	DDX_Text(pDX, IDC_RedChannelMinE, m_newRedChannelMin);
-	DDV_MinMaxDouble(pDX, m_newRedChannelMin, m_minValue, m_maxValue);
-	DDX_Text(pDX, IDC_PercentClipped, m_percentClipped);
-	DDV_MinMaxInt(pDX, m_percentClipped, 0, 100);
-	DDX_Radio(pDX, IDC_ChannelMinMax, m_localMinMaxCode);
+	DDX_Text2 (pDX, IDC_BlueChannelMinE, m_newBlueChannelMin);
+	DDV_MinMaxDouble (pDX, m_newBlueChannelMin, m_minValue, m_maxValue);
+	DDX_Text2 (pDX, IDC_BlueChannelMaxE, m_newBlueChannelMax);
+	DDV_MinMaxDouble (pDX, m_newBlueChannelMax, m_minValue, m_maxValue);
+	DDX_Text2 (pDX, IDC_GreenChannelMinE, m_newGreenChannelMin);
+	DDV_MinMaxDouble (pDX, m_newGreenChannelMin, m_minValue, m_maxValue);
+	DDX_Text2 (pDX, IDC_GreenChannelMaxE, m_newGreenChannelMax);
+	DDV_MinMaxDouble (pDX, m_newGreenChannelMax, m_minValue, m_maxValue);
+	DDX_Text2 (pDX, IDC_RedChannelMinE, m_newRedChannelMin);	
+	DDV_MinMaxDouble (pDX, m_newRedChannelMin, m_minValue, m_maxValue);
+	DDX_Text2 (pDX, IDC_RedChannelMaxE, m_newRedChannelMax);
+	DDV_MinMaxDouble (pDX, m_newRedChannelMax, m_minValue, m_maxValue);
+	DDX_Text (pDX, IDC_PercentClipped, m_percentClipped);
+	DDV_MinMaxInt (pDX, m_percentClipped, 0, 100);
+	DDX_Radio (pDX, IDC_ChannelMinMax, m_localMinMaxCode);
 	//}}AFX_DATA_MAP     
 	
 }		// end "DoDataExchange"
@@ -135,7 +135,7 @@ END_MESSAGE_MAP()
 
 
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-1998)
+//								 Copyright (1988-2017)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -189,7 +189,16 @@ CMDisplayMinMaxDialog::DoDialog(
 	returnCode = DoModal ();
 	
 	if (returnCode == IDOK)
-		{   		
+		{ 
+		/*
+		int numberChars = sprintf ((char*)&gTextString3,
+												" WDMinDlg::DoDialog (red, green, blue min) %f, %f, %f %s",
+												m_newRedChannelMin,
+												m_newGreenChannelMin,
+												m_newBlueChannelMin,
+												gEndOfLine);
+		ListString ((char*)&gTextString3, numberChars, gOutputTextH);
+		*/
 		MinMaxEnhancementDialogOK (m_histogramSummaryPtr,
 											channelsPtr,
 											minMaxValuesPtr,
@@ -246,12 +255,12 @@ BOOL CMDisplayMinMaxDialog::OnInitDialog()
 													
 			// Get the current min-max settings.
 													                       
-	DDX_Text(m_dialogFromPtr, IDC_BlueChannelMaxE, m_newBlueChannelMax); 
-	DDX_Text(m_dialogFromPtr, IDC_BlueChannelMinE, m_newBlueChannelMin); 
-	DDX_Text(m_dialogFromPtr, IDC_GreenChannelMaxE, m_newGreenChannelMax); 
-	DDX_Text(m_dialogFromPtr, IDC_GreenChannelMinE, m_newGreenChannelMin);
-	DDX_Text(m_dialogFromPtr, IDC_RedChannelMaxE, m_newRedChannelMax); 
-	DDX_Text(m_dialogFromPtr, IDC_RedChannelMinE, m_newRedChannelMin); 
+	DDX_Text2(m_dialogFromPtr, IDC_BlueChannelMaxE, m_newBlueChannelMax); 
+	DDX_Text2(m_dialogFromPtr, IDC_BlueChannelMinE, m_newBlueChannelMin); 
+	DDX_Text2(m_dialogFromPtr, IDC_GreenChannelMaxE, m_newGreenChannelMax); 
+	DDX_Text2(m_dialogFromPtr, IDC_GreenChannelMinE, m_newGreenChannelMin);
+	DDX_Text2(m_dialogFromPtr, IDC_RedChannelMaxE, m_newRedChannelMax); 
+	DDX_Text2(m_dialogFromPtr, IDC_RedChannelMinE, m_newRedChannelMin); 
 	
 	m_percentClipped = percentTailsClipped;
 	m_localMinMaxCode = localMinMaxCode - 2; 
@@ -319,7 +328,7 @@ void CMDisplayMinMaxDialog::OnChannelMinMax()
 	MinMaxEnhancementDialogSetSelection (
 							this,            
 							savedMinMaxCode,            
-							(SInt16)(m_localMinMaxCode + 1) ); 
+							(SInt16)(m_localMinMaxCode + 2) ); 
 	
 }		// end "OnChannelMinMax"
 
@@ -389,7 +398,7 @@ void CMDisplayMinMaxDialog::OnChangeMinMax()
 		SetDLogControlHilite (this, IDC_UserSpecified, 0);
 		
 		m_localMinMaxCode = kUserSpecified - 2;
-		DDX_Radio(m_dialogToPtr, IDC_ChannelMinMax, m_localMinMaxCode);
+		DDX_Radio (m_dialogToPtr, IDC_ChannelMinMax, m_localMinMaxCode);
 		
 		}		// end "if (!m_updatingMinMaxFlag&& ..."
 	

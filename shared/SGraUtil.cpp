@@ -53,11 +53,26 @@
 //
 //	Revision number:		3.0
 //
-//	Revision date:			03/05/2017
+//	Revision date:			06/22/2017
 //
 //------------------------------------------------------------------------------------
 
 #include "SMulSpec.h"
+
+#if defined multispec_lin  
+	#include	"LGraphDoc.h" 
+	#include	"LGraphFrame.h"
+	#include	"LGraphView.h"  
+	#include "LMultiSpec.h" 
+   #include "SGraphic.h"
+   //#include "SProtype.h"
+   #include <wx/evtloop.h>
+   
+						
+	extern void		GetGraphWindowTitle (
+							WindowPtr							windowPtr,
+							UCharPtr								titleStringPtr);
+#endif	// defined multispec_lin
 	
 #if defined multispec_mac
 	#include	"SGrafVew.h"   
@@ -69,23 +84,6 @@
 	#include	"SGrafVew.h" 
 	#include	"WGrafDoc.h" 
 	#include	"WGrafFrm.h"	 
-#endif	// defined multispec_win
-
-#if defined multispec_lin                 
-//	#include	"CDatFile.h"    
-	#include "MultiSpec2.h"
-	//#include	"SGrafVew.h" 
-	#include	"LGraphDoc.h" 
-	#include	"LGraphFrame.h"
-	#include	"LGraphView.h"
-   #include "SGraphic.h"
-   #include "SProtype.h"
-   #include <wx/evtloop.h>
-   
-						
-	extern void		GetGraphWindowTitle (
-							WindowPtr							windowPtr,
-							UCharPtr								titleStringPtr);
 #endif	// defined multispec_win
 
 #include	"SExtGlob.h"

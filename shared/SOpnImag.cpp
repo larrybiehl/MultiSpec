@@ -13,7 +13,7 @@
 //
 //	Revision number:		3.0
 //
-//	Revision date:			05/31/2017
+//	Revision date:			08/23/2017
 //
 //	Language:				C
 //
@@ -83,21 +83,24 @@
 
 #if defined multispec_lin
 	Rect rect;
-	#define	kChanDescriptionStrID			0
-	#include "CFileStr.h"
 	#include <wx/app.h>
 	#include <wx/docview.h>
-	#include "MultiSpec2.h"
+	
+	#include "CFileStr.h"
 	#include "CImagWin.h"
-	#include "LImageView.h"
+	
 	#include "LImageDoc.h"	
 	#include "LImageFrame.h" 
+	#include "LImageView.h"
+	#include "LMultiSpec.h"
 
 	#if include_gdal_capability
 		#define use_multispec_tiffcode	0
 	#else // not defined include_gdal_capability
 		#define use_multispec_tiffcode	1
 	#endif
+	
+	#define	kChanDescriptionStrID			0
 #endif	// defined multispec_lin
 
 #if defined multispec_mac	
@@ -110,6 +113,7 @@
 	#define	IDS_ChanDescription36			36
 	#define	IDS_ChanDescription37			37
 	#define	IDS_ChanDescription48			48
+	#define	IDS_ChanDescription53			53
 	#define	IDS_Dialog33						33
 	#define	IDS_FileIO158						158
 	#define	IDS_FileIO160						160
@@ -139,9 +143,8 @@
 #endif	// defined multispec_win
 
 #if include_gdal_capability
-	
-	// oul: added definition of SIZE_UNSIGNED_LONG and SIZEOF_VOIDP
-	// which are not defined in cpl_config.h
+			// oul: added definition of SIZE_UNSIGNED_LONG and SIZEOF_VOIDP
+			// which are not defined in cpl_config.h
 
 	#if defined multispec_lin
 		#if defined NetBeansProject
@@ -156,7 +159,6 @@
 #endif	// include_gdal_capability
 
 #include "errno.h"
-#include "SExtGlob.h"
 
 
 #define	kDoNotCloseOverlayFileIfNoRecordsRead		0
@@ -164,7 +166,7 @@
 
 
 // Prototypes for routines in this file that are only called by		
-// other routines in this file.	
+// other routines in this file.
 
 void AdjustImageWSize(
 				Handle								windowInfoHandle);
@@ -336,7 +338,7 @@ Boolean AddToImageWindowFile(
 
 	if (windowInfoHandle != NULL)
 		{
-		windowInfoPtr = (WindowInfoPtr) GetHandlePointer(windowInfoHandle,
+		windowInfoPtr = (WindowInfoPtr)GetHandlePointer (windowInfoHandle,
 																			kLock,
 																			kNoMoveHi);
 
@@ -349,22 +351,19 @@ Boolean AddToImageWindowFile(
 
 			Handle histogramSpecsHandle = GetHistogramSpecsHandle (windowInfoPtr);
 			HistogramSpecsPtr histogramSpecsPtr =
-                    (HistogramSpecsPtr) GetHandlePointer(
-                    histogramSpecsHandle,
-                    kNoLock,
-                    kNoMoveHi);
+                    (HistogramSpecsPtr)GetHandlePointer (
+																	  histogramSpecsHandle,
+																	  kNoLock,
+																	  kNoMoveHi);
 			if (histogramSpecsPtr != NULL)
-					histogramSpecsPtr->initializeStructureFlag = TRUE;
+				histogramSpecsPtr->initializeStructureFlag = TRUE;
 
 					// Indicate that the display specs will need to be 			
 					// reinitialized.	
 
 			Handle displaySpecsHandle = GetDisplaySpecsHandle (windowInfoPtr);
 			DisplaySpecsPtr displaySpecsPtr =
-                    (DisplaySpecsPtr) GetHandlePointer(
-                    displaySpecsHandle,
-                    kNoLock,
-                    kNoMoveHi);
+                    (DisplaySpecsPtr)GetHandlePointer (displaySpecsHandle);
 			if (displaySpecsPtr != NULL)
 				displaySpecsPtr->initializeStructureFlag = TRUE;
 
@@ -373,24 +372,24 @@ Boolean AddToImageWindowFile(
 
 			SignedByte supportHandleStatus;
 
-			CMFileStream* supportFileStreamPtr = GetSupportFileStreamPointer(
-                    windowInfoHandle, &supportHandleStatus);
+			CMFileStream* supportFileStreamPtr = GetSupportFileStreamPointer (
+															windowInfoHandle, &supportHandleStatus);
 
-			SetFileDoesNotExist(supportFileStreamPtr);
+			SetFileDoesNotExist (supportFileStreamPtr);
 
-			UnlockSupportFileStream(windowInfoHandle, supportHandleStatus);
+			UnlockSupportFileStream (windowInfoHandle, supportHandleStatus);
 
 			continueFlag = TRUE;
 
-			} // end "if (UpdateLayerInfoStructure (..." 
+			}	// end "if (UpdateLayerInfoStructure (..."
 
 		CheckAndUnlockHandle(windowInfoHandle);
 
-		} // end "if (fileInfoHandle != NULL && ..." 
+		}	// end "if (fileInfoHandle != NULL && ..."
 
 	return (continueFlag);
 
-} // end "AddToImageWindowFile" 
+}	// end "AddToImageWindowFile"
 
 
 
@@ -453,10 +452,10 @@ void AdjustImageWSize(
 	if (fileInfoHandle == NULL)
 																									return;
 
-	windowInfoPtr = (WindowInfoPtr)GetHandleStatusAndPointer(
+	windowInfoPtr = (WindowInfoPtr)GetHandleStatusAndPointer (
 											windowInfoHandle, &wHandleStatus, kNoMoveHi);
 
-	fileInfoPtr = (FileInfoPtr)GetHandleStatusAndPointer(
+	fileInfoPtr = (FileInfoPtr)GetHandleStatusAndPointer (
 											fileInfoHandle, &fHandleStatus, kNoMoveHi);
 
 	latLongPossibleFlag = DetermineIfLatLongPossible(windowInfoHandle);
@@ -491,7 +490,8 @@ void AdjustImageWSize(
 #		if TARGET_API_MAC_CARBON
 					// for OSX
 
-			if (gOSXFlag) {
+			if (gOSXFlag)
+				{
 				GDHandle currentDevice;
 				OSStatus status;
 
@@ -501,28 +501,30 @@ void AdjustImageWSize(
 				if (currentDevice == NULL)
 					currentDevice = GetGDevice();
 
-				if (currentDevice != NULL) {
+				if (currentDevice != NULL)
+					{
 					status = GetAvailableWindowPositioningBounds(currentDevice, &rect);
 
-					if (status == noErr) {
-							// Allow for window title bar.
+					if (status == noErr)
+						{
+								// Allow for window title bar.
 
 						rect.top += 20;
 
-							// Allow for a few pixels around the window.
+								// Allow for a few pixels around the window.
 
 						InsetRect(&rect, 6, 4);
 
 						MoveWindow(windowPtr, rect.left, rect.top, FALSE);
 
-						} // end "if (status == noErr)"
+						}	// end "if (status == noErr)"
 
-					} // end "if (currentDevice != NULL)"
+					}	// end "if (currentDevice != NULL)"
 
-				} // end "if (gOSXFlag)"
+				}	// end "if (gOSXFlag)"
 #		endif		// TARGET_API_MAC_CARBON
 
-			// Allow for the scroll bars
+				// Allow for the scroll bars
 
 		rect.bottom -= kSBarWidth;
 		rect.right -= kSBarWidth;
@@ -535,20 +537,21 @@ void AdjustImageWSize(
 
 				// Allow for Coordinate Height if needed.
 
-		if (latLongPossibleFlag) {
+		if (latLongPossibleFlag)
+			{
 			rect.top += 25;
 			SetCoordinateHeight(windowInfoHandle, 25);
 			amountToAllowForVStuff += 25;
 
-			} // end "if (latLongPossibleFlag)"
+			}	// end "if (latLongPossibleFlag)"
 #	endif	// defined multispec_mac
 
 #	if defined multispec_win
 		RECT rect;
 
 		CWinApp* winAppPtr = AfxGetApp();
-		CFrameWnd* pMainFrame = (CFrameWnd*) winAppPtr->m_pMainWnd;
-		pMainFrame->GetClientRect(&rect);
+		CFrameWnd* pMainFrame = (CFrameWnd*)winAppPtr->m_pMainWnd;
+		pMainFrame->GetClientRect (&rect);
 
 				// Allow for the status bar, tool bar, and scroll bars
 
@@ -563,7 +566,8 @@ void AdjustImageWSize(
 		amountToAllowForHStuff = 0;
 		amountToAllowForVStuff = 0;
 
-		if (latLongPossibleFlag) {
+		if (latLongPossibleFlag)
+			{
 			rect.bottom -= 33;
 			amountToAllowForVStuff = 33;
 
@@ -574,7 +578,7 @@ void AdjustImageWSize(
 		RECT rect, frameRect;
 		wxRect client_rect, frameClient_rect;
 
-		wxFrame* pMainFrame = (wxFrame*) GetMainFrame();
+		wxFrame* pMainFrame = (wxFrame*)GetMainFrame();
 		client_rect = pMainFrame->GetClientRect();
 		//client_rect = pMainFrame->GetRect();
 		rect.top = client_rect.GetTop();
@@ -583,7 +587,7 @@ void AdjustImageWSize(
 		rect.right = client_rect.GetRight();
 		
 		CMImageWindow* imageWindowCPtr = windowInfoPtr->cImageWindowPtr;
-		CMImageView* imageViewCPtr = (CMImageView*) imageWindowCPtr->mImageViewCPtr;
+		CMImageView* imageViewCPtr = (CMImageView*)imageWindowCPtr->mImageViewCPtr;
 		imageFramePtr = imageViewCPtr->GetImageFrameCPtr();
 		//client_rect = imageFramePtr->GetClientRect();
 		client_rect = imageFramePtr->GetRect();		
@@ -707,7 +711,7 @@ void AdjustImageWSize(
 					((gTempRect.bottom-15-2-kSBarWidth)/cellHeight) * cellHeight;
 			LSize (legendWidth-2-4, windowHeight, legendListHandle);
          */
-			} // end "if ( windowInfoPtr->..." 
+			}	// end "if ( windowInfoPtr->..."
 
 				// Set font for window so that if popup box text is written it is the 
 				// correct size.
@@ -721,27 +725,27 @@ void AdjustImageWSize(
 
 		if (latLongPossibleFlag)
 			{
-			SetCoordinateViewUnits(windowInfoHandle, kDecimalLatLongUnitsMenuItem);
-			SetControlValue(windowInfoPtr->coordinateUnitsControl, kDecimalLatLongUnitsMenuItem);
-			SetCoordinateViewLocationParameters(windowInfoHandle);
-			SetControlTitle(windowInfoPtr->coordinateViewControl, "\p");
+			SetCoordinateViewUnits (windowInfoHandle, kDecimalLatLongUnitsMenuItem);
+			SetControlValue (windowInfoPtr->coordinateUnitsControl, kDecimalLatLongUnitsMenuItem);
+			SetCoordinateViewLocationParameters (windowInfoHandle);
+			SetControlTitle (windowInfoPtr->coordinateViewControl, "\p");
 
-			} // end "if (latLongPossibleFlag)"
+			}	// end "if (latLongPossibleFlag)"
 
-		DrawScrollBars(windowPtr);
+		DrawScrollBars (windowPtr);
 
 		CheckSomeEvents(activMask + updateMask);
 #	endif	// defined multispec_mac
 
 #	if defined multispec_win
 		CMImageWindow* imageWindowCPtr = windowInfoPtr->cImageWindowPtr;
-		CMImageDoc* imageDocCPtr = (CMImageDoc*) imageWindowCPtr->GetImageDocCPtr();
-		imageDocCPtr->SetDocSize(windowHeight, windowWidth);
+		CMImageDoc* imageDocCPtr = (CMImageDoc*)imageWindowCPtr->GetImageDocCPtr();
+		imageDocCPtr->SetDocSize (windowHeight, windowWidth);
 
 				// Show the coordinate view if it is to be shown when the window is first
 				// displayed.
 
-		//		if (imageWindowCPtr->mImageViewCPtr != NULL && latLongPossibleFlag)
+		//if (imageWindowCPtr->mImageViewCPtr != NULL && latLongPossibleFlag)
 		if (latLongPossibleFlag)
 			{
 			SetCoordinateViewUnits(windowInfoHandle, kDecimalLatLongUnitsMenuItem);
@@ -842,7 +846,7 @@ void AdjustImageWSize(
 //	Coded By:			Larry L. Biehl			Date: 10/07/1992
 //	Revised By:			Larry L. Biehl			Date: 12/11/2012
 
-SInt16 CheckFileInfoParameters(
+SInt16 CheckFileInfoParameters (
 				FileInfoPtr							fileInfoPtr)
 {
 	double								sizeDifference;
@@ -921,20 +925,20 @@ SInt16 CheckFileInfoParameters(
 
 	if (returnCode)
 		{
-		sizeDifference = CompareFileInfoAndFileSize(
-                fileInfoPtr,
-                fileInfoPtr->numberLines,
-                fileInfoPtr->numberColumns,
-                fileInfoPtr->numberChannels,
-                fileInfoPtr->numberBytes,
-                fileInfoPtr->numberPreLineBytes,
-                fileInfoPtr->numberPostLineBytes,
-                fileInfoPtr->numberPreChannelBytes,
-                fileInfoPtr->numberPostChannelBytes,
-                fileInfoPtr->numberHeaderBytes,
-                fileInfoPtr->numberTrailerBytes,
-                fileInfoPtr->bandInterleave,
-                (fileInfoPtr->numberBits == 4));
+		sizeDifference = CompareFileInfoAndFileSize (
+													 fileInfoPtr,
+													 fileInfoPtr->numberLines,
+													 fileInfoPtr->numberColumns,
+													 fileInfoPtr->numberChannels,
+													 fileInfoPtr->numberBytes,
+													 fileInfoPtr->numberPreLineBytes,
+													 fileInfoPtr->numberPostLineBytes,
+													 fileInfoPtr->numberPreChannelBytes,
+													 fileInfoPtr->numberPostChannelBytes,
+													 fileInfoPtr->numberHeaderBytes,
+													 fileInfoPtr->numberTrailerBytes,
+													 fileInfoPtr->bandInterleave,
+													 (fileInfoPtr->numberBits == 4));
 
 		if (sizeDifference > 0)
 			returnCode = 0;
@@ -956,11 +960,11 @@ SInt16 CheckFileInfoParameters(
 		if (!SizeOfImageFileCanBeCalculated(fileInfoPtr))
 			returnCode = 1;
 
-		} // end "if (returnFlag)" 
+		}	// end "if (returnFlag)"
 
 	return (returnCode);
 
-}		// end "CheckFileInfoParameters"
+}	// end "CheckFileInfoParameters"
 
 
 
@@ -1015,9 +1019,9 @@ SInt16 CheckForENVIHeader(
 		fileStreamPtr = GetFileStreamPointer(fileInfoPtr);
 
 		headerFileStreamPtr = &headerFileStream;
-		InitializeFileStream(headerFileStreamPtr, fileStreamPtr);
+		InitializeFileStream (headerFileStreamPtr, fileStreamPtr);
 
-		headerFileNamePtr = (FileStringPtr)GetFilePathPPointer(headerFileStreamPtr);
+		headerFileNamePtr = (FileStringPtr)GetFilePathPPointer (headerFileStreamPtr);
 
 				// First add ".hdr" to the file name to see if that file exists.
 
@@ -1046,7 +1050,7 @@ SInt16 CheckForENVIHeader(
 				// Make certain that we are at the beginning of the file.
 
 		if (errCode == noErr)
-			errCode = MSetMarker(headerFileStreamPtr, fsFromStart, 0, kNoErrorMessages);
+			errCode = MSetMarker (headerFileStreamPtr, fsFromStart, 0, kNoErrorMessages);
 
 				// Read no more than the first 4995 bytes of data. headerRecordPtr represents 5000 bytes
 				// of memory
@@ -1092,7 +1096,7 @@ SInt16 CheckForENVIHeader(
 
 	return (fileType);
 
-} // end "CheckForENVIHeader"
+}	// end "CheckForENVIHeader"
 
 
 
@@ -1177,7 +1181,7 @@ SInt16 CheckForPDS_LBL_File(
 				// Make certain that we are at the beginning of the file.
 
 		if (errCode == noErr)
-			errCode = MSetMarker(headerFileStreamPtr, fsFromStart, 0, kNoErrorMessages);
+			errCode = MSetMarker (headerFileStreamPtr, fsFromStart, 0, kNoErrorMessages);
 
 				// Read no more than the first 4995 bytes of data. headerRecordPtr represents 5000 bytes
 				// of memory
@@ -1195,7 +1199,7 @@ SInt16 CheckForPDS_LBL_File(
 
 			}	// end "if (errCode == noErr)"
 
-		CloseFile(headerFileStreamPtr);
+		CloseFile (headerFileStreamPtr);
 
 		if (errCode == noErr) 
 			{
@@ -1214,7 +1218,7 @@ SInt16 CheckForPDS_LBL_File(
 
 	return (fileType);
 
-}		// end "CheckForPDS_LBL_File"
+}	// end "CheckForPDS_LBL_File"
 
 
 
@@ -1242,7 +1246,7 @@ SInt16 CheckForPDS_LBL_File(
 //	Coded By:			Larry L. Biehl			Date: 02/04/1991
 //	Revised By:			Larry L. Biehl			Date: 03/16/2006
 
-SInt32 CheckIfProjectFile(
+SInt32 CheckIfProjectFile (
 				CMFileStream*						fileStreamPtr,
 				SInt16								formatOnlyCode)
 {
@@ -1266,7 +1270,7 @@ SInt32 CheckIfProjectFile(
 			// Read assumed project header information.
 
 	count = 31;
-	errCode = MReadData(fileStreamPtr, &count, &gTextString, kNoErrorMessages);
+	errCode = MReadData (fileStreamPtr, &count, &gTextString, kNoErrorMessages);
 
 	if (errCode != noErr)
 		{
@@ -1431,13 +1435,13 @@ SInt16 CheckImageHeader(
 			// Make certain that we are at the beginning of the file.
 
 	posOff = 0;
-	errCode = MSetMarker(fileStreamPtr, fsFromStart, posOff, kErrorMessages);
+	errCode = MSetMarker (fileStreamPtr, fsFromStart, posOff, kErrorMessages);
 
 			// Read first 4995 bytes of data.
 
 	count = 4995;
 	if (errCode == noErr)
-		errCode = MReadData(fileStreamPtr, &count, headerRecordPtr, kNoErrorMessages);
+		errCode = MReadData (fileStreamPtr, &count, headerRecordPtr, kNoErrorMessages);
 
 	if (errCode != eofErr || count == 0)
 		{
@@ -1466,13 +1470,13 @@ SInt16 CheckImageHeader(
 				//  Check if image file is in ERDAS format.
 
 		if (fileInfoPtr->format == 0 && count >= 128)
-			returnCode = ReadERDASHeader(fileInfoPtr, headerRecordPtr, formatOnlyCode);
+			returnCode = ReadERDASHeader (fileInfoPtr, headerRecordPtr, formatOnlyCode);
 
 				// Check if image file is in SUN screendump format.
 
 		if (fileInfoPtr->format == 0 && count >= 32)
-			returnCode = ReadSunScreenDumpHeader(
-                fileInfoPtr, (SInt32*) headerRecordPtr, formatOnlyCode);
+			returnCode = ReadSunScreenDumpHeader (
+								fileInfoPtr, (SInt32*) headerRecordPtr, formatOnlyCode);
 
 				// Check if image file is a MultiSpec Classification file.
 				// Get the MacLARSYS identifier string.
@@ -3028,7 +3032,7 @@ SInt16 GetDatumInfo(
 //							GetDefaultThematicFilePalette in SPalette.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/04/1988
-//	Revised By:			Larry L. Biehl			Date: 05/17/2015
+//	Revised By:			Larry L. Biehl			Date: 07/05/2017
 
 Boolean GetDefaultSupportFile(
 				Handle								windowInfoHandle,
@@ -3064,8 +3068,8 @@ Boolean GetDefaultSupportFile(
 	if (supportFileType != kISTAFileType &&
 				supportFileType != kITRLFileType &&
 						supportFileType != kICLRFileType)
-																											return (FALSE);
-
+																											return (FALSE);			
+																											
 	supportFileFlag = FALSE;
 
 			// Get the current default statistics file format.
@@ -3137,33 +3141,26 @@ Boolean GetDefaultSupportFile(
 #				ifndef NetBeansProject
 					if (errCode == fnfErr)
 						{
-						StringPtr			fileNamePtr,
-												filePathPtr;
+						FileStringPtr			fileNamePtr;
 												
-						fileNamePtr = supportFileStreamPtr->GetFileNamePtr();
+						fileNamePtr = (FileStringPtr)supportFileStreamPtr->GetFileNameCPtr();
 
 						wxString workingDirectory = wxGetCwd();
 						workingDirectory.Append("/");
 						workingDirectory.Append(fileNamePtr);
 						wxCharBuffer charWorkingDirectory = workingDirectory.ToAscii();
 						/*
-						SInt16 numberChars = sprintf ((char*)&gTextString3,
-																	" filePathPtr: %s%s", 
-																	filePathPtr,
-																	gEndOfLine);
-						ListString ((char*)&gTextString3, numberChars, gOutputTextH);
-						
-						numberChars = sprintf ((char*)&gTextString3,
+						SInt16 numberChars3 = sprintf ((char*)&gTextString3,
 																	" workingDirectory: %s%s", 
 																	charWorkingDirectory.data(),
 																	gEndOfLine);
-						ListString ((char*)&gTextString3, numberChars, gOutputTextH);
+						ListString ((char*)&gTextString3, numberChars3, gOutputTextH);
 						
-						numberChars = sprintf ((char*)&gTextString3,
-																	" workingDirectory length: %ld%s", 
-																	numberChars,
+						SInt16 numberChars4 = sprintf ((char*)&gTextString3,
+																	" workingDirectory length: %d%s", 
+																	numberChars3,
 																	gEndOfLine);
-						ListString ((char*)&gTextString3, numberChars, gOutputTextH);
+						ListString ((char*)&gTextString3, numberChars4, gOutputTextH);
 						*/
 								// Close the current file and reset the path name for new .sta file
 									
@@ -3185,7 +3182,7 @@ Boolean GetDefaultSupportFile(
 									// inside of directory titled "Sessions" within this directory. The user 
 									// may have copied it up a couple of levels.
 
-							fileNamePtr = supportFileStreamPtr->GetFileNamePtr();
+							fileNamePtr = (FileStringPtr)supportFileStreamPtr->GetFileNamePPtr();
 							
 							wxFileName fileName;
 							fileName.Assign (workingDirectory);
@@ -3198,12 +3195,6 @@ Boolean GetDefaultSupportFile(
 							workingDirectory = fileName.GetFullPath();
 							charWorkingDirectory = workingDirectory.ToAscii();
 							/*
-							SInt16 numberChars = sprintf ((char*)&gTextString3,
-																		" filePathPtr: %s%s", 
-																		filePathPtr,
-																		gEndOfLine);
-							ListString ((char*)&gTextString3, numberChars, gOutputTextH);
-							
 							numberChars = sprintf ((char*)&gTextString3,
 																		" workingDirectory: %s%s", 
 																		charWorkingDirectory.data(),
@@ -3405,7 +3396,7 @@ void GetDefaultSupportFileName(
 //	Coded By:			Larry L. Biehl			Date: 08/26/1991
 //	Revised By:			Larry L. Biehl			Date: 03/15/2017
 
-void GetDefaultSupportFileName	(
+void GetDefaultSupportFileName (
 				CMFileStream*						imageFileStreamPtr,
 				UInt8*								imageFilePathPtr,
 				UInt8*								supportFilePathPtr,
@@ -3433,7 +3424,7 @@ void GetDefaultSupportFileName	(
 		memcpy ((char*)&supportFilePathPtr[1], (char*)&imageFilePathPtr[1], numberPathCharacters);
 		supportFilePathPtr[0] = (UInt8)numberPathCharacters;
 		supportFilePathPtr[numberPathCharacters+1] = 0;
-
+		
 				// If this is a multiple image file window, then get the default prefix.																	
 
 		numChars = 0;
@@ -3453,7 +3444,7 @@ void GetDefaultSupportFileName	(
 
 		gTextString[0] = 0;
 		if (gImageFileInfoPtr != NULL && supportFileType == kISTAFileType &&
-                gImageFileInfoPtr->hdfHandle != NULL) 
+																		gImageFileInfoPtr->hdfHandle != NULL) 
 			{
 					// Get file name.
 
@@ -3463,10 +3454,6 @@ void GetDefaultSupportFileName	(
 			numChars = MIN(gTextString[0], 250 - supportFilePathPtr[0]);
 			if (numChars > 0) 
 				{
-				//MemoryCopy (&supportFilePathPtr[supportFilePathPtr[0]+1],
-				//				(TBYTE*)A2T((char*)&gTextString[1]),
-				//				numChars,
-				//				kUnicodeCharString);
 				memcpy (&supportFilePathPtr[supportFilePathPtr[0]+1], &gTextString[1], numChars);
 				supportFilePathPtr[0] += numChars;
 
@@ -3533,8 +3520,8 @@ void GetDefaultSupportFileName	(
 		else if (supportFileType == kICLRFileType)
 			ConcatFilenameSuffix (
 					(FileStringPtr)uSupportFilePathPtr, (UInt8*)"\0.clr\0");
-
-	}	// end "if (imageFilePathPtr != NULL && ..."
+					
+		}	// end "if (imageFilePathPtr != NULL && ..."
 
 }	// end "GetDefaultSupportFileName"
 
@@ -4088,7 +4075,7 @@ SInt32 GetFileHeaderValues(
 // Called By:			ReadMultiSpecChannelDescriptionsAndValues in fileIO.c
 //
 //	Coded By:			Larry L. Biehl			Date: 11/18/1999
-//	Revised By:			Larry L. Biehl			Date: 03/14/2017
+//	Revised By:			Larry L. Biehl			Date: 08/23/2017
 
 void GetInstrumentChannelDescriptionsAndValues(
 				FileInfoPtr							fileInfoPtr)
@@ -4133,7 +4120,7 @@ void GetInstrumentChannelDescriptionsAndValues(
 				// Get handle to memory to store the channel values in.
 
 		count = fileInfoPtr->numberChannels * sizeof (float);
-		channelValuesPtr = (float*) CheckHandleSize (
+		channelValuesPtr = (float*)CheckHandleSize (
 												 &fileInfoPtr->channelValuesHandle,
 												 &continueFlag,
 												 &changedFlag,
@@ -4143,7 +4130,7 @@ void GetInstrumentChannelDescriptionsAndValues(
 
 	if (continueFlag)
 		{
-		for (channel = 1; channel <= fileInfoPtr->numberChannels; channel++)
+		for (channel=1; channel<=fileInfoPtr->numberChannels; channel++)
 			{
 			resourceStringID = 0;
 			channelNumber = 100;
@@ -4364,7 +4351,7 @@ void GetInstrumentChannelDescriptionsAndValues(
 					else if (channelNumber == 9 || channelNumber == 10)
 						channelNumber++;
 
-					}	// end "else not kNdfType or kFastL7AType or other linked file set"
+					}	// end "else not linked file set"
 
 				if (channelNumber >= 1 && channelNumber <= 11)
 					resourceStringID = (SInt16) (IDS_ChanDescription37 + channelNumber - 1);
@@ -4373,6 +4360,83 @@ void GetInstrumentChannelDescriptionsAndValues(
 					resourceStringID = IDS_ChanDescription36;
 
 				}	// end "if (fileInfoPtr->instrumentCode == kLandsatLC8)"
+
+			else if (fileInfoPtr->instrumentCode == kSentinel2_MSI)
+				{
+						// Handle channel descriptions for Sentinel 2 MSI
+
+				if (fileInfoPtr->numberChannels == 1)
+					{
+							// This implies linked files. Get the band number from the
+							// file name.
+
+					fileNamePtr = (UInt8*)GetFileNameCPointer (fileInfoPtr);
+					startBandIdentiferPtr = (UInt8*)strstr ((char*)fileNamePtr, "_B");
+
+					if (startBandIdentiferPtr != NULL)
+						{
+						if (sscanf ((char*)startBandIdentiferPtr, "_B%2d", &channelNumber) != 1)
+							channelNumber = 9;
+							
+						else if (channelNumber == 8)
+							{
+									// Check if this is channel 8A
+									
+							if (CompareStringsNoCase (startBandIdentiferPtr, (UCharPtr)"_B8A", 4) == 0 ||
+															channelNumber >= 9)
+								channelNumber++;
+								
+							}	// end "else if (channelNumber == 8)"
+							
+						else if (channelNumber >= 9)
+							channelNumber++;
+
+						}	// end "if (startBandIdentifer != NULL)"
+
+					}	// end "if (fileInfoPtr->numberChannels == 1)"
+
+				else // not linked file set
+					{
+							// Check if a combined file set.
+
+					if (fileInfoPtr->numberChannels >= 1 && fileInfoPtr->numberChannels <= 3)
+						{
+						if (channel == 1)
+							channelNumber = channel;
+						else	// channel > 1
+							channelNumber = 8 + channel;
+						
+						}	// end "if (fileInfoPtr->instrumentCode == kSentinel2_MSI && ..."
+
+					else if (fileInfoPtr->numberChannels == 4)
+						{
+						channelNumber = 1 + channel;
+						if (channel == 4)
+							channelNumber = 8;
+						
+						}	// end "else if (fileInfoPtr->numberChannels == 4)"
+
+					else if (fileInfoPtr->numberChannels >= 5 && fileInfoPtr->numberChannels <= 6)
+						{
+						channelNumber = 4 + channel;
+						if (channel == 4)
+							channelNumber = 9;
+						else if (channel == 5)
+							channelNumber = 12;
+						else if (channel == 6)
+							channelNumber = 13;							
+						
+						}	// end "else if (fileInfoPtr->numberChannels >= 5 && ..."
+
+					}	// end "else not linked file set"
+
+				if (channelNumber >= 1 && channelNumber <= 13)
+					resourceStringID = (SInt16)(IDS_ChanDescription53 + channelNumber - 1);
+
+				else // channelNumber > 13
+					resourceStringID = IDS_ChanDescription36;
+
+				}	// end "if (fileInfoPtr->instrumentCode == kSentinel2_MSI)"
 
 			else if (fileInfoPtr->instrumentCode == kSPOT ||
 					  fileInfoPtr->instrumentCode == kSPOT4)
@@ -10368,12 +10432,9 @@ void ReadLARSYSChannelDescriptionsAndValues (
 
 				sprintf (charPtr, "%5.2f-", realValue1);
 
-
-
 				realValue2 = ConvertIBM370RealtoReal((SInt32*) & gTextString[4]);
 
-				//sprintf (&charPtr[6], "%5.2f µm ", realValue2);
-				sprintf(&charPtr[6], "%5.2f um ", realValue2);
+				sprintf (&charPtr[6], "%5.2f um ", realValue2);
 				charPtr[15] = ' ';
 
 				*channelValuesPtr = (float)((realValue1 + realValue2) / 2.);
@@ -13514,7 +13575,7 @@ Boolean SetUpImageWindow(
 						// Create image window for file.
 
 				continueFlag = imageWindowCPtr->CreateImageWindow(FALSE);
-
+				
 				if (continueFlag) 
 					{
 							// Make size of window such that it just fits around the

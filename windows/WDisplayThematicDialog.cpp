@@ -1,6 +1,6 @@
 // WDisplayThematicDialog.cpp : implementation file
 //    
-// Revised by Larry Biehl on 05/26/2017
+// Revised by Larry Biehl on 08/21/2017
 //
 
 #include	"SMulSpec.h" 
@@ -163,7 +163,7 @@ void CMDisplayThematicDlg::DoDataExchange(CDataExchange* pDX)
 	DDV_MaxChars(pDX, m_numberGroups, 32);
 	DDX_Text(pDX, IDC_FileName, m_fileName);
 	DDV_MaxChars(pDX, m_fileName, gFileNameLengthLimit);
-	DDX_Text(pDX, IDC_Magnification, m_magnification);
+	DDX_Text2(pDX, IDC_Magnification, m_magnification);
 	DDV_MinMaxDouble(pDX, m_magnification, 1.e-002, 99.);
 	DDX_Text(pDX, IDC_LineEnd, m_LineEnd);
 	DDV_MinMaxLong(pDX, m_LineEnd, 1, m_maxNumberLines);

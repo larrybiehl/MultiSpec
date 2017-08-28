@@ -13,7 +13,7 @@
 //
 //	Revision number:		3.0
 //
-//	Revision date:			05/26/2017
+//	Revision date:			06/22/2017
 //
 //	Language:				C
 //
@@ -52,7 +52,15 @@
 */
 //------------------------------------------------------------------------------------
 
-#include "SMulSpec.h"
+#include "SMulSpec.h"  
+#include	"SGrafVew.h" 
+
+#ifdef multispec_lin    
+   #include "LBiplotDialog.h"
+   #include "LGraphView.h"
+//#else
+//#include		"SGrafVew.h"
+#endif
 
 #if defined multispec_mac 
 	#define IDC_ChannelPrompt					4
@@ -87,19 +95,10 @@
 	//#include "SMulSpec.h"
 	#include "WGrafDoc.h"
 	#include "WBiPlotDialog.h"
-	#include "SExtGlob.h"
 	#include "WMultiSpec.h"
-#endif	// defined multispec_win    
+#endif	// defined multispec_win 
 
-#ifdef multispec_lin   
-   #include "LGraphView.h"
-   //#include "SMulSpec.h"    
-   #include "SExtGlob.h"
-   #include "LBiplotDlg.h"
-
-#else
-#include		"SGrafVew.h"
-#endif
+//#include "SExtGlob.h"
 
 //BiPlotDataSpecsPtr		gBiPlotDataSpecsPtr;
 
@@ -3603,7 +3602,7 @@ Boolean LoadBiPlotDataSpecs (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3696,7 +3695,7 @@ Boolean SetupBiPlotStatMemory (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3777,7 +3776,7 @@ void UpdateEllipseMinMax (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

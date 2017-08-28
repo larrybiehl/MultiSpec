@@ -13,7 +13,7 @@
 //
 //	Revision number:		3.0
 //
-//	Revision date:			03/19/2017
+//	Revision date:			07/28/2017
 //
 //	Language:				C
 //
@@ -47,7 +47,15 @@
 //
 //------------------------------------------------------------------------------------
 
-#include "SMulSpec.h"      
+#include "SMulSpec.h"     
+
+#if defined multispec_lin
+	#include "CPalette.h"
+   #include "LDialog.h"
+	#include "LImageDoc.h"
+	#include "LImageView.h"
+	#include "LMainFrame.h"
+#endif 
 
 #if defined multispec_mac    
 	
@@ -56,20 +64,12 @@
 #if defined multispec_win     
 	#include "CImagVew.h"
 	#include "CPalette.h" 
-//	#include	"WDisTDlg.h" 
+	//#include	"WDisTDlg.h" 
 	#include	"WFColDlg.h"
 	#include "WMainFrm.h"	 
 #endif	// defined multispec_win
 
 #define kArcViewDefaultSupportType		1024
-
-#if defined multispec_lin
-	#include "LImageView.h"
-	#include "LImageDoc.h"
-	#include "CPalette.h"
-	#include "LMainFrame.h"
-   #include "ldialog.h"
-#endif
 
 #include	"SExtGlob.h"	
 
@@ -259,51 +259,51 @@ void ActivateImageWindowPalette (
 				CMPaletteInfo						paletteHandle)
 
 {
-#if defined multispec_mac 
-	CTabHandle							cTabHandle;
-	Handle								offScreenMapH;
-	SInt32								ctSeed;
-	
-
-			// The palette changed.  Make certain that the new palette is set 	
-			// in the offscreen pix map.														
-					
-	offScreenMapH = ((WindowInfoPtr)*gActiveImageWindowInfoH)->offScreenMapHandle;
-	cTabHandle = ((PixMapPtr)*offScreenMapH)->pmTable;
-	Palette2CTab (paletteHandle, cTabHandle);
-	ctSeed = GetCTSeed ();
-	(*cTabHandle)->ctSeed = ctSeed;
-	if (gQD32IsImplemented)
-		(*cTabHandle)->ctFlags = (*cTabHandle)->ctFlags | 0x4000;
-	ActivatePalette (gActiveImageWindow);
+#	if defined multispec_mac 
+		CTabHandle							cTabHandle;
+		Handle								offScreenMapH;
+		SInt32								ctSeed;
 		
-	#if TARGET_API_MAC_CARBON	
-		if (gOSXCoreGraphicsFlag)
-			{
-			unsigned char						osxColorTablePtr[3*256];
-			
-			LoadOSXColorTable (paletteHandle, osxColorTablePtr);
-			UpdateOSXColorSpace (paletteHandle, osxColorTablePtr);
-			
-			}		// end "if (gOSXCoreGraphicsFlag)"
-	#endif	// TARGET_API_MAC_CARBON
-	
-	InvalidateWindow (gActiveImageWindow, kFrameArea, FALSE);
-#endif	// defined multispec_mac 
 
-#if defined multispec_win 
-	CMainFrame* pAppFrame = (CMainFrame*) AfxGetApp()->m_pMainWnd;
-	pAppFrame->SendMessage(WM_QUERYNEWPALETTE, NULL, NULL);
+				// The palette changed.  Make certain that the new palette is set 	
+				// in the offscreen pix map.														
+						
+		offScreenMapH = ((WindowInfoPtr)*gActiveImageWindowInfoH)->offScreenMapHandle;
+		cTabHandle = ((PixMapPtr)*offScreenMapH)->pmTable;
+		Palette2CTab (paletteHandle, cTabHandle);
+		ctSeed = GetCTSeed ();
+		(*cTabHandle)->ctSeed = ctSeed;
+		if (gQD32IsImplemented)
+			(*cTabHandle)->ctFlags = (*cTabHandle)->ctFlags | 0x4000;
+		ActivatePalette (gActiveImageWindow);
+		
+#		if TARGET_API_MAC_CARBON	
+			if (gOSXCoreGraphicsFlag)
+				{
+				unsigned char						osxColorTablePtr[3*256];
+				
+				LoadOSXColorTable (paletteHandle, osxColorTablePtr);
+				UpdateOSXColorSpace (paletteHandle, osxColorTablePtr);
+				
+				}		// end "if (gOSXCoreGraphicsFlag)"
+#		endif	// TARGET_API_MAC_CARBON
 	
-//	gActiveImageViewCPtr->SendMessage(WM_DOREALIZE, 0, 1);
-//	gActiveImageViewCPtr->Invalidate(FALSE); 
-#endif	// defined multispec_win 
+		InvalidateWindow (gActiveImageWindow, kFrameArea, FALSE);
+#	endif	// defined multispec_mac 
+
+#	if defined multispec_win 
+		CMainFrame* pAppFrame = (CMainFrame*) AfxGetApp()->m_pMainWnd;
+		pAppFrame->SendMessage(WM_QUERYNEWPALETTE, NULL, NULL);
+	
+		//gActiveImageViewCPtr->SendMessage(WM_DOREALIZE, 0, 1);
+		//gActiveImageViewCPtr->Invalidate(FALSE); 
+#	endif	// defined multispec_win 
 							
-#if defined multispec_lin
+#	if defined multispec_lin
     // Right now, i dont think anything has to be done for linux
-#endif
+#	endif
 
-}		// end "ActivateImageWindowPalette"  
+}	// end "ActivateImageWindowPalette"  
 
 
 
@@ -1162,7 +1162,7 @@ void CreatePPalette (
 // Called By:			CreatePalette in SPalette.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/19/1989
-//	Revised By:			Larry L. Biehl			Date: 06/09/2011	
+//	Revised By:			Larry L. Biehl			Date: 07/28/2017	
 
 Boolean CreateThematicColorPalette (
 				Handle								windowInfoHandle, 
@@ -1284,39 +1284,24 @@ Boolean CreateThematicColorPalette (
 			
 ////			}		//  end "if (displaySpecsPtr->numberPaletteLevels > 253)" 
 		
-				// Initialize palette offset parameter to 1, allowing for white 	
-				// as the first color in the palette.  This can be changed if 		
-				// the number of classes is 255 or 256 and white is the color 		
-				// for the first class.															
-			
-////		displaySpecsPtr->paletteOffset = 1;
 		displaySpecsPtr->paletteOffset = 0;
 		
-		continueFlag = LoadColorSpecTable (
-											windowInfoHandle, 
-											NULL,
-											displaySpecsPtr,
-											colorSpecPtr,
-											NULL,
-											2,
-											tableSize,
-											displaySpecsPtr->numPaletteEntriesUsed,
-											thematicPaletteType,
-											displaySpecsPtr->numberPaletteLevels,
-											displaySpecsPtr->classGroupCode,
-											&paletteCode);
-			
-////		if (displaySpecsPtr->numberPaletteLevels > 253)
-////			{
-					// Indicate that the background color will be white and
-					// that there will be no special entry in the palette
-					// for it. This means that the background color cannot
-					// be changed.	
+		paletteCode = 0;
+		if (thematicPaletteType != kUserDefinedColors)
+			continueFlag = LoadColorSpecTable (
+												windowInfoHandle, 
+												NULL,
+												displaySpecsPtr,
+												colorSpecPtr,
+												NULL,
+												2,
+												tableSize,
+												displaySpecsPtr->numPaletteEntriesUsed,
+												thematicPaletteType,
+												displaySpecsPtr->numberPaletteLevels,
+												displaySpecsPtr->classGroupCode,
+												&paletteCode);
 					
-////			displaySpecsPtr->backgroundColor = colorSpecPtr[0].rgb;
-			
-////			}		//  end "if (displaySpecsPtr->numberPaletteLevels > 253)" 
-		
 				// Update palette offset and number of entries used based on 
 				// the returned code.
 													

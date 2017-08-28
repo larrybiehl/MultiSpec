@@ -8,7 +8,7 @@
 // used by MultiSpec for both the Macintosh and Windows versions.
 //	
 //	Written 03/29/1988 by Larry L. Biehl
-//	Revised 05/19/2017 by Larry L. Biehl
+//	Revised 06/22/2017 by Larry L. Biehl
 // Revised 06/24/2013 by Abdur Maud
 // Revised 09/25/2015 by Tsung Tai Yeh
 //	
@@ -587,319 +587,263 @@ typedef double				CMeanType2;
 // Will uncomment them as need arises
 #if defined multispec_lin
 
-//#ifdef _WIN32
-// Obsolete keyword used for 16 bit PCs. Just define it to make the code
-// work on new pcs
-#define  huge
-//#endif
-
-#define SIGN(a,b) ((b) >= 0.0 ? fabs(a) : -fabs(a))
+#	define  huge
+#	define SIGN(a,b) ((b) >= 0.0 ? fabs(a) : -fabs(a))
+#	define kPMPortrait	1
+#	define _MAX_PATH 255
       
-#define kPMPortrait	1
-
-/********************Temporary*******/
-#define _MAX_PATH 255
-/***********************/
-      
-// The forward definitions for Windows specific classes.
-
-//class CBitmapButton;
-//class CEditView;
-class CMFileStream;
-//class CMImageFrame;
-//class LGWorld;
-
-// Other definitions.
-
-typedef CMPalette* CMPaletteInfo;
-
-typedef unsigned char Byte, UChar, UInt8;
-
-typedef unsigned char *StringPtr; //, **StringHandle;
-
-typedef char SignedByte, SInt8;
-
-typedef unsigned short UInt16;
-
-typedef signed short SInt16;
-
-typedef unsigned int UInt32;
-
-typedef signed int SInt32;
-
-//typedef __int64     SInt64;
-typedef long long SInt64;
-typedef unsigned long long UInt64;
-typedef char* Ptr;
-
-typedef double SDouble;
-
-typedef void PascalVoid;
-
-typedef unsigned int DWORD;
-typedef unsigned short WORD;
-
-// Define some variables that are defined in the Macintosh Toolbox and not
-// in the Windows compiler
-
-typedef SInt16 Boolean; // BOOLean (0 or !=0)
-
-typedef wxSize CSize;
-typedef wxListView CListBox;
-
-// Define some variables for MultiSpec
-//**** Using GLOBALHANDLE type to be void for now
-typedef void* GLOBALHANDLE;
-
-typedef UInt32 CGContextRef;
-typedef UInt32 CGRect;
-typedef UInt32 AEAddressDesc;
-typedef UInt32 AEDesc;
-typedef UInt32 AppFile;
-typedef UInt32 SFTypeList;
-typedef Ptr CGrafPtr;
-typedef Ptr ControlActionUPP;
-typedef GLOBALHANDLE ControlHandle; // Windows global handle
-typedef GLOBALHANDLE ControlRef; 
-typedef Ptr CursPtr;
-typedef Ptr DlgHookUPP;
-//	typedef Ptr				DialogPtr;
-typedef CMDialog* DialogPtr; //************Temporary*****
-
-typedef Ptr DragGrayRgnUPP;
-typedef Ptr GrafPtr; // Pointer
-typedef Ptr GWorldPtr; // Pointer
-typedef GLOBALHANDLE Handle; // Windows global handle
-//	typedef CListBox*	  		ListHandle;   	// Windows global handle
-typedef wxListView * ListHandle;
-typedef GLOBALHANDLE MenuHandle;
-typedef GLOBALHANDLE PixMapHandle;
-typedef UInt16       PMOrientation;
-typedef GLOBALHANDLE StringHandle;
-typedef Ptr ModalFilterUPP;
-typedef Handle WSHandle;
-typedef Handle WEReference;
-typedef wxDC CDC;
-typedef wxUpdateUIEvent CCmdUI;
-
-/* struct FSSpec {
-        short							vRefNum;
-        long							parID;
-        Str63							name;
-}; */
-
-typedef struct EventRecord {
-    SInt16 modifiers;
-    SInt16 event;
-
-} EventRecord;
-
-typedef struct FSRef {
-   UInt8    hidden[_MAX_PATH];
-} FSRef;
-
-typedef struct Point {
-    SInt16 h;
-    SInt16 v;
-
-} Point;
-
-typedef struct Cell {
-    SInt16 h;
-    SInt16 v;
-
-} Cell;
-
-typedef struct LongPoint {
-    SInt32 v;
-    SInt32 h;
-
-} LongPoint;
-
-//new
-
-/*typedef*/ struct Rect { // rc
-    int left;
-    int top;
-    int right;
-    int bottom;
-
-};
-//end new
-typedef Rect tagRECT;
-typedef Rect RECT;
-
-typedef struct LongRect {
-    SInt32 top; // "top" of rectangle
-    SInt32 left; // "left" of rectangle
-    SInt32 bottom; // "bottom" of rectangle
-    SInt32 right; // "right" of rectangle
-
-} LongRect, *LongRPtr;
-
-typedef struct ULongRect {
-    UInt32 top; // "top" of rectangle
-    UInt32 left; // "left" of rectangle
-    UInt32 bottom; // "bottom" of rectangle
-    UInt32 right; // "right" of rectangle
-
-} ULongRect, *ULongRPtr;
-
-struct RGBColor {
-    UInt16 red;
-    UInt16 green;
-    UInt16 blue;
-};
-
-typedef struct RGBColor RGBColor, *RGBColorPtr, **RGBColorHdl;
-
-struct ColorSpec {
-    SInt16 value;
-    RGBColor rgb;
-
-};
-
-typedef ColorSpec CSpecArray[1];
-
-struct ColorTable {
-    long ctSeed; /*unique identifier for table*/
-    short ctFlags; /*high bit: 0 = PixMap; 1 = device*/
-    short ctSize; /*number of entries in CTTable*/
-    CSpecArray ctTable; /*array [0..0] of ColorSpec*/
-};
-
-typedef struct ColorTable ColorTable, *CTabPtr;
-
-struct Palette {
-    short pmEntries; /*entries in pmTable*/
-    short pmDataFields[7]; /*private fields*/
-    RGBColor pmInfo[1];
-};
-
-typedef struct Palette Palette, *PalettePtr;
-
-//			The following structure is filler for text windows. This is the structure
-//			that is used in the Mac OS
-
-typedef struct {
-    char string[48];
-
-} TextBlock, TextArray[1];
-
-typedef struct {
-    char string[24];
-
-} LineRec, LineArray[1];
-
-
-typedef GLOBALHANDLE CTabHandle;
-/********************************************/
-// Setting PaletteHandle to type int for Linux
-// This is just used to check if Palette exists so will give this a number of 0 or 1
-typedef int PaletteHandle;
-
-typedef wxRegion* RgnHandle;
-typedef unsigned char Str255[256], Str63[64], Str31[32], Str15[16];
-typedef const unsigned char *ConstStr255Param;
-typedef ConstStr255Param ConstStr63Param, ConstStr32Param, ConstStr31Param, ConstStr27Param, ConstStr15Param;
-
-typedef Ptr UserItemProcPtr;
-typedef Ptr UserItemUPP;
-typedef Ptr DlgHookYDUPP;
-//typedef wxWindow* WindowPtr; // Temporarily declaring wxWindow. Should be line below
-typedef CMImageView*		WindowPtr;
-//typedef CMStatisticsForm*	StatisticsWindowPtr;
-
-typedef char LWindow;
-//typedef char				*FSSpec;
-
-typedef SInt16 OSErr;
-
-typedef UInt32 FourCharCode;
-typedef UInt32 DateTimeRec;
-typedef UInt32 FInfo;
-typedef UInt32 FSSpec;
-typedef UInt32 IOCompletionUPP;
-typedef UInt32 ListClickLoopUPP;
-typedef char LocalAppFile;
-typedef UInt32 Pattern;
-typedef UInt32 SFReply;
-typedef UInt32 THPrint;
-typedef UInt32 ThreadID;
-typedef UInt32 ThreadTaskRef;
-typedef UInt32 WSEScrollActionUPP;
-typedef UInt32 WEScrollUPP;
-
-typedef FourCharCode OSType;
-
-
-//	typedef struct LocalAppFile
-//		{
-//		Str255					fileName;
-//
-//		} LocalAppFile, *LocalAppFilePtr;
-
-// Declare huge pointers
-
-typedef char huge * HPtr;
-
-typedef char huge * HCharPtr;
-
-typedef UChar huge * HUCharPtr;
-
-typedef SInt8 huge * HSInt8Ptr;
-
-typedef UInt8 huge * HUInt8Ptr;
-
-typedef SInt16 huge * HSInt16Ptr;
-
-typedef UInt16 huge * HUInt16Ptr;
-
-typedef SInt32 huge * HSInt32Ptr;
-
-typedef UInt32 huge * HUInt32Ptr;
-
-typedef SInt64 huge * HSInt64Ptr;
-
-typedef float huge * HFloatPtr;
-
-typedef FileIOBuffer huge * HFileIOBufferPtr;
-
-typedef FSRef *   FSRefPtr;
-
-typedef double huge * DoublePtr;
-
-typedef double huge * HDoublePtr;
-
-typedef double huge * HFldLikPtr;
-
-typedef double huge * HCovarianceStatisticsPtr;
-
-typedef double huge * HSumSquaresStatisticsPtr;
-
-typedef ChannelStatistics huge * HChannelStatisticsPtr;
-
-typedef ProjectClassNames huge * HPClassNamesPtr;
-
-typedef ProjectFieldIdentifiers huge * HPFieldIdentifiersPtr;
-
-typedef ProjectFieldPoints huge * HPFieldPointsPtr;
-
-typedef EchoFieldInfo huge * HEchoFieldInfoPtr;
-
-typedef CMeanType huge * HCMeanTypePtr;
-
-typedef CType huge * HCTypePtr;
-
-typedef struct HParamBlockRec {
-    UInt32 ioPosOffset;
-    CMFileStream* fileStreamPtr;
-    HPtr ioBuffer;
-    UInt32 ioReqCount;
-    UInt32 ioActCount;
-    SInt16 ioPosMode;
-
-} HParamBlockRec, *ParmBlkPtr;
+			// The forward definitions for linux specific classes.
+
+	class CMFileStream;
+
+			// Other definitions.
+
+	typedef CMPalette*			CMPaletteInfo;
+
+	typedef unsigned char		Byte, UChar, UInt8;
+
+	typedef unsigned char		*StringPtr; //, **StringHandle;
+	typedef UInt8*					FileStringPtr;
+	typedef wchar_t				TBYTE;
+	typedef wchar_t*				WideFileStringPtr;
+
+	typedef char					SignedByte, SInt8;
+	typedef unsigned short		UInt16;
+	typedef signed short			SInt16;
+	typedef unsigned int			UInt32;
+	typedef signed int			SInt32;
+	//typedef __int64				SInt64;
+	typedef long long				SInt64;
+	typedef unsigned long long UInt64;
+	typedef char*					Ptr;
+	typedef double					SDouble;
+	typedef void					PascalVoid;
+	typedef unsigned int			DWORD;
+	typedef unsigned short		WORD;
+
+			// Define some variables that are defined in the Macintosh Toolbox and not
+			// in the Linux compiler
+
+	typedef SInt16					Boolean; // BOOLean (0 or !=0)
+
+	typedef wxSize					CSize;
+	typedef wxListView			CListBox;
+
+			// Define some variables for MultiSpec
+			//**** Using GLOBALHANDLE type to be void for now
+	typedef void*					GLOBALHANDLE;
+
+	typedef UInt32					CGContextRef;
+	typedef UInt32					CGRect;
+	typedef UInt32					AEAddressDesc;
+	typedef UInt32					AEDesc;
+	typedef UInt32					AppFile;
+	typedef UInt32					SFTypeList;
+	typedef Ptr						CGrafPtr;
+	typedef Ptr						ControlActionUPP;
+	typedef GLOBALHANDLE			ControlHandle; // Windows global handle
+	typedef GLOBALHANDLE			ControlRef; 
+	typedef Ptr						CursPtr;
+	typedef Ptr						DlgHookUPP;
+	//	typedef Ptr					DialogPtr;
+	typedef CMDialog*				DialogPtr; //************Temporary*****
+
+	typedef Ptr						DragGrayRgnUPP;
+	typedef Ptr						GrafPtr; // Pointer
+	typedef Ptr						GWorldPtr; // Pointer
+	typedef GLOBALHANDLE			Handle; // Windows global handle
+	typedef wxListView *			ListHandle;
+	typedef GLOBALHANDLE			MenuHandle;
+	typedef UInt16					MenuItemIndex;
+	typedef GLOBALHANDLE			MenuRef;
+	typedef GLOBALHANDLE			PixMapHandle;
+	typedef UInt16					PMOrientation;
+	typedef GLOBALHANDLE			StringHandle;
+	typedef Ptr						ModalFilterUPP;
+	typedef Handle					WSHandle;
+	typedef Handle					WEReference;
+	typedef wxDC					CDC;
+	typedef wxUpdateUIEvent		CCmdUI;
+
+	typedef struct EventRecord 
+		{
+		SInt16 modifiers;
+		SInt16 event;
+
+		} EventRecord;
+
+	typedef struct FSRef 
+		{
+		//UInt8    hidden[_MAX_PATH];
+		wchar_t    hidden[_MAX_PATH+1];
+		} FSRef;
+
+	typedef struct Point 
+		{
+		SInt16 h;
+		SInt16 v;
+		} Point;
+
+	typedef struct Cell 
+		{
+		SInt16 h;
+		SInt16 v;
+		} Cell;
+
+	typedef struct LongPoint 
+		{
+		SInt32 v;
+		SInt32 h;
+		} LongPoint;
+
+	struct Rect 
+		{ // rc
+		int left;
+		int top;
+		int right;
+		int bottom;
+		};
+	typedef Rect tagRECT;
+	typedef Rect RECT;
+
+	typedef struct LongRect 
+		{
+		SInt32 top; // "top" of rectangle
+		SInt32 left; // "left" of rectangle
+		SInt32 bottom; // "bottom" of rectangle
+		SInt32 right; // "right" of rectangle
+		} LongRect, *LongRPtr;
+
+	typedef struct ULongRect 
+		{
+		UInt32 top; // "top" of rectangle
+		UInt32 left; // "left" of rectangle
+		UInt32 bottom; // "bottom" of rectangle
+		UInt32 right; // "right" of rectangle
+		} ULongRect, *ULongRPtr;
+
+	struct RGBColor 
+		{
+		UInt16 red;
+		UInt16 green;
+		UInt16 blue;
+		};
+	typedef struct RGBColor RGBColor, *RGBColorPtr, **RGBColorHdl;
+
+	struct ColorSpec 
+		{
+		SInt16 value;
+		RGBColor rgb;
+		};
+	typedef ColorSpec CSpecArray[1];
+
+	struct ColorTable 
+		{
+		long ctSeed; /*unique identifier for table*/
+		short ctFlags; /*high bit: 0 = PixMap; 1 = device*/
+		short ctSize; /*number of entries in CTTable*/
+		CSpecArray ctTable; /*array [0..0] of ColorSpec*/
+		};
+	typedef struct ColorTable ColorTable, *CTabPtr;
+
+	struct Palette 
+		{
+		short pmEntries; /*entries in pmTable*/
+		short pmDataFields[7]; /*private fields*/
+		RGBColor pmInfo[1];
+		};
+	typedef struct Palette Palette, *PalettePtr;
+
+			//	The following structure is filler for text windows. This is the structure
+			//	that is used in the Mac OS
+
+	typedef struct 
+		{
+		char string[48];
+		} TextBlock, TextArray[1];
+
+	typedef struct 
+		{
+		char string[24];
+		} LineRec, LineArray[1];
+
+	typedef GLOBALHANDLE CTabHandle;
+	/********************************************/
+			// Setting PaletteHandle to type int for Linux
+			// This is just used to check if Palette exists so will give this a number of 0 or 1
+	typedef int PaletteHandle;
+
+	typedef wxRegion* RgnHandle;
+	typedef unsigned char Str255[256], Str63[64], Str31[32], Str15[16];
+	typedef const unsigned char *ConstStr255Param;
+	typedef ConstStr255Param ConstStr63Param, ConstStr32Param, ConstStr31Param, ConstStr27Param, ConstStr15Param;
+
+	typedef Ptr UserItemProcPtr;
+	typedef Ptr UserItemUPP;
+	typedef Ptr DlgHookYDUPP;
+	typedef CMImageView*		WindowPtr;
+
+	typedef char LWindow;
+
+	typedef SInt16 OSErr;
+
+	typedef UInt32 FourCharCode;
+	typedef UInt32 DateTimeRec;
+	typedef UInt32 FInfo;
+	typedef UInt32 FSSpec;
+	typedef UInt32 IOCompletionUPP;
+	typedef UInt32 ListClickLoopUPP;
+	typedef wchar_t LocalAppFile;
+	typedef UInt32 Pattern;
+	typedef UInt32 SFReply;
+	typedef UInt32 THPrint;
+	typedef UInt32 ThreadID;
+	typedef UInt32 ThreadTaskRef;
+	typedef UInt32 WSEScrollActionUPP;
+	typedef UInt32 WEScrollUPP;
+
+	typedef FourCharCode OSType;
+
+			// Declare huge pointers which were used by older version of Windows
+
+	typedef char huge * HPtr;
+	typedef char huge * HCharPtr;
+	typedef UChar huge * HUCharPtr;
+	typedef SInt8 huge * HSInt8Ptr;
+	typedef UInt8 huge * HUInt8Ptr;
+	typedef SInt16 huge * HSInt16Ptr;
+	typedef UInt16 huge * HUInt16Ptr;
+	typedef SInt32 huge * HSInt32Ptr;
+	typedef UInt32 huge * HUInt32Ptr;
+	typedef SInt64 huge * HSInt64Ptr;
+	typedef float huge * HFloatPtr;
+	typedef FileIOBuffer huge * HFileIOBufferPtr;
+
+	typedef double huge * DoublePtr;
+	typedef double huge * HDoublePtr;
+	typedef double huge * HFldLikPtr;
+	typedef double huge * HCovarianceStatisticsPtr;
+	typedef double huge * HSumSquaresStatisticsPtr;
+	typedef ChannelStatistics huge * HChannelStatisticsPtr;
+	typedef ProjectClassNames huge * HPClassNamesPtr;
+	typedef ProjectFieldIdentifiers huge * HPFieldIdentifiersPtr;
+	typedef ProjectFieldPoints huge * HPFieldPointsPtr;
+	typedef EchoFieldInfo huge * HEchoFieldInfoPtr;
+	typedef CMeanType huge * HCMeanTypePtr;
+	typedef CType huge * HCTypePtr;
+
+	typedef LocalAppFile*	LocalAppFilePtr; 
+	typedef FSRef *			FSRefPtr;
+
+	typedef struct HParamBlockRec 
+		{
+		UInt32				ioPosOffset;
+		CMFileStream*		fileStreamPtr;
+		UCharPtr				ioBuffer;
+		UInt32				ioReqCount;
+		UInt32				ioActCount;
+		SInt16				ioPosMode;
+		} HParamBlockRec, *ParmBlkPtr;
 #endif	// defined multispec_lin
 
 #if defined multispec_win

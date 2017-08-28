@@ -1,5 +1,7 @@
-// wlstrdlg.cpp : implementation file
-//                
+// WLstRDlg.cpp : implementation file
+//      
+// Revised by Larry Biehl on 08/21/2017
+//
                    
 #include "SMulSpec.h"
                      
@@ -85,10 +87,10 @@ void CMListResultsDialog::DoDataExchange(CDataExchange* pDX)
 	DDX_Check(pDX, IDC_Field, m_fieldSummaryFlag);
 	DDX_Check(pDX, IDC_Class, m_classSummaryFlag);
 	DDX_Check(pDX, IDC_Group, m_groupSummaryFlag);
-	DDX_Text(pDX, IDC_ConversionFactor, m_conversionFactor);
+	DDX_Text2(pDX, IDC_ConversionFactor, m_conversionFactor);
 	DDV_MinMaxDouble(pDX, m_conversionFactor, 0., 1000000000000000.);
 	DDX_Check(pDX, IDC_ThresholdResults, m_thresholdResultsFlag);
-	DDX_Text(pDX, IDC_Probability, m_thresholdPercent);
+	DDX_Text2(pDX, IDC_Probability, m_thresholdPercent);
 	DDV_MinMaxDouble(pDX, m_thresholdPercent, 0., kMaxThreshold);
 	DDX_Check(pDX, IDC_TextWindow, m_textWindowFlag);
 	DDX_Check(pDX, IDC_DiskFile, m_diskFileFlag);

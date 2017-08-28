@@ -1,5 +1,7 @@
 // WCWtDlg.cpp : implementation file
 //
+// Revised by Larry Biehl on 08/21/2017
+//
 
 #include "SMulSpec.h"
 #include "WCWtDlg.h"
@@ -92,7 +94,7 @@ void CMClassWeightsDlg::DoDataExchange(CDataExchange* pDX)
 
 		if (tempString.GetLength() > 0)
 			{
-			DDX_Text(pDX, IDC_Weight, m_saveNewWeight);
+			DDX_Text2(pDX, IDC_Weight, m_saveNewWeight);
 			DDV_MinMaxDouble(pDX, m_saveNewWeight, 0., 999.999);
 
 			}		// end "if (tempString.GetLength() > 0)"
@@ -321,7 +323,7 @@ void CMClassWeightsDlg::OnChangeWeight()
 
 	if (tempString.GetLength() > 0)
 			{
-			DDX_Text(m_dialogFromPtr, IDC_Weight, m_saveNewWeight);
+			DDX_Text2(m_dialogFromPtr, IDC_Weight, m_saveNewWeight);
 			DDV_MinMaxDouble(m_dialogFromPtr, m_saveNewWeight, 0., 999.999);
 
 			SetDLogControlHilite (this, IDC_EnterNewWeightButton, 0);

@@ -13,7 +13,7 @@
 //
 //	Revision number:		3.1
 //
-//	Revision date:			03/16/2017
+//	Revision date:			07/28/2017
 //
 //	Language:				C
 //
@@ -46,7 +46,18 @@
 	ListString ((char*)&gTextString3, numberChars, gOutputTextH);
  */
 
-#include	"SMulSpec.h"
+#include	"SMulSpec.h" 
+
+#if defined multispec_lin
+	#include "LEditClassGroupDialog.h"
+	#include "LImageDoc.h"
+	#include "LImageFrame.h" 
+	#include "LImageView.h" 
+	#include "LLegendList.h" 
+	#include "LLegendView.h" 
+	#include "LMainFrame.h" 
+	#include "wx/colordlg.h"
+#endif	// defined multispec_lin
 
 #if defined multispec_win
 	#include "CImagVew.h" 
@@ -68,19 +79,7 @@
 	extern Boolean 		StillDown (void);  
 
 	extern UInt16			gDisplayBitsPerPixel;
-#endif	// defined multispec_win 
-
-#if defined multispec_lin
-	#include "LImageView.h" 
-	#include "LCsGpDlg.h"
-	#include "LImageDoc.h"
-	#include "LImageFrame.h" 
-	#include "LLeglist.h" 
-	#include "LMainFrame.h" 
-	//#include "WMClrDlg.h"
-	#include "LTLegend.h" 
-	#include "wx/colordlg.h"
-#endif
+#endif	// defined multispec_win
 
 #include "SExtGlob.h"
 
@@ -225,10 +224,11 @@ void AddCellsToLegendList (
 	#if defined multispec_win 
 		UInt16 numberInOldList = legendListHandle->GetCount(); 
 	#endif	// defined multispec_win 
+	
    #if defined multispec_lin 
 		UInt16 numberInOldList = legendListHandle->GetItemCount();
-		//SInt16 listType;
    #endif
+	
 	count = (SInt16)numberInOldList;
 	
 	if (count > (SInt16)numberInList)
@@ -2206,7 +2206,7 @@ Boolean EditGroupClassDialog (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 01/07/1997
-//	Revised By:			Larry L. Biehl			Date: 03/02/2017
+//	Revised By:			Larry L. Biehl			Date: 07/26/2017
 
 void EditGroupClassDialogOK (
 				ListHandle							legendListHandle,
@@ -2248,24 +2248,23 @@ void EditGroupClassDialogOK (
 
 		cell.h = 0;
 		cell.v = selectedCell;
+            
+#		if defined multispec_lin
+			classValue = legendListHandle->GetItemData (gSelectedCell);
+#		endif 
 		
-		#if defined multispec_mac
+#		if defined multispec_mac
 			LGetCell (&classValue, &stringLength, cell, legendListHandle);
-		#endif
+#		endif
 
-		#if defined multispec_win  
-			//UInt32			longClassValue;
-			                                                                              
+#		if defined multispec_win  
 			((CMLegendList*)legendListHandle)->GetTextValue (gSelectedCell, &classValue);
-			//stringLength = legendListHandle->GetText (gSelectedCell, (LPTSTR)&gTextString);
-			//BlockMoveData(&gTextString, &longClassValue, 4);
-			//classValue = (UInt16)longClassValue;
-		#endif
+#		endif
 
 				// Add new group name pointer info.
 				
-//						SInt16 cellValue = (numberClassesGroups-1) | 0x8000;
-//						groupToPalettePtr[numberClassesGroups-1] = classValue;
+		//SInt16 cellValue = (numberClassesGroups-1) | 0x8000;
+		//groupToPalettePtr[numberClassesGroups-1] = classValue;
 		
 				// Now update the group to palette pointer for the
 				// group that the class for the new group came out of.
@@ -2316,8 +2315,7 @@ void EditGroupClassDialogOK (
 		
 		classGroupIndex = numberClassesGroups - 1;
 		
-		}		// end "if (newEditCode == kNewGroup)" 
-//#endif	// defined multispec_mac
+		}	// end "if (newEditCode == kNewGroup)" 
 		
 			// Save new group name.					
 			
@@ -2326,9 +2324,8 @@ void EditGroupClassDialogOK (
 	BlockMoveData (textStringPtr, namePtr, textStringPtr[0]+1);
 		
 	if (newEditCode != kNewGroup)
-		{                        
-		
-		#if defined multispec_mac   
+		{                        		
+#		if defined multispec_mac   
 			Cell				cell; 
 			Rect				cellRect;
 			GrafPtr			savedPort;
@@ -2338,19 +2335,18 @@ void EditGroupClassDialogOK (
 			LRect (&cellRect, cell, legendListHandle);
 			GetPort (&savedPort);
 			SetPortWindowPort (gActiveImageWindow);
-//			InvalRect (&cellRect); 
 			InvalWindowRect (gActiveImageWindow, &cellRect);
 			SetPort (savedPort);
-		#endif	// defined multispec_mac 
+#		endif	// defined multispec_mac 
 		 
-		#if defined multispec_win 
+#		if defined multispec_win 
 			RECT		cellRect;
 			legendListHandle->GetItemRect(selectedCell, &cellRect);
 			legendListHandle->InvalidateRect(&cellRect, TRUE);
-		#endif	// defined multispec_win
+#		endif	// defined multispec_win
 		
-		}		// end "if (newEditCode != kNewGroup)"
-		
+		}	// end "if (newEditCode != kNewGroup)"	
+				
 	if (!noChangeFlag)
 		{		
 		fileInfoPtr = (FileInfoPtr)GetHandlePointer (
@@ -2362,16 +2358,16 @@ void EditGroupClassDialogOK (
 		else		// newEditCode != kNewClass
 			fileInfoPtr->groupChangedFlag = TRUE;
 			
-		#if defined multispec_lin
+#		if defined multispec_lin
 				// Make sure that wxWidgets knows the document has changed.
 			gActiveImageViewCPtr->GetDocument()->Modify(TRUE);
-		#endif // defined multispec_lin
+#		endif // defined multispec_lin
 																		
 		gUpdateFileMenuItemsFlag = TRUE; 
 		
-		}		// end "if (!noChangeFlag)"
+		}	// end "if (!noChangeFlag)"
 	
-}		// end "EditGroupClassDialogOK"
+}	// end "EditGroupClassDialogOK"
 
 
 

@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//										Copyright (1988-2016)
+//										Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -13,7 +13,7 @@
 //
 //	Revision number:		3.0
 //
-//	Revision date:			12/16/2016
+//	Revision date:			06/22/2017
 //
 //	Language:				C
 //
@@ -37,6 +37,10 @@
 //								"multiSpec.h"
 
 #include	"SMulSpec.h" 
+ 
+#if defined multispec_lin
+	#include "LStatisticsListDialog.h"
+#endif
 
 #if defined multispec_mac 
 	#define IDC_Fields  						4
@@ -54,10 +58,6 @@
 #if defined multispec_win  
 	#include "WStatDlg.h"
 #endif	// defined multispec_win
- 
-#if defined multispec_lin
-	#include "Lstatdlg.h"
-#endif
 
 #include "SExtGlob.h"
 
@@ -153,7 +153,7 @@ char*					l_CharBufferPtr5 = NULL;
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -232,7 +232,7 @@ SInt16 GetMeanStdDevLength (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -311,7 +311,7 @@ SInt16 GetVarianceLength (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -568,7 +568,7 @@ Boolean ListClassInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -747,7 +747,7 @@ void ListClassStats (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1065,7 +1065,7 @@ Boolean ListFieldInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1240,7 +1240,7 @@ void ListFieldStats (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1339,7 +1339,7 @@ Boolean ListLowerTriangularMatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1406,7 +1406,7 @@ void ListProjectStats (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1693,7 +1693,7 @@ void ListStatistics (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2140,7 +2140,7 @@ void ListStatsControl (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2346,7 +2346,7 @@ Boolean ListStatsDialog(
 	CloseRequestedDialog (dialogPtr, kSetUpDFilterTable);
 #endif	// defined multispec_mac
                    
-	#if defined multispec_win  
+#	if defined multispec_win  
 		CMListStatsDialog*		dialogPtr = NULL;
 		
 		TRY
@@ -2364,9 +2364,9 @@ Boolean ListStatsDialog(
 			returnFlag = FALSE;
 			}
 		END_CATCH_ALL
-	#endif // defined multispec_win 
+#	endif // defined multispec_win 
       
-  	#if defined multispec_lin
+#	if defined multispec_lin
       CMListStatsDialog*		dialogPtr = NULL;
       
       dialogPtr = new CMListStatsDialog(); 
@@ -2374,11 +2374,11 @@ Boolean ListStatsDialog(
 		returnFlag = dialogPtr->DoDialog (statsWindowMode); 
 		                       
 		delete dialogPtr;
-   #endif
+#	endif
 	
 	return (returnFlag);
 
-}		// end "ListStatsDialog" 
+}	// end "ListStatsDialog" 
 
 
 

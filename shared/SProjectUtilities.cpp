@@ -13,7 +13,7 @@
 //
 //	Revision number:		3.0
 //
-//	Revision date:			05/03/2017
+//	Revision date:			06/21/2017
 //
 //	Language:				C
 //
@@ -91,6 +91,12 @@
 
 #include	"SMulSpec.h" 
 
+#if defined multispec_lin
+#	include "LClassWeightsDialog.h"
+#	include "LClassPairWeightsDialog.h"
+#	include "LImageView.h"
+#endif
+
 #if defined multispec_mac 
 #	define IDOK								1
 
@@ -105,10 +111,6 @@
 #	define IDC_UnitsRelative			12
 #	define IDC_UnitsPercent				13
 #	define IDC_WeightTotal				15
-
-#	define IDS_Project78					78
-#	define IDS_Project79					79
-
 	//	#include "mwCarbonCompatibility.h"
 #endif	// defined multispec_mac  
 
@@ -128,12 +130,6 @@
 	extern void SetPort (
 					DialogPtr							dialogPtr);
 #endif	// defined multispec_win 
-
-#if defined multispec_lin
-#	include "LImageView.h"
-#	include "LCWtDlg.h"
-#	include "LCPWtDlg.h"
-#endif
 
 #include "SExtGlob.h" 
 
@@ -451,7 +447,7 @@ void Area_Of_SND_by_Direct_Calculation (
 
    *ret = offset + t / kSQRT2PI;
 
-} // end "Area_Of_SND_by_Direct_Calculation" 
+}	// end "Area_Of_SND_by_Direct_Calculation"
 
 
 
@@ -496,26 +492,27 @@ Boolean AssignClassInfoMemory (
 {
 	SInt64								numberPixels;
 
-   SInt32 matrixSize,
-      numberCovarianceEntries,
-      numberFloatDataValueEntries,
-      numberInverseEntries,
-      numberMeanEntries,
-      numberTransformedCovEntries,
-      numberTransformedMeanEntries;
+   SInt32								matrixSize,
+											numberCovarianceEntries,
+											numberFloatDataValueEntries,
+											numberInverseEntries,
+											numberMeanEntries,
+											numberTransformedCovEntries,
+											numberTransformedMeanEntries;
 
-   UInt32 tNumberEntries;
+   UInt32								tNumberEntries;
 
-   SInt16 statClassNumber;
+   SInt16								statClassNumber;
 
-   Boolean continueFlag = TRUE;
+   Boolean								continueFlag = TRUE;
 
 
-   // Get memory for class covariances. Allow for needing to
-   // read in the entire class covariance (all numberChannels)
-   // and then tranforming the covariance to 'numberFeatures'. 
+			// Get memory for class covariances. Allow for needing to
+			// read in the entire class covariance (all numberChannels)
+			// and then tranforming the covariance to 'numberFeatures'. 
 
-   if (continueFlag && covarianceCode > 0) {
+   if (continueFlag && covarianceCode > 0)
+		{
       matrixSize = numberFeatures;
       if (covarianceCode & kNumberChannels)
          matrixSize = numberChannels;
@@ -535,11 +532,12 @@ Boolean AssignClassInfoMemory (
          tNumberEntries * sizeof (double));
       continueFlag = (classInfoPtr[0].covariancePtr != NULL);
 
-   } // end "if (continueFlag && ...)" 
+		}	// end "if (continueFlag && ...)"
 
-   // Get memory for classInfo structure parameters 
+			// Get memory for classInfo structure parameters
 
-   if (continueFlag && inverseCode > 0) {
+   if (continueFlag && inverseCode > 0)
+		{
       matrixSize = numberFeatures;
       if (inverseCode & kNumberChannels)
          matrixSize = numberChannels;
@@ -558,9 +556,10 @@ Boolean AssignClassInfoMemory (
          tNumberEntries * sizeof (double));
       continueFlag = (classInfoPtr[0].inversePtr != NULL);
 
-   } // end "if (continueFlag && ...)" 
+		}	// end "if (continueFlag && ...)"
 
-   if (continueFlag && meanCode > 0) {
+   if (continueFlag && meanCode > 0)
+		{
       numberMeanEntries = numberFeatures;
       if (meanCode & kNumberChannels)
          numberMeanEntries = numberChannels;
@@ -569,9 +568,10 @@ Boolean AssignClassInfoMemory (
          (UInt32) numberClasses * numberMeanEntries * sizeof (double));
       continueFlag = (classInfoPtr[0].meanPtr != NULL);
 
-   } // end "if (continueFlag && ...)"
+		}	// end "if (continueFlag && ...)"
 
-   if (continueFlag && transformedCovCode > 0) {
+   if (continueFlag && transformedCovCode > 0)
+		{
       matrixSize = numberFeatures;
       if (transformedCovCode & kNumberChannels)
          matrixSize = numberChannels;
@@ -590,35 +590,39 @@ Boolean AssignClassInfoMemory (
          tNumberEntries * sizeof (double));
       continueFlag = (classInfoPtr[0].transformedCovPtr != NULL);
 
-   } // end "if (continueFlag && ...)"
+		}	// end "if (continueFlag && ...)"
 
-   // Get memory for transformed class means and covariances.
+			// Get memory for transformed class means and covariances.
 
-   if (continueFlag && transformedMeanCode > 0) {
+   if (continueFlag && transformedMeanCode > 0)
+		{
       numberTransformedMeanEntries = numberFeatures;
       if (transformedMeanCode & kNumberChannels)
          numberTransformedMeanEntries = numberChannels;
 
-      classInfoPtr[0].transformedMeanPtr = (HDoublePtr) MNewPointer(
-         (UInt32) numberClasses * numberTransformedMeanEntries * sizeof (double));
+      classInfoPtr[0].transformedMeanPtr = (HDoublePtr)MNewPointer(
+					(UInt32)numberClasses * numberTransformedMeanEntries * sizeof (double));
       continueFlag = (classInfoPtr[0].transformedMeanPtr != NULL);
 
-   } // end "if (continueFlag && ...)"
+		}	// end "if (continueFlag && ...)"
 
-   // Now assign memory pointers for rest of classes.
+			// Now assign memory pointers for rest of classes.
 
-   if (continueFlag) {
-      SInt16 classStorage,
-         index;
+   if (continueFlag)
+		{
+      SInt16				classStorage,
+								index;
 
 
       numberFloatDataValueEntries = numberFeatures;
       if (floatDataValueCode & kNumberChannels)
          numberFloatDataValueEntries = numberChannels;
 
-      for (index = 0; index < numberClasses; index++) {
-         if (floatDataValueCode > 0) {
-            // Get memory for training pixels if needed.
+      for (index = 0; index < numberClasses; index++)
+			{
+         if (floatDataValueCode > 0)
+				{
+						// Get memory for training pixels if needed.
 
             if (classPtr == NULL)
                statClassNumber = index;
@@ -626,53 +630,54 @@ Boolean AssignClassInfoMemory (
             else //	classPtr != NULL	
                statClassNumber = classPtr[ index ] - 1;
 
-            // Get the class storage number.										
+						// Get the class storage number.
 
             classStorage = gProjectInfoPtr->storageClass[statClassNumber];
 
             numberPixels =
                gProjectInfoPtr->classNamesPtr[classStorage].numberStatisticsPixels;
 
-            if (numberPixels > 0) {
+            if (numberPixels > 0)
+					{
                classInfoPtr[index].dataValuesPtr = (HDoublePtr) MNewPointer(
                   numberPixels * numberFloatDataValueEntries * sizeof (double));
 
                continueFlag = (classInfoPtr[index].dataValuesPtr != NULL);
 
-            } // end "if (numberPixels > 0)"
+					}	// end "if (numberPixels > 0)"
 
-         } // end "if (floatDataValueCode > 0)"
+				}	// end "if (floatDataValueCode > 0)"
 
          if (!continueFlag)
             break;
 
          if (covarianceCode > 0)
-            classInfoPtr[index].covariancePtr = &classInfoPtr[0].
-            covariancePtr[index * numberCovarianceEntries];
+            classInfoPtr[index].covariancePtr =
+							&classInfoPtr[0].covariancePtr[index * numberCovarianceEntries];
 
          if (inverseCode > 0)
-            classInfoPtr[index].inversePtr = &classInfoPtr[0].
-            inversePtr[index * numberInverseEntries];
+            classInfoPtr[index].inversePtr =
+							&classInfoPtr[0].inversePtr[index * numberInverseEntries];
 
          if (meanCode > 0)
             classInfoPtr[index].meanPtr =
-            &classInfoPtr[0].meanPtr[index * numberMeanEntries];
+							&classInfoPtr[0].meanPtr[index * numberMeanEntries];
 
          if (transformedCovCode > 0)
-            classInfoPtr[index].transformedCovPtr = &classInfoPtr[0].
-            transformedCovPtr[index * numberTransformedCovEntries];
+            classInfoPtr[index].transformedCovPtr =
+							&classInfoPtr[0].transformedCovPtr[index * numberTransformedCovEntries];
 
          if (transformedMeanCode > 0)
-            classInfoPtr[index].transformedMeanPtr = &classInfoPtr[0].
-            transformedMeanPtr[index * numberTransformedMeanEntries];
+            classInfoPtr[index].transformedMeanPtr =
+							&classInfoPtr[0].transformedMeanPtr[index * numberTransformedMeanEntries];
 
-      } // end "for ( index=0; index<..."
+			}	// end "for ( index=0; index<..."
 
-   } // end "if (continueFlag)"
+		}	// end "if (continueFlag)"
 
    return (continueFlag);
 
-} // end "AssignClassInfoMemory" 
+}	// end "AssignClassInfoMemory"
 
 
 
@@ -699,54 +704,55 @@ Boolean AssignClassInfoMemory (
 //	Coded By:			C.H. Lee					Date: 12/04/1988
 //	Revised By:			Larry L. Biehl			Date: 06/30/1994	
 
-double Bhattacharyya(
-   HDoublePtr mean1Ptr, // mean vector of class 1 
-   HDoublePtr mean2Ptr, // mean vector of class 2 
-   HDoublePtr cov1Ptr, // covariance matrix of class 1 
-   HDoublePtr cov2Ptr, // covariance matrix of class 2 
-   double logDeterminant1, // log of determinant of 
-   //	class 1 covariance matrix	
-   double logDeterminant2, // log of determinant of 
-   //	class 2 covariance matrix	
-   HDoublePtr meanDifPtr, // vector storage of class 1 and 	
-   // class 2 mean difference. 			
-   SInt16 numberFeatures) // number of features (channels) 
-// represented in the mean vector  	
-// and covariance and inverse  	
-// covariance matrices.																						
- {
-   double bhattacharyya1,
-      bhattacharyya2,
-      //											determinant,
-      logDeterminant,
-      meanDifValue;
+double Bhattacharyya (
+				HDoublePtr							mean1Ptr, // mean vector of class 1
+				HDoublePtr							mean2Ptr, // mean vector of class 2
+				HDoublePtr							cov1Ptr, // covariance matrix of class 1
+				HDoublePtr							cov2Ptr, // covariance matrix of class 2
+				double								logDeterminant1, // log of determinant of
+																				//	class 1 covariance matrix
+				double								logDeterminant2, // log of determinant of
+																				//	class 2 covariance matrix
+				HDoublePtr							meanDifPtr, // vector storage of class 1 and
+																				// class 2 mean difference.
+				SInt16								numberFeatures) // number of features (channels)
+																				// represented in the mean vector
+																				// and covariance and inverse  	
+																				// covariance matrices.																						
+{
+	double								bhattacharyya1,
+											bhattacharyya2,
+											//determinant,
+											logDeterminant,
+											meanDifValue;
 
-   HDoublePtr temp1Ptr,
-      temp2Ptr,
-      tInversePtr;
+   HDoublePtr							temp1Ptr,
+											temp2Ptr,
+											tInversePtr;
 
-   UInt32 channel1,
-      channel2,
-      tmpIndex1,
-      tmpIndex2;
+   UInt32								channel1,
+											channel2,
+											tmpIndex1,
+											tmpIndex2;
 
 
-   // Get 1/2 of the sum of the two covariances.
-   // The 1/2 will be taken care of in the mean part by only dividing
-   // by 4 instead of 8 and in the covariance part by subtracting the
-   // constant 'numberFeature * ln(2)'.						
+			// Get 1/2 of the sum of the two covariances.
+			// The 1/2 will be taken care of in the mean part by only dividing
+			// by 4 instead of 8 and in the covariance part by subtracting the
+			// constant 'numberFeature * ln(2)'.						
 
    tInversePtr = gInverseMatrixMemory.inversePtr;
    temp1Ptr = cov1Ptr;
    temp2Ptr = cov2Ptr;
 
-   for (channel1 = 0; channel1 < (UInt32) numberFeatures; channel1++) {
+   for (channel1 = 0; channel1 < (UInt32) numberFeatures; channel1++)
+		{
       tmpIndex1 = (UInt32) channel1*numberFeatures;
       tmpIndex2 = channel1;
 
-      for (channel2 = 0; channel2 < channel1; channel2++) {
-         tInversePtr[tmpIndex1] = tInversePtr[tmpIndex2] =
-            (*temp1Ptr + *temp2Ptr);
+      for (channel2 = 0; channel2 < channel1; channel2++)
+			{
+         tInversePtr[tmpIndex1] = tInversePtr[tmpIndex2] = (*temp1Ptr + *temp2Ptr);
 
          temp1Ptr++;
          temp2Ptr++;
@@ -754,93 +760,97 @@ double Bhattacharyya(
          tmpIndex1++;
          tmpIndex2 += numberFeatures;
 
-      } // end "for (channel2=1; channel2<channel1; channel2++)" 
+			}	// end "for (channel2=1; channel2<channel1; channel2++)"
 
       tInversePtr[tmpIndex1] = (*temp1Ptr + *temp2Ptr);
 
       temp1Ptr++;
       temp2Ptr++;
 
-   } // end "for ( channel1=1; channel1<=numOutFeatures; channel1++)" 
+		}	// end "for ( channel1=1; channel1<=numOutFeatures; channel1++)"
 
-   InvertSymmetricMatrix(tInversePtr,
-      numberFeatures,
-      gInverseMatrixMemory.pivotPtr,
-      gInverseMatrixMemory.indexRowPtr,
-      gInverseMatrixMemory.indexColPtr,
-      gInverseMatrixMemory.ipvotPtr,
-      NULL,
-      &logDeterminant,
-      kReturnMatrixInverse);
+   InvertSymmetricMatrix (tInversePtr,
+									numberFeatures,
+									gInverseMatrixMemory.pivotPtr,
+									gInverseMatrixMemory.indexRowPtr,
+									gInverseMatrixMemory.indexColPtr,
+									gInverseMatrixMemory.ipvotPtr,
+									NULL,
+									&logDeterminant,
+									kReturnMatrixInverse);
 
    if (gOperationCanceledFlag)
       return (0);
 
-   // Get the mean difference vector.												
-   // Don't get confused with tInversePtr being used here.  This is		
-   // temporary to take advantage of the register variable pointer.		
+			// Get the mean difference vector.
+			// Don't get confused with tInversePtr being used here.  This is		
+			// temporary to take advantage of the register variable pointer.		
 
    tInversePtr = meanDifPtr;
    temp1Ptr = mean1Ptr;
    temp2Ptr = mean2Ptr;
 
-   for (channel1 = 0; channel1 < (UInt32) numberFeatures; channel1++) {
+   for (channel1 = 0; channel1 < (UInt32) numberFeatures; channel1++)
+		{
       *tInversePtr = *temp1Ptr - *temp2Ptr;
       tInversePtr++;
       temp1Ptr++;
       temp2Ptr++;
 
-   } // end "for (channel1=0; channel1<numberFeatures; channel1++)" 
+		}	// end "for (channel1=0; channel1<numberFeatures; channel1++)"
 
-   // Get the i=j component items of the mean part of the 					
-   // Bhattacharyya distance.															
+			// Get the i=j component items of the mean part of the
+			// Bhattacharyya distance.															
 
    tInversePtr = gInverseMatrixMemory.inversePtr;
    temp1Ptr = meanDifPtr;
    bhattacharyya1 = 0;
    tmpIndex2 = numberFeatures + 1;
-   for (channel1 = 0; channel1 < (UInt32) numberFeatures; channel1++) {
+   for (channel1 = 0; channel1 < (UInt32) numberFeatures; channel1++)
+		{
       meanDifValue = *temp1Ptr;
       bhattacharyya1 += *tInversePtr * meanDifValue * meanDifValue;
       tInversePtr += tmpIndex2;
       temp1Ptr++;
 
-   } // end "for (channel1=0; channel1<numberFeatures; channel1++)" 
+		}	// end "for (channel1=0; channel1<numberFeatures; channel1++)"
 
    bhattacharyya1 *= .25;
 
-   // Get the i!=j component items of the mean part of the 				
-   // Bhattacharyya distance.		
-   // Note that the i!=j component is double the value computed for bhattacharyya2.
-   // This is taken care of by dividing by 2 instead of 4 at the end of the
-   // computation.																	
+			// Get the i!=j component items of the mean part of the
+			// Bhattacharyya distance.		
+			// Note that the i!=j component is double the value computed for bhattacharyya2.
+			// This is taken care of by dividing by 2 instead of 4 at the end of the
+			// computation.																	
 
    tInversePtr = &gInverseMatrixMemory.inversePtr[numberFeatures];
    temp1Ptr = meanDifPtr + 1;
    bhattacharyya2 = 0;
    tmpIndex2 = numberFeatures - 1;
-   for (channel1 = 1; channel1 < (UInt32) numberFeatures; channel1++) {
+   for (channel1 = 1; channel1 < (UInt32) numberFeatures; channel1++)
+		{
       meanDifValue = *temp1Ptr;
       temp2Ptr = meanDifPtr;
-      for (channel2 = 0; channel2 < channel1; channel2++) {
+      for (channel2 = 0; channel2 < channel1; channel2++)
+			{
          bhattacharyya2 += *tInversePtr * meanDifValue * *temp2Ptr;
          tInversePtr++;
          temp2Ptr++;
 
-      } // end "for (channel2=0; channel2<numberFeatures; channel2++)" 
+			}	// end "for (channel2=0; channel2<numberFeatures; channel2++)"
 
       temp1Ptr++;
       tInversePtr += tmpIndex2;
       tmpIndex2--;
 
-   } // end "for (channel1=1; channel1<numberFeatures; channel1++)" 
+		}	// end "for (channel1=1; channel1<numberFeatures; channel1++)"
 
    bhattacharyya1 += .5 * (bhattacharyya2 + logDeterminant -
-      numberFeatures * kLN2 - .5 * (logDeterminant1 + logDeterminant2));
+							numberFeatures * kLN2 - .5 * (logDeterminant1 + logDeterminant2));
 
    return (bhattacharyya1);
 
-} // end "Bhattacharyya" 
+}	// end "Bhattacharyya"
 
 
 
@@ -866,50 +876,54 @@ double Bhattacharyya(
 //	Coded By:			Larry L. Biehl			Date: 05/11/1990
 //	Revised By:			Larry L. Biehl			Date: 10/09/2015	
 
-void ChangeProjectAssociatedImageItem(
-   Handle windowInfoHandle)
- {
-   WindowInfoPtr windowInfoPtr;
+void ChangeProjectAssociatedImageItem (
+				Handle								windowInfoHandle)
+{
+	WindowInfoPtr						windowInfoPtr;
 
 
-   if (windowInfoHandle != NULL) {
-      windowInfoPtr = (WindowInfoPtr) GetHandlePointer(windowInfoHandle,
-         kLock,
-         kNoMoveHi);
+   if (windowInfoHandle != NULL)
+		{
+      windowInfoPtr = (WindowInfoPtr)GetHandlePointer (windowInfoHandle,
+																			kLock,
+																			kNoMoveHi);
 
-      if (!windowInfoPtr->projectBaseImageFlag) {
+      if (!windowInfoPtr->projectBaseImageFlag)
+			{
          gUpdateProjectMenuItemsFlag = TRUE;
 
-         if (windowInfoPtr->projectWindowFlag) {
+         if (windowInfoPtr->projectWindowFlag)
+				{
             windowInfoPtr->projectWindowFlag = FALSE;
 
-            // Force any field boundaries to be removed.
+						// Force any field boundaries to be removed.
 
-            if (gProjectInfoPtr->outlineFieldType != 0) {
+            if (gProjectInfoPtr->outlineFieldType != 0)
+					{
 					#if defined multispec_mac  || defined multispec_lin
-						InvalidateWindow(gActiveImageWindow, kImageFrameArea, FALSE);
+						InvalidateWindow (gActiveImageWindow, kImageFrameArea, FALSE);
 					#endif	// defined multispec_mac || defined multispec_lin
 
 					#if defined multispec_win
 						gActiveImageViewCPtr->Invalidate();
 					#endif	// defined multispec_win
 
-					} // end "if ( gProjectInfoPtr->outlineFieldType != 0 )"
+					}	// end "if ( gProjectInfoPtr->outlineFieldType != 0 )"
 
-				}// end "if ( windowInfoPtr->projectWindowFlag )" 
+				}	// end "if ( windowInfoPtr->projectWindowFlag )"
 
          else // !windowInfoPtr->projectWindowFlag 
 				{
             windowInfoPtr->projectWindowFlag = TRUE;
 
-            // Force the fields to be outlined in the image window.					
+						// Force the fields to be outlined in the image window.
 
 				#if defined multispec_mac
-					OutlineFieldsControl(gProjectInfoPtr->statsWindowMode,
-						gActiveImageWindow,
-						windowInfoHandle,
-						1);
-				#endif	// defined multispec_mac 
+					OutlineFieldsControl (gProjectInfoPtr->statsWindowMode,
+													gActiveImageWindow,
+													windowInfoHandle,
+													1);
+				#endif	// defined multispec_mac
 
 				#if defined multispec_win
 					gActiveImageViewCPtr->Invalidate();
@@ -919,15 +933,15 @@ void ChangeProjectAssociatedImageItem(
 					InvalidateWindow (gActiveImageViewCPtr, kImageFrameArea, FALSE);
 				#endif	// defined multispec_lin
 
-         } // else !windowInfoPtr->projectWindowFlag 
+				}	// else !windowInfoPtr->projectWindowFlag
 
-      } // end "if ( !windowInfoPtr->projectBaseImageFlag )" 
+			}	// end "if ( !windowInfoPtr->projectBaseImageFlag )"
 
       CheckAndUnlockHandle(windowInfoHandle);
 
-   } // end "if (windowInfoH != NULL )" 
+		}	// end "if (windowInfoH != NULL )"
 
-} // end "ChangeProjectAssociatedImageItem"
+}	// end "ChangeProjectAssociatedImageItem"
 
 
 
@@ -954,48 +968,50 @@ void ChangeProjectAssociatedImageItem(
 //	Coded By:			Larry L. Biehl			Date: 04/17/1997
 //	Revised By:			Larry L. Biehl			Date: 04/17/1997	
 
-Boolean CheckClassEnhancedStats(
-   UInt32 numberClasses,
-   SInt16* classPtr)
- {
-   HPClassNamesPtr classNamesPtr;
+Boolean CheckClassEnhancedStats (
+				UInt32								numberClasses,
+				SInt16*								classPtr)
+{
+	HPClassNamesPtr					classNamesPtr;
 
-   SInt16 classNumber,
-      classStorage;
+   SInt16								classNumber,
+											classStorage;
 
-   UInt16 index;
+   UInt16								index;
 
-   Boolean continueFlag = TRUE;
+   Boolean								continueFlag = TRUE;
 
 
-   if (classPtr != NULL) {
-      // Initialize local variables.												
+   if (classPtr != NULL)
+		{
+				// Initialize local variables.
 
       classNamesPtr = gProjectInfoPtr->classNamesPtr;
 
-      for (index = 0; index < numberClasses; index++) {
+      for (index = 0; index < numberClasses; index++)
+			{
          classNumber = classPtr[index] - 1;
 
-         // Get the class storage number.											
+					// Get the class storage number.
 
          classStorage = gProjectInfoPtr->storageClass[classNumber];
 
          if (!gProjectInfoPtr->classNamesPtr[classStorage].modifiedStatsFlag)
-            continueFlag = ListSpecifiedStringNumber(
-            kProjectStrID,
-            IDS_Project45,
-            NULL,
-            gOutputForce1Code,
-            gProjectInfoPtr->classNamesPtr[classStorage].name,
-            continueFlag);
+            continueFlag = ListSpecifiedStringNumber (
+											kProjectStrID,
+											IDS_Project45,
+											NULL,
+											gOutputForce1Code,
+											gProjectInfoPtr->classNamesPtr[classStorage].name,
+											continueFlag);
 
-      } // end "for ( index=0;..." 
+			}	// end "for ( index=0;..."
 
-   } // end "if (classPtr != NULL)" 
+		}	// end "if (classPtr != NULL)"
 
    return (continueFlag);
 
-} // end "CheckClassEnhancedStats" 
+}	// end "CheckClassEnhancedStats"
 
 
 
@@ -1067,12 +1083,14 @@ Boolean CheckClassStats(
 
    newIndex = 0;
    continueFlag = TRUE;
-   for (index = 0; index<*numberClassesPtr; index++) {
-      if (classPtr != NULL) {
+   for (index = 0; index<*numberClassesPtr; index++)
+		{
+      if (classPtr != NULL)
+			{
          classNumber = classPtr[index] - 1;
          classStorage = gProjectInfoPtr->storageClass[classNumber];
 
-			}// end "if (classPtr != NULL)"
+			}	// end "if (classPtr != NULL)"
 
       else // classPtr == NULL
 			{
@@ -1084,21 +1102,24 @@ Boolean CheckClassStats(
 
 			} // end "else classPtr == NULL"
 
-      if (continueFlag) {
+      if (continueFlag)
+			{
          if (covarianceStatsToUse == kNoStatisticsUsed)
             lCovarianceStatsToUse = classNamesPtr[classStorage].covarianceStatsToUse;
 
-         okayFlag = DetermineIfSpecifiedStatisticsExist(
-												&classNamesPtr[classStorage],
-												lCovarianceStatsToUse,
-												&computeCommonCovarianceFlag);
+         okayFlag = DetermineIfSpecifiedStatisticsExist (
+																&classNamesPtr[classStorage],
+																lCovarianceStatsToUse,
+																&computeCommonCovarianceFlag);
 
-         if (okayFlag) {
-            if (checkOnlyFlag) {
+         if (okayFlag)
+				{
+            if (checkOnlyFlag)
+					{
                if (!gProjectInfoPtr->classNamesPtr[classStorage].statsUpToDate)
                   checkFlag = FALSE;
 
-					}// end "if (checkOnlyFlag)"
+					}	// end "if (checkOnlyFlag)"
 
             else if (!computeCommonCovarianceFlag) // && !checkOnlyFlag
 					{
@@ -1110,13 +1131,13 @@ Boolean CheckClassStats(
                newIndex++;
 
                if (minimumNumberTrainPixelsPtr != NULL)
-                  *minimumNumberTrainPixelsPtr = MIN(*minimumNumberTrainPixelsPtr,
+                  *minimumNumberTrainPixelsPtr = MIN (*minimumNumberTrainPixelsPtr,
 														(SInt32)classNamesPtr[classStorage].numberStatisticsPixels);
 
 
-					}		// end "else !checkOnlyFlag && !computeCommonCovarianceFlag"
+					}	// end "else !checkOnlyFlag && !computeCommonCovarianceFlag"
 
-				}		// end "if (okayFlag)"
+				}	// end "if (okayFlag)"
 
          else // !okayFlag
             checkFlag = FALSE;
@@ -1124,9 +1145,9 @@ Boolean CheckClassStats(
          if (computeCommonCovarianceFlag)
             *computeCommonCovarianceFlagPtr = TRUE;
 
-			}		// end "if (continueFlag)"
+			}	// end "if (continueFlag)"
 
-		}		// end "for (index=0; ..." 
+		}	// end "for (index=0; ..."
 
    if (!checkOnlyFlag)
       *numberClassesPtr = newIndex;
@@ -1136,7 +1157,7 @@ Boolean CheckClassStats(
 
    return (checkFlag);
 
-} // end "CheckClassStats" 
+}	// end "CheckClassStats"
 
 
 
@@ -1163,103 +1184,106 @@ Boolean CheckClassStats(
 //	Coded By:			Larry L. Biehl			Date: 06/25/1993
 //	Revised By:			Larry L. Biehl			Date: 02/28/2013
 
-Boolean CheckNumberOfPixelsInClass(
-   UInt32 numberClasses,
-   SInt16* classPtr,
-   SInt16 numberFeatures)
- {
-   CMFileStream* resultsFileStreamPtr;
+Boolean CheckNumberOfPixelsInClass (
+				UInt32								numberClasses,
+				SInt16*								classPtr,
+				SInt16								numberFeatures)
+{
+	CMFileStream*						resultsFileStreamPtr;
 
-   HPClassNamesPtr classNamesPtr;
+   HPClassNamesPtr					classNamesPtr;
 
-   UInt32 index;
+   UInt32								index;
 
-   SInt16 classNumber,
-      classStorage,
-      strLength;
+   SInt16								classNumber,
+											classStorage,
+											strLength;
 
-   Boolean continueFlag,
-      returnFlag;
+   Boolean								continueFlag,
+											returnFlag;
 
 
    returnFlag = FALSE;
 
-   if (classPtr != NULL) {
-      // Initialize local variables.												
+   if (classPtr != NULL)
+		{
+				// Initialize local variables.
 
       classNamesPtr = gProjectInfoPtr->classNamesPtr;
       returnFlag = TRUE;
 
-      // Now verify that the number of pixels in the class is at		
-      // one more than the number of channels to be used.  If not 	
-      // then list those classes that do not meet the criterion		
+				// Now verify that the number of pixels in the class is at
+				// one more than the number of channels to be used.  If not 	
+				// then list those classes that do not meet the criterion		
 
       resultsFileStreamPtr = GetResultsFileStreamPtr(0);
       continueFlag = TRUE;
 
-      for (index = 0; index < numberClasses; index++) {
+      for (index = 0; index < numberClasses; index++)
+			{
          classNumber = classPtr[index] - 1;
 
-         // Get the class storage number.										
+					// Get the class storage number.
 
          classStorage = gProjectInfoPtr->storageClass[classNumber];
 
          if (classNamesPtr[classStorage].numberStatisticsPixels < numberFeatures + 1 &&
-            classNamesPtr[classStorage].covarianceStatsToUse == kOriginalStats) {
+									classNamesPtr[classStorage].covarianceStatsToUse == kOriginalStats)
+				{
             pstr((char*) &gTextString2,
                (char*) &gProjectInfoPtr->classNamesPtr[classStorage].name,
                &strLength);
 
-            if (returnFlag) {
-               sprintf((char*) &gTextString,
-                  "%s    The number of pixels in the following classes needs "
-                  "to be at least%s     one more than the %hd features being "
-                  "used.%s      %s with %lld pixels%s",
-                  gEndOfLine,
-                  gEndOfLine,
-                  numberFeatures,
-                  gEndOfLine,
-                  gTextString2,
-                  classNamesPtr[classStorage].numberStatisticsPixels,
-                  gEndOfLine);
+            if (returnFlag)
+					{
+               sprintf ((char*)gTextString,
+									"%s    The number of pixels in the following classes needs "
+									"to be at least%s     one more than the %hd features being "
+									"used.%s      %s with %lld pixels%s",
+									gEndOfLine,
+									gEndOfLine,
+									numberFeatures,
+									gEndOfLine,
+									gTextString2,
+									classNamesPtr[classStorage].numberStatisticsPixels,
+									gEndOfLine);
 
                SysBeep(10);
 
-            }// end "if (returnFlag)"
+					}	// end "if (returnFlag)"
 
             else // !returnFlag 
-               sprintf((char*) &gTextString,
-               "      %s with %lld pixels%s",
-               gTextString2,
-               classNamesPtr[classStorage].numberStatisticsPixels,
-               gEndOfLine);
+               sprintf ((char*)&gTextString,
+								"      %s with %lld pixels%s",
+								gTextString2,
+								classNamesPtr[classStorage].numberStatisticsPixels,
+								gEndOfLine);
 
-            continueFlag = OutputString(
-               resultsFileStreamPtr,
-               (char*) &gTextString,
-               0,
-               gOutputForce1Code,
-               continueFlag);
+            continueFlag = OutputString (resultsFileStreamPtr,
+														(char*) &gTextString,
+														0,
+														gOutputForce1Code,
+														continueFlag);
 
             returnFlag = FALSE;
 
-         } // end "if (classNamesPtr[classNumber]... && ..." 
+				}	// end "if (classNamesPtr[classNumber]... && ..."
 
-      } // end "for ( index=0;..." 
+			}	// end "for ( index=0;..."
 
       if (!returnFlag)
-         // Insert a blank line after the list if there is one.
-         continueFlag = OutputString(resultsFileStreamPtr,
-         gEndOfLine,
-         gNumberOfEndOfLineCharacters,
-         gOutputForce1Code,
-         continueFlag);
+					// Insert a blank line after the list if there is one.
+         continueFlag = OutputString (resultsFileStreamPtr,
+													gEndOfLine,
+													gNumberOfEndOfLineCharacters,
+													gOutputForce1Code,
+													continueFlag);
 
-   } // end "if (classPtr != NULL)" 
+		}	// end "if (classPtr != NULL)"
 
    return (returnFlag);
 
-} // end "CheckNumberOfPixelsInClass" 
+}	// end "CheckNumberOfPixelsInClass"
 
 
 
@@ -1286,93 +1310,96 @@ Boolean CheckNumberOfPixelsInClass(
 //	Coded By:			Larry L. Biehl			Date: 01/15/1989
 //	Revised By:			Larry L. Biehl			Date: 06/12/1998	
 
-SInt16 ClassDialog(
-   UInt32* numberOutputClassesPtr,
-   SInt16* classPtr,
-   SInt16 minimumNumberClasses,
-   SInt16 numberInputClasses,
-   SInt16 currentSelection,
-   Handle parentOKHandle)
- {
-   DialogPtr dialogPtr;
+SInt16 ClassDialog (
+				UInt32*								numberOutputClassesPtr,
+				SInt16*								classPtr,
+				SInt16								minimumNumberClasses,
+				SInt16								numberInputClasses,
+				SInt16								currentSelection,
+				Handle								parentOKHandle)
+{
+	DialogPtr							dialogPtr;
 
-   SInt16 returnCode;
+   SInt16								returnCode;
 
-   Boolean returnFlag;
+   Boolean								returnFlag;
 
 
-   // Get the modal dialog for the reformat specification					
+			// Get the modal dialog for the reformat specification
 
-   dialogPtr = LoadRequestedDialog(kChannelSpecificationID, kCopyScrap, 1, 2);
-   if (dialogPtr != NULL) {
-      // Unhilite the OK control in the parent dialog box if it exists.
+   dialogPtr = LoadRequestedDialog (kChannelSpecificationID, kCopyScrap, 1, 2);
+   if (dialogPtr != NULL)
+		{
+				// Unhilite the OK control in the parent dialog box if it exists.
 
       if (parentOKHandle != NULL)
-         HiliteControl((ControlHandle) parentOKHandle, 255);
+         HiliteControl ((ControlHandle)parentOKHandle, 255);
 
-      // If all classes is the current setting, then assume that
-      // the subset is the single active project class.
+				// If all classes is the current setting, then assume that
+				// the subset is the single active project class.
 
-      if (currentSelection == kAllMenuItem && gProjectInfoPtr->currentClass >= 0) {
+      if (currentSelection == kAllMenuItem && gProjectInfoPtr->currentClass >= 0)
+			{
          *numberOutputClassesPtr = 1;
          classPtr[0] = gProjectInfoPtr->currentClass + 1;
 
-      } // end "if (currentSelection = kAllMenuItem && ..."
+			}	// end "if (currentSelection = kAllMenuItem && ..."
 
-      // Get a handle to a one column list.											
+				// Get a handle to a one column list.
 
-      gDialogListHandle = GetOneColumnDialogListHandle(dialogPtr, 5);
+      gDialogListHandle = GetOneColumnDialogListHandle (dialogPtr, 5);
 
-      //	Load address of routine that will load the class list.				
+				//	Load address of routine that will load the class list.
 
-      SetDialogItemDrawRoutine(dialogPtr, 5, gCreateOneColumnList1Ptr);
+      SetDialogItemDrawRoutine (dialogPtr, 5, gCreateOneColumnList1Ptr);
 
-      //	Item 6: Load title of class list dialog.									
-      //	Item 7: Load title for class list.											
+				//	Item 6: Load title of class list dialog.
+				//	Item 7: Load title for class list.											
 
-      SetWTitle(GetDialogWindow(dialogPtr), "\pSelect Classes");
-      LoadDItemString(dialogPtr, 7, (Str255*) "\pClass List");
+      SetWTitle (GetDialogWindow(dialogPtr), "\pSelect Classes");
+      LoadDItemString (dialogPtr, 7, (Str255*) "\pClass List");
 
-      // Initialize the class range text edit items.								
+				// Initialize the class range text edit items.
 
-      LoadDItemValue(dialogPtr, 9, (SInt32) 1);
-      LoadDItemValue(dialogPtr, 11, (SInt32) numberInputClasses);
-      LoadDItemValue(dialogPtr, 13, (SInt32) 1);
-      SetDLogControlHilite(dialogPtr, 14, 0);
+      LoadDItemValue (dialogPtr, 9, (SInt32) 1);
+      LoadDItemValue (dialogPtr, 11, (SInt32) numberInputClasses);
+      LoadDItemValue (dialogPtr, 13, (SInt32) 1);
+      SetDLogControlHilite (dialogPtr, 14, 0);
 
-      // Center the dialog and then show it.											
+				// Center the dialog and then show it.
 
-      ShowDialogWindow(
-         dialogPtr, kChannelSpecificationID, kDoNotSetUpDFilterTable);
+      ShowDialogWindow (
+					dialogPtr, kChannelSpecificationID, kDoNotSetUpDFilterTable);
 
-      // Continue if there is a valid dialog list handle.						
+				// Continue if there is a valid dialog list handle.
 
       returnFlag = FALSE;
-      if (gDialogListHandle != NULL) {
-         // Load the class names into the list.										
+      if (gDialogListHandle != NULL)
+			{
+					// Load the class names into the list.
 
          LSetDrawingMode(FALSE, gDialogListHandle);
 
          LoadClassNamesIntoList(gDialogListHandle);
 
-         SInt32 numberSelectedItems = SetClassListSelections(gDialogListHandle,
-            (SInt32) numberInputClasses,
-            (SInt32) * numberOutputClassesPtr,
-            (UInt16*) classPtr);
+         SInt32 numberSelectedItems = SetClassListSelections (gDialogListHandle,
+																					(SInt32)numberInputClasses,
+																					(SInt32)*numberOutputClassesPtr,
+																					(UInt16*)classPtr);
 
-         // Set the number of selected items.										
+					// Set the number of selected items.
 
-         LoadDItemValue(dialogPtr, 16, numberSelectedItems);
+         LoadDItemValue (dialogPtr, 16, numberSelectedItems);
 
-         // Turn list drawing mode back on.											
+					// Turn list drawing mode back on.
 
-         LSetDrawingMode(TRUE, gDialogListHandle);
+         LSetDrawingMode (TRUE, gDialogListHandle);
 
-         LUpdate(GetPortVisibleRegion(
-            GetDialogPort(dialogPtr), gTempRegion1), gDialogListHandle);
+         LUpdate (GetPortVisibleRegion (
+								GetDialogPort(dialogPtr), gTempRegion1), gDialogListHandle);
          SetEmptyRgn(gTempRegion1);
 
-         // Handle modal dialog selections for one column class list.		
+					// Handle modal dialog selections for one column class list.
 
          returnFlag = ModalOneColListDialog(dialogPtr, numberInputClasses,
             numberOutputClassesPtr, classPtr, minimumNumberClasses);
@@ -1381,19 +1408,19 @@ SInt16 ClassDialog(
             LDispose(gDialogListHandle);
          gDialogListHandle = NULL;
 
-      } // end "if (gDialogListHandle != NULL)" 
+			}	// end "if (gDialogListHandle != NULL)"
 
-      CloseRequestedDialog(dialogPtr, kDoNotSetUpDFilterTable);
+      CloseRequestedDialog (dialogPtr, kDoNotSetUpDFilterTable);
 
-      // Hilite the OK control again in the parent dialog box if it exists.
+				// Hilite the OK control again in the parent dialog box if it exists.
 
       if (parentOKHandle != NULL)
-         HiliteControl((ControlHandle) parentOKHandle, 0);
+         HiliteControl ((ControlHandle) parentOKHandle, 0);
 
       if (!returnFlag && currentSelection == kAllMenuItem)
          *numberOutputClassesPtr = numberInputClasses;
 
-   } // end "if (dialogPtr != NULL)"
+		}	// end "if (dialogPtr != NULL)"
 
    returnCode = kSubsetMenuItem;
    if (*numberOutputClassesPtr == numberInputClasses)
@@ -1401,7 +1428,7 @@ SInt16 ClassDialog(
 
    return (returnCode);
 
-} // end "ClassDialog"
+}	// end "ClassDialog"
 #endif	// defined multispec_mac  
 
 
@@ -1428,110 +1455,109 @@ SInt16 ClassDialog(
 //	Coded By:			Larry L. Biehl			Date: 06/14/1990
 //	Revised By:			Larry L. Biehl			Date: 12/28/1999	
 
-SInt16 ClassPairWeightsDialog(
-   UInt16 numberOfClassesToUse,
-   SInt16** weightsListPtrPtr,
-   SInt16 interClassWeightsSelection,
-   SInt16* defaultClassPairWeightPtr)
+SInt16 ClassPairWeightsDialog (
+				UInt16								numberOfClassesToUse,
+				SInt16**								weightsListPtrPtr,
+				SInt16								interClassWeightsSelection,
+				SInt16*								defaultClassPairWeightPtr)
  {
 #if defined multispec_mac
-   DialogPtr dialogPtr;
+	DialogPtr							dialogPtr;
 
-   Boolean continueFlag;
+   Boolean								continueFlag;
 
 
-   // Get the modal dialog for the reformat specification					
+			// Get the modal dialog for the reformat specification
 
-   dialogPtr = LoadRequestedDialog(kClassPairWeightsDialogID, kCopyScrap, 1, 2);
+   dialogPtr = LoadRequestedDialog (kClassPairWeightsDialogID, kCopyScrap, 1, 2);
    if (dialogPtr == NULL)
-      return (FALSE);
+																								return (FALSE);
 
-   // Get the list handle for the class-weight list.
+			// Get the list handle for the class-weight list.
 
    gDialogListHandle = GetOneColumnDialogListHandle(dialogPtr, 6);
 
-   // Get the list handle for the weight list.	
+			// Get the list handle for the weight list.
 
    if (gDialogListHandle != NULL)
-      gDialogListHandle2 = GetOneColumnDialogListHandle(dialogPtr, 7);
+      gDialogListHandle2 = GetOneColumnDialogListHandle (dialogPtr, 7);
 
-   // Continue if there is a valid dialog list handle.						
+			// Continue if there is a valid dialog list handle.
 
-   if (gDialogListHandle != NULL && gDialogListHandle2 != NULL) {
-      // Set some list parameters
+   if (gDialogListHandle != NULL && gDialogListHandle2 != NULL)
+		{
+				// Set some list parameters
 
       (*gDialogListHandle)->selFlags = lNoRect + lNoExtend + lUseSense;
       (*gDialogListHandle2)->selFlags = lOnlyOne;
 
-      //	Load address of routine that will load the class- 		
-      // symbol list.																	
+				//	Load address of routine that will load the class-symbol list.
 
-      SetDialogItemDrawRoutine(dialogPtr, 6, gCreateOneColumnList1Ptr);
+      SetDialogItemDrawRoutine (dialogPtr, 6, gCreateOneColumnList1Ptr);
 
-      //	Load address of routine that will load the class 		
-      // pair-weight list.																
+				//	Load address of routine that will load the class pair-weight list.
 
-      SetDialogItemDrawRoutine(dialogPtr, 7, gCreateOneColumnList2Ptr);
+      SetDialogItemDrawRoutine (dialogPtr, 7, gCreateOneColumnList2Ptr);
 
-      // Initialize some dialog parameters.
+				// Initialize some dialog parameters.
 
-      ClassPairWeightsDialogInitialize(dialogPtr,
-         *defaultClassPairWeightPtr,
-         defaultClassPairWeightPtr);
+      ClassPairWeightsDialogInitialize (dialogPtr,
+														*defaultClassPairWeightPtr,
+														defaultClassPairWeightPtr);
 
-      //	Load 0 in for new weight.										
+				//	Load 0 in for new weight.
 
-      LoadDItemValue(dialogPtr, 9, 0);
+      LoadDItemValue (dialogPtr, 9, 0);
 
-      //	Load in the default weight.									
+				//	Load in the default weight.
 
-      LoadDItemValue(dialogPtr, 14, (SInt32) * defaultClassPairWeightPtr);
+      LoadDItemValue (dialogPtr, 14, (SInt32)*defaultClassPairWeightPtr);
 
-      // Center the dialog and then show it.										
+				// Center the dialog and then show it.
 
-      ShowDialogWindow(
+      ShowDialogWindow (
          dialogPtr, kClassPairWeightsDialogID, kDoNotSetUpDFilterTable);
 
-      // Set default text selection to first edit text item.				
+				// Set default text selection to first edit text item.
 
       SelectDialogItemText(dialogPtr, 9, 0, INT16_MAX);
 
-      // Get deactivate event for the window that is now behind the  	
-      // dialog and handle it.														
+				// Get deactivate event for the window that is now behind the
+				// dialog and handle it.														
 
       CheckSomeEvents(activMask);
 
-      // Load the class list.															
+				// Load the class list.
 
-      LoadClassList(
-         dialogPtr, gDialogListHandle, numberOfClassesToUse, NULL, NULL, FALSE);
+      LoadClassList (
+				dialogPtr, gDialogListHandle, numberOfClassesToUse, NULL, NULL, FALSE);
 
-      // Load the class weight group list if any exist.						
+				// Load the class weight group list if any exist.
 
       LoadClassWeightGroups(dialogPtr, gDialogListHandle2, *weightsListPtrPtr);
 
-      // Handle modal dialog selections for one column class list.		
+				// Handle modal dialog selections for one column class list.
 
       continueFlag = FALSE;
       if (gMemoryError == noErr)
-         continueFlag = ClassPairWeightsDialogModal(dialogPtr,
-         numberOfClassesToUse);
+         continueFlag = ClassPairWeightsDialogModal (dialogPtr, numberOfClassesToUse);
 
-      if (continueFlag) {
-         ClassPairWeightsDialogOK(dialogPtr,
-            gDialogListHandle2,
-            weightsListPtrPtr,
-            &interClassWeightsSelection,
-            (SInt32) GetDItemValue(dialogPtr, 14),
-            defaultClassPairWeightPtr);
+      if (continueFlag)
+			{
+         ClassPairWeightsDialogOK (dialogPtr,
+												gDialogListHandle2,
+												weightsListPtrPtr,
+												&interClassWeightsSelection,
+												(SInt32) GetDItemValue(dialogPtr, 14),
+												defaultClassPairWeightPtr);
 
-      } // end "if (continueFlag)" 
+			}	// end "if (continueFlag)"
 
-      // Make certain that global memory error is set back to 'noErr'.	
+				// Make certain that global memory error is set back to 'noErr'.
 
       gMemoryError = noErr;
 
-   } // end "if (gDialogListHandle != NULL && ...)" 
+		}	// end "if (gDialogListHandle != NULL && ...)"
 
    if (gDialogListHandle != NULL)
       LDispose(gDialogListHandle);
@@ -1541,37 +1567,40 @@ SInt16 ClassPairWeightsDialog(
       LDispose(gDialogListHandle2);
    gDialogListHandle2 = NULL;
 
-   CloseRequestedDialog(dialogPtr, kDoNotSetUpDFilterTable);
+   CloseRequestedDialog (dialogPtr, kDoNotSetUpDFilterTable);
 #endif	// defined multispec_mac
 
-	#if defined multispec_win   	
+#	if defined multispec_win
 		CMClassPairWeightDlg* classPairWeightDialogPtr = NULL;
 
-		TRY{
+		TRY
+			{
 			classPairWeightDialogPtr = new CMClassPairWeightDlg();
 
 			interClassWeightsSelection =
-			classPairWeightDialogPtr->DoDialog(
-			numberOfClassesToUse,
-			weightsListPtrPtr,
-			interClassWeightsSelection,
-			defaultClassPairWeightPtr);
+			classPairWeightDialogPtr->DoDialog (
+												numberOfClassesToUse,
+												weightsListPtrPtr,
+												interClassWeightsSelection,
+												defaultClassPairWeightPtr);
 
 			if (classPairWeightDialogPtr != NULL)
 				delete classPairWeightDialogPtr;
 
 			}
 
-		CATCH_ALL(e) {
+		CATCH_ALL(e)
+			{
 			MemoryMessage(0, kObjectMessage);
 			}
 		END_CATCH_ALL
-	#endif	// defined multispec_win  
+#	endif	// defined multispec_win
 
-   #if defined multispec_lin  	
+#	if defined multispec_lin
 		CMClassPairWeightDlg* classPairWeightDialogPtr = NULL;
 
-		try{
+		try
+			{
 			classPairWeightDialogPtr = new CMClassPairWeightDlg();
 
 			interClassWeightsSelection =
@@ -1586,14 +1615,15 @@ SInt16 ClassPairWeightsDialog(
 
 			}
 
-		catch(int e) {
+		catch(int e)
+			{
 			MemoryMessage(0, kObjectMessage);
 			}
-	#endif	// defined multispec_lin 
+#	endif	// defined multispec_lin
    
    return (interClassWeightsSelection);
 
-}		// end "ClassPairWeightsDialog"		
+}	// end "ClassPairWeightsDialog"		
 
 
 
@@ -3451,7 +3481,7 @@ void CreateFieldRgn(
 //
 //	Parameters out:	None
 //
-// Value Returned:	Binary soded short int - 1's column set if non-
+// Value Returned:	Binary SInt16 - 1's column set if non-
 //										cluster, training field exists; 2's column
 //										set if non-cluster, testing field exists,
 //										4's column is set if a cluster field exists.
@@ -3461,24 +3491,24 @@ void CreateFieldRgn(
 //	Coded By:			Larry L. Biehl			Date: 10/31/1991
 //	Revised By:			Larry L. Biehl			Date: 12/30/1998	
 
-SInt16 DetermineFieldTypes(void)
- {
-   HPClassNamesPtr classNamesPtr;
-   HPFieldIdentifiersPtr fieldIdentPtr;
+SInt16 DetermineFieldTypes (void)
+{
+	HPClassNamesPtr					classNamesPtr;
+   HPFieldIdentifiersPtr			fieldIdentPtr;
 
-   SInt16 classStorage,
-      clusterField,
-      fieldNumber,
-      nonClusterTrainField,
-      nonClusterTestField;
+   SInt16								classStorage,
+											clusterField,
+											fieldNumber,
+											nonClusterTrainField,
+											nonClusterTestField;
 
-   UInt16 classIndex;
+   UInt16								classIndex;
 
 
    if (gProjectInfoPtr == NULL)
-      return (0);
+																										return (0);
 
-   // Initialize local variables.													
+			// Initialize local variables.													
 
    classNamesPtr = gProjectInfoPtr->classNamesPtr;
    fieldIdentPtr = gProjectInfoPtr->fieldIdentPtr;
@@ -3488,40 +3518,43 @@ SInt16 DetermineFieldTypes(void)
 
 
    for (classIndex = 0;
-      classIndex < gProjectInfoPtr->numberStatisticsClasses;
-      classIndex++) {
-      // Get the class storage number.												
+			classIndex < gProjectInfoPtr->numberStatisticsClasses;
+			classIndex++) 
+		{
+				// Get the class storage number.												
 
       classStorage = gProjectInfoPtr->storageClass[classIndex];
 
       fieldNumber = classNamesPtr[classStorage].firstFieldNumber;
 
-      while (fieldNumber != -1) {
-         // If the field is not a cluster type of field, then set		
-         // appropriate variable to indicate that a non cluster type	
-         // field exists.															
+      while (fieldNumber != -1) 
+			{
+					// If the field is not a cluster type of field, then set		
+					// appropriate variable to indicate that a non cluster type	
+					// field exists.															
 
-         if (fieldIdentPtr[fieldNumber].pointType != kClusterType) {
+         if (fieldIdentPtr[fieldNumber].pointType != kClusterType) 
+				{
             if (fieldIdentPtr[fieldNumber].fieldType & kTrainingType)
                nonClusterTrainField = 1;
 
             if (fieldIdentPtr[fieldNumber].fieldType & kTestingType)
                nonClusterTestField = 2;
 
-         }// end "if (fieldIdentPtr[fieldNumber].pointType < ..." 
+				}	// end "if (fieldIdentPtr[fieldNumber].pointType < ..." 
 
          else // fieldIdentPtr[fieldNumber].pointType == kClusterType 
             clusterField = 4;
 
          fieldNumber = fieldIdentPtr[fieldNumber].nextField;
 
-      } // end "while ( fieldNumber != -1 )" 
+			}	// end "while (fieldNumber != -1)" 
 
-   } // end "for ( classIndex=0; classIndex<..." 
+		}	// end "for ( classIndex=0; classIndex<..." 
 
    return (clusterField + nonClusterTrainField + nonClusterTestField);
 
-} // end "DetermineFieldTypes" 
+}	// end "DetermineFieldTypes" 
 
 
 

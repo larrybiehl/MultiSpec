@@ -13,7 +13,7 @@
 //
 //	Revision number:		2.7
 //
-//	Revision date:			04/11/2017
+//	Revision date:			07/05/2017
 //
 //	Language:				C
 //
@@ -25,7 +25,7 @@
 //	Functions in file:	void 					CloseImageFile
 //								void 					IOCheck
 //
-/* Template for debugging
+/* Template for debugging for MultiSpec Online on mygeohub.org.
 	int numberChars = sprintf ((char*)&gTextString3,
 								" CMFileStream::MSetSizeOfFile (countBytes, errCode) %d, %d%s", 
 								countBytes,
@@ -44,9 +44,6 @@
 #include "CFileStr.h"
 #include "CImagWin.h"
 
-#include	"SExtGlob.h" 
-
-
 
 // ---------------------------------------------------------------------------
 //		CMFileStream
@@ -56,6 +53,24 @@
 CMFileStream::CMFileStream(void)
  
 {
+#	if defined multispec_lin
+		mFilePathName[0] = 0;
+		mFilePathName[1] = 0; 
+		mPascalFileName[0] = 0; 
+		mPascalFileName[1] = 0;
+
+		mUTF8PathName[0] = 0;
+		mUTF8PathName[1] = 0;
+		mUTF8FileName[0] = 0;
+		mUTF8FileName[1] = 0;
+
+		mUnicodePathLength = 0;
+		mUTF8PathLength = 0;
+	
+		mCreator = -1;
+		mFileType = -1;
+#	endif	// defined multispec_lin
+
 #	if defined multispec_win
 		mFilePathName[0] = 0;
 		mFilePathName[1] = 0; 
@@ -73,15 +88,6 @@ CMFileStream::CMFileStream(void)
 		mCreator = -1;
 		mFileType = -1;
 #	endif	// defined win
-  
-#	if defined multispec_lin
-		mFilePathName[0] = 0;
-		mFilePathName[1] = 0; 
-		mPascalFileName[0] = 0; 
-		mPascalFileName[1] = 0;
-		mCreator = -1;
-		mFileType = -1;
-#	endif	// defined multispec_lin
 
 }		// end "CMFileStream"
 
@@ -97,7 +103,7 @@ CMFileStream::CMFileStream(
 				CMFileStream			*inputFileStreamPtr) : CFile ()
 
 {  
-	UInt16 								length;
+	UInt16 					length;
 	
 	                 
 	mFilePathName[0] = 0; 
@@ -134,26 +140,45 @@ CMFileStream::CMFileStream(
 #endif	// defined multispec_win
  	
 #if defined multispec_lin
-CMFileStream::CMFileStream(CMFileStream *inputFileStreamPtr) : wxFile()
- {
-    UInt16 length;
+CMFileStream::CMFileStream (
+				CMFileStream				*inputFileStreamPtr) : wxFile()
+{
+	UInt16 length;
 
-    mFilePathName[0] = 0;
-    mFilePathName[1] = 0;
-    mPascalFileName[0] = 0;
-    mPascalFileName[1] = 0;
-    mCreator = -1;
-    mFileType = -1;
+	mFilePathName[0] = 0;
+	mFilePathName[1] = 0;
+	mPascalFileName[0] = 0;
+	mPascalFileName[1] = 0;
 
-    // Copy the input file path including pascal character count
-    // and the C string terminator
+	mUTF8PathName[0] = 0;
+	mUTF8PathName[1] = 0;
+	mUTF8FileName[0] = 0;
+	mUTF8FileName[1] = 0;
 
-    length = inputFileStreamPtr->mFilePathName[0] + 2;
-    length = MIN(length, 256);
+	mUnicodePathLength = 0;
+	mUTF8PathLength = 0;
+	
+	mCreator = -1;
+	mFileType = -1;
 
-    memcpy((CharPtr) & mFilePathName,(CharPtr) & inputFileStreamPtr->mFilePathName,(size_t) length);
+			// Copy the input file path including pascal character count
+			// and the C string terminator
 
-} // end "CMFileStream"
+	length = inputFileStreamPtr->mFilePathName[0] + 2;
+	length = MIN (length, 256);
+
+	//memcpy ((CharPtr)&mFilePathName, (CharPtr)&inputFileStreamPtr->mFilePathName, (size_t)length);
+	
+	MemoryCopy (mFilePathName, 
+					inputFileStreamPtr->mFilePathName, 
+					(size_t)length,
+					TRUE);
+
+			// Update the UTF8 version of the path name
+
+	SetUTF8FilePath ();
+
+}	// end "CMFileStream"
 #endif	// defined for linux
 
 
@@ -225,41 +250,51 @@ CMFileStream::CMFileStream(
 #endif 	// defined multispec_win
 
 #if defined multispec_lin
-CMFileStream::CMFileStream(StringPtr inFilePathPtr) : wxFile()
- {
-    UInt16 length;
+CMFileStream::CMFileStream (WideFileStringPtr inFilePathPtr) : wxFile()
+{
+	UInt16 length;
 
-    mFilePathName[0] = 0;
-    mFilePathName[1] = 0;
-    mPascalFileName[0] = 0;
-    mPascalFileName[1] = 0;
-    mCreator = -1;
-    mFileType = -1;
+	mFilePathName[0] = 0;
+	mFilePathName[1] = 0;
+	mPascalFileName[0] = 0;
+	mPascalFileName[1] = 0;
 
-    length = inFilePathPtr[0];
-    if (length == 0)
-        length = strlen((char*) & inFilePathPtr[1]);
+	mUTF8PathName[0] = 0;
+	mUTF8PathName[1] = 0;
+	mUTF8FileName[0] = 0;
+	mUTF8FileName[1] = 0;
 
-    // Copy the input file path including pascal character count
+	mUnicodePathLength = 0;
+	mUTF8PathLength = 0;
+	
+	mCreator = -1;
+	mFileType = -1;
 
-    length++;
-    length = MIN(length, 256);
+	length = inFilePathPtr[0];
+	if (length == 0)
+		length = strlen ((char*)&inFilePathPtr[1]);
 
-    memcpy((CharPtr) & mFilePathName,inFilePathPtr,(size_t) length);
+			// Copy the input file path including pascal character count
 
-    // Make sure pascal character count is available.
+	length++;
+	length = MIN(length, 256);
 
-    mFilePathName[0] = (UInt8) length;
+	memcpy ((CharPtr)&mFilePathName, inFilePathPtr, (size_t)length);
 
-    // Make certain that there is a C style terminator at the end.
+			// Make sure pascal character count is available.
 
-    mFilePathName[ length + 1 ] = 0;
+	mFilePathName[0] = (UInt8)length;
 
-    if (MOpenFile((SInt16)(kRead),(SInt16) (kNoErrorMessages)) == noErr) {
-        mCreator = -1;
-        mFileType = kTEXTFileType;
+			// Make certain that there is a C style terminator at the end.
 
-    } // end "if ( MOpenFile (kRead, kNoErrorMessages) ..."
+	mFilePathName[length+1] = 0;
+
+	if (MOpenFile((SInt16)(kRead),(SInt16) (kNoErrorMessages)) == noErr) 
+		{
+		mCreator = -1;
+		mFileType = kTEXTFileType;
+
+		}	// end "if ( MOpenFile (kRead, kNoErrorMessages) ..."
 
 } // end "CMFileStream"
 #endif 	// defined multispec_lin
@@ -338,7 +373,7 @@ SInt16 CMFileStream::ConvertFileErrorNumber (
 		
 	if (errCode != noErr)
 		{                  
-		#if defined multispec_win
+#		if defined multispec_win
 			switch (errCode)
 				{        
 				case CFileException::genericException:
@@ -395,17 +430,17 @@ SInt16 CMFileStream::ConvertFileErrorNumber (
 		   		       
 		   	}		// end "switch (errCode)"
 		                   
-			#endif	// defined multispec_win 
-			#if defined multispec_lin
+#			endif	// defined multispec_win 
+#			if defined multispec_lin
 					// Do nothing for now as wxwidgets does not return different error types
 				outErrorCode = 0;
-			#endif
+#			endif
 	   	
 	  		}		// end "if (errCode != noErr)"
 	  		
 	return (outErrorCode); 
 	   
-}		// end "ConvertFileErrorNumber" 
+}	// end "ConvertFileErrorNumber" 
 
 
 
@@ -429,22 +464,23 @@ SInt16 CMFileStream::ConvertFileErrorNumber (
 // Called By:	
 //
 //	Coded By:			Larry L. Biehl			Date: 11/16/1995
-//	Revised By:			Larry L. Biehl			Date: 11/16/1995
+//	Revised By:			Larry L. Biehl			Date: 07/05/2017
 
 Boolean CMFileStream::FileOpen ()
                       
-{			
-	#if defined multispec_win 
-		return (m_hFile != CFile::hFileNull);
-	#endif	// defined multispec_win     
-		
-   #if defined multispec_lin
-		mFilePathName[ mFilePathName[0] + 1 ] = 0;
-		if (wxFile::Exists(wxString::FromAscii((CharPtr) & mFilePathName[1])))
+{		   
+#	if defined multispec_lin
+		mFilePathName[mFilePathName[0]+1] = 0;
+		//if (wxFile::Exists(wxString::FromAscii ((CharPtr)&mFilePathName[1])))
+		if (wxFile::Exists(wxString (&mFilePathName[1])))
 			return (wxFile::IsOpened());
 		else
 			return FALSE;
-   #endif
+#	endif
+	
+#	if defined multispec_win 
+		return (m_hFile != CFile::hFileNull);
+#	endif	// defined multispec_win  
 }		// end "FileOpen"
   
 
@@ -597,13 +633,13 @@ void* CMFileStream::GetFileNameCPtr (
 				wFileNameCPtr = &mFilePathName[pathLength];
 				
 				nameLength = 0;
-				#if defined multispec_win
-					while ( (nameLength < pathLength) && (*wFileNameCPtr != '\\') )
-				#endif
-				
-				#if defined multispec_lin
+#				if defined multispec_lin
 					while((nameLength < pathLength) && (*wFileNameCPtr != '/'))
-				#endif
+#				endif
+
+#				if defined multispec_win
+					while ( (nameLength < pathLength) && (*wFileNameCPtr != '\\') )
+#				endif
 						{
 						wFileNameCPtr--;
 						nameLength++;
@@ -720,7 +756,7 @@ void* CMFileStream::GetFileNamePPtr (
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
-//	Function name:		void* GetFilePathPtr
+//	Function name:		void* GetFilePathPPtr
 //
 //	Software purpose:	The purpose of this routine is to get a pointer
 //							to the file name represented by the input file
@@ -735,23 +771,26 @@ void* CMFileStream::GetFileNamePPtr (
 // Called By:		
 //
 //	Coded By:			Larry L. Biehl			Date: 04/11/1995
-//	Revised By:			Larry L. Biehl			Date: 03/14/2017
+//	Revised By:			Larry L. Biehl			Date: 06/19/2017
 
 void* CMFileStream::GetFilePathPPtr (
 				SInt16								returnCode)                       
 {			
-#if defined multispec_win
-	if (returnCode == kReturnASCII)
-		return ((void*)mUTF8PathName); 
-	else	// returnCode != kReturnASCII
-		return ((void*)mFilePathName);    
-#endif	// defined multispec_win
+#	if defined multispec_lin
+		if (returnCode == kReturnASCII)
+			return ((void*)mUTF8PathName); 
+		else	// returnCode != kReturnASCII
+			return ((void*)mFilePathName);   
+#	endif	// ddefined multispec_lin
 
-#if defined multispec_lin
-	return ((StringPtr)&mFilePathName);    
-#endif	// ddefined multispec_lin
+#	if defined multispec_win
+		if (returnCode == kReturnASCII)
+			return ((void*)mUTF8PathName); 
+		else	// returnCode != kReturnASCII
+			return ((void*)mFilePathName);    
+#	endif	// defined multispec_win
 		
-}		// end "GetFilePathPtr"  
+}		// end "GetFilePathPPtr"  
 
 
 
@@ -806,7 +845,7 @@ void* CMFileStream::GetFilePathPtr (
 // Called By:	
 //
 //	Coded By:			Larry L. Biehl			Date: 04/11/1995
-//	Revised By:			Larry L. Biehl			Date: 01/29/2016
+//	Revised By:			Larry L. Biehl			Date: 06/22/2017
                      
 #if defined multispec_win 
 OSErr	CMFileStream::GetFileType (
@@ -875,24 +914,26 @@ OSErr	CMFileStream::GetFileType (
 	
 #if defined multispec_lin
 OSErr	CMFileStream::GetFileType (
-				StringPtr							filePathPtr,
+				WideFileStringPtr					filePathPtr,
 				long int								*fileTypePtr)
 {
-	SInt16 errCode;
-	UInt16 numSuffixChars;
-	Boolean fileExistsFlag = FALSE;
+	SInt16								errCode;
+	UInt16								numSuffixChars;
+	Boolean								fileExistsFlag = FALSE;
+	
 	
 			// Determine if the file exists
 			// Make certain that there is a C style string terminator
 			// at the end of the file path.
 
-	filePathPtr [filePathPtr[0]+1] = 0;
-	wxString strw = wxString::FromAscii((char*)&filePathPtr[1]);
+	filePathPtr[filePathPtr[0]+1] = 0;
+	wxString strw(&filePathPtr[1]);
 	wxFileName wfile = wxFileName(strw);
 	if(wfile.FileExists())
 		fileExistsFlag = TRUE;
 		
-	if (fileExistsFlag) {
+	if (fileExistsFlag) 
+		{
 		if (CompareSuffixNoCase("\0.STA", filePathPtr, &numSuffixChars))
 			*fileTypePtr = kISTAFileType;
 
@@ -938,7 +979,7 @@ OSErr	CMFileStream::GetFileType (
 // Called By:		
 //
 //	Coded By:			Larry L. Biehl			Date: 03/20/2017
-//	Revised By:			Larry L. Biehl			Date: 03/20/2017
+//	Revised By:			Larry L. Biehl			Date: 07/05/2017
 
 UInt16 CMFileStream::GetFileUTF8PathLength ()       
 {
@@ -955,7 +996,12 @@ UInt16 CMFileStream::GetFileUTF8PathLength ()
 		utf8FileNamePtr = &mUTF8PathName[fullPathLength];
 
 		nameLength = 0;
-		while ((nameLength < fullPathLength) && (*utf8FileNamePtr != '\\') )
+#		if defined multispec_lin
+			while ((nameLength < fullPathLength) && (*utf8FileNamePtr != '/') )
+#		endif
+#		if defined multispec_win
+			while ((nameLength < fullPathLength) && (*utf8FileNamePtr != '\\') )
+#		endif
 			{
 			utf8FileNamePtr--;
 			nameLength++;
@@ -969,70 +1015,10 @@ UInt16 CMFileStream::GetFileUTF8PathLength ()
 			mUTF8PathLength = 0;
 
 		}	// end "if (mUTF8PathLength == 0)"
-
+		
 	return (mUTF8PathLength);
  
 }	// end "GetFileUTF8PathLength"
-
-
-/*
-//-----------------------------------------------------------------------------
-//								 Copyright (1988-2017)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
-//
-//	Function name:		void GetPascalFileName
-//
-//	Software purpose:	The purpose of this routine is to copy the actual file 
-//							name not including the path to the specified location. 
-//							The file name will output in pascal format.
-//		
-//	Parameters in:		None
-//
-//	Parameters out:	None
-//
-//	Value Returned:	None
-//
-// Called By:		
-//
-//	Coded By:			Larry L. Biehl			Date: 05/18/1995
-//	Revised By:			Larry L. Biehl			Date: 05/18/1995
-
-CharPtr CMFileStream::GetPascalFileName (void)
-                     
-{			
-#if defined multispec_win 
-	UCharPtr				fileNamePtr;
-	
-	SInt16				nameLength,
-							pathLength;
-	
-	
-	pathLength = mFilePathName[0];
-	fileNamePtr = &mFilePathName[ pathLength ];
-	
-	nameLength = 0;
-	while ( (nameLength < pathLength) && (*fileNamePtr != '\\') )
-		{
-		fileNamePtr--;
-		nameLength++;
-		
-		}		// end "while ( (nameLength < pathLength) && ..."
-		
-	if (nameLength > 0)
-		{
-		fileNamePtr++; 
-		memcpy (&mPascalFileName[1], fileNamePtr, nameLength);
-		
-		}		// end "if (nameLength > 0)"
-		
-	mPascalFileName[0] = (UInt8)nameLength;
-		
-	return ( (CharPtr)&mPascalFileName[0] ); 
-#endif	// defined multispec_win
-		
-}		// end "GetPascalFileName"     
-*/
 
 
 //-----------------------------------------------------------------------------
@@ -1064,9 +1050,9 @@ void CMFileStream:: IOCheck (
 {	
 	if (errCode != noErr)
 		{            
-		#if defined multispec_win
+#		if defined multispec_win
 			::IOCheck(errCode, (char*)NULL);
-		#endif	// defined multispec_win  
+#		endif	// defined multispec_win  
 		   	
 		}		// end "if (errCode != noErr)" 
 		   
@@ -1098,26 +1084,26 @@ void CMFileStream:: IOCheck (
 void CMFileStream::MCloseFile (void)
                       
 {			
-#if defined multispec_win 
-   TRY
-   	{ 
-   	if (m_hFile != CFile::hFileNull)
-			Close();
-   	
-   	}
-   	
-   CATCH (CFileException, e)
-   	{                                                        
-   	IOCheck (e->m_cause);
-   	
-   	}
-   END_CATCH
-#endif	// defined multispec_win
+#	if defined multispec_win 
+		TRY
+			{ 
+			if (m_hFile != CFile::hFileNull)
+				Close();
+			
+			}
+			
+		CATCH (CFileException, e)
+			{                                                        
+			IOCheck (e->m_cause);
+			
+			}
+		END_CATCH
+#	endif	// defined multispec_win
    
-#if defined multispec_lin
-    if(IsOpened())
-        Close();
-#endif
+#	if defined multispec_lin
+		if(IsOpened())
+			Close();
+#	endif
 		
 }		// end "MCloseFile"  
 
@@ -1142,7 +1128,7 @@ void CMFileStream::MCloseFile (void)
 // Called By:		
 //
 //	Coded By:			Larry L. Biehl			Date: 05/18/1995
-//	Revised By:			Larry L. Biehl			Date: 03/16/2015
+//	Revised By:			Larry L. Biehl			Date: 07/05/2017
 
 SInt16 CMFileStream::MCreateNewFile (
 				Boolean								replaceFlag)
@@ -1157,27 +1143,29 @@ SInt16 CMFileStream::MCreateNewFile (
    
    		// Now open a new file. If the file already exists the size
    		// is changed to 0 bytes.
+
+#	if defined multispec_lin
+		if (!replaceFlag && 
+			//wxFile::Exists (wxString::FromAscii ((CharPtr)&mFilePathName[1])))
+			wxFile::Exists (wxString(&mFilePathName[1])))
+																					return (dupFNErr);
+	
+				// This will overwrite it if it already exists
+		errCode = MOpenFile ((SInt16)(wxFile::write), (SInt16)kErrorMessages);
+		MCloseFile();
+				// Now open it in read/write mode
+		errCode = MOpenFile ((SInt16)(wxFile::read_write), (SInt16)kErrorMessages);
+#	endif
+
 #	if defined multispec_win
 		errCode = MOpenFile(
 				(SInt16)(CFile::modeReadWrite|CFile::modeCreate|CFile::typeBinary),
 				(SInt16)(kErrorMessages) );
 #	endif
 
-#	if defined multispec_lin
-		if (!replaceFlag && 
-			wxFile::Exists(wxString::FromAscii((CharPtr) & mFilePathName[1])))
-																					return (dupFNErr);
-	
-				// This will overwrite it if it already exists
-		errCode = MOpenFile((SInt16) (wxFile:: write),(SInt16) (kErrorMessages));
-		MCloseFile();
-				// Now open it in read/write mode
-		errCode = MOpenFile((SInt16) (wxFile:: read_write),(SInt16) (kErrorMessages));
-#	endif
-
 	return (errCode);
 		
-}		// end "MCreateNewFile" 
+}	// end "MCreateNewFile" 
 
 
 
@@ -1248,7 +1236,7 @@ SInt16 CMFileStream::MDeleteFile (
 		mFilePathName[mFilePathName[0]+1] = 0;   
 		
 		                                          
-   	bool suc = wxRemoveFile ((CharPtr)&mFilePathName[1]);
+   	bool suc = wxRemoveFile (&mFilePathName[1]);
       if(!suc)
          errCode = -36;
    	 		
@@ -1433,12 +1421,12 @@ SInt16 CMFileStream::MGetSizeOfFile (
 #if defined multispec_lin
     SInt16 errCode = noErr;
     if(IsOpened())
-    {
-        wxFileOffset len = Length();
-        *countPtr = (SInt64)len;
-    }
+		{
+		wxFileOffset len = Length();
+		*countPtr = (SInt64)len;
+		}
     else
-        errCode = -1;
+		errCode = -1;
     return errCode;
 #endif	
 }		// end "MGetSizeOfFile"
@@ -1463,127 +1451,125 @@ SInt16 CMFileStream::MGetSizeOfFile (
 // Called By:	
 //
 //	Coded By:			Larry L. Biehl			Date: 05/04/1995
-//	Revised By:			Larry L. Biehl			Date: 04/11/2017
+//	Revised By:			Larry L. Biehl			Date: 07/05/2017
 
 SInt16 CMFileStream::MOpenFile (
-				UInt16			readWriteCode,
-				UInt16			messageCode)
+				UInt16								readWriteCode,
+				UInt16								messageCode)
                       
 {			
-#if defined multispec_win 	
-	CFileException		error;
-	SInt16				errCode = noErr;
+	SInt16								errCode = noErr;  
 	
-   
-   if (m_hFile == CFile::hFileNull)
-   	{     
-//		#if defined _UNICODE
-					// Make certain that there is a C style terminator at the end.
-				
-//			mUniFilePathName[ mUniFilePathName[0]+1 ] = 0;
-	           
-//			if (Open((LPCTSTR)&mUniFilePathName[1],    
-//					readWriteCode | shareDenyNone,
-//					&error) )
-//		#endif
-//		#if !defined _UNICODE
-					// Make certain that there is a C style terminator at the end.
-				
-			mFilePathName[mFilePathName[0]+1] = 0;
-	           
-			if (Open((LPCTSTR)&mFilePathName[1],    
-					readWriteCode | shareDenyNone,
-					&error) )
-//		#endif
-			{ 	                       
-			mCreator = -1;
-			mFileType = kTEXTFileType;
-		
-			}		// end "if ( Open ( (CharPtr)inFilePathPtr, ..."
-			
-		else		// !Open (...
-			{
-			errCode = error.m_cause;
-			//errCode = (SInt16)GetLastError ();
-				               
-			if (messageCode == kErrorMessages)                                      
-	   		IOCheck (errCode);
-   	
-   		errCode = ConvertFileErrorNumber (errCode);
-	   		
-	   	}		// end "else !Open (..."
-			
-		}		// end "if (m_hFile == CFile::hFileNull)"
-		
-	return (errCode); 
-#endif	// defined multispec_win     
 
-#if defined multispec_lin
-    //CFileException error; wxFile does not return any error. It just closes the file
-	SInt16 errCode = noErr;
-    
-			// Make certain that there is a C style terminator at the end.
+#	if defined multispec_lin
+		//CFileException error; wxFile does not return any error. It just closes the file
+		 
+				// Make certain that there is a C style terminator at the end.
 
-	mFilePathName[ mFilePathName[0] + 1 ] = 0;
-	if(readWriteCode == kRead)
-		{
-		if (wxFile::Exists(wxString::FromAscii((CharPtr) & mFilePathName[1])))
+		mFilePathName[mFilePathName[0]+1] = 0;
+		if(readWriteCode == kRead)
+			{	
+			if (wxFile::Exists(wxString(&mFilePathName[1])))
+				{
+				if (Open(wxString (&mFilePathName[1]),kRead)) 
+					{
+					mCreator = -1;
+					mFileType = kTEXTFileType;
+					open_mode = readWriteCode;
+					}	// end "if ( Open ( (CharPtr)inFilePathPtr, ..."
+
+				else // !Open (...
+					{
+						 //if (messageCode == kErrorMessages)
+						 //    IOCheck(errCode);
+						 //errCode = ConvertFileErrorNumber(errCode);
+					errCode = -1;
+					}	// end "else !Open (..."
+					
+				}	// end "if (wxFile::Exists(wxString(&mFilePathName[1])))"
+				
+			else
+				errCode = fnfErr;
+				
+			}	// end "if(readWriteCode == kRead)"
+			
+		else if(readWriteCode == kWrite)
 			{
-			if (Open(wxString::FromAscii((CharPtr) & mFilePathName[1]),kRead)) {
+			if (Open(wxString(&mFilePathName[1]), kWrite)) 
+				{
 				mCreator = -1;
 				mFileType = kTEXTFileType;
 				open_mode = readWriteCode;
+				
 				}	// end "if ( Open ( (CharPtr)inFilePathPtr, ..."
 
 			else // !Open (...
 				{
-                //if (messageCode == kErrorMessages)
-                //    IOCheck(errCode);
-                //errCode = ConvertFileErrorNumber(errCode);
+				//if (messageCode == kErrorMessages)
+				//    IOCheck(errCode);
+				//errCode = ConvertFileErrorNumber(errCode);
 				errCode = -1;
-            } // end "else !Open (..."
+				}	// end "else !Open (..."
 			}
 			
-		else
-			errCode = fnfErr;
-    }
-    else if(readWriteCode == kWrite)
-		{
-        if (Open(wxString::FromAscii((CharPtr) & mFilePathName[1]),kWrite)) {
-        mCreator = -1;
-        mFileType = kTEXTFileType;
-        open_mode = readWriteCode;
-        }// end "if ( Open ( (CharPtr)inFilePathPtr, ..."
+		else if (readWriteCode == kReadWrite)
+			{
+			if (Open(wxString(&mFilePathName[1]), kReadWrite)) 
+				{
+				mCreator = -1;
+				mFileType = kTEXTFileType;
+				open_mode = readWriteCode;
+			  
+				}	// end "if ( Open ( (CharPtr)inFilePathPtr, ..."
 
-        else // !Open (...
-        {
-
-            //if (messageCode == kErrorMessages)
-            //    IOCheck(errCode);
-            //errCode = ConvertFileErrorNumber(errCode);
-            errCode = -1;
-        } // end "else !Open (..."
-    }
-    else if(readWriteCode == kReadWrite)
-    {
-        if (Open(wxString::FromAscii((CharPtr) & mFilePathName[1]),kReadWrite)) {
-        mCreator = -1;
-        mFileType = kTEXTFileType;
-        open_mode = readWriteCode;
-        }// end "if ( Open ( (CharPtr)inFilePathPtr, ..."
-
-        else // !Open (...
-        {
-
-            //if (messageCode == kErrorMessages)
-            //    IOCheck(errCode);
-            //errCode = ConvertFileErrorNumber(errCode);
-            errCode = -1;
-        } // end "else !Open (..."
-    }
-    return (errCode);
-#endif	// defined multispec_lin
-}		// end "MOpenFile"
+			else // !Open (...
+				{
+				//if (messageCode == kErrorMessages)
+				//    IOCheck(errCode);
+				//errCode = ConvertFileErrorNumber(errCode);
+				errCode = -1;
+				
+				}	// end "else !Open (..."
+			}
+		return (errCode);
+#	endif	// defined multispec_lin
+	
+#	if defined multispec_win 	
+		CFileException						error;
+		
+		
+		if (m_hFile == CFile::hFileNull)
+			{     
+					// Make certain that there is a C style terminator at the end.
+				
+			mFilePathName[mFilePathName[0]+1] = 0;
+				  
+			if (Open((LPCTSTR)&mFilePathName[1],    
+					readWriteCode | shareDenyNone,
+					&error) )
+				{ 	                       
+				mCreator = -1;
+				mFileType = kTEXTFileType;
+			
+				}		// end "if ( Open ( (CharPtr)inFilePathPtr, ..."
+				
+			else		// !Open (...
+				{
+				errCode = error.m_cause;
+				//errCode = (SInt16)GetLastError ();
+										
+				if (messageCode == kErrorMessages)                                      
+					IOCheck (errCode);
+			
+				errCode = ConvertFileErrorNumber (errCode);
+					
+				}		// end "else !Open (..."
+				
+			}		// end "if (m_hFile == CFile::hFileNull)"
+			
+		return (errCode); 
+#	endif	// defined multispec_win   
+}	// end "MOpenFile"
 
 
 
@@ -1618,7 +1604,7 @@ SInt16 CMFileStream::MPeekData (
 	SInt32			bytesRead = 0;
    SInt16			errCode = noErr;
    
-	#if defined multispec_win 
+#	if defined multispec_win 
 	   ULONGLONG			currentPosition;
 	   
 	   
@@ -1639,26 +1625,27 @@ SInt16 CMFileStream::MPeekData (
 	   	
 	   	}
 	   END_CATCH				                        
-	#endif	// defined multispec_win
+#	endif	// defined multispec_win
 
-#if defined multispec_lin
-    if(IsOpened())
-    {
-        wxFileOffset currentPosition;
-        currentPosition = Tell();
-        bytesRead = (SInt32)Read(outBufferPtr, (size_t)*numberBytesPtr);
-        currentPosition = Seek(currentPosition, wxFromStart);
-        if(currentPosition == wxInvalidOffset)
-            errCode = -1;
-    }
-    else
-        errCode = -1;
-#endif	// defined lin
+#	if defined multispec_lin
+		if(IsOpened())
+			{
+			wxFileOffset currentPosition;
+			currentPosition = Tell();
+			bytesRead = (SInt32)Read(outBufferPtr, (size_t)*numberBytesPtr);
+			currentPosition = Seek(currentPosition, wxFromStart);
+			if(currentPosition == wxInvalidOffset)
+				errCode = -1;
+			}
+		else
+			errCode = -1;
+#	endif	// defined lin
+
 	*numberBytesPtr = bytesRead;
 		
-	return ( errCode );
+	return (errCode);
   
-}		// end "MPeekData"
+}	// end "MPeekData"
 
 
 
@@ -1693,7 +1680,7 @@ SInt16 CMFileStream::MReadData (
 	UInt32 			bytesRead = 0;
 	SInt16 			errCode = noErr;
 	
-	#if defined multispec_win 
+#	if defined multispec_win 
 		//  if (m_hFile == CFile::hFileNull)
 		//  	return 1;
 
@@ -1717,11 +1704,10 @@ SInt16 CMFileStream::MReadData (
 
 			}
 		END_CATCH 				                        
-	#endif	// defined multispec_win
+#	endif	// defined multispec_win
 	
-
-	#if defined multispec_lin
-		if(IsOpened())
+#	if defined multispec_lin
+		if (IsOpened())
 			{
 			SInt32			linuxBytesRead;
 			wxFileOffset	flength = Length();
@@ -1743,7 +1729,7 @@ SInt16 CMFileStream::MReadData (
 			}
 		else
 			errCode = -1;
-	#endif
+#	endif
 	
 	*numberBytesPtr = bytesRead;
 					
@@ -1774,16 +1760,16 @@ SInt16 CMFileStream::MReadData (
 //	Coded By:			Larry L. Biehl			Date: 04/28/1995 
 //	Revised By:			Larry L. Biehl			Date: 01/17/1996  
 
-SInt16 CMFileStream::MSetMarker(
-				SInt64			inOffset,
-				SInt16			fromCode,
-				SInt16			messageCode)
+SInt16 CMFileStream::MSetMarker (
+				SInt64								inOffset,
+				SInt16								fromCode,
+				SInt16								messageCode)
                     
 {
-	SInt16		errCode = noErr;
+	SInt16								errCode = noErr;
 		
-	#if defined multispec_win 
-	//   	if (m_hFile != CFile::hFileNull)
+#	if defined multispec_win 
+		//if (m_hFile != CFile::hFileNull)
 	
 	   TRY
 	   	{
@@ -1810,7 +1796,7 @@ SInt16 CMFileStream::MSetMarker(
 	   	}
 	   	
 	   END_CATCH				                        
-	#endif	// defined multispec_win
+#	endif	// defined multispec_win
 	
 #	if defined multispec_lin
 		if(IsOpened())
@@ -1830,7 +1816,7 @@ SInt16 CMFileStream::MSetMarker(
 
 	return (errCode);
   
-}		// end "MSetMarker"  
+}	// end "MSetMarker"  
 
 
 
@@ -1919,9 +1905,9 @@ SInt16 CMFileStream::MWriteData (
 {
 	SInt16 		errCode = noErr; 
 	
-	#if defined multispec_win 
-	 //  if (m_hFile == CFile::hFileNull)
-	 //  	return 1;
+#	if defined multispec_win 
+		//if (m_hFile == CFile::hFileNull)
+		//		return 1;
 	   	
 	   TRY
 	   	{
@@ -1939,21 +1925,23 @@ SInt16 CMFileStream::MWriteData (
 	   	
 	   	}
 	   END_CATCH  				                        
-	#endif	// defined multispec_win
+#	endif	// defined multispec_win
       
-#if defined multispec_lin
-    size_t written;
-    if(IsOpened()){
-    written = Write(inBufferPtr, *numberBytesPtr);
-    if(written != *numberBytesPtr)
-        errCode = -1;
-    }
-    else
-        errCode = -1;
-#endif
+#	if defined multispec_lin
+		size_t written;
+		if(IsOpened())
+			{
+			written = Write(inBufferPtr, *numberBytesPtr);
+			if(written != *numberBytesPtr)
+				errCode = -1;
+			}
+		else
+			errCode = -1;
+#	endif
+	
 	return (errCode); 
   
-}		// end "MWriteData"     
+}	// end "MWriteData"     
 
 
 //-----------------------------------------------------------------------------
@@ -1976,7 +1964,7 @@ SInt16 CMFileStream::MWriteData (
 // Called By:		
 //
 //	Coded By:			Larry L. Biehl			Date: 03/15/1999
-//	Revised By:			Larry L. Biehl			Date: 04/11/2017
+//	Revised By:			Larry L. Biehl			Date: 06/01/2017
 
 void CMFileStream::SetFileName (
 				FileStringPtr						inFileNamePtr)
@@ -1987,6 +1975,10 @@ void CMFileStream::SetFileName (
 
 	int									sizeNeeded;
 	UInt16								inFileNameLength;
+	
+#	if defined multispec_lin
+		wxMBConvUTF8						converter;
+#	endif
 				
 	
 	if (inFileNamePtr == NULL)
@@ -2002,11 +1994,20 @@ void CMFileStream::SetFileName (
 			inFileNamePtr = mUTF8PathName;
 			filePathNamePtr = mFilePathName;
 
-			sizeNeeded = MultiByteToWideChar (
+#			if defined multispec_lin
+				sizeNeeded = converter.ToWChar (NULL, -1, (char*)&mUTF8PathName[1]);
+				sizeNeeded = MIN(sizeNeeded, _MAX_PATH-2);
+				sizeNeeded = converter.ToWChar (&mFilePathName[1], sizeNeeded, (char*)&mUTF8PathName[1]);
+#			endif	// end defined multispec_lin
+
+#			if defined multispec_win
+				sizeNeeded = MultiByteToWideChar (
 									CP_UTF8, 0, (LPCSTR)&mUTF8PathName[1], -1, NULL, 0);
-			sizeNeeded = MIN(sizeNeeded, _MAX_PATH-2);
-			MultiByteToWideChar (
+				sizeNeeded = MIN(sizeNeeded, _MAX_PATH-2);
+				MultiByteToWideChar (
 					CP_UTF8, 0, (LPCSTR)&mUTF8PathName[1], -1, &mFilePathName[1], sizeNeeded);
+#			endif	// end defined multispec_win
+			
 			mFilePathName[0] = (TBYTE)wcslen (&mFilePathName[1]);
 
 					// Force the unicode version of the file name to be generated and
@@ -2053,10 +2054,18 @@ void CMFileStream::SetFileName (
 					// to wide string to be able to add to the wide (unicoded)
 					// full path.
 
-			int sizeNeeded = MultiByteToWideChar (
+#			if defined multispec_lin
+				sizeNeeded = converter.ToWChar (NULL, -1, (char*)&inFileNamePtr[1]);
+				sizeNeeded = MIN (sizeNeeded, 256);
+				sizeNeeded = converter.ToWChar (fileNamePtr, sizeNeeded, (char*)&inFileNamePtr[1]);
+#			endif	// defined multispec_lin
+
+#			if defined multispec_win
+				sizeNeeded = MultiByteToWideChar (
 										CP_UTF8, 0, (LPCSTR)&inFileNamePtr[1], -1, NULL, 0);
-			sizeNeeded = MIN(sizeNeeded, 256);
-			MultiByteToWideChar (CP_UTF8, 0, (LPCSTR)&inFileNamePtr[1], -1, fileNamePtr, sizeNeeded);
+				sizeNeeded = MIN (sizeNeeded, 256);
+				MultiByteToWideChar (CP_UTF8, 0, (LPCSTR)&inFileNamePtr[1], -1, fileNamePtr, sizeNeeded);
+#			endif	// defined multispec_win
 									
 					// Update the length of the file path string.
 					
@@ -2099,12 +2108,12 @@ void CMFileStream::SetFileName (
 // Called By:		
 //
 //	Coded By:			Larry L. Biehl			Date: 05/19/1995
-//	Revised By:			Larry L. Biehl			Date: 01/29/2016
+//	Revised By:			Larry L. Biehl			Date: 07/05/2017
 
 #if defined multispec_lin
 void CMFileStream::SetFilePath (
-				StringPtr				inFilePathPtr, 
-				Boolean					closeFileFlag)
+				wchar_t*								inFilePathPtr, 
+				Boolean								closeFileFlag)
                      
 {			
 	if (closeFileFlag)
@@ -2112,14 +2121,19 @@ void CMFileStream::SetFilePath (
 		
 			// Copy the input file path including pascal character count
 	
-	memcpy ( (CharPtr)&mFilePathName, 
+	wmemcpy (mFilePathName, 
 				inFilePathPtr, 
 				(size_t)inFilePathPtr[0]+1);
 				
 			// Make sure that the path name is terminated by a c terminator.
 			
 	if (inFilePathPtr[0] < 255)
-		mFilePathName[mFilePathName[0] + 1] = 0;
+		mFilePathName[inFilePathPtr[0]+1] = 0;
+
+			// Update the UTF8 version of the path name
+
+	mUTF8PathName[0] = 0;
+	SetUTF8FilePath ();
 		
 }		// end "SetFilePath"
 #endif	// defined multispec_lin
@@ -2154,7 +2168,7 @@ void CMFileStream::SetFilePath (
 #endif	// defined multispec_win
 
 
-
+#if defined multispec_lin
 //-----------------------------------------------------------------------------
 //								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
@@ -2176,13 +2190,21 @@ void CMFileStream::SetFilePath (
 // Called By:		
 //
 //	Coded By:			Larry L. Biehl			Date: 03/16/2015
-//	Revised By:			Larry L. Biehl			Date: 03/16/2015
+//	Revised By:			Larry L. Biehl			Date: 06/23/2017
 
 void CMFileStream::SetFilePathFromCharString (
 				StringPtr							inFilePathPtr,
 				Boolean								closeFileFlag)
                      
-{			
+{		
+	wxString								wxInFilePath;
+	wxWCharBuffer						wideCharBuffer;
+	
+	size_t								wxInFilePathLength;
+	
+	wchar_t								wideTempString[256];
+	
+	
 	if (closeFileFlag)
 		MCloseFile();  
 		
@@ -2192,11 +2214,17 @@ void CMFileStream::SetFilePathFromCharString (
 	
 	if (filePathLength < 255)
 		{
-		mFilePathName[0] = (UInt8)filePathLength;
+				// Convert the input string to a wide character string.
+				
+		wxInFilePath = wxString::FromAscii((char*)inFilePathPtr);
+		wideCharBuffer = wxInFilePath.wc_str();
+		wxInFilePathLength = wideCharBuffer.length();
 		
-		memcpy ((CharPtr)&mFilePathName[1], 
-					inFilePathPtr, 
-					(size_t)filePathLength);
+		wmemcpy (&mFilePathName[1], 
+					wideCharBuffer.data(), 
+					wxInFilePathLength);
+					
+		mFilePathName[0] = (wchar_t)wxInFilePathLength;
 				
 			// Make sure that the path name is terminated by a c terminator.
 			
@@ -2208,6 +2236,7 @@ void CMFileStream::SetFilePathFromCharString (
 		}		// end "if (filePathLength < 255)"
 		
 }		// end "SetFilePathFromCharString"  
+#endif
 
 
 //-----------------------------------------------------------------------------
@@ -2248,23 +2277,6 @@ void CMFileStream::SetUTF8FileName ()
 
 	if (nameLength > 0)
 		{
-				// Get the file name length
-		/*
-		nameLength = 0;
-		while ((nameLength < pathLength) && (*utf8FileNamePtr != '\\') )
-			{
-			utf8FileNamePtr--;
-			nameLength++;
-			
-			} // end "while ( (nameLength < pathLength) && ..."
-			
-		if (nameLength > 0)
-			{
-			utf8FileNamePtr++;
-
-			mUTF8PathLength = pathLength - nameLength;
-			}
-		*/
 		memcpy (&mUTF8FileName[1], 
 						utf8FileNamePtr, 
 						nameLength); 
@@ -2305,13 +2317,23 @@ void CMFileStream::SetUTF8FileName ()
 // Called By:		
 //
 //	Coded By:			Larry L. Biehl			Date: 03/14/2017
-//	Revised By:			Larry L. Biehl			Date: 04/11/2017
+//	Revised By:			Larry L. Biehl			Date: 06/23/2017
 
 void CMFileStream::SetUTF8FilePath ()
                      
 {				
-	TBYTE*									filePathCPtr;
-	UInt8*									utf8StringPtr;
+	TBYTE*								filePathCPtr;
+	UInt8*								utf8StringPtr;
+	
+	int									size,
+											sizeNeeded;
+	
+#	if defined multispec_lin
+		wxMBConvUTF8						converter;
+		wxCharBuffer						utf8PathCharBuffer;
+		char*									utf8PathCharBufferPtr;
+		size_t								outputSize;
+#	endif
 
 	
 	if (mUTF8PathName[0] == 0)
@@ -2319,19 +2341,44 @@ void CMFileStream::SetUTF8FilePath ()
 		filePathCPtr = &mFilePathName[1];
 		utf8StringPtr = &mUTF8PathName[1];
 		//std::string utf8 = UTF8FromUTF16 (filePathCPtr);  requires visualc++ 2010
-		int size = (int)wcslen (filePathCPtr);
-		int sizeNeeded = WideCharToMultiByte (
+		size = (int)wcslen (filePathCPtr);
+		
+#		if defined multispec_lin
+			UInt8						tempMBPathName[_MAX_PATH+1];
+			UInt8* mbStringPtr = mUTF8PathName;
+			UInt8						tempMBPathName2[_MAX_PATH+1];
+		
+			utf8PathCharBuffer = converter.cWC2MB (filePathCPtr, size, &outputSize);
+			utf8PathCharBufferPtr = utf8PathCharBuffer.data();
+
+			if (outputSize > 0)
+				{
+				memcpy (tempMBPathName, utf8PathCharBufferPtr, outputSize);
+				tempMBPathName[outputSize] = 0;
+				CtoPstring (tempMBPathName, tempMBPathName);
+				strncpy ((char*)mUTF8PathName, (char*)tempMBPathName, outputSize+1);
+				mUTF8PathName[outputSize+1] = 0;
+				
+				}	// end "if (outputSize > 0)"
+				
+			sizeNeeded = outputSize;
+#		endif	// defined multispec_lin
+
+#		if defined multispec_win
+			sizeNeeded = WideCharToMultiByte (
 									CP_UTF8, 0, filePathCPtr, size, NULL, 0, NULL, NULL);
-		WideCharToMultiByte (CP_UTF8, 0, filePathCPtr, size, (LPSTR)utf8StringPtr, sizeNeeded, NULL, NULL);
+			WideCharToMultiByte (CP_UTF8, 0, filePathCPtr, size, (LPSTR)utf8StringPtr, sizeNeeded, NULL, NULL);
+#		endif	// defined multispec_win
 
 				// Add pascal length
 		mUTF8PathName[0] = sizeNeeded;
 
 			// Add the c termination character
+			
 		mUTF8PathName[sizeNeeded+1] = 0;
 
 		SetUTF8FileName();
 
-		} // end "if (fileStreamPtr->mUTF8PathName[0] == 0)"
+		}	// end "if (fileStreamPtr->mUTF8PathName[0] == 0)"
 
-}		// end "SetUTF8FilePath"
+}	// end "SetUTF8FilePath"

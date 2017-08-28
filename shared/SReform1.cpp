@@ -7,13 +7,13 @@
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
-//	File:						reformat.c
+//	File:						SReformat1.cpp
 //
 //	Authors:					Larry L. Biehl
 //
 //	Revision number:		3.0
 //
-//	Revision date:			03/23/2017
+//	Revision date:			08/23/2017
 //
 //	Language:				C
 //
@@ -49,6 +49,12 @@
 //------------------------------------------------------------------------------------
  
 #include "SMulSpec.h"
+	 
+#if defined multispec_lin
+	#include "LMultiSpec.h"
+	#include "LReformatChangeDialog.h"
+	#include "LImageView.h"
+#endif	// defined multispec_lin
 	
 #if defined multispec_mac
 	#define IDOK									1
@@ -90,32 +96,26 @@
 	#include "WRfrmDlg.h"
 	#include "WRChange.h" 
 #endif	// defined multispec_win 
-	 
-#if defined multispec_lin
-	#include "MultiSpec2.h"
-	#include "LRchange.h"
-	#include "LImageView.h"
-#endif
 
 #include	"SExtGlob.h" 
 
-extern SInt16				CheckIfValueInList (
-									SInt16*								listPtr,
-									SInt16								numberValuesInList,
-									SInt16								value);
+extern SInt16		CheckIfValueInList (
+							SInt16*								listPtr,
+							SInt16								numberValuesInList,
+							SInt16								value);
 								
-extern void 			ENVI_ROIToThematicFileControl(void);
+extern void 		ENVI_ROIToThematicFileControl (void);
 
-extern SInt16			GetHeaderFormatFromPopUpSelection (
-								SInt16		 						headerOptionsSelection);
+extern SInt16		GetHeaderFormatFromPopUpSelection (
+							SInt16		 						headerOptionsSelection);
 
-extern void				GetOneChannelThematicDisplayConversionValues (
-								WindowInfoPtr						imageWindowInfoPtr,
-								HistogramSummaryPtr				histogramSummaryPtr,
-								DisplaySpecsPtr					displaySpecsPtr,
-								double*								binFactorPtr,
-								double*								minValuePtr,
-								UInt32*								maxBinPtr);
+extern void			GetOneChannelThematicDisplayConversionValues (
+							WindowInfoPtr						imageWindowInfoPtr,
+							HistogramSummaryPtr				histogramSummaryPtr,
+							DisplaySpecsPtr					displaySpecsPtr,
+							double*								binFactorPtr,
+							double*								minValuePtr,
+							UInt32*								maxBinPtr);
 
 extern void 		ChangeImageFormatDialogInitialize (
 							DialogPtr							dialogPtr,
@@ -202,17 +202,17 @@ extern void 		ChangeImageFormatDialogVerifyHeaderSetting (
 							SInt16*								outputFileSelectionPtr,
 							SInt16*								headerOptionsSelectionPtr);
 
-extern SInt16 					FileSpecificationDialogGetNumberBytes (
-										SInt16								dataTypeSelection);
+extern SInt16 		FileSpecificationDialogGetNumberBytes (
+							SInt16								dataTypeSelection);
 
-extern void						ReformatDialogInitialize (
-										DialogPtr							dialogPtr,
-										WindowInfoPtr						windowInfoPtr,
-										FileInfoPtr							fileInfoPtr,
-										SInt16*								reformatRequestPtr,
-										SInt16*								actionCodeVector,
-										SInt16*								fileNamesSelectionPtr,
-										SInt16*								chanDescriptionSelectionPtr);
+extern void			ReformatDialogInitialize (
+							DialogPtr							dialogPtr,
+							WindowInfoPtr						windowInfoPtr,
+							FileInfoPtr							fileInfoPtr,
+							SInt16*								reformatRequestPtr,
+							SInt16*								actionCodeVector,
+							SInt16*								fileNamesSelectionPtr,
+							SInt16*								chanDescriptionSelectionPtr);
 							
 
 			// Prototypes for routines in this file that are only called by		
@@ -2881,7 +2881,7 @@ Boolean ChangeImageFormatDialog (
 	CloseRequestedDialog (dialogPtr, kSetUpDFilterTable);
 #endif	// defined multispec_mac 
 
-	#if defined multispec_win 		
+#	if defined multispec_win 		
 		CMChangeFormatDlg*		dialogPtr = NULL; 
 		
 		TRY
@@ -2898,9 +2898,9 @@ Boolean ChangeImageFormatDialog (
 			MemoryMessage(0, kObjectMessage);
 			}
 		END_CATCH_ALL  
-	#endif	// defined multispec_win
+#	endif	// defined multispec_win
 	
-   #if defined multispec_lin
+#	if defined multispec_lin
 		CMChangeFormatDlg* dialogPtr = NULL;
 
 		dialogPtr = new CMChangeFormatDlg((wxWindow *) GetMainFrame());
@@ -2909,7 +2909,7 @@ Boolean ChangeImageFormatDialog (
 		OKFlag = dialogPtr->DoDialog(outFileInfoPtr, reformatOptionsPtr);
 
 		delete dialogPtr;
-   #endif	// defined multispec_win
+#	endif	// defined multispec_win
 
 	return (OKFlag);
 	
@@ -2970,23 +2970,20 @@ void ChangeImageFormatDialogInitialize (
 	Boolean								mapInfoExistsFlag,
 											signedDataFlag;
 		 
-	#if defined multispec_win  
-		CComboBox*						comboBoxPtr;
-
-		comboBoxPtr = (CComboBox*)dialogPtr->GetDlgItem(IDC_ChangeHeader);
-	#endif	// defined multispec_win  
-	
-	#if defined multispec_lin
+#	if defined multispec_lin
 		wxComboBox* comboBoxPtr;
 				
 		comboBoxPtr = (wxComboBox*) dialogPtr->FindWindow(IDC_ChangeHeader);
 		
 		//if (((CMChangeFormatDlg*)dialogPtr)->bSizer124 == NULL)
 		//	wxMessageBox("bSizer124 is NULL at beginning of ChangeImageFormatDialogInitialize", "Confirm", wxYES_NO);
-	#endif	// defined multispec_win
+#	endif	// defined multispec_win
 
+#	if defined multispec_win  
+		CComboBox*						comboBoxPtr;
 
-#	if defined multispec_win
+		comboBoxPtr = (CComboBox*)dialogPtr->GetDlgItem(IDC_ChangeHeader);
+
 		USES_CONVERSION;
 #	endif
 	
@@ -7314,6 +7311,8 @@ void FunctionOfChannels (
 					// the first 183 channels. The channel number (or Day of Year) is stored
 					// in the output file. This is for the Growing Degree Day data.
 					
+					// Initialize output data using just the first channel (day of year).
+					
 			numberChannels = MIN (numberChannels, 183);
 			for (j=0; j<numberSamples; j++)
 				{
@@ -7334,6 +7333,9 @@ void FunctionOfChannels (
 				ioOutDoubleBufferPtr++;	
 				
 				}		// end "for (j=0; j<numberSamples; j++)"
+				
+					// Now go through the rest of the channels to find the latest channel
+					// with a data value less than or equal to the defined minimum data value.
 	
 			for (channel=1; channel<numberChannels; channel++)
 				{					
@@ -7356,7 +7358,6 @@ void FunctionOfChannels (
 					}		// end "for (j=0; j<numberSamples; j++)"
 						
 				}		// end "for (channel=0; channel<numberChannels; channel++)"	
-				
 			break;
 			
 		case 99:		// special case
@@ -7364,6 +7365,8 @@ void FunctionOfChannels (
 					// This case is to find the channels with the earliest lowest value within
 					// the last 182 or 183 channels. The channel number (or Day of Year) is stored
 					// in the output file. This is for the Growing Degree Day data.
+					
+					// Initialize the output data.
 					
 			for (j=0; j<numberSamples; j++)
 				{
@@ -7373,6 +7376,10 @@ void FunctionOfChannels (
 				ioOutDoubleBufferPtr++;	
 				
 				}		// end "for (j=0; j<numberSamples; j++)"
+				
+					// Now go through the all of the channels to find the earliest channel between
+					// 183 and 365/366 with a data value less than or equal to the defined 
+					// minimum data value.
 	
 			for (channel=1; channel<numberChannels; channel++)
 				{
@@ -7382,8 +7389,6 @@ void FunctionOfChannels (
 					
 				for (j=0; j<numberSamples; j++)
 					{
-//					if (j == 313 && channel > 355) // This is for debugging
-//						noDataValueFlag = FALSE;
 					if (*ioOutDoubleBufferPtr == 367 && channel >= 183)
 						{
 						if (!noDataValueFlag || *ioDoubleBufferPtr != noDataValue)
@@ -7401,7 +7406,6 @@ void FunctionOfChannels (
 					}		// end "for (j=0; j<numberSamples; j++)"
 						
 				}		// end "for (channel=0; channel<numberChannels; channel++)"	
-				
 			break;
 			
 		}		// end switch (saveFunctionCode)
@@ -7560,7 +7564,7 @@ SInt16 GetAdjustBufferData (
 // Called By:			GetReformatAndFileInfoStructures
 //
 //	Coded By:			Larry L. Biehl			Date: 03/25/2006
-//	Revised By:			Larry L. Biehl			Date: 03/15/2017	
+//	Revised By:			Larry L. Biehl			Date: 08/23/2017	
 
 Boolean GetDefaultBandRatio (
 				WindowInfoPtr						windowInfoPtr,
@@ -7654,6 +7658,18 @@ Boolean GetDefaultBandRatio (
 					stringsSetFlag = TRUE;
 					
 					}		// end "if (windowInfoPtr->totalNumberChannels >= 4)"
+				break;
+				
+			case kSentinel2_MSI:
+				if (windowInfoPtr->totalNumberChannels == 4)
+					{
+					CopyPToP (reformatOptionsPtr->numeratorString, 
+										(UCharPtr)"\0001.0C4-1.0C3\0");
+					CopyPToP (reformatOptionsPtr->denominatorString, 
+										(UCharPtr)"\0001.0C3+1.0C4\0");  
+					stringsSetFlag = TRUE;
+					
+					}		// end "if (windowInfoPtr->totalNumberChannels >= 5)"
 				break;
 			
 			}		// end "switch (fileInfoPtr->instrumentCode)"

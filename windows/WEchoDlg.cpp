@@ -1,6 +1,6 @@
 // WEchoDlg.cpp : implementation file
 //           
-// Revised by Larry Biehl on 05/26/2017
+// Revised by Larry Biehl on 08/21/2017
 //
                    
 #include "SMulSpec.h"
@@ -54,9 +54,9 @@ void CMEchoClassifyDialog::DoDataExchange(CDataExchange* pDX)
 	//{{AFX_DATA_MAP(CMEchoClassifyDialog)
 	DDX_Text(pDX, IDC_CellWidth, m_cellWidth);
 	DDV_MinMaxLong(pDX, m_cellWidth, 1, 100);
-	DDX_Text(pDX, IDC_AnnexationThreshold, m_annexationThreshold);
+	DDX_Text2(pDX, IDC_AnnexationThreshold, m_annexationThreshold);
 	DDV_MinMaxDouble(pDX, m_annexationThreshold, 0., 100.);
-	DDX_Text(pDX, IDC_HomogeneityThreshold, m_homogeneityThreshold);
+	DDX_Text2(pDX, IDC_HomogeneityThreshold, m_homogeneityThreshold);
 	DDV_MinMaxDouble(pDX, m_homogeneityThreshold, m_minPhase1, m_maxPhase1);
 	DDX_Check(pDX, IDC_CombineLikeFields, m_combineLikeFieldsFlag);
 	DDX_Check(pDX, IDC_CreateHomogeneousFiles, m_createHomogeneousFilesFlag);
@@ -252,13 +252,13 @@ void CMEchoClassifyDialog::OnPercent()
 		{                
 		DDX_Radio(m_dialogFromPtr, IDC_Percent, m_homogeneousThresholdType); 
 		                                                          
-		DDX_Text(m_dialogFromPtr, IDC_HomogeneityThreshold, m_homogeneityThreshold);
+		DDX_Text2(m_dialogFromPtr, IDC_HomogeneityThreshold, m_homogeneityThreshold);
 		                                
 		m_maxPhase1 = 100.;
 		m_savedPhase1LogLikelihoodThreshold = m_homogeneityThreshold;
 		m_homogeneityThreshold = m_savedPhase1PercentThreshold;  
 		                                                          
-		DDX_Text(m_dialogToPtr, IDC_HomogeneityThreshold, m_homogeneityThreshold);
+		DDX_Text2(m_dialogToPtr, IDC_HomogeneityThreshold, m_homogeneityThreshold);
 										
 		}		// end "if (m_homogeneousThresholdType == 1)"                                                         
 	
@@ -273,13 +273,13 @@ void CMEchoClassifyDialog::OnLogLike()
 		{                                             
 		DDX_Radio(m_dialogFromPtr, IDC_Percent, m_homogeneousThresholdType); 
 		                                                          
-		DDX_Text(m_dialogFromPtr, IDC_HomogeneityThreshold, m_homogeneityThreshold);
+		DDX_Text2(m_dialogFromPtr, IDC_HomogeneityThreshold, m_homogeneityThreshold);
 		                                
 		m_maxPhase1 = 1000000.;
 		m_savedPhase1PercentThreshold = m_homogeneityThreshold;
 		m_homogeneityThreshold = m_savedPhase1LogLikelihoodThreshold;
 		                                                          
-		DDX_Text(m_dialogToPtr, IDC_HomogeneityThreshold, m_homogeneityThreshold);
+		DDX_Text2(m_dialogToPtr, IDC_HomogeneityThreshold, m_homogeneityThreshold);
 									
 		}		// end "if (m_homogeneousThresholdType == 0)"                                                         
 	

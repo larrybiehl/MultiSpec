@@ -941,14 +941,14 @@ void CMFeatureSelectionListDialog::DoDataExchange(CDataExchange* pDX)
 	DDX_Radio(pDX, IDC_AverageClassDistance, m_sortChannelCombinations);
 	DDX_Check(pDX, IDC_ClassGroupThresholdTable, m_thresholdedGroupTableFlag);
 	DDX_Check(pDX, IDC_ClassPairThresholdTable, m_thresholdedClassPairTableFlag);
-	DDX_Text(pDX, IDC_ClassGroupThreshold, m_localDistancesLessThanToGroup);
+	DDX_Text2(pDX, IDC_ClassGroupThreshold, m_localDistancesLessThanToGroup);
 	DDV_MinMaxDouble(pDX, m_localDistancesLessThanToGroup, 0, 32767);
-	DDX_Text(pDX, IDC_ClassPairThreshold, m_localDistancesLessThanToList);
+	DDX_Text2(pDX, IDC_ClassPairThreshold, m_localDistancesLessThanToList);
 	DDV_MinMaxDouble(pDX, m_localDistancesLessThanToList, 0, 32767);
 	DDX_Check(pDX, IDC_ListClassPairDistances, m_listClassPairDistancesFlag);
-	DDX_Text(pDX, IDC_MinDistanceRange, m_localMinDistanceRangeToList);
+	DDX_Text2(pDX, IDC_MinDistanceRange, m_localMinDistanceRangeToList);
 	DDV_MinMaxDouble(pDX, m_localMinDistanceRangeToList, 0, 32767);
-	DDX_Text(pDX, IDC_MaxDistanceRange, m_localMaxDistanceRangeToList);
+	DDX_Text2(pDX, IDC_MaxDistanceRange, m_localMaxDistanceRangeToList);
 	DDV_MinMaxDouble(pDX, m_localMaxDistanceRangeToList, 0, 32767);
 	DDX_Text(pDX, IDC_NumberBestCombinations, m_localCombinationsToList);
 	DDV_MinMaxLong(pDX, m_localCombinationsToList, 1, 32767);

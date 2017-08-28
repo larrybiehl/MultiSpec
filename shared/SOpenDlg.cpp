@@ -13,7 +13,7 @@
 //
 //	Revision number:		3.0
 //
-//	Revision date:			03/25/2017
+//	Revision date:			08/23/2017
 //
 //	Language:				C
 //
@@ -42,11 +42,12 @@
 #include 	"SMulSpec.h"
 
 #if defined multispec_lin
+	#include "LMultiSpec.h"
+	#include "LFileFormatDialog.h"
+	
 	#define	IDOK									1
-	#include "MultiSpec2.h"
 	#define	IDC_FillDataValueExists			29
 	#define	IDC_FillDataValue					30
-	#include "LFormDlg.h"
 #endif	
 
 #if defined multispec_mac
@@ -269,6 +270,14 @@ Boolean CheckForLandsat8FileList (
 				SInt16*								fileVectorPtr,
 				char*									bandStringPtr,
 				SInt16*								instrumentCodePtr);
+				
+Boolean CheckForSentinel2FileList (
+				UInt32								itemCount,
+				FSRef*								fileAsFSRefPtr,
+				FSRef*								savedFsRefPtr,
+				SInt16*								fileVectorPtr,
+				char*									bandStringPtr,
+				SInt16*								instrumentCodePtr);
 
 PascalVoid DrawCollapseClassOptionPopUp (
 				DialogPtr							dialogPtr,
@@ -403,7 +412,7 @@ Boolean AddSelectedFilesToWindow(
 
 						// Set the instrument code in case it was set.
 
-				SetFileInstrumentCode(fileInfoHandle, instrumentCode);
+				SetFileInstrumentCode (fileInfoHandle, instrumentCode);
 
 				errCode = OpenSpecifiedFile (fileInfoHandle, fileAsFSRefPtr[fileNumber]);
 
@@ -569,7 +578,7 @@ Boolean AddSelectedFilesToWindow(
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 01/15/2013
-//	Revised By:			Larry L. Biehl			Date: 04/28/2016
+//	Revised By:			Larry L. Biehl			Date: 08/22/2017
 
 Boolean CheckForLandsatFileList(
 				UInt32								itemCount,
@@ -578,12 +587,12 @@ Boolean CheckForLandsatFileList(
 {
 	char									bandString[5];
 
-	FSRef									savedFsRef[12];
+	FSRef									savedFsRef[13];
 
 	UInt32								fileIndex,
 											fileNumber;
 
-	SInt16								fileVector[12],
+	SInt16								fileVector[13],
 											fileVectorIndex;
 
 	Boolean								continueFlag,
@@ -594,7 +603,7 @@ Boolean CheckForLandsatFileList(
 	*instrumentCodePtr = 0;
 	returnFlag = FALSE;
 
-	if (itemCount >= 2 && itemCount <= 12)
+	if (itemCount >= 2 && itemCount <= 13)
 		{
 		continueFlag = FALSE;
 		doneFlag = FALSE;
@@ -604,7 +613,7 @@ Boolean CheckForLandsatFileList(
 		bandString[3] = 0;
 		bandString[4] = 0;
 
-		for (fileIndex = 0; fileIndex < 12; fileIndex++)
+		for (fileIndex = 0; fileIndex < 13; fileIndex++)
 			fileVector[fileIndex] = -1;
 
 		for (fileIndex = 0; fileIndex < itemCount; fileIndex++)
@@ -630,7 +639,7 @@ Boolean CheckForLandsatFileList(
                     bandString,
                     instrumentCodePtr);
 
-			}		// end "if (itemCount == 6 || itemCount == 7)"
+			}	// end "if (itemCount == 6 || itemCount == 7)"
 
 		if (*instrumentCodePtr == 0 && itemCount >= 2 && itemCount <= 9)
 			{
@@ -641,7 +650,7 @@ Boolean CheckForLandsatFileList(
                     bandString,
                     instrumentCodePtr);
 
-			}		// end "if (*instrumentCodePtr == 0 && itemCount >= 6 && itemCount <= 9)"
+			}	// end "if (*instrumentCodePtr == 0 && itemCount >= 6 && itemCount <= 9)"
 
 		if (*instrumentCodePtr == 0 && itemCount >= 2 && itemCount <= 12)
 			{
@@ -652,7 +661,18 @@ Boolean CheckForLandsatFileList(
                     bandString,
                     instrumentCodePtr);
 
-			} // end "if (*instrumentCodePtr == 0 && itemCount >= 2 && itemCount <= 12)"
+			}	// end "if (*instrumentCodePtr == 0 && itemCount >= 2 && itemCount <= 12)"
+
+		if (*instrumentCodePtr == 0 && itemCount >= 3 && itemCount <= 13)
+			{
+			continueFlag = CheckForSentinel2FileList (itemCount,
+																	  fileAsFSRefPtr,
+																	  savedFsRef,
+																	  fileVector,
+																	  bandString,
+																	  instrumentCodePtr);
+
+			}	// end "if (*instrumentCodePtr == 0 && itemCount >= 3 && itemCount <= 13)"
 
 		if (continueFlag)
 			{
@@ -660,7 +680,7 @@ Boolean CheckForLandsatFileList(
 					// of indices to channels. Some channels may have been left out.
 
 			fileIndex = 0;
-			for (fileVectorIndex = 0; fileVectorIndex < 11; fileVectorIndex++)
+			for (fileVectorIndex = 0; fileVectorIndex < 13; fileVectorIndex++)
 				{
 				if (fileVector[fileIndex] == -1 && fileVector[fileVectorIndex] != -1)
 					{
@@ -687,9 +707,9 @@ Boolean CheckForLandsatFileList(
 			if (fileVector[0] != 0)
 				returnFlag = TRUE;
 
-			}		// end "if (continueFlag)"
+			}	// end "if (continueFlag)"
 
-		}		// end "if (itemCount>=4 && itemCount <= 12)"
+		}	// end "if (itemCount>=2 && itemCount <= 13)"
 
     return (returnFlag);
 
@@ -732,13 +752,8 @@ Boolean CheckForLandsatETMFileList (
 				char*									bandStringPtr,
 				SInt16*								instrumentCodePtr)
 {
-//#	if defined multispec_win
-//		TBYTE									fileName[256],
-//												savedFileName[256];
-//#	else
-		UInt8									fileName[256],
-												savedFileName[256];
-//#	endif
+	UInt8									fileName[256],
+											savedFileName[256];
 
 	UInt32								fileIndex;
 
@@ -793,15 +808,9 @@ Boolean CheckForLandsatETMFileList (
 					// There can be 2 band 6's
 					// Fill vector with the order of the n's
 
-//#			if defined multispec_win
-//				tReturnCode = swscanf (&fileName[bandNameStart],
-//											_T("_B%hd"),
-//											&bandNumber);
-//#			else
-				tReturnCode = sscanf ((char*)&fileName[bandNameStart],
+			tReturnCode = sscanf ((char*)&fileName[bandNameStart],
 											"_B%hd",
 											&bandNumber);
-//#			endif
 
 			if (tReturnCode == 1 &&
                     !CompareStringsNoCase(&savedFileName[1], &fileName[1], savedFileName[0]) &&
@@ -902,13 +911,8 @@ Boolean CheckForLandsatMSSFileList (
 				char*									bandStringPtr,
 				SInt16*								instrumentCodePtr)
 {
-//#	if defined multispec_win
-//		TBYTE									fileName[256],
-//												savedFileName[256];
-//#	else
-		UInt8									fileName[256],
-												savedFileName[256];
-//#	endif
+	UInt8									fileName[256],
+											savedFileName[256];
 
 	UInt32								fileIndex;
 
@@ -921,7 +925,7 @@ Boolean CheckForLandsatMSSFileList (
 	Boolean								continueFlag;
 
 
-	for (fileIndex = 0; fileIndex < itemCount; fileIndex++)
+	for (fileIndex=0; fileIndex<itemCount; fileIndex++)
 		{
 		continueFlag = FALSE;
 		errCode = GetFileNameFromFSRef (&fileAsFSRefPtr[fileIndex],
@@ -954,15 +958,9 @@ Boolean CheckForLandsatMSSFileList (
 					// For Landsat MSS, the band name is like _Bn0 where n can be 4 through 7.
 					// Fill vector with the order of the n's
 
-//#			if defined multispec_win
-//				tReturnCode = swscanf (&fileName[bandNameStart],
-//											_T("_B%hd"),
-//											&bandNumber);
-//#			else
-				tReturnCode = sscanf ((char*)&fileName[bandNameStart],
+			tReturnCode = sscanf ((char*)&fileName[bandNameStart],
 											"_B%hd",
 											&bandNumber);
-//#			endif
 
 			if (numberBandDigits == 2)
 				bandNumber /= 10;
@@ -1030,14 +1028,9 @@ Boolean CheckForLandsatTMFileList (
 				char*									bandStringPtr,
 				SInt16*								instrumentCodePtr)
 {
-//#	if defined multispec_win
-//		TBYTE									fileName[256],
-//												savedFileName[256];
-//#	else
-		UInt8									fileName[256],
-												savedFileName[256];
-//#	endif
-
+	UInt8									fileName[256],
+											savedFileName[256];
+											
 	UInt32								extraFileCount,
 											fileIndex;
 
@@ -1057,7 +1050,7 @@ Boolean CheckForLandsatTMFileList (
 
 	extraFileCount = 0;
 	firstFileFoundFlag = FALSE;
-	for (fileIndex = 0; fileIndex < itemCount; fileIndex++)
+	for (fileIndex=0; fileIndex<itemCount; fileIndex++)
 		{
 		continueFlag = FALSE;
 		errCode = GetFileNameFromFSRef (&fileAsFSRefPtr[fileIndex],
@@ -1085,15 +1078,9 @@ Boolean CheckForLandsatTMFileList (
 					// For Landsat 5, the band name is like _Bn where n can be 1 through 7.
 					// Fill vector with the order of the n's
 
-//#			if defined multispec_win
-//				tReturnCode = swscanf (&fileName[bandNameStart],
-//											_T("_B%hd"),
-//											&bandNumber);
-//#			else
-				tReturnCode = sscanf ((char*)&fileName[bandNameStart],
+			tReturnCode = sscanf ((char*)&fileName[bandNameStart],
 											"_B%hd",
 											&bandNumber);
-//#			endif
 
 			if (tReturnCode == 0)
 				{
@@ -1188,9 +1175,9 @@ Boolean CheckForLandsatTMFileList (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 03/01/2013
-//	Revised By:			Larry L. Biehl			Date: 03/16/2017	
+//	Revised By:			Larry L. Biehl			Date: 08/23/2017	
 
-Boolean CheckForLandsat8FileList(
+Boolean CheckForLandsat8FileList (
 				UInt32								itemCount,
 				FSRef*								fileAsFSRefPtr,
 				FSRef*								savedFsRefPtr,
@@ -1220,7 +1207,7 @@ Boolean CheckForLandsat8FileList(
 			// 9 or 10 channels including 1 or 2 of the thermal channels 10 and 11.
 			// Band 8 if included will be ignored.
 
-   for (fileIndex = 0; fileIndex < itemCount; fileIndex++) 
+   for (fileIndex=0; fileIndex<itemCount; fileIndex++) 
 		{
 		continueFlag = FALSE;
 		errCode = GetFileNameFromFSRef (&fileAsFSRefPtr[fileIndex],
@@ -1245,9 +1232,9 @@ Boolean CheckForLandsat8FileList(
 
 						// There are 3 possible prefixes for Landsat 8
 
-            if (CompareStringsNoCase ((UCharPtr)"LC8", &savedFileName[1], 3) == 1 &&
-                        CompareStringsNoCase ((UCharPtr)"LO8", &savedFileName[1], 3) == 1 &&
-                        CompareStringsNoCase ((UCharPtr)"LT8", &savedFileName[1], 3) == 1)
+            if (CompareStringsNoCase ((UCharPtr)"LC8", &savedFileName[1], 3) != 0 &&
+                        CompareStringsNoCase ((UCharPtr)"LO8", &savedFileName[1], 3) != 0 &&
+                        CompareStringsNoCase ((UCharPtr)"LT8", &savedFileName[1], 3) != 0)
 					break;
 
             bandNameStart++;
@@ -1280,7 +1267,7 @@ Boolean CheckForLandsat8FileList(
 
 				if (fileVectorPtr[fileVectorIndex] == -1)
 					{
-					fileVectorPtr[fileVectorIndex] = (SInt16) fileIndex;
+					fileVectorPtr[fileVectorIndex] = (SInt16)fileIndex;
 					continueFlag = TRUE;
 
 					}	// end "if (fileVector[fileVectorIndex] == -1)"
@@ -1324,6 +1311,155 @@ Boolean CheckForLandsat8FileList(
 	return (continueFlag);
 
 }	// end "CheckForLandsat8FileList"
+
+
+
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		Boolean CheckForSentinel2FileList
+//
+//	Software purpose:	The purpose of this routine is to check for a Landsat 8 
+//							file list and adjust the list if needed so that the bands are
+//							in wavelength order.
+//
+//	Parameters in:		None
+//
+//	Parameters out:	None
+//
+// Value Returned:	True: first item in the FSRef file has been change.
+// 
+// Called By:			
+//
+//	Coded By:			Larry L. Biehl			Date: 08/22/2017
+//	Revised By:			Larry L. Biehl			Date: 08/22/2017	
+
+Boolean CheckForSentinel2FileList(
+				UInt32								itemCount,
+				FSRef*								fileAsFSRefPtr,
+				FSRef*								savedFsRefPtr,
+				SInt16*								fileVectorPtr,
+				char*									bandStringPtr,
+				SInt16*								instrumentCodePtr)
+{
+	UCharPtr								startBandIdentiferPtr;
+	UInt8									fileName[256],
+											savedFileName[256];
+
+   UInt32								fileIndex,
+											fileVectorIndex;
+
+   SInt16								bandNameStart,
+											bandNumber,
+											errCode,
+											tReturnCode;
+
+	Boolean								band8AFlag = FALSE,
+											continueFlag;
+
+
+			// Check if Sentinel 2 MSI data
+			// This can be 10 meter data (2,3,4,8) or
+			// 20 meter data (5,6,7,8a,11,12) or
+			// 60 meter data (1,9,10)
+
+   for (fileIndex=0; fileIndex<itemCount; fileIndex++) 
+		{
+		continueFlag = FALSE;
+		errCode = GetFileNameFromFSRef (&fileAsFSRefPtr[fileIndex],
+														fileName);
+
+		if (errCode == noErr)
+			{
+         RemoveSuffix ((FileStringPtr)fileName);
+
+					// Save the first file name to compare to the rest in the list.
+
+         if (fileIndex == 0) 
+				{
+            CopyPToP (savedFileName, fileName);
+
+						// Remove _Bn or _Bnn from the saved file name.
+
+				startBandIdentiferPtr = (UCharPtr)strstr ((char*)savedFileName, "_B");
+
+            bandNameStart = startBandIdentiferPtr - savedFileName - 1;
+            savedFileName[0] = (UInt8) bandNameStart;
+
+						// There are 3 possible prefixes for Landsat 8
+
+            if (CompareStringsNoCase ((UCharPtr)"S2A", &savedFileName[1], 3) == 1)
+					break;
+
+            bandNameStart++;
+
+            }	// end "if (fileIndex == 0)"
+
+					// For Sentinel 2, the band name is like _Bn where n can be 1 through 12.
+					// Fill vector with the order of the n's
+					// Note that the 8A band will be band 9, then 9 will be 10, etc.
+			
+			tReturnCode = sscanf ((char*)&fileName[bandNameStart],
+										  "_B%hd",
+										  &bandNumber);
+
+			if (tReturnCode == 0 || (fileVectorPtr[7] != -1 && !band8AFlag))
+				{
+						// Band 8 has already been found or reading band 8A caused a problem
+						// Check if this is the B8A band.
+				
+				if (CompareStringsNoCase (&fileName[bandNameStart], (UCharPtr)"_B8A", 4) == 0)
+					{
+					band8AFlag = TRUE;
+					tReturnCode = 1;
+					bandNumber = 8;
+					continueFlag = TRUE;
+					
+					}	// end "if (CompareStringsNoCase (&fileName[bandNameStart], ..."
+
+            }	// end "if (tReturnCode == 0)"
+
+			if (tReturnCode == 1 &&
+					  !CompareStringsNoCase(&savedFileName[1], &fileName[1], savedFileName[0]) &&
+					  bandNumber >= 1 && bandNumber <= 12)
+				{
+				if (bandNumber >= 8 && band8AFlag)
+					bandNumber++;
+					
+				fileVectorIndex = bandNumber - 1;
+
+						// Verify that there are no duplicate bands
+
+				if (fileVectorPtr[fileVectorIndex] == -1)
+					{
+					fileVectorPtr[fileVectorIndex] = (SInt16)fileIndex;
+					continueFlag = TRUE;
+
+					}	// end "if (fileVector[fileVectorIndex] == -1)"
+
+            }	// end "if (tReturnCode == 1 && ..."
+
+			}	// end "if (errCode == noErr)"
+
+		if (!continueFlag)
+			break;
+
+		}	// end "for (fileIndex=0; fileIndex<itemCount; fileIndex++)"
+
+	if (continueFlag)
+		{
+				// This is a Sentinel list of files.
+				// Now 
+
+		*instrumentCodePtr = kSentinel2_MSI;
+
+		}	// end "if (continueFlag)"
+
+	return (continueFlag);
+
+}	// end "CheckForSentinel2FileList"
 
 
 
@@ -2753,7 +2889,7 @@ void FileSpecificationDialogInitialize (
 // Called By:			FileSpecificationDialog in openImageRoutines.c
 //
 //	Coded By:			Larry L. Biehl			Date: 10/27/1999
-//	Revised By:			Larry L. Biehl			Date: 06/02/2016
+//	Revised By:			Larry L. Biehl			Date: 08/01/2017
 
 Boolean FileSpecificationDialogOK (
 				DialogPtr							dialogPtr,
@@ -2795,8 +2931,9 @@ Boolean FileSpecificationDialogOK (
 {
 	SInt16								coordinateViewUnites,
 											dataTypeCode,
-											offset,
-											numberBits;
+											lineColumnUnitsMenuItem,
+											numberBits,
+											offset;
 
 	SInt32								bytesPerDataValue;
 
@@ -3150,10 +3287,12 @@ Boolean FileSpecificationDialogOK (
 #	if defined multispec_mac
 		//offset = 4;
 		offset = 0;
+		lineColumnUnitsMenuItem = kLineColumnUnitsMenuItem;
 #	endif 	// defined multispec_mac
 
 #	if defined multispec_win || defined multispec_lin
 		offset = 0;
+		lineColumnUnitsMenuItem = kLineColumnUnitsMenuItem - 1;
 #	endif 	// defined multispec_win
 
 	if (fileInfoPtr->format == kHDF4Type || fileInfoPtr->format == kNETCDFType ||
@@ -3212,6 +3351,11 @@ Boolean FileSpecificationDialogOK (
 						MSetWindowTitle(gActiveImageViewCPtr,&gTextString[0]);
 #				endif
 
+						// Also remove any vector and image overlays. They will need to be reloaded.
+
+				windowInfoPtr->numberImageOverlays = 0;
+				windowInfoPtr->numberOverlays = 0;
+
 				}	// end "if (windowInfoPtr != NULL)"
 
 					// The map information may have changed with this new data set.  Load the
@@ -3229,11 +3373,17 @@ Boolean FileSpecificationDialogOK (
 			coordinateViewUnites = GetCoordinateViewUnits(windowInfoHandle);
 
 			if (!latLongPossibleFlag && coordinateViewUnites >= kDecimalLatLongUnitsMenuItem) 
-				{
-				SetCoordinateViewUnits(windowInfoHandle, kLineColumnUnitsMenuItem);
-				SetControlValue(windowInfoPtr->coordinateUnitsControl, kLineColumnUnitsMenuItem);
-				SetCoordinateViewAreaUnits(windowInfoHandle, kNumberPixelsUnitsMenuItem);
-				SetCoordinateViewLocationParameters(windowInfoHandle);
+				{		
+		int numberChars = sprintf ((char*)&gTextString3,
+													" SOpenDlg:FileSpecificationDialogOK (coordinateUnitsControl): %d%s",
+													 windowInfoPtr->coordinateUnitsControl,
+													gEndOfLine);
+		ListString ((char*)&gTextString3, numberChars, gOutputTextH);	
+
+				SetCoordinateViewUnits (windowInfoHandle, kLineColumnUnitsMenuItem);
+				SetControlValue (windowInfoPtr->coordinateUnitsControl, lineColumnUnitsMenuItem);
+				SetCoordinateViewAreaUnits (windowInfoHandle, kNumberPixelsUnitsMenuItem);
+				SetCoordinateViewLocationParameters (windowInfoHandle);
 
 				} // end "if (!latLongPossibleFlag && coordinateViewUnites >= ..."
 
@@ -3314,9 +3464,9 @@ Boolean FileSpecificationDialogOK (
 
 			// Check to see if histogram and display specification  	
 			// handles exists.  If so, dispose of the handles and 	
-			// set them to NULL.This will force computation of 		
+			// set them to NULL. This will force computation of 		
 			// histogram and the information data to display level  	
-			// vector since they are now invalid.							
+			// vector since they are now invalid.						
 
 	if (changedFlag && windowInfoHandle != NULL) 
 		{
@@ -3327,7 +3477,7 @@ Boolean FileSpecificationDialogOK (
 			InvalidateWindow(gActiveImageViewCPtr, kFrameArea, FALSE);
 #		endif
 
-		} // end "if (changedFlag && windowInfoHandle != NULL)"
+		}	// end "if (changedFlag && windowInfoHandle != NULL)"
 
 	if (changedFlag) 
 		{
@@ -4064,7 +4214,7 @@ SInt16 LinkSelectedFilesToNewWindow (
 
 					// Set the instrument code in case it was set.
 
-			SetFileInstrumentCode(fileInfoHandle, instrumentCode);
+			SetFileInstrumentCode (fileInfoHandle, instrumentCode);
 
 					// Determine the file format and load the header information.													
 
@@ -4650,7 +4800,7 @@ SInt32 OpenImageFile (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 12/08/2012
-//	Revised By:			Larry L. Biehl			Date: 03/24/2017
+//	Revised By:			Larry L. Biehl			Date: 07/05/2017
 
 Boolean OpenSeparateImageWindows (
 				Handle								fileInfoHandle,
@@ -4696,9 +4846,9 @@ Boolean OpenSeparateImageWindows (
 
 						// Initialize the variables and handles in the structure.	
 
-				fileInfoHandle = MNewHandle(sizeof (MFileInfo));
+				fileInfoHandle = MNewHandle (sizeof (MFileInfo));
 
-				InitializeFileInfoStructure(fileInfoHandle, kNotPointer);
+				InitializeFileInfoStructure (fileInfoHandle, kNotPointer);
 
 				errCode = OpenSpecifiedFile (fileInfoHandle,
 														fileAsFSRefPtr[fileNumber]);
@@ -4736,7 +4886,7 @@ Boolean OpenSeparateImageWindows (
 #				endif	// defined multispec_win
 
 #				if defined multispec_lin
-                windowInfoHandle = ((CMultiSpecApp*) wxTheApp)->SetUpNewImageDocument(
+                windowInfoHandle = ((CMultiSpecApp*)wxTheApp)->SetUpNewImageDocument(
                         fileInfoHandle,
                         gGetFileImageType,
                         gGetFileImageType);
@@ -4832,7 +4982,7 @@ Boolean OpenSeparateImageWindows (
 // Called By:			FileSpecificationDialogOK
 //
 //	Coded By:			Larry L. Biehl			Date: 01/15/2013
-//	Revised By:			Larry L. Biehl			Date: 03/25/2017
+//	Revised By:			Larry L. Biehl			Date: 06/22/2017
 
 SInt16 OpenSpecifiedFile(
 				Handle								fileInfoHandle,
@@ -4860,6 +5010,19 @@ SInt16 OpenSpecifiedFile(
 				// First get the file stream pointer for the structure to be used
 
 		fileStreamPtr = GetFileStreamPointer (fileInfoPtr);
+
+#		if defined multispec_lin
+        FSRef* fileAsFSRefPtr = &fileAsFSRef;
+        fileStreamPtr->SetFilePath ((wchar_t*)&fileAsFSRefPtr[0], TRUE);
+
+        errCode = CMFileStream::GetFileType (
+                (WideFileStringPtr)&fileAsFSRefPtr[0], &fileStreamPtr->mFileType);
+
+        // Force the pascal file name to be updated in case user is
+        // expecting to use it.
+
+        fileStreamPtr->GetFileNamePPtr();
+#		endif	// defined multispec_lin
 
 #		if defined multispec_mac
 			fileStreamPtr->fSRefFlag = TRUE;
@@ -4900,10 +5063,7 @@ SInt16 OpenSpecifiedFile(
 #		if defined multispec_win
 			FSRef* fileAsFSRefPtr = &fileAsFSRef;
 			fileStreamPtr->SetFilePath((TBYTE*)&fileAsFSRefPtr[0], TRUE);
-			//fileStreamPtr->SetFilePath (&fileAsFSRefPtr[0], TRUE);
 
-			//errCode = CMFileStream::GetFileType(
-			//				(TBYTE*)&fileAsFSRefPtr[0], &fileStreamPtr->mFileType);
 			errCode = CMFileStream::GetFileType(
 									(TBYTE*)&fileAsFSRefPtr[0], &fileStreamPtr->mFileType);
 
@@ -4912,19 +5072,6 @@ SInt16 OpenSpecifiedFile(
 
 			fileStreamPtr->GetFileNamePPtr();
 #		endif	// defined multispec_win
-
-#		if defined multispec_lin
-        FSRef* fileAsFSRefPtr = &fileAsFSRef;
-        fileStreamPtr->SetFilePath((StringPtr) & fileAsFSRefPtr[0], TRUE);
-
-        errCode = CMFileStream::GetFileType(
-                (StringPtr) & fileAsFSRefPtr[0], &fileStreamPtr->mFileType);
-
-        // Force the pascal file name to be updated in case user is
-        // expecting to use it.
-
-        fileStreamPtr->GetFileNamePPtr();
-#		endif	// defined multispec_lin
 
 		if (errCode == noErr)
 			errCode = OpenFileReadOnly (fileStreamPtr,

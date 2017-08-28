@@ -13,7 +13,7 @@
 //
 //	Revision number:		3.0
 //
-//	Revision date:			03/27/2017
+//	Revision date:			07/06/2017
 //
 //	Language:				C
 //
@@ -54,6 +54,12 @@
 //								Boolean						SetUpActiveImageInformationGlobals
 //								void							UnlockActiveImageInformationGlobals
 //								void 							UnlockImageInformationHandles
+/* Template for debugging
+		int numberChars = sprintf ((char*)&gTextString3,
+												" SUtility.cpp::xxx (entered routine. %s", 
+												gEndOfLine);
+		ListString ((char*)&gTextString3, numberChars, gOutputTextH);	
+*/
 
 #include	"SMulSpec.h"
 #include	<ctype.h>  
@@ -61,14 +67,12 @@
 #if defined multispec_lin
 	#include "wx/dcmemory.h"
 	#include "wx/gdicmn.h"
-	#include "LImageView.h"
-	#include "LImageFrame.h"
 	#include "wx/wx.h"
-	#include "ldialog.h"
 	#include "CFileStr.h"
+	#include "LDialog.h"
+	#include "LImageFrame.h"
+	#include "LImageView.h"
 	#include "LMainFrame.h"
-//	#define TRUE true
-//	#define FALSE false
 #endif
 
 #if defined multispec_mac
@@ -1464,7 +1468,7 @@ Boolean CreateBackgroundImageFile (
 // Called By:			CreateResultsDiskFiles in SUtility.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 09/18/1989
-//	Revised By:			Larry L. Biehl			Date: 03/27/2017
+//	Revised By:			Larry L. Biehl			Date: 07/06/2017
 
 Boolean CreateResultsDiskFile (
 				SInt32								numberLines, 
@@ -1572,7 +1576,7 @@ Boolean CreateResultsDiskFile (
 	      												gClassifySpecsPtr->mode == kEchoMode)
 				stringIndex = IDS_Project24;
 			
-			if ( MGetString (gTextString, kProjectStrID, stringIndex) )
+			if (MGetString (gTextString, kProjectStrID, stringIndex))
 				RemoveCharsAddVersion (gTextString, resultsFileNamePtr);
 				
 			}		// end "if (fileZeroInfoPtr != NULL)" 
@@ -1593,7 +1597,7 @@ Boolean CreateResultsDiskFile (
 				ConcatPStrings (resultsFileNamePtr, 
 										gProjectInfoPtr->imageFileName, 
 										255);
-			
+													
 			RemoveCharsAddVersion ( (UCharPtr)"\0_cluster.txt\0", resultsFileNamePtr);
 			RemoveCharsAddVersion ( (UCharPtr)"\0.cluster\0", resultsFileNamePtr);
 			RemoveCharsAddVersion ( (UCharPtr)"\0.tiff\0", resultsFileNamePtr);
@@ -1648,25 +1652,7 @@ Boolean CreateResultsDiskFile (
 		
 		else if (lOutputStorageType & kProbFormatCode)
 			{                                                                
-			//#if defined multispec_mac
-				ConcatFilenameSuffix (resultsFileNamePtr, (StringPtr)"\0Prob.gis\0");
-			//#endif	// defined multispec_mac
-			                                              
-			//#if defined multispec_win
-//				#if !defined _WIN32
-//					if (resultsFileNamePtr[0] > 7)
-//						resultsFileNamePtr[0] = 7;
-//					ConcatFilenameSuffix (resultsFileNamePtr, (StringPtr)"\0P.gis\0");
-//				#endif	// !defined _WIN32 
-
-//				#if defined _WIN32
-//					ConcatFilenameSuffix (resultsFileNamePtr, (StringPtr)"\0Prob.gis\0");
-//				#endif	// defined _WIN32 
-			//#endif	// defined multispec_win
-			
-			//#if defined multispec_lin
-         //   ConcatFilenameSuffix(resultsFileNamePtr, (StringPtr) "\0Prob.gis\0");
-			//#endif	// defined multispec_lin
+			ConcatFilenameSuffix (resultsFileNamePtr, (StringPtr)"\0Prob.gis\0");
 			
 			promptStringIndex = IDS_SaveProbabilityAs;	// kFileIOStr34;
 			
@@ -1674,75 +1660,19 @@ Boolean CreateResultsDiskFile (
 			
 		else if (lOutputStorageType & kEchoFieldsCode)
 			{                                               
-			//#if defined multispec_mac
-				ConcatFilenameSuffix (resultsFileNamePtr, (StringPtr)"\0_echoFields.gis\0");
-			//#endif	// defined multispec_mac
-			                                              
-			//#if defined multispec_win
-//				#if !defined _WIN32
-//					if (resultsFileNamePtr[0] > 7)
-//						resultsFileNamePtr[0] = 7;               
-//					ConcatFilenameSuffix (resultsFileNamePtr, (StringPtr)"\0F.gis\0");
-//				#endif	// !defined _WIN32 
-
-//				#if defined _WIN32
-			//		ConcatFilenameSuffix (resultsFileNamePtr, (StringPtr)"\0_echoFields.gis\0");
-//				#endif	// defined _WIN32 
-			//#endif	// defined multispec_win
-
-			//#if defined multispec_lin
-         //   ConcatFilenameSuffix(resultsFileNamePtr, (StringPtr) "\0_echoFields.gis\0");
-			//#endif	// defined multispec_lin
+			ConcatFilenameSuffix (resultsFileNamePtr, (StringPtr)"\0_echoFields.gis\0");
 			
 			}		// end "else if (lOutputStorageType & kEchoFieldsCode)"
 			
 		else if (lOutputStorageType & kEchoClassesCode)
 			{                                               
-			//#if defined multispec_mac
-				ConcatFilenameSuffix (resultsFileNamePtr, (StringPtr)"\0_echoClasses.gis\0");
-			//#endif	// defined multispec_mac
-			                                              
-			//#if defined multispec_win
-//				#if !defined _WIN32
-//					if (resultsFileNamePtr[0] > 7)
-//						resultsFileNamePtr[0] = 7;               
-//					ConcatFilenameSuffix (resultsFileNamePtr, (StringPtr)"\0C.gis\0");
-//				#endif	// !defined _WIN32 
-
-//				#if defined _WIN32
-			//		ConcatFilenameSuffix (resultsFileNamePtr, (StringPtr)"\0_echoClasses.gis\0");
-//				#endif	// defined _WIN32 
-			//#endif	// defined multispec_win
-			
-			//#if defined multispec_lin
-         //   ConcatFilenameSuffix(resultsFileNamePtr, (StringPtr) "\0_echoClasses.gis\0");
-			//#endif	// defined multispec_lin
+			ConcatFilenameSuffix (resultsFileNamePtr, (StringPtr)"\0_echoClasses.gis\0");
 			
 			}		// end "else if (lOutputStorageType & kEchoClassesCode)"
 			
 		else if (lOutputStorageType & kClusterMaskCode)
 			{
-//			gProjectInfoPtr->imageFileName;
-			                                               
-			//#if defined multispec_mac
-				ConcatFilenameSuffix (resultsFileNamePtr, (StringPtr)"\0_clMask.gis\0");
-			//#endif	// defined multispec_mac
-			                                              
-			//#if defined multispec_win
-//				#if !defined _WIN32  
-//					if (resultsFileNamePtr[0] > 7)
-//						resultsFileNamePtr[0] = 7;               
-//					ConcatFilenameSuffix (resultsFileNamePtr, (StringPtr)"\0M.gis\0");
-//				#endif	// !defined _WIN32 
-
-//				#if defined _WIN32
-			//		ConcatFilenameSuffix (resultsFileNamePtr, (StringPtr)"\0_clMask.gis\0");
-//				#endif	// defined _WIN32 
-			//#endif	// defined multispec_win
-			     
-			//#if defined multispec_lin
-         //   ConcatFilenameSuffix(resultsFileNamePtr, (StringPtr) "\0_clMask.gis");
-			//#endif	// defined multispec_lin
+			ConcatFilenameSuffix (resultsFileNamePtr, (StringPtr)"\0_clMask.gis\0");
 			
 			promptStringIndex = IDS_FileIO97;	// Save Cluster Mask As
 			
@@ -1779,99 +1709,27 @@ Boolean CreateResultsDiskFile (
 		
 		else if (lOutputStorageType & kProbFormatCode)
 			{                                                                
-			//#if defined multispec_mac
-				ConcatFilenameSuffix (resultsFileNamePtr, (StringPtr)"\0Prob.tif\0");
-			//#endif	// defined multispec_mac
-							
-			//#if defined multispec_win
-//				#if !defined _WIN32					
-//					if (resultsFileNamePtr[0] > 7)
-//						resultsFileNamePtr[0] = 7;
-//					ConcatFilenameSuffix (resultsFileNamePtr, (StringPtr)"\0P.tif\0");
-//				#endif	// !defined _WIN32 
-				
-//				#if defined _WIN32
-			//		ConcatFilenameSuffix (resultsFileNamePtr, (StringPtr)"\0Prob.tif\0");
-//				#endif	// defined _WIN32 
-			//#endif	// defined multispec_win
+			ConcatFilenameSuffix (resultsFileNamePtr, (StringPtr)"\0Prob.tif\0");
 			
-         //#if defined multispec_lin
-			//	ConcatFilenameSuffix (resultsFileNamePtr, (StringPtr)"\0Prob.tif\0");
-         //#endif
 			promptStringIndex = IDS_SaveProbabilityAs;	// kFileIOStr34;
 			
 			}		// end "else if (lOutputStorageType & kProbFormatCode)" 
 		
 		else if (lOutputStorageType & kEchoFieldsCode)
 			{                                               
-			//#if defined multispec_mac
-				ConcatFilenameSuffix (resultsFileNamePtr, (StringPtr)"\0_echoFields.tif\0");
-			//#endif	// defined multispec_mac
-			
-			//#if defined multispec_win
-//				#if !defined _WIN32
-//					if (resultsFileNamePtr[0] > 7)
-//						resultsFileNamePtr[0] = 7;               
-//					ConcatFilenameSuffix (resultsFileNamePtr, (StringPtr)"\0F.tif\0");
-//				#endif	// !defined _WIN32 
-				
-//				#if defined _WIN32
-			//		ConcatFilenameSuffix (resultsFileNamePtr, (StringPtr)"\0_echoFields.tif\0");
-//				#endif	// defined _WIN32 
-			//#endif	// defined multispec_win
-			
-         //#if defined multispec_lin
-			//	ConcatFilenameSuffix (resultsFileNamePtr, (StringPtr)"\0_echoFields.tif\0");
-         //#endif
+			ConcatFilenameSuffix (resultsFileNamePtr, (StringPtr)"\0_echoFields.tif\0");
+
 			}		// end "else if (lOutputStorageType & kEchoFieldsCode)"
 		
 		else if (lOutputStorageType & kEchoClassesCode)
 			{                                               
-			//#if defined multispec_mac
-				ConcatFilenameSuffix (resultsFileNamePtr, (StringPtr)"\0_echoClasses.tif\0");
-			//#endif	// defined multispec_mac
-							
-			//#if defined multispec_win
-//				#if !defined _WIN32
-//					if (resultsFileNamePtr[0] > 7)
-//						resultsFileNamePtr[0] = 7;               
-//					ConcatFilenameSuffix (resultsFileNamePtr, (StringPtr)"\0C.tif\0");
-//				#endif	// !defined _WIN32 
-								
-//				#if defined _WIN32
-			//		ConcatFilenameSuffix (resultsFileNamePtr, (StringPtr)"\0_echoClasses.tif\0");
-//				#endif	// defined _WIN32 
-			//#endif	// defined multispec_win
-               
-         //#if defined multispec_lin
-			//	ConcatFilenameSuffix (resultsFileNamePtr, (StringPtr)"\0_echoClasses.tif\0");
-         //#endif
+			ConcatFilenameSuffix (resultsFileNamePtr, (StringPtr)"\0_echoClasses.tif\0");
 			
 			}		// end "else if (lOutputStorageType & kEchoClassesCode)"
 		
 		else if (lOutputStorageType & kClusterMaskCode)
 			{
-					// gProjectInfoPtr->imageFileName;
-			
-			//#if defined multispec_mac
-				ConcatFilenameSuffix (resultsFileNamePtr, (StringPtr)"\0_clMask.tif\0");
-			//#endif	// defined multispec_mac
-							
-			//#if defined multispec_win
-//				#if !defined _WIN32  
-//					if (resultsFileNamePtr[0] > 7)
-//						resultsFileNamePtr[0] = 7;               
-//					ConcatFilenameSuffix (resultsFileNamePtr, (StringPtr)"\0M.tif\0");
-//				#endif	// !defined _WIN32 
-								
-//				#if defined _WIN32
-			//		ConcatFilenameSuffix (resultsFileNamePtr, (StringPtr)"\0_clMask.tif\0");
-//				#endif	// defined _WIN32 
-			//#endif	// defined multispec_win
-			
-         //#if defined multispec_lin
-			//	ConcatFilenameSuffix (resultsFileNamePtr, (StringPtr)"\0_clMask.tif\0");
-         //#endif
+			ConcatFilenameSuffix (resultsFileNamePtr, (StringPtr)"\0_clMask.tif\0");
                
 			promptStringIndex = IDS_FileIO97;	// Save Cluster Mask As
 			
@@ -1945,19 +1803,8 @@ Boolean CreateResultsDiskFile (
 			
 		}		// end "if (formatVersion == 0)" 
 
-	//UpdateFileNameInformation (resultsFileStreamPtr, resultsFileNamePtr);
 	VerifyFileStreamForOpen (resultsFileStreamPtr, resultsFileNamePtr);
-/*		
-#	if defined multispec_mac
-		VerifyFileStreamForOpen (resultsFileStreamPtr);
-#	endif
-			  
-#	if defined multispec_win || defined multispec_lin
-				// for Windows and Linux versions, now copy the proposed file name to the
-				// file path string.                                               
-		resultsFileStreamPtr->SetFileName (resultsFileNamePtr);
-#	endif	// defined multispec_win || defined multispec_lin
-*/			
+
 	if (formatVersion == kErdas74Type || formatVersion == kTIFFType)
 		SetType (resultsFileStreamPtr, 'BINA');  
 	
@@ -1980,19 +1827,17 @@ Boolean CreateResultsDiskFile (
 
 #		if defined multispec_mac
 			resultsFileStreamPtr->vRefNum = vRefNum;
-#		endif	// defined multispec_mac
 		
-#		if TARGET_API_MAC_CARBON
-				// Set parent FSRef
+					// Set parent FSRef
 				
 			CMFileStream*						fileStreamPtr;
 			
 			fileStreamPtr = GetFileStreamPointer (gImageFileInfoPtr);
 			resultsFileStreamPtr->parentFSRef = fileStreamPtr->parentFSRef;
-#		endif		// TARGET_API_MAC_CARBON
+#		endif	// defined multispec_mac
 		
 #		if defined multispec_lin
-			if(errCode == noErr)
+			if (errCode == noErr)
 				{
 #		endif
 
@@ -2007,7 +1852,7 @@ Boolean CreateResultsDiskFile (
 					writeHeaderFlag = FALSE;
       
 #		if defined multispec_lin
-				} // if errCode==noErr
+				} // if (errCode == noErr)
 #		endif
 											
 		}		// end "else !promptFlag"
@@ -8556,24 +8401,21 @@ Boolean SetUpActiveImageInformationGlobals (
 // Called By:			CoordinateUnitsControlEvent in controls.c
 //
 //	Coded By:			Larry L. Biehl			Date: 11/22/2000
-//	Revised By:			Larry L. Biehl			Date: 12/12/2000
-#ifndef multispec_lin
+//	Revised By:			Larry L. Biehl			Date: 07/28/2017
 void SetUpAreaUnitsPopUpMenu (
 				MenuHandle							menuHandle,
 				Handle								windowInfoHandle,
-				DialogPtr							dialogPtr)
-#else
-void SetUpAreaUnitsPopUpMenu(
-        MenuHandle menuHandle,
-        Handle windowInfoHandle,
-        wxPanel* dialogPtr)
-#endif
+#				ifndef multispec_lin
+					DialogPtr							dialogPtr)
+#				else
+					wxPanel*								dialogPtr)
+#				endif
 { 
 	SInt16							planarMapUnitsCode;
 		
 	planarMapUnitsCode = GetFilePlanarMapUnitsCode (windowInfoHandle);
 		
-	#if defined multispec_mac
+#	if defined multispec_mac
 		EnableMenuItem (menuHandle, kNumberPixelsUnitsMenuItem);
 		
 		if (planarMapUnitsCode == kUnknownCode)
@@ -8613,9 +8455,9 @@ void SetUpAreaUnitsPopUpMenu(
 			DisableMenuItem (menuHandle, kSqInchesUnitsMenuItem);
 			
 			}		// end "else planarMapUnitsCode < kKilometersCode"
-	#endif	// defined multispec_mac 
+#	endif	// defined multispec_mac 
 	
-	#if defined multispec_win
+#	if defined multispec_win
 		SInt16							index = 0,
 											numberComboItems;
 
@@ -8690,84 +8532,87 @@ void SetUpAreaUnitsPopUpMenu(
 			comboBoxPtr->SetItemData(index, kSqFeetUnitsMenuItem);
 			index++;
 
-			comboBoxPtr->InsertString(index, (LPCTSTR)_T("Sq. inches"));
-			comboBoxPtr->SetItemData(index, kSqInchesUnitsMenuItem);
+			comboBoxPtr->InsertString (index, (LPCTSTR)_T("Sq. inches"));
+			comboBoxPtr->SetItemData (index, kSqInchesUnitsMenuItem);
 			index++;
 			
 			}		// end "if (planarMapUnitsCode >= kKilometersCode)"
-	#endif	// defined multispec_win
+#	endif	// defined multispec_win
 			
-	#if defined multispec_lin
+#	if defined multispec_lin
 		SInt16	index = 0,
 					numberComboItems;
 
 
 		wxComboBox* comboBoxPtr =
-				(wxComboBox*) dialogPtr->FindWindow(IDC_AreaUnitsCombo);
+				(wxComboBox*) dialogPtr->FindWindow (IDC_AreaUnitsCombo);
 
-			// Remove all but the first item in the list.
+				// Remove all but the first item in the list.
 
 		numberComboItems = comboBoxPtr->GetCount();
-		while (numberComboItems > 1) {
-			comboBoxPtr->Delete(numberComboItems - 1);
+		while (numberComboItems > 1) 
+			{
+			comboBoxPtr->Delete (numberComboItems-1);
 			numberComboItems--;
 
-			} // end "while (numberComboItems > 1)"
+			}	// end "while (numberComboItems > 1)"
 
-	comboBoxPtr->SetClientData(index, (void *)gNumberPixelsUnitsMenuItem);
-	index++;
-
-	if (planarMapUnitsCode == kUnknownCode) {
-		comboBoxPtr->Append(wxT("Unknown units"));
-		comboBoxPtr->SetClientData(index, (void *)gAreaUnknownUnitsMenuItem);
+		comboBoxPtr->SetClientData(index, (void*)gNumberPixelsUnitsMenuItem);
 		index++;
 
-		} // end "if (planarMapUnitsCode == kUnknownCode)"
+		if (planarMapUnitsCode == kUnknownCode) 
+			{
+			comboBoxPtr->Append(wxT("Unknown units"));
+			comboBoxPtr->SetClientData(index, (void *)gAreaUnknownUnitsMenuItem);
+			index++;
 
-	 if (planarMapUnitsCode >= kKilometersCode) {
-		  comboBoxPtr->Append(wxT("Sq. kilometers"));
-		  comboBoxPtr->SetClientData(index, (void *)gSqKilometersUnitsMenuItem);
-		  index++;
+			}	// end "if (planarMapUnitsCode == kUnknownCode)"
 
-		  comboBoxPtr->Append(wxT("Hectares"));
-		  comboBoxPtr->SetClientData(index, (void *)gHectareUnitsMenuItem);
-		  index++;
+		if (planarMapUnitsCode >= kKilometersCode) 
+			{
+			comboBoxPtr->Append(wxT("Sq. kilometers"));
+			comboBoxPtr->SetClientData(index, (void *)gSqKilometersUnitsMenuItem);
+			index++;
 
-		  comboBoxPtr->Append(wxT("Sq. meters"));
-		  comboBoxPtr->SetClientData(index, (void *)gSqMetersUnitsMenuItem);
-		  index++;
+			comboBoxPtr->Append(wxT("Hectares"));
+			comboBoxPtr->SetClientData(index, (void *)gHectareUnitsMenuItem);
+			index++;
 
-		  comboBoxPtr->Append(wxT("Sq. centimeters"));
-		  comboBoxPtr->SetClientData(index, (void *)gSqCentimetersUnitsMenuItem);
-		  index++;
+			comboBoxPtr->Append(wxT("Sq. meters"));
+			comboBoxPtr->SetClientData(index, (void *)gSqMetersUnitsMenuItem);
+			index++;
 
-		  comboBoxPtr->Append(wxT("Sq. millimeters"));
-		  comboBoxPtr->SetClientData(index, (void *)gSqMillimetersUnitsMenuItem);
-		  index++;
+			comboBoxPtr->Append(wxT("Sq. centimeters"));
+			comboBoxPtr->SetClientData(index, (void *)gSqCentimetersUnitsMenuItem);
+			index++;
 
-		  comboBoxPtr->Append(wxT("Sq. micrometers"));
-		  comboBoxPtr->SetClientData(index, (void *)gSqMicrometersUnitsMenuItem);
-		  index++;
+			comboBoxPtr->Append(wxT("Sq. millimeters"));
+			comboBoxPtr->SetClientData(index, (void *)gSqMillimetersUnitsMenuItem);
+			index++;
 
-		  comboBoxPtr->Append(wxT("Sq. miles"));
-		  comboBoxPtr->SetClientData(index, (void *)gSqMilesUnitsMenuItem);
-		  index++;
+			comboBoxPtr->Append(wxT("Sq. micrometers"));
+			comboBoxPtr->SetClientData(index, (void *)gSqMicrometersUnitsMenuItem);
+			index++;
 
-		  comboBoxPtr->Append(wxT("Acres"));
-		  comboBoxPtr->SetClientData(index, (void *)gAcresUnitsMenuItem);
-		  index++;
+			comboBoxPtr->Append(wxT("Sq. miles"));
+			comboBoxPtr->SetClientData(index, (void *)gSqMilesUnitsMenuItem);
+			index++;
 
-		  comboBoxPtr->Append(wxT("Sq. yards"));
-		  comboBoxPtr->SetClientData(index, (void *)gSqYardsUnitsMenuItem);
-		  index++;
+			comboBoxPtr->Append(wxT("Acres"));
+			comboBoxPtr->SetClientData(index, (void *)gAcresUnitsMenuItem);
+			index++;
 
-		  comboBoxPtr->Append(wxT("Sq. feet"));
-		  comboBoxPtr->SetClientData(index, (void *)gSqFeetUnitsMenuItem);
-		  index++;
+			comboBoxPtr->Append(wxT("Sq. yards"));
+			comboBoxPtr->SetClientData(index, (void *)gSqYardsUnitsMenuItem);
+			index++;
 
-		  comboBoxPtr->Append(wxT("Sq. inches"));
-		  comboBoxPtr->SetClientData(index, (void *)gSqInchesUnitsMenuItem);
-		  index++;
+			comboBoxPtr->Append(wxT("Sq. feet"));
+			comboBoxPtr->SetClientData(index, (void *)gSqFeetUnitsMenuItem);
+			index++;
+
+			comboBoxPtr->Append(wxT("Sq. inches"));
+			comboBoxPtr->SetClientData(index, (void *)gSqInchesUnitsMenuItem);
+			index++;
 
 			} // end "if (planarMapUnitsCode >= kKilometersCode)"
 	#endif	// defined multispec_lin
@@ -8795,34 +8640,111 @@ void SetUpAreaUnitsPopUpMenu(
 // Called By:			CoordinateUnitsControlEvent in controls.c
 //
 //	Coded By:			Larry L. Biehl			Date: 11/06/2000
-//	Revised By:			Larry L. Biehl			Date: 05/18/2012
+//	Revised By:			Larry L. Biehl			Date: 07/28/2017
 
-#ifndef multispec_lin
 void SetUpCoordinateUnitsPopUpMenu (
 				MenuHandle							menuHandle,
 				Handle								windowInfoHandle,
-				DialogPtr							dialogPtr)
-#else
-void SetUpCoordinateUnitsPopUpMenu(
-        MenuHandle menuHandle,
-        Handle windowInfoHandle,
-        wxPanel* dialogPtr)
-#endif
+#				ifndef multispec_lin
+					DialogPtr							dialogPtr)
+#				else
+					wxPanel*								dialogPtr)
+#				endif
 {    
-	SInt16				//			gridCoordinateCode,
-							//			gridZone,
-										planarMapUnitsCode;
-							//			spheroidCode;
+	SInt16								planarMapUnitsCode;
 										
-	Boolean							enableLatLongUnitsMenuItemFlag;
+	Boolean								enableLatLongUnitsMenuItemFlag;
 	
 	
 	planarMapUnitsCode = GetFilePlanarMapUnitsCode (windowInfoHandle);
 
 	enableLatLongUnitsMenuItemFlag = 
 										DetermineIfLatLongPossible (windowInfoHandle);
+			
+#	if defined multispec_lin
+		SInt16								index = 0,
+												numberComboItems;
 
-	#if defined multispec_mac
+
+		wxComboBox* comboBoxPtr =
+					(wxComboBox*)dialogPtr->FindWindow(IDC_DisplayUnitsCombo);
+
+				// Remove all but the first item in the list.
+
+		numberComboItems = comboBoxPtr->GetCount();		
+		
+		while (numberComboItems > 1) 
+			{
+			comboBoxPtr->Delete(numberComboItems - 1);
+			numberComboItems--;
+
+			}	// end "while (numberComboItems > 1)"
+
+		comboBoxPtr->SetClientData(index, (void*)gLineColumnUnitsMenuItem);
+		index++;
+
+		if (planarMapUnitsCode == kUnknownCode) 
+			{
+			comboBoxPtr->Append(wxT("Unknown units"));
+			comboBoxPtr->SetClientData(index, (void *)gUnknownUnitsMenuItem);
+			index++;
+
+			}	// end "if (planarMapUnitsCode == kUnknownCode)"
+
+		if (enableLatLongUnitsMenuItemFlag) 
+			{
+			comboBoxPtr->Append(wxT("Lat-Long (Decimal)"));
+			comboBoxPtr->SetClientData(index, (void *)gDecimalLatLongUnitsMenuItem);
+			index++;
+
+			comboBoxPtr->Append(wxT("Lat-Long (DMS)"));
+			comboBoxPtr->SetClientData(index, (void *)gDMSLatLongUnitsMenuItem);
+			index++;
+
+			}	// end "if (enableLatLongUnitsMenuItemFlag)"
+
+		if (planarMapUnitsCode >= kKilometersCode) 
+			{
+			comboBoxPtr->Append(wxT("Kilometers"));
+			comboBoxPtr->SetClientData(index, (void*)gKilometersUnitsMenuItem);
+			index++;
+
+			comboBoxPtr->Append(wxT("Meters"));
+			comboBoxPtr->SetClientData(index, (void*)gMetersUnitsMenuItem);
+			index++;
+
+			comboBoxPtr->Append(wxT("Centimeters"));
+			comboBoxPtr->SetClientData(index, (void*)gCentimetersUnitsMenuItem);
+			index++;
+
+			comboBoxPtr->Append(wxT("Millimeters"));
+			comboBoxPtr->SetClientData(index, (void*)gMillimetersUnitsMenuItem);
+			index++;
+
+			comboBoxPtr->Append(wxT("Micrometers"));
+			comboBoxPtr->SetClientData(index, (void*)gMicrometersUnitsMenuItem);
+			index++;
+
+			comboBoxPtr->Append(wxT("Miles"));
+			comboBoxPtr->SetClientData(index, (void*)gMilesUnitsMenuItem);
+			index++;
+
+			comboBoxPtr->Append(wxT("Yards"));
+			comboBoxPtr->SetClientData(index, (void*)gYardsUnitsMenuItem);
+			index++;
+
+			comboBoxPtr->Append(wxT("Feet"));
+			comboBoxPtr->SetClientData(index, (void*)gFeetUnitsMenuItem);
+			index++;
+
+			comboBoxPtr->Append(wxT("Inches"));
+			comboBoxPtr->SetClientData(index, (void*)gInchesUnitsMenuItem);
+			index++;
+
+			} // end "if (planarMapUnitsCode >= kKilometersCode)"
+#	endif	// defined multispec_lin
+
+#	if defined multispec_mac
 		EnableMenuItem (menuHandle, kLineColumnUnitsMenuItem);
 		
 		if (planarMapUnitsCode == kUnknownCode)
@@ -8874,11 +8796,11 @@ void SetUpCoordinateUnitsPopUpMenu(
 			DisableMenuItem (menuHandle, kInchesUnitsMenuItem);
 			
 			}		// end "else planarMapUnitsCode < kMetersCode"
-	#endif	// defined multispec_mac 
+#	endif	// defined multispec_mac 
 	
-	#if defined multispec_win
-		SInt16			index = 0,
-							numberComboItems;
+#	if defined multispec_win
+		SInt16								index = 0,
+												numberComboItems;
 
 			
 		CComboBox* comboBoxPtr = 
@@ -8960,86 +8882,7 @@ void SetUpCoordinateUnitsPopUpMenu(
 			index++;
 			
 			}		// end "if (planarMapUnitsCode >= kKilometersCode)"
-	#endif	// defined multispec_mac 
-			
-	#if defined multispec_lin
-
-    SInt16 index = 0,
-            numberComboItems;
-
-
-    wxComboBox* comboBoxPtr =
-            (wxComboBox*) dialogPtr->FindWindow(IDC_DisplayUnitsCombo);
-
-    // Remove all but the first item in the list.
-
-    numberComboItems = comboBoxPtr->GetCount();
-    while (numberComboItems > 1) {
-        comboBoxPtr->Delete(numberComboItems - 1);
-        numberComboItems--;
-
-    } // end "while (numberComboItems > 1)"
-
-    comboBoxPtr->SetClientData(index, (void *)gLineColumnUnitsMenuItem);
-    index++;
-
-    if (planarMapUnitsCode == kUnknownCode) {
-        comboBoxPtr->Append(wxT("Unknown units"));
-        comboBoxPtr->SetClientData(index, (void *)gUnknownUnitsMenuItem);
-        index++;
-
-    } // end "if (planarMapUnitsCode == kUnknownCode)"
-
-    if (enableLatLongUnitsMenuItemFlag) {
-        comboBoxPtr->Append(wxT("Lat-Long (Decimal)"));
-        comboBoxPtr->SetClientData(index, (void *)gDecimalLatLongUnitsMenuItem);
-        index++;
-
-        comboBoxPtr->Append(wxT("Lat-Long (DMS)"));
-        comboBoxPtr->SetClientData(index, (void *)gDMSLatLongUnitsMenuItem);
-        index++;
-
-    } // end "if (enableLatLongUnitsMenuItemFlag)"
-
-    if (planarMapUnitsCode >= kKilometersCode) {
-        comboBoxPtr->Append(wxT("Kilometers"));
-        comboBoxPtr->SetClientData(index, (void *)gKilometersUnitsMenuItem);
-        index++;
-
-        comboBoxPtr->Append(wxT("Meters"));
-        comboBoxPtr->SetClientData(index, (void *)gMetersUnitsMenuItem);
-        index++;
-
-        comboBoxPtr->Append(wxT("Centimeters"));
-        comboBoxPtr->SetClientData(index, (void *)gCentimetersUnitsMenuItem);
-        index++;
-
-        comboBoxPtr->Append(wxT("Millimeters"));
-        comboBoxPtr->SetClientData(index, (void *)gMillimetersUnitsMenuItem);
-        index++;
-
-        comboBoxPtr->Append(wxT("Micrometers"));
-        comboBoxPtr->SetClientData(index, (void *)gMicrometersUnitsMenuItem);
-        index++;
-
-        comboBoxPtr->Append(wxT("Miles"));
-        comboBoxPtr->SetClientData(index, (void *)gMilesUnitsMenuItem);
-        index++;
-
-        comboBoxPtr->Append(wxT("Yards"));
-        comboBoxPtr->SetClientData(index, (void *)gYardsUnitsMenuItem);
-        index++;
-
-        comboBoxPtr->Append(wxT("Feet"));
-        comboBoxPtr->SetClientData(index, (void *)gFeetUnitsMenuItem);
-        index++;
-
-        comboBoxPtr->Append(wxT("Inches"));
-        comboBoxPtr->SetClientData(index, (void *)gInchesUnitsMenuItem);
-        index++;
-
-    } // end "if (planarMapUnitsCode >= kKilometersCode)"
-	#endif	// defined multispec_lin
+#	endif	// defined multispec_win 
 
 }		// end "SetUpCoordinateUnitsPopUpMenu"  
 

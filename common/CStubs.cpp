@@ -13,7 +13,7 @@
 //
 //	Revision number:		3.5
 //
-//	Revision date:			05/22/2017
+//	Revision date:			07/31/2017
 //
 //	Language:				C
 //
@@ -37,35 +37,39 @@
 #include "SMulSpec.h"
 
 #ifdef multispec_win
-#include "WMultiSpec.h"
-#include "CImagVew.h"
-#include "CImagWin.h"
-#include "CProcess.h"
-#include "CPalette.h"
-#include "SGrafVew.h"
-#include "WDialog.h" 
-#include "WImagDoc.h"
-#include "WImagFrm.h"
-#include	"WStatDlg.h"
-#include "WTLegend.h"  
+	#include "WMultiSpec.h"
+	#include "CImagVew.h"
+	#include "CImagWin.h"
+	#include "CProcess.h"
+	#include "CPalette.h"
+	#include "SGrafVew.h"
+	#include "WDialog.h" 
+	#include "WImagDoc.h"
+	#include "WImagFrm.h"
+	#include	"WStatDlg.h"
+	#include "WTLegend.h"  
 
-#include	"SExtGlob.h"
+	#include	"SExtGlob.h"
 #endif
-//#include	"SExtGlob.h" already declared in smulspec.h
+
 #ifdef multispec_lin
-#include <wx/wx.h>
-#include <wx/pen.h>
-#include <wx/menu.h>
-#include <wx/evtloop.h>
-#include "MultiSpec2.h"
-#define CPen wxPen
-#include "LMainFrame.h"
-#include "LImageView.h"
-#include "CImagWin.h"
-#include "CProcess.h"
-#include "CPalette.h"
-#include "ldialog.h"
+	#include "CImagWin.h"
+	#include "CProcess.h"
+	#include "CPalette.h"
+	#include <wx/evtloop.h>
+	#include <wx/menu.h>
+	#include <wx/pen.h>
+	#include <wx/wx.h>
+	#include "LMultiSpec.h"
+	#include "LMainFrame.h"
+	#include "LImageView.h"
+	#include "LDialog.h"
+	
+	#define CPen wxPen
 #endif
+
+//#include	"SExtGlob.h" already declared in smulspec.h
+
 extern void SetPenCharacteristics(
         CPen* newPenPtr,
         RGBColor* rgbColorPtr,
@@ -1810,38 +1814,43 @@ void SetPenCharacteristics(
 
 
 void SetControlValue(
-        ControlHandle controlHandle,
-        SInt16 setting)
- {
-
-} // end "SetControlValue"                                            
-
-// TODO: Find a way to select the chars from startselection to endselection
+				ControlHandle							controlHandle,
+				SInt16									setting)
+{
+#	if defined multispec_lin
+		if (controlHandle != NULL)
+			((wxComboBox*)controlHandle)->SetSelection (setting);
+#	endif
+}	// end "SetControlValue"   
+                                         
 
 void SelectDialogItemText(
-        DialogPtr dialogPtr,
-        SInt16 itemNumber,
-        SInt16 startSelection,
-        SInt16 endSelection)
+				DialogPtr								dialogPtr,
+				SInt16									itemNumber,
+				SInt16									startSelection,
+				SInt16									endSelection)
  {
-#ifndef multispec_lin
-    dialogPtr->GetDlgItem(itemNumber)->SetFocus();
-    //	dialogPtr->SendDlgItemMessage( 
-    //										itemNumber, EM_SETSEL, 0, MAKELPARAM(0, -1) );
-    dialogPtr->SendDlgItemMessage(
-            itemNumber, EM_SETSEL, startSelection, endSelection);
-#else
-    wxWindow* dialogObject = (dialogPtr)->FindWindow(itemNumber);
-    if (dialogObject != NULL)
-        dialogObject->SetFocus();
-    //dialogPtr->FindWindow(itemNumber)->SetFocus();
-#endif
+#	if defined multispec_lin
+				// TODO: Find a way to select the chars from startselection to endselection
+		wxWindow* dialogObject = (dialogPtr)->FindWindow(itemNumber);
+		if (dialogObject != NULL)
+			dialogObject->SetFocus();
+		//dialogPtr->FindWindow(itemNumber)->SetFocus();
+#	endif
+
+#	if defined multispec_win
+		dialogPtr->GetDlgItem (itemNumber)->SetFocus();
+		dialogPtr->SendDlgItemMessage (
+									itemNumber, EM_SETSEL, startSelection, endSelection);
+#	endif
+
 } // end "SelectDialogItemText" 
+
 
 void SetDialogItemText(
         Handle theHandle,
         ConstStr255Param textStringPtr)
- {
+{
 
 } // end "SetDialogItemText" 
 

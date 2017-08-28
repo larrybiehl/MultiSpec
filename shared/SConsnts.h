@@ -7,7 +7,7 @@
 //	Header file which contains the constants used by MultiSpec.
 //	
 //	Written 03/29/1988 by Larry L. Biehl
-//	Revised 05/03/2017 by Larry L. Biehl
+//	Revised 08/23/2017 by Larry L. Biehl
 //	Revised 06/18/2013 by Abdur Maud
 //	Revised 07/23/2015 by Tsung Tai Yeh
 //	
@@ -702,8 +702,9 @@
 #define	kLandsatLC8_OLI_TIRS				13
 #define	kLandsatLC8_OLI					14
 #define	kLandsatLC8_TIRS					15
+#define	kSentinel2_MSI						16
 
-#define	kNumberInstrumentCodes			15
+#define	kNumberInstrumentCodes			16
 
 		// Image type codes
 	

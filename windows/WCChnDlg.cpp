@@ -1,6 +1,6 @@
 // WCChnDlg.cpp : implementation file
 //
-// Revised by Larry Biehl on 05/26/2017
+// Revised by Larry Biehl on 08/21/2017
 //
                    
 #include "SMulSpec.h"
@@ -65,7 +65,7 @@ void CMChangeChannelDescriptionDlg::DoDataExchange(CDataExchange* pDX)
 	//{{AFX_DATA_MAP(CMChangeChannelDescriptionDlg)
 	DDX_Text(pDX, IDC_Description, m_description);
 	DDV_MaxChars(pDX, m_description, 16);
-	DDX_Text(pDX, IDC_Value, m_value);
+	DDX_Text2(pDX, IDC_Value, m_value);
 	//}}AFX_DATA_MAP
 }
 
@@ -244,7 +244,7 @@ void CMChangeChannelDescriptionDlg::Update(void)
 	
 			// Get the new value
 
-	DDX_Text(m_dialogFromPtr, IDC_Value, m_value);
+	DDX_Text2(m_dialogFromPtr, IDC_Value, m_value);
 
 	m_changeFlag = ModifyChannelDescriptionsUpdate (this, 
 																	m_channelDescriptionPtr, 

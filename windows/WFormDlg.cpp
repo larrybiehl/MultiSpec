@@ -1,6 +1,6 @@
 // WFormDlg.cpp : implementation file
 //
-//	Revised by Larry Biehl on 05/26/2017
+//	Revised by Larry Biehl on 08/21/2017
 //
 
 #include "SMulSpec.h"
@@ -198,7 +198,7 @@ void CMFileFormatSpecsDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Check(pDX, IDC_SwapBytes, m_swapBytesFlag);
 	DDX_Check(pDX, IDC_LinesBottomToTop, m_linesBottomToTopFlag);
 	DDX_Check(pDX, IDC_FillDataValueExists, m_fillDataValueExistsFlag);
-	DDX_Text(pDX, IDC_FillDataValue, m_fillDataValue);
+	DDX_Text2(pDX, IDC_FillDataValue, m_fillDataValue);
 	DDX_Text(pDX, IDC_TrailerBytes, m_trailerBytes);
 	DDV_MinMaxLong(pDX, m_trailerBytes, 0, SInt32_MAX);
 	DDX_Text(pDX, IDC_ImageName, m_imageName);

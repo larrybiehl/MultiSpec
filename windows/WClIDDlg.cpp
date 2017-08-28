@@ -1,6 +1,6 @@
 // WCliDDlg.cpp : implementation file
 //
-// Revised by Larry Biehl on 05/26/2017
+// Revised by Larry Biehl on 08/21/2017
 //
                     
 #include "SMulSpec.h"       
@@ -107,13 +107,14 @@ void CMISODATAClusterDialog::DoDataExchange(CDataExchange* pDX)
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CMISODATAClusterDialog)
 	DDX_Radio(pDX, IDC_1stCovEigenvector, m_initializationOption);
-	DDX_Text(pDX, IDC_Distance1, m_criticalDistance1);
-	DDX_Text(pDX, IDC_Distance2, m_criticalDistance2);
+	DDX_Text2(pDX, IDC_Distance1, m_criticalDistance1);
+	// DDX_Text(pDX, IDC_NumberClusters, m_numberClusters);	// This added to work around Microsoft bug in previous call for doubles (8/18/2017)
+	DDX_Text2(pDX, IDC_Distance2, m_criticalDistance2);
 	DDX_Text(pDX, IDC_NumberClusters, m_numberClusters);
 	DDV_MinMaxLong(pDX, m_numberClusters, 1, 254);
 	DDX_Text(pDX, IDC_MinClusterSize, m_minClusterSize);
 	DDV_MinMaxLong(pDX, m_minClusterSize, 1, 65535);
-	DDX_Text(pDX, IDC_Convergence, m_convergence);
+	DDX_Text2(pDX, IDC_Convergence, m_convergence);
 	DDV_MinMaxDouble(pDX, m_convergence, 0., 100.);
 	DDX_CBIndex(pDX, IDC_ClassCombo, m_classSelection);
 	DDX_Text(pDX, IDC_LineEnd, m_LineEnd);
@@ -426,10 +427,10 @@ BOOL CMISODATAClusterDialog::OnInitDialog()
 			// small values. 
 
 	LoadDItemRealValue (this, IDC_Distance1, m_criticalDistance1, m_distanceDecimalDigits);
-	DDX_Text(m_dialogFromPtr, IDC_Distance1, m_criticalDistance1);
+	DDX_Text2(m_dialogFromPtr, IDC_Distance1, m_criticalDistance1);
 
 	LoadDItemRealValue (this, IDC_Distance2, m_criticalDistance2, m_distanceDecimalDigits);
-	DDX_Text(m_dialogFromPtr, IDC_Distance2, m_criticalDistance2);
+	DDX_Text2(m_dialogFromPtr, IDC_Distance2, m_criticalDistance2);
 
 	if (UpdateData(FALSE) )                   
 		PositionDialogWindow ();

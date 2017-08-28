@@ -7,7 +7,7 @@
 //	Header file which contains the resource constants used by MultiSpec.
 //	
 //	Written 03/29/1988 by Larry L. Biehl
-//	Revised 01/19/2017 by Larry L. Biehl
+//	Revised 08/03/2017 by Larry L. Biehl
 // Revised 06/24/2013 by Abdur Maud
 //	
 //------------------------------------------------------------------------------------
@@ -1050,6 +1050,7 @@
   	#define	IDS_Project86				86
   	#define	IDS_Project87				87
   	#define	IDS_Project88				88
+  	#define	IDS_Project89				89
 	
 			// Symbols string indexes
 	
@@ -1254,6 +1255,7 @@
 	#define	kSharedStrID							0
 	#define	kPrincipalCompStrID					0
 	#define	kListDataStrID							0
+	#define	kStatisticsImageStrID				0
 	#define	kFileTypeStrID							0
 	#define	kBandInterleaveStrID					0
 	#define	kCompressionStrID						0

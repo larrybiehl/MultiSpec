@@ -3,8 +3,8 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2010)
-//							  � Purdue Research Foundation
+//								 Copyright (1988-2017)
+//							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
 //					The following was put here for easy access to a template
@@ -128,8 +128,8 @@ double 					TermValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2010)
-//								� Purdue Research Foundation
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		SInt16 CalculateCoefficients
@@ -217,8 +217,8 @@ SInt16 CalculateCoefficients (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2010)
-//								� Purdue Research Foundation
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		SInt16 CalculateWithLeastSquares
@@ -326,8 +326,8 @@ SInt16 CalculateWithLeastSquares (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2010)
-//								� Purdue Research Foundation
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		SInt16 ComputeGeorefCoefficients
@@ -416,8 +416,8 @@ SInt16 ComputeGeorefCoefficients (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2010)
-//								� Purdue Research Foundation
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		SInt16 ExactDetermination
@@ -496,8 +496,8 @@ SInt16 ExactDetermination (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2010)
-//								� Purdue Research Foundation
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		SInt16 GetPolynomialModel
@@ -631,8 +631,8 @@ SInt16 GetPolynomialModel (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2010)
-//								� Purdue Research Foundation
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		SInt16 SolveMatrix
@@ -778,8 +778,8 @@ SInt16 SolveMatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2010)
-//								� Purdue Research Foundation
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		double TermValue

@@ -9,7 +9,7 @@
 // prototypes.
 //	
 //	Written 03/29/1988 by Larry L. Biehl
-//	Revised 03/07/2017 by Larry L. Biehl
+//	Revised 08/21/2017 by Larry L. Biehl
 //	Revised 06/24/2013 by Abdur Maud
 //	
 //------------------------------------------------------------------------------------
@@ -61,6 +61,8 @@
 	#include "limits.h" 
 	#include "windowsx.h" 
 	#include "resource.h"       // main symbols
+	void AFXAPI DDX_Text2(CDataExchange* pDX, int nIDC, float& value);
+	void AFXAPI DDX_Text2(CDataExchange* pDX, int nIDC, double& value);
 #endif	// defined multispec_win 
 
 #if defined multispec_lin
@@ -85,7 +87,7 @@
 
 #if defined multispec_lin
 	//#include "SDecGlob.h" // DO NOT include this. SExtGlob.h is sufficient
-	#include "resource.h"
+	#include "LResource.h"
 	//#include "SGrafVew.h"
 	#include <time.h>
 	#include <cmath>

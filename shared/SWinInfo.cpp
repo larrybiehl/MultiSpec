@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -13,7 +13,7 @@
 //
 //	Revision number:		3.0
 //
-//	Revision date:			06/22/2015
+//	Revision date:			07/31/2017
 //
 //	Language:				C
 //
@@ -56,6 +56,16 @@
 //------------------------------------------------------------------------------------
 
 #include "SMulSpec.h"
+
+#if defined multispec_lin
+	#include "wx/wx.h"
+	#include "LImageView.h"
+	#include "LImageDoc.h"
+	#include "LImageFrame.h"
+	#include "CImagWin.h"
+	#include "LTextView.h"
+	#include "CDisplay.h"
+#endif
 	
 #if defined multispec_mac
 	
@@ -70,16 +80,6 @@
 	#include "WTextVew.h"
 #endif	// defined multispec_win
 
-#if defined multispec_lin
-	#include "wx/wx.h"
-	#include "LImageView.h"
-	#include "LImageDoc.h"
-	#include "LImageFrame.h"
-	#include "CImagWin.h"
-	#include "LTextView.h"
-	#include "CDisplay.h"
-#endif
-
 #include "SExtGlob.h" 
 
 extern void					SetFileMapProjectionHandle2 (
@@ -89,7 +89,7 @@ extern void					SetFileMapProjectionHandle2 (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -148,7 +148,7 @@ Boolean CheckIfDefaultHistogramInfoExists (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -209,7 +209,7 @@ Boolean CheckIfEntireImage (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -273,7 +273,7 @@ void DisposeOfImageWindowSupportMemory (
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -313,7 +313,7 @@ Handle GetActiveDisplaySpecsHandle (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -368,7 +368,7 @@ Handle GetActiveImageFileInfoHandle (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -415,7 +415,7 @@ Handle GetActiveImageLayerInfoHandle (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -462,7 +462,7 @@ Handle GetActiveImageWindowInfoHandle (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -503,7 +503,7 @@ ListHandle GetActiveLegendListHandle (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -547,7 +547,7 @@ Handle GetActiveSelectionInfoHandle (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -586,7 +586,7 @@ CMFileStream* GetActiveSupportFileStreamPointer (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -658,7 +658,7 @@ Handle GetActiveWindowInfoHandle (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -710,7 +710,7 @@ UInt32 GetCoordinateHeight (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -751,7 +751,7 @@ double GetCoordinateViewAreaFactor (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -790,7 +790,7 @@ SInt16 GetCoordinateViewAreaUnits (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -829,7 +829,7 @@ ControlHandle GetCoordinateViewAreaUnitsControl (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -870,7 +870,7 @@ UInt32 GetCoordinateViewCursorStart (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -911,7 +911,7 @@ double GetCoordinateViewFactor (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -951,7 +951,7 @@ UInt32 GetCoordinateViewAreaPopupStart (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -992,7 +992,7 @@ UInt32 GetCoordinateViewNumberChars (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1033,7 +1033,7 @@ UInt32 GetCoordinateViewNumberPixelsChars (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1073,7 +1073,7 @@ UInt32 GetCoordinateViewNumberPixelsStart (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1113,7 +1113,7 @@ UInt32 GetCoordinateViewScaleStart (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1154,7 +1154,7 @@ UInt32 GetCoordinateViewSelectionStart (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1195,7 +1195,7 @@ SInt16 GetCoordinateViewUnits (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1234,7 +1234,7 @@ ControlHandle GetCoordinateViewUnitsControl (
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1274,7 +1274,7 @@ SInt16 GetDisplayClassGroupCode (
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1322,7 +1322,7 @@ UInt32 GetDisplayedLineStart (
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1399,7 +1399,7 @@ Handle GetDisplaySpecsHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1452,7 +1452,7 @@ Handle GetFileInfoHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1490,7 +1490,7 @@ SInt16 GetFileInfoVersion (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1523,7 +1523,7 @@ Handle GetFileMapProjectionHandle2 (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1581,7 +1581,7 @@ CMFileStream* GetFileStreamPointer (
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1675,7 +1675,7 @@ Handle GetHistogramSpecsHandle (
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1769,7 +1769,7 @@ Handle GetHistogramSummaryHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1807,7 +1807,7 @@ SInt16 GetHistogramSupportFileFormat (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1856,7 +1856,7 @@ SInt16 GetHistogramSupportFileFormat (
 
 
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1893,7 +1893,7 @@ UInt32 GetImageTopOffset (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1931,7 +1931,7 @@ SInt16 GetImageType(
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1991,7 +1991,7 @@ Handle GetLayerInfoHandle (
 
 
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2010,7 +2010,7 @@ Handle GetLayerInfoHandle (
 //
 //	Coded By:			Larry L. Biehl			Date: 04/25/2004
 //	Revised By:			Larry L. Biehl			Date: 04/25/2004			
-// TODO: For Linux when implementing thematic code
+
 SInt16 GetActiveLegendListType ()
 
 { 
@@ -2043,7 +2043,7 @@ SInt16 GetActiveLegendListType ()
 
 
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2127,7 +2127,7 @@ SInt16 GetLegendWidth (
 
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2166,7 +2166,7 @@ Handle GetMapProjectionHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2205,7 +2205,7 @@ UInt32 GetMaxNumberColumns(
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2244,7 +2244,7 @@ UInt32 GetMaxNumberLines(
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2281,7 +2281,7 @@ UInt32 GetNumberImageFiles (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2318,7 +2318,7 @@ UInt32 GetNumberImageWindowOverlays (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2355,7 +2355,7 @@ UInt32 GetNumberWindowOverlays (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2397,7 +2397,7 @@ PMOrientation GetPrintPageOrientation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2434,7 +2434,7 @@ double GetPrintPageScale (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2471,7 +2471,7 @@ Boolean GetProjectBaseImageFlag (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2508,7 +2508,7 @@ Boolean GetProjectWindowFlag (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2528,12 +2528,17 @@ Boolean GetProjectWindowFlag (
 //
 //	Coded By:			Larry L. Biehl			Date: 01/15/1998
 //	Revised By:			Larry L. Biehl			Date: 06/22/2015	
-// TODO: For Linux
+
 Boolean GetOutputWindowChangedFlag(void)
 
 { 
 	Boolean								windowChangedFlag = FALSE;
 	
+	
+	#if defined multispec_lin 
+		if (gOutputViewCPtr != NULL)
+			windowChangedFlag = gOutputViewCPtr->m_textsw->IsModified();
+	#endif	// defined multispec_lin 
 	
 	#if defined multispec_mac 
 		Handle windowInfoHandle = (Handle)GetWRefCon (gOutputWindow); 
@@ -2549,11 +2554,6 @@ Boolean GetOutputWindowChangedFlag(void)
 		if (gOutputViewCPtr != NULL)
 			windowChangedFlag = gOutputViewCPtr->GetEditCtrl().GetModify ();
 	#endif	// defined multispec_win 
-	
-	#if defined multispec_lin 
-		if (gOutputViewCPtr != NULL)
-			windowChangedFlag = gOutputViewCPtr->m_textsw->IsModified();
-	#endif	// defined multispec_lin 
 		
 	return (windowChangedFlag);
 	
@@ -2562,7 +2562,7 @@ Boolean GetOutputWindowChangedFlag(void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2655,7 +2655,7 @@ SInt16 GetSelectionInfoDisplayUnits (
 
 
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2692,7 +2692,7 @@ Boolean GetShowLegendFlag (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2748,7 +2748,7 @@ CMFileStream* GetSupportFileStreamPointer (
 
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2802,7 +2802,7 @@ CMFileStream* GetSupportFileStreamPointer (
 
 
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2839,7 +2839,7 @@ SInt16 GetTitleHeight (
 
 
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2877,7 +2877,7 @@ UInt32 GetTotalNumberOfChannels (
 
 #if defined multispec_win | defined multispec_lin
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2916,7 +2916,7 @@ CMImageWindow* GetWindowClassPointer (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2977,7 +2977,7 @@ Handle GetWindowInfoHandle(wxView* windowPtr)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3014,7 +3014,7 @@ Handle GetWindowInfoHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3120,7 +3120,7 @@ Handle GetWindowInfoStructures (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3182,7 +3182,7 @@ WindowPtr GetWindowPtr(
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3220,7 +3220,7 @@ SInt16 GetWindowType(
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3423,7 +3423,7 @@ Handle InitializeWindowInfoStructure (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3480,7 +3480,7 @@ Boolean OffscreenImageMapExists (
 
 
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3584,7 +3584,7 @@ void ReleaseOffscreenSupportMemory (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3632,7 +3632,7 @@ void SetCoordinateHeight (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3672,7 +3672,7 @@ void SetCoordinateViewAreaFactor (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3712,7 +3712,7 @@ void SetCoordinateViewAreaPopupStart (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3751,7 +3751,47 @@ void SetCoordinateViewAreaUnits (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		void SetCoordinateViewAreaUnits
+//
+//	Software purpose:	The purpose of this routine is to set the coordinate view
+//							control pointer. It will be needed later for making setting
+//							changes.
+//
+//	Parameters in:		Window information structure handle
+//							setting to be used
+//
+//	Parameters out:	None
+//
+// Value Returned:  	None
+//
+// Called By:			
+//
+//	Coded By:			Larry L. Biehl			Date:	07/31/2017
+//	Revised By:			Larry L. Biehl			Date: 07/31/2017
+
+void SetCoordinateViewAreaUnitsControl (
+				Handle								windowInfoHandle,
+				ControlHandle						coordinateViewAreaUnitsControl)
+
+{	
+			// Get pointer to the support file information.
+												
+	WindowInfoPtr windowInfoPtr = (WindowInfoPtr)GetHandlePointer(
+												windowInfoHandle, kNoLock, kNoMoveHi);
+	
+	if (windowInfoPtr != NULL)
+		windowInfoPtr->coordinateViewAreaUnitsControl = coordinateViewAreaUnitsControl;
+												
+}		// end "SetCoordinateViewAreaUnitsControl"  
+
+
+
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3791,7 +3831,7 @@ void SetCoordinateViewCursorStart (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3830,7 +3870,7 @@ void SetCoordinateViewFactor (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3870,7 +3910,7 @@ void SetCoordinateViewNumberChars (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3912,7 +3952,7 @@ void SetCoordinateViewNumberPixelsChars (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3953,7 +3993,7 @@ void SetCoordinateViewNumberPixelsStart (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3993,7 +4033,7 @@ void SetCoordinateViewScaleStart (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4033,7 +4073,7 @@ void SetCoordinateViewSelectionStart (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4067,12 +4107,51 @@ void SetCoordinateViewUnits (
 	if (windowInfoPtr != NULL)
 		windowInfoPtr->coordinateViewUnitsCode = coordinateViewUnits;
 												
-}		// end "SetCoordinateViewUnits"  	
+}		// end "SetCoordinateViewUnits"  
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		void SetCoordinateViewUnitsControl
+//
+//	Software purpose:	The purpose of this routine is to set the coordinate view
+//							units setting.
+//
+//	Parameters in:		Window information structure handle
+//							setting to be used
+//
+//	Parameters out:	None
+//
+// Value Returned:  	None
+//
+// Called By:			
+//
+//	Coded By:			Larry L. Biehl			Date:	07/31/2017
+//	Revised By:			Larry L. Biehl			Date: 07/31/2017
+
+void SetCoordinateViewUnitsControl (
+				Handle								windowInfoHandle,
+				ControlHandle						coordinateUnitsControl)
+
+{	
+			// Get pointer to the support file information.
+												
+	WindowInfoPtr windowInfoPtr = (WindowInfoPtr)GetHandlePointer(
+												windowInfoHandle, kNoLock, kNoMoveHi);
+	
+	if (windowInfoPtr != NULL)
+		windowInfoPtr->coordinateUnitsControl = coordinateUnitsControl;
+												
+}		// end "SetCoordinateViewUnitsControl"  	
+
+
+
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4106,7 +4185,7 @@ void SetFileMapProjectionHandle2 (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4158,7 +4237,7 @@ void SetHistogramSpecsHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4210,7 +4289,7 @@ void SetHistogramSummaryHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4256,7 +4335,7 @@ void SetHistogramSupportFileFormat (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4293,7 +4372,7 @@ void SetImageType(
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4332,7 +4411,7 @@ void SetImageWindowIsUpToDateFlag (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4365,7 +4444,7 @@ void SetLayerInfoHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4417,7 +4496,7 @@ void SetOutputWindowChangedFlag(
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4453,7 +4532,7 @@ void SetPrintPageOrientation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4515,7 +4594,7 @@ void SetSelectionInfoDisplayUnits (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4580,7 +4659,7 @@ void SetSupportFileStreamHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4618,7 +4697,7 @@ void SetWindowType(
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4665,7 +4744,7 @@ void UnlockActiveSupportFileStream (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4723,7 +4802,7 @@ void UnlockAndDisposeSupportFileStream (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4771,7 +4850,7 @@ void UnlockFileStream (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

@@ -50,6 +50,7 @@ protected:
 	afx_msg void OnClickIndividualRadio();
 	afx_msg void OnClickOverallRadio();
 	afx_msg void OnCbnSelchangeChannelcombo();
+	afx_msg void OnFeatureTransformation();
 
 	DECLARE_MESSAGE_MAP()
 

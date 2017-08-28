@@ -13,7 +13,7 @@
 //
 //	Revision number:		3.0
 //
-//	Revision date:			03/16/2017
+//	Revision date:			06/21/2017
 //
 //	Language:				C
 //
@@ -41,7 +41,12 @@
 //
 //------------------------------------------------------------------------------------
 
-#include	"SMulSpec.h"
+#include	"SMulSpec.h"  
+
+#if defined multispec_lin
+	#include "CFileStr.h"
+	#include "LFieldsToThematicDialog.h"
+#endif	// defined multispec_lin
 
 #if defined multispec_mac 
 	#define	IDC_TrainingAreas		15 
@@ -52,12 +57,7 @@
 #if defined multispec_win 
 	#include "CFileStr.h"
 	#include "WFToTDlg.h"
-#endif	// defined multispec_win   
-
-#if defined multispec_lin
-	#include "CFileStr.h"
-#include "LFToThemDlg.h"
-#endif
+#endif	// defined multispec_win 
  
 #include "SExtGlob.h" 
 

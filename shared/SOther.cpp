@@ -13,7 +13,7 @@
 //
 //	Revision number:		3.0
 //
-//	Revision date:			03/21/2017
+//	Revision date:			06/21/2017
 //
 //	Language:				C
 //
@@ -39,6 +39,11 @@
 //								"multiSpec.h"
 
 #include "SMulSpec.h"
+
+#if defined multispec_lin
+   #include "LEvaluateCovariancesDialog.h"
+   #include "LEvaluateTransformationDialog.h"
+#endif // defined multispec_lin
 	
 #if defined multispec_mac
 	#define IDC_ListEigenvalues		4
@@ -52,11 +57,6 @@
 	#include "WCovEDlg.h"
 	#include "WTranDlg.h"
 #endif	// defined multispec_win
-
-#if defined multispec_lin
-   #include "LCovEDlg.h"
-   #include "LTranDlg.h"
-#endif // defined multispec_lin
 
 #include "SExtGlob.h" 	
 

@@ -392,6 +392,7 @@
 #define IDS_Project86                   886
 #define IDS_Project87                   887
 #define IDS_Project88                   888
+#define IDS_Project89                   889
 #define IDS_ProjectVersion1             901
 #define IDS_ProjectVersion2             902
 #define IDS_ProjectVersion3             903
@@ -1928,6 +1929,19 @@
 #define IDS_ChanDescription51           2551
 #define IDS_ChannelDescription52        2552
 #define IDS_ChanDescription52           2552
+#define IDS_ChanDescription53           2553
+#define IDS_ChanDescription54           2554
+#define IDS_ChanDescription55           2555
+#define IDS_ChanDescription56           2556
+#define IDS_ChanDescription57           2557
+#define IDS_ChanDescription58           2558
+#define IDS_ChanDescription59           2559
+#define IDS_ChanDescription60           2560
+#define IDS_ChanDescription61           2561
+#define IDS_ChanDescription62           2562
+#define IDS_ChanDescription63           2563
+#define IDS_ChanDescription64           2564
+#define IDS_ChanDescription65           2565
 #define IDS_FileIO201                   2701
 #define IDS_FileIO202                   2702
 #define IDS_FileIO203                   2703
@@ -1946,6 +1960,8 @@
 #define IDS_InstrumentName13            3013
 #define IDS_InstrumentName14            3014
 #define IDS_InstrumentName15            3015
+#define IDS_STRING3016                  3016
+#define IDS_InstrumentName16            3016
 #define IDS_ProjectionType01            5001
 #define IDS_ProjectionType02a           5002
 #define IDS_ProjectionType02            5002

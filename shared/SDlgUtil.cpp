@@ -13,7 +13,7 @@
 //
 //	Revision number:		3.0
 //
-//	Revision date:			03/25/2017
+//	Revision date:			07/26/2017
 //
 //	Language:				C
 //
@@ -63,6 +63,15 @@
                 
 #include "SMulSpec.h"  
 
+#if defined multispec_lin
+	#include "wx/wx.h"
+	#include <wx/msgdlg.h>
+	#include <wx/string.h>
+	#include <wx/colour.h>
+	#include "LMultiSpec.h"
+	#include "LStatusDialog.h"
+#endif
+
 #if defined multispec_mac  
 	#define kContinueStopAlertID		1169
 #endif	// defined multispec_mac
@@ -71,16 +80,6 @@
 	#include "CImagWin.h"
 	#include "WStatDlg.h"
 #endif	// defined multispec_win
-
-#if defined multispec_lin
-	#include "wx/wx.h"
-	#include <wx/msgdlg.h>
-	#include <wx/string.h>
-	#include <wx/colour.h>
-	#include "MultiSpec2.h"
-	#include "ldialog.h"
-	#include "Lstatdlg.h"
-#endif
 
 #include "SExtGlob.h"		
 
@@ -1052,7 +1051,7 @@ void DeactivateDialogItem (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 06/25/1990
-//	Revised By:			Larry L. Biehl			Date: 03/22/2017
+//	Revised By:			Larry L. Biehl			Date: 07/26/2017
 
 SInt16 DisplayAlert (
 				SInt16								alertResourceId, 
@@ -1064,7 +1063,7 @@ SInt16 DisplayAlert (
 				UInt16								stringCharCode)
 
 {
-	#if defined multispec_mac
+#	if defined multispec_mac
 		BitMap								bitMap;
 		Rect									displayRect;
 		
@@ -1388,14 +1387,12 @@ SInt16 DisplayAlert (
 				// Get the spare memory back again.													
 				
 		SetHandleSize (gSpareWarnMemoryH, (Size)gSpareWarnSize);
-	#endif	// defined multispec_mac
+#	endif	// defined multispec_mac
 
-	#if defined multispec_win 
+#	if defined multispec_win 
 		SInt16						itemHit = 0;
 		
-#		if defined multispec_win
-			USES_CONVERSION;
-#		endif
+		USES_CONVERSION;
 
 		if (alertResourceId == 0)
 			alertResourceId = MB_OK;
@@ -1434,9 +1431,9 @@ SInt16 DisplayAlert (
 				break;
 					
 			}		// end "switch (itemHit)"	
-	#endif // defined multispec_win
+#	endif // defined multispec_win
 
-	#if defined multispec_lin
+#	if defined multispec_lin
 		SInt16			itemHit = 0;
 		unsigned char	textptr[255];
 		wxString			message;
@@ -1453,7 +1450,7 @@ SInt16 DisplayAlert (
 			{
 					// First get a pointer to the string
 				
-			if (MGetString (textptr, 0, stringNumber1)) 
+			if (MGetString (textptr, 0, stringNumber1))
 				{
 						// Now convert in wxstring
 				//wxString message(textptr,wxConvUTF8);
@@ -1461,39 +1458,46 @@ SInt16 DisplayAlert (
 				message << textmsg;
 				//wxMessageDialog dialog(NULL,wxT("Multispec"),message,style);
 				}
+				
 			else
-				message = wxT("Invalid String table ID");
+				{
+				//message = wxT("Invalid String table ID");
+				message = wxString::Format(wxT("%d: %s"), stringNumber1, "Invalid String table ID");
 				//wxMessageDialog dialog(NULL,wxT("Multispec"),wxT("Invalid String table ID"));
+				}
 
-			}
+			}	// end "if (stringNumber1 > 0)"
 			
 		else if (stringPtr != NULL) 
 			{
 			//wxString message(stringPtr,wxConvUTF8);
 			message << &stringPtr[1];
 			}
-//		 int answer = wxMessageBox(wxT("Quit?"), wxT("Multispec"), style, NULL);
-//                 switch (answer) {
-//			  case wxYES:
-//					itemHit = 1;
-//					break;
-//
-//			  case wxNO:
-//					itemHit = 3;
-//					break;
-//
-//			  case wxCANCEL:
-//					itemHit = 2;
-//					break;
-//
-//		 } // end "switch (itemHit)"
+			
+		//int answer = wxMessageBox(wxT("Quit?"), wxT("Multispec"), style, NULL);
+		//switch (answer) 
+		//	{
+		//	case wxYES:
+		//		itemHit = 1;
+		//		break;
+		//
+		//case wxNO:
+		//		itemHit = 3;
+		//		break;
+		//
+		//case wxCANCEL:
+		//		itemHit = 2;
+		//		break;
+		//
+		//	} // end "switch (itemHit)"
                  
 		wxMessageDialog dialog(GetMainFrame(), message, wxT("MultiSpec"), style);
 		//wxFrame* frame = GetActiveFrame();
 		//wxMessageDialog dialog (frame, message, wxT("MultiSpec"), style);               
                
 		int answer = dialog.ShowModal();
-		switch (answer) {
+		switch (answer) 
+			{
 			case wxID_OK:
 				itemHit = 1;
 				break;
@@ -1511,7 +1515,7 @@ SInt16 DisplayAlert (
 				break;
 
 			} // end "switch (itemHit)"
-	#endif	// defined multispec_lin
+#	endif	// defined multispec_lin
 
 	return (itemHit);
 
@@ -4138,8 +4142,8 @@ void SetDialogItemToEditText (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 03/18/2012
-//	Revised By:			Larry L. Biehl			Date: 03/28/2012
-// TODO: For Linux
+//	Revised By:			Larry L. Biehl			Date: 07/05/2017
+
 void SetDialogItemToStaticText (
 				DialogPtr							dialogPtr, 
 				SInt16								itemNumber)
@@ -4147,6 +4151,13 @@ void SetDialogItemToStaticText (
 {   
 	if (dialogPtr != NULL && itemNumber > 0)
 		{   
+		#if defined multispec_lin
+			wxTextCtrl* text = (wxTextCtrl*)(dialogPtr->FindWindow(itemNumber));
+			//text->SetEditable(false);
+			//text->Disable();
+			text->Enable(false);
+		#endif
+		
 		#if defined multispec_mac 
 			Handle					theHandle;
 			Rect						theBox; 
@@ -4167,13 +4178,6 @@ void SetDialogItemToStaticText (
 		#if defined multispec_win
 			dialogPtr->GetDlgItem(itemNumber)->SendMessage(EM_SETREADONLY,1,0);
 		#endif // defined multispec_win 
-		
-		#if defined multispec_lin
-			wxTextCtrl* text = (wxTextCtrl*) (dialogPtr->FindWindow(itemNumber));
-			//text->SetEditable(false);
-			//text->Disable();
-			text->Enable(false);
-		#endif
 		}		// end "if (dialogPtr != NULL && itemNumber > 0)" 
 	
 }		// end "SetDialogItemToStaticText"

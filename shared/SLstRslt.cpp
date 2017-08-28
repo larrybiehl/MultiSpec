@@ -13,7 +13,7 @@
 //
 //	Revision number:		3.0
 //
-//	Revision date:			03/13/2017
+//	Revision date:			06/21/2017
 //
 //	Language:				C
 //
@@ -63,6 +63,10 @@
 */
 
 #include	"SMulSpec.h" 
+   
+#if defined multispec_lin
+	#include "LListResultsDialog.h"
+#endif	// defined multispec_lin
 
 #if defined multispec_mac 
 	#define	IDC_ProbabilityPrompt	32
@@ -73,10 +77,7 @@
   
 #if defined multispec_win 
 	#include "WLstRDlg.h"
-#endif	// defined multispec_win    
-#if defined multispec_lin
-	#include "LLstRDlg.h"
-#endif	// defined multispec_win
+#endif	// defined multispec_win 
 
 #include "SExtGlob.h"
 								

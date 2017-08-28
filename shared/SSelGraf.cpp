@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved
 //
@@ -13,7 +13,7 @@
 //
 //	Revision number:		3.0
 //
-//	Revision date:			10/17/2015
+//	Revision date:			08/01/2017
 //
 //	Language:				C
 //
@@ -39,8 +39,16 @@
 #include "SMulSpec.h"
 #include	"SGrafVew.h"
 
-#if defined multispec_mac
+#if defined multispec_lin
+	#include	"SGraphic.h"
+	#include "LDrawObjects.h"
+	#include	"LGraphView.h"
+	#include "LImageDoc.h"
+	#include	"LImageFrame.h"
+	#include "LImageView.h"
+#endif	// defined multispec_lin
 
+#if defined multispec_mac
 #endif	// defined multispec_mac 
                              
 #if defined multispec_win
@@ -49,15 +57,6 @@
 	#include	"CImagWin.h"
 	#include "WDrawObj.h"
 	#include "WImagDoc.h"
-#endif	// defined multispec_win
-
-#if defined multispec_lin
-	#include	"SGraphic.h"
-	#include	"LGraphView.h"
-	#include "LImageView.h"
-	#include	"LImageFrame.h"
-	#include "LDrawObj.h"
-	#include "LImageDoc.h"
 #endif	// defined multispec_win
 
 #include	"SExtGlob.h"	
@@ -80,7 +79,7 @@ Boolean 			CheckMemoryForStatisticsIO  (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -207,7 +206,7 @@ Boolean SelectionGraphControl (
 
                            
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -243,7 +242,7 @@ void SetDefaultSelectionGraphWindowTitle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -262,7 +261,7 @@ void SetDefaultSelectionGraphWindowTitle (
 //							ShowGraphSelection in selectionArea.c
 //
 //	Coded By:			Larry L. Biehl			Date: 11/27/1991
-//	Revised By:			Larry L. Biehl			Date: 10/16/2015			
+//	Revised By:			Larry L. Biehl			Date: 06/21/2017			
 
 void ShowGraphWindowSelection (
 				Handle								oldSelectionGraphRecHandle)
@@ -359,7 +358,12 @@ void ShowGraphWindowSelection (
 		
 		gTextString[0] = 0;
 		gTextString[1] = 0;
-		ConcatPStrings ((UCharPtr)&gTextString, (StringPtr)"\0Selection Graph\0", 254);
+#		if defined multispec_lin
+			ConcatPStrings ((UCharPtr)&gTextString, (StringPtr)"\0Selection Window\0", 254);
+#		endif
+#		if defined multispec_mac || defined multispec_win
+			ConcatPStrings ((UCharPtr)&gTextString, (StringPtr)"\0Selection Graph\0", 254);
+#		endif
 			
 		if (gActiveImageWindow != NULL)
 			{
@@ -797,7 +801,7 @@ void ShowGraphWindowSelection (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

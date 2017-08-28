@@ -510,7 +510,7 @@ STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     ICON            IDR_MAINFRAME,IDC_STATIC,11,17,20,20
-    CTEXT           "MultiSpec Application Version 3.6\n5/24/2017",IDC_STATIC,37,6,119,17
+    CTEXT           "MultiSpec Application Version 3.6\n8/28/2017",IDC_STATIC,37,6,119,17
     CTEXT           "Copyright © 1995-2017\nPurdue Research Foundation\nAll Rights Reserved",IDC_STATIC,40,38,121,27
     DEFPUSHBUTTON   "OK",IDOK,176,194,42,14,WS_GROUP
     LTEXT           "Available Memory:",IDC_STATIC,13,144,63,8
@@ -2348,7 +2348,7 @@ FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,198,216,50,14
     PUSHBUTTON      "Cancel",IDCANCEL,252,216,50,14
-    LTEXT           "Channels:",IDC_ChannelsPrompt,14,16,32,8
+    LTEXT           "Channels:",IDC_ChannelPrompt,14,16,32,8
     LTEXT           "Area(s)",IDC_LineIntervalPrompt,15,33,45,8
     CONTROL         "Classes:",IDC_ClassesRadio,"Button",BS_AUTORADIOBUTTON | WS_GROUP,20,47,38,10
     LTEXT           "Create statistics image for each selected",IDC_StatPrompt,32,65,133,8
@@ -4619,14 +4619,14 @@ END
 
 STRINGTABLE
 BEGIN
-    IDS_FilterString        "All Files (*.*) | *.*|Multispectral (*.bil;*.ecw;*.hdf;*.img;*.jpg;*.jp2;*.lan;*.png;*.tif;*.nc;.h5;*.grb) | *.bil;*.ecw;*.hdf;*.img;*jpg;*.jp2;*.lan;*.png;*.tif;*.nc;*.h5;*.grb|Thematic (*.gis;*.tif;*.clu) | *.gis;*.tif;*.clu|Shape (*.shp) | *.shp||"
+    IDS_FilterString        "All Files (*.*) | *.*|Multispectral (*.bil;*.ecw;*.hdf;*.img;*.jpg;*.jp2;*.lan;*.png;*.tif;*.nc;.h5;*.grb) | *.bil;*.ecw;*.hdf;*.img;*jpg;*.jp2;*.lan;*.png;*.tif;*.nc;*.h5;*.grb|Thematic (*.gis;*.tif;*.clu;*.sti) | *.gis;*.tif;*.clu;*.sti|Shape (*.shp) | *.shp||"
     IDS_ProjectFilterString "Project (*.prj, *project) | *.prj;*project|All File (*.*) | *.*||"
     IDS_TransformFilterString 
                             "Transformation Matrix (*.tra) | *.tra|All File (*.*) | *.*||"
     IDS_tiffFilterString    "TIFF (*.tif) | *.tif|All Files (*.*) | *.*||"
     IDS_StatFilterString    "Image Statistics (*.sta) | *.sta|All Files (*.*) | *.*||"
     IDS_ClassificationFilterString 
-                            "Thematic (*.gis, *.tif, *.clu) | *.gis;*.tif;*.clu|All Files (*.*) | *.*||"
+                            "Thematic (*.gis, *.tif, *.clu;*.sti) | *.gis;*.tif;*.clu;*.sti|All Files (*.*) | *.*||"
     IDS_TRLFilterString     "Trailer (*.trl, *.clr) | *.trl;*.clr|All Files (*.*) | *.*||"
     IDS_MultispectralFilterString 
                             "Multispectral (*.bil;*.ecw;*.hdf;*.img;*.jpg;*jp2;*.lan;*png;*.tif;*.nc;*.h5;*.grb) | *.bil;*.ecw;*.hdf;*.img;*.jpg;*.jpg;*.jp2;*.lan;*.png;*.tif;*.nc;*.h5;*.grb|All Files (*.*) | *.*||"
@@ -4751,7 +4751,7 @@ END
 STRINGTABLE
 BEGIN
     IDS_Project64           "    Data         Feature Number\r\n"
-    IDS_Project65           "    Staistics histogram is listed.\r\n"
+    IDS_Project65           "    Statistics histogram is listed.\r\n\r\n"
     IDS_Project66           "    Statistics histogram is plotted.\r\n"
     IDS_Project67           "  At least one variance value in covariance matrix for class '%s' was zero and set to %.3f.\r\n"
     IDS_Project68           "  At least one variance value in common covariance matrix was zero and set to %.3f.\r\n"
@@ -5341,6 +5341,7 @@ BEGIN
     IDS_Project86           "_cem_classify.txt"
     IDS_Project87           "_parallel_piped_classify.txt"
     IDS_Project88           "_mahalanobis_classify.txt"
+    IDS_Project89           "    All training areas are defined by clusters; listing and plotting histograms are not possible.\r\n"
 END
 
 STRINGTABLE
@@ -5624,6 +5625,13 @@ BEGIN
     IDS_ChanDescription50   "0.75 0.70- 0.80 um"
     IDS_ChanDescription51   "0.95 0.80- 1.10 um"
     IDS_ChanDescription52   "11.51 10.41-12.6 um"
+    IDS_ChanDescription53   "0.443 0.433-0.453 um"
+    IDS_ChanDescription54   "0.490 0.458-0.523 um"
+    IDS_ChanDescription55   "0.560 0.543-0.578 um"
+    IDS_ChanDescription56   "0.665 0.650-0.680 um"
+    IDS_ChanDescription57   "0.705 0.698-0.713 um"
+    IDS_ChanDescription58   "0.740 0.733-0.748 um"
+    IDS_ChanDescription59   "0.783 0.773-0.793 um"
 END
 
 STRINGTABLE
@@ -5647,6 +5655,7 @@ BEGIN
     IDS_InstrumentName13    "Landsat 8 - OLI & TIRS"
     IDS_InstrumentName14    "Landsat 8 - OLI"
     IDS_InstrumentName15    "Landsat 8 - TIRS"
+    IDS_InstrumentName16    "Sentinel-2 MSI"
 END
 
 STRINGTABLE
@@ -5681,6 +5690,16 @@ BEGIN
     IDS_BiPlot1             "Plotting Data for Selected Area."
     IDS_BiPlot2             "Plotting Data for Project Classes."
     IDS_BiPlot3             "Plotting Class Outlines."
+END
+
+STRINGTABLE
+BEGIN
+    IDS_ChanDescription60   "0.842 0.785-0.900 um"
+    IDS_ChanDescription61   "0.865 0.855-0.875 um"
+    IDS_ChanDescription62   "0.945 0.935-0.955 um"
+    IDS_ChanDescription63   "1.375 1.365-1.385 um"
+    IDS_ChanDescription64   "1.610 1.565-1.655 um"
+    IDS_ChanDescription65   "2.190 2.100-2.280 um"
 END
 
 #endif    // English (United States) resources

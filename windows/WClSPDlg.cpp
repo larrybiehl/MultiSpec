@@ -1,6 +1,6 @@
 // WClSPDlg.cpp : implementation file
 //  
-// Revised by Larry Biehl on 05/26/2017
+// Revised by Larry Biehl on 08/21/2017
 //
     
 #include "SMulSpec.h" 
@@ -88,8 +88,8 @@ void CMSinglePassClusterDialog::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CMSinglePassClusterDialog)
-	DDX_Text(pDX, IDC_CriticalDistance1, m_criticalDistance1);
-	DDX_Text(pDX, IDC_CriticalDistance2, m_criticalDistance2);
+	DDX_Text2(pDX, IDC_CriticalDistance1, m_criticalDistance1);
+	DDX_Text2(pDX, IDC_CriticalDistance2, m_criticalDistance2);
 	DDX_Text(pDX, IDC_MinClusterSize, m_minClusterSize);
 	DDV_MinMaxLong(pDX, m_minClusterSize, 1, 65535);
 //	DDX_Radio(pDX, IDC_ClusterTrainingAreas, m_clustersFrom);
@@ -254,10 +254,10 @@ BOOL CMSinglePassClusterDialog::OnInitDialog(void)
 			// small values. 
 
 	LoadDItemRealValue (this, IDC_CriticalDistance1, m_criticalDistance1, m_distanceDecimalDigits);
-	DDX_Text(m_dialogFromPtr, IDC_CriticalDistance1, m_criticalDistance1);
+	DDX_Text2(m_dialogFromPtr, IDC_CriticalDistance1, m_criticalDistance1);
 
 	LoadDItemRealValue (this, IDC_CriticalDistance2, m_criticalDistance2, m_distanceDecimalDigits);
-	DDX_Text(m_dialogFromPtr, IDC_CriticalDistance2, m_criticalDistance2);
+	DDX_Text2(m_dialogFromPtr, IDC_CriticalDistance2, m_criticalDistance2);
 		                   
 	if (UpdateData(FALSE) )                   
 		PositionDialogWindow ();

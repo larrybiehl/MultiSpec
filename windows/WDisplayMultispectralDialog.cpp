@@ -1,6 +1,6 @@
 // WDisplayMultispectralDialog.cpp : implementation file
 //
-//	Revised by Larry Biehl on 05/26/2017
+//	Revised by Larry Biehl on 08/21/2017
 //
                    
 #include "SMulSpec.h"
@@ -328,9 +328,9 @@ void CMDisplaySpecsDlg::DoDataExchange(CDataExchange* pDX)
 	DDV_MinMaxUInt(pDX, m_BlueChannel, 1, mMaxChannelNumber);
 	DDX_Text(pDX, ID3C_GreenChannel, m_GreenChannel);
 	DDV_MinMaxUInt(pDX, m_GreenChannel, 1, mMaxChannelNumber);
-	DDX_Text(pDX, ID3C_Magnification, m_Magnification);
+	DDX_Text2(pDX, ID3C_Magnification, m_Magnification);
 	DDV_MinMaxDouble(pDX, m_Magnification, 1.e-002, 99.);
-	DDX_Text(pDX, IDC_LegendFactor, m_thematicLegendFactor);
+	DDX_Text2(pDX, IDC_LegendFactor, m_thematicLegendFactor);
 	DDX_Check(pDX, ID3C_NewHistogram, m_ComputeHistogramFlag);
 	DDX_Text(pDX, ID3C_NumberOfLevels, m_NumberLevels);
 	DDX_Text(pDX, ID3C_RedChannel, m_RedChannel);

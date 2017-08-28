@@ -15,15 +15,35 @@
 //
 //	Revision number:		3.0
 //
-//	Revision date:			03/13/2017 by Larry Biehl
+//	Revision date:			08/02/2017 by Larry Biehl
 //								06/24/2013 by Abdur Maud
 
 #ifndef __SExtGlob__
 #define __SExtGlob__
 
-#if defined __MWERKS__ 
-	#pragma once
-#endif	// defined __MWERKS__
+#if defined multispec_lin
+			// Storage for default (last used directory) for file input
+   extern wxString		gDefaultDataDirectory;
+	
+	extern int				g4BitUnsignedIntegerMenuItem;
+	extern int				g1ByteSignedIntegerMenuItem;
+	extern int				g1ByteUnsignedIntegerMenuItem;
+	extern int				g2ByteSignedIntegerMenuItem;
+	extern int				g2ByteUnsignedIntegerMenuItem;
+	extern int				g4ByteSignedIntegerMenuItem;
+	extern int				g4ByteUnsignedIntegerMenuItem;
+	extern int				g4ByteRealMenuItem;
+	extern int				g8ByteRealMenuItem;
+	extern int				gTIFFGeoTIFFMenuItem;
+	extern int				gNoneMenuItem;
+	extern int				gArcViewMenuItem;
+	extern int				gERDAS74MenuItem;
+	extern int				gGAIAMenuItem;
+	extern int				gMatlabMenuItem;
+
+	//extern Boolean			gCallProcessorDialogFlag;
+	//extern SInt16			gOutputForce1CodeSetting;
+#endif	// defined multispec_lin
 
 
 // Externally Declared Global Variables 
@@ -804,7 +824,7 @@ extern Str255							gTextString3;
 		// Date version string
 		// Application identifier string
 //#if defined multispec_mac
-	extern char								gDateVersionString[16];
+	extern char								gDateVersionString[64];
 	extern char								gApplicationIdentifierString[64];
 //#else
 //	extern wchar_t							gDateVersionString[16];
@@ -1647,29 +1667,5 @@ extern int  gProbablilityColors2;
 	
 	extern QDEndCGContextPtr					gQDEndCGContextPtr;
 #endif	// TARGET_API_MAC_CARBON
-
-#if defined multispec_lin
-extern int g4BitUnsignedIntegerMenuItem;
-extern int g1ByteSignedIntegerMenuItem;
-extern int g1ByteUnsignedIntegerMenuItem;
-extern int g2ByteSignedIntegerMenuItem;
-extern int g2ByteUnsignedIntegerMenuItem;
-extern int g4ByteSignedIntegerMenuItem;
-extern int g4ByteUnsignedIntegerMenuItem;
-extern int g4ByteRealMenuItem;
-extern int g8ByteRealMenuItem;
-extern int gTIFFGeoTIFFMenuItem;
-extern int	gNoneMenuItem;
-extern int	gArcViewMenuItem;
-extern int	gERDAS74MenuItem;
-extern int	gGAIAMenuItem;
-extern int	gMatlabMenuItem;
-
-
-
-
-extern Boolean		gCallProcessorDialogFlag;
-extern SInt16   gOutputForce1CodeSetting;
-#endif
 
 #endif // __SExtGlob__  

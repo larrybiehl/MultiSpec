@@ -1,6 +1,6 @@
 // WEStaDlg.cpp : implementation file
 //
-// Revised by Larry Biehl on 05/26/2017
+// Revised by Larry Biehl on 08/21/2017
 //
                     
 #include "SMulSpec.h"
@@ -153,22 +153,22 @@ void CMEnhanceStatisticsDialog::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CMEnhanceStatisticsDialog)
-	DDX_Text(pDX, IDC_LogLikeChange, m_logLikeStopPercent);
+	DDX_Text2(pDX, IDC_LogLikeChange, m_logLikeStopPercent);
 	DDV_MinMaxDouble(pDX, m_logLikeStopPercent, 1.e-006, 10.);
 	DDX_Text(pDX, IDC_IterationLength, m_iterationStopLength);
 	DDV_MinMaxLong(pDX, m_iterationStopLength, 1, 200);
 	DDX_Text(pDX, IDC_MaximumNumber, m_iterationMax);
 	DDV_MinMaxLong(pDX, m_iterationMax, 1, 200);
-	DDX_Text(pDX, IDC_Weighting, m_labelWeight);
+	DDX_Text2(pDX, IDC_Weighting, m_labelWeight);
 	DDV_MinMaxDouble(pDX, m_labelWeight, 1.e-005, 1000.);
 	DDX_Check(pDX, IDC_UseEnhancedStats, m_useEnhancedStatisticsFlag);
 	DDX_Check(pDX, IDC_WeightLabeledSamples, m_weightLabeledFlag);
 	DDX_CBIndex(pDX, IDC_WeightCombo, m_weightsSelection);
-	DDX_Text(pDX, IDC_SoftChiChiThreshold, m_softChiChiThreshold);
-	DDX_Text(pDX, IDC_HardChiChiThreshold, m_hardChiChiThreshold);
-	DDX_Text(pDX, IDC_SoftPercentThreshold, m_softPercentThreshold);
+	DDX_Text2(pDX, IDC_SoftChiChiThreshold, m_softChiChiThreshold);
+	DDX_Text2(pDX, IDC_HardChiChiThreshold, m_hardChiChiThreshold);
+	DDX_Text2(pDX, IDC_SoftPercentThreshold, m_softPercentThreshold);
 	DDV_MinMaxDouble(pDX, m_softPercentThreshold, 0., 100.);
-	DDX_Text(pDX, IDC_HardPercentThreshold, m_hardPercentThreshold);
+	DDX_Text2(pDX, IDC_HardPercentThreshold, m_hardPercentThreshold);
 	DDV_MinMaxDouble(pDX, m_hardPercentThreshold, 0., 100.);
 	DDX_CBIndex(pDX, IDC_ClassCombo, m_classSelection);    
 	DDX_Text(pDX, IDC_LineEnd, m_LineEnd);
@@ -586,7 +586,7 @@ CMEnhanceStatisticsDialog::OnSelchangeHardThresholdCombo()
 													m_hardPercentThreshold,
 													&m_hardChiChiThreshold);
 	
-	DDX_Text(m_dialogToPtr, 
+	DDX_Text2(m_dialogToPtr, 
 					IDC_HardChiChiThreshold, 
 					m_hardChiChiThreshold);
 
@@ -615,7 +615,7 @@ CMEnhanceStatisticsDialog::OnSelchangeSoftThresholdCombo()
 													m_softPercentThreshold,
 													&m_softChiChiThreshold);
 	
-	DDX_Text(m_dialogToPtr, 
+	DDX_Text2(m_dialogToPtr, 
 					IDC_SoftChiChiThreshold, 
 					m_softChiChiThreshold);
 
@@ -633,7 +633,7 @@ CMEnhanceStatisticsDialog::OnChangeHardPercentThreshold()
 		{
 		m_updatingThresholdItemsFlag = TRUE;
 
-		DDX_Text(m_dialogFromPtr, 
+		DDX_Text2(m_dialogFromPtr, 
 						IDC_HardPercentThreshold, 
 						m_hardPercentThreshold);
 		
@@ -660,7 +660,7 @@ CMEnhanceStatisticsDialog::OnChangeSoftPercentThreshold()
 		{
 		m_updatingThresholdItemsFlag = TRUE;
 
-		DDX_Text(m_dialogFromPtr, 
+		DDX_Text2(m_dialogFromPtr, 
 						IDC_SoftPercentThreshold, 
 						m_softPercentThreshold);
 		

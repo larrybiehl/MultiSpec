@@ -1,5 +1,7 @@
 // WReformatTransformDlg.cpp : implementation file
-//                   
+//      
+// Revised by Larry Biehl on 08/21/2017
+//
 
 //#include <afxpriv.h>
 #include "SMulSpec.h" 
@@ -134,21 +136,21 @@ void CMReformatTransformDlg::DoDataExchange(CDataExchange* pDX)
 		}		// end "if (pDX->m_bSaveAndValidate)"
 
 	//{{AFX_DATA_MAP(CMReformatTransformDlg)
-	DDX_Text(pDX, IDC_RT_AC_Divisor, m_adjustDivisor);
+	DDX_Text2(pDX, IDC_RT_AC_Divisor, m_adjustDivisor);
 	//	DDV_MinMaxDouble(pDX, m_adjustDivisor, 0, 65535);
-	DDX_Text(pDX, IDC_RT_AC_Factor, m_adjustFactor);
+	DDX_Text2(pDX, IDC_RT_AC_Factor, m_adjustFactor);
 	//	DDV_MinMaxDouble(pDX, m_adjustFactor, 0, 65535);
-	DDX_Text(pDX, IDC_RT_AC_Offset, m_adjustOffset);
+	DDX_Text2(pDX, IDC_RT_AC_Offset, m_adjustOffset);
 	//	DDV_MinMaxDouble(pDX, m_adjustOffset, -32767, 32767);
-	DDX_Text(pDX, IDC_RT_AT_Factor, m_transformFactor);
+	DDX_Text2(pDX, IDC_RT_AT_Factor, m_transformFactor);
 	DDV_MinMaxDouble(pDX, m_transformFactor, -FLT_MAX, FLT_MAX);
-	DDX_Text(pDX, IDC_RT_AT_Offset, m_transformOffset);
+	DDX_Text2(pDX, IDC_RT_AT_Offset, m_transformOffset);
 	DDV_MinMaxDouble(pDX, m_transformOffset, -FLT_MAX, FLT_MAX);
 	DDX_Text(pDX, IDC_RT_AT_Denominator, m_denominatorString);
 	DDV_MaxChars(pDX, m_denominatorString, 255);
 	DDX_Text(pDX, IDC_RT_AT_Numerator, m_numeratorString);
 	DDV_MaxChars(pDX, m_numeratorString, 255);
-	DDX_Text(pDX, IDC_EV_ScaleFactor, m_scaleFactor);
+	DDX_Text2(pDX, IDC_EV_ScaleFactor, m_scaleFactor);
 	DDV_MinMaxDouble(pDX, m_scaleFactor, 0, FLT_MAX);
 	DDX_CBIndex(pDX, IDC_EV_Eigenvectors, m_channelSelection);
 	DDX_Text(pDX, IDC_RT_EV_AllComponents, m_minimumNumberBits);
@@ -156,11 +158,11 @@ void CMReformatTransformDlg::DoDataExchange(CDataExchange* pDX)
 //	DDX_Radio(pDX, IDC_AdjustSelectedChannels, m_transformCode);
 	DDX_Radio(pDX, IDC_RT_NoTransformation, m_transformCode);
 	DDX_CBIndex(pDX, IDC_ReformatFunctions, m_functionCode);
-	DDX_Text(pDX, IDC_FunctionFactor, m_functionFactor);
+	DDX_Text2(pDX, IDC_FunctionFactor, m_functionFactor);
 	DDV_MinMaxDouble(pDX, m_functionFactor, -FLT_MAX, FLT_MAX);
 	DDX_Text(pDX, IDC_kthSmallestElement, m_kthSmallestElement);
 	DDV_MinMaxUInt(pDX, m_kthSmallestElement, 1, 1000);
-	DDX_Text(pDX, IDC_RT_ACbyC_Factor, m_adjustSelectedChannelsFactor);
+	DDX_Text2(pDX, IDC_RT_ACbyC_Factor, m_adjustSelectedChannelsFactor);
 	DDV_MinMaxDouble(pDX, m_adjustSelectedChannelsFactor, -FLT_MAX, FLT_MAX);
 	DDX_Text(pDX, IDC_RT_ACbyC_ChannelNumber, m_adjustSelectedChannel);
 	DDV_MinMaxUInt(pDX, m_adjustSelectedChannel, 1, m_maxChannel);

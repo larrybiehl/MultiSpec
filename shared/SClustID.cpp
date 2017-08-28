@@ -13,7 +13,7 @@
 //
 //	Revision number:		3.0
 //
-//	Revision date:			05/26/2017
+//	Revision date:			06/21/2017
 //
 //	Language:				C
 //
@@ -76,7 +76,12 @@
 //	Include files:			"MultiSpecHeaders"
 //								"multiSpec.h"
 
-#include	"SMulSpec.h"
+#include	"SMulSpec.h"     
+
+#if defined multispec_lin  
+	#include "LClusterIsodataDialog.h"  
+	#include "LImageView.h"
+#endif	// defined multispec_lin 
 
 #if defined multispec_mac   
 	#define IDC_ProjectClassMeans				8
@@ -95,21 +100,12 @@
 	#define IDC_Distance2						34
 #endif	// defined multispec_mac  
   
-#if defined multispec_win        
-	//#include	"SMulSpec.h" 
-//	#include "CImagWin.h" 
+#if defined multispec_win  
 	#include "CImagVew.h"
 	#include "WClIDDlg.h" 
-	#include "SExtGlob.h" 
-#endif	// defined multispec_win      
+#endif	// defined multispec_win  
 
-#if defined multispec_lin        
-	//#include	"SMulSpec.h" 
-	//	#include "CImagWin.h" 
-	#include "LImageView.h"
-	#include "LClidDlg.h" 
-	#include "SExtGlob.h" 
-#endif	// defined multispec_lin 
+#include "SExtGlob.h" 
 
 
 extern void 			SetDialogItemDrawRoutine (

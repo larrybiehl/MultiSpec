@@ -1,6 +1,6 @@
 // MProjectionPursuitDialog.cpp : implementation file
 //
-// Revised by Larry Biehl on 05/26/2017
+// Revised by Larry Biehl on 08/21/2017
 //
 
 #include	"SMulSpec.h" 
@@ -88,13 +88,13 @@ void CMProjectionPursuitDialog::DoDataExchange(CDataExchange* pDX)
 	//{{AFX_DATA_MAP(CMProjectionPursuitDialog)
 	DDX_Radio(pDX, IDC_PP_Algorithm, m_algorithmCode);
 	DDX_Check(pDX, IDC_NumericalOptimization, m_numericalOptimizationFlag);
-	DDX_Text(pDX, IDC_OptimizationThreshold, m_optimizeThreshold);
+	DDX_Text2(pDX, IDC_OptimizationThreshold, m_optimizeThreshold);
 	DDV_MinMaxDouble(pDX, m_optimizeThreshold, 0, 100);
 	DDX_Radio(pDX, IDC_UniformGrouping, m_initialGroupingCode);
 	DDX_Radio(pDX, IDC_Uniform, m_firstStageMethod);
-	DDX_Text(pDX, IDC_TopDownThreshold, m_topDownThreshold);
+	DDX_Text2(pDX, IDC_TopDownThreshold, m_topDownThreshold);
 	DDV_MinMaxDouble(pDX, m_topDownThreshold, 0, 100);
-	DDX_Text(pDX, IDC_BottomUpThreshold, m_bottomUpThreshold);
+	DDX_Text2(pDX, IDC_BottomUpThreshold, m_bottomUpThreshold);
 	DDV_MinMaxDouble(pDX, m_bottomUpThreshold, 0, 100);
 	DDX_Text(pDX, IDC_BothChoicesUpToValue, m_bothOddChoicesNumberFeatures);
 	DDV_MinMaxLong(pDX, m_bothOddChoicesNumberFeatures, 0, gProjectInfoPtr->numberStatisticsChannels);

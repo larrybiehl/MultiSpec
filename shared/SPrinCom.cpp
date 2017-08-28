@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//									Copyright (1988-2016)
+//									Copyright (1988-2017)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -33,19 +33,19 @@
 //
 //	Revision number:		3.0
 //
-//	Revision date:			12/16/2016
+//	Revision date:			06/21/2017
 
-#include	"SMulSpec.h" 
+#include	"SMulSpec.h"    
+
+#if defined multispec_lin
+	#include "LMultiSpec.h"
+	#include "LImageView.h"
+	#include "LPrincipalComponentsDialog.h"
+#endif
   
 #if defined multispec_win 
 	#include "WPrinDlg.h"
-#endif	// defined multispec_win    
-
-#if defined multispec_lin
-	#include "MultiSpec2.h"
-	#include "LPrinDlg.h"
-	#include "LImageView.h"
-#endif
+#endif	// defined multispec_win 
 
 #include "SExtGlob.h"
 
@@ -100,7 +100,7 @@ void 					PrincipalComponentDialogOK (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -382,7 +382,7 @@ Boolean LoadPrincipalComponentSpecs (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -869,7 +869,7 @@ Boolean PrincipalComponentAnalysis (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1275,7 +1275,7 @@ void PrincipalComponentControl (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1704,12 +1704,9 @@ Boolean PrincipalComponentDialog (
 		}	while (!modalDone);
 		
 	CloseRequestedDialog (dialogPtr, kSetUpDFilterTable);	
-			
 #endif	// defined multispec_mac		
 
-	
-	#if defined multispec_win      
-	
+#	if defined multispec_win      	
 		CMPrincipalCompDialog*		dialogPtr = NULL;
 		
 		TRY
@@ -1727,20 +1724,17 @@ Boolean PrincipalComponentDialog (
 			returnFlag = FALSE;
 			}
 		END_CATCH_ALL 
-			
-	#endif	// defined multispec_win	
+#	endif	// defined multispec_win	
 
-   #if defined multispec_lin
-    CMPrincipalCompDialog* dialogPtr = NULL;
+#	if defined multispec_lin
+		CMPrincipalCompDialog* dialogPtr = NULL;
 
-    dialogPtr = new CMPrincipalCompDialog((wxWindow *)GetMainFrame());
+		dialogPtr = new CMPrincipalCompDialog((wxWindow *)GetMainFrame());
 
-    returnFlag = dialogPtr->DoDialog();
+		returnFlag = dialogPtr->DoDialog();
 
-    delete dialogPtr;
-
-
-   #endif
+		delete dialogPtr;
+#	endif
 
 	return (returnFlag);	
 
@@ -1749,7 +1743,7 @@ Boolean PrincipalComponentDialog (
 									
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
