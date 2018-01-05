@@ -1,19 +1,20 @@
 // WDisplayThematicDialog.cpp : implementation file
 //    
-// Revised by Larry Biehl on 08/21/2017
+// Revised by Larry Biehl on 12/21/2017
 //
 
-#include	"SMulSpec.h" 
+#include	"SMultiSpec.h" 
+
+#include "WDisplayThematicDialog.h"
                         
 #include "CDisplay.h"   
-#include "CImagVew.h"
-#include "CImagWin.h"                                                           
-#include "WClassGroupDialog.h"                                                           
-//#include "WDispDlg.h"
-#include "WDisplayThematicDialog.h"
-#include "WTLegend.h"     
+#include "CImageWindow.h" 
 
-#include "SExtGlob.h" 
+#include "WClassGroupDialog.h"                                                           
+#include "WImageView.h"
+#include "WLegendView.h"     
+
+//#include "SExtGlob.h" 
 
 extern Boolean			SelectColor (
 									SInt16								alertMessageNumber,

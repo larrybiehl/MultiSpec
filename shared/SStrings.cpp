@@ -3,21 +3,19 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//							 Copyright (1988-2017)
-//							(c) Purdue Research Foundation
+//								Copyright (1988-2018)
+//						(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	File:						SStrings.cpp
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision number:		3.0
-//
-//	Revision date:			08/28/2017
+//	Revision date:			01/05/2018
 //
 //	Language:				C
 //
-//	System:					Macintosh and Windows Operating Systems
+//	System:					Linux, Macintos,h and Windows Operating Systems
 //
 //	Brief description:	The purpose of the routines in this file is to
 //								provide utility type functions in MultiSpec that are 
@@ -55,12 +53,16 @@
 //								void 							RemoveCharsNoCase
 //								void 							SetActiveImageWindowTitle
 //								void 							SetOutputWTitle
+//
+//------------------------------------------------------------------------------------
 
-#include	"SMulSpec.h"
-#include	"SGrafVew.h"
+#include "SMultiSpec.h"
+#include	"SGraphView.h"
 #include	<ctype.h>  
 
 #if defined multispec_lin
+	#include	"SMultiSpec.h"
+	
 	#include <wx/string.h>
 	#include <wx/textfile.h>
    #include "LGraphDoc.h"
@@ -73,25 +75,25 @@
 	#include "wx/stdpaths.h"
 #endif   // defined multispec_lin
 
-#if defined multispec_mac
-	#define	IDS_Processor20						20
-	#define	IDS_Processor21						21
-	#define	IDS_Processor22						22
-	#define	IDS_Processor23						23
-	#define	IDS_Processor24						24
-	#define	IDS_Processor25						25
-	#define	IDS_Processor26						26
-#endif	// defined multispec_mac    
+#if defined multispec_mac || defined multispec_mac_swift
+	#define	IDS_Processor20					20
+	#define	IDS_Processor21					21
+	#define	IDS_Processor22					22
+	#define	IDS_Processor23					23
+	#define	IDS_Processor24					24
+	#define	IDS_Processor25					25
+	#define	IDS_Processor26					26
+#endif	// defined multispec_mac || defined multispec_mac_swift  
                             
 #if defined multispec_win
 	#include	"CDisplay.h"
-	#include	"CImagVew.h"
-	#include	"CImagWin.h"
-	#include "CProcess.h"
-	#include "WImagDoc.h"
-	#include "WStatVew.h"
+	#include	"WImageView.h"
+	#include	"CImageWindow.h"
+	#include "CProcessor.h"
+	#include "WImageDoc.h"
+	#include "WStatisticsView.h"
 	#include "WTextDoc.h"
-	#include "WTextVew.h"
+	#include "WTextView.h"
 
 	Boolean MGetString (
 				TBYTE*								outTextPtr, 
@@ -99,7 +101,7 @@
 				UInt16								stringID,
 				UInt16								maxStringLength=255);
 	/*
-	Boolean GetSpecifiedStringNumber ( 
+	Boolean GetSpecifiedStringNumber (
 				SInt16								strListID, 
 				SInt16								index,
 				TBYTE*								textStringPtr, 
@@ -109,56 +111,56 @@
 #endif	// defined multispec_win
 
 
-extern void		GetWindowTitle (
-						WindowPtr							windowPtr,
-						UCharPtr								titleStringPtr);
-						
-extern void		GetGraphWindowTitle (
-						WindowPtr							windowPtr,
-						UCharPtr								titleStringPtr);
-						
-extern Boolean	ListString(
-						char*									textBuffer,
-						unsigned int						textLength);
-		
+extern void GetWindowTitle (
+				WindowPtr							windowPtr,
+				UCharPtr								titleStringPtr);
 
-			// Prototypes for routines in this file that are only called by		
-			// other routines in this file.			
+extern void GetGraphWindowTitle (
+				WindowPtr							windowPtr,
+				UCharPtr								titleStringPtr);
 
-void				ConcatPStringsUnicode (
-						FileStringPtr						ioFirstStr,
-						const UCharPtr						inSecondStr,
-						SInt16								inDestSize);						
+extern Boolean	ListString (
+				char*									textBuffer,
+				unsigned int						textLength);
 
-Boolean 			LoadSpecifiedStringNumberLong ( 
-						SInt16								strListID, 
-						SInt16								index, 
-						char*									stringPtr1,
-						char*									stringPtr2,
-						Boolean								continueFlag,
-						SInt32								lValue1,
-						SInt32								lValue2);
-						
-Boolean 			LoadSpecifiedStringNumberString ( 
-						SInt16								strListID, 
-						SInt16								index, 
-						char*									stringPtr1,
-						char*									stringPtr2,
-						Boolean								continueFlag,
-						char*									inputStringPtr);
-						
-Boolean 			LoadSpecifiedStringNumberString ( 
-						SInt16								strListID, 
-						SInt16								index, 
-						char*									stringPtr1,
-						char*									stringPtr2,
-						Boolean								continueFlag,
-						FileStringPtr						inputStringPtr);
-						
+
+		// Prototypes for routines in this file that are only called by
+		// other routines in this file.			
+
+void		ConcatPStringsUnicode (
+				FileStringPtr						ioFirstStr,
+				const UCharPtr						inSecondStr,
+				SInt16								inDestSize);						
+
+Boolean 	LoadSpecifiedStringNumberLong (
+				SInt16								strListID,
+				SInt16								index, 
+				char*									stringPtr1,
+				char*									stringPtr2,
+				Boolean								continueFlag,
+				SInt32								lValue1,
+				SInt32								lValue2);
+
+Boolean 	LoadSpecifiedStringNumberString (
+				SInt16								strListID,
+				SInt16								index, 
+				char*									stringPtr1,
+				char*									stringPtr2,
+				Boolean								continueFlag,
+				char*									inputStringPtr);
+
+Boolean 	LoadSpecifiedStringNumberString (
+				SInt16								strListID,
+				SInt16								index, 
+				char*									stringPtr1,
+				char*									stringPtr2,
+				Boolean								continueFlag,
+				FileStringPtr						inputStringPtr);
+
 #if defined multispec_lin
-void				MSetWindowTitle (
-						wxDocument*							documentCPtr,
-						UCharPtr								titleStringPtr);
+	void		MSetWindowTitle (
+					wxDocument*							documentCPtr,
+					UCharPtr								titleStringPtr);
 #endif
 				
 				
@@ -204,7 +206,7 @@ void CheckStringLength (
 		
 			// Get the width of the input string.											
 	
-	inputStringWidth = StringWidth ( *inputString );
+	inputStringWidth = StringWidth (*inputString);
 	
 			// Adjust maximum width to allow for some space at the beginning and	
 			// end of the string.																
@@ -216,7 +218,7 @@ void CheckStringLength (
 	if (inputStringWidth > 0)
 		CopyPToP ((UCharPtr)outputString, (UCharPtr)inputString);
 		
-	else		// inputStringWidth <= 0
+	else	// inputStringWidth <= 0
 		(*outputString)[0] = 0;
 	
 			// If input string width is greater than the maximum width allowed, 	
@@ -225,16 +227,16 @@ void CheckStringLength (
 	if (inputStringWidth > maxWidth)
 		{
 		newCharLength = (*outputString)[0];
-//		maxWidth -= CharWidth ('\p…');
-//		maxWidth -= CharWidth ('…');	
+		//maxWidth -= CharWidth ('\p…');
+		//maxWidth -= CharWidth ('…');
 		maxWidth -= CharWidth (0xC9);	
 		
 		do
 			{
-			inputStringWidth -= CharWidth ( (*outputString)[newCharLength]);
+			inputStringWidth -= CharWidth ((*outputString)[newCharLength]);
 			newCharLength--;
 			
-			}	while (inputStringWidth > maxWidth && newCharLength >= 0 );
+			}	while (inputStringWidth > maxWidth && newCharLength >= 0);
 			
 				// Add the ellipses character.												
 		
@@ -242,10 +244,9 @@ void CheckStringLength (
 		(*outputString)[newCharLength] = 0xC9;		// ellipsis character (...)
 		(*outputString)[0] = newCharLength;
 		
-		}		// end "if (inputStringWidth > maxWidth)" 
-		
+		}	// end "if (inputStringWidth > maxWidth)" 
 	
-}		// end "CheckStringLength"
+}	// end "CheckStringLength"
 #endif	// defined multispec_mac 
 				
 
@@ -279,292 +280,80 @@ Boolean CheckTextWindowSpaceNeeded (
 				UInt32								numberBytesNeeded)
 
 {
-#ifndef multispec_lin
-	double								floatTextSizeNeeded;
-	
-	UInt32								contiguousMemory,
-											textSizeNeeded;
-	
-	SInt16								returnCode;
-	
+	#ifndef multispec_lin
+		double								floatTextSizeNeeded;
 		
-			// Check amount of contiguous memory available.  We will use			
-			// contiguous memory here to be on the safe side; the memory does		
-			// not have to be contiguous.														
+		UInt32								contiguousMemory,
+												textSizeNeeded;
+		
+		SInt16								returnCode;
+		
 			
-	MGetFreeMemory (&contiguousMemory);
-	
-	textSizeNeeded = numberBytesNeeded;
-	
-			// Take into account Word Solution overhead for text buffers.  		
-			// one text buffer for around every 700 characters.  The maximum		
-			// buffer size is 1536.																
-			
-	numberBytesNeeded = textSizeNeeded/700 + 1;
-//	textSizeNeeded += numberBytesNeeded * sizeof(TextBlock);
-	
-			// For now use the following for WASTE until I know more.
-			
-	floatTextSizeNeeded = textSizeNeeded;
-	floatTextSizeNeeded += (double)numberBytesNeeded * 720;
-	
-	if (floatTextSizeNeeded > contiguousMemory - gTextMemoryMinimum)
-		{
-				// Display an alert to indicated that there is not enough space	
-				// available for the classification output in the text window. 	
-				 
-		returnCode = DisplayAlert (kErrorAlert2ID, 
-												kStopAlert, 
+				// Check amount of contiguous memory available.  We will use			
+				// contiguous memory here to be on the safe side; the memory does		
+				// not have to be contiguous.														
+				
+		MGetFreeMemory (&contiguousMemory);
+		
+		textSizeNeeded = numberBytesNeeded;
+		
+				// Take into account Word Solution overhead for text buffers.  		
+				// one text buffer for around every 700 characters.  The maximum		
+				// buffer size is 1536.																
+				
+		numberBytesNeeded = textSizeNeeded/700 + 1;
+		//textSizeNeeded += numberBytesNeeded * sizeof (TextBlock);
+		
+				// For now use the following for WASTE until I know more.
+				
+		floatTextSizeNeeded = textSizeNeeded;
+		floatTextSizeNeeded += (double)numberBytesNeeded * 720;
+		
+		if (floatTextSizeNeeded > contiguousMemory - gTextMemoryMinimum)
+			{
+					// Display an alert to indicated that there is not enough space	
+					// available for the classification output in the text window. 	
+					 
+			returnCode = DisplayAlert (kErrorAlert2ID, 
+												kStopAlert,
 												kAlertStrID, 
 												IDS_Alert57, 
 												0, 
 												NULL);
-		return (FALSE);
-		
-		}		// end "if (floatTextSizeNeeded > contiguousMemory)" 
-		
-	return (TRUE);
+			return (FALSE);
+			
+			}	// end "if (floatTextSizeNeeded > contiguousMemory)" 
+			
+		return (TRUE);
    #else // if it is linux
-    return true;
-#  endif
+		return true;
+	#endif
 
-}		// end "CheckTextWindowSpaceNeeded" 
-				
+}	// end "CheckTextWindowSpaceNeeded" 
+
+
 
 //------------------------------------------------------------------------------------
 //								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
-//	Function name:		Boolean StringToNumber
+//	Function name:		SInt16 CompareStringsNoCase
 //
-//	Software purpose:	The purpose of this routine is to convert the input string
-//							to a number. This will be using CFStringGetIntValue for Mac OS X.
+//	Software purpose:	The purpose of this routine is to compare strings str1 and str2
+//							ignoring the case of the characters in the string.
 //
 //	Parameters in:		
 //
 //	Parameters out:	None
 //
-// Value Returned: 		
+// Value Returned: 	0:			the strings are the same.
+//							not 0:	the strings are not the same.
 //
 // Called By:	
 //
-//	Coded By:			Larry L. Biehl			Date: 03/24/2012
-//	Revised By:			Larry L. Biehl			Date: 06/24/2012	
-
-void StringToNumber (
-				char*				 		stringPtr, 
-				SInt32					*theNumPtr)
-
-{
-#if defined multispec_mac
-	CFStringRef							cfStringPtr;
-
-	cfStringPtr = CFStringCreateWithCString (kCFAllocatorDefault, 
-															stringPtr, 
-															kCFStringEncodingMacRoman);
-
-	*theNumPtr = CFStringGetIntValue (cfStringPtr);
-	
-	CFRelease (cfStringPtr);
-#endif	// defined multispec_mac    
-
-#if defined multispec_win | defined multispec_lin
-	*theNumPtr = atol(stringPtr);
-#endif	// defined multispec_win
-
-}		// end "StringToNumber"
-
-   
-
-char* StrStrNoCase(
-				const char* 						str1, 
-				const char* 						str2)
-	
-{
-	const	unsigned char* 			p1 = (unsigned char*)str1;
-	const	unsigned char* 			p2 = (unsigned char*)str2;
-	char*									stringStartPtr;
-	
-	UInt32								c1, 
-											c2;
-											
-	
-	c1 = toupper(*p1);
-	c2 = toupper(*p2);
-		
-	while (c1 != 0)
-		{
-		if (c1 == c2)
-			{
-			stringStartPtr = (char*)p1;
-			while (c1 == c2)
-				{
-				p1++;
-				p2++;
-			
-				c1 = toupper(*p1);
-				c2 = toupper(*p2);
-				
-				if (c2 == 0)
-																		return (stringStartPtr);
-				
-				}		// end "while (c1 == c2)"
-				
-					// Substring not found. Check again. 
-				
-			p1 = (unsigned char*)stringStartPtr;
-				
-			p2 = (unsigned char*)str2;
-			c2 = toupper(*p2);
-				
-			}		// end "if (c1 == c2)"
-				
-		p1++;
-		c1 = toupper(*p1);
-			
-		}		// end "while (c1 != 0)"
-	
-	return (NULL);
-	
-}		// end "StrStrNoCase"
-
-/*
-#if defined multispec_win
-TBYTE* StrStrNoCase(
-				const TBYTE* 						str1, 
-				const TBYTE* 						str2)
-	
-{
-	const	TBYTE* 			p1 = (TBYTE*)str1;
-	const	TBYTE* 			p2 = (TBYTE*)str2;
-	TBYTE*					stringStartPtr;
-	
-	UInt32								c1, 
-											c2;
-											
-	
-	c1 = towupper(*p1);
-	c2 = towupper(*p2);
-		
-	while (c1 != 0)
-		{
-		if (c1 == c2)
-			{
-			stringStartPtr = (TBYTE*)p1;
-			while (c1 == c2)
-				{
-				p1++;
-				p2++;
-			
-				c1 = towupper(*p1);
-				c2 = towupper(*p2);
-				
-				if (c2 == 0)
-																		return (stringStartPtr);
-				
-				}		// end "while (c1 == c2)"
-				
-					// Substring not found. Check again. 
-				
-			p1 = (TBYTE*)stringStartPtr;
-				
-			p2 = (TBYTE*)str2;
-			c2 = towupper(*p2);
-				
-			}		// end "if (c1 == c2)"
-				
-		p1++;
-		c1 = towupper(*p1);
-			
-		}		// end "while (c1 != 0)"
-	
-	return (NULL);
-	
-}		// end "StrStrNoCase"
-#endif
-*/
-/*
-#if defined multispec_win
-TBYTE* StrStrNoCase(
-				const TBYTE* 						str1, 
-				const char* 						str2)
-	
-{
-	wchar_t					wideStringPtr[256];
-
-
-	if (str1 == NULL || str2 == NULL)
-																					return (NULL);
-	
-	mbstowcs (wideStringPtr, str2, 255);
-	
-	return (StrStrNoCase (str1, wideStringPtr));
-	
-}		// end "StrStrNoCase"
-#endif
-*/
-
-   
-
-char* StrStrNoCase(
-				const char* 						str1, 
-				const char* 						str2,
-				UInt32								numberCharacters)
-	
-{
-	const	unsigned char* 			p1 = (unsigned char*)str1;
-	const	unsigned char* 			p2 = (unsigned char*)str2;
-	char*									stringStartPtr;
-	
-	UInt32								c1, 
-											c2,
-											index;
-											
-	
-	c1 = toupper(*p1);
-	c2 = toupper(*p2);
-		
-	while (c1 != 0)
-		{
-		if (c1 == c2)
-			{
-			index = 1;
-			stringStartPtr = (char*)p1;
-			do
-				{
-				if (index >= numberCharacters)
-																		return (stringStartPtr);
-																					
-				p1++;
-				p2++;
-			
-				c1 = toupper(*p1);
-				c2 = toupper(*p2);
-				
-				index++;
-				
-				}		while (c1 == c2);
-				
-					// Substring not found. Check again. 
-				
-			p1 = (unsigned char*)stringStartPtr;
-				
-			p2 = (unsigned char*)str2;
-			c2 = toupper(*p2);
-				
-			}		// end "if (c1 == c2)"
-			
-		p1++;
-		c1 = toupper(*p1);
-			
-		}		// end "while (c1 != 0)"
-	
-	return (NULL);
-	
-}		// end "StrStrNoCase"
-
-   
+//	Coded By:			Larry L. Biehl			Date: ??/??/????
+//	Revised By:			Larry L. Biehl			Date: 10/19/2017
 
 SInt16 CompareStringsNoCase (
 				const UCharPtr 					str1, 
@@ -578,27 +367,50 @@ SInt16 CompareStringsNoCase (
 											c2;
 											
 	
-	c1 = toupper(*p1);
-	c2 = toupper(*p2);
+	c1 = toupper (*p1);
+	c2 = toupper (*p2);
 		
 	while (c1 == c2)
 		{
 		if (c1 == 0)
-																					return (0);
+																								return (0);
 		
 		p1++;
 		p2++;
 			
-		c1 = toupper(*p1);
-		c2 = toupper(*p2);
+		c1 = toupper (*p1);
+		c2 = toupper (*p2);
 			
-		}		// end "while (c1 == c2)"
+		}	// end "while (c1 == c2)"
 	
 	return ((SInt16)(c1-c2));
 	
-}		// end "CompareStringsNoCase"
+}	// end "CompareStringsNoCase"
 
    
+
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		SInt16 CompareStringsNoCase
+//
+//	Software purpose:	The purpose of this routine is to compare the first 
+//							numberCharacters in strings str1 and str2
+//							ignoring the case of the characters in the string.
+//
+//	Parameters in:		
+//
+//	Parameters out:	None
+//
+// Value Returned: 	0:			the strings are the same.
+//							not 0:	the strings are not the same.
+//
+// Called By:	
+//
+//	Coded By:			Larry L. Biehl			Date: ??/??/????
+//	Revised By:			Larry L. Biehl			Date: 10/19/2017
 
 SInt16 CompareStringsNoCase (
 				const UCharPtr 					str1, 
@@ -613,115 +425,30 @@ SInt16 CompareStringsNoCase (
 											c2,
 											index;
 											
+											
 	if (str1 == NULL || str2 == NULL)
-																					return (0);
+																								return (0);
 	
 	index = 0;
 	do
 		{
 		if (index >= numberCharacters)
-																					return (0);
+																								return (0);
 																				
-		c1 = toupper(*p1);
-		c2 = toupper(*p2);
+		c1 = toupper (*p1);
+		c2 = toupper (*p2);
 		
 		p1++;
 		p2++;
 		
 		index++;
 			
-		}		while (c1 == c2);
+		}	while (c1 == c2);
 	
 	return ((SInt16)(c1-c2));
 	
-}		// end "CompareStringsNoCase"
+}	// end "CompareStringsNoCase"
 
- /*
-#if defined multispec_win
-SInt16 CompareStringsNoCase(
-				const char* 						str1, 
-				const TBYTE* 						str2,
-				UInt32								numberCharacters)
-	
-{											
-	wchar_t					wideStringPtr[256];
-
-
-	if (str1 == NULL || str2 == NULL)
-																					return (0);
-	
-	mbstowcs (wideStringPtr, str1, 255);
-	//int stringLength = wcslen (wideStringPtr);
-	
-	return (_wcsicmp (wideStringPtr, str2));
-	
-}		// end "CompareStringsNoCase"
-#endif
-*/
-   
-/*
-SInt16 CompareStringsNoCase(
-				const TBYTE* 						str1, 
-				const TBYTE* 						str2,
-				UInt32								numberCharacters)
-	
-{											
-	if (str1 == NULL || str2 == NULL)
-																					return (0);
-
-#	if defined multispec_mac
-		if (numberCharacters == 0)
-			{
-			int str1Length = StringLength ((void*)str1);
-			int str2Length = StringLength ((void*)str2);
-			if (str1Length != str2Length)
-																					return (1);
-																					
-			numberCharacters = str1Length;
-			}
-#	endif
-	
-	if (numberCharacters == 0)
-		{
-#		if defined multispec_lin || defined multispec_win
-			return (_wcsicmp (str1, str2));
-			//return (wcscasecmp (str1, str2));
-#		endif
-		}
-
-	else
-		{	
-		const TBYTE* 								p1 = str1;
-		const TBYTE* 								p2 = str2;
-	
-		UInt32								c1, 
-												c2,
-												index;
-
-		index = 0;
-		do
-			{
-			if (index >= numberCharacters)
-																						return (0);
-								
-			c1 = towupper(*p1);
-			c2 = towupper(*p2);
- 
-			p1++;
-			p2++;
-			
-			index++;
-				
-			}		while (c1 == c2);
-		
-		return ((SInt16)(c1-c2));
-
-		} // end "else numberCharacters > 0"
-		
-	return (0);
-	
-}		// end "CompareStringsNoCase"
-*/
 
 
 //------------------------------------------------------------------------------------
@@ -769,11 +496,11 @@ Boolean CompareSuffixNoCase (
 		{
 				// This must be a C string.  Get the length.
 				
-		lengthSuffixString = (UInt32)strlen( (char*)&suffixStringPtr[1] );
+		lengthSuffixString = (UInt32)strlen ((char*)&suffixStringPtr[1]);
 		
-		lengthSuffixString = MIN(lengthSuffixString, 255);
+		lengthSuffixString = MIN (lengthSuffixString, 255);
 		
-		}		// end "if (lengthSuffixString == 0)"
+		}	// end "if (lengthSuffixString == 0)"
 	
 	if (numSuffixCharsPtr != NULL)	
 		*numSuffixCharsPtr = (UInt16)lengthSuffixString;
@@ -781,35 +508,35 @@ Boolean CompareSuffixNoCase (
 	index = (SInt32)*stringPtr - lengthSuffixString + 1;
 	if (index > 1)
 		{
-		stringPtr = &stringPtr[ index ];
+		stringPtr = &stringPtr[index];
 		tempPtr = (StringPtr)&suffixStringPtr[1];
 
 		if (tempPtr == stringPtr)
-																				return (TRUE);
+																							return (TRUE);
 
 		while (lengthSuffixString > 0)
 			{
 			if (*tempPtr != '?')
 				{
-				diff = toupper(*tempPtr) - toupper(*stringPtr);
+				diff = toupper (*tempPtr) - toupper (*stringPtr);
 				if (diff != 0)                                                    
-																				return (FALSE);
+																							return (FALSE);
 																				
-				}		// end "if (*tempPtr != '?')"
+				}	// end "if (*tempPtr != '?')"
 
 			tempPtr++; 
 			stringPtr++; 
 			lengthSuffixString--;
 
-			}		// end "while (lengthSuffixString > 0)"
+			}	// end "while (lengthSuffixString > 0)"
 
-																				return (TRUE);
+																							return (TRUE);
 			
-		}		// end "if (index > 1)" 
+		}	// end "if (index > 1)" 
 
 	return (returnFlag);
 
-}		// end "CompareSuffixNoCase"
+}	// end "CompareSuffixNoCase"
 
 
 
@@ -859,9 +586,9 @@ Boolean CompareSuffixNoCase (
 				// This must be a C string.  Get the length.
 				
 		lengthSuffixString = (UInt32)strlen ((char*)&suffixStringPtr[1]);
-		lengthSuffixString = MIN(lengthSuffixString, 255);
+		lengthSuffixString = MIN (lengthSuffixString, 255);
 		
-		}		// end "if (lengthSuffixString == 0)"
+		}	// end "if (lengthSuffixString == 0)"
 	
 	if (numSuffixCharsPtr != NULL)	
 		*numSuffixCharsPtr = (UInt16)lengthSuffixString;
@@ -873,7 +600,7 @@ Boolean CompareSuffixNoCase (
 		tempPtr = &suffixStringPtr[1];
 
 		if ((wchar_t*)tempPtr == stringPtr)
-																				return (TRUE);
+																							return (TRUE);
 
 		while (lengthSuffixString > 0)
 			{
@@ -881,26 +608,26 @@ Boolean CompareSuffixNoCase (
 				{
 				wchar_t  wideTempChar;
 				mbstowcs (&wideTempChar, (const char*)tempPtr, 1);
-				diff = towupper(wideTempChar) - towupper(*stringPtr);
+				diff = towupper (wideTempChar) - towupper (*stringPtr);
 
 				if (diff != 0)                                                    
-																				return (FALSE);
+																							return (FALSE);
 																				
-				}		// end "if (*tempPtr != '?')"
+				}	// end "if (*tempPtr != '?')"
 
 			tempPtr++; 
 			stringPtr++; 
 			lengthSuffixString--;
 
-			}		// end "while (lengthSuffixString > 0)"
+			}	// end "while (lengthSuffixString > 0)"
 
-																				return (TRUE);
+																							return (TRUE);
 			
-		}		// end "if (index > 1)" 
+		}	// end "if (index > 1)" 
 
 	return (returnFlag);
 
-}		// end "CompareSuffixNoCase"
+}	// end "CompareSuffixNoCase"
 
 
 /*
@@ -951,30 +678,31 @@ void ConcatFilenameSuffix (
 		if (charFormatCode == kAsciiFormatCode)
 			{
 			UCharPtr charFileNamePtr = (UCharPtr)fileNamePtr;
-			charFileNamePtr[0] = MIN(charFileNamePtr[0], gFileNameLengthLimit-charsToCopy);
+			charFileNamePtr[0] = MIN (charFileNamePtr[0], gFileNameLengthLimit-charsToCopy);
 			ConcatPStrings (charFileNamePtr, suffixPtr, 255);
 			
-			}		// end "if (charFormatCode == kAsciiFormatCode)"
+			}	// end "if (charFormatCode == kAsciiFormatCode)"
 			
 		else	// charFormatCode != kAsciiFormatCode
 			{
-			fileNamePtr[0] = MIN(fileNamePtr[0], gFileNameLengthLimit-charsToCopy);
+			fileNamePtr[0] = MIN (fileNamePtr[0], gFileNameLengthLimit-charsToCopy);
 		
-						// Convert char suffix to unicode suffix
-				TBYTE		wideSuffix[16];
-				mbstowcs (&wideSuffix[1], (const char*)&suffixPtr[1], charsToCopy);
-				wideSuffix[0] = charsToCopy;
-//				ConcatPStrings (fileNamePtr, wideSuffix, 255);
+					// Convert char suffix to unicode suffix
+ 
+			TBYTE		wideSuffix[16];
+			mbstowcs (&wideSuffix[1], (const char*)&suffixPtr[1], charsToCopy);
+			wideSuffix[0] = charsToCopy;
+			//ConcatPStrings (fileNamePtr, wideSuffix, 255);
 
-			}		// end "else charFormatCode != kAsciiFormatCode"
+			}	// end "else charFormatCode != kAsciiFormatCode"
 		
-		}		// end "if (gFileNameLengthLimit > charsToCopy)"
+		}	// end "if (gFileNameLengthLimit > charsToCopy)"
 		
 			// Force a c terminator as the last character of the input string.
 			
 	fileNamePtr[255] = 0;
 	
-}		// end "ConcatFilenameSuffix" 
+}	// end "ConcatFilenameSuffix" 
 */
 
 
@@ -1008,7 +736,6 @@ void ConcatFilenameSuffix (
 {
 			// Limit combined string to inDestSize chars
 
-   //UInt16	charsToCopy = wideCharSuffixPtr[0];
    UInt16	charsToCopy = charSuffixPtr[0];
 
 			// If length of the second string is 0, then assume that
@@ -1019,16 +746,16 @@ void ConcatFilenameSuffix (
 	
 	if (gFileNameLengthLimit > charsToCopy)
 		{		
-		fileNamePtr[0] = MIN(fileNamePtr[0], gFileNameLengthLimit-charsToCopy);
+		fileNamePtr[0] = MIN (fileNamePtr[0], gFileNameLengthLimit-charsToCopy);
 		ConcatPStrings ((UCharPtr)fileNamePtr, (UCharPtr)charSuffixPtr, 255);
 		
-		}		// end "if (gFileNameLengthLimit > charsToCopy)"
+		}	// end "if (gFileNameLengthLimit > charsToCopy)"
 		
 			// Force a c terminator as the last character of the input string.
 			
 	fileNamePtr[255] = 0;
 	
-}		// end "ConcatFilenameSuffix" 
+}	// end "ConcatFilenameSuffix" 
 
 
 
@@ -1072,9 +799,9 @@ void ConcatPStrings (
 				// it is a C string and get the length.
 
 		if (charsToCopy == 0)
-			charsToCopy = (SInt16)strlen( (CharPtr)&inSecondStr[1] );
+			charsToCopy = (SInt16)strlen ((CharPtr)&inSecondStr[1]);
 
-		if ( (SInt16)*ioFirstStr + charsToCopy > inDestSize)
+		if ((SInt16)*ioFirstStr + charsToCopy > inDestSize)
 			charsToCopy = inDestSize - *ioFirstStr;
 
 		if (charsToCopy < 0)
@@ -1093,11 +820,11 @@ void ConcatPStrings (
 				// Also make the string a C string if there is enough space.
 
 		if (ioFirstStr[0]+1 <= inDestSize) 
-			ioFirstStr[ ioFirstStr[0]+1 ] = 0;
+			ioFirstStr[ioFirstStr[0]+1] = 0;
 			
-		}		// end "if (ioFirstStr != NULL && inSecondStr != NULL)"
+		}	// end "if (ioFirstStr != NULL && inSecondStr != NULL)"
 	
-}		// end "ConcatPStrings"
+}	// end "ConcatPStrings"
 
 
 
@@ -1130,7 +857,7 @@ wchar_t* ConvertMultibyteStringToUnicodeString (
 
 {
 
-#	if defined multispec_lin
+	#if defined multispec_lin
 		wxWCharBuffer						unicodeString;
 		size_t								numberUnicodeChars;
 		
@@ -1141,38 +868,39 @@ wchar_t* ConvertMultibyteStringToUnicodeString (
 																			
 		wcsncpy (&gWideTextString[1], unicodeString, numberUnicodeChars);
 		gWideTextString[0] = numberUnicodeChars;
-#	endif // end "multispec_lin"
+	#endif // end "multispec_lin"
 
-#	if defined multispec_win
+	#if defined multispec_win
 		if (inputMultibyteStringPtr != NULL)
 			{
 			int sizeNeeded = MultiByteToWideChar (
 									CP_UTF8, 0, (LPCSTR)inputMultibyteStringPtr, -1, NULL, 0);
 
-			sizeNeeded = MIN(sizeNeeded, 254);
+			sizeNeeded = MIN (sizeNeeded, 254);
 			MultiByteToWideChar (CP_UTF8, 
-											0, 
-											(LPCSTR)inputMultibyteStringPtr, 
-											-1, 
-											(LPWSTR)&gWideTextString[1], 
-											sizeNeeded);
+										0,
+										(LPCSTR)inputMultibyteStringPtr, 
+										-1, 
+										(LPWSTR)&gWideTextString[1], 
+										sizeNeeded);
 
 			gWideTextString[0] = (wchar_t)wcslen (&gWideTextString[1]);
 
 			}	// end "if (inputMultibyteStringPtr != NULL)"
 
-		else
+		else	// inputMultibyteStringPtr == NULL
 			{
 			gWideTextString[0] = 0;
 			gWideTextString[1] = 0;
-			}
+			
+			}	// else inputMultibyteStringPtr == NULL
 
 		return (gWideTextString);
-#	endif
+	#endif
 
 	return (NULL);
 	
-}		// end "ConvertMultibyteStringToUnicodeString"
+}	// end "ConvertMultibyteStringToUnicodeString"
 
 
 
@@ -1198,7 +926,7 @@ wchar_t* ConvertMultibyteStringToUnicodeString (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 03/22/2017
-//	Revised By:			Larry L. Biehl			Date: 06/19/2017
+//	Revised By:			Larry L. Biehl			Date: 01/04/2018
 
 void ConvertUnicodeStringToMultibyteString (
 				wchar_t*								inputUnicodeStringPtr,
@@ -1206,7 +934,7 @@ void ConvertUnicodeStringToMultibyteString (
 				UInt16								numberCharactersToCopy)
 
 {
-#	if defined multispec_mac
+	#if defined multispec_mac
 		UniChar*								uniCharInputStringPtr;
 		CFStringRef							cfStringRef;
 		UInt16								numberChars;
@@ -1235,9 +963,9 @@ void ConvertUnicodeStringToMultibyteString (
 			outputUTF8StringPtr[0] = strlen ((char*)&outputUTF8StringPtr[1]);
 			
 			}	// end "if (cfStringRef != NULL)"
-#	endif
+	#endif
 
-#	if defined multispec_lin
+	#if defined multispec_lin
 		wxCharBuffer						multiByteString;
 		UInt16								numberChars;
 		size_t								numberMultiByteChars;
@@ -1257,9 +985,9 @@ void ConvertUnicodeStringToMultibyteString (
 																			
 		strncpy ((char*)&outputUTF8StringPtr[1], multiByteString, numberMultiByteChars);
 		outputUTF8StringPtr[0] = numberMultiByteChars;
-#	endif // end "multispec_lin"
+	#endif // end "multispec_lin"
 
-#	if defined multispec_win
+	#if defined multispec_win
 		UInt16								numberChars;
 		
 											
@@ -1273,19 +1001,23 @@ void ConvertUnicodeStringToMultibyteString (
 
 		//int size = wcslen (titleBufferPtr);
 		int sizeNeeded = WideCharToMultiByte (
-								CP_UTF8, 0, &inputUnicodeStringPtr[1], numberChars, NULL, 0, NULL, NULL);
+				CP_UTF8, 0, &inputUnicodeStringPtr[1], numberChars, NULL, 0, NULL, NULL);
 		WideCharToMultiByte (CP_UTF8, 
-										0, 
-										&inputUnicodeStringPtr[1], 
-										numberChars, 
-										(LPSTR)&outputUTF8StringPtr[1], 
-										sizeNeeded, 
-										NULL, 
-										NULL);
+									0,
+									&inputUnicodeStringPtr[1], 
+									numberChars, 
+									(LPSTR)&outputUTF8StringPtr[1], 
+									sizeNeeded, 
+									NULL, 
+									NULL);
 		outputUTF8StringPtr[0] = sizeNeeded;
-#	endif	// end "multispec_win"
+	#endif	// end "multispec_win"
+
+			// Make sure this can also be treated as a c string.
+
+	outputUTF8StringPtr[outputUTF8StringPtr[0]+1] = 0;
 	
-}		// end "ConvertUnicodeStringToMultibyteString"
+}	// end "ConvertUnicodeStringToMultibyteString"
 
 /*
 //------------------------------------------------------------------------------------
@@ -1324,11 +1056,11 @@ void ConcatPStrings (
 
 		SInt16	charsToCopy = (SInt16)inSecondStr[0];
 
-				// If length of the second string is 0, then assume that
-				// it is a C string and get the length.
+				// If length of the second string is 0, then assume that it is a C 
+				// string and get the length.
 
 		if (charsToCopy == 0)
-				charsToCopy = wcslen (&inSecondStr[1] );
+			charsToCopy = wcslen (&inSecondStr[1]);
 
 		if ((SInt16)*ioFirstStr + charsToCopy > inDestSize)
 			charsToCopy = inDestSize - *ioFirstStr;
@@ -1339,8 +1071,8 @@ void ConcatPStrings (
 				// Copy second to end of first string
 
 		wmemcpy (&ioFirstStr[*ioFirstStr+1],
-						&inSecondStr[1],
-						charsToCopy);
+					&inSecondStr[1],
+					charsToCopy);
 
 				// Set length of combined string
 
@@ -1349,11 +1081,11 @@ void ConcatPStrings (
 				// Also make the string a C string if there is enough space.
 
 		if (ioFirstStr[0]+1 <= inDestSize) 
-			ioFirstStr[ ioFirstStr[0]+1 ] = 0;
+			ioFirstStr[ioFirstStr[0]+1] = 0;
 			
-		}		// end "if (ioFirstStr != NULL && inSecondStr != NULL)"
+		}	// end "if (ioFirstStr != NULL && inSecondStr != NULL)"
 	
-}		// end "ConcatPStrings"
+}	// end "ConcatPStrings"
 */
 
 /*
@@ -1397,9 +1129,9 @@ void ConcatPStringsUnicode (
 				// it is a C string and get the length.
 
 		if (charsToCopy == 0)
-			charsToCopy = strlen( (CharPtr)&inSecondStr[1] );
+			charsToCopy = strlen ((CharPtr)&inSecondStr[1]);
 
-		if ( (SInt16)*ioFirstStr + charsToCopy > inDestSize)
+		if ((SInt16)*ioFirstStr + charsToCopy > inDestSize)
 			charsToCopy = inDestSize - *ioFirstStr;
 
 		if (charsToCopy < 0)
@@ -1418,11 +1150,11 @@ void ConcatPStringsUnicode (
 				// Also make the string a C string if there is enough space.
 
 		if (ioFirstStr[0]+1 <= inDestSize) 
-			ioFirstStr[ ioFirstStr[0]+1 ] = 0;
+			ioFirstStr[ioFirstStr[0]+1] = 0;
 			
-		}		// end "if (ioFirstStr != NULL && inSecondStr != NULL)"
+		}	// end "if (ioFirstStr != NULL && inSecondStr != NULL)"
 	
-}		// end "ConcatPStringsUnicode" 
+}	// end "ConcatPStringsUnicode" 
 */
 
 
@@ -1460,7 +1192,7 @@ void CopyPToP (
 	
 	ConcatPStrings ((StringPtr)p1, (StringPtr)p2, 255);
 		
-}		// end "CopyPToP"  
+}	// end "CopyPToP"  
 
 
 /*
@@ -1472,7 +1204,9 @@ void CopyPToP (
 //	Function name:		CopyPToP
 //
 //	Software purpose:	The purpose of this routine is to copy a pascal
-//							string from one address to another address.
+//							wide string from one address to another address.
+//							Note that after going to UTF8 strings, this routine is not
+//							needed any more.
 //
 //	Parameters in:		Address of base string (p1)
 //							Address of string to copy to p1 (p2)
@@ -1498,7 +1232,7 @@ void CopyPToP (
 	
 	ConcatPStrings ((wchar_t*)p1, (wchar_t*)p2, 255);
 		
-}		// end "CopyPToP"  
+}	// end "CopyPToP"  
 */
 
 
@@ -1533,13 +1267,13 @@ SInt16 CreateNumberWithCommasInString (
 	numberChars = sprintf (inputStringPtr, "%ld", dataValue);
 			
 	numberChars = InsertCommasInNumberString (inputStringPtr, 
-																numberChars, 
-																-1,
-																numberChars);
+															numberChars,
+															-1,
+															numberChars);
 																
 	return (numberChars);
 	
-}		// end "CreateNumberWithCommasInString"   
+}	// end "CreateNumberWithCommasInString"   
 
 
 
@@ -1574,13 +1308,13 @@ SInt16 CreateNumberWithCommasInString (
 	numberChars = sprintf (inputStringPtr, "%lld", dataValue);
 	
 	numberChars = InsertCommasInNumberString (inputStringPtr, 
-										 numberChars, 
-										 -1,
-										 numberChars);
-										 
+															 numberChars,
+															 -1,
+															 numberChars);
+	
 	return (numberChars);
 	
-}		// end "CreateNumberWithCommasInString"  
+}	// end "CreateNumberWithCommasInString"  
 
 
 
@@ -1606,16 +1340,16 @@ SInt16 CreateNumberWithCommasInString (
 //	Coded By:			Larry L. Biehl			Date: 04/24/1995
 //	Revised By:			Larry L. Biehl			Date: 01/12/1996	
 							               	   
-UCharPtr CtoPstring ( 
+UCharPtr CtoPstring (
 				UCharPtr								inCStringPtr, 
 				UCharPtr								outPStringPtr)
 				
 {
 	if (inCStringPtr != NULL && outPStringPtr != NULL)
 		{
-		size_t bytesToMove = strlen((CharPtr)inCStringPtr);
+		size_t bytesToMove = strlen ((CharPtr)inCStringPtr);
 		
-		bytesToMove = MIN(bytesToMove, 254);
+		bytesToMove = MIN (bytesToMove, 254);
 
 		if (bytesToMove > 0)
 			memmove (&outPStringPtr[1], inCStringPtr, bytesToMove);
@@ -1626,11 +1360,11 @@ UCharPtr CtoPstring (
 				
 		outPStringPtr[bytesToMove+1] = 0;
 
-		}		// end "if (inCStringPtr != NULL && ...)"
+		}	// end "if (inCStringPtr != NULL && ...)"
 
 	return outPStringPtr;
 
-}		// end "CtoPstring"
+}	// end "CtoPstring"
 
 
 
@@ -1665,7 +1399,7 @@ wchar_t* CtoPstring (
 		{
 		size_t bytesToMove = wcslen (inCStringPtr);
 		
-		bytesToMove = MIN(bytesToMove, 254);
+		bytesToMove = MIN (bytesToMove, 254);
 
 		if (bytesToMove > 0)
 			wmemmove (&outPStringPtr[1], inCStringPtr, bytesToMove);
@@ -1676,11 +1410,11 @@ wchar_t* CtoPstring (
 				
 		outPStringPtr[bytesToMove+1] = 0;
 
-		}		// end "if (inCStringPtr != NULL && ...)
+		}	// end "if (inCStringPtr != NULL && ...)
 
 	return outPStringPtr;
 
-}		// end "CtoPstring"
+}	// end "CtoPstring"
 
 
 
@@ -1725,32 +1459,25 @@ void ForceTextToEnd (void)
 			#if use_mlte_for_text_window
 				TXNSetSelection (gOutputTextH, kTXNEndOffset, kTXNEndOffset);
 			#endif		// !use_mlte_for_text_window
+			
 			#if !use_mlte_for_text_window
 				WESetSelection (LONG_MAX, LONG_MAX, gOutputTextH);
 			#endif		// !use_mlte_for_text_window
 			
 			SetPort (savedPort);
 			
-			}		// end "if (gOutputWindow != NULL)"
+			}	// end "if (gOutputWindow != NULL)"
 	#endif	// defined multispec_mac 
 
 	#if defined multispec_win   
 		if (gOutputViewCPtr != NULL)
-			{ 
-//			#ifdef _WIN32 
-//						// Windows95 requires 1 less than INT_MAX        
-				gOutputViewCPtr->GetEditCtrl().SetSel(2147483646, 2147483646, TRUE);
-//			#else                                                                     
-//				gOutputViewCPtr->GetEditCtrl().SetSel(INT_MAX, INT_MAX, TRUE);
-//			#endif  
-		
-			}		// end "if (gOutputViewCPtr != NULL)"                                                              	                                               
+			gOutputViewCPtr->GetEditCtrl ().SetSel (2147483646, 2147483646, TRUE);
 	#endif	// defined multispec_win 
 	 
 	#if defined multispec_lin
 		 //      TODO: For linux when developing gui
 	#endif
-}		// end "ForceTextToEnd"   	  
+}	// end "ForceTextToEnd"   	  
 
 
 
@@ -1787,46 +1514,55 @@ void GetActiveImageWindowTitle (
 			GetWTitle (gActiveImageWindow, titleStringPtr);
 			titleStringPtr[titleStringPtr[0]+1] = 0;
 			
-			}		// end "if (gActiveImageWindow != NULL)"		
+			}	// end "if (gActiveImageWindow != NULL)"		
 	#endif	// defined multispec_mac 
 		
 	#if defined multispec_win	   
 	   if (gActiveImageViewCPtr != NULL)
 	   	{  
-			CMImageDoc* documentCPtr = gActiveImageViewCPtr->GetDocument();
-			CString titleString = documentCPtr->GetTitle();
+			CMImageDoc* documentCPtr = gActiveImageViewCPtr->GetDocument ();
+			CString titleString = documentCPtr->GetTitle ();
 			     
-			UInt16 titleLength = titleString.GetLength();
-			LPTSTR titleBufferPtr = titleString.GetBuffer(titleLength);
+			UInt16 titleLength = titleString.GetLength ();
+			LPTSTR titleBufferPtr = titleString.GetBuffer (titleLength);
 
 			int size = (int)wcslen (titleBufferPtr);
 			int sizeNeeded = WideCharToMultiByte (
 									CP_UTF8, 0, titleBufferPtr, size, NULL, 0, NULL, NULL);
-			WideCharToMultiByte (CP_UTF8, 0, titleBufferPtr, size, (LPSTR)&titleStringPtr[1], sizeNeeded, NULL, NULL);
+			WideCharToMultiByte (CP_UTF8,
+										0,
+										titleBufferPtr,
+										size,
+										(LPSTR)&titleStringPtr[1],
+										sizeNeeded,
+										NULL,
+										NULL);
 
 			//memcpy (&titleStringPtr[1], 
-			//			titleBufferPtr, 
-			//			titleLength);
+			//				titleBufferPtr,
+			//				titleLength);
 							
-			titleString.ReleaseBuffer();
+			titleString.ReleaseBuffer ();
 				
 			titleStringPtr[0] = (UInt8)strlen ((char*)&titleStringPtr[1]);
 			titleStringPtr[titleStringPtr[0]+1] = 0; 
 			
-			}		// end "if (gActiveImageViewCPtr != NULL)"
+			}	// end "if (gActiveImageViewCPtr != NULL)"
 	#endif	// defined multispec_win 
 	
 	#if defined multispec_lin
-      wxString titleString = (gActiveImageViewCPtr->m_frame)->GetTitle();
-      UInt16 titleLength = MIN((UInt16)titleString.Length(), 254);
+      wxString titleString = (gActiveImageViewCPtr->m_frame)->GetTitle ();
+      UInt16 titleLength = MIN ((UInt16)titleString.Length (), 254);
 			
-		strncpy((char*)&titleStringPtr[1], (const char*)titleString.mb_str(wxConvUTF8), 254);
+		strncpy ((char*)&titleStringPtr[1],
+					(const char*)titleString.mb_str (wxConvUTF8),
+					254);
 							
 		titleStringPtr[0] = (UInt8)titleLength;
 		titleStringPtr[titleLength+1] = 0; 
 	#endif
 
-}		// end "GetActiveImageWindowTitle"
+}	// end "GetActiveImageWindowTitle"
 
 
 
@@ -1852,7 +1588,7 @@ void GetActiveImageWindowTitle (
 //							CreateImageWindow in window.c
 //
 //	Coded By:			Larry L. Biehl			Date: 10/23/2000
-//	Revised By:			Larry L. Biehl			Date: 03/15/2017
+//	Revised By:			Larry L. Biehl			Date: 09/05/2017
 
 void GetImageWindowName (
 				DisplaySpecsPtr					displaySpecsPtr, 
@@ -1886,19 +1622,19 @@ void GetImageWindowName (
 		CtoPstring (namePtr, namePtr);
 		totalLength += namePtr[0];
 		
-		}		// end "if (gImageWindowInfoPtr != NULL && gImageWindowInfoPtr->..."
+		}	// end "if (gImageWindowInfoPtr != NULL && gImageWindowInfoPtr->..."
 	
 	length = 0;		
 	if (fileInfoPtr->hdfHandle != NULL)
 		{
 //		GetHdfDataSetName (fileInfoPtr, 
 //									fileInfoPtr->hdfDataSetSelection,
-//									(StringPtr)&gTextString2,
+//									(StringPtr)gTextString2,
 //									NULL);
 									
 		CreateFullDataSetIdentifierName (fileInfoPtr, 
 														fileInfoPtr->hdfDataSetSelection,
-														(StringPtr)&gTextString2,
+														(StringPtr)gTextString2,
 														60);
 		
 		length = gTextString2[0];
@@ -1906,36 +1642,37 @@ void GetImageWindowName (
 						"%s",
 						&gTextString2[1]);
 		
-		}		// end "if (fileInfoPtr->format == kHDF4Type || ..."
+		}	// end "if (fileInfoPtr->format == kHDF4Type || ..."
 		
 	if (length == 0)
 		{
-		char* fileNamePtr = (char*)GetFileNameCPointer (fileInfoPtr);
+		char* fileNamePtr = (char*)GetFileNameCPointerFromFileInfo (fileInfoPtr);
 		length = (SInt16)strlen (fileNamePtr);
 		sprintf ((char*)&namePtr[totalLength],
 						"%s",
 						fileNamePtr);
 						
-		}		// end "if (length == 0)"
+		}	// end "if (length == 0)"
 					
 	totalLength += length;
 	
 	if (removeSuffixFlag)
 		{
 		namePtr[0] = totalLength - 1;
-		RemoveSuffix ((FileStringPtr)namePtr, kASCIICharString);
+		//RemoveSuffix ((FileStringPtr)namePtr, kASCIICharString);
+		RemoveSuffix ((FileStringPtr)namePtr);
 		totalLength = namePtr[0] + 1;
 		
 		savedLength = totalLength - 1;
 		
-		}		// end "if (removeSuffixFlag)"
+		}	// end "if (removeSuffixFlag)"
 		
-	else		// !removeSuffixFlag
+	else	// !removeSuffixFlag
 		{
 		sprintf ((char*)&namePtr[totalLength], " ");
 		totalLength++;
 		
-		}		// end "else !removeSuffixFlag"
+		}	// end "else !removeSuffixFlag"
 		
 	if (displaySpecsPtr != NULL && !fileInfoPtr->thematicType)
 		{		
@@ -2042,7 +1779,7 @@ void GetImageWindowName (
 								displaySpecsPtr->channelNumber);
 			#endif	// !MONTH_DAY_DESCRIPTION
 			
-			}		// end "if (displaySpecsPtr->displayType == k1_ChannelThematicDisplayType || ..." 
+			}	// end "if (displaySpecsPtr->displayType == k1_ChannelThematicDisplayType || ..." 
 			
 		else if (displaySpecsPtr->displayType == k3_ChannelDisplayType || 
 											displaySpecsPtr->displayType == k3_2_ChannelDisplayType)
@@ -2053,7 +1790,7 @@ void GetImageWindowName (
 						displaySpecsPtr->greenChannelNumber,
 						displaySpecsPtr->blueChannelNumber);
 			
-			}		// end "else if (displaySpecsPtr->displayType == k3_ChannelDisplayType || ..." 
+			}	// end "else if (displaySpecsPtr->displayType == k3_ChannelDisplayType || ..." 
 			
 		else if (displaySpecsPtr->displayType == k2_ChannelDisplayType)
 			{
@@ -2064,37 +1801,37 @@ void GetImageWindowName (
 				channel1 = displaySpecsPtr->redChannelNumber;
 				channel2 = displaySpecsPtr->greenChannelNumber;
 				
-				}		// end "if (sDisplaySpecsPtr->rgbColors == kRGColor)" 
+				}	// end "if (sDisplaySpecsPtr->rgbColors == kRGColor)" 
 				
 			else if (displaySpecsPtr->rgbColors == kRBColor)
 				{
 				channel1 = displaySpecsPtr->redChannelNumber;
 				channel2 = displaySpecsPtr->blueChannelNumber;
 					
-				}		// end "if (displaySpecsPtr->rgbColors == kRBColor)" 
+				}	// end "if (displaySpecsPtr->rgbColors == kRBColor)" 
 				
 			else if (displaySpecsPtr->rgbColors == kGBColor)
 				{
 				channel1 = displaySpecsPtr->greenChannelNumber;
 				channel2 = displaySpecsPtr->blueChannelNumber;
 				
-				}		// end "if (displaySpecsPtr->rgbColors == kGBColor)"
+				}	// end "if (displaySpecsPtr->rgbColors == kGBColor)"
 				 
 			sprintf ((char*)&namePtr[totalLength], 
 						"(chs_%hd,%hd)",
 						channel1,
 						channel2); 
 				
-			}		// end "else if (displaySpecsPtr->displayType == k2_ChannelDisplayType)" 
+			}	// end "else if (displaySpecsPtr->displayType == k2_ChannelDisplayType)" 
 			
 		else if (displaySpecsPtr->displayType == kSideSideChannelDisplayType)
 			{
 			sprintf ((char*)&namePtr[totalLength], 
 						"(multichannels)");
 			
-			}		// end "else if (displaySpecsPtr->displayType == 7)"
+			}	// end "else if (displaySpecsPtr->displayType == 7)"
 			
-		}		// end "if (displaySpecsPtr != NULL)"
+		}	// end "if (displaySpecsPtr != NULL)"
 		
 			// If the name is going to be the default for a tiff image file, then
 			// verify that the name will not be two long. If so remove the "(...)"
@@ -2107,13 +1844,13 @@ void GetImageWindowName (
 		if (totalLength > gFileNameLengthLimit-4)
 			totalLength = savedLength;
 		
-		}		// end "if (removeSuffixFlag)"
+		}	// end "if (removeSuffixFlag)"
 	
 			// Make string a pascal string.
 			
 	namePtr[0] = (char)totalLength;
 	
-}		// end "GetImageWindowName"    	  
+}	// end "GetImageWindowName"    	  
 
 
 
@@ -2158,7 +1895,7 @@ void GetImageWindowTitle (
 			GetWTitle (windowPtr, titleStringPtr);
 			titleStringPtr[titleStringPtr[0]+1] = 0;
 			
-			}		// end "if (windowPtr != NULL)"
+			}	// end "if (windowPtr != NULL)"
 		
 	#endif	// defined multispec_mac 
 	
@@ -2167,26 +1904,26 @@ void GetImageWindowTitle (
 	   
 	   if (windowPtr != NULL)
 	   	{  
-			CMImageDoc* documentCPtr = windowPtr->GetDocument();
-			CString titleString = documentCPtr->GetTitle();
+			CMImageDoc* documentCPtr = windowPtr->GetDocument ();
+			CString titleString = documentCPtr->GetTitle ();
 			     
-			UInt16 titleLength = titleString.GetLength();
-			char* titleBufferPtr = titleString.GetBuffer(titleLength);
+			UInt16 titleLength = titleString.GetLength ();
+			char* titleBufferPtr = titleString.GetBuffer (titleLength);
 
-			memcpy( 	&titleStringPtr[1], 
+			memcpy (	&titleStringPtr[1], 
 						titleBufferPtr, 
 						titleLength);
 							
-			titleString.ReleaseBuffer();
+			titleString.ReleaseBuffer ();
 				
 			titleStringPtr[0] = (UInt8)titleLength;
 			titleStringPtr[titleLength+1] = 0; 
 			
-			}		// end "if (windowPtr != NULL)"
+			}	// end "if (windowPtr != NULL)"
 		
 	#endif	// defined multispec_win 
 */		
-}		// end "GetImageWindowTitle"
+}	// end "GetImageWindowTitle"
 
 
 
@@ -2220,7 +1957,7 @@ UInt16 GetNumberLeadingDecimalZeros (
 
 	numberDigitsAfter = 0;
 	
-	dataValue = fabs(dataValue);
+	dataValue = fabs (dataValue);
 	if (dataValue > 0)
 		{
 		while (dataValue < 1)
@@ -2228,13 +1965,13 @@ UInt16 GetNumberLeadingDecimalZeros (
 			numberDigitsAfter++;
 			dataValue *= 10;
 				
-			}		// end "while (dataValue < 1)" 
+			}	// end "while (dataValue < 1)" 
 			
-		}		// end "if (dataValue > 0)"
+		}	// end "if (dataValue > 0)"
 			
 	return (numberDigitsAfter);
 		
-}		// end "GetNumberLeadingDecimalZeros" 
+}	// end "GetNumberLeadingDecimalZeros" 
 
 
 
@@ -2257,12 +1994,13 @@ UInt16 GetNumberLeadingDecimalZeros (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 01/09/2006
-//	Revised By:			Larry L. Biehl			Date: 01/09/2006 
+//	Revised By:			Larry L. Biehl			Date: 09/26/2017 
  
 UInt16 GetNumberWholeDigits (
 				double								dataValue)
 
 {  
+	SInt16								exponent;
 	UInt16								numberWholeDigits;
 	
 	    
@@ -2270,13 +2008,14 @@ UInt16 GetNumberWholeDigits (
 	
 	if (dataValue != 0)
 		{
-		numberWholeDigits = (UInt16)log10(fabs(dataValue)) + 1;
+		exponent = (SInt16)log10 (fabs (dataValue));
+		numberWholeDigits = MAX (0, exponent) + 1;
 		
-		}		// end "if (dataValue != 0)"
+		}	// end "if (dataValue != 0)"
 		
 	return (numberWholeDigits);
 		
-}		// end "GetNumberWholeDigits" 
+}	// end "GetNumberWholeDigits" 
 
 
 
@@ -2313,11 +2052,11 @@ void GetOutputWindowTitle (
 	#if defined multispec_win
 	   if (gOutputViewCPtr != NULL)
 	   	{                                                           
-			CMTextDoc* documentCPtr = gOutputViewCPtr->GetDocument();
-			CString titleString = documentCPtr->GetTitle();
+			CMTextDoc* documentCPtr = gOutputViewCPtr->GetDocument ();
+			CString titleString = documentCPtr->GetTitle ();
 			     
-			UInt16 titleLength = titleString.GetLength();
-			LPTSTR titleBufferPtr = titleString.GetBuffer(titleLength);
+			UInt16 titleLength = titleString.GetLength ();
+			LPTSTR titleBufferPtr = titleString.GetBuffer (titleLength);
          
          		// Move the window title making sure that there are no
          		// spaces in the name.
@@ -2332,11 +2071,11 @@ void GetOutputWindowTitle (
          		titleStringPtr[outIndex] = (char)titleBufferPtr[inIndex];
          		outIndex++;
          		
-         		}		// end "if (titleBufferPtr[inIndex] != ' ')"
+         		}	// end "if (titleBufferPtr[inIndex] != ' ')"
          		
-         	}		// end "for (inIndex=0; inIndex<titleLength; inIndex++)"
+         	}	// end "for (inIndex=0; inIndex<titleLength; inIndex++)"
 							
-			titleString.ReleaseBuffer();
+			titleString.ReleaseBuffer ();
 			
 					// Make the string a pascal string and terminate it with as
 					// if it were a c string.
@@ -2344,14 +2083,14 @@ void GetOutputWindowTitle (
 			titleStringPtr[0] = (UInt8)(outIndex - 1);
 			titleStringPtr[outIndex] = 0; 
 			
-			}		// end "if (gOutputViewCPtr != NULL)"
+			}	// end "if (gOutputViewCPtr != NULL)"
 	#endif	// defined multispec_win  
 	
 	#if defined multispec_lin
 		// TODO: After Basic GUI setup
 	#endif
 	
-}		// end "GetOutputWindowTitle" 
+}	// end "GetOutputWindowTitle" 
 
 
 
@@ -2390,13 +2129,13 @@ SInt32 GetSpecifiedString (
 	
 	#if defined multispec_mac  
 		*stringHandlePtr = GetString (stringID);
-		if ( *stringHandlePtr )
+		if (*stringHandlePtr)
 			{
-			HLock ( (Handle)*stringHandlePtr );
+			HLock ((Handle)*stringHandlePtr);
 			*stringPtrPtr = (char*)**stringHandlePtr;
-			stringLength = GetHandleSize ( (Handle)*stringHandlePtr );
+			stringLength = GetHandleSize ((Handle)*stringHandlePtr);
 			
-			}		// end "if ( *stringHandlePtr )"
+			}	// end "if (*stringHandlePtr)"
 	#endif	// defined multispec_mac  
 	
 	#if defined multispec_win || defined multispec_lin	
@@ -2637,49 +2376,46 @@ SInt32 GetSpecifiedString (
 		
 		
 		stringLength = 256; 
-/*		
+		/*		
 		if (stringID == 129)
 			{
-			stringLength = sizeof(string129);
+			stringLength = sizeof (string129);
 			stringPtr = &string129[0];
 			
-			}		// end "if (stringID == 129)"
+			}	// end "if (stringID == 129)"
 		
 		if (stringID == 132)
 			{
-			stringLength = sizeof(string132);
+			stringLength = sizeof (string132);
 			stringPtr = &string132[0];
 			
-			}		// end "if (stringID == 132)" 
+			}	// end "if (stringID == 132)" 
 		
 		else if (stringID == 133)
 			{
-			stringLength = sizeof(string133);
+			stringLength = sizeof (string133);
 			stringPtr = &string133[0];
 			
-			}		// end "else if (stringID == 133)"
-*/		
+			}	// end "else if (stringID == 133)"
+		*/		
 		if (stringID == 128)
 			{
-			stringLength = sizeof(string128);
+			stringLength = sizeof (string128);
 			stringPtr = &string128[0];
 			
-			}		// end "else if (stringID == 128)"
+			}	// end "else if (stringID == 128)"
 
 		else if (stringID == 137)
 			{
-			stringLength = sizeof(string137);
+			stringLength = sizeof (string137);
 			stringPtr = &string137[0];
 			
-			}		// end "else if (stringID == 137)"
+			}	// end "else if (stringID == 137)"
 			
 			
 		*stringHandlePtr = (StringHandle)MNewHandle (stringLength);
 		
-		*stringPtrPtr = (char*)GetHandlePointer(
-															(Handle)*stringHandlePtr,
-															kLock,
-															kNoMoveHi); 
+		*stringPtrPtr = (char*)GetHandlePointer ((Handle)*stringHandlePtr, kLock); 
 															
 		if (*stringPtrPtr != NULL)
 			{                    
@@ -2687,23 +2423,23 @@ SInt32 GetSpecifiedString (
 				{
 				BlockMoveData (stringPtr, *stringPtrPtr, stringLength);
 				
-				}		// end "if (stringID == 137)" 
+				}	// end "if (stringID == 137)" 
 				  
-			else		// stringPtr == NULL
+			else	// stringPtr == NULL
 				{
 				Boolean continueFlag = MGetString (
 													(UCharPtr)*stringPtrPtr, NULL, stringID);
 			                     
 				stringLength = (*stringPtrPtr)[0];
 				
-				}		// end "else stringPtr == NULL" 
+				}	// end "else stringPtr == NULL" 
 			
-			}		// end "if (*stringPtrPtr != NULL)"
+			}	// end "if (*stringPtrPtr != NULL)"
 	#endif	// defined multispec_win || defined multispec_lin
 		
 	return (stringLength);
 
-}		// end "GetSpecifiedString"
+}	// end "GetSpecifiedString"
 
 
 
@@ -2729,11 +2465,11 @@ SInt32 GetSpecifiedString (
 //	Coded By:			Larry L. Biehl			Date: 01/26/1994
 //	Revised By:			Larry L. Biehl			Date: 02/27/2017			
 
-Boolean GetSpecifiedStringNumber ( 
+Boolean GetSpecifiedStringNumber (
 				SInt16								strListID, 
 				SInt16								index,
 				UCharPtr								textStringPtr, 
-				Boolean								continueFlag )
+				Boolean								continueFlag)
 													
 {
 	if (continueFlag)
@@ -2741,11 +2477,11 @@ Boolean GetSpecifiedStringNumber (
 		MGetString ((UCharPtr)textStringPtr, strListID, index);
 		continueFlag = (textStringPtr[0] != 0);
 		
-		}		// end "if (continueFlag)" 
+		}	// end "if (continueFlag)" 
 		
 	return (continueFlag);
 
-}		// end "GetSpecifiedStringNumber"  
+}	// end "GetSpecifiedStringNumber"  
 
 
 #if defined multispec_win
@@ -2771,7 +2507,7 @@ Boolean GetSpecifiedStringNumber (
 //	Coded By:			Larry L. Biehl			Date: 01/26/2016
 //	Revised By:			Larry L. Biehl			Date: 08/28/2017			
 
-Boolean GetSpecifiedStringNumber ( 
+Boolean GetSpecifiedStringNumber (
 				SInt16								strListID, 
 				SInt16								index,
 				TBYTE*								textStringPtr, 
@@ -2784,11 +2520,11 @@ Boolean GetSpecifiedStringNumber (
 		MGetString (textStringPtr, strListID, index, maxStringLength);
 		continueFlag = (textStringPtr[0] != 0);
 		
-		}		// end "if (continueFlag)" 
+		}	// end "if (continueFlag)" 
 		
 	return (continueFlag);
 
-}		// end "GetSpecifiedStringNumber"  
+}	// end "GetSpecifiedStringNumber"  
 #endif	// defined multispec_win
 
 
@@ -2860,11 +2596,11 @@ char* GetStringToComma (
 					
 			outputStringPtr++;
 				
-			}		// end "if (numberCharacters >= 0" 
+			}	// end "if (numberCharacters >= 0" 
 		
-		}		// end "if (inputStringPtr != NULL && ..."
+		}	// end "if (inputStringPtr != NULL && ..."
 		
-	else		// inputStringPtr == NULL || ...
+	else	// inputStringPtr == NULL || ...
 		outputStringPtr = NULL;
 	
 	if (maxStringLength >= 2)
@@ -2874,11 +2610,11 @@ char* GetStringToComma (
 		stringPtr[0] = (char)numberCharacters;
 		stringPtr[numberCharacters+1] = 0;
 			
-		}		// end "if (maxStringLength >= 2)"
+		}	// end "if (maxStringLength >= 2)"
 		
 	return (outputStringPtr);
 	
-}		// end "GetStringToComma"   	  
+}	// end "GetStringToComma"   	  
 
 
 
@@ -2918,17 +2654,17 @@ void GetWindowTitle (
 		#endif	// defined multispec_mac 
 	
 		#if defined multispec_win
-			CMImageDoc* documentCPtr = windowPtr->GetDocument();
-			CString titleString = documentCPtr->GetTitle();
+			CMImageDoc* documentCPtr = windowPtr->GetDocument ();
+			CString titleString = documentCPtr->GetTitle ();
 			     
-			UInt16 titleLength = titleString.GetLength();
-			LPTSTR titleBufferPtr = titleString.GetBuffer(titleLength);
+			UInt16 titleLength = titleString.GetLength ();
+			LPTSTR titleBufferPtr = titleString.GetBuffer (titleLength);
 
 			memcpy (&titleStringPtr[1], 
 						titleBufferPtr, 
 						titleLength);
 							
-			titleString.ReleaseBuffer();
+			titleString.ReleaseBuffer ();
 				
 			titleStringPtr[0] = (UInt8)titleLength;
 			titleStringPtr[titleLength+1] = 0; 
@@ -2936,19 +2672,19 @@ void GetWindowTitle (
 	
 		#if defined multispec_lin
          wxString titleString;
-			titleString = windowPtr->m_frame->GetTitle();
+			titleString = windowPtr->m_frame->GetTitle ();
 			     
-			UInt16 titleLength = MIN((UInt16)titleString.Length(), 254);
+			UInt16 titleLength = MIN ((UInt16)titleString.Length (), 254);
 			
-			strncpy((char*)&titleStringPtr[1], (const char*)titleString.mb_str(wxConvUTF8), 254);
+			strncpy ((char*)&titleStringPtr[1], (const char*)titleString.mb_str (wxConvUTF8), 254);
 							
 			titleStringPtr[0] = (UInt8)titleLength;
 			titleStringPtr[titleLength+1] = 0; 
 		#endif	// defined multispec_lin 
 			
-		}		// end "if (windowPtr != NULL)"
+		}	// end "if (windowPtr != NULL)"
 		
-}		// end "GetWindowTitle"
+}	// end "GetWindowTitle"
 
 
 #if defined multispec_lin
@@ -2963,16 +2699,16 @@ void GetGraphWindowTitle (
    
 	if (windowPtr != NULL)
 		{
-      wxString titleString = ((CMGraphView*)windowPtr)->m_frame->GetTitle();
-      UInt16 titleLength = MIN((UInt16)titleString.Length(), 254);
+      wxString titleString = ((CMGraphView*)windowPtr)->m_frame->GetTitle ();
+      UInt16 titleLength = MIN ((UInt16)titleString.Length (), 254);
 			
-		strncpy((char*)&titleStringPtr[1], (const char*)titleString.mb_str(wxConvUTF8), 254);
+		strncpy ((char*)&titleStringPtr[1], (const char*)titleString.mb_str (wxConvUTF8), 254);
 							
 		titleStringPtr[0] = (UInt8)titleLength;
 		titleStringPtr[titleLength+1] = 0; 
 		}
 	
-}		// end "GetGraphWindowTitle"
+}	// end "GetGraphWindowTitle"
 #endif	// defined multispec_lin
 
 
@@ -2996,27 +2732,27 @@ void GetGraphWindowTitle (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 03/09/2007
-//	Revised By:			Larry L. Biehl			Date: 08/28/2017
+//	Revised By:			Larry L. Biehl			Date: 01/05/2018
 
 void InitializeDateVersionStrings ()
 
 {
 		// Date version string
 		
-	sprintf (gDateVersionString, "8.28.2017");
+	sprintf (gDateVersionString, "2018.01.05");
 
 		// Application identifier string
 		
-#	if defined multispec_mac
-#		ifndef __XCODE__
-#			ifdef TARGET_CPU_PPC
+	#if defined multispec_mac
+		#ifndef __XCODE__
+			#ifdef TARGET_CPU_PPC
 				sprintf (gApplicationIdentifierString, "MultiSpecPPC_%s", gDateVersionString);
-#			endif		// TARGET_CPU_PPC
+			#endif		// TARGET_CPU_PPC
 			
-#			if TARGET_API_MAC_CARBON
+			#if TARGET_API_MAC_CARBON
 				sprintf (gApplicationIdentifierString, "MultiSpecCarb_%s", gDateVersionString);
-#			endif /* TARGET_API_MAC_CARBON */
-#		endif		// !__XCODE__
+			#endif /* TARGET_API_MAC_CARBON */
+		#endif		// !__XCODE__
 			
 		#ifdef __XCODE__		
 			if (gSystemArchitectureCode == kIntel)
@@ -3028,22 +2764,22 @@ void InitializeDateVersionStrings ()
 	#endif 	// defined multispec_mac
 		
 	#if defined multispec_win
-#		if defined _WIN64
+		#if defined _WIN64
 			sprintf (gApplicationIdentifierString, "MultiSpecWin64_%s", gDateVersionString);
-#		else
+		#else
 			sprintf (gApplicationIdentifierString, "MultiSpecWin32_%s", gDateVersionString);
-#		endif
+		#endif
 	#endif 	// defined multispec_win
 	
    #if defined multispec_lin
 		#ifdef NetBeansProject
-			sprintf((char*)gApplicationIdentifierString, "MultiSpecLinux_%s", gDateVersionString);
+			sprintf ((char*)gApplicationIdentifierString, "MultiSpecLinux_%s", gDateVersionString);
 		#else
-			sprintf((char*)gApplicationIdentifierString, "MultiSpec_on_MyGeohub_%s", gDateVersionString);
+			sprintf ((char*)gApplicationIdentifierString, "MultiSpec_on_MyGeohub_%s", gDateVersionString);
 		#endif
    #endif
 
-}		// end "InitializeDateVersionStrings"
+}	// end "InitializeDateVersionStrings"
 
 
 
@@ -3095,7 +2831,7 @@ SInt16 InsertCommasInNumberString (
 	if (numberOutputCharacters < 0)
 		justificationCode = -1;
 		
-	numberOutputCharacters = abs(numberOutputCharacters);
+	numberOutputCharacters = abs (numberOutputCharacters);
 
 			// Get the number of digits less any decimal places and the period.
 			
@@ -3104,15 +2840,15 @@ SInt16 InsertCommasInNumberString (
 		decimalPlaces = 0;
 		decimalLocation = numberInputCharacters;
 		
-		}		// end "if (decimalPlaces < 0)"
+		}	// end "if (decimalPlaces < 0)"
 			
-	else		// decimalPlaces >= 0
+	else	// decimalPlaces >= 0
 		{
 		decimalPlaces++;
 		decimalLocation = numberInputCharacters - decimalPlaces;
-		decimalLocation = MAX(0, decimalLocation);
+		decimalLocation = MAX (0, decimalLocation);
 		
-		}		// end "else decimalPlaces >= 0"
+		}	// end "else decimalPlaces >= 0"
 	
 	numberWholeValueDigits = decimalLocation;
 	
@@ -3124,7 +2860,7 @@ SInt16 InsertCommasInNumberString (
 		numberWholeValueDigits--;
 		index++;
 		
-		}		// end "while (inputStringPtr[index] == ' ')"
+		}	// end "while (inputStringPtr[index] == ' ')"
 		
 	numberBlanks = index;
 	
@@ -3136,7 +2872,7 @@ SInt16 InsertCommasInNumberString (
 	if (numberWholeValueDigits > 0)
 		numberCommas = (numberWholeValueDigits - 1)/3;
 		
-	else		// numberWholeValueDigits == 0
+	else	// numberWholeValueDigits == 0
 		numberCommas = 0;
 	
 	if (numberCommas > 0 || numberInputCharacters < (UInt32)numberOutputCharacters)
@@ -3144,13 +2880,13 @@ SInt16 InsertCommasInNumberString (
 				// Make sure that the number of output characters will handle
 				// the number of commas being added.
 				
-		numberOutputCharacters = (SInt16)MAX((UInt32)numberOutputCharacters,
+		numberOutputCharacters = (SInt16)MAX ((UInt32)numberOutputCharacters,
 										numberInputCharacters + numberCommas);
 				
 				// Limit the number of output characters to 60 to be on the
 				// safe side.
 				
-		numberOutputCharacters = MIN(numberOutputCharacters, 60);
+		numberOutputCharacters = MIN (numberOutputCharacters, 60);
 					
 		index = numberInputCharacters - 1;
 		newIndex = numberOutputCharacters - 1;
@@ -3167,9 +2903,9 @@ SInt16 InsertCommasInNumberString (
 				inputStringPtr[newIndex] = ' ';
 				newIndex--;
 				
-				}		// end "while (while (newIndex >= firstBlankIndex)"
+				}	// end "while (while (newIndex >= firstBlankIndex)"
 				
-			}		// end "if (justificationCode < 0)"
+			}	// end "if (justificationCode < 0)"
 		
 				// Make sure that the decimal separator is the correct character.
 				
@@ -3184,7 +2920,7 @@ SInt16 InsertCommasInNumberString (
 			index--;
 			newIndex--;
 				
-			}		// end "while (index >= decimalLocation)"
+			}	// end "while (index >= decimalLocation)"
 		
 		numberPlaces = 0;		
 		while (newIndex >= 0)
@@ -3196,7 +2932,7 @@ SInt16 InsertCommasInNumberString (
 				newIndex--;
 				numberPlaces = 0;
 				
-				}		// end "if (numberPlaces == 3 && ..."
+				}	// end "if (numberPlaces == 3 && ..."
 				
 			if (index == newIndex)
 				break;
@@ -3212,22 +2948,22 @@ SInt16 InsertCommasInNumberString (
 				if (index == 0 && inputStringPtr[index] == '-')
 					numberPlaces = 0;
 					
-				}		// end "if (index >= 0)"
+				}	// end "if (index >= 0)"
 				
-			else		// index < 0
+			else	// index < 0
 				inputStringPtr[newIndex] = ' ';
 				
 			newIndex--;
 				
-			}		// end "while (newIndex >= 0)"
+			}	// end "while (newIndex >= 0)"
 			
 		inputStringPtr[numberOutputCharacters] = 0;
 				
-		}		// end "if (numberCommas > 0)"
+		}	// end "if (numberCommas > 0)"
 		
 	return (numberOutputCharacters);
 	
-}		// end "InsertCommasInNumberString"  
+}	// end "InsertCommasInNumberString"  
 
 
 
@@ -3312,19 +3048,19 @@ Boolean ListChannelsUsed (
 	if (useTransformFlag)
 		{
 		if (gProcessorCode == kRefChangeFileFormatProcessor)
-			stringLength = sprintf( (char*)&gTextString, 
+			stringLength = sprintf ((char*)gTextString, 
 						"    Features created: %s",
 						gEndOfLine);
 						
-		else		// gProcessorCode != kRefChangeFileFormatProcessor
-			stringLength = sprintf( (char*)&gTextString, 
+		else	// gProcessorCode != kRefChangeFileFormatProcessor
+			stringLength = sprintf ((char*)gTextString, 
 						"    Features used: %s",
 						gEndOfLine);
 						
-		}		// end "if (useTransformFlag)"
+		}	// end "if (useTransformFlag)"
 	
-	else		// !useTransformFlag 
-		stringLength = sprintf( (char*)&gTextString, 
+	else	// !useTransformFlag 
+		stringLength = sprintf ((char*)gTextString, 
 					"    Channels used: %s",
 					gEndOfLine);
 	
@@ -3376,24 +3112,24 @@ Boolean ListChannelsUsed (
 			if (lChannelsPtr != NULL)
 				nextChannelNum = lChannelsPtr[nextIndex];
 			
-			if ( (index == (UInt16)(numberChannels - 1)) ||
+			if ((index == (UInt16)(numberChannels - 1)) ||
 									channelNum != (UInt16)nextChannelNum)
 						
 				{
 				listFlag = TRUE;
 				
-				}		// end "if (index == (UInt16)(numberChannels - 1) || ..." 
+				}	// end "if (index == (UInt16)(numberChannels - 1) || ..." 
 				
-			else		// channelNum == nextChannel && ...
+			else	// channelNum == nextChannel && ...
 				{
 				if (!dashFlag)
 					{
 					startChannel = channelNum - 1;
 					dashFlag = TRUE;
 					
-					}		// end "if (!dashFlag && ...)"
+					}	// end "if (!dashFlag && ...)"
 				
-				}		// end "else lChannelsPtr[index] == channelNum && ..."
+				}	// end "else lChannelsPtr[index] == channelNum && ..."
 				
 			if (listFlag)
 				{
@@ -3412,17 +3148,17 @@ Boolean ListChannelsUsed (
 						
 					dashFlag = FALSE;
 						
-					}		// end "if (dashFlag)"
+					}	// end "if (dashFlag)"
 					
-				else		// !dashFlag
+				else	// !dashFlag
 					{
 							// List channel number separated by comma
 							
-					stringLength += sprintf( (char*)&gTextString[stringLength], 
+					stringLength += sprintf ((char*)&gTextString[stringLength], 
 						"%ld,", 
 						startChannel+1);
 						
-					}		// end "else !dashFlag"
+					}	// end "else !dashFlag"
 				
 				listFlag = FALSE;
 				
@@ -3431,27 +3167,27 @@ Boolean ListChannelsUsed (
 					startChannel = (UInt16)nextChannelNum;
 					channelNum = startChannel;
 					
-					}		// end "if ((index < (UInt16)numberChannels - 1))"
+					}	// end "if ((index < (UInt16)numberChannels - 1))"
 					
 				if (stringLength >= 256-15)
 					break;
 					
-				}		// end "if (listFlag)"
+				}	// end "if (listFlag)"
 				
-			}		// end "for (index=0; index<numberChannels; index++)" 
+			}	// end "for (index=0; index<numberChannels; index++)" 
 		
 				// Remove last comma and add 2 returns.
 					
-		sprintf( (char*)&gTextString[stringLength-1], 
+		sprintf ((char*)&gTextString[stringLength-1], 
 					"%s",
 					gEndOfLine);
 
 		stringLength += gNumberOfEndOfLineCharacters - 1;
 			
-		}		// end "if (shortListFlag)"
+		}	// end "if (shortListFlag)"
 		
-	continueFlag = OutputString ( outputFilePtr, 
-											(char*)&gTextString, 
+	continueFlag = OutputString (outputFilePtr, 
+											(char*)gTextString, 
 											stringLength, 
 											*outputCodePtr, 
 											continueFlag);
@@ -3487,13 +3223,13 @@ Boolean ListChannelsUsed (
 					if (localFileInfoPtr == fileInfoPtr)
 						break;
 					
-					}		// end "if (gImageLayerInfoPtr != NULL && ..."
+					}	// end "if (gImageLayerInfoPtr != NULL && ..."
 						
 				layerChanIndex++;
 					
-				}		// end "for (index=0; index<gImageWindowInfoPtr->..."
+				}	// end "for (index=0; index<gImageWindowInfoPtr->..."
 	      
-	      }		// end "if (gProcessorCode == kListDescriptionProcessor && ..."
+	      }	// end "if (gProcessorCode == kListDescriptionProcessor && ..."
 						
 		stringLength = 9 + gNumberOfEndOfLineCharacters;
 		channelNum = 0;
@@ -3523,7 +3259,7 @@ Boolean ListChannelsUsed (
 				fileInfoIndex = localImageLayerInfoPtr[layerChanIndex].fileInfoIndex;
 				localFileInfoPtr = &fileInfoPtr[fileInfoIndex];
 					
-				}		// end "if (localImageLayerInfoPtr && fileInfoIndex != ..." 
+				}	// end "if (localImageLayerInfoPtr && fileInfoIndex != ..." 
 				
 			if (localFileInfoPtr && !useTransformFlag)
 				{
@@ -3531,41 +3267,40 @@ Boolean ListChannelsUsed (
 				stringLength = 5 + channelNumberLength + gNumberOfEndOfLineCharacters;
 				if (localFileInfoPtr->channelDescriptionH)
 					{
-					channelDescriptionPtr = (ChannelDescriptionPtr)GetHandlePointer(
-												localFileInfoPtr->channelDescriptionH,
-												kLock,
-												kNoMoveHi);
+					channelDescriptionPtr = (ChannelDescriptionPtr)GetHandlePointer (
+																localFileInfoPtr->channelDescriptionH,
+																kLock);
 					stringLength = 23 + channelNumberLength + gNumberOfEndOfLineCharacters;
 					
-					}		// end "if (localFileInfoPtr->channelDescriptionH)" 
+					}	// end "if (localFileInfoPtr->channelDescriptionH)" 
 				
-				}		// end "if (localFileInfoPtr && !useTransformFlag)" 
+				}	// end "if (localFileInfoPtr && !useTransformFlag)" 
 			
 			if (channelDescriptionPtr == NULL)
-				sprintf ((char*)&gTextString, 
+				sprintf ((char*)gTextString, 
 								"     %*ld%s", 
 								channelNumberLength,
 								channelNum,
-								gEndOfLine );
+								gEndOfLine);
 											
-			else		// channelDescriptionPtr != NULL
+			else	// channelDescriptionPtr != NULL
 				{
 				fileChanNum = (SInt16)(index + 1);
 				if (localImageLayerInfoPtr != NULL)
 					fileChanNum = localImageLayerInfoPtr[layerChanIndex].fileChannelNumber;
 					
-				BlockMoveData (&channelDescriptionPtr[fileChanNum-1], &gTextString2, 16);
-				sprintf ((char*)&gTextString, 
+				BlockMoveData (&channelDescriptionPtr[fileChanNum-1], gTextString2, 16);
+				sprintf ((char*)gTextString, 
 								"     %*ld: %s%s", 
 								channelNumberLength,
 								channelNum, 
 								gTextString2,
 								gEndOfLine);
 				
-				}		// end "else channelDescriptionPtr" 
+				}	// end "else channelDescriptionPtr" 
 			
 			continueFlag = OutputString (outputFilePtr, 
-													(char*)&gTextString, 
+													(char*)gTextString, 
 													stringLength, 
 													*outputCodePtr, 
 													continueFlag);
@@ -3575,9 +3310,9 @@ Boolean ListChannelsUsed (
 				
 			layerChanIndex++;
 				
-			}		// end "for (channel=0;..." 
+			}	// end "for (channel=0;..." 
 			
-		}		// end "if (!shortListFlag)" 
+		}	// end "if (!shortListFlag)" 
 		
 			// Insert a blank line after the table.
 		
@@ -3592,7 +3327,7 @@ Boolean ListChannelsUsed (
 										
 	return (continueFlag);
 											
-}		// end "ListChannelsUsed"  
+}	// end "ListChannelsUsed"  
 
 
 
@@ -3635,7 +3370,7 @@ SInt16 ListCountValue (
 										"\t");
 		strLength += numberChars;
 		
-		}		// end "if (includeTabFlag)"
+		}	// end "if (includeTabFlag)"
 	
 	if (countNumberWidth > 0)
 		numberChars = sprintf (&stringPtr[strLength],  
@@ -3643,7 +3378,7 @@ SInt16 ListCountValue (
 										countNumberWidth,
 										count);
 										
-	else		// countNumberWidth <= 0
+	else	// countNumberWidth <= 0
 		numberChars = sprintf (&stringPtr[strLength],  
 										"%lld",
 										count);
@@ -3651,16 +3386,15 @@ SInt16 ListCountValue (
 	if (countWidthWithCommas <= 0)
 		countWidthWithCommas = numberChars;
 		
-	numberChars = InsertCommasInNumberString (
-									&stringPtr[strLength], 
-									numberChars, 
-									-1,
-									countWidthWithCommas);
+	numberChars = InsertCommasInNumberString (&stringPtr[strLength], 
+															numberChars, 
+															-1,
+															countWidthWithCommas);
 	strLength += numberChars;
 										
 	return (strLength);
 	
-}		// end "ListCountValue"
+}	// end "ListCountValue"
 
 
 
@@ -3714,15 +3448,15 @@ Boolean ListCPUTimeInformation (
 	switch (gProcessorCode)
 		{
 		case kOpenImageFileProcessor:
-			sprintf( (char*)&gTextString2, "opening image");
+			sprintf ((char*)gTextString2, "opening image");
 			break;
 			
 		case kDisplayProcessor:
-			sprintf( (char*)&gTextString2, "displaying image");
+			sprintf ((char*)gTextString2, "displaying image");
 			break;
 			
 		case kHistogramProcessor:
-			sprintf( (char*)&gTextString2, "histograming image");
+			sprintf ((char*)gTextString2, "histograming image");
 			break;
 			
 		case kRefChangeHeaderProcessor:
@@ -3734,108 +3468,108 @@ Boolean ListCPUTimeInformation (
 		case kMultispecToThematicProcessor:
 		case kENVIROIToThematic:
 		case kRecodeThematicImageProcessor:
-			sprintf( (char*)&gTextString2, "reformatting");
+			sprintf ((char*)gTextString2, "reformatting");
 			break;
 						
 		case kListDataProcessor:
-			sprintf( (char*)&gTextString2, "listing data");
+			sprintf ((char*)gTextString2, "listing data");
 			break;
 		
 		case kClusterProcessor:
-			sprintf( (char*)&gTextString2, "clustering");
+			sprintf ((char*)gTextString2, "clustering");
 			break;
 		
 		case kComputeStatsProcessor:
-			sprintf( (char*)&gTextString2, "statistics computation");
+			sprintf ((char*)gTextString2, "statistics computation");
 			break;
 			
 		case kListStatsProcessor:
-			sprintf( (char*)&gTextString2, "listing statistics");
+			sprintf ((char*)gTextString2, "listing statistics");
 			break;
 			
 		case kHistogramStatsProcessor:
-			sprintf( (char*)&gTextString2, "histograming statistics");
+			sprintf ((char*)gTextString2, "histograming statistics");
 			break;
 
 		case kStatEnhanceProcessor:
-			sprintf( (char*)&gTextString2, "enhance statistics");
+			sprintf ((char*)gTextString2, "enhance statistics");
 			break;
 			
 		case kFeatureExtractionProcessor:
-			sprintf( (char*)&gTextString2, "feature extraction");
+			sprintf ((char*)gTextString2, "feature extraction");
 			break;
 						
 		case kSeparabilityProcessor:
-			sprintf( (char*)&gTextString2, "feature selection");
+			sprintf ((char*)gTextString2, "feature selection");
 			break;
 						
 		case kClassifyProcessor:
-			sprintf( (char*)&gTextString2, "classification");
+			sprintf ((char*)gTextString2, "classification");
 			break;
 						
 		case kListResultsProcessor:
-			sprintf( (char*)&gTextString2, "results listing");
+			sprintf ((char*)gTextString2, "results listing");
 			break;
 						
 		case kPrincipalComponentsProcessor:
-			sprintf( (char*)&gTextString2, "principal component analysis");
+			sprintf ((char*)gTextString2, "principal component analysis");
 			break;
 			
 		case kStatisticsImageProcessor:
-			sprintf( (char*)&gTextString2, "creating statistics images");
+			sprintf ((char*)gTextString2, "creating statistics images");
 			break;
 						
 		case kBiPlotDataProcessor:
-			sprintf( (char*)&gTextString2, "creating biplot of data");
+			sprintf ((char*)gTextString2, "creating biplot of data");
 			break;
 			
 		case kCovarianceCheckProcessor:
-			sprintf( (char*)&gTextString2, "checking covariance statistics");
+			sprintf ((char*)gTextString2, "checking covariance statistics");
 			break;
 			
 		case kTransformCheckProcessor:
-			sprintf( (char*)&gTextString2, "checking transformation matrix");
+			sprintf ((char*)gTextString2, "checking transformation matrix");
 			break;
 			
 		default:
-			sprintf( (char*)&gTextString2, "operation");
+			sprintf ((char*)gTextString2, "operation");
 			break;
 			
-		}		// end "switch (gProcessorCode)" 
+		}	// end "switch (gProcessorCode)" 
 			
 	if (gOperationCanceledFlag)
 		{
 		if (gAlertReturnCode == 1)
 						// Operation was stopped and results to that point were listed.	
 
-			sprintf( (char*)&gTextString, 
+			sprintf ((char*)gTextString, 
 						"%s %s was stopped.  Results at that point were listed.",
 						gEndOfLine, 
 						gTextString2);
 			
-		else		// gAlertReturnCode != 1 
-			sprintf( (char*)&gTextString, 
+		else	// gAlertReturnCode != 1 
+			sprintf ((char*)gTextString, 
 						"%s %s was cancelled.",
 						gEndOfLine, 
 						gTextString2);
 
 		localContinueFlag = OutputString (
 						resultsFileStreamPtr, 
-						(char*)&gTextString, 
+						(char*)gTextString, 
 						0, 
 						gOutputForce1Code, 
 						localContinueFlag);
 							
-		}		// end "if (gOperationCanceledFlag)"
+		}	// end "if (gOperationCanceledFlag)"
 
 			// Add the date and time to the line.
 
 	time_t currentTime = time (NULL);
-	struct tm *currentDate = localtime( &currentTime);
+	struct tm *currentDate = localtime (&currentTime);
 	strftime ((char*)gTextString3, 254, "  %m-%d-%Y  %X", currentDate);
 	
 	if (totalTime < 60)
-		sprintf( (char*)&gTextString,
+		sprintf ((char*)gTextString,
 					"%s  %lu CPU seconds for %s.%s%s",
 					gEndOfLine,
 					totalTime, 
@@ -3843,7 +3577,7 @@ Boolean ListCPUTimeInformation (
 					gTextString3,
 					gEndOfLine);
 					
-	else		// totalTime >= 60)
+	else	// totalTime >= 60)
 		{
 				// Get number of minutes and seconds
 				
@@ -3852,7 +3586,7 @@ Boolean ListCPUTimeInformation (
 		
 		if (minutes < 60)
 			{
-			sprintf( (char*)&gTextString,
+			sprintf ((char*)gTextString,
 						"%s  %lu minutes and %lu seconds CPU time for %s.%s%s",
 						gEndOfLine,
 						minutes,
@@ -3861,16 +3595,16 @@ Boolean ListCPUTimeInformation (
 						gTextString3,
 						gEndOfLine);
 					
-			}		// end "if (minutes < 60)"
+			}	// end "if (minutes < 60)"
 					
-		else		// minutes >= 60
+		else	// minutes >= 60
 			{
 					// Get number of hours and minutes
 					
 			hours = minutes/60;
 			minutes -= hours*60;
 			
-			sprintf( (char*)&gTextString,
+			sprintf ((char*)gTextString,
 						"%s  %lu hours, %lu minutes and %lu seconds CPU time for %s.%s%s",
 						gEndOfLine,
 						hours,
@@ -3880,38 +3614,38 @@ Boolean ListCPUTimeInformation (
 						gTextString3,
 						gEndOfLine);
 						
-			}		// end "else startTime >= 3600"
+			}	// end "else startTime >= 3600"
 						
-		}		// end "else startTime >= 60)"
+		}	// end "else startTime >= 60)"
 	
 	continueFlag = OutputString (
 					resultsFileStreamPtr, 
-					(char*)&gTextString, 
+					(char*)gTextString, 
 					0, 
 					gOutputForce1Code, 
 					localContinueFlag);	
-/*					
+	/*					
 			// Add a carriage return.
 			
-	continueFlag = OutputString( resultsFileStreamPtr, 
+	continueFlag = OutputString (resultsFileStreamPtr, 
 											&gEndOfLine[0], 
 											gNumberOfEndOfLineCharacters, 
 											gOutputCode, 
 											continueFlag);
-*/					
+	*/					
 			// List the dashed line separator string to indicate end of processor
 			// output.
 			
 	continueFlag = ListSpecifiedStringNumber (kSharedStrID, 
 															IDS_Shared6, 
-															(unsigned char*)&gTextString, 
+															(unsigned char*)gTextString, 
 															resultsFileStreamPtr, 
 															gOutputForce1Code, 
 															continueFlag);
 	
 	return (continueFlag);
 		
-}		// end "ListCPUTimeInformation"	
+}	// end "ListCPUTimeInformation"	
 
 
 
@@ -3954,7 +3688,7 @@ Boolean ListHeaderInfo (
 				
 		ListSpecifiedStringNumber (kSharedStrID, 
 												IDS_Shared5, 
-												(unsigned char*)&gTextString, 
+												(unsigned char*)gTextString, 
 												NULL, 
 												*outputCodePtr, 
 												continueFlag);
@@ -3962,7 +3696,7 @@ Boolean ListHeaderInfo (
 				// List the processor name, date and time.									
 			
 		if (continueFlag)
-			continueFlag = ListProcessorTitleLine(
+			continueFlag = ListProcessorTitleLine (
 											resultsFileStreamPtr, outputCodePtr, continueFlag);
 					
 				// List "  Input Parameters:".
@@ -3970,7 +3704,7 @@ Boolean ListHeaderInfo (
 		if (continueFlag && listCode != 0)	
 			continueFlag = ListSpecifiedStringNumber (kSharedStrID, 
 																	IDS_Shared7, 
-																	(unsigned char*)&gTextString, 
+																	(unsigned char*)gTextString, 
 																	resultsFileStreamPtr, 
 																	*outputCodePtr, 
 																	continueFlag);
@@ -3984,11 +3718,11 @@ Boolean ListHeaderInfo (
 																	covarianceStatsToUse,
 																	continueFlag);
 																	
-		}		// end "if (continueFlag && *outputCodePtr > 0)"
+		}	// end "if (continueFlag && *outputCodePtr > 0)"
 						
 	return (continueFlag);
 											
-}		// end "ListHeaderInfo" 
+}	// end "ListHeaderInfo" 
  
 
 
@@ -4031,7 +3765,7 @@ Boolean ListLineColumnIntervalString (
 		continueFlag = MGetString (gTextString2, kSharedStrID, IDS_Shared3);
 		
 	if (continueFlag)
-		sprintf( (char*)&gTextString, 
+		sprintf ((char*)gTextString, 
 							(char*)&gTextString2[1],
 							lineStart,
 							lineEnd,
@@ -4042,14 +3776,14 @@ Boolean ListLineColumnIntervalString (
 			
 	continueFlag = OutputString (
 							resultsFileStreamPtr, 
-							(char*)&gTextString, 
+							(char*)gTextString, 
 							0, 
 							outputCode,
 							continueFlag);
 								
 	return (continueFlag);
 											
-}		// end "ListLineColumnIntervalString" 
+}	// end "ListLineColumnIntervalString" 
  
 
 
@@ -4097,16 +3831,16 @@ Boolean ListMapProjectionString (
 					
 		if (projectionCode <= 0)
 			{	
-			sprintf( (char*)&gTextString,
+			sprintf ((char*)gTextString,
 							"%sNone specified%s",
 							spaceStringPtr,
 							gEndOfLine);
 					
 			if (continueFlag)	
-				continueFlag = ListString( 
-					(char*)&gTextString,  strlen((char*)&gTextString), gOutputTextH);
+				continueFlag = ListString (
+					(char*)gTextString,  strlen ((char*)gTextString), gOutputTextH);
 			
-			}		// end "if (projectionCode <= 0)"
+			}	// end "if (projectionCode <= 0)"
 */			
 		if	(projectionCode > 0)
 			{
@@ -4123,23 +3857,23 @@ Boolean ListMapProjectionString (
 						IDS_ProjectionType01+projectionCode);
 			#endif	// defined multispec_win
 								
-			sprintf( (char*)&gTextString,
+			sprintf ((char*)gTextString,
 							"%sProjection:       %s%s",
 							spaceStringPtr,
 							&gTextString2[1],
 							gEndOfLine);
 					
 			if (continueFlag)	
-				continueFlag = ListString( 
-					(char*)&gTextString,  (UInt32)strlen((char*)&gTextString), gOutputTextH);
+				continueFlag = ListString (
+					(char*)gTextString,  (UInt32)strlen ((char*)gTextString), gOutputTextH);
 					
-			}		// end "if (projectionCode > 0)"
+			}	// end "if (projectionCode > 0)"
 					
-		}		// end "if (mapProjectionHandle != NULL)"
+		}	// end "if (mapProjectionHandle != NULL)"
 		
 	return (continueFlag);
 											
-}		// end "ListMapProjectionString" 
+}	// end "ListMapProjectionString" 
  
 
 
@@ -4179,18 +3913,18 @@ Boolean ListMapReferenceSystemString (
 							
 		if (referenceSystemCode <= 0)
 			{	
-			sprintf( (char*)&gTextString,
+			sprintf ((char*)gTextString,
 							"%sNone specified%s",
 							spaceStringPtr,
 							gEndOfLine);
 					
 			if (continueFlag)	
-				continueFlag = ListString( 
-					(char*)&gTextString, (UInt32)strlen((char*)&gTextString), gOutputTextH);
+				continueFlag = ListString (
+					(char*)gTextString, (UInt32)strlen ((char*)gTextString), gOutputTextH);
 			
-			}		// end "if (projectionCode <= 0)"
+			}	// end "if (projectionCode <= 0)"
 			
-		else		// referenceSystemCode > 0
+		else	// referenceSystemCode > 0
 			{
 			#if defined multispec_mac 
 				GetMenuItemText (gPopUpReferenceSystemMenu, 
@@ -4205,23 +3939,23 @@ Boolean ListMapReferenceSystemString (
 						IDS_ReferenceSystem01+referenceSystemCode);
 			#endif	// defined multispec_win
 								
-			sprintf( (char*)&gTextString,
+			sprintf ((char*)gTextString,
 							"%sReference System: %s%s",
 							spaceStringPtr,
 							&gTextString2[1],
 							gEndOfLine);
 					
 			if (continueFlag)	
-				continueFlag = ListString( 
-					(char*)&gTextString, (UInt32)strlen((char*)&gTextString), gOutputTextH);
+				continueFlag = ListString (
+					(char*)gTextString, (UInt32)strlen ((char*)gTextString), gOutputTextH);
 					
-			}		// end "else projectionCode > 0"
+			}	// end "else projectionCode > 0"
 					
-		}		// end "if (mapProjectionHandle != NULL)"
+		}	// end "if (mapProjectionHandle != NULL)"
 		
 	return (continueFlag);
 											
-}		// end "ListMapReferenceSystemString" 
+}	// end "ListMapReferenceSystemString" 
  
 
 
@@ -4283,11 +4017,11 @@ Boolean ListMemoryMessage (
 			gMemoryError = 0;
 		#endif	// defined multispec_win
 		
-		}		// end "if (gMemoryError != 0)"
+		}	// end "if (gMemoryError != 0)"
 		
 	return (continueFlag);
 											
-}		// end "ListMemoryMessage" 
+}	// end "ListMemoryMessage" 
  
 
 
@@ -4310,7 +4044,7 @@ Boolean ListMemoryMessage (
 // Called By:			ListHeaderInfo in multiSpecUtilities.c
 //
 //	Coded By:			Larry L. Biehl			Date: 04/09/1991
-//	Revised By:			Larry L. Biehl			Date: 03/18/2017
+//	Revised By:			Larry L. Biehl			Date: 09/01/2017
 
 Boolean ListProcessorTitleLine (
 				CMFileStream*	 					resultsFileStreamPtr, 
@@ -4447,21 +4181,21 @@ Boolean ListProcessorTitleLine (
 			stringIndex = IDS_ProcessorCheckTran;
 			break;
 			
-		}		// end "switch (gProcessorCode)" 											
+		}	// end "switch (gProcessorCode)" 											
 	
 			// List the MultiSpec classification header identifier line.												
 	
 	if (listClassificationIdentifierFlag)
 		{		
 		MGetString (gTextString2, kFileIOStrID, IDS_MultiSpecType);  // 42 
-		sprintf((char*)&gTextString, "%s%s", &gTextString2[1], gEndOfLine);
+		sprintf ((char*)gTextString, "%s%s", &gTextString2[1], gEndOfLine);
 		continueFlag = OutputString (resultsFileStreamPtr, 
-												(char*)&gTextString, 
+												(char*)gTextString, 
 												0, 
 												*outputCodePtr, 
 												TRUE);
 												
-		}		// end "if (listClassificationIdentifierFlag)"
+		}	// end "if (listClassificationIdentifierFlag)"
 											
 	MGetString ((UCharPtr)gTextString2, kProcessorStrID, stringIndex);
 	
@@ -4469,12 +4203,12 @@ Boolean ListProcessorTitleLine (
 		{
 				// Include the image file name
 				
-		char* fileNamePtr = (char*)GetFileNameCPointer (gImageFileInfoPtr);
+		char* fileNamePtr = (char*)GetFileNameCPointerFromFileInfo (gImageFileInfoPtr);
 		sprintf ((char*)&gTextString2[gTextString2[0]+1],
 										(char*)" '%s'",
 										fileNamePtr);
 	
-		}		// end "if (gProcessorCode == kDisplayProcessor)"
+		}	// end "if (gProcessorCode == kDisplayProcessor)"
 	
 			// Add the date and time to the line.
 
@@ -4515,7 +4249,7 @@ Boolean ListProcessorTitleLine (
 			
 			if (numChars > 0)
 				{
-				numChars = sprintf ((char*)&gTextString, 
+				numChars = sprintf ((char*)gTextString, 
 											"    %s", 
 											"(hdf set: ");
 
@@ -4525,20 +4259,20 @@ Boolean ListProcessorTitleLine (
 											gEndOfLine);
 					
 				continueFlag = OutputString (	resultsFileStreamPtr, 
-														(char*)&gTextString, 
+														(char*)gTextString, 
 														0, 
 														*outputCodePtr, 
-														continueFlag );
+														continueFlag);
 
-				}		// end "if (numChars > 0)"
+				}	// end "if (numChars > 0)"
 													
-			}		// end "if (gImageFileInfoPtr == kHDF4Type || ..."
+			}	// end "if (gImageFileInfoPtr == kHDF4Type || ..."
 	
-		}		// end "if (gProcessorCode == kDisplayProcessor)"
+		}	// end "if (gProcessorCode == kDisplayProcessor)"
 		
 	return (continueFlag);
 
-}		// end "ListProcessorTitleLine" 
+}	// end "ListProcessorTitleLine" 
 
 
 
@@ -4563,7 +4297,7 @@ Boolean ListProcessorTitleLine (
 // Called By:			ListHeaderInfo in multiSpecUtilities.c
 //
 //	Coded By:			Larry L. Biehl			Date: 05/20/1992
-//	Revised By:			Larry L. Biehl			Date: 03/18/2017
+//	Revised By:			Larry L. Biehl			Date: 09/01/2017
 
 Boolean ListProjectAndImageName (
 				CMFileStream* 						resultsFileStreamPtr, 
@@ -4582,29 +4316,29 @@ Boolean ListProjectAndImageName (
 			{
 					// List the project name.													
 	
-			char* projectFileNamePtr = (char*)GetFileNameCPointer (gProjectInfoPtr);
+			char* projectFileNamePtr = (char*)GetFileNameCPointerFromProjectInfo (gProjectInfoPtr);
 
 			if (strlen (projectFileNamePtr) == 0)
 				sprintf ((char*)gTextString2,
 								(char*)"Untitled Project");
 				
-			else		// projectFileNamePtr[0] != 0
+			else	// projectFileNamePtr[0] != 0
 				sprintf ((char*)gTextString2,
 									projectFileNamePtr);
 			
-			sprintf ((char*)&gTextString, 
+			sprintf ((char*)gTextString, 
 							(char*)"    Project = '%s'%s",
 							gTextString2,
 							gEndOfLine);
 							
 			continueFlag = OutputString (resultsFileStreamPtr,
-													(char*)&gTextString, 
+													(char*)gTextString, 
 													0, 
 													*outputCodePtr,
 													continueFlag,
 													kUTF8CharString);
 													
-			}		// end "if ( (listCode & kProjectName) && gProjectInfoPtr)" 
+			}	// end "if ((listCode & kProjectName) && gProjectInfoPtr)" 
 		
 		if ((listCode & kLStatType) && gProjectInfoPtr != NULL)
 			{
@@ -4623,7 +4357,7 @@ Boolean ListProjectAndImageName (
 				else if (gProjectInfoPtr->mixingParameterCode == kIdentityMatrix)
 					stringCode = IDS_Project74;
 				
-				}		// end "else if (covarianceStatsToUse == kLeaveOneOutStats)"
+				}	// end "else if (covarianceStatsToUse == kLeaveOneOutStats)"
 				
 			else if (covarianceStatsToUse == kEnhancedStats)
 				{
@@ -4633,10 +4367,10 @@ Boolean ListProjectAndImageName (
 				else if (gProjectInfoPtr->enhancedStatsOrigin == kLeaveOneOutStats)
 					stringCode = IDS_Project75;
 					
-				else		// ...->enhancedStatsOrigin == kMixedStats
+				else	// ...->enhancedStatsOrigin == kMixedStats
 					stringCode = IDS_Project76;
 				
-				}		// end "else if (covarianceStatsToUse == kEnhancedStats)"
+				}	// end "else if (covarianceStatsToUse == kEnhancedStats)"
 				
 			else if (covarianceStatsToUse == kMixedStats)
 				stringCode = IDS_Project49;
@@ -4645,22 +4379,22 @@ Boolean ListProjectAndImageName (
 				continueFlag = ListSpecifiedStringNumber (
 								kProjectStrID, 
 								stringCode, 
-								(unsigned char*)&gTextString, 
+								(unsigned char*)gTextString, 
 								NULL, 
 								*outputCodePtr,
-								continueFlag );
+								continueFlag);
 								
 			if (covarianceStatsToUse == kLeaveOneOutStats && 
 												!gProjectInfoPtr->useCommonCovarianceInLOOCFlag)
 				continueFlag = ListSpecifiedStringNumber (
 								kProjectStrID, 
 								IDS_Project58, 
-								(unsigned char*)&gTextString, 
+								(unsigned char*)gTextString, 
 								NULL, 
 								*outputCodePtr,
-								continueFlag );
+								continueFlag);
 			
-			}		// end "if ( (listCode & kLStatType) && gProjectInfoPtr != NULL )" 
+			}	// end "if ((listCode & kLStatType) && gProjectInfoPtr != NULL)" 
 			
 		if ((listCode & kLProjectImageName) && gProjectInfoPtr)
 			{
@@ -4674,29 +4408,29 @@ Boolean ListProjectAndImageName (
 						gTextString2,
 						gEndOfLine);
 													
-			}		// end "if ( (listCode & kLProjectImageName) && ..." 
+			}	// end "if ((listCode & kLProjectImageName) && ..." 
 			
-		else		// !(listCode & kLProjectImageName) || !gProjectInfoPtr 
+		else	// !(listCode & kLProjectImageName) || !gProjectInfoPtr 
 			{
 					// List just the image file name.
 					
 			char* fileNamePtr =
-						(char*)GetFileNameCPointer (gImageFileInfoPtr);
+						(char*)GetFileNameCPointerFromFileInfo (gImageFileInfoPtr);
 			sprintf ((char*)gTextString,
 						(char*)"    Image file = '%s'%s",
 						fileNamePtr,
 						gEndOfLine);
 			
-			}		// end "else !(listCode & kProjectName) || !gProjectInfoPtr" 
+			}	// end "else !(listCode & kProjectName) || !gProjectInfoPtr" 
 			
 		continueFlag = OutputString (resultsFileStreamPtr, 
-												(char*)&gTextString, 
+												(char*)gTextString, 
 												0, 
 												*outputCodePtr,
 												continueFlag,
 												kUTF8CharString);
 			
-		}		// end "if (continueFlag)" 
+		}	// end "if (continueFlag)" 
 		
 	return (continueFlag);
  
@@ -4726,13 +4460,13 @@ Boolean ListProjectAndImageName (
 //	Coded By:			Larry L. Biehl			Date: 10/28/1993
 //	Revised By:			Larry L. Biehl			Date: 10/28/1993			
 
-Boolean ListSpecifiedStringNumber ( 
+Boolean ListSpecifiedStringNumber (
 				SInt16								strListID, 
 				SInt16								index, 
 				UCharPtr								stringPtr, 
 				CMFileStream*						resultsFileStreamPtr, 
 				SInt16								outputCode, 
-				Boolean								continueFlag )
+				Boolean								continueFlag)
 													
 {
 	Str255*								str255Ptr;
@@ -4745,17 +4479,17 @@ Boolean ListSpecifiedStringNumber (
 		continueFlag = MGetString (*str255Ptr, strListID, index);
 				                                  
 		if (continueFlag)
-			continueFlag = OutputString ( resultsFileStreamPtr, 
+			continueFlag = OutputString (resultsFileStreamPtr, 
 													(char*)&stringPtr[1], 
 													(SInt32)stringPtr[0], 
 													outputCode, 
 													TRUE);
 					
-		}		// end "if (continueFlag)" 
+		}	// end "if (continueFlag)" 
 		
 	return (continueFlag);
 
-}		// end "ListSpecifiedStringNumber" 
+}	// end "ListSpecifiedStringNumber" 
 
 
 
@@ -4785,40 +4519,40 @@ Boolean ListSpecifiedStringNumber (
 //	Coded By:			Larry L. Biehl			Date: 01/26/1994
 //	Revised By:			Larry L. Biehl			Date: 01/26/1994			
 
-Boolean ListSpecifiedStringNumber ( 
+Boolean ListSpecifiedStringNumber (
 				SInt16								strListID, 
 				SInt16								index,
 				CMFileStream*						resultsFileStreamPtr, 
 				SInt16								outputCode, 
 				double								dValue, 
-				Boolean								continueFlag )
+				Boolean								continueFlag)
 													
 {
 	char*									stringPtr2;
 	
 	
-	continueFlag = GetSpecifiedStringNumber ( 
+	continueFlag = GetSpecifiedStringNumber (
 							strListID, index, gTextString2, continueFlag);
 	
 	if (continueFlag)
 		{
 		stringPtr2 = (char*)&gTextString2;
 			
-		sprintf(	(char*)&gTextString,
+		sprintf (	(char*)gTextString,
 					&stringPtr2[1],
 					dValue);
 							
-		continueFlag = OutputString ( resultsFileStreamPtr, 
-												(char*)&gTextString, 
+		continueFlag = OutputString (resultsFileStreamPtr, 
+												(char*)gTextString, 
 												0, 
 												outputCode, 
 												TRUE);
 												
-		}		// end "if (continueFlag)" 
+		}	// end "if (continueFlag)" 
 		
 	return (continueFlag);
 
-}		// end "ListSpecifiedStringNumber"
+}	// end "ListSpecifiedStringNumber"
 
 
 
@@ -4848,40 +4582,40 @@ Boolean ListSpecifiedStringNumber (
 //	Coded By:			Larry L. Biehl			Date: 01/26/1994
 //	Revised By:			Larry L. Biehl			Date: 01/26/1994			
 
-Boolean ListSpecifiedStringNumber ( 
+Boolean ListSpecifiedStringNumber (
 				SInt16								strListID, 
 				SInt16								index,
 				CMFileStream*						resultsFileStreamPtr, 
 				SInt16								outputCode, 
 				SInt32								lValue, 
-				Boolean								continueFlag )
+				Boolean								continueFlag)
 													
 {
 	char*									stringPtr2;
 	
 	
-	continueFlag = GetSpecifiedStringNumber ( 
+	continueFlag = GetSpecifiedStringNumber (
 							strListID, index, gTextString2, continueFlag);
 	
 	if (continueFlag)
 		{
 		stringPtr2 = (char*)&gTextString2;
 		
-		sprintf(	(char*)&gTextString,
+		sprintf (	(char*)gTextString,
 					&stringPtr2[1],
 					lValue);
 							
-		continueFlag = OutputString ( resultsFileStreamPtr, 
-												(char*)&gTextString, 
+		continueFlag = OutputString (resultsFileStreamPtr, 
+												(char*)gTextString, 
 												0, 
 												outputCode, 
 												TRUE);
 					
-		}		// end "if (continueFlag)" 
+		}	// end "if (continueFlag)" 
 		
 	return (continueFlag);
 
-}		// end "ListSpecifiedStringNumber"
+}	// end "ListSpecifiedStringNumber"
 
 
 
@@ -4911,42 +4645,42 @@ Boolean ListSpecifiedStringNumber (
 //	Coded By:			Larry L. Biehl			Date: 10/21/1994
 //	Revised By:			Larry L. Biehl			Date: 10/21/1994			
 
-Boolean ListSpecifiedStringNumber ( 
+Boolean ListSpecifiedStringNumber (
 				SInt16								strListID, 
 				SInt16								index,
 				CMFileStream*						resultsFileStreamPtr, 
 				SInt16								outputCode, 
 				SInt32								lValue, 
 				SInt32								lValue2, 
-				Boolean								continueFlag )
+				Boolean								continueFlag)
 													
 {
 	CharPtr								stringPtr2;
 	
 	
-	continueFlag = GetSpecifiedStringNumber ( 
+	continueFlag = GetSpecifiedStringNumber (
 							strListID, index, gTextString2, continueFlag);
 	
 	if (continueFlag)
 		{
 		stringPtr2 = (char*)&gTextString2;
 		
-		sprintf(	(char*)&gTextString,
+		sprintf (	(char*)gTextString,
 					&stringPtr2[1],
 					lValue,
 					lValue2);
 							
-		continueFlag = OutputString ( resultsFileStreamPtr, 
-												(char*)&gTextString, 
+		continueFlag = OutputString (resultsFileStreamPtr, 
+												(char*)gTextString, 
 												0, 
 												outputCode, 
 												TRUE);
 					
-		}		// end "if (continueFlag)" 
+		}	// end "if (continueFlag)" 
 		
 	return (continueFlag);
 
-}		// end "ListSpecifiedStringNumber" 
+}	// end "ListSpecifiedStringNumber" 
 
 
 
@@ -4976,7 +4710,7 @@ Boolean ListSpecifiedStringNumber (
 //	Coded By:			Larry L. Biehl			Date: 08/01/1996
 //	Revised By:			Larry L. Biehl			Date: 08/01/1996			
 
-Boolean ListSpecifiedStringNumber ( 
+Boolean ListSpecifiedStringNumber (
 				SInt16							strListID, 
 				SInt16							index,
 				CMFileStream*					resultsFileStreamPtr, 
@@ -4984,36 +4718,36 @@ Boolean ListSpecifiedStringNumber (
 				SInt32							lValue, 
 				SInt32							lValue2, 
 				SInt32							lValue3, 
-				Boolean							continueFlag )
+				Boolean							continueFlag)
 													
 {
 	 CharPtr								stringPtr2;
 	
 	
-	continueFlag = GetSpecifiedStringNumber ( 
+	continueFlag = GetSpecifiedStringNumber (
 							strListID, index, gTextString2, continueFlag);
 	
 	if (continueFlag)
 		{
 		stringPtr2 = (char*)&gTextString2;
 		
-		sprintf(	(char*)&gTextString,
+		sprintf (	(char*)gTextString,
 					&stringPtr2[1],
 					lValue,
 					lValue2,
 					lValue3);
 							
-		continueFlag = OutputString ( resultsFileStreamPtr, 
-												(char*)&gTextString, 
+		continueFlag = OutputString (resultsFileStreamPtr, 
+												(char*)gTextString, 
 												0, 
 												outputCode, 
 												TRUE);
 					
-		}		// end "if (continueFlag)" 
+		}	// end "if (continueFlag)" 
 		
 	return (continueFlag);
 
-}		// end "ListSpecifiedStringNumber" 
+}	// end "ListSpecifiedStringNumber" 
 
 
 
@@ -5043,7 +4777,7 @@ Boolean ListSpecifiedStringNumber (
 //	Coded By:			Larry L. Biehl			Date: 08/20/2010
 //	Revised By:			Larry L. Biehl			Date: 08/20/2010			
 
-Boolean ListSpecifiedStringNumber ( 
+Boolean ListSpecifiedStringNumber (
 				SInt16								strListID, 
 				SInt16								index,
 				CMFileStream*						resultsFileStreamPtr, 
@@ -5055,28 +4789,28 @@ Boolean ListSpecifiedStringNumber (
 	char*									stringPtr2;
 	
 	
-	continueFlag = GetSpecifiedStringNumber ( 
+	continueFlag = GetSpecifiedStringNumber (
 						strListID, index, gTextString2, continueFlag);
 	
 	if (continueFlag)
 		{
 		stringPtr2 = (char*)&gTextString2;
 		
-		sprintf((char*)&gTextString,
+		sprintf ((char*)gTextString,
 				  &stringPtr2[1],
 				  lValue);
 		
-		continueFlag = OutputString ( resultsFileStreamPtr, 
-											  (char*)&gTextString, 
+		continueFlag = OutputString (resultsFileStreamPtr, 
+											  (char*)gTextString, 
 											  0, 
 											  outputCode, 
 											  TRUE);
 		
-		}		// end "if (continueFlag)" 
+		}	// end "if (continueFlag)" 
 	
 	return (continueFlag);
 	
-}		// end "ListSpecifiedStringNumber"
+}	// end "ListSpecifiedStringNumber"
 
 
 
@@ -5106,7 +4840,7 @@ Boolean ListSpecifiedStringNumber (
 //	Coded By:			Larry L. Biehl			Date: 08/23/2010
 //	Revised By:			Larry L. Biehl			Date: 08/23/2010			
 
-Boolean ListSpecifiedStringNumber ( 
+Boolean ListSpecifiedStringNumber (
 				SInt16								strListID, 
 				SInt16								index,
 				CMFileStream*						resultsFileStreamPtr, 
@@ -5119,29 +4853,29 @@ Boolean ListSpecifiedStringNumber (
 	CharPtr								stringPtr2;
 	
 	
-	continueFlag = GetSpecifiedStringNumber ( 
+	continueFlag = GetSpecifiedStringNumber (
 									strListID, index, gTextString2, continueFlag);
 	
 	if (continueFlag)
 		{
 		stringPtr2 = (char*)&gTextString2;
 		
-		sprintf(	(char*)&gTextString,
+		sprintf (	(char*)gTextString,
 				  &stringPtr2[1],
 				  llValue,
 				  lValue2);
 		
 		continueFlag = OutputString (resultsFileStreamPtr, 
-											  (char*)&gTextString, 
+											  (char*)gTextString, 
 											  0, 
 											  outputCode, 
 											  TRUE);
 		
-		}		// end "if (continueFlag)" 
+		}	// end "if (continueFlag)" 
 	
 	return (continueFlag);
 
-}		// end "ListSpecifiedStringNumber"
+}	// end "ListSpecifiedStringNumber"
 
 
 //------------------------------------------------------------------------------------
@@ -5171,13 +4905,13 @@ Boolean ListSpecifiedStringNumber (
 //	Coded By:			Larry L. Biehl			Date: 06/24/1994
 //	Revised By:			Larry L. Biehl			Date: 06/26/1995			
 
-Boolean ListSpecifiedStringNumber ( 
+Boolean ListSpecifiedStringNumber (
 				SInt16								strListID, 
 				SInt16								index,
 				CMFileStream*						resultsFileStreamPtr, 
 				SInt16								outputCode, 
 				UCharPtr								inputStringPtr, 
-				Boolean								continueFlag )
+				Boolean								continueFlag)
 													
 {
 	SInt16								strLength;
@@ -5185,19 +4919,87 @@ Boolean ListSpecifiedStringNumber (
 			// Make certain the pascal string has a null at the end so that it 	
 			// can be treated as a C string.													
 
-	pstr ((char*)&gTextString3, (char*)inputStringPtr, &strLength);
+	pstr ((char*)gTextString3, (char*)inputStringPtr, &strLength);
 		
-	continueFlag = ListSpecifiedStringNumber ( 
+	continueFlag = ListSpecifiedStringNumber (
 					strListID, 
 					index,
 					resultsFileStreamPtr, 
 					outputCode, 
-					(CharPtr)&gTextString3, 
-					continueFlag );
+					(CharPtr)gTextString3, 
+					continueFlag);
 		
 	return (continueFlag);
 
-}		// end "ListSpecifiedStringNumber"  
+}	// end "ListSpecifiedStringNumber"  
+
+
+
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		Boolean ListSpecifiedStringNumber
+//
+//	Software purpose:	This routine lists the specified string number in the
+//							resource file to the output text window and/or
+//							disk file with the input C string.  Note that
+//							gTextString and gTextString2 are used for temporary
+//							storage.  Make certain that they are not being used
+//							for other items.
+//							This is an overload function
+//
+//	Parameters in:				
+//
+//	Parameters out:				
+//
+// Value Returned:	TRUE if string was listed and/or written to
+//													the output file.
+//							FALSE if not.
+// 
+// Called By:
+//
+//	Coded By:			Larry L. Biehl			Date: 09/05/2017
+//	Revised By:			Larry L. Biehl			Date: 09/05/2017			
+
+Boolean ListSpecifiedStringNumber (
+				SInt16								strListID, 
+				SInt16								index,
+				CMFileStream*						resultsFileStreamPtr, 
+				SInt16								outputCode, 
+				CharPtr								inputStringPtr, 
+				Boolean								continueFlag)
+													
+{
+	CharPtr								stringPtr2;
+	
+	
+			// Get the base string from the resource fork.
+												
+	continueFlag = GetSpecifiedStringNumber (
+							strListID, index, gTextString2, continueFlag);
+	
+	if (continueFlag)
+		{
+		stringPtr2 = (char*)&gTextString2;
+			
+		sprintf (	(char*)gTextString,
+					&stringPtr2[1],
+					inputStringPtr);
+							
+		continueFlag = OutputString (resultsFileStreamPtr, 
+												(char*)gTextString, 
+												0, 
+												outputCode, 
+												TRUE,
+												kASCIICharString);
+												
+		}	// end "if (continueFlag)" 
+		
+	return (continueFlag);
+
+}	// end "ListSpecifiedStringNumber" 
 
 
 
@@ -5228,7 +5030,7 @@ Boolean ListSpecifiedStringNumber (
 //	Coded By:			Larry L. Biehl			Date: 06/26/1995
 //	Revised By:			Larry L. Biehl			Date: 03/13/2017			
 
-Boolean ListSpecifiedStringNumber ( 
+Boolean ListSpecifiedStringNumber (
 				SInt16								strListID, 
 				SInt16								index,
 				CMFileStream*						resultsFileStreamPtr, 
@@ -5243,30 +5045,99 @@ Boolean ListSpecifiedStringNumber (
 	
 			// Get the base string from the resource fork.
 												
-	continueFlag = GetSpecifiedStringNumber ( 
+	continueFlag = GetSpecifiedStringNumber (
 							strListID, index, gTextString2, continueFlag);
 	
 	if (continueFlag)
 		{
 		stringPtr2 = (char*)&gTextString2;
 			
-		sprintf(	(char*)&gTextString,
+		sprintf (	(char*)gTextString,
 					&stringPtr2[1],
 					inputStringPtr);
 							
-		continueFlag = OutputString ( resultsFileStreamPtr, 
-												(char*)&gTextString, 
+		continueFlag = OutputString (resultsFileStreamPtr, 
+												(char*)gTextString, 
 												0, 
 												outputCode, 
 												TRUE,
 												charFormatCode);
 												
-		}		// end "if (continueFlag)" 
+		}	// end "if (continueFlag)" 
 		
 	return (continueFlag);
 
-}		// end "ListSpecifiedStringNumber" 
+}	// end "ListSpecifiedStringNumber" 
 
+
+
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		Boolean ListSpecifiedStringNumber
+//
+//	Software purpose:	This routine lists the specified string number in the
+//							resource file to the output text window and/or
+//							disk file with the input C string.  Note that
+//							gTextString and gTextString2 are used for temporary
+//							storage.  Make certain that they are not being used
+//							for other items.
+//							This is an overload function
+//
+//	Parameters in:				
+//
+//	Parameters out:				
+//
+// Value Returned:	TRUE if string was listed and/or written to
+//													the output file.
+//							FALSE if not.
+// 
+// Called By:
+//
+//	Coded By:			Larry L. Biehl			Date: 09/05/1999
+//	Revised By:			Larry L. Biehl			Date: 09/05/2017
+
+Boolean ListSpecifiedStringNumber (
+				SInt16								strListID, 
+				SInt16								index,
+				CMFileStream*						resultsFileStreamPtr, 
+				SInt16								outputCode, 
+				CharPtr								inputStringPtr, 
+				CharPtr								inputString2Ptr, 
+				Boolean								continueFlag)
+													
+{
+	CharPtr								stringPtr2;
+	
+	
+			// Get the base string from the resource fork.
+												
+	continueFlag = GetSpecifiedStringNumber (
+							strListID, index, gTextString2, continueFlag);
+	
+	if (continueFlag)
+		{
+		stringPtr2 = (char*)&gTextString2;
+			
+		sprintf (	(char*)gTextString,
+					&stringPtr2[1],
+					inputStringPtr, 
+					inputString2Ptr);
+							
+		continueFlag = OutputString (resultsFileStreamPtr,
+												(char*)gTextString, 
+												0, 
+												outputCode, 
+												TRUE,
+												kASCIICharString);
+												
+		}	// end "if (continueFlag)" 
+		
+	return (continueFlag);
+
+}	// end "ListSpecifiedStringNumber"
 
 
 
@@ -5297,7 +5168,7 @@ Boolean ListSpecifiedStringNumber (
 //	Coded By:			Larry L. Biehl			Date: 03/16/1999
 //	Revised By:			Larry L. Biehl			Date: 03/16/2017
 
-Boolean ListSpecifiedStringNumber ( 
+Boolean ListSpecifiedStringNumber (
 				SInt16								strListID, 
 				SInt16								index,
 				CMFileStream*						resultsFileStreamPtr, 
@@ -5313,14 +5184,14 @@ Boolean ListSpecifiedStringNumber (
 	
 			// Get the base string from the resource fork.
 												
-	continueFlag = GetSpecifiedStringNumber ( 
+	continueFlag = GetSpecifiedStringNumber (
 							strListID, index, gTextString2, continueFlag);
 	
 	if (continueFlag)
 		{
 		stringPtr2 = (char*)&gTextString2;
 			
-		sprintf(	(char*)&gTextString,
+		sprintf (	(char*)gTextString,
 					&stringPtr2[1],
 					inputStringPtr, 
 					inputString2Ptr);
@@ -5332,11 +5203,11 @@ Boolean ListSpecifiedStringNumber (
 												TRUE,
 												charFormatCode);
 												
-		}		// end "if (continueFlag)" 
+		}	// end "if (continueFlag)" 
 		
 	return (continueFlag);
 
-}		// end "ListSpecifiedStringNumber"
+}	// end "ListSpecifiedStringNumber"
 
 
 
@@ -5344,10 +5215,53 @@ Boolean ListString (
 				char*									textBuffer,
 				unsigned int						textLength)
 {	  
-	return (ListString((HPtr)textBuffer, (UInt32)textLength, gOutputTextH));
+	return (ListString ((HPtr)textBuffer, 
+								(UInt32)textLength, 
+								gOutputTextH, 
+								kASCIICharString));
 					
 }
 
+
+
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		void ListString
+//
+//	Software purpose:	The purpose of this routine is to call the OS specific
+//							routine to list the string in the output test window.
+//
+//	Parameters in:		
+//
+//	Parameters out:	None.
+//
+//	Value Returned:	None 				
+// 
+// Called By:
+//
+//	Coded By:			Larry L. Biehl			Date: 09/05/1988
+//	Revised By:			Larry L. Biehl			Date: 09/05/2017
+
+Boolean ListString (
+				HPtr									stringPtr, 
+				UInt32								stringLength,
+				#if use_mlte_for_text_window 
+					TXNObject							textH)
+				#endif
+				#if !use_mlte_for_text_window
+					WEReference							textH)
+				#endif
+
+{   
+	return (ListString ((HPtr)stringPtr, 
+								(UInt32)stringLength, 
+								textH, 
+								kASCIICharString));
+
+}	// end "ListString"
 
 
 //------------------------------------------------------------------------------------
@@ -5392,9 +5306,9 @@ Boolean ListString (
 	
 			// Continue if memory ok.															
 			
-	if (lContBlock > MAX(gTextMemoryMinimum, 2*stringLength))	
+	if (lContBlock > MAX (gTextMemoryMinimum, 2*stringLength))	
 		{		
-#		if defined multispec_mac
+		#if defined multispec_mac
 					// Local Declarations 	
 					  
 //			Boolean		redisplayFlag;
@@ -5415,11 +5329,11 @@ Boolean ListString (
 					// string has a carriage return at the end.  Even if wrong this	
 					// shouldn't cause too much problem.										
 		
-#			if !use_mlte_for_text_window
+			#if !use_mlte_for_text_window
 				if (stringLength <= gMaxCharsAllowedInLine)
 					{
-#			endif	// !use_mlte_for_text_window
-#					if use_mlte_for_text_window
+			#endif	// !use_mlte_for_text_window
+					#if use_mlte_for_text_window
 						UniChar				tempBuffer[512];
 						char*					txnSetDataStringPtr;
 						CFStringRef			cfStringRef = NULL;
@@ -5449,7 +5363,7 @@ Boolean ListString (
 																	
 								if (cfStringRef != NULL)
 									{
-//									CFIndex CFStringGetBytes(CFStringRef theString, CFRange range, CFStringEncoding encoding, UInt8 lossByte, Boolean isExternalRepresentation, UInt8 *buffer, CFIndex maxBufLen, CFIndex *usedBufLen);
+//									CFIndex CFStringGetBytes (CFStringRef theString, CFRange range, CFStringEncoding encoding, UInt8 lossByte, Boolean isExternalRepresentation, UInt8 *buffer, CFIndex maxBufLen, CFIndex *usedBufLen);
 									CFStringGetBytes (cfStringRef, 
 																CFRangeMake (0, stringLength),
 																kCFStringEncodingUnicode, 
@@ -5469,12 +5383,12 @@ Boolean ListString (
 															kCFStringEncodingUTF8);
 									fileStreamPtr->fileName[0] = strlen ((char*)&fileStreamPtr->fileName[1]);
 									*/
-									}		// end "if (cfStringRef != NULL)"
+									}	// end "if (cfStringRef != NULL)"
 									
 								txnSetDataStringPtr = (char*)tempBuffer;
 								stringLength = 2 * numerCharacters;
 								
-								}		// end "if (charFormatCode == kUTF8CharString)"
+								}	// end "if (charFormatCode == kUTF8CharString)"
 							/*
 							else	// charFormatCode == kUnicodeCharString
 								{
@@ -5495,13 +5409,13 @@ Boolean ListString (
 									toIndex++;
 									fromIndex += 3;
 									
-									}		// end "for (characterCount = 1; characterCount<stringLength; characterCount++)"
+									}	// end "for (characterCount = 1; characterCount<stringLength; characterCount++)"
 									
 								stringLength *= 2;
 								
-								}		// end "else charFormatCode == kUnicodeCharString"
+								}	// end "else charFormatCode == kUnicodeCharString"
 							*/
-							}		// end "if (charFormatCode == kUnicodeCharString || ...; else"
+							}	// end "if (charFormatCode == kUnicodeCharString || ...; else"
 					
 						returnCode = TXNSetData (textH,
 															stringDataType,
@@ -5513,9 +5427,9 @@ Boolean ListString (
 						if (cfStringRef != NULL)
 							//CFAllocatorDeallocate (kCFAllocatorDefault, (void*)cfStringRef);
 							CFRelease (cfStringRef);
-#					endif	// use_mlte_for_text_window
+					#endif	// use_mlte_for_text_window
 				
-#					if !use_mlte_for_text_window
+					#if !use_mlte_for_text_window
 						//redisplayFlag = WSInsert (textH, stringPtr, stringLength);
 						WEInsert (stringPtr, stringLength, NULL, NULL, textH);
 						/*
@@ -5530,14 +5444,14 @@ Boolean ListString (
 									NULL,
 									textH);
 						*/
-#					endif	// !use_mlte_for_text_window
+					#endif	// !use_mlte_for_text_window
 					
-				gMaxCharsInLine = MAX(gMaxCharsInLine, stringLength);
+				gMaxCharsInLine = MAX (gMaxCharsInLine, stringLength);
 				
-#			if !use_mlte_for_text_window
-					}		// end "if (stringLength <= gMaxCharsAllowedInLine)"
+			#if !use_mlte_for_text_window
+					}	// end "if (stringLength <= gMaxCharsAllowedInLine)"
 			
-				else		// stringLength > gMaxCharsAllowedInLine
+				else	// stringLength > gMaxCharsAllowedInLine
 					{
 					SInt32					lTextLength;
 				
@@ -5560,7 +5474,7 @@ Boolean ListString (
 						*/
 						stringPtr += lTextLength;
 						stringLength -= lTextLength;
-						lTextLength = MIN(lTextLength, stringLength);
+						lTextLength = MIN (lTextLength, stringLength);
 					
 						if (lTextLength > 0)
 							{
@@ -5584,14 +5498,14 @@ Boolean ListString (
 										NULL,
 										textH);
 							*/
-							}		// end "if (lTextLength > 0)"
+							}	// end "if (lTextLength > 0)"
 					
-						}		// end "while (stringLength > 0)"
+						}	// end "while (stringLength > 0)"
 					
 					gMaxCharsInLine = gMaxCharsAllowedInLine;
 				
-					}		// end "else stringLength > gMaxCharsAllowedInLine"
-#			endif	// !use_mlte_for_text_window
+					}	// end "else stringLength > gMaxCharsAllowedInLine"
+			#endif	// !use_mlte_for_text_window
 			
 			returnFlag = (gMemoryError == noErr); 
 			gMemoryError = savedMemoryError;
@@ -5599,18 +5513,18 @@ Boolean ListString (
 					// Indicate that the window has changed.
 					
 			SetOutputWindowChangedFlag (TRUE);
-#		endif	// defined multispec_mac
+		#endif	// defined multispec_mac
 	
-#		if defined multispec_win || defined multispec_lin
+		#if defined multispec_win || defined multispec_lin
 			if (gOutputViewCPtr == NULL)
 																				return (returnFlag);
 																								
 			returnFlag = gOutputViewCPtr->ListString (stringPtr, stringLength, charFormatCode);  
-#		endif	// defined multispec_win
+		#endif	// defined multispec_win
 		
-		}		// end "if (lContBlock > MAX(gTextMemoryMinimum, ..."
+		}	// end "if (lContBlock > MAX (gTextMemoryMinimum, ..."
 		
-	else		// lContBlock <= MAX(gTextMemoryMinimum, ... 
+	else	// lContBlock <= MAX (gTextMemoryMinimum, ... 
 		{	
 		DisplayAlert (kTextWindowLowMemoryAlertID, 
 							kCautionAlert,
@@ -5621,11 +5535,11 @@ Boolean ListString (
 		
 		returnFlag = FALSE;
 		
-		}		// end "else lContBlock <= MAX(gTextMemoryMinimum, ..."
+		}	// end "else lContBlock <= MAX (gTextMemoryMinimum, ..."
 		
 	return (returnFlag);
 		
-}		// end "ListString" 
+}	// end "ListString" 
  
 
 /*
@@ -5669,18 +5583,18 @@ Boolean ListZoneMapProjectionString (
 					
 		if (projectionCode <= 0)
 			{	
-			sprintf( (char*)&gTextString,
+			sprintf ((char*)gTextString,
 							"%sNone specified%s",
 							spaceStringPtr,
 							gEndOfLine);
 					
 			if (continueFlag)	
-				continueFlag = ListString( 
-					(char*)&gTextString,  strlen((char*)&gTextString), gOutputTextH);
+				continueFlag = ListString (
+					(char*)gTextString,  strlen ((char*)gTextString), gOutputTextH);
 			
-			}		// end "if (projectionCode <= 0)"
+			}	// end "if (projectionCode <= 0)"
 			
-		else		// projectionCode > 0
+		else	// projectionCode > 0
 			{
 			#if defined multispec_mac 
 				GetMenuItemText (gPopUpProjectionMenu, 
@@ -5695,23 +5609,23 @@ Boolean ListZoneMapProjectionString (
 						IDS_ProjectionType01+projectionCode);
 			#endif	// defined multispec_win
 								
-			sprintf( (char*)&gTextString,
+			sprintf ((char*)gTextString,
 							"%sZone Projection:   %s%s",
 							spaceStringPtr,
 							&gTextString2[1],
 							gEndOfLine);
 					
 			if (continueFlag)	
-				continueFlag = ListString( 
-					(char*)&gTextString,  strlen((char*)&gTextString), gOutputTextH);
+				continueFlag = ListString (
+					(char*)gTextString,  strlen ((char*)gTextString), gOutputTextH);
 					
-			}		// end "else projectionCode > 0"
+			}	// end "else projectionCode > 0"
 					
-		}		// end "if (projectionCode >= -1)"
+		}	// end "if (projectionCode >= -1)"
 		
 	return (continueFlag);
 											
-}		// end "ListZoneMapProjectionString" 
+}	// end "ListZoneMapProjectionString" 
 */
 
 
@@ -5737,7 +5651,7 @@ Boolean ListZoneMapProjectionString (
 //	Coded By:			Larry L. Biehl			Date: 01/09/2006
 //	Revised By:			Larry L. Biehl			Date: 03/12/2012	
 
-SInt16 LoadRealValueString ( 
+SInt16 LoadRealValueString (
 				char*									stringPtr,
 				double								dataValue,
 				SInt16								dataValueFieldSize,
@@ -5752,7 +5666,7 @@ SInt16 LoadRealValueString (
 	SInt16								numberChars;
 	
 	
-	absValue = fabs(dataValue);
+	absValue = fabs (dataValue);
 	if (absValue == 0. ||
 				(absValue >= (double)kMinValueToListWith_f && absValue <= (double)kMaxValueToListWith_f))
 		{
@@ -5772,10 +5686,10 @@ SInt16 LoadRealValueString (
 											dataValue,
 											endStringPtr);
 											
-		}		// end "if (absValue == 0. || ..."
+		}	// end "if (absValue == 0. || ..."
 
 						
-	else		// absValue != 0 && (absValue < kMinValueToListWith_f || ...
+	else	// absValue != 0 && (absValue < kMinValueToListWith_f || ...
 		numberChars = sprintf (stringPtr, 
 										"%s%*.*E%s", 
 										startStringPtr,
@@ -5786,7 +5700,7 @@ SInt16 LoadRealValueString (
 										
 	return (numberChars);
 		
-}		// end "LoadRealValueString" 
+}	// end "LoadRealValueString" 
 
 
 
@@ -5812,7 +5726,7 @@ SInt16 LoadRealValueString (
 //	Coded By:			Larry L. Biehl			Date: 04/25/2007
 //	Revised By:			Larry L. Biehl			Date: 04/25/2007	
 
-Boolean LoadSpecifiedStringNumberDouble ( 
+Boolean LoadSpecifiedStringNumberDouble (
 				SInt16								strListID, 
 				SInt16								index, 
 				char*									stringPtr1,
@@ -5825,7 +5739,7 @@ Boolean LoadSpecifiedStringNumberDouble (
 				double								doubleValue5)
 													
 {
-	continueFlag = GetSpecifiedStringNumber ( 
+	continueFlag = GetSpecifiedStringNumber (
 									strListID, index, (UCharPtr)stringPtr2, continueFlag);
 	
 	if (continueFlag)
@@ -5838,11 +5752,11 @@ Boolean LoadSpecifiedStringNumberDouble (
 						doubleValue4,
 						doubleValue5);
 					
-		}		// end "if (continueFlag)" 
+		}	// end "if (continueFlag)" 
 		
 	return (continueFlag);
 
-}		// end "LoadSpecifiedStringNumberDouble"
+}	// end "LoadSpecifiedStringNumberDouble"
 
 
 
@@ -5868,7 +5782,7 @@ Boolean LoadSpecifiedStringNumberDouble (
 //	Coded By:			Larry L. Biehl			Date: 02/10/1995
 //	Revised By:			Larry L. Biehl			Date: 02/10/1995	
 
-Boolean LoadSpecifiedStringNumberLong ( 
+Boolean LoadSpecifiedStringNumberLong (
 				SInt16								strListID, 
 				SInt16								index, 
 				char*									stringPtr1,
@@ -5878,21 +5792,21 @@ Boolean LoadSpecifiedStringNumberLong (
 				SInt32								lValue2)
 													
 {
-	continueFlag = GetSpecifiedStringNumber ( 
+	continueFlag = GetSpecifiedStringNumber (
 									strListID, index, (UCharPtr)stringPtr2, continueFlag);
 	
 	if (continueFlag)
 		{
-		sprintf(	(char*)stringPtr1,
+		sprintf (	(char*)stringPtr1,
 					&stringPtr2[1],
 					lValue1,
-					lValue2 );
+					lValue2);
 					
-		}		// end "if (continueFlag)" 
+		}	// end "if (continueFlag)" 
 		
 	return (continueFlag);
 
-}		// end "LoadSpecifiedStringNumberLong"
+}	// end "LoadSpecifiedStringNumberLong"
 
 
 
@@ -5919,38 +5833,38 @@ Boolean LoadSpecifiedStringNumberLong (
 //	Coded By:			Larry L. Biehl			Date: 02/10/1995
 //	Revised By:			Larry L. Biehl			Date: 02/10/1995	
 
-Boolean LoadSpecifiedStringNumberLongP ( 
+Boolean LoadSpecifiedStringNumberLongP (
 				SInt16								strListID, 
 				SInt16								index, 
 				char*									stringPtr1,
 				char*									stringPtr2,
 				Boolean								continueFlag,
 				SInt32								lValue1,
-				SInt32								lValue2 )
+				SInt32								lValue2)
 													
 {
 	UInt16								stringLength;
 
 
-	continueFlag = LoadSpecifiedStringNumberLong ( 
+	continueFlag = LoadSpecifiedStringNumberLong (
 								strListID, 
 								index, 
 								&stringPtr1[1],
 								stringPtr2,
 								continueFlag,
 								lValue1,
-								lValue2 );
+								lValue2);
 	
 	if (continueFlag)
 		{
 		stringLength = (UInt16)strlen (&stringPtr1[1]);
 		stringPtr1[0] = (UInt8)stringLength;
 					
-		}		// end "if (continueFlag)" 
+		}	// end "if (continueFlag)" 
 		
 	return (continueFlag);
 
-}		// end "LoadSpecifiedStringNumberLongP"
+}	// end "LoadSpecifiedStringNumberLongP"
 
 
 
@@ -5976,32 +5890,32 @@ Boolean LoadSpecifiedStringNumberLongP (
 //	Coded By:			Larry L. Biehl			Date: 12/12/1995
 //	Revised By:			Larry L. Biehl			Date: 07/20/1999	
 
-Boolean LoadSpecifiedStringNumberString ( 
+Boolean LoadSpecifiedStringNumberString (
 				SInt16								strListID, 
 				SInt16								index, 
 				char*									stringPtr1,
 				char*									stringPtr2,
 				Boolean								continueFlag,
-				char*									inputStringPtr )
+				char*									inputStringPtr)
 													
 {
-	continueFlag = GetSpecifiedStringNumber ( 
+	continueFlag = GetSpecifiedStringNumber (
 									strListID, index, (UCharPtr)stringPtr2, continueFlag);
 	
 	if (continueFlag)
 		{
-		sprintf(	(char*)stringPtr1,
+		sprintf (	(char*)stringPtr1,
 					&stringPtr2[1],
 					inputStringPtr);
 					
-		}		// end "if (continueFlag)"
+		}	// end "if (continueFlag)"
 		
-	else		// !continueFlag
+	else	// !continueFlag
 		stringPtr2[1] = 0;
 		
 	return (continueFlag);
 
-}		// end "LoadSpecifiedStringNumberString"
+}	// end "LoadSpecifiedStringNumberString"
 
 
 
@@ -6027,7 +5941,7 @@ Boolean LoadSpecifiedStringNumberString (
 //	Coded By:			Larry L. Biehl			Date: 02/23/2017
 //	Revised By:			Larry L. Biehl			Date: 02/23/2017	
 
-Boolean LoadSpecifiedStringNumberString ( 
+Boolean LoadSpecifiedStringNumberString (
 				SInt16								strListID, 
 				SInt16								index, 
 				char*									stringPtr1,
@@ -6036,7 +5950,7 @@ Boolean LoadSpecifiedStringNumberString (
 				FileStringPtr						inputStringPtr)
 													
 {
-	continueFlag = GetSpecifiedStringNumber ( 
+	continueFlag = GetSpecifiedStringNumber (
 									strListID, index, (UCharPtr)stringPtr2, continueFlag);
 	
 	if (continueFlag)
@@ -6045,14 +5959,14 @@ Boolean LoadSpecifiedStringNumberString (
 					&stringPtr2[1],
 					inputStringPtr);
 					
-		}		// end "if (continueFlag)"
+		}	// end "if (continueFlag)"
 		
-	else		// !continueFlag
+	else	// !continueFlag
 		stringPtr2[1] = 0;
 		
 	return (continueFlag);
 
-}		// end "LoadSpecifiedStringNumberString"
+}	// end "LoadSpecifiedStringNumberString"
 
 
 
@@ -6078,7 +5992,7 @@ Boolean LoadSpecifiedStringNumberString (
 //	Coded By:			Larry L. Biehl			Date: 02/10/1995
 //	Revised By:			Larry L. Biehl			Date: 07/20/1999	
 
-Boolean LoadSpecifiedStringNumberStringP ( 
+Boolean LoadSpecifiedStringNumberStringP (
 				SInt16								strListID, 
 				SInt16								index, 
 				char*									stringPtr1,
@@ -6090,27 +6004,27 @@ Boolean LoadSpecifiedStringNumberStringP (
 	UInt16								stringLength;
 
 
-	continueFlag = LoadSpecifiedStringNumberString ( 
+	continueFlag = LoadSpecifiedStringNumberString (
 								strListID, 
 								index, 
 								&stringPtr1[1],
 								stringPtr2,
 								continueFlag,
-								inputStringPtr );
+								inputStringPtr);
 	
 	if (continueFlag)
 		{
 		stringLength = (UInt16)strlen (&stringPtr1[1]);
 		stringPtr1[0] = (UInt8)stringLength;
 					
-		}		// end "if (continueFlag)"
+		}	// end "if (continueFlag)"
 		
-	else		// !continueFlag
+	else	// !continueFlag
 		stringPtr1[0] = 0;
 		
 	return (continueFlag);
 
-}		// end "LoadSpecifiedStringNumberStringP"
+}	// end "LoadSpecifiedStringNumberStringP"
 
 
 
@@ -6136,7 +6050,7 @@ Boolean LoadSpecifiedStringNumberStringP (
 //	Coded By:			Larry L. Biehl			Date: 02/23/2017
 //	Revised By:			Larry L. Biehl			Date: 02/23/2017	
 
-Boolean LoadSpecifiedStringNumberStringP ( 
+Boolean LoadSpecifiedStringNumberStringP (
 				SInt16								strListID, 
 				SInt16								index, 
 				char*									stringPtr1,
@@ -6148,36 +6062,36 @@ Boolean LoadSpecifiedStringNumberStringP (
 	UInt16								stringLength;
 
 
-	continueFlag = LoadSpecifiedStringNumberString ( 
+	continueFlag = LoadSpecifiedStringNumberString (
 								strListID, 
 								index, 
 								&stringPtr1[1],
 								stringPtr2,
 								continueFlag,
-								inputStringPtr );
+								inputStringPtr);
 	
 	if (continueFlag)
 		{
 		stringLength = (UInt16)strlen (&stringPtr1[1]);
 		stringPtr1[0] = (UInt8)stringLength;
 					
-		}		// end "if (continueFlag)"
+		}	// end "if (continueFlag)"
 		
-	else		// !continueFlag
+	else	// !continueFlag
 		stringPtr1[0] = 0;
 		
 	return (continueFlag);
 
-}		// end "LoadSpecifiedStringNumberStringP"
+}	// end "LoadSpecifiedStringNumberStringP"
 
    
-
+/*
 //------------------------------------------------------------------------------------
 //								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
-//	Function name:		TBYTE* MemoryCopy
+//	Function name:		void* MemoryCopy
 //
 //	Software purpose:	This routine is a helper function to handle the conversion of
 //							code from character base to unicode base. The routine will use
@@ -6208,8 +6122,8 @@ void* MemoryCopy (
 	else // !wideCharacterStringFlag
 		return (void*)memcpy ((char*)str1, (char*)str2, numberCharacters);
 	
-}		// end "MemoryCopy"
-
+}	// end "MemoryCopy"
+*/
 
 
 //------------------------------------------------------------------------------------
@@ -6231,7 +6145,7 @@ void* MemoryCopy (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 04/14/1995
-//	Revised By:			Larry L. Biehl			Date: 08/25/2017
+//	Revised By:			Larry L. Biehl			Date: 09/26/2017
 //
 // For Linux: The String Table must be defined in LStringTable.def
 // Format for linux string table is given in LStringTable.def
@@ -6239,33 +6153,32 @@ void* MemoryCopy (
 Boolean MGetString (
 				UCharPtr								outTextPtr, 
 				UInt16								stringListID, 
-				UInt16								stringID,
-				Boolean								returnAsWideCharStringFlag)
+				UInt16								stringID)
+//				Boolean								returnAsWideCharStringFlag)
 
 {		       
 	outTextPtr[0] = 0;
 	outTextPtr[1] = 0;
 	
-#	if defined multispec_mac 
-		char								tempString[256];
+	#if defined multispec_mac
 		UCharPtr							tempStringPtr;
 		
 		
 		tempStringPtr = outTextPtr;
-		if (returnAsWideCharStringFlag)
-			tempStringPtr = (UCharPtr)tempString;
+		//if (returnAsWideCharStringFlag)
+		//	tempStringPtr = (UCharPtr)tempString;
 		
 		::GetIndString (tempStringPtr, (SInt16)stringListID, (SInt16)stringID);
-		//CFBundleCopyLocalizedString (CFBundleGetBundleWithIdentifier(CFSTR("com.my.bundle.id")), CFSTR("my_key"), CFSTR("my_key"), NULL);
+		//CFBundleCopyLocalizedString (CFBundleGetBundleWithIdentifier (CFSTR("com.my.bundle.id")), CFSTR("my_key"), CFSTR("my_key"), NULL);
 		//CFStringRef string = ::CFBundleCopyLocalizedString (gApplicationServicesBundle, (SInt16)stringListID, (SInt16)stringID);
 		
 				// Force a c-string terminator. Do not allow strings over 254
 				// characters in length.
 				
 		SInt16 stringLength = tempStringPtr[0];
-		stringLength = MIN(stringLength, 254);		
+		stringLength = MIN (stringLength, 254);		
 		outTextPtr[stringLength+1] = kNullTerminator;
-		
+		/*
 		if (returnAsWideCharStringFlag)
 			{
 			wchar_t*		wideOutputTextPtr = (wchar_t*)outTextPtr;
@@ -6278,7 +6191,7 @@ Boolean MGetString (
 			
 			//wideOutputTextPtr[0] = CFStringGetLength (temp);
 			//CFStringGetCharacters (temp, 
-			//								CFRangeMake(0, wideOutputTextPtr[0]), 
+			//								CFRangeMake (0, wideOutputTextPtr[0]), 
 			//								(UniChar*)&wideOutputTextPtr[1]);
 			//CFStringGetCString (temp,  
 			//								&wideOutputTextPtr[1],
@@ -6286,20 +6199,24 @@ Boolean MGetString (
 			//								kCFStringEncodingUTF32);
 			//CFRelease (temp);
 			
-			}		// end "if (returnAsWideCharStringFlag)"
-		
+			}	// end "if (returnAsWideCharStringFlag)"
+		*/
 		return (stringLength != 0);
-#	endif	// defined multispec_mac
+	#endif	// defined multispec_mac
+
+	#if defined multispec_mac_swift
+		return (FALSE);
+	#endif	//  || defined multispec_mac_swift
 
 		
-#	if defined multispec_win
+	#if defined multispec_win
 		USES_CONVERSION;
 
 		TBYTE			string[512];
 		SInt16 		numberCharacters;
 
 
-		numberCharacters = ::LoadString (AfxGetInstanceHandle(), 
+		numberCharacters = ::LoadString (AfxGetInstanceHandle (), 
 														stringID, 
 														(LPWSTR)string,
 														510);
@@ -6312,78 +6229,78 @@ Boolean MGetString (
 		outTextPtr[0] = (Byte)MIN (numberCharacters, 255);
 													
 		return (numberCharacters > 0);
-#	endif	// defined multispec_win
+	#endif	// defined multispec_win
    
-#	if defined multispec_lin
+	#if defined multispec_lin
 				// First get the path to this executable file
-		wxStandardPaths std = wxStandardPaths::Get();
-		wxString exePath = std.GetExecutablePath();
-		wxString exeDir = exePath.BeforeLast('/');
-		exeDir.Append("/LStringTable.def");
-#		ifdef NetBeansProject
-			wxTextFile file(wxT("LStringTable.def"));
-#		else
-			wxTextFile file(exeDir);
-#		endif
-		if (!file.Exists())
+		wxStandardPaths std = wxStandardPaths::Get ();
+		wxString exePath = std.GetExecutablePath ();
+		wxString exeDir = exePath.BeforeLast ('/');
+		exeDir.Append ("/LStringTable.def");
+		#ifdef NetBeansProject
+			wxTextFile file (wxT("LStringTable.def"));
+		#else
+			wxTextFile file (exeDir);
+		#endif
+		if (!file.Exists ())
 
 																									return false;
 		
-		if (!file.Open())
+		if (!file.Open ())
 																									return false;
    
 		bool found = false;
 		wxString str, strout;
-		wxString index(wxT("#"));
+		wxString index (wxT("#"));
 		index << stringID; // Append string id
-		for (str = file.GetFirstLine(); !file.Eof(); str = file.GetNextLine()) 
+		for (str = file.GetFirstLine (); !file.Eof (); str = file.GetNextLine ()) 
 			{
-			if (str.Contains(index)) 
+			if (str.Contains (index)) 
 				{
 						// Now extract string
-				if (str.Contains(wxT("\""))) 
+				if (str.Contains (wxT("\""))) 
 					{
-					str = str.AfterFirst('"');
-					if (str.Contains(wxT("\""))) 
+					str = str.AfterFirst ('"');
+					if (str.Contains (wxT("\""))) 
 						{
-						strout = str.BeforeLast('"');
-						strncpy((char *) &outTextPtr[1], (const char*) strout.mb_str(wxConvUTF8), 255);
-						outTextPtr[0] = (unsigned char) strout.Len();
+						strout = str.BeforeLast ('"');
+						strncpy ((char*) &outTextPtr[1], (const char*) strout.mb_str (wxConvUTF8), 255);
+						outTextPtr[0] = (unsigned char) strout.Len ();
 						found = true;
 						}
 						 
 					else // read next line for search of second"
 						{
 						strout = str;
-						while (!file.Eof() && !found) 
+						while (!file.Eof () && !found) 
 							{
 							strout << '\n';
-							str = file.GetNextLine();
-							//str = str.Trim(false);
-							if (str.Contains(wxT("\""))) 
+							str = file.GetNextLine ();
+							//str = str.Trim (false);
+							if (str.Contains (wxT("\""))) 
 								{
 								found = true;
-								strout << str.BeforeLast('"');
-								strncpy((char*) &outTextPtr[1], (const char*) strout.mb_str(wxConvUTF8), 255);
-								outTextPtr[0] = (unsigned char) strout.Len();
+								strout << str.BeforeLast ('"');
+								strncpy ((char*) &outTextPtr[1], (const char*) strout.mb_str (wxConvUTF8), 255);
+								outTextPtr[0] = (unsigned char) strout.Len ();
 								} 
 							else
 								strout << str;
-							}	// end "while (!file.Eof() && !found)"
+							}	// end "while (!file.Eof () && !found)"
 							
 						}	// end "else read next line for search of second"
 						
-					}	// end "if (str.Contains(wxT("\"")))"
+					}	// end "if (str.Contains (wxT("\"")))"
 				
-				}	// end "if (str.Contains(index))"
+				}	// end "if (str.Contains (index))"
 				
 			if (found)
 				break;
-			}	// end "for (str = file.GetFirstLine();..."
+			}	// end "for (str = file.GetFirstLine ();..."
 			
-		file.Close();
+		file.Close ();
 		return (outTextPtr[1] != 0 && found);
-#	endif // defined multispec_lin
+	#endif // defined multispec_lin
 
 }	// end "MGetString"  
 
@@ -6420,7 +6337,7 @@ Boolean MGetString (
 {		        
    SInt16 		numberCharacters;
     
-   numberCharacters = ::LoadString (AfxGetInstanceHandle(), 
+   numberCharacters = ::LoadString (AfxGetInstanceHandle (), 
    											stringID, 
    											&outTextPtr[1],
 												maxStringLength);
@@ -6429,7 +6346,7 @@ Boolean MGetString (
    											
    return (numberCharacters > 0);
    
-}		// end "MGetString"  
+}	// end "MGetString"  
 #endif	// defined _UNICODE
 #endif	// defined multispec_win
 
@@ -6483,25 +6400,25 @@ void MSetWindowTitle (
 				//CFAllocatorDeallocate (kCFAllocatorDefault, (void*)cfStringRef);	
 				CFRelease (cfStringRef);
 				
-				}		// end "if (cfStringRef != NULL)"	
+				}	// end "if (cfStringRef != NULL)"	
 		#endif	// defined multispec_mac  
 		
 		#if defined multispec_win 	             
-			CDocument* documentCPtr = windowPtr->GetDocument();
+			CDocument* documentCPtr = windowPtr->GetDocument ();
 			MSetWindowTitle (documentCPtr, titleStringPtr);
 		#endif	// defined multispec_win  
 		
 		#if defined multispec_lin 	             
-			//wxString ntitle =  wxString::FromUTF8((char*)&titleStringPtr[1]);
-			//(windowPtr->m_frame)->SetTitle(ntitle);          
-         wxDocument* documentCPtr = windowPtr->GetDocument();
+			//wxString ntitle =  wxString::FromUTF8 ((char*)&titleStringPtr[1]);
+			//(windowPtr->m_frame)->SetTitle (ntitle);          
+         wxDocument* documentCPtr = windowPtr->GetDocument ();
 //         MSetWindowTitle (documentCPtr, titleStringPtr);
-         documentCPtr->SetTitle(titleStringPtr);
+         documentCPtr->SetTitle (titleStringPtr);
 		#endif	// defined multispec_lin 
 		
-		}		// end "if (windowPtr != NULL)"
+		}	// end "if (windowPtr != NULL)"
 
-}		// end "MSetWindowTitle" 
+}	// end "MSetWindowTitle" 
 
 
      
@@ -6512,17 +6429,17 @@ void MSetWindowTitle (
 
 {              
 	if (titleStringPtr[0] == 0)
-		titleStringPtr[0] = (UInt8)strlen( (char*)&titleStringPtr[1] ); 
+		titleStringPtr[0] = (UInt8)strlen ((char*)&titleStringPtr[1]); 
 	
 	             
 	if (windowPtr != NULL)
 		{
-		CDocument* documentCPtr = windowPtr->GetDocument();
+		CDocument* documentCPtr = windowPtr->GetDocument ();
 		MSetWindowTitle (documentCPtr, titleStringPtr);
 		
-		}		// end "if (windowPtr != NULL)"
+		}	// end "if (windowPtr != NULL)"
 		
-}		// end "MSetWindowTitle" 
+}	// end "MSetWindowTitle" 
 #endif	// defined multispec_win 
 
 #if defined multispec_win
@@ -6548,9 +6465,9 @@ void MSetWindowTitle (
 
 		documentCPtr->SetTitle (&tempUnicodeCharacterStringPtr[1]);
 		
-		}		// end "if (documentCPtr != NULL)"
+		}	// end "if (documentCPtr != NULL)"
 		
-}		// end "MSetWindowTitle"
+}	// end "MSetWindowTitle"
 #endif	// defined multispec_win  
 
 #if defined multispec_lin
@@ -6564,14 +6481,14 @@ void MSetWindowTitle (
 		{
    		// Make sure there is a C string terminator at the end.
                                                   		
-		titleStringPtr[ titleStringPtr[0]+1 ] = 0;
-      wxString ntitle =  wxString::FromUTF8((char*)&titleStringPtr[1]);
-		//documentCPtr->SetTitle( (CharPtr)&titleStringPtr[1] );
-      documentCPtr->SetTitle(ntitle);
+		titleStringPtr[titleStringPtr[0]+1] = 0;
+      wxString ntitle =  wxString::FromUTF8 ((char*)&titleStringPtr[1]);
+		//documentCPtr->SetTitle ((CharPtr)&titleStringPtr[1]);
+      documentCPtr->SetTitle (ntitle);
 		
-		}		// end "if (documentCPtr != NULL)"
+		}	// end "if (documentCPtr != NULL)"
 		
-}		// end "MSetWindowTitle"
+}	// end "MSetWindowTitle"
 #endif
 
 
@@ -6596,7 +6513,7 @@ void MSetWindowTitle (
 //	Coded By:			Larry L. Biehl			Date: 08/26/2010
 //	Revised By:			Larry L. Biehl			Date: 08/27/2010	
 							               	                
-void	NumToString( 
+void	NumToString (
 				UInt32					numberValue, 
 				UCharPtr					stringPtr) 
 				
@@ -6605,9 +6522,9 @@ void	NumToString(
 					"%lu",
 					numberValue);
 					
-	stringPtr[0] = (UInt8)strlen((CharPtr)&stringPtr[1]);
+	stringPtr[0] = (UInt8)strlen ((CharPtr)&stringPtr[1]);
 
-}		// end "NumToString" 
+}	// end "NumToString" 
 
 
 
@@ -6632,7 +6549,7 @@ void	NumToString(
 //	Coded By:			Larry L. Biehl			Date: 08/26/2010
 //	Revised By:			Larry L. Biehl			Date: 08/26/2010	
 							               	                
-void	NumToString( 
+void	NumToString (
 				SInt64					numberValue, 
 				UCharPtr					stringPtr) 
 				
@@ -6641,9 +6558,55 @@ void	NumToString(
 					"%lld",
 					numberValue);
 					
-	stringPtr[0] = (UInt8)strlen((CharPtr)&stringPtr[1]);
+	stringPtr[0] = (UInt8)strlen ((CharPtr)&stringPtr[1]);
 
-}		// end "NumToString"  
+}	// end "NumToString"  
+
+
+
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		Boolean OutputString
+//
+//	Software purpose:	The purpose of this routine is to put the
+//							input string into the output window and/or the
+//							results disk file as requested.
+//							This is an overload routine for OutputString
+//
+//	Parameters in:					
+//
+//	Parameters out:				
+//
+// Value Returned:
+//
+// Called By:
+//
+//	Coded By:			Larry L. Biehl			Date: 09/05/2017
+//	Revised By:			Larry L. Biehl			Date: 09/05/2017
+
+Boolean OutputString (
+				CMFileStream*						resultsFileStreamPtr, 
+				HPtr	 								stringPtr, 
+				UInt32								stringLength, 
+				SInt16								outputCode, 
+				Boolean								continueFlag)
+
+{
+	if (continueFlag)
+		return (OutputString2 (resultsFileStreamPtr, 
+										stringPtr, 
+										stringLength, 
+										outputCode, 
+										continueFlag,
+										-1,
+										kASCIICharString));
+										
+	return (FALSE);		
+	
+}	// end "OutputString"  
 
 
 
@@ -6689,7 +6652,7 @@ Boolean OutputString (
 										
 	return (FALSE);		
 	
-}		// end "OutputString"   
+}	// end "OutputString"   
 
 
 
@@ -6729,7 +6692,7 @@ Boolean OutputString2 (
 	
 	
 	if (!continueFlag)
-																					return(FALSE);
+																					return (FALSE);
 																					
 			// Get the string length if needed.												
 		
@@ -6742,7 +6705,7 @@ Boolean OutputString2 (
 			
 		if ((outputCode & kAsciiFormatCode) && resultsFileStreamPtr != NULL)
 			{
-			errCode = MWriteData(resultsFileStreamPtr, 
+			errCode = MWriteData (resultsFileStreamPtr, 
 										&stringLength, 
 										stringPtr, 
 										kErrorMessages);
@@ -6752,9 +6715,9 @@ Boolean OutputString2 (
 				gOutputCode = (gOutputCode & 0xfffd);
 				gOutputForce1Code = (gOutputForce1Code & 0xfffd);
 				
-				}		// end "if ( errCode != noErr )" 
+				}	// end "if (errCode != noErr)" 
 			
-			}		// end "if ( (outputCode & kAsciiFormatCode) && ..." 
+			}	// end "if ((outputCode & kAsciiFormatCode) && ..." 
 			
 				// Put string in output text window if requested but only put
 				// in the requested limit.
@@ -6766,7 +6729,7 @@ Boolean OutputString2 (
 				sprintf (&stringPtr[stringLimit], "%s", gEndOfLine);
 				stringLength = stringLimit + gNumberOfEndOfLineCharacters;
 				
-				}		/// end "if (stringLimit > 0 && stringLength > stringLimit)"
+				}	/// end "if (stringLimit > 0 && stringLength > stringLimit)"
 			
 			if (!ListString (stringPtr, stringLength, gOutputTextH, charFormatCode))
 				{
@@ -6774,15 +6737,15 @@ Boolean OutputString2 (
 				gOutputForce1Code = gOutputCode;
 				gOutputTextOKFlag = FALSE;
 				
-				}		// end "if (!continueFlag)" 
+				}	// end "if (!continueFlag)" 
 			
-			}		// end "if (!ListString(..." 
+			}	// end "if (!ListString (..." 
 			
-		}		// end "if (stringLength > 0)" 
+		}	// end "if (stringLength > 0)" 
 			
 	return (gOutputForce1Code & 0x0003);
 
-}		// end "OutputString2"  
+}	// end "OutputString2"  
 
 
 		
@@ -6829,7 +6792,7 @@ void pstr (
 		
 	*sPtr = 0;
 		
-}		// end "pstr"    
+}	// end "pstr"    
 
 
 
@@ -6855,7 +6818,7 @@ void pstr (
 //	Coded By:			Larry L. Biehl			Date: 01/08/1997
 //	Revised By:			Larry L. Biehl			Date: 01/08/1997	
 							               	   
-CharPtr 	PtoCstring ( 
+CharPtr 	PtoCstring (
 				CharPtr								inPStringPtr, 
 				CharPtr								outCStringPtr)
 				
@@ -6864,18 +6827,18 @@ CharPtr 	PtoCstring (
 		{
 		size_t bytesToMove = inPStringPtr[0];
 		
-		bytesToMove = MIN(bytesToMove, 254);
+		bytesToMove = MIN (bytesToMove, 254);
 
 		if (bytesToMove > 0)
 			memmove (outCStringPtr, &inPStringPtr[1], bytesToMove);
 			
 		outCStringPtr[bytesToMove] = 0;
 
-		}		// end "if (inCStringPtr != NULL && ...)"
+		}	// end "if (inCStringPtr != NULL && ...)"
 
 	return outCStringPtr;
 
-}		// end "CtoPstring"
+}	// end "CtoPstring"
 
 
 		
@@ -6923,19 +6886,19 @@ void RemoveCharsAddVersion (
 	//char									asciiCharacter;
 	
 	
-#	if defined multispec_win
+	#if defined multispec_win
 		USES_CONVERSION;
-#	endif
+	#endif
 
 	lengthRemoveString = *removeStringPtr;
 	if (lengthRemoveString == 0) 
 		{
 				// This must be a C string.  Get the length.
 				
-		lengthRemoveString = (UInt16)strlen( (char*)&removeStringPtr[1] );
-		lengthRemoveString = MIN(lengthRemoveString, 255);
+		lengthRemoveString = (UInt16)strlen ((char*)&removeStringPtr[1]);
+		lengthRemoveString = MIN (lengthRemoveString, 255);
 		
-		}		// end "if (lengthRemoveString == 0)"
+		}	// end "if (lengthRemoveString == 0)"
 		
 	lengthString = *stringPtr;
 	
@@ -6954,7 +6917,7 @@ void RemoveCharsAddVersion (
 			
 		numberCharacters++;
 		
-		}		// end "for (index=lengthString; index>0; index--)"
+		}	// end "for (index=lengthString; index>0; index--)"
 		
 			// Now make stringPtr a pascal string without the version information.
 			
@@ -6985,14 +6948,14 @@ void RemoveCharsAddVersion (
 			
 			*stringPtr += (UInt8)(2 + numberCharacters);
 			
-			}		// end "if (numberCharacters > 0)"
+			}	// end "if (numberCharacters > 0)"
 			
-		}		// end "if ( CompareSuffixNoCase (..."
+		}	// end "if (CompareSuffixNoCase (..."
 		
-	else		// !CompareSuffixNoCase (...
+	else	// !CompareSuffixNoCase (...
 		*stringPtr += (UInt8)numberCharacters; 
 
-}		// end "RemoveCharsAddVersion"  
+}	// end "RemoveCharsAddVersion"  
 
 		
 /*
@@ -7027,7 +6990,7 @@ void RemoveCharsNoCase (
 {  
 	UInt16		numChars;
 	
-#	if defined multispec_win
+	#if defined multispec_win
 		if (CompareSuffixNoCase (removeStringPtr, stringPtr, &numChars))
 		//wchar_t					wideStringPtr[256];
 
@@ -7041,8 +7004,8 @@ void RemoveCharsNoCase (
 					
 			stringPtr[stringPtr[0]+1] = 0;
 			
-			}		// end "if (CompareSuffixNoCase (removeStringPtr, ..."
-#	else
+			}	// end "if (CompareSuffixNoCase (removeStringPtr, ..."
+	#else
 		if (CompareSuffixNoCase (removeStringPtr, stringPtr, &numChars))
 			{
 			*stringPtr -= (UInt8)numChars;
@@ -7051,10 +7014,10 @@ void RemoveCharsNoCase (
 					
 			stringPtr[stringPtr[0]+1] = 0;
 			
-			}		// end "if (CompareSuffixNoCase (removeStringPtr, ..."
-#	endif
+			}	// end "if (CompareSuffixNoCase (removeStringPtr, ..."
+	#endif
 
-}		// end "RemoveCharsNoCase"    
+}	// end "RemoveCharsNoCase"    
 */
 		
 
@@ -7098,9 +7061,9 @@ void RemoveCharsNoCase (
 				
 		stringPtr[stringPtr[0]+1] = 0;
 		
-		}		// end "if (CompareSuffixNoCase (removeStringPtr, ..."
+		}	// end "if (CompareSuffixNoCase (removeStringPtr, ..."
 
-}		// end "RemoveCharsNoCase"    
+}	// end "RemoveCharsNoCase"    
 
 
 
@@ -7137,27 +7100,27 @@ void SetActiveImageWindowTitle (
 	#if defined multispec_win	   
 	   if (gActiveImageViewCPtr != NULL)
 	   	{                      
-   		titleStringPtr[ titleStringPtr[0]+1 ] = 0;
-			CMImageDoc* documentCPtr = gActiveImageViewCPtr->GetDocument();                   
+   		titleStringPtr[titleStringPtr[0]+1] = 0;
+			CMImageDoc* documentCPtr = gActiveImageViewCPtr->GetDocument ();                   
 			documentCPtr->SetTitle ((LPCTSTR)&titleStringPtr[1]);
 			
-			}		// end " if (gActiveImageViewCPtr != NULL)" 		
+			}	// end " if (gActiveImageViewCPtr != NULL)" 		
 	#endif	// defined multispec_win  
 
 	#if defined multispec_lin
 		if (gActiveImageViewCPtr != NULL) 
 			{
-			titleStringPtr[ titleStringPtr[0] + 1 ] = 0;
-			CMImageFrame* frameCPtr = (CMImageFrame *)(gActiveImageViewCPtr->GetFrame());
-			wxString frametitle(& titleStringPtr[1], wxConvUTF8);
-			frameCPtr->SetTitle(frametitle);
-			CMImageDoc* documentCPtr = (CMImageDoc *)(gActiveImageViewCPtr->GetDocument());
-			documentCPtr->SetTitle(frametitle);
+			titleStringPtr[titleStringPtr[0] + 1] = 0;
+			CMImageFrame* frameCPtr = (CMImageFrame *)(gActiveImageViewCPtr->GetFrame ());
+			wxString frametitle (& titleStringPtr[1], wxConvUTF8);
+			frameCPtr->SetTitle (frametitle);
+			CMImageDoc* documentCPtr = (CMImageDoc *)(gActiveImageViewCPtr->GetDocument ());
+			documentCPtr->SetTitle (frametitle);
 			
 			} // end " if (gActiveImageViewCPtr != NULL)"
    #endif
 
-}		// end "SetActiveImageWindowTitle"
+}	// end "SetActiveImageWindowTitle"
 
 
 
@@ -7202,21 +7165,21 @@ void SetImageWindowTitle (
 			//if (windowPtr != NULL)
 				//{                      
 				titleStringPtr[titleStringPtr[0]+1] = 0;
-				CMImageDoc* documentCPtr = gActiveImageViewCPtr->GetDocument();                   
+				CMImageDoc* documentCPtr = gActiveImageViewCPtr->GetDocument ();                   
 				//documentCPtr->SetTitle ((LPCTSTR)&titleStringPtr[1]);
 				MSetWindowTitle (documentCPtr, titleStringPtr);
 				
-				//}		// end " if (windowPtr != NULL)" 
+				//}	// end " if (windowPtr != NULL)" 
 		#endif	// defined multispec_win  	
 			 
 		#if defined multispec_lin
 			titleStringPtr[titleStringPtr[0]+1] = 0;
-			wxString ntitle =  wxString::FromUTF8((char*)&titleStringPtr[1]);
-			(windowPtr->m_frame)->SetTitle(ntitle);
+			wxString ntitle =  wxString::FromUTF8 ((char*)&titleStringPtr[1]);
+			(windowPtr->m_frame)->SetTitle (ntitle);
 		#endif
-		}		// end "if (windowPtr != NULL)"
+		}	// end "if (windowPtr != NULL)"
 		
-}		// end "SetImageWindowTitle"
+}	// end "SetImageWindowTitle"
 
 
 
@@ -7240,7 +7203,7 @@ void SetImageWindowTitle (
 //	Coded By:			Larry L. Biehl			Date: 12/13/1995
 //	Revised By:			Larry L. Biehl			Date: 12/13/1995
 
-void SetOutputWTitle(
+void SetOutputWTitle (
 				UCharPtr								titleStringPtr)
    
 {		       
@@ -7250,11 +7213,11 @@ void SetOutputWTitle(
 		       
 	#if defined multispec_win 
 		if (gOutputViewCPtr != NULL)                           
-			MSetWindowTitle ( (CDocument*)gOutputViewCPtr->GetDocument(),
+			MSetWindowTitle ((CDocument*)gOutputViewCPtr->GetDocument (),
 									(UCharPtr)gTextString);
 	#endif	// defined multispec_win  
 	
-}		// end "SetOutputWTitle"
+}	// end "SetOutputWTitle"
 
    
 
@@ -7292,7 +7255,7 @@ void SetPascalStringLengthCharacter (
 		UCharPtr	charStringPtr = (UCharPtr)stringPtr;
 		charStringPtr[0] = length;
 		
-		}		// end "if (charWidthCode == kReturnASCII)"
+		}	// end "if (charWidthCode == kReturnASCII)"
 	
 	else // charWidthCode != ReturnASCII
 		{
@@ -7300,9 +7263,9 @@ void SetPascalStringLengthCharacter (
 		wchar_t*	wideStringPtr = (wchar_t*)stringPtr;
 		wideStringPtr[0] = length;
 
-		}		// end "else !wideCharStringFlag"
+		}	// end "else !wideCharStringFlag"
 	
-}		// end "StringLength"
+}	// end "StringLength"
 
    
 
@@ -7329,14 +7292,14 @@ void SetPascalStringLengthCharacter (
 //	Coded By:			Larry L. Biehl			Date: 03/03/2017
 //	Revised By:			Larry L. Biehl			Date: 03/03/2017
 
-SInt16 StringCompare(
+SInt16 StringCompare (
 				UInt8* 								str1,
 				UInt8* 								str2)
 	
 {											
 	return strcmp ((char*)str1, (char*)str2);
 	
-}		// end "StringCompare"
+}	// end "StringCompare"
 
    
 
@@ -7394,43 +7357,8 @@ void* StringCopy (
  
 		}	// end "else charWidthCode == kUnicodeCharString"
 	
-}		// end "StringCopy"
+}	// end "StringCopy"
 
-   
-/*
-//------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
-//
-//	Function name:		TBYTE* StringCopyCharacters
-//
-//	Software purpose:	This routine is a helper function to handle the conversion of
-//							code from character base to unicode base. The routine will use
-//							strncpy when character string is being used and wcrncpy when 
-//							unicode strings are being used.
-//
-//	Parameters in:		Pointer to title string.
-//
-//	Parameters out:	None.
-//
-// Value Returned:	None.
-//
-// Called By:	
-//
-//	Coded By:			Larry L. Biehl			Date: 03/03/2017
-//	Revised By:			Larry L. Biehl			Date: 03/03/2017
-
-TBYTE* StringCopyCharacters (
-				TBYTE* 								str1, 
-				TBYTE* 								str2,
-				int									numberCharacters)
-	
-{											
-	return wcsncpy (str1, str2, numberCharacters);
-	
-}		// end "StringCopyCharacters"
-*/
    
 
 //------------------------------------------------------------------------------------
@@ -7469,9 +7397,218 @@ int StringLength (
 				// Do according to the use_wide_character directive
 		return ((int)wcslen ((wchar_t*)stringPtr));
 
-		}		// end "else !asciiCharStringFlag"
+		}	// end "else !asciiCharStringFlag"
 	
-}		// end "StringLength"
+}	// end "StringLength"
+				
+				
+
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		void StringToNumber
+//
+//	Software purpose:	The purpose of this routine is to convert the input string
+//							to a number. This will be using CFStringGetIntValue for Mac OS X.
+//
+//	Parameters in:		
+//
+//	Parameters out:	None
+//
+// Value Returned: 		
+//
+// Called By:	
+//
+//	Coded By:			Larry L. Biehl			Date: 03/24/2012
+//	Revised By:			Larry L. Biehl			Date: 09/11/2017
+
+void StringToNumber (
+				char*									stringPtr,
+				SInt32*								theNumPtr)
+
+{
+#if defined multispec_mac
+	CFStringRef							cfStringPtr;
+
+	cfStringPtr = CFStringCreateWithCString (kCFAllocatorDefault, 
+															stringPtr, 
+															kCFStringEncodingMacRoman);
+
+	*theNumPtr = CFStringGetIntValue (cfStringPtr);
+	
+	CFRelease (cfStringPtr);
+#endif	// defined multispec_mac
+
+#if defined multispec_mac_swift
+		// To be done
+#endif	// defined multispec_mac_swift
+
+#if defined multispec_win | defined multispec_lin
+	*theNumPtr = atol (stringPtr);
+#endif	// defined multispec_win
+
+}	// end "StringToNumber"
+
+				
+
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		char* StrStrNoCase
+//
+//	Software purpose:	The purpose of this routine is to find string 2 within string 1
+//							ignoring the case of the characters in the string.
+//
+//	Parameters in:		
+//
+//	Parameters out:	None
+//
+// Value Returned: 	NULL:		string 2 was not found within string 1
+//							Address:	location within string 1 where string 2 starts
+//
+// Called By:	
+//
+//	Coded By:			Larry L. Biehl			Date: ??/??/????
+//	Revised By:			Larry L. Biehl			Date: 10/19/2017
+
+char* StrStrNoCase (
+				const char* 						str1, 
+				const char* 						str2)
+	
+{
+	const	unsigned char* 			p1 = (unsigned char*)str1;
+	const	unsigned char* 			p2 = (unsigned char*)str2;
+	char*									stringStartPtr;
+	
+	UInt32								c1, 
+											c2;
+											
+	
+	c1 = toupper (*p1);
+	c2 = toupper (*p2);
+		
+	while (c1 != 0)
+		{
+		if (c1 == c2)
+			{
+			stringStartPtr = (char*)p1;
+			while (c1 == c2)
+				{
+				p1++;
+				p2++;
+			
+				c1 = toupper (*p1);
+				c2 = toupper (*p2);
+				
+				if (c2 == 0)
+																		return (stringStartPtr);
+				
+				}	// end "while (c1 == c2)"
+				
+					// Substring not found. Check again. 
+				
+			p1 = (unsigned char*)stringStartPtr;
+				
+			p2 = (unsigned char*)str2;
+			c2 = toupper (*p2);
+				
+			}	// end "if (c1 == c2)"
+				
+		p1++;
+		c1 = toupper (*p1);
+			
+		}	// end "while (c1 != 0)"
+	
+	return (NULL);
+	
+}	// end "StrStrNoCase"
+
+				
+
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		char* StrStrNoCase
+//
+//	Software purpose:	The purpose of this routine is to find the first 'numberCharacters 
+//							of string 2 within string 1 ignoring the case of the characters 
+//							in the string.
+//
+//	Parameters in:		
+//
+//	Parameters out:	None
+//
+// Value Returned: 	NULL:		first n characters of string 2 was not found within 
+//												string 1
+//							Address:	location within string 1 where string 2 starts
+//
+// Called By:	
+//
+//	Coded By:			Larry L. Biehl			Date: ??/??/????
+//	Revised By:			Larry L. Biehl			Date: 10/19/2017
+
+char* StrStrNoCase (
+				const char* 						str1, 
+				const char* 						str2,
+				UInt32								numberCharacters)
+	
+{
+	const	unsigned char* 			p1 = (unsigned char*)str1;
+	const	unsigned char* 			p2 = (unsigned char*)str2;
+	char*									stringStartPtr;
+	
+	UInt32								c1, 
+											c2,
+											index;
+											
+	
+	c1 = toupper (*p1);
+	c2 = toupper (*p2);
+		
+	while (c1 != 0)
+		{
+		if (c1 == c2)
+			{
+			index = 1;
+			stringStartPtr = (char*)p1;
+			do
+				{
+				if (index >= numberCharacters)
+																		return (stringStartPtr);
+																					
+				p1++;
+				p2++;
+			
+				c1 = toupper (*p1);
+				c2 = toupper (*p2);
+				
+				index++;
+				
+				}	while (c1 == c2);
+				
+					// Substring not found. Check again. 
+				
+			p1 = (unsigned char*)stringStartPtr;
+				
+			p2 = (unsigned char*)str2;
+			c2 = toupper (*p2);
+				
+			}	// end "if (c1 == c2)"
+			
+		p1++;
+		c1 = toupper (*p1);
+			
+		}	// end "while (c1 != 0)"
+	
+	return (NULL);
+	
+}	// end "StrStrNoCase"
 
 
 /*
@@ -7521,12 +7658,12 @@ void VerifyDOSFileName (
 			inFileNamePtr = (UCharPtr)&filePathPtr[pathLength];
 			
 			nameLength = 0;
-			while ( (nameLength < pathLength) && (*inFileNamePtr != '\\') )
+			while ((nameLength < pathLength) && (*inFileNamePtr != '\\'))
 				{
 				inFileNamePtr--;
 				nameLength++;
 				
-				}		// end "while ( (nameLength < pathLength) && ..."
+				}	// end "while ((nameLength < pathLength) && ..."
 				
 			if (nameLength > 0)
 				{
@@ -7542,7 +7679,7 @@ void VerifyDOSFileName (
 				outFileNamePtr = inFileNamePtr;		 
 				while ((nameLength < 8) &&
 							(*inFileNamePtr != '.') && 
-							(*inFileNamePtr != 0) )
+							(*inFileNamePtr != 0))
 					{
 					if (*inFileNamePtr != ' ')
 						{
@@ -7552,11 +7689,11 @@ void VerifyDOSFileName (
 						outFileNamePtr++;              
 						nameLength++;
 						
-						}		// end "if (*inFileNamePtr != ' ')"
+						}	// end "if (*inFileNamePtr != ' ')"
 						
 					inFileNamePtr++; 
 					
-					}		// end "while ( (nameLength < 8) && ..."
+					}	// end "while ((nameLength < 8) && ..."
 					
 				pathLength = MIN (directoryLength+nameLength, pathLength); 
 				pathLength = MIN (gFileNameLengthLimit-2, pathLength);
@@ -7564,11 +7701,11 @@ void VerifyDOSFileName (
 				filePathPtr[0] = (UInt8)pathLength;
 				filePathPtr[pathLength+1] = 0;
 				
-				}		// end "if (nameLength > 0)"
+				}	// end "if (nameLength > 0)"
 		#endif	// !defined _WIN32
 	#endif	// defined multispec_win
 		
-}		// end "VerifyDOSFileName"
+}	// end "VerifyDOSFileName"
 */
 
 
@@ -7594,7 +7731,7 @@ void VerifyDOSFileName (
 //	Coded By:			Larry L. Biehl			Date: 04/13/2007
 //	Revised By:			Larry L. Biehl			Date: 04/13/2007	
 
-Boolean WriteSpecifiedStringNumber ( 
+Boolean WriteSpecifiedStringNumber (
 				CMFileStream*						resultsFileStreamPtr, 
 				SInt16								strListID, 
 				SInt16								index, 
@@ -7607,13 +7744,13 @@ Boolean WriteSpecifiedStringNumber (
 	SInt16								errCode;
 	
 	
-	continueFlag = GetSpecifiedStringNumber ( 
+	continueFlag = GetSpecifiedStringNumber (
 							strListID, index, (UCharPtr)resourceStringPtr, continueFlag);
 	
 	if (continueFlag)
 		{
 		stringLength = resourceStringPtr[0];
-		errCode = MWriteData(resultsFileStreamPtr, 
+		errCode = MWriteData (resultsFileStreamPtr, 
 									 &stringLength, 
 									 &resourceStringPtr[1], 
 									 kErrorMessages);
@@ -7621,11 +7758,11 @@ Boolean WriteSpecifiedStringNumber (
 		if (errCode != noErr)
 			continueFlag = FALSE;
 		
-		}		// end "if (continueFlag)"
+		}	// end "if (continueFlag)"
 		
 	return (continueFlag);
 
-}		// end "WriteSpecifiedStringNumber"
+}	// end "WriteSpecifiedStringNumber"
 
 
 
@@ -7651,7 +7788,7 @@ Boolean WriteSpecifiedStringNumber (
 //	Coded By:			Larry L. Biehl			Date: 04/13/2007
 //	Revised By:			Larry L. Biehl			Date: 04/13/2007	
 
-Boolean WriteSpecifiedStringNumber ( 
+Boolean WriteSpecifiedStringNumber (
 				CMFileStream*						resultsFileStreamPtr, 
 				SInt16								strListID, 
 				SInt16								index,
@@ -7666,7 +7803,7 @@ Boolean WriteSpecifiedStringNumber (
 	SInt16								errCode;
 	
 	
-	continueFlag = LoadSpecifiedStringNumberStringP ( 
+	continueFlag = LoadSpecifiedStringNumberStringP (
 														strListID, 
 														index, 
 														finalStringPtr,
@@ -7685,11 +7822,11 @@ Boolean WriteSpecifiedStringNumber (
 		if (errCode != noErr)
 			continueFlag = FALSE;
 		
-		}		// end "if (continueFlag)"
+		}	// end "if (continueFlag)"
 		
 	return (continueFlag);
 
-}		// end "WriteSpecifiedStringNumber"
+}	// end "WriteSpecifiedStringNumber"
 
 
 
@@ -7715,7 +7852,7 @@ Boolean WriteSpecifiedStringNumber (
 //	Coded By:			Larry L. Biehl			Date: 04/25/2007
 //	Revised By:			Larry L. Biehl			Date: 04/25/2007	
 
-Boolean WriteSpecifiedStringNumber ( 
+Boolean WriteSpecifiedStringNumber (
 				CMFileStream*						resultsFileStreamPtr, 
 				SInt16								strListID, 
 				SInt16								index,
@@ -7734,7 +7871,7 @@ Boolean WriteSpecifiedStringNumber (
 	SInt16								errCode;
 	
 	
-	continueFlag = LoadSpecifiedStringNumberDouble ( 
+	continueFlag = LoadSpecifiedStringNumberDouble (
 														strListID, 
 														index, 
 														finalStringPtr,
@@ -7757,9 +7894,9 @@ Boolean WriteSpecifiedStringNumber (
 		if (errCode != noErr)
 			continueFlag = FALSE;
 		
-		}		// end "if (continueFlag)"
+		}	// end "if (continueFlag)"
 		
 	return (continueFlag);
 
-}		// end "WriteSpecifiedStringNumber"
+}	// end "WriteSpecifiedStringNumber"
 

@@ -13,13 +13,13 @@
 //
 //	Revision number:		3.0
 //
-//	Revision date:			08/21/2017
+//	Revision date:			12/21/2017
 //
 //	Language:				C
 //
 //	System:					Windows Operating Systems
 //
-//	Brief description:	Reimpelementation of AfxTextFloatFormat because of buggy _sntscanf_s function
+//	Brief description:	Reimplementation of AfxTextFloatFormat because of buggy _sntscanf_s function
 // See:
 // - https://social.msdn.microsoft.com/Forums/vstudio/en-US/4a04b861-8b16-4bb3-8a0d-f4e78b1c2a5a/sntscanfs-doesnt-work-as-expected-in-vs2015?forum=vcgeneral
 // - https://connect.microsoft.com/VisualStudio/feedback/details/1773279/bug-in-sntscanf-s
@@ -31,7 +31,7 @@
 //								"multiSpec.h"
 //
 
-#include "SMulSpec.h"
+#include "SMultiSpec.h"
 #include "stdafx.h"
 //#include "TextFloatFormatPatch.h"
 

@@ -3,38 +3,33 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//							 Copyright (1988-2013)
-//							© Purdue Research Foundation
+//							 Copyright (1988-2017)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	File:						SNDFFormat.cpp
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision number:		3.0
-//
-//	Revision date:			03/10/2017
+//	Revision date:			12/21/2017
 //
 //	Language:				C
 //
-//	System:					Macintosh Operating System
+//	System:					Linux, Macintosh, and Windows Operating Systems
 //
 //	Brief description:	This file contains routines which are used to access
 //								the information in ndf formatted mage files.
 //
 //	Functions in file:	
 //
-//	Diagram of MultiSpec routine calls for the routines in the file.
-//
-//
 //	Include files:			"MultiSpecHeaders"
 //								"multiSpec.h"
 //
 //------------------------------------------------------------------------------------
 
-#include "SMulSpec.h"
+#include "SMultiSpec.h"
 	
-#if defined multispec_mac
+#if defined multispec_mac || defined multispec_mac_swift
 	#define	IDS_FileIO161						161
 	#define	IDS_FileIO162						162
 	#define	IDS_FileIO163						163
@@ -51,19 +46,17 @@
 	#define	IDS_FileIO174						174
 	#define	IDS_FileIO194						194
 	#define	IDS_FileIO195						195	
-#endif	// defined multispec_mac    
+#endif	// defined multispec_mac || defined multispec_mac_swift
 
 #if defined multispec_win	
-	#include "CFileStr.h"	 
+	#include "CFileStream.h"	 
 #endif	// defined multispec_win
 
 #if defined multispec_lin
-
-#include "CFileStr.h"
-
+	#include "CFileStream.h"
 #endif   // defined multispec_lin
 
-#include "SExtGlob.h"
+//#include "SExtGlob.h"
 
 #define	kNdfType								29
 #define	kPackedDegrees						1
@@ -72,8 +65,8 @@
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2013)
-//								© Purdue Research Foundation
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		SInt16 LinkNDFFiles
@@ -120,7 +113,7 @@ SInt16 LinkNDFFiles (
 	
 	
 	returnCode = 1;
-	fileInfoHandle = MNewHandle (sizeof(MFileInfo));
+	fileInfoHandle = MNewHandle (sizeof (MFileInfo));
 												
 	if (fileInfoHandle != NULL)
 		{
@@ -138,10 +131,7 @@ SInt16 LinkNDFFiles (
 				
 			InitializeFileInfoStructure (fileInfoHandle, kNotPointer);
 			
-			fileInfoPtr = (FileInfoPtr)GetHandlePointer(
-													fileInfoHandle,
-													kLock,
-													kNoMoveHi);
+			fileInfoPtr = (FileInfoPtr)GetHandlePointer (fileInfoHandle, kLock);
 			
 					// Load the file name for the first channel
 					// First get the file stream pointer for the structure to be used
@@ -157,7 +147,7 @@ SInt16 LinkNDFFiles (
 				
 			inputFileInfoHandle = GetFileInfoHandle (windowInfoHandle);
 			inputFileInfoPtr = (FileInfoPtr)GetHandleStatusAndPointer (
-												inputFileInfoHandle, &handleStatus, kNoMoveHi);
+																inputFileInfoHandle, &handleStatus);
 												
 			inputFileInfoPtr = &inputFileInfoPtr [numberImageFiles-1];
 			inputFileStreamPtr = GetFileStreamPointer (inputFileInfoPtr);
@@ -186,7 +176,7 @@ SInt16 LinkNDFFiles (
 				else if (fileNumber == 7)
 					requestedFileNumber = 6;
 				
-				}		// end "if (tryBand6_7_SwapFlag)"
+				}	// end "if (tryBand6_7_SwapFlag)"
 													
     				// Load the header information for the specified file													
     		
@@ -214,14 +204,14 @@ SInt16 LinkNDFFiles (
 						
 					continueFlag = AddToImageWindowFile (windowInfoHandle, fileInfoHandle);
 					
-					}		// end "if (CheckFileInfoParameters (fileInfoPtr) == 1)"
+					}	// end "if (CheckFileInfoParameters (fileInfoPtr) == 1)"
 					
-				else		// CheckFileInfoParameters (fileInfoPtr) != 1
+				else	// CheckFileInfoParameters (fileInfoPtr) != 1
 					continueFlag = FALSE;
 					
-				}		// end "if (ReadNDFHeader (fileInfoPtr, NULL, ...) == noErr)"
+				}	// end "if (ReadNDFHeader (fileInfoPtr, NULL, ...) == noErr)"
 	      	
-	      else		// ReadNDFHeader (fileInfoPtr, ... != noErr)
+	      else	// ReadNDFHeader (fileInfoPtr, ... != noErr)
 	      	{
 				continueFlag = TRUE;
 				doneFlag = TRUE;
@@ -234,22 +224,23 @@ SInt16 LinkNDFFiles (
 					{
 					if (requestedFileNumber == 7 && fileNumber == 6)
 						{
-						fileNumber = 5;		// This will get changed to 6 after start of while loop
+						fileNumber = 5;	// This will get changed to 6 after start of
+												// while loop
 						doneFlag = FALSE;	
 						tryBand6_7_SwapFlag = FALSE;
 						
-						}		// end "if (requestedFileNumber == 7 && fileNumber == 6)"
+						}	// end "if (requestedFileNumber == 7 && fileNumber == 6)"
 					
-					}		// end "if (tryBand6_7_SwapFlag)"
+					}	// end "if (tryBand6_7_SwapFlag)"
 				
-				}		// end "else ReadNDFHeader (fileInfoPtr, ... != noErr)"
+				}	// end "else ReadNDFHeader (fileInfoPtr, ... != noErr)"
  	    		
       	if (!continueFlag)
 				doneFlag = TRUE;
 				
-			}		// end "while (!doneFlag)" 
+			}	// end "while (!doneFlag)" 
 			
-		}		// end "if (fileInfoHandle != NULL)"
+		}	// end "if (fileInfoHandle != NULL)"
 			
 	DisposeFileInfoHandle (fileInfoHandle);
 	
@@ -258,13 +249,13 @@ SInt16 LinkNDFFiles (
 
 	return (returnCode);
 			
-}		// end "LinkNDFFiles"  
+}	// end "LinkNDFFiles"  
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2013)
-//								© Purdue Research Foundation
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		SInt16 ReadNDFHeader
@@ -283,7 +274,7 @@ SInt16 LinkNDFFiles (
 // Called By:			CheckImageHeader in SOpnImag.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/05/2007
-//	Revised By:			Larry L. Biehl			Date: 02/23/2017
+//	Revised By:			Larry L. Biehl			Date: 09/01/2017
 
 SInt16 ReadNDFHeader (
 				FileInfoPtr 						fileInfoPtr,
@@ -307,10 +298,10 @@ SInt16 ReadNDFHeader (
 	CharPtr								headerSuffixName1 = (char*)"\0.H1\0",
 											headerSuffixName2 = (char*)"\0.H2\0",
 											headerSuffixName3 = (char*)"\0.H3\0",
-//											headerSuffixName4 = (char*)"\0.DH\0",
+											//headerSuffixName4 = (char*)"\0.DH\0",
 											endOfLineStringPtr,
 											ioBufferPtr,
-					//						ioRecordBufferPtr,
+											//ioRecordBufferPtr,
 											strPtr;
 											
 	CMFileStream						*fileStreamPtr,
@@ -378,7 +369,7 @@ SInt16 ReadNDFHeader (
 																	&strPtr, 
 																	-3, 
 																	kDoNotSkipEqual,
-																	(char*)&gTextString,
+																	(char*)gTextString,
 																	50,
 																	kNoSubstringAllowed);	
 									
@@ -389,45 +380,45 @@ SInt16 ReadNDFHeader (
 						if (strstr ((char*)gTextString, "NLAPS_DEM") != NULL)
 							demFlag = TRUE;
 							
-						}		// end "if (tReturnCode == 0)"
+						}	// end "if (tReturnCode == 0)"
 						
-					}		// end "if (strncmp ((char*)headerRecordPtr, ..."
+					}	// end "if (strncmp ((char*)headerRecordPtr, ..."
 					
-				}		// end "if (MGetString (gTextString3, ..."
+				}	// end "if (MGetString (gTextString3, ..."
 			
 			if (fileType == 0)
 				{
 						// Not NDF header; check if image file associated with ndf header
 						
-				imageFilePathPPtr = (FileStringPtr)GetFilePathPPointer (fileStreamPtr);
+				imageFilePathPPtr = (FileStringPtr)GetFilePathPPointerFromFileStream (fileStreamPtr);
 		
 				if (CompareSuffixNoCase ((char*)"\0.I?",
 													imageFilePathPPtr,
-													&numSuffixChars) )
+													&numSuffixChars))
 					{
 					fileType = kNdfType;
 					*versionPtr = 2;
 					
-					}		// end "if (CompareSuffixNoCase ( (char*)"\0.I?", ..."
+					}	// end "if (CompareSuffixNoCase ((char*)"\0.I?", ..."
 		
 				else if (CompareSuffixNoCase ((char*)"\0.DD",
 														imageFilePathPPtr,
-														&numSuffixChars) )
+														&numSuffixChars))
 					{
 					fileType = kNdfType;
 					*versionPtr = 2;
 					demFlag = TRUE;
 					
-					}		// end "else if (CompareSuffixNoCase ( (char*)"\0.DD", ..."
+					}	// end "else if (CompareSuffixNoCase ((char*)"\0.DD", ..."
 					
-				}		// end "if (fileType == 0)"
+				}	// end "if (fileType == 0)"
 				
-			}		// end "if (fileNumber == 1 && ...)"
+			}	// end "if (fileNumber == 1 && ...)"
 			
 		else if (fileNumber > 1)
 			fileType = kNdfType;
 			
-		}		// end "if (fileStreamPtr != NULL)"
+		}	// end "if (fileStreamPtr != NULL)"
 		
 	if (fileType != 0)
 		{
@@ -435,10 +426,10 @@ SInt16 ReadNDFHeader (
 			{
 			fileInfoPtr->format = fileType;
 			fileInfoPtr->thematicType = FALSE;
-//			*versionPtr = 0;
+			//*versionPtr = 0;
 																								return (noErr);
 																								
-			}		// end "if (formatOnlyCode != kLoadHeader)"
+			}	// end "if (formatOnlyCode != kLoadHeader)"
 			
 				// Get a buffer to read in the header record into.  For now use
 				// 5000 bytes.
@@ -475,7 +466,8 @@ SInt16 ReadNDFHeader (
 				
 						// The header file has been read.  Close the header file.
 					
-				imageFilePathPPtr = (FileStringPtr)GetFilePathPPointer (fileStreamPtr);
+				imageFilePathPPtr = (FileStringPtr)GetFilePathPPointerFromFileStream (
+																							fileStreamPtr);
 				CloseFile (fileStreamPtr);
 				
 				if (demFlag)
@@ -483,15 +475,16 @@ SInt16 ReadNDFHeader (
 					RemoveCharsNoCase ((char*)"\0.DH\0", imageFilePathPPtr);
 					ConcatFilenameSuffix (imageFilePathPPtr, (UCharPtr)"\0.DD\0");
 					
-					}		// end "demFlag"
+					}	// end "demFlag"
 				
-				else		// !demFlag
+				else	// !demFlag
 					{
 							// Get the name of the first band file in the list.
 							// Find "BAND1_FILENAME=" in the buffer.
 						
 					strPtr = ioBufferPtr;
-/*#					if defined multispec_win
+					/*
+					#if defined multispec_win
 					
 							// Convert wide string to multibye string.
 				
@@ -505,9 +498,9 @@ SInt16 ReadNDFHeader (
 																	(char*)gTextString,
 																	64,
 																	kNoSubstringAllowed);
-#					else
-*/
-						tReturnCode = GetFileHeaderString (kFileIOStrID,
+					#else
+					*/
+					tReturnCode = GetFileHeaderString (kFileIOStrID,
 																	IDS_FileIO195, 	// BAND1_FILENAME
 																	&strPtr, 
 																	-3, 
@@ -515,9 +508,9 @@ SInt16 ReadNDFHeader (
 																	(char*)imageFilePathPPtr,
 																	64,
 																	kNoSubstringAllowed);
-//#					endif
+					//#endif
 						
-					}		// end "else !demFlag"
+					}	// end "else !demFlag"
 									
 				if (tReturnCode == 0)
 					{
@@ -528,16 +521,16 @@ SInt16 ReadNDFHeader (
 															kLockFile, 
 															kVerifyFileStream);
 					
-					}		// end "if (tReturnCode == 0)"
+					}	// end "if (tReturnCode == 0)"
 					
-				else		// tReturnCode != 0
+				else	// tReturnCode != 0
 					errCode = tReturnCode;
 					
-				}		// end "if (errCode == noErr)"
+				}	// end "if (errCode == noErr)"
 				
-			}		// end "if (*versionPtr == 1)" 
+			}	// end "if (*versionPtr == 1)" 
 
-		else		// *versionPtr == 2
+		else	// *versionPtr == 2
 			{
 					// The NDF image file was selected; get the header file for
 					// this image. It can have suffixes of H1, H2, H3 or HD.
@@ -545,15 +538,18 @@ SInt16 ReadNDFHeader (
 			headerFileStreamPtr = &headerFileStream;		
 			InitializeFileStream (headerFileStreamPtr, fileStreamPtr);
 					
-			headerFileNameCPtr = (FileStringPtr)GetFileNameCPointer (headerFileStreamPtr);
+			headerFileNameCPtr = (FileStringPtr)GetFileNameCPointerFromFileStream (
+																					headerFileStreamPtr);
 			
-			imageFileNameCPtr = (FileStringPtr)GetFileNameCPointer (fileStreamPtr);
-			headerFilePathPPtr = (FileStringPtr)GetFilePathPPointer (headerFileStreamPtr);
+			imageFileNameCPtr = (FileStringPtr)GetFileNameCPointerFromFileStream (
+																					fileStreamPtr);
+			headerFilePathPPtr = (FileStringPtr)GetFilePathPPointerFromFileStream (
+																					headerFileStreamPtr);
 			
 			if (demFlag)
 				RemoveCharsNoCase ((char*)"\0.DD\0", headerFilePathPPtr);
 			
-			else		// !demFlag
+			else	// !demFlag
 				RemoveCharsNoCase ((char*)"\0.I?\0", headerFilePathPPtr);
 			
 			headerSuffixNamePtr[0] = (StringPtr)headerSuffixName1;
@@ -567,12 +563,12 @@ SInt16 ReadNDFHeader (
 				if (demFlag)
 					ConcatFilenameSuffix (headerFilePathPPtr, (UCharPtr)"\0.DH\0");
 			
-				else		// !demFlag
+				else	// !demFlag
 					{
 					RemoveCharsNoCase ((char*)"\0.H?\0", headerFilePathPPtr);
 					ConcatFilenameSuffix (headerFilePathPPtr, headerSuffixNamePtr[headerSet]);
 					
-					}		// end "else !demFlag"
+					}	// end "else !demFlag"
 					
 				errCode = OpenFileReadOnly (headerFileStreamPtr, 
 														kResolveAliasChains, 
@@ -600,37 +596,37 @@ SInt16 ReadNDFHeader (
 						ioBufferPtr[4999] = 0;	
 						ioBufferPtr[count] = 0;
 						
-						}		// end "if (errCode == noErr)"
+						}	// end "if (errCode == noErr)"
 		
 					CloseFile (headerFileStreamPtr);
 		
-					}		// end "if (errCode == noErr)"
+					}	// end "if (errCode == noErr)"
 					
 				if (errCode == noErr)
 					{	
 					if (demFlag)
 						foundFlag = TRUE;
 					
-					else		// !demFlag
+					else	// !demFlag
 						{
 								// Now find the image file name in this administrative record.
 								// Remember that 'imageFileNameCPtr' is a c string.
 								
-							strPtr = strstr (ioBufferPtr, (char*)&imageFileNameCPtr[1]);
+						strPtr = strstr (ioBufferPtr, (char*)&imageFileNameCPtr[1]);
 
 						if (strPtr != NULL)
 							foundFlag = TRUE;
 							
-						}		// end "else !demFlag"
+						}	// end "else !demFlag"
 		
-					}		// end "if (errCode == noErr)"
+					}	// end "if (errCode == noErr)"
 														
 				if (errCode == fnfErr)
 					errCode = noErr;
 						
 				headerSet++;
 					
-				}		// end "while (!foundFlag && headerSet<3 && errCode == noErr)"
+				}	// end "while (!foundFlag && headerSet<3 && errCode == noErr)"
 				
 			if (!foundFlag)
 				errCode = -1;
@@ -640,8 +636,9 @@ SInt16 ReadNDFHeader (
 						// Get the name of the specified file in the list.
 						// Find "FILENAME=" in the buffer.	
 						
-				imageFilePathPPtr = (FileStringPtr)GetFilePathPPointer(fileStreamPtr);	
-//				strPtr = ioBufferPtr;					
+				imageFilePathPPtr = (FileStringPtr)GetFilePathPPointerFromFileStream (
+																							fileStreamPtr);
+				//strPtr = ioBufferPtr;
 				
 				stringNumber = IDS_FileIO195 + (SInt16)fileNumber - 1;
 				
@@ -664,9 +661,9 @@ SInt16 ReadNDFHeader (
 															kLockFile, 
 															kVerifyFileStream);
 									
-				}		// end "if (foundFlag && fileNumber > 1)"
+				}	// end "if (foundFlag && fileNumber > 1)"
 				
-			}		// end "else *versionPtr == 2"
+			}	// end "else *versionPtr == 2"
 				
 		if (errCode == noErr)
 			{
@@ -682,10 +679,10 @@ SInt16 ReadNDFHeader (
 			if (tReturnCode == 0)
 				fileInfoPtr->numberColumns = value;
 				
-			else		// tReturnCode != 0
+			else	// tReturnCode != 0
 				errCode = tReturnCode;
 			
-			}		// end "if (errCode == noErr)" 
+			}	// end "if (errCode == noErr)" 
 		
 		if (errCode == noErr)
 			{
@@ -701,10 +698,10 @@ SInt16 ReadNDFHeader (
 			if (tReturnCode == 0)
 				fileInfoPtr->numberLines = value;
 				
-			else		// tReturnCode != 0
+			else	// tReturnCode != 0
 				errCode = tReturnCode;
 			
-			}		// end "if (errCode == noErr)"  
+			}	// end "if (errCode == noErr)"  
 		
 		if (errCode == noErr)
 			{
@@ -716,7 +713,7 @@ SInt16 ReadNDFHeader (
 															&strPtr, 
 															-3, 
 															kDoNotSkipEqual,
-															(char*)&gTextString,
+															(char*)gTextString,
 															50,
 															kNoSubstringAllowed);	
 							
@@ -741,12 +738,12 @@ SInt16 ReadNDFHeader (
 				
 				fileInfoPtr->numberBits = 8 * fileInfoPtr->numberBytes;
 					
-				}		// end "if (tReturnCode == 0)"
+				}	// end "if (tReturnCode == 0)"
 				
-			else		// tReturnCode != 0
+			else	// tReturnCode != 0
 				errCode = tReturnCode;
 			
-			}		// end "if (errCode == noErr)"  
+			}	// end "if (errCode == noErr)"  
 		
 		if (errCode == noErr && fileInfoPtr->numberBytes >= 2)
 			{
@@ -758,7 +755,7 @@ SInt16 ReadNDFHeader (
 															&strPtr, 
 															-3, 
 															kDoNotSkipEqual,
-															(char*)&gTextString,
+															(char*)gTextString,
 															50,
 															kNoSubstringAllowed);	
 							
@@ -769,15 +766,15 @@ SInt16 ReadNDFHeader (
 				if (strstr ((char*)gTextString, "BYTE_INVERTED") != NULL)
 					fileInfoPtr->swapBytesFlag = gBigEndianFlag; 
 				
-				else		// !BYTE_INVERTED
+				else	// !BYTE_INVERTED
 					fileInfoPtr->swapBytesFlag = !gBigEndianFlag;
 					
-				}		// end "if (tReturnCode == 0)"
+				}	// end "if (tReturnCode == 0)"
 				
-			else		// tReturnCode != 0
+			else	// tReturnCode != 0
 				errCode = tReturnCode;
 			
-			}		// end "if (errCode == noErr && fileInfoPtr->numberBytes >= 2)"  
+			}	// end "if (errCode == noErr && fileInfoPtr->numberBytes >= 2)"  
 		
 		if (errCode == noErr)
 			{
@@ -795,10 +792,10 @@ SInt16 ReadNDFHeader (
 			if (tReturnCode == 0)
 				fileInfoPtr->numberChannels = 1;
 				
-			else		// tReturnCode != 0
+			else	// tReturnCode != 0
 				errCode = tReturnCode;
 			
-			}		// end "if (errCode == noErr)" 
+			}	// end "if (errCode == noErr)" 
 		
 		if (errCode == noErr)
 			{
@@ -810,7 +807,7 @@ SInt16 ReadNDFHeader (
 															&strPtr, 
 															-3, 
 															kDoNotSkipEqual,
-															(char*)&gTextString,
+															(char*)gTextString,
 															50,
 															kNoSubstringAllowed);	
 							
@@ -827,17 +824,17 @@ SInt16 ReadNDFHeader (
 					if (numberBands == 5)
 						instrumentCode = kLandsatMSS5;
 					
-					}		// end "else if (strstr ((char*)gTextString, ..."
+					}	// end "else if (strstr ((char*)gTextString, ..."
 				
 				else if (strstr ((char*)gTextString, "EDC_TM") != NULL)
 					instrumentCode = kLandsatTM;
 					
-				}		// end "if (tReturnCode == 0)"
+				}	// end "if (tReturnCode == 0)"
 					
-			else		// tReturnCode != 0
+			else	// tReturnCode != 0
 				errCode = tReturnCode;
 				
-			}		// end "if (errCode == noErr)" 
+			}	// end "if (errCode == noErr)" 
 		
 		if (errCode == noErr)
 			{
@@ -846,14 +843,12 @@ SInt16 ReadNDFHeader (
 			if (fileInfoPtr->mapProjectionHandle != NULL)
 				{ 								
 				mapProjectionInfoPtr = (MapProjectionInfoPtr)
-							GetHandleStatusAndPointer (
-												fileInfoPtr->mapProjectionHandle,
-												&handleStatus,
-												kNoMoveHi);
-												
-				}		// end "if (fileInfoPtr->mapProjectionHandle != NULL)"
+								GetHandleStatusAndPointer (fileInfoPtr->mapProjectionHandle,
+																	&handleStatus);
+					
+				}	// end "if (fileInfoPtr->mapProjectionHandle != NULL)"
 				
-			}		// end "if (errCode == noErr)"
+			}	// end "if (errCode == noErr)"
 								
 		if (mapProjectionInfoPtr != NULL)
 			{
@@ -863,62 +858,65 @@ SInt16 ReadNDFHeader (
 					// Find "USGS_PROJECTIOIN_NUMBER=" in the buffer.	
 					
 			value = GetFileHeaderValue (kFileIOStrID, 
-												IDS_FileIO166, 	// USGS_PROJECTIOIN_NUMBER=
-												ioBufferPtr, 
-												1, 
-												kDoNotSkipEqual, 
-												&tReturnCode);
+													IDS_FileIO166, 	// USGS_PROJECTIOIN_NUMBER=
+													ioBufferPtr, 
+													1, 
+													kDoNotSkipEqual, 
+													&tReturnCode);
 							
 			if (tReturnCode == 0)
 				{
 						// Get the projection code
 				
 				mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = 
-											GetMapProjectionCodeFromGCTPNumber (
-																	(SInt16)value, 
-																	FALSE,
-																	&mapProjectionInfoPtr->gridCoordinate.projectionCode);
-											
-				if (mapProjectionInfoPtr->gridCoordinate.referenceSystemCode == kStatePlaneNAD27RSCode)
+							GetMapProjectionCodeFromGCTPNumber (
+											(SInt16)value,
+											FALSE,
+											&mapProjectionInfoPtr->gridCoordinate.projectionCode);
+				
+				if (mapProjectionInfoPtr->gridCoordinate.referenceSystemCode ==
+																					kStatePlaneNAD27RSCode)
 					mapProjectionInfoPtr->planarCoordinate.mapUnitsCode = kUSSurveyFeetCode;
 								
-				else		// mapProjectionInfoPtr->gridCoordinate.referenceSystemCode != ...
+				else	// mapProjectionInfoPtr->gridCoordinate.referenceSystemCode != ...
 					mapProjectionInfoPtr->planarCoordinate.mapUnitsCode = kMetersCode;
 					
-				}		// end "if (tReturnCode == 0)"
+				}	// end "if (tReturnCode == 0)"
 				
 					// Find "PIXEL_SPACING=" in the buffer.		
 					
 			realValue = GetFileHeaderRealValue (kFileIOStrID, 
-														IDS_FileIO167, 	// PIXEL_SPACING=
-														ioBufferPtr, 
-														1,
-														kDoNotSkipEqual, 
-														&tReturnCode);
+															IDS_FileIO167, 	// PIXEL_SPACING=
+															ioBufferPtr, 
+															1,
+															kDoNotSkipEqual, 
+															&tReturnCode);
 								
 			if (tReturnCode == 0)
 				{
 				mapProjectionInfoPtr->planarCoordinate.horizontalPixelSize = realValue;
 				mapProjectionInfoPtr->planarCoordinate.verticalPixelSize = realValue;
 								
-				}		// end "if (tReturnCode == 0)"
+				}	// end "if (tReturnCode == 0)"
 				
 					// Find "DATUM =" in the buffer.		
 										
 			strPtr = ioBufferPtr;
 			tReturnCode = GetDatumInfo (&strPtr, 
-												&mapProjectionInfoPtr->geodetic.datumCode,
-												IDS_FileIO194,
-												kSkipEqual);	
+													&mapProjectionInfoPtr->geodetic.datumCode,
+													IDS_FileIO194,
+													kSkipEqual);	
 			
 			if (tReturnCode == noErr)
 				{
-				if (mapProjectionInfoPtr->gridCoordinate.referenceSystemCode == kStatePlaneNAD27RSCode &&
-											mapProjectionInfoPtr->geodetic.datumCode == kNAD83Code)
-					mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = kStatePlaneNAD83RSCode;
+				if (mapProjectionInfoPtr->gridCoordinate.referenceSystemCode ==
+																			kStatePlaneNAD27RSCode &&
+										mapProjectionInfoPtr->geodetic.datumCode == kNAD83Code)
+					mapProjectionInfoPtr->gridCoordinate.referenceSystemCode =
+																					kStatePlaneNAD83RSCode;
 				SetEllipsoidFromDatum (mapProjectionInfoPtr);
 				
-				} 
+				}	// end "if (tReturnCode == noErr)"
 		
 					// Find "USGS_MAP_ZONE=" in the buffer.								
 				
@@ -936,11 +934,11 @@ SInt16 ReadNDFHeader (
 									
 			strPtr = ioBufferPtr;					
 			tReturnCode = GetFileHeaderString (kFileIOStrID, 
-															IDS_FileIO172, 	// USGS_PROJECTION_PARAMETERS=
+															IDS_FileIO172, // USGS_PROJECTION_PARAMETERS=
 															&strPtr, 
 															-1, 
 															kDoNotSkipEqual,
-															(char*)&gTextString,
+															(char*)gTextString,
 															50,
 															kNoSubstringAllowed);		
 								
@@ -968,9 +966,10 @@ SInt16 ReadNDFHeader (
 											&realValues[14]);
 										
 				if (returnCode >= 8)
-					SetProjectionParameters (mapProjectionInfoPtr, realValues, kPackedDegrees, kDegrees);
+					SetProjectionParameters (
+								mapProjectionInfoPtr, realValues, kPackedDegrees, kDegrees);
 				
-				}		// end "if (tReturnCode == 0)"
+				}	// end "if (tReturnCode == 0)"
 				
 					// Find "UPPER_LEFT_CORNER=" in the buffer.			
 										
@@ -980,7 +979,7 @@ SInt16 ReadNDFHeader (
 															&strPtr, 
 															-1, 
 															kDoNotSkipEqual,
-															(char*)&gTextString,
+															(char*)gTextString,
 															50,
 															kNoSubstringAllowed);		
 								
@@ -1001,7 +1000,7 @@ SInt16 ReadNDFHeader (
 					if (strPtr == NULL)
 						break;
 					
-					}		// end "for (string=0; string<4; string++)"
+					}	// end "for (string=0; string<4; string++)"
 								
 						// Determine whether this image is from the northern
 						// or southern hemisphere. It will be used for UTM zone
@@ -1023,7 +1022,7 @@ SInt16 ReadNDFHeader (
 				if (tReturnCode == 1)
 					upperLeftY = realValue;
 				
-				}		// end "if (tReturnCode == 0)"
+				}	// end "if (tReturnCode == 0)"
 				
 					// Find "LOWER_RIGHT_CORNER=" in the buffer.			
 														
@@ -1032,7 +1031,7 @@ SInt16 ReadNDFHeader (
 															&strPtr, 
 															-1, 
 															kDoNotSkipEqual,
-															(char*)&gTextString,
+															(char*)gTextString,
 															50,
 															kNoSubstringAllowed);		
 								
@@ -1054,7 +1053,7 @@ SInt16 ReadNDFHeader (
 					if (strPtr == NULL)
 						break;
 					
-					}		// end "for (string=0; string<4; string++)"
+					}	// end "for (string=0; string<4; string++)"
 												
 						// Now get the values 3rd and 4th values in the line.
 				
@@ -1066,26 +1065,26 @@ SInt16 ReadNDFHeader (
 				if (tReturnCode == 1)
 					lowerRightY = realValue;
 				
-				}		// end "if (tReturnCode == 0)"
+				}	// end "if (tReturnCode == 0)"
 				
 					// Now set the actual sampled pixel width and the upper left
 					// pixel center coordinates.
 					
 			if (lowerRightX < upperLeftX)
 				mapProjectionInfoPtr->planarCoordinate.horizontalPixelSize = 
-						-fabs(mapProjectionInfoPtr->planarCoordinate.horizontalPixelSize);
+						-fabs (mapProjectionInfoPtr->planarCoordinate.horizontalPixelSize);
 
 			if (lowerRightY > upperLeftY)
 				mapProjectionInfoPtr->planarCoordinate.verticalPixelSize = 
-						-fabs(mapProjectionInfoPtr->planarCoordinate.verticalPixelSize);
+						-fabs (mapProjectionInfoPtr->planarCoordinate.verticalPixelSize);
 				
 			mapProjectionInfoPtr->planarCoordinate.xMapCoordinate11 = upperLeftX;
 			mapProjectionInfoPtr->planarCoordinate.yMapCoordinate11 = upperLeftY;
 									
 			mapProjectionInfoPtr->planarCoordinate.xMapOrientationOrigin =           
-							mapProjectionInfoPtr->planarCoordinate.xMapCoordinate11; 
+									mapProjectionInfoPtr->planarCoordinate.xMapCoordinate11;
 			mapProjectionInfoPtr->planarCoordinate.yMapOrientationOrigin =           
-							mapProjectionInfoPtr->planarCoordinate.yMapCoordinate11; 
+									mapProjectionInfoPtr->planarCoordinate.yMapCoordinate11;
 				
 					// Load additional projection information if needed.
 			
@@ -1094,7 +1093,7 @@ SInt16 ReadNDFHeader (
 		
 			MHSetState (fileInfoPtr->mapProjectionHandle, handleStatus);
 				
-			}		// end "if (mapProjectionInfoPtr != NULL)"
+			}	// end "if (mapProjectionInfoPtr != NULL)"
 		
 		if (errCode == noErr)
 			{
@@ -1107,7 +1106,7 @@ SInt16 ReadNDFHeader (
 				gGetFileImageType = kMultispectralImageType;
 				fileInfoPtr->numberClasses = 0;
 				
-				}		// end "if (gGetFileImageType == 0)"
+				}	// end "if (gGetFileImageType == 0)"
 				
 			fileInfoPtr->format = kNdfType;
 			fileInfoPtr->ancillaryInfoformat = kNdfType;
@@ -1117,12 +1116,12 @@ SInt16 ReadNDFHeader (
 			if (gGetFileImageType == kThematicImageType)
 				fileInfoPtr->thematicType = TRUE;
 				
-			}		// end "if (returnCode == noErr)"
+			}	// end "if (returnCode == noErr)"
 		
 		CheckAndDisposePtr (ioBufferPtr);
 		
-		}		// end "if (fileInfoPtr != NULL)"
+		}	// end "if (fileInfoPtr != NULL)"
 		
 	return (returnCode);
 	
-}		// end "ReadNDFHeader"
+}	// end "ReadNDFHeader"

@@ -1,32 +1,50 @@
-// ===========================================================================
-//	WDisplay.cpc1995 Purdue Research Foundation. All rights reserved.
-// ===========================================================================
-//	WDisplay.h		<- double-click + Command-D to see class declaration
+//	 									MultiSpec
 //
-// Revised by Larry Biehl on 03/27/2017
+//					Laboratory for Applications of Remote Sensing
+//									Purdue University
+//								West Lafayette, IN 47907
+//								Copyright (1988-2017)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
 //
+//	File:						CDisplay.cpp
+//	Class Definition:		CDisplay.h
+//
+//	Authors:					Larry L. Biehl
+//
+//	Revision number:		2.7
+//
+//	Revision date:			11/28/2017
+//
+//	Language:				C++
+//
+//	System:					Linux and Windows Operating Systems
+//
+//	Brief description:	This file contains routines for the CMImageWindow class
+//
+//	Functions in file:	
+//
+//	Include files:			"SMultiSpec.h"
+//
+//------------------------------------------------------------------------------------
    
-#include "SMulSpec.h"
+#include "SMultiSpec.h"
 
-#include "CImagWin.h"
 #include "CDisplay.h"
-#if defined multispec_win
-#include "CImagVew.h"
-#endif
-
-#ifdef multispec_win
-#include "WMainFrm.h"
-#endif
+#include "CImageWindow.h"
 
 #ifdef multispec_lin
-#include "LMainFrame.h"
-#include "LImageView.h"
+	#include "LMainFrame.h"
+	#include "LImageView.h"
 #endif
 
-#include "SExtGlob.h"
+#if defined multispec_win
+	#include "WImageView.h"
+	#include "WMainFrame.h"
+#endif
 
-extern void 		ReleaseDisplaySupportMemory(
-							Handle										displaySpecsHandle);
+extern void ReleaseDisplaySupportMemory (
+				Handle								displaySpecsHandle);
 
 
 // === Static Member Variable ===
@@ -35,12 +53,28 @@ DisplaySpecsPtr		CMDisplay::sDisplaySpecsPtr = NULL;
 
                                                      					
 
-// ---------------------------------------------------------------------------
-//		CMDisplay 
-// ---------------------------------------------------------------------------
-//	Constructor
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2017)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		CMDisplay
+//
+//	Software purpose:	Constructor 
+//
+//	Parameters in:		None
+//
+//	Parameters out:	None
+//
+// Value Returned:	None  				
+// 
+// Called By:	
+//
+//	Coded By:			Larry L. Biehl			Date: 06/05/1995
+//	Revised By:			Larry L. Biehl			Date: 02/26/1997	
 
-CMDisplay::CMDisplay()
+CMDisplay::CMDisplay ()
+
 { 
 	mDisplaySpecsHandle = NULL;
 	
@@ -48,16 +82,32 @@ CMDisplay::CMDisplay()
 													
 	m_initializedFlag = (mDisplaySpecsHandle != NULL);
 
-}		// end "CMDisplay"
+}	// end "CMDisplay"
 
 
-// ---------------------------------------------------------------------------
-//		~CMDisplay
-// ---------------------------------------------------------------------------
-//	Destructor
+
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2017)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
 //
+//	Function name:		~CMDisplay
+//
+//	Software purpose:	Destructor 
+//
+//	Parameters in:		None
+//
+//	Parameters out:	None
+//
+// Value Returned:	None  				
+// 
+// Called By:	
+//
+//	Coded By:			Larry L. Biehl			Date: 06/05/1995
+//	Revised By:			Larry L. Biehl			Date: 02/26/1997	
 
-CMDisplay::~CMDisplay()
+CMDisplay::~CMDisplay ()
+
 {  
 	ReleaseDisplaySupportMemory ();
 		
@@ -65,15 +115,15 @@ CMDisplay::~CMDisplay()
 	
 	if (gToDisplayLevels.window == gActiveImageViewCPtr)
 		gToDisplayLevels.vectorHandle = 
-										UnlockAndDispose (gToDisplayLevels.vectorHandle);
+											UnlockAndDispose (gToDisplayLevels.vectorHandle);
 
-}		// end "~CMDisplay"
+}	// end "~CMDisplay"
 											
 
 /*
-//-----------------------------------------------------------------------------
-//								 Copyright (1988-2010)
-//								c Purdue Research Foundation
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2017)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void ActivatePalette
@@ -89,36 +139,31 @@ CMDisplay::~CMDisplay()
 // 
 // Called By:	
 //
-//	Coded By:			Larry L. Biehl			Date: 06/05/95
-//	Revised By:			Larry L. Biehl			Date: 02/26/97	
+//	Coded By:			Larry L. Biehl			Date: 06/05/1995
+//	Revised By:			Larry L. Biehl			Date: 02/26/1997	
 
-void 
-CMDisplay::ActivatePalette (               
-				CMImageView			*imageViewCPtr)
+void CMDisplay::ActivatePalette (
+				CMImageView							*imageViewCPtr)
  
 {
-// oul: added the condition of _AMD64_ to be compatible with x64
-// _AMD64_ is the predefined macro for x64 machines according to MSDN
-#if !defined _X86_ && !defined _AMD64_
-
-//	::ActivatePalette (imageViewCPtr);  
-
-#endif	// !defined _X86_ && !defined _AMD64_
-			      
-#if defined _X86_ || defined _X86_
+		// oul: added the condition of _AMD64_ to be compatible with x64
+		// _AMD64_ is the predefined macro for x64 machines according to MSDN
 		
-	imageViewCPtr->SendMessage(
-							WM_DOREALIZE, (WPARAM)imageViewCPtr->m_hWnd, 1);  
+	#if !defined _X86_ && !defined _AMD64_
+		//	::ActivatePalette (imageViewCPtr);  
+	#endif	// !defined _X86_ && !defined _AMD64_
+			      
+	#if defined _X86_ || defined _X86_
+		imageViewCPtr->SendMessage (WM_DOREALIZE, (WPARAM)imageViewCPtr->m_hWnd, 1); 
+	#endif	// defined _X86_ || defined _X86_                            
 
-#endif	// defined _X86_ || defined _X86_                            
-
-}		// end "ActivatePalette" 
+}	// end "ActivatePalette" 
 */
 
 
-//-----------------------------------------------------------------------------
-//								 Copyright (1988-2010)
-//								� Purdue Research Foundation
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void GetDisplaySpecsPtr
@@ -134,22 +179,21 @@ CMDisplay::ActivatePalette (
 //
 // Called By:
 //
-//	Coded By:	Larry L. Biehl					Date:	05/09/95
-//	Revised By:	Larry L. Biehl					Date: 05/09/95
+//	Coded By:	Larry L. Biehl					Date:	05/09/1995
+//	Revised By:	Larry L. Biehl					Date: 05/09/1995
 
-DisplaySpecsPtr 
-CMDisplay::GetDisplaySpecsPtr (void)
+DisplaySpecsPtr CMDisplay::GetDisplaySpecsPtr (void)
 
 {
 	return (sDisplaySpecsPtr);
 
-}		// end "GetDisplaySpecsPtr"
+}	// end "GetDisplaySpecsPtr"
 
 
 
-//-----------------------------------------------------------------------------
-//								 Copyright (1988-2010)
-//								� Purdue Research Foundation
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2017)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		double GetOffscreenDimensions
@@ -165,32 +209,29 @@ CMDisplay::GetDisplaySpecsPtr (void)
 //
 // Called By:
 //
-//	Coded By:	Larry L. Biehl					Date:	05/17/95
-//	Revised By:	Larry L. Biehl					Date: 05/17/95
+//	Coded By:	Larry L. Biehl					Date:	05/17/1995
+//	Revised By:	Larry L. Biehl					Date: 05/17/1995
 
-void 
-CMDisplay::GetOffscreenDimensions (
-				UInt16			*heightPtr,
-				UInt16			*widthPtr)
+void CMDisplay::GetOffscreenDimensions (
+				UInt16								*heightPtr,
+				UInt16								*widthPtr)
 
 {                                        
-	        			
 			// Get handle and pointer to display specification for window		
 		                                                                      
-	DisplaySpecsPtr	displaySpecsPtr = (DisplaySpecsPtr)GetHandlePointer(
-												mDisplaySpecsHandle, kNoLock, kNoMoveHi);
+	DisplaySpecsPtr	displaySpecsPtr = (DisplaySpecsPtr)GetHandlePointer (
+																					mDisplaySpecsHandle);
 	
 	*heightPtr = (UInt16)displaySpecsPtr->imageDimensions[kVertical];
 	*widthPtr = (UInt16)displaySpecsPtr->imageDimensions[kHorizontal]; 
 
-}		// end "GetOffscreenDimensions" 
+}	// end "GetOffscreenDimensions" 
 
 
 
-
-//-----------------------------------------------------------------------------
-//								 Copyright (1988-2010)
-//								� Purdue Research Foundation
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2017)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		double GetMagnification
@@ -206,29 +247,27 @@ CMDisplay::GetOffscreenDimensions (
 //
 // Called By:
 //
-//	Coded By:	Larry L. Biehl					Date:	05/17/95
-//	Revised By:	Larry L. Biehl					Date: 05/17/95
+//	Coded By:	Larry L. Biehl					Date:	05/17/1995
+//	Revised By:	Larry L. Biehl					Date: 05/17/1995
 
-double 
-CMDisplay::GetMagnification (void)
+double CMDisplay::GetMagnification (void)
 
 {                                        
 	        			
 			// Get handle and pointer to display specification for window		
 		                                                                      
-	DisplaySpecsPtr	displaySpecsPtr = (DisplaySpecsPtr)GetHandlePointer(
-												mDisplaySpecsHandle, kNoLock, kNoMoveHi);
+	DisplaySpecsPtr	displaySpecsPtr = (DisplaySpecsPtr)GetHandlePointer (
+																					mDisplaySpecsHandle);
 	
 	return (displaySpecsPtr->magnification);
 
-}		// end "GetMagnification" 
+}	// end "GetMagnification" 
 
 
 
-
-//-----------------------------------------------------------------------------
-//								 Copyright (1988-2010)
-//								� Purdue Research Foundation
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2017)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		double GetMaxMagnification
@@ -244,73 +283,57 @@ CMDisplay::GetMagnification (void)
 //
 // Called By:
 //
-//	Coded By:	Larry L. Biehl					Date:	07/16/95
-//	Revised By:	Larry L. Biehl					Date: 07/16/95
+//	Coded By:	Larry L. Biehl					Date:	07/16/1995
+//	Revised By:	Larry L. Biehl					Date: 07/16/1995
 
-double 
-CMDisplay::GetMaxMagnification (void)
+double CMDisplay::GetMaxMagnification (void)
 
 {                                        
-	        			
 			// Get handle and pointer to display specification for window		
 		                                                                      
-	DisplaySpecsPtr	displaySpecsPtr = (DisplaySpecsPtr)GetHandlePointer(
-												mDisplaySpecsHandle, kNoLock, kNoMoveHi);
+	DisplaySpecsPtr	displaySpecsPtr = (DisplaySpecsPtr)GetHandlePointer (
+																					mDisplaySpecsHandle);
 	
 	return (displaySpecsPtr->maxMagnification);
 
-}		// end "GetMaxMagnification" 
+}	// end "GetMaxMagnification" 
 
 
 
-
-double 
-CMDisplay::GetMaxZoomValue(
-				DisplaySpecsPtr			displaySpecsPtr)
+double CMDisplay::GetMaxZoomValue (
+				DisplaySpecsPtr					displaySpecsPtr)
 
 {  
-	double				maxZoom;      
-	UInt32				offscreenSize;
+	double								maxZoom;      
+	UInt32								offscreenSize;
 							
 							
    offscreenSize = (displaySpecsPtr->lineEnd - displaySpecsPtr->lineStart + 
-                          displaySpecsPtr->lineInterval)/displaySpecsPtr->lineInterval; 
+								displaySpecsPtr->lineInterval)/displaySpecsPtr->lineInterval; 
                           
-//new
-//	#ifdef _WIN32
-		maxZoom = SInt32_MAX/offscreenSize;
-//	#else
-//		maxZoom = SInt16_MAX/offscreenSize;
-//	#endif
-//end new
+	maxZoom = SInt32_MAX/offscreenSize;
    
    offscreenSize = (displaySpecsPtr->columnEnd - displaySpecsPtr->columnStart + 
-                        displaySpecsPtr->columnInterval)/displaySpecsPtr->columnInterval;
-																			
+							displaySpecsPtr->columnInterval)/displaySpecsPtr->columnInterval;
+																		
 	if (displaySpecsPtr->displayType == 7)
 		offscreenSize = displaySpecsPtr->numberChannels * (offscreenSize + 2);
                                               
-//new
-//	#ifdef _WIN32
-	   maxZoom = MIN( maxZoom, SInt32_MAX/offscreenSize);
-//	#else
-//		maxZoom = MIN( maxZoom, SInt16_MAX/offscreenSize);
-//	#endif
-//end new
+	maxZoom = MIN (maxZoom, SInt32_MAX/offscreenSize);
     
-   maxZoom = MIN( gMaxMagnification, maxZoom );
+   maxZoom = MIN (gMaxMagnification, maxZoom);
    
-   maxZoom = MAX( gMinMagnification, maxZoom );
+   maxZoom = MAX (gMinMagnification, maxZoom);
    
-   return ( maxZoom ); 
+   return (maxZoom); 
 			
-}		// end "GetMaxZoomValue"
+}	// end "GetMaxZoomValue"
 
 
 
-//-----------------------------------------------------------------------------
-//								 Copyright (1988-2010)
-//								c Purdue Research Foundation
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void ReleaseDisplaySupportMemory
@@ -331,70 +354,21 @@ CMDisplay::GetMaxZoomValue(
 //
 // Called By:			~CMHistogram in MHistGrm.cpp
 //
-//	Coded By:			Larry L. Biehl					Date:	06/12/95
-//	Revised By:			Larry L. Biehl					Date: 11/02/99
+//	Coded By:			Larry L. Biehl					Date:	06/12/1995
+//	Revised By:			Larry L. Biehl					Date: 11/02/1999
 
-void
-CMDisplay::ReleaseDisplaySupportMemory(void)
+void CMDisplay::ReleaseDisplaySupportMemory (void)
 
 {  
 	::ReleaseDisplaySupportMemory (mDisplaySpecsHandle);
-	
-/*	SignedByte		handleStatus;
-	
-	                                
-	DisplaySpecsPtr displaySpecsPtr = (DisplaySpecsPtr) 
-						GetHandleStatusAndPointer (mDisplaySpecsHandle, &handleStatus, kNoMoveHi); 
-	
-	if (displaySpecsPtr != NULL)
-		{  
-		displaySpecsPtr->symbolToPaletteEntryH = 
-					UnlockAndDispose (displaySpecsPtr->symbolToPaletteEntryH); 
-							
-		displaySpecsPtr->channelsHandle =
-					UnlockAndDispose (displaySpecsPtr->channelsHandle);
-		
-		displaySpecsPtr->displayClassGroupsHandle =
-					UnlockAndDispose (displaySpecsPtr->displayClassGroupsHandle);
-		
-		displaySpecsPtr->savedClassCTableHandle = (CTabHandle)
-					UnlockAndDispose ( (Handle)displaySpecsPtr->savedClassCTableHandle );
-		
-		displaySpecsPtr->savedGroupCTableHandle = (CTabHandle)                           
-					UnlockAndDispose ( (Handle)displaySpecsPtr->savedGroupCTableHandle );
-		
-		displaySpecsPtr->localGroupNameHandle =
-					UnlockAndDispose (displaySpecsPtr->localGroupNameHandle);
-		
-		if (displaySpecsPtr->paletteObject != NULL)
-			{ 
-			delete displaySpecsPtr->paletteObject;
-			displaySpecsPtr->paletteObject = NULL;
-			
-			}		// end "if (displaySpecsPtr->paletteObject != NULL)"     
-		
-		if (displaySpecsPtr->backgroundPaletteObject != NULL)
-			{ 
-			delete displaySpecsPtr->backgroundPaletteObject;
-			displaySpecsPtr->backgroundPaletteObject = NULL;
-			
-			}		// end "if (displaySpecsPtr->backgroundPaletteObject != NULL)" 
-								                
-		displaySpecsPtr->initializeStructureFlag = TRUE;
-		displaySpecsPtr->numberDisplayClasses = 0;
-		displaySpecsPtr->numberDisplayGroups = 0;
-		
-		MHSetState (mDisplaySpecsHandle, handleStatus);
-		
-		}		// end "if (displaySpecsPtr != NULL)"
-*/
-}		// end "ReleaseDisplaySupportMemory"
+
+}	// end "ReleaseDisplaySupportMemory"
 
 
 
-//-----------------------------------------------------------------------------
-//								 Copyright (1988-2010)
-//								� Purdue Research Foundation
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2017)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void SetDisplaySpecsPtr
@@ -410,23 +384,22 @@ CMDisplay::ReleaseDisplaySupportMemory(void)
 //
 // Called By:
 //
-//	Coded By:	Larry L. Biehl					Date:	11/10/95
-//	Revised By:	Larry L. Biehl					Date: 11/10/95
+//	Coded By:	Larry L. Biehl					Date:	11/10/1995
+//	Revised By:	Larry L. Biehl					Date: 11/10/1995
 
-void 
-CMDisplay::SetDisplaySpecsPtr (
-				DisplaySpecsPtr				displaySpecsPtr)
+void CMDisplay::SetDisplaySpecsPtr (
+				DisplaySpecsPtr					displaySpecsPtr)
 
 {
 	sDisplaySpecsPtr = displaySpecsPtr;
 
-}		// end "SetDisplaySpecsPtr"
+}	// end "SetDisplaySpecsPtr"
 
 
 
-//-----------------------------------------------------------------------------
-//								 Copyright (1988-2010)
-//								� Purdue Research Foundation
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2017)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void SetMagnification
@@ -442,22 +415,21 @@ CMDisplay::SetDisplaySpecsPtr (
 //
 // Called By:
 //
-//	Coded By:	Larry L. Biehl					Date:	05/17/95
-//	Revised By:	Larry L. Biehl					Date: 11/16/95
+//	Coded By:	Larry L. Biehl					Date:	05/17/1995
+//	Revised By:	Larry L. Biehl					Date: 11/16/1995
 
-void 
-CMDisplay::SetMagnification (
-				double			magnification)
+void CMDisplay::SetMagnification (
+				double								magnification)
 
 {                                        
 	        			
 			// Get handle and pointer to display specification for window		
 		                                                                      
-	DisplaySpecsPtr	displaySpecsPtr = (DisplaySpecsPtr)GetHandlePointer(
-												mDisplaySpecsHandle, kNoLock, kNoMoveHi);
+	DisplaySpecsPtr	displaySpecsPtr = (DisplaySpecsPtr)GetHandlePointer (
+																					mDisplaySpecsHandle);
 												      
-	magnification = MAX(gMinMagnification, magnification);
+	magnification = MAX (gMinMagnification, magnification);
 	
 	displaySpecsPtr->magnification = magnification;
 
-}		// end "SetMagnification" 
+}	// end "SetMagnification" 

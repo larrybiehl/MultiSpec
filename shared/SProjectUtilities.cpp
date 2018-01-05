@@ -3,24 +3,22 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //							West Lafayette, IN 47907
-//								 Copyright (1988-2017)
-//								(c) Purdue Research Foundation
+//								 Copyright (1988-2018)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	File:						SProjectUtilities.cpp
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision number:		3.0
-//
-//	Revision date:			06/21/2017
+//	Revision date:			01/04/2018
 //
 //	Language:				C
 //
-//	System:					Macintosh and Windows Operating Systems
+//	System:					Linux, Macintosh, and Windows Operating Systems
 //
-//	Brief description:	The purpose of the routines in this file is to
-//								provide utility type functions in MultiSpec.
+//	Brief description:	The purpose of the routines in this file is to provide utility
+//								type functions for projects in MultiSpec.
 //
 //	Functions in file:	double 				Bhattacharyya
 //								void					Area_Of_SND_by_Direct_Calculation
@@ -88,38 +86,39 @@
 //								void 					UnlockProjectMemory
 //								short int			UpdateDialogClassWeightsInfo
 //								void 					UpdateProjectClassWeights
+//
+//------------------------------------------------------------------------------------
 
-#include	"SMulSpec.h" 
+#include "SMultiSpec.h" 
 
 #if defined multispec_lin
-#	include "LClassWeightsDialog.h"
-#	include "LClassPairWeightsDialog.h"
-#	include "LImageView.h"
+	#include "LClassWeightsDialog.h"
+	#include "LClassPairWeightsDialog.h"
+	#include "LImageView.h"
 #endif
 
-#if defined multispec_mac 
-#	define IDOK								1
+#if defined multispec_mac || defined multispec_mac_swift
+	#define IDOK								1
 
-#	define IDC_NewWeight					9
-#	define IDC_AddButton					10
-#	define IDC_RemoveButton				11
-#	define IDC_DefaultWeight			14
+	#define IDC_NewWeight					9
+	#define IDC_AddButton					10
+	#define IDC_RemoveButton				11
+	#define IDC_DefaultWeight				14
 
-#	define IDC_EnterNewWeightButton	8
-#	define IDC_Weight						9
-#	define IDC_EqualWeightButton		10
-#	define IDC_UnitsRelative			12
-#	define IDC_UnitsPercent				13
-#	define IDC_WeightTotal				15
-	//	#include "mwCarbonCompatibility.h"
-#endif	// defined multispec_mac  
+	#define IDC_EnterNewWeightButton		8
+	#define IDC_Weight						9
+	#define IDC_EqualWeightButton			10
+	#define IDC_UnitsRelative				12
+	#define IDC_UnitsPercent				13
+	#define IDC_WeightTotal					15
+#endif	// defined multispec_mac || defined multispec_mac_swift 
 
 #if defined multispec_win 
-#	include "CImagVew.h"
-#	include "WCPWtDlg.h"
-#	include "WCWtDlg.h"
-#	include "WStatDoc.h"
-#	include "WStatVew.h"
+	#include "WImageView.h"
+	#include "WClassPairWeightsDialog.h"
+	#include "WClassWeightsDialog.h"
+	#include "WStatisticsDoc.h"
+	#include "WStatisticsView.h"
 
 	extern void LGetCell (
 					char*									stringPtr,
@@ -131,7 +130,8 @@
 					DialogPtr							dialogPtr);
 #endif	// defined multispec_win 
 
-#include "SExtGlob.h" 
+//#include "SExtGlob.h" 
+
 
 
 extern void ClassPairWeightsDialogChangeWeight (
@@ -237,24 +237,24 @@ Boolean IsClassData (
 				UInt32								pixelLine,
 				UInt32								pixelColumn);
 
-Boolean IsFieldData(
+Boolean IsFieldData (
 				AreaDescriptionPtr				projectAreaDescriptionPtr,
 				SInt16								fieldNumber,
 				UInt32								pixelLine,
 				UInt32								pixelColumn);
 
-Boolean ListFieldsTitle(
+Boolean ListFieldsTitle (
 				CMFileStream*						outputFilePtr,
 				SInt16*								outputCodePtr,
 				SInt16								stringNumber,
 				SInt16								classNumber,
 				SInt16								fieldTypeCode);
 
-void LoadSymbolList(
+void LoadSymbolList (
 				DialogPtr							dialogPtr,
 				ListHandle							dialogListHandle);
 
-Boolean ModalSymbolsDialog(
+Boolean ModalSymbolsDialog (
 				DialogPtr							dialogPtr,
 				UInt16								numberOfClassesToUse);
 
@@ -266,7 +266,7 @@ Boolean ModalSymbolsDialog(
 #endif	// defined multispec_mac
 
 Boolean VerifyAreaDescription (
-					AreaDescriptionPtr				areaDescriptionPtr);
+				AreaDescriptionPtr				areaDescriptionPtr);
 
 
 
@@ -281,14 +281,14 @@ Boolean VerifyAreaDescription (
 //							area under the standard normal distribution
 //							from x=0 to x=r.
 //									
-//							Area(z) = 1/K Integral[exp(-t*t/2)] for t=0 to t=z.
-//										where K = sqrt(2PI).
+//							Area (z) = 1/K Integral[exp (-t*t/2)] for t=0 to t=z.
+//										where K = sqrt (2PI).
 //
 //							Note:  the error function is defined as:
-//										erf(z) = 2/sqrt(kPI) Integral[exp(-t*t) for t=0 to z.
+//										erf (z) = 2/sqrt (kPI) Integral[exp (-t*t) for t=0 to z.
 //									
-//										Area(z) = erf(z/sqrt(2))/2 and
-//										erf(z) = 2 * Area(sqrt(2) * z)
+//										Area (z) = erf (z/sqrt (2))/2 and
+//										erf (z) = 2 * Area (sqrt (2) * z)
 //
 //	Parameters in:		None
 //
@@ -347,7 +347,7 @@ void Area_Of_SND_by_Direct_Calculation (
 
 			}	// end "if (r >= 5.5)"
 
-      else // r < 5.5 
+      else	// r < 5.5 
 			{
          if (r >= (start = 5.00))
             offset = .4999997133484281;
@@ -374,7 +374,7 @@ void Area_Of_SND_by_Direct_Calculation (
 
 		}	// end "if (r >= 3.5)"
 
-   else // r < 3.5 
+   else	// r < 3.5 
 		{
       if (r >= 1.75)
 			{
@@ -399,9 +399,9 @@ void Area_Of_SND_by_Direct_Calculation (
          else if (r >= (start = 1.75))
             offset = .4599408431361829;
 
-			}	// end "if ( r >= 1.75 )"
+			}	// end "if (r >= 1.75)"
 
-      else // r < 1.75 
+      else	// r < 1.75 
 			{
          if (r >= (start = 1.5))
             offset = .4331927987311419;
@@ -434,7 +434,7 @@ void Area_Of_SND_by_Direct_Calculation (
    for (x = start; x < rStop; x += incre)
 		{
       localR += incre;
-      t += exp(-localR * localR / 2);
+      t += exp (-localR * localR / 2);
 
 		}	// end "for (x=start; x<rStop; x+=incre)"
 
@@ -443,7 +443,7 @@ void Area_Of_SND_by_Direct_Calculation (
 			// Get last piece of numerical integration.
 
    localR += 0.5 * (r + incre - x);
-   t += exp(-localR * localR / 2) * (r - x);
+   t += exp (-localR * localR / 2) * (r - x);
 
    *ret = offset + t / kSQRT2PI;
 
@@ -519,17 +519,16 @@ Boolean AssignClassInfoMemory (
 
       if (covarianceCode & kSquare)
          numberCovarianceEntries = matrixSize * matrixSize;
-      else // !(covarianceCode & kSquare)
+      else	// !(covarianceCode & kSquare)
          numberCovarianceEntries = matrixSize * (matrixSize + 1) / 2;
 
       tNumberEntries = numberCovarianceEntries * numberClasses;
 
       if (covarianceCode & kAllowLoadingSquare)
-         tNumberEntries +=
-         (numberChannels * numberChannels - numberCovarianceEntries);
+         tNumberEntries += (numberChannels * numberChannels - numberCovarianceEntries);
 
-      classInfoPtr[0].covariancePtr = (HDoublePtr) MNewPointer(
-         tNumberEntries * sizeof (double));
+      classInfoPtr[0].covariancePtr = (HDoublePtr) MNewPointer (
+																	tNumberEntries * sizeof (double));
       continueFlag = (classInfoPtr[0].covariancePtr != NULL);
 
 		}	// end "if (continueFlag && ...)"
@@ -544,7 +543,7 @@ Boolean AssignClassInfoMemory (
 
       if (inverseCode & kSquare)
          numberInverseEntries = matrixSize * matrixSize;
-      else // !(inverseCode & kSquare)
+      else	// !(inverseCode & kSquare)
          numberInverseEntries = matrixSize * (matrixSize + 1) / 2;
 
       tNumberEntries = numberInverseEntries * numberClasses;
@@ -552,8 +551,8 @@ Boolean AssignClassInfoMemory (
       if (inverseCode & kAllowLoadingSquare)
          tNumberEntries += (numberChannels * numberChannels - numberInverseEntries);
 
-      classInfoPtr[0].inversePtr = (HDoublePtr) MNewPointer(
-         tNumberEntries * sizeof (double));
+      classInfoPtr[0].inversePtr = (HDoublePtr) MNewPointer (
+																	tNumberEntries * sizeof (double));
       continueFlag = (classInfoPtr[0].inversePtr != NULL);
 
 		}	// end "if (continueFlag && ...)"
@@ -564,8 +563,8 @@ Boolean AssignClassInfoMemory (
       if (meanCode & kNumberChannels)
          numberMeanEntries = numberChannels;
 
-      classInfoPtr[0].meanPtr = (HDoublePtr) MNewPointer(
-         (UInt32) numberClasses * numberMeanEntries * sizeof (double));
+      classInfoPtr[0].meanPtr = (HDoublePtr) MNewPointer (
+								(UInt32)numberClasses * numberMeanEntries * sizeof (double));
       continueFlag = (classInfoPtr[0].meanPtr != NULL);
 
 		}	// end "if (continueFlag && ...)"
@@ -578,16 +577,17 @@ Boolean AssignClassInfoMemory (
 
       if (transformedCovCode & kSquare)
          numberTransformedCovEntries = matrixSize * matrixSize;
-      else // !(transformedCovCode & kSquare)
+      else	// !(transformedCovCode & kSquare)
          numberTransformedCovEntries = matrixSize * (matrixSize + 1) / 2;
 
       tNumberEntries = numberTransformedCovEntries * numberClasses;
 
       if (transformedCovCode & kAllowLoadingSquare)
-         tNumberEntries += (numberChannels * numberChannels - numberTransformedCovEntries);
+         tNumberEntries +=
+								(numberChannels * numberChannels - numberTransformedCovEntries);
 
-      classInfoPtr[0].transformedCovPtr = (HDoublePtr) MNewPointer(
-         tNumberEntries * sizeof (double));
+      classInfoPtr[0].transformedCovPtr = (HDoublePtr) MNewPointer (
+																		tNumberEntries * sizeof (double));
       continueFlag = (classInfoPtr[0].transformedCovPtr != NULL);
 
 		}	// end "if (continueFlag && ...)"
@@ -600,7 +600,7 @@ Boolean AssignClassInfoMemory (
       if (transformedMeanCode & kNumberChannels)
          numberTransformedMeanEntries = numberChannels;
 
-      classInfoPtr[0].transformedMeanPtr = (HDoublePtr)MNewPointer(
+      classInfoPtr[0].transformedMeanPtr = (HDoublePtr)MNewPointer (
 					(UInt32)numberClasses * numberTransformedMeanEntries * sizeof (double));
       continueFlag = (classInfoPtr[0].transformedMeanPtr != NULL);
 
@@ -627,20 +627,20 @@ Boolean AssignClassInfoMemory (
             if (classPtr == NULL)
                statClassNumber = index;
 
-            else //	classPtr != NULL	
-               statClassNumber = classPtr[ index ] - 1;
+            else	//	classPtr != NULL	
+               statClassNumber = classPtr[index] - 1;
 
 						// Get the class storage number.
 
             classStorage = gProjectInfoPtr->storageClass[statClassNumber];
 
             numberPixels =
-               gProjectInfoPtr->classNamesPtr[classStorage].numberStatisticsPixels;
+						gProjectInfoPtr->classNamesPtr[classStorage].numberStatisticsPixels;
 
             if (numberPixels > 0)
 					{
-               classInfoPtr[index].dataValuesPtr = (HDoublePtr) MNewPointer(
-                  numberPixels * numberFloatDataValueEntries * sizeof (double));
+               classInfoPtr[index].dataValuesPtr = (HDoublePtr) MNewPointer (
+								numberPixels * numberFloatDataValueEntries * sizeof (double));
 
                continueFlag = (classInfoPtr[index].dataValuesPtr != NULL);
 
@@ -653,25 +653,25 @@ Boolean AssignClassInfoMemory (
 
          if (covarianceCode > 0)
             classInfoPtr[index].covariancePtr =
-							&classInfoPtr[0].covariancePtr[index * numberCovarianceEntries];
+						&classInfoPtr[0].covariancePtr[index * numberCovarianceEntries];
 
          if (inverseCode > 0)
             classInfoPtr[index].inversePtr =
-							&classInfoPtr[0].inversePtr[index * numberInverseEntries];
+						&classInfoPtr[0].inversePtr[index * numberInverseEntries];
 
          if (meanCode > 0)
             classInfoPtr[index].meanPtr =
-							&classInfoPtr[0].meanPtr[index * numberMeanEntries];
+						&classInfoPtr[0].meanPtr[index * numberMeanEntries];
 
          if (transformedCovCode > 0)
             classInfoPtr[index].transformedCovPtr =
-							&classInfoPtr[0].transformedCovPtr[index * numberTransformedCovEntries];
+						&classInfoPtr[0].transformedCovPtr[index * numberTransformedCovEntries];
 
          if (transformedMeanCode > 0)
             classInfoPtr[index].transformedMeanPtr =
-							&classInfoPtr[0].transformedMeanPtr[index * numberTransformedMeanEntries];
+						&classInfoPtr[0].transformedMeanPtr[index * numberTransformedMeanEntries];
 
-			}	// end "for ( index=0; index<..."
+			}	// end "for (index=0; index<..."
 
 		}	// end "if (continueFlag)"
 
@@ -739,15 +739,15 @@ double Bhattacharyya (
 			// Get 1/2 of the sum of the two covariances.
 			// The 1/2 will be taken care of in the mean part by only dividing
 			// by 4 instead of 8 and in the covariance part by subtracting the
-			// constant 'numberFeature * ln(2)'.						
+			// constant 'numberFeature * ln (2)'.						
 
    tInversePtr = gInverseMatrixMemory.inversePtr;
    temp1Ptr = cov1Ptr;
    temp2Ptr = cov2Ptr;
 
-   for (channel1 = 0; channel1 < (UInt32) numberFeatures; channel1++)
+   for (channel1=0; channel1<(UInt32)numberFeatures; channel1++)
 		{
-      tmpIndex1 = (UInt32) channel1*numberFeatures;
+      tmpIndex1 = (UInt32)channel1*numberFeatures;
       tmpIndex2 = channel1;
 
       for (channel2 = 0; channel2 < channel1; channel2++)
@@ -767,7 +767,7 @@ double Bhattacharyya (
       temp1Ptr++;
       temp2Ptr++;
 
-		}	// end "for ( channel1=1; channel1<=numOutFeatures; channel1++)"
+		}	// end "for (channel1=1; channel1<=numOutFeatures; channel1++)"
 
    InvertSymmetricMatrix (tInversePtr,
 									numberFeatures,
@@ -780,7 +780,7 @@ double Bhattacharyya (
 									kReturnMatrixInverse);
 
    if (gOperationCanceledFlag)
-      return (0);
+																								return (0);
 
 			// Get the mean difference vector.
 			// Don't get confused with tInversePtr being used here.  This is		
@@ -790,7 +790,7 @@ double Bhattacharyya (
    temp1Ptr = mean1Ptr;
    temp2Ptr = mean2Ptr;
 
-   for (channel1 = 0; channel1 < (UInt32) numberFeatures; channel1++)
+   for (channel1=0; channel1<(UInt32)numberFeatures; channel1++)
 		{
       *tInversePtr = *temp1Ptr - *temp2Ptr;
       tInversePtr++;
@@ -799,14 +799,13 @@ double Bhattacharyya (
 
 		}	// end "for (channel1=0; channel1<numberFeatures; channel1++)"
 
-			// Get the i=j component items of the mean part of the
-			// Bhattacharyya distance.															
+			// Get the i=j component items of the mean part of the Bhattacharyya distance.
 
    tInversePtr = gInverseMatrixMemory.inversePtr;
    temp1Ptr = meanDifPtr;
    bhattacharyya1 = 0;
    tmpIndex2 = numberFeatures + 1;
-   for (channel1 = 0; channel1 < (UInt32) numberFeatures; channel1++)
+   for (channel1 = 0; channel1 < (UInt32)numberFeatures; channel1++)
 		{
       meanDifValue = *temp1Ptr;
       bhattacharyya1 += *tInversePtr * meanDifValue * meanDifValue;
@@ -827,7 +826,7 @@ double Bhattacharyya (
    temp1Ptr = meanDifPtr + 1;
    bhattacharyya2 = 0;
    tmpIndex2 = numberFeatures - 1;
-   for (channel1 = 1; channel1 < (UInt32) numberFeatures; channel1++)
+   for (channel1=1; channel1<(UInt32)numberFeatures; channel1++)
 		{
       meanDifValue = *temp1Ptr;
       temp2Ptr = meanDifPtr;
@@ -885,8 +884,7 @@ void ChangeProjectAssociatedImageItem (
    if (windowInfoHandle != NULL)
 		{
       windowInfoPtr = (WindowInfoPtr)GetHandlePointer (windowInfoHandle,
-																			kLock,
-																			kNoMoveHi);
+																			kLock);
 
       if (!windowInfoPtr->projectBaseImageFlag)
 			{
@@ -905,14 +903,14 @@ void ChangeProjectAssociatedImageItem (
 					#endif	// defined multispec_mac || defined multispec_lin
 
 					#if defined multispec_win
-						gActiveImageViewCPtr->Invalidate();
+						gActiveImageViewCPtr->Invalidate ();
 					#endif	// defined multispec_win
 
-					}	// end "if ( gProjectInfoPtr->outlineFieldType != 0 )"
+					}	// end "if (gProjectInfoPtr->outlineFieldType != 0)"
 
-				}	// end "if ( windowInfoPtr->projectWindowFlag )"
+				}	// end "if (windowInfoPtr->projectWindowFlag)"
 
-         else // !windowInfoPtr->projectWindowFlag 
+         else	// !windowInfoPtr->projectWindowFlag 
 				{
             windowInfoPtr->projectWindowFlag = TRUE;
 
@@ -926,7 +924,7 @@ void ChangeProjectAssociatedImageItem (
 				#endif	// defined multispec_mac
 
 				#if defined multispec_win
-					gActiveImageViewCPtr->Invalidate();
+					gActiveImageViewCPtr->Invalidate ();
 				#endif	// defined multispec_win
 				
 				#if defined multispec_lin
@@ -935,11 +933,11 @@ void ChangeProjectAssociatedImageItem (
 
 				}	// else !windowInfoPtr->projectWindowFlag
 
-			}	// end "if ( !windowInfoPtr->projectBaseImageFlag )"
+			}	// end "if (!windowInfoPtr->projectBaseImageFlag)"
 
-      CheckAndUnlockHandle(windowInfoHandle);
+      CheckAndUnlockHandle (windowInfoHandle);
 
-		}	// end "if (windowInfoH != NULL )"
+		}	// end "if (windowInfoH != NULL)"
 
 }	// end "ChangeProjectAssociatedImageItem"
 
@@ -988,7 +986,7 @@ Boolean CheckClassEnhancedStats (
 
       classNamesPtr = gProjectInfoPtr->classNamesPtr;
 
-      for (index = 0; index < numberClasses; index++)
+      for (index=0; index<numberClasses; index++)
 			{
          classNumber = classPtr[index] - 1;
 
@@ -1005,7 +1003,7 @@ Boolean CheckClassEnhancedStats (
 											gProjectInfoPtr->classNamesPtr[classStorage].name,
 											continueFlag);
 
-			}	// end "for ( index=0;..."
+			}	// end "for (index=0;..."
 
 		}	// end "if (classPtr != NULL)"
 
@@ -1038,7 +1036,7 @@ Boolean CheckClassEnhancedStats (
 //	Coded By:			Larry L. Biehl			Date: 01/15/1989
 //	Revised By:			Larry L. Biehl			Date: 09/24/2015	
 
-Boolean CheckClassStats(
+Boolean CheckClassStats (
 				UInt32*								numberClassesPtr,
 				SInt16*								classPtr,
 				SInt16								covarianceStatsToUse,
@@ -1083,7 +1081,7 @@ Boolean CheckClassStats(
 
    newIndex = 0;
    continueFlag = TRUE;
-   for (index = 0; index<*numberClassesPtr; index++)
+   for (index=0; index<*numberClassesPtr; index++)
 		{
       if (classPtr != NULL)
 			{
@@ -1092,7 +1090,7 @@ Boolean CheckClassStats(
 
 			}	// end "if (classPtr != NULL)"
 
-      else // classPtr == NULL
+      else	// classPtr == NULL
 			{
          continueFlag = FALSE;
          classStorage = gProjectInfoPtr->storageClass[index];
@@ -1100,7 +1098,7 @@ Boolean CheckClassStats(
 								classNamesPtr[classStorage].numberStatisticsPixels > 0)
             continueFlag = TRUE;
 
-			} // end "else classPtr == NULL"
+			}	// end "else classPtr == NULL"
 
       if (continueFlag)
 			{
@@ -1108,9 +1106,9 @@ Boolean CheckClassStats(
             lCovarianceStatsToUse = classNamesPtr[classStorage].covarianceStatsToUse;
 
          okayFlag = DetermineIfSpecifiedStatisticsExist (
-																&classNamesPtr[classStorage],
-																lCovarianceStatsToUse,
-																&computeCommonCovarianceFlag);
+																	&classNamesPtr[classStorage],
+																	lCovarianceStatsToUse,
+																	&computeCommonCovarianceFlag);
 
          if (okayFlag)
 				{
@@ -1131,15 +1129,16 @@ Boolean CheckClassStats(
                newIndex++;
 
                if (minimumNumberTrainPixelsPtr != NULL)
-                  *minimumNumberTrainPixelsPtr = MIN (*minimumNumberTrainPixelsPtr,
-														(SInt32)classNamesPtr[classStorage].numberStatisticsPixels);
+                  *minimumNumberTrainPixelsPtr = MIN (
+									*minimumNumberTrainPixelsPtr,
+									(SInt32)classNamesPtr[classStorage].numberStatisticsPixels);
 
 
 					}	// end "else !checkOnlyFlag && !computeCommonCovarianceFlag"
 
 				}	// end "if (okayFlag)"
 
-         else // !okayFlag
+         else	// !okayFlag
             checkFlag = FALSE;
 
          if (computeCommonCovarianceFlag)
@@ -1212,14 +1211,14 @@ Boolean CheckNumberOfPixelsInClass (
       classNamesPtr = gProjectInfoPtr->classNamesPtr;
       returnFlag = TRUE;
 
-				// Now verify that the number of pixels in the class is at
-				// one more than the number of channels to be used.  If not 	
-				// then list those classes that do not meet the criterion		
+				// Now verify that the number of pixels in the class is at one more than
+				// the number of channels to be used.  If not then list those classes that
+				// do not meet the criterion
 
-      resultsFileStreamPtr = GetResultsFileStreamPtr(0);
+      resultsFileStreamPtr = GetResultsFileStreamPtr (0);
       continueFlag = TRUE;
 
-      for (index = 0; index < numberClasses; index++)
+      for (index=0; index<numberClasses; index++)
 			{
          classNumber = classPtr[index] - 1;
 
@@ -1228,11 +1227,11 @@ Boolean CheckNumberOfPixelsInClass (
          classStorage = gProjectInfoPtr->storageClass[classNumber];
 
          if (classNamesPtr[classStorage].numberStatisticsPixels < numberFeatures + 1 &&
-									classNamesPtr[classStorage].covarianceStatsToUse == kOriginalStats)
+							classNamesPtr[classStorage].covarianceStatsToUse == kOriginalStats)
 				{
-            pstr((char*) &gTextString2,
-               (char*) &gProjectInfoPtr->classNamesPtr[classStorage].name,
-               &strLength);
+            pstr ((char*)gTextString2,
+							(char*)&gProjectInfoPtr->classNamesPtr[classStorage].name,
+							&strLength);
 
             if (returnFlag)
 					{
@@ -1248,19 +1247,19 @@ Boolean CheckNumberOfPixelsInClass (
 									classNamesPtr[classStorage].numberStatisticsPixels,
 									gEndOfLine);
 
-               SysBeep(10);
+               SysBeep (10);
 
 					}	// end "if (returnFlag)"
 
-            else // !returnFlag 
-               sprintf ((char*)&gTextString,
+            else	// !returnFlag 
+               sprintf ((char*)gTextString,
 								"      %s with %lld pixels%s",
 								gTextString2,
 								classNamesPtr[classStorage].numberStatisticsPixels,
 								gEndOfLine);
 
             continueFlag = OutputString (resultsFileStreamPtr,
-														(char*) &gTextString,
+														(char*)gTextString,
 														0,
 														gOutputForce1Code,
 														continueFlag);
@@ -1269,7 +1268,7 @@ Boolean CheckNumberOfPixelsInClass (
 
 				}	// end "if (classNamesPtr[classNumber]... && ..."
 
-			}	// end "for ( index=0;..."
+			}	// end "for (index=0;..."
 
       if (!returnFlag)
 					// Insert a blank line after the list if there is one.
@@ -1356,20 +1355,19 @@ SInt16 ClassDialog (
 				//	Item 6: Load title of class list dialog.
 				//	Item 7: Load title for class list.											
 
-      SetWTitle (GetDialogWindow(dialogPtr), "\pSelect Classes");
-      LoadDItemString (dialogPtr, 7, (Str255*) "\pClass List");
+      SetWTitle (GetDialogWindow (dialogPtr), "\pSelect Classes");
+      LoadDItemString (dialogPtr, 7, (Str255*)"\pClass List");
 
 				// Initialize the class range text edit items.
 
-      LoadDItemValue (dialogPtr, 9, (SInt32) 1);
-      LoadDItemValue (dialogPtr, 11, (SInt32) numberInputClasses);
-      LoadDItemValue (dialogPtr, 13, (SInt32) 1);
+      LoadDItemValue (dialogPtr, 9, (SInt32)1);
+      LoadDItemValue (dialogPtr, 11, (SInt32)numberInputClasses);
+      LoadDItemValue (dialogPtr, 13, (SInt32)1);
       SetDLogControlHilite (dialogPtr, 14, 0);
 
 				// Center the dialog and then show it.
 
-      ShowDialogWindow (
-					dialogPtr, kChannelSpecificationID, kDoNotSetUpDFilterTable);
+      ShowDialogWindow (dialogPtr, kChannelSpecificationID, kDoNotSetUpDFilterTable);
 
 				// Continue if there is a valid dialog list handle.
 
@@ -1378,14 +1376,15 @@ SInt16 ClassDialog (
 			{
 					// Load the class names into the list.
 
-         LSetDrawingMode(FALSE, gDialogListHandle);
+         LSetDrawingMode (FALSE, gDialogListHandle);
 
-         LoadClassNamesIntoList(gDialogListHandle);
+         LoadClassNamesIntoList (gDialogListHandle);
 
-         SInt32 numberSelectedItems = SetClassListSelections (gDialogListHandle,
-																					(SInt32)numberInputClasses,
-																					(SInt32)*numberOutputClassesPtr,
-																					(UInt16*)classPtr);
+         SInt32 numberSelectedItems = SetClassListSelections (
+																		gDialogListHandle,
+																		(SInt32)numberInputClasses,
+																		(SInt32)*numberOutputClassesPtr,
+																		(UInt16*)classPtr);
 
 					// Set the number of selected items.
 
@@ -1395,17 +1394,20 @@ SInt16 ClassDialog (
 
          LSetDrawingMode (TRUE, gDialogListHandle);
 
-         LUpdate (GetPortVisibleRegion (
-								GetDialogPort(dialogPtr), gTempRegion1), gDialogListHandle);
-         SetEmptyRgn(gTempRegion1);
+         LUpdate (GetPortVisibleRegion (GetDialogPort (dialogPtr), gTempRegion1),
+							gDialogListHandle);
+         SetEmptyRgn (gTempRegion1);
 
 					// Handle modal dialog selections for one column class list.
 
-         returnFlag = ModalOneColListDialog(dialogPtr, numberInputClasses,
-            numberOutputClassesPtr, classPtr, minimumNumberClasses);
+         returnFlag = ModalOneColListDialog (dialogPtr,
+															numberInputClasses,
+															numberOutputClassesPtr,
+															classPtr,
+															minimumNumberClasses);
 
          if (gDialogListHandle != NULL)
-            LDispose(gDialogListHandle);
+            LDispose (gDialogListHandle);
          gDialogListHandle = NULL;
 
 			}	// end "if (gDialogListHandle != NULL)"
@@ -1415,7 +1417,7 @@ SInt16 ClassDialog (
 				// Hilite the OK control again in the parent dialog box if it exists.
 
       if (parentOKHandle != NULL)
-         HiliteControl ((ControlHandle) parentOKHandle, 0);
+         HiliteControl ((ControlHandle)parentOKHandle, 0);
 
       if (!returnFlag && currentSelection == kAllMenuItem)
          *numberOutputClassesPtr = numberInputClasses;
@@ -1461,165 +1463,163 @@ SInt16 ClassPairWeightsDialog (
 				SInt16								interClassWeightsSelection,
 				SInt16*								defaultClassPairWeightPtr)
  {
-#if defined multispec_mac
-	DialogPtr							dialogPtr;
+	#if defined multispec_mac
+		DialogPtr							dialogPtr;
 
-   Boolean								continueFlag;
+		Boolean								continueFlag;
 
 
-			// Get the modal dialog for the reformat specification
+				// Get the modal dialog for the reformat specification
 
-   dialogPtr = LoadRequestedDialog (kClassPairWeightsDialogID, kCopyScrap, 1, 2);
-   if (dialogPtr == NULL)
-																								return (FALSE);
+		dialogPtr = LoadRequestedDialog (kClassPairWeightsDialogID, kCopyScrap, 1, 2);
+		if (dialogPtr == NULL)
+																							return (FALSE);
 
-			// Get the list handle for the class-weight list.
+				// Get the list handle for the class-weight list.
 
-   gDialogListHandle = GetOneColumnDialogListHandle(dialogPtr, 6);
+		gDialogListHandle = GetOneColumnDialogListHandle (dialogPtr, 6);
 
-			// Get the list handle for the weight list.
+				// Get the list handle for the weight list.
 
-   if (gDialogListHandle != NULL)
-      gDialogListHandle2 = GetOneColumnDialogListHandle (dialogPtr, 7);
+		if (gDialogListHandle != NULL)
+			gDialogListHandle2 = GetOneColumnDialogListHandle (dialogPtr, 7);
 
-			// Continue if there is a valid dialog list handle.
+				// Continue if there is a valid dialog list handle.
 
-   if (gDialogListHandle != NULL && gDialogListHandle2 != NULL)
-		{
-				// Set some list parameters
-
-      (*gDialogListHandle)->selFlags = lNoRect + lNoExtend + lUseSense;
-      (*gDialogListHandle2)->selFlags = lOnlyOne;
-
-				//	Load address of routine that will load the class-symbol list.
-
-      SetDialogItemDrawRoutine (dialogPtr, 6, gCreateOneColumnList1Ptr);
-
-				//	Load address of routine that will load the class pair-weight list.
-
-      SetDialogItemDrawRoutine (dialogPtr, 7, gCreateOneColumnList2Ptr);
-
-				// Initialize some dialog parameters.
-
-      ClassPairWeightsDialogInitialize (dialogPtr,
-														*defaultClassPairWeightPtr,
-														defaultClassPairWeightPtr);
-
-				//	Load 0 in for new weight.
-
-      LoadDItemValue (dialogPtr, 9, 0);
-
-				//	Load in the default weight.
-
-      LoadDItemValue (dialogPtr, 14, (SInt32)*defaultClassPairWeightPtr);
-
-				// Center the dialog and then show it.
-
-      ShowDialogWindow (
-         dialogPtr, kClassPairWeightsDialogID, kDoNotSetUpDFilterTable);
-
-				// Set default text selection to first edit text item.
-
-      SelectDialogItemText(dialogPtr, 9, 0, INT16_MAX);
-
-				// Get deactivate event for the window that is now behind the
-				// dialog and handle it.														
-
-      CheckSomeEvents(activMask);
-
-				// Load the class list.
-
-      LoadClassList (
-				dialogPtr, gDialogListHandle, numberOfClassesToUse, NULL, NULL, FALSE);
-
-				// Load the class weight group list if any exist.
-
-      LoadClassWeightGroups(dialogPtr, gDialogListHandle2, *weightsListPtrPtr);
-
-				// Handle modal dialog selections for one column class list.
-
-      continueFlag = FALSE;
-      if (gMemoryError == noErr)
-         continueFlag = ClassPairWeightsDialogModal (dialogPtr, numberOfClassesToUse);
-
-      if (continueFlag)
+		if (gDialogListHandle != NULL && gDialogListHandle2 != NULL)
 			{
-         ClassPairWeightsDialogOK (dialogPtr,
-												gDialogListHandle2,
-												weightsListPtrPtr,
-												&interClassWeightsSelection,
-												(SInt32) GetDItemValue(dialogPtr, 14),
-												defaultClassPairWeightPtr);
+					// Set some list parameters
 
-			}	// end "if (continueFlag)"
+			(*gDialogListHandle)->selFlags = lNoRect + lNoExtend + lUseSense;
+			(*gDialogListHandle2)->selFlags = lOnlyOne;
 
-				// Make certain that global memory error is set back to 'noErr'.
+					//	Load address of routine that will load the class-symbol list.
 
-      gMemoryError = noErr;
+			SetDialogItemDrawRoutine (dialogPtr, 6, gCreateOneColumnList1Ptr);
 
-		}	// end "if (gDialogListHandle != NULL && ...)"
+					//	Load address of routine that will load the class pair-weight list.
 
-   if (gDialogListHandle != NULL)
-      LDispose(gDialogListHandle);
-   gDialogListHandle = NULL;
+			SetDialogItemDrawRoutine (dialogPtr, 7, gCreateOneColumnList2Ptr);
 
-   if (gDialogListHandle2 != NULL)
-      LDispose(gDialogListHandle2);
-   gDialogListHandle2 = NULL;
+					// Initialize some dialog parameters.
 
-   CloseRequestedDialog (dialogPtr, kDoNotSetUpDFilterTable);
-#endif	// defined multispec_mac
+			ClassPairWeightsDialogInitialize (dialogPtr,
+															*defaultClassPairWeightPtr,
+															defaultClassPairWeightPtr);
 
-#	if defined multispec_win
+					//	Load 0 in for new weight.
+
+			LoadDItemValue (dialogPtr, 9, 0);
+
+					//	Load in the default weight.
+
+			LoadDItemValue (dialogPtr, 14, (SInt32)*defaultClassPairWeightPtr);
+
+					// Center the dialog and then show it.
+
+			ShowDialogWindow (
+						dialogPtr, kClassPairWeightsDialogID, kDoNotSetUpDFilterTable);
+
+					// Set default text selection to first edit text item.
+
+			SelectDialogItemText (dialogPtr, 9, 0, INT16_MAX);
+
+					// Get deactivate event for the window that is now behind the
+					// dialog and handle it.														
+
+			CheckSomeEvents (activMask);
+
+					// Load the class list.
+
+			LoadClassList (
+					dialogPtr, gDialogListHandle, numberOfClassesToUse, NULL, NULL, FALSE);
+
+					// Load the class weight group list if any exist.
+
+			LoadClassWeightGroups (dialogPtr, gDialogListHandle2, *weightsListPtrPtr);
+
+					// Handle modal dialog selections for one column class list.
+
+			continueFlag = FALSE;
+			if (gMemoryError == noErr)
+				continueFlag = ClassPairWeightsDialogModal (dialogPtr, numberOfClassesToUse);
+
+			if (continueFlag)
+				{
+				ClassPairWeightsDialogOK (dialogPtr,
+													gDialogListHandle2,
+													weightsListPtrPtr,
+													&interClassWeightsSelection,
+													(SInt32)GetDItemValue (dialogPtr, 14),
+													defaultClassPairWeightPtr);
+
+				}	// end "if (continueFlag)"
+
+					// Make certain that global memory error is set back to 'noErr'.
+
+			gMemoryError = noErr;
+
+			}	// end "if (gDialogListHandle != NULL && ...)"
+
+		if (gDialogListHandle != NULL)
+			LDispose (gDialogListHandle);
+		gDialogListHandle = NULL;
+
+		if (gDialogListHandle2 != NULL)
+			LDispose (gDialogListHandle2);
+		gDialogListHandle2 = NULL;
+
+		CloseRequestedDialog (dialogPtr, kDoNotSetUpDFilterTable);
+	#endif	// defined multispec_mac
+
+	#if defined multispec_win
 		CMClassPairWeightDlg* classPairWeightDialogPtr = NULL;
 
 		TRY
 			{
-			classPairWeightDialogPtr = new CMClassPairWeightDlg();
+			classPairWeightDialogPtr = new CMClassPairWeightDlg ();
 
-			interClassWeightsSelection =
-			classPairWeightDialogPtr->DoDialog (
-												numberOfClassesToUse,
-												weightsListPtrPtr,
-												interClassWeightsSelection,
-												defaultClassPairWeightPtr);
+			interClassWeightsSelection = classPairWeightDialogPtr->DoDialog (
+																		numberOfClassesToUse,
+																		weightsListPtrPtr,
+																		interClassWeightsSelection,
+																		defaultClassPairWeightPtr);
 
 			if (classPairWeightDialogPtr != NULL)
 				delete classPairWeightDialogPtr;
 
 			}
 
-		CATCH_ALL(e)
+		CATCH_ALL (e)
 			{
-			MemoryMessage(0, kObjectMessage);
+			MemoryMessage (0, kObjectMessage);
 			}
 		END_CATCH_ALL
-#	endif	// defined multispec_win
+	#endif	// defined multispec_win
 
-#	if defined multispec_lin
+	#if defined multispec_lin
 		CMClassPairWeightDlg* classPairWeightDialogPtr = NULL;
 
 		try
 			{
-			classPairWeightDialogPtr = new CMClassPairWeightDlg();
+			classPairWeightDialogPtr = new CMClassPairWeightDlg ();
 
-			interClassWeightsSelection =
-			classPairWeightDialogPtr->DoDialog(
-			numberOfClassesToUse,
-			weightsListPtrPtr,
-			interClassWeightsSelection,
-			defaultClassPairWeightPtr);
+			interClassWeightsSelection = classPairWeightDialogPtr->DoDialog (
+																		numberOfClassesToUse,
+																		weightsListPtrPtr,
+																		interClassWeightsSelection,
+																		defaultClassPairWeightPtr);
 
 			if (classPairWeightDialogPtr != NULL)
 				delete classPairWeightDialogPtr;
 
 			}
 
-		catch(int e)
+		catch (int e)
 			{
-			MemoryMessage(0, kObjectMessage);
+			MemoryMessage (0, kObjectMessage);
 			}
-#	endif	// defined multispec_lin
+	#endif	// defined multispec_lin
    
    return (interClassWeightsSelection);
 
@@ -1649,72 +1649,72 @@ SInt16 ClassPairWeightsDialog (
 //	Coded By:			Larry L. Biehl			Date: 12/28/1999
 //	Revised By:			Larry L. Biehl			Date: 12/28/1999
 //	Revised By:			Wei-Kang Hsu			Date: 12/21/2016
-void ClassPairWeightsDialogChangeWeight(
-   DialogPtr dialogPtr,
-#if defined multispec_lin
-   wxListBox* classListHandle,
-   wxListBox* weightListHandle,
-#else
-   ListHandle classListHandle,
-   ListHandle weightListHandle,
-#endif
-   SInt16 newWeight)
- {
-   Cell cell;
+void ClassPairWeightsDialogChangeWeight (
+				DialogPtr							dialogPtr,
+				#if defined multispec_lin
+					wxListBox*							classListHandle,
+					wxListBox*							weightListHandle,
+				#else
+					ListHandle							classListHandle,
+					ListHandle							weightListHandle,
+				#endif
+				SInt16								newWeight)
+{
+	Cell									cell;
 
-   SInt16 stringLength;
+   SInt16								stringLength;
 
 
-   sprintf((char*) &gTextString, "%3d-", newWeight);
+   sprintf ((char*)gTextString, "%3d-", newWeight);
    stringLength = 4;
 
    cell.h = 0;
    cell.v = 0;
-   while (LGetSelect(TRUE, &cell, classListHandle)) {
-      // After incrementing, cell.v will be the class		
-      // number and cell.v will be ready for getting the	
-      // next hilited list line.									
+   while (LGetSelect (TRUE, &cell, classListHandle))
+		{
+				// After incrementing, cell.v will be the class
+				// number and cell.v will be ready for getting the	
+				// next hilited list line.									
 
       cell.v++;
 
-      // Convert the class number to a string.				
+				// Convert the class number to a string.
 
       NumToString ((UInt32)cell.v, gTextString2);
       stringLength += gTextString2[0] + 1;
       if (stringLength > 255)
          break;
 
-      // Add class number to the list.							
+				// Add class number to the list.
 
-      strncat((char*) &gTextString,
-         (char*) &gTextString2[1],
-         gTextString2[0]);
+      strncat ((char*)gTextString,
+						(char*)&gTextString2[1],
+						gTextString2[0]);
 
-      // Append a blank character to the list.				
+				// Append a blank character to the list.
 
-      strncat((char*) &gTextString, " ", 1);
+      strncat ((char*)gTextString, " ", 1);
       
-   } // end "while ( LGetSelect (TRUE, ...) )" 
+		}	// end "while (LGetSelect (TRUE, ...))"
 
    stringLength--;
-#if defined multispec_mac 
-   TextFont(gWindowTextFont); // monaco  
-#endif	// defined multispec_mac 
- #if defined multispec_lin
-   SInt16 numberrow =  (SInt16) weightListHandle->GetCount(); //modified  Oct 12 2015
-    cell.v = LAddRow(1, numberrow, weightListHandle);      
-//   cell.v = LAddRow(1, SHRT_MAX, weightListHandle);  
-#else   
-   cell.v = LAddRow(1, SHRT_MAX, weightListHandle);
-#endif
-   LSetCell((char*) &gTextString, stringLength, cell, weightListHandle);
+	#if defined multispec_mac
+		TextFont	(gWindowTextFont); // monaco
+	#endif	// defined multispec_mac
 
-   // Unhilite this button until another set of 			
-   // classes has been selected.									
+	#if defined multispec_lin
+		SInt16 numberrow =  (SInt16)weightListHandle->GetCount (); //modified  Oct 12 2015
+		cell.v = LAddRow (1, numberrow, weightListHandle);
+	#else
+		cell.v = LAddRow (1, SHRT_MAX, weightListHandle);
+	#endif
+   LSetCell ((char*)gTextString, stringLength, cell, weightListHandle);
 
-   SetDLogControlHilite(dialogPtr, IDC_AddButton, 255);
+			// Unhilite this button until another set of classes has been selected.
 
-} // end "ClassPairWeightsDialogChangeWeight"	
+   SetDLogControlHilite (dialogPtr, IDC_AddButton, 255);
+
+}	// end "ClassPairWeightsDialogChangeWeight"
 
 
 
@@ -1740,59 +1740,60 @@ void ClassPairWeightsDialogChangeWeight(
 //	Coded By:			Larry L. Biehl			Date: 12/28/1999
 //	Revised By:			Larry L. Biehl			Date: 12/28/1999
 
-SInt16 ClassPairWeightsDialogClassSelectionChange(
-   DialogPtr dialogPtr,
-#if defined multispec_lin
-   wxListBox* listHandle,
-#else
-   ListHandle listHandle,
-#endif
-   SInt16 newWeight)
- {
-   Cell cell;
+SInt16 ClassPairWeightsDialogClassSelectionChange (
+				DialogPtr							dialogPtr,
+				#if defined multispec_lin
+					wxListBox*							listHandle,
+				#else
+					ListHandle							listHandle,
+				#endif
+				SInt16								newWeight)
+{
+	Cell									cell;
 
-   SInt16 item,
-      minimumItemsRequired = 2,
-      selectedCell;
+   SInt16								item,
+											minimumItemsRequired = 2,
+											selectedCell;
 
-   Boolean hiliteFlag;
+   Boolean								hiliteFlag;
 
 
    cell.h = 0;
    cell.v = 0;
 
    hiliteFlag = TRUE;
-   for (item = 1; item <= minimumItemsRequired; item++) {
-      if (!LGetSelect(TRUE, &cell, listHandle))
+   for (item=1; item<=minimumItemsRequired; item++)
+		{
+      if (!LGetSelect (TRUE, &cell, listHandle))
          hiliteFlag = FALSE;
 
-      else // LGetSelect (TRUE, &cell, ... 
-      {
+      else	// LGetSelect (TRUE, &cell, ... 
+			{
          if (item == 1)
             selectedCell = cell.v;
 
          cell.v++;
 
-      } // end "else LGetSelect (TRUE, &cell, ..." 
+			}	// end "else LGetSelect (TRUE, &cell, ..."
 
-   } // end "for (item=1; ..." 
+		}	// end "for (item=1; ..."
 
    if (newWeight < 0)
       hiliteFlag = FALSE;
 
    if (hiliteFlag)
-      SetDLogControlHilite(dialogPtr, IDC_AddButton, 0);
+      SetDLogControlHilite (dialogPtr, IDC_AddButton, 0);
 
-   else // !hiliteFlag 
-   {
-      SetDLogControlHilite(dialogPtr, IDC_AddButton, 255);
+   else	// !hiliteFlag 
+		{
+      SetDLogControlHilite (dialogPtr, IDC_AddButton, 255);
       selectedCell = -1;
 
-   } // end "else !hiliteFlag" 
+		}	// end "else !hiliteFlag"
 
    return (selectedCell);
 
-} // end "ClassPairWeightsDialogClassSelectionChange"
+}	// end "ClassPairWeightsDialogClassSelectionChange"
 
 
 
@@ -1818,22 +1819,22 @@ SInt16 ClassPairWeightsDialogClassSelectionChange(
 //	Coded By:			Larry L. Biehl			Date: 12/20/1999
 //	Revised By:			Larry L. Biehl			Date: 12/28/1999
 
-void ClassPairWeightsDialogInitialize(
-   DialogPtr dialogPtr,
-   SInt16 defaultClassPairWeight,
-   SInt16* localDefaultClassPairWeightPtr)
+void ClassPairWeightsDialogInitialize (
+				DialogPtr							dialogPtr,
+				SInt16								defaultClassPairWeight,
+				SInt16*								localDefaultClassPairWeightPtr)
  {
-   //	Unhilite the 'Add' button.										
+			//	Unhilite the 'Add' button.
 
-   SetDLogControlHilite(dialogPtr, IDC_AddButton, 255);
+   SetDLogControlHilite (dialogPtr, IDC_AddButton, 255);
 
-   //	Unhilite the 'Remove' button.									
+			//	Unhilite the 'Remove' button.
 
-   SetDLogControlHilite(dialogPtr, IDC_RemoveButton, 255);
+   SetDLogControlHilite (dialogPtr, IDC_RemoveButton, 255);
 
    *localDefaultClassPairWeightPtr = defaultClassPairWeight;
 
-} // end "ClassPairWeightsDialogInitialize" 
+}	// end "ClassPairWeightsDialogInitialize"
 
 
 
@@ -1860,41 +1861,41 @@ void ClassPairWeightsDialogInitialize(
 //	Coded By:			Larry L. Biehl			Date: 06/14/1990
 //	Revised By:			Larry L. Biehl			Date: 01/30/1998	
 
-Boolean ClassPairWeightsDialogModal(
-   DialogPtr dialogPtr,
-   UInt16 numberOfClassesToUse)
- {
-   Rect theBox;
+Boolean ClassPairWeightsDialogModal (
+				DialogPtr							dialogPtr,
+				UInt16								numberOfClassesToUse)
+{
+	Rect									theBox;
 
-   Cell cell;
+   Cell									cell;
 
-   Handle okHandle,
-      theHandle;
+   Handle								okHandle,
+											theHandle;
 
-   SInt32 newWeight,
-      saveDefaultWeight,
-      saveNewWeight;
+   SInt32								newWeight,
+											saveDefaultWeight,
+											saveNewWeight;
 
-   SInt16 //						defaultEqualWeight = 10,
-   itemHit,
-      //											minimumItemsRequired = 2,
-      returnCode,
-      selectedCell,
-      selectedWeightGroupCell,
-      theType;
+   SInt16								//defaultEqualWeight = 10,
+											itemHit,
+											//minimumItemsRequired = 2,
+											returnCode,
+											selectedCell,
+											selectedWeightGroupCell,
+											theType;
 
-   Boolean modalDone;
+   Boolean								modalDone;
 
 
-   // Continue if dialogPtr and gDialogListHandle are not NULL.				
+			// Continue if dialogPtr and gDialogListHandle are not NULL.
 
    if (dialogPtr != NULL &&
-      gDialogListHandle != NULL &&
-      gDialogListHandle2 != NULL) {
+			gDialogListHandle != NULL &&
+				gDialogListHandle2 != NULL)
+		{
+				// Get the "handle" for the OK button for use later.
 
-      // Get the "handle" for the OK button for use later.					
-
-      GetDialogItem(dialogPtr, 1, &theType, &okHandle, &theBox);
+      GetDialogItem (dialogPtr, 1, &theType, &okHandle, &theBox);
 
       cell.h = 0;
       modalDone = FALSE;
@@ -1902,132 +1903,124 @@ Boolean ClassPairWeightsDialogModal(
       selectedCell = -1;
       itemHit = 0;
       do {
-         //		   ModalDialog (gTwoListDialogFilterPtr, &itemHit);
-         ModalDialog(gProcessorDialogFilterPtr, &itemHit);
-         if (itemHit > 2) {
-            switch (itemHit) {
+         //ModalDialog (gTwoListDialogFilterPtr, &itemHit);
+         ModalDialog (gProcessorDialogFilterPtr, &itemHit);
+         if (itemHit > 2)
+				{
+            switch (itemHit)
+					{
                case 6:
-
-                  selectedCell = ClassPairWeightsDialogClassSelectionChange(
-                     dialogPtr,
-                     gDialogListHandle,
-                     saveNewWeight);
-
-                  break;
+                  selectedCell = ClassPairWeightsDialogClassSelectionChange (
+																						dialogPtr,
+																						gDialogListHandle,
+																						saveNewWeight);
+							break;
 
                case 7:
-
                   selectedWeightGroupCell =
-                     ClassPairWeightsDialogWeightSelectionChange(
-                     dialogPtr,
-                     gDialogListHandle2);
-
+											ClassPairWeightsDialogWeightSelectionChange (
+																						dialogPtr,
+																						gDialogListHandle2);
                   break;
 
                case 9: // New weight value.										
-                  GetDialogItem(dialogPtr, 9, &theType, &theHandle, &theBox);
-                  GetDialogItemText(theHandle, gTextString);
-                  if (gTextString[0] > 0) {
-                     newWeight = GetDItemValue(dialogPtr, 9);
+                  GetDialogItem (dialogPtr, 9, &theType, &theHandle, &theBox);
+                  GetDialogItemText (theHandle, gTextString);
+                  if (gTextString[0] > 0)
+							{
+                     newWeight = GetDItemValue (dialogPtr, 9);
                      if (newWeight > 99 || newWeight < 0)
-                        NumberErrorAlert(saveNewWeight, dialogPtr, 9);
+                        NumberErrorAlert (saveNewWeight, dialogPtr, 9);
 
-                     else // newWeight >= 0 && newWeight <= 99 
-                     {
+                     else	// newWeight >= 0 && newWeight <= 99 
+								{
                         saveNewWeight = newWeight;
                         if (selectedCell >= 0)
-                           SetDLogControlHilite(dialogPtr, 10, 0);
+                           SetDLogControlHilite (dialogPtr, 10, 0);
 
-                     } // end "else newWeight >= 0 && ..." 
+								}	// end "else newWeight >= 0 && ..."
 
-                  }// end "if ( gTextString[0] < 0)" 
+							}	// end "if (gTextString[0] < 0)"
 
-                  else // gTextString[0] <= 0 
-                  {
+                  else	// gTextString[0] <= 0 
+							{
                      saveNewWeight = -1;
-                     SetDLogControlHilite(dialogPtr, 10, 255);
+                     SetDLogControlHilite (dialogPtr, 10, 255);
 
-                  } // end "else gTextString[0] <= 0" 
-
+							}	// end "else gTextString[0] <= 0"
                   break;
 
-               case 10: // Add selected class pair weight set.	
-
-                  ClassPairWeightsDialogChangeWeight(dialogPtr,
-                     gDialogListHandle,
-                     gDialogListHandle2,
-                     saveNewWeight);
-
+               case 10: // Add selected class pair weight set.
+                  ClassPairWeightsDialogChangeWeight (dialogPtr,
+																		gDialogListHandle,
+																		gDialogListHandle2,
+																		saveNewWeight);
                   break;
 
-               case 11: // Remove selected class pair weight sets.		
-
-                  TextFont(gWindowTextFont); // monaco  
+               case 11: // Remove selected class pair weight sets.
+                  TextFont (gWindowTextFont); // monaco  
 
                   selectedWeightGroupCell =
-                     ClassPairWeightsDialogRemoveWeightSelection(
-                     dialogPtr,
-                     gDialogListHandle2,
-                     selectedWeightGroupCell);
-
+										ClassPairWeightsDialogRemoveWeightSelection	(
+																			dialogPtr,
+																			gDialogListHandle2,
+																			selectedWeightGroupCell);
                   break;
 
-               case 12: // Help 
+               case 12: // Help
+                  HiliteControl ((ControlHandle)okHandle, 255);
+                  returnCode = DisplayAlert (1152, 0, kAlertStrID, 9, 0, NULL);
 
-                  HiliteControl((ControlHandle) okHandle, 255);
-                  returnCode = DisplayAlert(1152, 0, kAlertStrID, 9, 0, NULL);
-
-                  TextFont(gWindowTextFont); // monaco  
-                  LUpdate(GetPortVisibleRegion(
-                     GetDialogPort(dialogPtr), gTempRegion1), gDialogListHandle);
-                  SetEmptyRgn(gTempRegion1);
-                  LUpdate(GetPortVisibleRegion(
-                     GetDialogPort(dialogPtr), gTempRegion1), gDialogListHandle2);
-                  SetEmptyRgn(gTempRegion1);
-                  HiliteControl((ControlHandle) okHandle, 0);
+                  TextFont (gWindowTextFont); // monaco
+                  LUpdate (GetPortVisibleRegion (GetDialogPort (dialogPtr), gTempRegion1),
+										gDialogListHandle);
+                  SetEmptyRgn (gTempRegion1);
+                  LUpdate (GetPortVisibleRegion (GetDialogPort (dialogPtr), gTempRegion1),
+										gDialogListHandle2);
+                  SetEmptyRgn (gTempRegion1);
+                  HiliteControl ((ControlHandle)okHandle, 0);
                   break;
 
                case 14: // Enter edit weight value.								
-                  GetDialogItem(dialogPtr, 14, &theType, &theHandle, &theBox);
-                  GetDialogItemText(theHandle, gTextString);
-                  if (gTextString[0] > 0) {
-                     newWeight = GetDItemValue(dialogPtr, 14);
+                  GetDialogItem (dialogPtr, 14, &theType, &theHandle, &theBox);
+                  GetDialogItemText (theHandle, gTextString);
+                  if (gTextString[0] > 0)
+							{
+                     newWeight = GetDItemValue (dialogPtr, 14);
                      if (newWeight > 99 || newWeight < 0)
-                        NumberErrorAlert(saveDefaultWeight, dialogPtr, 14);
+                        NumberErrorAlert (saveDefaultWeight, dialogPtr, 14);
 
-                     else // newWeight >= 0 && newWeight <= 99 
-                     {
+                     else	// newWeight >= 0 && newWeight <= 99
+								{
                         saveDefaultWeight = newWeight;
 
-                     } // end "else newWeight >= 0 && ..." 
+								}	// end "else newWeight >= 0 && ..."
 
-                  }// end "if ( gTextString[0] < 0)" 
+							}	// end "if (gTextString[0] < 0)"
 
-                  else // gTextString[0] <= 0 
-                  {
+                  else	// gTextString[0] <= 0 
+							{
                      saveDefaultWeight = -1;
 
-                  } // end "else gTextString[0] <= 0" 
-
+							}	// end "else gTextString[0] <= 0"
                   break;
 
-            } // end "switch (itemHit)" 
+					}	// end "switch (itemHit)"
 
-         }// end "if (itemHit > 2)" 
+				}	// end "if (itemHit > 2)"
 
          else if (itemHit > 0) // and itemHit <= 2
-            // itemHit == 1 is OK, itemHit == 2 is Cancel.					
-
+						// itemHit == 1 is OK, itemHit == 2 is Cancel.
             modalDone = TRUE;
 
-      } while (!modalDone);
+			} while (!modalDone);
 
-   } // end "if (dialogPtr != NULL && ...)" 
+		}	// end "if (dialogPtr != NULL && ...)"
 
-   return ( itemHit == 1);
+   return (itemHit == 1);
 
-} // end "ClassPairWeightsDialogModal"
-#endif	// defined multispec_mac 
+}	// end "ClassPairWeightsDialogModal"
+#endif	// defined multispec_mac
 
 
 
@@ -2053,145 +2046,149 @@ Boolean ClassPairWeightsDialogModal(
 //	Coded By:			Larry L. Biehl			Date: 12/28/1999
 //	Revised By:			Larry L. Biehl			Date: 12/28/1999	
 
-void ClassPairWeightsDialogOK(
-   DialogPtr dialogPtr,
-#if defined multispec_lin
-   wxListBox* listHandle,
-#else
-   ListHandle listHandle,
-#endif
-   SInt16** weightsListPtrPtr,
-   SInt16* interClassWeightsSelectionPtr,
-   SInt16 localDefaultClassPairWeight,
-   SInt16* defaultClassPairWeightPtr)
- {
-   Cell cell;
+void ClassPairWeightsDialogOK (
+				DialogPtr							dialogPtr,
+				#if defined multispec_lin
+					wxListBox*							listHandle,
+				#else
+					ListHandle							listHandle,
+				#endif
+				SInt16**								weightsListPtrPtr,
+				SInt16*								interClassWeightsSelectionPtr,
+				SInt16								localDefaultClassPairWeight,
+				SInt16*								defaultClassPairWeightPtr)
+{
+   Cell									cell;
 
-   char *stringPtr;
+   char*									stringPtr;
 
-   SInt32 bytesNeeded;
+   SInt32								bytesNeeded;
 
-   SInt16 index,
-      numberOfClassesInWeightGroups,
-      numberWeightGroups,
-      returnCode,
-      saveWeightListIndex,
-      stringLength,
-      weightListIndex;
+   SInt16								index,
+											numberOfClassesInWeightGroups,
+											numberWeightGroups,
+											returnCode,
+											saveWeightListIndex,
+											stringLength,
+											weightListIndex;
 
-   Boolean changedFlag,
-      continueFlag;
+   Boolean								changedFlag,
+											continueFlag;
 
 
-   // Initialize local variables.
+			// Initialize local variables.
 
    continueFlag = TRUE;
 
-   // Get the specified class pair weights.								
+			// Get the specified class pair weights.
 
 
-#if defined multispec_mac
-   numberWeightGroups = ((ListPtr) * listHandle)->dataBounds.bottom;
-#endif	// defined multispec_mac    
+	#if defined multispec_mac
+		numberWeightGroups = ((ListPtr)*listHandle)->dataBounds.bottom;
+	#endif	// defined multispec_mac
 
-#if defined multispec_win  || defined multispec_lin
-   numberWeightGroups = listHandle->GetCount();
-#endif	// defined multispec_win || defined multispec_lin
+	#if defined multispec_win  || defined multispec_lin
+		numberWeightGroups = listHandle->GetCount ();
+	#endif	// defined multispec_win || defined multispec_lin
 
-   if (numberWeightGroups > 0) {
-      // Get the amount of memory needed for the class pair			
-      // groups weights list.													
+   if (numberWeightGroups > 0)
+		{
+				// Get the amount of memory needed for the class pair
+				// groups weights list.
 
       cell.h = 0;
       numberOfClassesInWeightGroups = 0;
-      for (index = 0; index < numberWeightGroups; index++) {
+      for (index=0; index<numberWeightGroups; index++)
+			{
          stringLength = 255;
          cell.v = index;
-         LGetCell((char*) &gTextString, &stringLength, cell, listHandle);
+         LGetCell ((char*)gTextString, &stringLength, cell, listHandle);
          gTextString[stringLength] = 0;
-         stringPtr = (char*) &gTextString[3];
+         stringPtr = (char*)&gTextString[3];
 
-         // Find the number of blanks after the dash.  This will	
-         // be the number of classes in the group less one.			
+					// Find the number of blanks after the dash.  This will
+					// be the number of classes in the group less one.
 
          do {
             stringPtr++;
             numberOfClassesInWeightGroups++;
-            stringPtr = strchr(stringPtr, ' ');
+            stringPtr = strchr (stringPtr, ' ');
 
-         } while (stringPtr != NULL); // end "do ..." 
+				} while (stringPtr != NULL); // end "do ..."
 
-      } // end "for (index=0; index<numberWeightGroups; ..." 
+			}	// end "for (index=0; index<numberWeightGroups; ..."
 
       bytesNeeded = sizeof (SInt16) *
-         (1 + 2 * numberWeightGroups + numberOfClassesInWeightGroups);
-      continueFlag = CheckPointerSize((Ptr*) weightsListPtrPtr,
-         bytesNeeded,
-         &changedFlag);
+					(1 + 2 * numberWeightGroups + numberOfClassesInWeightGroups);
+      continueFlag = CheckPointerSize ((Ptr*)weightsListPtrPtr,
+														bytesNeeded,
+														&changedFlag);
 
-      if (continueFlag) {
-         // Load the class pair weight groups in from the list.	
+      if (continueFlag)
+			{
+					// Load the class pair weight groups in from the list.
 
          cell.h = 0;
          (*weightsListPtrPtr)[0] = numberWeightGroups;
          weightListIndex = 1;
 
-         for (index = 0; index < numberWeightGroups; index++) {
+         for (index=0; index<numberWeightGroups; index++)
+				{
             cell.v = index;
             stringLength = 255;
-            LGetCell((char*) &gTextString, &stringLength, cell, listHandle);
+            LGetCell ((char*)gTextString, &stringLength, cell, listHandle);
             gTextString[stringLength] = 0;
 
-            // Get the weight to use.										
+						// Get the weight to use.
 
-            strncpy((char*) &gTextString2, (char*) &gTextString, 3);
+            strncpy ((char*)gTextString2, (char*)gTextString, 3);
             gTextString2[3] = 0;
-            (*weightsListPtrPtr)[weightListIndex] = atoi((char*) &gTextString2);
+            (*weightsListPtrPtr)[weightListIndex] = atoi ((char*)gTextString2);
             weightListIndex++;
 
             saveWeightListIndex = weightListIndex;
             weightListIndex++;
 
-            // Get the class numbers.										
+						// Get the class numbers.
 
-            stringPtr = (char*) &gTextString[3];
-            returnCode = sscanf(
-               stringPtr, "%hd", &(*weightsListPtrPtr)[weightListIndex]);
+            stringPtr = (char*)&gTextString[3];
+            returnCode = sscanf (
+								stringPtr, "%hd", &(*weightsListPtrPtr)[weightListIndex]);
 
-            // Find the number of blanks after the dash.  This 	
-            // will be the number of classes in the group less 	
-            // one.																
+						// Find the number of blanks after the dash.  This
+						// will be the number of classes in the group less 	
+						// one.																
 
             do {
                stringPtr++;
-               returnCode = sscanf(
-                  stringPtr, "%hd", &(*weightsListPtrPtr)[weightListIndex]);
+               returnCode = sscanf (
+								stringPtr, "%hd", &(*weightsListPtrPtr)[weightListIndex]);
                weightListIndex++;
 
-               stringPtr = strchr(stringPtr, ' ');
+               stringPtr = strchr (stringPtr, ' ');
 
-            } while (stringPtr != NULL); // end "do ..." 
+					} while (stringPtr != NULL); // end "do ..."
 
             (*weightsListPtrPtr)[saveWeightListIndex] =
-               weightListIndex - saveWeightListIndex - 1;
+														weightListIndex - saveWeightListIndex - 1;
 
-         } // end "for (index=0; index<numberWeightGroups; ..." 
+				}	// end "for (index=0; index<numberWeightGroups; ..."
 
          *interClassWeightsSelectionPtr = kUnequalWeightMenuItem;
 
-      } // end "if (continueFlag)" 
+			}	// end "if (continueFlag)"
 
-   }// end "if (numberWeightGroups > 0)" 
+		}	// end "if (numberWeightGroups > 0)"
 
-   else // numberWeightGroups == 0 
+   else	// numberWeightGroups == 0 
       *interClassWeightsSelectionPtr = kEqualWeightMenuItem;
 
-   // Default class weight.										
+			// Default class weight.
 
    if (continueFlag)
       *defaultClassPairWeightPtr = localDefaultClassPairWeight;
 
-} // end "ClassPairWeightsDialogOK"
+}	// end "ClassPairWeightsDialogOK"
 
 
 
@@ -2217,22 +2214,22 @@ void ClassPairWeightsDialogOK(
 //	Coded By:			Larry L. Biehl			Date: 12/28/1999
 //	Revised By:			Larry L. Biehl			Date: 12/28/1999
 
-SInt16 ClassPairWeightsDialogRemoveWeightSelection(
-   DialogPtr dialogPtr,
-#if defined multispec_lin
-   wxListBox* listHandle,
-#else
-   ListHandle listHandle,
-#endif
-   SInt16 selectedWeightGroupCell)
- {
-   LDelRow(1, selectedWeightGroupCell, listHandle);
+SInt16 ClassPairWeightsDialogRemoveWeightSelection (
+				DialogPtr							dialogPtr,
+				#if defined multispec_lin
+					wxListBox*							listHandle,
+				#else
+					ListHandle							listHandle,
+				#endif
+				SInt16								selectedWeightGroupCell)
+{
+   LDelRow (1, selectedWeightGroupCell, listHandle);
    selectedWeightGroupCell = -1;
-   SetDLogControlHilite(dialogPtr, IDC_RemoveButton, 255);
+   SetDLogControlHilite (dialogPtr, IDC_RemoveButton, 255);
 
    return (selectedWeightGroupCell);
 
-} // end "ClassPairWeightsDialogRemoveWeightSelection"
+}	// end "ClassPairWeightsDialogRemoveWeightSelection"
 
 
 
@@ -2258,39 +2255,39 @@ SInt16 ClassPairWeightsDialogRemoveWeightSelection(
 //	Coded By:			Larry L. Biehl			Date: 12/28/1999
 //	Revised By:			Larry L. Biehl			Date: 12/28/1999
 
-SInt16 ClassPairWeightsDialogWeightSelectionChange(
-   DialogPtr dialogPtr,
-#if defined multispec_lin
-   wxListBox* listHandle
-#else
-   ListHandle listHandle
-#endif
-)
- {
-   Cell cell;
+SInt16 ClassPairWeightsDialogWeightSelectionChange (
+				DialogPtr							dialogPtr,
+				#if defined multispec_lin
+					wxListBox*							listHandle)
+				#else
+					ListHandle							listHandle)
+				#endif
+{
+	Cell									cell;
 
-   SInt16 selectedWeightGroupCell;
+   SInt16								selectedWeightGroupCell;
 
 
    cell.h = 0;
    cell.v = 0;
 
-   if (LGetSelect(TRUE, &cell, listHandle)) {
+   if (LGetSelect (TRUE, &cell, listHandle))
+		{
       selectedWeightGroupCell = cell.v;
-      SetDLogControlHilite(dialogPtr, IDC_RemoveButton, 0);
+      SetDLogControlHilite (dialogPtr, IDC_RemoveButton, 0);
 
-   }// end "if (hilite)" 
+		}	// end "if (hilite)"
 
-   else // !LGetSelect (TRUE, &cell, ... 
-   {
-      SetDLogControlHilite(dialogPtr, IDC_RemoveButton, 255);
+   else	// !LGetSelect (TRUE, &cell, ... 
+		{
+      SetDLogControlHilite (dialogPtr, IDC_RemoveButton, 255);
       selectedWeightGroupCell = -1;
 
-   } // end "else !LGetSelect (TRUE, &cell, ..."
+		}	// end "else !LGetSelect (TRUE, &cell, ..."
 
    return (selectedWeightGroupCell);
 
-} // end "ClassPairWeightsDialogWeightSelectionChange"
+}	// end "ClassPairWeightsDialogWeightSelectionChange"
 
 
 
@@ -2316,26 +2313,26 @@ SInt16 ClassPairWeightsDialogWeightSelectionChange(
 //	Coded By:			Larry L. Biehl			Date: 06/14/1990
 //	Revised By:			Larry L. Biehl			Date: 06/18/1990
 
-Boolean ClassToBeUsed(
-   SInt16 classIndex,
-   SInt16* classPtr,
-   UInt16 numberClasses)
- {
-   UInt16 index;
+Boolean ClassToBeUsed (
+				SInt16								classIndex,
+				SInt16*								classPtr,
+				UInt16								numberClasses)
+{
+   UInt16								index;
 
 
-   // Check input parameters.													
+			// Check input parameters.
 
    if (classPtr == NULL)
-      return (FALSE);
+																							return (FALSE);
 
-   for (index = 0; index < numberClasses; index++)
+   for (index=0; index<numberClasses; index++)
       if (classIndex == classPtr[index])
-         return (TRUE);
+																							return (TRUE);
 
    return (FALSE);
 
-} // end "ClassToBeUsed" 
+}	// end "ClassToBeUsed"
 
 
 
@@ -2362,165 +2359,168 @@ Boolean ClassToBeUsed(
 //	Coded By:			Larry L. Biehl			Date: 01/22/1990
 //	Revised By:			Larry L. Biehl			Date: 12/20/1999
 
-SInt16 ClassWeightsDialog(
-   UInt16 numberOfClassesToUse,
-   SInt16* classPtr,
-   float* weightsPtr,
-   SInt16 weightsSelection,
-   Boolean useEnhancedStatFlag)
- {
-#if defined multispec_mac
-   double weightSum;
+SInt16 ClassWeightsDialog (
+				UInt16								numberOfClassesToUse,
+				SInt16*								classPtr,
+				float*								weightsPtr,
+				SInt16								weightsSelection,
+				Boolean								useEnhancedStatFlag)
+{
+	#if defined multispec_mac
+		double								weightSum;
 
-   DialogPtr dialogPtr;
+		DialogPtr							dialogPtr;
 
-   SInt16 weightUnits;
+		SInt16								weightUnits;
 
-   Boolean returnFlag;
-
-
-   // Get the modal dialog for the reformat specification					
-
-   dialogPtr = LoadRequestedDialog(kClassifyWeightsDialogID, kCopyScrap, 1, 2);
-   if (dialogPtr == NULL)
-      return (FALSE);
-
-   // Get the display rectangle for the item to place the list into.	
-
-   gDialogListHandle = GetOneColumnDialogListHandle(dialogPtr, 6);
-
-   // Continue if there is a valid dialog list handle.						
-
-   if (gDialogListHandle != NULL) {
-      (*gDialogListHandle)->selFlags = lNoRect + lNoExtend + lUseSense;
-
-      //	Load address of routine that will load the class and weight list.																
-
-      SetDialogItemDrawRoutine(dialogPtr, 6, gCreateOneColumnList1Ptr);
-
-      // Set routine to draw outline on "OK" box.					
-
-      SetDialogItemDrawRoutine(dialogPtr, 16, gHiliteOKButtonPtr);
-
-      // Initialize some dialog parameters.
-
-      ClassWeightsDialogInitialize(dialogPtr, &weightUnits);
-
-      SetDLogControl(dialogPtr, 12, (weightUnits == 0));
-      SetDLogControl(dialogPtr, 13, (weightUnits != 0));
-
-      // Center the dialog and then show it.										
-
-      ShowDialogWindow(dialogPtr, kClassifyWeightsDialogID, kSetUpDFilterTable);
-
-      gDialogItemDescriptorPtr[9] = kDItemReal;
-
-      // Get deactivate event for the window that is now behind the  	
-      // dialog and handle it.														
-
-      CheckSomeEvents(activMask);
-
-      // Make certain that the graph port is set to the classify			
-      // weights dialog window.														
-
-      SetPortDialogPort(dialogPtr);
-
-      // Load the class names to be used into the list.						
-
-      LSetDrawingMode(FALSE, gDialogListHandle);
-
-      weightSum = LoadClassWeightsIntoList(gDialogListHandle,
-         numberOfClassesToUse,
-         classPtr,
-         weightsPtr,
-         useEnhancedStatFlag);
-
-      //	Load class weight total.										
-
-      LoadDItemRealValue(dialogPtr, 15, weightSum, 3);
-
-      // Turn list drawing mode back on.											
-
-      LSetDrawingMode(TRUE, gDialogListHandle);
-
-      // Set the text font for the window and draw the list.				
-
-      TextFont(gWindowTextFont); // monaco  
-      LUpdate(GetPortVisibleRegion(
-         GetDialogPort(dialogPtr), gTempRegion1), gDialogListHandle);
-      SetEmptyRgn(gTempRegion1);
-
-      // Handle modal dialog selections for one column class list.		
-
-      returnFlag = FALSE;
-      if (gMemoryError == noErr)
-         returnFlag = ClassWeightsDialogModal(dialogPtr,
-         numberOfClassesToUse,
-         &weightSum);
-
-      if (returnFlag) {
-         weightsSelection = ClassWeightsDialogOK(dialogPtr,
-            gDialogListHandle,
-            numberOfClassesToUse,
-            classPtr,
-            weightsPtr);
-
-      } // end "if (returnFlag)" 
-
-      // Make certain that global memory error is set back to 'noErr'.	
-
-      gMemoryError = noErr;
-
-      if (gDialogListHandle != NULL)
-         LDispose(gDialogListHandle);
-      gDialogListHandle = NULL;
-
-   } // end "if (gDialogListHandle != NULL)" 
-
-   CloseRequestedDialog(dialogPtr, kSetUpDFilterTable);
-#endif	// defined multispec_mac
+		Boolean								returnFlag;
 
 
-#if defined multispec_win   
-   CMClassWeightsDlg* classWeightsDialogPtr = NULL;
+				// Get the modal dialog for the reformat specification
 
-   TRY{
-      classWeightsDialogPtr = new CMClassWeightsDlg();
+		dialogPtr = LoadRequestedDialog (kClassifyWeightsDialogID, kCopyScrap, 1, 2);
+		if (dialogPtr == NULL)
+																							return (FALSE);
 
-      weightsSelection = classWeightsDialogPtr->DoDialog(
-      numberOfClassesToUse,
-      classPtr,
-      weightsPtr,
-      weightsSelection,
-      useEnhancedStatFlag);
+				// Get the display rectangle for the item to place the list into.
 
-      if (classWeightsDialogPtr != NULL)
-         delete classWeightsDialogPtr;
-   }
+		gDialogListHandle = GetOneColumnDialogListHandle (dialogPtr, 6);
 
-   CATCH_ALL(e) {
-      MemoryMessage(0, kObjectMessage);
-   }
-   END_CATCH_ALL
-#endif	// defined multispec_win  
-#if defined multispec_lin   
-   CMClassWeightsDlg* classWeightsDialogPtr = NULL;
-   classWeightsDialogPtr = new CMClassWeightsDlg();
+				// Continue if there is a valid dialog list handle.
 
-   weightsSelection = classWeightsDialogPtr->DoDialog(
-      numberOfClassesToUse,
-      classPtr,
-      weightsPtr,
-      weightsSelection,
-      useEnhancedStatFlag);
+		if (gDialogListHandle != NULL)
+			{
+			(*gDialogListHandle)->selFlags = lNoRect + lNoExtend + lUseSense;
 
-   if (classWeightsDialogPtr != NULL)
-      delete classWeightsDialogPtr;
+					//	Load address of routine that will load the class and weight list.
 
-#endif	// defined multispec_win  
+			SetDialogItemDrawRoutine (dialogPtr, 6, gCreateOneColumnList1Ptr);
+
+					// Set routine to draw outline on "OK" box.
+
+			SetDialogItemDrawRoutine (dialogPtr, 16, gHiliteOKButtonPtr);
+
+					// Initialize some dialog parameters.
+
+			ClassWeightsDialogInitialize (dialogPtr, &weightUnits);
+
+			SetDLogControl (dialogPtr, 12, (weightUnits == 0));
+			SetDLogControl (dialogPtr, 13, (weightUnits != 0));
+
+					// Center the dialog and then show it.
+
+			ShowDialogWindow (dialogPtr, kClassifyWeightsDialogID, kSetUpDFilterTable);
+
+			gDialogItemDescriptorPtr[9] = kDItemReal;
+
+					// Get deactivate event for the window that is now behind the
+					// dialog and handle it.
+
+			CheckSomeEvents (activMask);
+
+					// Make certain that the graph port is set to the classify
+					// weights dialog window.
+
+			SetPortDialogPort (dialogPtr);
+
+					// Load the class names to be used into the list.
+
+			LSetDrawingMode (FALSE, gDialogListHandle);
+
+			weightSum = LoadClassWeightsIntoList (gDialogListHandle,
+																numberOfClassesToUse,
+																classPtr,
+																weightsPtr,
+																useEnhancedStatFlag);
+
+					//	Load class weight total.
+
+			LoadDItemRealValue (dialogPtr, 15, weightSum, 3);
+
+					// Turn list drawing mode back on.
+
+			LSetDrawingMode (TRUE, gDialogListHandle);
+
+					// Set the text font for the window and draw the list.
+
+			TextFont (gWindowTextFont); // monaco
+			LUpdate (GetPortVisibleRegion (GetDialogPort (dialogPtr), gTempRegion1),
+														gDialogListHandle);
+			SetEmptyRgn (gTempRegion1);
+
+					// Handle modal dialog selections for one column class list.
+
+			returnFlag = FALSE;
+			if (gMemoryError == noErr)
+				returnFlag = ClassWeightsDialogModal (dialogPtr,
+																	numberOfClassesToUse,
+																	&weightSum);
+
+			if (returnFlag)
+				{
+				weightsSelection = ClassWeightsDialogOK (dialogPtr,
+																		gDialogListHandle,
+																		numberOfClassesToUse,
+																		classPtr,
+																		weightsPtr);
+
+				}	// end "if (returnFlag)"
+
+					// Make certain that global memory error is set back to 'noErr'.
+
+			gMemoryError = noErr;
+
+			if (gDialogListHandle != NULL)
+				LDispose (gDialogListHandle);
+			gDialogListHandle = NULL;
+
+			}	// end "if (gDialogListHandle != NULL)"
+
+		CloseRequestedDialog (dialogPtr, kSetUpDFilterTable);
+	#endif	// defined multispec_mac
+
+	#if defined multispec_win
+		CMClassWeightsDlg* classWeightsDialogPtr = NULL;
+
+		TRY
+			{
+			classWeightsDialogPtr = new CMClassWeightsDlg ();
+
+			weightsSelection = classWeightsDialogPtr->DoDialog (numberOfClassesToUse,
+																					classPtr,
+																					weightsPtr,
+																					weightsSelection,
+																					useEnhancedStatFlag);
+
+			if (classWeightsDialogPtr != NULL)
+				delete classWeightsDialogPtr;
+			}
+
+		CATCH_ALL (e)
+			{
+			MemoryMessage (0, kObjectMessage);
+			}
+	
+		END_CATCH_ALL
+	#endif	// defined multispec_win
+
+	#if defined multispec_lin
+		CMClassWeightsDlg* classWeightsDialogPtr = NULL;
+		classWeightsDialogPtr = new CMClassWeightsDlg ();
+
+		weightsSelection = classWeightsDialogPtr->DoDialog (numberOfClassesToUse,
+																				classPtr,
+																				weightsPtr,
+																				weightsSelection,
+																				useEnhancedStatFlag);
+
+		if (classWeightsDialogPtr != NULL)
+			delete classWeightsDialogPtr;
+	#endif	// defined multispec_win
+
    return (weightsSelection);
 
-} // end "ClassWeightsDialog" 
+}	// end "ClassWeightsDialog"
 
 
 
@@ -2546,44 +2546,45 @@ SInt16 ClassWeightsDialog(
 //	Coded By:			Larry L. Biehl			Date: 12/17/1999
 //	Revised By:			Larry L. Biehl			Date: 12/17/1999
 
-SInt16 ClassWeightsDialogClassSelectionChange(
-   DialogPtr dialogPtr,
-#if defined multispec_lin
-   wxListBox* listHandle,
-#else
-   ListHandle listHandle,
-#endif
-   double newWeight)
- {
-   Cell cell;
+SInt16 ClassWeightsDialogClassSelectionChange (
+				DialogPtr							dialogPtr,
+				#if defined multispec_lin
+					wxListBox*							listHandle,
+				#else
+					ListHandle							listHandle,
+				#endif
+				double								newWeight)
+{
+	Cell									cell;
 
-   SInt16 selectedCell;
+   SInt16								selectedCell;
 
 
    cell.h = 0;
    cell.v = 0;
 
-   if (LGetSelect(TRUE, &cell, listHandle)) {
+   if (LGetSelect	(TRUE, &cell, listHandle))
+		{
       selectedCell = cell.v;
 
       if (newWeight >= 0)
-         SetDLogControlHilite(dialogPtr, IDC_EnterNewWeightButton, 0);
+			SetDLogControlHilite (dialogPtr, IDC_EnterNewWeightButton, 0);
 
-      SetDLogControlHilite(dialogPtr, IDC_EqualWeightButton, 0);
+      SetDLogControlHilite (dialogPtr, IDC_EqualWeightButton, 0);
 
-   }// end "if (hilite)" 
+		}	// end "if (hilite)"
 
-   else // !LGetSelect (TRUE, &cell, ... 
-   {
-      SetDLogControlHilite(dialogPtr, IDC_EnterNewWeightButton, 255);
-      SetDLogControlHilite(dialogPtr, IDC_EqualWeightButton, 255);
+   else	// !LGetSelect (TRUE, &cell, ... 
+		{
+      SetDLogControlHilite (dialogPtr, IDC_EnterNewWeightButton, 255);
+      SetDLogControlHilite (dialogPtr, IDC_EqualWeightButton, 255);
       selectedCell = -1;
 
-   } // end "else !LGetSelect (TRUE, &cell, ..."
+		}	// end "else !LGetSelect (TRUE, &cell, ..."
 
    return (selectedCell);
 
-} // end "ClassWeightsDialogClassSelectionChange" 
+}	// end "ClassWeightsDialogClassSelectionChange"
 
 
 
@@ -2609,78 +2610,80 @@ SInt16 ClassWeightsDialogClassSelectionChange(
 //	Coded By:			Larry L. Biehl			Date: 12/17/1999
 //	Revised By:			Larry L. Biehl			Date: 12/17/1999
 
-double ClassWeightsDialogChangeWeights(
-   DialogPtr dialogPtr,
-#if defined multispec_lin
-   wxListBox* listHandle,
-#else
-   ListHandle listHandle,
-#endif
-   double* weightSumPtr,
-   double newWeight,
-   SInt16 okItemNumber)
- {
-   Cell cell;
+double ClassWeightsDialogChangeWeights (
+				DialogPtr							dialogPtr,
+				#if defined multispec_lin
+					wxListBox*							listHandle,
+				#else
+					ListHandle							listHandle,
+				#endif
+				double*								weightSumPtr,
+				double								newWeight,
+				SInt16								okItemNumber)
+{
+   Cell									cell;
 
-   SInt16 fixedCellWidth = 40,
-      stringLength;
+   SInt16								fixedCellWidth = 40,
+											stringLength;
 
 
-   sprintf((char*) &gTextString3[1], "%7.3f", newWeight);
+   sprintf ((char*)&gTextString3[1], "%7.3f", newWeight);
 
    gTextString3[8] = kNullTerminator;
-   newWeight = (double) atof((char*) &gTextString3[1]);
+   newWeight = (double)atof ((char*)&gTextString3[1]);
 
    cell.h = 0;
    cell.v = 0;
-   while (LGetSelect(TRUE, &cell, listHandle)) {
+   while (LGetSelect (TRUE, &cell, listHandle))
+		{
       stringLength = fixedCellWidth;
-      LGetCell((char*) &gTextString2, &stringLength, cell, listHandle);
+      LGetCell ((char*)gTextString2, &stringLength, cell, listHandle);
 
-      if (stringLength == fixedCellWidth) {
-         // Update the sum of the weights.					
+      if (stringLength == fixedCellWidth)
+			{
+					// Update the sum of the weights.
 
-         BlockMoveData((char*) &gTextString2[33], (char*) &gTextString, 7);
+         BlockMoveData ((char*)&gTextString2[33], (char*)gTextString, 7);
          gTextString [7] = kNullTerminator;
-         *weightSumPtr -= (double) atof((char*) &gTextString);
+         *weightSumPtr -= (double)atof ((char*)gTextString);
          *weightSumPtr += newWeight;
 
-         // Update the weight and flag in the list.		
+					// Update the weight and flag in the list.
 
          gTextString2[0] = ' ';
-         BlockMoveData((char*) &gTextString3[1], (char*) &gTextString2[33], 7);
+         BlockMoveData ((char*)&gTextString3[1], (char*)&gTextString2[33], 7);
 
-         LSetCell((char*) &gTextString2, stringLength, cell, listHandle);
+         LSetCell ((char*)gTextString2, stringLength, cell, listHandle);
 
-#if defined multispec_win 
-         LSetSelect(TRUE, cell, listHandle);
-#endif	// defined multispec_win 
+			#if defined multispec_win
+				LSetSelect (TRUE, cell, listHandle);
+			#endif	// defined multispec_win
 
-      } // end "if (stringLength == ..." 
+			}	// end "if (stringLength == ..."
 
       cell.v++;
 
-   } // end "while ( LGetSelect (TRUE, ...) )" 
+		}	// end "while (LGetSelect (TRUE, ...))"
    
-   sprintf((char*) &gTextString3[1], "%.3f", newWeight);
-   gTextString3[0] = (UChar)strlen((char*) &gTextString3[1]);
-   LoadDItemString(dialogPtr, IDC_Weight, &gTextString3);
+   sprintf ((char*)&gTextString3[1], "%.3f", newWeight);
+   gTextString3[0] = (UChar)strlen ((char*)&gTextString3[1]);
+   LoadDItemString (dialogPtr, IDC_Weight, (Str255*)gTextString3);
 
-   SelectDialogItemText(dialogPtr, IDC_Weight, 0, SHRT_MAX);
+   SelectDialogItemText (dialogPtr, IDC_Weight, 0, SHRT_MAX);
 
-   LoadDItemRealValue(dialogPtr, IDC_WeightTotal, *weightSumPtr, 3);
+   LoadDItemRealValue (dialogPtr, IDC_WeightTotal, *weightSumPtr, 3);
 
-   // Make certain that at least some weights exist.		
+			// Make certain that at least some weights exist.
 
    if (*weightSumPtr <= 0)
-      SetDLogControlHilite(dialogPtr, okItemNumber, 255);
+      SetDLogControlHilite (dialogPtr, okItemNumber, 255);
 
-   else // *weightSumPtr > 0 
-      SetDLogControlHilite(dialogPtr, okItemNumber, 0);
+   else	// *weightSumPtr > 0 
+      SetDLogControlHilite (dialogPtr, okItemNumber, 0);
 
    return (newWeight);
 
-} // end "ClassWeightsDialogChangeWeights" 
+}	// end "ClassWeightsDialogChangeWeights"
 
 
 
@@ -2706,28 +2709,28 @@ double ClassWeightsDialogChangeWeights(
 //	Coded By:			Larry L. Biehl			Date: 12/16/1999
 //	Revised By:			Larry L. Biehl			Date: 12/16/1999
 
-void ClassWeightsDialogInitialize(
-   DialogPtr dialogPtr,
-   SInt16* weightUnitsPtr)
- {
-   //	Unhilite the 'Enter New Weight' button.						
+void ClassWeightsDialogInitialize (
+				DialogPtr							dialogPtr,
+				SInt16*								weightUnitsPtr)
+{
+			//	Unhilite the 'Enter New Weight' button.
 
-   SetDLogControlHilite(dialogPtr, IDC_EnterNewWeightButton, 255);
+   SetDLogControlHilite (dialogPtr, IDC_EnterNewWeightButton, 255);
 
-   //	Load blank in for edit weight.									
+			//	Load blank in for edit weight.
 
-   LoadDItemString(dialogPtr, IDC_Weight, (Str255*) "\0\0");
+   LoadDItemString (dialogPtr, IDC_Weight, (Str255*)"\0\0");
 
-   //	Unhilite the 'Add to Equal Weight Set' button.			
+			//	Unhilite the 'Add to Equal Weight Set' button.
 
-   SetDLogControlHilite(dialogPtr, IDC_EqualWeightButton, 255);
+   SetDLogControlHilite (dialogPtr, IDC_EqualWeightButton, 255);
 
-   //	Set units radio controls.								
+			//	Set units radio controls.
 
    *weightUnitsPtr = 0;
-   SetDLogControlHilite(dialogPtr, IDC_UnitsPercent, 255);
+   SetDLogControlHilite (dialogPtr, IDC_UnitsPercent, 255);
 
-} // end "ClassWeightsDialogInitialize" 
+}	// end "ClassWeightsDialogInitialize"
 
 
 
@@ -2754,37 +2757,37 @@ void ClassWeightsDialogInitialize(
 //	Coded By:			Larry L. Biehl			Date: 01/23/1990
 //	Revised By:			Larry L. Biehl			Date: 12/20/1999	
 
-Boolean ClassWeightsDialogModal(
-   DialogPtr dialogPtr,
-   UInt16 numberOfClassesToUse,
-   double* weightSumPtr)
- {
-   double newWeight,
-      saveNewWeight,
-      defaultEqualWeight = 10.;
+Boolean ClassWeightsDialogModal (
+				DialogPtr							dialogPtr,
+				UInt16								numberOfClassesToUse,
+				double*								weightSumPtr)
+{
+   double								newWeight,
+											saveNewWeight,
+											defaultEqualWeight = 10.;
 
-   Rect theBox;
+   Rect									theBox;
 
-   Cell cell;
+   Cell									cell;
 
-   Handle okHandle,
-      theHandle;
+   Handle								okHandle,
+											theHandle;
 
-   SInt16 itemHit,
-      returnCode,
-      selectedCell,
-      theType;
+   SInt16								itemHit,
+											returnCode,
+											selectedCell,
+											theType;
 
-   Boolean modalDone;
+   Boolean								modalDone;
 
 
    // Continue if dialogPtr and gDialogListHandle are not NULL.			
 
-   if (dialogPtr != NULL && gDialogListHandle != NULL) {
+   if (dialogPtr != NULL && gDialogListHandle != NULL)
+		{
+				// Get the "handle" for the OK button for use later.
 
-      // Get the "handle" for the OK button for use later.					
-
-      GetDialogItem(dialogPtr, 1, &theType, &okHandle, &theBox);
+      GetDialogItem (dialogPtr, 1, &theType, &okHandle, &theBox);
 
       cell.h = 0;
       modalDone = FALSE;
@@ -2792,77 +2795,76 @@ Boolean ClassWeightsDialogModal(
       selectedCell = -1;
       itemHit = 0;
       do {
-         ModalDialog(gProcessorDialogFilterPtr, &itemHit);
-         if (itemHit > 2) {
-            switch (itemHit) {
+         ModalDialog (gProcessorDialogFilterPtr, &itemHit);
+         if (itemHit > 2)
+				{
+            switch (itemHit)
+					{
                case 3: // Help 
-                  HiliteControl((ControlHandle) okHandle, 255);
-                  returnCode = DisplayAlert(1152, 0, kAlertStrID, 7, 0, NULL);
+                  HiliteControl ((ControlHandle)okHandle, 255);
+                  returnCode = DisplayAlert (1152, 0, kAlertStrID, 7, 0, NULL);
 
-                  TextFont(gWindowTextFont); // monaco  
-                  LUpdate(GetPortVisibleRegion(
-                     GetDialogPort(dialogPtr), gTempRegion1), gDialogListHandle);
-                  SetEmptyRgn(gTempRegion1);
-                  HiliteControl((ControlHandle) okHandle, 0);
+                  TextFont (gWindowTextFont); // monaco
+                  LUpdate (GetPortVisibleRegion (GetDialogPort (dialogPtr), gTempRegion1),
+									gDialogListHandle);
+                  SetEmptyRgn (gTempRegion1);
+                  HiliteControl ((ControlHandle) okHandle, 0);
                   break;
 
                case 6:
-
-                  selectedCell = ClassWeightsDialogClassSelectionChange(
-                     dialogPtr,
-                     gDialogListHandle,
-                     saveNewWeight);
-
+                  selectedCell = ClassWeightsDialogClassSelectionChange (
+																						dialogPtr,
+																						gDialogListHandle,
+																						saveNewWeight);
                   break;
 
                case 8: // Change the weight for each class selected.		
-                  TextFont(gWindowTextFont); // monaco  
+                  TextFont (gWindowTextFont); // monaco  
 
-                  saveNewWeight = ClassWeightsDialogChangeWeights(
-                     dialogPtr,
-                     gDialogListHandle,
-                     weightSumPtr,
-                     saveNewWeight,
-                     1);
-
+                  saveNewWeight = ClassWeightsDialogChangeWeights (
+																						dialogPtr,
+																						gDialogListHandle,
+																						weightSumPtr,
+																						saveNewWeight,
+																						1);
                   break;
 
                case 9: // Enter edit weight value.								
-                  GetDialogItem(dialogPtr, 9, &theType, &theHandle, &theBox);
-                  GetDialogItemText(theHandle, gTextString);
-                  if (gTextString[0] > 0) {
-                     newWeight = GetDItemRealValue(dialogPtr, 9);
+                  GetDialogItem (dialogPtr, 9, &theType, &theHandle, &theBox);
+                  GetDialogItemText (theHandle, gTextString);
+                  if (gTextString[0] > 0)
+							{
+                     newWeight = GetDItemRealValue (dialogPtr, 9);
                      if (newWeight > 999.999 || newWeight < 0)
-                        RealNumberErrorAlert(saveNewWeight, dialogPtr, 9, 3);
+                        RealNumberErrorAlert (saveNewWeight, dialogPtr, 9, 3);
 
-                     else // newWeight >= 0 && newWeight <= 999.9 
-                     {
+                     else	// newWeight >= 0 && newWeight <= 999.9 
+								{
                         saveNewWeight = newWeight;
                         if (selectedCell >= 0)
-                           SetDLogControlHilite(dialogPtr, 8, 0);
+                           SetDLogControlHilite (dialogPtr, 8, 0);
 
-                     } // end "else newWeight >= 0 && ..." 
+								}	// end "else newWeight >= 0 && ..."
 
-                  }// end "if ( gTextString[0] < 0)" 
+							}	// end "if (gTextString[0] < 0)"
 
-                  else // gTextString[0] <= 0 
-                  {
+                  else	// gTextString[0] <= 0 
+							{
                      saveNewWeight = -1;
-                     SetDLogControlHilite(dialogPtr, 8, 255);
+                     SetDLogControlHilite (dialogPtr, 8, 255);
 
-                  } // end "else gTextString[0] <= 0" 
+							}	// end "else gTextString[0] <= 0"
 
                   break;
 
                case 10: // Add to equal weight set.								
-                  TextFont(gWindowTextFont); // monaco  
+                  TextFont (gWindowTextFont); // monaco  
 
-                  ClassWeightsDialogSetEqualWeights(dialogPtr,
-                     gDialogListHandle,
-                     weightSumPtr,
-                     defaultEqualWeight,
-                     1);
-
+                  ClassWeightsDialogSetEqualWeights (dialogPtr,
+																		gDialogListHandle,
+																		weightSumPtr,
+																		defaultEqualWeight,
+																		1);
                   break;
 
                case 12:
@@ -2871,22 +2873,21 @@ Boolean ClassWeightsDialogModal(
                case 13:
                   break;
 
-            } // end "switch (itemHit)" 
+					}	// end "switch (itemHit)"
 
-         }// end "if (itemHit > 2)" 
+				}	// end "if (itemHit > 2)"
 
          else if (itemHit > 0) // and itemHit <= 2 
-            // itemHit == 1 is OK, itemHit == 2 is Cancel.					
-
+						// itemHit == 1 is OK, itemHit == 2 is Cancel.
             modalDone = TRUE;
 
-      } while (!modalDone);
+			} while (!modalDone);
 
-   } // end "if (dialogPtr != NULL && gDialogListHandle != NULL)" 
+		}	// end "if (dialogPtr != NULL && gDialogListHandle != NULL)"
 
-   return ( itemHit == 1);
+   return (itemHit == 1);
 
-} // end "ClassWeightsDialogModal" 
+}	// end "ClassWeightsDialogModal"
 #endif	// defined multispec_mac 
 
 
@@ -2915,64 +2916,66 @@ Boolean ClassWeightsDialogModal(
 //	Coded By:			Larry L. Biehl			Date: 12/20/1999
 //	Revised By:			Larry L. Biehl			Date: 12/20/1999
 
-SInt16 ClassWeightsDialogOK(
-   DialogPtr dialogPtr,
-#if defined multispec_lin
-   wxListBox* listHandle,
-#else
-   ListHandle listHandle,
-#endif
-   UInt16 numberOfClassesToUse,
-   SInt16* classPtr,
-   float* weightsPtr)
+SInt16 ClassWeightsDialogOK (
+				DialogPtr							dialogPtr,
+				#if defined multispec_lin
+					wxListBox*							listHandle,
+				#else
+					ListHandle							listHandle,
+				#endif
+				UInt16								numberOfClassesToUse,
+				SInt16*								classPtr,
+				float*								weightsPtr)
+{
+	Cell									cell;
 
- {
-   Cell cell;
+   UInt32								index;
 
-   UInt32 index;
-
-   SInt16 classIndex,
-      classStorage,
-      fixedCellWidth = 40,
-      stringLength,
-      weightsSelection;
+   SInt16								classIndex,
+											classStorage,
+											fixedCellWidth = 40,
+											stringLength,
+											weightsSelection;
 
 
-   // Get the new weight variables.											
-   // Also reset weightsSelection in case all classes belong to	
-   // equal weight set.															
+			// Get the new weight variables.
+			// Also reset weightsSelection in case all classes belong to	
+			// equal weight set.															
 
    weightsSelection = kEqualWeightMenuItem;
    cell.h = 0;
    cell.v = 0;
-   for (index = 0; index < numberOfClassesToUse; index++) {
+   for (index=0; index<numberOfClassesToUse; index++)
+		{
       classIndex = classPtr[index] - 1;
       classStorage = gProjectInfoPtr->storageClass[classIndex];
 
       stringLength = fixedCellWidth;
-      LGetCell((char*) &gTextString2, &stringLength, cell, listHandle);
+      LGetCell ((char*)gTextString2, &stringLength, cell, listHandle);
 
-      if (stringLength == fixedCellWidth) {
-         BlockMoveData((char*) &gTextString2[33], (char*) &gTextString, 7);
+      if (stringLength == fixedCellWidth)
+			{
+         BlockMoveData ((char*)&gTextString2[33], (char*)gTextString, 7);
          gTextString[7] = kNullTerminator;
 
-         weightsPtr[classIndex] = (float) atof((char*) &gTextString);
+         weightsPtr[classIndex] = (float)atof ((char*)gTextString);
 
-         if (gTextString2[0] == ' ') {
+         if (gTextString2[0] == ' ')
+				{
             weightsPtr[classIndex] = -weightsPtr[classIndex];
             weightsSelection = kUnequalWeightMenuItem;
 
-         } // end "if (gTextString2[0] == ' ')" 
+				}	// end "if (gTextString2[0] == ' ')"
 
-      } // end "if (stringLength == ..." 
+			}	// end "if (stringLength == ..."
 
       cell.v++;
 
-   } // end "for ( index=0; index<numberOfClassesToUse; ...)"
+		}	// end "for (index=0; index<numberOfClassesToUse; ...)"
 
    return (weightsSelection);
 
-} // end "ClassWeightsDialogOK" 
+}	// end "ClassWeightsDialogOK"
 
 
 
@@ -2998,71 +3001,73 @@ SInt16 ClassWeightsDialogOK(
 //	Coded By:			Larry L. Biehl			Date: 12/17/1999
 //	Revised By:			Larry L. Biehl			Date: 12/17/1999
 
-void ClassWeightsDialogSetEqualWeights(
-   DialogPtr dialogPtr,
-#if defined multispec_lin
-   wxListBox* listHandle,
-#else
-   ListHandle listHandle,
-#endif
-   double* weightSumPtr,
-   double defaultEqualWeight,
-   SInt16 okItemNumber)
- {
-   Cell cell;
+void ClassWeightsDialogSetEqualWeights (
+				DialogPtr							dialogPtr,
+				#if defined multispec_lin
+					wxListBox*							listHandle,
+				#else
+					ListHandle							listHandle,
+				#endif
+				double*								weightSumPtr,
+				double								defaultEqualWeight,
+				SInt16								okItemNumber)
+{
+   Cell									cell;
 
-   SInt16 fixedCellWidth = 40,
-      stringLength;
+   SInt16								fixedCellWidth = 40,
+											stringLength;
 
 
-   sprintf((char*) &gTextString3, "%7.3f", defaultEqualWeight);
+   sprintf ((char*)gTextString3, "%7.3f", defaultEqualWeight);
 
    cell.v = 0;
    cell.h = 0;
-   while (LGetSelect(TRUE, &cell, listHandle)) {
+   while (LGetSelect (TRUE, &cell, listHandle))
+		{
       stringLength = fixedCellWidth;
-      LGetCell((char*) &gTextString2, &stringLength, cell, listHandle);
+      LGetCell ((char*)gTextString2, &stringLength, cell, listHandle);
 
-      if (stringLength == fixedCellWidth) {
-         // Update the sum of the weights.					
+      if (stringLength == fixedCellWidth)
+			{
+					// Update the sum of the weights.
 
-         BlockMoveData((char*) &gTextString2[33], (char*) &gTextString, 7);
-         gTextString [7] = kNullTerminator;
-         *weightSumPtr -= (double) atof((char*) &gTextString);
+         BlockMoveData ((char*)&gTextString2[33], (char*)gTextString, 7);
+         gTextString[7] = kNullTerminator;
+         *weightSumPtr -= (double)atof ((char*)gTextString);
          *weightSumPtr += defaultEqualWeight;
 
-         // Update the weight and flag in the list.		
+					// Update the weight and flag in the list.
 
-			#if defined multispec_mac 
+			#if defined multispec_mac
 				gTextString2[0] = '.';
-			#endif	// defined multispec_mac 		
+			#endif	// defined multispec_mac
 
 			#if defined multispec_win ||multispec_lin
 				gTextString2[0] = '#';
-			#endif	// defined multispec_win 
+			#endif	// defined multispec_win
 
-         BlockMoveData((char*) &gTextString3, (char*) &gTextString2[33], 7);
+         BlockMoveData ((char*)gTextString3, (char*)&gTextString2[33], 7);
 
-         LSetCell((char*) &gTextString2, stringLength, cell, listHandle);
+         LSetCell ((char*)gTextString2, stringLength, cell, listHandle);
 
 			#if defined multispec_win || defined multispec_lin
-				LSetSelect(TRUE, cell, listHandle);
+				LSetSelect (TRUE, cell, listHandle);
 			#endif	// defined multispec_win || defined multispec_lin
 
-      } // end "if (stringLength == ...)" 
+			}	// end "if (stringLength == ...)"
 
       cell.v++;
 
-   } // end "while ( LGetSelect (TRUE, ...) )"  
+		}	// end "while (LGetSelect (TRUE, ...))"
 
-   SelectDialogItemText(dialogPtr, IDC_Weight, 0, SHRT_MAX);
+   SelectDialogItemText (dialogPtr, IDC_Weight, 0, SHRT_MAX);
 
-   LoadDItemRealValue(dialogPtr, IDC_WeightTotal, *weightSumPtr, 3);
+   LoadDItemRealValue (dialogPtr, IDC_WeightTotal, *weightSumPtr, 3);
 
    if (*weightSumPtr > 0)
-      SetDLogControlHilite(dialogPtr, okItemNumber, 0);
+      SetDLogControlHilite (dialogPtr, okItemNumber, 0);
 
-} // end "ClassWeightsDialogSetEqualWeights"
+}	// end "ClassWeightsDialogSetEqualWeights"
 
 
 
@@ -3089,14 +3094,14 @@ void ClassWeightsDialogSetEqualWeights(
 //	Coded By:			Larry L. Biehl			Date: 01/07/1994
 //	Revised By:			Larry L. Biehl			Date: 01/07/1994
 
-void ClearGlobalAlertVariables(void)
- {
+void ClearGlobalAlertVariables (void)
+{
    gAlertId = 0;
    gAlertStrID = 0;
    gAlertStringNumber = 0;
    gAlertReturnCode = 0;
 
-} // end "ClearGlobalAlertVariables" 
+}	// end "ClearGlobalAlertVariables"
 
 
 
@@ -3123,44 +3128,44 @@ void ClearGlobalAlertVariables(void)
 //	Coded By:			Larry L. Biehl			Date: 12/20/1993
 //	Revised By:			Larry L. Biehl			Date: 12/20/1993	
 
-void ComputeChiSquaredConstants(
-   SInt32 degreesOfFreedom,
-   double* factor1Ptr,
-   double* factor2Ptr,
-   double* oneOverGammaOfHalfDFPtr)
- {
+void ComputeChiSquaredConstants (
+				SInt32								degreesOfFreedom,
+				double*								factor1Ptr,
+				double*								factor2Ptr,
+				double*								oneOverGammaOfHalfDFPtr)
+{
+			// Get constants for calculations that only depend on the number of
+			// degrees of freedom.																
 
-   // Get constants for calculations that only depend on the number of 	
-   // degrees of freedom.																
+   if (degreesOfFreedom < kDegreesFreedomCrossover)
+		{
+				// Get constants for algorithm to be used when the number of
+				// degrees of freedom is less than degreesFreedomCrossover.			
+				// Get the gamma of one half the number of degrees of freedom and	
+				// then invert it.																
 
-   if (degreesOfFreedom < kDegreesFreedomCrossover) {
-      // Get constants for algorithm to be used when the number of 		
-      // degrees of freedom is less than degreesFreedomCrossover.			
-      // Get the gamma of one half the number of degrees of freedom and	
-      // then invert it.																
-
-      ComputeGammaFunctionHalfValue((SInt16) degreesOfFreedom, oneOverGammaOfHalfDFPtr);
+      ComputeGammaFunctionHalfValue ((SInt16)degreesOfFreedom, oneOverGammaOfHalfDFPtr);
       *oneOverGammaOfHalfDFPtr = 1. / (*oneOverGammaOfHalfDFPtr);
 
-      // Get the intregral factor.														
+				// Get the intregral factor.
 
-      *factor1Ptr = *oneOverGammaOfHalfDFPtr * (double) 2 /
-         pow((double) 2, (double) degreesOfFreedom / 2);
+      *factor1Ptr = *oneOverGammaOfHalfDFPtr * (double)2 /
+													pow ((double)2, (double)degreesOfFreedom / 2);
       *factor2Ptr = 1.;
 
-   }// end "if (degreesOfFreedom < kDegreesFreedomCrossover)" 
+		}	// end "if (degreesOfFreedom < kDegreesFreedomCrossover)"
 
-   else // degreesOfFreedom >= kDegreesFreedomCrossover 
-   {
-      // Get the constants for the algorithm to be used when the number	
-      // of degrees of freedom is degreesFreedomCrossover or more.		
+   else	// degreesOfFreedom >= kDegreesFreedomCrossover 
+		{
+				// Get the constants for the algorithm to be used when the number
+				// of degrees of freedom is degreesFreedomCrossover or more.		
 
-      *factor1Ptr = (double) 2. / (9 * degreesOfFreedom);
-      *factor2Ptr = sqrt(*factor1Ptr);
+      *factor1Ptr = (double)2. / (9 * degreesOfFreedom);
+      *factor2Ptr = sqrt (*factor1Ptr);
 
-   } // end "else degreesOfFreedom >= kDegreesFreedomCrossover" 
+		}	// end "else degreesOfFreedom >= kDegreesFreedomCrossover"
 
-} // end "ComputeChiSquaredConstants" 
+}	// end "ComputeChiSquaredConstants"
 
 
 
@@ -3186,79 +3191,82 @@ void ComputeChiSquaredConstants(
 //	Coded By:			Larry L. Biehl			Date: 12/20/1993
 //	Revised By:			Larry L. Biehl			Date: 04/03/1997	
 
-double ComputeChiSquaredValue(
-   SInt32 degreesOfFreedom,
-   double factor1,
-   double factor2,
-   double oneOverGammaOfHalfDF,
-   double threshold_probability)
- {
-   double chiSquaredValue,
-      rIncrement,
-      smallestValue,
-      tempProbability,
-      tempVariable,
-      tempVariable2,
-      thresholdPrecision;
+double ComputeChiSquaredValue (
+				SInt32								degreesOfFreedom,
+				double								factor1,
+				double								factor2,
+				double								oneOverGammaOfHalfDF,
+				double								threshold_probability)
+{
+   double								chiSquaredValue,
+											rIncrement,
+											smallestValue,
+											tempProbability,
+											tempVariable,
+											tempVariable2,
+											thresholdPrecision;
 
 
-   // Initialize local variables.													
+			// Initialize local variables.
 
    rIncrement = 2;
    chiSquaredValue = 0.;
 
    if (threshold_probability <= 0.)
-      return (chiSquaredValue);
+																				return (chiSquaredValue);
 
-   if (threshold_probability >= 1.) {
+   if (threshold_probability >= 1.)
+		{
       chiSquaredValue = DBL_MAX;
-      return (chiSquaredValue);
+																				return (chiSquaredValue);
 
-   } // end "if (threshold_probability >= 1.)"
+		}	// end "if (threshold_probability >= 1.)"
 
-#ifdef _80BitDoubles_
-#ifdef _MC68881_
-   smallestValue = 1e-18;
-#endif
-#ifndef _MC68881_
-   // This was changed from 1e-18 to 1e-15 on 3/3/1997 so that
-   // the program would not go into an infinite loop when
-   // running under MAE.
-   smallestValue = 1e-15;
-#endif
-#else
-   smallestValue = 1e-15;
-#endif
+	#ifdef _80BitDoubles_
+		#ifdef _MC68881_
+			smallestValue = 1e-18;
+		#endif
+		#ifndef _MC68881_
+					// This was changed from 1e-18 to 1e-15 on 3/3/1997 so that
+					// the program would not go into an infinite loop when
+					// running under MAE.
+			smallestValue = 1e-15;
+		#endif
+	#else
+		smallestValue = 1e-15;
+	#endif
 
-   if (threshold_probability >= .99) {
+   if (threshold_probability >= .99)
+		{
       thresholdPrecision = (1. - threshold_probability) / 1000000;
 
       if (thresholdPrecision < smallestValue)
          thresholdPrecision = smallestValue;
 
-   }// end "if (threshold_probability >= .99)" 
+		}	// end "if (threshold_probability >= .99)"
 
-   else // threshold_probability < .99 
+   else	// threshold_probability < .99
       thresholdPrecision = 0.00000001;
 
-   if (degreesOfFreedom < kDegreesFreedomCrossover) {
-      FindRThreshold((SInt16) degreesOfFreedom,
-         &chiSquaredValue,
-         threshold_probability,
-         rIncrement,
-         thresholdPrecision,
-         factor1,
-         oneOverGammaOfHalfDF);
+   if (degreesOfFreedom < kDegreesFreedomCrossover)
+		{
+      FindRThreshold ((SInt16)degreesOfFreedom,
+								&chiSquaredValue,
+								threshold_probability,
+								rIncrement,
+								thresholdPrecision,
+								factor1,
+								oneOverGammaOfHalfDF);
 
       chiSquaredValue *= chiSquaredValue;
 
-   }// end "if (degreesOfFreedom < kDegreesFreedomCrossover)" 
+		}	// end "if (degreesOfFreedom < kDegreesFreedomCrossover)"
 
-   else // degreesOfFreedom >= kDegreesFreedomCrossover 
-   {
-      // Approximate the chi squared value with the following			
-      // formula when the number of degrees of freedom is more than	
-      // the the crossover number .. somewhere around 30-40.			
+   else	// degreesOfFreedom >= kDegreesFreedomCrossover 
+		{
+				// Approximate the chi squared value with the following
+				// formula when the number of degrees of freedom is more than	
+				// the the crossover number .. somewhere around 30-40.			
 
       tempProbability = threshold_probability;
       if (threshold_probability > 0.5)
@@ -3267,27 +3275,26 @@ double ComputeChiSquaredValue(
       if (tempProbability < smallestValue)
          tempProbability = smallestValue;
 
-      tempVariable2 = -2 * log(tempProbability);
-      tempVariable = sqrt(tempVariable2);
+      tempVariable2 = -2 * log (tempProbability);
+      tempVariable = sqrt (tempVariable2);
 
       chiSquaredValue = tempVariable -
-         (2.515517 + 0.802853 * tempVariable + 0.010328 * tempVariable2) /
-         (1.0 + 1.432788 * tempVariable + 0.189269 * tempVariable2 +
-         0.001308 * tempVariable * tempVariable2);
+				(2.515517 + 0.802853 * tempVariable + 0.010328 * tempVariable2) /
+					(1.0 + 1.432788 * tempVariable + 0.189269 * tempVariable2 +
+							0.001308 * tempVariable * tempVariable2);
 
       if (threshold_probability <= 0.5)
          chiSquaredValue = -chiSquaredValue;
 
       tempVariable = 1.0 - factor1 + chiSquaredValue*factor2;
 
-      chiSquaredValue =
-         degreesOfFreedom * tempVariable * tempVariable * tempVariable;
+      chiSquaredValue = degreesOfFreedom * tempVariable * tempVariable * tempVariable;
 
-   } // end "else degreesOfFreedom >= kDegreesFreedomCrossover" 
+		}	// end "else degreesOfFreedom >= kDegreesFreedomCrossover"
 
    return (chiSquaredValue);
 
-} // end "ComputeChiSquaredValue" 
+}	// end "ComputeChiSquaredValue"
 
 
 
@@ -3302,7 +3309,7 @@ double ComputeChiSquaredValue(
 //							Gamma function value for half of the given input 
 //							value.  The even input values the gamma is
 //							(n/2-1)!.  For odd input values the gamma is
-//							(b/2-1)(n/2-2) ... 5/2 3/2 1/2 sqrt(PI).
+//							(b/2-1)(n/2-2) ... 5/2 3/2 1/2 sqrt (PI).
 //
 //	Parameters in:		None
 //
@@ -3315,37 +3322,38 @@ double ComputeChiSquaredValue(
 //	Coded By:			Chulhee Lee				Date: ?
 //	Revised By:			Larry L. Biehl			Date: 02/19/1990	
 
-void ComputeGammaFunctionHalfValue(
-   SInt16 n,
-   double* ret)
- {
-   double x;
+void ComputeGammaFunctionHalfValue (
+				SInt16								n,
+				double*								ret)
+{
+   double								x;
 
-   UInt32 i,
-      local_n,
-      nd2;
+   UInt32								i,
+											local_n,
+											nd2;
 
 
    local_n = n;
    nd2 = local_n / 2;
 
-   if (local_n == nd2 * 2) {
+   if (local_n == nd2 * 2)
+		{
       *ret = 1;
-      for (i = 1; i < nd2; i++)
+      for (i=1; i<nd2; i++)
          *ret *= i;
 
-   }// end "if (local_n == nd2*2)" 
+		}	// end "if (local_n == nd2*2)"
 
-   else // local_n!= nd2*2 
-   {
+   else	// local_n!= nd2*2 
+		{
       *ret = kSQRTPI;
 
-      for (x = .5; x < nd2; x += 1)
+      for (x=.5; x<nd2; x+=1)
          *ret *= x;
 
-   } // end "else n!= n/2*2" 
+		}	// end "else n!= n/2*2"
 
-} // end "ComputeGammaFunctionHalfValue" 
+}	// end "ComputeGammaFunctionHalfValue"
 
 
 
@@ -3372,7 +3380,7 @@ void ComputeGammaFunctionHalfValue(
 //	Coded By:			Larry L. Biehl			Date: 11/16/1988
 //	Revised By:			Larry L. Biehl			Date: 10/27/2015	
 
-void CreateFieldRgn(
+void CreateFieldRgn (
 				SInt16								numberPoints,
 				HPFieldPointsPtr					fieldPointsPtr,
 				RgnHandle*							rgnHandlePtr,
@@ -3386,83 +3394,83 @@ void CreateFieldRgn(
 
 	if (numberPoints >= 3) 
 		{
-      SInt16 i;
+      SInt16		i;
 
-		#if defined multispec_mac			
-			*rgnHandlePtr = NewRgn();
+		#if defined multispec_mac
+			*rgnHandlePtr = NewRgn ();
 
 			if (*rgnHandlePtr != NULL) 
 				{
-				OpenRgn();
-				MoveTo((SInt16) (fieldPointsPtr[numberPoints - 1].col + columnOffset),
-										(SInt16) (fieldPointsPtr[numberPoints - 1].line + lineOffset));
+				OpenRgn ();
+				MoveTo ((SInt16)(fieldPointsPtr[numberPoints - 1].col + columnOffset),
+							(SInt16)(fieldPointsPtr[numberPoints - 1].line + lineOffset));
 
-				for (i = 0; i < numberPoints; i++) 
+				for (i=0; i<numberPoints; i++)
 					{
 					if (gMemoryError == noErr)
-						LineTo ((SInt16) (fieldPointsPtr[i].col + columnOffset),
-									(SInt16) (fieldPointsPtr[i].line + lineOffset));
+						LineTo ((SInt16)(fieldPointsPtr[i].col + columnOffset),
+									(SInt16)(fieldPointsPtr[i].line + lineOffset));
 
-					} // end "for ( i=0; i<numberPoints; i++ )"
+					}	// end "for (i=0; i<numberPoints; i++)"
 
-				CloseRgn(*rgnHandlePtr);
+				CloseRgn (*rgnHandlePtr);
 
-				} // end "if (*rgnHandle != NULL)"				
-		#endif	// defined multispec_mac 
+				}	// end "if (*rgnHandle != NULL)"
+		#endif	// defined multispec_mac
 
 		#if defined multispec_win
 			POINT* pointsPtr = NULL;
 
-			pointsPtr = (POINT*) MNewPointer((SInt64) numberPoints * sizeof (POINT));
+			pointsPtr = (POINT*)MNewPointer ((SInt64)numberPoints * sizeof (POINT));
 			if (pointsPtr != NULL)
 				*rgnHandlePtr = new CRgn;
 
 			if (*rgnHandlePtr != NULL) 
 				{
-				for (i = 0; i < numberPoints; i++) 
-					{
-					pointsPtr[i].x = (int) (fieldPointsPtr[i].col + columnOffset);
-					pointsPtr[i].y = (int) (fieldPointsPtr[i].line + lineOffset);
-
-					} // end "for ( i=0; i<numberPoints; i++ )" 
-
-				if (!(*rgnHandlePtr)->CreatePolygonRgn(
-											(tagPOINT*) pointsPtr,
-											numberPoints,
-											WINDING)) 
-					{
-					delete *rgnHandlePtr;
-					*rgnHandlePtr = NULL;
-
-					} // end "if ( !(*rgnHandlePtr)->CreatePolygonRgn(..."
-
-				} // end "if (*rgnHandlePtr != NULL)"
-
-			CheckAndDisposePtr((Ptr) pointsPtr);
-		#endif	// defined multispec_win 
-		
-		#if defined multispec_lin
-			wxPoint* pointsPtr = (wxPoint*)MNewPointer ((SInt64)numberPoints * sizeof(wxPoint));
-			if (pointsPtr != NULL)
-				{
-				for (i = 0; i < numberPoints; i++) 
+				for (i=0; i<numberPoints; i++)
 					{
 					pointsPtr[i].x = (int)(fieldPointsPtr[i].col + columnOffset);
 					pointsPtr[i].y = (int)(fieldPointsPtr[i].line + lineOffset);
 
-					} // end "for (i=0; i<numberPoints; i++)"
+					}	// end "for (i=0; i<numberPoints; i++)" 
+
+				if (!(*rgnHandlePtr)->CreatePolygonRgn ((tagPOINT*)pointsPtr,
+																		numberPoints,
+																		WINDING)) 
+					{
+					delete *rgnHandlePtr;
+					*rgnHandlePtr = NULL;
+
+					}	// end "if (!(*rgnHandlePtr)->CreatePolygonRgn (..."
+
+				}	// end "if (*rgnHandlePtr != NULL)"
+
+			CheckAndDisposePtr ((Ptr)pointsPtr);
+		#endif	// defined multispec_win
+		
+		#if defined multispec_lin
+			wxPoint* pointsPtr = (wxPoint*)MNewPointer (
+															(SInt64)numberPoints * sizeof (wxPoint));
+			if (pointsPtr != NULL)
+				{
+				for (i=0; i<numberPoints; i++)
+					{
+					pointsPtr[i].x = (int)(fieldPointsPtr[i].col + columnOffset);
+					pointsPtr[i].y = (int)(fieldPointsPtr[i].line + lineOffset);
+
+					}	// end "for (i=0; i<numberPoints; i++)"
 					
-				//*rgnHandlePtr = new wxRegion(numberPoints, pointsPtr, wxWINDING_RULE);
-				*rgnHandlePtr = new wxRegion(numberPoints, pointsPtr, wxODDEVEN_RULE);
+				//*rgnHandlePtr = new wxRegion (numberPoints, pointsPtr, wxWINDING_RULE);
+				*rgnHandlePtr = new wxRegion (numberPoints, pointsPtr, wxODDEVEN_RULE);
 
 				}	// end "if (pointsPtr != NULL)"
 
 			CheckAndDisposePtr ((Ptr)pointsPtr);
 		#endif	// defined multispec_lin
 
-		} // end "if (numberPoints >= 3)" 
+		}	// end "if (numberPoints >= 3)"
 
-} // end "CreateFieldRgn"
+}	// end "CreateFieldRgn"
 
 
 
@@ -3506,7 +3514,7 @@ SInt16 DetermineFieldTypes (void)
 
 
    if (gProjectInfoPtr == NULL)
-																										return (0);
+																									return (0);
 
 			// Initialize local variables.													
 
@@ -3517,8 +3525,8 @@ SInt16 DetermineFieldTypes (void)
    nonClusterTestField = 0;
 
 
-   for (classIndex = 0;
-			classIndex < gProjectInfoPtr->numberStatisticsClasses;
+   for (classIndex=0;
+			classIndex<gProjectInfoPtr->numberStatisticsClasses;
 			classIndex++) 
 		{
 				// Get the class storage number.												
@@ -3543,14 +3551,14 @@ SInt16 DetermineFieldTypes (void)
 
 				}	// end "if (fieldIdentPtr[fieldNumber].pointType < ..." 
 
-         else // fieldIdentPtr[fieldNumber].pointType == kClusterType 
+         else	// fieldIdentPtr[fieldNumber].pointType == kClusterType 
             clusterField = 4;
 
          fieldNumber = fieldIdentPtr[fieldNumber].nextField;
 
 			}	// end "while (fieldNumber != -1)" 
 
-		}	// end "for ( classIndex=0; classIndex<..." 
+		}	// end "for (classIndex=0; classIndex<..."
 
    return (clusterField + nonClusterTrainField + nonClusterTestField);
 
@@ -3581,29 +3589,29 @@ SInt16 DetermineFieldTypes (void)
 //	Coded By:			Larry L. Biehl			Date: 02/10/1990
 //	Revised By:			Larry L. Biehl			Date: 04/18/2013	
 
-SInt16 DiskFilePopUpMenu(
-   DialogPtr dialogPtr,
-   MenuHandle diskFileMenu,
-   SInt16 dialogItem)
- {
-   SInt16 returnCode;
+SInt16 DiskFilePopUpMenu (
+				DialogPtr							dialogPtr,
+				MenuHandle							diskFileMenu,
+				SInt16								dialogItem)
+{
+   SInt16								returnCode;
 
 
-   // Initialize local variables.												
+			// Initialize local variables.
 
    returnCode = 0;
 
    if (gOutputFormatCode > 0)
-      returnCode = StandardPopUpMenu(dialogPtr,
-      dialogItem - 1,
-      dialogItem,
-      diskFileMenu,
-      gOutputFormatCode,
-      kPopUpDiskFileMenuID);
+      returnCode = StandardPopUpMenu (dialogPtr,
+													dialogItem - 1,
+													dialogItem,
+													diskFileMenu,
+													gOutputFormatCode,
+													kPopUpDiskFileMenuID);
 
-   return ( returnCode);
+   return (returnCode);
 
-} // end "DiskFilePopUpMenu" 
+}	// end "DiskFilePopUpMenu"
 
 
 
@@ -3632,16 +3640,19 @@ SInt16 DiskFilePopUpMenu(
 //	Coded By:			Larry L. Biehl			Date: 10/16/1989
 //	Revised By:			Larry L. Biehl			Date: 10/30/1990	
 
-pascal void DrawChannelsPopUp2(
-   DialogPtr dialogPtr,
-   SInt16 itemNumber)
- {
-   // Use the generic pop up drawing routine.									
+pascal void DrawChannelsPopUp2 (
+				DialogPtr							dialogPtr,
+				SInt16								itemNumber)
+{
+			// Use the generic pop up drawing routine.
 
-   DrawPopUpMenuItem(dialogPtr, itemNumber,
-      gPopUpAllAvailableSubsetMenu, gChannelSelection, TRUE);
+   DrawPopUpMenuItem (dialogPtr,
+								itemNumber,
+								gPopUpAllAvailableSubsetMenu,
+								gChannelSelection,
+								TRUE);
 
-} // end "DrawChannelsPopUp2" 
+}	// end "DrawChannelsPopUp2"
 
 
 
@@ -3668,16 +3679,19 @@ pascal void DrawChannelsPopUp2(
 //	Coded By:			Larry L. Biehl			Date: 01/12/1993
 //	Revised By:			Larry L. Biehl			Date: 01/12/1993	
 
-pascal void DrawInterClassWeightsPopUp(
-   DialogPtr dialogPtr,
-   SInt16 itemNumber)
- {
-   // Use the generic pop up drawing routine.									
+pascal void DrawInterClassWeightsPopUp (
+				DialogPtr							dialogPtr,
+				SInt16								itemNumber)
+{
+			// Use the generic pop up drawing routine.
 
-   DrawPopUpMenuItem(dialogPtr, itemNumber,
-      gPopUpWeightsMenu, gInterClassWeightsSelection, TRUE);
+   DrawPopUpMenuItem (dialogPtr,
+								itemNumber,
+								gPopUpWeightsMenu,
+								gInterClassWeightsSelection,
+								TRUE);
 
-} // end "DrawInterClassWeightsPopUp" 
+}	// end "DrawInterClassWeightsPopUp"
 
 
 
@@ -3725,27 +3739,27 @@ pascal void DrawProjectChangesPopUp (
 	/*
 			// Make certain that the correct graph port is set up.
 
-   SetPortDialogPort(dialogPtr);
+   SetPortDialogPort (dialogPtr);
 
 			// Get the rectangle for the pop up box.
 
-   GetDialogItem(dialogPtr, itemNumber, &theType, &theHandle, &popUpBox);
+   GetDialogItem (dialogPtr, itemNumber, &theType, &theHandle, &popUpBox);
 
 			// Clear the pop up box.
 
-   EraseRect(&popUpBox);
+   EraseRect (&popUpBox);
 
 			// Draw the current channels selection.
 
    MoveTo (popUpBox.left + leftSpace, popUpBox.bottom - bottomSpace);
 
-   DrawString("\pProject Changes");
+   DrawString ("\pProject Changes");
 
 			// Draw the pop up box around currently selected channel option.
 
-   DrawDropShadowBox(popUpBox);
+   DrawDropShadowBox (popUpBox);
 
-   DrawDropDownTriangle(&popUpBox);
+   DrawDropDownTriangle (&popUpBox);
 	*/
 
 }	// end "DrawProjectChangesPopUp"
@@ -3776,16 +3790,19 @@ pascal void DrawProjectChangesPopUp (
 //	Coded By:			Larry L. Biehl			Date: 04/02/1993
 //	Revised By:			Larry L. Biehl			Date: 04/02/1993	
 
-pascal void DrawSeparabilityDistancePopUp(
-   DialogPtr dialogPtr,
-   SInt16 itemNumber)
- {
-   // Use the generic pop up drawing routine.									
+pascal void DrawSeparabilityDistancePopUp (
+				DialogPtr							dialogPtr,
+				SInt16								itemNumber)
+{
+			// Use the generic pop up drawing routine.
 
-   DrawPopUpMenuItem (dialogPtr, itemNumber,
-						gPopUpSeparabilityDistanceMenu, gSeparabilityDistance, TRUE);
+   DrawPopUpMenuItem (dialogPtr,
+								itemNumber,
+								gPopUpSeparabilityDistanceMenu,
+								gSeparabilityDistance,
+								TRUE);
 
-} // end "DrawSeparabilityDistancePopUp" 
+}	// end "DrawSeparabilityDistancePopUp"
 #endif	// defined multispec_mac
 
 
@@ -3812,74 +3829,76 @@ pascal void DrawSeparabilityDistancePopUp(
 //	Coded By:			Chulhee Lee				Date: ?
 //	Revised By:			Larry L. Biehl			Date: 03/12/1990	
 
-void FindRThreshold(
-   SInt16 degreesOfFreedom,
-   double* rThreshold,
-   double thresholdProbability,
-   double rIncrementStart,
-   double thresholdPrecision,
-   double factor,
-   double oneOverGammaOfHalfDF)
- {
-   double endProbability,
-      lowestR = 0.0000,
-      probability,
-      probabilityDifference,
-      r,
-      rIncrement,
-      rStart,
-      startProbability;
+void FindRThreshold (
+				SInt16								degreesOfFreedom,
+				double*								rThreshold,
+				double								thresholdProbability,
+				double								rIncrementStart,
+				double								thresholdPrecision,
+				double								factor,
+				double								oneOverGammaOfHalfDF)
+{
+   double								endProbability,
+											lowestR = 0.0000,
+											probability,
+											probabilityDifference,
+											r,
+											rIncrement,
+											rStart,
+											startProbability;
 
-   Boolean haveEndFlag,
-      haveStartFlag;
+   Boolean								haveEndFlag,
+											haveStartFlag;
 
 
-   // Check for invalid input value.												
+			// Check for invalid input value.
 
    if (*rThreshold < 0)
-      return;
+																										return;
 
-   // Initialize local variables.													
+			// Initialize local variables.
 
    rStart = (*rThreshold == 0) ? rIncrementStart : *rThreshold - rIncrementStart;
-   rStart = MAX(lowestR, rStart);
+   rStart = MAX (lowestR, rStart);
    rIncrement = rIncrementStart;
    haveStartFlag = FALSE;
    haveEndFlag = FALSE;
 
    do {
-      for (r = rStart;; r += rIncrement) {
-         Intg_Normal(
-            degreesOfFreedom, r, &probability, factor, oneOverGammaOfHalfDF);
+      for (r=rStart;; r+=rIncrement)
+			{
+         Intg_Normal (degreesOfFreedom, r, &probability, factor, oneOverGammaOfHalfDF);
 
-         probabilityDifference = fabs(probability - thresholdProbability);
+         probabilityDifference = fabs (probability - thresholdProbability);
          if (probabilityDifference < thresholdPrecision)
             break;
 
-         if (probability >= thresholdProbability) {
+         if (probability >= thresholdProbability)
+				{
             haveEndFlag = TRUE;
             endProbability = probability;
 
-            if (!haveStartFlag) {
+            if (!haveStartFlag)
+					{
                rStart -= rIncrement;
                break;
 
-            } // end "if (!haveStartFlag)" 
+					}	// end "if (!haveStartFlag)"
 
-         }// end "if(probability >= thresholdProbability)" 
+				}	// end "if (probability >= thresholdProbability)"
 
-         else // probability < thresholdProbability 
-         {
+         else	// probability < thresholdProbability 
+				{
             rStart = r;
             haveStartFlag = TRUE;
             startProbability = probability;
 
-         } // end "probability < thresholdProbability" 
+				}	// end "probability < thresholdProbability"
 
-         if (haveStartFlag && haveEndFlag) {
-            rStart = rStart +
-               (thresholdProbability - startProbability) /
-               (endProbability - startProbability) * rIncrement;
+         if (haveStartFlag && haveEndFlag)
+				{
+            rStart = rStart + (thresholdProbability - startProbability) /
+												(endProbability - startProbability) * rIncrement;
 
             rIncrement /= 5;
             if (rIncrement < 1e-19)
@@ -3887,22 +3906,22 @@ void FindRThreshold(
 
 
             rStart -= rIncrement;
-            rStart = MAX(lowestR, rStart);
+            rStart = MAX (lowestR, rStart);
 
             haveStartFlag = FALSE;
             haveEndFlag = FALSE;
 
             break;
 
-         } // end "if (haveStartFlag && haveEndFlag)" 
+				}	// end "if (haveStartFlag && haveEndFlag)"
 
-      } // end "for (r=rStart; ; r+=rIncrement)" 
+			}	// end "for (r=rStart; ; r+=rIncrement)"
 
-   } while (probabilityDifference > thresholdPrecision);
+		} while (probabilityDifference > thresholdPrecision);
 
    *rThreshold = r;
 
-} // end "FindRThreshold" 
+}	// end "FindRThreshold"
 
 
 
@@ -3928,21 +3947,19 @@ void FindRThreshold(
 //	Coded By:			Larry L. Biehl			Date: 11/19/1992
 //	Revised By:			Larry L. Biehl			Date: 11/19/1992
 
-void ForceProjectUtilityCodeResourceLoad(void)
- {
-
-   // If spare memory had to be used to load code resources, then exit	
-   // routine.																				
+void ForceProjectUtilityCodeResourceLoad (void)
+{
+			// If spare memory had to be used to load code resources, then exit routine.
 
    if (gMemoryTypeNeeded < 0)
-      return;
+																										return;
 
-   // Code resources loaded okay, so set flag back for non-Code			
-   // resources.																			
+			// Code resources loaded okay, so set flag back for non-Code
+			// resources.
 
    gMemoryTypeNeeded = 0;
 
-} // end "ForceProjectUtilityCodeResourceLoad" 
+}	// end "ForceProjectUtilityCodeResourceLoad"
 
 
 
@@ -3968,38 +3985,38 @@ void ForceProjectUtilityCodeResourceLoad(void)
 //	Coded By:			Larry L. Biehl			Date: 10/22/1992
 //	Revised By:			Larry L. Biehl			Date: 12/20/1993	
 
-double GetChiSquaredValue(
-   SInt32 degreesOfFreedom,
-   double threshold_probability)
- {
-   double chiSquaredValue,
-      factor1,
-      factor2,
-      oneOverGammaOfHalfDF;
+double GetChiSquaredValue (
+				SInt32								degreesOfFreedom,
+				double								threshold_probability)
+{
+   double								chiSquaredValue,
+											factor1,
+											factor2,
+											oneOverGammaOfHalfDF;
 
 
-   // Intialize the nextTime variable to indicate when the next check	
-   // should occur for a command-.													
+			// Intialize the nextTime variable to indicate when the next check
+			// should occur for a command-.
 
-   gNextTime = TickCount();
+   gNextTime = TickCount ();
 
-   // Get constants for calculations that only depend on the number of 	
-   // degrees of freedom.																
+			// Get constants for calculations that only depend on the number of
+			// degrees of freedom.
 
-   ComputeChiSquaredConstants(degreesOfFreedom,
-      &factor1,
-      &factor2,
-      &oneOverGammaOfHalfDF);
+   ComputeChiSquaredConstants (degreesOfFreedom,
+											&factor1,
+											&factor2,
+											&oneOverGammaOfHalfDF);
 
-   chiSquaredValue = ComputeChiSquaredValue(degreesOfFreedom,
-      factor1,
-      factor2,
-      oneOverGammaOfHalfDF,
-      threshold_probability);
+   chiSquaredValue = ComputeChiSquaredValue (degreesOfFreedom,
+															factor1,
+															factor2,
+															oneOverGammaOfHalfDF,
+															threshold_probability);
 
    return (chiSquaredValue);
 
-} // end "GetChiSquaredValue" 
+}	// end "GetChiSquaredValue"
 
 
 
@@ -4026,47 +4043,49 @@ double GetChiSquaredValue(
 //	Coded By:			Larry L. Biehl			Date: 08/11/1997
 //	Revised By:			Larry L. Biehl			Date: 01/09/1998
 
-UInt32 GetClassNameMaxLength(
-   UInt32 numberClasses,
-   SInt16* classPtr,
-   HUInt32Ptr nameLengthVectorPtr)
+UInt32 GetClassNameMaxLength (
+				UInt32								numberClasses,
+				SInt16*								classPtr,
+				HUInt32Ptr							nameLengthVectorPtr)
  {
-   Ptr namePtr;
+   Ptr									namePtr;
 
-   UInt32 classIndex,
-      classStorage,
-      maxNameLength,
-      statClassNumber;
+   UInt32								classIndex,
+											classStorage,
+											maxNameLength,
+											statClassNumber;
 
 
    maxNameLength = 0;
 
-   if (gProjectInfoPtr != NULL) {
-      for (classIndex = 0; classIndex < numberClasses; classIndex++) {
+   if (gProjectInfoPtr != NULL)
+		{
+      for (classIndex=0; classIndex<numberClasses; classIndex++)
+			{
          if (classPtr != NULL)
-            statClassNumber = classPtr[ classIndex ] - 1;
+            statClassNumber = classPtr[classIndex] - 1;
 
-         else // classPtr != NULL
+         else	// classPtr != NULL
             statClassNumber = classIndex;
 
-         // Get the class storage number.												
+					// Get the class storage number.
 
          classStorage = gProjectInfoPtr->storageClass[statClassNumber];
 
-         namePtr = (char*) &gProjectInfoPtr->classNamesPtr[classStorage].name;
+         namePtr = (char*)&gProjectInfoPtr->classNamesPtr[classStorage].name;
 
-         maxNameLength = MAX((UInt32) namePtr[0], maxNameLength);
+         maxNameLength = MAX ((UInt32)namePtr[0], maxNameLength);
 
          if (nameLengthVectorPtr != NULL)
-            nameLengthVectorPtr[statClassNumber] = (UInt32) namePtr[0];
+            nameLengthVectorPtr[statClassNumber] = (UInt32)namePtr[0];
 
-      } // end "for ( classIndex=0; classIndex<numberLines; classIndex++)"
+			}	// end "for (classIndex=0; classIndex<numberLines; classIndex++)"
 
-   } // end "if (gProjectInfoPtr != NULL)"
+		}	// end "if (gProjectInfoPtr != NULL)"
 
    return (maxNameLength);
 
-} // end "GetClassNameMaxLength" 
+}	// end "GetClassNameMaxLength"
 
 
 
@@ -4090,23 +4109,25 @@ UInt32 GetClassNameMaxLength(
 //	Coded By:			Larry L. Biehl			Date: 07/02/1996
 //	Revised By:			Larry L. Biehl			Date: 07/02/1996
 
-ClassInfoPtr GetClassInfoStructure(
-   UInt16 numberClasses)
- {
-   ClassInfoPtr classInfoPtr;
+ClassInfoPtr GetClassInfoStructure (
+				UInt16								numberClasses)
+{
+   ClassInfoPtr						classInfoPtr;
 
 
-   // Get memory for the structure which contains pointers to the 	
-   // class statistics and data values.										
+			// Get memory for the structure which contains pointers to the
+			// class statistics and data values.
 
-   classInfoPtr = (ClassInfoPtr) MNewPointer(numberClasses * sizeof (ClassInfo));
+   classInfoPtr = (ClassInfoPtr)MNewPointer (numberClasses * sizeof (ClassInfo));
 
-   if (classInfoPtr != NULL) {
+   if (classInfoPtr != NULL)
+		{
       UInt16 index;
 
-      // Initialize quickClassInfor structure.
+				// Initialize quickClassInfor structure.
 
-      for (index = 0; index < numberClasses; index++) {
+      for (index = 0; index < numberClasses; index++)
+			{
          classInfoPtr[index].determinant = 0;
          classInfoPtr[index].logDeterminant = 0;
          classInfoPtr[index].no_samples = 0;
@@ -4117,13 +4138,13 @@ ClassInfoPtr GetClassInfoStructure(
          classInfoPtr[index].transformedCovPtr = NULL;
          classInfoPtr[index].transformedMeanPtr = NULL;
 
-      } // end "for ( index=0; index<..."
+			}	// end "for (index=0; index<..."
 
-   } // end "if (classInfoPtr != NULL)"
+		}	// end "if (classInfoPtr != NULL)"
 
    return (classInfoPtr);
 
-} // end "GetClassInfoStructure" 
+}	// end "GetClassInfoStructure"
 
 
 
@@ -4151,11 +4172,11 @@ ClassInfoPtr GetClassInfoStructure(
 //	Coded By:			Larry L. Biehl			Date: 12/27/1993
 //	Revised By:			Larry L. Biehl			Date: 01/06/1994
 
-SInt16 GetClassWeightsIndex(
-   Boolean useEnhancedStatisticsFlag,
-   Boolean equalWeightsFlag)
- {
-   SInt16 weightIndex;
+SInt16 GetClassWeightsIndex (
+				Boolean								useEnhancedStatisticsFlag,
+				Boolean								equalWeightsFlag)
+{
+   SInt16								weightIndex;
 
 
    weightIndex = 0;
@@ -4163,16 +4184,16 @@ SInt16 GetClassWeightsIndex(
    if (equalWeightsFlag)
       weightIndex = 2;
 
-   else // !equalWeightsFlag 
-   {
+   else	// !equalWeightsFlag 
+		{
       if (useEnhancedStatisticsFlag)
          weightIndex = 1;
 
-   } // end "else !equalWeightsFlag 
+		}	// end "else !equalWeightsFlag
 
    return (weightIndex);
 
-} // end "GetClassWeightsIndex" 
+}	// end "GetClassWeightsIndex"
 
 
 
@@ -4199,24 +4220,24 @@ SInt16 GetClassWeightsIndex(
 //	Coded By:			Larry L. Biehl			Date: 12/27/1993
 //	Revised By:			Larry L. Biehl			Date: 12/29/1993
 
-float* GetClassWeightsPtr(
-   float* weightsPtr,
-   Boolean useEnhancedStatisticsFlag,
-   Boolean equalWeightsFlag)
- {
+float* GetClassWeightsPtr (
+				float*								weightsPtr,
+				Boolean								useEnhancedStatisticsFlag,
+				Boolean								equalWeightsFlag)
+{
    if (equalWeightsFlag)
       weightsPtr = &weightsPtr[2 * gProjectInfoPtr->numberStatisticsClasses];
 
-   else // !equalWeightsFlag 
-   {
+   else	// !equalWeightsFlag 
+		{
       if (useEnhancedStatisticsFlag)
          weightsPtr = &weightsPtr[gProjectInfoPtr->numberStatisticsClasses];
 
-   } // end "else		// !equalWeightsFlag 
+		}	// end "else !equalWeightsFlag
 
    return (weightsPtr);
 
-} // end "GetClassWeightsPtr" 
+}	// end "GetClassWeightsPtr"
 
 
 
@@ -4242,36 +4263,37 @@ float* GetClassWeightsPtr(
 //	Coded By:			Larry L. Biehl			Date: 01/06/1994
 //	Revised By:			Larry L. Biehl			Date: 09/19/1997	
 
-double GetClassWeightValue(
-   UInt16 statClassNumber,
-   UInt32 weightsIndex,
-   double totalProbability)
- {
-   double weightValue;
+double GetClassWeightValue (
+				UInt16								statClassNumber,
+				UInt32								weightsIndex,
+				double								totalProbability)
+{
+   double								weightValue;
 
-   float* classWeightsPtr;
+   float*								classWeightsPtr;
 
-   SInt16 classStorage;
+   SInt16								classStorage;
 
 
    classStorage = gProjectInfoPtr->storageClass[statClassNumber];
 
-   if (weightsIndex <= 3) {
+   if (weightsIndex <= 3)
+		{
       classWeightsPtr =
          gProjectInfoPtr->classNamesPtr[classStorage].priorWeights;
 
       weightValue =
-         fabs((double) classWeightsPtr[weightsIndex]) / totalProbability;
+         fabs ((double) classWeightsPtr[weightsIndex]) / totalProbability;
 
-   }// end "if (weightsIndex <= 3)"
+		}	// end "if (weightsIndex <= 3)"
 
-   else // weightsIndex == 4
-      weightValue = gProjectInfoPtr->classNamesPtr[classStorage].
-      numberStatisticsPixels / totalProbability;
+   else	// weightsIndex == 4
+      weightValue = gProjectInfoPtr->classNamesPtr[classStorage].numberStatisticsPixels /
+																								totalProbability;
 
    return (weightValue);
 
-} // end "GetClassWeightValue" 
+}	// end "GetClassWeightValue" 
 
 
 
@@ -4296,25 +4318,26 @@ double GetClassWeightValue(
 //	Coded By:			Larry L. Biehl			Date: 09/19/1997
 //	Revised By:			Larry L. Biehl			Date: 12/16/1999
 
-UInt16 GetCommonCovarianceWeightsIndex()
- {
-   UInt16 weightIndex;
+UInt16 GetCommonCovarianceWeightsIndex ()
+{
+	UInt16								weightIndex;
 
 
-   // equal weighting
+			// equal weighting
+			
    weightIndex = 2;
 
    if (gProjectInfoPtr->commonCovarianceWeightSet == kUnequalWeights)
-      // user supplied weighting
+				// user supplied weighting
       weightIndex = 3;
 
    else if (gProjectInfoPtr->commonCovarianceWeightSet == kNumberSampleWeights)
-      // weight by number of samples
+				// weight by number of samples
       weightIndex = 4;
 
    return (weightIndex);
 
-} // end "GetCommonCovarianceWeightsIndex" 
+}	// end "GetCommonCovarianceWeightsIndex" 
 
 
 
@@ -4351,44 +4374,44 @@ UInt16 GetCommonCovarianceWeightsIndex()
 //	Coded By:			Larry L. Biehl			Date: 12/15/1988
 //	Revised By:			Larry L. Biehl			Date: 10/27/2015
 
-void GetFieldBoundary(
-   ProjectInfoPtr classProjectInfoPtr,
-   AreaDescriptionPtr areaDescriptionPtr,
-   SInt16 fieldNumber)
- {
-   HPFieldIdentifiersPtr fieldIdentPtr;
-   HPFieldPointsPtr fieldPointsPtr;
+void GetFieldBoundary (
+				ProjectInfoPtr						classProjectInfoPtr,
+				AreaDescriptionPtr				areaDescriptionPtr,
+				SInt16								fieldNumber)
+{
+	HPFieldIdentifiersPtr			fieldIdentPtr;
+   HPFieldPointsPtr					fieldPointsPtr;
 
-   SInt32 previousLineStart;
+   SInt32								previousLineStart;
 
-   UInt32 imageStartColumn,
-      imageStartLine;
+   UInt32								imageStartColumn,
+											imageStartLine;
 
-   SInt16 classStorage,
-      pointIndex;
+   SInt16								classStorage,
+											pointIndex;
 
-   Boolean definedAreaFlag;
+   Boolean								definedAreaFlag;
 
 
-   // Initialize local variables.													
+			// Initialize local variables.													
 
    fieldIdentPtr = &classProjectInfoPtr->fieldIdentPtr[fieldNumber];
    fieldPointsPtr = classProjectInfoPtr->fieldPointsPtr;
    definedAreaFlag = TRUE;
 
-   // Get index of first point that describes the field.						
+			// Get index of first point that describes the field.						
 
    pointIndex = fieldIdentPtr->firstPolygonPoint;
 
-   // Initialize the mask info structure pointer to NULL.
+			// Initialize the mask info structure pointer to NULL.
 
    areaDescriptionPtr->maskInfoPtr = NULL;
 
-   // Load the point type;
+			// Load the point type;
 
    areaDescriptionPtr->pointType = fieldIdentPtr->pointType;
 
-   // If the line and column intervals are 0, then initialize them to 1.
+			// If the line and column intervals are 0, then initialize them to 1.
 
    if (areaDescriptionPtr->lineInterval <= 0)
       areaDescriptionPtr->lineInterval = 1;
@@ -4402,8 +4425,8 @@ void GetFieldBoundary(
 
    if (fieldIdentPtr->pointType == kPolygonType) 
 		{
-      LongRect boundingRectangle;
-      RgnHandle rgnHandle;
+      LongRect				boundingRectangle;
+      RgnHandle			rgnHandle;
 
 
       areaDescriptionPtr->polygonFieldFlag = TRUE;
@@ -4423,7 +4446,7 @@ void GetFieldBoundary(
 			{
          GetBoundingRegionRectangle (rgnHandle,
 													&boundingRectangle,
-													(UInt32) fieldIdentPtr->numberOfPolygonPoints,
+													(UInt32)fieldIdentPtr->numberOfPolygonPoints,
 													&fieldPointsPtr[pointIndex],
 													areaDescriptionPtr->columnOffset,
 													areaDescriptionPtr->lineOffset);
@@ -4439,169 +4462,178 @@ void GetFieldBoundary(
 					// defined.
 
          if (areaDescriptionPtr->applyOffsetFlag)
-            definedAreaFlag = VerifyAreaDescription(areaDescriptionPtr);
+            definedAreaFlag = VerifyAreaDescription (areaDescriptionPtr);
 
          if (gMemoryError != noErr || !definedAreaFlag) 
 				{
-            DisposeRgn(rgnHandle);
+            DisposeRgn (rgnHandle);
             rgnHandle = NULL;
             definedAreaFlag = FALSE;
 
-				} // end "if (gMemoryError != noErr || !definedAreaFlag)"
+				}	// end "if (gMemoryError != noErr || !definedAreaFlag)"
 
          areaDescriptionPtr->rgnHandle = rgnHandle;
 
-			} // end "if (rgnHandle != NULL)"
+			}	// end "if (rgnHandle != NULL)"
 
-		}// end "if (fieldIdentPtr..." 
+		}	// end "if (fieldIdentPtr..." 
 
-   else // The field is not polygonal type 
+   else	// The field is not polygonal type 
 		{
       areaDescriptionPtr->polygonFieldFlag = FALSE;
       areaDescriptionPtr->rgnHandle = NULL;
 
-      if (fieldIdentPtr->pointType == kRectangleType) {
+      if (fieldIdentPtr->pointType == kRectangleType) 
+			{
          areaDescriptionPtr->lineStart = fieldPointsPtr[pointIndex].line;
          areaDescriptionPtr->lineEnd = fieldPointsPtr[pointIndex + 1].line;
 
          areaDescriptionPtr->columnStart = fieldPointsPtr[pointIndex].col;
          areaDescriptionPtr->columnEnd = fieldPointsPtr[pointIndex + 1].col;
 
-         if (areaDescriptionPtr->applyOffsetFlag) {
-            // Adjust for any offset between this image and the project 
-            // base image.
+         if (areaDescriptionPtr->applyOffsetFlag) 
+				{
+						// Adjust for any offset between this image and the project 
+						// base image.
 
             areaDescriptionPtr->lineStart += areaDescriptionPtr->lineOffset;
             areaDescriptionPtr->lineEnd += areaDescriptionPtr->lineOffset;
             areaDescriptionPtr->columnStart += areaDescriptionPtr->columnOffset;
             areaDescriptionPtr->columnEnd += areaDescriptionPtr->columnOffset;
 
-            // Now verify that the field area is still within image area.
-            // If not, set the flag indicating that the area is not defined.
+						// Now verify that the field area is still within image area.
+						// If not, set the flag indicating that the area is not defined.
 
-            definedAreaFlag = VerifyAreaDescription(areaDescriptionPtr);
+            definedAreaFlag = VerifyAreaDescription (areaDescriptionPtr);
 
-         } // end "if (areaDescriptionPtr->applyOffsetFlag)"
+				}	// end "if (areaDescriptionPtr->applyOffsetFlag)"
 
-      }// end "if (fieldIdentPtr->pointType == kRectangleType)" 
+			}	// end "if (fieldIdentPtr->pointType == kRectangleType)" 
 
-      else if (fieldIdentPtr->pointType == kMaskType) {
-         // Set the area to be checked as that defined by the mask.
+      else if (fieldIdentPtr->pointType == kMaskType) 
+			{
+					// Set the area to be checked as that defined by the mask.
 
-         // Initialize the line and column end parameters to zero. This will 
-         // force the output line and column parameters to be based on the 
-         // size of the mask itself.
+					// Initialize the line and column end parameters to zero. This will 
+					// force the output line and column parameters to be based on the 
+					// size of the mask itself.
 
          areaDescriptionPtr->lineStart = 1;
          areaDescriptionPtr->lineEnd = 0;
          areaDescriptionPtr->columnStart = 1;
          areaDescriptionPtr->columnEnd = 0;
 
-         if (areaDescriptionPtr->applyOffsetFlag) {
-            // Allow for offset in image which may be different than that
-            // for the project base image.
+         if (areaDescriptionPtr->applyOffsetFlag) 
+				{
+						// Allow for offset in image which may be different than that
+						// for the project base image.
 
-            imageStartLine = (UInt32) (classProjectInfoPtr->startLine -
-               areaDescriptionPtr->lineOffset);
+            imageStartLine = (UInt32)(classProjectInfoPtr->startLine -
+																		areaDescriptionPtr->lineOffset);
 
-            imageStartColumn = (UInt32) (classProjectInfoPtr->startColumn -
-               areaDescriptionPtr->columnOffset);
+            imageStartColumn = (UInt32)(classProjectInfoPtr->startColumn -
+																		areaDescriptionPtr->columnOffset);
 
-         }// end "if (areaDescriptionPtr->applyOffsetFlag"
+				}	// end "if (areaDescriptionPtr->applyOffsetFlag"
 
-         else // !areaDescriptionPtr->applyOffsetFlag)
-         {
-            // Get line and column start values for the project base image.
+         else	// !areaDescriptionPtr->applyOffsetFlag)
+				{
+						// Get line and column start values for the project base image.
 
             imageStartLine = classProjectInfoPtr->startLine;
             imageStartColumn = classProjectInfoPtr->startColumn;
 
-         } // end "else !areaDescriptionPtr->applyOffsetFlag"
+				}	// end "else !areaDescriptionPtr->applyOffsetFlag"
 
-         // Determine if any of the requested lines and columns are within
-         // the area represented by the mask.
+					// Determine if any of the requested lines and columns are within
+					// the area represented by the mask.
 
-         definedAreaFlag = GetMaskArea(
-            NULL,
-            fieldIdentPtr->fieldType,
-            classProjectInfoPtr,
-            NULL,
-            imageStartLine,
-            imageStartColumn,
-            areaDescriptionPtr->lineInterval,
-            areaDescriptionPtr->columnInterval,
-            (UInt32*) & areaDescriptionPtr->lineStart,
-            (UInt32*) & areaDescriptionPtr->lineEnd,
-            (UInt32*) & areaDescriptionPtr->columnStart,
-            (UInt32*) & areaDescriptionPtr->columnEnd,
-            (UInt32*) & areaDescriptionPtr->maskLineStart,
-            (UInt32*) & areaDescriptionPtr->maskColumnStart);
+         definedAreaFlag = GetMaskArea (
+												NULL,
+												fieldIdentPtr->fieldType,
+												classProjectInfoPtr,
+												NULL,
+												imageStartLine,
+												imageStartColumn,
+												areaDescriptionPtr->lineInterval,
+												areaDescriptionPtr->columnInterval,
+												(UInt32*)&areaDescriptionPtr->lineStart,
+												(UInt32*)&areaDescriptionPtr->lineEnd,
+												(UInt32*)&areaDescriptionPtr->columnStart,
+												(UInt32*)&areaDescriptionPtr->columnEnd,
+												(UInt32*)&areaDescriptionPtr->maskLineStart,
+												(UInt32*)&areaDescriptionPtr->maskColumnStart);
 
          if (areaDescriptionPtr->applyOffsetFlag)
-            definedAreaFlag = VerifyAreaDescription(areaDescriptionPtr);
+            definedAreaFlag = VerifyAreaDescription (areaDescriptionPtr);
 
-         // Get the mask buffer and value-to-field vector if needed.
+					// Get the mask buffer and value-to-field vector if needed.
 
-         if (definedAreaFlag) {
-            areaDescriptionPtr->maskInfoPtr = GetMaskInfoPointer(
-               fieldIdentPtr->fieldType,
-               classProjectInfoPtr,
-               NULL);
+         if (definedAreaFlag) 
+				{
+            areaDescriptionPtr->maskInfoPtr = GetMaskInfoPointer (
+																			fieldIdentPtr->fieldType,
+																			classProjectInfoPtr,
+																			NULL);
 
             UInt32 maskValueRequest = 0;
             if (areaDescriptionPtr->maskInfoPtr != NULL)
-               maskValueRequest = (UInt32) fieldIdentPtr->maskValue;
+               maskValueRequest = (UInt32)fieldIdentPtr->maskValue;
 
-            if (maskValueRequest != 0) {
+            if (maskValueRequest != 0) 
+					{
                areaDescriptionPtr->maskValueRequest = maskValueRequest;
 
                previousLineStart = areaDescriptionPtr->lineStart;
 
-               areaDescriptionPtr->lineStart = GetFirstMaskLine(
-                  areaDescriptionPtr->maskInfoPtr,
-                  (UInt16) maskValueRequest,
-                  areaDescriptionPtr->maskLineStart,
-                  areaDescriptionPtr->maskColumnStart,
-                  areaDescriptionPtr->lineStart,
-                  areaDescriptionPtr->lineEnd,
-                  areaDescriptionPtr->lineInterval,
-                  areaDescriptionPtr->columnStart,
-                  areaDescriptionPtr->columnEnd,
-                  areaDescriptionPtr->columnInterval);
+               areaDescriptionPtr->lineStart = GetFirstMaskLine (
+																areaDescriptionPtr->maskInfoPtr,
+																(UInt16)maskValueRequest,
+																areaDescriptionPtr->maskLineStart,
+																areaDescriptionPtr->maskColumnStart,
+																areaDescriptionPtr->lineStart,
+																areaDescriptionPtr->lineEnd,
+																areaDescriptionPtr->lineInterval,
+																areaDescriptionPtr->columnStart,
+																areaDescriptionPtr->columnEnd,
+																areaDescriptionPtr->columnInterval);
 
-               if (areaDescriptionPtr->lineStart > 0) {
-                  // Update the mask line start to reflect a possible change in
-                  // the image line start.
+               if (areaDescriptionPtr->lineStart > 0) 
+						{
+								// Update the mask line start to reflect a possible change in
+								// the image line start.
 
                   areaDescriptionPtr->maskLineStart +=
-                     areaDescriptionPtr->lineStart - previousLineStart;
+												areaDescriptionPtr->lineStart - previousLineStart;
 
-               }// end "if (areaDescriptionPtr->lineStart > 0)"
+						}	// end "if (areaDescriptionPtr->lineStart > 0)"
 
-               else // areaDescriptionPtr->lineStart == 0
+               else	// areaDescriptionPtr->lineStart == 0
                   maskValueRequest = 0;
 
-            } // end "if (maskValueRequest	!= 0)"
+					}	// end "if (maskValueRequest	!= 0)"
 
-            if (maskValueRequest == 0) {
+            if (maskValueRequest == 0) 
+					{
                areaDescriptionPtr->maskInfoPtr = NULL;
                definedAreaFlag = FALSE;
 
-            } // end "if (maskValueRequest == 0)"
+					}	// end "if (maskValueRequest == 0)"
 
-         } // end "if (definedAreaFlag)"
+				}	// end "if (definedAreaFlag)"
 
-      }// end "if (fieldIdentPtr->pointType == kMaskType)" 
+			}	// end "if (fieldIdentPtr->pointType == kMaskType)" 
 
-      else // field is of clustertype 
-      {
+      else	// field is of clustertype 
+			{
          definedAreaFlag = FALSE;
 
-      } // end "else field is of cluster type" 
+			}	// end "else field is of cluster type" 
 
-   } // end "else the field is not polygonal type" 
+		}	// end "else the field is not polygonal type" 
 
-   if (!definedAreaFlag) {
+   if (!definedAreaFlag) 
+		{
       areaDescriptionPtr->lineStart = 0;
       areaDescriptionPtr->lineEnd = 0;
 
@@ -4613,26 +4645,27 @@ void GetFieldBoundary(
 
       areaDescriptionPtr->pointType = kRectangleType;
 
-   } // end "if (!definedAreaFlag)" 
+		}	// end "if (!definedAreaFlag)" 
 
    classStorage = fieldIdentPtr->classStorage;
    areaDescriptionPtr->classNumber =
       classProjectInfoPtr->classNamesPtr[classStorage].classNumber;
    areaDescriptionPtr->fieldNumber = fieldNumber + 1;
 
-   if (areaDescriptionPtr->lineStart > 0) {
+   if (areaDescriptionPtr->lineStart > 0) 
+		{
       areaDescriptionPtr->numberLines =
-         areaDescriptionPtr->lineEnd - areaDescriptionPtr->lineStart + 1;
+						areaDescriptionPtr->lineEnd - areaDescriptionPtr->lineStart + 1;
 
       if (areaDescriptionPtr->columnInterval > 0)
          areaDescriptionPtr->numSamplesPerChan =
-         (areaDescriptionPtr->columnEnd - areaDescriptionPtr->columnStart +
-         areaDescriptionPtr->columnInterval) /
-         areaDescriptionPtr->columnInterval;
+						(areaDescriptionPtr->columnEnd - areaDescriptionPtr->columnStart +
+								areaDescriptionPtr->columnInterval) /
+										areaDescriptionPtr->columnInterval;
 
-   } // end "if (areaDescriptionPtr->lineStart > 0)" 
+   }	// end "if (areaDescriptionPtr->lineStart > 0)" 
 
-} // end "GetFieldBoundary" 
+}	// end "GetFieldBoundary" 
 
 
 
@@ -4659,24 +4692,24 @@ void GetFieldBoundary(
 //	Coded By:			Larry L. Biehl			Date: 04/08/1997
 //	Revised By:			Larry L. Biehl			Date: 04/08/1997
 
-Boolean GetListResultsFlag(
-   SInt16 fieldTypeCode,
-   SInt16 listInformationCode)
- {
-   Boolean listFlag = FALSE;
+Boolean GetListResultsFlag (
+				SInt16								fieldTypeCode,
+				SInt16								listInformationCode)
+{
+	Boolean								listFlag = FALSE;
 
 
    if (fieldTypeCode & kTrainingType &&
-      gProjectInfoPtr->listResultsTrainingCode & listInformationCode)
+					gProjectInfoPtr->listResultsTrainingCode & listInformationCode)
       listFlag = TRUE;
 
    if (fieldTypeCode & kTestingType &&
-      gProjectInfoPtr->listResultsTestCode & listInformationCode)
+						gProjectInfoPtr->listResultsTestCode & listInformationCode)
       listFlag = TRUE;
 
    return (listFlag);
 
-} // end "GetListResultsFlag" 
+}	// end "GetListResultsFlag" 
 
 
 
@@ -4717,33 +4750,33 @@ Boolean GetListResultsFlag(
 //	Coded By:			Larry L. Biehl			Date: 09/17/1997
 //	Revised By:			Larry L. Biehl			Date: 08/26/2010
 
-SInt64 GetMaximumPixelsPerClass(
-   UInt16* classPtr,
-   UInt32 numberClasses,
-   SInt16 fieldTypeCode,
-   UInt16 covarianceStatsToUse,
-   Boolean includeClusterFieldsFlag)
- {
-   SInt64 maxNumberPixelsPerClass,
-      numberPixelsInClass;
+SInt64 GetMaximumPixelsPerClass (
+				UInt16*								classPtr,
+				UInt32								numberClasses,
+				SInt16								fieldTypeCode,
+				UInt16								covarianceStatsToUse,
+				Boolean								includeClusterFieldsFlag)
+{
+	SInt64								maxNumberPixelsPerClass,
+											numberPixelsInClass;
 
-   HPClassNamesPtr classNamesPtr;
-   HPFieldIdentifiersPtr fieldIdentPtr;
+   HPClassNamesPtr					classNamesPtr;
+   HPFieldIdentifiersPtr			fieldIdentPtr;
 
-   UInt32 classIndex,
-      classNumber;
+   UInt32								classIndex,
+											classNumber;
 
-   SInt16 classStorage,
-      fieldCount,
-      fieldNumber;
+   SInt16								classStorage,
+											fieldCount,
+											fieldNumber;
 
 
-   // Check parameters.																	
+			// Check parameters.																	
 
    if (gProjectInfoPtr == NULL)
-      return (0);
+																							return (0);
 
-   // Initialize local variables.													
+			// Initialize local variables.													
 
    classNamesPtr = gProjectInfoPtr->classNamesPtr;
    fieldIdentPtr = gProjectInfoPtr->fieldIdentPtr;
@@ -4753,53 +4786,56 @@ SInt64 GetMaximumPixelsPerClass(
    if (classPtr == NULL)
       numberClasses = gProjectInfoPtr->numberStatisticsClasses;
 
-   for (classIndex = 0; classIndex < numberClasses; classIndex++) {
+   for (classIndex = 0; classIndex < numberClasses; classIndex++) 
+		{
       if (classPtr != NULL)
-         classNumber = (UInt32) classPtr[classIndex];
+         classNumber = (UInt32)classPtr[classIndex];
 
-      else // classPtr == NULL 
+      else	// classPtr == NULL 
          classNumber = classIndex;
 
-      // Get the class storage number and first field number for the class.												
+				// Get the class storage number and first field number for the class.												
 
       classStorage = gProjectInfoPtr->storageClass[classNumber];
 
-      // Consider this class only if it satisfies the requested covariance
-      // statistics to be used.
+				// Consider this class only if it satisfies the requested covariance
+				// statistics to be used.
 
-      if (classNamesPtr[classStorage].covarianceStatsToUse & covarianceStatsToUse) {
+      if (classNamesPtr[classStorage].covarianceStatsToUse & covarianceStatsToUse) 
+			{
          fieldNumber = classNamesPtr[classStorage].firstFieldNumber;
 
          numberPixelsInClass = 0;
-         while (fieldNumber != -1) {
-            // Make certain that field is of the requested type(s).			
+         while (fieldNumber != -1) 
+				{
+						// Make certain that field is of the requested type (s).			
 
-            if (fieldIdentPtr[fieldNumber].fieldType & fieldTypeCode) {
+            if (fieldIdentPtr[fieldNumber].fieldType & fieldTypeCode) 
+					{
                if (fieldIdentPtr[fieldNumber].pointType != kClusterType ||
-                  (includeClusterFieldsFlag &&
-                  fieldIdentPtr[fieldNumber].pointType == kClusterType &&
-                  fieldIdentPtr[fieldNumber].statsUpToDate))
+							(includeClusterFieldsFlag &&
+								fieldIdentPtr[fieldNumber].pointType == kClusterType &&
+														fieldIdentPtr[fieldNumber].statsUpToDate))
 
-                  // Now add in the number of pixels for this field.
+								// Now add in the number of pixels for this field.
 
                   numberPixelsInClass += fieldIdentPtr[fieldNumber].numberPixels;
 
-            } // end "if ( fieldIdentPtr[fieldNumber].fieldType ..." 
+					}	// end "if (fieldIdentPtr[fieldNumber].fieldType ..." 
 
             fieldNumber = fieldIdentPtr[fieldNumber].nextField;
 
-         } // end "while (fieldNumber != -1)" 
+				}	// end "while (fieldNumber != -1)" 
 
-         maxNumberPixelsPerClass = MAX(
-            maxNumberPixelsPerClass, numberPixelsInClass);
+         maxNumberPixelsPerClass = MAX (maxNumberPixelsPerClass, numberPixelsInClass);
 
-      } // end "if (...[classStorage].covarianceStatsToUse & covarianceStatsToUse)"
+			}	// end "if (...[classStorage].covarianceStatsToUse & covarianceStatsToUse)"
 
-   } // end "for ( classIndex=0; ... 
+		}	// end "for (classIndex=0; ... 
 
    return (maxNumberPixelsPerClass);
 
-} // end "GetMaximumPixelsPerClass" 
+}	// end "GetMaximumPixelsPerClass" 
 
 
 
@@ -4847,74 +4883,78 @@ SInt64 GetMaximumPixelsPerClass(
 //	Coded By:			Larry L. Biehl			Date: 06/08/1990
 //	Revised By:			Larry L. Biehl			Date: 12/22/1998
 
-SInt16 GetNextFieldArea(
-   ProjectInfoPtr projectClassInfoPtr,
-   SInt16* classPtr,
-   UInt32 numberClasses,
-   SInt16* lastClassIndex,
-   SInt16 lastField,
-   SInt16 fieldTypeCode,
-   Boolean includeClusterFieldsFlag)
- {
-   SInt16 classStorage;
+SInt16 GetNextFieldArea (
+				ProjectInfoPtr						projectClassInfoPtr,
+				SInt16*								classPtr,
+				UInt32								numberClasses,
+				SInt16*								lastClassIndex,
+				SInt16								lastField,
+				SInt16								fieldTypeCode,
+				Boolean								includeClusterFieldsFlag)
+{
+	SInt16								classStorage;
 
-   HPFieldIdentifiersPtr fieldIdentPtr;
+   HPFieldIdentifiersPtr			fieldIdentPtr;
 
-   SInt16 classIndex,
-      fieldNumber,
-      nextFieldNumber;
+   SInt16								classIndex,
+											fieldNumber,
+											nextFieldNumber;
 
 
-   // Check parameters.																	
+			// Check parameters.																	
 
    if (projectClassInfoPtr == NULL || numberClasses <= 0)
-      return (-1);
+																								return (-1);
 
-   // Initialize local variables.													
+			// Initialize local variables.													
 
    nextFieldNumber = -1;
    fieldNumber = lastField;
    fieldIdentPtr = projectClassInfoPtr->fieldIdentPtr;
 
-   while (nextFieldNumber == -1 && *lastClassIndex < (short int) numberClasses) {
-      if (fieldNumber < 0) {
+   while (nextFieldNumber == -1 && *lastClassIndex < (SInt16)numberClasses) 
+		{
+      if (fieldNumber < 0) 
+			{
          (*lastClassIndex)++;
 
-         if (*lastClassIndex < (SInt16) numberClasses) {
+         if (*lastClassIndex < (SInt16)numberClasses) 
+				{
             if (classPtr != NULL)
                classIndex = classPtr[*lastClassIndex];
 
-            else // classPtr == NULL 
+            else	// classPtr == NULL 
                classIndex = *lastClassIndex + 1;
 
             classStorage = projectClassInfoPtr->storageClass[classIndex - 1];
             fieldNumber =
                projectClassInfoPtr->classNamesPtr[classStorage].firstFieldNumber;
 
-         } // end "if (*lastClassIndex < numberClasses)" 
+				}	// end "if (*lastClassIndex < numberClasses)" 
 
-      }// end "if (fieldNumber == -1)" 
+			}	// end "if (fieldNumber == -1)" 
 
-      else // fieldNumber >= 0 
+      else	// fieldNumber >= 0 
          fieldNumber = fieldIdentPtr[fieldNumber].nextField;
 
-      // Make certain that field is of the requested type(s).				
+				// Make certain that field is of the requested type(s).				
 
       if (fieldNumber >= 0 &&
-         (fieldIdentPtr[fieldNumber].fieldType & fieldTypeCode)) {
+								(fieldIdentPtr[fieldNumber].fieldType & fieldTypeCode)) 
+			{
          if (fieldIdentPtr[fieldNumber].pointType != kClusterType ||
-            (includeClusterFieldsFlag &&
-            fieldIdentPtr[fieldNumber].pointType == kClusterType &&
-            fieldIdentPtr[fieldNumber].statsUpToDate))
+						(includeClusterFieldsFlag &&
+							fieldIdentPtr[fieldNumber].pointType == kClusterType &&
+								fieldIdentPtr[fieldNumber].statsUpToDate))
             nextFieldNumber = fieldNumber;
 
-      } // end "if ( 	fieldNumber >= 0 && ..." 
+			}	// end "if (fieldNumber >= 0 && ..." 
 
-   } // end "while (fieldNumber == -1 && ...)" 
+		}	// end "while (fieldNumber == -1 && ...)" 
 
    return (nextFieldNumber);
 
-} // end "GetNextFieldArea" 
+}	// end "GetNextFieldArea" 
 
 
 
@@ -4951,30 +4991,30 @@ SInt16 GetNextFieldArea(
 //	Coded By:			Larry L. Biehl			Date: 06/08/1990
 //	Revised By:			Larry L. Biehl			Date: 12/28/1998
 
-SInt16 GetNumberOfAreas(
-   SInt16* classPtr,
-   UInt32 numberClasses,
-   SInt16 fieldTypeCode,
-   Boolean includeClusterFieldsFlag)
- {
-   SInt16 classStorage,
-      fieldCount;
+SInt16 GetNumberOfAreas (
+				SInt16*								classPtr,
+				UInt32								numberClasses,
+				SInt16								fieldTypeCode,
+				Boolean								includeClusterFieldsFlag)
+{
+   SInt16								classStorage,
+											fieldCount;
 
-   HPClassNamesPtr classNamesPtr;
-   HPFieldIdentifiersPtr fieldIdentPtr;
+   HPClassNamesPtr					classNamesPtr;
+   HPFieldIdentifiersPtr			fieldIdentPtr;
 
-   SInt16 classNumber,
-      fieldNumber;
+   SInt16								classNumber,
+											fieldNumber;
 
-   UInt16 classIndex;
+   UInt16								classIndex;
 
 
-   // Check parameters.																	
+			// Check parameters.																	
 
    if (gProjectInfoPtr == NULL || numberClasses <= 0)
-      return (0);
+																								return (0);
 
-   // Initialize local variables.													
+			// Initialize local variables.													
 
    classNamesPtr = gProjectInfoPtr->classNamesPtr;
    fieldCount = 0;
@@ -4983,42 +5023,45 @@ SInt16 GetNumberOfAreas(
    if (classPtr == NULL)
       numberClasses = gProjectInfoPtr->numberStatisticsClasses;
 
-   for (classIndex = 0; classIndex < numberClasses; classIndex++) {
+   for (classIndex = 0; classIndex < numberClasses; classIndex++) 
+		{
       if (classPtr != NULL)
          classNumber = classPtr[classIndex];
 
-      else // classPtr == NULL 
+      else	// classPtr == NULL 
          classNumber++;
 
-      // Get the class storage number.												
+				// Get the class storage number.												
 
       classStorage = gProjectInfoPtr->storageClass[classNumber - 1];
 
       fieldNumber = classNamesPtr[classStorage].firstFieldNumber;
 
-      while (fieldNumber != -1) {
+      while (fieldNumber != -1) 
+			{
          fieldIdentPtr = &gProjectInfoPtr->fieldIdentPtr[fieldNumber];
 
-         // Make certain that field is of the requested type(s).			
+					// Make certain that field is of the requested type(s).			
 
-         if (fieldIdentPtr->fieldType & fieldTypeCode) {
+         if (fieldIdentPtr->fieldType & fieldTypeCode) 
+				{
             if (fieldIdentPtr->pointType != kClusterType ||
-               (includeClusterFieldsFlag &&
-               fieldIdentPtr->pointType == kClusterType &&
-               fieldIdentPtr->statsUpToDate))
+						(includeClusterFieldsFlag &&
+											fieldIdentPtr->pointType == kClusterType &&
+																	fieldIdentPtr->statsUpToDate))
                fieldCount++;
 
-         } // end "if ( fieldIdentPtr->fieldType ..." 
+				}	// end "if (fieldIdentPtr->fieldType ..." 
 
          fieldNumber = fieldIdentPtr->nextField;
 
-      } // end "while (fieldNumber != -1)" 
+			}	// end "while (fieldNumber != -1)" 
 
-   } // end "for ( classIndex=0; ... 
+		}	// end "for (classIndex=0; ... 
 
    return (fieldCount);
 
-} // end "GetNumberOfAreas" 
+}	// end "GetNumberOfAreas" 
 
 
 
@@ -5033,7 +5076,7 @@ SInt16 GetNumberOfAreas(
 //							number of combinations of "m" groups with x contiguous
 //							items per group out of a total of "n" items.
 //									
-//							NumberOfCombinations =  (n-m(x-1))!/[ m! (n-m(x-1)-m)! ]
+//							NumberOfCombinations =  (n-m(x-1))!/[m! (n-m(x-1)-m)!]
 //
 //	Parameters in:		None
 //
@@ -5046,76 +5089,82 @@ SInt16 GetNumberOfAreas(
 //	Coded By:			C.H. Lee					Date: 12/04/1988
 //	Revised By:			Larry L. Biehl			Date: 05/05/1998	
 
-UInt32 GetNumberOfCombinations(
-   SInt32 total,
-   SInt32 subset,
-   SInt32 numberContiguousPerGroup,
-   Boolean stepSearchFlag,
-   SInt16* returnCodePtr)
- {
-   // Declare local variables and structures										
+UInt32 GetNumberOfCombinations (
+				SInt32								total,
+				SInt32								subset,
+				SInt32								numberContiguousPerGroup,
+				Boolean								stepSearchFlag,
+				SInt16*								returnCodePtr)
+{
+			// Declare local variables and structures										
 
-   double numberCombinations;
+   double								numberCombinations;
 
-   SInt32 adjustedTotal,
-      endLoop,
-      i;
+   SInt32								adjustedTotal,
+											endLoop,
+											i;
 
 
    numberCombinations = 0;
 
-   if (!stepSearchFlag) {
+   if (!stepSearchFlag) 
+		{
       adjustedTotal = total - subset * (numberContiguousPerGroup - 1);
 
       if (adjustedTotal >= subset &&
-         subset > 0 && numberContiguousPerGroup > 0) {
+							subset > 0 && numberContiguousPerGroup > 0) 
+			{
          numberCombinations = 1;
-         endLoop = MAX(subset, adjustedTotal - subset);
+         endLoop = MAX (subset, adjustedTotal - subset);
 
-         for (i = adjustedTotal; i > endLoop; i--) {
+         for (i = adjustedTotal; i > endLoop; i--) 
+				{
             numberCombinations *= i;
-            if (numberCombinations > FLT_MAX) {
+            if (numberCombinations > FLT_MAX) 
+					{
                *returnCodePtr = -2;
-               return (0);
+																							return (0);
 
-            } // end "if (numberCombinations > FLT_MAX)"
+					}	// end "if (numberCombinations > FLT_MAX)"
 
-         } // end "for (i=total; i>endLoop; i--)" 
+				}	// end "for (i=total; i>endLoop; i--)" 
 
          endLoop = adjustedTotal - endLoop;
          for (i = 1; i <= endLoop; i++)
             numberCombinations /= i;
 
-      } // end "if ( adjustedTotal >= subset &&..." 
+			}	// end "if (adjustedTotal >= subset &&..." 
 
-   }// end "if ( !stepSearchFlag )" 
+		}	// end "if (!stepSearchFlag)" 
 
-   else // stepSearchFlag 
-   {
-      if (total >= subset) {
+   else	// stepSearchFlag 
+		{
+      if (total >= subset) 
+			{
          numberCombinations =
             2 * (double) (total + 1) - numberContiguousPerGroup * (subset + 1);
          numberCombinations *= subset;
          numberCombinations /= 2;
 
-      } // end "if (total >= subset)"
+			}	// end "if (total >= subset)"
 
-   } // end "else stepSearchFlag" 
+		}	// end "else stepSearchFlag" 
 
-   if (numberCombinations > gMaxNumberChannelCombinations) {
+   if (numberCombinations > gMaxNumberChannelCombinations) 
+		{
       *returnCodePtr = -2;
-      return (0);
+																								return (0);
 
-   }// end "if (numberCombinations > FLT_MAX)"
+		}	// end "if (numberCombinations > FLT_MAX)"
 
-   else // numberCombinations <= gMaxNumberChannelCombinations
-   {
+   else	// numberCombinations <= gMaxNumberChannelCombinations
+		{
       *returnCodePtr = 0;
-      return ( (UInt32) numberCombinations);
+																return ((UInt32)numberCombinations);
 
-   } // end "else numberCombinations <= gMaxNumberChannelCombinations"
+		}	// end "else numberCombinations <= gMaxNumberChannelCombinations"
 
-} // end "GetNumberOfCombinations"
+}	// end "GetNumberOfCombinations"
 
 
 
@@ -5150,108 +5199,110 @@ UInt32 GetNumberOfCombinations(
 //	Coded By:			Larry L. Biehl			Date: 01/14/2003
 //	Revised By:			Larry L. Biehl			Date: 12/31/2003
 
-SInt16 GetProjectFieldsBoundingArea(
-   SInt16 fieldTypeCode,
-   SInt16* classPtr,
-   UInt32 numberClasses,
-   SInt32 areaLineStart,
-   SInt32 areaLineEnd,
-   SInt32 areaColumnStart,
-   SInt32 areaColumnEnd,
-   LongRect* longRectPtr)
- {
-   AreaDescription areaDescription;
+SInt16 GetProjectFieldsBoundingArea (
+				SInt16								fieldTypeCode,
+				SInt16*								classPtr,
+				UInt32								numberClasses,
+				SInt32								areaLineStart,
+				SInt32								areaLineEnd,
+				SInt32								areaColumnStart,
+				SInt32								areaColumnEnd,
+				LongRect*							longRectPtr)
+{
+	AreaDescription					areaDescription;
 
-   SInt32 areaNumber;
+   SInt32								areaNumber;
 
-   SInt16 fieldNumber,
-      lastClassIndex,
-      lastFieldIndex,
-      returnCode;
+   SInt16								fieldNumber,
+											lastClassIndex,
+											lastFieldIndex,
+											returnCode;
 
 
-   // Check parameters.	
+			// Check parameters.	
 
    returnCode = 1;
 
    if (fieldTypeCode < kTrainingType ||
-      fieldTypeCode > kTrainingType + kTestingType + kAreaType)
-      return (returnCode);
+						fieldTypeCode > kTrainingType + kTestingType + kAreaType)
+																						return (returnCode);
 
-   if (fieldTypeCode & kAreaType) {
-      // Just use the input settings.
+   if (fieldTypeCode & kAreaType) 
+		{
+				// Just use the input settings.
 
       longRectPtr->top = areaLineStart;
       longRectPtr->bottom = areaLineEnd;
       longRectPtr->left = areaColumnStart;
       longRectPtr->right = areaColumnEnd;
 
-   }// end "if (fieldTypeCode & kAreaType)"
+		}	// end "if (fieldTypeCode & kAreaType)"
 
-   else //  !(fieldTypeCode & kAreaType)
-   {
-      // Initialize in case needed for training and/or test fields.
+   else	//  !(fieldTypeCode & kAreaType)
+		{
+				// Initialize in case needed for training and/or test fields.
 
       longRectPtr->top = SInt32_MAX;
       longRectPtr->bottom = 0;
       longRectPtr->left = SInt32_MAX;
       longRectPtr->right = 0;
 
-   } // end "if (fieldTypeCode & kAreaType)"
+		}	// end "if (fieldTypeCode & kAreaType)"
 
-   if (fieldTypeCode & (kTrainingType + kTestingType)) {
+   if (fieldTypeCode & (kTrainingType + kTestingType)) 
+		{
       if (gProjectInfoPtr == NULL || numberClasses <= 0)
-         return (returnCode);
+																						return (returnCode);
 
-      InitializeAreaDescription(&areaDescription);
+      InitializeAreaDescription (&areaDescription);
 
       lastClassIndex = -1;
       lastFieldIndex = -1;
 
-      // Loop by number of areas.													
+				// Loop by number of areas.													
 
-      for (areaNumber = 0; areaNumber < kMaxNumberStatFields; areaNumber++) {
-         // Get the next field number.												
+      for (areaNumber = 0; areaNumber < kMaxNumberStatFields; areaNumber++) 
+			{
+					// Get the next field number.												
 
-         fieldNumber = GetNextFieldArea(
-            gProjectInfoPtr,
-            classPtr,
-            numberClasses,
-            &lastClassIndex,
-            lastFieldIndex,
-            fieldTypeCode,
-            kDontIncludeClusterFields);
+         fieldNumber = GetNextFieldArea (gProjectInfoPtr,
+														classPtr,
+														numberClasses,
+														&lastClassIndex,
+														lastFieldIndex,
+														fieldTypeCode,
+														kDontIncludeClusterFields);
 
          if (fieldNumber < 0)
             break;
 
          lastFieldIndex = fieldNumber;
 
-         // Get the field coordinates.				
+					// Get the field coordinates.				
 
-         GetFieldBoundary(gProjectInfoPtr, &areaDescription, fieldNumber);
+         GetFieldBoundary (gProjectInfoPtr, &areaDescription, fieldNumber);
 
-         longRectPtr->top = MIN(longRectPtr->top, areaDescription.lineStart);
-         longRectPtr->bottom = MAX(longRectPtr->bottom, areaDescription.lineEnd);
-         longRectPtr->left = MIN(longRectPtr->left, areaDescription.columnStart);
-         longRectPtr->right = MAX(longRectPtr->right, areaDescription.columnEnd);
+         longRectPtr->top = MIN (longRectPtr->top, areaDescription.lineStart);
+         longRectPtr->bottom = MAX (longRectPtr->bottom, areaDescription.lineEnd);
+         longRectPtr->left = MIN (longRectPtr->left, areaDescription.columnStart);
+         longRectPtr->right = MAX (longRectPtr->right, areaDescription.columnEnd);
 
-         // Dispose of the region if needed.		
+					// Dispose of the region if needed.		
 
-         CloseUpAreaDescription(&areaDescription);
+         CloseUpAreaDescription (&areaDescription);
 
-      } // end "for (areaNumber=0; ... 
+			}	// end "for (areaNumber=0; ... 
 
-   } // end "if (fieldTypeCode & (kTrainingType+kTrainingType))" 
+		}	// end "if (fieldTypeCode & (kTrainingType+kTrainingType))" 
 
 
    if (longRectPtr->top <= longRectPtr->bottom ||
-      longRectPtr->left <= longRectPtr->right)
+													longRectPtr->left <= longRectPtr->right)
       returnCode = 0;
 
    return (returnCode);
 
-} // end "GetProjectFieldsBoundingArea"	 
+}	// end "GetProjectFieldsBoundingArea"	 
 
 
 
@@ -5284,28 +5335,28 @@ SInt16 GetProjectFieldsBoundingArea(
 //	Coded By:			Larry L. Biehl			Date: 12/28/1993
 //	Revised By:			Larry L. Biehl			Date: 01/06/1994
 
-SInt16 GetProjectClassWeightsIndex(void)
- {
-   SInt16 weightsIndex;
-   Boolean equalWeightsFlag;
+SInt16 GetProjectClassWeightsIndex (void)
+{
+   SInt16								weightsIndex;
+   Boolean								equalWeightsFlag;
 
 
    if ((gProjectInfoPtr->covarianceStatsToUse == kEnhancedStats &&
-      gProjectInfoPtr->modifiedClassWeightSet == kUnequalWeights) ||
-      (gProjectInfoPtr->covarianceStatsToUse != kEnhancedStats &&
-      gProjectInfoPtr->classWeightSet == kUnequalWeights))
+			gProjectInfoPtr->modifiedClassWeightSet == kUnequalWeights) ||
+						(gProjectInfoPtr->covarianceStatsToUse != kEnhancedStats &&
+										gProjectInfoPtr->classWeightSet == kUnequalWeights))
       equalWeightsFlag = FALSE;
 
-   else // equal weights to be used. 
+   else	// equal weights to be used. 
       equalWeightsFlag = TRUE;
 
-   weightsIndex = GetClassWeightsIndex(
-      gProjectInfoPtr->covarianceStatsToUse == kEnhancedStats,
-      equalWeightsFlag);
+   weightsIndex = GetClassWeightsIndex (
+									gProjectInfoPtr->covarianceStatsToUse == kEnhancedStats,
+									equalWeightsFlag);
 
    return (weightsIndex);
 
-} // end "GetProjectClassWeightsIndex" 
+}	// end "GetProjectClassWeightsIndex" 
 
 
 
@@ -5331,27 +5382,27 @@ SInt16 GetProjectClassWeightsIndex(void)
 //	Revised By:			Larry L. Biehl			Date: 05/06/2017 
 
 void GetProjectWindowTitle (
-			UCharPtr						titleStringPtr)
+				UCharPtr								titleStringPtr)
 {
 	if (gProjectWindow != NULL)
 		{
-#		if defined multispec_mac  	   
+		#if defined multispec_mac  	   
 			GetWTitle (gProjectWindow, titleStringPtr);
-#		endif	// defined multispec_mac 
+		#endif	// defined multispec_mac 
 
-#		if defined multispec_win
+		#if defined multispec_win
 			USES_CONVERSION;
 
 			CMStatisticsDoc* documentCPtr =
-									((CMStatisticsForm*) gProjectWindow)->GetDocument();
-			CString titleString = documentCPtr->GetTitle();
+									((CMStatisticsForm*)gProjectWindow)->GetDocument ();
+			CString titleString = documentCPtr->GetTitle ();
 
-			UInt16 titleLength = titleString.GetLength();
-			LPTSTR titleBufferPtr = titleString.GetBuffer(titleLength);
+			UInt16 titleLength = titleString.GetLength ();
+			LPTSTR titleBufferPtr = titleString.GetBuffer (titleLength);
 		
 				// Convert unicode to char string
-			strcpy ((char*)&titleStringPtr[1], T2A(titleBufferPtr));
-			titleString.ReleaseBuffer();
+			strcpy ((char*)&titleStringPtr[1], T2A (titleBufferPtr));
+			titleString.ReleaseBuffer ();
 
 					// Move the window title making sure that there are no
 					// spaces in the name.
@@ -5359,30 +5410,30 @@ void GetProjectWindowTitle (
 			UInt16		inIndex,
 							outIndex = 1;
 
-			for (inIndex = 1; inIndex <= titleLength; inIndex++)
+			for (inIndex=1; inIndex<=titleLength; inIndex++)
 				{
 				if (titleStringPtr[inIndex] != ' ')
 					{
 					titleStringPtr[outIndex] = (UChar)titleStringPtr[inIndex];
 					outIndex++;
 
-					}		// end "if (titleBufferPtr[inIndex] != ' ')"
+					}	// end "if (titleBufferPtr[inIndex] != ' ')"
 
-				}		// end "for (inIndex=0; inIndex<titleLength; inIndex++)"
+				}	// end "for (inIndex=0; inIndex<titleLength; inIndex++)"
 
 					// Make the string a pascal string and terminate it with as
 					// if it were a c string.
 
 			titleStringPtr[0] = (UInt8) (outIndex - 1);
 			titleStringPtr[outIndex] = 0;
-#		endif	// defined multispec_win 
+		#endif	// defined multispec_win 
 
 		}	// end "if (gProjectWindow != NULL)"
 
 	else
-		titleStringPtr[0] = sprintf((char*)&titleStringPtr[1], "New Project");
+		titleStringPtr[0] = sprintf ((char*)&titleStringPtr[1], "New Project");
 
-} // end "GetProjectWindowTitle" 
+}	// end "GetProjectWindowTitle" 
 
 
 
@@ -5407,7 +5458,7 @@ void GetProjectWindowTitle (
 //	Coded By:			Larry L. Biehl			Date: 04/08/1998
 //	Revised By:			Larry L. Biehl			Date: 11/05/2015
 
-void GetBoundingRegionRectangle(
+void GetBoundingRegionRectangle (
 				RgnHandle							rgnHandle,
 				LongRect*							boundingRectPtr,
 				UInt32								numberPoints,
@@ -5419,11 +5470,11 @@ void GetBoundingRegionRectangle(
 		UInt32 i;
 
 
-		//		boundingRectPtr->top = (*rgnHandle)->rgnBBox.top;
-		//		boundingRectPtr->bottom = (*rgnHandle)->rgnBBox.bottom;
+		//boundingRectPtr->top = (*rgnHandle)->rgnBBox.top;
+		//boundingRectPtr->bottom = (*rgnHandle)->rgnBBox.bottom;
 
-		//		boundingRectPtr->left = (*rgnHandle)->rgnBBox.left;
-		//		boundingRectPtr->right = (*rgnHandle)->rgnBBox.right;
+		//boundingRectPtr->left = (*rgnHandle)->rgnBBox.left;
+		//boundingRectPtr->right = (*rgnHandle)->rgnBBox.right;
 
 		GetRegionBounds (rgnHandle, &gTempRect);
 
@@ -5439,25 +5490,25 @@ void GetBoundingRegionRectangle(
 
 			boundingRectPtr->top = SInt32_MAX;
 			boundingRectPtr->left = SInt32_MAX;
-			for (i = 0; i < numberPoints; i++) 
+			for (i=0; i<numberPoints; i++) 
 				{
 				boundingRectPtr->left = MIN (boundingRectPtr->left,
-													fieldPointsPtr[i].col + columnOffset);
+														fieldPointsPtr[i].col + columnOffset);
 				boundingRectPtr->top = MIN (boundingRectPtr->top,
-													fieldPointsPtr[i].line + lineOffset);
+														fieldPointsPtr[i].line + lineOffset);
 
 				boundingRectPtr->right = MAX (boundingRectPtr->right,
 														fieldPointsPtr[i].col + columnOffset);
 				boundingRectPtr->bottom = MAX (boundingRectPtr->bottom,
 														fieldPointsPtr[i].line + lineOffset);
 
-				} // end "for ( i=0; i<numberPoints; i++ )"
+				}	// end "for (i=0; i<numberPoints; i++)"
 
-			} // end "if (boundingRectPtr->left == 0)"
+			}	// end "if (boundingRectPtr->left == 0)"
 	#endif	// defined multispec_mac
 
 	#if defined multispec_win
-		Rect rectangle;
+		Rect		rectangle;
 
 
 		SInt16 returnValue = rgnHandle->GetRgnBox ((tagRECT*)&rectangle);
@@ -5470,18 +5521,18 @@ void GetBoundingRegionRectangle(
 			boundingRectPtr->left = rectangle.left;
 			boundingRectPtr->right = rectangle.right;
 
-			}		// end "if (returnValue == SIMPLEREGION || ..."
+			}	// end "if (returnValue == SIMPLEREGION || ..."
 
-		else // returnValue != SIMPLEREGION && ...
+		else	// returnValue != SIMPLEREGION && ...
 			{
-			rgnHandle->DeleteObject();
+			rgnHandle->DeleteObject ();
 			rgnHandle = NULL;
 
-			} // end "else returnValue != SIMPLEREGION && ..."		
+			}	// end "else returnValue != SIMPLEREGION && ..."		
 	#endif	// defined multispec_win
 	
 	#if defined multispec_lin
-		wxRect rectangle = rgnHandle->GetBox();
+		wxRect rectangle = rgnHandle->GetBox ();
 
 		if (rectangle.width > 0 && rectangle.height > 0) 
 			{
@@ -5497,9 +5548,9 @@ void GetBoundingRegionRectangle(
 			boundingRectPtr->left = MAX (rectangle.x-1, 1);
 			boundingRectPtr->top = MAX (rectangle.y-1, 1);
 
-			}		// end "if (rectangle.width != 0 & rectangle.height != 0"
+			}	// end "if (rectangle.width != 0 & rectangle.height != 0"
 			
-		else		// rectangle.width == 0 || rectangle.height == 0
+		else	// rectangle.width == 0 || rectangle.height == 0
 			{
 					// The region is empty so rgnHandle is not correct. Go through
 					// the points to get the bounding rectangle.
@@ -5508,24 +5559,24 @@ void GetBoundingRegionRectangle(
 
 			boundingRectPtr->top = SInt32_MAX;
 			boundingRectPtr->left = SInt32_MAX;
-			for (i = 0; i < numberPoints; i++) 
+			for (i=0; i<numberPoints; i++) 
 				{
 				boundingRectPtr->left = MIN (boundingRectPtr->left,
-													fieldPointsPtr[i].col + columnOffset);
+														fieldPointsPtr[i].col + columnOffset);
 				boundingRectPtr->top = MIN (boundingRectPtr->top,
-													fieldPointsPtr[i].line + lineOffset);
+														fieldPointsPtr[i].line + lineOffset);
 
 				boundingRectPtr->right = MAX (boundingRectPtr->right,
 														fieldPointsPtr[i].col + columnOffset);
 				boundingRectPtr->bottom = MAX (boundingRectPtr->bottom,
 														fieldPointsPtr[i].line + lineOffset);
 
-				} // end "for ( i=0; i<numberPoints; i++ )"
+				}	// end "for (i=0; i<numberPoints; i++)"
 				
-			}
+			}	// end "else rectangle.width == 0 || rectangle.height == 0"
 	#endif	// defined multispec_lin					
 	
-} // end "GetBoundingRegionRectangle"
+}	// end "GetBoundingRegionRectangle"
 
 
 
@@ -5555,32 +5606,34 @@ void GetBoundingRegionRectangle(
 //	Coded By:			Larry L. Biehl			Date: 12/28/1993
 //	Revised By:			Larry L. Biehl			Date: 01/06/1994
 
-float* GetTempClassWeightsPtr(void)
- {
-   HPClassNamesPtr classNamesPtr;
-   float* classWeightsPtr;
+float* GetTempClassWeightsPtr (void)
+{
+   HPClassNamesPtr					classNamesPtr;
+   float*								classWeightsPtr;
 
-   SInt32 bytesNeeded;
+   SInt32								bytesNeeded;
 
-   SInt16 index,
-      numberClasses,
-      classStorage;
+   SInt16								index,
+											numberClasses,
+											classStorage;
 
 
-   // Get memory for the temporary class weights vector.					
+			// Get memory for the temporary class weights vector.					
 
    numberClasses = gProjectInfoPtr->numberStatisticsClasses;
 
-   bytesNeeded = (SInt32) 2 * numberClasses * sizeof (float);
-   classWeightsPtr = (float*) MNewPointer(bytesNeeded);
+   bytesNeeded = (SInt32)2 * numberClasses * sizeof (float);
+   classWeightsPtr = (float*)MNewPointer (bytesNeeded);
 
-   if (classWeightsPtr) {
-      // Initialize the temporary class weights.							
+   if (classWeightsPtr) 
+		{
+				// Initialize the temporary class weights.							
 
       classNamesPtr = gProjectInfoPtr->classNamesPtr;
 
-      for (index = 0; index < numberClasses; index++) {
-         classStorage = gProjectInfoPtr->storageClass[ index ];
+      for (index=0; index<numberClasses; index++) 
+			{
+         classStorage = gProjectInfoPtr->storageClass[index];
 
          classWeightsPtr[index] =
             classNamesPtr[classStorage].priorWeights[0];
@@ -5588,13 +5641,13 @@ float* GetTempClassWeightsPtr(void)
          classWeightsPtr[index + numberClasses] =
             classNamesPtr[classStorage].priorWeights[1];
 
-      } // end "for ( index=0; index<numberClasses; index++)" 
+			}	// end "for (index=0; index<numberClasses; index++)" 
 
-   } // end "if (classWeightsPtr)" 
+		}	// end "if (classWeightsPtr)" 
 
    return (classWeightsPtr);
 
-} // end "GetTempClassWeightsPtr"
+}	// end "GetTempClassWeightsPtr"
 
 
 
@@ -5620,49 +5673,51 @@ float* GetTempClassWeightsPtr(void)
 //	Coded By:			Larry L. Biehl			Date: 01/06/1994
 //	Revised By:			Larry L. Biehl			Date: 09/19/1997	
 
-double GetTotalProbability(
-   UInt16* classPtr,
-   UInt32 numberClasses,
-   UInt32 weightsIndex)
- {
-   double totalProbability;
+double GetTotalProbability (
+				UInt16*								classPtr,
+				UInt32								numberClasses,
+				UInt32								weightsIndex)
+{
+	double								totalProbability;
 
-   float* classWeightsPtr;
+   float*								classWeightsPtr;
 
-   UInt32 classStorage,
-      index,
-      statClassNumber;
+   UInt32								classStorage,
+											index,
+											statClassNumber;
 
 
    totalProbability = 0.;
 
-   for (index = 0; index < numberClasses; index++) {
+   for (index=0; index<numberClasses; index++) 
+		{
       if (classPtr != NULL)
-         statClassNumber = classPtr[ index ] - 1;
+         statClassNumber = classPtr[index] - 1;
 
-      else // classPtr == NULL
+      else	// classPtr == NULL
          statClassNumber = index;
 
       classStorage = gProjectInfoPtr->storageClass[statClassNumber];
 
-      if (weightsIndex <= 3) {
+      if (weightsIndex <= 3) 
+			{
          classWeightsPtr =
             gProjectInfoPtr->classNamesPtr[classStorage].priorWeights;
 
          totalProbability +=
-            fabs((double) classWeightsPtr[ weightsIndex ]);
+            fabs ((double) classWeightsPtr[weightsIndex]);
 
-      }// end "if (weightsIndex <= 3)"
+			}	// end "if (weightsIndex <= 3)"
 
-      else // weightsIndex <== 4
+      else	// weightsIndex <== 4
          totalProbability +=
-         gProjectInfoPtr->classNamesPtr[classStorage].numberStatisticsPixels;
+					gProjectInfoPtr->classNamesPtr[classStorage].numberStatisticsPixels;
 
-   } // end "for ( index=0; index<numberClasses; index++)" 
+		}	// end "for (index=0; index<numberClasses; index++)" 
 
    return (totalProbability);
 
-} // end "GetTotalProbability" 
+}	// end "GetTotalProbability" 
 
 
 
@@ -5689,17 +5744,17 @@ double GetTotalProbability(
 //	Coded By:			Larry L. Biehl			Date: 01/07/1994
 //	Revised By:			Larry L. Biehl			Date: 01/07/1994
 
-void InitializeGlobalAlertVariables(
-   SInt16 alertId,
-   SInt16 alertStrID,
-   SInt16 alertStringNumber)
- {
+void InitializeGlobalAlertVariables (
+				SInt16								alertId,
+				SInt16								alertStrID,
+				SInt16								alertStringNumber)
+{
    gAlertId = alertId;
    gAlertStrID = alertStrID;
    gAlertStringNumber = alertStringNumber;
    gAlertReturnCode = 0;
 
-} // end "InitializeGlobalAlertVariables"  
+}	// end "InitializeGlobalAlertVariables"  
 
 
 
@@ -5726,29 +5781,29 @@ void InitializeGlobalAlertVariables(
 //	Coded By:			Chulhee Lee				Date: ?
 //	Revised By:			Larry L. Biehl			Date: 03/12/1990	
 
-void Intg_Normal(
-   SInt16 degreesOfFreedom,
-   double r,
-   double* returnPtr,
-   double factor,
-   double oneOverGammaOfHalfDF)
- {
-   double expMinusHalfRSquared;
+void Intg_Normal (
+				SInt16								degreesOfFreedom,
+				double								r,
+				double*								returnPtr,
+				double								factor,
+				double								oneOverGammaOfHalfDF)
+{
+   double								expMinusHalfRSquared;
 
 
-   // Note that if r is greater than about 45 for the PowerPC architecture
-   // then exp( -r*r/2) will underflow. This should not happen as long
-   // as direct calculation is not done for degrees of freedom greater than
-   // 30.
+			// Note that if r is greater than about 45 for the PowerPC architecture
+			// then exp (-r*r/2) will underflow. This should not happen as long
+			// as direct calculation is not done for degrees of freedom greater than
+			// 30.
 
-   expMinusHalfRSquared = exp(-r * r / 2);
+   expMinusHalfRSquared = exp (-r * r / 2);
 
-   *returnPtr = Intg_Normal_2(
-      degreesOfFreedom - 1, r, oneOverGammaOfHalfDF, expMinusHalfRSquared);
+   *returnPtr = Intg_Normal_2 (
+					degreesOfFreedom - 1, r, oneOverGammaOfHalfDF, expMinusHalfRSquared);
 
    *returnPtr *= factor;
 
-} // end "Intg_Normal" 
+}	// end "Intg_Normal" 
 
 
 
@@ -5775,43 +5830,44 @@ void Intg_Normal(
 //	Coded By:			Chulhee Lee				Date: ?
 //	Revised By:			Larry L. Biehl			Date: 03/12/1990	
 
-double Intg_Normal_2(
-   SInt16 degreesOfFreedom,
-   double r,
-   double input,
-   double expMinusHalfRSquared)
- {
-   double x,
-      returnValue;
+double Intg_Normal_2 (
+				SInt16								degreesOfFreedom,
+				double								r,
+				double								input,
+				double								expMinusHalfRSquared)
+{
+   double								x,
+											returnValue;
 
 
-   if (degreesOfFreedom == 0) {
-      Area_Of_SND_by_Direct_Calculation(r, &x);
+   if (degreesOfFreedom == 0) 
+		{
+      Area_Of_SND_by_Direct_Calculation (r, &x);
 
       returnValue = x * kSQRT2PI;
 
-   }// end "if (degreesOfFreedom == 0)" 
+		}	// end "if (degreesOfFreedom == 0)" 
 
-   else // degreesOfFreedom != 0 
-   {
+   else	// degreesOfFreedom != 0 
+		{
       if (degreesOfFreedom == 1)
          returnValue = 1 - expMinusHalfRSquared;
 
-      else // degreesOfFreedom > 1 
-      {
-         returnValue = Intg_Normal_2(
+      else	// degreesOfFreedom > 1 
+			{
+         returnValue = Intg_Normal_2 (
             degreesOfFreedom - 2, r, input, expMinusHalfRSquared);
          returnValue *= (degreesOfFreedom - 1);
          returnValue -=
-            pow(r, (double) (degreesOfFreedom - 1)) * expMinusHalfRSquared;
+						pow (r, (double) (degreesOfFreedom - 1)) * expMinusHalfRSquared;
 
-      } // end "else degreesOfFreedom > 1" 
+			}	// end "else degreesOfFreedom > 1" 
 
-   } // end "else degreesOfFreedom != 0" 
+		}	// end "else degreesOfFreedom != 0" 
 
    return (returnValue);
 
-} // end "Intg_Normal_2" 
+}	// end "Intg_Normal_2" 
 
 
 
@@ -5836,58 +5892,61 @@ double Intg_Normal_2(
 //	Coded By:			Larry L. Biehl			Date: 12/26/1996
 //	Revised By:			Larry L. Biehl			Date: 11/08/1999	
 
-Boolean IsClassData(
-   AreaDescriptionPtr projectAreaDescriptionPtr,
-   UInt32 classNumber,
-   UInt32 pixelLine,
-   UInt32 pixelColumn)
- {
-   HPClassNamesPtr classNamesPtr;
-   HPFieldIdentifiersPtr fieldIdentPtr;
+Boolean IsClassData (
+				AreaDescriptionPtr				projectAreaDescriptionPtr,
+				UInt32								classNumber,
+				UInt32								pixelLine,
+				UInt32								pixelColumn)
+{
+   HPClassNamesPtr					classNamesPtr;
+   HPFieldIdentifiersPtr			fieldIdentPtr;
 
-   SInt16 classStorage,
-      fieldNumber;
+   SInt16								classStorage,
+											fieldNumber;
 
 
-   // Initialize local variables.													
+			// Initialize local variables.													
 
    classNamesPtr = gProjectInfoPtr->classNamesPtr;
    fieldIdentPtr = gProjectInfoPtr->fieldIdentPtr;
 
-   // Get the class storage number.													
+			// Get the class storage number.													
 
    classStorage = gProjectInfoPtr->storageClass[classNumber];
 
-   // Continue only if the number of fields in the class is one or more.
+			// Continue only if the number of fields in the class is one or more.
 
-   if (classNamesPtr[classStorage].numberOfTrainFields > 0) {
+   if (classNamesPtr[classStorage].numberOfTrainFields > 0) 
+		{
       fieldNumber = classNamesPtr[classStorage].firstFieldNumber;
 
-      while (fieldNumber != -1) {
-         // Make certain that field is training field.						
+      while (fieldNumber != -1) 
+			{
+					// Make certain that field is training field.						
 
-         if (fieldIdentPtr[fieldNumber].fieldType & kTrainingType) {
-            // List the requested data for the field.							
+         if (fieldIdentPtr[fieldNumber].fieldType & kTrainingType) 
+				{
+						// List the requested data for the field.							
 
-            if (IsFieldData(projectAreaDescriptionPtr,
-               fieldNumber,
-               pixelLine,
-               pixelColumn))
-               return (TRUE);
+            if (IsFieldData (projectAreaDescriptionPtr,
+										fieldNumber,
+										pixelLine,
+										pixelColumn))
+																							return (TRUE);
 
-         } // end "if ( fieldIdentPtr[fieldNumber].field..." 
+				}	// end "if (fieldIdentPtr[fieldNumber].field..." 
 
          fieldNumber = fieldIdentPtr[fieldNumber].nextField;
 
-      } // end "while (fieldNumber != -1)" 
+			}	// end "while (fieldNumber != -1)" 
 
-   } // end "if (classNamesPtr[classStorage].number ..." 
+		}	// end "if (classNamesPtr[classStorage].number ..." 
 
-   // Indicate that the input point is not part of the given class.							
+			// Indicate that the input point is not part of the given class.							
 
    return (FALSE);
 
-} // end "IsClassData" 
+}	// end "IsClassData" 
 
 
 
@@ -5912,76 +5971,74 @@ Boolean IsClassData(
 //	Coded By:			Larry L. Biehl			Date: 12/26/1996
 //	Revised By:			Larry L. Biehl			Date: 11/08/1999	
 
-Boolean IsFieldData(
-   AreaDescriptionPtr projectAreaDescriptionPtr,
-   SInt16 fieldNumber,
-   UInt32 pixelLine,
-   UInt32 pixelColumn)
- {
-   Point point;
+Boolean IsFieldData (
+				AreaDescriptionPtr				projectAreaDescriptionPtr,
+				SInt16								fieldNumber,
+				UInt32								pixelLine,
+				UInt32								pixelColumn)
+{
+   Point									point;
 
-   RgnHandle rgnHandle;
+   RgnHandle							rgnHandle;
 
-   SInt16 pointType;
+   SInt16								pointType;
 
-   Boolean returnFlag;
+   Boolean								returnFlag;
 
 
-   // Make certain that input values make sense									
+			// Make certain that input values make sense									
 
    if (fieldNumber <= -1)
-      return (FALSE);
+																						return (FALSE);
    if (gProjectInfoPtr != NULL &&
-      fieldNumber >= gProjectInfoPtr->numberStorageFields)
-      return (FALSE);
+					fieldNumber >= gProjectInfoPtr->numberStorageFields)
+																						return (FALSE);
 
-   // Exit if this is a cluster type field.										
+			// Exit if this is a cluster type field.										
 
    pointType = gProjectInfoPtr->fieldIdentPtr[fieldNumber].pointType;
    if (pointType >= kClusterType)
-      return (FALSE);
+																						return (FALSE);
 
-   // Initialize local variables.													
+			// Initialize local variables.													
 
    returnFlag = FALSE;
 
-   // Determine if field is described by a polygon or a rectangle.  If	
-   // the field is described by a polygon then create a region for the	
-   // field.			
+			// Determine if field is described by a polygon or a rectangle.  If	
+			// the field is described by a polygon then create a region for the	
+			// field.			
 
-   GetFieldBoundary(gProjectInfoPtr, projectAreaDescriptionPtr, fieldNumber);
+   GetFieldBoundary (gProjectInfoPtr, projectAreaDescriptionPtr, fieldNumber);
 
-   if (pointType != kPolygonType) {
-      if (pixelLine >= (UInt32) projectAreaDescriptionPtr->lineStart &&
-         pixelLine <= (UInt32) projectAreaDescriptionPtr->lineEnd &&
-         pixelColumn >= (UInt32) projectAreaDescriptionPtr->columnStart &&
-         pixelColumn <= (UInt32) projectAreaDescriptionPtr->columnEnd)
-         return (TRUE);
+   if (pointType != kPolygonType) 
+		{
+      if (pixelLine >= (UInt32)projectAreaDescriptionPtr->lineStart &&
+				pixelLine <= (UInt32)projectAreaDescriptionPtr->lineEnd &&
+					pixelColumn >= (UInt32)projectAreaDescriptionPtr->columnStart &&
+						pixelColumn <= (UInt32)projectAreaDescriptionPtr->columnEnd)
+			returnFlag = TRUE;
 
-      // else pixel is not within the field.	
-      return (FALSE);
+		}	// end "if (pointType != kPolygonType)"
 
-   }// end "if (pointType != kPolygonType)"
-
-   else // pointType == kPolygonType
-   {
-      point.v = (SInt16) pixelLine;
-      point.h = (SInt16) pixelColumn;
+   else	// pointType == kPolygonType
+		{
+      point.v = (SInt16)pixelLine;
+      point.h = (SInt16)pixelColumn;
 
       rgnHandle = projectAreaDescriptionPtr->rgnHandle;
 
-      // Check if point is within the region.										
+				// Check if point is within the region.										
 
-      if (PtInRgn(point, rgnHandle))
+      if (PtInRgn (point, rgnHandle))
          returnFlag = TRUE;
 
-      CloseUpAreaDescription(projectAreaDescriptionPtr);
+      CloseUpAreaDescription (projectAreaDescriptionPtr);
 
-   } // end "else pointType == kPolygonType" 
+		}	// end "else pointType == kPolygonType" 
 
-   return ( returnFlag);
+   return (returnFlag);
 
-} // end "IsFieldData" 
+}	// end "IsFieldData" 
 
 
 
@@ -6006,110 +6063,118 @@ Boolean IsFieldData(
 //	Coded By:			Larry L. Biehl			Date: 12/26/1996
 //	Revised By:			Larry L. Biehl			Date: 11/08/1999	
 
-Boolean IsProjectData(
-   AreaDescriptionPtr maskAreaDescriptionPtr,
-   AreaDescriptionPtr projectAreaDescriptionPtr,
-   UInt32 pixelLine,
-   UInt32 pixelColumn)
- {
-   HPClassNamesPtr classNamesPtr;
-   HPFieldIdentifiersPtr fieldIdentPtr;
+Boolean IsProjectData (
+				AreaDescriptionPtr				maskAreaDescriptionPtr,
+				AreaDescriptionPtr				projectAreaDescriptionPtr,
+				UInt32								pixelLine,
+				UInt32								pixelColumn)
+{
+   HPClassNamesPtr					classNamesPtr;
+   HPFieldIdentifiersPtr			fieldIdentPtr;
 
-   UInt32 classNumber,
-      numberClasses,
-      offset;
+   UInt32								classNumber,
+											numberClasses,
+											offset;
 
-   SInt16 classStorage,
-      fieldNumber;
+   SInt16								classStorage,
+											fieldNumber;
 
-   UInt16 maskValue;
+   UInt16								maskValue;
 
 
-   // Initialize local variables.													
+			// Initialize local variables.													
 
    numberClasses = gProjectInfoPtr->numberStatisticsClasses;
 
-   // Continue only if number of classes is one or more.						
+			// Continue only if number of classes is one or more.						
 
-   if (numberClasses > 0) {
-      if (maskAreaDescriptionPtr->maskInfoPtr != NULL) {
-         // First check if pixel is part of the mask area.
+   if (numberClasses > 0) 
+		{
+      if (maskAreaDescriptionPtr->maskInfoPtr != NULL) 
+			{
+					// First check if pixel is part of the mask area.
 
-         if (pixelLine >= (UInt32) maskAreaDescriptionPtr->lineStart &&
-            pixelLine <= (UInt32) maskAreaDescriptionPtr->lineEnd &&
-            pixelColumn >= (UInt32) maskAreaDescriptionPtr->columnStart &&
-            pixelColumn <= (UInt32) maskAreaDescriptionPtr->columnEnd) {
-            // Get the line and column offset into the mask buffer vector.
+         if (pixelLine >= (UInt32)maskAreaDescriptionPtr->lineStart &&
+					pixelLine <= (UInt32)maskAreaDescriptionPtr->lineEnd &&
+						pixelColumn >= (UInt32)maskAreaDescriptionPtr->columnStart &&
+							pixelColumn <= (UInt32)maskAreaDescriptionPtr->columnEnd)
+				{
+						// Get the line and column offset into the mask buffer vector.
 
             offset = (pixelLine - maskAreaDescriptionPtr->lineStart) *
-               (maskAreaDescriptionPtr->maskInfoPtr->numberColumns + 1);
+									(maskAreaDescriptionPtr->maskInfoPtr->numberColumns + 1);
 
             offset += pixelColumn - maskAreaDescriptionPtr->columnStart +
-               maskAreaDescriptionPtr->maskColumnStart;
+														maskAreaDescriptionPtr->maskColumnStart;
 
             maskValue = maskAreaDescriptionPtr->maskInfoPtr->maskPointer[offset];
 
-            // Check if point belongs to the class.								
+						// Check if point belongs to the class.								
 
             classNamesPtr = gProjectInfoPtr->classNamesPtr;
 
-            for (classNumber = 0; classNumber < numberClasses; classNumber++) {
-               // Get the class storage number.													
+            for (classNumber=0; classNumber<numberClasses; classNumber++) 
+					{
+							// Get the class storage number.													
 
                classStorage = gProjectInfoPtr->storageClass[classNumber];
 
-               // Continue only if the number of fields in the class is one 
-               // or more.
+							// Continue only if the number of fields in the class is one 
+							// or more.
 
-               if (classNamesPtr[classStorage].numberOfTrainFields > 0) {
+               if (classNamesPtr[classStorage].numberOfTrainFields > 0) 
+						{
                   fieldNumber = classNamesPtr[classStorage].firstFieldNumber;
 
-                  while (fieldNumber != -1) {
+                  while (fieldNumber != -1) 
+							{
                      fieldIdentPtr = &gProjectInfoPtr->fieldIdentPtr[fieldNumber];
 
-                     // Make certain that field is training field.						
+									// Make certain that field is training field.						
 
                      if ((fieldIdentPtr->fieldType & kTrainingType) &&
-                        (fieldIdentPtr->pointType == kMaskType)) {
+														(fieldIdentPtr->pointType == kMaskType)) 
+								{
                         if (maskValue == fieldIdentPtr->maskValue)
-                           return (TRUE);
+																							return (TRUE);
 
-                     } // end "if ( fieldIdentPtr[fieldNumber].field..." 
+								}	// end "if (fieldIdentPtr[fieldNumber].field..." 
 
                      fieldNumber = fieldIdentPtr->nextField;
 
-                  } // end "while (fieldNumber != -1)" 
+							}	// end "while (fieldNumber != -1)" 
 
-               } // end "if (classNamesPtr[classStorage].number ..." 
+						}	// end "if (classNamesPtr[classStorage].number ..." 
 
-            } // end "for ( classNumber=0; ... 
+					}	// end "for (classNumber=0; ... 
 
-         } // end "if (pixelLine >= maskAreaPtr->lineStart && ..."
+				}	// end "if (pixelLine >= maskAreaPtr->lineStart && ..."
 
-      } // end "if (maskAreaDescription.maskInfoPtr != NULL)"
+			}	// end "if (maskAreaDescription.maskInfoPtr != NULL)"
 
-      // Now check if pixels is part of any rectangular or polygon
-      // training areas.
+				// Now check if pixels is part of any rectangular or polygon
+				// training areas.
 
-      for (classNumber = 0; classNumber < numberClasses; classNumber++) {
-         // Check if point belongs to the class.											
+      for (classNumber = 0; classNumber < numberClasses; classNumber++) 
+			{
+					// Check if point belongs to the class.											
 
-         if (IsClassData(projectAreaDescriptionPtr,
-            classNumber,
-            pixelLine,
-            pixelColumn))
-            return (TRUE);
+         if (IsClassData (projectAreaDescriptionPtr,
+									classNumber,
+									pixelLine,
+									pixelColumn))
+																								return (TRUE);
 
-      } // end "for ( classNumber=0; ... 
+			}	// end "for (classNumber=0; ... 
 
-   } // end "if (numberClasses > 0)" 
+		}	// end "if (numberClasses > 0)" 
 
-   // Indicate that the input point does not belong to the
-   // training statistics.									
+			// Indicate that the input point does not belong to the
+			// training statistics.									
 
    return (FALSE);
 
-} // end "IsProjectData" 
+}	// end "IsProjectData" 
 
 
 
@@ -6141,276 +6206,287 @@ Boolean IsProjectData(
 //	Coded By:			Larry L. Biehl			Date: 11/09/1989
 //	Revised By:			Larry L. Biehl			Date: 02/24/2000	
 
-Boolean ListClassesUsed(
-   ClassifierVar* clsfyVariablePtr,
-   FileInfoPtr fileInfoPtr,
-   SInt16* classPtr,
-   unsigned char* symbolsPtr,
-   SInt16 weightsIndex,
-   UInt32 numberClasses,
-   CMFileStream* outputFilePtr,
-   SInt16* outputCodePtr,
-   Boolean thresholdFlag)
- {
-   // Declare local variables and structures	
+Boolean ListClassesUsed (
+				ClassifierVar*						clsfyVariablePtr,
+				FileInfoPtr							fileInfoPtr,
+				SInt16*								classPtr,
+				unsigned char*						symbolsPtr,
+				SInt16								weightsIndex,
+				UInt32								numberClasses,
+				CMFileStream*						outputFilePtr,
+				SInt16*								outputCodePtr,
+				Boolean								thresholdFlag)
+{
+			// Declare local variables and structures	
 
-   double mixingParameter;
+	double								mixingParameter;
 
-   char *groupNamePtr,
-      *stringPtr;
+   char									*groupNamePtr,
+											*stringPtr;
 
-   HPClassNamesPtr classNamesPtr;
+   HPClassNamesPtr					classNamesPtr;
 
-   SInt16* classToGroupPtr;
+   SInt16*								classToGroupPtr;
 
-   SInt32 stringLength;
+   SInt32								stringLength;
 
-   UInt32 index;
+   UInt32								index;
 
-   SInt16 backgroundIndexOffset,
-      classStorage,
-      groupIndex,
-      stringNumber,
-      strLength;
+   SInt16								backgroundIndexOffset,
+											classStorage,
+											groupIndex,
+											stringNumber,
+											strLength;
 
-   UInt16 classNumber;
+   UInt16								classNumber;
 
-   Boolean continueFlag,
-      groupOrderedFlag,
-      listGroupColumnFlag;
+   Boolean								continueFlag,
+											groupOrderedFlag,
+											listGroupColumnFlag;
 
 
-   // Initialize local variables.													
+			// Initialize local variables.													
 
    continueFlag = TRUE;
    listGroupColumnFlag = FALSE;
    backgroundIndexOffset = 0;
    stringNumber = IDS_Project2;
 
-   // Do setup for variables that are associated with the List	Results	
-   // processor.																			
+			// Do setup for variables that are associated with the List	Results	
+			// processor.																			
 
-   if (gProcessorCode == kListResultsProcessor) {
+   if (gProcessorCode == kListResultsProcessor) 
+		{
       if (clsfyVariablePtr != NULL)
          backgroundIndexOffset = clsfyVariablePtr->backgroundIndexOffset;
 
       listGroupColumnFlag = (clsfyVariablePtr->summaryCode & kGroupSummary) ||
-         (clsfyVariablePtr->tableType & kGroupTable);
+													(clsfyVariablePtr->tableType & kGroupTable);
 
       groupOrderedFlag = (clsfyVariablePtr->tableType & kGroupTable);
 
-      if (groupOrderedFlag || listGroupColumnFlag) {
-         classToGroupPtr = GetClassToGroupPointer(fileInfoPtr);
+      if (groupOrderedFlag || listGroupColumnFlag) 
+			{
+         classToGroupPtr = GetClassToGroupPointer (fileInfoPtr);
 
-         // Get a pointer to the group names information.					
+					// Get a pointer to the group names information.					
 
-         groupNamePtr = (char*) GetHandlePointer(
-            fileInfoPtr->groupNameHandle,
-            kNoLock,
-            kNoMoveHi);
+         groupNamePtr = (char*)GetHandlePointer (fileInfoPtr->groupNameHandle);
 
-      } // end "if (groupOrderedFlag || listGroupColumnFlag)" 
+			}	// end "if (groupOrderedFlag || listGroupColumnFlag)" 
 
-      // Get pointer to the properly ordered list of classes if 		
-      // this is a group type table.											
-
-      //		if (groupOrderedFlag)
-      //			{
-      //			if (classPtr != NULL && (clsfyVariablePtr->tableType & kGroupTable) )
-      //				classPtr = &classPtr [gProjectInfoPtr->numberStatisticsClasses];
-      //			
-      //			}		// end "if (groupOrderedFlag)" 
-
+				// Get pointer to the properly ordered list of classes if 		
+				// this is a group type table.											
+		/*
+      if (groupOrderedFlag)
+      	{
+      	if (classPtr != NULL && (clsfyVariablePtr->tableType & kGroupTable))
+      		classPtr = &classPtr [gProjectInfoPtr->numberStatisticsClasses];
+		 
+      	}	// end "if (groupOrderedFlag)"
+		*/
       stringNumber = IDS_Project1;
 
-   } // end "if (gProcessorCode == kListResultsProcessor)" 
+		}	// end "if (gProcessorCode == kListResultsProcessor)" 
 
-   // Get the basic string to use.													
-   // Classes used:  or  Project Classes used:									
+			// Get the basic string to use.													
+			// Classes used:  or  Project Classes used:									
 
-   MGetString(gTextString, kProjectStrID, stringNumber);
+   MGetString (gTextString, kProjectStrID, stringNumber);
 
    stringLength = gTextString[0];
-   stringPtr = (char*) &gTextString[stringLength + 1];
+   stringPtr = (char*)&gTextString[stringLength + 1];
 
-   // Add group column if appropriate.												
+			// Add group column if appropriate.												
 
-   if (listGroupColumnFlag) {
-      sprintf(stringPtr, "\t   Group                       ");
+   if (listGroupColumnFlag) 
+		{
+      sprintf (stringPtr, "\t   Group                       ");
       stringPtr += 32;
 
-   } // end "groupOrderedFlag" 
+		}	// end "groupOrderedFlag" 
 
-   // Add symbol column if appropriate.											
+			// Add symbol column if appropriate.											
 
-   if (symbolsPtr != NULL) {
-      sprintf(stringPtr, "\tSymbol");
+   if (symbolsPtr != NULL) 
+		{
+      sprintf (stringPtr, "\tSymbol");
       stringPtr += 7;
 
-   } // end "if (symbolsPtr != NULL)" 
+		}	// end "if (symbolsPtr != NULL)" 
 
-   // Add weight column if appropriate.											
+			// Add weight column if appropriate.											
 
-   if (weightsIndex >= 0) {
-      sprintf(stringPtr, "\t Weight");
+   if (weightsIndex >= 0) 
+		{
+      sprintf (stringPtr, "\t Weight");
       stringPtr += 8;
 
-   } // end "if (weightsIndex >= 0)" 
+		}	// end "if (weightsIndex >= 0)" 
 
-   // Add weight column if appropriate.											
+			// Add weight column if appropriate.											
 
    if (gProjectInfoPtr->covarianceStatsToUse == kLeaveOneOutStats ||
-      gProjectInfoPtr->covarianceStatsToUse == kMixedStats) {
+										gProjectInfoPtr->covarianceStatsToUse == kMixedStats)
+		{
       if (gProjectInfoPtr->mixingParameterCode == kComputedOptimum)
-         sprintf(stringPtr, "\t LOOC ");
+         sprintf (stringPtr, "\t LOOC ");
 
       else if (gProjectInfoPtr->mixingParameterCode == kUserSet)
-         sprintf(stringPtr, "\t User ");
+         sprintf (stringPtr, "\t User ");
 
-      if (gProjectInfoPtr->mixingParameterCode != kIdentityMatrix) {
+      if (gProjectInfoPtr->mixingParameterCode != kIdentityMatrix) 
+			{
          stringPtr += 7;
-         sprintf(stringPtr, "Mixing Parameter");
+         sprintf (stringPtr, "Mixing Parameter");
 
          stringPtr += 16;
 
-      } // end "if (...->mixingParameterCode != kIdentityMatrix)"
+			}	// end "if (...->mixingParameterCode != kIdentityMatrix)"
 
-   } // end "if (...->covarianceStatsToUse == kLeaveOneOutStats || ..." 
+		}	// end "if (...->covarianceStatsToUse == kLeaveOneOutStats || ..." 
 
-   sprintf(stringPtr, gEndOfLine);
+   sprintf (stringPtr, gEndOfLine);
 
    stringLength = (Ptr)stringPtr - (Ptr)&gTextString + gNumberOfEndOfLineCharacters - 1;
-   continueFlag = OutputString(outputFilePtr,
-      (char*) &gTextString[1],
-      stringLength,
-      *outputCodePtr,
-      continueFlag);
+   continueFlag = OutputString (outputFilePtr,
+											(char*)&gTextString[1],
+											stringLength,
+											*outputCodePtr,
+											continueFlag);
 
-   // List line for threshold class if needed.									
+			// List line for threshold class if needed.									
 
-   if (thresholdFlag) {
-      sprintf((char*) &gTextString,
-         "       0: Threshold (background)         %s",
-         gEndOfLine);
+   if (thresholdFlag) 
+		{
+      sprintf ((char*)gTextString,
+					"       0: Threshold (background)         %s",
+					gEndOfLine);
 
-      // Add the symbol if available.												
+				// Add the symbol if available.												
 
       if (symbolsPtr != NULL)
-         sprintf((char*) &gTextString[41], " ' '%s", gEndOfLine);
+         sprintf ((char*)&gTextString[41], " ' '%s", gEndOfLine);
 
-      continueFlag = OutputString(outputFilePtr,
-         (char*) &gTextString,
-         0,
-         *outputCodePtr,
-         continueFlag);
+      continueFlag = OutputString (outputFilePtr,
+												(char*)gTextString,
+												0,
+												*outputCodePtr,
+												continueFlag);
 
-   } // end "if (thresholdFlag)" 	
+		}	// end "if (thresholdFlag)" 	
 
    classNamesPtr = gProjectInfoPtr->classNamesPtr;
 
    index = 0;
-   for (classNumber = 1;
-      classNumber <= gProjectInfoPtr->numberStatisticsClasses;
-      classNumber++) {
-      // Get the class storage number.												
+   for (classNumber=1;
+				classNumber<=gProjectInfoPtr->numberStatisticsClasses;
+						classNumber++)
+		{
+				// Get the class storage number.												
 
       classStorage = gProjectInfoPtr->storageClass[classNumber - 1];
 
-      sprintf((char*) &gTextString2, "                               ");
-      pstr((char*) &gTextString2,
-         (char*) &classNamesPtr[classStorage].name,
-         &strLength);
+      sprintf ((char*)gTextString2, "                               ");
+      pstr ((char*)gTextString2,
+				(char*)&classNamesPtr[classStorage].name,
+				&strLength);
 
-      if (classNumber != (UInt16) classPtr[index]) {
-         strLength = MIN(strLength, 22);
-         sprintf((char*) &gTextString2[strLength], "-not used");
+      if (classNumber != (UInt16)classPtr[index]) 
+			{
+         strLength = MIN (strLength, 22);
+         sprintf ((char*)&gTextString2[strLength], "-not used");
          strLength += 9;
 
-      } // end "if ( classNumber != classPtr[index] )" 
+			}	// end "if (classNumber != classPtr[index])" 
 
       gTextString2[strLength] = ' ';
       gTextString2[kMaxClassFieldNameLength] = kNullTerminator;
 
-      stringPtr = (char*) &gTextString;
-      sprintf(stringPtr, "    %4d: %s", classNumber, gTextString2);
+      stringPtr = (char*)&gTextString;
+      sprintf (stringPtr, "    %4d: %s", classNumber, gTextString2);
       stringPtr += 41;
 
-      if (classNumber == (UInt16) classPtr[index]) {
+      if (classNumber == (UInt16)classPtr[index]) 
+			{
+					// Add group name if appropriate.										
 
-         // Add group name if appropriate.										
+         if (listGroupColumnFlag) 
+				{
+            sprintf ((char*)gTextString2, "                               ");
 
-         if (listGroupColumnFlag) {
-            sprintf((char*) &gTextString2, "                               ");
-
-            if ((UInt32) (classNumber + backgroundIndexOffset) <=
-               fileInfoPtr->numberClasses) {
+            if ((UInt32)(classNumber + backgroundIndexOffset) <=
+																			fileInfoPtr->numberClasses) 
+					{
                groupIndex = classToGroupPtr[classNumber - 1 + backgroundIndexOffset];
-               pstr((char*) &gTextString2,
-                  &groupNamePtr[groupIndex * 32], &strLength);
+               pstr ((char*)gTextString2, &groupNamePtr[groupIndex * 32], &strLength);
                gTextString2[strLength] = ' ';
                gTextString2[kMaxClassFieldNameLength] = kNullTerminator;
-               sprintf(stringPtr, "\t%3d: %s", groupIndex + 1, gTextString2);
+               sprintf (stringPtr, "\t%3d: %s", groupIndex + 1, gTextString2);
 
-            }// end "if (classNumber+backgroundIndexOffset <= ..." 
+					}	// end "if (classNumber+backgroundIndexOffset <= ..." 
 
-            else // classNumber+backgroundIndexOffset > ... 
-               sprintf(stringPtr, "\t     %s", gTextString2);
+            else	// classNumber+backgroundIndexOffset > ... 
+               sprintf (stringPtr, "\t     %s", gTextString2);
 
             stringPtr += 37;
 
-         } // end "if (listGroupColumnFlag)" 
+				}	// end "if (listGroupColumnFlag)" 
 
-         // Add symbol column if appropriate.									
+					// Add symbol column if appropriate.									
 
-         if (symbolsPtr != NULL) {
-            sprintf(stringPtr, "\t %c    ", symbolsPtr[classNumber]);
+         if (symbolsPtr != NULL) 
+				{
+            sprintf (stringPtr, "\t %c    ", symbolsPtr[classNumber]);
             stringPtr += 7;
 
-         } // end "if ( symbolsPtr != NULL )" 
+				}	// end "if (symbolsPtr != NULL)" 
 
-         // Add the weights if available.											
+					// Add the weights if available.											
 
-         if (weightsIndex >= 0) {
-            sprintf(stringPtr,
-               "\t%7.3f",
-               fabs((double) gProjectInfoPtr->classNamesPtr[
-               classStorage].priorWeights[weightsIndex]));
+         if (weightsIndex >= 0) 
+				{
+            sprintf (stringPtr,
+							"\t%7.3f",
+							fabs ((double) gProjectInfoPtr->classNamesPtr[
+							classStorage].priorWeights[weightsIndex]));
             stringPtr += 8;
 
-         } // end "if ( weightsIndex >= 0 )" 
+				}	// end "if (weightsIndex >= 0)" 
 
-         // Add the mixing parameter if needed.											
+					// Add the mixing parameter if needed.											
 
-         if (classNamesPtr[classStorage].covarianceStatsToUse == kLeaveOneOutStats) {
-            if (classNamesPtr[classStorage].mixingParameterCode != kIdentityMatrix) {
+         if (classNamesPtr[classStorage].covarianceStatsToUse == kLeaveOneOutStats) 
+				{
+            if (classNamesPtr[classStorage].mixingParameterCode != kIdentityMatrix) 
+					{
                mixingParameter = classNamesPtr[classStorage].looCovarianceValue;
                if (classNamesPtr[classStorage].mixingParameterCode == kUserSet)
-                  mixingParameter = classNamesPtr[classStorage].userMixingParameter;
+						mixingParameter = classNamesPtr[classStorage].userMixingParameter;
 
-               sprintf(stringPtr,
-                  "\t       %8.6f",
-                  mixingParameter);
+               sprintf (stringPtr,
+								"\t       %8.6f",
+								mixingParameter);
                stringPtr += 16;
 
-            } // end "if (...[classStorage].mixingParameterCode != ..."
+					}	// end "if (...[classStorage].mixingParameterCode != ..."
 
-         } // end "if (...covarianceStatsToUse == kLeaveOneOutStats && ..." 
+				}	// end "if (...covarianceStatsToUse == kLeaveOneOutStats && ..." 
 
          if (index < numberClasses - 1)
             index++;
 
-			}	// end "if ( classNumber == classPtr[index] )" 
+			}	// end "if (classNumber == classPtr[index])" 
 
-      else // classNumber != classPtr[index] 
+      else	// classNumber != classPtr[index] 
 			{
-         sprintf(stringPtr, "\t \t    ");
+         sprintf (stringPtr, "\t \t    ");
          stringPtr += 7;
 
 			}	// end "else classNumber != classPtr[index]" 
 
-      sprintf(stringPtr, gEndOfLine);
-      stringLength =
-         (Ptr)stringPtr - (Ptr)&gTextString + gNumberOfEndOfLineCharacters;
+      sprintf (stringPtr, gEndOfLine);
+      stringLength = (Ptr)stringPtr - (Ptr)&gTextString + gNumberOfEndOfLineCharacters;
       continueFlag = OutputString (outputFilePtr, 
 												(char*)gTextString,
 												stringLength,
@@ -6424,15 +6500,15 @@ Boolean ListClassesUsed(
 
 			// Insert a blank line after the table.
 
-   continueFlag = OutputString(outputFilePtr,
-      gEndOfLine,
-      gNumberOfEndOfLineCharacters,
-      *outputCodePtr,
-      continueFlag);
+   continueFlag = OutputString (outputFilePtr,
+											gEndOfLine,
+											gNumberOfEndOfLineCharacters,
+											*outputCodePtr,
+											continueFlag);
 
    return (continueFlag);
 
-} // end "ListClassesUsed" 
+}	// end "ListClassesUsed" 
 
 
 
@@ -6460,36 +6536,36 @@ Boolean ListClassesUsed(
 //	Coded By:			Larry L. Biehl			Date: 04/25/1990
 //	Revised By:			Larry L. Biehl			Date: 08/30/2006
 
-Boolean ListClassFieldsUsed(
-   SInt16 classNumber,
-   SInt16* fieldPtr,
-   SInt16 fieldTypeCode,
-   CMFileStream* outputFilePtr,
-   SInt16* outputCodePtr,
-   SInt16 stringNumber,
-   SInt16* fieldLabelNumberPtr,
-   Boolean includeClusterFieldsFlag)
- {
-   // Declare local variables and structures	
+Boolean ListClassFieldsUsed (
+				SInt16								classNumber,
+				SInt16*								fieldPtr,
+				SInt16								fieldTypeCode,
+				CMFileStream*						outputFilePtr,
+				SInt16*								outputCodePtr,
+				SInt16								stringNumber,
+				SInt16*								fieldLabelNumberPtr,
+				Boolean								includeClusterFieldsFlag)
+{
+			// Declare local variables and structures	
 
-   HPClassNamesPtr classNamesPtr;
-   HPFieldIdentifiersPtr fieldIdentPtr;
-   HPFieldPointsPtr fieldPointsPtr;
-   char* stringPtr;
+   HPClassNamesPtr					classNamesPtr;
+   HPFieldIdentifiersPtr			fieldIdentPtr;
+   HPFieldPointsPtr					fieldPointsPtr;
+   char*									stringPtr;
 
-   SInt16 classStorage,
-      fieldIndex,
-      fieldNumber,
-      point,
-      pointIndex,
-      stringLength,
-      strLength;
+   SInt16								classStorage,
+											fieldIndex,
+											fieldNumber,
+											point,
+											pointIndex,
+											stringLength,
+											strLength;
 
-   Boolean continueFlag,
-      useFieldNumberFlag;
+   Boolean								continueFlag,
+											useFieldNumberFlag;
 
 
-   // Initialize local variables.													
+			// Initialize local variables.													
 
    classStorage = gProjectInfoPtr->storageClass[classNumber - 1];
    classNamesPtr = gProjectInfoPtr->classNamesPtr;
@@ -6501,166 +6577,173 @@ Boolean ListClassFieldsUsed(
    if (*fieldLabelNumberPtr <= 0)
       useFieldNumberFlag = TRUE;
 
-   // Get the basic string to use if needed.										
-   // "Fields histogramed for class: "												
+			// Get the basic string to use if needed.										
+			// "Fields histogramed for class: "												
 
-   if (stringNumber > 0) {
-      if (!ListFieldsTitle(outputFilePtr,
-         outputCodePtr,
-         stringNumber,
-         classNumber,
-         fieldTypeCode))
-         return (FALSE);
+   if (stringNumber > 0) 
+		{
+      if (!ListFieldsTitle (outputFilePtr,
+										outputCodePtr,
+										stringNumber,
+										classNumber,
+										fieldTypeCode))
+																						return (FALSE);
 
-   } // end "if (stringNumber > 0)" 
+		}	// end "if (stringNumber > 0)" 
 
    fieldNumber = classNamesPtr[classStorage].firstFieldNumber;
 
    fieldIndex = 0;
-   stringPtr = (char*) &gTextString[47];
-   while (fieldNumber != -1) {
+   stringPtr = (char*)&gTextString[47];
+   while (fieldNumber != -1) 
+		{
       fieldIdentPtr = &gProjectInfoPtr->fieldIdentPtr[fieldNumber];
 
-      // Make certain that field is of the requested type.					
+				// Make certain that field is of the requested type.					
 
-      if (fieldIdentPtr->fieldType & fieldTypeCode) {
+      if (fieldIdentPtr->fieldType & fieldTypeCode) 
+			{
          continueFlag = (fieldPtr == NULL);
          if (!continueFlag)
-            continueFlag = (fieldNumber == fieldPtr[ fieldIndex]);
+            continueFlag = (fieldNumber == fieldPtr[fieldIndex]);
 
-         if (continueFlag) {
+         if (continueFlag) 
+				{
             if (useFieldNumberFlag)
                *fieldLabelNumberPtr = fieldNumber + 1;
 
-            // Get field name in 31 character field.							
+						// Get field name in 31 character field.							
 
-            sprintf((char*) &gTextString3, "                               ");
-            pstr((char*) &gTextString3,
-               (char*) &fieldIdentPtr->name, &strLength);
+            sprintf ((char*)gTextString3, "                               ");
+            pstr ((char*)gTextString3, (char*)&fieldIdentPtr->name, &strLength);
             gTextString3[strLength] = ' ';
             gTextString3[kMaxClassFieldNameLength] = kNullTerminator;
 
-            sprintf((char*) &gTextString, "    %4d:\t%s\t%5d",
-               *fieldLabelNumberPtr,
-               gTextString3,
-               classNumber);
+            sprintf ((char*)gTextString, 
+								"    %4d:\t%s\t%5d",
+								*fieldLabelNumberPtr,
+								gTextString3,
+								classNumber);
 
-            // Get the field boundary.												
+						// Get the field boundary.												
 
             pointIndex = fieldIdentPtr->firstPolygonPoint;
 
-            // Determine if rectangular or polygonal type field.			
+						// Determine if rectangular or polygonal type field.			
 
-            if (fieldIdentPtr->pointType == kRectangleType) {
-               sprintf(stringPtr,
-                  "\t%5ld\t%5ld\t%5ld\t%5ld%s",
-                  fieldPointsPtr[pointIndex].line,
-                  fieldPointsPtr[pointIndex + 1].line,
-                  fieldPointsPtr[pointIndex].col,
-                  fieldPointsPtr[pointIndex + 1].col,
-                  gEndOfLine);
+            if (fieldIdentPtr->pointType == kRectangleType) 
+					{
+               sprintf (stringPtr,
+									"\t%5ld\t%5ld\t%5ld\t%5ld%s",
+									fieldPointsPtr[pointIndex].line,
+									fieldPointsPtr[pointIndex + 1].line,
+									fieldPointsPtr[pointIndex].col,
+									fieldPointsPtr[pointIndex + 1].col,
+									gEndOfLine);
 
-               if (!OutputString(outputFilePtr,
-                  (char*) &gTextString,
-                  stringLength,
-                  *outputCodePtr,
-                  TRUE))
-                  return (FALSE);
+               if (!OutputString (outputFilePtr,
+												(char*)gTextString,
+												stringLength,
+												*outputCodePtr,
+												TRUE))
+																							return (FALSE);
 
-            }// end "if (fieldIdentPtr->..." 
+					}	// end "if (fieldIdentPtr->..." 
 
-            else if (fieldIdentPtr->pointType == kPolygonType) {
-               // Allow for the first two points which represent the bounding
-               // rectangle.
+            else if (fieldIdentPtr->pointType == kPolygonType) 
+					{
+							// Allow for the first two points which represent the bounding
+							// rectangle.
 
                pointIndex += 2;
 
-               // field is polygon type && listCode is for statistics 	
-               // list. 																
+							// field is polygon type && listCode is for statistics list. 																
 
-               for (point = 0;
-                  point < fieldIdentPtr->numberOfPolygonPoints;
-                  point++) {
+               for (point=0;
+								point<fieldIdentPtr->numberOfPolygonPoints;
+								point++) 
+						{
                   if (point == 1)
-                     sprintf((char*) &gTextString,
-                     "                                               ");
+                     sprintf ((char*)gTextString,
+										"                                               ");
 
-                  sprintf(stringPtr,
-                     "\t%5ld      \t%5ld      %s",
-                     fieldPointsPtr[pointIndex].line,
-                     fieldPointsPtr[pointIndex].col,
-                     gEndOfLine);
+                  sprintf (stringPtr,
+										"\t%5ld      \t%5ld      %s",
+										fieldPointsPtr[pointIndex].line,
+										fieldPointsPtr[pointIndex].col,
+										gEndOfLine);
 
-                  if (!OutputString(outputFilePtr,
-                     (char*) &gTextString,
-                     stringLength,
-                     *outputCodePtr,
-                     TRUE))
-                     return (FALSE);
+                  if (!OutputString (outputFilePtr,
+													(char*)gTextString,
+													stringLength,
+													*outputCodePtr,
+													TRUE))
+																							return (FALSE);
                   pointIndex++;
 
-               } // end "for ( i=1; i<fieldIdentPtr->" 
+						}	// end "for (point=1; point<fieldIdentPtr->" 
 
-            }// end "else if (fieldIdentPtr->pointType ..."  
+					}	// end "else if (fieldIdentPtr->pointType ..."  
 
-            else if (fieldIdentPtr->pointType == kMaskType) {
+            else if (fieldIdentPtr->pointType == kMaskType) 
+					{
+							// Field is cluster type. 												
 
-               // Field is cluster type. 												
+               sprintf (stringPtr, " Mask area.%s", gEndOfLine);
 
-               sprintf(stringPtr, " Mask area.%s", gEndOfLine);
+					if (!OutputString (outputFilePtr,
+												(char*)gTextString,
+												0,
+												*outputCodePtr,
+												TRUE))
+																							return (FALSE);
 
-               if (!OutputString(outputFilePtr,
-                  (char*) &gTextString,
-                  0,
-                  *outputCodePtr,
-                  TRUE))
-                  return (FALSE);
+					}	// end "else if (fieldIdentPtr->..." 
 
-            }// end "if (fieldIdentPtr->..." 
+            else if (fieldIdentPtr->pointType == kClusterType) 
+					{
+							// Field is cluster type. 												
 
-            else if (fieldIdentPtr->pointType == kClusterType) {
+               sprintf (stringPtr, " Cluster area.%s", gEndOfLine);
 
-               // Field is cluster type. 												
+               if (!includeClusterFieldsFlag ||
+									(!gProjectInfoPtr->keepClassStatsOnlyFlag &&
+																			!fieldIdentPtr->statsUpToDate))
+                  sprintf (&stringPtr[13],
+										"; cannot be used since no coordinates are available.%s",
+										gEndOfLine);
 
-               sprintf(stringPtr, " Cluster area.%s", gEndOfLine);
+               if (!OutputString (outputFilePtr,
+												(char*)gTextString,
+												0,
+												*outputCodePtr,
+												TRUE))
+																							return (FALSE);
 
-               if (!includeClusterFieldsFlag || (!gProjectInfoPtr->keepClassStatsOnlyFlag &&
-                  !fieldIdentPtr->statsUpToDate))
-                  sprintf(&stringPtr[13],
-                  "; cannot be used since no coordinates are available.%s",
-                  gEndOfLine);
-
-               if (!OutputString(outputFilePtr,
-                  (char*) &gTextString,
-                  0,
-                  *outputCodePtr,
-                  TRUE))
-                  return (FALSE);
-
-            } // end "if (fieldIdentPtr->..." 
+					}	// end "if (fieldIdentPtr->..." 
 
             fieldIndex++;
             (*fieldLabelNumberPtr)++;
 
-         } // end "if (continueFlag)" 
+				}	// end "if (continueFlag)" 
 
-      } // end "if ( fieldIdentPtr->field..." 
+			}	// end "if (fieldIdentPtr->field..." 
 
       fieldNumber = fieldIdentPtr->nextField;
 
-   } // end "while (fieldNumber != -1)" 
+		}	// end "while (fieldNumber != -1)" 
 
-   // Insert a blank line after the table.
+			// Insert a blank line after the table.
 
-   continueFlag = OutputString(outputFilePtr,
-      gEndOfLine,
-      gNumberOfEndOfLineCharacters,
-      *outputCodePtr,
-      continueFlag);
+   continueFlag = OutputString (outputFilePtr,
+											gEndOfLine,
+											gNumberOfEndOfLineCharacters,
+											*outputCodePtr,
+											continueFlag);
 
    return (TRUE);
 
-} // end "ListClassFieldsUsed" 
+}	// end "ListClassFieldsUsed" 
 
 
 
@@ -6686,7 +6769,7 @@ Boolean ListClassFieldsUsed(
 //	Coded By:			Larry L. Biehl			Date: 02/13/1991
 //	Revised By:			Larry L. Biehl			Date: 03/03/2017	
 
-Boolean ListClassificationHeaderInfo(
+Boolean ListClassificationHeaderInfo (
 				CMFileStream*						resultsFileStreamPtr,
 				SInt16*								outputCodePtr,
 				SInt16								covarianceStatsToUse,
@@ -6695,15 +6778,15 @@ Boolean ListClassificationHeaderInfo(
 			// Initialize local variables.													
 
 			// List the header identifier line.												
-
-   //	MGetString (gTextString2, kFileIOStrID, IDS_MultiSpecType);  // 42 
-   //	sprintf((char*)&gTextString, "%s%s%s", gEndOfLine, &gTextString2[1], gEndOfLine);
-   //	continueFlag = OutputString (	resultsFileStreamPtr, 
-   //											(char*)&gTextString, 
-   //											0, 
-   //											*outputCodePtr, 
-   //											TRUE);
-
+	/*
+   MGetString (gTextString2, kFileIOStrID, IDS_MultiSpecType);  // 42
+   sprintf ((char*)gTextString, "%s%s%s", gEndOfLine, &gTextString2[1], gEndOfLine);
+   continueFlag = OutputString (resultsFileStreamPtr,
+											(char*)gTextString,
+											0,
+											*outputCodePtr,
+											TRUE);
+	*/
 			// List the processor name, date, time and project info.					
 
    continueFlag = ListHeaderInfo (
@@ -6716,21 +6799,22 @@ Boolean ListClassificationHeaderInfo(
 			// List the project image start line and column.		
 
    MGetString (gTextString2, kFileIOStrID, IDS_ImageStartLine); // 36 
-   sprintf ((char*)&gTextString,
+   sprintf ((char*)gTextString,
 					"    %s %ld, %ld%s",
 					&gTextString2[1],
 					gProjectInfoPtr->startLine,
 					gProjectInfoPtr->startColumn,
 					gEndOfLine);
-   continueFlag = OutputString(resultsFileStreamPtr,
-					(char*) &gTextString,
-					0,
-					*outputCodePtr,
-					continueFlag);
+	
+   continueFlag = OutputString (resultsFileStreamPtr,
+											(char*)gTextString,
+											0,
+											*outputCodePtr,
+											continueFlag);
 
    return (continueFlag);
 
-} // end "ListClassificationHeaderInfo" 
+}	// end "ListClassificationHeaderInfo" 
 
 
 
@@ -6756,33 +6840,35 @@ Boolean ListClassificationHeaderInfo(
 //	Coded By:			Larry L. Biehl			Date: 04/10/1991
 //	Revised By:			Larry L. Biehl			Date: 02/09/1994	
 
-Boolean ListFieldsTitle(
-   CMFileStream* outputFilePtr,
-   SInt16* outputCodePtr,
-   SInt16 stringNumber,
-   SInt16 classNumber,
-   SInt16 fieldTypeCode)
- {
-   char* stringPtr;
-   HPClassNamesPtr classNamesPtr;
+Boolean ListFieldsTitle (
+				CMFileStream*						outputFilePtr,
+				SInt16*								outputCodePtr,
+				SInt16								stringNumber,
+				SInt16								classNumber,
+				SInt16								fieldTypeCode)
+{
+   char*									stringPtr;
+   HPClassNamesPtr					classNamesPtr;
 
-   SInt16 classStorage,
-      strLength;
+   SInt16								classStorage,
+											strLength;
 
-   Boolean continueFlag;
+   Boolean								continueFlag;
 
 
-   // Initialize local variables.													
+			// Initialize local variables.													
 
    continueFlag = TRUE;
    classNamesPtr = gProjectInfoPtr->classNamesPtr;
 
-   // First get the proper line for the field table title based on the	
-   // processor being used.															
+			// First get the proper line for the field table title based on the	
+			// processor being used.															
 
-   if (stringNumber == 0) {
+   if (stringNumber == 0) 
+		{
       stringNumber = IDS_Project11;
-      switch (gProcessorCode) {
+      switch (gProcessorCode) 
+			{
          case kClusterProcessor:
             break;
 
@@ -6804,64 +6890,62 @@ Boolean ListFieldsTitle(
          case kPrincipalComponentsProcessor:
             break;
 
-      } // end "switch (gProcessorCode)" 
+			}	// end "switch (gProcessorCode)" 
 
-      MGetString(gTextString, kProjectStrID, stringNumber);
-      stringPtr = (char*) &gTextString[gTextString[0] + 1];
+      MGetString (gTextString, kProjectStrID, stringNumber);
+      stringPtr = (char*)&gTextString[gTextString[0] + 1];
 
-      sprintf(stringPtr,
-         "(line interval = %ld; column interval = %ld)%s",
-         gAreaDescription.lineInterval,
-         gAreaDescription.columnInterval,
-         gEndOfLine);
+      sprintf (stringPtr,
+					"(line interval = %ld; column interval = %ld)%s",
+					gAreaDescription.lineInterval,
+					gAreaDescription.columnInterval,
+					gEndOfLine);
 
-   }// end "if (stringNumber == 0)" 
+		}	// end "if (stringNumber == 0)" 
 
-   else // stringNumber != 0 
-   {
+   else	// stringNumber != 0 
+		{
       classStorage = gProjectInfoPtr->storageClass[classNumber - 1];
-      MGetString(gTextString, kProjectStrID, stringNumber);
-      stringPtr = (char*) &gTextString[gTextString[0] + 1];
+      MGetString (gTextString, kProjectStrID, stringNumber);
+      stringPtr = (char*)&gTextString[gTextString[0] + 1];
 
-      pstr((char*) &gTextString2,
-         (char*) &classNamesPtr[classStorage].name, &strLength);
+      pstr ((char*)gTextString2,
+					(char*)&classNamesPtr[classStorage].name, &strLength);
 
-      sprintf(stringPtr,
-         " %s (line interval = %ld; column interval = %ld)%s",
-         gTextString2,
-         gAreaDescription.lineInterval,
-         gAreaDescription.columnInterval,
-         gEndOfLine);
+      sprintf (stringPtr,
+					" %s (line interval = %ld; column interval = %ld)%s",
+					gTextString2,
+					gAreaDescription.lineInterval,
+					gAreaDescription.columnInterval,
+					gEndOfLine);
 
-   } // end "else stringNumber != 0" 
+		}	// end "else stringNumber != 0" 
 
-   continueFlag = OutputString(outputFilePtr,
-      (char*) &gTextString[1],
-      0,
-      *outputCodePtr,
-      continueFlag);
+   continueFlag = OutputString (outputFilePtr,
+											(char*)&gTextString[1],
+											0,
+											*outputCodePtr,
+											continueFlag);
 
-   // Now get the field table header lines.										
+			// Now get the field table header lines.										
 
-   continueFlag = ListSpecifiedStringNumber(
-      kProjectStrID,
-      IDS_Project18,
-      (unsigned char*) &gTextString,
-      outputFilePtr,
-      *outputCodePtr,
-      continueFlag);
+   continueFlag = ListSpecifiedStringNumber (kProjectStrID,
+															IDS_Project18,
+															(unsigned char*)gTextString,
+															outputFilePtr,
+															*outputCodePtr,
+															continueFlag);
 
-   continueFlag = ListSpecifiedStringNumber(
-      kProjectStrID,
-      IDS_Project19,
-      (unsigned char*) &gTextString,
-      outputFilePtr,
-      *outputCodePtr,
-      continueFlag);
+   continueFlag = ListSpecifiedStringNumber (kProjectStrID,
+															IDS_Project19,
+															(unsigned char*)gTextString,
+															outputFilePtr,
+															*outputCodePtr,
+															continueFlag);
 
    return (continueFlag);
 
-} // end "ListFieldsTitle" 																					
+}	// end "ListFieldsTitle" 																					
 
 
 
@@ -6892,59 +6976,61 @@ Boolean ListFieldsTitle(
 //	Coded By:			Larry L. Biehl			Date: 04/08/1991
 //	Revised By:			Larry L. Biehl			Date: 04/08/1997	
 
-Boolean ListProjectFieldsUsed(
-   FileInfoPtr fileInfoPtr,
-   SInt16* classPtr,
-   UInt32 numberClasses,
-   SInt16* fieldPtr,
-   SInt16 fieldTypeCode,
-   CMFileStream* outputFilePtr,
-   SInt16* outputCodePtr,
-   Boolean includeClusterFieldsFlag)
+Boolean ListProjectFieldsUsed (
+				FileInfoPtr							fileInfoPtr,
+				SInt16*								classPtr,
+				UInt32								numberClasses,
+				SInt16*								fieldPtr,
+				SInt16								fieldTypeCode,
+				CMFileStream*						outputFilePtr,
+				SInt16*								outputCodePtr,
+				Boolean								includeClusterFieldsFlag)
  {
-   // Declare local variables and structures
+		// Declare local variables and structures
 
-   UInt32 index;
+   UInt32								index;
 
-   SInt16 classNumber,
-      fieldLabelNumber;
+   SInt16								classNumber,
+											fieldLabelNumber;
 
 
-   // Initialize local variables.
+			// Initialize local variables.
 
-   if (GetListResultsFlag(fieldTypeCode, kAreasUsed)) {
-      // List the three header lines.													
+   if (GetListResultsFlag (fieldTypeCode, kAreasUsed)) 
+		{
+				// List the three header lines.													
 
-      if (!ListFieldsTitle(outputFilePtr,
-         outputCodePtr,
-         0,
-         0,
-         fieldTypeCode))
-         return (FALSE);
+      if (!ListFieldsTitle (outputFilePtr,
+										outputCodePtr,
+										0,
+										0,
+										fieldTypeCode))
+																						return (FALSE);
 
-      // Loop through classes  being used.											
+				// Loop through classes  being used.											
 
-      for (index = 0; index < numberClasses; index++) {
+      for (index = 0; index < numberClasses; index++) 
+			{
          fieldLabelNumber = 0;
          classNumber = classPtr[index];
 
-         if (!ListClassFieldsUsed(classNumber,
-            fieldPtr,
-            fieldTypeCode,
-            outputFilePtr,
-            outputCodePtr,
-            0,
-            &fieldLabelNumber,
-            includeClusterFieldsFlag))
-            return (FALSE);
+         if (!ListClassFieldsUsed (classNumber,
+												fieldPtr,
+												fieldTypeCode,
+												outputFilePtr,
+												outputCodePtr,
+												0,
+												&fieldLabelNumber,
+												includeClusterFieldsFlag))
+																						return (FALSE);
 
-      } // end "for (index=0;..." 
+			}	// end "for (index=0;..." 
 
-   } // end "if ( GetListResultsFlag (... )"
+		}	// end "if (GetListResultsFlag (...)"
 
    return (TRUE);
 
-} // end "ListProjectFieldsUsed" 
+}	// end "ListProjectFieldsUsed" 
 
 
 
@@ -6972,77 +7058,75 @@ Boolean ListProjectFieldsUsed(
 //	Coded By:			Larry L. Biehl			Date: 01/26/1994
 //	Revised By:			Larry L. Biehl			Date: 02/22/2001			
 
-Boolean ListClassInformationMessage(
-   SInt16 strListID,
-   SInt16 stringIndex,
-   CMFileStream* resultsFileStreamPtr,
-   SInt16 outputCode,
-   UInt32 statClassNumber,
-   Boolean continueFlag)
+Boolean ListClassInformationMessage (
+				SInt16								strListID,
+				SInt16								stringIndex,
+				CMFileStream*						resultsFileStreamPtr,
+				SInt16								outputCode,
+				UInt32								statClassNumber,
+				Boolean								continueFlag)
  {
-   char* stringPtr2;
+   char*									stringPtr2;
 
-   UInt32 classStorage;
+   UInt32								classStorage;
 
-   SInt16 strLength;
+   SInt16								strLength;
 
 
    classStorage = gProjectInfoPtr->storageClass[statClassNumber];
 
-   if (gProjectInfoPtr->classNamesPtr[classStorage].listMessageFlag) {
-      pstr((char*) &gTextString3,
-         (char*) &gProjectInfoPtr->classNamesPtr[classStorage].name,
-         &strLength);
+   if (gProjectInfoPtr->classNamesPtr[classStorage].listMessageFlag) 
+		{
+      pstr ((char*)gTextString3,
+				(char*)&gProjectInfoPtr->classNamesPtr[classStorage].name,
+				&strLength);
 
-      continueFlag = GetSpecifiedStringNumber(
-         strListID, stringIndex, gTextString2, continueFlag);
+      continueFlag = GetSpecifiedStringNumber (
+									strListID, stringIndex, gTextString2, continueFlag);
 
-      if (continueFlag) {
-         stringPtr2 = (char*) &gTextString2;
+      if (continueFlag) 
+			{
+         stringPtr2 = (char*)&gTextString2;
 
          if (stringIndex == IDS_Project31 || stringIndex == IDS_Project32)
-            sprintf((char*) &gTextString,
-            (char*) &stringPtr2[1],
-            (char*) &gTextString3);
+            sprintf ((char*)gTextString, (char*)&stringPtr2[1], (char*)gTextString3);
 
          else if (stringIndex == IDS_Project67)
-            sprintf((char*) &gTextString,
-            (char*) &stringPtr2[1],
-            (char*) &gTextString3,
-            gProjectInfoPtr->zeroVarianceFactor);
+            sprintf ((char*)gTextString, 
+								(char*)&stringPtr2[1], 
+								(char*)gTextString3,
+								gProjectInfoPtr->zeroVarianceFactor);
 
          else if (stringIndex == IDS_Project68)
-            sprintf((char*) &gTextString,
-            (char*) &stringPtr2[1],
-            gProjectInfoPtr->zeroVarianceFactor);
+            sprintf ((char*)gTextString, 
+								(char*)&stringPtr2[1], 
+								gProjectInfoPtr->zeroVarianceFactor);
 
          else if (stringIndex == IDS_Project69)
-            sprintf((char*) &gTextString,
-            (char*) &stringPtr2[1]);
+            sprintf ((char*)gTextString,
+								(char*)&stringPtr2[1]);
 
          else if (stringIndex == IDS_Project78)
-            sprintf((char*) &gTextString,
-            (char*) &stringPtr2[1],
-            (char*) &gTextString3);
+            sprintf ((char*)gTextString,
+							(char*)&stringPtr2[1],
+							(char*)gTextString3);
 
-         else // stringIndex == IDS_Project79
-            sprintf((char*) &gTextString,
-            (char*) &stringPtr2[1]);
+         else	// stringIndex == IDS_Project79
+            sprintf ((char*)gTextString, (char*)&stringPtr2[1]);
 
-         continueFlag = OutputString(
-            resultsFileStreamPtr,
-            (char*) &gTextString,
-            0,
-            outputCode,
-            continueFlag);
+         continueFlag = OutputString (resultsFileStreamPtr,
+													(char*)gTextString,
+													0,
+													outputCode,
+													continueFlag);
 
-      } // end "if (continueFlag)" 
+			}	// end "if (continueFlag)" 
 
-   } // end "if (...->classNamesPtr[classStorage].listMessageFlag)"
+		}	// end "if (...->classNamesPtr[classStorage].listMessageFlag)"
 
    return (continueFlag);
 
-} // end "ListClassInformationMessage" 
+}	// end "ListClassInformationMessage" 
 
 
 
@@ -7071,13 +7155,13 @@ Boolean ListClassInformationMessage(
 //	Coded By:			Larry L. Biehl			Date: 06/14/1990
 //	Revised By:			Larry L. Biehl			Date: 03/01/2017
 
-void LoadClassList(
+void LoadClassList (
 				DialogPtr							dialogPtr,
-#				if defined multispec_lin
+				#if defined multispec_lin
 					wxListBox*							dialogListHandle,
-#				else
+				#else
 					ListHandle							dialogListHandle,
-#				endif
+				#endif
 				SInt16								numberOfClassesToUse,
 				SInt16*								classPtr,
 				unsigned char*						symbolPtr,
@@ -7098,11 +7182,11 @@ void LoadClassList(
 			// Check input variables.															
 
    if (dialogPtr == NULL)
-																							return;
+																									return;
    if (dialogListHandle == NULL)
-																							return;
+																									return;
    if (gProjectInfoPtr == NULL)
-																							return;
+																									return;
 
 
 			// Initialize local variables.													
@@ -7114,21 +7198,21 @@ void LoadClassList(
 
    if (symbolPtr == NULL)
       textIndex = 4;
-   else // symbolPtr != NULL 
+   else	// symbolPtr != NULL 
       textIndex = 2;
 
 			// Make certain that the graph port is set to the dialog window.		
 
-   SetPortDialogPort(dialogPtr);
+   SetPortDialogPort (dialogPtr);
 
 			// Load the class names to be used into the list.							
 
-   LSetDrawingMode(FALSE, dialogListHandle);
-#	if defined multispec_lin
-		row = LAddRow(numberOfClassesToUse, 0, dialogListHandle);
-#	else
-		row = LAddRow(numberOfClassesToUse, 0, dialogListHandle);
-#	endif
+   LSetDrawingMode (FALSE, dialogListHandle);
+	#if defined multispec_lin
+		row = LAddRow (numberOfClassesToUse, 0, dialogListHandle);
+	#else
+		row = LAddRow (numberOfClassesToUse, 0, dialogListHandle);
+	#endif
 
    cell.h = 0;
    for (index = 0; index < numberOfClassesToUse; index++) 
@@ -7136,16 +7220,16 @@ void LoadClassList(
       if (classPtr != NULL)
          classIndex = classPtr[index] - 1;
 
-      else // classPtr == NULL 
+      else	// classPtr == NULL 
          classIndex = index;
 
 				// Place class symbol in the list.											
 
       if (symbolPtr != NULL)
-         sprintf((char*) &gTextString, "%c-", symbolPtr[classIndex + 1]);
+         sprintf ((char*)gTextString, "%c-", symbolPtr[classIndex + 1]);
 
-      else // symbolPtr == NULL 	
-         sprintf((char*) &gTextString, "%3d-", classIndex + 1);
+      else	// symbolPtr == NULL 	
+         sprintf ((char*)gTextString, "%3d-", classIndex + 1);
 
       if (!clusterFlag) 
 			{
@@ -7159,19 +7243,19 @@ void LoadClassList(
 					(char*)&classNamesPtr[classStorage].name, &stringLength);
          stringLength += textIndex;
 
-			} // end "if (!clusterFlag)" 
+			}	// end "if (!clusterFlag)" 
 
-      else // clusterFlag 
+      else	// clusterFlag 
 			{
 					// Add cluster class number.												
 
-         sprintf((char*) &gTextString[textIndex], "%4d", classIndex + 1);
+         sprintf ((char*)&gTextString[textIndex], "%4d", classIndex + 1);
          stringLength = textIndex + 4;
 
-			} // end "else clusterFlag" 
+			}	// end "else clusterFlag" 
 
       cell.v = index;
-      LSetCell ((char*)&gTextString, stringLength, cell, dialogListHandle);
+      LSetCell ((char*)gTextString, stringLength, cell, dialogListHandle);
 
 				// Make certain that we didn't have a memory error with the 		
 				// last setting of the list for the cell.									
@@ -7179,22 +7263,22 @@ void LoadClassList(
       if (gMemoryError != noErr)
          break;
 
-		}		// end "for (index=0; ... 
+		}	// end "for (index=0; ... 
 
 			// Turn list drawing mode back on.												
 
-   LSetDrawingMode(TRUE, dialogListHandle);
+   LSetDrawingMode (TRUE, dialogListHandle);
 
-#	if defined multispec_mac 
+	#if defined multispec_mac 
 				// Set the text font for the window and draw the list.					
 
-		TextFont(gWindowTextFont); // monaco  
-		LUpdate (GetPortVisibleRegion (
-							GetDialogPort(dialogPtr), gTempRegion1), dialogListHandle);
-		SetEmptyRgn(gTempRegion1);
-#	endif	// defined multispec_mac 
+		TextFont (gWindowTextFont); // monaco  
+		LUpdate (GetPortVisibleRegion (GetDialogPort (dialogPtr), gTempRegion1),
+						dialogListHandle);
+		SetEmptyRgn (gTempRegion1);
+	#endif	// defined multispec_mac 
 
-} // end "LoadClassList"
+}	// end "LoadClassList"
 
 
 
@@ -7220,91 +7304,97 @@ void LoadClassList(
 //	Coded By:			Larry L. Biehl			Date: 06/14/1990
 //	Revised By:			Larry L. Biehl			Date: 06/18/1990
 
-void LoadClassPairWeightVector(
-   SInt16* weightsPtr,
-   SInt32 numberClassPairs,
-   SInt16 defaultWeight,
-   SInt32* weightsSumPtr,
-   SInt16 weightSet,
-   SInt16* weightsListPtr,
-   SInt16* classPtr,
-   UInt16 numberClasses)
+void LoadClassPairWeightVector (
+				SInt16*								weightsPtr,
+				SInt32								numberClassPairs,
+				SInt16								defaultWeight,
+				SInt32*								weightsSumPtr,
+				SInt16								weightSet,
+				SInt16*								weightsListPtr,
+				SInt16*								classPtr,
+				UInt16								numberClasses)
  {
-   SInt32 index;
+   SInt32								index;
 
-   SInt16 class1,
-      class2,
-      numberWeightListSets,
-      setNumber,
-      userWeight,
-      weightIndex,
-      weightsListIndex,
-      weightsListIndex2,
-      weightsSetEnd;
+   SInt16								class1,
+											class2,
+											numberWeightListSets,
+											setNumber,
+											userWeight,
+											weightIndex,
+											weightsListIndex,
+											weightsListIndex2,
+											weightsSetEnd;
 
 
-   //  Check input variables.													
+			//  Check input variables.													
 
    if (weightsPtr == NULL)
-      return;
+																									return;
 
-   // Load in the default weight set.										
+			// Load in the default weight set.										
 
-   for (index = 0; index < numberClassPairs; index++)
+   for (index=0; index<numberClassPairs; index++)
       weightsPtr[index] = defaultWeight;
 
-   // Add in user selected class pair weights.							
+			// Add in user selected class pair weights.							
 
-   if (weightsListPtr != NULL && weightSet != kEqualWeights) {
+   if (weightsListPtr != NULL && weightSet != kEqualWeights) 
+		{
       numberWeightListSets = weightsListPtr[0];
 
       weightsListIndex = 1;
-      for (setNumber = 1; setNumber <= numberWeightListSets; setNumber++) {
+      for (setNumber=1; setNumber<=numberWeightListSets; setNumber++) 
+			{
          userWeight = weightsListPtr[weightsListIndex];
 
          weightsListIndex++;
          weightsSetEnd = weightsListIndex + weightsListPtr[weightsListIndex];
 
          weightsListIndex++;
-         while (weightsListIndex < weightsSetEnd) {
+         while (weightsListIndex < weightsSetEnd) 
+				{
             class1 = weightsListPtr[weightsListIndex];
 
-            if (ClassToBeUsed(class1, classPtr, numberClasses)) {
+            if (ClassToBeUsed (class1, classPtr, numberClasses))
+					{
                weightsListIndex2 = weightsListIndex + 1;
-               while (weightsListIndex2 <= weightsSetEnd) {
+               while (weightsListIndex2 <= weightsSetEnd) 
+						{
                   class2 = weightsListPtr[weightsListIndex2];
 
-                  if (ClassToBeUsed(class2, classPtr, numberClasses)) {
+                  if (ClassToBeUsed (class2, classPtr, numberClasses))
+							{
                      weightIndex =
-                        class1 * numberClasses - (class1 * (class1 + 1)) / 2 -
-                        numberClasses + class2 - 1;
+									class1 * numberClasses - (class1 * (class1 + 1)) / 2 -
+																			numberClasses + class2 - 1;
                      weightsPtr[weightIndex] = userWeight;
 
-                  } // end "if ( ClassToBeUsed (class2, ..." 
+							}	// end "if (ClassToBeUsed (class2, ..." 
 
                   weightsListIndex2++;
 
-               } // end "while (weightsListIndex2 <= weightsSetEnd)" 
+						}	// end "while (weightsListIndex2 <= weightsSetEnd)" 
 
-            } // end "if ( ClassToBeUsed (class1, ..." 
+					}	// end "if (ClassToBeUsed (class1, ..." 
 
             weightsListIndex++;
 
-         } // end "while (weightsListIndex < weightsSetEnd)" 
+				}	// end "while (weightsListIndex < weightsSetEnd)" 
 
          weightsListIndex++;
 
-      } // end "for (setNumber=1; ..." 
+			}	// end "for (setNumber=1; ..." 
 
-   } // end "if (weightsListPtr != NULL && ...)" 
+		}	// end "if (weightsListPtr != NULL && ...)" 
 
-   // Now get the weight sum.													
+			// Now get the weight sum.													
 
    *weightsSumPtr = 0;
-   for (index = 0; index < numberClassPairs; index++)
+   for (index=0; index<numberClassPairs; index++)
       *weightsSumPtr += weightsPtr[index];
 
-} // end "LoadClassPairWeightVector" 
+}	// end "LoadClassPairWeightVector" 
 
 
 
@@ -7330,39 +7420,41 @@ void LoadClassPairWeightVector(
 //	Coded By:			Larry L. Biehl			Date: 01/17/1989
 //	Revised By:			Larry L. Biehl			Date: 05/01/1998
 
-void LoadClassSymbolVector(
-   unsigned char* symbolsPtr,
-   SInt16 stringNumber,
-   SInt16 numberClasses)
+void LoadClassSymbolVector (
+				unsigned char*						symbolsPtr,
+				SInt16								stringNumber,
+				SInt16								numberClasses)
  {
-   UInt32 index,
-      index2,
-      numberSymbols;
+   UInt32								index,
+											index2,
+											numberSymbols;
 
 
-   if (gProjectInfoPtr != NULL) {
-      MGetString(gTextString, kSymbolsStrID, stringNumber);
+   if (gProjectInfoPtr != NULL) 
+		{
+      MGetString (gTextString, kSymbolsStrID, stringNumber);
 
-      // Start loading the symbols at location 1 in the vector instead	
-      // of 0.  This makes it easier to reference by class number.		
-      // Load blank as the very first symbol in the vector for the null	
-      // or background class.															
+				// Start loading the symbols at location 1 in the vector instead	
+				// of 0.  This makes it easier to reference by class number.		
+				// Load blank as the very first symbol in the vector for the null	
+				// or background class.															
 
       symbolsPtr[0] = ' ';
 
-      numberSymbols = (UInt32) gTextString[0];
+      numberSymbols = (UInt32)gTextString[0];
       index2 = 1;
-      for (index = 1; index <= (UInt32) numberClasses; index++) {
+      for (index = 1; index <= (UInt32)numberClasses; index++) 
+			{
          symbolsPtr[index] = gTextString[index2];
          index2++;
          if (index2 > numberSymbols)
             index2 = 1;
 
-      } // end "for ( index=1; index<=numberClasses..." 
+			}	// end "for (index=1; index<=numberClasses..." 
 
-   } // end "if (gProjectInfoPtr != NULL)" 
+		}	// end "if (gProjectInfoPtr != NULL)" 
 
-} // end "LoadClassSymbolVector" 
+}	// end "LoadClassSymbolVector" 
 
 
 
@@ -7388,22 +7480,22 @@ void LoadClassSymbolVector(
 //	Coded By:			Larry L. Biehl			Date: 01/16/1989
 //	Revised By:			Larry L. Biehl			Date: 05/17/1990	
 
-void LoadClassVector(
-   UInt32* numberClassesPtr,
-   SInt16* classPtr)
+void LoadClassVector (
+				UInt32*								numberClassesPtr,
+				SInt16*								classPtr)
  {
-   UInt32 index,
-      numberStatisticsClasses;
+   UInt32								index,
+											numberStatisticsClasses;
 
 
    numberStatisticsClasses = gProjectInfoPtr->numberStatisticsClasses;
 
-   for (index = 0; index < numberStatisticsClasses; index++)
-      classPtr[index] = (SInt16) (index + 1);
+   for (index=0; index<numberStatisticsClasses; index++)
+      classPtr[index] = (SInt16)(index + 1);
 
    *numberClassesPtr = numberStatisticsClasses;
 
-} // end "LoadClassVector" 
+}	// end "LoadClassVector" 
 
 
 
@@ -7429,83 +7521,86 @@ void LoadClassVector(
 //	Coded By:			Larry L. Biehl			Date: 06/19/1990
 //	Revised By:			Larry L. Biehl			Date: 12/21/2016
 
-void LoadClassWeightGroups(
-   DialogPtr dialogPtr,
-#if defined multispec_lin
-   wxListBox* dialogListHandle,
-#else
-   ListHandle dialogListHandle,
-#endif
-   SInt16* weightsListPtr)
- {
-   Cell cell;
+void LoadClassWeightGroups (
+				DialogPtr							dialogPtr,
+				#if defined multispec_lin
+					wxListBox*							dialogListHandle,
+				#else
+					ListHandle							dialogListHandle,
+				#endif
+				SInt16*								weightsListPtr)
+{
+   Cell									cell;
 
-   SInt16 classIndex,
-      numberOfClassesInGroup,
-      numberWeightGroups,
-      set,
-      stringLength,
-      weight,
-      weightsListIndex;
+   SInt16								classIndex,
+											numberOfClassesInGroup,
+											numberWeightGroups,
+											set,
+											stringLength,
+											weight,
+											weightsListIndex;
 
 
-   // Check input parameters.															
+			// Check input parameters.															
 
    if (weightsListPtr == NULL)
-      return;
+																									return;
 
-   // Get the number of user specified weight groups.							
+			// Get the number of user specified weight groups.							
 
    numberWeightGroups = weightsListPtr[0];
-      weightsListIndex = 0;
+	weightsListIndex = 0;
 
    cell.h = 0;
 
-   for (set = 1; set <= numberWeightGroups; set++) {
+   for (set=1; set<=numberWeightGroups; set++) 
+		{
       weightsListIndex++;
       weight = weightsListPtr[weightsListIndex];
-      sprintf((char*) &gTextString, "%3d-", weight);
+      sprintf ((char*)gTextString, "%3d-", weight);
       stringLength = 4;
 
       weightsListIndex++;
       numberOfClassesInGroup = weightsListPtr[weightsListIndex];
 
-      for (classIndex = 1; classIndex <= numberOfClassesInGroup; classIndex++) {
+      for (classIndex = 1; classIndex <= numberOfClassesInGroup; classIndex++) 
+			{
          weightsListIndex++;
-         NumToString ((UInt32) weightsListPtr[weightsListIndex], gTextString2);
+         NumToString ((UInt32)weightsListPtr[weightsListIndex], gTextString2);
          stringLength += gTextString2[0] + 1;
 
          if (stringLength > 255)
             break;
 
-         // Add class number to the list.											
+					// Add class number to the list.											
 
-         strncat((char*) &gTextString, (char*) &gTextString2[1], gTextString2[0]);
+         strncat ((char*)gTextString, (char*)&gTextString2[1], gTextString2[0]);
 
-         // Append a blank character to the list.								
+					// Append a blank character to the list.								
 
-         strncat((char*) &gTextString, " ", 1);
+         strncat ((char*)gTextString, " ", 1);
 
-      } // end "for (classIndex=1; ..." 
+			}	// end "for (classIndex=1; ..." 
 
-      // Add the string to the next vertical cell.								
+				// Add the string to the next vertical cell.								
 
-#if defined multispec_mac 
-      TextFont(gWindowTextFont); // monaco 
-#endif	// defined multispec_mac  
+		#if defined multispec_mac 
+			TextFont (gWindowTextFont); // monaco 
+		#endif	// defined multispec_mac  
 
       stringLength--;
-      #if defined multispec_lin
-      cell.v = LAddRow(1, set-1, dialogListHandle);
-      #else
-      cell.v = LAddRow(1, SHRT_MAX, dialogListHandle);
-      #endif
+		
+		#if defined multispec_lin
+			cell.v = LAddRow (1, set-1, dialogListHandle);
+		#else
+			cell.v = LAddRow (1, SHRT_MAX, dialogListHandle);
+		#endif
       
-      LSetCell((char*) &gTextString, stringLength, cell, dialogListHandle);
+      LSetCell ((char*)gTextString, stringLength, cell, dialogListHandle);
 
-   } // end "for (set=1; set<=numberWeightGroups; set++)" 
+		}	// end "for (set=1; set<=numberWeightGroups; set++)" 
 
-} // end "LoadClassWeightGroups"
+}	// end "LoadClassWeightGroups"
 
 
 
@@ -7531,52 +7626,50 @@ void LoadClassWeightGroups(
 //	Coded By:			Larry L. Biehl			Date: 12/16/1999
 //	Revised By:			Larry L. Biehl			Date: 12/16/1999	
 
-double LoadClassWeightsIntoList(
-#if defined multispec_lin
-   wxListBox* listHandle,
-#else
-   ListHandle listHandle,
-#endif
-   UInt16 numberOfClassesToUse,
-   SInt16* classPtr,
-   float* weightsPtr,
-   Boolean useEnhancedStatFlag)
- {
-   double weightSum;
+double LoadClassWeightsIntoList (
+				#if defined multispec_lin
+					wxListBox*							listHandle,
+				#else
+					ListHandle							listHandle,
+				#endif
+				UInt16								numberOfClassesToUse,
+				SInt16*								classPtr,
+				float*								weightsPtr,
+				Boolean								useEnhancedStatFlag)
+{
+   double								weightSum;
 
-   Cell cell;
+   Cell									cell;
 
-   SInt16 classIndex,
-      classStorage,
-      fixedCellWidth = 40,
-      index,
-      row,
-      stringLength;
+   SInt16								classIndex,
+											classStorage,
+											fixedCellWidth = 40,
+											index,
+											row,
+											stringLength;
 
 
    weightSum = 0;
 
-   if (listHandle != NULL) {
-//#if defined multispec_lin
-//      row = LAddRow2(numberOfClassesToUse, 0, listHandle,1);
-//#else
-      row = LAddRow(numberOfClassesToUse, 0, listHandle);
-//#endif
+   if (listHandle != NULL) 
+		{
+      row = LAddRow (numberOfClassesToUse, 0, listHandle);
       cell.h = 0;
-      weightsPtr = GetClassWeightsPtr(weightsPtr, useEnhancedStatFlag, FALSE);
+      weightsPtr = GetClassWeightsPtr (weightsPtr, useEnhancedStatFlag, FALSE);
 
-      for (index = 0; index < numberOfClassesToUse; index++) {
-         // Get the class storage number.											
+      for (index = 0; index < numberOfClassesToUse; index++) 
+			{
+					// Get the class storage number.											
 
          classIndex = classPtr[index] - 1;
          classStorage = gProjectInfoPtr->storageClass[classIndex];
 
-         // Add name, weight and "equal weight flag" to the class 		
-         // list.																			
+					// Add name, weight and "equal weight flag" to the class 		
+					// list.																			
 
-         pstr((char*) &gTextString2,
-            (char*) &gProjectInfoPtr->classNamesPtr[classStorage].name,
-            &stringLength);
+         pstr ((char*)gTextString2,
+					(char*)&gProjectInfoPtr->classNamesPtr[classStorage].name,
+					&stringLength);
 
          gTextString[0] = ' ';
          if (weightsPtr[classIndex] >= 0)
@@ -7589,31 +7682,31 @@ double LoadClassWeightsIntoList(
 			#endif	// defined multispec_win ...
          
 
-         sprintf((char*) &gTextString[1],
-            "%-31s-%7.3f",
-            (char*) &gTextString2,
-            fabs((double) weightsPtr[classIndex]));
+         sprintf ((char*)&gTextString[1],
+						"%-31s-%7.3f",
+						(char*)gTextString2,
+						fabs ((double)weightsPtr[classIndex]));
 
          cell.v = index;
-         LSetCell((char*) &gTextString, fixedCellWidth, cell, listHandle);
+         LSetCell ((char*)gTextString, fixedCellWidth, cell, listHandle);
 
-         // Make certain that we didn't have a memory with the last		
-         // setting of the list for the cell.									
+					// Make certain that we didn't have a memory with the last		
+					// setting of the list for the cell.									
 
          if (gMemoryError != noErr)
             break;
 
          // Get sum of weights.														
 
-         weightSum += fabs((double) weightsPtr[classIndex]);
+         weightSum += fabs ((double) weightsPtr[classIndex]);
 
-      } // end "for (index=0; ... 
+			}	// end "for (index=0; ... 
 
-   } // end "if (listHandle != NULL)"
+		}	// end "if (listHandle != NULL)"
 
    return (weightSum);
 
-} // end "LoadClassWeightsIntoList"
+}	// end "LoadClassWeightsIntoList"
 
 
 
@@ -7639,19 +7732,19 @@ double LoadClassWeightsIntoList(
 //	Coded By:			Larry L. Biehl			Date: 04/24/1990
 //	Revised By:			Larry L. Biehl			Date: 06/14/1990	
 
-void LoadFieldVector(
-   UInt16* numberFieldsPtr,
-   SInt16* fieldPtr,
-   SInt16 fieldType)
+void LoadFieldVector (
+				UInt16*								numberFieldsPtr,
+				SInt16*								fieldPtr,
+				SInt16								fieldType)
  {
-   UInt32 index,
-      numberStatFields;
+   UInt32								index,
+											numberStatFields;
 
 
-   // Check input variables.															
+			// Check input variables.															
 
    if (fieldPtr == NULL || gProjectInfoPtr == NULL)
-      return;
+																									return;
 
    numberStatFields = 0;
 
@@ -7662,11 +7755,11 @@ void LoadFieldVector(
       numberStatFields += gProjectInfoPtr->numberStatTestFields;
 
    for (index = 0; index < numberStatFields; index++)
-      fieldPtr[index] = (SInt16) (index + 1);
+      fieldPtr[index] = (SInt16)(index + 1);
 
-   *numberFieldsPtr = (UInt16) numberStatFields;
+   *numberFieldsPtr = (UInt16)numberStatFields;
 
-} // end "LoadFieldVector" 
+}	// end "LoadFieldVector" 
 
 
 
@@ -7692,72 +7785,73 @@ void LoadFieldVector(
 //	Coded By:			Larry L. Biehl			Date: 07/26/1990
 //	Revised By:			Larry L. Biehl			Date: 01/28/2003
 
-void LoadSymbolList(
-   DialogPtr dialogPtr,
-   ListHandle dialogListHandle)
- {
-   Cell cell;
+void LoadSymbolList (
+				DialogPtr							dialogPtr,
+				ListHandle							dialogListHandle)
+{
+   Cell									cell;
 
-   SInt16 index,
-      numberSymbols,
-      row,
-      stringLength;
+   SInt16								index,
+											numberSymbols,
+											row,
+											stringLength;
 
 
-   // Check input variables.															
+			// Check input variables.															
 
    if (dialogPtr == NULL || dialogListHandle == NULL)
-      return;
+																									return;
 
-   // Initialize local variables.													
+			// Initialize local variables.													
 
    stringLength = 1;
 
-   // Get the resource with the default symbols.								
+			// Get the resource with the default symbols.								
 
-   GetIndString(gTextString, kSymbolsStrID, IDS_Symbol1);
+   GetIndString (gTextString, kSymbolsStrID, IDS_Symbol1);
 
    numberSymbols = gTextString[0];
 
-   // Make certain that the graph port is set to the dialog window.		
+			// Make certain that the graph port is set to the dialog window.		
 
-   SetPortDialogPort(dialogPtr);
+   SetPortDialogPort (dialogPtr);
 
-   // Load the class names to be used into the list.							
+			// Load the class names to be used into the list.							
 
-   LSetDrawingMode(FALSE, dialogListHandle);
+   LSetDrawingMode (FALSE, dialogListHandle);
 
-   row = LAddRow(numberSymbols, 0, dialogListHandle);
+   row = LAddRow (numberSymbols, 0, dialogListHandle);
 
    cell.h = 0;
    cell.v = 0;
-   for (index = 1; index <= numberSymbols; index++) {
-      // Place class symbol in the list.											
+   for (index=1; index<=numberSymbols; index++) 
+		{
+				// Place class symbol in the list.											
 
-      LSetCell(&gTextString[index], stringLength, cell, dialogListHandle);
+      LSetCell (&gTextString[index], stringLength, cell, dialogListHandle);
 
-      // Make certain that we didn't have a memory error with the 		
-      // last setting of the list for the cell.									
+				// Make certain that we didn't have a memory error with the 		
+				// last setting of the list for the cell.									
 
       if (gMemoryError != noErr)
          break;
 
       cell.v++;
 
-   } // end "for (index=1; ... 
+		}	// end "for (index=1; ... 
 
-   // Turn list drawing mode back on.												
+			// Turn list drawing mode back on.												
 
-   LSetDrawingMode(TRUE, dialogListHandle);
+   LSetDrawingMode (TRUE, dialogListHandle);
 
-   // Set the text font for the window and draw the list.					
+			// Set the text font for the window and draw the list.					
 
-   TextFont(gWindowTextFont); // monaco  
-   LUpdate(GetPortVisibleRegion(
-      GetDialogPort(dialogPtr), gTempRegion1), dialogListHandle);
-   SetEmptyRgn(gTempRegion1);
+   TextFont (gWindowTextFont); // monaco  
+   LUpdate (GetPortVisibleRegion (GetDialogPort (dialogPtr), gTempRegion1),
+					dialogListHandle);
+   SetEmptyRgn (gTempRegion1);
 
-} // end "LoadSymbolList"
+}	// end "LoadSymbolList"
 #endif	// defined multispec_mac 
 
 
@@ -7784,35 +7878,37 @@ void LoadSymbolList(
 //	Coded By:			Larry L. Biehl			Date: 01/16/1989
 //	Revised By:			Larry L. Biehl			Date: 05/17/1990	
 
-void LoadTrainClassVector(
-   UInt32* numberClassesPtr,
-   SInt16* classSetPtr,
-   SInt16* classPtr)
+void LoadTrainClassVector (
+				UInt32*								numberClassesPtr,
+				SInt16*								classSetPtr,
+				SInt16*								classPtr)
  {
-   HPClassNamesPtr classNamesPtr;
+   HPClassNamesPtr					classNamesPtr;
 
-   SInt16 classIndex,
-      classStorage,
-      index,
-      numberStatisticsClasses;
+   SInt16								classIndex,
+											classStorage,
+											index,
+											numberStatisticsClasses;
 
 
-   // Initialize local variables.												
+			// Initialize local variables.												
 
    numberStatisticsClasses = gProjectInfoPtr->numberStatisticsClasses;
    classNamesPtr = gProjectInfoPtr->classNamesPtr;
    
    index = 0;
-   for (classIndex = 0; classIndex < numberStatisticsClasses; classIndex++) {
+   for (classIndex=0; classIndex<numberStatisticsClasses; classIndex++) 
+		{
       classStorage = gProjectInfoPtr->storageClass[classIndex];
       if (classNamesPtr[classStorage].numberOfTrainFields > 0 ||
-         classNamesPtr[classStorage].numberStatisticsPixels > 0) {
+									classNamesPtr[classStorage].numberStatisticsPixels > 0) 
+			{
          classPtr[index] = classIndex + 1;
          index++;
 
-      } // end "if (classNamesPtr[classIndex]..." 
+			}	// end "if (classNamesPtr[classIndex]..." 
 
-   } // end "for ( classIndex=0;..." 
+		}	// end "for (classIndex=0;..." 
 
    *numberClassesPtr = index;
 
@@ -7820,7 +7916,7 @@ void LoadTrainClassVector(
    if (*numberClassesPtr != gProjectInfoPtr->numberStatisticsClasses)
       *classSetPtr = kSubsetMenuItem;
 
-} // end "LoadTrainClassVector" 
+}	// end "LoadTrainClassVector" 
 
 
 
@@ -7846,121 +7942,126 @@ void LoadTrainClassVector(
 //	Coded By:			Larry L. Biehl			Date: 03/06/1991
 //	Revised By:			Larry L. Biehl			Date: 09/23/1997	
 
-void LockProjectMemory(
-   Handle inputProjectInfoHandle,
-   SInt16 lockCode,
-   ProjectInfoPtr* outputProjectInfoPtrPtr)
- {
-   ProjectInfoPtr localProjectInfoPtr;
+void LockProjectMemory (
+				Handle								inputProjectInfoHandle,
+				SInt16								lockCode,
+				ProjectInfoPtr*					outputProjectInfoPtrPtr)
+{
+   ProjectInfoPtr						localProjectInfoPtr;
 
 
-   // Check input variables.															
+			// Check input variables.															
 
    if (outputProjectInfoPtrPtr == NULL)
-      return;
+																									return;
 
-   // Initialize local variables.													
+			// Initialize local variables.													
 
    localProjectInfoPtr = *outputProjectInfoPtrPtr;
 
-   if (localProjectInfoPtr == NULL && inputProjectInfoHandle != NULL) {
-      *outputProjectInfoPtrPtr = (ProjectInfoPtr) GetHandlePointer(
-         inputProjectInfoHandle, kLock, kMoveHi);
+   if (localProjectInfoPtr == NULL && inputProjectInfoHandle != NULL) 
+		{
+      *outputProjectInfoPtrPtr = (ProjectInfoPtr)GetHandlePointer (
+													inputProjectInfoHandle, kLock, kMoveHi);
       localProjectInfoPtr = *outputProjectInfoPtrPtr;
 
-   } // end "if (localProjectInfoPtr == NULL && ..." 
+		}	// end "if (localProjectInfoPtr == NULL && ..." 
 
-   if (localProjectInfoPtr != NULL && !localProjectInfoPtr->handlesLockedFlag) {
-      // Lock handle to class list information.	
+   if (localProjectInfoPtr != NULL && !localProjectInfoPtr->handlesLockedFlag) 
+		{
+				// Lock handle to class list information.	
 
-      localProjectInfoPtr->storageClass = (short int*) GetHandlePointer(
-         localProjectInfoPtr->storageClassHandle, kLock, kMoveHi);
+      localProjectInfoPtr->storageClass = (SInt16*)GetHandlePointer (
+									localProjectInfoPtr->storageClassHandle, kLock, kMoveHi);
 
-      // Lock handle to channel information.	
+				// Lock handle to channel information.	
 
-      localProjectInfoPtr->channelsPtr = (UInt16*) GetHandlePointer(
-         localProjectInfoPtr->channelHandle, kLock, kMoveHi);
+      localProjectInfoPtr->channelsPtr = (UInt16*)GetHandlePointer (
+									localProjectInfoPtr->channelHandle, kLock, kMoveHi);
 
-      // Lock handle to class name information.		
+				// Lock handle to class name information.		
 
-      localProjectInfoPtr->classNamesPtr = (HPClassNamesPtr) GetHandlePointer(
-         localProjectInfoPtr->classNamesHandle, kLock, kMoveHi);
+      localProjectInfoPtr->classNamesPtr = (HPClassNamesPtr) GetHandlePointer (
+									localProjectInfoPtr->classNamesHandle, kLock, kMoveHi);
 
-      // Lock handles to common covariance statistics.
-      // Don't need the pointers now.					
+				// Lock handles to common covariance statistics.
+				// Don't need the pointers now.					
 
-      GetHandlePointer(
-         localProjectInfoPtr->commonChannelStatsHandle, kLock, kMoveHi);
+      GetHandlePointer (
+						localProjectInfoPtr->commonChannelStatsHandle, kLock, kMoveHi);
 
-      GetHandlePointer(
-         localProjectInfoPtr->commonCovarianceStatsHandle, kLock, kMoveHi);
+      GetHandlePointer (
+						localProjectInfoPtr->commonCovarianceStatsHandle, kLock, kMoveHi);
 
-      // Lock handle to class channel statistics.					
+				// Lock handle to class channel statistics.					
 
-      localProjectInfoPtr->classChanStatsPtr = (HChannelStatisticsPtr) GetHandlePointer(
-         localProjectInfoPtr->classChanStatsHandle, kLock, kMoveHi);
+      localProjectInfoPtr->classChanStatsPtr = 
+							(HChannelStatisticsPtr)GetHandlePointer (
+														localProjectInfoPtr->classChanStatsHandle,
+														kLock, 
+														kMoveHi);
 
-      // Lock handle to modified class channel statistics.					
+				// Lock handle to modified class channel statistics.					
 
       localProjectInfoPtr->modifiedClassChanStatsPtr =
-         (HChannelStatisticsPtr) GetHandlePointer(
-         localProjectInfoPtr->modifiedClassChanStatsHandle,
-         kLock,
-         kMoveHi);
+							(HChannelStatisticsPtr)GetHandlePointer (
+											localProjectInfoPtr->modifiedClassChanStatsHandle,
+											kLock,
+											kMoveHi);
 
-      // Lock handle to modified class covariance statistics.				
+				// Lock handle to modified class covariance statistics.				
 
       localProjectInfoPtr->modifiedClassCovStatsPtr =
-         (HCovarianceStatisticsPtr) GetHandlePointer(
-         localProjectInfoPtr->modifiedClassCovStatsHandle,
-         kLock,
-         kMoveHi);
+							(HCovarianceStatisticsPtr) GetHandlePointer (
+									localProjectInfoPtr->modifiedClassCovStatsHandle,
+									kLock,
+									kMoveHi);
 
-      // Lock handle to class sum of squares statistics.				
+				// Lock handle to class sum of squares statistics.				
 
       localProjectInfoPtr->classSumSquaresStatsPtr =
-         (HSumSquaresStatisticsPtr) GetHandlePointer(
-         localProjectInfoPtr->classSumSquaresStatsHandle,
-         kLock,
-         kMoveHi);
+							(HSumSquaresStatisticsPtr) GetHandlePointer (
+												localProjectInfoPtr->classSumSquaresStatsHandle,
+												kLock,
+												kMoveHi);
 
-      // Lock handle to field name information.				
+				// Lock handle to field name information.				
 
       localProjectInfoPtr->fieldIdentPtr =
-         (HPFieldIdentifiersPtr) GetHandlePointer(
-         localProjectInfoPtr->fieldIdentifiersHandle,
-         kLock,
-         kMoveHi);
+							(HPFieldIdentifiersPtr) GetHandlePointer (
+												localProjectInfoPtr->fieldIdentifiersHandle,
+												kLock,
+												kMoveHi);
 
-      // Lock handle to field coordinates.			
+				// Lock handle to field coordinates.			
 
       localProjectInfoPtr->fieldPointsPtr =
-         (HPFieldPointsPtr) GetHandlePointer(
-         localProjectInfoPtr->fieldCoordinatesHandle,
-         kLock,
-         kMoveHi);
+							(HPFieldPointsPtr) GetHandlePointer (
+												localProjectInfoPtr->fieldCoordinatesHandle,
+												kLock,
+												kMoveHi);
 
-      // Lock handle to field channel statistics.			
+				// Lock handle to field channel statistics.			
 
       localProjectInfoPtr->fieldChanStatsPtr =
-         (HChannelStatisticsPtr) GetHandlePointer(
-         localProjectInfoPtr->fieldChanStatsHandle,
-         kLock,
-         kMoveHi);
+							(HChannelStatisticsPtr) GetHandlePointer (
+												localProjectInfoPtr->fieldChanStatsHandle,
+												kLock,
+												kMoveHi);
 
-      // Lock handle to field covariance statistics.		
+				// Lock handle to field covariance statistics.		
 
       localProjectInfoPtr->fieldSumSquaresStatsPtr =
-         (HSumSquaresStatisticsPtr) GetHandlePointer(
-         localProjectInfoPtr->fieldSumSquaresStatsHandle,
-         kLock,
-         kMoveHi);
+							(HSumSquaresStatisticsPtr) GetHandlePointer (
+												localProjectInfoPtr->fieldSumSquaresStatsHandle,
+												kLock,
+												kMoveHi);
 
       localProjectInfoPtr->handlesLockedFlag = TRUE;
 
-   } // end "if (localProjectInfoPtr != NULL && ..." 
+		}	// end "if (localProjectInfoPtr != NULL && ..." 
 
-} // end "LockProjectMemory" 
+}	// end "LockProjectMemory" 
 
 
 
@@ -7987,36 +8088,37 @@ void LockProjectMemory(
 //	Coded By:			Larry L. Biehl			Date: 07/25/1990
 //	Revised By:			Larry L. Biehl			Date: 12/16/2016	
 
-Boolean ModalSymbolsDialog(
-   DialogPtr dialogPtr,
-   UInt16 numberOfClassesToUse)
- {
-   Rect theBox;
+Boolean ModalSymbolsDialog (
+				DialogPtr							dialogPtr,
+				UInt16								numberOfClassesToUse)
+{
+   Rect									theBox;
 
-   Cell cell;
+   Cell									cell;
 
-   Handle okHandle,
-      theHandle;
+   Handle								okHandle,
+											theHandle;
 
-   SInt16 fixedCellWidth = 33,
-      itemHit,
-      newSymbolLength,
-      returnCode,
-      selectedCell,
-      stringLength,
-      theType;
+   SInt16								fixedCellWidth = 33,
+											itemHit,
+											newSymbolLength,
+											returnCode,
+											selectedCell,
+											stringLength,
+											theType;
 
-   Boolean modalDone;
+   Boolean								modalDone;
 
-   char saveNewSymbol;
+   char									saveNewSymbol;
 
 
-   // Continue if dialogPtr and gDialogListHandle are not NULL.			
+			// Continue if dialogPtr and gDialogListHandle are not NULL.			
 
-   if (dialogPtr != NULL && gDialogListHandle != NULL) {
-      // Get the "handle" for the OK button for use later.					
+   if (dialogPtr != NULL && gDialogListHandle != NULL) 
+		{
+				// Get the "handle" for the OK button for use later.					
 
-      GetDialogItem(dialogPtr, 1, &theType, &okHandle, &theBox);
+      GetDialogItem (dialogPtr, 1, &theType, &okHandle, &theBox);
 
       cell.h = 0;
       modalDone = FALSE;
@@ -8024,109 +8126,109 @@ Boolean ModalSymbolsDialog(
       selectedCell = -1;
       itemHit = 0;
       do {
-         ModalDialog(gProcessorDialogFilterPtr, &itemHit);
-         if (itemHit > 2) {
-            switch (itemHit) {
+         ModalDialog (gProcessorDialogFilterPtr, &itemHit);
+         if (itemHit > 2) 
+				{
+            switch (itemHit) 
+					{
                case 5:
                   cell.v = 0;
 
-                  if (LGetSelect(TRUE, &cell, gDialogListHandle))
+                  if (LGetSelect (TRUE, &cell, gDialogListHandle))
                      selectedCell = cell.v;
 
-                  else // !LGetSelect (TRUE, &cell, ... 
+                  else	// !LGetSelect (TRUE, &cell, ... 
                      selectedCell = -1;
-
                   break;
 
                case 7: // Change the symbol for each class selected.		
-                  TextFont(gWindowTextFont); // monaco  
+                  TextFont (gWindowTextFont); // monaco  
 
                   cell.v = 0;
-                  while (LGetSelect(TRUE, &cell, gDialogListHandle)) {
+                  while (LGetSelect (TRUE, &cell, gDialogListHandle)) 
+							{
                      stringLength = fixedCellWidth;
-                     LGetCell(
-                        &gTextString2, &stringLength, cell, gDialogListHandle);
+                     LGetCell (gTextString2, &stringLength, cell, gDialogListHandle);
 
                      gTextString2[0] = saveNewSymbol;
 
-                     LSetCell(
-                        &gTextString2, stringLength, cell, gDialogListHandle);
+                     LSetCell (
+										gTextString2, stringLength, cell, gDialogListHandle);
 
                      cell.v++;
 
-                  } // end "while ( LGetSelect (TRUE, ...) )" 
-
+							}	// end "while (LGetSelect (TRUE, ...))" 
                   break;
 
                case 8:
-                  GetDialogItem(dialogPtr, itemHit, &theType, &theHandle, &theBox);
-                  GetDialogItemText(theHandle, gTextString);
+                  GetDialogItem (dialogPtr, itemHit, &theType, &theHandle, &theBox);
+                  GetDialogItemText (theHandle, gTextString);
 
                   newSymbolLength = gTextString[0];
                   saveNewSymbol = gTextString[1];
 
-                  SelectDialogItemText(dialogPtr, 8, 0, INT16_MAX);
-
+                  SelectDialogItemText (dialogPtr, 8, 0, INT16_MAX);
                   break;
 
                case 10:
                   cell.v = 0;
 
-                  if (LGetSelect(TRUE, &cell, gDialogListHandle2)) {
+                  if (LGetSelect (TRUE, &cell, gDialogListHandle2)) 
+							{
                      stringLength = 1;
-                     LGetCell(
-                        &gTextString2[1], &stringLength, cell, gDialogListHandle2);
+                     LGetCell (
+									&gTextString2[1], &stringLength, cell, gDialogListHandle2);
                      gTextString2[0] = 1;
-                     LoadDItemString(dialogPtr, 8, &gTextString2);
+                     LoadDItemString (dialogPtr, 8, (Str255*)gTextString2);
 
                      newSymbolLength = 1;
                      saveNewSymbol = gTextString2[1];
 
-                     SelectDialogItemText(dialogPtr, 8, 0, INT16_MAX);
+                     SelectDialogItemText (dialogPtr, 8, 0, INT16_MAX);
 
-                  } // end "if (LGetSelect (TRUE, &cell, ..." 
+							}	// end "if (LGetSelect (TRUE, &cell, ..." 
 
                   break;
 
                case 12: // Help 
-                  HiliteControl((ControlHandle) okHandle, 255);
-                  returnCode = DisplayAlert(1152, 0, kAlertStrID, 13, 0, NULL);
+                  HiliteControl ((ControlHandle) okHandle, 255);
+                  returnCode = DisplayAlert (1152, 0, kAlertStrID, 13, 0, NULL);
 
-                  TextFont(gWindowTextFont); // monaco  
-                  LUpdate(GetPortVisibleRegion(
-                     GetDialogPort(dialogPtr), gTempRegion1), gDialogListHandle);
-                  SetEmptyRgn(gTempRegion1);
-                  LUpdate(GetPortVisibleRegion(
-                     GetDialogPort(dialogPtr), gTempRegion1), gDialogListHandle2);
-                  SetEmptyRgn(gTempRegion1);
-                  HiliteControl((ControlHandle) okHandle, 0);
+                  TextFont (gWindowTextFont); // monaco  
+                  LUpdate (GetPortVisibleRegion (GetDialogPort (dialogPtr), gTempRegion1),
+										gDialogListHandle);
+                  SetEmptyRgn (gTempRegion1);
+                  LUpdate (GetPortVisibleRegion (GetDialogPort (dialogPtr), gTempRegion1),
+										gDialogListHandle2);
+                  SetEmptyRgn (gTempRegion1);
+                  HiliteControl ((ControlHandle)okHandle, 0);
                   break;
 
-            } // end "switch (itemHit)" 
+					}	// end "switch (itemHit)" 
 
-            if (itemHit == 5 || itemHit == 8 || itemHit == 10) {
+            if (itemHit == 5 || itemHit == 8 || itemHit == 10) 
+					{
                if (newSymbolLength == 1 && selectedCell >= 0)
-                  SetDLogControlHilite(dialogPtr, 7, 0);
+                  SetDLogControlHilite (dialogPtr, 7, 0);
 
-               else // newSymbolLength != 1 || selectedCell < 0 
-                  SetDLogControlHilite(dialogPtr, 7, 255);
+               else	// newSymbolLength != 1 || selectedCell < 0 
+                  SetDLogControlHilite (dialogPtr, 7, 255);
 
-            } // end "if (itemHit == 5 || itemHit == 8 || ..." 
+					}	// end "if (itemHit == 5 || itemHit == 8 || ..." 
 
-         }// end "if (itemHit > 2)" 
+				}	// end "if (itemHit > 2)" 
 
          else if (itemHit > 0) // and itemHit <= 2 
-            // itemHit == 1 is OK, itemHit == 2 is Cancel.					
-
+						// itemHit == 1 is OK, itemHit == 2 is Cancel.					
             modalDone = TRUE;
 
-      } while (!modalDone);
+			} while (!modalDone);
 
-   } // end "if (dialogPtr != NULL && gDialogListHandle != NULL)" 
+		}	// end "if (dialogPtr != NULL && gDialogListHandle != NULL)" 
 
-   return ( itemHit == 1);
+   return (itemHit == 1);
 
-} // end "ModalSymbolsDialog"
+}	// end "ModalSymbolsDialog"
 #endif	// defined multispec_mac 
 
 
@@ -8153,25 +8255,24 @@ Boolean ModalSymbolsDialog(
 //	Coded By:			Larry L. Biehl			Date:  1/15/1989
 //	Revised By:			Larry L. Biehl			Date:  7/29/1997	
 
-void NoClassStatsAlert(
-   UInt32 minimumNumber)
- {
-   SInt16 returnCode;
+void NoClassStatsAlert (
+				UInt32								minimumNumber)
+{
+   SInt16								returnCode;
 
 
-   MInitCursor();
+   MInitCursor ();
 
-   if (LoadSpecifiedStringNumberLongP(
-      kAlertStrID,
-      IDS_Alert40,
-      (char*) gTextString,
-      (char*) gTextString2,
-      TRUE,
-      (SInt32) minimumNumber,
-      0))
-      returnCode = DisplayAlert(kErrorAlertID, 3, 0, 0, 0, gTextString);
+   if (LoadSpecifiedStringNumberLongP (kAlertStrID,
+														IDS_Alert40,
+														(char*) gTextString,
+														(char*) gTextString2,
+														TRUE,
+														(SInt32)minimumNumber,
+														0))
+      returnCode = DisplayAlert (kErrorAlertID, 3, 0, 0, 0, gTextString);
 
-} // end "NoClassStatsAlert" 
+}	// end "NoClassStatsAlert" 
 
 
 
@@ -8198,7 +8299,7 @@ void NoClassStatsAlert(
 //	Coded By:			Larry L. Biehl			Date: 10/05/1989
 //	Revised By:			Larry L. Biehl			Date: 05/13/2016
 
-SInt16 ProjectChangesPopUpMenu(
+SInt16 ProjectChangesPopUpMenu (
 				DialogPtr							dialogPtr,
 				Rect*									popUpProjectChangesBoxPtr,
 				Boolean*								newProjectFlag,
@@ -8217,73 +8318,75 @@ SInt16 ProjectChangesPopUpMenu(
 
    popUpLoc.v = popUpProjectChangesBoxPtr->bottom - 1;
    popUpLoc.h = popUpProjectChangesBoxPtr->left + 2;
-   LocalToGlobal(&popUpLoc);
+   LocalToGlobal (&popUpLoc);
 
 			// Insert the pop up menu and then let user make a selection.			
 
-   InsertMenu(gPopUpProjectChangesMenu, -1);
+   InsertMenu (gPopUpProjectChangesMenu, -1);
 
    if (gProjectInfoPtr->fieldChanStatsHandle == NULL)
-      DisableMenuItem(gPopUpProjectChangesMenu, 1);
-   else // gProjectInfoPtr->fieldChanStatsHandle != NULL 
-      EnableMenuItem(gPopUpProjectChangesMenu, 1);
+      DisableMenuItem (gPopUpProjectChangesMenu, 1);
+   else	// gProjectInfoPtr->fieldChanStatsHandle != NULL 
+      EnableMenuItem (gPopUpProjectChangesMenu, 1);
 	/*
    if (*newProjectFlag) 
 		{
-      DisableMenuItem(gPopUpProjectChangesMenu, 2);
-      CheckMenuItem(gPopUpProjectChangesMenu, 2, TRUE);
+      DisableMenuItem (gPopUpProjectChangesMenu, 2);
+      CheckMenuItem (gPopUpProjectChangesMenu, 2, TRUE);
 	
-		}		// end "if (*newProjectFlag)" 
+		}	// end "if (*newProjectFlag)" 
 
-   else // !*newProjectFlag 
+   else	// !*newProjectFlag 
 		{
-      DisableMenuItem(gPopUpProjectChangesMenu, 2);
-      CheckMenuItem(gPopUpProjectChangesMenu, 2, FALSE);
+      DisableMenuItem (gPopUpProjectChangesMenu, 2);
+      CheckMenuItem (gPopUpProjectChangesMenu, 2, FALSE);
 
-		}		// end "else !*newProjectFlag" 
+		}	// end "else !*newProjectFlag" 
 	*/
 			// Invert the menu title.															
 
-   InvertRect(popUpProjectChangesBoxPtr);
+   InvertRect (popUpProjectChangesBoxPtr);
 
    menuData = PopUpMenuSelect (gPopUpProjectChangesMenu,
-											popUpLoc.v, popUpLoc.h, 1);
+											popUpLoc.v, 
+											popUpLoc.h, 
+											1);
 
 			// Invert the prompt box again to make normal and remove the			
 			// the channel pop up menu.														
 
-   InvertRect(popUpProjectChangesBoxPtr);
-   DeleteMenu(kPopUpProjectChangesMenuID);
+   InvertRect (popUpProjectChangesBoxPtr);
+   DeleteMenu (kPopUpProjectChangesMenuID);
 
 			// Invalidate the area within the channel pop up box.						
 
-   InvalWindowRect(GetDialogWindow(dialogPtr), popUpProjectChangesBoxPtr);
+   InvalWindowRect (GetDialogWindow (dialogPtr), popUpProjectChangesBoxPtr);
 
 			// Get the selection made and handle the request.							
 
-   selection = LoWord(menuData);
+   selection = LoWord (menuData);
 
    returnCode = currentListType;
    if (selection == 1)
-      if (ProjectMenuClearStatistics())
+      if (ProjectMenuClearStatistics ())
          returnCode = 1;
 	/*
    if (selection == 2) 
 		{
-      if (CreateNewProject(FALSE)) 
+      if (CreateNewProject (FALSE)) 
 			{
          *newProjectFlag = TRUE;
          returnCode = 1;
 
-			}		// end "if ( CreateNewProject () )" 
+			}	// end "if (CreateNewProject ())" 
 
-		}		// end "if (selection == 2)" 
+		}	// end "if (selection == 2)" 
 	*/
-   // Return the selection that was made.											
+			// Return the selection that was made.											
 
-   return ( returnCode);
+   return (returnCode);
 
-}		// end "ProjectChangesPopUpMenu"
+}	// end "ProjectChangesPopUpMenu"
 #endif	// defined multispec_mac 
 
 
@@ -8308,7 +8411,7 @@ SInt16 ProjectChangesPopUpMenu(
 //							ProjectChangesPopUpMenu in projectUtilities.c
 //
 //	Coded By:			Larry L. Biehl			Date: 11/28/1989
-//	Revised By:			Larry L. Biehl			Date: 03/18/2017
+//	Revised By:			Larry L. Biehl			Date: 09/01/2017
 
 Boolean ProjectMenuClearStatistics (void)
 {
@@ -8335,53 +8438,51 @@ Boolean ProjectMenuClearStatistics (void)
       CMFileStream* projectFileStreamPtr = GetFileStreamPointer (gProjectInfoPtr);
 
       if (FileExists (projectFileStreamPtr))
-         projectFileNameCPtr = (char*)GetFileNameCPointer (gProjectInfoPtr);
+         projectFileNameCPtr =
+							(char*)GetFileNameCPointerFromProjectInfo (gProjectInfoPtr);
 
-      else // !FileExists(...
+      else	// !FileExists (...
 			{
          sprintf ((char*)gTextString3, (char*)"Untitled Project");
          projectFileNameCPtr = (char*)gTextString3;
 
-			} // end "else !FileExists(..."
+			}	// end "else !FileExists (..."
 
       itemHit = 0;
-      if (LoadSpecifiedStringNumberStringP (
-							kAlertStrID,
-							IDS_Alert41,
-							(char*) gTextString,
-							(char*) gTextString2,
-							TRUE,
-							projectFileNameCPtr))
+      if (LoadSpecifiedStringNumberStringP (kAlertStrID,
+															IDS_Alert41,
+															(char*) gTextString,
+															(char*) gTextString2,
+															TRUE,
+															projectFileNameCPtr))
 			itemHit = DisplayAlert (kSaveAlertID, 3, 0, 0, 0, gTextString);
 
       if (itemHit == 1)
-         SaveProjectFile(1);
+         SaveProjectFile (1);
 
-		} // end "if (gProjectInfoPtr->numberStatisticsClasses > 0)"
+		}	// end "if (gProjectInfoPtr->numberStatisticsClasses > 0)"
 
    if (itemHit != 2)
 		{
-      projectWindowInfoPtr = (WindowInfoPtr)GetHandlePointer(
-															gProjectInfoPtr->windowInfoHandle,
-															kNoLock,
-															kNoMoveHi);
+      projectWindowInfoPtr = (WindowInfoPtr)GetHandlePointer (
+																gProjectInfoPtr->windowInfoHandle);
       numberChannels = projectWindowInfoPtr->totalNumberChannels;
 
-      returnFlag = ChangeProjectChannelsList(numberChannels);
+      returnFlag = ChangeProjectChannelsList (numberChannels);
 
       if (returnFlag)
 			{
-         ClearProjectStatistics(2);
+         ClearProjectStatistics (2);
 
          gUpdateProjectMenuItemsFlag = TRUE;
 
-			} // end "if (returnFlag)"
+			}	// end "if (returnFlag)"
 
-		} // end "if (itemHit != 2)"
+		}	// end "if (itemHit != 2)"
 
    return (returnFlag);
 
-} // end "ProjectMenuClearStatistics" 
+}	// end "ProjectMenuClearStatistics" 
 
 
 
@@ -8417,72 +8518,70 @@ void ReleaseClassifySpecsMemory (
 		{
 				// Get pointer to classification specifications.
 
-      classifySpecsPtr = (ClassifySpecsPtr) GetHandlePointer(
-											*classifySpecsHandlePtr,
-											kLock,
-											kNoMoveHi);
+      classifySpecsPtr = (ClassifySpecsPtr)GetHandlePointer (
+																			*classifySpecsHandlePtr,
+																			kLock);
 
 				// Release memory for classification class areas vector if it has
 				// been allocated.
 
-      UnlockAndDispose(classifySpecsPtr->classAreaHandle);
+      UnlockAndDispose (classifySpecsPtr->classAreaHandle);
 
 				// Release memory for classification classes vector if it has
 				// been allocated.
 
-      UnlockAndDispose(classifySpecsPtr->classHandle);
+      UnlockAndDispose (classifySpecsPtr->classHandle);
 
 				// Release memory for classification feature pointer vector if it
 				// has been allocated.
 
-      UnlockAndDispose(classifySpecsPtr->featureHandle);
+      UnlockAndDispose (classifySpecsPtr->featureHandle);
 
 				// Release memory for classification channels vector if it has
 				// been allocated.
 
-      UnlockAndDispose(classifySpecsPtr->channelsHandle);
+      UnlockAndDispose (classifySpecsPtr->channelsHandle);
 
 				// Release memory for class symbols vector if it has been
 				// allocated.
 
-      UnlockAndDispose(classifySpecsPtr->symbolsHandle);
+      UnlockAndDispose (classifySpecsPtr->symbolsHandle);
 
 				// Release memory for threshold probability table.
 
-      UnlockAndDispose(classifySpecsPtr->thresholdProbabilityHandle);
+      UnlockAndDispose (classifySpecsPtr->thresholdProbabilityHandle);
 
 				// Release memory for the threshold table.
 
-      UnlockAndDispose(classifySpecsPtr->thresholdTableHandle);
+      UnlockAndDispose (classifySpecsPtr->thresholdTableHandle);
 
 				// Release memory for the CEM parameters if needed.
 
 
-      CEMParametersPtr cemParametersPtr = (CEMParametersPtr)GetHandlePointer(
+      CEMParametersPtr cemParametersPtr = (CEMParametersPtr)GetHandlePointer (
 																	classifySpecsPtr->cemParametersH,
-																	kLock,
-																	kNoMoveHi);
+																	kLock);
       if (cemParametersPtr != NULL)
-         UnlockAndDispose(cemParametersPtr->correlationMatrixClassHandle);
+         UnlockAndDispose (cemParametersPtr->correlationMatrixClassHandle);
 
-      UnlockAndDispose(classifySpecsPtr->cemParametersH);
+      UnlockAndDispose (classifySpecsPtr->cemParametersH);
 
 				// Release memory for the decision tree parameters if needed.
 
-      UnlockAndDispose(classifySpecsPtr->decisionTreeVarH);
+      UnlockAndDispose (classifySpecsPtr->decisionTreeVarH);
 
 				// Release memory for the echo parameters if needed.
 
-      UnlockAndDispose(classifySpecsPtr->echoClassifierVarH);
+      UnlockAndDispose (classifySpecsPtr->echoClassifierVarH);
 
 
-      *classifySpecsHandlePtr = UnlockAndDispose(*classifySpecsHandlePtr);
+      *classifySpecsHandlePtr = UnlockAndDispose (*classifySpecsHandlePtr);
 
-		} // end "if (*classifySpecsHandlePtr != NULL)"
+		}	// end "if (*classifySpecsHandlePtr != NULL)"
 
 	gClassifySpecsPtr = NULL;
 
-} // end "ReleaseClassifySpecsMemory" 
+}	// end "ReleaseClassifySpecsMemory" 
 
 
 
@@ -8511,31 +8610,31 @@ void ReleaseClassifySpecsMemory (
 void ReleaseClassInfoMemory (
 				ClassInfoPtr						classInfoPtr,
 				UInt16								numberClasses)
- {
+{
    if (classInfoPtr != NULL)
 		{
 				// Release memory that was assigned.
 
-      CheckAndDisposePtr(classInfoPtr[0].covariancePtr);
+      CheckAndDisposePtr (classInfoPtr[0].covariancePtr);
 
-      CheckAndDisposePtr(classInfoPtr[0].inversePtr);
+      CheckAndDisposePtr (classInfoPtr[0].inversePtr);
 
-      CheckAndDisposePtr(classInfoPtr[0].meanPtr);
+      CheckAndDisposePtr (classInfoPtr[0].meanPtr);
 
-      CheckAndDisposePtr(classInfoPtr[0].transformedCovPtr);
+      CheckAndDisposePtr (classInfoPtr[0].transformedCovPtr);
 
-      CheckAndDisposePtr(classInfoPtr[0].transformedMeanPtr);
+      CheckAndDisposePtr (classInfoPtr[0].transformedMeanPtr);
 
       UInt16 index;
 
-      for (index = 0; index < numberClasses; index++)
-         CheckAndDisposePtr(classInfoPtr[index].dataValuesPtr);
+      for (index=0; index<numberClasses; index++)
+         CheckAndDisposePtr (classInfoPtr[index].dataValuesPtr);
 
-		} // end "if (classInfoPtr)"
+		}	// end "if (classInfoPtr)"
 
    classInfoPtr = (ClassInfoPtr)CheckAndDisposePtr ((Ptr)classInfoPtr);
 
-} // end "ReleaseClassInfoMemory" 
+}	// end "ReleaseClassInfoMemory" 
 
 
 
@@ -8561,58 +8660,57 @@ void ReleaseClassInfoMemory (
 //	Coded By:			Larry L. Biehl			Date: 11/02/1992
 //	Revised By:			Larry L. Biehl			Date: 11/16/1999
 
-void ReleaseFeatureExtractionSpecsMemory(
+void ReleaseFeatureExtractionSpecsMemory (
 				Handle*								featureExtractionSpecsHandlePtr)
 
- {
-   if (*featureExtractionSpecsHandlePtr != NULL)
+{
+	if (*featureExtractionSpecsHandlePtr != NULL)
 		{
 				// Get pointer to classification specifications.
 
-      gFeatureExtractionSpecsPtr = (FeatureExtractionSpecsPtr) GetHandlePointer(
-         *featureExtractionSpecsHandlePtr,
-         kLock,
-         kNoMoveHi);
+      gFeatureExtractionSpecsPtr = (FeatureExtractionSpecsPtr)GetHandlePointer (
+																*featureExtractionSpecsHandlePtr,
+																kLock);
 
 				// Release memory for the preprocessing specifications.
 
       ProjectionPursuitSpecsPtr projectionPursuitSpecsPtr =
-         &gFeatureExtractionSpecsPtr->projectionPursuitParams;
+										&gFeatureExtractionSpecsPtr->projectionPursuitParams;
 
-      UnlockAndDispose(projectionPursuitSpecsPtr->bandGroupingHandle);
-      UnlockAndDispose(projectionPursuitSpecsPtr->transformValueHandle);
-      UnlockAndDispose(projectionPursuitSpecsPtr->transformVectorHandle);
+      UnlockAndDispose (projectionPursuitSpecsPtr->bandGroupingHandle);
+      UnlockAndDispose (projectionPursuitSpecsPtr->transformValueHandle);
+      UnlockAndDispose (projectionPursuitSpecsPtr->transformVectorHandle);
 
 				// Release memory for classes vector if it has been allocated.
 
-      UnlockAndDispose(gFeatureExtractionSpecsPtr->classHandle);
+      UnlockAndDispose (gFeatureExtractionSpecsPtr->classHandle);
 
 				// Release memory for the eigenvalues handle.
 
-      UnlockAndDispose(gFeatureExtractionSpecsPtr->eigenValueHandle);
+      UnlockAndDispose (gFeatureExtractionSpecsPtr->eigenValueHandle);
 
 				// Release memory for the eigenvector handle.
 
-      UnlockAndDispose(gFeatureExtractionSpecsPtr->eigenVectorHandle);
+      UnlockAndDispose (gFeatureExtractionSpecsPtr->eigenVectorHandle);
 
 				// Release memory for feature pointer vector if it
 				// has been allocated.
 
-      UnlockAndDispose(gFeatureExtractionSpecsPtr->featureHandle);
+      UnlockAndDispose (gFeatureExtractionSpecsPtr->featureHandle);
 
 				// Release memory for channels vector if it has
 				// been allocated.
 
-      UnlockAndDispose(gFeatureExtractionSpecsPtr->channelsHandle);
+      UnlockAndDispose (gFeatureExtractionSpecsPtr->channelsHandle);
 
       *featureExtractionSpecsHandlePtr =
-         UnlockAndDispose(*featureExtractionSpecsHandlePtr);
+										UnlockAndDispose (*featureExtractionSpecsHandlePtr);
 
-		} // end "if (*featureExtractionSpecsHandle != NULL)" 
+		}	// end "if (*featureExtractionSpecsHandle != NULL)" 
 
    gFeatureExtractionSpecsPtr = NULL;
 
-} // end "ReleaseFeatureExtractionSpecsMemory" 
+}	// end "ReleaseFeatureExtractionSpecsMemory" 
 
 
 
@@ -8638,81 +8736,81 @@ void ReleaseFeatureExtractionSpecsMemory(
 //	Coded By:			Larry L. Biehl			Date: 10/25/1989
 //	Revised By:			Larry L. Biehl			Date: 11/16/1999
 
-void ReleaseSeparabilitySpecsMemory(
-   Handle* separabilitySpecsHandlePtr)
- {
-   SeparabilitySpecsPtr separabilitySpecsPtr;
+void ReleaseSeparabilitySpecsMemory (
+				Handle*								separabilitySpecsHandlePtr)
+{
+   SeparabilitySpecsPtr				separabilitySpecsPtr;
 
 
-   if (*separabilitySpecsHandlePtr != NULL) {
-      // Get pointer to separability specifications.							
+   if (*separabilitySpecsHandlePtr != NULL) 
+		{
+				// Get pointer to separability specifications.							
 
-      separabilitySpecsPtr = (SeparabilitySpecsPtr) GetHandlePointer(
-         *separabilitySpecsHandlePtr,
-         kLock,
-         kNoMoveHi);
+      separabilitySpecsPtr = (SeparabilitySpecsPtr)GetHandlePointer (
+																			*separabilitySpecsHandlePtr,
+																			kLock);
 
-      // Release memory for separability feature pointer vector if it 	
-      // has been allocated.															
+				// Release memory for separability feature pointer vector if it 	
+				// has been allocated.															
 
-      UnlockAndDispose(separabilitySpecsPtr->featureHandle);
+      UnlockAndDispose (separabilitySpecsPtr->featureHandle);
 
-      // Release memory for separability channels vector if it has		
-      // been allocated.																
+				// Release memory for separability channels vector if it has		
+				// been allocated.																
 
-      UnlockAndDispose(separabilitySpecsPtr->channelsHandle);
+      UnlockAndDispose (separabilitySpecsPtr->channelsHandle);
 
-      // Release memory for separability classes vector if it has			
-      // been allocated.																
+				// Release memory for separability classes vector if it has			
+				// been allocated.																
 
-      UnlockAndDispose(separabilitySpecsPtr->classHandle);
+      UnlockAndDispose (separabilitySpecsPtr->classHandle);
 
-      // Release memory for separability symbols vector if it has been 	
-      // allocated.																		
+				// Release memory for separability symbols vector if it has been 	
+				// allocated.																		
 
-      UnlockAndDispose(separabilitySpecsPtr->symbolsHandle);
+      UnlockAndDispose (separabilitySpecsPtr->symbolsHandle);
 
-      // Release memory for all possible channel combinations vector 	
-      // if it has been allocated.													
+				// Release memory for all possible channel combinations vector 	
+				// if it has been allocated.													
 
-      UnlockAndDispose(separabilitySpecsPtr->allChanCombinationsHandle);
+      UnlockAndDispose (separabilitySpecsPtr->allChanCombinationsHandle);
 
-      // Release memory for separability channel combinations vector 	
-      // if it has been allocated.													
+				// Release memory for separability channel combinations vector 	
+				// if it has been allocated.													
 
-      UnlockAndDispose(separabilitySpecsPtr->channelCombinationsHandle);
+      UnlockAndDispose (separabilitySpecsPtr->channelCombinationsHandle);
 
-      // Release memory for separability show combinations vector 		
-      // if it has been allocated.													
+				// Release memory for separability show combinations vector 		
+				// if it has been allocated.													
 
-      UnlockAndDispose(separabilitySpecsPtr->showCombinationsH);
+      UnlockAndDispose (separabilitySpecsPtr->showCombinationsH);
 
-      // Release memory for separability exclude combinations vector 	
-      // if it has been allocated.													
+				// Release memory for separability exclude combinations vector 	
+				// if it has been allocated.													
 
-      UnlockAndDispose(separabilitySpecsPtr->excludeCombinationsH);
+      UnlockAndDispose (separabilitySpecsPtr->excludeCombinationsH);
 
-      // Release memory for separability show/exclude combinations  		
-      // vector if it has been allocated.											
+				// Release memory for separability show/exclude combinations  		
+				// vector if it has been allocated.											
 
-      UnlockAndDispose(separabilitySpecsPtr->showExcludeCombinationsH);
+      UnlockAndDispose (separabilitySpecsPtr->showExcludeCombinationsH);
 
-      // Release memory for any saved separability distance measures.	
+				// Release memory for any saved separability distance measures.	
 
       if (separabilitySpecsPtr->channelSetsPtr != NULL)
-         CheckAndDisposePtr((char*) separabilitySpecsPtr->channelSetsPtr);
+         CheckAndDisposePtr ((char*)separabilitySpecsPtr->channelSetsPtr);
 
       if (separabilitySpecsPtr->distancesPtr != NULL)
-         CheckAndDisposePtr((char*) separabilitySpecsPtr->distancesPtr);
+         CheckAndDisposePtr ((char*)separabilitySpecsPtr->distancesPtr);
 
       if (separabilitySpecsPtr->distancesSummaryPtr != NULL)
-         CheckAndDisposePtr((char*) separabilitySpecsPtr->distancesSummaryPtr);
+         CheckAndDisposePtr ((char*)separabilitySpecsPtr->distancesSummaryPtr);
 
-      *separabilitySpecsHandlePtr = UnlockAndDispose(*separabilitySpecsHandlePtr);
+      *separabilitySpecsHandlePtr = UnlockAndDispose (*separabilitySpecsHandlePtr);
 
-   } // end "if (*separabilitySpecsHandlePtr != NULL)"
+		}	// end "if (*separabilitySpecsHandlePtr != NULL)"
 
-} // end "ReleaseSeparabilitySpecsMemory" 
+}	// end "ReleaseSeparabilitySpecsMemory" 
 
 
 
@@ -8739,47 +8837,47 @@ void ReleaseSeparabilitySpecsMemory(
 //	Coded By:			Larry L. Biehl			Date: 04/09/1990
 //	Revised By:			Larry L. Biehl			Date: 11/16/1999
 
-void ReleaseStatHistogramSpecsMemory(
-   Handle* statHistogramSpecsHPtr)
- {
-   StatHistogramSpecsPtr statHistogramSpecsPtr;
+void ReleaseStatHistogramSpecsMemory (
+				Handle*								statHistogramSpecsHPtr)
+{
+   StatHistogramSpecsPtr			statHistogramSpecsPtr;
 
 
-   if (*statHistogramSpecsHPtr != NULL) {
-      // Get pointer to statistics histogram specifications.				
+   if (*statHistogramSpecsHPtr != NULL) 
+		{
+				// Get pointer to statistics histogram specifications.				
 
-      statHistogramSpecsPtr = (StatHistogramSpecsPtr) GetHandlePointer(
-         *statHistogramSpecsHPtr,
-         kLock,
-         kNoMoveHi);
+      statHistogramSpecsPtr = (StatHistogramSpecsPtr)GetHandlePointer (
+																			*statHistogramSpecsHPtr,
+																			kLock);
 
-      // Release memory for statistics histogram classes vector if it 	
-      // has been allocated.															
+				// Release memory for statistics histogram classes vector if it has been
+				// allocated.
 
-      UnlockAndDispose(statHistogramSpecsPtr->classHandle);
+      UnlockAndDispose (statHistogramSpecsPtr->classHandle);
 
-      // Release memory for statistics histogram fields vector if it		
-      // has been allocated.															
+				// Release memory for statistics histogram fields vector if it	has been
+				// allocated.
 
-      UnlockAndDispose(statHistogramSpecsPtr->fieldHandle);
+      UnlockAndDispose (statHistogramSpecsPtr->fieldHandle);
 
-      // Release memory for statistics histogram feature pointer 			
-      // vector if it has been allocated.											
+				// Release memory for statistics histogram feature pointer vector if it
+				// has been allocated.
 
-      UnlockAndDispose(statHistogramSpecsPtr->featureHandle);
+      UnlockAndDispose (statHistogramSpecsPtr->featureHandle);
 
-      // Release memory for statistics histogram channels vector if 		
-      // it has been allocated.														
+				// Release memory for statistics histogram channels vector if it has
+				// been allocated.
 
-      UnlockAndDispose(statHistogramSpecsPtr->channelsHandle);
+      UnlockAndDispose (statHistogramSpecsPtr->channelsHandle);
 
-      *statHistogramSpecsHPtr = UnlockAndDispose(*statHistogramSpecsHPtr);
+      *statHistogramSpecsHPtr = UnlockAndDispose (*statHistogramSpecsHPtr);
 
-   } // end "if (*statHistogramSpecsHPtr != NULL)" 
+		}	// end "if (*statHistogramSpecsHPtr != NULL)" 
 
    gStatHistogramSpecsPtr = NULL;
 
-} // end "ReleaseStatHistogramSpecsMemory" 
+}	// end "ReleaseStatHistogramSpecsMemory" 
 
 
 
@@ -8806,32 +8904,32 @@ void ReleaseStatHistogramSpecsMemory(
 //	Coded By:			Larry L. Biehl			Date: 11/30/1993
 //	Revised By:			Larry L. Biehl			Date: 11/16/1999
 
-void ReleaseStatisticsEnhanceSpecsMemory(
-   Handle* statisticsEnhanceSpecsHPtr)
+void ReleaseStatisticsEnhanceSpecsMemory (
+				Handle*								statisticsEnhanceSpecsHPtr)
  {
-   StatEnhanceSpecsPtr statEnhanceSpecsPtr;
+   StatEnhanceSpecsPtr				statEnhanceSpecsPtr;
 
 
-   if (*statisticsEnhanceSpecsHPtr != NULL) {
-      // Get pointer to statistics histogram specifications.				
+   if (*statisticsEnhanceSpecsHPtr != NULL) 
+		{
+				// Get pointer to statistics histogram specifications.				
 
-      statEnhanceSpecsPtr = (StatEnhanceSpecsPtr) GetHandlePointer(
-         *statisticsEnhanceSpecsHPtr,
-         kLock,
-         kNoMoveHi);
+      statEnhanceSpecsPtr = (StatEnhanceSpecsPtr)GetHandlePointer (
+																		*statisticsEnhanceSpecsHPtr,
+																		kLock);
 
-      // Release memory for statistics histogram classes vector if it 	
-      // has been allocated.															
+				// Release memory for statistics histogram classes vector if it 	
+				// has been allocated.															
 
-      UnlockAndDispose(statEnhanceSpecsPtr->classHandle);
+      UnlockAndDispose (statEnhanceSpecsPtr->classHandle);
 
-      *statisticsEnhanceSpecsHPtr = UnlockAndDispose(*statisticsEnhanceSpecsHPtr);
+      *statisticsEnhanceSpecsHPtr = UnlockAndDispose (*statisticsEnhanceSpecsHPtr);
 
-   } // end "if (*statisticsEnhanceSpecsHPtr != NULL)" 
+		}	// end "if (*statisticsEnhanceSpecsHPtr != NULL)" 
 
    gStatEnhanceSpecsPtr = NULL;
 
-} // end "ReleaseStatisticsEnhanceSpecsMemory" 
+}	// end "ReleaseStatisticsEnhanceSpecsMemory" 
 
 
 
@@ -8856,44 +8954,46 @@ void ReleaseStatisticsEnhanceSpecsMemory(
 //	Coded By:			Larry L. Biehl			Date: 04/30/1998
 //	Revised By:			Larry L. Biehl			Date: 04/30/1998
 
-SInt32 SetClassListSelections(
-#if defined multispec_lin
-   wxListBox* listHandle,
-#else
-   ListHandle listHandle,
-#endif
-   SInt32 numberInputClasses,
-   SInt32 numberSelectedClasses,
-   UInt16* classPtr)
- {
-   Cell cell;
+SInt32 SetClassListSelections (
+				#if defined multispec_lin
+					wxListBox*							listHandle,
+				#else
+					ListHandle							listHandle,
+				#endif
+				SInt32								numberInputClasses,
+				SInt32								numberSelectedClasses,
+				UInt16*								classPtr)
+				
+{
+   Cell									cell;
 
-   SInt32 classIndex,
-      index;
+   SInt32								classIndex,
+											index;
 
-   UInt16 classNum;
+   UInt16								classNum;
 
    cell.h = 0;
    index = 0;
-   for (classIndex = 0; classIndex < numberInputClasses; classIndex++) {
-      cell.v = (SInt16) classIndex;
-      classNum = (UInt16) (classIndex + 1);
-      if (index < numberSelectedClasses &&
-         classPtr[index] == classNum) {
-         LSetSelect(TRUE, cell, listHandle);
+   for (classIndex=0; classIndex<numberInputClasses; classIndex++) 
+		{
+      cell.v = (SInt16)classIndex;
+      classNum = (UInt16)(classIndex + 1);
+      if (index < numberSelectedClasses && classPtr[index] == classNum) 
+			{
+         LSetSelect (TRUE, cell, listHandle);
          index++;
 
-      } // end "if (index < *numberOutputItems && ...)" 
+			}	// end "if (index < *numberOutputItems && ...)" 
 
-   } // end "for (classIndex=0; classIndex<..."
+		}	// end "for (classIndex=0; classIndex<..."
 
-   // Scroll to the hilited list item.												
+			// Scroll to the hilited list item.												
 
-   LAutoScroll(listHandle);
+   LAutoScroll (listHandle);
 
    return (index);
 
-} // end "SetClassListSelections" 
+}	// end "SetClassListSelections" 
 
 
 
@@ -8920,100 +9020,99 @@ SInt32 SetClassListSelections(
 //	Coded By:			Larry L. Biehl			Date: 04/18/1990
 //	Revised By:			Larry L. Biehl			Date: 12/24/2002
 
-SInt16 StatHistogramPopUpMenu(
-   SInt16 statsWindowMode)
- {
-   Point histogramPopUpLoc;
+SInt16 StatHistogramPopUpMenu (
+				SInt16								statsWindowMode)
+{
+   Point									histogramPopUpLoc;
 
-   SInt32 menuData;
+   SInt32								menuData;
 
-   UInt32 item,
-      numberItems;
+   UInt32								item,
+											numberItems;
 
-   SInt16 returnCode;
+   SInt16								returnCode;
 
 
-   // Get location of histogram pop up box and convert it to global.	
+			// Get location of histogram pop up box and convert it to global.	
 
-   GetControlBounds(gProjectInfoPtr->histogramControlH, &gTempRect);
+   GetControlBounds (gProjectInfoPtr->histogramControlH, &gTempRect);
    histogramPopUpLoc.v = gTempRect.top + 1;
    histogramPopUpLoc.h = gTempRect.left;
-   LocalToGlobal(&histogramPopUpLoc);
+   LocalToGlobal (&histogramPopUpLoc);
 
-   // Delete any menu items already in the popup menu.
+			// Delete any menu items already in the popup menu.
 
-   numberItems = CountMenuItems(gPopUpTemporaryMenu);
-   for (item = 0; item < numberItems; item++)
-      DeleteMenuItem(gPopUpTemporaryMenu, 1);
+   numberItems = CountMenuItems (gPopUpTemporaryMenu);
+   for (item=0; item<numberItems; item++)
+      DeleteMenuItem (gPopUpTemporaryMenu, 1);
 
-   // Set up the items on the menu.
+			// Set up the items on the menu.
 
-   switch (statsWindowMode) {
+   switch (statsWindowMode) 
+		{
       case 2:
-
-         AppendMenu(gPopUpTemporaryMenu, "\pHistogram Classes");
-         AppendMenu(gPopUpTemporaryMenu, "\pHistogram Fields");
-         AppendMenu(gPopUpTemporaryMenu, "\pHistogram...");
+         AppendMenu (gPopUpTemporaryMenu, "\pHistogram Classes");
+         AppendMenu (gPopUpTemporaryMenu, "\pHistogram Fields");
+         AppendMenu (gPopUpTemporaryMenu, "\pHistogram...");
          numberItems = 3;
          break;
 
       case 3:
-
-         AppendMenu(gPopUpTemporaryMenu, "\pHistogram Class");
-         AppendMenu(gPopUpTemporaryMenu, "\pHistogram Fields");
-         AppendMenu(gPopUpTemporaryMenu, "\pHistogram...");
+         AppendMenu (gPopUpTemporaryMenu, "\pHistogram Class");
+         AppendMenu (gPopUpTemporaryMenu, "\pHistogram Fields");
+         AppendMenu (gPopUpTemporaryMenu, "\pHistogram...");
          numberItems = 3;
          break;
 
       case 4:
-
-         AppendMenu(gPopUpTemporaryMenu, "\pHistogram Field");
-         AppendMenu(gPopUpTemporaryMenu, "\pHistogram...");
+         AppendMenu (gPopUpTemporaryMenu, "\pHistogram Field");
+         AppendMenu (gPopUpTemporaryMenu, "\pHistogram...");
          numberItems = 2;
          break;
 
-   } // end "switch (statsWindowMode)"
+		}	// end "switch (statsWindowMode)"
 
-   // Insert the pop up menu and then let user make a selection.			
+			// Insert the pop up menu and then let user make a selection.			
 
-   InsertMenu(gPopUpTemporaryMenu, -1);
+   InsertMenu (gPopUpTemporaryMenu, -1);
 
-   menuData = PopUpMenuSelect(gPopUpTemporaryMenu,
-      histogramPopUpLoc.v, histogramPopUpLoc.h, 1);
+   menuData = PopUpMenuSelect (gPopUpTemporaryMenu,
+											histogramPopUpLoc.v, 
+											histogramPopUpLoc.h, 
+											1);
 
-   // Now delete the menu items.
+			// Now delete the menu items.
 
-   for (item = 0; item < numberItems; item++)
-      DeleteMenuItem(gPopUpTemporaryMenu, 1);
+   for (item=0; item<numberItems; item++)
+      DeleteMenuItem (gPopUpTemporaryMenu, 1);
 
-   // Remove the pop up menu.															
+			// Remove the pop up menu.															
 
-   DeleteMenu(kColorMenuID);
+   DeleteMenu (kColorMenuID);
 
-   // Now get the proper code to be return relative to the current statistics 
-   // mode.
+			// Now get the proper code to be return relative to the current statistics 
+			// mode.
 
-   switch (statsWindowMode) {
+   switch (statsWindowMode) 
+		{
       case 2:
       case 3:
-
-         returnCode = LoWord(menuData);
+         returnCode = LoWord (menuData);
          break;
 
       case 4:
-
-         returnCode = LoWord(menuData);
+         returnCode = LoWord (menuData);
          if (returnCode > 0)
             returnCode += 1;
          break;
 
-   } // end "switch (statsWindowMode)"
+		}	// end "switch (statsWindowMode)"
 
-   // Return the selection that was made.											
+			// Return the selection that was made.											
 
    return (returnCode);
 
-} // end "StatHistogramPopUpMenu"
+}	// end "StatHistogramPopUpMenu"
 #endif	// defined multispec_mac 
 
 
@@ -9041,145 +9140,148 @@ SInt16 StatHistogramPopUpMenu(
 //	Coded By:			Larry L. Biehl			Date: 04/18/1990
 //	Revised By:			Larry L. Biehl			Date: 03/08/2000
 
-SInt16 StatisticsPopUpMenu(
-   SInt16 statsWindowMode)
- {
-   Point statisticsPopUpLoc;
+SInt16 StatisticsPopUpMenu (
+				SInt16								statsWindowMode)
+{
+   Point									statisticsPopUpLoc;
 
-   SInt32 menuData;
+   SInt32								menuData;
 
-   SInt16 classStorage,
-      menuItem,
-      newMenuItem;
+   SInt16								classStorage,
+											menuItem,
+											newMenuItem;
 
-   Boolean optionKeyFlag;
+   Boolean								optionKeyFlag;
 
 
-   // Get location of statistics pop up box and convert it to global	
+			// Get location of statistics pop up box and convert it to global	
 
    statisticsPopUpLoc.v = gProjectInfoPtr->popUpCovarianceToUseBox.top + 1;
    statisticsPopUpLoc.h = gProjectInfoPtr->popUpCovarianceToUseBox.left;
-   LocalToGlobal(&statisticsPopUpLoc);
+   LocalToGlobal (&statisticsPopUpLoc);
 
-   // Invert the prompt box													
+			// Invert the prompt box													
 
-   InvertRect(&gProjectInfoPtr->promptCovarianceToUseBox);
+   InvertRect (&gProjectInfoPtr->promptCovarianceToUseBox);
 
-   // Insert the pop up menu and then let user make a selection	
+			// Insert the pop up menu and then let user make a selection	
 
-   InsertMenu(gPopUpStatisticsTypeMenu, -1);
-   EraseRect(&gProjectInfoPtr->popUpCovarianceToUseBox);
+   InsertMenu (gPopUpStatisticsTypeMenu, -1);
+   EraseRect (&gProjectInfoPtr->popUpCovarianceToUseBox);
 
-   // Determine if enhanced statistics exist and set the menu item accordingly.
+			// Determine if enhanced statistics exist and set the menu item accordingly.
 
-   if (statsWindowMode == kClassListMode) {
+   if (statsWindowMode == kClassListMode) 
+		{
       if (gProjectInfoPtr->enhancedStatsExistFlag)
-         EnableMenuItem(gPopUpStatisticsTypeMenu, 3);
+         EnableMenuItem (gPopUpStatisticsTypeMenu, 3);
 
-      else // !gProjectInfoPtr->enhancedStatsExistFlag 
-         DisableMenuItem(gPopUpStatisticsTypeMenu, 3);
+      else	// !gProjectInfoPtr->enhancedStatsExistFlag 
+         DisableMenuItem (gPopUpStatisticsTypeMenu, 3);
 
-      // Add the mixed statistics item if needed for the project specific popup.
+				// Add the mixed statistics item if needed for the project specific popup.
 
-      if (CountMenuItems(gPopUpStatisticsTypeMenu) == 3)
-         InsertMenuItem(gPopUpStatisticsTypeMenu, "\pMixed", 4);
+      if (CountMenuItems (gPopUpStatisticsTypeMenu) == 3)
+         InsertMenuItem (gPopUpStatisticsTypeMenu, "\pMixed", 4);
 
-      DisableMenuItem(gPopUpStatisticsTypeMenu, 4);
+      DisableMenuItem (gPopUpStatisticsTypeMenu, 4);
 
-      // Get Current selected menu item.
+				// Get Current selected menu item.
 
-      menuItem = GetProjectStatisticsTypeMenuItem();
+      menuItem = GetProjectStatisticsTypeMenuItem ();
 
-   }// end "if (statsWindowMode == kClassListMode)"
+		}	// end "if (statsWindowMode == kClassListMode)"
 
-   else // statsWindowMode == kFieldListMode
-   {
+   else	// statsWindowMode == kFieldListMode
+		{
       classStorage = gProjectInfoPtr->storageClass[gProjectInfoPtr->currentClass];
 
       if (gProjectInfoPtr->classNamesPtr[classStorage].modifiedStatsFlag)
-         EnableMenuItem(gPopUpStatisticsTypeMenu, 3);
+         EnableMenuItem (gPopUpStatisticsTypeMenu, 3);
 
-      else // !gProjectInfoPtr->classNamesPtr[classStorage].modifiedStatsFlag
-         DisableMenuItem(gPopUpStatisticsTypeMenu, 3);
+      else	// !gProjectInfoPtr->classNamesPtr[classStorage].modifiedStatsFlag
+         DisableMenuItem (gPopUpStatisticsTypeMenu, 3);
 
-      // Delete the mixed statistics item for the class specific popup.
+				// Delete the mixed statistics item for the class specific popup.
 
-      DeleteMenuItem(gPopUpStatisticsTypeMenu, 4);
+      DeleteMenuItem (gPopUpStatisticsTypeMenu, 4);
 
-      // Get Current selected menu item.
+				// Get Current selected menu item.
 
-      menuItem = GetClassStatisticsTypeMenuItem();
+      menuItem = GetClassStatisticsTypeMenuItem ();
 
-   } // end "else statsWindowMode == kFieldListMode"
+		}	// end "else statsWindowMode == kFieldListMode"
 
-   // If the option key is down, then add "..." to the LOOC to indicate that
-   // a dialog box can be opened to enter a LOOC mixing parameter.
+			// If the option key is down, then add "..." to the LOOC to indicate that
+			// a dialog box can be opened to enter a LOOC mixing parameter.
 
    optionKeyFlag = FALSE;
-   if ((gEventRecord.modifiers & optionKey) > 0) {
+   if ((gEventRecord.modifiers & optionKey) > 0) 
+		{
       optionKeyFlag = TRUE;
-      SetMenuItemText(gPopUpStatisticsTypeMenu,
-         2,
-         "\pLOOC ...");
+      SetMenuItemText (gPopUpStatisticsTypeMenu,
+								2,
+								"\pLOOC ...");
 
-   }// end "if ( (gEventRecord.modifiers & optionKey) > 0)"
+		}	// end "if ((gEventRecord.modifiers & optionKey) > 0)"
 
-   else // (gEventRecord.modifiers & optionKey) <= 0
-      SetMenuItemText(gPopUpStatisticsTypeMenu,
-      2,
-      "\pLOOC");
+   else	// (gEventRecord.modifiers & optionKey) <= 0
+      SetMenuItemText (gPopUpStatisticsTypeMenu,
+								2,
+								"\pLOOC");
 
-   // Now set check marks accordingly.
+			// Now set check marks accordingly.
 
-   CheckMenuItem(gPopUpStatisticsTypeMenu,
-      1,
-      menuItem == 1);
+   CheckMenuItem (gPopUpStatisticsTypeMenu,
+						1,
+						menuItem == 1);
 
-   CheckMenuItem(gPopUpStatisticsTypeMenu,
-      2,
-      menuItem == 2);
+   CheckMenuItem (gPopUpStatisticsTypeMenu,
+						2,
+						menuItem == 2);
 
-   CheckMenuItem(gPopUpStatisticsTypeMenu,
-      3,
-      menuItem == 3);
+   CheckMenuItem (gPopUpStatisticsTypeMenu,
+						3,
+						menuItem == 3);
 
-   if (CountMenuItems(gPopUpStatisticsTypeMenu) == 4)
-      CheckMenuItem(gPopUpStatisticsTypeMenu,
-      4,
-      (menuItem == 4));
+   if (CountMenuItems (gPopUpStatisticsTypeMenu) == 4)
+      CheckMenuItem (gPopUpStatisticsTypeMenu,
+							4,
+							(menuItem == 4));
 
-   menuData = PopUpMenuSelect(gPopUpStatisticsTypeMenu,
-      statisticsPopUpLoc.v,
-      statisticsPopUpLoc.h,
-      menuItem);
+   menuData = PopUpMenuSelect (gPopUpStatisticsTypeMenu,
+											statisticsPopUpLoc.v,
+											statisticsPopUpLoc.h,
+											menuItem);
 
-   // Invert the prompt box again to make normal and remove the	
-   // the statistics type pop up menu													
+			// Invert the prompt box again to make normal and remove the	
+			// the statistics type pop up menu													
 
-   InvertRect(&gProjectInfoPtr->promptCovarianceToUseBox);
-   DeleteMenu(kPopUpStatisticsTypeMenuID);
+   InvertRect (&gProjectInfoPtr->promptCovarianceToUseBox);
+   DeleteMenu (kPopUpStatisticsTypeMenuID);
 
-   // Make the selection the new current class if a selection was	
-   // made; then redraw the class pop up box to reflect the			
-   // new current class in case it is different.						
+			// Make the selection the new current class if a selection was	
+			// made; then redraw the class pop up box to reflect the			
+			// new current class in case it is different.						
 
-   newMenuItem = LoWord(menuData);
+   newMenuItem = LoWord (menuData);
 
-   InvalWindowRect(gProjectWindow, &gProjectInfoPtr->popUpCovarianceToUseBox);
+   InvalWindowRect (gProjectWindow, &gProjectInfoPtr->popUpCovarianceToUseBox);
 
-   if (optionKeyFlag && newMenuItem == 2) {
-      if (!LOOCOptionsDialog(statsWindowMode))
+   if (optionKeyFlag && newMenuItem == 2) 
+		{
+      if (!LOOCOptionsDialog (statsWindowMode))
          newMenuItem = menuItem;
 
-      InvalWindowRect(gProjectWindow, &gProjectInfoPtr->popUpCovarianceToUseBox);
+      InvalWindowRect (gProjectWindow, &gProjectInfoPtr->popUpCovarianceToUseBox);
 
-   } // end "if (optionKeyFlag && newMenuItem == 2)"          
+		}	// end "if (optionKeyFlag && newMenuItem == 2)"          
 
-   // Return the selection that was made.											
+			// Return the selection that was made.											
 
    return (newMenuItem);
 
-} // end "StatisticsPopUpMenu"
+}	// end "StatisticsPopUpMenu"
 #endif	// defined multispec_mac 
 
 
@@ -9206,101 +9308,98 @@ SInt16 StatisticsPopUpMenu(
 //	Coded By:			Larry L. Biehl			Date: 10/09/1997
 //	Revised By:			Larry L. Biehl			Date: 10/09/1997
 
-SInt16 StatListPopUpMenu(
-   SInt16 statsWindowMode)
- {
-   Point listPopUpLoc;
+SInt16 StatListPopUpMenu (
+				SInt16								statsWindowMode)
+{
+   Point									listPopUpLoc;
 
-   SInt32 menuData;
+   SInt32								menuData;
 
-   UInt32 item,
-      numberItems;
+   UInt32								item,
+											numberItems;
 
-   SInt16 returnCode;
+   SInt16								returnCode;
 
 
-   // Get location of histogram pop up box and convert it to global.		
+			// Get location of histogram pop up box and convert it to global.		
 
-   GetControlBounds(gProjectInfoPtr->listControlH, &gTempRect);
+   GetControlBounds (gProjectInfoPtr->listControlH, &gTempRect);
    listPopUpLoc.v = gTempRect.top + 1;
    listPopUpLoc.h = gTempRect.left;
-   LocalToGlobal(&listPopUpLoc);
+   LocalToGlobal (&listPopUpLoc);
 
-   // Delete any menu items already in the popup menu.
+			// Delete any menu items already in the popup menu.
 
-   numberItems = CountMenuItems(gPopUpTemporaryMenu);
-   for (item = 0; item < numberItems; item++)
-      DeleteMenuItem(gPopUpTemporaryMenu, 1);
+   numberItems = CountMenuItems (gPopUpTemporaryMenu);
+   for (item=0; item<numberItems; item++)
+      DeleteMenuItem (gPopUpTemporaryMenu, 1);
 
-   // Set up the items on the menu.
+			// Set up the items on the menu.
 
-   switch (statsWindowMode) {
+   switch (statsWindowMode) 
+		{
       case 2:
-
-         AppendMenu(gPopUpTemporaryMenu, "\pList Classes Stats");
-         AppendMenu(gPopUpTemporaryMenu, "\pList Classes & Fields Stats");
-         AppendMenu(gPopUpTemporaryMenu, "\pList Fields Stats");
-         AppendMenu(gPopUpTemporaryMenu, "\pList Stats...");
+         AppendMenu (gPopUpTemporaryMenu, "\pList Classes Stats");
+         AppendMenu (gPopUpTemporaryMenu, "\pList Classes & Fields Stats");
+         AppendMenu (gPopUpTemporaryMenu, "\pList Fields Stats");
+         AppendMenu (gPopUpTemporaryMenu, "\pList Stats...");
          numberItems = 4;
          break;
 
       case 3:
-
-         AppendMenu(gPopUpTemporaryMenu, "\pList Class Stats");
-         AppendMenu(gPopUpTemporaryMenu, "\pList Class & Fields Stats");
-         AppendMenu(gPopUpTemporaryMenu, "\pList Fields Stats");
-         AppendMenu(gPopUpTemporaryMenu, "\pList Stats...");
+         AppendMenu (gPopUpTemporaryMenu, "\pList Class Stats");
+         AppendMenu (gPopUpTemporaryMenu, "\pList Class & Fields Stats");
+         AppendMenu (gPopUpTemporaryMenu, "\pList Fields Stats");
+         AppendMenu (gPopUpTemporaryMenu, "\pList Stats...");
          numberItems = 4;
          break;
 
       case 4:
-
-         AppendMenu(gPopUpTemporaryMenu, "\pList Field Stats");
-         AppendMenu(gPopUpTemporaryMenu, "\pList Stats...");
+         AppendMenu (gPopUpTemporaryMenu, "\pList Field Stats");
+         AppendMenu (gPopUpTemporaryMenu, "\pList Stats...");
          numberItems = 2;
          break;
 
-   } // end "switch (statsWindowMode)"
+		}	// end "switch (statsWindowMode)"
 
-   // Insert the pop up menu and then let user make a selection.			
+			// Insert the pop up menu and then let user make a selection.			
 
-   InsertMenu(gPopUpTemporaryMenu, -1);
+   InsertMenu (gPopUpTemporaryMenu, -1);
 
-   menuData = PopUpMenuSelect(gPopUpTemporaryMenu, listPopUpLoc.v, listPopUpLoc.h, 1);
+   menuData = PopUpMenuSelect (gPopUpTemporaryMenu, listPopUpLoc.v, listPopUpLoc.h, 1);
 
-   // Now delete the menu items.
+			// Now delete the menu items.
 
-   for (item = 0; item < numberItems; item++)
-      DeleteMenuItem(gPopUpTemporaryMenu, 1);
+   for (item=0; item<numberItems; item++)
+      DeleteMenuItem (gPopUpTemporaryMenu, 1);
 
-   // Remove the pop up menu.															
+			// Remove the pop up menu.															
 
-   DeleteMenu(kColorMenuID);
+   DeleteMenu (kColorMenuID);
 
-   // Now get the proper code to be return relative to the current statistics 
-   // mode.
+			// Now get the proper code to be return relative to the current statistics 
+			// mode.
 
-   switch (statsWindowMode) {
+   switch (statsWindowMode) 
+		{
       case 2:
       case 3:
-
-         returnCode = LoWord(menuData);
+         returnCode = LoWord (menuData);
          break;
 
       case 4:
-
-         returnCode = LoWord(menuData);
+         returnCode = LoWord (menuData);
          if (returnCode > 0)
             returnCode += 2;
          break;
 
-   } // end "switch (statsWindowMode)"
+		}	// end "switch (statsWindowMode)"
 
-   // Return the selection that was made.											
+			// Return the selection that was made.											
 
-   return ( returnCode);
+   return (returnCode);
 
-} // end "StatListPopUpMenu"
+}	// end "StatListPopUpMenu"
 #endif	// defined multispec_mac 
 
 
@@ -9331,183 +9430,152 @@ SInt16 StatListPopUpMenu(
 //	Coded By:			Larry L. Biehl			Date: 07/25/1990
 //	Revised By:			Larry L. Biehl			Date: 07/22/1999	
 
-Boolean SymbolsDialog(
-   UInt16 numberOfClassesToUse,
-   SInt16* classPtr,
-   unsigned char* symbolsPtr,
-   Boolean clusterFlag)
+Boolean SymbolsDialog (
+				UInt16								numberOfClassesToUse,
+				SInt16*								classPtr,
+				unsigned char*						symbolsPtr,
+				Boolean								clusterFlag)
  {
-   DialogPtr dialogPtr;
+   DialogPtr							dialogPtr;
 
-   Cell cell;
+   Cell									cell;
 
-   SInt16 classIndex,
-      fixedCellWidth = 33,
-      index,
-      stringLength;
+   SInt16								classIndex,
+											fixedCellWidth = 33,
+											index,
+											stringLength;
 
-   Boolean returnFlag;
+   Boolean								returnFlag;
 
 
-   // Get the modal dialog for the reformat specification					
+			// Get the modal dialog for the reformat specification					
 
-   dialogPtr = LoadRequestedDialog(kSymbolsDialogID, kCopyScrap, 1, 2);
+   dialogPtr = LoadRequestedDialog (kSymbolsDialogID, kCopyScrap, 1, 2);
    if (dialogPtr == NULL)
-      return (FALSE);
+																						return (FALSE);
 
-   // Get the list handle for the class-symbol list.
+			// Get the list handle for the class-symbol list.
 
-   gDialogListHandle = GetOneColumnDialogListHandle(dialogPtr, 5);
+	gDialogListHandle = GetOneColumnDialogListHandle (dialogPtr, 5);
 
-   // Get the list handle for the symbols list.
+			// Get the list handle for the symbols list.
 
    if (gDialogListHandle != NULL)
-      gDialogListHandle2 = GetOneColumnDialogListHandle(dialogPtr, 10);
+      gDialogListHandle2 = GetOneColumnDialogListHandle (dialogPtr, 10);
 
-   // Get the display rectangle for the item to place the list into.		
-   /*		
-      GetDialogItem (dialogPtr, 5, &theType, &theHandle, &theBox);
-		
-            // Get a handle to a one column list.											
-	
-      theBox.right -= 15;
-      SetRect (&dataBounds, 0, 0, 1, 0);
-	
-      cell.v = 0;
-      cell.h = 0;
-      gDialogListHandle = LNew ( &theBox, 
-                                 &dataBounds, 
-                                 cell, 
-                                 0,
-                                 dialogPtr, 
-                                 TRUE, 
-                                 FALSE, 
-                                 FALSE, 
-                                 TRUE );
-													
-      if (gDialogListHandle != NULL)
-         {
-               // Get the display rectangle for the symbol list.						
-			
-         GetDialogItem (dialogPtr, 10, &theType, &theHandle, &theBox);
-			
-               // Get a handle to a one column list.										
-		
-         theBox.right -= 15;
-         SetRect (&dataBounds, 0, 0, 1, 0);
-		
-         gDialogListHandle2 = LNew (
-               &theBox, &dataBounds, cell, 0, dialogPtr, TRUE, FALSE, FALSE, TRUE);
-														
-         }		// end "if (gDialogListHandle != NULL)" 
-    */
-   // Continue if there are valid dialog list handles.						
+			// Continue if there are valid dialog list handles.						
 
-   if (gDialogListHandle != NULL && gDialogListHandle2 != NULL) {
+   if (gDialogListHandle != NULL && gDialogListHandle2 != NULL) 
+		{
       (*gDialogListHandle)->selFlags = lNoRect + lNoExtend + lUseSense;
       (*gDialogListHandle2)->selFlags = lOnlyOne;
 
-      // Item 4: Load the list header.												
+				// Item 4: Load the list header.												
 
       if (clusterFlag)
-         LoadDItemString(
-         dialogPtr, 4, (Str255*) "\pSymbol-Cluster class number");
+         LoadDItemString (dialogPtr, 4, (Str255*)"\pSymbol-Cluster class number");
 
-      else // !clusterFlag 
-         LoadDItemString(dialogPtr, 4, (Str255*) "\pSymbol-Class name");
+      else	// !clusterFlag 
+         LoadDItemString (dialogPtr, 4, (Str255*)"\pSymbol-Class name");
 
-      //	Item 5: Load address of routine that will load the class 		
-      // and symbol list.																
+				//	Item 5: Load address of routine that will load the class 		
+				// and symbol list.																
 
-      SetDialogItemDrawRoutine(dialogPtr, 5, gCreateOneColumnList1Ptr);
+      SetDialogItemDrawRoutine (dialogPtr, 5, gCreateOneColumnList1Ptr);
 
-      //	Item 7: Unhilite the '<-' button.										
+				//	Item 7: Unhilite the '<-' button.										
 
-      SetDLogControlHilite(dialogPtr, 7, 255);
+      SetDLogControlHilite (dialogPtr, 7, 255);
 
-      //	Item 8: Load blank in for edit symbol.									
+				//	Item 8: Load blank in for edit symbol.									
 
-      LoadDItemString(dialogPtr, 8, (Str255*) "\p");
+      LoadDItemString (dialogPtr, 8, (Str255*) "\p");
 
-      //	Item 10: Load address of routine that will load the	default	
-      // symbol list.																	
+				//	Item 10: Load address of routine that will load the	default	
+				// symbol list.																	
 
-      SetDialogItemDrawRoutine(dialogPtr, 10, gCreateOneColumnList2Ptr);
+      SetDialogItemDrawRoutine (dialogPtr, 10, gCreateOneColumnList2Ptr);
 
-      // Item 11: Set routine to draw outline on "OK" box.					
+				// Item 11: Set routine to draw outline on "OK" box.					
 
-      //		SetDialogItemDrawRoutine (dialogPtr, 11, gHiliteOKButtonPtr);
+      //SetDialogItemDrawRoutine (dialogPtr, 11, gHiliteOKButtonPtr);
 
-      // Center the dialog and then show it.										
+				// Center the dialog and then show it.										
 
-      ShowDialogWindow(dialogPtr, kSymbolsDialogID, kDoNotSetUpDFilterTable);
+      ShowDialogWindow (dialogPtr, kSymbolsDialogID, kDoNotSetUpDFilterTable);
 
-      // Get deactivate event for the window that is now behind the  	
-      // dialog and handle it.														
+				// Get deactivate event for the window that is now behind the  	
+				// dialog and handle it.														
 
-      CheckSomeEvents(activMask + updateMask);
+      CheckSomeEvents (activMask + updateMask);
 
-      // Load the class list.															
+				// Load the class list.															
 
-      LoadClassList(dialogPtr, gDialogListHandle,
-         numberOfClassesToUse, classPtr, symbolsPtr, clusterFlag);
+      LoadClassList (dialogPtr, 
+								gDialogListHandle,
+								numberOfClassesToUse, 
+								classPtr, 
+								symbolsPtr, 
+								clusterFlag);
 
-      // Load the symbol list.														
+				// Load the symbol list.														
 
       if (gMemoryError == noErr)
-         LoadSymbolList(dialogPtr, gDialogListHandle2);
+         LoadSymbolList (dialogPtr, gDialogListHandle2);
 
       gDialogItemDescriptorPtr[8] = kDItemString;
 
-      // Handle modal dialog selections for one column class list.		
+				// Handle modal dialog selections for one column class list.		
 
       returnFlag = FALSE;
       if (gMemoryError == noErr)
-         returnFlag = ModalSymbolsDialog(dialogPtr, numberOfClassesToUse);
+         returnFlag = ModalSymbolsDialog (dialogPtr, numberOfClassesToUse);
 
-      if (returnFlag) {
-         // Get the new symbols.														
+      if (returnFlag) 
+			{
+					// Get the new symbols.														
 
          cell.h = 0;
          cell.v = 0;
-         for (index = 0; index < numberOfClassesToUse; index++) {
+         for (index = 0; index < numberOfClassesToUse; index++) 
+				{
             if (classPtr != NULL)
                classIndex = classPtr[index];
 
-            else // classPtr == NULL 
+            else	// classPtr == NULL 
                classIndex = index + 1;
 
             stringLength = fixedCellWidth;
-            LGetCell(&gTextString2, &stringLength, cell, gDialogListHandle);
+            LGetCell (gTextString2, &stringLength, cell, gDialogListHandle);
 
-            BlockMoveData(
-               (char*) &gTextString2[0], (char*) &symbolsPtr[classIndex], 1);
+            BlockMoveData (
+							(char*)&gTextString2[0], (char*)&symbolsPtr[classIndex], 1);
 
             cell.v++;
 
-         } // end "for ( index=0; index<numberOfClassesToUse; ...)" 
+				}	// end "for (index=0; index<numberOfClassesToUse; ...)" 
 
-      } // end "if (returnFlag)" 
+			}	// end "if (returnFlag)" 
 
-      // Make certain that global memory error is set back to 'noErr'.	
+				// Make certain that global memory error is set back to 'noErr'.	
 
       gMemoryError = noErr;
 
-   } // end "if (gDialogListHandle != NULL && ...)" 
+		}	// end "if (gDialogListHandle != NULL && ...)" 
 
    if (gDialogListHandle != NULL)
-      LDispose(gDialogListHandle);
+      LDispose (gDialogListHandle);
    gDialogListHandle = NULL;
 
    if (gDialogListHandle2 != NULL)
-      LDispose(gDialogListHandle2);
+      LDispose (gDialogListHandle2);
    gDialogListHandle2 = NULL;
 
-   CloseRequestedDialog(dialogPtr, kDoNotSetUpDFilterTable);
+   CloseRequestedDialog (dialogPtr, kDoNotSetUpDFilterTable);
 
    return (returnFlag);
 
-} // end "SymbolsDialog" 
+}	// end "SymbolsDialog" 
 #endif	// defined multispec_mac 
 
 
@@ -9545,106 +9613,111 @@ Boolean SymbolsDialog(
 //	Coded By:			Larry L. Biehl			Date: 03/06/1991
 //	Revised By:			Larry L. Biehl			Date: 01/09/1999	
 
-void UnlockProjectMemory(
-   ProjectInfoPtr* inputProjectInfoPtrPtr,
-   SInt16 unlockCode,
-   Handle* outputProjectInfoHandlePtr)
- {
-   ProjectInfoPtr localProjectInfoPtr;
+void UnlockProjectMemory (
+				ProjectInfoPtr*					inputProjectInfoPtrPtr,
+				SInt16								unlockCode,
+				Handle*								outputProjectInfoHandlePtr)
+{
+   ProjectInfoPtr						localProjectInfoPtr;
 
-   Handle projectInfoHandle;
+   Handle								projectInfoHandle;
 
 
-   // Initialize local variables.													
+			// Initialize local variables.													
 
    localProjectInfoPtr = *inputProjectInfoPtrPtr;
 
-   if (localProjectInfoPtr != NULL) {
-      if (unlockCode <= 1) {
-         // UnLock handle to class list information.							
+   if (localProjectInfoPtr != NULL) 
+		{
+      if (unlockCode <= 1) 
+			{
+					// UnLock handle to class list information.							
 
-         CheckAndUnlockHandle(localProjectInfoPtr->storageClassHandle);
+         CheckAndUnlockHandle (localProjectInfoPtr->storageClassHandle);
          localProjectInfoPtr->storageClass = NULL;
 
-         // UnLock handle to channel information.								
+					// UnLock handle to channel information.								
 
-         CheckAndUnlockHandle(localProjectInfoPtr->channelHandle);
+         CheckAndUnlockHandle (localProjectInfoPtr->channelHandle);
          localProjectInfoPtr->channelsPtr = NULL;
 
-      } // end "if (unlockCode == 1)" 
+			}	// end "if (unlockCode == 1)" 
 
-      if (unlockCode <= 2) {
-         // UnLock handle to class name information.							
+      if (unlockCode <= 2) 
+			{
+					// UnLock handle to class name information.							
 
-         CheckAndUnlockHandle(localProjectInfoPtr->classNamesHandle);
+         CheckAndUnlockHandle (localProjectInfoPtr->classNamesHandle);
          localProjectInfoPtr->classNamesPtr = NULL;
 
-         // UnLock handle to field name information.							
+					// UnLock handle to field name information.							
 
-         CheckAndUnlockHandle(localProjectInfoPtr->fieldIdentifiersHandle);
+         CheckAndUnlockHandle (localProjectInfoPtr->fieldIdentifiersHandle);
          localProjectInfoPtr->fieldIdentPtr = NULL;
 
-         // UnLock handle to field coordinates.									
+					// UnLock handle to field coordinates.									
 
-         CheckAndUnlockHandle(localProjectInfoPtr->fieldCoordinatesHandle);
+         CheckAndUnlockHandle (localProjectInfoPtr->fieldCoordinatesHandle);
          localProjectInfoPtr->fieldPointsPtr = NULL;
 
-      } // end "if (unlockCode <= 2)" 
+			}	// end "if (unlockCode <= 2)" 
 
-      if (unlockCode <= 3) {
-         // UnLock handles to common covariance statistics.							
+      if (unlockCode <= 3) 
+			{
+					// UnLock handles to common covariance statistics.							
 
-         CheckSizeAndUnlockHandle(localProjectInfoPtr->commonChannelStatsHandle);
-         CheckSizeAndUnlockHandle(localProjectInfoPtr->commonCovarianceStatsHandle);
+         CheckSizeAndUnlockHandle (localProjectInfoPtr->commonChannelStatsHandle);
+         CheckSizeAndUnlockHandle (localProjectInfoPtr->commonCovarianceStatsHandle);
 
-         // UnLock handle to class channel statistics.						
+					// UnLock handle to class channel statistics.						
 
-         CheckSizeAndUnlockHandle(localProjectInfoPtr->classChanStatsHandle);
+         CheckSizeAndUnlockHandle (localProjectInfoPtr->classChanStatsHandle);
          localProjectInfoPtr->classChanStatsPtr = NULL;
 
-         // UnLock handle to class covariance statistics.					
+					// UnLock handle to class covariance statistics.					
 
-         CheckSizeAndUnlockHandle(localProjectInfoPtr->classSumSquaresStatsHandle);
+         CheckSizeAndUnlockHandle (localProjectInfoPtr->classSumSquaresStatsHandle);
          localProjectInfoPtr->classSumSquaresStatsPtr = NULL;
 
-         // Unlock handle to modified class channel statistics.			
+					// Unlock handle to modified class channel statistics.			
 
-         CheckSizeAndUnlockHandle(localProjectInfoPtr->modifiedClassChanStatsHandle);
+         CheckSizeAndUnlockHandle (localProjectInfoPtr->modifiedClassChanStatsHandle);
          localProjectInfoPtr->modifiedClassChanStatsPtr = NULL;
 
-         // Unlock handle to modified class covariance statistics.		
+					// Unlock handle to modified class covariance statistics.		
 
-         CheckSizeAndUnlockHandle(localProjectInfoPtr->modifiedClassCovStatsHandle);
+         CheckSizeAndUnlockHandle (localProjectInfoPtr->modifiedClassCovStatsHandle);
          localProjectInfoPtr->modifiedClassCovStatsPtr = NULL;
 
-         // UnLock handle to field channel statistics.						
+					// UnLock handle to field channel statistics.						
 
-         CheckSizeAndUnlockHandle(localProjectInfoPtr->fieldChanStatsHandle);
+         CheckSizeAndUnlockHandle (localProjectInfoPtr->fieldChanStatsHandle);
          localProjectInfoPtr->fieldChanStatsPtr = NULL;
 
-         // UnLock handle to field covariance statistics.					
+					// UnLock handle to field covariance statistics.					
 
-         CheckSizeAndUnlockHandle(localProjectInfoPtr->fieldSumSquaresStatsHandle);
+         CheckSizeAndUnlockHandle (localProjectInfoPtr->fieldSumSquaresStatsHandle);
          localProjectInfoPtr->fieldSumSquaresStatsPtr = NULL;
 
-      } // end "if (unlockCode <= 3)" 
+			}	// end "if (unlockCode <= 3)" 
 
       localProjectInfoPtr->handlesLockedFlag = FALSE;
 
-      if (unlockCode == 0 && outputProjectInfoHandlePtr) {
-         // UnLock handle to project structure.									
+      if (unlockCode == 0 && outputProjectInfoHandlePtr) 
+			{
+					// UnLock handle to project structure.									
 
          projectInfoHandle = localProjectInfoPtr->projectInfoHandle;
-         CheckAndUnlockHandle(projectInfoHandle);
+         CheckAndUnlockHandle (projectInfoHandle);
 
          *outputProjectInfoHandlePtr = projectInfoHandle;
          *inputProjectInfoPtrPtr = NULL;
 
-      } // end "if (unlockCode == 0 && ...)" 
+			}	// end "if (unlockCode == 0 && ...)" 
 
-   } // end "if (gProjectInfoPtr != NULL)" 
+		}	// end "if (gProjectInfoPtr != NULL)" 
 
-} // end "UnlockProjectMemory" 
+}	// end "UnlockProjectMemory" 
 
 
 
@@ -9675,23 +9748,24 @@ void UnlockProjectMemory(
 //	Coded By:			Larry L. Biehl			Date: 12/28/1993
 //	Revised By:			Larry L. Biehl			Date: 11/05/1999
 
-SInt16 UpdateDialogClassWeightsInfo(
-   SInt16 currentWeightsSelection,
-   Boolean useEnhancedStatisticsFlag,
-   SInt16* classWeightSetCodePtr,
-   Boolean initializeClassWeightSetFlag)
- {
-   SInt16 classWeightSet,
-      newWeightsSelection;
+SInt16 UpdateDialogClassWeightsInfo (
+				SInt16								currentWeightsSelection,
+				Boolean								useEnhancedStatisticsFlag,
+				SInt16*								classWeightSetCodePtr,
+				Boolean								initializeClassWeightSetFlag)
+{
+	SInt16								classWeightSet,
+											newWeightsSelection;
 
 
    classWeightSet = kEqualWeights;
    if (classWeightSetCodePtr != NULL)
       classWeightSet = *classWeightSetCodePtr;
 
-   // Initialize the setting for the class weights code if requested.	
+			// Initialize the setting for the class weights code if requested.	
 
-   if (initializeClassWeightSetFlag) {
+   if (initializeClassWeightSetFlag) 
+		{
       classWeightSet = 0;
 
       if (gProjectInfoPtr->modifiedClassWeightSet == kUnequalWeights)
@@ -9700,61 +9774,64 @@ SInt16 UpdateDialogClassWeightsInfo(
       if (gProjectInfoPtr->classWeightSet == kUnequalWeights)
          classWeightSet += 1;
 
-   } // end "if (initializeClassWeightSetFlag)"
+		}	// end "if (initializeClassWeightSetFlag)"
 
-   if (useEnhancedStatisticsFlag) {
-      // Save the previous setting for equal-unequal weights.				
+   if (useEnhancedStatisticsFlag) 
+		{
+				// Save the previous setting for equal-unequal weights.				
 
-      if (!initializeClassWeightSetFlag) {
-         // Clear the previous setting for non-enhanced statistics.
+      if (!initializeClassWeightSetFlag) 
+			{
+					// Clear the previous setting for non-enhanced statistics.
 
          classWeightSet = (classWeightSet & 0x0002);
 
-         // Now set the current setting for non-enhanced statistics.
+					// Now set the current setting for non-enhanced statistics.
 
          if (currentWeightsSelection == kUnequalWeights)
             classWeightSet += 1;
 
-      } // end "if ( !initializeClassWeightSetFlag )"
+			}	// end "if (!initializeClassWeightSetFlag)"
 
-      // Initialize class weight variable for using enhanced statistics.																		
+				// Initialize class weight variable for using enhanced statistics.																		
 
       newWeightsSelection = kEqualWeights;
       if (classWeightSet & 0x0002)
          newWeightsSelection = kUnequalWeights;
 
-   }// end "if ( useEnhancedStatisticsFlag )" 
+		}	// end "if (useEnhancedStatisticsFlag)" 
 
-   else // !useEnhancedStatisticsFlag 
-   {
-      // Save the previous setting for equal-unequal weights.				
+   else	// !useEnhancedStatisticsFlag 
+		{
+				// Save the previous setting for equal-unequal weights.				
 
-      if (!initializeClassWeightSetFlag) {
-         // Clear the previous setting for enhanced statistics.
+      if (!initializeClassWeightSetFlag) 
+			{
+					// Clear the previous setting for enhanced statistics.
 
          classWeightSet = (classWeightSet & 0x0001);
 
-         // Now set the current setting for enhanced statistics.
+					// Now set the current setting for enhanced statistics.
 
          if (currentWeightsSelection == kUnequalWeights)
             classWeightSet += 2;
 
-      } // end "if ( !initializeClassWeightSetFlag )"
+			}	// end "if (!initializeClassWeightSetFlag)"
 
-      // Initialize class weight variable for using non-enhanced statistics.																															
+				// Initialize class weight variable for using non-enhanced statistics.																															
 
       newWeightsSelection = kEqualWeights;
       if (classWeightSet & 0x0001)
          newWeightsSelection = kUnequalWeights;
 
-   } // end "else !useEnhancedStatisticsFlag" 
+		}	// end "else !useEnhancedStatisticsFlag" 
 
    if (classWeightSetCodePtr != NULL)
       *classWeightSetCodePtr = classWeightSet;
 
    return (newWeightsSelection);
 
-} // end "UpdateDialogClassWeightsInfo"
+}	// end "UpdateDialogClassWeightsInfo"
 
 
 
@@ -9781,58 +9858,56 @@ SInt16 UpdateDialogClassWeightsInfo(
 //	Coded By:			Larry L. Biehl			Date: 12/28/1993
 //	Revised By:			Larry L. Biehl			Date: 03/10/1994
 
-void UpdateProjectClassWeights(
-   Boolean useEnhancedStatisticsFlag,
-   SInt16 weightsSelection,
-   float* classWeightsPtr)
- {
-   HPClassNamesPtr classNamesPtr;
+void UpdateProjectClassWeights (
+				Boolean								useEnhancedStatisticsFlag,
+				SInt16								weightsSelection,
+				float*								classWeightsPtr)
+{
+   HPClassNamesPtr					classNamesPtr;
 
-   SInt16 classStorage,
-      weightsIndex;
+   SInt16								classStorage,
+											weightsIndex;
 
-   UInt16 index;
+   UInt16								index;
 
 
    if (gProjectInfoPtr == NULL)
-      return;
+																									return;
 
-   weightsSelection = abs(weightsSelection);
+   weightsSelection = abs (weightsSelection);
 
    if (useEnhancedStatisticsFlag)
       gProjectInfoPtr->modifiedClassWeightSet = weightsSelection;
 
-   else // !useEnhancedStatisticsFlag 
+   else	// !useEnhancedStatisticsFlag 
       gProjectInfoPtr->classWeightSet = weightsSelection;
 
    if (weightsSelection == kUnequalWeights) // Unequal weights 
-   {
+		{
       classNamesPtr = gProjectInfoPtr->classNamesPtr;
 
-      // Move the new weights to the appropriate location.				
+				// Move the new weights to the appropriate location.				
 
-      weightsIndex = GetClassWeightsIndex(
-         useEnhancedStatisticsFlag,
-         FALSE);
+      weightsIndex = GetClassWeightsIndex (useEnhancedStatisticsFlag,
+															FALSE);
 
-      classWeightsPtr +=
-         weightsIndex * gProjectInfoPtr->numberStatisticsClasses;
+      classWeightsPtr += weightsIndex * gProjectInfoPtr->numberStatisticsClasses;
 
-      for (index = 0;
-         index < gProjectInfoPtr->numberStatisticsClasses;
-         index++) {
-         classStorage = gProjectInfoPtr->storageClass[ index ];
+      for (index=0;
+				index<gProjectInfoPtr->numberStatisticsClasses;
+					index++) 
+			{
+         classStorage = gProjectInfoPtr->storageClass[index];
 
-         classNamesPtr[classStorage].priorWeights[weightsIndex] =
-            *classWeightsPtr;
+         classNamesPtr[classStorage].priorWeights[weightsIndex] = *classWeightsPtr;
 
          classWeightsPtr++;
 
-      } // end "for ( index=0; index<numberClasses; index++)" 
+			}	// end "for (index=0; index<numberClasses; index++)" 
 
-   } // end "if (weightsSelection == kUnequalWeights)" 
+		}	// end "if (weightsSelection == kUnequalWeights)" 
 
-} // end "UpdateProjectClassWeights"
+}	// end "UpdateProjectClassWeights"
 
 
 
@@ -9858,30 +9933,30 @@ void UpdateProjectClassWeights(
 //	Coded By:			Larry L. Biehl			Date: 03/20/1999
 //	Revised By:			Larry L. Biehl			Date: 03/20/1999
 
-Boolean VerifyAreaDescription(
-   AreaDescriptionPtr areaDescriptionPtr)
- {
-   Boolean definedAreaFlag = TRUE;
+Boolean VerifyAreaDescription (
+				AreaDescriptionPtr				areaDescriptionPtr)
+{
+   Boolean								definedAreaFlag = TRUE;
 
 
-   // Now verify that the field area is still within image area.
-   // If not, set the flag indicating that the area is not defined.
+			// Now verify that the field area is still within image area.
+			// If not, set the flag indicating that the area is not defined.
 
-   areaDescriptionPtr->columnStart = MAX(1, areaDescriptionPtr->columnStart);
-   areaDescriptionPtr->columnEnd = MIN(areaDescriptionPtr->maxNumberColumns,
-      areaDescriptionPtr->columnEnd);
+   areaDescriptionPtr->columnStart = MAX (1, areaDescriptionPtr->columnStart);
+   areaDescriptionPtr->columnEnd = MIN (areaDescriptionPtr->maxNumberColumns,
+														areaDescriptionPtr->columnEnd);
 
-   areaDescriptionPtr->lineStart = MAX(1, areaDescriptionPtr->lineStart);
-   areaDescriptionPtr->lineEnd = MIN(areaDescriptionPtr->maxNumberLines,
-      areaDescriptionPtr->lineEnd);
+   areaDescriptionPtr->lineStart = MAX (1, areaDescriptionPtr->lineStart);
+   areaDescriptionPtr->lineEnd = MIN (areaDescriptionPtr->maxNumberLines,
+													areaDescriptionPtr->lineEnd);
 
    if (areaDescriptionPtr->columnStart > areaDescriptionPtr->columnEnd ||
-      areaDescriptionPtr->lineStart > areaDescriptionPtr->lineEnd)
+							areaDescriptionPtr->lineStart > areaDescriptionPtr->lineEnd)
       definedAreaFlag = FALSE;
 
    return (definedAreaFlag);
 
-} // end "VerifyAreaDescription"
+}	// end "VerifyAreaDescription"
 
 
 
@@ -9905,15 +9980,16 @@ Boolean VerifyAreaDescription(
 //								be set up.
 //
 //	Parameters out:	Number of classes in the class vector pointer.  (If smaller than
-//								on input, classes in the class vector with no available statistics
-//								were removed)
+//								on input, classes in the class vector with no available
+//								statistics were removed)
 //							The class vector pointer (list may have been revised as described
 //								above)
 //							Number of training pixels in the smallest class.
 //
 // Value Returned:	True if update worked okay and statistics are ready to be used. 
 //							False if memory was not available for the update or if the
-//								number of training classes is less than the minimum number needed.		
+//								number of training classes is less than the minimum number
+//								needed.
 // 
 // Called By:			BiPlotDataControl in biPlotData.c
 //							FeatureExtractionControl in featureExtraction.c
@@ -9927,111 +10003,117 @@ Boolean VerifyAreaDescription(
 //	Coded By:			Larry L. Biehl			Date: 07/23/1997
 //	Revised By:			Larry L. Biehl			Date: 01/19/2000
 
-Boolean VerifyProjectStatsUpToDate(
-   UInt32* numberClassesPtr,
-   SInt16* classPtr,
-   UInt32 minimumNumberClasses,
-   SInt16 covarianceStatsToUse,
-   SInt16 setupGlobalInfoPointers,
-   SInt32* minimumNumberTrainPixelsPtr)
+Boolean VerifyProjectStatsUpToDate (
+				UInt32*								numberClassesPtr,
+				SInt16*								classPtr,
+				UInt32								minimumNumberClasses,
+				SInt16								covarianceStatsToUse,
+				SInt16								setupGlobalInfoPointers,
+				SInt32*								minimumNumberTrainPixelsPtr)
  {
-   UInt32 localNumberClasses,
-      savedNumberClasses;
+   UInt32								localNumberClasses,
+											savedNumberClasses;
 
-   SInt16 returnCode;
+   SInt16								returnCode;
 
-   Boolean computeCommonCovarianceFlag,
-      continueFlag,
-      updateStatsFlag;
+   Boolean								computeCommonCovarianceFlag,
+											continueFlag,
+											updateStatsFlag;
 
 
    if (gProjectInfoPtr == NULL)
-      return (FALSE);
+																						return (FALSE);
 
    continueFlag = TRUE;
    returnCode = 1;
 
-   // Determine if the statistics for any of the classes to be used need to 
-   // be updated.
+			// Determine if the statistics for any of the classes to be used need to 
+			// be updated.
 
-   updateStatsFlag = !CheckClassStats(numberClassesPtr,
-      classPtr,
-      covarianceStatsToUse,
-      TRUE,
-      minimumNumberTrainPixelsPtr,
-      &computeCommonCovarianceFlag);
+   updateStatsFlag = !CheckClassStats (numberClassesPtr,
+													classPtr,
+													covarianceStatsToUse,
+													TRUE,
+													minimumNumberTrainPixelsPtr,
+													&computeCommonCovarianceFlag);
 
-   if (!updateStatsFlag && computeCommonCovarianceFlag) {
-      // The common covariance needs to be computed for the LOOC statistics.
-      // Verify that all of the statistics classes are up-to-date if not
-      // checked already.
+   if (!updateStatsFlag && computeCommonCovarianceFlag) 
+		{
+				// The common covariance needs to be computed for the LOOC statistics.
+				// Verify that all of the statistics classes are up-to-date if not
+				// checked already.
 
-      if (*numberClassesPtr < (UInt32) gProjectInfoPtr->numberStatTrainClasses) {
+      if (*numberClassesPtr < (UInt32)gProjectInfoPtr->numberStatTrainClasses) 
+			{
          localNumberClasses = gProjectInfoPtr->numberStatisticsClasses;
-         updateStatsFlag = !CheckClassStats(&localNumberClasses,
-            NULL,
-            covarianceStatsToUse,
-            TRUE,
-            minimumNumberTrainPixelsPtr,
-            &computeCommonCovarianceFlag);
+         updateStatsFlag = !CheckClassStats (&localNumberClasses,
+															NULL,
+															covarianceStatsToUse,
+															TRUE,
+															minimumNumberTrainPixelsPtr,
+															&computeCommonCovarianceFlag);
 
-      } // end "if (*numberClassesPtr < ...->numberStatTrainClasses)"
+			}	// end "if (*numberClassesPtr < ...->numberStatTrainClasses)"
 
-   } // end "if (!updateStatsFlag && computeCommonCovarianceFlag)"
+		}	// end "if (!updateStatsFlag && computeCommonCovarianceFlag)"
 
-   if (!updateStatsFlag && computeCommonCovarianceFlag) {
-      // Get the common covariance for leave-one-out statistics.
+   if (!updateStatsFlag && computeCommonCovarianceFlag) 
+		{
+				// Get the common covariance for leave-one-out statistics.
 
-      UpdateProjectLOOStats(kUpdateProject, NULL);
+      UpdateProjectLOOStats (kUpdateProject, NULL);
 
-   } // end "if (!updateStatsFlag && computeCommonCovaranceFlag)"
+		}	// end "if (!updateStatsFlag && computeCommonCovaranceFlag)"
 
-   // Force any local common covariance that is to be used to be created.
+			// Force any local common covariance that is to be used to be created.
 
    gProjectInfoPtr->localCommonCovarianceLoadedFlag = FALSE;
 
-   if (updateStatsFlag) {
-      returnCode = UpdateStatsControl(kUpdateProject, TRUE);
+   if (updateStatsFlag) 
+		{
+      returnCode = UpdateStatsControl (kUpdateProject, TRUE);
 
-      // Now get the project image file information pointers again. They
-      // may have been released in the call to 'UpdateStatsControl'.
+				// Now get the project image file information pointers again. They
+				// may have been released in the call to 'UpdateStatsControl'.
 
-      if (!GetProjectImageFileInfo(kDoNotPrompt, setupGlobalInfoPointers))
+      if (!GetProjectImageFileInfo (kDoNotPrompt, setupGlobalInfoPointers))
          returnCode = 2;
 
       gProjectInfoPtr->moveMemoryFlag = TRUE;
 
-   } // end "if (if (updateStatsFlag)"
+		}	// end "if (if (updateStatsFlag)"
 
-   if (returnCode != 2) {
-      // Make certain that the vector of classes to use is		
-      // consistent with the statistics that are available. 	
-      // It is possible for there to be a class specified 		
-      // for use with no statistics.									
+   if (returnCode != 2) 
+		{
+				// Make certain that the vector of classes to use is		
+				// consistent with the statistics that are available. 	
+				// It is possible for there to be a class specified 		
+				// for use with no statistics.									
 
       savedNumberClasses = *numberClassesPtr;
-      CheckClassStats(numberClassesPtr,
-         classPtr,
-         covarianceStatsToUse,
-         FALSE,
-         minimumNumberTrainPixelsPtr,
-         &computeCommonCovarianceFlag);
+      CheckClassStats (numberClassesPtr,
+								classPtr,
+								covarianceStatsToUse,
+								FALSE,
+								minimumNumberTrainPixelsPtr,
+								&computeCommonCovarianceFlag);
 
-      // If number of classes is 0, then put up an alert and skip the operation.									
+				// If number of classes is 0, then put up an alert and skip the operation.									
 
-      if (*numberClassesPtr < minimumNumberClasses) {
-         NoClassStatsAlert(minimumNumberClasses);
+      if (*numberClassesPtr < minimumNumberClasses) 
+			{
+         NoClassStatsAlert (minimumNumberClasses);
          if (*numberClassesPtr == 0)
             *numberClassesPtr = savedNumberClasses;
          continueFlag = FALSE;
 
-      } // end "if (*numberClassesPtr <= 0)" 
+			}	// end "if (*numberClassesPtr <= 0)" 
 
-   }// end "if (returnCode != 2)"
+		}	// end "if (returnCode != 2)"
 
-   else // returnCode == 2 
+   else	// returnCode == 2 
       continueFlag = FALSE;
 
    return (continueFlag);
 
-} // end "VerifyProjectStatsUpToDate"
+}	// end "VerifyProjectStatsUpToDate"

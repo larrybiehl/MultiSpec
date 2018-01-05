@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//							 Copyright (1988-2017)
+//							 Copyright (1988-2018)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,13 +11,11 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision number:		3.0
-//
-//	Revision date:			08/28/2017
+//	Revision date:			01/04/2018
 //
 //	Language:				C
 //
-//	System:					Macintosh and Windows Operating Systems
+//	System:					Linux, Macintosh and Windows Operating Systems
 //
 //	Brief description:	The purpose of the routines in this file is to
 //								provide utility type functions in MultiSpec.
@@ -38,17 +36,19 @@
 //								void 					SetVolumeReference
 //
 /* Template for debugging
-		int numberChars = sprintf ((char*)&gTextString3,
+		int numberChars = sprintf ((char*)gTextString3,
 												" SFileIO::GetFile (entered routine. %s", 
 												gEndOfLine);
-		ListString ((char*)&gTextString3, numberChars, gOutputTextH);	
+		ListString ((char*)gTextString3, numberChars, gOutputTextH);	
 */
+//
+//------------------------------------------------------------------------------------
 
-#include	"SMulSpec.h" 
+#include "SMultiSpec.h" 
       
 #if defined multispec_lin
 	#include "wx/wx.h"
-	#include "CFileStr.h"
+	#include "CFileStream.h"
 	#include "LMultiSpec.h"
 	#include "LOpenFileDialog.h"
 	#include "wx/filedlg.h"
@@ -73,18 +73,21 @@
 		
 		}	NavUserData, *NavUserDataPtr;
 #endif	// defined multispec_mac
+
+#if defined multispec_mac_swift
+	#define kOpenPrefKey						1
+	#define IDS_FileIO192					192
+	#define IDS_Alert147						147
+	#define IDS_FileIOStr202				202
+#endif	// defined multispec_mac_swift
   
 #if defined multispec_win
 	//#include <afxpriv.h>
-	#include "CWinInfo.h"
-	#include "CFileStr.h"
-	#include "WFileDlg.h"  
+	#include "CWindowInfo.h"
+	#include "CFileStream.h"
+	#include "WOpenFileDialog.h"  
 	#include <direct.h>
 	                                                                   
-//	#ifndef _WIN32           
-//		#include <dos.h>  
-//	#endif	// !WIN32 
-
 	#include <afxdlgs.h>
 
 	extern Boolean MGetString (
@@ -92,7 +95,7 @@
 				UInt16								stringListID, 
 				UInt16								stringID);		
 
-	Boolean GetSpecifiedStringNumber ( 
+	Boolean GetSpecifiedStringNumber (
 				SInt16								strListID, 
 				SInt16								index,
 				TBYTE*								textStringPtr, 
@@ -131,211 +134,196 @@
 extern Handle 			gCustomNavOpenList;
 extern Handle 			gCustomNavPut;	
 
-
-extern void			LoadShapeToThematicClassNames (
-							ShapeInfoPtr						shapeInfoPtr,
-							char*									classNameTablePtr,
-							UInt32								numberClasses);
 							
 
-			// Prototype descriptions for routines in this file that are only		
-			// called by routines in this file.
+		// Prototype descriptions for routines in this file that are only		
+		// called by routines in this file.
 
-void					AdjustSignedData (
-							FileInfoPtr							fileInfoPtr,
-							HUCharPtr							fileIOBufferPtr,
-							UInt32								numberSamples);
+void		AdjustSignedData (
+				FileInfoPtr							fileInfoPtr,
+				HUCharPtr							fileIOBufferPtr,
+				UInt32								numberSamples);
 
-SInt16 				CheckIfSTAFile (
-							CMFileStream*		 				fileStreamPtr);
+SInt16 	CheckIfSTAFile (
+				CMFileStream*		 				fileStreamPtr);
 
-SInt16 				CheckIfThematicSupportFile (
-							CMFileStream*		 				fileStreamPtr);
+SInt16 	CheckIfThematicSupportFile (
+				CMFileStream*		 				fileStreamPtr);
 
-void 					CloseUpHeirarchalFileIOParameters (
-							LayerInfoPtr						layerInfoPtr,
-							FileInfoPtr							fileInfoPtr, 
-							UInt16*								channelListPtr,
-							UInt16								numberChannels);
-
-//void					CopyWideStringToUnicodeStringInFileStream (
-//							CMFileStream* 						fileStreamPtr);
+void 		CloseUpHeirarchalFileIOParameters (
+				LayerInfoPtr						layerInfoPtr,
+				FileInfoPtr							fileInfoPtr, 
+				UInt16*								channelListPtr,
+				UInt16								numberChannels);
 									
-Boolean				CreateTRLSupportFile (
-							CMFileStream*						trailerStreamPtr, 
-							UInt16								numberSupportFileClasses, 
-							RGBCharColorPtr					classColorTablePtr,
-							char*									classNameTablePtr,
-							SInt16								trailerCode,
-							Boolean								writeClassNamesFlag);
+Boolean	CreateTRLSupportFile (
+				CMFileStream*						trailerStreamPtr, 
+				UInt16								numberSupportFileClasses, 
+				RGBCharColorPtr					classColorTablePtr,
+				char*									classNameTablePtr,
+				SInt16								trailerCode,
+				Boolean								writeClassNamesFlag);
 							
-SInt16				GetGDALLineOfData (
-							FileInfoPtr							fileInfoPtr,	
-							HUCharPtr							ioBufferPtr,
-							UInt32								lineNumber,
-							UInt32								columnStart,
-							UInt32								columnEnd,
-							UInt32								numberChannels,
-							int*									gdalChannelListPtr,
-							UInt32*								numberSamplesReadPtr,
-							Boolean								oneReadFlag);
+SInt16	GetGDALLineOfData (
+				FileInfoPtr							fileInfoPtr,	
+				HUCharPtr							ioBufferPtr,
+				UInt32								lineNumber,
+				UInt32								columnStart,
+				UInt32								columnEnd,
+				UInt32								numberChannels,
+				int*									gdalChannelListPtr,
+				UInt32*								numberSamplesReadPtr,
+				Boolean								oneReadFlag);
 								
-Boolean				GetFileDlgDetermineLinkVisibility ();
+Boolean	GetFileDlgDetermineLinkVisibility ();
 
-SInt16				GetFileTypeAndCreator (
-							CMFileStream*						fileStreamPtr);
+SInt16	GetFileTypeAndCreator (
+				CMFileStream*						fileStreamPtr);
 							
-SInt16 				GetThematicSupportFileToCreate (
-							FileInfoPtr							gisFileInfoPtr,
-							CMFileStream*						trailerStreamPtr,
-							UInt32								supportFileType,
-							Boolean								promptFlag);
+SInt16 	GetThematicSupportFileToCreate (
+				FileInfoPtr							gisFileInfoPtr,
+				CMFileStream*						trailerStreamPtr,
+				UInt32								supportFileType,
+				Boolean								promptFlag);
                        
-void 					LoadErdasTRLClassColorBuffer (
-							FileInfoPtr							gisFileInfoPtr,
-							ColorSpec*							colorSpecPtr,
-							SInt16*								classPtr,
-							UInt32								numberListClasses,
-							UInt16*								paletteIndexPtr,
-							UInt32								numberTRLClasses,
-							RGBCharColorPtr					classColorPtr,
-							SInt16								collapseClassCode,
-							SInt16								classNameCode);
+void 		LoadErdasTRLClassColorBuffer (
+				FileInfoPtr							gisFileInfoPtr,
+				ColorSpec*							colorSpecPtr,
+				SInt16*								classPtr,
+				UInt32								numberListClasses,
+				UInt16*								paletteIndexPtr,
+				UInt32								numberTRLClasses,
+				RGBCharColorPtr					classColorPtr,
+				SInt16								collapseClassCode,
+				SInt16								classNameCode);
                        
-void	 				LoadErdasTRLClassNameBufferFromDescriptions (
-							FileInfoPtr							gisFileInfoPtr,
-							UInt32								inputNumberClasses,
-							UCharPtr								ioTempBufferPtr,
-							SInt16								collapseClassCode);	
+void	 	LoadErdasTRLClassNameBufferFromDescriptions (
+				FileInfoPtr							gisFileInfoPtr,
+				UInt32								inputNumberClasses,
+				UCharPtr								ioTempBufferPtr,
+				SInt16								collapseClassCode);	
 
-SInt16				LoadGroupInformationBuffers (
-							FileInfoPtr							fileInfoPtr,
-							UInt16								numberSupportFileClasses,
-							CTabHandle							groupCTableHandle,
-							SInt16*								classToGroupPtr,
-							UInt16*								groupToPalettePtr,
-							RGBCharColorPtr					groupColorTablePtr,
-							Boolean*								listAllGroupInfoPtr,
-							UInt16*								classSymbolPtr,
-							UInt16								numberClassSymbols,
-							Boolean								asciiSymbolsFlag);
+SInt16	LoadGroupInformationBuffers (
+				FileInfoPtr							fileInfoPtr,
+				UInt16								numberSupportFileClasses,
+				CTabHandle							groupCTableHandle,
+				SInt16*								classToGroupPtr,
+				UInt16*								groupToPalettePtr,
+				RGBCharColorPtr					groupColorTablePtr,
+				Boolean*								listAllGroupInfoPtr,
+				UInt16*								classSymbolPtr,
+				UInt16								numberClassSymbols,
+				Boolean								asciiSymbolsFlag);
 
-Boolean				LoadProbabilityGroupInformation (
-							FileInfoPtr							fileInfoPtr,  
-							RGBCharColorPtr					classColorTablePtr,
-							CTabHandle*							cTableHandlePtr);
+Boolean	LoadProbabilityGroupInformation (
+				FileInfoPtr							fileInfoPtr,  
+				RGBCharColorPtr					classColorTablePtr,
+				CTabHandle*							cTableHandlePtr);
 							
-Boolean				NavServicesCheckForIgnoredFiles (
-							FileStringPtr						filePathPtr);
+Boolean	NavServicesCheckForIgnoredFiles (
+				FileStringPtr						filePathPtr);
 			
 #if defined multispec_mac				
-pascal Boolean 	NavServicesFilterProc( 
-							AEDesc* 								theItem, 
-							void* 								info, 
-							NavCallBackUserData 				callBackUD, 
-							NavFilterModes 					filterMode);
-							
-pascal void 		NavServicesGetEventProc ( 
-							NavEventCallbackMessage 		callBackSelector, 
-							NavCBRecPtr 						callBackParms, 
-							NavCallBackUserData 				callBackUD);
+	pascal Boolean NavServicesFilterProc (
+					AEDesc* 								theItem, 
+					void* 								info, 
+					NavCallBackUserData 				callBackUD, 
+					NavFilterModes 					filterMode);
+								
+	pascal void NavServicesGetEventProc (
+					NavEventCallbackMessage 		callBackSelector, 
+					NavCBRecPtr 						callBackParms, 
+					NavCallBackUserData 				callBackUD);
 
-SInt16 				NavServicesGetFile (
-							CMFileStream* 						fileStreamPtr, 
-							SInt16								numberTypes, 
-							OSType*								fileTypesPtr, 
-							LocalAppFile*						localAppFilePtr,
-							FSRef*								fileAsFSRefPtr,
-							UInt32*								itemCountPtr, 
-							SInt16								stringIndex);
-							
-//pascal Boolean		NavServicesPreviewProc (
-//							NavCBRecPtr							callBackParms,
-//							void *								callBackUD);
-							
-pascal void 		NavServicesPutEventProc ( 
-							NavEventCallbackMessage 		callBackSelector, 
-							NavCBRecPtr 						callBackParms, 
-							NavCallBackUserData 				callBackUD);
-							
-SInt16 				NavServicesPutFile (
-							CMFileStream*		 				fileStreamPtr, 
-							SInt64								numberBytes, 
-							SInt16								stringIndex, 
-							SInt32								creator);
+	SInt16 	NavServicesGetFile (
+					CMFileStream* 						fileStreamPtr, 
+					SInt16								numberTypes, 
+					OSType*								fileTypesPtr, 
+					LocalAppFile*						localAppFilePtr,
+					FSRef*								fileAsFSRefPtr,
+					UInt32*								itemCountPtr, 
+					SInt16								stringIndex);
+	/*							
+	pascal Boolean NavServicesPreviewProc (
+					NavCBRecPtr							callBackParms,
+					void*									callBackUD);
+	*/							
+	pascal void NavServicesPutEventProc (
+					NavEventCallbackMessage 		callBackSelector, 
+					NavCBRecPtr 						callBackParms, 
+					NavCallBackUserData 				callBackUD);
+								
+	SInt16 	NavServicesPutFile (
+					CMFileStream*		 				fileStreamPtr, 
+					SInt64								numberBytes, 
+					SInt16								stringIndex, 
+					SInt32								creator);
 #endif	// defined multispec_mac 
 													
-void 					PackBISData (
-							UInt32								columnInterval, 
-							UInt32								numberBufferChannels, 
-							UInt32								numberChannels, 
-							UInt32								numberSamples, 
-//							UInt32								numberInBytes, 
-							UInt32								dataConversionCode, 
-							HUCharPtr 							ioCharBufferPtr,
-							HUCharPtr 							dataCharBufferPtr, 
-							UInt16*								channelListPtr);
-//							UInt32								forceOutByteCode,
-//							Boolean								signedInDataFlag);
+void 		PackBISData (
+				UInt32								columnInterval, 
+				UInt32								numberBufferChannels, 
+				UInt32								numberChannels, 
+				UInt32								numberSamples, 
+				UInt32								dataConversionCode, 
+				HUCharPtr 							ioCharBufferPtr,
+				HUCharPtr 							dataCharBufferPtr, 
+				UInt16*								channelListPtr);
 							
-UInt32 				PackMaskData (
-							HUInt16Ptr							maskBufferPtr,
-							UInt32								maskColumnStart,
-							UInt32								numberChannels,
-							UInt32								numberInputSamples,
-							UInt32								columnInterval,
-							HUCharPtr							dataBufferPtr,
-							UInt32								numberOutBytes,
-							SInt32								maskValueRequest);
+UInt32 	PackMaskData (
+				HUInt16Ptr							maskBufferPtr,
+				UInt32								maskColumnStart,
+				UInt32								numberChannels,
+				UInt32								numberInputSamples,
+				UInt32								columnInterval,
+				HUCharPtr							dataBufferPtr,
+				UInt32								numberOutBytes,
+				SInt32								maskValueRequest);
 							
-void 					PackNonBISData (
-							UInt32								columnOffset,
-							UInt32								columnInterval,
-							UInt32								numberColumnsPerChannel,  
-							UInt32								fileNumberChannels,
-							UInt32								numberChannels,
-							HUInt16Ptr							channelListPtr, 
-							UInt32								numberSamples,
-//							UInt32								numberInBytes, 
-							UInt32								dataConversionCode, 
-							HUCharPtr							ioCharBufferPtr, 
-							HUCharPtr							dataCharBufferPtr, 
-							Boolean								toBISFormat); 
-//							UInt32								forceOutByteCode,
-//							Boolean								swapBytesFlag);
-//							Boolean								signedInDataFlag);
+void		PackNonBISData (
+				UInt32								columnOffset,
+				UInt32								columnInterval,
+				UInt32								numberColumnsPerChannel,  
+				UInt32								fileNumberChannels,
+				UInt32								numberChannels,
+				HUInt16Ptr							channelListPtr, 
+				UInt32								numberSamples,
+				UInt32								dataConversionCode, 
+				HUCharPtr							ioCharBufferPtr, 
+				HUCharPtr							dataCharBufferPtr, 
+				Boolean								toBISFormat); 
 
-void		 			PackGAIAData (
-							SInt32								columnStart, 
-							SInt32								columnEnd, 
-							HSInt16Ptr							inputBufferPtr);
+void		PackGAIAData (
+				SInt32								columnStart, 
+				SInt32								columnEnd, 
+				HSInt16Ptr							inputBufferPtr);
 
-void 					PackBlockedData (
-							UInt32								line,
-							UInt32								columnStart, 
-							UInt32								columnEnd,
-							UInt32								channelStartIndex,
-							FileInfoPtr							fileInfoPtr,
-							HierarchalFileFormatPtr			hfaPtr,
-							HUCharPtr							outputBufferPtr);
+void 		PackBlockedData (
+				UInt32								line,
+				UInt32								columnStart, 
+				UInt32								columnEnd,
+				UInt32								channelStartIndex,
+				FileInfoPtr							fileInfoPtr,
+				HierarchalFileFormatPtr			hfaPtr,
+				HUCharPtr							outputBufferPtr);
 
-SInt16 				SetUpDataConversionCode (
-							LayerInfoPtr						layerInfoPtr,
-							FileInfoPtr							fileInfoPtr,
-							UInt16								numberListChannels,
-							HUInt16Ptr							channelListPtr,	
-							UInt16								forceOutByteCode);
+SInt16 	SetUpDataConversionCode (
+				LayerInfoPtr						layerInfoPtr,
+				FileInfoPtr							fileInfoPtr,
+				UInt16								numberListChannels,
+				HUInt16Ptr							channelListPtr,	
+				UInt16								forceOutByteCode);
 
-void 					SetUpHeirarchalFileIOParameters (
-							LayerInfoPtr						layerInfoPtr,
-							FileInfoPtr							fileInfoPtr,
-							UInt16								numberChannels, 
-							UInt16*								channelListPtr,
-							UInt32								columnStart, 
-							UInt32								columnEnd);
+void 		SetUpHeirarchalFileIOParameters (
+				LayerInfoPtr						layerInfoPtr,
+				FileInfoPtr							fileInfoPtr,
+				UInt16								numberChannels, 
+				UInt16*								channelListPtr,
+				UInt32								columnStart, 
+				UInt32								columnEnd);
 	
 	
-							
+													
 // === Static Member Variable ===
 
 static UInt16				sCustomControlCount = 0;
@@ -389,9 +377,9 @@ void AdjustSignedData (
 			*byte1Ptr = (*byte1Ptr & signedValueMask1);
 			byte1Ptr++;
 			
-			}		// end "for (sampleCount=0;  ..." 
+			}	// end "for (sampleCount=0;  ..." 
 		
-		}		// end "if (fileInfoPtr->numberBytes == 1)" 
+		}	// end "if (fileInfoPtr->numberBytes == 1)" 
 	
 	else if (fileInfoPtr->numberBytes == 2) 
 		{
@@ -411,11 +399,11 @@ void AdjustSignedData (
 			*twoBytePtr = (*twoBytePtr & signedValueMask2);
 			twoBytePtr++;
 			
-			}		// end "for (sampleCount=0; ..." 
+			}	// end "for (sampleCount=0; ..." 
 		
-		}		// end "else if (fileInfoPtr->numberBytes == 2)"  
+		}	// end "else if (fileInfoPtr->numberBytes == 2)"  
 	
-}		// end "AdjustSignedData"
+}	// end "AdjustSignedData"
 
 
 
@@ -467,7 +455,8 @@ Boolean CheckIfSpecifiedFileExists (
 		checkFileStreamPtr = &checkFileStream;		
 		InitializeFileStream (checkFileStreamPtr, fileStreamPtr);
 		
-		checkFileNamePtr = (FileStringPtr)GetFilePathPPointer (checkFileStreamPtr);
+		checkFileNamePtr = 
+					(FileStringPtr)GetFilePathPPointerFromFileStream (checkFileStreamPtr);
 		
 				// Remove any suffix that exists and then add requested suffix to 
 				// the file name to see if that file exists.
@@ -484,11 +473,11 @@ Boolean CheckIfSpecifiedFileExists (
 			
 		CloseFile (checkFileStreamPtr);
 												
-		}		// end "if (fileStreamPtr != NULL && suffixToCheckPtr != NULL)"
+		}	// end "if (fileStreamPtr != NULL && suffixToCheckPtr != NULL)"
 		
 	return (fileExistsFlag);
 	
-}		// end "CheckIfSpecifiedFileExists"
+}	// end "CheckIfSpecifiedFileExists"
 
 
 
@@ -529,27 +518,28 @@ SInt16 CheckIfSTAFile (
 	
 					
 	count = 5;
-	errCode = MReadData(fileStreamPtr, 
-							&count, 
-							&tempString,
-							kNoErrorMessages);
+	errCode = MReadData (fileStreamPtr, 
+								&count, 
+								&tempString,
+								kNoErrorMessages);
 				
 	if (errCode == noErr)
 		{  
 		if (strncmp ((char*)&tempString, erdasStatHeader, 5) == 0)
 			{	
-			filePathPtr = (FileStringPtr)GetFilePathPPointer (fileStreamPtr);
+			filePathPtr = 
+						(FileStringPtr)GetFilePathPPointerFromFileStream (fileStreamPtr);
 			
 			if (CompareSuffixNoCase ((char*)"\0.sta", filePathPtr, NULL))
-																								return(1);
+																								return (1);
 				
-			}		// end "if (strncmp ((char*)&tempString, erdasStatHeader, 5) == 0)"
+			}	// end "if (strncmp ((char*)&tempString, erdasStatHeader, 5) == 0)"
 						
-		}		// end "if (errCode == noErr)"
+		}	// end "if (errCode == noErr)"
 		
 	return (returnCode);
 			
-}		// end "CheckIfSTAFile"
+}	// end "CheckIfSTAFile"
 
 
 
@@ -589,37 +579,38 @@ SInt16 CheckIfThematicSupportFile (
 											returnCode = 0;
 	
 				
-	filePathPtr = (FileStringPtr)GetFilePathPPointer (fileStreamPtr);
+	filePathPtr = (FileStringPtr)GetFilePathPPointerFromFileStream (fileStreamPtr);
 	
 	if (CompareSuffixNoCase ((char*)"\0.clr", filePathPtr, NULL))
-																							return (1);
+																								return (1);
 	
-	else		// !CompareSuffixNoCase ((char*)"\0.clr", ...
+	else	// !CompareSuffixNoCase ((char*)"\0.clr", ...
 		{
 		count = 5;
-		errCode = MReadData(fileStreamPtr, 
-								&count, 
-								&tempString,
-								kNoErrorMessages);
+		errCode = MReadData (fileStreamPtr, 
+									&count, 
+									&tempString,
+									kNoErrorMessages);
 					
 		if (errCode == noErr)
 			{  
 			if (strncmp ((char*)&tempString, erdasStatHeader, 5) == 0)
 				{
-				filePathPtr = (FileStringPtr)GetFilePathPPointer (fileStreamPtr);
+				filePathPtr = 
+						(FileStringPtr)GetFilePathPPointerFromFileStream (fileStreamPtr);
 				
 				if (CompareSuffixNoCase ((char*)"\0.trl", filePathPtr, NULL))
-																							return (1);
+																								return (1);
 											
-				}		// end "if (strncmp ((char*)&tempString, erdasStatHeader, 5) == 0)"
+				}	// end "if (strncmp ((char*)&tempString, erdasStatHeader, 5) == 0)"
 				
-			}		// end "if (errCode == noErr)"
+			}	// end "if (errCode == noErr)"
 			
-		}		// end "else !CompareSuffixNoCase ((char*)"\0.clr", ..."
+		}	// end "else !CompareSuffixNoCase ((char*)"\0.clr", ..."
 		
 	return (returnCode);
 			
-}		// end "CheckIfThematicSupportFile"
+}	// end "CheckIfThematicSupportFile"
 
 
 
@@ -652,13 +643,13 @@ void CloseFile (
 				
 	if (fileInfoPtr != NULL)
 		{
-		CMFileStream* fileStreamPtr = GetFileStreamPointer(fileInfoPtr);
+		CMFileStream* fileStreamPtr = GetFileStreamPointer (fileInfoPtr);
 			
 		CloseFile (fileStreamPtr);
 		
-		}		// end "if (fileInfoPtr != NULL)"
+		}	// end "if (fileInfoPtr != NULL)"
 	
-}		// end "CloseFile" 
+}	// end "CloseFile" 
 
 
 
@@ -679,32 +670,22 @@ void CloseFile (
 				if (gHasHFSPlusAPIs)
 					errCode = FSCloseFork (fileStreamPtr->refNum);
 				
-				else		// !gHasHFSPlusAPIs
+				else	// !gHasHFSPlusAPIs
 					{
 					if (fileStreamPtr->fileName[0] != 0)
 						errCode = FSClose (fileStreamPtr->refNum);
 					
-					}		// end "else !gHasHFSPlusAPIs"
+					}	// end "else !gHasHFSPlusAPIs"
 					      			
 				if (errCode == noErr)
 					{
-					#if !TARGET_API_MAC_CARBON	
-								// I get an error message under OSX when calling
-								// FSpRstFLock.
-						if (fileStreamPtr->fSSpecFlag)
-							errCode = FSpRstFLock ((FSSpec*)fileStreamPtr);
-							
-						else		// !fileStreamPtr->fSSpecFlag 
-							errCode = RstFLock (fileStreamPtr->fileName, fileStreamPtr->vRefNum);
-					#endif	// !TARGET_API_MAC_CARBON	
-					
 							// If the file is not found (the user must have moved		
 							// the file) do not worry about the error.					
 							
 					if (errCode == fnfErr)
 						errCode = noErr;
 						
-					}		// end "if (errCode == noErr)"
+					}	// end "if (errCode == noErr)"
 				
 				if (errCode == noErr)
 					errCode = FlushVol (NIL, fileStreamPtr->vRefNum);
@@ -716,17 +697,16 @@ void CloseFile (
 											
 				gNumberOfOpenFiles--;
 				
-				}		// end "if (fileStreamPtr->refNum != 0)"
-
+				}	// end "if (fileStreamPtr->refNum != 0)"
 		#endif	// defined multispec_mac
 			
-      #if defined multispec_win | defined multispec_lin
-			fileStreamPtr->MCloseFile();
-		#endif	// defined multispec_win  
+      #if defined multispec_win || defined multispec_lin
+			fileStreamPtr->MCloseFile ();
+		#endif	// defined multispec_win || defined multispec_lin
 			
-		}		// end "if (fileStreamPtr != NULL)" 
+		}	// end "if (fileStreamPtr != NULL)" 
 	
-}		// end "CloseFile" 
+}	// end "CloseFile" 
 
 
 
@@ -742,14 +722,13 @@ void CloseFile (
 				// Check input variables.														
 				
 	fileStreamPtr = (CMFileStream*)GetHandleStatusAndPointer (fileStreamHandle,
-																					&handleStatus,
-																					kNoMoveHi);
+																					&handleStatus);
 																	
 	CloseFile (fileStreamPtr); 
 	
 	MHSetState (fileStreamHandle, handleStatus);
 	
-}		// end "CloseFile" 
+}	// end "CloseFile" 
 
 
 
@@ -788,12 +767,12 @@ void CloseUpFileIOInstructions (
 			CheckAndUnlockHandle (areaDescriptionPtr->maskInfoPtr->maskHandle);
 			fileIOInstructionsPtr->maskBufferPtr = NULL;
 			
-			}		// end "if (fileIOInstructionsPtr->maskBufferPtr != NULL && ..."
+			}	// end "if (fileIOInstructionsPtr->maskBufferPtr != NULL && ..."
 			
 				// Release memory allocated to fileInfoPtr->gdalChannelListPtr.
 				
 		fileIOInstructionsPtr->gdalChannelListPtr = 
-					(int*)CheckAndDisposePtr ((Ptr)fileIOInstructionsPtr->gdalChannelListPtr);
+				(int*)CheckAndDisposePtr ((Ptr)fileIOInstructionsPtr->gdalChannelListPtr);
 		
 				// Force flag for Threaded IO to be FALSE.
 				
@@ -801,9 +780,9 @@ void CloseUpFileIOInstructions (
 
 		EndFileIOThread (fileIOInstructionsPtr);
 
-		}		// end "if (fileIOInstructionsPtr != NULL)"
+		}	// end "if (fileIOInstructionsPtr != NULL)"
 		 	 
-}		// end "CloseUpFileIOInstructions"   
+}	// end "CloseUpFileIOInstructions"   
 
 
 
@@ -834,16 +813,17 @@ void CloseUpGeneralFileIOInstructions (
 {	
 	if (fileIOInstructionsPtr != NULL)
 		{
-		CloseUpHeirarchalFileIOParameters (fileIOInstructionsPtr->layerInfoPtr,
-															fileIOInstructionsPtr->fileInfoPtr, 
-															fileIOInstructionsPtr->channelListPtr,
-															(UInt16)fileIOInstructionsPtr->numberChannels);
+		CloseUpHeirarchalFileIOParameters (
+												fileIOInstructionsPtr->layerInfoPtr,
+												fileIOInstructionsPtr->fileInfoPtr, 
+												fileIOInstructionsPtr->channelListPtr,
+												(UInt16)fileIOInstructionsPtr->numberChannels);
 					
 		UnlockHierarchalFileHandles (fileIOInstructionsPtr->windowInfoPtr, 
-													fileIOInstructionsPtr->fileInfoPtr);
+												fileIOInstructionsPtr->fileInfoPtr);
 					
 		UnlockHDF_FileHandles (fileIOInstructionsPtr->windowInfoPtr, 
-													fileIOInstructionsPtr->fileInfoPtr);
+										fileIOInstructionsPtr->fileInfoPtr);
 		
 		fileIOInstructionsPtr->windowInfoPtr = NULL;
 		fileIOInstructionsPtr->fileInfoPtr = NULL;
@@ -866,9 +846,9 @@ void CloseUpGeneralFileIOInstructions (
 		fileIOInstructionsPtr->forceBISFormatFlag = FALSE;
 		fileIOInstructionsPtr->packDataFlag = FALSE;
 		
-		}		// end "if (fileIOInstructionsPtr != NULL)"
+		}	// end "if (fileIOInstructionsPtr != NULL)"
 	
-}		// end "CloseUpGeneralFileIOInstructions" 
+}	// end "CloseUpGeneralFileIOInstructions" 
 
 
 
@@ -879,8 +859,8 @@ void CloseUpGeneralFileIOInstructions (
 //
 //	Function name:		void CloseUpHeirarchalFileIOParameters
 //
-//	Software purpose:	This routine closes the buffer pointers in the HierarchalFileFormat
-//							structures in the input fileInfo structure.
+//	Software purpose:	This routine closes the buffer pointers in the 
+//							HierarchalFileFormat structures in the input fileInfo structure.
 //
 //	Parameters in:				
 //
@@ -933,7 +913,7 @@ void CloseUpHeirarchalFileIOParameters (
 				nextFileInfoIndex = layerInfoPtr[channelNumber].fileInfoIndex;
 				fileChannelNumber = layerInfoPtr[channelNumber].fileChannelNumber;
 				
-				}		// end "if (layerInfoPtr != NULL)"
+				}	// end "if (layerInfoPtr != NULL)"
 				
 			if (fileInfoIndex != nextFileInfoIndex)
 				{
@@ -942,14 +922,12 @@ void CloseUpHeirarchalFileIOParameters (
 					
 						// Get pointer to the hfa structure.
 						
-				hfaPtr = (HierarchalFileFormatPtr)GetHandlePointer(
-														localFileInfoPtr->hfaHandle,
-														kNoLock,
-														kNoMoveHi);
+				hfaPtr = (HierarchalFileFormatPtr)GetHandlePointer (
+																		localFileInfoPtr->hfaHandle);
 														
 				bandInterleaveByBlockFlag = FALSE;
 				
-				}		// end "if (fileInfoIndex != nextFileInfoIndex)"
+				}	// end "if (fileInfoIndex != nextFileInfoIndex)"
 			
 			if (hfaPtr != NULL)
 				{
@@ -958,7 +936,7 @@ void CloseUpHeirarchalFileIOParameters (
 					fileChannelNumber = 1;
 					bandInterleaveByBlockFlag = TRUE;
 					
-					}		// end "if (localFileInfoPtr->bandInterleave == kBIBlock)"
+					}	// end "if (localFileInfoPtr->bandInterleave == kBIBlock)"
 			
 				localHfaPtr = &hfaPtr[fileChannelNumber-1];
 				
@@ -972,13 +950,13 @@ void CloseUpHeirarchalFileIOParameters (
 				localHfaPtr->lastColumnRead = 0;
 				localHfaPtr->numberBlocksRead = 0;	
 				
-				}		// end "if (hfaPtr != NULL)"
+				}	// end "if (hfaPtr != NULL)"
 				
-			}		// end "for (index=1; index<=numberChannels; index++)" 
+			}	// end "for (index=1; index<=numberChannels; index++)" 
 			
-		}		// end "if (fileInfoPtr != NULL)"
+		}	// end "if (fileInfoPtr != NULL)"
 	
-}		// end "CloseUpHeirarchalFileIOParameters" 
+}	// end "CloseUpHeirarchalFileIOParameters" 
 
 
 
@@ -1016,8 +994,8 @@ void CloseWindowImageFiles (
 	WindowInfoPtr						windowInfoPtr;
 
 		 
-	windowInfoPtr = (WindowInfoPtr)GetHandleStatusAndPointer(
-											windowInfoHandle, &handleStatus, kNoMoveHi);
+	windowInfoPtr = (WindowInfoPtr)GetHandleStatusAndPointer (
+																	windowInfoHandle, &handleStatus);
 
 	if (windowInfoPtr != NULL)
 		{												
@@ -1028,11 +1006,11 @@ void CloseWindowImageFiles (
 		windowInfoPtr->fileInfoHandle = NULL;
 		windowInfoPtr->numberImageFiles = 0;
 			
-		}		// end "if (windowInfoPtr != NULL)"
+		}	// end "if (windowInfoPtr != NULL)"
 		
 	MHSetState (windowInfoHandle, handleStatus); 
 			
-}		// end "CloseWindowImageFiles" 
+}	// end "CloseWindowImageFiles" 
                     
 
 
@@ -1064,11 +1042,11 @@ SInt32 ConvertATRealtoInt (
 	SInt32								intValue;
 	
 	
-	intValue = (SInt32)( ConvertATRealtoReal (ATrealPtr) + 0.5 );
+	intValue = (SInt32)(ConvertATRealtoReal (ATrealPtr) + 0.5);
 	
 	return (intValue);
 
-}		// end "ConvertATRealtoInt" 
+}	// end "ConvertATRealtoInt" 
 
 
 
@@ -1113,7 +1091,7 @@ double ConvertATRealtoReal (
 	
 	if (gSwapBytesFlag)
 		{		
-		memcpy ( (Ptr)&workNumber, (Ptr)ATrealPtr, 4);
+		memcpy ((Ptr)&workNumber, (Ptr)ATrealPtr, 4);
 		
 				// Set Motorola real number to -1.  If the number is not changed		
 				// then a -1 indicates an error.  This assumes that there will be		
@@ -1122,61 +1100,58 @@ double ConvertATRealtoReal (
 		MOTrealNumber = -1;
 		
 		sign = (workNumber & 0x00000080);
-//		if (sign == 0)
-//			{
-			exponent	= 0;
-			exponent = (workNumber & 0x0000007f) << 1;
-			temp = workNumber & 0x00008000;
-			exponent = exponent | (temp>>15);
+
+		exponent	= 0;
+		exponent = (workNumber & 0x0000007f) << 1;
+		temp = workNumber & 0x00008000;
+		exponent = exponent | (temp>>15);
+		
+		if (exponent > 0 && exponent < 255)
+			actualExponent = (SInt16)(exponent - 127);
 			
-			if (exponent > 0 && exponent < 255)
-				actualExponent = (SInt16)(exponent - 127);
-				
-			else		// exponent == 0 || exponent == 255
-				actualExponent = (SInt16)exponent;
-		
-					// Make certain that sign does not get shifted right.						
-					
-			fraction = 0;
-			temp = workNumber & 0xff000000;
-			fraction = fraction | ((temp>>24) & 0x000000ff);
-		
-			temp = workNumber & 0x00ff0000;
-			fraction = fraction | (temp>>8);
-		
-			temp = workNumber & 0x00007f00;
-			fraction = fraction | (temp<<8);
-		
-			if (exponent == 0 && fraction == 0)  
-				MOTrealNumber = 0;
-			
-			else		// exponent != 0 || fraction != 0  
-				{
-				onePlusFraction = 1. + (double)fraction/8388608.;
-				MOTrealNumber = ldexp (onePlusFraction, actualExponent);
-				
-				if (sign != 0)
-					MOTrealNumber = - MOTrealNumber;
+		else	// exponent == 0 || exponent == 255
+			actualExponent = (SInt16)exponent;
 	
-				}		// end "else exponent != 0 || fraction != 0" 
+				// Make certain that sign does not get shifted right.						
 				
-//			}		// end "if (sign == 0)" 
+		fraction = 0;
+		temp = workNumber & 0xff000000;
+		fraction = fraction | ((temp>>24) & 0x000000ff);
+	
+		temp = workNumber & 0x00ff0000;
+		fraction = fraction | (temp>>8);
+	
+		temp = workNumber & 0x00007f00;
+		fraction = fraction | (temp<<8);
+	
+		if (exponent == 0 && fraction == 0)  
+			MOTrealNumber = 0;
 		
+		else	// exponent != 0 || fraction != 0  
+			{
+			onePlusFraction = 1. + (double)fraction/8388608.;
+			MOTrealNumber = ldexp (onePlusFraction, actualExponent);
+			
+			if (sign != 0)
+				MOTrealNumber = - MOTrealNumber;
+
+			}	// end "else exponent != 0 || fraction != 0" 
+				
 		return (MOTrealNumber);
 		
-		}		// end "if (gSwapBytesFlag)"
+		}	// end "if (gSwapBytesFlag)"
 		
-	else		// !gSwapBytesFlag
+	else	// !gSwapBytesFlag
 		{
 		float		floatValue; 
 		
 		
-		memcpy ( (Ptr)&floatValue, (Ptr)ATrealPtr, 4);
+		memcpy ((Ptr)&floatValue, (Ptr)ATrealPtr, 4);
 		return (floatValue);
 		
-		}		// end "else !gSwapBytesFlag"
+		}	// end "else !gSwapBytesFlag"
 
-}		// end "ConvertATRealtoReal"
+}	// end "ConvertATRealtoReal"
 
 
 
@@ -1249,18 +1224,18 @@ double ConvertIBM370RealtoReal (
 		if (exponent == 0 && fraction == 0)  
 			MOTrealNumber = 0;
 		
-		else		// exponent != 0 || fraction != 0
+		else	// exponent != 0 || fraction != 0
 			{
 			doubleFraction = (double)fraction/16777216.;
 			MOTrealNumber = ldexp (doubleFraction, actualExponent);
 
-			}		// else exponent != 0 || fraction != 0
+			}	// else exponent != 0 || fraction != 0
 			
-		}		// end "if (sign == 0)" 
+		}	// end "if (sign == 0)" 
 	
 	return (MOTrealNumber);
 
-}		// end "ConvertIBM370RealtoReal" 
+}	// end "ConvertIBM370RealtoReal" 
 
 
 
@@ -1315,7 +1290,7 @@ SInt32 ConvertRealAT (
 		
 				// Get mantissa and exponent for base 2 number								
 		
-		realValue = fabs(realValue);		
+		realValue = fabs (realValue);		
 		mantissa = frexp (realValue, &actualExponent);
 		
 				// Convert mantissa from range of 0.5 - 1.0 to 1.0 - 2.0.  				
@@ -1342,9 +1317,9 @@ SInt32 ConvertRealAT (
 			else // actualExponent > 127
 				exponent = 255;
 			
-			}		// end "if (mantissa > 0)"
+			}	// end "if (mantissa > 0)"
 			
-		else		// mantissa == 0
+		else	// mantissa == 0
 			exponent = 0;
 		
 				// Get the fraction of the mantissa to 23 bits
@@ -1383,21 +1358,21 @@ SInt32 ConvertRealAT (
 		temp = (fraction & 0x007f0000) >> 8;
 		workNumber = workNumber | temp;
 		
-		}		// end "gSwapBytesFlag"
+		}	// end "gSwapBytesFlag"
 		
-	else		// !gSwapBytesFlag
+	else	// !gSwapBytesFlag
 		{
 		float floatValue = (float)realValue;
-		memcpy ( (Ptr)&workNumber, (Ptr)&floatValue, 4);
+		memcpy ((Ptr)&workNumber, (Ptr)&floatValue, 4);
 		
-		}		// end "else !gSwapBytesFlag"
+		}	// end "else !gSwapBytesFlag"
 	
 			// Return the converted number.  It is now in PC-AT floating point	
 			// format (Real)																		
 			
 	return (workNumber);
 
-}		// end "ConvertRealAT"  
+}	// end "ConvertRealAT"  
 
 
 
@@ -1439,7 +1414,7 @@ void CopyFileStream (
 		#if defined multispec_mac                                                         		
 			newFileStreamPtr->vRefNum = oldFileStreamPtr->vRefNum;
 			newFileStreamPtr->parID = oldFileStreamPtr->parID;
-			CopyPToP (newFileStreamPtr->fileName, oldFileStreamPtr->fileName );
+			CopyPToP (newFileStreamPtr->fileName, oldFileStreamPtr->fileName);
 			newFileStreamPtr->creator = oldFileStreamPtr->creator;
 			newFileStreamPtr->type = oldFileStreamPtr->type;    
 			newFileStreamPtr->fSSpecFlag = oldFileStreamPtr->fSSpecFlag;
@@ -1455,7 +1430,8 @@ void CopyFileStream (
 		#endif	// defined multispec_mac
 		
       #if defined multispec_win
-         TBYTE* oldFilePathPtr = (TBYTE*)oldFileStreamPtr->GetFilePathPPtr (kReturnUnicode);              
+         TBYTE* oldFilePathPtr = 
+								(TBYTE*)oldFileStreamPtr->GetFilePathPPtr (kReturnUnicode);              
 			newFileStreamPtr->SetFilePath (oldFilePathPtr, FALSE);
 			newFileStreamPtr->mCreator = oldFileStreamPtr->mCreator;
 			newFileStreamPtr->mFileType = oldFileStreamPtr->mFileType; 
@@ -1465,7 +1441,8 @@ void CopyFileStream (
 		#endif	// defined multispec_win
 		
       #if defined multispec_lin
-         WideFileStringPtr	oldFilePathPtr = (WideFileStringPtr)oldFileStreamPtr->GetFilePathPPtr(kReturnUnicode);
+         WideFileStringPtr	oldFilePathPtr = 
+					(WideFileStringPtr)oldFileStreamPtr->GetFilePathPPtr (kReturnUnicode);
 			newFileStreamPtr->SetFilePath (oldFilePathPtr, FALSE);
 			newFileStreamPtr->mCreator = oldFileStreamPtr->mCreator;
 			newFileStreamPtr->mFileType = oldFileStreamPtr->mFileType; 
@@ -1473,9 +1450,9 @@ void CopyFileStream (
 			newFileStreamPtr->mUTF8PathLength = oldFileStreamPtr->mUTF8PathLength;
  		#endif	// defined multispec_lin 
 		
-		}		// end "if (newFileStreamPtr != NULL && ..."
+		}	// end "if (newFileStreamPtr != NULL && ..."
 
-}		// end "CopyFileStream" 
+}	// end "CopyFileStream" 
 
  
 		
@@ -1499,23 +1476,22 @@ Boolean CopyFileStream (
 				// represents an opened file in the same state as that in the
 				// input file stream.
 				                      
-#		if defined multispec_mac                                                         		
+		#if defined multispec_mac                                                         		
 			if (outputFileStreamHandlePtr != NULL)
 				{
 				if (*outputFileStreamHandlePtr == NULL)
-					*outputFileStreamHandlePtr = MNewHandle( sizeof(CMFileStream) );
+					*outputFileStreamHandlePtr = MNewHandle (sizeof (CMFileStream));
 					
 				if (*outputFileStreamHandlePtr != NULL)
 					{
-					newFileStreamPtr = (CMFileStream*)GetHandlePointer(
+					newFileStreamPtr = (CMFileStream*)GetHandlePointer (
 															*outputFileStreamHandlePtr,
-															kLock,
-															kNoMoveHi);
+															kLock);
 															
 					newFileStreamPtr->vRefNum = inputFileStreamPtr->vRefNum;
 					newFileStreamPtr->parID = inputFileStreamPtr->parID;
 					CopyPToP (newFileStreamPtr->fileName, 
-										inputFileStreamPtr->fileName );
+										inputFileStreamPtr->fileName);
 					newFileStreamPtr->creator = inputFileStreamPtr->creator;
 					newFileStreamPtr->type = inputFileStreamPtr->type;    
 					newFileStreamPtr->fSSpecFlag = inputFileStreamPtr->fSSpecFlag;
@@ -1542,64 +1518,69 @@ Boolean CopyFileStream (
 		         
 		         returnFlag = TRUE;
 					
-					}		// end "if (*outputFileStreamHandlePtr != NULL)"
+					}	// end "if (*outputFileStreamHandlePtr != NULL)"
 				
-				}		// end "if (outputFileStreamHandlePtr != NULL)"
-#		endif	// defined multispec_mac
+				}	// end "if (outputFileStreamHandlePtr != NULL)"
+		#endif	// defined multispec_mac
 		
-#		if defined multispec_lin
+		#if defined multispec_lin
 			if (outputFileStreamPtrPtr != NULL)
 				{
-				if ( *outputFileStreamPtrPtr == NULL)
+				if (*outputFileStreamPtrPtr == NULL)
 					*outputFileStreamPtrPtr = new CMFileStream;
 					
 				if (*outputFileStreamPtrPtr != NULL)
 					{
 					newFileStreamPtr = *outputFileStreamPtrPtr;
 					
-		         WideFileStringPtr	oldFilePathPtr = (WideFileStringPtr)inputFileStreamPtr->GetFilePathPPtr(kReturnUnicode);
+		         WideFileStringPtr	oldFilePathPtr = (WideFileStringPtr)
+											inputFileStreamPtr->GetFilePathPPtr (kReturnUnicode);
 					newFileStreamPtr->SetFilePath (oldFilePathPtr, FALSE);
 					newFileStreamPtr->mCreator = inputFileStreamPtr->mCreator;
 					newFileStreamPtr->mFileType = inputFileStreamPtr->mFileType; 
-					newFileStreamPtr->mUnicodePathLength = inputFileStreamPtr->mUnicodePathLength;
+					newFileStreamPtr->mUnicodePathLength = 
+															inputFileStreamPtr->mUnicodePathLength;
  		         returnFlag = TRUE;
 		         
-		      	}		// end "if (*outputFileStreamPtrPtr != NULL)"
+		      	}	// end "if (*outputFileStreamPtrPtr != NULL)"
          
-         	}		// end "if (outputFileStreamPtrPtr != NULL)"
-#		endif	// defined multispec_lin 
+         	}	// end "if (outputFileStreamPtrPtr != NULL)"
+		#endif	// defined multispec_lin 
 		
-#		if defined multispec_win
+		#if defined multispec_win
 			if (outputFileStreamPtrPtr != NULL)
 				{
-				if ( *outputFileStreamPtrPtr == NULL)
+				if (*outputFileStreamPtrPtr == NULL)
 					*outputFileStreamPtrPtr = new CMFileStream;
 					
 				if (*outputFileStreamPtrPtr != NULL)
 					{
 					newFileStreamPtr = *outputFileStreamPtrPtr;
 					
-		         TBYTE* oldFilePathPtr = (TBYTE*)inputFileStreamPtr->GetFilePathPPtr (kReturnUnicode);              
+		         TBYTE* oldFilePathPtr = 
+								(TBYTE*)inputFileStreamPtr->GetFilePathPPtr (kReturnUnicode);              
 					newFileStreamPtr->SetFilePath (oldFilePathPtr, FALSE);
 					newFileStreamPtr->mCreator = inputFileStreamPtr->mCreator;
 					newFileStreamPtr->mFileType = inputFileStreamPtr->mFileType; 
  		         //newFileStreamPtr->m_hFile = inputFileStreamPtr->m_hFile;
 							// Do not allow the two classes to have the same file reference
 					newFileStreamPtr->m_hFile = CFile::hFileNull;
-					newFileStreamPtr->mUnicodePathLength = inputFileStreamPtr->mUnicodePathLength;
-					newFileStreamPtr->mUTF8PathLength = inputFileStreamPtr->mUTF8PathLength;
+					newFileStreamPtr->mUnicodePathLength = 
+															inputFileStreamPtr->mUnicodePathLength;
+					newFileStreamPtr->mUTF8PathLength = 
+															inputFileStreamPtr->mUTF8PathLength;
  		         returnFlag = TRUE;
 		         
-		      	}		// end "if (*outputFileStreamPtrPtr != NULL)"
+		      	}	// end "if (*outputFileStreamPtrPtr != NULL)"
          
-         	}		// end "if (outputFileStreamPtrPtr != NULL)"	
-#		endif	// defined multispec_win 
+         	}	// end "if (outputFileStreamPtrPtr != NULL)"	
+		#endif	// defined multispec_win 
 		
-		}		// end "if (inputFileStreamPtr != NULL)"
+		}	// end "if (inputFileStreamPtr != NULL)"
 		
 	return (returnFlag);
 
-}		// end "CopyFileStream"
+}	// end "CopyFileStream"
 
 
 /*
@@ -1629,15 +1610,17 @@ void CopyWideStringToUnicodeStringInFileStream (
 				CMFileStream* 						fileStreamPtr)
 
 {
-#	if defined multispec_mac
+	#if defined multispec_mac
 				// Copy wide character file name string to unichar name string.
 
 		UniChar*								fromPtr;
 		int									count,
 												indexIn = 0;
 
-		int									numberCharacters = fileStreamPtr->wideCharFileName[0];
+		int									numberCharacters;
 		
+		
+		numberCharacters = fileStreamPtr->wideCharFileName[0];
 		
 		fromPtr = (UniChar*)&fileStreamPtr->wideCharFileName[1];
 		for (count=0; count<numberCharacters; count++)
@@ -1645,12 +1628,12 @@ void CopyWideStringToUnicodeStringInFileStream (
 			fileStreamPtr->uniFileName.unicode[indexIn++] = *fromPtr;
 			fromPtr += 2;
 			
-			}		// end "for (count=0; count<numberCharacters; count++)"
+			}	// end "for (count=0; count<numberCharacters; count++)"
 
 		fileStreamPtr->uniFileName.length = numberCharacters;
-#	endif
+	#endif
 
-}		// end "CopyWideStringToUnicodeStringInFileStream"
+}	// end "CopyWideStringToUnicodeStringInFileStream"
 */
 
 
@@ -1692,13 +1675,13 @@ SInt16 CreateNewFile (
 	SInt16								errCode = noErr;
 	
 	
-#	if defined multispec_mac
+	#if defined multispec_mac
 		SInt32								parID;
 	
 		if (fileStreamPtr->fSSpecFlag)
 			parID = fileStreamPtr->parID;
 	
-		else		// !fileStreamPtr->fSSpecFlag
+		else	// !fileStreamPtr->fSSpecFlag
 			parID = 0;
 	
 				// Create the file on the selected volume
@@ -1718,20 +1701,22 @@ SInt16 CreateNewFile (
 			finderFileInfoPtr->location.h = 0;
 			finderFileInfoPtr->location.v = 0;
 			finderFileInfoPtr->reservedField = 0;
-			
-//				catalogInformation.volume = vRefNum;
-			
-//				errCode = FSFindFolder (vRefNum,
-//   											OSType folderType,
-//   											kDontCreateFolder,
-//   											&fileStreamPtr->parentFSRef);
+			/*
+			catalogInformation.volume = vRefNum;
+		
+			errCode = FSFindFolder (vRefNum,
+											OSType folderType,
+											kDontCreateFolder,
+											&fileStreamPtr->parentFSRef);
 			
 					// Make sure that both UTF8 and unicode strings exist
 			
 			UpdateFileNameInformation (fileStreamPtr, NULL);
-//							// Copy wide character file name string to unichar name string.
-//					CopyWideStringToUnicodeStringInFileStream (fileStreamPtr);
-			
+					
+					// Copy wide character file name string to unichar name string.
+					
+			CopyWideStringToUnicodeStringInFileStream (fileStreamPtr);
+			*/
 			errCode = FSCreateFileUnicode (&fileStreamPtr->parentFSRef, 
 													fileStreamPtr->uniFileName.length,
 													fileStreamPtr->uniFileName.unicode,
@@ -1751,11 +1736,11 @@ SInt16 CreateNewFile (
 				if (errCode == noErr)
 					errCode = dupFNErr;
 															
-				}		// end "if (errCode == dupFNErr)"
+				}	// end "if (errCode == dupFNErr)"
 			
-			}		// end "if (fileStreamPtr->fSRefFlag)"
+			}	// end "if (fileStreamPtr->fSRefFlag)"
 		
-		else		// !fileStreamPtr->fSRefFlag		
+		else	// !fileStreamPtr->fSRefFlag		
 			errCode = HCreate (vRefNum, 
 	                           parID,
 										fileStreamPtr->fileName, 
@@ -1767,17 +1752,17 @@ SInt16 CreateNewFile (
 			IOCheck (errCode, (CharPtr)&fileStreamPtr->fileName);
 			
 		if (errCode != noErr && errCode != dupFNErr)	
-																				return (errCode);
+																						return (errCode);
 																				
 		if (!replaceFlag && errCode == dupFNErr)	
-																				return (errCode);
+																						return (errCode);
 		
 		errCode = noErr;
 			
 		if (fileStreamPtr->fSRefFlag)
 			errCode = SetFileSizeToZero (fileStreamPtr);
 			
-		else		// !fileStreamPtr->fSRefFlag
+		else	// !fileStreamPtr->fSRefFlag
 			{					
 			if (!fileStreamPtr->fSSpecFlag && !fileStreamPtr->fSRefFlag)
 				{											
@@ -1790,14 +1775,14 @@ SInt16 CreateNewFile (
 					{
 					if (messageCode == kErrorMessages)
 						IOCheck (errCode, (CharPtr)&fileStreamPtr->fileName);
-																					return (errCode);
+																						return (errCode);
 																					
-					}		// end "if (errCode != noErr)"
+					}	// end "if (errCode != noErr)"
 				
 				vRefNum = gFileFSSpec.vRefNum;
 				parID = gFileFSSpec.parID;
 												
-				}		// end "if (!fileStreamPtr->fSSpecFlag && ..."
+				}	// end "if (!fileStreamPtr->fSSpecFlag && ..."
 			
 					// Open the file ready for write mode at the beginning.					
 														
@@ -1810,34 +1795,36 @@ SInt16 CreateNewFile (
 					
 			if (errCode == noErr)
 				{	
-				errCode = HGetFInfo (vRefNum, parID, fileStreamPtr->fileName, &gFinderInfo);
+				errCode = HGetFInfo (
+										vRefNum, parID, fileStreamPtr->fileName, &gFinderInfo);
 				
-				if ( errCode == noErr && (gFinderInfo.fdCreator != creator || 
-													gFinderInfo.fdType != fileStreamPtr->type) )
+				if (errCode == noErr && (gFinderInfo.fdCreator != creator || 
+													gFinderInfo.fdType != fileStreamPtr->type))
 					{
 					gFinderInfo.fdCreator = creator;
 					gFinderInfo.fdType = fileStreamPtr->type;
 				
-					errCode = HSetFInfo (vRefNum, parID, fileStreamPtr->fileName, &gFinderInfo);
+					errCode = HSetFInfo (
+										vRefNum, parID, fileStreamPtr->fileName, &gFinderInfo);
 					
-					}		// end "if (errCode == noErr)" 
+					}	// end "if (errCode == noErr)" 
 				
 				if (messageCode == kErrorMessages)	
 					IOCheck (errCode, (CharPtr)&fileStreamPtr->fileName);
 				
-				}		// end "if (errCode == noErr)"
+				}	// end "if (errCode == noErr)"
 			
-			}		// end "else !fileStreamPtr->fSRefFlag"
-#	endif	// defined multispec_mac
+			}	// end "else !fileStreamPtr->fSRefFlag"
+	#endif	// defined multispec_mac
 	
-#	if defined multispec_win || defined multispec_lin
+	#if defined multispec_win || defined multispec_lin
 		UpdateFileNameInformation (fileStreamPtr, NULL);
 		errCode = fileStreamPtr->MCreateNewFile (replaceFlag);
-#	endif	// defined multispec_win
+	#endif	// defined multispec_win || defined multispec_lin
 	
 	return (errCode);
 
-}		// end "CreateNewFile"  
+}	// end "CreateNewFile"  
 
 
 
@@ -1893,7 +1880,6 @@ Boolean CreateThematicSupportFile (
 				UInt16*								paletteIndexPtr,
 				SInt16								paletteType,
 				UInt16								numberPaletteEntriesToRead, 
-//				SInt16								paletteOffset, 
 				SInt16								classNameCode, 
 				SInt16								trailerCode,
 				SInt16								thematicListType,
@@ -1902,8 +1888,8 @@ Boolean CreateThematicSupportFile (
 
 {
 	CMFileStream						trailerStream;
-//	unsigned char						classColorTable[768],
-//											groupColorTable[768];
+	//unsigned char					classColorTable[768],
+	//										groupColorTable[768];
 											
 	Boolean								*listAllGroupInfoPtr;
 	EchoClassifierVarPtr				echoClassifierVarPtr;
@@ -1946,13 +1932,13 @@ Boolean CreateThematicSupportFile (
 	
 	
 	if (gisFileInfoPtr == NULL)
-																				return (FALSE);
+																							return (FALSE);
 	
 			// Do not create a trailer file if there are more than the class		
 			// limit.																				
 			
 	if (numberClasses > gClassListLimit)
-																				return (TRUE);
+																							return (TRUE);
 
 			// Get buffer to load the class names into. Allow for minimum
 			// of 256 classes. Allow for background classes being created for some
@@ -1983,9 +1969,9 @@ Boolean CreateThematicSupportFile (
 		CheckAndDisposePtr ((Ptr)classNameTablePtr);
 		CheckAndDisposePtr ((Ptr)classColorTablePtr);
 		CheckAndDisposePtr ((Ptr)groupColorTablePtr);
-																				return (FALSE);
+																							return (FALSE);
 																				
-		}		// end "if (listAllGroupInfoPtr == NULL)"
+		}	// end "if (listAllGroupInfoPtr == NULL)"
 	
 	numberProjectClasses = 0;
 	if (gProjectInfoPtr != NULL)
@@ -1997,19 +1983,18 @@ Boolean CreateThematicSupportFile (
 		
 	colorSpecPtr = inputColorSpecPtr;
 	continueFlag = GetClassColorTable (gisFileInfoPtr, 
-														numberClasses, 
-														classPtr,
-														numberListClasses,
-														&numberSupportFileClasses,  
-														&colorSpecPtr,
-														paletteHandle,
-														paletteIndexPtr,
-														paletteType,
-														numberPaletteEntriesToRead, 
-//														paletteOffset,
-														classNameCode,
-														thematicListType,
-														collapseClassCode);
+													numberClasses, 
+													classPtr,
+													numberListClasses,
+													&numberSupportFileClasses,  
+													&colorSpecPtr,
+													paletteHandle,
+													paletteIndexPtr,
+													paletteType,
+													numberPaletteEntriesToRead, 
+													classNameCode,
+													thematicListType,
+													collapseClassCode);
 	
 	if (continueFlag)
 		{
@@ -2023,13 +2008,13 @@ Boolean CreateThematicSupportFile (
 			promptFlag = TRUE;
 		
 		errCode = GetThematicSupportFileToCreate (gisFileInfoPtr, 
-																	trailerStreamPtr, 
-																	supportFileType,
-																	promptFlag);
+																trailerStreamPtr, 
+																supportFileType,
+																promptFlag);
 		
-		continueFlag = FileExists(trailerStreamPtr);
+		continueFlag = FileExists (trailerStreamPtr);
 		
-		}		// end "if (continueFlag)"
+		}	// end "if (continueFlag)"
 	
 			// Continue if memory not full													
 			
@@ -2046,22 +2031,21 @@ Boolean CreateThematicSupportFile (
 		if (stringNumber != 0)
 			{
 			MGetString (gTextString, kClassifyStrID, IDS_Classify1);
-			LoadDItemString (gStatusDialogPtr, stringNumber, (Str255*)&gTextString);
+			LoadDItemString (gStatusDialogPtr, stringNumber, (Str255*)gTextString);
 
-			}		// end "if (stringNumber != 0)"
+			}	// end "if (stringNumber != 0)"
 	
 				// Now load the class color table to be used for the support file.
 				
 		LoadErdasTRLClassColorBuffer (gisFileInfoPtr,
-													colorSpecPtr,
-													classPtr,
-													numberListClasses,
-													paletteIndexPtr,
-//													0, 
-													numberSupportFileClasses,
-													classColorTablePtr,
-													collapseClassCode,
-													classNameCode);
+												colorSpecPtr,
+												classPtr,
+												numberListClasses,
+												paletteIndexPtr, 
+												numberSupportFileClasses,
+												classColorTablePtr,
+												collapseClassCode,
+												classNameCode);
 					
 				// Load the class names into the class name table.								
 		
@@ -2069,51 +2053,52 @@ Boolean CreateThematicSupportFile (
 		if (trailerCode & kClassNames)
 			{
 			nameLength = 0;
-			if (classNameCode == 0 || classNameCode == kProbFormatCode ||
-										classNameCode == kFromShapeToThematicCode ||
-												classNameCode == kClusterMaskCode)
+			if (classNameCode == 0 || 
+						classNameCode == kProbFormatCode ||
+								classNameCode == kFromShapeToThematicCode ||
+										classNameCode == kClusterMaskCode)
 				{
 				BlockMoveData ("background", tempClassNameTablePtr, 10);
 				nameLength = 10;
 				
-				}		// end "if (classNameCode == 0 || classNameCode == ..."
+				}	// end "if (classNameCode == 0 || classNameCode == ..."
 				
 			else if (classNameCode & (kEchoFieldsCode + kEchoClassesCode))
 				{
 				BlockMoveData ("threshold(", tempClassNameTablePtr, 10);
 
 				echoClassifierVarPtr = (EchoClassifierVarPtr)GetHandlePointer (
-										gClassifySpecsPtr->echoClassifierVarH,
-										kLock,
-										kNoMoveHi);
+															gClassifySpecsPtr->echoClassifierVarH,
+															kLock);
 					
 				if (echoClassifierVarPtr->fixed_homogeneityThreshold_option)
 					sprintf (&tempClassNameTablePtr[10], "L");
 					
-				else		// !...fixed_homogeneityThreshold_option 
+				else	// !...fixed_homogeneityThreshold_option 
 					sprintf (&tempClassNameTablePtr[10], "P");
 				
 				if (classNameCode & kEchoFieldsCode)
 					{
 					stringLength = sprintf (&tempClassNameTablePtr[11], 
-								"%.1f,A%.1f)", 
-								echoClassifierVarPtr->homogeneityThreshold,
-								echoClassifierVarPtr->annexationThreshold);
+													"%.1f,A%.1f)", 
+													echoClassifierVarPtr->homogeneityThreshold,
+													echoClassifierVarPtr->annexationThreshold);
 					nameLength = 11 + stringLength;
 						
-					}		// end "if (classNameCode & kEchoFieldsCode)"
+					}	// end "if (classNameCode & kEchoFieldsCode)"
 						
-				else		// !(classNameCode & kEchoFieldsCode) 
+				else	// !(classNameCode & kEchoFieldsCode) 
 					{
 					stringLength = sprintf ((char*)&tempClassNameTablePtr[11], 
-								"%.1f)~", echoClassifierVarPtr->homogeneityThreshold);
+													"%.1f)~", 
+													echoClassifierVarPtr->homogeneityThreshold);
 					nameLength = 11 + stringLength;
 						
-					}		// end "else !(classNameCode & kEchoFieldsCode)"
+					}	// end "else !(classNameCode & kEchoFieldsCode)"
 				
 				CheckAndUnlockHandle (gClassifySpecsPtr->echoClassifierVarH);
 				
-				}		// end "else if (... & (kEchoFieldsCode + kEchoClassesCode) )" 
+				}	// end "else if (... & (kEchoFieldsCode + kEchoClassesCode))" 
 								
 			tempClassNameTablePtr[nameLength] = 0;
 			tempClassNameTablePtr += 32;
@@ -2124,22 +2109,21 @@ Boolean CreateThematicSupportFile (
 				classIndex = 0;
 				for (classNumber=1; classNumber<=numberProjectClasses; classNumber++)
 					{
-					nameLength = LoadClassName (
-													(SInt16)classNumber, 
-													(SInt16)numberListClasses, 
-													classPtr, 
-													&classIndex, 
-													(char*)tempClassNameTablePtr,
-													0);
+					nameLength = LoadClassName ((SInt16)classNumber, 
+															(SInt16)numberListClasses, 
+															classPtr, 
+															&classIndex, 
+															(char*)tempClassNameTablePtr,
+															0);
 													
 					tempClassNameTablePtr[nameLength] = 0;
 					tempClassNameTablePtr += 32;
 				
-					}		// end "for ( classNumber=1; classNumber<=..."
+					}	// end "for (classNumber=1; classNumber<=..."
 					
-				}		// end "if (classPtr != NULL)" 
+				}	// end "if (classPtr != NULL)" 
 				
-			else		// classPtr == NULL
+			else	// classPtr == NULL
 				{
 				if (classNameCode == kProbFormatCode)
 					{
@@ -2154,20 +2138,22 @@ Boolean CreateThematicSupportFile (
 							{
 							if (rejectionPercent < 0.1)
 								nameLength = sprintf (tempClassNameTablePtr, 
-													"%.0e - %.0e", 
-													rejectionPercent, rejectionPercent+rejectionStep);
+																"%.0e - %.0e", 
+																rejectionPercent, 
+																rejectionPercent+rejectionStep);
 										
-							else		// rejectionPercent >= 0.1 
-								nameLength= sprintf (tempClassNameTablePtr, 
-													"%3.1f-%3.1f", 
-													rejectionPercent, rejectionPercent+rejectionStep);
+							else	// rejectionPercent >= 0.1 
+								nameLength = sprintf (tempClassNameTablePtr, 
+																"%3.1f-%3.1f", 
+																rejectionPercent, 
+																rejectionPercent+rejectionStep);
 										
 							rejectionPercent += rejectionStep;
 										
 							if (index < 13)
 								rejectionStep *= 10;
 								
-							else		// index >= 14 
+							else	// index >= 14 
 								{
 								if (index == 13)
 									rejectionStep = .1;
@@ -2175,14 +2161,14 @@ Boolean CreateThematicSupportFile (
 								if (index == 22)
 									rejectionStep = 1.;
 									
-								}		// end "else index >= 13" 
+								}	// end "else index >= 13" 
 							
 							tempClassNameTablePtr[nameLength] = 0;
 							tempClassNameTablePtr += 32;
 							
-							}		// end "for (index=1; index<=..."
+							}	// end "for (index=1; index<=..."
 							
-						}		// end "if (numberClasses == gNumberProbabilityClasses)"
+						}	// end "if (numberClasses == gNumberProbabilityClasses)"
 						
 					else if (numberClasses == 102)
 						{
@@ -2205,18 +2191,18 @@ Boolean CreateThematicSupportFile (
 																CEMValue+CEMStep);
 								CEMValue += CEMStep;
 								
-								}		// end "else if (index <= 102)"
+								}	// end "else if (index <= 102)"
 								
-							else		// index > 101
+							else	// index > 101
 								nameLength = sprintf (tempClassNameTablePtr, 
 																">2.00");
 								
 							tempClassNameTablePtr[nameLength] = 0;	
 							tempClassNameTablePtr += 32;
 							
-							}		// end "for (index=1; index<=..."
+							}	// end "for (index=1; index<=..."
 						
-						}		// end "if (numberClasses == 102)"
+						}	// end "if (numberClasses == 102)"
 						
 					else if (numberClasses == 91)
 						{
@@ -2234,44 +2220,47 @@ Boolean CreateThematicSupportFile (
 							else	// index > 1 
 								{
 								nameLength = sprintf (tempClassNameTablePtr, 
-										(char*)"%d-%d",
-										correlationValue-correlationStep,
-										correlationValue);
+																(char*)"%d-%d",
+																correlationValue-correlationStep,
+																correlationValue);
 								correlationValue -= correlationStep;
 								
-								}		// end "else index > 1"
+								}	// end "else index > 1"
 								
 							tempClassNameTablePtr[nameLength] = 0;
 							tempClassNameTablePtr += 32;
 							
-							}		// end "for (index=1; index<=..."
+							}	// end "for (index=1; index<=..."
 						
-						}		// end "else if (numberClasses == 91)"
+						}	// end "else if (numberClasses == 91)"
 					
-					}		// end "if (classNameCode == kProbFormatCode)" 
+					}	// end "if (classNameCode == kProbFormatCode)" 
 					
 				else if (classNameCode == kEchoFieldsCode)
 					{
 					for (index=1; index<=numberClasses; index++)
 						{
-						nameLength = sprintf ((char*)tempClassNameTablePtr, "field %d", index);
+						nameLength = sprintf ((char*)tempClassNameTablePtr, 
+														"field %d", 
+														(int)index);
 						tempClassNameTablePtr[nameLength] = 0;
 						tempClassNameTablePtr += 32;
 					
-						}		// end "for (index=1; index<=numberClasses; index++)" 
+						}	// end "for (index=1; index<=numberClasses; index++)" 
 					
-					}		// end "else if (classNameCode == kEchoFieldsCode)"
+					}	// end "else if (classNameCode == kEchoFieldsCode)"
 
 				else if ((classNameCode == kFromDescriptionCode) ||
 																(classNameCode == kClusterMaskCode))
 					{
 					if (classNameCode == kFromDescriptionCode)
 						{
-							// Go back to location for class 0	
+								// Go back to location for class 0
+									
 						tempClassNameTablePtr -= 32;
 						numberSupportFileClasses--;
 						
-						}		// end "if (classNameCode == kFromDescriptionCode)"
+						}	// end "if (classNameCode == kFromDescriptionCode)"
 						
 					LoadErdasTRLClassNameBufferFromDescriptions (
 																	gisFileInfoPtr,
@@ -2279,7 +2268,7 @@ Boolean CreateThematicSupportFile (
 																	(UCharPtr)tempClassNameTablePtr,
 																	collapseClassCode);
 					
-					}		// end "else if ((classNameCode == kFromDescriptionCode) || ..." 
+					}	// end "else if ((classNameCode == kFromDescriptionCode) || ..." 
 
 				else if (classNameCode == kFromShapeToThematicCode)
 					{
@@ -2289,89 +2278,91 @@ Boolean CreateThematicSupportFile (
 					LoadShapeToThematicClassNames (shapeInfoPtr,
 																tempClassNameTablePtr,
 																numberClasses);
-					
-/*					for (index=1; index<=numberClasses; index++)
+					/*
+					for (index=1; index<=numberClasses; index++)
 						{
-						nameLength = sprintf ((char*)tempClassNameTablePtr, "Class %ld", index);
+						nameLength = sprintf ((char*)tempClassNameTablePtr, 
+														"Class %ld", 
+														index);
 						tempClassNameTablePtr[nameLength] = 0;
 						tempClassNameTablePtr += 32;
 					
-						}		// end "for (index=1; index<=numberClasses; index++)"
-*/					
+						}	// end "for (index=1; index<=numberClasses; index++)"
+					*/					
 					if (supportFileType == kICLRFileType)
 						numberSupportFileClasses = numberClasses + 1;
 					
-					}		// end "else if (classNameCode == kFromShapeToThematicCode" 
+					}	// end "else if (classNameCode == kFromShapeToThematicCode" 
 					
-				}		// end "else classPtr = NULL" 
+				}	// end "else classPtr = NULL" 
 				
-			}		// end "if (trailerCode & kClassNames)"
+			}	// end "if (trailerCode & kClassNames)"
 			
 		writeClassNamesFlag = (classNameCode != 0 || classPtr != NULL);
 		
 		if (supportFileType == kITRLFileType)	
-			continueFlag = CreateTRLSupportFile (
-														trailerStreamPtr, 
-														numberSupportFileClasses,
-														classColorTablePtr,
-														classNameTablePtr,
-														trailerCode,
-														writeClassNamesFlag);
+			continueFlag = CreateTRLSupportFile (trailerStreamPtr, 
+																numberSupportFileClasses,
+																classColorTablePtr,
+																classNameTablePtr,
+																trailerCode,
+																writeClassNamesFlag);
 		
-		else		// supportFileType == kICLRFileType
+		else	// supportFileType == kICLRFileType
 			{
 			classSymbolPtr = NULL;
-			if (gProcessorCode != kClusterProcessor && gProcessorCode != kClassifyProcessor &&
-								gProcessorCode != kSaveOutputAsProcessor)
+			if (gProcessorCode != kClusterProcessor && 
+					gProcessorCode != kClassifyProcessor &&
+						gProcessorCode != kSaveOutputAsProcessor)
 				{
 						// Get pointer to class symbol table.										
 						// Remember to take into account that classSymbolPtr 					
-						// points to an unsigned short int vector.	Str15 is used instead of			
-						// Str31.																			
+						// points to an unsigned short int vector. Str15 is used instead 
+						// of Str31.																			
 								
-				classSymbolPtr = (UInt16*)GetHandlePointer(
-											gisFileInfoPtr->classDescriptionH, kLock, kNoMoveHi);
+				classSymbolPtr = (UInt16*)GetHandlePointer (
+														gisFileInfoPtr->classDescriptionH, kLock);
 				
 				if (classSymbolPtr != NULL)
-					classSymbolPtr = &classSymbolPtr[gisFileInfoPtr->numberClasses*sizeof(Str15)];
+					classSymbolPtr = &classSymbolPtr[gisFileInfoPtr->numberClasses * 
+																							sizeof (Str15)];
 					
-				}		// end "if (gProcessorCode != kClusterProcessor && gProcessorCode != kClassifyProcessor)"
+				}	// end "if (gProcessorCode != kClusterProcessor && ..."
 				
 			disposeGroupCTableHandleFlag = FALSE;
 			if (gProcessorCode == kClassifyProcessor && 
-						classNameCode == kProbFormatCode &&
-								numberClasses == gNumberProbabilityClasses)
+					classNameCode == kProbFormatCode &&
+						numberClasses == gNumberProbabilityClasses)
 				{
 						// Fill the group structure information so that it is ready to be
 						// written to the clr file in a later step.
-						// The group information is for the probability map from the classify processor
-						// for the maximum likelihood, fisher linear discriminant and echo classifier.
+						// The group information is for the probability map from the 
+						// classify processor for the maximum likelihood, fisher linear 
+						// discriminant and echo classifier.
 
-				continueFlag = LoadProbabilityGroupInformation (
-														gisFileInfoPtr,  
-														classColorTablePtr,
-														&groupCTableHandle);
+				continueFlag = LoadProbabilityGroupInformation (gisFileInfoPtr,  
+																				classColorTablePtr,
+																				&groupCTableHandle);
 														
 				disposeGroupCTableHandleFlag = TRUE;
 				
+				}	// end "if (gProcessorCode == kClassifyProcessor && ..."
 				
-				}		// end "if (gProcessorCode == kClassifyProcessor && ..."
-				
-			else		// gProcessorCode != kClassifyProcessor || ...
+			else	// gProcessorCode != kClassifyProcessor || ...
 				{
 						// Get the group color table handle if available
 																				
 				displaySpecsH = GetActiveDisplaySpecsHandle ();
 				if (gisFileInfoPtr->numberGroups > 0 && displaySpecsH != NULL)
 					{
-					DisplaySpecsPtr displaySpecsPtr = (DisplaySpecsPtr)GetHandlePointer(
-																			displaySpecsH, kNoLock, kNoMoveHi);
+					DisplaySpecsPtr displaySpecsPtr = (DisplaySpecsPtr)GetHandlePointer (
+																							displaySpecsH);
 																			
 					groupCTableHandle = displaySpecsPtr->savedGroupCTableHandle;
 					
-					}		// end "if (gisFileInfoPtr->numberGroups > 0 && displaySpecsH != NULL)"
+					}	// end "if (gisFileInfoPtr->numberGroups > 0 && ..."
 				
-				}		// end "else gProcessorCode != kClassifyProcessor || ..."
+				}	// end "else gProcessorCode != kClassifyProcessor || ..."
 				
 					// Get group information if it exists for the clr support file type.
 			
@@ -2379,48 +2370,46 @@ Boolean CreateThematicSupportFile (
 			if (gisFileInfoPtr->numberGroups > 0)
 				{													
 				groupNameTablePtr = (char*)GetHandlePointer (
-															gisFileInfoPtr->groupNameHandle,
-															kLock,
-															kNoMoveHi);
+																		gisFileInfoPtr->groupNameHandle,
+																		kLock);
 				groupToPalettePtr = (UInt16*)GetGroupToPalettePointer (gisFileInfoPtr);
 															
 				classToGroupPtr = GetClassToGroupPointer (gisFileInfoPtr);
 				
 				numberGroups = LoadGroupInformationBuffers (
-															gisFileInfoPtr,
-															numberSupportFileClasses,
-															groupCTableHandle,
-															classToGroupPtr,
-															groupToPalettePtr,
-															groupColorTablePtr,
-															listAllGroupInfoPtr,
-															classSymbolPtr,
-															(UInt16)gisFileInfoPtr->numberClasses,
-															gisFileInfoPtr->asciiSymbols);
+																gisFileInfoPtr,
+																numberSupportFileClasses,
+																groupCTableHandle,
+																classToGroupPtr,
+																groupToPalettePtr,
+																groupColorTablePtr,
+																listAllGroupInfoPtr,
+																classSymbolPtr,
+																(UInt16)gisFileInfoPtr->numberClasses,
+																gisFileInfoPtr->asciiSymbols);
 				
-				}		// end "if (gisFileInfoPtr->numberGroups > 0"	
+				}	// end "if (gisFileInfoPtr->numberGroups > 0"	
 				
 			if (disposeGroupCTableHandleFlag)
 				UnlockAndDispose ((Handle)groupCTableHandle);
 				
-			continueFlag = CreateCLRSupportFile (
-														trailerStreamPtr, 
-														numberSupportFileClasses,
-														classColorTablePtr,
-														classNameTablePtr,
-														numberGroups,
-														classToGroupPtr,
-														groupColorTablePtr,
-														groupNameTablePtr,
-														listAllGroupInfoPtr,
-														classSymbolPtr,
-														(UInt16)gisFileInfoPtr->numberClasses,
-														gisFileInfoPtr->asciiSymbols);
+			continueFlag = CreateCLRSupportFile (trailerStreamPtr, 
+																numberSupportFileClasses,
+																classColorTablePtr,
+																classNameTablePtr,
+																numberGroups,
+																classToGroupPtr,
+																groupColorTablePtr,
+																groupNameTablePtr,
+																listAllGroupInfoPtr,
+																classSymbolPtr,
+																(UInt16)gisFileInfoPtr->numberClasses,
+																gisFileInfoPtr->asciiSymbols);
 														
 			gUpdateFileMenuItemsFlag = TRUE;
 			gisFileInfoPtr->groupChangedFlag = FALSE;	
 				
-			}		// end "else supportFileType == kICLRFileType"
+			}	// end "else supportFileType == kICLRFileType"
 														
 				// Make sure the group information is unlocked.
 				
@@ -2448,19 +2437,21 @@ Boolean CreateThematicSupportFile (
 			Handle windowInfoHandle = GetActiveImageWindowInfoHandle ();
 	
 			CMFileStream* outputFileStreamPtr = GetSupportFileStreamPointer (
-																			windowInfoHandle,
-																			&handleStatus);
+																						windowInfoHandle,
+																						&handleStatus);
 			
-			currentTrailerFilePathPtr = (FileStringPtr)GetFilePathPPointer (outputFileStreamPtr);
-			newTrailerFilePathPtr = (FileStringPtr)GetFilePathPPointer (trailerStreamPtr);
+			currentTrailerFilePathPtr = 
+					(FileStringPtr)GetFilePathPPointerFromFileStream (outputFileStreamPtr);
+			newTrailerFilePathPtr = 
+					(FileStringPtr)GetFilePathPPointerFromFileStream (trailerStreamPtr);
 		
 			CopyPToP (currentTrailerFilePathPtr, newTrailerFilePathPtr);
 			
 			UnlockSupportFileStream (windowInfoHandle, handleStatus);
 	   	
-	   	}		// end "if (gProcessorCode == kSaveProcessor)"		
+	   	}	// end "if (gProcessorCode == kSaveProcessor)"		
 			
-		}		// end "if (continueFlag && errCode == noErr) 
+		}	// end "if (continueFlag && errCode == noErr) 
 	
 			// Unlock dispose of handles to temporary buffer.							
 				
@@ -2474,7 +2465,7 @@ Boolean CreateThematicSupportFile (
 	
 	return (continueFlag && errCode == noErr);
 
-}		// end "CreateThematicSupportFile" 
+}	// end "CreateThematicSupportFile" 
 
 
 
@@ -2543,13 +2534,13 @@ Boolean LoadProbabilityGroupInformation (
 			// as classes.
 			
 	continueFlag = GetGroupStructureMemory (
-								MAX(fileInfoPtr->numberClasses, numberGroups),
-								&groupTablesHandle,
-								&groupNameHandle,
-								&groupToPalettePtr,
-								&groupNamePtr,
-								&groupTableChangedFlag,
-								&groupNameChangedFlag);
+													MAX (fileInfoPtr->numberClasses, numberGroups),
+													&groupTablesHandle,
+													&groupNameHandle,
+													&groupToPalettePtr,
+													&groupNamePtr,
+													&groupTableChangedFlag,
+													&groupNameChangedFlag);
 				
 	if (continueFlag)
 		{
@@ -2569,7 +2560,7 @@ Boolean LoadProbabilityGroupInformation (
 			groupToPalettePtr[groupIndex] = (SInt16)classIndex;
 			classToGroupPtr[classIndex] = (SInt16)groupIndex;
 			
-			}		// end "for (classIndex=23; classIndex<=26; classIndex++)"
+			}	// end "for (classIndex=23; classIndex<=26; classIndex++)"
 		
 		groupIndex++;
 		groupToPalettePtr[groupIndex] = 27;
@@ -2623,82 +2614,82 @@ Boolean LoadProbabilityGroupInformation (
 			
 				// Load the group names.
 				
-		nameLength = sprintf(&groupNamePtr[1], "background");
+		nameLength = sprintf (&groupNamePtr[1], "background");
 		groupNamePtr[0] = (UInt8)nameLength;
 		groupNamePtr += 32;
 				
-		nameLength = sprintf(&groupNamePtr[1], "0-1");
+		nameLength = sprintf (&groupNamePtr[1], "0-1");
 		groupNamePtr[0] = (UInt8)nameLength;
 		groupNamePtr += 32;
 				
-		nameLength = sprintf(&groupNamePtr[1], "1-2");
+		nameLength = sprintf (&groupNamePtr[1], "1-2");
 		groupNamePtr[0] = (UInt8)nameLength;
 		groupNamePtr += 32;
 				
-		nameLength = sprintf(&groupNamePtr[1], "2-3");
+		nameLength = sprintf (&groupNamePtr[1], "2-3");
 		groupNamePtr[0] = (UInt8)nameLength;
 		groupNamePtr += 32;
 				
-		nameLength = sprintf(&groupNamePtr[1], "3-4");
+		nameLength = sprintf (&groupNamePtr[1], "3-4");
 		groupNamePtr[0] = (UInt8)nameLength;
 		groupNamePtr += 32;
 				
-		nameLength = sprintf(&groupNamePtr[1], "4-5");
+		nameLength = sprintf (&groupNamePtr[1], "4-5");
 		groupNamePtr[0] = (UInt8)nameLength;
 		groupNamePtr += 32;
 				
-		nameLength = sprintf(&groupNamePtr[1], "5-10");
+		nameLength = sprintf (&groupNamePtr[1], "5-10");
 		groupNamePtr[0] = (UInt8)nameLength;
 		groupNamePtr += 32;
 				
-		nameLength = sprintf(&groupNamePtr[1], "10-20");
+		nameLength = sprintf (&groupNamePtr[1], "10-20");
 		groupNamePtr[0] = (UInt8)nameLength;
 		groupNamePtr += 32;
 				
-		nameLength = sprintf(&groupNamePtr[1], "20-30");
+		nameLength = sprintf (&groupNamePtr[1], "20-30");
 		groupNamePtr[0] = (UInt8)nameLength;
 		groupNamePtr += 32;
 				
-		nameLength = sprintf(&groupNamePtr[1], "30-40");
+		nameLength = sprintf (&groupNamePtr[1], "30-40");
 		groupNamePtr[0] = (UInt8)nameLength;
 		groupNamePtr += 32;
 				
-		nameLength = sprintf(&groupNamePtr[1], "40-50");
+		nameLength = sprintf (&groupNamePtr[1], "40-50");
 		groupNamePtr[0] = (UInt8)nameLength;
 		groupNamePtr += 32;
 				
-		nameLength = sprintf(&groupNamePtr[1], "50-60");
+		nameLength = sprintf (&groupNamePtr[1], "50-60");
 		groupNamePtr[0] = (UInt8)nameLength;
 		groupNamePtr += 32;
 				
-		nameLength = sprintf(&groupNamePtr[1], "60-70");
+		nameLength = sprintf (&groupNamePtr[1], "60-70");
 		groupNamePtr[0] = (UInt8)nameLength;
 		groupNamePtr += 32;
 				
-		nameLength = sprintf(&groupNamePtr[1], "70-80");
+		nameLength = sprintf (&groupNamePtr[1], "70-80");
 		groupNamePtr[0] = (UInt8)nameLength;
 		groupNamePtr += 32;
 				
-		nameLength = sprintf(&groupNamePtr[1], "80-90");
+		nameLength = sprintf (&groupNamePtr[1], "80-90");
 		groupNamePtr[0] = (UInt8)nameLength;
 		groupNamePtr += 32;
 				
-		nameLength = sprintf(&groupNamePtr[1], "90-100");
+		nameLength = sprintf (&groupNamePtr[1], "90-100");
 		groupNamePtr[0] = (UInt8)nameLength;
 		groupNamePtr += 32;
 			
 				// Get memory for the color table.										
 				
-		bytesNeeded = fileInfoPtr->numberClasses*sizeof(ColorSpec) + sizeof(ColorTable);
-		cTablePtr = (CTabPtr)CheckHandleSize ( 
-									(Handle*)cTableHandlePtr,
-									&continueFlag, 
-									&changedFlag,  
-									bytesNeeded);
+		bytesNeeded = fileInfoPtr->numberClasses *
+														sizeof (ColorSpec) + sizeof (ColorTable);
+		cTablePtr = (CTabPtr)CheckHandleSize ((Handle*)cTableHandlePtr,
+															&continueFlag, 
+															&changedFlag,  
+															bytesNeeded);
 									
 		continueFlag = (cTablePtr != NULL);
 		
-		}		// end "if (continueFlag)"
+		}	// end "if (continueFlag)"
 		
 	if (continueFlag)
 		{                               
@@ -2730,11 +2721,11 @@ Boolean LoadProbabilityGroupInformation (
 				
 				lastColorTableIndex = colorTableIndex;
 				
-				}		// end "if (colorTableIndex != lastColorTableIndex)"
+				}	// end "if (colorTableIndex != lastColorTableIndex)"
 		
 			colorSpecPtr[classIndex].rgb = theColor;
 			
-			}		// end "for (classIndex=0; classIndex<fileInfoPtr->numberClasses; classIndex++)"
+			}	// end "for (classIndex=0; classIndex<fileInfoPtr->numberClasses; ..."
 					
 		fileInfoPtr->numberGroups = (UInt16)numberGroups;
 		
@@ -2744,21 +2735,21 @@ Boolean LoadProbabilityGroupInformation (
 		UnlockAndDispose (fileInfoPtr->groupTablesHandle);
 		fileInfoPtr->groupTablesHandle = groupTablesHandle;
 		
-		}		// end "if (continueFlag)"
+		}	// end "if (continueFlag)"
 	
-	else		// !continueFlag
+	else	// !continueFlag
 		{
 		UnlockAndDispose (groupNameHandle);
 		UnlockAndDispose (groupTablesHandle);
 		
-		}		// end "if (!continueFlag)" 
+		}	// end "if (!continueFlag)" 
 			
 	CheckAndUnlockHandle (fileInfoPtr->groupNameHandle);
 	CheckAndUnlockHandle (fileInfoPtr->groupTablesHandle);
 	
 	return (continueFlag);
 	
-}		// end "LoadProbabilityGroupInformation"
+}	// end "LoadProbabilityGroupInformation"
 
 
 
@@ -2818,7 +2809,7 @@ Boolean CreateTRLSupportFile (
 	
 	
 	if (numberSupportFileClasses > gClassListLimit)
-																				return (TRUE);
+																							return (TRUE);
 
 			// Get buffer to load trailer file information into.  Try to get 		
 			// buffer to hold one complete set of the 3 types of information -	
@@ -2849,12 +2840,13 @@ Boolean CreateTRLSupportFile (
 			*ioTempBufferPtr = 0;
 			ioTempBufferPtr++;
 			
-			}		// end "for (index=7; index<896; index++)" 
+			}	// end "for (index=7; index<896; index++)" 
 					
 		ioTempBufferPtr = (unsigned char*)ioBufferPtr;
 		ioTempBufferPtr = &ioTempBufferPtr[128];
 											
-				// Now load the colors into the trailer file buffer. Order is green, red, blue.
+				// Now load the colors into the trailer file buffer. 
+				// Order is green, red, blue.
 		
 		for (index=0; index<numberSupportFileClasses; index++)
 			{
@@ -2862,11 +2854,8 @@ Boolean CreateTRLSupportFile (
 			ioTempBufferPtr[256] = classColorTablePtr[index].red;
 			ioTempBufferPtr[512] = classColorTablePtr[index].blue;
 			ioTempBufferPtr++;
-//			BlockMoveData (classColorTablePtr, (Ptr)ioTempBufferPtr, numberSupportFileClasses);
-//			BlockMoveData (&classColorTablePtr[256], (Ptr)&ioTempBufferPtr[256], numberSupportFileClasses);
-//			BlockMoveData (&classColorTablePtr[512], (Ptr)&ioTempBufferPtr[512], numberSupportFileClasses);
 			
-			}		// end "for (index=0; index<numberSupportFileClasses; index++)"
+			}	// end "for (index=0; index<numberSupportFileClasses; index++)"
 		
 				// Write buffer of data	to statistics file.								
 					
@@ -2885,14 +2874,14 @@ Boolean CreateTRLSupportFile (
 				*ioTempBufferPtr = 0;
 				ioTempBufferPtr++;
 				
-				}		// end "for (index=1; index<=numberBytes; index++)" 
+				}	// end "for (index=1; index<=numberBytes; index++)" 
 			
 					// Write histogram buffer to the trailer file.								
 						
 			count = 1152;
 			errCode = MWriteData (trailerStreamPtr, &count, ioBufferPtr, kErrorMessages);
 			
-			}		// end "if (errCode == noErr && ...)" 
+			}	// end "if (errCode == noErr && ...)" 
 		
 				// Load class names into the buffer if there is no error.								
 			
@@ -2905,7 +2894,7 @@ Boolean CreateTRLSupportFile (
 				*ioTempBufferPtr = 0;
 				ioTempBufferPtr++;
 				
-				}		// end "for (index=0; index<numberBytes; index++)" 
+				}	// end "for (index=0; index<numberBytes; index++)" 
 			
 			ioTempBufferPtr = (unsigned char*)ioBufferPtr;		
 			for (index=0; index<numberSupportFileClasses; index++)
@@ -2917,7 +2906,7 @@ Boolean CreateTRLSupportFile (
 				classNameTablePtr += 32;
 				ioTempBufferPtr += 32;
 				
-				}		// end "for (index=0; index<numberSupportFileClasses; index++)" 
+				}	// end "for (index=0; index<numberSupportFileClasses; index++)" 
 				
 					// Write class names.														
 					
@@ -2928,13 +2917,14 @@ Boolean CreateTRLSupportFile (
 			if (writeClassNamesFlag)
 				{
 				count = numberBytes;
-				errCode = MWriteData (trailerStreamPtr, &count, ioBufferPtr, kErrorMessages);
+				errCode = MWriteData (
+										trailerStreamPtr, &count, ioBufferPtr, kErrorMessages);
 				
-				}		// end "if (writeClassNamesFlag" 
+				}	// end "if (writeClassNamesFlag" 
 			
-			}		// end "if (errCode == noErr && ...)" 
+			}	// end "if (errCode == noErr && ...)" 
 			
-		}		// end "if (continueFlag)"
+		}	// end "if (continueFlag)"
 		  			
 			// Unlock dispose of handles to temporary buffer.							
 				
@@ -2942,7 +2932,7 @@ Boolean CreateTRLSupportFile (
 	
 	return (continueFlag && errCode == noErr);
 
-}		// end "CreateTRLSupportFile"  
+}	// end "CreateTRLSupportFile"  
 
 
 /*
@@ -3028,13 +3018,13 @@ Boolean WriteSupportInformation (
 	
 	
 	if (gisFileInfoPtr == NULL)
-																				return (FALSE);
+																							return (FALSE);
 	
 			// Do not create a trailer file if there are more than the class		
 			// limit.																				
 			
 	if (numberClasses > gClassListLimit)
-																				return (TRUE);
+																							return (TRUE);
 																				
 			// Make certain that we have the proper information for the 			
 			// palette information.																
@@ -3042,9 +3032,9 @@ Boolean WriteSupportInformation (
 	if (paletteHandle != NULL || inputColorSpecPtr != NULL)
 		paletteType = 0;
 		
-	else		// paletteHandle == NULL && inputColorSpecPtr == NULL
+	else	// paletteHandle == NULL && inputColorSpecPtr == NULL
 		if (paletteType <= 0)
-																				return (FALSE);
+																							return (FALSE);
 		
 	continueFlag = TRUE;
 	numberProjectClasses = 0;
@@ -3061,8 +3051,8 @@ Boolean WriteSupportInformation (
 			// Allow for the background class if needed.
 			
 	if (classNameCode < kFromDescriptionCode)
-		numberTRLClasses = MIN(kMaxNumberStatClasses-1, numberTRLClasses);
-	numberTRLClasses = MIN(kMaxNumberStatClasses, numberTRLClasses);
+		numberTRLClasses = MIN (kMaxNumberStatClasses-1, numberTRLClasses);
+	numberTRLClasses = MIN (kMaxNumberStatClasses, numberTRLClasses);
 	
 			// Get buffer to load color table into if needed.
 			
@@ -3075,11 +3065,11 @@ Boolean WriteSupportInformation (
 				// the trailer file, but the routines being called will
 				// fix those colors.
 					
-		colorSpecPtr = (ColorSpec*)MNewPointer ( 
-									(SInt32)(numberTRLClasses+3)*sizeof(ColorSpec) );
+		colorSpecPtr = (ColorSpec*)MNewPointer (
+									(SInt32)(numberTRLClasses+3)*sizeof (ColorSpec));
 		continueFlag = (colorSpecPtr != NULL);
 				
-		}		// end "if (continueFlag && colorSpecPtr != NULL)"
+		}	// end "if (continueFlag && colorSpecPtr != NULL)"
 	
 			// Continue if memory not full													
 			
@@ -3096,9 +3086,9 @@ Boolean WriteSupportInformation (
 		if (stringNumber != 0)
 			{
 			MGetString (gTextString, kClassifyStrID, IDS_Classify1);
-			LoadDItemString (gStatusDialogPtr, stringNumber, (Str255*)&gTextString);
+			LoadDItemString (gStatusDialogPtr, stringNumber, (Str255*)gTextString);
 
-			}		// end "if (stringNumber != 0)"
+			}	// end "if (stringNumber != 0)"
 		
 				// Set up the palette type variable depending upon the source
 				// for the palette information.
@@ -3116,29 +3106,29 @@ Boolean WriteSupportInformation (
 					if (gProcessorCode != kMultispecToThematicProcessor)
 						inputPaletteOffset = 1;
 					
-					}		// end "if (paletteHandle != NULL)"
+					}	// end "if (paletteHandle != NULL)"
 					
-				else		// resourcePHandle == NULL 
+				else	// resourcePHandle == NULL 
 					thematicPaletteType = kComputedGrays;
 				
-				}		// end "if (colorSpecPtr == NULL)"
+				}	// end "if (colorSpecPtr == NULL)"
 			
-			}		// end "if (thematicPaletteType == 0)"
+			}	// end "if (thematicPaletteType == 0)"
 			
 				// Get the requested color scheme for the classes.
 		
 		if (thematicPaletteType != 0)
 			continueFlag = LoadColorSpecTable (NULL, 
-											NULL,
-											colorSpecPtr,
-											paletteHandle,
-											inputPaletteOffset,
-											MIN(numberTRLClasses+3, 256),
-											numberTRLClasses,
-											thematicPaletteType,
-											numberTRLClasses,
-											kClassDisplay,
-											&paletteCode);
+															NULL,
+															colorSpecPtr,
+															paletteHandle,
+															inputPaletteOffset,
+															MIN (numberTRLClasses+3, 256),
+															numberTRLClasses,
+															thematicPaletteType,
+															numberTRLClasses,
+															kClassDisplay,
+															&paletteCode);
 											
 		if (continueFlag)
 			{
@@ -3151,7 +3141,6 @@ Boolean WriteSupportInformation (
 																	numberTRLClasses,
 																	paletteIndexPtr,
 																	trailerCode);
-
 					break;
 				
 				default:
@@ -3166,18 +3155,18 @@ Boolean WriteSupportInformation (
 																		classNameCode, 
 																		trailerCode);
 				
-				}		// end "switch (thematicFileInfoPtr->format)"
+				}	// end "switch (thematicFileInfoPtr->format)"
 			
-			}		// end "if (continueFlag)"
+			}	// end "if (continueFlag)"
 			
-		}		// end "if (continueFlag) 
+		}	// end "if (continueFlag) 
 	
 	if (inputColorSpecPtr == NULL)
-		CheckAndDisposePtr ( (Ptr)colorSpecPtr );
+		CheckAndDisposePtr ((Ptr)colorSpecPtr);
 	
 	return (continueFlag && errCode == noErr);
 
-}		// end "WriteSupportInformation" 
+}	// end "WriteSupportInformation" 
 */
 
 
@@ -3211,23 +3200,19 @@ CMFileStream* DisposeCMFileStream (
    	CloseFile (fileStreamPtr);
    	
 		#if defined multispec_mac                         
-	
 			fileStreamPtr = (CMFileStream*)CheckAndDisposePtr ((Ptr)fileStreamPtr);
-			
 		#endif	// defined multispec_mac
    	
-      #if defined multispec_win | defined multispec_lin                        
-	
+      #if defined multispec_win || defined multispec_lin                        
 			delete fileStreamPtr;
 			fileStreamPtr = NULL;
-			
-		#endif	// defined multispec_win 
+		#endif	// defined multispec_win || defined multispec_lin 
 		
-		}		// end "if (fileStreamPtr != NULL)"
+		}	// end "if (fileStreamPtr != NULL)"
 		
 	return (fileStreamPtr);
 			
-}		// end "DisposeCMFileStream"
+}	// end "DisposeCMFileStream"
 
 
 
@@ -3270,38 +3255,37 @@ void DiskFullAlert (
 	
 			// Add commas to number of bytes needed.
 			
-	numberCharacters = sprintf( (char*)&bytesNeededString, 
+	numberCharacters = sprintf ((char*)&bytesNeededString, 
 											"%lld",  
 											bytesNeeded);
 
-	numberCharacters = InsertCommasInNumberString (
-										(char*)&bytesNeededString, 
-										numberCharacters, 
-										-1,
-										numberCharacters);
+	numberCharacters = InsertCommasInNumberString ((char*)&bytesNeededString, 
+																	numberCharacters, 
+																	-1,
+																	numberCharacters);
 										
 	MGetString (gTextString, kFileIOStrID, IDS_FileIO01);
-										
-//	SInt16 length = sprintf( (char*)&gTextString2[1],
-//										(char*)&gTextString[1],
-//										&charFileNamePtr[1],
-//										bytesNeeded);
-										
-	length = sprintf( (char*)&gTextString2[1],
+	/*									
+	SInt16 length = sprintf ((char*)&gTextString2[1],
 										(char*)&gTextString[1],
 										&charFileNamePtr[1],
-										(char*)&bytesNeededString[0]);
+										bytesNeeded);
+	*/									
+	length = sprintf ((char*)&gTextString2[1],
+								(char*)&gTextString[1],
+								&charFileNamePtr[1],
+								(char*)&bytesNeededString[0]);
 
 	gTextString2[0] = (SInt8)length;
 
 	DisplayAlert (kErrorAlertID, 
-							kStopAlert, 
-							0, 
-							0, 
-							0, 
-							(UCharPtr)&gTextString2);
+						kStopAlert, 
+						0, 
+						0, 
+						0, 
+						(UCharPtr)gTextString2);
 
-}		// end "DiskFullAlert"
+}	// end "DiskFullAlert"
 
 
 
@@ -3338,15 +3322,15 @@ Boolean FileExists (
 			return (fileStreamPtr->fileName[0] > 0); 
 		#endif	// defined multispec_mac
 		
-      #if defined multispec_win | defined multispec_lin
+      #if defined multispec_win || defined multispec_lin
 			return (fileStreamPtr->mFileType != -1);
-		#endif	// defined multispec_win
+		#endif	// defined multispec_win || defined multispec_lin
 		
-		}		// end "if (fileStreamPtr != NULL)"
+		}	// end "if (fileStreamPtr != NULL)"
 		
 	return (FALSE);
 
-}		// end "FileExists"    
+}	// end "FileExists"    
 
 
 
@@ -3378,19 +3362,19 @@ Boolean FileOpen (
 {
 	if (fileStreamPtr != NULL)
 		{
-#		if defined multispec_mac
+		#if defined multispec_mac
 			return (fileStreamPtr->refNum != 0); 
-#		endif	// defined multispec_mac
+		#endif	// defined multispec_mac
 		
-#		if defined multispec_lin || defined multispec_win
-			return (fileStreamPtr->FileOpen());
-#		endif	// defined multispec_win
+		#if defined multispec_lin || defined multispec_win
+			return (fileStreamPtr->FileOpen ());
+		#endif	// defined multispec_win
 		
-		}		// end "if (fileStreamPtr != NULL)"
+		}	// end "if (fileStreamPtr != NULL)"
 		
 	return (FALSE);
 
-}		// end "FileOpen"
+}	// end "FileOpen"
 
 
 
@@ -3420,7 +3404,6 @@ Boolean FileOpen (
 //							ClusterClassification in SCluster.cpp
 //							GetNextClusterArea in SCluster.cpp
 //							DisplayImagesSideBySide in SDisMulc.cpp
-//							GetDisplayIOBuffer in SDisMulc.cpp
 //							EchoClassifier in SEchoSpc.cpp
 //							ComputeHistogram in SHistgrm.cpp
 //							ListFieldData in SLstData.cpp
@@ -3433,7 +3416,7 @@ Boolean FileOpen (
 //	Coded By:			Larry L. Biehl			Date: 11/29/1989
 //	Revised By:			Larry L. Biehl			Date: 01/24/2000
 
-Boolean GetBILSpecial(
+Boolean GetBILSpecial (
 				FileIOInstructionsPtr			fileIOInstructionsPtr,
 				UInt16*		 						channelListPtr, 
 				UInt16								numberListChannels,
@@ -3459,10 +3442,10 @@ Boolean GetBILSpecial(
 			// Check input request.
 			
 	if (specialBILCode == kSetSpecialBILFlagFalse)
-																				return (FALSE);
+																							return (FALSE);
 			
 	if (specialBILCode == kSetSpecialBILFlagTrue)
-																				return (TRUE);
+																							return (TRUE);
 																				
 			// Initialize local variables.
 			
@@ -3481,60 +3464,60 @@ Boolean GetBILSpecial(
 	if (windowInfoPtr != NULL && windowInfoPtr->numberImageFiles > 1)
 		{
 		if (channelListPtr == NULL)
-																						return (FALSE);
+																							return (FALSE);
 																				
-		else		// channelListPtr != NULL 
+		else	// channelListPtr != NULL 
 			{
 			if (layerInfoPtr == NULL)
-																						return (FALSE);
+																							return (FALSE);
 			
 					// Determine if the selected channels all come from the same 	
 					// image file.																	
 					
 			BILSpecialFlag = TRUE;
-			fileInfoIndex = layerInfoPtr[ channelListPtr[0]+1 ].fileInfoIndex;
+			fileInfoIndex = layerInfoPtr[channelListPtr[0]+1].fileInfoIndex;
 			
 			for (channel=0; channel<numberListChannels; channel++)
 				{
 				if (fileInfoIndex != 
-								layerInfoPtr[ channelListPtr[channel]+1 ].fileInfoIndex)
+								layerInfoPtr[channelListPtr[channel]+1].fileInfoIndex)
 					BILSpecialFlag = FALSE;
 					
-				}		// end "for (channel=0; channel<..." 
+				}	// end "for (channel=0; channel<..." 
 				
 			if (!BILSpecialFlag)
-																						return (FALSE);
+																							return (FALSE);
 																					
 			localFileInfoPtr = &fileInfoPtr[fileInfoIndex];
 																					
-			}		// end "else channelListPtr != NULL" 
+			}	// end "else channelListPtr != NULL" 
 			
-		}		// end "if (if (windowInfoPtr != NULL && ...->numberImageFiles > 1)"
+		}	// end "if (if (windowInfoPtr != NULL && ...->numberImageFiles > 1)"
 	
 			// Do not set the special flag if the number of channels is only 1.
 			
 	if (localFileInfoPtr->numberChannels == 1) 
-																					return (FALSE);
+																							return (FALSE);
 																				
 			// If BIL formatted data and all channels and all columns are to be	
 			// read in, then set flag to read all bytes at one time.					
 	
 	BILSpecialFlag = FALSE;
-	if ( localFileInfoPtr->bandInterleave == kBIL && 
+	if (localFileInfoPtr->bandInterleave == kBIL && 
 			localFileInfoPtr->numberChannels >= numberListChannels &&
-			localFileInfoPtr->numberBits >= 8)
+				localFileInfoPtr->numberBits >= 8)
 		{
 		if (channelListPtr == NULL)
 			{
 			BILSpecialFlag = TRUE;
 			numberChannelsToRead = numberListChannels;
 			
-			}		// end "if (channelListPtr == NULL)"
+			}	// end "if (channelListPtr == NULL)"
 			
-		else		// channelListPtr != NULL 
+		else	// channelListPtr != NULL 
 			{
 			BILSpecialFlag = 
-					DetermineIfChannelsInOrder (channelListPtr, (UInt32)numberListChannels);
+				DetermineIfChannelsInOrder (channelListPtr, (UInt32)numberListChannels);
 			
 			if (BILSpecialFlag)
 				{	
@@ -3548,21 +3531,21 @@ Boolean GetBILSpecial(
 													numberListChannels < numberChannelsToRead/30)
 					BILSpecialFlag = FALSE;
 					
-				}		// end "if (BILSpecialFlag)"
+				}	// end "if (BILSpecialFlag)"
 							
-			}		// end "else channelListPtr != NULL"
+			}	// end "else channelListPtr != NULL"
 		
-		}		// end "if ( localFileInfoPtr->bandInterleave == kBIL && ..."
+		}	// end "if (localFileInfoPtr->bandInterleave == kBIL && ..."
 	
 			// If reads are being handled by gdal library then all channels will be read
 			// with one call to the routines. Do not do this for now since gdal packs the
 			// data if not all columns are being read.
 			
-//	if (fileInfoPtr->gdalDataSetH != NULL)
-//		BILSpecialFlag = TRUE;
+	//if (fileInfoPtr->gdalDataSetH != NULL)
+	//	BILSpecialFlag = TRUE;
 	
-	if (BILSpecialFlag && ( fileInfoPtr->numberPreChannelBytes != 0 ||
-										fileInfoPtr->numberPostChannelBytes != 0))
+	if (BILSpecialFlag && (fileInfoPtr->numberPreChannelBytes != 0 ||
+														fileInfoPtr->numberPostChannelBytes != 0))
 		BILSpecialFlag = FALSE;
 	
 	if (BILSpecialFlag)
@@ -3570,7 +3553,7 @@ Boolean GetBILSpecial(
 		
 	return (BILSpecialFlag);
 	      
-}		// end "GetBILSpecial" 
+}	// end "GetBILSpecial" 
 
 
 /*
@@ -3617,12 +3600,12 @@ void GetClassNameFromDescription (
 		classNameIndex = classNumber * 32;
 		classNamePtr = &classNamePtr[classNameIndex];
 		
-		count = MIN(classNamePtr[0], 31);
+		count = MIN (classNamePtr[0], 31);
 		BlockMoveData (&classNamePtr[1], outputClassNameBufferPtr, count);
 		
-		}		// end "if (collapseClassCode == kCollapseClass)"
+		}	// end "if (collapseClassCode == kCollapseClass)"
 		
-	else		// "collapseClassCode != kCollapseClass"
+	else	// "collapseClassCode != kCollapseClass"
 		{
 				// Class names from the description structure will be used for those
 				// classes included in the class symbol vector. The missing classes
@@ -3634,26 +3617,26 @@ void GetClassNameFromDescription (
 			classNameIndex = *classSymbolIndexPtr * 32;
 			classNamePtr = &classNamePtr[classNameIndex];
 		
-			count = MIN(classNamePtr[0], 31);
+			count = MIN (classNamePtr[0], 31);
 			BlockMoveData (&classNamePtr[1], outputClassNameBufferPtr, count);
 			
 			(*classSymbolIndexPtr)++;
 			
-			}		// end "if (classSymbolPtr[*classSymbolIndexPtr] == classNumber)"
+			}	// end "if (classSymbolPtr[*classSymbolIndexPtr] == classNumber)"
 		
-		else		// classSymbolPtr[*classSymbolIndexPtr] != classNumber
+		else	// classSymbolPtr[*classSymbolIndexPtr] != classNumber
 			{
 			count = sprintf ((char*)outputClassNameBufferPtr, "Class %ld", classNumber);
-			count = MIN(count, 31);
+			count = MIN (count, 31);
 			
-			}		// end "if (classSymbolPtr[*classSymbolIndexPtr] == classNumber)"
+			}	// end "if (classSymbolPtr[*classSymbolIndexPtr] == classNumber)"
 	
-		}		// end "else collapseClassCode != kCollapseClass"
+		}	// end "else collapseClassCode != kCollapseClass"
 		
 	outputClassNameBufferPtr [count] = '~';
 	*classNameLengthPtr = count + 1;
 		
-	}		// end "GetClassNameFromDescription"
+}	// end "GetClassNameFromDescription"
 */
 
 
@@ -3663,7 +3646,41 @@ void GetClassNameFromDescription (
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
-//	Function name:		void GetCopyOfPFileName
+//	Function name:		void GetCopyOfPFileNameFromFileStream
+//
+//	Software purpose:	The purpose of this routine is to copy the actual file 
+//							name not including the path to the specified location. 
+//							The file name will output in pascal format.
+//
+//	Parameters in:		None
+//
+//	Parameters out:	None
+//
+//	Value Returned:	None
+// 
+// Called By:		
+//
+//	Coded By:			Larry L. Biehl			Date: 09/01/2017
+//	Revised By:			Larry L. Biehl			Date: 09/01/2017
+
+void GetCopyOfPFileNameFromFileStream (
+				CMFileStream*						fileStreamPtr,
+				UInt8*								outputPtr)
+
+{  
+	GetCopyOfPFileNameFromFileStream (
+											fileStreamPtr, outputPtr, kDefaultFileStringCode);
+	
+}	// end "GetCopyOfPFileNameFromFileStream"
+
+
+
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		void GetCopyOfPFileNameFromFileStream
 //
 //	Software purpose:	The purpose of this routine is to copy the actual file 
 //							name not including the path to the specified location. 
@@ -3678,12 +3695,12 @@ void GetClassNameFromDescription (
 // Called By:		
 //
 //	Coded By:			Larry L. Biehl			Date: 12/11/1995
-//	Revised By:			Larry L. Biehl			Date: 03/20/2017
+//	Revised By:			Larry L. Biehl			Date: 09/05/2017
 
-void GetCopyOfPFileName (
+void GetCopyOfPFileNameFromFileStream (
 				CMFileStream*						fileStreamPtr,
 				UInt8*								outputPtr,
-				SInt16								returnCode)
+				SInt16								charWidthCode)
 
 {  
 	void*									fileNamePtr;
@@ -3694,26 +3711,19 @@ void GetCopyOfPFileName (
 		{
 		if (fileStreamPtr != NULL)
 			{
-			fileNamePtr = GetFileNameCPointer (fileStreamPtr, returnCode);
-			StringCopy ((void*)outputPtr, (void*)fileNamePtr, 1, returnCode);
-			//if (returnCode == kReturnASCII)
-			//	strcpy ((char*)&outputPtr[1], (char*)fileNamePtr);
-			//else	// returnCode == kReturnUnicode
-			//	{
-			//	unicodeFileNamePtr = (TBYTE*)fileNamePtr;
-			//	wcscpy ((TBYTE*)&unicodeFileNamePtr[1], (TBYTE*)fileNamePtr);
+			fileNamePtr = 
+						GetFileNameCPointerFromFileStream (fileStreamPtr, charWidthCode);
+			StringCopy ((void*)outputPtr, (void*)fileNamePtr, 1, charWidthCode);
 
-			//	}	// end "else returnCode == kReturnUnicode"
+			nameLength = StringLength (fileNamePtr, (charWidthCode==kReturnASCII));
 
-			nameLength = StringLength (fileNamePtr, (returnCode==kReturnASCII));
-
-			}		// end "if (fileInfoPtr != NULL)"
+			}	// end "if (fileInfoPtr != NULL)"
 			
-		SetPascalStringLengthCharacter ((void*)outputPtr, nameLength, returnCode);
+		SetPascalStringLengthCharacter ((void*)outputPtr, nameLength, charWidthCode);
 			
-		}		// end "if (outputPtr != NULL)" 
+		}	// end "if (outputPtr != NULL)" 
 	
-}		// end "GetCopyOfPFileName"    
+}	// end "GetCopyOfPFileNameFromFileStream"
 
 
 
@@ -3722,7 +3732,40 @@ void GetCopyOfPFileName (
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
-//	Function name:		void GetCopyOfPFileName
+//	Function name:		void GetCopyOfPFileNameFromFileInfo
+//
+//	Software purpose:	The purpose of this routine is to copy the actual file 
+//							name not including the path to the specified location. 
+//							The file name will output in pascal format.
+//
+//	Parameters in:		None
+//
+//	Parameters out:	None
+//
+//	Value Returned:	None
+// 
+// Called By:		
+//
+//	Coded By:			Larry L. Biehl			Date: 09/01/2017
+//	Revised By:			Larry L. Biehl			Date: 09/01/2017
+
+void GetCopyOfPFileNameFromFileInfo (
+				FileInfoPtr							fileInfoPtr,
+				UInt8*								outputPtr)
+
+{  
+	GetCopyOfPFileNameFromFileInfo (fileInfoPtr, outputPtr, kDefaultFileStringCode);
+	
+}	// end "GetCopyOfPFileNameFromFileInfo"
+
+
+
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		void GetCopyOfPFileNameFromFileInfo
 //
 //	Software purpose:	The purpose of this routine is to copy the actual file 
 //							name not including the path to the specified location. 
@@ -3737,9 +3780,9 @@ void GetCopyOfPFileName (
 // Called By:		
 //
 //	Coded By:			Larry L. Biehl			Date: 12/12/1995
-//	Revised By:			Larry L. Biehl			Date: 03/09/2017	
+//	Revised By:			Larry L. Biehl			Date: 09/01/2017
 
-void GetCopyOfPFileName (
+void GetCopyOfPFileNameFromFileInfo (
 				FileInfoPtr							fileInfoPtr,
 				UInt8*								outputPtr,
 				SInt16								returnCode)
@@ -3751,16 +3794,16 @@ void GetCopyOfPFileName (
 			{              
 			CMFileStream* fileStreamPtr = GetFileStreamPointer (fileInfoPtr);
 			
-			GetCopyOfPFileName (fileStreamPtr, outputPtr, returnCode);
+			GetCopyOfPFileNameFromFileStream (fileStreamPtr, outputPtr, returnCode);
 			
-			}		// end "if (fileInfoPtr != NULL)"
+			}	// end "if (fileInfoPtr != NULL)"
 			
-		else		// fileInfoPtr == NULL
+		else	// fileInfoPtr == NULL
 			outputPtr[0] = 0;
 			
-		}		// end "if (outputPtr != NULL)" 
+		}	// end "if (outputPtr != NULL)" 
 	
-}		// end "GetCopyOfPFileName"  
+}	// end "GetCopyOfPFileNameFromFileInfo"
 
 
 
@@ -3826,12 +3869,12 @@ UInt32 GetDataConversionCode (
 		if (inputSignedFlag)
 			inputSignCode = 0x00000001;
 		
-		else		// !inputSignedFlag
+		else	// !inputSignedFlag
 			inputSignCode = 0x00000000;
 			
-		}		// end "if (inputDataTypeCode == kIntegerType)"
+		}	// end "if (inputDataTypeCode == kIntegerType)"
 		
-	else		// inputDataTypeCode == kRealType
+	else	// inputDataTypeCode == kRealType
 		inputSignCode = 0x00000003;
 	
 	if (forceOutByteCode == kDoNotForceBytes)
@@ -3839,7 +3882,7 @@ UInt32 GetDataConversionCode (
 		outputByteCode = inputByteCode;
 		outputSignCode = inputSignCode;
 		
-		}		// end "if (forceOutByteCode == kDoNotForceBytes)"
+		}	// end "if (forceOutByteCode == kDoNotForceBytes)"
 		
 	else if (forceOutByteCode == kForce1Byte)
 		outputByteCode = 0x00000080;
@@ -3855,14 +3898,14 @@ UInt32 GetDataConversionCode (
 		outputByteCode = 0x00000200;
 		outputSignCode = 0x00000003;
 		
-		}		// end "else if (forceOutByteCode == kForceReal4Bytes)"
+		}	// end "else if (forceOutByteCode == kForceReal4Bytes)"
 		
 	else if (forceOutByteCode == kForceReal8Bytes)
 		{
 		outputByteCode = 0x00000400;
 		outputSignCode = 0x00000003;
 		
-		}		// end "else if (forceOutByteCode == kForceReal8Bytes)"
+		}	// end "else if (forceOutByteCode == kForceReal8Bytes)"
 		
 	if (outputSignCode == 0 && outputSignedFlag)
 		outputSignCode = 0x00000001;
@@ -3887,24 +3930,24 @@ UInt32 GetDataConversionCode (
 				// All other down conversions should only be from the reformat change
 				// image file format processor
 		
-//		outputByteCode = inputByteCode;
-//		outputSignCode = inputSignCode;
+		//outputByteCode = inputByteCode;
+		//outputSignCode = inputSignCode;
 
 		if (inputByteCode <= 0x00000200 && inputSignCode <= 0x00000001)
 			{
 			outputByteCode = 0x00000200;
 			outputSignCode = inputSignCode;
 			
-			}		// end "if (inputByteCode <= 0x00000200 && inputSignCode <= 0x00000001)"
+			}	// end "if (inputByteCode <= 0x00000200 && inputSignCode <= 0x00000001)"
 			
-		else		// inputByteCode > 0x00000200 || inputSignCode > 0x00000001
+		else	// inputByteCode > 0x00000200 || inputSignCode > 0x00000001
 			{
 			outputByteCode = 0x00000400;
 			outputSignCode = 0x00000003;
 			
-			}		// end "else inputByteCode > 0x00000200 || inputSignCode > 0x00000001"
+			}	// end "else inputByteCode > 0x00000200 || inputSignCode > 0x00000001"
 		
-		}		// end "if (changePossibleFlagPtr != NULL)"
+		}	// end "if (changePossibleFlagPtr != NULL)"
 			
 	if (changePossibleFlagPtr != NULL)
 		{
@@ -3920,32 +3963,32 @@ UInt32 GetDataConversionCode (
 			if (inputByteCode <= 0x00000200 && inputSignCode <= 0x00000001)
 				inputByteCode = 0x00000200;
 				
-			else		// inputByteCode > 0x00000200 || inputSignCode > 0x00000001
+			else	// inputByteCode > 0x00000200 || inputSignCode > 0x00000001
 				inputByteCode = 0x00000400;
 				
-			}		// end "if (changePossibleFlag)"
+			}	// end "if (changePossibleFlag)"
 		
-		}		// end "if (changePossibleFlagPtr != NULL)"
+		}	// end "if (changePossibleFlagPtr != NULL)"
 	
 	if (outputByteCode == inputByteCode && outputSignCode == inputSignCode)
 		{
 		dataConversionCode = inputByteCode<<16;
 		dataConversionCode += outputByteCode;
 		
-		}		// end "if (outputByteCode == inputByteCode && ..."
+		}	// end "if (outputByteCode == inputByteCode && ..."
 	
-	else		// outputByteCode != inputByteCode || ...
+	else	// outputByteCode != inputByteCode || ...
 		{
 		inputByteCode += inputSignCode;
 		outputByteCode += outputSignCode;
 		dataConversionCode = inputByteCode<<16; 
 		dataConversionCode += outputByteCode;
 																	
-		}		// end "else outputByteCode != inputByteCode || ..."
+		}	// end "else outputByteCode != inputByteCode || ..."
 		
 	return (dataConversionCode);
 	
-}		// end "GetDataConversionCode" 
+}	// end "GetDataConversionCode" 
 
 
 
@@ -3977,7 +4020,7 @@ Boolean GetFSSpecFlag (
 	Boolean								fSSpecFlag = FALSE;
 	
 	
-	CMFileStream* fileStreamPtr = GetFileStreamPointer(fileInfoPtr);
+	CMFileStream* fileStreamPtr = GetFileStreamPointer (fileInfoPtr);
 	
 	
 	if (fileStreamPtr != NULL)
@@ -3988,14 +4031,14 @@ Boolean GetFSSpecFlag (
 	              
       #if defined multispec_win | defined multispec_lin
 	 
-		#endif	// defined multispec_win
+		#endif	// defined multispec_win  | defined multispec_lin
 		
-		}		// end "if (fileInfoPtr != NULL)" 
+		}	// end "if (fileInfoPtr != NULL)" 
 	
 
 	return (fSSpecFlag);
 	
-}		// end "GetFSSpecFlag"  
+}	// end "GetFSSpecFlag"  
 
 
 
@@ -4027,14 +4070,13 @@ Boolean GetFSSpecFlag (
 	Boolean								fSSpecFlag = FALSE;
 	
 	
-	FileInfoPtr fileInfoPtr = (FileInfoPtr)GetHandlePointer(
-													fileInfoHandle, kNoLock, kNoMoveHi);
+	FileInfoPtr fileInfoPtr = (FileInfoPtr)GetHandlePointer (fileInfoHandle);
 													
 	fSSpecFlag = GetFSSpecFlag (fileInfoPtr);
 
 	return (fSSpecFlag);
 	
-}		// end "GetFSSpecFlag" 
+}	// end "GetFSSpecFlag" 
 
 
 
@@ -4064,7 +4106,7 @@ Boolean GetFSSpecFlag (
 //							LoadTransformationFile in saveWrite.c
 //
 //	Coded By:			Larry L. Biehl			Date: 05/28/1988
-//	Revised By:			Larry L. Biehl			Date: 08/28/2017
+//	Revised By:			Larry L. Biehl			Date: 09/05/2017
 
 SInt16 GetFile (
 				CMFileStream* 						fileStreamPtr, 
@@ -4079,7 +4121,7 @@ SInt16 GetFile (
 	SInt16								errCode = noErr;
 	
 
-#	if defined multispec_mac
+	#if defined multispec_mac
 		if (gNavServicesExistsFlag)
 			{
 			errCode = NavServicesGetFile (fileStreamPtr, 
@@ -4091,17 +4133,18 @@ SInt16 GetFile (
 														stringIndex);
 
 			if (errCode == noErr && gMultiSpecWorkflowInfo.workFlowCode > 0)
-						// Save the name of this file in case needed for work flow processing.
-				GetCopyOfPFileName (fileStreamPtr,
+						// Save the name of this file in case needed for work flow 
+						// processing.
+				GetCopyOfPFileNameFromFileStream (fileStreamPtr,
 											gMultiSpecWorkflowInfo.lastFileReadName);
 
 																						return (errCode);
 					
-			}		// end "if (gNavServicesExistsFlag)"
-#	endif	// defined multispec_mac
+			}	// end "if (gNavServicesExistsFlag)"
+	#endif	// defined multispec_mac
 
-#	if defined multispec_lin || defined multispec_win
-#		if defined multispec_win
+	#if defined multispec_lin || defined multispec_win
+		#if defined multispec_win
 					// Initialize variables.
 				
 			gGetFileStatus = 3;
@@ -4138,23 +4181,20 @@ SInt16 GetFile (
 			
 			if (!GetSpecifiedStringNumber (
 					kFileIOStrID, filterStringIndex, filterString, TRUE, 510))
-																					return (1);
+																								return (1);
 
 			gFileFilterIndex = 1;
 			if (filterStringIndex == IDS_FilterString)
 				gFileFilterIndex = gImageFileFilterIndex;
 		 
-			CMOpenFileDialog		dialog(NULL, (TBYTE*)&filterString[1]);
-#			if defined _UNICODE
-				//USES_CONVERSION;
+			CMOpenFileDialog		dialog (NULL, (TBYTE*)&filterString[1]);
+			#if defined _UNICODE
 				TBYTE					string[512];
-#			endif
+			#endif
 			CString 					filePathName;
 			FSRef*					localFileAsFSRefPtr;
 			TBYTE						pathName[_MAX_PATH]; 
 			SInt16					pathLength;
-
-			//WCHAR*					wFilePathNamePtr;
 
 			if (itemCountPtr != NULL)
 				*itemCountPtr = 1;
@@ -4163,69 +4203,61 @@ SInt16 GetFile (
 				{
 				localFileAsFSRefPtr = (FSRef*)localAppFilePtr;
 				
-				}		// end "if (localAppFilePtr != NULL)"
+				}	// end "if (localAppFilePtr != NULL)"
 				
-			else		// localAppFilePtr == NULL
+			else	// localAppFilePtr == NULL
 				{
 				if (gMultipleImageFileCode)
 					{
 					gGetFileStatus = 2;
 					
-					}		// end "if (gMultipleImageFileCode)"
+					}	// end "if (gMultipleImageFileCode)"
 					
-				else		// !gMultipleImageFileCode	
+				else	// !gMultipleImageFileCode	
 					{
 					gGetFileStatus = -1;
 					if (stringIndex == IDS_SelectImage)
 						gGetFileStatus = 0; 
 					
-					}		// end "else !gMultipleImageFileCode"
+					}	// end "else !gMultipleImageFileCode"
 					
-				if (!dialog.DoDialog(stringIndex))
+				if (!dialog.DoDialog (stringIndex))
 					{
-					SetFileDoesNotExist (fileStreamPtr);
-																							return(0);
+					SetFileDoesNotExist (fileStreamPtr, kDoNotKeepUTF8CharName);
+																								return (0);
 																							
-					}		// end "if (!dialog.DoDialog())"
+					}	// end "if (!dialog.DoDialog ())"
 				
 				if (fileAsFSRefPtr != NULL)
 					{
-					POSITION fileNamesPosition = dialog.GetStartPosition();
+					POSITION fileNamesPosition = dialog.GetStartPosition ();
 					int iCtr = 0;
 					while (fileNamesPosition != NULL)
 						{
 						filePathName = dialog.GetNextPathName (fileNamesPosition);
-						localAppFilePtr = (TBYTE*)filePathName.GetBuffer(255);
-						pathLength = filePathName.GetLength();
+						localAppFilePtr = (TBYTE*)filePathName.GetBuffer (255);
+						pathLength = filePathName.GetLength ();
 
 								// Get copy of the path name so that it can be modified.
 								// Convert to Pascal string so that it is in the same format
 								// as the file name in the Macintosh version.
 								// CtoPstring adds a C string terminator at the end.		
 						
-						//errCode = OpenFileReadOnly (fileStreamPtr, 
-						//									kResolveAliasChains,
-						//									kLockFile,
-						//									kDoNotVerifyFileStream);
-						
-//#						if defined _UNICODE
 						wcscpy ((wchar_t*)&fileAsFSRefPtr[iCtr].hidden[1], localAppFilePtr);  
 						fileAsFSRefPtr[iCtr].hidden[0] = pathLength;
-//#						else
-//							CtoPstring ((UCharPtr)localAppFilePtr, (UCharPtr)&fileAsFSRefPtr[iCtr]);
-//#						endif
 
-						filePathName.ReleaseBuffer();
+						filePathName.ReleaseBuffer ();
 						iCtr++;
 						
 						if (iCtr >= 500)
 							{
-							DisplayAlert (kErrorAlertID, kStopAlert, kAlertStrID, IDS_Alert147, 0, NULL);
+							DisplayAlert (
+								kErrorAlertID, kStopAlert, kAlertStrID, IDS_Alert147, 0, NULL);
 							break;
 
-							}
+							}	// end "if (iCtr >= 500)"
 						
-						}		// end "while (fileNamesPosition != NULL)"
+						}	// end "while (fileNamesPosition != NULL)"
 					
 					if (itemCountPtr != NULL)
 						*itemCountPtr = iCtr;
@@ -4235,27 +4267,24 @@ SInt16 GetFile (
 
 					localFileAsFSRefPtr = &fileAsFSRefPtr[0];
 					
-					}		// end "if (fileAsFSRefPtr != NULL)"
+					}	// end "if (fileAsFSRefPtr != NULL)"
 
-				else		// fileAsFSRefPtr == NULL
+				else	// fileAsFSRefPtr == NULL
 					{
 							// Only one file is being selected.
 						
-					filePathName = dialog.GetPathName();
-					localAppFilePtr = (TBYTE*)filePathName.GetBuffer(255);
-					pathLength = filePathName.GetLength();
-//#					if defined _UNICODE
+					filePathName = dialog.GetPathName ();
+					localAppFilePtr = (TBYTE*)filePathName.GetBuffer (255);
+					pathLength = filePathName.GetLength ();
 					wcscpy (string, localAppFilePtr);  
 					CtoPstring (string, pathName);
-//#					else
-//						CtoPstring ((CharPtr)localAppFilePtr, (CharPtr)pathName);
-//#					endif
-					filePathName.ReleaseBuffer();
+
+					filePathName.ReleaseBuffer ();
 					localFileAsFSRefPtr = (FSRef*)pathName;
 
-					}		// end "else fileAsFSRefPtr == NULL"
+					}	// end "else fileAsFSRefPtr == NULL"
 
-				}		// end "else localAppFilePtr == NULL"
+				}	// end "else localAppFilePtr == NULL"
 				
 					// Get copy of the path name so that it can be modified.
 					// Convert to Pascal string so that it is in the same format
@@ -4271,9 +4300,9 @@ SInt16 GetFile (
 					// expecting to use it.
 
 			fileStreamPtr->GetFileNamePPtr ();		
-#		endif	// defined multispec_win
+		#endif	// defined multispec_win
 
-#		if defined multispec_lin
+		#if defined multispec_lin
 			long style;
 		
 				// Initialize variables.															
@@ -4313,23 +4342,23 @@ SInt16 GetFile (
 			
 			if (!GetSpecifiedStringNumber (
 					kFileIOStrID, filterStringIndex, gTextString, TRUE))
-																					return (1);
+																								return (1);
 
 			gFileFilterIndex = 1;
 			if (filterStringIndex == IDS_FilterString)
 				gFileFilterIndex = gImageFileFilterIndex;
 		 
-			//CMOpenFileDialog *filedlgobj = new CMOpenFileDialog(GetMainFrame());
+			//CMOpenFileDialog *filedlgobj = new CMOpenFileDialog (GetMainFrame ());
 			//wxWindow* frame = NULL;
 			//if ((WindowPtr)gOutputViewCPtr == gTheActiveWindow)
 			//	frame = (wxWindow*)gOutputViewCPtr->m_frame;
 			//else if (gActiveImageViewCPtr != NULL)
 			//	frame = (wxWindow*)gActiveImageViewCPtr->m_frame;
 			
-			wxFrame* frame = GetActiveFrame();
-			wxFrame* mainFrame = GetMainFrame();
+			wxFrame* frame = GetActiveFrame ();
+			wxFrame* mainFrame = GetMainFrame ();
 
-			CMOpenFileDialog *filedlgobj = new CMOpenFileDialog(frame);
+			CMOpenFileDialog *filedlgobj = new CMOpenFileDialog (frame);
 			wxString 					filePathName;
 			wxWCharBuffer				wideCharBuffer;
 			FSRef*						localFileAsFSRefPtr;
@@ -4352,45 +4381,46 @@ SInt16 GetFile (
 				{
 				localFileAsFSRefPtr = (FSRef*)localAppFilePtr;
 				
-				}		// end "if (localAppFilePtr != NULL)"
+				}	// end "if (localAppFilePtr != NULL)"
 				
-			else		// localAppFilePtr == NULL
+			else	// localAppFilePtr == NULL
 				{
 				if (gMultipleImageFileCode)
 					{
 					gGetFileStatus = 2;
 					
-					}		// end "if (gMultipleImageFileCode)"
+					}	// end "if (gMultipleImageFileCode)"
 					
-				else		// !gMultipleImageFileCode	
+				else	// !gMultipleImageFileCode	
 					{
 					gGetFileStatus = -1;
 					if (stringIndex == IDS_SelectImage)
 						gGetFileStatus = 0; 
 					
-					}		// end "else !gMultipleImageFileCode"
+					}	// end "else !gMultipleImageFileCode"
 					
 				if (!filedlgobj->DoDialog (stringIndex, style))
 					{
-					SetFileDoesNotExist (fileStreamPtr);
-																							return(0);
+					SetFileDoesNotExist (fileStreamPtr, kDoNotKeepUTF8CharName);
+																								return (0);
 																							
-					}		// end "if (!dialog.DoDialog())"
+					}	// end "if (!dialog.DoDialog ())"
 
-				localAppFilePtr = (LocalAppFile*)MNewPointer ((_MAX_PATH+1)*sizeof(wchar_t));
+				localAppFilePtr = 
+								(LocalAppFile*)MNewPointer ((_MAX_PATH+1)*sizeof (wchar_t));
 				if (fileAsFSRefPtr != NULL)
 					{
-					//POSITION fileNamesPosition = dialog.GetStartPosition();
+					//POSITION fileNamesPosition = dialog.GetStartPosition ();
 					wxArrayString patharray;
-					patharray = filedlgobj->GetPaths();
+					patharray = filedlgobj->GetPaths ();
 					int iCtr = 0;
 
-					for (int i = 0; i < patharray.GetCount(); i++)
+					for (int i = 0; i < patharray.GetCount (); i++)
 						{
-						filePathName = patharray.Item(i);
-						stringLength = MIN (filePathName.length(), 255);	
-						wideCharBuffer = filePathName.wc_str();
-						wcsncpy (localAppFilePtr, wideCharBuffer.data(), stringLength);
+						filePathName = patharray.Item (i);
+						stringLength = MIN (filePathName.length (), 255);	
+						wideCharBuffer = filePathName.wc_str ();
+						wcsncpy (localAppFilePtr, wideCharBuffer.data (), stringLength);
 						localAppFilePtr[stringLength] = 0;
 						
 								// Get copy of the path name so that it can be modified.
@@ -4398,18 +4428,20 @@ SInt16 GetFile (
 								// as the file name in the Macintosh version.
 								// CtoPstring adds a C string terminator at the end.
 
-						CtoPstring ((wchar_t*)localAppFilePtr, (wchar_t*)&fileAsFSRefPtr[iCtr]);
-						//filePathName.ReleaseBuffer();
+						CtoPstring (
+								(wchar_t*)localAppFilePtr, (wchar_t*)&fileAsFSRefPtr[iCtr]);
+						//filePathName.ReleaseBuffer ();
 						iCtr++;
 						
 						if (iCtr >= 500)
 							{
-							DisplayAlert (kErrorAlertID, kStopAlert, kAlertStrID, IDS_Alert147, 0, NULL);
+							DisplayAlert (
+								kErrorAlertID, kStopAlert, kAlertStrID, IDS_Alert147, 0, NULL);
 							break;
 
-							}
+							}	// end "if (iCtr >= 500)"
 						
-						}		// end "for (int i = 0; i < patharray.GetCount(); i++)"
+						}	// end "for (int i = 0; i < patharray.GetCount (); i++)"
 					
 					if (itemCountPtr != NULL)
 						*itemCountPtr = iCtr;
@@ -4419,43 +4451,45 @@ SInt16 GetFile (
 
 					localFileAsFSRefPtr = &fileAsFSRefPtr[0];
 					
-					}		// end "if (fileAsFSRefPtr != NULL)"
+					}	// end "if (fileAsFSRefPtr != NULL)"
 
-				else		// fileAsFSRefPtr == NULL
+				else	// fileAsFSRefPtr == NULL
 					{
 							// Only one file is being selected.
 					
-					filePathName = filedlgobj->GetPath();
-					stringLength = MIN (filePathName.length(), 255);	
-					wideCharBuffer = filePathName.wc_str();
+					filePathName = filedlgobj->GetPath ();
+					stringLength = MIN (filePathName.length (), 255);	
+					wideCharBuffer = filePathName.wc_str ();
 					
-					//strncpy (localAppFilePtr, (const char*)filePathName.mb_str(wxConvUTF8), 255);
-					wcsncpy (localAppFilePtr, wideCharBuffer.data(), stringLength);
+					wcsncpy (localAppFilePtr, wideCharBuffer.data (), stringLength);
 					localAppFilePtr[stringLength] = 0;
 						
 					CtoPstring (localAppFilePtr, pathName);
 					localFileAsFSRefPtr = (FSRef*)pathName;
 
-					}		// end "else fileAsFSRefPtr == NULL"
+					}	// end "else fileAsFSRefPtr == NULL"
 					
-						// Save the directory part of filePathName so that it will become the
-						// default directory for the next GetFile operation. Work backwards on 
-						// file path until we find the first '/' which we assume is the last
-						// portion of the directory name.
+						// Save the directory part of filePathName so that it will become 
+						// the default directory for the next GetFile operation. Work 
+						// backwards on file path until we find the first '/' which we 
+						// assume is the last portion of the directory name.
 						// Remember to allow for 0 based index.
 						
-				filePathIndex = filePathName.length() - 1;		
+				filePathIndex = filePathName.length () - 1;		
 				while (filePathIndex > 0 && filePathName[filePathIndex] != '/')
 					filePathIndex--;
+					
 				if (filePathIndex > 0 && filePathName[filePathIndex] == '/')
 					filePathIndex--;
+					
 				filePathName.Truncate (filePathIndex+1);
 				if (filePathIndex > 0)
 					gDefaultDataDirectory = filePathName;	
 										
-				localAppFilePtr = (LocalAppFile*)CheckAndDisposePtr ((Ptr)localAppFilePtr);
+				localAppFilePtr = 
+									(LocalAppFile*)CheckAndDisposePtr ((Ptr)localAppFilePtr);
 
-				}		// end "else localAppFilePtr == NULL"
+				}	// end "else localAppFilePtr == NULL"
 				
 					// Get copy of the path name so that it can be modified.
 					// Convert to Pascal string so that it is in the same format
@@ -4465,36 +4499,36 @@ SInt16 GetFile (
 			fileStreamPtr->SetFilePath ((WideFileStringPtr)localFileAsFSRefPtr, TRUE);
 
 			errCode = CMFileStream::GetFileType (
-							(WideFileStringPtr)localFileAsFSRefPtr, &fileStreamPtr->mFileType);
+						(WideFileStringPtr)localFileAsFSRefPtr, &fileStreamPtr->mFileType);
 
 					// Force the pascal file name to be updated in case user is
 					// expecting to use it.
 
 			fileStreamPtr->GetFileNamePPtr ();
-#		endif	// defined multispec_lin
+		#endif	// defined multispec_lin
 	
-	if (errCode == noErr)
-		errCode = OpenFileReadOnly (fileStreamPtr, 
-											kResolveAliasChains,
-											kLockFile,
-											kDoNotVerifyFileStream);
-					
-	IOCheck (errCode, fileStreamPtr);
+		if (errCode == noErr)
+			errCode = OpenFileReadOnly (fileStreamPtr, 
+													kResolveAliasChains,
+													kLockFile,
+													kDoNotVerifyFileStream);
+						
+		IOCheck (errCode, fileStreamPtr);
+		
+		if (errCode != noErr)	
+			SetReferenceNumber (fileStreamPtr, 0);
+	#endif	// defined multispec_lin || defined multispec_win
 	
-	if (errCode != noErr)	
-		SetReferenceNumber(fileStreamPtr, 0);
-#	endif	// defined multispec_lin || defined multispec_win
-	
-#	if defined multispec_mac
+	#if defined multispec_mac
 		if (errCode == noErr && gMultiSpecWorkflowInfo.workFlowCode > 0)
 				// Save the name of this file in case needed for work flow processing.
-			GetCopyOfPFileName (fileStreamPtr,
+			GetCopyOfPFileNameFromFileStream (fileStreamPtr,
 									gMultiSpecWorkflowInfo.lastFileReadName);
-#	endif
+	#endif	// end "defined multispec_mac"
 	
 	return (errCode);
 
-}		// end "GetFile"
+}	// end "GetFile"
 
 
 
@@ -4529,23 +4563,18 @@ SInt32 GetFileCreator (
 	if (fileStreamPtr != NULL)
 		{                               
 		#if defined multispec_mac                       
-	                          
 			fileCreator = fileStreamPtr->creator;
-	   	
 		#endif	// defined multispec_mac 
-	
 	              
       #if defined multispec_win | defined multispec_lin                           
-		
 			fileCreator = fileStreamPtr->mCreator;
-	 
 		#endif	// defined multispec_win
 		
-		}		// end "if (fileStreamPtr != NULL)" 
+		}	// end "if (fileStreamPtr != NULL)" 
 
 	return (fileCreator);
 	
-}		// end "GetFileCreator" 
+}	// end "GetFileCreator" 
 
 
 
@@ -4576,9 +4605,7 @@ Boolean GetFileDlgDetermineLinkVisibility ()
 	WindowInfoPtr						windowInfoPtr;
 	
 	
-	windowInfoPtr = (WindowInfoPtr)GetHandlePointer (gActiveImageWindowInfoH, 
-																		kNoLock, 
-																		kNoMoveHi);
+	windowInfoPtr = (WindowInfoPtr)GetHandlePointer (gActiveImageWindowInfoH);
 	
 	if	(windowInfoPtr == NULL ||
 			windowInfoPtr->windowType != kImageWindowType ||
@@ -4589,7 +4616,7 @@ Boolean GetFileDlgDetermineLinkVisibility ()
 	else
 		return (TRUE);
 	
-}		// end "GetFileDlgDetermineLinkVisibility" 
+}	// end "GetFileDlgDetermineLinkVisibility" 
 
 
 
@@ -4613,7 +4640,7 @@ Boolean GetFileDlgDetermineLinkVisibility ()
 // Called By:		
 //
 //	Coded By:			Larry L. Biehl			Date: 02/04/2013
-//	Revised By:			Larry L. Biehl			Date: 06/19/2017
+//	Revised By:			Larry L. Biehl			Date: 01/04/2018
 
 SInt16 GetFileNameFromFSRef (
 				FSRef*								fileAsFSRefPtr,
@@ -4623,7 +4650,7 @@ SInt16 GetFileNameFromFSRef (
 	SInt16								errCode;
 
 
-#	if defined multispec_mac
+	#if defined multispec_mac
 		CFStringRef							cfStringRef;
 												
 		HFSUniStr255						uniFileName;
@@ -4641,24 +4668,23 @@ SInt16 GetFileNameFromFSRef (
 
 		if (errCode == noErr)
 			{
-			cfStringRef = CFStringCreateWithCharacters (
-												kCFAllocatorDefault,
-												uniFileName.unicode,
-												uniFileName.length);
+			cfStringRef = CFStringCreateWithCharacters (kCFAllocatorDefault,
+																		uniFileName.unicode,
+																		uniFileName.length);
 			
 			CFStringGetCString (cfStringRef,
-									(char*)&fileNamePtr[1],
-									(CFIndex)255,
-									kCFStringEncodingUTF8);
+										(char*)&fileNamePtr[1],
+										(CFIndex)255,
+										kCFStringEncodingUTF8);
 			fileNamePtr[0] = strlen ((char*)&fileNamePtr[1]);
 												
 			//CFAllocatorDeallocate (kCFAllocatorDefault, (void*)cfStringRef);
 			CFRelease (cfStringRef);
 										
-			}		// end "if (errCode == noErr)" 
-#	endif	// defined multispec_mac
+			}	// end "if (errCode == noErr)" 
+	#endif	// defined multispec_mac
 
-#	if defined multispec_win	|| defined multispec_lin
+	#if defined multispec_win	|| defined multispec_lin
 		UInt8									uft8String[_MAX_PATH];
 		FileStringPtr						localFileNamePtr;
 		WideFileStringPtr					inputFileStringPtr;
@@ -4671,14 +4697,7 @@ SInt16 GetFileNameFromFSRef (
 		
 		inputFileStringPtr = fileAsFSRefPtr[0].hidden;
 		int size = (int)inputFileStringPtr[0];
-		/*
-		int sizeNeeded = WideCharToMultiByte (
-									CP_UTF8, 0, (LPCWSTR)&inputFileStringPtr[1], size, NULL, 0, NULL, NULL);
-		WideCharToMultiByte (CP_UTF8, 0, (LPCWSTR)&inputFileStringPtr[1], size, (LPSTR)uft8String, sizeNeeded, NULL, NULL);
 
-		pathLength = (SInt16)strlen ((char*)uft8String);
-		localFileNamePtr = uft8String;
-		*/
 		ConvertUnicodeStringToMultibyteString (inputFileStringPtr, uft8String, size);
 		pathLength = uft8String[0];
 		
@@ -4698,32 +4717,32 @@ SInt16 GetFileNameFromFSRef (
 				localFileNamePtr--;
 				nameLength++;
 				
-				}		// end "while ( (nameLength < pathLength) && ..."
+				}	// end "while ((nameLength < pathLength) && ..."
 				
 			if (nameLength > 0)
 				localFileNamePtr++;
 
 			errCode = noErr;
 				
-			}		// end "if (pathLength > 0)"	  
+			}	// end "if (pathLength > 0)"	  
 			
-		else		// pathLength == 0
+		else	// pathLength == 0
 			{
 			localFileNamePtr = uft8String;
 			nameLength = 0;
 			
 			errCode = 1;
 			
-			}		// else pathLength == 0
+			}	// else pathLength == 0
 		
 				// Now copy the file name to the output file string location.
 
 		CtoPstring (localFileNamePtr, fileNamePtr);
-#	endif	// defined multispec_win
+	#endif	// defined multispec_win
 		
 	return (errCode);
 	
-}		// end "GetFileNameFromFSRef"
+}	// end "GetFileNameFromFSRef"
 
 
 
@@ -4732,7 +4751,531 @@ SInt16 GetFileNameFromFSRef (
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
-//	Function name:		void GetFilePathPPointer
+//	Function name:		void* GetFileNameCPointerFromFileHandle
+//
+//	Software purpose:	The purpose of this routine is to return a C string pointer to the
+//							file name from the input file information handle. 
+//							This is a helper routine for an overload where returnCode
+//							defaults to 'kDefaultFileStringCode'.
+//
+//	Parameters in:		None
+//
+//	Parameters out:	None
+//
+//	Value Returned:	None
+// 
+// Called By:		
+//
+//	Coded By:			Larry L. Biehl			Date: 008/31/2017
+//	Revised By:			Larry L. Biehl			Date: 08/31/2017
+
+void* GetFileNameCPointerFromFileHandle (
+				Handle								fileInfoHandle)
+
+{  
+	return (GetFileNameCPointerFromFileHandle (fileInfoHandle, kDefaultFileStringCode));
+	
+}	// end "GetFileNameCPointerFromFileHandle"
+
+
+
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		void* GetFileNameCPointerFromFileHandle
+//
+//	Software purpose:	The purpose of this routine is to return a C string pointer to the
+//							file name from the input file information handle. The string
+//							format is controlled by the return code which could be ascii or
+//							unicode (wide char).
+//
+//	Parameters in:		None
+//
+//	Parameters out:	None
+//
+//	Value Returned:	None
+// 
+// Called By:		
+//
+//	Coded By:			Larry L. Biehl			Date: 01/25/2013
+//	Revised By:			Larry L. Biehl			Date: 03/01/2017	
+
+void* GetFileNameCPointerFromFileHandle (
+				Handle								fileInfoHandle,
+				SInt16								returnCode)
+
+{  
+	FileInfoPtr							fileInfoPtr;
+	
+	
+	fileInfoPtr = (FileInfoPtr)GetHandlePointer (fileInfoHandle);
+	
+	return (GetFileNameCPointerFromFileInfo (fileInfoPtr, returnCode));
+	
+}	// end "GetFileNameCPointerFromFileHandle"
+
+
+
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		void* GetFileNameCPointerFromFileInfo
+//
+//	Software purpose:	The purpose of this routine is to return a C string pointer to the
+//							file name from the input file information handle. 
+//							This is a helper routine for the overload where returnCode
+//							defaults to 'kDefaultFileStringCode'.
+//
+//	Parameters in:		None
+//
+//	Parameters out:	None
+//
+//	Value Returned:	None
+// 
+// Called By:		
+//
+//	Coded By:			Larry L. Biehl			Date: 08/31/2017
+//	Revised By:			Larry L. Biehl			Date: 08/31/2017
+
+void* GetFileNameCPointerFromFileInfo (
+				FileInfoPtr							fileInfoPtr)
+
+{
+	return (GetFileNameCPointerFromFileInfo (fileInfoPtr, kDefaultFileStringCode));
+	
+}	// end "GetFileNameCPointerFromFileInfo"
+
+
+
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		void* GetFileNameCPointerFromFileInfo
+//
+//	Software purpose:	The purpose of this routine is to return a C string pointer to the
+//							file name from the input file information structure. The string
+//							format is controlled by the return code which could be ascii or
+//							unicode (wide char).
+//
+//	Parameters in:		None
+//
+//	Parameters out:	None
+//
+//	Value Returned:	None
+// 
+// Called By:		
+//
+//	Coded By:			Larry L. Biehl			Date: 09/11/1995
+//	Revised By:			Larry L. Biehl			Date: 01/03/2017
+
+void* GetFileNameCPointerFromFileInfo (
+				FileInfoPtr							fileInfoPtr,
+				SInt16								returnCode)
+
+{  
+	void*									fileNamePtr = NULL;
+	
+	
+	if (fileInfoPtr != NULL)
+		{            
+		CMFileStream* fileStreamPtr = GetFileStreamPointer (fileInfoPtr);
+		
+		fileNamePtr = GetFileNameCPointerFromFileStream (fileStreamPtr, returnCode);
+		
+		}	// end "if (fileInfoPtr != NULL)" 
+
+	return (fileNamePtr);
+	
+}	// end "GetFileNameCPointerFromFileInfo"
+
+
+
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		void GetFileNameCPointerFromFileStream
+//
+//	Software purpose:	The purpose of this routine is to return a C string pointer to the
+//							file name from the input file stream structure or class. 
+//							This is a helper routine for the overload where returnCode
+//							defaults to 'kDefaultFileStringCode'.
+//
+//	Parameters in:		None
+//
+//	Parameters out:	None
+//
+//	Value Returned:	None
+// 
+// Called By:		
+//
+//	Coded By:			Larry L. Biehl			Date: 09/01/2017
+//	Revised By:			Larry L. Biehl			Date: 09/01/2017
+
+void* GetFileNameCPointerFromFileStream (
+				CMFileStream*						fileStreamPtr)
+
+{  
+	return (GetFileNameCPointerFromFileStream (fileStreamPtr, kDefaultFileStringCode));
+	
+}	// end "GetFileNameCPointerFromFileStream" 
+
+
+
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		void GetFileNameCPointerFromFileStream
+//
+//	Software purpose:	The purpose of this routine is to return a C string pointer to the
+//							file name from the input file stream structure or class. The string
+//							format is controlled by the return code which could be ascii or
+//							unicode (wide char).
+//
+//	Parameters in:		None
+//
+//	Parameters out:	None
+//
+//	Value Returned:	None
+// 
+// Called By:		
+//
+//	Coded By:			Larry L. Biehl			Date: 11/01/1995
+//	Revised By:			Larry L. Biehl			Date: 09/01/2017
+
+void* GetFileNameCPointerFromFileStream (
+				CMFileStream*						fileStreamPtr,
+				SInt16								returnCode)
+
+{  
+	void*									fileNamePtr = NULL;
+	
+	
+	if (fileStreamPtr != NULL)
+		{                                  
+		#if defined multispec_mac  
+			if (returnCode == kReturnASCII)
+				fileNamePtr = &fileStreamPtr->fileName[1];
+			else
+				fileNamePtr = (FileStringPtr)fileStreamPtr->uniFileName.unicode;
+		#endif	// defined multispec_mac 
+	      
+		#if defined multispec_win || defined multispec_lin
+			fileNamePtr = fileStreamPtr->GetFileNameCPtr (returnCode);
+		#endif	// defined multispec_win || defined multispec_lin
+		}	// end "if (fileStreamPtr != NULL)" 
+
+	return (fileNamePtr);
+	
+}	// end "GetFileNameCPointerFromFileStream" 
+
+
+
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		void GetFileNamePPointerFromFileHandle
+//
+//	Software purpose:	The purpose of this routine is to return a Pascal string pointer 
+//							to the file name from the input file handle. 
+//							This is a helper routine for the overload where returnCode
+//							defaults to 'kDefaultFileStringCode'.
+//
+//	Parameters in:		None
+//
+//	Parameters out:	None
+//
+//	Value Returned:	None
+// 
+// Called By:		
+//
+//	Coded By:			Larry L. Biehl			Date: 09/01/2017
+//	Revised By:			Larry L. Biehl			Date: 09/01/2017
+
+void* GetFileNamePPointerFromFileHandle (
+				Handle								fileInfoHandle,
+				SignedByte*							handleStatusPointer)
+
+{  
+	return (GetFileNamePPointerFromFileHandle (fileInfoHandle, 
+																handleStatusPointer,
+																kDefaultFileStringCode));
+	
+}	// end "GetFileNamePPointerFromFileHandle" 
+
+
+
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		void GetFileNamePPointerFromFileHandle
+//
+//	Software purpose:	The purpose of this routine is to return a Pascal string pointer 
+//							to the file name from the input file handle. The string
+//							format is controlled by the return code which could be ascii or
+//							unicode (wide char).
+//
+//	Parameters in:		None
+//
+//	Parameters out:	None
+//
+//	Value Returned:	None
+// 
+// Called By:		
+//
+//	Coded By:			Larry L. Biehl			Date: 09/29/1995
+//	Revised By:			Larry L. Biehl			Date: 03/09/2017
+
+void* GetFileNamePPointerFromFileHandle (
+				Handle								fileInfoHandle,
+				SignedByte*							handleStatusPointer,
+				SInt16								returnCode)
+
+{  
+	void*									fileNamePtr = NULL;
+	FileInfoPtr							fileInfoPtr;
+	
+				
+	*handleStatusPointer = -1;
+	
+	fileInfoPtr = (FileInfoPtr)GetHandleStatusAndPointer (fileInfoHandle,
+																			handleStatusPointer);
+																	
+	fileNamePtr = GetFileNamePPointerFromFileInfo (fileInfoPtr, returnCode);
+
+	return (fileNamePtr);
+	
+}	// end "GetFileNamePPointerFromFileHandle" 
+
+
+
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		void GetFileNamePPointerFromFileInfo
+//
+//	Software purpose:	The purpose of this routine is to return a Pascal string pointer 
+//							to the file name from the input file structure. The string
+//							format is controlled by the return code which could be ascii or
+//							unicode (wide char).
+//
+//	Parameters in:		None
+//
+//	Parameters out:	None
+//
+//	Value Returned:	None
+// 
+// Called By:		
+//
+//	Coded By:			Larry L. Biehl			Date: 09/01/2017
+//	Revised By:			Larry L. Biehl			Date: 09/01/2017
+
+void* GetFileNamePPointerFromFileInfo (
+				FileInfoPtr							fileInfoPtr)
+
+{  
+	return (GetFileNamePPointerFromFileInfo (fileInfoPtr, kDefaultFileStringCode));
+	
+}	// end "GetFileNamePPointerFromFileInfo" 
+
+
+
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		void GetFileNamePPointerFromFileInfo
+//
+//	Software purpose:	The purpose of this routine is to return a Pascal string pointer 
+//							to the file name from the input file structure. The string
+//							format is controlled by the return code which could be ascii or
+//							unicode (wide char).
+//
+//	Parameters in:		None
+//
+//	Parameters out:	None
+//
+//	Value Returned:	None
+// 
+// Called By:		
+//
+//	Coded By:			Larry L. Biehl			Date: 09/29/1995
+//	Revised By:			Larry L. Biehl			Date: 03/09/2017
+
+void* GetFileNamePPointerFromFileInfo (
+				FileInfoPtr							fileInfoPtr,
+				SInt16								returnCode)
+
+{  
+	void*								fileNamePtr = NULL;
+	
+	
+	if (fileInfoPtr != NULL)
+		{              
+		CMFileStream* fileStreamPtr = GetFileStreamPointer (fileInfoPtr);
+		
+		fileNamePtr = GetFileNamePPointerFromFileStream (fileStreamPtr, returnCode);
+		                                   		
+		}	// end "if (fileInfoPtr != NULL)" 
+
+	return (fileNamePtr);
+	
+}	// end "GetFileNamePPointerFromFileInfo" 
+
+
+
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		void GetFileNamePPointerFromFileStream
+//
+//	Software purpose:	The purpose of this routine is to return a Pascal string pointer 
+//							to the file name from the input file stream structure or class. 
+//							The string format is controlled by the return code which could 
+//							be ascii or unicode (wide char).
+//							This routine is a helper for an overload where the returnCode
+//							defaults to 'kDefaultFileStringCode'.
+//
+//	Parameters in:		None
+//
+//	Parameters out:	None
+//
+//	Value Returned:	None
+// 
+// Called By:		
+//
+//	Coded By:			Larry L. Biehl			Date: 08/31/2017
+//	Revised By:			Larry L. Biehl			Date: 08/31/2017
+
+void* GetFileNamePPointerFromFileStream  (
+				CMFileStream*						fileStreamPtr)
+
+{  
+	return (GetFileNamePPointerFromFileStream (fileStreamPtr, kDefaultFileStringCode));
+	
+}	// end "GetFileNamePPointerFromFileStream"
+
+
+
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		void GetFileNamePPointerFromFileStream
+//
+//	Software purpose:	The purpose of this routine is to return a Pascal string pointer 
+//							to the file name from the input file stream structure or class. 
+//							The string format is controlled by the return code which could 
+//							be ascii or unicode (wide char).
+//
+//	Parameters in:		None
+//
+//	Parameters out:	None
+//
+//	Value Returned:	None
+// 
+// Called By:		
+//
+//	Coded By:			Larry L. Biehl			Date: 10/24/1995
+//	Revised By:			Larry L. Biehl			Date: 09/01/2017
+
+void* GetFileNamePPointerFromFileStream  (
+				CMFileStream*						fileStreamPtr,
+				SInt16								returnCode)
+
+{  
+	void*									fileNamePtr = NULL;
+	
+	
+	if (fileStreamPtr != NULL)
+		{                         
+		#if defined multispec_mac
+			if (returnCode == kReturnASCII)                
+	   		fileNamePtr = &fileStreamPtr->fileName[0];
+			else
+				//fileNamePtr = fileStreamPtr->uniFileName.unicode;
+				fileNamePtr = fileStreamPtr->uniPascalFileName;
+				if (fileStreamPtr->uniPascalFileName[0] == 0)
+					{
+							// Copy c version of uniFileName to this local
+					
+					strncpy ((char*)&fileStreamPtr->uniPascalFileName[1],
+									(char*)fileStreamPtr->uniFileName.unicode,
+									2*fileStreamPtr->uniFileName.length);
+					
+					}	// end "if (fileStreamPtr->uniPascalFileName[0] == 0)"
+		#endif	// defined multispec_mac
+		
+		#if defined multispec_win || defined multispec_lin
+			fileNamePtr = fileStreamPtr->GetFileNamePPtr (returnCode);
+		#endif	// defined multispec_win || defined multispec_lin
+		
+		}	// end "if (fileInfoPtr != NULL)" 
+
+	return (fileNamePtr);
+	
+}	// end "GetFileNamePPointerFromFileStream" 
+
+
+
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		void GetFilePathPPointerFromFileInfo
+//
+//	Software purpose:	The purpose of this routine is to return a Pascal string pointer 
+//							to the file name from the input file structure.
+//							This is a helper routine for the overload where returnCode
+//							defaults to kDefaultFileStringCode
+//
+//	Parameters in:		None
+//
+//	Parameters out:	None
+//
+//	Value Returned:	None
+// 
+// Called By:		
+//
+//	Coded By:			Larry L. Biehl			Date: 08/31/2017
+//	Revised By:			Larry L. Biehl			Date: 08/31/2017
+
+void* GetFilePathPPointerFromFileInfo (
+				FileInfoPtr							fileInfoPtr)
+
+{  
+	return (GetFilePathPPointerFromFileInfo (fileInfoPtr, kDefaultFileStringCode));
+	
+}	// end "GetFilePathPPointerFromFileInfo"
+
+
+
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		void GetFilePathPPointerFromFileInfo
 //
 //	Software purpose:	The purpose of this routine is to get a pointer
 //							to the full file path represented by the input file
@@ -4750,7 +5293,7 @@ SInt16 GetFileNameFromFSRef (
 //	Coded By:			Larry L. Biehl			Date: 01/16/1996
 //	Revised By:			Larry L. Biehl			Date: 03/13/2017
 
-void* GetFilePathPPointer (
+void* GetFilePathPPointerFromFileInfo (
 				FileInfoPtr							fileInfoPtr,
 				SInt16								returnCode)
 
@@ -4762,13 +5305,13 @@ void* GetFilePathPPointer (
 		{              
 		CMFileStream* fileStreamPtr = GetFileStreamPointer (fileInfoPtr);
 		
-		fileNamePtr = GetFilePathPPointer (fileStreamPtr, returnCode);
+		fileNamePtr = GetFilePathPPointerFromFileStream (fileStreamPtr, returnCode);
 		
-		}		// end "if (fileInfoPtr != NULL)" 
+		}	// end "if (fileInfoPtr != NULL)" 
 
 	return (fileNamePtr);
 	
-}		// end "GetFilePathPPointer"   
+}	// end "GetFilePathPPointerFromFileInfo"
 
 
 
@@ -4777,7 +5320,42 @@ void* GetFilePathPPointer (
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
-//	Function name:		void GetFilePathPPointer
+//	Function name:		void GetFilePathPPointerFromFileStream
+//
+//	Software purpose:	The purpose of this routine is to get a pointer
+//							to the full file path represented by the input file
+//							stream pointer. The output pointer will represent a
+//							pascal pointer.
+//							This is a helper routine for the overload where returnCode
+//							defaults to kDefaultFileStringCode
+//
+//	Parameters in:		None
+//
+//	Parameters out:	None
+//
+//	Value Returned:	None
+// 
+// Called By:		
+//
+//	Coded By:			Larry L. Biehl			Date: 08/31/2017
+//	Revised By:			Larry L. Biehl			Date: 08/31/2017
+
+void* GetFilePathPPointerFromFileStream (
+				CMFileStream* 						fileStreamPtr)
+
+{  
+	return (GetFilePathPPointerFromFileStream (fileStreamPtr, kDefaultFileStringCode));
+	
+}	// end "GetFilePathPPointerFromFileStream"
+
+
+
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		void GetFilePathPPointerFromFileStream
 //
 //	Software purpose:	The purpose of this routine is to get a pointer
 //							to the full file path represented by the input file
@@ -4795,7 +5373,7 @@ void* GetFilePathPPointer (
 //	Coded By:			Larry L. Biehl			Date: 10/05/1995
 //	Revised By:			Larry L. Biehl			Date: 06/22/2017
 
-void* GetFilePathPPointer (
+void* GetFilePathPPointerFromFileStream (
 				CMFileStream* 						fileStreamPtr,
 				SInt16								returnCode)
 
@@ -4804,294 +5382,26 @@ void* GetFilePathPPointer (
 	
 	if (fileStreamPtr != NULL)
 		{
-#		if defined multispec_lin                           
+		#if defined multispec_lin
 			filePathPtr = fileStreamPtr->GetFilePathPPtr (returnCode);
-#		endif	// defined multispec_lin
+		#endif	// defined multispec_lin
 
-#		if defined multispec_mac  
+		#if defined multispec_mac
 			if (returnCode == kReturnASCII)
 				filePathPtr = (void*)fileStreamPtr->fileName;
 			else
 				filePathPtr = (void*)fileStreamPtr->uniFileName.unicode;
-#		endif	// defined multispec_mac 
+		#endif	// defined multispec_mac
 	              
-#		if defined multispec_win    
+		#if defined multispec_win
 			filePathPtr = fileStreamPtr->GetFilePathPPtr (returnCode);
-#		endif	// defined multispec_win
+		#endif	// defined multispec_win
 		
-		}		// end "if (fileStreamPtr != NULL)" 
+		}	// end "if (fileStreamPtr != NULL)" 
 
 	return (filePathPtr);
 	
-}		// end "GetFilePathPPointer"
-
-
-
-//------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
-//
-//	Function name:		void* GetFileNameCPointer
-//
-//	Software purpose:	The purpose of this routine is to return the input file 
-//							stream class pointer for the image window.  Note that
-//							this routine  returns the file stream object for the
-//							first file only if the image window represents a linked 
-//							list. It return a pointer to a C string.
-//
-//	Parameters in:		None
-//
-//	Parameters out:	None
-//
-//	Value Returned:	None
-// 
-// Called By:		
-//
-//	Coded By:			Larry L. Biehl			Date: 01/25/2013
-//	Revised By:			Larry L. Biehl			Date: 03/01/2017	
-
-void* GetFileNameCPointer (
-				Handle								fileInfoHandle,
-				SInt16								returnCode)
-
-{  
-	FileInfoPtr							fileInfoPtr;
-	
-	
-	fileInfoPtr = (FileInfoPtr)GetHandlePointer (fileInfoHandle, kNoLock, kNoMoveHi);
-	
-	return (GetFileNameCPointer (fileInfoPtr, returnCode));
-	
-}		// end "GetFileNameCPointer" 
-
-
-
-//------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
-//
-//	Function name:		void* GetFileNameCPointer
-//
-//	Software purpose:	The purpose of this routine is to return the input file 
-//							stream class pointer for the image window.  Note that
-//							this routine  returns the file stream object for the
-//							first file only if the image window represents a linked 
-//							list. It return a pointer to a C string.
-//
-//	Parameters in:		None
-//
-//	Parameters out:	None
-//
-//	Value Returned:	None
-// 
-// Called By:		
-//
-//	Coded By:			Larry L. Biehl			Date: 09/11/1995
-//	Revised By:			Larry L. Biehl			Date: 01/03/2017
-
-void* GetFileNameCPointer (
-				FileInfoPtr							fileInfoPtr,
-				SInt16								returnCode)
-
-{  
-	void*									fileNamePtr = NULL;
-	
-	
-	if (fileInfoPtr != NULL)
-		{            
-		CMFileStream* fileStreamPtr = GetFileStreamPointer (fileInfoPtr);
-		
-		fileNamePtr = GetFileNameCPointer (fileStreamPtr, returnCode);
-		
-		}		// end "if (fileInfoPtr != NULL)" 
-
-	return (fileNamePtr);
-	
-}		// end "GetFileNameCPointer" 
-
-
-
-//------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
-//
-//	Function name:		void GetFileNameCPointer
-//
-//	Software purpose:	The purpose of this routine is to get a pointer to the file name as a
-//							C string.
-//
-//	Parameters in:		None
-//
-//	Parameters out:	None
-//
-//	Value Returned:	None
-// 
-// Called By:		
-//
-//	Coded By:			Larry L. Biehl			Date: 11/01/1995
-//	Revised By:			Larry L. Biehl			Date: 03/15/2017
-
-void* GetFileNameCPointer (
-				CMFileStream*						fileStreamPtr,
-				SInt16								returnCode)
-
-{  
-	void*									fileNamePtr = NULL;
-	
-	
-	if (fileStreamPtr != NULL)
-		{                                  
-#		if defined multispec_mac  
-			if (returnCode == kReturnASCII)
-				fileNamePtr = &fileStreamPtr->fileName[1];
-			else
-				fileNamePtr = (FileStringPtr)fileStreamPtr->uniFileName.unicode;
-#		endif	// defined multispec_mac 
-	      
-#		if defined multispec_win || defined multispec_lin
-			fileNamePtr = fileStreamPtr->GetFileNameCPtr (returnCode);
-#		endif	// defined multispec_win || defined multispec_lin
-		}		// end "if (fileStreamPtr != NULL)" 
-
-	return (fileNamePtr);
-	
-}		// end "GetFileNameCPointer" 
-
-
-
-//------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
-//
-//	Function name:		void GetFileNamePPointer
-//
-//	Software purpose:	The purpose of this routine is to return the input file 
-//							stream class pointer for the image window.  Note that
-//							this routine  returns the file stream object for the
-//							first file only if the image window represents a linked 
-//							list. It return a pointer to a P string.
-//
-//	Parameters in:		None
-//
-//	Parameters out:	None
-//
-//	Value Returned:	None
-// 
-// Called By:		
-//
-//	Coded By:			Larry L. Biehl			Date: 10/24/1995
-//	Revised By:			Larry L. Biehl			Date: 03/22/2017
-
-void* GetFileNamePPointer  (
-				CMFileStream*						fileStreamPtr,
-				SInt16								returnCode)
-
-{  
-	void*									fileNamePtr = NULL;
-	
-	
-	if (fileStreamPtr != NULL)
-		{                         
-#		if defined multispec_mac  
-			if (returnCode == kReturnASCII)                
-	   		fileNamePtr = &fileStreamPtr->fileName[0];
-			else
-				//fileNamePtr = fileStreamPtr->uniFileName.unicode;
-				fileNamePtr = fileStreamPtr->uniPascalFileName;
-				if (fileStreamPtr->uniPascalFileName[0] == 0)
-					{
-							// Copy c version of uniFileName to this local
-					
-					strncpy ((char*)&fileStreamPtr->uniPascalFileName[1],
-									(char*)fileStreamPtr->uniFileName.unicode,
-									2*fileStreamPtr->uniFileName.length);
-					
-					}	// end "if (fileStreamPtr->uniPascalFileName[0] == 0)"
-#		endif	// defined multispec_mac 
-		
-#		if defined multispec_win | defined multispec_lin                           	
-			fileNamePtr = fileStreamPtr->GetFileNamePPtr (returnCode);
-#		endif	// defined multispec_win
-		
-		}		// end "if (fileInfoPtr != NULL)" 
-
-	return (fileNamePtr);
-	
-}		// end "GetFileNamePPointer"
-
-
-
-//------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
-//
-//	Function name:		void GetFileNamePPointer
-//
-//	Software purpose:	The purpose of this routine is to return the input file 
-//							stream class pointer for the image window.  Note that
-//							this routine  returns the file stream object for the
-//							first file only if the image window represents a linked 
-//							list. It return a pointer to a P string.
-//
-//	Parameters in:		None
-//
-//	Parameters out:	None
-//
-//	Value Returned:	None
-// 
-// Called By:		
-//
-//	Coded By:			Larry L. Biehl			Date: 09/29/1995
-//	Revised By:			Larry L. Biehl			Date: 03/09/2017
-
-void* GetFileNamePPointer (
-				Handle								fileInfoHandle,
-				SignedByte*							handleStatusPointer,
-				SInt16								returnCode)
-
-{  
-	void*									fileNamePtr = NULL;
-	FileInfoPtr							fileInfoPtr;
-	
-				
-	*handleStatusPointer = -1;
-	
-	fileInfoPtr = (FileInfoPtr)GetHandleStatusAndPointer(fileInfoHandle,
-																	handleStatusPointer,
-																	kNoMoveHi);
-																	
-	fileNamePtr = GetFileNamePPointer (fileInfoPtr, returnCode);
-
-	return (fileNamePtr);
-	
-}		// end "GetFileNamePPointer" 
- 
-
-
-void* GetFileNamePPointer (
-				FileInfoPtr							fileInfoPtr,
-				SInt16								returnCode)
-
-{  
-	void*								fileNamePtr = NULL;
-	
-	
-	if (fileInfoPtr != NULL)
-		{              
-		CMFileStream* fileStreamPtr = GetFileStreamPointer (fileInfoPtr);
-		
-		fileNamePtr = GetFileNamePPointer  (fileStreamPtr, returnCode);
-		                                   		
-		}		// end "if (fileInfoPtr != NULL)" 
-
-	return (fileNamePtr);
-	
-}		// end "GetFileNamePPointer"  
+}	// end "GetFilePathPPointerFromFileStream"
 
 
 
@@ -5133,11 +5443,11 @@ SInt32 GetFileType (
 			fileType = fileStreamPtr->mFileType;
 		#endif	// defined multispec_win || defined multispec_lin
 		
-		}		// end "if (fileStreamPtr != NULL)" 
+		}	// end "if (fileStreamPtr != NULL)" 
 
 	return (fileType);
 	
-}		// end "GetFileType"  
+}	// end "GetFileType"  
 
 
 
@@ -5183,11 +5493,11 @@ SInt16 GetFileTypeAndCreator (
 				fileStreamPtr->creator = gFinderInfo.fdCreator;
 				fileStreamPtr->type = gFinderInfo.fdType;
 
-				}		// end "if (errCode == noErr)"
+				}	// end "if (errCode == noErr)"
 			
-			}		// end "if (fileStreamPtr->fSSpecFlag)"
+			}	// end "if (fileStreamPtr->fSSpecFlag)"
 
-		else		// !fileStreamPtr->fSSpecFlag
+		else	// !fileStreamPtr->fSSpecFlag
 			{
 			errCode = FSGetCatalogInfo (&fileStreamPtr->fsRef,
 													kFSCatInfoFinderInfo,
@@ -5198,12 +5508,13 @@ SInt16 GetFileTypeAndCreator (
 
 			if (errCode == noErr)
 				{
-				fileStreamPtr->creator = ((FileInfo*)fsCatalogInfo.finderInfo)->fileCreator;
+				fileStreamPtr->creator = 
+											((FileInfo*)fsCatalogInfo.finderInfo)->fileCreator;
 				fileStreamPtr->type = ((FileInfo*)fsCatalogInfo.finderInfo)->fileType;
 
-				}		// end "if (errCode == noErr)"
+				}	// end "if (errCode == noErr)"
 			
-			}		// end else	!fileStreamPtr->fSSpecFlag
+			}	// end else	!fileStreamPtr->fSSpecFlag
 	#endif	// defined multispec_mac
 	
 	#if defined multispec_win		
@@ -5211,7 +5522,7 @@ SInt16 GetFileTypeAndCreator (
 
 	return (errCode);
 	
-}		// end "GetFileTypeAndCreator"	
+}	// end "GetFileTypeAndCreator"	
 
 
 
@@ -5274,7 +5585,7 @@ SInt64 GetFilePositionOffset (
 		columnStart = 1;
 		columnEnd = fileInfoPtr->numberColumns;
 		
-		}		// end "if (BILSpecialFlag)"
+		}	// end "if (BILSpecialFlag)"
 	
 			// Get the number of samples to read and the initial number of
 			// bytes to read.
@@ -5289,7 +5600,6 @@ SInt64 GetFilePositionOffset (
 	switch (fileInfoPtr->bandInterleave)
 		{
 		case kBIL:
-				
 			posOff = (SInt64)fileInfoPtr->numberHeaderBytes +
 			
 									 	(SInt64)(lineNumber-1) *
@@ -5325,13 +5635,13 @@ SInt64 GetFilePositionOffset (
 				if (startHalfByte)
 					*endHalfBytePtr = !(*numberSamplesPtr & 0x00000001);
 									
-				else		// !startHalfByte 
+				else	// !startHalfByte 
 					*endHalfBytePtr = (Boolean)(*numberSamplesPtr & 0x00000001);
 									
 				if (startHalfByte && *endHalfBytePtr)
 					(*countPtr)++;
 				
-				}		// end "if (fileInfoPtr->numberBits == 4)" 
+				}	// end "if (fileInfoPtr->numberBits == 4)" 
 	
 					// Handle case when file band interleave format is BIL and all	
 					// channels and columns are to be read in at one time.			
@@ -5341,8 +5651,7 @@ SInt64 GetFilePositionOffset (
 				*numberSamplesPtr *= fileIOInstructionsPtr->bilSpecialNumberChannels;
 				*countPtr *= fileIOInstructionsPtr->bilSpecialNumberChannels;
 				
-				}		// end "if (BILSpecialFlag)" 
-				
+				}	// end "if (BILSpecialFlag)" 
 			break;
 		
 		case kBSQ:
@@ -5358,9 +5667,9 @@ SInt64 GetFilePositionOffset (
 				
 				*countPtr = hfaPtr->numberBlocksRead * blockFormatPtr->blockSize;
 					
-				}		// end "if (fileInfoPtr->nonContiguousStripsFlag)"
+				}	// end "if (fileInfoPtr->nonContiguousStripsFlag)"
 			
-			else		// !fileInfoPtr->nonContiguousStripsFlag
+			else	// !fileInfoPtr->nonContiguousStripsFlag
 				posOff = fileInfoPtr->numberHeaderBytes +
 								 				
 								 	 (SInt64)channelNumber *
@@ -5373,11 +5682,9 @@ SInt64 GetFilePositionOffset (
 								 		(columnStart-1) *
 				 							fileInfoPtr->numberBytes +
 				 									fileInfoPtr->numberPreLineBytes;
-		
 			break;
 			
 		case kBIS:
-		
 					// Note: For BIS type files all channels for the requested 		
 					// columns will be read into the buffer.								
 					
@@ -5403,8 +5710,7 @@ SInt64 GetFilePositionOffset (
 											
 				*countPtr = hfaPtr->numberBlocksRead * hfaPtr->blockOffset;
 				
-				}		// end "if (fileInfoPtr->blockFlag)"
-			
+				}	// end "if (fileInfoPtr->blockFlag)"
 			break;
 		
 		case kBNonSQ:
@@ -5417,7 +5723,6 @@ SInt64 GetFilePositionOffset (
 										 		(columnStart-1) *
 						 							fileInfoPtr->numberBytes +
 						 									fileInfoPtr->numberPreLineBytes;
-			
 			break;
 		
 		case kBNonSQBlocked:
@@ -5428,16 +5733,16 @@ SInt64 GetFilePositionOffset (
 			
 				blockLineStart = (lineNumber-1)/hfaPtr->blockHeight;
 			
-				posOff = (SInt64)hfaPtr->firstColumnStartByte + (SInt64)hfaPtr->blockOffset * 
-											blockLineStart * hfaPtr->numberBlockWidths;
+				posOff = (SInt64)hfaPtr->firstColumnStartByte + 
+										(SInt64)hfaPtr->blockOffset * 
+													blockLineStart * hfaPtr->numberBlockWidths;
 			
 				*countPtr = hfaPtr->numberBlocksRead * hfaPtr->blockOffset;
 				
-				}		// end "if (fileInfoPtr->hfaPtr != NULL)"
-				
+				}	// end "if (fileInfoPtr->hfaPtr != NULL)"
 			break;
 			
-		}		// end "switch (fileInfoPtr->bandInterleave)"
+		}	// end "switch (fileInfoPtr->bandInterleave)"
 		
 	if (fileInfoPtr->format == kGAIAType)
 		{
@@ -5449,16 +5754,11 @@ SInt64 GetFilePositionOffset (
 		posOff += segmentedStartOffset;
 		*countPtr += (segmentedEndOffset - segmentedStartOffset);
 		
-		}		// end "if (fileInfoPtr->format == kGAIAType)"
+		}	// end "if (fileInfoPtr->format == kGAIAType)"
 
-/*  This is for testing.
-	SInt16 stringLength = sprintf ((char*)&gTextString, " PosOff = %lld%s",
-							posOff, gEndOfLine);
-	ListString ((char*)&gTextString, stringLength, gOutputTextH);
-*/		
 	return (posOff); 
 	
-}		// end "GetFilePositionOffset" 
+}	// end "GetFilePositionOffset" 
 
 
 /*
@@ -5494,23 +5794,18 @@ UInt32 GetFileSize (
 	if (fileStreamPtr != NULL)
 		{              
 		#if defined multispec_mac                       
-	                          
 	   	fileSize = fileStreamPtr->fileSize;
-	   	
 		#endif	// defined multispec_mac 
-	
 	              
       #if defined multispec_win | defined multispec_lin
-	                          
 	   	fileSize = fileStreamPtr->mFileSize;
-	 
-		#endif	// defined multispec_win
+		#endif	// defined multispec_win | defined multispec_lin
 		
-		}		// end "if (fileInfoPtr != NULL)" 
+		}	// end "if (fileInfoPtr != NULL)" 
 
 	return (fileSize);
 	
-}		// end "GetFileSize" 
+}	// end "GetFileSize" 
 */
 
 
@@ -5577,10 +5872,10 @@ SInt16 GetLine (
   			// Get total number of samples to be read from disk.						
   	
   	if (columnEnd < columnStart || lineNumber == 0 || columnEnd == 0)		
-																					return (0);
+																							return (0);
 																					
 	if (fileInfoPtr->format == kGAIAType)
-																					return (-1);
+																							return (-1);
 	
 			// Initialize local variables.
 				
@@ -5589,7 +5884,7 @@ SInt16 GetLine (
 	if (fileInfoPtr->blockedFlag)
 		{
 		if (fileInfoPtr->hfaPtr == NULL)
-																					return (-1);
+																							return (-1);
 		
 		channelStartIndex = 0;
 		if (fileInfoPtr->bandInterleave == kBNonSQBlocked ||
@@ -5599,9 +5894,9 @@ SInt16 GetLine (
 			hfaPtr = &fileInfoPtr->hfaPtr[channelNumber];
 			channelStartIndex = 0;
 			
-			}		// end "if (fileInfoPtr->bandInterleave == kBNonSQBlocked)"
+			}	// end "if (fileInfoPtr->bandInterleave == kBNonSQBlocked)"
 			
-		else		// fileInfoPtr->bandInterleave == kBIBlock || 
+		else	// fileInfoPtr->bandInterleave == kBIBlock || 
 					//				fileInfoPtr->bandInterleave == kBIS
 			{
 			hfaPtr = fileInfoPtr->hfaPtr;
@@ -5613,7 +5908,7 @@ SInt16 GetLine (
 					
 			channelNumber = 0;
 			
-			}		// end "else fileInfoPtr->bandInterleave == kBIBlock"
+			}	// end "else fileInfoPtr->bandInterleave == kBIBlock"
 		
 				// Check if line needs to be read from disk.
 				
@@ -5627,20 +5922,20 @@ SInt16 GetLine (
 					
 			readBufferPtr = (HUCharPtr)hfaPtr->tiledBufferPtr;
 			
-			}		// end "if (readLineFlag)"
+			}	// end "if (readLineFlag)"
 			
-		else		// !readLineFlag
+		else	// !readLineFlag
 			{
 			*numberSamplesPtr = columnEnd - columnStart + 1;
 			if (fileInfoPtr->bandInterleave == kBIS)
 				*numberSamplesPtr *= fileInfoPtr->numberChannels;
 			
-			}		// end "else !readLineFlag"
+			}	// end "else !readLineFlag"
 		
-		}		// end "if (fileInfoPtr->blockedFlag)"
+		}	// end "if (fileInfoPtr->blockedFlag)"
 			
 	if (readBufferPtr == NULL)
-																					return (-1);
+																							return (-1);
 																					
 	readLineNumber = lineNumber;		
 	if (fileInfoPtr->treatLinesAsBottomToTopFlag)
@@ -5654,16 +5949,16 @@ SInt16 GetLine (
 				{
 				int channelNumber4 = channelNumber + 1;
 				errCode = GetGDALLineOfData (fileInfoPtr,	
-															readBufferPtr,
-															readLineNumber,
-															columnStart,
-															columnEnd,
-															1,
-															&channelNumber4,
-															numberSamplesPtr,
-															FALSE);
+														readBufferPtr,
+														readLineNumber,
+														columnStart,
+														columnEnd,
+														1,
+														&channelNumber4,
+														numberSamplesPtr,
+														FALSE);
 				
-				}		// end "if (fileInfoPtr->gdalDataSetH != NULL)"
+				}	// end "if (fileInfoPtr->gdalDataSetH != NULL)"
 				
 			else if (!fileInfoPtr->callGetHDFLineFlag)
 		#endif	// include_gdal_capability
@@ -5674,7 +5969,7 @@ SInt16 GetLine (
 			{
 			if (gUseThreadedIOFlag)
 				{
-				errCode = GetLineFileIOThread ( fileIOInstructionsPtr,
+				errCode = GetLineFileIOThread (fileIOInstructionsPtr,
 															fileInfoPtr, 
 															readLineNumber, 
 															channelNumber, 
@@ -5685,9 +5980,9 @@ SInt16 GetLine (
 															 
 				count = fileIOInstructionsPtr->count;
 				
-				}		// end "if (gUseThreadedIOFlag)"
+				}	// end "if (gUseThreadedIOFlag)"
 				
-			else		// !gUseThreadedIOFlag
+			else	// !gUseThreadedIOFlag
 				{
 						// Get the relative position to start reading with respect to			
 						// the start of the file.					
@@ -5702,7 +5997,8 @@ SInt16 GetLine (
 															&count,
 															&endHalfByte);
 															
-				errCode = MSetMarker (fileStreamPtr, fsFromStart, posOff, kNoErrorMessages);
+				errCode = MSetMarker (
+										fileStreamPtr, fsFromStart, posOff, kNoErrorMessages);
 
 				if (errCode == noErr)
 					errCode = MReadData (fileStreamPtr, 
@@ -5716,17 +6012,17 @@ SInt16 GetLine (
 								((readLineNumber-1)/hfaPtr->blockHeight) * hfaPtr->blockHeight + 1;
 					hfaPtr->lastLineRead = hfaPtr->firstLineRead + hfaPtr->blockHeight - 1;
 					
-	//				hfaPtr->nextReadStartByte += 
-	//													hfaPtr->blockSize * hfaPtr->numberBlockWidths;
+					//hfaPtr->nextReadStartByte += 
+					//								hfaPtr->blockSize * hfaPtr->numberBlockWidths;
 					
-					}		// end "if (errCode == noErr && fileInfoPtr->blockedFlag)"
+					}	// end "if (errCode == noErr && fileInfoPtr->blockedFlag)"
 					
-				}		// end "else !gUseThreadedIOFlag" 
+				}	// end "else !gUseThreadedIOFlag" 
 				
-			}		// end "else if (!fileInfoPtr->callGetHDFLineFlag)"
+			}	// end "else if (!fileInfoPtr->callGetHDFLineFlag)"
 		
 		#if include_hdf_capability
-			else		// fileInfoPtr->callGetHDFLineFlag
+			else	// fileInfoPtr->callGetHDFLineFlag
 				{
 						// For now this will only happen with HDF or CDF formatted files.
 						
@@ -5742,10 +6038,10 @@ SInt16 GetLine (
 				if (hdfErrCode != 0)
 					errCode = -1;			
 				
-				}		// end "else fileInfoPtr->callGetHDFLineFlag"
+				}	// end "else fileInfoPtr->callGetHDFLineFlag"
 		#endif		// include_hdf_capability
 			
-		}		// end "if (readLineFlag)"												
+		}	// end "if (readLineFlag)"												
 	
 	if (errCode == noErr)
 		{
@@ -5765,16 +6061,16 @@ SInt16 GetLine (
 				{						
 				count = (columnEnd - columnStart + 2)/2;
 				
-				if ( !(columnStart & 0x00000001) && (columnEnd & 0x00000001) )
+				if (!(columnStart & 0x00000001) && (columnEnd & 0x00000001))
 					count++;
 				
 				endHalfByte = FALSE;
 				if (columnEnd & 0x00000001)
 					endHalfByte = TRUE;
 				
-				}		// end "if (fileInfoPtr->numberBits == 4)"
+				}	// end "if (fileInfoPtr->numberBits == 4)"
 			
-			}		// end "if (fileInfoPtr->blockedFlag)"
+			}	// end "if (fileInfoPtr->blockedFlag)"
 			
 		if (fileInfoPtr->format == kGAIAType)
 			{
@@ -5786,7 +6082,7 @@ SInt16 GetLine (
 			PackGAIAData (columnStart, columnEnd, (HSInt16Ptr)fileIOBufferPtr);
 			count -= (segmentedEndOffset - segmentedStartOffset);
 			
-			}		// end "if (fileInfoPtr->format == kGAIAType && ...)" 
+			}	// end "if (fileInfoPtr->format == kGAIAType && ...)" 
 				
 				// Swap the bytes if needed. 
 				
@@ -5824,7 +6120,7 @@ SInt16 GetLine (
 				byte1Ptr--;
 				byte2Ptr--;
 						
-				}		// end "if (halfByteFlag)" 
+				}	// end "if (halfByteFlag)" 
 				
 			while (samplesLeft >= 2)
 				{
@@ -5843,19 +6139,19 @@ SInt16 GetLine (
 				byte1Ptr--;
 				byte2Ptr--;
 				
-				}		// end "while ( samplesLeft >= 0 )" 
+				}	// end "while (samplesLeft >= 0)" 
 				
-			if ( samplesLeft )
+			if (samplesLeft)
 				*byte1Ptr = (*byte2Ptr & 0xf0)>>4;
 			
-			}		// end "if (fileInfoPtr->numberBits..." 
+			}	// end "if (fileInfoPtr->numberBits..." 
 			
-		}		// end "if (errCode == noErr)" 
+		}	// end "if (errCode == noErr)" 
 		
 	IOCheck (errCode, fileStreamPtr);
 	return (errCode);
 	
-}		// end "GetLine"
+}	// end "GetLine"
 
 
 
@@ -5930,7 +6226,7 @@ SInt16 GetLineOfData (
 
 	
 	if (lineNumber <= 0  || fileIOBufferPtr == NULL)
-																								return(-1);
+																							return (-1);
 		
 			// Initialize some local variables.												
 		
@@ -5954,26 +6250,25 @@ SInt16 GetLineOfData (
 		columnOffset = columnStart - 1;
 		numberColumnsPerChannel = fileInfoPtr->numberColumns;
 		
-		}		// end "if (oneReadFlag)"
+		}	// end "if (oneReadFlag)"
 		
-	else		// !oneReadFlag
+	else	// !oneReadFlag
 		{
 		columnOffset = 0;
 		numberColumnsPerChannel = numberSamples;
 		
-		}		// end "else !oneReadFlag"
+		}	// end "else !oneReadFlag"
 																						
 	if (fileIOInstructionsPtr->maskBufferPtr != NULL)
 		{
-		if (!DetermineIfMaskDataInLine (
-												fileIOInstructionsPtr->maskBufferPtr,
-												fileIOInstructionsPtr->maskColumnStart,
-												numberSamples,
-												columnInterval,
-												fileIOInstructionsPtr->maskValueRequest) )
-																						return(2);
+		if (!DetermineIfMaskDataInLine (fileIOInstructionsPtr->maskBufferPtr,
+													fileIOInstructionsPtr->maskColumnStart,
+													numberSamples,
+													columnInterval,
+													fileIOInstructionsPtr->maskValueRequest))
+																							return (2);
 																						
-		}		// end "if (fileIOInstructionsPtr->maskBufferPtr != NULL)"
+		}	// end "if (fileIOInstructionsPtr->maskBufferPtr != NULL)"
 												
 			// If the data buffer is NULL, then this implies that the data
 			// output buffer can be the same as that used for the file IO
@@ -5997,8 +6292,8 @@ SInt16 GetLineOfData (
 			// Check for error case when data is to be packed but the input and	
 			// output buffers are the same.													
 			
-	if ( (fileIOBufferPtr == dataBufferPtr) && differentBuffersFlag)
-																						return(-1);
+	if ((fileIOBufferPtr == dataBufferPtr) && differentBuffersFlag)
+																							return (-1);
 		
 			// Get the buffer to read the data into.										
 			// Check for special case when data is to be packed but no effort is	
@@ -6042,13 +6337,13 @@ SInt16 GetLineOfData (
 	if (fileInfoPtr->gdalDataSetH != NULL)
 		{
 		if (fileIOInstructionsPtr->gdalChannelListPtr[
-													fileIOInstructionsPtr->numberGdalChannels-1] <=
-								fileInfoPtr->numberChannels && 
-					fileInfoPtr->hdfHandle == NULL &&
-							!fileInfoPtr->treatLinesAsBottomToTopFlag)
+				fileIOInstructionsPtr->numberGdalChannels-1] <=
+												fileInfoPtr->numberChannels && 
+													fileInfoPtr->hdfHandle == NULL &&
+														!fileInfoPtr->treatLinesAsBottomToTopFlag)
 			useMultipleChannelGDALFlag = TRUE;		
 		
-		}		// end "if (fileInfoPtr->gdalDataSetH != NULL)"
+		}	// end "if (fileInfoPtr->gdalDataSetH != NULL)"
 	
 			// Loop through the channels to be read in.									
 			
@@ -6060,8 +6355,8 @@ SInt16 GetLineOfData (
 		channel++;
 		if (fileInfoIndex != (SInt16)layerInfoPtr[channel].fileInfoIndex &&
 				callPackLineOfDataFlag &&
-				localFileInfoPtr != NULL &&
-				localFileInfoPtr->bandInterleave != kBIS)
+					localFileInfoPtr != NULL &&
+						localFileInfoPtr->bandInterleave != kBIS)
 			{
 					// Pack the data in the line leaving the unused columns out 	
 					// and/or convert to BIS format if either has been 				
@@ -6089,7 +6384,7 @@ SInt16 GetLineOfData (
 				dataBufferPtr = 
 						&dataBufferPtr[(SInt32)numberBytes * fileNumberChannels];
 			
-			else		// !toBISFormatFlag 						
+			else	// !toBISFormatFlag 						
 				dataBufferPtr = &dataBufferPtr[(SInt32)numberBytes * 
 					fileNumberChannels * ((numberSamples + columnInterval - 1)/
 																					columnInterval)];
@@ -6098,7 +6393,7 @@ SInt16 GetLineOfData (
 									
 			fileNumberChannels = 0;
 			
-			}		// end "if (fileInfoIndex != ..." 
+			}	// end "if (fileInfoIndex != ..." 
 			
 		fileInfoIndex = layerInfoPtr[channel].fileInfoIndex;
 		localFileInfoPtr = &fileInfoPtr[fileInfoIndex];
@@ -6116,31 +6411,31 @@ SInt16 GetLineOfData (
 														&numberSamplesRead,
 														oneReadFlag);
 				
-				}		// end "if (localFileInfoPtr->gdalDataSetH != NULL && ..."
+				}	// end "if (localFileInfoPtr->gdalDataSetH != NULL && ..."
 				
-			else		// localFileInfoPtr->gdalDataSetH == NULL || ...
+			else	// localFileInfoPtr->gdalDataSetH == NULL || ...
 				{
 		#endif	// include_gdal_capability
 				errCode = GetLine (fileIOInstructionsPtr,
-										localFileInfoPtr,
-										lineNumber,
-										layerInfoPtr[channel].fileChannelNumber-1,
-										columnStart,
-										columnEnd,
-										&numberSamplesRead,
-										ioBufferPtr);
+											localFileInfoPtr,
+											lineNumber,
+											layerInfoPtr[channel].fileChannelNumber-1,
+											columnStart,
+											columnEnd,
+											&numberSamplesRead,
+											ioBufferPtr);
 			
 		#if include_gdal_capability							
-				}		// end "else fileInfoPtr->gdalDataSetH == NULL || ..."
+				}	// end "else fileInfoPtr->gdalDataSetH == NULL || ..."
 		#endif	// include_gdal_capability
 			
 				// Exit routine if errCode is not noErr.								
 				
 		if (errCode != noErr)
-																			return (errCode);
+																						return (errCode);
 																			
 		if (numberSamplesRead <= 0)
-																			return (-1);
+																						return (-1);
 								
 		bytesChannelOffset = numberSamplesRead*localFileInfoPtr->numberBytes;
 		
@@ -6159,10 +6454,9 @@ SInt16 GetLineOfData (
       if (localFileInfoPtr->bandInterleave == kBIS || 
 				oneReadFlag ||
 				useMultipleChannelGDALFlag)
-//				fileInfoPtr->gdalDataSetH != NULL)
       	fileNumberChannels = index = numberChannels;
       			
-      }		// end "for (index=0; index<numberChannels..."
+      }	// end "for (index=0; index<numberChannels..."
 	
 			// Repack the line of data	if needed.											
 	
@@ -6192,11 +6486,11 @@ SInt16 GetLineOfData (
 									dataBufferPtr, 
 									toBISFormatFlag);
 				
-			}		// end "if ( fileInfoPtr->bandInterleave!=kBIS)" 
+			}	// end "if (fileInfoPtr->bandInterleave!=kBIS)" 
 					
 				// Do channel and sample packing for BIS formats here.					
 		
-		else		// fileInfoPtr->bandInterleave == kBIS 
+		else	// fileInfoPtr->bandInterleave == kBIS 
 			{								
 			PackBISData (columnInterval,
 								localFileInfoPtr->numberChannels, 
@@ -6207,9 +6501,9 @@ SInt16 GetLineOfData (
 								dataBufferPtr, 
 								(HUInt16Ptr)channelListPtr);
 									
-			}		// end "else fileInfoPtr->bandInterleave==kBIS" 
+			}	// end "else fileInfoPtr->bandInterleave==kBIS" 
 			
-		}		// end "if (callPackLineOfData)" 
+		}	// end "if (callPackLineOfData)" 
 	
 			// If mask buffer is being used then get just those data values requested
 			// by the mask. Note that this is currently only set up for BIS output
@@ -6217,18 +6511,18 @@ SInt16 GetLineOfData (
 							
 	if (fileIOInstructionsPtr->maskBufferPtr != NULL)
 		fileIOInstructionsPtr->numberOutputBufferSamples = PackMaskData (
-													fileIOInstructionsPtr->maskBufferPtr,
-													fileIOInstructionsPtr->maskColumnStart,
-													numberChannels,
-													numberSamples,
-													columnInterval,
-													dataBufferPtr,
-													numberBytes,
-													fileIOInstructionsPtr->maskValueRequest);
+														fileIOInstructionsPtr->maskBufferPtr,
+														fileIOInstructionsPtr->maskColumnStart,
+														numberChannels,
+														numberSamples,
+														columnInterval,
+														dataBufferPtr,
+														numberBytes,
+														fileIOInstructionsPtr->maskValueRequest);
     
     return (noErr);
 	      
-}		// end "GetLineOfData" 
+}	// end "GetLineOfData" 
 
 
 
@@ -6310,26 +6604,27 @@ SInt16 GetGDALLineOfData (
 	
 	rasterIOChannelListPtr = gdalChannelListPtr;
 	 
-	if ((fileInfoPtr->format == kHDF5Type || fileInfoPtr->format == kNETCDF2Type || fileInfoPtr->format == kHDF4Type2) && 
-																				fileInfoPtr->hdfHandle)
+	if ((fileInfoPtr->format == kHDF5Type ||
+				fileInfoPtr->format == kNETCDF2Type ||
+							fileInfoPtr->format == kHDF4Type2) &&
+											fileInfoPtr->hdfHandle)
 		{
-			 // Set up for case where subdatasets are being read from hdf5 formatted files.
+			 // Set up for case where subdatasets are being read from hdf5 formatted
+			 // files.
 			
-		hdfDataSetsPtr = (HdfDataSets*)GetHandlePointer (
-															fileInfoPtr->hdfHandle,
-															kNoLock,
-															kNoMoveHi);
+		hdfDataSetsPtr = (HdfDataSets*)GetHandlePointer (fileInfoPtr->hdfHandle);
 															
 		if (hdfDataSetsPtr == NULL || fileInfoPtr->channelToHdfDataSetPtr == NULL)
 			{
 			*numberSamplesReadPtr = 0;
-																						return (1);
+																								return (1);
 		
-			}		// end "if (hdfDataSetsPtr == NULL || ..."
+			}	// end "if (hdfDataSetsPtr == NULL || ..."
 		
 		channelNumber = gdalChannelListPtr[0];
 		
-				// Note that channelToHdfDataSetPtr is 0 based; channels for gdal are 1 based.
+				// Note that channelToHdfDataSetPtr is 0 based; channels for gdal are
+				// 1 based.
 				
 		dataSetsIndex = fileInfoPtr->channelToHdfDataSetPtr[channelNumber-1];
 		
@@ -6344,14 +6639,14 @@ SInt16 GetGDALLineOfData (
 			groupedChannelNumber = 1;
 			rasterIOChannelListPtr = &groupedChannelNumber;
 			
-			}		// end "if (hdfDataSetsPtr[dataSetsIndex].groupedNumber > 0)"
+			}	// end "if (hdfDataSetsPtr[dataSetsIndex].groupedNumber > 0)"
 			
-		}		// end "if ((fileInfoPtr->format == kHDF5Type || ...) && ...)"
+		}	// end "if ((fileInfoPtr->format == kHDF5Type || ...) && ...)"
 																					
 	if (fileInfoPtr->blockedFlag)
 		{
 		if (fileInfoPtr->hfaPtr == NULL)
-																							return (-1);
+																								return (-1);
 																							
 		channelIndex = 0;
 		if (gdalChannelListPtr != NULL)
@@ -6379,15 +6674,16 @@ SInt16 GetGDALLineOfData (
 			hfaPtr->lastLineRead = hfaPtr->firstLineRead + hfaPtr->blockHeight - 1;			
 			hfaPtr->lastLineRead = MIN (hfaPtr->lastLineRead, fileInfoPtr->numberLines);
 			
-					// We will let gdal routines load the data starting from the requested lineNumber.
+					// We will let gdal routines load the data starting from the
+					// requested lineNumber.
 					
 			hfaPtr->firstLineRead = lineNumber;
 			
 			gdalNumberLines = hfaPtr->lastLineRead - hfaPtr->firstLineRead + 1;
 			
-			}		// end "if (readLineFlag)"
+			}	// end "if (readLineFlag)"
 		
-		}		// end "if (fileInfoPtr->blockedFlag)"
+		}	// end "if (fileInfoPtr->blockedFlag)"
 			
 	if (readBufferPtr != NULL)
 		{	
@@ -6400,7 +6696,7 @@ SInt16 GetGDALLineOfData (
 				gdalColumnStart = 0;
 				gdalColumnEnd = fileInfoPtr->numberColumns - 1;
 				
-				}		// end "if (oneReadFlag)"
+				}	// end "if (oneReadFlag)"
 					
 			numberSamplesRead = gdalColumnEnd - gdalColumnStart + 1;
 					
@@ -6422,19 +6718,20 @@ SInt16 GetGDALLineOfData (
 			
 			if (errCode == noErr && fileInfoPtr->blockedFlag)
 				{
-				hfaPtr->blockSizeRead = gdalNumberLines * numberSamplesRead * fileInfoPtr->numberBytes;
+				hfaPtr->blockSizeRead =
+							gdalNumberLines * numberSamplesRead * fileInfoPtr->numberBytes;
 			
-						// We need to update the block width parameter to represent the actual width of the
-						// block that was read into memory.
+						// We need to update the block width parameter to represent the
+						// actual width of the lock that was read into memory.
 						
 				hfaPtr->blockWidthRead = numberSamplesRead;
 				
-				}		// end "if (errCode == noErr && fileInfoPtr->blockedFlag)"
+				}	// end "if (errCode == noErr && fileInfoPtr->blockedFlag)"
 			
 			if (errCode != noErr)
 				HandleGDALErrorMessage (errCode);
 				
-			}		// end "if (readLineFlag)"
+			}	// end "if (readLineFlag)"
 			
 		if (errCode == noErr)
 			{
@@ -6461,9 +6758,9 @@ SInt16 GetGDALLineOfData (
 								
 					ioBlockBufferPtr = &ioBlockBufferPtr[bytesChannelOffset];
 											
-					}		// end "for (channelIndex=0; channelIndex<numberChannels; channelIndex)"
+					}	// end "for (channelIndex=0; channelIndex<numberChannels; ..."
 				
-				}		// end "if (fileInfoPtr->blockedFlag)"
+				}	// end "if (fileInfoPtr->blockedFlag)"
 			
 					// Get number of samples read for all channels.
 			
@@ -6472,11 +6769,11 @@ SInt16 GetGDALLineOfData (
 			if (gConvertSignedDataFlag && fileInfoPtr->signedDataFlag)
 				AdjustSignedData (fileInfoPtr, ioBufferPtr, numberSamplesRead);
 			
-			}		// end "if (errCode == noErr)"
+			}	// end "if (errCode == noErr)"
 			
-		}		// end "if (readBufferPtr != NULL)"
+		}	// end "if (readBufferPtr != NULL)"
 		
-	else		// readBufferPtr == NULL
+	else	// readBufferPtr == NULL
 		errCode = -1;
 														
 	if (errCode == noErr)
@@ -6484,7 +6781,7 @@ SInt16 GetGDALLineOfData (
 		
 	return (errCode);
 	      
-}		// end "GetGDALLineOfData" 
+}	// end "GetGDALLineOfData" 
 #endif	// include_gdal_capability
 
 
@@ -6514,11 +6811,11 @@ SInt32 GetNumberGAIALineSegments (
 				SInt32								numberColumns)
 
 {
-//	return (numberColumns/1022); 
+	//return (numberColumns/1022);
 	
-	return ( (numberColumns + 5)/1021 );
+	return ((numberColumns + 5)/1021);
 
-}		// end "GetNumberGAIALineSegments" 
+}	// end "GetNumberGAIALineSegments" 
 
 
 
@@ -6550,23 +6847,20 @@ SInt32 GetParID (
 	SInt32								dirID = 0;
 	
 	
-	CMFileStream* fileStreamPtr = GetFileStreamPointer(fileInfoPtr);
+	CMFileStream* fileStreamPtr = GetFileStreamPointer (fileInfoPtr);
 	
 	
 	if (fileStreamPtr != NULL)
 		{              
-#		if defined multispec_mac                                              
+		#if defined multispec_mac                                              
 			dirID = fileStreamPtr->parID;	
-#		endif	// defined multispec_mac 
-	           
-#		if defined multispec_win  
-
-#		endif	// defined multispec_win
-		}		// end "if (fileInfoPtr != NULL)" 
+		#endif	// defined multispec_mac
+		
+		}	// end "if (fileInfoPtr != NULL)" 
 
 	return (dirID);
 	
-}		// end "GetParID"  
+}	// end "GetParID"  
 
 
 
@@ -6598,14 +6892,13 @@ SInt32 GetParID (
 	SInt32								dirID = 0;
 	
 	
-	FileInfoPtr fileInfoPtr = (FileInfoPtr)GetHandlePointer(
-													fileInfoHandle, kNoLock, kNoMoveHi);
+	FileInfoPtr fileInfoPtr = (FileInfoPtr)GetHandlePointer (fileInfoHandle);
 													
 	dirID = GetParID (fileInfoPtr);
 
 	return (dirID);
 	
-}		// end "GetParID"  
+}	// end "GetParID"  
 
 
 
@@ -6639,18 +6932,15 @@ SInt16 GetReferenceNumber (
 	
 	if (fileStreamPtr != NULL)
 		{              
-#		if defined multispec_mac                                                
+		#if defined multispec_mac                                                
 	   	refNum = fileStreamPtr->refNum;  	
-#		endif	// defined multispec_mac 
-	             
-#		if defined multispec_win  
-	 
-#		endif	// defined multispec_win
-		}		// end "if (fileStreamPtr != NULL)" 
+		#endif	// defined multispec_mac
+		
+		}	// end "if (fileStreamPtr != NULL)" 
 
 	return (refNum);
 	
-}		// end "GetReferenceNumber" 
+}	// end "GetReferenceNumber" 
 
 
 
@@ -6685,15 +6975,15 @@ SInt16 GetShortIntValue (
 
 	if (gSwapBytesFlag)
 		{
-		memcpy ( (Ptr)&tempInt, (Ptr)shortIntPtr, 2);
-		return ( ((tempInt & 0xff00) >> 8) | ((tempInt & 0x00ff) << 8) );
+		memcpy ((Ptr)&tempInt, (Ptr)shortIntPtr, 2);
+		return (((tempInt & 0xff00) >> 8) | ((tempInt & 0x00ff) << 8));
 		
-		}		// end "if (gSwapBytesFlag)"
+		}	// end "if (gSwapBytesFlag)"
 		
-	else		// !gSwapBytesFlag
-		return ( *((short int*)shortIntPtr) );
+	else	// !gSwapBytesFlag
+		return (*((short int*)shortIntPtr));
 
-}		// end "GetShortIntValue"
+}	// end "GetShortIntValue"
 
 
 
@@ -6725,9 +7015,9 @@ SInt16 GetSizeOfFile (
 { 						
 	CMFileStream* fileStreamPtr = GetFileStreamPointer (fileInfoPtr);
 		
-	return( GetSizeOfFile(fileStreamPtr, sizeBytesPtr) );
+	return (GetSizeOfFile (fileStreamPtr, sizeBytesPtr));
 		      
-}		// end "GetSizeOfFile"
+}	// end "GetSizeOfFile"
 
 
 
@@ -6763,7 +7053,7 @@ SInt16 GetSizeOfFile (
 	
 	SInt16								errCode = noErr,
 											errCode2 = noErr;
-//											forkRefNum;
+											//forkRefNum;
 											
 	Boolean								closeFileFlag = FALSE;
 	
@@ -6777,20 +7067,18 @@ SInt16 GetSizeOfFile (
 			
 	if (!FileOpen (fileStreamPtr))
 		{		
-	   errCode = OpenFileReadOnly(
-	   						    fileStreamPtr,
-	   						    kDontResolveAliasChains,
-	   						    kNoLockFile,
-	   						    kDoNotVerifyFileStream);
-	   						    
+	   errCode = OpenFileReadOnly (fileStreamPtr,
+											 kDontResolveAliasChains,
+											 kNoLockFile,
+											 kDoNotVerifyFileStream);
+			
 	   closeFileFlag = TRUE;
 	   
-	   }		// end "if ( !FileOpen (fileStreamPtr) )" 
+	   }	// end "if (!FileOpen (fileStreamPtr))" 
 	
 	if (errCode == noErr)
 		{      
-		#if defined multispec_mac 
-		
+		#if defined multispec_mac
 					// Note that the maximum file size that GetEOF will handle
 					// is 2,147,483,648 bytes.
 					// Although on 12/16/03, it appears the max returned is 2,113,506,817
@@ -6801,31 +7089,30 @@ SInt16 GetSizeOfFile (
 	   	if (gHasHFSPlusAPIs) 
 				errCode2 = FSGetForkSize (fileStreamPtr->refNum, &forkSize); 
 			
-			else		// !gHasHFSPlusAPIs
+			else	// !gHasHFSPlusAPIs
 				{
 				errCode2 = GetEOF (fileStreamPtr->refNum, (SInt32*)&fileSize);
 				forkSize = fileSize;
 				
-				}		// end "else !gHasHFSPlusAPIs"  
+				}	// end "else !gHasHFSPlusAPIs"  
 			
 			if (errCode2 == noErr)
 				fileStreamPtr->fileSize = forkSize;
 		#endif	// defined multispec_mac 
 	
-	              
       #if defined multispec_win || defined multispec_lin
 			errCode2 = fileStreamPtr->MGetSizeOfFile (&forkSize); 
 			
 			if (errCode == noErr)
 				fileStreamPtr->mFileSize = (SInt32)forkSize;
-		#endif	// defined multispec_win 
+		#endif	// defined multispec_win || defined multispec_lin
 		
 		IOCheck (errCode2, fileStreamPtr);              
 		
 		if (closeFileFlag)
 			CloseFile (fileStreamPtr);
 		
-		}		// end "if (errCode == noErr)" 
+		}	// end "if (errCode == noErr)" 
                                              
 		
 	if (errCode != fnfErr)  
@@ -6839,7 +7126,7 @@ SInt16 GetSizeOfFile (
 							 
 	return (errCode);
 		      
-}		// end "GetSizeOfFile"
+}	// end "GetSizeOfFile"
 
 
 
@@ -6860,11 +7147,12 @@ SInt16 GetSizeOfFile (
 //
 // Value Returned:
 //
-// Called By:			ReadThematicGroups in displayThematic.c
-//							ReadMultiSpecChannelDescriptionsAndValues in openImageRoutines.c
-//							ModifyChannelDescriptions in reformat.c
-//							WriteChannelDescriptionsAndValues in reformat.c
-//							WriteThematicGroups in saveWrite.c
+// Called By:			ReadThematicGroups in SDisplayThematic.cpp
+//							ReadMultiSpecChannelDescriptionsAndValues in SOpenImage.cpp
+//							ModifyChannelDescriptions in SReformat.cpp
+//							WriteChannelDescriptionsAndValues in
+//																SReformatChangeImageFileFormat.cpp
+//							WriteThematicGroups in SSaveWrite.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 09/15/1992
 //	Revised By:			Larry L. Biehl			Date: 05/25/1993
@@ -6889,13 +7177,13 @@ SInt64 GetSizeOfImage (
 			sizeOfImage = (sizeOfImage +1)/2;
 					
 		sizeOfImage += 
-				fileInfoPtr->numberHeaderBytes + fileInfoPtr->numberTrailerBytes;
+					fileInfoPtr->numberHeaderBytes + fileInfoPtr->numberTrailerBytes;
 					
-		}		// end "if (fileInfoPtr != NULL)" 
+		}	// end "if (fileInfoPtr != NULL)" 
 					
 	return (sizeOfImage);
 
-}		// end "GetSizeOfImage"  
+}	// end "GetSizeOfImage"  
 
 
 
@@ -6918,7 +7206,7 @@ SInt64 GetSizeOfImage (
 // Called By:			CreateThematicSupportFile in SFileIO.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/11/1996
-//	Revised By:			Larry L. Biehl			Date: 03/17/2017
+//	Revised By:			Larry L. Biehl			Date: 12/06/2017
 
 SInt16 GetThematicSupportFileToCreate (
 				FileInfoPtr							gisFileInfoPtr,
@@ -6938,12 +7226,13 @@ SInt16 GetThematicSupportFileToCreate (
 											promptStringNumber;
 	
 	
-	gisFileStreamPtr = GetFileStreamPointer(gisFileInfoPtr);
+	gisFileStreamPtr = GetFileStreamPointer (gisFileInfoPtr);
 					
 			// Get the pointer to the file stream block and initialize it.	
 
-	gisFilePathPtr = (FileStringPtr)GetFilePathPPointer (gisFileInfoPtr);
-	supportFilePathPtr = (FileStringPtr)GetFilePathPPointer (supportFileStreamPtr);
+	gisFilePathPtr = (FileStringPtr)GetFilePathPPointerFromFileInfo (gisFileInfoPtr);
+	supportFilePathPtr =
+				(FileStringPtr)GetFilePathPPointerFromFileStream (supportFileStreamPtr);
 			
 			// Get the output file name and volume to write file to.	Make the 
 			// default name the same as the .gis file name with .trl at the	
@@ -6956,13 +7245,13 @@ SInt16 GetThematicSupportFileToCreate (
 	if (supportFileType == kITRLFileType)
 		ConcatFilenameSuffix (supportFilePathPtr, (StringPtr)"\0.trl\0");
 		
-	else		// supportFileType == kICLRFileType
+	else	// supportFileType == kICLRFileType
 		ConcatFilenameSuffix (supportFilePathPtr, (StringPtr)"\0.clr\0");
 
-	SetType(supportFileStreamPtr, supportFileType);
+	SetType (supportFileStreamPtr, supportFileType);
 	SInt16 vRefNum = GetVolumeReferenceNumber (gisFileStreamPtr);
 		
-				// Get the clr or trl file. If it is a new file then create it.	
+			// Get the clr or trl file. If it is a new file then create it.
 	
 	if (promptFlag)
 		{
@@ -6974,18 +7263,19 @@ SInt16 GetThematicSupportFileToCreate (
 			numberBytes += 9*128;
 			numberBytes += ((gisFileInfoPtr->numberClasses+4)/4) * 128;
 			
-			}		// end "if (supportFileType == kITRLFileType)"
+			}	// end "if (supportFileType == kITRLFileType)"
 		
-		else		// supportFileType == kICLRFileType
+		else	// supportFileType == kICLRFileType
 			{
 					// Will allow 256 characters per line. This should be twice what is
 					// needed.
+			
 			numberBytes = (gisFileInfoPtr->numberClasses+1) * 256;
 			
 			if (gisFileInfoPtr->numberGroups > 0)
 				promptStringNumber = IDS_FileIO192;
 			
-			}		// end "else supportFileType == kICLRFileType"
+			}	// end "else supportFileType == kICLRFileType"
 		
 		numberBytes += 1000;		// Spare
 
@@ -7004,15 +7294,20 @@ SInt16 GetThematicSupportFileToCreate (
 		UpdateFileNameInformation (supportFileStreamPtr, NULL);
 		
 		errCode = PutFile (
-				supportFileStreamPtr, numberBytes, promptStringNumber, gCreator);
+						supportFileStreamPtr, numberBytes, promptStringNumber, gCreator);
 				
-		}		// end "if (promptFlag)"
+		}	// end "if (promptFlag)"
 				
-	else		// !promptFlag 
+	else	// !promptFlag 
 		{
-		// SetReferenceNumber (supportFileStreamPtr, 0);
+		//SetReferenceNumber (supportFileStreamPtr, 0);
 		IndicateFileClosed (supportFileStreamPtr);
 		SetVolumeReference (gisFileStreamPtr, supportFileStreamPtr);
+
+				// Now get wide character and unicode names.
+
+		SetFileDoesNotExist (supportFileStreamPtr, kKeepUTF8CharName);
+		UpdateFileNameInformation (supportFileStreamPtr, NULL);
     	
 		errCode = CreateNewFile (supportFileStreamPtr, 
 											vRefNum, 
@@ -7020,16 +7315,16 @@ SInt16 GetThematicSupportFileToCreate (
 											kErrorMessages,
 											kReplaceFlag);
 		
-		}		// end "else !promptFlag"
+		}	// end "else !promptFlag"
 								
 				// Set position to start writing data at the start of the file.
 		
-	if ((errCode == noErr) && FileExists(supportFileStreamPtr))
+	if ((errCode == noErr) && FileExists (supportFileStreamPtr))
 		errCode = MSetMarker (supportFileStreamPtr, fsFromStart, 0, kErrorMessages);
 		
 	return (errCode);
 
-}		// end "GetThematicSupportFileToCreate" 
+}	// end "GetThematicSupportFileToCreate" 
 
 
 
@@ -7064,13 +7359,13 @@ SInt16 GetVolumeFreeSpace (
 	 
 		
 	#if defined multispec_mac
-//		SInt16								tmpVRefNum;
+		//SInt16								tmpVRefNum;
 		FSVolumeInfo						volumeInformation;
 		
 		HParmBlkPtr							hParmBlkPtr;
-//		XVolumeParamPtr					xVolumeParamPtr;
+		//XVolumeParamPtr					xVolumeParamPtr;
 		
-//		SInt16								drvNum;
+		//SInt16								drvNum;
 		
 				
 				// Initialize local variables.													
@@ -7080,22 +7375,23 @@ SInt16 GetVolumeFreeSpace (
 		
 		if (gHasHFSPlusAPIs)
 			{
-//			xVolumeParamPtr = (XVolumeParamPtr)MNewPointer (sizeof(XVolumeParam));
-//			if (xVolumeParamPtr != NULL)
-//				{
-//				xVolumeParamPtr->ioCompletion = NULL;
-//				xVolumeParamPtr->ioNamePtr = NULL;
-//				xVolumeParamPtr->ioVRefNum = vRefNum;
-//				xVolumeParamPtr->ioVolIndex = 0;
-//				errCode = PBXGetVolInfoSync (xVolumeParamPtr);
+			/*
+			xVolumeParamPtr = (XVolumeParamPtr)MNewPointer (sizeof (XVolumeParam));
+			if (xVolumeParamPtr != NULL)
+				{
+				xVolumeParamPtr->ioCompletion = NULL;
+				xVolumeParamPtr->ioNamePtr = NULL;
+				xVolumeParamPtr->ioVRefNum = vRefNum;
+				xVolumeParamPtr->ioVolIndex = 0;
+				errCode = PBXGetVolInfoSync (xVolumeParamPtr);
 				
-//				if (errCode == noErr)
-//					*freeBytesPtr = (SInt64)xVolumeParamPtr->ioVFreeBytes;
+				if (errCode == noErr)
+					*freeBytesPtr = (SInt64)xVolumeParamPtr->ioVFreeBytes;
 					
-//				DisposePtr ( (Ptr)xVolumeParamPtr );
+				DisposePtr ((Ptr)xVolumeParamPtr);
 				
-//				}		// end "if (xVolumeParamPtr != NULL)"
-				
+				}	// end "if (xVolumeParamPtr != NULL)"
+			*/
 			errCode = FSGetVolumeInfo ((FSVolumeRefNum)vRefNum, 
 												0, 
 												NULL, 
@@ -7109,14 +7405,14 @@ SInt16 GetVolumeFreeSpace (
 									
 			IOCheck (errCode, (CharPtr)fileNamePtr);
 				
-			}		// end "if (gHasHFSPlusAPIs)"
+			}	// end "if (gHasHFSPlusAPIs)"
 		
-		else		// !gHasHFSPlusAPIs
+		else	// !gHasHFSPlusAPIs
 			{
 					// Consider XParamBlockRec for greater than 2 gigabytes.
 					//		and PBXGetVInfoSync
 							
-			hParmBlkPtr = (HParmBlkPtr)MNewPointer ( sizeof(HParamBlockRec) );
+			hParmBlkPtr = (HParmBlkPtr)MNewPointer (sizeof (HParamBlockRec));
 			if (hParmBlkPtr != NULL)
 				{																
 				hParmBlkPtr->volumeParam.ioCompletion = NULL;
@@ -7127,27 +7423,26 @@ SInt16 GetVolumeFreeSpace (
 				
 				if (errCode == noErr)
 					{  
-	//				drvNum = hParmBlkPtr->volumeParam.ioVDrvInfo;
+					//drvNum = hParmBlkPtr->volumeParam.ioVDrvInfo;
 					
 					*freeBytesPtr = (SInt64)hParmBlkPtr->volumeParam.ioVFrBlk * 
 														hParmBlkPtr->volumeParam.ioVAlBlkSiz;
 					
-					}		// end "if (errCode == noErr)"
+					}	// end "if (errCode == noErr)"
 					
-				DisposePtr ( (Ptr)hParmBlkPtr );
-				
-	//			if (errCode == noErr)
-	//				errCode = GetVInfo ( drvNum, 
-	//									gTextString, 
-	//									&tmpVRefNum, 
-	//									(SInt32*)freeBytesPtr);
-					
-										
+				DisposePtr ((Ptr)hParmBlkPtr);
+				/*
+				if (errCode == noErr)
+					errCode = GetVInfo (drvNum,
+												gTextString,
+												&tmpVRefNum,
+												(SInt32*)freeBytesPtr);
+				*/
 				IOCheck (errCode, (CharPtr)fileNamePtr);
 				
-				}		// end "if (hParmBlkPtr != NULL)"
+				}	// end "if (hParmBlkPtr != NULL)"
 					
-			}		// end "else !gHasHFSPlusAPIs"	
+			}	// end "else !gHasHFSPlusAPIs"	
 	#endif	// defined multispec_mac
 	
 	#if defined multispec_win		
@@ -7157,42 +7452,42 @@ SInt16 GetVolumeFreeSpace (
 				// fill disk free information
 				
 		struct _diskfree_t diskfree;                                      
-//		#if !defined WIN32                                           
-//			if (_dos_getdiskfree(_getdrive(), &diskfree) == 0)
-//		#else
-			if (_getdiskfree(_getdrive(), &diskfree) == 0)
-//		#endif	// !defined WIN32
-				{
-				*freeBytesPtr = 
-					(SInt64)diskfree.avail_clusters *
-							diskfree.sectors_per_cluster *
-										diskfree.bytes_per_sector; 
-				errCode = noErr;
-				
-				}		// end "if (..."
+		if (_getdiskfree (_getdrive (), &diskfree) == 0)
+			{
+			*freeBytesPtr = (SInt64)diskfree.avail_clusters *
+													diskfree.sectors_per_cluster *
+																		diskfree.bytes_per_sector;
+			errCode = noErr;
+			
+			}	// end "if (..."
 	#endif	// defined multispec_win
 	
    #if defined multispec_lin
-		// Note that this needs to be implemented for the Linux version.
-		// Assume 500 MB free for now.
-		//*freeBytesPtr = 500000000;
-		//int numberChars = sprintf ((char*)&gTextString3,
-		//										" SFileIO::GetVolumeFreeSpace (fileNamePtr): %s%s", 
-		//										fileNamePtr,
-		//										gEndOfLine);
-		//ListString ((char*)&gTextString3, numberChars, gOutputTextH);
-		//errCode = wxGetDiskSpace(wxString::FromAscii((char*)&fileNamePtr[1]), NULL, (wxLongLong *)freeBytesPtr);
-		//int numberChars2 = sprintf ((char*)&gTextString3,
-		//										" SFileIO::GetVolumeFreeSpace (errCode): %d%s", 
-		//										errCode,
-		//										gEndOfLine);
-		//ListString ((char*)&gTextString3, numberChars2, gOutputTextH);
+			// Note that this needs to be implemented for the Linux version.
+			// Assume 500 MB free for now.
+		/*
+		*freeBytesPtr = 500000000;
+		int numberChars = sprintf ((char*)gTextString3,
+											" SFileIO::GetVolumeFreeSpace (fileNamePtr): %s%s",
+											fileNamePtr,
+											gEndOfLine);
+		ListString ((char*)gTextString3, numberChars, gOutputTextH);
+		
+		errCode = wxGetDiskSpace (wxString::FromAscii ((char*)&fileNamePtr[1]), 
+																		NULL, (wxLongLong*)freeBytesPtr);
+		 
+		int numberChars2 = sprintf ((char*)gTextString3,
+												" SFileIO::GetVolumeFreeSpace (errCode): %d%s",
+												errCode,
+												gEndOfLine);
+		ListString ((char*)gTextString3, numberChars2, gOutputTextH);
+		*/
 		errCode = noErr;
    #endif
 	
 	return (errCode);
 		
-}		// end "GetVolumeFreeSpace"
+}	// end "GetVolumeFreeSpace"
 
 
 
@@ -7226,19 +7521,15 @@ SInt16 GetVolumeReferenceNumber (
 	
 	if (fileStreamPtr != NULL)
 		{              
-#		if defined multispec_mac
+		#if defined multispec_mac
 	   	vRefNum = fileStreamPtr->vRefNum;
-#		endif	// defined multispec_mac
-	
-#		if defined multispec_win
-	 
-#		endif	// defined multispec_win
+		#endif	// defined multispec_mac
 		
-		}		// end "if (fileInfoPtr != NULL)" 
+		}	// end "if (fileInfoPtr != NULL)" 
 
 	return (vRefNum);
 	
-}		// end "GetVolumeReferenceNumber" 
+}	// end "GetVolumeReferenceNumber" 
 
 
 
@@ -7270,13 +7561,13 @@ SInt16 GetVolumeReferenceNumber (
 	SInt16								vRefNum = 0;
 	
 	
-	CMFileStream* fileStreamPtr = GetFileStreamPointer(fileInfoPtr);
+	CMFileStream* fileStreamPtr = GetFileStreamPointer (fileInfoPtr);
 	
 	vRefNum = GetVolumeReferenceNumber (fileStreamPtr);
 
 	return (vRefNum);
 	
-}		// end "GetVolumeReferenceNumber" 
+}	// end "GetVolumeReferenceNumber" 
 
 
 
@@ -7308,14 +7599,13 @@ SInt16 GetVolumeReferenceNumber (
 	SInt16								vRefNum = 0;
 	
 	
-	FileInfoPtr fileInfoPtr = (FileInfoPtr)GetHandlePointer(
-													fileInfoHandle, kNoLock, kNoMoveHi);
+	FileInfoPtr fileInfoPtr = (FileInfoPtr)GetHandlePointer (fileInfoHandle);
 													
 	vRefNum = GetVolumeReferenceNumber (fileInfoPtr);
 
 	return (vRefNum);
 	
-}		// end "GetVolumeReferenceNumber"  
+}	// end "GetVolumeReferenceNumber"  
 
 
 
@@ -7339,26 +7629,30 @@ SInt16 GetVolumeReferenceNumber (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 05/30/1997
-//	Revised By:			Larry L. Biehl			Date: 06/02/1997	
-//      TODO: For Linux. Seems that we can avoid using this function by using wxFile::IsOpen()
-//            in CFileStr.cpp. However, confirm later that this not needed for Linux
+//	Revised By:			Larry L. Biehl			Date: 06/02/1997
+//
+//      TODO: For Linux. Seems that we can avoid using this function by using
+//						wxFile::IsOpen () in CFileStr.cpp. However, confirm later that
+//						this not needed for Linux
+//
 void IndicateFileClosed (
 				CMFileStream*						fileStreamPtr)
 
 {  		
 	if (fileStreamPtr != NULL)
 		{	 
-#		if defined multispec_mac                                                                       
+		#if defined multispec_mac                                                                       
 			fileStreamPtr->refNum = 0;
-#		endif	// defined multispec_mac
+		#endif	// defined multispec_mac
 		
-#		if defined multispec_win	 
+		#if defined multispec_win	 
 			fileStreamPtr->m_hFile = CFile::hFileNull;
-//         fileStreamPtr->Abort();
-#		endif	// defined multispec_win
-		}		// end "if (fileStreamPtr != NULL && ..."
+			//fileStreamPtr->Abort ();
+		#endif	// defined multispec_win
+		
+		}	// end "if (fileStreamPtr != NULL && ..."
 
-}		// end "IndicateFileClosed"    
+}	// end "IndicateFileClosed"    
 
 
 
@@ -7403,7 +7697,7 @@ void InitializeFileIOInstructions (
 	fileIOInstructionsPtr->doneFlag = FALSE;
 	fileIOInstructionsPtr->fileIOThreadStartedFlag = FALSE;
 	
-}		// end "InitializeFileIOInstructions"
+}	// end "InitializeFileIOInstructions"
 
 
 #if defined multispec_mac || defined multispec_lin
@@ -7437,11 +7731,11 @@ Handle InitializeFileStream (
 								
 	
 	if (fileStreamHandle == NULL)     
-		fileStreamHandle = MNewHandle ( sizeof(CMFileStream) );
+		fileStreamHandle = MNewHandle (sizeof (CMFileStream));
 	
 	if (fileStreamHandle != NULL)
 		fileStreamPtr = (CMFileStream*)
-				GetHandleStatusAndPointer (fileStreamHandle, &handleStatus, kNoMoveHi);
+								GetHandleStatusAndPointer (fileStreamHandle, &handleStatus);
 	
 				// Initialize the some variables and handles in the structure.
 		
@@ -7449,13 +7743,13 @@ Handle InitializeFileStream (
 		{		
 		InitializeFileStream (fileStreamPtr);	
 		
-		MHSetState(fileStreamHandle, handleStatus);
+		MHSetState (fileStreamHandle, handleStatus);
 	
-		}		// end "fileStreamPtr != NULL" 
+		}	// end "fileStreamPtr != NULL" 
 		
 	return (fileStreamHandle);
 
-}		// end "InitializeFileStream"
+}	// end "InitializeFileStream"
 #endif	// defined multispec_mac || defined multispec_lin
       
                       
@@ -7464,9 +7758,9 @@ CMFileStream* InitializeFileStream (
 				CMFileStream*						fileStreamPtr)
 
 {     		         
-#	if defined multispec_mac
+	#if defined multispec_mac
 		if (fileStreamPtr == NULL) 
-			fileStreamPtr = (CMFileStream*)MNewPointer (sizeof(CMFileStream));
+			fileStreamPtr = (CMFileStream*)MNewPointer (sizeof (CMFileStream));
 			
 		if (fileStreamPtr != NULL)
 			{      
@@ -7486,29 +7780,30 @@ CMFileStream* InitializeFileStream (
 			fileStreamPtr->uniFileName.length = 0;
 			fileStreamPtr->uniPascalFileName[0] = 0;
 			fileStreamPtr->pathLength = 0;
-			fileStreamPtr->fSRefFlag = TRUE;		// This is now always true for carbon based app.
+			fileStreamPtr->fSRefFlag = TRUE;		// This is now always true for carbon
+															// based app.
 			
-			}		// end "if (fileStreamPtr != NULL)"
-#	endif	// defined multispec_mac
+			}	// end "if (fileStreamPtr != NULL)"
+	#endif	// defined multispec_mac
 	
-#	if defined multispec_win | defined multispec_lin
+	#if defined multispec_win | defined multispec_lin
 		if (fileStreamPtr == NULL) 
 			fileStreamPtr = new CMFileStream;
 			
-		else		// fileStreamPtr != NULL
+		else	// fileStreamPtr != NULL
 			{
-			fileStreamPtr->MCloseFile(); 
+			fileStreamPtr->MCloseFile (); 
 			fileStreamPtr->mFilePathName[0] = 0;
 			fileStreamPtr->mCreator = -1;
 			fileStreamPtr->mFileType = -1;
 			fileStreamPtr->mFileSize = 0;
 					
-			}		// end "if (fileStreamPtr != NULL)"
-#	endif	// defined multispec_win
+			}	// end "if (fileStreamPtr != NULL)"
+	#endif	// defined multispec_win
 		
 	return (fileStreamPtr);        
 
-}		// end "InitializeFileStream" 
+}	// end "InitializeFileStream" 
 
 
 
@@ -7564,22 +7859,23 @@ void InitializeFileStream (
 		
       #if defined multispec_lin
          WideFileStringPtr	oldFilePathPtr = 
-							(WideFileStringPtr)oldFileStreamPtr->GetFilePathPPtr(kReturnUnicode);              
+					(WideFileStringPtr)oldFileStreamPtr->GetFilePathPPtr (kReturnUnicode);
 			newFileStreamPtr->SetFilePath (oldFilePathPtr, TRUE);
 			newFileStreamPtr->mCreator = oldFileStreamPtr->mCreator;
 			newFileStreamPtr->mFileType = oldFileStreamPtr->mFileType;
 		#endif	// defined multispec_lin
 		
       #if defined multispec_win
-         TBYTE* oldFilePathPtr = (TBYTE*)oldFileStreamPtr->GetFilePathPPtr(kReturnUnicode);              
+         TBYTE* oldFilePathPtr =
+								(TBYTE*)oldFileStreamPtr->GetFilePathPPtr (kReturnUnicode);
 			newFileStreamPtr->SetFilePath (oldFilePathPtr, TRUE);
 			newFileStreamPtr->mCreator = oldFileStreamPtr->mCreator;
 			newFileStreamPtr->mFileType = oldFileStreamPtr->mFileType;
 		#endif	// defined multispec_win
 		
-		}		// end "if (newFileStreamPtr != NULL && ..."
+		}	// end "if (newFileStreamPtr != NULL && ..."
 
-}		// end "InitializeFileStream"                                      
+}	// end "InitializeFileStream"                                      
 
 
 
@@ -7612,7 +7908,7 @@ void IOCheck (
 {		
 	if (errCode != noErr)
 		{                   
-#		if defined multispec_mac
+		#if defined multispec_mac
 			SInt16							returnCode,
 												stringIndex;
 			
@@ -7628,7 +7924,7 @@ void IOCheck (
 			
 					// Convert the error code to a string.										
 					
-			NumToString ( (SInt32)errCode, gTextString2);
+			NumToString ((SInt32)errCode, gTextString2);
 			ConcatPStrings (gTextString, gTextString2, 255);
 			
 					// Get the error description string.										
@@ -7676,23 +7972,24 @@ void IOCheck (
 				GetIndString (gTextString3, kFileIOStrID, stringIndex);
 				ConcatPStrings (gTextString, gTextString3, 255);
 				
-				}		// end "if (stringIndex != 0)"
+				}	// end "if (stringIndex != 0)"
 				
-			else		// stringIndex == 0
+			else	// stringIndex == 0
 				gTextString3[0] = 0;
 			
-			InitCursor();
+			InitCursor ();
 			returnCode = DisplayAlert (kErrorAlertID, 3, 0, 0, 0, gTextString);
-#		endif	// defined multispec_mac
+		#endif	// defined multispec_mac
 
-#		if defined multispec_win
+		#if defined multispec_win
 			TBYTE 				wideTempString[32];
+			
 	 
-   
 			switch (errCode)
 				{        
 				case CFileException::genericException:
-					MessageBox (NULL, (LPCTSTR)_T("Unspecified Error Occurred"), NULL, MB_OK);
+					MessageBox (
+							NULL, (LPCTSTR)_T("Unspecified Error Occurred"), NULL, MB_OK);
 					
 					#ifdef _DEBUG  
 		   			afxDump << "Unspecified error occurred " << errCode << "\n";
@@ -7700,7 +7997,8 @@ void IOCheck (
 		   		break;           
 		   		    
 				case CFileException::fileNotFound:
-					MessageBox (NULL, (LPCTSTR)_T("File Could Not be Found"), NULL, MB_OK);
+					MessageBox (
+							NULL, (LPCTSTR)_T("File Could Not be Found"), NULL, MB_OK);
 					
 					#ifdef _DEBUG  
 		   			afxDump << "File could not be found " << errCode << "\n";
@@ -7740,7 +8038,8 @@ void IOCheck (
 		   		break;
 		   		
 				case CFileException::badSeek:
-					MessageBox (NULL, (LPCTSTR)_T("Error Setting File Pointer"), NULL, MB_OK);
+					MessageBox (
+							NULL, (LPCTSTR)_T("Error Setting File Pointer"), NULL, MB_OK);
 					
 					#ifdef _DEBUG 
 		   			afxDump << "Error setting file pointer " << errCode << "\n";
@@ -7764,7 +8063,10 @@ void IOCheck (
 		   		break;     
 		   		
 				case CFileException::lockViolation:
-					MessageBox (NULL, (LPCTSTR)_T("Attempt to lock region already locked"), NULL, MB_OK);
+					MessageBox (NULL,
+									(LPCTSTR)_T("Attempt to lock region already locked"),
+									NULL,
+									MB_OK);
 					
 					#ifdef _DEBUG   
 		   			afxDump << "Attempt to lock region already locked " << errCode << "\n";
@@ -7788,7 +8090,8 @@ void IOCheck (
 		   		break;     
 		   		
 				default: 
-					swprintf (wideTempString, 32, _T("File Exception Error %hd. "), errCode);
+					swprintf (
+							wideTempString, 32, _T("File Exception Error %hd. "), errCode);
 					MessageBox (NULL, wideTempString, NULL, MB_OK);
 					
 					#ifdef _DEBUG  
@@ -7796,22 +8099,22 @@ void IOCheck (
 		   		#endif
 		   		break;
 		   		       
-		   	}		// end "switch (errCode)"                
-#		endif	// defined multispec_win 
+		   	}	// end "switch (errCode)"                
+		#endif	// defined multispec_win 
 
-#		if defined multispec_lin
+		#if defined multispec_lin
 				// TODO
-			int numberChars = sprintf ((char*)&gTextString3,
+			int numberChars = sprintf ((char*)gTextString3,
 													" File error: %d for '%s'. %s", 
 													errCode,
 													fileNamePtr,
 													gEndOfLine);
-			ListString ((char*)&gTextString3, numberChars, gOutputTextH);	
-#		endif
+			ListString ((char*)gTextString3, numberChars, gOutputTextH);	
+		#endif
 	   	
-	  	}		// end "if (errCode != noErr)" 
+	  	}	// end "if (errCode != noErr)" 
 	   
-}		// end "IOCheck"     
+}	// end "IOCheck"     
 
 
 
@@ -7844,20 +8147,21 @@ void IOCheck (
 {
 	if (errCode != noErr)
 		{		
-#		if defined multispec_mac
+		#if defined multispec_mac
 			if (fileStreamPtr != NULL)
 				IOCheck (errCode, (CharPtr)&fileStreamPtr->fileName);
 				
-			else		// fileStreamPtr == NULL
+			else	// fileStreamPtr == NULL
 				IOCheck (errCode, (CharPtr)NULL);                
-#		endif	// defined multispec_mac
+		#endif	// defined multispec_mac
 
-#		if defined multispec_win | defined multispec_lin
+		#if defined multispec_win || defined multispec_lin
 			IOCheck (errCode, (CharPtr)NULL);	                   
-#		endif	// defined multispec_win 	
-		}		// end "if (errCode != noErr)"
+		#endif	// defined multispec_win || defined multispec_lin
+			
+		}	// end "if (errCode != noErr)"
 		
-}		// end "IOCheck"   
+}	// end "IOCheck"   
 
 
 
@@ -7911,32 +8215,32 @@ Boolean	LoadErdasHeader (
 			// Load in 'HEADER'																	
 	
 	if (ERDASVersion == kErdas73Type)	
-		BlockMoveData ( erdasHeader, (Ptr)headerRecordPtr, 6);
+		BlockMoveData (erdasHeader, (Ptr)headerRecordPtr, 6);
 		
-	else		// ERDASVersion == kErdas74Type 
-		BlockMoveData ( erdasHeader74, (Ptr)headerRecordPtr, 6);
+	else	// ERDASVersion == kErdas74Type 
+		BlockMoveData (erdasHeader74, (Ptr)headerRecordPtr, 6);
 			
 			// Write pack type of the data -> 4, 8, or 16 bit data					
 				
 	iPack = 0;
 	
-			//			Currently do not write out 4 bit packed data files.			
-//	if (fileInfoPtr->numberBits == 4)  
-//		iPack = 1;
+			//	Currently do not write out 4 bit packed data files.
+	//if (fileInfoPtr->numberBits == 4)
+	//	iPack = 1;
 		
 	if (fileInfoPtr->numberBits > 8 || fileInfoPtr->numberBytes > 1) 
 		iPack = 2;                               
 		
-//	if (fileInfoPtr->numberBytes == 4) 
-//		iPack = 4;                                                
+	//if (fileInfoPtr->numberBytes == 4)
+	//	iPack = 4;
 		                 
-	tempInt = GetShortIntValue ( (char*)&iPack );
+	tempInt = GetShortIntValue ((char*)&iPack);
 	BlockMoveData ((Ptr)&tempInt, (Ptr)&headerRecordPtr[6], 2);
 
 			// Write number of channels in the image data								
 
 	nBands = fileInfoPtr->numberChannels;                                         
-	tempInt = GetShortIntValue ( (char*)&nBands );
+	tempInt = GetShortIntValue ((char*)&nBands);
 	BlockMoveData ((Ptr)&tempInt, (Ptr)&headerRecordPtr[8], 2);
 	
 			// Write code indicating whether the data is signed.
@@ -7944,17 +8248,17 @@ Boolean	LoadErdasHeader (
 	iPack = 0;
 	if (fileInfoPtr->signedDataFlag)
 		iPack = 1;                
-	tempInt = GetShortIntValue ( (char*)&iPack );
+	tempInt = GetShortIntValue ((char*)&iPack);
 	BlockMoveData ((Ptr)&tempInt, (Ptr)&headerRecordPtr[10], 2);
 
 			// Write number of columns in the image data									
 
 	tempLongInt = fileInfoPtr->numberColumns;
 	if (ERDASVersion == kErdas73Type)
-		tempLongInt = ConvertRealAT ( (double)fileInfoPtr->numberColumns );
+		tempLongInt = ConvertRealAT ((double)fileInfoPtr->numberColumns);
 		
-	else		// ERDASVersion == kErdas74Type 
-		tempLongInt = GetLongIntValue ( (char*)&tempLongInt ); 
+	else	// ERDASVersion == kErdas74Type 
+		tempLongInt = GetLongIntValue ((char*)&tempLongInt); 
 	
 	BlockMoveData ((Ptr)&tempLongInt, (Ptr)&headerRecordPtr[16], 4);
 
@@ -7962,10 +8266,10 @@ Boolean	LoadErdasHeader (
 
 	tempLongInt = fileInfoPtr->numberLines;
 	if (ERDASVersion == kErdas73Type)
-		tempLongInt = ConvertRealAT ( (double)fileInfoPtr->numberLines );
+		tempLongInt = ConvertRealAT ((double)fileInfoPtr->numberLines);
 		
-	else		// ERDASVersion == kErdas74Type 
-		tempLongInt = GetLongIntValue ( (char*)&tempLongInt );
+	else	// ERDASVersion == kErdas74Type 
+		tempLongInt = GetLongIntValue ((char*)&tempLongInt);
 	
 	BlockMoveData ((Ptr)&tempLongInt, (Ptr)&headerRecordPtr[20], 4);
 
@@ -7973,10 +8277,10 @@ Boolean	LoadErdasHeader (
 
 	tempLongInt = fileInfoPtr->startColumn;
 	if (ERDASVersion == kErdas73Type)
-		tempLongInt = ConvertRealAT ( (double)fileInfoPtr->startColumn );
+		tempLongInt = ConvertRealAT ((double)fileInfoPtr->startColumn);
 		
-	else		// ERDASVersion == kErdas74Type 
-		tempLongInt = GetLongIntValue ( (char*)&tempLongInt );
+	else	// ERDASVersion == kErdas74Type 
+		tempLongInt = GetLongIntValue ((char*)&tempLongInt);
 	
 	BlockMoveData ((Ptr)&tempLongInt, (Ptr)&headerRecordPtr[24], 4);
 
@@ -7984,65 +8288,66 @@ Boolean	LoadErdasHeader (
 
 	tempLongInt = fileInfoPtr->startLine;
 	if (ERDASVersion == kErdas73Type)
-		tempLongInt = ConvertRealAT ( (double)fileInfoPtr->startLine );
+		tempLongInt = ConvertRealAT ((double)fileInfoPtr->startLine);
 		
-	else		// ERDASVersion == kErdas74Type 
-		tempLongInt = GetLongIntValue ( (char*)&tempLongInt );
+	else	// ERDASVersion == kErdas74Type 
+		tempLongInt = GetLongIntValue ((char*)&tempLongInt);
 	
 	BlockMoveData ((Ptr)&tempLongInt, (Ptr)&headerRecordPtr[28], 4);
 
 			// Write number of classes in the image data.								
 
 	nClasses = (UInt16)fileInfoPtr->numberClasses;                                                   
-	tempInt = GetShortIntValue ( (char*)&nClasses );
+	tempInt = GetShortIntValue ((char*)&nClasses);
 	BlockMoveData ((Ptr)&tempInt, (Ptr)&headerRecordPtr[90], 2);
 	
 	if (fileInfoPtr->mapProjectionHandle != NULL)
 		{                                            
-		mapProjectionInfoPtr = (MapProjectionInfoPtr)GetHandlePointer(
-															fileInfoPtr->mapProjectionHandle, 
-															kLock, 
-															kNoMoveHi);
+		mapProjectionInfoPtr = (MapProjectionInfoPtr)GetHandlePointer (
+																	fileInfoPtr->mapProjectionHandle,
+																	kLock);
 		
 				// Allow for MultiSpec Geographic Code which is -1.
 				
 		iPack = ConvertMultiSpecProjectionCodeToERDASCode (
-											mapProjectionInfoPtr->gridCoordinate.referenceSystemCode,
-											mapProjectionInfoPtr->gridCoordinate.projectionCode);  
-											
+									mapProjectionInfoPtr->gridCoordinate.referenceSystemCode,
+									mapProjectionInfoPtr->gridCoordinate.projectionCode);  
+			
 		if (iPack < 0)
 			iPack = 0;                            
 		tempInt = GetShortIntValue ((char*)&iPack);
 		BlockMoveData ((Ptr)&tempInt, (Ptr)&headerRecordPtr[88], 2);
 		
 		iPack = mapProjectionInfoPtr->planarCoordinate.areaUnitsCode;                                                                                  
-		tempInt = GetShortIntValue ( (char*)&iPack );
+		tempInt = GetShortIntValue ((char*)&iPack);
 		BlockMoveData ((Ptr)&tempInt, (Ptr)&headerRecordPtr[106], 2);
 	
-		tempLongInt = ConvertRealAT (mapProjectionInfoPtr->planarCoordinate.pixelArea );
-		BlockMoveData ( (char*)&tempLongInt, &headerRecordPtr[108], 4);
+		tempLongInt = ConvertRealAT (mapProjectionInfoPtr->planarCoordinate.pixelArea);
+		BlockMoveData ((char*)&tempLongInt, &headerRecordPtr[108], 4);
 	
-		tempLongInt = ConvertRealAT (mapProjectionInfoPtr->planarCoordinate.xMapCoordinate11 );
-		BlockMoveData ( (char*)&tempLongInt, &headerRecordPtr[112], 4);
+		tempLongInt = ConvertRealAT (
+									mapProjectionInfoPtr->planarCoordinate.xMapCoordinate11);
+		BlockMoveData ((char*)&tempLongInt, &headerRecordPtr[112], 4);
 	
-		tempLongInt = ConvertRealAT (mapProjectionInfoPtr->planarCoordinate.yMapCoordinate11 );
-		BlockMoveData ( (char*)&tempLongInt, &headerRecordPtr[116], 4);
+		tempLongInt = ConvertRealAT (
+									mapProjectionInfoPtr->planarCoordinate.yMapCoordinate11);
+		BlockMoveData ((char*)&tempLongInt, &headerRecordPtr[116], 4);
 	
 		tempFloat = (float)mapProjectionInfoPtr->planarCoordinate.horizontalPixelSize;
 		tempLongInt = ConvertRealAT (tempFloat);
-		BlockMoveData ( (char*)&tempLongInt, &headerRecordPtr[120], 4);
+		BlockMoveData ((char*)&tempLongInt, &headerRecordPtr[120], 4);
 	
 		tempFloat = (float)mapProjectionInfoPtr->planarCoordinate.verticalPixelSize;
 		tempLongInt = ConvertRealAT (tempFloat);
-		BlockMoveData ( (char*)&tempLongInt, &headerRecordPtr[124], 4);
+		BlockMoveData ((char*)&tempLongInt, &headerRecordPtr[124], 4);
 					
 		CheckAndUnlockHandle (fileInfoPtr->mapProjectionHandle);
 		
-		}		// end "if (fileInfoPtr->mapProjectionHandle != NULL)" 
+		}	// end "if (fileInfoPtr->mapProjectionHandle != NULL)" 
 	
 	return (TRUE);
 	
-}		// end "LoadErdasHeader" 
+}	// end "LoadErdasHeader" 
 
 
 
@@ -8083,11 +8388,9 @@ void LoadErdasTRLClassNameBufferFromDescriptions (
 											outputNumberClasses;
 	
 	
-	classNamePtr = (UCharPtr)GetHandlePointer (
-										gisFileInfoPtr->classDescriptionH,
-										kLock,
-										kNoMoveHi);
-										
+	classNamePtr = (UCharPtr)GetHandlePointer (gisFileInfoPtr->classDescriptionH,
+																kLock);
+	
 	if (classNamePtr != NULL)
 		{
 		if (collapseClassCode == kCollapseClass)
@@ -8099,18 +8402,18 @@ void LoadErdasTRLClassNameBufferFromDescriptions (
 			
 			for (classNumber=1; classNumber<=outputNumberClasses; classNumber++)
 				{
-				count = MIN(classNamePtr[0], 31);
+				count = MIN (classNamePtr[0], 31);
 				BlockMoveData (&classNamePtr[1], ioTempBufferPtr, count);
 				ioTempBufferPtr[count] = 0;
 			
 				ioTempBufferPtr += 32;
 				classNamePtr += 32;
 			
-				}		// end "for (classNumber=1; classNumber<=outputNumberClasses; ..." 
+				}	// end "for (classNumber=1; classNumber<=outputNumberClasses; ..." 
 				
-			}		// end "if (collapseClassCode == kCollapseClass)"
+			}	// end "if (collapseClassCode == kCollapseClass)"
 			
-		else		// "collapseClassCode != kCollapseClass"
+		else	// "collapseClassCode != kCollapseClass"
 			{
 					// Class names from the description structure will be used for those
 					// classes included in the class symbol vector. The missing classes
@@ -8122,7 +8425,7 @@ void LoadErdasTRLClassNameBufferFromDescriptions (
 					// Get a pointer to storage for the class symbols.					
 					
 			classSymbolPtr = 
-					(UInt16*)&classNamePtr [gisFileInfoPtr->numberClasses*sizeof(Str31)];
+					(UInt16*)&classNamePtr [gisFileInfoPtr->numberClasses*sizeof (Str31)];
 					
 			classSymbolIndex = 0;
 			for (classNumber=0; classNumber<=outputNumberClasses; classNumber++)
@@ -8134,33 +8437,33 @@ void LoadErdasTRLClassNameBufferFromDescriptions (
 				if (gisFileInfoPtr->asciiSymbols || 
 												classSymbolPtr[classSymbolIndex] == classNumber)
 					{
-					count = MIN(classNamePtr[0], 31);
+					count = MIN (classNamePtr[0], 31);
 					BlockMoveData (&classNamePtr[1], ioTempBufferPtr, count);
 					
 					classSymbolIndex++;
 					classNamePtr += 32;
 					
-					}		// end "if (gisFileInfoPtr->asciiSymbols || ..."
+					}	// end "if (gisFileInfoPtr->asciiSymbols || ..."
 				
-				else		// classSymbolPtr[classSymbolIndex] != classNumber
+				else	// classSymbolPtr[classSymbolIndex] != classNumber
 					{
 					count = sprintf ((char*)ioTempBufferPtr, "Class %d", classNumber);
-					count = MIN(count, 31);
+					count = MIN (count, 31);
 					
-					}		// end "if (classSymbolPtr[classSymbolIndex] == classNumber)"
+					}	// end "if (classSymbolPtr[classSymbolIndex] == classNumber)"
 			
 				ioTempBufferPtr[count] = 0;
 				ioTempBufferPtr += 32;
 			
-				}		// end "for (classNumber=0; classNumber<=outputNumberClasses; ..." 
+				}	// end "for (classNumber=0; classNumber<=outputNumberClasses; ..." 
 				
-			}		// end "else collapseClassCode != kCollapseClass"
+			}	// end "else collapseClassCode != kCollapseClass"
 			
-		}		// end "if (classNamePtr != NULL)"
+		}	// end "if (classNamePtr != NULL)"
 		
 	CheckAndUnlockHandle (gisFileInfoPtr->classDescriptionH);
 		
-}		// end "LoadErdasTRLClassNameBufferFromDescriptions"
+}	// end "LoadErdasTRLClassNameBufferFromDescriptions"
 
 
 //------------------------------------------------------------------------------------
@@ -8190,9 +8493,7 @@ void LoadErdasTRLClassColorBuffer (
 				SInt16*								classPtr,
 				UInt32								numberListClasses,
 				UInt16*								paletteIndexPtr,
-//				SInt16								paletteOffset, 
 				UInt32								numberColorSpecEntries,
-//				UCharPtr								ioTempBufferPtr,
 				RGBCharColorPtr					classColorTablePtr,
 				SInt16								collapseClassCode,
 				SInt16								classNameCode)
@@ -8218,19 +8519,17 @@ void LoadErdasTRLClassColorBuffer (
 	
 	if (collapseClassCode != kCollapseClass)
 		{
-		classNamePtr = (UCharPtr)GetHandlePointer (
-											gisFileInfoPtr->classDescriptionH,
-											kLock,
-											kNoMoveHi);
-											
+		classNamePtr = (UCharPtr)GetHandlePointer (gisFileInfoPtr->classDescriptionH,
+																	kLock);
+		
 		if (classNamePtr == NULL)
 			collapseClassCode = kCollapseClass;
 			
-		else		// classNamePtr != NULL
+		else	// classNamePtr != NULL
 			classSymbolPtr = 
-					(UInt16*)&classNamePtr [gisFileInfoPtr->numberClasses*sizeof(Str31)];
+					(UInt16*)&classNamePtr [gisFileInfoPtr->numberClasses*sizeof (Str31)];
 					
-		}		// end "if (collapseClassCode != kCollapseClass)"
+		}	// end "if (collapseClassCode != kCollapseClass)"
 					
 			// If the trailer file is being created for a classification
 			// image, then allow for class 0, which is a background class.
@@ -8239,7 +8538,8 @@ void LoadErdasTRLClassColorBuffer (
 			// Note that if this is from the ShapeToThematic processor, the background
 			// class is included in the number of classes.
 
-	if (classNameCode < kFromDescriptionCode || classNameCode == kFromShapeToThematicCode)
+	if (classNameCode < kFromDescriptionCode ||
+														classNameCode == kFromShapeToThematicCode)
 		{
 		classColorTablePtr->red = 255;
 		classColorTablePtr->green = 255;
@@ -8250,7 +8550,7 @@ void LoadErdasTRLClassColorBuffer (
 		if (classNameCode == kFromShapeToThematicCode)
 			numberClasses--;
 		
-		}		// end "if (classNameCode < kFromDescriptionCode || ..."
+		}	// end "if (classNameCode < kFromDescriptionCode || ..."
 	
 	paletteIndex = 0;
 	classIndex = 0;	
@@ -8272,12 +8572,12 @@ void LoadErdasTRLClassColorBuffer (
 				if (classIndex < numberListClasses - 1)
 					classIndex++;
 					
-				}		// end "if (classNumber == classPtr[index])" 
+				}	// end "if (classNumber == classPtr[index])" 
 			
-			else		// classNumber != classPtr[index] 
+			else	// classNumber != classPtr[index] 
 				backgroundFlag = TRUE;
 			
-			}		// end "if (classPtr != NULL)" 
+			}	// end "if (classPtr != NULL)" 
 			
 		else if (classSymbolPtr != NULL)
 			{
@@ -8286,41 +8586,46 @@ void LoadErdasTRLClassColorBuffer (
 					// in order.
 					
 			if (gisFileInfoPtr->asciiSymbols ||
-									classNumber == (UInt32)classSymbolPtr[classIndex]+1)
+											classNumber == (UInt32)classSymbolPtr[classIndex]+1)
 				classIndex++;
 			
-			else		// classNumber != classSymbolPtr[classIndex]+1 
+			else	// classNumber != classSymbolPtr[classIndex]+1 
 				{
 				backgroundFlag = TRUE;
 				incrementPaletteIndexFlag = FALSE;
 				
-				}		// end "else classNumber != classSymbolPtr[classIndex]+1"
+				}	// end "else classNumber != classSymbolPtr[classIndex]+1"
 			
-			}		// end "else if (classSymbolPtr != NULL)"
+			}	// end "else if (classSymbolPtr != NULL)"
 		
 		if (backgroundFlag)
-			classColorTablePtr->red = classColorTablePtr->green = classColorTablePtr->blue = 255;
+			classColorTablePtr->red =
+									classColorTablePtr->green =
+														classColorTablePtr->blue = 255;
 		
-		else		// !backgroundFlag 
+		else	// !backgroundFlag 
 			{
 			if (paletteIndexPtr != NULL)
 				index = paletteIndexPtr[paletteIndex];
 				
-			else		// newPaletteIndexPtr == NULL
+			else	// newPaletteIndexPtr == NULL
 				index = paletteIndex;
 			
 			if (index < numberColorSpecEntries)
 				tableIndex = index;
 				
-			else		// index >= numberColorSpecEntries
+			else	// index >= numberColorSpecEntries
 						// This will cause the first component in the table to be skipped
 						// in case it is white for background class.
 				tableIndex = ((index-1) % numberColorSpecEntries) + 1;
 			
 			#ifndef multispec_lin
-				classColorTablePtr->red = (UInt8)(colorSpecPtr[tableIndex].rgb.red >> 8);
-				classColorTablePtr->green = (UInt8)(colorSpecPtr[tableIndex].rgb.green >> 8);
-				classColorTablePtr->blue = (UInt8)(colorSpecPtr[tableIndex].rgb.blue >> 8);
+				classColorTablePtr->red =
+												(UInt8)(colorSpecPtr[tableIndex].rgb.red >> 8);
+				classColorTablePtr->green =
+												(UInt8)(colorSpecPtr[tableIndex].rgb.green >> 8);
+				classColorTablePtr->blue =
+												(UInt8)(colorSpecPtr[tableIndex].rgb.blue >> 8);
 			#endif
 			
 			#if defined multispec_lin
@@ -8329,19 +8634,19 @@ void LoadErdasTRLClassColorBuffer (
 				classColorTablePtr->blue = (UInt8)colorSpecPtr[tableIndex].rgb.blue;
 			#endif
 								
-			}		// end "else !backgroundFlag"
+			}	// end "else !backgroundFlag"
 			
 		classColorTablePtr++;
 		
 		if (incrementPaletteIndexFlag)
 			paletteIndex++;
 		
-		}		// end "for (classNumber=1; classNumber<=..." 
+		}	// end "for (classNumber=1; classNumber<=..." 
 		
 	if (collapseClassCode != kCollapseClass)
 		CheckAndUnlockHandle (gisFileInfoPtr->classDescriptionH);
 		
-}		// end "LoadErdasTRLClassColorBuffer"
+}	// end "LoadErdasTRLClassColorBuffer"
 
 
 
@@ -8392,24 +8697,23 @@ SInt16 LoadGroupInformationBuffers (
 			
 			
 	if (asciiSymbolsFlag && classSymbolPtr == NULL)
-																				return (FALSE);
+																							return (FALSE);
 																				
 	if (fileInfoPtr->numberGroups > 0 && groupCTableHandle != NULL)
 		{																
 		cTablePtr = (CTabPtr)GetHandlePointer (
 											(Handle)groupCTableHandle, 
-											kLock, 
-											kNoMoveHi);
+											kLock);
 		colorSpecPtr = (ColorSpec*)&cTablePtr->ctTable;
 		
-		}		// end "if (fileInfoPtr->numberGroups > 0 && displaySpecsH != NULL)"
+		}	// end "if (fileInfoPtr->numberGroups > 0 && displaySpecsH != NULL)"
 		
 	if (colorSpecPtr != NULL)
 		{
 		if (asciiSymbolsFlag)
 			numberClasses = numberClassSymbols;
 		
-//		classSymbolIndex = 0;									
+		//classSymbolIndex = 0;
 		for (classIndex=0; classIndex<numberClasses; classIndex++)
 			{
 			listAllGroupInfoPtr[classIndex] = FALSE;
@@ -8422,51 +8726,58 @@ SInt16 LoadGroupInformationBuffers (
 					// ascii symbols) then the class symbol vector contains those symbols and
 					// does not reflect whether the classNumber is being used or not. Assume 
 					// for this case that it is being used.
-					
-//			if (classNumber == classSymbolPtr[classSymbolIndex] || 
-//												fileInfoPtr->format == kMultiSpecClassificationType)
-//			if (classSymbolPtr == NULL || 
-//						asciiSymbolsFlag ||
-//								classNumber == classSymbolPtr[classSymbolIndex])
-//				{
-//				groupNumber = classToGroupPtr[classSymbolIndex];
-				groupNumber = classToGroupPtr[classIndex];
-//				if (groupToPalettePtr[groupNumber] == classSymbolIndex)
-				if (groupToPalettePtr[groupNumber] == classIndex)
-					{
-					listAllGroupInfoPtr[classIndex] = TRUE;
-					
-							// Order is green, red, blue to be consistant with that in the ERDAS
-							// trailer file.
-					
-					#ifndef multispec_lin
-						groupColorTablePtr[groupNumber].red = (colorSpecPtr[classIndex].rgb.red >> 8);
-						groupColorTablePtr[groupNumber].green = (colorSpecPtr[classIndex].rgb.green >> 8);
-						groupColorTablePtr[groupNumber].blue = (colorSpecPtr[classIndex].rgb.blue >> 8);
-               #else
-						groupColorTablePtr[groupNumber].red = colorSpecPtr[classIndex].rgb.red;
-						groupColorTablePtr[groupNumber].green = colorSpecPtr[classIndex].rgb.green;
-						groupColorTablePtr[groupNumber].blue = colorSpecPtr[classIndex].rgb.blue;
-					#endif
-					
-//					}		// end "if (groupToPalettePtr[groupNumber] == classSymbolIndex)"
+			/*
+			if (classNumber == classSymbolPtr[classSymbolIndex] ||
+											fileInfoPtr->format == kMultiSpecClassificationType)
+			if (classSymbolPtr == NULL ||
+						asciiSymbolsFlag ||
+								classNumber == classSymbolPtr[classSymbolIndex])
+				{
+				groupNumber = classToGroupPtr[classSymbolIndex];
+			*/
+			groupNumber = classToGroupPtr[classIndex];
+				//if (groupToPalettePtr[groupNumber] == classSymbolIndex)
+			if (groupToPalettePtr[groupNumber] == classIndex)
+				{
+				listAllGroupInfoPtr[classIndex] = TRUE;
 				
-//				if (classSymbolIndex < numberClassSymbols-1)
-//					classSymbolIndex++;
+						// Order is green, red, blue to be consistant with that in the ERDAS
+						// trailer file.
+				
+				#ifndef multispec_lin
+					groupColorTablePtr[groupNumber].red =
+														(colorSpecPtr[classIndex].rgb.red >> 8);
+					groupColorTablePtr[groupNumber].green =
+														(colorSpecPtr[classIndex].rgb.green >> 8);
+					groupColorTablePtr[groupNumber].blue =
+														(colorSpecPtr[classIndex].rgb.blue >> 8);
+				#else
+					groupColorTablePtr[groupNumber].red =
+														colorSpecPtr[classIndex].rgb.red;
+					groupColorTablePtr[groupNumber].green =
+														colorSpecPtr[classIndex].rgb.green;
+					groupColorTablePtr[groupNumber].blue =
+														colorSpecPtr[classIndex].rgb.blue;
+				#endif
 					
-				}		// end "if (classNumber == classSymbolPtr[classSymbolIndex] || ...)"
+				}	// end "if (groupToPalettePtr[groupNumber] == classIndex)"
+				
+				//if (classSymbolIndex < numberClassSymbols-1)
+				//	classSymbolIndex++;
+					
+				//}	// end "if (classNumber == classSymbolPtr[classSymbolIndex] || ...)"
 			
-			}		// end "for (classIndex=0; classIndex<..."
+			}	// end "for (classIndex=0; classIndex<..."
 		
 		numberGroups = fileInfoPtr->numberGroups;
 		
 		CheckAndUnlockHandle ((Handle)groupCTableHandle);
 		
-		}		// end "if (colorSpecPtr != NULL)"
+		}	// end "if (colorSpecPtr != NULL)"
 	
 	return (numberGroups);
 
-}		// end "LoadGroupInformationBuffers"  
+}	// end "LoadGroupInformationBuffers"  
 
 
 
@@ -8512,7 +8823,7 @@ Boolean	LoadNewErdasHeader (
 		*localHeaderRecordPtr = 0;
 		localHeaderRecordPtr++;
 		
-		}		// end "for (n=1; n<=32; n++)" 
+		}	// end "for (n=1; n<=32; n++)" 
 	
 			// Fill the rest of the header and write it to the file.					
 			
@@ -8520,7 +8831,7 @@ Boolean	LoadNewErdasHeader (
 			
 	return (continueFlag);
 		
-}		// end "LoadNewErdasHeader"	
+}	// end "LoadNewErdasHeader"	
 
 
 
@@ -8561,7 +8872,7 @@ SInt16 MDeleteFile (
 			if (fileStreamPtr->fSSpecFlag)
 				parID = fileStreamPtr->parID;
 		
-			else		// !fileStreamPtr->fSSpecFlag
+			else	// !fileStreamPtr->fSSpecFlag
 				parID = 0;
 		
 					// Create the file on the selected volume
@@ -8569,7 +8880,7 @@ SInt16 MDeleteFile (
 			if (fileStreamPtr->fSRefFlag)
 				errCode = FSDeleteObject (&fileStreamPtr->fsRef);			
 			
-			else		// !fileStreamPtr->fSRefFlag		
+			else	// !fileStreamPtr->fSRefFlag		
 				errCode = HDelete (fileStreamPtr->vRefNum, 
 		                           parID,
 											fileStreamPtr->fileName);
@@ -8582,11 +8893,11 @@ SInt16 MDeleteFile (
 			errCode = fileStreamPtr->MDeleteFile (messageCode);
 		#endif	// defined multispec_win 
 		
-		}		// end "if (fileStreamPtr != NULL)"
+		}	// end "if (fileStreamPtr != NULL)"
 	
 	return (errCode);
 
-}		// end "MDeleteFile"  
+}	// end "MDeleteFile"  
 
 
 
@@ -8626,30 +8937,26 @@ SInt16 MGetMarker (
 		if (gHasHFSPlusAPIs)     
 			errCode = FSGetForkPosition (fileStreamPtr->refNum, outOffsetPtr);
 			
-		else		// !gSupportsHFSPlusVols 
+		else	// !gSupportsHFSPlusVols 
 			{                                         
 			errCode = GetFPos (fileStreamPtr->refNum, &outOffset32);	
 			
 			if (errCode == noErr)
 				*outOffsetPtr = outOffset32;
 			
-			}		// end "else !gSupportsHFSPlusVols"
+			}	// end "else !gSupportsHFSPlusVols"
 		
 		if (messageCode == kErrorMessages)		
-			IOCheck (errCode, fileStreamPtr);                       
-
-	#endif	// defined multispec_mac 
-
+			IOCheck (errCode, fileStreamPtr);
+	#endif	// defined multispec_mac
               
-   #if defined multispec_win | defined multispec_lin
-	 
-		errCode = fileStreamPtr->MGetMarker (outOffsetPtr, messageCode); 
- 
-	#endif	// defined multispec_win 
+   #if defined multispec_win || defined multispec_lin
+		errCode = fileStreamPtr->MGetMarker (outOffsetPtr, messageCode);
+	#endif	// defined multispec_win || defined multispec_lin
 							 
 	return (errCode);
 		      
-}		// end "MGetMarker"     
+}	// end "MGetMarker"     
 
 
 
@@ -8695,9 +9002,9 @@ SInt16 MReadData (
 											inBufferPtr, 
 											numberBytesPtr);
 		
-		else		// !gHasHFSPlusAPIs
-			errCode = FSRead (fileStreamCPtr->refNum, (SInt32*)numberBytesPtr, inBufferPtr);
-		
+		else	// !gHasHFSPlusAPIs
+			errCode = FSRead (
+							fileStreamCPtr->refNum, (SInt32*)numberBytesPtr, inBufferPtr);
 	
 		if (errCode != noErr && messageCode == kErrorMessages)		
 			IOCheck (errCode, (CharPtr)&fileStreamCPtr->fileName);                       
@@ -8709,7 +9016,7 @@ SInt16 MReadData (
 							 
 	return (errCode);
 		      
-}		// end "MReadData"            
+}	// end "MReadData"            
 
 
 
@@ -8734,7 +9041,7 @@ SInt16 MReadData (
 //	Coded By:			Larry L. Biehl			Date: 09/08/1995 
 //	Revised By:			Larry L. Biehl			Date: 07/07/2005  
 
-SInt16 MSetMarker(
+SInt16 MSetMarker (
 				CMFileStream*						fileStreamCPtr,
 				SInt16								fromCode,
 				SInt64								inOffset,
@@ -8744,29 +9051,24 @@ SInt16 MSetMarker(
 	SInt16								errCode = noErr;
 	
 	
-	#if defined multispec_mac       
-	   
+	#if defined multispec_mac
 	   if (gHasHFSPlusAPIs)     
 			errCode = FSSetForkPosition (fileStreamCPtr->refNum, fromCode, inOffset);
 			
-		else		// !gHasHFSPlusAPIs                                             
+		else	// !gHasHFSPlusAPIs                                             
 			errCode = SetFPos (fileStreamCPtr->refNum, fromCode, (SInt32)inOffset);
 		
 		if (messageCode == kErrorMessages) 		
 			IOCheck (errCode, (CharPtr)&fileStreamCPtr->fileName);
-			                        
 	#endif	// defined multispec_mac
 
-
-   #if defined multispec_win | defined multispec_lin
-                                 
+   #if defined multispec_win || defined multispec_lin
 		errCode = fileStreamCPtr->MSetMarker (inOffset, fromCode, messageCode);
-			                        
-	#endif	// defined multispec_win  
+	#endif	// defined multispec_win || defined multispec_lin
 	
 	return (errCode);
   
-}		// end "MSetMarker" 
+}	// end "MSetMarker" 
 
 
 
@@ -8800,24 +9102,24 @@ SInt16 MSetSizeOfFile (
 	SInt16								errCode;
 	
 	                  
-#	if defined multispec_mac
+	#if defined multispec_mac
    	if (gHasHFSPlusAPIs) 
 			errCode = FSSetForkSize (fileStreamPtr->refNum, fsFromStart, countBytes); 
 		
-		else		// !gHasHFSPlusAPIs
+		else	// !gHasHFSPlusAPIs
 			errCode = ::SetEOF (fileStreamPtr->refNum, (SInt32)countBytes);
-#	endif	// defined multispec_mac
+	#endif	// defined multispec_mac
 
-#	if defined multispec_win | defined multispec_lin
+	#if defined multispec_win || defined multispec_lin
 		errCode = fileStreamPtr->MSetSizeOfFile (countBytes);
-#	endif	// defined multispec_win
+	#endif	// defined multispec_win || defined multispec_lin
 		
 	if (messageCode == kErrorMessages)		
 		IOCheck (errCode, fileStreamPtr);                       
 							 
 	return (errCode);
 		      
-}		// end "MSetSizeOfFile"
+}	// end "MSetSizeOfFile"
 
 
 
@@ -8853,7 +9155,7 @@ SInt16 MWriteData (
 	SInt16								errCode;
 	
 	                  
-#	if defined multispec_mac
+	#if defined multispec_mac
    	if (gHasHFSPlusAPIs) 
 			errCode = FSWriteFork (fileStreamPtr->refNum,
 											fsAtMark,
@@ -8862,20 +9164,21 @@ SInt16 MWriteData (
 											inBufferPtr,
 											numberBytesPtr);
    	
-   	else		// !gHasHFSPlusAPIs
-			errCode = FSWrite (fileStreamPtr->refNum, (SInt32*)numberBytesPtr, inBufferPtr);
+   	else	// !gHasHFSPlusAPIs
+			errCode = FSWrite (
+								fileStreamPtr->refNum, (SInt32*)numberBytesPtr, inBufferPtr);
 		
 		if (messageCode == kErrorMessages)		
 			IOCheck (errCode, fileStreamPtr);
-#	endif	// defined multispec_mac
+	#endif	// defined multispec_mac
 
-#	if defined multispec_win || defined multispec_lin
+	#if defined multispec_win || defined multispec_lin
 		errCode = fileStreamPtr->MWriteData (inBufferPtr, numberBytesPtr, messageCode);
-#	endif	// defined multispec_win
+	#endif	// defined multispec_win
 							 
 	return (errCode);
 		      
-}		// end "MWriteData" 
+}	// end "MWriteData" 
 
 
 
@@ -8906,69 +9209,86 @@ Boolean NavServicesCheckForIgnoredFiles (
 				FileStringPtr						fileNamePtr)
 
 { 
-Boolean								returnFlag = FALSE;
+	Boolean								returnFlag = FALSE;
 
 
-if (CompareSuffixNoCase ((char*)"\0.doc", fileNamePtr, NULL))
-	returnFlag = TRUE;
-	
-else if (CompareSuffixNoCase ((char*)"\0.docx", fileNamePtr, NULL))
-	returnFlag = TRUE;
-	
-else if (CompareSuffixNoCase ((char*)"\0.xls", fileNamePtr, NULL))
-	returnFlag = TRUE;
-	
-else if (CompareSuffixNoCase ((char*)"\0.xlsx", fileNamePtr, NULL))
-	returnFlag = TRUE;
-	
-else if (CompareSuffixNoCase ((char*)"\0.ppt", fileNamePtr, NULL))
-	returnFlag = TRUE;
-	
-else if (CompareSuffixNoCase ((char*)"\0.pptx", fileNamePtr, NULL))
-	returnFlag = TRUE;
-	
-else if (CompareSuffixNoCase ((char*)"\0.pps", fileNamePtr, NULL))
-	returnFlag = TRUE;
-	
-else if (CompareSuffixNoCase ((char*)"\0.zip", fileNamePtr, NULL))
-	returnFlag = TRUE;
-	
-else if (CompareSuffixNoCase ((char*)"\0.pdf", fileNamePtr, NULL))
-	returnFlag = TRUE;
-	
-else if (CompareSuffixNoCase ((char*)"\0.app", fileNamePtr, NULL))
-	returnFlag = TRUE;
-	
-else if (CompareSuffixNoCase ((char*)"\0.xml", fileNamePtr, NULL))
-	returnFlag = TRUE;
-	
-else if (CompareSuffixNoCase ((char*)"\0.wmv", fileNamePtr, NULL))
-	returnFlag = TRUE;
-	
-else if (CompareSuffixNoCase ((char*)"\0.rtf", fileNamePtr, NULL))
-	returnFlag = TRUE;
-	
-return (returnFlag);
+	if (CompareSuffixNoCase ((char*)"\0.doc", fileNamePtr, NULL))
+		returnFlag = TRUE;
+		
+	else if (CompareSuffixNoCase ((char*)"\0.docx", fileNamePtr, NULL))
+		returnFlag = TRUE;
+		
+	else if (CompareSuffixNoCase ((char*)"\0.xls", fileNamePtr, NULL))
+		returnFlag = TRUE;
+		
+	else if (CompareSuffixNoCase ((char*)"\0.xlsx", fileNamePtr, NULL))
+		returnFlag = TRUE;
+		
+	else if (CompareSuffixNoCase ((char*)"\0.ppt", fileNamePtr, NULL))
+		returnFlag = TRUE;
+		
+	else if (CompareSuffixNoCase ((char*)"\0.pptx", fileNamePtr, NULL))
+		returnFlag = TRUE;
+		
+	else if (CompareSuffixNoCase ((char*)"\0.pps", fileNamePtr, NULL))
+		returnFlag = TRUE;
+		
+	else if (CompareSuffixNoCase ((char*)"\0.zip", fileNamePtr, NULL))
+		returnFlag = TRUE;
+		
+	else if (CompareSuffixNoCase ((char*)"\0.pdf", fileNamePtr, NULL))
+		returnFlag = TRUE;
+		
+	else if (CompareSuffixNoCase ((char*)"\0.app", fileNamePtr, NULL))
+		returnFlag = TRUE;
+		
+	else if (CompareSuffixNoCase ((char*)"\0.xml", fileNamePtr, NULL))
+		returnFlag = TRUE;
+		
+	else if (CompareSuffixNoCase ((char*)"\0.wmv", fileNamePtr, NULL))
+		returnFlag = TRUE;
+		
+	else if (CompareSuffixNoCase ((char*)"\0.rtf", fileNamePtr, NULL))
+		returnFlag = TRUE;
+		
+	return (returnFlag);
 		      
-}		// end "NavServicesCheckForIgnoredFiles" 
+}	// end "NavServicesCheckForIgnoredFiles" 
 
 
 
 #if defined multispec_mac 
-// *****************************************************************************
-// *
-// *	NavServicesFilterProc( )
-// *  revised 03/25/2017 by Larry L. Biehl
-// *
-// *****************************************************************************
-pascal Boolean NavServicesFilterProc( 
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2017)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		pascal Boolean NavServicesFilterProc
+//
+//	Software purpose:	The purpose of this routine is to filter the list of files
+//							in the current folder being shown in the NavServices Get
+//							file routine. Those files which are determined that MultiSpec
+//							can not read directly are unhighlighted.
+//		
+//	Parameters in:		
+//
+//	Parameters out:	
+//
+// Value Returned:	None
+//
+// Called By:			
+//
+//	Coded By:			From Apple Inc. examples
+//	Revised By:			Larry L. Biehl			Date: 03/25/2017
+
+pascal Boolean NavServicesFilterProc (
 				AEDesc* 								theItem, 
 				void* 								info, 
 				NavCallBackUserData 				callBackUD, 
-				NavFilterModes 					filterMode )
+				NavFilterModes 					filterMode)
 				
 {
-// #pragma unused (callBackUD, filterMode)
+	//#pragma unused (callBackUD, filterMode)
 
 	CMFileStream*						fileStreamPtr;
 	FileInfoPtr							fileInfoPtr;
@@ -9014,9 +9334,9 @@ pascal Boolean NavServicesFilterProc(
 						fileStreamPtr->fSSpecFlag = TRUE;
 						fileStreamPtr->fSRefFlag = FALSE;
 							
-						}		// end "if (theItem->descriptorType == typeFSS)"
+						}	// end "if (theItem->descriptorType == typeFSS)"
 						
-					else		// theItem->descriptorType == typeFSRef
+					else	// theItem->descriptorType == typeFSRef
 						{
 						CFStringRef							cfStringRef;
 						
@@ -9042,30 +9362,35 @@ pascal Boolean NavServicesFilterProc(
 														(char*)&fileStreamPtr->fileName[1],
 														(CFIndex)255,
 														kCFStringEncodingUTF8);
-							fileStreamPtr->fileName[0] = strlen ((char*)&fileStreamPtr->fileName[1]);
-														
-							/*		// Get wide character file name. Not used now.
-							fileStreamPtr->wideCharFileName[0] = fileStreamPtr->uniFileName.length;
+							fileStreamPtr->fileName[0] =
+													strlen ((char*)&fileStreamPtr->fileName[1]);
+							/*
+									// Get wide character file name. Not used now.
+							fileStreamPtr->wideCharFileName[0] = 
+																	fileStreamPtr->uniFileName.length;
 							CFStringGetCString (cfStringRef,
-													(char*)&fileStreamPtr->wideCharFileName[1],
-													(CFIndex)255,
-													kCFStringEncodingUTF32);
-							fileStreamPtr->wideCharFileName[fileStreamPtr->wideCharFileName[0]+1] = 0;
+														(char*)&fileStreamPtr->wideCharFileName[1],
+														(CFIndex)255,
+														kCFStringEncodingUTF32);
+							fileStreamPtr->wideCharFileName[
+														fileStreamPtr->wideCharFileName[0]+1] = 0;
 							*/
-									// This indicates that the full path is not part of the file name.
+									// This indicates that the full path is not part of the
+									// file name.
+							
 							fileStreamPtr->pathLength = 0;
 																
 							//CFAllocatorDeallocate (kCFAllocatorDefault, (void*)cfStringRef);
 							CFRelease (cfStringRef);
 							
-							}		// end "if (errCode == noErr)"
+							}	// end "if (errCode == noErr)"
 							
 						fileStreamPtr->vRefNum = 0;
 						fileStreamPtr->parID = 0;
 						fileStreamPtr->fSSpecFlag = FALSE;
 						fileStreamPtr->fSRefFlag = TRUE;
 						
-						}		// end "else theItem->descriptorType == typeFSRef"
+						}	// end "else theItem->descriptorType == typeFSRef"
 						
 					if (NavServicesCheckForIgnoredFiles (fileStreamPtr->fileName))
 						errCode = 1;
@@ -9112,14 +9437,17 @@ pascal Boolean NavServicesFilterProc(
 								break;
 								
 							case kTransformFiles:
-//								if (CheckIfTransformationFile (fileStreamPtr) == 0)
-								if (theInfo->fileAndFolder.fileInfo.finderInfo.fdType != 'TEXT' &&
-										theInfo->fileAndFolder.fileInfo.finderInfo.fdType != 'TRAN')
+								//if (CheckIfTransformationFile (fileStreamPtr) == 0)
+								if (theInfo->fileAndFolder.fileInfo.finderInfo.fdType !=
+																									'TEXT' &&
+										theInfo->fileAndFolder.fileInfo.finderInfo.fdType !=
+																									'TRAN')
 									display = FALSE;
 								break;
 								
 							case kThematicGroupInfoFiles:
-								filePathPtr = (FileStringPtr)GetFilePathPPointer (fileStreamPtr);
+								filePathPtr = (FileStringPtr)
+											GetFilePathPPointerFromFileStream (fileStreamPtr);
 								if (!CompareSuffixNoCase ((char*)"\0.clr", filePathPtr, NULL))
 									{
 									if (CheckImageHeader (NULL,
@@ -9128,51 +9456,66 @@ pascal Boolean NavServicesFilterProc(
 														navUserDataPtr->filterSelection,
 														0) == 0)
 										display = FALSE;
-									}		// end "if (!CompareSuffixNoCase ((char*)"\0.clr", ..."
+									
+									}	// end "if (!CompareSuffixNoCase ((char*)"\0.clr", ..."
 									
 								break;
-/*								
+							/*
 							case kAllTextFiles:
 								display = TRUE;
 								break;
-*/							
-							}		// end "switch (navUserDataPtr->filterSelection)"
+							*/
+							}	// end "switch (navUserDataPtr->filterSelection)"
 						
 						CloseFile (fileStreamPtr);
 							
-						}		// end "if (errCode == noErr)"
+						}	// end "if (errCode == noErr)"
 						
 					else 	// errCode != noErr
 						display = FALSE;
 					
-					}		// end "if (fileInfoPtr != NULL)"
+					}	// end "if (fileInfoPtr != NULL)"
 														
-				}		// end "if (navUserDataPtr->filterSelection >= 101)"
+				}	// end "if (navUserDataPtr->filterSelection >= 101)"
 		
-			}		// end "if (!theInfo->isFolder && theInfo->visible)"
+			}	// end "if (!theInfo->isFolder && theInfo->visible)"
 			
-		}		// end "if (theItem->descriptorType == typeFSS || ...)"
+		}	// end "if (theItem->descriptorType == typeFSS || ...)"
 		
 	return display;
 	
-}		// end "NavServicesFilterProc"
+}	// end "NavServicesFilterProc"
 
 
 
-// *****************************************************************************
-// *
-// *	NavServicesGetEventProc( )
-// *
-// *		Revised 03/25/2014 by Larry Biehl
-// *
-// *****************************************************************************
-pascal void NavServicesGetEventProc ( 
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		pascal void NavServicesGetEventProc
+//
+//	Software purpose:	The purpose of this routine is to respond to event prompts from
+//							the NavServices GetFile routine.
+//		
+//	Parameters in:		
+//
+//	Parameters out:	
+//
+// Value Returned:	None
+//
+// Called By:			
+//
+//	Coded By:			From Apple Inc. examples
+//	Revised By:			Larry L. Biehl			Date: 03/25/2014
+
+pascal void NavServicesGetEventProc (
 				NavEventCallbackMessage 		callBackSelector, 
 				NavCBRecPtr 						callBackParms, 
-				NavCallBackUserData 				callBackUD )
+				NavCallBackUserData 				callBackUD)
 				
 {
-//	FSRef									fsRefItem;
+	//FSRef								fsRefItem;
 	Point									mousePt;
 	Rect									theBox;
 
@@ -9184,11 +9527,11 @@ pascal void NavServicesGetEventProc (
 	NavUserData*						navUserDataPtr;
 											
 	DialogPtr							dialogPtr;
-//	WindowPtr							window;
+	//WindowPtr							window;
 	
-//	ControlHandle						theControl;
-//	AEKeyword							keyword;
-//	DescType								returnedType;
+	//ControlHandle					theControl;
+	//AEKeyword							keyword;
+	//DescType							returnedType;
 
 	SInt32								initialSelection,
 											itemCount;
@@ -9198,7 +9541,7 @@ pascal void NavServicesGetEventProc (
 	SInt16								firstCustomControl,
 											itemHit;
 											
-//	SignedByte							handleStatus;
+	//SignedByte						handleStatus;
 	
 	
 	switch (callBackSelector)
@@ -9211,11 +9554,11 @@ pascal void NavServicesGetEventProc (
 					break;
 					
 				case updateEvt:
-					if (callBackParms->window != 
-								(WindowPtr)callBackParms->eventData.eventDataParms.event->message)
+					if (callBackParms->window != (WindowPtr)callBackParms->
+														eventData.eventDataParms.event->message)
   						DoUpdateEvent (callBackParms->eventData.eventDataParms.event);
-  					
-/*  					else		// if (callBackParms->window ==
+  					/*
+  					else	// if (callBackParms->window ==
   						{
   						errCode = NavCustomControl (callBackParms->context,
 													kNavCtlGetFirstControlID,
@@ -9229,18 +9572,17 @@ pascal void NavServicesGetEventProc (
 												(Handle*)&theControl, 
 												&theBox);
 						
-//						if (theType < kStaticTextDialogItem)						
-//							ShowControl (theControl);
+						//if (theType < kStaticTextDialogItem)
+						//	ShowControl (theControl);
 						
-//						ClipRect (GetWindowPortBounds(callBackParms->window, &gTempRect));
-//  						DrawControls (callBackParms->window);
+						//ClipRect (GetWindowPortBounds (callBackParms->window, &gTempRect));
+						//DrawControls (callBackParms->window);
   						
-  						}		// end "else if (callBackParms->window =="
-*/  						
+  						}	// end "else if (callBackParms->window =="
+					*/
 					break;
 					
 	      	case mouseDown:
-
 					dialogPtr = GetDialogFromWindow (callBackParms->window);
 					mousePt = callBackParms->eventData.eventDataParms.event->where;
 					GlobalToLocal (&mousePt);
@@ -9280,14 +9622,14 @@ pascal void NavServicesGetEventProc (
 									SetDLogControl (dialogPtr, firstCustomControl+4, 1);
 									gGetFileImageType = kThematicImageType;
 									break;
-									
-/*								case 4:
+								/*	
+								case 4:
 								
 									if (gMultipleImageFileCode == 2)
 										NavSetImageWindowFileFlagToFalse (dialogPtr, 
 																					firstCustomControl+1);
 										
-									else		// gMultipleImageFileCode != 2 
+									else	// gMultipleImageFileCode != 2 
 										{
 										SetDLogControl (dialogPtr, firstCustomControl+5, 1);
 										gMultipleImageFileCode = 2;
@@ -9299,37 +9641,42 @@ pascal void NavServicesGetEventProc (
 										SetDLogControl (dialogPtr, firstCustomControl+4, 0);
 										
 										if (gActiveImageWindowInfoH != NULL && 
-												MGetString (gTextString, kFileIOStrID, IDS_SelectFileToLink) )
+												MGetString (gTextString, 
+																kFileIOStrID, 
+																IDS_SelectFileToLink))
 											{
-											sprintf( (char*)&gTextString[13], 
-												"%3d", 
-												((WindowInfoPtr)*gActiveImageWindowInfoH)->numberImageFiles+1 );
+											sprintf ((char*)&gTextString[13], 
+														"%3d", 
+														((WindowInfoPtr)*gActiveImageWindowInfoH)->
+																						numberImageFiles+1);
 											gTextString[16] = ' ';
 											
 											SetWTitle (callBackParms->window, 
-																(UCharPtr)&gTextString);
+																(UCharPtr)gTextString);
 											
-											}		// end "if gActiveImageWindowInfoH && (MGetIndString (..." 
+											}	// end "if gActiveImageWindowInfoH && ..." 
 											
-										}		// end "else !gMultipleImageFileCode" 
+										}	// end "else !gMultipleImageFileCode" 
 									break;
-*/									
+								*/									
 								case 4:
 									itemHit = GetDItemValue (dialogPtr, firstCustomControl+5);
-//									itemHit = StandardPopUpMenu (dialogPtr, 
-//																			0, 
-//																			firstCustomControl+5, 
-//																			gPopUpLinkOptionsMenu, 
-//																			gLinkOptionsSelection, 
-//																			kPopUpLinkOptionsMenuID);
-																	
+									/*
+									itemHit = StandardPopUpMenu (dialogPtr, 
+																			0, 
+																			firstCustomControl+5, 
+																			gPopUpLinkOptionsMenu, 
+																			gLinkOptionsSelection, 
+																			kPopUpLinkOptionsMenuID);
+									*/								
 									if (itemHit > 0)
 										{
 										gLinkOptionsSelection = itemHit;
 										
 										if (gLinkOptionsSelection == 1)
-											NavSetImageWindowFileFlagToFalse (dialogPtr, 
-																							firstCustomControl+1);
+											NavSetImageWindowFileFlagToFalse (
+																					dialogPtr,
+																					firstCustomControl+1);
 																					
 										else if (gLinkOptionsSelection >= 2)
 											{
@@ -9342,35 +9689,38 @@ pascal void NavServicesGetEventProc (
 											if (gMultipleImageFileCode < 2)
 												{
 												if (gActiveImageWindowInfoH != NULL &&
-														gLinkOptionsSelection == 2 &&
-														MGetString (gTextString, kFileIOStrID, IDS_SelectFileToLink))
+															gLinkOptionsSelection == 2 &&
+																	MGetString (gTextString,
+																					kFileIOStrID,
+																					IDS_SelectFileToLink))
 													{
-													sprintf( (char*)&gTextString[13], 
-														"%3d", 
-														((WindowInfoPtr)*gActiveImageWindowInfoH)->numberImageFiles+1 );
+													sprintf (
+														(char*)&gTextString[13],
+														"%3d",
+														((WindowInfoPtr)*gActiveImageWindowInfoH)->
+																						numberImageFiles+1);
 													gTextString[16] = ' ';
 													
 													SetWTitle (callBackParms->window, 
-																		(UCharPtr)&gTextString);
+																	(UCharPtr)gTextString);
 													
-													}		// end "if gActiveImageWindowInfoH && (MGetIndString (..." 
+													}	// end "if gActiveImageWindowInfoH && ..." 
 													
-												}		// end "if (gMultipleImageFileCode < 2)"
+												}	// end "if (gMultipleImageFileCode < 2)"
 												
 											gMultipleImageFileCode = gLinkOptionsSelection; 
 											sInitialLinkSelectedFilesFlag = TRUE; 
 											
-											}		// end "if (gLinkOptionsSelection >= 2)"
+											}	// end "if (gLinkOptionsSelection >= 2)"
 																								
-										}		// end "if (itemHit > 0)" 
+										}	// end "if (itemHit > 0)" 
 									break;
 								
-								}		// end "switch (itemHit-firstCustomControl)"
+								}	// end "switch (itemHit-firstCustomControl)"
 								
-							}		// end "if (errCode == noErr)"
+							}	// end "if (errCode == noErr)"
 						
-						}		// end "if (mouseLoc == inContent)"
-						
+						}	// end "if (mouseLoc == inContent)"
 					break;
 
 				case activateEvt:
@@ -9379,11 +9729,10 @@ pascal void NavServicesGetEventProc (
 				default:
 					break;
 					
-				}		// end "switch (callBackParms->eventData.eventDataParms.event->what)"
-				
+				}	// end "switch (callBackParms->eventData.eventDataParms.event->what)"
 			break;
 				
-			}		// end "case kNavCBEvent"
+			}	// end "case kNavCBEvent"
 			
 		case kNavCBCustomize:
 			{
@@ -9398,22 +9747,22 @@ pascal void NavServicesGetEventProc (
 					
 					sCustomControlCount = 0;
 					
-					}		// end "if (callBackParms->customRect.bottom == 0)"
+					}	// end "if (callBackParms->customRect.bottom == 0)"
 					
-				else		// callBackParms->customRect.bottom > 0
+				else	// callBackParms->customRect.bottom > 0
 					{
 					if (sCustomControlCount == 0)
 						{
 						sCustomControlCount++;
 						
-						}		// end "if (sCustomControlCount == 0)"
+						}	// end "if (sCustomControlCount == 0)"
 					
-					}		// end "if (callBackParms->customRect.bottom == 0)"
+					}	// end "if (callBackParms->customRect.bottom == 0)"
 				
-				}		// end "if (gProcessorCode == kOpenImageFileProcessor)"
+				}	// end "if (gProcessorCode == kOpenImageFileProcessor)"
 			break;
 				
-			}		// end "case kNavCBCustomize"
+			}	// end "case kNavCBCustomize"
 			
 		case kNavCBStart:
 			{
@@ -9435,13 +9784,14 @@ pascal void NavServicesGetEventProc (
 				if (errCode == noErr)
 					{
 					dialogPtr = GetDialogFromWindow (callBackParms->window);
-					
-//					navUserDataPtr->drawLinkOptionsPopUpPtr = NewUserItemUPP (DrawLinkOptionsPopUp);
-//					SetDialogItemDrawRoutine (dialogPtr, 
-//														firstCustomControl+6, 
-//														&theBox, 
-//														navUserDataPtr->drawLinkOptionsPopUpPtr);
-			
+					/*
+					navUserDataPtr->drawLinkOptionsPopUpPtr = 
+															NewUserItemUPP (DrawLinkOptionsPopUp);
+					SetDialogItemDrawRoutine (dialogPtr,
+														firstCustomControl+6,
+														&theBox,
+														navUserDataPtr->drawLinkOptionsPopUpPtr);
+					*/
 					SetDialogItemDrawRoutine (dialogPtr, 
 														&theBox,
 														0, 
@@ -9464,14 +9814,14 @@ pascal void NavServicesGetEventProc (
 						NavSetImageWindowFileFlagToFalse (dialogPtr, 
 																	firstCustomControl+1);
 			
-						if (!GetFileDlgDetermineLinkVisibility())
+						if (!GetFileDlgDetermineLinkVisibility ())
 							{
 							DisableMenuItem (gPopUpLinkOptionsMenu, 2);
 							HideDialogItem (dialogPtr, firstCustomControl+5);
 							
-							}		// end "if (!GetFileDlgDetermineLinkVisibility())"
+							}	// end "if (!GetFileDlgDetermineLinkVisibility ())"
 								
-						}		// end "if (gGetFileStatus == 0)"
+						}	// end "if (gGetFileStatus == 0)"
 		
 					if (gMultipleImageFileCode == 2)
 						{
@@ -9491,35 +9841,33 @@ pascal void NavServicesGetEventProc (
 						if (MGetString (gTextString, kFileIOStrID, IDS_SelectFileToLink))
 							{
 							sprintf ((char*)&gTextString[13], 
-								"%3d", 
-								((WindowInfoPtr)*gActiveImageWindowInfoH)->numberImageFiles+1);
+										"%3d", 
+										((WindowInfoPtr)*gActiveImageWindowInfoH)->
+																					numberImageFiles+1);
 							gTextString[16] = ' ';
 							
-							SetWTitle (callBackParms->window, 
-												(UCharPtr)&gTextString);
+							SetWTitle (callBackParms->window, (UCharPtr)gTextString);
 							
-							}		// end "if( MGetIndString (..." 
+							}	// end "if (MGetIndString (..." 
 
-						}		// end "if (gMultipleImageFileCode == 2)"
+						}	// end "if (gMultipleImageFileCode == 2)"
 						
-//					else		// gMultipleImageFileCode != 2
-//						HideDialogItem (dialogPtr, firstCustomControl+5);
+					//else	// gMultipleImageFileCode != 2
+					//	HideDialogItem (dialogPtr, firstCustomControl+5);
 					
-					}		// end "if (errCode == noErr)"
+					}	// end "if (errCode == noErr)"
 					
 				if (gGetFileStatus != 2)
 					sInitialLinkSelectedFilesFlag = FALSE;
 													
-				}		// end "if (gProcessorCode == kOpenImageFileProcessor)"
+				}	// end "if (gProcessorCode == kOpenImageFileProcessor)"
 				
 			NavMenuItemSpec		localMenuItemSpec;
 			
 			initialSelection = navUserDataPtr->initialMenuSelection;
 												
 			navMenuItemSpecPtr = (NavMenuItemSpec*)GetHandlePointer (
-												(Handle)navUserDataPtr->navMenuItemSpecHandle,
-												kNoLock,
-												kNoMoveHi);
+												(Handle)navUserDataPtr->navMenuItemSpecHandle);
 			
 			if (navMenuItemSpecPtr != NULL)
 				localMenuItemSpec = navMenuItemSpecPtr[initialSelection];
@@ -9529,14 +9877,13 @@ pascal void NavServicesGetEventProc (
 		
 			NavCustomControl (callBackParms->context, 
 										kNavCtlSelectCustomType, 
-//										(void*)&navMenuItemSpecPtr[initialSelection]);
+										//(void*)&navMenuItemSpecPtr[initialSelection]);
 										(void*)&localMenuItemSpec);
 
-//			MHSetState ((Handle)navUserDataPtr->navMenuItemSpecHandle, handleStatus);
-				
+			//MHSetState ((Handle)navUserDataPtr->navMenuItemSpecHandle, handleStatus);
 			break;
 				
-			}		// end "case kNavCBStart"
+			}	// end "case kNavCBStart"
 			
 		case kNavCBSelectEntry:
 			{
@@ -9545,7 +9892,7 @@ pascal void NavServicesGetEventProc (
 				itemCount = 0;
 				docListPtr = 
 						(AEDescList*)callBackParms->eventData.eventDataParms.param;
-				if (AECountItems(docListPtr, &itemCount) == noErr)
+				if (AECountItems (docListPtr, &itemCount) == noErr)
 					{
 					gOpenImageSelectionListCount = itemCount;
 					if (NavCustomControl (callBackParms->context,
@@ -9557,7 +9904,7 @@ pascal void NavServicesGetEventProc (
 							{
 							ShowDialogItem (dialogPtr, firstCustomControl+5);
 							EnableMenuItem (gPopUpLinkOptionsMenu, 3);
-//							ShowDialogItem (dialogPtr, firstCustomControl+6);
+							//ShowDialogItem (dialogPtr, firstCustomControl+6);
 
 							if (!sInitialLinkSelectedFilesFlag)
 								{
@@ -9565,7 +9912,7 @@ pascal void NavServicesGetEventProc (
 								gMultipleImageFileCode = gLinkOptionsSelection; 
 								sInitialLinkSelectedFilesFlag = TRUE;
 								
-								}		// end "if (!sInitialLinkSelectedFilesFlag)"
+								}	// end "if (!sInitialLinkSelectedFilesFlag)"
 								
 							if (gLinkOptionsSelection >= 2)
 								{
@@ -9574,37 +9921,39 @@ pascal void NavServicesGetEventProc (
 								SetDLogControl (dialogPtr, firstCustomControl+4, 0);
 								HideDialogItem (dialogPtr, firstCustomControl+2);
 								HideDialogItem (dialogPtr, firstCustomControl+4);
-								SetDItemValue (dialogPtr, firstCustomControl+5, gLinkOptionsSelection);
+								SetDItemValue (
+										dialogPtr, firstCustomControl+5, gLinkOptionsSelection);
 																
-								}		// end "if (gLinkOptionsSelection >= 2)"
+								}	// end "if (gLinkOptionsSelection >= 2)"
 							
-							}		// end "if (itemCount > 1)"
+							}	// end "if (itemCount > 1)"
 							
-						else		// itemCount <= 1
+						else	// itemCount <= 1
 							{
-									// At this point we do not know if the itemCount is really 1 or 0.
-									// I do not know why this is the case. If the OK button is not high
-									// lighted, the the count is 0.
-									// Unfortunately this does not work since the OK control get unhighlighted
-									// after this message is sent.
-							
-//							ControlRef	theControl;
-//							GetDialogItemAsControl (dialogPtr, 1, &theControl);
-//							if (GetControlHilite(theControl) == 255)
-//								itemCount = 0;
-
-/*							if (AEGetNthPtr(docListPtr, 
-														1, 
-														typeFSRef, 
-														&keyword, 
-														&returnedType, 
-														&fsRefItem, 
-														sizeof(FSRef),
-														NULL) != noErr)
+									// At this point we do not know if the itemCount is really 
+									// 1 or 0. I do not know why this is the case. If the OK 
+									// button is not high lighted, the the count is 0.
+									// Unfortunately this does not work since the OK control 
+									// gets unhighlighted after this message is sent.
+							/*
+							ControlRef	theControl;
+							GetDialogItemAsControl (dialogPtr, 1, &theControl);
+							if (GetControlHilite (theControl) == 255)
 								itemCount = 0;
-*/							
-									// Make sure all of the image type options are available and
-									// set them to the most recent setting if the link option is none.
+
+							if (AEGetNthPtr (docListPtr,
+													1, 
+													typeFSRef, 
+													&keyword, 
+													&returnedType, 
+													&fsRefItem, 
+													sizeof (FSRef),
+													NULL) != noErr)
+								itemCount = 0;
+							*/
+									// Make sure all of the image type options are available
+									// and set them to the most recent setting if the link
+									// option is none.
 						
 							if (!sInitialLinkSelectedFilesFlag || gLinkOptionsSelection == 3)
 								gLinkOptionsSelection = 1;
@@ -9614,35 +9963,41 @@ pascal void NavServicesGetEventProc (
 								ShowDialogItem (dialogPtr, firstCustomControl+2);
 								ShowDialogItem (dialogPtr, firstCustomControl+4);
 							
-								SetDLogControl (dialogPtr, firstCustomControl+2, (gGetFileImageType==0));
-								SetDLogControl (dialogPtr, firstCustomControl+3, (gGetFileImageType==kMultispectralImageType));
-								SetDLogControl (dialogPtr, firstCustomControl+4, (gGetFileImageType==kThematicImageType));
+								SetDLogControl (dialogPtr,
+														firstCustomControl+2,
+														(gGetFileImageType==0));
+								SetDLogControl (dialogPtr,
+														firstCustomControl+3,
+														(gGetFileImageType==kMultispectralImageType));
+								SetDLogControl (dialogPtr,
+														firstCustomControl+4,
+														(gGetFileImageType==kThematicImageType));
 								
-								}		// end "if (gLinkOptionsSelection < 2)"
+								}	// end "if (gLinkOptionsSelection < 2)"
 								
 							DisableMenuItem (gPopUpLinkOptionsMenu, 3);
-//							HideDialogItem (dialogPtr, firstCustomControl+5);
-							if (!GetFileDlgDetermineLinkVisibility() || itemCount == 0)
+							//HideDialogItem (dialogPtr, firstCustomControl+5);
+							if (!GetFileDlgDetermineLinkVisibility () || itemCount == 0)
 								HideDialogItem (dialogPtr, firstCustomControl+5);
 								
-							else		// GetFileDlgDetermineLinkVisibility() && itemCount == 1
+							else	// GetFileDlgDetermineLinkVisibility () && itemCount == 1
 								ShowDialogItem (dialogPtr, firstCustomControl+5);
 								
-							SetDItemValue (dialogPtr, firstCustomControl+5, gLinkOptionsSelection);
+							SetDItemValue (
+									dialogPtr, firstCustomControl+5, gLinkOptionsSelection);
 								
-//							sInitialLinkSelectedFilesFlag = FALSE;
+							//sInitialLinkSelectedFilesFlag = FALSE;
 							
-							}		// end "else itemCount <= 1"
+							}	// end "else itemCount <= 1"
 							
-						}		// end "if (NavCustomControl (callBackParms->context, ..."
+						}	// end "if (NavCustomControl (callBackParms->context, ..."
 					
-					}		// end "if (AECountItems(docListPtr, &itemCount) == noErr)"
+					}	// end "if (AECountItems (docListPtr, &itemCount) == noErr)"
 					
-				}		// end "if (gProcessorCode == kOpenImageFileProcessor)"
-				
+				}	// end "if (gProcessorCode == kOpenImageFileProcessor)"
 			break;
 			
-			}		// end "case kNavCBSelectEntry"
+			}	// end "case kNavCBSelectEntry"
 			
 		case kNavCBPopupMenuSelect:
 			{
@@ -9656,28 +10011,25 @@ pascal void NavServicesGetEventProc (
 				if (gOSXFlag)
 					{
 					navMenuItemSpecPtr = (NavMenuItemSpec*)GetHandlePointer (
-												(Handle)navUserDataPtr->navMenuItemSpecHandle,
-												kNoLock,
-												kNoMoveHi);
+												(Handle)navUserDataPtr->navMenuItemSpecHandle);
 												
 					if (menuItemSpecPtr->menuCreator)	// (= 'extn')
 						navUserDataPtr->filterSelection = 
 								navMenuItemSpecPtr[menuItemSpecPtr->menuType].menuType;
 					
-					else		// !menuItemSpecPtr->menuCreator  (= \0\0\0\0)
+					else	// !menuItemSpecPtr->menuCreator  (= \0\0\0\0)
 								// All Documents
 						navUserDataPtr->filterSelection = 0;
 								
-					}		// end "if (gOSXFlag)"
+					}	// end "if (gOSXFlag)"
 				
-				else		// !gOSXFlag
+				else	// !gOSXFlag
 					navUserDataPtr->filterSelection = menuItemSpecPtr->menuType;
 				
-				}		// end "if (callBackParms != NULL)"
-		
+				}	// end "if (callBackParms != NULL)"
 			break;
 				
-			}		// end "case kNavCBPopupMenuSelect"
+			}	// end "case kNavCBPopupMenuSelect"
 			
 		case kNavCBAdjustPreview:
 			{		
@@ -9692,14 +10044,14 @@ pascal void NavServicesGetEventProc (
 				if  (errCode == noErr && previewShowing)
 					previewShowing = FALSE;
 													
-				}		// end "if (callBackParms != NULL)"		
+				}	// end "if (callBackParms != NULL)"		
 			break;
 				
-			}		// end "case kNavCBAdjustPreview"
+			}	// end "case kNavCBAdjustPreview"
 			
-		}		// end "switch (callBackSelector)"
+		}	// end "switch (callBackSelector)"
 		
-}		// end "NavServicesGetEventProc" 
+}	// end "NavServicesGetEventProc" 
 
 
 
@@ -9803,36 +10155,35 @@ SInt16 NavServicesGetFile (
 		if (itemCountPtr != NULL)
 			*itemCountPtr = 1;
 		
-		}		// end "if (localAppFilePtr != NULL)" 
+		}	// end "if (localAppFilePtr != NULL)" 
 	
 			// Else file has not been selected.												
 			// Put the file dialog box up to select the input file.					
 	
-	else		// localAppFilePtr == NULL 
+	else	// localAppFilePtr == NULL 
 		{	
 				// Get the requested prompt string.											
 				
-		if (!GetSpecifiedStringNumber (
-							kFileIOStrID, stringIndex, gTextString, TRUE))
-																			return (memFullErr);
+		if (!GetSpecifiedStringNumber (kFileIOStrID, stringIndex, gTextString, TRUE))
+																					return (memFullErr);
 		
 		if (gMultipleImageFileCode == 2)
 			{
-			sprintf( (char*)&gTextString[13], 
-					"%3d", 
-					((WindowInfoPtr)*gActiveImageWindowInfoH)->numberImageFiles+1 );
+			sprintf ((char*)&gTextString[13], 
+						"%3d",
+						((WindowInfoPtr)*gActiveImageWindowInfoH)->numberImageFiles+1);
 			gTextString[16] = ' ';
 			gGetFileStatus = 2;
 			
-			}		// end "if (gMultipleImageFileCode == 2)" 
+			}	// end "if (gMultipleImageFileCode == 2)" 
 			
-		else		// !gMultipleImageFileCode 
+		else	// !gMultipleImageFileCode 
 			{
 			gGetFileStatus = -1;
 			if (stringIndex == IDS_SelectImage)
 				gGetFileStatus = 0;
 				
-			}		// end "else !gMultipleImageFileCode" 
+			}	// end "else !gMultipleImageFileCode" 
 			
 		theReply.validRecord = FALSE;
 			
@@ -9851,7 +10202,8 @@ SInt16 NavServicesGetFile (
 				{
 				case IDS_SelectImage:
 					navUserData.stringIndex = IDS_SelectImage;
-					filterCode = kMultiThematicShapeFiles;	// multispectral, thematic, shape
+					filterCode = kMultiThematicShapeFiles;	// multispectral, thematic, 
+																		// or shape files
 					numberPopupMenuItem = 5;
 					navUserData.initialMenuSelection = gImageFileFilterIndex;
 					if (gActiveImageWindow == NULL)
@@ -9862,7 +10214,7 @@ SInt16 NavServicesGetFile (
 						if (navUserData.initialMenuSelection == 4)
 							navUserData.initialMenuSelection = 0;
 						
-						}		// end "if (gActiveImageWindow == NULL)"
+						}	// end "if (gActiveImageWindow == NULL)"
 					break;
 					
 				case IDS_SelectImageStatistics:	// image statistics (STA)
@@ -9927,34 +10279,31 @@ SInt16 NavServicesGetFile (
 					navUserData.initialMenuSelection = 0;
 					break;
 				
-				}		// end "switch (stringIndex)"
+				}	// end "switch (stringIndex)"
 				
 			if (numberPopupMenuItem > 0)
 				{
 						// A file information structure will be needed.
 
-				fileInfoHandle = MNewHandle (sizeof(MFileInfo));
-				fileInfoPtr = (FileInfoPtr)GetHandlePointer(fileInfoHandle,
-																		kLock,
-																		kNoMoveHi);
+				fileInfoHandle = MNewHandle (sizeof (MFileInfo));
+				fileInfoPtr = (FileInfoPtr)GetHandlePointer (fileInfoHandle,
+																		kLock);
 				
 				if (fileInfoPtr != NULL)
 					{														
 					navMenuItemSpecHandle = (NavMenuItemSpecHandle)MNewHandle (
-													numberPopupMenuItem*sizeof(NavMenuItemSpec));
+													numberPopupMenuItem*sizeof (NavMenuItemSpec));
 												
 					navMenuItemSpecPtr = (NavMenuItemSpec*)GetHandlePointer (
 																		(Handle)navMenuItemSpecHandle,
-																		kLock,
-																		kNoMoveHi);
-					
+																		kLock);
 					
 					getFile_FileStreamPtr = GetFileStreamPointer (fileInfoPtr);													
 					InitializeFileStream (getFile_FileStreamPtr);
 					
-					}		// end "if (fileInfoPtr != NULL)"
+					}	// end "if (fileInfoPtr != NULL)"
 													
-				}		// end "if (numberPopupMenuItem > 0)"
+				}	// end "if (numberPopupMenuItem > 0)"
 			
 					// Finish setting up navigation user data structure.
 					
@@ -9971,32 +10320,32 @@ SInt16 NavServicesGetFile (
 						navMenuItemSpecPtr[0].version = kNavMenuItemSpecVersion;	
 						navMenuItemSpecPtr[0].menuCreator = gCreator;
 						navMenuItemSpecPtr[0].menuType = kAllReadableFiles;
-	      				CopyPToP (navMenuItemSpecPtr[0].menuItemName,
-	      															(UCharPtr)"\0All Readable Files\0" );
+						CopyPToP (navMenuItemSpecPtr[0].menuItemName,
+										(UCharPtr)"\0All Readable Files\0");
 					
 						navMenuItemSpecPtr[1].version = kNavMenuItemSpecVersion;	
 						navMenuItemSpecPtr[1].menuCreator = gCreator;
 						navMenuItemSpecPtr[1].menuType = 0;
-	      				CopyPToP (navMenuItemSpecPtr[1].menuItemName,
-	      															(UCharPtr)"\0-\0" );
+						CopyPToP (navMenuItemSpecPtr[1].menuItemName,
+										(UCharPtr)"\0-\0");
 					
 						navMenuItemSpecPtr[2].version = kNavMenuItemSpecVersion;	
 						navMenuItemSpecPtr[2].menuCreator = gCreator;
 						navMenuItemSpecPtr[2].menuType = kMultiFiles;
-	      				CopyPToP (navMenuItemSpecPtr[2].menuItemName,
-	      															(UCharPtr)"\0Multispectral Image Files\0" );
+						CopyPToP (navMenuItemSpecPtr[2].menuItemName,
+										(UCharPtr)"\0Multispectral Image Files\0");
 																			
 						navMenuItemSpecPtr[3].version = kNavMenuItemSpecVersion;	
 						navMenuItemSpecPtr[3].menuCreator = gCreator;
 						navMenuItemSpecPtr[3].menuType = kThematicFiles;
-	      				CopyPToP (navMenuItemSpecPtr[3].menuItemName,
-	      															(UCharPtr)"\0Thematic Image Files\0" );
+						CopyPToP (navMenuItemSpecPtr[3].menuItemName,
+										(UCharPtr)"\0Thematic Image Files\0");
 										
 						navMenuItemSpecPtr[4].version = kNavMenuItemSpecVersion;	
 						navMenuItemSpecPtr[4].menuCreator = gCreator;
 						navMenuItemSpecPtr[4].menuType = kShapeFiles;
-      					CopyPToP (navMenuItemSpecPtr[4].menuItemName, 
-      															(UCharPtr)"\0Shape Files\0" );
+						CopyPToP (navMenuItemSpecPtr[4].menuItemName, 
+										(UCharPtr)"\0Shape Files\0");
 	      				
 						navUserData.filterSelection = kAllReadableFiles;
 						break;
@@ -10005,8 +10354,8 @@ SInt16 NavServicesGetFile (
 						navMenuItemSpecPtr[0].version = kNavMenuItemSpecVersion;	
 						navMenuItemSpecPtr[0].menuCreator = gCreator;
 						navMenuItemSpecPtr[0].menuType = kSTAFiles;
-	      				CopyPToP (navMenuItemSpecPtr[0].menuItemName, 
-	      															(UCharPtr)"\0Image Statistics Files\0" );
+						CopyPToP (navMenuItemSpecPtr[0].menuItemName, 
+										(UCharPtr)"\0Image Statistics Files\0");
 						navUserData.filterSelection = kSTAFiles;
 						break;
 						
@@ -10014,8 +10363,8 @@ SInt16 NavServicesGetFile (
 						navMenuItemSpecPtr[0].version = kNavMenuItemSpecVersion;	
 						navMenuItemSpecPtr[0].menuCreator = gCreator;
 						navMenuItemSpecPtr[0].menuType = kProjectFiles;
-	      				CopyPToP (navMenuItemSpecPtr[0].menuItemName, 
-	      															(UCharPtr)"\0Project Files\0");
+						CopyPToP (navMenuItemSpecPtr[0].menuItemName, 
+										(UCharPtr)"\0Project Files\0");
 						navUserData.filterSelection = kProjectFiles;
 						break;
 						
@@ -10023,8 +10372,8 @@ SInt16 NavServicesGetFile (
 						navMenuItemSpecPtr[0].version = kNavMenuItemSpecVersion;	
 						navMenuItemSpecPtr[0].menuCreator = gCreator;
 						navMenuItemSpecPtr[0].menuType = kTRLFiles;
-	      				CopyPToP (navMenuItemSpecPtr[0].menuItemName, 
-	      														(UCharPtr)"\0Thematic Class Info Files\0");
+						CopyPToP (navMenuItemSpecPtr[0].menuItemName, 
+										(UCharPtr)"\0Thematic Class Info Files\0");
 						navUserData.filterSelection = kTRLFiles;
 						break;
 					
@@ -10032,8 +10381,8 @@ SInt16 NavServicesGetFile (
 						navMenuItemSpecPtr[0].version = kNavMenuItemSpecVersion;	
 						navMenuItemSpecPtr[0].menuCreator = gCreator;
 						navMenuItemSpecPtr[0].menuType = kTransformFiles;
-	      				CopyPToP (navMenuItemSpecPtr[0].menuItemName, 
-	      															(UCharPtr)"\0Transformation Matrix Files\0");
+						CopyPToP (navMenuItemSpecPtr[0].menuItemName, 
+										(UCharPtr)"\0Transformation Matrix Files\0");
 						navUserData.filterSelection = kTransformFiles;
 						break;
 						
@@ -10042,8 +10391,8 @@ SInt16 NavServicesGetFile (
 						navMenuItemSpecPtr[0].version = kNavMenuItemSpecVersion;	
 						navMenuItemSpecPtr[0].menuCreator = gCreator;
 						navMenuItemSpecPtr[0].menuType = kThematicFiles;
-	      				CopyPToP (navMenuItemSpecPtr[0].menuItemName, 
-	      															(UCharPtr)"\0Thematic Image Files\0");
+						CopyPToP (navMenuItemSpecPtr[0].menuItemName, 
+										(UCharPtr)"\0Thematic Image Files\0");
 						navUserData.filterSelection = kThematicFiles;
 						break;
 						
@@ -10051,26 +10400,26 @@ SInt16 NavServicesGetFile (
 						navMenuItemSpecPtr[0].version = kNavMenuItemSpecVersion;	
 						navMenuItemSpecPtr[0].menuCreator = 0;
 						navMenuItemSpecPtr[0].menuType = kAllReadableImageFiles;
-	      				CopyPToP (navMenuItemSpecPtr[0].menuItemName, 
-	      															(UCharPtr)"\0All Readable Files\0");
+						CopyPToP (navMenuItemSpecPtr[0].menuItemName, 
+										(UCharPtr)"\0All Readable Files\0");
 					
 						navMenuItemSpecPtr[1].version = kNavMenuItemSpecVersion;	
 						navMenuItemSpecPtr[1].menuCreator = 1;
 						navMenuItemSpecPtr[1].menuType = 0;
-	      				CopyPToP (navMenuItemSpecPtr[1].menuItemName, 
-	      															(UCharPtr)"\0---\0" );
+						CopyPToP (navMenuItemSpecPtr[1].menuItemName, 
+										(UCharPtr)"\0---\0");
 					
 						navMenuItemSpecPtr[2].version = kNavMenuItemSpecVersion;	
 						navMenuItemSpecPtr[2].menuCreator = 2;
 						navMenuItemSpecPtr[2].menuType = kMultiFiles;
-	      				CopyPToP (navMenuItemSpecPtr[2].menuItemName, 
-	      															(UCharPtr)"\0Multispectral Image Files\0");
+						CopyPToP (navMenuItemSpecPtr[2].menuItemName, 
+										(UCharPtr)"\0Multispectral Image Files\0");
 																			
 						navMenuItemSpecPtr[3].version = kNavMenuItemSpecVersion;	
 						navMenuItemSpecPtr[3].menuCreator = 3;
 						navMenuItemSpecPtr[3].menuType = kThematicFiles;
-	      				CopyPToP (navMenuItemSpecPtr[3].menuItemName, 
-	      															(UCharPtr)"\0Thematic Image Files\0");
+						CopyPToP (navMenuItemSpecPtr[3].menuItemName, 
+										(UCharPtr)"\0Thematic Image Files\0");
 						navUserData.filterSelection = kAllReadableImageFiles;
 						break;
 						
@@ -10078,37 +10427,38 @@ SInt16 NavServicesGetFile (
 						navMenuItemSpecPtr[0].version = kNavMenuItemSpecVersion;	
 						navMenuItemSpecPtr[0].menuCreator = gCreator;
 						navMenuItemSpecPtr[0].menuType = kMultiFiles;
-	      				CopyPToP (navMenuItemSpecPtr[0].menuItemName, 
-	      															(UCharPtr)"\0Multispectral Image Files\0");
+						CopyPToP (navMenuItemSpecPtr[0].menuItemName, 
+										(UCharPtr)"\0Multispectral Image Files\0");
 						navUserData.filterSelection = kMultiFiles;
 						break;
-/*												
-					case kAllTextFiles:		// Note that even though this says all text files, the implimentation
-													// will be for all files. Don't know best way to limit filter to just text
-													// files.
+					/*
+							// Note that even though this says all text files, the 
+							// implimentation will be for all files. Don't know best way 
+							// to limit filter to just text files.
+					case kAllTextFiles:		
 						navMenuItemSpecPtr[0].version = kNavMenuItemSpecVersion;	
 						navMenuItemSpecPtr[0].menuCreator = 0;
 						navMenuItemSpecPtr[0].menuType = kMultiFiles;
-	      				CopyPToP ((char*)navMenuItemSpecPtr[0].menuItemName, 
-	      															"\0All Files\0");
+						CopyPToP ((char*)navMenuItemSpecPtr[0].menuItemName, 
+										"\0All Files\0");
 						navUserData.filterSelection = kAllTextFiles;
 						break;
-*/						
-					}		// end "switch (filterCode)"
+					*/
+					}	// end "switch (filterCode)"
 				
-						// If the numberType is -1, then user has option key down and want all filetypes,
-						// available to select.
+						// If the numberType is -1, then user has option key down and want 
+						// all filetypes, available to select.
 							
-//				if (numberTypes == -1)
-//					navUserData.filterSelection = 0;
+				//if (numberTypes == -1)
+				//	navUserData.filterSelection = 0;
 						
-				}		// end "if (navMenuItemSpecPtr != NULL)"
+				}	// end "if (navMenuItemSpecPtr != NULL)"
 						
-//			CheckAndUnlockHandle ((Handle)navMenuItemSpecHandle);
+			//CheckAndUnlockHandle ((Handle)navMenuItemSpecHandle);
 				
 			eventUPP = NewNavEventUPP (NavServicesGetEventProc);
 			filterUPP = NewNavObjectFilterUPP (NavServicesFilterProc);
-//			previewUPP = NewNavPreviewUPP (NavServicesPreviewProc);
+			//previewUPP = NewNavPreviewUPP (NavServicesPreviewProc);
 
 			if (gOSXFlag)
 				{	
@@ -10121,14 +10471,14 @@ SInt16 NavServicesGetFile (
 					dialogCreationOptions.modality = kWindowModalityAppModal;
 					
 					dialogCreationOptions.clientName = CFStringCreateWithPascalString (
-																NULL, 
-																(UCharPtr)"\0MultiSpec", 
-																kCFStringEncodingMacRoman);
+																			NULL,
+																			(UCharPtr)"\0MultiSpec", 
+																			kCFStringEncodingMacRoman);
 					
 					dialogCreationOptions.windowTitle = CFStringCreateWithPascalString (
-																NULL, 
-																(UCharPtr)gTextString, 
-																kCFStringEncodingMacRoman);
+																			NULL,
+																			(UCharPtr)gTextString, 
+																			kCFStringEncodingMacRoman);
 				
 					dialogCreationOptions.preferenceKey = kOpenPrefKey;
 				
@@ -10139,13 +10489,14 @@ SInt16 NavServicesGetFile (
 							// Clear the preview option
 							
 					dialogCreationOptions.optionFlags ^= kNavAllowPreviews;
-//					dialogCreationOptions.optionFlags &= ~kNavAllowPreviews;
+					//dialogCreationOptions.optionFlags &= ~kNavAllowPreviews;
 					
 							// Include 'All Files' in popup
 						
 					dialogCreationOptions.optionFlags |= kNavAllFilesInPopup;
 					
-							// Force all readable file types in popup to be selected when opened.
+							// Force all readable file types in popup to be selected when
+							// opened.
 					
 					dialogCreationOptions.optionFlags |= kNavSelectAllReadableItem;
 																			
@@ -10164,56 +10515,55 @@ SInt16 NavServicesGetFile (
 						dialogCreationOptions.optionFlags |= kNavAllowMultipleFiles;
 						localFileAsFSRefPtr = fileAsFSRefPtr;
 						
-						}		// end "if (fileAsFSRefPtr != NULL && ..."
+						}	// end "if (fileAsFSRefPtr != NULL && ..."
 					
 							// Fill the array with the strings for the popup type menu.
 					
 					if (numberPopupMenuItem > 0)		
 						menuItemString[0] = CFStringCreateWithPascalString (
-																NULL, 
-																(UCharPtr)navMenuItemSpecPtr[0].menuItemName, 
-																kCFStringEncodingMacRoman);
+													NULL,
+													(UCharPtr)navMenuItemSpecPtr[0].menuItemName, 
+													kCFStringEncodingMacRoman);
 					
 					if (numberPopupMenuItem > 1)
 						menuItemString[1] = CFStringCreateWithPascalString (
-																NULL, 
-																(UCharPtr)navMenuItemSpecPtr[1].menuItemName, 
-																kCFStringEncodingMacRoman);
+													NULL,
+													(UCharPtr)navMenuItemSpecPtr[1].menuItemName, 
+													kCFStringEncodingMacRoman);
 					if (numberPopupMenuItem > 2)
 						menuItemString[2] = CFStringCreateWithPascalString (
-																NULL, 
-																(UCharPtr)navMenuItemSpecPtr[2].menuItemName, 
-																kCFStringEncodingMacRoman);
+													NULL,
+													(UCharPtr)navMenuItemSpecPtr[2].menuItemName, 
+													kCFStringEncodingMacRoman);
 					
 					if (numberPopupMenuItem > 3)
 						menuItemString[3] = CFStringCreateWithPascalString (
-																NULL, 
-																(UCharPtr)navMenuItemSpecPtr[3].menuItemName, 
-																kCFStringEncodingMacRoman);
+													NULL,
+													(UCharPtr)navMenuItemSpecPtr[3].menuItemName, 
+													kCFStringEncodingMacRoman);
 					
 					if (numberPopupMenuItem > 4)
 						menuItemString[4] = CFStringCreateWithPascalString (
-																NULL, 
-																(UCharPtr)navMenuItemSpecPtr[4].menuItemName, 
-																kCFStringEncodingMacRoman);
+													NULL,
+													(UCharPtr)navMenuItemSpecPtr[4].menuItemName, 
+													kCFStringEncodingMacRoman);
 					
 					dialogCreationOptions.popupExtension = CFArrayCreate (
-														kCFAllocatorDefault, 
-														(const void**)menuItemString, 
-														numberPopupMenuItem, 
-														NULL);
+													kCFAllocatorDefault,
+													(const void**)menuItemString, 
+													numberPopupMenuItem, 
+													NULL);
 					
-					}		// end "if (errCode == noErr)"
+					}	// end "if (errCode == noErr)"
 				
 				if (errCode == noErr)
-					errCode = NavCreateGetFileDialog (
-										&dialogCreationOptions,
-										NULL,
-										eventUPP,
-										previewUPP,		// Custom previews
-										filterUPP,		// filterUPP,
-										&navUserData,  // can be NULL
-										&dialog);
+					errCode = NavCreateGetFileDialog (&dialogCreationOptions,
+																	NULL,
+																	eventUPP,
+																	previewUPP,		// Custom previews
+																	filterUPP,		// filterUPP,
+																	&navUserData,  // can be NULL
+																	&dialog);
 
 						// Show the dialog box
 	
@@ -10252,17 +10602,17 @@ SInt16 NavServicesGetFile (
 					{
 							// Count the items in the list.												
 							
-					errCode = AECountItems(&(theReply.selection), &itemCount);
+					errCode = AECountItems (&(theReply.selection), &itemCount);
 					
 					if (errCode == noErr && itemCount > 0)
 						{						
-						errCode = AEGetNthPtr(&(theReply.selection), 
+						errCode = AEGetNthPtr (&(theReply.selection), 
 														1, 
 														typeFSRef, 
 														NULL, 
 														NULL, 
 														localFileAsFSRefPtr, 
-														sizeof(FSRef),
+														sizeof (FSRef),
 														NULL);
 				  			
 				  		if (errCode == noErr)
@@ -10292,37 +10642,46 @@ SInt16 NavServicesGetFile (
 													   (char*)&fileStreamPtr->fileName[1],
 													   (CFIndex)255,
 													   kCFStringEncodingUTF8);
-								fileStreamPtr->fileName[0] = strlen ((char*)&fileStreamPtr->fileName[1]);
+								fileStreamPtr->fileName[0] =
+													strlen ((char*)&fileStreamPtr->fileName[1]);
 								
-										// This indicates that the full path is not part of the file name.
+										// This indicates that the full path is not part of the
+										// file name.
+								
 								fileStreamPtr->pathLength = 0;
 																   
-								//CFAllocatorDeallocate (kCFAllocatorDefault, (void*)cfStringRef);
+								//CFAllocatorDeallocate (kCFAllocatorDefault,
+								//									(void*)cfStringRef);
 								CFRelease (cfStringRef);
 								
-								}		// end "if (errCode == noErr)"
+								}	// end "if (errCode == noErr)"
 							
-							}		// end "if (errCode == noErr)"
+							}	// end "if (errCode == noErr)"
 							
 						if (errCode == noErr && itemCount > 1)
 							{
-									// Get the rest of the FSRef's. They will get handled later when the
-									// images are linked with the first one.
+									// Get the rest of the FSRef's. They will get handled
+									// later when the images are linked with the first one.
 									// Note that the count is currently limited to 500.
 							
 							if (itemCount > 500)
-								DisplayAlert (kErrorAlertID, kStopAlert, kAlertStrID, IDS_Alert147, 0, NULL);
+								DisplayAlert (kErrorAlertID,
+													kStopAlert,
+													kAlertStrID,
+													IDS_Alert147,
+													0,
+													NULL);
 								
 							itemCount = MIN (itemCount, 500);
 							for (countIndex=2; countIndex<=itemCount; countIndex++)
 								{
-								errCode = AEGetNthPtr(&(theReply.selection), 
+								errCode = AEGetNthPtr (&(theReply.selection), 
 																countIndex, 
 																typeFSRef, 
 																NULL, 
 																NULL, 
 																&fileAsFSRefPtr[countIndex-1], 
-																sizeof(FSRef),
+																sizeof (FSRef),
 																NULL);
 																
 								if (errCode != noErr)
@@ -10330,25 +10689,25 @@ SInt16 NavServicesGetFile (
 									itemCount = countIndex - 1;
 									break;
 									
-									}		// end "if (errCode != noErr)"
+									}	// end "if (errCode != noErr)"
 																
-								}		// end "for (countIndex=2; countIndex<=itemCount; countIndex++)"
+								}	// end "for (countIndex=2; countIndex<=itemCount; ..."
 								
-//							if (itemCount > 1)	
-//								gMultipleImageFileCode = 3;
+							//if (itemCount > 1)
+							//	gMultipleImageFileCode = 3;
 							
-							}		// end "if (itemCount > 1)"
+							}	// end "if (itemCount > 1)"
 						
 						if (itemCountPtr != NULL)
 							*itemCountPtr = itemCount;
 							
-						}		// end "if (errCode == noErr && itemCount > 0)"
+						}	// end "if (errCode == noErr && itemCount > 0)"
 						
-					}		// end "if (theReply.validRecord && errCode == noErr)"
+					}	// end "if (theReply.validRecord && errCode == noErr)"
 
-				}		// end "if (gOSXFlag)"
+				}	// end "if (gOSXFlag)"
 				
-			else		// !gOSXFlag
+			else	// !gOSXFlag
 				{
 						// Default behavior for browser and dialog
 						
@@ -10371,67 +10730,68 @@ SInt16 NavServicesGetFile (
 					
 				dialogOptions.dialogOptionFlags |= kNavAllFilesInPopup;
 				
-	//			if (openListResourceItem == 0)
-	//				dialogOptions.dialogOptionFlags |= kNavNoTypePopup;
+				//if (openListResourceItem == 0)
+				//	dialogOptions.dialogOptionFlags |= kNavNoTypePopup;
 				
-	//			dialogOptions.dialogOptionFlags ^= kNavNoTypePopup;
+				//dialogOptions.dialogOptionFlags ^= kNavNoTypePopup;
 				
 						// Force all readable file types in popup to be selected when opened.
 				
-	//			if (numberTypes != -1)
+				//if (numberTypes != -1)
 				dialogOptions.dialogOptionFlags |= kNavSelectAllReadableItem;
-					
-	//			if (stringIndex == IDS_WhereIsProjectImage ||
-	//					stringIndex == IDS_SelectProject ||
-	//						stringIndex == IDS_FileIO103 ||
-	//							stringIndex == IDS_FileIO104)
-	//				{
-							// Do not allow multiple files.
+				/*
+				if (stringIndex == IDS_WhereIsProjectImage ||
+						stringIndex == IDS_SelectProject ||
+							stringIndex == IDS_FileIO103 ||
+								stringIndex == IDS_FileIO104)
+					{
+				*/
+						// Do not allow multiple files.
 												
-					dialogOptions.dialogOptionFlags ^= kNavAllowMultipleFiles;
-						
-	//				}		// end "if (stringIndex == IDS_WhereIsProjectImage || ..."
+				dialogOptions.dialogOptionFlags ^= kNavAllowMultipleFiles;
+				/*
+					}	// end "if (stringIndex == IDS_WhereIsProjectImage || ..."
 					
-	//			else		// stringIndex != IDS_WhereIsProjectImage && ...
-	//				{
+				else	// stringIndex != IDS_WhereIsProjectImage && ...
+					{
 							// Allow multiple files.
 							
-	//				dialogOptions.dialogOptionFlags |= kNavAllowMultipleFiles;
+					dialogOptions.dialogOptionFlags |= kNavAllowMultipleFiles;
 					
-	//				}		// end "else stringIndex != IDS_WhereIsProjectImage && ..."
-	
+					}	// end "else stringIndex != IDS_WhereIsProjectImage && ..."
+				*/
 				dialogOptions.popupExtension = navMenuItemSpecHandle;
 				
 				errCode = NavGetFile (NULL,		// use system's default location
-										&theReply,
-										&dialogOptions,
-										eventUPP,
-										previewUPP,		// Custom previews
-										filterUPP,		// filterUPP,
-										NULL,				// openListHandle
-										&navUserData);		// Pointer to custom data
+												&theReply,
+												&dialogOptions,
+												eventUPP,
+												previewUPP,		// Custom previews
+												filterUPP,		// filterUPP,
+												NULL,				// openListHandle
+												&navUserData);		// Pointer to custom data
 				
 				if (theReply.validRecord && errCode == noErr)
 					{
 							// Count the items in the list.												
 							
-					errCode = AECountItems(&(theReply.selection), &itemCount);
+					errCode = AECountItems (&(theReply.selection), &itemCount);
 					
 					if (errCode == noErr && itemCount > 0)
 						{
 								// Get the file.															
 							
 				  		errCode = AEGetNthPtr (&(theReply.selection),
-						  									1,
-						  									typeFSS,
-						  									&keyword,
-						  									&returnedType,
-						  									(Ptr)&gFileFSSpec,
-						  									sizeof(FSSpec),
-						  									&actSize);
+														1,
+														typeFSS,
+														&keyword,
+														&returnedType,
+														(Ptr)&gFileFSSpec,
+														sizeof (FSSpec),
+														&actSize);
 				  									
-//					  	if (errCode == noErr)
-//					  		errCode = FSpGetFInfo (&gFileFSSpec, &gFinderInfo);
+					  	//if (errCode == noErr)
+					  	//	errCode = FSpGetFInfo (&gFileFSSpec, &gFinderInfo);
 				  			
 				  		if (errCode == noErr)
 				  			{
@@ -10442,26 +10802,25 @@ SInt16 NavServicesGetFile (
 							
 							fileSelectedFlag = TRUE;
 							
-							}		// end "if (errCode == noErr)"
+							}	// end "if (errCode == noErr)"
 							
-						}		// end "if (errCode == noErr && itemCount > 0)"
+						}	// end "if (errCode == noErr && itemCount > 0)"
 							
-	//							errCode = OpenOrPrintSelectedFiles (&(theReply.selection), FALSE);
+					//errCode = OpenOrPrintSelectedFiles (&(theReply.selection), FALSE);
 						
-					}		// end "if (theReply.validRecord && errCode == noErr)"
+					}	// end "if (theReply.validRecord && errCode == noErr)"
 					
-				}		// end "else !gOSXFlag"
+				}	// end "else !gOSXFlag"
 				
 			NavDisposeReply (&theReply);
 									
 			DisposeNavEventUPP (eventUPP);
 			DisposeNavObjectFilterUPP (filterUPP);
-//			DisposeNavPreviewUPP (previewUPP);
+			//DisposeNavPreviewUPP (previewUPP);
 			
 					// Save the popup menu selection that the user used.
 				
-			if (fileSelectedFlag &&
-										navUserData.stringIndex == IDS_SelectImage)
+			if (fileSelectedFlag && navUserData.stringIndex == IDS_SelectImage)
 				{
 				if (navUserData.filterSelection == kAllReadableFiles || 
 								navUserData.filterSelection == kAllReadableImageFiles)
@@ -10476,9 +10835,10 @@ SInt16 NavServicesGetFile (
 				else if (navUserData.filterSelection == kShapeFiles)
 					gImageFileFilterIndex = 4;
 				
-				}		// end "if (fileSelectedFlag && ...)"
+				}	// end "if (fileSelectedFlag && ...)"
 			
-			navMenuItemSpecHandle = (NavMenuItemSpecHandle)UnlockAndDispose ((Handle)navMenuItemSpecHandle);
+			navMenuItemSpecHandle =
+				(NavMenuItemSpecHandle)UnlockAndDispose ((Handle)navMenuItemSpecHandle);
 			fileInfoHandle = UnlockAndDispose (fileInfoHandle);
 				
 					// Make certain that all previous mouse events have been			
@@ -10487,7 +10847,7 @@ SInt16 NavServicesGetFile (
 									
 	    	FlushEvents (mUpMask,0);
 			
-			}		// end "if (CheckIfMemoryAvailable (15000))" 
+			}	// end "if (CheckIfMemoryAvailable (15000))" 
 		
 				// If file is to be added to the active image window, then the		
 				// file type has to be forced to multispectral type.					
@@ -10500,15 +10860,15 @@ SInt16 NavServicesGetFile (
 		if (!fileSelectedFlag)
 			{
 			fileStreamPtr->fileName[0] = 0;
-																					return(0);
+																								return (0);
 																					
-			}		// end "if (!fileSelectedFlag)"
+			}	// end "if (!fileSelectedFlag)"
 
 				// Also make the filename a useable c string
 
 		fileStreamPtr->fileName[fileStreamPtr->fileName[0]+1] = 0x00;
 		
-		}		// end "else localAppFilePtr == NULL" 
+		}	// end "else localAppFilePtr == NULL" 
 		
 			// Get the parentFSRef if this selection was from the LocalAppFile pointer.
 			// In other words from a user double clicking on the file rather than using
@@ -10526,8 +10886,8 @@ SInt16 NavServicesGetFile (
 	
 	if (errCode == noErr)
 		errCode = GetFileTypeAndCreator (fileStreamPtr);			
-	
-/*	if (fileStreamPtr->fSSpecFlag)
+	/*
+	if (fileStreamPtr->fSSpecFlag)
 		{
 		errCode = FSpGetFInfo ((FSSpec*)fileStreamPtr, &gFinderInfo);
 
@@ -10536,12 +10896,12 @@ SInt16 NavServicesGetFile (
 			fileStreamPtr->creator = gFinderInfo.fdCreator;
 			fileStreamPtr->type = gFinderInfo.fdType;
 
-			}		// end "if (errCode == noErr)"
+			}	// end "if (errCode == noErr)"
 		
-		}		// end "if (fileStreamPtr->fSSpecFlag)"
+		}	// end "if (fileStreamPtr->fSSpecFlag)"
 
 	#if TARGET_API_MAC_CARBON	
-		else		// !fileStreamPtr->fSSpecFlag
+		else	// !fileStreamPtr->fSSpecFlag
 			{
 			if (localAppFilePtr != NULL)
 				errCode = FSGetCatalogInfo (&fileStreamPtr->fsRef,
@@ -10564,16 +10924,16 @@ SInt16 NavServicesGetFile (
 				fileStreamPtr->creator = ((FileInfo*)fsCatalogInfo.finderInfo)->fileCreator;
 				fileStreamPtr->type = ((FileInfo*)fsCatalogInfo.finderInfo)->fileType;
 
-				}		// end "if (errCode == noErr)"
+				}	// end "if (errCode == noErr)"
 			
-			}		// end else	!fileStreamPtr->fSSpecFlag
+			}	// end else	!fileStreamPtr->fSSpecFlag
 	#endif		// TARGET_API_MAC_CARBON		
-*/
+	*/
 	if (errCode == noErr)
 		errCode = OpenFileReadOnly (fileStreamPtr, 
-											kResolveAliasChains,
-											kLockFile,
-											kDoNotVerifyFileStream);
+												kResolveAliasChains,
+												kLockFile,
+												kDoNotVerifyFileStream);
 					
 	IOCheck (errCode, fileStreamPtr);
 		
@@ -10581,25 +10941,41 @@ SInt16 NavServicesGetFile (
 			// windows when closing a file, because it is the same path as that	
 			// obtained for the first open.													
 				
-//	if (errCode == opWrErr)
-//		errCode = noErr;		
+	//if (errCode == opWrErr)
+	//	errCode = noErr;
 	
 	if (errCode != noErr)	
-		SetReferenceNumber(fileStreamPtr, 0);	
+		SetReferenceNumber (fileStreamPtr, 0);	
 		
 	return (errCode);
 
-}		// end "NavServicesGetFile"
+}	// end "NavServicesGetFile"
 
 
 /*
 #if defined multispec_mac 
-// *****************************************************************************
-// *
-// *	NavServicesPreviewProc
-// *  revised 11/17/2009 by Larry L. Biehl
-// *
-// *****************************************************************************
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		pascal Boolean NavServicesPreviewProc
+//
+//	Software purpose:	The purpose of this routine is to respond to handle preview
+//							requests. Decided not to use for now because of performance
+//							issues with large image files.
+//		
+//	Parameters in:		
+//
+//	Parameters out:	
+//
+// Value Returned:	None
+//
+// Called By:			
+//
+//	Coded By:			From Apple Inc. examples
+//	Revised By:			Larry L. Biehl			Date: 11/17/2009
+
 pascal Boolean NavServicesPreviewProc (
 				NavCBRecPtr							callBackParms,
 				void *								callBackUD)				
@@ -10608,21 +10984,36 @@ pascal Boolean NavServicesPreviewProc (
 	
 	return (FALSE);
 	
-}		// end "NavServicesPreviewProc"
-#endif		// defined multispec_mac 
+}	// end "NavServicesPreviewProc"
+#endif	// defined multispec_mac 
 */
 
   
-// *****************************************************************************
-// *
-// *	NavServicesPutEventProc( )	
-// *  Revised 01/04/2013 by Larry Biehl
-// *
-// *****************************************************************************
-pascal void NavServicesPutEventProc ( 
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		pascal void NavServicesPutEventProc
+//
+//	Software purpose:	The purpose of this routine is to respond to event prompts from
+//							the NavServices Put File routine.
+//		
+//	Parameters in:		
+//
+//	Parameters out:	
+//
+// Value Returned:	None
+//
+// Called By:			
+//
+//	Coded By:			From Apple Inc. examples
+//	Revised By:			Larry L. Biehl			Date: 01/04/2013
+
+pascal void NavServicesPutEventProc (
 				NavEventCallbackMessage 		callBackSelector, 
 				NavCBRecPtr 						callBackParms, 
-				NavCallBackUserData 				callBackUD )
+				NavCallBackUserData 				callBackUD)
 				
 {
 	Point									mousePt;
@@ -10649,8 +11040,8 @@ pascal void NavServicesPutEventProc (
 					break;
 					
 				case updateEvt:
-					if (callBackParms->window != 
-								(WindowPtr)callBackParms->eventData.eventDataParms.event->message)
+					if (callBackParms->window != (WindowPtr)callBackParms->
+															eventData.eventDataParms.event->message)
   						DoUpdateEvent (callBackParms->eventData.eventDataParms.event);
 					break;
 					
@@ -10684,7 +11075,7 @@ pascal void NavServicesPutEventProc (
 												gProjectInfoPtr->saveFieldSumsSquaresFlag;
 										changeCheckBoxFlag = TRUE;
 										
-										}		// end "if (!...->keepClassStatsOnlyFlag)"
+										}	// end "if (!...->keepClassStatsOnlyFlag)"
 									break;
 			
 								case 2:
@@ -10694,7 +11085,7 @@ pascal void NavServicesPutEventProc (
 												gProjectInfoPtr->saveFieldMeansCovFlag;
 										changeCheckBoxFlag = TRUE;
 										
-										}		// end "if (!...->keepClassStatsOnlyFlag)"
+										}	// end "if (!...->keepClassStatsOnlyFlag)"
 									break;
 									
 								case 3:
@@ -10704,7 +11095,7 @@ pascal void NavServicesPutEventProc (
 												gProjectInfoPtr->saveClassSumsSquaresFlag;
 										changeCheckBoxFlag = TRUE;
 										
-										}		// end "if (...->classChanStatsPtr != NULL)"
+										}	// end "if (...->classChanStatsPtr != NULL)"
 									break;
 									
 								case 4:
@@ -10714,18 +11105,17 @@ pascal void NavServicesPutEventProc (
 												gProjectInfoPtr->saveClassMeansCovFlag;
 										changeCheckBoxFlag = TRUE;
 										
-										}		// end "if (...->classChanStatsPtr != NULL)"
+										}	// end "if (...->classChanStatsPtr != NULL)"
 									break;
 								
-								}		// end "switch (countDITL-firstCustomControl)"
+								}	// end "switch (countDITL-firstCustomControl)"
 	
 							if (changeCheckBoxFlag)
 								ChangeDLogCheckBox (dialogPtr, itemHit+1);
 								
-							}		// end "if (errCode == noErr)"
+							}	// end "if (errCode == noErr)"
 						
-						}		// end "if (mouseLoc == inContent)"
-						
+						}	// end "if (mouseLoc == inContent)"
 					break;
 
 				case activateEvt:
@@ -10734,11 +11124,10 @@ pascal void NavServicesPutEventProc (
 				default:
 					break;
 					
-				}		// end "switch (callBackParms->eventData.eventDataParms.event->what)"
-				
+				}	// end "switch (callBackParms->eventData.eventDataParms.event->what)"
 			break;
 				
-			}		// end "case kNavCBEvent"
+			}	// end "case kNavCBEvent"
 			
 		case kNavCBCustomize:
 			{
@@ -10753,23 +11142,22 @@ pascal void NavServicesPutEventProc (
 					
 					sCustomControlCount = 0;
 					
-					}		// end "if (callBackParms->customRect.bottom == 0)"
+					}	// end "if (callBackParms->customRect.bottom == 0)"
 					
-				else		// callBackParms->customRect.bottom > 0
+				else	// callBackParms->customRect.bottom > 0
 					{
 					if (sCustomControlCount == 0)
 						{
 						sCustomControlCount++;
 						
-						}		// end "if (sCustomControlCount == 0)"
+						}	// end "if (sCustomControlCount == 0)"
 					
-					}		// end "if (callBackParms->customRect.bottom == 0)"
+					}	// end "if (callBackParms->customRect.bottom == 0)"
 				
-				}		// end "if (gProcessorCode == kSaveProjectAsProcessor)"
-				
+				}	// end "if (gProcessorCode == kSaveProjectAsProcessor)"
 			break;
 				
-			}		// end "case kNavCBCustomize"
+			}	// end "case kNavCBCustomize"
 			
 		case kNavCBStart:
 			{
@@ -10801,7 +11189,7 @@ pascal void NavServicesPutEventProc (
 							gProjectInfoPtr->saveFieldSumsSquaresFlag = FALSE;
 							gProjectInfoPtr->saveFieldMeansCovFlag = FALSE;
 							
-							}		// end "if (gProjectInfoPtr->keepClassStatsOnlyFlag)" 
+							}	// end "if (gProjectInfoPtr->keepClassStatsOnlyFlag)" 
 						
 						if (gProjectInfoPtr->classChanStatsPtr == NULL)
 							{
@@ -10811,7 +11199,7 @@ pascal void NavServicesPutEventProc (
 							gProjectInfoPtr->saveClassSumsSquaresFlag = FALSE;
 							gProjectInfoPtr->saveClassMeansCovFlag = FALSE;
 							
-							}		// end "if (gProjectInfoPtr->classChanStatsPtr == ...)" 
+							}	// end "if (gProjectInfoPtr->classChanStatsPtr == ...)" 
 							
 						SetDLogControl (dialogPtr, 
 												firstCustomControl+2, 
@@ -10831,14 +11219,14 @@ pascal void NavServicesPutEventProc (
 						
 						gGetFileStatus = 2;
 						
-						}		// end "if (gGetFileStatus == 0)" 
+						}	// end "if (gGetFileStatus == 0)" 
 					
 					if (gGetFileStatus <= 0)	
 						gGetFileStatus = 1;
 					
-					}		// end "if (errCode == noErr)"
+					}	// end "if (errCode == noErr)"
 				
-				}		// end "if (gProcessorCode == kSaveProjectAsProcessor)"
+				}	// end "if (gProcessorCode == kSaveProjectAsProcessor)"
 			
 					// Set the default folder to put the file in.
 					// Get the parent folder for the active window.
@@ -10857,7 +11245,7 @@ pascal void NavServicesPutEventProc (
 			if (errCode == noErr)										
 				errCode = AECreateDesc (typeFSS, 
 													&theFSSpec, 
-													sizeof(FSSpec), 
+													sizeof (FSSpec), 
 													&theLocation);
 											
 			if (errCode == noErr)
@@ -10868,36 +11256,38 @@ pascal void NavServicesPutEventProc (
 			if (errCode == noErr)
 				errCode = noErr;
 				
-			else		// errCode != noErr
+			else	// errCode != noErr
 				errCode = -2;
-					
-/*			OSStatus theStatus = noErr;
+			/*		
+			OSStatus theStatus = noErr;
 			AEDesc theLocation = {typeNull, NULL);
 			FSSpec theFSSpec;
-			theStatus = FSMakeFSSpec(...<your construction here>..., &theFSSpec);
-			OSErr  FSMakeFSRefUnicode(const FSRef *parentRef, 
+			theStatus = FSMakeFSSpec (...<your construction here>..., &theFSSpec);
+			OSErr FSMakeFSRefUnicode (const FSRef *parentRef, 
 												UniCharCount nameLength, 
 												const UniChar *name, 
 												TextEncoding textEncodingHint, 
 												FSRef *newRef);
 			if (theStatus != noErr) {... your error handling here ...}
-			theStatus = AECreateDesc(typeFSRef, &theFSSpec, sizeof(FSRef), &theLocation));
+			theStatus = AECreateDesc (typeFSRef, 
+												&theFSSpec, 
+												sizeof (FSRef), 
+												&theLocation));
 			if (theStatus != noErr) {... your error handling here ...}
-			theStatus = NavCustomControl(callBackParms->context,
+			theStatus = NavCustomControl (callBackParms->context,
                         kNavCtlSetLocation, (void*)&theLocation);
 			if (theStatus != noErr) {... your error handling here ...}
 			
-			So FindFolder is the best choice here. In fact we can use a "modern" variant that returns a FSRef which we can convert down to an FSSpec:
-
+			So FindFolder is the best choice here. In fact we can use a "modern" 
+				variant that returns a FSRef which we can convert down to an FSSpec:
 
 			FSRef theUsersFolderRef;
 			OSStatus result;
 
-			result = FSFindFolder(
-						kOnAppropriateDisk,
-						kUsersFolderType,
-						FALSE,
-						&theUsersFolderRef);
+			result = FSFindFolder kOnAppropriateDisk,
+											kUsersFolderType,
+											FALSE,
+											&theUsersFolderRef);
 
 			Then you can convert that to an FSSpec:
 
@@ -10909,40 +11299,36 @@ pascal void NavServicesPutEventProc (
 										NULL,
 										&theUsersFolderSpec,
 										NULL);
-*/				
+			*/				
 			AEDisposeDesc (&theLocation);
-			
 			break;
 				
-			}		// end "case kNavCBStart"
+			}	// end "case kNavCBStart"
 			
 		case kNavCBPopupMenuSelect:
 			{
 			if (callBackParms != NULL)
 				menuItemSpecPtr = 
-					(NavMenuItemSpec*)callBackParms->eventData.eventDataParms.param;
-				
+						(NavMenuItemSpec*)callBackParms->eventData.eventDataParms.param;
 			break;
 				
-			}		// end "case kNavCBPopupMenuSelect"
+			}	// end "case kNavCBPopupMenuSelect"
 			
 		case kNavCBAccept:
-
 					// This code will have to be changed for nav services.
 					// Don't know how yet.
 					
 			if (gGetFileStatus == 2)
 				{
-				if (!ClusterStatisticsVerification())
+				if (!ClusterStatisticsVerification ())
 					itemHit = 0;
 					
-				}		// end "if (gGetFileStatus == 1)" 
-				
+				}	// end "if (gGetFileStatus == 1)" 
 			break;
 			
-		}		// end "switch (callBackSelector)"
+		}	// end "switch (callBackSelector)"
 		
-}		// end "NavServicesPutEventProc" 
+}	// end "NavServicesPutEventProc" 
 
 
 
@@ -11002,8 +11388,8 @@ SInt16 NavServicesPutFile (
 	
 	fileSelected = FALSE;
 	
-	if ( !CheckIfMemoryAvailable ( 6000 ) )
-																						return(1);
+	if (!CheckIfMemoryAvailable (6000))
+																								return (1);
 	do	
 		{
 		gGetFileStatus = -1;
@@ -11034,32 +11420,32 @@ SInt16 NavServicesPutFile (
 				errCode = NavGetDefaultDialogCreationOptions (&dialogCreationOptions);
 			
 			dialogCreationOptions.clientName = CFStringCreateWithPascalString (
-														NULL, 
-														(UCharPtr)"\0MultiSpec", 
-														kCFStringEncodingMacRoman);
+																			NULL, 
+																			(UCharPtr)"\0MultiSpec", 
+																			kCFStringEncodingMacRoman);
 																
 			dialogCreationOptions.windowTitle = CFStringCreateWithPascalString (
-														NULL, 
-														(UCharPtr)gTextString3, 
-														kCFStringEncodingMacRoman);
+																			NULL, 
+																			(UCharPtr)gTextString3, 
+																			kCFStringEncodingMacRoman);
 			/*
 			dialogCreationOptions.saveFileName = CFStringCreateWithPascalString (
-														NULL, 
-														fileStreamPtr->fileName, 
-														kCFStringEncodingUTF8);
+																			NULL, 
+																			fileStreamPtr->fileName, 
+																			kCFStringEncodingUTF8);
 			*/	
 													
 			dialogCreationOptions.saveFileName = CFStringCreateWithBytes (
-														kCFAllocatorDefault, 
-														(UInt8*)&fileStreamPtr->fileName[1],
-														fileStreamPtr->fileName[0],
-														kCFStringEncodingUTF8,
-														false);
+																kCFAllocatorDefault, 
+																(UInt8*)&fileStreamPtr->fileName[1],
+																fileStreamPtr->fileName[0],
+																kCFStringEncodingUTF8,
+																false);
 			/*
 			dialogCreationOptions.saveFileName = CFStringCreateWithCharacters (
-														kCFAllocatorDefault,
-														fileStreamPtr->uniFileName.unicode,
-														fileStreamPtr->uniFileName.length);
+																kCFAllocatorDefault,
+																fileStreamPtr->uniFileName.unicode,
+																fileStreamPtr->uniFileName.length);
 			*/
 			dialogCreationOptions.preferenceKey = kOpenPrefKey;
 			
@@ -11080,13 +11466,12 @@ SInt16 NavServicesPutFile (
 			navUserData.parentFSRef = fileStreamPtr->parentFSRef;
 		
 			if (errCode == noErr)
-				errCode = NavCreatePutFileDialog (
-									&dialogCreationOptions,
-									fileStreamPtr->type,
-									creator,
-									eventUPP,
-									&navUserData,
-									&dialog);
+				errCode = NavCreatePutFileDialog (&dialogCreationOptions,
+																fileStreamPtr->type,
+																creator,
+																eventUPP,
+																&navUserData,
+																&dialog);
 
 					// Show the dialog box
 
@@ -11116,20 +11501,22 @@ SInt16 NavServicesPutFile (
 						{
 						errCode = AEGetDescData (&aeDesc, 
 															&tempFileStream.parentFSRef, 
-															sizeof(FSRef));
+															sizeof (FSRef));
 						
 						AEDisposeDesc (&aeDesc);
 						
-						}		// end "if (errCode == noErr)"
+						}	// end "if (errCode == noErr)"
 															
 					if (errCode == noErr)
 						{
 						tempFileStream.fSRefFlag = TRUE;
 							
-						tempFileStream.uniFileName.length = CFStringGetLength (theReply.saveFileName);
-						CFStringGetCharacters (theReply.saveFileName, 
-															CFRangeMake(0, tempFileStream.uniFileName.length), 
-															tempFileStream.uniFileName.unicode);
+						tempFileStream.uniFileName.length = 
+														CFStringGetLength (theReply.saveFileName);
+						CFStringGetCharacters (
+											theReply.saveFileName, 
+											CFRangeMake (0, tempFileStream.uniFileName.length), 
+											tempFileStream.uniFileName.unicode);
 															
 								// Get the UTF8 version of the file name
 						/*		
@@ -11137,14 +11524,16 @@ SInt16 NavServicesPutFile (
 													(char*)&tempFileStream.fileName[1],
 													(CFIndex)255,
 													kCFStringEncodingUTF8);
-						tempFileStream.fileName[0] = strlen ((char*)&tempFileStream.fileName[1]);
+						tempFileStream.fileName[0] = 
+													strlen ((char*)&tempFileStream.fileName[1]);
 						*/								   
 						if (theReply.replacing)
-							errCode = FSMakeFSRefUnicode (&tempFileStream.parentFSRef, 
-																		tempFileStream.uniFileName.length, 
-																		tempFileStream.uniFileName.unicode, 
-																		kTextEncodingUnicodeDefault, 
-																		&tempFileStream.fsRef);
+							errCode = FSMakeFSRefUnicode (
+																&tempFileStream.parentFSRef, 
+																tempFileStream.uniFileName.length, 
+																tempFileStream.uniFileName.unicode, 
+																kTextEncodingUnicodeDefault, 
+																&tempFileStream.fsRef);
 												
 						if (errCode == noErr)	
 							errCode = FSGetCatalogInfo (&tempFileStream.parentFSRef,
@@ -11161,24 +11550,25 @@ SInt16 NavServicesPutFile (
 							tempFileStream.vRefNum = fsCatalogInfo.volume;
 							
 							CFStringGetCString (theReply.saveFileName,
-															(char*)&tempFileStream.fileName[1],
-															(CFIndex)255,
-															kCFStringEncodingUTF8);  
-							tempFileStream.fileName[0] = strlen ((char*)&tempFileStream.fileName[1]);
+														(char*)&tempFileStream.fileName[1],
+														(CFIndex)255,
+														kCFStringEncodingUTF8);  
+							tempFileStream.fileName[0] = 
+													strlen ((char*)&tempFileStream.fileName[1]);
 								
-							}		// end "if (errCode == noErr)"
+							}	// end "if (errCode == noErr)"
 						
-						}		// end "if (errCode == noErr)"
+						}	// end "if (errCode == noErr)"
 					
-					}		// end "if (theReply.validRecord && errCode == noErr)"
+					}	// end "if (theReply.validRecord && errCode == noErr)"
 		
 				NavDisposeReply (&theReply);
 				
-				}		// end "if (errCode == noErr)"
+				}	// end "if (errCode == noErr)"
 			
-			}		// end "if (gOSXFlag)"
+			}	// end "if (gOSXFlag)"
 			
-		else		// !gOSXFlag
+		else	// !gOSXFlag
 			{
 					// Default behavior for browser and dialog			
 					
@@ -11221,7 +11611,7 @@ SInt16 NavServicesPutFile (
 					  									&keyword,
 					  									&returnedType,
 					  									(Ptr)&tempFileStream,
-					  									sizeof(FSSpec),
+					  									sizeof (FSSpec),
 					  									&actSize);
 					  									
     				tempFileStream.fSSpecFlag = TRUE;
@@ -11229,13 +11619,13 @@ SInt16 NavServicesPutFile (
 					if (errCode == noErr)
 						fileSelected = TRUE;
 						
-					}		// end "if (errCode == noErr && itemCount > 0)"
+					}	// end "if (errCode == noErr && itemCount > 0)"
 					
-				}		// end "if (theReply.validRecord && errCode == noErr)"
+				}	// end "if (theReply.validRecord && errCode == noErr)"
 			
 			NavDisposeReply (&theReply);
 	
-			}		// end "else !gOSXFlag"
+			}	// end "else !gOSXFlag"
 
 		if (eventUPP != NULL)
 			DisposeNavEventUPP (eventUPP);
@@ -11247,14 +11637,14 @@ SInt16 NavServicesPutFile (
 		CheckSomeEvents (activMask+updateMask);
 															
 		if (errCode != noErr)												
-																				return (errCode);
+																						return (errCode);
 	
 		if (!fileSelected)
 			{
 			fileStreamPtr->fileName[0] = 0;
-																						return(0);
+																								return (0);
 			
-			}		// end "if (!fileSelected)" 
+			}	// end "if (!fileSelected)" 
 			
 				// Check if enough space on the volume.									
 				
@@ -11263,7 +11653,7 @@ SInt16 NavServicesPutFile (
 												&freeBytes);
 															
 		if (errCode != noErr)												
-																				return (errCode);
+																						return (errCode);
 		
 				// Use tempFileStream structure as temporary storage for file 		
 				// information.			
@@ -11290,8 +11680,8 @@ SInt16 NavServicesPutFile (
 					// replaced.																	
 			
 			errCode = GetSizeOfFile (&tempFileStream, &logicalEndOfFile);
-			if (errCode != noErr && errCode != fnfErr )
-																					return (errCode);
+			if (errCode != noErr && errCode != fnfErr)
+																						return (errCode);
 				
 			bytesNeeded = bytesNeeded - logicalEndOfFile;
 			
@@ -11300,9 +11690,9 @@ SInt16 NavServicesPutFile (
 				DiskFullAlert (bytesNeeded, (Str255*)tempFileStream.fileName);
 				fileSelected = FALSE;
 				
-				}		// end "if (bytesNeeded > 0)"
+				}	// end "if (bytesNeeded > 0)"
 			
-			}		// end "if (bytesNeeded > 0)" 
+			}	// end "if (bytesNeeded > 0)" 
 			
 				// Make certain that we can write to the file.							
 				
@@ -11310,14 +11700,15 @@ SInt16 NavServicesPutFile (
 			{
 			if (tempFileStream.fSRefFlag)
 				{
+				/*
 						// this is going to take some more research to implement.
-//				FSSetCatalogInfo (&fileStreamPtr->fsRef, 
-//											kFSCatInfoPermissions, 
-//											const FSCatalogInfo *catalogInfo)
+				FSSetCatalogInfo (&fileStreamPtr->fsRef, 
+											kFSCatInfoPermissions, 
+											const FSCatalogInfo *catalogInfo)
+				*/
+				}	// end "tempFileStream.fSRefFlag"
 				
-				}		// end "tempFileStream.fSRefFlag"
-				
-			else		// !tempFileStream.fSRefFlag
+			else	// !tempFileStream.fSRefFlag
 				{
 				errCode = FSMakeFSSpec (tempFileStream.vRefNum,
 												tempFileStream.parID,
@@ -11335,27 +11726,27 @@ SInt16 NavServicesPutFile (
 	    			tempFileStream.fSSpecFlag = TRUE;
 				
 					errCode = HRstFLock (tempFileStream.vRefNum, 
-													tempFileStream.parID,
-													tempFileStream.fileName);
+												tempFileStream.parID,
+												tempFileStream.fileName);
 					
 					if (errCode == fnfErr ||  
 							errCode == afpAccessDenied)
 						errCode = noErr;
 																					
-					}		// end "if (errCode == noErr)"
+					}	// end "if (errCode == noErr)"
 				
-				}		// end "else !tempFileStream.fSRefFlag"
+				}	// end "else !tempFileStream.fSRefFlag"
 						
 			if (errCode != noErr)
 				{
 				IOCheck (errCode, (CharPtr)&tempFileStream.fileName);
 				fileSelected = FALSE;
 				
-				}		// end "if (errCode != noErr)" 
+				}	// end "if (errCode != noErr)" 
 				
-			}		// end "if (fileSelected)" 
+			}	// end "if (fileSelected)" 
 		
-		} while (!fileSelected);
+		}	while (!fileSelected);
 		
 			// Create the file on the selected volume										
 			
@@ -11381,28 +11772,30 @@ SInt16 NavServicesPutFile (
     	fileStreamPtr->uniFileName = tempFileStream.uniFileName;
     	fileStreamPtr->fSRefFlag = tempFileStream.fSRefFlag;
 		
-				// Save the basic information for the last file in case it is needed later.
+				// Save the basic information for the last file in case it is 
+				// needed later for special work flow (batch) versions of MultiSpec
 				
 		gMultiSpecWorkflowInfo.lastFileSavedInfo.vRefNum = tempFileStream.vRefNum;
 		gMultiSpecWorkflowInfo.lastFileSavedInfo.parID = tempFileStream.parID;
-		CopyPToP (gMultiSpecWorkflowInfo.lastFileSavedInfo.fileName, tempFileStream.fileName);
+		CopyPToP (gMultiSpecWorkflowInfo.lastFileSavedInfo.fileName, 
+						tempFileStream.fileName);
 		gMultiSpecWorkflowInfo.lastFileSavedInfo.type = tempFileStream.type;
 		gMultiSpecWorkflowInfo.lastFileSavedInfo.refNum = 0;
 		gMultiSpecWorkflowInfo.lastFileSavedInfo.fSSpecFlag = tempFileStream.fSSpecFlag;
 		gMultiSpecWorkflowInfo.lastFileSavedInfo.fNamePtr = 
-													gMultiSpecWorkflowInfo.lastFileSavedInfo.fileName;
+											gMultiSpecWorkflowInfo.lastFileSavedInfo.fileName;
 		
 		gMultiSpecWorkflowInfo.lastFileSavedInfo.fsRef = tempFileStream.fsRef;
 		gMultiSpecWorkflowInfo.lastFileSavedInfo.fSRefFlag = tempFileStream.fSRefFlag;
 		
-		}		// end "if (errCode == noErr)"
+		}	// end "if (errCode == noErr)"
 		
-	else		// errCode != noErr
+	else	// errCode != noErr
 		gMultiSpecWorkflowInfo.lastFileSavedInfo.fileName[0] = 0;
 		
 	return (errCode);
 
-}		// end "NavServicesPutFile"  
+}	// end "NavServicesPutFile"  
 #endif	// defined multispec_mac 
 
 
@@ -11431,7 +11824,7 @@ SInt16 NavServicesPutFile (
 //							InsertNewErdasHeader in reformat.c	
 //
 //	Coded By:			Larry L. Biehl			Date: 11/19/1991
-//	Revised By:			Larry L. Biehl			Date: 07/05/2017
+//	Revised By:			Larry L. Biehl			Date: 09/05/2017
 
 SInt16 OpenFileReadOnly (
 				CMFileStream*						fileStreamPtr, 
@@ -11443,7 +11836,7 @@ SInt16 OpenFileReadOnly (
 	SInt16								errCode = noErr;
 	
 	
-#	if defined multispec_mac
+	#if defined multispec_mac
 		HFSUniStr255 						dataForkName;
 	
 		if (fileStreamPtr->refNum == 0)
@@ -11459,9 +11852,9 @@ SInt16 OpenFileReadOnly (
 						// UTF8 char file name.
 		
 				SetFileDoesNotExist (fileStreamPtr, kKeepUTF8CharName);
-				errCode = VerifyFileStreamForOpen (fileStreamPtr);
+				errCode = VerifyFileStreamForOpen (fileStreamPtr, NULL);
 				
-				}		// end "if (errCode == noErr && verifyFileStreamFlag)"
+				}	// end "if (errCode == noErr && verifyFileStreamFlag)"
 			
 					// First resolve any aliases if requested.									
 					
@@ -11478,24 +11871,28 @@ SInt16 OpenFileReadOnly (
 					errCode = FSpSetFLock ((FSSpec*)fileStreamPtr);
 				
 				else if (fileStreamPtr->fSRefFlag)
+					/*
 							// Do nothing here for now.  Don't understand it.
 							// Should not get here anyway.
-//					FSSetCatalogInfo (&fileStreamPtr->fsRef, 
-//												kFSCatInfoPermissions, 
-//												const FSCatalogInfo *catalogInfo)
+					FSSetCatalogInfo (&fileStreamPtr->fsRef, 
+												kFSCatInfoPermissions, 
+												const FSCatalogInfo *catalogInfo)
+					*/
+							// The following line was just put here for a debugging
+							// stop to see if one would get here.
 					fileStreamPtr->fSRefFlag = TRUE;
 									
-				if (	errCode == wPrErr || 
-									errCode == fLckdErr || 
-									errCode == afpAccessDenied ||
-									errCode == permErr)
+				if (errCode == wPrErr || 
+										errCode == fLckdErr || 
+											errCode == afpAccessDenied ||
+												errCode == permErr)
 					errCode = noErr;
 					
-				else		// errCode != wPrErr && errCode != fLckdErr && ... 
+				else	// errCode != wPrErr && errCode != fLckdErr && ... 
 					if (errCode == noErr)
 						errCode = FlushVol (NIL, fileStreamPtr->vRefNum);
 						
-				}		// end "if (errCode == noErr && lockFileFlag)" 
+				}	// end "if (errCode == noErr && lockFileFlag)" 
 					
 			if (errCode == noErr)
 				{
@@ -11515,48 +11912,46 @@ SInt16 OpenFileReadOnly (
 														fsRdPerm, 
 														&fileStreamPtr->refNum);
 					
-					}		// end "else if (fileStreamPtr->fSRefFlag)"
+					}	// end "else if (fileStreamPtr->fSRefFlag)"
 																	
-				else		// !fileInfoPtr->fSSpecFlag || !fileStreamPtr->fSRefFlag
+				else	// !fileInfoPtr->fSSpecFlag || !fileStreamPtr->fSRefFlag
 					errCode = HOpen (fileStreamPtr->vRefNum, 
 											0, 
 											fileStreamPtr->fileName, 
 											fsRdPerm, 
 											&fileStreamPtr->refNum);
 																	
-				}		// end "if (errCode == noErr)" 
+				}	// end "if (errCode == noErr)" 
 											
 			if (errCode == noErr)
 				gNumberOfOpenFiles++;
 				
-			}		// end "if (fileStreamPtr->refNum == 0)"
-#	endif	// defined multispec_mac
+			}	// end "if (fileStreamPtr->refNum == 0)"
+	#endif	// defined multispec_mac
 	
-#	if defined multispec_lin
+	#if defined multispec_lin
 		if (verifyFileStreamFlag)
 				// Force the unicode name to be regenerated to match the
 				// UTF8 char file name.
 			SetFileDoesNotExist (fileStreamPtr, kKeepUTF8CharName);
 		UpdateFileNameInformation (fileStreamPtr, NULL);
-		errCode = fileStreamPtr->MOpenFile (
-										(UInt16)wxFile::read, 
-										(UInt16)kNoErrorMessages);
-#	endif
+		errCode = fileStreamPtr->MOpenFile ((UInt16)wxFile::read, 
+														(UInt16)kNoErrorMessages);
+	#endif
 	
-#	if defined multispec_win
+	#if defined multispec_win
 		if (verifyFileStreamFlag)
 				// Force the unicode name to be regenerated to match the
 				// UTF8 char file name.
 			SetFileDoesNotExist (fileStreamPtr, kKeepUTF8CharName);
 		UpdateFileNameInformation (fileStreamPtr, NULL);
-		errCode = fileStreamPtr->MOpenFile (
-										(UInt16)(kRead),
-										(UInt16)(kNoErrorMessages));
-#	endif	// defined multispec_win
+		errCode = fileStreamPtr->MOpenFile ((UInt16)kRead,
+														(UInt16)kNoErrorMessages);
+	#endif	// defined multispec_win
 
 	return (errCode);
 	
-}		// end "OpenFileReadOnly"           
+}	// end "OpenFileReadOnly"           
 
 
 
@@ -11604,6 +11999,9 @@ void PackBISData (
 	
 	skipSamples = columnInterval * numberBufferChannels;
 	
+			// Note that the brackets for each of the cases was included to provide
+			// scope for the variables within each case.
+			
 	switch (dataConversionCode)
 		{
 		case k8BitTo8Bit: 
@@ -11620,7 +12018,7 @@ void PackBISData (
 				channel = 0;
 				while (index < numberChannels)
 					{		
-					if ( channelListPtr)
+					if (channelListPtr)
 						channel = channelListPtr[index];
 						
 					*toCharPtr = fromCharPtr[channel];
@@ -11628,11 +12026,11 @@ void PackBISData (
 					index++;
 					channel++;
 					
-					}		// end "while (index < numberChannels)" 
+					}	// end "while (index < numberChannels)" 
 					
 				fromCharPtr += skipSamples;
 				
-				}		// end "for (sample=0; sample<numberSamples; ..." 
+				}	// end "for (sample=0; sample<numberSamples; ..." 
 				
 			}
 			break;
@@ -11659,11 +12057,11 @@ void PackBISData (
 					index++;
 					channel++;
 					
-					}		// end "while (index < numberChannels)" 
+					}	// end "while (index < numberChannels)" 
 					
 				fromCharPtr += skipSamples;
 				
-				}		// end "for (sample=0; sample<numberSamples; ..." 
+				}	// end "for (sample=0; sample<numberSamples; ..." 
 				
 			}
 			break;
@@ -11691,11 +12089,11 @@ void PackBISData (
 					index++;
 					channel++;
 					
-					}		// end "while (index < numberChannels)" 
+					}	// end "while (index < numberChannels)" 
 					
 				fromCharPtr += skipSamples;
 				
-				}		// end "for (sample=0; sample<numberSamples; ..." 
+				}	// end "for (sample=0; sample<numberSamples; ..." 
 				
 			} 
 			break;
@@ -11722,11 +12120,11 @@ void PackBISData (
 					index++;
 					channel++;
 					
-					}		// end "while (index < numberChannels)" 
+					}	// end "while (index < numberChannels)" 
 					
 				fromCharPtr += skipSamples;
 				
-				}		// end "for (sample=0; sample<numberSamples; ..."
+				}	// end "for (sample=0; sample<numberSamples; ..."
 				
 			}
 			break;
@@ -11754,11 +12152,11 @@ void PackBISData (
 					index++;
 					channel++;
 					
-					}		// end "while (index < numberChannels)" 
+					}	// end "while (index < numberChannels)" 
 					
 				fromCharPtr += skipSamples;
 				
-				}		// end "for (sample=0; sample<numberSamples; ..."
+				}	// end "for (sample=0; sample<numberSamples; ..."
 				
 			}
 			break;
@@ -11785,11 +12183,11 @@ void PackBISData (
 					index++;
 					channel++;
 					
-					}		// end "for (index=0; index<numberColumns;..." 
+					}	// end "for (index=0; index<numberColumns;..." 
 					
 				fromCharPtr += skipSamples;
 				
-				}		// end "for (sample=0; sample<numberSamples; ..."
+				}	// end "for (sample=0; sample<numberSamples; ..."
 				
 			}
 			break;
@@ -11816,11 +12214,11 @@ void PackBISData (
 					index++;
 					channel++;
 					
-					}		// end "while (index < numberChannels)" 
+					}	// end "while (index < numberChannels)" 
 					
 				fromCharPtr += skipSamples;
 				
-				}		// end "for (sample=0; sample<numberSamples; ..."
+				}	// end "for (sample=0; sample<numberSamples; ..."
 				
 			}
 			break;
@@ -11847,11 +12245,11 @@ void PackBISData (
 					index++;
 					channel++;
 					
-					}		// end "for (index=0; index<numberColumns;..." 
+					}	// end "for (index=0; index<numberColumns;..." 
 					
 				fromCharPtr += skipSamples;
 				
-				}		// end "for (sample=0; sample<numberSamples; ..."
+				}	// end "for (sample=0; sample<numberSamples; ..."
 				
 			}
 			break;
@@ -11878,11 +12276,11 @@ void PackBISData (
 					index++;
 					channel++;
 					
-					}		// end "while (index < numberChannels)" 
+					}	// end "while (index < numberChannels)" 
 					
 				fromCharPtr += skipSamples;
 				
-				}		// end "for (sample=0; sample<numberSamples; ..."
+				}	// end "for (sample=0; sample<numberSamples; ..."
 				
 			}
 			break;
@@ -11912,11 +12310,11 @@ void PackBISData (
 					index++;
 					channel++;
 					
-					}		// end "while (index < numberChannels)" 
+					}	// end "while (index < numberChannels)" 
 					
 				fromIntPtr += skipSamples;
 				
-				}		// end "for (sample=0; sample<numberSamples; ..."
+				}	// end "for (sample=0; sample<numberSamples; ..."
 				
 			}
 			break;
@@ -11935,7 +12333,7 @@ void PackBISData (
 				channel = 0;
 				while (index < numberChannels)
 					{
-					if ( channelListPtr )
+					if (channelListPtr)
 						channel = channelListPtr[index];
 						
 					*toIntPtr = fromCharPtr[channel];
@@ -11943,11 +12341,11 @@ void PackBISData (
 					index++;
 					channel++;
 					
-					}		// end "while (index < numberChannels)" 
+					}	// end "while (index < numberChannels)" 
 					
 				fromCharPtr += skipSamples;
 				
-				}		// end "for (sample=0; sample<numberSamples; ..."
+				}	// end "for (sample=0; sample<numberSamples; ..."
 				
 			} 
 			break;
@@ -11967,7 +12365,7 @@ void PackBISData (
 				channel = 0;
 				while (index < numberChannels)
 					{
-					if ( channelListPtr )
+					if (channelListPtr)
 						channel = channelListPtr[index];
 						
 					*toIntPtr = fromCharPtr[channel];
@@ -11975,11 +12373,11 @@ void PackBISData (
 					index++;
 					channel++;
 					
-					}		// end "while (index < numberChannels)" 
+					}	// end "while (index < numberChannels)" 
 					
 				fromCharPtr += skipSamples;
 				
-				}		// end "for (sample=0;  sample<numberSamples; ..."
+				}	// end "for (sample=0;  sample<numberSamples; ..."
 				
 			}   
 			break;
@@ -11998,7 +12396,7 @@ void PackBISData (
 				channel = 0;
 				while (index < numberChannels)
 					{
-					if ( channelListPtr )
+					if (channelListPtr)
 						channel = channelListPtr[index];
 						
 					*toFloatPtr = fromCharPtr[channel];
@@ -12006,11 +12404,11 @@ void PackBISData (
 					index++;
 					channel++;
 					
-					}		// end "while (index < numberChannels)" 
+					}	// end "while (index < numberChannels)" 
 					
 				fromCharPtr += skipSamples;
 				
-				}		// end "for (sample=0;  sample<numberSamples; ..."
+				}	// end "for (sample=0;  sample<numberSamples; ..."
 				
 			}
 			break;
@@ -12037,11 +12435,11 @@ void PackBISData (
 					index++;
 					channel++;
 					
-					}		// end "while (index < numberChannels)" 
+					}	// end "while (index < numberChannels)" 
 					
 				fromCharPtr += skipSamples;
 				
-				}		// end "for (sample=0; sample<numberSamples; ..."
+				}	// end "for (sample=0; sample<numberSamples; ..."
 				
 			} 
 			break;
@@ -12068,11 +12466,11 @@ void PackBISData (
 					index++;
 					channel++;
 					
-					}		// end "while (index < numberChannels)" 
+					}	// end "while (index < numberChannels)" 
 					
 				fromCharPtr += skipSamples;
 				
-				}		// end "for (sample=0; sample<numberSamples; ..."
+				}	// end "for (sample=0; sample<numberSamples; ..."
 				
 			}
 			break;
@@ -12099,11 +12497,11 @@ void PackBISData (
 					index++;
 					channel++;
 					
-					}		// end "while (index < numberChannels)" 
+					}	// end "while (index < numberChannels)" 
 					
 				fromCharPtr += skipSamples;
 				
-				}		// end "for (sample=0; sample<numberSamples; ..."
+				}	// end "for (sample=0; sample<numberSamples; ..."
 				
 			} 
 			break;
@@ -12130,11 +12528,11 @@ void PackBISData (
 					index++;
 					channel++;
 					
-					}		// end "while (index < numberChannels)" 
+					}	// end "while (index < numberChannels)" 
 					
 				fromCharPtr += skipSamples;
 				
-				}		// end "for (sample=0; sample<numberSamples; ..."
+				}	// end "for (sample=0; sample<numberSamples; ..."
 				
 			}
 			break;
@@ -12161,11 +12559,11 @@ void PackBISData (
 					index++;
 					channel++;
 					
-					}		// end "while (index < numberChannels)" 
+					}	// end "while (index < numberChannels)" 
 					
 				fromCharPtr += skipSamples;
 				
-				}		// end "for (sample=0; sample<numberSamples; ..."
+				}	// end "for (sample=0; sample<numberSamples; ..."
 				
 			}
 			break;
@@ -12192,11 +12590,11 @@ void PackBISData (
 					index++;
 					channel++;
 					
-					}		// end "while (index < numberChannels)" 
+					}	// end "while (index < numberChannels)" 
 					
 				fromCharPtr += skipSamples;
 				
-				}		// end "for (sample=0; sample<numberSamples; ..."
+				}	// end "for (sample=0; sample<numberSamples; ..."
 				
 			} 
 			break;
@@ -12223,11 +12621,11 @@ void PackBISData (
 					index++;
 					channel++;
 					
-					}		// end "while (index < numberChannels)" 
+					}	// end "while (index < numberChannels)" 
 					
 				fromCharPtr += skipSamples;
 				
-				}		// end "for (sample=0; sample<numberSamples; ..."
+				}	// end "for (sample=0; sample<numberSamples; ..."
 				
 			}
 			break;
@@ -12254,11 +12652,11 @@ void PackBISData (
 					index++;
 					channel++;
 					
-					}		// end "while (index < numberChannels)" 
+					}	// end "while (index < numberChannels)" 
 					
 				fromCharPtr += skipSamples;
 				
-				}		// end "for (sample=0; sample<numberSamples; ..."
+				}	// end "for (sample=0; sample<numberSamples; ..."
 				
 			}
 			break;
@@ -12285,11 +12683,11 @@ void PackBISData (
 					index++;
 					channel++;
 				
-					}		// end "while (index < numberChannels)" 
+					}	// end "while (index < numberChannels)" 
 					
 				fromCharPtr += skipSamples;
 				
-				}		// end "for (sample=0; sample<numberSamples; ..."
+				}	// end "for (sample=0; sample<numberSamples; ..."
 				
 			}
 			break;
@@ -12316,11 +12714,11 @@ void PackBISData (
 					index++;
 					channel++;
 					
-					}		// end "while (index < numberChannels)" 
+					}	// end "while (index < numberChannels)" 
 					
 				fromCharPtr += skipSamples;
 				
-				}		// end "for (sample=0; sample<numberSamples; ..."
+				}	// end "for (sample=0; sample<numberSamples; ..."
 				
 			}
 			break;
@@ -12347,11 +12745,11 @@ void PackBISData (
 					index++;
 					channel++;
 					
-					}		// end "while (index < numberChannels)" 
+					}	// end "while (index < numberChannels)" 
 					
 				fromCharPtr += skipSamples;
 				
-				}		// end "for (sample=0; sample<numberSamples; ..."
+				}	// end "for (sample=0; sample<numberSamples; ..."
 				
 			}
 			break;
@@ -12359,9 +12757,9 @@ void PackBISData (
 		default:
 			break;
 		
-		}		// end "switch (dataConversionCode)"
+		}	// end "switch (dataConversionCode)"
 		
-}		// end "PackBISData"
+}	// end "PackBISData"
 
 
 
@@ -12436,14 +12834,14 @@ void PackBlockedData (
 		numberBlocksRead = hfaPtr->numberBlocksRead - 1;
 		firstColumnRead = hfaPtr->firstColumnRead + hfaPtr->blockWidthRead;
 		
-		}		// end "if (columnStart - hfaPtr->firstColumnRead >= ...->blockWidthRead)"
+		}	// end "if (columnStart - hfaPtr->firstColumnRead >= ...->blockWidthRead)"
 		
-	else		// columnStart - hfaPtr->firstColumnRead < hfaPtr->blockWidthRead
+	else	// columnStart - hfaPtr->firstColumnRead < hfaPtr->blockWidthRead
 		{
 		numberBlocksRead = hfaPtr->numberBlocksRead;
 		firstColumnRead = hfaPtr->firstColumnRead;
 		
-		}		// end "if (columnStart - hfaPtr->firstColumnRead >= ...->blockWidthRead)"
+		}	// end "if (columnStart - hfaPtr->firstColumnRead >= ...->blockWidthRead)"
 	
 	for (block=1; block<=numberBlocksRead; block++)
 		{
@@ -12458,12 +12856,12 @@ void PackBlockedData (
 				if (numberBlocksRead == 1)
 					bytesToMove = columnEnd - columnStart + 1;
 			
-				else		// numberBlocksRead > 1
+				else	// numberBlocksRead > 1
 					bytesToMove = firstColumnRead + hfaPtr->blockWidthRead - columnStart;
 								
-				}		// end "if (fileInfoPtr->numberBits != 4)"
+				}	// end "if (fileInfoPtr->numberBits != 4)"
 								
-			else		// fileInfoPtr->numberBits == 4
+			else	// fileInfoPtr->numberBits == 4
 				{
 				firstByteToMove += (columnStart - firstColumnRead) * bytesPerColumn / 2;
 			
@@ -12471,29 +12869,29 @@ void PackBlockedData (
 					{
 					bytesToMove = columnEnd - columnStart + 1;
 				
-					if ( !(columnStart & 0x00000001) && (columnEnd & 0x00000001) )
+					if (!(columnStart & 0x00000001) && (columnEnd & 0x00000001))
 						bytesToMove++;
 					
-					}		// end "if (numberBlocksRead == 1)"
+					}	// end "if (numberBlocksRead == 1)"
 			
-				else		// numberBlocksRead > 1
+				else	// numberBlocksRead > 1
 					bytesToMove = firstColumnRead + hfaPtr->blockWidthRead - columnStart;
 				
-				}		// end "else fileInfoPtr->numberBits == 4"
+				}	// end "else fileInfoPtr->numberBits == 4"
 			
-			}		// end "if (block == 1)"
+			}	// end "if (block == 1)"
 			
 		else if (block != numberBlocksRead)
 			{
 			bytesToMove = hfaPtr->blockWidthRead;
 			
-			}		// end "else if (block != numberBlocksRead)" 
+			}	// end "else if (block != numberBlocksRead)" 
 			
-		else		// block == numberBlocksRead
+		else	// block == numberBlocksRead
 			{
 			bytesToMove = columnEnd - (hfaPtr->lastColumnRead - hfaPtr->blockWidthRead);
 			
-			}		// end "else if (block != numberBlocksRead)" 
+			}	// end "else if (block != numberBlocksRead)" 
 			
 		bytesToMove *= bytesPerColumn;
 			
@@ -12501,7 +12899,7 @@ void PackBlockedData (
 			{
 			bytesToMove = (bytesToMove+1)/2;
 			
-			}		// end "else fileInfoPtr->numberBits == 4"
+			}	// end "else fileInfoPtr->numberBits == 4"
 			
 		BlockMoveData (&inputBufferPtr[firstByteToMove], 
 								outputBufferPtr, 
@@ -12511,9 +12909,9 @@ void PackBlockedData (
 			
 		blockStartByte += hfaPtr->blockOffset;
 		
-		}		// end "for (block=1; block<=numberBlocks; block++)"
+		}	// end "for (block=1; block<=numberBlocks; block++)"
 		
-}		// end "PackBlockedData"
+}	// end "PackBlockedData"
 
 
 
@@ -12557,7 +12955,7 @@ void PackGAIAData (
 			// Determine the bytes to skip which will not have to be moved.	
 	
 	lastColumnMoved = 1015;
-	lastColumnMoved = MIN(lastColumnMoved, columnEnd);
+	lastColumnMoved = MIN (lastColumnMoved, columnEnd);
 	
 	samplesToMove = lastColumnMoved - columnStart + 1;
 	
@@ -12568,15 +12966,15 @@ void PackGAIAData (
 	
 		columnStart += samplesToMove;
 		lastColumnMoved += 1021;
-		lastColumnMoved = MIN(lastColumnMoved, columnEnd);
+		lastColumnMoved = MIN (lastColumnMoved, columnEnd);
 		
 		samplesToMove = lastColumnMoved - columnStart + 1;
 		
 		BlockMoveData (inputBufferPtr, outputBufferPtr, samplesToMove*2);
 		
-		}		// end "while (lastColumnMoved < columnEnd)" 
+		}	// end "while (lastColumnMoved < columnEnd)" 
 		
-}		// end "PackGAIAData"
+}	// end "PackGAIAData"
 
 
 
@@ -12642,17 +13040,17 @@ UInt32 PackMaskData (
 				outDataBufferPtr += numberBytesToMove;
 				numberOutputSamples++;
 				
-				}		// end "if (maskBufferPtr[maskIndex] != 0)"
+				}	// end "if (maskBufferPtr[maskIndex] != 0)"
 				
 			inDataBufferPtr += numberBytesToMove;
 				
 			maskBufferPtr += columnInterval;
 				
-			}		// end "for (sample=0; sample<count; sample++)"
+			}	// end "for (sample=0; sample<count; sample++)"
 			
-		}		// end "if (maskValueRequest == 0)"
+		}	// end "if (maskValueRequest == 0)"
 		
-	else		// maskValueRequest != 0
+	else	// maskValueRequest != 0
 		{										
 		for (sample=0; sample<numberInputSamples; sample+=columnInterval)
 			{
@@ -12664,19 +13062,19 @@ UInt32 PackMaskData (
 				outDataBufferPtr += numberBytesToMove;
 				numberOutputSamples++;
 				
-				}		// end "if (maskBufferPtr[maskIndex] == maskValueRequest)"
+				}	// end "if (maskBufferPtr[maskIndex] == maskValueRequest)"
 				
 			inDataBufferPtr += numberBytesToMove;
 				
 			maskBufferPtr += columnInterval;
 				
-			}		// end "for (sample=0; sample<count; sample++)"
+			}	// end "for (sample=0; sample<count; sample++)"
 			
-		}		// end "else maskValueRequest != 0"
+		}	// end "else maskValueRequest != 0"
 		
 	return (numberOutputSamples);
 	      
-}		// end "PackMaskData"  
+}	// end "PackMaskData"  
 
 
 
@@ -12759,9 +13157,9 @@ void PackNonBISData (
 						ioCharPtr = &ioCharPtr[numberColumnsPerChannel];
 						currentChannel++;
 						
-						}		// end "while (channelListPtr[channel] != currentChannel)"
+						}	// end "while (channelListPtr[channel] != currentChannel)"
 						
-					}		// end "if (channelListPtr != NULL)"
+					}	// end "if (channelListPtr != NULL)"
 				
 				if (toBISFormat)
 					dataCharPtr = &dataCharBufferPtr[channel];
@@ -12771,7 +13169,7 @@ void PackNonBISData (
 					*dataCharPtr = ioCharPtr[sample];
 					dataCharPtr += dataPtrIncrement;
 					
-					}		// end "for (sample=0;  sample<numberChan..."
+					}	// end "for (sample=0;  sample<numberChan..."
 					
 						// Update the input buffer pointer to point to beginning of	
 						// data for next channel.												
@@ -12779,7 +13177,7 @@ void PackNonBISData (
 				ioCharPtr = &ioCharPtr[numberColumnsPerChannel];
 				currentChannel++;
 				
-				}		// end "for (channel=0; channel<...)" 
+				}	// end "for (channel=0; channel<...)" 
 				
 			}
 			break;
@@ -12805,9 +13203,9 @@ void PackNonBISData (
 						ioCharPtr = &ioCharPtr[numberColumnsPerChannel];
 						currentChannel++;
 						
-						}		// end "while (channelListPtr[channel] != currentChannel)"
+						}	// end "while (channelListPtr[channel] != currentChannel)"
 						
-					}		// end "if (channelListPtr != NULL)"
+					}	// end "if (channelListPtr != NULL)"
 					
 				if (toBISFormat)
 					dataIntPtr = (HSInt16Ptr)&dataCharBufferPtr[channel*2];
@@ -12817,7 +13215,7 @@ void PackNonBISData (
 					*dataIntPtr = ioCharPtr[sample];
 					dataIntPtr += dataPtrIncrement;
 					
-					}		// end "for (sample=0;  sample<numberChan..." 
+					}	// end "for (sample=0;  sample<numberChan..." 
 					
 						// Update the input buffer pointer to point to beginning of	
 						// data for next channel.												
@@ -12825,17 +13223,17 @@ void PackNonBISData (
 				ioCharPtr = &ioCharPtr[numberColumnsPerChannel];
 				currentChannel++;
 				
-				}		// end "for (channel=0; channel<...)" 
-			
-/*			if (swapBytesFlag)
+				}	// end "for (channel=0; channel<...)" 
+			/*
+			if (swapBytesFlag)
 				{
 				numberSamples = (numberSamples + columnInterval)/columnInterval;
 				numberSamples *= numberBufferChannels;
 				
 				Swap2Bytes ((HUInt16Ptr)dataCharBufferPtr, numberSamples);
 				
-				}		// end "if (swapBytesFlag)" 
-*/				
+				}	// end "if (swapBytesFlag)" 
+			*/				
 			}
 			break;
 			
@@ -12860,9 +13258,9 @@ void PackNonBISData (
 						ioCharPtr = &ioCharPtr[numberColumnsPerChannel];
 						currentChannel++;
 						
-						}		// end "while (channelListPtr[channel] != currentChannel)"
+						}	// end "while (channelListPtr[channel] != currentChannel)"
 						
-					}		// end "if (channelListPtr != NULL)"
+					}	// end "if (channelListPtr != NULL)"
 					
 				if (toBISFormat)
 					dataIntPtr = (HUInt16Ptr)&dataCharBufferPtr[channel*2];
@@ -12872,7 +13270,7 @@ void PackNonBISData (
 					*dataIntPtr = ioCharPtr[sample];
 					dataIntPtr += dataPtrIncrement;
 					
-					}		// end "for (sample=0;  sample<numberChan..." 
+					}	// end "for (sample=0;  sample<numberChan..." 
 					
 						// Update the input buffer pointer to point to beginning of	
 						// data for next channel.												
@@ -12880,17 +13278,17 @@ void PackNonBISData (
 				ioCharPtr = &ioCharPtr[numberColumnsPerChannel];
 				currentChannel++;
 				
-				}		// end "for (channel=0; channel<...)" 
-			
-/*			if (swapBytesFlag)
+				}	// end "for (channel=0; channel<...)" 
+			/*
+			if (swapBytesFlag)
 				{
 				numberSamples = (numberSamples + columnInterval)/columnInterval;
 				numberSamples *= numberBufferChannels;
 				
 				Swap2Bytes ((HUInt16Ptr)dataCharBufferPtr, numberSamples);
 				
-				}		// end "if (swapBytesFlag)" 
-*/					
+				}	// end "if (swapBytesFlag)" 
+			*/					
 			}
 			break;
 			
@@ -12914,9 +13312,9 @@ void PackNonBISData (
 						ioCharPtr = &ioCharPtr[numberColumnsPerChannel];
 						currentChannel++;
 						
-						}		// end "while (channelListPtr[channel] != currentChannel)"
+						}	// end "while (channelListPtr[channel] != currentChannel)"
 						
-					}		// end "if (channelListPtr != NULL)"
+					}	// end "if (channelListPtr != NULL)"
 				
 				if (toBISFormat)
 					dataSInt32Ptr = (HSInt32Ptr)&dataCharBufferPtr[channel*4];
@@ -12926,7 +13324,7 @@ void PackNonBISData (
 					*dataSInt32Ptr = ioCharPtr[sample];
 					dataSInt32Ptr += dataPtrIncrement;
 					
-					}		// end "for (sample=0;  sample<numberChan..." 
+					}	// end "for (sample=0;  sample<numberChan..." 
 					
 						// Update the input buffer pointer to point to beginning of	
 						// data for next channel.												
@@ -12934,7 +13332,7 @@ void PackNonBISData (
 				ioCharPtr = &ioCharPtr[numberColumnsPerChannel];
 				currentChannel++;
 				
-				}		// end "for (channel=0; channel<...)"
+				}	// end "for (channel=0; channel<...)"
 				
 			}
 			break;
@@ -12959,9 +13357,9 @@ void PackNonBISData (
 						ioCharPtr = &ioCharPtr[numberColumnsPerChannel];
 						currentChannel++;
 						
-						}		// end "while (channelListPtr[channel] != currentChannel)"
+						}	// end "while (channelListPtr[channel] != currentChannel)"
 						
-					}		// end "if (channelListPtr != NULL)"
+					}	// end "if (channelListPtr != NULL)"
 				
 				if (toBISFormat)
 					dataSInt32Ptr = (HUInt32Ptr)&dataCharBufferPtr[channel*4];
@@ -12971,7 +13369,7 @@ void PackNonBISData (
 					*dataSInt32Ptr = ioCharPtr[sample];
 					dataSInt32Ptr += dataPtrIncrement;
 					
-					}		// end "for (sample=0;  sample<numberChan..." 
+					}	// end "for (sample=0;  sample<numberChan..." 
 					
 						// Update the input buffer pointer to point to beginning of	
 						// data for next channel.												
@@ -12979,7 +13377,7 @@ void PackNonBISData (
 				ioCharPtr = &ioCharPtr[numberColumnsPerChannel];
 				currentChannel++;
 				
-				}		// end "for (channel=0; channel<...)"
+				}	// end "for (channel=0; channel<...)"
 					
 			}
 			break;
@@ -13004,9 +13402,9 @@ void PackNonBISData (
 						ioCharPtr = &ioCharPtr[numberColumnsPerChannel];
 						currentChannel++;
 						
-						}		// end "while (channelListPtr[channel] != currentChannel)"
+						}	// end "while (channelListPtr[channel] != currentChannel)"
 						
-					}		// end "if (channelListPtr != NULL)"
+					}	// end "if (channelListPtr != NULL)"
 				
 				if (toBISFormat)
 					dataOutPtr = (HFloatPtr)&dataCharBufferPtr[channel*4];
@@ -13016,7 +13414,7 @@ void PackNonBISData (
 					*dataOutPtr = ioCharPtr[sample];
 					dataOutPtr += dataPtrIncrement;
 					
-					}		// end "for (sample=0;  sample<numberChan..." 
+					}	// end "for (sample=0;  sample<numberChan..." 
 					
 						// Update the input buffer pointer to point to beginning of	
 						// data for next channel.												
@@ -13024,7 +13422,7 @@ void PackNonBISData (
 				ioCharPtr = &ioCharPtr[numberColumnsPerChannel];
 				currentChannel++;
 				
-				}		// end "for (channel=0; channel<...)"
+				}	// end "for (channel=0; channel<...)"
 				
 			}
 			break;
@@ -13049,9 +13447,9 @@ void PackNonBISData (
 						ioCharPtr = &ioCharPtr[numberColumnsPerChannel];
 						currentChannel++;
 						
-						}		// end "while (channelListPtr[channel] != currentChannel)"
+						}	// end "while (channelListPtr[channel] != currentChannel)"
 						
-					}		// end "if (channelListPtr != NULL)"
+					}	// end "if (channelListPtr != NULL)"
 				
 				if (toBISFormat)
 					dataOutPtr = (HFloatPtr)&dataCharBufferPtr[channel*4];
@@ -13061,7 +13459,7 @@ void PackNonBISData (
 					*dataOutPtr = ioCharPtr[sample];
 					dataOutPtr += dataPtrIncrement;
 					
-					}		// end "for (sample=0;  sample<numberChan..." 
+					}	// end "for (sample=0;  sample<numberChan..." 
 					
 						// Update the input buffer pointer to point to beginning of	
 						// data for next channel.												
@@ -13069,7 +13467,7 @@ void PackNonBISData (
 				ioCharPtr = &ioCharPtr[numberColumnsPerChannel];
 				currentChannel++;
 				
-				}		// end "for (channel=0; channel<...)"
+				}	// end "for (channel=0; channel<...)"
 			
 			}
 			break;
@@ -13094,9 +13492,9 @@ void PackNonBISData (
 						ioCharPtr = &ioCharPtr[numberColumnsPerChannel];
 						currentChannel++;
 						
-						}		// end "while (channelListPtr[channel] != currentChannel)"
+						}	// end "while (channelListPtr[channel] != currentChannel)"
 						
-					}		// end "if (channelListPtr != NULL)"
+					}	// end "if (channelListPtr != NULL)"
 				
 				if (toBISFormat)
 					dataOutPtr = (HDoublePtr)&dataCharBufferPtr[channel*8];
@@ -13106,7 +13504,7 @@ void PackNonBISData (
 					*dataOutPtr = ioCharPtr[sample];
 					dataOutPtr += dataPtrIncrement;
 					
-					}		// end "for (sample=0;  sample<numberChan..." 
+					}	// end "for (sample=0;  sample<numberChan..." 
 					
 						// Update the input buffer pointer to point to beginning of	
 						// data for next channel.												
@@ -13114,7 +13512,7 @@ void PackNonBISData (
 				ioCharPtr = &ioCharPtr[numberColumnsPerChannel];
 				currentChannel++;
 				
-				}		// end "for (channel=0; channel<...)"
+				}	// end "for (channel=0; channel<...)"
 				
 			}
 			break;
@@ -13139,9 +13537,9 @@ void PackNonBISData (
 						ioCharPtr = &ioCharPtr[numberColumnsPerChannel];
 						currentChannel++;
 						
-						}		// end "while (channelListPtr[channel] != currentChannel)"
+						}	// end "while (channelListPtr[channel] != currentChannel)"
 						
-					}		// end "if (channelListPtr != NULL)"
+					}	// end "if (channelListPtr != NULL)"
 				
 				if (toBISFormat)
 					dataOutPtr = (HDoublePtr)&dataCharBufferPtr[channel*8];
@@ -13151,7 +13549,7 @@ void PackNonBISData (
 					*dataOutPtr = ioCharPtr[sample];
 					dataOutPtr += dataPtrIncrement;
 					
-					}		// end "for (sample=0;  sample<numberChan..." 
+					}	// end "for (sample=0;  sample<numberChan..." 
 					
 						// Update the input buffer pointer to point to beginning of	
 						// data for next channel.												
@@ -13159,7 +13557,7 @@ void PackNonBISData (
 				ioCharPtr = &ioCharPtr[numberColumnsPerChannel];
 				currentChannel++;
 				
-				}		// end "for (channel=0; channel<...)"
+				}	// end "for (channel=0; channel<...)"
 			
 			}
 			break;
@@ -13185,9 +13583,9 @@ void PackNonBISData (
 						ioIntPtr = &ioIntPtr[numberColumnsPerChannel];
 						currentChannel++;
 						
-						}		// end "while (channelListPtr[channel] != currentChannel)"
+						}	// end "while (channelListPtr[channel] != currentChannel)"
 						
-					}		// end "if (channelListPtr != NULL)"
+					}	// end "if (channelListPtr != NULL)"
 					
 				if (toBISFormat)
 					dataIntPtr = (HSInt16Ptr)&dataCharBufferPtr[channel*2];
@@ -13197,7 +13595,7 @@ void PackNonBISData (
 					*dataIntPtr = ioIntPtr[sample];
 					dataIntPtr += dataPtrIncrement;
 					
-					}		// end "for (sample=0;  sample<numberChan..." 
+					}	// end "for (sample=0;  sample<numberChan..." 
 					
 						// Update the input buffer pointer to point to beginning of		
 						// data for next channel.													
@@ -13205,7 +13603,7 @@ void PackNonBISData (
 				ioIntPtr = &ioIntPtr[numberColumnsPerChannel];
 				currentChannel++;
 				
-				}		// end "for (channel=0; channel<numberBufferChannels; channel++)" 
+				}	// end "for (channel=0; channel<numberBufferChannels; channel++)" 
 				
 			}
 			break;
@@ -13230,9 +13628,9 @@ void PackNonBISData (
 						ioIntPtr = &ioIntPtr[numberColumnsPerChannel];
 						currentChannel++;
 						
-						}		// end "while (channelListPtr[channel] != currentChannel)"
+						}	// end "while (channelListPtr[channel] != currentChannel)"
 						
-					}		// end "if (channelListPtr != NULL)"
+					}	// end "if (channelListPtr != NULL)"
 				
 				if (toBISFormat)
 					dataSInt32Ptr = (HSInt32Ptr)&dataCharBufferPtr[channel*4];
@@ -13242,7 +13640,7 @@ void PackNonBISData (
 					*dataSInt32Ptr = ioIntPtr[sample];
 					dataSInt32Ptr += dataPtrIncrement;
 					
-					}		// end "for (sample=0;  sample<numberChan..." 
+					}	// end "for (sample=0;  sample<numberChan..." 
 					
 						// Update the input buffer pointer to point to beginning of		
 						// data for next channel.													
@@ -13250,7 +13648,7 @@ void PackNonBISData (
 				ioIntPtr = &ioIntPtr[numberColumnsPerChannel];
 				currentChannel++;
 				
-				}		// end "for (channel=0; channel<numberBufferChannels; channel++)"
+				}	// end "for (channel=0; channel<numberBufferChannels; channel++)"
 				
 			}
 			break;
@@ -13275,9 +13673,9 @@ void PackNonBISData (
 						ioIntPtr = &ioIntPtr[numberColumnsPerChannel];
 						currentChannel++;
 						
-						}		// end "while (channelListPtr[channel] != currentChannel)"
+						}	// end "while (channelListPtr[channel] != currentChannel)"
 						
-					}		// end "if (channelListPtr != NULL)"
+					}	// end "if (channelListPtr != NULL)"
 				
 				if (toBISFormat)
 					dataSInt32Ptr = (HSInt32Ptr)&dataCharBufferPtr[channel*4];
@@ -13287,7 +13685,7 @@ void PackNonBISData (
 					*dataSInt32Ptr = ioIntPtr[sample];
 					dataSInt32Ptr += dataPtrIncrement;
 					
-					}		// end "for (sample=0;  sample<numberChan..." 
+					}	// end "for (sample=0;  sample<numberChan..." 
 					
 						// Update the input buffer pointer to point to beginning of		
 						// data for next channel.													
@@ -13295,7 +13693,7 @@ void PackNonBISData (
 				ioIntPtr = &ioIntPtr[numberColumnsPerChannel];
 				currentChannel++;
 				
-				}		// end "for (channel=0; channel<numberBufferChannels; channel++)"
+				}	// end "for (channel=0; channel<numberBufferChannels; channel++)"
 				
 			}
 			break;
@@ -13320,9 +13718,9 @@ void PackNonBISData (
 						ioCharPtr = &ioCharPtr[numberColumnsPerChannel];
 						currentChannel++;
 						
-						}		// end "while (channelListPtr[channel] != currentChannel)"
+						}	// end "while (channelListPtr[channel] != currentChannel)"
 						
-					}		// end "if (channelListPtr != NULL)"
+					}	// end "if (channelListPtr != NULL)"
 				
 				if (toBISFormat)
 					dataOutPtr = (HFloatPtr)&dataCharBufferPtr[channel*4];
@@ -13332,7 +13730,7 @@ void PackNonBISData (
 					*dataOutPtr = ioCharPtr[sample];
 					dataOutPtr += dataPtrIncrement;
 					
-					}		// end "for (sample=0;  sample<numberChan..." 
+					}	// end "for (sample=0;  sample<numberChan..." 
 					
 						// Update the input buffer pointer to point to beginning of	
 						// data for next channel.												
@@ -13340,7 +13738,7 @@ void PackNonBISData (
 				ioCharPtr = &ioCharPtr[numberColumnsPerChannel];
 				currentChannel++;
 				
-				}		// end "for (channel=0; channel<...)"
+				}	// end "for (channel=0; channel<...)"
 				
 			}
 			break;
@@ -13365,9 +13763,9 @@ void PackNonBISData (
 						ioCharPtr = &ioCharPtr[numberColumnsPerChannel];
 						currentChannel++;
 						
-						}		// end "while (channelListPtr[channel] != currentChannel)"
+						}	// end "while (channelListPtr[channel] != currentChannel)"
 						
-					}		// end "if (channelListPtr != NULL)"
+					}	// end "if (channelListPtr != NULL)"
 				
 				if (toBISFormat)
 					dataOutPtr = (HFloatPtr)&dataCharBufferPtr[channel*4];
@@ -13377,7 +13775,7 @@ void PackNonBISData (
 					*dataOutPtr = ioCharPtr[sample];
 					dataOutPtr += dataPtrIncrement;
 					
-					}		// end "for (sample=0;  sample<numberChan..." 
+					}	// end "for (sample=0;  sample<numberChan..." 
 					
 						// Update the input buffer pointer to point to beginning of	
 						// data for next channel.												
@@ -13385,7 +13783,7 @@ void PackNonBISData (
 				ioCharPtr = &ioCharPtr[numberColumnsPerChannel];
 				currentChannel++;
 				
-				}		// end "for (channel=0; channel<...)"
+				}	// end "for (channel=0; channel<...)"
 			
 			}
 			break;
@@ -13410,9 +13808,9 @@ void PackNonBISData (
 						ioCharPtr = &ioCharPtr[numberColumnsPerChannel];
 						currentChannel++;
 						
-						}		// end "while (channelListPtr[channel] != currentChannel)"
+						}	// end "while (channelListPtr[channel] != currentChannel)"
 						
-					}		// end "if (channelListPtr != NULL)"
+					}	// end "if (channelListPtr != NULL)"
 				
 				if (toBISFormat)
 					dataOutPtr = (HDoublePtr)&dataCharBufferPtr[channel*8];
@@ -13422,7 +13820,7 @@ void PackNonBISData (
 					*dataOutPtr = ioCharPtr[sample];
 					dataOutPtr += dataPtrIncrement;
 					
-					}		// end "for (sample=0;  sample<numberChan..." 
+					}	// end "for (sample=0;  sample<numberChan..." 
 					
 						// Update the input buffer pointer to point to beginning of	
 						// data for next channel.												
@@ -13430,7 +13828,7 @@ void PackNonBISData (
 				ioCharPtr = &ioCharPtr[numberColumnsPerChannel];
 				currentChannel++;
 				
-				}		// end "for (channel=0; channel<...)"
+				}	// end "for (channel=0; channel<...)"
 				
 			}
 			break;
@@ -13455,9 +13853,9 @@ void PackNonBISData (
 						ioCharPtr = &ioCharPtr[numberColumnsPerChannel];
 						currentChannel++;
 						
-						}		// end "while (channelListPtr[channel] != currentChannel)"
+						}	// end "while (channelListPtr[channel] != currentChannel)"
 						
-					}		// end "if (channelListPtr != NULL)"
+					}	// end "if (channelListPtr != NULL)"
 				
 				if (toBISFormat)
 					dataOutPtr = (HDoublePtr)&dataCharBufferPtr[channel*8];
@@ -13467,7 +13865,7 @@ void PackNonBISData (
 					*dataOutPtr = ioCharPtr[sample];
 					dataOutPtr += dataPtrIncrement;
 					
-					}		// end "for (sample=0;  sample<numberChan..." 
+					}	// end "for (sample=0;  sample<numberChan..." 
 					
 						// Update the input buffer pointer to point to beginning of	
 						// data for next channel.												
@@ -13475,7 +13873,7 @@ void PackNonBISData (
 				ioCharPtr = &ioCharPtr[numberColumnsPerChannel];
 				currentChannel++;
 				
-				}		// end "for (channel=0; channel<...)"
+				}	// end "for (channel=0; channel<...)"
 			
 			} 
 			break;
@@ -13500,9 +13898,9 @@ void PackNonBISData (
 						ioIntPtr = &ioIntPtr[numberColumnsPerChannel];
 						currentChannel++;
 						
-						}		// end "while (channelListPtr[channel] != currentChannel)"
+						}	// end "while (channelListPtr[channel] != currentChannel)"
 						
-					}		// end "if (channelListPtr != NULL)"
+					}	// end "if (channelListPtr != NULL)"
 				
 				if (toBISFormat)
 					dataSInt32Ptr = (HSInt32Ptr)&dataCharBufferPtr[channel*4];
@@ -13512,7 +13910,7 @@ void PackNonBISData (
 					*dataSInt32Ptr = ioIntPtr[sample];
 					dataSInt32Ptr += dataPtrIncrement;
 					
-					}		// end "for (sample=0;  sample<numberChan..." 
+					}	// end "for (sample=0;  sample<numberChan..." 
 					
 						// Update the input buffer pointer to point to beginning of		
 						// data for next channel.													
@@ -13520,7 +13918,7 @@ void PackNonBISData (
 				ioIntPtr = &ioIntPtr[numberColumnsPerChannel];
 				currentChannel++;
 				
-				}		// end "for (channel=0; channel<numberBufferChannels; channel++)"
+				}	// end "for (channel=0; channel<numberBufferChannels; channel++)"
 				
 			}
 			break;
@@ -13545,9 +13943,9 @@ void PackNonBISData (
 						ioCharPtr = &ioCharPtr[numberColumnsPerChannel];
 						currentChannel++;
 						
-						}		// end "while (channelListPtr[channel] != currentChannel)"
+						}	// end "while (channelListPtr[channel] != currentChannel)"
 						
-					}		// end "if (channelListPtr != NULL)"
+					}	// end "if (channelListPtr != NULL)"
 				
 				if (toBISFormat)
 					dataOutPtr = (HFloatPtr)&dataCharBufferPtr[channel*4];
@@ -13557,7 +13955,7 @@ void PackNonBISData (
 					*dataOutPtr = (float)ioCharPtr[sample];
 					dataOutPtr += dataPtrIncrement;
 					
-					}		// end "for (sample=0;  sample<numberChan..." 
+					}	// end "for (sample=0;  sample<numberChan..." 
 					
 						// Update the input buffer pointer to point to beginning of	
 						// data for next channel.												
@@ -13565,7 +13963,7 @@ void PackNonBISData (
 				ioCharPtr = &ioCharPtr[numberColumnsPerChannel];
 				currentChannel++;
 				
-				}		// end "for (channel=0; channel<...)"
+				}	// end "for (channel=0; channel<...)"
 				
 			}
 			break;
@@ -13590,9 +13988,9 @@ void PackNonBISData (
 						ioCharPtr = &ioCharPtr[numberColumnsPerChannel];
 						currentChannel++;
 						
-						}		// end "while (channelListPtr[channel] != currentChannel)"
+						}	// end "while (channelListPtr[channel] != currentChannel)"
 						
-					}		// end "if (channelListPtr != NULL)"
+					}	// end "if (channelListPtr != NULL)"
 				
 				if (toBISFormat)
 					dataOutPtr = (HFloatPtr)&dataCharBufferPtr[channel*4];
@@ -13602,7 +14000,7 @@ void PackNonBISData (
 					*dataOutPtr = (float)ioCharPtr[sample];
 					dataOutPtr += dataPtrIncrement;
 					
-					}		// end "for (sample=0;  sample<numberChan..." 
+					}	// end "for (sample=0;  sample<numberChan..." 
 					
 						// Update the input buffer pointer to point to beginning of	
 						// data for next channel.												
@@ -13610,7 +14008,7 @@ void PackNonBISData (
 				ioCharPtr = &ioCharPtr[numberColumnsPerChannel];
 				currentChannel++;
 				
-				}		// end "for (channel=0; channel<...)"
+				}	// end "for (channel=0; channel<...)"
 			
 			}
 			break;
@@ -13635,9 +14033,9 @@ void PackNonBISData (
 						ioCharPtr = &ioCharPtr[numberColumnsPerChannel];
 						currentChannel++;
 						
-						}		// end "while (channelListPtr[channel] != currentChannel)"
+						}	// end "while (channelListPtr[channel] != currentChannel)"
 						
-					}		// end "if (channelListPtr != NULL)"
+					}	// end "if (channelListPtr != NULL)"
 				
 				if (toBISFormat)
 					dataOutPtr = (HDoublePtr)&dataCharBufferPtr[channel*8];
@@ -13647,7 +14045,7 @@ void PackNonBISData (
 					*dataOutPtr = ioCharPtr[sample];
 					dataOutPtr += dataPtrIncrement;
 					
-					}		// end "for (sample=0;  sample<numberChan..." 
+					}	// end "for (sample=0;  sample<numberChan..." 
 					
 						// Update the input buffer pointer to point to beginning of	
 						// data for next channel.												
@@ -13655,7 +14053,7 @@ void PackNonBISData (
 				ioCharPtr = &ioCharPtr[numberColumnsPerChannel];
 				currentChannel++;
 				
-				}		// end "for (channel=0; channel<...)"
+				}	// end "for (channel=0; channel<...)"
 				
 			}
 			break;
@@ -13680,9 +14078,9 @@ void PackNonBISData (
 						ioCharPtr = &ioCharPtr[numberColumnsPerChannel];
 						currentChannel++;
 						
-						}		// end "while (channelListPtr[channel] != currentChannel)"
+						}	// end "while (channelListPtr[channel] != currentChannel)"
 						
-					}		// end "if (channelListPtr != NULL)"
+					}	// end "if (channelListPtr != NULL)"
 				
 				if (toBISFormat)
 					dataOutPtr = (HDoublePtr)&dataCharBufferPtr[channel*8];
@@ -13692,7 +14090,7 @@ void PackNonBISData (
 					*dataOutPtr = ioCharPtr[sample];
 					dataOutPtr += dataPtrIncrement;
 					
-					}		// end "for (sample=0;  sample<numberChan..." 
+					}	// end "for (sample=0;  sample<numberChan..." 
 					
 						// Update the input buffer pointer to point to beginning of	
 						// data for next channel.												
@@ -13700,7 +14098,7 @@ void PackNonBISData (
 				ioCharPtr = &ioCharPtr[numberColumnsPerChannel];
 				currentChannel++;
 				
-				}		// end "for (channel=0; channel<...)"
+				}	// end "for (channel=0; channel<...)"
 			
 			}
 			break;
@@ -13725,9 +14123,9 @@ void PackNonBISData (
 						ioFloatCharPtr = &ioFloatCharPtr[numberColumnsPerChannel];
 						currentChannel++;
 						
-						}		// end "while (channelListPtr[channel] != currentChannel)"
+						}	// end "while (channelListPtr[channel] != currentChannel)"
 						
-					}		// end "if (channelListPtr != NULL)"
+					}	// end "if (channelListPtr != NULL)"
 				
 				if (toBISFormat)
 					dataDoubleOutPtr = (HDoublePtr)&dataCharBufferPtr[channel*8];
@@ -13737,7 +14135,7 @@ void PackNonBISData (
 					*dataDoubleOutPtr = (double)ioFloatCharPtr[sample];
 					dataDoubleOutPtr += dataPtrIncrement;
 					
-					}		// end "for (sample=0;  sample<numberChan..." 
+					}	// end "for (sample=0;  sample<numberChan..." 
 					
 						// Update the input buffer pointer to point to beginning of	
 						// data for next channel.												
@@ -13745,7 +14143,7 @@ void PackNonBISData (
 				ioFloatCharPtr = &ioFloatCharPtr[numberColumnsPerChannel];
 				currentChannel++;
 				
-				}		// end "for (channel=0; channel<...)"
+				}	// end "for (channel=0; channel<...)"
 			
 			}
 			break;
@@ -13770,9 +14168,9 @@ void PackNonBISData (
 						ioDoublePtr = &ioDoublePtr[numberColumnsPerChannel];
 						currentChannel++;
 						
-						}		// end "while (channelListPtr[channel] != currentChannel)"
+						}	// end "while (channelListPtr[channel] != currentChannel)"
 						
-					}		// end "if (channelListPtr != NULL)"
+					}	// end "if (channelListPtr != NULL)"
 				
 				if (toBISFormat)
 					dataDoublePtr = (DoublePtr)&dataCharBufferPtr[channel*8];
@@ -13782,7 +14180,7 @@ void PackNonBISData (
 					*dataDoublePtr = ioDoublePtr[sample];
 					dataDoublePtr += dataPtrIncrement;
 					
-					}		// end "for (sample=0;  sample<numberChan..." 
+					}	// end "for (sample=0;  sample<numberChan..." 
 					
 						// Update the input buffer pointer to point to beginning of		
 						// data for next channel.													
@@ -13790,14 +14188,14 @@ void PackNonBISData (
 				ioDoublePtr = &ioDoublePtr[numberColumnsPerChannel];
 				currentChannel++;
 				
-				}		// end "for (channel=0; channel<numberBufferChannels; channel++)"
+				}	// end "for (channel=0; channel<numberBufferChannels; channel++)"
 					
 			} 
 			break;
 		
-		}		// end "switch (dataConversionCode)"
+		}	// end "switch (dataConversionCode)"
 
-}		// end "PackNonBISData"  
+}	// end "PackNonBISData"  
  
 
 
@@ -13835,43 +14233,43 @@ SInt16 PrepareToReadTextFile (
 	
 	
 			// Read a section of the transformation file. 			
+	
+	#if defined multispec_mac
+		paramBlockPtr->ioParam.ioPosOffset = 0;
+		paramBlockPtr->ioParam.ioActCount = 0;
+		paramBlockPtr->ioParam.ioRefNum = fileStreamPtr->refNum;
+		paramBlockPtr->ioParam.ioCompletion = NULL;
+		paramBlockPtr->ioParam.ioBuffer = (CharPtr)bufferPtr;
+		paramBlockPtr->ioParam.ioReqCount = bufferLength - 1;	// Allow for \0.
 		
-		#if defined multispec_mac
-			paramBlockPtr->ioParam.ioPosOffset = 0;
-			paramBlockPtr->ioParam.ioActCount = 0;
-			paramBlockPtr->ioParam.ioRefNum = fileStreamPtr->refNum;
-			paramBlockPtr->ioParam.ioCompletion = NULL;
-			paramBlockPtr->ioParam.ioBuffer = (CharPtr)bufferPtr;
-			paramBlockPtr->ioParam.ioReqCount = bufferLength - 1;	// Allow for \0.
-			
 				// Find the end of line character that is used in this file.
-			
-			paramBlockPtr->ioParam.ioPosMode = FindEndOfLineCode ((ParmBlkPtr)paramBlockPtr,
-																			  fileStreamPtr,
-																			  &errCode,
-																			  endOfLineCodePtr,
-																			  numberEndOfLineBytesPtr); 
-		#endif	// defined multispec_mac
 		
-      #if defined multispec_win | defined multispec_lin
-			paramBlockPtr->ioPosOffset = 0;
-			paramBlockPtr->ioActCount = 0;
-			paramBlockPtr->fileStreamPtr = fileStreamPtr;
-			paramBlockPtr->ioBuffer = bufferPtr;
-			paramBlockPtr->ioReqCount = bufferLength - 1;	// Allow for \0.  
-			
+		paramBlockPtr->ioParam.ioPosMode = FindEndOfLineCode ((ParmBlkPtr)paramBlockPtr,
+																				fileStreamPtr,
+																				&errCode,
+																				endOfLineCodePtr,
+																				numberEndOfLineBytesPtr); 
+	#endif	// defined multispec_mac
+	
+	#if defined multispec_win || defined multispec_lin
+		paramBlockPtr->ioPosOffset = 0;
+		paramBlockPtr->ioActCount = 0;
+		paramBlockPtr->fileStreamPtr = fileStreamPtr;
+		paramBlockPtr->ioBuffer = bufferPtr;
+		paramBlockPtr->ioReqCount = bufferLength - 1;	// Allow for \0.  
+		
 				// Find the end of line character that is used in this file.
-			
-			paramBlockPtr->ioPosMode = FindEndOfLineCode ((ParmBlkPtr)paramBlockPtr,
-																	fileStreamPtr,
-																	&errCode,
-																	endOfLineCodePtr,
-																	numberEndOfLineBytesPtr);         
-		#endif	// defined multispec_win 
+		
+		paramBlockPtr->ioPosMode = FindEndOfLineCode ((ParmBlkPtr)paramBlockPtr,
+																		fileStreamPtr,
+																		&errCode,
+																		endOfLineCodePtr,
+																		numberEndOfLineBytesPtr);         
+	#endif	// defined multispec_win || defined multispec_lin 
 		
 	return (errCode);
 
-}		// end "PrepareToReadTextFile"
+}	// end "PrepareToReadTextFile"
  
 
 
@@ -13907,7 +14305,7 @@ SInt16 PutFile (
 	SInt16								errCode = noErr;
 	
 
-#	if defined multispec_mac 		
+	#if defined multispec_mac 		
 		if (gNavServicesExistsFlag)
 			{
 			errCode = NavServicesPutFile (fileStreamPtr, 
@@ -13917,10 +14315,10 @@ SInt16 PutFile (
 	
 																						return (errCode);
 					
-			}		// end "if (gNavServicesExistsFlag)"
-#	endif	// defined multispec_mac
+			}	// end "if (gNavServicesExistsFlag)"
+	#endif	// defined multispec_mac
 	
-#	if defined multispec_win 
+	#if defined multispec_win 
 		TBYTE								filterString[512];
 		WideFileStringPtr				fileNamePtr;
 		SInt16							filterStringIndex = IDS_FilterString;
@@ -13959,7 +14357,8 @@ SInt16 PutFile (
 	
 		fileSelected = FALSE;
 				
-		fileNamePtr = (WideFileStringPtr)fileStreamPtr->GetFileNameCPtr (kReturnUnicode);
+		fileNamePtr = 
+					(WideFileStringPtr)fileStreamPtr->GetFileNameCPtr (kReturnUnicode);
 			
 		do	
 			{
@@ -13976,54 +14375,61 @@ SInt16 PutFile (
 			if (stringIndex == IDS_SaveProjectFile)
 				{
 				temp.m_ofn.lpstrDefExt = _T("prj");
-				GetSpecifiedString(IDS_SaveProjectFile, &stringHandle, &stringPtr);
+				GetSpecifiedString (IDS_SaveProjectFile, &stringHandle, &stringPtr);
 				temp.m_ofn.lpstrTitle = (LPTSTR)A2T(&stringPtr[1]);
-				}  
+				
+				}	// end "if (stringIndex == IDS_SaveProjectFile)"
 				
 			else if (stringIndex == IDS_FileIO69)
 				{
 				temp.m_ofn.lpstrDefExt = _T("tif");
-				GetSpecifiedString(IDS_FileIO69, &stringHandle, &stringPtr);
+				GetSpecifiedString (IDS_FileIO69, &stringHandle, &stringPtr);
 				temp.m_ofn.lpstrTitle = (LPTSTR)A2T(&stringPtr[1]);
-				}   
+				
+				}	// end "if (stringIndex == IDS_FileIO69)"
 				
 			else if (stringIndex == IDS_FileIO61)
 				{
 				temp.m_ofn.lpstrDefExt = _T("tra");
-				GetSpecifiedString(IDS_FileIO61, &stringHandle, &stringPtr);
+				GetSpecifiedString (IDS_FileIO61, &stringHandle, &stringPtr);
 				temp.m_ofn.lpstrTitle = (LPTSTR)A2T(&stringPtr[1]);
-				}
+				
+				}	// end "if (stringIndex == IDS_FileIO61)"
 				
 			else if (stringIndex == IDS_FileIO75)
 				{
 				temp.m_ofn.lpstrDefExt = _T("tra");
-				GetSpecifiedString(IDS_FileIO75, &stringHandle, &stringPtr);
+				GetSpecifiedString (IDS_FileIO75, &stringHandle, &stringPtr);
 				temp.m_ofn.lpstrTitle = (LPTSTR)A2T(&stringPtr[1]);
-				} 
+				
+				}	// end "if (stringIndex == IDS_FileIO75)"
 				
 			else if (stringIndex == IDS_SaveImageStats)
 				{
 				temp.m_ofn.lpstrDefExt = _T("sta");
 				GetSpecifiedString (IDS_SaveImageStats, &stringHandle, &stringPtr);
 				temp.m_ofn.lpstrTitle = (LPTSTR)A2T(&stringPtr[1]);
-				}
+				
+				}	// end "if (stringIndex == IDS_SaveImageStats)"
 			
 			else if (stringIndex == IDS_SaveClassificationAs)
 				{
 				temp.m_ofn.lpstrDefExt = _T("gis");
 				GetSpecifiedString (IDS_SaveClassificationAs, &stringHandle, &stringPtr);
 				temp.m_ofn.lpstrTitle = (LPTSTR)A2T(&stringPtr[1]);
-				}
+				
+				}	// end "if (stringIndex == IDS_SaveClassificationAs)"
 				
 			else if (stringIndex == IDS_SaveProbabilityAs)
 				{
 				temp.m_ofn.lpstrDefExt = _T("gis");
 				GetSpecifiedString (IDS_SaveProbabilityAs, &stringHandle, &stringPtr);
 				temp.m_ofn.lpstrTitle = (LPTSTR)A2T(&stringPtr[1]);
-				}
 				
-			if (temp.DoModal() == IDCANCEL)			
-																	return(-1);
+				}	// end "if (stringIndex == IDS_SaveProbabilityAs)"
+				
+			if (temp.DoModal () == IDCANCEL)			
+																							return (-1);
 
 			fileNamePtr = (WideFileStringPtr)temp.m_ofn.lpstrFile; 
 			
@@ -14044,22 +14450,22 @@ SInt16 PutFile (
 				TBYTE pathName[_MAX_PATH];              	   
 				CtoPstring (fileNamePtr, pathName);
 				pathName[pathName[0]+1] = 0;
-				newName.ReleaseBuffer();
+				newName.ReleaseBuffer ();
 		   		
 		   	fileNamePtr = pathName;
 				fileSelected = TRUE;
 				fileStreamPtr->SetFilePath (fileNamePtr, TRUE);
 				
-				}		// end "else stringLength <= gFileNameLengthLimit"
+				}	// end "else stringLength <= gFileNameLengthLimit"
 						
 			} while (!fileSelected);
 			
 				// Create the file on the selected volume										
 				
 		errCode = fileStreamPtr->MCreateNewFile (kReplaceFlag);
-#	endif	// defined multispec_win
+	#endif	// defined multispec_win
 	
-#	if defined multispec_lin
+	#if defined multispec_lin
 		WideFileStringPtr				fileNamePtr;
 		SInt16							filterStringIndex = IDS_FilterString;
 		Boolean							fileSelected;
@@ -14079,15 +14485,18 @@ SInt16 PutFile (
 		else if (stringIndex == IDS_SaveProbabilityAs)
 			filterStringIndex = IDS_ClassificationFilterString;
 
-		GetSpecifiedStringNumber (kFileIOStrID, filterStringIndex, (UCharPtr)gTextString, TRUE);
+		GetSpecifiedStringNumber (
+								kFileIOStrID, filterStringIndex, (UCharPtr)gTextString, TRUE);
 		wxString wdcard ((char*)&gTextString[1], wxConvUTF8);
 
-		GetSpecifiedStringNumber (kFileIOStrID, stringIndex, (UCharPtr)gTextString, TRUE);
+		GetSpecifiedStringNumber (
+								kFileIOStrID, stringIndex, (UCharPtr)gTextString, TRUE);
 		wxString promptString ((char*)&gTextString[1], wxConvUTF8);
 		
-		wxFrame* frame = GetActiveFrame();
-		//wxFileDialog temp(gActiveImageViewCPtr->m_frame, wxT("Save file as"), wxEmptyString,
-		//wxFileDialog temp(GetMainFrame(), wxT("Save file as"), wxEmptyString,
+		wxFrame* frame = GetActiveFrame ();
+		//wxFileDialog temp (
+		//				gActiveImageViewCPtr->m_frame, wxT("Save file as"), wxEmptyString,
+		//wxFileDialog temp (GetMainFrame (), wxT("Save file as"), wxEmptyString,
 		wxFileDialog temp (frame, 
 									//wxT("Save file as"), 
 									promptString,
@@ -14095,17 +14504,19 @@ SInt16 PutFile (
 									wxEmptyString, 
 									wdcard, 
 									wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
-		temp.SetFilterIndex(0);
+		temp.SetFilterIndex (0);
 
 		fileSelected = FALSE;
-		fileNamePtr = (WideFileStringPtr)fileStreamPtr->GetFileNameCPtr (kReturnUnicode);
+		fileNamePtr = 
+					(WideFileStringPtr)fileStreamPtr->GetFileNameCPtr (kReturnUnicode);
 
-		do {
+		do 
+			{
 			gGetFileStatus = -1;
 			if (stringIndex == IDS_SaveProjectFile)
 				gGetFileStatus = 0;
 
-			//wxString newName(fileNamePtr, wxConvUTF8);
+			//wxString newName (fileNamePtr, wxConvUTF8);
 
 			StringHandle stringHandle = NULL;
 			CharPtr stringPtr = NULL;
@@ -14115,60 +14526,68 @@ SInt16 PutFile (
 				GetSpecifiedString (IDS_SaveProjectFile, &stringHandle, &stringPtr);
 				wxString title (&stringPtr[1], wxConvUTF8);
 				temp.SetTitle (title);
-				}
+				
+				}	// end "if (stringIndex == IDS_SaveProjectFile)"
 
 			else if (stringIndex == IDS_FileIO69) 
 				{
 				GetSpecifiedString (IDS_FileIO69, &stringHandle, &stringPtr);
 				wxString title (&stringPtr[1], wxConvUTF8);
 				temp.SetTitle (title);
-				}
+				
+				}	// end "if (stringIndex == IDS_FileIO69)"
 
 			else if (stringIndex == IDS_FileIO61) 
 				{
 				GetSpecifiedString (IDS_FileIO61, &stringHandle, &stringPtr);
 				wxString title (&stringPtr[1], wxConvUTF8);
 				temp.SetTitle (title);
-				}
-			  
+				
+				}	// end "if (stringIndex == IDS_FileIO61)"
 			  
 			else if (stringIndex == IDS_FileIO75) 
 				{
 				GetSpecifiedString (IDS_FileIO75, &stringHandle, &stringPtr);
 				wxString title (&stringPtr[1], wxConvUTF8);
 				temp.SetTitle (title);
-				}
+				
+				}	// end "if (stringIndex == IDS_FileIO75)"
 
 			else if (stringIndex == IDS_SaveImageStats) 
 				{
 				GetSpecifiedString (IDS_SaveImageStats, &stringHandle, &stringPtr);
 				wxString title (&stringPtr[1], wxConvUTF8);
 				temp.SetTitle (title);
-				}
+				
+				}	// end "if (stringIndex == IDS_SaveImageStats)"
 				
 			else if (stringIndex == IDS_SaveClassificationAs) 
 				{
 				GetSpecifiedString (IDS_SaveClassificationAs, &stringHandle, &stringPtr);
 				wxString title (&stringPtr[1], wxConvUTF8);
 				temp.SetTitle (title);
-				}
+				
+				}	// end "if (stringIndex == IDS_SaveClassificationAs)"
 				
 			else if (stringIndex == IDS_SaveProbabilityAs) 
 				{
 				GetSpecifiedString (IDS_SaveProbabilityAs, &stringHandle, &stringPtr);
 				wxString title (&stringPtr[1], wxConvUTF8);
 				temp.SetTitle (title);
-				}
+				
+				}	// end "if (stringIndex == IDS_SaveProbabilityAs)"
 
-			if (temp.ShowModal() == wxID_CANCEL)
-				return (-1);
+			if (temp.ShowModal () == wxID_CANCEL)
+																							return (-1);
 
-			//strncpy((char *)fileNamePtr, (const char*)(temp.GetPath().mb_str(wxConvUTF8)), (int)(temp.GetPath()).Length());
-			wcsncpy (fileNamePtr, temp.GetPath(), (int)(temp.GetPath()).Length());
+			//strncpy ((char *)fileNamePtr, 
+			//				(const char*)(temp.GetPath ().mb_str (wxConvUTF8)), 
+			//				(int)(temp.GetPath ()).Length ());
+			wcsncpy (fileNamePtr, temp.GetPath (), (int)(temp.GetPath ()).Length ());
 			
 					//Get file name length and add zero at the end
 					
-			int pathlength = (int)(temp.GetPath()).Length();
+			int pathlength = (int)(temp.GetPath ()).Length ();
 			//*(fileNamePtr+pathlength) = '\0';
 			fileNamePtr[pathlength] = 0;
 			
@@ -14183,7 +14602,7 @@ SInt16 PutFile (
 									0,
 									NULL);
 
-			else // pathlength <= gFileNameLengthLimit
+			else	// pathlength <= gFileNameLengthLimit
 				{
 				wchar_t pathName[_MAX_PATH];
 				CtoPstring (fileNamePtr, pathName);
@@ -14195,18 +14614,18 @@ SInt16 PutFile (
 
 				fileStreamPtr->SetFilePath (fileNamePtr, TRUE);
 
-				} // end "else stringLength <= gFileNameLengthLimit"
+				}	// end "else stringLength <= gFileNameLengthLimit"
 
 		} while (!fileSelected);
 
 				// Create the file on the selected volume
 
 		errCode = fileStreamPtr->MCreateNewFile (kReplaceFlag);
-#	endif	// defined multispec_lin
+	#endif	// defined multispec_lin
 
 	return (errCode);
 
-}		// end "PutFile"  
+}	// end "PutFile"  
 
 
 
@@ -14257,9 +14676,9 @@ SInt16 ResolveAnyAliases (
 															&targetIsFolderFlag,
 													   	wasAliasedFlagPtr);
 				
-				}		// end "if (fileStreamPtr->fSRefFlag)"
+				}	// end "if (fileStreamPtr->fSRefFlag)"
 				
-			else		// !fileStreamPtr->fSRefFlag
+			else	// !fileStreamPtr->fSRefFlag
 				{
 						// Load a FSSpec record.													
 						
@@ -14269,9 +14688,9 @@ SInt16 ResolveAnyAliases (
 					gFileFSSpec.parID = fileStreamPtr->parID;
 					CopyPToP (gFileFSSpec.name, fileStreamPtr->fileName);
 					
-					}		// end "if (fileInfoPtr->fSSpecFlag)" 
+					}	// end "if (fileInfoPtr->fSSpecFlag)" 
 													
-				else		// !fileInfoPtr->fSSpecFlag 
+				else	// !fileInfoPtr->fSSpecFlag 
 					errCode = FSMakeFSSpec (fileStreamPtr->vRefNum,
 													0,
 													fileStreamPtr->fileName,
@@ -14283,10 +14702,10 @@ SInt16 ResolveAnyAliases (
 															&targetIsFolderFlag,
 															wasAliasedFlagPtr);
 				
-				}		// end "else !fileStreamPtr->fSRefFlag"
+				}	// end "else !fileStreamPtr->fSRefFlag"
 			
-			if ( !targetIsFolderFlag && *wasAliasedFlagPtr && 
-												(errCode == noErr || errCode == fnfErr) )
+			if (!targetIsFolderFlag && *wasAliasedFlagPtr && 
+														(errCode == noErr || errCode == fnfErr))
 				{						
 				fileStreamPtr->vRefNum = gFileFSSpec.vRefNum;
 				fileStreamPtr->parID = gFileFSSpec.parID;
@@ -14294,22 +14713,18 @@ SInt16 ResolveAnyAliases (
 												
 				fileStreamPtr->fSSpecFlag = TRUE;
 				
-				}		// end "if (!targetIsFolderFlag && wasAliasedFlag && ...)" 
+				}	// end "if (!targetIsFolderFlag && wasAliasedFlag && ...)" 
 			
-			}		// end "if (gAliasMgrPresentFlag)"
-				                        
+			}	// end "if (gAliasMgrPresentFlag)"
 	#endif	// defined multispec_mac 
 
-
-   #if defined multispec_win | defined multispec_lin
-	
+   #if defined multispec_win || defined multispec_lin
 		*wasAliasedFlagPtr = FALSE;
-				                        
-	#endif	// defined multispec_win
+	#endif	// defined multispec_win || defined multispec_lin
 		
 	return (errCode);
 			
-}		// end "ResolveAnyAliases" 
+}	// end "ResolveAnyAliases" 
 
 
 
@@ -14332,7 +14747,7 @@ SInt16 ResolveAnyAliases (
 // Called By:		
 //
 //	Coded By:			Larry L. Biehl			Date: 11/28/2001
-//	Revised By:			Larry L. Biehl			Date: 04/11/2017	
+//	Revised By:			Larry L. Biehl			Date: 12/19/2017	
 
 void SetCFileName (
 				FileInfoPtr							fileInfoPtr,
@@ -14348,9 +14763,9 @@ void SetCFileName (
 		
 		SetCFileName (fileStreamPtr, inputFileNameCPtr);
 		
-		}		// end "if (fileInfoPtr != NULL && fileNameCPtr != NULL)"
+		}	// end "if (fileInfoPtr != NULL && fileNameCPtr != NULL)"
 	
-}		// end "SetCFileName" 
+}	// end "SetCFileName" 
 
 
 
@@ -14379,8 +14794,8 @@ void SetCFileName (
 				// that the new file name is in the same folder as the previous file
 				// name.
 		
-		fileNamePtr = (FileStringPtr)GetFileNameCPointer (fileStreamPtr);
-		filePathPPtr = (FileStringPtr)GetFilePathPPointer (fileStreamPtr);
+		fileNamePtr = (FileStringPtr)GetFileNameCPointerFromFileStream (fileStreamPtr);
+		filePathPPtr = (FileStringPtr)GetFilePathPPointerFromFileStream (fileStreamPtr);
 		
 		oldNameLength = (SInt32)strlen ((char*)fileNamePtr);
 		newNameLength = (SInt32)strlen ((char*)inputFileNameCPtr);
@@ -14392,7 +14807,7 @@ void SetCFileName (
 		if (characterOverRun > 0)
 			newNameLength -= characterOverRun;
 			
-		newNameLength = MAX(newNameLength, 0);
+		newNameLength = MAX (newNameLength, 0);
 		
 		strncpy ((char*)fileNamePtr, (char*)inputFileNameCPtr, newNameLength);
 
@@ -14404,9 +14819,9 @@ void SetCFileName (
 				
 		filePathPPtr[0] = (UInt8)strlen ((char*)&filePathPPtr[1]);
 
-		}		// end "if (fileStreamPtr != NULL && fileNameCPtr != NULL)"
+		}	// end "if (fileStreamPtr != NULL && fileNameCPtr != NULL)"
 	
-}		// end "SetCFileName"
+}	// end "SetCFileName"
 
 
 
@@ -14469,9 +14884,9 @@ void SetFileDoesNotExist (
 			fileStreamPtr->mUTF8FileName[1] = 0;
 		#endif	// defined multispec_win
 		
-		}		// end "if (fileStreamPtr != NULL)"
+		}	// end "if (fileStreamPtr != NULL)"
 
-}		// end "SetFileDoesNotExist"
+}	// end "SetFileDoesNotExist"
 
 
 
@@ -14515,7 +14930,7 @@ void SetFileReadOnly (
 														
 	IOCheck (errCode, fileStreamPtr);
 	
-}		// end "SetFileReadOnly"  
+}	// end "SetFileReadOnly"  
 
 
 
@@ -14558,14 +14973,12 @@ SInt16 SetFileSizeToZero (
 		errCode = errCode2;
 			
 	if (errCode != noErr)
-		
 				// There is a file error.  Close the file and return error code.	
-					
 		CloseFile (fileStreamPtr); 
 		
 	return (errCode);
 				
-}		// end "SetFileSizeToZero" 
+}	// end "SetFileSizeToZero" 
 
 
 
@@ -14624,9 +15037,9 @@ SInt16 SetFileWriteEnabled (
 												fsWrPerm, 
 												&fileStreamPtr->refNum);
 			
-			}		// end "else if (fileStreamPtr->fSRefFlag)"
+			}	// end "else if (fileStreamPtr->fSRefFlag)"
 		
-		else		// fileStreamPtr->fSSpecFlag 									
+		else	// fileStreamPtr->fSSpecFlag 									
 			errCode = HOpen (fileStreamPtr->vRefNum, 
 									0, 
 									fileStreamPtr->fileName, 
@@ -14634,30 +15047,29 @@ SInt16 SetFileWriteEnabled (
 									&fileStreamPtr->refNum);
 																			
 		IOCheck (errCode, (CharPtr)&fileStreamPtr->fileName);
-	
 	#endif	// defined multispec_mac
 	
 	#if defined multispec_win
-																			
 				// Set to write permission and reopen
 		
 		errCode = fileStreamPtr->MOpenFile (
-							(SInt16)(CFile::modeReadWrite|CFile::typeBinary),
-							(SInt16)kErrorMessages);
-	
+												(SInt16)(CFile::modeReadWrite|CFile::typeBinary),
+												(SInt16)kErrorMessages);
 	#endif	// defined multispec_win
+	
 	#if defined multispec_lin
-    // Set to write permission and reopen
+				// Set to write permission and reopen
 
-    errCode = fileStreamPtr->MOpenFile((SInt16) (wxFile::read_write),(SInt16) kErrorMessages);
-   #endif
+		errCode = fileStreamPtr->MOpenFile (
+										(SInt16) (wxFile::read_write),(SInt16) kErrorMessages);
+   #endif	// defined multispec_lin
 										
 	if (errCode == noErr)
 		gNumberOfOpenFiles++;
 	
 	return (errCode);
 	
-}		// end "SetFileWriteEnabled"  
+}	// end "SetFileWriteEnabled"  
 
 
 
@@ -14689,21 +15101,18 @@ void SetFSSpecFlag (
 {  
 	if (fileStreamPtr != NULL)
 		{              
-#		if defined multispec_mac                       
+		#if defined multispec_mac                       
 	   	fileStreamPtr->fSSpecFlag = fSSpecFlag;
 			
 					// If carbon version of code being created then fSSpecFlag is always
 					// false and fSRefFlag is always true.
 			fileStreamPtr->fSSpecFlag = FALSE;
 			fileStreamPtr->fSRefFlag = TRUE;
-#		endif	// defined multispec_mac 
+		#endif	// defined multispec_mac 
 	
-#		if defined multispec_win  
-	 
-#		endif	// defined multispec_win
-		}		// end "if (fileStreamPtr != NULL)" 
+		}	// end "if (fileStreamPtr != NULL)" 
 	
-}		// end "SetFSSpecFlag" 
+}	// end "SetFSSpecFlag" 
 
 
 
@@ -14736,19 +15145,12 @@ void SetParID (
 	if (fileStreamPtr != NULL)
 		{              
 		#if defined multispec_mac                       
-	                          
 	   	fileStreamPtr->parID = parID;
-	   	
 		#endif	// defined multispec_mac 
-	
-	              
-		#if defined multispec_win  
-	 
-		#endif	// defined multispec_win
 		
-		}		// end "if (fileStreamPtr != NULL)" 
+		}	// end "if (fileStreamPtr != NULL)" 
 	
-}		// end "SetParID" 
+}	// end "SetParID" 
 
 
 
@@ -14781,19 +15183,12 @@ void SetReferenceNumber (
 	if (fileStreamPtr != NULL)
 		{              
 		#if defined multispec_mac                       
-	                          
 	   	fileStreamPtr->refNum = refNum;
-	   	
 		#endif	// defined multispec_mac 
-	
-	              
-		#if defined multispec_win  
-	 
-		#endif	// defined multispec_win
 		
-		}		// end "if (fileStreamPtr != NULL)" 
+		}	// end "if (fileStreamPtr != NULL)" 
 	
-}		// end "SetReferenceNumber" 
+}	// end "SetReferenceNumber" 
 
 
 
@@ -14825,17 +15220,17 @@ void SetType (
 {  
 	if (fileStreamPtr != NULL)
 		{              
-#		if defined multispec_mac                       
+		#if defined multispec_mac                       
 	   	fileStreamPtr->type = type;
-#		endif	// defined multispec_mac 
+		#endif	// defined multispec_mac 
 	
-#		if defined multispec_win || defined multispec_lin
+		#if defined multispec_win || defined multispec_lin
 	   	fileStreamPtr->mFileType = type;
-#		endif	// defined multispec_win
+		#endif	// defined multispec_win || defined multispec_lin
 		
-		}		// end "if (fileStreamPtr != NULL)" 
+		}	// end "if (fileStreamPtr != NULL)" 
 	
-}		// end "SetType"  
+}	// end "SetType"  
 
 
 
@@ -14894,9 +15289,9 @@ SInt16 SetUpFileIOInstructions (
 													channelListPtr,
 													specialBILCode);
 													
-	return ( (SInt16)errCode );
+	return ((SInt16)errCode);
 	
-}		// end "SetUpFileIOInstructions"  
+}	// end "SetUpFileIOInstructions"  
 
 
 
@@ -14950,7 +15345,7 @@ SInt16 SetUpFileIOInstructions (
 	
 	
 	if (fileIOInstructionsPtr == NULL)
-																					return (noErr);
+																						return (noErr);
 																					
 	fileInfoPtr = fileIOInstructionsPtr->fileInfoPtr;
 																								
@@ -14965,47 +15360,49 @@ SInt16 SetUpFileIOInstructions (
 	fileIOInstructionsPtr->lineStart = lineStart;
 	
 	fileIOInstructionsPtr->numberOutputBufferSamples = 
-			(fileIOInstructionsPtr->columnEnd - fileIOInstructionsPtr->columnStart + 
-					fileIOInstructionsPtr->columnInterval)/fileIOInstructionsPtr->columnInterval;
+		(fileIOInstructionsPtr->columnEnd - fileIOInstructionsPtr->columnStart + 
+			fileIOInstructionsPtr->columnInterval)/fileIOInstructionsPtr->columnInterval;
 	
 	fileIOInstructionsPtr->channelListPtr = channelListPtr;
 	
-//	if (channelListPtr != NULL && fileInfoPtr->gdalDataSetH != NULL)
+	//if (channelListPtr != NULL && fileInfoPtr->gdalDataSetH != NULL)
 	if (fileInfoPtr->gdalDataSetH != NULL)
 		{
 					// Need to create a channel list in format required by gdal routines.
 		
-		fileIOInstructionsPtr->gdalChannelListPtr = (int*)MNewPointer (numberListChannels * sizeof(int));
+		fileIOInstructionsPtr->gdalChannelListPtr = 
+										(int*)MNewPointer (numberListChannels * sizeof (int));
 		if (fileIOInstructionsPtr->gdalChannelListPtr != NULL)
 			{
 			if (channelListPtr != NULL)
 				{
-						// Note that the channel list for gdal routines needs to be in numerical order
-						// and not contain replicated channels. The list should already be in numerical
-						// order but duplicates may exist from the display processor.
-						// However, do not remove duplicates if the channels being used are from linked
-						// image files.
+						// Note that the channel list for gdal routines needs to be in 
+						// numerical order and not contain replicated channels. The list 
+						// should already be in numerical order but duplicates may exist 
+						// from the display processor. However, do not remove duplicates 
+						// if the channels being used are from linked image files.
 									
 				useMultipleChannelGDALFlag = FALSE;
 				if (channelListPtr[numberListChannels-1] < fileInfoPtr->numberChannels && 
-												fileInfoPtr->hdfHandle == NULL)
+																		fileInfoPtr->hdfHandle == NULL)
 					useMultipleChannelGDALFlag = TRUE;
 				
 				fileIOInstructionsPtr->gdalChannelListPtr[0] = channelListPtr[0] + 1;
 				gdalIndex = 1;
 				for (index=1; index<numberListChannels; index++)
 					{
-					fileIOInstructionsPtr->gdalChannelListPtr[gdalIndex] = channelListPtr[index] + 1;
+					fileIOInstructionsPtr->gdalChannelListPtr[gdalIndex] = 
+																			channelListPtr[index] + 1;
 					if (!useMultipleChannelGDALFlag || 
 								fileIOInstructionsPtr->gdalChannelListPtr[gdalIndex] !=
-													fileIOInstructionsPtr->gdalChannelListPtr[gdalIndex-1])
+										fileIOInstructionsPtr->gdalChannelListPtr[gdalIndex-1])
 						gdalIndex++;
 					
-					}		// end "for (index=1; index<numberListChannels; index++)"
+					}	// end "for (index=1; index<numberListChannels; index++)"
 					
-				}		// end "if (channelListPtr != NULL)"
+				}	// end "if (channelListPtr != NULL)"
 				
-			else		// channelListPtr == NULL
+			else	// channelListPtr == NULL
 				{
 						// Create a list for the number of channels requested.
 			
@@ -15014,18 +15411,18 @@ SInt16 SetUpFileIOInstructions (
 				
 				gdalIndex = numberListChannels;
 				
-				}		// end "else channelListPtr == NULL"
+				}	// end "else channelListPtr == NULL"
 
 			fileIOInstructionsPtr->numberGdalChannels = gdalIndex;
 				
-			}		// end "if (fileIOInstructionsPtr->gdalChannelListPtr != NULL)"
+			}	// end "if (fileIOInstructionsPtr->gdalChannelListPtr != NULL)"
 			
-		else		// fileIOInstructionsPtr->gdalChannelListPtr == NULL
+		else	// fileIOInstructionsPtr->gdalChannelListPtr == NULL
 			errCode = 1;
 				
-		}		// end "if (channelListPtr != NULL && fileInfoPtr->gdalDataSetH != NULL)"
+		}	// end "if (channelListPtr != NULL && fileInfoPtr->gdalDataSetH != NULL)"
 		
-	else		// channelListPtr == NULL || ...
+	else	// channelListPtr == NULL || ...
 		fileIOInstructionsPtr->gdalChannelListPtr = NULL;
 				
 	fileIOInstructionsPtr->numberChannels = numberListChannels;
@@ -15034,14 +15431,13 @@ SInt16 SetUpFileIOInstructions (
 			// channels can be read in at one time, rather than separate 		
 			// reads for each channel.														
 		
-	fileIOInstructionsPtr->oneReadFlag = GetBILSpecial (
-															fileIOInstructionsPtr, 
-															channelListPtr, 
-															numberListChannels, 
-															columnStart,
-															columnEnd,
-															1,
-															specialBILCode);
+	fileIOInstructionsPtr->oneReadFlag = GetBILSpecial (fileIOInstructionsPtr, 
+																			channelListPtr, 
+																			numberListChannels, 
+																			columnStart,
+																			columnEnd,
+																			1,
+																			specialBILCode);
 	
 			// Determine if the line of data will need to be packed.					
 			
@@ -15058,9 +15454,9 @@ SInt16 SetUpFileIOInstructions (
 			callPackLineOfDataFlag = TRUE;
 			differentBuffersFlag = TRUE;
 			
-			}		// end "if (windowInfoPtr->localMaxNumberBytes == 1 || ...)" 
+			}	// end "if (windowInfoPtr->localMaxNumberBytes == 1 || ...)" 
 			
-		}		// end "if (fileIOInstructionsPtr->forceByteCode == kForce2Bytes)" 
+		}	// end "if (fileIOInstructionsPtr->forceByteCode == kForce2Bytes)" 
 	
 	else if (fileIOInstructionsPtr->forceByteCode == kForce4Bytes)
 		{
@@ -15070,9 +15466,9 @@ SInt16 SetUpFileIOInstructions (
 			callPackLineOfDataFlag = TRUE;
 			differentBuffersFlag = TRUE;
 			
-			}		// end "if (windowInfoPtr->localMaxNumberBytes <= 2 || ...)" 
+			}	// end "if (windowInfoPtr->localMaxNumberBytes <= 2 || ...)" 
 			
-		}		// end "else if (fileIOInstructionsPtr->forceByteCode == kForce4Bytes)" 
+		}	// end "else if (fileIOInstructionsPtr->forceByteCode == kForce4Bytes)" 
 	
 	else if (fileIOInstructionsPtr->forceByteCode == kForceReal4Bytes)
 		{
@@ -15083,9 +15479,9 @@ SInt16 SetUpFileIOInstructions (
 			callPackLineOfDataFlag = TRUE;
 			differentBuffersFlag = TRUE;
 			
-			}		// end "if (windowInfoPtr->localMaxNumberBytes <= 2 || ...)" 
+			}	// end "if (windowInfoPtr->localMaxNumberBytes <= 2 || ...)" 
 			
-		}		// end "else if (fileIOInstructionsPtr->forceByteCode == kForceFloat8Bytes)"
+		}	// end "else if (fileIOInstructionsPtr->forceByteCode == kForceFloat8Bytes)"
 	
 	else if (fileIOInstructionsPtr->forceByteCode == kForceReal8Bytes)
 		{
@@ -15095,9 +15491,9 @@ SInt16 SetUpFileIOInstructions (
 			callPackLineOfDataFlag = TRUE;
 			differentBuffersFlag = TRUE;
 			
-			}		// end "if (windowInfoPtr->localMaxNumberBytes <= 4 || ...)" 
+			}	// end "if (windowInfoPtr->localMaxNumberBytes <= 4 || ...)" 
 			
-		}		// end "else if (fileIOInstructionsPtr->forceByteCode == kForceFloat8Bytes)" 
+		}	// end "else if (fileIOInstructionsPtr->forceByteCode == kForceFloat8Bytes)" 
 																
 	if (fileInfoPtr->bandInterleave != kBIS)
 		{
@@ -15110,25 +15506,25 @@ SInt16 SetUpFileIOInstructions (
 												fileIOInstructionsPtr->bilSpecialNumberChannels)
 					callPackLineOfDataFlag = TRUE;
 				
-			}		// end "if (fileIOInstructionsPtr->packDataFlag)"
+			}	// end "if (fileIOInstructionsPtr->packDataFlag)"
 			
 		if (fileIOInstructionsPtr->forceBISFormatFlag)
 			{
 			callPackLineOfDataFlag = TRUE;
 			differentBuffersFlag = TRUE;
 			
-			}		// end "if (fileIOInstructionsPtr->toBISFormatFlag)" 
+			}	// end "if (fileIOInstructionsPtr->toBISFormatFlag)" 
 			
-		}		// end "if (fileInfoPtr->bandInterleave != kBIS)" 				
+		}	// end "if (fileInfoPtr->bandInterleave != kBIS)" 				
 	
-	else		// fileInfoPtr->bandInterleave == kBIS 
+	else	// fileInfoPtr->bandInterleave == kBIS 
 		{
 		if (fileIOInstructionsPtr->packDataFlag && 
 				(fileIOInstructionsPtr->numberChannels<fileInfoPtr->numberChannels || 
-															fileIOInstructionsPtr->columnInterval>1) )
+															fileIOInstructionsPtr->columnInterval>1))
 			callPackLineOfDataFlag = TRUE;
 			
-		}		// end "else fileInfoPtr->bandInterleave == kBIS" 
+		}	// end "else fileInfoPtr->bandInterleave == kBIS" 
 		
 	fileIOInstructionsPtr->callPackLineOfDataFlag = callPackLineOfDataFlag;
 	fileIOInstructionsPtr->differentBuffersFlag = differentBuffersFlag;
@@ -15136,10 +15532,9 @@ SInt16 SetUpFileIOInstructions (
 	if (areaDescriptionPtr != NULL && areaDescriptionPtr->maskInfoPtr != NULL)
 		{
 		fileIOInstructionsPtr->maskBufferPtr = 
-					(HUInt16Ptr)GetHandlePointer(
-								areaDescriptionPtr->maskInfoPtr->maskHandle,
-								kLock,
-								kNoMoveHi);
+								(HUInt16Ptr)GetHandlePointer (
+													areaDescriptionPtr->maskInfoPtr->maskHandle,
+													kLock);
 								
 		fileIOInstructionsPtr->maskBufferPtr += 
 					(areaDescriptionPtr->maskLineStart - 1) * 
@@ -15158,16 +15553,16 @@ SInt16 SetUpFileIOInstructions (
 		fileIOInstructionsPtr->numberMaskColumnsPerLine *= 
 																areaDescriptionPtr->lineInterval;
 		
-		}		// end "if (areaDescriptionPtr != NULL && ..."
+		}	// end "if (areaDescriptionPtr != NULL && ..."
 		
 			// Set up heirarchal tile parameters, if needed.
 		
-	SetUpHeirarchalFileIOParameters ( fileIOInstructionsPtr->layerInfoPtr,
-													fileIOInstructionsPtr->fileInfoPtr,
-													(UInt16)fileIOInstructionsPtr->numberChannels,
-													(UInt16*)fileIOInstructionsPtr->channelListPtr,
-													columnStart,
-													columnEnd);
+	SetUpHeirarchalFileIOParameters (fileIOInstructionsPtr->layerInfoPtr,
+												fileIOInstructionsPtr->fileInfoPtr,
+												(UInt16)fileIOInstructionsPtr->numberChannels,
+												(UInt16*)fileIOInstructionsPtr->channelListPtr,
+												columnStart,
+												columnEnd);
 		
 			// Set flag indicating whether Threaded IO can be used.
 			
@@ -15178,7 +15573,7 @@ SInt16 SetUpFileIOInstructions (
 	
 	return ((SInt16)errCode);
 	
-}		// end "SetUpFileIOInstructions"  
+}	// end "SetUpFileIOInstructions"  
 
 
 
@@ -15271,7 +15666,7 @@ void SetUpGeneralFileIOInstructions (
 	
 	*outputFileIOInstructionsPtrPtr = fileIOInstructionsPtr;
 	
-}		// end "SetUpGeneralFileIOInstructions"
+}	// end "SetUpGeneralFileIOInstructions"
 
 
 
@@ -15342,23 +15737,23 @@ SInt16 SetUpDataConversionCode (
 				signedDataFlag = FALSE;
 				
 			localFileInfoPtr->dataConversionCode = GetDataConversionCode (
-										localFileInfoPtr->dataTypeCode,
-										localFileInfoPtr->numberBytes,
-										signedDataFlag,
-										forceOutByteCode,
-										signedDataFlag,
-										NULL);
+																	localFileInfoPtr->dataTypeCode,
+																	localFileInfoPtr->numberBytes,
+																	signedDataFlag,
+																	forceOutByteCode,
+																	signedDataFlag,
+																	NULL);
 			
 			if (localFileInfoPtr->dataConversionCode == 0)
 				returnCode = -1;
 						
-			}		// end "if (fileInfoIndex != ..." 
+			}	// end "if (fileInfoIndex != ..." 
 			
-		}		// end "for (index=1; index<=numberChannels; index++)" 
+		}	// end "for (index=1; index<=numberChannels; index++)" 
 		
 	return (returnCode);
 	
-}		// end "SetUpDataConversionCode"  
+}	// end "SetUpDataConversionCode"  
 
 
 
@@ -15430,7 +15825,7 @@ void SetUpHeirarchalFileIOParameters (
 				nextFileInfoIndex = layerInfoPtr[channelNumber].fileInfoIndex;
 				fileChannelNumber = layerInfoPtr[channelNumber].fileChannelNumber;
 				
-				}		// end "if (layerInfoPtr != NULL)"
+				}	// end "if (layerInfoPtr != NULL)"
 				
 			if (fileInfoIndex != nextFileInfoIndex)
 				{
@@ -15439,14 +15834,12 @@ void SetUpHeirarchalFileIOParameters (
 					
 						// Get pointer to the hfa structure.
 						
-				hfaPtr = (HierarchalFileFormatPtr)GetHandlePointer(
-														localFileInfoPtr->hfaHandle,
-														kNoLock,
-														kNoMoveHi);
+				hfaPtr = (HierarchalFileFormatPtr)GetHandlePointer (
+																	localFileInfoPtr->hfaHandle);
 														
 				bandInterleaveByBlockFlag = FALSE;
 				
-				}		// end "if (if (fileInfoIndex != layerInfoPtr...)"
+				}	// end "if (if (fileInfoIndex != layerInfoPtr...)"
 			
 			if (hfaPtr != NULL)
 				{
@@ -15456,7 +15849,7 @@ void SetUpHeirarchalFileIOParameters (
 					fileChannelNumber = 1;
 					bandInterleaveByBlockFlag = TRUE;
 					
-					}		// end "if (localFileInfoPtr->bandInterleave == kBIBlock || ..."
+					}	// end "if (localFileInfoPtr->bandInterleave == kBIBlock || ..."
 			
 				localHfaPtr = &hfaPtr[fileChannelNumber-1];
 				
@@ -15466,16 +15859,19 @@ void SetUpHeirarchalFileIOParameters (
 				
 					localHfaPtr->firstLineRead = 0;
 					localHfaPtr->lastLineRead = 0;	
-					localHfaPtr->firstColumnStartByte =  (UInt32)(localHfaPtr->layerOffsetBytes + 
-																localHfaPtr->blockOffset * blockColumnStart);
+					localHfaPtr->firstColumnStartByte =  
+											(UInt32)(localHfaPtr->layerOffsetBytes + 
+													localHfaPtr->blockOffset * blockColumnStart);
 					
 					ratio = ldiv (columnEnd, localHfaPtr->blockWidth);
 					blockColumnEnd = ratio.quot;
 					if (ratio.rem > 0)
 						blockColumnEnd++;
 												
-					localHfaPtr->firstColumnRead = localHfaPtr->blockWidth * blockColumnStart + 1;
-					localHfaPtr->lastColumnRead = localHfaPtr->blockWidth * blockColumnEnd;
+					localHfaPtr->firstColumnRead = 
+												localHfaPtr->blockWidth * blockColumnStart + 1;
+					localHfaPtr->lastColumnRead = 
+												localHfaPtr->blockWidth * blockColumnEnd;
 					localHfaPtr->numberBlocksRead = blockColumnEnd - blockColumnStart;
 					localHfaPtr->blockSizeRead = localHfaPtr->blockSize;
 					localHfaPtr->blockWidthRead = localHfaPtr->blockWidth;
@@ -15483,15 +15879,15 @@ void SetUpHeirarchalFileIOParameters (
 					if (localFileInfoPtr->gdalDataSetH != NULL)
 						localHfaPtr->blockWidthRead = columnEnd - columnStart + 1;
 					
-					}		// end "if (localHfaPtr->blockWidth > 0)"
+					}	// end "if (localHfaPtr->blockWidth > 0)"
 				
-				}		// end "if (hfaPtr != NULL)"
+				}	// end "if (hfaPtr != NULL)"
 				
-			}		// end "for (index=0; index<numberChannels; index++)"
+			}	// end "for (index=0; index<numberChannels; index++)"
 			
-		}		// end "if (fileInfoPtr != NULL)"
+		}	// end "if (fileInfoPtr != NULL)"
 	
-}		// end "SetUpHeirarchalFileIOParameters"  
+}	// end "SetUpHeirarchalFileIOParameters"  
 
 
 
@@ -15525,20 +15921,18 @@ SInt16 SetVolume (
 	
 	if (fileStreamPtr != NULL)
 		{	
-#		if defined multispec_mac
+		#if defined multispec_mac
 			if (fileStreamPtr->fSSpecFlag)
-				errCode = HSetVol (NULL, 
-										fileStreamPtr->vRefNum, 
-										fileStreamPtr->parID);  
+				errCode = HSetVol (NULL, fileStreamPtr->vRefNum, fileStreamPtr->parID);  
 					
 			if (messageCode == kErrorMessages)		
 				IOCheck (errCode, (CharPtr)NULL);            
-#		endif	// defined multispec_mac
-		}		// end "if (fileStreamPtr != NULL)"
+		#endif	// defined multispec_mac
+		}	// end "if (fileStreamPtr != NULL)"
 	
 	return (errCode);
 	
-}		// end "SetVolume"
+}	// end "SetVolume"
 
 
 
@@ -15572,7 +15966,6 @@ void SetVolumeReference (
 	if (inputFileStreamPtr != NULL && outputFileStreamPtr != NULL)
 		{              
 		#if defined multispec_mac                       
-	      
 		      		// Copying all below will handle for cases of a FSSpec record
 		      		// and a non-FSSpec record (pre-FSSpec) and FSRef record
 						// (post FSSpec).
@@ -15583,17 +15976,11 @@ void SetVolumeReference (
 				
 				outputFileStreamPtr->fSRefFlag = inputFileStreamPtr->fSRefFlag;
 				outputFileStreamPtr->parentFSRef = inputFileStreamPtr->parentFSRef;
-	   	
-		#endif	// defined multispec_mac 
-	
-	              
-		#if defined multispec_win  
-	 
-		#endif	// defined multispec_win
+		#endif	// defined multispec_mac
 		
-		}		// end "if (inputFileStreamPtr != NULL && outputFileStreamPtr != NULL)" 
+		}	// end "if (inputFileStreamPtr != NULL && outputFileStreamPtr != NULL)" 
 	
-}		// end "SetVolumeReference"    
+}	// end "SetVolumeReference"    
 
 
 
@@ -15638,7 +16025,7 @@ void SwapBytes (
 		Swap8Bytes ((DoublePtr)fileIOBufferPtr,
 						numberSamples);  
 	
-}		// end "SwapBytes"    
+}	// end "SwapBytes"    
 
 
 
@@ -15677,9 +16064,9 @@ void Swap2Bytes (
 		*twoBytePtr = ((*twoBytePtr & 0xff00) >> 8) | ((*twoBytePtr & 0x00ff) << 8);
 		twoBytePtr++;
 				
-		}		// end "for (sampleCount=0;  ..." 
+		}	// end "for (sampleCount=0;  ..." 
 	
-}		// end "Swap2Bytes"    
+}	// end "Swap2Bytes"    
 
 
 
@@ -15721,9 +16108,9 @@ void Swap4Bytes (
 										((*fourBytePtr & 0x000000ff) << 24);
 		fourBytePtr++;
 				
-		}		// end "for (sampleCount=0;  ..." 
+		}	// end "for (sampleCount=0;  ..." 
 	
-}		// end "Swap4Bytes"    
+}	// end "Swap4Bytes"    
 
 
 
@@ -15777,9 +16164,9 @@ void Swap8Bytes (
 								
 		fourBytePtr += 2;
 				
-		}		// end "for (sampleCount=0;  ..." 
+		}	// end "for (sampleCount=0;  ..." 
 	
-}		// end "Swap8Bytes"    
+}	// end "Swap8Bytes"    
 
 
 
@@ -15815,7 +16202,7 @@ SInt16 UpdateFileNameInformation (
 	SInt16								errCode = noErr;
 	
 	
-#	if defined multispec_mac
+	#if defined multispec_mac
 		CFStringRef			cfStringRef;
 		
 		
@@ -15847,7 +16234,7 @@ SInt16 UpdateFileNameInformation (
 				//CFAllocatorDeallocate (kCFAllocatorDefault, (void*)cfStringRef);
 				CFRelease (cfStringRef);
 										
-				}		// end "if (cfStringRef != NULL)"
+				}	// end "if (cfStringRef != NULL)"
 			
 			else
 				errCode = 2;
@@ -15856,12 +16243,12 @@ SInt16 UpdateFileNameInformation (
 			
 			fileStreamPtr->pathLength = 0;
 			
-			}		// end "if (fileStreamPtr->uniFileName.length == 0 && ..."
+			}	// end "if (fileStreamPtr->uniFileName.length == 0 && ..."
 	
 		else if (fileStreamPtr->uniFileName.length == 0 && fileStreamPtr->fileName[0] == 0)
 			errCode = 3;
 		/*
-		else		// fileStreamPtr->wideCharFileName[0] > 0 || fileStreamPtr->fileName[0] == 0
+		else	// fileStreamPtr->wideCharFileName[0] > 0 || fileStreamPtr->fileName[0] == 0
 			{
 			if (fileStreamPtr->uniFileName.length == 0)
 						// Copy wide character file name string to unichar name string.
@@ -15885,25 +16272,25 @@ SInt16 UpdateFileNameInformation (
 				//CFAllocatorDeallocate (kCFAllocatorDefault, (void*)cfStringRef);
 				CFRelease (cfStringRef);
 													
-				}		// end "if (cfStringRef != NULL)"
+				}	// end "if (cfStringRef != NULL)"
 			
 			else
 				errCode = 2;
 				
-			}		// end "else fileStreamPtr->wideCharFileName[0] > 0 || ..."
+			}	// end "else fileStreamPtr->wideCharFileName[0] > 0 || ..."
 		*/
-#	endif
+	#endif	// defined multispec_mac
 			  
-#	if defined multispec_lin || defined multispec_win
+	#if defined multispec_lin || defined multispec_win
 				// for Windows and Linux versions, now copy the proposed file name to the
 				// file path string. 
 
 		fileStreamPtr->SetFileName (fileNamePtr);
-#	endif	// defined multispec_lin || defined multispec_win
+	#endif	// defined multispec_lin || defined multispec_win
 
 	return (errCode);
 						
-}		// end "UpdateFileNameInformation"
+}	// end "UpdateFileNameInformation"
 
 
 
@@ -15937,7 +16324,7 @@ SInt16 VerifyFileStreamForOpen (
 {  
 	SInt16								errCode = noErr;
 	
-#	if defined multispec_mac
+	#if defined multispec_mac
 		errCode = UpdateFileNameInformation (fileStreamPtr, NULL);
 	
 		if (fileStreamPtr->fSRefFlag)
@@ -15953,7 +16340,7 @@ SInt16 VerifyFileStreamForOpen (
 																kTextEncodingUnicodeDefault, 
 																&fileStreamPtr->fsRef);
 													
-					}		// end "if (errCode == noErr)"
+					}	// end "if (errCode == noErr)"
 					
 				if (errCode == noErr)
 					errCode = FSGetCatalogInfo (&fileStreamPtr->fsRef,
@@ -15963,20 +16350,20 @@ SInt16 VerifyFileStreamForOpen (
 															NULL,
 															NULL);
 															
-				}		// end "if (gHasHFSPlusAPIs)"
+				}	// end "if (gHasHFSPlusAPIs)"
 			
-			else		// !gHasHFSPlusAPIs
+			else	// !gHasHFSPlusAPIs
 				errCode = 1;
 				
-			}		// end "if (fileStreamPtr->fSRefFlag)"
-#	endif	// defined multispec_mac 
+			}	// end "if (fileStreamPtr->fSRefFlag)"
+	#endif	// defined multispec_mac
 
-#	if defined multispec_lin || defined multispec_win
+	#if defined multispec_lin || defined multispec_win
 				// Create UTF8 character formatted file path name string
 
 		UpdateFileNameInformation (fileStreamPtr, fileNamePtr);
-#	endif	// defined multispec_lin || defined multispec_win    
+	#endif	// defined multispec_lin || defined multispec_win
    	
    return (errCode);
 	
-}		// end "VerifyFileStreamForOpen" 
+}	// end "VerifyFileStreamForOpen" 

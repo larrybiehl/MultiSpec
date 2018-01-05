@@ -7,7 +7,18 @@
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
+//	Authors:					Larry L. Biehl
+//
+//	Revision date:			12/21/2017
+//
 //	File:						SOutlineFields.cpp
+//
+//	Language:				C
+//
+//	System:					Linux, Macintosh, and Windows Operating Systems
+//
+//	Brief description:	This file contains routines that outline training
+//								and/or test fields in the project image window.
 //
 //	Functions in file: 	void 					ForceFieldOutlineUpdate
 //								void 					OutlineClassFields
@@ -17,67 +28,56 @@
 //								void 					OutlineFieldsInProjectWindows
 //								void 					OutlineProjectFields
 //
-//	Brief description:	This file contains routines that outline training
-//								and/or test fields in the project image window.
-//
 //	Include files:			"MultiSpecHeaders"
 //								"multiSpec.h"
 //
-//	Language:				C
-//
-//	System:					Macintosh Operating System
-//
-//	Authors:					Larry L. Biehl
-//
-//	Revision number:		3.0
-//
-//	Revision date:			03/03/2017
+//------------------------------------------------------------------------------------
 
-#include	"SMulSpec.h" 
+#include "SMultiSpec.h" 
   
 #if defined multispec_win 
-	#include "CImagVew.h"
+	#include "WImageView.h"
 #endif	// defined multispec_win 
 
 #if defined multispec_lin   
 	#include "LImageView.h"
 #endif	// defined multispec_lin  
 
-#include "SExtGlob.h" 
+//#include "SExtGlob.h" 
 
 
 
 			// Prototypes for routines in this file that are only called by		
 			// other routines in this file.	
 			
-double 				GetAngle (
-							HPFieldPointsPtr					originPointPtr,
-							HPFieldPointsPtr					endPointPtr);
+double GetAngle (
+				HPFieldPointsPtr					originPointPtr,
+				HPFieldPointsPtr					endPointPtr);
 			
-double 				GetHalfAngle (
-							HPFieldPointsPtr					lastPointPtr,
-							HPFieldPointsPtr					currentPointPtr,
-							HPFieldPointsPtr					nextPointPtr);											
+double GetHalfAngle (
+				HPFieldPointsPtr					lastPointPtr,
+				HPFieldPointsPtr					currentPointPtr,
+				HPFieldPointsPtr					nextPointPtr);											
 			
-void 					OutlineClassFields (
-							SInt16								outlineFieldType, 
-							SInt16								classNumber, 
-							Handle								windowInfoHandle,
-							SInt16								windowCode,
-							LCToWindowUnitsVariablesPtr	lcToWindowUnitsVariablesPtr);
+void OutlineClassFields (
+				SInt16								outlineFieldType, 
+				SInt16								classNumber, 
+				Handle								windowInfoHandle,
+				SInt16								windowCode,
+				LCToWindowUnitsVariablesPtr	lcToWindowUnitsVariablesPtr);
 
-void				 	OutlineField (
-							SInt16								classNumber, 
-							SInt16								fieldNumber, 
-							Handle								windowInfoHandle,
-							SInt16								windowCode,
-							LCToWindowUnitsVariablesPtr	lcToWindowUnitsVariablesPtr);
+void OutlineField (
+				SInt16								classNumber, 
+				SInt16								fieldNumber, 
+				Handle								windowInfoHandle,
+				SInt16								windowCode,
+				LCToWindowUnitsVariablesPtr	lcToWindowUnitsVariablesPtr);
 
-void 					OutlineProjectFields (
-							SInt16								outlineFieldType, 
-							Handle								windowInfoHandle,
-							SInt16								windowCode,
-							LCToWindowUnitsVariablesPtr	lcToWindowUnitsVariablesPtr);
+void OutlineProjectFields (
+				SInt16								outlineFieldType, 
+				Handle								windowInfoHandle,
+				SInt16								windowCode,
+				LCToWindowUnitsVariablesPtr	lcToWindowUnitsVariablesPtr);
 
 
 
@@ -98,12 +98,12 @@ void 					OutlineProjectFields (
 //
 // Value Returned:	None	
 // 
-//	Called By:			AddField 					(in editStatistics.c)
-//							CutClass 					(in editStatistics.c)
-//							CutField 					(in editStatistics.c)
-//							EditCoordinatesDialog 	(in editStatistics.c)
-//							FieldListStatMode 		(in statistics.c)
-// 						PolygonListStatMode 		(in statistics.c)
+//	Called By:			AddField 					(in SEditStatistics.cpp)
+//							CutClass 					(in SEditStatistics.cpp)
+//							CutField 					(in SEditStatistics.cpp)
+//							EditCoordinatesDialog 	(in SEditStatistics.cpp)
+//							FieldListStatMode 		(in SStatistics.cpp)
+// 						PolygonListStatMode 		(in SStatistics.cpp)
 //
 //	Coded By:			Larry L. Biehl			Date: 01/12/1989
 //	Revised By:			Larry L. Biehl			Date: 09/24/2015
@@ -125,17 +125,15 @@ void ForceFieldOutlineUpdate (
 			// window list to find the project image windows and force an 			
 			// update event so that only the input field is outlined.				
 			
-	if ((forceFlag || gProjectInfoPtr->outlineFieldType != 0) && 
-																		gNumberOfIWindows > 0)
+	if ((forceFlag || gProjectInfoPtr->outlineFieldType != 0) && gNumberOfIWindows > 0)
 		{                    
 		windowCount = 0;
 		windowListIndex = kImageWindowStart;
 		do
 			{
 			windowPtr = gWindowList[windowListIndex];         
-			windowInfoHandle = GetWindowInfoHandle(windowPtr);
-			windowInfoPtr = (WindowInfoPtr)GetHandlePointer(
-												windowInfoHandle, kNoLock, kNoMoveHi);
+			windowInfoHandle = GetWindowInfoHandle (windowPtr);
+			windowInfoPtr = (WindowInfoPtr)GetHandlePointer (windowInfoHandle);
 			
 			if (windowInfoPtr->projectWindowFlag)  
 				InvalidateWindow (windowPtr, kImageFrameArea, FALSE);
@@ -143,11 +141,11 @@ void ForceFieldOutlineUpdate (
 			windowListIndex++;
 			windowCount++;
 														
-			}		while (windowCount<gNumberOfIWindows); 
+			}	while (windowCount < gNumberOfIWindows); 
 		
-		}		// end "if ((forceFlag || gProjectInfoPtr->...)" 
+		}	// end "if ((forceFlag || gProjectInfoPtr->...)" 
 		
-}		// end "ForceFieldOutlineUpdate" 
+}	// end "ForceFieldOutlineUpdate" 
 
 
 
@@ -185,11 +183,11 @@ double GetAngle (
 											
 	lineDif = endPointPtr->line - originPointPtr->line;
 	colDif = endPointPtr->col - originPointPtr->col;
-	angle = atan2( (double)lineDif, (double)colDif );
+	angle = atan2 ((double)lineDif, (double)colDif);
 	
 	return (angle);
 		
-}		// end "GetAngle" 
+}	// end "GetAngle" 
 
 
 
@@ -233,7 +231,7 @@ double GetHalfAngle (
 	
 	return (halfAngle);
 		
-}		// end "GetHalfAngle" 
+}	// end "GetHalfAngle" 
 
 
 
@@ -314,16 +312,16 @@ void GetPolygonLabelPoint (
 												0,
 												0);
 		
-		}		// end "if (rgnHandle != NULL)"
+		}	// end "if (rgnHandle != NULL)"
 		
-	else		// rgnHandle == NULL
+	else	// rgnHandle == NULL
 		{
 		regionBoxRectangle.top = 1;
 		regionBoxRectangle.left = 1;
 		regionBoxRectangle.bottom = 1;
 		regionBoxRectangle.right = 1;
 		
-		}		// end "else rgnHandle == NULL"
+		}	// end "else rgnHandle == NULL"
 		
 	pointIndex = fieldIdentPtr->firstPolygonPoint;
 	fieldPointsPtr[pointIndex].line = regionBoxRectangle.top;
@@ -350,40 +348,40 @@ void GetPolygonLabelPoint (
 						// Check if point up and to the right of this vertex is actually
 						// within the area.
 				
-				tangent = fabs( tan(halfAngle) );
+				tangent = fabs (tan (halfAngle));
 				if (tangent >= 1)
 					{
 					colDif = 1;
 					lineDif = (SInt32)(tangent +.5);
 					
-					}		// end "if (tangent >= 1)"
+					}	// end "if (tangent >= 1)"
 					
 				else if (tangent > .2)
 					{
 					colDif = (SInt32)(1./tangent + .5);
 					lineDif = 1;
 					
-					}		// end "else if (tangent > .2)"
+					}	// end "else if (tangent > .2)"
 					
-				else		// tangent <= .2   
+				else	// tangent <= .2   
 					{
 					colDif = 5;
 					lineDif = 1;
 					
-					}		// end "else tangent < 1"
+					}	// end "else tangent < 1"
 				
-				}		// end "if (rgnHandle != NULL)"
+				}	// end "if (rgnHandle != NULL)"
 				
 			if (halfAngle >= 0 && halfAngle < kHALF_PI)
 				{
 				if (rgnHandle != NULL)
 					{
-							// Check if point down and to the right of this vertex is actually
-							// within the area.    
+							// Check if point down and to the right of this vertex is 
+							// actually within the area.    
 							
 					#if defined multispec_mac 
-//						checkPoint.h = (SInt16)(fieldPointsPtr[pointIndex].col + colDif);
-//						checkPoint.v = (SInt16)(fieldPointsPtr[pointIndex].line + lineDif);
+						//checkPoint.h = (SInt16)(fieldPointsPtr[pointIndex].col + colDif);
+						//checkPoint.v = (SInt16)(fieldPointsPtr[pointIndex].line + lineDif);
 					
 						checkPoint.h = (SInt16)fieldPointsPtr[pointIndex].col;
 						checkPoint.v = (SInt16)fieldPointsPtr[pointIndex].line;
@@ -394,32 +392,32 @@ void GetPolygonLabelPoint (
 						checkPoint.v = (SInt16)fieldPointsPtr[pointIndex].line + 1; 
 					#endif	// defined multispec_win    
 					
-					}		// end "if (rgnHandle != NULL)"
+					}	// end "if (rgnHandle != NULL)"
 						
-				if (rgnHandle == NULL || PtInRgn (checkPoint, rgnHandle) )
+				if (rgnHandle == NULL || PtInRgn (checkPoint, rgnHandle))
 					{
 							// Get primary label point
 							
 					if (pLabelPointIndex < 0)
 						pLabelPointIndex = pointIndex;
 						
-					else		// labelPointIndex >= 0
+					else	// labelPointIndex >= 0
 						{
 						if (fieldPointsPtr[pointIndex].line < 
 																fieldPointsPtr[pLabelPointIndex].line)
 							pLabelPointIndex = pointIndex;
 							
 						else if (fieldPointsPtr[pointIndex].line == 
-																fieldPointsPtr[pLabelPointIndex].line &&
+															fieldPointsPtr[pLabelPointIndex].line &&
 									fieldPointsPtr[pointIndex].col < 
 																fieldPointsPtr[pLabelPointIndex].col)
 							pLabelPointIndex = pointIndex;
 						
-						}		// end "else labelPointIndex >= 0"
+						}	// end "else labelPointIndex >= 0"
 						
-					}		// end "if ( rgnHandle == NULL || PtInRgn (checkPoint, rgnHandle)"
+					}	// end "if (rgnHandle == NULL || PtInRgn (checkPoint, rgnHandle)"
 					
-				}		// end "if (halfAngle >= 0 && halfAngle < kHALF_PI)"
+				}	// end "if (halfAngle >= 0 && halfAngle < kHALF_PI)"
 					
 					// Get secondary label point
 				
@@ -433,25 +431,25 @@ void GetPolygonLabelPoint (
 					checkPoint.h = (SInt16)(fieldPointsPtr[pointIndex].col + colDif);
 					checkPoint.v = (SInt16)(fieldPointsPtr[pointIndex].line - lineDif);
 					
-					}		// end "if (rgnHandle != NULL)"
+					}	// end "if (rgnHandle != NULL)"
 							
-				if (rgnHandle == NULL || PtInRgn (checkPoint, rgnHandle) )
+				if (rgnHandle == NULL || PtInRgn (checkPoint, rgnHandle))
 					{
 					if (sLabelPointIndex < 0)
 						sLabelPointIndex = pointIndex;
 						
-					else		// labelPointIndex >= 0
+					else	// labelPointIndex >= 0
 						{
 						if (fieldPointsPtr[pointIndex].line < fieldPointsPtr[sLabelPointIndex].line)
 							sLabelPointIndex = pointIndex;
 						
-						}		// end "else labelPointIndex >= 0"
+						}	// end "else labelPointIndex >= 0"
 						
-					}		// end "if (rgnHandle == NULL || PtInRgn (checkPoint, rgnHandle)"
+					}	// end "if (rgnHandle == NULL || PtInRgn (checkPoint, rgnHandle)"
 				
-				}		// end "else projectionPoint_v - ..."
+				}	// end "else projectionPoint_v - ..."
 				
-			}		// end "if (halfAngle > -kHALF_PI && halfAngle < kHALF_PI)"
+			}	// end "if (halfAngle > -kHALF_PI && halfAngle < kHALF_PI)"
 			
 		nextIndex++;
 		if (nextIndex > endIndex)
@@ -463,7 +461,7 @@ void GetPolygonLabelPoint (
 		
 		pointIndex++;
 		
-		}		// end "while (pointIndex <= endIndex)" 
+		}	// end "while (pointIndex <= endIndex)" 
 		
 			// We now have an upper left type of a vertex. Now adjust the label point down
 			// if the next point to the right is lower.
@@ -481,11 +479,11 @@ void GetPolygonLabelPoint (
 		if (lastIndex < fieldIdentPtr->firstPolygonPoint + 2)
 			lastIndex = endIndex;
 			
-		nextAngle = GetAngle ( &fieldPointsPtr[pLabelPointIndex],
-											&fieldPointsPtr[nextIndex]);
+		nextAngle = GetAngle (&fieldPointsPtr[pLabelPointIndex],
+										&fieldPointsPtr[nextIndex]);
 			
-		lastAngle = GetAngle ( &fieldPointsPtr[pLabelPointIndex],
-											&fieldPointsPtr[lastIndex]);
+		lastAngle = GetAngle (&fieldPointsPtr[pLabelPointIndex],
+										&fieldPointsPtr[lastIndex]);
 		
 				// Make sure that the points are going clockwise.
 					
@@ -495,26 +493,28 @@ void GetPolygonLabelPoint (
 			nextIndex = lastIndex;
 			lastIndex = pointIndex;
 			
-			}		// end "if (lastAngle < nextAngle)"
+			}	// end "if (lastAngle < nextAngle)"
 			
 				// Get the label line. Adjust the label line down if need to try to stay
 				// away from a field border that may be drawn across it.
 			
-		labelPointPtr->v = MAX(fieldPointsPtr[pLabelPointIndex].line, 
+		labelPointPtr->v = MAX (fieldPointsPtr[pLabelPointIndex].line, 
 										fieldPointsPtr[nextIndex].line);
 										
 				// However make sure that the line is not lower that the line for the last 
 				// point.
 			
-		labelPointPtr->v = MIN(labelPointPtr->v, 
+		labelPointPtr->v = MIN (labelPointPtr->v, 
 										fieldPointsPtr[lastIndex].line);
 			
 				// Get the label column. Adjust the label column to the right if need to 
 				// try to stay away from a field border that may be drawn across it.
 				
 		labelPointPtr->h = fieldPointsPtr[pLabelPointIndex].col;
-		lastColDif = fieldPointsPtr[lastIndex].col - fieldPointsPtr[pLabelPointIndex].col;
-		lastLineDif = fieldPointsPtr[lastIndex].line - fieldPointsPtr[pLabelPointIndex].line;
+		lastColDif = 
+					fieldPointsPtr[lastIndex].col - fieldPointsPtr[pLabelPointIndex].col;
+		lastLineDif = 
+					fieldPointsPtr[lastIndex].line - fieldPointsPtr[pLabelPointIndex].line;
 		
 		if (lastLineDif > 0)
 			{
@@ -523,27 +523,27 @@ void GetPolygonLabelPoint (
 				labelOffset = gProjectInfoPtr->labelSize + 1;
 				
 			labelPointPtr->h += (SInt16)(lastColDif *
-				 (labelPointPtr->v - fieldPointsPtr[pLabelPointIndex].line + labelOffset) / 
-				 																					lastLineDif);
+				 (labelPointPtr->v - fieldPointsPtr[pLabelPointIndex].line + 
+																			labelOffset) / lastLineDif);
 				 			
 			if (lastColDif > 0)																		
-				labelPointPtr->h = MIN(labelPointPtr->h, fieldPointsPtr[lastIndex].col);
+				labelPointPtr->h = MIN (labelPointPtr->h, fieldPointsPtr[lastIndex].col);
 			
-			}		// end "if (lastLineDif > 0)"
+			}	// end "if (lastLineDif > 0)"
 			
-		}		// end "if (pLabelPointIndex >= 0)"
+		}	// end "if (pLabelPointIndex >= 0)"
 		
-	else		// pLabelPointIndex < 0
+	else	// pLabelPointIndex < 0
 		{
 		labelPointPtr->v =  regionBoxRectangle.top;	
 		labelPointPtr->h =  regionBoxRectangle.left;
 		
-		}		// end "else pLabelPointIndex < 0"
+		}	// end "else pLabelPointIndex < 0"
 		
 	if (rgnHandle != NULL)
 		DisposeRgn (rgnHandle);
 		
-}		// end "GetPolygonLabelPoint" 
+}	// end "GetPolygonLabelPoint" 
 
 
 
@@ -599,11 +599,11 @@ void OutlineFieldsInProjectWindows (
 		do
 			{
 			windowPtr = gWindowList[windowListIndex];
-			windowInfoHandle = GetWindowInfoHandle(windowPtr);
-			windowInfoPtr = (WindowInfoPtr)GetHandlePointer(
-												windowInfoHandle, kNoLock, kNoMoveHi);
+			windowInfoHandle = GetWindowInfoHandle (windowPtr);
+			windowInfoPtr = (WindowInfoPtr)GetHandlePointer (windowInfoHandle);
 			
-			if (windowInfoPtr->projectWindowFlag) {  
+			if (windowInfoPtr->projectWindowFlag) 
+				{  
 				#if defined multispec_mac                                             
 					OutlineFieldsControl (statsWindowMode, 
 													windowPtr, 
@@ -617,18 +617,19 @@ void OutlineFieldsInProjectWindows (
 				
 				#if defined multispec_lin
 					InvalidateWindow (windowPtr, kImageArea, FALSE);
-               (windowPtr->m_Canvas)->Update();
-				#endif	// defined multispec_lin      
-				}
+               (windowPtr->m_Canvas)->Update ();
+				#endif	// defined multispec_lin
+				      
+				}	// end "if (windowInfoPtr->projectWindowFlag)"
 				                  
 			windowListIndex++;
 			windowCount++;
 														
-			}		while (windowCount<gNumberOfIWindows);
+			}	while (windowCount<gNumberOfIWindows);
 		
-		}		// end "if (gProjectInfoPtr->outlineFieldType != 0 && ...)" 
+		}	// end "if (gProjectInfoPtr->outlineFieldType != 0 && ...)" 
 
-}		// end "OutlineFieldsInProjectWindows" 
+}	// end "OutlineFieldsInProjectWindows" 
 
 
 
@@ -677,9 +678,8 @@ void OutlineFieldsInProjectBaseWindows (
 		do
 			{
 			windowPtr = gWindowList[windowListIndex];
-			windowInfoHandle = (Handle)GetWindowInfoHandle(windowPtr);
-			windowInfoPtr = (WindowInfoPtr)GetHandlePointer(
-												windowInfoHandle, kNoLock, kNoMoveHi);
+			windowInfoHandle = (Handle)GetWindowInfoHandle (windowPtr);
+			windowInfoPtr = (WindowInfoPtr)GetHandlePointer (windowInfoHandle);
 			
 			if (windowInfoPtr->projectBaseImageFlag)     
 				#if defined multispec_mac                                             
@@ -690,18 +690,17 @@ void OutlineFieldsInProjectBaseWindows (
 				#endif	// defined multispec_mac 
 						             
 				#if defined multispec_win || defined multispec_lin
-					//windowPtr->Invalidate();
 					InvalidateWindow (windowPtr, kImageArea, FALSE);
 				#endif	// defined multispec_win || defined multispec_lin                           
 				
 			windowListIndex++;
 			windowCount++;
 														
-			}		while (windowCount<gNumberOfIWindows);
+			}	while (windowCount<gNumberOfIWindows);
 		
-		}		// end "if (gProjectInfoPtr->outlineFieldType != 0 && ...)" 
+		}	// end "if (gProjectInfoPtr->outlineFieldType != 0 && ...)" 
 
-}		// end "OutlineFieldsInProjectBaseWindows" 
+}	// end "OutlineFieldsInProjectBaseWindows" 
 
 
 
@@ -747,14 +746,11 @@ void OutlineFieldsControl (
 	GrafPtr								savedPort;
 	WindowInfoPtr						windowInfoPtr;
 	
-//	SInt32								saveOrigin[2];
-	
 	SInt16								classNumber,
 											fieldNumber,
 											outlineFieldType;
 											
 	Boolean								continueFlag;
-//											winUseOriginFlag;
 	
 	SignedByte							windowHandleStatus;
 			
@@ -785,15 +781,16 @@ void OutlineFieldsControl (
 	#endif	// defined multispec_mac                                   
 
 	#if defined multispec_lin		
-
-//		wxMemoryDC displaydc;
-//		bool bitok = (windowPtr->m_ScaledBitmap).IsOk();
-//		displaydc.SelectObject(windowPtr->m_ScaledBitmap);
-//		wxDC* oldgCDCpt = gCDCPointer; // Save the global DC pointer 
-//		gCDCPointer = &displaydc;
+		/*
+		wxMemoryDC displaydc;
+		bool bitok = (windowPtr->m_ScaledBitmap).IsOk ();
+		displaydc.SelectObject (windowPtr->m_ScaledBitmap);
+		wxDC* oldgCDCpt = gCDCPointer; // Save the global DC pointer 
+		gCDCPointer = &displaydc;
       
-//      wxClientDC dc(windowPtr->m_Canvas);
-//      gCDCPointer = &dc;
+      wxClientDC dc (windowPtr->m_Canvas);
+      gCDCPointer = &dc;
+		*/
 		if (gCDCPointer == NULL)
 																								return;
 	#endif	// defined multispec_lin
@@ -844,10 +841,10 @@ void OutlineFieldsControl (
 						// Set the pen state for outlining the fields.
 						
 				if (gProjectInfoPtr->outlineColorCode == 1)
-					PenPat ( GetQDGlobalsBlack (&pattern) );	
+					PenPat (GetQDGlobalsBlack (&pattern));	
 					
-				else		// gProjectInfoPtr->outlineColorCode != 1
-					PenPat ( GetQDGlobalsWhite (&pattern) );	
+				else	// gProjectInfoPtr->outlineColorCode != 1
+					PenPat (GetQDGlobalsWhite (&pattern));	
 
 				PenMode (patCopy);
 				PenSize (1,1);
@@ -860,7 +857,7 @@ void OutlineFieldsControl (
 					if (gFontMgrPresentFlag)		
 						textFont = FMGetFontFamilyFromName ("\pgeneva");
 						
-					else		// !gCarbonFlag
+					else	// !gCarbonFlag
 						GetFNum ("\pgeneva", &textFont);
 		
 					if (textFont == 0)		
@@ -872,18 +869,18 @@ void OutlineFieldsControl (
 					if (gProjectInfoPtr->outlineColorCode == 1)
 						TextMode (srcOr);
 						
-					else		// gProjectInfoPtr->outlineColorCode != 1
+					else	// gProjectInfoPtr->outlineColorCode != 1
 						TextMode (srcBic);
 						
-					}		// end "if (gProjectInfoPtr->labelFieldCode != 0)"
+					}	// end "if (gProjectInfoPtr->labelFieldCode != 0)"
 			#endif	// defined multispec_mac  
 			
 			#if defined multispec_win  				
 				GetWindowClipRectangle (windowPtr, kImageFrameArea, &gViewRect);
-				if (!gMFC_Rgn.CreateRectRgn(gViewRect.left,
-													gViewRect.top,
-													gViewRect.right,
-													gViewRect.bottom) )
+				if (!gMFC_Rgn.CreateRectRgn (gViewRect.left,
+														gViewRect.top,
+														gViewRect.right,
+														gViewRect.bottom))
 					continueFlag = FALSE;
 				
 				if (continueFlag)
@@ -891,26 +888,26 @@ void OutlineFieldsControl (
 					if (gProjectInfoPtr->outlineColorCode == 1)
 						newPenPtr = &gBlackPen;
 					
-					else		// gProjectInfoPtr->outlineColorCode != 1
+					else	// gProjectInfoPtr->outlineColorCode != 1
 						newPenPtr = &gWhitePen;
 				                   
 					logbrush.lbStyle = BS_HOLLOW;
 					
 					if (gProjectInfoPtr->outlineColorCode == 1)
-						logbrush.lbColor = RGB(0, 0, 0);
+						logbrush.lbColor = RGB (0, 0, 0);
 					
-					else		// gProjectInfoPtr->outlineColorCode != 1
-						logbrush.lbColor = RGB(255, 255, 255);
+					else	// gProjectInfoPtr->outlineColorCode != 1
+						logbrush.lbColor = RGB (255, 255, 255);
 						
 					logbrush.lbHatch = HS_HORIZONTAL; 
 				   
-					::GetObject(GetStockObject(SYSTEM_FIXED_FONT), 
-										sizeof(LOGFONT), 
+					::GetObject (GetStockObject (SYSTEM_FIXED_FONT), 
+										sizeof (LOGFONT), 
 										&logfont);
 					
 							// Change to Courier font. 
 				                           
-//					logfont.lfHeight = 0xfffa;
+					//logfont.lfHeight = 0xfffa;
 					logfont.lfHeight = -10;
 					if (windowCode == kToPrintWindow)
 						logfont.lfHeight = 
@@ -929,74 +926,78 @@ void OutlineFieldsControl (
 	            
 	            		// Set brush to be used.
 	            		
-					if (!brush.CreateBrushIndirect(&logbrush))
+					if (!brush.CreateBrushIndirect (&logbrush))
 						continueFlag = FALSE;
 						
-					}		// end "if (continueFlag)"                               
-            
-//            if (continueFlag)
-//            	{
-//            		// Set pen to be used.
-//						
-//					if (!pen.CreatePenIndirect(&logpen))
-//						continueFlag = FALSE;
-//						
-//					}		// end " if (continueFlag)"                               
-            
+					}	// end "if (continueFlag)"                               
+				/*
+            if (continueFlag)
+            	{
+            		// Set pen to be used.
+				 
+					if (!pen.CreatePenIndirect (&logpen))
+						continueFlag = FALSE;
+				 
+					}	// end " if (continueFlag)"
+				*/
             if (continueFlag)
             	{    
 	            		// Set font to be used.
 				                                                              
-					if (!font.CreateFontIndirect(&logfont)) 
+					if (!font.CreateFontIndirect (&logfont)) 
 						continueFlag = FALSE; 
 						
-					}		// end " if (continueFlag)"                               
+					}	// end " if (continueFlag)"                               
             
             if (continueFlag)
             	{    
-					pOldBrush = gCDCPointer->SelectObject(&brush);
-					pOldPen = gCDCPointer->SelectObject(newPenPtr);      
-					pOldFont = gCDCPointer->SelectObject(&font); 
+					pOldBrush = gCDCPointer->SelectObject (&brush);
+					pOldPen = gCDCPointer->SelectObject (newPenPtr);      
+					pOldFont = gCDCPointer->SelectObject (&font); 
 					
-					gCDCPointer->SetBkMode(TRANSPARENT);
+					gCDCPointer->SetBkMode (TRANSPARENT);
 					 
 					if (gProjectInfoPtr->outlineColorCode == 1)
-						gCDCPointer->SetTextColor( RGB(0, 0, 0) ); 
+						gCDCPointer->SetTextColor (RGB (0, 0, 0)); 
 						
-					else		// gProjectInfoPtr->outlineColorCode == 2 
-						gCDCPointer->SetTextColor( RGB(255, 255, 255) ); 
+					else	// gProjectInfoPtr->outlineColorCode == 2 
+						gCDCPointer->SetTextColor (RGB (255, 255, 255)); 
 						
-					}		// end " if (continueFlag)"                                
-			#endif	// defined multispec_win                               
+					}	// end " if (continueFlag)"                                
+			#endif	// defined multispec_win
       
 			#if defined multispec_lin
 				GetWindowClipRectangle (windowPtr, kImageFrameArea, &gViewRect);
-				if (gProjectInfoPtr->outlineColorCode == 1) {
-					overlayPenPtr = new wxPen(*wxBLACK);
-					gCDCPointer->SetTextForeground(*wxBLACK);
-					}
+				if (gProjectInfoPtr->outlineColorCode == 1)
+					{
+					overlayPenPtr = new wxPen (*wxBLACK);
+					gCDCPointer->SetTextForeground (*wxBLACK);
 					
-				else	{	// gProjectInfoPtr->outlineColorCode != 1
-					overlayPenPtr = new wxPen(*wxWHITE);
-					gCDCPointer->SetTextForeground(*wxWHITE);
-					}
+					}	// end "if (gProjectInfoPtr->outlineColorCode == 1)"
+					
+				else	// gProjectInfoPtr->outlineColorCode != 1
+					{
+					overlayPenPtr = new wxPen (*wxWHITE);
+					gCDCPointer->SetTextForeground (*wxWHITE);
+					
+					}	// end "else gProjectInfoPtr->outlineColorCode != 1"
 							
-				gCDCPointer->SetPen(*overlayPenPtr);  
-				gCDCPointer->SetBrush(*wxTRANSPARENT_BRUSH);
-				
+				gCDCPointer->SetPen (*overlayPenPtr);  
+				gCDCPointer->SetBrush (*wxTRANSPARENT_BRUSH);
+				/*
 						// Set text description						
-//            int width, height; // Get the size of the DC in pixels
-//            gCDCPointer->GetSize(&width, &height);
-//            float scaleX = (float)(width/gChannelWindowInterval);
-//            float scaleY = (float)(height/gChannelWindowInterval);
-//            float actualScale = wxMin(scaleX, scaleY);
-//            printf("measured scale = %.1f\n", actualScale);
-//				int pointSize = 9/actualScale;	
-						
-				wxFont		font(9, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL); 
-            gCDCPointer->SetFont(font);
-            gCDCPointer->SetUserScale(1, 1);
-			#endif
+            int width, height; // Get the size of the DC in pixels
+            gCDCPointer->GetSize (&width, &height);
+            float scaleX = (float)(width/gChannelWindowInterval);
+            float scaleY = (float)(height/gChannelWindowInterval);
+            float actualScale = wxMin (scaleX, scaleY);
+            printf ("measured scale = %.1f\n", actualScale);
+				int pointSize = 9/actualScale;	
+				*/		
+				wxFont font (9, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL); 
+            gCDCPointer->SetFont (font);
+            gCDCPointer->SetUserScale (1, 1);
+			#endif	// defined multispec_lin
 		
 	      if (continueFlag)
 	      	{ 
@@ -1011,15 +1012,15 @@ void OutlineFieldsControl (
 														&lcToWindowUnitsVariables);		
 														
 				#ifdef multispec_lin
-							// Magnification is not need for linux. It is already take into account.
-//					lcToWindowUnitsVariables.magnification = 1;
-				#endif
+							// Magnification is not need for linux. It is already take into
+							// account.
+					//lcToWindowUnitsVariables.magnification = 1;
+				#endif	// defined multispec_lin
 
 						// Set parameters to properly copy offscreen to destination window.
 						
-				SetDestinationWindowParameters (windowCode,
-															windowPtr);
-				//printf("Before outline: gViewRect (x,y)= (%d,%d), (w,h)=(%d,%d) \n",gViewRect.left, gViewRect.top, gViewRect.right-gViewRect.left, gViewRect.bottom-gViewRect.top);											
+				SetDestinationWindowParameters (windowCode, windowPtr);
+
 						// Get the bounding clipping rectangle. It will be used in the
 						// 'OutlineField' routine.	 
 					    
@@ -1047,11 +1048,9 @@ void OutlineFieldsControl (
 							
 							ClipRect (&gViewRect);
 									
-							}		// end "if (gCDCPointer != NULL)" 
+							}	// end "if (gCDCPointer != NULL)" 
 								
-//						winUseOriginFlag = TRUE;
-						
-						}		// end "if (windowCode == kToPrintWindow || ...)"
+						}	// end "if (windowCode == kToPrintWindow || ...)"
 				#endif	// defined multispec_win  
 		
 				switch (statsWindowMode)
@@ -1075,28 +1074,28 @@ void OutlineFieldsControl (
 						
 					case 4:
 						OutlineField (classNumber, 
-												fieldNumber, 
-												windowInfoHandle,
-												windowCode, 
-												&lcToWindowUnitsVariables);
+											fieldNumber,
+											windowInfoHandle,
+											windowCode, 
+											&lcToWindowUnitsVariables);
 						break;
 						
-					}		// end "switch (outlineFieldMode)" 
+					}	// end "switch (outlineFieldMode)" 
 					
 				ResetDestinationWindowParameters (windowCode,
 																windowPtr);
 																				
 				#if defined multispec_win  
-					gCDCPointer->SelectObject(pOldBrush);
-					gCDCPointer->SelectObject(pOldPen);  
-					gCDCPointer->SelectObject(pOldFont); 
+					gCDCPointer->SelectObject (pOldBrush);
+					gCDCPointer->SelectObject (pOldPen);  
+					gCDCPointer->SelectObject (pOldFont); 
 					
-					gCDCPointer->SetBkMode(OPAQUE);  
+					gCDCPointer->SetBkMode (OPAQUE);  
 					
-					gMFC_Rgn.DeleteObject();              
+					gMFC_Rgn.DeleteObject ();              
 				#endif	// defined multispec_win 
 					
-				}		// end "if (continueFlag)"
+				}	// end "if (continueFlag)"
 				
 			#if defined multispec_mac
 						// Reset the pen state back to the original settings.					
@@ -1110,22 +1109,21 @@ void OutlineFieldsControl (
 				
 			SetPort (savedPort);
 				
-			}		// end "if (outlineFieldMode >= kTrainingType && ...)"
+			}	// end "if (outlineFieldMode >= kTrainingType && ...)"
 		
 		#if defined multispec_lin
-//         displaydc.SelectObject(wxNullBitmap);
-//			gCDCPointer = oldgCDCpt;
-         gCDCPointer->DestroyClippingRegion();
+			//displaydc.SelectObject (wxNullBitmap);
+			//gCDCPointer = oldgCDCpt;
+         gCDCPointer->DestroyClippingRegion ();
 			if (overlayPenPtr != NULL)
 				delete overlayPenPtr;      
 		#endif	// multispec_lin
 
-			
-		}		// end "if (continueFlag)"
+		}	// end "if (continueFlag)"
 		
 	MHSetState (windowInfoHandle, windowHandleStatus);
 
-}		// end "OutlineFieldsControl" 
+}	// end "OutlineFieldsControl" 
 
 
 
@@ -1165,18 +1163,18 @@ void OutlineProjectFields (
 			
 	if (gProjectInfoPtr->numberStatisticsClasses > 0)
 		{
-		for (	classIndex=0; 
+		for (classIndex=0;
 				classIndex<gProjectInfoPtr->numberStatisticsClasses; 
-				classIndex++)
+					classIndex++)
 			OutlineClassFields (outlineFieldType, 
 										classIndex, 
 										windowInfoHandle,
 										windowCode, 
 										lcToWindowUnitsVariablesPtr);
 			
-		}		// end "if (gProjectInfoPtr->numberStatisticsClasses > 0)" 
+		}	// end "if (gProjectInfoPtr->numberStatisticsClasses > 0)" 
 		
-}		// end "OutlineProjectFields" 
+}	// end "OutlineProjectFields" 
 
 
 
@@ -1219,8 +1217,7 @@ void OutlineClassFields (
 	
 			// Continue only if input parameters are within proper ranges.			
 																						
-	if (classNumber>=0 && 
-					classNumber<(SInt16)gProjectInfoPtr->numberStatisticsClasses)
+	if (classNumber>=0 && classNumber<(SInt16)gProjectInfoPtr->numberStatisticsClasses)
 		{
 				// Initialize local variables.												
 						
@@ -1237,20 +1234,20 @@ void OutlineClassFields (
 					// Outline the field if it is of the proper type (train/test).	
 			
 			if (outlineFieldType == kBothFieldTypes ||
-							outlineFieldType == fieldIdentPtr[fieldNumber].fieldType)
-					OutlineField(classNumber, 
-										fieldNumber, 
-										windowInfoHandle, 
-										windowCode,
-										lcToWindowUnitsVariablesPtr);
+									outlineFieldType == fieldIdentPtr[fieldNumber].fieldType)
+				OutlineField (classNumber,
+									fieldNumber,
+									windowInfoHandle, 
+									windowCode,
+									lcToWindowUnitsVariablesPtr);
 			
 			fieldNumber = fieldIdentPtr[fieldNumber].nextField;
 		
-			}		// end "while (fieldNumber != -1)" 
+			}	// end "while (fieldNumber != -1)" 
 			
-		}		// end "if (classNumber>=0 && ...)" 
+		}	// end "if (classNumber>=0 && ...)" 
 
-}		// end "OutlineClassFields" 
+}	// end "OutlineClassFields" 
 
 
 
@@ -1321,9 +1318,9 @@ void OutlineField (
 											continueFlag;
 
 
-#	if defined multispec_win
+	#if defined multispec_win
 		USES_CONVERSION;
-#	endif
+	#endif
 	
 			// Check input values.  Continue only if input parameters are within	
 			// proper ranges, the field statistics are to be printed, and the		
@@ -1333,7 +1330,8 @@ void OutlineField (
 	if (fieldNumber<0 || fieldNumber>=gProjectInfoPtr->numberStorageFields)
 		continueFlag = FALSE;
 		
-	else if (classNumber<0 || classNumber>=(SInt16)gProjectInfoPtr->numberStatisticsClasses)
+	else if (classNumber<0 ||
+								classNumber>=(SInt16)gProjectInfoPtr->numberStatisticsClasses)
 		continueFlag = FALSE;
 		
 	else if (windowInfoHandle == NULL)
@@ -1357,15 +1355,14 @@ void OutlineField (
 		
 		changeClipFlag = (gSideBySideChannels > 1);	
 		
-				// Determine if field rectangle is within clip portion of the
-				// window.
+				// Determine if field rectangle is within clip portion of the window.
 		
 		pointIndex = fieldIdentPtr[fieldNumber].firstPolygonPoint;
 		LCRectPtr = (LongRect*)&fieldPointsPtr[pointIndex]; 
-/*						
-			}		// end "if (...pointType == kRectangleType)"
+		/*
+			}	// end "if (...pointType == kRectangleType)"
 			
-		else		// fieldIdentPtr[fieldNumber].pointType != kRectangleType 	
+		else	// fieldIdentPtr[fieldNumber].pointType != kRectangleType 	
 			{
 					// Polygon type window.
 					
@@ -1377,23 +1374,25 @@ void OutlineField (
 				areaDescription.rgnHandle = NULL;
 				LCRectPtr = (LongRect*)&areaDescription.lineStart;
 				
-				}		// end "if (areaDescription.rgnHandle != NULL)"
+				}	// end "if (areaDescription.rgnHandle != NULL)"
 				
-			else		// areaDescription.rgnHandle = NULL
+			else	// areaDescription.rgnHandle = NULL
 				continueFlag = FALSE;          
 			
-			}		// end "else ...pointType != kRectangleType"	  
-*/		
+			}	// end "else ...pointType != kRectangleType"	  
+		*/		
 		if (continueFlag)
 			{	
-#if defined multispec_lin
-         // need to reset it again before drawing rectangles in linux, 
-         // since the setting will be changed after drawing polygons
-            SetLCToWindowUnitVariables(windowInfoHandle,
-                kToImageWindow,
-                FALSE,
-                lcToWindowUnitsVariablesPtr);   
-#endif
+			#if defined multispec_lin
+						// Need to reset it again before drawing rectangles in linux, 
+						// since the setting will be changed after drawing polygons.
+						
+				SetLCToWindowUnitVariables (windowInfoHandle,
+													 kToImageWindow,
+													 FALSE,
+													 lcToWindowUnitsVariablesPtr);   
+			#endif	// defined multispec_lin
+			
 			ConvertLCRectToWinRect (LCRectPtr, 
 												&fieldRect, 
 												lcToWindowUnitsVariablesPtr);
@@ -1404,37 +1403,16 @@ void OutlineField (
 			clipRect = gViewRect;
 
 			#if defined multispec_mac
-//				if (windowCode != kToClipboardWindow)
-//					{
-					clipRect.left = (SInt16)MAX (0, displayImageLeft);
-					clipRect.right = (SInt16)MIN (gViewRect.right, displayImageRight); 
-					
-//					}		// end "if (windowCode != kToClipboardWindow)"
+				clipRect.left = (SInt16)MAX (0, displayImageLeft);
+				clipRect.right = (SInt16)MIN (gViewRect.right, displayImageRight); 
 			#endif	// define multispec_mac 
-			            
+							
 			#if defined multispec_win
-//				LongPoint 	scrollOffset;
-
 				clipRect.left = (int)MAX (0, displayImageLeft);
 				clipRect.right = (int)MIN (gViewRect.right, displayImageRight);
-/*				
-				if (winUseOriginFlag)
-					{
-					scrollOffset.v = 0;
-					scrollOffset.h = 0;
-					
-					}		// end "if (winUseOriginFlag)"
-				
-				else		// !winUseOriginFlag
-					GetScrollOffset (windowInfoHandle, &scrollOffset);
-				
-				clipRect.top += (int)scrollOffset.v;
-				clipRect.bottom += (int)scrollOffset.v;
-				clipRect.left += (int)scrollOffset.h; 
-				clipRect.right += (int)scrollOffset.h;
-*/				   
 				clipRect.top += (int)lcToWindowUnitsVariablesPtr->lineScrollOffset;
 				clipRect.bottom += (int)lcToWindowUnitsVariablesPtr->lineScrollOffset;
+				
 				clipRect.left += (int)lcToWindowUnitsVariablesPtr->columnScrollOffset; 
 				clipRect.right += (int)lcToWindowUnitsVariablesPtr->columnScrollOffset;
 			#endif	// defined multispec_win 
@@ -1465,7 +1443,7 @@ void OutlineField (
 					clipRect.right = (SInt16)MIN (gViewRect.right, 
 													displayImageRight+gChannelWindowInterval);
 				#endif	// define multispec_mac 
-			            
+							
 				#if defined multispec_win || defined multispec_lin
 					clipRect.left = (int)MAX (0, 
 													displayImageLeft+gChannelWindowInterval);
@@ -1476,20 +1454,17 @@ void OutlineField (
 					clipRect.right += (int)lcToWindowUnitsVariablesPtr->columnScrollOffset;
 				#endif	// defined multispec_win || defined multispec_lin
 				
-				}		// end "if (tFieldRect.right < clipRect.left && changeClipFlag)"					
+				}	// end "if (tFieldRect.right < clipRect.left && changeClipFlag)"					
 			
 			if (tFieldRect.top > clipRect.bottom ||
-		 			tFieldRect.bottom < clipRect.top ||
-		 				tFieldRect.left > clipRect.right ||
-		 					tFieldRect.right < clipRect.left)
-				{
+					tFieldRect.bottom < clipRect.top ||
+						tFieldRect.left > clipRect.right ||
+							tFieldRect.right < clipRect.left)
 				continueFlag = FALSE;
 				
-				}
-				
-			}		// end "if (continueFlag)"
+			}	// end "if (continueFlag)"
 			
-		}		// end "if (continueFlag)"	
+		}	// end "if (continueFlag)"	
 																	
 	if (continueFlag)
 		{
@@ -1498,8 +1473,7 @@ void OutlineField (
 			
 		if (fieldIdentPtr[fieldNumber].pointType == kRectangleType)
 			{
-					// Draw rectangle representing the field.	
-		
+					// Draw rectangle representing the field.
 					// Set point to start drawing class name.			
          
 			drawPoint.h = fieldRect.left;
@@ -1521,25 +1495,25 @@ void OutlineField (
 							clipRect.left = (int)MAX (0, displayImageLeft);
 							clipRect.right = (int)MIN (gViewRect.right, displayImageRight);                      
 							if (windowCode != kToPrintWindow)
-								ClipRect(&clipRect);
+								ClipRect (&clipRect);
 						#endif	// defined multispec_win || defined multispec_lin
 
 						#if defined multispec_lin
 							clipRect.left = (int)MAX (0, displayImageLeft);
 							clipRect.right = (int)MIN (gViewRect.right, displayImageRight);
-                      gCDCPointer->DestroyClippingRegion();
+							gCDCPointer->DestroyClippingRegion ();
 							if (windowCode != kToPrintWindow)
-								ClipRect(&clipRect);
+								ClipRect (&clipRect);
 						#endif	// defined multispec_win || defined multispec_lin
 						
-						}		// end "if (changeClipFlag)" 
+						}	// end "if (changeClipFlag)" 
 						
 					#if defined multispec_mac
 								// FrameRect would cause the system to crash when 			
 								// running heap scramble under macbugs. 						
-								// Larry Biehl 2-7-91.												
+								// Larry Biehl 2-7-1991.
 							
-//						FrameRect (&fieldRect);
+						//FrameRect (&fieldRect);
 	
 						MoveTo ((SInt16)fieldRect.left, (SInt16)fieldRect.top);
 						LineTo ((SInt16)fieldRect.right, (SInt16)fieldRect.top);
@@ -1549,19 +1523,20 @@ void OutlineField (
 					#endif	// defined multispec_mac 
 						
 					#if defined multispec_win
-						gCDCPointer->Rectangle( (int)fieldRect.left,
-													(int)fieldRect.top,
-													(int)fieldRect.right,
-													(int)fieldRect.bottom );
+						gCDCPointer->Rectangle ((int)fieldRect.left,
+														(int)fieldRect.top,
+														(int)fieldRect.right,
+														(int)fieldRect.bottom);
 					#endif	// defined multispec_win 
 						
 					#if defined multispec_lin  
-						gCDCPointer->DrawRectangle (wxPoint	((int)fieldRect.left, (int)fieldRect.top), 
-																wxSize ((int)(fieldRect.right-fieldRect.left),	
-																			(int)(fieldRect.bottom-fieldRect.top)));
+						gCDCPointer->DrawRectangle (
+											wxPoint	((int)fieldRect.left, (int)fieldRect.top),
+											wxSize ((int)(fieldRect.right-fieldRect.left),
+											(int)(fieldRect.bottom-fieldRect.top)));
 					#endif	// defined multispec_lin 
 					
-					}		// end "if (displayImageRight >= gViewRect.left)" 
+					}	// end "if (displayImageRight >= gViewRect.left)" 
 				                                        
 				if (gSideBySideChannels > 1)
 					{
@@ -1570,37 +1545,36 @@ void OutlineField (
 					displayImageLeft += gChannelWindowInterval;
 					displayImageRight += gChannelWindowInterval;
 					
-					}		// end "if (gSideBySideChannels > 1)" 
+					}	// end "if (gSideBySideChannels > 1)" 
 				                                     
 				if (displayImageLeft > gViewRect.right)
 					break;
 				
-				}		// end "for (channel=0; channel<..." 
+				}	// end "for (channel=0; channel<..." 
 			
-			}		// end "if (gProjectInfoPtr.pointType == kRectangleType)" 
+			}	// end "if (gProjectInfoPtr.pointType == kRectangleType)" 
 			
-		else		// fieldIdentPtr[fieldNumber]->pointType != kRectangleType 
-			
-					// Draw border around polygon that describes the field.	
+		else	// fieldIdentPtr[fieldNumber]->pointType != kRectangleType
 			{
+					// Draw border around polygon that describes the field.
 					// Set point to start drawing class name.			
 					
 					// This code is here for testing purposes. The label point has already
 					// been calculated and saved.
-					
-//			LongPoint labelPoint;
-//			GetPolygonLabelPoint ( &fieldIdentPtr[fieldNumber],
-//											fieldPointsPtr,
-//											&labelPoint);
-//			fieldIdentPtr[fieldNumber].labelPoint = labelPoint;
-											
-			ConvertLCToWinPoint ( &fieldIdentPtr[fieldNumber].labelPoint,
+			/*
+			LongPoint labelPoint;
+			GetPolygonLabelPoint (&fieldIdentPtr[fieldNumber],
+											fieldPointsPtr,
+											&labelPoint);
+			fieldIdentPtr[fieldNumber].labelPoint = labelPoint;
+			*/
+			ConvertLCToWinPoint (&fieldIdentPtr[fieldNumber].labelPoint,
 											&drawPoint, 
 											lcToWindowUnitsVariablesPtr);
 											
 					// Now draw the field outline
-					// Note that the first two paired values represent the bounding box for the 
-					// polygon.
+					// Note that the first two paired values represent the bounding box for
+					// the polygon.
 											
 			pointIndex = fieldIdentPtr[fieldNumber].firstPolygonPoint + 2;
 			ConvertLCToWinPoint ((LongPoint*)&fieldPointsPtr[pointIndex],
@@ -1608,141 +1582,168 @@ void OutlineField (
 										lcToWindowUnitsVariablesPtr);
 											
 			savedChannelWindowOffset = lcToWindowUnitsVariablesPtr->channelWindowOffset;
-#ifndef multispec_lin	
-			for (channel=gStartChannel; channel<gSideBySideChannels; channel++)
-				{				
-				if (changeClipFlag)
-					{						
-					#if defined multispec_mac
-						clipRect.left = (SInt16)MAX (0, displayImageLeft);
-						clipRect.right = (SInt16)MIN (gViewRect.right, displayImageRight);
-						ClipRect (&clipRect);
-					#endif	// defined multispec_mac 
-						
-					#if defined multispec_win
-						clipRect.left = (int)MAX (0, displayImageLeft);
-						clipRect.right = (int)MIN (gViewRect.right, displayImageRight);
-						if (windowCode != kToPrintWindow)
+			
+			#ifndef multispec_lin	
+				for (channel=gStartChannel; channel<gSideBySideChannels; channel++)
+					{				
+					if (changeClipFlag)
+						{						
+						#if defined multispec_mac
+							clipRect.left = (SInt16)MAX (0, displayImageLeft);
+							clipRect.right = (SInt16)MIN (gViewRect.right, displayImageRight);
 							ClipRect (&clipRect);
-					#endif	// defined multispec_win 
+						#endif	// defined multispec_mac 
+							
+						#if defined multispec_win
+							clipRect.left = (int)MAX (0, displayImageLeft);
+							clipRect.right = (int)MIN (gViewRect.right, displayImageRight);
+							if (windowCode != kToPrintWindow)
+								ClipRect (&clipRect);
+						#endif	// defined multispec_win 
+						
+						}	// end "if (changeClipFlag)" 
+						
+					pointCount = fieldIdentPtr[fieldNumber].numberOfPolygonPoints;
+					pointIndex = fieldIdentPtr[fieldNumber].firstPolygonPoint + 3;
 					
-					}		// end "if (changeClipFlag)" 
-					
-				pointCount = fieldIdentPtr[fieldNumber].numberOfPolygonPoints;
-				pointIndex = fieldIdentPtr[fieldNumber].firstPolygonPoint + 3;
-				
-				#if defined multispec_mac
-					MoveTo ( (SInt16)startPoint.h, (SInt16)startPoint.v);
-				#endif	// defined multispec_mac	
-				
-				#if defined multispec_win              
-					gCDCPointer->MoveTo ((int)startPoint.h, (int)startPoint.v);
-				#endif	// defined multispec_win
-
-				#if defined multispec_lin              
-							// wxWidgets does not have MoveTo; only DrawLine.
-					lastPoint = startPoint;
-				#endif	// defined multispec_lin	
-				
-				while (pointCount > 1)
-					{
-					ConvertLCToWinPoint ((LongPoint*)&fieldPointsPtr[pointIndex++], 
-													&nextPoint, 
-													lcToWindowUnitsVariablesPtr);
-					/*	
-					int numberChars = sprintf ((char*)&gTextString3,
-																" column, line, nextPoint.h, nextPoint.v: %d, %d, %d, %d%s", 
-																fieldPointsPtr[pointIndex-1].col,
-																fieldPointsPtr[pointIndex-1].line,
-																nextPoint.h,
-																nextPoint.v,
-																gEndOfLine);
-					ListString ((char*)&gTextString3, numberChars, gOutputTextH);
-					*/								
 					#if defined multispec_mac
-						LineTo ((SInt16)nextPoint.h, (SInt16)nextPoint.v);
-					#endif	// defined multispec_mac
-													
-					#if defined multispec_win                   
-						gCDCPointer->LineTo ((int)nextPoint.h, (int)nextPoint.v); 
+						MoveTo ((SInt16)startPoint.h, (SInt16)startPoint.v);
+					#endif	// defined multispec_mac	
+					
+					#if defined multispec_win              
+						gCDCPointer->MoveTo ((int)startPoint.h, (int)startPoint.v);
 					#endif	// defined multispec_win
-					
-					#if defined multispec_lin
-						gCDCPointer->DrawLine ((int)lastPoint.h, (int)lastPoint.v, (int)nextPoint.h, (int)nextPoint.v);
-						lastPoint = nextPoint;
-					#endif	// defined multispec_lin
-								
-					pointCount--;
-					
-					}		// end "while ( pointCount > 1)" 
-							
-				#if defined multispec_mac
-					LineTo ( (SInt16)startPoint.h, (SInt16)startPoint.v);
-				#endif	// defined multispec_mac
-							
-				#if defined multispec_win  
-					gCDCPointer->LineTo ((int)startPoint.h, (int)startPoint.v);
-				#endif	// defined multispec_win
-					
-				#if defined multispec_lin
-					gCDCPointer->DrawLine ((int)lastPoint.h, (int)lastPoint.v, (int)startPoint.h, (int)startPoint.v);
-				#endif	// defined multispec_lin
 
-				if (gSideBySideChannels > 1)
-					{
-					startPoint.h += gChannelWindowInterval;
-					displayImageLeft += gChannelWindowInterval;
-					displayImageRight += gChannelWindowInterval;
-//					gChannelWindowOffset += gChannelWindowInterval;
-					lcToWindowUnitsVariablesPtr->channelWindowOffset +=
-																		gChannelWindowInterval;
+					#if defined multispec_lin              
+								// wxWidgets does not have MoveTo; only DrawLine.
+						lastPoint = startPoint;
+					#endif	// defined multispec_lin	
 					
-					}		// end "if (gSideBySideChannels > 1)" 
+					while (pointCount > 1)
+						{
+						ConvertLCToWinPoint ((LongPoint*)&fieldPointsPtr[pointIndex++], 
+														&nextPoint, 
+														lcToWindowUnitsVariablesPtr);
+						/*	
+						int numberChars = sprintf ((char*)gTextString3,
+																	" column, line, nextPoint.h, nextPoint.v: %d, %d, %d, %d%s", 
+																	fieldPointsPtr[pointIndex-1].col,
+																	fieldPointsPtr[pointIndex-1].line,
+																	nextPoint.h,
+																	nextPoint.v,
+																	gEndOfLine);
+						ListString ((char*)gTextString3, numberChars, gOutputTextH);
+						*/								
+						#if defined multispec_mac
+							LineTo ((SInt16)nextPoint.h, (SInt16)nextPoint.v);
+						#endif	// defined multispec_mac
+														
+						#if defined multispec_win                   
+							gCDCPointer->LineTo ((int)nextPoint.h, (int)nextPoint.v); 
+						#endif	// defined multispec_win
+						
+						#if defined multispec_lin
+							gCDCPointer->DrawLine ((int)lastPoint.h, (int)lastPoint.v, (int)nextPoint.h, (int)nextPoint.v);
+							lastPoint = nextPoint;
+						#endif	// defined multispec_lin
+									
+						pointCount--;
+						
+						}	// end "while (pointCount > 1)" 
+								
+					#if defined multispec_mac
+						LineTo ((SInt16)startPoint.h, (SInt16)startPoint.v);
+					#endif	// defined multispec_mac
+								
+					#if defined multispec_win  
+						gCDCPointer->LineTo ((int)startPoint.h, (int)startPoint.v);
+					#endif	// defined multispec_win
+						
+					#if defined multispec_lin
+						gCDCPointer->DrawLine ((int)lastPoint.h,
+														(int)lastPoint.v,
+														(int)startPoint.h,
+														(int)startPoint.v);
+					#endif	// defined multispec_lin
+
+					if (gSideBySideChannels > 1)
+						{
+						startPoint.h += gChannelWindowInterval;
+						displayImageLeft += gChannelWindowInterval;
+						displayImageRight += gChannelWindowInterval;
+						//gChannelWindowOffset += gChannelWindowInterval;
+						lcToWindowUnitsVariablesPtr->channelWindowOffset +=
+																				gChannelWindowInterval;
+						
+						}	// end "if (gSideBySideChannels > 1)" 
+					
+					if (displayImageLeft > gViewRect.right)
+						break;
+					
+					}	// end "for (channel=gStartChannel; channel<..." 
+			#endif	// ifndef multispec_lin
+			
+			#if defined multispec_lin
+						// Draw polygon
+			
+				SetChannelWindowVariables (kToImageWindow,
+													gProjectSelectionWindow,
+													kNotCoreGraphics);
+			
+				SetLCToWindowUnitVariables (windowInfoHandle,
+														 kWindowsUseOrigin,
+														 FALSE,
+														 lcToWindowUnitsVariablesPtr);
 				
-				if (displayImageLeft > gViewRect.right)
-					break;
-				
-				}		// end "for (channel=gStartChannel; channel<..." 
-#endif
-#if defined multispec_lin
-         // Draw polygon
-         SetChannelWindowVariables (kToImageWindow, gProjectSelectionWindow, kNotCoreGraphics);    
-			SetLCToWindowUnitVariables (windowInfoHandle,
-													 kWindowsUseOrigin,
-													 FALSE,
-													 lcToWindowUnitsVariablesPtr);
-         
-         pointCount = fieldIdentPtr[fieldNumber].numberOfPolygonPoints;  
-         wxPoint* pointlist = new wxPoint[pointCount];
-         scrollOffset = gProjectSelectionWindow->m_Canvas->GetScrollPosition();
-         for(int index = 0; index < pointCount; index++){
+				pointCount = fieldIdentPtr[fieldNumber].numberOfPolygonPoints;  
+				wxPoint* pointlist = new wxPoint[pointCount];
+				scrollOffset = gProjectSelectionWindow->m_Canvas->GetScrollPosition ();
+				for (int index = 0; index < pointCount; index++)
+					{
 					ConvertLCToWinPoint ((LongPoint*) & fieldPointsPtr[pointIndex++],
 												&windowPoint,
 												lcToWindowUnitsVariablesPtr);
+					
 					pointlist[index].x = windowPoint.h;
 					pointlist[index].y = windowPoint.v;
-			}      
-         for (SInt32 channel = gStartChannel; channel < gSideBySideChannels; channel++){
-				if (displayImageLeft <= gViewRect.right &&
-										  displayImageRight >= gViewRect.left) {                  
-						gCDCPointer->DrawPolygon(pointCount, pointlist, lcToWindowUnitsVariablesPtr->channelWindowOffset + scrollOffset.x , scrollOffset.y ,wxODDEVEN_RULE);
-						if (gSideBySideChannels > 1) {
-								displayImageLeft += gChannelWindowInterval;
-								displayImageRight += gChannelWindowInterval;                        
-								lcToWindowUnitsVariablesPtr->channelWindowOffset += gChannelWindowInterval; 															
-						} // end "if (gSideBySideChannels > 1)"
-									
-							if (displayImageLeft > gViewRect.right)
-								break;
-				}	// end "if (displayImageLeft <= gViewRect.right && ..." 						
-			}  // end "for (SInt32 channel = gStartChannel; channel < gSideBySideChannels; channel++)"
-			delete pointlist;	
-         
-#endif
-//			gChannelWindowOffset = savedChannelWindowOffset;
+					
+					}	// end "for (int index = 0; ..."
+			
+				for (SInt32 channel=gStartChannel; channel<gSideBySideChannels; channel++)
+					{
+					if (displayImageLeft <= gViewRect.right &&
+																displayImageRight >= gViewRect.left)
+						{
+						gCDCPointer->DrawPolygon (
+							pointCount,
+							pointlist,
+							lcToWindowUnitsVariablesPtr->channelWindowOffset + scrollOffset.x,
+							scrollOffset.y,
+							wxODDEVEN_RULE);
+						
+						if (gSideBySideChannels > 1)
+							{
+							displayImageLeft += gChannelWindowInterval;
+							displayImageRight += gChannelWindowInterval;                        
+							lcToWindowUnitsVariablesPtr->channelWindowOffset +=
+																					gChannelWindowInterval;
+							
+							} // end "if (gSideBySideChannels > 1)"
+										
+						if (displayImageLeft > gViewRect.right)
+							break;
+						
+						}	// end "if (displayImageLeft <= gViewRect.right && ..."
+					
+					}  // end "for (SInt32 channel=gStartChannel; ..."
+			
+				delete pointlist;
+			#endif	// defined multispec_lin
+		
+			//gChannelWindowOffset = savedChannelWindowOffset;
 			lcToWindowUnitsVariablesPtr->channelWindowOffset = savedChannelWindowOffset;
 			
-			}		// end "else gProjectInfoPtr->pointType != kRectangleType" 
+			}	// end "else gProjectInfoPtr->pointType != kRectangleType" 
 			
 				// If requested, print class name in the field and indicate 		
 				// whether it is a training or test field.								
@@ -1779,12 +1780,12 @@ void OutlineField (
 						#if defined multispec_lin
 							clipRect.left = (int)MAX (0, displayImageLeft);
 							clipRect.right = (int)MIN (gViewRect.right, displayImageRight);
-                     gCDCPointer->DestroyClippingRegion();
+                     gCDCPointer->DestroyClippingRegion ();
 							if (windowCode != kToPrintWindow)
 								ClipRect (&clipRect);
 						#endif	// defined multispec_win || defined multispec_lin
 
-						}		// end "if (changeClipFlag)"
+						}	// end "if (changeClipFlag)"
 						
 					#if defined multispec_mac
 						drawHPoint = drawPoint.h + 1;
@@ -1793,25 +1794,25 @@ void OutlineField (
 						if (gProjectInfoPtr->labelFieldCode & 0x0001)
 							{
 							MoveTo ((SInt16)drawHPoint, (SInt16)drawVPoint);
-							DrawString ( classNamesPtr[classStorage].name );
+							DrawString (classNamesPtr[classStorage].name);
 							drawVPoint += textSize;
 							
-							}		// end "if (gProjectInfoPtr->labelFieldCode & 0x0001)"
+							}	// end "if (gProjectInfoPtr->labelFieldCode & 0x0001)"
 							
 						MoveTo ((SInt16)drawHPoint, (SInt16)drawVPoint);
 						
 						if (gProjectInfoPtr->labelFieldCode & 0x0004)
 							{
 							if (fieldIdentPtr[fieldNumber].fieldType == kTrainingType)
-								DrawString ( "\pn-" );
+								DrawString ("\pn-");
 																						
-							else		// fieldIdentPtr[fieldNumber]... != kTrainingType)	
-								DrawString ( "\pt-" );
+							else	// fieldIdentPtr[fieldNumber]... != kTrainingType)	
+								DrawString ("\pt-");
 							
-							}		// end "if (gProjectInfoPtr->labelFieldCode & 0x0004)"
+							}	// end "if (gProjectInfoPtr->labelFieldCode & 0x0004)"
 						
 						if (gProjectInfoPtr->labelFieldCode & 0x0002)
-							DrawString ( fieldIdentPtr[fieldNumber].name );
+							DrawString (fieldIdentPtr[fieldNumber].name);
 					#endif	// defined multispec_mac 
 						
 					#if defined multispec_win 
@@ -1827,32 +1828,34 @@ void OutlineField (
 							{
 							gCDCPointer->MoveTo ((int)drawHPoint, (int)drawVPoint); 
 						
-							gCDCPointer->TextOut (0, 
-													0, 
-													(LPCTSTR)A2T((char*)&classNamesPtr[classStorage].name[1]), 
-													(int)classNamesPtr[classStorage].name[0]);
-													
+							gCDCPointer->TextOut (
+										0,
+										0,
+										(LPCTSTR)A2T((char*)&classNamesPtr[classStorage].name[1]), 
+										(int)classNamesPtr[classStorage].name[0]);
+							
 							drawVPoint += textMetric.tmHeight;
 							
-							}		// end "if (gProjectInfoPtr->labelFieldCode & 0x0001)"
+							}	// end "if (gProjectInfoPtr->labelFieldCode & 0x0001)"
 							
 						gCDCPointer->MoveTo ((int)drawHPoint, (int)drawVPoint);
 						
 						if (gProjectInfoPtr->labelFieldCode & 0x0004)
 							{ 
 							if (fieldIdentPtr[fieldNumber].fieldType == kTrainingType)
-								gCDCPointer->TextOut ( 0, 0, (LPCTSTR)_T("n-"), 2 );
+								gCDCPointer->TextOut (0, 0, (LPCTSTR)_T("n-"), 2);
 																					
-							else		// fieldIdentPtr[fieldNumber]... != kTrainingType)	
-								gCDCPointer->TextOut ( 0, 0, (LPCTSTR)_T("t-"), 2 );
+							else	// fieldIdentPtr[fieldNumber]... != kTrainingType)	
+								gCDCPointer->TextOut (0, 0, (LPCTSTR)_T("t-"), 2);
 								
-							}		// end "if (gProjectInfoPtr->labelFieldCode & 0x0004)"
+							}	// end "if (gProjectInfoPtr->labelFieldCode & 0x0004)"
 						
 						if (gProjectInfoPtr->labelFieldCode & 0x0002)
-							gCDCPointer->TextOut ( 0, 
-													0, 
-													(LPCTSTR)A2T((char*)&fieldIdentPtr[fieldNumber].name[1]), 
-													(int)fieldIdentPtr[fieldNumber].name[0] );
+							gCDCPointer->TextOut (
+										0,
+										0,
+										(LPCTSTR)A2T((char*)&fieldIdentPtr[fieldNumber].name[1]), 
+										(int)fieldIdentPtr[fieldNumber].name[0]);
 					#endif	// defined multispec_win
 						
 					#if defined multispec_lin 
@@ -1860,36 +1863,43 @@ void OutlineField (
 						drawVPoint = drawPoint.v + 1 ;//+ scrollOffset.y;
 						
 						if (gProjectInfoPtr->labelFieldCode & 0x0001)
-							{ 
-							//gCDCPointer->DrawLine ((int)drawHPoint, (int)drawVPoint, (int)drawHPoint, (int)drawVPoint);
-						
+							{
+							/*
+							gCDCPointer->DrawLine ((int)drawHPoint,
+																(int)drawVPoint,
+																(int)drawHPoint,
+																(int)drawVPoint);
+							*/
 							gCDCPointer->DrawText ((char*)&classNamesPtr[classStorage].name[1], 
-																wxPoint(drawHPoint, drawVPoint));
+															wxPoint (drawHPoint, drawVPoint));
 													
-							drawVPoint += gCDCPointer->GetCharHeight();
+							drawVPoint += gCDCPointer->GetCharHeight ();
 							
-							}		// end "if (gProjectInfoPtr->labelFieldCode & 0x0001)"
-							
-						//gCDCPointer->DrawLine ((int)drawHPoint, (int)drawVPoint, (int)drawHPoint, (int)drawVPoint);
-						
+							}	// end "if (gProjectInfoPtr->labelFieldCode & 0x0001)"
+						/*
+						gCDCPointer->DrawLine ((int)drawHPoint,
+														(int)drawVPoint, 
+														(int)drawHPoint, 
+														(int)drawVPoint);
+						*/
 						if (gProjectInfoPtr->labelFieldCode & 0x0004)
 							{ 
 							if (fieldIdentPtr[fieldNumber].fieldType == kTrainingType)
 								gCDCPointer->DrawText (wxT("n-"), 
-																wxPoint(drawHPoint, drawVPoint));
+																wxPoint (drawHPoint, drawVPoint));
 																					
-							else		// fieldIdentPtr[fieldNumber]... != kTrainingType)	
+							else	// fieldIdentPtr[fieldNumber]... != kTrainingType)	
 								gCDCPointer->DrawText (wxT("t-"), 
-																wxPoint(drawHPoint, drawVPoint));
+																wxPoint (drawHPoint, drawVPoint));
 								
-							}		// end "if (gProjectInfoPtr->labelFieldCode & 0x0004)"
+							}	// end "if (gProjectInfoPtr->labelFieldCode & 0x0004)"
 						
 						if (gProjectInfoPtr->labelFieldCode & 0x0002)
 							gCDCPointer->DrawText ((char*)&fieldIdentPtr[fieldNumber].name[1], 
-																wxPoint(drawHPoint, drawVPoint));
+															wxPoint (drawHPoint, drawVPoint));
 					#endif	// defined multispec_lin
 					
-					}		// end "if (displayImageRight >= gViewRect.left)" 
+					}	// end "if (displayImageRight >= gViewRect.left)" 
 				
 				if (gSideBySideChannels > 1)
 					{
@@ -1897,22 +1907,23 @@ void OutlineField (
 					displayImageLeft += gChannelWindowInterval;
 					displayImageRight += gChannelWindowInterval;
 					
-					}		// end "if (gSideBySideChannels > 1)" 
+					}	// end "if (gSideBySideChannels > 1)" 
 				
 				if (displayImageLeft > gViewRect.right)
 					break;
 					
-				}		// end "for (channel=0; channel<..." 
+				}	// end "for (channel=0; channel<..." 
 				
-			}		// end "if (gProjectInfoPtr->printLabelFlag)" 
+			}	// end "if (gProjectInfoPtr->printLabelFlag)" 
 			
-#if defined multispec_lin
-      gCDCPointer->DestroyClippingRegion();
-#endif
+		#if defined multispec_lin
+			gCDCPointer->DestroyClippingRegion ();
+		#endif
+		
 		if (changeClipFlag)
-			ClipRect(&gViewRect);
+			ClipRect (&gViewRect);
 		
-		}		// end "if (continueFlag)" 
+		}	// end "if (continueFlag)" 
 		
-}		// end "OutlineField" 
+}	// end "OutlineField" 
 

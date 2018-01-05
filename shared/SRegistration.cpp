@@ -4,25 +4,24 @@
 //									Purdue University
 //								West Lafayette, IN 47907
 //								 Copyright (1988-2017)
-//							  (c) Purdue Research Foundation
+//							 (c) Purdue Research Foundation
 //									All rights reserved.
-//
-//					The following was put here for easy access to a template
-//		    		DebugStr ("\pSRegistration.cpp");
 //
 //	File:						SRegistration.cpp
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision number:		3.0
-//
-//	Revision date:			12/21/2010
+//	Revision date:			12/21/2017
 //
 //	Language:				C
 //
-//	System:					Macintosh Operating System	
+//	System:					Linux, Macintosh, and Windows Operating Systems	
 //
-//	Brief description:	Some of the code in this file comes from the routines for 
+//	Brief description:	The routines in this file get the polynomial model to
+//								relate line/column to map location. It is used by the
+//								GDAL interface file and the MultiSpec GeoTIFF file.
+//
+//								Some of the code in this file comes from the routines for
 //								GRASS:
 //									CRS.C - Center for Remote Sensing rectification routines
 //
@@ -49,7 +48,11 @@
 //
 //------------------------------------------------------------------------------------
 
-#include "SMulSpec.h"
+#include "SMultiSpec.h"
+
+#if defined multispec_lin
+	#include "SMultiSpec.h"
+#endif
 	
 #if defined multispec_mac 
 #endif	// defined multispec_mac   
@@ -57,7 +60,7 @@
 #if defined multispec_win
 #endif	// defined multispec_win 
  
-#include	"SExtGlob.h"	
+//#include	"SExtGlob.h"	
 
 struct MATRIX
 {
@@ -80,56 +83,56 @@ struct MATRIX
 #define MAXORDER 3
 								
 
-			// Prototypes for routines in this file that are only called by		
-			// other routines in this file.				
+		// Prototypes for routines in this file that are only called by
+		// other routines in this file.				
 
-SInt16 					ComputeGeorefCoefficients (
-								ControlPointsPtr 					controlPoints, 
-								double 								E12[], 
-								double 								N12[], 
-								double 								E21[], 
-								double 								N21[], 
-								SInt16								order);									
-			
-SInt16	 				CalculateCoefficients (
-								ControlPointsPtr 					controlPointsPtr, 
-								double 								E[], 
-								double 								N[], 
-								SInt16								order);
-								
-SInt16	 				CalculateWithLeastSquares	(
-								ControlPointsPtr 					controlPointsPtr, 
-								struct MATRIX 						*m,
-								double 								a[],
-								double 								b[],
-								double 								E[],
-								double 								N[]);
-								
-SInt16	 				ExactDetermination (
-								ControlPointsPtr 					controlPointsPtr, 
-								struct MATRIX 						*m,
-								double 								a[],
-								double 								b[],
-								double 								E[],
-								double 								N[]);
-								
-SInt16	 				SolveMatrix (
-								struct MATRIX 						*m, 
-								double 								a[], 
-								double 								b[], 
-								double 								E[], 
-								double 								N[]);
-								
-double 					TermValue (
-								UInt32								term, 
-								double 								e, 
-								double 								n);
+SInt16 	ComputeGeorefCoefficients (
+				ControlPointsPtr 					controlPoints,
+				double 								E12[], 
+				double 								N12[], 
+				double 								E21[], 
+				double 								N21[], 
+				SInt16								order);									
+
+SInt16	CalculateCoefficients (
+				ControlPointsPtr 					controlPointsPtr,
+				double 								E[], 
+				double 								N[], 
+				SInt16								order);
+
+SInt16	CalculateWithLeastSquares	(
+				ControlPointsPtr 					controlPointsPtr,
+				struct MATRIX 						*m,
+				double 								a[],
+				double 								b[],
+				double 								E[],
+				double 								N[]);
+
+SInt16	ExactDetermination (
+				ControlPointsPtr 					controlPointsPtr,
+				struct MATRIX 						*m,
+				double 								a[],
+				double 								b[],
+				double 								E[],
+				double 								N[]);
+
+SInt16	SolveMatrix (
+				struct MATRIX 						*m,
+				double 								a[], 
+				double 								b[], 
+				double 								E[], 
+				double 								N[]);
+
+double	TermValue (
+				UInt32								term,
+				double 								e, 
+				double 								n);
 
 
 
 //------------------------------------------------------------------------------------
 //								 Copyright (1988-2017)
-//								(c) Purdue Research Foundation
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		SInt16 CalculateCoefficients
@@ -184,7 +187,7 @@ SInt16 CalculateCoefficients (
 		if (controlPointsPtr->statusPtr[i] > 0)
 			numactive++;
 			
-		}		// end "for (i=numactive=0; i<(UInt32)controlPointsPtr->count; i++)"
+		}	// end "for (i=numactive=0; i<(UInt32)controlPointsPtr->count; i++)"
 
 			// Calculate the minimum number of control points needed to 
 			// determine a transformation of this order.
@@ -192,18 +195,18 @@ SInt16 CalculateCoefficients (
 	m.n = ((order + 1) * (order + 2)) / 2;
 
 	if (numactive < m.n)
-		return MNPTERR;
+																						return MNPTERR;
 
 			// Initialize matrix
 
-	m.v = (double*)MNewPointerClear(m.n * m.n * sizeof(double));
-	a = (double*)MNewPointerClear(m.n * sizeof(double));
-	b = (double*)MNewPointerClear(m.n * sizeof(double));
+	m.v = (double*)MNewPointerClear (m.n * m.n * sizeof (double));
+	a = (double*)MNewPointerClear (m.n * sizeof (double));
+	b = (double*)MNewPointerClear (m.n * sizeof (double));
 
 	if (numactive == m.n)
 		status = ExactDetermination (controlPointsPtr, &m, a, b, E, N);
 	
-	else		// numactive > m.n
+	else	// numactive > m.n
 		status = CalculateWithLeastSquares (controlPointsPtr, &m, a, b, E, N);
 
 	CheckAndDisposePtr (m.v);
@@ -212,13 +215,13 @@ SInt16 CalculateCoefficients (
 
 	return (status);
 	
-}		// end "CalculateCoefficients"
+}	// end "CalculateCoefficients"
 
 
 
 //------------------------------------------------------------------------------------
 //								 Copyright (1988-2017)
-//								(c) Purdue Research Foundation
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		SInt16 CalculateWithLeastSquares
@@ -252,32 +255,32 @@ SInt16 CalculateCoefficients (
 //	Revised By:			Larry L. Biehl			Date: 02/10/2007	
 
 SInt16 CalculateWithLeastSquares (
-											 ControlPointsPtr 					controlPointsPtr, 
-											 struct MATRIX 						*m,
-											 double 								a[],
-											 double 								b[],
-											 double 								E[],     // easting coefficients
-											 double 								N[])     // northing coefficients
+				ControlPointsPtr 					controlPointsPtr,
+				struct MATRIX 						*m,
+				double 								a[],
+				double 								b[],
+				double 								E[],     // easting coefficients
+				double 								N[])     // northing coefficients
 
 {
 	UInt32								i, 
-	j, 
-	n, 
-	numactive = 0;
+											j,
+											n, 
+											numactive = 0;
 	
 	
 			// Initialize the upper half of the matrix and the two column vectors.
 			// The array and vector have already been initialized to 0.
-/*	
+	/*
 	for (i=1; i<= m->n; i++)
 		{
 		for (j = i; j <= m->n; j++)
-			M(i,j) = 0.0;
-		
+			M (i,j) = 0.0;
+
 		a[i-1] = b[i-1] = 0.0;
-		
-		}		// end "for (i=1; i<= m->n; i++)"
-*/	
+
+		}	// end "for (i=1; i<= m->n; i++)"
+	*/
 			// Sum the upper half of the atrix and the column vectors according
 			// to the least squares method of solving over determined systems.
 	
@@ -289,45 +292,47 @@ SInt16 CalculateWithLeastSquares (
 			for (i=1; i<=m->n; i++)
 				{
 				for (j = i; j <= m->n; j++)
-					M(i,j) += TermValue (i, 
+					M (i,j) += TermValue (i,
 												controlPointsPtr->easting1Ptr[n], 
 												controlPointsPtr->northing1Ptr[n]) * 
-					TermValue (j, 
-								  controlPointsPtr->easting1Ptr[n], 
-								  controlPointsPtr->northing1Ptr[n]);
+											TermValue (j,
+															controlPointsPtr->easting1Ptr[n],
+															controlPointsPtr->northing1Ptr[n]);
 				
-				a[i-1] += controlPointsPtr->easting2Ptr[n] * TermValue (i, 
-																						  controlPointsPtr->easting1Ptr[n], 
-																						  controlPointsPtr->northing1Ptr[n]);
+				a[i-1] += controlPointsPtr->easting2Ptr[n] * TermValue (
+																i,
+																controlPointsPtr->easting1Ptr[n],
+																controlPointsPtr->northing1Ptr[n]);
 				
-				b[i-1] += controlPointsPtr->northing2Ptr[n] * TermValue (i, 
-																							controlPointsPtr->easting1Ptr[n], 
-																							controlPointsPtr->northing1Ptr[n]);
+				b[i-1] += controlPointsPtr->northing2Ptr[n] * TermValue (
+																i,
+																controlPointsPtr->easting1Ptr[n],
+																controlPointsPtr->northing1Ptr[n]);
 				
-				}		// end "for (i=1; i<=m->n; i++)"
+				}	// end "for (i=1; i<=m->n; i++)"
 			
-			}		// end "if (controlPointsPtr->status[n] > 0)"
+			}	// end "if (controlPointsPtr->status[n] > 0)"
 		
-		}		// end "for (n=0; n<controlPointsPtr->count; n++)"
+		}	// end "for (n=0; n<controlPointsPtr->count; n++)"
 	
 	if (numactive <= m->n)
-		return MINTERR;
+																							return MINTERR;
 	
 			// Transpose values in upper half of M to other half.
 	
 	for (i=2; i<=m->n; i++)
 		for (j=1; j<i; j++)
-			M(i,j) = M(j,i);
+			M (i,j) = M (j,i);
 	
 	return SolveMatrix (m, a, b, E, N);
 	
-}		// end "CalculateWithLeastSquares"
+}	// end "CalculateWithLeastSquares"
 
 
 
 //------------------------------------------------------------------------------------
 //								 Copyright (1988-2017)
-//								(c) Purdue Research Foundation
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		SInt16 ComputeGeorefCoefficients
@@ -358,15 +363,16 @@ SInt16 CalculateWithLeastSquares (
 //	Revised By:			Larry L. Biehl			Date: 02/08/2007	
 
 SInt16 ComputeGeorefCoefficients (
-											 ControlPointsPtr 					controlPointsPtr, 
-											 double 								E12[], 
-											 double 								N12[], 
-											 double 								E21[], 
-											 double 								N21[], 
-											 SInt16								order)
+				ControlPointsPtr 					controlPointsPtr,
+				double 								E12[], 
+				double 								N12[], 
+				double 								E21[], 
+				double 								N21[], 
+				SInt16								order)
 
 {
 	double 								*tempptr;
+	
 	SInt16								status;
 	
 	
@@ -390,7 +396,7 @@ SInt16 ComputeGeorefCoefficients (
 			
 					// Calculate the backward transformation coefficients
 			
-			status = CalculateCoefficients(controlPointsPtr, E21, N21, order);
+			status = CalculateCoefficients (controlPointsPtr, E21, N21, order);
 			
 					// Switch the 1 and 2 easting and northing arrays back
 			
@@ -402,22 +408,22 @@ SInt16 ComputeGeorefCoefficients (
 			controlPointsPtr->northing1Ptr = controlPointsPtr->northing2Ptr; 
 			controlPointsPtr->northing2Ptr = tempptr;
 			
-			}		// end "if (status == MSUCCESS)"
+			}	// end "if (status == MSUCCESS)"
 		
-		}		// end "if (order >= 1 && order <= MAXORDER)"
+		}	// end "if (order >= 1 && order <= MAXORDER)"
 	
-	else		// end "order < 1 || order > MAXORDER"
+	else	// end "order < 1 || order > MAXORDER"
 		status = MPARMERR;
 	
 	return (status);
 	
-}		// end "ComputeGeorefCoefficients"
+}	// end "ComputeGeorefCoefficients"
 
 
 
 //------------------------------------------------------------------------------------
 //								 Copyright (1988-2017)
-//								(c) Purdue Research Foundation
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		SInt16 ExactDetermination
@@ -458,7 +464,7 @@ SInt16 ExactDetermination (
 				double 								N[])     /* NORTHING COEFFICIENTS */
 
 {
-	UInt32 								pntnow, 
+	UInt32 								pntnow,
 											currow, 
 											j;
 
@@ -471,9 +477,9 @@ SInt16 ExactDetermination (
 					// Populate matrix M
 
 			for (j=1; j<=m->n; j++)
-				M(currow,j) = TermValue (j, 
-												controlPointsPtr->easting1Ptr[pntnow], 
-												controlPointsPtr->northing1Ptr[pntnow]);
+				M (currow,j) = TermValue (j,
+													controlPointsPtr->easting1Ptr[pntnow],
+													controlPointsPtr->northing1Ptr[pntnow]);
 
 					// Populate matrix A and B
 
@@ -482,22 +488,22 @@ SInt16 ExactDetermination (
 
 			currow++;
 			
-			}		// end "if (controlPointsPtr->statusPtr[pntnow] > 0)"
+			}	// end "if (controlPointsPtr->statusPtr[pntnow] > 0)"
 			
-		}		// end "for (pntnow = 0; pntnow < cp->count; pntnow++)"
+		}	// end "for (pntnow = 0; pntnow < cp->count; pntnow++)"
 
 	if (currow - 1 != m->n)
 		return MINTERR;
 
 	return SolveMatrix (m, a, b, E, N);
 	
-}		// end "ExactDetermination"
+}	// end "ExactDetermination"
 
 
 
 //------------------------------------------------------------------------------------
 //								 Copyright (1988-2017)
-//								(c) Purdue Research Foundation
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		SInt16 GetPolynomialModel
@@ -542,8 +548,9 @@ SInt16 GetPolynomialModel (
 								kLock,
 								kNoMoveHi);
 		
-		controlPointsPtr = GetControlPointVectorPointers (fileInfoPtr->controlPointsHandle,
-																		  kLock);
+		controlPointsPtr = GetControlPointVectorPointers (
+																	fileInfoPtr->controlPointsHandle,
+																	kLock);
 						
 				// Get the number of valid control points
 		
@@ -553,7 +560,7 @@ SInt16 GetPolynomialModel (
 			if (controlPointsPtr->statusPtr[i] > 0)
 				numberActiveControlPoints++;
 				
-			}		// end "for (i=0; i<(UInt32)controlPointsPtr->count; i++)"
+			}	// end "for (i=0; i<(UInt32)controlPointsPtr->count; i++)"
 					
 		if (numberActiveControlPoints >= 3)
 			{
@@ -566,7 +573,7 @@ SInt16 GetPolynomialModel (
 			else if (numberActiveControlPoints < 10)
 				order = 2;
 			
-			else		// numberActiveControlPoints >= 10
+			else	// numberActiveControlPoints >= 10
 				order = 3;
 			
 			do 
@@ -578,23 +585,23 @@ SInt16 GetPolynomialModel (
 				
 				UnlockAndDispose (mapProjectionInfoPtr->coefficientsHandle);
 				mapProjectionInfoPtr->coefficientsHandle = MNewHandle (
-																		4 * numberCoefficients * sizeof(double));
+														4 * numberCoefficients * sizeof (double));
 				mapProjectionInfoPtr->numberCoefficients = numberCoefficients;
 				
 				GetCoefficientsVectorPointers (mapProjectionInfoPtr);
 				
 				returnCode = ComputeGeorefCoefficients (
-										controlPointsPtr, 
-										 mapProjectionInfoPtr->planarCoordinate.easting1CoefficientsPtr, 
-										 mapProjectionInfoPtr->planarCoordinate.northing1CoefficientsPtr, 
-										 mapProjectionInfoPtr->planarCoordinate.easting2CoefficientsPtr, 
-										 mapProjectionInfoPtr->planarCoordinate.northing2CoefficientsPtr, 
-										 order);
+							controlPointsPtr,
+							mapProjectionInfoPtr->planarCoordinate.easting1CoefficientsPtr, 
+							mapProjectionInfoPtr->planarCoordinate.northing1CoefficientsPtr, 
+							mapProjectionInfoPtr->planarCoordinate.easting2CoefficientsPtr, 
+							mapProjectionInfoPtr->planarCoordinate.northing2CoefficientsPtr, 
+							order);
 				
 				if (returnCode != MSUCCESS)
 					order--;
 				
-				} while ((order > 0) && (returnCode != MSUCCESS));
+				}	while ((order > 0) && (returnCode != MSUCCESS));
 			
 			CloseCoefficientsVectorPointers (mapProjectionInfoPtr);
 			
@@ -608,31 +615,31 @@ SInt16 GetPolynomialModel (
 				mapProjectionInfoPtr->planarCoordinate.horizontalPixelSize = 0;
 				mapProjectionInfoPtr->planarCoordinate.verticalPixelSize = 0;
 				
-				}		// end "if (returnCode == MSUCCESS)"
+				}	// end "if (returnCode == MSUCCESS)"
 			
-			else		// returnCode != MSUCCESS
+			else	// returnCode != MSUCCESS
 				{
 				UnlockAndDispose (mapProjectionInfoPtr->coefficientsHandle);
 				mapProjectionInfoPtr->numberCoefficients = 0;
 					
-				}		// end "returnCode != MSUCCESS"
+				}	// end "returnCode != MSUCCESS"
 			
-			}		// end "if (numberActiveControlPoints >= 3"
+			}	// end "if (numberActiveControlPoints >= 3"
 			
 		CheckAndUnlockHandle (mapProjectionHandle); 
 		CloseControlPointVectorPointers (fileInfoPtr->controlPointsHandle);
 			
-		}		// end "if (mapProjectionHandle != NULL)"
+		}	// end "if (mapProjectionHandle != NULL)"
 	
 	return (returnCode);
 	
-}		// end "GetPolynomialModel"
+}	// end "GetPolynomialModel"
 
 
 
 //------------------------------------------------------------------------------------
 //								 Copyright (1988-2017)
-//								(c) Purdue Research Foundation
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		SInt16 SolveMatrix
@@ -676,7 +683,7 @@ SInt16 GetPolynomialModel (
 //	Revised By:			Larry L. Biehl			Date: 02/10/2007	
 
 SInt16 SolveMatrix (
-				struct MATRIX 						*m, 
+				struct MATRIX 						*m,
 				double 								a[], 
 				double 								b[], 
 				double 								E[], 
@@ -699,26 +706,26 @@ SInt16 SolveMatrix (
 
 				// Find row with largest magnitude value for pivot value
 
-		pivot = M(i,j);
+		pivot = M (i,j);
 		imark = i;
 		for (i2=i+1; i2<=m->n; i2++)
 			{
-			temp = fabs(M(i2,j));
-			if (temp > fabs(pivot))
+			temp = fabs (M (i2,j));
+			if (temp > fabs (pivot))
 				{
-				pivot = M(i2,j);
+				pivot = M (i2,j);
 				imark = i2;
 				
-				}		// end "if (temp > fabs(pivot))"
+				}	// end "if (temp > fabs (pivot))"
 				
-			}		// end "for (i2=i+1; i2<=m->n; i2++)"
+			}	// end "for (i2=i+1; i2<=m->n; i2++)"
 
 				// if the pivot is very small then the points are nearly co-linear 
 				// co-linear points result in an undefined matrix, and nearly 
 				// co-linear points results in a solution with rounding error 
 
 		if (pivot == 0.0)
-			return MUNSOLVABLE;
+																					return MUNSOLVABLE;
 
 				// if row with highest pivot is not the current row, switch them
  
@@ -726,11 +733,11 @@ SInt16 SolveMatrix (
 			{
 			for (j2=1; j2<=m->n; j2++)
 				{
-				temp = M(imark,j2);
-				M(imark,j2) = M(i,j2);
-				M(i,j2) = temp;
+				temp = M (imark,j2);
+				M (imark,j2) = M (i,j2);
+				M (i,j2) = temp;
 				
-				}		// end "for (j2=1; j2<=m->n; j2++)"
+				}	// end "for (j2=1; j2<=m->n; j2++)"
 
 			temp = a[imark-1];
 			a[imark-1] = a[i-1];
@@ -740,7 +747,7 @@ SInt16 SolveMatrix (
 			b[imark-1] = b[i-1];
 			b[i-1] = temp;
 			
-			}		// end "if (imark != i)"
+			}	// end "if (imark != i)"
 
 				// compute zeros above and below the pivot, and compute
 				// values for the rest of the row as well
@@ -749,37 +756,37 @@ SInt16 SolveMatrix (
 			{
 			if (i2 != i)
 				{
-				factor = M(i2,j) / pivot;
+				factor = M (i2,j) / pivot;
 				for (j2 = j; j2 <= m->n; j2++)
-					M(i2,j2) -= factor * M(i,j2);
+					M (i2,j2) -= factor * M (i,j2);
 				a[i2-1] -= factor * a[i-1];
 				b[i2-1] -= factor * b[i-1];
 				
-				}		// end "if (i2 != i)"
+				}	// end "if (i2 != i)"
 				
-			}		// end "for (i2=1; i2<=m->n; i2++)"
+			}	// end "for (i2=1; i2<=m->n; i2++)"
 			
-		}		// end "for (i=1; i<=m->n; i++)"
+		}	// end "for (i=1; i<=m->n; i++)"
 
 			// SINCE ALL OTHER VALUES IN THE MATRIX ARE ZERO NOW, CALCULATE THE
-			// COEFFICIENTS BY DIVIDING THE COLUMN VECTORS BY THE DIAGONAL VALUES. */
+			// COEFFICIENTS BY DIVIDING THE COLUMN VECTORS BY THE DIAGONAL VALUES.
 
 	for (i=1; i<=m->n; i++)
 		{
-		E[i-1] = a[i-1] / M(i,i);
-		N[i-1] = b[i-1] / M(i,i);
+		E[i-1] = a[i-1] / M (i,i);
+		N[i-1] = b[i-1] / M (i,i);
 		
-		}		// end "for (i=1; i<=m->n; i++)"
+		}	// end "for (i=1; i<=m->n; i++)"
 
 	return MSUCCESS;
 	
-}		// end "SolveMatrix"
+}	// end "SolveMatrix"
 
 
 
 //------------------------------------------------------------------------------------
 //								 Copyright (1988-2017)
-//								(c) Purdue Research Foundation
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		double TermValue
@@ -814,12 +821,12 @@ SInt16 SolveMatrix (
 //	Revised By:			Larry L. Biehl			Date: 02/08/2007	
 
 double TermValue (
-						UInt32								term, 
-						double 								e, 
-						double 								n)
+				UInt32								term,
+				double 								e, 
+				double 								n)
 {
 	switch (term)
-	{
+		{
 		case  1: return 1.0;
 		case  2: return e;
 		case  3: return n;
@@ -831,9 +838,9 @@ double TermValue (
 		case  9: return e*n*n;
 		case 10: return n*n*n;
 		
-	}		// end "switch (term)"
+		}	// end "switch (term)"
 	
 	return 0.0;
 	
-}		// end "TermValue"
+}	// end "TermValue"
 

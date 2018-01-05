@@ -1,43 +1,56 @@
-//------------------------------------------------------------------------------------
+//	 									MultiSpec
 //
-//	SDefines.h
-//	
-//	(C) Copyright Purdue Research Foundation 1988-2017.  All rights reserved.
-//	
-//	Header file for MultiSpec which contains variable and structure definitions 
-// used by MultiSpec for both the Macintosh and Windows versions.
-//	
-//	Written 03/29/1988 by Larry L. Biehl
-//	Revised 06/22/2017 by Larry L. Biehl
-// Revised 06/24/2013 by Abdur Maud
-// Revised 09/25/2015 by Tsung Tai Yeh
+//					Laboratory for Applications of Remote Sensing
+//									Purdue University
+//								West Lafayette, IN 47907
+//								 Copyright (1988-2018)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	File:						SDefines.h
+//
+//	Authors:					Larry L. Biehl
+//
+//	Language:				C
+//
+//	System:					Linux, Macintosh and Windows Operating Systems
+//
+//	Brief description:	Header file for MultiSpec which contains variable and 
+//								structure definitions used by MultiSpec.
+//
+//	Written By:				Larry L. Biehl			Date: 03/29/1988
+//	Revised By:				Abdur Maud				Date: 06/24/2013
+//	Revised By:				Tsung Tai Yeh			Date: 09/25/2015
+//	Revised By:				Larry L. Biehl			Date: 01/05/2018
 //	
 //------------------------------------------------------------------------------------
-//
+
 #ifndef __SDEFINES__
 #define __SDEFINES__
 
 #if include_gdal_capability
-#	ifdef multispec_lin
-#		include "dbfopen.h"
-#	endif		// multispec_lin
-#	ifdef multispec_mac
-#		include "shapefil.h"
-#		//include "dbfopen.h"
-#	endif		// multispec_mac
-#	ifdef multispec_win
-#		include "shapefil.h"
-#	endif		// multispec_win
+	#ifdef multispec_lin
+		#include "dbfopen.h"
+	#endif	// multispec_lin
+	
+	#ifdef multispec_mac
+		#include "shapefil.h"
+		//#include "dbfopen.h"
+	#endif	// multispec_mac
+	
+	#ifdef multispec_win
+		#include "shapefil.h"
+	#endif	// multispec_win
 #endif	// include_gdal_capability
 	
 		// Forward definition of classes
-//#define multispec_lin
 #if defined multispec_lin
-#	include <wx/wx.h>
-#	include <wx/listbox.h>
-#	include <wx/dc.h>
-#	include <wx/listctrl.h>
-#	include "SConsnts.h"
+	#include <wx/wx.h>
+	#include <wx/listbox.h>
+	#include <wx/dc.h>
+	#include <wx/listctrl.h>
+	//#include "SGraphView.h"
+	#include "SConstants.h"
 
 	class CMDialog;
 	class CMPalette;
@@ -57,49 +70,49 @@
 	class CMStatisticsView;
 	class CMStatisticsFrame;
 
-#	define _T(x)      x
-#	define A2T(x)		x
-#	define T2A(x)		x
+	#define _T(x)     x
+	#define A2T(x)		x
+	#define T2A(x)		x
 
-#	define LPSTR		char*
-#	define LPTSTR		char*
-#	define LPCSTR		char*
-#	define LPCWSTR		wchar_t*
+	#define LPSTR		char*
+	#define LPTSTR		char*
+	#define LPCSTR		char*
+	#define LPCWSTR	wchar_t*
 #endif
 
 #ifndef multispec_lin
-class CCmdUI;
+	class CCmdUI;
 
-class	CDocument;
-	
-// class CMDataFile; 
-class	CMDialog;
-class	CMDisplay;
-class CMFileDialog;
-class CMHistogram; 
-class CMImageWindow;
-class CMMemoryUtilities;
-class CMOutlineArea;
-class CMPalette;   
-class CMWindowInfo;
+	class	CDocument;
+		
+	// class CMDataFile; 
+	class	CMDialog;
+	class	CMDisplay;
+	class CMFileDialog;
+	class CMHistogram; 
+	class CMImageWindow;
+	class CMMemoryUtilities;
+	class CMOutlineArea;
+	class CMPalette;   
+	class CMWindowInfo;
 
-class CMImageDoc; 
-class	CMImageFrame;
-class	CMImageView;
+	class CMImageDoc; 
+	class	CMImageFrame;
+	class	CMImageView;
 
-class CMStatisticsForm; 
+	class CMStatisticsForm; 
 
-class CMTextDoc;
-class CMTextView;
+	class CMTextDoc;
+	class CMTextView;
 
-class CMGraphDoc;
-class CMGraphView;
+	class CMGraphDoc;
+	class CMGraphView;
 #endif
-	// The forward definitions for the structures.
+		// The forward definitions for the structures.
                                       
 typedef struct BlockFormat BlockFormat, *BlockFormatPtr;
 typedef struct ChannelStatistics ChannelStatistics, *ChannelStatisticsPtr; 
-typedef struct ClusterType ClusterType; 
+typedef struct ClusterType ClusterType;
 typedef struct ControlPoints ControlPoints, *ControlPointsPtr;                             
 typedef struct DataToDisplayLevel DataToDisplayLevel, *DisplayLevelPtr;
 typedef struct DialogSelectArea DialogSelectArea, *DialogSelectAreaPtr; 
@@ -117,7 +130,7 @@ typedef struct HistogramSpecs HistogramSpecs, *HistogramSpecsPtr;
 typedef struct HistogramSummary HistogramSummary, *HistogramSummaryPtr;
 typedef struct LayerInfo LayerInfo, *LayerInfoPtr; 
 typedef struct MaskInfo MaskInfo, *MaskInfoPtr; 
-typedef struct	PlanarCoordinateSystemInfo	PlanarCoordinateSystemInfo, *PlanarCoordinateSystemInfoPtr;     
+typedef struct	PlanarCoordinateSystemInfo	PlanarCoordinateSystemInfo, *PlanarCoordinateSystemInfoPtr;  
 typedef struct ProjectClassNames ProjectClassNames, *PClassNamesPtr;
 typedef struct ProjectFieldIdentifiers ProjectFieldIdentifiers, *PFieldIdentifiersPtr;
 typedef struct ProjectFieldPoints ProjectFieldPoints, *PFieldPointsPtr;
@@ -158,7 +171,154 @@ typedef double				CMeanType;
 typedef double				CMeanType2;
 
 
-#if defined multispec_mac 
+#if defined multispec_mac_swift
+	typedef struct CMFileStream CMFileStream, *CMFileStreamPtr;
+	#define _T(x)			x
+	#define A2T(x)			x
+	#define T2A(x)			x
+
+	#define LPSTR			char*
+	#define LPTSTR			char*
+	#define LPCSTR			char*
+	#define LPCWSTR		wchar_t*
+
+	enum
+		{
+		blackColor                    = 33,   /* colors expressed in these mappings */
+		whiteColor                    = 30,
+		redColor                      = 205,
+		greenColor                    = 341,
+		blueColor                     = 409,
+		cyanColor                     = 273,
+		magentaColor                  = 137,
+		yellowColor                   = 69
+		};
+
+	typedef int							CMPaletteInfo;
+	typedef Ptr							CursPtr;
+	typedef Ptr							DlgHookUPP;
+	typedef double						SDouble;
+	typedef Handle						CListBox;
+	typedef UInt32						SFReply;
+	typedef UInt32						THPrint;
+	typedef SInt32						CDC;
+	typedef struct HParamBlockRec
+		{
+		UInt32				ioPosOffset;
+		CMFileStream*		fileStreamPtr;
+		UCharPtr				ioBuffer;
+		UInt32				ioReqCount;
+		UInt32				ioActCount;
+		SInt16				ioPosMode;
+		
+		} HParamBlockRec;
+
+			typedef Ptr							HPtr;
+
+	typedef char*						HCharPtr;
+
+	typedef unsigned char*			HUCharPtr; 
+	
+	typedef SInt8*						HSInt8Ptr; 
+	
+	typedef UInt8*						HUInt8Ptr;
+	
+	typedef SInt16*					HSInt16Ptr; 
+	
+	typedef UInt16*					HUInt16Ptr;
+	
+	typedef SInt32*					HSInt32Ptr; 
+	
+	typedef UInt32*					HUInt32Ptr;
+	
+	typedef SInt64*					HSInt64Ptr;
+	
+	typedef float*						HFloatPtr;
+	
+	typedef FileIOBuffer*			HFileIOBufferPtr;
+	
+	typedef double*					DoublePtr;	
+	
+	typedef double*					HDoublePtr;	
+	
+	typedef double*					HFldLikPtr;	
+
+	typedef double*					HCovarianceStatisticsPtr; 
+	
+	typedef double*					HSumSquaresStatisticsPtr;
+	
+	typedef ChannelStatisticsPtr	HChannelStatisticsPtr;
+
+	typedef int							PaletteHandle;
+
+	typedef ListHandle				LegendListHandle;
+	
+	typedef PClassNamesPtr			HPClassNamesPtr;
+	
+	typedef PFieldIdentifiersPtr	HPFieldIdentifiersPtr;
+	
+	typedef PFieldPointsPtr			HPFieldPointsPtr;
+	
+	typedef CMeanType*				HCMeanTypePtr;
+	
+	typedef CType*						HCTypePtr;
+	
+	typedef unsigned char 			UChar; 
+
+	typedef UInt8*						FileStringPtr;
+
+	typedef wchar_t					LocalAppFile;
+	typedef LocalAppFile*			LocalAppFilePtr;
+	
+	typedef pascal void				PascalVoid;
+	
+	typedef WindowPtr					StatisticsWindowPtr;
+	
+	typedef Str255						CString;
+
+	typedef Rect						tagRECT;
+	
+	typedef UInt32						SFTypeList;
+	
+	typedef struct LongPoint 
+		{
+		SInt32			v;
+		SInt32			h;
+		
+		} LongPoint; 
+	
+
+	typedef struct ULongRect
+		{                                           
+		UInt32		top;			// "left" of rectangle
+		UInt32		left; 			// "top" of rectangle 
+		UInt32		bottom;		// "right" of rectangle 
+		UInt32		right;		// "bottom" of rectangle
+	
+		} ULongRect, *ULongRPtr;
+		
+	typedef struct CMFileStream
+		{
+		HFSUniStr255			uniFileName;
+		UniChar					uniPascalFileName[256];
+		Str255					fileName;
+		FSRef						fsRef;
+		FSRef						parentFSRef;
+		SInt64					fileSize;
+		SInt32					parID;
+		SInt32					creator;
+		SInt32					type;
+		UInt16					pathLength;
+		SInt16					refNum;
+		SInt16					vRefNum;
+		Boolean					fSSpecFlag;
+		Boolean					fSRefFlag;
+		
+		} CMFileStream, *CMFileStreamPtr, **CMFileStreamHandle;
+#endif	// defined multispec_mac_swift
+
+#if defined multispec_mac
+	typedef struct CMFileStream CMFileStream, *CMFileStreamPtr;
 	class	CMMemoryDialog;
 	class	CMMenus;    
 
@@ -166,17 +326,17 @@ typedef double				CMeanType2;
 		#define fabs(x) std::fabs(x)
 	#endif
 
-#	define _T(x)      x
-#	define A2T(x)		x
-#	define T2A(x)		x
+	#define _T(x)      x
+	#define A2T(x)		x
+	#define T2A(x)		x
 
-#	define LPSTR		char*
-#	define LPTSTR		char*
-#	define LPCSTR		char*
-#	define LPCWSTR		wchar_t*
+	#define LPSTR		char*
+	#define LPTSTR		char*
+	#define LPCSTR		char*
+	#define LPCWSTR		wchar_t*
 
 			// These are a holder variables for Windows structures.
-			
+
 	typedef PaletteHandle			CMPaletteInfo;
 
 	typedef SInt32						CDC;
@@ -186,12 +346,6 @@ typedef double				CMeanType2;
 	typedef Handle						HDC;
 	
 	typedef unsigned char 			UChar; 
-
-//#	if defined use_wide_characters
-//		typedef wchar_t					TBYTE;
-//#	else
-//		typedef unsigned char			TBYTE;
-//#	endif
 
 	typedef UInt8*						FileStringPtr;
 
@@ -249,15 +403,17 @@ typedef double				CMeanType2;
 	
 	typedef PFieldPointsPtr			HPFieldPointsPtr;
 	
-//	typedef EchoFieldInfoPtr		HEchoFieldInfoPtr; 
+	//typedef EchoFieldInfoPtr		HEchoFieldInfoPtr; 
 	
 	typedef CMeanType*				HCMeanTypePtr;
 	
 	typedef CType*						HCTypePtr;
+
+	typedef ListHandle				LegendListHandle;
 	
 	typedef Str255						CString;
 	
-//	typedef struct OpaqueWEReference *WEReference;
+	//typedef struct OpaqueWEReference *WEReference;
 	
 	#ifndef _LongCoords_
 		#include "LongCoords.h"
@@ -294,7 +450,7 @@ typedef double				CMeanType2;
 		} DataDisplay, *DataDisplayPtr; 
 	
 
-//	#if PRAGMA_ALIGN_SUPPORTED
+	//#if PRAGMA_ALIGN_SUPPORTED
 	#if PRAGMA_STRUCT_ALIGN
 	#pragma options align=mac68k
 	#endif
@@ -302,11 +458,11 @@ typedef double				CMeanType2;
 			// The following is for documentation. The beginning of the 
 			// CMFileStream structure should be like the FSSpec structure.
 
-			//		struct FSSpec {
+			//	struct FSSpec {
 			//			short							vRefNum;
 			//			long							parID;
 			//			Str63							name; };
-/*
+	/*
 	typedef struct CMFileStream
 		{
 		SInt16					vRefNum;
@@ -326,7 +482,7 @@ typedef double				CMeanType2;
 		Boolean					fSRefFlag;
 		
 		} CMFileStream, *CMFileStreamPtr, **CMFileStreamHandle;
-*/
+	*/
 	typedef struct CMFileStream
 		{
 		HFSUniStr255			uniFileName;
@@ -423,7 +579,6 @@ typedef double				CMeanType2;
 	#endif	// !defined PP_Target_Carbon
 		
 	#if TARGET_API_MAC_CARBON
-	
 		typedef struct CGInfo
 			{
 			CGContextRef			contextRef;
@@ -583,14 +738,11 @@ typedef double				CMeanType2;
 	#endif	// TARGET_API_MAC_CARBON											
 #endif	// defined multispec_mac
 
-// Note a lot of lines are commented out for now
-// Will uncomment them as need arises
 #if defined multispec_lin
-
-#	define  huge
-#	define SIGN(a,b) ((b) >= 0.0 ? fabs(a) : -fabs(a))
-#	define kPMPortrait	1
-#	define _MAX_PATH 255
+	#define  huge
+	#define SIGN(a,b) ((b) >= 0.0 ? fabs(a) : -fabs(a))
+	#define kPMPortrait	1
+	#define _MAX_PATH 255
       
 			// The forward definitions for linux specific classes.
 
@@ -627,7 +779,8 @@ typedef double				CMeanType2;
 	typedef SInt16					Boolean; // BOOLean (0 or !=0)
 
 	typedef wxSize					CSize;
-	typedef wxListView			CListBox;
+	//typedef wxListView			CListBox;	// original
+	//typedef wxListBox				CListBox;
 
 			// Define some variables for MultiSpec
 			//**** Using GLOBALHANDLE type to be void for now
@@ -652,7 +805,8 @@ typedef double				CMeanType2;
 	typedef Ptr						GrafPtr; // Pointer
 	typedef Ptr						GWorldPtr; // Pointer
 	typedef GLOBALHANDLE			Handle; // Windows global handle
-	typedef wxListView *			ListHandle;
+	typedef wxListView*			LegendListHandle;
+	typedef wxListBox*			ListHandle;
 	typedef GLOBALHANDLE			MenuHandle;
 	typedef UInt16					MenuItemIndex;
 	typedef GLOBALHANDLE			MenuRef;
@@ -847,9 +1001,9 @@ typedef double				CMeanType2;
 #endif	// defined multispec_lin
 
 #if defined multispec_win
-//	#ifdef _WIN32
+	//#ifdef _WIN32
    	#define  huge
-//	#endif
+	//#endif
 
 	#define SIGN(a,b) ((b) >= 0.0 ? fabs(a) : -fabs(a)) 
 
@@ -871,11 +1025,8 @@ typedef double				CMeanType2;
 	
 	typedef unsigned char	*StringPtr;	//, **StringHandle;
 
-//#	if defined _UNICODE
-//		typedef TBYTE*				FileStringPtr;
-//#	else
 	typedef UInt8*				FileStringPtr;
-//#	endif
+
 	typedef TBYTE*				WideFileStringPtr;
 	
 	typedef char 				SignedByte, SInt8;
@@ -896,13 +1047,13 @@ typedef double				CMeanType2;
 	
 	typedef void				PascalVoid;
 	
-		// Define some variables that are defined in the Macintosh Toolbox and not
-		// in the Windows compiler  
+			// Define some variables that are defined in the Macintosh Toolbox and not
+			// in the Windows compiler  
 	
 	typedef SInt16			  	Boolean;   		// BOOLean (0 or !=0)
 	                               
 	
-		// Define some variables for MultiSpec
+			// Define some variables for MultiSpec
 	
 	typedef UInt32				CGContextRef;
 	typedef UInt32				CGRect;
@@ -916,13 +1067,13 @@ typedef double				CMeanType2;
 	typedef GLOBALHANDLE		ControlRef;
 	typedef Ptr					CursPtr;
 	typedef Ptr					DlgHookUPP;
-//	typedef Ptr					DialogPtr; 
 	typedef CMDialog*			DialogPtr;
 	typedef Ptr					DragGrayRgnUPP;                  
 	typedef Ptr					GrafPtr;   	// Pointer                       
 	typedef Ptr					GWorldPtr;   	// Pointer
 	typedef GLOBALHANDLE  	Handle;   		// Windows global handle
 	typedef CListBox*	  		ListHandle;   	// Windows global handle 
+	typedef CListBox*			LegendListHandle;
 	typedef GLOBALHANDLE  	MenuHandle; 
 	typedef UInt16				MenuItemIndex;
 	typedef GLOBALHANDLE		MenuRef;
@@ -932,13 +1083,14 @@ typedef double				CMeanType2;
 	typedef Ptr					ModalFilterUPP;
 	typedef Handle				WSHandle;   
 	typedef Handle				WEReference;   
-	
-	/* struct FSSpec {
+	/*
+	struct FSSpec 
+		{
 		short							vRefNum;
 		long							parID;
 		Str63							name;
-	}; */   
-	
+		};  
+	*/
 	
 	typedef struct EventRecord
 		{            
@@ -975,7 +1127,6 @@ typedef double				CMeanType2;
 		
 		} LongPoint; 
 
-//new 
    struct Rect 
 	   {    // rc  
 		int			left; 
@@ -984,7 +1135,6 @@ typedef double				CMeanType2;
 		int			bottom;
 		 
       };
-//end new	
 	
 	typedef struct LongRect
 		{                                              
@@ -1004,7 +1154,6 @@ typedef double				CMeanType2;
 	
 		} ULongRect, *ULongRPtr;
 		
-	
 	struct RGBColor
 		{
 		UInt16			red;
@@ -1014,7 +1163,6 @@ typedef double				CMeanType2;
 		
 	typedef struct RGBColor RGBColor, *RGBColorPtr, **RGBColorHdl; 
 	  
-	
 	struct ColorSpec
 		{
 		SInt16			value;
@@ -1043,8 +1191,8 @@ typedef double				CMeanType2;
 		
 	typedef struct Palette Palette, *PalettePtr;
 	
-//			The following structure is filler for text windows. This is the structure
-//			that is used in the Mac OS
+			//	The following structure is filler for text windows. This is the structure
+			//	that is used in the Mac OS
 
 	typedef struct 
 		{
@@ -1071,12 +1219,10 @@ typedef double				CMeanType2;
 	typedef Ptr					UserItemProcPtr;
 	typedef Ptr					UserItemUPP;
 	typedef Ptr					DlgHookYDUPP;
-//	typedef CDC*				WindowPtr;
 	typedef CMImageView*		WindowPtr;
 	typedef CMStatisticsForm*	StatisticsWindowPtr;
 	                                
 	typedef char				LWindow;
-	//typedef char				*FSSpec;
 	
 	typedef SInt16				OSErr;
 	
@@ -1098,13 +1244,13 @@ typedef double				CMeanType2;
 	typedef FourCharCode		OSType;
 
 	typedef LocalAppFile*	LocalAppFilePtr;  
+	/*	
+	typedef struct LocalAppFile
+		{
+		Str255					fileName;
 		
-//	typedef struct LocalAppFile
-//		{
-//		Str255					fileName;
-//		
-//		} LocalAppFile, *LocalAppFilePtr; 
-	
+		} LocalAppFile, *LocalAppFilePtr; 
+	*/
 			// Declare huge pointers
 	
 	typedef char huge *						HPtr;
@@ -1151,7 +1297,7 @@ typedef double				CMeanType2;
 	
 	typedef ProjectFieldPoints	huge *	HPFieldPointsPtr;
 	
-//	typedef EchoFieldInfo huge *			HEchoFieldInfoPtr; 	
+	//typedef EchoFieldInfo huge *		HEchoFieldInfoPtr; 	
 	
 	typedef CMeanType huge *				HCMeanTypePtr;
 	
@@ -1168,7 +1314,6 @@ typedef double				CMeanType2;
 		SInt16				ioPosMode;
 		
 		} HParamBlockRec, *ParmBlkPtr;
-
 #endif	// defined multispec_win 
 
 typedef UInt8					FileStringName255[256];
@@ -1257,7 +1402,7 @@ typedef struct TransMapMatrix
 		// Now declaration of the rest of the structures.
 
 typedef struct AreaDescription
-{	
+	{	
 			// Temporary storage for the number of samples per channels for
 			// use when reading data values from the disk file.
 	SInt64					numSamplesPerChan;
@@ -1377,6 +1522,18 @@ typedef struct BiPlotDataSpecs
 	Boolean					featureTransformationFlag;
 	
 	} BiPlotDataSpecs, *BiPlotDataSpecsPtr;
+		
+		
+		//	This structure defines the block offset and size for those file
+		// formats for which data is stored in blocks in the file. The block
+		// may not be randomly positioned in the file										
+	
+typedef struct BlockFormat
+	{
+	UInt32							blockOffsetBytes;
+	UInt32							blockSize;
+	
+	} BlockFormat, *BlockFormatPtr;
 
 
 typedef struct 	CEMParameters 
@@ -1589,6 +1746,32 @@ typedef struct ClassInfo
 	
 	} ClassInfo, *ClassInfoPtr;
 	
+
+		// Following structure is used in Feature Extraction and Statistics Image
+		// processors.
+typedef struct class_info_str 
+	{
+	double				log_det;	
+	SInt64				no_sample;	
+	UInt32				wave_length_default;
+	
+	HDoublePtr			data_values;
+
+	HDoublePtr			mean;	
+		
+	HDoublePtr			cov;
+	HDoublePtr			icov;			
+	
+	unsigned char*		half_image;
+	HDoublePtr			fmean;
+	HDoublePtr			fvar;
+	
+	HFloatPtr			mah_dis;
+	SInt16				stat_name_storage;	// -1 indicates that this is a selected area.
+	Boolean				mah_disLoadedFlag;
+	
+	} CLASS_INFO_STR;
+	
 	
 typedef struct ClusterSpecs
 	{
@@ -1739,9 +1922,9 @@ typedef struct DataToDisplayLevel
 	{
 	Handle		vectorHandle;
 	 
-	#if defined multispec_mac 
+	#if defined multispec_mac || defined multispec_mac_swift
 		WindowPtr		window;
-	#endif	// defined multispec_mac
+	#endif	// defined multispec_mac || defined multispec_mac_swift
 	#if defined multispec_win  
 		CMImageView* 	window;  
 	#endif	// defined multispec_win
@@ -1874,16 +2057,16 @@ typedef struct DisplaySpecs
 	CMPaletteInfo			paletteObject;   
              
 	#if defined multispec_win
-			// Handle for color palette for image window when in the background.
-			// This is required for the windows version. 
+				// Handle for color palette for image window when in the background.
+				// This is required for the windows version. 
 		CMPaletteInfo			backgroundPaletteObject; 
 	#endif	// defined multispec_win
 	
-#if defined multispec_lin
-    // Handle for color palette for image window when in the background.
-    // This is required for the windows version.
-    CMPaletteInfo backgroundPaletteObject;
-#endif	// defined multispec_lin
+	#if defined multispec_lin
+				// Handle for color palette for image window when in the background.
+				// This is required for the windows version.
+		 CMPaletteInfo backgroundPaletteObject;
+	#endif	// defined multispec_lin
       
       
 			// Value that is to be considered a background value rather than a data
@@ -2020,7 +2203,7 @@ typedef struct DisplaySpecs
 			// Number of horizontal display elements per image pixel.
 			// Needed for 1-bit displays such as Mac Pluses, SE's etc.
 			// Removed in 2001				
-//	SInt16					displayHPixelsPerImagePixel;
+	//SInt16					displayHPixelsPerImagePixel;
 	
 			// Last selection in the display type pop up menu.							
 	SInt16					displaySet;	
@@ -2028,7 +2211,7 @@ typedef struct DisplaySpecs
 			// Number of vertical display elements per image pixel.
 			// Needed for 1-bit displays such as Mac Pluses, SE's etc.
 			// Removed in 2001									
-//	SInt16					displayVPixelsPerImagePixel;	
+	//SInt16					displayVPixelsPerImagePixel;	
 	
 			// Last selection in the enhancement pop up menu.							
 	SInt16					enhancementCode;
@@ -2195,7 +2378,7 @@ typedef struct DisplaySpecsDefault
 	
 			// Minimum and maximum data indices used for thematic type multispectral
 			// image displays.		
-//	SInt32							thematicTypeMinMaxIndices[2];
+	//SInt32							thematicTypeMinMaxIndices[2];
 	
 			// Number of display levels.															
 	UInt32							numberLevels;	
@@ -2284,6 +2467,16 @@ typedef struct DisplaySpecsDefault
 	Boolean							structureLoadedFlag;	
 												
 	}	DisplaySpecsDefault, *DisplaySpecsDefaultPtr;
+	
+
+typedef struct DoubleRect
+	{
+	double 		top;
+	double 		left;
+	double 		bottom;
+	double 		right;
+	
+	} DoubleRect;
 
 
 typedef struct EchoClassifierVar 
@@ -2292,9 +2485,9 @@ typedef struct EchoClassifierVar
    double							annexationThreshold_derived; 
    double							homogeneityThreshold; 		// THD1	 
    
-	#if defined multispec_mac
+	#if defined multispec_mac || defined multispec_mac_swift
 		CMFileStream					*tempFileStreamPtr;
-	#endif	// defined multispec_mac
+	#endif	// defined multispec_mac || defined multispec_mac_swift
 	
 	#if defined multispec_win
 		CMFileStream					*tempFileStreamPtr;
@@ -2315,7 +2508,7 @@ typedef struct EchoClassifierVar
 	HUInt32Ptr						fieldLikelihoodTableIndexPtr;
    HUInt32Ptr						field_number_table;
    HFldLikPtr						fldlikPtr;
-//   HEchoFieldInfoPtr				fieldInfoPtr;
+	//HEchoFieldInfoPtr				fieldInfoPtr;
    HFldLikPtr*						fieldLikeIndicesPtr;
 		
 	SInt64							ipixels;
@@ -2463,9 +2656,9 @@ typedef struct FeatureExtractionSpecs
 
 typedef struct MFileInfo
 	{
-	#if defined multispec_mac
+	#if defined multispec_mac || defined multispec_mac_swift
 		CMFileStream					fileStream;
-	#endif	// defined multispec_mac
+	#endif	// defined multispec_mac || defined multispec_mac_swift
 	
 	#if defined multispec_win
 		CMFileStream					*fileStreamCPtr;
@@ -2478,6 +2671,8 @@ typedef struct MFileInfo
 	HierarchalFileFormatPtr		hfaPtr;
 	BlockFormatPtr					blockFormatPtr;
 	void*								gdalDataSetH;
+	
+	Str15								channelDescriptionUnitString;
 	
 	double							maxDataValue;
 	double							minDataValue;
@@ -2522,7 +2717,7 @@ typedef struct MFileInfo
 		
 			// Used to store the hdf file_id when using the hdf routines to read
 			// lines of the image file.
-	SInt32							hdfFileID;
+	void*								hdfFileID;
 	
 	SInt32							signedValueOffset;
 	
@@ -2726,6 +2921,129 @@ typedef struct FileIOInstructions
 	UInt32								numberMaskColumnsPerLine;
 	
 	} FileIOInstructions, *FileIOInstructionsPtr;
+	
+	
+typedef struct GeodeticModelInfo
+	{
+			// Radius of spheroid.						
+	double					radiusSpheroid;
+	
+			// The semi major axis of the ellipsoid.						
+	double					semiMajorAxis;
+	
+			// The semi major axis of the ellipsoid.						
+	double					semiMinorAxis;
+	
+			// The eccentricity.						
+	double					e;
+	
+			// The eccentricity squared.						
+	double					eSquared;
+	
+			// A constant used in the Polar Stereogrphic projection.						
+	double					e4;
+	
+			// Flattening of ellipsoid. Used in Lambert Conformal Conic.						
+	double					f0;
+	
+			// Sign variable used in the Polar Stereogrphic projection.						
+	double					fac;
+	
+			// Small m constant used in the Polar Stereogrphic projection.						
+	double					mcs;
+	
+			// Distance from equator to latitude of origin.						
+	double					M0;
+	
+			// Ratio of angle between meridian. Used in Lambert Conformal Conic.						
+	double					ns;
+	
+			// Height above ellipsoid. Used in Lambert Conformal Conic.					
+	double					rh;
+	
+			// Small t constant used in the Polar Stereogrphic projection.						
+	double					tcs;
+	
+			// Flag used in the Polar Stereogrphic projection.						
+	SInt32					ind;
+	
+			// Code for datum.											
+	SInt16					datumCode;
+	
+			// Code for spheroid name.											
+	SInt16					spheroidCode;
+	
+	} GeodeticModelInfo, *GeodeticModelInfoPtr;
+	
+	
+typedef struct GridCoordinateSystemInfo
+	{
+			// EPSG Name
+	Str31						epsgName;
+	
+			// Datum Name
+	Str31						datumName;
+	
+			// Ellipsoid Name
+	Str31						ellipsoidName;
+	
+			// Variable For Map Projection
+			// False Easting (ProjFalseEastingGeoKey)									
+	double					falseEasting;
+	
+			// False Northing (ProjFalseNorthingGeoKey)								
+	double					falseNorthing;
+	
+			// False Origin Easting (ProjFalseOriginEastingGeoKey)									
+	double					falseOriginEasting;
+	
+			// False Origin Northing (ProjFalseOriginNorthingGeoKey)								
+	double					falseOriginNorthing;
+	
+			// False Origin Latitude (ProjFalseOriginLatGeoKey)									
+	double					falseOriginLatitude;
+	
+			// False Origin Longitude (ProjFalseOriginLongGeoKey)								
+	double					falseOriginLongitude;
+	
+			// Latitude of origin (ProjNatOriginLatGeoKey or ProjCenterLatGeoKey)								
+	double					latitudeOrigin;
+	
+			// Longitude of central meridian (ProjNatOriginLongGeoKey or ProjCenterLongGeoKey)				
+	double					longitudeCentralMeridian;
+	
+			// Scale factor at origin (ProjScaleAtNatOriginGeoKey)			
+	double					scaleFactorOfCentralMeridian;
+	
+			// Standard parallel1 (ProjStdParallel1GeoKey)				
+	double					standardParallel1;
+	
+			// Standard parallel2 (ProjStdParallel2GeoKey)				
+	double					standardParallel2;
+	
+			// Azimuth of the center line (ProjAzimuthAngleGeoKey)				
+	double					projAzimuthAngle;
+	
+			// Code for the grid reference system									
+			//  1=Greek Geodetic Reference System								
+			//  2=State Plane											
+			//  3=Universal Transverse Mercator (UTM)										
+	SInt16					referenceSystemCode;
+	
+			// Code for the map projection.									
+			//  1=Alaska Conformal								
+			//  2=Albers Conical Equal Area												
+	SInt16					projectionCode;
+	
+			// Code for the map projection for the UTM or State Plane grid system													
+	//SInt16					zoneProjectionCode;
+	
+			// Coordinate grid zone.
+			//    < 0 is northern hemisphere. > 0 is southern hemisphere											
+	SInt16					gridZone;
+	
+	} GridCoordinateSystemInfo, *GridCoordinateSystemInfoPtr;
+	
 
 typedef struct HdfDataSets 
 	{
@@ -2775,18 +3093,6 @@ typedef struct HierarchalFileFormat
 	UInt32							numberBlocksRead;
 	
 	} HierarchalFileFormat, *HierarchalFileFormatPtr;
-		
-		
-		//	This structure defines the block offset and size for those file
-		// formats for which data is stored in blocks in the file. The block
-		// may not be randomly positioned in the file										
-	
-typedef struct BlockFormat
-	{
-	UInt32							blockOffsetBytes;
-	UInt32							blockSize;
-	
-	} BlockFormat, *BlockFormatPtr;
 		
 		
 		//	This structure defines the histogram block data to be used in 			
@@ -2962,16 +3268,123 @@ typedef struct HistogramSummary
 	} HistogramSummary, *HistogramSummaryPtr;
 	
 	
-typedef struct InverseMatrixMemory
+typedef struct PlanarCoordinateSystemInfo
 	{
-	HDoublePtr				inversePtr;
-	HDoublePtr				pivotPtr;
+			// Storage for coefficients if needed.
+			
+	double*					easting1CoefficientsPtr;
+	double*					northing1CoefficientsPtr;
+	double*					easting2CoefficientsPtr;
+	double*					northing2CoefficientsPtr;
 	
-	SInt16					*indexColPtr;
-	SInt16					*indexRowPtr;
-	SInt16					*ipvotPtr;
+			// Conversion factor from meters to native map units
+	double					metersToNativeFactor;
 	
-	} InverseMatrixMemory, *InverseMatrixMemoryPtr;
+			// Horizontal Pixel Size.	(For Map Projection.)							
+	double					horizontalPixelSize;
+	
+			// Orientation of the image from north in degrees.
+	double					mapOrientationAngle;
+	
+			// Area of each pixel in 'areaUnitCode' units.								
+	double					pixelArea;
+	
+			// Vertical Pixel Size.	(For Map Projection.)								
+	double					verticalPixelSize;
+	
+			// x-map coordinate origin for orientation angle 							
+	double					xMapOrientationOrigin;
+	
+			// x-Map Coordinate.	(For Map Projection.)									
+	double					xMapCoordinate11;
+	
+			// x-map coordinate origin for orientation angle 							
+	double					yMapOrientationOrigin;
+	
+			// y-Map Coordinate.	(For Map Projection.)									
+	double					yMapCoordinate11;
+	
+			// Code for the area units.											
+			// 0=None.																				
+			// 1=Acre.																				
+			// 2=Hectare.																			
+			// 3=Other.																				
+	SInt16					areaUnitsCode;
+	
+			// Code for the distance units.											
+			// 0=None.																				
+			// 1=meters.																				
+			// 2=feet.																			
+			// 3=yards.																			
+			// 3=kilometers.																				
+	SInt16					mapUnitsCode;
+	
+			// Polynomial Model Order.  0 implies no polynomial model used											
+	SInt16					polynomialOrder;
+	
+			// Code for the z distance units. In other words DEM data.											
+			// 0=None.																				
+			// 1=meters.																				
+			// 2=feet.																			
+			// 3=yards.																			
+			// 3=kilometers.																				
+	SInt16					zMapUnitsCode;
+	
+			// This is a code to indicate the direction that the map units go.
+			// Don't know if this will be used much but it is here just in case.
+			// For the x-direction +1 indicates increasing from left to right.
+			// For the y-direction +1 indicates increasing from bottom to top.
+			// -1 one indicates the opposite.
+	//SInt16					xDirectionCode;
+	//SInt16					yDirectionCode;
+	
+	} PlanarCoordinateSystemInfo, *PlanarCoordinateSystemInfoPtr;
+	
+	
+typedef struct ImageOverlayInfo
+	{
+	Str255									overlayName;
+		
+	#if TARGET_API_MAC_CARBON
+		CGInfo							cgInfo;
+	#endif	// TARGET_API_MAC_CARBON
+		
+	#if defined multispec_win
+		HDC								overlayDC;
+	#endif	// defined multispec_win
+
+			// Handle for color palette for overlay image.
+	CMPaletteInfo						paletteObject;
+	
+	PlanarCoordinateSystemInfo		planarCoordinate;
+	
+	DoubleRect							boundingMapRectangle;
+	
+	SInt32								colorTable[256];
+	
+	LongRect								lineColumnRect;
+												
+	GWorldPtr							offscreenGWorld;
+	
+	Handle								offScreenMapHandle;
+	
+	Handle								offscreenStorageHandle;
+	
+	UInt32								offscreenMapSize;
+	UInt32								rowBytes;
+	
+	Boolean								usePlanarCoordinateInfoFlag;
+	
+	} ImageOverlayInfo, *ImageOverlayInfoPtr;
+	
+	
+typedef struct ImageOverlaySpecs
+	{
+	float						opacity;
+	
+	char						index;
+	
+	} ImageOverlaySpecs, *ImageOverlaySpecsPtr;
 	
 	
 			// This structure defines the second order statistics for the image	
@@ -3008,6 +3421,18 @@ typedef struct ImageSecondOrderStats
 		
 	} ImageSecondOrderStats, *ImageSecondOrderStatsPtr;
 	
+	
+typedef struct InverseMatrixMemory
+	{
+	HDoublePtr				inversePtr;
+	HDoublePtr				pivotPtr;
+	
+	SInt16					*indexColPtr;
+	SInt16					*indexRowPtr;
+	SInt16					*ipvotPtr;
+	
+	} InverseMatrixMemory, *InverseMatrixMemoryPtr;
+	
 		
 		
 			// This structure defines the relationship between window channels or	
@@ -3025,6 +3450,41 @@ typedef struct LayerInfo
 	UInt16				fileChannelNumber;
 	
 	} LayerInfo, *LayerInfoPtr, **LayerInfoHandle;
+	
+	
+typedef struct LCToWindowUnitsVariables
+	{
+			// display magnification
+	double								magnification;
+	
+			// displayed offscreen origin.
+	SInt32								xOrigin;
+	SInt32								yOrigin;
+	
+			// displayed line and column interval
+	SInt32								columnInterval;
+	SInt32								lineInterval;
+	
+			// displayed line/column offsets.
+	SInt32								columnOffset;
+	SInt32								lineOffset;
+	
+			// line and column scroll offsets. Used for Windows version.
+	SInt32								columnScrollOffset;
+	SInt32								lineScrollOffset;
+	
+			// Location of top of image in window units
+	SInt32								imageTopOffset;
+	
+			// Location of left of image in window units
+	SInt32								imageLeftOffset;
+													
+			// Offset in window units for the first channel	
+			// that has at least part of it being displayed. Needed to allow
+			// for side by side displays.
+	SInt32								channelWindowOffset;				
+	
+	} LCToWindowUnitsVariables, *LCToWindowUnitsVariablesPtr;
 	
 	
 typedef struct ListDataSpecs
@@ -3143,201 +3603,6 @@ typedef struct ListResultsSpecs
 	} ListResultsSpecs, *ListResultsSpecsPtr;
 	
 	
-typedef struct GeodeticModelInfo
-	{
-			// Radius of spheroid.						
-	double					radiusSpheroid;
-	
-			// The semi major axis of the ellipsoid.						
-	double					semiMajorAxis;
-	
-			// The semi major axis of the ellipsoid.						
-	double					semiMinorAxis;
-	
-			// The eccentricity.						
-	double					e;
-	
-			// The eccentricity squared.						
-	double					eSquared;
-	
-			// A constant used in the Polar Stereogrphic projection.						
-	double					e4;
-	
-			// Flattening of ellipsoid. Used in Lambert Conformal Conic.						
-	double					f0;
-	
-			// Sign variable used in the Polar Stereogrphic projection.						
-	double					fac;
-	
-			// Small m constant used in the Polar Stereogrphic projection.						
-	double					mcs;
-	
-			// Distance from equator to latitude of origin.						
-	double					M0;
-	
-			// Ratio of angle between meridian. Used in Lambert Conformal Conic.						
-	double					ns;
-	
-			// Height above ellipsoid. Used in Lambert Conformal Conic.					
-	double					rh;
-	
-			// Small t constant used in the Polar Stereogrphic projection.						
-	double					tcs;
-	
-			// Flag used in the Polar Stereogrphic projection.						
-	SInt32					ind;
-	
-			// Code for datum.											
-	SInt16					datumCode;
-	
-			// Code for spheroid name.											
-	SInt16					spheroidCode;
-	
-	} GeodeticModelInfo, *GeodeticModelInfoPtr;
-	
-	
-typedef struct GridCoordinateSystemInfo
-	{
-			// EPSG Name
-	Str31						epsgName;
-	
-			// Datum Name
-	Str31						datumName;
-	
-			// Ellipsoid Name
-	Str31						ellipsoidName;
-	
-			// Variable For Map Projection
-			// False Easting (ProjFalseEastingGeoKey)									
-	double					falseEasting;
-	
-			// False Northing (ProjFalseNorthingGeoKey)								
-	double					falseNorthing;
-	
-			// False Origin Easting (ProjFalseOriginEastingGeoKey)									
-	double					falseOriginEasting;
-	
-			// False Origin Northing (ProjFalseOriginNorthingGeoKey)								
-	double					falseOriginNorthing;
-	
-			// False Origin Latitude (ProjFalseOriginLatGeoKey)									
-	double					falseOriginLatitude;
-	
-			// False Origin Longitude (ProjFalseOriginLongGeoKey)								
-	double					falseOriginLongitude;
-	
-			// Latitude of origin (ProjNatOriginLatGeoKey or ProjCenterLatGeoKey)								
-	double					latitudeOrigin;
-	
-			// Longitude of central meridian (ProjNatOriginLongGeoKey or ProjCenterLongGeoKey)				
-	double					longitudeCentralMeridian;
-	
-			// Scale factor at origin (ProjScaleAtNatOriginGeoKey)			
-	double					scaleFactorOfCentralMeridian;
-	
-			// Standard parallel1 (ProjStdParallel1GeoKey)				
-	double					standardParallel1;
-	
-			// Standard parallel2 (ProjStdParallel2GeoKey)				
-	double					standardParallel2;
-	
-			// Azimuth of the center line (ProjAzimuthAngleGeoKey)				
-	double					projAzimuthAngle;
-	
-			// Code for the grid reference system									
-			//  1=Greek Geodetic Reference System								
-			//  2=State Plane											
-			//  3=Universal Transverse Mercator (UTM)										
-	SInt16					referenceSystemCode;
-	
-			// Code for the map projection.									
-			//  1=Alaska Conformal								
-			//  2=Albers Conical Equal Area												
-	SInt16					projectionCode;
-	
-			// Code for the map projection for the UTM or State Plane grid system													
-//	SInt16					zoneProjectionCode;
-	
-			// Coordinate grid zone.
-			//    < 0 is northern hemisphere. > 0 is southern hemisphere											
-	SInt16					gridZone;
-	
-	} GridCoordinateSystemInfo, *GridCoordinateSystemInfoPtr;
-	
-	
-typedef struct PlanarCoordinateSystemInfo
-	{
-			// Storage for coefficients if needed.
-			
-	double*					easting1CoefficientsPtr;
-	double*					northing1CoefficientsPtr;
-	double*					easting2CoefficientsPtr;
-	double*					northing2CoefficientsPtr;
-	
-			// Conversion factor from meters to native map units
-	double					metersToNativeFactor;
-	
-			// Horizontal Pixel Size.	(For Map Projection.)							
-	double					horizontalPixelSize;
-	
-			// Orientation of the image from north in degrees.
-	double					mapOrientationAngle;
-	
-			// Area of each pixel in 'areaUnitCode' units.								
-	double					pixelArea;
-	
-			// Vertical Pixel Size.	(For Map Projection.)								
-	double					verticalPixelSize;
-	
-			// x-map coordinate origin for orientation angle 							
-	double					xMapOrientationOrigin;
-	
-			// x-Map Coordinate.	(For Map Projection.)									
-	double					xMapCoordinate11;
-	
-			// x-map coordinate origin for orientation angle 							
-	double					yMapOrientationOrigin;
-	
-			// y-Map Coordinate.	(For Map Projection.)									
-	double					yMapCoordinate11;
-	
-			// Code for the area units.											
-			// 0=None.																				
-			// 1=Acre.																				
-			// 2=Hectare.																			
-			// 3=Other.																				
-	SInt16					areaUnitsCode;
-	
-			// Code for the distance units.											
-			// 0=None.																				
-			// 1=meters.																				
-			// 2=feet.																			
-			// 3=yards.																			
-			// 3=kilometers.																				
-	SInt16					mapUnitsCode;
-	
-			// Polynomial Model Order.  0 implies no polynomial model used											
-	SInt16					polynomialOrder;
-	
-			// Code for the z distance units. In other words DEM data.											
-			// 0=None.																				
-			// 1=meters.																				
-			// 2=feet.																			
-			// 3=yards.																			
-			// 3=kilometers.																				
-	SInt16					zMapUnitsCode;
-	
-			// This is a code to indicate the direction that the map units go.
-			// Don't know if this will be used much but it is here just in case.
-			// For the x-direction +1 indicates increasing from left to right.
-			// For the y-direction +1 indicates increasing from bottom to top.
-			// -1 one indicates the opposite.
-//	SInt16					xDirectionCode;
-//	SInt16					yDirectionCode;
-	
-	} PlanarCoordinateSystemInfo, *PlanarCoordinateSystemInfoPtr;
-	
-	
 typedef struct MapProjectionInfo
 	{
 			// Structure for geodetic model description.
@@ -3431,41 +3696,6 @@ typedef struct MapToWindowUnitsVariables
 	} MapToWindowUnitsVariables, *MapToWindowUnitsVariablesPtr;
 	
 	
-typedef struct LCToWindowUnitsVariables
-	{
-			// display magnification
-	double								magnification;
-	
-			// displayed offscreen origin.
-	SInt32								xOrigin;
-	SInt32								yOrigin;
-	
-			// displayed line and column interval
-	SInt32								columnInterval;
-	SInt32								lineInterval;
-	
-			// displayed line/column offsets.
-	SInt32								columnOffset;
-	SInt32								lineOffset;
-	
-			// line and column scroll offsets. Used for Windows version.
-	SInt32								columnScrollOffset;
-	SInt32								lineScrollOffset;
-	
-			// Location of top of image in window units
-	SInt32								imageTopOffset;
-	
-			// Location of left of image in window units
-	SInt32								imageLeftOffset;
-													
-			// Offset in window units for the first channel	
-			// that has at least part of it being displayed. Needed to allow
-			// for side by side displays.
-	SInt32								channelWindowOffset;				
-	
-	} LCToWindowUnitsVariables, *LCToWindowUnitsVariablesPtr;
-	
-	
 typedef struct MaskInfo
 	{
 	CMFileStream*					fileStreamPtr;
@@ -3526,15 +3756,6 @@ typedef struct OverlaySpecs
 	char						index;
 	
 	} OverlaySpecs, *OverlaySpecsPtr;
-	
-	
-typedef struct ImageOverlaySpecs
-	{
-	float						opacity;
-	
-	char						index;
-	
-	} ImageOverlaySpecs, *ImageOverlaySpecsPtr;
 	
 	
 typedef struct PrincipalCompSpecs
@@ -3674,22 +3895,22 @@ typedef struct ProjectFieldPoints
 
 //#if PRAGMA_ALIGN_SUPPORTED
 #if PRAGMA_STRUCT_ALIGN
-#pragma options align=mac68k
+	#pragma options align=mac68k
 #endif
 
 typedef struct ProjectInfo
 	{
-#	if defined multispec_mac
+	#if defined multispec_mac || defined multispec_mac_swift
 		CMFileStream					fileStream;
-#	endif	// defined multispec_mac
+	#endif	// defined multispec_mac || defined multispec_mac_swift
 	
-#	if defined multispec_win
+	#if defined multispec_win
 		CMFileStream*					fileStreamCPtr;
-#	endif	// defined multispec_win
+	#endif	// defined multispec_win
 	
-#	if defined multispec_lin
+	#if defined multispec_lin
     CMFileStream* fileStreamCPtr;
-#	endif	// defined multispec_lin
+	#endif	// defined multispec_lin
 
 	UInt8								imageFileName[256];
 	
@@ -3754,7 +3975,7 @@ typedef struct ProjectInfo
 	Handle							commonCovarianceStatsHandle;
 	
 		// Handle for class list to be used for common covariance
-//	Handle	 						commonCovarianceClassListHandle;
+	//Handle	 						commonCovarianceClassListHandle;
 
 		// Handle to last setting of evaluate covariance selections;
 	Handle							evalCovarianceSpecsHandle;
@@ -3953,68 +4174,8 @@ typedef struct ProjectInfo
 
 //#if PRAGMA_ALIGN_SUPPORTED
 #if PRAGMA_STRUCT_ALIGN
-#pragma options align=reset
+	#pragma options align=reset
 #endif
-	
-		// The only reason for both ShortDouble and Double rects are for the
-		// 680x0/68881 processors. In them short double and double are different.
-		// When that processor is not supported, the SDoubleRect can be removed.
-		
-typedef struct SDoubleRect
-	{
-	SDouble 		top;
-	SDouble 		left;
-	SDouble 		bottom;
-	SDouble 		right;
-	
-	} SDoubleRect;
-	
-
-typedef struct DoubleRect
-	{
-	double 		top;
-	double 		left;
-	double 		bottom;
-	double 		right;
-	
-	} DoubleRect;
-	
-	
-typedef struct ImageOverlayInfo
-	{
-	Str255									overlayName;
-		
-#	if TARGET_API_MAC_CARBON
-		CGInfo							cgInfo;
-#	endif	// TARGET_API_MAC_CARBON
-		
-#	if defined multispec_win
-		HDC								overlayDC;
-#	endif	// defined multispec_win
-
-			// Handle for color palette for overlay image.
-	CMPaletteInfo						paletteObject;
-	
-	PlanarCoordinateSystemInfo		planarCoordinate;
-	
-	DoubleRect							boundingMapRectangle;
-	
-	SInt32								colorTable[256];
-	
-	LongRect								lineColumnRect;
-												
-	GWorldPtr							offscreenGWorld;
-	
-	Handle								offScreenMapHandle;
-	
-	Handle								offscreenStorageHandle;
-	
-	UInt32								offscreenMapSize;
-	UInt32								rowBytes;
-	
-	Boolean								usePlanarCoordinateInfoFlag;
-	
-	} ImageOverlayInfo, *ImageOverlayInfoPtr;
 	
 	
 typedef struct RectifyImageOptions
@@ -4075,7 +4236,7 @@ typedef struct ReformatOptions
 	Handle							eigenVectorHandle;
 	Handle							inputWindowInfoHandle;
 	Handle							outFileInfoHandle;
-//	CMDataFile*						dataFileCPtr;
+	//CMDataFile*						dataFileCPtr;
 	Handle							pcChannelHandle;
 	Handle							rightBottomMosaicWindowInfoHandle;
 	HDoublePtr						eigenValuePtr;
@@ -4181,6 +4342,19 @@ struct RGBCharColor
 	
 typedef struct RGBCharColor RGBCharColor, *RGBCharColorPtr, **RGBCharColorHdl; 
 	
+		// The only reason for both ShortDouble and Double rects are for the
+		// 680x0/68881 processors. In them short double and double are different.
+		// When that processor is not supported, the SDoubleRect can be removed.
+		
+typedef struct SDoubleRect
+	{
+	SDouble 		top;
+	SDouble 		left;
+	SDouble 		bottom;
+	SDouble 		right;
+	
+	} SDoubleRect;
+	
 
 typedef struct SelectionInfo
 	{
@@ -4275,9 +4449,9 @@ typedef struct SeparabilitySpecs
 
 typedef struct ShapeInfo
 	{
-	#if defined multispec_mac
+	#if defined multispec_mac || defined multispec_mac_swift
 		CMFileStream					fileStream;
-	#endif	// defined multispec_mac
+	#endif	// defined multispec_mac || defined multispec_mac_swift
 	
 	#if defined multispec_win
 		CMFileStream					*fileStreamCPtr;
@@ -4294,8 +4468,6 @@ typedef struct ShapeInfo
 			// Grid coordianate system information for vectors
 	GridCoordinateSystemInfo		gridCoordinate;			
 	
-//	SDoubleRect							boundingXYBox;
-//	SDoubleRect							boundingZMBox;
 	DoubleRect							boundingXYBox;
 	DoubleRect							boundingZMBox;
 	
@@ -4368,9 +4540,6 @@ typedef struct StatEnhanceSpecs
 	HDoublePtr							labeledDataPtr;
 	HDoublePtr							unlabelDataPtr;
 	
-//	HSInt32Ptr							labeledDataPtr;
-//	HSInt32Ptr							unlabelDataPtr;
-	
 	TypicalitySummaryPtr				classTypicalityPtr;
 	
 	SInt32								lineStart;
@@ -4407,8 +4576,8 @@ typedef struct StatHistogramSpecs
 	double*								channelMaxPtr;
 	double*								channelMinPtr;
 	
-	// Maximum number of pixels in the project classes.  Is used to
-	// define the bin width.
+			// Maximum number of pixels in the project classes.  Is used to
+			// define the bin width.
 	SInt64								maxNumberPixelsInClass;
 	
 	HChannelStatisticsPtr			channelStatsPtr;
@@ -4599,16 +4768,15 @@ typedef struct WindowInfo
 	{
 			// Pointer to the class structure which defines this image window.
 			// Used in Windows version only
-    //TODO: When needed, see what needs to be done for Linux
    #if defined multispec_lin
       Ptr windowPtr;
       wxImage offScreenImage;
-   #endif	// defined multispec_mac
+   #endif	// defined multispec_lin
 
 
-	#if defined multispec_mac 
+	#if defined multispec_mac || defined multispec_mac_swift
 		Ptr						cImageWindowPtr;
-	#endif	// defined multispec_mac
+	#endif	// defined multispec_mac || defined multispec_mac_swift
 		
    #if defined multispec_win | defined multispec_lin
 		CMImageWindow*			cImageWindowPtr;
@@ -4616,9 +4784,9 @@ typedef struct WindowInfo
 	
 			// Pointer to the window structure for this image window.
 			// Used in Macintosh version only
-	#if defined multispec_mac 
+	#if defined multispec_mac || defined multispec_mac_swift
 		WindowPtr				windowPtr;
-	#endif	// defined multispec_mac
+	#endif	// defined multispec_mac || defined multispec_mac_swift
 		
 	#if defined multispec_win 
 		Ptr						windowPtr;
@@ -4683,7 +4851,7 @@ typedef struct WindowInfo
 	CMFileStream*			maskFileStreamPtr;
 	
 			// Handle for storage of channel description information.				
-//	Handle					descriptionH;
+	//Handle					descriptionH;
 	
 			// Handle to histogram display levels for image.  Will be NULL for 	
 			// non-image type windows.															
@@ -4734,14 +4902,14 @@ typedef struct WindowInfo
 	Handle					windowRecordHandle;
 	
 			// List Handle for legend information in Thematic type image windows.
-	ListHandle				legendListHandle;
+	LegendListHandle		legendListHandle;
 	
 			// Pointer to the offscreen GWorld.												
 	GWorldPtr				offscreenGWorld;
 	
 			// Handle to text record for window.  Will be NULL for image and		
 			// palette windows.																	
-//	WSHandle					textH;
+	//WSHandle					textH;
 	#if use_mlte_for_text_window
 		TXNObject				textH;
 	#endif		// use_mlte_for_text_window
@@ -4964,10 +5132,11 @@ typedef struct WorkFlowInfo
 
    
 #if defined multispec_lin
-	// The following is a list of structures defined in MFC
-	// which may be useful in Linux version
+			// The following is a list of structures defined in MFC
+			// which may be useful in Linux version
 
-	typedef struct tagBITMAPINFOHEADER {
+	typedef struct tagBITMAPINFOHEADER 
+		{
 		DWORD biSize;
 		long biWidth;
 		long biHeight;
@@ -4979,27 +5148,41 @@ typedef struct WorkFlowInfo
 		long biYPelsPerMeter;
 		DWORD biClrUsed;
 		DWORD biClrImportant;
-	} BITMAPINFOHEADER, *PBITMAPINFOHEADER;
+		
+		} BITMAPINFOHEADER, *PBITMAPINFOHEADER;
 
-	typedef struct tagPOINT {
-		 long x;
-		 long y;
-	} POINT;
+
+	typedef struct tagPOINT 
+		{
+		long x;
+		long y;
+		
+		} POINT;
+
 
 	typedef DWORD COLORREF;
+	
+	
 	typedef DWORD* LPCOLORREF;
 
-	typedef struct tagLOGPEN {
-		 int lopnStyle;
-		 POINT lopnWidth;
-		 COLORREF lopnColor;
-	} LOGPEN, *PLOGPEN;
 
-	typedef struct tagLOGBRUSH {
-		 int lbStyle;
-		 COLORREF lbColor;
-		 unsigned long* lbHatch;
-	} LOGBRUSH, *PLOGBRUSH;
+	typedef struct tagLOGPEN 
+		{
+		int lopnStyle;
+		POINT lopnWidth;
+		COLORREF lopnColor;
+		
+		} LOGPEN, *PLOGPEN;
+
+
+	typedef struct tagLOGBRUSH 
+		{
+		int lbStyle;
+		COLORREF lbColor;
+		unsigned long* lbHatch;
+		
+		} LOGBRUSH, *PLOGBRUSH;
+
 
 	#define BYTE unsigned char
 	#define RGB(r,g,b) ((COLORREF)(((Byte)(r)|((WORD)((Byte)(g))<<8))|(((DWORD)(Byte)(b))<<16)))

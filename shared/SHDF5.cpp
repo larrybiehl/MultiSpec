@@ -11,13 +11,11 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision number:		3.0
-//
-//	Revision date:			03/15/2017
+//	Revision date:			12/21/2017
 //
 //	Language:				C
 //
-//	System:					Macintosh & Windows Operating Systems	
+//	System:					Linux, Macintosh, and Windows Operating Systems	
 //
 //	Brief description:	This file contains routines which are used to access
 //								various disk files.
@@ -29,22 +27,26 @@
 //	Include files:			"MultiSpecHeaders"
 //								"multiSpec.h"
 /*	Template for debugging.
-	int numberChars = sprintf ((char*)&gTextString3,
-												" SHDF5: (filePathPtr hDS): %s %ld%s", 
-												filePathPtr,
-												hDS,
-												gEndOfLine);
-	ListString ((char*)&gTextString3, numberChars, gOutputTextH);	
+	int numberChars = sprintf ((char*)gTextString3,
+										" SHDF5: (filePathPtr hDS): %s %ld%s", 
+										filePathPtr,
+										hDS,
+										gEndOfLine);
+	ListString ((char*)gTextString3, numberChars, gOutputTextH);	
 */		
 //------------------------------------------------------------------------------------
 
-#include 	"SMulSpec.h"
+#include "SMultiSpec.h"
+
+#if defined multispec_lin
+	#include "SMultiSpec.h"
+#endif	// defined multispec_lin
 	
 #if defined multispec_mac
 #endif	// defined multispec_mac    
 
 #if defined multispec_win
-	#include "CFileStr.h"
+	#include "CFileStream.h"
 #endif	// defined multispec_win
 
 #if include_gdal_capability
@@ -83,9 +85,8 @@
 #include "gh5_convenience.h"
 //#include "gdal_pam.h"
  
-#include	"SExtGlob.h" 	
-				
-				
+
+
 struct opdata 
 	{
 	UInt32					recursionLevel;	// recursion level.  0=root 
@@ -94,68 +95,68 @@ struct opdata
 	 
 	};
 
+
+		// Routines in GDALInterface.cpp
+
+extern GDALDatasetH GetGDALFileReference (
+				Handle								hdfHandle,
+				UInt16								numberHdfDataSets,
+				SInt16								format,
+				GDALDatasetH						gdalDataSetH,
+				HdfDataSets*						hdfDataSetsPtr,
+				UInt32								dataSet);
+
+extern SInt16 LoadGDALHeaderInformation (
+				GDALDatasetH						hDS,
+				FileInfoPtr 						fileInfoPtr,
+				SInt16								format);
+
+extern SInt16 ReadGDALHeaderInformation (
+				GDALDatasetH						hDS,
+				SInt16								format,
+				UInt32*								numberChannelsPtr,
+				UInt32*								numberLinesPtr,
+				UInt32*								numberColumnsPtr,
+				UInt16*								numberBytesPtr,
+				UInt16*								numberBitsPtr,
+				UInt16*								dataTypeCodePtr,
+				UInt16*								dataCompressionCodePtr,
+				SInt16*								bandInterleaveFormatPtr,
+				Boolean*								signedDataFlagPtr,
+				UInt32*								xBlockSizePtr,
+				UInt32*								yBlockSizePtr,
+				SInt16*								gdalDataTypeCodePtr,
+				Boolean*								noDataValueFlagPtr,
+				double*								noDataValuePtr);
+
+extern SInt16 ReadGDALProjectionInformation (
+				FileInfoPtr							fileInfoPtr,
+				GDALDatasetH						hDS);
+
 										
-//extern int						GH5_GetDataSetCompressionCode (
-//										GDALDatasetH						hDS);
+		// Routines created in a GDAL routine
 
-// Routines in SGDALInterface
+extern hid_t GetHDF5Pointer (
+				GDALDatasetH						hDS);
 
-extern GDALDatasetH			GetGDALFileReference (
-										Handle								hdfHandle,
-										UInt16								numberHdfDataSets,
-										SInt16								format,
-										GDALDatasetH						gdalDataSetH,
-										HdfDataSets*						hdfDataSetsPtr,
-										UInt32								dataSet);
 
-extern SInt16					LoadGDALHeaderInformation (
-										GDALDatasetH						hDS,
-										FileInfoPtr 						fileInfoPtr,
-										SInt16								format);
 
-extern SInt16					ReadGDALHeaderInformation (
-										GDALDatasetH						hDS,
-										SInt16								format,
-										UInt32*								numberChannelsPtr,
-										UInt32*								numberLinesPtr,
-										UInt32*								numberColumnsPtr,
-										UInt16*								numberBytesPtr,
-										UInt16*								numberBitsPtr,
-										UInt16*								dataTypeCodePtr,
-										UInt16*								dataCompressionCodePtr,
-										SInt16*								bandInterleaveFormatPtr,
-										Boolean*								signedDataFlagPtr,
-										UInt32*								xBlockSizePtr,
-										UInt32*								yBlockSizePtr,
-										SInt16*								gdalDataTypeCodePtr,
-										Boolean*								noDataValueFlagPtr,
-										double*								noDataValuePtr);
+		// Routines in SHDF5.cpp that are used by other routines.
+		// Prototype is included here because GDALDatasetH variable is defined
+		// by .h files included in this file and not in SPrototype.h
 
-extern SInt16					ReadGDALProjectionInformation (
-										FileInfoPtr							fileInfoPtr,
-										GDALDatasetH						hDS);
-										
+extern SInt16 GetHDF5CompressionInformation (
+				GDALDatasetH						hDS);
 
-// Routines in SHDF5.cpp but referenced in other files.
-										
-extern SInt16					GetHDF5CompressionInformation (
-										GDALDatasetH						hDS);
-
-extern hid_t					GetHDF5Pointer (
-										GDALDatasetH						hDS);
-											
-extern Boolean					ListHDF5DataSetAttributes (
-										hid_t									loc_id);
-
-extern SInt32					LoadHdf5DataSetNames (
-										GDALDatasetH						hDS,
-										SInt16								format,
-										FileInfoPtr							fileInfoPtr,
-										Handle*								hdfDataSetsHandlePtr,
-										HdfDataSets**						hdfDataSetsPtrPtr,
-										SInt32*								numDataSetsPtr,
-										SInt32*								firstDataSetIndexPtr,
-										GDALDatasetH*						outGDALDatasetPtr);
+extern SInt32 LoadHdf5DataSetNames (
+				GDALDatasetH						hDS,
+				SInt16								format,
+				FileInfoPtr							fileInfoPtr,
+				Handle*								hdfDataSetsHandlePtr,
+				HdfDataSets**						hdfDataSetsPtrPtr,
+				SInt32*								numDataSetsPtr,
+				SInt32*								firstDataSetIndexPtr,
+				GDALDatasetH*						outGDALDatasetPtr);
 										
 							
 #define	DATESIZE	9
@@ -307,10 +308,8 @@ void CloseHDF5DataSetInfo (
 		{
 				// This is an hdf5 file. Release the hDS's.
 		
-		hdfDataSetsPtr = (HdfDataSets*)GetHandlePointer (
-																fileInfoPtr->hdfHandle,
-																kLock,
-																kNoMoveHi);
+		hdfDataSetsPtr = (HdfDataSets*)GetHandlePointer (fileInfoPtr->hdfHandle,
+																			kLock);
 																
 		for (dataSet=1; dataSet<=fileInfoPtr->numberHdfDataSets; dataSet++) 
 			{
@@ -321,17 +320,17 @@ void CloseHDF5DataSetInfo (
 				if (fileInfoPtr->gdalDataSetH == (GDALDatasetH)hdfDataSetsPtr[dataSet].sdid)
 					fileInfoPtr->gdalDataSetH = 0;
 				
-				}		// end "if (hdfDataSetsPtr[dataSet].sdid != 0)"
+				}	// end "if (hdfDataSetsPtr[dataSet].sdid != 0)"
 			
 			hdfDataSetsPtr[dataSet].sdid = 0;
 		
-			}		// end "for (dataSet=1; dataSet<=fileInfoPtr->numberHdfDataSets; dataSet++)"
+			}	// end "for (dataSet=1; dataSet<=fileInfoPtr->numberHdfDataSets; dataSet++)"
 			
 		CheckAndUnlockHandle (fileInfoPtr->hdfHandle);
 			
-		}		// end "if (fileInfoPtr->hdfHandle != NULL)"
+		}	// end "if (fileInfoPtr->hdfHandle != NULL)"
     
-}		// end "CloseHDF5DataSetInfo" 
+}	// end "CloseHDF5DataSetInfo" 
 
 
 
@@ -379,9 +378,9 @@ herr_t file_info (
 	hsize_t								dims[4],
 											maxDims[4];
 											
+	int									spaces;			// number of white spaces to repend to output
 	SInt32								numberDimensions;
 	size_t								maxStringLength;
-	UInt32								spaces;			// number of white spaces to repend to output
 	
 	SInt16								length,
 											stringLength;
@@ -393,7 +392,7 @@ herr_t file_info (
 	returnValue = 1;
 	
 			// Allow for c-string end of line terminator.
-	maxStringLength = sizeof(listString) - gNumberOfEndOfLineCharacters - 1;
+	maxStringLength = sizeof (listString) - gNumberOfEndOfLineCharacters - 1;
 	
 	opDataPtr = (struct opdata*)operatorData;
 	spaces = 2 * (opDataPtr->recursionLevel+3);
@@ -425,7 +424,7 @@ herr_t file_info (
 				// printf ("%*s  Warning: Loop detected!\n", spaces, "");
             }
 				
-			else		// No loop detected.
+			else	// No loop detected.
 				{
 						// Initialize new operator data structure and begin recursive iteration 
 						// on the discovered group.  The new opdata structure is given a
@@ -438,7 +437,7 @@ herr_t file_info (
 				 
 				callH5GiterateFlag = TRUE;
 				
-				}		// end "else no loop detected."
+				}	// end "else no loop detected."
 			break;
 				
 		case H5G_DATASET:
@@ -457,12 +456,13 @@ herr_t file_info (
 					numberDimensions = H5Sget_simple_extent_ndims (dataspace);
 													
 				if (numberDimensions <= 1)
-					length = GetDataSetValueAsString (dataset_id, 
-																	dataspace, 
-																	&listString[stringLength],
-																	maxStringLength-stringLength);
+					length = GetDataSetValueAsString (
+															dataset_id, 
+															dataspace, 
+															&listString[stringLength],
+															(UInt32)(maxStringLength-stringLength));
 					
-				else		// numberDimensions > 1. Implies image data set
+				else	// numberDimensions > 1. Implies image data set
 					{
 					stringLength -= 2;						
 					length = sprintf (&listString[stringLength], " image data set");
@@ -473,22 +473,34 @@ herr_t file_info (
 					
 					length = 0;
 					if (numberDimensions == 2)
-						length = sprintf (&listString[stringLength], " (%ld x %ld)", dims[0], dims[1]);
+						length = sprintf (&listString[stringLength], 
+													" (%ld x %ld)", 
+													dims[0], 
+													dims[1]);
 						
 					else if (numberDimensions == 3)
-						length = sprintf (&listString[stringLength], " (%ld x %ld x %ld)", dims[0], dims[1], dims[2]);
+						length = sprintf (&listString[stringLength], 
+													" (%ld x %ld x %ld)", 
+													dims[0], 
+													dims[1], 
+													dims[2]);
 						
 					else if (numberDimensions == 4)
-						length = sprintf (&listString[stringLength], " (%ld x %ld x %ld x %ld)", dims[0], dims[1], dims[2], dims[3]);
+						length = sprintf (&listString[stringLength], 
+													" (%ld x %ld x %ld x %ld)", 
+													dims[0], 
+													dims[1], 
+													dims[2], 
+													dims[3]);
 					
-					}		// end "else numberDimensions > 1. Implies image data set"
+					}	// end "else numberDimensions > 1. Implies image data set"
 					
 				stringLength += length;
 
 				H5Sclose (dataspace);
 				H5Dclose (dataset_id);
 				
-				}		// end "if (dataset_id > 0)"
+				}	// end "if (dataset_id > 0)"
 			
 					// Add carriage return
 					
@@ -502,7 +514,7 @@ herr_t file_info (
 				
 		case H5G_TYPE: 
 			stringLength = sprintf (listString,
-											"%*s%s named datatype%s",
+												"%*s%s named datatype%s",
 												spaces,
 												" ",
 												name,
@@ -512,33 +524,32 @@ herr_t file_info (
 				
 		default:
 			stringLength = sprintf (listString,
-											"%*sUnable to identify an object.%s",
+												"%*sUnable to identify an object.%s",
 												spaces,
 												" ",
 												gEndOfLine);
 			returnValue = 0;
 				
-		}		// end "switch (statbuf.type)"
+		}	// end "switch (statbuf.type)"
 
 	continueFlag = ListString (listString,  
 										stringLength,  
 										gOutputTextH);
 										
-//	if (callH5GiterateFlag && opDataPtr->recursionLevel == 0)
-//		{
+	//if (callH5GiterateFlag && opDataPtr->recursionLevel == 0)
+	//	{
 				// List any attribute information for the root level.
-				
-//		continueFlag = ListHDF5DataSetAttributes (loc_id,
-//																	objectInfo.num_attrs);
-		
-//		}		// end "if (callH5GiterateFlag && opDataPtr->recursionLevel == 0)"
+					
+	//	continueFlag = ListHDF5DataSetAttributes (loc_id, objectInfo.num_attrs);
+			
+	//	}	// end "if (callH5GiterateFlag && opDataPtr->recursionLevel == 0)"
 										
 	if (callH5GiterateFlag && continueFlag)
 		returnValue = H5Giterate (loc_id, name, NULL, file_info, (void*)&next_op_data);
 		
     return (returnValue);
 	
-}		// end "file_info"
+}	// end "file_info"
 
 
 
@@ -599,14 +610,14 @@ SInt16 GetHDF5CompressionInformation (
 		else if (dataCompressionCode > 0)						
 			dataCompressionCode = kUnknownCompression;
 			
-		else		// assume no compression
+		else	// assume no compression
 			dataCompressionCode = kNoCompression;
 			
-		}		// end "if (dataCompressionCode != kNoCompression)"
+		}	// end "if (dataCompressionCode != kNoCompression)"
 		
 	return ((SInt16)dataCompressionCode);
     
-}		// end "GetHDF5CompressionInformation"
+}	// end "GetHDF5CompressionInformation"
 
 
 
@@ -757,10 +768,8 @@ SInt16 GetHDF5ProjectionInformation (
 	if (mapInfoFlag)
 		{
 		mapProjectionInfoPtr = (MapProjectionInfoPtr)
-					GetHandleStatusAndPointer (
-										fileInfoPtr->mapProjectionHandle,
-										&handleStatus,
-										kNoMoveHi);
+					GetHandleStatusAndPointer (fileInfoPtr->mapProjectionHandle,
+															&handleStatus);
 										
 				// Verify that the map projection structure has been initialized.
 				
@@ -823,9 +832,7 @@ SInt16 GetHDF5ProjectionInformation (
 		LoadSpheroidInformation (fileInfoPtr->mapProjectionHandle);
 			
 		mapProjectionInfoPtr = (MapProjectionInfoPtr)
-						GetHandlePointer (fileInfoPtr->mapProjectionHandle,
-													kNoLock,
-													kNoMoveHi);
+											GetHandlePointer (fileInfoPtr->mapProjectionHandle);
 													
 		if (convertFromLatLongToMapCode > 0)
 				// Convert the lat-long coordinates to map coordinates					
@@ -866,7 +873,7 @@ SInt16 GetHDF5ProjectionInformation (
 									&xLowerLeftCoordinate, 
 									&yLowerLeftCoordinate);
 									
-				}		// end "if (convertFromLatLongToMapCode == kUseFourCorners)"
+				}	// end "if (convertFromLatLongToMapCode == kUseFourCorners)"
 
 			if (horizontalPixelSize <= 0)
 				{							
@@ -888,7 +895,7 @@ SInt16 GetHDF5ProjectionInformation (
 				mapProjectionInfoPtr->planarCoordinate.horizontalPixelSize = 
 												(rightCoordinate - leftCoordinate)/numberColumns;
 																		
-				}		// end "if (horizontalPixelSize <= 0)"
+				}	// end "if (horizontalPixelSize <= 0)"
 																										
 			if (verticalPixelSize <= 0)
 				{
@@ -910,9 +917,9 @@ SInt16 GetHDF5ProjectionInformation (
 				mapProjectionInfoPtr->planarCoordinate.verticalPixelSize = 
 											(topCoordinate - bottomCoordinate)/numberLines;
 													
-				}		// end "if (verticalPixelSize <= 0)"
+				}	// end "if (verticalPixelSize <= 0)"
 																	
-			}		// end "if (horizontalPixelSize <= 0 || verticalPixelSize <= 0)"	
+			}	// end "if (horizontalPixelSize <= 0 || verticalPixelSize <= 0)"	
 			
 		if (adjustUpperLeftOffsetFlag)
 			{
@@ -926,13 +933,13 @@ SInt16 GetHDF5ProjectionInformation (
 			mapProjectionInfoPtr->planarCoordinate.yMapOrientationOrigin =    
 									mapProjectionInfoPtr->planarCoordinate.yMapCoordinate11;
 			
-			}		// end "if (adjustUpperLeftOffsetFlag)"
+			}	// end "if (adjustUpperLeftOffsetFlag)"
 		
-		}		// end "if (mapInfoFlag)"
+		}	// end "if (mapInfoFlag)"
 										
 	return (returnCode);
     
-}		// end "GetHDF5ProjectionInformation"
+}	// end "GetHDF5ProjectionInformation"
 
 
 
@@ -970,11 +977,10 @@ SInt16 GetInstumentCodeFromHDF5File (
 	
 			// Get the instrument code
 			
-	returnCode = ReadDataSetString (
-								file_id, 
-								(char*)"/Global/metadata/sensorName",
-								string,
-								79);
+	returnCode = ReadDataSetString (file_id, 
+												(char*)"/Global/metadata/sensorName",
+												string,
+												79);
 				
 	instrumentCode = 0;
 	if (returnCode > 0)
@@ -985,11 +991,11 @@ SInt16 GetInstumentCodeFromHDF5File (
 		else if (strcmp (string, "TANSO-FTS") == 0)
 			instrumentCode = kTANSO_FTS;
 		
-		}		// end "if (returnCode > 0)"
+		}	// end "if (returnCode > 0)"
 										
 	return (instrumentCode);
     
-}		// end "GetInstumentCodeFromHDF5File"
+}	// end "GetInstumentCodeFromHDF5File"
 
 
 
@@ -1053,7 +1059,7 @@ Boolean GetMapInfoFromHDF5_CAIGlobalRadiance (
 		*xMapCoordinate11Ptr = value;
 		returnFlag = TRUE;
 		
-		}		// end "if (returnCode == 1)"
+		}	// end "if (returnCode == 1)"
 		
 			// Get the upper left latitude
 			
@@ -1067,7 +1073,7 @@ Boolean GetMapInfoFromHDF5_CAIGlobalRadiance (
 		*yMapCoordinate11Ptr = value;
 		returnFlag = TRUE;
 		
-		}		// end "if (returnCode == 1)"
+		}	// end "if (returnCode == 1)"
 		
 			// Get the lower right longitude
 			
@@ -1109,12 +1115,12 @@ Boolean GetMapInfoFromHDF5_CAIGlobalRadiance (
 	if (returnCode == 1)
 		*verticalPixelSizePtr = value;
 	
-/*	
+	/*	
 	*xMapCoordinate11Ptr = -180;
 	*yMapCoordinate11Ptr = 90;
 	*xLowerRightCoordinatePtr = 180;
 	*yLowerRightCoordinatePtr = -90;
-*/		
+	*/		
 			// Get the Projection Code
 			
 	returnCode = ReadDataSetString (
@@ -1130,7 +1136,7 @@ Boolean GetMapInfoFromHDF5_CAIGlobalRadiance (
 									
 		returnFlag = TRUE;
 		
-		}		// end "if (returnCode > 0)"
+		}	// end "if (returnCode > 0)"
 			
 			// Get the Datum
 			
@@ -1148,7 +1154,7 @@ Boolean GetMapInfoFromHDF5_CAIGlobalRadiance (
 		if (*mapProjectionDatumCodePtr != kNoDatumDefinedCode)
 			returnFlag = TRUE;
 		
-		}		// end "if (returnCode > 0)"
+		}	// end "if (returnCode > 0)"
 		
 		// Make a check to see if this can be geographic if no projection was
 		// defined.
@@ -1160,7 +1166,7 @@ Boolean GetMapInfoFromHDF5_CAIGlobalRadiance (
 		projectionParametersPtr[4] = 0;	// Central Longitude
 		projectionParametersPtr[5] = 0;	// Standard Parallel
 		
-		}		// end "if (*projectionCodePtr == kEquirectangularCode)"
+		}	// end "if (*projectionCodePtr == kEquirectangularCode)"
 
 	else if (*projectionCodePtr == kNotDefinedCode &&
 					*horizontalPixelSizePtr > 0 &&
@@ -1170,7 +1176,7 @@ Boolean GetMapInfoFromHDF5_CAIGlobalRadiance (
 		*referenceSystemCodePtr = kGeographicRSCode;
 		*projectionCodePtr = kGeographicCode;
 		
-		}		// end "if (*projectionCodePtr != kNotDefinedCode && ..."
+		}	// end "if (*projectionCodePtr != kNotDefinedCode && ..."
 	
 			// Per Watanabe Hiroshi email on 4/27/2012, the geographic reference system
 			// should be the NAD83 reference system (GRS80 ellipsoid) for the Mercator
@@ -1184,7 +1190,7 @@ Boolean GetMapInfoFromHDF5_CAIGlobalRadiance (
 		*mapProjectionDatumCodePtr = kSphereDatumCode;
 		*mapProjectionEllipsoidCodePtr = kSphereEllipsoidCode;
 		
-		}		// end "if (*mapProjectionDatumCodePtr == kNoDatumDefinedCode)"
+		}	// end "if (*mapProjectionDatumCodePtr == kNoDatumDefinedCode)"
 	
 	if (*projectionCodePtr == kEquirectangularCode)
 		*convertFromLatLongToMapCodePtr = kUseUpperLeftLowerRightCorners;
@@ -1203,7 +1209,7 @@ Boolean GetMapInfoFromHDF5_CAIGlobalRadiance (
 										
 	return (returnFlag);
     
-}		// end "GetMapInfoFromHDF5_CAIGlobalRadiance"
+}	// end "GetMapInfoFromHDF5_CAIGlobalRadiance"
 
 
 
@@ -1272,7 +1278,7 @@ Boolean GetMapInfoFromHDF5_CAIGlobalReflectance (
 		if (*mapProjectionDatumCodePtr != kNoDatumDefinedCode)
 			returnFlag = TRUE;
 		
-		}		// end "if (returnCode > 0)"
+		}	// end "if (returnCode > 0)"
 		
 	*mapUnitsCodePtr = kDecimalDegreesCode;
 	
@@ -1284,14 +1290,14 @@ Boolean GetMapInfoFromHDF5_CAIGlobalReflectance (
 		*mapProjectionDatumCodePtr = kSphereDatumCode;
 		*mapProjectionEllipsoidCodePtr = kSphereEllipsoidCode;
 		
-		}		// end "if (*mapProjectionDatumCodePtr == kNoDatumDefinedCode)"
+		}	// end "if (*mapProjectionDatumCodePtr == kNoDatumDefinedCode)"
 	
 	*convertFromLatLongToMapCodePtr = kUseNoConversion;
 	*adjustUpperLeftOffsetFlagPtr = TRUE;
 										
 	return (returnFlag);
     
-}		// end "GetMapInfoFromHDF5_CAIGlobalReflectance"
+}	// end "GetMapInfoFromHDF5_CAIGlobalReflectance"
 
 
 
@@ -1352,65 +1358,65 @@ Boolean GetMapInfoFromHDF5_CAIL1BPlus (
 			// Get the upper left longitude
 			
 	returnCode = ReadDataSetNumerical (
-				file_id, 
-				(char*)"/frameAttribute/frameCorner/upperLeftLongitude",
-				&value);
+									file_id, 
+									(char*)"/frameAttribute/frameCorner/upperLeftLongitude",
+									&value);
 				
 	if (returnCode == 1)
 		{
 		*xMapCoordinate11Ptr = value;
 		returnFlag = TRUE;
 		
-		}		// end "if (returnCode == 1)"
+		}	// end "if (returnCode == 1)"
 		
 			// Get the upper left latitude
 			
 	returnCode = ReadDataSetNumerical (
-				file_id, 
-				(char*)"/frameAttribute/frameCorner/upperLeftLatitude",
-				&value);
+									file_id, 
+									(char*)"/frameAttribute/frameCorner/upperLeftLatitude",
+									&value);
 				
 	if (returnCode == 1)
 		{
 		*yMapCoordinate11Ptr = value;
 		returnFlag = TRUE;
 		
-		}		// end "if (returnCode == 1)"
+		}	// end "if (returnCode == 1)"
 		
 			// Get the upper right longitude
 			
 	returnCode = ReadDataSetNumerical (
-				file_id, 
-				(char*)"/frameAttribute/frameCorner/upperRightLongitude",
-				&value);
+									file_id, 
+									(char*)"/frameAttribute/frameCorner/upperRightLongitude",
+									&value);
 				
 	if (returnCode == 1)
 		{
 		*xUpperRightCoordinatePtr = value;
 		returnFlag = TRUE;
 		
-		}		// end "if (returnCode == 1)"
+		}	// end "if (returnCode == 1)"
 		
 			// Get the upper right latitude
 			
 	returnCode = ReadDataSetNumerical (
-				file_id, 
-				(char*)"/frameAttribute/frameCorner/upperRightLatitude",
-				&value);
+									file_id, 
+									(char*)"/frameAttribute/frameCorner/upperRightLatitude",
+									&value);
 				
 	if (returnCode == 1)
 		{
 		*yUpperRightCoordinatePtr = value;
 		returnFlag = TRUE;
 		
-		}		// end "if (returnCode == 1)"
+		}	// end "if (returnCode == 1)"
 		
 			// Get the lower right longitude
 			
 	returnCode = ReadDataSetNumerical (
-				file_id, 
-				(char*)"/frameAttribute/frameCorner/lowerRightLongitude",
-				&value);
+									file_id, 
+									(char*)"/frameAttribute/frameCorner/lowerRightLongitude",
+									&value);
 				
 	if (returnCode == 1)
 		*xLowerRightCoordinatePtr = value;
@@ -1418,9 +1424,9 @@ Boolean GetMapInfoFromHDF5_CAIL1BPlus (
 			// Get the lower right latitude
 			
 	returnCode = ReadDataSetNumerical (
-				file_id, 
-				(char*)"/frameAttribute/frameCorner/lowerRightLatitude",
-				&value);
+									file_id, 
+									(char*)"/frameAttribute/frameCorner/lowerRightLatitude",
+									&value);
 				
 	if (returnCode == 1)
 		*yLowerRightCoordinatePtr = value;
@@ -1428,9 +1434,9 @@ Boolean GetMapInfoFromHDF5_CAIL1BPlus (
 			// Get the lower left longitude
 			
 	returnCode = ReadDataSetNumerical (
-				file_id, 
-				(char*)"/frameAttribute/frameCorner/lowerLeftLongitude",
-				&value);
+									file_id, 
+									(char*)"/frameAttribute/frameCorner/lowerLeftLongitude",
+									&value);
 				
 	if (returnCode == 1)
 		*xLowerLeftCoordinatePtr = value;
@@ -1438,9 +1444,9 @@ Boolean GetMapInfoFromHDF5_CAIL1BPlus (
 			// Get the lower left latitude
 			
 	returnCode = ReadDataSetNumerical (
-				file_id, 
-				(char*)"/frameAttribute/frameCorner/lowerLeftLatitude",
-				&value);
+									file_id, 
+									(char*)"/frameAttribute/frameCorner/lowerLeftLatitude",
+									&value);
 				
 	if (returnCode == 1)
 		*yLowerLeftCoordinatePtr = value;
@@ -1448,9 +1454,9 @@ Boolean GetMapInfoFromHDF5_CAIL1BPlus (
 			// Get the x map scale
 			
 	returnCode = ReadDataSetNumerical (
-				file_id, 
-				(char*)"/frameAttribute/mapProjection/mapScale/mapScaleX",
-				&value);
+									file_id, 
+									(char*)"/frameAttribute/mapProjection/mapScale/mapScaleX",
+									&value);
 	
 	xScale = -99;
 	if (returnCode == 1)
@@ -1459,9 +1465,9 @@ Boolean GetMapInfoFromHDF5_CAIL1BPlus (
 			// Get the y map scale
 			
 	returnCode = ReadDataSetNumerical (
-				file_id, 
-				(char*)"/frameAttribute/mapProjection/mapScale/mapScaleY",
-				&value);
+									file_id, 
+									(char*)"/frameAttribute/mapProjection/mapScale/mapScaleY",
+									&value);
 				
 	yScale = -99;
 	if (returnCode == 1)
@@ -1470,10 +1476,10 @@ Boolean GetMapInfoFromHDF5_CAIL1BPlus (
 			// Get the Projection Code
 			
 	returnCode = ReadDataSetString (
-				file_id, 
-				(char*)"/frameAttribute/mapProjection/projectionMethod",
-				string,
-				79);
+									file_id, 
+									(char*)"/frameAttribute/mapProjection/projectionMethod",
+									string,
+									79);
 				
 	if (returnCode > 0)
 		{
@@ -1486,7 +1492,7 @@ Boolean GetMapInfoFromHDF5_CAIL1BPlus (
 		if (*projectionCodePtr != kNotDefinedCode)
 			returnFlag = TRUE;
 		
-		}		// end "if (returnCode > 0)"
+		}	// end "if (returnCode > 0)"
 	
 			// Get the Datum
 			
@@ -1504,7 +1510,7 @@ Boolean GetMapInfoFromHDF5_CAIL1BPlus (
 		if (*mapProjectionDatumCodePtr != kNoDatumDefinedCode)
 			returnFlag = TRUE;
 		
-		}		// end "if (returnCode > 0)"
+		}	// end "if (returnCode > 0)"
 	
 			// Get the Projection Center Longitude
 			
@@ -1518,7 +1524,7 @@ Boolean GetMapInfoFromHDF5_CAIL1BPlus (
 		projectionParametersPtr[4] = value;
 		returnFlag = TRUE;
 		
-		}		// end "if (returnCode == 1)"
+		}	// end "if (returnCode == 1)"
 	
 			// Get the Projection Center Latitude
 			
@@ -1532,7 +1538,7 @@ Boolean GetMapInfoFromHDF5_CAIL1BPlus (
 		projectionParametersPtr[5] = value;
 		returnFlag = TRUE;
 		
-		}		// end "if (returnCode == 1)"
+		}	// end "if (returnCode == 1)"
 		
 	*mapUnitsCodePtr = kMetersCode;
 	
@@ -1561,11 +1567,11 @@ Boolean GetMapInfoFromHDF5_CAIL1BPlus (
 			// very close (within a few thousands of a meter).
 			
 	*horizontalPixelSizePtr = 500;
-	if (fabs(xScale - .004) < .000001)
+	if (fabs (xScale - .004) < .000001)
 		*horizontalPixelSizePtr = 1000;
 		
 	*verticalPixelSizePtr = 500;
-	if (fabs(yScale - .004) < .000001)
+	if (fabs (yScale - .004) < .000001)
 		*verticalPixelSizePtr = 1000;
 		
 	*convertFromLatLongToMapCodePtr = kUseUpperLeftCorner;
@@ -1573,7 +1579,7 @@ Boolean GetMapInfoFromHDF5_CAIL1BPlus (
 										
 	return (returnFlag);
     
-}		// end "GetMapInfoFromHDF5_CAIL1BPlus"
+}	// end "GetMapInfoFromHDF5_CAIL1BPlus"
 
 
 
@@ -1647,13 +1653,13 @@ SInt16 GetDataProductCodeFromHDF5File (
 			else if (strstr (string, "L3 global NDVI") != NULL)
 				dataProductCode = kL3_Global_NDVI;
 			
-			}		// end "if (returnCode > 0)"
+			}	// end "if (returnCode > 0)"
 			
-		}		// end "if (file_id > 0)"
+		}	// end "if (file_id > 0)"
 		
 	return (dataProductCode);
     
-}		// end "GetDataProductCodeFromHDF5File"
+}	// end "GetDataProductCodeFromHDF5File"
 
 
 /*
@@ -1704,7 +1710,7 @@ Boolean ListHDF5DataSetAttributes (
 	if (loc_id > 0)
 		{
 		H5Oget_info (loc_id, &objectInfo);
-		for(index=0; index<objectInfo.num_attrs; index++) 
+		for (index=0; index<objectInfo.num_attrs; index++)
 			{
 			attr = H5Aopen_by_idx (loc_id, 
 											".", 
@@ -1715,11 +1721,11 @@ Boolean ListHDF5DataSetAttributes (
 											H5P_DEFAULT);
 											
 			atype = H5Aget_type (attr);
-			type_class = H5Tget_class(atype);
+			type_class = H5Tget_class (atype);
 			if (type_class == H5T_STRING) 
 				{
 				atype_mem = H5Tget_native_type (atype, H5T_DIR_ASCEND);
-				returnCode = H5Aread(attr, atype_mem, string_out);
+				returnCode = H5Aread (attr, atype_mem, string_out);
 				returnCode = H5Tclose (atype_mem);
 				
 				stringLength = sprintf ((char*)&gTextString[0],
@@ -1727,22 +1733,22 @@ Boolean ListHDF5DataSetAttributes (
 																string_out,
 																gEndOfLine);
 
-				continueFlag = ListString ((char*)&gTextString,  
+				continueFlag = ListString ((char*)gTextString,  
 																stringLength,  
 																gOutputTextH);
 				
-				}		// end "if (type_class == H5T_STRING)"
+				}	// end "if (type_class == H5T_STRING)"
 
 			returnCode = H5Aclose (attr);
 			returnCode = H5Tclose (atype);
 			
-			}		// end "for(index=0; index<objectInfo.num_attrs; index++)"
+			}	// end "for (index=0; index<objectInfo.num_attrs; index++)"
 				
-		}		// end "if (loc_id > 0)"
+		}	// end "if (loc_id > 0)"
 		
 	return (continueFlag);
 	
-}		// end "ListHDF5DataSetAttributes"   
+}	// end "ListHDF5DataSetAttributes"   
 */
 
 
@@ -1788,7 +1794,7 @@ SInt32 group_check (
 				// Recursively examine the next node
 		return (group_check (opDataPtr->prevOpData, target_groupno));
 	
-}		// end "group_check" 
+}	// end "group_check" 
 
 
 
@@ -1849,18 +1855,17 @@ Boolean ListHDF5FileInformation (
 										"    HDF5 file metadata and information:%s",
 										gEndOfLine);
 
-		continueFlag = ListString ((char*)&gTextString,  
+		continueFlag = ListString ((char*)gTextString,  
 											stringLength,  
 											gOutputTextH);
 										
 				// List any attribute information for the file level.
 		
-//		if (continueFlag)
-//			continueFlag = ListHDF5DataSetAttributes (file_id);
+		//if (continueFlag)
+		//	continueFlag = ListHDF5DataSetAttributes (file_id);
 
 		if (continueFlag)
 			H5Giterate (file_id, "/", NULL, file_info, (void*)&op_data);
-			
 			
 		stringLength = sprintf ((char*)&gTextString[0],
 										"    End HDF5 file metadata and information%s%s",
@@ -1868,15 +1873,15 @@ Boolean ListHDF5FileInformation (
 										gEndOfLine);
 										
 		if (continueFlag)
-			continueFlag = ListString ((char*)&gTextString,  
+			continueFlag = ListString ((char*)gTextString,  
 												stringLength,  
 												gOutputTextH);
 													
-		}		// end "if (file_id > 0)"
+		}	// end "if (file_id > 0)"
 
 	return (continueFlag);
 	
-}		// end "ListHDF5FileInformation" 
+}	// end "ListHDF5FileInformation" 
 
 
 //------------------------------------------------------------------------------------
@@ -1898,7 +1903,7 @@ Boolean ListHDF5FileInformation (
 // Called By:			LoadHDFInformation in SReadHDFHeader.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/18/2012
-//	Revised By:			Larry L. Biehl			Date: 03/15/2017
+//	Revised By:			Larry L. Biehl			Date: 09/01/2017
 
 SInt32 LoadHdf5DataSetNames (
 				GDALDatasetH						hDS,
@@ -1977,7 +1982,7 @@ SInt32 LoadHdf5DataSetNames (
    setNumberForGroup = 0;
    groupNumber = 0;
 	numberCompareCharacters = 4;
-	startDataSetRead = time(NULL);
+	startDataSetRead = time (NULL);
 	gdalDataSetH = hDS;
 	statusDialogCreatedFlag = FALSE;
 	
@@ -1989,7 +1994,7 @@ SInt32 LoadHdf5DataSetNames (
 			
 	//metadata = ((GDALDataset*)hDS)->GetMetadata ("SUBDATASETS");
 	metadata = GDALGetMetadata (hDS, "SUBDATASETS");
-	numberDataSets = CSLCount(metadata)/2;    
+	numberDataSets = CSLCount (metadata)/2;    
 					
 	if (numberDataSets > 0) 
 		{
@@ -1997,18 +2002,15 @@ SInt32 LoadHdf5DataSetNames (
 				
 		totalNumberDataSets = numberDataSets * 2;
 				
-		dataSetsHandle = MNewHandle ((totalNumberDataSets+1)*sizeof(HdfDataSets));
-		hdfDataSetsPtr = (HdfDataSets*)GetHandlePointer (
-										dataSetsHandle,
-										kLock,
-										kNoMoveHi);
+		dataSetsHandle = MNewHandle ((totalNumberDataSets+1)*sizeof (HdfDataSets));
+		hdfDataSetsPtr = (HdfDataSets*)GetHandlePointer (dataSetsHandle, kLock);
 									
 		if (hdfDataSetsPtr != NULL)
 			{
 					// Save the name of the hdf header file in case that it differs
 					// from the file used to store the data in.
 					
-			fileNamePtr = (FileStringPtr)GetFileNamePPointer (fileInfoPtr);
+			fileNamePtr = (FileStringPtr)GetFileNamePPointerFromFileInfo (fileInfoPtr);
 			CopyPToP (hdfDataSetsPtr[0].name, fileNamePtr);
 			hdfDataSetsPtr[0].vRefNum = GetVolumeReferenceNumber (fileInfoPtr);
 			hdfDataSetsPtr[0].dirID = GetParID (fileInfoPtr);
@@ -2017,20 +2019,20 @@ SInt32 LoadHdf5DataSetNames (
 			hdfDataSetsPtr[0].dataSetType = 0;
 			hdfDataSetsPtr[0].groupedNumber = 0;
 			
-			}		// end "if (hdfDataSetsPtr != NULL)"
+			}	// end "if (hdfDataSetsPtr != NULL)"
 			
-		}		// end "if (numberDataSets > 0)"		
+		}	// end "if (numberDataSets > 0)"		
 
 	if (hdfDataSetsPtr != NULL && numberDataSets > 0)
 		{
 		for (dataSet=1; dataSet<=numberDataSets; dataSet++)
 			{
 			if (dataSet == 1)
-				startTime = TickCount();
+				startTime = TickCount ();
 			
 			if (dataSet == 2 && gStatusDialogPtr == NULL)
 				{
-				if ((TickCount() - startTime) * numberDataSets > 3 * gTimeOffset)
+				if ((TickCount () - startTime) * numberDataSets > 3 * gTimeOffset)
 					{
 					gStatusDialogPtr = GetStatusDialog (kShortStatusInfoID, FALSE);
 					if (gStatusDialogPtr != NULL)
@@ -2038,25 +2040,25 @@ SInt32 LoadHdf5DataSetNames (
 						ShowHideDialogItem (gStatusDialogPtr, IDC_ShortStatusText, TRUE);
 						ShowHideDialogItem (gStatusDialogPtr, IDC_ShortStatusValue, TRUE);
 						MGetString (gTextString, kAlertStrID, IDS_Alert62);
-						LoadDItemString (gStatusDialogPtr, IDC_ShortStatusText, (Str255*)&gTextString);
+						LoadDItemString (gStatusDialogPtr, IDC_ShortStatusText, (Str255*)gTextString);
 						LoadDItemValue (gStatusDialogPtr, IDC_ShortStatusValue, (SInt32)2);
 						ShowStatusDialogWindow (kShortStatusInfoID);
 						
 						statusDialogCreatedFlag = TRUE;
 						
-						}		// end "if (gStatusDialogPtr != NULL)"
+						}	// end "if (gStatusDialogPtr != NULL)"
 					
-					}		// end "if (TickCount() - startTime * numberDataSet > 3 * gTimeOffset)"
+					}	// end "if (TickCount () - startTime * numberDataSet > 3 * gTimeOffset)"
 				
-				}		// end "if (dataSet == 2 && gStatusDialogPtr == NULL)"
+				}	// end "if (dataSet == 2 && gStatusDialogPtr == NULL)"
 				
-			//gNextTime = TickCount() + gTimeOffset;
+			//gNextTime = TickCount () + gTimeOffset;
 			pszHDF4SubdatasetName = NULL;
-			//pszSDSName = CPLStrdup( CSLFetchNameValue( poDS->papszSubDatasets,
-         //                   "SUBDATASET_1_NAME" ));
+			//pszSDSName = CPLStrdup (CSLFetchNameValue (poDS->papszSubDatasets,
+         //                   "SUBDATASET_1_NAME"));
 									 
-			snprintf (szKeyName, sizeof(szKeyName), "SUBDATASET_%d_NAME", dataSet);
-			szKeyName[sizeof(szKeyName) - 1] = '\0';
+			snprintf (szKeyName, sizeof (szKeyName), "SUBDATASET_%d_NAME", dataSet);
+			szKeyName[sizeof (szKeyName) - 1] = '\0';
 			pszSubdatasetName = CPLStrdup (CSLFetchNameValue (metadata, szKeyName));
 			
 			if (gStatusDialogPtr != NULL)
@@ -2064,7 +2066,7 @@ SInt32 LoadHdf5DataSetNames (
 				LoadDItemValue (gStatusDialogPtr, IDC_ShortStatusValue, (SInt32)dataSet);
 				CheckSomeEvents (osMask+updateMask);
 				
-				}		// end "if (gStatusDialogPtr != NULL)"
+				}	// end "if (gStatusDialogPtr != NULL)"
 
 			if (gStatusDialogPtr == NULL)
 				{
@@ -2094,19 +2096,19 @@ SInt32 LoadHdf5DataSetNames (
 					if (*firstDataSetIndexPtr == 0)
 						*firstDataSetIndexPtr = index;
 					
-					}		// end "if (returnCode == noErr)"
+					}	// end "if (returnCode == noErr)"
 					
-				else		// returnCode != noErr
+				else	// returnCode != noErr
 					hdfDataSetsPtr[index].name[1] = '_';
 				
-				}		// end "if (gStatusDialogPtr == NULL)"
+				}	// end "if (gStatusDialogPtr == NULL)"
 				
 			else // gStatusDialogPtr != NULL
 				{
 				hdfDataSetsPtr[index].name[1] = ' ';
 				hDS = 0;
 					
-				}		// end "else gStatusDialogPtr != NULL"
+				}	// end "else gStatusDialogPtr != NULL"
 					
 					// Make sure that the name is not more than 73 characters to allow for
 					// * or _, c-string end, pascal string length character, Group number 
@@ -2116,8 +2118,8 @@ SInt32 LoadHdf5DataSetNames (
 				{		
 				if (format == kHDF5Type)
 					{
-							// Use the characters after the last '/' character for the data set
-							// identifier name.
+							// Use the characters after the last '/' character for the data 
+							// set identifier name.
 							
 					dataSetNamePtr = strstr (pszSubdatasetName, "//");
 					if (dataSetNamePtr != NULL)
@@ -2133,18 +2135,18 @@ SInt32 LoadHdf5DataSetNames (
 								*stringPtr = '_';
 								lastLevelStringPtr = stringPtr + 1;
 								
-								}		// end "if (stringPtr != NULL && *stringPtr == '/')"
+								}	// end "if (stringPtr != NULL && *stringPtr == '/')"
 							
-							}		// end "while (stringPtr != NULL)"
+							}	// end "while (stringPtr != NULL)"
 					
-						}		// end "if (dataSetNamePtr != NULL)"
+						}	// end "if (dataSetNamePtr != NULL)"
 							
-					}		// end "if (format == kHDF5Type)"
+					}	// end "if (format == kHDF5Type)"
 						
 				else if (format == kNETCDF2Type)
 					{
-							// Use the characters after the last ':' character for the data set
-							// identifier name.
+							// Use the characters after the last ':' character for the data 
+							// set identifier name.
 							
 					dataSetNamePtr = strchr (pszSubdatasetName, ':');
 					if (dataSetNamePtr != NULL)
@@ -2161,18 +2163,18 @@ SInt32 LoadHdf5DataSetNames (
 								lastLevelStringPtr = stringPtr;
 								dataSetNamePtr = stringPtr;
 								
-								}		// end "if (stringPtr != NULL && *stringPtr == ':')"
+								}	// end "if (stringPtr != NULL && *stringPtr == ':')"
 							
-							}		// end "while (stringPtr != NULL)"
+							}	// end "while (stringPtr != NULL)"
 					
-						}		// end "if (dataSetNamePtr != NULL)"
+						}	// end "if (dataSetNamePtr != NULL)"
 							
-					}		// end "else if (format == kNETCDF2Type)"
+					}	// end "else if (format == kNETCDF2Type)"
 						
-				else		// format == kHDF4Type2
+				else	// format == kHDF4Type2
 					{
-					snprintf (szKeyName, sizeof(szKeyName), "SUBDATASET_%d_DESC", dataSet);
-					szKeyName[sizeof(szKeyName) - 1] = '\0';
+					snprintf (szKeyName, sizeof (szKeyName), "SUBDATASET_%d_DESC", dataSet);
+					szKeyName[sizeof (szKeyName) - 1] = '\0';
 					pszHDF4SubdatasetName = CPLStrdup (CSLFetchNameValue (metadata, szKeyName));
 
 					if (pszHDF4SubdatasetName[0] != 0)
@@ -2201,27 +2203,27 @@ SInt32 LoadHdf5DataSetNames (
 								if (stringPtr > dataSetNamePtr)
 									stringPtr[1] = 0;
 								
-								}		// end "if (stringPtr != NULL)"
+								}	// end "if (stringPtr != NULL)"
 						
-							}		// end "if (dataSetNamePtr != NULL)"
+							}	// end "if (dataSetNamePtr != NULL)"
 
-						}		// end "if (pszHDF4SubdatasetName[0] != 0)"
+						}	// end "if (pszHDF4SubdatasetName[0] != 0)"
 							
-					}		// end "else if (format == kHDF4Type2)"
+					}	// end "else if (format == kHDF4Type2)"
 
 				if (dataSetNamePtr != NULL)
 					{
-					length = strlen (dataSetNamePtr);
+					length = (SInt16)strlen (dataSetNamePtr);
 					
 					numberCompareCharacters = MIN (
-											numberCompareCharacters, strlen (lastLevelStringPtr));
+								numberCompareCharacters, (UInt16)strlen (lastLevelStringPtr));
 					
-					}		// end "if (dataSetNamePtr != NULL)"
+					}	// end "if (dataSetNamePtr != NULL)"
 				
-				else		// dataSetNamePtr == NULL
+				else	// dataSetNamePtr == NULL
 					pszSubdatasetName[0] = 0;
 									
-				}		// end "if (pszSubdatasetName[0] != 0)"
+				}	// end "if (pszSubdatasetName[0] != 0)"
 				
 			if (pszSubdatasetName[0] == 0)
 				{
@@ -2229,10 +2231,10 @@ SInt32 LoadHdf5DataSetNames (
 						// one that I do not know how to handle.
 						
 				dataSetNamePtr = szKeyName;
-				length = strlen (dataSetNamePtr);
+				length = (SInt16)strlen (dataSetNamePtr);
 				lastLevelStringPtr = dataSetNamePtr;
 				
-				}		// end "if (pszSubdatasetName[0] == 0)"
+				}	// end "if (pszSubdatasetName[0] == 0)"
 				
 			length = MIN (length, 73);
 			strncpy ((char*)&hdfDataSetsPtr[index].name[2], dataSetNamePtr, length);
@@ -2268,21 +2270,21 @@ SInt32 LoadHdf5DataSetNames (
 			if (setNumberForGroup > 0 && 
 							hdfDataSetsPtr[index].name[1] != '_' && hdfDataSetsPtr[index].name[1] != ' ')
 				{
-						// Verify that first 4 characters of the last section of the data set name
-						// are the same as that for the first data set.
-/*						
+						// Verify that first 'numberCompareCharacters' characters of the 
+						// last section of the data set name are the same as that for the 
+						// first data set.
+				/*						
 				stringPtr = strrchr (dataSetNamePtr, '_');
 				if (stringPtr == NULL)
 					stringPtr = (char*)&hdfDataSetsPtr[index].name[2];
 				else 
 					stringPtr++;
-*/						
-//				if (strncmp (groupName, (char*)&hdfDataSetsPtr[index].name[2], 4) == 0)
+				*/						
 				if (strncmp (groupName, lastLevelStringPtr, numberCompareCharacters) == 0)
 					{
 							// Now verify that the number of lines, columns, data bytes and
-							// data type are the same and that the number of channels is 1. Also
-							// verify that the compression is none.  If
+							// data type are the same and that the number of channels is 1. 
+							// Also verify that the compression is none.  If
 							// so then group this data set with the first one.
 							
 					if (numberColumns != set0NumberColumns)
@@ -2313,7 +2315,7 @@ SInt32 LoadHdf5DataSetNames (
 							groupNumber++;
 						
 							hdfDataSetsPtr[numberDataSets+groupNumber].name[0] = 
-									sprintf ((char*)&hdfDataSetsPtr[numberDataSets+groupNumber].name[1], 
+								sprintf ((char*)&hdfDataSetsPtr[numberDataSets+groupNumber].name[1], 
 												" %s",
 												groupName);
 												
@@ -2333,7 +2335,7 @@ SInt32 LoadHdf5DataSetNames (
 							AppendGroupIndicater ((char*)hdfDataSetsPtr[set0DataSet+1].name, 
 																groupNumber);
 									
-							}		// end "if (setNumberForGroup == 1)"
+							}	// end "if (setNumberForGroup == 1)"
 						
 						setNumberForGroup++;
 						hdfDataSetsPtr[numberDataSets+groupNumber].groupedNumber = (SInt16)setNumberForGroup;
@@ -2344,26 +2346,26 @@ SInt32 LoadHdf5DataSetNames (
 							
 						AppendGroupIndicater ((char*)hdfDataSetsPtr[index].name, groupNumber);
 								
-						}		// end "if (setNumberForGroup > 0)"
+						}	// end "if (setNumberForGroup > 0)"
 					
-					}		// end "if (strncmp () == 0"
+					}	// end "if (strncmp () == 0"
 					
-				else		// strncmp != 0
+				else	// strncmp != 0
 					setNumberForGroup = 0;
 				
-				}		// end "if (setNumberForGroup > 0 && ...)"
+				}	// end "if (setNumberForGroup > 0 && ...)"
 					
 			if (setNumberForGroup == 0)
 				{
-						// Save first 4 characters of the last section of the data set name
-						
-/*				stringPtr = strrchr (dataSetNamePtr, '_');
+						// Save first 'numberCompareCharacters' characters of the 
+						// last section of the data set name
+				/*		
+				stringPtr = strrchr (dataSetNamePtr, '_');
 				if (stringPtr == NULL)
 					stringPtr = (char*)&hdfDataSetsPtr[index].name[2];
 				else 
 					stringPtr++;
-*/				
-//				strncpy (groupName, (char*)&hdfDataSetsPtr[index].name[2], 4);
+				*/				
 				strncpy (groupName, lastLevelStringPtr, numberCompareCharacters);
 				groupName[numberCompareCharacters] = 0;
 				
@@ -2381,17 +2383,17 @@ SInt32 LoadHdf5DataSetNames (
 				if (numberChannels == 1)
 						setNumberForGroup = 1;
 				
-				}		// end "if (setNumberForGroup == 0)"
+				}	// end "if (setNumberForGroup == 0)"
 		
 			index++;
-			
-//			if (returnCode != noErr)
-//				{
-//				SDendaccess (sdid);
-//				break;
-//				
-//				}		// end "if (returnCode != noErr)"	
-			
+			/*
+			if (returnCode != noErr)
+				{
+				SDendaccess (sdid);
+				break;
+				
+				}	// end "if (returnCode != noErr)"	
+			*/
 					// Don't need this string any more so free the memory up.
 					
 			if (pszHDF4SubdatasetName != NULL)
@@ -2399,29 +2401,31 @@ SInt32 LoadHdf5DataSetNames (
 			
 			CPLFree (pszSubdatasetName);
 					
-			if (TickCount() >= gNextTime)
+			if (TickCount () >= gNextTime)
 				{
 				if (!CheckSomeEvents (osMask+keyDownMask+updateMask+mDownMask+mUpMask))
 					{
 					index = 0;
 					break;
 					
-					}		// end "if (!CheckSomeEvents (..."
+					}	// end "if (!CheckSomeEvents (..."
 					
-				}		// end "if (TickCount() >= gNextTime)"
+				}	// end "if (TickCount () >= gNextTime)"
 			
-			}		// end "for (dataSet=1; dataSet<=numDataSets; dataSet++)"
+			}	// end "for (dataSet=1; dataSet<=numDataSets; dataSet++)"
 			
 		*hdfDataSetsHandlePtr = dataSetsHandle;
 		*hdfDataSetsPtrPtr = hdfDataSetsPtr;
 		*numDataSetsPtr = index - 1;
 		
-				// Check if the requested data set has already been identified which is indicated
-				// by the hdfDataSetSelection value being greater than 0 in the file info structure.
-				// This happens when being opened as part of a project file being opened. Use that data set
-				// as the one to be read.
+				// Check if the requested data set has already been identified which is 
+				// indicated by the hdfDataSetSelection value being greater than 0 in the 
+				// file info structure.
+				// This happens when being opened as part of a project file being opened. 
+				// Use that data set as the one to be read.
 			
-		if (fileInfoPtr->hdfDataSetSelection > 0 && fileInfoPtr->hdfDataSetSelection <= *numDataSetsPtr)
+		if (fileInfoPtr->hdfDataSetSelection > 0 && 
+											fileInfoPtr->hdfDataSetSelection <= *numDataSetsPtr)
 			*firstDataSetIndexPtr = fileInfoPtr->hdfDataSetSelection;
 				
 				// If there are no valid data sets then just point to the first data set.
@@ -2432,8 +2436,8 @@ SInt32 LoadHdf5DataSetNames (
 		*outGDALDatasetPtr = (GDALDatasetH)hdfDataSetsPtr[*firstDataSetIndexPtr].sdid;
 		if (*outGDALDatasetPtr == 0)
 			{
-					// This handles case where not all of the datasets were opened. This can occur for 
-					// MultiSpec Online when reading iRods fuse mounted files.
+					// This handles case where not all of the datasets were opened. This 
+					// can occur for MultiSpec Online when reading iRods fuse mounted files.
 					
 			fileInfoPtr->numberHdfDataSets = (UInt16)*numDataSetsPtr;
 			*outGDALDatasetPtr = GetGDALFileReference (dataSetsHandle,
@@ -2443,7 +2447,7 @@ SInt32 LoadHdf5DataSetNames (
 																	hdfDataSetsPtr,
 																	*firstDataSetIndexPtr);
 																	
-			}		// end "if (*outGDALDatasetPtr == NULL)"
+			}	// end "if (*outGDALDatasetPtr == NULL)"
 		
 		if (gStatusDialogPtr != NULL)
 			ListCPUTimeInformation (NULL, TRUE, startDataSetRead);
@@ -2451,11 +2455,11 @@ SInt32 LoadHdf5DataSetNames (
 		if (statusDialogCreatedFlag)
 			CloseStatusDialog (TRUE);
 			
-		}		// end "if (hdfDataSetsPtr != NULL && numberDataSets > 0)"
+		}	// end "if (hdfDataSetsPtr != NULL && numberDataSets > 0)"
 		
 	return (index-1);
     
-}		// end "LoadHdf5DataSetNames"
+}	// end "LoadHdf5DataSetNames"
 								
 
 
@@ -2521,11 +2525,11 @@ SInt16 LoadHDF5HeaderInformation (
 										fileInfoPtr, 
 										(GDALDatasetH)hdfDataSetsPtr[dataSetIndex].sdid);
 																	
-		}		// end "if (hdfDataSetsPtr != NULL)"
+		}	// end "if (hdfDataSetsPtr != NULL)"
 															
 	return (returnCode);
     
-}		// end "LoadHDF5HeaderInformation"
+}	// end "LoadHDF5HeaderInformation"
 
 
 
@@ -2558,16 +2562,16 @@ SInt16 ReadDataSetNumerical (
 {	
 	
 	hid_t									dataset_id;
-//											pid,
-//											sid,
-//											type_class,
-//											type_id;
+											//pid,
+											//sid,
+											//type_class,
+											//type_id;
 											
-//	hsize_t								size;
-//	hssize_t								ssiz;
-//	size_t								tsiz;
+	//hsize_t							size;
+	//hssize_t							ssiz;
+	//size_t								tsiz;
 	
-//	float									value;
+	//float								value;
  	
  	SInt16								returnCode = 0;
 	
@@ -2579,38 +2583,36 @@ SInt16 ReadDataSetNumerical (
 			{
 					// The data set was found
 					
-//			size = H5Dget_storage_size(dataset_id);
-//			pid = H5Dget_create_plist(dataset_id);
-//			sid = H5Dget_space(dataset_id);
-//			type_id = H5Dget_type(dataset_id);
-//			type_class = H5Tget_class(type_id);
-//			if (type_class == H5T_FLOAT)
-//				{
-				if (H5Dread (dataset_id, 
-									H5T_NATIVE_DOUBLE, 
-									H5S_ALL, 
-									H5S_ALL, 
-									H5P_DEFAULT, 
-									returnValuePtr) >= 0)
-					returnCode = 1;
-					
-//					}		// end "if (H5Dread(dataset_id, ..."
+			//size = H5Dget_storage_size (dataset_id);
+			//pid = H5Dget_create_plist (dataset_id);
+			//sid = H5Dget_space (dataset_id);
+			//type_id = H5Dget_type (dataset_id);
+			//type_class = H5Tget_class (type_id);
+			//if (type_class == H5T_FLOAT)
+			//	{
+			if (H5Dread (dataset_id, 
+								H5T_NATIVE_DOUBLE, 
+								H5S_ALL, 
+								H5S_ALL, 
+								H5P_DEFAULT, 
+								returnValuePtr) >= 0)
+					returnCode = 1;					
 				
-//				}		// end "if (type_class == H5T_FLOAT)"
+			//	}	// end "if (type_class == H5T_FLOAT)"
 			
-//			H5Sclose(sid);
-//			H5Pclose(pid);
-//			H5Tclose (type_id);
+			//H5Sclose (sid);
+			//H5Pclose (pid);
+			//H5Tclose (type_id);
 			
-			}		// end "if (dataset > 0)"
+			}	// end "if (dataset > 0)"
 		
 		H5Dclose (dataset_id);
 		
-		}		// end "if (file_id > 0)"
+		}	// end "if (file_id > 0)"
 		
 	return (returnCode);
     
-}		// end "ReadDataSetNumerical"
+}	// end "ReadDataSetNumerical"
 
 
 
@@ -2656,9 +2658,9 @@ UInt32 ReadDataSetNumerical (
 
 	if (dataset_id > 0 && dataspace > 0)
 		{
-		type_id = H5Dget_type(dataset_id);
-		type_size = H5Tget_size(type_id);
-		dataSpaceSize = H5Sget_simple_extent_npoints(dataspace);
+		type_id = H5Dget_type (dataset_id);
+		type_size = H5Tget_size (type_id);
+		dataSpaceSize = H5Sget_simple_extent_npoints (dataspace);
 		dim = dataSpaceSize;
 		
 		if (numberPossibleValuesPtr != NULL)
@@ -2670,9 +2672,9 @@ UInt32 ReadDataSetNumerical (
 			dim =	maxNumberValues;
 			space_id = H5Screate_simple (1, &dim, NULL);
 			
-			}		// end "if (dataSpaceSize > maxNumberValues)"
+			}	// end "if (dataSpaceSize > maxNumberValues)"
 		
-//		if (dataSpaceSize <= maxNumberValues)
+		//if (dataSpaceSize <= maxNumberValues)
 		if (space_id >= 0)
 			{
 			if (H5Dread (dataset_id, 
@@ -2683,18 +2685,18 @@ UInt32 ReadDataSetNumerical (
 								returnValuePtr) >= 0)
 				returnCode = (SInt16)dim;
 				
-			}		// end "if (dataSpaceSize == 1)"
+			}	// end "if (dataSpaceSize == 1)"
 			
 		H5Tclose (type_id);
 		
 		if (space_id != H5S_ALL && space_id > 0)
 			H5Sclose (space_id);
 		
-		}		// end "if (dataset_id > 0 && dataspace > 0)"
+		}	// end "if (dataset_id > 0 && dataspace > 0)"
 		
 	return (returnCode);
     
-}		// end "ReadDataSetNumerical"
+}	// end "ReadDataSetNumerical"
 
 
 
@@ -2748,13 +2750,13 @@ SInt16 ReadDataSetString (
 			H5Sclose (dataspace);
 			H5Dclose (dataset_id);
 						
-			}		// end "if (dataset_id > 0)"
+			}	// end "if (dataset_id > 0)"
 		
-		}		// end "if (file_id > 0)"
+		}	// end "if (file_id > 0)"
 		
 	return (length);
     
-}		// end "ReadDataSetString"
+}	// end "ReadDataSetString"
 
 
 
@@ -2819,11 +2821,11 @@ SInt16 ReadDataSetString2 (
 		{
 		maxStringLength = sizeof (charString) - 20;
 		
-		type_id = H5Dget_type(dataset_id);
-		type_class = H5Tget_class(type_id);
-		type_size = H5Tget_size(type_id);
-		variableLengthReturn = H5Tis_variable_str(type_id);
-		dataSpaceSize = H5Sget_simple_extent_npoints(dataspace);
+		type_id = H5Dget_type (dataset_id);
+		type_class = H5Tget_class (type_id);
+		type_size = H5Tget_size (type_id);
+		variableLengthReturn = H5Tis_variable_str (type_id);
+		dataSpaceSize = H5Sget_simple_extent_npoints (dataspace);
 		stringLength = type_size * dataSpaceSize;
 		
 		dim = dataSpaceSize;
@@ -2833,7 +2835,7 @@ SInt16 ReadDataSetString2 (
 				// this is the correct way to handle all situations. May one wants
 				// to have a list of single digit numbers.
 				
-		typeSizeLengthWithSeparator = type_size;
+		typeSizeLengthWithSeparator = (UInt32)type_size;
 		if (dim > 1 && type_size > 1)
 			typeSizeLengthWithSeparator += 2;
 			
@@ -2845,9 +2847,9 @@ SInt16 ReadDataSetString2 (
 			
 			stringLength = dim * typeSizeLengthWithSeparator;
 			
-			}		// end "if (dataSpaceSize > maxStringLength)"
+			}	// end "if (dataSpaceSize > maxStringLength)"
 		
-//		if (type_class == H5T_STRING && type_size * dataSpaceSize <= maxStringLength)
+		//if (type_class == H5T_STRING && type_size * dataSpaceSize <= maxStringLength)
 		if (type_class == H5T_STRING && space_id >= 0)
 			{
 			if (variableLengthReturn)
@@ -2865,7 +2867,7 @@ SInt16 ReadDataSetString2 (
 												
 				type_size = 0;
 				if (stringPtr != NULL)
-					type_size = strlen(stringPtr);
+					type_size = strlen (stringPtr);
 				
 						// Need to allow for 'continuation characters'
 
@@ -2875,7 +2877,7 @@ SInt16 ReadDataSetString2 (
 					
 				type_size = MIN (type_size, maxReturnStringLength);
 
-				}		// end "if (variableLengthReturn)"
+				}	// end "if (variableLengthReturn)"
 									
 			else	// !variableLengthReturn
 				{
@@ -2891,7 +2893,7 @@ SInt16 ReadDataSetString2 (
 									
 				stringPtr[stringLength] = 0;				
 									
-				}		// end "else !variableLengthReturn"
+				}	// end "else !variableLengthReturn"
 									
 			if (returnCode >= 0)
 				{	
@@ -2912,38 +2914,38 @@ SInt16 ReadDataSetString2 (
 							length = sprintf (&returnStringPtr[stringLength], "| ");
 							stringLength += length;
 							
-							}		// end "if (dim > 1 && type_size > 1)"
+							}	// end "if (dim > 1 && type_size > 1)"
 						
-						}		// end "for (count=0; count<dim; count++)"
+						}	// end "for (count=0; count<dim; count++)"
 						
-					}		// end "if (copyStringPtr != NULL)"
+					}	// end "if (copyStringPtr != NULL)"
 					
 				if (dim < (hsize_t)dataSpaceSize || listMoreInfoFlag)
 					{
 					length = sprintf (&returnStringPtr[stringLength], "...");
 					stringLength += length;
 					
-					}		// end "if (dim < dataSpaceSize || listMoreInfoFlag)"
+					}	// end "if (dim < dataSpaceSize || listMoreInfoFlag)"
 					
 				returnStringPtr[stringLength] = 0;
 				
-				}		// end "if (returnCode >= 0)"
+				}	// end "if (returnCode >= 0)"
 
 			if (freeStringFlag && stringPtr != NULL)
 				free (stringPtr);
 				
-			}		// end "if (type_class == H5T_STRING && space_id >= 0"
+			}	// end "if (type_class == H5T_STRING && space_id >= 0"
 			
 		H5Tclose (type_id);
 		
 		if (space_id != H5S_ALL && space_id > 0)
 			H5Sclose (space_id);
 						
-		}		// end "if (dataset_id > 0 && dataspace > 0)"
+		}	// end "if (dataset_id > 0 && dataspace > 0)"
 		
-	return (stringLength);
+	return ((SInt16)stringLength);
     
-}		// end "ReadDataSetString2"
+}	// end "ReadDataSetString2"
 
 
 
@@ -2995,8 +2997,8 @@ SInt16 GetDataSetValueAsNumericalValue (
 	if (dataset_id > 0)
 		{
 		dataspace = H5Dget_space (dataset_id);
-		type_id = H5Dget_type(dataset_id);
-		type_class = H5Tget_class(type_id);
+		type_id = H5Dget_type (dataset_id);
+		type_class = H5Tget_class (type_id);
 		
 		if (type_class == H5T_STRING)
 			{
@@ -3007,30 +3009,30 @@ SInt16 GetDataSetValueAsNumericalValue (
 													
 			if (length > 0)
 				{
-				*valuePtr = strtod(returnString, NULL);
+				*valuePtr = strtod (returnString, NULL);
 				if (errno != ERANGE)
 					returnCode = 1;
 				
-				}		// end "if (length > 0)"
+				}	// end "if (length > 0)"
 													
-			}		// end "if (type_class == H5T_STRING)"
+			}	// end "if (type_class == H5T_STRING)"
 													
 		if (type_class == H5T_INTEGER || type_class == H5T_FLOAT)
 			{
 			if (ReadDataSetNumerical (dataset_id, dataspace, 1, valuePtr, NULL))
 				returnCode = 1;
 			
-			}		// end "if (type_class == H5T_INTEGER || type_class == H5T_FLOAT)"
+			}	// end "if (type_class == H5T_INTEGER || type_class == H5T_FLOAT)"
 					
 		H5Tclose (type_id);
 		H5Sclose (dataspace);
 		H5Dclose (dataset_id);
 		
-		}		// end "if (dataset_id > 0)"
+		}	// end "if (dataset_id > 0)"
 		
 	return (returnCode);
     
-}		// end "GetDataSetValueAsNumericalValue"
+}	// end "GetDataSetValueAsNumericalValue"
 
 
 
@@ -3079,18 +3081,18 @@ SInt16 GetDataSetValueAsString (
 
 	if (dataset_id > 0)
 		{
-		type_id = H5Dget_type(dataset_id);
-		type_class = H5Tget_class(type_id);
+		type_id = H5Dget_type (dataset_id);
+		type_class = H5Tget_class (type_id);
 		
 		if (type_class == H5T_STRING)
 			totalLength = ReadDataSetString2 (dataset_id,
-													dataspace,
-													returnStringPtr,
-													maxReturnStringLength);
+															dataspace,
+															returnStringPtr,
+															maxReturnStringLength);
 													
 		else if (type_class == H5T_INTEGER || type_class == H5T_FLOAT)
 			{
-			maxNumberValues = sizeof(doubleValues)/sizeof(double);
+			maxNumberValues = sizeof (doubleValues)/sizeof (double);
 			
 					// Do not allow memory to be overrun.
 					// Don't do anything if max return string length is less than 20;
@@ -3098,46 +3100,53 @@ SInt16 GetDataSetValueAsString (
 			if (maxReturnStringLength > 20)
 				maxStringLength = maxReturnStringLength - 20;
 			
-			if ((numberValuesRead = ReadDataSetNumerical (
-							dataset_id, dataspace, maxNumberValues, doubleValues, &numberPossibleValues)) != 0)
+			if ((numberValuesRead = ReadDataSetNumerical (dataset_id, 
+																			dataspace, 
+																			maxNumberValues, 
+																			doubleValues, 
+																			&numberPossibleValues)) != 0)
 				{				
 				for (valueIndex=0; valueIndex<numberValuesRead; valueIndex++)
 					{
 					if (totalLength <= (SInt16)maxStringLength)
 						{
 						if (type_class == H5T_INTEGER)
-							length = sprintf (returnStringPtr, "%.0f, ", doubleValues[valueIndex]);
+							length = sprintf (returnStringPtr, 
+														"%.0f, ", 
+														doubleValues[valueIndex]);
 						
-						else		// type_class == H5T_FLOAT
-							length = sprintf (returnStringPtr, "%f, ", doubleValues[valueIndex]);
+						else	// type_class == H5T_FLOAT
+							length = sprintf (returnStringPtr, 
+														"%f, ", 
+														doubleValues[valueIndex]);
 							
 						returnStringPtr += length;
 					
 						totalLength += length;
 							
-						}		// end "if (totalLength < maxStringLength)"
+						}	// end "if (totalLength < maxStringLength)"
 						
-					else		// totalLength > maxStringLength
+					else	// totalLength > maxStringLength
 						break;
 						
-					}		// end "for (valueIndex=0; valueIndex<numberValuesRead; ..."
+					}	// end "for (valueIndex=0; valueIndex<numberValuesRead; ..."
 					
 				if (valueIndex != numberPossibleValues)
 					{
 					length = sprintf (returnStringPtr, "...");
 					totalLength += length;
 					
-					}		// end "if (valueIndex != numberPossibleValues)"
+					}	// end "if (valueIndex != numberPossibleValues)"
 				
 				else if (totalLength > 1)	
 							// Remove the last comma and space	
 					totalLength -= 2;
 				
-				}		// end "if (ReadDataSetNumerical (dataset_id, dataspace, ..."
+				}	// end "if (ReadDataSetNumerical (dataset_id, dataspace, ..."
 			
-			}		// end "if (type_class == H5T_INTEGER || type_class == H5T_FLOAT)"
+			}	// end "if (type_class == H5T_INTEGER || type_class == H5T_FLOAT)"
 													
-		else		// type_class != STRING, INTEGER or FLOAT
+		else	// type_class != STRING, INTEGER or FLOAT
 			{
 			char				typeName[16];
 			
@@ -3179,21 +3188,21 @@ SInt16 GetDataSetValueAsString (
 					sprintf (typeName, "Unknown");
 					break;
 					
-				}		// end "switch (type_class)"
+				}	// end "switch (type_class)"
 										
 			totalLength = sprintf (returnStringPtr, 
 											"MultiSpec cannot handle the '%s' datatype.",
 											typeName);
 			
-			}		// end "else type_class != STRING, INTEGER or FLOAT"
+			}	// end "else type_class != STRING, INTEGER or FLOAT"
 			
 		H5Tclose (type_id);
 		
-		}		// end "if (dataset_id > 0)"
+		}	// end "if (dataset_id > 0)"
 		
 	return (totalLength);
     
-}		// end "GetDataSetValueAsString"
+}	// end "GetDataSetValueAsString"
 
 
 
@@ -3246,7 +3255,7 @@ SInt16 SetUpHDF5_FileInformation (
 			fileInfoPtr->numberChannels = 
 							(UInt16)hdfDataSetsPtr[numberDataSets+groupNumber].groupedNumber;
 				
-			}		// end "if (hdfDataSetsPtr[dataSetIndex].groupedNumber > 0)"
+			}	// end "if (hdfDataSetsPtr[dataSetIndex].groupedNumber > 0)"
 		
 				// This forces some structures to be set up for possible sub data sets.
 		
@@ -3256,11 +3265,11 @@ SInt16 SetUpHDF5_FileInformation (
 																hdfDataSetsPtr,
 																hdfDataSetSelection);
 																
-		}		// end "if (numberDataSets > 0 && hdfDataSetsPtr != NULL)"
+		}	// end "if (numberDataSets > 0 && hdfDataSetsPtr != NULL)"
 		
 	return (returnCode);
     
-}		// end "SetUpHDF5_FileInformation"
+}	// end "SetUpHDF5_FileInformation"
 																		
 #endif	// include_hdf5_capability						
 #endif	// include_gdal_capability

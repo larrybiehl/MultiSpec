@@ -1,18 +1,19 @@
 // WDialog.cpp : implementation file
 //
-// Revised by Larry Biehl on 03/17/2017
+// Revised by Larry Biehl on 12/21/2017
                     
-#include "SMulSpec.h"
-                     
-#include "WDialog.h"
-#include "CImagVew.h"
-#include "CImagWin.h"
-#include "CProcess.h"
-#include "WClasDlg.h"
-#include "WChanDlg.h" 
-#include "WCWtDlg.h" 
+#include "SMultiSpec.h"
 
-#include	"SExtGlob.h"	
+#include "CImageWindow.h"
+#include "CProcessor.h"
+
+#include "WChannelsDialog.h"
+#include "WClassesDialog.h" 
+#include "WClassWeightsDialog.h" 
+#include "WDialog.h"
+#include "WImageView.h"
+
+//#include	"SExtGlob.h"	
 
 extern Boolean 		GetSelectionRectangle (
 								WindowPtr							windowPtr,

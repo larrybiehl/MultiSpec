@@ -1,95 +1,113 @@
-// ========================================================================
-//		(C) Copyright 1989. Nicus, Inc.  All rights reserved.
+//	 									MultiSpec
 //
-//		AllocateV:	Allocates space for a vector.  The returned value
-//						is a structure containing the size of the vector
-//						and a pointer to the data.
+//					Laboratory for Applications of Remote Sensing
+// 								Purdue University
+//								West Lafayette, IN 47907
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
 //
-//		AllocateV( v0, size, error )
+//	File:						SGraphic.cpp 
 //
-//		where:	v0		Pointer to returned vector
-//				size	Number of elements to allocate space for
-//				error	Returned error code
+//	Authors:					Larry L. Biehl and Nicus, Inc
 //
-//		Errors returned:
+//	Revision date:			12/21/2017
 //
-//			NO_ERROR	Successful completion
+//	Language:				C
 //
-//						Any errors returned by NewPtrClear or DeallocateV
-//			
-//			
-//		revised by Larry L. Biehl  08/05/1992
-//		revised by Larry L. Biehl  05/24/2017
+//	System:					Linux, Macintosh, and Windows Operating Systems
 //
-// ========================================================================
+//	Brief description:	This file contains functions from the Nicus library
+//								for creation of graphs
+//
+//	Functions in file:	
+//
+//	Include files:			"SGraphView.h"
+//								"SMultiSpec.h"
+//
+//------------------------------------------------------------------------------------
 
-#include "SMulSpec.h"
+#include "SMultiSpec.h"
 	
-#if defined multispec_mac
-	#include	"SGrafVew.h" 
-	 #endif	// defined multispec_mac    
+#if defined multispec_mac || defined multispec_mac_swift
+	#include	"SGraphView.h"
+#endif	// defined multispec_mac || defined multispec_mac_swift
                             
 #if defined multispec_win
-	#include	"SGrafVew.h" 
-	#include "CImagVew.h"
+	#include	"SGraphView.h"
+	#include "WImageView.h"
 #endif	// defined multispec_win   
                             
 #if defined multispec_lin
 	#include "LGraphView.h"
 #endif	// defined multispec_lin
 
-#include	"SExtGlob.h"
+#include	"SGraphic.h"
 
-extern void		FindMaxBinV(
-						double*								maxPtr,
-						vector*								xVector,
-						vector*								yVector,
-						HSInt32Ptr							vectorLengthsPtr,
-						HSInt32Ptr							vectorDataPtr,
-						char*									vectorDisplayPtr,
-						double*								histogramBinWidthPtr,
-						UInt32								numberVectors,
-						UInt32								set,
-						GraphPtr								graph);
-						
-						
-static void	LabelLinAxis_TrimString( 
-						char									*str);
-	
-	
 
-void AllocateV ( 
-				vector						*v0, 
-				SInt32						size, 
-				SInt32						*error )
+						
+static void	LabelLinAxis_TrimString (
+				char*									str);
+
+				
+	
+// ===================================================================================
+//				(C) Copyright 1989. Nicus, Inc.  All rights reserved.
+//
+//	AllocateV:	Allocates space for a vector.  The returned value
+//						is a structure containing the size of the vector
+//						and a pointer to the data.
+//
+//	AllocateV(v0, size, error)
+//
+//	where:	v0		Pointer to returned vector
+//				size	Number of elements to allocate space for
+//				error	Returned error code
+//
+//	Errors returned:
+//
+//				NO_ERROR	Successful completion
+//
+//				Any errors returned by NewPtrClear or DeallocateV
+//			
+//			
+//	Revised By:			Larry L. Biehl			Date: 08/05/1992
+//	Revised By:			Larry L. Biehl			05/24/2017
+//
+// ===================================================================================
+
+void AllocateV (
+				vector								*v0,
+				SInt32								size,
+				SInt32								*error)
 	
 {
 	*error = 0;
 
-	if ( v0->size >= size )
+	if (v0->size >= size)
 																						return;
 	
 	v0->numberPoints = 0;
 	if (v0->baseHandle != NULL)
-		DeallocateV( v0, error );
+		DeallocateV (v0, error);
 		
 	v0->basePtr = NULL;
 	v0->size = size;
-	v0->baseHandle = MNewHandle ((SInt32)size*sizeof(GRAPHDATA));
-	if ( !v0->baseHandle ) 
+	v0->baseHandle = MNewHandle ((SInt32)size*sizeof (GRAPHDATA));
+	if (!v0->baseHandle) 
 		{
 		v0->size = 0;
 		*error = NU_ALLOC_ERR;
 		
-		}		// end "if ( !v0->base )"
+		}	// end "if (!v0->base)"
 		
-}		// End AllocateV
+}	// End AllocateV
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2006)
-//								c Purdue Research Foundation
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		Boolean SetGraphVectorSize
@@ -109,7 +127,7 @@ void AllocateV (
 //	Coded By:			Larry L. Biehl			Date: 01/28/1999
 //	Revised By:			Larry L. Biehl			Date: 01/28/1999	
 
-void SetGraphVectorSize( 
+void SetGraphVectorSize (
 				vector*								v0, 
 				SInt32								size, 
 				SInt32*								error)
@@ -123,12 +141,12 @@ void SetGraphVectorSize(
 	
 	*error = 0;
 
-	if ( v0->size >= size )
+	if (v0->size >= size)
 																						return;
 	
-	numberBytesNeeded = (SInt32)size * sizeof(GRAPHDATA);
+	numberBytesNeeded = (SInt32)size * sizeof (GRAPHDATA);
 	
-	v0->basePtr = (GRAPHDATA*)CheckHandleSize ( &v0->baseHandle, 
+	v0->basePtr = (GRAPHDATA*)CheckHandleSize (&v0->baseHandle, 
 																&continueFlag, 
 																&changedFlag, 
 																numberBytesNeeded);
@@ -139,53 +157,50 @@ void SetGraphVectorSize(
 	else if (!continueFlag)
 		*error = NU_ALLOC_ERR;
 		
-}		// End "SetGraphVectorSize"
+}	// End "SetGraphVectorSize"
 
 
 
-// ========================================================================
-//		(C) Copyright 1989. Nicus, Inc.  All rights reserved.
+// ===================================================================================
+//				(C) Copyright 1989. Nicus, Inc.  All rights reserved.
 //
-//		DeallocateV:	Vector space deallocation.  This fuction
+//	DeallocateV:	Vector space deallocation.  This fuction
 //						deallocates space for storage of the vector
 //						elements.
 //
-//		DeallocateV(v1, error)
+//	DeallocateV (v1, error)
 //
-//		where:	v1		Vector to deallocate
+//	where:	v1		Vector to deallocate
 //				error	Returned error code
 //
-//
-//		Error codes:
-//
+//	Error codes:
 //			NO_ERROR	No error - successful completion
 //
 //						Any errors returned by 'DisposePtr'
 //						
-//		Revised by Larry L. Biehl		08/05/1992
-//		Revised by Larry L. Biehl		08/04/1995
+//	Revised By:			Larry L. Biehl			Date: 08/05/1992
+//	Revised By:			Larry L. Biehl			Date: 08/04/1995
 //
-// ========================================================================
+// ===================================================================================
 
-void DeallocateV(
-				vector		*vectorPtr, 
-				SInt32		*errorPtr)
+void DeallocateV (
+				vector								*vectorPtr,
+				SInt32								*errorPtr)
 					
-{		// DeallocateV
-
+{
 	*errorPtr	= NU_NO_ERROR;
-	if ( vectorPtr->baseHandle != NULL)
-		vectorPtr->baseHandle = UnlockAndDispose( vectorPtr->baseHandle );
+	if (vectorPtr->baseHandle != NULL)
+		vectorPtr->baseHandle = UnlockAndDispose (vectorPtr->baseHandle);
 		
-	InitV( vectorPtr, errorPtr );
+	InitV (vectorPtr, errorPtr);
 	
-}		// End DeallocateV
+}	// End DeallocateV
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2006)
-//								c Purdue Research Foundation
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void DensityFunctionPlotV
@@ -193,11 +208,11 @@ void DeallocateV(
 //	Software purpose:	The purpose of this routine is to plot the requested density
 //							functions.
 //
-//	Parameters in:		graph		Pointer to graph record ( not graph port )
+//	Parameters in:		graph		Pointer to graph record (not graph port)
 //							x			Pointer to x vector
 //							y			Pointer to y vector
 //
-//	Parameters out:	error		Returned error code ( see below )
+//	Parameters out:	error		Returned error code (see below)
 //											NU_NO_ERROR, NU_NOTSAMESIZEG, or NU_MUSTBEPOS
 //
 // Value Returned:	None
@@ -207,7 +222,7 @@ void DeallocateV(
 //	Coded By:			Larry L. Biehl			Date: 02/03/1999
 //	Revised By:			Larry L. Biehl			Date: 10/17/2015
 
-void	DensityFunctionPlotV (                             
+void	DensityFunctionPlotV (
 				GraphPtr								graphPtr,
 				SInt32*								errorPtr,
 				SInt16								drawGraphCode)
@@ -251,22 +266,19 @@ void	DensityFunctionPlotV (
 		wxDC* pDC = graphPtr->pDC;
 	#endif   
 	
-	SetGraphClip( graphPtr, errorPtr );  
+	SetGraphClip (graphPtr, errorPtr);
 	
 	vectorPaletteColorPtr = (SInt32*)GetHandlePointer (
 											graphPtr->vectorPaletteColorHandle,
-											kLock,
-											kNoMoveHi);
+											kLock);
 	
 	vectorDisplayPtr = (char*)GetHandlePointer (
 											graphPtr->vectorDisplayHandle,
-											kLock,
-											kNoMoveHi);
+											kLock);
 	
 	classStatisticsPtr = (HDoublePtr)GetHandlePointer (
 											graphPtr->classStatisticsHandle,
-											kLock,
-											kNoMoveHi);
+											kLock);
 						
 	numberVectors = graphPtr->numberVectors;
 	set = graphPtr->set;                       
@@ -295,11 +307,11 @@ void	DensityFunctionPlotV (
 			{
 			y_val = MIN (y_val, classStatisticsPtr[classStatsIndex]);
 		   
-		   }		// end "if (vectorDisplayPtr [line] > 0)"
+		   }	// end "if (vectorDisplayPtr [line] > 0)"
 		   
 		classStatsIndex += classStatsIndexIncrement;
 		   
-		}		// end "for (line=0; line<numberVectors; line++)"
+		}	// end "for (line=0; line<numberVectors; line++)"
 		
 	y_val = 1./(y_val * kSQRT2PI);
 		
@@ -318,13 +330,13 @@ void	DensityFunctionPlotV (
 		   constant1 = 1./(standardDeviation * kSQRT2PI);
 		   constant2 = 1./(2. * standardDeviation * standardDeviation);
 		                
-			MForeColor( pDC, vectorPaletteColorPtr[line] );
+			MForeColor (pDC, vectorPaletteColorPtr[line]);
 			
 					// Get initial point to start at.
 					
-//			x_increment = (double)((SInt32)(4*standardDeviation + .5));
+			//x_increment = (double)((SInt32)(4*standardDeviation + .5));
 			x_increment = 4*standardDeviation;
-//			x_increment = MAX(x_increment, 1);
+			//x_increment = MAX (x_increment, 1);
 
 			if (x_increment == 0)
 				x_increment = 4 * graphPtr->histogramBinWidth;
@@ -345,38 +357,39 @@ void	DensityFunctionPlotV (
 			exponent = (x_val-mean);
 			exponent *= exponent;
 			exponent *= constant2;
-			y_val = constant1 * exp(-exponent);
+			y_val = constant1 * exp (-exponent);
 				
-			x_point = (SInt16)(floor(x_val * x_scale) - x_offset);
-			y_point = (SInt16)(y_offset - floor(y_val * y_scale));
+			x_point = (SInt16)(floor (x_val * x_scale) - x_offset);
+			y_point = (SInt16)(y_offset - floor (y_val * y_scale));
 					
 			#if defined multispec_mac
-				MoveTo( x_point, y_point );
+				MoveTo (x_point, y_point);
 			#endif	// defined multispec_mac 
 			 
 			#if defined multispec_win
-				pDC->MoveTo( x_point, y_point );
+				pDC->MoveTo (x_point, y_point);
 			#endif	// defined multispec_win
 			
 			x_val += x_increment;
      
          #if defined multispec_lin
-         int b_size;
-         b_size = (int)((x_max- x_val)/x_increment)+2;
-         wxPoint splines[b_size];
-         int i = 0;
-         splines[i].x = x_point;
-         splines[i].y = y_point;
+				int b_size;
+				b_size = (int)((x_max- x_val)/x_increment)+2;
+				wxPoint splines[b_size];
+				int i = 0;
+				splines[i].x = x_point;
+				splines[i].y = y_point;
          #endif	// defined multispec_lin
+			
 			while (x_val <= x_max) 
 				{
 				exponent = (x_val-mean);
 				exponent *= exponent;
 				exponent *= constant2;
-				y_val = constant1 * exp(-exponent);
+				y_val = constant1 * exp (-exponent);
 				
-				x_point = (SInt16)(floor(x_val * x_scale) - x_offset);
-				y_point = (SInt16)(y_offset - floor(y_val * y_scale));
+				x_point = (SInt16)(floor (x_val * x_scale) - x_offset);
+				y_point = (SInt16)(y_offset - floor (y_val * y_scale));
 				
 				#if defined multispec_mac
 					LineTo (x_point, y_point);
@@ -387,24 +400,25 @@ void	DensityFunctionPlotV (
 				#endif	// defined multispec_win
 			
 				x_val += x_increment;
+				
             #if defined multispec_lin
-				i++;
-            splines[i].x = x_point;
-            splines[i].y = y_point;
+					i++;
+					splines[i].x = x_point;
+					splines[i].y = y_point;
             #endif	// defined multispec_lin
-				}		// end "while (x_val<=x_max)"
+				}	// end "while (x_val<=x_max)"
          
          
          #if defined multispec_lin
-            pDC->DrawSpline(i, splines);
+            pDC->DrawSpline (i, splines);
             i = 0;
          #endif // defined multispec_lin
          
-			}		// end "if (vectorDisplayPtr [lines] > 0)"
+			}	// end "if (vectorDisplayPtr [lines] > 0)"
 		   
 		classStatsIndex += classStatsIndexIncrement;
 			
-		}		// end "for (line=0; line<numberVectors; line++)"
+		}	// end "for (line=0; line<numberVectors; line++)"
 	
 	MForeColor (pDC, blackColor);
 	
@@ -414,47 +428,47 @@ void	DensityFunctionPlotV (
 		
 	SetWindowClip (graphPtr, errorPtr);
 	
-}		// End "DensityFunctionPlotV"
+}	// End "DensityFunctionPlotV"
 
 
 
-// ========================================================================
-//		(C) Copyright 1989. Nicus, Inc.  All rights reserved.
+// ===================================================================================
+//				(C) Copyright 1989. Nicus, Inc.  All rights reserved.
 //
-//		DrawAxis:	This routine draws axis line for the specified graph.
+//	DrawAxis:	This routine draws axis line for the specified graph.
 //
-//		DrawAxis( graph, error )
+//	DrawAxis (graph, error)
 //
-//		where:	graph		Pointer to graph record ( not graph port )
-//					error		Returned error code ( see below )
+//	where:	graph		Pointer to graph record (not graph port)
+//				error		Returned error code (see below)
 //
-//		Errors returned:	NU_NO_ERROR
-//		revised by Larry L. Biehl  12/31/2005
+//	Errors returned:	NU_NO_ERROR
 //
-// ========================================================================
+//	Revised By:			Larry L. Biehl			Date: 12/31/2005
+//
+// ===================================================================================
 
-void	DrawAxis(                           
-				GraphPtr			graphPtr, 
-				SInt32*			error )
+void	DrawAxis (
+				GraphPtr								graphPtr, 
+				SInt32*								error)
 								
-{		// DrawAxis 
-
-	CDC* 					pDC;
+{ 
+	CDC*									pDC;
 	
-	Rect					*clientRectPtr,
-							tempRect;
+	Rect									*clientRectPtr,
+											tempRect;
 	
-	double				x_offset,
-							x_scale,
-							y_offset, 
-							y_scale;
+	double								x_offset,
+											x_scale,
+											y_offset, 
+											y_scale;
 	
-	SInt32				screen_height,
-							screen_width;
+	SInt32								screen_height,
+											screen_width;
 	
-	SInt16				bevelInset,
-							x_point, 
-							y_point;
+	SInt16								bevelInset,
+											x_point, 
+											y_point;
 				
 
 	*error = NU_NO_ERROR;
@@ -471,34 +485,35 @@ void	DrawAxis(
 		grayColor.red = 0xEEEE;
 		grayColor.green = 0xEEEE;
 		grayColor.blue = 0xEEEE;
-		RGBForeColor ( &grayColor );
+		RGBForeColor (&grayColor);
 		PaintRect (&graphPtr->clientRect);
 	#endif	// defined multispec_mac
 	
 	#if defined multispec_win
-		graphPtr->pDC->FillRect( (tagRECT*)&graphPtr->clientRect, 
+		graphPtr->pDC->FillRect ((tagRECT*)&graphPtr->clientRect, 
 											(CBrush*)graphPtr->backgroundPatternPtr);
 	#endif	// defined multispec_win
 
    #if defined multispec_lin
       wxColour grayColor;
-      //grayColor.Set(wxT("#d4d4d4"));
-      grayColor.Set(wxT("#ffffff"));
-      graphPtr->pDC->SetBrush(wxBrush(grayColor));
+      //grayColor.Set (wxT("#d4d4d4"));
+      grayColor.Set (wxT("#ffffff"));
+      graphPtr->pDC->SetBrush (wxBrush (grayColor));
 		bevelInset = (SInt16)(3 * graphPtr->textScaling);
 		wxCoord left = graphPtr->clientRect.left + graphPtr->leftInset - bevelInset;
 		wxCoord top = graphPtr->clientRect.top + graphPtr->topInset - bevelInset;
 		wxCoord width = graphPtr->clientRect.right - left - graphPtr->rightInset + 2*bevelInset;
 		wxCoord height = graphPtr->clientRect.bottom - top - graphPtr->bottomInset + 2*bevelInset;
       graphPtr->pDC->DrawRectangle (left, top, width, height);
-   if (graphPtr->drawGraphCode <= 0)  return;
+		if (graphPtr->drawGraphCode <= 0)  
+																								return;
    #endif
 	
 	clientRectPtr = &graphPtr->clientRect;
 	
-	screen_width = ( clientRectPtr->right - clientRectPtr->left ) -
+	screen_width = (clientRectPtr->right - clientRectPtr->left) -
 										graphPtr->rightInset - graphPtr->leftInset;
-	screen_height = ( clientRectPtr->bottom - clientRectPtr->top ) -
+	screen_height = (clientRectPtr->bottom - clientRectPtr->top) -
 										graphPtr->bottomInset - graphPtr->topInset;
 
 	bevelInset = (SInt16)(3 * graphPtr->textScaling);									
@@ -514,15 +529,15 @@ void	DrawAxis(
 		grayColor.green = 0xFFFF;
 		grayColor.blue = 0xFFFF;
 		
-		RGBForeColor ( &grayColor );
+		RGBForeColor (&grayColor);
 		PaintRect (&tempRect);
 		
-		ForeColor ( blackColor );
+		ForeColor (blackColor);
 		::FrameRect (&tempRect);
 	
 				// Draw the shadow affects around the window box.
 		
-		InsetRect( &tempRect, -1, -1);
+		InsetRect (&tempRect, -1, -1);
 		tempRect.right--;
 		tempRect.bottom--;
 		
@@ -530,44 +545,44 @@ void	DrawAxis(
 		grayColor.green = 0xAAAA;
 		grayColor.blue = 0xAAAA;
 		
-		RGBForeColor ( &grayColor );	
-		MoveTo( tempRect.left, tempRect.bottom );
-		LineTo( tempRect.left, tempRect.top ); 
-		LineTo( tempRect.right, tempRect.top );  
+		RGBForeColor (&grayColor);	
+		MoveTo (tempRect.left, tempRect.bottom);
+		LineTo (tempRect.left, tempRect.top); 
+		LineTo (tempRect.right, tempRect.top);  
 		                        
 		grayColor.red = 0xFFFF;
 		grayColor.green = 0xFFFF;
 		grayColor.blue = 0xFFFF;
 		
-		RGBForeColor ( &grayColor );	
-		MoveTo( tempRect.right, tempRect.top+1 );
-		LineTo( tempRect.right, tempRect.bottom ); 
-		LineTo( tempRect.left+1, tempRect.bottom ); 
+		RGBForeColor (&grayColor);	
+		MoveTo (tempRect.right, tempRect.top+1);
+		LineTo (tempRect.right, tempRect.bottom); 
+		LineTo (tempRect.left+1, tempRect.bottom); 
 		
-		RGBForeColor ( &savedForeGroundColor );
+		RGBForeColor (&savedForeGroundColor);
 	#endif	// defined multispec_mac 
 	 
 	#if defined multispec_win
-		pDC->Rectangle( tempRect.left,  
-						tempRect.top, 
-						tempRect.right, 
-						tempRect.bottom);
+		pDC->Rectangle (tempRect.left,  
+								tempRect.top, 
+								tempRect.right, 
+								tempRect.bottom);
 	
 				// Draw the shadow affects around the window box.
 		
-		InsetRect( (tagRECT*)&tempRect, -1, -1);
+		InsetRect ((tagRECT*)&tempRect, -1, -1);
 		
-		CPen* oldPenPtr = pDC->SelectObject( &CMGraphView::s_grayPen );	
-		pDC->MoveTo( tempRect.left, tempRect.bottom );
-		pDC->LineTo( tempRect.left, tempRect.top ); 
-		pDC->LineTo( tempRect.right, tempRect.top );  
+		CPen* oldPenPtr = pDC->SelectObject (&CMGraphView::s_grayPen);	
+		pDC->MoveTo (tempRect.left, tempRect.bottom);
+		pDC->LineTo (tempRect.left, tempRect.top); 
+		pDC->LineTo (tempRect.right, tempRect.top);  
 		                             
-		pDC->SelectObject( &CMGraphView::s_whitePen );	
-		pDC->MoveTo( tempRect.right, tempRect.top+1 );
-		pDC->LineTo( tempRect.right, tempRect.bottom );  
-		pDC->LineTo( tempRect.left+1, tempRect.bottom ); 
+		pDC->SelectObject (&CMGraphView::s_whitePen);	
+		pDC->MoveTo (tempRect.right, tempRect.top+1);
+		pDC->LineTo (tempRect.right, tempRect.bottom);  
+		pDC->LineTo (tempRect.left+1, tempRect.bottom); 
 		
-		pDC->SelectObject( oldPenPtr );
+		pDC->SelectObject (oldPenPtr);
 	#endif	// defined multispec_win
 
    #if defined multispec_lin
@@ -577,120 +592,120 @@ void	DrawAxis(
 	if (graphPtr->drawGraphCode <= 0)
 																								return;
 	
-	SetGraphClip( graphPtr, error );
+	SetGraphClip (graphPtr, error);
 	
 			// Check if axis needs to be drawn for case to handle + and - data
 
-	x_scale = screen_width / ( graphPtr->xScaleMax - graphPtr->xScaleMin );
-	y_scale = screen_height / ( graphPtr->yScaleMax - graphPtr->yScaleMin );
+	x_scale = screen_width / (graphPtr->xScaleMax - graphPtr->xScaleMin);
+	y_scale = screen_height / (graphPtr->yScaleMax - graphPtr->yScaleMin);
 	
 	x_offset = graphPtr->xScaleMin * x_scale - 
 														graphPtr->leftInset - clientRectPtr->left;
 	y_offset = graphPtr->yScaleMin * y_scale + screen_height + 
 														graphPtr->topInset + clientRectPtr->top;
 	
-	if ( (graphPtr->yScaleMin < 0) && (graphPtr->yScaleMax > 0) && ( !(graphPtr->attrb & NU_YLOG) ) )
+	if ((graphPtr->yScaleMin < 0) && (graphPtr->yScaleMax > 0) && (!(graphPtr->attrb & NU_YLOG)))
 		{
-		x_point = (SInt16)( floor(graphPtr->xScaleMin * x_scale) - x_offset );
+		x_point = (SInt16)(floor (graphPtr->xScaleMin * x_scale) - x_offset);
 		y_point = (SInt16)y_offset;   
 		
 		#if defined multispec_mac
-			MoveTo( x_point, y_point );
+			MoveTo (x_point, y_point);
 			x_point = (SInt16)(graphPtr->xScaleMax * x_scale) - (SInt16)x_offset;
-			LineTo( x_point, y_point );
+			LineTo (x_point, y_point);
 		#endif	// defined multispec_mac 
 		 
 		#if defined multispec_win
-			pDC->MoveTo( x_point, y_point );
+			pDC->MoveTo (x_point, y_point);
 			x_point = (SInt16)(graphPtr->xScaleMax * x_scale) - (SInt16)x_offset;
-			pDC->LineTo( x_point, y_point );
+			pDC->LineTo (x_point, y_point);
 		#endif	// defined multispec_win
 		
       #if defined multispec_lin
          SInt16 m_x_point;
          m_x_point = (SInt16)(graphPtr->xScaleMax * x_scale) - (SInt16)x_offset;
-         //pDC->DrawLine(x_point, y_point, m_x_point, y_point);
+         //pDC->DrawLine (x_point, y_point, m_x_point, y_point);
       #endif
 		
 		}
 		
-	if ( (graphPtr->xScaleMin < 0) && (graphPtr->xScaleMax > 0) && ( !(graphPtr->attrb & NU_XLOG) ) ) 
+	if ((graphPtr->xScaleMin < 0) && (graphPtr->xScaleMax > 0) && (!(graphPtr->attrb & NU_XLOG))) 
 		{
 		x_point = (SInt16)-x_offset;
-		y_point = (SInt16)( y_offset - floor(graphPtr->yScaleMin * y_scale) );
+		y_point = (SInt16)(y_offset - floor (graphPtr->yScaleMin * y_scale));
 		
 		#if defined multispec_mac
-			MoveTo( x_point, y_point );
-			y_point = (SInt16)( y_offset - floor(graphPtr->yScaleMax * y_scale) );
-			LineTo( x_point, y_point );
+			MoveTo (x_point, y_point);
+			y_point = (SInt16)(y_offset - floor (graphPtr->yScaleMax * y_scale));
+			LineTo (x_point, y_point);
 		#endif	// defined multispec_mac 
 		 
 		#if defined multispec_win
-			pDC->MoveTo( x_point, y_point );
-			y_point = (SInt16)( y_offset - floor(graphPtr->yScaleMax * y_scale) );
-			pDC->LineTo( x_point, y_point );
+			pDC->MoveTo (x_point, y_point);
+			y_point = (SInt16)(y_offset - floor (graphPtr->yScaleMax * y_scale));
+			pDC->LineTo (x_point, y_point);
 		#endif	// defined multispec_win
 		
       #if defined multispec_lin
         SInt16 m_y_point;
-        m_y_point = (SInt16)( y_offset - floor(graphPtr->yScaleMax * y_scale) );
-        //pDC->DrawLine(x_point, y_point, x_point, m_y_point); 
+        m_y_point = (SInt16)(y_offset - floor (graphPtr->yScaleMax * y_scale));
+        //pDC->DrawLine (x_point, y_point, x_point, m_y_point); 
       #endif
 		
 		}
 		
-	SetWindowClip( graphPtr, error );
+	SetWindowClip (graphPtr, error);
 	
-}		// End DrawAxis
+}	// End DrawAxis
 
 
 
-// ========================================================================
-//		(C) Copyright 1989. Nicus, Inc.  All rights reserved.
+// ===================================================================================
+//				(C) Copyright 1989. Nicus, Inc.  All rights reserved.
 //
-//		DrawLinTicks:	This routine draws linearly scaled tick marks for
+//	DrawLinTicks:	This routine draws linearly scaled tick marks for
 //						the specified graph.
 //
-//		DrawLinTicks( graph, xint, yint, size, error )
+//	DrawLinTicks (graph, xint, yint, size, error)
 //
-//		where:	graph		Pointer to graph record ( not graph port )
+//	where:	graph		Pointer to graph record (not graph port)
 //				xint		Interval between major tick marks on the x axis.
 //				yint		Interval between major tick marks on the y axis.
 //				size		Size of tick marks in pixels
-//				error		Returned error code ( see below )
+//				error		Returned error code (see below)
 //
-//		Errors returned:	NU_NO_ERROR
+//	Errors returned:	NU_NO_ERROR
 //		
-//		revised by Larry L. Biehl  12/31/2005
+//	Revised By:			Larry L. Biehl			Date: 12/31/2005
 //
-// ========================================================================
+// ===================================================================================
 
-void	DrawLinTicks(                         
-				GraphPtr				graph, 
-				double				xint, 
-				double				yint, 
-				SInt16				size, 
-				SInt32*				error )
+void	DrawLinTicks (
+				GraphPtr								graph, 
+				double								xint, 
+				double								yint, 
+				SInt16								size, 
+				SInt32*								error)
 								
-{		// DrawLinTicks         
-	Rect*						clientRectPtr;
+{
+	Rect*									clientRectPtr;
 	
-	double					interval,
-								x_offset,
-								x_pos, 
-								x_scale,
-								y, 
-								y_offset,
-								y_pos,
-								y_scale;
+	double								interval,
+											x_offset,
+											x_pos, 
+											x_scale,
+											y, 
+											y_offset,
+											y_pos,
+											y_scale;
 				
-	SInt16					position,
-								pos1, 
-								pos2,
-								pos3, 
-								pos4,
-								screen_width, 
-								screen_height;
+	SInt16								position,
+											pos1, 
+											pos2,
+											pos3, 
+											pos4,
+											screen_width, 
+											screen_height;
 	
 
 	*error = NU_NO_ERROR;
@@ -701,168 +716,155 @@ void	DrawLinTicks(
       wxDC* pDC = graph->pDC;
    #endif
 	
-	SetGraphClip( graph, error );                               
+	SetGraphClip (graph, error);                               
 	
 	clientRectPtr = &graph->clientRect;
 	
-	screen_width = ( clientRectPtr->right - clientRectPtr->left ) -
+	screen_width = (clientRectPtr->right - clientRectPtr->left) -
 										graph->rightInset - graph->leftInset;
-	screen_height = ( clientRectPtr->bottom - clientRectPtr->top ) -
+	screen_height = (clientRectPtr->bottom - clientRectPtr->top) -
 										graph->bottomInset - graph->topInset;
 										
-	x_scale = screen_width / ( graph->xScaleMax - graph->xScaleMin );
-	y_scale = screen_height / ( graph->yScaleMax - graph->yScaleMin );
+	x_scale = screen_width / (graph->xScaleMax - graph->xScaleMin);
+	y_scale = screen_height / (graph->yScaleMax - graph->yScaleMin);
 	
 	x_offset = graph->xScaleMin * x_scale - graph->leftInset - clientRectPtr->left;
 	y_offset = graph->yScaleMin * y_scale + screen_height + 
 																graph->topInset + clientRectPtr->top;
 	
 	interval = yint;  
-   
-
-	if ( ( !( graph->attrb & NU_YLOG ) ) && ( ( y_scale*interval ) > 3 ) ) 
+	
+	if ((!(graph->attrb & NU_YLOG)) && ((y_scale*interval) > 3)) 
 		{
      
-		if ( ( graph->xScaleMin < 0 ) && ( graph->xScaleMax > 0 ) )
+		if ((graph->xScaleMin < 0) && (graph->xScaleMax > 0))
 			{
          
 			pos1 = (SInt16)(-size - x_offset);
 			pos2 =  (SInt16)(size - x_offset);
          
          #if defined multispec_lin
-         if(pos1 < 0){
-            pos1 = clientRectPtr->left + graph->leftInset;
-            pos2 = clientRectPtr->right - graph->rightInset;
-         }
+				if (pos1 < 0)
+					{
+					pos1 = clientRectPtr->left + graph->leftInset;
+					pos2 = clientRectPtr->right - graph->rightInset;
+					}
          #endif
           
-			//printf("yscale:%d, %lf, %d\n", size, x_offset, (int)(-size - x_offset));
-			for ( y_pos = ceil( graph->yScaleMin / interval ) * interval;
+			for (y_pos = ceil (graph->yScaleMin / interval) * interval;
 					y_pos <= graph->yScaleMax; 
-					y_pos += interval ) 
+					y_pos += interval) 
 				{
-				position = (SInt16)( y_offset - floor(y_pos * y_scale) );   
+				position = (SInt16)(y_offset - floor (y_pos * y_scale));   
            
 				#if defined multispec_mac
-					MoveTo( pos1, position );
-					LineTo( pos2, position );
+					MoveTo (pos1, position);
+					LineTo (pos2, position);
 				#endif	// defined multispec_mac 
 				 
 				#if defined multispec_win
-					pDC->MoveTo( pos1, position );
-					pDC->LineTo( pos2, position );
+					pDC->MoveTo (pos1, position);
+					pDC->LineTo (pos2, position);
 				#endif	// defined multispec_win
 				
             #if defined multispec_lin
-               // Draw the line in feature selection
-               if(graph->setCode != 1 && graph->numberSets > 0 && interval != 1){
-                  
-                  pDC->DrawLine((int)pos1, (int)position, (int)pos2, (int)position);
-               }
-               //printf("pos1:%d, position:%d, pos2:%d\n", pos1, position, pos2);
+							// Draw the line in feature selection
+               if (graph->setCode != 1 && graph->numberSets > 0 && interval != 1)
+						{
+                  pDC->DrawLine ((int)pos1, (int)position, (int)pos2, (int)position);
+						}
             #endif
 				
-				}
+				}	// end "for (y_pos = ceil (graph->yScaleMin / interval) * interval;"
 				
-			} 
+			}	// end "if ((graph->xScaleMin < 0) && (graph->xScaleMax > 0))"
 			
-		else		//  ( graph->xScaleMin >= 0 ) || ( graph->xScaleMax <= 0 )
+		else	//  (graph->xScaleMin >= 0) || (graph->xScaleMax <= 0)
 			{
 			pos1 = clientRectPtr->left + graph->leftInset;
 			pos2 = pos1 + size;
 			pos3 = clientRectPtr->right - graph->rightInset;
 			pos4 = pos3 - size;
 			                 
-			pos2 = MIN(pos2,pos3);
+			pos2 = MIN (pos2,pos3);
 				
-			
-			for ( y_pos = ceil( graph->yScaleMin / interval ) * interval;
+			for (y_pos = ceil (graph->yScaleMin / interval) * interval;
 					y_pos <= graph->yScaleMax; 
-					y_pos += interval ) 
+					y_pos += interval) 
 				{
-				position = (SInt16)( y_offset - floor(y_pos * y_scale) );  
+				position = (SInt16)(y_offset - floor (y_pos * y_scale));  
             
 				#if defined multispec_mac
-					MoveTo( pos1, position );
-					LineTo( pos2, position );
+					MoveTo (pos1, position);
+					LineTo (pos2, position);
 				#endif	// defined multispec_mac 
 				 
 				#if defined multispec_win
-					pDC->MoveTo( pos1, position );
-					pDC->LineTo( pos2, position );
+					pDC->MoveTo (pos1, position);
+					pDC->LineTo (pos2, position);
 				#endif	// defined multispec_win
 				
 				#if defined multispec_lin
-               //if(graph->setCode == 1 && graph->numberSets > 0 ||
-               //   graph->xScaleMin == 1){
-                  pDC->DrawLine((int)pos1, (int)position, (int)pos2, (int)position);
-               //}
-               //printf("pos1:%d, position:%d, interval:%d\n", pos1, position, graph->yScaleMax/interval);
+ 					pDC->DrawLine ((int)pos1, (int)position, (int)pos2, (int)position);
             #endif
 				
 				if (pos2 < pos3)
 					{  
 					#if defined multispec_mac
-						MoveTo( pos3, position );
-						LineTo( pos4, position );
+						MoveTo (pos3, position);
+						LineTo (pos4, position);
 					#endif	// defined multispec_mac 
 					 
 					#if defined multispec_win
-						pDC->MoveTo( pos3, position );
-						pDC->LineTo( pos4, position );
+						pDC->MoveTo (pos3, position);
+						pDC->LineTo (pos4, position);
 					#endif	// defined multispec_win
 					
 					#if defined multispec_lin
-                  //if(graph->setCode == 1 && graph->numberSets > 0 ||
-                  //   graph->xScaleMin == 1){
-                     pDC->DrawLine((int)pos3, (int)position, (int)pos4, (int)position);
-                  //}
+						pDC->DrawLine ((int)pos3, (int)position, (int)pos4, (int)position);
                #endif
 
-					}		// end "if (pos2 < pos3)"
+					}	// end "if (pos2 < pos3)"
 				
-				}		// end "for ( y_pos = ..."
+				}	// end "for (y_pos = ..."
 				
-			}		// end "else"
+			}	// end "else"
 			
 		}
 	
 	interval = xint;
 
-	if ( ( !( graph->attrb & NU_XLOG ) ) && ( ( x_scale*interval ) > 3 ) ) 
+	if ((!(graph->attrb & NU_XLOG)) && ((x_scale*interval) > 3)) 
 		{
-      //printf("yScaleMin:%lf, yScaleMax:%lf\n", graph->yScaleMin, graph->yScaleMax);
-      
-		if ( ( graph->yScaleMin < 0 ) && ( graph->yScaleMax > 0 ) ) 
+ 		if ((graph->yScaleMin < 0) && (graph->yScaleMax > 0))
 			{
-			y = y_offset - floor(graph->yScaleMin * y_scale);
-			pos1 = (SInt16)MAX(y_offset - size, y - screen_height);
-			pos2 = (SInt16)MIN(y_offset + size, y);
-			for ( 	x_pos = ceil( graph->xScaleMin / interval ) * interval;
+			y = y_offset - floor (graph->yScaleMin * y_scale);
+			pos1 = (SInt16)MAX (y_offset - size, y - screen_height);
+			pos2 = (SInt16)MIN (y_offset + size, y);
+			for (	x_pos = ceil (graph->xScaleMin / interval) * interval;
 					x_pos <= graph->xScaleMax; 
-					x_pos += interval ) 
+					x_pos += interval) 
 				{
-				position = (SInt16)( floor(x_pos * x_scale) - x_offset );
+				position = (SInt16)(floor (x_pos * x_scale) - x_offset);
 				
 				#if defined multispec_mac
-					MoveTo( position, pos1 );
-					LineTo( position, pos2 );
+					MoveTo (position, pos1);
+					LineTo (position, pos2);
 				#endif	// defined multispec_mac 
 				 
 				#if defined multispec_win
-					pDC->MoveTo( position, pos1 );
-					pDC->LineTo( position, pos2 );
+					pDC->MoveTo (position, pos1);
+					pDC->LineTo (position, pos2);
 				#endif	// defined multispec_win
 				
 				#if defined multispec_lin
-               //pDC->DrawLine((int)pos1, (int)position, (int)pos2, (int)position);
-               
+               //pDC->DrawLine ((int)pos1, (int)position, (int)pos2, (int)position);
             #endif
-				}
+				}	// end "for (	x_pos = ceil (graph->xScaleMin / ..."
 				
-			} 
+			}	// end "if ((graph->yScaleMin < 0) && (graph->yScaleMax > 0))"
 			
-		else 
+		else	// (graph->yScaleMin >= 0) || (graph->yScaleMax >= 0)
 			{
 			pos1 = clientRectPtr->top + graph->topInset;
 			pos2 = pos1 + size;
@@ -871,95 +873,94 @@ void	DrawLinTicks(
 			                 
 			pos2 = MIN(pos2,pos3);
 			 
-			for ( x_pos = ceil( graph->xScaleMin / interval ) * interval;
+			for (x_pos = ceil (graph->xScaleMin / interval) * interval;
 					x_pos <= graph->xScaleMax; 
-					x_pos += interval ) 
+					x_pos += interval) 
 				{
-				position = (SInt16)( floor(x_pos * x_scale) - x_offset );
+				position = (SInt16)(floor (x_pos * x_scale) - x_offset);
 				
 				#if defined multispec_mac
-					MoveTo( position, pos1 );
-					LineTo( position, pos2 );
+					MoveTo (position, pos1);
+					LineTo (position, pos2);
 				#endif	// defined multispec_mac 
 				 
 				#if defined multispec_win
-					pDC->MoveTo( position, pos1 );
-					pDC->LineTo( position, pos2 );
+					pDC->MoveTo (position, pos1);
+					pDC->LineTo (position, pos2);
 				#endif	// defined multispec_win
 				
 				#if defined multispec_lin
-               pDC->DrawLine((int)position, (int)pos1, (int)position, (int)pos2);
-               //printf("pos1:%d, position:%d, pos2:%d\n", pos1, position, pos2);
+               pDC->DrawLine ((int)position, (int)pos1, (int)position, (int)pos2);
             #endif
 				
 				if (pos2 < pos3)
 					{
 					#if defined multispec_mac
-						MoveTo( position, pos3 );
-						LineTo( position, pos4 );
+						MoveTo (position, pos3);
+						LineTo (position, pos4);
 					#endif	// defined multispec_mac 
 					 
 					#if defined multispec_win
-						pDC->MoveTo( position, pos3 );
-						pDC->LineTo( position, pos4 );
+						pDC->MoveTo (position, pos3);
+						pDC->LineTo (position, pos4);
 					#endif	// defined multispec_win
 					
 					#if defined multispec_lin
-                  pDC->DrawLine((int)position, (int)pos3, (int)position, (int)pos4);
+                  pDC->DrawLine ((int)position, (int)pos3, (int)position, (int)pos4);
                   
                #endif
-					}		// end "if (pos2 < pos3)"
+					}	// end "if (pos2 < pos3)"
 				
-				}
+				}	// end "for (x_pos = ceil (graph->xScaleMin / ..."
 				
-			}
+			}	// end "else (graph->yScaleMin >= 0) || (graph->yScaleMax >= 0)"
 			
-		}
+		}	// end "if ((!(graph->attrb & NU_XLOG)) && ((x_scale*interval) > 3))"
 		
-	SetWindowClip( graph, error );
+	SetWindowClip (graph, error);
 	
-}		// End DrawLinTicks
+}	// end "DrawLinTicks"
+
+
 
 //------------------------------------------------------------------------------------
-//		(C) Copyright 1989. Nicus, Inc.  All rights reserved.
+//				(C) Copyright 1989. Nicus, Inc.  All rights reserved.
 //
-//		FindMaxMinV:	This routine scans a vector and returns the value
+//	FindMaxMinV:	This routine scans a vector and returns the value
 //						of the minimum and maximum elements.
 //
-//		FindMaxMinV (min, max, vect, error)
+//	FindMaxMinV (min, max, vect, error)
 //
-//		where:	min		Pointer to returned minimum value
-//					max		Pointer to returned minimum value
-//					vect		Pointer to vector to scan
-//					error		Returned error code ( see below )
+//	where:	min		Pointer to returned minimum value
+//				max		Pointer to returned minimum value
+//				vect		Pointer to vector to scan
+//				error		Returned error code (see below)
 //
-//		Errors returned:	NU_NO_ERROR
+//	Errors returned:	NU_NO_ERROR
 //			
-//			
-//		revised by Larry L. Biehl  12/09/1991
-//		revised by Larry L. Biehl  01/03/2006
+//	Revised By:			Larry L. Biehl			Date: 12/09/1991
+//	Revised By:			Larry L. Biehl			Date: 01/03/2006
 //
 //------------------------------------------------------------------------------------
 
-void	FindMaxMinV( 
+void	FindMaxMinV (
 				double*								max, 
 				double*								min, 
 				vector*								vect, 
 				SInt32*								error)
 
 {
-	GRAPHDATA*			basePtr;
+	GRAPHDATA*							basePtr;
 	
-	double				temp;
+	double								temp;
 	
-	SInt32				loop,
-							size;
+	SInt32								loop,
+											size;
 	
 
 	*error = NU_NO_ERROR;
 	size = vect->numberPoints;              
-	basePtr = (GRAPHDATA*)GetHandlePointer (
-											vect->baseHandle, kNoLock, kNoMoveHi);
+	basePtr = (GRAPHDATA*)GetHandlePointer (vect->baseHandle);
 	
 	*min = *max = *basePtr;
 	
@@ -974,14 +975,16 @@ void	FindMaxMinV(
 		else if (temp < *min)
 			*min = temp;
 			
-		}		// end "for (loop=1; loop<size; loop++)"
+		}	// end "for (loop=1; loop<size; loop++)"
 		
-}		// End FindMaxMinV
+}	// end "FindMaxMinV"
+
+
 
 // 	Find the min and max when it is known that they are at the beginning and end of
 //		the vector of data.
 
-void	FindMaxMinV(
+void	FindMaxMinV (
 				double*								maxPtr,
 				double*								minPtr,
 				vector*								vect,
@@ -1000,8 +1003,7 @@ void	FindMaxMinV(
 											vectorIndex;
 	
             
-	baseDataPtr = (GRAPHDATA*)GetHandlePointer (
-											vect->baseHandle, kNoLock, kNoMoveHi);
+	baseDataPtr = (GRAPHDATA*)GetHandlePointer (vect->baseHandle);
 											
 	*minPtr = DBL_MAX;
 	*maxPtr = -DBL_MAX;
@@ -1024,19 +1026,19 @@ void	FindMaxMinV(
 			
 				*maxPtr = MAX(*maxPtr, baseDataPtr[dataIndex+size-1]);
 				
-				}		// end "if (size > 0)"
+				}	// end "if (size > 0)"
 				
-			}		// end "if (vectorDisplayPtr[vector] > 0)"
+			}	// end "if (vectorDisplayPtr[vector] > 0)"
 		
-		}		// end "for (vector=0; vector<numberVector; vector++)"
+		}	// end "for (vector=0; vector<numberVector; vector++)"
 		
-}		// End FindMaxMinV
+}	// end "FindMaxMinV"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2006)
-//								c Purdue Research Foundation
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void FindMaxV
@@ -1047,7 +1049,7 @@ void	FindMaxMinV(
 //	Parameters in:		vect		Pointer to vector to scan
 //
 //	Parameters out:	max		Pointer to returned maximum value
-//							error		Returned error code ( see below )
+//							error		Returned error code (see below)
 //
 // Value Returned:	None
 // 
@@ -1056,7 +1058,7 @@ void	FindMaxMinV(
 //	Coded By:			Larry L. Biehl			Date: 01/21/1999
 //	Revised By:			Larry L. Biehl			Date: 02/09/1999
 
-void	FindMaxV( 
+void	FindMaxV (
 				double*								maxPtr,
 				vector*								vect,
 				HSInt32Ptr							vectorLengthsPtr,
@@ -1080,8 +1082,7 @@ void	FindMaxV(
 	Boolean								initialValueFoundFlag = FALSE;
 	
 	           
-	baseDataPtr = (GRAPHDATA*)GetHandlePointer (
-											vect->baseHandle, kNoLock, kNoMoveHi);
+	baseDataPtr = (GRAPHDATA*)GetHandlePointer (vect->baseHandle);
 	
 	for (vector=0; vector<numberVectors; vector++)
 		{				
@@ -1104,7 +1105,7 @@ void	FindMaxV(
 				*maxPtr = *dataPtr;
 				initialValueFoundFlag = TRUE;
 				
-				}		// end "if (!initialValueFoundFlag)"
+				}	// end "if (!initialValueFoundFlag)"
 		
 			for (loop=0; loop<size; loop++) 
 				{
@@ -1115,19 +1116,19 @@ void	FindMaxV(
 					
 				dataPtr++;
 					
-				}		// end "for (loop=0; loop<size; loop++)"
+				}	// end "for (loop=0; loop<size; loop++)"
 				
-			}		// end "if (vectorDisplayPtr[vector] > 0)"
+			}	// end "if (vectorDisplayPtr[vector] > 0)"
 			
-		}		// end "for (vector=0; vector<numberVector; vector++)"
+		}	// end "for (vector=0; vector<numberVector; vector++)"
 		
-}		// End FindMaxV
+}	// End FindMaxV
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2006)
-//								c Purdue Research Foundation
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void FindMaxBinV
@@ -1146,7 +1147,7 @@ void	FindMaxV(
 //	Coded By:			Larry L. Biehl			Date: 12/11/2002
 //	Revised By:			Larry L. Biehl			Date: 02/10/2006
 
-void	FindMaxBinV(
+void	FindMaxBinV (
 				double*								maxPtr,
 				vector*								xVector,
 				vector*								yVector,
@@ -1188,12 +1189,12 @@ void	FindMaxBinV(
 	
 	clientRectPtr = &graph->clientRect;
 	
-//	screen_width = ( clientRectPtr->right - clientRectPtr->left ) -
-//													graph->rightInset - graph->leftInset;
+	//screen_width = (clientRectPtr->right - clientRectPtr->left) -
+	//											graph->rightInset - graph->leftInset;
 													
-//	x_scale = screen_width / (graph->xScaleMax - graph->xScaleMin);
+	//x_scale = screen_width / (graph->xScaleMax - graph->xScaleMin);
 													
-//	xScaleMin = graph->xScaleMin;
+	//xScaleMin = graph->xScaleMin;
 	yScaleMax = graph->yScaleMax;
 	
 			// Allow for width of data value bin.
@@ -1203,10 +1204,8 @@ void	FindMaxBinV(
 						
 	yScaleMax = 0;
 	
-	xBaseDataPtr = (GRAPHDATA*)GetHandlePointer (
-											xVector->baseHandle, kNoLock, kNoMoveHi);
-	yBaseDataPtr = (GRAPHDATA*)GetHandlePointer (
-											yVector->baseHandle, kNoLock, kNoMoveHi);
+	xBaseDataPtr = (GRAPHDATA*)GetHandlePointer (xVector->baseHandle);
+	yBaseDataPtr = (GRAPHDATA*)GetHandlePointer (yVector->baseHandle);
 		
 	for (line=0; line<numberVectors; line++)
 		{
@@ -1234,156 +1233,155 @@ void	FindMaxBinV(
 				{
 				if (point < numberPoints)
 					{ 
-//					xGraphValue = (SInt32)(*xValuePtr/binWidth);
 					xGraphValue = floor ((*xValuePtr+halfBinWidth)/binWidth);
 				
 					if (xGraphValue == lastXGraphValue)
 						y_val += *yValuePtr;
 						
-					else		// xGraphValue != lastXGraphValue
+					else	// xGraphValue != lastXGraphValue
 						binEndFlag = TRUE;
 						
-					}		// end "if (point < numberPoints)"
+					}	// end "if (point < numberPoints)"
 					
-				else		// point == numberPoints
+				else	// point == numberPoints
 					binEndFlag = TRUE;
 					
 				if (binEndFlag)
 					{
-					yScaleMax = MAX(yScaleMax, y_val);
+					yScaleMax = MAX (yScaleMax, y_val);
 					
-					lastXGraphValue = xGraphValue; 
+					lastXGraphValue = xGraphValue;
 					y_val = *yValuePtr;
 					
-					}		// end "if (binEndFlag)"
+					}	// end "if (binEndFlag)"
 			
 				xValuePtr++;
 				yValuePtr++;
 				
-				}		// end "for (point=0; point<numberPoints; point++)"
+				}	// end "for (point=0; point<numberPoints; point++)"
 			
-			}		// end "if (vectorDisplayPtr [lines] > 0)"
+			}	// end "if (vectorDisplayPtr [lines] > 0)"
 			
-		}		// end "for (line=0; line<numberVectors; line++)"
+		}	// end "for (line=0; line<numberVectors; line++)"
 		
 	*maxPtr = yScaleMax;
 	
-}		// End "FindMaxBinV"
+}	// end "FindMaxBinV"
 
 
 
-// ========================================================================
-//		( C ) Copyright 1989. Nicus, Inc.  All rights reserved.
+// ===================================================================================
+//			(C) Copyright 1989. Nicus, Inc.  All rights reserved.
 //
-//		FlaggedPlotV:	This routine draws the requested plot depending on
+//	FlaggedPlotV:	This routine draws the requested plot depending on
 //						the value fo the flag.
 //
-//		FlaggedPlotV( graph, x, y, flag, symb, width, error )
+//	FlaggedPlotV(graph, x, y, flag, symb, width, error)
 //
-//		where:	graph	Pointer to graph record ( not graph port )
+//	where:	graph	Pointer to graph record (not graph port)
 //				x		Pointer to x vector
 //				y		Pointer to y vector
 //				flag	Flag specifying plots to draw
 //				width	Width in pixels of bars
 //				symb	Symbol to plot for scatter plot
-//				error	Returned error code ( see below )
+//				error	Returned error code (see below)
 //
-//		Errors returned:	NU_NO_ERROR
+//	Errors returned:	NU_NO_ERROR
 //		
-//		revised 02/15/1993 by Larry L. Biehl
-//		revised 01/21/1998 by Larry L. Biehl
+//	Revised By:			Larry L. Biehl			Date: 02/15/1993
+//	Revised By:			Larry L. Biehl			Date: 01/21/1998
 //
 //========================================================================
 
-void	FlaggedPlotV( 
+void	FlaggedPlotV (
 				GraphPtr								graphRecPtr, 
 				vector*								x, 
 				vector*								y, 
 				SInt16								flag, 
 				SInt16								width, 
-				SInt32*								errorPtr )			
+				SInt32*								errorPtr)			
 	
 {
 	*errorPtr = NU_NO_ERROR;
-	LockAndGetVectorPointer ( x, errorPtr );
+	LockAndGetVectorPointer (x, errorPtr);
 	
 	if (*errorPtr == NU_NO_ERROR)
-		LockAndGetVectorPointer ( y, errorPtr );
+		LockAndGetVectorPointer (y, errorPtr);
 
 	if (*errorPtr == NU_NO_ERROR)
 		{
 		if (flag & NU_LINE_PLOT) 
-			LinePlotV( graphRecPtr, x, y, errorPtr );
+			LinePlotV(graphRecPtr, x, y, errorPtr);
 			
 		else if (flag & NU_SCATTER_PLOT) 
-			ScatterPlotV( graphRecPtr, x, y, errorPtr );
+			ScatterPlotV(graphRecPtr, x, y, errorPtr);
 		
 		else if (flag & NU_HISTOGRAM_PLOT)
-			HistogramPlotV( graphRecPtr, x, y, errorPtr);
-/*		
-		else if ( flag & NU_BAR_PLOT ) 
+			HistogramPlotV(graphRecPtr, x, y, errorPtr);
+		/*		
+		else if (flag & NU_BAR_PLOT) 
 			{
-			BarPlotV( graph, x, y, width, error );
-			if ( *error )
-				ErrorMessage( *error, "In Bar Plot", ABORT_ITEM, stopIcon );
+			BarPlotV(graph, x, y, width, error);
+			if (*error)
+				ErrorMessage (*error, "In Bar Plot", ABORT_ITEM, stopIcon);
 				
 			} 
-*/
-		}		// end "if (error == NU_NO_ERROR)"
+		*/
+		}	// end "if (error == NU_NO_ERROR)"
 		
-	UnlockVectorPointer ( x );
-	UnlockVectorPointer ( y );
+	UnlockVectorPointer (x);
+	UnlockVectorPointer (y);
 		
-}		// End FlaggedPlotV
+}	// end "FlaggedPlotV"
 
 
 
-// ======================================================================
-//		(C) Copyright 1989. Nicus, Inc.  All rights reserved.
+// ===================================================================================
+//				(C) Copyright 1989. Nicus, Inc.  All rights reserved.
 //
 //
-//		FormatR:	This routine formats a double number and places it
+//	FormatR:	This routine formats a double number and places it
 //						into a string
 //
-//		FormatR(buffer, number, sigfigs, error)
+//	FormatR(buffer, number, sigfigs, error)
 //
-//		where	buffer			Pointer to returned string.
-//				number			Number to format.
-//				sigfigs			Desired number of significant figures.
-//				noEFormatFlag	Flag indicting that EFormat is not to be used.
-//				error				Pointer to returned error code.
+//	where	buffer			Pointer to returned string.
+//			number			Number to format.
+//			sigfigs			Desired number of significant figures.
+//			noEFormatFlag	Flag indicting that EFormat is not to be used.
+//			error				Pointer to returned error code.
 //
-//		errors returned:		NU_NO_ERROR or NU_ALLOC_ERR
+//	errors returned:		NU_NO_ERROR or NU_ALLOC_ERR
 //		
-//		Revised by Larry L. Biehl 	02/16/2006
+//	Revised By:			Larry L. Biehl			Date: 02/16/2006
 // 
-// =======================================================================
+// ===================================================================================
 
 void	FormatR (
-				char*							str, 
-				double*						number, 
-				SInt16						esigfigs, 
-				SInt16						fsigfigs, 
-				Boolean						noEFormatFlag,
-				SInt32*						error)
+				char*									str, 
+				double*								number, 
+				SInt16								esigfigs, 
+				SInt16								fsigfigs, 
+				Boolean								noEFormatFlag,
+				SInt32*								error)
 								
-{		// FormatR
-//	char		temp[ NU_MAXREALTERM_SIZE ];
-	char							format[15],
-									dec[5];
+{
+	//char								temp[NU_MAXREALTERM_SIZE];
+	char									format[15],
+											dec[5];
 									
-	double						absValue;
+	double								absValue;
 									
-	SInt16						decimals,
-									numberChars,
-									digitsWithoutComma,
-									sigfigs;
+	SInt16								decimals,
+											numberChars,
+											digitsWithoutComma,
+											sigfigs;
 									
-	Boolean						insertCommasFlag;
+	Boolean								insertCommasFlag;
 	
 
 	*error = NU_NO_ERROR;
-	absValue = fabs(*number);
+	absValue = fabs (*number);
 	if (absValue == 0 || 
 			noEFormatFlag ||
 				(absValue >= 0.0000001 && absValue <= 1000000))
@@ -1403,9 +1401,9 @@ void	FormatR (
 		
 		sigfigs = fsigfigs;
 			
-		}		// end "if (absValue >= 0.0000001 && absValue <= 1000000)"
+		}	// end "if (absValue >= 0.0000001 && absValue <= 1000000)"
 		
-	else		// absValue != 0 && (absValue < .0000001 || absValue > 1000000) 
+	else	// absValue != 0 && (absValue < .0000001 || absValue > 1000000) 
 		{
 		esigfigs = MAX (0, esigfigs);
 		esigfigs = MIN (esigfigs, 5);
@@ -1419,7 +1417,7 @@ void	FormatR (
 		
 		sigfigs = esigfigs;
 			
-		}		// end "else absValue < .0000001 || absValue > 1000000"
+		}	// end "else absValue < .0000001 || absValue > 1000000"
 		
 	if (*number == -0) 
 		*number = 0;
@@ -1443,26 +1441,26 @@ void	FormatR (
 													decimals,
 													numberChars);
 													
-			}		// end "if (numberChars-sigfigs > 4)"
+			}	// end "if (numberChars-sigfigs > 4)"
 			
-		}		// end "if (insertCommasFlag)"
-									
-//	sprintf(temp, dec, *number );
-//	*str = CheckAndDisposePtr (*str);
-		
-//	*str = MNewPointer( (SInt32)( strlen( temp ) + 1 ) );
-//	if ( *str )
-//		strcpy( *str, temp );
-//	else
-//		*error = NU_ALLOC_ERR;
-		
-}		// End FormatR
+		}	// end "if (insertCommasFlag)"
+	/*								
+	sprintf (temp, dec, *number);
+	*str = CheckAndDisposePtr (*str);
+			
+	*str = MNewPointer ((SInt32)(strlen (temp) + 1));
+	if (*str)
+		strcpy (*str, temp);
+	else
+		*error = NU_ALLOC_ERR;
+	*/	
+}	// end "FormatR"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2006)
-//								c Purdue Research Foundation
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void HistogramPlotV
@@ -1471,11 +1469,11 @@ void	FormatR (
 //							y coordinats of each data point.  Scaling of the data
 //							to fit the screen is performed automatically.
 //
-//	Parameters in:		graph		Pointer to graph record ( not graph port )
+//	Parameters in:		graph		Pointer to graph record (not graph port)
 //							x			Pointer to x vector
 //							y			Pointer to y vector
 //
-//	Parameters out:	error		Returned error code ( see below )
+//	Parameters out:	error		Returned error code (see below)
 //											NU_NO_ERROR, NU_NOTSAMESIZEG, or NU_MUSTBEPOS
 //
 // Value Returned:	None
@@ -1485,7 +1483,7 @@ void	FormatR (
 //	Coded By:			Larry L. Biehl			Date: 01/21/1999
 //	Revised By:			Larry L. Biehl			Date: 02/14/2006
 
-void	HistogramPlotV(                             
+void	HistogramPlotV (
 				GraphPtr								graph, 
 				vector*								xPtr, 
 				vector*								yPtr, 
@@ -1536,7 +1534,6 @@ void	HistogramPlotV(
 												*histogramPenPtr = NULL;
 		LOGPEN								currentLogPen;
 		LOGBRUSH								logBrush;
-//		Boolean								continueFlag;
 	#endif	// defined multispec_mac 
 	
 	#ifndef multispec_lin	
@@ -1553,7 +1550,7 @@ void	HistogramPlotV(
 		*errorPtr = NU_NOTSAMESIZEG;
 		return;
 		
-		}		// end "if (xPtr->numberPoints != yPtr->numberPoints)"
+		}	// end "if (xPtr->numberPoints != yPtr->numberPoints)"
 		
 	SetGraphClip (graph, errorPtr);                         
 	
@@ -1568,7 +1565,6 @@ void	HistogramPlotV(
 													
 	x_scale = screen_width / (graph->xScaleMax - graph->xScaleMin);
 	x_offset = graph->xScaleMin*x_scale - graph->leftInset - clientRectPtr->left;
-//	x_offset = (SInt32)( -graph->leftInset - clientRectPtr->left);
 		
 	y_scale = screen_height / (graph->yScaleMax - graph->yScaleMin);
 	y_offset = graph->yScaleMin * y_scale + screen_height + 
@@ -1580,10 +1576,10 @@ void	HistogramPlotV(
    
    		
 	halfBinWidth = binWidth/2;
-//	x_offset -= (binWidth-1)/2. * x_scale;
-//	x_offset -= binWidth/2. * x_scale;
+	//x_offset -= (binWidth-1)/2. * x_scale;
+	//x_offset -= binWidth/2. * x_scale;
 																
-//	penWidth = (SInt16)(x_scale * binWidth * .75);
+	//penWidth = (SInt16)(x_scale * binWidth * .75);
 	doublePenWidth = x_scale * binWidth;
 	penWidth = (SInt16)MAX(doublePenWidth * .75, doublePenWidth - 6);						
 	penWidth = MAX (1, penWidth);
@@ -1594,23 +1590,19 @@ void	HistogramPlotV(
 	
 	vectorPaletteColorPtr = (SInt32*)GetHandlePointer (
 											graph->vectorPaletteColorHandle,
-											kLock,
-											kNoMoveHi);
+											kLock);
 	
 	vectorLengthsPtr = (SInt32*)GetHandlePointer (
 											graph->vectorLengthsHandle,
-											kLock,
-											kNoMoveHi);
+											kLock);
 	
 	vectorDataPtr = (SInt32*)GetHandlePointer (
 											graph->xVectorDataHandle,
-											kLock,
-											kNoMoveHi);
+											kLock);
 	
 	vectorDisplayPtr = (char*)GetHandlePointer (
 											graph->vectorDisplayHandle,
-											kLock,
-											kNoMoveHi);
+											kLock);
 						
 	numberVectors = graph->numberVectors;
 	set = graph->set;
@@ -1640,52 +1632,55 @@ void	HistogramPlotV(
             wxBrush    brush;
             wxPen      pen;
             switch (vectorPaletteColorPtr[line])
-            {
+					{
                case blackColor:
-                  brush.SetColour(*wxBLACK);
+                  brush.SetColour (*wxBLACK);
                   newPenPtr = &brush;
                   break; 
                case blueColor:
-                  brush.SetColour(*wxBLUE);
+                  brush.SetColour (*wxBLUE);
                   newPenPtr = &brush; 
                   break;   		
                case cyanColor:
-                  brush.SetColour(*wxCYAN);
+                  brush.SetColour (*wxCYAN);
                   newPenPtr = &brush;
                   break;  			 
                case greenColor:
-                  brush.SetColour(*wxGREEN);
+                  brush.SetColour (*wxGREEN);
                   newPenPtr = &brush;
                   break;    	
                case magentaColor:
-                  brush.SetColour(*wxRED);
+                  brush.SetColour (*wxRED);
                   newPenPtr = &brush;
                   break; 
                case redColor:
-                  brush.SetColour(*wxRED);
+                  brush.SetColour (*wxRED);
                   newPenPtr = &brush;
                   break;     		
                case whiteColor:
-                  brush.SetColour(*wxWHITE);
+                  brush.SetColour (*wxWHITE);
                   newPenPtr = &brush;
                   break;   
                case yellowColor:
-                  brush.SetColour(*wxYELLOW);
+                  brush.SetColour (*wxYELLOW);
                   newPenPtr = &brush;
                   break; 		
                default:
                   newPenPtr = NULL;
 			
-            }		// end "switch (color)" 
-            if (newPenPtr != NULL){
+					}	// end "switch (color)"
+					 
+            if (newPenPtr != NULL)
+					{
                oldPenPtr = newPenPtr;
-               pen.SetColour(*wxBLACK);
-               pen.SetWidth(1);
-               pen.SetStyle(wxPENSTYLE_TRANSPARENT);
-            }
+               pen.SetColour (*wxBLACK);
+               pen.SetWidth (1);
+               pen.SetStyle (wxPENSTYLE_TRANSPARENT);
+					
+					}	// end "if (newPenPtr != NULL)"
             
-            pDC->SetBrush(*oldPenPtr);
-            pDC->SetPen(pen);
+            pDC->SetBrush (*oldPenPtr);
+            pDC->SetPen (pen);
          #endif	// defined multispec_lin
 	
 			#if defined multispec_win
@@ -1694,31 +1689,31 @@ void	HistogramPlotV(
 				if (penWidth != 1)
 					{
 					currentPenPtr = pDC->GetCurrentPen ();
-					currentPenPtr->GetLogPen(&currentLogPen);
+					currentPenPtr->GetLogPen (&currentLogPen);
 
 					logBrush.lbStyle = BS_SOLID;
 					logBrush.lbColor = currentLogPen.lopnColor;
 
 					TRY
 						{ 
-						histogramPenPtr = new CPen(PS_SOLID |
+						histogramPenPtr = new CPen (PS_SOLID |
 									PS_GEOMETRIC | PS_ENDCAP_FLAT | PS_JOIN_BEVEL,
 									penWidth,
 									&logBrush,
 									0,
 									NULL);
 						
-						pDC->SelectObject(histogramPenPtr);
+						pDC->SelectObject (histogramPenPtr);
 
 						}
 			
-					CATCH_ALL(e)
+					CATCH_ALL (e)
 						{
-						MemoryMessage(0, kObjectMessage);
+						MemoryMessage (0, kObjectMessage);
 						}
 					END_CATCH_ALL 
 
-					}		// end "if (penWidth != 1)"
+					}	// end "if (penWidth != 1)"
 			#endif	// defined multispec_win
          
          #if defined multispec_lin
@@ -1730,7 +1725,6 @@ void	HistogramPlotV(
 			
 			numberPoints = vectorLengthsPtr[vectorIndex];
 			
-//			lastXGraphValue = (SInt32)(*xValuePtr/(SInt32)binWidth);
 			lastXGraphValue = floor ((*xValuePtr+halfBinWidth)/binWidth);
 			y_val = 0;
 			plotFlag = FALSE;
@@ -1739,32 +1733,30 @@ void	HistogramPlotV(
             SInt16 xx_point, yy_point;
             SInt16 x_prev = 0, x_next;
             x_prev = (SInt16)(
-							floor(lastXGraphValue * binWidth * x_scale) - x_offset);
+								floor (lastXGraphValue * binWidth * x_scale) - x_offset);
             x_next = (SInt16)(
-							floor(floor ((*(xValuePtr+1)+halfBinWidth)/binWidth) * binWidth * x_scale) 
+								floor (floor ((*(xValuePtr+1)+halfBinWidth)/binWidth) * binWidth * x_scale) 
                - x_offset);
          #endif	// defined multispec_lin
-
 			  
 			for (point=0; point<=numberPoints; point++) 
 				{
-//				x_val = *xValuePtr;
-//				y_val = *yValuePtr;
+				//x_val = *xValuePtr;
+				//y_val = *yValuePtr;
 
 				if (point < numberPoints)
 					{ 
-//					xGraphValue = (SInt32)(*xValuePtr/(SInt32)binWidth);
 					xGraphValue = floor ((*xValuePtr+halfBinWidth)/binWidth);
 				
 					if (xGraphValue == lastXGraphValue)
 						y_val += *yValuePtr;
 						
-					else		// xGraphValue != lastXGraphValue
+					else	// xGraphValue != lastXGraphValue
 						plotFlag = TRUE;
 						
-					}		// end "if (point < numberPoints)"
+					}	// end "if (point < numberPoints)"
 					
-				else		// point == numberPoints
+				else	// point == numberPoints
 					plotFlag = TRUE;
 					
 				if (plotFlag)
@@ -1772,7 +1764,7 @@ void	HistogramPlotV(
 							// Plot the bar
 				
 					x_point = (SInt16)(
-							floor(lastXGraphValue * binWidth * x_scale) - x_offset);
+							floor (lastXGraphValue * binWidth * x_scale) - x_offset);
 					
 					y_point = (SInt16)y_offset;
 					
@@ -1789,7 +1781,7 @@ void	HistogramPlotV(
                   yy_point = y_point;
                #endif	// defined multispec_lin
 					
-					y_point = (SInt16)(y_offset - floor(y_val * y_scale));
+					y_point = (SInt16)(y_offset - floor (y_val * y_scale));
 					
 					#if defined multispec_mac
 						LineTo (x_point, y_point);
@@ -1799,19 +1791,19 @@ void	HistogramPlotV(
 						pDC->LineTo (x_point, y_point);
 					#endif	// defined multispec_win
                #if defined multispec_lin
-                  pDC->DrawRectangle(x_point-(penWidth/2), y_point, penWidth , yy_point-y_point);
+                  pDC->DrawRectangle (x_point-(penWidth/2), y_point, penWidth , yy_point-y_point);
                   
                #endif
 					
 					lastXGraphValue = xGraphValue; 
 					y_val = *yValuePtr;
 					
-					}		// end "if (plotFlag)"
+					}	// end "if (plotFlag)"
 			
 				xValuePtr++;
 				yValuePtr++;
 				
-				}		// end "for (point=0; point<numberPoints; point++)"
+				}	// end "for (point=0; point<numberPoints; point++)"
 	
 			#if defined multispec_win
 				if (histogramPenPtr != NULL)
@@ -1820,9 +1812,9 @@ void	HistogramPlotV(
 				histogramPenPtr = NULL;
 			#endif	// defined multispec_mac 
 			
-			}		// end "if (vectorDisplayPtr [lines] > 0)"
+			}	// end "if (vectorDisplayPtr [lines] > 0)"
 			
-		}		// end "for (line=0; line<numberVectors; line++)"
+		}	// end "for (line=0; line<numberVectors; line++)"
 		
 	#if defined multispec_mac
 		PenSize (1,1);
@@ -1837,13 +1829,13 @@ void	HistogramPlotV(
 		
 	SetWindowClip (graph, errorPtr);
 	
-}		// End "HistogramPlotV"
+}	// End "HistogramPlotV"
 
 
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2006)
-//								c Purdue Research Foundation
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void HistogramPlotV2
@@ -1852,11 +1844,11 @@ void	HistogramPlotV(
 //							y coordinats of each data point.  Scaling of the data
 //							to fit the screen is performed automatically.
 //
-//	Parameters in:		graph		Pointer to graph record ( not graph port )
+//	Parameters in:		graph		Pointer to graph record (not graph port)
 //							x			Pointer to x vector
 //							y			Pointer to y vector
 //
-//	Parameters out:	error		Returned error code ( see below )
+//	Parameters out:	error		Returned error code (see below)
 //											NU_NO_ERROR, NU_NOTSAMESIZEG, or NU_MUSTBEPOS
 //
 // Value Returned:	None
@@ -1866,7 +1858,7 @@ void	HistogramPlotV(
 //	Coded By:			Larry L. Biehl			Date: 01/21/1999
 //	Revised By:			Larry L. Biehl			Date: 12/06/2002
 
-void	HistogramPlotV2(                             
+void	HistogramPlotV2 (
 				GraphPtr								graph, 
 				vector*								xPtr, 
 				vector*								yPtr, 
@@ -1876,7 +1868,7 @@ void	HistogramPlotV2(
 	double								xScaleMin,
 											x_scale, 
 											y_scale, 
-//											x_val, 
+											//x_val, 
 											y_val;
 	
 	GRAPHDATA							*xValuePtr,
@@ -1921,7 +1913,7 @@ void	HistogramPlotV2(
 		*errorPtr = NU_NOTSAMESIZEG;
 		return;
 		
-		}		// end "if (xPtr->numberPoints != yPtr->numberPoints)"
+		}	// end "if (xPtr->numberPoints != yPtr->numberPoints)"
 		
 	SetGraphClip (graph, errorPtr);                         
 	
@@ -1935,8 +1927,8 @@ void	HistogramPlotV2(
 	xScaleMin = graph->xScaleMin;
 													
 	x_scale = screen_width / (graph->xScaleMax - graph->xScaleMin);
-//	x_offset = (SInt32)(graph->xScaleMin * x_scale - graph->leftInset - clientRectPtr->left);
-	x_offset = (SInt32)( -graph->leftInset - clientRectPtr->left);
+	//x_offset = (SInt32)(graph->xScaleMin * x_scale - graph->leftInset - clientRectPtr->left);
+	x_offset = (SInt32)(-graph->leftInset - clientRectPtr->left);
 		
 	y_scale = screen_height / (graph->yScaleMax - graph->yScaleMin);
 	y_offset = (SInt32)(graph->yScaleMin * y_scale + screen_height + 
@@ -1954,23 +1946,19 @@ void	HistogramPlotV2(
 	
 	vectorPaletteColorPtr = (SInt32*)GetHandlePointer (
 											graph->vectorPaletteColorHandle,
-											kLock,
-											kNoMoveHi);
+											kLock);
 	
 	vectorLengthsPtr = (SInt32*)GetHandlePointer (
 											graph->vectorLengthsHandle,
-											kLock,
-											kNoMoveHi);
+											kLock);
 	
 	vectorDataPtr = (SInt32*)GetHandlePointer (
 											graph->xVectorDataHandle,
-											kLock,
-											kNoMoveHi);
+											kLock);
 	
 	vectorDisplayPtr = (char*)GetHandlePointer (
 											graph->vectorDisplayHandle,
-											kLock,
-											kNoMoveHi);
+											kLock);
 						
 	numberVectors = graph->numberVectors;
 	set = graph->set;
@@ -1994,7 +1982,7 @@ void	HistogramPlotV2(
 					
 				dataIndex = vectorDataPtr[vectorIndex];
 			                  
-				MForeColor( pDC, vectorPaletteColorPtr[line] );
+				MForeColor (pDC, vectorPaletteColorPtr[line]);
 				
 				xValuePtr = &xPtr->basePtr[dataIndex];
 				yValuePtr = &yPtr->basePtr[dataIndex];
@@ -2007,8 +1995,8 @@ void	HistogramPlotV2(
 				
 				for (point=0; point<=numberPoints; point++) 
 					{
-	//				x_val = *xValuePtr;
-	//				y_val = *yValuePtr;
+					//x_val = *xValuePtr;
+					//y_val = *yValuePtr;
 
 					if (point < numberPoints)
 						{ 
@@ -2017,19 +2005,19 @@ void	HistogramPlotV2(
 						if (xGraphValue == lastXGraphValue)
 							y_val += *yValuePtr;
 							
-						else		// xGraphValue != lastXGraphValue
+						else	// xGraphValue != lastXGraphValue
 							plotFlag = TRUE;
 							
-						}		// end "if (point < numberPoints)"
+						}	// end "if (point < numberPoints)"
 						
-					else		// point == numberPoints
+					else	// point == numberPoints
 						plotFlag = TRUE;
 						
 					if (plotFlag)
 						{
 								// Plot the bar
 					
-						x_point = (SInt16)(floor(lastXGraphValue * binWidth * x_scale) - x_offset);
+						x_point = (SInt16)(floor (lastXGraphValue * binWidth * x_scale) - x_offset);
 						y_point = (SInt16)y_offset;
 						
 						#if defined multispec_mac
@@ -2040,7 +2028,7 @@ void	HistogramPlotV2(
 							pDC->MoveTo (x_point, y_point);
 						#endif	// defined multispec_win
 						
-						y_point = (SInt16)(y_offset - floor(y_val * y_scale));
+						y_point = (SInt16)(y_offset - floor (y_val * y_scale));
 						
 						#if defined multispec_mac
 							LineTo (x_point, y_point);
@@ -2053,24 +2041,24 @@ void	HistogramPlotV2(
 						lastXGraphValue = xGraphValue; 
 						y_val = *yValuePtr;
 						
-						}		// end "if (plotFlag)"
+						}	// end "if (plotFlag)"
 				
 					xValuePtr++;
 					yValuePtr++;
 					
-					}		// end "for (point=0; point<numberPoints; point++)"
+					}	// end "for (point=0; point<numberPoints; point++)"
 				
-				}		// end "if (vectorDisplayPtr [lines] > 0)"
+				}	// end "if (vectorDisplayPtr [lines] > 0)"
 				
-			}		// end "for (line=0; line<numberVectors; line++)"
+			}	// end "for (line=0; line<numberVectors; line++)"
 			
-		}		// end "for (dataValue=xDataMin; dataValue<=xDataMax; dataValue++)"
+		}	// end "for (dataValue=xDataMin; dataValue<=xDataMax; dataValue++)"
 		
 	#if defined multispec_mac
 		PenSize (1,1);
 	#endif	// defined multispec_mac 
 		
-	MForeColor( pDC, blackColor );
+	MForeColor (pDC, blackColor);
 	
 	CheckAndUnlockHandle (graph->vectorPaletteColorHandle);
 	CheckAndUnlockHandle (graph->vectorLengthsHandle);
@@ -2079,35 +2067,34 @@ void	HistogramPlotV2(
 		
 	SetWindowClip (graph, errorPtr);
 	
-}		// End "HistogramPlotV2"
+}	// End "HistogramPlotV2"
 */
 
 
-// ========================================================================
-//		(C) Copyright 1989. Nicus, Inc.  All rights reserved.
+// ===================================================================================
+//				(C) Copyright 1989. Nicus, Inc.  All rights reserved.
 //
-//		InitV:	Vector initialization.  This routine initializes a
+//	InitV:	Vector initialization.  This routine initializes a
 //					vector to a null value.  It should be called to
 //					initialize a vector to a known state before using
 //					the vector.  Note that the vector should only
 //					be initialized once.
 //
-//		InitV( errror )
+//	InitV (errror)
 //	
 //
-//		where:	error	Returned error code
+//	where:	error	Returned error code
 //
 //			NO_ERROR	No error - successful completion
-//			
-//			
-//		revised by Larry L. Biehl  12/09/1991
-//		revised by Larry L. Biehl  02/15/1993
+//				
+//	Revised By:			Larry L. Biehl			Date: 12/09/1991
+//	Revised By:			Larry L. Biehl			Date: 02/15/1993
 //
-// ========================================================================
+// ===================================================================================
 
-void InitV(
-				vector				*vectorPtr,
-				SInt32				*errorPtr )
+void InitV (
+				vector								*vectorPtr,
+				SInt32								*errorPtr)
 	
 {
 	*errorPtr = NU_NO_ERROR;
@@ -2117,40 +2104,39 @@ void InitV(
 	vectorPtr->baseHandle = NULL;
 	vectorPtr->basePtr = NULL;
 	
-}		// End InitV
+}	// end "InitV"
 
 
 
-// ========================================================================
-//		(C) Copyright 1989. Nicus, Inc.  All rights reserved.
+// ===================================================================================
+//				(C) Copyright 1989. Nicus, Inc.  All rights reserved.
 //
-//		InsetGraph:	This routine insets the graph in the window.
+//	InsetGraph:	This routine insets the graph in the window.
 //
-//		InsetGraph( graph, error )
+//	InsetGraph (graph, error)
 //
-//		where:	graph	Pointer to graph record ( not graph port )
+//	where:	graph	Pointer to graph record (not graph port)
 //				left	Distance to inset from right side
 //				top		Distance to inset from top
 //				right	Distance to inset from right side
 //				bottom	Distance to inset from bottom
-//				error	Returned error code ( see below )
+//				error	Returned error code (see below)
 //
-//		Errors returned:	NU_NO_ERROR
+//	Errors returned:	NU_NO_ERROR
 //		
 //	Revised By:			Larry L. Biehl			Date: 10/09/1991	
 //
-// ========================================================================
+// ===================================================================================
 
-void	InsetGraph( 
-				GraphPtr				graph, 
-				SInt16				left, 
-				SInt16				top,
-				SInt16				right,
-				SInt16				bottom, 
-				SInt32				*error )
+void	InsetGraph (
+				GraphPtr								graph, 
+				SInt16								left, 
+				SInt16								top,
+				SInt16								right,
+				SInt16								bottom, 
+				SInt32								*error)
 								
-{		// InsetGraph
-
+{
 	*error = NU_NO_ERROR;
 	
 	graph->leftInset = left;
@@ -2158,84 +2144,84 @@ void	InsetGraph(
 	graph->bottomInset = bottom;
 	graph->rightInset = right;
 	
-}		// End InsetGraph
+}	// end "InsetGraph"
 
 
 
-// ========================================================================
-//		(C) Copyright 1989. Nicus, Inc.  All rights reserved.
+// ===================================================================================
+//				(C) Copyright 1989. Nicus, Inc.  All rights reserved.
 //
-//		LabelLinAxis:	This routine draws linearly scaled tick marks for
+//	LabelLinAxis:	This routine draws linearly scaled tick marks for
 //						the specified graph.
 //
-//		LabelLinAxis( graph, xint, yint, size, sigfigs, error )
+//	LabelLinAxis (graph, xint, yint, size, sigfigs, error)
 //
-//		where:	graph		Pointer to graph record ( not graph port )
+//	where:	graph		Pointer to graph record (not graph port)
 //				xint		Interval between major tick marks on the x axis.
 //				yint		Interval between major tick marks on the y axis.
 //				size		Size of tick marks in pixels
 //				sigfigs		Number of decimal places to write
-//				error		Returned error code ( see below )
+//				error		Returned error code (see below)
 //
-//		Errors returned:	NU_NO_ERROR
+//	Errors returned:	NU_NO_ERROR
 //		
-//		Revised by Larry L. Biehl	02/21/2017
+//	Revised By:			Larry L. Biehl			Date: 02/21/2017
 //
-// ========================================================================
+// ===================================================================================
 
-static	void	LabelLinAxis_TrimString(
-				 char				*str)
+static void	LabelLinAxis_TrimString (
+				char									*str)
 				 				 
-{		// LabelLinAxis_TrimString
-	SInt16	not_sp;
-	SInt16	len;
-	SInt16	loop;
+{
+	SInt16								not_sp;
+	SInt16								len;
+	SInt16								loop;
 	
 
 	not_sp = (SInt16)strspn (str, " ");
 	len = (SInt16)strlen (str);
-	for (loop = 0; (loop < len) || (str[loop] != '\0'); loop++) 
+	for (loop=0; (loop < len) || (str[loop] != '\0'); loop++) 
 		{
 		str[loop] = str[loop + not_sp];
 		
-		}
+		}	// end "for (loop=0; (loop < len) || (str[loop] != '\0'); loop++)"
 		
-}		// End LabelLinAxis_TrimString
+}	// end "LabelLinAxis_TrimString"
 
 
 
-void	LabelLinAxis(                          
-				GraphPtr				graph, 
-				double				xint, 
-				double				yint, 
-				SInt16				size, 
-				SInt16				xESigfigs,
-				SInt16				xFSigfigs, 
-				SInt16				yESigfigs,  
-				SInt16				yFSigfigs, 
-				SInt32				*error)
+void	LabelLinAxis (
+				GraphPtr								graph, 
+				double								xint, 
+				double								yint, 
+				SInt16								size, 
+				SInt16								xESigfigs,
+				SInt16								xFSigfigs, 
+				SInt16								yESigfigs,  
+				SInt16								yFSigfigs, 
+				SInt32								*error)
 								
-{		// LabelLinAxis         
-	Rect*						clientRectPtr;
+{         
+	Rect*									clientRectPtr;
 	
-	char						number[64];
+	char									number[64];
 	
-	double					x_offset,
-								x_pos,
-								x_scale,
-								y_offset,
-								y_pos, 
-								y_scale; 
+	double								x_offset,
+											x_pos,
+											x_scale,
+											y_offset,
+											y_pos, 
+											y_scale; 
 	
-	SInt16					bevelInset,
-								height,
-								line,
-								offset, 
-								screen_height,
-								screen_width,
-								width;
+	SInt16								bevelInset,
+											height,
+											line,
+											offset, 
+											screen_height,
+											screen_width,
+											width;
 								
-	Boolean					noEFormatFlag;
+	Boolean								noEFormatFlag;
 	
 
 	*error = NU_NO_ERROR;
@@ -2246,15 +2232,15 @@ void	LabelLinAxis(
 	
 	#if defined multispec_lin
       wxDC* pDC = graph->pDC;
-      wxFont ffont(8, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL); 
-      pDC->SetFont(ffont);
+      wxFont ffont (8, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL); 
+      pDC->SetFont (ffont);
    #endif
 	
-#	if defined multispec_win
+	#if defined multispec_win
 		USES_CONVERSION;
-#	endif
+	#endif
 
-	SetWindowClip( graph, error );                                
+	SetWindowClip (graph, error);                                
 	
 	clientRectPtr = &graph->clientRect;
 	
@@ -2277,11 +2263,9 @@ void	LabelLinAxis(
 	else
 		height = (height+1)/2;
 	
-	
 			//	If y axis is not log scaled, label it
-   
 		
-	if (!(graph->attrb & NU_YLOG) && ((y_scale*yint) > 8 )) 
+	if (!(graph->attrb & NU_YLOG) && ((y_scale*yint) > 8)) 
 		{
 				// Get the bevel inset.
       
@@ -2290,8 +2274,8 @@ void	LabelLinAxis(
 		offset = clientRectPtr->left - size + graph->leftInset - bevelInset;
 						
 		noEFormatFlag = FALSE;
-//		if (yint > .0000001 && yint < 1000000)
-//			noEFormatFlag = TRUE;
+		//if (yint > .0000001 && yint < 1000000)
+		//	noEFormatFlag = TRUE;
 			
 		for (y_pos = ceil (graph->yScaleMin / yint - 0.1) * yint;
 				y_pos < graph->yScaleMax + yint/10; 
@@ -2299,37 +2283,59 @@ void	LabelLinAxis(
 			{
 			FormatR (number, &y_pos, yESigfigs, yFSigfigs, noEFormatFlag, error);
 			LabelLinAxis_TrimString (number);
-         //printf("y_pos:%lf, %lf\n", (graph->yScaleMax + yint/10), y_pos);
 			
 			width = TextWidth ((UCharPtr)number, 0, (SInt16)strlen (number));
          #if defined multispec_lin
-				line = (SInt16)(y_offset - floor(y_pos * y_scale) - height);
+				line = (SInt16)(y_offset - floor (y_pos * y_scale) - height);
          #endif
 			
          #ifndef multispec_lin
-				line = (SInt16)(y_offset - floor(y_pos * y_scale) + height);
+				line = (SInt16)(y_offset - floor (y_pos * y_scale) + height);
          #endif
 
 			#if defined multispec_mac
 				MoveTo (offset - width, line);
-				DrawText (number, 0, strlen(number));
+				DrawText (number, 0, strlen (number));
 			#endif	// defined multispec_mac 
 			 
 			#if defined multispec_win
-				pDC->TextOut (offset - width, line, (LPCTSTR)A2T(number), (SInt16)strlen(number));
+				pDC->TextOut (offset - width, line, (LPCTSTR)A2T(number), (SInt16)strlen (number));
 			#endif	// defined multispec_win
 			
          #if defined multispec_lin
-            pDC->DrawText((wxString)(number), offset - width , line);
-            //printf("offset:%d, %d, %s\n", line, offset - width, number);
+            pDC->DrawText ((wxString)(number), offset - width , line);
          #endif
 			
-			}		// end "for (y_pos = ceil(..."
+			}	// end "for (y_pos = ceil (..."
 			
-		}		// end "if (!( graph->attrb & ..."
+		}	// end "if (!(graph->attrb & ..."
 		
 			// Then if x axis is not log scaled, label it
-   
+			
+	#if defined multispec_lin
+				// Find the optimal xint 
+				
+      if (xint == floor (xint)) 
+			xFSigfigs = 0;
+      else  
+			xFSigfigs = 2;
+      
+      if (xFSigfigs || graph->textWidth > (x_scale*xint)/2.0)
+			{ 
+					// decide the optimal x-interval
+					// use the last number (longest label) as a indicator, whether to 
+					// collapse ticks or not
+					
+         xint = 0.01;
+         while (graph->textWidth > (x_scale*xint)/2.0)  
+            xint += 0.01;
+         
+         int step = (graph->xScaleMax - graph->xScaleMin)/xint;
+         xint = (graph->xScaleMax - graph->xScaleMin)/float (step);
+			
+			}	// end "if (xFSigfigs || graph->textWidth > (x_scale*xint)/2.0)"
+   #endif	// defined multispec_lin
+
 	if ((!(graph->attrb & NU_XLOG)) && ((x_scale*xint) > 10)) 
 		{
 				// Get the bevel inset.
@@ -2353,15 +2359,18 @@ void	LabelLinAxis(
 		if (xint > .0000001 && xint < 1000000)
 			noEFormatFlag = TRUE;
 						
-		for (x_pos = ceil( graph->xScaleMin / xint - 0.1) * xint;
-				x_pos < graph->xScaleMax + xint/10; 
-				x_pos += xint ) 
+		//for (x_pos = ceil (graph->xScaleMin / xint - 0.1) * xint;
+		//		x_pos < graph->xScaleMax + xint/10; 
+		//		x_pos += xint) 
+      for (x_pos=graph->xScaleMin / xint * xint;
+				x_pos<=(graph->xScaleMax+0.1)/xint*xint; 
+				x_pos+=xint) 
 			{
 			FormatR (number, &x_pos, xESigfigs, xFSigfigs, noEFormatFlag, error);
 			LabelLinAxis_TrimString (number);
 			
 			width = TextWidth ((UCharPtr)number, 0, (SInt16)strlen (number));
-			line = (SInt16)(floor(x_pos * x_scale) - x_offset - width/2);
+			line = (SInt16)(floor (x_pos * x_scale) - x_offset - width/2);
 			
 			#if defined multispec_mac
 				MoveTo (line, offset);
@@ -2369,80 +2378,80 @@ void	LabelLinAxis(
 			#endif	// defined multispec_mac 
 			 
 			#if defined multispec_win
-				pDC->TextOut (line, offset, (LPCTSTR)A2T(number), (SInt16)strlen(number));
+				pDC->TextOut (line, offset, (LPCTSTR)A2T(number), (SInt16)strlen (number));
 			#endif	// defined multispec_win 
 			
 			#if defined multispec_lin
-            pDC->DrawText((wxString)(number), line, offset - 10);
-            //printf("%d, %d, %s\n", line, offset, number);
+            pDC->DrawText ((wxString)(number), line, offset - 10);
 			#endif
-			}		// end "for (x_pos = ceil(..."
+			}	// end "for (x_pos = ceil (..."
 			
-		}		// end "if ( ( !( graph->attrb & ..."
+		}	// end "if ((!(graph->attrb & ..."
 
-}		// End LabelLinAxis
+}	// end "LabelLinAxis"
 
 
 
-// ========================================================================
-//		(C) Copyright 1989. Nicus, Inc.  All rights reserved.
+// ===================================================================================
+//				(C) Copyright 1989. Nicus, Inc.  All rights reserved.
 //
-//		LinePlotV:	This routine accepts two vectors containing the x and
+//	LinePlotV:	This routine accepts two vectors containing the x and
 //					y coordinats of each data point.  Scaling of the data
 //					to fit the screen is performed automatically.
 //
 //
-//		LinePlotV( graph, x, y, size, error )
+//	LinePlotV(graph, x, y, size, error)
 //
-//		where:	graph		Pointer to graph record ( not graph port )
+//	where:	graph		Pointer to graph record (not graph port)
 //				x			Pointer to x vector
 //				y			Pointer to y vector
-//				error		Returned error code ( see below )
+//				error		Returned error code (see below)
 //
-//		Errors returned:	NU_NO_ERROR, NU_NOTSAMESIZEG, or NU_MUSTBEPOS
+//	Errors returned:	NU_NO_ERROR, NU_NOTSAMESIZEG, or NU_MUSTBEPOS	
 //			
-//			
-//		revised by Larry L. Biehl  12/09/1991
-//		revised by Larry L. Biehl  12/31/2005
+//	Revised By:			Larry L. Biehl			Date: 12/09/1991
+//	Revised By:			Larry L. Biehl			Date: 12/01/2017
 //
-// ========================================================================
+// ===================================================================================
 
-void	LinePlotV(                             
-				GraphPtr				graph, 
-				vector				*x, 
-				vector				*y, 
-				SInt32				*error )
+void	LinePlotV (
+				GraphPtr								graph, 
+				vector								*x, 
+				vector								*y, 
+				SInt32								*error)
 					
 {								
-	GRAPHDATA				*xValuePtr,
-								*yValuePtr;
+	GRAPHDATA							*xValuePtr,
+											*yValuePtr;
 								
-	Rect*						clientRectPtr;
+	Rect*									clientRectPtr;
 	
-	double					x_offset,
-								x_scale, 
-								x_val,
-								y_offset, 
-								y_scale, 
-								y_val;
+	double								x_offset,
+											x_scale, 
+											x_val,
+											y_offset, 
+											y_scale, 
+											y_val;
 	
-	char						*vectorDisplayPtr;
+	char									*vectorDisplayPtr;
 	
-	SInt32					*vectorLengthsPtr,
-								*vectorPaletteColorPtr,
-								*xVectorDataPtr;
+	SInt32								*vectorLengthsPtr,
+											*vectorPaletteColorPtr,
+											*xVectorDataPtr;
 								
-	UInt32					loop,
-								points;
+	UInt32								loop,
+											points;
 	
-	SInt16					lines,
-								numberVectors,
-								screen_width, 
-								screen_height,
-								x_point, 
-								y_point;
+	SInt16								lines,
+											numberVectors,
+											screen_width, 
+											screen_height,
+											x_point, 
+											y_point;
+											
 	#ifdef multispec_lin
-		SInt16               x_point1, y_point1;
+		SInt16								x_point1, 
+												y_point1;
 	#endif
 	
 	
@@ -2457,26 +2466,26 @@ void	LinePlotV(
 	#endif 
 
 	*error = NU_NO_ERROR;
-	if ( x->numberPoints * numberVectors != y->numberPoints ) 
+	if (x->numberPoints * numberVectors != y->numberPoints) 
 		{
 		*error = NU_NOTSAMESIZEG;
-		return;
+																										return;
 		
-		}		// end "if ( x->numberPoints != y->numberPoints )"
+		}	// end "if (x->numberPoints != y->numberPoints)"
 		
-	SetGraphClip( graph, error );                         
+	SetGraphClip (graph, error);                         
 	
 	clientRectPtr = &graph->clientRect;
 	
-	screen_width = ( clientRectPtr->right - clientRectPtr->left ) -
+	screen_width = (clientRectPtr->right - clientRectPtr->left) -
 													graph->rightInset - graph->leftInset;
-	screen_height = ( clientRectPtr->bottom - clientRectPtr->top ) -
+	screen_height = (clientRectPtr->bottom - clientRectPtr->top) -
 													graph->bottomInset - graph->topInset;
 													
-	x_scale = screen_width / ( graph->xScaleMax - graph->xScaleMin );
+	x_scale = screen_width / (graph->xScaleMax - graph->xScaleMin);
 	x_offset = graph->xScaleMin * x_scale - graph->leftInset - clientRectPtr->left;
 		
-	y_scale = screen_height / ( graph->yScaleMax - graph->yScaleMin );
+	y_scale = screen_height / (graph->yScaleMax - graph->yScaleMin);
 	y_offset = graph->yScaleMin * y_scale + screen_height + 
 																graph->topInset + clientRectPtr->top;
 	
@@ -2484,23 +2493,19 @@ void	LinePlotV(
 	
 	vectorPaletteColorPtr = (SInt32*)GetHandlePointer (
 											graph->vectorPaletteColorHandle,
-											kLock,
-											kNoMoveHi);
+											kLock);
 	
 	vectorLengthsPtr = (SInt32*)GetHandlePointer (
 											graph->vectorLengthsHandle,
-											kLock,
-											kNoMoveHi);
+											kLock);
 	
 	xVectorDataPtr = (SInt32*)GetHandlePointer (
 											graph->xVectorDataHandle,
-											kLock,
-											kNoMoveHi);
+											kLock);
 	
 	vectorDisplayPtr = (char*)GetHandlePointer (
 											graph->vectorDisplayHandle,
-											kLock,
-											kNoMoveHi);
+											kLock);
 		
 	for (lines=0; lines<numberVectors; lines++)
 		{
@@ -2508,14 +2513,28 @@ void	LinePlotV(
 			{                                             
 			MForeColor (pDC, vectorPaletteColorPtr[lines]);
 			
-			xValuePtr = &x->basePtr[xVectorDataPtr[lines]];
+			points = vectorLengthsPtr[lines];
+			
+					// Need to separate two: plot channel number or wavelength center
+					
+			#if defined multispec_lin
+            if	(graph->imageViewCPtr && 
+						graph->imageViewCPtr->m_hasWaveLength && 
+							graph->plotWavelength)
+               xValuePtr = &x->basePtr[points];
+            else
+               xValuePtr = &x->basePtr[xVectorDataPtr[lines]]; 
+ 			#endif	// defined multispec_lin
+        
+			#if defined multispec_mac || defined multispec_win
+				xValuePtr = &x->basePtr[xVectorDataPtr[lines]];          
+			#endif	// defined multispec_mac || defined multispec_win
 			
 			x_val = *xValuePtr;
 			y_val = *yValuePtr;
 			
-        
-			x_point = (SInt16)(floor(x_val * x_scale) - x_offset);
-			y_point = (SInt16)(y_offset - floor(y_val * y_scale));
+			x_point = (SInt16)(floor (x_val * x_scale) - x_offset);
+			y_point = (SInt16)(y_offset - floor (y_val * y_scale));
          
 			#if defined multispec_mac
 				MoveTo (x_point, y_point);
@@ -2526,7 +2545,7 @@ void	LinePlotV(
 			#endif	// defined multispec_win
 
 			points = vectorLengthsPtr[lines];
-			
+
 			for (loop=1; loop<points; loop++) 
 				{
 				xValuePtr++;
@@ -2535,86 +2554,79 @@ void	LinePlotV(
 				x_val = *xValuePtr;
 				y_val = *yValuePtr;
             
-           
-				
 				#ifndef multispec_lin	
-					x_point = (SInt16)(floor(x_val * x_scale) - x_offset);
-					y_point = (SInt16)(y_offset - floor(y_val * y_scale));
+					x_point = (SInt16)(floor (x_val * x_scale) - x_offset);
+					y_point = (SInt16)(y_offset - floor (y_val * y_scale));
             #endif
 				
             #ifdef multispec_lin
-					x_point1 = (SInt16)( floor(x_val * x_scale) - x_offset );
-					y_point1 = (SInt16)( y_offset - floor(y_val * y_scale) );
+					x_point1 = (SInt16)(floor (x_val * x_scale) - x_offset);
+					y_point1 = (SInt16)(y_offset - floor (y_val * y_scale));
             #endif
             
 				#if defined multispec_mac
-					LineTo( x_point, y_point );
+					LineTo (x_point, y_point);
 				#endif	// defined multispec_mac 
 				 
 				#if defined multispec_win
-					pDC->LineTo( x_point, y_point );
+					pDC->LineTo (x_point, y_point);
 				#endif	// defined multispec_win
 				
 				#if defined multispec_lin
-               pDC->DrawLine(x_point, y_point, x_point1, y_point1);
+               pDC->DrawLine (x_point, y_point, x_point1, y_point1);
                x_point = x_point1;
                y_point = y_point1;
             #endif	// defined multispec_lin
 				
-				}		// end "for ( loop=1; loop<points; loop++)"
+				}	// end "for (loop=1; loop<points; loop++)"
 				
 			yValuePtr++;
 			
-			}		// end "if (vectorDisplayPtr [lines] > 0)"
+			}	// end "if (vectorDisplayPtr [lines] > 0)"
 			
-		else		// vectorDisplayPtr [lines] <= 0
+		else	// vectorDisplayPtr [lines] <= 0
 			yValuePtr += vectorLengthsPtr[lines];
 			
-		}		// end "for (lines=0; lines<numberVectors; lines++)"
+		}	// end "for (lines=0; lines<numberVectors; lines++)"
 		
-	MForeColor( pDC, blackColor );
+	MForeColor (pDC, blackColor);
 	
 	CheckAndUnlockHandle (graph->vectorPaletteColorHandle);
 	CheckAndUnlockHandle (graph->vectorLengthsHandle);
 	CheckAndUnlockHandle (graph->xVectorDataHandle);
 	CheckAndUnlockHandle (graph->vectorDisplayHandle);
 		
-	SetWindowClip( graph, error );
+	SetWindowClip (graph, error);
 	
-}		// End LinePlotV
+}	// end "LinePlotV"
 
 
 
-void	LockAndGetVectorPointer ( 
-				vector*						x, 
-				SInt32*						errorPtr )
+void	LockAndGetVectorPointer (
+				vector*								x, 
+				SInt32*								errorPtr)
 		
-{		// LockAndGetVectorPointer
-
+{
 	*errorPtr = NU_NO_ERROR;
 	if (x->baseHandle != NULL)
-		x->basePtr = (GRAPHDATA*)GetHandlePointer (
-								x->baseHandle,
-								kLock,
-								kNoMoveHi);
+		x->basePtr = (GRAPHDATA*)GetHandlePointer (x->baseHandle, kLock);
 		
-	else		// x->baseHandle == NULL
+	else	// x->baseHandle == NULL
 		*errorPtr = 1001;
 			
-}		// End LockAndGetVectorPointer
+}	// end "LockAndGetVectorPointer"
 
 
 
-// ========================================================================
-//		(C) Copyright 1989. Nicus, Inc.  All rights reserved.
+// ===================================================================================
+//				(C) Copyright 1989. Nicus, Inc.  All rights reserved.
 //
-//		NewGraph:	This routine loads values into a graph record and
+//	NewGraph:	This routine loads values into a graph record and
 //					returns a pointer to the record.
 //
-//		NewGraph( graph, window, title, xMin, xMax, yMin, yMax, attrb, 
-//			bars, error )
+//	NewGraph (graph, window, title, xMin, xMax, yMin, yMax, attrb, bars, error)
 //
-//		where:	graph	Pointer to graph record ( not graph port )
+//	where:	graph	Pointer to graph record (not graph port)
 //				window	Window pointer for graph window
 //				title	Graph title
 //				xMin	Minimum x value in graph
@@ -2623,36 +2635,34 @@ void	LockAndGetVectorPointer (
 //				yMax	Maximum y value in graph
 //				attrb	Attribute of the graph
 //				bars	Flag to leave space for scroll bars
-//				error	Returned error code ( see below )
+//				error	Returned error code (see below)
 //
-//		Errors returned:	NU_NO_ERROR, NU_MUSTBEPOS, or NU_DIVBY0
+//	Errors returned:	NU_NO_ERROR, NU_MUSTBEPOS, or NU_DIVBY0
 //		
 //	Revised By:			Larry L. Biehl			Date: 11/27/1991	
 //
-// ========================================================================
+// ===================================================================================
 
-GraphPtr	NewGraph( 
-				GraphRecord*		graph, 
-				WindowPtr			window, 
-				double				xMin, 
-				double				xMax, 
-				double				yMin, 
-				double				yMax, 
-				SInt16				attrb, 
-				char					bars, 
-				SInt32				*error)
+GraphPtr	NewGraph (
+				GraphRecord*						graph, 
+				WindowPtr							window, 
+				double								xMin, 
+				double								xMax, 
+				double								yMin, 
+				double								yMax, 
+				SInt16								attrb, 
+				char									bars, 
+				SInt32								*error)
 								
-{		// NewGraph
-
-	
+{
 	*error = NU_NO_ERROR;
-	if ( ( attrb & NU_XLOG ) && ( ( xMin < 0 ) || ( xMax < 0 ) ) ) 
+	if ((attrb & NU_XLOG) && ((xMin < 0) || (xMax < 0))) 
 		{
 		*error = NU_MUSTBEPOS;
 																							return (graph);
 		}
 		
-	if ( ( attrb & NU_YLOG ) && ( ( yMin < 0 ) || ( yMax < 0 ) ) )
+	if ((attrb & NU_YLOG) && ((yMin < 0) || (yMax < 0)))
 		{
 		*error = NU_MUSTBEPOS;
 																							return (graph);
@@ -2673,7 +2683,8 @@ GraphPtr	NewGraph(
 	graph->attrb = attrb;
 	graph->leftInset = 0;
 	graph->topInset = 0;
-	if ( bars )
+	
+	if (bars)
 		{
 		graph->bottomInset = 16;
 		#ifndef multispec_lin
@@ -2684,119 +2695,119 @@ GraphPtr	NewGraph(
 			graph->rightInset = 6;
 		#endif
 		
-		} 
-	else 
+		}	// end "if (bars)"
+		 
+	else	// !bars
 		{
 		graph->bottomInset = 0;
 		graph->rightInset = 0;
 		
-		}
+		}	// end "else !bars"
 		
-//	SelectWindow( window );
-//	SetPort( window );
+	//SelectWindow (window);
+	//SetPort (window);
 	
 	return (graph);
 	
-}		// End NewGraph
+}	// end "NewGraph"
 
 
 
-// ========================================================================
-//		(C) Copyright 1989. Nicus, Inc.  All rights reserved.
+// ===================================================================================
+//				(C) Copyright 1989. Nicus, Inc.  All rights reserved.
 //
-//		ScatterPlotV:	This routine accepts two vectors containing the x
+//	ScatterPlotV:	This routine accepts two vectors containing the x
 //						and y coordinats of each data point.  At each point
 //						the specified symbol is drawn.  Scaling of the data
 //						to fit the screen is performed automatically.
 //
 //
 //
-//		ScatterPlotV( graph, x, y, symbol, error )
+//	ScatterPlotV(graph, x, y, symbol, error)
 //
-//		where:	graph		Pointer to graph record ( not graph port )
+//	where:	graph		Pointer to graph record (not graph port)
 //				x			Pointer to x vector
 //				y			Pointer to y vector
 //				symbol		Symbol to plot at each point
-//				error		Returned error code ( see below )
+//				error		Returned error code (see below)
 //
-//		Errors returned:	NU_NO_ERROR, NU_NOTSAMESIZEG, or NU_MUSTBEPOS
+//	Errors returned:	NU_NO_ERROR, NU_NOTSAMESIZEG, or NU_MUSTBEPOS
 //			
-//			
-//		revised by Larry L. Biehl  12/09/1991
-//		revised by Larry L. Biehl  05/24/2017
+//	Revised By:			Larry L. Biehl			Date: 12/09/1991
+//	Revised By:			Larry L. Biehl			Date: 05/24/2017
 //
-// ========================================================================
+// ===================================================================================
 
-void	ScatterPlotV(                             
-				GraphPtr					graph, 
-				vector					*x, 
-				vector					*y, 
-				SInt32					*error)
+void	ScatterPlotV (
+				GraphPtr								graph, 
+				vector								*x, 
+				vector								*y, 
+				SInt32								*error)
 
 {
-	GRAPHDATA					*xValuePtr,
-									*yValuePtr;
+	GRAPHDATA							*xValuePtr,
+											*yValuePtr;
 	
-	Rect*							clientRectPtr;
+	Rect*									clientRectPtr;
 	
-	double						x_offset,
-									y_offset,
-									x_scale, 
-									y_scale, 
-									x_val, 
-									y_val;
+	double								x_offset,
+											y_offset,
+											x_scale, 
+											y_scale, 
+											x_val, 
+											y_val;
 	
-	char							sym, 
-									*vectorDisplayPtr,
-									*vectorSymbolPtr;
+	char									sym, 
+											*vectorDisplayPtr,
+											*vectorSymbolPtr;
 	
-	SInt32						*vectorLengthsPtr,
-									*vectorPaletteColorPtr,
-									*xVectorDataPtr;
+	SInt32								*vectorLengthsPtr,
+											*vectorPaletteColorPtr,
+											*xVectorDataPtr;
 								
-	UInt32						loop,
-									points;
+	UInt32								loop,
+											points;
 	
-	SInt16						height,
-									lines,
-									numberVectors,
-									screen_width, 
-									screen_height,
-									width,
-									x_point, 
-									y_point;
+	SInt16								height,
+											lines,
+											numberVectors,
+											screen_width, 
+											screen_height,
+											width,
+											x_point, 
+											y_point;
 	
-#	if defined multispec_lin
-		char							symbolString[2];
-		wxString						wx_sym;
+	#if defined multispec_lin
+		char									symbolString[2];
+		wxString								wx_sym;
 		symbolString[0] = 0;
 		symbolString[1] = 0;
-#	endif
+	#endif
 
-#	if defined multispec_win
+	#if defined multispec_win
 		USES_CONVERSION;
 
-		char							symbolString[2];
+		char									symbolString[2];
 		symbolString[0] = 0;
 		symbolString[1] = 0;
-#	endif
+	#endif
 
 	numberVectors = graph->numberVectors;
 
-	#ifdef multispec_mac	
+	#if defined multispec_mac || defined multispec_mac_swift
 		CDC* pDC = graph->pDC;
-	#endif
+	#endif	// defined multispec_mac || defined multispec_mac_swift
 
-#	ifdef multispec_win	
+	#ifdef multispec_win
 		CDC* pDC = graph->pDC;
 		pDC->SetBkMode (TRANSPARENT);
-#	endif
+	#endif
 
 	#ifdef multispec_lin
 		wxDC* pDC = graph->pDC;
 	#endif 
 		
-	SetGraphClip( graph, error );                    
+	SetGraphClip (graph, error);                    
 	
 	clientRectPtr = &graph->clientRect;
 	
@@ -2826,64 +2837,60 @@ void	ScatterPlotV(
 	
 	vectorPaletteColorPtr = (SInt32*)GetHandlePointer (
 										graph->vectorPaletteColorHandle,
-										kLock,
-										kNoMoveHi);
+										kLock);
 	
 	vectorLengthsPtr = (SInt32*)GetHandlePointer (
 										graph->vectorLengthsHandle,
-										kLock,
-										kNoMoveHi);
+										kLock);
 	
 	xVectorDataPtr = (SInt32*)GetHandlePointer (
 										graph->xVectorDataHandle,
-										kLock,
-										kNoMoveHi);
+										kLock);
 	
 	vectorDisplayPtr = (char*)GetHandlePointer (
 										graph->vectorDisplayHandle,
-										kLock,
-										kNoMoveHi);
+										kLock);
 	
 	vectorSymbolPtr = (char*)GetHandlePointer (
 										graph->vectorSymbolHandle,
-										kLock,
-										kNoMoveHi);
+										kLock);
 		
 	for (lines=0; lines<numberVectors; lines++)
 		{
 		if (vectorDisplayPtr[lines] > 0)
 			{
-#			if defined multispec_mac
-				MForeColor (pDC, vectorPaletteColorPtr[lines]);
-#			endif
-
-#			if defined multispec_win
-				pDC->SetTextColor (vectorPaletteColorPtr[lines]);
-#			endif
-				
-#			if defined multispec_lin
+			#if defined multispec_lin
 				wxColour color;
-				color.Set(vectorPaletteColorPtr[lines]);
-				pDC->SetTextForeground(color);
-#			endif
+				color.Set (vectorPaletteColorPtr[lines]);
+				pDC->SetTextForeground (color);
+			#endif
 
+			#if defined multispec_mac
+				MForeColor (pDC, vectorPaletteColorPtr[lines]);
+			#endif
+
+			#if defined multispec_win
+				pDC->SetTextColor (vectorPaletteColorPtr[lines]);
+			#endif
+				
 			xValuePtr = &x->basePtr[xVectorDataPtr[lines]];
 			
 			points = vectorLengthsPtr[lines];
 			sym = vectorSymbolPtr[lines];	
-#			if defined multispec_lin
+			
+			#if defined multispec_lin
 				symbolString[0] = sym;
-				wx_sym = wxString::FromAscii(symbolString);
-#			endif
-#			if defined multispec_win
+				wx_sym = wxString::FromAscii (symbolString);
+			#endif
+			#if defined multispec_win
 				symbolString[0] = sym;
-#			endif
+			#endif
 			
 			width = CharWidth (sym) / 2;            
 			x_offset = graph->xScaleMin * x_scale + width - 
 																graph->leftInset - clientRectPtr->left;
 			
-			for (loop=0; loop<points; loop++ ) 
+			for (loop=0; loop<points; loop++) 
 				{
 				x_val = *xValuePtr;
 				y_val = *yValuePtr;
@@ -2891,8 +2898,8 @@ void	ScatterPlotV(
 				xValuePtr++;
 				yValuePtr++;
 					
-				x_point = (SInt16)(floor(x_val * x_scale) - x_offset);
-				y_point = (SInt16)(y_offset - floor(y_val * y_scale));
+				x_point = (SInt16)(floor (x_val * x_scale) - x_offset);
+				y_point = (SInt16)(y_offset - floor (y_val * y_scale));
 				
 				#if defined multispec_mac
 					MoveTo (x_point, y_point);
@@ -2900,35 +2907,34 @@ void	ScatterPlotV(
 				#endif	// defined multispec_mac 
 				 
 				#if defined multispec_win
-					//pDC->TextOut (x_point, y_point, (LPCTSTR)&sym, 1);
-					pDC->TextOut(x_point, y_point, A2T(symbolString), 1);
+					pDC->TextOut (x_point, y_point, A2T(symbolString), 1);
 				#endif	// defined multispec_win
 			
 				#if defined multispec_lin
-					pDC->DrawText(wx_sym, x_point, y_point);
+					pDC->DrawText (wx_sym, x_point, y_point);
 				#endif
 				
-				}		// end "for (loop=0; loop<points; loop++ )"
+				}	// end "for (loop=0; loop<points; loop++)"
 			
-			}		// end "if (vectorDisplayPtr [lines] > 0)"
+			}	// end "if (vectorDisplayPtr [lines] > 0)"
 			
-		else		// vectorDisplayPtr [lines] <= 0
+		else	// vectorDisplayPtr [lines] <= 0
 			yValuePtr += vectorLengthsPtr[lines];
 			
-		}		// end "for (lines=0; lines<numberVectors; lines++)"
+		}	// end "for (lines=0; lines<numberVectors; lines++)"
 		
 	MForeColor (pDC, blackColor);
 
-#	if defined multispec_win
+	#if defined multispec_lin
+		wxColour color;
+		color.Set (blackColor);
+		pDC->SetTextForeground (color);
+	#endif
+
+	#if defined multispec_win
 		pDC->SetBkMode (OPAQUE);
 		pDC->SetTextColor (blackColor);
-#	endif
-
-#	if defined multispec_lin
-		wxColour color;
-		color.Set(blackColor);
-		pDC->SetTextForeground(color);
-#	endif
+	#endif
 	
 	CheckAndUnlockHandle (graph->vectorPaletteColorHandle);
 	CheckAndUnlockHandle (graph->vectorLengthsHandle);
@@ -2938,13 +2944,13 @@ void	ScatterPlotV(
 		
 	SetWindowClip (graph, error);
 	
-}		// End ScatterPlotV
+}	// end "ScatterPlotV"
 		
 		
 		
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2006)
-//								c Purdue Research Foundation
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void SetBackgroundColor
@@ -2963,8 +2969,8 @@ void	ScatterPlotV(
 //	Revised By:			Larry L. Biehl			Date: 10/17/2015			
 
 void SetBackgroundColor (
-				CDC*							pDC,
-				UInt16						level)
+				CDC*									pDC,
+				UInt16								level)
 				
 {
 	#if defined multispec_mac
@@ -2972,46 +2978,46 @@ void SetBackgroundColor (
 	#endif	// defined multispec_mac
 
 	#if defined multispec_win
-		pDC->SetBkColor( RGB(level, level, level) );
+		pDC->SetBkColor (RGB (level, level, level));
 	#endif	// defined multispec_win
 	
 	#if defined multispec_lin
 		//wxColour color;
-		//color.Set(RGB(level, level, level));
-		//pDC->SetBackgroundColour(color);
+		//color.Set (RGB(level, level, level));
+		//pDC->SetBackgroundColour (color);
 	#endif   
 
-}		// end "SetBackgroundColor"
+}	// end "SetBackgroundColor"
 
 
 
-// ========================================================================
-//		(C) Copyright 1989. Nicus, Inc.  All rights reserved.
+// ===================================================================================
+//				(C) Copyright 1989. Nicus, Inc.  All rights reserved.
 //
-//		SetGraphClip:	This routine sets the clip region to the graph
+//	SetGraphClip:	This routine sets the clip region to the graph
 //						limits.
 //
-//		SetGraphClip( min, error )
+//	SetGraphClip (min, error)
 //
-//		where:	graph	Pointer to graph record
-//				error	Returned error code ( see below )
+//	where:	graph	Pointer to graph record
+//				error	Returned error code (see below)
 //
-//		Errors returned:	NU_NO_ERROR
+//	Errors returned:	NU_NO_ERROR
 //
-// ========================================================================
+// ===================================================================================
 
-void	SetGraphClip(                          
-				GraphPtr				graph, 
-				SInt32				*error )
+void	SetGraphClip (
+				GraphPtr								graph, 
+				SInt32								*error)
 								
-{		// SetGraphClip
-	Rect				*clientRectPtr,
-						tempRect;
+{
+	Rect									*clientRectPtr,
+											tempRect;
 	
-	SInt16			left, 
-						top, 
-						right, 
-						bottom;
+	SInt16								left, 
+											top, 
+											right, 
+											bottom;
 						
 
 	*error = NU_NO_ERROR;                                        
@@ -3024,7 +3030,7 @@ void	SetGraphClip(
 	bottom	= clientRectPtr->bottom - graph->bottomInset;
 	
    #ifndef multispec_lin
-		SetRect( (tagRECT*)&tempRect, left, top, right, bottom );
+		SetRect ((tagRECT*)&tempRect, left, top, right, bottom);
    #endif
 	
    #if defined multispec_lin
@@ -3035,117 +3041,115 @@ void	SetGraphClip(
    #endif
 
 	#if defined multispec_mac
-		InsetRect( &tempRect, -1, -1 );
-		SetPortWindowPort( graph->window );
-		ClipRect( &tempRect );
+		InsetRect (&tempRect, -1, -1);
+		SetPortWindowPort (graph->window);
+		ClipRect (&tempRect);
 	#endif	// defined multispec_mac 
 	 
 	#if defined multispec_win
-		InsetRect( (tagRECT*)&tempRect, 1, 1 );
+		InsetRect ((tagRECT*)&tempRect, 1, 1);
 	#endif	// defined multispec_win
 	
-}		// End SetGraphClip
+}	// end "SetGraphClip"
 
 
 
-// ========================================================================
-//		(C) Copyright 1989. Nicus, Inc.  All rights reserved.
+// ===================================================================================
+//				(C) Copyright 1989. Nicus, Inc.  All rights reserved.
 //
-//		SetV:	Sets the value of an element in a vector.
+//	SetV:	Sets the value of an element in a vector.
 //
-//		SetV( v1, element, value, error )
+//	SetV (v1, element, value, error)
 //
-//		where:	v1		Vector to get element from
+//	where:	v1		Vector to get element from
 //				element	Element to return from vector
 //				error	Returned error code
 //
-//		Errors returned:
+//	Errors returned:
+//				NO_ERROR	Successful completion
 //
-//			NO_ERROR	Successful completion
-//
-//		  OUTOFRANGEV	Requested element is not in vector
+//				OUTOFRANGEV	Requested element is not in vector
 //			
 //			
-//		revised by Larry L. Biehl  12/09/1991
+//	Revised By:			Larry L. Biehl			Date: 12/09/1991
 //
-// ========================================================================
+// ===================================================================================
 
-void SetV( 
-				vector			*v1, 
-				SInt32			element, 
-				GRAPHDATA		value, 
-				SInt32			*errorPtr )
+void SetV (
+				vector								*v1, 
+				SInt32								element, 
+				GRAPHDATA							value, 
+				SInt32								*errorPtr)
 				
 {
 	*errorPtr = NU_NO_ERROR;
 	if (element < 0 || element >= v1->size)
 		*errorPtr = NU_OUTOFRANGEV;
 		
-	else		// element >= 0 && element < v1->size
+	else	// element >= 0 && element < v1->size
 		v1->basePtr[element] = value;
 		
-}		// End SetV  
+}	// end "SetV"  
 
 
 
-// ========================================================================
-//		( C ) Copyright 1989. Nicus, Inc.  All rights reserved.
+// ===================================================================================
+//				(C) Copyright 1989. Nicus, Inc.  All rights reserved.
 //
-//		SetWindowClip:	This routine sets the clip region to the window
+//	SetWindowClip:	This routine sets the clip region to the window
 //						limits.
 //
-//		SetWindowClip( min, error )
+//	SetWindowClip (min, error)
 //
-//		where:	graph	Pointer to graph record
-//				error	Returned error code ( see below )
+//	where:	graph	Pointer to graph record
+//				error	Returned error code (see below)
 //
-//		Errors returned:	NU_NO_ERROR
+//	Errors returned:	NU_NO_ERROR
 //
-// ========================================================================
+// ===================================================================================
 
-void	SetWindowClip( 
-				GraphPtr			graph, 
-				SInt32			*error)
+void	SetWindowClip (
+				GraphPtr								graph, 
+				SInt32								*error)
 								
-{		// SetGraphClip
-
+{
 	*error = NU_NO_ERROR;
 				
 	#if defined multispec_mac
-		SetPortWindowPort( graph->window );
-		ClipRect (GetWindowPortBounds(graph->window, &gTempRect));
+		SetPortWindowPort (graph->window);
+		ClipRect (GetWindowPortBounds (graph->window, &gTempRect));
 	#endif	// defined multispec_mac 
 	 
 	#if defined multispec_win
-/*		RECT				windowRect;
+		/*		
+		RECT				windowRect;
 
 		if (graph->graphViewCPtr != NULL)
 			{
-			graph->graphViewCPtr->GetClientRect( &windowRect );
+			graph->graphViewCPtr->GetClientRect (&windowRect);
 
-			if (gMFC_Rgn.CreateRectRgn(windowRect.left,
+			if (gMFC_Rgn.CreateRectRgn (windowRect.left,
 											windowRect.top,
 											windowRect.right,
-											windowRect.bottom) )
-				ClipRect ( (Rect*)&windowRect ); 
+											windowRect.bottom))
+				ClipRect ((Rect*)&windowRect); 
 					
-			gMFC_Rgn.DeleteObject();        
+			gMFC_Rgn.DeleteObject ();        
 
-			}		// end "if (graph->graphViewCPtr != NULL)"
-*/
+			}	// end "if (graph->graphViewCPtr != NULL)"
+		*/
 	#endif	// defined multispec_win
 	
-}		// End SetGraphClip
+}	// end "SetGraphClip"
 
 
 
-void	UnlockVectorPointer ( 
-				vector			*x )
+void	UnlockVectorPointer (
+				vector								*x)
 		
-{		// UnlockVectorPointer
-
+{
 	CheckAndUnlockHandle (x->baseHandle);
 		
 	x->basePtr = NULL;
 			
-}		// End UnlockVectorPointer
+}	// end "UnlockVectorPointer"

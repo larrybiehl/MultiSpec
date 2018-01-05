@@ -1,9 +1,9 @@
 // WMosaicTwoImagesDialog.cpp : implementation file
 //
 
-#include	"SMulSpec.h"
+#include	"SMultiSpec.h"
 #include "WMosaicTwoImagesDialog.h" 
-#include "SExtGlob.h"
+//#include "SExtGlob.h"
 
 
 extern void			MosaicTwoImagesDialogInitialize (

@@ -11,13 +11,11 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision number:		2.9
-//
-//	Revision date:			04/28/2017
+//	Revision date:			12/21/2017
 //
 //	Language:				C
 //
-//	System:					Macintosh and Windows Operating Systems
+//	System:					Linux, Macintosh, and Windows Operating Systems
 //
 //	Brief description:	The purpose of the routines in this file is to provide utility 
 //								mask functions in MultiSpec.
@@ -39,14 +37,20 @@
 //								void 					InitializeMaskStructure
 //								SInt16 				LoadMask
 //								Boolean 				LoadNewMaskFields 
+//
+//------------------------------------------------------------------------------------
 
-#include	"SMulSpec.h" 
+#include "SMultiSpec.h"   
+
+#if defined multispec_lin
+	#include "SMultiSpec.h"
+#endif
   
 #if defined multispec_win
-	#include "CImagWin.h"
+	#include "CImageWindow.h"
 #endif	// defined multispec_win    
 
-#include "SExtGlob.h" 
+//#include "SExtGlob.h" 
 
 
 extern Handle LoadMaskFileInfo (
@@ -174,8 +178,8 @@ SInt16 CheckCurrentMaskFields (
 			
 						// Make certain that field is training field.						
 						
-				if ( (fieldIdentPtr->fieldType == fieldType) &&
-														(fieldIdentPtr->pointType == kMaskType) )
+				if ((fieldIdentPtr->fieldType == fieldType) &&
+														(fieldIdentPtr->pointType == kMaskType))
 					{
 					maskValue = fieldIdentPtr->maskValue;
 					
@@ -205,7 +209,7 @@ SInt16 CheckCurrentMaskFields (
 						
 						}		// end "else maskValue > maxMaskValue"
 									
-					}		// end "if ( fieldIdentPtrr->field..." 
+					}		// end "if (fieldIdentPtrr->field..." 
 					
 				fieldNumber = fieldIdentPtr->nextField;
 				
@@ -214,7 +218,7 @@ SInt16 CheckCurrentMaskFields (
 			if (returnCode != 0)
 				break;
 			
-			}		// end "for ( classNumber=0; ... 
+			}		// end "for (classNumber=0; ... 
 			
 		}		// end "if (numberClasses > 0)"
 		
@@ -291,7 +295,7 @@ Boolean CheckMaskFileInfo (
 		
 				// Do not compare with expected size of the file since the file
 				// may be compressed.
-		//if (*errCodePtr == noErr && fileSize >= GetSizeOfImage(fileInfoPtr))
+		//if (*errCodePtr == noErr && fileSize >= GetSizeOfImage (fileInfoPtr))
 		if (*errCodePtr == noErr)
 			sizeOKFlag = TRUE;
 				
@@ -300,7 +304,7 @@ Boolean CheckMaskFileInfo (
 		
 		if (!sizeOKFlag) 
 			{ 
-			SysBeep(10);
+			SysBeep (10);
 			CloseFile (fileStreamPtr);
 		
 			}		// end "if (!sizeOKFlag)"
@@ -342,12 +346,12 @@ void CloseFile (
 
 {
 	#if defined multispec_mac 	
-		CloseFile(maskInfoPtr->fileStreamHandle);
+		CloseFile (maskInfoPtr->fileStreamHandle);
 	#endif	// defined multispec_mac 
 
               
 #if defined multispec_win || defined multispec_lin	
-		CloseFile(maskInfoPtr->fileStreamPtr);
+		CloseFile (maskInfoPtr->fileStreamPtr);
 	#endif	// defined multispec_win || lin
 	
 }		// end "CloseFile" 
@@ -380,7 +384,7 @@ void CloseFile (
 
 UInt32 ConvertFieldNumberToMaskValue (
 				MaskInfoPtr							maskInfoPtr,
-				SInt16								fieldNumber )
+				SInt16								fieldNumber)
 
 {
 	HUInt16Ptr							maskValueToFieldPtr;
@@ -391,7 +395,7 @@ UInt32 ConvertFieldNumberToMaskValue (
 	
 	maxMaskValue = maskInfoPtr->maxMaskValue;
 																					
-	maskValueToFieldPtr = (HUInt16Ptr)GetHandlePointer(
+	maskValueToFieldPtr = (HUInt16Ptr)GetHandlePointer (
 														maskInfoPtr->maskValueToFieldHandle);
 	
 	for (index=1; index<=maxMaskValue; index++)
@@ -487,7 +491,7 @@ Boolean DetermineIfMaskDataInLine (
 	
 			// Return if no mask data in line. Don't have to check every pixel.
 			
-	if ( *maskBufferPtr == 0)
+	if (*maskBufferPtr == 0)
 																							return (FALSE);
 																							
 			// At least one mask value exists in this line. Determine if any
@@ -569,7 +573,7 @@ Boolean DetermineIfClassesSameAsProjectClassNames (
 
 	for (index=0; index<numberClasses; index++)
 		{
-		if ( CheckForDuplicateClassName (-1, (Str255*)classNamePtr) > 0 )
+		if (CheckForDuplicateClassName (-1, (Str255*)classNamePtr) > 0)
 			{
 			nameIsSameFlag = TRUE;
 			break;
@@ -790,40 +794,40 @@ Boolean GetMaskArea (
 			// Adjust the selected image area to represent the same area as the
 			// mask area that is available.
 
-	imageLineStart = MAX(imageLineStart, maskLineStart);
+	imageLineStart = MAX (imageLineStart, maskLineStart);
 	
 	if (imageLineEnd > 0)
-		imageLineEnd = MIN(imageLineEnd, maskLineEnd);
+		imageLineEnd = MIN (imageLineEnd, maskLineEnd);
 		
 	else		// *imageLineEndPtr = 0
 		imageLineEnd = maskLineEnd;
 	
-	imageColumnStart = MAX(imageColumnStart, maskColumnStart);
+	imageColumnStart = MAX (imageColumnStart, maskColumnStart);
 	
 	if (imageColumnEnd > 0)
-		imageColumnEnd = MIN(imageColumnEnd, maskColumnEnd);
+		imageColumnEnd = MIN (imageColumnEnd, maskColumnEnd);
 		
 	else		// *imageLineEndPtr = 0
 		imageColumnEnd = maskColumnEnd;
 	
 			// Take into account the interval requests.
 			
-	offset = ldiv(imageLineStart-initialImageLineStart, imageLineInterval);
+	offset = ldiv (imageLineStart-initialImageLineStart, imageLineInterval);
 	imageLineStart += offset.rem;
 			
-	offset = ldiv(imageColumnStart-initialImageColumnStart, imageColumnInterval);
+	offset = ldiv (imageColumnStart-initialImageColumnStart, imageColumnInterval);
 	imageColumnStart += offset.rem;
 			
 			// Adjust the mask area to represent the image area to be used.
 
-	maskLineStart = MAX(imageLineStart, maskLineStart);
-	maskLineEnd = MIN(imageLineEnd, maskLineEnd);
+	maskLineStart = MAX (imageLineStart, maskLineStart);
+	maskLineEnd = MIN (imageLineEnd, maskLineEnd);
 	
-	maskColumnStart = MAX(imageColumnStart, maskColumnStart);
-	maskColumnEnd = MIN(imageColumnEnd, maskColumnEnd);
+	maskColumnStart = MAX (imageColumnStart, maskColumnStart);
+	maskColumnEnd = MIN (imageColumnEnd, maskColumnEnd);
 	
 	if (maskLineStart > maskLineEnd || maskColumnStart > maskColumnEnd)
-		return (FALSE);
+																						return (FALSE);
 		
 	else		// maskLineStart <= maskLineEnd && ... 
 		{
@@ -898,7 +902,7 @@ Handle GetMaskFile (
 			// for mask image file.								
 	
 	if (continueFlag)
-		fileInfoHandle = MNewHandle (sizeof(MFileInfo));
+		fileInfoHandle = MNewHandle (sizeof (MFileInfo));
 		
 	if (fileInfoHandle != NULL)
 		{
@@ -941,7 +945,7 @@ Handle GetMaskFile (
 										NULL, 
 										promptString);
 										
-			continueFlag = ((errCode == noErr) & FileExists(fileStreamPtr));	
+			continueFlag = ((errCode == noErr) & FileExists (fileStreamPtr));
 				
 			if (continueFlag)
 				{
@@ -995,7 +999,7 @@ Handle GetMaskFile (
 // Called By:			StatisticsDialog in SStatist.cpp
 //
 //	Coded By:			Larry L. Biehl			Date:	12/08/1998
-//	Revised By:			Larry L. Biehl			Date: 01/07/1999
+//	Revised By:			Larry L. Biehl			Date: 09/01/2017
 
 FileStringPtr GetMaskFileNamePPointer (
 				MaskInfo*							maskInfoPtr,
@@ -1007,7 +1011,7 @@ FileStringPtr GetMaskFileNamePPointer (
 	
 	maskFileStreamPtr = GetMaskFileStreamPointer (maskInfoPtr, handleStatusPtr);
 		
-	return ((FileStringPtr)GetFileNamePPointer (maskFileStreamPtr));
+	return ((FileStringPtr)GetFileNamePPointerFromFileStream (maskFileStreamPtr));
 												
 }		// end "GetMaskFileNamePPointer"
 
@@ -1207,7 +1211,7 @@ SInt64 GetNumberPixelsInMaskArea (
 				// Set the number of mask columns to represent the index to skip when 
 				// going from one line to the next allowing for lines to be skipped.
 		
-		if ( !(algorithmCode & kSPClusterCase) )		
+		if (!(algorithmCode & kSPClusterCase))		
 			numberMaskColumns *= lineInterval;
 	
 				// Change the columnStart and columnEnd parameters to represent locations
@@ -1295,7 +1299,7 @@ SInt64 GetNumberPixelsInMaskArea (
 // Called By:			ReadProjectFile in SProjFIO.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/08/1999
-//	Revised By:			Larry L. Biehl			Date: 05/03/2017
+//	Revised By:			Larry L. Biehl			Date: 09/01/2017
 
 Boolean GetSpecifiedMaskFile (
 				SInt16								maskSetCode,
@@ -1347,10 +1351,10 @@ Boolean GetSpecifiedMaskFile (
 			
 		InitializeFileStream (fileStreamPtr, projectFileStreamPtr);		
 
-		fileNamePtr = (FileStringPtr)GetFileNameCPointer (fileStreamPtr);
+		fileNamePtr = (FileStringPtr)GetFileNameCPointerFromFileStream (fileStreamPtr);
 		memcpy (fileNamePtr, (CharPtr)&maskFileNamePtr[1], maskFileNamePtr[0]+1);
 		
-		filePathPtr = (FileStringPtr)GetFilePathPPointer (fileStreamPtr);
+		filePathPtr = (FileStringPtr)GetFilePathPPointerFromFileStream (fileStreamPtr);
 		filePathPtr[0] = (UInt8)strlen ((char*)&filePathPtr[1]);
 		
 				// Check if image file is in the same volume as the project			
@@ -1607,7 +1611,7 @@ SInt16 LoadMask (
 	maskInfo.startColumn = maskFileInfoPtr->startColumn;
 	maskInfo.startLine = maskFileInfoPtr->startLine;
 	
-	continueFlag = GetMaskArea ( 
+	continueFlag = GetMaskArea (
 								&maskInfo,
 								0,
 								NULL,
@@ -1635,7 +1639,7 @@ SInt16 LoadMask (
 				// mask.
 				
 		maskHandle = MNewHandle ((SInt64)maskNumberLines * 
-													(maskNumberColumns+1) * sizeof(UInt16) );
+													(maskNumberColumns+1) * sizeof (UInt16));
 				
 		maskPointer = (HUInt16Ptr)GetHandlePointer (maskHandle);
 			
@@ -1693,7 +1697,7 @@ SInt16 LoadMask (
 				// Intialize the nextTime variable to indicate when the next check	
 				// should occur for a command-.													
 				
-		gNextTime = TickCount();
+		gNextTime = TickCount ();
 										
 		for (line=maskLineStart; line<=maskLineEnd; line++)
 			{
@@ -1737,13 +1741,13 @@ SInt16 LoadMask (
 						
 						}		// end "if (maskPointer[j] > 0)"
 						
-					}		// end "for ( j=0;..." 
+					}		// end "for (j=0;..." 
 					
 				maskPointer += maskNumberColumns + 1;
 				
 						// Check if user wants to exit reading the mask.									
 				
-				if (TickCount() >= gNextTime)
+				if (TickCount () >= gNextTime)
 					{
 					if (!CheckSomeEvents (osMask+keyDownMask+updateMask+mDownMask+mUpMask))
 						{
@@ -1752,7 +1756,7 @@ SInt16 LoadMask (
 						
 						}		// end "if (!CheckSomeEvents (..."
 						
-					}		// end "if (TickCount() >= gNextTime)" 
+					}		// end "if (TickCount () >= gNextTime)" 
 					
 				}		// end "else errCode == noErr"
 				
@@ -1778,7 +1782,7 @@ SInt16 LoadMask (
 		if (maskSetCode != kMaskSet)
 			{
 			maskValueToFieldHandle = 
-								MNewHandleClear ((maxMaskValue+1) * sizeof(UInt16));
+								MNewHandleClear ((maxMaskValue+1) * sizeof (UInt16));
 			
 			continueFlag = (maskValueToFieldHandle != NULL);
 			
@@ -1792,8 +1796,8 @@ SInt16 LoadMask (
 				
 		if (maskSetCode != kMaskSet)
 			{
-			maskValueCountVector = (HUInt32Ptr)MNewPointerClear ( 
-															(maxMaskValue+1) * sizeof(UInt32));
+			maskValueCountVector = (HUInt32Ptr)MNewPointerClear (
+															(maxMaskValue+1) * sizeof (UInt32));
 			
 			continueFlag = (maskValueCountVector != NULL);
 			
@@ -1823,9 +1827,9 @@ SInt16 LoadMask (
 					for (j=1; j<=maskNumberColumns; j++)
 						{
 						if (maskPointer[j] > 0)
-							maskValueCountVector[ maskPointer[j] ]++;
+							maskValueCountVector[maskPointer[j]]++;
 							
-						}		// end "for ( j=0;..." 
+						}		// end "for (j=0;..." 
 					
 					}		// end "if (maskPointer[0] > 0)"
 						
@@ -2106,7 +2110,7 @@ Boolean LoadNewMaskFields (
 				// Now skip the first class name if it is for the background class;
 				// i.e. data value of 0.						
 				
-		classSymbolPtr = (UInt16*)&classNamePtr[ numberClasses*sizeof(Str31) ];
+		classSymbolPtr = (UInt16*)&classNamePtr[numberClasses*sizeof (Str31)];
 		if (*classSymbolPtr == 0)
 			{
 			classNamePtr += 32;
@@ -2141,10 +2145,10 @@ Boolean LoadNewMaskFields (
 			// Also while doing this create the mask fields and assign them
 			// to the classes. Create classes if one needs to.
 
-	sprintf ( (char*)&gTextString[1], "MaskClass");
+	sprintf ((char*)&gTextString[1], "MaskClass");
 	gTextString[0] = 9; 
 	
-	sprintf ( (char*)&gTextString3[1], "MaskArea");
+	sprintf ((char*)&gTextString3[1], "MaskArea");
 	gTextString3[0] = 8; 
 			
 	matchingClassFoundFlag = FALSE;
@@ -2187,7 +2191,7 @@ Boolean LoadNewMaskFields (
 						
 				if (classNamePtr == NULL)	
 					GetUniqueClassName (classNumber,
-													(UCharPtr)&gTextString,
+													(UCharPtr)gTextString,
 													9,
 													FALSE,
 													(char*)NULL);
@@ -2195,7 +2199,7 @@ Boolean LoadNewMaskFields (
 				else		// classNamePtr != NULL
 					{
 					BlockMoveData (classNamePtr, 
-											(Ptr)&gTextString, 
+											(Ptr)gTextString, 
 											classNamePtr[0]+1);
 											
 					}		// end "else classNamePtr != NULL"
@@ -2219,28 +2223,27 @@ Boolean LoadNewMaskFields (
 					
 				else		// classNamePtr != NULL
 					{	
-					BlockMoveData ( classNamePtr, 
-											(Ptr)&gTextString3, 
+					BlockMoveData (classNamePtr, 
+											(Ptr)gTextString3, 
 											classNamePtr[0]+1);
 											
-					sprintf ( (char*)&gTextString3[classNamePtr[0]+1], 
+					sprintf ((char*)&gTextString3[classNamePtr[0]+1], 
 											"_M");
 											
 					gTextString3[0] += 2;
 					
-					gTextString3[0] = MIN(gTextString3[0], 30);
+					gTextString3[0] = MIN (gTextString3[0], 30);
 					
 					}		// end "else classNamePtr != NULL"
 											
 				GetUniqueFieldName (j,
-											(UCharPtr)&gTextString3,
+											(UCharPtr)gTextString3,
 											gTextString3[0]);
 								
-				continueFlag = AddFieldToProject (
-											classNumber-1, 
-											kMaskType, 
-											maskSetCode,
-											gTextString3);
+				continueFlag = AddFieldToProject (classNumber-1, 
+																kMaskType, 
+																maskSetCode,
+																gTextString3);
 											
 				}		// end "if (continueFlag)"
 				
@@ -2340,7 +2343,7 @@ void SetUpMaskAreaDescriptionParameters (
 												1,
 												1,
 												1,
-												0 );
+												0);
 												
 				// If each pixel is to be checked to see whether it is a training sample,
 				// then set up some mask variables if a training mask exists.
@@ -2350,7 +2353,7 @@ void SetUpMaskAreaDescriptionParameters (
 					// Determine if any of the requested lines and columns are within
 					// the area represented by the mask.
 			
-			definedAreaFlag = GetMaskArea ( 
+			definedAreaFlag = GetMaskArea (
 												NULL,
 												kTrainingType,
 												gProjectInfoPtr,
@@ -2448,8 +2451,8 @@ Boolean UserLocateProjectMaskImage (
 	
 			// Lock handle to file information and get pointer to it.				
 			
-	fileInfoPtr = (FileInfoPtr)GetHandleStatusAndPointer(
-												fileInfoHandle, &handleStatus, kNoMoveHi);
+	fileInfoPtr = (FileInfoPtr)GetHandleStatusAndPointer (
+															fileInfoHandle, &handleStatus);
 																
 	fileStreamPtr = GetFileStreamPointer (fileInfoPtr);
 	
@@ -2457,7 +2460,7 @@ Boolean UserLocateProjectMaskImage (
 			// was selected then include all files in the file list.  				
 			// Otherwise just show the selected file types.								
 			
-	numberFileTypes = GetNumberFileTypes(); 
+	numberFileTypes = GetNumberFileTypes ();
 
 			// Loop until an acceptable mask image file is located or the user	
 			// cancels.																				
@@ -2465,14 +2468,14 @@ Boolean UserLocateProjectMaskImage (
 	do
 		{	
 		SetType (fileStreamPtr, kTEXTFileType);
-		errCode = GetFile ( 	fileStreamPtr,
+		errCode = GetFile (fileStreamPtr,
 									numberFileTypes, 
 									gListTypes, 
 									NULL,
 									NULL,
 									NULL, 
 									promptStringNumber);
-	   continueFlag = ( (errCode == noErr) & FileExists(fileStreamPtr) );
+	   continueFlag = ((errCode == noErr) & FileExists (fileStreamPtr));
 	   				
 	   		// Continue if no IO error and user did not cancel.					
 	   

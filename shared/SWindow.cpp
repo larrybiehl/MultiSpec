@@ -4,20 +4,18 @@
 //									Purdue University
 //								West Lafayette, IN 47907
 //								 Copyright (1988-2017)
-//								(c) Purdue Research Foundation
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	File:						SWindow.cpp
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision number:		3.3
-//
-//	Revision date:			03/03/2017
+//	Revision date:			12/21/2017
 //
 //	Language:				C
 //
-//	System:					Macintosh and Windows Operating Systems
+//	System:					Linux, Macintosh, and Windows Operating Systems
 //
 //	Functions in file:	void 			RemoveWindowFromList
 //								void			UpdateWindowList
@@ -28,25 +26,26 @@
 //	Include files:			"MultiSpecHeaders"
 //								"multiSpec.h"
 //
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------------
 
-#include	"SMulSpec.h" 
-#include	"SGrafVew.h"
+#include "SMultiSpec.h" 
+#include	"SGraphView.h"
   
 #if defined multispec_win
+	#include	"SMultiSpec.h" 
 	extern SInt16 StringWidth (UCharPtr     	stringPtr);
 #endif	// defined multispec_win    
 
-#include "SExtGlob.h"
+//#include "SExtGlob.h"
 
 
-			// Prototype descriptions for routines in this file that are only		
-			// called by routines in this file.
+		// Prototype descriptions for routines in this file that are only		
+		// called by routines in this file.
 
 
 
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------------
 //								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
@@ -69,24 +68,23 @@
 //							CloseImageWindow in window.c
 //
 //	Coded By:			Larry L. Biehl			Date: 11/13/1996
-//	Revised By:			Larry L. Biehl			Date: 03/03/2017
+//	Revised By:			Larry L. Biehl			Date: 09/01/2017
 
 Boolean SaveIfWindowChanged (
 				Handle								windowInfoHandle,
 				Boolean								forceCloseFlag)
 
 {
-	SInt16							alertID,
-										windowType;
+	SInt16								alertID,
+											windowType;
 	
 	
 			// Check input variable; exit if it is NULL	
 	
-	WindowInfoPtr windowInfoPtr = (WindowInfoPtr)GetHandlePointer(
-													windowInfoHandle, kNoLock, kNoMoveHi);								
+	WindowInfoPtr windowInfoPtr = (WindowInfoPtr)GetHandlePointer (windowInfoHandle);
 			
 	if (windowInfoPtr == NULL)												
-																						return (FALSE); 
+																							return (FALSE); 
 																						
 	windowType = windowInfoPtr->windowType;
 	
@@ -105,27 +103,26 @@ Boolean SaveIfWindowChanged (
 		gProcessorCode = kSaveProcessor;
 				
 		Handle fileInfoHandle = GetFileInfoHandle (windowInfoHandle);
-		FileInfoPtr fileInfoPtr = (FileInfoPtr)GetHandlePointer(
-													fileInfoHandle, kLock, kNoMoveHi);
+		FileInfoPtr fileInfoPtr = (FileInfoPtr)GetHandlePointer (
+																				fileInfoHandle, kLock);
 													
- 		GetCopyOfPFileName (fileInfoPtr, (FileStringPtr)gTextString3);
-#		if defined multispec_win
+ 		GetCopyOfPFileNameFromFileInfo (fileInfoPtr, (FileStringPtr)gTextString3);
+		#if defined multispec_win
 			USES_CONVERSION;
 				// Convert unicode to char string
 			T2A((LPCWSTR)gTextString3);
-#		endif
+		#endif
 		
 		SInt16 itemHit = 0;
 			
 		if (fileInfoPtr->groupChangedFlag && fileInfoPtr->bandInterleave <= kBIS)
 			{
-			if (LoadSpecifiedStringNumberStringP (
-											kAlertStrID, 
-											IDS_Alert51, 
-											(char*)gTextString,
-											(char*)gTextString2,
-											TRUE,
-											(char*)&gTextString3[1] ) )
+			if (LoadSpecifiedStringNumberStringP (kAlertStrID,
+																IDS_Alert51, 
+																(char*)gTextString,
+																(char*)gTextString2,
+																TRUE,
+																(char*)&gTextString3[1]))
 				itemHit = DisplayAlert (kSaveAlertID, kStopAlert, 0, 0, 0, gTextString);
 			
 			if (itemHit == 1)
@@ -134,17 +131,16 @@ Boolean SaveIfWindowChanged (
 			if (itemHit != 2)
 				fileInfoPtr->groupChangedFlag = FALSE;
 			
-			}		// end "if (fileInfoPtr->groupChangedFlag && ..."
+			}	// end "if (fileInfoPtr->groupChangedFlag && ..."
 													
 		if (itemHit != 2 && fileInfoPtr->classChangedFlag)
 			{
-			if (LoadSpecifiedStringNumberStringP (
-											kAlertStrID, 
-											IDS_Alert50, 
-											(char*)gTextString,
-											(char*)gTextString2,
-											TRUE,
-											(char*)&gTextString3[1] ) )
+			if (LoadSpecifiedStringNumberStringP (kAlertStrID,
+																IDS_Alert50,
+																(char*)gTextString,
+																(char*)gTextString2,
+																TRUE,
+																(char*)&gTextString3[1]))
 				itemHit = DisplayAlert (kSaveAlertID, kStopAlert, 0, 0, 0, gTextString);
 			
 			if (itemHit == 1)
@@ -153,22 +149,22 @@ Boolean SaveIfWindowChanged (
 			if (itemHit != 2)
 				fileInfoPtr->classChangedFlag = FALSE;
 			
-			}		// end "if (fileInfoPtr->classChangedFlag)"
+			}	// end "if (fileInfoPtr->classChangedFlag)"
 			
 		gProcessorCode = 0;
 			
 		if (itemHit == 2 && !forceCloseFlag)
-																				return (TRUE);
+																							return (TRUE);
 																				
-		}		// end "if (windowType == kThematicWindowType)"
+		}	// end "if (windowType == kThematicWindowType)"
 																				
 	return (FALSE);
 			
-}		// end "SaveIfWindowChanged" 
+}	// end "SaveIfWindowChanged" 
 
 
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------------
 //								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
@@ -204,7 +200,7 @@ void RemoveWindowFromList (
 	            
 	#if defined multispec_mac                         
 		if (windowMenuItem <= 0)  
-																						return;
+																										return;
 	#endif	// defined multispec_mac
 	
 	if (window != NULL)
@@ -230,43 +226,43 @@ void RemoveWindowFromList (
 				windowIndex = loop;
 				break;
 				
-				}		// end  "if (window == gWindowList[loop+2]) "
+				}	// end  "if (window == gWindowList[loop+2]) "
 				
-			}		// end "for (loop=1; loop<=numberOfWindows; loop++)"
+			}	// end "for (loop=1; loop<=numberOfWindows; loop++)"
 			
 				// Update application global window count
 				
 		if (windowIndex > gNumberOfIWindows)
 			gNumberOfGWindows--;
 		
-		else		// windowIndex <= gNumberOfIWindows
+		else	// windowIndex <= gNumberOfIWindows
 			gNumberOfIWindows--;	
 			
 		count = windowIndex;
-		if ( count < numberOfWindows )
+		if (count < numberOfWindows)
 			{
-			for ( loop=count; loop<numberOfWindows; loop++ )
+			for (loop=count; loop<numberOfWindows; loop++)
 				{
 				gWindowList[loop+2] = gWindowList[loop+3];
 				#if defined multispec_mac
-					Handle windowInfoHandle = (Handle)GetWRefCon(gWindowList[loop+2]);
+					Handle windowInfoHandle = (Handle)GetWRefCon (gWindowList[loop+2]);
 					((WindowInfoPtr)*windowInfoHandle)->windowMenuItem  = 
-																		loop + kStatisticsWItem;
+																				loop + kStatisticsWItem;
 				#endif	// defined multispec_mac
 																
-				}		// end "for ( loop=count; ..." 
+				}	// end "for (loop=count; ..." 
 				
-			}		// end "if ( count < numberOfWindows )" 
+			}	// end "if (count < numberOfWindows)" 
 			
 		gWindowList[numberOfWindows+2] = NULL;
 		
-		}		// end "if (window != NULL)" 
+		}	// end "if (window != NULL)" 
 			
-}		// end "RemoveWindowFromList" 
+}	// end "RemoveWindowFromList" 
 
 
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------------
 //								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
@@ -289,38 +285,36 @@ void RemoveWindowFromList (
 //	Revised By:			Larry L. Biehl			Date: 04/27/2016	
 
 void UpdateLegendParameters (
-				Handle			windowInfoHandle,
-				SInt16			legendWidth)
+				Handle								windowInfoHandle,
+				SInt16								legendWidth)
 
 {			      
-	#if defined multispec_mac           
-		unsigned char*				legendTitle1Ptr = (unsigned char*)"\pGroups/Classes"; 
-	#endif		// defined multispec_mac   
+	#if defined multispec_mac || defined multispec_mac_swift
+		unsigned char*					legendTitle1Ptr = (unsigned char*)"\pGroups/Classes"; 
+	#endif	// defined multispec_mac || defined multispec_mac_swift   
 
 	#if defined multispec_win  
-		unsigned char*				legendTitle1Ptr = NULL; 
+		unsigned char*					legendTitle1Ptr = NULL; 
 	#endif		// defined multispec_win   
 		
 	#if defined multispec_lin  
-		 unsigned char* legendTitle1Ptr = NULL;
+		 unsigned char*				legendTitle1Ptr = NULL;
 	#endif		
 	
-	WindowInfoPtr windowInfoPtr = (WindowInfoPtr)GetHandlePointer(
-												windowInfoHandle, kNoLock, kNoMoveHi);
+	WindowInfoPtr windowInfoPtr = (WindowInfoPtr)GetHandlePointer (windowInfoHandle);
 			
 	windowInfoPtr->legendTitleWidth = MAX (103, StringWidth (legendTitle1Ptr));
-	SInt16 legendStart = 
-					MAX (4, legendWidth - windowInfoPtr->legendTitleWidth - 13);
-//	windowInfoPtr->legendTopStart = 1;
+	SInt16 legendStart = MAX (4, legendWidth - windowInfoPtr->legendTitleWidth - 13);
+	//windowInfoPtr->legendTopStart = 1;
 	windowInfoPtr->legendTopStart = (SInt16)windowInfoPtr->coordinateHeight + 1;
 	windowInfoPtr->legendLeftStart = 0 + legendStart/2 - 4;
 	windowInfoPtr->legendWidth = legendWidth;	
 
-}		// end "UpdateLegendParameters"
+}	// end "UpdateLegendParameters"
 
 
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------------
 //								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
@@ -342,8 +336,7 @@ void UpdateLegendParameters (
 //
 //	Coded By:			Larry L. Biehl			Date: 01/23/1996
 //	Revised By:			Larry L. Biehl			Date: 09/08/2006
-// TODO: For Linux
-// Check again later if any changes are required
+
 void UpdateWindowList (
 				WindowPtr							theWindowPtr,
 				SInt16								windowType)
@@ -352,8 +345,8 @@ void UpdateWindowList (
 	SInt16			index;
 	
 	#if defined multispec_mac
-		Handle 				tempHandle;
-		SInt16 				windowMenuItem;	
+		Handle								tempHandle;
+		SInt16								windowMenuItem;	
 	#endif	// defined multispec_mac
 				                 
 	
@@ -371,19 +364,19 @@ void UpdateWindowList (
 			{
 			for (index=gNumberOfIWindows+gNumberOfGWindows+2; 
 					index>gNumberOfIWindows+2; 
-					index-- )
+					index--)
 				{
 				gWindowList[index] = gWindowList[index-1];
 				
 				#if defined multispec_mac
-					tempHandle = (Handle)GetWRefCon( gWindowList[index] );
+					tempHandle = (Handle)GetWRefCon (gWindowList[index]);
 					((WindowInfoPtr)*tempHandle)->windowMenuItem  = 
-																index + kStatisticsWItem - 2;
+																		index + kStatisticsWItem - 2;
 				#endif	// defined multispec_mac
 																
-				}		// end "for ( index=gNumberOfIWindows ..." 
+				}	// end "for (index=gNumberOfIWindows ..." 
 				
-			}		// end "if ( gNumberOfGWindows > 0 )" 
+			}	// end "if (gNumberOfGWindows > 0)" 
 			
 		gWindowList[gNumberOfIWindows+2] = theWindowPtr;
 				
@@ -391,23 +384,22 @@ void UpdateWindowList (
 			windowMenuItem = gNumberOfIWindows + kStatisticsWItem;
 		#endif	// defined multispec_mac
 		
-		}		// end "if (windowType != kGraphicsWindowType)"
+		}	// end "if (windowType != kGraphicsWindowType)"
 		
-	else		// windowType == kGraphicsWindowType
+	else	// windowType == kGraphicsWindowType
 		{
 		gNumberOfGWindows++;
 		gWindowList[gNumberOfIWindows+gNumberOfGWindows+2] = theWindowPtr;
 		
 		#if defined multispec_mac
-			windowMenuItem  = 
-						gNumberOfIWindows + gNumberOfGWindows + kStatisticsWItem;
+			windowMenuItem = gNumberOfIWindows + gNumberOfGWindows + kStatisticsWItem;
 		#endif	// defined multispec_mac
 		
-		}		// end "else windowType == kGraphicsWindowType"
+		}	// end "else windowType == kGraphicsWindowType"
 		
 	#if defined multispec_mac
 		tempHandle = (Handle)GetWRefCon (theWindowPtr);
 		((WindowInfoPtr)*tempHandle)->windowMenuItem  = windowMenuItem;
 	#endif	// defined multispec_mac
 		
-}		// end "UpdateWindowList" 
+}	// end "UpdateWindowList" 

@@ -1,7 +1,7 @@
 // WImageSplitterWnd.cpp : implementation file
 //
                     
-#include "SMulSpec.h"
+#include "SMultiSpec.h"
 
 #include "WImageSplitterWnd.h"
                      

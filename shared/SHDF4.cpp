@@ -11,13 +11,11 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision number:		3.0
-//
-//	Revision date:			07/05/2017
+//	Revision date:			12/21/2017
 //
 //	Language:				C
 //
-//	System:					Macintosh and Windows Operating Systems
+//	System:					Linux, Macintosh, and Windows Operating Systems
 //
 //	Brief description:	This file contains routines which are used to access
 //								various disk files.
@@ -30,35 +28,35 @@
 //								"multiSpec.h"
 //
 /*	Template for debugging for MultiSpec Online on mygeohub.
-	int numberChars = sprintf ((char*)&gTextString3,
+	int numberChars = sprintf ((char*)gTextString3,
 												" SHDF4: (filePathPtr hDS): %s %ld%s", 
 												filePathPtr,
 												hDS,
 												gEndOfLine);
-	ListString ((char*)&gTextString3, numberChars, gOutputTextH);	
+	ListString ((char*)gTextString3, numberChars, gOutputTextH);	
 */		
 //------------------------------------------------------------------------------------
 
-#include "SMulSpec.h"
+#include "SMultiSpec.h"
 	
 #if defined multispec_mac
 	#define	kFileTypeStrID				175
 	#define	IDS_FileType01				1		
 #endif	// defined multispec_mac    
 
-#if defined multispec_win
-   	 
-#endif	// defined multispec_win
-
 #if defined multispec_lin
+	#include "SMultiSpec.h"
 	#define TRUE true
 	#define FALSE false
-#endif	// defined multispec_lin
+#endif
 
-#include "SExtGlob.h"
+#if defined multispec_win
+	#include "SMultiSpec.h"
+#endif	// defined multispec_win
+
+//#include "SExtGlob.h"
 
 #if include_gdal_capability
-
 	// oul: added definition of SIZE_UNSIGNED_LONG and SIZEOF_VOIDP
 	// which are not defined in cpl_config.h
 
@@ -73,10 +71,6 @@
 	
 	#include "gdal.h"
 	#include "cpl_error.h"
-
-	//#if defined multispec_lin
-	//	extern void CPL_STDCALL LGDALAllRegister();
-	//#endif	// defined multispec_lin
 #endif	// include_gdal_capability
 
 #if include_hdf_capability
@@ -133,19 +127,14 @@ Boolean CheckIfHDF5FormattedFile (
 													 kHDF4_Library);	
 	if (returnCode == noErr)	
 		{
-		#ifdef multispec_lin
-			GDALAllRegister();
-		#endif	
-		#ifndef multispec_lin
-			GDALAllRegister();
-		#endif	
+		GDALAllRegister ();
 
 		hDS = GDALOpen ((char*)filePathPtr, GA_ReadOnly);
 		if (hDS != NULL)
 			{		
 			dataSetDriver = GDALGetDatasetDriver (hDS);
 			fileFormatDescriptionPtr = 
-									(UCharPtr)GDALGetDescription ((GDALMajorObjectH)dataSetDriver);
+								(UCharPtr)GDALGetDescription ((GDALMajorObjectH)dataSetDriver);
 		
 		
 			if (CompareStringsNoCase (fileFormatDescriptionPtr, (UCharPtr)"HDF5\0") == 0)
@@ -153,13 +142,13 @@ Boolean CheckIfHDF5FormattedFile (
 				
 			GDALClose (hDS);
 				
-			}		// end "if (hDS != NULL)"
+			}	// end "if (hDS != NULL)"
 		
-		}		// end "if (returnCode == noErr)"
+		}	// end "if (returnCode == noErr)"
 	
 	return (returnFlag);
 	
-}		// end "CheckIfHDF5FormattedFile"
+}	// end "CheckIfHDF5FormattedFile"
 #endif	// include_gdal_capability
 
 
@@ -209,7 +198,7 @@ void AppendGroupIndicater (
 	charIndex = namePtr[0];
 	namePtr[charIndex+1] = 0;
 	
-}		// end "AppendGroupIndicater"
+}	// end "AppendGroupIndicater"
 
 		
 
@@ -278,7 +267,7 @@ void CreateFullDataSetIdentifierName (
 			numberFileNameCharsToCopy = nameLengthLimit - 1 - dataSetNameLength;
 			numberFileNameCharsToCopy = MAX (0, numberFileNameCharsToCopy);
 				
-			}		// end "if (fileNameLength + dataSetNameLength + 1 > ..."
+			}	// end "if (fileNameLength + dataSetNameLength + 1 > ..."
 				
 				// Insert the file name that is to be used.
 				
@@ -292,16 +281,15 @@ void CreateFullDataSetIdentifierName (
 						"_%s", 
 						&dataSetName[1]);
 						
-		fullDataSetNamePtr[0] = 
-									numberFileNameCharsToCopy + 1 + dataSetNameLength;
+		fullDataSetNamePtr[0] = numberFileNameCharsToCopy + 1 + dataSetNameLength;
 						
-		}		// end "if (fileInfoPtr != NULL)"
+		}	// end "if (fileInfoPtr != NULL)"
 					
-}		// end "CreateFullDataSetIdentifierName"
+}	// end "CreateFullDataSetIdentifierName"
 
 
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------------
 //								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
@@ -333,30 +321,30 @@ Boolean DetermineIfHDFProjectPossible (
 	
 
 	fileInfoHandle = GetFileInfoHandle (imageWindowInfoH);
-	fileInfoPtr = (FileInfoPtr)GetHandlePointer (fileInfoHandle, kNoLock, kNoMoveHi);
+	fileInfoPtr = (FileInfoPtr)GetHandlePointer (fileInfoHandle);
 				
 	if (fileInfoPtr != NULL)
 		{
 		if (fileInfoPtr->format == kHDF4Type || fileInfoPtr->format == kNETCDFType)
 			{
 			if (fileInfoPtr->hdfDataSetSelection == 1)
-																				return (TRUE);
+																						return (TRUE);
 																				
-			else		// fileInfoPtr->hdfDataSetSelection > 1
-																				return (TRUE);
+			else	// fileInfoPtr->hdfDataSetSelection > 1
+																						return (TRUE);
 																				
-			}		// end "if (...->format == kHDF4Type || ...->format == kNETCDFType)"
+			}	// end "if (...->format == kHDF4Type || ...->format == kNETCDFType)"
 				
 				// This is not an HDF or netCDF type of image file. Assume for now that it 
 				// can be used as the base image for a project.				
 																				
 		return (TRUE);
 		
-		}		// end "if (fileInfoPtr != NULL)"
+		}	// end "if (fileInfoPtr != NULL)"
 		
 	return (FALSE);
 	
-}		// end "DetermineIfHDFProjectPossible" 
+}	// end "DetermineIfHDFProjectPossible" 
 				
 
 
@@ -379,7 +367,7 @@ Boolean DetermineIfHDFProjectPossible (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 11/29/2001
-//	Revised By:			Larry L. Biehl			Date: 03/16/2017
+//	Revised By:			Larry L. Biehl			Date: 09/01/2017
 
 SInt16 DisplayHDFAlerts (
 				SInt16								alertCode,
@@ -406,33 +394,32 @@ SInt16 DisplayHDFAlerts (
 			{
 					// Date set file not found in the same folder as the header.
 					
-			fileNamePtr = (char*)GetFileNameCPointer (fileInfoPtr);
+			fileNamePtr = (char*)GetFileNameCPointerFromFileInfo (fileInfoPtr);
 					
-			if (LoadSpecifiedStringNumberStringP (
-												kAlertStrID, 
-												IDS_Alert95 + alertCode - 1, 
-												(char*)gTextString,
-												(char*)gTextString2,
-												TRUE,
-												(char*)&fileNamePtr[1] ) )
+			if (LoadSpecifiedStringNumberStringP (kAlertStrID, 
+																IDS_Alert95 + alertCode - 1, 
+																(char*)gTextString,
+																(char*)gTextString2,
+																TRUE,
+																(char*)&fileNamePtr[1]))
 				DisplayAlert (kErrorAlertID, kStopAlert, 0, 0, 0, gTextString);
 			
-				stringLength = gTextString[0];
-				sprintf(	(char*)&gTextString[stringLength+1],
+			stringLength = gTextString[0];
+			sprintf ((char*)&gTextString[stringLength+1],
 							"%s%s",
 							gEndOfLine,
 							gEndOfLine);
 									
-				OutputString (NULL, 
-									(char*)&gTextString[1], 
-									0, 
-									gOutputForce1Code, 
-									TRUE,
-									kUTF8CharString);
+			OutputString (NULL, 
+								(char*)&gTextString[1], 
+								0, 
+								gOutputForce1Code, 
+								TRUE,
+								kUTF8CharString);
 												
-			}		// end "if (alertCode == 8)"
+			}	// end "if (alertCode == 8)"
 												
-		else		// alertCode != 8								
+		else	// alertCode != 8								
 			{
 			format = fileInfoPtr->format;		
 			format += IDS_FileType01;
@@ -463,15 +450,15 @@ SInt16 DisplayHDFAlerts (
 //								0, 
 //								NULL);
 								
-			}		// end "else alertCode != 8"
+			}	// end "else alertCode != 8"
 							
 		returnCode = 1;
 		
-		}		// end "if (alertCode != noErr)"
+		}	// end "if (alertCode != noErr)"
 		
 	return (returnCode);
 	
-}		// end "DisplayHDFAlerts" 
+}	// end "DisplayHDFAlerts" 
 
 
 
@@ -508,10 +495,7 @@ UInt16 GetHdfDataSetInstrumentChannelNumber (
 											instrumentChannelNumber;
 	
 	
-	hdfDataSetsPtr = (HdfDataSets*)GetHandlePointer (
-										fileInfoPtr->hdfHandle,
-										kNoLock,
-										kNoMoveHi);
+	hdfDataSetsPtr = (HdfDataSets*)GetHandlePointer (fileInfoPtr->hdfHandle);
 	
 	instrumentChannelNumber = 0;
 	
@@ -521,7 +505,7 @@ UInt16 GetHdfDataSetInstrumentChannelNumber (
 			// has to be a better way to check for this.
 			
 	if (hdfDataSetsPtr != NULL && 
-						(fileInfoPtr->numberBytes == 1 || fileInfoPtr->numberBytes == 2) )
+						(fileInfoPtr->numberBytes == 1 || fileInfoPtr->numberBytes == 2))
 		{
 		hdfDataSetIndex = fileInfoPtr->hdfDataSetSelection;
 		
@@ -532,18 +516,18 @@ UInt16 GetHdfDataSetInstrumentChannelNumber (
 		if (hdfDataSetsPtr[hdfDataSetIndex].groupedNumber > 0)
 			{
 			hdfDataSetIndex = fileInfoPtr->numberHdfDataSets +
-														hdfDataSetsPtr[hdfDataSetIndex].groupedNumber;
+													hdfDataSetsPtr[hdfDataSetIndex].groupedNumber;
 			
 			instrumentChannelNumber = 
 										hdfDataSetsPtr[hdfDataSetIndex].instrumentChannelNumber;
 			
-			}		// end "if (hdfDataSetsPtr[hdfDataSetIndex].groupedNumber > 0)"
+			}	// end "if (hdfDataSetsPtr[hdfDataSetIndex].groupedNumber > 0)"
 		
-		}		// end "if (hdfDataSetsPtr != NULL && fileInfoPtr->numberBytes == 2)"
+		}	// end "if (hdfDataSetsPtr != NULL && fileInfoPtr->numberBytes == 2)"
 		
 	return (instrumentChannelNumber);
 	
-}		// end "GetHdfDataSetInstrumentChannelNumber" 
+}	// end "GetHdfDataSetInstrumentChannelNumber" 
 
 
 
@@ -585,10 +569,7 @@ void GetHdfDataSetName (
 											numChars;
 	
 	
-	hdfDataSetsPtr = (HdfDataSets*)GetHandlePointer (
-										fileInfoPtr->hdfHandle,
-										kNoLock,
-										kNoMoveHi);
+	hdfDataSetsPtr = (HdfDataSets*)GetHandlePointer (fileInfoPtr->hdfHandle);
 	
 	dataSetNamePtr[0] = 0;
 	dataSet = 0;
@@ -618,11 +599,11 @@ void GetHdfDataSetName (
 			if (dataSetPtr != NULL)
 				*dataSetPtr = dataSet;
 			
-			}		// end "if (numChars > 0)"		
+			}	// end "if (numChars > 0)"		
 		
-		}		// end "if (hdfDataSetsPtr != NULL)"
+		}	// end "if (hdfDataSetsPtr != NULL)"
 	
-}		// end "GetHdfDataSetName" 
+}	// end "GetHdfDataSetName" 
 
 
 
@@ -645,7 +626,7 @@ void GetHdfDataSetName (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 10/08/2008
-//	Revised By:			Larry L. Biehl			Date: 06/23/2017
+//	Revised By:			Larry L. Biehl			Date: 09/18/2017
 
 SInt16 GetHDFFilePathCPointer (
 				FileInfoPtr		 					fileInfoPtr,
@@ -658,10 +639,10 @@ SInt16 GetHDFFilePathCPointer (
 	FileStringPtr							filePathPPtr;
 	
    
-	filePathPPtr = (FileStringPtr)GetFilePathPPointer (fileInfoPtr);
+	filePathPPtr = (FileStringPtr)GetFilePathPPointerFromFileInfo (fileInfoPtr);
 	*filePathCPtrPtr = &filePathPPtr[1];
 	
-#	if defined multispec_mac
+	#if defined multispec_mac
 		CMFileStream*						fileStreamPtr;
 		
 		SInt16								errCode,
@@ -683,27 +664,27 @@ SInt16 GetHDFFilePathCPointer (
 			if (errCode == noErr)
 				*filePathCPtrPtr = filePathStringPtr;
 				
-			else		// errCode == noErr
+			else	// errCode == noErr
 				{	
 				if (errCode == -2110)
 					hdfAlertCode = 4;
 					
-				else		// errCode != -2110 || 0
+				else	// errCode != -2110 || 0
 					hdfAlertCode = 5;
 				
 																				return hdfAlertCode;
 				
-				}		// end "else errCode == noErr"
+				}	// end "else errCode == noErr"
 			
-			}		// end "if (fileStreamPtr->fSRefFlag)"
-#	endif	// defined multispec_mac	
+			}	// end "if (fileStreamPtr->fSRefFlag)"
+	#endif	// defined multispec_mac	
 
-#	if defined multispec_lin || defined multispec_win
+	#if defined multispec_lin || defined multispec_win
 		if (libraryCode == kGDAL_Library)
 			{
 			FileStringPtr								filePathCPtr;
 			
-			filePathCPtr = (FileStringPtr)GetFilePathPPointer (fileInfoPtr);
+			filePathCPtr = (FileStringPtr)GetFilePathPPointerFromFileInfo (fileInfoPtr);
 
 					// Need to return a c pointer.
 			
@@ -713,11 +694,11 @@ SInt16 GetHDFFilePathCPointer (
 			*filePathCPtrPtr = filePathCPtr;
 
 			}	// end "if (libraryCode == kGDAL_Library)"
-#	endif		// defined multispec_lin || defined multispec_win
+	#endif		// defined multispec_lin || defined multispec_win
 
 return (0);
     
-}		// end "GetHDFFilePathCPointer"
+}	// end "GetHDFFilePathCPointer"
 
 
 
@@ -757,10 +738,7 @@ void GetHdfHeaderFileName (
 	headerFileNamePtr[0] = 0;
 	headerFileNamePtr[1] = 0;	
 	
-	hdfDataSetsPtr = (HdfDataSets*)GetHandlePointer (
-										fileInfoPtr->hdfHandle,
-										kNoLock,
-										kNoMoveHi);
+	hdfDataSetsPtr = (HdfDataSets*)GetHandlePointer (fileInfoPtr->hdfHandle);
 									
 	if (hdfDataSetsPtr != NULL)
 		{
@@ -771,9 +749,9 @@ void GetHdfHeaderFileName (
 		if (numChars > 0)
 			CopyPToP (headerFileNamePtr, hdfDataSetsPtr[0].name);
 		
-		}		// end "if (hdfDataSetsPtr != NULL)"
+		}	// end "if (hdfDataSetsPtr != NULL)"
 	
-}		// end "GetHdfHeaderFileName" 
+}	// end "GetHdfHeaderFileName" 
 
 
 #if include_hdf_capability
@@ -796,7 +774,7 @@ void GetHdfHeaderFileName (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 07/25/1995
-//	Revised By:			Larry L. Biehl			Date: 10/03/2013
+//	Revised By:			Larry L. Biehl			Date: 11/27/2017
 
 SInt16 ReadHDFHeader (
 				FileInfoPtr 						fileInfoPtr, 
@@ -811,194 +789,172 @@ SInt16 ReadHDFHeader (
 	
 	Boolean								dataSetSpecifiedFlag = FALSE;
 	
-			
-//	#if defined multispec_mac 
-		unsigned char					charKeyCode[4];
-		
-		CMFileStream*					fileStreamPtr;
-		
-		SInt32							hdfReturn;
-		
-		SInt16							errCode,
+	unsigned char						charKeyCode[4];
+	
+	CMFileStream*						fileStreamPtr;
+	
+	SInt32								hdfReturn;
+	
+	SInt16								errCode,
 											fileType = 0;
-											
-		Boolean							continueFlag;
+										
+	Boolean								continueFlag;
+
 	
-	
-		#if defined multispec_mac 
-			gMemoryTypeNeeded = 1;	
-			ForceHDFSegmentLoad();
-			if (gMemoryTypeNeeded != 0)
-				{
-						// Not enough memory to load the HDF library in.
-					
-				gMemoryTypeNeeded = 0;
-																					return (returnCode);
-			
-				}		// end "if (gMemoryTypeNeeded != 0)"
-		#endif	// defined multispec_mac 
+	fileStreamPtr = GetFileStreamPointer (fileInfoPtr);					
 		
-		fileStreamPtr = GetFileStreamPointer (fileInfoPtr);					
-			
-		if (fileInfoPtr != NULL && fileStreamPtr != NULL)		
+	if (fileInfoPtr != NULL && fileStreamPtr != NULL)		
+		{
+				// Check if HDF formatted image file.
+				
+		charKeyCode[0] = 0x0e;
+		charKeyCode[1] = 0x03;
+		charKeyCode[2] = 0x13;
+		charKeyCode[3] = 0x01;
+		
+		if (strncmp ((char*)headerRecordPtr, (CharPtr)charKeyCode, 4) == 0)
+			fileType = kHDF4Type;
+		
+		if (fileType == 0)
 			{
-					// Check if HDF formatted image file.
+					// Check if netCDF formatted image file.
 					
-			charKeyCode[0] = 0x0e;
-			charKeyCode[1] = 0x03;
-			charKeyCode[2] = 0x13;
+			charKeyCode[0] = 'C';
+			charKeyCode[1] = 'D';
+			charKeyCode[2] = 'F';
 			charKeyCode[3] = 0x01;
 			
 			if (strncmp ((char*)headerRecordPtr, (CharPtr)charKeyCode, 4) == 0)
-				fileType = kHDF4Type;
-			
-			if (fileType == 0)
-				{
-						// Check if netCDF formatted image file.
-						
-				charKeyCode[0] = 'C';
-				charKeyCode[1] = 'D';
-				charKeyCode[2] = 'F';
-				charKeyCode[3] = 0x01;
+				fileType = kNETCDFType;
 				
-				if (strncmp ((char*)headerRecordPtr, (CharPtr)charKeyCode, 4) == 0)
-					fileType = kNETCDFType;
-					
-				}		// end "if (fileType == 0)"
-
-/*					// The library being used does not handle cdf2 format.
-			if (fileType == 0)
-				{
-						// Check if netCDF formatted image file.
-						
-				charKeyCode[0] = 'C';
-				charKeyCode[1] = 'D';
-				charKeyCode[2] = 'F';
-				charKeyCode[3] = 0x02;
+			}	// end "if (fileType == 0)"
+		/*
+				// The library being used does not handle cdf2 format.
 				
-				if (strncmp ((char*)headerRecordPtr, (CharPtr)charKeyCode, 4) == 0)
-					fileType = kNETCDFType;
-					
-				}		// end "if (fileType == 0)"
-*/							
-			}		// end "if (fileInfoPtr != NULL && fileStreamPtr != NULL)"
-			
-		if (fileType != 0)
+		if (fileType == 0)
 			{
-			if (formatOnlyCode != kLoadHeader)
-				{
-				fileInfoPtr->format = fileType;
-				
-						// For now we will not check whether the file is thematic
-						// or multispectral
-						
-				if (formatOnlyCode == kMultiFiles)
-					fileInfoPtr->thematicType = FALSE;
-				
-				else if (formatOnlyCode == kThematicFiles)
-					fileInfoPtr->thematicType = TRUE;
+					// Check if netCDF formatted image file.
 					
-				#if defined multispec_mac 
-	  				UnloadSeg (ForceHDFSegmentLoad);
-				#endif	// defined multispec_mac 
-					
-																				return (noErr);
-																									
-				}		// end "if (formatOnlyCode != kLoadHeader)"
+			charKeyCode[0] = 'C';
+			charKeyCode[1] = 'D';
+			charKeyCode[2] = 'F';
+			charKeyCode[3] = 0x02;
 			
-			returnCode = 0;
-			hdfReturn = noErr; 
-			
-					// Make sure that the default volume is correct.
-					
-	 		errCode = SetVolume (fileStreamPtr, kErrorMessages);
-			
-			if (fileInfoPtr->hdfDataSetSelection > 0)
-				dataSetSpecifiedFlag = TRUE;
-
-			hdfReturn = LoadHDF4Information (fileInfoPtr, fileType, dataSetSpecifiedFlag);
+			if (strncmp ((char*)headerRecordPtr, (CharPtr)charKeyCode, 4) == 0)
+				fileType = kNETCDFType;
 				
-			if (hdfReturn != noErr)
-				{
-						// Display an alert indicating that MultiSpec could not read or had
-						// problems reading this HDF or netCDF file.
-				
-				format = fileType;		
-				format += IDS_FileType01;										
-			
-				continueFlag = GetSpecifiedStringNumber (
-												kFileTypeStrID, format, formatName, TRUE);
-						
-				continueFlag = LoadSpecifiedStringNumberStringP (
-													kAlertStrID, 
-													(SInt16)(IDS_Alert95 + hdfReturn - 1), 
-													(char*)gTextString,
-													(char*)gTextString2,
-													continueFlag,
-													(char*)&formatName[1]);
-										
-				if (continueFlag)
-					{
-					if (gLinkOptionsSelection == 1)
-						DisplayAlert (kErrorAlertID, 
-											kStopAlert, 
-											0, 
-											0,
-											0, 
-											gTextString);
-											
-					else		// gLinkOptionsSelection > 1
-						{
-						gAlertReturnCode = DisplayAlert (kContinueCancelAlertID, 
-																	kStopAlert, 
-																	0, 
-																	0,
-																	0, 
-																	gTextString);
-						
-						if (gAlertReturnCode == 2)
-									// This signifies to stop immediately.
-							gAlertReturnCode = 3;
-											
-						}		// end "else gLinkOptionsSelection > 1"
-						
-					}		// end "if (continueFlag)"
-				
-						// If no data sets were found then the hdf file may be hdf5 format.
-						// Set format to not known yet to force try for hdf5 format.
-				
-				if (hdfReturn == 1)
-					fileInfoPtr->format = 0;
-				
-				returnCode = 1;
-				
-				}		// end "if (hdfReturn != noErr)"
-				
-			if (returnCode == noErr)
-				{
-				fileInfoPtr->format = fileType;
-				
-				if (gGetFileImageType == 0)
-					{
-					if (fileInfoPtr->thematicType)
-						gGetFileImageType = kThematicImageType;
-						
-					else		// !fileInfoPtr->thematicType 
-						gGetFileImageType = kMultispectralImageType;
-						
-					}		// end "if (gGetFileImageType == 0)"
-					
-				}		// end "if (returnCode > 0)" 
-			
-			}		// end "if (fileTpye != 0)" 
-
-		#if defined multispec_mac 
-	  		UnloadSeg (ForceHDFSegmentLoad);
-		#endif	// defined multispec_mac 
+			}	// end "if (fileType == 0)"
+		*/							
+		}	// end "if (fileInfoPtr != NULL && fileStreamPtr != NULL)"
 		
+	if (fileType != 0)
+		{
+		if (formatOnlyCode != kLoadHeader)
+			{
+			fileInfoPtr->format = fileType;
+			
+					// For now we will not check whether the file is thematic
+					// or multispectral
+					
+			if (formatOnlyCode == kMultiFiles)
+				fileInfoPtr->thematicType = FALSE;
+			
+			else if (formatOnlyCode == kThematicFiles)
+				fileInfoPtr->thematicType = TRUE;
+				
+																						return (noErr);
+																								
+			}	// end "if (formatOnlyCode != kLoadHeader)"
+		
+		returnCode = 0;
+		hdfReturn = noErr; 
+		
+				// Make sure that the default volume is correct.
+				
+		errCode = SetVolume (fileStreamPtr, kErrorMessages);
+		
+		if (fileInfoPtr->hdfDataSetSelection > 0)
+			dataSetSpecifiedFlag = TRUE;
+
+		hdfReturn = LoadHDF4Information (fileInfoPtr, fileType, dataSetSpecifiedFlag);
+			
+		if (hdfReturn != noErr)
+			{
+					// Display an alert indicating that MultiSpec could not read or had
+					// problems reading this HDF or netCDF file.
+			
+			format = fileType;		
+			format += IDS_FileType01;										
+		
+			continueFlag = GetSpecifiedStringNumber (
+											kFileTypeStrID, format, formatName, TRUE);
+					
+			continueFlag = LoadSpecifiedStringNumberStringP (
+												kAlertStrID, 
+												(SInt16)(IDS_Alert95 + hdfReturn - 1), 
+												(char*)gTextString,
+												(char*)gTextString2,
+												continueFlag,
+												(char*)&formatName[1]);
+									
+			if (continueFlag)
+				{
+				if (gLinkOptionsSelection == 1)
+					DisplayAlert (kErrorAlertID, 
+										kStopAlert, 
+										0, 
+										0,
+										0, 
+										gTextString);
+										
+				else	// gLinkOptionsSelection > 1
+					{
+					gAlertReturnCode = DisplayAlert (kContinueCancelAlertID, 
+																kStopAlert, 
+																0, 
+																0,
+																0, 
+																gTextString);
+					
+					if (gAlertReturnCode == 2)
+								// This signifies to stop immediately.
+						gAlertReturnCode = 3;
+										
+					}	// end "else gLinkOptionsSelection > 1"
+					
+				}	// end "if (continueFlag)"
+			
+					// If no data sets were found then the hdf file may be hdf5 format.
+					// Set format to not known yet to force try for hdf5 format.
+			
+			if (hdfReturn == 1)
+				fileInfoPtr->format = 0;
+			
+			returnCode = 1;
+			
+			}	// end "if (hdfReturn != noErr)"
+			
+		if (returnCode == noErr)
+			{
+			fileInfoPtr->format = fileType;
+			
+			if (gGetFileImageType == 0)
+				{
+				if (fileInfoPtr->thematicType)
+					gGetFileImageType = kThematicImageType;
+					
+				else	// !fileInfoPtr->thematicType 
+					gGetFileImageType = kMultispectralImageType;
+					
+				}	// end "if (gGetFileImageType == 0)"
+				
+			}	// end "if (returnCode > 0)" 
+		
+		}	// end "if (fileTpye != 0)" 
+
 	return (returnCode);
 	
-}		// end "ReadHDFHeader" 
+}	// end "ReadHDFHeader" 
 #endif		// include_hdf_capability
 
 
@@ -1048,15 +1004,13 @@ SInt16 SetUpHDF_FileInformation (
 				// Get new handle if for channel to hdf data set structure if needed
 	
 		fileInfoPtr->channelToHdfDataSetHandle = MNewHandle (
-												fileInfoPtr->numberChannels * sizeof(UInt16));
+												fileInfoPtr->numberChannels * sizeof (UInt16));
 		if (fileInfoPtr->channelToHdfDataSetHandle == NULL)
 																								return (1);
 		
 		
 		channelToHdfDataSetPtr = (UInt16*)GetHandlePointer (
-																fileInfoPtr->channelToHdfDataSetHandle,
-																kNoLock,
-																kNoMoveHi);
+															fileInfoPtr->channelToHdfDataSetHandle);
 		
 				// Get the group number for the data set.
 				
@@ -1069,7 +1023,9 @@ SInt16 SetUpHDF_FileInformation (
 				// in the group so go through the entire list of data sets.
 			
 			channelIndex = 0;
-			for (dataSetIndex=1; dataSetIndex<=fileInfoPtr->numberHdfDataSets; dataSetIndex++) 
+			for (dataSetIndex=1; 
+						dataSetIndex<=fileInfoPtr->numberHdfDataSets; 
+								dataSetIndex++) 
 				{
 				if (groupedNumber == hdfDataSetsPtr[dataSetIndex].groupedNumber)
 					{
@@ -1078,45 +1034,48 @@ SInt16 SetUpHDF_FileInformation (
 					if (hdfDataSetsPtr[dataSetIndex].sdid > 0)
 						channelToHdfDataSetPtr[channelIndex] = (UInt16)dataSetIndex;
 					
-					else		// hdfDataSetsPtr[dataSetIndex].sdid <= 0
+					else	// hdfDataSetsPtr[dataSetIndex].sdid <= 0
 						{
 						returnCode = 1;
 						break;
 							
-						}		// end "else hdfDataSetsPtr[dataSetIndex].sdid <= 0"
+						}	// end "else hdfDataSetsPtr[dataSetIndex].sdid <= 0"
 						
 					channelIndex++;
 					
-					}		// end "if (groupedNumber == hdfDataSetsPtr[dataSetIndex].groupedNumber)"
+					}	// end "if (groupedNumber == hdfDataSetsPtr[dataSetIndex]...."
 					
 				if (groupedNumber < hdfDataSetsPtr[dataSetIndex].groupedNumber)
-							// No reason to continue checking; last data set for group was found.
+							// No reason to continue checking; 
+							// last data set for group was found.
 					break;
 				
-				}		// end "for (dataSetIndex=1; dataSetIndex<=...->numberHdfDataSets; ..."
+				}	// end "for (dataSetIndex=1; dataSetIndex<=...->numberHdfDataSets; ..."
 				
-			}		// end "if (groupedNumber > 0)"
+			}	// end "if (groupedNumber > 0)"
 			
-		else		// groupedNumber = 0
+		else	// groupedNumber = 0
 			{
 			dataSetIndex = hdfDataSetSelection;
 			if (hdfDataSetsPtr[dataSetIndex].sdid > 0)
 				{
 						// All channels belong to the same data set (and therefore sdid)
 						
-				for (channelIndex=0; channelIndex<fileInfoPtr->numberChannels; channelIndex++) 
+				for (channelIndex=0; 
+							channelIndex<fileInfoPtr->numberChannels; 
+									channelIndex++) 
 					channelToHdfDataSetPtr[channelIndex] = (UInt16)dataSetIndex;
 				
-				}		// end "if (hdfDataSetsPtr[dataSetIndex].sdid > 0)"
+				}	// end "if (hdfDataSetsPtr[dataSetIndex].sdid > 0)"
 				
-			else		// hdfDataSetsPtr[dataSetIndex].sdid <= 0
+			else	// hdfDataSetsPtr[dataSetIndex].sdid <= 0
 				returnCode = 7;
 			
-			}		// end "else groupedNumber = 0"
+			}	// end "else groupedNumber = 0"
 			
-		}		// end "if (fileInfoPtr->callGetHDFLineFlag)"
+		}	// end "if (fileInfoPtr->callGetHDFLineFlag)"
 		
 	return (returnCode);
     
-}		// end "SetUpHDF_FileInformation"
+}	// end "SetUpHDF_FileInformation"
 

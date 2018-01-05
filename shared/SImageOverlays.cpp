@@ -11,13 +11,11 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision number:		3.0
-//
-//	Revision date:			05/12/2017
+//	Revision date:			12/21/2017
 //
 //	Language:				C
 //
-//	System:					Macintosh and Windows Operating Systems
+//	System:					Linux, Macintosh, and Windows Operating Systems
 //
 //	Brief description:	The routines in this file handle retrieving information from
 //								the window information structure.
@@ -25,25 +23,25 @@
 //	Functions in file:	
 //
 //	Include files:			"MultiSpecHeaders"
-//								"SMulSpec.h"
+//								"SMultiSpec.h"
 //
 //------------------------------------------------------------------------------------
 
-#include "SMulSpec.h"
+#include "SMultiSpec.h"
 	
-#if defined multispec_mac
+#if defined multispec_mac || defined multispec_mac_swift
   	#define	IDS_Alert134					134
-#endif	// defined multispec_mac    
+#endif	// defined multispec_mac || defined multispec_mac_swift    
 
 #if defined multispec_win
-	#include "CImagVew.h"
+	#include "WImageView.h"
 #endif	// defined multispec_win
 
 #if defined multispec_lin
 	#include "LImageView.h"
 #endif	// defined multispec_lin
 
-#include "SExtGlob.h" 
+//#include "SExtGlob.h" 
 
 
 			// Prototypes for routines in this file that are only called by		
@@ -65,7 +63,7 @@ SInt16 							GetOverlayOffscreenGWorld (
 										SInt16								thematicPaletteType,
 										ImageOverlayInfoPtr				imageOverlayInfoPtr); 
 
-void								ReleaseImageOverlayStructureMemory(
+void								ReleaseImageOverlayStructureMemory (
 										ImageOverlayInfoPtr				imageOverlayInfoPtr);
 
 typedef struct UInt8ColorTable
@@ -114,9 +112,7 @@ void ClearImageOverlay (
 	
 	if (menuItemIndex <= gImageOverlayHandleListLength)
 		{
-		imageOverlayHandlePtr = (Handle*)GetHandlePointer (gImageOverlayHandle, 
-																			kNoLock, 
-																			kNoMoveHi);
+		imageOverlayHandlePtr = (Handle*)GetHandlePointer (gImageOverlayHandle);
 		
 		count = 0;
 		selectedOverlay = -1;															
@@ -131,18 +127,18 @@ void ClearImageOverlay (
 					selectedOverlay = index;
 					break;
 					
-					}		// end "if (count == menuItemIndex)"
+					}	// end "if (count == menuItemIndex)"
 					
-				}		// end "if (imageOverlayHandlePtr[index] != NULL)"
+				}	// end "if (imageOverlayHandlePtr[index] != NULL)"
 				
-			}		// end "for (index=0; index<gImageOverlayHandleListLength; index++)"
+			}	// end "for (index=0; index<gImageOverlayHandleListLength; index++)"
 		
 		if (selectedOverlay >= 0)
 			CloseImageOverlayFile (selectedOverlay);
 																	
-		}		// end "if (menuItemIndex <= gImageOverlayHandleListLength)"
+		}	// end "if (menuItemIndex <= gImageOverlayHandleListLength)"
 	
-}		// end "ClearImageOverlay"
+}	// end "ClearImageOverlay"
 									
 
 
@@ -179,13 +175,13 @@ void CloseAllImageOverlayFiles (void)
 		{
 		CloseImageOverlayFile (index);
 		
-		}		// end "for (index=0; index<gImageOverlayHandleListLength; index++)"
+		}	// end "for (index=0; index<gImageOverlayHandleListLength; index++)"
 		
 	gImageOverlayHandle = UnlockAndDispose (gImageOverlayHandle);
 	gImageOverlayHandleListLength = 0;
 	gNumberImageOverlayFiles = 0;
 	
-}		// end "CloseAllImageOverlayFiles"		
+}	// end "CloseAllImageOverlayFiles"		
 
 
 
@@ -231,9 +227,7 @@ void CloseImageOverlayFile (
 	
 	if (imageOverlayIndex < gImageOverlayHandleListLength)
 		{				
-		imageOverlayHandlePtr = (Handle*)GetHandlePointer (gImageOverlayHandle, 
-																	kLock, 
-																	kNoMoveHi);
+		imageOverlayHandlePtr = (Handle*)GetHandlePointer (gImageOverlayHandle, kLock);
 																	
 		if (imageOverlayHandlePtr != NULL)
 			{			
@@ -252,9 +246,8 @@ void CloseImageOverlayFile (
 			do
 				{
 				windowPtr = gWindowList[windowListIndex];         
-				windowInfoHandle = GetWindowInfoHandle(windowPtr);
-				windowInfoPtr = (WindowInfoPtr)GetHandlePointer(
-																windowInfoHandle, kLock, kNoMoveHi);
+				windowInfoHandle = GetWindowInfoHandle (windowPtr);
+				windowInfoPtr = (WindowInfoPtr)GetHandlePointer (windowInfoHandle, kLock);
 			
 				if (windowInfoPtr != NULL)
 					{
@@ -262,8 +255,8 @@ void CloseImageOverlayFile (
 					moveFlag = FALSE;
 					while (overlayListIndex < windowInfoPtr->numberImageOverlays)
 						{
-						if (abs(windowInfoPtr->imageOverlayList[overlayListIndex].index) == 
-																		(UInt8)(imageOverlayIndex + 1))
+						if (abs (windowInfoPtr->imageOverlayList[overlayListIndex].index) ==
+																			(UInt8)(imageOverlayIndex + 1))
 							{
 							if (windowInfoPtr->imageOverlayList[overlayListIndex].index > 0)
 								InvalidateWindow (windowPtr, 
@@ -272,7 +265,7 @@ void CloseImageOverlayFile (
 								
 							moveFlag = TRUE;
 							
-							}		// end "if (abs(...->imageOverlayList[overlayListIndex]..."
+							}	// end "if (abs (...->imageOverlayList[overlayListIndex]..."
 							
 						if (moveFlag && overlayListIndex+1 < windowInfoPtr->numberImageOverlays)
 							windowInfoPtr->imageOverlayList[overlayListIndex] = 
@@ -280,16 +273,16 @@ void CloseImageOverlayFile (
 						
 						overlayListIndex++;
 						
-						}		// end "while (overlayListIndex < windowInfoPtr->...)"
+						}	// end "while (overlayListIndex < windowInfoPtr->...)"
 						
 					if (moveFlag)
 						{
 						windowInfoPtr->numberImageOverlays--;
 						UpdateOverlayControl (windowPtr);
 						
-						}		// end "if (moveFlag)"
+						}	// end "if (moveFlag)"
 						
-					}		// end "if (windowInfoPtr != NULL)"
+					}	// end "if (windowInfoPtr != NULL)"
 					
 				CheckAndUnlockHandle (windowInfoHandle);
 				
@@ -300,13 +293,13 @@ void CloseImageOverlayFile (
 				
 			gNumberImageOverlayFiles--;
 			
-			}		// end "if (shapeInfoPtr != NULL)"
+			}	// end "if (shapeInfoPtr != NULL)"
 			
 		CheckAndUnlockHandle (gImageOverlayHandle);
 			
-		}		// end "if (overlayIndex < gImageOverlayListLength)"
+		}	// end "if (overlayIndex < gImageOverlayListLength)"
 	
-}		// end "CloseImageOverlayFile"				
+}	// end "CloseImageOverlayFile"				
 
 
 
@@ -363,11 +356,11 @@ void CopyToOffscreenBuffer (
 			// Get line offscreen buffer pointer
 
 	offScreenLineBufferPtr = GetImageOverlayLineOffscreenPointer (
-											imageOverlayInfoPtr,
-											offScreenBufferPtr,
-											columnStart,
-											line);
-									
+																				imageOverlayInfoPtr,
+																				offScreenBufferPtr,
+																				columnStart,
+																				line);
+	
 	FillLineOfOffscreenBuffer (fileIOInstructionsPtr,
 										imageOverlayInfoPtr,
 										line,
@@ -386,22 +379,21 @@ void CopyToOffscreenBuffer (
 		//activeImageWindowInfoHandle = FindProjectBaseImageWindowInfoHandle ();
 			
 		imageWindowInfoPtr = (WindowInfoPtr)GetHandlePointer (
-								activeImageWindowInfoHandle, kNoLock, kNoMoveHi);	
+																	activeImageWindowInfoHandle);	
 								
 		if (!gOSXCoreGraphicsFlag)
 			imageWindowInfoPtr->drawBaseImageFlag = FALSE;
 								
-		windowOverlayIndex = GetWindowImageOverlayIndex (
-														imageWindowInfoPtr,
-														imageOverlayIndex);
+		windowOverlayIndex = GetWindowImageOverlayIndex (imageWindowInfoPtr,
+																			imageOverlayIndex);
 		
 		if (windowOverlayIndex >= 0)								
 			imageWindowInfoPtr->imageOverlayList[windowOverlayIndex].index = 
-					abs(imageWindowInfoPtr->imageOverlayList[windowOverlayIndex].index);
+					abs (imageWindowInfoPtr->imageOverlayList[windowOverlayIndex].index);
 						
-		}		// end "if (line == lineStart)"
+		}	// end "if (line == lineStart)"
 	
-}		// end "CopyToOffscreenBuffer"
+}	// end "CopyToOffscreenBuffer"
 
 
 
@@ -437,7 +429,7 @@ void DrawImageOverlays  (
 				
 { 										
 	DoubleRect							boundingMapRectangle;
-								//			intersectMapRectangle;
+											//intersectMapRectangle;
 	
 	Rect									destinationRect;
 	LongRect								intersectWindowRectangle,
@@ -459,23 +451,23 @@ void DrawImageOverlays  (
 	
 	Boolean								copyBitsFlag;
 	SignedByte							windowHandleStatus; 
-/*   
-#if defined multispec_lin
-   UInt32                        savedVScroll;
-   UInt32                        savedHScroll;
-   DisplaySpecsPtr					displaySpecsPtr;
-   Handle                        displaySpecsH;
-#endif
-*/									
-#	if defined multispec_mac 
+	/*   
+	#if defined multispec_lin
+		UInt32                        savedVScroll;
+		UInt32                        savedHScroll;
+		DisplaySpecsPtr					displaySpecsPtr;
+		Handle                        displaySpecsH;
+	#endif
+	*/									
+	#if defined multispec_mac 
 		float 								inputHeight;
-#	endif		// defined multispec_mac          
+	#endif		// defined multispec_mac          
 	
 	
 	SetChannelWindowVariables (windowCode, windowInfoHandle, gOSXCoreGraphicsFlag);
 		
 	windowInfoPtr = (WindowInfoPtr)GetHandleStatusAndPointer (
-										windowInfoHandle, &windowHandleStatus, kNoMoveHi);
+														windowInfoHandle, &windowHandleStatus);
 	
 	if (windowInfoPtr != NULL) 
 		{
@@ -484,28 +476,26 @@ void DrawImageOverlays  (
 		numberOverlays = windowInfoPtr->numberImageOverlays;
 		overlayListPtr = windowInfoPtr->imageOverlayList;
 		
-		imageOverlayHandlePtr = (Handle*)GetHandlePointer(
-														gImageOverlayHandle, kLock, kNoMoveHi);
+		imageOverlayHandlePtr = (Handle*)GetHandlePointer (gImageOverlayHandle, kLock);
 														
-		}		// end "if (windowInfoPtr != NULL)"
+		}	// end "if (windowInfoPtr != NULL)"
 		
 	if (imageOverlayHandlePtr != NULL)
 		{
 				// Set some parameters for converting from map units to window units.
 				// 	Set offset for computing closest window units (not for pen location).
 				// 	The image top offset is already handled by Core Graphics.
-/*
-#if defined multispec_lin
-      // Save the scrolling in displayspecsptr and set it to 1 for linux
-      displaySpecsH = GetDisplaySpecsHandle(windowInfoHandle);
-      displaySpecsPtr = (DisplaySpecsPtr)GetHandlePointer(
-													displaySpecsH, kNoLock, kNoMoveHi);		
-      savedVScroll = displaySpecsPtr->origin[kVertical];
-      savedHScroll = displaySpecsPtr->origin[kHorizontal];
-      displaySpecsPtr->origin[kHorizontal] = 0;
-		displaySpecsPtr->origin[kVertical] = 0;
-#endif
-*/				
+		/*
+		#if defined multispec_lin
+					// Save the scrolling in displayspecsptr and set it to 1 for linux
+			displaySpecsH = GetDisplaySpecsHandle (windowInfoHandle);
+			displaySpecsPtr = (DisplaySpecsPtr)GetHandlePointer ();		
+			savedVScroll = displaySpecsPtr->origin[kVertical];
+			savedHScroll = displaySpecsPtr->origin[kHorizontal];
+			displaySpecsPtr->origin[kHorizontal] = 0;
+			displaySpecsPtr->origin[kVertical] = 0;
+		#endif
+		*/				
 		SetMapToWindowUnitsVariables (windowInfoHandle,
 												windowCode,
 												kImageOverlay, 
@@ -519,12 +509,12 @@ void DrawImageOverlays  (
 												windowCode, 
 												FALSE,
 												&lcToWindowUnitsVariables);
-/*      
-#if defined multispec_lin
-      displaySpecsPtr->origin[kVertical] = savedVScroll;
-      displaySpecsPtr->origin[kHorizontal] = savedHScroll;
-#endif
-*/											
+		/*      
+		#if defined multispec_lin
+			displaySpecsPtr->origin[kVertical] = savedVScroll;
+			displaySpecsPtr->origin[kHorizontal] = savedHScroll;
+		#endif
+		*/											
 		if (gOSXCoreGraphicsFlag)
 			{
 			lcToWindowUnitsVariables.magnification = 1.;
@@ -533,11 +523,11 @@ void DrawImageOverlays  (
 			lcToWindowUnitsVariables.imageTopOffset = 0;
 			legendWidth = lcToWindowUnitsVariables.imageLeftOffset;
 									
-#			if defined multispec_mac 
+			#if defined multispec_mac 
 				inputHeight = rectanglePtr->size.height;
-#			endif		// defined multispec_mac 
+			#endif		// defined multispec_mac 
 			
-			}		// end "if (gOSXCoreGraphicsFlag)"
+			}	// end "if (gOSXCoreGraphicsFlag)"
 					
 		for (overlayIndex=0; overlayIndex<numberOverlays; overlayIndex++)
 			{
@@ -548,20 +538,19 @@ void DrawImageOverlays  (
 				imageOverlayIndex--;
 				overlayInfoPtr = (ImageOverlayInfoPtr)GetHandlePointer (
 															imageOverlayHandlePtr[imageOverlayIndex],
-															kLock,
-															kNoMoveHi);
+															kLock);
 																
-				}		// end "if (shapeFileIndex > 0)"
+				}	// end "if (shapeFileIndex > 0)"
 																
-			else		// shapeFileIndex < 0
+			else	// shapeFileIndex < 0
 				overlayInfoPtr = NULL;
 										
 			if (overlayInfoPtr != NULL)
 				{																			
-#				if defined multispec_mac 
+				#if defined multispec_mac 
 					GWorldFlags							offscreenGWorldFlags;
 
-#					if TARGET_API_MAC_CARBON		
+					#if TARGET_API_MAC_CARBON		
 						if (gOSXCoreGraphicsFlag && 
 									overlayInfoPtr->offscreenStorageHandle != NULL)
 							{
@@ -575,7 +564,7 @@ void DrawImageOverlays  (
 																	&overlayDestinationRect,
 																	&mapToWindowUnitsVariables);
 								
-							else		// !overlayInfoPtr->usePlanarCoordinateInfoFlag
+							else	// !overlayInfoPtr->usePlanarCoordinateInfoFlag
 								ConvertLCRectToWinRect (&overlayInfoPtr->lineColumnRect, 
 																	&overlayDestinationRect, 
 																	&lcToWindowUnitsVariables);
@@ -589,7 +578,7 @@ void DrawImageOverlays  (
 								rectanglePtr->origin.y = (inputHeight -
 																		overlayDestinationRect.bottom);
 																		
-								rectanglePtr->size.width = MIN(
+								rectanglePtr->size.width = MIN (
 										overlayDestinationRect.right,
 										gChannelWindowOffset + gChannelWindowWidth);
 								rectanglePtr->size.width -= overlayDestinationRect.left;
@@ -607,13 +596,13 @@ void DrawImageOverlays  (
 																		
 								gCGContextClipToRectPtr (context, *rectanglePtr);
 								
-								}		// end "if (gSideBySideChannels > 1)"
+								}	// end "if (gSideBySideChannels > 1)"
 																	
 							rectanglePtr->origin.x = overlayDestinationRect.left - legendWidth;
 							rectanglePtr->origin.y = (inputHeight -
 																		overlayDestinationRect.bottom);
 							rectanglePtr->size.width = (overlayDestinationRect.right -
-																	overlayDestinationRect.left);
+																		overlayDestinationRect.left);
 							rectanglePtr->size.height = (overlayDestinationRect.bottom - 
 																		overlayDestinationRect.top);
 							
@@ -626,182 +615,182 @@ void DrawImageOverlays  (
 							if (gSideBySideChannels > 1 && numberOverlays > 1)
 								gCGContextRestoreGStatePtr (context);
 							
-							}		// if (gOSXCoreGraphicsFlag && imageBaseAddressH != NULL)
+							}	// if (gOSXCoreGraphicsFlag && imageBaseAddressH != NULL)
 							
-						else		// !gOSXCoreGraphicsFlag || imageBaseAddressH != NULL
+						else	// !gOSXCoreGraphicsFlag || imageBaseAddressH != NULL
 							{
-#					endif		// TARGET_API_MAC_CARBON
+					#endif		// TARGET_API_MAC_CARBON
 										
-							copyBitsFlag = TRUE;
-							if (overlayInfoPtr->usePlanarCoordinateInfoFlag)
-								{
-										// Define the rectangle to draw the image overlay within.
+					copyBitsFlag = TRUE;
+					if (overlayInfoPtr->usePlanarCoordinateInfoFlag)
+						{
+								// Define the rectangle to draw the image overlay within.
 
-								ConvertMapRectToWinRect (&overlayInfoPtr->boundingMapRectangle, 
-																	&overlayDestinationRect,
-																	&mapToWindowUnitsVariables);
-
-								intersectWindowRectangle.left = MAX (inputWindowRectPtr->left,
-																				overlayDestinationRect.left);
-								intersectWindowRectangle.top = MAX (inputWindowRectPtr->top,
-																				overlayDestinationRect.top);
-								intersectWindowRectangle.right = MIN (inputWindowRectPtr->right,
-																				overlayDestinationRect.right);
-								intersectWindowRectangle.bottom = MIN (inputWindowRectPtr->bottom,
-																				overlayDestinationRect.bottom);
-								
-								if (intersectWindowRectangle.left > intersectWindowRectangle.right ||
-										intersectWindowRectangle.top > intersectWindowRectangle.bottom)
-									copyBitsFlag = FALSE;
-										
-								if (copyBitsFlag)
-									{
-											// The bounding rectangle do overlap.
-						
-									destinationRect.top = intersectWindowRectangle.top;
-									destinationRect.left = intersectWindowRectangle.left;
-									destinationRect.bottom = intersectWindowRectangle.bottom;
-									destinationRect.right = intersectWindowRectangle.right;
-
-									ConvertWinRectToMapRect (
-															windowInfoHandle,
-															&intersectWindowRectangle,
-															&boundingMapRectangle,
-															FALSE,
-															kUpperLeftLowerRightCorners);
-
-									ConvertMapRectToLCRect (
-															windowInfoHandle,
-															&boundingMapRectangle,
+						ConvertMapRectToWinRect (&overlayInfoPtr->boundingMapRectangle, 
 															&overlayDestinationRect,
-															1);
-						
-									sourceRectPtr->top = MAX (0, overlayDestinationRect.top -
-																		overlayInfoPtr->lineColumnRect.top);
-									sourceRectPtr->left = MAX (0, overlayDestinationRect.left -
-																		overlayInfoPtr->lineColumnRect.left);
-									sourceRectPtr->bottom = MIN (overlayDestinationRect.bottom - 
-																		overlayInfoPtr->lineColumnRect.top + 1,
-																	overlayInfoPtr->lineColumnRect.bottom - 
-																		overlayInfoPtr->lineColumnRect.top + 1);
-									sourceRectPtr->right = MIN (overlayDestinationRect.right - 
-																		overlayInfoPtr->lineColumnRect.left + 1,
-																	overlayInfoPtr->lineColumnRect.right - 
-																		overlayInfoPtr->lineColumnRect.left + 1);
-									
-									}		// end "if (copyBitsFlag)"
-									
-								}		// end "if (overlayInfoPtr->usePlanarCoordinateInfoFlag)"
-								
-							else		// !overlayInfoPtr->usePlanarCoordinateInfoFlag
-								{	
-								ConvertLCRectToWinRect (&overlayInfoPtr->lineColumnRect, 
-																	&overlayDestinationRect, 
-																	&lcToWindowUnitsVariables);
-						
-								destinationRect.top = overlayDestinationRect.top;
-								destinationRect.left = overlayDestinationRect.left;
-								destinationRect.bottom = overlayDestinationRect.bottom;
-								destinationRect.right = overlayDestinationRect.right;
-						
-								*sourceRectPtr = 
-											((PixMap*)*overlayInfoPtr->offScreenMapHandle)->bounds;
-											
-								}		// end "else !...->usePlanarCoordinateInfoFlag"
-					
-							if (copyBitsFlag)
-								{
-								offscreenGWorldFlags = GetPixelsState ( 
-												(PixMapHandle)overlayInfoPtr->offScreenMapHandle);
-								if (LockPixels ( 
-										(PixMapHandle)overlayInfoPtr->offScreenMapHandle ))
-									{
-									RGBColor theOpcolor;
-									theOpcolor.red = 
-													overlayListPtr[overlayIndex].opacity*USHRT_MAX;
-									theOpcolor.green = 
-													overlayListPtr[overlayIndex].opacity*USHRT_MAX;
-									theOpcolor.blue = 
-													overlayListPtr[overlayIndex].opacity*USHRT_MAX;
-									
-									OpColor (&theOpcolor);
-						
-									CopyBits ( (BitMap*)*overlayInfoPtr->offScreenMapHandle, 
-												GetPortBitMapForCopyBits (GetWindowPort(windowPtr)),
-												sourceRectPtr, 
-												&destinationRect, 
-												blend,		// blend, srcCopy
-												NIL);
-		/*											
-									CopyDeepMask(
-											  (BitMap*)*overlayInfoPtr->offScreenMapHandle,
-											  const BitMap *  maskBits,
-											  GetPortBitMapForCopyBits (GetWindowPort(windowPtr)),
-											  sourceRectPtr,
-											  const Rect *    maskRect,
-											  inputWindowRectPtr,
-											  short           mode,
-											  NULL)        // can be NULL 
-		*/							
-									if ( !(offscreenGWorldFlags & pixelsLocked) )							
-										UnlockPixels ( 
-												(PixMapHandle)overlayInfoPtr->offScreenMapHandle );
-									
-									}		// end "if ( LockPixels ( (PixMapHandle)..."
-												
-								}		// end "if (copyBitsFlag)"
-/*				
-					// Test translucent overlay.
-					
-			WindowPtr overlayWindowPtr = gWindowList[kImageWindowStart + 1]; 
-			if (overlayWindowPtr != NULL && overlayWindowPtr != theWindow)
-				{
-				
-				Handle overlayWindowInfoHandle = (Handle)GetWRefCon(overlayWindowPtr);
-				WindowInfoPtr overlayWindowInfoPtr = (WindowInfoPtr)*overlayWindowInfoHandle;
-				Handle overlayOffScreenMapH = overlayWindowInfoPtr->offScreenMapHandle;
-				
-				if ( LockPixels ( (PixMapHandle)overlayOffScreenMapH ) )
-					{
-					RGBColor theOpcolor;
-					theOpcolor.red = .5*USHRT_MAX;
-					theOpcolor.green = .5*USHRT_MAX;
-					theOpcolor.blue = .5*USHRT_MAX;
-					
-					OpColor (&theOpcolor);
-				
-					CopyBits ( (BitMap*)*overlayOffScreenMapH, 
-										&((GrafPtr)theWindow)->portBits, 
-										&sourceRect, 
-										&destinationRect, 
-										blend, 
-										NIL);
-					
-					if ( !(gWorldFlags & pixelsLocked) )							
-						UnlockPixels ( (PixMapHandle)overlayOffScreenMapH );
-						
-					}		// end "if ( LockPixels ( (PixMapHandle)overlayOffScreenMapH ) )"
-				
-				}		// end "if (overlayWindowPtr != NULL)"
-*/			
-#					if TARGET_API_MAC_CARBON
-						}		// end "else !gOSXCoreGraphicsFlag" 
-#					endif	// TARGET_API_MAC_CARBON
-#				endif // defined multispec_mac 
+															&mapToWindowUnitsVariables);
 
-#				if defined multispec_win     
+						intersectWindowRectangle.left = MAX (inputWindowRectPtr->left,
+																		overlayDestinationRect.left);
+						intersectWindowRectangle.top = MAX (inputWindowRectPtr->top,
+																		overlayDestinationRect.top);
+						intersectWindowRectangle.right = MIN (inputWindowRectPtr->right,
+																		overlayDestinationRect.right);
+						intersectWindowRectangle.bottom = MIN (inputWindowRectPtr->bottom,
+																		overlayDestinationRect.bottom);
+						
+						if (intersectWindowRectangle.left > intersectWindowRectangle.right ||
+								intersectWindowRectangle.top > intersectWindowRectangle.bottom)
+							copyBitsFlag = FALSE;
+								
+						if (copyBitsFlag)
+							{
+									// The bounding rectangle do overlap.
+				
+							destinationRect.top = intersectWindowRectangle.top;
+							destinationRect.left = intersectWindowRectangle.left;
+							destinationRect.bottom = intersectWindowRectangle.bottom;
+							destinationRect.right = intersectWindowRectangle.right;
+
+							ConvertWinRectToMapRect (
+													windowInfoHandle,
+													&intersectWindowRectangle,
+													&boundingMapRectangle,
+													FALSE,
+													kUpperLeftLowerRightCorners);
+
+							ConvertMapRectToLCRect (
+													windowInfoHandle,
+													&boundingMapRectangle,
+													&overlayDestinationRect,
+													1);
+				
+							sourceRectPtr->top = MAX (0, overlayDestinationRect.top -
+																overlayInfoPtr->lineColumnRect.top);
+							sourceRectPtr->left = MAX (0, overlayDestinationRect.left -
+																overlayInfoPtr->lineColumnRect.left);
+							sourceRectPtr->bottom = MIN (overlayDestinationRect.bottom - 
+																overlayInfoPtr->lineColumnRect.top + 1,
+															overlayInfoPtr->lineColumnRect.bottom - 
+																overlayInfoPtr->lineColumnRect.top + 1);
+							sourceRectPtr->right = MIN (overlayDestinationRect.right - 
+																overlayInfoPtr->lineColumnRect.left + 1,
+															overlayInfoPtr->lineColumnRect.right - 
+																overlayInfoPtr->lineColumnRect.left + 1);
+							
+							}	// end "if (copyBitsFlag)"
+							
+						}	// end "if (overlayInfoPtr->usePlanarCoordinateInfoFlag)"
+						
+					else	// !overlayInfoPtr->usePlanarCoordinateInfoFlag
+						{	
+						ConvertLCRectToWinRect (&overlayInfoPtr->lineColumnRect, 
+															&overlayDestinationRect, 
+															&lcToWindowUnitsVariables);
+				
+						destinationRect.top = overlayDestinationRect.top;
+						destinationRect.left = overlayDestinationRect.left;
+						destinationRect.bottom = overlayDestinationRect.bottom;
+						destinationRect.right = overlayDestinationRect.right;
+				
+						*sourceRectPtr = 
+									((PixMap*)*overlayInfoPtr->offScreenMapHandle)->bounds;
+									
+						}	// end "else !...->usePlanarCoordinateInfoFlag"
+			
+					if (copyBitsFlag)
+						{
+						offscreenGWorldFlags = GetPixelsState (
+										(PixMapHandle)overlayInfoPtr->offScreenMapHandle);
+						if (LockPixels (
+								(PixMapHandle)overlayInfoPtr->offScreenMapHandle))
+							{
+							RGBColor theOpcolor;
+							theOpcolor.red = 
+											overlayListPtr[overlayIndex].opacity*USHRT_MAX;
+							theOpcolor.green = 
+											overlayListPtr[overlayIndex].opacity*USHRT_MAX;
+							theOpcolor.blue = 
+											overlayListPtr[overlayIndex].opacity*USHRT_MAX;
+							
+							OpColor (&theOpcolor);
+				
+							CopyBits ((BitMap*)*overlayInfoPtr->offScreenMapHandle, 
+										GetPortBitMapForCopyBits (GetWindowPort (windowPtr)),
+										sourceRectPtr, 
+										&destinationRect, 
+										blend,		// blend, srcCopy
+										NIL);
+							/*
+							CopyDeepMask (
+									  (BitMap*)*overlayInfoPtr->offScreenMapHandle,
+									  const BitMap *  maskBits,
+									  GetPortBitMapForCopyBits (GetWindowPort (windowPtr)),
+									  sourceRectPtr,
+									  const Rect *    maskRect,
+									  inputWindowRectPtr,
+									  short           mode,
+									  NULL)        // can be NULL 
+							*/
+							if (!(offscreenGWorldFlags & pixelsLocked))							
+								UnlockPixels (
+										(PixMapHandle)overlayInfoPtr->offScreenMapHandle);
+							
+							}	// end "if (LockPixels ((PixMapHandle)..."
+										
+						}	// end "if (copyBitsFlag)"
+					/*
+							// Test translucent overlay.
+							
+					WindowPtr overlayWindowPtr = gWindowList[kImageWindowStart + 1]; 
+					if (overlayWindowPtr != NULL && overlayWindowPtr != theWindow)
+						{
+						
+						Handle overlayWindowInfoHandle = (Handle)GetWRefCon (overlayWindowPtr);
+						WindowInfoPtr overlayWindowInfoPtr = (WindowInfoPtr)*overlayWindowInfoHandle;
+						Handle overlayOffScreenMapH = overlayWindowInfoPtr->offScreenMapHandle;
+						
+						if (LockPixels ((PixMapHandle)overlayOffScreenMapH))
+							{
+							RGBColor theOpcolor;
+							theOpcolor.red = .5*USHRT_MAX;
+							theOpcolor.green = .5*USHRT_MAX;
+							theOpcolor.blue = .5*USHRT_MAX;
+							
+							OpColor (&theOpcolor);
+						
+							CopyBits ((BitMap*)*overlayOffScreenMapH, 
+												&((GrafPtr)theWindow)->portBits, 
+												&sourceRect, 
+												&destinationRect, 
+												blend, 
+												NIL);
+							
+							if (!(gWorldFlags & pixelsLocked))							
+								UnlockPixels ((PixMapHandle)overlayOffScreenMapH);
+								
+							}	// end "if (LockPixels ((PixMapHandle)overlayOffScreenMapH))"
+						
+						}	// end "if (overlayWindowPtr != NULL)"
+					*/
+					#if TARGET_API_MAC_CARBON
+						}	// end "else !gOSXCoreGraphicsFlag" 
+					#endif	// TARGET_API_MAC_CARBON
+				#endif // defined multispec_mac 
+
+				#if defined multispec_win     
 					BITMAP			transparentBitMap;
 					SInt16	     	bSuccess=0;     		// Success/fail flag
 					HDC				hDC;
-//					SInt16			titleHeight;
+					//SInt16			titleHeight;
 					BLENDFUNCTION	blendFunction;
 					
 							// Get the bitmap for for HBITMAP
 				 
 					if (!GetObject ((HBITMAP)overlayInfoPtr->offScreenMapHandle,
-											sizeof(BITMAP),
+											sizeof (BITMAP),
 											(LPSTR)&transparentBitMap))
-																												return;
+																										return;
 
 					copyBitsFlag = TRUE;
 
@@ -833,39 +822,37 @@ void DrawImageOverlays  (
 							destinationRect.bottom = intersectWindowRectangle.bottom;
 							destinationRect.right = intersectWindowRectangle.right;
 
-							ConvertWinRectToMapRect (
-													windowInfoHandle,
-													&intersectWindowRectangle,
-													&boundingMapRectangle,
-													FALSE,
-													kUpperLeftLowerRightCorners);
+							ConvertWinRectToMapRect (windowInfoHandle,
+																&intersectWindowRectangle,
+																&boundingMapRectangle,
+																FALSE,
+																kUpperLeftLowerRightCorners);
 
 									// Force upper left and lower right for map rectangle.
 									
-							ConvertMapRectToLCRect (
-													windowInfoHandle,
-													&boundingMapRectangle,
-													&overlayDestinationRect,
-													1);
+							ConvertMapRectToLCRect (windowInfoHandle,
+																&boundingMapRectangle,
+																&overlayDestinationRect,
+																1);
 				
 							sourceRectPtr->top = MAX (0, overlayDestinationRect.top -
-																overlayInfoPtr->lineColumnRect.top);
+																	overlayInfoPtr->lineColumnRect.top);
 							sourceRectPtr->left = MAX (0, overlayDestinationRect.left -
-																overlayInfoPtr->lineColumnRect.left);
+																	overlayInfoPtr->lineColumnRect.left);
 							sourceRectPtr->bottom = MIN (overlayDestinationRect.bottom - 
-																overlayInfoPtr->lineColumnRect.top,
+																	overlayInfoPtr->lineColumnRect.top,
 															overlayInfoPtr->lineColumnRect.bottom - 
-																overlayInfoPtr->lineColumnRect.top);
+																	overlayInfoPtr->lineColumnRect.top);
 							sourceRectPtr->right = MIN (overlayDestinationRect.right - 
-																overlayInfoPtr->lineColumnRect.left,
+																	overlayInfoPtr->lineColumnRect.left,
 															overlayInfoPtr->lineColumnRect.right - 
-																overlayInfoPtr->lineColumnRect.left);
+																	overlayInfoPtr->lineColumnRect.left);
 																
-							}		// end "if (copyBitsFlag)"
+							}	// end "if (copyBitsFlag)"
 							
-						}		// end "if (overlayInfoPtr->usePlanarCoordinateInfoFlag)"
+						}	// end "if (overlayInfoPtr->usePlanarCoordinateInfoFlag)"
 						
-					else		// !overlayInfoPtr->usePlanarCoordinateInfoFlag
+					else	// !overlayInfoPtr->usePlanarCoordinateInfoFlag
 						{	
 						ConvertLCRectToWinRect (&overlayInfoPtr->lineColumnRect, 
 															&overlayDestinationRect, 
@@ -882,14 +869,14 @@ void DrawImageOverlays  (
 						sourceRectPtr->left = 0;
 						sourceRectPtr->right = transparentBitMap.bmWidth;
 						
-						}		// end "else !...->usePlanarCoordinateInfoFlag" 
+						}	// end "else !...->usePlanarCoordinateInfoFlag" 
 				
-					gCDCPointer->SetStretchBltMode(STRETCH_DELETESCANS);     
+					gCDCPointer->SetStretchBltMode (STRETCH_DELETESCANS);
 			
-					int destinationRectWidth = RECTWIDTH(&destinationRect); 
-					int destinationRectHeight = RECTHEIGHT(&destinationRect);
-					int sourceRectWidth = RECTWIDTH(sourceRectPtr);
-					int sourceRectHeight = RECTHEIGHT(sourceRectPtr); 
+					int destinationRectWidth = RECTWIDTH (&destinationRect);
+					int destinationRectHeight = RECTHEIGHT (&destinationRect);
+					int sourceRectWidth = RECTWIDTH (sourceRectPtr);
+					int sourceRectHeight = RECTHEIGHT (sourceRectPtr);
 
 							// Now take into account that the device independant bitmap is
 							// is stored in memory in reverse order last line to first line.
@@ -897,7 +884,7 @@ void DrawImageOverlays  (
 					sourceRectPtr->top = 
 									(int)transparentBitMap.bmHeight - sourceRectPtr->bottom;
 
-					hDC = gCDCPointer->GetSafeHdc();
+					hDC = gCDCPointer->GetSafeHdc ();
 			
 					if (copyBitsFlag)
 						{
@@ -918,13 +905,16 @@ void DrawImageOverlays  (
 											SRCCOPY);                       	// dwROP (SRCCOPY) (SRCINVERT is close)
 						*/
 						//sourceHDC = CreateCompatibleDC (hDC);
-						//transparentBitMap = CreateDIBSection(sourceHDC, lpDIBHdr, DIB_RGB_COLORS, &overlayBitsPtr, NULL, 0x0);
-						//BlockMoveData(lpDIBBits, overlayBitsPtr, lpDIBHdr->bmiHeader.biSizeImage);
+						//transparentBitMap = CreateDIBSection (
+						//		sourceHDC, lpDIBHdr, DIB_RGB_COLORS, &overlayBitsPtr, NULL, 0x0);
+						//BlockMoveData (
+						//			lpDIBBits, overlayBitsPtr, lpDIBHdr->bmiHeader.biSizeImage);
 						//SelectObject (sourceHDC, transparentBitMap);
 
 						blendFunction.BlendOp = AC_SRC_OVER;
 						blendFunction.BlendFlags = 0;
-						blendFunction.SourceConstantAlpha = (UInt8)(overlayListPtr[overlayIndex].opacity*255);
+						blendFunction.SourceConstantAlpha =
+												(UInt8)(overlayListPtr[overlayIndex].opacity*255);
 						blendFunction.AlphaFormat = AC_SRC_ALPHA;
 
 						bSuccess = ::AlphaBlend (
@@ -940,8 +930,8 @@ void DrawImageOverlays  (
 											sourceRectHeight,        			// wSrcHeight
 											blendFunction);                  // blendFunction
 
-						//DeleteObject(transparentBitMap);
-						//DeleteDC(sourceHDC);
+						//DeleteObject (transparentBitMap);
+						//DeleteDC (sourceHDC);
 						
 						/*
 						sourceHDC = CreateCompatibleDC (hDC);
@@ -958,19 +948,20 @@ void DrawImageOverlays  (
 											sourceRectPtr->top,   				// SrcY
 											sourceRectWidth,         			// wSrcWidth
 											sourceRectHeight,        			// wSrcHeight
-											RGB(0, 0, 0));                    // color which is transparent 
+											RGB (0, 0, 0));                    // color which is transparent
 						*/
-						}
+						}	// end "if (copyBitsFlag)"
 											
 			   	//::GlobalUnlock ((HGLOBAL)overlayInfoPtr->offScreenMapHandle);
 			   	//::GlobalUnlock ((HGLOBAL)overlayInfoPtr->offscreenStorageHandle);
-#				endif // defined multispec_win 
+				#endif // defined multispec_win 
 
-#				if defined multispec_lin     
+				#if defined multispec_lin     
 					BITMAPINFOHEADER* bitMapInfoHeadPtr;
 					SInt16 bSuccess = 0; // Success/fail flag
 
-					bitMapInfoHeadPtr = (BITMAPINFOHEADER*) GetHandlePointer(overlayInfoPtr->offScreenMapHandle, kLock, kNoMoveHi);
+					bitMapInfoHeadPtr = (BITMAPINFOHEADER*)GetHandlePointer (
+														overlayInfoPtr->offScreenMapHandle, kLock);
 
 
 					copyBitsFlag = TRUE;
@@ -981,9 +972,9 @@ void DrawImageOverlays  (
 								// In Linux, overlay is drawn on bitmap file so no magnification is required
 						double oldmagn = mapToWindowUnitsVariables.magnification;
 						mapToWindowUnitsVariables.magnification = 1;
-						ConvertMapRectToWinRect(&overlayInfoPtr->boundingMapRectangle,
-								  &overlayDestinationRect,
-								  &mapToWindowUnitsVariables);
+						ConvertMapRectToWinRect (&overlayInfoPtr->boundingMapRectangle,
+														  &overlayDestinationRect,
+														  &mapToWindowUnitsVariables);
 						mapToWindowUnitsVariables.magnification = oldmagn;
 						
 						intersectWindowRectangle.left = overlayDestinationRect.left;
@@ -1002,33 +993,31 @@ void DrawImageOverlays  (
 							destinationRect.bottom = intersectWindowRectangle.bottom;
 							destinationRect.right = intersectWindowRectangle.right;
 
-							ConvertWinRectToMapRect (
-									  windowInfoHandle,
-									  &intersectWindowRectangle,
-									  &boundingMapRectangle,
-									  FALSE,
-									  kUpperLeftLowerRightCorners);
+							ConvertWinRectToMapRect (windowInfoHandle,
+															  &intersectWindowRectangle,
+															  &boundingMapRectangle,
+															  FALSE,
+															  kUpperLeftLowerRightCorners);
 
 									// Force upper left and lower right for map rectangle.
 
-							ConvertMapRectToLCRect (
-									  windowInfoHandle,
-									  &boundingMapRectangle,
-									  &overlayDestinationRect,
-									  1);
+							ConvertMapRectToLCRect (windowInfoHandle,
+															  &boundingMapRectangle,
+															  &overlayDestinationRect,
+															  1);
 
-							sourceRectPtr->top = MAX(0, overlayDestinationRect.top -
-									  overlayInfoPtr->lineColumnRect.top);
-							sourceRectPtr->left = MAX(0, overlayDestinationRect.left -
-									  overlayInfoPtr->lineColumnRect.left);
-							sourceRectPtr->bottom = MIN(overlayDestinationRect.bottom -
-									  overlayInfoPtr->lineColumnRect.top,
-									  overlayInfoPtr->lineColumnRect.bottom -
-									  overlayInfoPtr->lineColumnRect.top);
-							sourceRectPtr->right = MIN(overlayDestinationRect.right -
-									  overlayInfoPtr->lineColumnRect.left,
-									  overlayInfoPtr->lineColumnRect.right -
-									  overlayInfoPtr->lineColumnRect.left);
+							sourceRectPtr->top = MAX (0, overlayDestinationRect.top -
+															overlayInfoPtr->lineColumnRect.top);
+							sourceRectPtr->left = MAX (0, overlayDestinationRect.left -
+																overlayInfoPtr->lineColumnRect.left);
+							sourceRectPtr->bottom = MIN (overlayDestinationRect.bottom -
+																	overlayInfoPtr->lineColumnRect.top,
+																overlayInfoPtr->lineColumnRect.bottom -
+																	overlayInfoPtr->lineColumnRect.top);
+							sourceRectPtr->right = MIN (overlayDestinationRect.right -
+																  overlayInfoPtr->lineColumnRect.left,
+																overlayInfoPtr->lineColumnRect.right -
+																  overlayInfoPtr->lineColumnRect.left);
 
 							}	// end "if (copyBitsFlag)"
 
@@ -1039,9 +1028,9 @@ void DrawImageOverlays  (
 						double oldmagn = lcToWindowUnitsVariables.magnification;
 						// Change magnification to 1 for linux
 						lcToWindowUnitsVariables.magnification = 1;
-						ConvertLCRectToWinRect(&overlayInfoPtr->lineColumnRect,
-								  &overlayDestinationRect,
-								  &lcToWindowUnitsVariables);
+						ConvertLCRectToWinRect (&overlayInfoPtr->lineColumnRect,
+														  &overlayDestinationRect,
+														  &lcToWindowUnitsVariables);
 						lcToWindowUnitsVariables.magnification = oldmagn;
 						destinationRect.top = overlayDestinationRect.top;
 						destinationRect.left = overlayDestinationRect.left;
@@ -1055,22 +1044,28 @@ void DrawImageOverlays  (
 
 						}	// end "else !...->usePlanarCoordinateInfoFlag" 
 
-					int destinationRectWidth = MAX((destinationRect.right - destinationRect.left), 0);
-					int destinationRectHeight = MAX((destinationRect.bottom - destinationRect.top), 0);
-					int sourceRectWidth = MAX((sourceRectPtr->right - sourceRectPtr->left), 0);
-					int sourceRectHeight = MAX((sourceRectPtr->bottom - sourceRectPtr->top), 0);
+					int destinationRectWidth = MAX (
+												(destinationRect.right - destinationRect.left), 0);
+					int destinationRectHeight = MAX (
+												(destinationRect.bottom - destinationRect.top), 0);
+					int sourceRectWidth = MAX (
+												(sourceRectPtr->right - sourceRectPtr->left), 0);
+					int sourceRectHeight = MAX (
+												(sourceRectPtr->bottom - sourceRectPtr->top), 0);
 
 							// Now take into account that the device independant bitmap is
 							// is stored in memory in reverse order last line to first line.
 
-							// First define a new image buffer data to get rgb values from offscreenstoragehandle
-							// The format of data in offscreenstoragehandle is rgb,alpha.
+							// First define a new image buffer data to get rgb values from
+							// offscreenstoragehandle. The format of data in
+							// offscreenstoragehandle is rgb,alpha.
 
 					int tpixels = destinationRectWidth * destinationRectHeight;
 					int pind = 0;
-					Handle imagebuffer = malloc(tpixels * 3);
-					unsigned char* imagedata = (unsigned char *) overlayInfoPtr->offscreenStorageHandle;
-					unsigned char* imgbufptr = (unsigned char *) imagebuffer;
+					Handle imagebuffer = malloc (tpixels * 3);
+					unsigned char* imagedata =
+										(unsigned char*)overlayInfoPtr->offscreenStorageHandle;
+					unsigned char* imgbufptr = (unsigned char*)imagebuffer;
 					for (pind = 0; pind < tpixels; pind++) 
 						{
 						unsigned char* imagedataptr = (imagedata + 4*pind);
@@ -1078,45 +1073,47 @@ void DrawImageOverlays  (
 						*(imgbufptr+1) = *(imagedataptr+2);
 						*(imgbufptr+2) = *(imagedataptr + 3);
 						imgbufptr = imgbufptr + 3;
-						}
-					wxImage overlayimage(destinationRectWidth, destinationRectHeight, (unsigned char*)imagebuffer);
+						
+						}	// end "for (pind = 0; pind < tpixels; pind++)"
+					
+					wxImage overlayimage (destinationRectWidth,
+													destinationRectHeight,
+													(unsigned char*)imagebuffer);
 
 					wxMemoryDC overlaydc;
-					wxBitmap ovbitmap(overlayimage);
-					overlaydc.SelectObject(ovbitmap);
+					wxBitmap ovbitmap (overlayimage);
+					overlaydc.SelectObject (ovbitmap);
 
 					wxMemoryDC displaydc;
-					bool bitok = (windowPtr->m_ScaledBitmap).IsOk();
-					displaydc.SelectObject(windowPtr->m_ScaledBitmap);
+					bool bitok = (windowPtr->m_ScaledBitmap).IsOk ();
+					displaydc.SelectObject (windowPtr->m_ScaledBitmap);
 
 					if (copyBitsFlag) 
 						{
-						bSuccess = displaydc.Blit(destinationRect.left, // DestX
-								  destinationRect.top, // DestY
-								  destinationRectWidth, // nDestWidth
-								  destinationRectHeight, // nDestHeight)
-								  &overlaydc, // Src DC
-								  0,//sourceRectPtr->left, // SrcX
-								  0//sourceRectPtr->top // SrcY
-								  );
-						
+						bSuccess = displaydc.Blit (destinationRect.left, // DestX
+															  destinationRect.top, // DestY
+															  destinationRectWidth, // nDestWidth
+															  destinationRectHeight, // nDestHeight)
+															  &overlaydc, // Src DC
+															  0,//sourceRectPtr->left, // SrcX
+															  0); //sourceRectPtr->top // SrcY
+													
 						}
-#				endif // defined multispec_lin 
+				#endif // defined multispec_lin 
 				
 				CheckAndUnlockHandle (imageOverlayHandlePtr[imageOverlayIndex]);
 				
-				}		// end "if (imageOverlayInfoPtr != NULL)"
+				}	// end "if (imageOverlayInfoPtr != NULL)"
 				
-			}		// end "for (overlayIndex=0; overlayIndex<numberOverlays; ..."
+			}	// end "for (overlayIndex=0; overlayIndex<numberOverlays; ..."
 														
-		ResetMapToWindowUnitsVariables (windowInfoHandle, 
-													&mapToWindowUnitsVariables);
+		ResetMapToWindowUnitsVariables (windowInfoHandle, &mapToWindowUnitsVariables);
 		
-		}		// end "if (imageOverlayHandlePtr != NULL)"
+		}	// end "if (imageOverlayHandlePtr != NULL)"
 		
 	MHSetState (windowInfoHandle, windowHandleStatus);
 
-}		// end "DrawImageOverlays"
+}	// end "DrawImageOverlays"
 
 
 
@@ -1257,7 +1254,7 @@ void FillLineOfOffscreenBuffer (
 				else	// !twoByteInputBufferFlag
 					*colorOffscreenPtr = imageOverlayInfoPtr->colorTable[*inputBufferPtr];
 					
-				}		// end "if (includePixelFlag)" 
+				}	// end "if (includePixelFlag)" 
 				
 			inputBufferPtr++;
 				
@@ -1267,11 +1264,11 @@ void FillLineOfOffscreenBuffer (
 			if (pointType == kMaskType)
 				maskBufferPtr += columnInterval;
 			
-			}		// end "for (sample=1; sample<=numberSamples; sample++)"
+			}	// end "for (sample=1; sample<=numberSamples; sample++)"
 
-		}		// end "if (offScreenPtr != NULL)"
+		}	// end "if (offScreenPtr != NULL)"
 		
-}		// end "FillLineOfOffscreenBuffer"	
+}	// end "FillLineOfOffscreenBuffer"	
 
 
 
@@ -1295,7 +1292,7 @@ void FillLineOfOffscreenBuffer (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 01/17/2003
-//	Revised By:			Larry L. Biehl			Date: 03/22/2017
+//	Revised By:			Larry L. Biehl			Date: 09/01/2017
 
 void GetDefaultImageOverlayName (
 				SInt16								imageOverlayIndex)
@@ -1328,9 +1325,10 @@ void GetDefaultImageOverlayName (
 		namePtr[0] = 0;
 		
 		fileInfoHandle = FindProjectBaseImageFileInfoHandle ();
-		wideFileNameCPointer = (wchar_t*)GetFileNamePPointer (fileInfoHandle,
-																		&fileHandleStatus,
-																		kReturnUnicode);
+		wideFileNameCPointer = (wchar_t*)GetFileNamePPointerFromFileHandle (
+																						fileInfoHandle,
+																						&fileHandleStatus,
+																						kReturnUnicode);
 		
 		if (wideFileNameCPointer != NULL)
 			{
@@ -1345,7 +1343,7 @@ void GetDefaultImageOverlayName (
 			*/
 			MHSetState (fileInfoHandle, fileHandleStatus);
 			
-			}		// end "if (wideFileNameCPointer != NULL)"
+			}	// end "if (wideFileNameCPointer != NULL)"
 		
 		thresholdValue = 0.;
 		namePtrIndex = namePtr[0] + 1;
@@ -1358,7 +1356,7 @@ void GetDefaultImageOverlayName (
 												(char*)"_Clus_SP_%d",
 												gClusterSpecsPtr->numberFinalClusters);
 				
-				}		// end "if (gClusterSpecsPtr->mode == 1)"
+				}	// end "if (gClusterSpecsPtr->mode == 1)"
 				
 			else if (gClusterSpecsPtr->mode == 2)
 				{
@@ -1366,9 +1364,9 @@ void GetDefaultImageOverlayName (
 												(char*)"_Clus_ID_%d",
 												gClusterSpecsPtr->numberFinalClusters);
 				
-				}		// end "else if (gClusterSpecsPtr->mode == 2)"
+				}	// end "else if (gClusterSpecsPtr->mode == 2)"
 			
-			}		// end "if (gProcessorCode == kClusterProcessor && ..."
+			}	// end "if (gProcessorCode == kClusterProcessor && ..."
 			
 		else if (gProcessorCode == kClassifyProcessor && gClassifySpecsPtr != NULL)
 			{
@@ -1377,64 +1375,64 @@ void GetDefaultImageOverlayName (
 				{	
 				case kMaxLikeMode:		// Gaussian Maximum likelihood 
 					namePtr[0] += sprintf ((char*)&namePtr[namePtrIndex],
-												"_Clas_Quad_%ld", 
-												gClassifySpecsPtr->numberClasses);
+													"_Clas_Quad_%ld",
+													gClassifySpecsPtr->numberClasses);
 					thresholdValue = gClassifySpecsPtr->probabilityThreshold;
 					break;
 					
 				case kFisherMode:			// Fisher discriminant
 					namePtr[0] += sprintf ((char*)&namePtr[namePtrIndex],
-												"_Clas_Fisher_%ld", 
-												gClassifySpecsPtr->numberClasses);
+													"_Clas_Fisher_%ld",
+													gClassifySpecsPtr->numberClasses);
 					thresholdValue = gClassifySpecsPtr->probabilityThreshold;
 					break;
 					
 				case kEuclideanMode:		// Euclidean minimum distance 
 					namePtr[0] += sprintf ((char*)&namePtr[namePtrIndex],
-												"_Clas_Eucl_%ld", 
-												gClassifySpecsPtr->numberClasses);
+													"_Clas_Eucl_%ld",
+													gClassifySpecsPtr->numberClasses);
 					break;
 					
 				case kEchoMode:			// Echo
 					namePtr[0] += sprintf ((char*)&namePtr[namePtrIndex],
-												"_Clas_ECHO_%ld", 
-												gClassifySpecsPtr->numberClasses);
+													"_Clas_ECHO_%ld",
+													gClassifySpecsPtr->numberClasses);
 					thresholdValue = gClassifySpecsPtr->probabilityThreshold;
 					break;
 					
 				case kCorrelationMode:	// Correlation classifier
 					namePtr[0] += sprintf ((char*)&namePtr[namePtrIndex],
-												"_Clas_Correlation_%ld", 
-												gClassifySpecsPtr->numberClasses);
+													"_Clas_Correlation_%ld",
+													gClassifySpecsPtr->numberClasses);
 					thresholdValue = gClassifySpecsPtr->correlationAngleThreshold;
 					break;
 					
 				case kCEMMode:	// CEM classifier
 					namePtr[0] += sprintf ((char*)&namePtr[namePtrIndex],
-												"_Clas_CEM_%ld", 
-												gClassifySpecsPtr->numberClasses);
+													"_Clas_CEM_%ld",
+													gClassifySpecsPtr->numberClasses);
 					thresholdValue = gClassifySpecsPtr->cemThreshold;
 					thresholdPrecision = 3;
 					break;
 					
 				case kParallelPipedMode:		// Parallel piped classifer 
 					namePtr[0] += sprintf ((char*)&namePtr[namePtrIndex],
-												"_Clas_PP_%ld", 
-												gClassifySpecsPtr->numberClasses);
+													"_Clas_PP_%ld",
+													gClassifySpecsPtr->numberClasses);
 					break;
 					
 				if (gClassifySpecsPtr->thresholdFlag)
 					{
 					namePtr[0] += sprintf ((char*)&namePtr[namePtr[0]+1],
-												"_%5.*f",
-												thresholdPrecision, 
-												thresholdValue);
+													"_%5.*f",
+													thresholdPrecision,
+													thresholdValue);
 					
-					}		// end "if (gClassifySpecsPtr->thresholdFlag)"
+					}	// end "if (gClassifySpecsPtr->thresholdFlag)"
 					
-				}		// end "switch (gClassifySpecsPtr->mode)" 
+				}	// end "switch (gClassifySpecsPtr->mode)" 
 			
-			}		// end "else if (gProcessorCode == kClassifyProcessor)"
+			}	// end "else if (gProcessorCode == kClassifyProcessor)"
 			
 		if (namePtr[0] == namePtrIndex-1)		// processor not known
 			{
@@ -1442,13 +1440,13 @@ void GetDefaultImageOverlayName (
 											"Image Overlay %d",
 											imageOverlayIndex+1);
 			
-			}		// end "if (namePtr[0] == namePtrIndex-1)"
+			}	// end "if (namePtr[0] == namePtrIndex-1)"
 			
 		UnlockImageOverlayInfoHandle (imageOverlayIndex, overlayHandleStatus);
 			
-		}		// end "if (imageOverlayInfoPtr != NULL)"
+		}	// end "if (imageOverlayInfoPtr != NULL)"
 		
-}		// end "GetDefaultImageOverlayName"	
+}	// end "GetDefaultImageOverlayName"	
 
 
 
@@ -1484,23 +1482,21 @@ SInt16 GetImageOverlayIndex (
 	SInt16								imageOverlayIndex = -1;
 	
 	
-	windowInfoPtr = (WindowInfoPtr)GetHandlePointer (windowInfoHandle,
-																		kNoLock,
-																		kNoMoveHi);
+	windowInfoPtr = (WindowInfoPtr)GetHandlePointer (windowInfoHandle);
 	if (windowInfoPtr != NULL && windowOverlayIndex >= 0)
 		{
 		if (windowOverlayIndex < (SInt16)windowInfoPtr->numberImageOverlays)
 			{
 			overlayListPtr = windowInfoPtr->imageOverlayList;
-			imageOverlayIndex = abs(overlayListPtr[windowOverlayIndex].index) - 1;
+			imageOverlayIndex = abs (overlayListPtr[windowOverlayIndex].index) - 1;
 			
 			}	// end "if (windowOverlayIndex < windowInfoPtr->numberImageOverlays)"
 			
-		}		// end "if (windowInfoPtr != NULL && ...)"
+		}	// end "if (windowInfoPtr != NULL && ...)"
 		
 	return (imageOverlayIndex);
 	
-}		// end "GetImageOverlayIndex"	
+}	// end "GetImageOverlayIndex"	
 
 
 
@@ -1549,59 +1545,54 @@ Handle GetImageOverlayInfoMemory (
 				
 		if (gNumberImageOverlayFiles >= gImageOverlayHandleListLength)
 			{
-			handlePtr = (Handle*)CheckHandleSize ( 
-								&gImageOverlayHandle,
-								&continueFlag, 
-								&changedFlag, 
-								(gNumberImageOverlayFiles+1)*sizeof(Handle) );
-											
+			handlePtr = (Handle*)CheckHandleSize (
+													&gImageOverlayHandle,
+													&continueFlag, 
+													&changedFlag, 
+													(gNumberImageOverlayFiles+1)*sizeof (Handle));
+			
 			if (continueFlag)
 				{
 				handlePtr[gNumberImageOverlayFiles] = NULL;
 				gImageOverlayHandleListLength++;
 				*overlayIndexPtr = (SInt16)gNumberImageOverlayFiles;
 				
-				}		// end "if (continueFlag)"	
+				}	// end "if (continueFlag)"	
 				
-			else		// !continueFlag
+			else	// !continueFlag
 				*overlayIndexPtr = -1;
 				
-			}		// end "if (gNumberImageOverlayFiles >= ..."
+			}	// end "if (gNumberImageOverlayFiles >= ..."
 		
-		}		// end "if (overlayIndex < 0)"
+		}	// end "if (overlayIndex < 0)"
 		
-	else		// *overlayIndexPtr >= 0
+	else	// *overlayIndexPtr >= 0
 				// Release memory for current image overlay to be ready to read a
 				// new one in.
 		CloseImageOverlayFile (*overlayIndexPtr);
 		
 	if (continueFlag && handlePtr == NULL)
 		{
-		handlePtr = (Handle*)GetHandlePointer ( 
-											gImageOverlayHandle,
-											kLock, 
-											kNoMoveHi);
+		handlePtr = (Handle*)GetHandlePointer (gImageOverlayHandle, kLock);
 											
 		continueFlag = (handlePtr != NULL);
 		
-		}		// end "if (continueFlag && handlePtr == NULL)"
+		}	// end "if (continueFlag && handlePtr == NULL)"
 		
 	if (continueFlag)
 		{
 				// Now get handle for image overlay structure.
 			
-		imageOverlayHandle = MNewHandle (sizeof(ImageOverlayInfo));
-		imageOverlayInfoPtr = (ImageOverlayInfoPtr)GetHandlePointer (
-																	imageOverlayHandle,
-																	kLock,
-																	kNoMoveHi);
-			
+		imageOverlayHandle = MNewHandle (sizeof (ImageOverlayInfo));
+		imageOverlayInfoPtr = (ImageOverlayInfoPtr)GetHandlePointer (imageOverlayHandle,
+																							kLock);
+		
 		continueFlag = (imageOverlayInfoPtr != NULL); 
 	
 		if (continueFlag)	
 			InitializeImageOverlayInfoStructure (imageOverlayInfoPtr);
 		
-		}		//  end "if (continueFlag)"
+		}	//  end "if (continueFlag)"
 		
 			// Now load the image overlay stucture within the image overlay list
 			// of handles.		
@@ -1622,33 +1613,33 @@ Handle GetImageOverlayInfoMemory (
 					*overlayIndexPtr = (SInt16)index;
 					break;
 					
-					}		// end "if (handlePtr[index]	== NULL)"
+					}	// end "if (handlePtr[index]	== NULL)"
 					
-				}		// end "for (index=0; index<gImageOverlayHandleListLength; index++)"
+				}	// end "for (index=0; index<gImageOverlayHandleListLength; index++)"
 				
-			}		// end "else *overlayIndexPtr < 0"
+			}	// end "else *overlayIndexPtr < 0"
 		
 		if (*overlayIndexPtr >= 0)
 			{				
 			handlePtr[*overlayIndexPtr] = imageOverlayHandle;
 			gNumberImageOverlayFiles++;
 		
-			}		// end "if (*overlayIndexPtr >= 0)"
+			}	// end "if (*overlayIndexPtr >= 0)"
 			
-		else		// *overlayIndexPtr < 0
+		else	// *overlayIndexPtr < 0
 			{
 			UnlockAndDispose (imageOverlayHandle);
 			imageOverlayHandle = NULL;
 			
-			}		// else *overlayIndexPtr < 0
+			}	// else *overlayIndexPtr < 0
 		
-		}		// end "if (continueFlag)"
+		}	// end "if (continueFlag)"
 					
 	CheckAndUnlockHandle (gImageOverlayHandle);
 		
 	return (imageOverlayHandle);
 		
-}		// end "GetImageOverlayInfoMemory"	
+}	// end "GetImageOverlayInfoMemory"	
 
 
 
@@ -1690,32 +1681,26 @@ ImageOverlayInfoPtr GetImageOverlayInfoPtr (
 		
 	if (overlayIndex >= 0 && (UInt32)overlayIndex < gImageOverlayHandleListLength)
 		{
-		imageOverlayHandlePtr = (Handle*)GetHandlePointer ( 
-																gImageOverlayHandle,
-																kNoLock, 
-																kNoMoveHi);
+		imageOverlayHandlePtr = (Handle*)GetHandlePointer (gImageOverlayHandle);
 	
 		if (imageOverlayHandlePtr != NULL)
 			{
 			if (lockFlag)										
 				imageOverlayInfoPtr = (ImageOverlayInfoPtr)GetHandleStatusAndPointer (
 														imageOverlayHandlePtr[overlayIndex],
-														handleStatusPtr,
-														kNoMoveHi);
+														handleStatusPtr);
 														
-			else		// !lockFlag
-				imageOverlayInfoPtr = (ImageOverlayInfoPtr)GetHandlePointer ( 
-														imageOverlayHandlePtr[overlayIndex],
-														kNoLock, 
-														kNoMoveHi);
+			else	// !lockFlag
+				imageOverlayInfoPtr = (ImageOverlayInfoPtr)GetHandlePointer (
+															imageOverlayHandlePtr[overlayIndex]);
 														
-			}		// end "if (imageOverlayHandlePtr != NULL)"
+			}	// end "if (imageOverlayHandlePtr != NULL)"
 													
-		}		// end "if (overlayIndex >= 0 && ..."
+		}	// end "if (overlayIndex >= 0 && ..."
 		
 	return (imageOverlayInfoPtr);
 		
-}		// end "GetImageOverlayInfoPtr"
+}	// end "GetImageOverlayInfoPtr"
 
 
 
@@ -1750,15 +1735,13 @@ SInt16 GetWindowImageOverlayIndex (
 	SInt16								windowImageIndex;
 	
 	
-	windowInfoPtr = (WindowInfoPtr)GetHandlePointer (windowInfoHandle,
-																		kNoLock,
-																		kNoMoveHi);
+	windowInfoPtr = (WindowInfoPtr)GetHandlePointer (windowInfoHandle);
 	
 	windowImageIndex = GetWindowImageOverlayIndex (windowInfoPtr, imageOverlayIndex);
 		
 	return (windowImageIndex);
 	
-}		// end "GetWindowImageOverlayIndex"	
+}	// end "GetWindowImageOverlayIndex"	
 
 
 
@@ -1803,20 +1786,20 @@ SInt16 GetWindowImageOverlayIndex (
 		
 		for (listIndex=0; listIndex<numberOverlays; listIndex++)
 			{
-			if (imageOverlayIndex == abs(overlayListPtr[listIndex].index)-1)
+			if (imageOverlayIndex == abs (overlayListPtr[listIndex].index)-1)
 				{
 				returnListIndex = (SInt16)listIndex;
 				break;
 				
-				}		// end "if (imageOverlayIndex == abs(overlayListPtr..."
+				}	// end "if (imageOverlayIndex == abs (overlayListPtr..."
 			
-			}		// end "for (listIndex=0; listIndex<numberOverlays; listIndex++)"	
+			}	// end "for (listIndex=0; listIndex<numberOverlays; listIndex++)"	
 			
-		}		// end "if (windowInfoPtr != NULL)"
+		}	// end "if (windowInfoPtr != NULL)"
 		
 	return (returnListIndex);
 	
-}		// end "GetWindowImageOverlayIndex"	
+}	// end "GetWindowImageOverlayIndex"	
 
 
 
@@ -1854,39 +1837,39 @@ HPtr GetImageOverlayOffscreenPointer (
 	
 	if (imageOverlayInfoPtr != NULL)
 		{
-#		if defined multispec_mac 
+		#if defined multispec_mac 
 			if (gOSXCoreGraphicsFlag)
 				{
-#				if TARGET_API_MAC_CARBON
+				#if TARGET_API_MAC_CARBON
 							// Note that this handle is already locked.	
-					offScreenBufferPtr = (HPtr)GetHandlePointer(
-								imageOverlayInfoPtr->offscreenStorageHandle, kNoLock, kNoMoveHi);
+					offScreenBufferPtr = (HPtr)GetHandlePointer (
+											imageOverlayInfoPtr->offscreenStorageHandle);
 				 
 					offScreenPixMapH = 
 								(PixMapHandle)imageOverlayInfoPtr->offScreenMapHandle;
-#				endif	// TARGET_API_MAC_CARBON
+				#endif	// TARGET_API_MAC_CARBON
 				
-				}		// end "if (gOSXCoreGraphicsFlag)"
+				}	// end "if (gOSXCoreGraphicsFlag)"
 				
-			else		// !gOSXCoreGraphicsFlag
+			else	// !gOSXCoreGraphicsFlag
 				{
 				offScreenPixMapH = GetPortPixMap (imageOverlayInfoPtr->offscreenGWorld);
 				offScreenBufferPtr = GetPixBaseAddr (offScreenPixMapH);
 				
-				}		// end "else !gOSXCoreGraphicsFlag"
-#		endif // defined multispec_mac 
+				}	// end "else !gOSXCoreGraphicsFlag"
+		#endif // defined multispec_mac 
 		
-#		if defined multispec_win || defined multispec_lin
-			offScreenBufferPtr = (HPtr)GetHandlePointer(
-								imageOverlayInfoPtr->offscreenStorageHandle, kLock, kNoMoveHi);
+		#if defined multispec_win || defined multispec_lin
+			offScreenBufferPtr = (HPtr)GetHandlePointer (
+										imageOverlayInfoPtr->offscreenStorageHandle, kLock);
 			offScreenPixMapH = (PixMapHandle)imageOverlayInfoPtr->offScreenMapHandle;
-#		endif // defined multispec_win || defined multispec_lin
+		#endif // defined multispec_win || defined multispec_lin
 		
-		}		// end "if (imageOverlayInfoPtr != NULL)"
+		}	// end "if (imageOverlayInfoPtr != NULL)"
 	
 	return (offScreenBufferPtr);
 	
-}		// end "GetImageOverlayOffscreenPointer"
+}	// end "GetImageOverlayOffscreenPointer"
 
 
 
@@ -1927,14 +1910,14 @@ HPtr GetImageOverlayLineOffscreenPointer (
 		
 	if (offScreenBufferPtr != NULL)
 		{		
-#		if defined multispec_mac || defined multispec_lin
+		#if defined multispec_mac || defined multispec_lin
 			lineOffset = (SInt32)(lineStart - imageOverlayInfoPtr->lineColumnRect.top);
-#		endif // defined multispec_mac || defined multispec_lin
+		#endif // defined multispec_mac || defined multispec_lin
 			
-#		if defined multispec_win 
+		#if defined multispec_win 
 					// Allow for reverse order of lines in Windows bitmap.
 			lineOffset = (SInt32)(imageOverlayInfoPtr->lineColumnRect.bottom - lineStart);
-#		endif // defined multispec_win
+		#endif // defined multispec_win
 
 		if (lineOffset >= 0)
 			{
@@ -1947,13 +1930,13 @@ HPtr GetImageOverlayLineOffscreenPointer (
 			if (columnOffset >= 0)
 				offScreenLineBufferPtr = &offScreenLineBufferPtr[4*columnOffset];
 													
-			}		// end "if (lineOffset >= 0)"
+			}	// end "if (lineOffset >= 0)"
 		
-		}		// end "if (offScreenBufferPtr != NULL)"
+		}	// end "if (offScreenBufferPtr != NULL)"
 		
 	return (offScreenLineBufferPtr);
 	
-}		// end "GetImageOverlayLineOffscreenPointer"
+}	// end "GetImageOverlayLineOffscreenPointer"
 
 
 
@@ -2019,36 +2002,40 @@ SInt16 GetOverlayOffscreenGWorld (
 			// Force to the maximum number of classes for now.								
 		
 	numberEntries = (UInt16)MIN (numberClasses+3, 256);
-	tempCTableHandle = (CTabHandle)MNewHandle ( 
-			(SInt32)numberEntries*sizeof(ColorSpec) + sizeof(ColorTable) );
+	tempCTableHandle = (CTabHandle)MNewHandle (
+					(SInt32)numberEntries*sizeof (ColorSpec) + sizeof (ColorTable));
 	if (tempCTableHandle == NULL)					
-																							return (1);
+																								return (1);
 			
 			// Now initialize the color table.
 	
-	cTabPtr = (CTabPtr)GetHandlePointer ((Handle)tempCTableHandle,
-														kLock,
-														kNoMoveHi);
+	cTabPtr = (CTabPtr)GetHandlePointer ((Handle)tempCTableHandle, kLock);
 		
 	cTabPtr->ctSeed = GetCTSeed ();
 	cTabPtr->ctFlags |= 0x4000;
 	
 	colorSpecPtr = cTabPtr->ctTable;
 		
-	continueFlag = LoadColorSpecTable (
-									NULL, 
-									NULL,
-									NULL,
-									colorSpecPtr,
-									NULL,
-									1,
-									(UInt16)numberEntries,
-									(UInt16)numberClasses,
-									thematicPaletteType,
-									(UInt16)numberClasses,
-									kClassDisplay,
-									&paletteCode);
-									
+	continueFlag = LoadColorSpecTable (NULL,
+													NULL,
+													NULL,
+													colorSpecPtr,
+													NULL,
+													1,
+													(UInt16)numberEntries,
+													(UInt16)numberClasses,
+													thematicPaletteType,
+													(UInt16)numberClasses,
+													kClassDisplay,
+													&paletteCode);
+													
+	if (!continueFlag)
+		{
+		UnlockAndDispose ((Handle)tempCTableHandle);
+		
+																								return (1);
+		}
+	
 			// The first color in the table will be white for thresholded.
 			// The cluster class numbers start at 1.
 			
@@ -2062,34 +2049,34 @@ SInt16 GetOverlayOffscreenGWorld (
 	tableIndex = 4;			
 	for (index=0; index<numberEntries; index++)
 		{
-#		if defined multispec_mac
+		#if defined multispec_mac
 			colorTablePtr[tableIndex] = 0xff;
 			colorTablePtr[tableIndex+1] = (colorSpecPtr[index].rgb.red >> 8);
 			colorTablePtr[tableIndex+2] = (colorSpecPtr[index].rgb.green >> 8);
 			colorTablePtr[tableIndex+3] = (colorSpecPtr[index].rgb.blue >> 8);
-#		endif	// defined multispec_mac
+		#endif	// defined multispec_mac
 		
-#		if defined multispec_lin
+		#if defined multispec_lin
 			colorTablePtr[tableIndex] = 0xff;
 			colorTablePtr[tableIndex+1] = colorSpecPtr[index].rgb.red;
 			colorTablePtr[tableIndex+2] = colorSpecPtr[index].rgb.green;
 			colorTablePtr[tableIndex+3] = colorSpecPtr[index].rgb.blue;
-#		endif	// defined multispec_lin
+		#endif	// defined multispec_lin
 
-#		if defined multispec_win 
+		#if defined multispec_win 
 			colorTablePtr[tableIndex] = (colorSpecPtr[index].rgb.blue >> 8);
 			colorTablePtr[tableIndex+1] = (colorSpecPtr[index].rgb.green >> 8);
 			colorTablePtr[tableIndex+2] = (colorSpecPtr[index].rgb.red >> 8);
 			colorTablePtr[tableIndex+3] = 0x7f;		// 0xff
-#		endif	// defined multispec_mac 
+		#endif	// defined multispec_mac 
 
 		tableIndex += 4;
 		
-		}		// end "for (index=0; index<numberEntries; index++)"
+		}	// end "for (index=0; index<numberEntries; index++)"
 									
 	CheckAndUnlockHandle ((Handle)tempCTableHandle);
 	
-#	if defined multispec_mac 
+	#if defined multispec_mac 
 		SInt64								sInt64FreeBytesNeeded;
 		
 		Rect									rect;
@@ -2120,9 +2107,7 @@ SInt16 GetOverlayOffscreenGWorld (
 				// Make certain that the number of pixel row bytes is less than the	
 				// maximum allowed.					
 						
-		pixRowBytes = GetNumberPixRowBytes (
-									(UInt32)offscreenRect.right,
-									32);
+		pixRowBytes = GetNumberPixRowBytes ((UInt32)offscreenRect.right, 32);
 									
 		if (pixRowBytes > gMaxRowBytes)
 			resultCode = 1; 
@@ -2147,14 +2132,12 @@ SInt16 GetOverlayOffscreenGWorld (
 						// to understand. Will see how this works for awhile before removed the lines
 						// that are commented out.
 							
-//				if (gProcessorCode == kClassifyProcessor && gClassifySpecsPtr != NULL &&
-//							(gClassifySpecsPtr->trainingFldsResubstitutionFlag ||
-//										gClassifySpecsPtr->trainingFldsLOOFlag || 
-//														gClassifySpecsPtr->testFldsFlag) )
-					imageOverlayInfoPtr->offscreenStorageHandle = MNewHandleClear (freeBytesNeeded);
-				
-//				else		// Do not need to clear.
-//					imageOverlayInfoPtr->offscreenStorageHandle = MNewHandleClear (freeBytesNeeded);
+				//if (gProcessorCode == kClassifyProcessor && gClassifySpecsPtr != NULL &&
+				//			(gClassifySpecsPtr->trainingFldsResubstitutionFlag ||
+				//								gClassifySpecsPtr->trainingFldsLOOFlag ||
+				//													gClassifySpecsPtr->testFldsFlag))
+				imageOverlayInfoPtr->offscreenStorageHandle = MNewHandleClear (
+																						freeBytesNeeded);
 				
 				if (imageOverlayInfoPtr->offscreenStorageHandle == NULL)
 					resultCode = 1;
@@ -2187,8 +2170,7 @@ SInt16 GetOverlayOffscreenGWorld (
 						
 					offScreenBufferPtr = GetHandlePointer (
 													imageOverlayInfoPtr->offscreenStorageHandle, 
-													kLock, 
-													kNoMoveHi);
+													kLock);
 								
 							// Note that the image base address handle is already locked.
 							
@@ -2202,7 +2184,7 @@ SInt16 GetOverlayOffscreenGWorld (
 							
 					baseColorSpace = gCGColorSpaceCreateDeviceRGBPtr ();
 				
-//					alphaInfo = kCGImageAlphaNoneSkipFirst;
+					//alphaInfo = kCGImageAlphaNoneSkipFirst;
 					alphaInfo = kCGImageAlphaFirst;
 					bitsPerComponent = 8;
 							
@@ -2218,7 +2200,7 @@ SInt16 GetOverlayOffscreenGWorld (
 													NULL,
 													1,
 													kCGRenderingIntentDefault);
-/*										
+					/*
 					colorSpace = gCGColorSpaceCreateIndexedPtr (
 														baseColorSpace, 
 														numberEntries-1, 
@@ -2241,8 +2223,8 @@ SInt16 GetOverlayOffscreenGWorld (
 													NULL,
 													0,
 													kCGRenderingIntentDefault);
-*/
-/*				
+					*/
+					/*
 					float						decode[2];
 					decode[0] = 0;	
 					decode[1] = 1;	
@@ -2257,7 +2239,7 @@ SInt16 GetOverlayOffscreenGWorld (
 													provider,
 													decode,
 													0);
-*/													
+					*/
 							// Release the references to the provider and the colorspace. Copies
 							// are retained by cgImage.
 							
@@ -2269,15 +2251,15 @@ SInt16 GetOverlayOffscreenGWorld (
 						
 					(*offScreenPixMapH)->pixelSize = 8;	
 						
-					}		// end "if (resultCode == noErr)" 
+					}	// end "if (resultCode == noErr)" 
 				
-				}		// end "if (gOSXCoreGraphicsFlag)"
+				}	// end "if (gOSXCoreGraphicsFlag)"
 			//#endif	// TARGET_API_MAC_CARBON	
 					
 			if (!gOSXCoreGraphicsFlag)
 				{
-				rect.left = offscreenRect.left;		//  - 32767;
-				rect.top = offscreenRect.top;		// - 32767;
+				rect.left = offscreenRect.left;			//  - 32767;
+				rect.top = offscreenRect.top;				// - 32767;
 				rect.right = offscreenRect.right;		// - 32767;
 				rect.bottom = offscreenRect.bottom;		// - 32767;
 				
@@ -2288,7 +2270,7 @@ SInt16 GetOverlayOffscreenGWorld (
 				if (tempHandle == NULL)
 					resultCode = 1;
 				
-				else		// tempHandle != NULL 
+				else	// tempHandle != NULL 
 					UnlockAndDispose (tempHandle);
 
 				if (resultCode == noErr)
@@ -2320,41 +2302,41 @@ SInt16 GetOverlayOffscreenGWorld (
 							
 					SetGWorld (offscreenGWorld, NULL);
 					
-					if ( LockPixels (GetPortPixMap(offscreenGWorld)) )
+					if (LockPixels (GetPortPixMap (offscreenGWorld)))
 						EraseRect (&rect);
 						
-					else		// !LockPixels (offscreenGWorld->portPixMap) 
+					else	// !LockPixels (offscreenGWorld->portPixMap) 
 						resultCode = 1;
 						
-					}		// end "if (resultCode == noErr)" 
+					}	// end "if (resultCode == noErr)" 
 				/*
 				#if !TARGET_API_MAC_CARBON	
-					else		// resultCode != noErr 
+					else	// resultCode != noErr 
 						{
 								// Reclaim the placeholder memory.											
 						
 						if (gNumberAvailableGWorldPtrs < kMaxNumberIWindows)
 							{
 							gGWorldPlaceHolderList[gNumberAvailableGWorldPtrs] = 
-																		MNewPointer (sizeof(CGrafPort));
-							if ( gGWorldPlaceHolderList[gNumberAvailableGWorldPtrs] )
+																		MNewPointer (sizeof (CGrafPort));
+							if (gGWorldPlaceHolderList[gNumberAvailableGWorldPtrs])
 								gNumberAvailableGWorldPtrs++;
 							
-							}		// end "if (gNumberAvailableGWorldPtrs < kMaxNumberIWindows)" 
+							}	// end "if (gNumberAvailableGWorldPtrs < kMaxNumberIWindows)" 
 						
-						}		// end "else resultCode != noErr" 
+						}	// end "else resultCode != noErr" 
 				#endif	// !TARGET_API_MAC_CARBON	
 				*/
-				}		// end "else !gOSXCoreGraphicsFlag"
+				}	// end "else !gOSXCoreGraphicsFlag"
 				
-			}		// end "if resultCode == noError
+			}	// end "if resultCode == noError
 			
 		SetGWorld (savedPort, savedDevice);
-#	endif	// defined multispec_mac 
+	#endif	// defined multispec_mac 
 	
 	UnlockAndDispose ((Handle)tempCTableHandle);
 
-#	if defined multispec_win 
+	#if defined multispec_win 
 		SInt64								sInt64FreeBytesNeeded;
 		
 		//BITMAPINFO*							bitMapInfoPtr;
@@ -2373,8 +2355,8 @@ SInt16 GetOverlayOffscreenGWorld (
 				// maximum allowed.							
 						
 		pixRowBytes = GetNumberPixRowBytes (
-									(UInt32)offscreenRect.right - offscreenRect.left,
-									32);  
+												(UInt32)offscreenRect.right - offscreenRect.left,
+												32);  
 		
 		maxRowBytes = gMaxRowBytes;  
 									
@@ -2403,13 +2385,13 @@ SInt16 GetOverlayOffscreenGWorld (
 			//{
 			//bytesNeeded = (SInt32)sInt64FreeBytesNeeded;
 			//UnlockAndDispose (imageOverlayInfoPtr->offscreenStorageHandle);
-			//imageOverlayInfoPtr->offscreenStorageHandle = MNewHandle(bytesNeeded);
+			//imageOverlayInfoPtr->offscreenStorageHandle = MNewHandle (bytesNeeded);
 			//imageOverlayInfoPtr->offscreenMapSize = bytesNeeded;
 		
 			//if (imageOverlayInfoPtr->offscreenStorageHandle == NULL)
 			//	resultCode = 1;
 			
-			//}		// end "if (resultCode == noErr)"
+			//}	// end "if (resultCode == noErr)"
 		
 				// Dispose of old BITMAPINFOHEADER if it exists and get a new one.	
 		
@@ -2421,13 +2403,13 @@ SInt16 GetOverlayOffscreenGWorld (
 					// Get BITMAPINFOHEADER
 					// Space is always allowed for a 256 entry table.
 					
-			bytesNeeded = sizeof(BITMAPINFOHEADER) + 256*sizeof(UInt16);
+			bytesNeeded = sizeof (BITMAPINFOHEADER) + 256*sizeof (UInt16);
 			imageOverlayInfoPtr->offScreenMapHandle = MNewHandle (bytesNeeded);
 			
 			if (imageOverlayInfoPtr->offScreenMapHandle == NULL)
 				resultCode = 1; 
 			
-			}		// end "if (resultCode == noErr)"
+			}	// end "if (resultCode == noErr)"
 		*/															
 		if (resultCode == noErr)
 			{
@@ -2435,8 +2417,8 @@ SInt16 GetOverlayOffscreenGWorld (
 
 					// Load info in BITMAPINFOHEADER
 					
-			//bitMapInfoHeadPtr = (BITMAPINFOHEADER*)GetHandlePointer(
-			//					imageOverlayInfoPtr->offScreenMapHandle, kLock, kNoMoveHi); 
+			//bitMapInfoHeadPtr = (BITMAPINFOHEADER*)GetHandlePointer (
+			//									imageOverlayInfoPtr->offScreenMapHandle, kLock); 
 														
 			bitMapInfoHeadPtr->biSize = 40;		
 			bitMapInfoHeadPtr->biWidth = offscreenRect.right - offscreenRect.left;	
@@ -2457,11 +2439,11 @@ SInt16 GetOverlayOffscreenGWorld (
 			imageOverlayInfoPtr->overlayDC = CreateCompatibleDC (hDC);
 
 			HBITMAP transparentBitMap = CreateDIBSection (imageOverlayInfoPtr->overlayDC,
-																		(BITMAPINFO*)bitMapInfoHeadPtr,
-																		DIB_RGB_COLORS,
-																		&bitMapPtr,
-																		NULL,
-																		0);
+																			(BITMAPINFO*)bitMapInfoHeadPtr,
+																			DIB_RGB_COLORS,
+																			&bitMapPtr,
+																			NULL,
+																			0);
 
 			SelectObject (imageOverlayInfoPtr->overlayDC, transparentBitMap);
 
@@ -2473,7 +2455,7 @@ SInt16 GetOverlayOffscreenGWorld (
 				
 			//CheckAndUnlockHandle (imageOverlayInfoPtr->offScreenMapHandle);                                    
 				
-			}		// end "if (resultCode == noErr)" 
+			}	// end "if (resultCode == noErr)" 
 			
 		if (resultCode != noErr) 
 			{
@@ -2492,10 +2474,10 @@ SInt16 GetOverlayOffscreenGWorld (
 			
 			imageOverlayInfoPtr->offscreenMapSize = 0;
 			*/
-			}		// end "if (resultCode != noErr)"
-#	endif	// defined multispec_win 
+			}	// end "if (resultCode != noErr)"
+	#endif	// defined multispec_win 
 
-#	if defined multispec_lin 
+	#if defined multispec_lin 
 		SInt64					sInt64FreeBytesNeeded;
 		BITMAPINFOHEADER*		bitMapInfoHeadPtr;
 
@@ -2505,14 +2487,14 @@ SInt16 GetOverlayOffscreenGWorld (
 				// Make certain that the number of pixel row bytes is less than the	
 				// maximum allowed.							
 
-		pixRowBytes = GetNumberPixRowBytes(
-				  (UInt32) offscreenRect.right - offscreenRect.left,
-				  32);
+		pixRowBytes = GetNumberPixRowBytes (
+										  (UInt32) offscreenRect.right - offscreenRect.left,
+										  32);
 
 		maxRowBytes = gMaxRowBytes;
 
 		if (pixRowBytes > maxRowBytes)
-			return (1);
+																								return (1);
 
 				// Now get memory for the offscreen bit map and header. 
 
@@ -2523,17 +2505,17 @@ SInt16 GetOverlayOffscreenGWorld (
 				// old block of memory and get a new one.
 				// Change on 2/16/2000 so that the old BITMAP was always cleared out.
 
-		sInt64FreeBytesNeeded =
-				  (SInt64) pixRowBytes * ((SInt64) offscreenRect.bottom - offscreenRect.top + 1);
+		sInt64FreeBytesNeeded = (SInt64)pixRowBytes *
+										((SInt64)offscreenRect.bottom - offscreenRect.top + 1);
 
 		if (sInt64FreeBytesNeeded > SInt32_MAX)
 			resultCode = 1;
 
 		if (resultCode == noErr)
 			{
-			bytesNeeded = (SInt32) sInt64FreeBytesNeeded;
-			UnlockAndDispose(imageOverlayInfoPtr->offscreenStorageHandle);
-			imageOverlayInfoPtr->offscreenStorageHandle = MNewHandle(bytesNeeded);
+			bytesNeeded = (SInt32)sInt64FreeBytesNeeded;
+			UnlockAndDispose (imageOverlayInfoPtr->offscreenStorageHandle);
+			imageOverlayInfoPtr->offscreenStorageHandle = MNewHandle (bytesNeeded);
 			imageOverlayInfoPtr->offscreenMapSize = bytesNeeded;
 
 			if (imageOverlayInfoPtr->offscreenStorageHandle == NULL)
@@ -2544,29 +2526,29 @@ SInt16 GetOverlayOffscreenGWorld (
 				// Dispose of old BITMAPINFOHEADER if it exists and get a new one.	
 
 		imageOverlayInfoPtr->offScreenMapHandle =
-				  UnlockAndDispose(imageOverlayInfoPtr->offScreenMapHandle);
+								UnlockAndDispose (imageOverlayInfoPtr->offScreenMapHandle);
 
 		if (resultCode == noErr)
 			{
-			// Get BITMAPINFOHEADER
-			// Space is always allowed for a 256 entry table.
+					// Get BITMAPINFOHEADER
+					// Space is always allowed for a 256 entry table.
 
 			bytesNeeded = sizeof (BITMAPINFOHEADER) + 256 * sizeof (UInt16);
-			imageOverlayInfoPtr->offScreenMapHandle = MNewHandle(bytesNeeded);
+			imageOverlayInfoPtr->offScreenMapHandle = MNewHandle (bytesNeeded);
 
 			if (imageOverlayInfoPtr->offScreenMapHandle == NULL)
 				resultCode = 1;
 
-			} // end "if (resultCode == noErr)"
+			}	// end "if (resultCode == noErr)"
 
 		if (resultCode == noErr)
 			{
-			//			bitMapInfoHeadPtr = (BITMAPINFOHEADER*)&bitMapInfo;
+			//bitMapInfoHeadPtr = (BITMAPINFOHEADER*)&bitMapInfo;
 
-			// Load info in BITMAPINFOHEADER
+					// Load info in BITMAPINFOHEADER
 
-			bitMapInfoHeadPtr = (BITMAPINFOHEADER*) GetHandlePointer(
-					  imageOverlayInfoPtr->offScreenMapHandle, kLock, kNoMoveHi);
+			bitMapInfoHeadPtr = (BITMAPINFOHEADER*) GetHandlePointer (
+												imageOverlayInfoPtr->offScreenMapHandle, kLock);
 
 			bitMapInfoHeadPtr->biSize = 40;
 			bitMapInfoHeadPtr->biWidth = offscreenRect.right - offscreenRect.left;
@@ -2580,28 +2562,28 @@ SInt16 GetOverlayOffscreenGWorld (
 			bitMapInfoHeadPtr->biClrUsed = 0; // numberEntries	
 			bitMapInfoHeadPtr->biClrImportant = 0;
 
-			CheckAndUnlockHandle(imageOverlayInfoPtr->offScreenMapHandle);
+			CheckAndUnlockHandle (imageOverlayInfoPtr->offScreenMapHandle);
 
 			} // end "if (resultCode == noErr)" 
 
 		if (resultCode != noErr)
 			{
 			imageOverlayInfoPtr->offScreenMapHandle =
-					  UnlockAndDispose(imageOverlayInfoPtr->offScreenMapHandle);
+							UnlockAndDispose (imageOverlayInfoPtr->offScreenMapHandle);
 
 			imageOverlayInfoPtr->offscreenStorageHandle =
-					  UnlockAndDispose(imageOverlayInfoPtr->offscreenStorageHandle);
+							UnlockAndDispose (imageOverlayInfoPtr->offscreenStorageHandle);
 
 			imageOverlayInfoPtr->offscreenMapSize = 0;
 
 			} // end "if (resultCode != noErr)"
-#	endif	// defined multispec_lin 
+	#endif	// defined multispec_lin 
 	
 	imageOverlayInfoPtr->rowBytes = pixRowBytes;
 
 	return (resultCode);
 	
-}		// end "GetOverlayOffscreenGWorld" 
+}	// end "GetOverlayOffscreenGWorld" 
 
 
 
@@ -2639,16 +2621,16 @@ Boolean HideAllImageOverlays (
 		{
 		if (imageOverlayListPtr[index].index > 0)
 			{
-			imageOverlayListPtr[index].index = -abs(imageOverlayListPtr[index].index);
+			imageOverlayListPtr[index].index = -abs (imageOverlayListPtr[index].index);
 			callFlag = TRUE;
 			
-			}		// end "if (imageOverlayListPtr[index].index > 0)"
+			}	// end "if (imageOverlayListPtr[index].index > 0)"
 			
-		}		// end "for (index=0; index<numberImageOverlays; index++)"
+		}	// end "for (index=0; index<numberImageOverlays; index++)"
 		
 	return (callFlag);
 	
-}		// end "HideAllImageOverlays"	
+}	// end "HideAllImageOverlays"	
 
 
 
@@ -2679,15 +2661,15 @@ void InitializeImageOverlayInfoStructure (
 {
 	if (imageOverlayInfoPtr != NULL)
 		{
-#		if TARGET_API_MAC_CARBON
+		#if TARGET_API_MAC_CARBON
 			imageOverlayInfoPtr->cgInfo.contextRef = NULL;
 			imageOverlayInfoPtr->cgInfo.imageRef = NULL;
 			imageOverlayInfoPtr->cgInfo.contextRowBytes = 0;
-#		endif	// TARGET_API_MAC_CARBON
+		#endif	// TARGET_API_MAC_CARBON
 
-#		if defined multispec_win
+		#if defined multispec_win
 			imageOverlayInfoPtr->overlayDC = NULL;
-#		endif	// defined multispec_win
+		#endif	// defined multispec_win
 		
 		imageOverlayInfoPtr->paletteObject = NULL;
 		
@@ -2711,9 +2693,9 @@ void InitializeImageOverlayInfoStructure (
 		
 		imageOverlayInfoPtr->usePlanarCoordinateInfoFlag = FALSE;
 		
-		}		// end "if (imageOverlaySpecsPtr != NULL)"
+		}	// end "if (imageOverlaySpecsPtr != NULL)"
 			
-}		// end "InitializeImageOverlayInfoStructure"
+}	// end "InitializeImageOverlayInfoStructure"
 
 
 
@@ -2748,12 +2730,11 @@ void ReleaseImageOverlayStructureMemory (
 	
 	imageOverlayInfoPtr = (ImageOverlayInfoPtr)GetHandlePointer (
 														imageOverlayHandlePtr[overlayIndex],
-														kLock,
-														kNoMoveHi);
+														kLock);
 	
 	if (imageOverlayInfoPtr != NULL)
 		{															
-#		if defined multispec_mac 
+		#if defined multispec_mac 
 			GWorldPtr							offscreenGWorld;
 			PixMapHandle						pixMapHandle;
 		
@@ -2765,7 +2746,7 @@ void ReleaseImageOverlayStructureMemory (
 						delete imageOverlayInfoPtr->paletteObject;
 						imageOverlayInfoPtr->paletteObject = NULL;
 						
-						}		// end "if (imageOverlayInfoPtr->paletteObject != NULL)" 
+						}	// end "if (imageOverlayInfoPtr->paletteObject != NULL)" 
 				#endif	// defined multispec_win 
 			
 				offscreenGWorld = imageOverlayInfoPtr->offscreenGWorld;
@@ -2779,9 +2760,9 @@ void ReleaseImageOverlayStructureMemory (
 				imageOverlayInfoPtr->offScreenMapHandle = NULL;
 				imageOverlayInfoPtr->offscreenMapSize = 0;
 				
-				}		// end "if (windowInfoPtr->offscreenGWorld != NULL)" 
+				}	// end "if (windowInfoPtr->offscreenGWorld != NULL)" 
 				
-#			if TARGET_API_MAC_CARBON	
+			#if TARGET_API_MAC_CARBON	
 				if (gOSXCoreGraphicsFlag)
 					{
 							// Release the core graphics image.
@@ -2801,21 +2782,21 @@ void ReleaseImageOverlayStructureMemory (
 					imageOverlayInfoPtr->offScreenMapHandle = NULL;
 					imageOverlayInfoPtr->offscreenMapSize = 0;
 				
-					}		// end "if (gOSXCoreGraphicsFlag)"
-#			endif	// TARGET_API_MAC_CARBON
-#		endif // defined multispec_mac 
+					}	// end "if (gOSXCoreGraphicsFlag)"
+			#endif	// TARGET_API_MAC_CARBON
+		#endif // defined multispec_mac 
 				                               
-#		if defined multispec_lin
+		#if defined multispec_lin
 				imageOverlayInfoPtr->offScreenMapHandle =
-					UnlockAndDispose(imageOverlayInfoPtr->offScreenMapHandle);
+								UnlockAndDispose (imageOverlayInfoPtr->offScreenMapHandle);
 
 				imageOverlayInfoPtr->offscreenStorageHandle =
-					UnlockAndDispose(imageOverlayInfoPtr->offscreenStorageHandle);
+								UnlockAndDispose (imageOverlayInfoPtr->offscreenStorageHandle);
 
 				imageOverlayInfoPtr->offscreenMapSize = 0;
-#		endif // defined multispec_lin
+		#endif // defined multispec_lin
 				                               
-#		if defined multispec_win
+		#if defined multispec_win
 			ReleaseImageOverlayStructureMemory (imageOverlayInfoPtr);
 			/*
 			imageOverlayInfoPtr->offScreenMapHandle =  
@@ -2826,14 +2807,14 @@ void ReleaseImageOverlayStructureMemory (
 			
 			imageOverlayInfoPtr->offscreenMapSize = 0;
 			*/
-#		endif // defined multispec_win
+		#endif // defined multispec_win
 		
 		UnlockAndDispose (imageOverlayHandlePtr[overlayIndex]);
 		imageOverlayHandlePtr[overlayIndex] = NULL;
 		
-		}		// end "if (imageOverlayInfoPtr != NULL)"
+		}	// end "if (imageOverlayInfoPtr != NULL)"
 	
-}		// end "ReleaseImageOverlayStructureMemory" 
+}	// end "ReleaseImageOverlayStructureMemory" 
 
 
 
@@ -2858,24 +2839,24 @@ void ReleaseImageOverlayStructureMemory (
 //	Coded By:			Larry L. Biehl			Date: 05/19/2017
 //	Revised By:			Larry L. Biehl			Date: 05/19/2017	
 
-void ReleaseImageOverlayStructureMemory(
+void ReleaseImageOverlayStructureMemory (
 				ImageOverlayInfoPtr				imageOverlayInfoPtr)
 
 {
-#	if defined multispec_win
+	#if defined multispec_win
 		if (imageOverlayInfoPtr->offScreenMapHandle != NULL)
-			DeleteObject(imageOverlayInfoPtr->offScreenMapHandle);
+			DeleteObject (imageOverlayInfoPtr->offScreenMapHandle);
 
 		if (imageOverlayInfoPtr->overlayDC != NULL)
-			DeleteDC(imageOverlayInfoPtr->overlayDC);
+			DeleteDC (imageOverlayInfoPtr->overlayDC);
 
 		imageOverlayInfoPtr->offScreenMapHandle = NULL;
 		imageOverlayInfoPtr->offscreenStorageHandle = NULL;
 		imageOverlayInfoPtr->overlayDC = NULL;
 		imageOverlayInfoPtr->offscreenMapSize = 0;
-#	endif	// defined multispec_win
+	#endif	// defined multispec_win
 
-}		// end "ReleaseImageOverlayStructureMemory" 
+}	// end "ReleaseImageOverlayStructureMemory" 
 
 
 
@@ -2941,24 +2922,23 @@ SInt16 SetUpImageOverlayInformation (
 				// Verify that there is room in the window overlay list for any new
 				// overlay.
 				
-		imageWindowInfoPtr = (WindowInfoPtr)GetHandlePointer (
-													imageWindowInfoHandle, kNoLock, kNoMoveHi);
+		imageWindowInfoPtr = (WindowInfoPtr)GetHandlePointer (imageWindowInfoHandle);
 													
 		if (newOverlayFlag)
 			overlayListIndex = -1;
 			
-		else		// !newOverlayFag
+		else	// !newOverlayFag
 			{								
 			overlayListIndex = GetWindowImageOverlayIndex (imageWindowInfoPtr,
 																			overlayIndex);
 																			
-			}		// end "else !newOverlayFag"
+			}	// end "else !newOverlayFag"
 			
 		if (overlayListIndex == -1 && 
-				imageWindowInfoPtr->numberImageOverlays >= kMaxNumberImageOverlays)
+						imageWindowInfoPtr->numberImageOverlays >= kMaxNumberImageOverlays)
 			continueFlag = FALSE;
 			
-		}		// end "if (imageWindowInfoHandle != NULL)"
+		}	// end "if (imageWindowInfoHandle != NULL)"
 			
 	if (continueFlag)
 		{					
@@ -2968,27 +2948,25 @@ SInt16 SetUpImageOverlayInformation (
 				// locked.
 					
 		imageOverlayInfoPtr = (ImageOverlayInfoPtr)GetHandlePointer (
-												imageOverlayInfoHandle, kNoLock, kNoMoveHi);
+																			imageOverlayInfoHandle);
 		
 		continueFlag = (imageOverlayInfoPtr != NULL);
 			
-		}		// end "if (continueFlag)"
+		}	// end "if (continueFlag)"
 	
 	if (continueFlag)
 		{								
-		returnCode = GetOverlayOffscreenGWorld (
-										numberClasses,
-										overlayBoundingAreaPtr->left,
-										overlayBoundingAreaPtr->right,
-										overlayBoundingAreaPtr->top,
-										overlayBoundingAreaPtr->bottom,
-										thematicPaletteType,
-										imageOverlayInfoPtr);
-										
+		returnCode = GetOverlayOffscreenGWorld (numberClasses,
+																overlayBoundingAreaPtr->left,
+																overlayBoundingAreaPtr->right,
+																overlayBoundingAreaPtr->top,
+																overlayBoundingAreaPtr->bottom,
+																thematicPaletteType,
+																imageOverlayInfoPtr);
+			
 		if (returnCode == noErr)
 			{
-			imageWindowInfoPtr = (WindowInfoPtr)GetHandlePointer (
-													imageWindowInfoHandle, kNoLock, kNoMoveHi);	
+			imageWindowInfoPtr = (WindowInfoPtr)GetHandlePointer (imageWindowInfoHandle);	
 												
 			overlayListIndex = GetWindowImageOverlayIndex (imageWindowInfoPtr,
 																			overlayIndex);
@@ -2998,7 +2976,7 @@ SInt16 SetUpImageOverlayInformation (
 				overlayListIndex = (SInt16)imageWindowInfoPtr->numberImageOverlays;
 				imageWindowInfoPtr->numberImageOverlays++;
 				
-				}		// end "if (overlayListIndex == -1)"
+				}	// end "if (overlayListIndex == -1)"
 			
 			imageWindowInfoPtr->imageOverlayList[overlayListIndex].index = 
 																					-(overlayIndex+1);
@@ -3025,55 +3003,53 @@ SInt16 SetUpImageOverlayInformation (
 					numberLines = overlayBoundingAreaPtr->bottom - 
 																		overlayBoundingAreaPtr->top + 1;
 					
-					UpdatePlanarCoordinateInfo (
-											imageMapProjectionHandle,
-											&imageOverlayInfoPtr->planarCoordinate,
-											overlayBoundingAreaPtr->left,
-											overlayBoundingAreaPtr->top, 
-											numberColumns,
-											numberLines,
-											1,
-											1,
-											FALSE,
-											FALSE);
+					UpdatePlanarCoordinateInfo (imageMapProjectionHandle,
+															&imageOverlayInfoPtr->planarCoordinate,
+															overlayBoundingAreaPtr->left,
+															overlayBoundingAreaPtr->top, 
+															numberColumns,
+															numberLines,
+															1,
+															1,
+															FALSE,
+															FALSE);
 
-					SetBoundingMapRectangle (
-											&imageOverlayInfoPtr->planarCoordinate,
-											numberColumns,
-											numberLines,
-											&imageOverlayInfoPtr->boundingMapRectangle,
-											kUpperLeftLowerRightCorners);
-											
+					SetBoundingMapRectangle (&imageOverlayInfoPtr->planarCoordinate,
+														numberColumns,
+														numberLines,
+														&imageOverlayInfoPtr->boundingMapRectangle,
+														kUpperLeftLowerRightCorners);
+					
 					imageOverlayInfoPtr->usePlanarCoordinateInfoFlag = TRUE;
 						
-					}		// end "if (GetPolynomialOrder (mapProjectionHandle) <= 0)"
+					}	// end "if (GetPolynomialOrder (mapProjectionHandle) <= 0)"
 				
-				else		// GetPolynomialOrder (imageMapProjectionHandle) > 0
+				else	// GetPolynomialOrder (imageMapProjectionHandle) > 0
 					imageOverlayInfoPtr->usePlanarCoordinateInfoFlag = FALSE;
 										
-				}		// end "if (FindIfMapInformationExists (imageWindowInfoPtr))"
+				}	// end "if (FindIfMapInformationExists (imageWindowInfoPtr))"
 				
-			else		// !FindIfMapInformationExists (imageWindowInfoPtr)
+			else	// !FindIfMapInformationExists (imageWindowInfoPtr)
 				imageOverlayInfoPtr->usePlanarCoordinateInfoFlag = FALSE;
 				
 			imageOverlayInfoPtr->lineColumnRect = *overlayBoundingAreaPtr;
 			
-			}		// end "if (returnCode == noErr)"
+			}	// end "if (returnCode == noErr)"
 										
-		else		// returnCode != noErr
+		else	// returnCode != noErr
 			overlayIndex = -1;
 			
 		CheckAndUnlockHandle (imageOverlayInfoHandle);
 			
-		}		// end "if (continueFlag)"
+		}	// end "if (continueFlag)"
 		
-	else		// !continueFlag
+	else	// !continueFlag
 		{
 				// Not possible to create an image overlay.
 				
 		overlayIndex = -1;
 		
-		}		// end "else !continueFlag"
+		}	// end "else !continueFlag"
 		
 	if (overlayIndex == -1)
 		DisplayAlert (kErrorAlertID,
@@ -3085,7 +3061,7 @@ SInt16 SetUpImageOverlayInformation (
 		
 	return (overlayIndex);
 	
-}		// end "SetUpImageOverlayInformation" 
+}	// end "SetUpImageOverlayInformation" 
 
 
 
@@ -3123,17 +3099,14 @@ void UnlockImageOverlayInfoHandle (
 	imageOverlayInfoPtr = NULL;
 	if (overlayIndex >= 0 && (UInt32)overlayIndex < gImageOverlayHandleListLength)
 		{
-		imageOverlayHandlePtr = (Handle*)GetHandlePointer ( 
-																gImageOverlayHandle,
-																kNoLock, 
-																kNoMoveHi);
+		imageOverlayHandlePtr = (Handle*)GetHandlePointer (gImageOverlayHandle);
 	
 		if (imageOverlayHandlePtr != NULL)										
 			MHSetState (imageOverlayHandlePtr[overlayIndex], handleStatus);
 													
-		}		// end "if (overlayIndex >= 0 && ..."
+		}	// end "if (overlayIndex >= 0 && ..."
 		
-}		// end "UnlockImageOverlayInfoHandle"
+}	// end "UnlockImageOverlayInfoHandle"
 
 
 
@@ -3163,32 +3136,32 @@ void UnlockImageOverlayOffscreenBuffer (
 {  
 	if (imageOverlayInfoPtr != NULL)
 		{
-#		if defined multispec_mac 
+		#if defined multispec_mac 
 			if (gOSXCoreGraphicsFlag)
 				{
 				#if TARGET_API_MAC_CARBON	
 							// This handle needs to stay locked.
-//					CheckAndUnlockHandle (imageOverlayInfoPtr->offscreenStorageHandle);
+					//CheckAndUnlockHandle (imageOverlayInfoPtr->offscreenStorageHandle);
 				#endif	// TARGET_API_MAC_CARBON	
 				
-				}		// end "if (gOSXCoreGraphicsFlag)"
+				}	// end "if (gOSXCoreGraphicsFlag)"
 				
-			else		// !gOSXCoreGraphicsFlag
+			else	// !gOSXCoreGraphicsFlag
 				{
 				
-				}		// end "else !gOSXCoreGraphicsFlag"
-#		endif // defined multispec_mac 
+				}	// end "else !gOSXCoreGraphicsFlag"
+		#endif // defined multispec_mac 
 		
-#		if defined multispec_lin
+		#if defined multispec_lin
 			CheckAndUnlockHandle (imageOverlayInfoPtr->offscreenStorageHandle);
-#		endif	// defined multispec_lin
+		#endif	// defined multispec_lin
 		
-#		if defined multispec_win
+		#if defined multispec_win
 					// Do not unlock this handle which is now a HBITMAP
-			//CheckAndUnlockHandle(imageOverlayInfoPtr->offscreenStorageHandle);
-#		endif // defined multispec_win
+			//CheckAndUnlockHandle (imageOverlayInfoPtr->offscreenStorageHandle);
+		#endif // defined multispec_win
 		
-		}		// end "if (overlayIndex >= 0 && ..."
+		}	// end "if (overlayIndex >= 0 && ..."
 	
-}		// end "UnlockImageOverlayOffscreenBuffer"
+}	// end "UnlockImageOverlayOffscreenBuffer"
 

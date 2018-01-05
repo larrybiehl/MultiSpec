@@ -7,7 +7,7 @@
 #if !defined __WCLGRDLG_H__
 	#define	__WCLGRDLG_H__ 
 	
-	#include "W1ColDlg.h"
+	#include "WOneColumnDialog.h"
 
 class CMClassGroupDlg : public CMOneColDlg
 {

@@ -1,13 +1,13 @@
 // WTextDoc.cpp : implementation file
 //
    
-#include "SMulSpec.h"
+#include "SMultiSpec.h"
 
-#include "CImagVew.h"
+#include "WImageView.h"
 #include "WTextDoc.h"
-#include "WTextVew.h" 
+#include "WTextView.h" 
 
-#include	"SExtGlob.h" 
+//#include	"SExtGlob.h" 
 
 #ifdef _DEBUG
 #undef THIS_FILE

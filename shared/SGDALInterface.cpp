@@ -3,21 +3,19 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//							 Copyright (1988-2017)
-//							(c) Purdue Research Foundation
+//							 Copyright (1988-2018)
+//						(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	File:						SGDALInterface.cpp
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision number:		3.0
-//
-//	Revision date:			03/15/2017
+//	Revision date:			01/05/2018
 //
 //	Language:				C
 //
-//	System:					Macintosh and Windows Operating Systems	
+//	System:					Linux, Macintosh and Windows Operating Systems	
 //
 //	Brief description:	This file contains routines which are used to access
 //								gdal library routines to read the header information in 
@@ -31,42 +29,45 @@
 //								"multiSpec.h"
 //
 /*	Template for debugging.
-	int numberChars = sprintf ((char*)&gTextString3,
+	int numberChars = sprintf ((char*)gTextString3,
 												" GDAL: (filePathPtr hDS): %s %ld%s", 
 												filePathPtr,
 												hDS,
 												gEndOfLine);
-	ListString ((char*)&gTextString3, numberChars, gOutputTextH);	
+	ListString ((char*)gTextString3, numberChars, gOutputTextH);	
 */		
 //------------------------------------------------------------------------------------
 
-#include "SMulSpec.h"
+#include "SMultiSpec.h"
 	
 #if defined multispec_mac
-	#define	IDS_Alert144	144
-	#define	IDS_FileIO189	189
-	#define	IDS_FileIO190	190
+	#define	IDS_Alert144			144
+	#define	IDS_FileIO189			189
+	#define	IDS_FileIO190			190
 	
-	#define	IDS_Dialog31							31
-#endif	// defined multispec_mac    
+	#define	IDS_Dialog31			31
+#endif	// defined multispec_mac  
+
+#if defined multispec_lin
+	#include "SMultiSpec.h"
+#endif
 
 #if defined multispec_win
-//#	include <string>
+	//#include <string>
 #endif	// defined multispec_win
 
 #if include_gdal_capability
 
-	// oul: added definition of SIZE_UNSIGNED_LONG and SIZEOF_VOIDP
-	// which are not defined in cpl_config.h
-
+			// oul: added definition of SIZE_UNSIGNED_LONG and SIZEOF_VOIDP
+			// which are not defined in cpl_config.h
 	#if defined multispec_lin
 		#if defined NetBeansProject
-			/* The size of a 'unsigned long', as computed by sizeof. */
+				// The size of a 'unsigned long', as computed by sizeof.
 			#define SIZEOF_UNSIGNED_LONG 8
-			/* The size of a 'void p', as computed by sizeof. */
+				// The size of a 'void p', as computed by sizeof.
 			#define SIZEOF_VOIDP 8
-		#endif
-	#endif
+		#endif	// end "defined NetBeansProject"
+	#endif	// end "defined multispec_lin"
 
 #include "gdal.h"
 #include "gdal_frmts.h"
@@ -74,12 +75,12 @@
 #include "cpl_error.h"
 #include "ogr_spatialref.h"
 #include "geo_normalize.h"
-
-//#if include_hdf5_capability
-//	#include "H5Zpublic.h"
-//#endif		// include_hdf5_capability
-
-#include "SExtGlob.h"
+/*
+#if include_hdf5_capability
+	#include "H5Zpublic.h"
+#endif	// include_hdf5_capability
+*/
+//#include "SExtGlob.h"
 
 #define	kAVDecimalDegreesCode						1
 #define	kAVDecimalMinutesCode						2
@@ -88,198 +89,188 @@
 #define	kAVRadiansCode									5
 
 typedef struct errHandler
-{
-    struct errHandler   *psNext;
-    CPLErrorHandler     pfnHandler;
-} CPLErrorHandlerNode;
+	{
+	struct errHandler   *psNext;
+	CPLErrorHandler     pfnHandler;
+	
+	} CPLErrorHandlerNode;
 
-typedef struct {
-    int     nLastErrNo;
-    CPLErr  eLastErrType;
-    CPLErrorHandlerNode *psHandlerStack;
-    int     nLastErrMsgMax;
-    char    szLastErrMsg[500];
-} CPLErrorContext;
-
-// GDAL register function for Linux
-#if defined multispec_lin
-	//extern void CPL_STDCALL LGDALAllRegister();
-#endif	// defined multispec_lin
-
-//					Files in HDF5.cpp
+typedef struct 
+	{
+	int						nLastErrNo;
+	CPLErr					eLastErrType;
+	CPLErrorHandlerNode	*psHandlerStack;
+	int						nLastErrMsgMax;
+	char						szLastErrMsg[500];
+	
+	} CPLErrorContext;
 										
-extern SInt16					GetHDF5CompressionInformation (
-										GDALDatasetH						hDS);
-
-extern SInt32					LoadHdf5DataSetNames (
-										GDALDatasetH						hDS,
-										SInt16								format,
-										FileInfoPtr							fileInfoPtr,
-										Handle*								hdfDataSetsHandlePtr,
-										HdfDataSets**						hdfDataSetsPtrPtr,
-										SInt32*								numDataSetsPtr,
-										SInt32*								firstDataSetIndexPtr,
-										GDALDatasetH*						outGDALDatasetPtr);
-
-
-//					Files in GDALInterface but referenced in other routines.
-
-extern GDALDatasetH			GetGDALFileReference (
-										//FileInfoPtr							fileInfoPtr,
-										Handle								hdfHandle,
-										UInt16								numberHdfDataSets,
-										SInt16								format,
-										GDALDatasetH						fileHDS,
-										HdfDataSets*						hdfDataSetsPtr,
-										UInt32								dataSet);
-
-extern SInt16					LoadGDALHeaderInformation (
-										GDALDatasetH						hDS,
-										FileInfoPtr 						fileInfoPtr,
-										SInt16								format);
-
-extern SInt16					ReadGDALHeaderInformation (
-										GDALDatasetH						hDS,
-										SInt16								format,
-										UInt32*								numberChannelsPtr,
-										UInt32*								numberLinesPtr,
-										UInt32*								numberColumnsPtr,
-										UInt16*								numberBytesPtr,
-										UInt16*								numberBitsPtr,
-										UInt16*								dataTypeCodePtr,
-										UInt16*								dataCompressionCodePtr,
-										SInt16*								bandInterleaveFormatPtr,
-										Boolean*								signedDataFlagPtr,
-										UInt32*								xBlockSizePtr,
-										UInt32*								yBlockSizePtr,
-										SInt16*								gdalDataTypeCodePtr,
-										Boolean*								noDataValueFlagPtr,
-										double*								noDataValuePtr);
-
-extern SInt16					ReadGDALProjectionInformation (
-										FileInfoPtr							fileInfoPtr,
-										GDALDatasetH						hDS);
-
-//extern CPLErrorContext*		CPLGetErrorContext(void);
-
-//extern OGRErr					SetEPSGProjCS( OGRSpatialReference * poSRS, int nPCSCode);
-
+										
 /*
-extern SInt16					LoadHierarchalFileStructure (
-										FileInfoPtr 						fileInfoPtr,
-										UInt32								numberBlocks,
-										UInt32*								channelStartsPtr,
-										UInt32*								blockByteCountsPtr,
-										UInt32								numberLinesPerStrip,
-										UInt32								bytesPerStrip,
-										UInt32								lastBytesPerStrip,
-										UInt32								bytesPerStripForAllChannels);
+#ifndef EQUAL
+	#if defined(WIN32) || defined(WIN32CE)
+		#define EQUALN(a,b,n)           (strnicmp(a,b,n)==0)
+		#define EQUAL(a,b)              (stricmp(a,b)==0)
+	#else
+		#define EQUALN(a,b,n)           (strncasecmp(a,b,n)==0)
+		#define EQUAL(a,b)              (strcasecmp(a,b)==0)
+	#endif
+#endif
 */
 
-//#ifndef EQUAL
-//#if defined(WIN32) || defined(WIN32CE)
-//#  define EQUALN(a,b,n)           (strnicmp(a,b,n)==0)
-//#  define EQUAL(a,b)              (stricmp(a,b)==0)
-//#else
-//#  define EQUALN(a,b,n)           (strncasecmp(a,b,n)==0)
-//#  define EQUAL(a,b)              (strcasecmp(a,b)==0)
-//#endif
-//#endif
 
-void							AdjustUpperLeftPixelLocationToCenter (
-									MapProjectionInfoPtr			mapProjectionInfoPtr);
+		// Routines in SHDF5.cpp 
 
-Boolean						CheckForGDALHandledHeaders (
-									FileInfoPtr 						fileInfoPtr, 
-									char*									headerRecordPtr,
-									SInt16								formatOnlyCode);
+extern SInt16 GetHDF5CompressionInformation (
+				GDALDatasetH						hDS);
 
-SInt16						CheckIfDefaultGDALPaletteExists (
-									GDALDatasetH						hDS);
+extern SInt32 LoadHdf5DataSetNames (
+				GDALDatasetH						hDS,
+				SInt16								format,
+				FileInfoPtr							fileInfoPtr,
+				Handle*								hdfDataSetsHandlePtr,
+				HdfDataSets**						hdfDataSetsPtrPtr,
+				SInt32*								numDataSetsPtr,
+				SInt32*								firstDataSetIndexPtr,
+				GDALDatasetH*						outGDALDatasetPtr);
 
-UInt32						GetDataSetGroupNumber (
-									Handle								hdfDataSetsHandle,
-									UInt32								dataSet);
 
-SInt16						GetDatumCodeFromOGRSpatialReference (
-									OGRSpatialReference*				ogrSpatialReferenceCPtr,
-									UCharPtr								datumNamePtr,
-									Boolean								getCodeFlag);
 
-SInt16						GetEllipsoidCodeFromOGRSpatialReference (
-									OGRSpatialReference*				ogrSpatialReferenceCPtr,
-									UCharPtr								ellipsoidNamePtr,
-									Boolean								getCodeFlag);
+		// Routines in GDALInterface.cpp that are used by other routines.
+		// Prototype is included here because GDALDatasetH variable is defined
+		// by .h files included in this file and not in SPrototype.h
 
-void							GetEPSGCodeName (
-									OGRSpatialReferenceH				ogrEPSGSRSPtr,
-									UCharPtr								epsgNamePtr);
+extern GDALDatasetH GetGDALFileReference (
+				Handle								hdfHandle,
+				UInt16								numberHdfDataSets,
+				SInt16								format,
+				GDALDatasetH						gdalDataSetH,
+				HdfDataSets*						hdfDataSetsPtr,
+				UInt32								dataSet);
 
-SInt16						GetGDALSpecificNumericMetadataInformation (
-									char**		 						metadataStringPtrPtr,
-									char*									masterGroupString,
-									double*								valuePtr);
+extern SInt16 LoadGDALHeaderInformation (
+				GDALDatasetH						hDS,
+				FileInfoPtr 						fileInfoPtr,
+				SInt16								format);
 
-SInt16						GetGDALSpecificTextMetadataInformation (
-									char**								metadataStringPtrPtr,
-									char*									masterGroupString,
-									char*									groupString);
+extern SInt16 ReadGDALHeaderInformation (
+				GDALDatasetH						hDS,
+				SInt16								format,
+				UInt32*								numberChannelsPtr,
+				UInt32*								numberLinesPtr,
+				UInt32*								numberColumnsPtr,
+				UInt16*								numberBytesPtr,
+				UInt16*								numberBitsPtr,
+				UInt16*								dataTypeCodePtr,
+				UInt16*								dataCompressionCodePtr,
+				SInt16*								bandInterleaveFormatPtr,
+				Boolean*								signedDataFlagPtr,
+				UInt32*								xBlockSizePtr,
+				UInt32*								yBlockSizePtr,
+				SInt16*								gdalDataTypeCodePtr,
+				Boolean*								noDataValueFlagPtr,
+				double*								noDataValuePtr);
 
-void							GetGDALTiePoints (
-									FileInfoPtr							fileInfoPtr,
-									GDALDatasetH						hDS);
+extern SInt16 ReadGDALProjectionInformation (
+				FileInfoPtr							fileInfoPtr,
+				GDALDatasetH						hDS);
 
-Boolean						GetGDALTopToBottomFlag (
-									FileInfoPtr 						fileInfoPtr,
-									SInt16								format,
-									GDALDatasetH						hDS);
+
+
+void		AdjustUpperLeftPixelLocationToCenter (
+				MapProjectionInfoPtr				mapProjectionInfoPtr);
+
+Boolean	CheckForGDALHandledHeaders (
+				FileInfoPtr 						fileInfoPtr, 
+				char*									headerRecordPtr,
+				SInt16								formatOnlyCode);
+
+SInt16	CheckIfDefaultGDALPaletteExists (
+				GDALDatasetH						hDS);
+
+UInt32	GetDataSetGroupNumber (
+				Handle								hdfDataSetsHandle,
+				UInt32								dataSet);
+
+SInt16	GetDatumCodeFromOGRSpatialReference (
+				OGRSpatialReference*				ogrSpatialReferenceCPtr,
+				UCharPtr								datumNamePtr,
+				Boolean								getCodeFlag);
+
+SInt16	GetEllipsoidCodeFromOGRSpatialReference (
+				OGRSpatialReference*				ogrSpatialReferenceCPtr,
+				UCharPtr								ellipsoidNamePtr,
+				Boolean								getCodeFlag);
+
+void		GetEPSGCodeName (
+				OGRSpatialReferenceH				ogrEPSGSRSPtr,
+				UCharPtr								epsgNamePtr);
+
+SInt16	GetGDALSpecificNumericMetadataInformation (
+				char**		 						metadataStringPtrPtr,
+				char*									masterGroupString,
+				double*								valuePtr);
+
+SInt16	GetGDALSpecificTextMetadataInformation (
+				char**								metadataStringPtrPtr,
+				char*									masterGroupString,
+				char*									groupString);
+
+void		GetGDALTiePoints (
+				FileInfoPtr							fileInfoPtr,
+				GDALDatasetH						hDS);
+
+Boolean	GetGDALTopToBottomFlag (
+				FileInfoPtr 						fileInfoPtr,
+				SInt16								format,
+				GDALDatasetH						hDS);
 									
-SInt16						GetMapUnitsCodeFromOGRSpatialReference (
-									OGRSpatialReference*				ogrSpatialReferenceCPtr);
+SInt16	GetMapUnitsCodeFromOGRSpatialReference (
+				OGRSpatialReference*				ogrSpatialReferenceCPtr);
 
-SInt16						GetProjectionCodeFromOGRSpatialReference (
-									OGRSpatialReference*				ogrSpatialReferenceCPtr,
-									SInt16*								referenceSystemCodePtr);
+SInt16	GetProjectionCodeFromOGRSpatialReference (
+				OGRSpatialReference*				ogrSpatialReferenceCPtr,
+				SInt16*								referenceSystemCodePtr);
 
-void							GetStatePlaneZoneName (
-									OGRSpatialReferenceH				ogrStatePlaneSRSPtr,
-									UCharPtr								fipsZoneNamePtr);
+void		GetStatePlaneZoneName (
+				OGRSpatialReferenceH				ogrStatePlaneSRSPtr,
+				UCharPtr								fipsZoneNamePtr);
 
-SInt16						LoadGDALInformation (
-									FileInfoPtr 						fileInfoPtr, 
-									char*									headerRecordPtr, 
-									SInt16								format);
+SInt16	LoadGDALInformation (
+				FileInfoPtr 						fileInfoPtr, 
+				char*									headerRecordPtr, 
+				SInt16								format);
 
-UInt16						ReadGDALCompressionInformation (
-									GDALDatasetH						hDS,
-									SInt16								format);
+UInt16	ReadGDALCompressionInformation (
+				GDALDatasetH						hDS,
+				SInt16								format);
 
-void							ReadGDALProjectionInformationFromMetadata (
-									FileInfoPtr 						fileInfoPtr,
-									GDALDatasetH						hDS);
+void		ReadGDALProjectionInformationFromMetadata (
+				FileInfoPtr 						fileInfoPtr,
+				GDALDatasetH						hDS);
 
-SInt16						ReadGDALProjectionInformationFromMetadata_HRLDAS (
-									GDALDatasetH						hDS,
-									double*								noDataValuePtr,
-									Boolean*								noDataValueExistsFlagPtr,
-									double*								xMapCoordinate11Ptr,
-									double*								yMapCoordinate11Ptr,
-									SInt16*								mapProjectionCodePtr,
-									SInt16*								mapProjectionEllipsoidCodePtr,
-									SInt16*								mapProjectionDatumCodePtr,
-									SInt16*								mapUnitsCodePtr,
-									double*								horizontalPixelSizePtr,
-									double*								verticalPixelSizePtr,
-									double*								projectionParametersPtr,	
-									Boolean*								convertCenterFromLatLongToMapFlagPtr,			
-									Boolean*								convertLowerLeftFromLatLongToMapFlagPtr);
+SInt16	ReadGDALProjectionInformationFromMetadata_HRLDAS (
+				GDALDatasetH						hDS,
+				double*								noDataValuePtr,
+				Boolean*								noDataValueExistsFlagPtr,
+				double*								xMapCoordinate11Ptr,
+				double*								yMapCoordinate11Ptr,
+				SInt16*								mapProjectionCodePtr,
+				SInt16*								mapProjectionEllipsoidCodePtr,
+				SInt16*								mapProjectionDatumCodePtr,
+				SInt16*								mapUnitsCodePtr,
+				double*								horizontalPixelSizePtr,
+				double*								verticalPixelSizePtr,
+				double*								projectionParametersPtr,	
+				Boolean*								convertCenterFromLatLongToMapFlagPtr,			
+				Boolean*								convertLowerLeftFromLatLongToMapFlagPtr);
 
-void							SetProjectionParametersFromGDALInformation (
-									MapProjectionInfoPtr 			mapProjectionInfoPtr, 
-									OGRSpatialReferenceH				ogrSpatialReferenceCPtr);
+void		SetProjectionParametersFromGDALInformation (
+				MapProjectionInfoPtr 			mapProjectionInfoPtr, 
+				OGRSpatialReferenceH				ogrSpatialReferenceCPtr);
 
-void							VerifyEPSG_CSVFolderExits (
-									UCharPtr					 			inputStringPtr);
+void		VerifyEPSG_CSVFolderExits (
+				UCharPtr					 			inputStringPtr);
 
 
 
@@ -290,9 +281,9 @@ void							VerifyEPSG_CSVFolderExits (
 //
 //	Function name:		void AdjustUpperLeftPixelLocationToCenter
 //
-//	Software purpose:	This routine adjusts the upper left pixel location to represent the
-//							center of the pixel instead of the upper left corner of the upper
-//							left pixel.
+//	Software purpose:	This routine adjusts the upper left pixel location to represent 
+//							the center of the pixel instead of the upper left corner of the 
+//							upper left pixel.
 //
 //	Parameters in:					
 //
@@ -306,7 +297,7 @@ void							VerifyEPSG_CSVFolderExits (
 //	Revised By:			Larry L. Biehl			Date: 08/07/2014
 
 void AdjustUpperLeftPixelLocationToCenter (
-				MapProjectionInfoPtr			mapProjectionInfoPtr)
+				MapProjectionInfoPtr				mapProjectionInfoPtr)
 
 {	
 	mapProjectionInfoPtr->planarCoordinate.xMapCoordinate11 += 
@@ -319,7 +310,7 @@ void AdjustUpperLeftPixelLocationToCenter (
 	mapProjectionInfoPtr->planarCoordinate.yMapOrientationOrigin = 
 							mapProjectionInfoPtr->planarCoordinate.yMapCoordinate11;
 	
-}		// end "AdjustUpperLeftPixelLocationToCenter"
+}	// end "AdjustUpperLeftPixelLocationToCenter"
 
 
 
@@ -361,13 +352,15 @@ Boolean CheckForGDALHandledHeaders (
 		
 	if (fileInfoPtr != NULL)
 		{
-			// Check if tiff/geotiff formatted image file.
+				// Check if tiff/geotiff formatted image file.
 			
 		charKeyCode[0] = 0x4d;
 		charKeyCode[1] = 0x4d;
 		charKeyCode[2] = 0x00;
 		charKeyCode[3] = 0x2a;		                                                          
-		stringCompare = (SInt16)strncmp ((char*)headerRecordPtr, (CharPtr)charKeyCode, 4);
+		stringCompare = (SInt16)strncmp ((char*)headerRecordPtr, 
+													(CharPtr)charKeyCode, 
+													4);
 		
 		if (stringCompare != 0)
 			{              
@@ -375,23 +368,25 @@ Boolean CheckForGDALHandledHeaders (
 			charKeyCode[1] = 0x49;
 			charKeyCode[2] = 0x2a;
 			charKeyCode[3] = 0x00;             
-			stringCompare = (SInt16)strncmp ((char*)headerRecordPtr, (CharPtr)charKeyCode, 4);
+			stringCompare = (SInt16)strncmp ((char*)headerRecordPtr, 
+														(CharPtr)charKeyCode, 
+														4);
 										
 			if (stringCompare == 0)
 				{
 				fileInfoPtr->swapBytesFlag = gBigEndianFlag;
 				fileInfoPtr->swapHeaderBytesFlag = gBigEndianFlag;
 				
-				}		// end "if (stringCompare == 0)"
+				}	// end "if (stringCompare == 0)"
 				
-			}		// end "if (stringCompare != 0)"
+			}	// end "if (stringCompare != 0)"
 			
-		else		// stringCompare == 0  
+		else	// stringCompare == 0  
 			{
 			fileInfoPtr->swapBytesFlag = !gBigEndianFlag;
 			fileInfoPtr->swapHeaderBytesFlag = !gBigEndianFlag;
 			
-			}		// end "else stringCompare == 0"
+			}	// end "else stringCompare == 0"
 										
 		if (stringCompare == 0)
 			fileType = kTIFFType;
@@ -408,7 +403,7 @@ Boolean CheckForGDALHandledHeaders (
 			if (strncmp ((char*)headerRecordPtr, (CharPtr)charKeyCode, 4) == 0)
 				fileType = kHDF5Type;
 				
-			}		// end "if (fileType == 0)"
+			}	// end "if (fileType == 0)"
 			
 		if (fileType == 0)
 			{
@@ -422,7 +417,7 @@ Boolean CheckForGDALHandledHeaders (
 			if (strncmp ((char*)headerRecordPtr, (CharPtr)charKeyCode, 4) == 0)
 				fileType = kNETCDF2Type;
 				
-			}		// end "if (fileType == 0)"
+			}	// end "if (fileType == 0)"
 
 		fileInfoPtr->format = fileType;
 			
@@ -435,11 +430,11 @@ Boolean CheckForGDALHandledHeaders (
 		else if (formatOnlyCode == kThematicFiles)
 			fileInfoPtr->thematicType = TRUE;
 		
-		}		// end "if (fileInfoPtr != NULL)"
+		}	// end "if (fileInfoPtr != NULL)"
 	
 	return (fileType != 0);
 
-}		// end "CheckForGDALHandledHeaders"
+}	// end "CheckForGDALHandledHeaders"
 
 
 
@@ -476,7 +471,7 @@ SInt16 CheckIfDefaultGDALPaletteExists (
 	
 	return (colorTableCount);
 	
-}		// end "CheckIfDefaultGDALPaletteExists"
+}	// end "CheckIfDefaultGDALPaletteExists"
 
 
 
@@ -514,25 +509,25 @@ SInt16 CheckIfDefaultGDALPaletteExists (
 	
 	if (hDS != NULL)
 		{
-		//gdalRasterBandPtr = ((GDALDataset*)hDS)->GetRasterBand(1);
-		//gdalRasterBandPtr = (GDALDataset*)GDALGetRasterBand(hDS, 1);
+		//gdalRasterBandPtr = ((GDALDataset*)hDS)->GetRasterBand (1);
+		//gdalRasterBandPtr = (GDALDataset*)GDALGetRasterBand (hDS, 1);
 		
 		
 		//if (gdalRasterBandPtr != NULL)
-			//gdalColorTablePtr = gdalRasterBandPtr->GetColorTable();
-		gdalColorTableH = GDALGetRasterColorTable	(GDALGetRasterBand(hDS, 1));
+			//gdalColorTablePtr = gdalRasterBandPtr->GetColorTable ();
+		gdalColorTableH = GDALGetRasterColorTable	(GDALGetRasterBand (hDS, 1));
 
-		}		// end "if (hDS != NULL)"
+		}	// end "if (hDS != NULL)"
 	
 	if (gdalColorTableH != NULL)
-		 colorTableCount = GDALGetColorEntryCount(gdalColorTableH);
+		 colorTableCount = GDALGetColorEntryCount (gdalColorTableH);
 	
 	if (colorTableCount < 0 || colorTableCount > SInt16_MAX)
 		colorTableCount = 0;
 		
 	return ((SInt16)colorTableCount);
 	
-}		// end "CheckIfDefaultGDALPaletteExists"
+}	// end "CheckIfDefaultGDALPaletteExists"
 
 
 
@@ -563,9 +558,9 @@ void CloseGDALInterface (void)
 {	
 			// Release memory of GDAL structures if they were set up.
 
-	GDALDestroyDriverManager();
+	GDALDestroyDriverManager ();
 
-}		// end "CloseGDALInterface"
+}	// end "CloseGDALInterface"
 #endif	// include_gdal_capability
 
 
@@ -630,33 +625,39 @@ Boolean GDALSetReferenceSystemFromEPSGCode (
 				
 		ogrEPSGSRSPtr = OSRNewSpatialReference (NULL);
 		
-		//#ifndef multispec_lin
 		if (ogrEPSGSRSPtr != NULL)
 			{
 			if (OSRImportFromEPSG (ogrEPSGSRSPtr, epsgCode) == noErr)
 			//if (SetEPSGProjCS ((OGRSpatialReference*)ogrEPSGSRSPtr, epsgCode) == noErr)
 				{
 				*mapUnitsCodePtr = GetMapUnitsCodeFromOGRSpatialReference (
-																				(OGRSpatialReference*)ogrEPSGSRSPtr);
+																(OGRSpatialReference*)ogrEPSGSRSPtr);
 																				
 				GetEPSGCodeName ((OGRSpatialReferenceH)ogrEPSGSRSPtr, epsgNamePtr);
 							
 				*projectionCodePtr = GetProjectionCodeFromOGRSpatialReference (
-														(OGRSpatialReference*)ogrEPSGSRSPtr, &referenceSystemCode);
+								(OGRSpatialReference*)ogrEPSGSRSPtr, &referenceSystemCode);
 																									
 				GetDatumCodeFromOGRSpatialReference (
-														(OGRSpatialReference*)ogrEPSGSRSPtr, datumNamePtr, TRUE);
+								(OGRSpatialReference*)ogrEPSGSRSPtr, datumNamePtr, TRUE);
 									
 				GetEllipsoidCodeFromOGRSpatialReference (
-														(OGRSpatialReference*)ogrEPSGSRSPtr, ellipsoidNamePtr, TRUE);
+								(OGRSpatialReference*)ogrEPSGSRSPtr, ellipsoidNamePtr, TRUE);
 					
-				*longitudeCentralMeridianPtr = OSRGetProjParm (ogrEPSGSRSPtr, "central_meridian", 0, NULL);
-				*latitudeOriginPtr = OSRGetProjParm (ogrEPSGSRSPtr, "latitude_of_origin", 0, NULL);
-				*scaleFactorOfCentralMeridianPtr = OSRGetProjParm (ogrEPSGSRSPtr, "scale_factor", 1, NULL);
-				*falseEastingPtr = OSRGetProjParm (ogrEPSGSRSPtr, "false_easting", 0, NULL);
-				*falseNorthingPtr = OSRGetProjParm (ogrEPSGSRSPtr, "false_northing", 0, NULL);
-				*standardParallel1Ptr = OSRGetProjParm (ogrEPSGSRSPtr, "standard_parallel_1", 0, NULL);
-				*standardParallel2Ptr = OSRGetProjParm (ogrEPSGSRSPtr, "standard_parallel_2", 0, NULL);
+				*longitudeCentralMeridianPtr = OSRGetProjParm (
+													ogrEPSGSRSPtr, "central_meridian", 0, NULL);
+				*latitudeOriginPtr = OSRGetProjParm (
+													ogrEPSGSRSPtr, "latitude_of_origin", 0, NULL);
+				*scaleFactorOfCentralMeridianPtr = OSRGetProjParm (
+													ogrEPSGSRSPtr, "scale_factor", 1, NULL);
+				*falseEastingPtr = OSRGetProjParm (
+													ogrEPSGSRSPtr, "false_easting", 0, NULL);
+				*falseNorthingPtr = OSRGetProjParm (
+													ogrEPSGSRSPtr, "false_northing", 0, NULL);
+				*standardParallel1Ptr = OSRGetProjParm (
+													ogrEPSGSRSPtr, "standard_parallel_1", 0, NULL);
+				*standardParallel2Ptr = OSRGetProjParm (
+													ogrEPSGSRSPtr, "standard_parallel_2", 0, NULL);
 				
 				*falseOriginLongitudePtr = *longitudeCentralMeridianPtr;
 				*falseOriginLatitudePtr = *latitudeOriginPtr;
@@ -677,17 +678,16 @@ Boolean GDALSetReferenceSystemFromEPSGCode (
 											ellipsoidNamePtr[0] > 0)
 					parametersSetFlag = TRUE;
 				
-				}		// end "if (error == noErr)"
+				}	// end "if (error == noErr)"
 			
 			OSRRelease (ogrEPSGSRSPtr);
 			
-			}		// end "if (ogrEPSGSRSPtr != NULL)"
-		//#endif	// #ifndef multispec_lin
+			}	// end "if (ogrEPSGSRSPtr != NULL)"
 	#endif	// include_gdal_capability
 	
 	return (parametersSetFlag);
 			
-}		// end "GDALSetReferenceSystemFromEPSGCode" 
+}	// end "GDALSetReferenceSystemFromEPSGCode" 
 
 
       
@@ -747,7 +747,8 @@ Boolean GDALSetStatePlaneParametersFromZone (
 	
 	if (ogrStatePlaneSRSPtr != NULL)
 		{
-		error = OSRSetStatePlane (ogrStatePlaneSRSPtr, fipsZone, (datumCode == kNAD83Code));
+		error = OSRSetStatePlane (
+									ogrStatePlaneSRSPtr, fipsZone, (datumCode == kNAD83Code));
 		
 		if (error == noErr)
 			{
@@ -755,19 +756,26 @@ Boolean GDALSetStatePlaneParametersFromZone (
 						
 					// Get the projection
 				
-			projectionCode = GetProjectionCodeFromOGRSpatialReference ((OGRSpatialReference*)ogrStatePlaneSRSPtr,
-																								&referenceSystemCode);
+			projectionCode = GetProjectionCodeFromOGRSpatialReference (
+							(OGRSpatialReference*)ogrStatePlaneSRSPtr, &referenceSystemCode);
 																								
 			if (projectionCode != kNotDefinedCode)
 				*projectionCodePtr = projectionCode;
 				
-			*longitudeCentralMeridianPtr = OSRGetProjParm (ogrStatePlaneSRSPtr, "central_meridian", 0, NULL);
-			*latitudeOriginPtr = OSRGetProjParm (ogrStatePlaneSRSPtr, "latitude_of_origin", 0, NULL);
-			*scaleFactorOfCentralMeridianPtr = OSRGetProjParm (ogrStatePlaneSRSPtr, "scale_factor", 1, NULL);
-			*falseEastingPtr = OSRGetProjParm (ogrStatePlaneSRSPtr, "false_easting", 0, NULL);
-			*falseNorthingPtr = OSRGetProjParm (ogrStatePlaneSRSPtr, "false_northing", 0, NULL);
-			*standardParallel1Ptr = OSRGetProjParm (ogrStatePlaneSRSPtr, "standard_parallel_1", 0, NULL);
-			*standardParallel2Ptr = OSRGetProjParm (ogrStatePlaneSRSPtr, "standard_parallel_2", 0, NULL);
+			*longitudeCentralMeridianPtr = OSRGetProjParm (
+											ogrStatePlaneSRSPtr, "central_meridian", 0, NULL);
+			*latitudeOriginPtr = OSRGetProjParm (
+											ogrStatePlaneSRSPtr, "latitude_of_origin", 0, NULL);
+			*scaleFactorOfCentralMeridianPtr = OSRGetProjParm (
+											ogrStatePlaneSRSPtr, "scale_factor", 1, NULL);
+			*falseEastingPtr = OSRGetProjParm (
+											ogrStatePlaneSRSPtr, "false_easting", 0, NULL);
+			*falseNorthingPtr = OSRGetProjParm (
+											ogrStatePlaneSRSPtr, "false_northing", 0, NULL);
+			*standardParallel1Ptr = OSRGetProjParm (
+											ogrStatePlaneSRSPtr, "standard_parallel_1", 0, NULL);
+			*standardParallel2Ptr = OSRGetProjParm (
+											ogrStatePlaneSRSPtr, "standard_parallel_2", 0, NULL);
 			
 			*falseOriginLongitudePtr = *longitudeCentralMeridianPtr;
 			*falseOriginLatitudePtr = *latitudeOriginPtr;
@@ -776,15 +784,15 @@ Boolean GDALSetStatePlaneParametersFromZone (
 			
 			parametersSetFlag = TRUE;
 			
-			}		// end "if (error == noErr)"
+			}	// end "if (error == noErr)"
 		
 		OSRRelease (ogrStatePlaneSRSPtr);
 		
-		}		// end "if (ogrStatePlaneSRSPtr != NULL)"
+		}	// end "if (ogrStatePlaneSRSPtr != NULL)"
 	
 	return (parametersSetFlag);
 			
-}		// end "GDALSetStatePlaneParametersFromZone" 
+}	// end "GDALSetStatePlaneParametersFromZone" 
 
   
 
@@ -819,17 +827,14 @@ UInt32 GetDataSetGroupNumber (
 	UInt32								groupedNumber = 0;
 	
 	
-	hdfDataSetsPtr = (HdfDataSets*)GetHandlePointer (
-									hdfDataSetsHandle,
-									kNoLock,
-									kNoMoveHi);
+	hdfDataSetsPtr = (HdfDataSets*)GetHandlePointer (hdfDataSetsHandle);
 									
 	if (hdfDataSetsPtr != NULL)
 		groupedNumber = hdfDataSetsPtr[dataSet].groupedNumber;
 									
 	return (groupedNumber);
     
-}		// end "GetDataSetGroupNumber"
+}	// end "GetDataSetGroupNumber"
 
 
 
@@ -877,58 +882,89 @@ SInt16 GetDatumCodeFromOGRSpatialReference (
 			if (CompareStringsNoCase (attributeStringPtr, (UCharPtr)"Sphere", 6) == 0)
 				datumCode = kSphereDatumCode;
 				
-			else if (CompareStringsNoCase (attributeStringPtr, (UCharPtr)"Beijing_1954", 12) == 0)
+			else if (CompareStringsNoCase (
+										attributeStringPtr, (UCharPtr)"Beijing_1954", 12) == 0)
 				datumCode = kBeijing1954Code;
 				
-			else if (CompareStringsNoCase (attributeStringPtr, (UCharPtr)"Campo_In", 8) == 0)
+			else if (CompareStringsNoCase (
+										attributeStringPtr, (UCharPtr)"Campo_In", 8) == 0)
 				datumCode = kCampoCode;
 				
-			else if (CompareStringsNoCase (attributeStringPtr, (UCharPtr)"Geocentric_Datum_of_Australia_1994", 34) == 0)
+			else if (CompareStringsNoCase (
+										attributeStringPtr, 
+										(UCharPtr)"Geocentric_Datum_of_Australia_1994", 
+										34) == 0)
 				datumCode = kGeocentricDatumAustralia1994Code;
 				
-			else if (CompareStringsNoCase (attributeStringPtr, (UCharPtr)"Greek_Geodetic", 14) == 0)
+			else if (CompareStringsNoCase (
+										attributeStringPtr, 
+										(UCharPtr)"Greek_Geodetic", 
+										14) == 0)
 				datumCode = kGGRS87DatumCode;
 				
-			else if (CompareStringsNoCase (attributeStringPtr, (UCharPtr)"North_American_Datum_1927", 25) == 0)
+			else if (CompareStringsNoCase (
+										attributeStringPtr, 
+										(UCharPtr)"North_American_Datum_1927", 
+										25) == 0)
 				datumCode = kNAD27Code;
 				
-			else if (CompareStringsNoCase (attributeStringPtr, (UCharPtr)"NAD83_Canadian", 14) == 0)
+			else if (CompareStringsNoCase (
+										attributeStringPtr, 
+										(UCharPtr)"NAD83_Canadian", 
+										14) == 0)
 				datumCode = kNAD83_CSRSCode;
 				
-			else if (CompareStringsNoCase (attributeStringPtr, (UCharPtr)"North_American_Datum_1983", 25) == 0)
+			else if (CompareStringsNoCase (
+										attributeStringPtr, 
+										(UCharPtr)"North_American_Datum_1983", 
+										25) == 0)
 				datumCode = kNAD83Code;
 				
-			else if (CompareStringsNoCase (attributeStringPtr, (UCharPtr)"New_Zealand", 11) == 0)
+			else if (CompareStringsNoCase (
+										attributeStringPtr, 
+										(UCharPtr)"New_Zealand", 
+										11) == 0)
 				datumCode = kNewZealandGeodeticDatum1949Code;
 				
-			else if (CompareStringsNoCase (attributeStringPtr, (UCharPtr)"NGO_1948_Oslo", 13) == 0)
+			else if (CompareStringsNoCase (
+										attributeStringPtr, 
+										(UCharPtr)"NGO_1948_Oslo", 
+										13) == 0)
 				datumCode = kNGO1948_OslowCode;
 				
-			else if (CompareStringsNoCase (attributeStringPtr, (UCharPtr)"OSGB_1936", 9) == 0)
+			else if (CompareStringsNoCase (
+										attributeStringPtr, (UCharPtr)"OSGB_1936", 9) == 0)
 				datumCode = kDatum_OSGB_1936Code;
 				
-			else if (CompareStringsNoCase (attributeStringPtr, (UCharPtr)"Pulkovo_1942", 12) == 0)
+			else if (CompareStringsNoCase (
+										attributeStringPtr, (UCharPtr)"Pulkovo_1942", 12) == 0)
 				datumCode = kPulkovo1942DatumCode;
 				
-			else if (CompareStringsNoCase (attributeStringPtr, (UCharPtr)"Pulkovo_1995", 12) == 0)
+			else if (CompareStringsNoCase (
+										attributeStringPtr, (UCharPtr)"Pulkovo_1995", 12) == 0)
 				datumCode = kPulkovo1995DatumCode;
 				
-			else if (CompareStringsNoCase (attributeStringPtr, (UCharPtr)"South_American_Datum_1969", 25) == 0)
+			else if (CompareStringsNoCase (
+										attributeStringPtr, 
+										(UCharPtr)"South_American_Datum_1969", 
+										25) == 0)
 				datumCode = kSAD69DatumCode;
 				
-			else if (CompareStringsNoCase (attributeStringPtr, (UCharPtr)"WGS_1972", 8) == 0)
+			else if (CompareStringsNoCase (
+										attributeStringPtr, (UCharPtr)"WGS_1972", 8) == 0)
 				datumCode = kWGS72DatumCode;
 				
-			else if (CompareStringsNoCase (attributeStringPtr, (UCharPtr)"WGS_1984", 8) == 0)
+			else if (CompareStringsNoCase (
+										attributeStringPtr, (UCharPtr)"WGS_1984", 8) == 0)
 				datumCode = kWGS84Code;
 				
-			}		// end "if (getCodeFlag)"
+			}	// end "if (getCodeFlag)"
 	
-		}		// end "if (attributeStringPtr != NULL)"
+		}	// end "if (attributeStringPtr != NULL)"
 		
 	return (datumCode);
 			
-}		// end "GetDatumCodeFromOGRSpatialReference" 
+}	// end "GetDatumCodeFromOGRSpatialReference" 
 
 
 
@@ -964,7 +1000,8 @@ SInt16 GetEllipsoidCodeFromOGRSpatialReference (
 	SInt16								ellipsoidCode = kNotDefinedCode;
 	
 							
-	attributeStringPtr = (UCharPtr)((OGRSpatialReference*)ogrSpatialReferenceCPtr)->GetAttrValue ("Spheroid");
+	attributeStringPtr = (UCharPtr)((OGRSpatialReference*)ogrSpatialReferenceCPtr)->
+																				GetAttrValue ("Spheroid");
 		
 	if (attributeStringPtr != NULL)
 		{		
@@ -976,62 +1013,84 @@ SInt16 GetEllipsoidCodeFromOGRSpatialReference (
 			if (CompareStringsNoCase (attributeStringPtr, (UCharPtr)"Sphere", 6) == 0)
 				ellipsoidCode = kSphereEllipsoidCode;
 				
-			else if (CompareStringsNoCase (attributeStringPtr, (UCharPtr)"Airy 1830", 9) == 0)
+			else if (CompareStringsNoCase (
+										attributeStringPtr, (UCharPtr)"Airy 1830", 9) == 0)
 				ellipsoidCode = kAiryEllipsoidCode;
 				
-			else if (CompareStringsNoCase (attributeStringPtr, (UCharPtr)"Australian", 10) == 0)
+			else if (CompareStringsNoCase (
+										attributeStringPtr, (UCharPtr)"Australian", 10) == 0)
 				ellipsoidCode = kAustralianEllipsoidCode;
 				
-			else if (CompareStringsNoCase (attributeStringPtr, (UCharPtr)"Bessel Modified", 15) == 0)
+			else if (CompareStringsNoCase (
+										attributeStringPtr, 
+										(UCharPtr)"Bessel Modified", 
+										15) == 0)
 				ellipsoidCode = kBesselModifiedEllipsoidCode;
 				
-			else if (CompareStringsNoCase (attributeStringPtr, (UCharPtr)"Bessel", 6) == 0)
+			else if (CompareStringsNoCase (
+										attributeStringPtr, (UCharPtr)"Bessel", 6) == 0)
 				ellipsoidCode = kBesselEllipsoidCode;
 				
-			else if (CompareStringsNoCase (attributeStringPtr, (UCharPtr)"Clarke 1866", 11) == 0)
+			else if (CompareStringsNoCase (
+										attributeStringPtr, (UCharPtr)"Clarke 1866", 11) == 0)
 				ellipsoidCode = kClarke1866EllipsoidCode;
 				
-			else if (CompareStringsNoCase (attributeStringPtr, (UCharPtr)"Clarke 1880", 11) == 0)
+			else if (CompareStringsNoCase (
+										attributeStringPtr, (UCharPtr)"Clarke 1880", 11) == 0)
 				ellipsoidCode = kClarke1880EllipsoidCode;
 				
-			else if (CompareStringsNoCase (attributeStringPtr, (UCharPtr)"Everest", 7) == 0)
+			else if (CompareStringsNoCase (
+										attributeStringPtr, (UCharPtr)"Everest", 7) == 0)
 				ellipsoidCode = kEverestEllipsoidCode;
 
-			else if (CompareStringsNoCase (attributeStringPtr, (UCharPtr)"GRS 1967", 8) == 0)
+			else if (CompareStringsNoCase (
+										attributeStringPtr, (UCharPtr)"GRS 1967", 8) == 0)
 				ellipsoidCode = kGRS1967ModifiedEllipsoidCode;
 				
-			else if (CompareStringsNoCase (attributeStringPtr, (UCharPtr)"GRS 1980", 8) == 0)
+			else if (CompareStringsNoCase (
+										attributeStringPtr, (UCharPtr)"GRS 1980", 8) == 0)
 				ellipsoidCode = kGRS80EllipsoidCode;
 				
-			else if (CompareStringsNoCase (attributeStringPtr, (UCharPtr)"GRS_1980", 8) == 0)
+			else if (CompareStringsNoCase (
+										attributeStringPtr, (UCharPtr)"GRS_1980", 8) == 0)
 				ellipsoidCode = kGRS80EllipsoidCode;
 				
-			else if (CompareStringsNoCase (attributeStringPtr, (UCharPtr)"International 1924", 18) == 0)
+			else if (CompareStringsNoCase (
+										attributeStringPtr, 
+										(UCharPtr)"International 1924", 
+										18) == 0)
 						// The international 1909 is also known as international 1924
 				ellipsoidCode = kInternational1909EllipsoidCode;
 
-			else if (CompareStringsNoCase (attributeStringPtr, (UCharPtr)"Krassowsky 1940", 15) == 0)
+			else if (CompareStringsNoCase (
+										attributeStringPtr, 
+										(UCharPtr)"Krassowsky 1940", 
+										15) == 0)
 				ellipsoidCode = kKrassovskyEllipsoidCode;
 
-			else if (CompareStringsNoCase (attributeStringPtr, (UCharPtr)"WGS 72", 6) == 0)
+			else if (CompareStringsNoCase (
+										attributeStringPtr, (UCharPtr)"WGS 72", 6) == 0)
 				ellipsoidCode = kWGS72EllipsoidCode;
 
-			else if (CompareStringsNoCase (attributeStringPtr, (UCharPtr)"WGS84", 5) == 0)
+			else if (CompareStringsNoCase (
+										attributeStringPtr, (UCharPtr)"WGS84", 5) == 0)
 				ellipsoidCode = kWGS84EllipsoidCode;
 
-			else if (CompareStringsNoCase (attributeStringPtr, (UCharPtr)"WGS 84", 6) == 0)
+			else if (CompareStringsNoCase (
+										attributeStringPtr, (UCharPtr)"WGS 84", 6) == 0)
 				ellipsoidCode = kWGS84EllipsoidCode;
 
-			else if (CompareStringsNoCase (attributeStringPtr, (UCharPtr)"WGS_1984", 8) == 0)
+			else if (CompareStringsNoCase (
+										attributeStringPtr, (UCharPtr)"WGS_1984", 8) == 0)
 				ellipsoidCode = kWGS84EllipsoidCode;
 				
-			}		// end "if (getCodeFlag)"
+			}	// end "if (getCodeFlag)"
 
-		}		// end "if (attributeStringPtr != NULL)"
+		}	// end "if (attributeStringPtr != NULL)"
 		
 	return (ellipsoidCode);
     
-}		// end "GetEllipsoidCodeFromOGRSpatialReference"
+}	// end "GetEllipsoidCodeFromOGRSpatialReference"
 
   
 
@@ -1058,7 +1117,6 @@ SInt16 GetEllipsoidCodeFromOGRSpatialReference (
 //	Revised By:			Larry L. Biehl			Date: 07/13/2016
 
 GDALDatasetH GetGDALFileReference (
-				//FileInfoPtr							fileInfoPtr,
 				Handle								hdfHandle,
 				UInt16								numberHdfDataSets,
 				SInt16								format,
@@ -1079,11 +1137,7 @@ GDALDatasetH GetGDALFileReference (
 	hDS = fileHDS;
 	
 	if (hdfDataSetsPtr == NULL)
-		hdfDataSetsPtr = (HdfDataSets*)GetHandlePointer (
-										//fileInfoPtr->hdfHandle,
-										hdfHandle,
-										kNoLock,
-										kNoMoveHi);
+		hdfDataSetsPtr = (HdfDataSets*)GetHandlePointer (hdfHandle);
 									
 	if (hdfDataSetsPtr != NULL)
 		{
@@ -1099,8 +1153,11 @@ GDALDatasetH GetGDALFileReference (
 			
 			if (dataSet <= numberHdfDataSets) 
 				{
-				snprintf (szKeyName, sizeof(szKeyName), "SUBDATASET_%d_NAME", dataSet);
-				szKeyName[sizeof(szKeyName) - 1] = '\0';
+				snprintf (szKeyName,
+								sizeof (szKeyName),
+								"SUBDATASET_%d_NAME",
+								(unsigned int)dataSet);
+				szKeyName[sizeof (szKeyName) - 1] = '\0';
 				pszSubdatasetName = CPLStrdup (CSLFetchNameValue (metadata, szKeyName));
 				hDS = GDALOpen (pszSubdatasetName, GA_ReadOnly);
 				CPLFree (pszSubdatasetName);
@@ -1108,15 +1165,15 @@ GDALDatasetH GetGDALFileReference (
 				if (hDS != NULL)
 					hdfDataSetsPtr[dataSet].sdid = hDS;	//(SInt32)					
 				
-				}		// end "if (dataSet <= numberHdfDataSets)"
+				}	// end "if (dataSet <= numberHdfDataSets)"
 							
-			}		// end "if (hDS == 0 && format == kHDF5Type)"
+			}	// end "if (hDS == 0 && format == kHDF5Type)"
 				
-		}		// end "if (hdfDataSetsPtr != NULL)"
+		}	// end "if (hdfDataSetsPtr != NULL)"
 									
 	return (hDS);
     
-}		// end "GetGDALFileReference"
+}	// end "GetGDALFileReference"
 
 
 
@@ -1164,13 +1221,13 @@ SInt16 GetGDALSpecificNumericMetadataInformation (
 		stringLength = (UInt32)strlen (masterGroupString);
 		while (metadataStringPtrPtr[index] != NULL)
 			{
-//			if (CompareStringsNoCase (metadataStringPtrPtr[index], masterGroupString, stringLength) == 0)
 			stringPtr = StrStrNoCase (metadataStringPtrPtr[index], masterGroupString);
 			if (stringPtr != NULL)
 				{
-						// Requested title for string was found. Now get the value that follows it.
+						// Requested title for string was found. Now get the value that
+						// follows it.
 						
-//				stringPtr = metadataStringPtrPtr[index];
+				//stringPtr = metadataStringPtrPtr[index];
 						
 				returnCode = sscanf (&stringPtr[stringLength], 
 											"%lf", 
@@ -1178,17 +1235,17 @@ SInt16 GetGDALSpecificNumericMetadataInformation (
 											
 				break;
 				
-				}		// end "if (CompareStringsNoCase (..."
+				}	// end "if (CompareStringsNoCase (..."
 													
 			index++;
 													
-			}		// end "while (metadataStringPtrPtr[index] != NULL)"
+			}	// end "while (metadataStringPtrPtr[index] != NULL)"
 			
-		}		// end "if (metadataStringPtrPtr != NULL)"
+		}	// end "if (metadataStringPtrPtr != NULL)"
  		
  	return (returnCode);
 			
-}		// end "GetGDALSpecificNumericMetadataInformation
+}	// end "GetGDALSpecificNumericMetadataInformation
 
 
 
@@ -1246,17 +1303,17 @@ SInt16 GetGDALSpecificTextMetadataInformation (
 				if (returnCode == 1)
 					break;
 				
-				}		// end "if (CompareStringsNoCase (..."
+				}	// end "if (CompareStringsNoCase (..."
 													
 			index++;
 													
-			}		// end "while (metadataStringPtrPtr[index] != NULL)"
+			}	// end "while (metadataStringPtrPtr[index] != NULL)"
 			
-		}		// end "if (metadataStringPtrPtr != NULL)"
+		}	// end "if (metadataStringPtrPtr != NULL)"
  	 		
  	return (returnCode);
 			
-}		// end "GetGDALSpecificTextMetadataInformation
+}	// end "GetGDALSpecificTextMetadataInformation
 
   
 
@@ -1298,8 +1355,8 @@ void GetGDALTiePoints (
 											index,
 											numberControlPoints;
 	
-//	Boolean								checkLoadControlPointsFlag = FALSE,
-//											loadControlPointsFlag;
+	//Boolean							checkLoadControlPointsFlag = FALSE,
+	//										loadControlPointsFlag;
 	
 						
 	numberControlPoints = GDALGetGCPCount (hDS);	
@@ -1314,7 +1371,8 @@ void GetGDALTiePoints (
 		
 		if (gdalGCPPtr != NULL)
 			{ 										
-/*					// The following lines are currently for loading control points into
+			/*					
+					// The following lines are currently for loading control points into
 					// the Corona data.
 					
 			loadControlPointsFlag = FALSE;
@@ -1326,7 +1384,7 @@ void GetGDALTiePoints (
 				count = 72;
 				loadControlPointsFlag = TRUE;
 				
-				}		// end "if (checkLoadControlPointsFlag && ..."
+				}	// end "if (checkLoadControlPointsFlag && ..."
 	
 			if (loadControlPointsFlag)
 				{
@@ -1390,52 +1448,51 @@ void GetGDALTiePoints (
 				geoTiePointsPtr[69] = -85.82248;
 				geoTiePointsPtr[70] = 39.51889;
 					
-				}		// end "if (loadControlPointsFlag)"
-*/				       
+				}	// end "if (loadControlPointsFlag)"
+			*/
 			mapProjectionInfoPtr = (MapProjectionInfoPtr)
-									GetHandlePointer (mapProjectionHandle,
-															kLock,
-															kNoMoveHi);
+									GetHandlePointer (mapProjectionHandle, kLock);
 
 					// Note: If this is a geographic description, make sure x-direction tie points are within 
 					// range of -180 to 180 and not 0 to 360.
 			
 				                          
 			mapProjectionInfoPtr->planarCoordinate.xMapCoordinate11 = gdalGCPPtr->dfGCPX;
-			if (mapProjectionInfoPtr->gridCoordinate.referenceSystemCode == kGeographicRSCode &&
-							gdalGCPPtr->dfGCPX > 180)
+			if (mapProjectionInfoPtr->gridCoordinate.referenceSystemCode == 
+																			kGeographicRSCode &&
+																				gdalGCPPtr->dfGCPX > 180)
 				mapProjectionInfoPtr->planarCoordinate.xMapCoordinate11 -= 360;
 			
 			mapProjectionInfoPtr->planarCoordinate.yMapCoordinate11 = gdalGCPPtr->dfGCPY; 
                                                                       
 			mapProjectionInfoPtr->planarCoordinate.xMapOrientationOrigin = 
-																							gdalGCPPtr->dfGCPX;
+																						gdalGCPPtr->dfGCPX;
 			mapProjectionInfoPtr->planarCoordinate.yMapOrientationOrigin = 
-																							gdalGCPPtr->dfGCPY;
+																						gdalGCPPtr->dfGCPY;
 																							
-					// If the number of control points is 4 and they represent the four corners
-					// of the image and the x location values are the same for top and bottom
-					// and the y location values are the same for left and right, then one
-					// can get the x and y pixel size values. One does not need to get a 
-					// polynomial model from the control points.
+					// If the number of control points is 4 and they represent the four 
+					// corners of the image and the x location values are the same for top 
+					// and bottom and the y location values are the same for left and 
+					// right, then one can get the x and y pixel size values. One does 
+					// not need to get a polynomial model from the control points.
 					
 			if (numberControlPoints == 4 &&
 					gdalGCPPtr[3].dfGCPPixel == fileInfoPtr->numberColumns && 
 						gdalGCPPtr[3].dfGCPLine == fileInfoPtr->numberLines && 
-					gdalGCPPtr[0].dfGCPX == gdalGCPPtr[1].dfGCPX && 
-					gdalGCPPtr[2].dfGCPX == gdalGCPPtr[3].dfGCPX && 
-					gdalGCPPtr[0].dfGCPY == gdalGCPPtr[2].dfGCPY && 
-					gdalGCPPtr[1].dfGCPY == gdalGCPPtr[3].dfGCPY)
+							gdalGCPPtr[0].dfGCPX == gdalGCPPtr[1].dfGCPX && 
+								gdalGCPPtr[2].dfGCPX == gdalGCPPtr[3].dfGCPX && 
+									gdalGCPPtr[0].dfGCPY == gdalGCPPtr[2].dfGCPY && 
+										gdalGCPPtr[1].dfGCPY == gdalGCPPtr[3].dfGCPY)
 				{
 				mapProjectionInfoPtr->planarCoordinate.horizontalPixelSize = 
-							(gdalGCPPtr[3].dfGCPX - gdalGCPPtr[0].dfGCPX)/gdalGCPPtr[3].dfGCPPixel;
+					(gdalGCPPtr[3].dfGCPX - gdalGCPPtr[0].dfGCPX)/gdalGCPPtr[3].dfGCPPixel;
 				mapProjectionInfoPtr->planarCoordinate.verticalPixelSize = 
-							(gdalGCPPtr[0].dfGCPY - gdalGCPPtr[3].dfGCPY)/gdalGCPPtr[3].dfGCPLine;
+					(gdalGCPPtr[0].dfGCPY - gdalGCPPtr[3].dfGCPY)/gdalGCPPtr[3].dfGCPLine;
 							
 				if (gdalGCPPtr[0].dfGCPPixel == 0 && gdalGCPPtr[0].dfGCPLine == 0)
-							// The current location value represents the location of the upper left
-							// corner of the upper left pixel. Change to the center of the upper
-							// left pixel.
+							// The current location value represents the location of the 
+							// upper left corner of the upper left pixel. Change to the 
+							// center of the upper left pixel.
 					AdjustUpperLeftPixelLocationToCenter (mapProjectionInfoPtr);
 				
 				}	// end "if (numberControlPoints == 4)"
@@ -1449,12 +1506,10 @@ void GetGDALTiePoints (
 						// Get memory for the control points.
 						
 				fileInfoPtr->controlPointsHandle = MNewHandle (sizeof (ControlPoints) + 
-								numberControlPoints * (4*sizeof (double) + sizeof(SInt16)));
+								numberControlPoints * (4*sizeof (double) + sizeof (SInt16)));
 								
-				controlPointsPtr = (ControlPointsPtr)GetHandlePointer(
-																	fileInfoPtr->controlPointsHandle,
-																	kNoLock,
-																	kNoMoveHi);
+				controlPointsPtr = (ControlPointsPtr)GetHandlePointer (
+																	fileInfoPtr->controlPointsHandle);
 				if (controlPointsPtr != NULL)
 					controlPointsPtr->count = numberControlPoints;
 								
@@ -1467,12 +1522,15 @@ void GetGDALTiePoints (
 					geoIndex = 0;
 					for (index=0; index<numberControlPoints; index++)
 						{
-						controlPointsPtr->easting1Ptr[index] = gdalGCPPtr[geoIndex].dfGCPPixel;
-						controlPointsPtr->northing1Ptr[index] = gdalGCPPtr[geoIndex].dfGCPLine;
+						controlPointsPtr->easting1Ptr[index] = 
+																	gdalGCPPtr[geoIndex].dfGCPPixel;
+						controlPointsPtr->northing1Ptr[index] = 
+																	gdalGCPPtr[geoIndex].dfGCPLine;
 						
 						controlPointsPtr->easting2Ptr[index] = gdalGCPPtr[geoIndex].dfGCPX;
-						if (mapProjectionInfoPtr->gridCoordinate.referenceSystemCode == kGeographicRSCode &&
-									gdalGCPPtr[index].dfGCPX > 180)
+						if (mapProjectionInfoPtr->gridCoordinate.referenceSystemCode == 
+																				kGeographicRSCode &&
+																		gdalGCPPtr[index].dfGCPX > 180)
 							controlPointsPtr->easting2Ptr[index] -= 360;
 						
 						controlPointsPtr->northing2Ptr[index] = gdalGCPPtr[geoIndex].dfGCPY;
@@ -1481,9 +1539,9 @@ void GetGDALTiePoints (
 						
 						geoIndex++;
 						
-						}		// end "for (index=0; index<numberControlPoints; index++)"
+						}	// end "for (index=0; index<numberControlPoints; index++)"
 					
-					}		// end "if (controlPointsPtr->easting1Ptr != NULL)"
+					}	// end "if (controlPointsPtr->easting1Ptr != NULL)"
 					
 				CloseControlPointVectorPointers (fileInfoPtr->controlPointsHandle);
 			
@@ -1494,22 +1552,22 @@ void GetGDALTiePoints (
 					{
 					GetPolynomialModel (fileInfoPtr);
 					
-							// Update map values for the upper left pixel.  The current values
-							// may not represent the map values for pixel (1,1).
+							// Update map values for the upper left pixel.  The current 
+							// values may not represent the map values for pixel (1,1).
 							
 					UpdateUpperLeftMapValues (fileInfoPtr);
 					
-					}		// end "if (mapProjectionInfoPtr->gridCoordinate.code <= 0)"
+					}	// end "if (mapProjectionInfoPtr->gridCoordinate.code <= 0)"
 				
-				}		// end "if (numberControlPoints >= 3)"
+				}	// end "if (numberControlPoints >= 3)"
 				
 			CheckAndUnlockHandle (mapProjectionHandle);
 			
-			}		// end "if (gdalGCPPtr != NULL)"
+			}	// end "if (gdalGCPPtr != NULL)"
 			
-		}		// end "if (numberControlPoints >= 2 && mapProjectionHandle != NULL)"
+		}	// end "if (numberControlPoints >= 2 && mapProjectionHandle != NULL)"
 			
-}		// end "GetGDALTiePoints"
+}	// end "GetGDALTiePoints"
 
 
 
@@ -1537,7 +1595,7 @@ void GetGDALTiePoints (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 06/20/2012
-//	Revised By:			Larry L. Biehl			Date: 03/05/2017
+//	Revised By:			Larry L. Biehl			Date: 09/01/2017
 
 Boolean GetGDALTopToBottomFlag (
 				FileInfoPtr 						fileInfoPtr,
@@ -1559,10 +1617,9 @@ Boolean GetGDALTopToBottomFlag (
 	
 	if (metadataStringPtrPtr != NULL)
 		{					
-		returnCode = GetGDALSpecificTextMetadataInformation (
-																metadataStringPtrPtr,
-																(char*)"TITLE=",
-																(char*)"FROM HRLDAS");
+		returnCode = GetGDALSpecificTextMetadataInformation (metadataStringPtrPtr,
+																				(char*)"TITLE=",
+																				(char*)"FROM HRLDAS");
 																
 		if (returnCode == 1)
 			returnFlag = TRUE;
@@ -1583,29 +1640,30 @@ Boolean GetGDALTopToBottomFlag (
 				if (returnCode == 1)
 					returnFlag = FALSE;
 															
-				}		// end "if (metadataStringPtrPtr != NULL)"
+				}	// end "if (metadataStringPtrPtr != NULL)"
 				
-			}		// end "if (returnFlag)"
+			}	// end "if (returnFlag)"
 																																		
-		}		// end "if (metadataStringPtrPtr != NULL)"
+		}	// end "if (metadataStringPtrPtr != NULL)"
 
 	else if (format == kArcGISASCIIGridType)
 		{			
 					// If the is the ArcGIS Ascii format and the file name starts with mint
-					// or maxt, then assume the image needs to be flipped from top to bottom.
-					// This is for the U2U project.
+					// or maxt, then assume the image needs to be flipped from top to 
+					// bottom. This is for the U2U project.
 					
-		FileStringPtr fileNamePtr = (FileStringPtr)GetFileNameCPointer (fileInfoPtr);
+		FileStringPtr fileNamePtr = 
+								(FileStringPtr)GetFileNameCPointerFromFileInfo (fileInfoPtr);
 		if (!CompareStringsNoCase (fileNamePtr, (UCharPtr)"mint", 4) ||
-								!CompareStringsNoCase (fileNamePtr, (UCharPtr)"maxt", 4) ||
-												!CompareStringsNoCase (fileNamePtr, (UCharPtr)"gdd", 3))
+						!CompareStringsNoCase (fileNamePtr, (UCharPtr)"maxt", 4) ||
+										!CompareStringsNoCase (fileNamePtr, (UCharPtr)"gdd", 3))
 			returnFlag = TRUE;
 		
-		}		// end "if (format == kArcGISASCIIGridType)"
+		}	// end "if (format == kArcGISASCIIGridType)"
 			
 	return (returnFlag);
 
-}		// end "GetGDALTopToBottomFlag"
+}	// end "GetGDALTopToBottomFlag"
 
 
 
@@ -1640,33 +1698,35 @@ void GetEPSGCodeName (
 
 	epsgNamePtr[0] = 0;
 	
-	attributeStringPtr = (UCharPtr)((OGRSpatialReference*)ogrEPSGSRSPtr)->GetAttrValue ("PROJCS");
+	attributeStringPtr = 
+				(UCharPtr)((OGRSpatialReference*)ogrEPSGSRSPtr)->GetAttrValue ("PROJCS");
+				
 	if (attributeStringPtr != NULL)
 		{
-				// First check if the string contains "unkown". This implies that gdal cannot
-				// access the epsg folder.
+				// First check if the string contains "unkown". This implies that gdal 
+				// cannot access the epsg folder.
 				
 		if (CompareStringsNoCase (attributeStringPtr, (UCharPtr)"unnamed", 7) == 0)
 			{
 			VerifyEPSG_CSVFolderExits (attributeStringPtr);
-//			CtoPstring ((char*)"epsg_csv folder not found", fipsZoneNamePtr);
+			//CtoPstring ((char*)"epsg_csv folder not found", fipsZoneNamePtr);
 
-			}		// end "if (CompareStringsNoCase (attributeStringPtr, "unnamed", 7) == 0)"
+			}	// end "if (CompareStringsNoCase (attributeStringPtr, "unnamed", 7) == 0)"
 		
-		else		// !CompareStringsNoCase
+		else	// !CompareStringsNoCase
 			CtoPstring (attributeStringPtr, epsgNamePtr);
 		
-		}		// end "if (attributeStringPtr != NULL)"
+		}	// end "if (attributeStringPtr != NULL)"
 		
-	else		// attributeStringPtr == NULL
+	else	// attributeStringPtr == NULL
 		{
 				// Invalid epsg number. List message indicating such.
 				
 		MGetString ((unsigned char*)epsgNamePtr, kDialogStrID, IDS_Dialog31);
 		
-		}
+		}	// end "else attributeStringPtr == NULL"
 
-}		// end "GetEPSGCodeName"
+}	// end "GetEPSGCodeName"
 
 
 
@@ -1735,17 +1795,19 @@ SInt16 GetMapUnitsCodeFromOGRSpatialReference (
 		else if (CompareStringsNoCase (attributeStringPtr, (UCharPtr)"foot", 4) == 0)			
 			mapUnitsCode = kFeetCode;
 		
-		else if (CompareStringsNoCase (attributeStringPtr, (UCharPtr)"US survey foot", 14) == 0)			
+		else if (CompareStringsNoCase (
+									attributeStringPtr, (UCharPtr)"US survey foot", 14) == 0)			
 			mapUnitsCode = kUSSurveyFeetCode;
 		
-		else if (CompareStringsNoCase (attributeStringPtr, (UCharPtr)"us_survey_feet", 14) == 0)			
+		else if (CompareStringsNoCase (
+									attributeStringPtr, (UCharPtr)"us_survey_feet", 14) == 0)			
 			mapUnitsCode = kUSSurveyFeetCode;
 		
-		}		// end "if (attributeStringPtr != NULL)"
+		}	// end "if (attributeStringPtr != NULL)"
 		
 	return (mapUnitsCode);
 
-}		// end "GetMapUnitsCodeFromOGRSpatialReference"
+}	// end "GetMapUnitsCodeFromOGRSpatialReference"
 
 
 
@@ -1795,10 +1857,10 @@ Boolean GetNewGDALFileReference (
 												
 				   
    returnCode = GetHDFFilePathCPointer (fileInfoPtr, 
-   												filePathString, 
-   												510,
-   												&filePathPtr,
-													kGDAL_Library);
+														filePathString, 
+														510,
+														&filePathPtr,
+														kGDAL_Library);
 	if (returnCode != noErr)	
 																							return (FALSE);	
 					
@@ -1808,7 +1870,7 @@ Boolean GetNewGDALFileReference (
 	if (hDS == NULL)
 																							return (FALSE);	
 		
-	else		// hDS != NULL
+	else	// hDS != NULL
 		{
 		gNumberOfOpenFiles++;
 		hdfDataSetsPtr = (HdfDataSets*)GetHandlePointer (
@@ -1823,8 +1885,11 @@ Boolean GetNewGDALFileReference (
 			
 			for (dataSet=1; dataSet<=fileInfoPtr->numberHdfDataSets; dataSet++) 
 				{
-				snprintf (szKeyName, sizeof(szKeyName), "SUBDATASET_%d_NAME", dataSet);
-				szKeyName[sizeof(szKeyName) - 1] = '\0';
+				snprintf (szKeyName,
+								sizeof (szKeyName),
+								"SUBDATASET_%d_NAME",
+								(unsigned int)dataSet);
+				szKeyName[sizeof (szKeyName) - 1] = '\0';
 				pszSubdatasetName = CPLStrdup (CSLFetchNameValue (metadata, szKeyName));
 				hDS = GDALOpen (pszSubdatasetName, GA_ReadOnly);
 				CPLFree (pszSubdatasetName);
@@ -1832,24 +1897,24 @@ Boolean GetNewGDALFileReference (
 				if (hDS != NULL)
 					hdfDataSetsPtr[dataSet].sdid = hDS;	//(SInt32)					
 				
-				else		// hDS == NULL
+				else	// hDS == NULL
 					{
 					hdfDataSetsPtr[dataSet].sdid = 0;
 					continueFlag = FALSE;
 					
-					}		// end "else hDS == NULL"
+					}	// end "else hDS == NULL"
 			
-				}		// end "for (dataSet=1; dataSet<=fileInfoPtr->numberHdfDataSets; dataSet++)"
+				}	// end "for (dataSet=1; dataSet<=fileInfoPtr->numberHdfDataSets; ..."
 				
 			CheckAndUnlockHandle (fileInfoPtr->hdfHandle);
 				
-			}		// end "if (hdfDataSetsPtr != NULL)"
+			}	// end "if (hdfDataSetsPtr != NULL)"
 			
-		}		// end "else hDS != NULL"
+		}	// end "else hDS != NULL"
 			
 	return (continueFlag);
     
-}		// end "GetNewGDALFileReference"
+}	// end "GetNewGDALFileReference"
 
 
 
@@ -1884,78 +1949,119 @@ SInt16 GetProjectionCodeFromOGRSpatialReference (
 	SInt16								projectionCode = kNotDefinedCode;
 	
 						
-	attributeStringPtr = (UCharPtr)((OGRSpatialReference*)ogrSpatialReferenceCPtr)->GetAttrValue ("Projection");
+	attributeStringPtr = (UCharPtr)((OGRSpatialReference*)ogrSpatialReferenceCPtr)->
+																			GetAttrValue ("Projection");
 							
 	if (attributeStringPtr != NULL)
 		{						
 		if (CompareStringsNoCase (attributeStringPtr, (UCharPtr)"GEOGRAPHIC", 10) == 0)
 			*referenceSystemCodePtr = kGeographicRSCode;
 	
-		else if (CompareStringsNoCase (attributeStringPtr, (UCharPtr)"Albers_Con", 10) == 0)
+		else if (CompareStringsNoCase (
+										attributeStringPtr, (UCharPtr)"Albers_Con", 10) == 0)
 			projectionCode = kAlbersConicalEqualAreaCode;
 	
-		else if (CompareStringsNoCase (attributeStringPtr, (UCharPtr)"Azimuthal_Equidistant", 21) == 0)
+		else if (CompareStringsNoCase (
+									attributeStringPtr, 
+									(UCharPtr)"Azimuthal_Equidistant", 
+									21) == 0)
 			projectionCode = kAzimuthalEquidistantCode;
 	
-		else if (CompareStringsNoCase (attributeStringPtr, (UCharPtr)"Cylindrical_Equal", 17) == 0)
+		else if (CompareStringsNoCase (attributeStringPtr, 
+													(UCharPtr)"Cylindrical_Equal", 
+													17) == 0)
 			projectionCode = kCylindricalEqualAreaCode;
 	
-		else if (CompareStringsNoCase (attributeStringPtr, (UCharPtr)"Equidistant_Conic", 17) == 0)
+		else if (CompareStringsNoCase (attributeStringPtr, 
+													(UCharPtr)"Equidistant_Conic", 
+													17) == 0)
 			projectionCode = kPolarStereographicCode;
 	
-		else if (CompareStringsNoCase (attributeStringPtr, (UCharPtr)"Equirectangular", 15) == 0)
+		else if (CompareStringsNoCase (attributeStringPtr, 
+													(UCharPtr)"Equirectangular", 
+													15) == 0)
 			projectionCode = kEquirectangularCode;
 	
-		else if (CompareStringsNoCase (attributeStringPtr, (UCharPtr)"Gnomonic", 8) == 0)
+		else if (CompareStringsNoCase (attributeStringPtr, 
+													(UCharPtr)"Gnomonic", 
+													8) == 0)
 			projectionCode = kGnomonicCode;
 	
-		else if (CompareStringsNoCase (attributeStringPtr, (UCharPtr)"LAMBERT_AZ", 10) == 0)
+		else if (CompareStringsNoCase (attributeStringPtr, 
+													(UCharPtr)"LAMBERT_AZ", 
+													10) == 0)
 			projectionCode = kLambertAzimuthalEqualAreaCode;
 	
-		else if (CompareStringsNoCase (attributeStringPtr, (UCharPtr)"Lambert_Conformal", 17) == 0)
+		else if (CompareStringsNoCase (attributeStringPtr, 
+													(UCharPtr)"Lambert_Conformal", 
+													17) == 0)
 			projectionCode = kLambertConformalConicCode;
 	
-		else if (CompareStringsNoCase (attributeStringPtr, (UCharPtr)"Mercator", 8) == 0)
+		else if (CompareStringsNoCase (attributeStringPtr, 
+													(UCharPtr)"Mercator", 
+													8) == 0)
 			projectionCode = kMercatorCode;
 	
-		else if (CompareStringsNoCase (attributeStringPtr, (UCharPtr)"Miller_Cylindrical", 18) == 0)
+		else if (CompareStringsNoCase (attributeStringPtr, 
+													(UCharPtr)"Miller_Cylindrical", 
+													18) == 0)
 			projectionCode = kMillerCylindricalCode;
 	
-		else if (CompareStringsNoCase (attributeStringPtr, (UCharPtr)"New_Zealand", 11) == 0)
+		else if (CompareStringsNoCase (attributeStringPtr, 
+													(UCharPtr)"New_Zealand", 
+													11) == 0)
 			projectionCode = kNewZealandMapGridCode;
 	
-		else if (CompareStringsNoCase (attributeStringPtr, (UCharPtr)"ORTHOGRAPH", 10) == 0)
+		else if (CompareStringsNoCase (attributeStringPtr, 
+													(UCharPtr)"ORTHOGRAPH", 
+													10) == 0)
 			projectionCode = kOrthographicCode;
 	
-		else if (CompareStringsNoCase (attributeStringPtr, (UCharPtr)"Polar_Stereographic", 19) == 0)
+		else if (CompareStringsNoCase (attributeStringPtr, 
+													(UCharPtr)"Polar_Stereographic", 
+													19) == 0)
 			projectionCode = kPolarStereographicCode;
 	
-		else if (CompareStringsNoCase (attributeStringPtr, (UCharPtr)"Polyconic", 9) == 0)
+		else if (CompareStringsNoCase (attributeStringPtr, 
+													(UCharPtr)"Polyconic", 
+													9) == 0)
 			projectionCode = kPolyconicCode;
 	
-		else if (CompareStringsNoCase (attributeStringPtr, (UCharPtr)"Robinson", 8) == 0)
+		else if (CompareStringsNoCase (attributeStringPtr, 
+													(UCharPtr)"Robinson", 
+													8) == 0)
 			projectionCode = kRobinsonCode;
 	
-		else if (CompareStringsNoCase (attributeStringPtr, (UCharPtr)"Sinusoidal", 10) == 0)
+		else if (CompareStringsNoCase (attributeStringPtr, 
+													(UCharPtr)"Sinusoidal", 
+													10) == 0)
 			projectionCode = kSinusoidalCode;
 	
-		else if (CompareStringsNoCase (attributeStringPtr, (UCharPtr)"Stereographic", 13) == 0)
+		else if (CompareStringsNoCase (attributeStringPtr, 
+													(UCharPtr)"Stereographic", 
+													13) == 0)
 			projectionCode = kStereographicCode;
 	
-		else if (CompareStringsNoCase (attributeStringPtr, (UCharPtr)"Transverse_Mercator_South", 25) == 0)
+		else if (CompareStringsNoCase (attributeStringPtr, 
+													(UCharPtr)"Transverse_Mercator_South", 
+													25) == 0)
 			projectionCode = kTransvMercatorSouthOrientedCode;
 	
-		else if (CompareStringsNoCase (attributeStringPtr, (UCharPtr)"Transverse_Mercator", 19) == 0)
+		else if (CompareStringsNoCase (attributeStringPtr, 
+													(UCharPtr)"Transverse_Mercator", 
+													19) == 0)
 			projectionCode = kTransverseMercatorCode;
 	
-		else if (CompareStringsNoCase (attributeStringPtr, (UCharPtr)"Vandergrinten", 13) == 0)
+		else if (CompareStringsNoCase (attributeStringPtr, 
+													(UCharPtr)"Vandergrinten", 
+													13) == 0)
 			projectionCode = kVanderGrintenICode;
 	
-		}		// end "if (attributeStringPtr != NULL)"
+		}	// end "if (attributeStringPtr != NULL)"
 		
 	return (projectionCode);
     
-}		// end "GetProjectionCodeFromOGRSpatialReference"
+}	// end "GetProjectionCodeFromOGRSpatialReference"
 
 
 
@@ -1985,7 +2091,7 @@ SInt32 GetStatePlanePCSCode (
 				SInt16								fipsZone)
 
 {	
-	SInt32							pcsCode = 0;
+	SInt32								pcsCode = 0;
 	
 			// Get the pcs code
 	
@@ -1997,7 +2103,7 @@ SInt32 GetStatePlanePCSCode (
 		
 	return (pcsCode);
     
-}		// end "GetStatePlanePCSCode"
+}	// end "GetStatePlanePCSCode"
 
 
 
@@ -2032,27 +2138,29 @@ void GetStatePlaneZoneName (
 
 	fipsZoneNamePtr[0] = 0;
 	
-	attributeStringPtr = (UCharPtr)((OGRSpatialReference*)ogrStatePlaneSRSPtr)->GetAttrValue ("PROJCS");
+	attributeStringPtr = (UCharPtr)((OGRSpatialReference*)ogrStatePlaneSRSPtr)->
+																				GetAttrValue ("PROJCS");
 	if (attributeStringPtr != NULL)
 		{
-				// First check if the string contains "unkown". This implies that gdal cannot
-				// access the epsg folder.
+				// First check if the string contains "unkown". This implies that gdal 
+				// cannot access the epsg folder.
 				
 		if (CompareStringsNoCase (attributeStringPtr, (UCharPtr)"unnamed", 7) == 0)
 			{
 			VerifyEPSG_CSVFolderExits (attributeStringPtr);
 			CtoPstring ((UCharPtr)"epsg_csv folder not found", fipsZoneNamePtr);
 
-			}		// end "if (CompareStringsNoCase (attributeStringPtr, "unnamed", 7) == 0)"
+			}	// end "if (CompareStringsNoCase (attributeStringPtr, "unnamed", 7) == 0)"
 		
-		else		// !CompareStringsNoCase
+		else	// !CompareStringsNoCase
 				// Get the FIPS Zone Name
-				// Could be dangerous by hard wiring to location 8. This could change with gdal versions.
+				// Could be dangerous by hard wiring to location 8. This could change 
+				// with gdal versions.
 			CtoPstring ((UCharPtr)&attributeStringPtr[8], fipsZoneNamePtr);
 		
-		}		// end "if (attributeStringPtr != NULL)"
+		}	// end "if (attributeStringPtr != NULL)"
     
-}		// end "GetStatePlaneZoneName"
+}	// end "GetStatePlaneZoneName"
 
 
 
@@ -2088,13 +2196,13 @@ void HandleGDALErrorMessage (
 		{
 		gdalLastErrorMessagePtr = (char*)CPLGetLastErrorMsg ();
 		
-		sprintf ((char*)&gTextString, 
+		sprintf ((char*)gTextString, 
 					"%s  GDAL routines data access error:%s  ", 
 					gEndOfLine,
 					gEndOfLine);
 		
 		OutputString (NULL,
-							(char*)&gTextString, 
+							(char*)gTextString, 
 							0, 
 							(gOutputCode | gOutputForce1Code), 
 							TRUE);
@@ -2105,17 +2213,17 @@ void HandleGDALErrorMessage (
 							(gOutputCode | gOutputForce1Code), 
 							TRUE);
 		
-		sprintf ((char*)&gTextString, 
+		sprintf ((char*)gTextString, 
 					"%s", 
 					gEndOfLine);
 		
 		OutputString (NULL,
-							(char*)&gTextString, 
+							(char*)gTextString, 
 							0, 
 							(gOutputCode | gOutputForce1Code), 
 							TRUE);
 		
-		if (CPLGetLastErrorType() == CE_Fatal)					
+		if (CPLGetLastErrorType () == CE_Fatal)
 			DisplayAlert (kErrorAlertID, 
 								kStopAlert, 
 								kAlertStrID, 
@@ -2123,9 +2231,9 @@ void HandleGDALErrorMessage (
 								0,
 								NULL);
 		
-		}		// end "if (errCode != noErr)"
+		}	// end "if (errCode != noErr)"
     
-}		// end "HandleGDALErrorMessage"
+}	// end "HandleGDALErrorMessage"
 
 
 
@@ -2149,7 +2257,7 @@ void HandleGDALErrorMessage (
 // Called By:			ListDescriptionInformation in SOther.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 06/13/2011
-//	Revised By:			Larry L. Biehl			Date: 12/21/2016
+//	Revised By:			Larry L. Biehl			Date: 10/31/2017
 
 Boolean ListGDALDataSetAttributes (
 				FileInfoPtr 						fileInfoPtr,
@@ -2174,10 +2282,11 @@ Boolean ListGDALDataSetAttributes (
    
    
 	if (fileInfoPtr->format != kGRIBType && 
-					fileInfoPtr->format != kHDF5Type &&
-								fileInfoPtr->format != kHDF4Type2 &&
-											fileInfoPtr->format != kNETCDF2Type)
-																				return (continueFlag);
+			fileInfoPtr->format != kHDF5Type &&
+				fileInfoPtr->format != kHDF4Type2 &&
+					fileInfoPtr->format != kNETCDF2Type &&
+						fileInfoPtr->format != kENVIType)
+																					return (continueFlag);
 																				
 			// List global file metadata if there is any.
 			
@@ -2198,46 +2307,52 @@ Boolean ListGDALDataSetAttributes (
 										gEndOfLine);
 										
 		if (continueFlag)
-			continueFlag = ListString ((char*)&gTextString,  
+			continueFlag = ListString ((char*)gTextString,  
 												stringLength,  
 												gOutputTextH);
 										
 		index = 0;
 		while (metadataStringPtrPtr[index] != NULL)
 			{
-			if (continueFlag) {
+			if (continueFlag) 
+				{
 				stringLength = sprintf ((char*)&gTextString[0],
 												"      ");
-				continueFlag = ListString ((char*)&gTextString,  
+				continueFlag = ListString ((char*)gTextString,  
 													stringLength,  
 													gOutputTextH);
-				}		// end "if (continueFlag)"
+													
+				}	// end "if (continueFlag)"
 			
-			if (continueFlag) {
-				stringLength = (SInt16)strlen(metadataStringPtrPtr[index]);
+			if (continueFlag) 
+				{
+				stringLength = (SInt16)strlen (metadataStringPtrPtr[index]);
 				stringLength = MIN (stringLength, 32000);
 				continueFlag = ListString (metadataStringPtrPtr[index],  
 													stringLength,  
 													gOutputTextH);
-				}		// end "if (continueFlag)"
+													
+				}	// end "if (continueFlag)"
 	
 					// Add end of line character
 					
-			if (continueFlag) {
+			if (continueFlag) 
+				{
 				stringLength = sprintf ((char*)&gTextString[0],
 												"%s",
 												gEndOfLine);
-				continueFlag = ListString ((char*)&gTextString,  
+				continueFlag = ListString ((char*)gTextString,  
 													stringLength,  
 													gOutputTextH);
-				}		// end "if (continueFlag)"
+													
+				}	// end "if (continueFlag)"
 													
 			index++;
 			
 			if (!continueFlag)
 				break;
 													
-			}		// end "while (metadataStringPtrPtr[index] != NULL)"
+			}	// end "while (metadataStringPtrPtr[index] != NULL)"
 						
 		stringLength = sprintf ((char*)&gTextString[0],
 										"    End global file attribute information%s%s",
@@ -2245,11 +2360,11 @@ Boolean ListGDALDataSetAttributes (
 										gEndOfLine);
 										
 		if (continueFlag)
-			continueFlag = ListString ((char*)&gTextString,  
+			continueFlag = ListString ((char*)gTextString,  
 												stringLength,  
 												gOutputTextH);
 												
-		}		// end "if (metadataStringPtrPtr != NULL)"	
+		}	// end "if (metadataStringPtrPtr != NULL)"	
 
 	#if include_hdf5_capability
 		if (fileInfoPtr->format == kHDF5Type)
@@ -2261,7 +2376,7 @@ Boolean ListGDALDataSetAttributes (
 									gEndOfLine);
 									
 	if (continueFlag)
-		continueFlag = ListString ((char*)&gTextString,  
+		continueFlag = ListString ((char*)gTextString,  
 											stringLength,  
 											gOutputTextH);
 																				
@@ -2270,31 +2385,31 @@ Boolean ListGDALDataSetAttributes (
 		dataSetStart = dataSetEnd = 1;
 		numberChannels = fileInfoPtr->numberChannels;
 			
-		}		// end "if (fileInfoPtr->hdfHandle == NULL)"
+		}	// end "if (fileInfoPtr->hdfHandle == NULL)"
 		
-	else		// fileInfoPtr->hdfHandle != NULL
+	else	// fileInfoPtr->hdfHandle != NULL
 		{
 		if (listAllDataSetInfoFlag)
 			{
 			dataSetStart = 1;
 			dataSetEnd = fileInfoPtr->numberHdfDataSets;
 			
-			}		// end "if (listAllDataSetInfoFlag)"
+			}	// end "if (listAllDataSetInfoFlag)"
 			
-		else		// !listAllDataSetInfoFlag
+		else	// !listAllDataSetInfoFlag
 			{
 			dataSetStart = fileInfoPtr->hdfDataSetSelection;
 			dataSetEnd = fileInfoPtr->hdfDataSetSelection;
 			
 			if (GetDataSetGroupNumber (
-								fileInfoPtr->hdfHandle, fileInfoPtr->hdfDataSetSelection) > 0)
+							fileInfoPtr->hdfHandle, fileInfoPtr->hdfDataSetSelection) > 0)
 				dataSetEnd += fileInfoPtr->numberChannels - 1;
 			
-			}		// end "else !listAllDataSetInfoFlag"
+			}	// end "else !listAllDataSetInfoFlag"
 			
 		numberChannels = 1;
 		
-		}		// end "else fileInfoPtr->hdfHandle != NULL"
+		}	// end "else fileInfoPtr->hdfHandle != NULL"
 
 	for (dataSet=dataSetStart; dataSet<=dataSetEnd; dataSet++)
 		{
@@ -2312,26 +2427,28 @@ Boolean ListGDALDataSetAttributes (
 				{
 						// List band description. 
 						
-				descriptionStringPtr = GDALGetDescription (GDALGetRasterBand (hDS, bandIndex));
+				descriptionStringPtr = 
+										GDALGetDescription (GDALGetRasterBand (hDS, bandIndex));
 				
 				if (descriptionStringPtr != NULL && descriptionStringPtr[0] != 0)
 					{
-					stringLength = sprintf ((char*)&gTextString,
+					stringLength = sprintf ((char*)gTextString,
 													"    Band %ld: description = %s%s", 
 													bandIndex,
 													descriptionStringPtr,
 													gEndOfLine);
 
 					if (continueFlag)
-						continueFlag = ListString ((char*)&gTextString,  
+						continueFlag = ListString ((char*)gTextString,  
 															stringLength,  
 															gOutputTextH);		
 															
-					}		// end "if (descriptionStringPtr != NULL && descriptionStringPtr[0] != 0)"
+					}	// end "if (descriptionStringPtr != NULL && ..."
 					
 						// Get metadata for the band.
 						
-				metadataStringPtrPtr = GDALGetMetadata (GDALGetRasterBand (hDS, bandIndex), NULL);	
+				metadataStringPtrPtr = 
+									GDALGetMetadata (GDALGetRasterBand (hDS, bandIndex), NULL);	
 				
 				if (metadataStringPtrPtr != NULL)
 					{
@@ -2344,7 +2461,7 @@ Boolean ListGDALDataSetAttributes (
 														gEndOfLine);
 
 						if (continueFlag)
-							continueFlag = ListString ((char*)&gTextString,  
+							continueFlag = ListString ((char*)gTextString,  
 																stringLength,  
 																gOutputTextH);
 																
@@ -2353,9 +2470,9 @@ Boolean ListGDALDataSetAttributes (
 						if (!continueFlag)
 							break;
 																
-						}		// end "while (metadataStringPtrPtr[index] != NULL)"
+						}	// end "while (metadataStringPtrPtr[index] != NULL)"
 															
-					}		// end "if (metadataStringPtrPtr != NULL)"
+					}	// end "if (metadataStringPtrPtr != NULL)"
 						
 				if (!continueFlag)
 					break;
@@ -2369,11 +2486,11 @@ Boolean ListGDALDataSetAttributes (
 															gOutputForce1Code, 
 															continueFlag);
 					
-				}		// end "for (bandIndex=1; bandIndex<=numberChannels; ..."
+				}	// end "for (bandIndex=1; bandIndex<=numberChannels; ..."
 				
-			}		// end "if (hDS != NULL)"
+			}	// end "if (hDS != NULL)"
 			
-		}		// end "for (dataSet=dataSetStart; dataSet<=dataSetEnd; dataSet++)"
+		}	// end "for (dataSet=dataSetStart; dataSet<=dataSetEnd; dataSet++)"
 						
 	stringLength = sprintf ((char*)&gTextString[0],
 									"    End selected data set attribute information%s%s",
@@ -2381,18 +2498,18 @@ Boolean ListGDALDataSetAttributes (
 									gEndOfLine);
 									
 	if (continueFlag)
-		continueFlag = ListString ((char*)&gTextString,  
+		continueFlag = ListString ((char*)gTextString,  
 											stringLength,  
 											gOutputTextH);
 		
 	#if include_hdf5_capability
 				// Not set up for now. Doing a different way.
-//		continueFlag = ListHDF5DataSetAttributes (fileInfoPtr, listAllDataSetInfoFlag);
+		//continueFlag = ListHDF5DataSetAttributes (fileInfoPtr, listAllDataSetInfoFlag);
 	#endif		// include_hdf5_capability
 		
 	return (continueFlag);
 	
-}		// end "ListGDALDataSetAttributes"
+}	// end "ListGDALDataSetAttributes"
 
 
 
@@ -2428,13 +2545,9 @@ SInt16 LoadGDALHeaderInformation (
 {	
 	double								noDataValue;
 	
-	UInt32						//		bytesPerStrip,
-									//		bytesPerStripForAllChannels,
-									//		lastBytesPerStrip,
-   										numberChannels,
+	UInt32								numberChannels,
 											numberColumns,
 											numberLines,
-									//		stripsPerChannel,
 											xBlockSize,
 											yBlockSize;
 	
@@ -2486,9 +2599,9 @@ SInt16 LoadGDALHeaderInformation (
 			
 			if (fileInfoPtr->numberBits <= 16)
 				fileInfoPtr->numberBins = 
-									(UInt32)ldexp( (double)1, fileInfoPtr->numberBits);
+									(UInt32)ldexp ((double)1, fileInfoPtr->numberBits);
 			
-			else		// fileInfoPtr->numberBits > 16
+			else	// fileInfoPtr->numberBits > 16
 				fileInfoPtr->numberBins = 2048;
 			
 			fileInfoPtr->gdalDataSetH = hDS;
@@ -2499,18 +2612,23 @@ SInt16 LoadGDALHeaderInformation (
 			
 			fileInfoPtr->noDataValueFlag = noDataValueFlag;
 			fileInfoPtr->noDataValue = noDataValue;
-			
-/*			if (format == kTIFFType && 
+			/*
+			if (format == kTIFFType &&
 						yBlockSize == numberLines && 
 							xBlockSize == numberColumns && 
 								numberChannels > 1 && 
 									yBlockSize > 1)
-//						(UInt32)yBlockSize * (UInt32)xBlockSize * (UInt32)*numberBytesPtr > SInt32_MAX )
+					//(UInt32)yBlockSize * (UInt32)xBlockSize * (UInt32)*numberBytesPtr > 
+					//																				SInt32_MAX)
 			
-						// If the image is not tiled or stripped then, need to set up MultiSpec to store
-						// the data for the entire single tile (image). It takes more memory but if this is
-						// not done, the tiff library will read the entire image for each line read. Reading
-						// the image becomes very slow. I have not figured out a way to get around this.
+						// If the image is not tiled or stripped then, need to set up 
+						// MultiSpec to store the data for the entire single tile (image). 
+						// It takes more memory but if this is not done, the tiff library 
+						// will read the entire image for each line read. Reading the image 
+						// becomes very slow. I have not figured out a way to get around 
+						// this.
+						// The approached used below does not work well. It needs more 
+						// work ... so commenting out for now.
 			
 				{										
 				bytesPerStrip = yBlockSize * 
@@ -2521,8 +2639,10 @@ SInt16 LoadGDALHeaderInformation (
 				
 				stripsPerChannel = fileInfoPtr->numberLines/yBlockSize;
 				
-				lastBytesPerStrip = (fileInfoPtr->numberLines - stripsPerChannel * yBlockSize) *
-														fileInfoPtr->numberColumns * fileInfoPtr->numberBytes;
+				lastBytesPerStrip = (fileInfoPtr->numberLines - 
+													stripsPerChannel * yBlockSize) *
+																fileInfoPtr->numberColumns * 
+																				fileInfoPtr->numberBytes;
 				
 				if (lastBytesPerStrip > 0)
 					stripsPerChannel++;
@@ -2536,25 +2656,24 @@ SInt16 LoadGDALHeaderInformation (
 																		lastBytesPerStrip,
 																		bytesPerStripForAllChannels);
 					
-				}		// end "if (yBlockSize > 1)"
-*/			
-					
+				}	// end "if (yBlockSize > 1)"
+			*/
 			fileInfoPtr->treatLinesAsBottomToTopFlag = 
-													GetGDALTopToBottomFlag (fileInfoPtr, format, hDS);
+												GetGDALTopToBottomFlag (fileInfoPtr, format, hDS);
 												
-			}		// end "if (returnCode == noErr)" 
+			}	// end "if (returnCode == noErr)" 
 		
-		else		// returnCode != noErr
+		else	// returnCode != noErr
 			returnCode = 1;
 			
-		}		// end "if (hDS != NULL)"
+		}	// end "if (hDS != NULL)"
 	
-	else		// hDS == NULL
+	else	// hDS == NULL
 		returnCode = 1;
 	
 	return (returnCode);
 	
-}		// end "LoadGDALHeaderInformation" 
+}	// end "LoadGDALHeaderInformation" 
 
 
 
@@ -2612,13 +2731,6 @@ SInt16 LoadGDALInformation (
 		#if include_hdf5_capability
 			if (format == kHDF5Type || format == kNETCDF2Type || format == kHDF4Type2)
 				{
-				/*
-				int numberChars2 = sprintf ((char*)&gTextString2,
-											" SGDALInterface::LoadGDALInformation (before LoadHdf5DataSetNames): %s", 
-											gEndOfLine);
-				ListString ((char*)&gTextString2, numberChars2, gOutputTextH);
-				startTime = time(NULL);
-				*/
 				saved_hDS = hDS;
 				LoadHdf5DataSetNames (hDS,
 												format,
@@ -2631,13 +2743,14 @@ SInt16 LoadGDALInformation (
 					 
 				//ListCPUTimeInformation (NULL, true, startTime);
 												
-				}		// end format == kHDF5Type || ...
+				}	// end format == kHDF5Type || ...
 		#endif	// include_hdf5_capability	
 
 		gdalReturnCode = LoadGDALHeaderInformation (hDS, fileInfoPtr, format);
 		
 		#if include_hdf5_capability
-			if (gdalReturnCode == noErr && (format == kHDF5Type || format == kNETCDF2Type || format == kHDF4Type2))
+			if (gdalReturnCode == noErr && 
+					(format == kHDF5Type || format == kNETCDF2Type || format == kHDF4Type2))
 				{
 				fileInfoPtr->numberHdfDataSets = (UInt16)numberDataSets;
 				
@@ -2646,7 +2759,7 @@ SInt16 LoadGDALInformation (
 																			dataSetIndex,
 																			TRUE);
 				
-				}		// end "if (gdalReturnCode == noErr && (fileType == kHDF5Type || ..."
+				}	// end "if (gdalReturnCode == noErr && (fileType == kHDF5Type || ..."
 		#endif	// include_hdf5_capability
 		
 		if (gdalReturnCode == noErr)
@@ -2658,18 +2771,18 @@ SInt16 LoadGDALInformation (
 			
 				fileInfoPtr->numberHeaderBytes = GetTIFFNumberHeaderBytes (fileInfoPtr);
 				
-				}		// end "if (headerRecordPtr != NULL && format == kTIFFType)"
+				}	// end "if (headerRecordPtr != NULL && format == kTIFFType)"
 										
 			fileInfoPtr->format = format;	
 			fileInfoPtr->ancillaryInfoformat = kArcViewType;
 			gdalReturnCode = ReadGDALProjectionInformation (fileInfoPtr, hDS);
 		
-//					// For testing:
-//					
-//			fileInfoPtr->noDataValue = -9999;
-//			fileInfoPtr->noDataValueFlag = TRUE;
+			//		// For testing:
+			//
+			//fileInfoPtr->noDataValue = -9999;
+			//fileInfoPtr->noDataValueFlag = TRUE;
 			
-			}		// end "if (gdalReturnCode == noErr)"
+			}	// end "if (gdalReturnCode == noErr)"
 			
 		if (gdalReturnCode == noErr)
 			{
@@ -2680,7 +2793,7 @@ SInt16 LoadGDALInformation (
 				fileInfoPtr->gdalDataSetH = saved_hDS;
 				
 			fileInfoPtr->dataCompressionCode = ReadGDALCompressionInformation (
-																							hDS, format);
+																								hDS, format);
 			
 					// Save hdf5 information into file information structure
 					
@@ -2711,12 +2824,13 @@ SInt16 LoadGDALInformation (
 							fileInfoPtr->numberChannels == 1 &&
 									fileInfoPtr->numberBytes <= 2)
 					{
-					if (CheckIfSpecifiedFileExists (GetFileStreamPointer(fileInfoPtr), (char*)"\0.clr\0"))
+					if (CheckIfSpecifiedFileExists (
+										GetFileStreamPointer (fileInfoPtr), (char*)"\0.clr\0"))
 						gGetFileImageType = kThematicImageType;
 					
-					}		// end "if (!fileInfoPtr->thematicType && ..."
+					}	// end "if (!fileInfoPtr->thematicType && ..."
 				
-				}		// end "if (gGetFileImageType == 0)"
+				}	// end "if (gGetFileImageType == 0)"
 			
 			fileInfoPtr->thematicType = FALSE;
 			if (gGetFileImageType == kThematicImageType)
@@ -2733,28 +2847,28 @@ SInt16 LoadGDALInformation (
 							// This will force the gdal default color table to be read.
 					fileInfoPtr->colorTableOffset = 1; 
 				
-				}		// end "if (gGetFileImageType == kThematicImageType)"	
+				}	// end "if (gGetFileImageType == kThematicImageType)"	
 				
-			else		// gGetFileImageType == kMultispectralImageType
+			else	// gGetFileImageType == kMultispectralImageType
 				{
 						// If the number of channels is one, then indicate that the band
 						// interleave format is BIL. (It doesn't make any difference for
 						// one channel data except BIS formatted files are not allowed to
 						// be linked. Change the band interleave format to BIL will allow
 						// this file to be linked.
-						// Changed this to kBSQ so that thinks would be handled correctly
-						// if files were linked.
+						// Changed this to kBSQ so that MultiSpec thinks would be handled 
+						// correctly if files were linked.
 						
 				if (fileInfoPtr->numberChannels == 1 && !fileInfoPtr->blockedFlag)
 					fileInfoPtr->bandInterleave = kBSQ;		// kBIL
 					
-				}		// end "else gGetFileImageType == kMultispectralImageType"
+				}	// end "else gGetFileImageType == kMultispectralImageType"
 				
-			CheckAndUnlockHandle(hdfDataSetsHandle);
+			CheckAndUnlockHandle (hdfDataSetsHandle);
 									
-			}		// end "if (gdalReturnCode == noErr)"
+			}	// end "if (gdalReturnCode == noErr)"
 		
-		else		// gdalReturnCode != noErr
+		else	// gdalReturnCode != noErr
 			{
 			fileInfoPtr->format = 0;	
 			fileInfoPtr->ancillaryInfoformat = 0;
@@ -2763,13 +2877,13 @@ SInt16 LoadGDALInformation (
 			
 			gdalReturnCode = 1;
 			
-			}		// end "else gdalReturnCode != noErr"
+			}	// end "else gdalReturnCode != noErr"
 			
-		}		// end "if (fileInfoPtr->gdalDataSetH != NULL)"
+		}	// end "if (fileInfoPtr->gdalDataSetH != NULL)"
 		
 	return (gdalReturnCode);
 	
-}		// end "LoadGDALInformation" 
+}	// end "LoadGDALInformation" 
 
 
 
@@ -2829,11 +2943,11 @@ Boolean ReadGDALColorTable (
 	
 	hDS = imageFileInfoPtr->gdalDataSetH;
 	
-	//gdalColorTablePtr = ((GDALDataset*)hDS)->GetRasterBand(1)->GetColorTable();
+	//gdalColorTablePtr = ((GDALDataset*)hDS)->GetRasterBand (1)->GetColorTable ();
 	//if (gdalColorTablePtr == NULL)
 	//																					return (FALSE);
 	
-	gdalColorTableH = GDALGetRasterColorTable	(GDALGetRasterBand(hDS, 1));
+	gdalColorTableH = GDALGetRasterColorTable	(GDALGetRasterBand (hDS, 1));
 	if (gdalColorTableH == NULL)
 																						return (FALSE);
 
@@ -2849,19 +2963,19 @@ Boolean ReadGDALColorTable (
 		#endif			
 
 	
-		// Get the number of colors in the table. Make sure this count is less than
-		// maximum that can be handled of 256.
+			// Get the number of colors in the table. Make sure this count is less than
+			// maximum that can be handled of 256.
 	
-	//colorTableCount = gdalColorTablePtr->GetColorEntryCount();
-	colorTableCount = GDALGetColorEntryCount(gdalColorTableH);
+	//colorTableCount = gdalColorTablePtr->GetColorEntryCount ();
+	colorTableCount = GDALGetColorEntryCount (gdalColorTableH);
 	colorTableCount = MIN (colorTableCount, 256);
 			
 			// Now load the entire palette into the appropriate locations.
 			
 	for (index=0; index<colorTableCount; index++)
 		{
-		//gdalColorEntryPtr = (GDALColorEntry*)gdalColorTablePtr->GetColorEntry(index);
-		gdalColorEntryPtr = (GDALColorEntry*)GDALGetColorEntry(gdalColorTableH, index);
+		//gdalColorEntryPtr = (GDALColorEntry*)gdalColorTablePtr->GetColorEntry (index);
+		gdalColorEntryPtr = (GDALColorEntry*)GDALGetColorEntry (gdalColorTableH, index);
 					
 		if (gdalColorEntryPtr != NULL)
 			{	
@@ -2877,9 +2991,9 @@ Boolean ReadGDALColorTable (
 				vectorBluePtr[index] =  gdalColorEntryPtr->c3 * 256;			
 			#endif			
 				
-			}		// end "if (gdalColorEntryPtr != NULL)"
+			}	// end "if (gdalColorEntryPtr != NULL)"
 			
-		}		// end "for (index=0; index<colorTableCount; index++)"
+		}	// end "for (index=0; index<colorTableCount; index++)"
 				
 		// Now load what is needed for the palette.
 	
@@ -2895,7 +3009,7 @@ Boolean ReadGDALColorTable (
 
 	return (colorTableCount>0);
 
-}		// end "ReadGDALColorTable"
+}	// end "ReadGDALColorTable"
 
 
 //------------------------------------------------------------------------------------
@@ -2933,10 +3047,12 @@ UInt16 ReadGDALCompressionInformation (
 	
 	if (hDS != NULL)
 		{		
-		metaDataStringPtr = (UCharPtr)GDALGetMetadataItem (hDS, "COMPRESSION", "IMAGE_STRUCTURE");
+		metaDataStringPtr = (UCharPtr)GDALGetMetadataItem (
+															hDS, "COMPRESSION", "IMAGE_STRUCTURE");
 		
 		if (metaDataStringPtr == NULL)
-					// See if the info is stored at the band level. Will only try the first band.
+					// See if the info is stored at the band level. Will only try the 
+					// first band.
 			metaDataStringPtr = (UCharPtr)GDALGetMetadataItem (GDALGetRasterBand (hDS, 1), 
 																				"COMPRESSION", 
 																				"IMAGE_STRUCTURE");
@@ -2946,34 +3062,41 @@ UInt16 ReadGDALCompressionInformation (
 			if (CompareStringsNoCase (metaDataStringPtr, (UCharPtr)"CCITTFAX3", 9) == 0)
 				dataCompressionCode = kCCITTGroup3Compression;
 				
-			else if (CompareStringsNoCase (metaDataStringPtr, (UCharPtr)"CCITTFAX4", 9) == 0)
+			else if (CompareStringsNoCase (
+												metaDataStringPtr, (UCharPtr)"CCITTFAX4", 9) == 0)
 				dataCompressionCode = kCCITTGroup4Compression;
 				
-			else if (CompareStringsNoCase (metaDataStringPtr, (UCharPtr)"CCITTRLE", 8) == 0)
+			else if (CompareStringsNoCase (
+												metaDataStringPtr, (UCharPtr)"CCITTRLE", 8) == 0)
 				dataCompressionCode = kRLECompression;
 				
-			else if (CompareStringsNoCase (metaDataStringPtr, (UCharPtr)"JP2000", 6) == 0)
+			else if (CompareStringsNoCase (
+												metaDataStringPtr, (UCharPtr)"JP2000", 6) == 0)
 				dataCompressionCode = kJPEG2000Compression;
 				
-			else if (CompareStringsNoCase (metaDataStringPtr, (UCharPtr)"JPEG", 4) == 0)
+			else if (CompareStringsNoCase (
+												metaDataStringPtr, (UCharPtr)"JPEG", 4) == 0)
 				dataCompressionCode = kJPEGCompression;
 				
-			else if (CompareStringsNoCase (metaDataStringPtr, (UCharPtr)"LZW", 3) == 0)
+			else if (CompareStringsNoCase (
+												metaDataStringPtr, (UCharPtr)"LZW", 3) == 0)
 				dataCompressionCode = kLZWCompression;
 				
-			else if (CompareStringsNoCase (metaDataStringPtr, (UCharPtr)"PACKBITS", 8) == 0)
+			else if (CompareStringsNoCase (
+												metaDataStringPtr, (UCharPtr)"PACKBITS", 8) == 0)
 				dataCompressionCode = kPackBitsCompression;
 				
 			else if (CompareStringsNoCase (metaDataStringPtr, (UCharPtr)"RLE", 3) == 0)
 				dataCompressionCode = kRLECompression;
 				
-			else if (CompareStringsNoCase (metaDataStringPtr, (UCharPtr)"DEFLATE", 7) == 0)
+			else if (CompareStringsNoCase (
+												metaDataStringPtr, (UCharPtr)"DEFLATE", 7) == 0)
 				dataCompressionCode = kDeflateCompression;
 				
 			else
 				dataCompressionCode = kUnknownCompression;
 						
-			}		// end "if (metaDataStringPtr != NULL)"
+			}	// end "if (metaDataStringPtr != NULL)"
 			
 		if (dataCompressionCode == kNoCompression)
 			{
@@ -2994,18 +3117,18 @@ UInt16 ReadGDALCompressionInformation (
 			else if (format == kPNGType)						
 				dataCompressionCode = kPNGCompression;
 				
-			}		// end "if (dataCompressionCode == kNoCompression)"
+			}	// end "if (dataCompressionCode == kNoCompression)"
 			
 		#if include_hdf5_capability
 			if (dataCompressionCode == kNoCompression && format == kHDF5Type)
 				dataCompressionCode = GetHDF5CompressionInformation (hDS);
 		#endif		// include_hdf5_capability
 			
-		}		// end "if (hDS != NULL)"
+		}	// end "if (hDS != NULL)"
 		
 	return (dataCompressionCode);
 	
-}		// end "ReadGDALCompressionInformation" 
+}	// end "ReadGDALCompressionInformation" 
 
 
 
@@ -3075,17 +3198,18 @@ SInt16 ReadGDALHeaderInformation (
 		
 		dataType = GDALGetRasterDataType (GDALGetRasterBand (hDS, 1));
 		
-//		swapBytesFlag = GDALGetNativeOrder (hDS);
-//		swapBytesFlag = ((GDALDataset *)hDS)->GetNativeOrder();
+		//swapBytesFlag = GDALGetNativeOrder (hDS);
+		//swapBytesFlag = ((GDALDataset *)hDS)->GetNativeOrder ();
 		
-			// Verify that the data type is the same for all channels.
+				// Verify that the data type is the same for all channels.
 		
 		for (channelNumber=2; channelNumber<=*numberChannelsPtr; channelNumber++)
 			{
-			if (GDALGetRasterDataType (GDALGetRasterBand (hDS, channelNumber)) != dataType)
+			if (GDALGetRasterDataType (
+											GDALGetRasterBand (hDS, channelNumber)) != dataType)
 				returnCode = 2;
 			
-			}		// end "for (channelNumber=2; channelNumber<=..."
+			}	// end "for (channelNumber=2; channelNumber<=..."
 		
 		switch (dataType)
 			{
@@ -3106,15 +3230,16 @@ SInt16 ReadGDALHeaderInformation (
 						// first. Will handle above if the assumption is found to be false.
 						
 				*signedDataFlagPtr = FALSE;
-				metaDataStringPtr = (UCharPtr)GDALGetMetadataItem (GDALGetRasterBand (hDS, 1), 
-																				"PIXELTYPE", 
-																				"IMAGE_STRUCTURE");
+				metaDataStringPtr = (UCharPtr)GDALGetMetadataItem (
+																			GDALGetRasterBand (hDS, 1), 
+																			"PIXELTYPE", 
+																			"IMAGE_STRUCTURE");
 				if (metaDataStringPtr != NULL)
 					{
 					if (CompareStringsNoCase (metaDataStringPtr, (UCharPtr)"SIGNEDBYTE", 10) == 0)
 						*signedDataFlagPtr = TRUE;
 						
-					}		// end "if (metaDataStringPtr != NULL)"
+					}	// end "if (metaDataStringPtr != NULL)"
 				break;
 			
 			case GDT_UInt16:		// Sixteen bit unsigned integer
@@ -3153,7 +3278,7 @@ SInt16 ReadGDALHeaderInformation (
 				*signedDataFlagPtr = TRUE;
 				break;
 			
-			}		// end "switch (dataType)"
+			}	// end "switch (dataType)"
 		
 		if (returnCode == noErr)
 			{
@@ -3162,17 +3287,19 @@ SInt16 ReadGDALHeaderInformation (
 			*gdalDataTypeCodePtr = dataType;
 						
 			*bandInterleaveFormatPtr = kBSQ;
-			metaDataStringPtr = (UCharPtr)GDALGetMetadataItem (hDS, "INTERLEAVE", "IMAGE_STRUCTURE");
+			metaDataStringPtr = (UCharPtr)GDALGetMetadataItem (
+															hDS, "INTERLEAVE", "IMAGE_STRUCTURE");
 			if (metaDataStringPtr != NULL)
 				{
 				if (CompareStringsNoCase (metaDataStringPtr, (UCharPtr)"PIXEL", 5) == 0)
 					*bandInterleaveFormatPtr = kBIS;
-				else if (CompareStringsNoCase (metaDataStringPtr, (UCharPtr)"LINE", 4) == 0)
+				else if (CompareStringsNoCase (
+													metaDataStringPtr, (UCharPtr)"LINE", 4) == 0)
 					*bandInterleaveFormatPtr = kBIL;
 					
-				}		// end "if (metaDataStringPtr != NULL)"
+				}	// end "if (metaDataStringPtr != NULL)"
 			
-				// Get the block size.
+					// Get the block size.
 			
 			GDALGetBlockSize (GDALGetRasterBand (hDS, 1), &xBlockSize, &yBlockSize);
 			
@@ -3180,11 +3307,13 @@ SInt16 ReadGDALHeaderInformation (
 			
 			for (channelNumber=2; channelNumber<=*numberChannelsPtr; channelNumber++)
 				{
-				GDALGetBlockSize (GDALGetRasterBand (hDS, channelNumber), &testXBlockSize, &testYBlockSize);
+				GDALGetBlockSize (GDALGetRasterBand (hDS, channelNumber), 
+										&testXBlockSize, 
+										&testYBlockSize);
 				if (testXBlockSize != xBlockSize || testYBlockSize != yBlockSize)
 					returnCode = 3;
 				
-				}		// end "for (channelNumber=2; channelNumber<=..."
+				}	// end "for (channelNumber=2; channelNumber<=..."
 					
 			*xBlockSizePtr = xBlockSize;
 			*yBlockSizePtr = yBlockSize;
@@ -3192,7 +3321,8 @@ SInt16 ReadGDALHeaderInformation (
 			*dataCompressionCodePtr = ReadGDALCompressionInformation (hDS, format);
 			
 			pbSuccess = 0;
-			noDataValue = GDALGetRasterNoDataValue(GDALGetRasterBand (hDS, 1), &pbSuccess);
+			noDataValue = 
+						GDALGetRasterNoDataValue (GDALGetRasterBand (hDS, 1), &pbSuccess);
 			*noDataValueFlagPtr = FALSE;
 			*noDataValuePtr = 0;
 			if (pbSuccess != 0)
@@ -3200,21 +3330,21 @@ SInt16 ReadGDALHeaderInformation (
 				*noDataValueFlagPtr = TRUE;
 				*noDataValuePtr = noDataValue;
 				
-				}		// end "if (pbSuccess != 0)"
+				}	// end "if (pbSuccess != 0)"
 						
-			}		// end "if (returnCode == noErr)" 
+			}	// end "if (returnCode == noErr)" 
 		
-		else		// returnCode != noErr
+		else	// returnCode != noErr
 			returnCode = 1;
-			
-		}		// end "if (hDS != NULL)"
+
+		}	// end "if (hDS != NULL)"
 	
-	else		// hDS == NULL
+	else	// hDS == NULL
 		returnCode = 1;
 	
 	return (returnCode);
 	
-}		// end "ReadGDALHeaderInformation" 
+}	// end "ReadGDALHeaderInformation" 
 
 
 
@@ -3300,11 +3430,9 @@ SInt16 ReadGDALProjectionInformation (
 			if (fileInfoPtr->mapProjectionHandle != NULL)
 				{ 								
 				mapProjectionInfoPtr = (MapProjectionInfoPtr)
-				GetHandlePointer (fileInfoPtr->mapProjectionHandle,
-											kNoLock,
-											kNoMoveHi);
+				GetHandlePointer (fileInfoPtr->mapProjectionHandle);
 					
-				}		// end "if (fileInfoPtr->mapProjectionHandle != NULL)"
+				}	// end "if (fileInfoPtr->mapProjectionHandle != NULL)"
 			
 			if (mapProjectionInfoPtr == NULL)
 				returnCode = 1;
@@ -3318,15 +3446,20 @@ SInt16 ReadGDALProjectionInformation (
 						{	
 								// Check for common reference systems
 						
-						attributeStringPtr = (UCharPtr)((OGRSpatialReference*)ogrSpatialReferenceCPtr)->GetAttrValue ("PROJCS");
-								// Need to find another way to verify this. What is currently used is too stringent.
-//						VerifyEPSG_CSVFolderExits ((char*)attributeStringPtr);
+						attributeStringPtr = (UCharPtr)((OGRSpatialReference*)
+										ogrSpatialReferenceCPtr)->GetAttrValue ("PROJCS");
+										
+								// Need to find another way to verify this. What is currently 
+								// used is too stringent.
+						//VerifyEPSG_CSVFolderExits ((char*)attributeStringPtr);
 
-						authorityCodeStringPtr = ((OGRSpatialReference*)ogrSpatialReferenceCPtr)->GetAuthorityCode ("PROJCS");
+						authorityCodeStringPtr = ((OGRSpatialReference*)
+										ogrSpatialReferenceCPtr)->GetAuthorityCode ("PROJCS");
 						if (authorityCodeStringPtr != NULL)
 							StringToNumber ((char*)authorityCodeStringPtr, &pcsCode);
 
-						authorityNameStringPtr = ((OGRSpatialReference*)ogrSpatialReferenceCPtr)->GetAuthorityName ("PROJCS");
+						authorityNameStringPtr = ((OGRSpatialReference*)
+										ogrSpatialReferenceCPtr)->GetAuthorityName ("PROJCS");
 						
 								// Check if utm zone number exists.
 								
@@ -3336,46 +3469,71 @@ SInt16 ReadGDALProjectionInformation (
 								
 						if (attributeStringPtr != NULL && utmZone > 0)
 							{											
-							if (CompareStringsNoCase (attributeStringPtr, (UCharPtr)"GDA94", 5) == 0)
-								mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = kGDA94RSCode;
+							if (CompareStringsNoCase (attributeStringPtr, 
+																(UCharPtr)"GDA94", 
+																5) == 0)
+								mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = 
+																								kGDA94RSCode;
 								
-							else if (CompareStringsNoCase (attributeStringPtr, (UCharPtr)"NAD27", 5) == 0)
-								mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = kUTM_NAD27RSCode;
+							else if (CompareStringsNoCase (attributeStringPtr, 
+																		(UCharPtr)"NAD27", 
+																		5) == 0)
+								mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = 
+																							kUTM_NAD27RSCode;
 								
-							else if (CompareStringsNoCase (attributeStringPtr, (UCharPtr)"NAD83", 5) == 0)
-								mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = kUTM_NAD83RSCode;
+							else if (CompareStringsNoCase (attributeStringPtr, 
+																		(UCharPtr)"NAD83", 
+																		5) == 0)
+								mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = 
+																							kUTM_NAD83RSCode;
 								
-							else if (CompareStringsNoCase (attributeStringPtr, (UCharPtr)"SAD69", 5) == 0)
-								mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = kUTM_SAD69RSCode;
+							else if (CompareStringsNoCase (attributeStringPtr, 
+																		(UCharPtr)"SAD69", 
+																		5) == 0)
+								mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = 
+																							kUTM_SAD69RSCode;
 								
-							else if (CompareStringsNoCase (attributeStringPtr, (UCharPtr)"WGS 72", 6) == 0)
-								mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = kUTM_WGS72RSCode;
+							else if (CompareStringsNoCase (attributeStringPtr, 
+																		(UCharPtr)"WGS 72", 
+																		6) == 0)
+								mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = 
+																							kUTM_WGS72RSCode;
 								
-							else if (CompareStringsNoCase (attributeStringPtr, (UCharPtr)"WGS 84", 6) == 0)
-								mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = kUTM_WGS84RSCode;
+							else if (CompareStringsNoCase (attributeStringPtr, 
+																		(UCharPtr)"WGS 84", 
+																		6) == 0)
+								mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = 
+																							kUTM_WGS84RSCode;
 								
-							else if (CompareStringsNoCase (attributeStringPtr, (UCharPtr)"Pulkovo", 7) == 0)
-								mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = kGaussKrugerRSCode;
+							else if (CompareStringsNoCase (attributeStringPtr, 
+																		(UCharPtr)"Pulkovo", 
+																		7) == 0)
+								mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = 
+																						kGaussKrugerRSCode;
 							
-							}		// end "if (attributeStringPtr != NULL && utmZone > 0)"	
+							}	// end "if (attributeStringPtr != NULL && utmZone > 0)"	
 
 								// Set up some other information for UTM reference systems
 						
 						if (utmZone > 0)
 							{
-							if (mapProjectionInfoPtr->gridCoordinate.referenceSystemCode == kNoRSDefinedCode)
-								mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = kUTMRSCode;
+							if (mapProjectionInfoPtr->gridCoordinate.referenceSystemCode == 
+																							kNoRSDefinedCode)
+								mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = 
+																									kUTMRSCode;
 							
 							if (!northFlag)
 								utmZone = -utmZone;
 							mapProjectionInfoPtr->gridCoordinate.gridZone = utmZone;
 							
-							mapProjectionInfoPtr->gridCoordinate.projectionCode = kTransverseMercatorCode;
+							mapProjectionInfoPtr->gridCoordinate.projectionCode = 
+																				kTransverseMercatorCode;
 							
-							}		// end "else if (OSRGetUTMZone (ogrSpatialReferenceCPtr, &northFlag) > 0)"
+							}	// end "else if (OSRGetUTMZone (ogrSpatialReferenceCPtr, ..."
 									
-						else if (OSRIsGeographic(ogrSpatialReferenceCPtr))
-							mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = kGeographicRSCode;
+						else if (OSRIsGeographic (ogrSpatialReferenceCPtr))
+							mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = 
+																						kGeographicRSCode;
 							
 						else if (pcsCode > 0 && pcsCode < 32767)
 							{
@@ -3388,162 +3546,197 @@ SInt16 ReadGDALProjectionInformation (
 								mapProjectionInfoPtr->gridCoordinate.gridZone = pZone;
 														
 								if (datum == 4267)
-									mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = kStatePlaneNAD27RSCode;
+									mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = 
+																					kStatePlaneNAD27RSCode;
 									
 								else if (datum == 4269)
-									mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = kStatePlaneNAD83RSCode;	
+									mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = 
+																					kStatePlaneNAD83RSCode;	
 								
-								}		// end "if (pZone > 0 ... && datum > 0 ...)"	
+								}	// end "if (pZone > 0 ... && datum > 0 ...)"	
 									
 							if (pcsCode == 2100)
-								mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = kGGRS87RSCode;
+								mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = 
+																								kGGRS87RSCode;
 								
-							if (mapProjectionInfoPtr->gridCoordinate.referenceSystemCode == kNoRSDefinedCode)
-								mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = kByEPSGCodeCode;
+							if (mapProjectionInfoPtr->gridCoordinate.referenceSystemCode == 
+																							kNoRSDefinedCode)
+								mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = 
+																							kByEPSGCodeCode;
 								
 									// Get the epsg code name
 								
 							GetEPSGCodeName (ogrSpatialReferenceCPtr, 
-															mapProjectionInfoPtr->gridCoordinate.epsgName);
+													mapProjectionInfoPtr->gridCoordinate.epsgName);
 							
-							}		// end "else if (pcsCode > 0 && pcsCode < 32767)"							
+							}	// end "else if (pcsCode > 0 && pcsCode < 32767)"							
 								
-								// Save this geo key in case needed to write out to a new file.
+								// Save this geo key in case needed to write out to a new 
+								// file.
 								
 						mapProjectionInfoPtr->projectedCSTypeGeoKey = (UInt16)pcsCode;
 						
-								// Get the projection if needed. Projection is implied already if the reference
-								// system has been set. In other words the reference system will override the
-								// projection. Decided in March 2012 not force the projection based on the 
-								// reference system. Want to allow one to see the information actually in the file.
+								// Get the projection if needed. Projection is implied 
+								// already if the reference system has been set. In other 
+								// words the reference system will override the projection. 
+								// Decided in March 2012 not force the projection based on 
+								// the reference system. Want to allow one to see the 
+								// information actually in the file.
 								// The user can override this if needed.
-								
-//						attributeStringPtr = NULL;
-//						if (mapProjectionInfoPtr->gridCoordinate.referenceSystemCode == kNoRSDefinedCode ||
-//								mapProjectionInfoPtr->gridCoordinate.referenceSystemCode == kStatePlaneNAD27RSCode ||
-//									mapProjectionInfoPtr->gridCoordinate.referenceSystemCode == kStatePlaneNAD83RSCode)
-						
+						/*		
+						attributeStringPtr = NULL;
+						if (mapProjectionInfoPtr->gridCoordinate.referenceSystemCode == 
+																						kNoRSDefinedCode ||
+								mapProjectionInfoPtr->gridCoordinate.referenceSystemCode == 
+																				kStatePlaneNAD27RSCode ||
+								mapProjectionInfoPtr->gridCoordinate.referenceSystemCode == 
+																					kStatePlaneNAD83RSCode)
+						*/
 						projectionCode = GetProjectionCodeFromOGRSpatialReference (
-												(OGRSpatialReference*)ogrSpatialReferenceCPtr, &referenceSystemCode);
+													(OGRSpatialReference*)ogrSpatialReferenceCPtr, 
+													&referenceSystemCode);
 																											
 						if (projectionCode != kNotDefinedCode)
-							mapProjectionInfoPtr->gridCoordinate.projectionCode = projectionCode;
+							mapProjectionInfoPtr->gridCoordinate.projectionCode = 
+																							projectionCode;
 							
 						else if (referenceSystemCode == kGeographicRSCode)
-							mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = kGeographicRSCode;
+							mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = 
+																						kGeographicRSCode;
 							
 								// Get the Datum
 								
-						mapProjectionInfoPtr->geodetic.datumCode = GetDatumCodeFromOGRSpatialReference (
-															(OGRSpatialReference*)ogrSpatialReferenceCPtr, 
-															mapProjectionInfoPtr->gridCoordinate.datumName,
-															TRUE);
+						mapProjectionInfoPtr->geodetic.datumCode = 
+								GetDatumCodeFromOGRSpatialReference (
+											(OGRSpatialReference*)ogrSpatialReferenceCPtr, 
+											mapProjectionInfoPtr->gridCoordinate.datumName,
+											TRUE);
 																					
 								// Get the Spheroid
 								
-						mapProjectionInfoPtr->geodetic.spheroidCode = GetEllipsoidCodeFromOGRSpatialReference (
-															(OGRSpatialReference*)ogrSpatialReferenceCPtr, 
-															mapProjectionInfoPtr->gridCoordinate.ellipsoidName,
-															TRUE);
+						mapProjectionInfoPtr->geodetic.spheroidCode = 
+								GetEllipsoidCodeFromOGRSpatialReference (
+											(OGRSpatialReference*)ogrSpatialReferenceCPtr, 
+											mapProjectionInfoPtr->gridCoordinate.ellipsoidName,
+											TRUE);
 																					
 								// Get the linear units	
 								
 						mapUnitsCode = GetMapUnitsCodeFromOGRSpatialReference (
-																		(OGRSpatialReference*)ogrSpatialReferenceCPtr);
+													(OGRSpatialReference*)ogrSpatialReferenceCPtr);
 		
 						if (mapUnitsCode != 0)
-							mapProjectionInfoPtr->planarCoordinate.mapUnitsCode = mapUnitsCode;
+							mapProjectionInfoPtr->planarCoordinate.mapUnitsCode = 
+																								mapUnitsCode;
 							
 						returnValue	= OSRGetSemiMajor (ogrSpatialReferenceCPtr, &ogrError);
 						if (ogrError == OGRERR_NONE)
 							{
 							mapProjectionInfoPtr->geodetic.semiMajorAxis = returnValue;
 							
-							}		// end "if (ogrError == OGRERR_NONE)"
+							}	// end "if (ogrError == OGRERR_NONE)"
 						
 						returnValue	= OSRGetSemiMinor (ogrSpatialReferenceCPtr, &ogrError);
 						if (ogrError == OGRERR_NONE)
 							{
 							mapProjectionInfoPtr->geodetic.semiMinorAxis = returnValue;
 							
-							}		// end "if (ogrError == OGRERR_NONE)"
+							}	// end "if (ogrError == OGRERR_NONE)"
 							
-								// Try to get parameters from the string if the information was not
-								// found by the gdal routines.
-								
-//						if (mapProjectionInfoPtr->gridCoordinate.referenceSystemCode == kNoRSDefinedCode &&
-//									mapProjectionInfoPtr->gridCoordinate.projectionCode == kNotDefinedCode)
-							SetProjectionInformationFromString (mapProjectionInfoPtr,
-																				(char*)projectionStringPtr);
+								// Try to get parameters from the string if the information 
+								// was not found by the gdal routines.
+						/*		
+						if (mapProjectionInfoPtr->gridCoordinate.referenceSystemCode == 
+																						kNoRSDefinedCode &&
+								mapProjectionInfoPtr->gridCoordinate.projectionCode == 
+																							kNotDefinedCode)
+						*/
+						SetProjectionInformationFromString (mapProjectionInfoPtr,
+																		(char*)projectionStringPtr);
 																				
 								// Try a last ditch effort to get information from the geotiff string that GDAL
 								// may not be getting.
 								
 						if (fileInfoPtr->format == kTIFFType &&
-									(mapProjectionInfoPtr->gridCoordinate.projectionCode == kNotDefinedCode ||
-											mapProjectionInfoPtr->geodetic.datumCode == kNoDatumDefinedCode))
+								(mapProjectionInfoPtr->gridCoordinate.projectionCode == 
+																						kNotDefinedCode ||
+									mapProjectionInfoPtr->geodetic.datumCode == 
+																					kNoDatumDefinedCode))
 							SetProjectionInformationFromString2 (fileInfoPtr,
 																				mapProjectionInfoPtr);
 							
 								// Check if this may be a geographic projection. I have not found that
 								// "geographic" is listed as output of a in gdal.
-								
-//						if (mapProjectionInfoPtr->gridCoordinate.referenceSystemCode == kUserDefinedRSCode &&
-//								mapProjectionInfoPtr->gridCoordinate.projectionCode == kNotDefinedCode &&
-//									mapProjectionInfoPtr->planarCoordinate.mapUnitsCode == kAVDecimalDegreesCode)
-//							mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = kGeographicRSCode;
-
-								// If spheroid and datum have not been defined, try to get spheroid from
-								// any available major and minor axes.
+						/*		
+						if (mapProjectionInfoPtr->gridCoordinate.referenceSystemCode == 
+																					kUserDefinedRSCode &&
+								mapProjectionInfoPtr->gridCoordinate.projectionCode == 
+																					kNotDefinedCode &&
+									mapProjectionInfoPtr->planarCoordinate.mapUnitsCode == 
+																					kAVDecimalDegreesCode)
+							mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = 
+																						kGeographicRSCode;
+						*/
+								// If spheroid and datum have not been defined, try to get 
+								// spheroid from any available major and minor axes.
 								
 						if (mapProjectionInfoPtr->geodetic.spheroidCode == 0 && 
-													mapProjectionInfoPtr->geodetic.datumCode == kNoDatumDefinedCode)
+												mapProjectionInfoPtr->geodetic.datumCode == 
+																					kNoDatumDefinedCode)
 							mapProjectionInfoPtr->geodetic.spheroidCode = 
-												GetSpheroidCodeFromMajorMinorAxes (
-																		mapProjectionInfoPtr->geodetic.semiMajorAxis,
-																		mapProjectionInfoPtr->geodetic.semiMinorAxis);
+										GetSpheroidCodeFromMajorMinorAxes (
+													mapProjectionInfoPtr->geodetic.semiMajorAxis,
+													mapProjectionInfoPtr->geodetic.semiMinorAxis);
 
 								// Check if spherical datum
 							
-						if (mapProjectionInfoPtr->geodetic.datumCode == kNoDatumDefinedCode &&
-								mapProjectionInfoPtr->geodetic.spheroidCode == kSphereEllipsoidCode)
+						if (mapProjectionInfoPtr->geodetic.datumCode == 
+																			kNoDatumDefinedCode &&
+								mapProjectionInfoPtr->geodetic.spheroidCode == 
+																					kSphereEllipsoidCode)
 							mapProjectionInfoPtr->geodetic.datumCode = kSphereDatumCode;
 							
-								// Set the ellipsoid based on the datum if it has not been set yet.
+								// Set the ellipsoid based on the datum if it has not been 
+								// set yet.
 						
-						if (mapProjectionInfoPtr->geodetic.spheroidCode	== kNoEllipsoidDefinedCode)	
+						if (mapProjectionInfoPtr->geodetic.spheroidCode	== 
+																				kNoEllipsoidDefinedCode)	
 							SetEllipsoidFromDatum (mapProjectionInfoPtr);
 							
 								// Set projection paramaters from the reference system
 								
-//						parametersSetFlag = SetProjectionParametersFromReferenceSystem (mapProjectionInfoPtr);
+						//parametersSetFlag = SetProjectionParametersFromReferenceSystem (
+						//															mapProjectionInfoPtr);
 													
-								// Set the projection parameters from GDAL information if possible.
+								// Set the projection parameters from GDAL information if 
+								// possible.
 						
 						if (!parametersSetFlag)		
-							SetProjectionParametersFromGDALInformation (mapProjectionInfoPtr, 
-																						ogrSpatialReferenceCPtr);	
+							SetProjectionParametersFromGDALInformation (
+																				mapProjectionInfoPtr, 
+																				ogrSpatialReferenceCPtr);	
 																											
 						OSRRelease (ogrSpatialReferenceCPtr);	
 						
-						}		// end "if (ogrSpatialReferenceCPtr != NULL)"
+						}	// end "if (ogrSpatialReferenceCPtr != NULL)"
 					
-					}		// end "if (projectionStringFlag)"
+					}	// end "if (projectionStringFlag)"
 				
 				if (transformStringFlag)
 					{
 							// Get the map transform information
-							// Note that GDALGetGeoTransform return the location for the upper left corner of the
-							// upper left pixel. MultiSpec needs to have the value as the center of the upper
-							// left pixel
+							// Note that GDALGetGeoTransform return the location for the 
+							// upper left corner of the upper left pixel. MultiSpec needs 
+							// to have the value as the center of the upper left pixel
 							
-							// The following is to catch a situation for PLEIADES data in jpeg2000 format for 
-							// geographic degrees, where the transform returned from gdal is reversed for lat-long.
-							// The end result is that one comes up with a rotation of -90 degrees. Don't know
-							// if this will cause problems for other situations or not.
+							// The following is to catch a situation for PLEIADES data in 
+							// jpeg2000 format for geographic degrees, where the transform 
+							// returned from gdal is reversed for lat-long. The end result 
+							// is that one comes up with a rotation of -90 degrees. Don't 
+							// know if this will cause problems for other situations or not.
 							
 					if (adfGeoTransform[1] == 0 && adfGeoTransform[5] == 0 &&
-							fileInfoPtr->format == kJPEG2000Type)
+															fileInfoPtr->format == kJPEG2000Type)
 						{
 						adfGeoTransform[1] = adfGeoTransform[2];
 						adfGeoTransform[2] = 0;
@@ -3551,13 +3744,13 @@ SInt16 ReadGDALProjectionInformation (
 						adfGeoTransform[5] = adfGeoTransform[4];
 						adfGeoTransform[4] = 0;
 						
-						}		// end "if (adfGeoTransform[1] == 0 && ..."
+						}	// end "if (adfGeoTransform[1] == 0 && ..."
 															
 					LoadPlanarCoordinates (mapProjectionInfoPtr,
 													adfGeoTransform[1],
 													adfGeoTransform[2],
 													adfGeoTransform[4],
-													-fabs(adfGeoTransform[5]),
+													-fabs (adfGeoTransform[5]),
 													adfGeoTransform[0],
 													adfGeoTransform[3]);
 								
@@ -3565,92 +3758,100 @@ SInt16 ReadGDALProjectionInformation (
 						{ 						
 						AdjustUpperLeftPixelLocationToCenter (mapProjectionInfoPtr);
 						/*
-						mapProjectionInfoPtr->planarCoordinate.xMapCoordinate11 += 
-								0.5 * fabs (mapProjectionInfoPtr->planarCoordinate.horizontalPixelSize);
-						mapProjectionInfoPtr->planarCoordinate.yMapCoordinate11 -= 
-								0.5 * fabs (mapProjectionInfoPtr->planarCoordinate.verticalPixelSize);
+						mapProjectionInfoPtr->planarCoordinate.xMapCoordinate11 += 0.5 * 
+							fabs (mapProjectionInfoPtr->planarCoordinate.horizontalPixelSize);
+						mapProjectionInfoPtr->planarCoordinate.yMapCoordinate11 -= 0.5 * 
+							fabs (mapProjectionInfoPtr->planarCoordinate.verticalPixelSize);
 								
 						mapProjectionInfoPtr->planarCoordinate.xMapOrientationOrigin = 
-												mapProjectionInfoPtr->planarCoordinate.xMapCoordinate11;
+										mapProjectionInfoPtr->planarCoordinate.xMapCoordinate11;
 						mapProjectionInfoPtr->planarCoordinate.yMapOrientationOrigin = 
-												mapProjectionInfoPtr->planarCoordinate.yMapCoordinate11;
+										mapProjectionInfoPtr->planarCoordinate.yMapCoordinate11;
 						*/
 						
-						}		// end "if (...->planarCoordinate.mapOrientationAngle == 0)"
-/*							
+						}	// end "if (...->planarCoordinate.mapOrientationAngle == 0)"
+					/*							
 					mapProjectionInfoPtr->planarCoordinate.mapOrientationAngle = 0;
 					if (adfGeoTransform[2] != 0)
 						mapProjectionInfoPtr->planarCoordinate.mapOrientationAngle = 
-														-atan2 (adfGeoTransform[2], adfGeoTransform[1]);
+												-atan2 (adfGeoTransform[2], adfGeoTransform[1]);
 					
 					mapProjectionInfoPtr->planarCoordinate.horizontalPixelSize = 
-																							adfGeoTransform[1];
+																				adfGeoTransform[1];
 					mapProjectionInfoPtr->planarCoordinate.verticalPixelSize = 
-																							fabs(adfGeoTransform[5]);
+																				fabs (adfGeoTransform[5]);
 									
-					mapProjectionInfoPtr->planarCoordinate.xMapCoordinate11 = adfGeoTransform[0];
-					mapProjectionInfoPtr->planarCoordinate.yMapCoordinate11 = adfGeoTransform[3];
+					mapProjectionInfoPtr->planarCoordinate.xMapCoordinate11 = 
+																					adfGeoTransform[0];
+					mapProjectionInfoPtr->planarCoordinate.yMapCoordinate11 = 
+																					adfGeoTransform[3];
 								
 					if (mapProjectionInfoPtr->planarCoordinate.mapOrientationAngle == 0)
 						{ 						
-						mapProjectionInfoPtr->planarCoordinate.xMapCoordinate11 += 
-								0.5 * fabs (mapProjectionInfoPtr->planarCoordinate.horizontalPixelSize);
-						mapProjectionInfoPtr->planarCoordinate.yMapCoordinate11 -= 
-								0.5 * fabs (mapProjectionInfoPtr->planarCoordinate.verticalPixelSize);
+						mapProjectionInfoPtr->planarCoordinate.xMapCoordinate11 += 0.5 * 
+							fabs (mapProjectionInfoPtr->planarCoordinate.horizontalPixelSize);
+						mapProjectionInfoPtr->planarCoordinate.yMapCoordinate11 -= 0.5 * 
+							fabs (mapProjectionInfoPtr->planarCoordinate.verticalPixelSize);
 						
-						}		// end "if (...->planarCoordinate.mapOrientationAngle == 0)"
+						}	// end "if (...->planarCoordinate.mapOrientationAngle == 0)"
 						
-					else		// ...->planarCoordinate.mapOrientationAngle != 0
+					else	// ...->planarCoordinate.mapOrientationAngle != 0
 						{ 
 						mapProjectionInfoPtr->planarCoordinate.horizontalPixelSize /=
-										cos (mapProjectionInfoPtr->planarCoordinate.mapOrientationAngle);
+							cos (mapProjectionInfoPtr->planarCoordinate.mapOrientationAngle);
 										
 						mapProjectionInfoPtr->planarCoordinate.verticalPixelSize /=
-										cos (mapProjectionInfoPtr->planarCoordinate.mapOrientationAngle);
+							cos (mapProjectionInfoPtr->planarCoordinate.mapOrientationAngle);
 						
-						}		// end "else ...->planarCoordinate.mapOrientationAngle != 0"
+						}	// end "else ...->planarCoordinate.mapOrientationAngle != 0"
 					
 					mapProjectionInfoPtr->planarCoordinate.xMapOrientationOrigin = 
-												mapProjectionInfoPtr->planarCoordinate.xMapCoordinate11;
+										mapProjectionInfoPtr->planarCoordinate.xMapCoordinate11;
 					mapProjectionInfoPtr->planarCoordinate.yMapOrientationOrigin = 
-												mapProjectionInfoPtr->planarCoordinate.yMapCoordinate11;
-*/					
-							// This is to catch situations which have been found for Landsat images 
-							// in UTM from south of the equater not having a false northing of 10000000
-							// to indicated that the UTM zone is south. All one has to go on is that the
-							// yMapCoordinate11 is less than 0. Currently this is set for only the UTM_WGS84.
+										mapProjectionInfoPtr->planarCoordinate.yMapCoordinate11;
+					*/					
+							// This is to catch situations which have been found for Landsat 
+							// images in UTM from south of the equater not having a false 
+							// northing of 10000000 to indicated that the UTM zone is south. 
+							// All one has to go on is that the yMapCoordinate11 is less 
+							// than 0. Currently this is set for only the UTM_WGS84.
 							// It can be expanded to others if they are found.
 							
-					if (mapProjectionInfoPtr->gridCoordinate.referenceSystemCode == kUTM_WGS84RSCode &&
+					if (mapProjectionInfoPtr->gridCoordinate.referenceSystemCode == 
+																						kUTM_WGS84RSCode &&
 								mapProjectionInfoPtr->planarCoordinate.yMapCoordinate11 < 0 &&
-									mapProjectionInfoPtr->gridCoordinate.gridZone > 0)
+										mapProjectionInfoPtr->gridCoordinate.gridZone > 0)
 						{
-						mapProjectionInfoPtr->gridCoordinate.gridZone = -mapProjectionInfoPtr->gridCoordinate.gridZone;
+						mapProjectionInfoPtr->gridCoordinate.gridZone = 
+													-mapProjectionInfoPtr->gridCoordinate.gridZone;
 						mapProjectionInfoPtr->planarCoordinate.yMapCoordinate11 = 10000000 + 
-														mapProjectionInfoPtr->planarCoordinate.yMapCoordinate11;
+										mapProjectionInfoPtr->planarCoordinate.yMapCoordinate11;
 						
-						}		// end "if (...->gridCoordinate.referenceSystemCode == kUTM_WGS84RSCode &&"
+						}	// end "if (...->gridCoordinate.referenceSystemCode == ..."
 						
-					}		// end "if (tranformStringFlag)"	
+					}	// end "if (tranformStringFlag)"	
 		
-				if (mapProjectionInfoPtr->gridCoordinate.projectionCode == kNotDefinedCode && gtModelTypeGeoKey == 2)
+				if (mapProjectionInfoPtr->gridCoordinate.projectionCode == 
+														kNotDefinedCode && gtModelTypeGeoKey == 2)
 					{
 							// gtModelTypeGeoKey equal 2 means ModelTypeGeographic
 							
-					mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = kGeographicRSCode;
-					mapProjectionInfoPtr->planarCoordinate.mapUnitsCode = kDecimalDegreesCode;
+					mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = 
+																					kGeographicRSCode;
+					mapProjectionInfoPtr->planarCoordinate.mapUnitsCode = 
+																					kDecimalDegreesCode;
 					
-					}		// end "if (GetGTModelTypeGeoKey(fileInfoPtr) == 2)"
+					}	// end "if (GetGTModelTypeGeoKey (fileInfoPtr) == 2)"
 					
-				}		// end "if (returnCode == noErr)"
+				}	// end "if (returnCode == noErr)"
 				
 			if (fileInfoPtr->format == kTIFFType)				
 				fileInfoPtr->format = kGeoTIFFType;
 			
-			}		// end "if (projectionStringFlag || tranformStringFlag || gtModelTypeGeoKey == 2)"
+			}	// end "if (projectionStringFlag || tranformStringFlag || ..."
 			
-				// If the map projection information was not set, see if one can get it from the gdal
-				// metadata.
+				// If the map projection information was not set, see if one can get it 
+				// from the gdal metadata.
 				
 		if (mapProjectionInfoPtr == NULL)
 			ReadGDALProjectionInformationFromMetadata (fileInfoPtr, hDS);
@@ -3665,14 +3866,14 @@ SInt16 ReadGDALProjectionInformation (
 				GetHDF5ProjectionInformation (fileInfoPtr);
 		#endif	// include_hdf5_capability
 			
-		}		// end "if (hDS != NULL)"
+		}	// end "if (hDS != NULL)"
 	
-	else		// hDS == NULL
+	else	// hDS == NULL
 		returnCode = 1;
 	
 	return (returnCode);
 	
-}		// end "ReadGDALProjectionInformation"
+}	// end "ReadGDALProjectionInformation"
 
 
 
@@ -3730,7 +3931,9 @@ void ReadGDALProjectionInformationFromMetadata (
 	SignedByte							handleStatus;
 
 	
-	if (fileInfoPtr->format == kHDF5Type || fileInfoPtr->format == kNETCDF2Type|| fileInfoPtr->format == kHDF4Type2)
+	if (fileInfoPtr->format == kHDF5Type || 
+				fileInfoPtr->format == kNETCDF2Type|| 
+						fileInfoPtr->format == kHDF4Type2)
 		mapReturnCode = ReadGDALProjectionInformationFromMetadata_HRLDAS (
 														hDS,
 														&noDataValue,
@@ -3758,29 +3961,26 @@ void ReadGDALProjectionInformationFromMetadata (
 		if (fileInfoPtr->mapProjectionHandle != NULL)
 			{ 		
 			mapProjectionInfoPtr = (MapProjectionInfoPtr)
-						GetHandleStatusAndPointer (
-											fileInfoPtr->mapProjectionHandle,
-											&handleStatus,
-											kNoMoveHi);
+							GetHandleStatusAndPointer (fileInfoPtr->mapProjectionHandle,
+																&handleStatus);
 											
 					// Verify that the map projection structure has been initialized.
 					
 			InitializeMapProjectionStructure (mapProjectionInfoPtr);
 			
 			if (mapProjectionCode > kNotDefinedCode)
-				mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = kUserDefinedRSCode;
+				mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = 
+																					kUserDefinedRSCode;
 			
 			mapProjectionInfoPtr->gridCoordinate.projectionCode = mapProjectionCode;
 			  
-			mapProjectionInfoPtr->planarCoordinate.xMapCoordinate11 =    
-																					xMapCoordinate11;
-			mapProjectionInfoPtr->planarCoordinate.yMapCoordinate11 =    
-																					yMapCoordinate11;
+			mapProjectionInfoPtr->planarCoordinate.xMapCoordinate11 = xMapCoordinate11;
+			mapProjectionInfoPtr->planarCoordinate.yMapCoordinate11 = yMapCoordinate11;
 			  
 			mapProjectionInfoPtr->planarCoordinate.xMapOrientationOrigin =    
-																					xMapCoordinate11;
+																						xMapCoordinate11;
 			mapProjectionInfoPtr->planarCoordinate.xMapOrientationOrigin =    
-																					yMapCoordinate11;
+																						yMapCoordinate11;
 																									 
 			mapProjectionInfoPtr->planarCoordinate.horizontalPixelSize = 
 																					horizontalPixelSize;         
@@ -3795,87 +3995,91 @@ void ReadGDALProjectionInformationFromMetadata (
 			mapProjectionInfoPtr->geodetic.datumCode = mapProjectionDatumCode;
 			
 			if (mapProjectionEllipsoidCode == kUserDefinedEllipsoidCode ||
-												mapProjectionEllipsoidCode == kSphereEllipsoidCode)
+											mapProjectionEllipsoidCode == kSphereEllipsoidCode)
 				{
-						// Set the radius for the axes if provided. If not provided, they will
-						// be set later based on the ellipsoid code.
+						// Set the radius for the axes if provided. If not provided, they 
+						// will be set later based on the ellipsoid code.
 						
 				mapProjectionInfoPtr->geodetic.radiusSpheroid = projectionParameters[0];
 				mapProjectionInfoPtr->geodetic.semiMajorAxis = projectionParameters[0];
 				mapProjectionInfoPtr->geodetic.semiMinorAxis = projectionParameters[1];
 				
-				}		// endd "if (mapProjectionEllipsoidCode == kUserDefinedEllipsoidCode || ..."
+				}	// endd "if (mapProjectionEllipsoidCode == ..."
 				
 					// Set projection paramaters based on the map projection
 					
 			if (mapProjectionCode == kLambertConformalConicCode)
-				SetLambertConformalConicParameters (mapProjectionInfoPtr,
-																projectionParameters[8],	// standardParallel1
-																projectionParameters[9],	// standardParallel2
-																projectionParameters[4],	// centralMeridian
-																projectionParameters[5],	// latitudeOrigin
-																projectionParameters[6],	// falseEasting
-																projectionParameters[7]);	// falseNorthing
+				SetLambertConformalConicParameters (
+												mapProjectionInfoPtr,
+												projectionParameters[8],	// standardParallel1
+												projectionParameters[9],	// standardParallel2
+												projectionParameters[4],	// centralMeridian
+												projectionParameters[5],	// latitudeOrigin
+												projectionParameters[6],	// falseEasting
+												projectionParameters[7]);	// falseNorthing
 														
 			else if (mapProjectionCode == kPolarStereographicCode)
-				SetPolarStereographicParameters (mapProjectionInfoPtr,
-																projectionParameters[0],	// radiusSpheroid
-																projectionParameters[0],	// radiusSpheroid
-																projectionParameters[4],	// centralMeridian
-																projectionParameters[5],	// latitudeOrigin
-																projectionParameters[6],	// falseEasting
-																projectionParameters[7]);	// falseNorthing
+				SetPolarStereographicParameters (
+												mapProjectionInfoPtr,
+												projectionParameters[0],	// radiusSpheroid
+												projectionParameters[0],	// radiusSpheroid
+												projectionParameters[4],	// centralMeridian
+												projectionParameters[5],	// latitudeOrigin
+												projectionParameters[6],	// falseEasting
+												projectionParameters[7]);	// falseNorthing
 			
 					// Make sure the map units code is set correctly
 			
 			if (mapProjectionInfoPtr->planarCoordinate.mapUnitsCode == kUnknownCode &&
-							mapProjectionInfoPtr->gridCoordinate.projectionCode != kNotDefinedCode)
+					mapProjectionInfoPtr->gridCoordinate.projectionCode != kNotDefinedCode)
 				{										
-				if (mapProjectionInfoPtr->gridCoordinate.referenceSystemCode == kStatePlaneNAD27RSCode)
+				if (mapProjectionInfoPtr->gridCoordinate.referenceSystemCode == 
+																					kStatePlaneNAD27RSCode)
 					mapProjectionInfoPtr->planarCoordinate.mapUnitsCode = kFeetCode;
 					
-				else if (mapProjectionInfoPtr->gridCoordinate.referenceSystemCode == kGeographicRSCode)
-					mapProjectionInfoPtr->planarCoordinate.mapUnitsCode = kDecimalDegreesCode;
+				else if (mapProjectionInfoPtr->gridCoordinate.referenceSystemCode == 
+																						kGeographicRSCode)
+					mapProjectionInfoPtr->planarCoordinate.mapUnitsCode = 
+																						kDecimalDegreesCode;
 							
-				else		// ...->gridCoordinate.code != kStatePlaneCode && ...
+				else	// ...->gridCoordinate.code != kStatePlaneCode && ...
 					mapProjectionInfoPtr->planarCoordinate.mapUnitsCode = kMetersCode;
 					
-				}		// end "if (...->planarCoordinate.mapUnitsCode == kUnknownCode && ..."
+				}	// end "if (...->planarCoordinate.mapUnitsCode == kUnknownCode && ..."
 			
 			MHSetState (fileInfoPtr->mapProjectionHandle, handleStatus);
 				
 			LoadSpheroidInformation (fileInfoPtr->mapProjectionHandle);
 				
 			mapProjectionInfoPtr = (MapProjectionInfoPtr)
-							GetHandlePointer (fileInfoPtr->mapProjectionHandle,
-														kNoLock,
-														kNoMoveHi);
+											GetHandlePointer (fileInfoPtr->mapProjectionHandle);
 						
 			if (convertCenterFromLatLongToMapFlag)
 				{
 						// Convert the lat-long coordinates to map coordinates
 																
-				if (mapProjectionInfoPtr->gridCoordinate.projectionCode == kLambertConformalConicCode)
+				if (mapProjectionInfoPtr->gridCoordinate.projectionCode == 
+																			kLambertConformalConicCode)
 					{
 					ConvertLatLongToLambertConformalConic (
 									mapProjectionInfoPtr,
 									&mapProjectionInfoPtr->planarCoordinate.xMapCoordinate11, 
 									&mapProjectionInfoPtr->planarCoordinate.yMapCoordinate11);
 									
-							// This represents the map coordinates for the center of the pixel. Translate to
-							// the upper left pixel.
+							// This represents the map coordinates for the center of the 
+							// pixel. Translate to the upper left pixel.
 							
 					mapProjectionInfoPtr->planarCoordinate.xMapCoordinate11 -=
-										((double)fileInfoPtr->numberColumns/2 - 0.5) * 
-															mapProjectionInfoPtr->planarCoordinate.horizontalPixelSize;
+							((double)fileInfoPtr->numberColumns/2 - 0.5) * 
+									mapProjectionInfoPtr->planarCoordinate.horizontalPixelSize;
 							
 					mapProjectionInfoPtr->planarCoordinate.yMapCoordinate11 +=
-										((double)fileInfoPtr->numberLines/2 - 0.5) * 
-															mapProjectionInfoPtr->planarCoordinate.verticalPixelSize;
+							((double)fileInfoPtr->numberLines/2 - 0.5) * 
+									mapProjectionInfoPtr->planarCoordinate.verticalPixelSize;
 						
-					}		// end "if (mapProjectionInfoPtr->gridCoordinate.code == kLambertConformalConicCode)"
+					}	// end "if (mapProjectionInfoPtr->gridCoordinate.code == ..."
 					
-				}		// end "if (convertCenterFromLatLongToMapFlag)"
+				}	// end "if (convertCenterFromLatLongToMapFlag)"
 			
 			if (convertLowerLeftFromLatLongToMapFlag)
 				{
@@ -3883,7 +4087,8 @@ void ReadGDALProjectionInformationFromMetadata (
 															
 				adjustToUpperLeftFlag = FALSE;
 				
-				if (mapProjectionInfoPtr->gridCoordinate.projectionCode == kLambertConformalConicCode)
+				if (mapProjectionInfoPtr->gridCoordinate.projectionCode == 
+																			kLambertConformalConicCode)
 					{
 					ConvertLatLongToLambertConformalConic (
 									mapProjectionInfoPtr,
@@ -3892,7 +4097,7 @@ void ReadGDALProjectionInformationFromMetadata (
 									
 					adjustToUpperLeftFlag = TRUE;
 							
-					}		// end "if (mapProjectionInfoPtr->gridCoordinate.code == kLambertConformalConicCode)"
+					}	// end "if (mapProjectionInfoPtr->gridCoordinate.code == ..."
 					
 				else if (mapProjectionInfoPtr->gridCoordinate.projectionCode == kMercatorCode)
 					{
@@ -3903,30 +4108,30 @@ void ReadGDALProjectionInformationFromMetadata (
 									
 					adjustToUpperLeftFlag = TRUE;
 									
-					}		// end "else if (mapProjectionInfoPtr->gridCoordinate.projectionCode == kMercatorCode"
+					}	// end "else if (mapProjectionInfoPtr->gridCoordinate.projectionCode == kMercatorCode"
 									
-							// This represents the map coordinates for the lower left pixel. Translate to
-							// the upper left pixel.
+							// This represents the map coordinates for the lower left pixel. 
+							// Translate to the upper left pixel.
 				
 				if (adjustToUpperLeftFlag)			
 					mapProjectionInfoPtr->planarCoordinate.yMapCoordinate11 +=
-										(fileInfoPtr->numberLines - 1) * 
-															mapProjectionInfoPtr->planarCoordinate.verticalPixelSize;
+							(fileInfoPtr->numberLines - 1) * 
+									mapProjectionInfoPtr->planarCoordinate.verticalPixelSize;
 					
-				}		// end "if (convertLowerLeftFromLatLongToMapFlag)"
+				}	// end "if (convertLowerLeftFromLatLongToMapFlag)"
 			  
 					// Make sure the map orientation origin is up to date.
 					
 			mapProjectionInfoPtr->planarCoordinate.xMapOrientationOrigin =    
-							mapProjectionInfoPtr->planarCoordinate.xMapCoordinate11;
+									mapProjectionInfoPtr->planarCoordinate.xMapCoordinate11;
 			mapProjectionInfoPtr->planarCoordinate.yMapOrientationOrigin =    
-							mapProjectionInfoPtr->planarCoordinate.yMapCoordinate11;
+									mapProjectionInfoPtr->planarCoordinate.yMapCoordinate11;
 				
-			}		// end "if (fileInfoPtr->mapProjectionHandle != NULL)"
+			}	// end "if (fileInfoPtr->mapProjectionHandle != NULL)"
 			
-		}		// end "if (mapReturnCode == noErr)"																			
+		}	// end "if (mapReturnCode == noErr)"																			
 
-}		// end "ReadGDALProjectionInformationFromMetadata"
+}	// end "ReadGDALProjectionInformationFromMetadata"
 
 
 
@@ -3990,31 +4195,29 @@ SInt16 ReadGDALProjectionInformationFromMetadata_HRLDAS (
 
 	if (metadataStringPtrPtr != NULL)
 		{					
-		titleCode = GetGDALSpecificTextMetadataInformation (
-																metadataStringPtrPtr,
-																(char*)"TITLE=",
-																(char*)"FROM HRLDAS");
+		titleCode = GetGDALSpecificTextMetadataInformation (metadataStringPtrPtr,
+																				(char*)"TITLE=",
+																				(char*)"FROM HRLDAS");
 																
 		if (titleCode == 0)
 			{
-			returnCode = GetGDALSpecificTextMetadataInformation (
-																	metadataStringPtrPtr,
-																	(char*)"TITLE=",
-																	(char*)"FROM REAL_EM");
+			returnCode = GetGDALSpecificTextMetadataInformation (metadataStringPtrPtr,
+																					(char*)"TITLE=",
+																					(char*)"FROM REAL_EM");
 																	
 			if (returnCode == 1)
 				titleCode = 2;
 
-			}		// end "if (titleCode == 0)"
+			}	// end "if (titleCode == 0)"
 																		
 		if (titleCode > 0)
 			{		
 					// Get the missing_value if it exists.
 							
 			returnCode = GetGDALSpecificNumericMetadataInformation (
-															metadataStringPtrPtr,
-															(char*)"missing_value=",
-															noDataValuePtr);
+																				metadataStringPtrPtr,
+																				(char*)"missing_value=",
+																				noDataValuePtr);
 															
 			if (returnCode == 1)
 				*noDataValueExistsFlagPtr = TRUE;
@@ -4023,9 +4226,9 @@ SInt16 ReadGDALProjectionInformationFromMetadata_HRLDAS (
 					// Get the map projection name.
 
 			returnCode = GetGDALSpecificNumericMetadataInformation (
-																metadataStringPtrPtr,
-																(char*)"MAP_PROJ=",
-																&projectionCode);
+																				metadataStringPtrPtr,
+																				(char*)"MAP_PROJ=",
+																				&projectionCode);
 			
 			if (returnCode > 0)
 				{
@@ -4036,39 +4239,40 @@ SInt16 ReadGDALProjectionInformationFromMetadata_HRLDAS (
 					*mapProjectionCodePtr = kLambertConformalConicCode;
 					*mapUnitsCodePtr = kMetersCode;
 										
-					}		// end "if (projectionCode == 1)"
+					}	// end "if (projectionCode == 1)"
 						
 				else if (projectionCode == 2)
 					{
 					*mapProjectionCodePtr = kPolarStereographicCode;
 					*mapUnitsCodePtr = kMetersCode;
 						
-					}		// end "else if (projectionCode == 2)"
+					}	// end "else if (projectionCode == 2)"
 						
 				else if (projectionCode == 3)
 					{
 					*mapProjectionCodePtr = kMercatorCode;
 					*mapUnitsCodePtr = kMetersCode;
 						
-					}		// end "else if (projectionCode == 3)"
+					}	// end "else if (projectionCode == 3)"
 				
-				}		// end "if (returnCode > 0)"
+				}	// end "if (returnCode > 0)"
 				
 					// Now verify at the data set level that a map projection exists
 					
-			dataSetMetadataStringPtrPtr = GDALGetMetadata (GDALGetRasterBand (hDS, 1), NULL);	
+			dataSetMetadataStringPtrPtr = 
+											GDALGetMetadata (GDALGetRasterBand (hDS, 1), NULL);	
 				
 			if (dataSetMetadataStringPtrPtr != NULL)
 				{
 				returnCode = GetGDALSpecificNumericMetadataInformation (
-																dataSetMetadataStringPtrPtr,
-																(char*)"map_proj=",
-																&projectionCode);
+																			dataSetMetadataStringPtrPtr,
+																			(char*)"map_proj=",
+																			&projectionCode);
 																							
 				if (returnCode > 0 && projectionCode == 0)
 					*mapProjectionCodePtr = 0;
 															
-				}		// end "if (dataSetMetadataStringPtrPtr != NULL)"
+				}	// end "if (dataSetMetadataStringPtrPtr != NULL)"
 			
 					// Get the projection parameters.
 
@@ -4083,70 +4287,70 @@ SInt16 ReadGDALProjectionInformationFromMetadata_HRLDAS (
 							// for the upper left pixel later
 							
 					returnCode = GetGDALSpecificNumericMetadataInformation (
-																	metadataStringPtrPtr,
-																	(char*)"LAT1=",
-																	yMapCoordinate11Ptr);
+																					metadataStringPtrPtr,
+																					(char*)"LAT1=",
+																					yMapCoordinate11Ptr);
 																					
 							
 					returnCode2 = GetGDALSpecificNumericMetadataInformation (
-																	metadataStringPtrPtr,
-																	(char*)"LON1=",
-																	xMapCoordinate11Ptr);
+																					metadataStringPtrPtr,
+																					(char*)"LON1=",
+																					xMapCoordinate11Ptr);
 																			
 					if (returnCode > 0 || returnCode2 > 2)
 						*convertLowerLeftFromLatLongToMapFlagPtr = TRUE;
 																	
-					}		// end "if (titleCode == 1)"
+					}	// end "if (titleCode == 1)"
 					
-				else		// titleCode == 2
+				else	// titleCode == 2
 					{
 							// Get the latitude and longitude for the center of image.
 							// This will be needed to convert to the map units location
 							// for the upper left pixel later
 							
 					returnCode = GetGDALSpecificNumericMetadataInformation (
-																	metadataStringPtrPtr,
-																	(char*)"CEN_LAT=",
-																	yMapCoordinate11Ptr);
+																					metadataStringPtrPtr,
+																					(char*)"CEN_LAT=",
+																					yMapCoordinate11Ptr);
 																					
 							
 					returnCode2 = GetGDALSpecificNumericMetadataInformation (
-																	metadataStringPtrPtr,
-																	(char*)"CEN_LON=",
-																	xMapCoordinate11Ptr);
+																					metadataStringPtrPtr,
+																					(char*)"CEN_LON=",
+																					xMapCoordinate11Ptr);
 																			
 					if (returnCode > 0 || returnCode2 > 2)
 						*convertCenterFromLatLongToMapFlagPtr = TRUE;
 																	
-					}		// end "else titleCode == 2"
+					}	// end "else titleCode == 2"
 				
 						// Get the pixel width
 						
 				returnCode = GetGDALSpecificNumericMetadataInformation (
-																metadataStringPtrPtr,
-																(char*)"DX=",
-																horizontalPixelSizePtr);
+																				metadataStringPtrPtr,
+																				(char*)"DX=",
+																				horizontalPixelSizePtr);
 																				
 						// Get the pixel height
 						
 				returnCode = GetGDALSpecificNumericMetadataInformation (
-																metadataStringPtrPtr,
-																(char*)"DY=",
-																verticalPixelSizePtr);
+																				metadataStringPtrPtr,
+																				(char*)"DY=",
+																				verticalPixelSizePtr);
 																				
 						// Get the standard latitude1
 						
 				returnCode = GetGDALSpecificNumericMetadataInformation (
-																metadataStringPtrPtr,
-																(char*)"TRUELAT1=",
-																&projectionParametersPtr[8]);
+																		metadataStringPtrPtr,
+																		(char*)"TRUELAT1=",
+																		&projectionParametersPtr[8]);
 																				
 						// Get the standard latitude2
 						
 				returnCode = GetGDALSpecificNumericMetadataInformation (
-																metadataStringPtrPtr,
-																(char*)"TRUELAT2=",
-																&projectionParametersPtr[9]);
+																		metadataStringPtrPtr,
+																		(char*)"TRUELAT2=",
+																		&projectionParametersPtr[9]);
 																				
 						// Get the central latitude. Same as the standard latitude
 						
@@ -4155,9 +4359,9 @@ SInt16 ReadGDALProjectionInformationFromMetadata_HRLDAS (
 						// Get the central longitude
 						
 				returnCode = GetGDALSpecificNumericMetadataInformation (
-																metadataStringPtrPtr,
-																(char*)"STAND_LON=",
-																&projectionParametersPtr[4]);
+																		metadataStringPtrPtr,
+																		(char*)"STAND_LON=",
+																		&projectionParametersPtr[4]);
 																				
 						// For now it appears that HRLDAS Preprocessor used 
 						// Sphere for datum
@@ -4166,8 +4370,8 @@ SInt16 ReadGDALProjectionInformationFromMetadata_HRLDAS (
 				*mapProjectionDatumCodePtr = kSphereDatumCode;
 				
 						// The radius that is used for the sphere appears to be 6,370,000
-						// See map_init in module_llxy.F and called by map_set which is called
-						// by routines in consolidate_grib.F
+						// See map_init in module_llxy.F and called by map_set which is 
+						// called by routines in consolidate_grib.F
 						
 				projectionParametersPtr[0] = 6370000;
 				projectionParametersPtr[1] = 6370000;
@@ -4178,15 +4382,15 @@ SInt16 ReadGDALProjectionInformationFromMetadata_HRLDAS (
 				projectionParametersPtr[6] = 0;
 				projectionParametersPtr[7] = 0;
 				
-				}		// end "if (*mapProjectionCodePtr != 0 && .."
+				}	// end "if (*mapProjectionCodePtr != 0 && .."
 				
-			}		// end "if (returnCode == 0)"
+			}	// end "if (returnCode == 0)"
 																																		
-		}		// end "if (metadataStringPtrPtr != NULL)"
+		}	// end "if (metadataStringPtrPtr != NULL)"
 		
 	return (returnMapCode);
 
-}		// end "ReadGDALProjectionInformationFromMetadata_HRLDAS"
+}	// end "ReadGDALProjectionInformationFromMetadata_HRLDAS"
 
 
 
@@ -4239,9 +4443,9 @@ SInt16 ReadHeaderWithGDALLibrary (
 				// GDAL also loads in all map information, etc.
 				
 		if (CheckForGDALHandledHeaders (fileInfoPtr, headerRecordPtr, formatOnlyCode))
-																								return (noErr);
+																						return (noErr);
 		
-		}		// end "if (formatOnlyCode != kLoadHeader)"
+		}	// end "if (formatOnlyCode != kLoadHeader)"
 	
 	returnCode = GetHDFFilePathCPointer (fileInfoPtr, 
 														filePathString, 
@@ -4249,38 +4453,21 @@ SInt16 ReadHeaderWithGDALLibrary (
 														&filePathPtr,
 														kGDAL_Library);
 	if (returnCode != noErr)	
-																							return (returnCode);	
-	/*																						
-	int numberChars = sprintf ((char*)&gTextString3,
-												" GDAL: (filePathPtr hDS): %s %ld%s", 
-												filePathPtr,
-												hDS,
-												gEndOfLine);
-	ListString ((char*)&gTextString3, numberChars, gOutputTextH);	
-	*/
+																					return (returnCode);	
+
 	if (formatOnlyCode == kLoadHeader)
 		returnCode = noErr;
 
-	GDALAllRegister();
+	GDALAllRegister ();
 	
 	hDS = GDALOpen ((char*)filePathPtr, GA_ReadOnly);
-	/*		
-	sprintf ((char*)&gTextString, " hDS = %d%s",
-						hDS, 
-						gEndOfLine);
-	OutputString (NULL, 
-						(char*)&gTextString, 
-						0, 
-						gOutputForce1Code,
-						true);
-	*/
-	/*					
+	/*
 	if (hDS == NULL)
 		{
 		rlimit						resourceLimits;
 		getrlimit (RLIMIT_NOFILE, &resourceLimits);
 	
-		sprintf ((char*)&gTextString, " rlim_cur = %d%s gNumberOfOpenFilesLimit = %d%s",
+		sprintf ((char*)gTextString, " rlim_cur = %d%s gNumberOfOpenFilesLimit = %d%s",
 						(int)resourceLimits.rlim_cur,
 						gEndOfLine, 
 						//resourceLimits.rlim_max,
@@ -4288,7 +4475,7 @@ SInt16 ReadHeaderWithGDALLibrary (
 						gNumberOfOpenFilesLimit,
 						gEndOfLine);
 		OutputString (NULL, 
-						(char*)&gTextString, 
+						(char*)gTextString, 
 						0, 
 						gOutputForce1Code,
 						true);
@@ -4300,75 +4487,88 @@ SInt16 ReadHeaderWithGDALLibrary (
 		gNumberOfOpenFiles++;
 		GDALDriverH dataSetDriver = GDALGetDatasetDriver (hDS);
 		fileFormatDescriptionPtr = (UCharPtr)GDALGetDescription ((GDALMajorObjectH)dataSetDriver);
-/*		
-		numberChars = sprintf ((char*)&gTextString3,
-													" GDAL: (fileFormatDescriptionPtr): %s%s", 
-													fileFormatDescriptionPtr,
-													gEndOfLine);
-		ListString ((char*)&gTextString3, numberChars, gOutputTextH);	
-*/		
+
 		if (CompareStringsNoCase (fileFormatDescriptionPtr, (UCharPtr)"JP2KAK\0") == 0)
 			fileType = kJPEG2000Type;
 		
-		else if (CompareStringsNoCase (fileFormatDescriptionPtr, (UCharPtr)"JP2ECW\0") == 0)
+		else if (CompareStringsNoCase (
+									fileFormatDescriptionPtr, (UCharPtr)"JP2ECW\0") == 0)
 			fileType = kJPEG2000Type;
 		
-		else if (CompareStringsNoCase (fileFormatDescriptionPtr, (UCharPtr)"JP2OpenJPEG\0") == 0)
+		else if (CompareStringsNoCase (
+									fileFormatDescriptionPtr, (UCharPtr)"JP2OpenJPEG\0") == 0)
 			fileType = kJPEG2000Type;
 		
-		else if (CompareStringsNoCase (fileFormatDescriptionPtr, (UCharPtr)"GTiff\0") == 0)
+		else if (CompareStringsNoCase (
+									fileFormatDescriptionPtr, (UCharPtr)"GTiff\0") == 0)
 			fileType = kTIFFType;
 		
-		else if (CompareStringsNoCase (fileFormatDescriptionPtr, (UCharPtr)"JPEG\0") == 0)
+		else if (CompareStringsNoCase (
+									fileFormatDescriptionPtr, (UCharPtr)"JPEG\0") == 0)
 			fileType = kJPEGType;
 		
-		else if (CompareStringsNoCase (fileFormatDescriptionPtr, (UCharPtr)"PNG\0") == 0)
+		else if (CompareStringsNoCase (
+									fileFormatDescriptionPtr, (UCharPtr)"PNG\0") == 0)
 			fileType = kPNGType;
 		
-		else if (CompareStringsNoCase (fileFormatDescriptionPtr, (UCharPtr)"AIG\0") == 0)
+		else if (CompareStringsNoCase (
+									fileFormatDescriptionPtr, (UCharPtr)"AIG\0") == 0)
 			fileType = kArcInfoBinaryGridType;
 		
-		else if (CompareStringsNoCase (fileFormatDescriptionPtr, (UCharPtr)"ECW\0") == 0)
+		else if (CompareStringsNoCase (
+									fileFormatDescriptionPtr, (UCharPtr)"ECW\0") == 0)
 			fileType = kECWType;
 			
-		else if (CompareStringsNoCase (fileFormatDescriptionPtr, (UCharPtr)"EHdr\0") == 0)
+		else if (CompareStringsNoCase (
+									fileFormatDescriptionPtr, (UCharPtr)"EHdr\0") == 0)
 			fileType = kArcViewType;
 			
-		else if (CompareStringsNoCase (fileFormatDescriptionPtr, (UCharPtr)"ENVI\0") == 0)
+		else if (CompareStringsNoCase (
+									fileFormatDescriptionPtr, (UCharPtr)"ENVI\0") == 0)
 			fileType = kENVIType;
 			
-		else if (CompareStringsNoCase (fileFormatDescriptionPtr, (UCharPtr)"GRIB\0") == 0)
+		else if (CompareStringsNoCase (
+									fileFormatDescriptionPtr, (UCharPtr)"GRIB\0") == 0)
 			fileType = kGRIBType;
 			
-		else if (CompareStringsNoCase (fileFormatDescriptionPtr, (UCharPtr)"HFA\0") == 0)
+		else if (CompareStringsNoCase (
+									fileFormatDescriptionPtr, (UCharPtr)"HFA\0") == 0)
 			fileType = kImagineType;
 		
 		#if include_hdf5_capability
-			else if (CompareStringsNoCase (fileFormatDescriptionPtr, (UCharPtr)"HDF5\0") == 0)
+			else if (CompareStringsNoCase (
+									fileFormatDescriptionPtr, (UCharPtr)"HDF5\0") == 0)
 				fileType = kHDF5Type;
 			
-			else if (CompareStringsNoCase (fileFormatDescriptionPtr, (UCharPtr)"HDF5Image\0") == 0)
+			else if (CompareStringsNoCase (
+									fileFormatDescriptionPtr, (UCharPtr)"HDF5Image\0") == 0)
 				fileType = kHDF5Type;
 				
-			else if (CompareStringsNoCase (fileFormatDescriptionPtr, (UCharPtr)"BAG\0") == 0)
+			else if (CompareStringsNoCase (
+									fileFormatDescriptionPtr, (UCharPtr)"BAG\0") == 0)
 				fileType = kHDF5Type;
 		#endif		// include_hdf5_capability
 		
 		#if defined multispec_lin
-			else if (CompareStringsNoCase (fileFormatDescriptionPtr, (UCharPtr)"hdf4\0") == 0)
+			else if (CompareStringsNoCase (
+									fileFormatDescriptionPtr, (UCharPtr)"hdf4\0") == 0)
 				fileType = kHDF4Type2;
 		#endif		// defined multispec_lin
 			
-		else if (CompareStringsNoCase (fileFormatDescriptionPtr, (UCharPtr)"netCDF\0") == 0)
+		else if (CompareStringsNoCase (
+									fileFormatDescriptionPtr, (UCharPtr)"netCDF\0") == 0)
 			fileType = kNETCDF2Type;
 			
-		else if (CompareStringsNoCase (fileFormatDescriptionPtr, (UCharPtr)"AAIGrid\0") == 0)
+		else if (CompareStringsNoCase (
+									fileFormatDescriptionPtr, (UCharPtr)"AAIGrid\0") == 0)
 			fileType = kArcGISASCIIGridType;
 			
-		else if (CompareStringsNoCase (fileFormatDescriptionPtr, (UCharPtr)"GRASSASCIIGrid\0") == 0)
+		else if (CompareStringsNoCase (
+								fileFormatDescriptionPtr, (UCharPtr)"GRASSASCIIGrid\0") == 0)
 			fileType = kGRASSASCIIGridType;
 			
-		else if (CompareStringsNoCase (fileFormatDescriptionPtr, (UCharPtr)"PDS\0") == 0)
+		else if (CompareStringsNoCase (
+									fileFormatDescriptionPtr, (UCharPtr)"PDS\0") == 0)
 			fileType = kPDSType;
 		
 		if (fileType != 0)
@@ -4386,16 +4586,16 @@ SInt16 ReadHeaderWithGDALLibrary (
 				if (formatOnlyCode == kMultiFiles)
 					fileInfoPtr->thematicType = FALSE;
 				
-					//				else if (formatOnlyCode == kThematicFiles)
-					//					fileInfoPtr->thematicType = TRUE;
+				//else if (formatOnlyCode == kThematicFiles)
+				//	fileInfoPtr->thematicType = TRUE;
 				
 				GDALClose (hDS);
 				gNumberOfOpenFiles--;
 																							return (noErr);
 				
-				}		// end "if (formatOnlyCode != kLoadHeader)"
+				}	// end "if (formatOnlyCode != kLoadHeader)"
 			
-			else		// formatOnlyCode == kLoadHeader
+			else	// formatOnlyCode == kLoadHeader
 				{
 				fileInfoPtr->gdalDataSetH = hDS;
 				gdalReturnCode = LoadGDALInformation (fileInfoPtr, 
@@ -4404,22 +4604,24 @@ SInt16 ReadHeaderWithGDALLibrary (
 
 				if (gdalReturnCode != noErr)
 					{					
-							// Display an alert indicating that MultiSpec could not read or had
-							// problems reading this file.
+							// Display an alert indicating that MultiSpec could not read or 
+							// had problems reading this file.
 					
 					unsigned char						formatName[256];
 					Boolean								continueFlag;
 							
-					continueFlag = GetSpecifiedStringNumber (
-											kFileTypeStrID, IDS_FileType01+fileType, formatName, TRUE);
+					continueFlag = GetSpecifiedStringNumber (kFileTypeStrID, 
+																			IDS_FileType01+fileType, 
+																			formatName, 
+																			TRUE);
 						
 					continueFlag = LoadSpecifiedStringNumberStringP (
-											kAlertStrID, 
-											(SInt16)(IDS_Alert95 + gdalReturnCode - 1), 
-											(char*)gTextString,
-											(char*)gTextString2,
-											continueFlag,
-											(char*)&formatName[1]);
+														kAlertStrID, 
+														(SInt16)(IDS_Alert95 + gdalReturnCode - 1), 
+														(char*)gTextString,
+														(char*)gTextString2,
+														continueFlag,
+														(char*)&formatName[1]);
 											
 					if (continueFlag)
 						DisplayAlert (kErrorAlertID, 
@@ -4436,15 +4638,15 @@ SInt16 ReadHeaderWithGDALLibrary (
 									  0, 
 									  NULL);
 					*/				  
-					}		// end "if (gdalReturnCode != noErr)"
+					}	// end "if (gdalReturnCode != noErr)"
 				
-				}		// end "if (formatOnlyCode == kLoadHeader)" 
+				}	// end "if (formatOnlyCode == kLoadHeader)" 
 							
-			}		// end "if (fileType != 0)"
+			}	// end "if (fileType != 0)"
 			
-		}		// end "if (hDS != NULL)"
+		}	// end "if (hDS != NULL)"
 	
-	else		// hDS == NULL
+	else	// hDS == NULL
 		returnCode = 1;
 	
 	if (returnCode != noErr)
@@ -4456,11 +4658,11 @@ SInt16 ReadHeaderWithGDALLibrary (
 		fileInfoPtr->gdalDataSetH = 0;
 		fileInfoPtr->gdalDataTypeCode = 0;
 		
-		}		// end "if (returnCode != noErr)"
+		}	// end "if (returnCode != noErr)"
 	
 	return (returnCode);
 	
-}		// end "ReadHeaderWithGDALLibrary" 
+}	// end "ReadHeaderWithGDALLibrary" 
 
 
 //------------------------------------------------------------------------------------
@@ -4470,8 +4672,9 @@ SInt16 ReadHeaderWithGDALLibrary (
 //
 //	Function name:		void ReadPRJFileInformation
 //
-//	Software purpose:	This routine sets the projection parameters based on the projection
-//							and the information in the input gdal reference structure (class).
+//	Software purpose:	This routine sets the projection parameters based on the 
+//							projection and the information in the input gdal reference 
+//							structure (class).
 //
 //	Parameters in:					
 //
@@ -4508,32 +4711,35 @@ Boolean ReadPRJFileInformation (
 				// Check for common reference systems
 		
 
-		attributeStringPtr = (UCharPtr)((OGRSpatialReference*)ogrSpatialReferenceCPtr)->GetAttrValue ("PROJCS");
+		attributeStringPtr = (UCharPtr)((OGRSpatialReference*)
+											ogrSpatialReferenceCPtr)->GetAttrValue ("PROJCS");
 		if (attributeStringPtr != NULL)
 			*projcsCodePtr = 1;
 	
-		attributeStringPtr = (UCharPtr)((OGRSpatialReference*)ogrSpatialReferenceCPtr)->GetAttrValue ("GEOGCS");
+		attributeStringPtr = (UCharPtr)((OGRSpatialReference*)
+											ogrSpatialReferenceCPtr)->GetAttrValue ("GEOGCS");
 		if (attributeStringPtr != NULL)
 			*geogcsCodePtr = 1;
 	
-		attributeStringPtr = (UCharPtr)((OGRSpatialReference*)ogrSpatialReferenceCPtr)->GetAttrValue ("UNIT");
+		attributeStringPtr = (UCharPtr)((OGRSpatialReference*)
+											ogrSpatialReferenceCPtr)->GetAttrValue ("UNIT");
 		if (attributeStringPtr != NULL)
 			{
 			if (CompareStringsNoCase (attributeStringPtr, (UCharPtr)"D", 1) == 0)
-					// Decimal degrees
+						// Decimal degrees
 				*unitsCodePtr = kAVDecimalDegreesCode;
 				
-			}		// end "if (attributeStringPtr != NULL)"
+			}	// end "if (attributeStringPtr != NULL)"
 																											
 		OSRRelease (ogrSpatialReferenceCPtr);
 		
 		prjFileFoundFlag = TRUE;
 		
-		}		// end "if (ogrSpatialReferenceCPtr != NULL)"
+		}	// end "if (ogrSpatialReferenceCPtr != NULL)"
 		
 	return (prjFileFoundFlag);
 	
-}		// end "ReadPRJFileInformation" 
+}	// end "ReadPRJFileInformation" 
 
 
 //------------------------------------------------------------------------------------
@@ -4543,8 +4749,9 @@ Boolean ReadPRJFileInformation (
 //
 //	Function name:		void SetProjectionParametersFromGDALInformation
 //
-//	Software purpose:	This routine sets the projection parameters based on the projection
-//							and the information in the input gdal reference structure (class).
+//	Software purpose:	This routine sets the projection parameters based on the 
+//							projection and the information in the input gdal reference 
+//							structure (class).
 //
 //	Parameters in:					
 //
@@ -4569,59 +4776,64 @@ void SetProjectionParametersFromGDALInformation (
 	
 			// Set the projection parameters if possible.
 															
-	if (mapProjectionInfoPtr->gridCoordinate.projectionCode == kAlbersConicalEqualAreaCode)
+	if (mapProjectionInfoPtr->gridCoordinate.projectionCode == 
+																			kAlbersConicalEqualAreaCode)
 		SetAlbersEqualAreaParameters (
-							mapProjectionInfoPtr,
-							OSRGetProjParm (ogrSpatialReferenceCPtr, "standard_parallel_1", 0, NULL),
-							OSRGetProjParm (ogrSpatialReferenceCPtr, "standard_parallel_2", 0, NULL),
-							OSRGetProjParm (ogrSpatialReferenceCPtr, "central_meridian", 0, NULL),
-							OSRGetProjParm (ogrSpatialReferenceCPtr, "latitude_of_origin", 0, NULL),
-							OSRGetProjParm (ogrSpatialReferenceCPtr, "false_easting", 0, NULL),
-							OSRGetProjParm (ogrSpatialReferenceCPtr, "false_northing", 0, NULL));
+				mapProjectionInfoPtr,
+				OSRGetProjParm (ogrSpatialReferenceCPtr, "standard_parallel_1", 0, NULL),
+				OSRGetProjParm (ogrSpatialReferenceCPtr, "standard_parallel_2", 0, NULL),
+				OSRGetProjParm (ogrSpatialReferenceCPtr, "central_meridian", 0, NULL),
+				OSRGetProjParm (ogrSpatialReferenceCPtr, "latitude_of_origin", 0, NULL),
+				OSRGetProjParm (ogrSpatialReferenceCPtr, "false_easting", 0, NULL),
+				OSRGetProjParm (ogrSpatialReferenceCPtr, "false_northing", 0, NULL));
 			
-	else if (mapProjectionInfoPtr->gridCoordinate.projectionCode == kCylindricalEqualAreaCode)
+	else if (mapProjectionInfoPtr->gridCoordinate.projectionCode == 
+																			kCylindricalEqualAreaCode)
 		SetCylindricalEqualAreaParameters (
-							mapProjectionInfoPtr,
-							mapProjectionInfoPtr->geodetic.semiMajorAxis,	// radiusSpheroid
-							OSRGetProjParm (ogrSpatialReferenceCPtr, "central_meridian", 0, NULL),
-							OSRGetProjParm (ogrSpatialReferenceCPtr, "standard_parallel_1", 0, NULL),
-							OSRGetProjParm (ogrSpatialReferenceCPtr, "false_easting", 0, NULL),
-							OSRGetProjParm (ogrSpatialReferenceCPtr, "false_northing", 0, NULL));
+				mapProjectionInfoPtr,
+				mapProjectionInfoPtr->geodetic.semiMajorAxis,	// radiusSpheroid
+				OSRGetProjParm (ogrSpatialReferenceCPtr, "central_meridian", 0, NULL),
+				OSRGetProjParm (ogrSpatialReferenceCPtr, "standard_parallel_1", 0, NULL),
+				OSRGetProjParm (ogrSpatialReferenceCPtr, "false_easting", 0, NULL),
+				OSRGetProjParm (ogrSpatialReferenceCPtr, "false_northing", 0, NULL));
 			
-	else if (mapProjectionInfoPtr->gridCoordinate.projectionCode == kEquirectangularCode)
+	else if (mapProjectionInfoPtr->gridCoordinate.projectionCode == 
+																			kEquirectangularCode)
 		SetEquirectangularParameters (
-							mapProjectionInfoPtr,
-							mapProjectionInfoPtr->geodetic.semiMajorAxis,	// radiusSpheroid
-							OSRGetProjParm (ogrSpatialReferenceCPtr, "central_meridian", 0, NULL),
-							OSRGetProjParm (ogrSpatialReferenceCPtr, "latitude_of_origin", 0, NULL));
+				mapProjectionInfoPtr,
+				mapProjectionInfoPtr->geodetic.semiMajorAxis,	// radiusSpheroid
+				OSRGetProjParm (ogrSpatialReferenceCPtr, "central_meridian", 0, NULL),
+				OSRGetProjParm (ogrSpatialReferenceCPtr, "latitude_of_origin", 0, NULL));
 			
-	else if (mapProjectionInfoPtr->gridCoordinate.projectionCode == kLambertAzimuthalEqualAreaCode)
+	else if (mapProjectionInfoPtr->gridCoordinate.projectionCode == 
+																		kLambertAzimuthalEqualAreaCode)
 		SetLambertAzimuthalEqualAreaParameters (
-							mapProjectionInfoPtr,
-							OSRGetProjParm (ogrSpatialReferenceCPtr, "central_meridian", 0, NULL),
-							OSRGetProjParm (ogrSpatialReferenceCPtr, "latitude_of_origin", 0, NULL),
-							OSRGetProjParm (ogrSpatialReferenceCPtr, "false_easting", 0, NULL),
-							OSRGetProjParm (ogrSpatialReferenceCPtr, "false_northing", 0, NULL));
+				mapProjectionInfoPtr,
+				OSRGetProjParm (ogrSpatialReferenceCPtr, "central_meridian", 0, NULL),
+				OSRGetProjParm (ogrSpatialReferenceCPtr, "latitude_of_origin", 0, NULL),
+				OSRGetProjParm (ogrSpatialReferenceCPtr, "false_easting", 0, NULL),
+				OSRGetProjParm (ogrSpatialReferenceCPtr, "false_northing", 0, NULL));
 			
-	else if (mapProjectionInfoPtr->gridCoordinate.projectionCode == kLambertConformalConicCode)
+	else if (mapProjectionInfoPtr->gridCoordinate.projectionCode == 
+																			kLambertConformalConicCode)
 		SetLambertConformalConicParameters (
-							mapProjectionInfoPtr,
-							OSRGetProjParm (ogrSpatialReferenceCPtr, "standard_parallel_1", 0, NULL),
-							OSRGetProjParm (ogrSpatialReferenceCPtr, "standard_parallel_2", 0, NULL),
-							OSRGetProjParm (ogrSpatialReferenceCPtr, "central_meridian", 0, NULL),
-							OSRGetProjParm (ogrSpatialReferenceCPtr, "latitude_of_origin", 0, NULL),
-							OSRGetProjParm (ogrSpatialReferenceCPtr, "false_easting", 0, NULL),
-							OSRGetProjParm (ogrSpatialReferenceCPtr, "false_northing", 0, NULL));
+				mapProjectionInfoPtr,
+				OSRGetProjParm (ogrSpatialReferenceCPtr, "standard_parallel_1", 0, NULL),
+				OSRGetProjParm (ogrSpatialReferenceCPtr, "standard_parallel_2", 0, NULL),
+				OSRGetProjParm (ogrSpatialReferenceCPtr, "central_meridian", 0, NULL),
+				OSRGetProjParm (ogrSpatialReferenceCPtr, "latitude_of_origin", 0, NULL),
+				OSRGetProjParm (ogrSpatialReferenceCPtr, "false_easting", 0, NULL),
+				OSRGetProjParm (ogrSpatialReferenceCPtr, "false_northing", 0, NULL));
 															
 	else if (mapProjectionInfoPtr->gridCoordinate.projectionCode == kMercatorCode)
 		SetMercatorParameters (
-							mapProjectionInfoPtr,
-							mapProjectionInfoPtr->geodetic.semiMajorAxis,	// radiusSpheroid	
-							mapProjectionInfoPtr->geodetic.semiMinorAxis,
-							OSRGetProjParm (ogrSpatialReferenceCPtr, "central_meridian", 0, NULL),
-							OSRGetProjParm (ogrSpatialReferenceCPtr, "latitude_of_origin", 0, NULL),
-							OSRGetProjParm (ogrSpatialReferenceCPtr, "false_easting", 0, NULL),
-							OSRGetProjParm (ogrSpatialReferenceCPtr, "false_northing", 0, NULL));
+				mapProjectionInfoPtr,
+				mapProjectionInfoPtr->geodetic.semiMajorAxis,	// radiusSpheroid	
+				mapProjectionInfoPtr->geodetic.semiMinorAxis,
+				OSRGetProjParm (ogrSpatialReferenceCPtr, "central_meridian", 0, NULL),
+				OSRGetProjParm (ogrSpatialReferenceCPtr, "latitude_of_origin", 0, NULL),
+				OSRGetProjParm (ogrSpatialReferenceCPtr, "false_easting", 0, NULL),
+				OSRGetProjParm (ogrSpatialReferenceCPtr, "false_northing", 0, NULL));
 															
 	else if (mapProjectionInfoPtr->gridCoordinate.projectionCode == kOrthographicCode)
 		{
@@ -4629,49 +4841,51 @@ void SetProjectionParametersFromGDALInformation (
 				// places.
 				
 		centralMeridian = OSRGetProjParm (
-									ogrSpatialReferenceCPtr, "longitude_of_origin", 0, &ogrErrCode);
+							ogrSpatialReferenceCPtr, "longitude_of_origin", 0, &ogrErrCode);
 		if (ogrErrCode != noErr)
 			centralMeridian = OSRGetProjParm (
-									ogrSpatialReferenceCPtr, "central_meridian", 0, &ogrErrCode);
+							ogrSpatialReferenceCPtr, "central_meridian", 0, &ogrErrCode);
 		
 		SetOrthographicParameters (		
-							mapProjectionInfoPtr,
-							mapProjectionInfoPtr->geodetic.semiMajorAxis,	// radiusSpheroid
-							centralMeridian,
-							OSRGetProjParm (ogrSpatialReferenceCPtr, "latitude_of_origin", 0, NULL));
+				mapProjectionInfoPtr,
+				mapProjectionInfoPtr->geodetic.semiMajorAxis,	// radiusSpheroid
+				centralMeridian,
+				OSRGetProjParm (ogrSpatialReferenceCPtr, "latitude_of_origin", 0, NULL));
 							
-		}		// end "else if (...->gridCoordinate.projectionCode == kOrthographicCode)"
+		}	// end "else if (...->gridCoordinate.projectionCode == kOrthographicCode)"
 															
-	else if (mapProjectionInfoPtr->gridCoordinate.projectionCode == kPolarStereographicCode)
+	else if (mapProjectionInfoPtr->gridCoordinate.projectionCode == 
+																				kPolarStereographicCode)
 		SetPolarStereographicParameters (
-							mapProjectionInfoPtr,
-							mapProjectionInfoPtr->geodetic.semiMajorAxis,	
-							mapProjectionInfoPtr->geodetic.semiMinorAxis,	
-							OSRGetProjParm (ogrSpatialReferenceCPtr, "central_meridian", 0, NULL),
-							OSRGetProjParm (ogrSpatialReferenceCPtr, "latitude_of_origin", 0, NULL),
-							OSRGetProjParm (ogrSpatialReferenceCPtr, "false_easting", 0, NULL),
-							OSRGetProjParm (ogrSpatialReferenceCPtr, "false_northing", 0, NULL));
+				mapProjectionInfoPtr,
+				mapProjectionInfoPtr->geodetic.semiMajorAxis,	
+				mapProjectionInfoPtr->geodetic.semiMinorAxis,	
+				OSRGetProjParm (ogrSpatialReferenceCPtr, "central_meridian", 0, NULL),
+				OSRGetProjParm (ogrSpatialReferenceCPtr, "latitude_of_origin", 0, NULL),
+				OSRGetProjParm (ogrSpatialReferenceCPtr, "false_easting", 0, NULL),
+				OSRGetProjParm (ogrSpatialReferenceCPtr, "false_northing", 0, NULL));
 															
 	else if (mapProjectionInfoPtr->gridCoordinate.projectionCode == kSinusoidalCode)
 		SetSinusoidalParameters (
-							mapProjectionInfoPtr,
-							mapProjectionInfoPtr->geodetic.semiMajorAxis,	// radiusSpheroid
-							OSRGetProjParm (ogrSpatialReferenceCPtr, "central_meridian", 0, NULL),
-							OSRGetProjParm (ogrSpatialReferenceCPtr, "standard_parallel_1", 0, NULL),
-							OSRGetProjParm (ogrSpatialReferenceCPtr, "false_easting", 0, NULL),
-							OSRGetProjParm (ogrSpatialReferenceCPtr, "false_northing", 0, NULL));
+				mapProjectionInfoPtr,
+				mapProjectionInfoPtr->geodetic.semiMajorAxis,	// radiusSpheroid
+				OSRGetProjParm (ogrSpatialReferenceCPtr, "central_meridian", 0, NULL),
+				OSRGetProjParm (ogrSpatialReferenceCPtr, "standard_parallel_1", 0, NULL),
+				OSRGetProjParm (ogrSpatialReferenceCPtr, "false_easting", 0, NULL),
+				OSRGetProjParm (ogrSpatialReferenceCPtr, "false_northing", 0, NULL));
 															
-	else if (mapProjectionInfoPtr->gridCoordinate.projectionCode == kTransverseMercatorCode)
+	else if (mapProjectionInfoPtr->gridCoordinate.projectionCode == 
+																				kTransverseMercatorCode)
 		SetTransverseMercatorParameters (
-							mapProjectionInfoPtr,
-							mapProjectionInfoPtr->geodetic.semiMajorAxis,	// radiusSpheroid
-							OSRGetProjParm (ogrSpatialReferenceCPtr, "central_meridian", 0, NULL),
-							OSRGetProjParm (ogrSpatialReferenceCPtr, "latitude_of_origin", 0, NULL),
-							OSRGetProjParm (ogrSpatialReferenceCPtr, "scale_factor", 1, NULL),
-							OSRGetProjParm (ogrSpatialReferenceCPtr, "false_easting", 0, NULL),
-							OSRGetProjParm (ogrSpatialReferenceCPtr, "false_northing", 0, NULL));
+				mapProjectionInfoPtr,
+				mapProjectionInfoPtr->geodetic.semiMajorAxis,	// radiusSpheroid
+				OSRGetProjParm (ogrSpatialReferenceCPtr, "central_meridian", 0, NULL),
+				OSRGetProjParm (ogrSpatialReferenceCPtr, "latitude_of_origin", 0, NULL),
+				OSRGetProjParm (ogrSpatialReferenceCPtr, "scale_factor", 1, NULL),
+				OSRGetProjParm (ogrSpatialReferenceCPtr, "false_easting", 0, NULL),
+				OSRGetProjParm (ogrSpatialReferenceCPtr, "false_northing", 0, NULL));
 	
-}		// end "SetProjectionParametersFromGDALInformation"
+}	// end "SetProjectionParametersFromGDALInformation"
 
 
 
@@ -4716,8 +4930,7 @@ void VerifyEPSG_CSVFolderExits (
 		
 		gEPSG_csv_FolderAlertDisplayedFlag = TRUE;
 
-		}		// end "if (!gEPSG_csv_FolderAlertDisplayedFlag && ..."
+		}	// end "if (!gEPSG_csv_FolderAlertDisplayedFlag && ..."
 
-}		// end "VerifyEPSG_CSVFolderExits"
-
+}	// end "VerifyEPSG_CSVFolderExits"
 #endif	// include_gdal_capability

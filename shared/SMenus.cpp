@@ -3,21 +3,19 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2017)
-//								(c) Purdue Research Foundation
+//								 Copyright (1988-2018)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	File:						SMenus.cpp
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision number:		3.0
-//
-//	Revision date:			06/21/2017
+//	Revision date:			01/04/2018
 //
 //	Language:				C
 //
-//	System:					Macintosh Operating System
+//	System:					Linux, Macintosh, and Windows Operating Systems
 //
 //	Brief description:	 
 //
@@ -25,20 +23,20 @@
 //								
 //
 //	Include files:			"MultiSpecHeaders"
-//								"SMulSpec.h"
+//								"SMultiSpec.h"
 //
 /*
 // Template for debugging.
-int numberChars = sprintf ((char*)&gTextString3,
+int numberChars = sprintf ((char*)gTextString3,
 							" SMenus: (gauge_range, gStatusGraphicsRight): %d, %f%s",
 							gauge_range,
 							gStatusGraphicsRight,
 							gEndOfLine);
-ListString ((char*)&gTextString3, numberChars, gOutputTextH);
+ListString ((char*)gTextString3, numberChars, gOutputTextH);
  */
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------------
 
-#include "SMulSpec.h"   
+#include "SMultiSpec.h"   
                              
 #if defined multispec_lin
 	#include <wx/menu.h>    
@@ -51,13 +49,13 @@ ListString ((char*)&gTextString3, numberChars, gOutputTextH);
 #endif	// defined multispec_mac  
                              
 #if defined multispec_win
-	#include "WFormDlg.h" 
+	#include "WFileFormatDialog.h" 
 #endif	// defined multispec_win 
 	 
-#include	"SExtGlob.h" 
+//#include	"SExtGlob.h" 
 
 #if defined multispec_win || defined multispec_lin
-	#pragma pack(4)
+	#pragma pack (4)
 #endif	// defined multispec_win || defined multispec_lin	 
 	
 typedef struct ArcViewRecordHeader
@@ -69,7 +67,7 @@ typedef struct ArcViewRecordHeader
 	} ArcViewRecordHeader, *ArcViewRecordHeaderPtr;
 	 
 #if defined multispec_win || defined multispec_lin
-	#pragma pack()
+	#pragma pack ()
 #endif	// defined multispec_win || defined multispec_lin
 										
 										
@@ -80,8 +78,7 @@ typedef struct ArcViewRecordHeader
 Boolean 						CharactersSelected (void);
 
 class CMGraphView;
-
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------------
 //								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
@@ -107,7 +104,7 @@ class CMGraphView;
 Boolean CharactersSelected (void)
 
 {  
-	Boolean		returnFlag = FALSE; 
+	Boolean								returnFlag = FALSE;
 	
 	  
 	#if defined multispec_mac 		  
@@ -118,22 +115,22 @@ Boolean CharactersSelected (void)
 		#if use_mlte_for_text_window
 			returnFlag = !TXNIsSelectionEmpty (gOutputTextH); 
 		#endif
+	
 		#if !use_mlte_for_text_window
 			SInt32			positionEnd,
 								positionStart;
 			WEGetSelection (&positionStart, &positionEnd, gOutputTextH);
 			returnFlag = (positionStart < positionEnd);
-		#endif	
-		
+		#endif
 	#endif	// defined multispec_mac 
 	
 	return (returnFlag);
 	
-}		// end "CharactersSelected"
+}	// end "CharactersSelected"
 
 
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------------
 //								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
@@ -170,8 +167,7 @@ void ClearMenuItems (
 	#if defined multispec_win 
 		CMenu*								cMenuPtr;
 	#endif	// defined multispec_win 
-		
-		
+	
 	SInt32								numberMenuItems;
 	
 	
@@ -182,7 +178,7 @@ void ClearMenuItems (
 			DeleteMenuItem (menuHandle, numberMenuItems);
 			numberMenuItems--;
 			
-			}		// end "while (numberMenuItems > lastMenuItemToKeep)"
+			}	// end "while (numberMenuItems > lastMenuItemToKeep)"
 	#endif	// defined multispec_mac 
 		
 	#if defined multispec_lin 
@@ -193,7 +189,7 @@ void ClearMenuItems (
 				
 		lastMenuItemToKeep--;
 				
-		numberMenuItems = wxMenuPtr->GetMenuItemCount() - 1;
+		numberMenuItems = wxMenuPtr->GetMenuItemCount () - 1;
 		
 				// Get the menu item for the last menu in the list.
 				
@@ -204,13 +200,13 @@ void ClearMenuItems (
 			wx_menuItem = wxMenuPtr->FindItemByPosition (numberMenuItems);
 			if (wx_menuItem != NULL)
 				{
-				int menuItemID = wx_menuItem->GetId();
+				int menuItemID = wx_menuItem->GetId ();
 				wxMenuPtr->Delete (menuItemID);
 				
-				}		// end "if (wx_menuItem != NULL)"
+				}	// end "if (wx_menuItem != NULL)"
 			numberMenuItems--;
 			
-			}		// end "while (menuItem > lastMenuItemToKeep)"
+			}	// end "while (menuItem > lastMenuItemToKeep)"
 	#endif	// defined multispec_lin 
 		
 	#if defined multispec_win 
@@ -221,16 +217,16 @@ void ClearMenuItems (
 				
 		lastMenuItemToKeep--;
 				
-		numberMenuItems = cMenuPtr->GetMenuItemCount() - 1;						
+		numberMenuItems = cMenuPtr->GetMenuItemCount () - 1;
 		while (numberMenuItems > lastMenuItemToKeep)	
 			{		
 			cMenuPtr->DeleteMenu (numberMenuItems, MF_BYPOSITION);
 			numberMenuItems--;
 			
-			}		// end "while (menuItem > lastMenuItemToKeep)"
+			}	// end "while (menuItem > lastMenuItemToKeep)"
 	#endif	// defined multispec_win
 	
-}		// end "ClearMenuItems"		
+}	// end "ClearMenuItems"		
 
 
 
@@ -263,10 +259,10 @@ void ClearOverlay (
 				// Clear the selected image overlay.
 		ClearImageOverlay (menuItemIndex);
 		
-	else		// menuItemIndex > gNumberImageOverlayFiles
+	else	// menuItemIndex > gNumberImageOverlayFiles
 		ClearVectorOverlay (menuItemIndex-gNumberImageOverlayFiles);
 	
-}		// end "ClearOverlay"
+}	// end "ClearOverlay"
 
 
 
@@ -298,11 +294,11 @@ void CloseAllOverlayFiles (void)
 	
 	CloseAllVectorOverlayFiles ();
 	
-}		// end "CloseAllOverlayFiles"		
+}	// end "CloseAllOverlayFiles"		
 
 
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------------
 //								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
@@ -330,22 +326,20 @@ Boolean DetermineIfProjectPossible (
 	WindowInfoPtr						windowInfoPtr;
 											
 	
-	windowInfoPtr = (WindowInfoPtr)GetHandlePointer (imageWindowInfoH,
-																		kNoLock,
-																		kNoMoveHi);	
+	windowInfoPtr = (WindowInfoPtr)GetHandlePointer (imageWindowInfoH);
 										
 	if (windowInfoPtr != NULL && 
 			windowInfoPtr->imageType == kMultispectralImageType &&
 				windowInfoPtr->numberImageFiles == 1)
-																			return (TRUE);
+																							return (TRUE);
 																			
 	return (FALSE);
 	
-}		// end "DetermineIfProjectPossible" 
+}	// end "DetermineIfProjectPossible" 
 
 
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------------
 //								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
@@ -393,34 +387,28 @@ void DoEditSelectAllImage (
 	
 				// Get pointer to display specification for window.																
 	
-		displaySpecsPtr = (DisplaySpecsPtr)GetHandlePointer(
-																displaySpecsHandle,
-																kNoLock,
-																kNoMoveHi);
+		displaySpecsPtr = (DisplaySpecsPtr)GetHandlePointer (displaySpecsHandle);
 		
 				// Get pointer to structure which contains the selection	
 				// rectangle information																								
 	
-		selectionInfoPtr = (SelectionInfoPtr)GetHandlePointer(
-																selectionInfoHandle,
-																kNoLock,
-																kNoMoveHi);		
+		selectionInfoPtr = (SelectionInfoPtr)GetHandlePointer (selectionInfoHandle);
 		
 		selectionInfoPtr->offScreenRectangle.top = 0;
 		selectionInfoPtr->offScreenRectangle.left = 0;
 		selectionInfoPtr->offScreenRectangle.bottom = 
-								(SInt16)displaySpecsPtr->imageDimensions[kVertical];
+										(SInt16)displaySpecsPtr->imageDimensions[kVertical];
 		selectionInfoPtr->offScreenRectangle.right =
-								(SInt16)displaySpecsPtr->imageDimensions[kHorizontal];
+										(SInt16)displaySpecsPtr->imageDimensions[kHorizontal];
 																							
 		selectionInfoPtr->lineColumnRectangle.left =
 										displaySpecsPtr->displayedColumnStart;
 		selectionInfoPtr->lineColumnRectangle.top =
-											displaySpecsPtr->displayedLineStart;	
+										displaySpecsPtr->displayedLineStart;
 		selectionInfoPtr->lineColumnRectangle.right =
 										displaySpecsPtr->displayedColumnEnd;	
 		selectionInfoPtr->lineColumnRectangle.bottom =
-											displaySpecsPtr->displayedLineEnd;
+										displaySpecsPtr->displayedLineEnd;
 		
 		lineColumnRectPtr = &selectionInfoPtr->lineColumnRectangle;									
 		selectionInfoPtr->numberPixels = 
@@ -463,15 +451,15 @@ void DoEditSelectAllImage (
 			if (gProjectWindow != NULL)		
 				MHiliteControl (gProjectWindow, gProjectInfoPtr->addToControlH, 0);
  			
- 			}		// end "if (gActiveImageWindow == gProjectSelectionWindow && ..."
+ 			}	// end "if (gActiveImageWindow == gProjectSelectionWindow && ..."
 		
-		}		// end "if (displaySpecsHandle != NULL && ..."
+		}	// end "if (displaySpecsHandle != NULL && ..."
 					
-}		// end "DoEditSelectAllImage"	
+}	// end "DoEditSelectAllImage"	
 
 
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------------
 //								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
@@ -509,21 +497,21 @@ void GetControlPopUpMenuText (
 		GetMenuItemText (menuHandle, popupMenuIndex, (UCharPtr)stringPtr);
 		stringPtr[stringPtr[0]+1] = 0;
 		
-		}		// end "if (menuHandle != NULL)"
+		}	// end "if (menuHandle != NULL)"
 		
-	else		// menuHandle == NULL
+	else	// menuHandle == NULL
 		{
 		stringPtr[0] = 0;
 		stringPtr[1] = 0;
 		
-		}		// end "else menuHandle == NULL"		
+		}	// end "else menuHandle == NULL"		
 #endif	// defined multispec_mac   
                              
 #if defined multispec_win
 	 
 #endif	// defined multispec_win 
 	
-}		// end "GetControlPopUpMenuText" 
+}	// end "GetControlPopUpMenuText" 
 
 
 
@@ -548,7 +536,7 @@ void GetControlPopUpMenuText (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 05/20/1992
-//	Revised By:			Larry L. Biehl			Date: 11/02/1999	
+//	Revised By:			Larry L. Biehl			Date: 09/06/2017
 
 SInt16 GetPopUpMenuBitsPerDataValue (
 				SInt16								bitsPerDataValueSelection)
@@ -557,14 +545,18 @@ SInt16 GetPopUpMenuBitsPerDataValue (
 	SInt32								bitsPerDataValue;
 	
 	
-	#if defined multispec_mac				
+	#if defined multispec_mac
 		GetMenuItemText (gPopUpBitsPerDataValueMenu, 
 								bitsPerDataValueSelection, 
 								gMenuItemString);
 								
-		StringToNum(gMenuItemString, &bitsPerDataValue);
+		StringToNum (gMenuItemString, &bitsPerDataValue);
 	#endif 	// defined multispec_mac
 	
+	#if defined multispec_mac_swift
+		bitsPerDataValue = 0;
+	#endif 	// defined multispec_mac
+
 	#if defined multispec_win
 				// 'Hardwire for now. It would be nice to go through the resource
 				// list so that the code would not have to be updated when changes
@@ -600,13 +592,13 @@ SInt16 GetPopUpMenuBitsPerDataValue (
 			bitsPerDataValue = 8;
 	#endif 	// defined multispec_mac
 	
-	return(  (SInt16)bitsPerDataValue );
+	return ((SInt16)bitsPerDataValue);
 	
-}		// end "GetPopUpMenuBitsPerDataValue" 
+}	// end "GetPopUpMenuBitsPerDataValue" 
 
 
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------------
 //								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
@@ -629,8 +621,7 @@ SInt16 GetPopUpMenuBitsPerDataValue (
 
 Boolean GetRectangularSelectionFlag (void)
 
-{	
-	
+{
 	Boolean		rectangularSelectionFlag = FALSE;
 	
 	
@@ -642,7 +633,7 @@ Boolean GetRectangularSelectionFlag (void)
 		
 	return (rectangularSelectionFlag);   
 					
-}		// end "GetRectangularSelectionFlag"	 
+}	// end "GetRectangularSelectionFlag"	 
 
 
 
@@ -666,7 +657,7 @@ Boolean GetRectangularSelectionFlag (void)
 // Called By:	
 //
 //	Coded By:			Larry L. Biehl			Date: 03/14/2017
-//	Revised By:			Larry L. Biehl			Date: 03/25/2017
+//	Revised By:			Larry L. Biehl			Date: 09/11/2017
 
 void MSetMenuItemText (
 				MenuRef								theMenu,
@@ -675,7 +666,7 @@ void MSetMenuItemText (
 				UInt16								stringCharCode)
     
 {
-#	if defined multispec_mac
+	#if defined multispec_mac
 		CFStringRef				cfStringRef;
 	
 		cfStringRef = CFStringCreateWithBytes (kCFAllocatorDefault,
@@ -694,12 +685,18 @@ void MSetMenuItemText (
 			//CFAllocatorDeallocate (kCFAllocatorDefault, (void*)cfStringRef);
 			CFRelease (cfStringRef);
 			
-			}		// end "if (cfStringRef != NULL)"
-#	else
+			}	// end "if (cfStringRef != NULL)
+	#endif	// defined multispec_mac
+	
+	#if defined multispec_mac_swift
+			// To be done.
+	#endif
+	
+	#if defined multispec_lin || defined multispec_win
 		SetMenuItemText (theMenu, menuIndex, itemStringPascalPtr);
-#	endif
+	#endif
 				
-}		// end "MSetMenuItemText"
+}	// end "MSetMenuItemText"
 
 
 
@@ -744,9 +741,9 @@ Boolean SetTIFF_GeoTIFF_MenuItemString (
 	Boolean								mapInfoExistsFlag;
 
 
-#	if defined multispec_win
+	#if defined multispec_win
 		USES_CONVERSION;
-#	endif
+	#endif
 	
 	#if defined multispec_win  
 		CComboBox* 							comboBoxPtr;
@@ -761,19 +758,21 @@ Boolean SetTIFF_GeoTIFF_MenuItemString (
 	mapInfoExistsFlag = FindIfMapInformationExists (windowInfoPtr);
 		 
 	#if defined multispec_win  
-		comboBoxPtr = (CComboBox*)dialogPtr->GetDlgItem(diskFileComboID);
+		comboBoxPtr = (CComboBox*)dialogPtr->GetDlgItem (diskFileComboID);
 		comboBoxPtr->DeleteString (menuItem-1);
    #elif defined multispec_lin     
-      if(diskFileComboID != NULL){              
-            comboBoxPtr = (wxComboBox *)(dialogPtr->FindWindow(diskFileComboID));            
-            comboBoxPtr->Delete(menuItem-1);         
-      }
+		if (diskFileComboID != NULL)
+			{
+			comboBoxPtr = (wxComboBox *)(dialogPtr->FindWindow (diskFileComboID));
+			comboBoxPtr->Delete (menuItem-1);
+			
+			}	// if (diskFileComboID != NULL)
 	#endif	// defined multispec_win  
 	
 	if (mapInfoExistsFlag)
 		CtoPstring ((UCharPtr)"GeoTIFF", tiffMenuNameString);
 		
-	else		// !mapInfoExistsFlag
+	else	// !mapInfoExistsFlag
 		CtoPstring ((UCharPtr)"TIFF", tiffMenuNameString);
 
 	#if defined multispec_mac 
@@ -783,18 +782,21 @@ Boolean SetTIFF_GeoTIFF_MenuItemString (
 	#endif	// defined multispec_mac 
 	 
 	#if defined multispec_win  
-		comboBoxPtr->InsertString (menuItem-1, (LPCTSTR)A2T((LPCSTR)&tiffMenuNameString[1]));
+		comboBoxPtr->InsertString (
+									menuItem-1, (LPCTSTR)A2T((LPCSTR)&tiffMenuNameString[1]));
 		comboBoxPtr->SetItemData (menuItem-1, menuItem);
    #elif defined multispec_lin      
-      if(diskFileComboID != NULL){
-         comboBoxPtr->Insert(&tiffMenuNameString[1], menuItem-1);      
+      if (diskFileComboID != NULL)
+			{
+         comboBoxPtr->Insert (&tiffMenuNameString[1], menuItem-1);
          comboBoxPtr->SetClientData (menuItem-1, (void*)menuItem);
-      }
+			
+			}	// end "if (diskFileComboID != NULL)"
 	#endif	// defined multispec_win 
 	
 	return (mapInfoExistsFlag);
 
-}		// end "SetTIFF_GeoTIFF_MenuItemString"  
+}	// end "SetTIFF_GeoTIFF_MenuItemString"  
 
 
                    
@@ -885,17 +887,15 @@ void SetUpClearOverlaysSubMenu (
 		
 				// Add the image overlay labels to the menu
 					
-		imageOverlayHandlePtr = (Handle*)GetHandlePointer(
-													gImageOverlayHandle, kLock, kNoMoveHi);
+		imageOverlayHandlePtr = (Handle*)GetHandlePointer (gImageOverlayHandle, kLock);
 		
 		if (imageOverlayHandlePtr != NULL)
 			{		
 			for (index=0; index<gImageOverlayHandleListLength; index++)
 				{	
 				imageOverlayInfoPtr = (ImageOverlayInfoPtr)GetHandlePointer (
-																imageOverlayHandlePtr[index],
-																kLock,
-																kNoMoveHi);
+																			imageOverlayHandlePtr[index],
+																			kLock);
 			
 				if (imageOverlayInfoPtr != NULL)
 					{
@@ -911,16 +911,17 @@ void SetUpClearOverlaysSubMenu (
 						
 					#if defined multispec_lin
 						clearOverlayMenuPtr->Append (
-									menuItem, 
-									wxString::FromAscii((char*)&imageOverlayInfoPtr->overlayName[1]),
-									wxEmptyString,
-									wxITEM_NORMAL);
+								menuItem,
+								wxString::FromAscii ((char*)&imageOverlayInfoPtr->overlayName[1]),
+								wxEmptyString,
+								wxITEM_NORMAL);
 						menuItem++;
 					#endif	// defined multispec_lin 
 						
 					#if defined multispec_win
 						unicodeStringPtr = 
-								ConvertMultibyteStringToUnicodeString (&imageOverlayInfoPtr->overlayName[1]);
+								ConvertMultibyteStringToUnicodeString (
+																&imageOverlayInfoPtr->overlayName[1]);
 						clearOverlayMenuPtr->AppendMenu (
 									MF_STRING, 
 									menuItem, 
@@ -930,15 +931,15 @@ void SetUpClearOverlaysSubMenu (
 					
 					CheckAndUnlockHandle (imageOverlayHandlePtr[index]);
 					
-					}		// end "if (imageOverlayInfoPtr != NULL)"
+					}	// end "if (imageOverlayInfoPtr != NULL)"
 												
-				}		// end "for (index=0; index<gImageOverlayHandleListLength; index++)"
+				}	// end "for (index=0; index<gImageOverlayHandleListLength; index++)"
 				
-			}		// end "if (imageOverlayHandlePtr != NULL)"
+			}	// end "if (imageOverlayHandlePtr != NULL)"
 			
 		CheckAndUnlockHandle (gImageOverlayHandle);
 			
-		}		// end "if (gImageOverlayHandleListLength > 0)"
+		}	// end "if (gImageOverlayHandleListLength > 0)"
 	
 	#if defined multispec_mac
 		DisableMenuItem (clearOverlySubMenuHandle, 2);
@@ -970,21 +971,19 @@ void SetUpClearOverlaysSubMenu (
 		
 				// Add the vector overlay labels to the menu
 					
-		shapeHandlePtr = (Handle*)GetHandlePointer(
-													gShapeFilesHandle, kLock, kNoMoveHi);
+		shapeHandlePtr = (Handle*)GetHandlePointer (gShapeFilesHandle, kLock);
 
 		if (shapeHandlePtr != NULL) 
 			{
 			for (index=0; index<gShapeHandleListLength; index++)
 				{
-				shapeInfoPtr = (ShapeInfoPtr)GetHandlePointer (
-																shapeHandlePtr[index],
-																kLock,
-																kNoMoveHi);
-																
+				shapeInfoPtr = (ShapeInfoPtr)GetHandlePointer (shapeHandlePtr[index],
+																				kLock);
+				
 				if (shapeInfoPtr != NULL)
 					{										
-					fileNamePPointer = (FileStringPtr)GetFileNamePPointer (shapeInfoPtr);
+					fileNamePPointer = (FileStringPtr)GetFileNamePPointerFromShapeInfo (
+																								shapeInfoPtr);
 					CopyPToP (gTextString, fileNamePPointer);
 			
 					if (shapeInfoPtr->conversionCode == 2)
@@ -992,19 +991,19 @@ void SetUpClearOverlaysSubMenu (
 						if (shapeInfoPtr->unitsCodeForConversion == kMetersCode)
 							ConcatPStrings ((UCharPtr)gTextString, (StringPtr)"\0_ltom", 255);
 							
-						else		// ...->unitsCodeForConversion != kMetersCode. Assume feet
+						else	// ...->unitsCodeForConversion != kMetersCode. Assume feet
 							ConcatPStrings ((UCharPtr)gTextString, (StringPtr)"\0_ltof", 255);
 						
-						}		// end "if (shapeInfoPtr->conversionCode == 2)"
+						}	// end "if (shapeInfoPtr->conversionCode == 2)"
 						
 					if (shapeInfoPtr->versionNumberLoaded > 1 && gTextString[0]< 250)
 						{
-						count = sprintf((char*)&gTextString[gTextString[0]+1], 
+						count = sprintf ((char*)&gTextString[gTextString[0]+1], 
 												"_%d",
 												shapeInfoPtr->versionNumberLoaded);
-						gTextString[0]+= count;
+						gTextString[0] += count;
 												
-						}		// end "if (shapeInfoPtr->versionNumberLoaded > 1 && ..."
+						}	// end "if (shapeInfoPtr->versionNumberLoaded > 1 && ..."
 									
 					#if defined multispec_mac
 						AppendMenu (clearOverlySubMenuHandle, (UCharPtr)gTextString);
@@ -1016,14 +1015,14 @@ void SetUpClearOverlaysSubMenu (
 					#endif	// defined multispec_mac 
 						
 					#if defined multispec_lin
-						wxString overlayitem((char*) &gTextString[1], wxConvUTF8);
+						wxString overlayitem ((char*)&gTextString[1], wxConvUTF8);
 						clearOverlayMenuPtr->Append (menuItem, overlayitem);
 						menuItem++;
 					#endif	// defined multispec_lin 	
 						
 					#if defined multispec_win
 						unicodeStringPtr = 
-								ConvertMultibyteStringToUnicodeString (&gTextString[1]);
+									ConvertMultibyteStringToUnicodeString (&gTextString[1]);
 						clearOverlayMenuPtr->AppendMenu (MF_STRING, 
 																	menuItem, 
 																	(LPCTSTR)&unicodeStringPtr[1]);
@@ -1032,17 +1031,17 @@ void SetUpClearOverlaysSubMenu (
 					
 					CheckAndUnlockHandle (shapeHandlePtr[index]);
 					
-					}		// end "if (shapeInfoPtr != NULL)"
+					}	// end "if (shapeInfoPtr != NULL)"
 												
-				}		// end "for (index=0; index<gShapeHandleListLength; index++)"
+				}	// end "for (index=0; index<gShapeHandleListLength; index++)"
 					    
-			}		// end "if (shapeHandlePtr != NULL)"
+			}	// end "if (shapeHandlePtr != NULL)"
 			
 		CheckAndUnlockHandle (gShapeFilesHandle);
 		
-		}		// end "if (gNumberShapeFiles > 0)"
+		}	// end "if (gNumberShapeFiles > 0)"
 			
-}		// end Routine "SetUpClearOverlaysSubMenu" 
+}	// end Routine "SetUpClearOverlaysSubMenu" 
 
 
                    
@@ -1088,9 +1087,7 @@ void SetUpImageOverlayPopUpMenu (
 	#endif	// defined multispec_win 
 		
 	
-	windowInfoPtr = (WindowInfoPtr)GetHandlePointer (windowInfoHandle,
-																		kNoLock,
-																		kNoMoveHi);
+	windowInfoPtr = (WindowInfoPtr)GetHandlePointer (windowInfoHandle);
 																		
 	if (windowInfoPtr != NULL)
 		{															
@@ -1112,7 +1109,7 @@ void SetUpImageOverlayPopUpMenu (
 		
 		for (listIndex=0; listIndex<numberOverlays; listIndex++)
 			{
-			imageOverlayIndex = abs(overlayListPtr[listIndex].index) - 1;
+			imageOverlayIndex = abs (overlayListPtr[listIndex].index) - 1;
 			
 			imageOverlayInfoPtr = GetImageOverlayInfoPtr ((SInt16)imageOverlayIndex, 
 																			kNoLock,
@@ -1121,20 +1118,20 @@ void SetUpImageOverlayPopUpMenu (
 			if (imageOverlayInfoPtr != NULL)
 				{
 				gTextString[0] = sprintf ((char*)&gTextString[1], 
-											"Replace %s", 
-											(char*)&imageOverlayInfoPtr->overlayName[1]);
+													"Replace %s",
+													(char*)&imageOverlayInfoPtr->overlayName[1]);
 			
 				#if defined multispec_mac
 					AppendMenu (popUpMenuHandle, (UCharPtr)gTextString);
 				#endif	// defined multispec_mac 
 				
 				#if defined multispec_win                     
-					imageOverlayComboBoxPtr->AddString((LPCTSTR)&gTextString[1]);
+					imageOverlayComboBoxPtr->AddString ((LPCTSTR)&gTextString[1]);
 				#endif	// defined multispec_mac 
 				
-				}		// end "if (imageOverlayInfoPtr != NULL)"
+				}	// end "if (imageOverlayInfoPtr != NULL)"
 											
-			}		// end "for (listIndex=0; listIndex<numberOverlays; listIndex++)"
+			}	// end "for (listIndex=0; listIndex<numberOverlays; listIndex++)"
 		
 				// Indicate the current selection.
 					
@@ -1145,9 +1142,9 @@ void SetUpImageOverlayPopUpMenu (
 		#if defined multispec_win
 		#endif	// defined multispec_mac 
 		
-		}		// end "if (windowInfoPtr != NULL)"
+		}	// end "if (windowInfoPtr != NULL)"
 			
-}		// end Routine "SetUpImageOverlayPopUpMenu"    
+}	// end Routine "SetUpImageOverlayPopUpMenu"    
 
 
                    
@@ -1214,10 +1211,10 @@ void SetUpWindowOverlayPopUpMenu (
 	
 		
 	windowInfoPtr = (WindowInfoPtr)GetHandleStatusAndPointer (
-							gActiveImageWindowInfoH, &windowHandleStatus, kNoMoveHi);
+													gActiveImageWindowInfoH, &windowHandleStatus);
 
 	if (windowInfoPtr != NULL && (windowInfoPtr->numberImageOverlays + 
-														windowInfoPtr->numberOverlays) > 0)
+																windowInfoPtr->numberOverlays) > 0)
 		{
 		#if defined multispec_mac
 			CheckMenuItem (popUpMenuHandle, 1, FALSE);
@@ -1228,14 +1225,14 @@ void SetUpWindowOverlayPopUpMenu (
 				DisableMenuItem (popUpMenuHandle, 1);
 				DisableMenuItem (popUpMenuHandle, 2);
 				
-				}		// end "if (optionKeyFlag)"
+				}	// end "if (optionKeyFlag)"
 			
-			else		// !optionKeyFlag
+			else	// !optionKeyFlag
 				{
 				EnableMenuItem (popUpMenuHandle, 1);
 				EnableMenuItem (popUpMenuHandle, 2);
 				
-				}		// end "else !optionKeyFlag"
+				}	// end "else !optionKeyFlag"
 		
 			menuItem = 4;				
 		#endif	// defined multispec_mac 
@@ -1250,16 +1247,16 @@ void SetUpWindowOverlayPopUpMenu (
 				clearOverlayPopupMenuPtr->EnableMenuItem (
 														ID_SHOWOVERLAYMENUITEMSTART+1, MF_GRAYED);
 				
-				}		// end "if (optionKeyFlag)"
+				}	// end "if (optionKeyFlag)"
 			
-			else		// !optionKeyFlag
+			else	// !optionKeyFlag
 				{
 				clearOverlayPopupMenuPtr->EnableMenuItem (
 														ID_SHOWOVERLAYMENUITEMSTART, MF_ENABLED);
 				clearOverlayPopupMenuPtr->EnableMenuItem (
 														ID_SHOWOVERLAYMENUITEMSTART+1, MF_ENABLED);
 				
-				}		// end "else !optionKeyFlag"
+				}	// end "else !optionKeyFlag"
 
 			menuItem = ID_SHOWOVERLAYMENUITEMSTART + 3;
 		#endif	// defined multispec_win 
@@ -1267,16 +1264,17 @@ void SetUpWindowOverlayPopUpMenu (
 		#if defined multispec_lin
 			clearOverlayPopupMenuPtr = (wxMenu*)popUpMenuHandle;
 
-			if (optionKeyFlag) {
-				clearOverlayPopupMenuPtr->Enable(ID_SHOWOVERLAYMENUITEMSTART, false);
-				clearOverlayPopupMenuPtr->Enable(ID_SHOWOVERLAYMENUITEMSTART + 1, false);
+			if (optionKeyFlag)
+				{
+				clearOverlayPopupMenuPtr->Enable (ID_SHOWOVERLAYMENUITEMSTART, false);
+				clearOverlayPopupMenuPtr->Enable (ID_SHOWOVERLAYMENUITEMSTART + 1, false);
 
 				}	// end "if (optionKeyFlag)"
 
 			else // !optionKeyFlag
 				{
-				clearOverlayPopupMenuPtr->Enable(ID_SHOWOVERLAYMENUITEMSTART, true);
-				clearOverlayPopupMenuPtr->Enable(ID_SHOWOVERLAYMENUITEMSTART + 1, true);
+				clearOverlayPopupMenuPtr->Enable (ID_SHOWOVERLAYMENUITEMSTART, true);
+				clearOverlayPopupMenuPtr->Enable (ID_SHOWOVERLAYMENUITEMSTART + 1, true);
 
 				} // end "else !optionKeyFlag"
 
@@ -1288,8 +1286,7 @@ void SetUpWindowOverlayPopUpMenu (
 		numberOverlays = windowInfoPtr->numberImageOverlays;
 		imageOverlayListPtr = windowInfoPtr->imageOverlayList;
 	
-		imageOverlayHandlePtr = (Handle*)GetHandlePointer(
-													gImageOverlayHandle, kLock, kNoMoveHi);
+		imageOverlayHandlePtr = (Handle*)GetHandlePointer (gImageOverlayHandle, kLock);
 													
 		if (imageOverlayHandlePtr == NULL)
 			numberOverlays = 0;
@@ -1300,17 +1297,15 @@ void SetUpWindowOverlayPopUpMenu (
 			
 			checkFlag = (imageFileIndex > 0);
 			
-			imageFileIndex = abs(imageFileIndex) - 1;
+			imageFileIndex = abs (imageFileIndex) - 1;
 		
 			imageOverlayInfoPtr = (ImageOverlayInfoPtr)GetHandlePointer (
-															imageOverlayHandlePtr[imageFileIndex],
-															kNoLock,
-															kNoMoveHi);
+															imageOverlayHandlePtr[imageFileIndex]);
 			
 			if (imageOverlayInfoPtr != NULL)
 				CopyPToP (gTextString, imageOverlayInfoPtr->overlayName);
 				
-			else		// imageOverlayInfoPtr == NULL
+			else	// imageOverlayInfoPtr == NULL
 				gTextString[0] = sprintf ((char*)&gTextString[1],
 													(char*)"No Image Overlay %ld", 
 													imageFileIndex);
@@ -1330,34 +1325,33 @@ void SetUpWindowOverlayPopUpMenu (
 			#if defined multispec_win
 				if (checkFlag)
 					nFlags = MF_STRING+MF_CHECKED;
-				else		// !checkFlag
+				else	// !checkFlag
 					nFlags = MF_STRING+MF_UNCHECKED;
 
 				unicodeStringPtr = ConvertMultibyteStringToUnicodeString (&gTextString[1]);
 
-				clearOverlayPopupMenuPtr->AppendMenu (
-														nFlags, 
-														menuItem, 
-														(LPCTSTR)&unicodeStringPtr[1]);
-			#endif	// defined multispec_win 
+				clearOverlayPopupMenuPtr->AppendMenu (nFlags,
+																	menuItem, 
+																	(LPCTSTR)&unicodeStringPtr[1]);
+			#endif	// defined multispec_win
 
 			#if defined multispec_lin
-				wxString overlayitem((char*) &gTextString[1], wxConvUTF8);
-				clearOverlayPopupMenuPtr->AppendCheckItem(menuItem, overlayitem);
+				wxString overlayitem ((char*) &gTextString[1], wxConvUTF8);
+				clearOverlayPopupMenuPtr->AppendCheckItem (menuItem, overlayitem);
 				if (checkFlag)
-					clearOverlayPopupMenuPtr->Check(menuItem, true);
+					clearOverlayPopupMenuPtr->Check (menuItem, true);
 				else // !checkFlag
-					clearOverlayPopupMenuPtr->Check(menuItem, false);
-
-				//         clearOverlayPopupMenuPtr->AppendMenu(
-				//                 nFlags,
-				//                 menuItem,
-				//                 (char*) &gTextString[1]);
+					clearOverlayPopupMenuPtr->Check (menuItem, false);
+				/*
+				clearOverlayPopupMenuPtr->AppendMenu (nFlags,
+																  menuItem,
+																  (char*)&gTextString[1]);
+				*/
 			#endif	// defined multispec_lin
 			
 			menuItem++;
 											
-			}		// end "for (index=0; index<numberOverlays; ..."
+			}	// end "for (index=0; index<numberOverlays; ..."
 			
 		CheckAndUnlockHandle (gImageOverlayHandle);
 				
@@ -1367,8 +1361,7 @@ void SetUpWindowOverlayPopUpMenu (
 		numberOverlays = windowInfoPtr->numberOverlays;
 		overlayListPtr = windowInfoPtr->overlayList;
 	
-		shapeHandlePtr = (Handle*)GetHandlePointer(
-													gShapeFilesHandle, kLock, kNoMoveHi);
+		shapeHandlePtr = (Handle*)GetHandlePointer (gShapeFilesHandle, kLock);
 													
 		if (shapeHandlePtr == NULL)
 			numberOverlays = 0;
@@ -1379,16 +1372,15 @@ void SetUpWindowOverlayPopUpMenu (
 			
 			checkFlag = (shapeFileIndex > 0);
 			
-			shapeFileIndex = abs(shapeFileIndex) - 1;
+			shapeFileIndex = abs (shapeFileIndex) - 1;
 		
-			shapeInfoPtr = (ShapeInfoPtr)GetHandlePointer (
-															shapeHandlePtr[shapeFileIndex],
-															kLock,
-															kNoMoveHi);
-															
+			shapeInfoPtr = (ShapeInfoPtr)GetHandlePointer (shapeHandlePtr[shapeFileIndex],
+																			kLock);
+			
 			if (shapeInfoPtr != NULL)
 				{
-				fileNamePPointer = (FileStringPtr)GetFileNamePPointer (shapeInfoPtr);
+				fileNamePPointer =
+								(FileStringPtr)GetFileNamePPointerFromShapeInfo (shapeInfoPtr);
 				CopyPToP (gTextString, fileNamePPointer);
 				
 				if (shapeInfoPtr->conversionCode == 2)
@@ -1396,22 +1388,22 @@ void SetUpWindowOverlayPopUpMenu (
 					if (shapeInfoPtr->unitsCodeForConversion == kMetersCode)
 						ConcatPStrings ((UCharPtr)gTextString, (StringPtr)"\0_ltom", 255);
 						
-					else		// ...->unitsCodeForConversion != kMetersCode. Assume feet
+					else	// ...->unitsCodeForConversion != kMetersCode. Assume feet
 						ConcatPStrings ((UCharPtr)gTextString, (StringPtr)"\0_ltof", 255);
 					
-					}		// end "if (shapeInfoPtr->conversionCode == 2)"
+					}	// end "if (shapeInfoPtr->conversionCode == 2)"
 							
 				if (shapeInfoPtr->versionNumberLoaded > 1 && gTextString[0]< 250)
 					{
-					count = sprintf((char*)&gTextString[gTextString[0]+1], 
+					count = sprintf ((char*)&gTextString[gTextString[0]+1], 
 											"_%d",
 											shapeInfoPtr->versionNumberLoaded);
 					gTextString[0] += count;
 									
-					}		// end "if (shapeInfoPtr->versionNumberLoaded > 1 && ..."
+					}	// end "if (shapeInfoPtr->versionNumberLoaded > 1 && ..."
 				
 				if (optionKeyFlag)
-					ConcatPStrings ( (UCharPtr)gTextString, (StringPtr)"\0...", 255);
+					ConcatPStrings ((UCharPtr)gTextString, (StringPtr)"\0...", 255);
 				
 				#if defined multispec_mac
 					AppendMenu (popUpMenuHandle, (UCharPtr)gTextString);
@@ -1425,52 +1417,51 @@ void SetUpWindowOverlayPopUpMenu (
 				#if defined multispec_win
 					if (checkFlag)
 						nFlags = MF_STRING+MF_CHECKED;
-					else		// !checkFlag
+					else	// !checkFlag
 						nFlags = MF_STRING+MF_UNCHECKED;
 
 					unicodeStringPtr = 
 										ConvertMultibyteStringToUnicodeString (&gTextString[1]);
 
-					clearOverlayPopupMenuPtr->AppendMenu (
-															nFlags, 
-															menuItem, 
-															(LPCTSTR)&unicodeStringPtr[1]);
-//					menuItem++;
+					clearOverlayPopupMenuPtr->AppendMenu (nFlags,
+																		menuItem, 
+																		(LPCTSTR)&unicodeStringPtr[1]);
+					//menuItem++;
 				#endif	// defined multispec_win 
 
 				#if defined multispec_lin
-					wxString overlayitemb((char*) &gTextString[1], wxConvUTF8);
-					clearOverlayPopupMenuPtr->AppendCheckItem(menuItem, overlayitemb);
+					wxString overlayitemb ((char*) &gTextString[1], wxConvUTF8);
+					clearOverlayPopupMenuPtr->AppendCheckItem (menuItem, overlayitemb);
 					if (checkFlag)
-						clearOverlayPopupMenuPtr->Check(menuItem, true);
+						clearOverlayPopupMenuPtr->Check (menuItem, true);
 					else // !checkFlag
-						clearOverlayPopupMenuPtr->Check(menuItem, false);
-
-					//         clearOverlayPopupMenuPtr->AppendMenu(
-					//                 nFlags,
-					//                 menuItem,
-					//                 (char*) &gTextString[1]);
+						clearOverlayPopupMenuPtr->Check (menuItem, false);
+					/*
+					clearOverlayPopupMenuPtr->AppendMenu (nFlags,
+																		menuItem,
+																		(char*) &gTextString[1]);
+					*/
 				#endif	// defined multispec_lin
 				
 				CheckAndUnlockHandle (shapeHandlePtr[shapeFileIndex]);
 				
 				menuItem++;
 				
-				}		// end "if (shapeInfoPtr != NULL)"
+				}	// end "if (shapeInfoPtr != NULL)"
 											
-			}		// end "for (index=0; index<numberOverlays; ..."
+			}	// end "for (index=0; index<numberOverlays; ..."
 			
 		CheckAndUnlockHandle (gShapeFilesHandle);
 													
-		}		// end "if (windowInfoPtr != NULL && ..."
+		}	// end "if (windowInfoPtr != NULL && ..."
 	
 	MHSetState (gActiveWindowInfoH, windowHandleStatus);
 			
-}		// end Routine "SetUpWindowOverlayPopUpMenu"    
+}	// end Routine "SetUpWindowOverlayPopUpMenu"    
 
 
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------------
 //								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
@@ -1497,16 +1488,14 @@ void UpdateEditGraphicsCopy (
 
 {	
 	#if defined multispec_mac 
-		SetMenuItemText (gMultiSpecMenus[kEditM], 
-		 							kCopy, 
-		 							"\pCopy Graph");
+		SetMenuItemText (gMultiSpecMenus[kEditM], kCopy, "\pCopy Graph");
 	#endif	// defined multispec_mac
 	
 	#if defined multispec_win 
-		pCmdUI->SetText ((LPCTSTR)_T("Copy Graph\tCtrl+C"));
+		pCmdUI->SetText ((LPCTSTR)_T ("Copy Graph\tCtrl+C"));
 	#endif	// defined multispec_mac 
 				
-}		// end "UpdateEditGraphicsCopy"		
+}	// end "UpdateEditGraphicsCopy"		
 
 
 
@@ -1526,19 +1515,18 @@ Boolean UpdateEditImageCopy (
 			// menu items for 'Save Image' to indicate that				
 			// the selected portion of the image will be saved.			
 													
-	selectionRectangleExistsFlag = GetSelectedOffscreenRectangle (
-													windowInfoPtr, 
-													&tempRect, 
-													TRUE,
-													FALSE);									
+	selectionRectangleExistsFlag = GetSelectedOffscreenRectangle (windowInfoPtr,
+																						&tempRect, 
+																						TRUE,
+																						FALSE);									
 	
 	#if defined multispec_mac 
-		if ( selectionRectangleExistsFlag )
+		if (selectionRectangleExistsFlag)
 			SetMenuItemText (gMultiSpecMenus[kEditM], 
 		 							kCopy, 
 		 							"\pCopy Image Selection");
 	
-		else		// !selectionRectangleExistsFlag 
+		else	// !selectionRectangleExistsFlag 
 			SetMenuItemText (gMultiSpecMenus[kEditM], 
 		 							kCopy, 
 		 							"\pCopy Image");
@@ -1551,11 +1539,11 @@ Boolean UpdateEditImageCopy (
 	#endif	// defined multispec_mac
 	
 	#if defined multispec_win
-		if ( selectionRectangleExistsFlag )
-			pCmdUI->SetText ((LPCTSTR)_T("Copy Image Selection\tCtrl+C"));
+		if (selectionRectangleExistsFlag)
+			pCmdUI->SetText ((LPCTSTR)_T ("Copy Image Selection\tCtrl+C"));
 			
-		else		// !selectionRectangleExistsFlag 
-			pCmdUI->SetText ((LPCTSTR)_T("Copy Image\tCtrl+C"));
+		else	// !selectionRectangleExistsFlag 
+			pCmdUI->SetText ((LPCTSTR)_T ("Copy Image\tCtrl+C"));
 			
 				// If there is no image in the image window, then disable the	
 				// the copy menu item.	
@@ -1565,11 +1553,11 @@ Boolean UpdateEditImageCopy (
 	#endif	// defined multispec_win
 		
 	#if defined multispec_lin
-		if ( selectionRectangleExistsFlag )
-			pCmdUI->SetText (wxT("Copy Image Selection\tCtrl+C"));
+		if (selectionRectangleExistsFlag)
+			pCmdUI->SetText (wxT ("Copy Image Selection\tCtrl+C"));
 		
-		else		// !selectionRectangleExistsFlag
-			pCmdUI->SetText (wxT("Copy Image\tCtrl+C"));
+		else	// !selectionRectangleExistsFlag
+			pCmdUI->SetText (wxT ("Copy Image\tCtrl+C"));
 		
 				// If there is no image in the image window, then disable the
 				// the copy menu item.
@@ -1580,7 +1568,7 @@ Boolean UpdateEditImageCopy (
 	
 	return (returnFlag);
 				
-}		// end "UpdateEditImageCopy"	
+}	// end "UpdateEditImageCopy"	
 
 
 
@@ -1595,14 +1583,14 @@ void UpdateEditImageSelectAll (
 	#endif	// defined multispec_mac
 	
 	#if defined multispec_win 	
-		pCmdUI->SetText ((LPCTSTR)_T("Select All Image\tCtrl+A"));			
+		pCmdUI->SetText ((LPCTSTR)_T ("Select All Image\tCtrl+A"));
 	#endif	// defined multispec_win 
 	
 	#if defined multispec_lin 	
-		pCmdUI->SetText (wxT("Select All Image\tCtrl+A"));			
+		pCmdUI->SetText (wxT ("Select All Image\tCtrl+A"));
 	#endif	// defined multispec_lin 
 				
-}		// end "UpdateEditImageSelectAll"
+}	// end "UpdateEditImageSelectAll"
 
 
 
@@ -1618,34 +1606,35 @@ void UpdateEditClearSelection (
    	polygonTypeFlag = TRUE;
 	 								
 	#if defined multispec_mac 
-		if ( !polygonTypeFlag )
+		if (!polygonTypeFlag)
 			SetMenuItemText (gMultiSpecMenus[kEditM], 
 		 							kClearSelectionRect, 
 		 							"\pClear Selection Rectangle");
 		 							
-		else		// polygonTypeFlag
+		else	// polygonTypeFlag
 			SetMenuItemText (gMultiSpecMenus[kEditM], 
 		 							kClearSelectionRect, 
 		 							"\pClear Selection Polygon");
 	#endif	// defined multispec_mac
 	
 	#if defined multispec_win 
-		if ( !polygonTypeFlag )
-			pCmdUI->SetText ((LPCTSTR)_T("Clear Selection Rectangle\tDelete"));
+		if (!polygonTypeFlag)
+			pCmdUI->SetText ((LPCTSTR)_T ("Clear Selection Rectangle\tDelete"));
 		 							
-		else		// polygonTypeFlag
-			pCmdUI->SetText ((LPCTSTR)_T("Clear Selection Polygon\tDelete"));
+		else	// polygonTypeFlag
+			pCmdUI->SetText ((LPCTSTR)_T ("Clear Selection Polygon\tDelete"));
 	#endif	// defined multispec_win 
 				
 	#if defined multispec_lin
 		if (!polygonTypeFlag)
-		  pCmdUI->SetText(wxT("Clear Selection Rectangle\tDelete"));
+		  pCmdUI->SetText (wxT ("Clear Selection Rectangle\tDelete"));
 
 		else // polygonTypeFlag
-		  pCmdUI->SetText(wxT("Clear Selection Polygon\tDelete"));
+		  pCmdUI->SetText (wxT ("Clear Selection Polygon\tDelete"));
 	#endif
 
 } // end "UpdateEditClearSelection"
+
 
 
 void UpdateEditTextClear (
@@ -1659,14 +1648,14 @@ void UpdateEditTextClear (
 	#endif	// defined multispec_mac
 	
 	#if defined multispec_win 
-		pCmdUI->SetText ((LPCTSTR)_T("Clear Selected Text\tDelete"));
+		pCmdUI->SetText ((LPCTSTR)_T ("Clear Selected Text\tDelete"));
 	#endif	// defined multispec_win
 	
 	#if defined multispec_lin 
-		pCmdUI->SetText (wxT("Clear Selected Text\tDelete"));
+		pCmdUI->SetText (wxT ("Clear Selected Text\tDelete"));
 	#endif	// defined multispec_lin
 				
-}		// end "UpdateEditTextClear"
+}	// end "UpdateEditTextClear"
 
 
 
@@ -1676,19 +1665,19 @@ void UpdateEditTextCopy (
 {	
 	#if defined multispec_mac 
 		SetMenuItemText (gMultiSpecMenus[kEditM], 
-		 							kCopy, 
-		 							"\pCopy Selected Text");
+								kCopy,
+								"\pCopy Selected Text");
 	#endif	// defined multispec_mac
 	
 	#if defined multispec_win 
-		pCmdUI->SetText ((LPCTSTR)_T("Copy Selected Text\tCtrl+C"));
+		pCmdUI->SetText ((LPCTSTR)_T ("Copy Selected Text\tCtrl+C"));
 	#endif	// defined multispec_win
 	
 	#if defined multispec_lin 
-		pCmdUI->SetText (wxT("Copy Selected Text\tCtrl+C"));
+		pCmdUI->SetText (wxT ("Copy Selected Text\tCtrl+C"));
 	#endif	// defined multispec_lin 
 				
-}		// end "UpdateEditTextCopy"
+}	// end "UpdateEditTextCopy"
 
 
 
@@ -1698,19 +1687,19 @@ void UpdateEditTextCut (
 {	
 	#if defined multispec_mac 
 		SetMenuItemText (gMultiSpecMenus[kEditM], 
-		 							kCut, 
-		 							"\pCut Selected Text");
+								kCut,
+								"\pCut Selected Text");
 	#endif	// defined multispec_mac
 	
 	#if defined multispec_win
-		pCmdUI->SetText ((LPCTSTR)_T("Cut Selected Text\tCtrl+X"));
+		pCmdUI->SetText ((LPCTSTR)_T ("Cut Selected Text\tCtrl+X"));
 	#endif	// defined multispec_win 
 	
 	#if defined multispec_lin
-		pCmdUI->SetText (wxT("Cut Selected Text\tCtrl+X"));
+		pCmdUI->SetText (wxT ("Cut Selected Text\tCtrl+X"));
 	#endif	// defined multispec_lin 
 				
-}		// end "UpdateEditTextCut"
+}	// end "UpdateEditTextCut"
 
 
 
@@ -1720,19 +1709,19 @@ void UpdateEditTextPaste (
 {	
 	#if defined multispec_mac 
 		SetMenuItemText (gMultiSpecMenus[kEditM], 
-		 							kPaste, 
-		 							"\pPaste Text");
+								kPaste,
+								"\pPaste Text");
 	#endif	// defined multispec_mac
 	
 	#if defined multispec_win
-		pCmdUI->SetText ((LPCTSTR)_T("Paste Text\tCtrl+V"));
+		pCmdUI->SetText ((LPCTSTR)_T ("Paste Text\tCtrl+V"));
 	#endif	// defined multispec_win 
 	
 	#if defined multispec_lin
-		pCmdUI->SetText (wxT("Paste Text\tCtrl+V"));
+		pCmdUI->SetText (wxT ("Paste Text\tCtrl+V"));
 	#endif	// defined multispec_lin 
 				
-}		// end "UpdateEditTextPaste"
+}	// end "UpdateEditTextPaste"
 
 
 
@@ -1742,19 +1731,19 @@ void UpdateEditTextSelectAll (
 {	
 	#if defined multispec_mac 
 		SetMenuItemText (gMultiSpecMenus[kEditM], 
-		 							kSelectAll, 
-		 							"\pSelect All Text");
+								kSelectAll,
+								"\pSelect All Text");
 	#endif	// defined multispec_mac
 	
 	#if defined multispec_win
-		pCmdUI->SetText ((LPCTSTR)_T("Select All Text\tCtrl+A"));
+		pCmdUI->SetText ((LPCTSTR)_T ("Select All Text\tCtrl+A"));
 	#endif	// defined multispec_win
 	
 	#if defined multispec_lin 	
-		pCmdUI->SetText (wxT("Select All Text\tCtrl+A"));			
+		pCmdUI->SetText (wxT ("Select All Text\tCtrl+A"));
 	#endif	// defined multispec_lin 
 				
-}		// end "UpdateEditTextSelectAll"
+}	// end "UpdateEditTextSelectAll"
 
 
 
@@ -1769,14 +1758,14 @@ void UpdateFileGraphClose (
 	#endif	// defined multispec_mac
 	
 	#if defined multispec_win 
-		pCmdUI->SetText ((LPCTSTR)_T("&Close Graph Window\tCtrl+W"));
+		pCmdUI->SetText ((LPCTSTR)_T ("&Close Graph Window\tCtrl+W"));
 	#endif	// defined multispec_mac 
 	
 	#if defined multispec_lin 	
-		pCmdUI->SetText (wxT("Close Graph Window\tCtrl+W"));			
+		pCmdUI->SetText (wxT ("Close Graph Window\tCtrl+W"));
 	#endif	// defined multispec_lin 
 				
-}		// end "UpdateFileGraphClose"	
+}	// end "UpdateFileGraphClose"	
 
 
 
@@ -1791,14 +1780,14 @@ void UpdateFileImageClose (
 	#endif	// defined multispec_mac
 	
 	#if defined multispec_win
-		pCmdUI->SetText ((LPCTSTR)_T("&Close Image Window\tCtrl+W"));
+		pCmdUI->SetText ((LPCTSTR)_T ("&Close Image Window\tCtrl+W"));
 	#endif	// defined multispec_win
 	
 	#if defined multispec_lin
-		pCmdUI->SetText (wxT("&Close Image Window\tCtrl+W"));
+		pCmdUI->SetText (wxT ("&Close Image Window\tCtrl+W"));
 	#endif	// defined multispec_lin 
 				
-}		// end "UpdateFileImageClose"	
+}	// end "UpdateFileImageClose"	
 
 
 
@@ -1813,10 +1802,10 @@ void UpdateFilePaletteClose (
 	#endif	// defined multispec_mac
 	
 	#if defined multispec_win 
-		pCmdUI->SetText ((LPCTSTR)_T("&Close Palette Window\tCtrl+W"));
+		pCmdUI->SetText ((LPCTSTR)_T ("&Close Palette Window\tCtrl+W"));
 	#endif	// defined multispec_mac 
 				
-}		// end "UpdateFilePaletteClose"	
+}	// end "UpdateFilePaletteClose"	
 
 
 
@@ -1831,14 +1820,14 @@ void UpdateFileProjectClose (
 	#endif	// defined multispec_mac
 	
 	#if defined multispec_win 
-		pCmdUI->SetText ((LPCTSTR)_T("&Close Project\tCtrl+W"));
+		pCmdUI->SetText ((LPCTSTR)_T ("&Close Project\tCtrl+W"));
 	#endif	// defined multispec_win
 	
 	#if defined multispec_lin
-		pCmdUI->SetText (wxT("&Close Project\tCtrl+W"));
+		pCmdUI->SetText (wxT ("&Close Project\tCtrl+W"));
 	#endif	// defined multispec_lin 
 				
-}		// end "UpdateFileProjectClose"	
+}	// end "UpdateFileProjectClose"	
 
 
 
@@ -1853,14 +1842,14 @@ void UpdateFileTextClose (
 	#endif	// defined multispec_mac
 	
 	#if defined multispec_win 
-		pCmdUI->SetText ((LPCTSTR)_T("&Close Window\tCtrl+W"));
+		pCmdUI->SetText ((LPCTSTR)_T ("&Close Window\tCtrl+W"));
 	#endif	// defined multispec_win 
 	
 	#if defined multispec_lin 
-		pCmdUI->SetText (wxT("&Close Window\tCtrl+W"));
+		pCmdUI->SetText (wxT ("&Close Window\tCtrl+W"));
 	#endif	// defined multispec_lin 
 				
-}		// end "UpdateFileTextClose"	
+}	// end "UpdateFileTextClose"	
 
 
 
@@ -1877,12 +1866,12 @@ Boolean UpdateFileDefaultPrint (
 	#endif	// defined multispec_mac
 	
 	#if defined multispec_win 
-		pCmdUI->SetText ((LPCTSTR)_T("&Print...\tCtrl+P"));
+		pCmdUI->SetText ((LPCTSTR)_T ("&Print...\tCtrl+P"));
 	#endif	// defined multispec_mac 
 		
 	return (returnFlag);
 				
-}		// end "UpdateFileDefaultPrint"
+}	// end "UpdateFileDefaultPrint"
 
 
 
@@ -1897,16 +1886,16 @@ Boolean UpdateFileGraphPrint (
 	#endif	// defined multispec_mac
 	
 	#if defined multispec_win 
-		pCmdUI->SetText ((LPCTSTR)_T("&Print Graph Window...\tCtrl+P"));
+		pCmdUI->SetText ((LPCTSTR)_T ("&Print Graph Window...\tCtrl+P"));
 	#endif	// defined multispec_win 
 	
 	#if defined multispec_lin 
-		pCmdUI->SetText (wxT("Print Graph Window...\tCtrl+P"));
+		pCmdUI->SetText (wxT ("Print Graph Window...\tCtrl+P"));
 	#endif	// defined multispec_lin
 		
 	return (TRUE);
 				
-}		// end "UpdateFileGraphPrint"	
+}	// end "UpdateFileGraphPrint"	
 
 
 
@@ -1924,16 +1913,16 @@ Boolean UpdateFileDefaultSaveAs (
 	#endif	// defined multispec_mac
 	
 	#if defined multispec_win 
-		pCmdUI->SetText ((LPCTSTR)_T("Save &As...\tCtrl+S"));
+		pCmdUI->SetText ((LPCTSTR)_T ("Save &As...\tCtrl+S"));
 	#endif	// defined multispec_win 
 	
 	#if defined multispec_lin 
-		pCmdUI->SetText (wxT("Save &As...\tCtrl+S"));
+		pCmdUI->SetText (wxT ("Save &As...\tCtrl+S"));
 	#endif	// defined multispec_lin 
 		
 	return (returnFlag);
 				
-}		// end "UpdateFileDefaultSaveAs"	
+}	// end "UpdateFileDefaultSaveAs"	
 
 
 
@@ -1956,14 +1945,14 @@ Boolean UpdateFileOpenThematicInfo (
 		#endif	// defined multispec_mac
 		
 		#if defined multispec_win 
-			pCmdUI->SetText ((LPCTSTR)_T("Open &Thematic Group Info..."));
+			pCmdUI->SetText ((LPCTSTR)_T ("Open &Thematic Group Info..."));
 		#endif	// defined multispec_win
 		
 		#if defined multispec_lin 
-			pCmdUI->SetText (wxT("Open Thematic Group Info..."));
+			pCmdUI->SetText (wxT ("Open Thematic Group Info..."));
 		#endif	// defined multispec_lin
 		}
-	else		// classGroupCode == kClassDisplay || classGroupCode == 0 
+	else	// classGroupCode == kClassDisplay || classGroupCode == 0 
 				// (!kThematicWindowType)
 		{
 		#if defined multispec_mac 
@@ -1973,17 +1962,17 @@ Boolean UpdateFileOpenThematicInfo (
 		#endif	// defined multispec_mac
 		
 		#if defined multispec_win 
-			pCmdUI->SetText ((LPCTSTR)_T("Open &Thematic Class Info..."));
+			pCmdUI->SetText ((LPCTSTR)_T ("Open &Thematic Class Info..."));
 		#endif	// defined multispec_win
 		
 		#if defined multispec_lin 
-			pCmdUI->SetText (wxT("Open Thematic Class Info..."));
+			pCmdUI->SetText (wxT ("Open Thematic Class Info..."));
 		#endif	// defined multispec_lin
 		}
  		
 	return (windowType == kThematicWindowType);
 				
-}		// end "UpdateFileOpenThematicInfo"  
+}	// end "UpdateFileOpenThematicInfo"  
 
 
 
@@ -2005,11 +1994,11 @@ Boolean UpdateFileTransform (
 		#endif	// defined multispec_mac
 		
 		#if defined multispec_win 
-			pCmdUI->SetText ((LPCTSTR)_T("&Load Transformation Matrix..."));
+			pCmdUI->SetText ((LPCTSTR)_T ("&Load Transformation Matrix..."));
 		#endif	// defined multispec_win
 		
 		#if defined multispec_lin
-			pCmdUI->SetText (wxT("Load Transformation Matrix..."));
+			pCmdUI->SetText (wxT ("Load Transformation Matrix..."));
 		#endif	// defined multispec_lin
 		}
 	else 		// gTransformationMatrix.numberChannels > 0
@@ -2021,11 +2010,11 @@ Boolean UpdateFileTransform (
 		#endif	// defined multispec_mac
 		
 		#if defined multispec_win 
-			pCmdUI->SetText ((LPCTSTR)_T("&Save Transformation Matrix..."));
+			pCmdUI->SetText ((LPCTSTR)_T ("&Save Transformation Matrix..."));
 		#endif	// defined multispec_win 
 		
 		#if defined multispec_lin 
-			pCmdUI->SetText (wxT("Save Transformation Matrix..."));
+			pCmdUI->SetText (wxT ("Save Transformation Matrix..."));
 		#endif	// defined multispec_lin  
 		}
 		
@@ -2035,7 +2024,7 @@ Boolean UpdateFileTransform (
  		
  	return (returnFlag);	
 				
-}		// end "UpdateFileTransform"
+}	// end "UpdateFileTransform"
 
 
 
@@ -2062,11 +2051,11 @@ Boolean UpdateFileSave (
 		#endif	// defined multispec_mac
 		
 		#if defined multispec_win 
-			pCmdUI->SetText ((LPCTSTR)_T("&Save Thematic Group Info"));
+			pCmdUI->SetText ((LPCTSTR)_T ("&Save Thematic Group Info"));
 		#endif	// defined multispec_win
 		
 		#if defined multispec_lin
-			pCmdUI->SetText("&Save Thematic Group Info");
+			pCmdUI->SetText (wxT ("&Save Thematic Group Info"));
 		#endif
 	}
 	else if (classGroupCode == kClassDisplay)
@@ -2078,15 +2067,15 @@ Boolean UpdateFileSave (
 		#endif	// defined multispec_mac
 		
 		#if defined multispec_win
-			pCmdUI->SetText ((LPCTSTR)_T("&Save Thematic Class Info As..."));
+			pCmdUI->SetText ((LPCTSTR)_T ("&Save Thematic Class Info As..."));
 		#endif	// defined multispec_win
 					
 		#if defined multispec_lin
-			pCmdUI->SetText (wxT("&Save Thematic Class Info As..."));
+			pCmdUI->SetText (wxT ("&Save Thematic Class Info As..."));
 		#endif	// defined multispec_lin
 		}
 		
-	else		// classGroupCode == 0, i.e. != kThematicWindowType
+	else	// classGroupCode == 0, i.e. != kThematicWindowType
 		{
 		#if defined multispec_mac 
 			SetMenuItemText (gMultiSpecMenus[kFileM], 
@@ -2095,24 +2084,24 @@ Boolean UpdateFileSave (
 		#endif	// defined multispec_mac
 		
 		#if defined multispec_win
-			pCmdUI->SetText ((LPCTSTR)_T("&Save"));
+			pCmdUI->SetText ((LPCTSTR)_T ("&Save"));
 		#endif	// defined multispec_win
 					
 		#if defined multispec_lin
-			pCmdUI->SetText (wxT("&Save"));
+			pCmdUI->SetText (wxT ("&Save"));
 		#endif	// defined multispec_lin
    }
  	
  	fileInfoHandle = GetActiveImageFileInfoHandle ();
- 	fileInfoPtr = (FileInfoPtr)GetHandlePointer (fileInfoHandle, kNoLock, kNoMoveHi);	
-	if ( (classGroupCode == kClassDisplay) ||
+ 	fileInfoPtr = (FileInfoPtr)GetHandlePointer (fileInfoHandle);
+	if ((classGroupCode == kClassDisplay) ||
 			(classGroupCode >= kGroupDisplay && fileInfoPtr != NULL && 
-						fileInfoPtr->groupChangedFlag && fileInfoPtr->bandInterleave <= kBIS) )
+						fileInfoPtr->groupChangedFlag && fileInfoPtr->bandInterleave <= kBIS))
  		returnFlag = TRUE;
  		
  	return (returnFlag);	
 				
-}		// end "UpdateFileSave"
+}	// end "UpdateFileSave"
 
 
 
@@ -2139,14 +2128,14 @@ Boolean UpdateFileOutputTextSaveAs (
 		#endif	// defined multispec_mac
 		
 		#if defined multispec_win
-			pCmdUI->SetText ((LPCTSTR)_T("Save Selected Text &As...\tCtrl+S"));
+			pCmdUI->SetText ((LPCTSTR)_T ("Save Selected Text &As...\tCtrl+S"));
 		#endif	// defined multispec_win
 					
 		#if defined multispec_lin
-			pCmdUI->SetText (wxT("Save Selected Text &As...\tCtrl+S"));
+			pCmdUI->SetText (wxT ("Save Selected Text &As...\tCtrl+S"));
 		#endif	// defined multispec_lin
 		}
-	else		// !charactersSelectedFlag 
+	else	// !charactersSelectedFlag 
 		{
 		#if defined multispec_mac 
 			SetMenuItemText (gMultiSpecMenus[kFileM], 
@@ -2155,11 +2144,11 @@ Boolean UpdateFileOutputTextSaveAs (
 		#endif	// defined multispec_mac
 		
 		#if defined multispec_win
-			pCmdUI->SetText ((LPCTSTR)_T("Save Text Output &As...\tCtrl+S"));
+			pCmdUI->SetText ((LPCTSTR)_T ("Save Text Output &As...\tCtrl+S"));
 		#endif	// defined multispec_win
 					
 		#if defined multispec_lin
-			pCmdUI->SetText (wxT("Save Text Output &As...\tCtrl+S"));
+			pCmdUI->SetText (wxT ("Save Text Output &As...\tCtrl+S"));
 		#endif	// defined multispec_lin
 		}
 			
@@ -2182,7 +2171,7 @@ Boolean UpdateFileOutputTextSaveAs (
 		
 	return (returnFlag);
 				
-}		// end "UpdateFileOutputTextSaveAs"	
+}	// end "UpdateFileOutputTextSaveAs"	
 
 
 
@@ -2196,20 +2185,22 @@ Boolean UpdateFileOutputTextPrint (
 	Boolean charactersSelectedFlag = CharactersSelected ();											
 		
 	if (charactersSelectedFlag)
-   {
+		{
 		#if defined multispec_mac 
 			SetMenuItemText (gMultiSpecMenus[kFileM], 
-		 							kPrintOutput, 
-//		 							"\pPrint Selected Text...");
+		 							kPrintOutput,
+									//"\pPrint Selected Text...");
 		 							"\pPrint Text...");
 		#endif	// defined multispec_mac
 		
 		#if defined multispec_win 
-			pCmdUI->SetText ((LPCTSTR)_T("&Print Selected Text...\tCtrl+P"));
-		#endif	// defined multispec_mac 
-	}	
-	else		// !charactersSelectedFlag 
-   {
+			pCmdUI->SetText ((LPCTSTR)_T ("&Print Selected Text...\tCtrl+P"));
+		#endif	// defined multispec_win
+		
+		}	// end "if (charactersSelectedFlag)"
+	
+	else	// !charactersSelectedFlag 
+		{
 		#if defined multispec_mac 
 			SetMenuItemText (gMultiSpecMenus[kFileM], 
 		 							kPrintOutput, 
@@ -2217,9 +2208,10 @@ Boolean UpdateFileOutputTextPrint (
 		#endif	// defined multispec_mac
 		
 		#if defined multispec_win 
-			pCmdUI->SetText ((LPCTSTR)_T("&Print Text...\tCtrl+P"));
-		#endif	// defined multispec_mac  
-   }
+			pCmdUI->SetText ((LPCTSTR)_T ("&Print Text...\tCtrl+P"));
+		#endif	// defined multispec_win
+		
+		}	// end "else !charactersSelectedFlag"
 			
 				// Check if there is text in the output window.						
 				                   
@@ -2239,7 +2231,7 @@ Boolean UpdateFileOutputTextPrint (
 	
 	return (returnFlag);
 				
-}		// end "UpdateFileOutputTextPrint"	
+}	// end "UpdateFileOutputTextPrint"	
 
 
 
@@ -2259,43 +2251,46 @@ Boolean UpdateFileImageSaveAs (
 			// menu items for 'Save Image' to indicate that				
 			// the selected portion of the image will be saved.			
 													
-	selectionRectangleExistsFlag = GetSelectedOffscreenRectangle (
-													windowInfoPtr, 
-													&tempRect, 
-													TRUE,
-													FALSE);	
-													
+	selectionRectangleExistsFlag = GetSelectedOffscreenRectangle (windowInfoPtr,
+																						&tempRect, 
+																						TRUE,
+																						FALSE);	
+	
 	mapInfoExistsFlag = FindIfMapInformationExists (windowInfoPtr);								
 	
-	if ( selectionRectangleExistsFlag )
-   {
+	if (selectionRectangleExistsFlag)
+		{
 		#if defined multispec_mac 
 			if (mapInfoExistsFlag)
 				SetMenuItemText (gMultiSpecMenus[kFileM], 
-		 							kSaveOutputAs, 
-		 							"\pSave Image Selection To GeoTIFF As...");
+										kSaveOutputAs,
+										"\pSave Image Selection To GeoTIFF As...");
 		 	else	//! mapInfoExistsFlag
 				SetMenuItemText (gMultiSpecMenus[kFileM], 
-		 							kSaveOutputAs, 
-		 							"\pSave Image Selection To TIFF As...");
+										kSaveOutputAs,
+										"\pSave Image Selection To TIFF As...");
 		#endif	// defined multispec_mac
 		
 		#if defined multispec_win
 			if (mapInfoExistsFlag)
-				pCmdUI->SetText ((LPCTSTR)_T("Save Image Selection To GeoTIFF &As...\tCtrl+S"));
+				pCmdUI->SetText (
+								(LPCTSTR)_T ("Save Image Selection To GeoTIFF &As...\tCtrl+S"));
 		 	else	//! mapInfoExistsFlag
-				pCmdUI->SetText ((LPCTSTR)_T("Save Image Selection To TIFF &As...\tCtrl+S"));
+				pCmdUI->SetText (
+								(LPCTSTR)_T ("Save Image Selection To TIFF &As...\tCtrl+S"));
 		#endif	// defined multispec_win
 				
 		#if defined multispec_lin
 			if (mapInfoExistsFlag)
-				pCmdUI->SetText (wxT("Save Image Selection To GeoTIFF &As...\tCtrl+S"));
+				pCmdUI->SetText (wxT ("Save Image Selection To GeoTIFF &As...\tCtrl+S"));
 			else	//! mapInfoExistsFlag
-				pCmdUI->SetText (wxT("Save Image Selection To TIFF &As...\tCtrl+S"));
+				pCmdUI->SetText (wxT ("Save Image Selection To TIFF &As...\tCtrl+S"));
 		#endif	// defined multispec_lin
-	}
-	else		// !selectionRectangleExistsFlag
-   {
+		
+		}	// end "if (selectionRectangleExistsFlag)"
+	
+	else	// !selectionRectangleExistsFlag
+		{
 		#if defined multispec_mac 
 			if (mapInfoExistsFlag)
 				SetMenuItemText (gMultiSpecMenus[kFileM], 
@@ -2309,24 +2304,25 @@ Boolean UpdateFileImageSaveAs (
 		
 		#if defined multispec_win
 			if (mapInfoExistsFlag)
-				pCmdUI->SetText ((LPCTSTR)_T("Save Image To GeoTIFF &As...\tCtrl+S"));
+				pCmdUI->SetText ((LPCTSTR)_T ("Save Image To GeoTIFF &As...\tCtrl+S"));
 		 	else	//! mapInfoExistsFlag
-				pCmdUI->SetText ((LPCTSTR)_T("Save Image To TIFF &As...\tCtrl+S"));
+				pCmdUI->SetText ((LPCTSTR)_T ("Save Image To TIFF &As...\tCtrl+S"));
 		#endif	// defined multispec_win
 				
 		#if defined multispec_lin
-				if (mapInfoExistsFlag)
-					pCmdUI->SetText (wxT("Save Image To GeoTIFF &As...\tCtrl+S"));
-				else	//! mapInfoExistsFlag
-					pCmdUI->SetText (wxT("Save Image To TIFF &As...\tCtrl+S"));
+			if (mapInfoExistsFlag)
+				pCmdUI->SetText (wxT ("Save Image To GeoTIFF &As...\tCtrl+S"));
+			else	//! mapInfoExistsFlag
+				pCmdUI->SetText (wxT ("Save Image To TIFF &As...\tCtrl+S"));
 		#endif	// defined multispec_lin
-   }
+		
+		}	// end "else !selectionRectangleExistsFlag"
 	
 				// If there is no image in the image window, then disable the
 				// the save as menu item.						
 				           
 	#if defined multispec_mac 
-		if ( gActiveOffscreenMapExists )
+		if (gActiveOffscreenMapExists)
 			returnFlag = TRUE; 
 	#endif	// defined multispec_mac
 		
@@ -2337,7 +2333,7 @@ Boolean UpdateFileImageSaveAs (
 		
 	return (returnFlag);
 				
-}		// end "UpdateFileImageSaveAs"	
+}	// end "UpdateFileImageSaveAs"	
 
 
 
@@ -2356,12 +2352,11 @@ Boolean UpdateFileImagePrint (
 			// menu items for 'Save Image' to indicate that				
 			// the selected portion of the image will be saved.				
 													
-	selectionRectangleExistsFlag = GetSelectedOffscreenRectangle (
-													windowInfoPtr, 
-													&tempRect, 
-													TRUE,
-													FALSE);												
-		
+	selectionRectangleExistsFlag = GetSelectedOffscreenRectangle (windowInfoPtr,
+																						&tempRect, 
+																						TRUE,
+																						FALSE);												
+	
 	if (selectionRectangleExistsFlag)
 		{
 		#if defined multispec_mac 
@@ -2371,14 +2366,16 @@ Boolean UpdateFileImagePrint (
 		#endif	// defined multispec_mac
 		
 		#if defined multispec_win 
-			pCmdUI->SetText ((LPCTSTR)_T("&Print Image Selection...\tCtrl+P"));
+			pCmdUI->SetText ((LPCTSTR)_T ("&Print Image Selection...\tCtrl+P"));
 		#endif	// defined multispec_win 
 		
 		#if defined multispec_lin
-			pCmdUI->SetText (wxT("&Print Image Selection...\tCtrl+P"));
-		#endif	// defined multispec_liin 
-		}	
-	else		// !selectionRectangleExistsFlag 
+			pCmdUI->SetText (wxT ("&Print Image Selection...\tCtrl+P"));
+		#endif	// defined multispec_lin
+		
+		}	// end "if (selectionRectangleExistsFlag)"
+	
+	else	// !selectionRectangleExistsFlag 
 		{
 		#if defined multispec_mac 
 			SetMenuItemText (gMultiSpecMenus[kFileM], 
@@ -2387,19 +2384,20 @@ Boolean UpdateFileImagePrint (
 		#endif	// defined multispec_mac
 		
 		#if defined multispec_win 
-			pCmdUI->SetText ((LPCTSTR)_T("&Print Image...\tCtrl+P"));
+			pCmdUI->SetText ((LPCTSTR)_T ("&Print Image...\tCtrl+P"));
 		#endif	// defined multispec_win  
 		
 		#if defined multispec_lin
-			pCmdUI->SetText (wxT("&Print Image...\tCtrl+P"));
-		#endif	// defined multispec_lin   
+			pCmdUI->SetText (wxT ("&Print Image...\tCtrl+P"));
+		#endif	// defined multispec_lin
+		
 		}	// end "else !selectionRectangleExistsFlag"
 			
 				// If there is no image in the image window, then disable the	
 				// the save as menu item.						
 				           
 	#if defined multispec_mac 
-		if ( gActiveOffscreenMapExists )
+		if (gActiveOffscreenMapExists)
 			returnFlag = TRUE; 
 	#endif	// defined multispec_mac
 		
@@ -2415,7 +2413,7 @@ Boolean UpdateFileImagePrint (
 		
 	return (returnFlag);
 				
-}		// end "UpdateFileImagePrint"	
+}	// end "UpdateFileImagePrint"	
 
 
 
@@ -2437,7 +2435,7 @@ Boolean UpdateEditImageMapParameters (void)
 	
  	return (returnFlag);	
 				
-}		// end "UpdateEditImageMapParameters"
+}	// end "UpdateEditImageMapParameters"
 
 
 
@@ -2453,13 +2451,19 @@ Boolean UpdateEditClearOverlays (
 			return (TRUE);
 		#endif	// defined multispec_mac
 			
+		#if defined multispec_mac_swift
+			//SetUpClearOverlaysSubMenu (gMultiSpecMenus[kOverlaysM]);
+		
+			return (TRUE);
+		#endif	// defined multispec_mac
+
 		#if defined multispec_lin
 			if (pCmdUI != NULL)
 				SetUpClearOverlaysSubMenu (pCmdUI);
 		
 			if (gNumberImageOverlayFiles > 0)
 				return (TRUE);
-			else		// gNumberImageOverlayFiles == 0
+			else	// gNumberImageOverlayFiles == 0
 				return (FALSE);
 		#endif	// defined multispec_lin
 			
@@ -2469,13 +2473,13 @@ Boolean UpdateEditClearOverlays (
 		
 			if (gNumberImageOverlayFiles > 0)
 				return (TRUE);
-			else		// gNumberImageOverlayFiles == 0
+			else	// gNumberImageOverlayFiles == 0
 				return (FALSE);
 		#endif	// defined multispec_win
 		
-		}		// end "if (gNumberShapeFiles + gNumberImageOverlayFiles > 0)"
+		}	// end "if (gNumberShapeFiles + gNumberImageOverlayFiles > 0)"
 		
-	else		// gNumberShapeFiles == 0 && gNumberImageOverlayFiles == 0
+	else	// gNumberShapeFiles == 0 && gNumberImageOverlayFiles == 0
 		{	
 		#if defined multispec_lin
 			if (pCmdUI != NULL)
@@ -2489,9 +2493,9 @@ Boolean UpdateEditClearOverlays (
 
 		return (FALSE);
 		
-		}		// end "else gNumberShapeFiles == 0 && ..."
+		}	// end "else gNumberShapeFiles == 0 && ..."
 				
-}		// end "UpdateEditClearOverlays"	
+}	// end "UpdateEditClearOverlays"	
 
 
 
@@ -2511,7 +2515,7 @@ Boolean UpdateReformatChangeHeader (
 		 							kReformatChangeHeaderMenuItem, 
 		 							"\pChange Header...");
 	
-		else		// fileInfoPtr == NULL || fileInfoPtr->format == 0
+		else	// fileInfoPtr == NULL || fileInfoPtr->format == 0
 			SetMenuItemText (gMultiSpecMenus[kReformatM], 
 		 							kReformatChangeHeaderMenuItem, 
 		 							"\pInsert Header...");
@@ -2519,17 +2523,17 @@ Boolean UpdateReformatChangeHeader (
 	
 	#if defined multispec_win 
 		if (fileInfoPtr != NULL && fileInfoPtr->format != 0)
-			pCmdUI->SetText ((LPCTSTR)_T("Change Header..."));
+			pCmdUI->SetText ((LPCTSTR)_T ("Change Header..."));
 			
-		else		// fileInfoPtr == NULL || fileInfoPtr->format == 0 
-			pCmdUI->SetText ((LPCTSTR)_T("Insert Header..."));
+		else	// fileInfoPtr == NULL || fileInfoPtr->format == 0 
+			pCmdUI->SetText ((LPCTSTR)_T ("Insert Header..."));
 	#endif	// defined multispec_win
 	
 	if (!gFullVersionFlag ||
 			fileInfoPtr == NULL ||
 			windowInfoPtr == NULL ||
 			windowInfoPtr->numberImageFiles > 1 ||
-			fileInfoPtr->bandInterleave != kBIL )
+			fileInfoPtr->bandInterleave != kBIL)
 		returnFlag = FALSE;
 		
 			// Currently one can only add and modify headers for image files 		
@@ -2542,7 +2546,7 @@ Boolean UpdateReformatChangeHeader (
 		
 	return (returnFlag);
 				
-}		// end "UpdateReformatChangeHeader"	
+}	// end "UpdateReformatChangeHeader"	
 
 
 
@@ -2567,21 +2571,16 @@ Boolean UpdateReformatConvertShape (
 		
 	else 		// windowInfoPtr != NULL && ...
 		{
-		shapeFileIndex = abs(windowInfoPtr->overlayList[0].index) - 1;
+		shapeFileIndex = abs (windowInfoPtr->overlayList[0].index) - 1;
 		
-		shapeHandlePtr = (Handle*)GetHandlePointer(
-														gShapeFilesHandle, kNoLock, kNoMoveHi);
+		shapeHandlePtr = (Handle*)GetHandlePointer (gShapeFilesHandle);
 		
 		if (shapeHandlePtr != NULL)
 			shapeInfoPtr = (ShapeInfoPtr)GetHandlePointer (
-														shapeHandlePtr[shapeFileIndex],
-														kNoLock,
-														kNoMoveHi);	
+																	shapeHandlePtr[shapeFileIndex]);
 								
 		if (shapeInfoPtr != NULL)						
-			vectorDataPtr = (Ptr)GetHandlePointer (shapeInfoPtr->vectorDataHandle,
-														kNoLock,
-														kNoMoveHi);
+			vectorDataPtr = (Ptr)GetHandlePointer (shapeInfoPtr->vectorDataHandle);
 									
 		if (vectorDataPtr != NULL)
 			{						
@@ -2592,16 +2591,16 @@ Boolean UpdateReformatConvertShape (
 								arcViewRecordHeaderPtr->shapeType != 5)
 				returnFlag = FALSE;
 				
-			}		// end "if (vectorDataPtr != NULL)"
+			}	// end "if (vectorDataPtr != NULL)"
 		
-		else		// vectorDataPtr == NULL
+		else	// vectorDataPtr == NULL
 			returnFlag = FALSE;
 		
-		}		// end "else windowInfoPtr != NULL && ..."
+		}	// end "else windowInfoPtr != NULL && ..."
 		
 	return (returnFlag);
 				
-}		// end "UpdateReformatConvertShape"		
+}	// end "UpdateReformatConvertShape"		
 
 
 
@@ -2621,7 +2620,7 @@ Boolean UpdateReformatModifyChannel (
 		 							kReformatModifyChannelMenuItem, 
 		 							"\pModify Channel Descriptions...");
 	
-		else		// fileInfoPtr == NULL || !fileInfoPtr->descriptionsFlag
+		else	// fileInfoPtr == NULL || !fileInfoPtr->descriptionsFlag
 			SetMenuItemText (gMultiSpecMenus[kReformatM], 
 		 							kReformatModifyChannelMenuItem, 
 		 							"\pAdd Channel Descriptions...");
@@ -2629,18 +2628,18 @@ Boolean UpdateReformatModifyChannel (
 	
 	#if defined multispec_win 
 		if (fileInfoPtr != NULL && fileInfoPtr->descriptionsFlag)
-			pCmdUI->SetText ((LPCTSTR)_T("Modify Channel Descriptions..."));
+			pCmdUI->SetText ((LPCTSTR)_T ("Modify Channel Descriptions..."));
 			
-		else		// fileInfoPtr == NULL || !fileInfoPtr->descriptionsFlag
-			pCmdUI->SetText ((LPCTSTR)_T("Add Channel Descriptions..."));
+		else	// fileInfoPtr == NULL || !fileInfoPtr->descriptionsFlag
+			pCmdUI->SetText ((LPCTSTR)_T ("Add Channel Descriptions..."));
 	#endif	// defined multispec_win 
 
    #if defined multispec_lin
 		if (fileInfoPtr != NULL && fileInfoPtr->descriptionsFlag)
-			pCmdUI->SetText (_T("Modify Channel Descriptions..."));
+			pCmdUI->SetText (wxT ("Modify Channel Descriptions..."));
 			
-		else		// fileInfoPtr == NULL || !fileInfoPtr->descriptionsFlag
-			pCmdUI->SetText (_T("Add Channel Descriptions..."));
+		else	// fileInfoPtr == NULL || !fileInfoPtr->descriptionsFlag
+			pCmdUI->SetText (wxT ("Add Channel Descriptions..."));
 	#endif	// defined multispec_lin 
 	
 			// Make sure that the version is okay to allow channel descriptions
@@ -2651,7 +2650,7 @@ Boolean UpdateReformatModifyChannel (
 											fileInfoPtr->format == kErdas74Type ||
 											fileInfoPtr->format == kFastL7AType ||
 											fileInfoPtr->format == kENVIType ||
-											fileInfoPtr->format == kArcViewType ) )
+											fileInfoPtr->format == kArcViewType))
 		versionOKFlag = TRUE;
 									
 			// Do not allow this option for thematic images.							
@@ -2668,7 +2667,7 @@ Boolean UpdateReformatModifyChannel (
 		
 	return (returnFlag);
 				
-}		// end "UpdateReformatModifyChannel"	
+}	// end "UpdateReformatModifyChannel"	
 
 
 
@@ -2688,7 +2687,7 @@ Boolean UpdateReformatMosaicImages (
 									
 	return (returnFlag);
 				
-}		// end "UpdateReformatMosaicImages"	
+}	// end "UpdateReformatMosaicImages"	
 
 
 
@@ -2726,8 +2725,8 @@ Boolean UpdateReformatRecodeThematicImage (
 		headerFromGDALOKFlag = FALSE;
 		if (fileInfoPtr->gdalDataSetH == NULL ||
 				((fileInfoPtr->format == kTIFFType ||
-								fileInfoPtr->format == kGeoTIFFType) &&
-										fileInfoPtr->numberHeaderBytes > 0))
+						fileInfoPtr->format == kGeoTIFFType) &&
+								fileInfoPtr->numberHeaderBytes > 0))
 			headerFromGDALOKFlag = TRUE;
 
 		if (gFullVersionFlag &&
@@ -2740,11 +2739,11 @@ Boolean UpdateReformatRecodeThematicImage (
 										headerFromGDALOKFlag)
 			returnFlag = TRUE;
 								
-		}		// end "if (fileInfoPtr != NULL)"
+		}	// end "if (fileInfoPtr != NULL)"
 		
 	return (returnFlag);
 				
-}		// end "UpdateReformatRecodeThematicImage"
+}	// end "UpdateReformatRecodeThematicImage"
 
 
 
@@ -2759,19 +2758,19 @@ Boolean UpdateWindowCoordinateView (
 	                                                             
 	windowInfoHandle = GetActiveWindowInfoHandle (); 
 	windowType = GetWindowType (windowInfoHandle);
-	
-//	if (windowType == kStatisticsWindowType)
-//		{
-//		windowInfoHandle = GetActiveImageWindowInfoHandle ();
-//		windowType = GetWindowType (windowInfoHandle);
-//		
-//		}		// end "if (windowType == kStatisticsWindowType)"
+	/*
+	if (windowType == kStatisticsWindowType)
+		{
+		windowInfoHandle = GetActiveImageWindowInfoHandle ();
+		windowType = GetWindowType (windowInfoHandle);
 		
+		}	// end "if (windowType == kStatisticsWindowType)"
+	*/
 	if (windowType == kImageWindowType || windowType == kThematicWindowType)
 		{
 		returnFlag = TRUE;
 		
-		if (GetCoordinateHeight(windowInfoHandle) > 0)
+		if (GetCoordinateHeight (windowInfoHandle) > 0)
 			{
 			#if defined multispec_mac 
 				SetMenuItemText (gMultiSpecMenus[kWindowM], 
@@ -2780,14 +2779,14 @@ Boolean UpdateWindowCoordinateView (
 			#endif	// defined multispec_mac
 			
 			#if defined multispec_win 
-				pCmdUI->SetText ((LPCTSTR)_T("&Hide Coordinate View"));
+				pCmdUI->SetText ((LPCTSTR)_T ("&Hide Coordinate View"));
 			#endif	// defined multispec_win 
 			
 			#if defined multispec_lin 
-				pCmdUI->SetText (wxT("&Hide Coordinate View"));
+				pCmdUI->SetText (wxT ("&Hide Coordinate View"));
 			#endif	// defined multispec_lin 
 			}							
-		else		// coordinateHeight == 0
+		else	// coordinateHeight == 0
 			{
 			#if defined multispec_mac 
 				SetMenuItemText (gMultiSpecMenus[kWindowM], 
@@ -2796,17 +2795,17 @@ Boolean UpdateWindowCoordinateView (
 			#endif	// defined multispec_mac
 			
 			#if defined multispec_win 
-				pCmdUI->SetText ((LPCTSTR)_T("&Show Coordinate View"));
+				pCmdUI->SetText ((LPCTSTR)_T ("&Show Coordinate View"));
 			#endif	// defined multispec_win
 			
 			#if defined multispec_lin 
-				pCmdUI->SetText (wxT("&Show Coordinate View"));
+				pCmdUI->SetText (wxT ("&Show Coordinate View"));
 			#endif	// defined multispec_lin 
 			}
 		
-		}		// end "if (windowInfoPtr->windowType == kImageWindowType || ..."
+		}	// end "if (windowInfoPtr->windowType == kImageWindowType || ..."
 		
-	else		// windowType != kImageWindowType && ...
+	else	// windowType != kImageWindowType && ...
 		{
 		returnFlag = FALSE;
 		
@@ -2817,18 +2816,18 @@ Boolean UpdateWindowCoordinateView (
 		#endif	// defined multispec_mac
 		
 		#if defined multispec_win 
-			pCmdUI->SetText ((LPCTSTR)_T("&Show Coordinate View"));
+			pCmdUI->SetText ((LPCTSTR)_T ("&Show Coordinate View"));
 		#endif	// defined multispec_win
 		
 		#if defined multispec_lin 
-			pCmdUI->SetText (wxT("&Show Coordinate View"));
+			pCmdUI->SetText (wxT ("&Show Coordinate View"));
 		#endif	// defined multispec_lin 
 		
-		}		// end "else windowType != kImageWindowType && ..."
+		}	// end "else windowType != kImageWindowType && ..."
 	
  	return (returnFlag);	
 				
-}		// end "UpdateWindowCoordinateView"
+}	// end "UpdateWindowCoordinateView"
 
 
 
@@ -2843,8 +2842,8 @@ Boolean UpdateWindowSelectionGraph (void)
 		if (gNumberOfGWindows < kMaxNumberGWindows)
 			returnFlag = TRUE;
 			
-		}		// end "if (gActiveImageWindow != NULL)"
+		}	// end "if (gActiveImageWindow != NULL)"
 	
  	return (returnFlag);	
 				
-}		// end "UpdateWindowSelectionGraph"
+}	// end "UpdateWindowSelectionGraph"

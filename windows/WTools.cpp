@@ -7,44 +7,39 @@
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
-//					The following was put here for easy access to a template
-//		    		DebugStr ("\pMTools.c");
+//	File:						WTools.cpp
 //
-//	File:						MTools.c
+//	Revision date:			12/21/2007
+//
+//	Authors:					Larry L. Biehl
+//
+//	Revision number:		3.5
+//
+//	Language:				C
+//
+//	System:					Windows Operating System
+//
+//	Brief description:	Part of this code come from the Microsoft Foundation Classes C++ 
+//								library examples.
 //
 //	Functions in file:	
-//
-//	Brief description:	Display a pattern image file on the screen. 
-//
-// 							Part of this code come from the Microsoft Foundation Classes C++ 
-//								library examples.
 //
 //	Include files:			"MultiSpecHeaders"
 //								"multiSpec.h"
 //
-//	Language:				C
-//
-//	System:					Macintosh Operating System
-//
-//	Authors:					Larry L. Biehl
-//
-//	Revision number:		2.9
-//
-//	Revision date:			02/10/2007
-//
 //------------------------------------------------------------------------------------
 
-#include "SMulSpec.h"
+#include "SMultiSpec.h"
+
+#include "CDisplay.h"
+#include "CImageWindow.h"
 
 #include "WMultiSpec.h"
 #include "WTools.h"
-#include "CDisplay.h"
-#include "CImagVew.h"
-#include "CImagWin.h"
-#include "CDisplay.h"
-#include "WImagDoc.h"   
+#include "WImageView.h"
+#include "WImageDoc.h"   
 
-#include "SExtGlob.h" 		
+//#include "SExtGlob.h" 		
 
 extern void 			ComputeSelectionLineColumns (
 								DisplaySpecsPtr					displaySpecsPtr,

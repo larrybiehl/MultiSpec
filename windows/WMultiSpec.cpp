@@ -1,32 +1,34 @@
 // MultiSpec.cpp : Defines the class behaviors for the application.
-// Revised By:		Larry L. Biehl		Date: 03/27/2017
+// Revised By:		Larry L. Biehl		Date: 12/21/2017
 //
                   
-#include "SMulSpec.h"
-              
-#include "WMultiSpec.h"       
+#include "SMultiSpec.h"
+
 #include "CDisplay.h"      
-#include "CFileStr.h"
-#include "CImagVew.h"
-#include "CImagWin.h" 
-#include "WImagDoc.h"
-#include "WImagFrm.h" 
-#include "WStatDoc.h"
-#include "WStatFrm.h"
-#include "WStatVew.h"
+#include "CFileStream.h"
+#include "CImageWindow.h"
+
+#include "SGraphView.h"
+
+#include "WMultiSpec.h"
+#include "WImageView.h" 
+#include "WImageDoc.h"
+#include "WImageFrame.h" 
+#include "WStatisticsDoc.h"
+#include "WStatisticsFrame.h"
+#include "WStatisticsView.h"
 #include "WTextDoc.h"
-#include "WTextVew.h"
-#include "WTextFrm.h"
-#include "WGrafDoc.h"
-#include "SGrafVew.h"
-#include "WGrafFrm.h"
-#include "WMainFrm.h"
-#include "WFileDlg.h"
-#include	"WStatDlg.h"
-#include "WTLegend.h" 
+#include "WTextView.h"
+#include "WTextFrame.h"
+#include "WGraphDoc.h"
+#include "WGraphFrame.h"
+#include "WMainFrame.h"
+#include "WOpenFileDialog.h"
+#include	"WStatisticsDoc.h"
+#include "WLegendView.h" 
 #include "WTools.h"     
 
-#include "SDecGlob.h"
+#include "SDeclareGlobals.h"
 
 #include "IniReader.h"
 #include "IniWriter.h"
@@ -1081,7 +1083,7 @@ CMultiSpecApp::OpenImageFileWin (
 											thematicTypeFlag;
 */
 	
-	projectFileCode = OpenImageFile (localAppFilePtr);
+	projectFileCode = OpenImageFile (localAppFilePtr, FALSE, 0);
 /*		
 	doneFlag = FALSE;
 	disposeFileInfoHandleFlag = FALSE;

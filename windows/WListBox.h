@@ -1,4 +1,4 @@
-// wlistbox.h : header file
+// WListBox.h : header file
 //       
 
 #if !defined __WLISTBOX_H__

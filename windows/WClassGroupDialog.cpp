@@ -1,12 +1,12 @@
 // WClassGroupDialog.cpp : implementation file
 //   
-// Revised by Larry Biehl on 05/26/2017
+// Revised by Larry Biehl on 12/21/2017
 //
                    
-#include "SMulSpec.h" 
+#include "SMultiSpec.h" 
 #include "WClassGroupDialog.h"
-#include "CImagWin.h"
-#include	"SExtGlob.h"
+#include "CImageWindow.h"
+//#include	"SExtGlob.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE

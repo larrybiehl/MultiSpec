@@ -1,11 +1,11 @@
-// wlistbox.cpp : implementation file
+// WListBox.cpp : implementation file
 //
 
-#include	"SMulSpec.h"
+#include	"SMultiSpec.h"
 
 #include "WListBox.h"  
 
-#include "SExtGlob.h" 
+//#include "SExtGlob.h" 
 
 #ifdef _DEBUG
 #undef THIS_FILE

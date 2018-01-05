@@ -3,25 +3,23 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2017)
-//								(c) Purdue Research Foundation
+//								 Copyright (1988-2018)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	File:						SOther.cpp
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision number:		3.0
-//
-//	Revision date:			06/21/2017
+//	Revision date:			01/05/2018
 //
 //	Language:				C
 //
-//	System:					Macintosh and Windows Operating Systems
+//	System:					Linux, Macintosh, and Windows Operating Systems
 //
-//	Brief description:	This file contains functions that haven't been completed
-//								yet.  Users can use these as hooks for their own
-//								procedures.
+//	Brief description:	This file contains routines for listing the image
+//								description, evaluating the covariance matrices and 
+//								evaluating the transformation matrix.
 //
 //	Functions in file:	void 					EvaluateCovariancesControl
 //								Boolean 				EvaluateCovariancesDialog 
@@ -37,89 +35,93 @@
 //
 //	Include files:			"MultiSpecHeaders"
 //								"multiSpec.h"
+//
+//------------------------------------------------------------------------------------
 
-#include "SMulSpec.h"
+#include "SMultiSpec.h"
 
 #if defined multispec_lin
    #include "LEvaluateCovariancesDialog.h"
    #include "LEvaluateTransformationDialog.h"
 #endif // defined multispec_lin
 	
-#if defined multispec_mac
+#if defined multispec_mac || defined multispec_mac_swift
 	#define IDC_ListEigenvalues		4
 	#define IDC_ListTransform			5
 	#define IDC_CheckTransform			6
 	#define IDC_ListCheckMatrix		7
-#endif	// defined multispec_mac    
+#endif	// defined multispec_mac || defined multispec_mac_swift
 
 #if defined multispec_win 
-	#include "CImagVew.h"
-	#include "WCovEDlg.h"
-	#include "WTranDlg.h"
+	#include "WImageView.h"
+	#include "WEvaluateCovarianceDialog.h"
+	#include "WEvaluateTransformationDialog.h"
 #endif	// defined multispec_win
 
-#include "SExtGlob.h" 	
+//#include "SExtGlob.h" 	
 
 #define	kDoNotIncludeUTM						0
 #define	kIncludeUTM								1
 
-extern void 					EvaluateTransformationInitialize (
-										DialogPtr							dialogPtr,
-										EvaluateTransformSpecsPtr		evaluateTransformSpecsPtr,
-										Boolean*								listEigenvaluesFlagPtr,
-										Boolean*								listOriginalMatrixFlagPtr,
-										Boolean*								checkTransformationFlagPtr,
-										Boolean*								listOriginalXInvertedMatrixFlagPtr);
+
+
+extern void EvaluateTransformationInitialize (
+				DialogPtr							dialogPtr,
+				EvaluateTransformSpecsPtr		evaluateTransformSpecsPtr,
+				Boolean*								listEigenvaluesFlagPtr,
+				Boolean*								listOriginalMatrixFlagPtr,
+				Boolean*								checkTransformationFlagPtr,
+				Boolean*								listOriginalXInvertedMatrixFlagPtr);
 							
-extern void 					EvaluateTransformationOK (
-										EvaluateTransformSpecsPtr		evaluateTransformSpecsPtr,
-										Boolean								listEigenvaluesFlag,
-										Boolean								listOriginalMatrixFlag,
-										Boolean								checkTransformationFlag,
-										Boolean								listOriginalXInvertedMatrixFlag);
+extern void EvaluateTransformationOK (
+				EvaluateTransformSpecsPtr		evaluateTransformSpecsPtr,
+				Boolean								listEigenvaluesFlag,
+				Boolean								listOriginalMatrixFlag,
+				Boolean								checkTransformationFlag,
+				Boolean								listOriginalXInvertedMatrixFlag);
 
 
 
 			// Prototype descriptions for routines in this file that are only		
 			// called by routines in this file.
 
-Boolean 				EvaluateCovariancesDialog (
-							EvaluateCovarianceSpecsPtr		evaluateCovarianceSpecsPtr, 
-							FileInfoPtr							fileInfoPtr);
+Boolean EvaluateCovariancesDialog (
+				EvaluateCovarianceSpecsPtr		evaluateCovarianceSpecsPtr, 
+				FileInfoPtr							fileInfoPtr);
 
-Boolean 				EvaluateTransformationDialog (
-							EvaluateTransformSpecsPtr		evaluateTransformSpecsPtr);
+Boolean EvaluateTransformationDialog (
+				EvaluateTransformSpecsPtr		evaluateTransformSpecsPtr);
 
-void 					EvaluateCovariancesDialogOK (
-							EvaluateCovarianceSpecsPtr		evaluateCovarianceSpecsPtr,
-							Boolean								listOriginalMatrixFlag,
-							Boolean								listInvertedMatrixFlag,
-							Boolean								listOriginalXInvertedMatrixFlag,
-							Boolean								listInvertedInvertedMatrixFlag,
-							Boolean								featureTransformationFlag);
+void EvaluateCovariancesDialogOK (
+				EvaluateCovarianceSpecsPtr		evaluateCovarianceSpecsPtr,
+				Boolean								listOriginalMatrixFlag,
+				Boolean								listInvertedMatrixFlag,
+				Boolean								listOriginalXInvertedMatrixFlag,
+				Boolean								listInvertedInvertedMatrixFlag,
+				Boolean								featureTransformationFlag);
 
-void					ListCovarianceMatrix (
-							HDoublePtr 							covariancePtr, 
-							SInt16								numberChannels,
-							SInt16*								featurePtr,
-							SInt16*								channelsPtr,
-							SInt16								matrixType,
-							Boolean								transformationFlag);
+void ListCovarianceMatrix (
+				HDoublePtr 							covariancePtr, 
+				SInt16								numberChannels,
+				SInt16*								featurePtr,
+				SInt16*								channelsPtr,
+				SInt16								matrixType,
+				Boolean								transformationFlag);
 
-void					ListInstrumentName (
-							FileInfoPtr							fileInfoPtr);
+void ListInstrumentName (
+				FileInfoPtr							fileInfoPtr);
 								
-Boolean				ListLARSYSMISTHeaderInformation (
-							FileInfoPtr 						fileInfoPtr);
+Boolean ListLARSYSMISTHeaderInformation (
+				FileInfoPtr 						fileInfoPtr);
 							
-Boolean 				ListMapParameters (
-							FileInfoPtr							fileInfoPtr,
-							Boolean								listAllInformationFlag);
+Boolean ListMapParameters (
+				FileInfoPtr							fileInfoPtr,
+				Boolean								listAllInformationFlag);
 
-Boolean				LoadEvaluateCovariancesSpecs (
-							FileInfoPtr							fileInfoPtr);
+Boolean LoadEvaluateCovariancesSpecs (
+				FileInfoPtr							fileInfoPtr);
 
-Boolean				LoadEvaluateTransformationSpecs (void);
+Boolean LoadEvaluateTransformationSpecs (void);
 
 
 
@@ -196,7 +198,7 @@ void EvaluateCovariancesControl (void)
 			// routine.																			
 			
 	if (gMemoryTypeNeeded < 0)
-																							return;
+																									return;
 																							
 			// Code resources loaded okay, so set memory flag back for non-Code	
 			// resources.																			
@@ -204,7 +206,7 @@ void EvaluateCovariancesControl (void)
 	gMemoryTypeNeeded = 0;
 	
 	if (gProjectInfoPtr == NULL)
-																							return;
+																									return;
 	
 			// Initialize some local variables.												
 	
@@ -240,10 +242,8 @@ void EvaluateCovariancesControl (void)
 	
 	if (LoadEvaluateCovariancesSpecs (fileInfoPtr))
 		{
-		evaluateCovarianceSpecsPtr = (EvaluateCovarianceSpecsPtr)GetHandlePointer(
-													gProjectInfoPtr->evalCovarianceSpecsHandle,
-													kNoLock,
-													kNoMoveHi);
+		evaluateCovarianceSpecsPtr = (EvaluateCovarianceSpecsPtr)GetHandlePointer (
+													gProjectInfoPtr->evalCovarianceSpecsHandle);
 
 		continueFlag = EvaluateCovariancesDialog (evaluateCovarianceSpecsPtr, 
 																	fileInfoPtr);
@@ -266,7 +266,7 @@ void EvaluateCovariancesControl (void)
 									kSetupGlobalInfoPointersIfCan,
 									NULL);
 									
-			}		// end "if (continueFlag)" 
+			}	// end "if (continueFlag)" 
 										
 				// Get fileInfoPtr again in case it was changed.
 		
@@ -296,24 +296,24 @@ void EvaluateCovariancesControl (void)
 			
 			if (continueFlag)	 
 				continueFlag = SetupMatrixInversionMemory (numberFeatures,
-																		TRUE, 
-																		&invertedCovPtr, 
-																		&pivotPtr, 
-																		&indexRowPtr, 
-																		&indexColPtr, 
-																		&ipvotPtr);
+																			TRUE, 
+																			&invertedCovPtr, 
+																			&pivotPtr, 
+																			&indexRowPtr, 
+																			&indexColPtr, 
+																			&ipvotPtr);
 				
 					// Get pointer to memory to use for storage of reduced 			
 					// covariance matrix in square form.									
 			 
 			squareMatrixBytesNeeded = (UInt32)numberFeatureChannels *
-													numberFeatureChannels * sizeof(double);
+															numberFeatureChannels * sizeof (double);
 			if (continueFlag)
 				{		
 				utilityCovPtr = (HDoublePtr)MNewPointer (squareMatrixBytesNeeded);
 				continueFlag = (utilityCovPtr != NULL);
 				
-				}		// end "if (continueFlag)" 
+				}	// end "if (continueFlag)" 
 														
 					// If memory not full, allocate memory for a matrix  for the	
 					// result of the multiplication of the covariance and inverted	
@@ -326,7 +326,7 @@ void EvaluateCovariancesControl (void)
 
 				savedOutputMatrixPtr = outputMatrixPtr;
 				
-				}		// end "if (continueFlag)" 
+				}	// end "if (continueFlag)" 
 				
 					// Get pointer to memory to use for temporary storage for svd 			
 					// matrix inversion method.
@@ -336,21 +336,21 @@ void EvaluateCovariancesControl (void)
 				tempMatrixPtr = (HDoublePtr)MNewPointer (squareMatrixBytesNeeded);
 				continueFlag = (tempMatrixPtr != NULL);
 				
-				}		// end "if (continueFlag)"
+				}	// end "if (continueFlag)"
 														
 					// If memory not full, allocate memory for a the class 			
 					// channel statistics.														
 			
 			if (continueFlag)
 				{
-				bytesNeeded = (UInt32)numberFeatureChannels * sizeof(ChannelStatistics);
+				bytesNeeded = (UInt32)numberFeatureChannels * sizeof (ChannelStatistics);
 				classChannelStatsPtr = (HChannelStatisticsPtr)MNewPointer (bytesNeeded);
 				continueFlag = (classChannelStatsPtr != NULL);
 				
-				}		// end "if (continueFlag)" 
+				}	// end "if (continueFlag)" 
 		
 			if (continueFlag)			
-				continueFlag = SetupFeatureTransformationMemory ( 
+				continueFlag = SetupFeatureTransformationMemory (
 										evaluateCovarianceSpecsPtr->featureTransformationFlag, 
 										numberFeatures, 
 										numberFeatureChannels, 
@@ -361,7 +361,7 @@ void EvaluateCovariancesControl (void)
 										kLoadMatricesVectors,
 										(UInt16*)evaluateCovarianceSpecsPtr->featurePtr);
 										
-			}		// if (continueFlag) 
+			}	// if (continueFlag) 
 			
 		if (continueFlag)
 			{
@@ -377,7 +377,7 @@ void EvaluateCovariancesControl (void)
 											IDS_Utility6, 
 											gStatusDialogPtr, 
 											IDC_Status11, 
-											(Str255*)&gTextString);
+											(Str255*)gTextString);
 											
 					// Class
 					
@@ -385,7 +385,7 @@ void EvaluateCovariancesControl (void)
 											IDS_Utility7, 
 											gStatusDialogPtr, 
 											IDC_Status2, 
-											(Str255*)&gTextString);
+											(Str255*)gTextString);
 											
 			LoadDItemValue (gStatusDialogPtr, 
 									IDC_Status5, 
@@ -394,13 +394,13 @@ void EvaluateCovariancesControl (void)
 			ShowStatusDialogItemSet (kStatusClassA);
 			ShowStatusDialogItemSet (kStatusCommand);
 			
-			}		// end "if (continueFlag)" 
+			}	// end "if (continueFlag)" 
 	
 				// Continue with check, if memory is not full.							
 	
 		if (continueFlag)
 					// List the channels used.		
-			continueFlag = ListChannelsUsed ( 
+			continueFlag = ListChannelsUsed (
 										fileInfoPtr,
 										evaluateCovarianceSpecsPtr->featurePtr,
 										evaluateCovarianceSpecsPtr->channelsPtr,
@@ -418,34 +418,34 @@ void EvaluateCovariancesControl (void)
 			if (evaluateCovarianceSpecsPtr->listOriginalMatrixFlag ||
 					evaluateCovarianceSpecsPtr->listInvertedMatrixFlag ||
 					evaluateCovarianceSpecsPtr->listOriginalXInvertedMatrixFlag ||
-					evaluateCovarianceSpecsPtr->listInvertedInvertedMatrixFlag )
+					evaluateCovarianceSpecsPtr->listInvertedInvertedMatrixFlag)
 				{
-					// Get memory for a character buffer to be used in listing.  		
-					//		Allow 11 (12) digits for 'numberChannels' + 1 (left column for 	
-					//		channel index.	 
+						// Get memory for a character buffer to be used in listing.  		
+						//		Allow 11 (12) digits for 'numberChannels' + 1 (left column for 	
+						//		channel index.	 
 					
 				continueFlag = GetMemoryForListTransformation (numberFeatures, TRUE);
 				
-				}		// end "if (gCharBufferPtr1 == NULL)" 
+				}	// end "if (gCharBufferPtr1 == NULL)" 
 				
 					// Get the number of bytes in a square transformed 				
 					// class covariance matrix.												
 			 
 			squareMatrixBytesNeeded = 
-									(UInt32)numberFeatures * numberFeatures * sizeof(double);
+									(UInt32)numberFeatures * numberFeatures * sizeof (double);
 										
 					// List "  Output Information:"
 					
 			continueFlag = ListSpecifiedStringNumber (kSharedStrID, 
 																		IDS_Shared8, 
-																		(unsigned char*)&gTextString, 
+																		(unsigned char*)gTextString, 
 																		NULL, 
 																		gOutputForce1Code, 
 																		continueFlag);
 																		
-			}		// end "if (continueFlag)"
+			}	// end "if (continueFlag)"
 			
-		initialStartTime = time(NULL);
+		initialStartTime = time (NULL);
 			
 		if (continueFlag)
 			{				
@@ -455,7 +455,7 @@ void EvaluateCovariancesControl (void)
 						classIndex<evaluateCovarianceSpecsPtr->numberClasses;
 						classIndex++)
 				{
-				statClassNumber = evaluateCovarianceSpecsPtr->classPtr[ classIndex ] - 1;
+				statClassNumber = evaluateCovarianceSpecsPtr->classPtr[classIndex] - 1;
 				
 						// Get the class storage number.										
 							
@@ -464,47 +464,47 @@ void EvaluateCovariancesControl (void)
 						// Update status dialog box.											
 						
 				LoadDItemValue (gStatusDialogPtr, IDC_Status3, (SInt32)classIndex+1);
-				LoadDItemString ( 
+				LoadDItemString (
 						gStatusDialogPtr,
 						IDC_Status6, 
 						(Str255*)&gProjectInfoPtr->classNamesPtr[classStorage].name);
 						
 						// List the class name.												
 						
-				sprintf( (char*)&gTextString2, "                               ");
-				pstr( (char*)&gTextString2,
+				sprintf ((char*)gTextString2, "                               ");
+				pstr ((char*)gTextString2,
 						(char*)&gProjectInfoPtr->classNamesPtr[classStorage].name, 
 						&strLength);
 				gTextString2[strLength] = ' ';
 				gTextString2[kMaxClassFieldNameLength] = kNullTerminator;
-				sprintf( (char*)&gTextString, 
-									"    Class %3d: %s%s",
-									classIndex+1, 
-									gTextString2,
-									gEndOfLine);
+				sprintf ((char*)gTextString, 
+								"    Class %3d: %s%s",
+								classIndex+1, 
+								gTextString2,
+								gEndOfLine);
 											
-				continueFlag = ListString( (char*)&gTextString, 
-												strlen((char*)&gTextString),  
-												gOutputTextH);
+				continueFlag = ListString ((char*)gTextString, 
+													(UInt32)strlen ((char*)gTextString),  
+													gOutputTextH);
 
 						// Get the class covariance matrix - full form, not 			
 						// triangular.																
 
-				GetTransformedClassCovarianceMatrix ( 
-										numberFeatureChannels, 
-										classChannelStatsPtr, 
-										utilityCovPtr, 
-										(UInt16*)statFeaturePtr, 
-										statClassNumber,
-										kSquareOutputMatrix,
-										kMeanCovariance,
-										gTransformationMatrix.eigenVectorPtr,
-										outputMatrixPtr,
-										numberFeatures);
+				GetTransformedClassCovarianceMatrix (
+															numberFeatureChannels, 
+															classChannelStatsPtr, 
+															utilityCovPtr, 
+															(UInt16*)statFeaturePtr, 
+															statClassNumber,
+															kSquareOutputMatrix,
+															kMeanCovariance,
+															gTransformationMatrix.eigenVectorPtr,
+															outputMatrixPtr,
+															numberFeatures);
 								
 						// Exit loop if 'command period' is down.							
 						
-				if (!CheckSomeEvents (osMask+keyDownMask+updateMask+mDownMask+mUpMask) )
+				if (!CheckSomeEvents (osMask+keyDownMask+updateMask+mDownMask+mUpMask))
 					break;
 					
 						// List the covariance statistics.									
@@ -513,13 +513,12 @@ void EvaluateCovariancesControl (void)
 					{
 							// List " Original Covariance Matrix\r");
 
-					continueFlag = ListSpecifiedStringNumber ( 
-											kUtilitiesStrID, 
-											IDS_Utility8, 
-											(UCharPtr)&gTextString, 
-											NULL, 
-											kOutputWindowFormatCode, 
-											continueFlag );
+					continueFlag = ListSpecifiedStringNumber (kUtilitiesStrID, 
+																			IDS_Utility8, 
+																			(UCharPtr)gTextString, 
+																			NULL, 
+																			kOutputWindowFormatCode, 
+																			continueFlag);
 				
 					if (continueFlag)
 						ListCovarianceMatrix (
@@ -532,10 +531,10 @@ void EvaluateCovariancesControl (void)
 								
 							// Exit loop if 'command period' is down.						
 						
-					if (!CheckSomeEvents (osMask+keyDownMask+updateMask+mDownMask+mUpMask) )
+					if (!CheckSomeEvents (osMask+keyDownMask+updateMask+mDownMask+mUpMask))
 						break;
 						
-					}		// end "if (evaluateCovarianceSpecsPtr->listOriginalMatrixFlag)" 
+					}	// end "if (evaluateCovarianceSpecsPtr->listOriginalMatrixFlag)" 
 				
 							// Get another copy of the covariance matrix for 			
 							// inverting.															
@@ -544,12 +543,12 @@ void EvaluateCovariancesControl (void)
 								
 						// Exit loop if 'command period' is down.							
 						
-				if (!CheckSomeEvents (osMask+keyDownMask+updateMask+mDownMask+mUpMask) )
+				if (!CheckSomeEvents (osMask+keyDownMask+updateMask+mDownMask+mUpMask))
 					break;
 					
 						// Get start time of inversion.										
 						
-				startTime = time(NULL);
+				startTime = time (NULL);
 			
 						// Invert the covariance matrix.										
 						
@@ -568,11 +567,11 @@ void EvaluateCovariancesControl (void)
 											
 						// Get the end time for the inversion.								
 			
-				endTime = time(NULL);
+				endTime = time (NULL);
 			
 						// List the inversion statistics.									
 	
-				sprintf( (char*)&gTextString,
+				sprintf ((char*)gTextString,
 								"%s    Inverted Covariance Matrix.%s"
 								"     Det = %14.9e%s"
 								"     Log Det = %14.9g%s",
@@ -584,50 +583,50 @@ void EvaluateCovariancesControl (void)
 								gEndOfLine);
 					
 				if (continueFlag)
-					continueFlag = ListString( (char*)&gTextString,
-												strlen((char*)&gTextString),  
-												gOutputTextH);
+					continueFlag = ListString ((char*)gTextString,
+															(UInt32)strlen ((char*)gTextString),
+															gOutputTextH);
 													
-				sprintf( (char*)&gTextString,
+				sprintf ((char*)gTextString,
 								"     Rank of matrix = %hd%s", 
 								ipvotPtr[0],
 								gEndOfLine);
 					
 				if (continueFlag)
-					continueFlag = ListString( (char*)&gTextString,
-												strlen((char*)&gTextString),  
-												gOutputTextH);
+					continueFlag = ListString ((char*)gTextString,
+															(UInt32)strlen ((char*)gTextString),
+															gOutputTextH);
 				
 				index = ipvotPtr[0] - 1;
 				if (ipvotPtr[0] < (SInt16)numberFeatures)
 					index = ipvotPtr[0];
 					 									
-				sprintf( (char*)&gTextString,
+				sprintf ((char*)gTextString,
 								"     Smallest pivot value = %14.9g%s", 
-								pivotPtr[ index ],
+								pivotPtr[index],
 								gEndOfLine);
 					
 				if (continueFlag)
-					continueFlag = ListString( (char*)&gTextString,
-												strlen((char*)&gTextString),  
-												gOutputTextH);
+					continueFlag = ListString ((char*)gTextString,
+															(UInt32)strlen ((char*)gTextString),  
+															gOutputTextH);
 					
 						// List the time to do the matrix inversion to nearest 		
 						// second.																	
 				
-				sprintf( (char*)&gTextString, 
+				sprintf ((char*)gTextString, 
 							"     %ld CPU seconds for matrix inversion.%s",
 							(UInt32)(endTime-startTime),
 							gEndOfLine);
 							
 				if (continueFlag)
-					continueFlag = ListString( (char*)&gTextString,
-												strlen((char*)&gTextString),  
-												gOutputTextH);
+					continueFlag = ListString ((char*)gTextString,
+															(UInt32)strlen ((char*)gTextString),  
+															gOutputTextH);
 								
 						// Exit loop if 'command period' is down.							
 						
-				if (!CheckSomeEvents (osMask+keyDownMask+updateMask+mDownMask+mUpMask) )
+				if (!CheckSomeEvents (osMask+keyDownMask+updateMask+mDownMask+mUpMask))
 					break;
 				
 						// List the inverted covariance matrix if requested.			
@@ -665,23 +664,23 @@ void EvaluateCovariancesControl (void)
 						for (chan2=0; chan2<numberFeatures; chan2++)
 							{
 							if (chan1 == chan2)
-								theValue = fabs(1. - *outputMatrixPtr);
+								theValue = fabs (1. - *outputMatrixPtr);
 							
-							else		// chan1 != chan2 
-								theValue = fabs(0. - *outputMatrixPtr);
+							else	// chan1 != chan2 
+								theValue = fabs (0. - *outputMatrixPtr);
 								
 							error += theValue;
 							maxError = MAX (maxError, theValue);
 								
 							outputMatrixPtr++;
 							
-							}		// end "for (chan2=0; chan2<..." 
+							}	// end "for (chan2=0; chan2<..." 
 							
-						}		// end "for (chan1=0; chan1<numberFeatures;..." 
+						}	// end "for (chan1=0; chan1<numberFeatures;..." 
 			
 							// List the result of the multiplied matrices.				
 	
-					sprintf( (char*)&gTextString, 
+					sprintf ((char*)gTextString, 
 									"%s    Multiplied matrices."
 									"%s     Total error = %14.9e."
 									"%s     Average error = %14.9e."
@@ -696,8 +695,8 @@ void EvaluateCovariancesControl (void)
 									gEndOfLine);
 						
 					if (continueFlag)
-						continueFlag = ListString( (char*)&gTextString,
-																strlen((char*)&gTextString),  
+						continueFlag = ListString ((char*)gTextString,
+																(UInt32)strlen ((char*)gTextString),  
 																gOutputTextH);
 								
 							// Exit loop if 'command period' is down.						
@@ -724,7 +723,7 @@ void EvaluateCovariancesControl (void)
 						{
 								// Get start time of inversion.								
 								
-						startTime = time(NULL);
+						startTime = time (NULL);
 						
 						InvertSymmetricMatrix (invertedCovPtr, 
 														numberFeatures, 
@@ -738,16 +737,16 @@ void EvaluateCovariancesControl (void)
 											
 								// Get the end time for the inversion						
 					
-						endTime = time(NULL);
+						endTime = time (NULL);
 						
-						}		// end "if (continueFlag)" 
+						}	// end "if (continueFlag)" 
 									
 					if (gOperationCanceledFlag)
 						break;
 				
 							// List the inverted-inverted covariance matrix.			
 		
-					sprintf( (char*)&gTextString,
+					sprintf ((char*)gTextString,
 									"%s    Inverted-Inverted Covariance Matrix.%s"
 									"     Det = %14.9e.%s"
 									"     Log Det = %14.9g%s", 
@@ -759,20 +758,21 @@ void EvaluateCovariancesControl (void)
 									gEndOfLine);
 						
 					if (continueFlag)
-						continueFlag = ListString( (char*)&gTextString,
-											strlen((char*)&gTextString),  gOutputTextH);
+						continueFlag = ListString ((char*)gTextString,
+																(UInt32)strlen ((char*)gTextString),  
+																gOutputTextH);
 					
 							// List the time to do the matrix inversion to  			
 							// nearest second.													
 														
-					sprintf ((char*)&gTextString, 
+					sprintf ((char*)gTextString, 
 									"     %ld CPU seconds for matrix inversion.%s",
 									(UInt32)(endTime-startTime),
 									gEndOfLine);
 								
 					if (continueFlag)
-						continueFlag = ListString ( (char*)&gTextString,
-																strlen((char*)&gTextString),  
+						continueFlag = ListString ((char*)gTextString,
+																(UInt32)strlen ((char*)gTextString),  
 																gOutputTextH);
 								
 							// Exit loop if 'command period' is down.						
@@ -791,12 +791,12 @@ void EvaluateCovariancesControl (void)
 										1,
 										evaluateCovarianceSpecsPtr->featureTransformationFlag);
 					
-					}		// end "if (continueFlag)" 
+					}	// end "if (continueFlag)" 
 		
 						// Exit loop if user has "command period" down.					
 					
-				if ( !continueFlag || 
-						!CheckSomeEvents (osMask+keyDownMask+updateMask+mDownMask+mUpMask) )
+				if (!continueFlag || 
+						!CheckSomeEvents (osMask+keyDownMask+updateMask+mDownMask+mUpMask))
 					break; 
 					
 				if (eigenvectorMethodFlag)
@@ -807,13 +807,12 @@ void EvaluateCovariancesControl (void)
 						{
 								// List " Original Covariance Matrix\r");
 
-						continueFlag = ListSpecifiedStringNumber ( 
-										kUtilitiesStrID, 
-										IDS_Utility8, 
-										(UCharPtr)&gTextString, 
-										NULL, 
-										kOutputWindowFormatCode, 
-										continueFlag );
+						continueFlag = ListSpecifiedStringNumber (kUtilitiesStrID, 
+																				IDS_Utility8, 
+																				(UCharPtr)gTextString, 
+																				NULL, 
+																				kOutputWindowFormatCode, 
+																				continueFlag);
 					
 						if (continueFlag)
 							ListCovarianceMatrix (
@@ -826,25 +825,26 @@ void EvaluateCovariancesControl (void)
 									
 								// Exit loop if 'command period' is down.						
 							
-						if (!CheckSomeEvents (osMask+keyDownMask+updateMask+mDownMask+mUpMask) )
+						if (!CheckSomeEvents (
+												osMask+keyDownMask+updateMask+mDownMask+mUpMask))
 							break;
 							
-						}		// end "if (evaluateCovarianceSpecsPtr->listOriginalMatrixFlag)"
+						}	// end "if (evaluateCovarianceSpecsPtr->listOriginalMatrixFlag)"
 					
 							// Get another copy of the covariance matrix for inverting.															
 					
 					BlockMoveData (utilityCovPtr, invertedCovPtr, squareMatrixBytesNeeded);
 					
-					startTime = time(NULL);
+					startTime = time (NULL);
 						
 							// Now compute inverse using the eigenvector method.
 		
 					ComputeEigenvectors (invertedCovPtr,
-										numberFeatures, 
-										outputMatrixPtr,
-										ipvotPtr,
-										pivotPtr,
-										1);
+													numberFeatures, 
+													outputMatrixPtr,
+													ipvotPtr,
+													pivotPtr,
+													1);
 										
 							// Get the determinant and log determinant and invert the
 							// eigenvalues.	
@@ -859,14 +859,14 @@ void EvaluateCovariancesControl (void)
 						
 						if (theValue > 0)
 							{
-							logDeterminant += log(theValue);
+							logDeterminant += log (theValue);
 							pivotPtr[0] = theValue;
 						
 							theValue = 1./theValue;
 							
-							}		// end "if (theValue > 0)"
+							}	// end "if (theValue > 0)"
 							
-						else		// if (theValue <= 0)
+						else	// if (theValue <= 0)
 							break;
 								
 						index = chan1;
@@ -876,9 +876,9 @@ void EvaluateCovariancesControl (void)
 							index += numberFeatures;
 							outputMatrixPtr++;
 							
-							}		// end "for (chan2=0; chan2<..."
+							}	// end "for (chan2=0; chan2<..."
 							
-						}		// end "for (chan1=0; chan1<numberFeatures;..." 					
+						}	// end "for (chan1=0; chan1<numberFeatures;..." 					
 					
 					outputMatrixPtr = savedOutputMatrixPtr;				
 					MatrixMultiply (tempMatrixPtr,
@@ -894,51 +894,51 @@ void EvaluateCovariancesControl (void)
 												
 							// Get the end time for the inversion.								
 				
-					endTime = time(NULL);
+					endTime = time (NULL);
 				
 							// List the inversion statistics.									
 		
-					sprintf( (char*)&gTextString,
-						"%s    Inverted Covariance Matrix using Eigenvector Analysis.%s"
-						"     Det = %14.9e%s  Log Det = %14.9g%s", 
-						gEndOfLine,
-						gEndOfLine,
-						determinant,
-						gEndOfLine, 
-						logDeterminant,
-						gEndOfLine);
+					sprintf ((char*)gTextString,
+							"%s    Inverted Covariance Matrix using Eigenvector Analysis.%s"
+							"     Det = %14.9e%s  Log Det = %14.9g%s", 
+							gEndOfLine,
+							gEndOfLine,
+							determinant,
+							gEndOfLine, 
+							logDeterminant,
+							gEndOfLine);
 						
 					if (continueFlag)
-						continueFlag = ListString( (char*)&gTextString,
-													strlen((char*)&gTextString),  
-													gOutputTextH);
+						continueFlag = ListString ((char*)gTextString,
+																(UInt32)strlen ((char*)gTextString),  
+																gOutputTextH);
 						 									
-					sprintf( (char*)&gTextString,
-						"     Smallest pivot value = %14.9g%s", 
-						pivotPtr[0],
-						gEndOfLine);
+					sprintf ((char*)gTextString,
+									"     Smallest pivot value = %14.9g%s", 
+									pivotPtr[0],
+									gEndOfLine);
 						
 					if (continueFlag)
-						continueFlag = ListString( (char*)&gTextString,
-													strlen((char*)&gTextString),  
-													gOutputTextH);
+						continueFlag = ListString ((char*)gTextString,
+																(UInt32)strlen ((char*)gTextString),  
+																gOutputTextH);
 						
 							// Print the time to do the matrix inversion to nearest 		
 							// second.																	
 														
-					sprintf( (char*)&gTextString, 
+					sprintf ((char*)gTextString, 
 								"     %ld CPU seconds for matrix inversion.%s",
 								(UInt32)(endTime-startTime),
 								gEndOfLine);
 								
 					if (continueFlag)
-						continueFlag = ListString( (char*)&gTextString,
-													strlen((char*)&gTextString),  
-													gOutputTextH);
+						continueFlag = ListString ((char*)gTextString,
+																(UInt32)strlen ((char*)gTextString),  
+																gOutputTextH);
 									
 							// Exit loop if 'command period' is down.							
 							
-					if (!CheckSomeEvents (osMask+keyDownMask+updateMask+mDownMask+mUpMask) )
+					if (!CheckSomeEvents (osMask+keyDownMask+updateMask+mDownMask+mUpMask))
 						break;
 					
 							// List the inverted covariance matrix if requested.			
@@ -976,23 +976,23 @@ void EvaluateCovariancesControl (void)
 							for (chan2=0; chan2<numberFeatures; chan2++)
 								{
 								if (chan1 == chan2)
-									theValue = fabs(1. - *outputMatrixPtr);
+									theValue = fabs (1. - *outputMatrixPtr);
 								
-								else		// chan1 != chan2 
-									theValue = fabs(0. - *outputMatrixPtr);
+								else	// chan1 != chan2 
+									theValue = fabs (0. - *outputMatrixPtr);
 									
 								error += theValue;
 								maxError = MAX (maxError, theValue);
 									
 								outputMatrixPtr++;
 								
-								}		// end "for (chan2=0; chan2<..." 
+								}	// end "for (chan2=0; chan2<..." 
 								
-							}		// end "for (chan1=0; chan1<numberFeatures;..." 
+							}	// end "for (chan1=0; chan1<numberFeatures;..." 
 				
 								// List the result of the multiplied matrices.				
 		
-						sprintf( (char*)&gTextString, 
+						sprintf ((char*)gTextString, 
 										"%s    Multiplied matrices.%s"
 										"     Total error = %10.5e.%s"
 										"     Average error = %10.5e.%s"
@@ -1007,12 +1007,13 @@ void EvaluateCovariancesControl (void)
 										gEndOfLine);
 							
 						if (continueFlag)
-							continueFlag = ListString ( (char*)&gTextString,
-																	strlen((char*)&gTextString),  
+							continueFlag = ListString ((char*)gTextString,
+																	(UInt32)strlen ((char*)gTextString),  
 																	gOutputTextH);
 						
 						outputMatrixPtr = savedOutputMatrixPtr;
-						if (continueFlag && evaluateCovarianceSpecsPtr->listOriginalXInvertedMatrixFlag)
+						if (continueFlag && 
+								evaluateCovarianceSpecsPtr->listOriginalXInvertedMatrixFlag)
 							ListCovarianceMatrix (
 										outputMatrixPtr, 
 										numberFeatures,
@@ -1021,7 +1022,7 @@ void EvaluateCovariancesControl (void)
 										1,
 										evaluateCovarianceSpecsPtr->featureTransformationFlag);
 													
-						}		// end "if (continueFlag)"
+						}	// end "if (continueFlag)"
 								
 							// Exit loop if 'command period' is down.						
 						
@@ -1029,7 +1030,7 @@ void EvaluateCovariancesControl (void)
 						continueFlag = CheckSomeEvents (
 												osMask+keyDownMask+updateMask+mDownMask+mUpMask);
 						
-					}		// end "if (eigenvectorMethodFlag)"
+					}	// end "if (eigenvectorMethodFlag)"
 		
 				if (classIndex != evaluateCovarianceSpecsPtr->numberClasses-1)
 					{
@@ -1047,68 +1048,67 @@ void EvaluateCovariancesControl (void)
 															gOutputForce1Code,
 															continueFlag);
 															
-					}		// end "if (classIndex != 0" 
+					}	// end "if (classIndex != 0" 
 				
-				}		// end "for (classIndex != ...->numberClasses-1)" 
+				}	// end "for (classIndex != ...->numberClasses-1)" 
 				
 			gCharBufferPtr1 = CheckAndDisposePtr (gCharBufferPtr1);
-					
+			/*		
 					// Do several matrix inversions to test timing						
 					// Get start time for loop.												
 			
-//			loopCount = 100;		
-//			startTime = time(NULL);
-//			
-//			for (index=0; index<loopCount; index++)
-//				{
-//				determinant = InvertSymmetricMatrix ( utilityCovPtr, 
-//									numberUtilityChannels, pivotPtr, indexRowPtr, 
-//																	indexColPtr, ipvotPtr);
-//									
-//				if (gOperationCanceledFlag)
-//					break;
-//					
-//				}
-//			
-//			endTime = time(NULL);
-//			sprintf( (char*)&gTextString, 
-//							"%ld CPU seconds for %ld original matrix inversions\r",
-//							endTime-startTime, loopCount);
-//			if (continueFlag)
-//				continueFlag = ListString( (char*)&gTextString,
-//												strlen((char*)&gTextString),  gOutputTextH);		
+			loopCount = 100;		
+			startTime = time (NULL);
 			
+			for (index=0; index<loopCount; index++)
+				{
+				determinant = InvertSymmetricMatrix (utilityCovPtr, 
+									numberUtilityChannels, pivotPtr, indexRowPtr, 
+																	indexColPtr, ipvotPtr);
+									
+				if (gOperationCanceledFlag)
+					break;
+					
+				}
+			
+			endTime = time (NULL);
+			sprintf ((char*)gTextString, 
+							"%ld CPU seconds for %ld original matrix inversions\r",
+							endTime-startTime, loopCount);
+			if (continueFlag)
+				continueFlag = ListString ((char*)gTextString,
+												strlen ((char*)gTextString),  gOutputTextH);		
+			*/
 					// Add blank line at the end of the text window.
 						
-			sprintf( (char*)&gTextString, "%s", gEndOfLine);
-			continueFlag = OutputString( (CMFileStream*)NULL, 
-												(char*)gTextString, 
-												gNumberOfEndOfLineCharacters, 
-												gOutputForce1Code, 
-												continueFlag);
+			sprintf ((char*)gTextString, "%s", gEndOfLine);
+			continueFlag = OutputString ((CMFileStream*)NULL, 
+													(char*)gTextString, 
+													gNumberOfEndOfLineCharacters, 
+													gOutputForce1Code, 
+													continueFlag);
 					
 					// List the CPU time taken for the checking covariances.			
 					
 			continueFlag = ListCPUTimeInformation (
-													NULL, continueFlag, initialStartTime);
+														NULL, continueFlag, initialStartTime);
 										
-			}		// end "if (continueFlag)"
+			}	// end "if (continueFlag)"
 			
 				// Free other memory.															
 			
-		classChannelStatsPtr = (HChannelStatisticsPtr)CheckAndDisposePtr ( 
-												(Ptr)classChannelStatsPtr );
-		tempMatrixPtr = CheckAndDisposePtr (tempMatrixPtr);
-		outputMatrixPtr = CheckAndDisposePtr (outputMatrixPtr);
-		utilityCovPtr = CheckAndDisposePtr (utilityCovPtr);
+		CheckAndDisposePtr ((Ptr)classChannelStatsPtr);
+		CheckAndDisposePtr (tempMatrixPtr);
+		CheckAndDisposePtr (outputMatrixPtr);
+		CheckAndDisposePtr (utilityCovPtr);
 			
 				// Free memory used for matrix inversions.							
 				
-		indexRowPtr = CheckAndDisposePtr (indexRowPtr);
-		indexColPtr = CheckAndDisposePtr (indexColPtr);
-		ipvotPtr = CheckAndDisposePtr (ipvotPtr);
-		invertedCovPtr = CheckAndDisposePtr (invertedCovPtr);
-		pivotPtr = CheckAndDisposePtr (pivotPtr); 
+		CheckAndDisposePtr (indexRowPtr);
+		CheckAndDisposePtr (indexColPtr);
+		CheckAndDisposePtr (ipvotPtr);
+		CheckAndDisposePtr (invertedCovPtr);
+		CheckAndDisposePtr (pivotPtr); 
 	
 				// Release memory for transformation matrix information.				
 				
@@ -1118,7 +1118,7 @@ void EvaluateCovariancesControl (void)
 		CheckAndUnlockHandle (evaluateCovarianceSpecsPtr->channelsHandle);
 		CheckAndUnlockHandle (evaluateCovarianceSpecsPtr->classHandle);
 			
-		}		// end "if ( LoadEvaluateCovariancesSpecs (fileInfoPtr) )" 
+		}	// end "if (LoadEvaluateCovariancesSpecs (fileInfoPtr))" 
 		
 	UnlockProjectWindowInfoHandles ();
 	
@@ -1139,7 +1139,7 @@ void EvaluateCovariancesControl (void)
 							
 	MInitCursor ();
 
-}		// end "EvaluateCovariancesControl" 
+}	// end "EvaluateCovariancesControl" 
 
 
 
@@ -1178,14 +1178,7 @@ Boolean EvaluateCovariancesDialog (
 	
 	DialogPtr							dialogPtr;
 	UserItemUPP							drawChannelsPopUp2Ptr;
-/*										
-	#ifdef powerc
-		RoutineDescriptor					drawChannelsPopUp2RD = 
-																BUILD_ROUTINE_DESCRIPTOR(
-																			uppUserItemProcInfo, 
-																			DrawChannelsPopUp2);
-	#endif
-*/	
+
 	Handle								okHandle,
 											theHandle;
 									
@@ -1202,19 +1195,13 @@ Boolean EvaluateCovariancesDialog (
 	
 			// Get the modal dialog for the reformat specification					
 				
-	dialogPtr = LoadRequestedDialog ( 
+	dialogPtr = LoadRequestedDialog (
 							kEvaluateCovarianceSpecificationID, kCopyScrap, 1, 2);
 	if (dialogPtr == NULL)											
-																				return(FALSE);
+																				return (FALSE);
 		
 			// Intialize local user item proc pointers.									
-/*										
-	#ifdef powerc
-		drawChannelsPopUp2Ptr = &drawChannelsPopUp2RD;
-	#else
-		drawChannelsPopUp2Ptr = DrawChannelsPopUp2;
-	#endif
-*/	
+
 	drawChannelsPopUp2Ptr = NewUserItemUPP (DrawChannelsPopUp2);
 	
 			// Save handle for the OK button for use later.								
@@ -1225,26 +1212,26 @@ Boolean EvaluateCovariancesDialog (
 			
 	SetDLogControl (dialogPtr, 
 							4, 
-							(short int)evaluateCovarianceSpecsPtr->listOriginalMatrixFlag);
+							(SInt16)evaluateCovarianceSpecsPtr->listOriginalMatrixFlag);
 	
 			// Set flag for listing the inverted matrix.					
 			
 	SetDLogControl (dialogPtr, 
 							5, 
-							(short int)evaluateCovarianceSpecsPtr->listInvertedMatrixFlag);
+							(SInt16)evaluateCovarianceSpecsPtr->listInvertedMatrixFlag);
 	
 			// Set flag for listing the original covariance matrix		
 			//          multiplied by the inverted matrix, i.e. identity matrix.	
 			
 	SetDLogControl (dialogPtr, 
 							6, 
-							(short int)evaluateCovarianceSpecsPtr->listOriginalXInvertedMatrixFlag);
+							(SInt16)evaluateCovarianceSpecsPtr->listOriginalXInvertedMatrixFlag);
 	
 			// Set flag for listing the inverted-inverted covariance matrix.																	
 			
 	SetDLogControl (dialogPtr, 
 							7, 
-							(short int)evaluateCovarianceSpecsPtr->listInvertedInvertedMatrixFlag);
+							(SInt16)evaluateCovarianceSpecsPtr->listInvertedInvertedMatrixFlag);
 		
 			// Set the check box for the feature transformation option.				
 			
@@ -1255,17 +1242,16 @@ Boolean EvaluateCovariancesDialog (
 		featureTransformationFlag = FALSE;
 		HideDialogItem (dialogPtr, 8);
 		
-		}		// end "if (numberEigenvectors <= 0)" 
+		}	// end "if (numberEigenvectors <= 0)" 
 		
-	else		// numberEigenvectors > 0 
+	else	// numberEigenvectors > 0 
 		featureTransformationFlag = evaluateCovarianceSpecsPtr->featureTransformationFlag;
 									
-	CheckFeatureTransformationDialog (
-							dialogPtr, 
-							featureTransformAllowedFlag,
-							8, 
-							9, 
-							&featureTransformationFlag);
+	CheckFeatureTransformationDialog (dialogPtr, 
+													featureTransformAllowedFlag,
+													8, 
+													9, 
+													&featureTransformationFlag);
 	
 			//	Set drawing routine for the channel popup box.							
 			//	Make all channels the default													
@@ -1282,7 +1268,7 @@ Boolean EvaluateCovariancesDialog (
 			// Center the dialog and then show it.											
 			
 	ShowDialogWindow (
-		dialogPtr, kEvaluateCovarianceSpecificationID, kDoNotSetUpDFilterTable);
+				dialogPtr, kEvaluateCovarianceSpecificationID, kDoNotSetUpDFilterTable);
 	
 	modalDone = FALSE;
 	itemHit = 0;
@@ -1301,19 +1287,17 @@ Boolean EvaluateCovariancesDialog (
 				case 5:				// List inverted matrix. 
 				case 6:				// List original x inverted matrix. 
 				case 7:				// List inverted-inverted matrix. 
-					ChangeDLogCheckBox ( (ControlHandle)theHandle );
-						
+					ChangeDLogCheckBox ((ControlHandle)theHandle);
 					break;
 						
 				case 8:		// Feature transformation flag. 
-					ChangeDLogCheckBox ( (ControlHandle)theHandle );
+					ChangeDLogCheckBox ((ControlHandle)theHandle);
 					featureTransformationFlag = !featureTransformationFlag;
-					CheckFeatureTransformationDialog (
-															dialogPtr, 
-															featureTransformAllowedFlag,
-															8, 
-															9, 
-															&featureTransformationFlag);
+					CheckFeatureTransformationDialog (dialogPtr, 
+																	featureTransformAllowedFlag,
+																	8, 
+																	9, 
+																	&featureTransformationFlag);
 					break;
 					
 				case 10:		// Channels/features 
@@ -1343,17 +1327,17 @@ Boolean EvaluateCovariancesDialog (
 							
 						HiliteControl ((ControlHandle)okHandle, 0);
 						
-						if ( 	featureTransformationFlag && 
+						if (featureTransformationFlag && 
 								(evaluateCovarianceSpecsPtr->numberFeatures ==
-												gTransformationMatrix.numberFeatures) )
+												gTransformationMatrix.numberFeatures))
 							itemHit = kAllMenuItem;
 													
-						if ( 	!featureTransformationFlag &&
+						if (!featureTransformationFlag &&
 								(evaluateCovarianceSpecsPtr->numberFeatures ==
-												gProjectInfoPtr->numberStatisticsChannels) )
+													gProjectInfoPtr->numberStatisticsChannels))
 							itemHit = kAllMenuItem;
 							
-						}		// end "if (itemHit == kSubsetMenuItem)" 
+						}	// end "if (itemHit == kSubsetMenuItem)" 
 					
 					if (itemHit != 0)
 						gChannelSelection = itemHit;
@@ -1361,8 +1345,7 @@ Boolean EvaluateCovariancesDialog (
 							// Make certain that the correct label is drawn in the	
 							// channel pop up box.												
 					
-//					InvalRect (&theBox);
-					InvalWindowRect ( GetDialogWindow(dialogPtr), &theBox );
+					InvalWindowRect (GetDialogWindow (dialogPtr), &theBox);
 					break;
 					
 				case 12:		// Classes 
@@ -1378,13 +1361,13 @@ Boolean EvaluateCovariancesDialog (
 								// Subset of classes to be used.
 						
 						itemHit = ClassDialog (&evaluateCovarianceSpecsPtr->numberClasses,
-													evaluateCovarianceSpecsPtr->classPtr, 
-													1,
-													gProjectInfoPtr->numberStatisticsClasses,
-													gClassSelection,
-													okHandle);
+														evaluateCovarianceSpecsPtr->classPtr, 
+														1,
+														gProjectInfoPtr->numberStatisticsClasses,
+														gClassSelection,
+														okHandle);
 							
-						}		// end "if (itemHit == kSubsetMenuItem)" 
+						}	// end "if (itemHit == kSubsetMenuItem)" 
 					
 					if (itemHit != 0)
 						gClassSelection = itemHit;
@@ -1392,14 +1375,14 @@ Boolean EvaluateCovariancesDialog (
 							// Make certain that the correct label is drawn in the	
 							// class pop up box.													
 					
-					InvalWindowRect ( GetDialogWindow(dialogPtr), &theBox );
+					InvalWindowRect (GetDialogWindow (dialogPtr), &theBox);
 					break;
 						
-				}		// end "switch (itemHit)" 
+				}	// end "switch (itemHit)" 
 				
-			}		// end "if (itemHit > 2)" 
+			}	// end "if (itemHit > 2)" 
 			
-		else		// itemHit <= 2 
+		else	// itemHit <= 2 
 			{
 				
 			if	(itemHit == 1)      // User selected OK for information 
@@ -1407,26 +1390,25 @@ Boolean EvaluateCovariancesDialog (
 				modalDone = TRUE;
 				returnFlag = TRUE;   	
 
-				EvaluateCovariancesDialogOK (
-										evaluateCovarianceSpecsPtr,
-										GetDLogControl (dialogPtr, 4),
-										GetDLogControl (dialogPtr, 5),
-										GetDLogControl (dialogPtr, 6),
-										GetDLogControl (dialogPtr, 7),
-										featureTransformationFlag);
+				EvaluateCovariancesDialogOK (evaluateCovarianceSpecsPtr,
+														GetDLogControl (dialogPtr, 4),
+														GetDLogControl (dialogPtr, 5),
+														GetDLogControl (dialogPtr, 6),
+														GetDLogControl (dialogPtr, 7),
+														featureTransformationFlag);
 																
-				}		// end "if (itemHit == 1)" 
+				}	// end "if (itemHit == 1)" 
 				
 			if	(itemHit == 2)      // User selected Cancel for information 
 				{
 				modalDone = TRUE;
 				returnFlag = FALSE;
 				
-				}		// end "if	(itemHit == 2)" 
+				}	// end "if	(itemHit == 2)" 
 			
-			}		// end "else itemHit <= 2" 
+			}	// end "else itemHit <= 2" 
 				
-		} while (!modalDone);
+		}	while (!modalDone);
 		
 	DisposeUserItemUPP (drawChannelsPopUp2Ptr);
 		
@@ -1438,16 +1420,16 @@ Boolean EvaluateCovariancesDialog (
 			
 		TRY
 			{ 
-			dialogPtr = new CMEvalCovarianceDialog(); 
+			dialogPtr = new CMEvalCovarianceDialog (); 
 				
 			returnFlag = dialogPtr->DoDialog (evaluateCovarianceSpecsPtr); 
 			                       
 			delete dialogPtr;
 			}
 				
-		CATCH_ALL(e)
+		CATCH_ALL (e)
 			{
-			MemoryMessage(0, kObjectMessage);
+			MemoryMessage (0, kObjectMessage);
 			returnFlag = FALSE;
 			}
 		END_CATCH_ALL  	
@@ -1456,7 +1438,7 @@ Boolean EvaluateCovariancesDialog (
 	#if defined multispec_lin
    	CMEvalCovarianceDialog*		dialogPtr = NULL;  
    
-      dialogPtr = new CMEvalCovarianceDialog(); 
+      dialogPtr = new CMEvalCovarianceDialog (); 
 				
 		returnFlag = dialogPtr->DoDialog (evaluateCovarianceSpecsPtr); 
       //returnFlag = TRUE;
@@ -1466,7 +1448,7 @@ Boolean EvaluateCovariancesDialog (
 	
 	return (returnFlag);
 
-}		// end "EvaluateCovariancesDialog"  
+}	// end "EvaluateCovariancesDialog"  
 
 									
 
@@ -1509,31 +1491,31 @@ void EvaluateCovariancesDialogOK (
 		evaluateCovarianceSpecsPtr->listInvertedMatrixFlag = listInvertedMatrixFlag;
 
 		evaluateCovarianceSpecsPtr->listOriginalXInvertedMatrixFlag = 
-													listOriginalXInvertedMatrixFlag;
+																	listOriginalXInvertedMatrixFlag;
 
 		evaluateCovarianceSpecsPtr->listInvertedInvertedMatrixFlag = 
-													listInvertedInvertedMatrixFlag;
+																	listInvertedInvertedMatrixFlag;
 				
 				// Feature transformation option.									
 						
 		evaluateCovarianceSpecsPtr->featureTransformationFlag = 
-															featureTransformationFlag;
+																	featureTransformationFlag;
 					
 				// Channels	or features													
 
 		evaluateCovarianceSpecsPtr->channelSet = gChannelSelection;
 		if (gChannelSelection == kAllMenuItem)	// All channels or features
 			LoadFeatureVector (featureTransformationFlag,
-									(SInt16*)&evaluateCovarianceSpecsPtr->numberFeatures,
-									evaluateCovarianceSpecsPtr->featurePtr,
-									gProjectInfoPtr->numberStatisticsChannels);
+										(SInt16*)&evaluateCovarianceSpecsPtr->numberFeatures,
+										evaluateCovarianceSpecsPtr->featurePtr,
+										gProjectInfoPtr->numberStatisticsChannels);
 															
 		LoadChannelsVector (kProject,
-				featureTransformationFlag,
-				evaluateCovarianceSpecsPtr->numberFeatures, 
-				evaluateCovarianceSpecsPtr->featurePtr,
-				(SInt16*)&evaluateCovarianceSpecsPtr->numberChannels, 
-				evaluateCovarianceSpecsPtr->channelsPtr);
+									featureTransformationFlag,
+									evaluateCovarianceSpecsPtr->numberFeatures, 
+									evaluateCovarianceSpecsPtr->featurePtr,
+									(SInt16*)&evaluateCovarianceSpecsPtr->numberChannels, 
+									evaluateCovarianceSpecsPtr->channelsPtr);
 					
 				// Classes																	
 
@@ -1543,9 +1525,9 @@ void EvaluateCovariancesDialogOK (
 											&evaluateCovarianceSpecsPtr->classSet, 
 											evaluateCovarianceSpecsPtr->classPtr);
 											
-		}		// end "if (evaluateCovarianceSpecsPtr != NULL)"
+		}	// end "if (evaluateCovarianceSpecsPtr != NULL)"
 
-}		// end "EvaluateCovariancesDialogOK"  
+}	// end "EvaluateCovariancesDialogOK"  
 
 
 
@@ -1602,7 +1584,7 @@ void EvaluateTransformationControl (void)
 			// routine.																				
 			
 	if (gMemoryTypeNeeded < 0 || gTransformationMatrix.numberChannels <= 0)
-																							return;
+																								return;
 																							
 			// Code resources loaded okay, so set memory flag back for non-Code	
 			// resources.																			
@@ -1617,18 +1599,14 @@ void EvaluateTransformationControl (void)
 	
 			// Set up evaluate transformation specification structure.				
 	
-	if (LoadEvaluateTransformationSpecs())
+	if (LoadEvaluateTransformationSpecs ())
 		{
-		evalTransformationSpecsPtr = 
-						(EvaluateTransformSpecsPtr)GetHandlePointer(
-										gNonProjProcessorSpecs.evalTransformationSpecsH,
-										kLock,
-										kNoMoveHi);
+		evalTransformationSpecsPtr = (EvaluateTransformSpecsPtr)GetHandlePointer (
+												gNonProjProcessorSpecs.evalTransformationSpecsH,
+												kLock);
 
       if (EvaluateTransformationDialog (evalTransformationSpecsPtr))
-		{
-
-      
+			{
 					// Initialize local variables												
 						
 			numberChannels = gTransformationMatrix.numberChannels;
@@ -1641,35 +1619,31 @@ void EvaluateTransformationControl (void)
 				continueFlag = GetMemoryForListTransformation (
 						numberChannels, 
 						(evalTransformationSpecsPtr->listTransformFlag ||
-								evalTransformationSpecsPtr->listTransformXTposedTransformFlag) );
+								evalTransformationSpecsPtr->listTransformXTposedTransformFlag));
 			
 			if (continueFlag && evalTransformationSpecsPtr->checkTransformationFlag)
 				{		
-						// Get pointer to memory to use for storage multiplied 		
-						// matrix.																	
+						// Get pointer to memory to use for storage multiplied matrix.																	
 					
-				numberBytes = (UInt32)numberChannels * numberChannels * sizeof(double);
+				numberBytes = (UInt32)numberChannels * numberChannels * sizeof (double);
 				outputMatrixPtr = (HDoublePtr)MNewPointer (numberBytes);
 				continueFlag = (outputMatrixPtr != NULL);
 
 				savedOutputMatrixPtr = outputMatrixPtr;
 				
-				}		// end "if (continueFlag && ...)" 
+				}	// end "if (continueFlag && ...)" 
 				
-			eigenvectorPtr	= (HDoublePtr)GetHandlePointer(
-													gTransformationMatrix.eigenVectorHandle,
-													kLock,
-													kNoMoveHi);
+			eigenvectorPtr	= (HDoublePtr)GetHandlePointer (
+															gTransformationMatrix.eigenVectorHandle,
+															kLock);
 				
-			eigenvaluePtr= (HDoublePtr)GetHandlePointer(
-													gTransformationMatrix.eigenValueHandle,
-													kLock,
-													kNoMoveHi);
+			eigenvaluePtr= (HDoublePtr)GetHandlePointer (
+															gTransformationMatrix.eigenValueHandle,
+															kLock);
 			
-			channelsPtr = (SInt16*)GetHandlePointer(
-													gTransformationMatrix.eigenFeatureHandle,
-													kLock,
-													kNoMoveHi);
+			channelsPtr = (SInt16*)GetHandlePointer (
+															gTransformationMatrix.eigenFeatureHandle,
+															kLock);
 				
 					// Force text selection to start from end of present text.		
 							
@@ -1687,20 +1661,20 @@ void EvaluateTransformationControl (void)
 				
 					// List the processor name, date and time.							
 		
-			continueFlag = ListHeaderInfo (	NULL, 
+			continueFlag = ListHeaderInfo (NULL, 
 														0, 
 														&gOutputForce1Code, 
 														kNoStatisticsUsed, 
-														continueFlag );
+														continueFlag);
 										
 					// List "  Output Information:"
 					
 			continueFlag = ListSpecifiedStringNumber (kSharedStrID, 
-																		IDS_Shared8, 
-																		(unsigned char*)&gTextString, 
-																		NULL, 
-																		gOutputForce1Code, 
-																		continueFlag);
+																	IDS_Shared8, 
+																	(unsigned char*)gTextString, 
+																	NULL, 
+																	gOutputForce1Code, 
+																	continueFlag);
 														
 					// List processor that transformation was generated from.
 							
@@ -1714,15 +1688,14 @@ void EvaluateTransformationControl (void)
 			else if (gTransformationMatrix.createdByCode == 17)
 				stringNumber = IDS_Utility10;	
 					
-			continueFlag = ListSpecifiedStringNumber ( 
-												kUtilitiesStrID, 
-												stringNumber, 
-												(unsigned char*)&gTextString, 
-												NULL, 
-												gOutputForce1Code, 
-												continueFlag );
+			continueFlag = ListSpecifiedStringNumber (kUtilitiesStrID, 
+																	stringNumber, 
+																	(unsigned char*)gTextString, 
+																	NULL, 
+																	gOutputForce1Code, 
+																	continueFlag);
 																		
-			startTime = time(NULL);	
+			startTime = time (NULL);	
 			
 					// List the eigenvalues and transformation matrix as requested.																	
 			
@@ -1764,36 +1737,37 @@ void EvaluateTransformationControl (void)
 						for (chan2=0; chan2<numberFeatures; chan2++)
 							{
 							if (chan1 == chan2) 
-								error += fabs(1. - *outputMatrixPtr);
+								error += fabs (1. - *outputMatrixPtr);
 							
-							else		// chan1 != chan2 
-								error += fabs(0. - *outputMatrixPtr);
+							else	// chan1 != chan2 
+								error += fabs (0. - *outputMatrixPtr);
 								
 							outputMatrixPtr++;
 							
-							}		// end "for (chan2=0; chan2<..."
+							}	// end "for (chan2=0; chan2<..."
 							
-						}		// end "for (chan1=0; chan1<numberFeatures;..." 
+						}	// end "for (chan1=0; chan1<numberFeatures;..." 
 						
 							// List the result of the multiplied matrices.				
 			
-					sprintf( (char*)&gTextString, 
+					sprintf ((char*)gTextString, 
 						"%s    Transposed transformation matrix times transformation matrix.%s"
 						"      Total error = %10.5e.   Average error = %10.5e.%s",
-							gEndOfLine,
-							gEndOfLine, 
-							error, 
-							error/numberFeatures/numberFeatures,
-							gEndOfLine);
+								gEndOfLine,
+								gEndOfLine, 
+								error, 
+								error/numberFeatures/numberFeatures,
+								gEndOfLine);
 							
 					if (continueFlag)
-						continueFlag = ListString( (char*)&gTextString,
-												strlen((char*)&gTextString),  gOutputTextH);
+						continueFlag = ListString ((char*)gTextString,
+															(UInt32)strlen ((char*)gTextString),  
+															gOutputTextH);
 
 					outputMatrixPtr = savedOutputMatrixPtr;
 															
 					if (continueFlag && 
-									evalTransformationSpecsPtr->listTransformXTposedTransformFlag)
+								evalTransformationSpecsPtr->listTransformXTposedTransformFlag)
 						ListCovarianceMatrix (outputMatrixPtr, 
 														numberFeatures,
 														NULL,
@@ -1803,8 +1777,8 @@ void EvaluateTransformationControl (void)
 						
 							// Add blank line at the end of the text window.		
 							                                 
-					sprintf( (char*)&gTextString, "%s", gEndOfLine);
-					continueFlag = OutputString( (CMFileStream*)NULL, 
+					sprintf ((char*)gTextString, "%s", gEndOfLine);
+					continueFlag = OutputString ((CMFileStream*)NULL, 
 															(char*)gTextString, 
 															gNumberOfEndOfLineCharacters, 
 															gOutputForce1Code, 
@@ -1812,12 +1786,11 @@ void EvaluateTransformationControl (void)
 					
 							// List the CPU time taken for the checking transformation matrix.			
 							
-					continueFlag = ListCPUTimeInformation (
-															NULL, continueFlag, startTime);
+					continueFlag = ListCPUTimeInformation (NULL, continueFlag, startTime);
 												
-					}		// end "if (continueFlag)" 
+					}	// end "if (continueFlag)" 
 					
-				}		// end "if (evalTransformationSpecsPtr->checkTransformationFlag)" 
+				}	// end "if (evalTransformationSpecsPtr->checkTransformationFlag)" 
 					
 					// Free temporary memory.													
 			
@@ -1839,16 +1812,16 @@ void EvaluateTransformationControl (void)
 			MInitCursor ();
 			
 
-			}		// end "if (EvaluateTransformationDialog (..." 
+			}	// end "if (EvaluateTransformationDialog (..." 
 
 			
-		}		// end "if ( LoadEvaluateTransformationSpecs (..." 
+		}	// end "if (LoadEvaluateTransformationSpecs (..." 
 	
 			// Unlock memory for eval transform structure.										
 			
 	CheckAndUnlockHandle (gNonProjProcessorSpecs.evalTransformationSpecsH);
 
-}		// end "EvaluateTransformationControl" 
+}	// end "EvaluateTransformationControl" 
 
 
 
@@ -1881,7 +1854,6 @@ Boolean EvaluateTransformationDialog (
 	Boolean								returnFlag;
 
 #if defined multispec_mac
-	
 	Rect									theBox;
 	
 	DialogPtr							dialogPtr;
@@ -1900,10 +1872,10 @@ Boolean EvaluateTransformationDialog (
 	
 			// Get the modal dialog for the reformat specification					
 				
-	dialogPtr = LoadRequestedDialog ( 
-						kEvaluateTransformSpecificationID, kDoNotCopyScrap, 1, 2);
+	dialogPtr = LoadRequestedDialog (
+								kEvaluateTransformSpecificationID, kDoNotCopyScrap, 1, 2);
 	if (dialogPtr == NULL)											
-																				return(FALSE);
+																						return (FALSE);
 	
 			// Initialize dialog variables.
 
@@ -1916,13 +1888,11 @@ Boolean EvaluateTransformationDialog (
 	
 			// Set flag for listing the eigenvalues.										
 			
-	SetDLogControl (
-				dialogPtr, 4, (SInt16)listEigenvaluesFlag);
+	SetDLogControl (dialogPtr, 4, (SInt16)listEigenvaluesFlag);
 	
 			// Set flag for listing the transformation matrix.							
 			
-	SetDLogControl (
-				dialogPtr, 5, (SInt16)listTransformFlag);
+	SetDLogControl (dialogPtr, 5, (SInt16)listTransformFlag);
 	
 			// Set flag for checking transformation matrix.								
 		
@@ -1936,7 +1906,7 @@ Boolean EvaluateTransformationDialog (
 			// Center the dialog and then show it.											
 			
 	ShowDialogWindow (
-		dialogPtr, kEvaluateTransformSpecificationID, kDoNotSetUpDFilterTable);
+				dialogPtr, kEvaluateTransformSpecificationID, kDoNotSetUpDFilterTable);
 	
 	modalDone = FALSE;
 	itemHit = 0;
@@ -1956,24 +1926,23 @@ Boolean EvaluateTransformationDialog (
 				case 6:		// Check transformation matrix. 								
 				case 7:		// List transposed transformation x transformation 	
 								// matrix. 															
-					ChangeDLogCheckBox ( (ControlHandle)theHandle );
+					ChangeDLogCheckBox ((ControlHandle)theHandle);
 					
 					if (itemHit == 6)
 						{
 						checkTransformationFlag = !checkTransformationFlag;
 						ShowHideDialogItem (dialogPtr, 7, checkTransformationFlag);
 						
-						}		// end "if (itemHit == 6)" 
+						}	// end "if (itemHit == 6)" 
 						
 					break;
 						
-				}		// end "switch (itemHit)" 
+				}	// end "switch (itemHit)" 
 				
-			}		// end "if (itemHit > 2)" 
+			}	// end "if (itemHit > 2)" 
 			
-		else		// itemHit <= 2 
+		else	// itemHit <= 2 
 			{
-				
 			if	(itemHit == 1)      // User selected OK for information 
 				{
 				modalDone = TRUE;
@@ -1983,20 +1952,20 @@ Boolean EvaluateTransformationDialog (
 													GetDLogControl (dialogPtr, 4),
 													GetDLogControl (dialogPtr, 5),
 													GetDLogControl (dialogPtr, 6),
-													GetDLogControl (dialogPtr, 7) );
+													GetDLogControl (dialogPtr, 7));
 													
-				}		// end "if (itemHit == 1)" 
+				}	// end "if (itemHit == 1)" 
 				
 			if	(itemHit == 2)      // User selected Cancel for information 
 				{
 				modalDone = TRUE;
 				returnFlag = FALSE;
 				
-				}		// end "if	(itemHit == 2)" 
+				}	// end "if	(itemHit == 2)" 
 			
-			}		// end "else itemHit <= 2" 
+			}	// end "else itemHit <= 2" 
 				
-		} while (!modalDone);
+		}	while (!modalDone);
 		
 	CloseRequestedDialog (dialogPtr, kDoNotSetUpDFilterTable);
 #endif	// defined multispec_mac 
@@ -2006,16 +1975,16 @@ Boolean EvaluateTransformationDialog (
 			
 		TRY
 			{ 
-			dialogPtr = new CMEvalTransformDialog(); 
+			dialogPtr = new CMEvalTransformDialog (); 
 				
 			returnFlag = dialogPtr->DoDialog (evalTransformationSpecsPtr); 
 			                       
 			delete dialogPtr;
 			}
 				
-		CATCH_ALL(e)
+		CATCH_ALL (e)
 			{
-			MemoryMessage(0, kObjectMessage);
+			MemoryMessage (0, kObjectMessage);
 			returnFlag = FALSE;
 			}
 		END_CATCH_ALL      	
@@ -2024,7 +1993,7 @@ Boolean EvaluateTransformationDialog (
 	#if defined multispec_lin
    	CMEvalTransformDialog*		dialogPtr = NULL;
       
-   	dialogPtr = new CMEvalTransformDialog(); 
+   	dialogPtr = new CMEvalTransformDialog (); 
 				
    	returnFlag = dialogPtr->DoDialog (evalTransformationSpecsPtr); 
 			                       
@@ -2033,7 +2002,7 @@ Boolean EvaluateTransformationDialog (
 	
 	return (returnFlag);
 	
-}		// end "EvaluateTransformationDialog"
+}	// end "EvaluateTransformationDialog"
 
 
 
@@ -2066,15 +2035,15 @@ void EvaluateTransformationInitialize (
 												
 	if (gTransformationMatrix.createdByCode < 16)
 		{	
-		CtoPstring ((UCharPtr)"List Eigenvalues", gTextString );
+		CtoPstring ((UCharPtr)"List Eigenvalues", gTextString);
 		
 		ShowHideDialogItem (dialogPtr, 
 									IDC_ListCheckMatrix, 
 									evalTransformationSpecsPtr->checkTransformationFlag);
 		
-		}
+		}	// end "if (gTransformationMatrix.createdByCode < 16)"
 		
-	else		// gTransformationMatrix.createdByCode >= 16)
+	else	// gTransformationMatrix.createdByCode >= 16)
 		{
 		CtoPstring ((UCharPtr)"List Offset & Gain Values", gTextString);
 									
@@ -2082,13 +2051,14 @@ void EvaluateTransformationInitialize (
 		HideDialogItem (dialogPtr, IDC_CheckTransform);
 		HideDialogItem (dialogPtr, IDC_ListCheckMatrix);
 		
-		}		// end "else gTransformationMatrix.createdByCode >= 16)"
+		}	// end "else gTransformationMatrix.createdByCode >= 16)"
 										
-	SetDLogControlTitle ( dialogPtr, 
+	SetDLogControlTitle (dialogPtr, 
 									IDC_ListEigenvalues, 
-									(CharPtr)&gTextString);
+									(CharPtr)gTextString,
+									kASCIICharString);
 
-}		// end "EvaluateTransformationInitialize"
+}	// end "EvaluateTransformationInitialize"
 
 
 
@@ -2112,7 +2082,7 @@ void EvaluateTransformationOK (
 		evalTransformationSpecsPtr->listTransformXTposedTransformFlag = 
 															listTransformXTposedTransformFlag;
 
-}		// end "EvaluateTransformationOK"
+}	// end "EvaluateTransformationOK"
 
 
 
@@ -2149,7 +2119,6 @@ void ListCovarianceMatrix (
 				Boolean								transformationFlag)
 
 {
-//#ifndef multispec_lin
 	Ptr									stringPtr;
 	
 	SInt32								channel,
@@ -2168,10 +2137,10 @@ void ListCovarianceMatrix (
 		{
 				// List the channel headings above the matrix.							
 									
-		sprintf( gCharBufferPtr1, "%s    Channel", gEndOfLine);
-		for ( channel=0; channel<numberChannels; channel++)
+		sprintf (gCharBufferPtr1, "%s    Channel", gEndOfLine);
+		for (channel=0; channel<numberChannels; channel++)
 			{
-			stringPtr = (Ptr)&gCharBufferPtr1[ strlen(gCharBufferPtr1) ];
+			stringPtr = (Ptr)&gCharBufferPtr1[strlen (gCharBufferPtr1)];
 			
 			if (transformationFlag && featurePtr != NULL)
 				channelNumber = (UInt32)featurePtr[channel] + 1;
@@ -2179,29 +2148,30 @@ void ListCovarianceMatrix (
 			else if (!transformationFlag && channelsPtr != NULL)
 				channelNumber = (UInt32)channelsPtr[channel] + 1;
 				
-			else		// channelsPtr == NULL && featurePtr == NULL
+			else	// channelsPtr == NULL && featurePtr == NULL
 				channelNumber = channel + 1;
 					
 			#if defined multispec_mac || defined multispec_lin                                          
-				sprintf( stringPtr,  "\t%11ld", channelNumber); 
+				sprintf (stringPtr,  "\t%11ld", channelNumber); 
 			#endif	// defined multispec_mac || defined multispec_lin 
 					
 			#if defined multispec_win                                                  
-				sprintf( stringPtr,  "\t%12ld", channelNumber);   
+				sprintf (stringPtr,  "\t%12ld", channelNumber);   
 			#endif	// defined multispec_win 
 			
-			}		// end "for (channel=1; channel<=numberChannels; ..." 
+			}	// end "for (channel=1; channel<=numberChannels; ..." 
 		
-		stringPtr = (Ptr)&gCharBufferPtr1[ strlen(gCharBufferPtr1) ];
-		sprintf( (char*)stringPtr, "%s", gEndOfLine);
-		continueFlag = 
-			ListString( gCharBufferPtr1, strlen(gCharBufferPtr1), gOutputTextH);
+		stringPtr = (Ptr)&gCharBufferPtr1[strlen (gCharBufferPtr1)];
+		sprintf ((char*)stringPtr, "%s", gEndOfLine);
+		continueFlag = ListString (gCharBufferPtr1, 
+											(UInt32)strlen (gCharBufferPtr1), 
+											gOutputTextH);
 
 				// List the covariance matrix square matrix form.						
 					
 		covIndex = 0;
 		if (continueFlag)
-			for ( channel=0; channel<numberChannels; channel++)
+			for (channel=0; channel<numberChannels; channel++)
 				{
 				if (transformationFlag && featurePtr != NULL)
 					channelNumber = (UInt32)featurePtr[channel] + 1;
@@ -2209,44 +2179,45 @@ void ListCovarianceMatrix (
 				else if (!transformationFlag && channelsPtr != NULL)
 					channelNumber = (UInt32)channelsPtr[channel] + 1;
 					
-				else		// channelsPtr == NULL && featurePtr == NULL
+				else	// channelsPtr == NULL && featurePtr == NULL
 					channelNumber = channel + 1;
 				
-				sprintf( gCharBufferPtr1, "    %7ld", channelNumber);
+				sprintf (gCharBufferPtr1, "    %7ld", channelNumber);
 		        
 				numCovChannels = channel;	
 				if (matrixType == 1)
 					numCovChannels = numberChannels;
 				
-				for ( covChan=0; covChan<numCovChannels; covChan++ )
+				for (covChan=0; covChan<numCovChannels; covChan++)
 					{
-					stringPtr = (Ptr)&gCharBufferPtr1[ strlen(gCharBufferPtr1) ];
+					stringPtr = (Ptr)&gCharBufferPtr1[strlen (gCharBufferPtr1)];
 					
 					#if defined multispec_mac || defined multispec_lin
-						sprintf( (char*)stringPtr, "\t%11.4e", covariancePtr[covIndex]);
+						sprintf ((char*)stringPtr, "\t%11.4e", covariancePtr[covIndex]);
 					#endif	// defined multispec_mac || defined multispec_lin
 					
 					#if defined multispec_win   
-						sprintf( (char*)stringPtr, "\t%12.4e", covariancePtr[covIndex]);  
+						sprintf ((char*)stringPtr, "\t%12.4e", covariancePtr[covIndex]);  
 					#endif	// defined multispec_win 
 					
 					covIndex++;
 					
-					}		// end "for ( covChan=0; ..." 
+					}	// end "for (covChan=0; ..." 
 					
-				stringPtr = (Ptr)&gCharBufferPtr1[ strlen(gCharBufferPtr1) ];
-				sprintf( (char*)stringPtr, gEndOfLine);
-				continueFlag = ListString( 
-					(char*)gCharBufferPtr1, strlen(gCharBufferPtr1), gOutputTextH);
+				stringPtr = (Ptr)&gCharBufferPtr1[strlen (gCharBufferPtr1)];
+				sprintf ((char*)stringPtr, gEndOfLine);
+				continueFlag = ListString ((char*)gCharBufferPtr1, 
+													(UInt32)strlen (gCharBufferPtr1), 
+													gOutputTextH);
 					
 				if (!continueFlag)
 					break;
 					
-				}		// end "for ( channel=0; channel<numberChannels..." 
+				}	// end "for (channel=0; channel<numberChannels..." 
 				
-		}		// end "if (gCharBufferHandle1)" 
-//#endif
-}		// end "ListCovarianceMatrix" 
+		}	// end "if (gCharBufferHandle1)" 
+
+}	// end "ListCovarianceMatrix" 
 																
 																
 
@@ -2269,7 +2240,7 @@ void ListCovarianceMatrix (
 // Called By:		
 //
 //	Coded By:			Larry L. Biehl			Date: 03/01/1993
-//	Revised By:			Larry L. Biehl			Date: 03/21/2017
+//	Revised By:			Larry L. Biehl			Date: 09/01/2017
 
 void ListDescriptionInformation (void)
 
@@ -2310,16 +2281,16 @@ void ListDescriptionInformation (void)
 	#endif	// defined multispec_mac
 		
 	#if defined multispec_win                                  
-		if (GetKeyState(VK_SHIFT) & 0x8000)
+		if (GetKeyState (VK_SHIFT) & 0x8000)
 	#endif	// defined multispec_win 
 		
 	#if defined multispec_lin                                  
-		if (wxGetKeyState(WXK_SHIFT))
+		if (wxGetKeyState (WXK_SHIFT))
 	#endif	// defined multispec_lin 
 			listAllInformationFlag = TRUE; 
 	
-	continueFlag = SetUpActiveImageInformationGlobals ( 
-								&windowInfoHandle, &handleStatus, kDoNotUseProject );
+	continueFlag = SetUpActiveImageInformationGlobals (
+										&windowInfoHandle, &handleStatus, kDoNotUseProject);
 								
 	if (!continueFlag)
 																							return;
@@ -2335,11 +2306,11 @@ void ListDescriptionInformation (void)
 			// output.
 			
 	ListSpecifiedStringNumber (kSharedStrID, 
-											IDS_Shared5, 
-											(unsigned char*)&gTextString, 
-											NULL, 
-											gOutputForce1Code, 
-											continueFlag);
+										IDS_Shared5, 
+										(unsigned char*)gTextString, 
+										NULL, 
+										gOutputForce1Code, 
+										continueFlag);
 	
 	if (gImageWindowInfoPtr->numberImageFiles > 1)	
 		{
@@ -2350,94 +2321,100 @@ void ListDescriptionInformation (void)
 			GetActiveImageWindowTitle (gTextString2);	
 			
 			gTextString2 [gTextString2[0]+1] = 0;								
-			sprintf ((char*)&gTextString,
+			sprintf ((char*)gTextString,
 						"Description information for linked image window: '%s'%s",
 						&gTextString2[1],
 						gEndOfLine);
-			continueFlag = ListString ((char*)&gTextString,  
-													strlen((char*)&gTextString),  
+			continueFlag = ListString ((char*)gTextString,  
+													(UInt32)strlen ((char*)gTextString),  
 													gOutputTextH,
 													kUTF8CharString);
 			
-			}		// end "if (continueFlag)" 
+			}	// end "if (continueFlag)" 
 			
 		if (continueFlag)
 			{
 					// List the number of lines in the linked image.				
 					
-			sprintf( (char*)&gTextString,
-					"  Number of lines in linked image:     %6ld%s", 
-					gImageWindowInfoPtr->maxNumberLines,
-					gEndOfLine);
-			continueFlag = ListString( 
-				(char*)&gTextString,  strlen((char*)&gTextString),  gOutputTextH);
+			sprintf ((char*)gTextString,
+						"  Number of lines in linked image:     %6ld%s", 
+						gImageWindowInfoPtr->maxNumberLines,
+						gEndOfLine);
+			continueFlag = ListString ((char*)gTextString,
+												(UInt32)strlen ((char*)gTextString),
+												gOutputTextH);
 			
-			}		// end "if (continueFlag)" 
+			}	// end "if (continueFlag)" 
 			
 		if (continueFlag)
 			{
 					// List the number of columns in the linked image.				
 					
-			sprintf( (char*)&gTextString,
-					"  Number of columns in linked image:   %6ld%s", 
-					gImageWindowInfoPtr->maxNumberColumns,
-					gEndOfLine);
-			continueFlag = ListString( 
-				(char*)&gTextString,  strlen((char*)&gTextString),  gOutputTextH);
+			sprintf ((char*)gTextString,
+						"  Number of columns in linked image:   %6ld%s", 
+						gImageWindowInfoPtr->maxNumberColumns,
+						gEndOfLine);
+			continueFlag = ListString ((char*)gTextString,  
+												(UInt32)strlen ((char*)gTextString),  
+												gOutputTextH);
 			
-			}		// end "if (continueFlag)" 
+			}	// end "if (continueFlag)" 
 			
 		if (continueFlag && gImageWindowInfoPtr->windowType == kImageWindowType)
 			{
 						// List the number of channels in the linked image.			
 						
-			sprintf( (char*)&gTextString,
-					"  Number of channels in linked image:    %4d%s", 
-					gImageWindowInfoPtr->totalNumberChannels,
-					gEndOfLine);
-			continueFlag = ListString( 
-				(char*)&gTextString,  strlen((char*)&gTextString),  gOutputTextH);
+			sprintf ((char*)gTextString,
+						"  Number of channels in linked image:    %4d%s", 
+						gImageWindowInfoPtr->totalNumberChannels,
+						gEndOfLine);
+			continueFlag = ListString ((char*)gTextString,  
+												(UInt32)strlen ((char*)gTextString),  
+												gOutputTextH);
 			
-			}		// end "if (continueFlag && ...)" 
+			}	// end "if (continueFlag && ...)" 
 			
 		if (continueFlag)
 			{
 						// List the maximum number of bytes in the linked image.		
 							
-			sprintf( (char*)&gTextString,
-					"  Maximum number of bytes in linked image: %2d%s", 
-					gImageWindowInfoPtr->numberBytes,
-					gEndOfLine);
-			continueFlag = ListString( 
-				(char*)&gTextString,  strlen((char*)&gTextString),  gOutputTextH);
+			sprintf ((char*)gTextString,
+						"  Maximum number of bytes in linked image: %2d%s", 
+						gImageWindowInfoPtr->numberBytes,
+						gEndOfLine);
+			continueFlag = ListString ((char*)gTextString,  
+												(UInt32)strlen ((char*)gTextString),  
+												gOutputTextH);
 			
-			}		// end "if (continueFlag)" 
+			}	// end "if (continueFlag)" 
 			
 		if (continueFlag)
 			{
 						// List the maximum number of bits in the linked image.		
 							
-			sprintf( (char*)&gTextString,
-					"  Maximum number of bits in linked image:  %2d%s", 
-					gImageWindowInfoPtr->numberBits,
-					gEndOfLine);
-			continueFlag = ListString( 
-				(char*)&gTextString,  strlen((char*)&gTextString),  gOutputTextH);
+			sprintf ((char*)gTextString,
+						"  Maximum number of bits in linked image:  %2d%s", 
+						gImageWindowInfoPtr->numberBits,
+						gEndOfLine);
+			continueFlag = ListString ((char*)gTextString,  
+												(UInt32)strlen ((char*)gTextString),  
+												gOutputTextH);
 			
-			}		// end "if (continueFlag)" 
+			}	// end "if (continueFlag)" 
 			
 		if (continueFlag)
 			{
 					// List the number of linked files.										
 					
-			sprintf( (char*)&gTextString,
-				"  Number of linked files:               %5d%s", 
-				gImageWindowInfoPtr->numberImageFiles,
-				gEndOfLine);
-			continueFlag = ListString( 
-				(char*)&gTextString,  strlen((char*)&gTextString),  gOutputTextH);
+			sprintf ((char*)gTextString,
+						"  Number of linked files:               %5d%s", 
+						gImageWindowInfoPtr->numberImageFiles,
+						gEndOfLine);
+			continueFlag = ListString ((char*)gTextString,  
+												(UInt32)strlen ((char*)gTextString),  
+												gOutputTextH);
 		
-			}		// end "if (continueFlag)" 
+			}	// end "if (continueFlag)" 
 		
 				// Insert a blank line
 			
@@ -2447,7 +2424,7 @@ void ListDescriptionInformation (void)
 												gOutputForce1Code, 
 												continueFlag);
 			
-		}		// end "if (gImageWindowInfoPtr->numberImageFiles > 1)" 
+		}	// end "if (gImageWindowInfoPtr->numberImageFiles > 1)" 
 		
 	for (index=0; index<gImageWindowInfoPtr->numberImageFiles; index++)
 		{
@@ -2455,42 +2432,44 @@ void ListDescriptionInformation (void)
 		
 		if (continueFlag)
 			{
-			FileStringPtr fileNamePtr = (FileStringPtr)GetFileNameCPointer (localFileInfoPtr);
+			FileStringPtr fileNamePtr = 
+						(FileStringPtr)GetFileNameCPointerFromFileInfo (localFileInfoPtr);
 			
 			if (gImageWindowInfoPtr->numberImageFiles == 1)
 				{
-				sprintf ((char*)&gTextString,
+				sprintf ((char*)gTextString,
 							"Description information for");
 				stringLength = 27;
 				
-				}		// end "if (gImageWindowInfoPtr->numberImageFiles == 1)"
+				}	// end "if (gImageWindowInfoPtr->numberImageFiles == 1)"
 					
-			else		// gImageWindowInfoPtr->numberImageFiles > 1)
+			else	// gImageWindowInfoPtr->numberImageFiles > 1)
 				{
-				sprintf( (char*)&gTextString,
+				sprintf ((char*)gTextString,
 							"  Description information for");
 				stringLength = 29;
 				
-				sprintf( (char*)&gTextString[stringLength],
+				sprintf ((char*)&gTextString[stringLength],
 							" file %3d", 
 							index+1);
 				stringLength += 9;
 				
-				}		// end "if (gImageWindowInfoPtr->numberImageFiles > 1)" 
+				}	// end "if (gImageWindowInfoPtr->numberImageFiles > 1)" 
 			
 			sprintf ((char*)&gTextString[stringLength],
-					": '%s'%s", 
-					(char*)fileNamePtr,
-					gEndOfLine);
+						": '%s'%s", 
+						(char*)fileNamePtr,
+						gEndOfLine);
 			
-			continueFlag = ListString ((char*)&gTextString,  
-												strlen((char*)&gTextString),  
+			continueFlag = ListString ((char*)gTextString,  
+												(UInt32)strlen ((char*)gTextString),  
 												gOutputTextH,
 												kUTF8CharString);
 	
-			}		// end "if (continueFlag)" 
+			}	// end "if (continueFlag)" 
 			
-		continueFlag = ListDescriptionInformationForFile (localFileInfoPtr, formatName, 32);			
+		continueFlag = ListDescriptionInformationForFile (
+																localFileInfoPtr, formatName, 32);			
 		if (continueFlag && localFileInfoPtr->format == kLARSYSMISTType)
 			continueFlag = ListLARSYSMISTHeaderInformation (localFileInfoPtr);
 		
@@ -2499,15 +2478,15 @@ void ListDescriptionInformation (void)
 		if (continueFlag)
 			{
 			if (localFileInfoPtr->channelDescriptionH && !localFileInfoPtr->thematicType)
-				continueFlag = ListChannelsUsed (
-												localFileInfoPtr, 
-												NULL,
-												NULL, 
-												localFileInfoPtr->numberChannels, 
-												NULL, 
-												&gOutputCode,
-												FALSE);
-			else		// ...->channelDescriptionH == NULL || localFileInfoPtr->thematicType
+				continueFlag = ListChannelsUsed (localFileInfoPtr, 
+															NULL,
+															NULL, 
+															localFileInfoPtr->numberChannels, 
+															NULL, 
+															&gOutputCode,
+															FALSE);
+															
+			else	// ...->channelDescriptionH == NULL || localFileInfoPtr->thematicType
 						// Insert a blank line
 				continueFlag = OutputString (NULL, 
 														gEndOfLine, 
@@ -2515,20 +2494,20 @@ void ListDescriptionInformation (void)
 														gOutputForce1Code, 
 														continueFlag);
 														
-			}		// end "if (continueFlag)"
+			}	// end "if (continueFlag)"
 			
-		if (continueFlag && 
-					(localFileInfoPtr->format == kTIFFType || localFileInfoPtr->format == kGeoTIFFType))
+		if (continueFlag && (localFileInfoPtr->format == kTIFFType || 
+														localFileInfoPtr->format == kGeoTIFFType))
 				{
 						// List any TIFF/GeoTIFF ascii tag information.
 						
 				continueFlag = ListTiffTextDescriptionParameters (localFileInfoPtr);
 																
-				}		// end "if (continueFlag && (...->format == kTIFFType || ..."
+				}	// end "if (continueFlag && (...->format == kTIFFType || ..."
 		
 		#if include_hdf_capability	
-			if (continueFlag && 
-					(localFileInfoPtr->format == kHDF4Type || localFileInfoPtr->format == kNETCDFType))
+			if (continueFlag && (localFileInfoPtr->format == kHDF4Type || 
+														localFileInfoPtr->format == kNETCDFType))
 				{
 						// List the HDF data set attributes.
 						
@@ -2536,12 +2515,13 @@ void ListDescriptionInformation (void)
 																		formatName, 
 																		listAllInformationFlag);
 																
-				}		// end "if (continueFlag && (...->format == kHDF4Type || == kNETCDFType))"
+				}	// end "if (continueFlag && (...->format == kHDF4Type || == kNETCDFType))"
 		#endif		// include_hdf_capability
 		
 		#if include_gdal_capability
 			if (continueFlag)
-				continueFlag = ListGDALDataSetAttributes (localFileInfoPtr, listAllInformationFlag);
+				continueFlag = ListGDALDataSetAttributes (localFileInfoPtr, 
+																		listAllInformationFlag);
 		#endif	// include_gdal_capability
 			
 				// List the map parameters if any.
@@ -2552,26 +2532,25 @@ void ListDescriptionInformation (void)
 		if (!continueFlag)
 			break;
 		
-		}		// end "for (index=0; index<...->numberImageFiles..." 
+		}	// end "for (index=0; index<...->numberImageFiles..." 
 		
 			// List the dashed line separator string to indicate end of processor
 			// output.
 			
 	continueFlag = ListSpecifiedStringNumber (kSharedStrID, 
 															IDS_Shared6, 
-															(unsigned char*)&gTextString, 
+															(unsigned char*)gTextString, 
 															NULL, 
 															gOutputForce1Code, 
 															continueFlag);
 			
-			// Scroll output window to the selection and adjust the 					
-			// scroll bar.																			
+			// Scroll output window to the selection and adjust the scroll bar.																			
 	
 	UpdateOutputWScrolls (gOutputWindow, 1, kDisplayNoMessage);
 		
 	UnlockActiveImageInformationGlobals (handleStatus);
 
-}		// end "ListDescriptionInformation" 
+}	// end "ListDescriptionInformation" 
 																
 																
 
@@ -2617,16 +2596,10 @@ Boolean ListDescriptionInformationForFile (
 			{
 					// List the file format type.		
 
-//			#if defined multispec_mac 
-//				format += 1;
-//			#endif	// defined multispec_mac
-
-//			#if defined multispec_win 
-				format += IDS_FileType01;
-//			#endif	// defined multispec_win										
+			format += IDS_FileType01;
 			
 			continueFlag = GetSpecifiedStringNumber (
-												kFileTypeStrID, format, formatName, TRUE);
+														kFileTypeStrID, format, formatName, TRUE);
 			
 			if (!continueFlag)
 				{				
@@ -2641,81 +2614,87 @@ Boolean ListDescriptionInformationForFile (
 				#endif	// defined multispec_win || ...
 
 				continueFlag = GetSpecifiedStringNumber (
-												kFileTypeStrID, format, formatName, TRUE);
+														kFileTypeStrID, format, formatName, TRUE);
 					
-				}		// end "if (!continueFlag)"
+				}	// end "if (!continueFlag)"
 				
 			if (continueFlag)
 				{				
-				sprintf( (char*)&gTextString,
-					"    File format:              %s%s",
-					&formatName[1],
-					gEndOfLine);
-				continueFlag = ListString( 
-					(char*)&gTextString,  strlen((char*)&gTextString),  gOutputTextH);
+				sprintf ((char*)gTextString,
+							"    File format:              %s%s",
+							&formatName[1],
+							gEndOfLine);
+				continueFlag = ListString ((char*)gTextString,  
+													(UInt32)strlen ((char*)gTextString),  
+													gOutputTextH);
 				
-						// Save format name for possible use later. Make sure no more than the
-						// max number of characters is copied.
+						// Save format name for possible use later. Make sure no more than 
+						// the max number of characters is copied.
 							
 				formatName[maxFormatNameLength-1] = 0;
 				strcpy (formatNamePtr, (char*)&formatName);
 				
-				}		// end "if (GetSpecifiedStringNumber (kFileTypeStrID, format+1, ..." 
+				}	// end "if (GetSpecifiedStringNumber (kFileTypeStrID, format+1, ..." 
 				
-			}		// end "if (continueFlag && format > 0)" 
+			}	// end "if (continueFlag && format > 0)" 
 			
 		if (continueFlag && fileInfoPtr->hdfHandle != NULL)
 			{
 			GetHdfDataSetName (fileInfoPtr, 
 										fileInfoPtr->hdfDataSetSelection,
-										(StringPtr)&gTextString2,
+										(StringPtr)gTextString2,
 										NULL);
 				
-			sprintf( (char*)&gTextString,
-				"      %s data set name:         %s%s",
-				&formatNamePtr[1],
-				(char*)&gTextString2[1],
-				gEndOfLine);
-			continueFlag = ListString( 
-				(char*)&gTextString,  strlen((char*)&gTextString),  gOutputTextH);
+			sprintf ((char*)gTextString,
+						"      %s data set name:         %s%s",
+						&formatNamePtr[1],
+						(char*)&gTextString2[1],
+						gEndOfLine);
+			continueFlag = ListString ((char*)gTextString,  
+												(UInt32)strlen ((char*)gTextString),  
+												gOutputTextH);
 				
 			if (fileInfoPtr->format != kHDF5Type && fileInfoPtr->format != kNETCDF2Type)
 				{
-						// I have not run into a case where there is a separate header file for
-						// HDF5 format.
+						// I have not run into a case where there is a separate header file 
+						// for HDF5 format.
 						
 				GetHdfHeaderFileName (fileInfoPtr, gTextString2);
 					
-				sprintf( (char*)&gTextString,
-					"      %s header file name:      %s%s",
-					&formatNamePtr[1],
-					(char*)&gTextString2[1],
-					gEndOfLine);
+				sprintf ((char*)gTextString,
+							"      %s header file name:      %s%s",
+							&formatNamePtr[1],
+							(char*)&gTextString2[1],
+							gEndOfLine);
 					
-				continueFlag = ListString ( 
-							(char*)&gTextString,  strlen((char*)&gTextString),  gOutputTextH);
+				continueFlag = ListString ((char*)gTextString,  
+													(UInt32)strlen ((char*)gTextString),  
+													gOutputTextH);
 					
-				}		// end "if (fileInfoPtr->format != kHDF5Type && ..."
+				}	// end "if (fileInfoPtr->format != kHDF5Type && ..."
 			
-			}		// end "if (continueFlag && fileInfoPtr->hdfHandle != NULL)"
+			}	// end "if (continueFlag && fileInfoPtr->hdfHandle != NULL)"
 			
 		if (continueFlag)
 			{			
 					// List the image type.														
 					
-			sprintf ((char*)&gTextString,"    Image type:                  ");
+			sprintf ((char*)gTextString,"    Image type:                  ");
 			
 			if (fileInfoPtr->thematicType)
-				sprintf( (char*)&gTextString[30],"Thematic%s",
-				gEndOfLine);
-			else		// !fileInfoPtr->thematicType 
-				sprintf( (char*)&gTextString[30],"Multispectral%s",
-				gEndOfLine);
+				sprintf ((char*)&gTextString[30],
+							"Thematic%s",
+							gEndOfLine);
+			else	// !fileInfoPtr->thematicType 
+				sprintf ((char*)&gTextString[30],
+							"Multispectral%s",
+							gEndOfLine);
 				
-			continueFlag = ListString( 
-				(char*)&gTextString,  strlen((char*)&gTextString),  gOutputTextH);
+			continueFlag = ListString ((char*)gTextString,  
+												(UInt32)strlen ((char*)gTextString),  
+												gOutputTextH);
 		
-			}		// end "if (continueFlag)" 
+			}	// end "if (continueFlag)" 
 			
 		ListInstrumentName (fileInfoPtr);
 			
@@ -2726,7 +2705,7 @@ Boolean ListDescriptionInformationForFile (
 			if (fileInfoPtr->gdalBandInterleave > 0)
 				format = fileInfoPtr->gdalBandInterleave;
 				
-			else		// fileInfoPtr->gdalBandInterleave <= 0
+			else	// fileInfoPtr->gdalBandInterleave <= 0
 				format = MAX (0, fileInfoPtr->bandInterleave);									
 			
 			#if defined multispec_mac 
@@ -2738,7 +2717,7 @@ Boolean ListDescriptionInformationForFile (
 			#endif	// defined multispec_win	
 
 			continueFlag = GetSpecifiedStringNumber (
-											kBandInterleaveStrID, format, formatName, TRUE);
+												kBandInterleaveStrID, format, formatName, TRUE);
 			
 			if (!continueFlag)
 				{				
@@ -2753,169 +2732,179 @@ Boolean ListDescriptionInformationForFile (
 				#endif	// defined multispec_win || ...
 
 				continueFlag = GetSpecifiedStringNumber (
-											kBandInterleaveStrID, format, formatName, TRUE);
+												kBandInterleaveStrID, format, formatName, TRUE);
 					
-				}		// end "if (!continueFlag)"
+				}	// end "if (!continueFlag)"
 				
 			if (continueFlag)
 				{
-				sprintf( (char*)&gTextString,
-					"    Band interleave format:   %s%s", 
-					&formatName[1],
-					gEndOfLine);
-				continueFlag = ListString( 
-					(char*)&gTextString,  strlen((char*)&gTextString),  gOutputTextH);
+				sprintf ((char*)gTextString,
+							"    Band interleave format:   %s%s", 
+							&formatName[1],
+							gEndOfLine);
+				continueFlag = ListString ((char*)gTextString,  
+													(UInt32)strlen ((char*)gTextString),
+													gOutputTextH);
 	
-				}		// end "if (continueFlag)" 
+				}	// end "if (continueFlag)" 
 		
-			}		// end "if (continueFlag)" 
+			}	// end "if (continueFlag)" 
 			
 				// Write the data type.
 				
 		if (continueFlag)
 			{
-			sprintf( (char*)&gTextString,"    Data type:                   "); 
+			sprintf ((char*)gTextString,"    Data type:                   "); 
 			
 			if (fileInfoPtr->dataTypeCode == kIntegerType)
-				sprintf( (char*)&gTextString[30],"Integer%s", gEndOfLine);
-			else		// fileInfoPtr->dataTypeCode == kRealType
-				sprintf( (char*)&gTextString[30],"Real%s", gEndOfLine);
+				sprintf ((char*)&gTextString[30],"Integer%s", gEndOfLine);
+			else	// fileInfoPtr->dataTypeCode == kRealType
+				sprintf ((char*)&gTextString[30],"Real%s", gEndOfLine);
 				
-			continueFlag = ListString( 
-				(char*)&gTextString,  strlen((char*)&gTextString),  gOutputTextH);
+			continueFlag = ListString ((char*)gTextString,
+												(UInt32)strlen ((char*)gTextString),
+												gOutputTextH);
 			
-			}		// end "if (continueFlag)"
+			}	// end "if (continueFlag)"
 			
 		if (continueFlag && fileInfoPtr->numberBytes > 1)
 			{			
-			sprintf( (char*)&gTextString,"    Swap bytes:                  "); 
+			sprintf ((char*)gTextString,"    Swap bytes:                  "); 
 			
 			if (fileInfoPtr->swapBytesFlag)
-				sprintf( (char*)&gTextString[30],"Yes%s", gEndOfLine);
-			else		// !fileInfoPtr->swapBytesFlag 
-				sprintf( (char*)&gTextString[30],"No%s", gEndOfLine);
+				sprintf ((char*)&gTextString[30],"Yes%s", gEndOfLine);
+			else	// !fileInfoPtr->swapBytesFlag 
+				sprintf ((char*)&gTextString[30],"No%s", gEndOfLine);
 				
-			continueFlag = ListString( 
-				(char*)&gTextString,  strlen((char*)&gTextString),  gOutputTextH);
+			continueFlag = ListString ((char*)gTextString,
+												(UInt32)strlen ((char*)gTextString),
+												gOutputTextH);
 		
-			}		// end "if (continueFlag && ...)" 
+			}	// end "if (continueFlag && ...)" 
 			
 		if (continueFlag && !fileInfoPtr->thematicType)
 			{			
-			sprintf( (char*)&gTextString,"    Signed data:                 ");
+			sprintf ((char*)gTextString,"    Signed data:                 ");
 			
 			if (fileInfoPtr->signedDataFlag)
-				sprintf( (char*)&gTextString[30],"Yes%s", gEndOfLine);
-			else		// !fileInfoPtr->signedDataFlag 
-				sprintf( (char*)&gTextString[30],"No%s", gEndOfLine);
+				sprintf ((char*)&gTextString[30],"Yes%s", gEndOfLine);
+			else	// !fileInfoPtr->signedDataFlag 
+				sprintf ((char*)&gTextString[30],"No%s", gEndOfLine);
 				
-			continueFlag = ListString( 
-				(char*)&gTextString,  strlen((char*)&gTextString),  gOutputTextH);
+			continueFlag = ListString ((char*)gTextString,
+												(UInt32)strlen ((char*)gTextString),
+												gOutputTextH);
 		
-			}		// end "if (continueFlag && ...)" 
+			}	// end "if (continueFlag && ...)" 
 			
 		if (continueFlag && fileInfoPtr->dataCompressionCode != kNoCompression)
 			{			
-			sprintf ((char*)&gTextString,"    Compression Algorithm:       ");
+			sprintf ((char*)gTextString,"    Compression Algorithm:       ");
 			
 			stringIndex = IDS_Compression01+fileInfoPtr->dataCompressionCode-1;
 			
-			continueFlag = GetSpecifiedStringNumber (
-												kCompressionStrID, 
-												stringIndex, 
-												gTextString2, 
-												continueFlag);
+			continueFlag = GetSpecifiedStringNumber (kCompressionStrID, 
+																	stringIndex, 
+																	gTextString2, 
+																	continueFlag);
 			
 			if (continueFlag)									
-				sprintf( (char*)&gTextString[30],"%s%s", &gTextString2[1], gEndOfLine);
+				sprintf ((char*)&gTextString[30],"%s%s", &gTextString2[1], gEndOfLine);
 				
-			continueFlag = ListString( 
-				(char*)&gTextString,  strlen((char*)&gTextString),  gOutputTextH);
+			continueFlag = ListString ((char*)gTextString,
+												(UInt32)strlen ((char*)gTextString),  
+												gOutputTextH);
 		
-			}		// end "if (continueFlag && ...)" 
+			}	// end "if (continueFlag && ...)" 
 			
 		if (continueFlag && fileInfoPtr->blockedFlag)
 			{			
-			sprintf( (char*)&gTextString, 
-								"    Tiled format:             Yes%s", 
-								gEndOfLine);
+			sprintf ((char*)gTextString, 
+						"    Tiled format:             Yes%s", 
+						gEndOfLine);
 				
-			continueFlag = ListString( 
-				(char*)&gTextString,  strlen((char*)&gTextString),  gOutputTextH);
+			continueFlag = ListString ((char*)gTextString,  
+												(UInt32)strlen ((char*)gTextString),
+												gOutputTextH);
 		
-			}		// end "if (continueFlag && fileInfoPtr->blockedFlag)" 
+			}	// end "if (continueFlag && fileInfoPtr->blockedFlag)" 
 			
 		if (continueFlag)
 			{
 					// List the number of lines in the image file.					
 					
-			sprintf( (char*)&gTextString,
-					"    Number of lines:              %10ld%s",
-					fileInfoPtr->numberLines,
-					gEndOfLine);
-			continueFlag = ListString( 
-				(char*)&gTextString,  strlen((char*)&gTextString),  gOutputTextH);
+			sprintf ((char*)gTextString,
+						"    Number of lines:              %10ld%s",
+						fileInfoPtr->numberLines,
+						gEndOfLine);
+			continueFlag = ListString ((char*)gTextString,
+												(UInt32)strlen ((char*)gTextString),
+												gOutputTextH);
 			
-			}		// end "if (continueFlag)" 
+			}	// end "if (continueFlag)" 
 			
 		if (continueFlag)
 			{
 					// List the number of columns in the image file.				
 					
-			sprintf( (char*)&gTextString,
-					"    Number of columns:            %10ld%s", 
-					fileInfoPtr->numberColumns,
-					gEndOfLine);
-			continueFlag = ListString( 
-				(char*)&gTextString,  strlen((char*)&gTextString),  gOutputTextH);
+			sprintf ((char*)gTextString,
+						"    Number of columns:            %10ld%s", 
+						fileInfoPtr->numberColumns,
+						gEndOfLine);
+			continueFlag = ListString ((char*)gTextString,
+												(UInt32)strlen ((char*)gTextString),
+												gOutputTextH);
 			
-			}		// end "if (continueFlag)" 
+			}	// end "if (continueFlag)" 
 			
 		if (continueFlag)
 			{
 						// List the number of channels in the image file.			
 			
 			if (fileInfoPtr->thematicType)	
-				sprintf( (char*)&gTextString,
-					"    Number of classes:            %10ld%s",
-					fileInfoPtr->numberClasses,
-					gEndOfLine);
-			else		// !fileInfoPtr->thematicType 		
-				sprintf( (char*)&gTextString,
-					"    Number of channels:           %10d%s",   
-					fileInfoPtr->numberChannels,
-					gEndOfLine);	
+				sprintf ((char*)gTextString,
+							"    Number of classes:            %10ld%s",
+							fileInfoPtr->numberClasses,
+							gEndOfLine);
+			else	// !fileInfoPtr->thematicType 		
+				sprintf ((char*)gTextString,
+							"    Number of channels:           %10d%s",   
+							fileInfoPtr->numberChannels,
+							gEndOfLine);	
 			
-			continueFlag = ListString( 
-				(char*)&gTextString,  strlen((char*)&gTextString),  gOutputTextH);
+			continueFlag = ListString ((char*)gTextString,
+												(UInt32)strlen ((char*)gTextString),
+												gOutputTextH);
 			
-			}		// end "if (continueFlag)" 
+			}	// end "if (continueFlag)" 
 			
 		if (continueFlag)
 			{
 						// List the number of bytes in the image file.				
 							
-			sprintf( (char*)&gTextString,
-					"    Number of bytes:              %10d%s", 
-					fileInfoPtr->numberBytes,
-					gEndOfLine);
-			continueFlag = ListString( 
-				(char*)&gTextString,  strlen((char*)&gTextString),  gOutputTextH);
+			sprintf ((char*)gTextString,
+						"    Number of bytes:              %10d%s", 
+						fileInfoPtr->numberBytes,
+						gEndOfLine);
+			continueFlag = ListString ((char*)gTextString,
+												(UInt32)strlen ((char*)gTextString),
+												gOutputTextH);
 			
-			}		// end "if (continueFlag)" 
+			}	// end "if (continueFlag)" 
 			
 		if (continueFlag)
 			{
 						// List the number of bits in the image file.				
 							
-			sprintf( (char*)&gTextString,
-					"    Number of bits:               %10d%s", 
-					fileInfoPtr->numberBits,
-					gEndOfLine);
-			continueFlag = ListString( 
-				(char*)&gTextString,  strlen((char*)&gTextString),  gOutputTextH);
+			sprintf ((char*)gTextString,
+						"    Number of bits:               %10d%s", 
+						fileInfoPtr->numberBits,
+						gEndOfLine);
+			continueFlag = ListString ((char*)gTextString,
+												(UInt32)strlen ((char*)gTextString),
+												gOutputTextH);
 			
-			}		// end "if (continueFlag)"
+			}	// end "if (continueFlag)"
 			
 		if (continueFlag && (fileInfoPtr->bandInterleave == kBIL ||
 										fileInfoPtr->bandInterleave == kBSQ ||
@@ -2924,14 +2913,15 @@ Boolean ListDescriptionInformationForFile (
 			{			
 						// List the number of header bytes in the image file.	
 						
-			sprintf( (char*)&gTextString,
-				"    Number of header bytes:       %10ld%s", 
-				fileInfoPtr->numberHeaderBytes,
-				gEndOfLine);
-			continueFlag = ListString( 
-				(char*)&gTextString,  strlen((char*)&gTextString),  gOutputTextH);
+			sprintf ((char*)gTextString,
+						"    Number of header bytes:       %10ld%s", 
+						fileInfoPtr->numberHeaderBytes,
+						gEndOfLine);
+			continueFlag = ListString ((char*)gTextString,
+												(UInt32)strlen ((char*)gTextString),
+												gOutputTextH);
 		
-			}		// end "if (continueFlag)" 
+			}	// end "if (continueFlag)" 
 			
 		if (continueFlag && !fileInfoPtr->blockedFlag &&
 									(fileInfoPtr->bandInterleave == kBIL ||
@@ -2941,34 +2931,36 @@ Boolean ListDescriptionInformationForFile (
 			{			
 						// List the number of pre-line bytes in the image file.	
 						
-			sprintf( (char*)&gTextString,
-				"    Number of pre-line bytes:     %10ld%s" 
-				"    Number of post-line bytes:    %10ld%s", 
-				fileInfoPtr->numberPreLineBytes,
-				gEndOfLine, 
-				fileInfoPtr->numberPostLineBytes,
-				gEndOfLine);
-			continueFlag = ListString( 
-				(char*)&gTextString,  strlen((char*)&gTextString),  gOutputTextH);
+			sprintf ((char*)gTextString,
+						"    Number of pre-line bytes:     %10ld%s" 
+						"    Number of post-line bytes:    %10ld%s", 
+						fileInfoPtr->numberPreLineBytes,
+						gEndOfLine, 
+						fileInfoPtr->numberPostLineBytes,
+						gEndOfLine);
+			continueFlag = ListString ((char*)gTextString,  
+												(UInt32)strlen ((char*)gTextString),  
+												gOutputTextH);
 		
-			}		// end "if (continueFlag && ..." 
+			}	// end "if (continueFlag && ..." 
 		
-		if ( continueFlag && !fileInfoPtr->thematicType &&  
+		if (continueFlag && !fileInfoPtr->thematicType &&  
 										(fileInfoPtr->bandInterleave == kBIL ||
 											fileInfoPtr->bandInterleave == kBSQ ||
-											fileInfoPtr->bandInterleave == kBNonSQ) )
+											fileInfoPtr->bandInterleave == kBNonSQ))
 				{			
-				sprintf( (char*)&gTextString,
-					"    Number of pre-channel bytes:  %10ld%s"
-					"    Number of post-channel bytes: %10ld%s", 
-					fileInfoPtr->numberPreChannelBytes,
-					gEndOfLine, 
-					fileInfoPtr->numberPostChannelBytes,
-					gEndOfLine);
-				continueFlag = ListString( 
-					(char*)&gTextString,  strlen((char*)&gTextString),  gOutputTextH);
+				sprintf ((char*)gTextString,
+							"    Number of pre-channel bytes:  %10ld%s"
+							"    Number of post-channel bytes: %10ld%s", 
+							fileInfoPtr->numberPreChannelBytes,
+							gEndOfLine, 
+							fileInfoPtr->numberPostChannelBytes,
+							gEndOfLine);
+				continueFlag = ListString ((char*)gTextString,
+													(UInt32)strlen ((char*)gTextString),
+													gOutputTextH);
 				
-			}		// end "if (continueFlag && !...->thematicType && ..." 
+			}	// end "if (continueFlag && !...->thematicType && ..." 
 			
 		if (continueFlag && (fileInfoPtr->blockedFlag || fileInfoPtr->blockHeight > 0))
 			{
@@ -2978,86 +2970,81 @@ Boolean ListDescriptionInformationForFile (
 								blockWidth;
 			
 			GetBlockInformation (fileInfoPtr, 
-											&blockHeight, 
-											&blockWidth,
-											&blockSize,
-											&blockOffset);
+										&blockHeight, 
+										&blockWidth,
+										&blockSize,
+										&blockOffset);
 						
-			sprintf( (char*)&gTextString,
-				"    Block height:                 %10ld%s" 
-				"    Block width:                  %10ld%s",
-				blockHeight, gEndOfLine, 
-				blockWidth, gEndOfLine);
-			continueFlag = ListString( 
-				(char*)&gTextString,  strlen((char*)&gTextString),  gOutputTextH);
+			sprintf ((char*)gTextString,
+						"    Block height:                 %10ld%s" 
+						"    Block width:                  %10ld%s",
+						blockHeight, gEndOfLine, 
+						blockWidth, gEndOfLine);
+			continueFlag = ListString ((char*)gTextString,
+												(UInt32)strlen ((char*)gTextString),
+												gOutputTextH);
 				
 			if (fileInfoPtr->blockedFlag)
 				{
-				sprintf( (char*)&gTextString,
-					"    Block size:                   %10ld%s" 
-					"    Block offset:                 %10ld%s",
-					blockSize, gEndOfLine, 
-					blockOffset, gEndOfLine);
-				continueFlag = ListString( 
-					(char*)&gTextString,  strlen((char*)&gTextString),  gOutputTextH);
+				sprintf ((char*)gTextString,
+							"    Block size:                   %10ld%s" 
+							"    Block offset:                 %10ld%s",
+							blockSize, gEndOfLine, 
+							blockOffset, gEndOfLine);
+				continueFlag = ListString ((char*)gTextString,
+													(UInt32)strlen ((char*)gTextString),
+													gOutputTextH);
 				
-				}		// end "if (fileInfoPtr->blockedFlag)"
+				}	// end "if (fileInfoPtr->blockedFlag)"
 		
-			}		// end "if (continueFlag && ..." 
+			}	// end "if (continueFlag && ..." 
 			
 		if (continueFlag)
 			{			
-			sprintf( (char*)&gTextString,
-				"    Line start:                   %10ld%s"
-				"    Column start:                 %10ld%s", 
-				fileInfoPtr->startLine,
-				gEndOfLine,
-				fileInfoPtr->startColumn,
-				gEndOfLine);
-			continueFlag = ListString( 
-				(char*)&gTextString,  strlen((char*)&gTextString),  gOutputTextH);
+			sprintf ((char*)gTextString,
+						"    Line start:                   %10ld%s"
+						"    Column start:                 %10ld%s", 
+						fileInfoPtr->startLine,
+						gEndOfLine,
+						fileInfoPtr->startColumn,
+						gEndOfLine);
+			continueFlag = ListString ((char*)gTextString, 
+												(UInt32)strlen ((char*)gTextString),
+												gOutputTextH);
 		
-			}		// end "if (continueFlag)" 
+			}	// end "if (continueFlag)" 
 			
 		if (continueFlag && fileInfoPtr->noDataValueFlag)
 			{
-//			char* doubleToHexPtr;
-//			doubleToHexPtr = (char*)&fileInfoPtr->noDataValue;
-			sprintf( (char*)&gTextString,
-//				"    No Data Value:            %14.7e or %2X %2X %2X %2X %2X %2X %2X %2X%s", 
-				"    No Data (or Fill) Value:  %14g%s",			// 14.7e%s used in past. Will try g for now.
-				fileInfoPtr->noDataValue,
-//				doubleToHexPtr[0],
-//				doubleToHexPtr[1],
-//				doubleToHexPtr[2],
-//				doubleToHexPtr[3],
-//				doubleToHexPtr[4],
-//				doubleToHexPtr[5],
-//				doubleToHexPtr[6],
-//				doubleToHexPtr[7], 
-				gEndOfLine);
-			continueFlag = ListString( 
-				(char*)&gTextString,  strlen((char*)&gTextString),  gOutputTextH);
+			sprintf ((char*)gTextString,
+						"    No Data (or Fill) Value:  %14g%s",	// 14.7e%s used in past.
+																				// Will try g for now.
+						fileInfoPtr->noDataValue,
+						gEndOfLine);
+			continueFlag = ListString ((char*)gTextString,
+												(UInt32)strlen ((char*)gTextString),
+												gOutputTextH);
 		
-			}		// end "if (continueFlag && fileInfoPtr->noDataValueFlag)" 
+			}	// end "if (continueFlag && fileInfoPtr->noDataValueFlag)" 
 
 			
 		if (continueFlag && fileInfoPtr->treatLinesAsBottomToTopFlag)
 			{
-			sprintf ((char*)&gTextString,
+			sprintf ((char*)gTextString,
 							"    Lines stored from bottom to top (rather than top to bottom)%s", 
 							gEndOfLine);
 				
-			continueFlag = ListString( 
-				(char*)&gTextString,  strlen((char*)&gTextString),  gOutputTextH);
+			continueFlag = ListString ((char*)gTextString,
+												(UInt32)strlen ((char*)gTextString),
+												gOutputTextH);
 			
-			}		// end "if (continueFlag && fileInfoPtr->treatLinesAsBottomToTopFlag)"
+			}	// end "if (continueFlag && fileInfoPtr->treatLinesAsBottomToTopFlag)"
 			
-		}		// end "if (fileInfoPtr != NULL)"
+		}	// end "if (fileInfoPtr != NULL)"
 		
 	return (continueFlag);
 
-}		// end "ListDescriptionInformationForFile"
+}	// end "ListDescriptionInformationForFile"
 
 
 
@@ -3083,7 +3070,7 @@ Boolean ListDescriptionInformationForFile (
 //	Revised By:			Larry L. Biehl			Date: 03/01/2013
 
 void ListInstrumentName (
-											FileInfoPtr							fileInfoPtr)
+				FileInfoPtr							fileInfoPtr)
 
 {
 	SInt16								stringIndex;
@@ -3093,7 +3080,7 @@ void ListInstrumentName (
 	
 	if (fileInfoPtr->instrumentCode > 0)
 		{			
-		sprintf ((char*)&gTextString,"    Instrument Name:          ");
+		sprintf ((char*)gTextString,"    Instrument Name:          ");
 		
 		stringIndex = IDS_InstrumentName01+fileInfoPtr->instrumentCode-1;
 		
@@ -3105,13 +3092,15 @@ void ListInstrumentName (
 		if (continueFlag)
 			{
 			sprintf ((char*)&gTextString[30],"%s%s", &gTextString2[1], gEndOfLine);		
-			ListString ((char*)&gTextString,  strlen((char*)&gTextString),  gOutputTextH);
+			ListString ((char*)gTextString,  
+							(UInt32)strlen ((char*)gTextString),
+							gOutputTextH);
 							
-			}		// end "if (continueFlag)"
+			}	// end "if (continueFlag)"
 		
-		}		// end "if (fileInfoPtr->instrumentCode > 0)"  
+		}	// end "if (fileInfoPtr->instrumentCode > 0)"  
 				
-}		// end "ListInstrumentName" 
+}	// end "ListInstrumentName" 
 																
 																
 
@@ -3164,7 +3153,7 @@ Boolean ListLARSYSMISTHeaderInformation (
 
 			// Get address of character buffer to use to read header into.			
 			
-	headerRecordPtr = (SInt32*)&gTextString3;
+	headerRecordPtr = (SInt32*)gTextString3;
 	
 	count = 0;
 	errCode = MSetMarker (fileStreamPtr, 
@@ -3175,41 +3164,42 @@ Boolean ListLARSYSMISTHeaderInformation (
 		{
 		count = 80;
 		errCode = MReadData (fileStreamPtr, 
-										&count, 
-										headerRecordPtr,
-										kNoErrorMessages);
+									&count, 
+									headerRecordPtr,
+									kNoErrorMessages);
 		
-		}		// end "if (errCode == noErr)" 
+		}	// end "if (errCode == noErr)" 
 		
 	if (errCode != noErr)
-																					return (TRUE);
+																							return (TRUE);
 																						
 			// Get the string to use to convert from EBCDIC to ASCII.			
 			
 	conversionIndex = (UInt16)GetSpecifiedString (
-												128, &stringHandle, (char**)&stringPtr);
+														128, &stringHandle, (char**)&stringPtr);
 	
 	if (stringHandle == NULL)
-																					return (TRUE);
+																							return (TRUE);
 		
 			// LARSYS Run Number.															
 					
 	if (gSwapBytesFlag)
 		Swap4Bytes ((HUInt32Ptr)&headerRecordPtr[2], 1);
 																				
-	sprintf ((char*)&gTextString,
-			"%s    LARSYS Run Number:    %8ld%s",
-			gEndOfLine,  
-			headerRecordPtr[2],
-			gEndOfLine);
-	continueFlag = ListString( 
-		(char*)&gTextString,  strlen((char*)&gTextString), gOutputTextH);
+	sprintf ((char*)gTextString,
+				"%s    LARSYS Run Number:    %8ld%s",
+				gEndOfLine,  
+				headerRecordPtr[2],
+				gEndOfLine);
+	continueFlag = ListString ((char*)gTextString,
+										(UInt32)strlen ((char*)gTextString), 
+										gOutputTextH);
 		
 			// Flightline description.														
 		
 	if (continueFlag)
 		{
-		BlockMoveData (&headerRecordPtr[6], (char*)&gTextString2, 16);
+		BlockMoveData (&headerRecordPtr[6], (char*)gTextString2, 16);
 		gTextString2[16] = kNullTerminator;
 		
 		for (index=0; index<16; index++)
@@ -3217,16 +3207,17 @@ Boolean ListLARSYSMISTHeaderInformation (
 			conversionIndex = gTextString2[index];
 			gTextString2[index] = stringPtr[conversionIndex];
 			
-			}		// end "for (index=0; index<16; index++)" 
+			}	// end "for (index=0; index<16; index++)" 
 		
-		sprintf ((char*)&gTextString,
-			"    LARSYS Description:   %s%s", 
-			gTextString2,
-			gEndOfLine);
-		continueFlag = ListString( 
-			(char*)&gTextString, strlen((char*)&gTextString), gOutputTextH);
+		sprintf ((char*)gTextString,
+					"    LARSYS Description:   %s%s", 
+					gTextString2,
+					gEndOfLine);
+		continueFlag = ListString ((char*)gTextString,
+											(UInt32)strlen ((char*)gTextString),
+											gOutputTextH);
 		
-		}		// end "if (continueFlag)" 
+		}	// end "if (continueFlag)" 
 		
 			// Date data collected.																
 		
@@ -3238,24 +3229,25 @@ Boolean ListLARSYSMISTHeaderInformation (
 			Swap4Bytes ((HUInt32Ptr)&headerRecordPtr[11], 1);
 			Swap4Bytes ((HUInt32Ptr)&headerRecordPtr[12], 1);
 			
-			}		// end "if (gSwapBytesFlag)"
+			}	// end "if (gSwapBytesFlag)"
 		
-		sprintf ((char*)&gTextString,
-			"    Date data collected:  %2ld-%2ld-%ld%s", 
-			headerRecordPtr[10],
-			headerRecordPtr[11],
-			headerRecordPtr[12],
-			gEndOfLine);
-		continueFlag = ListString( 
-			(char*)&gTextString, strlen((char*)&gTextString), gOutputTextH);
+		sprintf ((char*)gTextString,
+					"    Date data collected:  %2ld-%2ld-%ld%s", 
+					headerRecordPtr[10],
+					headerRecordPtr[11],
+					headerRecordPtr[12],
+					gEndOfLine);
+		continueFlag = ListString ((char*)gTextString, 
+											(UInt32)strlen ((char*)gTextString), 
+											gOutputTextH);
 		
-		}		// end "if (continueFlag)" 
+		}	// end "if (continueFlag)" 
 		
 			// Time data collected.																
 		
 	if (continueFlag)
 		{
-		BlockMoveData (&headerRecordPtr[13], (char*)&gTextString2, 4);
+		BlockMoveData (&headerRecordPtr[13], (char*)gTextString2, 4);
 		gTextString2[4] = kNullTerminator;
 		
 		for (index=0; index<4; index++)
@@ -3263,16 +3255,17 @@ Boolean ListLARSYSMISTHeaderInformation (
 			conversionIndex = gTextString2[index];
 			gTextString2[index] = stringPtr[conversionIndex];
 			
-			}		// end "for (index=0; index<4; index++)" 
+			}	// end "for (index=0; index<4; index++)" 
 		
-		sprintf ((char*)&gTextString,
-			"    Time data collected:  %s%s", 
-			(char*)&gTextString2,
-			gEndOfLine);
-		continueFlag = ListString( 
-			(char*)&gTextString, strlen((char*)&gTextString), gOutputTextH);
+		sprintf ((char*)gTextString,
+					"    Time data collected:  %s%s", 
+					(char*)gTextString2,
+					gEndOfLine);
+		continueFlag = ListString ((char*)gTextString, 
+											(UInt32)strlen ((char*)gTextString), 
+											gOutputTextH);
 		
-		}		// end "if (continueFlag)" 
+		}	// end "if (continueFlag)" 
 		
 			// Platform altitude.																
 		
@@ -3281,14 +3274,15 @@ Boolean ListLARSYSMISTHeaderInformation (
 		if (gSwapBytesFlag)
 			Swap4Bytes ((HUInt32Ptr)&headerRecordPtr[14], 1);
 			
-		sprintf ((char*)&gTextString,
-			"    Altitude of platform: %ld%s", 
-			headerRecordPtr[14],
-			gEndOfLine);
-		continueFlag = ListString( 
-			(char*)&gTextString, strlen((char*)&gTextString), gOutputTextH);
+		sprintf ((char*)gTextString,
+					"    Altitude of platform: %ld%s", 
+					headerRecordPtr[14],
+					gEndOfLine);
+		continueFlag = ListString ((char*)gTextString, 
+											(UInt32)strlen ((char*)gTextString), 
+											gOutputTextH);
 		
-		}		// end "if (continueFlag)" 
+		}	// end "if (continueFlag)" 
 		
 			// Ground heading.																	
 		
@@ -3297,37 +3291,39 @@ Boolean ListLARSYSMISTHeaderInformation (
 		if (gSwapBytesFlag)
 			Swap4Bytes ((HUInt32Ptr)&headerRecordPtr[15], 1);
 			
-		sprintf ((char*)&gTextString,
-			"    Ground heading:       %ld%s", 
-			headerRecordPtr[15],
-			gEndOfLine);
-		continueFlag = ListString( 
-			(char*)&gTextString, strlen((char*)&gTextString), gOutputTextH);
+		sprintf ((char*)gTextString,
+					"    Ground heading:       %ld%s", 
+					headerRecordPtr[15],
+					gEndOfLine);
+		continueFlag = ListString ((char*)gTextString, 
+											(UInt32)strlen ((char*)gTextString), 
+											gOutputTextH);
 		
-		}		// end "if (continueFlag)" 
+		}	// end "if (continueFlag)" 
 		
 			// Reformatting date.																
 		
 	if (continueFlag)
 		{
-		BlockMoveData (&headerRecordPtr[16], (char*)&gTextString2, 12);
+		BlockMoveData (&headerRecordPtr[16], (char*)gTextString2, 12);
 		gTextString2[12] = kNullTerminator;
 		
 		for (index=0; index<12; index++)
 			{
 			conversionIndex = gTextString2[index];
-			gTextString2[index] = stringPtr[ conversionIndex ];
+			gTextString2[index] = stringPtr[conversionIndex];
 			
-			}		// end "for (index=0; index<12; index++)" 
+			}	// end "for (index=0; index<12; index++)" 
 		
-		sprintf ((char*)&gTextString,
-			"    Reformatting date:    %s%s", 
-			gTextString2,
-			gEndOfLine);
-		continueFlag = ListString( 
-			(char*)&gTextString, strlen((char*)&gTextString), gOutputTextH);
+		sprintf ((char*)gTextString,
+					"    Reformatting date:    %s%s", 
+					gTextString2,
+					gEndOfLine);
+		continueFlag = ListString ((char*)gTextString,
+											(UInt32)strlen ((char*)gTextString), 
+											gOutputTextH);
 		
-		}		// end "if (continueFlag)" 
+		}	// end "if (continueFlag)" 
 		
 			// LARSYS Tape Number.																
 		
@@ -3336,14 +3332,15 @@ Boolean ListLARSYSMISTHeaderInformation (
 		if (gSwapBytesFlag)
 			Swap4Bytes ((HUInt32Ptr)&headerRecordPtr[0], 1);
 			
-		sprintf ((char*)&gTextString,
-			"    LARSYS Tape Number:   %ld%s", 
-			headerRecordPtr[0],
-			gEndOfLine);
-		continueFlag = ListString( 
-			(char*)&gTextString, strlen((char*)&gTextString), gOutputTextH);
+		sprintf ((char*)gTextString,
+					"    LARSYS Tape Number:   %ld%s", 
+					headerRecordPtr[0],
+					gEndOfLine);
+		continueFlag = ListString ((char*)gTextString,
+											(UInt32)strlen ((char*)gTextString), 
+											gOutputTextH);
 		
-		}		// end "if (continueFlag)" 
+		}	// end "if (continueFlag)" 
 		
 			// LARSYS File Number.																
 		
@@ -3352,25 +3349,26 @@ Boolean ListLARSYSMISTHeaderInformation (
 		if (gSwapBytesFlag)
 			Swap4Bytes ((HUInt32Ptr)&headerRecordPtr[1], 1);
 			
-		sprintf ((char*)&gTextString,
-			"    LARSYS File Number:   %ld%s%s", 
-			headerRecordPtr[1],
-			gEndOfLine,
-			gEndOfLine);
-		continueFlag = ListString( 
-			(char*)&gTextString, strlen((char*)&gTextString), gOutputTextH);
+		sprintf ((char*)gTextString,
+					"    LARSYS File Number:   %ld%s%s", 
+					headerRecordPtr[1],
+					gEndOfLine,
+					gEndOfLine);
+		continueFlag = ListString ((char*)gTextString,
+											(UInt32)strlen ((char*)gTextString), 
+											gOutputTextH);
 		
-		}		// end "if (continueFlag)" 
+		}	// end "if (continueFlag)" 
 		
 	gSwapBytesFlag = FALSE;
 		
 	CheckAndUnlockHandle ((Handle)stringHandle);
 	ReleaseResource ((Handle)stringHandle);
-	index = ResError();
+	index = ResError ();
 	
 	return (continueFlag);
 
-}		// end "ListLARSYSMISTHeaderInformation" 
+}	// end "ListLARSYSMISTHeaderInformation" 
 																
 																
 
@@ -3434,9 +3432,8 @@ Boolean ListMapParameters (
 
 				
 	mapProjectionInfoPtr = (MapProjectionInfoPtr)
-								GetHandlePointer (fileInfoPtr->mapProjectionHandle,
-															kLock,
-															kNoMoveHi);
+										GetHandlePointer (fileInfoPtr->mapProjectionHandle,
+																	kLock);
 	
 	if (mapProjectionInfoPtr != NULL)
 		{
@@ -3447,107 +3444,108 @@ Boolean ListMapParameters (
 			numberDigits = 8;
 			numberSizeDigits = 12;
 			
-			}		// end "if (...->planarCoordinate.mapUnitsCode == kDecimalDegreesCode)"
+			}	// end "if (...->planarCoordinate.mapUnitsCode == kDecimalDegreesCode)"
 		
 				// List planar map parameters.
 				
-		sprintf( (char*)&gTextString,
+		sprintf ((char*)gTextString,
 						"    Planar Map Parameters%s",
 						gEndOfLine);
 				
-		continueFlag = ListString( 
-			(char*)&gTextString,  strlen((char*)&gTextString),  gOutputTextH);
+		continueFlag = ListString ((char*)gTextString,
+											(UInt32)strlen ((char*)gTextString),
+											gOutputTextH);
 			
 				// List the x-map coordinate for pixel (1,1).				
 				
-		numberChars = sprintf( 
-								(char*)&gTextString2,
-								"%21.*f",
-								numberDigits,
-								mapProjectionInfoPtr->planarCoordinate.xMapCoordinate11);	
-										
-		numberChars = InsertCommasInNumberString (
-									(char*)&gTextString2, 
-									numberChars, 
+		numberChars = sprintf (
+									(char*)gTextString2,
+									"%21.*f",
 									numberDigits,
-									numberChars);			
+									mapProjectionInfoPtr->planarCoordinate.xMapCoordinate11);	
+										
+		numberChars = InsertCommasInNumberString ((char*)gTextString2, 
+																numberChars, 
+																numberDigits,
+																numberChars);			
 				
-		sprintf( (char*)&gTextString,
-						"      x-map coordinate for center of upper-left pixel (1,1): %23s%s",
-						gTextString2,
-						gEndOfLine);
+		sprintf ((char*)gTextString,
+					"      x-map coordinate for center of upper-left pixel (1,1): %23s%s",
+					gTextString2,
+					gEndOfLine);
 				
-		continueFlag = ListString( 
-			(char*)&gTextString,  strlen((char*)&gTextString),  gOutputTextH);
+		continueFlag = ListString ((char*)gTextString,
+											(UInt32)strlen ((char*)gTextString),  
+											gOutputTextH);
 			
 				// List the y-map coordinate for pixel (1,1).				
 				
-		numberChars = sprintf( 
-								(char*)&gTextString2,
-								"%21.*f",
-								numberDigits,
-								mapProjectionInfoPtr->planarCoordinate.yMapCoordinate11);	
+		numberChars = sprintf ((char*)gTextString2,
+										"%21.*f",
+										numberDigits,
+										mapProjectionInfoPtr->planarCoordinate.yMapCoordinate11);	
 										
-		numberChars = InsertCommasInNumberString (
-									(char*)&gTextString2, 
-									numberChars, 
-									numberDigits,
-									numberChars);							
+		numberChars = InsertCommasInNumberString ((char*)gTextString2, 
+																numberChars, 
+																numberDigits,
+																numberChars);							
 				
-		sprintf( (char*)&gTextString,
-						"      y-map coordinate for center of upper-left pixel (1,1): %23s%s",
-						gTextString2,
-						gEndOfLine);
+		sprintf ((char*)gTextString,
+					"      y-map coordinate for center of upper-left pixel (1,1): %23s%s",
+					gTextString2,
+					gEndOfLine);
 		
 		if (continueFlag)		
-			continueFlag = ListString( 
-				(char*)&gTextString,  strlen((char*)&gTextString),  gOutputTextH);
+			continueFlag = ListString ((char*)gTextString,
+												(UInt32)strlen ((char*)gTextString),  
+												gOutputTextH);
 			
 				// List the horizontal pixel size.					
 				
-		numberChars = sprintf( 
-								(char*)&gTextString2,
+		numberChars = sprintf (
+								(char*)gTextString2,
 								"%21.*f",
 								numberSizeDigits,
 								mapProjectionInfoPtr->planarCoordinate.horizontalPixelSize);	
 										
-		numberChars = InsertCommasInNumberString (
-									(char*)&gTextString2, 
-									numberChars, 
-									numberSizeDigits,
-									numberChars);									
+		numberChars = InsertCommasInNumberString ((char*)gTextString2, 
+																numberChars, 
+																numberSizeDigits,
+																numberChars);									
 				
-		sprintf( (char*)&gTextString,
-						"      horizontal pixel size per pixel:                       %23s%s",
-						gTextString2,
-						gEndOfLine);
+		sprintf ((char*)gTextString,
+					"      horizontal pixel size per pixel:                       %23s%s",
+					gTextString2,
+					gEndOfLine);
 				
 		if (continueFlag)	
-			continueFlag = ListString( 
-				(char*)&gTextString,  strlen((char*)&gTextString),  gOutputTextH);
+			continueFlag = ListString ((char*)gTextString,
+												(UInt32)strlen ((char*)gTextString),  
+												gOutputTextH);
 			
 				// List the vertical pixel size.						
 				
-		numberChars = sprintf( 
-								(char*)&gTextString2,
+		numberChars = sprintf (
+								(char*)gTextString2,
 								"%21.*f",
 								numberSizeDigits,
 								mapProjectionInfoPtr->planarCoordinate.verticalPixelSize);	
 										
 		numberChars = InsertCommasInNumberString (
-									(char*)&gTextString2, 
+									(char*)gTextString2, 
 									numberChars, 
 									numberSizeDigits,
 									numberChars);					
 				
-		sprintf( (char*)&gTextString,
-						"      vertical pixel size per pixel:                         %23s%s",
-						gTextString2,
-						gEndOfLine);
+		sprintf ((char*)gTextString,
+					"      vertical pixel size per pixel:                         %23s%s",
+					gTextString2,
+					gEndOfLine);
 			
 		if (continueFlag)		
-			continueFlag = ListString( 
-				(char*)&gTextString,  strlen((char*)&gTextString),  gOutputTextH);
+			continueFlag = ListString ((char*)gTextString,
+												(UInt32)strlen ((char*)gTextString),  
+												gOutputTextH);
 			
 				// List the units.	
 				
@@ -3559,19 +3557,21 @@ Boolean ListMapParameters (
 		#endif	// defined multispec_mac   
                           
 		#if defined multispec_win | defined multispec_lin
-			MGetString (gTextString2,
+			MGetString (
+					gTextString2,
 					0,
 					IDS_MapUnits01+mapProjectionInfoPtr->planarCoordinate.mapUnitsCode);
 		#endif	// defined multispec_win
 
-		sprintf( (char*)&gTextString,
+		sprintf ((char*)gTextString,
 						"      map units:       %s%s",
 						&gTextString2[1],
 						gEndOfLine);
 				
 		if (continueFlag)	
-			continueFlag = ListString( 
-				(char*)&gTextString,  strlen((char*)&gTextString),  gOutputTextH);
+			continueFlag = ListString ((char*)gTextString,  
+												(UInt32)strlen ((char*)gTextString),
+												gOutputTextH);
 				
 				// List z units (such as for DEM data)
 				
@@ -3585,61 +3585,65 @@ Boolean ListMapParameters (
 			#endif	// defined multispec_mac   
 									  
 			#if defined multispec_win | defined multispec_lin
-				MGetString (gTextString2,
+				MGetString (
+						gTextString2,
 						0,
 						IDS_MapUnits01+mapProjectionInfoPtr->planarCoordinate.zMapUnitsCode);
 			#endif	// defined multispec_win
 
-			sprintf( (char*)&gTextString,
+			sprintf ((char*)gTextString,
 							"      z map units:     %s%s",
 							&gTextString2[1],
 							gEndOfLine);
 					
 			if (continueFlag)	
-				continueFlag = ListString( 
-					(char*)&gTextString,  strlen((char*)&gTextString),  gOutputTextH);
+				continueFlag = ListString ((char*)gTextString,
+													(UInt32)strlen ((char*)gTextString),
+													gOutputTextH);
 			
-			}		// end "if (...->planarCoordinate.zMapUnitsCode != kUnknownCode)"
+			}	// end "if (...->planarCoordinate.zMapUnitsCode != kUnknownCode)"
 				
 				// List the map orientation angle if other than 0
 				
 		if (mapProjectionInfoPtr->planarCoordinate.mapOrientationAngle != 0)
 			{
-			sprintf( (char*)&gTextString,
-							"      map orientation angle:       %10.7f%s",
-							mapProjectionInfoPtr->planarCoordinate.mapOrientationAngle*kRadiansToDegrees,
-							gEndOfLine);
+			sprintf ((char*)gTextString,
+						"      map orientation angle:       %10.7f%s",
+						mapProjectionInfoPtr->planarCoordinate.mapOrientationAngle*kRadiansToDegrees,
+						gEndOfLine);
 					
 			if (continueFlag)	
-				continueFlag = ListString( 
-					(char*)&gTextString,  strlen((char*)&gTextString),  gOutputTextH);
+				continueFlag = ListString ((char*)gTextString,
+													(UInt32)strlen ((char*)gTextString),
+													gOutputTextH);
 				
-			}		// end "if (...->planarCoordinate.mapOrientationAngle != 0)"
+			}	// end "if (...->planarCoordinate.mapOrientationAngle != 0)"
 			
 				// List the control points if there are any.
 				
 		controlPointsPtr = GetControlPointVectorPointers (
-															fileInfoPtr->controlPointsHandle,
-															kNoLock);
+																fileInfoPtr->controlPointsHandle,
+																kNoLock);
 				
 		if (controlPointsPtr != NULL)
 			{
 			if (controlPointsPtr->count <= 20 || listAllInformationFlag)
 				{
-				sprintf( (char*)&gTextString,
-								"%s      Control Points:  %ld%s          Column       Line         MapX          MapY%s",
-								gEndOfLine,
-								controlPointsPtr->count,
-								gEndOfLine,
-								gEndOfLine);
+				sprintf ((char*)gTextString,
+							"%s      Control Points:  %ld%s          Column       Line         MapX          MapY%s",
+							gEndOfLine,
+							controlPointsPtr->count,
+							gEndOfLine,
+							gEndOfLine);
 						
 				if (continueFlag)	
-					continueFlag = ListString( 
-						(char*)&gTextString,  strlen((char*)&gTextString),  gOutputTextH);
+					continueFlag = ListString ((char*)gTextString,
+														(UInt32)strlen ((char*)gTextString),
+														gOutputTextH);
 								
 				for (index=0; index<(UInt32)controlPointsPtr->count; index++)
 					{
-					sprintf( (char*)&gTextString,
+					sprintf ((char*)gTextString,
 								"      %10.3f %10.3f %13.6f %13.6f%s",
 								controlPointsPtr->easting1Ptr[index],
 								controlPointsPtr->northing1Ptr[index],
@@ -3648,56 +3652,57 @@ Boolean ListMapParameters (
 								gEndOfLine);
 						
 					if (continueFlag)	
-						continueFlag = ListString( 
-							(char*)&gTextString,  strlen((char*)&gTextString),  gOutputTextH);
+						continueFlag = ListString ((char*)gTextString,
+															(UInt32)strlen ((char*)gTextString),
+															gOutputTextH);
 					
-					}		// end "for (index=0; index<controlPointsPtr->count; index++)"
+					}	// end "for (index=0; index<controlPointsPtr->count; index++)"
 					
-				}		// end "if (controlPointsPtr->count <= 20 && listAllInformationFlag)"
+				}	// end "if (controlPointsPtr->count <= 20 && listAllInformationFlag)"
 				
 			else if (controlPointsPtr->count > 20)
 				{
-				sprintf( (char*)&gTextString,
-								"%s      There are %ld control points. Use shift key with List Image Description... to force them to be listed.%s",
-								gEndOfLine,
-								controlPointsPtr->count,
-								gEndOfLine);
+				sprintf ((char*)gTextString,
+							"%s      There are %ld control points. Use shift key with List Image Description... to force them to be listed.%s",
+							gEndOfLine,
+							controlPointsPtr->count,
+							gEndOfLine);
 						
 				if (continueFlag)	
-					continueFlag = ListString( 
-						(char*)&gTextString,  strlen((char*)&gTextString),  gOutputTextH);
+					continueFlag = ListString ((char*)gTextString,
+														(UInt32)strlen ((char*)gTextString),
+														gOutputTextH);
 				
-				}		// end "else if (controlPointsPtr->count > 20)"
+				}	// end "else if (controlPointsPtr->count > 20)"
 				
 			CloseControlPointVectorPointers (fileInfoPtr->controlPointsHandle);
 			
-			}		// end "if (controlPointsPtr != NULL)"
+			}	// end "if (controlPointsPtr != NULL)"
 			
 				// List the polygon coefficients if there are any.
 															
 		if (mapProjectionInfoPtr->planarCoordinate.polynomialOrder > 0)
-//		if (mapProjectionInfoPtr->numberCoefficients > 0)
 			{
 			GetCoefficientsVectorPointers (mapProjectionInfoPtr);
-	
 						
-			sprintf( (char*)&gTextString,
-							"%s      Coordinate Polygon Model (order = %d)%s"
-							"                             Column/Line To Map           Map to Column/Line%s"
-							"                            Easting      Northing       Easting      Northing%s",
-							gEndOfLine,
-							mapProjectionInfoPtr->planarCoordinate.polynomialOrder,
-							gEndOfLine,
-							gEndOfLine,
-							gEndOfLine);
+			sprintf ((char*)gTextString,
+						"%s      Coordinate Polygon Model (order = %d)%s"
+						"                             Column/Line To Map           Map to Column/Line%s"
+						"                            Easting      Northing       Easting      Northing%s",
+						gEndOfLine,
+						mapProjectionInfoPtr->planarCoordinate.polynomialOrder,
+						gEndOfLine,
+						gEndOfLine,
+						gEndOfLine);
 					
 			if (continueFlag)	
-				continueFlag = ListString( 
-					(char*)&gTextString,  strlen((char*)&gTextString),  gOutputTextH);
+				continueFlag = ListString ((char*)gTextString,
+													(UInt32)strlen ((char*)gTextString),
+													gOutputTextH);
 							
 			for (index=0; index<mapProjectionInfoPtr->numberCoefficients; index++)
 				{
-				sprintf( (char*)&gTextString,
+				sprintf ((char*)gTextString,
 							"        Coefficient%2d %13.6g %13.6g %13.6g %13.6g%s",
 							index,
 							mapProjectionInfoPtr->planarCoordinate.easting1CoefficientsPtr[index], 
@@ -3707,29 +3712,31 @@ Boolean ListMapParameters (
 							gEndOfLine);
 					
 				if (continueFlag)	
-					continueFlag = ListString( 
-						(char*)&gTextString,  strlen((char*)&gTextString),  gOutputTextH);
+					continueFlag = ListString ((char*)gTextString,
+														(UInt32)strlen ((char*)gTextString),
+														gOutputTextH);
 				
-				}		// end "for (index=0; index<...->numberCoefficients; index++)"
+				}	// end "for (index=0; index<...->numberCoefficients; index++)"
 															
 			CloseCoefficientsVectorPointers (mapProjectionInfoPtr);
 			
-			}		// end "if (mapProjectionInfoPtr->planarCoordinate.polynomialOrder > 0)"
+			}	// end "if (mapProjectionInfoPtr->planarCoordinate.polynomialOrder > 0)"
 				
 				// List Grid Coordinate System Parameters
 				
-		sprintf( (char*)&gTextString,
-						"%s    Grid Coordinate System Parameters%s",
-						gEndOfLine,
-						gEndOfLine);
+		sprintf ((char*)gTextString,
+					"%s    Grid Coordinate System Parameters%s",
+					gEndOfLine,
+					gEndOfLine);
 				
 		if (continueFlag)	
-			continueFlag = ListString( 
-				(char*)&gTextString,  strlen((char*)&gTextString),  gOutputTextH);
+			continueFlag = ListString ((char*)gTextString,
+												(UInt32)strlen ((char*)gTextString),
+												gOutputTextH);
 				
 		continueFlag = ListMapReferenceSystemString (fileInfoPtr->mapProjectionHandle,
-																(char*)"      ", 
-								 								continueFlag);
+																	(char*)"      ", 
+																	continueFlag);
 								 								
 		referenceSystemCode = mapProjectionInfoPtr->gridCoordinate.referenceSystemCode;
 
@@ -3740,13 +3747,13 @@ Boolean ListMapParameters (
 				{
 						// List the EPSG Code and Name
 						
-				sprintf( (char*)&gTextString,
-										"      EPSG Code:        %d  %s%s",
-										abs(mapProjectionInfoPtr->projectedCSTypeGeoKey),
-										&mapProjectionInfoPtr->gridCoordinate.epsgName[1],
-										gEndOfLine);
+				sprintf ((char*)gTextString,
+							"      EPSG Code:        %d  %s%s",
+							abs (mapProjectionInfoPtr->projectedCSTypeGeoKey),
+							&mapProjectionInfoPtr->gridCoordinate.epsgName[1],
+							gEndOfLine);
 						
-				}		// end "if (referenceSystemCode == kByEPSGCodeCode)"
+				}	// end "if (referenceSystemCode == kByEPSGCodeCode)"
 	
 			else if (mapProjectionInfoPtr->gridCoordinate.gridZone != 0)	
 				{
@@ -3754,25 +3761,25 @@ Boolean ListMapParameters (
 					{																
 					case kStatePlaneNAD27RSCode:							
 					case kStatePlaneNAD83RSCode:
-						sprintf( (char*)&gTextString,
-												"      FIPS Zone:        %d  %s%s",
-												abs(mapProjectionInfoPtr->gridCoordinate.gridZone),
-												&mapProjectionInfoPtr->gridCoordinate.epsgName[1],
-												gEndOfLine);
+						sprintf ((char*)gTextString,
+									"      FIPS Zone:        %d  %s%s",
+									abs (mapProjectionInfoPtr->gridCoordinate.gridZone),
+									&mapProjectionInfoPtr->gridCoordinate.epsgName[1],
+									gEndOfLine);
 						break;
 											
 					case kGaussKrugerRSCode:
-						sprintf( (char*)&gTextString,
-												"      Zone:             %d%s",
-												abs(mapProjectionInfoPtr->gridCoordinate.gridZone),
-												gEndOfLine);
+						sprintf ((char*)gTextString,
+									"      Zone:             %d%s",
+									abs (mapProjectionInfoPtr->gridCoordinate.gridZone),
+									gEndOfLine);
 						break;
 											
 					case kGDA94RSCode:
-						sprintf( (char*)&gTextString,
-												"      MGA Zone:         %d%s",
-												abs(mapProjectionInfoPtr->gridCoordinate.gridZone),
-												gEndOfLine);
+						sprintf ((char*)gTextString,
+									"      MGA Zone:         %d%s",
+									abs (mapProjectionInfoPtr->gridCoordinate.gridZone),
+									gEndOfLine);
 						break;
 						
 					case kUTM_NAD27RSCode:
@@ -3785,24 +3792,25 @@ Boolean ListMapParameters (
 												mapProjectionInfoPtr->gridCoordinate.gridZone < 0)
 							direction = 'S';
 							
-						sprintf( (char*)&gTextString,
-												"      Zone:             %d%c%s",
-												abs(mapProjectionInfoPtr->gridCoordinate.gridZone),
-												direction,
-												gEndOfLine);
+						sprintf ((char*)gTextString,
+									"      Zone:             %d%c%s",
+									abs (mapProjectionInfoPtr->gridCoordinate.gridZone),
+									direction,
+									gEndOfLine);
 						break;
 						
-					}		// end "switch (mapProjectionInfoPtr->gridCoordinate.referenceSystemCode)"
+					}	// end "switch (...->gridCoordinate.referenceSystemCode)"
 							
-				}		// end "if (...->gridCoordinate.gridZone != 0)"
+				}	// end "if (...->gridCoordinate.gridZone != 0)"
 							
 			if (continueFlag && gTextString[0] > 0)	
-				continueFlag = ListString( 
-					(char*)&gTextString,  strlen((char*)&gTextString),  gOutputTextH);
+				continueFlag = ListString ((char*)gTextString,
+													(UInt32)strlen ((char*)gTextString),
+													gOutputTextH);
 				
 			continueFlag = ListMapProjectionString (fileInfoPtr->mapProjectionHandle,
-																(char*)"      ", 
-								 								continueFlag);
+																	(char*)"      ", 
+																	continueFlag);
 			
 			GetProjectionParameters (mapProjectionInfoPtr,
 										kIncludeUTM,
@@ -3824,200 +3832,215 @@ Boolean ListMapParameters (
 			
 			if (projStdParallel1 != -9999)	
 				{		
-				sprintf( (char*)&gTextString,
-										"        Standard Parallel1:          %15.6f%s",
-										projStdParallel1,
-										gEndOfLine);
+				sprintf ((char*)gTextString,
+							"        Standard Parallel1:          %15.6f%s",
+							projStdParallel1,
+							gEndOfLine);
 						
 				if (continueFlag)	
-					continueFlag = ListString( 
-						(char*)&gTextString,  strlen((char*)&gTextString),  gOutputTextH);
+					continueFlag = ListString ((char*)gTextString,
+														(UInt32)strlen ((char*)gTextString),
+														gOutputTextH);
 						
-				}		// end "if (projStdParallel1 != -9999)"
+				}	// end "if (projStdParallel1 != -9999)"
 			
 			if (projStdParallel2 != -9999)	
 				{		
-				sprintf( (char*)&gTextString,
-										"        Standard Parallel2:          %15.6f%s",
-										projStdParallel2,
-										gEndOfLine);
+				sprintf ((char*)gTextString,
+							"        Standard Parallel2:          %15.6f%s",
+							projStdParallel2,
+							gEndOfLine);
 						
 				if (continueFlag)	
-					continueFlag = ListString( 
-						(char*)&gTextString,  strlen((char*)&gTextString),  gOutputTextH);
+					continueFlag = ListString ((char*)gTextString,
+														(UInt32)strlen ((char*)gTextString),
+														gOutputTextH);
 						
-				}		// end "if (projStdParallel1 != -9999)"
+				}	// end "if (projStdParallel1 != -9999)"
 			
 			if (projNatOriginLat != -9999)	
 				{		
-				sprintf( (char*)&gTextString,
-										"        Natural Origin Latitude:     %15.6f%s",
-										projNatOriginLat,
-										gEndOfLine);
+				sprintf ((char*)gTextString,
+							"        Natural Origin Latitude:     %15.6f%s",
+							projNatOriginLat,
+							gEndOfLine);
 						
 				if (continueFlag)	
-					continueFlag = ListString( 
-						(char*)&gTextString,  strlen((char*)&gTextString),  gOutputTextH);
+					continueFlag = ListString ((char*)gTextString,
+														(UInt32)strlen ((char*)gTextString),
+														gOutputTextH);
 						
-				}		// end "if (projNatOriginLat != -9999)"
+				}	// end "if (projNatOriginLat != -9999)"
 			
 			if (projNatOriginLong != -9999)	
 				{		
-				sprintf( (char*)&gTextString,
-										"        Natural Origin Longitude:    %15.6f%s",
-										projNatOriginLong,
-										gEndOfLine);
+				sprintf ((char*)gTextString,
+							"        Natural Origin Longitude:    %15.6f%s",
+							projNatOriginLong,
+							gEndOfLine);
 						
 				if (continueFlag)	
-					continueFlag = ListString( 
-						(char*)&gTextString,  strlen((char*)&gTextString),  gOutputTextH);
+					continueFlag = ListString ((char*)gTextString,
+														(UInt32)strlen ((char*)gTextString),
+														gOutputTextH);
 						
-				}		// end "if (projNatOriginLong != -9999)"
+				}	// end "if (projNatOriginLong != -9999)"
 			
 			if (projFalseEasting != -9999)	
 				{			
-				sprintf( (char*)&gTextString,
-										"        False Easting:               %15.6f%s",
-										projFalseEasting,
-										gEndOfLine);
+				sprintf ((char*)gTextString,
+							"        False Easting:               %15.6f%s",
+							projFalseEasting,
+							gEndOfLine);
 						
 				if (continueFlag)	
-					continueFlag = ListString( 
-						(char*)&gTextString,  strlen((char*)&gTextString),  gOutputTextH);
+					continueFlag = ListString ((char*)gTextString,
+														(UInt32)strlen ((char*)gTextString),
+														gOutputTextH);
 						
-				}		// end "if (projFalseEasting != -9999)"
+				}	// end "if (projFalseEasting != -9999)"
 			
 			if (projFalseNorthing != -9999)	
 				{		
-				sprintf( (char*)&gTextString,
-										"        False Northing:              %15.6f%s",
-										projFalseNorthing,
-										gEndOfLine);
+				sprintf ((char*)gTextString,
+							"        False Northing:              %15.6f%s",
+							projFalseNorthing,
+							gEndOfLine);
 									
 				if (continueFlag)	
-					continueFlag = ListString( 
-						(char*)&gTextString,  strlen((char*)&gTextString),  gOutputTextH);
+					continueFlag = ListString ((char*)gTextString,
+														(UInt32)strlen ((char*)gTextString),
+														gOutputTextH);
 						
-				}		// end "if (projFalseNorthing != -9999)"
+				}	// end "if (projFalseNorthing != -9999)"
 			
 			if (projFalseOriginLong != -9999)	
 				{		
-				sprintf( (char*)&gTextString,
-										"        False Origin Longitude:      %15.6f%s",
-										projFalseOriginLong,
-										gEndOfLine);
+				sprintf ((char*)gTextString,
+							"        False Origin Longitude:      %15.6f%s",
+							projFalseOriginLong,
+							gEndOfLine);
 						
 				if (continueFlag)	
-					continueFlag = ListString( 
-						(char*)&gTextString,  strlen((char*)&gTextString),  gOutputTextH);
+					continueFlag = ListString ((char*)gTextString,  
+														(UInt32)strlen ((char*)gTextString),
+														gOutputTextH);
 						
-				}		// end "if (projFalseOriginLong != -9999)"
+				}	// end "if (projFalseOriginLong != -9999)"
 			
 			if (projFalseOriginLat != -9999)	
 				{		
-				sprintf( (char*)&gTextString,
-										"        False Origin Latitude:       %15.6f%s",
-										projFalseOriginLat,
-										gEndOfLine);
+				sprintf ((char*)gTextString,
+							"        False Origin Latitude:       %15.6f%s",
+							projFalseOriginLat,
+							gEndOfLine);
 						
 				if (continueFlag)	
-					continueFlag = ListString( 
-						(char*)&gTextString,  strlen((char*)&gTextString),  gOutputTextH);
+					continueFlag = ListString ((char*)gTextString,
+														(UInt32)strlen ((char*)gTextString),
+														gOutputTextH);
 						
-				}		// end "if (projFalseOriginLat != -9999)"
+				}	// end "if (projFalseOriginLat != -9999)"
 			
 			if (projFalseOriginEasting != -9999)	
 				{			
-				sprintf( (char*)&gTextString,
-										"        False Origin Easting:        %15.6f%s",
-										projFalseOriginEasting,
-										gEndOfLine);
+				sprintf ((char*)gTextString,
+							"        False Origin Easting:        %15.6f%s",
+							projFalseOriginEasting,
+							gEndOfLine);
 						
 				if (continueFlag)	
-					continueFlag = ListString( 
-						(char*)&gTextString,  strlen((char*)&gTextString),  gOutputTextH);
+					continueFlag = ListString ((char*)gTextString,
+														(UInt32)strlen ((char*)gTextString),
+														gOutputTextH);
 						
-				}		// end "if (projFalseOriginEasting != -9999)"
+				}	// end "if (projFalseOriginEasting != -9999)"
 			
 			if (projFalseOriginNorthing != -9999)	
 				{		
-				sprintf( (char*)&gTextString,
-										"        False Origin Northing:       %15.6f%s",
-										projFalseOriginNorthing,
-										gEndOfLine);
+				sprintf ((char*)gTextString,
+							"        False Origin Northing:       %15.6f%s",
+							projFalseOriginNorthing,
+							gEndOfLine);
 									
 				if (continueFlag)	
-					continueFlag = ListString( 
-						(char*)&gTextString,  strlen((char*)&gTextString),  gOutputTextH);
+					continueFlag = ListString ((char*)gTextString,
+														(UInt32)strlen ((char*)gTextString),
+														gOutputTextH);
 						
-				}		// end "if (projFalseOriginNorthing != -9999)"
+				}	// end "if (projFalseOriginNorthing != -9999)"
 			
 			if (projCenterLong != -9999)	
 				{		
-				sprintf( (char*)&gTextString,
-										"        Longitude Central Meridian:  %15.6f%s",
-										projCenterLong,
-										gEndOfLine);
+				sprintf ((char*)gTextString,
+							"        Longitude Central Meridian:  %15.6f%s",
+							projCenterLong,
+							gEndOfLine);
 						
 				if (continueFlag)	
-					continueFlag = ListString( 
-						(char*)&gTextString,  strlen((char*)&gTextString),  gOutputTextH);
+					continueFlag = ListString ((char*)gTextString,  
+														(UInt32)strlen ((char*)gTextString),
+														gOutputTextH);
 						
-				}		// end "if (projCenterLong != -9999)"
+				}	// end "if (projCenterLong != -9999)"
 			
 			if (projCenterLat != -9999)	
 				{			
-				sprintf( (char*)&gTextString,
-										"        Latitude of Origin:          %15.6f%s",
-										projCenterLat,
-										gEndOfLine);
+				sprintf ((char*)gTextString,
+							"        Latitude of Origin:          %15.6f%s",
+							projCenterLat,
+							gEndOfLine);
 						
 				if (continueFlag)	
-					continueFlag = ListString( 
-						(char*)&gTextString,  strlen((char*)&gTextString),  gOutputTextH);
+					continueFlag = ListString ((char*)gTextString,
+														(UInt32)strlen ((char*)gTextString),
+														gOutputTextH);
 						
-				}		// end "if (projCenterLat != -9999)"
+				}	// end "if (projCenterLat != -9999)"
 			
 			if (projScaleAtNatOrigin != -9999)	
 				{			
-				sprintf( (char*)&gTextString,
-										"        Scale Factor at Origin:      %13.10f%s",
-										projScaleAtNatOrigin,
-										gEndOfLine);
+				sprintf ((char*)gTextString,
+							"        Scale Factor at Origin:      %13.10f%s",
+							projScaleAtNatOrigin,
+							gEndOfLine);
 						
 				if (continueFlag)	
-					continueFlag = ListString( 
-						(char*)&gTextString,  strlen((char*)&gTextString),  gOutputTextH);
+					continueFlag = ListString ((char*)gTextString,
+														(UInt32)strlen ((char*)gTextString),
+														gOutputTextH);
 						
-				}		// end "if (projScaleAtNatOrigin != -9999)"
+				}	// end "if (projScaleAtNatOrigin != -9999)"
 			
 			if (projAzimuthAngle != -9999)	
 				{			
-				sprintf( (char*)&gTextString,
-										"        Projected Azimuth Angle:     %15.6f%s",
-										projAzimuthAngle,
-										gEndOfLine);
+				sprintf ((char*)gTextString,
+							"        Projected Azimuth Angle:     %15.6f%s",
+							projAzimuthAngle,
+							gEndOfLine);
 						
 				if (continueFlag)	
-					continueFlag = ListString( 
-						(char*)&gTextString,  strlen((char*)&gTextString),  gOutputTextH);
+					continueFlag = ListString ((char*)gTextString,
+														(UInt32)strlen ((char*)gTextString),
+														gOutputTextH);
 						
-				}		// end "if (projAzimuthAngle != -9999)"
+				}	// end "if (projAzimuthAngle != -9999)"
 			
 			if (projStraightVertPoleLongitude != -9999)	
 				{		
-				sprintf( (char*)&gTextString,
-										"        Longitude Central Meridian:  %15.6f%s",
-										projStraightVertPoleLongitude,
-										gEndOfLine);
+				sprintf ((char*)gTextString,
+							"        Longitude Central Meridian:  %15.6f%s",
+							projStraightVertPoleLongitude,
+							gEndOfLine);
 						
 				if (continueFlag)	
-					continueFlag = ListString( 
-						(char*)&gTextString,  strlen((char*)&gTextString),  gOutputTextH);
+					continueFlag = ListString ((char*)gTextString,
+														(UInt32)strlen ((char*)gTextString),
+														gOutputTextH);
 						
-				}		// end "if (projStraightVertPoleLongitude != -9999)"
+				}	// end "if (projStraightVertPoleLongitude != -9999)"
 				
-			}		// end "if (gridCoordinateCode > 0)"
+			}	// end "if (gridCoordinateCode > 0)"
 				
 		if (mapProjectionInfoPtr->geodetic.spheroidCode > 0 ||
 					mapProjectionInfoPtr->geodetic.datumCode > 0 ||
@@ -4025,14 +4048,15 @@ Boolean ListMapParameters (
 			{
 					// List Geodetic Model Parameters
 					
-			sprintf( (char*)&gTextString,
-							"%s    Geodetic Model Parameters%s",
-							gEndOfLine,
-							gEndOfLine);
+			sprintf ((char*)gTextString,
+						"%s    Geodetic Model Parameters%s",
+						gEndOfLine,
+						gEndOfLine);
 					
 			if (continueFlag)	
-				continueFlag = ListString( 
-					(char*)&gTextString,  strlen((char*)&gTextString),  gOutputTextH);
+				continueFlag = ListString ((char*)gTextString,
+													(UInt32)strlen ((char*)gTextString),
+													gOutputTextH);
 			
 			if (mapProjectionInfoPtr->geodetic.datumCode > 0 || 
 										referenceSystemCode == kByEPSGCodeCode)
@@ -4040,7 +4064,7 @@ Boolean ListMapParameters (
 				if (referenceSystemCode == kByEPSGCodeCode)
 					stringPtr = &mapProjectionInfoPtr->gridCoordinate.datumName[1];
 				
-				else		// referenceSystemCode != kByEPSGCodeCode
+				else	// referenceSystemCode != kByEPSGCodeCode
 					{
 					#if defined multispec_mac 
 						GetMenuItemText (gPopUpHorizontalDatumMenu, 
@@ -4057,26 +4081,27 @@ Boolean ListMapParameters (
 					
 					stringPtr = &gTextString2[1];
 					
-					}		// end "else referenceSystemCode != kByEPSGCodeCode"
+					}	// end "else referenceSystemCode != kByEPSGCodeCode"
 									
-				sprintf( (char*)&gTextString,
-										"      Horizontal Datum: %s%s",
-										stringPtr,
-										gEndOfLine);
+				sprintf ((char*)gTextString,
+							"      Horizontal Datum: %s%s",
+							stringPtr,
+							gEndOfLine);
 						
 				if (continueFlag)	
-					continueFlag = ListString( 
-						(char*)&gTextString,  strlen((char*)&gTextString),  gOutputTextH);
+					continueFlag = ListString ((char*)gTextString,
+														(UInt32)strlen ((char*)gTextString),
+														gOutputTextH);
 				
-				}		// end "if (mapProjectionInfoPtr->geodetic.datumCode > 0 || ..."
+				}	// end "if (mapProjectionInfoPtr->geodetic.datumCode > 0 || ..."
 			
 			if (mapProjectionInfoPtr->geodetic.spheroidCode > 0 || 
-										referenceSystemCode == kByEPSGCodeCode)
+															referenceSystemCode == kByEPSGCodeCode)
 				{
 				if (referenceSystemCode == kByEPSGCodeCode)
 					stringPtr = &mapProjectionInfoPtr->gridCoordinate.ellipsoidName[1];
 				
-				else		// referenceSystemCode != kByEPSGCodeCode
+				else	// referenceSystemCode != kByEPSGCodeCode
 					{
 					#if defined multispec_mac 
 						GetMenuItemText (gPopUpEllipsoidMenu, 
@@ -4085,75 +4110,80 @@ Boolean ListMapParameters (
 						gTextString2[gTextString2[0]+1] = 0;
 					#endif	// defined multispec_mac   
 										  
-#if defined multispec_win | defined multispec_lin
-						MGetString (gTextString2,
+					#if defined multispec_win || defined multispec_lin
+						MGetString (
+								gTextString2,
 								0,
 								IDS_Ellipsoid01+mapProjectionInfoPtr->geodetic.spheroidCode);
 					#endif	// defined multispec_win	
 					
 					stringPtr = &gTextString2[1];
 					
-					}		// end "else referenceSystemCode != kByEPSGCodeCode"		
+					}	// end "else referenceSystemCode != kByEPSGCodeCode"		
 									
-				sprintf( (char*)&gTextString,
-										"      Ellipsoid:        %s%s",
-										stringPtr,
-										gEndOfLine);
+				sprintf ((char*)gTextString,
+							"      Ellipsoid:        %s%s",
+							stringPtr,
+							gEndOfLine);
 						
 				if (continueFlag)	
-					continueFlag = ListString( 
-						(char*)&gTextString,  strlen((char*)&gTextString),  gOutputTextH);
+					continueFlag = ListString ((char*)gTextString,
+														(UInt32)strlen ((char*)gTextString),
+														gOutputTextH);
 						
 				if (mapProjectionInfoPtr->geodetic.spheroidCode == kSphereEllipsoidCode)
 					{
-					sprintf( (char*)&gTextString,
-											"        Radius:           %13.5f%s",
-											mapProjectionInfoPtr->geodetic.radiusSpheroid,
-											gEndOfLine);
+					sprintf ((char*)gTextString,
+								"        Radius:           %13.5f%s",
+								mapProjectionInfoPtr->geodetic.radiusSpheroid,
+								gEndOfLine);
 						
 					if (continueFlag)	
-						continueFlag = ListString( 
-							(char*)&gTextString,  strlen((char*)&gTextString),  gOutputTextH);
+						continueFlag = ListString ((char*)gTextString,
+															(UInt32)strlen ((char*)gTextString),
+															gOutputTextH);
 					
-					}		// end "if (...->geodetic.spheroidCode == kSphereEllipsoidMenuItem)"
+					}	// end "if (...->geodetic.spheroidCode == kSphereEllipsoidMenuItem)"
 											
-				else		// ...->geodetic.spheroidCode != kSphereEllipsoidMenuItem
+				else	// ...->geodetic.spheroidCode != kSphereEllipsoidMenuItem
 					{
-					sprintf( (char*)&gTextString,
-											"        Equatorial radius:  %13.5f%s",
-											mapProjectionInfoPtr->geodetic.semiMajorAxis,
-											gEndOfLine);
+					sprintf ((char*)gTextString,
+								"        Equatorial radius:  %13.5f%s",
+								mapProjectionInfoPtr->geodetic.semiMajorAxis,
+								gEndOfLine);
 						
 					if (continueFlag)	
-						continueFlag = ListString( 
-							(char*)&gTextString,  strlen((char*)&gTextString),  gOutputTextH);
+						continueFlag = ListString ((char*)gTextString,
+															(UInt32)strlen ((char*)gTextString),
+															gOutputTextH);
 							
-					sprintf( (char*)&gTextString,
-											"        Polar radius:       %13.5f%s",
-											mapProjectionInfoPtr->geodetic.semiMinorAxis,
-											gEndOfLine);
+					sprintf ((char*)gTextString,
+								"        Polar radius:       %13.5f%s",
+								mapProjectionInfoPtr->geodetic.semiMinorAxis,
+								gEndOfLine);
 						
 					if (continueFlag)	
-						continueFlag = ListString( 
-							(char*)&gTextString,  strlen((char*)&gTextString),  gOutputTextH);
+						continueFlag = ListString ((char*)gTextString,
+															(UInt32)strlen ((char*)gTextString),
+															gOutputTextH);
 						
-					}		// end "else ...->geodetic.spheroidCode != kSphereEllipsoidMenuItem"
+					}	// end "else ...->geodetic.spheroidCode != kSphereEllipsoidMenuItem"
 				
-				}		// end "if (mapProjectionInfoPtr->geodetic.spheroidCode > 0)"
+				}	// end "if (mapProjectionInfoPtr->geodetic.spheroidCode > 0)"
 			
-			}		// end "mapProjectionInfoPtr->geodetic.spheroidCode > 0 || ..."
+			}	// end "mapProjectionInfoPtr->geodetic.spheroidCode > 0 || ..."
 			
 		CheckAndUnlockHandle (fileInfoPtr->mapProjectionHandle);
 				
 		if (continueFlag)	
-			continueFlag = ListString( 
-				(char*)gEndOfLine,  gNumberOfEndOfLineCharacters,  gOutputTextH);
+			continueFlag = ListString (
+						(char*)gEndOfLine,  gNumberOfEndOfLineCharacters,  gOutputTextH);
 			
-		}		// end "if (mapProjectionInfoPtr != NULL)"
+		}	// end "if (mapProjectionInfoPtr != NULL)"
 		
 	return (continueFlag);
 
-}		// end "ListMapParameters" 
+}	// end "ListMapParameters" 
 
 
 
@@ -4201,10 +4231,10 @@ Boolean LoadEvaluateCovariancesSpecs (
 	if (gProjectInfoPtr->evalCovarianceSpecsHandle == NULL)
 		{
 		gProjectInfoPtr->evalCovarianceSpecsHandle = 
-														MNewHandle ( sizeof(EvaluateCovarianceSpecs) );
+													MNewHandle (sizeof (EvaluateCovarianceSpecs));
 		
 		evaluateCovarianceSpecsPtr = (EvaluateCovarianceSpecsPtr)GetHandlePointer (
-						gProjectInfoPtr->evalCovarianceSpecsHandle, kLock, kMoveHi);
+								gProjectInfoPtr->evalCovarianceSpecsHandle, kLock, kMoveHi);
 		
 		if (evaluateCovarianceSpecsPtr != NULL)
 			{
@@ -4235,74 +4265,74 @@ Boolean LoadEvaluateCovariancesSpecs (
 			evaluateCovarianceSpecsPtr->listOriginalXInvertedMatrixFlag = FALSE;
 			evaluateCovarianceSpecsPtr->listInvertedInvertedMatrixFlag = FALSE;
 			
-			}		// end "if (evaluateCovarianceSpecsPtr != NULL)" 
+			}	// end "if (evaluateCovarianceSpecsPtr != NULL)" 
 		
-		else		// else *evaluateCovarianceSpecsPtr == NULL 
+		else	// else *evaluateCovarianceSpecsPtr == NULL 
 			returnFlag = FALSE;
 			
-		}		// end "if (gProjectInfoPtr->evalCovarianceSpecsHandle == NULL)" 
+		}	// end "if (gProjectInfoPtr->evalCovarianceSpecsHandle == NULL)" 
 		
-	else		// gProjectInfoPtr->evalCovarianceSpecsHandle != NULL
+	else	// gProjectInfoPtr->evalCovarianceSpecsHandle != NULL
 		{
 				// Lock the handle to the utility specifications and get				
 				// a pointer to the structure.												
 				
 		evaluateCovarianceSpecsPtr = (EvaluateCovarianceSpecsPtr)GetHandlePointer (
-						gProjectInfoPtr->evalCovarianceSpecsHandle, kLock, kMoveHi);
+								gProjectInfoPtr->evalCovarianceSpecsHandle, kLock, kMoveHi);
 		
 				// Make sure that the featureTransformationFlag makes sense.
 										
-		if ( !EigenvectorInfoExists (kProject) )
+		if (!EigenvectorInfoExists (kProject))
 			evaluateCovarianceSpecsPtr->featureTransformationFlag = FALSE;
 				
-		}		// end "else gProjectInfoPtr->evalCovarianceSpecsHandle != NULL" 
+		}	// end "else gProjectInfoPtr->evalCovarianceSpecsHandle != NULL" 
 					
 			// Check memory for utility classes handle.									
 		
 	if (returnFlag)
 		{	
 		bytesNeeded = 
-					(SInt32)gProjectInfoPtr->numberStatisticsClasses * sizeof(SInt16);
-		evaluateCovarianceSpecsPtr->classPtr = (SInt16*)CheckHandleSize ( 
-													&evaluateCovarianceSpecsPtr->classHandle,
-													&returnFlag,  
-													&changedFlag, 
-													bytesNeeded);
+					(SInt32)gProjectInfoPtr->numberStatisticsClasses * sizeof (SInt16);
+		evaluateCovarianceSpecsPtr->classPtr = (SInt16*)CheckHandleSize (
+														&evaluateCovarianceSpecsPtr->classHandle,
+														&returnFlag,  
+														&changedFlag, 
+														bytesNeeded);
 									
 		if (changedFlag)
 			evaluateCovarianceSpecsPtr->classSet = kAllMenuItem;
 			
-		}		// end "if (returnFlag)" 
+		}	// end "if (returnFlag)" 
 			
 			// If memory is not full, check memory for utility feature handle.															
 
 	if (returnFlag)
 		{
 		bytesNeeded =
-					(SInt32)gProjectInfoPtr->numberStatisticsChannels * sizeof(SInt16);
+					(SInt32)gProjectInfoPtr->numberStatisticsChannels * sizeof (SInt16);
 			
-		evaluateCovarianceSpecsPtr->featurePtr = (SInt16*)CheckHandleSize ( 
-																&evaluateCovarianceSpecsPtr->featureHandle, 
-																&returnFlag,   
-																&changedFlag, 
-																bytesNeeded);
+		evaluateCovarianceSpecsPtr->featurePtr = (SInt16*)CheckHandleSize (
+														&evaluateCovarianceSpecsPtr->featureHandle, 
+														&returnFlag,   
+														&changedFlag, 
+														bytesNeeded);
 									
 		if (changedFlag)
 			evaluateCovarianceSpecsPtr->channelSet = kAllMenuItem;
 			
-		}		// end "if (returnFlag)" 
+		}	// end "if (returnFlag)" 
 			
 			// If memory is not full, check memory for utility channels vector.	
 
 	if (returnFlag)
 		{
 		evaluateCovarianceSpecsPtr->channelsPtr = (SInt16*)CheckHandleSize (
-																&evaluateCovarianceSpecsPtr->channelsHandle,
-																&returnFlag,   
-																&changedFlag, 
-																bytesNeeded);
+														&evaluateCovarianceSpecsPtr->channelsHandle,
+														&returnFlag,   
+														&changedFlag, 
+														bytesNeeded);
 			
-		}		// end "if (returnFlag)" 
+		}	// end "if (returnFlag)" 
 		
 	if (returnFlag)
 		{
@@ -4310,12 +4340,12 @@ Boolean LoadEvaluateCovariancesSpecs (
 				// properly.																		
 		
 		if (evaluateCovarianceSpecsPtr->channelSet == kAllMenuItem)		
-			LoadFeatureVector ( evaluateCovarianceSpecsPtr->featureTransformationFlag,
+			LoadFeatureVector (evaluateCovarianceSpecsPtr->featureTransformationFlag,
 										(SInt16*)&evaluateCovarianceSpecsPtr->numberChannels,
 										evaluateCovarianceSpecsPtr->featurePtr,
 										gProjectInfoPtr->numberStatisticsChannels);
 															
-		LoadChannelsVector (	kProject,
+		LoadChannelsVector (kProject,
 									evaluateCovarianceSpecsPtr->featureTransformationFlag,
 									evaluateCovarianceSpecsPtr->numberFeatures, 
 									evaluateCovarianceSpecsPtr->featurePtr,
@@ -4327,17 +4357,17 @@ Boolean LoadEvaluateCovariancesSpecs (
 											&evaluateCovarianceSpecsPtr->classSet, 
 											evaluateCovarianceSpecsPtr->classPtr);
 			
-		}		// end "if (returnFlag)" 
+		}	// end "if (returnFlag)" 
 	
 			// If unable to set up information for utility								
 			// specifications, release memory allocated to it (if any).				
 			
-	else		// !returnFlag 
-		ReleaseEvalCovarianceHandleMemory(&gProjectInfoPtr->evalCovarianceSpecsHandle);
+	else	// !returnFlag 
+		ReleaseEvalCovarianceHandleMemory (&gProjectInfoPtr->evalCovarianceSpecsHandle);
 		
 	return (returnFlag);
 
-}		// end "LoadUtilityEvaluationSpecs" 
+}	// end "LoadUtilityEvaluationSpecs" 
 
 
 
@@ -4381,7 +4411,7 @@ Boolean LoadEvaluateTransformationSpecs (void)
 	if (gNonProjProcessorSpecs.evalTransformationSpecsH == NULL)
 		{
 		gNonProjProcessorSpecs.evalTransformationSpecsH = 
-														MNewHandle ( sizeof(EvaluateTransformSpecs) );
+													MNewHandle (sizeof (EvaluateTransformSpecs));
 		
 		evaluateTransformSpecsPtr = (EvaluateTransformSpecsPtr)GetHandlePointer (
 						gNonProjProcessorSpecs.evalTransformationSpecsH, kLock, kMoveHi);
@@ -4395,14 +4425,14 @@ Boolean LoadEvaluateTransformationSpecs (void)
 			evaluateTransformSpecsPtr->listTransformFlag = TRUE;
 			evaluateTransformSpecsPtr->listTransformXTposedTransformFlag = TRUE;
 			
-			}		// end "if (evaluateTransformSpecsPtr != NULL)" 
+			}	// end "if (evaluateTransformSpecsPtr != NULL)" 
 		
-		else		// else evaluateTransformSpecsPtr == NULL 
+		else	// else evaluateTransformSpecsPtr == NULL 
 			returnFlag = FALSE;
 			
-		}		// end "if (gNonProjProcessorSpecs.evalTransformationSpecsH == NULL)"
+		}	// end "if (gNonProjProcessorSpecs.evalTransformationSpecsH == NULL)"
 		
 	return (returnFlag);
 
-}		// end "LoadEvaluateTransformationSpecs" 
+}	// end "LoadEvaluateTransformationSpecs" 
 

@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//									Copyright (1988-2016)
+//									Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,13 +11,11 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision number:		3.0
-//
-//	Revision date:			06/22/2017
+//	Revision date:			01/04/2018
 //
 //	Language:				C
 //
-//	System:					Macintosh Operating System
+//	System:					Linux, Macintosh and Windows Operating Systems
 //
 //	Functions in file:	SInt16	 			BiPlotClassData
 //								void		 			BiPlotDataControl
@@ -42,27 +40,27 @@
 //								y axis.
 //
 //	Include files:			"MultiSpecHeaders"
-//								"SMulSpec.h"
+//								"SMultiSpec.h"
 /*
 	Template for debugging
-		int numberChars = sprintf ((char*)&gTextString3,
+		int numberChars = sprintf ((char*)gTextString3,
 													" SBiPlotData: (): %s", 
 													gEndOfLine);
-		ListString ((char*)&gTextString3, numberChars, gOutputTextH);	
+		ListString ((char*)gTextString3, numberChars, gOutputTextH);	
 */
 //------------------------------------------------------------------------------------
 
-#include "SMulSpec.h"  
-#include	"SGrafVew.h" 
+
+#include "SMultiSpec.h"
+
+#include	"SGraphView.h" 
 
 #ifdef multispec_lin    
    #include "LBiplotDialog.h"
    #include "LGraphView.h"
-//#else
-//#include		"SGrafVew.h"
 #endif
 
-#if defined multispec_mac 
+#if defined multispec_mac || defined multispec_mac_swift
 	#define IDC_ChannelPrompt					4
 	#define IDC_FeatureTransformation		9
 	#define IDC_CreateNewGraphWindow			11
@@ -89,11 +87,11 @@
 	#define IDS_BiPlot2							2
 	#define IDS_BiPlot3							3
 	#define IDS_Alert151							151
-#endif	// defined multispec_mac 
+#endif	// defined multispec_mac || defined multispec_mac_swift 
   
-#if defined multispec_win   
-	//#include "SMulSpec.h"
-	#include "WGrafDoc.h"
+#if defined multispec_win 
+	#include "SMultiSpec.h"  
+	#include "WGraphDoc.h"
 	#include "WBiPlotDialog.h"
 	#include "WMultiSpec.h"
 #endif	// defined multispec_win 
@@ -101,65 +99,6 @@
 //#include "SExtGlob.h"
 
 //BiPlotDataSpecsPtr		gBiPlotDataSpecsPtr;
-
-extern void				BiPlotDataDialogInitialize (
-								DialogPtr							dialogPtr,
-								BiPlotDataSpecsPtr				biPlotDataSpecsPtr,
-								DialogSelectArea*					dialogSelectAreaPtr,
-								WindowInfoPtr						imageWindowInfoPtr,
-								WindowPtr							activeImageWindow,
-								UInt16*								localClassPtr,
-								unsigned char*						localSymbolsPtr,
-								SInt16*								newXAxisFeaturePtr,
-								SInt16*								newYAxisFeaturePtr,
-								Boolean*								featureTransformationFlagPtr,
-								Boolean*								featureTransformAllowedFlagPtr,
-								Boolean*								checkFeatureTransformFlagPtr,
-								SInt32*								maxChannelFeatureNumPtr,
-								SInt16*								plotDataCodePtr,
-								SInt16*								displayPixelCodePtr,
-								SInt16*								outlineClassCodePtr,
-								Boolean*								thresholdFlagPtr,
-								double*								saveThresholdPercentPtr,
-								SInt16*								classSelectionPtr,
-								UInt32*								localNumberClassesPtr,
-								SInt16*								symbolSelectionPtr,
-								SInt16*								weightsSelectionPtr,
-								Boolean*								createNewGraphicsWindowFlagPtr);
-								
-extern void				BiPlotDataDialogOK (
-								DialogPtr							dialogPtr,
-								BiPlotDataSpecsPtr				biPlotDataSpecsPtr,
-								DialogSelectArea*					dialogSelectAreaPtr,
-								SInt16								newXAxisFeature,
-								SInt16								newYAxisFeature,
-								Boolean								featureTransformationFlag,
-								Boolean								createNewGraphicsWindowFlag,
-								SInt16								plotDataCode,
-								SInt16								displayPixelCode,
-								SInt16								outlineClassCode,
-								double								saveThresholdPercent,
-								Boolean								thresholdFlag,
-								SInt16								classSelection,
-								UInt16								localNumberClasses,
-								UInt16*								localClassPtr,
-								SInt16								symbolSelection,
-								unsigned char*						localSymbolsPtr,
-								SInt16								weightsSelection,
-								float*								classWeightsPtr);
-
-extern Boolean			BiPlotDataDialogCheckFeatureTransform (
-								DialogPtr							dialogPtr,
-								WindowInfoPtr						imageWindowInfoPtr,
-								TransformationSpecs*				transformationMatrixPtr,
-								Boolean								featureTransformAllowedFlag,
-								Boolean*								featureTransformationFlagPtr,
-								SInt32*								maxChannelFeatureNumPtr);
-
-extern void				BiPlotDataDialogHideShowClassItems (
-								DialogPtr							dialogPtr,
-								SInt16								plotDataCode,
-								SInt16								outlineClassCode);
 	
 	
 			// Prototypes for routines in this file that are only called by		
@@ -214,7 +153,7 @@ void 					UpdateEllipseMinMax2 (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -271,7 +210,7 @@ SInt16 BiPlotClassData (
 				// Set up status dialog. Class name, and number of						
 				// training fields for the class.											
 				
-		LoadDItemString ( gStatusDialogPtr, 
+		LoadDItemString (gStatusDialogPtr, 
 								IDC_Status6, 
 								(Str255*)&classNamesPtr[classStorage].name);
 		LoadDItemValue (gStatusDialogPtr, IDC_Status10, numberOfFields);
@@ -283,7 +222,7 @@ SInt16 BiPlotClassData (
 			{
 					// Make certain that field is training field.						
 					
-			if ( fieldIdentPtr[fieldNumber].fieldType & 
+			if (fieldIdentPtr[fieldNumber].fieldType & 
 															gBiPlotDataSpecsPtr->plotDataCode)
 				{
 						// Set up field count in status dialog.							
@@ -292,31 +231,31 @@ SInt16 BiPlotClassData (
 					
 						// Create a biplot of the requested data for the field.		
 					
-				if (BiPlotFieldData ( fileIOInstructionsPtr,
+				if (BiPlotFieldData (fileIOInstructionsPtr,
 												classNumber+1, 
-												fieldNumber) == 0 )
-																						return(0);
+												fieldNumber) == 0)
+																						return (0);
 				
 				fieldCount++;
 								
-				}		// end "if ( fieldIdentPtr[fieldNumber].field..." 
+				}	// end "if (fieldIdentPtr[fieldNumber].field..." 
 				
 			fieldNumber = fieldIdentPtr[fieldNumber].nextField;
 			
-			}		// end "while (fieldNumber != -1)" 
+			}	// end "while (fieldNumber != -1)" 
 			
-		}		// end "if (classNamesPtr[classStorage].number ..." 
+		}	// end "if (classNamesPtr[classStorage].number ..." 
 	
 			// Indicate that routine completed normally.									
 			
 	return (1);
 		
-}		// end "BiPlotClassData" 
+}	// end "BiPlotClassData" 
 								
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -335,7 +274,7 @@ SInt16 BiPlotClassData (
 // Called By:		
 //
 //	Coded By:			Larry L. Biehl			Date: 03/08/1994
-//	Revised By:			Larry L. Biehl			Date: 08/03/2016
+//	Revised By:			Larry L. Biehl			Date: 11/27/2017
 //	Revised By:			Wei-Kang Hsu			Date: 08/03/2016
 
 void BiPlotDataControl (void)
@@ -361,7 +300,7 @@ void BiPlotDataControl (void)
 											projectHandleStatus;
 	
 	Boolean								continueFlag;
-//											lineFlag = FALSE;
+											//lineFlag = FALSE;
 											
 	SignedByte							handleStatus;
    
@@ -383,7 +322,7 @@ void BiPlotDataControl (void)
 			
 		gCPPNewCalledFlag = TRUE;
 		
-		}		// end "if (!gCPPNewCalledFlag)"
+		}	// end "if (!gCPPNewCalledFlag)"
 																							
 			// Code resources loaded okay, so set flag back for non-Code			
 			// resources.																			
@@ -412,7 +351,7 @@ void BiPlotDataControl (void)
 	continueFlag = SetUpActiveImageInformationGlobals (
 										&activeWindowInfoHandle, 
 										&activeImageGlobalHandleStatus, 
-										kUseProject );
+										kUseProject);
 		
 			// Set up biplot specification structure.										
 			
@@ -464,36 +403,37 @@ void BiPlotDataControl (void)
 				savedFileInfoPtr = NULL;
 				savedLayerInfoPtr = NULL;
 										
-				}		// end "if (...->outlineClassCode & kOutlineClasses)" 
-/*				
+				}	// end "if (...->outlineClassCode & kOutlineClasses)" 
+			/*				
 			if (continueFlag)
 				{					
 						// If an IO buffer is needed for plotting training pixels and the 
 						// image window is not the project image window, then make sure 
 						// that the buffer obtained is for the image with the most columns.
 				
-				if ( (gBiPlotDataSpecsPtr->displayPixelCode & kDisplayPixels) &&
+				if ((gBiPlotDataSpecsPtr->displayPixelCode & kDisplayPixels) &&
 						 (gBiPlotDataSpecsPtr->plotDataCode & (kTrainingType+kTestingType))
-							 && savedWindowInfoPtr != NULL )
+							 && savedWindowInfoPtr != NULL)
 					{
 					if (GetMaxNumberColumns (gProjectInfoPtr->windowInfoHandle) >
 																savedWindowInfoPtr->maxNumberColumns)
 						{
-						if ( !GetProjectImageFileInfo ( kPrompt, 
+						if (!GetProjectImageFileInfo (kPrompt, 
 																	kSetupGlobalInfoPointers,
 																	&gImageWindowInfoPtr,
 																	&gImageLayerInfoPtr,
 																	&gImageFileInfoPtr,
-																	&projectHandleStatus) )
+																	&projectHandleStatus))
 							continueFlag = FALSE;
 							
-						}		// end "if (GetMaxNumberColumns (..."
+						}	// end "if (GetMaxNumberColumns (..."
 						
-					}		// end "if ( (gBiPlotDataSpecsPtr->displayPixelCode & ..."
+					}	// end "if ((gBiPlotDataSpecsPtr->displayPixelCode & ..."
 					
-				}		// end "if (continueFlag)"
-*/			
-/*					// Restore previous global information pointers if needed.			
+				}	// end "if (continueFlag)"
+			*/			
+			/*					
+					// Restore previous global information pointers if needed.			
 			
 			if (continueFlag)
 				{					
@@ -516,9 +456,9 @@ void BiPlotDataControl (void)
 										kForce4Bytes,
 										kDoNotAllowForThreadedIO);
 										
-					}		// end "if (...->displayPixelCode & kDisplayPixels)"
+					}	// end "if (...->displayPixelCode & kDisplayPixels)"
 										
-				}		// end "if (continueFlag)"
+				}	// end "if (continueFlag)"
 					
 			if (savedWindowInfoPtr != NULL)
 				{
@@ -538,8 +478,8 @@ void BiPlotDataControl (void)
 					UnlockImageInformationHandles (projectHandleStatus, 
 														gProjectInfoPtr->windowInfoHandle);
 				
-				}		// end "if (savedWindowInfoPtr != NULL)"
-*/	
+				}	// end "if (savedWindowInfoPtr != NULL)"
+			*/	
 					// Continue biplot data if everything is okay.						
 			
 			if (continueFlag)
@@ -552,16 +492,15 @@ void BiPlotDataControl (void)
 						
 				ForceTextToEnd ();
 								
-				}		// end "if (continueFlag)" 
+				}	// end "if (continueFlag)" 
 					
 					// List the processor name, date, time and project info.			
 
-			continueFlag = ListHeaderInfo (
-							NULL, 
-							kLImageInfo + 2*gBiPlotDataSpecsPtr->projectFlag, 
-							&gOutputForce1Code, 
-							kNoStatisticsUsed, 
-							continueFlag);
+			continueFlag = ListHeaderInfo (NULL, 
+														kLImageInfo + 2*gBiPlotDataSpecsPtr->projectFlag, 
+														&gOutputForce1Code, 
+														kNoStatisticsUsed, 
+														continueFlag);
 					
 					// List the classes used.													
 											
@@ -595,14 +534,11 @@ void BiPlotDataControl (void)
 												&gOutputForce1Code,
 												FALSE);
 												
-				}		// end "if (... && ...plotDataCode...)" 
+				}	// end "if (... && ...plotDataCode...)" 
 																		
-			startTime = time(NULL);	
+			startTime = time (NULL);	
 					
-         channelsPtr = (UInt16*)GetHandlePointer(
-											gBiPlotDataSpecsPtr->channelsHandle,
-											kNoLock,
-											kNoMoveHi);
+         channelsPtr = (UInt16*)GetHandlePointer (gBiPlotDataSpecsPtr->channelsHandle);
                
 					// Get dialog box to display list data status.						
 			
@@ -616,7 +552,7 @@ void BiPlotDataControl (void)
 			ShowStatusDialogItemSet (kStatusCommand);
 	
 			if (continueFlag && gBiPlotDataSpecsPtr->featureTransformationFlag)	
-				continueFlag = SetupFeatureTransformationMemory ( 
+				continueFlag = SetupFeatureTransformationMemory (
 							gBiPlotDataSpecsPtr->featureTransformationFlag, 
 							gTransformationMatrix.numberFeatures,
 							gTransformationMatrix.numberChannels,
@@ -650,27 +586,28 @@ void BiPlotDataControl (void)
 
 				#if defined multispec_win
 					CMultiDocTemplate* graphDocTemplatePtr =
-						((CMultiSpecApp*)AfxGetApp())->GetGraphDocTemplate();
+						((CMultiSpecApp*)AfxGetApp ())->GetGraphDocTemplate ();
 					CMGraphDoc* graphDocCPtr =
-						(CMGraphDoc*)graphDocTemplatePtr->OpenDocumentFile(NULL);
-					graphViewCPtr = graphDocCPtr->GetGraphViewCPtr();
+						(CMGraphDoc*)graphDocTemplatePtr->OpenDocumentFile (NULL);
+					graphViewCPtr = graphDocCPtr->GetGraphViewCPtr ();
 					//CDocument*  graph_doc;
-					//graphViewCPtr = ((CMGraphDoc*)graph_doc)->GetGraphViewCPtr();
+					//graphViewCPtr = ((CMGraphDoc*)graph_doc)->GetGraphViewCPtr ();
 
 				#endif
 
 				#if defined multispec_lin
-					wxDocument*  graph_doc = ((CMultiSpecApp*)wxTheApp)->ActivateListDataView();
-					graphViewCPtr = ((CMGraphDoc*)graph_doc)->GetGraphViewCPtr();
+					wxDocument*  graph_doc = 
+											((CMultiSpecApp*)wxTheApp)->ActivateListDataView ();
+					graphViewCPtr = ((CMGraphDoc*)graph_doc)->GetGraphViewCPtr ();
           
 						// Assign window ID for Biplot window
-					((wxWindow*)graphViewCPtr)->SetId(GR_BIPLOT);
+					((wxWindow*)graphViewCPtr)->SetId (GR_BIPLOT);
 				#endif
 				
 				continueFlag = (graphViewCPtr != NULL);
 		
 				if (continueFlag)
-					continueFlag = graphViewCPtr->FinishGraphRecordSetUp(
+					continueFlag = graphViewCPtr->FinishGraphRecordSetUp (
 								(SInt16*)channelsPtr,
 								(SInt32)totalNumberPixels,
 								numberVectors,
@@ -681,7 +618,7 @@ void BiPlotDataControl (void)
 				if (continueFlag)
 					{
 					gGraphRecordPtr = GetGraphRecordPtr (
-										graphViewCPtr, &handleStatus, &graphRecHandle);
+													graphViewCPtr, &handleStatus, &graphRecHandle);
 										
 							// Set the code to draw all available plots.
 					
@@ -689,14 +626,14 @@ void BiPlotDataControl (void)
 					
 					}
 				
-				}		// end "if (continueFlag)" 
+				}	// end "if (continueFlag)" 
 				
-#			if defined multispec_lin
+			#if defined multispec_lin
 				if (gActiveImageWindow != NULL)
-					gActiveImageWindow->m_frame->Update(); 					
-#			endif
+					gActiveImageWindow->m_frame->Update ();
+			#endif
 			if (continueFlag &&
-						(gBiPlotDataSpecsPtr->displayPixelCode & kDisplayPixels) )
+						(gBiPlotDataSpecsPtr->displayPixelCode & kDisplayPixels))
 				{
 				if (gBiPlotDataSpecsPtr->featureTransformationFlag)
 					{
@@ -705,10 +642,9 @@ void BiPlotDataControl (void)
 							
 					MHLock (gTransformationMatrix.eigenVectorHandle);
 					
-					HDoublePtr eigenVectorPtr = (HDoublePtr)GetHandlePointer(
+					HDoublePtr eigenVectorPtr = (HDoublePtr)GetHandlePointer (
 										gTransformationMatrix.eigenVectorHandle,
-										kLock,
-										kNoMoveHi);
+										kLock);
 										
 					ReduceMatrix (eigenVectorPtr, 
 									gTransformationMatrix.eigenVectorPtr,
@@ -720,22 +656,22 @@ void BiPlotDataControl (void)
 
 					CheckAndUnlockHandle (gTransformationMatrix.eigenVectorHandle);
 
-					}		// end "if (...->featureTransformationFlag)" 
+					}	// end "if (...->featureTransformationFlag)" 
 						
 						// Intialize the nextTime variable to indicate when the next 		
 						// check should occur for a command-.										
 						
-				gNextTime = gNextStatusTime = TickCount();
+				gNextTime = gNextStatusTime = TickCount ();
 		
 				if (gBiPlotDataSpecsPtr->plotDataCode & kAreaType)
 					{
 					//LoadDItemString (gStatusDialogPtr, IDC_Status11, 
 					//							(Str255*)"\pPlotting Data for Selected Area.");
-               LoadDItemStringNumber(kBiPlotStrID, 
+               LoadDItemStringNumber (kBiPlotStrID, 
 												IDS_BiPlot1,
 												gStatusDialogPtr, 
 												IDC_Status11, 
-												(Str255*)&gTextString);
+												(Str255*)gTextString);
                   
 					HideStatusDialogItemSet (kStatusClassA);
 					HideStatusDialogItemSet (kStatusField);
@@ -772,44 +708,44 @@ void BiPlotDataControl (void)
 														&gInputBufferPtr, 
 														&gOutputBufferPtr);
 					
-					}		// end "if (...->plotDataCode & kArea)" 
+					}	// end "if (...->plotDataCode & kArea)" 
 				
 				if (continueFlag && 
-					gBiPlotDataSpecsPtr->plotDataCode & (kTrainingType+kTestingType) )
+					gBiPlotDataSpecsPtr->plotDataCode & (kTrainingType+kTestingType))
 					{
                LoadDItemStringNumber (kBiPlotStrID, 
 												IDS_BiPlot2,	
 												gStatusDialogPtr, 
 												IDC_Status11, 		// (Str255*)"\pPlotting Data for Project Classes."
-												(Str255*)&gTextString);
+												(Str255*)gTextString);
                               
-					ShowStatusDialogItemSet ( kStatusClassA );
-					ShowStatusDialogItemSet ( kStatusField );
+					ShowStatusDialogItemSet (kStatusClassA);
+					ShowStatusDialogItemSet (kStatusField);
 					
 					continueFlag = BiPlotProjectData ();
 					
 					FillVectorOffsets (gGraphRecordPtr);
 					
-					}		// end "if (...->plotDataCode & (kTrainingType...)" 
+					}	// end "if (...->plotDataCode & (kTrainingType...)" 
 					
-				}		// end "if (continueFlag && (gBiPlotDataSpecsPtr->..." 
+				}	// end "if (continueFlag && (gBiPlotDataSpecsPtr->..." 
 
-			HideStatusDialogItemSet ( kStatusLine );
+			HideStatusDialogItemSet (kStatusLine);
 				
 			if (continueFlag && 
-						(gBiPlotDataSpecsPtr->outlineClassCode & kOutlineClasses) )
+						(gBiPlotDataSpecsPtr->outlineClassCode & kOutlineClasses))
 				{
             LoadDItemStringNumber (kBiPlotStrID, 
 												IDS_BiPlot3,
 												gStatusDialogPtr, 
 												IDC_Status11,			// (Str255*)"\pPlotting Class Outlines."
-												(Str255*)&gTextString);
+												(Str255*)gTextString);
 				ShowStatusDialogItemSet (kStatusClassA);
 				HideStatusDialogItemSet (kStatusField);
 
 				continueFlag = LoadBiPlotClassStats (gGraphRecordPtr);
 
-				}		// end "if (continueFlag && (gBiPlotDataSpecsPtr->..." 
+				}	// end "if (continueFlag && (gBiPlotDataSpecsPtr->..." 
 			
 			ReleaseFeatureTransformationMemory ();
 			
@@ -821,16 +757,16 @@ void BiPlotDataControl (void)
 														0, 
 														0);
 				
-			else		// !continueFlag || gBiPlotDataSpecsPtr->plotDataCode == 0
+			else	// !continueFlag || gBiPlotDataSpecsPtr->plotDataCode == 0
 				{
 				if (gGraphRecordPtr != NULL)
 					{
 					CloseGraphicsWindow (gGraphRecordPtr->window);
 					graphRecHandle = NULL;
 					
-					}		// end "if (gGraphRecordPtr != NULL)"
+					}	// end "if (gGraphRecordPtr != NULL)"
 				
-				}		// end "else !continueFlag"
+				}	// end "else !continueFlag"
 					
 					// List end of processor information.			
 					
@@ -860,21 +796,15 @@ void BiPlotDataControl (void)
 				
 			gGraphRecordPtr = NULL;
 				
-			}		// end "if ( BiPlotDataDialog () )" 
+			}	// end "if (BiPlotDataDialog ())" 
 			
-		}		// end "if ( ... && LoadBiPlotDataSpecs (activeWindowInfoHandle) )" 
+		}	// end "if (... && LoadBiPlotDataSpecs (activeWindowInfoHandle))" 
 		
-			// Allow the Graphics resource code to be unloaded if there are		
-			// no graphs.																			
-	#if defined multispec_mac
-		if (gNumberOfGWindows == 0)
-			UnloadSeg (ForceGraphCodeResourceLoad); 
-   #endif
 				// Unlock the structure handles.	
 				
 	UnlockImageInformationHandles (
 							activeImageGlobalHandleStatus, 
-							activeWindowInfoHandle );	
+							activeWindowInfoHandle);	
 	
 	if (gBiPlotDataSpecsPtr != NULL)
 		{		
@@ -883,7 +813,7 @@ void BiPlotDataControl (void)
 		gBiPlotDataSpecsPtr->classPtr = NULL;
 		CheckAndUnlockHandle (gBiPlotDataSpecsPtr->symbolsHandle);
 		
-		}		// end "if (gBiPlotDataSpecsPtr != NULL)" 
+		}	// end "if (gBiPlotDataSpecsPtr != NULL)" 
 		
 			// Unlock memory for the list data specifications.							
 			
@@ -897,12 +827,12 @@ void BiPlotDataControl (void)
 	
 	gThresholdSize = savedThresholdSize;
 
-}		// end "BiPlotDataControl" 
+}	// end "BiPlotDataControl" 
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -928,712 +858,702 @@ Boolean BiPlotDataDialog (void)
 {
 	Boolean								returnFlag = TRUE;
 	
-#if defined multispec_mac
-	DialogSelectArea					dialogSelectArea;
-								
-	Rect									theBox,
-											weightsPopUpBox;
-	
-	double								thresholdPercent,
-											saveThresholdPercent;
-										
-	DialogPtr							dialogPtr;
-	float*								localClassWeightsPtr;
-	float**								localClassWeightsPtrPtr;
-	
-	UInt16*								localClassPtr;
+	#if defined multispec_mac
+		DialogSelectArea					dialogSelectArea;
+									
+		Rect									theBox,
+												weightsPopUpBox;
+		
+		double								thresholdPercent,
+												saveThresholdPercent;
 											
-	unsigned char*						localSymbolsPtr;
-	
-	Handle								okHandle,
-											theHandle;
-	
-	SInt32								maxChannelFeatureNum,
-											theNum;
-											
-	UInt32								localNumberClasses;
-	
-	SInt16								controlValue,
-											displayPixelCode,
-											entireIconItem,
-											index,
-											itemHit,
-											itemHit2,
-											outlineClassCode,
-											plotDataCode,
-											theType,
-											newXAxisFeature,
-											newYAxisFeature;
-	
-	Boolean								checkChannelStatisticsFlag,
-											checkClassesPopUpFlag,
-											checkFeatureTransformFlag,
-											createNewGraphicsWindowFlag,
-											featureTransformAllowedFlag,
-											featureTransformationFlag,
-											modalDone,
-											thresholdFlag;
-	
-	
-	dialogPtr = NULL;
-	localClassWeightsPtr = NULL;
-	checkChannelStatisticsFlag = FALSE;
-	checkClassesPopUpFlag = FALSE;
-	localClassPtr = NULL;
-	localSymbolsPtr = NULL;
-	
-			// Get memory for local vectors
-	
-	localClassWeightsPtrPtr = NULL;
-	if (gBiPlotDataSpecsPtr->projectFlag)
-		localClassWeightsPtrPtr = &localClassWeightsPtr;
-	
-	if (gBiPlotDataSpecsPtr->projectFlag)
-		returnFlag = GetDialogLocalVectors (NULL,
-														NULL,
-														&localClassPtr,
-														NULL,
-														localClassWeightsPtrPtr,
-														&localSymbolsPtr,
-														NULL,
-														NULL);
-	
-			// Get the modal dialog for the biplot data specification.
-	
-	if (returnFlag)			
-		dialogPtr = LoadRequestedDialog (kBiPlotDataSpecificationID, 
-														kCopyScrap,
-														1,
-														2);
+		DialogPtr							dialogPtr;
+		float*								localClassWeightsPtr;
+		float**								localClassWeightsPtrPtr;
 		
-	if (dialogPtr == NULL)
-		{		
-		ReleaseDialogLocalVectors (NULL,
-											NULL,
-											localClassPtr,
-											NULL,
-											localClassWeightsPtr,
-											localSymbolsPtr,
-											NULL,
-											NULL);					
-																				return (FALSE);
-																				
-		}		// end "if (dialogPtr == NULL)" 
-	
-	if (gBiPlotDataSpecsPtr->projectFlag)
-		{
-		SetDialogItemDrawRoutine (dialogPtr, 37, gDrawSymbolsPopUpPtr);
-		SetDialogItemDrawRoutine (dialogPtr, 39, &weightsPopUpBox, gDrawWeightsPopUpPtr);
-		SetDialogItemDrawRoutine (dialogPtr, 42, gDrawDialogClassPopUpPtr);
-		
-		}		// end "if (gBiPlotDataSpecsPtr->projectFlag)"
-		
-	BiPlotDataDialogInitialize (dialogPtr,
-											gBiPlotDataSpecsPtr,
-											&dialogSelectArea,
-											gImageWindowInfoPtr,
-											gActiveImageWindow,
-											localClassPtr,
-											localSymbolsPtr,
-											&newXAxisFeature,
-											&newYAxisFeature,
-											&featureTransformationFlag,
-											&featureTransformAllowedFlag,
-											&checkFeatureTransformFlag,
-											&maxChannelFeatureNum,
-											&plotDataCode,
-											&displayPixelCode,
-											&outlineClassCode,
-											&thresholdFlag,
-											&saveThresholdPercent,
-											&gClassSelection,
-											&localNumberClasses,
-											&gSymbolSelection,
-											&gWeightsSelection,
-											&createNewGraphicsWindowFlag);
-	
-			// Save handle for the OK button for use later.								
-			
-	GetDialogItem (dialogPtr, 1, &theType, &okHandle, &theBox);
-	
-			// Default feature for x and y axes.											
-			
-	LoadDItemValue (dialogPtr, 6, (SInt32)newXAxisFeature);
-	LoadDItemValue (dialogPtr, 8, (SInt32)newYAxisFeature);
-	
-			// Set check boxes for "pixels to plot".										
-			
-	controlValue = (plotDataCode & kTrainingType)  ? 1 : 0;
-	SetDLogControl (dialogPtr, 12, controlValue);
-	
-	controlValue = (plotDataCode & kTestingType)  ? 1 : 0;
-	SetDLogControl (dialogPtr, 13, controlValue);
-	
-	controlValue = (plotDataCode & kAreaType)  ? 1 : 0;
-	SetDLogControl (dialogPtr, 14, controlValue);
-	
-	controlValue = (displayPixelCode & kDisplayPixels)  ? 1 : 0;
-	SetDLogControl (dialogPtr, 26, controlValue);
-
-			// Hide some of the area selection boxes if needed.						
-			
-	if (!(plotDataCode & kAreaType))
-		{
-		HideDialogItem (dialogPtr, entireIconItem);
-		HideDialogItem (dialogPtr, 17);
-		HideDialogItem (dialogPtr, 19);
-		HideDialogItem (dialogPtr, 20);
-		HideDialogItem (dialogPtr, 22);
-		HideDialogItem (dialogPtr, 23);
-		
-		}		// end "if (!(plotDataCode & kAreaType))" 
-	
-	controlValue = (outlineClassCode & kOutlineClasses)  ? 1 : 0;
-	SetDLogControl (dialogPtr, IDC_OutlineClassAsEllipse, controlValue);
-	
-	LoadDItemRealValue (dialogPtr, IDC_ThresholdLevel, saveThresholdPercent, 10);
-		
-	SetDLogControl (dialogPtr, IDC_ThresholdPixelCheck, thresholdFlag);
-															
-			// Initialize entireIconItem value for later use.	
-	
-	entireIconItem = 15;
-	if (gAppearanceManagerFlag)
-		entireIconItem = 44;
-
-			// Center the dialog and then show it.											
-			
-	ShowDialogWindow (dialogPtr, kBiPlotDataSpecificationID, kSetUpDFilterTable);
-	
-	gDialogItemDescriptorPtr[33] = kDItemReal;
-	
-			// Set default text selection to first edit text item						
-			
-	SelectDialogItemText (dialogPtr, 6, 0, INT16_MAX);
-	modalDone = FALSE;
-	itemHit = 0;
-	do
-		{
-		ModalDialog (gProcessorDialogFilterPtr, &itemHit);
-	
-				// If itemHit was a number item, check for bad values.  If			
-				// itemHit was a radio button make appropriate control settings	
-				// to indicate to the user the present selection.  Get the handle	
-				// to the itemHit.  For number value items, get the string and		
-				// convert it to a number.														
-
-		GetDialogItem (dialogPtr, itemHit, &theType, &theHandle, &theBox);
-		if (theType == 16)
-			{
-			GetDialogItemText (theHandle, gTextString);	
-			StringToNum (gTextString, &theNum);
-			
-			}		// end "if (theType == 16)" 
-
-		if(itemHit > 2)
-			{
-			switch (itemHit)
-				{
-				case 6:		//	 Channel/feature for horizontal axis  		
-				   if (theNum == 0)
-				   	NumberErrorAlert (newXAxisFeature, dialogPtr, itemHit);
-					
-					else		// theNum > 0 
-						{
-						if (theNum > maxChannelFeatureNum)
-							NumberDefault (theHandle, newXAxisFeature, &gTextString);
-							
-						else		// theNum > 0 && < ...maxChannelFeatureNum 
-							{
-							newXAxisFeature = theNum;
-							checkChannelStatisticsFlag = TRUE;
-							
-							}
-							
-						}		// end "else theNum > 0" 
-					break;
-					
-				case 8:		//	 Channel/feature for vertical axis  		
-				   if (theNum == 0)  
-				   	NumberErrorAlert (newYAxisFeature, dialogPtr, itemHit);
-					
-					else		// theNum > 0 
-						{
-						if (theNum > maxChannelFeatureNum)  
-							NumberDefault (theHandle, newYAxisFeature, &gTextString);
-							
-						else		// theNum > 0 && < ...maxChannelFeatureNum 
-							{
-							newYAxisFeature = theNum;
-							checkChannelStatisticsFlag = TRUE;
-							
-							}
-							
-						}		// end "else theNum > 0" 
-					break;
-					
-				case 9:		// check box for "Use feature transformation flag" 
-					ChangeDLogCheckBox ((ControlHandle)theHandle);
-					featureTransformationFlag = !featureTransformationFlag;
-					checkFeatureTransformFlag = TRUE;
-					break;
-					
-				case 11:		// Create new graphic window. 
-					ChangeDLogCheckBox ((ControlHandle)theHandle);
-					break;
-					
-				case 12:		// check box for "Training" 
-				case 13:		// check box for "Test" 
-					index = itemHit - 11;
-					if ( plotDataCode & index )
-						{
-						SetControlValue ((ControlHandle)theHandle, 0);
-						plotDataCode -= index;
-						
-						}		// end "if ( plotDataCode & index )" 
-						
-					else		// !(plotDataCode & index) 
-						{
-						SetControlValue ((ControlHandle)theHandle, 1);
-						plotDataCode += index;
-						
-						}		// end "else !(plotDataCode & index)" 
-
-					checkClassesPopUpFlag = TRUE;
-					break;
-					
-				case 14:		// Use pixels within selected area. 
-					if (plotDataCode & kAreaType)
-						{
-						SetControlValue ((ControlHandle)theHandle, 0);
-						HideDialogItem (dialogPtr, entireIconItem);
-						HideDialogItem (dialogPtr, 17);
-						HideDialogItem (dialogPtr, 19);
-						HideDialogItem (dialogPtr, 20);
-						HideDialogItem (dialogPtr, 22);
-						HideDialogItem (dialogPtr, 23);
-						
-						plotDataCode -= kAreaType;
-						
-						}		// end "if (GetControlValue ((ControlHandle)..." 
-						
-					else		// !GetControlValue ((ControlHandle)theHandle) 
-						{
-						SetControlValue ((ControlHandle)theHandle, 1);
-						ShowDialogItem (dialogPtr, entireIconItem);
-						ShowDialogItem (dialogPtr, 17);
-						ShowDialogItem (dialogPtr, 19);
-						ShowDialogItem (dialogPtr, 20);
-						ShowDialogItem (dialogPtr, 22);
-						ShowDialogItem (dialogPtr, 23);
-						SelectDialogItemText (dialogPtr, 19, 0, INT16_MAX);
-						
-						plotDataCode += kAreaType;
-						
-						}		// end "!GetControlValue ((ControlHandle)theHandle)" 
-					break;
-					
-				case 15:				// Entire area to selected area switch.	
-				case 44:				// Entire area to selected area switch. (Appearance Manager)		
-				case 19:				//	 lineStart  
-				case 20:				//	 lineEnd  
-				case 21:				//	 lineInterval  		
-				case 22:				//	 columnStart  
-				case 23:				//	 columnEnd  
-				case 24:				//	 columnInterval  	
-					DialogLineColumnHits (&dialogSelectArea,
-													dialogPtr, 
-													itemHit,
-													theHandle,
-													theNum);
-					break;
-					
-				case 26:		// check box for "Display pixels as:" 
-					ChangeDLogCheckBox ((ControlHandle)theHandle);
-					
-					if (GetControlValue ((ControlHandle)theHandle))
-						displayPixelCode |= kDisplayPixels;
+		UInt16*								localClassPtr;
 												
-					else		// !GetControlValue (theHandle) 
-						displayPixelCode &= (kPixelsAsSymbols+kPixelsAsColor);
-
-					break;
-					
-				case 29:		// check box for "Outline classes with:" 
-					ChangeDLogCheckBox ( (ControlHandle)theHandle );
-					
-					if (GetControlValue ( (ControlHandle)theHandle))
-						outlineClassCode |= kOutlineClasses;
-
-					else		// !GetControlValue (theHandle) 
-						outlineClassCode &= kClassesAsEllipses+kClassesAsBorders;
-
-					checkClassesPopUpFlag = TRUE;
-
-					break;
-					
-				case 33:				// Threshold percent	
-					thresholdPercent = GetDItemRealValue (dialogPtr, 33);
-					if (thresholdPercent > kMaxThreshold)
-						RealNumberErrorAlert (saveThresholdPercent, dialogPtr, 33, 10);
-					if (thresholdPercent >= 0 && thresholdPercent <= kMaxThreshold)
-						saveThresholdPercent = thresholdPercent;
-					break;
-					
-				case 35:		// Threshold the results. 
-					ChangeDLogCheckBox ((ControlHandle)theHandle);
-					break;
-					
-				case 37:		// Symbol selection. 
-					itemHit2 = StandardPopUpMenu (dialogPtr, 
-																36,
-																37, 
-																gPopUpSymbolsMenu, 
-																gSymbolSelection, 
-																kPopUpSymbolsMenuID);
-													
-					if (itemHit2 == kUserMenuItem)
-						{
-								// User specified symbols to be used.
-								// Note that all project classes will be included in the symbol list
-								// even if the user is working with a subset of the classes					
-								
-						HiliteControl ((ControlHandle)okHandle, 255);
-						
-						if (!SymbolsDialog ( 
-										gProjectInfoPtr->numberStatisticsClasses,
-										NULL,
-										localSymbolsPtr,
-										FALSE))
-							itemHit2 = gSymbolSelection;
-							
-						HiliteControl ((ControlHandle)okHandle, 0);
-							
-						}		// end "if (itemHit2 == kUserMenuItem)" 
-					
-					if (itemHit2 != 0)
-						gSymbolSelection = itemHit2;
-	
-							// Make certain that the correct label is drawn in the	
-							// symbols pop up box.												
-					
-					InvalWindowRect (GetDialogWindow(dialogPtr), &theBox);
-					break;
-					
-				case 39:		// Use equal weights 
-					itemHit = StandardPopUpMenu (dialogPtr, 
-															38,
-															39, 
-															gPopUpWeightsMenu, 
-															gWeightsSelection, 
-															kPopUpWeightsMenuID);
-													
-					if (itemHit == kUnequalWeightMenuItem)
-						{
-								// Unequal weights to be used.								
-								
-						HiliteControl ((ControlHandle)okHandle, 255);
-						
-						gWeightsSelection = ClassWeightsDialog (
-								localNumberClasses,
-								(SInt16*)localClassPtr,
-								localClassWeightsPtr,
-								gWeightsSelection, 
-								gProjectInfoPtr->covarianceStatsToUse == kEnhancedStats);
-								
-						HiliteControl ((ControlHandle)okHandle, 0);
-						
-						itemHit = gWeightsSelection;
-							
-						}		// end "if (itemHit == kUnequalWeightMenuItem)" 
-					
-					if (itemHit != 0)
-						gWeightsSelection = itemHit;
-	
-							// Make certain that the correct label is drawn in the	
-							// weights pop up box.												
-					
-					InvalWindowRect (GetDialogWindow(dialogPtr), &theBox);
-					break;
-					
-				case 42:		// Classes 
-					itemHit = StandardPopUpMenu (dialogPtr, 
-															41,
-															42, 
-															gPopUpAllSubsetMenu, 
-															gClassSelection, 
-															kPopUpAllSubsetMenuID);
-													
-					if (itemHit == kSubsetMenuItem)
-						{
-								// Subset of classes to be used.								
-								
-						itemHit = ClassDialog ( 
-											&localNumberClasses,
-											(SInt16*)localClassPtr, 
-											1,
-											gProjectInfoPtr->numberStatisticsClasses,
-											gClassSelection,
-											okHandle);
-							
-						}		// end "if (itemHit == kSubsetMenuItem)" 
-					
-					if (itemHit != 0)
-						gClassSelection = itemHit;
-					
-					if (gClassSelection == kAllMenuItem)
-									// Make sure that the class settings are setup for all
-									// classes in case they will be used by the symbols
-									// or weights popup menu.
-									
-						LoadTrainClassVector (&localNumberClasses,
-														&gClassSelection, 
-														(SInt16*)localClassPtr);
-	
-							// Make certain that the correct label is drawn in the	
-							// class pop up box.													
-					
-					InvalWindowRect (GetDialogWindow(dialogPtr), &theBox);
-					break;
-						
-				}		// end "switch(itemHit)" 
-				
-			if (checkFeatureTransformFlag)
-				{
-				checkFeatureTransformFlag = BiPlotDataDialogCheckFeatureTransform (
-																dialogPtr,
-																gImageWindowInfoPtr,
-																&gTransformationMatrix,
-																featureTransformAllowedFlag,
-																&featureTransformationFlag,
-																&maxChannelFeatureNum);
-/*
-				checkFeatureTransformFlag = CheckFeatureTransformationDialog (
-															dialogPtr, 
-															featureTransformAllowedFlag,
-															9, 
-															4, 
-															&featureTransformationFlag);
-															
-				if (featureTransformationFlag)
-					maxChannelFeatureNum = gTransformationMatrix.numberFeatures;
-					
-				else		// !featureTransformationFlag 
-					maxChannelFeatureNum = gImageWindowInfoPtr->totalNumberChannels;
-*/					
-				}		// end "if (checkFeatureTransformFlag)" 
-															
-			if (checkChannelStatisticsFlag)
-				{
-				if (gBiPlotDataSpecsPtr->projectFlag)
-					{
-					if (CheckIfStatisticsChannel(theNum, featureTransformationFlag))
-						SetDLogControlHilite (dialogPtr, 29, 0);
-						
-					else		// !CheckIfStatisticsChannel(... 
-						{
-						outlineClassCode &= (kClassesAsEllipses + kClassesAsBorders);
-						SetDLogControl (dialogPtr, 29, 0);
-						SetDLogControlHilite (dialogPtr, 29, 255);
-					
-						}		// end "else !CheckIfStatisticsChannel(theNum, ..." 
-						
-					}		// end "if (gBiPlotDataSpecsPtr->projectFlag)" 
-					
-				checkChannelStatisticsFlag = FALSE;
-					
-				}		// end "if (checkChannelStatisticsFlag && ...)" 
-
-			if (checkClassesPopUpFlag)
-				{
-				BiPlotDataDialogHideShowClassItems (dialogPtr, plotDataCode, outlineClassCode);
-				checkClassesPopUpFlag = FALSE;
-
-				}		// end "if (checkClassesPopUpFlag)" 
-
-			}		// end "if(itemHit > 2)" 
+		unsigned char*						localSymbolsPtr;
+		
+		Handle								okHandle,
+												theHandle;
+		
+		SInt32								maxChannelFeatureNum,
+												theNum;
+												
+		UInt32								localNumberClasses;
+		
+		SInt16								controlValue,
+												displayPixelCode,
+												entireIconItem,
+												index,
+												itemHit,
+												itemHit2,
+												outlineClassCode,
+												plotDataCode,
+												theType,
+												newXAxisFeature,
+												newYAxisFeature;
+		
+		Boolean								checkChannelStatisticsFlag,
+												checkClassesPopUpFlag,
+												checkFeatureTransformFlag,
+												createNewGraphicsWindowFlag,
+												featureTransformAllowedFlag,
+												featureTransformationFlag,
+												modalDone,
+												thresholdFlag;
+		
+		
+		dialogPtr = NULL;
+		localClassWeightsPtr = NULL;
+		checkChannelStatisticsFlag = FALSE;
+		checkClassesPopUpFlag = FALSE;
+		localClassPtr = NULL;
+		localSymbolsPtr = NULL;
+		
+				// Get memory for local vectors
+		
+		localClassWeightsPtrPtr = NULL;
+		if (gBiPlotDataSpecsPtr->projectFlag)
+			localClassWeightsPtrPtr = &localClassWeightsPtr;
+		
+		if (gBiPlotDataSpecsPtr->projectFlag)
+			returnFlag = GetDialogLocalVectors (NULL,
+															NULL,
+															&localClassPtr,
+															NULL,
+															localClassWeightsPtrPtr,
+															&localSymbolsPtr,
+															NULL,
+															NULL);
+		
+				// Get the modal dialog for the biplot data specification.
+		
+		if (returnFlag)			
+			dialogPtr = LoadRequestedDialog (kBiPlotDataSpecificationID, 
+															kCopyScrap,
+															1,
+															2);
 			
-		else if (itemHit > 0) 	// and itemHit <= 2 
+		if (dialogPtr == NULL)
+			{		
+			ReleaseDialogLocalVectors (NULL,
+												NULL,
+												localClassPtr,
+												NULL,
+												localClassWeightsPtr,
+												localSymbolsPtr,
+												NULL,
+												NULL);					
+																					return (FALSE);
+																					
+			}	// end "if (dialogPtr == NULL)" 
+		
+		if (gBiPlotDataSpecsPtr->projectFlag)
 			{
-			if (itemHit == 1 && (plotDataCode == 0))
-				{
-				HiliteControl ((ControlHandle)okHandle, 255);
-				DisplayAlert (kErrorAlertID, 
-									kStopAlert, 
-									kAlertStrID, 
-									IDS_Alert117,
-									0, 
-									NULL);
-				HiliteControl ((ControlHandle)okHandle, 0);
-									
-				itemHit = 0;
-//				updateDialogWindowFlag = TRUE;
-										
-				}		// end "if (itemHit == 1 && ..."
-				
-			if (itemHit == 1 && 
-						!((displayPixelCode & kDisplayPixels) ||
-													(outlineClassCode & kOutlineClasses)) )
-				{
-				HiliteControl ((ControlHandle)okHandle, 255);
-				DisplayAlert (kErrorAlertID, 
-									kStopAlert, 
-									kAlertStrID, 
-									IDS_Alert151,
-									0, 
-									NULL);
-				HiliteControl ((ControlHandle)okHandle, 0);
-									
-				itemHit = 0;
-//				updateDialogWindowFlag = TRUE;
-										
-				}		// end "if (itemHit == 1 && ..."
+			SetDialogItemDrawRoutine (dialogPtr, 37, gDrawSymbolsPopUpPtr);
+			SetDialogItemDrawRoutine (dialogPtr, 39, &weightsPopUpBox, gDrawWeightsPopUpPtr);
+			SetDialogItemDrawRoutine (dialogPtr, 42, gDrawDialogClassPopUpPtr);
 			
-			if (itemHit == 1)
-				{	
-						// Make certain that the channel or feature number make sense.	
-						
-				if (newXAxisFeature > maxChannelFeatureNum)
-					{
-					itemHit = 6;
-					NumberErrorAlert (newXAxisFeature, dialogPtr, itemHit);
-					
-					}		// end "if (newXAxisFeature > maxChannelFeatureNum)" 
+			}	// end "if (gBiPlotDataSpecsPtr->projectFlag)"
+			
+		BiPlotDataDialogInitialize (dialogPtr,
+												gBiPlotDataSpecsPtr,
+												&dialogSelectArea,
+												gImageWindowInfoPtr,
+												gActiveImageWindow,
+												localClassPtr,
+												localSymbolsPtr,
+												&newXAxisFeature,
+												&newYAxisFeature,
+												&featureTransformationFlag,
+												&featureTransformAllowedFlag,
+												&checkFeatureTransformFlag,
+												&maxChannelFeatureNum,
+												&plotDataCode,
+												&displayPixelCode,
+												&outlineClassCode,
+												&thresholdFlag,
+												&saveThresholdPercent,
+												&gClassSelection,
+												&localNumberClasses,
+												&gSymbolSelection,
+												&gWeightsSelection,
+												&createNewGraphicsWindowFlag);
+		
+				// Save handle for the OK button for use later.								
 				
-				else		// newXAxisFeature <= maxChannelFeatureNum 
+		GetDialogItem (dialogPtr, 1, &theType, &okHandle, &theBox);
+		
+				// Default feature for x and y axes.											
+				
+		LoadDItemValue (dialogPtr, 6, (SInt32)newXAxisFeature);
+		LoadDItemValue (dialogPtr, 8, (SInt32)newYAxisFeature);
+		
+				// Set check boxes for "pixels to plot".										
+				
+		controlValue = (plotDataCode & kTrainingType)  ? 1 : 0;
+		SetDLogControl (dialogPtr, 12, controlValue);
+		
+		controlValue = (plotDataCode & kTestingType)  ? 1 : 0;
+		SetDLogControl (dialogPtr, 13, controlValue);
+		
+		controlValue = (plotDataCode & kAreaType)  ? 1 : 0;
+		SetDLogControl (dialogPtr, 14, controlValue);
+		
+		controlValue = (displayPixelCode & kDisplayPixels)  ? 1 : 0;
+		SetDLogControl (dialogPtr, 26, controlValue);
+
+				// Hide some of the area selection boxes if needed.						
+				
+		if (!(plotDataCode & kAreaType))
+			{
+			HideDialogItem (dialogPtr, entireIconItem);
+			HideDialogItem (dialogPtr, 17);
+			HideDialogItem (dialogPtr, 19);
+			HideDialogItem (dialogPtr, 20);
+			HideDialogItem (dialogPtr, 22);
+			HideDialogItem (dialogPtr, 23);
+			
+			}	// end "if (!(plotDataCode & kAreaType))" 
+		
+		controlValue = (outlineClassCode & kOutlineClasses)  ? 1 : 0;
+		SetDLogControl (dialogPtr, IDC_OutlineClassAsEllipse, controlValue);
+		
+		LoadDItemRealValue (dialogPtr, IDC_ThresholdLevel, saveThresholdPercent, 10);
+			
+		SetDLogControl (dialogPtr, IDC_ThresholdPixelCheck, thresholdFlag);
+																
+				// Initialize entireIconItem value for later use.	
+		
+		entireIconItem = 15;
+		if (gAppearanceManagerFlag)
+			entireIconItem = 44;
+
+				// Center the dialog and then show it.											
+				
+		ShowDialogWindow (dialogPtr, kBiPlotDataSpecificationID, kSetUpDFilterTable);
+		
+		gDialogItemDescriptorPtr[33] = kDItemReal;
+		
+				// Set default text selection to first edit text item						
+				
+		SelectDialogItemText (dialogPtr, 6, 0, INT16_MAX);
+		modalDone = FALSE;
+		itemHit = 0;
+		do
+			{
+			ModalDialog (gProcessorDialogFilterPtr, &itemHit);
+		
+					// If itemHit was a number item, check for bad values.  If			
+					// itemHit was a radio button make appropriate control settings	
+					// to indicate to the user the present selection.  Get the handle	
+					// to the itemHit.  For number value items, get the string and		
+					// convert it to a number.														
+
+			GetDialogItem (dialogPtr, itemHit, &theType, &theHandle, &theBox);
+			if (theType == 16)
+				{
+				GetDialogItemText (theHandle, gTextString);	
+				StringToNum (gTextString, &theNum);
+				
+				}	// end "if (theType == 16)" 
+
+			if (itemHit > 2)
+				{
+				switch (itemHit)
 					{
-					if (newYAxisFeature > maxChannelFeatureNum)
+					case 6:		//	 Channel/feature for horizontal axis  		
+						if (theNum == 0)
+							NumberErrorAlert (newXAxisFeature, dialogPtr, itemHit);
+						
+						else	// theNum > 0 
+							{
+							if (theNum > maxChannelFeatureNum)
+								NumberDefault (theHandle, newXAxisFeature, (Str255*)gTextString);
+								
+							else	// theNum > 0 && < ...maxChannelFeatureNum 
+								{
+								newXAxisFeature = theNum;
+								checkChannelStatisticsFlag = TRUE;
+								
+								}
+								
+							}	// end "else theNum > 0" 
+						break;
+						
+					case 8:		//	 Channel/feature for vertical axis  		
+						if (theNum == 0)  
+							NumberErrorAlert (newYAxisFeature, dialogPtr, itemHit);
+						
+						else	// theNum > 0 
+							{
+							if (theNum > maxChannelFeatureNum)  
+								NumberDefault (theHandle, newYAxisFeature, (Str255*)gTextString);
+								
+							else	// theNum > 0 && < ...maxChannelFeatureNum 
+								{
+								newYAxisFeature = theNum;
+								checkChannelStatisticsFlag = TRUE;
+								
+								}
+								
+							}	// end "else theNum > 0" 
+						break;
+						
+					case 9:		// check box for "Use feature transformation flag" 
+						ChangeDLogCheckBox ((ControlHandle)theHandle);
+						featureTransformationFlag = !featureTransformationFlag;
+						checkFeatureTransformFlag = TRUE;
+						break;
+						
+					case 11:		// Create new graphic window. 
+						ChangeDLogCheckBox ((ControlHandle)theHandle);
+						break;
+						
+					case 12:		// check box for "Training" 
+					case 13:		// check box for "Test" 
+						index = itemHit - 11;
+						if (plotDataCode & index)
+							{
+							SetControlValue ((ControlHandle)theHandle, 0);
+							plotDataCode -= index;
+							
+							}	// end "if (plotDataCode & index)" 
+							
+						else	// !(plotDataCode & index) 
+							{
+							SetControlValue ((ControlHandle)theHandle, 1);
+							plotDataCode += index;
+							
+							}	// end "else !(plotDataCode & index)" 
+
+						checkClassesPopUpFlag = TRUE;
+						break;
+						
+					case 14:		// Use pixels within selected area. 
+						if (plotDataCode & kAreaType)
+							{
+							SetControlValue ((ControlHandle)theHandle, 0);
+							HideDialogItem (dialogPtr, entireIconItem);
+							HideDialogItem (dialogPtr, 17);
+							HideDialogItem (dialogPtr, 19);
+							HideDialogItem (dialogPtr, 20);
+							HideDialogItem (dialogPtr, 22);
+							HideDialogItem (dialogPtr, 23);
+							
+							plotDataCode -= kAreaType;
+							
+							}	// end "if (GetControlValue ((ControlHandle)..." 
+							
+						else	// !GetControlValue ((ControlHandle)theHandle) 
+							{
+							SetControlValue ((ControlHandle)theHandle, 1);
+							ShowDialogItem (dialogPtr, entireIconItem);
+							ShowDialogItem (dialogPtr, 17);
+							ShowDialogItem (dialogPtr, 19);
+							ShowDialogItem (dialogPtr, 20);
+							ShowDialogItem (dialogPtr, 22);
+							ShowDialogItem (dialogPtr, 23);
+							SelectDialogItemText (dialogPtr, 19, 0, INT16_MAX);
+							
+							plotDataCode += kAreaType;
+							
+							}	// end "!GetControlValue ((ControlHandle)theHandle)" 
+						break;
+						
+					case 15:				// Entire area to selected area switch.	
+					case 44:				// Entire area to selected area switch. (Appearance Manager)		
+					case 19:				//	 lineStart  
+					case 20:				//	 lineEnd  
+					case 21:				//	 lineInterval  		
+					case 22:				//	 columnStart  
+					case 23:				//	 columnEnd  
+					case 24:				//	 columnInterval  	
+						DialogLineColumnHits (&dialogSelectArea,
+														dialogPtr, 
+														itemHit,
+														theHandle,
+														theNum);
+						break;
+						
+					case 26:		// check box for "Display pixels as:" 
+						ChangeDLogCheckBox ((ControlHandle)theHandle);
+						
+						if (GetControlValue ((ControlHandle)theHandle))
+							displayPixelCode |= kDisplayPixels;
+													
+						else	// !GetControlValue (theHandle) 
+							displayPixelCode &= (kPixelsAsSymbols+kPixelsAsColor);
+
+						break;
+						
+					case 29:		// check box for "Outline classes with:" 
+						ChangeDLogCheckBox ((ControlHandle)theHandle);
+						
+						if (GetControlValue ((ControlHandle)theHandle))
+							outlineClassCode |= kOutlineClasses;
+
+						else	// !GetControlValue (theHandle) 
+							outlineClassCode &= kClassesAsEllipses+kClassesAsBorders;
+
+						checkClassesPopUpFlag = TRUE;
+
+						break;
+						
+					case 33:				// Threshold percent	
+						thresholdPercent = GetDItemRealValue (dialogPtr, 33);
+						if (thresholdPercent > kMaxThreshold)
+							RealNumberErrorAlert (saveThresholdPercent, dialogPtr, 33, 10);
+						if (thresholdPercent >= 0 && thresholdPercent <= kMaxThreshold)
+							saveThresholdPercent = thresholdPercent;
+						break;
+						
+					case 35:		// Threshold the results. 
+						ChangeDLogCheckBox ((ControlHandle)theHandle);
+						break;
+						
+					case 37:		// Symbol selection. 
+						itemHit2 = StandardPopUpMenu (dialogPtr, 
+																	36,
+																	37, 
+																	gPopUpSymbolsMenu, 
+																	gSymbolSelection, 
+																	kPopUpSymbolsMenuID);
+														
+						if (itemHit2 == kUserMenuItem)
+							{
+									// User specified symbols to be used.
+									// Note that all project classes will be included in the symbol list
+									// even if the user is working with a subset of the classes					
+									
+							HiliteControl ((ControlHandle)okHandle, 255);
+							
+							if (!SymbolsDialog (
+											gProjectInfoPtr->numberStatisticsClasses,
+											NULL,
+											localSymbolsPtr,
+											FALSE))
+								itemHit2 = gSymbolSelection;
+								
+							HiliteControl ((ControlHandle)okHandle, 0);
+								
+							}	// end "if (itemHit2 == kUserMenuItem)" 
+						
+						if (itemHit2 != 0)
+							gSymbolSelection = itemHit2;
+		
+								// Make certain that the correct label is drawn in the	
+								// symbols pop up box.												
+						
+						InvalWindowRect (GetDialogWindow (dialogPtr), &theBox);
+						break;
+						
+					case 39:		// Use equal weights 
+						itemHit = StandardPopUpMenu (dialogPtr, 
+																38,
+																39, 
+																gPopUpWeightsMenu, 
+																gWeightsSelection, 
+																kPopUpWeightsMenuID);
+														
+						if (itemHit == kUnequalWeightMenuItem)
+							{
+									// Unequal weights to be used.								
+									
+							HiliteControl ((ControlHandle)okHandle, 255);
+							
+							gWeightsSelection = ClassWeightsDialog (
+									localNumberClasses,
+									(SInt16*)localClassPtr,
+									localClassWeightsPtr,
+									gWeightsSelection, 
+									gProjectInfoPtr->covarianceStatsToUse == kEnhancedStats);
+									
+							HiliteControl ((ControlHandle)okHandle, 0);
+							
+							itemHit = gWeightsSelection;
+								
+							}	// end "if (itemHit == kUnequalWeightMenuItem)" 
+						
+						if (itemHit != 0)
+							gWeightsSelection = itemHit;
+		
+								// Make certain that the correct label is drawn in the	
+								// weights pop up box.												
+						
+						InvalWindowRect (GetDialogWindow (dialogPtr), &theBox);
+						break;
+						
+					case 42:		// Classes 
+						itemHit = StandardPopUpMenu (dialogPtr, 
+																41,
+																42, 
+																gPopUpAllSubsetMenu, 
+																gClassSelection, 
+																kPopUpAllSubsetMenuID);
+														
+						if (itemHit == kSubsetMenuItem)
+							{
+									// Subset of classes to be used.								
+									
+							itemHit = ClassDialog (
+												&localNumberClasses,
+												(SInt16*)localClassPtr, 
+												1,
+												gProjectInfoPtr->numberStatisticsClasses,
+												gClassSelection,
+												okHandle);
+								
+							}	// end "if (itemHit == kSubsetMenuItem)" 
+						
+						if (itemHit != 0)
+							gClassSelection = itemHit;
+						
+						if (gClassSelection == kAllMenuItem)
+										// Make sure that the class settings are setup for all
+										// classes in case they will be used by the symbols
+										// or weights popup menu.
+										
+							LoadTrainClassVector (&localNumberClasses,
+															&gClassSelection, 
+															(SInt16*)localClassPtr);
+		
+								// Make certain that the correct label is drawn in the	
+								// class pop up box.													
+						
+						InvalWindowRect (GetDialogWindow (dialogPtr), &theBox);
+						break;
+							
+					}	// end "switch (itemHit)" 
+					
+				if (checkFeatureTransformFlag)
+					{
+					checkFeatureTransformFlag = BiPlotDataDialogCheckFeatureTransform (
+																	dialogPtr,
+																	gImageWindowInfoPtr,
+																	&gTransformationMatrix,
+																	featureTransformAllowedFlag,
+																	&featureTransformationFlag,
+																	&maxChannelFeatureNum);
+					/*
+					checkFeatureTransformFlag = CheckFeatureTransformationDialog (
+																dialogPtr, 
+																featureTransformAllowedFlag,
+																9, 
+																4, 
+																&featureTransformationFlag);
+																
+					if (featureTransformationFlag)
+						maxChannelFeatureNum = gTransformationMatrix.numberFeatures;
+						
+					else	// !featureTransformationFlag 
+						maxChannelFeatureNum = gImageWindowInfoPtr->totalNumberChannels;
+					*/					
+					}	// end "if (checkFeatureTransformFlag)" 
+																
+				if (checkChannelStatisticsFlag)
+					{
+					if (gBiPlotDataSpecsPtr->projectFlag)
 						{
-						itemHit = 8;
-						NumberErrorAlert (newYAxisFeature, dialogPtr, itemHit);
+						if (CheckIfStatisticsChannel (theNum, featureTransformationFlag))
+							SetDLogControlHilite (dialogPtr, 29, 0);
+							
+						else	// !CheckIfStatisticsChannel (... 
+							{
+							outlineClassCode &= (kClassesAsEllipses + kClassesAsBorders);
+							SetDLogControl (dialogPtr, 29, 0);
+							SetDLogControlHilite (dialogPtr, 29, 255);
 						
-						}		// end "if (newYAxisFeature > maxChannelFeatureNum)" 
+							}	// end "else !CheckIfStatisticsChannel (theNum, ..." 
+							
+						}	// end "if (gBiPlotDataSpecsPtr->projectFlag)" 
 						
-					}		// end "else newXAxisFeature <= maxChannelFeatureNum" 
-					
-				}		// end "if (itemHit == 1)"
+					checkChannelStatisticsFlag = FALSE;
+						
+					}	// end "if (checkChannelStatisticsFlag && ...)" 
+
+				if (checkClassesPopUpFlag)
+					{
+					BiPlotDataDialogHideShowClassItems (dialogPtr, plotDataCode, outlineClassCode);
+					checkClassesPopUpFlag = FALSE;
+
+					}	// end "if (checkClassesPopUpFlag)" 
+
+				}	// end "if (itemHit > 2)" 
 				
-					// If item hit is 1, check if line-column values make 			
-					// sense.  If they don't, sound an alert and make item hit 		
-					// equal to 0 to allow user to make changes.							
-					
-			if (itemHit == 1 && (plotDataCode & kAreaType))
-				itemHit = CheckLineColValues (
-										&dialogSelectArea,
-										gBiPlotDataSpecsPtr->lineStart, 
-										gBiPlotDataSpecsPtr->columnStart,
-										dialogPtr);
-				
-			if (itemHit == 1)
+			else if (itemHit > 0) 	// and itemHit <= 2 
 				{
-				modalDone = TRUE;
+				if (itemHit == 1 && (plotDataCode == 0))
+					{
+					HiliteControl ((ControlHandle)okHandle, 255);
+					DisplayAlert (kErrorAlertID, 
+										kStopAlert, 
+										kAlertStrID, 
+										IDS_Alert117,
+										0, 
+										NULL);
+					HiliteControl ((ControlHandle)okHandle, 0);
+										
+					itemHit = 0;
+					//updateDialogWindowFlag = TRUE;
+											
+					}	// end "if (itemHit == 1 && ..."
+					
+				if (itemHit == 1 && 
+							!((displayPixelCode & kDisplayPixels) ||
+														(outlineClassCode & kOutlineClasses)))
+					{
+					HiliteControl ((ControlHandle)okHandle, 255);
+					DisplayAlert (kErrorAlertID, 
+										kStopAlert, 
+										kAlertStrID, 
+										IDS_Alert151,
+										0, 
+										NULL);
+					HiliteControl ((ControlHandle)okHandle, 0);
+										
+					itemHit = 0;
+					//updateDialogWindowFlag = TRUE;
+											
+					}	// end "if (itemHit == 1 && ..."
 				
-				dialogSelectArea.lineInterval = GetDItemValue (dialogPtr, 21);
-				dialogSelectArea.columnInterval = GetDItemValue (dialogPtr, 24);
-				
-				BiPlotDataDialogOK (dialogPtr,
-											gBiPlotDataSpecsPtr,
+				if (itemHit == 1)
+					{	
+							// Make certain that the channel or feature number make sense.	
+							
+					if (newXAxisFeature > maxChannelFeatureNum)
+						{
+						itemHit = 6;
+						NumberErrorAlert (newXAxisFeature, dialogPtr, itemHit);
+						
+						}	// end "if (newXAxisFeature > maxChannelFeatureNum)" 
+					
+					else	// newXAxisFeature <= maxChannelFeatureNum 
+						{
+						if (newYAxisFeature > maxChannelFeatureNum)
+							{
+							itemHit = 8;
+							NumberErrorAlert (newYAxisFeature, dialogPtr, itemHit);
+							
+							}	// end "if (newYAxisFeature > maxChannelFeatureNum)" 
+							
+						}	// end "else newXAxisFeature <= maxChannelFeatureNum" 
+						
+					}	// end "if (itemHit == 1)"
+					
+						// If item hit is 1, check if line-column values make 			
+						// sense.  If they don't, sound an alert and make item hit 		
+						// equal to 0 to allow user to make changes.							
+						
+				if (itemHit == 1 && (plotDataCode & kAreaType))
+					itemHit = CheckLineColValues (
 											&dialogSelectArea,
-											newXAxisFeature,
-											newYAxisFeature,
-											featureTransformationFlag,
-											GetDLogControl (dialogPtr, 11),
-											plotDataCode,
-											displayPixelCode,
-											outlineClassCode,
-											saveThresholdPercent,
-											GetDLogControl (dialogPtr, 35),
-											gClassSelection,
-											localNumberClasses,
-											localClassPtr,
-											gSymbolSelection,
-											localSymbolsPtr,
-											gWeightsSelection,
-											localClassWeightsPtr);
+											gBiPlotDataSpecsPtr->lineStart, 
+											gBiPlotDataSpecsPtr->columnStart,
+											dialogPtr);
+					
+				if (itemHit == 1)
+					{
+					modalDone = TRUE;
+					
+					dialogSelectArea.lineInterval = GetDItemValue (dialogPtr, 21);
+					dialogSelectArea.columnInterval = GetDItemValue (dialogPtr, 24);
+					
+					BiPlotDataDialogOK (dialogPtr,
+												gBiPlotDataSpecsPtr,
+												&dialogSelectArea,
+												newXAxisFeature,
+												newYAxisFeature,
+												featureTransformationFlag,
+												GetDLogControl (dialogPtr, 11),
+												plotDataCode,
+												displayPixelCode,
+												outlineClassCode,
+												saveThresholdPercent,
+												GetDLogControl (dialogPtr, 35),
+												gClassSelection,
+												localNumberClasses,
+												localClassPtr,
+												gSymbolSelection,
+												localSymbolsPtr,
+												gWeightsSelection,
+												localClassWeightsPtr);
 
-				returnFlag = TRUE;
+					returnFlag = TRUE;
 
-				}		// end if (itemHit == 1) 
+					}	// end if (itemHit == 1) 
+				
+				if (itemHit == 2)
+					{
+					modalDone = TRUE;
+					returnFlag = FALSE;
+					
+					}	// end "if (itemHit == 2)" 
+					
+				}	// end "else if (itemHit > 0) and itemHit <= 2" 
+					
+			}	while (!modalDone);
 			
-			if (itemHit == 2)
-				{
-				modalDone = TRUE;
-				returnFlag = FALSE;
-				
-				}		// end "if (itemHit == 2)" 
-				
-			}		// end "else if (itemHit > 0) and itemHit <= 2" 
-				
-		}	while (!modalDone);
-		
-	ReleaseDialogLocalVectors (NULL,
-											NULL,
-											localClassPtr,
-											NULL,
-											localClassWeightsPtr,
-											localSymbolsPtr,
-											NULL,
-											NULL);
-		
-	//localClassWeightsPtr = CheckAndDisposePtr (localClassWeightsPtr);
-		
-	CloseRequestedDialog (dialogPtr, kSetUpDFilterTable);
-	
-#endif	// defined multispec_mac
-
+		ReleaseDialogLocalVectors (NULL,
+												NULL,
+												localClassPtr,
+												NULL,
+												localClassWeightsPtr,
+												localSymbolsPtr,
+												NULL,
+												NULL);
+			
+		//localClassWeightsPtr = CheckAndDisposePtr (localClassWeightsPtr);
+			
+		CloseRequestedDialog (dialogPtr, kSetUpDFilterTable);
+	#endif	// defined multispec_mac
 
 	#if defined multispec_win   
-	
 		//CMMosaicTwoImagesDialog*		dialogPtr = NULL;
 		CMBiPlotDialog* dialogPtr = NULL;
 		
 		TRY
 			{ 
-			dialogPtr = new CMBiPlotDialog(); 
-			
-			//returnFlag = dialogPtr->DoDialog (fileInfoPtr,
-			//												outFileInfoPtr); 
-
-			returnFlag = dialogPtr->DoDialog(); 
-		                       
+			dialogPtr = new CMBiPlotDialog ();
+			returnFlag = dialogPtr->DoDialog ();
 			delete dialogPtr;
 			}
 			
-		CATCH_ALL(e)
+		CATCH_ALL (e)
 			{
-			MemoryMessage(0, kObjectMessage);
+			MemoryMessage (0, kObjectMessage);
 			returnFlag = FALSE;
 			}
 		END_CATCH_ALL
-	
 	#endif	// defined multispec_win  
-	
    
-#	if defined multispec_lin
+	#if defined multispec_lin
 		CMBiPlotDialog*		dialogPtr = NULL;
 		
 		try
 			{ 
-			dialogPtr = new CMBiPlotDialog((wxWindow *)GetMainFrame()); 
+			dialogPtr = new CMBiPlotDialog ((wxWindow *)GetMainFrame ());
 			
-			returnFlag = dialogPtr->DoDialog(); 
+			returnFlag = dialogPtr->DoDialog ();
 		                       
 			delete dialogPtr;
 			}
-      catch(int e)
+      catch (int e)
 			{
-			MemoryMessage(0, kObjectMessage);
+			MemoryMessage (0, kObjectMessage);
 			returnFlag = FALSE;
 			}
-#	endif
+	#endif
    
 	return (returnFlag);
 
-}		// end "BiPlotDataDialog" 
+}	// end "BiPlotDataDialog" 
 
 
 
-void BiPlotDataDialogInitialize(
+void BiPlotDataDialogInitialize (
 				DialogPtr							dialogPtr,
 				BiPlotDataSpecsPtr				biPlotDataSpecsPtr,
 				DialogSelectArea*					dialogSelectAreaPtr,
@@ -1704,7 +1624,7 @@ void BiPlotDataDialogInitialize(
 											biPlotDataSpecsPtr->lineInterval,
 											19,
 											entireIconItem,
-											kDontAdjustToBaseImage );	
+											kDontAdjustToBaseImage);	
 											
 			// Default feature for x and y axes.											
 			
@@ -1753,7 +1673,7 @@ void BiPlotDataDialogInitialize(
 														fieldTypesPresentCode == 4)
 			SetDLogControlHilite (dialogPtr, IDC_TestAreas, 255);
 					
-		}		// end "if (gBiPlotDataSpecsPtr->projectFlag)" 
+		}	// end "if (gBiPlotDataSpecsPtr->projectFlag)" 
 		
 	else
 		{		// !biPlotDataSpecsPtr->projectFlag 
@@ -1768,11 +1688,15 @@ void BiPlotDataDialogInitialize(
 	#if defined multispec_mac 
 		if (gAppearanceManagerFlag)
 			HideDialogItem (dialogPtr, 15);
-		else		// !gAppearanceManagerFlag
+		else	// !gAppearanceManagerFlag
 			HideDialogItem (dialogPtr, 44);
 	#endif
 		
-	LoadLineColumnItems (dialogSelectAreaPtr, dialogPtr);
+	LoadLineColumnItems (dialogSelectAreaPtr, 
+									dialogPtr, 
+									kInitializeLineColumnValues, 
+									kIntervalEditBoxesExist,
+									1);
 
 			// Set check box for "Display pixels as:".									
 			// Set radio button for "Display pixels as symbols".						
@@ -1787,7 +1711,7 @@ void BiPlotDataDialogInitialize(
 		
 		SetDLogControlHilite (dialogPtr, IDC_DisplayPixels, 255);
 		
-		}		// end "if (!biPlotDataSpecsPtr->projectFlag)"	
+		}	// end "if (!biPlotDataSpecsPtr->projectFlag)"	
 
 	#if defined multispec_mac
 				// Hide items in the Mac version of the dialog box.
@@ -1812,7 +1736,7 @@ void BiPlotDataDialogInitialize(
 		*outlineClassCodePtr &= (kClassesAsEllipses + kClassesAsBorders);
 		SetDLogControlHilite (dialogPtr, IDC_OutlineClassAsEllipse, 255);
 		
-		}		// end "if ( !CheckIfStatisticsChannel(..." 
+		}	// end "if (!CheckIfStatisticsChannel f ((..." 
 	
 			// Set threshold options.  														
 		
@@ -1842,7 +1766,7 @@ void BiPlotDataDialogInitialize(
 		HideDialogItem (dialogPtr, IDC_Training);
 		HideDialogItem (dialogPtr, IDC_TestAreas);
 				
-		}		// end "if (!biPlotDataSpecsPtr->projectFlag)"
+		}	// end "if (!biPlotDataSpecsPtr->projectFlag)"
 
 			// Class weights.																		
 			// Not used for now.																	
@@ -1858,11 +1782,11 @@ void BiPlotDataDialogInitialize(
 								NULL,
 								TRUE);
 		
-		}		// end "if (biPlotDataSpecsPtr->projectFlag)" 
+		}	// end "if (biPlotDataSpecsPtr->projectFlag)" 
 						
 			// Setup the classes popup.														
 
-	if (!(*plotDataCodePtr & 0x0003) && !(*outlineClassCodePtr & kOutlineClasses) )
+	if (!(*plotDataCodePtr & 0x0003) && !(*outlineClassCodePtr & kOutlineClasses))
 		{
 		HideDialogItem (dialogPtr, IDC_ClassPrompt);
 		HideDialogItem (dialogPtr, IDC_ClassCombo);
@@ -1874,7 +1798,7 @@ void BiPlotDataDialogInitialize(
 	*classSelectionPtr = gBiPlotDataSpecsPtr->classSet;
 	*localNumberClassesPtr = gBiPlotDataSpecsPtr->numberClasses;
 
-}		// end "BiPlotDataDialogInitialize"
+}	// end "BiPlotDataDialogInitialize"
 
 
 
@@ -1910,9 +1834,7 @@ void BiPlotDataDialogOK (
 	biPlotDataSpecsPtr->axisFeaturePtr[1] = newYAxisFeature - 1;
 	
 	channelsPtr = (SInt16*)GetHandlePointer (
-													biPlotDataSpecsPtr->channelsHandle,
-													kNoLock,
-													kNoMoveHi);
+													biPlotDataSpecsPtr->channelsHandle);
    
 	LoadChannelsVector (FALSE,
 						featureTransformationFlag,
@@ -2001,15 +1923,13 @@ void BiPlotDataDialogOK (
 	if (biPlotDataSpecsPtr->projectFlag && 
 												symbolSelection == kDefaultMenuItem)
 		{
-		symbolsPtr = (UCharPtr)GetHandlePointer (biPlotDataSpecsPtr->symbolsHandle,
-													kNoLock,
-													kNoMoveHi);
+		symbolsPtr = (UCharPtr)GetHandlePointer (biPlotDataSpecsPtr->symbolsHandle);
 		LoadClassSymbolVector (
 					symbolsPtr, 
 					IDS_Symbol1, 
 					gProjectInfoPtr->numberStatisticsClasses);
 					
-		}		// end "if (biPlotDataSpecsPtr->projectFlag && ..."
+		}	// end "if (biPlotDataSpecsPtr->projectFlag && ..."
 		
 	biPlotDataSpecsPtr->symbolSet = symbolSelection;
 					
@@ -2023,7 +1943,7 @@ void BiPlotDataDialogOK (
 				&biPlotDataSpecsPtr->classSet, 
 				biPlotDataSpecsPtr->classPtr);
 
-}		// end "BiPlotDataDialogOK"
+}	// end "BiPlotDataDialogOK"
 
 
 
@@ -2050,17 +1970,17 @@ Boolean BiPlotDataDialogCheckFeatureTransform (
 	if (*featureTransformationFlagPtr)
 		*maxChannelFeatureNumPtr = transformationMatrixPtr->numberFeatures;
 		
-	else		// !*featureTransformationFlagPtr 
+	else	// !*featureTransformationFlagPtr 
 		*maxChannelFeatureNumPtr = imageWindowInfoPtr->totalNumberChannels;
 		
 	return (checkFeatureTransformFlag);
 					
-}		// end "BiPlotDataDialogCheckFeatureTransform"
+}	// end "BiPlotDataDialogCheckFeatureTransform"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2096,7 +2016,7 @@ void BiPlotDataDialogHideShowClassItems (
 		
 		}
 
-	else		// !(plotDataCode & 0x0003) && 
+	else	// !(plotDataCode & 0x0003) && 
 				//							!(outlineClassCode & kOutlineClasses) 
 		{
 		HideDialogItem (dialogPtr, IDC_ClassPrompt);
@@ -2106,12 +2026,12 @@ void BiPlotDataDialogHideShowClassItems (
 		
 		}
 					
-}		// end "BiPlotDataDialogHideShowClassItems"
+}	// end "BiPlotDataDialogHideShowClassItems"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2206,9 +2126,7 @@ SInt16 BiPlotFieldData (
 	localNumberChannels = gBiPlotDataSpecsPtr->numberChannels;
 	
 	localChannelsPtr = (UInt16*)GetHandlePointer (
-								gBiPlotDataSpecsPtr->channelsHandle,
-								kNoLock,
-								kNoMoveHi);
+								gBiPlotDataSpecsPtr->channelsHandle);
 	
 	index = gGraphRecordPtr->xVector.numberPoints;
 				
@@ -2236,9 +2154,9 @@ SInt16 BiPlotFieldData (
 			if (gAreaDescription.columnStart == 0)
 																							return (1);
 			
-			}		// end "if (fieldNumber >= 0)" 
+			}	// end "if (fieldNumber >= 0)" 
 			
-		else		// if (fieldNumber < 0)  // It is a selected area. 
+		else	// if (fieldNumber < 0)  // It is a selected area. 
 			{
 			InitializeAreaDescription (&gAreaDescription, 
 													gBiPlotDataSpecsPtr->lineStart, 
@@ -2251,7 +2169,7 @@ SInt16 BiPlotFieldData (
 													1,
 													0);
 													
-			}		// end "else if (fieldNumber < 0)" 
+			}	// end "else if (fieldNumber < 0)" 
 		
 		rgnHandle = 	gAreaDescription.rgnHandle;
 		polygonField = gAreaDescription.polygonFieldFlag;
@@ -2265,10 +2183,8 @@ SInt16 BiPlotFieldData (
 		lineCount = 0;
 		
 		MHLock (gGraphRecordPtr->vectorLengthsHandle);
-		vectorLengthsPtr = (SInt32*)GetHandlePointer(
-												gGraphRecordPtr->vectorLengthsHandle,
-												kNoLock,
-												kNoMoveHi);
+		vectorLengthsPtr = (SInt32*)GetHandlePointer (
+												gGraphRecordPtr->vectorLengthsHandle);
 		numberPointsInClass = vectorLengthsPtr[classNumberCode];
 		
 				// Get point to base of data to start storing new samples at.		
@@ -2282,16 +2198,16 @@ SInt16 BiPlotFieldData (
 				// Determine the whether the data are signed values.					
 				// First for x-axis and then for y-axis									
 				
-//		index2 = gImageLayerInfoPtr[ localChannelsPtr[0]+1 ].fileInfoIndex;		
-//		localFileInfoPtr = &fileInfoPtr[index2];
+		//index2 = gImageLayerInfoPtr[localChannelsPtr[0]+1].fileInfoIndex;		
+		//localFileInfoPtr = &fileInfoPtr[index2];
 				
-//		index2 = gImageLayerInfoPtr[ localChannelsPtr[1]+1 ].fileInfoIndex;		
-//		localFileInfoPtr = &fileInfoPtr[index2];
+		//index2 = gImageLayerInfoPtr[localChannelsPtr[1]+1].fileInfoIndex;		
+		//localFileInfoPtr = &fileInfoPtr[index2];
 			
 				// Load some of the File IO Instructions structure that pertain
 				// to the specific area being used.
 				
-		errCode = SetUpFileIOInstructions( fileIOInstructionsPtr,
+		errCode = SetUpFileIOInstructions (fileIOInstructionsPtr,
 														&gAreaDescription, 
 														localNumberChannels,
 														localChannelsPtr,
@@ -2306,7 +2222,7 @@ SInt16 BiPlotFieldData (
 					// Load the line count into the status dialog.						
 			
 			lineCount++;	
-			if (TickCount() >= gNextStatusTime)
+			if (TickCount () >= gNextStatusTime)
 				{
 				if (updateNumberLinesFlag)
 					{
@@ -2317,12 +2233,12 @@ SInt16 BiPlotFieldData (
 											(SInt32)(lineEnd-lineStart+lineInterval)/lineInterval);
 					updateNumberLinesFlag = FALSE;
 											
-					}		// end "if (updateNumberLinesFlag)"
+					}	// end "if (updateNumberLinesFlag)"
 					
 				LoadDItemValue (gStatusDialogPtr, IDC_Status18, lineCount);
-				gNextStatusTime = TickCount() + gNextStatusTimeOffset;
+				gNextStatusTime = TickCount () + gNextStatusTimeOffset;
 				
-				}		// end "if ( TickCount() >= gNextStatusTime)" 
+				}	// end "if (TickCount () >= gNextStatusTime)"
 			
 			point.v = (SInt16)line;
 			point.h = (SInt16)columnStart;
@@ -2344,7 +2260,7 @@ SInt16 BiPlotFieldData (
 				continueFlag = FALSE;
 				break;
 				
-				}		// end "if (errCode < noErr)"
+				}	// end "if (errCode < noErr)"
 				
 			if (errCode != kSkipLine)
 				{
@@ -2367,7 +2283,7 @@ SInt16 BiPlotFieldData (
 								tempVectorPtr++;
 								bufferDoublePtr++; 
 								
-								}		// end "for (index2=0; index2<..." 
+								}	// end "for (index2=0; index2<..." 
 						
 							MatrixMultiply (
 										gTransformationMatrix.tempMatrixPtr, 
@@ -2381,9 +2297,9 @@ SInt16 BiPlotFieldData (
 							xValue = dataVectorPtr[0];
 							yValue = dataVectorPtr[1];
 										
-							}		// end "if (...->featureTransformationFlag)" 
+							}	// end "if (...->featureTransformationFlag)" 
 										
-						else		// !gBiPlotDataSpecsPtr->featureTransformationFlag 
+						else	// !gBiPlotDataSpecsPtr->featureTransformationFlag 
 							{				
 							xValue = *bufferDoublePtr;
 							bufferDoublePtr++;
@@ -2391,7 +2307,7 @@ SInt16 BiPlotFieldData (
 							yValue = *bufferDoublePtr;
 							bufferDoublePtr++;
 								
-							}		// end "else !...->featureTransformationFlag" 
+							}	// end "else !...->featureTransformationFlag" 
 							
 								// Check if duplicated value.										
 								
@@ -2403,7 +2319,7 @@ SInt16 BiPlotFieldData (
 							xBasePtr--;
 							yBasePtr--;
 							
-							}		// end "for (index2=0; index2<..." 
+							}	// end "for (index2=0; index2<..." 
 							
 						if (index2 == numberPointsInClass)
 							{
@@ -2423,20 +2339,20 @@ SInt16 BiPlotFieldData (
 							xBasePtr += numberPointsInClass;
 							yBasePtr += numberPointsInClass;
 									
-							}		// end "if (index2 == numberPointsInClass)" 
+							}	// end "if (index2 == numberPointsInClass)" 
 							
-						else		// index2 < numberPointsInClass 
+						else	// index2 < numberPointsInClass 
 							{
 									// this is a duplicate point, skip it 						
 									
 							xBasePtr += index2;
 							yBasePtr += index2;
 							
-							}		// end "else index2 < numberPointsInClass" 
+							}	// end "else index2 < numberPointsInClass" 
 						
-						}		// end "if ( !polygonField || PtInRgn (point, rgnHandle) )" 
+						}	// end "if (!polygonField || PtInRgn (point, rgnHandle))" 
 						
-					else		// polygonField && !PtInRgn (point, rgnHandle) 
+					else	// polygonField && !PtInRgn (point, rgnHandle) 
 						bufferDoublePtr += localNumberChannels;
 						
 					point.h += (SInt16)columnInterval;
@@ -2444,20 +2360,20 @@ SInt16 BiPlotFieldData (
 					if (error != noErr)
 						break;
 							
-					} 		// end "for ( column=0; column<..." 
+					} 		// end "for (column=0; column<..." 
 				
 				continueFlag = (error == noErr);
 					
-				}		// end "if (errCode != kSkipLine)" 
+				}	// end "if (errCode != kSkipLine)" 
 				
 				// Exit routine if user has "command period" down							
 				
-			if (TickCount() >= gNextTime)
+			if (TickCount () >= gNextTime)
 				{
 				if (!CheckSomeEvents (osMask+keyDownMask+updateMask+mDownMask+mUpMask))
 					continueFlag = FALSE;
 					
-				}		// end "if (TickCount() >= gNextTime)" 
+				}	// end "if (TickCount () >= gNextTime)"
 				
 			if (!continueFlag)
 				break;
@@ -2466,9 +2382,9 @@ SInt16 BiPlotFieldData (
 				fileIOInstructionsPtr->maskBufferPtr += 
 													fileIOInstructionsPtr->numberMaskColumnsPerLine;
 		      
-			}		// end "for ( line=lineStart; line<=lineEnd; line+=... )" 
+			}	// end "for (line=lineStart; line<=lineEnd; line+=...)" 
 			
-		}		// end "if (continueFlag)" 
+		}	// end "if (continueFlag)" 
 		
 	LoadDItemValue (gStatusDialogPtr, IDC_Status18, lineCount);
 		
@@ -2485,7 +2401,7 @@ SInt16 BiPlotFieldData (
 		gGraphRecordPtr->xVector.numberPoints = index;
 		gGraphRecordPtr->yVector.numberPoints = index;
 		
-		}		// end "if (continueFlag)" 
+		}	// end "if (continueFlag)" 
 	
 	CloseUpAreaDescription (&gAreaDescription);
 	
@@ -2496,12 +2412,12 @@ SInt16 BiPlotFieldData (
 		
 	return ((SInt16)continueFlag);
 		
-}		// end "BiPlotFieldData" 
+}	// end "BiPlotFieldData" 
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2557,17 +2473,15 @@ Boolean BiPlotProjectData ()
 		gImageLayerInfoPtr = NULL;
 		gImageWindowInfoPtr = NULL;
 		
-		if ( GetProjectImageFileInfo ( kPrompt, 
+		if (GetProjectImageFileInfo (kPrompt, 
 													kSetupGlobalInfoPointers,
 													&gImageWindowInfoPtr,
 													&gImageLayerInfoPtr,
 													&gImageFileInfoPtr,
-													&projectHandleStatus) )
+													&projectHandleStatus))
 			{								
-         channelsPtr = (UInt16*)GetHandlePointer(
-											gBiPlotDataSpecsPtr->channelsHandle,
-											kNoLock,
-											kNoMoveHi);
+         channelsPtr = (UInt16*)GetHandlePointer (
+											gBiPlotDataSpecsPtr->channelsHandle);
          
 			if (GetIOBufferPointers (
 								&gFileIOInstructions[0],
@@ -2586,17 +2500,17 @@ Boolean BiPlotProjectData ()
 								kForceBISFormat,
 								kForceReal8Bytes,
 								kDoNotAllowForThreadedIO,
-								&fileIOInstructionsPtr) )
+								&fileIOInstructionsPtr))
 				{							
 				classPtr = gBiPlotDataSpecsPtr->classPtr;
 		
 						// Get offsets to use for lines and columns in case needed for project 
 						// fields.	
 		
-//				SetAreaDescriptionOffsetVariables ( &gAreaDescription,
-//																gImageWindowInfoPtr,
-//																fileInfoPtr );
-															
+				//SetAreaDescriptionOffsetVariables (&gAreaDescription,
+				//													gImageWindowInfoPtr,
+				//													fileInfoPtr);
+					
 						// Set up status dialog.  Load in number of classes.					
 						
 				LoadDItemValue (gStatusDialogPtr, IDC_Status5, (SInt32)numberClasses);
@@ -2616,11 +2530,11 @@ Boolean BiPlotProjectData ()
 						returnFlag = FALSE;
 						break;
 						
-						}		// end "if (BiPlotClassData (fileInfoPtr,classNumber) == 0)" 
+						}	// end "if (BiPlotClassData (fileInfoPtr,classNumber) == 0)" 
 					
-					}		// end "for ( classIndex=0; ... 
+					}	// end "for (classIndex=0; ... 
 	
-//				ClearAreaDescriptionOffsetVariables (&gAreaDescription);
+				//ClearAreaDescriptionOffsetVariables (&gAreaDescription);
 				
 						// Dispose of the IO buffer.		
 											
@@ -2628,12 +2542,12 @@ Boolean BiPlotProjectData ()
 													&gInputBufferPtr, 
 													&gOutputBufferPtr);
 
-				}		// end "if (GetIOBufferPointers (..."
+				}	// end "if (GetIOBufferPointers (..."
 
 			UnlockImageInformationHandles (projectHandleStatus, 
 														gProjectInfoPtr->windowInfoHandle);
 														
-			}		// end "if ( GetProjectImageFileInfo (kPrompt, ..."
+			}	// end "if (GetProjectImageFileInfo (kPrompt, ..."
 		
 				// Restore previous global information pointers.
 						
@@ -2641,18 +2555,18 @@ Boolean BiPlotProjectData ()
 		gImageLayerInfoPtr = savedLayerInfoPtr;
 		gImageWindowInfoPtr = savedWindowInfoPtr;
 			
-		}		// end "if (numberClasses > 0)" 
+		}	// end "if (numberClasses > 0)" 
 	
 			// Indicate that routine completed normally.									
 			
 	return (1);
 		
-}		// end "BiPlotProjectData" 
+}	// end "BiPlotProjectData" 
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2687,28 +2601,28 @@ Boolean CheckIfStatisticsChannel (
 		if (featureTransformationFlag)
 																						return (TRUE);
 		
-		else		// !featureTransformationFlag 
+		else	// !featureTransformationFlag 
 			{
 			channelNumber--;
 			for (index=0; index<gProjectInfoPtr->numberStatisticsChannels; index++)
 				{
-				if ( channelNumber == gProjectInfoPtr->channelsPtr[index] )
+				if (channelNumber == gProjectInfoPtr->channelsPtr[index])
 																						return (TRUE);
 				
-				}		// end "for (index=0; index<..." 
+				}	// end "for (index=0; index<..." 
 				
-			}		// end "else !featureTransformationFlag" 
+			}	// end "else !featureTransformationFlag" 
 
-		}		// end "if (gProjectInfoPtr != NULL)" 
+		}	// end "if (gProjectInfoPtr != NULL)" 
 				
-	return ( FALSE );
+	return (FALSE);
 		
-}		// end "CheckIfStatisticsChannel" 
+}	// end "CheckIfStatisticsChannel" 
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2741,17 +2655,13 @@ void FillVectorOffsets (
 	
 	if (graphRecordPtr != NULL)
 		{
-//		vectorLengthsPtr = (SInt32*)*graphRecordPtr->vectorLengthsHandle;
-//		xVectorDataPtr = (SInt32*)*graphRecordPtr->xVectorDataHandle;
+		//vectorLengthsPtr = (SInt32*)*graphRecordPtr->vectorLengthsHandle;
+		//xVectorDataPtr = (SInt32*)*graphRecordPtr->xVectorDataHandle;
       
-      vectorLengthsPtr = (SInt32*)GetHandlePointer(
-											graphRecordPtr->vectorLengthsHandle,
-											kNoLock,
-											kNoMoveHi);
-      xVectorDataPtr = (SInt32*)GetHandlePointer(
-											graphRecordPtr->xVectorDataHandle,
-											kNoLock,
-											kNoMoveHi);
+      vectorLengthsPtr = (SInt32*)GetHandlePointer (
+											graphRecordPtr->vectorLengthsHandle);
+      xVectorDataPtr = (SInt32*)GetHandlePointer (
+											graphRecordPtr->xVectorDataHandle);
             
 		numberVectors = graphRecordPtr->numberVectors;
 		
@@ -2760,16 +2670,16 @@ void FillVectorOffsets (
 			xVectorDataPtr[index] = 
 								xVectorDataPtr[index-1] + vectorLengthsPtr[index-1];
 				
-			}		// end "for (index=1; index<numberVectors; index++)" 
+			}	// end "for (index=1; index<numberVectors; index++)" 
 		
-		}		// end "if (graphRecordPtr)" 
+		}	// end "if (graphRecordPtr)" 
 
-}		// end "FillVectorOffsets" 
+}	// end "FillVectorOffsets" 
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2798,12 +2708,12 @@ void GetBiPlotGraphTitle (
 				// Create title line 1.															
 				
 		if (gBiPlotDataSpecsPtr->featureTransformationFlag)
-			sprintf ( (char*)gTextString, "Features");
+			sprintf ((char*)gTextString, "Features");
 						
-		else		// !gBiPlotDataSpecsPtr->featureTransformationFlag 
-			sprintf ( (char*)gTextString, "Channels");
+		else	// !gBiPlotDataSpecsPtr->featureTransformationFlag 
+			sprintf ((char*)gTextString, "Channels");
 		
-		sprintf ( (char*)&graphRecordPtr->title[1],
+		sprintf ((char*)&graphRecordPtr->title[1],
 								"BiPlot of %s %hd vs %hd",
 								gTextString,
 								gBiPlotDataSpecsPtr->axisFeaturePtr[1] + 1,
@@ -2816,14 +2726,14 @@ void GetBiPlotGraphTitle (
 		graphRecordPtr->title2[1] = 0;
 		graphRecordPtr->title2[0] = 0;
 		
-		}		// end "if (graphRecordPtr != NULL)" 
+		}	// end "if (graphRecordPtr != NULL)" 
 
-}		// end "GetBiPlotGraphTitle" 
+}	// end "GetBiPlotGraphTitle" 
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2861,29 +2771,29 @@ SInt16 GetStatisticsChannelFeature (
 	if (featureTransformationFlag)
 		featureNumber = channelNumber;
 		
-	else		// !featureTransformationFlag 
+	else	// !featureTransformationFlag 
 		{
 		if (gProjectInfoPtr != NULL)
 			{
 			for (index=0; index<gProjectInfoPtr->numberStatisticsChannels; index++)
 				{
-				if ( channelNumber == gProjectInfoPtr->channelsPtr[index] )
+				if (channelNumber == gProjectInfoPtr->channelsPtr[index])
 					featureNumber = index;
 				
-				}		// end "for (index=0; index<..." 
+				}	// end "for (index=0; index<..." 
 	
-			}		// end "if (gProjectInfoPtr != NULL)" 
+			}	// end "if (gProjectInfoPtr != NULL)" 
 			
-		}		// end "else !featureTransformationFlag" 
+		}	// end "else !featureTransformationFlag" 
 				
-	return ( featureNumber );
+	return (featureNumber);
 		
-}		// end "GetStatisticsChannelFeature" 
+}	// end "GetStatisticsChannelFeature" 
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2958,7 +2868,7 @@ Boolean LoadBiPlotClassStats (
 		numberFeatures = gTransformationMatrix.numberFeatures;
 		numberChannels = gTransformationMatrix.numberChannels;
 		
-		}		// end "if (gBiPlotDataSpecsPtr->featureTransformationFlag)"
+		}	// end "if (gBiPlotDataSpecsPtr->featureTransformationFlag)"
 	
 	classPtr = gBiPlotDataSpecsPtr->classPtr;
 	classNamesPtr = gProjectInfoPtr->classNamesPtr;
@@ -2977,10 +2887,8 @@ Boolean LoadBiPlotClassStats (
 	
 	MHLock (graphRecordPtr->classStatisticsHandle);
 
-   classStatisticsPtr = (double*)GetHandlePointer(
-											graphRecordPtr->classStatisticsHandle,
-											kNoLock,
-											kNoMoveHi);
+   classStatisticsPtr = (double*)GetHandlePointer (
+											graphRecordPtr->classStatisticsHandle);
             
 	classStatsIncrement = 5 + 3 * numberFeatures;
 								
@@ -2989,12 +2897,11 @@ Boolean LoadBiPlotClassStats (
 				// Get the transformation matrix that will be used for this			
 				// set of features.																
 				
-		MHLock ( gTransformationMatrix.eigenVectorHandle );
+		MHLock (gTransformationMatrix.eigenVectorHandle);
 
-      HDoublePtr eigenVectorPtr = (HDoublePtr)GetHandlePointer(
+      HDoublePtr eigenVectorPtr = (HDoublePtr)GetHandlePointer (
 											gTransformationMatrix.eigenVectorHandle,
-											kLock,
-											kNoMoveHi);
+											kLock);
 											
  		ReduceMatrix (eigenVectorPtr, 
 							gTransformationMatrix.eigenVectorPtr, 
@@ -3002,11 +2909,11 @@ Boolean LoadBiPlotClassStats (
 							numberChannels, 
 							(SInt16)numberFeatures, 
 							NULL,
-							(gTransformationMatrix.createdByCode >= 16) );           
+							(gTransformationMatrix.createdByCode >= 16));           
 							
-		CheckAndUnlockHandle ( gTransformationMatrix.eigenVectorHandle );
+		CheckAndUnlockHandle (gTransformationMatrix.eigenVectorHandle);
 		
-		}		// end "if (...->featureTransformationFlag)" 
+		}	// end "if (...->featureTransformationFlag)" 
 		
 			// All feature will be used for now to get the inverse matrix.			
 			
@@ -3027,12 +2934,12 @@ Boolean LoadBiPlotClassStats (
 				// Get the square root of the threshold value.  This is used		
 				// for determining the radius distance of the ellipse of 			
 				// concentration.																	
-						
-//		graphRecordPtr->classThresholdValue = GetChiSquaredValue(	
-//						gProjectInfoPtr->numberStatisticsChannels, 
-//						(100.-gBiPlotDataSpecsPtr->probabilityThreshold)/100.);
-						
-		graphRecordPtr->classThresholdValue = GetChiSquaredValue(	
+		/*				
+		graphRecordPtr->classThresholdValue = GetChiSquaredValue (	
+						gProjectInfoPtr->numberStatisticsChannels, 
+						(100.-gBiPlotDataSpecsPtr->probabilityThreshold)/100.);
+		*/				
+		graphRecordPtr->classThresholdValue = GetChiSquaredValue (	
 						2, 
 						(100.-gBiPlotDataSpecsPtr->probabilityThreshold)/100.);
 						
@@ -3059,21 +2966,19 @@ Boolean LoadBiPlotClassStats (
 			statClassNumber = classPtr[classIndex] - 1;
 						
 			classStorage = gProjectInfoPtr->storageClass[statClassNumber];
-			LoadDItemString ( gStatusDialogPtr, 
+			LoadDItemString (gStatusDialogPtr, 
 									IDC_Status6, 
 									(Str255*)&classNamesPtr[classStorage].name);
 
-        classStatisticsPtr = (double*)GetHandlePointer(
-											graphRecordPtr->classStatisticsHandle,
-											kNoLock,
-											kNoMoveHi);
+        classStatisticsPtr = (double*)GetHandlePointer (
+											graphRecordPtr->classStatisticsHandle);
 
 			classStatisticsPtr = 
 							&classStatisticsPtr[statClassNumber*classStatsIncrement];
 			
 					// Get the class covariance matrix - triangular	form. 			
 
-			GetTransformedClassCovarianceMatrix ( 
+			GetTransformedClassCovarianceMatrix (
 										numberChannels, 
 										gTempChannelStatsPtr, 
 										gInverseMatrixMemory.inversePtr, 
@@ -3088,22 +2993,22 @@ Boolean LoadBiPlotClassStats (
 					// Get the eigenvectors and eigenvalues for the covariance		
 					// (or transformed covariance) matrix.									
 			
-			BlockMoveData ( gInverseMatrixMemory.inversePtr,
+			BlockMoveData (gInverseMatrixMemory.inversePtr,
 							eigenValuePtr,
-							numberFeatures * numberFeatures * sizeof(double) );
+							numberFeatures * numberFeatures * sizeof (double));
 								
-			if ( !ComputeEigenvectors (
+			if (!ComputeEigenvectors (
 									eigenValuePtr,
 									(UInt16)numberFeatures, 
 									eigenVectorPtr,
 									gInverseMatrixMemory.ipvotPtr,
 									gInverseMatrixMemory.pivotPtr,
-									3) )
+									3))
 				{
 				continueFlag = FALSE;
 				break;
 				
-				}		// end "if ( !ComputeEigenvectors (..." 
+				}	// end "if (!ComputeEigenvectors (..." 
 										
 					// Get the angle for the mean square regression lines.			
 			
@@ -3129,7 +3034,7 @@ Boolean LoadBiPlotClassStats (
 			inverseMatrix[2] = gInverseMatrixMemory.inversePtr[xyIndex];
 			inverseMatrix[3] = gInverseMatrixMemory.inversePtr[yyIndex];
 			
-			determinantOKFlag = InvertSymmetricMatrix ( 
+			determinantOKFlag = InvertSymmetricMatrix (
 												inverseMatrix, 
 												2, 
 												gInverseMatrixMemory.pivotPtr, 
@@ -3145,7 +3050,7 @@ Boolean LoadBiPlotClassStats (
 				continueFlag = FALSE;
 				break;
 				
-				}		// end "if (gOperationCanceledFlag)" 
+				}	// end "if (gOperationCanceledFlag)" 
 			
 			if (determinantOKFlag)
 				{				
@@ -3187,7 +3092,7 @@ Boolean LoadBiPlotClassStats (
 					classStatisticsPtr[index] = 1. / (*tempMatrixPtr);
 					tempMatrixPtr++;
 					
-					}		// end "for (index=5; index<endIndex; index++)" 
+					}	// end "for (index=5; index<endIndex; index++)" 
 					
 				startIndex = endIndex;
 				endIndex += numberFeatures;
@@ -3197,7 +3102,7 @@ Boolean LoadBiPlotClassStats (
 					classStatisticsPtr[index] = *tempMatrixPtr;
 					tempMatrixPtr++;
 					
-					}		// end "for (index=5; index<endIndex; index++)" 
+					}	// end "for (index=5; index<endIndex; index++)" 
 					
 				startIndex = endIndex;
 				endIndex += numberFeatures;
@@ -3207,7 +3112,7 @@ Boolean LoadBiPlotClassStats (
 					classStatisticsPtr[index] = *tempMatrixPtr;
 					tempMatrixPtr++;
 					
-					}		// end "for (index=5; index<endIndex; index++)" 
+					}	// end "for (index=5; index<endIndex; index++)" 
 			
 						// Update the mins and maxes.											
 						// determinant is used here as a temporary variable.			
@@ -3222,14 +3127,14 @@ Boolean LoadBiPlotClassStats (
 				
 				rotationAngle = classStatisticsPtr[3];
 				
-				if ( classStatisticsPtr[2] != classStatisticsPtr[4] )
+				if (classStatisticsPtr[2] != classStatisticsPtr[4])
 					{	
 					rotationAngle /= (classStatisticsPtr[2] - classStatisticsPtr[4]);
 					rotationAngle = .5 * atan (rotationAngle);
 					
-					}		// end "if ( ....inversePtr[xxIndex] != ..." 
+					}	// end "if (....inversePtr[xxIndex] != ..." 
 					
-				else		//  
+				else	//  
 					rotationAngle = 0;
 					
 						// Adjust min-max for limits of projection of principal 		
@@ -3242,20 +3147,20 @@ Boolean LoadBiPlotClassStats (
 						// Adjust for min-max relative to first mean square 			
 						// regression line.														
 						
-//				UpdateEllipseMinMax (
-//							graphRecordPtr, rotationAngle+angle1, classStatisticsPtr);
-						
-//				UpdateEllipseMinMax (
-//							graphRecordPtr, rotationAngle-angle1, classStatisticsPtr);
-				
-						// Adjust for min-max relative to second mean square 			
-						// regression line.														
-						
-//				UpdateEllipseMinMax (
-//							graphRecordPtr, rotationAngle+angle2, classStatisticsPtr);
-							
-//				UpdateEllipseMinMax (
-//							graphRecordPtr, rotationAngle-angle2, classStatisticsPtr);
+				//UpdateEllipseMinMax (
+				//				graphRecordPtr, rotationAngle+angle1, classStatisticsPtr);
+										
+				//UpdateEllipseMinMax (
+				//				graphRecordPtr, rotationAngle-angle1, classStatisticsPtr);
+								
+							// Adjust for min-max relative to second mean square
+							// regression line.
+										
+				//UpdateEllipseMinMax (
+				//				graphRecordPtr, rotationAngle+angle2, classStatisticsPtr);
+											
+				//UpdateEllipseMinMax (
+				//				graphRecordPtr, rotationAngle-angle2, classStatisticsPtr);
 				
 						// Adjust for min-max relative to minor axis 1.					
 						
@@ -3268,14 +3173,14 @@ Boolean LoadBiPlotClassStats (
 				UpdateEllipseMinMax (
 									graphRecordPtr, rotationAngle, classStatisticsPtr);     
 									
-				}		// end "if (determinantOKFlag)" 
+				}	// end "if (determinantOKFlag)" 
 				
-			else		// !determinantOKFlag 
+			else	// !determinantOKFlag 
 				{
 						// List message that covariance matrix for this class 		
 						// could not be inverted.												
 					
-				continueFlag = ListClassInformationMessage ( 
+				continueFlag = ListClassInformationMessage (
 											kProjectStrID, 
 											IDS_Project31,
 											NULL, 
@@ -3283,23 +3188,23 @@ Boolean LoadBiPlotClassStats (
 											statClassNumber, 
 											continueFlag);
 				
-				}		// end "else !determinantOKFlag" 
+				}	// end "else !determinantOKFlag" 
 			
-			}		// end "for ( classIndex=0; ... 
+			}	// end "for (classIndex=0; ... 
 		
-		if (!determinantOKFlag )
+		if (!determinantOKFlag)
 			{			
 			continueFlag = FALSE;			
-			SysBeep(10);
+			SysBeep (10);
 			
-			}		// end "if (!determinantOKFlag)"
+			}	// end "if (!determinantOKFlag)"
 			
-		}		// end "if (continueFlag)" 
+		}	// end "if (continueFlag)" 
 		
-	gTempChannelStatsPtr = (ChannelStatisticsPtr)CheckAndDisposePtr ( 
-														(Ptr)gTempChannelStatsPtr );
-	eigenValuePtr = CheckAndDisposePtr ( eigenValuePtr );
-	eigenVectorPtr = CheckAndDisposePtr ( eigenVectorPtr );
+	gTempChannelStatsPtr = (ChannelStatisticsPtr)CheckAndDisposePtr (
+																		(Ptr)gTempChannelStatsPtr);
+	eigenValuePtr = CheckAndDisposePtr (eigenValuePtr);
+	eigenVectorPtr = CheckAndDisposePtr (eigenVectorPtr);
 	
 	ReleaseMatrixInversionMemory ();
 			
@@ -3309,12 +3214,12 @@ Boolean LoadBiPlotClassStats (
 			
 	return (continueFlag);
 		
-}		// end "LoadBiPlotClassStats" 
+}	// end "LoadBiPlotClassStats" 
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3369,10 +3274,10 @@ Boolean LoadBiPlotDataSpecs (
 	if (projectFlag)
 		{
 		if ((UInt32)gImageWindowInfoPtr->totalNumberChannels != 
-						GetTotalNumberOfChannels (gProjectInfoPtr->windowInfoHandle) )
+						GetTotalNumberOfChannels (gProjectInfoPtr->windowInfoHandle))
 			projectFlag = FALSE;
 			
-		}		// end "if (projectFlag)"
+		}	// end "if (projectFlag)"
 	
 			// If a biplot data structure already exists, then check if it is		
 			// for the current window.  If not release the old structure and		
@@ -3394,25 +3299,25 @@ Boolean LoadBiPlotDataSpecs (
 			ReleaseBiPlotDataSpecsMemory (&gNonProjProcessorSpecs.biPlotDataSpecsH);
 			gBiPlotDataSpecsPtr = NULL;
 			
-			}		// end "if (gBiPlotDataSpecsPtr->fileInfoHandle != ..." 
+			}	// end "if (gBiPlotDataSpecsPtr->fileInfoHandle != ..." 
 			
-		else		// gBiPlotDataSpecsPtr->windowInfoHandle == ... 
+		else	// gBiPlotDataSpecsPtr->windowInfoHandle == ... 
 			{
 			gBiPlotDataSpecsPtr->projectFlag = projectFlag;
 			
 			if (!projectFlag)
 				gBiPlotDataSpecsPtr->plotDataCode = kAreaType;
 				
-			}		// end "else gBiPlotDataSpecsPtr->windowInfoHandle == ..." 
+			}	// end "else gBiPlotDataSpecsPtr->windowInfoHandle == ..." 
 				
-		}		// end "else gNonProjProcessorSpecs.biPlotDataSpecsH != NULL" 
+		}	// end "else gNonProjProcessorSpecs.biPlotDataSpecsH != NULL" 
 	
 	if (gNonProjProcessorSpecs.biPlotDataSpecsH == NULL)
 		{
 				// Set up handle to project file information								
 			
 		gNonProjProcessorSpecs.biPlotDataSpecsH = 
-													MNewHandle ( sizeof(BiPlotDataSpecs) );
+													MNewHandle (sizeof (BiPlotDataSpecs));
 		if (gNonProjProcessorSpecs.biPlotDataSpecsH != NULL)
 			{
 			gBiPlotDataSpecsPtr = (BiPlotDataSpecsPtr)GetHandlePointer (
@@ -3459,9 +3364,9 @@ Boolean LoadBiPlotDataSpecs (
 				if (gProjectInfoPtr->numberStatTestFields > 0)
 					gBiPlotDataSpecsPtr->plotDataCode += kTestingType;
 					
-				}		// end "if (projectFlag && ..." 
+				}	// end "if (projectFlag && ..." 
 			
-			else		// !projectFlag || gProjectInfoPtr->...) 
+			else	// !projectFlag || gProjectInfoPtr->...) 
 				gBiPlotDataSpecsPtr->plotDataCode = kAreaType;
 				
 			gBiPlotDataSpecsPtr->symbolSet = kDefaultMenuItem;
@@ -3478,14 +3383,14 @@ Boolean LoadBiPlotDataSpecs (
 				gBiPlotDataSpecsPtr->numberFields = 
 												gProjectInfoPtr->numberStatisticsFields;
 												
-				}		// end "if (projectFlag && gProjectInfoPtr != NULL)" 
+				}	// end "if (projectFlag && gProjectInfoPtr != NULL)" 
 				
-			else		// !projectFlag || gProjectInfoPtr == NULL 
+			else	// !projectFlag || gProjectInfoPtr == NULL 
 				{
 				gBiPlotDataSpecsPtr->numberClasses = 0;
 				gBiPlotDataSpecsPtr->numberFields = 0;
 				
-				}		// end "else !projectFlag || gProjectInfoPtr == NULL" 
+				}	// end "else !projectFlag || gProjectInfoPtr == NULL" 
 
 			gBiPlotDataSpecsPtr->createNewGraphicsWindowFlag = TRUE;
 			gBiPlotDataSpecsPtr->firstTime = TRUE;
@@ -3493,20 +3398,20 @@ Boolean LoadBiPlotDataSpecs (
 			gBiPlotDataSpecsPtr->thresholdFlag = FALSE;
 			gBiPlotDataSpecsPtr->featureTransformationFlag = FALSE;
 			
-			}		// end "if (gbiPlotDataSpecsH != NULL)" 
+			}	// end "if (gbiPlotDataSpecsH != NULL)" 
 		
-		else		// else gNonProjProcessorSpecs.biPlotDataSpecsH == NULL 
+		else	// else gNonProjProcessorSpecs.biPlotDataSpecsH == NULL 
 			continueFlag = FALSE;
 			
-		}		// end "if (gNonProjProcessorSpecs.biPlotDataSpecsH == NULL)" 
+		}	// end "if (gNonProjProcessorSpecs.biPlotDataSpecsH == NULL)" 
 					
 			// Check memory for biplot classes vector.									
 		
 	if (continueFlag && gBiPlotDataSpecsPtr->projectFlag)
 		{	
 		bytesNeeded =
-			(SInt32)gProjectInfoPtr->numberStatisticsClasses * sizeof(short int);
-		gBiPlotDataSpecsPtr->classPtr = (SInt16*)CheckHandleSize ( 
+			(SInt32)gProjectInfoPtr->numberStatisticsClasses * sizeof (SInt16);
+		gBiPlotDataSpecsPtr->classPtr = (SInt16*)CheckHandleSize (
 										&gBiPlotDataSpecsPtr->classHandle,
 										&continueFlag, 
 										&changedFlag, 
@@ -3514,14 +3419,14 @@ Boolean LoadBiPlotDataSpecs (
 		if (changedFlag)
 			gBiPlotDataSpecsPtr->classSet = kAllMenuItem;
 			
-		}		// end "if (continueFlag)" 
+		}	// end "if (continueFlag)" 
 			
 			// If memory is not full, check memory for channels vector.				
 
 	if (continueFlag)
 		{
-		bytesNeeded = gImageWindowInfoPtr->totalNumberChannels * sizeof(short int);
-		channelsPtr = (SInt16*)CheckHandleSize ( 
+		bytesNeeded = gImageWindowInfoPtr->totalNumberChannels * sizeof (SInt16);
+		channelsPtr = (SInt16*)CheckHandleSize (
 										&gBiPlotDataSpecsPtr->channelsHandle, 
 										&continueFlag,
 										&changedFlag, 
@@ -3532,9 +3437,9 @@ Boolean LoadBiPlotDataSpecs (
 			channelsPtr[0] = 0;
 			channelsPtr[1] = 1;
 			
-			}		// end "if (changedFlag)" 
+			}	// end "if (changedFlag)" 
 			
-		}		// end "if (continueFlag)" 
+		}	// end "if (continueFlag)" 
 
 	if (continueFlag)
 		{
@@ -3542,8 +3447,8 @@ Boolean LoadBiPlotDataSpecs (
 		if (gBiPlotDataSpecsPtr->projectFlag)
 			numberVectors += gProjectInfoPtr->numberStatisticsClasses;
 			
-		bytesNeeded = numberVectors * sizeof(char);
-		symbolsPtr = (UInt8*)CheckHandleSize ( 
+		bytesNeeded = numberVectors * sizeof (char);
+		symbolsPtr = (UInt8*)CheckHandleSize (
 										&gBiPlotDataSpecsPtr->symbolsHandle,
 										&continueFlag, 
 										&changedFlag, 
@@ -3551,7 +3456,7 @@ Boolean LoadBiPlotDataSpecs (
 		if (changedFlag)
 			gBiPlotDataSpecsPtr->symbolSet = kDefaultMenuItem;
 			
-		}		// end "if (continueFlag)" 
+		}	// end "if (continueFlag)" 
 		
 	if (continueFlag)
 		{
@@ -3574,7 +3479,7 @@ Boolean LoadBiPlotDataSpecs (
 		
 		if (gBiPlotDataSpecsPtr->classSet == kAllMenuItem && 
 																gBiPlotDataSpecsPtr->projectFlag)								
-			LoadClassVector ( &gBiPlotDataSpecsPtr->numberClasses,
+			LoadClassVector (&gBiPlotDataSpecsPtr->numberClasses,
 									gBiPlotDataSpecsPtr->classPtr);
 			
 		if (gBiPlotDataSpecsPtr->symbolSet == kDefaultMenuItem && 
@@ -3583,21 +3488,21 @@ Boolean LoadBiPlotDataSpecs (
 										IDS_Symbol1, 
 										gProjectInfoPtr->numberStatisticsClasses);
 			
-		}		// end "if (continueFlag)" 
+		}	// end "if (continueFlag)" 
 	
 			// If unable to set up information for biplot								
 			// specifications, release memory allocated to it (if any).				
 			
-	else		// !continueFlag 
+	else	// !continueFlag 
 		{
 		ReleaseBiPlotDataSpecsMemory (&gNonProjProcessorSpecs.biPlotDataSpecsH);
 		gBiPlotDataSpecsPtr = NULL;
 		
-		}		// end "else !continueFlag" 
+		}	// end "else !continueFlag" 
 		
 	return (continueFlag);
 
-}		// end "LoadBiPlotDataSpecs" 
+}	// end "LoadBiPlotDataSpecs" 
 
 
 
@@ -3647,12 +3552,12 @@ Boolean SetupBiPlotStatMemory (
 				// getting the data for the class mean vector.							
 				
 	bytesNeeded = 
-				(UInt32)numberChannels * sizeof(ChannelStatistics);
+				(UInt32)numberChannels * sizeof (ChannelStatistics);
 	*classChannelStatsPtrPtr = (HChannelStatisticsPtr)MNewPointer (bytesNeeded);
 	continueFlag = (*classChannelStatsPtrPtr != NULL) ;
 	
 	bytesNeeded = 
-				(UInt32)numberChannels * numberChannels * sizeof(double);
+				(UInt32)numberChannels * numberChannels * sizeof (double);
 				
 	if (continueFlag)
 		{
@@ -3662,7 +3567,7 @@ Boolean SetupBiPlotStatMemory (
 		*eigenValuePtrPtr = (HDoublePtr)MNewPointer (bytesNeeded);
 		continueFlag = (*eigenValuePtrPtr != NULL) ;
 		
-		}		// end "if (continueFlag)" 
+		}	// end "if (continueFlag)" 
 	
 	if (continueFlag)
 		{
@@ -3671,26 +3576,25 @@ Boolean SetupBiPlotStatMemory (
 		*eigenVectorPtrPtr = (HDoublePtr)MNewPointer (bytesNeeded);
 		continueFlag = (*eigenVectorPtrPtr != NULL) ;
 		
-		}		// end "if (continueFlag)" 
+		}	// end "if (continueFlag)" 
 		
 	if (continueFlag)
 		{
 				// Get pointer to memory to use for inverse matrix computation.	
 				
-		continueFlag = SetupMatrixInversionMemory (
-				numberChannels,
-				kMeanCovariance,
-				&gInverseMatrixMemory.inversePtr, 
-				&gInverseMatrixMemory.pivotPtr, 
-				&gInverseMatrixMemory.indexRowPtr, 
-				&gInverseMatrixMemory.indexColPtr, 
-				&gInverseMatrixMemory.ipvotPtr);
-			
-		}		// end "if (continueFlag)" 
+		continueFlag = SetupMatrixInversionMemory (numberChannels,
+																	kMeanCovariance,
+																	&gInverseMatrixMemory.inversePtr, 
+																	&gInverseMatrixMemory.pivotPtr, 
+																	&gInverseMatrixMemory.indexRowPtr, 
+																	&gInverseMatrixMemory.indexColPtr, 
+																	&gInverseMatrixMemory.ipvotPtr);
 		
-	return ( continueFlag );
+		}	// end "if (continueFlag)" 
 		
-}		// end "SetupBiPlotStatMemory" 
+	return (continueFlag);
+		
+}	// end "SetupBiPlotStatMemory" 
 
 
 
@@ -3737,41 +3641,41 @@ void UpdateEllipseMinMax (
 				// Adjust for min-max relative to second mean square 					
 				// regression line.																
 		
-		cosAngle = cos(angle);
-		sinAngle = sin(angle);
+		cosAngle = cos (angle);
+		sinAngle = sin (angle);
 		
 		distance = cosAngle*cosAngle*classStatisticsPtr[2] + 
 								cosAngle*sinAngle*classStatisticsPtr[3] + 
 										sinAngle*sinAngle*classStatisticsPtr[4];
 																
-		distance = chiSquaredValue/sqrt(fabs(distance));
+		distance = chiSquaredValue/sqrt (fabs (distance));
 		
-		x_val = fabs( cosAngle * distance );
-		y_val = fabs( sinAngle * distance );
+		x_val = fabs (cosAngle * distance);
+		y_val = fabs (sinAngle * distance);
 		
 				// Min/max in x direction.														
 		
 		graphRecordPtr->xEllipseMin = MIN (
 							(classStatisticsPtr[0] - x_val),
-							graphRecordPtr->xEllipseMin );
+							graphRecordPtr->xEllipseMin);
 				
 		graphRecordPtr->xEllipseMax = MAX (
 							(classStatisticsPtr[0] + x_val),
-							graphRecordPtr->xEllipseMax );
+							graphRecordPtr->xEllipseMax);
 		
 				// Min/max in y direction.														
 			
 		graphRecordPtr->yEllipseMin = MIN (
 							(classStatisticsPtr[1] - y_val),
-							graphRecordPtr->yEllipseMin );
+							graphRecordPtr->yEllipseMin);
 				
 		graphRecordPtr->yEllipseMax = MAX (
 							(classStatisticsPtr[1] + y_val),
-							graphRecordPtr->yEllipseMax );
+							graphRecordPtr->yEllipseMax);
 							
-		}		// end "if (graphRecordPtr)" 
+		}	// end "if (graphRecordPtr)" 
 		
-}		// end "UpdateEllipseMinMax" 
+}	// end "UpdateEllipseMinMax" 
 
 
 
@@ -3818,13 +3722,13 @@ void UpdateEllipseMinMax2 (
 				// Adjust for min-max relative to second mean square 					
 				// regression line.																
 		
-		xT_val = cos(angle);
-		yT_val = sin(angle);
+		xT_val = cos (angle);
+		yT_val = sin (angle);
 		
 		distance = xT_val*xT_val*classStatisticsPtr[5] + 
 										yT_val*yT_val*classStatisticsPtr[6];
 																
-		distance = chiSquaredValue/sqrt(fabs(distance));
+		distance = chiSquaredValue/sqrt (fabs (distance));
 		
 		xT_val *= distance;
 		yT_val *= distance;
@@ -3835,30 +3739,30 @@ void UpdateEllipseMinMax2 (
 		y_val = classStatisticsPtr[5+2*graphRecordPtr->numberStatisticsChannels] * xT_val + 
 					classStatisticsPtr[6+2*graphRecordPtr->numberStatisticsChannels] * yT_val;
 					
-		x_val = fabs(x_val);
-		y_val = fabs(y_val);
+		x_val = fabs (x_val);
+		y_val = fabs (y_val);
 		
 				// Min/max in x direction.														
 		
 		graphRecordPtr->xEllipseMin = MIN (
 							(classStatisticsPtr[0] - x_val),
-							graphRecordPtr->xEllipseMin );
+							graphRecordPtr->xEllipseMin);
 				
 		graphRecordPtr->xEllipseMax = MAX (
 							(classStatisticsPtr[0] + x_val),
-							graphRecordPtr->xEllipseMax );
+							graphRecordPtr->xEllipseMax);
 		
 				// Min/max in y direction.														
 			
 		graphRecordPtr->yEllipseMin = MIN (
 							(classStatisticsPtr[1] - y_val),
-							graphRecordPtr->yEllipseMin );
+							graphRecordPtr->yEllipseMin);
 				
 		graphRecordPtr->yEllipseMax = MAX (
 							(classStatisticsPtr[1] + y_val),
-							graphRecordPtr->yEllipseMax );
+							graphRecordPtr->yEllipseMax);
 							
-		}		// end "if (graphRecordPtr != NULL)" 
+		}	// end "if (graphRecordPtr != NULL)" 
 		
-}		// end "UpdateEllipseMinMax2" 
+}	// end "UpdateEllipseMinMax2" 
 		

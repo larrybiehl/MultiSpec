@@ -1,16 +1,32 @@
+//	 									MultiSpec
 //
-//	Revised 07/31/1992 by Larry L. Biehl
-//	Revised 10/16/2015 by Larry L. Biehl
-// Revised 08/06/2015 by Tsung Tai Yeh
-	
+//					Laboratory for Applications of Remote Sensing
+//									Purdue University
+//								West Lafayette, IN 47907
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+// File:						SGraphic.h
+//
+//	Authors:					Larry L. Biehl
+//
+//	Revision number:		3.0
+//
+//	Language:				C
+//
+//	System:					Linux, Macintosh, and Windows Operating Systems
+//
+//	Brief description:	Include file for NuTools Graphics routines definitions
+//
+//	Written By:				Larry L. Biehl			Date: 07/31/1992
+//	Revised By:				Tsung Tai Yeh			Date: 08/06/2015
+//	Revised By:				Larry L. Biehl			Date: 12/20/2017
+//
+//------------------------------------------------------------------------------------
+
 #if !defined NU_TOOLS_NUMERICAL
 #define	NU_TOOLS_NUMERICAL
-
-//------------------------------------------------------------------------------------
-//
-//			Include file for NuTools Graphics routines definitions
-//
-//------------------------------------------------------------------------------------
 
 #define	NU_LINE_PLOT		1
 #define	NU_SCATTER_PLOT	2
@@ -21,6 +37,10 @@
 #define	NU_XLOG				1
 #define	NU_YLOG				2
 #define	NU_GRID				4
+
+#define GR_LISTDATA                  1
+#define GR_BIPLOT                    2
+#define GR_HISTOGRAM                 3
 
 #ifndef	kTWO_PI
 	#define 	kTWO_PI 						(6.28318530717958647692)
@@ -106,6 +126,7 @@ typedef struct
 	Str31				title2;
 	Str31				xLabel;
 	Str31				yLabel;
+	Str15				xAxisUnitsString;
 	vector			xVector;
 	vector			yVector;
 	Rect				clientRect;
@@ -125,7 +146,7 @@ typedef struct
 	double			xEllipseMin;
 	double			xEllipseMax;
 	double			yEllipseMin;
-	double			yEllipseMax;
+	double			yEllipseMax; 
 	
 			// Probability threshold to use when drawing class information.
 	double			classThresholdValue; 
@@ -272,6 +293,9 @@ typedef struct
 	     
 			// The size of the text used for labels and titles.
 	SInt16			textSize;
+	     
+			// The maximum width of the text used for labels.
+	SInt16			textWidth;
 	
 			// The number of significant digits to be used in x and y labels.
 	UInt16			xESignificantDigits;
@@ -284,7 +308,10 @@ typedef struct
 	
 			// The code for the value type: 0=integer, 1=real
 	SInt16			xValueTypeCode;
-	SInt16			yValueTypeCode;
+	SInt16			yValueTypeCode;  
+	 
+	bool				graphWindowFlag;
+	bool				plotWavelength;
 	
 	} GraphRecord, *GraphPtr;
 
@@ -302,192 +329,192 @@ typedef	struct
 #endif		// if !defined MAX
 
 
-extern void						AllocateV(
-										vector								*v0,
-										SInt32								size,
-										SInt32								*error);
+extern void AllocateV (
+				vector*								v0,
+				SInt32								size,
+				SInt32*								error);
 
-void								DeallocateV(	
-										vector*								v1,
-										SInt32*								error);
+void DeallocateV (
+				vector*								v1,
+				SInt32*								error);
 
-extern void						DensityFunctionPlotV (                             
-										GraphPtr								graphPtr,
-										SInt32*								errorPtr,
-										SInt16								drawGraphCode);
-				
-void								DrawAxis(                           
-										GraphPtr								graphPtr, 
-										SInt32*								error);
+extern void DensityFunctionPlotV (
+				GraphPtr								graphPtr,
+				SInt32*								errorPtr,
+				SInt16								drawGraphCode);
 
-void								DrawLinTicks(	
-										GraphPtr								graph,
-										double								xint,
-										double								yint,
-										SInt16								size,
-										SInt32*								error);
-						
-void								DrawLogTicks(
-										GraphPtr								graph,
-										SInt16								size1,
-										SInt16								size2,
-										SInt32*								error);
-						
-void								EllipsePlotV( 
-										GraphPtr								graph, 
-										SInt32*								error);
+void DrawAxis (
+				GraphPtr								graphPtr,
+				SInt32*								error);
 
-void								ErrorMessage(	
-										SInt32								error,
-										char*									text,
-										SInt16								def,
-										SInt16								icon);
+void DrawLinTicks (
+				GraphPtr								graph,
+				double								xint,
+				double								yint,
+				SInt16								size,
+				SInt32*								error);
 
-extern void						FindMaxBinV(
-										double*								maxPtr,
-										vector*								xVector,
-										vector*								yVector,
-										HSInt32Ptr							vectorLengthsPtr,
-										HSInt32Ptr							vectorDataPtr,
-										char*									vectorDisplayPtr,
-										double*								histogramBinWidthPtr,
-										UInt32								numberVectors,
-										UInt32								set,
-										GraphPtr								graph);
+void DrawLogTicks (
+				GraphPtr								graph,
+				SInt16								size1,
+				SInt16								size2,
+				SInt32*								error);
 
-void								FindMaxMinV(
-										double*								max,
-										double*								min,
-										vector*								vect,
-										SInt32*								error);
+void EllipsePlotV (
+				GraphPtr								graph,
+				SInt32*								error);
 
-extern void						FindMaxMinV(
-										double*								maxPtr,
-										double*								minPtr,
-										vector*								vect,
-										HSInt32Ptr							vectorLengthsPtr,
-										HSInt32Ptr							vectorDataPtr,
-										char*									vectorDisplayPtr,
-										UInt32								numberVectors,
-										UInt32								set);
+void ErrorMessage (
+				SInt32								error,
+				char*									text,
+				SInt16								def,
+				SInt16								icon);
 
-extern void						FindMaxV( 
-										double*								maxPtr,
-										vector*								vect,
-										HSInt32Ptr							vectorLengthsPtr,
-										HSInt32Ptr							vectorDataPtr,
-										char*									vectorDisplayPtr,
-										UInt32								numberVectors,
-										UInt32								set);
+extern void FindMaxBinV (
+				double*								maxPtr,
+				vector*								xVector,
+				vector*								yVector,
+				HSInt32Ptr							vectorLengthsPtr,
+				HSInt32Ptr							vectorDataPtr,
+				char*									vectorDisplayPtr,
+				double*								histogramBinWidthPtr,
+				UInt32								numberVectors,
+				UInt32								set,
+				GraphPtr								graph);
 
-void								FlaggedPlotV(	
-										GraphPtr							graph,
-										vector*							x,
-										vector*							y,
-										SInt16							flag,
-										SInt16							width,
-										SInt32*							error);
+void FindMaxMinV (
+				double*								max,
+				double*								min,
+				vector*								vect,
+				SInt32*								error);
 
-void								FormatR(
-										char*								str,
-										double*							num, 
-										SInt16							esigfigs, 
-										SInt16							fsigfigs, 
-										Boolean							noEFormatFlag,
-										SInt32*							error);
+extern void FindMaxMinV (
+				double*								maxPtr,
+				double*								minPtr,
+				vector*								vect,
+				HSInt32Ptr							vectorLengthsPtr,
+				HSInt32Ptr							vectorDataPtr,
+				char*									vectorDisplayPtr,
+				UInt32								numberVectors,
+				UInt32								set);
 
-extern void						HistogramPlotV(                             
-										GraphPtr							graph, 
-										vector*							x, 
-										vector*							y, 
-										SInt32*							error);
+extern void FindMaxV (
+				double*								maxPtr,
+				vector*								vect,
+				HSInt32Ptr							vectorLengthsPtr,
+				HSInt32Ptr							vectorDataPtr,
+				char*									vectorDisplayPtr,
+				UInt32								numberVectors,
+				UInt32								set);
 
-void								InitV(
-										vector*							vectorPtr,
-										SInt32*							errorPtr);
+void FlaggedPlotV (
+				GraphPtr								graph,
+				vector*								x,
+				vector*								y,
+				SInt16								flag,
+				SInt16								width,
+				SInt32*								error);
 
-void								InsetGraph(	
-										GraphPtr	graph,
-										SInt16		left,
-										SInt16		top,
-										SInt16		right,
-										SInt16		bottom,
-										SInt32		*error);
+void FormatR (
+				char*									str,
+				double*								num,
+				SInt16								esigfigs,
+				SInt16								fsigfigs,
+				Boolean								noEFormatFlag,
+				SInt32*								error);
 
-void								LabelLinAxis(	
-										GraphPtr	graph,
-										double		xint,
-										double		yint,
-										SInt16		size, 
-										SInt16		xEDecimals, 
-										SInt16		xFDecimals, 
-										SInt16		yEDecimals,
-										SInt16		yFDecimals,
-										SInt32		*error);
+extern void HistogramPlotV (
+				GraphPtr								graph,
+				vector*								x,
+				vector*								y,
+				SInt32*								error);
 
-void								LabelLogAxis(	
-										GraphPtr		graph,
-										SInt16		size,
-										SInt16		decimals,
-										SInt32		*error);
+void InitV (
+				vector*								vectorPtr,
+				SInt32*								errorPtr);
 
-void								LinePlotV(	
-										GraphPtr		graph,
-										vector		*x,
-										vector		*y,
-										SInt32		*error);
-					
-void								LockAndGetVectorPointer ( 
-										vector	*x, 
-										SInt32	*error );
+void InsetGraph (
+				GraphPtr								graph,
+				SInt16								left,
+				SInt16								top,
+				SInt16								right,
+				SInt16								bottom,
+				SInt32*								error);
 
-GraphPtr							NewGraph(	
-										GraphRecord*				graphRec,
-										WindowPtr					window,
-										double						xMin,
-										double						xMax,
-										double						yMin,
-										double						yMax,
-										SInt16						attrb,
-										char							scroll,
-										SInt32*						error);
+void LabelLinAxis (
+				GraphPtr								graph,
+				double								xint,
+				double								yint,
+				SInt16								size,
+				SInt16								xEDecimals,
+				SInt16								xFDecimals,
+				SInt16								yEDecimals,
+				SInt16								yFDecimals,
+				SInt32*								error);
 
-void								ScatterPlotV(	
-										GraphPtr		graph,
-										vector		*x,
-										vector		*y,
-										SInt32		*error);
-						
-void 								SetBackgroundColor (
-										CDC*							pDC,
-										UInt16						level);
+void LabelLogAxis (
+				GraphPtr								graph,
+				SInt16								size,
+				SInt16								decimals,
+				SInt32*								error);
 
-void								SetGraphClip(	
-										GraphPtr	graph,
-										SInt32		*error);	
+void LinePlotV (
+				GraphPtr								graph,
+				vector*								x,
+				vector*								y,
+				SInt32*								error);
 
-extern void 					SetGraphVectorSize( 
-										vector*								v0, 
-										SInt32								size, 
-										SInt32*								error);
+void LockAndGetVectorPointer (
+				vector*								x,
+				SInt32*								error);
 
-void								SetV(
-										vector 		*v1,
-										SInt32 			element,
-										GRAPHDATA 		value,
-										SInt32 			*error);
+GraphPtr NewGraph (
+				GraphRecord*						graphRec,
+				WindowPtr							window,
+				double								xMin,
+				double								xMax,
+				double								yMin,
+				double								yMax,
+				SInt16								attrb,
+				char									scroll,
+				SInt32*								error);
 
-void								SetWindowClip(	
-										GraphPtr	graph,
-										SInt32		*error);
-						
-void								UnlockVectorPointer ( 
-										vector	*x);
+void ScatterPlotV (
+				GraphPtr								graph,
+				vector*								x,
+				vector*								y,
+				SInt32*								error);
 
-void								UpdateMaxMinV(	
-										double	*max,
-										double	*min,
-										vector	*vect,
-										SInt32	*error);
+void SetBackgroundColor (
+				CDC*									pDC,
+				UInt16								level);
+
+void SetGraphClip (
+				GraphPtr								graph,
+				SInt32*								error);
+
+extern void SetGraphVectorSize (
+				vector*								v0,
+				SInt32								size, 
+				SInt32*								error);
+
+void SetV (
+				vector*								v1,
+				SInt32								element,
+				GRAPHDATA							value,
+				SInt32*								error);
+
+void SetWindowClip (
+				GraphPtr								graph,
+				SInt32*								error);
+
+void UnlockVectorPointer (
+				vector*								x);
+
+void UpdateMaxMinV (
+				double*								max,
+				double*								min,
+				vector*								vect,
+				SInt32*								error);
 
 #endif	//	!defined NU_TOOLS_NUMERICAL   

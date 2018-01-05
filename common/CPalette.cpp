@@ -3,42 +3,35 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2015)
-//								c Purdue Research Foundation
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	File:						CPalette.cpp
+//	Class Definition:		CPalette.h
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision number:		3.1
+//	Revision date:			12/19/2017
 //
-//	Revision date:			07/09/2015
+//	Language:				C++
 //
-//	Language:				C
+//	System:					Linux and Windows Operating Systems
 //
-//	System:					Macintosh Operating System
+//	Brief description:	This file contains routines for the CMPalette class.
 //
-//	Brief description:	Display a pattern image file on the screen.
+//	Functions in file:						CMPalette             
+//													~CMPalette
+//													Create 
 //
-//	Functions in file:	Boolean			CreatePalette             
-//								void 				Create1CPalette
-//								void 				Create2CPalette
-//								void 				Create3CPalette
-//								void				DrawCPalette
-//								void				DrawPalette 
+//	Include files:			"SMultiSpec.h"
 //
-//	Include files:			"MultiSpecHeaders"
-//								"multiSpec.h"
-//
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------------
 
-#include "SMulSpec.h"
+#include "SMultiSpec.h"
 
 #include "CDisplay.h"
 #include "CPalette.h"
-
-#include "SExtGlob.h" 
 
 
 // === Static Member Variable ===
@@ -216,7 +209,7 @@ UInt16		CMPalette::s_palette1002[396] = {65535, 65535, 65535,
 													 		32768, 32768, 32768,
 													 		65280, 65280, 65280}; 
 		
-UInt16		CMPalette::s_palette1003[759] = {65535, 65535, 65535,		// index=0
+UInt16		CMPalette::s_palette1003[759] = {65535, 65535, 65535,	// index=0
 													     		 0,     0,     0,
 													     		 0,     0,     0,
 													     		 0,  1285, 65278,
@@ -232,7 +225,7 @@ UInt16		CMPalette::s_palette1003[759] = {65535, 65535, 65535,		// index=0
 													     		 0, 11565, 65278,
 													     		 0, 12593, 65278,
 													     		 0, 13621, 65278,
-													     		 0, 14649, 65278, 	// index=16
+													     		 0, 14649, 65278, // index=16
 													     		 0, 15677, 65278,
 													     		 0, 16705, 65278,
 													     		 0, 17733, 65278,
@@ -248,7 +241,7 @@ UInt16		CMPalette::s_palette1003[759] = {65535, 65535, 65535,		// index=0
 													     		 0, 28013, 65278,
 													     		 0, 29041, 65278,
 													     		 0, 30069, 65278,
-													     		 0, 31097, 65278, 	// index=32
+													     		 0, 31097, 65278, // index=32
 													     		 0, 32125, 65278,
 													     		 0, 33153, 65278,
 													     		 0, 34181, 65278,
@@ -264,7 +257,7 @@ UInt16		CMPalette::s_palette1003[759] = {65535, 65535, 65535,		// index=0
 													     		 0, 44461, 65278,
 													     		 0, 45489, 65278,
 													     		 0, 46517, 65278,
-													     		 0, 47545, 65278, 	// index=48
+													     		 0, 47545, 65278, // index=48
 													     		 0, 48573, 65278,
 													     		 0, 49601, 65278,
 													     		 0, 50629, 65278,
@@ -280,7 +273,7 @@ UInt16		CMPalette::s_palette1003[759] = {65535, 65535, 65535,		// index=0
 													     		 0, 60909, 65278,
 													     		 0, 61937, 65278,
 													     		 0, 62965, 65278,
-													     		 0, 63993, 65278, 	// index=64
+													     		 0, 63993, 65278, // index=64
 													     		 0, 65021, 63736,
 													     		 0, 64250, 62708,
 													     		 0, 64250, 61680,
@@ -296,7 +289,7 @@ UInt16		CMPalette::s_palette1003[759] = {65535, 65535, 65535,		// index=0
 													     		 0, 64250, 51400,
 													     		 0, 64250, 50372,
 													     		 0, 64250, 49344,
-													     		 0, 64250, 48316, 	// index=80
+													     		 0, 64250, 48316, // index=80
 													     		 0, 64250, 47288,
 													     		 0, 64250, 46620,
 													     		 0, 64250, 45232,
@@ -312,7 +305,7 @@ UInt16		CMPalette::s_palette1003[759] = {65535, 65535, 65535,		// index=0
 													     		 0, 64250, 34952,
 													     		 0, 64250, 33924,
 													     		 0, 64250, 32896,
-													     		 0, 64250, 31868, 	// index=96
+													     		 0, 64250, 31868, // index=96
 													     		 0, 64250, 30840,
 													     		 0, 64250, 29812,
 													     		 0, 64250, 28874,
@@ -328,7 +321,7 @@ UInt16		CMPalette::s_palette1003[759] = {65535, 65535, 65535,		// index=0
 													     		 0, 64250, 18504,
 													     		 0, 64250, 17476,
 													     		 0, 64250, 16448,
-													     		 0, 64250, 15420, 	// index=112
+													     		 0, 64250, 15420, // index=112
 													     		 0, 64250, 14392,
 													     		 0, 64250, 13364,
 													     		 0, 64250, 12336,
@@ -344,7 +337,7 @@ UInt16		CMPalette::s_palette1003[759] = {65535, 65535, 65535,		// index=0
 													     		 0, 64250,  2056,
 													     		 0, 64250,  1028,
 													     		 0, 64250,     0,
-													     	 1028, 64250,     0, 	// index=128
+													     	 1028, 64250,     0, // index=128
 													     	 2056, 64250,     0,
 													     	 3084, 64250,     0,
 													     	 4112, 64250,     0,
@@ -360,7 +353,7 @@ UInt16		CMPalette::s_palette1003[759] = {65535, 65535, 65535,		// index=0
 													     	14392, 64250,     0,
 													     	15420, 64250,     0,
 													     	16448, 64250,     0,
-													     	17476, 64250,     0, 	// index=144
+													     	17476, 64250,     0, // index=144
 													     	18504, 64250,     0,
 													     	19532, 64250,     0,
 													     	20560, 64250,     0,
@@ -376,7 +369,7 @@ UInt16		CMPalette::s_palette1003[759] = {65535, 65535, 65535,		// index=0
 													     	30840, 64250,     0,
 													     	31868, 64250,     0,
 													     	32896, 64250,     0,
-													     	33924, 64250,     0, 	// index=160
+													     	33924, 64250,     0, // index=160
 													     	34952, 64250,     0,
 													     	35980, 64250,     0,
 													     	37008, 64250,     0,
@@ -392,7 +385,7 @@ UInt16		CMPalette::s_palette1003[759] = {65535, 65535, 65535,		// index=0
 													     	47288, 64250,     0,
 													     	48316, 64250,     0,
 													     	49344, 64250,     0,
-													     	50372, 64250,     0, 	// index=176
+													     	50372, 64250,     0, // index=176
 													     	51400, 64250,     0,
 													     	52428, 64250,     0,
 													     	53456, 64250,     0,
@@ -408,7 +401,7 @@ UInt16		CMPalette::s_palette1003[759] = {65535, 65535, 65535,		// index=0
 													     	63736, 65021,     0,
 													     	64764, 63993,     0,
 													     	65278, 62965,     0,
-													     	65278, 61937,     0, 	// index=192
+													     	65278, 61937,     0, // index=192
 													     	65278, 60909,     0,
 													     	65278, 59881,     0,
 													     	65278, 58853,     0,
@@ -424,7 +417,7 @@ UInt16		CMPalette::s_palette1003[759] = {65535, 65535, 65535,		// index=0
 													     	65278, 48573,     0,
 													     	65278, 47545,     0,
 													     	65278, 46517,     0,
-													     	65278, 45489,     0, 	// index=208
+													     	65278, 45489,     0, // index=208
 													     	65278, 44461,     0,
 													     	65278, 43433,     0,
 													     	65278, 42405,     0,
@@ -440,7 +433,7 @@ UInt16		CMPalette::s_palette1003[759] = {65535, 65535, 65535,		// index=0
 													     	65278, 32125,     0,
 													     	65278, 31097,     0,
 													     	65278, 30069,     0,
-													     	65278, 29041,     0, 	// index=224
+													     	65278, 29041,     0, // index=224
 													     	65278, 28013,     0,
 													     	65278, 26985,     0,
 													     	65278, 25957,     0,
@@ -456,7 +449,7 @@ UInt16		CMPalette::s_palette1003[759] = {65535, 65535, 65535,		// index=0
 													     	65278, 15677,     0,
 													     	65278, 14649,     0,
 													     	65278, 13621,     0,
-													     	65278, 12593,     0, 	// index=240
+													     	65278, 12593,     0, // index=240
 													     	65278, 11565,     0,
 													     	65278, 10537,     0,
 													     	65278,  9509,     0,
@@ -468,7 +461,7 @@ UInt16		CMPalette::s_palette1003[759] = {65535, 65535, 65535,		// index=0
 													     	65278,  3341,     0,
 													     	65278,  2313,     0,
 													     	65278,  1285,     0,
-															35354, 35354, 35354}; 	// index=252
+															35354, 35354, 35354}; // index=252
 													    
 UInt16		CMPalette::s_palette1004[315] = {65535, 65535, 65535,
 													     		 0,     0,     0,
@@ -716,7 +709,7 @@ UInt16		CMPalette::s_palette1006[768] = {65535, 65535, 65535,
 													     	 7680, 17920, 51200,
 													     	 7680, 17920, 51200,
 													     	 7680, 17920, 51200,
-													     	33280, 51200, 25600, 	// index=16
+													     	33280, 51200, 25600, // index=16
 													     	33280, 51200, 25600,
 													     	33280, 51200, 25600,
 													     	33280, 51200, 25600,
@@ -732,7 +725,7 @@ UInt16		CMPalette::s_palette1006[768] = {65535, 65535, 65535,
 													     	 7680, 51200, 35840,
 													     	 7680, 51200, 35840,
 													     	 7680, 51200, 35840,
-													     	51200, 25600, 38400,		// index=32
+													     	51200, 25600, 38400,	// index=32
 													     	51200, 25600, 38400,
 													     	51200, 25600, 38400,
 													     	51200, 25600, 38400,
@@ -748,7 +741,7 @@ UInt16		CMPalette::s_palette1006[768] = {65535, 65535, 65535,
 													     	51200, 25600, 38400,
 													     	51200, 25600, 38400,
 													     	51200, 25600, 38400,
-													     	51200, 25600, 38400,		// index=48
+													     	51200, 25600, 38400,	// index=48
 													     	51200, 25600, 38400,
 													     	51200, 25600, 38400,
 													     	51200, 25600, 38400,
@@ -764,7 +757,7 @@ UInt16		CMPalette::s_palette1006[768] = {65535, 65535, 65535,
 													     	51200, 25600, 38400,
 													     	51200, 25600, 38400,
 													     	51200, 25600, 38400,
-													     	51200, 25600, 38400,		// index=64
+													     	51200, 25600, 38400,	// index=64
 													     	51200, 25600, 38400,
 													     	51200, 25600, 38400,
 													     	51200, 25600, 38400,
@@ -780,7 +773,7 @@ UInt16		CMPalette::s_palette1006[768] = {65535, 65535, 65535,
 													     	51200, 25600, 38400,
 													     	51200, 25600, 38400,
 													     	51200, 25600, 38400,
-													     	51200, 25600, 38400,		// index=80
+													     	51200, 25600, 38400,	// index=80
 													     	51200, 25600, 38400,
 													     	51200, 25600, 38400,
 													     	51200, 25600, 38400,
@@ -796,7 +789,7 @@ UInt16		CMPalette::s_palette1006[768] = {65535, 65535, 65535,
 													     	51200, 25600, 38400,
 													     	51200, 25600, 38400,
 													     	51200, 25600, 38400,
-													     	51200, 25600, 38400, 	// index=96
+													     	51200, 25600, 38400, // index=96
 													     	51200, 25600, 38400,
 													     	51200, 25600, 38400,
 													     	51200, 25600, 38400,
@@ -812,7 +805,7 @@ UInt16		CMPalette::s_palette1006[768] = {65535, 65535, 65535,
 													     	51200, 51200, 51200,
 													     	51200, 51200, 51200,
 													     	51200, 51200, 51200,
-													     	51200, 51200, 51200, 	// index=112
+													     	51200, 51200, 51200, // index=112
 													     	51200, 51200, 51200,
 													     	51200, 51200, 51200,
 													     	51200, 51200, 51200,
@@ -828,7 +821,7 @@ UInt16		CMPalette::s_palette1006[768] = {65535, 65535, 65535,
 													     	49408, 40960, 33280,
 													     	49408, 40960, 33280,
 													     	49408, 40960, 33280,
-													     	49408, 40960, 33280,		// index=128
+													     	49408, 40960, 33280,	// index=128
 													     	49408, 40960, 33280,
 													     	49408, 40960, 33280,
 													     	49408, 40960, 33280,
@@ -844,7 +837,7 @@ UInt16		CMPalette::s_palette1006[768] = {65535, 65535, 65535,
 													     	27648, 27648, 14592,
 													     	27648, 27648, 14592,
 													     	27648, 27648, 14592,
-													     	27648, 27648, 14592,		// index=144
+													     	27648, 27648, 14592,	// index=144
 													     	27648, 27648, 14592,
 													     	27648, 27648, 14592,
 													     	27648, 27648, 14592,
@@ -860,7 +853,7 @@ UInt16		CMPalette::s_palette1006[768] = {65535, 65535, 65535,
 													     	    0, 32768, 27648,
 													     	    0, 32768, 27648,
 													     	    0, 32768, 27648,
-													     	28416, 47872,  5120,		// index=160
+													     	28416, 47872,  5120,	// index=160
 													     	28416, 47872,  5120,
 													     	28416, 47872,  5120,
 													     	28416, 47872,  5120,
@@ -876,7 +869,7 @@ UInt16		CMPalette::s_palette1006[768] = {65535, 65535, 65535,
 													     	 3584, 45568,  3584,
 													     	 3584, 45568,  3584,
 													     	 3584, 45568,  3584,
-													     	15872, 32000, 19712,		// index=176
+													     	15872, 32000, 19712,	// index=176
 													     	15872, 32000, 19712,
 													     	15872, 32000, 19712,
 													     	15872, 32000, 19712,
@@ -892,7 +885,7 @@ UInt16		CMPalette::s_palette1006[768] = {65535, 65535, 65535,
 													     	15872, 20244,  5120,
 													     	15872, 20244,  5120,
 													     	15872, 20244,  5120,
-													     	15872, 20244,  5120,		// index=192
+													     	15872, 20244,  5120,	// index=192
 													     	 8704, 16640,     0,
 													     	 8704, 16640,     0,
 													     	 8704, 16640,     0,
@@ -908,7 +901,7 @@ UInt16		CMPalette::s_palette1006[768] = {65535, 65535, 65535,
 													     	 8704, 16640,     0,
 													     	 8704, 16640,     0,
 													     	 8704, 16640,     0,
-													     	 2816,  7936,     0,		// index=208
+													     	 2816,  7936,     0,	// index=208
 													     	 2816,  7936,     0,
 													     	 2816,  7936,     0,
 													     	 2816,  7936,     0,
@@ -924,7 +917,7 @@ UInt16		CMPalette::s_palette1006[768] = {65535, 65535, 65535,
 													     	 2816,  7936,     0,
 													     	 2816,  7936,     0,
 													     	 2816,  7936,     0,
-													     	    0,   512,     0,		// index=224
+													     	    0,   512,     0,	// index=224
 													     	    0,   512,     0,
 													     	    0,   512,     0,
 													     	    0,   512,     0,
@@ -940,7 +933,7 @@ UInt16		CMPalette::s_palette1006[768] = {65535, 65535, 65535,
 													     	    0,   512,     0,
 													     	    0,   512,     0,
 													     	    0,   512,     0,
-													     	    0,   512,     0,		// index=240
+													     	    0,   512,     0,	// index=240
 													     	    0,   512,     0,
 													     	    0,   512,     0,
 													     	    0,   512,     0,
@@ -956,7 +949,7 @@ UInt16		CMPalette::s_palette1006[768] = {65535, 65535, 65535,
 													     	    0,   512,     0,
 													     	    0,   512,     0,
 													     	    0,   512,     0,
-													     	    0,     0,     0};	// index=256
+													     	    0,     0,     0};// index=256
 		
 UInt16		CMPalette::s_palette1007[768] = {65535, 65535, 65535,
 																 0,     0,     0,
@@ -1212,92 +1205,177 @@ UInt16		CMPalette::s_palette1007[768] = {65535, 65535, 65535,
 															768, 17408, 1280,
 															512, 17152, 1280,
 															256, 16896, 1280,
-//															0, 16640, 1280,		// Left out to include white and black at the beginning
+			// Left following out to include white and black at the beginning
+															//0, 16640, 1280,	
 															0, 16384, 1280,
-//															0, 15872, 1280,		// Left out to include white and black at the beginning
+			// Left following out to include white and black at the beginning
+															//0, 15872, 1280,	
 															0, 15616, 1280};	// index=256
                       					
 
-// ---------------------------------------------------------------------------
-//		CMPalette 
-// ---------------------------------------------------------------------------
-//	Constructor
 
-CMPalette::CMPalette()
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2017)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		CMPalette
+//
+//	Software purpose:	Constructor 
+//
+//	Parameters in:		None
+//
+//	Parameters out:	None
+//
+// Value Returned:	None  				
+// 
+// Called By:	
+//
+//	Coded By:			Larry L. Biehl			Date: 06/05/1995
+//	Revised By:			Larry L. Biehl			Date: 02/26/1997	
+
+CMPalette::CMPalette ()
+
 {    
-#ifndef multispec_lin
-	mPaletteObject = NULL;                                              
-#else
-    CMPalette(256);
-    //mPaletteObject = 0;
-#endif
+	#if defined multispec_lin
+		CMPalette (256);
+		//mPaletteObject = 0;
+	#endif
 
-}		// end "CMPalette"
+	#if defined multispec_win
+		mPaletteObject = NULL;                                              
+	#endif
+	
+}	// end "CMPalette"
+
 
 #if defined multispec_lin
-CMPalette::CMPalette(SInt16 numberEntries) {
-    mPaletteObject = 1;
-    mNumberEntries = numberEntries;
-    UInt16 redIndex, greenIndex, blueIndex;
-    UInt16 numberColors = numberEntries;
-    UInt8 redpalette[numberColors];
-    UInt8 greenpalette[numberColors];
-    UInt8 bluepalette[numberColors];
-    redIndex = 0;
-    greenIndex = 1;
-    blueIndex = 2;
-
-    for (int index = 0; index < numberColors; index++) {
-        redpalette[index] = (UInt8) (255);
-        greenpalette[index] = (UInt8) (255);
-        bluepalette[index] = (UInt8) (255);
-
-        //SetPaletteEntries(index, 1, &paletteEntry);
-        redIndex += 3;
-        greenIndex += 3;
-        blueIndex += 3;
-
-    } // end "for (index=0; index<numberColors; index++)"
-        this->Create(numberColors,redpalette,greenpalette,bluepalette);
-} // end "CMPalette"
-#endif
-// ---------------------------------------------------------------------------
-//		~CMPalette
-// ---------------------------------------------------------------------------
-//	Destructor
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2017)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
 //
+//	Function name:		CMPalette
+//
+//	Software purpose:	Constructor 
+//
+//	Parameters in:		None
+//
+//	Parameters out:	None
+//
+// Value Returned:	None  				
+// 
+// Called By:	
+//
+//	Coded By:			Abdur Maud				Date: ??/??/2015
+//	Revised By:			Larry L. Biehl			Date: 12/19/2017	
 
-CMPalette::~CMPalette()
-{               
-#if defined multispec_mac
+CMPalette::CMPalette (
+				SInt16								numberEntries) 
+{
+	UInt16								redIndex, 
+											greenIndex, 
+											blueIndex,
+											numberColors = numberEntries;
+										
+	UInt8									redpalette[numberColors],
+											greenpalette[numberColors],
+											bluepalette[numberColors];
 
-	if (mPaletteObject != NULL)
+
+	mPaletteObject = 1;
+	mNumberEntries = numberEntries;
+
+	redIndex = 0;
+	greenIndex = 1;
+	blueIndex = 2;
+	numberColors = numberEntries;
+
+	for (int index=0; index<numberColors; index++) 
 		{
-		::DisposePalette(mPaletteObject);
-		mPaletteObject = NULL;
+		redpalette[index] = (UInt8)255;
+		greenpalette[index] = (UInt8)255;
+		bluepalette[index] = (UInt8)255;
+
+		//SetPaletteEntries (index, 1, &paletteEntry);
+		redIndex += 3;
+		greenIndex += 3;
+		blueIndex += 3;
+
+		} // end "for (index=0; index<numberColors; index++)"
 		
-		}		// end "if (mPaletteObject != NULL)"  
+	this->Create (numberColors, redpalette, greenpalette, bluepalette);
+	  
+}	// end "CMPalette"
+#endif
 
-#endif	// !defined _X86_
-		
-		      
-#if defined multispec_lin  
 
-#endif	// defined _X86_                            
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2017)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		~CMPalette
+//
+//	Software purpose:	Destructor 
+//
+//	Parameters in:		None
+//
+//	Parameters out:	None
+//
+// Value Returned:	None  				
+// 
+// Called By:	
+//
+//	Coded By:			Larry L. Biehl			Date: 06/05/1995
+//	Revised By:			Larry L. Biehl			Date: 02/26/1997	
 
-}		// end "~CMPalette"                                                     
+CMPalette::~CMPalette ()
+{               
+
+}	// end "~CMPalette"
+                                                     
 
 #ifdef multispec_lin
-bool CMPalette::Create(SInt16 numberEntries,UInt8* redpalette,UInt8* greenpalette,UInt8* bluepalette)
-{
-   SetNumberPaletteEntries(numberEntries);
-   return (wxPalette::Create(numberEntries,redpalette,greenpalette,bluepalette));
-}
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2017)
+//								c Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		void Create
+//
+//	Software purpose:	The purpose of this routine is to create the palette using the
+//							input color vectors.
+//
+//	Parameters in:		None
+//
+//	Parameters out:	None
+//
+// Value Returned:	True if creation was successfull
+//							Fale if creation was not successfull
+// 
+// Called By:
+//
+//	Coded By:			Abdur Maud				Date: ??/??/2015
+//	Revised By:			Larry L. Biehl			Date: 11/29/2017	
 
+bool CMPalette::Create (
+				SInt16								numberEntries,
+				UInt8*								redpalette,
+				UInt8*								greenpalette,
+				UInt8*								bluepalette)
+				
+{
+   SetNumberPaletteEntries (numberEntries);
+	
+   return (wxPalette::Create (numberEntries, redpalette, greenpalette, bluepalette));
+}
 #endif
 
-//-----------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+
+#if defined multispec_win
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2017)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1317,11 +1395,9 @@ bool CMPalette::Create(SInt16 numberEntries,UInt8* redpalette,UInt8* greenpalett
 //	Coded By:			Larry L. Biehl			Date: 04/27/1995
 //	Revised By:			Larry L. Biehl			Date: 02/22/1997	
                        		      
-#if defined multispec_win
-Boolean 
-CMPalette::LoadRGBQUADStructure (
-				RGBQUAD			*rgbQuadPtr,
-				SInt16			wUsage)     
+Boolean CMPalette::LoadRGBQUADStructure (
+				RGBQUAD								*rgbQuadPtr,
+				SInt16								wUsage)     
 
 {  
 	Boolean				continueFlag = TRUE;
@@ -1330,8 +1406,8 @@ CMPalette::LoadRGBQUADStructure (
 	                  
 	if (wUsage == DIB_RGB_COLORS)
 		{                                                        
-   	if ( GetPaletteEntries(0, mNumberEntries, (PALETTEENTRY*)rgbQuadPtr) != 
-    																	(UInt16)mNumberEntries )
+   	if ( GetPaletteEntries (0, mNumberEntries, (PALETTEENTRY*)rgbQuadPtr) != 
+																				(UInt16)mNumberEntries )
   			continueFlag = FALSE; 
   		
   		if (continueFlag)
@@ -1350,11 +1426,11 @@ CMPalette::LoadRGBQUADStructure (
 				rgbQuadPtr->rgbReserved = 0;
 				rgbQuadPtr++;
 				
-				}		// end "for (index=0, index<mNumberEntries, index++)"
+				}	// end "for (index=0, index<mNumberEntries, index++)"
 				
-			}		// end "if (continueFlag)"
+			}	// end "if (continueFlag)"
 				
-		}		// end "if (wUsage == DIB_RGB_COLORS)" 
+		}	// end "if (wUsage == DIB_RGB_COLORS)" 
  
 	if (wUsage == DIB_PAL_COLORS)
 		{
@@ -1370,20 +1446,19 @@ CMPalette::LoadRGBQUADStructure (
 				
 			tableIndexPtr++;
 			
-			}		// end "for (index=0, index<mNumberEntries, index++)"
+			}	// end "for (index=0, index<mNumberEntries, index++)"
 			
-		}		// end "if (wUsage == DIB_PAL_COLORS)"
+		}	// end "if (wUsage == DIB_PAL_COLORS)"
 			
 	return (continueFlag);                       
       	
-}		// end "LoadRGBQUADStructure"
-   
-#endif	// defined _X86_ 
+}	// end "LoadRGBQUADStructure"
+#endif	// defined multispec_win 
                                                                   
 
 
-//-----------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2017)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1403,29 +1478,17 @@ CMPalette::LoadRGBQUADStructure (
 //	Coded By:			Larry L. Biehl			Date: 04/27/1995
 //	Revised By:			Larry L. Biehl			Date: 04/27/1995	
 
-SInt16 
-CMPalette::GetNumberPaletteEntries (void)
+SInt16 CMPalette::GetNumberPaletteEntries (void)
 
 {          
-	#if defined multispec_mac  
-		
-		return ((*mPaletteObject)->pmEntries);
-	
-	#endif	// !defined _X86_
-			
-			      
-   #if defined multispec_win || defined multispec_lin
-	                      
-	   return (mNumberEntries);
-	   
-	#endif	// defined _X86_
+	return (mNumberEntries);
   
-}		// end "GetNumberPaletteEntries" 
+}	// end "GetNumberPaletteEntries" 
                                                                   
 
 
-//-----------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2017)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1445,30 +1508,18 @@ CMPalette::GetNumberPaletteEntries (void)
 //	Coded By:			Larry L. Biehl			Date: 11/03/1995
 //	Revised By:			Larry L. Biehl			Date: 11/03/1995	
 
-void 
-CMPalette::SetNumberPaletteEntries (
-				SInt16			numberEntries)
+void CMPalette::SetNumberPaletteEntries (
+				SInt16								numberEntries)
 
 {          
-	#if defined multispec_mac  
-		
-		(*mPaletteObject)->pmEntries = numberEntries;
-	
-	#endif	// !defined _X86_
-			
-			      
-#if defined multispec_win || defined multispec_lin
-	                      
-	   mNumberEntries = numberEntries;
-	   
-	#endif	// defined _X86_
-  
-}		// end "SetNumberPaletteEntries"  
+	mNumberEntries = numberEntries;
+	     
+}	// end "SetNumberPaletteEntries"  
                                                                   
 
 
-//-----------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2017)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1487,25 +1538,22 @@ CMPalette::SetNumberPaletteEntries (
 //	Coded By:			Larry L. Biehl			Date: 03/12/1996
 //	Revised By:			Larry L. Biehl			Date: 07/09/2015	
 
-void 
-CMPalette::SetPalette (
-				SInt16				paletteId)
+void CMPalette::SetPalette (
+				SInt16								paletteId)
 
-{                    
-#ifndef multispec_lin
-	#if defined _X86_ || defined _AMD64_
-	
-		if (this != NULL)
-			{ 		
-			PALETTEENTRY		paletteEntry; 
-			                                   
-			UInt16				blueIndex,
-									greenIndex,
-									index,
-									numberColors,
-									redIndex;
-									
-			UInt16*				palettePtr = NULL;
+{      
+	UInt16*								palettePtr = NULL;
+			
+	UInt16								blueIndex,
+											greenIndex,
+											index,
+											numberColors,
+											redIndex;
+						
+	if (this != NULL) 
+		{              
+		#if multispec_win		
+			PALETTEENTRY						paletteEntry; 
 			
 									
    		if (paletteId == 1001)
@@ -1530,9 +1578,9 @@ CMPalette::SetPalette (
    			palettePtr = s_palette1007;
 							        
 			if (palettePtr == NULL)
-																				return;          
+																										return;          
 							                  
-			numberColors = GetNumberPaletteEntries();
+			numberColors = GetNumberPaletteEntries ();
 			redIndex = 0;
 			greenIndex= 1;
 			blueIndex = 2;
@@ -1542,79 +1590,71 @@ CMPalette::SetPalette (
 				paletteEntry.peRed = (UInt8)(palettePtr[redIndex] >> 8);
 				paletteEntry.peGreen = (UInt8)(palettePtr[greenIndex] >> 8);
 				paletteEntry.peBlue = (UInt8)(palettePtr[blueIndex] >> 8);
-//				paletteEntry.peFlags = PC_NOCOLLAPSE;              
+				//paletteEntry.peFlags = PC_NOCOLLAPSE;              
 				paletteEntry.peFlags = PC_RESERVED; 
 				                           
-				SetPaletteEntries(index, 1, &paletteEntry);
+				SetPaletteEntries (index, 1, &paletteEntry);
 				
 				redIndex += 3;
 				greenIndex += 3;
 				blueIndex += 3;
 				
-				}		// end "for (index=0; index<numberColors; index++)"
-				
-			}		// end "if (this != NULL)"
-	   
-	#endif	// defined _X86_ || defined _AMD64_
-#else // defined multispec_lin
-	if (this != NULL) {
-		UInt16 blueIndex,
-					greenIndex,
-					index,
-					numberColors,
-					redIndex;
-  
-		UInt16* palettePtr = NULL;
+				}	// end "for (index=0; index<numberColors; index++)"
+		#endif	// defined multispec_lin
+	
+		#if defined multispec_lin
+			if (paletteId == 1001)
+				palettePtr = s_palette1001;
 
+			else if (paletteId == 1002)
+				palettePtr = s_palette1002;
 
-		if (paletteId == 1001)
-			palettePtr = s_palette1001;
+			else if (paletteId == 1003)
+				palettePtr = s_palette1003;
 
-		else if (paletteId == 1002)
-			palettePtr = s_palette1002;
+			else if (paletteId == 1004)
+				palettePtr = s_palette1004;
 
-		else if (paletteId == 1003)
-			palettePtr = s_palette1003;
+			else if (paletteId == 1005)
+				palettePtr = s_palette1005;
 
-		else if (paletteId == 1004)
-			palettePtr = s_palette1004;
+			else if (paletteId == 1006)
+				palettePtr = s_palette1006;
 
-		else if (paletteId == 1005)
-			palettePtr = s_palette1005;
+			else if (paletteId == 1007)
+				palettePtr = s_palette1007;
 
-		else if (paletteId == 1006)
-			palettePtr = s_palette1006;
+			if (palettePtr == NULL)
+																										return;
 
-		else if (paletteId == 1007)
-			palettePtr = s_palette1007;
-
-		if (palettePtr == NULL)
-			return;
-
-		numberColors = GetNumberPaletteEntries();
-		UInt8 redpalette[numberColors];
-		UInt8 greenpalette[numberColors];
-		UInt8 bluepalette[numberColors];
-		redIndex = 0;
-		greenIndex = 1;
-		blueIndex = 2;
-
-		for (index = 0; index < numberColors; index++) {
-			redpalette[index] = (UInt8) (palettePtr[redIndex] >> 8);
-			greenpalette[index] = (UInt8) (palettePtr[greenIndex] >> 8);
-			bluepalette[index] = (UInt8) (palettePtr[blueIndex] >> 8);
-			//redpalette[index] = (UInt8)palettePtr[redIndex];
-			//greenpalette[index] = (UInt8)palettePtr[greenIndex];
-			//bluepalette[index] = (UInt8)palettePtr[blueIndex];
-            
-			//SetPaletteEntries(index, 1, &paletteEntry);
-			redIndex += 3;
-			greenIndex += 3;
-			blueIndex += 3;
-
-			} // end "for (index=0; index<numberColors; index++)"
+			numberColors = GetNumberPaletteEntries ();
 			
-		this->Create(numberColors,redpalette,greenpalette,bluepalette);
+			UInt8 redpalette[numberColors];
+			UInt8 greenpalette[numberColors];
+			UInt8 bluepalette[numberColors];
+			redIndex = 0;
+			greenIndex = 1;
+			blueIndex = 2;
+
+			for (index = 0; index < numberColors; index++) 
+				{
+				redpalette[index] = (UInt8) (palettePtr[redIndex] >> 8);
+				greenpalette[index] = (UInt8) (palettePtr[greenIndex] >> 8);
+				bluepalette[index] = (UInt8) (palettePtr[blueIndex] >> 8);
+				//redpalette[index] = (UInt8)palettePtr[redIndex];
+				//greenpalette[index] = (UInt8)palettePtr[greenIndex];
+				//bluepalette[index] = (UInt8)palettePtr[blueIndex];
+					
+				//SetPaletteEntries (index, 1, &paletteEntry);
+				redIndex += 3;
+				greenIndex += 3;
+				blueIndex += 3;
+
+				}	// end "for (index=0; index<numberColors; index++)"
+				
+			this->Create (numberColors, redpalette, greenpalette, bluepalette);
+		#endif	// defined multispec_lin
+		
 		} // end "if (this != NULL)"
-#endif
-}		// end "SetPalette" 
+	
+}	// end "SetPalette" 

@@ -3,21 +3,19 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//							 Copyright (1988-2017)
-//							(c) Purdue Research Foundation
+//							 Copyright (1988-2018)
+//						(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	File:						SSelectionUtility.cpp
 //
 //	Authors:					Larry L. Biehl, Ravi Budruk
 //
-//	Revision number:		3.5
-//
-//	Revision date:			06/21/2017
+//	Revision date:			01/05/2018
 //
 //	Language:				C
 //
-//	System:					Macintosh and Windows Operating Systems
+//	System:					Linux, Macintosh, and Windows Operating Systems
 //								
 //	Brief description:	The purpose of the routines in this file are utilies
 //								to support selection area. These routines are shared
@@ -51,17 +49,19 @@
 //                     
 //------------------------------------------------------------------------------------
 
-#include "SMulSpec.h"      
+#include "SMultiSpec.h"      
 
 #if defined multispec_lin
+	#include "SMultiSpec.h"
+
 	#include "LDrawObjects.h"
 	#include "LEditSelectionDialog.h"
 	#include "LGraphView.h"
 	#include "LImageView.h"
 #endif	// defined multispec_lin
 
-#if defined multispec_mac
-	#include "SGrafVew.h"
+#if defined multispec_mac || defined multispec_mac_swift
+	#include "SGraphView.h"
 	#define		IDC_NewLineStart			3 
 	#define		IDC_NewLineEnd				4 
 	#define		IDC_NewColumnStart		5 
@@ -84,158 +84,114 @@
 	#define		IDS_Alert131				131
 	#define		IDS_Alert132				132
 	#define		IDS_Alert133				133  
-#endif	// defined multispec_mac   
+#endif	// defined multispec_mac || defined multispec_mac_swift   
 
 #if defined multispec_win
-	#include "SGrafVew.h"
-	#include "CImagVew.h"
-	#include	"CImagWin.h"
-	#include "CProcess.h"
-	#include "WDrawObj.h"
-	#include "WImagDoc.h"
-	#include "WProjDlg.h"	
+	#include "CProcessor.h"
+	#include	"CImageWindow.h"
+
+	#include "SGraphView.h"
+
+	#include "WDrawObjects.h"
+	#include "WEditSelectionDialog.h"
+	#include "WImageView.h"
+	#include "WImageDoc.h"	
 #endif	// defined multispec_win
 
-#include	"SExtGlob.h"				
-
-//extern Boolean				ConvertLatLongRectToMapRectinNativeImageUnits (
-//									MapProjectionInfoPtr				mapProjectionInfoPtr,
-//									DoubleRect*							coordinateRectanglePtr);
-
-extern SInt16 EditLineColumnDialogCheckCoordinates(
-        DialogPtr dialogPtr,
-        Handle inputWindowInfoHandle,
-        SInt16 selectionDisplayUnits,
-        LongRect* selectionRectanglePtr,
-        LongRect* minMaxSelectionRectanglePtr,
-        DoubleRect* coordinateRectanglePtr,
-        DoubleRect* minMaxCoordinateRectanglePtr,
-        double newColumnStart,
-        double newColumnEnd,
-        double newLineStart,
-        double newLineEnd);
-
-extern void EditSelectionDialogSetCoordinates(
-        DialogPtr dialogPtr,
-        Handle windowInfoHandle,
-        LongRect* inputSelectionRectanglePtr,
-        LongRect* selectionRectanglePtr,
-        DoubleRect* inputCoordinateRectanglePtr,
-        DoubleRect* coordinateRectanglePtr,
-        LongRect* minMaxSelectionRectanglePtr,
-        DoubleRect* minMaxCoordinateRectanglePtr,
-        SInt16 requestedSelectionUnitsCode,
-        SInt16 currentSelectionUnitsCode);
-
-extern void EditSelectionDialogShowSelection(
-        WindowPtr windowPtr,
-        Handle windowInfoHandle,
-        LongRect* selectionRectanglePtr,
-        DoubleRect* coordinateRectanglePtr,
-        Boolean applyToAllWindowsFlag,
-        Boolean useStartLineColumnFlag,
-        SInt16 unitsToUseCode,
-        double inputFactor);
-
-extern void EditLineColumnDialogInitialize(
-        DialogPtr dialogPtr,
-        WindowPtr windowPtr,
-        WindowInfoPtr windowInfoPtr,
-        SInt16 pointType,
-        SInt16 unitsDisplayCode,
-        LongRect* inputSelectionRectanglePtr,
-        LongRect* selectionRectanglePtr,
-        DoubleRect* coordinateRectanglePtr,
-        LongRect* minMaxSelectionRectanglePtr,
-        DoubleRect* minMaxCoordinateRectanglePtr,
-        DoubleRect* inputCoordinateRectanglePtr,
-        Boolean* applyToAllWindowsFlagPtr,
-        Boolean* useStartLineColumnFlagPtr,
-        SInt16* selectionDisplayUnitsPtr,
-        SInt16 stringID);
-
-extern void EditLineColumnDialogSetStartLC(
-        DialogPtr dialogPtr,
-        SInt16 unitsDisplayCode,
-        Boolean applyToAllWindowsFlag);
-
-void ComputeMapCoordinates(
-        Handle windowInfoHandle,
-        double factor,
-        SInt16 viewUnits,
-        LongRect* lineColumnRectPtr,
-        DoubleRect* coordinateRectPtr);
-
-void ComputeSelectionCoordinates(
-        Handle windowInfoHandle,
-        MapProjectionInfoPtr mapProjectionInfoPtr,
-        double factor,
-        SInt16 gridCode,
-        SInt16 viewUnits,
-        UInt32 displayedColumnInterval,
-        UInt32 displayedLineInterval,
-        LongRect* lineColumnRectPtr,
-        DoubleRect* coordinateRectPtr);
-
-Boolean ConvertCoordinateRectToLCRect(
-        Handle windowInfoHandle,
-        DoubleRect* inputCoordinateRectanglePtr,
-        LongRect* selectionRectanglePtr,
-        SInt16 selectionUnitsCode,
-        double factor);
-
-//Boolean					ConvertLatLongRectToMapRectinNativeImageUnits (
-//								Handle								windowInfoHandle,
-//								DoubleRect*							coordinateRectPtr);	
-
-void ConvertMapRectByGivenFactor(
-        double factor,
-        DoubleRect* inputCoordinateRectanglePtr);
-
-void DrawSelectionPolygon(
-        SelectionInfoPtr selectionInfoPtr,
-        LongRect* selectionRectPtr,
-        LCToWindowUnitsVariablesPtr lcToWindowUnitsVariablesPtr,
-        LongRect* viewRectPtr);
-
-void DrawSelectionRectangle(
-        SelectionInfoPtr selectionInfoPtr,
-        LongRect* selectionRectPtr,
-        LongRect* viewRectPtr);
-
-PascalVoid DrawSelectionUnitsPopUp(
-        DialogPtr dialogPtr,
-        SInt16 itemNumber);
-
-void EditLineColumnDialogOK(
-        Handle windowInfoHandle,
-        LongRect* inputSelectionRectanglePtr,
-        LongRect* selectionRectanglePtr,
-        DoubleRect* coordinateRectanglePtr,
-        SInt16 unitsDisplayCode,
-        Boolean* changedFlagPtr);
-
-SInt64 GetNumberPixelsInSelection(
-        SelectionInfoPtr selectionInfoPtr);
-
-void SetPolygonSelection(
-        WindowInfoPtr windowInfoPtr,
-        SelectionInfoPtr selectionInfoPtr,
-        DisplaySpecsPtr displaySpecsPtr,
-        SInt32 lineAdjust,
-        SInt32 columnAdjust);
-
-void SetRectangleSelection(
-        WindowInfoPtr windowInfoPtr,
-        SelectionInfoPtr selectionInfoPtr,
-        LongRect* lineColumnRectPtr,
-        DoubleRect* inputCoordinateRectPtr,
-        SInt16 unitsToUseCode,
-        SInt32 lineAdjust,
-        SInt32 columnAdjust);
+//#include	"SExtGlob.h"				
 
 
-SInt16 gSelectionDisplayUnits = 0;
+
+extern SInt16 EditLineColumnDialogCheckCoordinates (
+				DialogPtr							dialogPtr,
+				Handle								inputWindowInfoHandle,
+				SInt16								selectionDisplayUnits,
+				LongRect*							selectionRectanglePtr,
+				LongRect*							minMaxSelectionRectanglePtr,
+				DoubleRect*							coordinateRectanglePtr,
+				DoubleRect*							minMaxCoordinateRectanglePtr,
+				double								newColumnStart,
+				double								newColumnEnd,
+				double								newLineStart,
+				double								newLineEnd);
+
+void ComputeMapCoordinates (
+				Handle								windowInfoHandle,
+				double								factor,
+				SInt16								viewUnits,
+				LongRect*							lineColumnRectPtr,
+				DoubleRect*							coordinateRectPtr);
+
+void ComputeSelectionCoordinates (
+				Handle								windowInfoHandle,
+				MapProjectionInfoPtr				mapProjectionInfoPtr,
+				double								factor,
+				SInt16								gridCode,
+				SInt16								viewUnits,
+				UInt32								displayedColumnInterval,
+				UInt32								displayedLineInterval,
+				LongRect*							lineColumnRectPtr,
+				DoubleRect*							coordinateRectPtr);
+
+Boolean ConvertCoordinateRectToLCRect (
+				Handle								windowInfoHandle,
+				DoubleRect*							inputCoordinateRectanglePtr,
+				LongRect*							selectionRectanglePtr,
+				SInt16								selectionUnitsCode,
+				double								factor);
+
+               
+			// Prototypes for routines in this file that are only called by		
+			// other routines in this file.	
+				
+void		ConvertMapRectByGivenFactor (
+				double								factor,
+				DoubleRect*							inputCoordinateRectanglePtr);
+
+void		DrawSelectionPolygon (
+				SelectionInfoPtr					selectionInfoPtr,
+				LongRect*							selectionRectPtr,
+				LCToWindowUnitsVariablesPtr	lcToWindowUnitsVariablesPtr,
+				LongRect*							viewRectPtr);
+
+void		DrawSelectionRectangle (
+				SelectionInfoPtr					selectionInfoPtr,
+				LongRect*							selectionRectPtr,
+				LongRect*							viewRectPtr);
+
+PascalVoid DrawSelectionUnitsPopUp (
+				DialogPtr							dialogPtr,
+				SInt16								itemNumber);
+
+void		EditLineColumnDialogOK (
+				Handle								windowInfoHandle,
+				LongRect*							inputSelectionRectanglePtr,
+				LongRect*							selectionRectanglePtr,
+				DoubleRect*							coordinateRectanglePtr,
+				SInt16								unitsDisplayCode,
+				Boolean*								changedFlagPtr);
+
+SInt64	GetNumberPixelsInSelection (
+				SelectionInfoPtr					selectionInfoPtr);
+
+void		SetPolygonSelection (
+				WindowInfoPtr						windowInfoPtr,
+				SelectionInfoPtr					selectionInfoPtr,
+				DisplaySpecsPtr					displaySpecsPtr,
+				SInt32								lineAdjust,
+				SInt32								columnAdjust);
+
+void		SetRectangleSelection (
+				WindowInfoPtr						windowInfoPtr,
+				SelectionInfoPtr					selectionInfoPtr,
+				LongRect*							lineColumnRectPtr,
+				DoubleRect*							inputCoordinateRectPtr,
+				SInt16								unitsToUseCode,
+				SInt32								lineAdjust,
+				SInt32								columnAdjust);
+
+
+SInt16		gSelectionDisplayUnits = 0;
 
 
 
@@ -261,37 +217,39 @@ SInt16 gSelectionDisplayUnits = 0;
 //	Coded By:			Larry L. Biehl			Date: 08/31/1989
 //	Revised By:			Larry L. Biehl			Date: 08/31/1989	
 
-void ClearNewFieldList(void)
- {
-    // Declare local variables and structures										
+void ClearNewFieldList (void)
 
-    GrafPtr savedPort;
+{
+			// Declare local variables and structures										
+
+	GrafPtr								savedPort;
 
 
-    if (gStatisticsMode == kStatNewFieldRectMode ||
-            gStatisticsMode == kStatNewFieldPolyMode) {
-        // Save currently active window and make the Statistics window		
-        // the active window.															
+	if (gStatisticsMode == kStatNewFieldRectMode || 
+														gStatisticsMode == kStatNewFieldPolyMode) 
+		{
+				// Save currently active window and make the Statistics window		
+				// the active window.															
 
-        GetPort(&savedPort);
-        SetPortWindowPort(gProjectWindow);
+		GetPort (&savedPort);
+		SetPortWindowPort (gProjectWindow);
 
-        // Declare local variables and structures	
+				// Declare local variables and structures	
 
-        MHiliteControl(gProjectWindow, gProjectInfoPtr->addToControlH, 255);
+		MHiliteControl (gProjectWindow, gProjectInfoPtr->addToControlH, 255);
 
-        // Remove data in the list so the next field can be selected.		
-        // Invalidate the list rectangle so that it will be updated.		
+				// Remove data in the list so the next field can be selected.		
+				// Invalidate the list rectangle so that it will be updated.		
 
-        RemoveListCells();
+		RemoveListCells ();
 
-        SetPort(savedPort);
+		SetPort (savedPort);
 
-        gUpdateEditMenuItemsFlag = TRUE;
+		gUpdateEditMenuItemsFlag = TRUE;
 
-    } // end "if (gStatisticsMode == kStatNewFieldRectMode ..." 
+		}	// end "if (gStatisticsMode == kStatNewFieldRectMode ..." 
 
-} // end "ClearNewFieldList" 
+}	// end "ClearNewFieldList" 
 
 
 
@@ -327,8 +285,9 @@ void ClearNewFieldList(void)
 //	Coded By:			Larry L. Biehl			Date: 08/11/1989
 //	Revised By:			Larry L. Biehl			Date: 03/13/2015		
 
-void ClearSelectionArea(
+void ClearSelectionArea (
 				WindowPtr							windowPtr)
+				
 {
 	LCToWindowUnitsVariables		lcToWindowUnitsVariables;
 
@@ -345,188 +304,192 @@ void ClearSelectionArea(
 	SignedByte							handleStatus;
 
 
-	windowInfoHandle = GetWindowInfoHandle(windowPtr);
+	windowInfoHandle = GetWindowInfoHandle (windowPtr);
 
-	if (OffscreenImageMapExists(windowInfoHandle)) 
+	if (OffscreenImageMapExists (windowInfoHandle)) 
 		{
 				// Get handle to the selection information for the window.
 
-		selectionInfoHandle = GetSelectionInfoHandle(windowInfoHandle);
+		selectionInfoHandle = GetSelectionInfoHandle (windowInfoHandle);
 
-        // Determine if this handle is presently locked.  Save status	
-        // for use at end of routine to determine whether to unlock		
-        // the handle or not.  We do not want to unlock it if it was	
-        // locked at this point.  The calling routine will handle		
-        // unlocking it.						
+				// Determine if this handle is presently locked.  Save status	
+				// for use at end of routine to determine whether to unlock		
+				// the handle or not.  We do not want to unlock it if it was	
+				// locked at this point.  The calling routine will handle		
+				// unlocking it.						
 
-        selectionInfoPtr = (SelectionInfoPtr) GetHandleStatusAndPointer(
-                selectionInfoHandle,
-                &handleStatus,
-                kNoMoveHi);
+		selectionInfoPtr = (SelectionInfoPtr)GetHandleStatusAndPointer (
+																					 selectionInfoHandle,
+																					 &handleStatus);
 
-        if (selectionInfoPtr != NULL) 
+		if (selectionInfoPtr != NULL) 
 			{
-            if (selectionInfoPtr->typeFlag == kRectangleType ||
-                    selectionInfoPtr->typeFlag == kPolygonType) {
-                GetPort(&savedPort);
-                SetPortWindowPort(windowPtr);
+			if (selectionInfoPtr->typeFlag == kRectangleType ||
+														selectionInfoPtr->typeFlag == kPolygonType) 
+				{
+				GetPort (&savedPort);
+				SetPortWindowPort (windowPtr);
 
-                GetWindowClipRectangle(windowPtr, kImageFrameArea, &gViewRect);
+				GetWindowClipRectangle (windowPtr, kImageFrameArea, &gViewRect);
 
-                // Set the global variables needed to convert from 			
-                // line-column units to window units.								
+						// Set the global variables needed to convert from 			
+						// line-column units to window units.								
 
-                SetChannelWindowVariables(kToImageWindow, windowInfoHandle, kNotCoreGraphics);
+				SetChannelWindowVariables (kToImageWindow, 
+													windowInfoHandle, 
+													kNotCoreGraphics);
 
-                SetLCToWindowUnitVariables(windowInfoHandle,
-                        kToImageWindow,
-                        FALSE,
-                        &lcToWindowUnitsVariables);
+				SetLCToWindowUnitVariables (windowInfoHandle,
+														kToImageWindow,
+														FALSE,
+														&lcToWindowUnitsVariables);
 
-                // Get selection rectangle in current window coordinates.	
+						// Get selection rectangle in current window coordinates.	
 
-                ConvertLCRectToWinRect(&selectionInfoPtr->lineColumnRectangle,
-                        &selectionRect,
-                        &lcToWindowUnitsVariables);
-#if defined multispec_mac				
-                Rect tempRect;
+				ConvertLCRectToWinRect (&selectionInfoPtr->lineColumnRectangle,
+												&selectionRect,
+												&lcToWindowUnitsVariables);
+				#if defined multispec_mac				
+					Rect tempRect;
 
-                // Now copy the long rect structure to a short rect 			
-                // structure.  If everything is okay, the long rect			
-                // structure is not needed now.										
-                // Add one to the right and bottom to make certain that		
-                // the selection gets cleared - important for polygonal		
-                // selections.																
+							// Now copy the long rect structure to a short rect 			
+							// structure.  If everything is okay, the long rect			
+							// structure is not needed now.										
+							// Add one to the right and bottom to make certain that		
+							// the selection gets cleared - important for polygonal		
+							// selections.																
 
-                tempRect.top = (SInt16) selectionRect.top - 1;
-                tempRect.left = (SInt16) selectionRect.left - 1;
-                tempRect.bottom = (SInt16) selectionRect.bottom + 1;
-                tempRect.right = (SInt16) selectionRect.right + 1;
-#endif // defined multispec_mac    
+					tempRect.top = (SInt16)selectionRect.top - 1;
+					tempRect.left = (SInt16)selectionRect.left - 1;
+					tempRect.bottom = (SInt16)selectionRect.bottom + 1;
+					tempRect.right = (SInt16)selectionRect.right + 1;
+				#endif	// defined multispec_mac    
 
-#if defined multispec_win   				
-                CRect tempRect;
-                LongPoint scrollOffset;
+				#if defined multispec_win   				
+					CRect tempRect;
+					LongPoint scrollOffset;
 
-                GetScrollOffset(windowInfoHandle, &scrollOffset);
+					GetScrollOffset (windowInfoHandle, &scrollOffset);
 
-                tempRect.top = (int) (selectionRect.top - 1 - scrollOffset.v);
-                tempRect.left = (int) (selectionRect.left - 1 - scrollOffset.h);
-                tempRect.bottom = (int) (selectionRect.bottom + 1 - scrollOffset.v);
-                tempRect.right = (int) (selectionRect.right + 1 - scrollOffset.h);
-#endif // defined multispec_win  	     
+					tempRect.top = (int)(selectionRect.top - 1 - scrollOffset.v);
+					tempRect.left = (int)(selectionRect.left - 1 - scrollOffset.h);
+					tempRect.bottom = (int)(selectionRect.bottom + 1 - scrollOffset.v);
+					tempRect.right = (int)(selectionRect.right + 1 - scrollOffset.h);
+				#endif	// defined multispec_win  	     
 
-#if defined multispec_lin   			
-                wxRect tempRect;
+				#if defined multispec_lin   			
+					wxRect tempRect;
 
-                tempRect.x = (int) selectionRect.left - 1;
-                tempRect.y = (int) selectionRect.top - 1;
-                tempRect.width = (int) (selectionRect.right - selectionRect.left + 2);
-                tempRect.height = (int) (selectionRect.bottom - selectionRect.top + 2);
-#endif // defined multispec_lin     
+					tempRect.x = (int)selectionRect.left - 1;
+					tempRect.y = (int)selectionRect.top - 1;
+					tempRect.width = (int)(selectionRect.right - selectionRect.left + 2);
+					tempRect.height = (int)(selectionRect.bottom - selectionRect.top + 2);
+				#endif	// defined multispec_lin     
 
-#if defined multispec_mac || defined multispec_win
-                if (tempRect.top <= gViewRect.bottom &&
-                        tempRect.bottom >= gViewRect.top)
-#endif // defined multispec_mac || defined multispec_win    
-#if defined multispec_lin  //modify tempRect.x to tempRect.y in the first condition 01.06.2016 Wei
-                    if (tempRect.y <= gViewRect.bottom &&
-                            tempRect.y + tempRect.height >= gViewRect.top)
-#endif // defined multispec_lin 
-                    {
-                        for (channel = gStartChannel; channel < gSideBySideChannels; channel++) {
-#if defined multispec_mac
-                            if (tempRect.right >= gViewRect.left)
-                                InvalWindowRect(windowPtr, &tempRect);
+				#if defined multispec_mac || defined multispec_win
+					if (tempRect.top <= gViewRect.bottom && 
+																	tempRect.bottom >= gViewRect.top)
+				#endif	// defined multispec_mac || defined multispec_win    
+				#if defined multispec_lin  
+							// Modify tempRect.x to tempRect.y in the first condition 
+							// 01.06.2016 Wei
+					if (tempRect.y <= gViewRect.bottom &&
+													tempRect.y + tempRect.height >= gViewRect.top)
+				#endif	// defined multispec_lin 
+						{
+						for (channel=gStartChannel; channel<gSideBySideChannels; channel++) 
+							{
+							#if defined multispec_mac
+								if (tempRect.right >= gViewRect.left)
+									InvalWindowRect (windowPtr, &tempRect);
 
-                            tempRect.left += (SInt16) gChannelWindowInterval;
-                            tempRect.right += (SInt16) gChannelWindowInterval;
-                            if (tempRect.left > gViewRect.right)
-                                break;
-#endif // defined multispec_mac    
+								tempRect.left += (SInt16)gChannelWindowInterval;
+								tempRect.right += (SInt16)gChannelWindowInterval;
+								if (tempRect.left > gViewRect.right)
+									break;
+							#endif	// defined multispec_mac    
 
-#if defined multispec_win    
-                            // Note that the units for the rectangle for InvalidateRect  
-                            // is in client units.                  
+							#if defined multispec_win    
+										// Note that the units for the rectangle for 
+										// InvalidateRect is in client units.                  
 
-                            if (tempRect.right >= gViewRect.left)
-                                windowPtr->InvalidateRect(&tempRect, FALSE);
+								if (tempRect.right >= gViewRect.left)
+									windowPtr->InvalidateRect (&tempRect, FALSE);
 
-                            tempRect.left += (int) gChannelWindowInterval;
-                            tempRect.right += (int) gChannelWindowInterval;
-                            if (tempRect.left > gViewRect.right)
-                                break;
-#endif // defined multispec_win      
+								tempRect.left += (int)gChannelWindowInterval;
+								tempRect.right += (int)gChannelWindowInterval;
+								if (tempRect.left > gViewRect.right)
+									break;
+							#endif	// defined multispec_win      
 
-#if defined multispec_lin    
-                            if (tempRect.x + tempRect.width >= gViewRect.left)
-                                (windowPtr->m_Canvas)->RefreshRect(tempRect, FALSE);
+							#if defined multispec_lin    
+								if (tempRect.x + tempRect.width >= gViewRect.left)
+									(windowPtr->m_Canvas)->RefreshRect (tempRect, FALSE);
 
-                            tempRect.x += (int) gChannelWindowInterval;
+								tempRect.x += (int)gChannelWindowInterval;
 
-                            if (tempRect.x > gViewRect.right)
-                                break;
-#endif // defined multispec_win     
+								if (tempRect.x > gViewRect.right)
+									break;
+							#endif	// defined multispec_lin     
 
-                        } // end "for (channel=gStartChannel; channel<..." 
+							}	// end "for (channel=gStartChannel; channel<..." 
 
-                    } // end "if (tempRect.top <= gViewRect.bottom && ..."
+					  }	// end "if (tempRect.top <= gViewRect.bottom && ..."
 
-                SetPort(savedPort);
+					SetPort (savedPort);
 
-                selectionInfoPtr->typeFlag = 0;
-                selectionInfoPtr->numberPoints = 0;
-                selectionInfoPtr->offScreenRectangle.top = 0;
-                selectionInfoPtr->offScreenRectangle.left = 0;
+					selectionInfoPtr->typeFlag = 0;
+					selectionInfoPtr->numberPoints = 0;
+					selectionInfoPtr->offScreenRectangle.top = 0;
+					selectionInfoPtr->offScreenRectangle.left = 0;
 
-                if (windowPtr == gActiveImageWindow) {
-                    // Make certain the selection coordinates window and		
-                    // graph selection window is correct if the input			
-                    // window is the active window.									
+					if (windowPtr == gActiveImageWindow)
+						{
+								// Make certain the selection coordinates window and		
+								// graph selection window is correct if the input			
+								// window is the active window.									
 
-                    // Make certain that the coordinates in the Selection 	
-                    // Dialog Window are cleared.										
+								// Make certain that the coordinates in the Selection 	
+								// Dialog Window are cleared.										
 
-                    ShowSelection(windowInfoHandle);
+						ShowSelection (windowInfoHandle);
 
-                    // Make certain that the graph is cleared.					
+								// Make certain that the graph is cleared.					
 
-                    ShowGraphSelection();
+						ShowGraphSelection ();
 
-                    // Force update of edit menu
+								// Force update of edit menu
 
-                    gUpdateEditMenuItemsFlag = TRUE;
+						gUpdateEditMenuItemsFlag = TRUE;
 
-                } // end "if (windowPtr == gActiveImageWindow)"
+						}	// end "if (windowPtr == gActiveImageWindow)"
 
-#if defined multispec_mac  
-                InvalidateWindow(windowPtr,
-                        kCoordinateSelectionArea,
-                        FALSE);
+					#if defined multispec_mac  
+						InvalidateWindow (windowPtr, kCoordinateSelectionArea, FALSE);
 
-                UpdateCoordinateViewControls(windowPtr);
-#endif // defined multispec_mac    
+						UpdateCoordinateViewControls (windowPtr);
+					#endif	// defined multispec_mac    
 
-                // Remove the coordinates from the statistics window 		
-                // list if they exist.												
+							// Remove the coordinates from the statistics window 		
+							// list if they exist.												
 
-                if (windowPtr == gProjectSelectionWindow)
-                    ClearNewFieldList();
+				if (windowPtr == gProjectSelectionWindow)
+					ClearNewFieldList ();
 
-                selectionInfoPtr->polygonCoordinatesHandle = UnlockAndDispose(
-                        selectionInfoPtr->polygonCoordinatesHandle);
+				selectionInfoPtr->polygonCoordinatesHandle = UnlockAndDispose (
+													selectionInfoPtr->polygonCoordinatesHandle);
 
-            } // end "if (selectionInfoPtr->typeFlag == kRectangleType || ...)" 
+				}	// end "if (selectionInfoPtr->typeFlag == kRectangleType || ...)" 
 
-            // Unlock the selection information handle if needed.				
+					// Unlock the selection information handle if needed.				
 
-            MHSetState(selectionInfoHandle, handleStatus);
+			MHSetState (selectionInfoHandle, handleStatus);
 
-        } // end "if (selectionInfoPtr != NULL)" 
+			}	// end "if (selectionInfoPtr != NULL)" 
 
-    } // end "if ( OffscreenImageMapExists (windowInfoHandle) )" 
+		}	// end "if (OffscreenImageMapExists (windowInfoHandle))" 
 
-} // end "ClearSelectionArea"
+}	// end "ClearSelectionArea"
 
 
 
@@ -550,34 +513,34 @@ void ClearSelectionArea(
 //	Coded By:			Larry L. Biehl			Date: 09/28/1998
 //	Revised By:			Larry L. Biehl			Date: 06/24/1999			
 
-void ClosePolygonSelection(
-        SelectionInfoPtr selectionInfoPtr)
- {
-    UInt32 bytesNeeded,
-            memoryLimitNumber;
+void ClosePolygonSelection (
+				SelectionInfoPtr					selectionInfoPtr)
+				
+{
+	UInt32								bytesNeeded,
+											memoryLimitNumber;
 
 
-    memoryLimitNumber = selectionInfoPtr->numberPoints;
+	memoryLimitNumber = selectionInfoPtr->numberPoints;
 
-    // Unlock handle to selection polygon points.								
+			// Unlock handle to selection polygon points.								
 
-    CheckAndUnlockHandle(selectionInfoPtr->polygonCoordinatesHandle);
+	CheckAndUnlockHandle (selectionInfoPtr->polygonCoordinatesHandle);
 
-    // Adjust the handle size to only include the points actually			
-    // entered.																				
+			// Adjust the handle size to only include the points actually entered.																				
 
-    bytesNeeded = memoryLimitNumber * sizeof (ProjectFieldPoints);
-    MSetHandleSize(&selectionInfoPtr->polygonCoordinatesHandle, (SInt64) bytesNeeded);
+	bytesNeeded = memoryLimitNumber * sizeof (ProjectFieldPoints);
+	MSetHandleSize (&selectionInfoPtr->polygonCoordinatesHandle, (SInt64)bytesNeeded);
 
-    if (selectionInfoPtr->numberPoints >= 3)
-        selectionInfoPtr->numberPixels = GetNumberPixelsInSelection(selectionInfoPtr);
+	if (selectionInfoPtr->numberPoints >= 3)
+		selectionInfoPtr->numberPixels = GetNumberPixelsInSelection (selectionInfoPtr);
 
-    if (selectionInfoPtr->numberPoints < 3 || selectionInfoPtr->numberPixels == 0)
-        ClearSelectionArea(gActiveImageWindow);
+	if (selectionInfoPtr->numberPoints < 3 || selectionInfoPtr->numberPixels == 0)
+		ClearSelectionArea (gActiveImageWindow);
 
-    gProcessorCode = 0;
+	gProcessorCode = 0;
 
-} // end "ClosePolygonSelection"
+}	// end "ClosePolygonSelection"
 
 
 
@@ -608,39 +571,39 @@ void ClosePolygonSelection(
 //	Coded By:			Larry L. Biehl			Date: 11/24/2004
 //	Revised By:			Larry L. Biehl			Date: 04/28/2012			
 
-void ComputeMapCoordinates(
-        Handle windowInfoHandle,
-        double factor,
-        SInt16 viewUnits,
-        LongRect* lineColumnRectPtr,
-        DoubleRect* coordinateRectPtr)
- {
-    MapProjectionInfoPtr mapProjectionInfoPtr;
+void ComputeMapCoordinates (
+				Handle								windowInfoHandle,
+				double								factor,
+				SInt16								viewUnits,
+				LongRect*							lineColumnRectPtr,
+				DoubleRect*							coordinateRectPtr)
+				
+{
+	MapProjectionInfoPtr				mapProjectionInfoPtr;
 
-    Handle mapProjectionHandle;
+	Handle								mapProjectionHandle;
 
-    SInt16 projectionCode;
+	SInt16								projectionCode;
 
 
-    mapProjectionHandle = GetFileMapProjectionHandle2(windowInfoHandle);
+	mapProjectionHandle = GetFileMapProjectionHandle2 (windowInfoHandle);
 
-    mapProjectionInfoPtr =
-            (MapProjectionInfoPtr) GetHandlePointer(
-            mapProjectionHandle, kNoLock, kNoMoveHi);
+	mapProjectionInfoPtr =
+							(MapProjectionInfoPtr)GetHandlePointer (mapProjectionHandle);
 
-    projectionCode = GetFileProjectionCode(windowInfoHandle);
+	projectionCode = GetFileProjectionCode (windowInfoHandle);
 
-    ComputeSelectionCoordinates(windowInfoHandle,
-            mapProjectionInfoPtr,
-            factor,
-            projectionCode,
-            viewUnits,
-            1,
-            1,
-            lineColumnRectPtr,
-            coordinateRectPtr);
+	ComputeSelectionCoordinates (windowInfoHandle,
+											mapProjectionInfoPtr,
+											factor,
+											projectionCode,
+											viewUnits,
+											1,
+											1,
+											lineColumnRectPtr,
+											coordinateRectPtr);
 
-} // end "ComputeMapCoordinates"
+}	// end "ComputeMapCoordinates"
 
 
 
@@ -666,34 +629,34 @@ void ComputeMapCoordinates(
 //	Coded By:			Larry L. Biehl			Date: 11/24/2004
 //	Revised By:			Larry L. Biehl			Date: 02/23/2007			
 
-void ComputeSelectionCoordinates(
-        Handle windowInfoHandle,
-        LongRect* lineColumnRectPtr,
-        DoubleRect* coordinateRectPtr)
- {
-    MapProjectionInfoPtr mapProjectionInfoPtr;
+void ComputeSelectionCoordinates (
+				Handle								windowInfoHandle,
+				LongRect*							lineColumnRectPtr,
+				DoubleRect*							coordinateRectPtr)
+				
+{
+	MapProjectionInfoPtr				mapProjectionInfoPtr;
 
-    Handle mapProjectionHandle;
+	Handle								mapProjectionHandle;
 
-    SignedByte handleStatus;
+	SignedByte							handleStatus;
 
 
-    mapProjectionHandle = GetFileMapProjectionHandle2(windowInfoHandle);
+	mapProjectionHandle = GetFileMapProjectionHandle2 (windowInfoHandle);
 
-    mapProjectionInfoPtr = (MapProjectionInfoPtr) GetHandleStatusAndPointer(
-            mapProjectionHandle,
-            &handleStatus,
-            kNoMoveHi);
+	mapProjectionInfoPtr = (MapProjectionInfoPtr)GetHandleStatusAndPointer (
+																					mapProjectionHandle,
+																					&handleStatus);
 
-    if (mapProjectionInfoPtr != NULL)
-        ComputeSelectionCoordinates(windowInfoHandle,
-            mapProjectionInfoPtr,
-            lineColumnRectPtr,
-            coordinateRectPtr);
+	if (mapProjectionInfoPtr != NULL)
+		ComputeSelectionCoordinates (windowInfoHandle,
+												mapProjectionInfoPtr,
+												lineColumnRectPtr,
+												coordinateRectPtr);
 
-    MHSetState(mapProjectionHandle, handleStatus);
+	MHSetState (mapProjectionHandle, handleStatus);
 
-} // end "UpdateSelectionCoordinates" 
+}	// end "UpdateSelectionCoordinates" 
 
 
 
@@ -721,58 +684,56 @@ void ComputeSelectionCoordinates(
 //	Revised By:			Larry L. Biehl			Date: 11/08/2000	
 //	Revised By:			Larry L. Biehl			Date: 03/13/2012		
 
-void ComputeSelectionCoordinates(
-        Handle windowInfoHandle,
-        MapProjectionInfoPtr mapProjectionInfoPtr,
-        LongRect* lineColumnRectPtr,
-        DoubleRect* coordinateRectPtr)
- {
-    double //		doubleCoordinateValue,
-    factor;
+void ComputeSelectionCoordinates (
+				Handle								windowInfoHandle,
+				MapProjectionInfoPtr				mapProjectionInfoPtr,
+				LongRect*							lineColumnRectPtr,
+				DoubleRect*							coordinateRectPtr)
+				
+{
+	double								factor;
 
-    DisplaySpecsPtr displaySpecsPtr;
+	DisplaySpecsPtr					displaySpecsPtr;
 
-    Handle displaySpecsHandle;
+	Handle								displaySpecsHandle;
 
-    UInt32 displayedColumnInterval,
-            displayedLineInterval;
+	UInt32								displayedColumnInterval,
+											displayedLineInterval;
 
-    SInt16 projectionCode,
-            viewUnits;
+	SInt16								projectionCode,
+											viewUnits;
 
 
-    viewUnits = GetCoordinateViewUnits(windowInfoHandle);
+	viewUnits = GetCoordinateViewUnits (windowInfoHandle);
 
-    if (viewUnits != kLineColumnUnitsMenuItem) {
-        // Now also get the selected area in coordinate units.
+	if (viewUnits != kLineColumnUnitsMenuItem) 
+		{
+				// Now also get the selected area in coordinate units.
 
-        projectionCode = GetFileProjectionCode(windowInfoHandle);
+		projectionCode = GetFileProjectionCode (windowInfoHandle);
 
-        factor = GetCoordinateViewFactor(windowInfoHandle);
+		factor = GetCoordinateViewFactor (windowInfoHandle);
 
-        displaySpecsHandle = GetDisplaySpecsHandle(windowInfoHandle);
+		displaySpecsHandle = GetDisplaySpecsHandle (windowInfoHandle);
 
-        displaySpecsPtr = (DisplaySpecsPtr) GetHandlePointer(
-                displaySpecsHandle,
-                kNoLock,
-                kNoMoveHi);
+		displaySpecsPtr = (DisplaySpecsPtr)GetHandlePointer (displaySpecsHandle);
 
-        displayedColumnInterval = displaySpecsPtr->displayedColumnInterval;
-        displayedLineInterval = displaySpecsPtr->displayedLineInterval;
+		displayedColumnInterval = displaySpecsPtr->displayedColumnInterval;
+		displayedLineInterval = displaySpecsPtr->displayedLineInterval;
 
-        ComputeSelectionCoordinates(windowInfoHandle,
-                mapProjectionInfoPtr,
-                factor,
-                projectionCode,
-                viewUnits,
-                displayedColumnInterval,
-                displayedLineInterval,
-                lineColumnRectPtr,
-                coordinateRectPtr);
+		ComputeSelectionCoordinates (windowInfoHandle,
+												 mapProjectionInfoPtr,
+												 factor,
+												 projectionCode,
+												 viewUnits,
+												 displayedColumnInterval,
+												 displayedLineInterval,
+												 lineColumnRectPtr,
+												 coordinateRectPtr);
 
-    } // end "if (viewUnits != kLineColumnUnitsMenuItem)"
+		}	// end "if (viewUnits != kLineColumnUnitsMenuItem)"
 
-} // end "ComputeSelectionCoordinates" 
+}	// end "ComputeSelectionCoordinates" 
 
 
 
@@ -800,148 +761,160 @@ void ComputeSelectionCoordinates(
 //	Revised By:			Larry L. Biehl			Date: 11/19/2004	
 //	Revised By:			Larry L. Biehl			Date: 02/13/2007		
 
-void ComputeSelectionCoordinates(
-        Handle windowInfoHandle,
-        MapProjectionInfoPtr mapProjectionInfoPtr,
-        double factor,
-        SInt16 projectionCode,
-        SInt16 viewUnits,
-        UInt32 displayedColumnInterval,
-        UInt32 displayedLineInterval,
-        LongRect* lineColumnRectPtr,
-        DoubleRect* coordinateRectPtr)
- {
-    double doubleCoordinateValueBottom,
-            doubleCoordinateValueLeft,
-            doubleCoordinateValueRight,
-            doubleCoordinateValueTop,
-            xMapCoordinate11,
-            yMapCoordinate11;
+void ComputeSelectionCoordinates (
+				Handle								windowInfoHandle,
+				MapProjectionInfoPtr				mapProjectionInfoPtr,
+				double								factor,
+				SInt16								projectionCode,
+				SInt16								viewUnits,
+				UInt32								displayedColumnInterval,
+				UInt32								displayedLineInterval,
+				LongRect*							lineColumnRectPtr,
+				DoubleRect*							coordinateRectPtr)
+				
+{
+	double								doubleCoordinateValueBottom,
+											doubleCoordinateValueLeft,
+											doubleCoordinateValueRight,
+											doubleCoordinateValueTop,
+											xMapCoordinate11,
+											yMapCoordinate11;
 
 
-    if (mapProjectionInfoPtr == NULL)
-        return;
+	if (mapProjectionInfoPtr == NULL)
+																									return;
 
-    // Now also get the selected area in coordinate units.
-    // Convert the start point to coordinate units.	
+			// Now also get the selected area in coordinate units.
+			// Convert the start point to coordinate units.	
 
-    if (mapProjectionInfoPtr->planarCoordinate.polynomialOrder <= 0) {
+	if (mapProjectionInfoPtr->planarCoordinate.polynomialOrder <= 0) 
+		{
+		//doubleCoordinateValueLeft = (double)(lineColumnRectPtr->left - 0.5 *
+		//																	displayedColumnInterval - 1);
+		doubleCoordinateValueLeft = (double)(lineColumnRectPtr->left - 0.5 - 1);
+		doubleCoordinateValueLeft *= 
+									mapProjectionInfoPtr->planarCoordinate.horizontalPixelSize;
 
-        //		doubleCoordinateValueLeft = (double)(lineColumnRectPtr->left - 0.5 *
-        //																		displayedColumnInterval - 1);
-        doubleCoordinateValueLeft = (double) (lineColumnRectPtr->left - 0.5 - 1);
-        doubleCoordinateValueLeft *= mapProjectionInfoPtr->planarCoordinate.horizontalPixelSize;
+		//doubleCoordinateValueTop = (double)(lineColumnRectPtr->top - 0.5 *
+		//																	displayedLineInterval - 1);
+		doubleCoordinateValueTop = (double)(lineColumnRectPtr->top - 0.5 - 1);
+		doubleCoordinateValueTop *= 
+									-mapProjectionInfoPtr->planarCoordinate.verticalPixelSize;
 
-        //		doubleCoordinateValueTop = (double)(lineColumnRectPtr->top - 0.5 *
-        //																		displayedLineInterval - 1);
-        doubleCoordinateValueTop = (double) (lineColumnRectPtr->top - 0.5 - 1);
-        doubleCoordinateValueTop *= -mapProjectionInfoPtr->planarCoordinate.verticalPixelSize;
+				// Convert the end point to coordinate units.								
 
-        // Convert the end point to coordinate units.								
+		//doubleCoordinateValueRight = (double)(lineColumnRectPtr->right + 0.5 *
+		//																	displayedColumnInterval - 1);
+		doubleCoordinateValueRight = (double)(lineColumnRectPtr->right + 0.5 - 1);
+		doubleCoordinateValueRight *= 
+									mapProjectionInfoPtr->planarCoordinate.horizontalPixelSize;
 
-        //		doubleCoordinateValueRight = (double)(lineColumnRectPtr->right + 0.5 *
-        //																		displayedColumnInterval - 1);
-        doubleCoordinateValueRight = (double) (lineColumnRectPtr->right + 0.5 - 1);
-        doubleCoordinateValueRight *= mapProjectionInfoPtr->planarCoordinate.horizontalPixelSize;
+		//doubleCoordinateValueBottom = (double)(lineColumnRectPtr->bottom + 0.5 *
+		//																	displayedLineInterval - 1); 
+		doubleCoordinateValueBottom = (double)(lineColumnRectPtr->bottom + 0.5 - 1);
+		doubleCoordinateValueBottom *= 
+									-mapProjectionInfoPtr->planarCoordinate.verticalPixelSize;
 
-        //		doubleCoordinateValueBottom = (double)(lineColumnRectPtr->bottom + 0.5 *
-        //																		displayedLineInterval - 1); 
-        doubleCoordinateValueBottom = (double) (lineColumnRectPtr->bottom + 0.5 - 1);
-        doubleCoordinateValueBottom *= -mapProjectionInfoPtr->planarCoordinate.verticalPixelSize;
+		if (mapProjectionInfoPtr->planarCoordinate.mapOrientationAngle == 0) 
+			{
+			xMapCoordinate11 = mapProjectionInfoPtr->planarCoordinate.xMapCoordinate11;
+			yMapCoordinate11 = mapProjectionInfoPtr->planarCoordinate.yMapCoordinate11;
 
-        if (mapProjectionInfoPtr->planarCoordinate.mapOrientationAngle == 0) {
-            xMapCoordinate11 = mapProjectionInfoPtr->planarCoordinate.xMapCoordinate11;
-            yMapCoordinate11 = mapProjectionInfoPtr->planarCoordinate.yMapCoordinate11;
+					// Top left point
 
-            // Top left point
+			coordinateRectPtr->left = xMapCoordinate11 + doubleCoordinateValueLeft;
+			coordinateRectPtr->left *= factor;
 
-            coordinateRectPtr->left = xMapCoordinate11 + doubleCoordinateValueLeft;
-            coordinateRectPtr->left *= factor;
+			coordinateRectPtr->top = yMapCoordinate11 + doubleCoordinateValueTop;
+			coordinateRectPtr->top *= factor;
 
-            coordinateRectPtr->top = yMapCoordinate11 + doubleCoordinateValueTop;
-            coordinateRectPtr->top *= factor;
+					// Bottom right point
 
-            // Bottom right point
+			coordinateRectPtr->right = xMapCoordinate11 + doubleCoordinateValueRight;
+			coordinateRectPtr->right *= factor;
 
-            coordinateRectPtr->right = xMapCoordinate11 + doubleCoordinateValueRight;
-            coordinateRectPtr->right *= factor;
+			coordinateRectPtr->bottom = yMapCoordinate11 + doubleCoordinateValueBottom;
+			coordinateRectPtr->bottom *= factor;
 
-            coordinateRectPtr->bottom = yMapCoordinate11 + doubleCoordinateValueBottom;
-            coordinateRectPtr->bottom *= factor;
+			}	// end "if (planarCoordinateSystemInfoPtr->mapOrientationAngle == 0)"
 
-        }// end "if (planarCoordinateSystemInfoPtr->mapOrientationAngle == 0)"
+		else	// planarCoordinateSystemInfoPtr->mapOrientationAngle != 0
+			{
+			double		cosOrientAngle,
+							sinOrientAngle,
+							xMapOrientationOrigin,
+							yMapOrientationOrigin;
 
-        else // planarCoordinateSystemInfoPtr->mapOrientationAngle != 0
-        {
-            double cosOrientAngle,
-                    sinOrientAngle,
-                    xMapOrientationOrigin,
-                    yMapOrientationOrigin;
+			xMapOrientationOrigin = 
+								mapProjectionInfoPtr->planarCoordinate.xMapOrientationOrigin;
+			yMapOrientationOrigin = 
+								mapProjectionInfoPtr->planarCoordinate.yMapOrientationOrigin;
 
-            xMapOrientationOrigin = mapProjectionInfoPtr->planarCoordinate.xMapOrientationOrigin;
-            yMapOrientationOrigin = mapProjectionInfoPtr->planarCoordinate.yMapOrientationOrigin;
+			cosOrientAngle = 
+							cos (mapProjectionInfoPtr->planarCoordinate.mapOrientationAngle);
+			sinOrientAngle = 
+							sin (mapProjectionInfoPtr->planarCoordinate.mapOrientationAngle);
 
-            cosOrientAngle = cos(mapProjectionInfoPtr->planarCoordinate.mapOrientationAngle);
-            sinOrientAngle = sin(mapProjectionInfoPtr->planarCoordinate.mapOrientationAngle);
+			coordinateRectPtr->left = xMapOrientationOrigin +
+										doubleCoordinateValueLeft * cosOrientAngle +
+															doubleCoordinateValueTop*sinOrientAngle;
+			coordinateRectPtr->left *= factor;
 
-            coordinateRectPtr->left = xMapOrientationOrigin +
-                    doubleCoordinateValueLeft * cosOrientAngle +
-                    doubleCoordinateValueTop*sinOrientAngle;
-            coordinateRectPtr->left *= factor;
+			coordinateRectPtr->top = yMapOrientationOrigin -
+										doubleCoordinateValueLeft * sinOrientAngle +
+															doubleCoordinateValueTop*cosOrientAngle;
+			coordinateRectPtr->top *= factor;
 
-            coordinateRectPtr->top = yMapOrientationOrigin -
-                    doubleCoordinateValueLeft * sinOrientAngle +
-                    doubleCoordinateValueTop*cosOrientAngle;
-            coordinateRectPtr->top *= factor;
+			coordinateRectPtr->right = xMapOrientationOrigin +
+										doubleCoordinateValueRight * cosOrientAngle +
+														doubleCoordinateValueBottom*sinOrientAngle;
+			coordinateRectPtr->right *= factor;
 
-            coordinateRectPtr->right = xMapOrientationOrigin +
-                    doubleCoordinateValueRight * cosOrientAngle +
-                    doubleCoordinateValueBottom*sinOrientAngle;
-            coordinateRectPtr->right *= factor;
+			coordinateRectPtr->bottom = yMapOrientationOrigin -
+										doubleCoordinateValueRight * sinOrientAngle +
+														doubleCoordinateValueBottom*cosOrientAngle;
+			coordinateRectPtr->bottom *= factor;
 
-            coordinateRectPtr->bottom = yMapOrientationOrigin -
-                    doubleCoordinateValueRight * sinOrientAngle +
-                    doubleCoordinateValueBottom*cosOrientAngle;
-            coordinateRectPtr->bottom *= factor;
+			}	// end "if (mapProjectionInfoPtr->planarCoordinate.mapOrientationAngle ..."
 
-        } // end "if (mapProjectionInfoPtr->planarCoordinate.mapOrientationAngle != 0)"
+		}	// end "mapProjectionInfoPtr->planarCoordinate.polynomialOrder <= 0"
 
-    }// end "mapProjectionInfoPtr->planarCoordinate.polynomialOrder <= 0"
+	else	// mapProjectionInfoPtr->planarCoordinate.polynomialOrder > 0
+		{
+		doubleCoordinateValueLeft = (double)(lineColumnRectPtr->left - 0.5);
+		doubleCoordinateValueTop = (double)(lineColumnRectPtr->top - 0.5);
 
-    else // mapProjectionInfoPtr->planarCoordinate.polynomialOrder > 0
-    {
-        doubleCoordinateValueLeft = (double) (lineColumnRectPtr->left - 0.5);
-        doubleCoordinateValueTop = (double) (lineColumnRectPtr->top - 0.5);
+		GetCoefficientsVectorPointers (mapProjectionInfoPtr);
+		TransformCoordinatePoint (
+							 doubleCoordinateValueLeft,
+							 doubleCoordinateValueTop,
+							 &coordinateRectPtr->left,
+							 &coordinateRectPtr->top,
+							 mapProjectionInfoPtr->planarCoordinate.easting1CoefficientsPtr,
+							 mapProjectionInfoPtr->planarCoordinate.northing1CoefficientsPtr,
+							 mapProjectionInfoPtr->planarCoordinate.polynomialOrder);
 
-        GetCoefficientsVectorPointers(mapProjectionInfoPtr);
-        TransformCoordinatePoint(
-                doubleCoordinateValueLeft,
-                doubleCoordinateValueTop,
-                &coordinateRectPtr->left,
-                &coordinateRectPtr->top,
-                mapProjectionInfoPtr->planarCoordinate.easting1CoefficientsPtr,
-                mapProjectionInfoPtr->planarCoordinate.northing1CoefficientsPtr,
-                mapProjectionInfoPtr->planarCoordinate.polynomialOrder);
+		doubleCoordinateValueRight = (double)(lineColumnRectPtr->right + 0.5);
+		doubleCoordinateValueBottom = (double)(lineColumnRectPtr->bottom + 0.5);
+		TransformCoordinatePoint (
+							 doubleCoordinateValueRight,
+							 doubleCoordinateValueBottom,
+							 &coordinateRectPtr->right,
+							 &coordinateRectPtr->bottom,
+							 mapProjectionInfoPtr->planarCoordinate.easting1CoefficientsPtr,
+							 mapProjectionInfoPtr->planarCoordinate.northing1CoefficientsPtr,
+							 mapProjectionInfoPtr->planarCoordinate.polynomialOrder);
+		CloseCoefficientsVectorPointers (mapProjectionInfoPtr);
 
-        doubleCoordinateValueRight = (double) (lineColumnRectPtr->right + 0.5);
-        doubleCoordinateValueBottom = (double) (lineColumnRectPtr->bottom + 0.5);
-        TransformCoordinatePoint(
-                doubleCoordinateValueRight,
-                doubleCoordinateValueBottom,
-                &coordinateRectPtr->right,
-                &coordinateRectPtr->bottom,
-                mapProjectionInfoPtr->planarCoordinate.easting1CoefficientsPtr,
-                mapProjectionInfoPtr->planarCoordinate.northing1CoefficientsPtr,
-                mapProjectionInfoPtr->planarCoordinate.polynomialOrder);
-        CloseCoefficientsVectorPointers(mapProjectionInfoPtr);
+		}	// end "else mapProjectionInfoPtr->gridCoordinate.polynomialOrder > 0"
 
-    } // end "else mapProjectionInfoPtr->gridCoordinate.polynomialOrder > 0"
+	if (viewUnits == kDecimalLatLongUnitsMenuItem || 
+															viewUnits == kDMSLatLongUnitsMenuItem)
+		ConvertMapRectToLatLongRect (mapProjectionInfoPtr, 
+												projectionCode, 
+												coordinateRectPtr);
 
-    if (viewUnits == kDecimalLatLongUnitsMenuItem ||
-            viewUnits == kDMSLatLongUnitsMenuItem)
-        ConvertMapRectToLatLongRect(mapProjectionInfoPtr, projectionCode, coordinateRectPtr);
-
-} // end "ComputeSelectionCoordinates" 
+}	// end "ComputeSelectionCoordinates" 
 
 
 
@@ -966,73 +939,74 @@ void ComputeSelectionCoordinates(
 //	Revised By:			Larry L. Biehl			Date: 06/03/1993	
 //	Revised By:			Larry L. Biehl			Date: 02/10/2007		
 
-void ComputeSelectionLineColumns(
-        DisplaySpecsPtr displaySpecsPtr,
-        MapProjectionInfoPtr mapProjectionInfoPtr,
-        LongRect* lineColumnRectPtr,
-        Rect* displayRectPtr,
-        LongPoint* startPointPtr,
-        DoubleRect* coordinateRectPtr)
- {
-    double magnification;
+void ComputeSelectionLineColumns (
+				DisplaySpecsPtr					displaySpecsPtr,
+				MapProjectionInfoPtr				mapProjectionInfoPtr,
+				LongRect*							lineColumnRectPtr,
+				Rect*									displayRectPtr,
+				LongPoint*							startPointPtr,
+				DoubleRect*							coordinateRectPtr)
+				
+{
+	double								magnification;
 
-    SInt32 columnEnd,
-            columnOrigin,
-            columnStart,
-            displayedColumnInterval,
-            displayedLineInterval,
-            lastColumn,
-            lastLine,
-            lineEnd,
-            lineOrigin,
-            lineStart;
+	SInt32								columnEnd,
+											columnOrigin,
+											columnStart,
+											displayedColumnInterval,
+											displayedLineInterval,
+											lastColumn,
+											lastLine,
+											lineEnd,
+											lineOrigin,
+											lineStart;
 
 
-    // Convert the start point to line and column numbers.						
+			// Convert the start point to line and column numbers.						
 
-    columnOrigin = displaySpecsPtr->displayedColumnStart;
-    lineOrigin = displaySpecsPtr->displayedLineStart;
+	columnOrigin = displaySpecsPtr->displayedColumnStart;
+	lineOrigin = displaySpecsPtr->displayedLineStart;
 
-    lastColumn = displaySpecsPtr->displayedColumnEnd;
-    lastLine = displaySpecsPtr->displayedLineEnd;
+	lastColumn = displaySpecsPtr->displayedColumnEnd;
+	lastLine = displaySpecsPtr->displayedLineEnd;
 
-    magnification = displaySpecsPtr->magnification;
-    displayedColumnInterval = displaySpecsPtr->displayedColumnInterval;
-    displayedLineInterval = displaySpecsPtr->displayedLineInterval;
+	magnification = displaySpecsPtr->magnification;
+	displayedColumnInterval = displaySpecsPtr->displayedColumnInterval;
+	displayedLineInterval = displaySpecsPtr->displayedLineInterval;
 
-    columnStart = columnOrigin + (SInt32) ((displayRectPtr->left - startPointPtr->h) /
-            magnification) * displayedColumnInterval;
-    columnStart = MIN(columnStart, lastColumn);
-    lineColumnRectPtr->left = MAX(columnStart, 1);
+	columnStart = columnOrigin + (SInt32)((displayRectPtr->left - startPointPtr->h) /
+															magnification) * displayedColumnInterval;
+	columnStart = MIN (columnStart, lastColumn);
+	lineColumnRectPtr->left = MAX (columnStart, 1);
 
-    lineStart = lineOrigin + (SInt32) ((displayRectPtr->top - startPointPtr->v) /
-            magnification) * displayedLineInterval;
-    lineStart = MIN(lineStart, lastLine);
-    lineColumnRectPtr->top = MAX(lineStart, 1);
+	lineStart = lineOrigin + (SInt32)((displayRectPtr->top - startPointPtr->v) /
+															magnification) * displayedLineInterval;
+	lineStart = MIN (lineStart, lastLine);
+	lineColumnRectPtr->top = MAX (lineStart, 1);
 
-    // Convert the end point to line and column numbers.						
-    // The selection has to be at least one pixel in size.					
+			// Convert the end point to line and column numbers.						
+			// The selection has to be at least one pixel in size.					
 
-    columnEnd = columnOrigin + (SInt32) ((displayRectPtr->right - startPointPtr->h) /
-            magnification) * displayedColumnInterval;
-    columnEnd = MIN(columnEnd, lastColumn);
-    columnEnd = MAX(columnEnd, 1);
-    lineColumnRectPtr->right = MAX(lineColumnRectPtr->left, columnEnd);
+	columnEnd = columnOrigin + (SInt32)((displayRectPtr->right - startPointPtr->h) /
+															magnification) * displayedColumnInterval;
+	columnEnd = MIN (columnEnd, lastColumn);
+	columnEnd = MAX (columnEnd, 1);
+	lineColumnRectPtr->right = MAX (lineColumnRectPtr->left, columnEnd);
 
-    lineEnd = lineOrigin + (SInt32) ((displayRectPtr->bottom - startPointPtr->v) /
-            magnification) * displayedLineInterval;
-    lineEnd = MIN(lineEnd, lastLine);
-    lineEnd = MAX(lineEnd, 1);
-    lineColumnRectPtr->bottom = MAX(lineColumnRectPtr->top, lineEnd);
+	lineEnd = lineOrigin + (SInt32)((displayRectPtr->bottom - startPointPtr->v) /
+															magnification) * displayedLineInterval;
+	lineEnd = MIN (lineEnd, lastLine);
+	lineEnd = MAX (lineEnd, 1);
+	lineColumnRectPtr->bottom = MAX (lineColumnRectPtr->top, lineEnd);
 
-    // Now also get the selected area in coordinate units.
+			// Now also get the selected area in coordinate units.
 
-    ComputeSelectionCoordinates(gActiveImageWindowInfoH,
-            mapProjectionInfoPtr,
-            lineColumnRectPtr,
-            coordinateRectPtr);
+	ComputeSelectionCoordinates (gActiveImageWindowInfoH,
+											mapProjectionInfoPtr,
+											lineColumnRectPtr,
+											coordinateRectPtr);
 
-} // end "ComputeSelectionLineColumns" 
+}	// end "ComputeSelectionLineColumns" 
 
 
 
@@ -1062,121 +1036,128 @@ void ComputeSelectionLineColumns(
 //	Revised By:			Larry L. Biehl			Date: 10/01/1998	
 //	Revised By:			Larry L. Biehl			Date: 03/22/1999				
 
-void ComputeSelectionOffscreenRectangle(
-        DisplaySpecsPtr displaySpecsPtr,
-        LongRect* lineColumnRectanglePtr,
-        Rect* offScreenRectanglePtr,
-        SInt16 startChannel)
- {
-    LongPoint offscreenPoint;
+void ComputeSelectionOffscreenRectangle (
+				DisplaySpecsPtr					displaySpecsPtr,
+				LongRect*							lineColumnRectanglePtr,
+				Rect*									offScreenRectanglePtr,
+				SInt16								startChannel)
+				
+{
+	LongPoint							offscreenPoint;
 
 
-    // A 'displayedLineInterval' value of 0 indicates that no offscreen
-    // image map exists.
+			// A 'displayedLineInterval' value of 0 indicates that no offscreen
+			// image map exists.
 
-    if (displaySpecsPtr != NULL && displaySpecsPtr->displayedLineInterval > 0) {
-        // Get the selection rectangle location relative to the offscreen		
-        // bit/pix map																																						
-#ifndef multispec_lin	
-        ConvertLCToOffscreenPoint(displaySpecsPtr,
-                (LongPoint*) lineColumnRectanglePtr,
-                &offscreenPoint);
-#endif
+	if (displaySpecsPtr != NULL && displaySpecsPtr->displayedLineInterval > 0) 
+		{
+				// Get the selection rectangle location relative to the offscreen		
+				// bit/pix map																																						
+		#ifndef multispec_lin	
+			ConvertLCToOffscreenPoint (displaySpecsPtr,
+												(LongPoint*)lineColumnRectanglePtr,
+												&offscreenPoint);
+		#endif
 
-#if defined multispec_lin
-        LongPoint lineColumntopleft;
-        LongPoint lineColumnbottomright;
-        lineColumntopleft.h = lineColumnRectanglePtr->left;
-        lineColumntopleft.v = lineColumnRectanglePtr->top;
-        lineColumnbottomright.h = lineColumnRectanglePtr->right;
-        lineColumnbottomright.v = lineColumnRectanglePtr->bottom;
-        ConvertLCToOffscreenPoint(displaySpecsPtr,
-                (LongPoint*) & lineColumntopleft,
-                &offscreenPoint);
-#endif
+		#if defined multispec_lin
+			LongPoint lineColumntopleft;
+			LongPoint lineColumnbottomright;
+			lineColumntopleft.h = lineColumnRectanglePtr->left;
+			lineColumntopleft.v = lineColumnRectanglePtr->top;
+			lineColumnbottomright.h = lineColumnRectanglePtr->right;
+			lineColumnbottomright.v = lineColumnRectanglePtr->bottom;
+			ConvertLCToOffscreenPoint (displaySpecsPtr,
+												(LongPoint*)&lineColumntopleft,
+												&offscreenPoint);
+		#endif
 
-#if defined multispec_mac 										
-        offScreenRectanglePtr->top = (SInt16) offscreenPoint.v;
-        offScreenRectanglePtr->left = (SInt16) offscreenPoint.h;
-#endif	// defined multispec_mac
+		#if defined multispec_mac 										
+			offScreenRectanglePtr->top = (SInt16)offscreenPoint.v;
+			offScreenRectanglePtr->left = (SInt16)offscreenPoint.h;
+		#endif	// defined multispec_mac
 
-#if defined multispec_win || defined multispec_lin
-        offScreenRectanglePtr->top = (int) offscreenPoint.v;
-        offScreenRectanglePtr->left = (int) offscreenPoint.h;
-#endif	// defined multispec_win || defined multispec_lin 
+		#if defined multispec_win || defined multispec_lin
+			offScreenRectanglePtr->top = (int)offscreenPoint.v;
+			offScreenRectanglePtr->left = (int)offscreenPoint.h;
+		#endif	// defined multispec_win || defined multispec_lin 
 
-#ifndef multispec_lin										
-        ConvertLCToOffscreenPoint(displaySpecsPtr,
-                (LongPoint*) & lineColumnRectanglePtr->bottom,
-                &offscreenPoint);
-#endif
-#if defined multispec_lin
-        ConvertLCToOffscreenPoint(displaySpecsPtr,
-                (LongPoint*) & lineColumnbottomright,
-                &offscreenPoint);
-#endif
+		#ifndef multispec_lin										
+			ConvertLCToOffscreenPoint (displaySpecsPtr,
+												(LongPoint*)&lineColumnRectanglePtr->bottom,
+												&offscreenPoint);
+		#endif
+		
+		#if defined multispec_lin
+			ConvertLCToOffscreenPoint (displaySpecsPtr,
+												(LongPoint*)&lineColumnbottomright,
+												&offscreenPoint);
+		#endif
 
-#if defined multispec_mac 										
-        offScreenRectanglePtr->bottom = (SInt16) offscreenPoint.v;
-        offScreenRectanglePtr->right = (SInt16) offscreenPoint.h;
-#endif	// defined multispec_mac
+		#if defined multispec_mac 										
+			offScreenRectanglePtr->bottom = (SInt16)offscreenPoint.v;
+			offScreenRectanglePtr->right = (SInt16)offscreenPoint.h;
+		#endif	// defined multispec_mac
 
-#if defined multispec_win || defined multispec_lin 
-        offScreenRectanglePtr->bottom = (int) offscreenPoint.v;
-        offScreenRectanglePtr->right = (int) offscreenPoint.h;
-#endif	// defined multispec_win || defined multispec_lin 
+		#if defined multispec_win || defined multispec_lin 
+			offScreenRectanglePtr->bottom = (int)offscreenPoint.v;
+			offScreenRectanglePtr->right = (int)offscreenPoint.h;
+		#endif	// defined multispec_win || defined multispec_lin 
 
 
-#if defined multispec_mac 										
-        // Now adjust the lower right point to represent the bottom right of
-        // the pixel.
+		#if defined multispec_mac 										
+					// Now adjust the lower right point to represent the bottom right of
+					// the pixel.
 
-        offScreenRectanglePtr->bottom = (SInt16) MIN(displaySpecsPtr->imageDimensions[kVertical],
-                (UInt32) (offScreenRectanglePtr->bottom + 1));
+			offScreenRectanglePtr->bottom = 
+									(SInt16)MIN (displaySpecsPtr->imageDimensions[kVertical],
+														(UInt32)(offScreenRectanglePtr->bottom + 1));
 
-        offScreenRectanglePtr->right = (SInt16) MIN(displaySpecsPtr->imageDimensions[kHorizontal],
-                (UInt32) (offScreenRectanglePtr->right + 1));
+			offScreenRectanglePtr->right = 
+									(SInt16)MIN (displaySpecsPtr->imageDimensions[kHorizontal],
+									(UInt32)(offScreenRectanglePtr->right + 1));
 
-        // Adjust the offscreen units to reflect the channel that the			
-        // selection was made within.														
+					// Adjust the offscreen units to reflect the channel that the			
+					// selection was made within.														
 
-        offScreenRectanglePtr->left +=
-                (SInt16) (startChannel * displaySpecsPtr->offscreenChannelWidth);
-        offScreenRectanglePtr->right +=
-                (SInt16) (startChannel * displaySpecsPtr->offscreenChannelWidth);
-#endif	// defined multispec_mac
+			offScreenRectanglePtr->left +=
+							(SInt16)(startChannel * displaySpecsPtr->offscreenChannelWidth);
+			offScreenRectanglePtr->right +=
+							(SInt16)(startChannel * displaySpecsPtr->offscreenChannelWidth);
+		#endif	// defined multispec_mac
 
-#if defined multispec_win || defined multispec_lin					
-        // Now adjust the lower right point to represent the bottom right of
-        // the pixel.
+		#if defined multispec_win || defined multispec_lin					
+					// Now adjust the lower right point to represent the bottom right of
+					// the pixel.
 
-        offScreenRectanglePtr->bottom = (int) MIN(displaySpecsPtr->imageDimensions[kVertical],
-                (UInt32) (offScreenRectanglePtr->bottom + 1));
+			offScreenRectanglePtr->bottom = 
+									(int)MIN (displaySpecsPtr->imageDimensions[kVertical],
+													(UInt32)(offScreenRectanglePtr->bottom + 1));
 
-        offScreenRectanglePtr->right = (int) MIN(displaySpecsPtr->imageDimensions[kHorizontal],
-                (UInt32) (offScreenRectanglePtr->right + 1));
+			offScreenRectanglePtr->right = 
+									(int)MIN (displaySpecsPtr->imageDimensions[kHorizontal],
+													(UInt32)(offScreenRectanglePtr->right + 1));
 
-        // Adjust the offscreen units to reflect the channel that the			
-        // selection was made within.														
+					// Adjust the offscreen units to reflect the channel that the			
+					// selection was made within.														
 
-        offScreenRectanglePtr->left +=
-                (int) (startChannel * displaySpecsPtr->offscreenChannelWidth);
-        offScreenRectanglePtr->right +=
-                (int) (startChannel * displaySpecsPtr->offscreenChannelWidth);
-#endif	// defined multispec_win || defined multispec_lin 
+			offScreenRectanglePtr->left +=
+								(int)(startChannel * displaySpecsPtr->offscreenChannelWidth);
+			offScreenRectanglePtr->right +=
+								(int)(startChannel * displaySpecsPtr->offscreenChannelWidth);
+		#endif	// defined multispec_win || defined multispec_lin 
 
-    }// end "if (displaySpecsPtr != NULL)"
+		}	// end "if (displaySpecsPtr != NULL)"
 
-    else // displaySpecsPtr == NULL && ...
-    {
-        offScreenRectanglePtr->top = 0;
-        offScreenRectanglePtr->bottom = 0;
-        offScreenRectanglePtr->left = 0;
-        offScreenRectanglePtr->right = 0;
+	else	// displaySpecsPtr == NULL && ...
+		{
+		offScreenRectanglePtr->top = 0;
+		offScreenRectanglePtr->bottom = 0;
+		offScreenRectanglePtr->left = 0;
+		offScreenRectanglePtr->right = 0;
 
-    } // end "else displaySpecsPtr == NULL" 
+		}	// end "else displaySpecsPtr == NULL" 
 
-} // end "ComputeSelectionOffscreenRectangle" 
+}	// end "ComputeSelectionOffscreenRectangle" 
 
 
 
@@ -1193,9 +1174,9 @@ void ComputeSelectionOffscreenRectangle(
 //							line and columns will be computed if the selection units code is
 //							already in line/columns. 
 // 
-//							Also allow for case when requested lat-long does not map to any map 
-//							units for specified projection. For example this could be the case 
-//							for the Orthographic projection.
+//							Also allow for case when requested lat-long does not map to any 
+//							map units for specified projection. For example this could be 
+//							the case for the Orthographic projection.
 //
 //	Parameters in:		Handle to the window information structure
 //							Pointer to the input coordinate rectangle
@@ -1212,43 +1193,44 @@ void ComputeSelectionOffscreenRectangle(
 //	Coded By:			Larry L. Biehl			Date: 03/17/2005
 //	Revised By:			Larry L. Biehl			Date: 04/29/2012			
 
-Boolean ConvertCoordinateRectToLCRect(
-        Handle windowInfoHandle,
-        DoubleRect* inputCoordinateRectanglePtr,
-        LongRect* selectionRectanglePtr,
-        SInt16 selectionUnitsCode,
-        double factor)
- {
-    DoubleRect coordinateRect;
+Boolean ConvertCoordinateRectToLCRect (
+				Handle								windowInfoHandle,
+				DoubleRect*							inputCoordinateRectanglePtr,
+				LongRect*							selectionRectanglePtr,
+				SInt16								selectionUnitsCode,
+				double								factor)
+				
+{
+	DoubleRect							coordinateRect;
 
-    Boolean continueFlag = TRUE;
+	Boolean								continueFlag = TRUE;
 
 
-    coordinateRect = *inputCoordinateRectanglePtr;
+	coordinateRect = *inputCoordinateRectanglePtr;
 
-    if (selectionUnitsCode == kLatLongUnits)
-        // Force lat-long units to be converted to map units
-        continueFlag = ConvertLatLongRectToMapRect(
-            windowInfoHandle, &coordinateRect);
+	if (selectionUnitsCode == kLatLongUnits)
+			// Force lat-long units to be converted to map units
+		continueFlag = ConvertLatLongRectToMapRect (windowInfoHandle, &coordinateRect);
 
-    if (continueFlag) {
-        coordinateRect.top *= factor;
-        coordinateRect.left *= factor;
-        coordinateRect.bottom *= factor;
-        coordinateRect.right *= factor;
+	if (continueFlag) 
+		{
+		coordinateRect.top *= factor;
+		coordinateRect.left *= factor;
+		coordinateRect.bottom *= factor;
+		coordinateRect.right *= factor;
 
-        if (selectionUnitsCode != kLineColumnUnits)
-            // Force map units to be converted to line-column units
-            ConvertMapRectToLCRect(windowInfoHandle,
-                &coordinateRect,
-                selectionRectanglePtr,
-                factor);
+		if (selectionUnitsCode != kLineColumnUnits)
+					// Force map units to be converted to line-column units
+			ConvertMapRectToLCRect (windowInfoHandle,
+											 &coordinateRect,
+											 selectionRectanglePtr,
+											 factor);
 
-    } // end "if (continueFlag)"
+		}	// end "if (continueFlag)"
 
-    return (continueFlag);
+	return (continueFlag);
 
-} // end "ConvertCoordinateRectToLCRect" 
+}	// end "ConvertCoordinateRectToLCRect" 
 
 
 /*
@@ -1276,34 +1258,36 @@ Boolean ConvertCoordinateRectToLCRect(
 //	Revised By:			Larry L. Biehl			Date: 04/28/2012			
 
 Boolean ConvertLatLongRectToMapRectinNativeImageUnits (
-                                MapProjectionInfoPtr				mapProjectionInfoPtr,
-                                DoubleRect*							coordinateRectanglePtr)
+				MapProjectionInfoPtr				mapProjectionInfoPtr,
+				DoubleRect*							coordinateRectanglePtr)
 				
 {
-        double								factor;
-	
-        SInt16								fileMapUnitsIndex;
-	
-        Boolean								continueFlag;
+	double								factor;
+
+	SInt16								fileMapUnitsIndex;
+
+	Boolean								continueFlag;
 	
 																					
-                        // Force lat-long units to be converted to map units
+			// Force lat-long units to be converted to map units
+
+	continueFlag = ConvertLatLongRectToMapRect (mapProjectionInfoPtr, 
+																coordinateRectanglePtr);
+
+			// The map rectangle is now in meters. Convert if needed to the native units
+			// for the image file.
+
+	fileMapUnitsIndex = 
+					mapProjectionInfoPtr->planarCoordinate.mapUnitsCode - kKilometersCode;
+	factor = gDistanceFileConversionFactors[1] / 
+											gDistanceFileConversionFactors[fileMapUnitsIndex];
+					
+	if (continueFlag)
+		ConvertMapRectByGivenFactor (factor, coordinateRectanglePtr);
+
+	return (continueFlag);
 			
-        continueFlag = ConvertLatLongRectToMapRect (mapProjectionInfoPtr, coordinateRectanglePtr);
-	
-                        // The map rectangle is now in meters. Convert if needed to the native units
-                        // for the image file.
-			
-        fileMapUnitsIndex = mapProjectionInfoPtr->planarCoordinate.mapUnitsCode - kKilometersCode;
-        factor = gDistanceFileConversionFactors[1] / 
-                                                                                                gDistanceFileConversionFactors[fileMapUnitsIndex];
-							
-        if (continueFlag)
-                ConvertMapRectByGivenFactor (factor, coordinateRectanglePtr);
-		
-        return (continueFlag);
-			
-}		// end "ConvertLatLongRectToMapRectinNativeImageUnits" 
+}	// end "ConvertLatLongRectToMapRectinNativeImageUnits" 
 
 
 
@@ -1331,29 +1315,26 @@ Boolean ConvertLatLongRectToMapRectinNativeImageUnits (
 //	Revised By:			Larry L. Biehl			Date: 04/28/2012			
 
 Boolean ConvertLatLongRectToMapRectinNativeImageUnits (
-                                Handle								windowInfoHandle,
-                                DoubleRect*							coordinateRectPtr)
+				Handle								windowInfoHandle,
+				DoubleRect*							coordinateRectPtr)
 				
 {
-        MapProjectionInfoPtr				mapProjectionInfoPtr;
-	
-        Handle								mapProjectionHandle;
+	MapProjectionInfoPtr				mapProjectionInfoPtr;
 
-																								
-                        // Get pointer to the map projection structure.									
-			
-        mapProjectionHandle = GetFileMapProjectionHandle2(windowInfoHandle);											
-        mapProjectionInfoPtr = (MapProjectionInfoPtr)GetHandlePointer (
-                                                                                                                                        mapProjectionHandle,
-                                                                                                                                        kNoLock,
-                                                                                                                                        kNoMoveHi);		
+	Handle								mapProjectionHandle;
 
-        return (ConvertLatLongRectToMapRectinNativeImageUnits (
-                                                                                                                                        mapProjectionInfoPtr,
-                                                                                                                                        coordinateRectPtr));
+																						
+			// Get pointer to the map projection structure.									
+
+	mapProjectionHandle = GetFileMapProjectionHandle2 (windowInfoHandle);											
+	mapProjectionInfoPtr = 
+							(MapProjectionInfoPtr)GetHandlePointer (mapProjectionHandle);		
+
+	return (ConvertLatLongRectToMapRectinNativeImageUnits (mapProjectionInfoPtr,
+																			 coordinateRectPtr));
 			
-}		// end "ConvertLatLongRectToMapRectinNativeImageUnits" 
- */
+}	// end "ConvertLatLongRectToMapRectinNativeImageUnits" 
+*/
 
 
 //------------------------------------------------------------------------------------
@@ -1378,8 +1359,9 @@ Boolean ConvertLatLongRectToMapRectinNativeImageUnits (
 //	Coded By:			Larry L. Biehl			Date: 08/11/1989
 //	Revised By:			Larry L. Biehl			Date: 06/20/2016			
 
-void DrawSelectionArea(
+void DrawSelectionArea (
 				WindowPtr							windowPtr)
+				
 {
 	LCToWindowUnitsVariables		lcToWindowUnitsVariables;
 
@@ -1392,81 +1374,83 @@ void DrawSelectionArea(
 											selectionInfoH,
 											windowInfoH;
 
-	SignedByte handleStatus;
+	SignedByte							handleStatus;
 
 
-    // Get the window information structure handle for the input
-    // window.
+			// Get the window information structure handle for the input
+			// window.
 
-	windowInfoH = GetWindowInfoHandle(windowPtr);
+	windowInfoH = GetWindowInfoHandle (windowPtr);
 
-    // Get the pointer to the selection rectangle information.		 		
+			// Get the pointer to the selection rectangle information.		 		
 
-	selectionInfoH = GetSelectionInfoHandle(windowInfoH);
-	displaySpecsH = GetDisplaySpecsHandle(windowInfoH);
+	selectionInfoH = GetSelectionInfoHandle (windowInfoH);
+	displaySpecsH = GetDisplaySpecsHandle (windowInfoH);
 
 	if (selectionInfoH == NULL || displaySpecsH == NULL)
-																								return;
+																									return;
 
-    // Determine if this handle is presently locked.  Save status			
-    // for use at end of precedure to determine whether to unlock			
-    // the handle or not.  We do not want to unlock it if it was			
-    // locked at this point.  The calling routine will handle				
-    // unlocking it.																		
-    // Lock handle to file information and get pointer to it					
+			// Determine if this handle is presently locked.  Save status for use at 
+			// end of precedure to determine whether to unlock the handle or not.  We 
+			// do not want to unlock it if it was locked at this point.  The calling 
+			// routine will handle unlocking it.																		
+			// Lock handle to file information and get pointer to it					
 
-    selectionInfoPtr = (SelectionInfoPtr) GetHandleStatusAndPointer(
-            selectionInfoH,
-            &handleStatus,
-            kNoMoveHi);
+	selectionInfoPtr = (SelectionInfoPtr)GetHandleStatusAndPointer (selectionInfoH,
+																							&handleStatus);
 
-	if (selectionInfoPtr->typeFlag != 0) 
+	if (selectionInfoPtr->typeFlag != 0)
 		{
-        // Set the global variables needed to convert from line-column		
-        // units to window units.														
+				// Set the global variables needed to convert from line-column		
+				// units to window units.														
 
-        SetChannelWindowVariables(kToImageWindow, windowInfoH, kNotCoreGraphics);
+		SetChannelWindowVariables (kToImageWindow, windowInfoH, kNotCoreGraphics);
 
-        SetLCToWindowUnitVariables(windowInfoH,
-                kToImageWindow,
-                FALSE,
-                &lcToWindowUnitsVariables);
+		SetLCToWindowUnitVariables (windowInfoH,
+											 kToImageWindow,
+											 FALSE,
+											 &lcToWindowUnitsVariables);
 
-        // Get the window units for the selection rectangle.
+				// Get the window units for the selection rectangle.
 
-        ConvertLCRectToWinRect(&selectionInfoPtr->lineColumnRectangle,
-                &selectionRect,
-                &lcToWindowUnitsVariables);
+		ConvertLCRectToWinRect (&selectionInfoPtr->lineColumnRectangle,
+										 &selectionRect,
+										 &lcToWindowUnitsVariables);
 
-        // Get the view rectangle in which the image can be drawn.
+				// Get the view rectangle in which the image can be drawn.
 
-        GetWindowClipRectangle(windowPtr, kImageFrameArea, &gViewRect);
+		GetWindowClipRectangle (windowPtr, kImageFrameArea, &gViewRect);
 
 		#if defined multispec_win || defined multispec_lin
-				// Windows requires the view rectangle to be offset by the scroll offset.
+					// Windows requires the view rectangle to be offset by the scroll 
+					// offset.
 
 			LongPoint scrollOffset;
-			GetScrollOffset(windowInfoH, &scrollOffset);
+			GetScrollOffset (windowInfoH, &scrollOffset);
 
-			viewRect.top = (SInt32) gViewRect.top + scrollOffset.v;
-			viewRect.bottom = (SInt32) gViewRect.bottom + scrollOffset.v;
-			viewRect.left = (SInt32) gViewRect.left + scrollOffset.h;
-			viewRect.right = (SInt32) gViewRect.right + scrollOffset.h; 
-     
+			viewRect.top = (SInt32)gViewRect.top + scrollOffset.v;
+			viewRect.bottom = (SInt32)gViewRect.bottom + scrollOffset.v;
+			viewRect.left = (SInt32)gViewRect.left + scrollOffset.h;
+			viewRect.right = (SInt32)gViewRect.right + scrollOffset.h; 
+
 			#if defined multispec_lin
-				wxPoint deviceOrigin = gCDCPointer->GetDeviceOrigin();
-				if(deviceOrigin.x > 0 || deviceOrigin.y > 0)
-					{ // the device origin should always > 0
+				wxPoint deviceOrigin = gCDCPointer->GetDeviceOrigin ();
+				if (deviceOrigin.x > 0 || deviceOrigin.y > 0)
+					{ 
+							// the device origin should always > 0
+							
 					deviceOrigin.x = 0;          
 					deviceOrigin.x -=  scrollOffset.h;
 					deviceOrigin.y = 0;
 					deviceOrigin.y -=  scrollOffset.v;
 					}
-                
-				//printf("deviceOrigin (drawSelctionArea) = %d, %d \n", deviceOrigin.x, deviceOrigin.y); 
+					 
+				//printf ("deviceOrigin (drawSelctionArea) = %d, %d \n", 
+				//				deviceOrigin.x, 
+				//				deviceOrigin.y); 
 				gCDCPointer->SetDeviceOrigin (deviceOrigin.x, deviceOrigin.y);   
-			#endif 
-		#endif	// defined multispec_win 
+			#endif	// defined multispec_lin
+		#endif	// defined multispec_win || defined multispec_lin
 
 		#if defined multispec_mac
 			viewRect.top = gViewRect.top;
@@ -1475,24 +1459,26 @@ void DrawSelectionArea(
 			viewRect.bottom = gViewRect.bottom;
 
 					// Save the current clip area and then set the clip area of the 		
-				// image to just the image area.													
+					// image to just the image area.													
 
-			GetClip(gSelectionClipRgn);
+			GetClip (gSelectionClipRgn);
 
 					// Clip the window to just the view rectangle.
 
-			ClipRect(&gViewRect);
+			ClipRect (&gViewRect);
 		#endif	// defined multispec_mac
 
-				// Outline the selection rectangle if it has been set up.			
+			// Outline the selection rectangle if it has been set up.
+						
 		if (selectionInfoPtr->typeFlag == kRectangleType)
 			{
 			#ifndef multispec_lin
-            DrawSelectionRectangle(selectionInfoPtr, &selectionRect, &viewRect);
+				DrawSelectionRectangle (selectionInfoPtr, &selectionRect, &viewRect);
 			#else                
-            DrawSelectionRectangle(selectionInfoPtr, &selectionRect, &selectionRect);
+				DrawSelectionRectangle (selectionInfoPtr, &selectionRect, &selectionRect);
 			#endif
-			}
+			
+			}	// end "if (selectionInfoPtr->typeFlag == kRectangleType)"
 
 				// Outline the selection polygon if it has been set up.				
 
@@ -1506,23 +1492,22 @@ void DrawSelectionArea(
 											#else
 												&selectionRect);   
 											#endif
-        }
+			}
 
 		#if defined multispec_mac	
 					// Reset the clip area back to that upon routine entry.				
 
-			SetClip(gSelectionClipRgn);
-
-			SetEmptyRgn(gSelectionClipRgn);
+			SetClip (gSelectionClipRgn);
+			SetEmptyRgn (gSelectionClipRgn);
 		#endif	// defined multispec_mac
 
-		} // end "if (selectionInfoPtr->typeFlag)" 
+		}	// end "if (selectionInfoPtr->typeFlag)" 
 
 			// Unlock the selection information handle if needed.						
 
-	MHSetState(selectionInfoH, handleStatus);
+	MHSetState (selectionInfoH, handleStatus);
 
-} // end "DrawSelectionArea" 
+}	// end "DrawSelectionArea" 
 
 
 
@@ -1551,6 +1536,7 @@ void DrawSelectionPolygon (
 				LongRect*							selectionRectPtr,
 				LCToWindowUnitsVariablesPtr	lcToWindowUnitsVariablesPtr,
 				LongRect*							viewRectPtr)
+				
 {
 	LongPoint							windowPoint;
 	HPFieldPointsPtr					selectionPointsPtr;
@@ -1562,162 +1548,205 @@ void DrawSelectionPolygon (
 											pointIndex;
 
 	SignedByte							selectionPointsStatus;
+	
 	 
 			// Save the channel window offset so that it can be reset at the end.
 
-    //savedChannelWindowOffset = gChannelWindowOffset;	
-    savedChannelWindowOffset = lcToWindowUnitsVariablesPtr->channelWindowOffset;
+	//savedChannelWindowOffset = gChannelWindowOffset;	
+	savedChannelWindowOffset = lcToWindowUnitsVariablesPtr->channelWindowOffset;
 
-    selectionPointsPtr = (HPFieldPointsPtr) GetHandleStatusAndPointer(
-																selectionInfoPtr->polygonCoordinatesHandle,
-																&selectionPointsStatus,
-																kNoMoveHi);
+	selectionPointsPtr = (HPFieldPointsPtr)GetHandleStatusAndPointer (
+														selectionInfoPtr->polygonCoordinatesHandle,
+														&selectionPointsStatus);
 
-    pointCountLimit = 0;
-    if (gProcessorCode == kPolygonSelectionProcessor)
-        pointCountLimit = 1;
+	pointCountLimit = 0;
+	if (gProcessorCode == kPolygonSelectionProcessor)
+		pointCountLimit = 1;
 
-    if (selectionRectPtr->top <= viewRectPtr->bottom &&
-													selectionRectPtr->bottom >= viewRectPtr->top) 
+	if (selectionRectPtr->top <= viewRectPtr->bottom &&
+													selectionRectPtr->bottom >= viewRectPtr->top)
 		{
 		#ifndef multispec_lin
-			for (SInt32 channel = gStartChannel; channel < gSideBySideChannels; channel++) 
+			for (SInt32 channel=gStartChannel; channel<gSideBySideChannels; channel++)
 				{
 				if (selectionRectPtr->left <= viewRectPtr->right &&
-										selectionRectPtr->right >= viewRectPtr->left) 
+													selectionRectPtr->right >= viewRectPtr->left)
 					{
 					pointCount = selectionInfoPtr->numberPoints;
 					//pointIndex = 1;   
 					pointIndex = 0;
-					ConvertLCToWinPoint ((LongPoint*) & selectionPointsPtr[pointIndex],
+					ConvertLCToWinPoint ((LongPoint*)&selectionPointsPtr[pointIndex],
 													&windowPoint,
 													lcToWindowUnitsVariablesPtr);
 
 					#if defined multispec_mac
-						MoveTo((SInt16) windowPoint.h, (SInt16) windowPoint.v);
+						MoveTo ((SInt16)windowPoint.h, (SInt16)windowPoint.v);
 					#endif	// defined multispec_mac	
 
 					#if defined multispec_win           
-						gCDCPointer->MoveTo((int) windowPoint.h, (int) windowPoint.v);
+						gCDCPointer->MoveTo ((int)windowPoint.h, (int)windowPoint.v);
 					#endif	// defined multispec_win	
 
 					pointIndex++;
 
-					while (pointCount > pointCountLimit) 
+					while (pointCount > pointCountLimit)
 						{
 						if (pointCount == 1)
 							pointIndex = 0;
 
-						ConvertLCToWinPoint ((LongPoint*) & selectionPointsPtr[pointIndex],
+						ConvertLCToWinPoint ((LongPoint*)&selectionPointsPtr[pointIndex],
 													&windowPoint,
 													lcToWindowUnitsVariablesPtr);
 
 						#if defined multispec_mac
-							LineTo((SInt16) windowPoint.h, (SInt16) windowPoint.v);
+							LineTo ((SInt16)windowPoint.h, (SInt16)windowPoint.v);
 						#endif	// defined multispec_mac	
 
 						#if defined multispec_win               
-							gCDCPointer->LineTo((int) windowPoint.h, (int) windowPoint.v);
+							gCDCPointer->LineTo ((int)windowPoint.h, (int)windowPoint.v);
 						#endif	// defined multispec_win	
 
 						pointIndex++;
 						pointCount--;
 
-						} //end "while ( pointCount > pointCountLimit )"
+						}	//end "while (pointCount > pointCountLimit)"
 
 					}	// end "if (selectionRectPtr->left <= viewRectPtr->right && ..."  
 						
-				if (gSideBySideChannels > 1) 
+				if (gSideBySideChannels > 1)
 					{
 					selectionRectPtr->left += gChannelWindowInterval;
 					selectionRectPtr->right += gChannelWindowInterval;
 					//gChannelWindowOffset += gChannelWindowInterval;
-					lcToWindowUnitsVariablesPtr->channelWindowOffset += gChannelWindowInterval;              
-					} // end "if (gSideBySideChannels > 1)"
+					lcToWindowUnitsVariablesPtr->channelWindowOffset += 
+																					gChannelWindowInterval;              
+					
+					}	// end "if (gSideBySideChannels > 1)"
 
 				if (selectionRectPtr->left > viewRectPtr->right)
 					break;
 
-				} // end "for (channel=gStartChannel; channel<..."
+				}	// end "for (channel=gStartChannel; channel<..."
 		#endif	// ifndef multispec_lin
-	
+
 		#if defined multispec_lin
 			//SignedByte		displayHandleStatus;
 			//WindowPtr projectPtr = gProjectSelectionWindow;
-			Handle windowInfoHandle = GetWindowInfoHandle(gProjectSelectionWindow);
-			//Handle displaySpecsH = GetDisplaySpecsHandle(windowInfoHandle);
-			SetChannelWindowVariables (kToImageWindow, gProjectSelectionWindow, kNotCoreGraphics);    
+			Handle windowInfoHandle = GetWindowInfoHandle (gProjectSelectionWindow);
+			//Handle displaySpecsH = GetDisplaySpecsHandle (windowInfoHandle);
+			SetChannelWindowVariables (
+									kToImageWindow, gProjectSelectionWindow, kNotCoreGraphics);    
 			SetLCToWindowUnitVariables (windowInfoHandle,
 													 kWindowsUseOrigin,
 													 FALSE,
 													 lcToWindowUnitsVariablesPtr);
-			//DisplaySpecsPtr displaySpecsPtr = (DisplaySpecsPtr) GetHandleStatusAndPointer (
-			//																							displaySpecsH,
-			//																							&displayHandleStatus,
-			//																							kNoMoveHi);            
-					// Method 1        
+			//DisplaySpecsPtr displaySpecsPtr = 
+			//			(DisplaySpecsPtr)GetHandleStatusAndPointer (displaySpecsH,
+			//																		&displayHandleStatus);
+			            
+					// Method 1 
+					       
 			if (gProjectSelectionWindow != NULL)
 				{
 				pointCount = selectionInfoPtr->numberPoints;
 				int startchannel = gProjectSelectionWindow->m_startchannel_sbs;                
 				wxPoint* pointlist = new wxPoint[pointCount+1];   
 				int sideBysideImage_offset = startchannel * gChannelWindowInterval - gChannelWindowOffset;
-				for(pointIndex = 0 ; pointIndex < pointCount ; pointIndex++)
+				for (pointIndex = 0; pointIndex<pointCount; pointIndex++)
 					{
-					ConvertLCToWinPoint ((LongPoint*) & selectionPointsPtr[pointIndex],
+					ConvertLCToWinPoint ((LongPoint*)&selectionPointsPtr[pointIndex],
 												&windowPoint,
 												lcToWindowUnitsVariablesPtr);
 					pointlist[pointIndex].x = windowPoint.h;
 					pointlist[pointIndex].y = windowPoint.v;
 
-					}                
+					}	// end "for (pointIndex = 0; pointIndex<pointCount; pointIndex++)"
 						 
-				gCDCPointer->SetBrush(*wxTRANSPARENT_BRUSH);                
-				//gCDCPointer->SetPen(wxPen(*wxWHITE, 1, wxPENSTYLE_DOT));   
-				gCDCPointer->SetPen(wxPen(*wxWHITE, 1, wxPENSTYLE_SHORT_DASH));            
-				wxPoint scrollOffset = gProjectSelectionWindow->m_Canvas->GetScrollPosition();
+				gCDCPointer->SetBrush (*wxTRANSPARENT_BRUSH);                
+				//gCDCPointer->SetPen (wxPen (*wxWHITE, 1, wxPENSTYLE_DOT));   
+				gCDCPointer->SetPen (wxPen (*wxWHITE, 1, wxPENSTYLE_SHORT_DASH));            
+				wxPoint scrollOffset = 
+									gProjectSelectionWindow->m_Canvas->GetScrollPosition ();
 						 
 				if (gProcessorCode == kPolygonSelectionProcessor)
-					{ // during polygon selection mode
-					wxPoint currloc_Win = wxGetMousePosition();                  
+					{ 
+							// During polygon selection mode
+							
+					wxPoint currloc_Win = wxGetMousePosition ();                  
 					wxPoint canvasOffset;
 					LongPoint currloc_WinCanvas;
-					canvasOffset.y = gProjectSelectionWindow->m_Canvas->GetScreenPosition().y;
-					canvasOffset.x = gProjectSelectionWindow->m_Canvas->GetScreenPosition().x;                  
+					canvasOffset.y = 
+									gProjectSelectionWindow->m_Canvas->GetScreenPosition ().y;
+					canvasOffset.x = 
+									gProjectSelectionWindow->m_Canvas->GetScreenPosition ().x;                  
 					currloc_WinCanvas.h = currloc_Win.x -canvasOffset.x;
 					currloc_WinCanvas.v = currloc_Win.y -canvasOffset.y;
 					pointlist[pointIndex].x = currloc_WinCanvas.h - sideBysideImage_offset;
 					pointlist[pointIndex].y = currloc_WinCanvas.v;     
-					gCDCPointer->DrawPolygon(pointCount+1, pointlist, sideBysideImage_offset + scrollOffset.x,scrollOffset.y,wxODDEVEN_RULE);   
-					gCDCPointer->SetPen(wxPen(*wxBLACK, 1, wxPENSTYLE_SHORT_DASH));   										  
-               gCDCPointer->DrawPolygon(pointCount+1, pointlist, sideBysideImage_offset + scrollOffset.x +1,scrollOffset.y+1,wxODDEVEN_RULE);   
-					}
+					gCDCPointer->DrawPolygon (pointCount+1, 
+														pointlist, 
+														sideBysideImage_offset+scrollOffset.x,
+														scrollOffset.y,
+														wxODDEVEN_RULE);   
+														
+					gCDCPointer->SetPen (wxPen (*wxBLACK, 1, wxPENSTYLE_SHORT_DASH)); 
+					  										  
+					gCDCPointer->DrawPolygon (pointCount+1, 
+														pointlist, 
+														sideBysideImage_offset+scrollOffset.x+1,
+														scrollOffset.y+1,
+														wxODDEVEN_RULE);
+														   
+					}	// end "if (gProcessorCode == kPolygonSelectionProcessor)"
+					
 				else 
-					{ // after double clicking, draw on all channels
-					for (SInt32 channel = gStartChannel; channel < gSideBySideChannels; channel++) 
+					{ 
+							// After double clicking, draw on all channels
+						
+					for (SInt32 channel=gStartChannel; 
+								channel<gSideBySideChannels; 
+								channel++)
 						{
 						if (selectionRectPtr->left <= viewRectPtr->right &&
-										  selectionRectPtr->right >= viewRectPtr->left) 
+													selectionRectPtr->right >= viewRectPtr->left)
 							{                      
-							//printf("Offset = %d\n", lcToWindowUnitsVariablesPtr->channelWindowOffset + scrollOffset.x);                     							
-                     gCDCPointer->DrawPolygon(pointCount, pointlist, lcToWindowUnitsVariablesPtr->channelWindowOffset + scrollOffset.x ,scrollOffset.y,wxODDEVEN_RULE);
-                     gCDCPointer->SetPen(wxPen(*wxBLACK, 1, wxPENSTYLE_SHORT_DASH));   										  
-                     gCDCPointer->DrawPolygon(pointCount, pointlist, lcToWindowUnitsVariablesPtr->channelWindowOffset + scrollOffset.x+1,scrollOffset.y+1,wxODDEVEN_RULE);   
-							if (gSideBySideChannels > 1) 
+							//printf ("Offset = %d\n", 
+							//				lcToWindowUnitsVariablesPtr->channelWindowOffset + 
+							//																scrollOffset.x);                     							
+							gCDCPointer->DrawPolygon (
+											pointCount, 
+											pointlist, 
+											lcToWindowUnitsVariablesPtr->channelWindowOffset + 
+											scrollOffset.x,
+											scrollOffset.y,
+											wxODDEVEN_RULE);
+											
+							gCDCPointer->SetPen (wxPen (*wxBLACK, 1, wxPENSTYLE_SHORT_DASH));
+							   										  
+							gCDCPointer->DrawPolygon (
+											pointCount, 
+											pointlist, 
+											lcToWindowUnitsVariablesPtr->channelWindowOffset + 
+											scrollOffset.x+1,
+											scrollOffset.y+1,
+											wxODDEVEN_RULE); 
+											  
+							if (gSideBySideChannels > 1)
 								{
 								selectionRectPtr->left += gChannelWindowInterval;
 								selectionRectPtr->right += gChannelWindowInterval;
-								//				gChannelWindowOffset += gChannelWindowInterval;                        
-								lcToWindowUnitsVariablesPtr->channelWindowOffset += gChannelWindowInterval; 
+								//gChannelWindowOffset += gChannelWindowInterval;                        
+								lcToWindowUnitsVariablesPtr->channelWindowOffset += 
+																					gChannelWindowInterval; 
 															
-								} // end "if (gSideBySideChannels > 1)"
+								}	// end "if (gSideBySideChannels > 1)"
 									
 							if (selectionRectPtr->left > viewRectPtr->right)
 								break;
 
-							}	// end "if (selectionRectPtr->left <= viewRectPtr->right && ..." 
+							}	// end "if (selectionRectPtr->left <= viewRectPtr->right ..." 
 						
-						}  // end "for (SInt32 channel = gStartChannel; channel < gSideBySideChannels; channel++)"
+						}  // end "for (SInt32 channel=gStartChannel; channel<..."
 				
 					}	// end else "gProcessorCode != kPolygonSelectionProcessor
 
@@ -1726,16 +1755,16 @@ void DrawSelectionPolygon (
 				}
 		#endif	// end "defined multispec_lin"
 
-		} // end "if (selectionRectPtr->top <= viewRectPtr->bottom && ..." 
-    
-    MHSetState(selectionInfoPtr->polygonCoordinatesHandle, selectionPointsStatus);
+		}	// end "if (selectionRectPtr->top <= viewRectPtr->bottom && ..." 
+
+	MHSetState (selectionInfoPtr->polygonCoordinatesHandle, selectionPointsStatus);
 
 			// Reset the channel window offset.
 
-    //gChannelWindowOffset = savedChannelWindowOffset;
-    lcToWindowUnitsVariablesPtr->channelWindowOffset = savedChannelWindowOffset;
+	//gChannelWindowOffset = savedChannelWindowOffset;
+	lcToWindowUnitsVariablesPtr->channelWindowOffset = savedChannelWindowOffset;
     
-} // end "DrawSelectionPolygon" 
+}	// end "DrawSelectionPolygon" 
 
 
 
@@ -1759,74 +1788,90 @@ void DrawSelectionPolygon (
 //	Revised By:			Larry L. Biehl			Date: 08/11/1989	
 //	Revised By:			Larry L. Biehl			Date: 12/23/2002	
 
-void DrawSelectionRectangle(
-        SelectionInfoPtr selectionInfoPtr,
-        LongRect* selectionRectPtr,
-        LongRect* viewRectPtr)
- {
-    SInt32 channel;
+void DrawSelectionRectangle (
+				SelectionInfoPtr					selectionInfoPtr,
+				LongRect*							selectionRectPtr,
+				LongRect*							viewRectPtr)
+				
+{
+	SInt32								channel;
 
 
-    if (selectionRectPtr->top <= viewRectPtr->bottom &&
-            selectionRectPtr->bottom >= viewRectPtr->top) {
-        for (channel = gStartChannel; channel < gSideBySideChannels; channel++) {
-            if (selectionRectPtr->left <= viewRectPtr->right &&
-                    selectionRectPtr->right >= viewRectPtr->left) {
-#if defined multispec_mac     
+   if (selectionRectPtr->top <= viewRectPtr->bottom &&
+													selectionRectPtr->bottom >= viewRectPtr->top) 
+		{
+		for (channel=gStartChannel; channel<gSideBySideChannels; channel++) 
+			{
+			if (selectionRectPtr->left <= viewRectPtr->right &&
+													selectionRectPtr->right >= viewRectPtr->left) 
+				{
+				#if defined multispec_mac     
+							 // FrameRect would cause the system to crash when 			
+							 // running heap scramble under macbugs. 						
+							 // Larry Biehl 2-7-91.	
+							 // Note that selectionRect would now have to be change from
+							 // LongRect to Rect if FrameRect is to now be used.											
 
-                // FrameRect would cause the system to crash when 			
-                // running heap scramble under macbugs. 						
-                // Larry Biehl 2-7-91.	
-                // Note that selectionRect would now have to be change from
-                // LongRect to Rect if FrameRect is to now be used.											
+					 //FrameRect (selectionRectPtr);        
 
-                //					FrameRect (selectionRectPtr);        
+					 MoveTo ((SInt16)selectionRectPtr->left, 
+									(SInt16)selectionRectPtr->top);
+					 LineTo ((SInt16)selectionRectPtr->right, 
+									(SInt16)selectionRectPtr->top);
+					 LineTo ((SInt16)selectionRectPtr->right, 
+									(SInt16)selectionRectPtr->bottom);
+					 LineTo ((SInt16)selectionRectPtr->left, 
+									(SInt16)selectionRectPtr->bottom);
+					 LineTo ((SInt16)selectionRectPtr->left, 
+									(SInt16)selectionRectPtr->top);
+				#endif	// defined multispec_mac 
 
-                MoveTo((SInt16) selectionRectPtr->left, (SInt16) selectionRectPtr->top);
-                LineTo((SInt16) selectionRectPtr->right, (SInt16) selectionRectPtr->top);
-                LineTo((SInt16) selectionRectPtr->right, (SInt16) selectionRectPtr->bottom);
-                LineTo((SInt16) selectionRectPtr->left, (SInt16) selectionRectPtr->bottom);
-                LineTo((SInt16) selectionRectPtr->left, (SInt16) selectionRectPtr->top);
-#endif	// defined multispec_mac 
+				#if defined multispec_win                 
+					gCDCPointer->Rectangle ((int)selectionRectPtr->left,
+													(int)selectionRectPtr->top,
+													(int)selectionRectPtr->right,
+													(int)selectionRectPtr->bottom);
+				#endif	// defined multispec_win
 
-#if defined multispec_win                 
-                gCDCPointer->Rectangle((int) selectionRectPtr->left,
-                        (int) selectionRectPtr->top,
-                        (int) selectionRectPtr->right,
-                        (int) selectionRectPtr->bottom);
-#endif	// defined multispec_win
+				#if defined multispec_lin          
+					int width = 
+								(int)selectionRectPtr->right - (int)selectionRectPtr->left;
+					int height = 
+								(int)selectionRectPtr->bottom - (int)selectionRectPtr->top;
+					gCDCPointer->SetBrush (*wxTRANSPARENT_BRUSH);
+					//gCDCPointer->SetLogicalFunction (wxXOR);
+					//gCDCPointer->SetPen (wxPen (*wxWHITE, 1, wxPENSTYLE_DOT));
+						 
+					//wxPen pen (*wxWHITE, 1, wxPENSTYLE_SHORT_DASH);
+					//wxDash dashX[] = {0x00, 0xFF};
+					//pen.SetDashes (1, dashX);
+					//gCDCPointer->SetPen (pen);
+				 
+					gCDCPointer->SetPen (wxPen (*wxWHITE, 1, wxPENSTYLE_SHORT_DASH));
+					gCDCPointer->DrawRectangle ((int)selectionRectPtr->left, 
+															(int)selectionRectPtr->top, 
+															width, 
+															height);
+					gCDCPointer->SetPen (wxPen (*wxBLACK, 1, wxPENSTYLE_SHORT_DASH));
+					gCDCPointer->DrawRectangle ((int)selectionRectPtr->left+1, 
+															(int)selectionRectPtr->top+1, 
+															width-2, 
+															height-2);                
+				#endif
 
-#if defined multispec_lin          
-                int width = (int) selectionRectPtr->right - (int) selectionRectPtr->left;
-                int height = (int) selectionRectPtr->bottom - (int) selectionRectPtr->top;
-                gCDCPointer->SetBrush(*wxTRANSPARENT_BRUSH);
-                //gCDCPointer->SetLogicalFunction(wxXOR);
-//                gCDCPointer->SetPen(wxPen(*wxWHITE, 1, wxPENSTYLE_DOT));
-                
-//                wxPen pen(*wxWHITE, 1, wxPENSTYLE_SHORT_DASH);
-//                wxDash dashX[] = {0x00, 0xFF};
-//                pen.SetDashes(1, dashX);
-//                gCDCPointer->SetPen(pen);
-                
-                gCDCPointer->SetPen(wxPen(*wxWHITE, 1, wxPENSTYLE_SHORT_DASH));
-                gCDCPointer->DrawRectangle((int) selectionRectPtr->left, (int) selectionRectPtr->top, width, height);
-                gCDCPointer->SetPen(wxPen(*wxBLACK, 1, wxPENSTYLE_SHORT_DASH));
-                gCDCPointer->DrawRectangle((int) selectionRectPtr->left+1, (int) selectionRectPtr->top+1, width-2, height-2);                
-#endif
+				}	// end "if (selectionRectPtr->left <= viewRectPtr->right && ..." 
 
-            } // end "if (selectionRectPtr->left <= viewRectPtr->right && ..." 
+			selectionRectPtr->left += gChannelWindowInterval;
+			selectionRectPtr->right += gChannelWindowInterval;
 
-            selectionRectPtr->left += gChannelWindowInterval;
-            selectionRectPtr->right += gChannelWindowInterval;
+			if (selectionRectPtr->left > viewRectPtr->right)
+				break;
 
-            if (selectionRectPtr->left > viewRectPtr->right)
-                break;
+			}	// end "for (channel=gStartChannel; channel<..." 
 
-        } // end "for (channel=gStartChannel; channel<..." 
+		}	// end "if ((selectionRect.top >= viewRectPtr->top && ..."  
 
-    } // end "if ( (selectionRect.top >= viewRectPtr->top && ..."  
-
-} // end "DrawSelectionRectangle" 
+}	// end "DrawSelectionRectangle" 
 
 
 
@@ -1855,16 +1900,20 @@ void DrawSelectionRectangle(
 //	Coded By:			Larry L. Biehl			Date: 11/23/2004
 //	Revised By:			Larry L. Biehl			Date: 11/23/2004	
 
-pascal void DrawSelectionUnitsPopUp(
-        DialogPtr dialogPtr,
-        SInt16 itemNumber)
- {
-    // Use the generic pop up drawing routine.									
+pascal void DrawSelectionUnitsPopUp (
+				DialogPtr							dialogPtr,
+				SInt16								itemNumber)
+				
+{
+			// Use the generic pop up drawing routine.									
 
-    DrawPopUpMenuItem(dialogPtr, itemNumber, gPopUpSelectionDisplayUnitsMenu,
-            gSelectionDisplayUnits, TRUE);
+	DrawPopUpMenuItem (dialogPtr, 
+								itemNumber, 
+								gPopUpSelectionDisplayUnitsMenu,
+								gSelectionDisplayUnits, 
+								TRUE);
 
-} // end "DrawSelectionUnitsPopUp"
+}	// end "DrawSelectionUnitsPopUp"
 #endif	// defined multispec_mac 
 
 
@@ -1892,104 +1941,107 @@ pascal void DrawSelectionUnitsPopUp(
 //	Coded By:			Larry L. Biehl			Date: 03/06/1989
 //	Revised By:			Larry L. Biehl			Date: 03/17/2005
 
-Boolean EditSelectionDialog(
-        SInt16 pointType,
-        Boolean fromStatisticsWindowFlag)
- {
-    DoubleRect coordinateRectangle;
-    LongPoint lineColPoint;
-    LongRect selectionRectangle;
+Boolean EditSelectionDialog (
+				SInt16								pointType,
+				Boolean								fromStatisticsWindowFlag)
+				
+{
+	DoubleRect							coordinateRectangle;
+	LongPoint							lineColPoint;
+	LongRect								selectionRectangle;
 
-    WindowInfoPtr windowInfoPtr;
-    WindowPtr windowPtr;
+	WindowInfoPtr						windowInfoPtr;
+	WindowPtr							windowPtr;
 
-    Handle windowInfoHandle = NULL;
+	Handle								windowInfoHandle = NULL;
 
-    SInt32 lowerRightColumn,
-            lowerRightLine,
-            upperLeftColumn,
-            upperLeftLine;
+	SInt32								lowerRightColumn,
+											lowerRightLine,
+											upperLeftColumn,
+											upperLeftLine;
 
-    SInt16 stringID,
-            unitsDisplayCode;
+	SInt16								stringID,
+											unitsDisplayCode;
 
-    Boolean applyToAllWindowsFlag = FALSE,
-            changedFlag = FALSE,
-            OKFlag = FALSE,
-            selectionExistsFlag = FALSE,
-            useStartLineColumnFlag = TRUE;
+	Boolean								applyToAllWindowsFlag = FALSE,
+											changedFlag = FALSE,
+											OKFlag = FALSE,
+											selectionExistsFlag = FALSE,
+											useStartLineColumnFlag = TRUE;
 
 
-    // Get a pointer to the window information structure to be used.
+			// Get a pointer to the window information structure to be used.
 
-    if (fromStatisticsWindowFlag) {
-        windowPtr = gProjectSelectionWindow;
-        windowInfoHandle = gProjectInfoPtr->windowInfoHandle;
+	if (fromStatisticsWindowFlag) 
+		{
+		windowPtr = gProjectSelectionWindow;
+		windowInfoHandle = gProjectInfoPtr->windowInfoHandle;
 
-    }// end "if (fromStatisticsWindowFlag)"
+		}	// end "if (fromStatisticsWindowFlag)"
 
-    else // !fromStatisticsWindowFlag
-    {
-        windowPtr = gActiveImageWindow;
-        windowInfoHandle = GetWindowInfoHandle(gActiveImageWindow);
+	else	// !fromStatisticsWindowFlag
+		{
+		windowPtr = gActiveImageWindow;
+		windowInfoHandle = GetWindowInfoHandle (gActiveImageWindow);
 
-    } // end "else !fromStatisticsWindowFlag"
+		}	// end "else !fromStatisticsWindowFlag"
 
-    windowInfoPtr = (WindowInfoPtr) GetHandlePointer(
-            windowInfoHandle, kLock, kNoMoveHi);
+	windowInfoPtr = (WindowInfoPtr)GetHandlePointer (windowInfoHandle, kLock);
 
-    if (windowInfoPtr == NULL)
-        return (FALSE);
+	if (windowInfoPtr == NULL)
+																							return (FALSE);
 
-    unitsDisplayCode = kLineColumnUnits;
+	unitsDisplayCode = kLineColumnUnits;
 
-    // Now get the initialize line and column parameters.
-    // Get the line/column coordinates for the current selection.
+			// Now get the initialize line and column parameters.
+			// Get the line/column coordinates for the current selection.
 
-    if (fromStatisticsWindowFlag) {
-        SInt16 numberPoints = GetNumberListLines(gStatisticsListHandle);
+	if (fromStatisticsWindowFlag) 
+		{
+		SInt16 numberPoints = GetNumberListLines (gStatisticsListHandle);
 
-        if (numberPoints == 2) {
-            GetLineColFromList(0, &lineColPoint);
-            upperLeftLine = lineColPoint.v;
-            upperLeftColumn = lineColPoint.h;
+		if (numberPoints == 2) 
+			{
+			GetLineColFromList (0, &lineColPoint);
+			upperLeftLine = lineColPoint.v;
+			upperLeftColumn = lineColPoint.h;
 
-            GetLineColFromList(1, &lineColPoint);
-            lowerRightLine = lineColPoint.v;
-            lowerRightColumn = lineColPoint.h;
+			GetLineColFromList (1, &lineColPoint);
+			lowerRightLine = lineColPoint.v;
+			lowerRightColumn = lineColPoint.h;
 
-            selectionExistsFlag = TRUE;
+			selectionExistsFlag = TRUE;
 
-        } // end "if (numberPoints == 2)"
+			}	// end "if (numberPoints == 2)"
 
-    }// end "if (fromStatisticsWindowFlag)"
+		}	// end "if (fromStatisticsWindowFlag)"
 
-    else // !fromStatisticsWindowFlag
-    {
-        selectionExistsFlag = GetSelectedAreaInfo(
-                gActiveImageWindow,
-                windowInfoPtr,
-                &upperLeftLine,
-                &lowerRightLine,
-                &upperLeftColumn,
-                &lowerRightColumn,
-                FALSE,
-                FALSE,
-                FALSE);
+    else	// !fromStatisticsWindowFlag
+		{
+		selectionExistsFlag = GetSelectedAreaInfo (gActiveImageWindow,
+																 windowInfoPtr,
+																 &upperLeftLine,
+																 &lowerRightLine,
+																 &upperLeftColumn,
+																 &lowerRightColumn,
+																 FALSE,
+																 FALSE,
+																 FALSE);
 
-        if (selectionExistsFlag)
-            unitsDisplayCode = GetSelectionInfoDisplayUnits(windowInfoPtr);
-		
-    } // end "else !fromStatisticsWindowFlag"
+		if (selectionExistsFlag)
+			unitsDisplayCode = GetSelectionInfoDisplayUnits (windowInfoPtr);
 
-    if (!selectionExistsFlag) {
-        upperLeftLine = 1;
-        upperLeftColumn = 1;
+		}	// end "else !fromStatisticsWindowFlag"
 
-        lowerRightLine = 1;
-        lowerRightColumn = 1;
+	if (!selectionExistsFlag) 
+		{
+		upperLeftLine = 1;
+		upperLeftColumn = 1;
 
-    } // end "if (!selectionExistFlag)"
+		lowerRightLine = 1;
+		lowerRightColumn = 1;
+
+		}	// end "if (!selectionExistFlag)"
 
     selectionRectangle.top = upperLeftLine;
     selectionRectangle.bottom = lowerRightLine;
@@ -1998,68 +2050,71 @@ Boolean EditSelectionDialog(
 
     stringID = IDS_Dialog26;
 
-    if (EditLineColumnDialog(windowPtr,
-            windowInfoPtr,
-            &selectionRectangle,
-            &coordinateRectangle,
-            pointType,
-            &unitsDisplayCode,
-            &changedFlag,
-            &applyToAllWindowsFlag,
-            &useStartLineColumnFlag,
-            stringID)) {
-        SetSelectionInfoDisplayUnits(windowInfoPtr, unitsDisplayCode);
+    if (EditLineColumnDialog (windowPtr,
+										windowInfoPtr,
+										&selectionRectangle,
+										&coordinateRectangle,
+										pointType,
+										&unitsDisplayCode,
+										&changedFlag,
+										&applyToAllWindowsFlag,
+										&useStartLineColumnFlag,
+										stringID)) 
+		{
+		SetSelectionInfoDisplayUnits (windowInfoPtr, unitsDisplayCode);
 
-        if (!selectionExistsFlag)
-            changedFlag = TRUE;
+		if (!selectionExistsFlag)
+			changedFlag = TRUE;
 
-        if (changedFlag || applyToAllWindowsFlag) {
-            // A selected area was created or changed. Erase the old selection area
-            // and set the new area in the selection information structure.
+		if (changedFlag || applyToAllWindowsFlag) 
+			{
+					// A selected area was created or changed. Erase the old selection area
+					// and set the new area in the selection information structure.
 
-            if (windowPtr != NULL) {
-                EditSelectionDialogShowSelection(
-                        windowPtr,
-                        windowInfoHandle,
-                        &selectionRectangle,
-                        &coordinateRectangle,
-                        applyToAllWindowsFlag,
-                        useStartLineColumnFlag,
-                        unitsDisplayCode,
-                        1);
+			if (windowPtr != NULL) 
+				{
+				EditSelectionDialogShowSelection (windowPtr,
+																windowInfoHandle,
+																&selectionRectangle,
+																&coordinateRectangle,
+																applyToAllWindowsFlag,
+																useStartLineColumnFlag,
+																unitsDisplayCode,
+																1);
 
-                ShowGraphSelection();
+				ShowGraphSelection ();
 
-            } // end "if (windowPtr != NULL)"
+				}	// end "if (windowPtr != NULL)"
 
-            if (gProjectInfoPtr != NULL &&
-                    gProjectInfoPtr->statsWindowMode == kSelectFieldMode &&
-                    (fromStatisticsWindowFlag ||
-                    (gActiveImageWindow == gProjectSelectionWindow &&
-                    gProjectInfoPtr->selectionType == kRectangleType))) {
-                LoadRectangleInStatList(&selectionRectangle);
+			if (gProjectInfoPtr != NULL &&
+					gProjectInfoPtr->statsWindowMode == kSelectFieldMode &&
+						(fromStatisticsWindowFlag ||
+								(gActiveImageWindow == gProjectSelectionWindow &&
+										gProjectInfoPtr->selectionType == kRectangleType))) 
+				{
+				LoadRectangleInStatList (&selectionRectangle);
 
-                gProjectInfoPtr->lastPointType = kRectangleType;
+				gProjectInfoPtr->lastPointType = kRectangleType;
 
-                // Hilite the "Add to List" control since a field is selected		
+						// Hilite the "Add to List" control since a field is selected		
 
-                if (gProjectWindow != NULL)
-                    MHiliteControl(gProjectWindow, gProjectInfoPtr->addToControlH, 0);
+				if (gProjectWindow != NULL)
+					MHiliteControl (gProjectWindow, gProjectInfoPtr->addToControlH, 0);
 
-            } // end "if (fromStatisticsWindowFlag || ..."
+				}	// end "if (fromStatisticsWindowFlag || ..."
 
-            gUpdateFileMenuItemsFlag = TRUE;
-            gUpdateEditMenuItemsFlag = TRUE;
+			gUpdateFileMenuItemsFlag = TRUE;
+			gUpdateEditMenuItemsFlag = TRUE;
 
-        } // end "if (changedFlag || applyToAllWindowsFlag)" 
+			}	// end "if (changedFlag || applyToAllWindowsFlag)" 
 
-    } // end "if (EditLineColumnDialog (..."
+		}	// end "if (EditLineColumnDialog (..."
 
-    CheckAndUnlockHandle(windowInfoHandle);
+	CheckAndUnlockHandle (windowInfoHandle);
 
-    return (OKFlag);
+	return (OKFlag);
 
-} // end "EditSelectionDialog" 
+}	// end "EditSelectionDialog" 
 
 
 
@@ -2084,135 +2139,134 @@ Boolean EditSelectionDialog(
 //	Coded By:			Larry L. Biehl			Date: 11/24/2004
 //	Revised By:			Larry L. Biehl			Date: 05/29/2015
 
-void EditSelectionDialogShowSelection(
-        WindowPtr windowPtr,
-        Handle windowInfoHandle,
-        LongRect* inputSelectionRectanglePtr,
-        DoubleRect* inputCoordinateRectanglePtr,
-        Boolean applyToAllWindowsFlag,
-        Boolean useStartLineColumnFlag,
-        SInt16 selectionUnitsCode,
-        double inputFactor)
- {
-    DoubleRect coordinateRectangle;
+void EditSelectionDialogShowSelection (
+				WindowPtr							windowPtr,
+				Handle								windowInfoHandle,
+				LongRect*							inputSelectionRectanglePtr,
+				DoubleRect*							inputCoordinateRectanglePtr,
+				Boolean								applyToAllWindowsFlag,
+				Boolean								useStartLineColumnFlag,
+				SInt16								selectionUnitsCode,
+				double								inputFactor)
 
-    DisplaySpecsPtr displaySpecsPtr;
-    MapProjectionInfoPtr mapProjectionInfoPtr;
-    //	PlanarCoordinateSystemInfoPtr	planarCoordinateSystemInfoPtr;
-    SelectionInfoPtr selectionInfoPtr;
+{
+	DoubleRect							coordinateRectangle;
 
-    Handle displaySpecsH,
-            imageWindowInfoHandle,
-            mapProjectionHandle,
-            selectionInfoHandle,
-            selectionWindowInfoHandle;
+	DisplaySpecsPtr					displaySpecsPtr;
+	MapProjectionInfoPtr				mapProjectionInfoPtr;
+	//PlanarCoordinateSystemInfoPtr	planarCoordinateSystemInfoPtr;
+	SelectionInfoPtr					selectionInfoPtr;
 
-    SignedByte displayHandleStatus,
-            selectionHandleStatus;
+	Handle								displaySpecsH,
+											imageWindowInfoHandle,
+											mapProjectionHandle,
+											selectionInfoHandle,
+											selectionWindowInfoHandle;
+
+	SignedByte							displayHandleStatus,
+											selectionHandleStatus;
 
 
-    // Image window available for the selection.
+			// Image window available for the selection.
 
-    ClearSelectionArea(windowPtr);
+	ClearSelectionArea (windowPtr);
 
-    imageWindowInfoHandle = GetWindowInfoHandle(windowPtr);
+	imageWindowInfoHandle = GetWindowInfoHandle (windowPtr);
 
-    selectionInfoHandle = GetSelectionInfoHandle(imageWindowInfoHandle);
-    selectionInfoPtr = (SelectionInfoPtr) GetHandleStatusAndPointer(
-            selectionInfoHandle,
-            &selectionHandleStatus,
-            kNoMoveHi);
+	selectionInfoHandle = GetSelectionInfoHandle (imageWindowInfoHandle);
+	selectionInfoPtr = (SelectionInfoPtr)GetHandleStatusAndPointer (
+																				selectionInfoHandle,
+																				&selectionHandleStatus);
 
-    displaySpecsH = GetDisplaySpecsHandle(imageWindowInfoHandle);
-    displaySpecsPtr = (DisplaySpecsPtr) GetHandleStatusAndPointer(
-            displaySpecsH,
-            &displayHandleStatus,
-            kNoMoveHi);
+	displaySpecsH = GetDisplaySpecsHandle (imageWindowInfoHandle);
+	displaySpecsPtr = (DisplaySpecsPtr)GetHandleStatusAndPointer (
+																				displaySpecsH,
+																				&displayHandleStatus);
 
-    // Now make sure that we have the selection in line-column units.
+			// Now make sure that we have the selection in line-column units.
 
-    ConvertCoordinateRectToLCRect(imageWindowInfoHandle,
-            inputCoordinateRectanglePtr,
-            inputSelectionRectanglePtr,
-            selectionUnitsCode,
-            inputFactor);
+	ConvertCoordinateRectToLCRect (imageWindowInfoHandle,
+												inputCoordinateRectanglePtr,
+												inputSelectionRectanglePtr,
+												selectionUnitsCode,
+												inputFactor);
 
-    // Get the selected area coordinate units based on the line column
-    // selection an in the correct units for displaying in the coordinate
-    // view.
+			// Get the selected area coordinate units based on the line column
+			// selection an in the correct units for displaying in the coordinate
+			// view.
 
-    // Need to allow for windowInfoHandle being different from that
-    // for windowPtr. The windowPtr could be that for the selection project
-    // window.  WindowInfoHandle will be for that representing the base 
-    // image for the project so that areas selected for training and test 
-    // will refer to the base image and not the selection window (in case 
-    // they are different)
+			// Need to allow for windowInfoHandle being different from that
+			// for windowPtr. The windowPtr could be that for the selection project
+			// window.  WindowInfoHandle will be for that representing the base 
+			// image for the project so that areas selected for training and test 
+			// will refer to the base image and not the selection window (in case 
+			// they are different)
 
-    //	planarCoordinateSystemInfoPtr = NULL;
-    mapProjectionHandle = GetFileMapProjectionHandle2(imageWindowInfoHandle);
+	//planarCoordinateSystemInfoPtr = NULL;
+	mapProjectionHandle = GetFileMapProjectionHandle2 (imageWindowInfoHandle);
 
-    mapProjectionInfoPtr = (MapProjectionInfoPtr) GetHandlePointer(
-            mapProjectionHandle, kNoLock, kNoMoveHi);
+	mapProjectionInfoPtr = (MapProjectionInfoPtr)GetHandlePointer (
+																					mapProjectionHandle);
 
-    //	if (mapProjectionInfoPtr != NULL)											
-    //		planarCoordinateSystemInfoPtr = &mapProjectionInfoPtr->planarCoordinate;
+	//if (mapProjectionInfoPtr != NULL)											
+	//	planarCoordinateSystemInfoPtr = &mapProjectionInfoPtr->planarCoordinate;
 
-    selectionWindowInfoHandle = GetWindowInfoHandle(windowPtr);
-    ComputeSelectionCoordinates(selectionWindowInfoHandle,
-            mapProjectionInfoPtr,
-            inputSelectionRectanglePtr,
-            &coordinateRectangle);
+	selectionWindowInfoHandle = GetWindowInfoHandle (windowPtr);
+	ComputeSelectionCoordinates (selectionWindowInfoHandle,
+											mapProjectionInfoPtr,
+											inputSelectionRectanglePtr,
+											&coordinateRectangle);
 
-    SetSelectionInformation(windowPtr,
-            displaySpecsPtr,
-            selectionInfoPtr,
-            kRectangleType,
-            0,
-            inputSelectionRectanglePtr,
-            &coordinateRectangle);
+	SetSelectionInformation (windowPtr,
+										displaySpecsPtr,
+										selectionInfoPtr,
+										kRectangleType,
+										0,
+										inputSelectionRectanglePtr,
+										&coordinateRectangle);
 
-    MHSetState(displaySpecsH, displayHandleStatus);
+	MHSetState (displaySpecsH, displayHandleStatus);
 
-    // Outline the selection.				
+			// Outline the selection.				
 
-    OutlineSelectionArea(windowPtr);
+	OutlineSelectionArea (windowPtr);
 
 	#if defined multispec_mac  
-		InvalidateWindow(gActiveImageWindow, kCoordinateSelectionArea, FALSE);
+		InvalidateWindow (gActiveImageWindow, kCoordinateSelectionArea, FALSE);
 	#endif	// defined multispec_mac 
 
 
 	#if defined multispec_win || defined multispec_lin
-		ShowSelection(windowPtr);
+		ShowSelection (windowPtr);
 	#endif	// defined multispec_win || defined multispec_lin 
 
-    // Set this selection for all image windows if requested. If the shift key
-    // was down when the selection was made, then do not use the start line
-    // and column in calculating the selection coordinates in the other windows.
-    /*	
-            useStartLineColumnFlag = TRUE;
-	
-            #if defined multispec_mac
-                    if (gEventRecord.modifiers & shiftKey)
-                            useStartLineColumnFlag = FALSE;
-            #endif	// defined multispec_mac 
-	
-            #if defined multispec_win
-                     if (GetKeyState(VK_SHIFT) & 0x8000)
-                            useStartLineColumnFlag = FALSE;
-            #endif	// defined multispec_win 
-     */
-    if (applyToAllWindowsFlag)
-        SetSelectionForAllWindows(windowInfoHandle,
-            selectionInfoPtr,
-            inputCoordinateRectanglePtr,
-            useStartLineColumnFlag,
-            selectionUnitsCode,
-            inputFactor);
+			// Set this selection for all image windows if requested. If the shift key
+			// was down when the selection was made, then do not use the start line
+			// and column in calculating the selection coordinates in the other windows.
+	/*	
+	useStartLineColumnFlag = TRUE;
 
-    MHSetState(selectionInfoHandle, selectionHandleStatus);
+	#if defined multispec_mac
+		if (gEventRecord.modifiers & shiftKey)
+			useStartLineColumnFlag = FALSE;
+	#endif	// defined multispec_mac 
 
-} // end "EditSelectionDialogShowSelection" 
+	#if defined multispec_win
+		if (GetKeyState (VK_SHIFT) & 0x8000)
+			useStartLineColumnFlag = FALSE;
+	#endif	// defined multispec_win 
+	*/
+	if (applyToAllWindowsFlag)
+	  SetSelectionForAllWindows (windowInfoHandle,
+											selectionInfoPtr,
+											inputCoordinateRectanglePtr,
+											useStartLineColumnFlag,
+											selectionUnitsCode,
+											inputFactor);
+
+	MHSetState (selectionInfoHandle, selectionHandleStatus);
+
+}	// end "EditSelectionDialogShowSelection" 
 
 
 
@@ -2241,207 +2295,230 @@ void EditSelectionDialogShowSelection(
 //	Coded By:			Larry L. Biehl			Date: 11/23/2004
 //	Revised By:			Larry L. Biehl			Date: 04/28/2012
 
-void EditSelectionDialogSetCoordinates(
-        DialogPtr dialogPtr,
-        Handle windowInfoHandle,
-        LongRect* inputSelectionRectanglePtr,
-        LongRect* selectionRectanglePtr,
-        DoubleRect* inputCoordinateRectanglePtr,
-        DoubleRect* coordinateRectanglePtr,
-        LongRect* minMaxSelectionRectanglePtr,
-        DoubleRect* minMaxCoordinateRectanglePtr,
-        SInt16 requestedSelectionUnitsCode,
-        SInt16 currentSelectionUnitsCode)
- {
-    double factor,
-            mapToMetersFactor;
+void EditSelectionDialogSetCoordinates (
+				DialogPtr							dialogPtr,
+				Handle								windowInfoHandle,
+				LongRect*							inputSelectionRectanglePtr,
+				LongRect*							selectionRectanglePtr,
+				DoubleRect*							inputCoordinateRectanglePtr,
+				DoubleRect*							coordinateRectanglePtr,
+				LongRect*							minMaxSelectionRectanglePtr,
+				DoubleRect*							minMaxCoordinateRectanglePtr,
+				SInt16								requestedSelectionUnitsCode,
+				SInt16								currentSelectionUnitsCode)
+				
+{
+	double								factor,
+											mapToMetersFactor;
 
-    SInt16 fileMapUnitsIndex,
-            numberDecimals,
-            projectionCode,
-            referenceSystemCode,
-            updateViewUnits = 0,
-            viewUnits;
+	SInt16								fileMapUnitsIndex,
+											numberDecimals,
+											projectionCode,
+											referenceSystemCode,
+											updateViewUnits = 0,
+											viewUnits;
 
 
-    referenceSystemCode = GetFileReferenceSystemCode(windowInfoHandle);
-    projectionCode = GetFileProjectionCode(windowInfoHandle);
+	referenceSystemCode = GetFileReferenceSystemCode (windowInfoHandle);
+	projectionCode = GetFileProjectionCode (windowInfoHandle);
 
-    fileMapUnitsIndex = GetFilePlanarMapUnitsCode(windowInfoHandle) - kKilometersCode;
-    mapToMetersFactor = 1;
-    if (fileMapUnitsIndex > 1)
-        mapToMetersFactor = gDistanceFileConversionFactors[fileMapUnitsIndex] /
-            gDistanceFileConversionFactors[1]; // kMeters
+	fileMapUnitsIndex = GetFilePlanarMapUnitsCode (windowInfoHandle) - kKilometersCode;
+	mapToMetersFactor = 1;
+	if (fileMapUnitsIndex > 1)
+		mapToMetersFactor = gDistanceFileConversionFactors[fileMapUnitsIndex] /
+													gDistanceFileConversionFactors[1]; // kMeters
 
-    factor = 1;
-    if (currentSelectionUnitsCode == kLineColumnUnits) {
-        if (requestedSelectionUnitsCode == kMapUnits ||
-                requestedSelectionUnitsCode == kLatLongUnits) {
-            viewUnits = kMapUnits;
-            if (requestedSelectionUnitsCode == kLatLongUnits) {
-                viewUnits = kDecimalLatLongUnitsMenuItem;
-                factor = mapToMetersFactor;
+	factor = 1;
+	if (currentSelectionUnitsCode == kLineColumnUnits) 
+		{
+		if (requestedSelectionUnitsCode == kMapUnits ||
+													requestedSelectionUnitsCode == kLatLongUnits) 
+			{
+			viewUnits = kMapUnits;
+			if (requestedSelectionUnitsCode == kLatLongUnits) 
+				{
+				viewUnits = kDecimalLatLongUnitsMenuItem;
+				factor = mapToMetersFactor;
 
-            } // end "if (requestedSelectionUnitsCode == kLatLongUnits)"
+				}	// end "if (requestedSelectionUnitsCode == kLatLongUnits)"
 
-            ComputeMapCoordinates(windowInfoHandle,
-                    factor,
-                    viewUnits,
-                    selectionRectanglePtr,
-                    coordinateRectanglePtr);
+			ComputeMapCoordinates (windowInfoHandle,
+										  factor,
+										  viewUnits,
+										  selectionRectanglePtr,
+										  coordinateRectanglePtr);
 
-            updateViewUnits = viewUnits;
+			updateViewUnits = viewUnits;
 
-        } // end "if (requestedSelectionUnitsCode == kMapUnits)"
+			}	// end "if (requestedSelectionUnitsCode == kMapUnits)"
 
-    }// end "if (currentSelectionUnitsCode == kLineColumnUnits)"
+		}	// end "if (currentSelectionUnitsCode == kLineColumnUnits)"
 
-    else if (currentSelectionUnitsCode == kMapUnits) {
-        if (requestedSelectionUnitsCode == kLineColumnUnits) {
-            if (referenceSystemCode == kGeographicRSCode)
-                ConvertMapRectToLatLongRect(windowInfoHandle,
-                    projectionCode,
-                    coordinateRectanglePtr);
+	else if (currentSelectionUnitsCode == kMapUnits) 
+		{
+		if (requestedSelectionUnitsCode == kLineColumnUnits) 
+			{
+			if (referenceSystemCode == kGeographicRSCode)
+				ConvertMapRectToLatLongRect (windowInfoHandle,
+														  projectionCode,
+														  coordinateRectanglePtr);
 
-            ConvertMapRectToLCRect(windowInfoHandle,
-                    coordinateRectanglePtr,
-                    selectionRectanglePtr,
-                    1);
+			ConvertMapRectToLCRect (windowInfoHandle,
+											  coordinateRectanglePtr,
+											  selectionRectanglePtr,
+											  1);
 
-        }// end "if (requestedSelectionUnitsCode == kLineColumnUnits)"
+			}	// end "if (requestedSelectionUnitsCode == kLineColumnUnits)"
 
-        else if (requestedSelectionUnitsCode == kLatLongUnits) {
-            ConvertMapRectByGivenFactor(mapToMetersFactor, coordinateRectanglePtr);
+		else if (requestedSelectionUnitsCode == kLatLongUnits) 
+			{
+			ConvertMapRectByGivenFactor (mapToMetersFactor, coordinateRectanglePtr);
 
-            ConvertMapRectToLatLongRect(windowInfoHandle,
-                    projectionCode,
-                    coordinateRectanglePtr);
+			ConvertMapRectToLatLongRect (windowInfoHandle,
+													projectionCode,
+													coordinateRectanglePtr);
 
-            updateViewUnits = kDecimalLatLongUnitsMenuItem;
+			updateViewUnits = kDecimalLatLongUnitsMenuItem;
 
-        } // end "else if (requestedSelectionUnitsCode == kLatLongUnits)"
+			}	// end "else if (requestedSelectionUnitsCode == kLatLongUnits)"
 
-    }// end "else if (currentSelectionUnitsCode == kMapUnits)"
+		}	// end "else if (currentSelectionUnitsCode == kMapUnits)"
 
-    else if (currentSelectionUnitsCode == kLatLongUnits) {
-        if (requestedSelectionUnitsCode == kLineColumnUnits) {
-            if (referenceSystemCode != kGeographicRSCode)
-                ConvertLatLongRectToMapRect(
-                    windowInfoHandle, coordinateRectanglePtr);
+	else if (currentSelectionUnitsCode == kLatLongUnits) 
+		{
+		if (requestedSelectionUnitsCode == kLineColumnUnits) 
+			{
+			if (referenceSystemCode != kGeographicRSCode)
+				 ConvertLatLongRectToMapRect (windowInfoHandle, coordinateRectanglePtr);
 
-            ConvertMapRectToLCRect(windowInfoHandle,
-                    coordinateRectanglePtr,
-                    selectionRectanglePtr,
-                    1);
+			ConvertMapRectToLCRect (windowInfoHandle,
+											  coordinateRectanglePtr,
+											  selectionRectanglePtr,
+											  1);
 
-        }// end "if (requestedSelectionUnitsCode == kLineColumnUnits)"
+			}	// end "if (requestedSelectionUnitsCode == kLineColumnUnits)"
 
-        else if (requestedSelectionUnitsCode == kMapUnits) {
-            ConvertLatLongRectToMapRect(
-                    windowInfoHandle, coordinateRectanglePtr);
+		else if (requestedSelectionUnitsCode == kMapUnits) 
+			{
+			ConvertLatLongRectToMapRect (windowInfoHandle, coordinateRectanglePtr);
 
-            updateViewUnits = kMapUnits;
+			updateViewUnits = kMapUnits;
 
-        } // end "else if (requestedSelectionUnitsCode == kMapUnits)"
+			}	// end "else if (requestedSelectionUnitsCode == kMapUnits)"
 
-    } // end "else if (currentSelectionUnitsCode == kMapUnits)"
+		}	// end "else if (currentSelectionUnitsCode == kMapUnits)"
 
-    factor = 1;
-    if (updateViewUnits == kDecimalLatLongUnitsMenuItem)
-        factor = mapToMetersFactor;
+	factor = 1;
+	if (updateViewUnits == kDecimalLatLongUnitsMenuItem)
+	  factor = mapToMetersFactor;
 
-    // Make sure that the min and max map coordinates are in the proper units.
+			// Make sure that the min and max map coordinates are in the proper units.
 
-    if (updateViewUnits != 0)
-        ComputeMapCoordinates(windowInfoHandle,
-            factor,
-            updateViewUnits,
-            minMaxSelectionRectanglePtr,
-            minMaxCoordinateRectanglePtr);
+	if (updateViewUnits != 0)
+	  ComputeMapCoordinates (windowInfoHandle,
+										factor,
+										updateViewUnits,
+										minMaxSelectionRectanglePtr,
+										minMaxCoordinateRectanglePtr);
 
-    // Make sure the input coordinates are in the proper units.
+			// Make sure the input coordinates are in the proper units.
 
-    if (updateViewUnits != 0)
-        ComputeMapCoordinates(windowInfoHandle,
-            factor,
-            updateViewUnits,
-            inputSelectionRectanglePtr,
-            inputCoordinateRectanglePtr);
+	if (updateViewUnits != 0)
+	  ComputeMapCoordinates (windowInfoHandle,
+										factor,
+										updateViewUnits,
+										inputSelectionRectanglePtr,
+										inputCoordinateRectanglePtr);
 
-    if (requestedSelectionUnitsCode == kLineColumnUnits) {
-        // Now present the line-column coordinates to the user.				
+	if (requestedSelectionUnitsCode == kLineColumnUnits) 
+		{
+				// Now present the line-column coordinates to the user.				
 
-        LoadDItemValue(dialogPtr, IDC_NewLineStart, selectionRectanglePtr->top);
-        LoadDItemValue(dialogPtr, IDC_NewLineEnd, selectionRectanglePtr->bottom);
-        LoadDItemValue(dialogPtr, IDC_NewColumnStart, selectionRectanglePtr->left);
-        LoadDItemValue(dialogPtr, IDC_NewColumnEnd, selectionRectanglePtr->right);
+		LoadDItemValue (dialogPtr, IDC_NewLineStart, selectionRectanglePtr->top);
+		LoadDItemValue (dialogPtr, IDC_NewLineEnd, selectionRectanglePtr->bottom);
+		LoadDItemValue (dialogPtr, IDC_NewColumnStart, selectionRectanglePtr->left);
+		LoadDItemValue (dialogPtr, IDC_NewColumnEnd, selectionRectanglePtr->right);
 
-        // Now present the current line-column coordinates to the user.				
+				// Now present the current line-column coordinates to the user.				
 
-        LoadDItemValue(dialogPtr, IDC_CurrentLineStart, inputSelectionRectanglePtr->top);
-        LoadDItemValue(dialogPtr, IDC_CurrentLineEnd, inputSelectionRectanglePtr->bottom);
-        LoadDItemValue(dialogPtr, IDC_CurrentColumnStart, inputSelectionRectanglePtr->left);
-        LoadDItemValue(dialogPtr, IDC_CurrentColumnEnd, inputSelectionRectanglePtr->right);
+		LoadDItemValue (
+					dialogPtr, IDC_CurrentLineStart, inputSelectionRectanglePtr->top);
+		LoadDItemValue (
+					dialogPtr, IDC_CurrentLineEnd, inputSelectionRectanglePtr->bottom);
+		LoadDItemValue (
+					dialogPtr, IDC_CurrentColumnStart, inputSelectionRectanglePtr->left);
+		LoadDItemValue (
+					dialogPtr, IDC_CurrentColumnEnd, inputSelectionRectanglePtr->right);
 
-        if (gDialogItemDescriptorPtr != NULL) {
-            gDialogItemDescriptorPtr[3] = 0;
-            gDialogItemDescriptorPtr[4] = 0;
-            gDialogItemDescriptorPtr[5] = 0;
-            gDialogItemDescriptorPtr[6] = 0;
+		if (gDialogItemDescriptorPtr != NULL) 
+			{
+			gDialogItemDescriptorPtr[3] = 0;
+			gDialogItemDescriptorPtr[4] = 0;
+			gDialogItemDescriptorPtr[5] = 0;
+			gDialogItemDescriptorPtr[6] = 0;
 
-        } // end "if (gDialogItemDescriptorPtr != NULL)"
+			}	// end "if (gDialogItemDescriptorPtr != NULL)"
 
-    }// end "if (requestedSelectionUnitsCode == kLineColumnUnits)"
+		}	// end "if (requestedSelectionUnitsCode == kLineColumnUnits)"
 
-    else // requestedSelectionUnitsCode != kLineColumnUnits
-    {
-        numberDecimals = 4;
-        if (requestedSelectionUnitsCode == kLatLongUnits)
-            numberDecimals = 8;
+	else	// requestedSelectionUnitsCode != kLineColumnUnits
+		{
+		numberDecimals = 4;
+		if (requestedSelectionUnitsCode == kLatLongUnits)
+			numberDecimals = 8;
 
-        // Now present the map coordinates to the user.				
+				// Now present the map coordinates to the user.				
 
-        LoadDItemRealValue(dialogPtr,
-                IDC_NewLineStart,
-                coordinateRectanglePtr->bottom, numberDecimals);
-        LoadDItemRealValue(dialogPtr,
-                IDC_NewLineEnd,
-                coordinateRectanglePtr->top, numberDecimals);
-        LoadDItemRealValue(dialogPtr,
-                IDC_NewColumnStart,
-                coordinateRectanglePtr->left, numberDecimals);
-        LoadDItemRealValue(dialogPtr,
-                IDC_NewColumnEnd,
-                coordinateRectanglePtr->right, numberDecimals);
+		LoadDItemRealValue (dialogPtr,
+									IDC_NewLineStart,
+									coordinateRectanglePtr->bottom, 
+									numberDecimals);
+		LoadDItemRealValue (dialogPtr,
+									IDC_NewLineEnd,
+									coordinateRectanglePtr->top, 
+									numberDecimals);
+		LoadDItemRealValue (dialogPtr,
+									IDC_NewColumnStart,
+									coordinateRectanglePtr->left, 
+									numberDecimals);
+		LoadDItemRealValue (dialogPtr,
+									IDC_NewColumnEnd,
+									coordinateRectanglePtr->right, 
+									numberDecimals);
 
-        // Load current map coordinate values.								
+				// Load current map coordinate values.								
 
-        LoadDItemRealValue(dialogPtr,
-                IDC_CurrentLineStart,
-                inputCoordinateRectanglePtr->bottom, numberDecimals);
-        LoadDItemRealValue(dialogPtr,
-                IDC_CurrentLineEnd,
-                inputCoordinateRectanglePtr->top, numberDecimals);
-        LoadDItemRealValue(dialogPtr,
-                IDC_CurrentColumnStart,
-                inputCoordinateRectanglePtr->left, numberDecimals);
-        LoadDItemRealValue(dialogPtr,
-                IDC_CurrentColumnEnd,
-                inputCoordinateRectanglePtr->right, numberDecimals);
+		LoadDItemRealValue (dialogPtr,
+									IDC_CurrentLineStart,
+									inputCoordinateRectanglePtr->bottom, 
+									numberDecimals);
+		LoadDItemRealValue (dialogPtr,
+									IDC_CurrentLineEnd,
+									inputCoordinateRectanglePtr->top, 
+									numberDecimals);
+		LoadDItemRealValue (dialogPtr,
+									IDC_CurrentColumnStart,
+									inputCoordinateRectanglePtr->left, 
+									numberDecimals);
+		LoadDItemRealValue (dialogPtr,
+									IDC_CurrentColumnEnd,
+									inputCoordinateRectanglePtr->right, 
+									numberDecimals);
 
-        if (gDialogItemDescriptorPtr != NULL) {
-            gDialogItemDescriptorPtr[3] = kDItemReal + kDItemMinus;
-            gDialogItemDescriptorPtr[4] = kDItemReal + kDItemMinus;
-            gDialogItemDescriptorPtr[5] = kDItemReal + kDItemMinus;
-            gDialogItemDescriptorPtr[6] = kDItemReal + kDItemMinus;
+		if (gDialogItemDescriptorPtr != NULL) 
+			{
+			gDialogItemDescriptorPtr[3] = kDItemReal + kDItemMinus;
+			gDialogItemDescriptorPtr[4] = kDItemReal + kDItemMinus;
+			gDialogItemDescriptorPtr[5] = kDItemReal + kDItemMinus;
+			gDialogItemDescriptorPtr[6] = kDItemReal + kDItemMinus;
 
-        } // end "if (gDialogItemDescriptorPtr != NULL)" 
+			}	// end "if (gDialogItemDescriptorPtr != NULL)" 
 
-    } // end "else requestedSelectionUnitsCode != kLineColumnUnits"
+		}	// end "else requestedSelectionUnitsCode != kLineColumnUnits"
 
-    SelectDialogItemText(dialogPtr, IDC_NewLineStart, 0, SInt16_MAX);
+	SelectDialogItemText (dialogPtr, IDC_NewLineStart, 0, SInt16_MAX);
 
-} // end "EditSelectionDialogSetCoordinates" 
+}	// end "EditSelectionDialogSetCoordinates" 
 
 
 
@@ -2467,467 +2544,489 @@ void EditSelectionDialogSetCoordinates(
 //	Coded By:			Larry L. Biehl			Date: 02/16/1998
 //	Revised By:			Larry L. Biehl			Date: 12/16/2016
 
-Boolean EditLineColumnDialog(
-        WindowPtr windowPtr,
-        WindowInfoPtr windowInfoPtr,
-        LongRect* inputSelectionRectanglePtr,
-        DoubleRect* coordinateRectanglePtr,
-        SInt16 pointType,
-        SInt16* unitsDisplayCodePtr,
-        Boolean* changedFlagPtr,
-        Boolean* applyToAllWindowsFlagPtr,
-        Boolean* useStartLineColumnFlagPtr,
-        SInt16 stringID)
- {
-    LongRect selectionRectangle;
+Boolean EditLineColumnDialog (
+				WindowPtr							windowPtr,
+				WindowInfoPtr						windowInfoPtr,
+				LongRect*							inputSelectionRectanglePtr,
+				DoubleRect*							coordinateRectanglePtr,
+				SInt16								pointType,
+				SInt16*								unitsDisplayCodePtr,
+				Boolean*								changedFlagPtr,
+				Boolean*								applyToAllWindowsFlagPtr,
+				Boolean*								useStartLineColumnFlagPtr,
+				SInt16								stringID)
 
-    double factor;
+{
+	LongRect								selectionRectangle;
 
-    Boolean OKFlag = FALSE,
-            previewWasUsedFlag = FALSE;
+	double								factor;
 
+	Boolean								OKFlag = FALSE,
+											previewWasUsedFlag = FALSE;
 
-    selectionRectangle = *inputSelectionRectanglePtr;
-
-#if defined multispec_mac   
-    DoubleRect inputCoordinateRectangle,
-            minMaxCoordinateRectangle;
-
-    LongRect minMaxSelectionRectangle;
-    Rect theBox;
 
-    double theRealNum;
+	selectionRectangle = *inputSelectionRectanglePtr;
 
-    DialogPtr dialogPtr;
+	#if defined multispec_mac   
+		DoubleRect							inputCoordinateRectangle,
+												minMaxCoordinateRectangle;
 
-    UserItemUPP drawSelectionUnitsPtr;
+		LongRect								minMaxSelectionRectangle;
+		Rect									theBox;
+
+		double								theRealNum;
 
-    Handle okHandle,
-            theHandle;
+		DialogPtr							dialogPtr;
 
-    SInt32 theNum;
+		UserItemUPP							drawSelectionUnitsPtr;
 
-    SInt16 //			hiliteSetting,
-    itemHit,
-            //											numberDecimals,
-            popupItemHit,
-            theType,
-            valueItemHit;
+		Handle								okHandle,
+												theHandle;
 
-    Boolean errorAlertFlag,
-            modalDone,
-            valueChangedFlag;
+		SInt32								theNum;
 
+		SInt16								itemHit,
+												popupItemHit,
+												theType,
+												valueItemHit;
 
-    *changedFlagPtr = FALSE;
+		Boolean								errorAlertFlag,
+												modalDone,
+												valueChangedFlag;
 
-    // Get the modal dialog for the edit coordinates specification.	
 
-    dialogPtr = LoadRequestedDialog(kEditCoordinatesID, kCopyScrap, 1, 2);
-    if (dialogPtr == NULL)
-        return (FALSE);
+		*changedFlagPtr = FALSE;
 
-    // Intialize local user item proc pointers.	
+				// Get the modal dialog for the edit coordinates specification.	
 
-    drawSelectionUnitsPtr = NewUserItemUPP(DrawSelectionUnitsPopUp);
+		dialogPtr = LoadRequestedDialog (kEditCoordinatesID, kCopyScrap, 1, 2);
+		if (dialogPtr == NULL)
+																							return (FALSE);
 
-    // Set Procedure pointers for those dialog items that need them.
+				// Intialize local user item proc pointers.	
 
-    SetDialogItemDrawRoutine(dialogPtr, 22, drawSelectionUnitsPtr);
+		drawSelectionUnitsPtr = NewUserItemUPP (DrawSelectionUnitsPopUp);
 
-    EditLineColumnDialogInitialize(dialogPtr,
-            windowPtr,
-            windowInfoPtr,
-            pointType,
-            *unitsDisplayCodePtr,
-            inputSelectionRectanglePtr,
-            &selectionRectangle,
-            coordinateRectanglePtr,
-            &minMaxSelectionRectangle,
-            &minMaxCoordinateRectangle,
-            &inputCoordinateRectangle,
-            applyToAllWindowsFlagPtr,
-            useStartLineColumnFlagPtr,
-            &gSelectionDisplayUnits,
-            stringID);
+				// Set Procedure pointers for those dialog items that need them.
 
-    // Save handle for the OK button for use later.								
+		SetDialogItemDrawRoutine (dialogPtr, 22, drawSelectionUnitsPtr);
 
-    GetDialogItem(dialogPtr, 1, &theType, &okHandle, &theBox);
+		EditLineColumnDialogInitialize (dialogPtr,
+													windowPtr,
+													windowInfoPtr,
+													pointType,
+													*unitsDisplayCodePtr,
+													inputSelectionRectanglePtr,
+													&selectionRectangle,
+													coordinateRectanglePtr,
+													&minMaxSelectionRectangle,
+													&minMaxCoordinateRectangle,
+													&inputCoordinateRectangle,
+													applyToAllWindowsFlagPtr,
+													useStartLineColumnFlagPtr,
+													&gSelectionDisplayUnits,
+													stringID);
 
-    SelectDialogItemText(dialogPtr, 3, 0, INT16_MAX);
+				// Save handle for the OK button for use later.								
 
-    // Center the dialog and then show it.											
+		GetDialogItem (dialogPtr, 1, &theType, &okHandle, &theBox);
 
-    ShowDialogWindow(dialogPtr, kEditCoordinatesID, kSetUpDFilterTable);
+		SelectDialogItemText (dialogPtr, 3, 0, INT16_MAX);
 
-    if (*unitsDisplayCodePtr != kLineColumnUnits) {
-        gDialogItemDescriptorPtr[3] = kDItemReal + kDItemMinus;
-        gDialogItemDescriptorPtr[4] = kDItemReal + kDItemMinus;
-        gDialogItemDescriptorPtr[5] = kDItemReal + kDItemMinus;
-        gDialogItemDescriptorPtr[6] = kDItemReal + kDItemMinus;
-
-    } // end "if (*unitsDisplayCodePtr != kLineColumnUnits)"
-
-    valueChangedFlag = FALSE;
-    modalDone = FALSE;
-    itemHit = 0;
-    do {
-        ModalDialog(gProcessorDialogFilterPtr, &itemHit);
-        if ((itemHit < 2 || itemHit > 6) && itemHit != 7 && itemHit != 23) {
-            if (valueChangedFlag) {
-                valueItemHit = EditLineColumnDialogCheckCoordinates(
-                        dialogPtr,
-                        windowInfoPtr->windowInfoHandle,
-                        gSelectionDisplayUnits,
-                        &selectionRectangle,
-                        &minMaxSelectionRectangle,
-                        coordinateRectanglePtr,
-                        &minMaxCoordinateRectangle,
-                        coordinateRectanglePtr->left,
-                        coordinateRectanglePtr->right,
-                        coordinateRectanglePtr->bottom,
-                        coordinateRectanglePtr->top);
-
-                if (valueItemHit != 0) {
-                    itemHit = valueItemHit;
-                    SelectDialogItemText(dialogPtr, itemHit, 0, INT16_MAX);
-
-                }// end "if (valueItemHit != 0)"
-
-                else // valueItemHit == 0
-                    valueChangedFlag = FALSE;
-
-            } // end "if (valueChangedFlag)"
-
-        } // end "if ((itemHit < 2 || itemHit > 6) && ..."
-
-        if (itemHit > 2) {
-            // If itemHit was a number item, check for bad values.			
-            // Get the handle to the itemHit.										
-            // For number value items, get the string and convert it to		
-            // a number.																	
-
-            GetDialogItem(dialogPtr, itemHit, &theType, &theHandle, &theBox);
-            if (theType == 16) {
-                GetDialogItemText(theHandle, gTextString);
-                StringToNum(gTextString, &theNum);
-
-            } // end "if (theType == 16)"  
-
-            if (itemHit >= 3 && itemHit <= 6) {
-                errorAlertFlag = FALSE;
-
-                if (gSelectionDisplayUnits == kLineColumnUnits) {
-                    valueChangedFlag = TRUE;
-
-                    switch (itemHit) {
-                        case 3: // New upper-left line or new line 
-                        case 4: // New lower-right line 
-                            if (theNum < minMaxSelectionRectangle.top) {
-                                errorAlertFlag = TRUE;
-                                theNum = minMaxSelectionRectangle.top;
-
-                            }// end "if (theNum < minMaxSelectionRectangle.top)"
-
-                            else if (theNum > minMaxSelectionRectangle.bottom) {
-                                errorAlertFlag = TRUE;
-                                theNum = minMaxSelectionRectangle.bottom;
-
-                            } // end "else if (theNum > minMaxSelectionRectangle.bottom)"
-
-                            if (itemHit == 3)
-                                selectionRectangle.top = theNum;
-                            else // itemHit == 4
-                                selectionRectangle.bottom = theNum;
-                            break;
-
-                        case 5: // New upper-left column or new column 
-                        case 6: // New lower-right column 
-                            if (theNum < minMaxSelectionRectangle.left) {
-                                errorAlertFlag = TRUE;
-                                theNum = minMaxSelectionRectangle.left;
-
-                            }// end "if (theNum < minMaxSelectionRectangle.top)"
-
-                            else if (theNum > minMaxSelectionRectangle.right) {
-                                errorAlertFlag = TRUE;
-                                theNum = minMaxSelectionRectangle.right;
-
-                            } // end "else if (theNum > minMaxSelectionRectangle.right)"
-
-                            if (itemHit == 5)
-                                selectionRectangle.left = theNum;
-                            else // itemHit == 6
-                                selectionRectangle.right = theNum;
-                            break;
-
-                    } // end "switch (itemHit)"
-
-                    if (errorAlertFlag)
-                        NumberErrorAlert(theNum, dialogPtr, itemHit);
-
-                }// end "if (gSelectionDisplayUnits == kLineColumnUnits)"
-
-                else // if (gSelectionDisplayUnits != kLineColumnUnits)
-                {
-                    valueChangedFlag = TRUE;
-                    theRealNum = GetDItemRealValue(dialogPtr, itemHit);
-
-                    switch (itemHit) {
-                        case 3: // New upper coordinate value
-                            coordinateRectanglePtr->bottom = theRealNum;
-                            break;
-
-                        case 4: // New lower coordinate value 
-                            coordinateRectanglePtr->top = theRealNum;
-                            break;
-
-                        case 5: // New left coordinate value 
-                            coordinateRectanglePtr->left = theRealNum;
-                            break;
-
-                        case 6: // New right coordinate value 
-                            coordinateRectanglePtr->right = theRealNum;
-                            break;
-
-                    } // end "switch (itemHit)"
-
-                } // end "else gSelectionDisplayUnits != kLineColumnUnits"
-
-            }// end "if (itemHit >= 3 && itemHit <= 6)"
-
-            else // itemHit > 6
-            {
-                switch (itemHit) {
-                    case 7: // Apply to all image windows
-                        ChangeDLogCheckBox((ControlHandle) theHandle);
-                        *applyToAllWindowsFlagPtr = !*applyToAllWindowsFlagPtr;
-
-                        EditLineColumnDialogSetStartLC(dialogPtr,
-                                gSelectionDisplayUnits,
-                                *applyToAllWindowsFlagPtr);
-
-                        break;
-
-                    case 8: // Apply to windows now
-                        EditSelectionDialogShowSelection(
-                                windowPtr,
-                                windowInfoPtr->windowInfoHandle,
-                                &selectionRectangle,
-                                coordinateRectanglePtr,
-                                *applyToAllWindowsFlagPtr,
-                                *useStartLineColumnFlagPtr,
-                                gSelectionDisplayUnits,
-                                1);
-
-                        previewWasUsedFlag = TRUE;
-                        break;
-
-                    case 22: // Set units to use to enter the selection
-                        popupItemHit = StandardPopUpMenu(dialogPtr,
-                                21,
-                                22,
-                                gPopUpSelectionDisplayUnitsMenu,
-                                gSelectionDisplayUnits,
-                                kPopUpSelectionDisplayUnitsMenuID);
-
-                        if (popupItemHit > 0 &&
-                                gSelectionDisplayUnits != popupItemHit) {
-                            EditLineColumnDialogSetStartLC(dialogPtr,
-                                    popupItemHit,
-                                    *applyToAllWindowsFlagPtr);
-
-                            EditSelectionDialogSetCoordinates(
-                                    dialogPtr,
-                                    windowInfoPtr->windowInfoHandle,
-                                    inputSelectionRectanglePtr,
-                                    &selectionRectangle,
-                                    &inputCoordinateRectangle,
-                                    coordinateRectanglePtr,
-                                    &minMaxSelectionRectangle,
-                                    &minMaxCoordinateRectangle,
-                                    popupItemHit,
-                                    gSelectionDisplayUnits);
-
-                            gSelectionDisplayUnits = popupItemHit;
-
-                        } // end "if (popupItemHit > 0 && ..."
-                        break;
-
-                    case 23: // use start line and column values for upper left pixel
-                        ChangeDLogCheckBox((ControlHandle) theHandle);
-                        *useStartLineColumnFlagPtr = !*useStartLineColumnFlagPtr;
-                        break;
-
-                } // end "switch (itemHit)" 
-
-            } // end "else itemHit > 6"
-
-            /*			if (itemHit <= 6)
-                                            {	
-                                            if (gSelectionDisplayUnits == kLineColumnUnits)
-                                                    {
-                                                                    // Make certain the line-column values make sense.	
-                                                                    // Turn the okay button off is they do not.				
-							
-                                                    if ( (selectionRectangle.top > selectionRectangle.bottom) || 
-                                                                                    (selectionRectangle.left > selectionRectangle.right) )
-                                                            hiliteSetting = 255;
-						
-                                                    else		// (newUpperLeftLine <= newLowerRightLine) &&
-                                                                            //				(newUpperLeftColumn <= newLowerRightColumn) 
-                                                            hiliteSetting = 0;
-						
-                                                    }		// end "if (gSelectionDisplayUnits == kLineColumnUnits)"
-					
-                                            else		// if (gSelectionDisplayUnits != kLineColumnUnits)
-                                                    {
-                                                                    // Make certain the map values make sense.					
-							
-                                                    if ( (coordinateRectanglePtr->top < coordinateRectanglePtr->bottom) || 
-                                                                                    (coordinateRectanglePtr->left > coordinateRectanglePtr->right) )
-                                                            hiliteSetting = 255;
-						
-                                                    else		// (coordinateRectanglePtr->top >= ... .bottom) && ...
-                                                            hiliteSetting = 0;
-						
-                                                    }		// end "else gSelectionDisplayUnits != kLineColumnUnits"
-					
-                                            HiliteControl ((ControlHandle)okHandle, hiliteSetting);
-                                            SetDLogControlHilite (dialogPtr, 8, hiliteSetting);
-					
-                                            }		// end "if (itemHit <= 6)"
-             */
-        }// end "if (itemHit > 2)" 
-
-        else
-            if (itemHit == 1) // User selected OK for information 
-        {
-            OKFlag = TRUE;
-            modalDone = TRUE;
-
-            *unitsDisplayCodePtr = gSelectionDisplayUnits;
-
-        } // end "if (itemHit == 1)" 
-
-        if (itemHit == 2) // User selected Cancel for information 
-        {
-            modalDone = TRUE;
-            OKFlag = FALSE;
-
-        } // end "if	(itemHit == 2)" 
-
-    } while (!modalDone);
-
-    DisposeUserItemUPP(drawSelectionUnitsPtr);
-
-    CloseRequestedDialog(dialogPtr, kSetUpDFilterTable);
-#endif	// defined multispec_mac 
-
-
-#if defined multispec_win 			
-    CMEditCoordinatesDlg* dialogPtr = NULL;
-
-
-    TRY{
-        dialogPtr = new CMEditCoordinatesDlg();
-
-        OKFlag = dialogPtr->DoDialog(windowPtr,
-        windowInfoPtr,
-        inputSelectionRectanglePtr,
-        &selectionRectangle,
-        coordinateRectanglePtr,
-        pointType,
-        unitsDisplayCodePtr,
-        changedFlagPtr,
-        applyToAllWindowsFlagPtr,
-        useStartLineColumnFlagPtr,
-        &previewWasUsedFlag,
-        stringID);
-
-        delete dialogPtr;
-    }
-
-    CATCH_ALL(e) {
-        MemoryMessage(0, kObjectMessage);
-    }
-    END_CATCH_ALL
-#endif	// defined multispec_win  
-
-#if defined multispec_lin			
-    CMEditCoordinatesDlg* dialogPtr = NULL;
-
-    try{
-        dialogPtr = new CMEditCoordinatesDlg();
-
-        OKFlag = dialogPtr->DoDialog(windowPtr,
-        windowInfoPtr,
-        inputSelectionRectanglePtr,
-        &selectionRectangle,
-        coordinateRectanglePtr,
-        pointType,
-        unitsDisplayCodePtr,
-        changedFlagPtr,
-        applyToAllWindowsFlagPtr,
-        useStartLineColumnFlagPtr,
-        &previewWasUsedFlag,
-        stringID);
-
-        delete dialogPtr;
-    }
-
-    catch(int e) {
-        MemoryMessage(0, kObjectMessage);
-    }    
-#endif	// defined multispec_win  
-    
-    if (OKFlag)
-        // Check if the selected area changed.
-        EditLineColumnDialogOK(windowInfoPtr->windowInfoHandle,
-            inputSelectionRectanglePtr,
-            &selectionRectangle,
-            coordinateRectanglePtr,
-            *unitsDisplayCodePtr,
-            changedFlagPtr);
-
-    else // !OKFlag
-    {
-        if (previewWasUsedFlag) {
-            // If a new selection was previewed then make sure that we go back
-            // to the original input selection.
-
-            // Make sure the input coordinates are in the proper units.
-
-            if (*unitsDisplayCodePtr != kLineColumnUnits)
-                ComputeMapCoordinates(windowInfoPtr->windowInfoHandle,
-                    1,
-                    *unitsDisplayCodePtr,
-                    inputSelectionRectanglePtr,
-                    coordinateRectanglePtr);
-
-            // Get the factor that is being used to convert the original units to
-            // the requested display units.
-
-            factor = GetCoordinateViewFactor(windowInfoPtr->windowInfoHandle);
-
-            EditSelectionDialogShowSelection(
-                    windowPtr,
-                    windowInfoPtr->windowInfoHandle,
-                    inputSelectionRectanglePtr,
-                    coordinateRectanglePtr,
-                    *applyToAllWindowsFlagPtr,
-                    *useStartLineColumnFlagPtr,
-                    *unitsDisplayCodePtr,
-                    factor);
-
-        } // end "if (previewWasUsedFlag)"
-
-    } // end "else !OKFlag"
-
-    return (OKFlag);
-
-} // end "EditLineColumnDialog"   
+				// Center the dialog and then show it.											
+
+		ShowDialogWindow (dialogPtr, kEditCoordinatesID, kSetUpDFilterTable);
+
+		if (*unitsDisplayCodePtr != kLineColumnUnits) 
+			{
+			gDialogItemDescriptorPtr[3] = kDItemReal + kDItemMinus;
+			gDialogItemDescriptorPtr[4] = kDItemReal + kDItemMinus;
+			gDialogItemDescriptorPtr[5] = kDItemReal + kDItemMinus;
+			gDialogItemDescriptorPtr[6] = kDItemReal + kDItemMinus;
+
+			}	// end "if (*unitsDisplayCodePtr != kLineColumnUnits)"
+
+		valueChangedFlag = FALSE;
+		modalDone = FALSE;
+		itemHit = 0;
+		do 
+			{
+			ModalDialog (gProcessorDialogFilterPtr, &itemHit);
+			if ((itemHit < 2 || itemHit > 6) && itemHit != 7 && itemHit != 23) 
+				{
+				if (valueChangedFlag) 
+					{
+					valueItemHit = EditLineColumnDialogCheckCoordinates (
+																	dialogPtr,
+																	windowInfoPtr->windowInfoHandle,
+																	gSelectionDisplayUnits,
+																	&selectionRectangle,
+																	&minMaxSelectionRectangle,
+																	coordinateRectanglePtr,
+																	&minMaxCoordinateRectangle,
+																	coordinateRectanglePtr->left,
+																	coordinateRectanglePtr->right,
+																	coordinateRectanglePtr->bottom,
+																	coordinateRectanglePtr->top);
+
+					if (valueItemHit != 0) 
+						{
+						itemHit = valueItemHit;
+						SelectDialogItemText (dialogPtr, itemHit, 0, INT16_MAX);
+
+						}	// end "if (valueItemHit != 0)"
+
+					else	// valueItemHit == 0
+						valueChangedFlag = FALSE;
+
+					}	// end "if (valueChangedFlag)"
+
+				}	// end "if ((itemHit < 2 || itemHit > 6) && ..."
+
+			if (itemHit > 2) 
+				{
+						// If itemHit was a number item, check for bad values.			
+						// Get the handle to the itemHit.										
+						// For number value items, get the string and convert it to		
+						// a number.																	
+
+				GetDialogItem (dialogPtr, itemHit, &theType, &theHandle, &theBox);
+				if (theType == 16) 
+					{
+					GetDialogItemText (theHandle, gTextString);
+					StringToNum (gTextString, &theNum);
+
+					}	// end "if (theType == 16)"  
+
+				if (itemHit >= 3 && itemHit <= 6) 
+					{
+					errorAlertFlag = FALSE;
+
+					if (gSelectionDisplayUnits == kLineColumnUnits) 
+						{
+						valueChangedFlag = TRUE;
+
+						switch (itemHit) 
+							{
+							case 3: // New upper-left line or new line 
+							case 4: // New lower-right line 
+								if (theNum < minMaxSelectionRectangle.top) 
+									{
+									errorAlertFlag = TRUE;
+									theNum = minMaxSelectionRectangle.top;
+
+									}	// end "if (theNum < minMaxSelectionRectangle.top)"
+
+								else if (theNum > minMaxSelectionRectangle.bottom) 
+									{
+									errorAlertFlag = TRUE;
+									theNum = minMaxSelectionRectangle.bottom;
+
+									}	// end "else if (theNum > ..."
+
+								if (itemHit == 3)
+									selectionRectangle.top = theNum;
+								else	// itemHit == 4
+									selectionRectangle.bottom = theNum;
+								break;
+
+							case 5: // New upper-left column or new column 
+							case 6: // New lower-right column 
+								if (theNum < minMaxSelectionRectangle.left) 
+									{
+									errorAlertFlag = TRUE;
+									theNum = minMaxSelectionRectangle.left;
+
+									}	// end "if (theNum < minMaxSelectionRectangle.top)"
+
+								else if (theNum > minMaxSelectionRectangle.right) 
+									{
+									errorAlertFlag = TRUE;
+									theNum = minMaxSelectionRectangle.right;
+
+									}	// end "else if (theNum > minMaxSelectionRectangle.right)"
+
+								if (itemHit == 5)
+									selectionRectangle.left = theNum;
+								else	// itemHit == 6
+									selectionRectangle.right = theNum;
+								break;
+
+							}	// end "switch (itemHit)"
+
+						if (errorAlertFlag)
+							NumberErrorAlert (theNum, dialogPtr, itemHit);
+
+						}	// end "if (gSelectionDisplayUnits == kLineColumnUnits)"
+
+					else	// if (gSelectionDisplayUnits != kLineColumnUnits)
+						{
+						valueChangedFlag = TRUE;
+						theRealNum = GetDItemRealValue (dialogPtr, itemHit);
+
+						switch (itemHit) 
+							{
+							case 3: // New upper coordinate value
+								 coordinateRectanglePtr->bottom = theRealNum;
+								 break;
+
+							case 4: // New lower coordinate value 
+								 coordinateRectanglePtr->top = theRealNum;
+								 break;
+
+							case 5: // New left coordinate value 
+								 coordinateRectanglePtr->left = theRealNum;
+								 break;
+
+							case 6: // New right coordinate value 
+								 coordinateRectanglePtr->right = theRealNum;
+								 break;
+
+							}	// end "switch (itemHit)"
+
+						}	// end "else gSelectionDisplayUnits != kLineColumnUnits"
+
+					}	// end "if (itemHit >= 3 && itemHit <= 6)"
+
+				else	// itemHit > 6
+					{
+					switch (itemHit) 
+						{
+						case 7: // Apply to all image windows
+							ChangeDLogCheckBox ((ControlHandle) theHandle);
+							*applyToAllWindowsFlagPtr = !*applyToAllWindowsFlagPtr;
+
+							EditLineColumnDialogSetStartLC (dialogPtr,
+																		gSelectionDisplayUnits,
+																		*applyToAllWindowsFlagPtr);
+							break;
+
+						case 8: // Apply to windows now
+							EditSelectionDialogShowSelection (
+																	windowPtr,
+																	windowInfoPtr->windowInfoHandle,
+																	&selectionRectangle,
+																	coordinateRectanglePtr,
+																	*applyToAllWindowsFlagPtr,
+																	*useStartLineColumnFlagPtr,
+																	gSelectionDisplayUnits,
+																	1);
+
+							previewWasUsedFlag = TRUE;
+							break;
+
+						case 22: // Set units to use to enter the selection
+							popupItemHit = StandardPopUpMenu (
+																	dialogPtr,
+																	21,
+																	22,
+																	gPopUpSelectionDisplayUnitsMenu,
+																	gSelectionDisplayUnits,
+																	kPopUpSelectionDisplayUnitsMenuID);
+
+							if (popupItemHit > 0 &&
+															gSelectionDisplayUnits != popupItemHit) 
+								{
+								 EditLineColumnDialogSetStartLC (dialogPtr,
+																			popupItemHit,
+																			*applyToAllWindowsFlagPtr);
+
+								 EditSelectionDialogSetCoordinates (
+																		dialogPtr,
+																		windowInfoPtr->windowInfoHandle,
+																		inputSelectionRectanglePtr,
+																		&selectionRectangle,
+																		&inputCoordinateRectangle,
+																		coordinateRectanglePtr,
+																		&minMaxSelectionRectangle,
+																		&minMaxCoordinateRectangle,
+																		popupItemHit,
+																		gSelectionDisplayUnits);
+
+								gSelectionDisplayUnits = popupItemHit;
+
+								}	// end "if (popupItemHit > 0 && ..."
+							break;
+
+						case 23: // use start line and column values for upper left pixel
+							ChangeDLogCheckBox ((ControlHandle) theHandle);
+							*useStartLineColumnFlagPtr = !*useStartLineColumnFlagPtr;
+							break;
+
+						}	// end "switch (itemHit)" 
+
+					}	// end "else itemHit > 6"
+				/*
+				if (itemHit <= 6)
+					{	
+					if (gSelectionDisplayUnits == kLineColumnUnits)
+						{
+								// Make certain the line-column values make sense.	
+								// Turn the okay button off is they do not.				
+
+						if ((selectionRectangle.top > selectionRectangle.bottom) || 
+											(selectionRectangle.left > selectionRectangle.right))
+							hiliteSetting = 255;
+
+						else	// (newUpperLeftLine <= newLowerRightLine) &&
+								//						(newUpperLeftColumn <= newLowerRightColumn) 
+							hiliteSetting = 0;
+
+						}	// end "if (gSelectionDisplayUnits == kLineColumnUnits)"
+
+					else	// if (gSelectionDisplayUnits != kLineColumnUnits)
+						{
+								// Make certain the map values make sense.					
+
+						if ((coordinateRectanglePtr->top < coordinateRectanglePtr->bottom) || 
+								(coordinateRectanglePtr->left > coordinateRectanglePtr->right))
+							hiliteSetting = 255;
+
+						else	// (coordinateRectanglePtr->top >= ... .bottom) && ...
+							hiliteSetting = 0;
+
+						}	// end "else gSelectionDisplayUnits != kLineColumnUnits"
+
+					HiliteControl ((ControlHandle)okHandle, hiliteSetting);
+					SetDLogControlHilite (dialogPtr, 8, hiliteSetting);
+
+					}		// end "if (itemHit <= 6)"
+				*/
+				}	// end "if (itemHit > 2)" 
+
+			else if (itemHit == 1) // User selected OK for information 
+				{
+				OKFlag = TRUE;
+				modalDone = TRUE;
+
+				*unitsDisplayCodePtr = gSelectionDisplayUnits;
+
+				}	// end "if (itemHit == 1)" 
+
+			if (itemHit == 2) // User selected Cancel for information 
+				{
+				modalDone = TRUE;
+				OKFlag = FALSE;
+
+				}	// end "if	(itemHit == 2)" 
+
+			}	while (!modalDone);
+
+		DisposeUserItemUPP (drawSelectionUnitsPtr);
+
+		CloseRequestedDialog (dialogPtr, kSetUpDFilterTable);
+	#endif	// defined multispec_mac 
+
+	#if defined multispec_win 			
+		CMEditCoordinatesDlg* dialogPtr = NULL;
+
+
+		TRY
+			{
+			dialogPtr = new CMEditCoordinatesDlg ();
+
+			OKFlag = dialogPtr->DoDialog (windowPtr,
+													windowInfoPtr,
+													inputSelectionRectanglePtr,
+													&selectionRectangle,
+													coordinateRectanglePtr,
+													pointType,
+													unitsDisplayCodePtr,
+													changedFlagPtr,
+													applyToAllWindowsFlagPtr,
+													useStartLineColumnFlagPtr,
+													&previewWasUsedFlag,
+													stringID);
+
+			delete dialogPtr;
+			
+			}
+
+		CATCH_ALL (e) 
+			{
+			MemoryMessage (0, kObjectMessage);
+			
+			}
+		END_CATCH_ALL
+	#endif	// defined multispec_win  
+
+	#if defined multispec_lin			
+		CMEditCoordinatesDlg* dialogPtr = NULL;
+
+		try
+			{
+			dialogPtr = new CMEditCoordinatesDlg ();
+
+			OKFlag = dialogPtr->DoDialog (windowPtr,
+													windowInfoPtr,
+													inputSelectionRectanglePtr,
+													&selectionRectangle,
+													coordinateRectanglePtr,
+													pointType,
+													unitsDisplayCodePtr,
+													changedFlagPtr,
+													applyToAllWindowsFlagPtr,
+													useStartLineColumnFlagPtr,
+													&previewWasUsedFlag,
+													stringID);
+
+			delete dialogPtr;
+			
+			}
+
+		catch (int e) 
+			{
+			MemoryMessage (0, kObjectMessage);
+			
+			}    
+	#endif	// defined multispec_win  
+
+	if (OKFlag)
+			// Check if the selected area changed.
+		EditLineColumnDialogOK (windowInfoPtr->windowInfoHandle,
+										inputSelectionRectanglePtr,
+										&selectionRectangle,
+										coordinateRectanglePtr,
+										*unitsDisplayCodePtr,
+										changedFlagPtr);
+
+	else	// !OKFlag
+		{
+		if (previewWasUsedFlag) 
+			{
+					// If a new selection was previewed then make sure that we go back
+					// to the original input selection.
+
+					// Make sure the input coordinates are in the proper units.
+
+			if (*unitsDisplayCodePtr != kLineColumnUnits)
+				ComputeMapCoordinates (windowInfoPtr->windowInfoHandle,
+												1,
+												*unitsDisplayCodePtr,
+												inputSelectionRectanglePtr,
+												coordinateRectanglePtr);
+
+					// Get the factor that is being used to convert the original units to
+					// the requested display units.
+
+			factor = GetCoordinateViewFactor (windowInfoPtr->windowInfoHandle);
+
+			EditSelectionDialogShowSelection (windowPtr,
+															windowInfoPtr->windowInfoHandle,
+															inputSelectionRectanglePtr,
+															coordinateRectanglePtr,
+															*applyToAllWindowsFlagPtr,
+															*useStartLineColumnFlagPtr,
+															*unitsDisplayCodePtr,
+															factor);
+
+			}	// end "if (previewWasUsedFlag)"
+
+		}	// end "else !OKFlag"
+
+	return (OKFlag);
+
+}	// end "EditLineColumnDialog"   
 
 
 
@@ -2952,56 +3051,55 @@ Boolean EditLineColumnDialog(
 //	Coded By:			Larry L. Biehl			Date: 03/14/2005
 //	Revised By:			Larry L. Biehl			Date: 03/02/2017	
 
-void EditLineColumnDialogInitialize(
-        DialogPtr dialogPtr,
-        WindowPtr windowPtr,
-        WindowInfoPtr windowInfoPtr,
-        SInt16 pointType,
-        SInt16 unitsDisplayCode,
-        LongRect* inputSelectionRectanglePtr,
-        LongRect* selectionRectanglePtr,
-        DoubleRect* coordinateRectanglePtr,
-        LongRect* minMaxSelectionRectanglePtr,
-        DoubleRect* minMaxCoordinateRectanglePtr,
-        DoubleRect* inputCoordinateRectanglePtr,
-        Boolean* applyToAllWindowsFlagPtr,
-        Boolean* useStartLineColumnFlagPtr,
-        SInt16* selectionDisplayUnitsPtr,
-        SInt16 stringID)
- {
-    Str255 mapString;
+void EditLineColumnDialogInitialize (
+				DialogPtr							dialogPtr,
+				WindowPtr							windowPtr,
+				WindowInfoPtr						windowInfoPtr,
+				SInt16								pointType,
+				SInt16								unitsDisplayCode,
+				LongRect*							inputSelectionRectanglePtr,
+				LongRect*							selectionRectanglePtr,
+				DoubleRect*							coordinateRectanglePtr,
+				LongRect*							minMaxSelectionRectanglePtr,
+				DoubleRect*							minMaxCoordinateRectanglePtr,
+				DoubleRect*							inputCoordinateRectanglePtr,
+				Boolean*								applyToAllWindowsFlagPtr,
+				Boolean*								useStartLineColumnFlagPtr,
+				SInt16*								selectionDisplayUnitsPtr,
+				SInt16								stringID)
+ 
+{
+	Str255								mapString;
 
-    SInt16 endIndex,
-            gridCodeMenuItem,
-            planarMapUnitsCode,
-            projectionCode,
-            startIndex;
+	SInt16								endIndex,
+											gridCodeMenuItem,
+											planarMapUnitsCode,
+											projectionCode,
+											startIndex;
 
-    Boolean inverseLatLongAvailableFlag;
+	Boolean								inverseLatLongAvailableFlag;
 
-#	if defined multispec_win  
-		CComboBox* comboBoxPtr;
-#	endif	// defined multispec_win  
+	#if defined multispec_win  
+		CComboBox*							comboBoxPtr;
 
 
-#	if defined multispec_win
 		USES_CONVERSION;
-#	endif
+	#endif
 
-   planarMapUnitsCode = GetFilePlanarMapUnitsCode(windowInfoPtr->windowInfoHandle);
-   projectionCode = GetFileProjectionCode(windowInfoPtr->windowInfoHandle);
+   planarMapUnitsCode = GetFilePlanarMapUnitsCode (windowInfoPtr->windowInfoHandle);
+   projectionCode = GetFileProjectionCode (windowInfoPtr->windowInfoHandle);
 
 			// Determine if inverse lat-long specification will be available.
 
    inverseLatLongAvailableFlag =
-            DetermineIfInverseLatLongPossible(windowInfoPtr->windowInfoHandle);
+					DetermineIfInverseLatLongPossible (windowInfoPtr->windowInfoHandle);
 
 			// Get popup menu (list menu for windows) strings
 
    if (planarMapUnitsCode < kKilometersCode)
        CtoPstring ((UCharPtr)"Map", mapString);
 
-   else // planarMapUnitsCode >= kKilometersCode
+   else	// planarMapUnitsCode >= kKilometersCode
 		{
 				// This allows for MultiSpec Geographic code which is -1
 
@@ -3012,207 +3110,213 @@ void EditLineColumnDialogInitialize(
 			gridCodeMenuItem = 1;
 
        if (gridCodeMenuItem <= 0)
-			mapString[0] = sprintf((char*) &mapString[1], "Map");
+			mapString[0] = sprintf ((char*) &mapString[1], "Map");
 
-       else // gridCodeMenuItem > 0
+       else	// gridCodeMenuItem > 0
 			{
-#			if defined multispec_mac 
-				GetMenuItemText(gPopUpProjectionMenu,
-                    gridCodeMenuItem,
-                    mapString);
-#			endif	// defined multispec_mac  
+			#if defined multispec_mac 
+				GetMenuItemText (gPopUpProjectionMenu,
+										gridCodeMenuItem,
+										mapString);
+			#endif	// defined multispec_mac  
 
-#			if defined multispec_win  
-				MGetString(mapString,
-                    0,
-                    IDS_ProjectionType01 + gridCodeMenuItem - 1);
-#			endif	// defined multispec_win 
+			#if defined multispec_win  
+				MGetString (mapString,
+								0,
+								IDS_ProjectionType01 + gridCodeMenuItem - 1);
+			#endif	// defined multispec_win 
 
-			} // end "else gridCode > 0"
+			}	// end "else gridCode > 0"
 
         endIndex = mapString[0];
         startIndex = endIndex + 1;
 
-#if defined multispec_mac 
-        GetMenuItemText(gPopUpMapUnitsMenu,
-                planarMapUnitsCode + 1,
-                &mapString[startIndex]);
-#endif	// defined multispec_mac  
+			#if defined multispec_mac 
+				GetMenuItemText (gPopUpMapUnitsMenu,
+										planarMapUnitsCode + 1,
+										&mapString[startIndex]);
+			#endif	// defined multispec_mac  
 
-#if defined multispec_win  
-        MGetString(&mapString[startIndex],
-                0,
-                IDS_MapUnits01 + planarMapUnitsCode);
-#endif	// defined multispec_win 
+			#if defined multispec_win  
+				MGetString (&mapString[startIndex],
+								 0,
+								 IDS_MapUnits01 + planarMapUnitsCode);
+			#endif	// defined multispec_win 
 
-        endIndex += mapString[startIndex] + 1;
+			endIndex += mapString[startIndex] + 1;
 
-        mapString[0] = (UInt8) endIndex;
-        mapString[endIndex + 1] = 0;
+			mapString[0] = (UInt8)endIndex;
+			mapString[endIndex + 1] = 0;
 
-        mapString[startIndex] = '-';
+			mapString[startIndex] = '-';
 
-    } // end "else planarMapUnitsCode >= kKilometersCode"
+			}	// end "else planarMapUnitsCode >= kKilometersCode"
 
-    //	Now set menu names
+				//	Now set menu names
 
-#if defined multispec_mac 
-    if (planarMapUnitsCode < kKilometersCode)
-        DisableMenuItem(gPopUpSelectionDisplayUnitsMenu, kMapUnits);
+		#if defined multispec_mac 
+			if (planarMapUnitsCode < kKilometersCode)
+				DisableMenuItem (gPopUpSelectionDisplayUnitsMenu, kMapUnits);
 
-    else // planarMapUnitsCode >= kKilometersCode
-        EnableMenuItem(gPopUpSelectionDisplayUnitsMenu, kMapUnits);
+			else	// planarMapUnitsCode >= kKilometersCode
+				EnableMenuItem (gPopUpSelectionDisplayUnitsMenu, kMapUnits);
 
-    SetMenuItemText(gPopUpSelectionDisplayUnitsMenu,
-            kMapUnits,
-            mapString);
+			SetMenuItemText (gPopUpSelectionDisplayUnitsMenu,
+									kMapUnits,
+									mapString);
 
-    DisableMenuItem(gPopUpSelectionDisplayUnitsMenu, kLatLongUnits);
-    if (inverseLatLongAvailableFlag)
-        EnableMenuItem(gPopUpSelectionDisplayUnitsMenu, kLatLongUnits);
-#endif	// defined multispec_mac  
+			DisableMenuItem (gPopUpSelectionDisplayUnitsMenu, kLatLongUnits);
+			if (inverseLatLongAvailableFlag)
+				EnableMenuItem (gPopUpSelectionDisplayUnitsMenu, kLatLongUnits);
+		#endif	// defined multispec_mac  
 
-#if defined multispec_win  
-    SInt16 index = 0,
-            numberComboItems;
+	#if defined multispec_win  
+		SInt16				index = 0,
+								numberComboItems;
 
 
-    comboBoxPtr = (CComboBox*) dialogPtr->GetDlgItem(IDC_CoordinateUnits);
+		comboBoxPtr = (CComboBox*)dialogPtr->GetDlgItem (IDC_CoordinateUnits);
 
-    // Remove all but the first item in the list.
+				// Remove all but the first item in the list.
 
-    numberComboItems = comboBoxPtr->GetCount();
-    while (numberComboItems > 1) {
-        comboBoxPtr->DeleteString(numberComboItems - 1);
-        numberComboItems--;
+		numberComboItems = comboBoxPtr->GetCount ();
+		while (numberComboItems > 1) 
+			{
+			comboBoxPtr->DeleteString (numberComboItems - 1);
+			numberComboItems--;
 
-    } // end "while (numberComboItems > 1)"
+			}	// end "while (numberComboItems > 1)"
 
-    comboBoxPtr->SetItemData(index, kLineColumnUnits);
-    index++;
+		comboBoxPtr->SetItemData (index, kLineColumnUnits);
+		index++;
 
-    if (planarMapUnitsCode >= kKilometersCode) {
-        comboBoxPtr->InsertString(index, (LPCWSTR)A2T((char*)&mapString[1]));
-        comboBoxPtr->SetItemData(index, kMapUnits);
-        index++;
+		if (planarMapUnitsCode >= kKilometersCode) 
+			{
+			comboBoxPtr->InsertString (index, (LPCWSTR)A2T((char*)&mapString[1]));
+			comboBoxPtr->SetItemData (index, kMapUnits);
+			index++;
 
-    } // end "if (planarMapUnitsCode >= kKilometersCode)"
+			}	// end "if (planarMapUnitsCode >= kKilometersCode)"
 
-    if (inverseLatLongAvailableFlag) {
-        comboBoxPtr->InsertString(index, (LPCWSTR)_T("Latitude-Longitude"));
-        comboBoxPtr->SetItemData(index, kLatLongUnits);
-        index++;
+		if (inverseLatLongAvailableFlag) 
+			{
+			comboBoxPtr->InsertString (index, (LPCWSTR)_T("Latitude-Longitude"));
+			comboBoxPtr->SetItemData (index, kLatLongUnits);
+			index++;
 
-    } // end "if (inverseLatLongAvailableFlag)"
-#endif	// defined multispec_win
+			}	// end "if (inverseLatLongAvailableFlag)"
+	#endif	// defined multispec_win
 
-    // Change the window title	
+			// Change the window title	
 
-    MGetString((UCharPtr) & gTextString, kDialogStrID, stringID);
-#if defined multispec_lin
-    SetWTitle(GetDialogWindow(dialogPtr), ((UCharPtr) &gTextString)+1);
-#else 
-    SetWTitle(GetDialogWindow(dialogPtr), (UCharPtr) & gTextString);
-#endif
-    // Control to allow selection to be applied to all open windows
+    MGetString ((UCharPtr)&gTextString, kDialogStrID, stringID);
+	 
+	#if defined multispec_lin
+		SetWTitle (GetDialogWindow (dialogPtr), ((UCharPtr)gTextString)+1);
+	#else 
+		SetWTitle (GetDialogWindow (dialogPtr), (UCharPtr)&gTextString);
+	#endif
+	
+			// Control to allow selection to be applied to all open windows
 
-    *applyToAllWindowsFlagPtr = FALSE;
-    HideDialogItem(dialogPtr, IDC_ApplyToAllCheckbox);
-    SetDLogControl(dialogPtr, IDC_ApplyToAllCheckbox, 0);
+	*applyToAllWindowsFlagPtr = FALSE;
+	HideDialogItem (dialogPtr, IDC_ApplyToAllCheckbox);
+	SetDLogControl (dialogPtr, IDC_ApplyToAllCheckbox, 0);
 
-    // Control to allow selection to be previewed
+			// Control to allow selection to be previewed
 
-    ShowDialogItem(dialogPtr, IDC_Preview);
-    if (windowPtr == NULL)
-        HideDialogItem(dialogPtr, IDC_Preview);
+	ShowDialogItem (dialogPtr, IDC_Preview);
+	if (windowPtr == NULL)
+		HideDialogItem (dialogPtr, IDC_Preview);
 
-    // Control to allow start line and column of other image windows to
-    // be used when applying this selection to them.
-    // Always hide to start with since this only applies when applying
-    // to other windows.
+			// Control to allow start line and column of other image windows to
+			// be used when applying this selection to them.
+			// Always hide to start with since this only applies when applying
+			// to other windows.
 
-    *useStartLineColumnFlagPtr = TRUE;
-    HideDialogItem(dialogPtr, IDC_StartLCCheckBox);
-    SetDLogControl(dialogPtr, IDC_StartLCCheckBox, 1);
+	*useStartLineColumnFlagPtr = TRUE;
+	HideDialogItem (dialogPtr, IDC_StartLCCheckBox);
+	SetDLogControl (dialogPtr, IDC_StartLCCheckBox, 1);
 
-    // Get the min and max line-column values
+			// Get the min and max line-column values
 
-    minMaxSelectionRectanglePtr->left = 1;
-    minMaxSelectionRectanglePtr->top = 1;
-    minMaxSelectionRectanglePtr->right = windowInfoPtr->maxNumberColumns;
-    minMaxSelectionRectanglePtr->bottom = windowInfoPtr->maxNumberLines;
+	minMaxSelectionRectanglePtr->left = 1;
+	minMaxSelectionRectanglePtr->top = 1;
+	minMaxSelectionRectanglePtr->right = windowInfoPtr->maxNumberColumns;
+	minMaxSelectionRectanglePtr->bottom = windowInfoPtr->maxNumberLines;
 
-    // Present dialog for editing the rectangular type field.
+			// Present dialog for editing the rectangular type field.
 
-    if (pointType == kRectangleType) {
-        // Force map coordinate units to be computed.
+	if (pointType == kRectangleType) 
+		{
+				// Force map coordinate units to be computed.
 
-        ComputeMapCoordinates(windowInfoPtr->windowInfoHandle,
-                1,
-                kMetersUnitsMenuItem,
-                inputSelectionRectanglePtr,
-                coordinateRectanglePtr);
+		ComputeMapCoordinates (windowInfoPtr->windowInfoHandle,
+										 1,
+										 kMetersUnitsMenuItem,
+										 inputSelectionRectanglePtr,
+										 coordinateRectanglePtr);
 
-        // Save the input coordinate rectangle.
+				// Save the input coordinate rectangle.
 
-        *inputCoordinateRectanglePtr = *coordinateRectanglePtr;	
-		  
-        EditSelectionDialogSetCoordinates(
-                dialogPtr,
-                windowInfoPtr->windowInfoHandle,
-                inputSelectionRectanglePtr,
-                selectionRectanglePtr,
-                coordinateRectanglePtr,
-                coordinateRectanglePtr,
-                minMaxSelectionRectanglePtr,
-                minMaxCoordinateRectanglePtr,
-                unitsDisplayCode,
-                kLineColumnUnits);
+		*inputCoordinateRectanglePtr = *coordinateRectanglePtr;	
 
-        if (gNumberOfIWindows > 1 && stringID == IDS_Dialog26)
-            ShowDialogItem(dialogPtr, IDC_ApplyToAllCheckbox);
+		EditSelectionDialogSetCoordinates (dialogPtr,
+														 windowInfoPtr->windowInfoHandle,
+														 inputSelectionRectanglePtr,
+														 selectionRectanglePtr,
+														 coordinateRectanglePtr,
+														 coordinateRectanglePtr,
+														 minMaxSelectionRectanglePtr,
+														 minMaxCoordinateRectanglePtr,
+														 unitsDisplayCode,
+														 kLineColumnUnits);
 
-    } // end "if (pointType == kRectangleType)" 
+		if (gNumberOfIWindows > 1 && stringID == IDS_Dialog26)
+			ShowDialogItem (dialogPtr, IDC_ApplyToAllCheckbox);
 
-    // Present dialog for editing the field name and changing test/train	
-    // field choice.																		
+		}	// end "if (pointType == kRectangleType)" 
 
-    if (pointType == kPolygonType) {
-        // Hide items dealing with rectangular type fields.					
-        // item = 4: Edit Text with "lower line value"							
-        // item = 6: Edit Text with "right col value"							
-        // item = 8: Static Text with "Rectangular Field Coordinate"		
-        // item = 13: Static Text with "-"											
-        // item = 14: Static Text with "-"											
-        // item = 16: Static Text with "lower line value"						
-        // item = 18: Static Text with "right col value"						
-        // item = 19: Static Text with "-"											
-        // item = 20: Static Text with "-"											
+			// Present dialog for editing the field name and changing test/train	
+			// field choice.																		
 
-        HideDialogItem(dialogPtr, IDC_NewLineDash);
-        HideDialogItem(dialogPtr, IDC_NewLineEnd);
-        HideDialogItem(dialogPtr, IDC_NewColumnDash);
-        HideDialogItem(dialogPtr, IDC_NewColumnEnd);
-        HideDialogItem(dialogPtr, IDC_CurrentLineDash);
-        HideDialogItem(dialogPtr, IDC_CurrentLineEnd);
-        HideDialogItem(dialogPtr, IDC_CurrentColumnDash);
-        HideDialogItem(dialogPtr, IDC_CurrentColumnEnd);
+	if (pointType == kPolygonType) 
+		{
+				// Hide items dealing with rectangular type fields.					
+				// item = 4: Edit Text with "lower line value"							
+				// item = 6: Edit Text with "right col value"							
+				// item = 8: Static Text with "Rectangular Field Coordinate"		
+				// item = 13: Static Text with "-"											
+				// item = 14: Static Text with "-"											
+				// item = 16: Static Text with "lower line value"						
+				// item = 18: Static Text with "right col value"						
+				// item = 19: Static Text with "-"											
+				// item = 20: Static Text with "-"											
 
-        // Load default line-column.												
+		HideDialogItem (dialogPtr, IDC_NewLineDash);
+		HideDialogItem (dialogPtr, IDC_NewLineEnd);
+		HideDialogItem (dialogPtr, IDC_NewColumnDash);
+		HideDialogItem (dialogPtr, IDC_NewColumnEnd);
+		HideDialogItem (dialogPtr, IDC_CurrentLineDash);
+		HideDialogItem (dialogPtr, IDC_CurrentLineEnd);
+		HideDialogItem (dialogPtr, IDC_CurrentColumnDash);
+		HideDialogItem (dialogPtr, IDC_CurrentColumnEnd);
 
-        LoadDItemValue(dialogPtr, IDC_NewLineStart, selectionRectanglePtr->top);
-        LoadDItemValue(dialogPtr, IDC_NewColumnStart, selectionRectanglePtr->left);
+				// Load default line-column.												
 
-        // Load current line-column.												
+		LoadDItemValue (dialogPtr, IDC_NewLineStart, selectionRectanglePtr->top);
+		LoadDItemValue (dialogPtr, IDC_NewColumnStart, selectionRectanglePtr->left);
 
-        LoadDItemValue(dialogPtr, IDC_CurrentLineStart, selectionRectanglePtr->top);
-        LoadDItemValue(dialogPtr, IDC_CurrentColumnStart, selectionRectanglePtr->left);
+				// Load current line-column.												
 
-    } // end "if (pointType == kPolygonType)" 
+		LoadDItemValue (dialogPtr, IDC_CurrentLineStart, selectionRectanglePtr->top);
+		LoadDItemValue (dialogPtr, IDC_CurrentColumnStart, selectionRectanglePtr->left);
+
+		}	// end "if (pointType == kPolygonType)" 
 
     *selectionDisplayUnitsPtr = unitsDisplayCode;
 
-} // end "EditLineColumnDialogInitialize"   
+}	// end "EditLineColumnDialogInitialize"   
 
 
 
@@ -3237,43 +3341,44 @@ void EditLineColumnDialogInitialize(
 //	Coded By:			Larry L. Biehl			Date: 11/24/2004
 //	Revised By:			Larry L. Biehl			Date: 12/06/2006	
 
-void EditLineColumnDialogOK(
-        Handle windowInfoHandle,
-        LongRect* inputSelectionRectanglePtr,
-        LongRect* selectionRectanglePtr,
-        DoubleRect* coordinateRectanglePtr,
-        SInt16 unitsDisplayCode,
-        Boolean* changedFlagPtr)
- {
+void EditLineColumnDialogOK (
+				Handle								windowInfoHandle,
+				LongRect*							inputSelectionRectanglePtr,
+				LongRect*							selectionRectanglePtr,
+				DoubleRect*							coordinateRectanglePtr,
+				SInt16								unitsDisplayCode,
+				Boolean*								changedFlagPtr)
 
-    ConvertCoordinateRectToLCRect(windowInfoHandle,
-            coordinateRectanglePtr,
-            selectionRectanglePtr,
-            unitsDisplayCode,
-            1.);
+{
+	ConvertCoordinateRectToLCRect (windowInfoHandle,
+												coordinateRectanglePtr,
+												selectionRectanglePtr,
+												unitsDisplayCode,
+												1.);
 
-    // Now determine if the project information was changed.
+			// Now determine if the project information was changed.
 
-    if (selectionRectanglePtr->top != inputSelectionRectanglePtr->top)
-        *changedFlagPtr = TRUE;
+	if (selectionRectanglePtr->top != inputSelectionRectanglePtr->top)
+		*changedFlagPtr = TRUE;
 
-    if (selectionRectanglePtr->left != inputSelectionRectanglePtr->left)
-        *changedFlagPtr = TRUE;
+	if (selectionRectanglePtr->left != inputSelectionRectanglePtr->left)
+		*changedFlagPtr = TRUE;
 
-    if (selectionRectanglePtr->bottom != inputSelectionRectanglePtr->bottom)
-        *changedFlagPtr = TRUE;
+	if (selectionRectanglePtr->bottom != inputSelectionRectanglePtr->bottom)
+		*changedFlagPtr = TRUE;
 
-    if (selectionRectanglePtr->right != inputSelectionRectanglePtr->right)
-        *changedFlagPtr = TRUE;
+	if (selectionRectanglePtr->right != inputSelectionRectanglePtr->right)
+		*changedFlagPtr = TRUE;
 
-    if (*changedFlagPtr) {
-        // Copy the new coordinates to the output parameters.
+	if (*changedFlagPtr) 
+		{
+				// Copy the new coordinates to the output parameters.
 
-        *inputSelectionRectanglePtr = *selectionRectanglePtr;
+		*inputSelectionRectanglePtr = *selectionRectanglePtr;
 
-    } // end "if (*changedFlagPtr)"
+		}	// end "if (*changedFlagPtr)"
 
-} // end "EditLineColumnDialogOK"      
+}	// end "EditLineColumnDialogOK"      
 
 
 
@@ -3298,18 +3403,19 @@ void EditLineColumnDialogOK(
 //	Coded By:			Larry L. Biehl			Date: 03/18/2005
 //	Revised By:			Larry L. Biehl			Date: 03/18/2005	
 
-void EditLineColumnDialogSetStartLC(
-        DialogPtr dialogPtr,
-        SInt16 unitsDisplayCode,
-        Boolean applyToAllWindowsFlag)
- {
-    if (applyToAllWindowsFlag && unitsDisplayCode == kLineColumnUnits)
-        ShowDialogItem(dialogPtr, IDC_StartLCCheckBox);
+void EditLineColumnDialogSetStartLC (
+				DialogPtr							dialogPtr,
+				SInt16								unitsDisplayCode,
+				Boolean								applyToAllWindowsFlag)
 
-    else // !applyToAllWindowsFlag || ...
-        HideDialogItem(dialogPtr, IDC_StartLCCheckBox);
+{
+	if (applyToAllWindowsFlag && unitsDisplayCode == kLineColumnUnits)
+		ShowDialogItem (dialogPtr, IDC_StartLCCheckBox);
 
-} // end "EditLineColumnDialogSetStartLC"        
+	else	// !applyToAllWindowsFlag || ...
+		HideDialogItem (dialogPtr, IDC_StartLCCheckBox);
+
+}	// end "EditLineColumnDialogSetStartLC"        
 
 
 
@@ -3335,286 +3441,308 @@ void EditLineColumnDialogSetStartLC(
 //	Coded By:			Larry L. Biehl			Date: 05/11/2005
 //	Revised By:			Larry L. Biehl			Date: 05/16/2012	
 
-SInt16 EditLineColumnDialogCheckCoordinates(
-        DialogPtr dialogPtr,
-        Handle windowInfoHandle,
-        SInt16 selectionDisplayUnits,
-        LongRect* selectionRectanglePtr,
-        LongRect* minMaxSelectionRectanglePtr,
-        DoubleRect* coordinateRectanglePtr,
-        DoubleRect* minMaxCoordinateRectanglePtr,
-        double newColumnStart,
-        double newColumnEnd,
-        double newLineStart,
-        double newLineEnd)
- {
-    Str255 alertTextString;
-
-    DoubleRect localCoordinateRectangle;
-    DoubleRect localMinMaxCoordinateRectangle;
-    LongRect localSelectionRectangle;
-
-    double limitValue,
-            mapToMetersFactor,
-            theRealNum;
-
-    SInt16 alertStringID,
-            fileMapUnitsIndex,
-            item,
-            itemCode,
-            itemError,
-            projectionCode,
-            referenceSystemCode,
-            stringLength;
-
-    itemError = 0;
-
-    if (selectionDisplayUnits != kLineColumnUnits) {
-        referenceSystemCode = GetFileReferenceSystemCode(windowInfoHandle);
-        localMinMaxCoordinateRectangle = *minMaxCoordinateRectanglePtr;
-
-        if (selectionDisplayUnits == kLatLongUnits &&
-                referenceSystemCode != kGeographicRSCode) {
-            // For lat-long units we need to determine the min and max values
-            // for the actual location the selection is in the image. The Latitude-
-            // Longitude does not have to be constant with line or column number.
-
-            localCoordinateRectangle.top = newLineEnd;
-            localCoordinateRectangle.bottom = newLineStart;
-            localCoordinateRectangle.left = newColumnStart;
-            localCoordinateRectangle.right = newColumnEnd;
-
-            projectionCode = GetFileProjectionCode(windowInfoHandle);
-
-            ConvertLatLongRectToMapRect(
-                    windowInfoHandle, &localCoordinateRectangle);
-
-            ConvertMapRectToLCRect(windowInfoHandle,
-                    &localCoordinateRectangle,
-                    &localSelectionRectangle,
-                    1);
-
-            // Continue with check if the line columns are within the possible range
-            // for the image.
-
-            if (localSelectionRectangle.top >= minMaxSelectionRectanglePtr->top &&
-                    localSelectionRectangle.bottom <= minMaxSelectionRectanglePtr->bottom &&
-                    localSelectionRectangle.left >= minMaxSelectionRectanglePtr->left &&
-                    localSelectionRectangle.right <= minMaxSelectionRectanglePtr->right) {
-
-                // Add a pixel around the edge of the new local area to allow for
-                // the edge of a pixel instead of the center of the pixel
-
-                localSelectionRectangle.top =
-                        MAX(localSelectionRectangle.top - 1, minMaxSelectionRectanglePtr->top);
+SInt16 EditLineColumnDialogCheckCoordinates (
+				DialogPtr							dialogPtr,
+				Handle								windowInfoHandle,
+				SInt16								selectionDisplayUnits,
+				LongRect*							selectionRectanglePtr,
+				LongRect*							minMaxSelectionRectanglePtr,
+				DoubleRect*							coordinateRectanglePtr,
+				DoubleRect*							minMaxCoordinateRectanglePtr,
+				double								newColumnStart,
+				double								newColumnEnd,
+				double								newLineStart,
+				double								newLineEnd)
+ 
+{
+	Str255								alertTextString;
+
+	DoubleRect							localCoordinateRectangle;
+	DoubleRect							localMinMaxCoordinateRectangle;
+	LongRect								localSelectionRectangle;
+
+	double								limitValue,
+											mapToMetersFactor,
+											theRealNum;
+
+	SInt16								alertStringID,
+											fileMapUnitsIndex,
+											item,
+											itemCode,
+											itemError,
+											projectionCode,
+											referenceSystemCode,
+											stringLength;
+
+	itemError = 0;
+
+	if (selectionDisplayUnits != kLineColumnUnits) 
+		{
+		referenceSystemCode = GetFileReferenceSystemCode (windowInfoHandle);
+		localMinMaxCoordinateRectangle = *minMaxCoordinateRectanglePtr;
+
+		if (selectionDisplayUnits == kLatLongUnits &&
+														referenceSystemCode != kGeographicRSCode) 
+			{
+					// For lat-long units we need to determine the min and max values
+					// for the actual location the selection is in the image. The Latitude-
+					// Longitude does not have to be constant with line or column number.
+
+			localCoordinateRectangle.top = newLineEnd;
+			localCoordinateRectangle.bottom = newLineStart;
+			localCoordinateRectangle.left = newColumnStart;
+			localCoordinateRectangle.right = newColumnEnd;
+
+			projectionCode = GetFileProjectionCode (windowInfoHandle);
+
+			ConvertLatLongRectToMapRect (windowInfoHandle, &localCoordinateRectangle);
+
+			ConvertMapRectToLCRect (windowInfoHandle,
+											  &localCoordinateRectangle,
+											  &localSelectionRectangle,
+											  1);
+
+					// Continue with check if the line columns are within the possible 
+					// range for the image.
+
+			if (localSelectionRectangle.top >= minMaxSelectionRectanglePtr->top &&
+					  localSelectionRectangle.bottom <= minMaxSelectionRectanglePtr->bottom &&
+					  localSelectionRectangle.left >= minMaxSelectionRectanglePtr->left &&
+					  localSelectionRectangle.right <= minMaxSelectionRectanglePtr->right) 
+				{
+						// Add a pixel around the edge of the new local area to allow for
+						// the edge of a pixel instead of the center of the pixel
+
+				localSelectionRectangle.top = MAX (localSelectionRectangle.top - 1, 
+																minMaxSelectionRectanglePtr->top);
+
+				localSelectionRectangle.left = MAX (localSelectionRectangle.left - 1, 
+																minMaxSelectionRectanglePtr->left);
+
+				localSelectionRectangle.bottom = MIN (localSelectionRectangle.bottom + 1, 
+																	minMaxSelectionRectanglePtr->bottom);
+
+				localSelectionRectangle.right = MIN (localSelectionRectangle.right + 1, 
+																	minMaxSelectionRectanglePtr->right);
+
+				ConvertLCRectToMapRect (windowInfoHandle,
+												&localSelectionRectangle,
+												&localMinMaxCoordinateRectangle);
+
+						// Note that the top and bottom are now in reverse order of what is 
+						// expected for the rest of the comparisons.
+
+				theRealNum = localMinMaxCoordinateRectangle.top;
+				localMinMaxCoordinateRectangle.top = localMinMaxCoordinateRectangle.bottom;
+				localMinMaxCoordinateRectangle.bottom = theRealNum;
+
+				fileMapUnitsIndex = 
+							GetFilePlanarMapUnitsCode (windowInfoHandle) - kKilometersCode;
+				mapToMetersFactor = 1;
+				if (fileMapUnitsIndex > 1)
+					mapToMetersFactor = gDistanceFileConversionFactors[fileMapUnitsIndex] /
+														gDistanceFileConversionFactors[1]; // kMeters
+
+				ConvertMapRectByGivenFactor (mapToMetersFactor, 
+														&localMinMaxCoordinateRectangle);
 
-                localSelectionRectangle.left =
-                        MAX(localSelectionRectangle.left - 1, minMaxSelectionRectanglePtr->left);
+				ConvertMapRectToLatLongRect (
+						windowInfoHandle, projectionCode, &localMinMaxCoordinateRectangle);
+
+						// Now be sure that the min max limitation are not more stringent 
+						// than what the original was.
 
-                localSelectionRectangle.bottom =
-                        MIN(localSelectionRectangle.bottom + 1, minMaxSelectionRectanglePtr->bottom);
+				localMinMaxCoordinateRectangle.left = 
+														MIN (localMinMaxCoordinateRectangle.left,
+																minMaxCoordinateRectanglePtr->left);
+				localMinMaxCoordinateRectangle.right = 
+														MAX (localMinMaxCoordinateRectangle.right,
+																minMaxCoordinateRectanglePtr->right);
+				localMinMaxCoordinateRectangle.bottom = 
+														MIN (localMinMaxCoordinateRectangle.bottom,
+																minMaxCoordinateRectanglePtr->left);
+				localMinMaxCoordinateRectangle.top = 
+														MAX (localMinMaxCoordinateRectangle.top,
+																minMaxCoordinateRectanglePtr->top);
 
-                localSelectionRectangle.right =
-                        MIN(localSelectionRectangle.right + 1, minMaxSelectionRectanglePtr->right);
+				}	// end "if (localSelectionRectangle.top >= ..."
+
+			}	// end "if (selectionDisplayUnits == kLatLongUnits && ..."
+
+		for (item = 3; item <= 4; item++) 
+			{
+					// Item = 3: New upper coordinate value
+					// Item = 4 New lower coordinate value
+
+			if (item == 3) 
+				{
+				theRealNum = newLineStart;
+				itemCode = IDC_NewLineStart;
+
+				}	// end "if (item == 3)"
 
-                ConvertLCRectToMapRect(windowInfoHandle,
-                        &localSelectionRectangle,
-                        &localMinMaxCoordinateRectangle);
+			else	// item == 4
+				{
+				theRealNum = newLineEnd;
+				itemCode = IDC_NewLineEnd;
 
-                // Note that the top and bottom are now in reverse order of what is expected for
-                // the rest of the comparisons.
+				}	// end "else item == 4"
+
+			if (theRealNum < localMinMaxCoordinateRectangle.bottom - 0.00000001) 
+				{
+				itemError = itemCode;
+				alertStringID = IDS_Alert132;
+				limitValue = localMinMaxCoordinateRectangle.bottom;
 
-                theRealNum = localMinMaxCoordinateRectangle.top;
-                localMinMaxCoordinateRectangle.top = localMinMaxCoordinateRectangle.bottom;
-                localMinMaxCoordinateRectangle.bottom = theRealNum;
+				}	// end "if (theNum < localMinMaxCoordinateRectangle.bottom)"
+
+			else if (theRealNum > localMinMaxCoordinateRectangle.top + 0.00000001) 
+				{
+				itemError = itemCode;
+				alertStringID = IDS_Alert133;
+				limitValue = localMinMaxCoordinateRectangle.top;
 
-                fileMapUnitsIndex = GetFilePlanarMapUnitsCode(windowInfoHandle) - kKilometersCode;
-                mapToMetersFactor = 1;
-                if (fileMapUnitsIndex > 1)
-                    mapToMetersFactor = gDistanceFileConversionFactors[fileMapUnitsIndex] /
-                        gDistanceFileConversionFactors[1]; // kMeters
+				}	// end "else if (theNum > localMinMaxCoordinateRectangle.top)"
 
-                ConvertMapRectByGivenFactor(mapToMetersFactor, &localMinMaxCoordinateRectangle);
+			if (item == 3)
+				coordinateRectanglePtr->bottom = theRealNum;
+			else	// item == 4
+				coordinateRectanglePtr->top = theRealNum;
 
-                ConvertMapRectToLatLongRect(
-                        windowInfoHandle, projectionCode, &localMinMaxCoordinateRectangle);
+			if (itemError != 0)
+				break;
 
-                // Now be sure that the min max limitation are not more stringent than what 
-                // the original was.
+			}	// end "for (item=3; item<=4; item++)"
 
-                localMinMaxCoordinateRectangle.left = MIN(localMinMaxCoordinateRectangle.left,
-                        minMaxCoordinateRectanglePtr->left);
-                localMinMaxCoordinateRectangle.right = MAX(localMinMaxCoordinateRectangle.right,
-                        minMaxCoordinateRectanglePtr->right);
-                localMinMaxCoordinateRectangle.bottom = MIN(localMinMaxCoordinateRectangle.bottom,
-                        minMaxCoordinateRectanglePtr->left);
-                localMinMaxCoordinateRectangle.top = MAX(localMinMaxCoordinateRectangle.top,
-                        minMaxCoordinateRectanglePtr->top);
+		for (item = 5; item <= 6; item++) 
+			{
+			if (itemError == 0) 
+				{
+						// Item = 5: New left coordinate value
+						// Item = 6: New right coordinate value
 
-            } // end "if (localSelectionRectangle.top >= minMaxSelectionRectanglePtr->top && ..."
+				if (item == 5) 
+					{
+					theRealNum = newColumnStart;
+					itemCode = IDC_NewColumnStart;
 
-        } // end "if (selectionDisplayUnits == kLatLongUnits && ..."
+					}	// end "if (item == 5)"
 
-        for (item = 3; item <= 4; item++) {
-            // Item = 3: New upper coordinate value
-            // Item = 4 New lower coordinate value
+				else	// item == 6
+					{
+					theRealNum = newColumnEnd;
+					itemCode = IDC_NewColumnEnd;
 
-            if (item == 3) {
-                theRealNum = newLineStart;
-                itemCode = IDC_NewLineStart;
+					}	// end "else item == 6"
+
+				if (theRealNum < localMinMaxCoordinateRectangle.left - 0.00000001) 
+					{
+					itemError = itemCode;
+					alertStringID = IDS_Alert130;
+					limitValue = localMinMaxCoordinateRectangle.left;
 
-            }// end "if (item == 3)"
+					}	// end "if (theNum < localMinMaxCoordinateRectangle.left)"
 
-            else // item == 4
-            {
-                theRealNum = newLineEnd;
-                itemCode = IDC_NewLineEnd;
+				else if (theRealNum > localMinMaxCoordinateRectangle.right + 0.00000001) 
+					{
+					itemError = itemCode;
+					alertStringID = IDS_Alert131;
+					limitValue = localMinMaxCoordinateRectangle.right;
 
-            } // end "else item == 4"
+					}	// end "else if (theNum > localMinMaxCoordinateRectangle.right)"
 
-            if (theRealNum < localMinMaxCoordinateRectangle.bottom - 0.00000001) {
-                itemError = itemCode;
-                alertStringID = IDS_Alert132;
-                limitValue = localMinMaxCoordinateRectangle.bottom;
+				if (item == 5)
+					coordinateRectanglePtr->left = theRealNum;
+				else	// item == 6
+					coordinateRectanglePtr->right = theRealNum;
 
-            }// end "if (theNum < localMinMaxCoordinateRectangle.bottom)"
+				}	// end "if (itemError == 0)"
 
-            else if (theRealNum > localMinMaxCoordinateRectangle.top + 0.00000001) {
-                itemError = itemCode;
-                alertStringID = IDS_Alert133;
-                limitValue = localMinMaxCoordinateRectangle.top;
+			}	// end "for (item=5; item<=6; item++)"
 
-            } // end "else if (theNum > localMinMaxCoordinateRectangle.top)"
+		if (itemError != 0) 
+			{
+			if (MGetString (gTextString, kAlertStrID, alertStringID)) 
+				{
+				stringLength = sprintf ((char*)&alertTextString[1],
+												(char*)&gTextString[1],
+												limitValue);
+				alertTextString[0] = (UInt8)stringLength;
 
-            if (item == 3)
-                coordinateRectanglePtr->bottom = theRealNum;
-            else // item == 4
-                coordinateRectanglePtr->top = theRealNum;
+				DisplayAlert (kErrorAlert2ID,
+									kStopAlert,
+									0,
+									0,
+									0,
+									alertTextString);
 
-            if (itemError != 0)
-                break;
+				}	// end "if (MGetString (..."
 
-        } // end "for (item=3; item<=4; item++)"
+			}	// end "if (itemError != 0)"
 
+		}	// end "if (selectionDisplayUnits != kLineColumnUnits)"
 
-        for (item = 5; item <= 6; item++) {
-            if (itemError == 0) {
-                // Item = 5: New left coordinate value
-                // Item = 6: New right coordinate value
+	if (itemError == 0) 
+		{
+		alertStringID = 0;
+		if (selectionDisplayUnits == kLineColumnUnits) 
+			{
+					// Make certain the line-column values make sense.	
+					// Turn the okay button off is they do not.				
 
-                if (item == 5) {
-                    theRealNum = newColumnStart;
-                    itemCode = IDC_NewColumnStart;
+			if (selectionRectanglePtr->top > selectionRectanglePtr->bottom)
+				alertStringID = IDS_Alert68;
 
-                }// end "if (item == 5)"
+			else if (selectionRectanglePtr->left > selectionRectanglePtr->right)
+				alertStringID = IDS_Alert69;
 
-                else // item == 6
-                {
-                    theRealNum = newColumnEnd;
-                    itemCode = IDC_NewColumnEnd;
+			}	// end "if (gSelectionDisplayUnits == kLineColumnUnits)"
 
-                } // end "else item == 6"
+		else	// if (gSelectionDisplayUnits != kLineColumnUnits)
+			{
+					// Make certain the map values make sense.					
 
-                if (theRealNum < localMinMaxCoordinateRectangle.left - 0.00000001) {
-                    itemError = itemCode;
-                    alertStringID = IDS_Alert130;
-                    limitValue = localMinMaxCoordinateRectangle.left;
+			if (coordinateRectanglePtr->top < coordinateRectanglePtr->bottom)
+				alertStringID = IDS_Alert68;
 
-                }// end "if (theNum < localMinMaxCoordinateRectangle.left)"
+			else if (coordinateRectanglePtr->left > coordinateRectanglePtr->right)
+				alertStringID = IDS_Alert69;
 
-                else if (theRealNum > localMinMaxCoordinateRectangle.right + 0.00000001) {
-                    itemError = itemCode;
-                    alertStringID = IDS_Alert131;
-                    limitValue = localMinMaxCoordinateRectangle.right;
+			}	// end "else selectionDisplayUnits != kLineColumnUnits"
 
-                } // end "else if (theNum > localMinMaxCoordinateRectangle.right)"
+		if (alertStringID != 0) 
+			{
+			DisplayAlert (kErrorAlertID,
+								kStopAlert,
+								kAlertStrID,
+								alertStringID,
+								0,
+								NULL);
 
-                if (item == 5)
-                    coordinateRectanglePtr->left = theRealNum;
-                else // item == 6
-                    coordinateRectanglePtr->right = theRealNum;
+			if (alertStringID == IDS_Alert68)
+				itemError = IDC_NewLineStart;
 
-            } // end "if (itemError == 0)"
+			else	// alertStringID == IDS_Alert69
+				itemError = IDC_NewColumnStart;
 
-        } // end "for (item=5; item<=6; item++)"
+			}	// end "if (alertStringID != 0)"
 
-        if (itemError != 0) {
-            if (MGetString(gTextString, kAlertStrID, alertStringID)) {
-                stringLength = sprintf((char*) &alertTextString[1],
-                        (char*) &gTextString[1],
-                        limitValue);
-                alertTextString[0] = (UInt8) stringLength;
+		}	// end "if (itemError == 0)"
+	/*
+	if (errorAlertFlag)
+		{
+		numberDecimals = 4;
+		if (selectionDisplayUnits == kLatLongUnits)
+			numberDecimals = 7;
 
-                DisplayAlert(kErrorAlert2ID,
-                        kStopAlert,
-                        0,
-                        0,
-                        0,
-                        alertTextString);
+		RealNumberErrorAlert (theRealNum, dialogPtr, valueItemHit, numberDecimals);
 
-            } // end "if ( MGetString (..."
+		}		// end "if (errorAlertFlag)"
+	*/
+	return (itemError);
 
-        } // end "if (itemError != 0)"
+}	// end "EditLineColumnDialogCheckCoordinates"   
 
-    } // end "if (selectionDisplayUnits != kLineColumnUnits)"
-
-    if (itemError == 0) {
-        alertStringID = 0;
-        if (selectionDisplayUnits == kLineColumnUnits) {
-            // Make certain the line-column values make sense.	
-            // Turn the okay button off is they do not.				
-
-            if (selectionRectanglePtr->top > selectionRectanglePtr->bottom)
-                alertStringID = IDS_Alert68;
-
-            else if (selectionRectanglePtr->left > selectionRectanglePtr->right)
-                alertStringID = IDS_Alert69;
-
-        }// end "if (gSelectionDisplayUnits == kLineColumnUnits)"
-
-        else // if (gSelectionDisplayUnits != kLineColumnUnits)
-        {
-            // Make certain the map values make sense.					
-
-            if (coordinateRectanglePtr->top < coordinateRectanglePtr->bottom)
-                alertStringID = IDS_Alert68;
-
-            else if (coordinateRectanglePtr->left > coordinateRectanglePtr->right)
-                alertStringID = IDS_Alert69;
-
-        } // end "else selectionDisplayUnits != kLineColumnUnits"
-
-        if (alertStringID != 0) {
-            DisplayAlert(kErrorAlertID,
-                    kStopAlert,
-                    kAlertStrID,
-                    alertStringID,
-                    0,
-                    NULL);
-
-            if (alertStringID == IDS_Alert68)
-                itemError = IDC_NewLineStart;
-
-            else // alertStringID == IDS_Alert69
-                itemError = IDC_NewColumnStart;
-
-        } // end "if (alertStringID != 0)"
-
-    } // end "if (itemError == 0)"
-
-    //	if (errorAlertFlag)
-    //		{
-    //		numberDecimals = 4;
-    //		if (selectionDisplayUnits == kLatLongUnits)
-    //			numberDecimals = 7;
-
-    //		RealNumberErrorAlert (theRealNum, dialogPtr, valueItemHit, numberDecimals);
-
-    //		}		// end "if (errorAlertFlag)"
-
-    return (itemError);
-
-} // end "EditLineColumnDialogCheckCoordinates"   
 
 
 //------------------------------------------------------------------------------------
@@ -3638,49 +3766,55 @@ SInt16 EditLineColumnDialogCheckCoordinates(
 //	Coded By:			Larry L. Biehl			Date: 09/28/1998
 //	Revised By:			Larry L. Biehl			Date: 09/28/1998			
 
-void GetBoundingSelectionRectangles(
-        DisplaySpecsPtr displaySpecsPtr,
-        SelectionInfoPtr selectionInfoPtr,
-        HPFieldPointsPtr selectionPointsPtr,
-        SInt16 startChannel)
- {
-    SInt32 index;
+void GetBoundingSelectionRectangles (
+				DisplaySpecsPtr					displaySpecsPtr,
+				SelectionInfoPtr					selectionInfoPtr,
+				HPFieldPointsPtr					selectionPointsPtr,
+				SInt16								startChannel)
+
+{
+	SInt32								index;
 
 
-    //	selectionPointsPtr++;														
-    selectionInfoPtr->lineColumnRectangle.top =
-            selectionInfoPtr->lineColumnRectangle.bottom =
-            selectionPointsPtr->line;
-    selectionInfoPtr->lineColumnRectangle.left =
-            selectionInfoPtr->lineColumnRectangle.right =
-            selectionPointsPtr->col;
+	//selectionPointsPtr++;														
+	selectionInfoPtr->lineColumnRectangle.top =
+						selectionInfoPtr->lineColumnRectangle.bottom =
+																selectionPointsPtr->line;
+	selectionInfoPtr->lineColumnRectangle.left =
+						selectionInfoPtr->lineColumnRectangle.right =
+																selectionPointsPtr->col;
 
-    for (index = 1; index < selectionInfoPtr->numberPoints; index++) {
-        //		selectionPointsPtr += 2;
-        selectionPointsPtr++;
+	for (index = 1; index < selectionInfoPtr->numberPoints; index++) 
+		{
+		//selectionPointsPtr += 2;
+		selectionPointsPtr++;
 
-        // Update the bounding line column rectangle.							
+				// Update the bounding line column rectangle.							
 
-        selectionInfoPtr->lineColumnRectangle.top =
-                MIN(selectionPointsPtr->line, selectionInfoPtr->lineColumnRectangle.top);
-        selectionInfoPtr->lineColumnRectangle.bottom =
-                MAX(selectionPointsPtr->line, selectionInfoPtr->lineColumnRectangle.bottom);
+		selectionInfoPtr->lineColumnRectangle.top =
+											MIN (selectionPointsPtr->line, 
+													selectionInfoPtr->lineColumnRectangle.top);
+		selectionInfoPtr->lineColumnRectangle.bottom =
+											MAX (selectionPointsPtr->line, 
+													selectionInfoPtr->lineColumnRectangle.bottom);
 
-        selectionInfoPtr->lineColumnRectangle.left =
-                MIN(selectionPointsPtr->col, selectionInfoPtr->lineColumnRectangle.left);
-        selectionInfoPtr->lineColumnRectangle.right =
-                MAX(selectionPointsPtr->col, selectionInfoPtr->lineColumnRectangle.right);
+		selectionInfoPtr->lineColumnRectangle.left =
+											MIN (selectionPointsPtr->col, 
+													selectionInfoPtr->lineColumnRectangle.left);
+		selectionInfoPtr->lineColumnRectangle.right =
+											MAX (selectionPointsPtr->col, 
+													selectionInfoPtr->lineColumnRectangle.right);
 
-    } // end "for (index=1; index<..." 
+		}	// end "for (index=1; index<..." 
 
-    // Get the selection offscreen rectangles.
+			// Get the selection offscreen rectangles.
 
-    ComputeSelectionOffscreenRectangle(displaySpecsPtr,
-            &selectionInfoPtr->lineColumnRectangle,
-            &selectionInfoPtr->offScreenRectangle,
-            startChannel);
+	ComputeSelectionOffscreenRectangle (displaySpecsPtr,
+													&selectionInfoPtr->lineColumnRectangle,
+													&selectionInfoPtr->offScreenRectangle,
+													startChannel);
 
-} // end "GetBoundingSelectionRectangles"
+}	// end "GetBoundingSelectionRectangles"
 
 
 
@@ -3709,247 +3843,263 @@ void GetBoundingSelectionRectangles(
 //	Coded By:			Larry L. Biehl			Date: 12/18/1998
 //	Revised By:			Larry L. Biehl			Date: 08/23/2010	
 
-SInt64 GetNumberPixelsInSelection(
-        SelectionInfoPtr selectionInfoPtr)
- {
-    SInt64 numberPixels,
-            numberPixelsChecked,
-            totalNumberPixelsToCheck;
+SInt64 GetNumberPixelsInSelection (
+				SelectionInfoPtr					selectionInfoPtr)
+ 
+{
+	SInt64								numberPixels,
+											numberPixelsChecked,
+											totalNumberPixelsToCheck;
 
-    Point point;
+	Point									point;
 
-    HPFieldPointsPtr selectionPointsPtr;
-    LongRect* lineColumnRectPtr;
+	HPFieldPointsPtr					selectionPointsPtr;
+	LongRect*							lineColumnRectPtr;
 
-    RgnHandle rgnHandle;
+	RgnHandle							rgnHandle;
 
-    UInt32 count;
+	UInt32								count;
 
-    SInt32 column,
-            columnEnd,
-            columnStart,
-            line,
-            lineEnd,
-            numberColumns;
+	SInt32								column,
+											columnEnd,
+											columnStart,
+											line,
+											lineEnd,
+											numberColumns;
 
 
-    // Initialize local variables.
+			// Initialize local variables.
+
+	numberPixels = 0;
+	lineColumnRectPtr = &selectionInfoPtr->lineColumnRectangle;
+
+	totalNumberPixelsToCheck =
+				(SInt64)(lineColumnRectPtr->right - lineColumnRectPtr->left + 1) *
+									(lineColumnRectPtr->bottom - lineColumnRectPtr->top + 1);
+
+			// Check if rectangular field or polygonal field.							
+
+	if (selectionInfoPtr->typeFlag == kRectangleType) 
+		{
+		numberPixels = totalNumberPixelsToCheck;
+
+		}	// end "if (selectionInfoPtr->typeFlag == kRectangleType)"
+
+	else if (selectionInfoPtr->typeFlag == kPolygonType) 
+		{
+		selectionPointsPtr = (HPFieldPointsPtr)GetHandlePointer (
+														selectionInfoPtr->polygonCoordinatesHandle,
+														kLock);
+														
+		#if defined multispec_mac
+			rgnHandle = NewRgn ();
+
+			if (rgnHandle != NULL) 
+				{
+				OpenRgn ();
+				MoveTo (selectionPointsPtr[selectionInfoPtr->numberPoints - 1].col,
+						  selectionPointsPtr[selectionInfoPtr->numberPoints - 1].line);
+
+				for (count = 0;
+						count < (UInt32)selectionInfoPtr->numberPoints;
+							count++) 
+					{
+					if (gMemoryError == noErr)
+						LineTo (selectionPointsPtr->col, selectionPointsPtr->line);
+
+					selectionPointsPtr++;
+
+					}	// end "for (count=0; count<..."
+
+				CloseRgn (rgnHandle);
+
+				}	// end "if (rgnHandle != NULL)"
+		#endif	// defined multispec_mac 
+
+		#if defined multispec_win 
+			POINT* pointsPtr = NULL;
+
+			pointsPtr = (POINT*)MNewPointer (
+												selectionInfoPtr->numberPoints * sizeof (POINT));
+			if (pointsPtr != NULL)
+				rgnHandle = new CRgn;
+
+			if (rgnHandle != NULL) 
+				{
+				for (count = 0;
+						count < (UInt32)selectionInfoPtr->numberPoints;
+							count++) 
+					{
+					pointsPtr[count].x = (int)selectionPointsPtr->col;
+					pointsPtr[count].y = (int)selectionPointsPtr->line;
+
+					selectionPointsPtr++;
+
+					}	// end "for (count=0; count<..." 
+
+				if (!(rgnHandle)->CreatePolygonRgn ((tagPOINT*)pointsPtr,
+																  selectionInfoPtr->numberPoints,
+																  WINDING)) 
+					{
+					delete rgnHandle;
+					rgnHandle = NULL;
+
+					}	// end "if (!(*rgnHandlePtr)->CreatePolygonRgn (..."
+
+				}	// end "if (rgnHandle != NULL)"
+
+			CheckAndDisposePtr ((Ptr)pointsPtr);
+		#endif	// defined multispec_win
+
+		#if defined multispec_lin 
+			wxPoint* pointsPtr = NULL;
+
+			pointsPtr = (wxPoint*)MNewPointer (
+											selectionInfoPtr->numberPoints * sizeof (wxPoint));
+			//if (pointsPtr != NULL)
+			//	rgnHandle = new wxRegion ();
+
+			if (pointsPtr != NULL) 
+				{
+				//if (rgnHandle != NULL) {
+				for (count=0; count<(UInt32)selectionInfoPtr->numberPoints; count++) 
+					{
+					pointsPtr[count].x = (int)selectionPointsPtr->col;
+					pointsPtr[count].y = (int)selectionPointsPtr->line;
+					selectionPointsPtr++;
+				
+					}	// end "for (count=0; count<..." 
+					
+				}	// end "if (pointsPtr != NULL)"
+				
+			rgnHandle = new wxRegion ((int)(selectionInfoPtr->numberPoints), 
+												pointsPtr,
+												wxWINDING_RULE);
+			/*
+			if (!(rgnHandle)->CreatePolygonRgn ((tagPOINT*)pointsPtr,
+															  selectionInfoPtr->numberPoints,
+															  WINDING)) 
+				{
+			*/
+			if (rgnHandle->IsEmpty ()) 
+				{
+				delete rgnHandle;
+				rgnHandle = NULL;
+				
+				}	// end "if (rgnHandle->IsEmpty ())"
 
-    numberPixels = 0;
-    lineColumnRectPtr = &selectionInfoPtr->lineColumnRectangle;
+			// end "if (rgnHandle != NULL)"
 
-    totalNumberPixelsToCheck =
-            (SInt64) (lineColumnRectPtr->right - lineColumnRectPtr->left + 1) *
-            (lineColumnRectPtr->bottom - lineColumnRectPtr->top + 1);
+			CheckAndDisposePtr ((Ptr)pointsPtr);
+		#endif	// defined multispec_lin
+	  
+		if (rgnHandle != NULL && gMemoryError == noErr) 
+			{
+					// Intialize the nextTime variables to indicate when the next check	
+					// should occur for a command-. and status information.					
 
-    // Check if rectangular field or polygonal field.							
+			gNextTime = SInt32_MAX;
+			gNextStatusTime = TickCount () + gNextStatusTimeOffset;
 
-    if (selectionInfoPtr->typeFlag == kRectangleType) {
-        numberPixels = totalNumberPixelsToCheck;
+			lineEnd = lineColumnRectPtr->bottom;
+			columnStart = lineColumnRectPtr->left;
+			columnEnd = lineColumnRectPtr->right;
 
-    }// end "if (selectionInfoPtr->typeFlag == kRectangleType)"
+			numberColumns = columnEnd - columnStart + 1;
 
-    else if (selectionInfoPtr->typeFlag == kPolygonType) {
-        selectionPointsPtr = (HPFieldPointsPtr) GetHandlePointer(
-                selectionInfoPtr->polygonCoordinatesHandle,
-                kLock,
-                kNoMoveHi);
+			point.v = (SInt16)lineColumnRectPtr->top;
+			for (line = lineColumnRectPtr->top; line <= lineEnd; line++) 
+				{
+				point.h = (SInt16)columnStart;
+				for (column=columnStart; column<=columnEnd; column++) 
+					{
+					if (PtInRgn (point, rgnHandle))
+						numberPixels++;
 
+					point.h++;
 
-#if defined multispec_mac
+					}	// end "for (column=columnStart; column<=..." 
 
-        rgnHandle = NewRgn();
+				point.v++;
 
-        if (rgnHandle != NULL) {
-            OpenRgn();
-            MoveTo(selectionPointsPtr[selectionInfoPtr->numberPoints - 1].col,
-                    selectionPointsPtr[selectionInfoPtr->numberPoints - 1].line);
+				if (TickCount () >= gNextStatusTime) 
+					{
+					numberPixelsChecked = column - columnStart +
+							 (SInt64)(line - lineColumnRectPtr->top) * numberColumns;
 
-            for (count = 0;
-                    count < (UInt32) selectionInfoPtr->numberPoints;
-                    count++) {
-                if (gMemoryError == noErr)
-                    LineTo(selectionPointsPtr->col,
-                        selectionPointsPtr->line);
+					if (gStatusDialogPtr == NULL) 
+						{
+								// Determine if the status dialog box needs to be displayed.
 
-                selectionPointsPtr++;
+						if (totalNumberPixelsToCheck / numberPixelsChecked > 3) 
+							{
+									// Get status information dialog box.									
 
-            } // end "for ( count=0; count<..."
+							gStatusDialogPtr = GetStatusDialog (kGraphicStatusDialogID, TRUE);
 
-            CloseRgn(rgnHandle);
+							LoadDItemStringNumber (kProjectStrID,
+															IDS_Project77,
+															gStatusDialogPtr,
+															IDC_Status2,
+															(Str255*)gTextString);
 
-        } // end "if (rgnHandle != NULL)"
+							gNextTime = TickCount ();
 
-#endif	// defined multispec_mac 
+									// Turn spin cursor on
 
+							gPresentCursor = kSpin;
 
-#if defined multispec_win 
+							}	// end "if (totalNumberPixelsToCheck/..."
 
-        POINT* pointsPtr = NULL;
+						}	// end "if (gStatusDialogPtr == NULL)"	
 
-        pointsPtr = (POINT*) MNewPointer(
-                selectionInfoPtr->numberPoints * sizeof (POINT));
-        if (pointsPtr != NULL)
-            rgnHandle = new CRgn;
+					if (gStatusProgressControlHandle != NULL)
+						MSetControlValue (
+							(WindowPtr)gStatusDialogPtr,
+							gStatusProgressControlHandle,
+							(SInt16)(100 * numberPixelsChecked / totalNumberPixelsToCheck));
 
-        if (rgnHandle != NULL) {
-            for (count = 0;
-                    count < (UInt32) selectionInfoPtr->numberPoints;
-                    count++) {
-                pointsPtr[count].x = (int) selectionPointsPtr->col;
-                pointsPtr[count].y = (int) selectionPointsPtr->line;
+					gNextStatusTime = TickCount () + gNextStatusTimeOffset;
 
-                selectionPointsPtr++;
+					}	// end "if (TickCount () >= gNextStatusTime)" 
 
-            } // end "for ( count=0; count<..." 
+						// Exit routine if user has "command period" down.					
 
-            if (!(rgnHandle)->CreatePolygonRgn(
-                    (tagPOINT*) pointsPtr,
-                    selectionInfoPtr->numberPoints,
-                    WINDING)) {
-                delete rgnHandle;
-                rgnHandle = NULL;
+				if (TickCount () >= gNextTime) 
+					{
+					if (!CheckSomeEvents (osMask+keyDownMask+updateMask+mDownMask+mUpMask)) 
+						{
+						numberPixels = 0;
+						break;
 
-            } // end "if ( !(*rgnHandlePtr)->CreatePolygonRgn(..."
+						}	// end "if (!CheckSomeEvents (osMask + ..." 
 
-        } // end "if (rgnHandle != NULL)"
+					}	// end "if (TickCount () >= nextTime)" 
 
-        CheckAndDisposePtr((Ptr) pointsPtr);
+				}	// end "for (line=lineColumnRectPtr->top; ..." 
 
-#endif	// defined multispec_win
+					// Dispose of status box.													
 
-#if defined multispec_lin 
+			CloseStatusDialog (TRUE);
 
-        wxPoint* pointsPtr = NULL;
+					// Turn spin cursor off
 
-        pointsPtr = (wxPoint*) MNewPointer(
-                selectionInfoPtr->numberPoints * sizeof (wxPoint));
-//        if (pointsPtr != NULL)
-//            rgnHandle = new wxRegion();
+			MInitCursor ();
 
-        if (pointsPtr != NULL) {
-           //if (rgnHandle != NULL) {
-            for (count = 0; count < (UInt32) selectionInfoPtr->numberPoints;count++) {
-                pointsPtr[count].x = (int) selectionPointsPtr->col;
-                pointsPtr[count].y = (int) selectionPointsPtr->line;
-                selectionPointsPtr++;
-            } // end "for ( count=0; count<..." 
-        }
-        rgnHandle = new wxRegion((int)(selectionInfoPtr->numberPoints), pointsPtr,wxWINDING_RULE);
-//            if (!(rgnHandle)->CreatePolygonRgn(
-//                    (tagPOINT*) pointsPtr,
-//                    selectionInfoPtr->numberPoints,
-//                    WINDING)) {
-         if (rgnHandle->IsEmpty()) {
-            delete rgnHandle;
-            rgnHandle = NULL;
-         } 
+			}	// end "if (rgnHandle != NULL && ..."
 
-        // end "if (rgnHandle != NULL)"
+			// Dispose of the region.						
 
-        CheckAndDisposePtr((Ptr) pointsPtr);
+		if (rgnHandle != NULL)
+			DisposeRgn (rgnHandle);
 
-#endif	// defined multispec_lin
-        
-        if (rgnHandle != NULL && gMemoryError == noErr) {
-            // Intialize the nextTime variables to indicate when the next check	
-            // should occur for a command-. and status information.					
+		CheckAndUnlockHandle (selectionInfoPtr->polygonCoordinatesHandle);
 
-            gNextTime = SInt32_MAX;
-            gNextStatusTime = TickCount() + gNextStatusTimeOffset;
+		}	// end "else if (selectionInfoPtr->typeFlag == kPolygonType)" 
 
-            lineEnd = lineColumnRectPtr->bottom;
-            columnStart = lineColumnRectPtr->left;
-            columnEnd = lineColumnRectPtr->right;
+	return (numberPixels);
 
-            numberColumns = columnEnd - columnStart + 1;
-
-            point.v = (SInt16) lineColumnRectPtr->top;
-            for (line = lineColumnRectPtr->top; line <= lineEnd; line++) {
-                point.h = (SInt16) columnStart;
-                for (column = columnStart; column <= columnEnd; column++) {
-                    if (PtInRgn(point, rgnHandle))
-                        numberPixels++;
-
-                    point.h++;
-
-                } // end "for ( column=columnStart; column<=..." 
-
-                point.v++;
-
-                if (TickCount() >= gNextStatusTime) {
-                    numberPixelsChecked = column - columnStart +
-                            (SInt64) (line - lineColumnRectPtr->top) * numberColumns;
-
-                    if (gStatusDialogPtr == NULL) {
-                        // Determine if the status dialog box needs to be displayed.
-
-                        if (totalNumberPixelsToCheck / numberPixelsChecked > 3) {
-                            // Get status information dialog box.									
-
-                            gStatusDialogPtr = GetStatusDialog(kGraphicStatusDialogID,
-                                    TRUE);
-
-                            LoadDItemStringNumber(kProjectStrID,
-                                    IDS_Project77,
-                                    gStatusDialogPtr,
-                                    IDC_Status2,
-                                    (Str255*) & gTextString);
-
-                            gNextTime = TickCount();
-
-                            // Turn spin cursor on
-
-                            gPresentCursor = kSpin;
-
-                        } // end "if (totalNumberPixelsToCheck/..."
-
-                    } // end "if (gStatusDialogPtr == NULL)"	
-
-                    if (gStatusProgressControlHandle != NULL)
-                        MSetControlValue((WindowPtr) gStatusDialogPtr,
-                            gStatusProgressControlHandle,
-                            (SInt16) (100 * numberPixelsChecked / totalNumberPixelsToCheck));
-
-                    gNextStatusTime = TickCount() + gNextStatusTimeOffset;
-
-                } // end "if ( TickCount() >= gNextStatusTime)" 
-
-                // Exit routine if user has "command period" down.					
-
-                if (TickCount() >= gNextTime) {
-                    if (!CheckSomeEvents(osMask + keyDownMask + updateMask + mDownMask + mUpMask)) {
-                        numberPixels = 0;
-                        break;
-
-                    } // end "if (!CheckSomeEvents (osMask + ..." 
-
-                } // end "if (TickCount() >= nextTime)" 
-
-            } // end "for (line=lineColumnRectPtr->top; ..." 
-
-            // Dispose of status box.													
-
-            CloseStatusDialog(TRUE);
-
-            // Turn spin cursor off
-
-            MInitCursor();
-
-        } // end "if (rgnHandle != NULL && ..."
-
-        // Dispose of the region.						
-
-        if (rgnHandle != NULL)
-            DisposeRgn(rgnHandle);
-
-        CheckAndUnlockHandle(selectionInfoPtr->polygonCoordinatesHandle);
-
-    } // end "else if (selectionInfoPtr->typeFlag == kPolygonType)" 
-
-    return (numberPixels);
-
-} // end "GetNumberPixelsInSelection" 
+}	// end "GetNumberPixelsInSelection" 
 
 
 
@@ -3977,45 +4127,46 @@ SInt64 GetNumberPixelsInSelection(
 //	Coded By:			Larry L. Biehl			Date: 03/14/2005
 //	Revised By:			Larry L. Biehl			Date: 03/14/2005
 
-Handle GetNewSelectionInfoHandle(void)
- {
-    SelectionInfoPtr selectionInfoPtr;
+Handle GetNewSelectionInfoHandle (void)
 
-    Handle selectionInfoHandle;
+{
+	SelectionInfoPtr					selectionInfoPtr;
+
+	Handle								selectionInfoHandle;
 
 
-    selectionInfoHandle = MNewHandle(sizeof (SelectionInfo));
+	selectionInfoHandle = MNewHandle (sizeof (SelectionInfo));
 
-    selectionInfoPtr = (SelectionInfoPtr) GetHandlePointer(
-            selectionInfoHandle, kNoLock, kNoMoveHi);
+	selectionInfoPtr = (SelectionInfoPtr)GetHandlePointer (selectionInfoHandle);
 
-    if (selectionInfoPtr != NULL) {
-        selectionInfoPtr->coordinateRectangle.top = 0;
-        selectionInfoPtr->coordinateRectangle.left = 0;
-        selectionInfoPtr->coordinateRectangle.bottom = 0;
-        selectionInfoPtr->coordinateRectangle.right = 0;
+	if (selectionInfoPtr != NULL) 
+		{
+		selectionInfoPtr->coordinateRectangle.top = 0;
+		selectionInfoPtr->coordinateRectangle.left = 0;
+		selectionInfoPtr->coordinateRectangle.bottom = 0;
+		selectionInfoPtr->coordinateRectangle.right = 0;
 
-        selectionInfoPtr->lineColumnRectangle.top = 0;
-        selectionInfoPtr->lineColumnRectangle.left = 0;
-        selectionInfoPtr->lineColumnRectangle.bottom = 0;
-        selectionInfoPtr->lineColumnRectangle.right = 0;
+		selectionInfoPtr->lineColumnRectangle.top = 0;
+		selectionInfoPtr->lineColumnRectangle.left = 0;
+		selectionInfoPtr->lineColumnRectangle.bottom = 0;
+		selectionInfoPtr->lineColumnRectangle.right = 0;
 
-        selectionInfoPtr->offScreenRectangle.top = 0;
-        selectionInfoPtr->offScreenRectangle.left = 0;
-        selectionInfoPtr->offScreenRectangle.bottom = 0;
-        selectionInfoPtr->offScreenRectangle.right = 0;
+		selectionInfoPtr->offScreenRectangle.top = 0;
+		selectionInfoPtr->offScreenRectangle.left = 0;
+		selectionInfoPtr->offScreenRectangle.bottom = 0;
+		selectionInfoPtr->offScreenRectangle.right = 0;
 
-        selectionInfoPtr->polygonCoordinatesHandle = NULL;
-        selectionInfoPtr->numberPixels = 0;
-        selectionInfoPtr->numberPoints = 0;
-        selectionInfoPtr->typeFlag = 0;
-        selectionInfoPtr->unitsDisplayCode = kLineColumnUnits;
+		selectionInfoPtr->polygonCoordinatesHandle = NULL;
+		selectionInfoPtr->numberPixels = 0;
+		selectionInfoPtr->numberPoints = 0;
+		selectionInfoPtr->typeFlag = 0;
+		selectionInfoPtr->unitsDisplayCode = kLineColumnUnits;
 
-    } // end "if (selectionInfoPtr != NULL)"
+		}	// end "if (selectionInfoPtr != NULL)"
 
-    return (selectionInfoHandle);
+	return (selectionInfoHandle);
 
-} // end "GetNewSelectionInfoHandle" 
+}	// end "GetNewSelectionInfoHandle" 
 
 
 
@@ -4041,51 +4192,51 @@ Handle GetNewSelectionInfoHandle(void)
 //	Coded By:			Larry L. Biehl			Date: 12/13/1994
 //	Revised By:			Larry L. Biehl			Date: 12/13/1994	
 
-Boolean GetSelectedAreaInfo(
-        WindowPtr imageWindowPtr,
-        WindowInfoPtr imageWindowInfoPtr,
-        SInt32* lineStartPtr,
-        SInt32* lineEndPtr,
-        SInt32* columnStartPtr,
-        SInt32* columnEndPtr,
-        Boolean clearSelectionFlag,
-        Boolean useThresholdFlag,
-        Boolean adjustToBaseImageFlag)
- {
-    Boolean returnFlag = FALSE;
-    LongRect longRect;
+Boolean GetSelectedAreaInfo (
+				WindowPtr							imageWindowPtr,
+				WindowInfoPtr						imageWindowInfoPtr,
+				SInt32*								lineStartPtr,
+				SInt32*								lineEndPtr,
+				SInt32*								columnStartPtr,
+				SInt32*								columnEndPtr,
+				Boolean								clearSelectionFlag,
+				Boolean								useThresholdFlag,
+				Boolean								adjustToBaseImageFlag)
+ 
+{
+	Boolean								returnFlag = FALSE;
+	LongRect								longRect;
 
 
-    // Load user selected rectangle information into			 				
-    // specification information if the selection rectangle has been 		
-    // set up. 
+			// Load user selected rectangle information into specification information 
+			// if the selection rectangle has been set up. 
 
-    gSelectionRectangleFlag = FALSE;
+	gSelectionRectangleFlag = FALSE;
 
-    returnFlag = GetSelectionRectangle(imageWindowPtr,
-            &longRect,
-            clearSelectionFlag,
-            useThresholdFlag,
-            adjustToBaseImageFlag);
+	returnFlag = GetSelectionRectangle (imageWindowPtr,
+													&longRect,
+													clearSelectionFlag,
+													useThresholdFlag,
+													adjustToBaseImageFlag);
 
-    if (returnFlag) {
-        *lineStartPtr = longRect.top;
-        *lineEndPtr = longRect.bottom;
-        *columnStartPtr = longRect.left;
-        *columnEndPtr = longRect.right;
+	if (returnFlag) 
+		{
+		*lineStartPtr = longRect.top;
+		*lineEndPtr = longRect.bottom;
+		*columnStartPtr = longRect.left;
+		*columnEndPtr = longRect.right;
 
-        gSelectionRectangleFlag = !CheckIfEntireImage(
-                imageWindowInfoPtr,
-                *lineStartPtr,
-                *lineEndPtr,
-                *columnStartPtr,
-                *columnEndPtr);
+		gSelectionRectangleFlag = !CheckIfEntireImage (imageWindowInfoPtr,
+																		 *lineStartPtr,
+																		 *lineEndPtr,
+																		 *columnStartPtr,
+																		 *columnEndPtr);
 
-    } // end "if (returnFlag)" 
+		}	// end "if (returnFlag)" 
 
-    return (returnFlag);
+	return (returnFlag);
 
-} // end "GetSelectedAreaInfo" 
+}	// end "GetSelectedAreaInfo" 
 
 
 
@@ -4122,73 +4273,76 @@ Boolean GetSelectedAreaInfo(
 //	Coded By:			Larry L. Biehl			Date: 12/21/1994
 //	Revised By:			Larry L. Biehl			Date: 06/24/1999			
 
-Boolean GetSelectedOffscreenRectangle(
-        WindowInfoPtr imageWindowInfoPtr,
-        Rect* offScreenRectanglePtr,
-        Boolean useThresholdFlag,
-        Boolean returnAllFlag)
- {
-    DisplaySpecsPtr displaySpecsPtr;
-    Boolean setUpFlag = FALSE;
-    SInt16 typeCode = 0;
+Boolean GetSelectedOffscreenRectangle (
+				WindowInfoPtr						imageWindowInfoPtr,
+				Rect*									offScreenRectanglePtr,
+				Boolean								useThresholdFlag,
+				Boolean								returnAllFlag)
+ 
+{
+	DisplaySpecsPtr					displaySpecsPtr;
+	Boolean								setUpFlag = FALSE;
+	SInt16								typeCode = 0;
 
 
-    if (imageWindowInfoPtr != NULL) {
-        // load selection area information into output rectangle if 		
-        // the selection rectangle has been set up.								
+	if (imageWindowInfoPtr != NULL) 
+		{
+				// load selection area information into output rectangle if the selection 
+				// rectangle has been set up.								
 
-        SelectionInfoPtr selectionInfoPtr;
-        selectionInfoPtr = (SelectionInfoPtr) GetHandlePointer(
-                imageWindowInfoPtr->selectionInfoHandle,
-                kNoLock,
-                kNoMoveHi);
+		SelectionInfoPtr selectionInfoPtr;
+		selectionInfoPtr = (SelectionInfoPtr)GetHandlePointer (
+															imageWindowInfoPtr->selectionInfoHandle);
 
-        if (selectionInfoPtr != NULL) {
-            typeCode = selectionInfoPtr->typeFlag;
+		if (selectionInfoPtr != NULL) 
+			{
+			typeCode = selectionInfoPtr->typeFlag;
 
-            if (typeCode == kRectangleType)
-                *offScreenRectanglePtr = selectionInfoPtr->offScreenRectangle;
+			if (typeCode == kRectangleType)
+				*offScreenRectanglePtr = selectionInfoPtr->offScreenRectangle;
 
-            if (typeCode == kRectangleType) {
-                setUpFlag = TRUE;
+			if (typeCode == kRectangleType) 
+				{
+				setUpFlag = TRUE;
 
-                if (useThresholdFlag) {
-                    // Check if selection is larger than the minimum threshold 	
-                    // size.																		
+				if (useThresholdFlag) 
+					{
+							// Check if selection is larger than the minimum threshold 	
+							// size.																		
 
-                    if ((offScreenRectanglePtr->bottom - offScreenRectanglePtr->top <
-                            gThresholdSize) &&
-                            (offScreenRectanglePtr->right - offScreenRectanglePtr->left <
-                            gThresholdSize))
-                        setUpFlag = FALSE;
+					if ((offScreenRectanglePtr->bottom - offScreenRectanglePtr->top <
+																						gThresholdSize) &&
+							(offScreenRectanglePtr->right - offScreenRectanglePtr->left <
+																							gThresholdSize))
+						setUpFlag = FALSE;
 
-                } // end "if (useThresholdFlag)" 
+					}	// end "if (useThresholdFlag)" 
 
-            } // end "if (typeCode == kRectangleType)" 
+				}	// end "if (typeCode == kRectangleType)" 
 
-            if (!setUpFlag && returnAllFlag) {
-                Handle displaySpecsHandle = GetDisplaySpecsHandle(imageWindowInfoPtr);
-                displaySpecsPtr = (DisplaySpecsPtr) GetHandlePointer(
-                        displaySpecsHandle,
-                        kNoLock,
-                        kNoMoveHi);
+			if (!setUpFlag && returnAllFlag) 
+				{
+				Handle displaySpecsHandle = GetDisplaySpecsHandle (imageWindowInfoPtr);
+				displaySpecsPtr = (DisplaySpecsPtr)GetHandlePointer (displaySpecsHandle);
 
-                offScreenRectanglePtr->top = 0;
-                offScreenRectanglePtr->left = 0;
-                offScreenRectanglePtr->bottom = (SInt16) displaySpecsPtr->imageDimensions[kVertical];
-                offScreenRectanglePtr->right = (SInt16) displaySpecsPtr->imageDimensions[kHorizontal];
+				offScreenRectanglePtr->top = 0;
+				offScreenRectanglePtr->left = 0;
+				offScreenRectanglePtr->bottom = 
+										(SInt16)displaySpecsPtr->imageDimensions[kVertical];
+				offScreenRectanglePtr->right = 
+										(SInt16)displaySpecsPtr->imageDimensions[kHorizontal];
 
-                setUpFlag = TRUE;
+				setUpFlag = TRUE;
 
-            } // end "if (!setUpFlag && returnAllFlag)" 
+				}	// end "if (!setUpFlag && returnAllFlag)" 
 
-        } // end "if (selectionInfoPtr != NULL)"
+			}	// end "if (selectionInfoPtr != NULL)"
 
-    } // end "if (imageWindowInfoPtr != NULL)" 
+		}	// end "if (imageWindowInfoPtr != NULL)" 
 
-    return (setUpFlag);
+	return (setUpFlag);
 
-} // end "GetSelectedOffscreenRectangle" 
+}	// end "GetSelectedOffscreenRectangle" 
 
 
 
@@ -4215,95 +4369,98 @@ Boolean GetSelectedOffscreenRectangle(
 //	Coded By:			Larry L. Biehl			Date: 10/05/1998
 //	Revised By:			Larry L. Biehl			Date: 05/01/2007
 
-void GetSelectionBoundary(
-        WindowPtr windowPtr,
-        AreaDescriptionPtr areaDescriptionPtr)
- {
-    HPFieldPointsPtr selectionPointsPtr;
-    SelectionInfoPtr selectionInfoPtr;
+void GetSelectionBoundary (
+				WindowPtr							windowPtr,
+				AreaDescriptionPtr				areaDescriptionPtr)
 
-    Handle selectionInfoHandle;
+{
+	HPFieldPointsPtr					selectionPointsPtr;
+	SelectionInfoPtr					selectionInfoPtr;
 
-    SignedByte selectionInfoStatus,
-            selectionPointsStatus;
+	Handle								selectionInfoHandle;
+
+	SignedByte							selectionInfoStatus,
+											selectionPointsStatus;
 
 
-    // Initialize local variables.
+			// Initialize local variables.
 
-    selectionInfoHandle = GetSelectionInfoHandle(windowPtr);
-    selectionInfoPtr = (SelectionInfoPtr) GetHandleStatusAndPointer(
-            selectionInfoHandle,
-            &selectionInfoStatus,
-            kNoMoveHi);
+	selectionInfoHandle = GetSelectionInfoHandle (windowPtr);
+	selectionInfoPtr = (SelectionInfoPtr)GetHandleStatusAndPointer (
+																					selectionInfoHandle,
+																					&selectionInfoStatus);
 
-    // Determine if field is described by a polygon or a rectangle.  If	
-    // the field is described by a polygon then create a region for the	
-    // field.																				
+			// Determine if field is described by a polygon or a rectangle.  If	
+			// the field is described by a polygon then create a region for the	
+			// field.																				
 
-    if (selectionInfoPtr->typeFlag == kPolygonType) {
-        RgnHandle rgnHandle;
+	if (selectionInfoPtr->typeFlag == kPolygonType) 
+		{
+		RgnHandle rgnHandle;
 
-        // Allow for the first two points in the polygon point list to
-        // represent the bounding rectangle.
+				// Allow for the first two points in the polygon point list to
+				// represent the bounding rectangle.
 
-        areaDescriptionPtr->pointType = kPolygonType;
-        areaDescriptionPtr->polygonFieldFlag = TRUE;
+		areaDescriptionPtr->pointType = kPolygonType;
+		areaDescriptionPtr->polygonFieldFlag = TRUE;
 
-        selectionPointsPtr = (HPFieldPointsPtr) GetHandleStatusAndPointer(
-                selectionInfoPtr->polygonCoordinatesHandle,
-                &selectionPointsStatus,
-                kNoMoveHi);
+		selectionPointsPtr = (HPFieldPointsPtr)GetHandleStatusAndPointer (
+														 selectionInfoPtr->polygonCoordinatesHandle,
+														 &selectionPointsStatus);
 
-        CreateFieldRgn(selectionInfoPtr->numberPoints,
-                selectionPointsPtr,
-                &rgnHandle,
-                0,
-                0);
+		CreateFieldRgn (selectionInfoPtr->numberPoints,
+							 selectionPointsPtr,
+							 &rgnHandle,
+							 0,
+							 0);
 
-        if (rgnHandle != NULL) {
-            if (gMemoryError != noErr) {
-                DisposeRgn(rgnHandle);
-                rgnHandle = NULL;
+		if (rgnHandle != NULL) 
+			{
+			if (gMemoryError != noErr) 
+				{
+				DisposeRgn (rgnHandle);
+				rgnHandle = NULL;
 
-            } // end "if (gMemoryError != noErr)"
+				}	// end "if (gMemoryError != noErr)"
 
-            areaDescriptionPtr->rgnHandle = rgnHandle;
+			areaDescriptionPtr->rgnHandle = rgnHandle;
 
-        } // end "if (rgnHandle != NULL)"
+			}	// end "if (rgnHandle != NULL)"
 
-        MHSetState(selectionInfoPtr->polygonCoordinatesHandle, selectionPointsStatus);
+		MHSetState (selectionInfoPtr->polygonCoordinatesHandle, selectionPointsStatus);
 
-    }// end "if (selectionInfoPtr->typeFlag == kPolygonType)" 
+		}	// end "if (selectionInfoPtr->typeFlag == kPolygonType)" 
 
-    else // The field is not polygonal type 
-    {
-        areaDescriptionPtr->pointType = kRectangleType;
-        areaDescriptionPtr->polygonFieldFlag = FALSE;
-        areaDescriptionPtr->rgnHandle = NULL;
+	else	// The field is not polygonal type 
+		{
+		areaDescriptionPtr->pointType = kRectangleType;
+		areaDescriptionPtr->polygonFieldFlag = FALSE;
+		areaDescriptionPtr->rgnHandle = NULL;
 
-    } // end "else the field is not polygonal type" 
+		}	// end "else the field is not polygonal type" 
 
-    areaDescriptionPtr->lineStart = selectionInfoPtr->lineColumnRectangle.top;
-    areaDescriptionPtr->lineEnd = selectionInfoPtr->lineColumnRectangle.bottom;
+	areaDescriptionPtr->lineStart = selectionInfoPtr->lineColumnRectangle.top;
+	areaDescriptionPtr->lineEnd = selectionInfoPtr->lineColumnRectangle.bottom;
 
-    areaDescriptionPtr->columnStart = selectionInfoPtr->lineColumnRectangle.left;
-    areaDescriptionPtr->columnEnd = selectionInfoPtr->lineColumnRectangle.right;
+	areaDescriptionPtr->columnStart = selectionInfoPtr->lineColumnRectangle.left;
+	areaDescriptionPtr->columnEnd = selectionInfoPtr->lineColumnRectangle.right;
 
-    if (areaDescriptionPtr->lineStart > 0) {
-        areaDescriptionPtr->numberLines =
-                areaDescriptionPtr->lineEnd - areaDescriptionPtr->lineStart + 1;
+	if (areaDescriptionPtr->lineStart > 0) 
+		{
+		areaDescriptionPtr->numberLines =
+							areaDescriptionPtr->lineEnd - areaDescriptionPtr->lineStart + 1;
 
-        if (areaDescriptionPtr->columnInterval > 0)
-            areaDescriptionPtr->numSamplesPerChan =
-                (areaDescriptionPtr->columnEnd - areaDescriptionPtr->columnStart +
-                areaDescriptionPtr->columnInterval) /
-            areaDescriptionPtr->columnInterval;
+		if (areaDescriptionPtr->columnInterval > 0)
+			areaDescriptionPtr->numSamplesPerChan =
+					(areaDescriptionPtr->columnEnd - areaDescriptionPtr->columnStart +
+											areaDescriptionPtr->columnInterval) /
+																	areaDescriptionPtr->columnInterval;
 
-    } // end "if (areaDescriptionPtr->lineStart > 0)" 
+		}	// end "if (areaDescriptionPtr->lineStart > 0)" 
 
-    MHSetState(selectionInfoHandle, selectionInfoStatus);
+	MHSetState (selectionInfoHandle, selectionInfoStatus);
 
-} // end "GetSelectionBoundary" 	
+}	// end "GetSelectionBoundary" 	
 
 
 
@@ -4330,49 +4487,49 @@ void GetSelectionBoundary(
 //	Coded By:			Larry L. Biehl			Date: 10/02/1998
 //	Revised By:			Larry L. Biehl			Date: 08/23/2010			
 
-SInt16 GetSelectionCoordinates(
-        WindowPtr windowPtr,
-        LongRect* lineColumnRectanglePtr,
-        DoubleRect* coordinateRectangePtr,
-        SInt64* numberPixelsPtr)
- {
-    SelectionInfoPtr selectionInfoPtr;
+SInt16 GetSelectionCoordinates (
+				WindowPtr							windowPtr,
+				LongRect*							lineColumnRectanglePtr,
+				DoubleRect*							coordinateRectangePtr,
+				SInt64*								numberPixelsPtr)
 
-    Handle selectionInfoHandle;
+{
+	SelectionInfoPtr selectionInfoPtr;
 
-    SInt16 typeCode = 0;
+	Handle selectionInfoHandle;
+
+	SInt16 typeCode = 0;
 
 
-    selectionInfoHandle = GetSelectionInfoHandle(windowPtr);
+	selectionInfoHandle = GetSelectionInfoHandle (windowPtr);
 
-    selectionInfoPtr = (SelectionInfoPtr) GetHandlePointer(
-            selectionInfoHandle,
-            kNoLock,
-            kNoMoveHi);
+	selectionInfoPtr = (SelectionInfoPtr)GetHandlePointer (selectionInfoHandle);
 
-    if (selectionInfoPtr != NULL) {
-        if (selectionInfoPtr->typeFlag != 0) {
-            // load selection area information into output rectangle if 		
-            // the selection rectangle has been set up.
+	if (selectionInfoPtr != NULL) 
+		{
+		if (selectionInfoPtr->typeFlag != 0) 
+			{
+					// load selection area information into output rectangle if 		
+					// the selection rectangle has been set up.
 
-            if (lineColumnRectanglePtr != NULL)
-                *lineColumnRectanglePtr = selectionInfoPtr->lineColumnRectangle;
+			if (lineColumnRectanglePtr != NULL)
+				*lineColumnRectanglePtr = selectionInfoPtr->lineColumnRectangle;
 
-            if (coordinateRectangePtr != NULL)
-                *coordinateRectangePtr = selectionInfoPtr->coordinateRectangle;
+			if (coordinateRectangePtr != NULL)
+				*coordinateRectangePtr = selectionInfoPtr->coordinateRectangle;
 
-            if (numberPixelsPtr != NULL)
-                *numberPixelsPtr = selectionInfoPtr->numberPixels;
+			if (numberPixelsPtr != NULL)
+				*numberPixelsPtr = selectionInfoPtr->numberPixels;
 
-            typeCode = selectionInfoPtr->typeFlag;
+			typeCode = selectionInfoPtr->typeFlag;
 
-        } // end "if (selectionInfoPtr->typeFlag != 0)" 
+			}	// end "if (selectionInfoPtr->typeFlag != 0)" 
 
-    } // end "if (selectionInfoPtr != NULL)" 
+		}	// end "if (selectionInfoPtr != NULL)" 
 
-    return (typeCode);
+	return (typeCode);
 
-} // end "GetSelectionCoordinates" 
+}	// end "GetSelectionCoordinates" 
 
 
 
@@ -4397,37 +4554,37 @@ SInt16 GetSelectionCoordinates(
 //	Revised By:			Larry L. Biehl			Date: 12/18/1998	
 //	Revised By:			Larry L. Biehl			Date: 08/23/2010			
 
-SInt64 GetSelectionNumberPixels(
-        WindowInfoPtr windowInfoPtr)
- {
-    if (windowInfoPtr != NULL) {
-        SelectionInfoPtr selectionInfoPtr = (SelectionInfoPtr) GetHandlePointer(
-                windowInfoPtr->selectionInfoHandle,
-                kNoLock,
-                kNoMoveHi);
+SInt64 GetSelectionNumberPixels (
+				WindowInfoPtr						windowInfoPtr)
+ 
+{
+	if (windowInfoPtr != NULL) 
+		{
+		SelectionInfoPtr selectionInfoPtr = (SelectionInfoPtr)GetHandlePointer (
+																windowInfoPtr->selectionInfoHandle);
 
-        return (selectionInfoPtr->numberPixels);
+		return (selectionInfoPtr->numberPixels);
 
-    } // end "if (windowInfoPtr != NULL)"
+		}	// end "if (windowInfoPtr != NULL)"
 
-    return (0);
+return (0);
 
-} // end "GetSelectionNumberPixels" 
+}	// end "GetSelectionNumberPixels"
 
-SInt64 GetSelectionNumberPixels(
-        WindowPtr windowPtr)
- {
-    WindowInfoPtr windowInfoPtr;
+ 
+
+SInt64 GetSelectionNumberPixels (
+				WindowPtr							windowPtr)
+
+{
+	WindowInfoPtr						windowInfoPtr;
 
 
-    windowInfoPtr = (WindowInfoPtr) GetHandlePointer(
-            GetWindowInfoHandle(windowPtr),
-            kNoLock,
-            kNoMoveHi);
+	windowInfoPtr = (WindowInfoPtr)GetHandlePointer (GetWindowInfoHandle (windowPtr));
 
-    return (GetSelectionNumberPixels(windowInfoPtr));
+	return (GetSelectionNumberPixels (windowInfoPtr));
 
-} // end "GetSelectionNumberPixels" 
+}	// end "GetSelectionNumberPixels" 
 
 
 
@@ -4453,40 +4610,40 @@ SInt64 GetSelectionNumberPixels(
 //	Coded By:			Larry L. Biehl			Date: 10/02/1998
 //	Revised By:			Larry L. Biehl			Date: 10/02/1998			
 
-Boolean GetSelectionOffscreenRectangle(
-        WindowPtr windowPtr,
-        Rect* offScreenRectanglePtr)
- {
-    SelectionInfoPtr selectionInfoPtr;
+Boolean GetSelectionOffscreenRectangle (
+				WindowPtr							windowPtr,
+				Rect*									offScreenRectanglePtr)
 
-    Handle selectionInfoHandle;
+{
+	SelectionInfoPtr selectionInfoPtr;
 
-    Boolean setUpFlag = FALSE;
+	Handle selectionInfoHandle;
+
+	Boolean setUpFlag = FALSE;
 
 
-    selectionInfoHandle = GetSelectionInfoHandle(windowPtr);
+	selectionInfoHandle = GetSelectionInfoHandle (windowPtr);
 
-    selectionInfoPtr = (SelectionInfoPtr) GetHandlePointer(
-            selectionInfoHandle,
-            kNoLock,
-            kNoMoveHi);
+	selectionInfoPtr = (SelectionInfoPtr)GetHandlePointer (selectionInfoHandle);
 
-    if (selectionInfoPtr != NULL) {
-        if (selectionInfoPtr->typeFlag != 0) {
-            // load selection area information into output rectangle if 		
-            // the selection rectangle has been set up.
+	if (selectionInfoPtr != NULL) 
+		{
+		if (selectionInfoPtr->typeFlag != 0) 
+			{
+					// load selection area information into output rectangle if 		
+					// the selection rectangle has been set up.
 
-            *offScreenRectanglePtr = selectionInfoPtr->offScreenRectangle;
+			*offScreenRectanglePtr = selectionInfoPtr->offScreenRectangle;
 
-            setUpFlag = TRUE;
+			setUpFlag = TRUE;
 
-        } // end "if (selectionInfoPtr->typeFlag != 0)"
+			}	// end "if (selectionInfoPtr->typeFlag != 0)"
 
-    } // end "if (selectionInfoPtr != NULL)" 
+		}	// end "if (selectionInfoPtr != NULL)" 
 
-    return (setUpFlag);
+	return (setUpFlag);
 
-} // end "GetSelectionOffscreenRectangle" 
+}	// end "GetSelectionOffscreenRectangle" 
 
 
 
@@ -4523,117 +4680,118 @@ Boolean GetSelectionOffscreenRectangle(
 //	Coded By:			Larry L. Biehl			Date: 09/08/1988
 //	Revised By:			Larry L. Biehl			Date: 03/19/1999			
 
-Boolean GetSelectionRectangle(
-        WindowPtr windowPtr,
-        LongRect* selectionRectanglePtr,
-        Boolean clearSelectionFlag,
-        Boolean useThresholdFlag,
-        Boolean adjustToBaseImageFlag)
- {
-    FileInfoPtr fileInfoPtr;
-    SelectionInfoPtr selectionInfoPtr;
+Boolean GetSelectionRectangle (
+				WindowPtr							windowPtr,
+				LongRect*							selectionRectanglePtr,
+				Boolean								clearSelectionFlag,
+				Boolean								useThresholdFlag,
+				Boolean								adjustToBaseImageFlag)
+ 
+{
+	FileInfoPtr							fileInfoPtr;
+	SelectionInfoPtr					selectionInfoPtr;
 
-    Handle fileInfoHandle,
-            selectionInfoH,
-            windowInfoH;
+	Handle								fileInfoHandle,
+											selectionInfoH,
+											windowInfoH;
 
-    SInt32 offset;
+	SInt32								offset;
 
-    UInt32 maxNumberColumns,
-            maxNumberLines;
+	UInt32								maxNumberColumns,
+											maxNumberLines;
 
-    Boolean setUpFlag;
+	Boolean								setUpFlag;
 
 
-    setUpFlag = FALSE;
+	setUpFlag = FALSE;
 
-    // Get the window information structure handle for the input
-    // window.
+			// Get the window information structure handle for the input window.
 
-    windowInfoH = GetWindowInfoHandle(windowPtr);
+	windowInfoH = GetWindowInfoHandle (windowPtr);
 
-    if (windowInfoH != NULL) {
-        // Load selection area information into output rectangle if 		
-        // the selection rectangle has been set up.								
+	if (windowInfoH != NULL) 
+		{
+				// Load selection area information into output rectangle if 		
+				// the selection rectangle has been set up.								
 
-        selectionInfoH = GetSelectionInfoHandle(windowInfoH);
-        selectionInfoPtr = (SelectionInfoPtr) GetHandlePointer(selectionInfoH,
-                kNoLock,
-                kNoMoveHi);
+		selectionInfoH = GetSelectionInfoHandle (windowInfoH);
+		selectionInfoPtr = (SelectionInfoPtr)GetHandlePointer (selectionInfoH);
 
-        if (selectionInfoPtr->typeFlag == kRectangleType) {
-            *selectionRectanglePtr = selectionInfoPtr->lineColumnRectangle;
+		if (selectionInfoPtr->typeFlag == kRectangleType) 
+			{
+			*selectionRectanglePtr = selectionInfoPtr->lineColumnRectangle;
 
-            // Adjust for any difference between start line and column in		
-            // base image file and start line and column in associated image	
-            // file if needed.																
+					// Adjust for any difference between start line and column in		
+					// base image file and start line and column in associated image	
+					// file if needed.																
 
-            if (gProjectInfoPtr != NULL && adjustToBaseImageFlag) {
-                if (!GetProjectBaseImageFlag(windowInfoH) &&
-                        GetProjectWindowFlag(windowInfoH)) {
-                    // Get pointer to file specification.  We do not need 	
-                    // to lock it here since no other routines are called.
+			if (gProjectInfoPtr != NULL && adjustToBaseImageFlag)
+				{
+				if (!GetProjectBaseImageFlag (windowInfoH) && 
+																GetProjectWindowFlag (windowInfoH))
+					{
+							// Get pointer to file specification.  We do not need 	
+							// to lock it here since no other routines are called.
 
-                    fileInfoHandle = GetFileInfoHandle(windowInfoH);
-                    fileInfoPtr = (FileInfoPtr) GetHandlePointer(
-                            fileInfoHandle, kNoLock, kNoMoveHi);
+					fileInfoHandle = GetFileInfoHandle (windowInfoH);
+					fileInfoPtr = (FileInfoPtr)GetHandlePointer (fileInfoHandle);
 
-                    offset = fileInfoPtr->startColumn - gProjectInfoPtr->startColumn;
-                    selectionRectanglePtr->left += offset;
-                    selectionRectanglePtr->right += offset;
+					offset = fileInfoPtr->startColumn - gProjectInfoPtr->startColumn;
+					selectionRectanglePtr->left += offset;
+					selectionRectanglePtr->right += offset;
 
-                    offset = fileInfoPtr->startLine - gProjectInfoPtr->startLine;
-                    selectionRectanglePtr->top += offset;
-                    selectionRectanglePtr->bottom += offset;
+					offset = fileInfoPtr->startLine - gProjectInfoPtr->startLine;
+					selectionRectanglePtr->top += offset;
+					selectionRectanglePtr->bottom += offset;
 
-                    // Now verify that the selection is still within the
-                    // project base image.
+							// Now verify that the selection is still within the
+							// project base image.
 
-                    maxNumberColumns =
-                            GetMaxNumberColumns(gProjectInfoPtr->windowInfoHandle);
-                    selectionRectanglePtr->left = MAX(1, selectionRectanglePtr->left);
-                    selectionRectanglePtr->right = MIN((SInt32) maxNumberColumns,
-                            selectionRectanglePtr->right);
+					maxNumberColumns =
+									GetMaxNumberColumns (gProjectInfoPtr->windowInfoHandle);
+					selectionRectanglePtr->left = MAX (1, selectionRectanglePtr->left);
+					selectionRectanglePtr->right = MIN ((SInt32)maxNumberColumns,
+																		selectionRectanglePtr->right);
 
-                    maxNumberLines =
-                            GetMaxNumberLines(gProjectInfoPtr->windowInfoHandle);
-                    selectionRectanglePtr->top = MAX(1, selectionRectanglePtr->top);
-                    selectionRectanglePtr->bottom = MIN((SInt32) maxNumberLines,
-                            selectionRectanglePtr->bottom);
+					maxNumberLines =
+									GetMaxNumberLines (gProjectInfoPtr->windowInfoHandle);
+					selectionRectanglePtr->top = MAX (1, selectionRectanglePtr->top);
+					selectionRectanglePtr->bottom = MIN ((SInt32)maxNumberLines,
+																		selectionRectanglePtr->bottom);
 
-                } // end "if ( !GetProjectBaseImageFlag(..." 
+					}	// end "if (!GetProjectBaseImageFlag (..." 
 
-            } // end "if (gProjectInfoPtr != NULL && adjustToBaseImageFlag)" 
+				}	// end "if (gProjectInfoPtr != NULL && adjustToBaseImageFlag)" 
 
-            // Reset the selection rectangle flag to indicate that it has	
-            // been used, if requested.  If the selection is to be cleared	
-            // then invalidate the rectangle.										
+					// Reset the selection rectangle flag to indicate that it has	
+					// been used, if requested.  If the selection is to be cleared	
+					// then invalidate the rectangle.										
 
-            if (clearSelectionFlag)
-                ClearSelectionArea(windowPtr);
+			if (clearSelectionFlag)
+				ClearSelectionArea (windowPtr);
 
-            if (useThresholdFlag) {
-                // Check if selection is larger than the minimum threshold 	
-                // size.																		
+			if (useThresholdFlag) 
+				{
+						// Check if selection is larger than the minimum threshold size.																		
 
-                if ((selectionRectanglePtr->bottom - selectionRectanglePtr->top >=
-                        gThresholdSize) ||
-                        (selectionRectanglePtr->right - selectionRectanglePtr->left >=
-                        gThresholdSize))
-                    setUpFlag = TRUE;
+				if ((selectionRectanglePtr->bottom - selectionRectanglePtr->top >=
+																					gThresholdSize) ||
+						(selectionRectanglePtr->right - selectionRectanglePtr->left >=
+																							gThresholdSize))
+					setUpFlag = TRUE;
 
-            }// end "if (useThresholdFlag)" 
+				}	// end "if (useThresholdFlag)" 
 
-            else // !useThresholdFlag 
-                setUpFlag = TRUE;
+			else	// !useThresholdFlag 
+				setUpFlag = TRUE;
 
-        } // end "if (selectionInfoPtr->typeFlag == kRectangleType)" 
+			}	// end "if (selectionInfoPtr->typeFlag == kRectangleType)" 
 
-    } // end "if (windowInfoH)" 
+		}	// end "if (windowInfoH)" 
 
-    return (setUpFlag);
+	return (setUpFlag);
 
-} // end "GetSelectionRectangle" 
+}	// end "GetSelectionRectangle" 
 
 
 
@@ -4660,97 +4818,99 @@ Boolean GetSelectionRectangle(
 //	Revised By:			Larry L. Biehl			Date: 06/03/1993	
 //	Revised By:			Larry L. Biehl			Date: 04/19/2000			
 
-SInt16 GetSelectionRectangleLimits(
-        Boolean firstTimeFlag,
-        SInt16 startChannel,
-        LongPoint* inputStartPointPtr,
-        DisplaySpecsPtr displaySpecsPtr,
-        Rect* viewRectPtr, // gViewRect
-        Rect* limitRectanglePtr, // gTempRect
-        LongPoint* outputStartPointPtr) // gTempLongPoint
- {
-    SInt32 displayHOrigin,
-            imageSize,
-            imageTopOffset,
-            leftEdge,
-            legendWidth,
-            rightEdge,
-            topEdge;
+SInt16 GetSelectionRectangleLimits (
+				Boolean								firstTimeFlag,
+				SInt16								startChannel,
+				LongPoint*							inputStartPointPtr,
+				DisplaySpecsPtr					displaySpecsPtr,
+				Rect*									viewRectPtr, // gViewRect
+				Rect*									limitRectanglePtr, // gTempRect
+				LongPoint*							outputStartPointPtr) // gTempLongPoint
+
+{
+	SInt32								displayHOrigin,
+											imageSize,
+											imageTopOffset,
+											leftEdge,
+											legendWidth,
+											rightEdge,
+											topEdge;
 
 
-    // Get the legend width. 
-    // Note that the legend in the Windows version is in its on
-    // view. It is not the same as that used for the image. Therefore
-    // the legend width is always 0 within the image view.
+			// Get the legend width. 
+			// Note that the legend in the Windows version is in its on
+			// view. It is not the same as that used for the image. Therefore
+			// the legend width is always 0 within the image view.
 
-#if defined multispec_mac
-    legendWidth = gActiveLegendWidth;
-#endif	// defined multispec_mac          
+	#if defined multispec_mac
+		legendWidth = gActiveLegendWidth;
+	#endif	// defined multispec_mac          
 
-#if defined multispec_win || defined multispec_lin
-    legendWidth = 0;
-#endif	// defined multispec_win
+	#if defined multispec_win || defined multispec_lin
+		legendWidth = 0;
+	#endif	// defined multispec_win
 
-    //	Find the rectangle which defines the limits that the cursor can	
-    // be and still be over the displayed portion of the image.				
-    // Get the height limit first.													
+			//	Find the rectangle which defines the limits that the cursor can	
+			// be and still be over the displayed portion of the image.				
+			// Get the height limit first.													
 
-    limitRectanglePtr->top = viewRectPtr->top;
+	limitRectanglePtr->top = viewRectPtr->top;
 
-    imageTopOffset = GetImageTopOffset(gActiveImageWindowInfoH);
+	imageTopOffset = GetImageTopOffset (gActiveImageWindowInfoH);
 
-    topEdge = (SInt32) (imageTopOffset -
-            displaySpecsPtr->origin[kVertical] * displaySpecsPtr->magnification);
-    imageSize = (SInt32) (topEdge +
-            displaySpecsPtr->magnification * displaySpecsPtr->imageDimensions[kVertical]);
-    limitRectanglePtr->bottom = (SInt16) MIN(viewRectPtr->bottom, imageSize) + 1;
+	topEdge = (SInt32)(imageTopOffset -
+					displaySpecsPtr->origin[kVertical] * displaySpecsPtr->magnification);
+	imageSize = (SInt32)(topEdge +
+			displaySpecsPtr->magnification * displaySpecsPtr->imageDimensions[kVertical]);
+	limitRectanglePtr->bottom = (SInt16)MIN (viewRectPtr->bottom, imageSize) + 1;
 
-    // Now define the width limit taking into account side by side 		
-    // images.																				
+			// Now define the width limit taking into account side by side images.																				
 
-    // First get the horizontal origin in window units.						
+			// First get the horizontal origin in window units.						
 
-    displayHOrigin = (SInt32) (
-            displaySpecsPtr->origin[kHorizontal] * displaySpecsPtr->magnification);
+	displayHOrigin = (SInt32)(
+					displaySpecsPtr->origin[kHorizontal] * displaySpecsPtr->magnification);
 
-    // Now get the left edge in window units that defines the 				
-    // start of the channel within which the selection is taking place.	
+			// Now get the left edge in window units that defines the start of the 
+			//	channel within which the selection is taking place.	
 
-    imageSize = (SInt32) (displaySpecsPtr->offscreenChannelWidth *
-            displaySpecsPtr->magnification);
+	imageSize = (SInt32)(displaySpecsPtr->offscreenChannelWidth *
+																		displaySpecsPtr->magnification);
 
-    if (firstTimeFlag) {
-        startChannel = 0;
-        if (imageSize > 0 && displaySpecsPtr->displayType == 7) {
-            startChannel = (SInt16) (
-                    (displayHOrigin + inputStartPointPtr->h - legendWidth) / imageSize);
+	if (firstTimeFlag) 
+		{
+		startChannel = 0;
+		if (imageSize > 0 && displaySpecsPtr->displayType == 7) 
+			{
+			startChannel = (SInt16)(
+					  (displayHOrigin + inputStartPointPtr->h - legendWidth) / imageSize);
 
-            startChannel = MIN(startChannel,
-                    (SInt16) displaySpecsPtr->displayedNumberChannels - 1);
+			startChannel = MIN (startChannel,
+					  (SInt16)displaySpecsPtr->displayedNumberChannels - 1);
 
-        } // end "if (imageSize > 0 && ..." 
+			}	// end "if (imageSize > 0 && ..." 
 
-    } // end "if (firstTimeFlag)" 
+		}	// end "if (firstTimeFlag)" 
 
-    leftEdge = startChannel * imageSize;
-    leftEdge += legendWidth - displayHOrigin;
+	leftEdge = startChannel * imageSize;
+	leftEdge += legendWidth - displayHOrigin;
 
-    // Now get the right edge in window units that defines the end of		
-    // the channel within which the selection is taking place.				
+			// Now get the right edge in window units that defines the end of the 
+			// channel within which the selection is taking place.				
 
-    rightEdge = leftEdge + imageSize;
-    if (displaySpecsPtr->displayType == 7)
-        rightEdge -= 2;
+	rightEdge = leftEdge + imageSize;
+	if (displaySpecsPtr->displayType == 7)
+		rightEdge -= 2;
 
-    limitRectanglePtr->left = (SInt16) MAX(leftEdge, 0);
-    limitRectanglePtr->right = (SInt16) MIN(viewRectPtr->right, rightEdge) + 1;
+	limitRectanglePtr->left = (SInt16)MAX (leftEdge, 0);
+	limitRectanglePtr->right = (SInt16)MIN (viewRectPtr->right, rightEdge) + 1;
 
-    outputStartPointPtr->h = leftEdge;
-    outputStartPointPtr->v = topEdge;
+	outputStartPointPtr->h = leftEdge;
+	outputStartPointPtr->v = topEdge;
 
-    return (startChannel);
+	return (startChannel);
 
-} // end "GetSelectionRectangleLimits" 
+}	// end "GetSelectionRectangleLimits" 
 
 
 
@@ -4775,55 +4935,56 @@ SInt16 GetSelectionRectangleLimits(
 //	Revised By:			Larry L. Biehl			Date: 10/02/1998	
 //	Revised By:			Larry L. Biehl			Date: 03/28/2014			
 
-SInt16 GetSelectionTypeCode(
-        Handle windowInfoHandle)
- {
-    Handle selectionInfoHandle = GetSelectionInfoHandle(windowInfoHandle);
+SInt16 GetSelectionTypeCode (
+				Handle								windowInfoHandle)
+ 
+{
+	Handle selectionInfoHandle = GetSelectionInfoHandle (windowInfoHandle);
 
-    SelectionInfoPtr selectionInfoPtr = (SelectionInfoPtr) GetHandlePointer(
-            selectionInfoHandle,
-            kNoLock,
-            kNoMoveHi);
+	SelectionInfoPtr selectionInfoPtr = (SelectionInfoPtr)GetHandlePointer (
+																					selectionInfoHandle);
 
-    if (selectionInfoPtr != NULL)
-        return (selectionInfoPtr->typeFlag);
+	if (selectionInfoPtr != NULL)
+		return (selectionInfoPtr->typeFlag);
 
-    return (0);
+	return (0);
 
-} // end "GetSelectionTypeCode" 		
+}	// end "GetSelectionTypeCode" 
 
-SInt16 GetSelectionTypeCode(
-        WindowInfoPtr windowInfoPtr)
- {
-    if (windowInfoPtr != NULL) {
-        SelectionInfoPtr selectionInfoPtr = (SelectionInfoPtr) GetHandlePointer(
-                windowInfoPtr->selectionInfoHandle,
-                kNoLock,
-                kNoMoveHi);
+		
 
-        if (selectionInfoPtr != NULL)
-            return (selectionInfoPtr->typeFlag);
+SInt16 GetSelectionTypeCode (
+				WindowInfoPtr						windowInfoPtr)
+ 
+{
+	if (windowInfoPtr != NULL) 
+		{
+		SelectionInfoPtr selectionInfoPtr = (SelectionInfoPtr)GetHandlePointer (
+																windowInfoPtr->selectionInfoHandle);
 
-    } // end "if (windowInfoPtr != NULL)"
+		if (selectionInfoPtr != NULL)
+			return (selectionInfoPtr->typeFlag);
 
-    return (0);
+		}	// end "if (windowInfoPtr != NULL)"
 
-} // end "GetSelectionTypeCode" 
+	return (0);
 
-SInt16 GetSelectionTypeCode(
-        WindowPtr windowPtr)
- {
-    WindowInfoPtr windowInfoPtr;
+}	// end "GetSelectionTypeCode" 
 
 
-    windowInfoPtr = (WindowInfoPtr) GetHandlePointer(
-            GetWindowInfoHandle(windowPtr),
-            kNoLock,
-            kNoMoveHi);
 
-    return (GetSelectionTypeCode(windowInfoPtr));
+SInt16 GetSelectionTypeCode (
+				WindowPtr							windowPtr)
+ 
+{
+	WindowInfoPtr						windowInfoPtr;
 
-} // end "GetSelectionTypeCode" 
+
+	windowInfoPtr = (WindowInfoPtr)GetHandlePointer (GetWindowInfoHandle (windowPtr));
+
+	return (GetSelectionTypeCode (windowInfoPtr));
+
+}	// end "GetSelectionTypeCode" 
 
 
 
@@ -4847,45 +5008,43 @@ SInt16 GetSelectionTypeCode(
 //	Coded By:			Larry L. Biehl			Date: 09/28/1998
 //	Revised By:			Larry L. Biehl			Date: 09/28/1998			
 
-Boolean InitializePolygonSelection(
-        SelectionInfoPtr selectionInfoPtr,
-        HPFieldPointsPtr* selectionPointsPtrPtr,
-        UInt32* memoryLimitNumberPtr,
-        UInt32* bytesNeededPtr,
-        UInt32* bytesNeededIncrementPtr)
- {
+Boolean InitializePolygonSelection (
+				SelectionInfoPtr					selectionInfoPtr,
+				HPFieldPointsPtr*					selectionPointsPtrPtr,
+				UInt32*								memoryLimitNumberPtr,
+				UInt32*								bytesNeededPtr,
+				UInt32*								bytesNeededIncrementPtr)
 
+{
+			// Clear the selection area.														
 
-    // Clear the selection area.														
+	ClearSelectionArea (gActiveImageWindow);
+	CheckSomeEvents (updateMask);
 
-    ClearSelectionArea(gActiveImageWindow);
-    CheckSomeEvents(updateMask);
+			// Get memory for polygon coordinates.  Allow for 100 points to 		
+			// begin with.																			
 
-    // Get memory for polygon coordinates.  Allow for 100 points to 		
-    // begin with.																			
+	*memoryLimitNumberPtr = 100;
+	//*bytesNeededPtr = *memoryLimitNumberPtr * 2 * sizeof (ProjectFieldPoints);
+	*bytesNeededPtr = *memoryLimitNumberPtr * sizeof (ProjectFieldPoints);
+	selectionInfoPtr->polygonCoordinatesHandle = MNewHandle (*bytesNeededPtr);
+	if (selectionInfoPtr->polygonCoordinatesHandle == NULL)
+																						return (FALSE);
 
-    *memoryLimitNumberPtr = 100;
-    //	*bytesNeededPtr = *memoryLimitNumberPtr * 2 * sizeof(ProjectFieldPoints);
-    *bytesNeededPtr = *memoryLimitNumberPtr * sizeof (ProjectFieldPoints);
-    selectionInfoPtr->polygonCoordinatesHandle = MNewHandle(*bytesNeededPtr);
-    if (selectionInfoPtr->polygonCoordinatesHandle == NULL)
-        return (FALSE);
+	*bytesNeededIncrementPtr = *bytesNeededPtr;
+	*selectionPointsPtrPtr = (HPFieldPointsPtr)GetHandlePointer (
+														selectionInfoPtr->polygonCoordinatesHandle,
+														kLock);
 
-    *bytesNeededIncrementPtr = *bytesNeededPtr;
-    *selectionPointsPtrPtr = (HPFieldPointsPtr) GetHandlePointer(
-            selectionInfoPtr->polygonCoordinatesHandle,
-            kLock,
-            kNoMoveHi);
+			// Set selection area type flag.     
 
-    // Set selection area type flag.     
+	selectionInfoPtr->typeFlag = kPolygonType;
 
-    selectionInfoPtr->typeFlag = kPolygonType;
+	gProcessorCode = kPolygonSelectionProcessor;
 
-    gProcessorCode = kPolygonSelectionProcessor;
+	return (TRUE);
 
-    return (TRUE);
-
-} // end "InitializePolygonSelection" 
+}	// end "InitializePolygonSelection" 
 
 
 
@@ -4913,67 +5072,67 @@ Boolean InitializePolygonSelection(
 //	Coded By:			Larry L. Biehl			Date: 08/11/1989
 //	Revised By:			Larry L. Biehl			Date: 03/23/1999			
 
-void OutlineSelectionArea(
-        WindowPtr windowPtr)
- {
-#if defined multispec_mac
-    PenState penState;
-    GrafPtr savedPort;
-#endif	// defined multispec_mac
+void OutlineSelectionArea (
+				WindowPtr							windowPtr)
+ 
+{
+	#if defined multispec_mac
+		PenState								penState;
+		GrafPtr								savedPort;
+	#endif	// defined multispec_mac
 
-    SelectionInfoPtr selectionInfoPtr;
+	SelectionInfoPtr					selectionInfoPtr;
 
-    Handle selectionInfoH,
-            windowInfoH;
+	Handle								selectionInfoH,
+											windowInfoH;
 
 
-    // Get the window information structure handle for the input
-    // window.
+			// Get the window information structure handle for the input window.
 
-    windowInfoH = GetWindowInfoHandle(windowPtr);
+	windowInfoH = GetWindowInfoHandle (windowPtr);
 
-    // Get the pointer to the selection rectangle information.		 		
+			// Get the pointer to the selection rectangle information.		 		
 
-    selectionInfoH = GetSelectionInfoHandle(windowInfoH);
-    selectionInfoPtr = (SelectionInfoPtr) GetHandlePointer(selectionInfoH,
-            kNoLock,
-            kNoMoveHi);
+	selectionInfoH = GetSelectionInfoHandle (windowInfoH);
+	selectionInfoPtr = (SelectionInfoPtr)GetHandlePointer (selectionInfoH);
 
-    if (!OffscreenImageMapExists(windowInfoH) || selectionInfoPtr == NULL)
-        return;
+	if (!OffscreenImageMapExists (windowInfoH) || selectionInfoPtr == NULL)
+																										return;
 
-    if (selectionInfoPtr->typeFlag != 0) {
-#if defined multispec_mac
-        GetPort(&savedPort);
-        SetPortWindowPort(windowPtr);
+	if (selectionInfoPtr->typeFlag != 0) 
+		{
+		#if defined multispec_mac
+			GetPort (&savedPort);
+			SetPortWindowPort (windowPtr);
 
-        // Set the pen characteristics.												
+					// Set the pen characteristics.												
 
-        GetPenState(&penState);
-        PenPat((ConstPatternParam) & gOutlinePenPattern);
-        PenMode(patCopy);
-        PenSize(1, 1);
+			GetPenState (&penState);
+			PenPat ((ConstPatternParam)&gOutlinePenPattern);
+			PenMode (patCopy);
+			PenSize (1, 1);
 
-        DrawSelectionArea(windowPtr);
+			DrawSelectionArea (windowPtr);
 
-        SetPenState(&penState);
+			SetPenState (&penState);
 
-        SetPort(savedPort);
-#endif	// defined multispec_mac
+			SetPort (savedPort);
+		#endif	// defined multispec_mac
 
-#if defined multispec_win  
-        // Force the new selection to be drawn
+		#if defined multispec_win  
+					// Force the new selection to be drawn
 
-        CMOutlineArea* selectionAreaCPtr = windowPtr->GetSelectionAreaCPtr();
-        selectionAreaCPtr->Invalidate(windowPtr);
-#endif	// defined multispec_win
+			CMOutlineArea* selectionAreaCPtr = windowPtr->GetSelectionAreaCPtr ();
+			selectionAreaCPtr->Invalidate (windowPtr);
+		#endif	// defined multispec_win
 
-#if defined multispec_lin
-      (windowPtr->m_Canvas)->Refresh();
-#endif
-    } // end "if (selectionInfoPtr->typeFlag)" 
+		#if defined multispec_lin
+			(windowPtr->m_Canvas)->Refresh ();
+		#endif
+		
+		}	// end "if (selectionInfoPtr->typeFlag != 0)" 
 
-} // end "OutlineSelectionArea" 
+}	// end "OutlineSelectionArea" 
 
 
 
@@ -5000,65 +5159,65 @@ void OutlineSelectionArea(
 //	Revised By:			Larry L. Biehl			Date: 10/02/1998	
 //	Revised By:			Larry L. Biehl			Date: 10/02/1998			
 
-void SetPolygonSelection(
-        WindowInfoPtr windowInfoPtr,
-        SelectionInfoPtr selectionInfoPtr,
-        DisplaySpecsPtr displaySpecsPtr,
-        SInt32 lineAdjust,
-        SInt32 columnAdjust)
- {
-    HPFieldPointsPtr selectionPointsPtr;
+void SetPolygonSelection (
+				WindowInfoPtr						windowInfoPtr,
+				SelectionInfoPtr					selectionInfoPtr,
+				DisplaySpecsPtr					displaySpecsPtr,
+				SInt32								lineAdjust,
+				SInt32								columnAdjust)
 
-    UInt32 count;
+{
+	HPFieldPointsPtr					selectionPointsPtr;
+
+	UInt32								count;
 
 
-    selectionPointsPtr = (HPFieldPointsPtr) GetHandlePointer(
-            selectionInfoPtr->polygonCoordinatesHandle,
-            kLock,
-            kNoMoveHi);
+	selectionPointsPtr = (HPFieldPointsPtr)GetHandlePointer (
+														selectionInfoPtr->polygonCoordinatesHandle,
+														kLock);
 
-    //	selectionPointsPtr++;
-    for (count = 0; count < (UInt32) selectionInfoPtr->numberPoints; count++) {
-        // Update the bounding line column polygon points.							
+	//selectionPointsPtr++;
+	for (count=0; count<(UInt32)selectionInfoPtr->numberPoints; count++) 
+		{
+				// Update the bounding line column polygon points.							
 
-        selectionPointsPtr->line += lineAdjust;
-        selectionPointsPtr->col += columnAdjust;
+		selectionPointsPtr->line += lineAdjust;
+		selectionPointsPtr->col += columnAdjust;
 
-        // Check if any point is outside of the image file then do not use
-        // this polgon selection.							
+				// Check if any point is outside of the image file then do not use
+				// this polgon selection.							
 
-        if (selectionPointsPtr->line < 1 ||
-                selectionPointsPtr->line > (SInt32) windowInfoPtr->maxNumberLines)
-            selectionInfoPtr->typeFlag = 0;
+		if (selectionPointsPtr->line < 1 ||
+						selectionPointsPtr->line > (SInt32)windowInfoPtr->maxNumberLines)
+			selectionInfoPtr->typeFlag = 0;
 
-        if (selectionPointsPtr->col < 1 ||
-                selectionPointsPtr->col > (SInt32) windowInfoPtr->maxNumberColumns)
-            selectionInfoPtr->typeFlag = 0;
+		if (selectionPointsPtr->col < 1 ||
+						selectionPointsPtr->col > (SInt32)windowInfoPtr->maxNumberColumns)
+			selectionInfoPtr->typeFlag = 0;
 
-        if (selectionInfoPtr->typeFlag == 0)
-            break;
+		if (selectionInfoPtr->typeFlag == 0)
+			break;
 
-        //		selectionPointsPtr += 2;
-        selectionPointsPtr++;
+		//selectionPointsPtr += 2;
+		selectionPointsPtr++;
 
-    } // end "for (count=0; count<..."
+		}	// end "for (count=0; count<..."
 
-    if (selectionInfoPtr->typeFlag == kPolygonType) {
-        selectionPointsPtr = (HPFieldPointsPtr) GetHandlePointer(
-                selectionInfoPtr->polygonCoordinatesHandle,
-                kNoLock,
-                kNoMoveHi);
+	if (selectionInfoPtr->typeFlag == kPolygonType) 
+		{
+		selectionPointsPtr = (HPFieldPointsPtr)GetHandlePointer (
+													selectionInfoPtr->polygonCoordinatesHandle);
 
-        GetBoundingSelectionRectangles(displaySpecsPtr,
-                selectionInfoPtr,
-                selectionPointsPtr,
-                0);
+		GetBoundingSelectionRectangles (displaySpecsPtr,
+													 selectionInfoPtr,
+													 selectionPointsPtr,
+													 0);
 
-    } // end "if (selectionInfoPtr->typeFlag == kPolygonType)"
+		}	// end "if (selectionInfoPtr->typeFlag == kPolygonType)"
 
-    CheckAndUnlockHandle(selectionInfoPtr->polygonCoordinatesHandle);
+	CheckAndUnlockHandle (selectionInfoPtr->polygonCoordinatesHandle);
 
-} // end "SetPolygonSelection" 
+}	// end "SetPolygonSelection" 
 
 
 
@@ -5087,107 +5246,111 @@ void SetPolygonSelection(
 //	Revised By:			Larry L. Biehl			Date: 10/02/1998	
 //	Revised By:			Larry L. Biehl			Date: 02/22/2007			
 
-void SetRectangleSelection(
-        WindowInfoPtr windowInfoPtr,
-        SelectionInfoPtr selectionInfoPtr,
-        LongRect* inputLineColumnRectPtr,
-        DoubleRect* inputCoordinateRectPtr,
-        SInt16 unitsToUseCode,
-        SInt32 lineAdjust,
-        SInt32 columnAdjust)
- {
-    DoubleRect* selectionCoordinateRectPtr;
-    LongRect* selectionLineColumnRectPtr;
+void SetRectangleSelection (
+				WindowInfoPtr						windowInfoPtr,
+				SelectionInfoPtr					selectionInfoPtr,
+				LongRect*							inputLineColumnRectPtr,
+				DoubleRect*							inputCoordinateRectPtr,
+				SInt16								unitsToUseCode,
+				SInt32								lineAdjust,
+				SInt32								columnAdjust)
+ 
+{
+	DoubleRect*							selectionCoordinateRectPtr;
+	LongRect*							selectionLineColumnRectPtr;
 
-    SInt32 tempValue;
+	SInt32								tempValue;
 
-    Boolean coordinatesExistFlag;
+	Boolean								coordinatesExistFlag;
 
 
-    selectionLineColumnRectPtr = &selectionInfoPtr->lineColumnRectangle;
-    selectionCoordinateRectPtr = &selectionInfoPtr->coordinateRectangle;
+	selectionLineColumnRectPtr = &selectionInfoPtr->lineColumnRectangle;
+	selectionCoordinateRectPtr = &selectionInfoPtr->coordinateRectangle;
 
-    // Get the factor that is being used to convert the original units to
-    // the requested display units.
+			// Get the factor that is being used to convert the original units to
+			// the requested display units.
 
-    //	factor = GetCoordinateViewFactor (windowInfoPtr->windowInfoHandle);
+	//factor = GetCoordinateViewFactor (windowInfoPtr->windowInfoHandle);
+	coordinatesExistFlag = ConvertCoordinateRectToLCRect (
+																	windowInfoPtr->windowInfoHandle,
+																	inputCoordinateRectPtr,
+																	selectionLineColumnRectPtr,
+																	unitsToUseCode,
+																	1.0);
 
-    coordinatesExistFlag = ConvertCoordinateRectToLCRect(
-            windowInfoPtr->windowInfoHandle,
-            inputCoordinateRectPtr,
-            selectionLineColumnRectPtr,
-            unitsToUseCode,
-            1.0);
+	if (coordinatesExistFlag) 
+		{
+		if (unitsToUseCode == kLineColumnUnits) 
+			{
+			selectionLineColumnRectPtr->top = inputLineColumnRectPtr->top + lineAdjust;
+			selectionLineColumnRectPtr->bottom = inputLineColumnRectPtr->bottom + lineAdjust;
 
-    if (coordinatesExistFlag) {
-        if (unitsToUseCode == kLineColumnUnits) {
-            selectionLineColumnRectPtr->top = inputLineColumnRectPtr->top + lineAdjust;
-            selectionLineColumnRectPtr->bottom = inputLineColumnRectPtr->bottom + lineAdjust;
+			selectionLineColumnRectPtr->left = inputLineColumnRectPtr->left + columnAdjust;
+			selectionLineColumnRectPtr->right = inputLineColumnRectPtr->right + columnAdjust;
 
-            selectionLineColumnRectPtr->left = inputLineColumnRectPtr->left + columnAdjust;
-            selectionLineColumnRectPtr->right = inputLineColumnRectPtr->right + columnAdjust;
+			}	// end "if (unitsToUseCode == kLineColumnUnits)"
 
-        } // end "if (unitsToUseCode == kLineColumnUnits)"
+				// Make certain that the new line and column values are 		
+				// within the ranges for this window.								
 
-        // Make certain that the new line and column values are 		
-        // within the ranges for this window.								
+				// This makes certain that the values are not less than 0.	
 
-        // This makes certain that the values are not less than 0.	
+		selectionLineColumnRectPtr->top = MAX (selectionLineColumnRectPtr->top, 1);
+		selectionLineColumnRectPtr->left = MAX (selectionLineColumnRectPtr->left, 1);
 
-        selectionLineColumnRectPtr->top = MAX(selectionLineColumnRectPtr->top, 1);
-        selectionLineColumnRectPtr->left = MAX(selectionLineColumnRectPtr->left, 1);
+		selectionLineColumnRectPtr->bottom = MAX (selectionLineColumnRectPtr->bottom, 1);
+		selectionLineColumnRectPtr->right = MAX (selectionLineColumnRectPtr->right, 1);
 
-        selectionLineColumnRectPtr->bottom = MAX(selectionLineColumnRectPtr->bottom, 1);
-        selectionLineColumnRectPtr->right = MAX(selectionLineColumnRectPtr->right, 1);
+				// If the units to use are lat-long, it is possible for some projections 
+				// for the line-column values to be in the wrong order.  Correct if they 
+				// are in the wrong order.
 
-        // If the units to use are lat-long, it is possible for some projections for
-        // the line-column values to be in the wrong order.  Correct if they are in
-        // the wrong order.
+		if (unitsToUseCode == kLatLongUnits) 
+			{
+			if (selectionLineColumnRectPtr->top > selectionLineColumnRectPtr->bottom) 
+				{
+				tempValue = selectionLineColumnRectPtr->bottom;
+				selectionLineColumnRectPtr->bottom = selectionLineColumnRectPtr->top;
+				selectionLineColumnRectPtr->top = tempValue;
 
-        if (unitsToUseCode == kLatLongUnits) {
-            if (selectionLineColumnRectPtr->top > selectionLineColumnRectPtr->bottom) {
-                tempValue = selectionLineColumnRectPtr->bottom;
-                selectionLineColumnRectPtr->bottom = selectionLineColumnRectPtr->top;
-                selectionLineColumnRectPtr->top = tempValue;
+				}	// end "if (selectionLineColumnRectPtr->top > ...->bottom)"
 
-            } // end "if (selectionLineColumnRectPtr->top > ...->bottom)"
+			if (selectionLineColumnRectPtr->left > selectionLineColumnRectPtr->right) 
+				{
+				tempValue = selectionLineColumnRectPtr->right;
+				selectionLineColumnRectPtr->right = selectionLineColumnRectPtr->left;
+				selectionLineColumnRectPtr->left = tempValue;
 
-            if (selectionLineColumnRectPtr->left > selectionLineColumnRectPtr->right) {
+				}	// end "if (selectionLineColumnRectPtr->left > ...->right)"
 
-                tempValue = selectionLineColumnRectPtr->right;
-                selectionLineColumnRectPtr->right = selectionLineColumnRectPtr->left;
-                selectionLineColumnRectPtr->left = tempValue;
+			}	// end "if (unitsToUseCode == kLatLongUnits)"
 
-            } // end "if (selectionLineColumnRectPtr->left > ...->right)"
+				// This makes certain that the values are greater than the the maximums.															
 
-        } // end "if (unitsToUseCode == kLatLongUnits)"
+		selectionLineColumnRectPtr->bottom = MIN (selectionLineColumnRectPtr->bottom,
+				 (SInt32)windowInfoPtr->maxNumberLines);
+				 
+		selectionLineColumnRectPtr->right = MIN (selectionLineColumnRectPtr->right,
+				 (SInt32)windowInfoPtr->maxNumberColumns);
 
-        // This makes certain that the values are greater than the	
-        // the maximums.															
+		if (selectionLineColumnRectPtr->top > selectionLineColumnRectPtr->bottom)
+			selectionInfoPtr->typeFlag = 0;
 
-        selectionLineColumnRectPtr->bottom = MIN(selectionLineColumnRectPtr->bottom,
-                (SInt32) windowInfoPtr->maxNumberLines);
-        selectionLineColumnRectPtr->right = MIN(selectionLineColumnRectPtr->right,
-                (SInt32) windowInfoPtr->maxNumberColumns);
+		if (selectionLineColumnRectPtr->left > selectionLineColumnRectPtr->right)
+			selectionInfoPtr->typeFlag = 0;
 
-        if (selectionLineColumnRectPtr->top > selectionLineColumnRectPtr->bottom)
-            selectionInfoPtr->typeFlag = 0;
+		}	// end "if (coordinatesExistFlag)"
 
-        if (selectionLineColumnRectPtr->left > selectionLineColumnRectPtr->right)
-            selectionInfoPtr->typeFlag = 0;
+	else	// !coordinatesExistFlag
+		selectionInfoPtr->typeFlag = 0;
 
-    }// end "if (coordinatesExistFlag)"
-
-    else // !coordinatesExistFlag
-        selectionInfoPtr->typeFlag = 0;
-
-} // end "SetRectangleSelection" 
+}	// end "SetRectangleSelection" 
 
 
 
 //------------------------------------------------------------------------------------
 //								 Copyright (1988-2017)
-//								(c) Purdue Research Foundation
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void SetSelectionForAllWindows
@@ -5209,273 +5372,279 @@ void SetRectangleSelection(
 //	Revised By:			Larry L. Biehl			Date: 06/03/1993	
 //	Revised By:			Larry L. Biehl			Date: 05/29/2015			
 
-void SetSelectionForAllWindows(
-        Handle inputWindowInfoHandle,
-        SelectionInfoPtr inputSelectionInfoPtr,
-        DoubleRect* inputCoordinateRectPtr,
-        Boolean useStartLineColumnFlag,
-        SInt16 unitsToUseCode,
-        double inputFactor)
- {
-    DoubleRect coordinateRectangle;
-
-    DisplaySpecsPtr displaySpecsPtr;
-    FileInfoPtr fileInfoPtr;
-    GrafPtr savedPort;
-    LongRect* inputLineColumnRectPtr;
-    SelectionInfoPtr selectionInfoPtr;
-    WindowInfoPtr windowInfoPtr;
+void SetSelectionForAllWindows (
+				Handle								inputWindowInfoHandle,
+				SelectionInfoPtr					inputSelectionInfoPtr,
+				DoubleRect*							inputCoordinateRectPtr,
+				Boolean								useStartLineColumnFlag,
+				SInt16								unitsToUseCode,
+				double								inputFactor)
 
-    Handle displaySpecsHandle,
-            fileInfoHandle,
-            inputPolygonCoordinatesHandle,
-            polygonCoordinatesHandle,
-            windowInfoHandle;
+{
+	DoubleRect							coordinateRectangle;
+
+	DisplaySpecsPtr					displaySpecsPtr;
+	FileInfoPtr							fileInfoPtr;
+	GrafPtr								savedPort;
+	LongRect*							inputLineColumnRectPtr;
+	SelectionInfoPtr					selectionInfoPtr;
+	WindowInfoPtr						windowInfoPtr;
 
-    SInt32 activeStartColumn,
-            activeStartLine,
-            columnAdjust,
-            inputNumberPoints,
-            lineAdjust;
+	Handle								displaySpecsHandle,
+											fileInfoHandle,
+											inputPolygonCoordinatesHandle,
+											polygonCoordinatesHandle,
+											windowInfoHandle;
 
-    SInt16 inputType,
-            planarMapUnitsCode,
-            window,
-            windowIndex;
+	SInt32								activeStartColumn,
+											activeStartLine,
+											columnAdjust,
+											inputNumberPoints,
+											lineAdjust;
 
-    Boolean continueFlag,
-            stopFlag;
+	SInt16								inputType,
+											planarMapUnitsCode,
+											window,
+											windowIndex;
 
-    SignedByte displayHandleStatus,
-            fileHandleStatus,
-            selectHandleStatus,
-            windowHandleStatus;
+	Boolean								continueFlag,
+											stopFlag;
 
+	SignedByte							displayHandleStatus,
+											fileHandleStatus,
+											selectHandleStatus,
+											windowHandleStatus;
+
 
-    if (gNumberOfIWindows <= 1)
-        return;
+	if (gNumberOfIWindows <= 1)
+																									return;
 
-    GetPort(&savedPort);
+	GetPort (&savedPort);
 
-    // Get the input parameters.
+			// Get the input parameters.
 
-    inputType = inputSelectionInfoPtr->typeFlag;
-    inputNumberPoints = inputSelectionInfoPtr->numberPoints;
-    inputLineColumnRectPtr = &inputSelectionInfoPtr->lineColumnRectangle;
-    inputPolygonCoordinatesHandle = inputSelectionInfoPtr->polygonCoordinatesHandle;
+	inputType = inputSelectionInfoPtr->typeFlag;
+	inputNumberPoints = inputSelectionInfoPtr->numberPoints;
+	inputLineColumnRectPtr = &inputSelectionInfoPtr->lineColumnRectangle;
+	inputPolygonCoordinatesHandle = inputSelectionInfoPtr->polygonCoordinatesHandle;
 
-    // Get the line and column start for the active image window.			
+			// Get the line and column start for the active image window.			
 
-    fileInfoHandle = GetFileInfoHandle(inputWindowInfoHandle);
-    fileInfoPtr = (FileInfoPtr) GetHandlePointer(fileInfoHandle, kNoLock, kNoMoveHi);
+	fileInfoHandle = GetFileInfoHandle (inputWindowInfoHandle);
+	fileInfoPtr = (FileInfoPtr)GetHandlePointer (fileInfoHandle);
 
-    if (fileInfoPtr != NULL) {
-        activeStartLine = fileInfoPtr->startLine;
-        activeStartColumn = fileInfoPtr->startColumn;
+	if (fileInfoPtr != NULL) 
+		{
+		activeStartLine = fileInfoPtr->startLine;
+		activeStartColumn = fileInfoPtr->startColumn;
 
-    } // end "if (fileInfoPtr != NULL)" 
+		}	// end "if (fileInfoPtr != NULL)" 
 
-    columnAdjust = 0;
-    lineAdjust = 0;
+	columnAdjust = 0;
+	lineAdjust = 0;
 
-    coordinateRectangle = *inputCoordinateRectPtr;
+	coordinateRectangle = *inputCoordinateRectPtr;
 
-    // Convert the cooordinates to the map units expected to the original 
-    // units for the base window.
+			// Convert the cooordinates to the map units expected to the original 
+			// units for the base window.
 
-    if (unitsToUseCode == kMapUnits) {
-        coordinateRectangle.top /= inputFactor;
-        coordinateRectangle.left /= inputFactor;
-        coordinateRectangle.bottom /= inputFactor;
-        coordinateRectangle.right /= inputFactor;
+	if (unitsToUseCode == kMapUnits) 
+		{
+		coordinateRectangle.top /= inputFactor;
+		coordinateRectangle.left /= inputFactor;
+		coordinateRectangle.bottom /= inputFactor;
+		coordinateRectangle.right /= inputFactor;
 
-    } // end "if (unitsToUseCode == kMapUnits)"
+		}	// end "if (unitsToUseCode == kMapUnits)"
 
-    // Loop through all the available windows and set the selection	
-    // coordinates.																	
+			// Loop through all the available windows and set the selection	
+			// coordinates.																	
 
-    stopFlag = FALSE;
-    window = 0;
-    windowIndex = kImageWindowStart;
-    while (window < gNumberOfIWindows) {
-        if (gWindowList[windowIndex] != gActiveImageWindow) {
-            continueFlag = TRUE;
+	stopFlag = FALSE;
+	window = 0;
+	windowIndex = kImageWindowStart;
+	while (window < gNumberOfIWindows) 
+		{
+		if (gWindowList[windowIndex] != gActiveImageWindow) 
+			{
+			continueFlag = TRUE;
 
-            selectionInfoPtr = NULL;
-            displaySpecsPtr = NULL;
-            fileInfoPtr = NULL;
+			selectionInfoPtr = NULL;
+			displaySpecsPtr = NULL;
+			fileInfoPtr = NULL;
 
-            windowInfoHandle = GetWindowInfoHandle(gWindowList[windowIndex]);
-            windowInfoPtr = (WindowInfoPtr) GetHandlePointer(
-                    windowInfoHandle,
-                    kNoLock,
-                    kNoMoveHi);
+			windowInfoHandle = GetWindowInfoHandle (gWindowList[windowIndex]);
+			windowInfoPtr = (WindowInfoPtr)GetHandlePointer (windowInfoHandle);
 
-            if (windowInfoPtr == NULL)
-                continueFlag = FALSE;
+			if (windowInfoPtr == NULL)
+				 continueFlag = FALSE;
 
-            if (continueFlag) {
-                // Verify that an image exists in this window.					
+			if (continueFlag) 
+				{
+						// Verify that an image exists in this window.					
 
-                if (windowInfoPtr->imageBaseAddressH == NULL &&
-                        windowInfoPtr->offscreenGWorld == NULL)
-                    continueFlag = FALSE;
+				if (windowInfoPtr->imageBaseAddressH == NULL &&
+															windowInfoPtr->offscreenGWorld == NULL)
+					continueFlag = FALSE;
 
-            } // end "if (continueFlag)"		
+				}	// end "if (continueFlag)"		
 
-            if (continueFlag) {
-                // Determine if the information handles are available.
+			if (continueFlag) 
+				{
+						// Determine if the information handles are available.
 
-                displaySpecsHandle = GetDisplaySpecsHandle(windowInfoPtr);
-                fileInfoHandle = GetFileInfoHandle(windowInfoPtr);
+				displaySpecsHandle = GetDisplaySpecsHandle (windowInfoPtr);
+				fileInfoHandle = GetFileInfoHandle (windowInfoPtr);
 
-                if (displaySpecsHandle == NULL ||
-                        windowInfoPtr->selectionInfoHandle == NULL ||
-                        fileInfoHandle == NULL)
-                    continueFlag = FALSE;
+				if (displaySpecsHandle == NULL ||
+						windowInfoPtr->selectionInfoHandle == NULL ||
+							fileInfoHandle == NULL)
+					continueFlag = FALSE;
 
-            } // end "if (continueFlag)" 
+				}	// end "if (continueFlag)" 
 
-            if (continueFlag) {
-                // There is an image to draw into.
-                // Check whether one can determine the selected area within
-                // the image with the user requested units.
+			if (continueFlag) 
+				{
+						// There is an image to draw into.
+						// Check whether one can determine the selected area within
+						// the image with the user requested units.
 
-                if (unitsToUseCode == kMapUnits) {
-                    planarMapUnitsCode = GetFilePlanarMapUnitsCode(windowInfoHandle);
-                    if (planarMapUnitsCode < kKilometersCode)
-                        continueFlag = FALSE;
+				if (unitsToUseCode == kMapUnits) 
+					{
+					planarMapUnitsCode = GetFilePlanarMapUnitsCode (windowInfoHandle);
+					if (planarMapUnitsCode < kKilometersCode)
+						continueFlag = FALSE;
 
-                }// end "if (unitsToUseCode == kMapUnits)"
+					}	// end "if (unitsToUseCode == kMapUnits)"
 
-                else if (unitsToUseCode == kLatLongUnits)
-                    continueFlag = DetermineIfInverseLatLongPossible(windowInfoHandle);
+				else if (unitsToUseCode == kLatLongUnits)
+					continueFlag = DetermineIfInverseLatLongPossible (windowInfoHandle);
 
-            } // end "if (continueFlag)"
+				}	// end "if (continueFlag)"
 
-            if (continueFlag) {
-                // Lock the handles down for the pointers being used.			
-                // Be sure no code added before this will move memory.
+			if (continueFlag) 
+				{
+						// Lock the handles down for the pointers being used.			
+						// Be sure no code added before this will move memory.
 
-                windowInfoPtr = (WindowInfoPtr) GetHandleStatusAndPointer(
-                        windowInfoHandle,
-                        &windowHandleStatus,
-                        kNoMoveHi);
+				windowInfoPtr = (WindowInfoPtr)GetHandleStatusAndPointer (
+																					windowInfoHandle,
+																					&windowHandleStatus);
 
-                fileInfoPtr = (FileInfoPtr) GetHandleStatusAndPointer(
-                        fileInfoHandle,
-                        &fileHandleStatus,
-                        kNoMoveHi);
+				fileInfoPtr = (FileInfoPtr)GetHandleStatusAndPointer (
+																					fileInfoHandle,
+																					&fileHandleStatus);
 
-                selectionInfoPtr = (SelectionInfoPtr) GetHandleStatusAndPointer(
-                        windowInfoPtr->selectionInfoHandle,
-                        &selectHandleStatus,
-                        kNoMoveHi);
+				selectionInfoPtr = (SelectionInfoPtr)GetHandleStatusAndPointer (
+																	windowInfoPtr->selectionInfoHandle,
+																	&selectHandleStatus);
 
-                displaySpecsPtr = (DisplaySpecsPtr) GetHandleStatusAndPointer(
-                        displaySpecsHandle,
-                        &displayHandleStatus,
-                        kNoMoveHi);
+				displaySpecsPtr = (DisplaySpecsPtr)GetHandleStatusAndPointer (
+																					displaySpecsHandle,
+																					&displayHandleStatus);
 
-                polygonCoordinatesHandle = NULL;
-                if (inputType == kPolygonType) {
-                    // Get the new polygon handle for this selection.
+				polygonCoordinatesHandle = NULL;
+				if (inputType == kPolygonType) 
+					{
+							// Get the new polygon handle for this selection.
 
-                    polygonCoordinatesHandle = inputPolygonCoordinatesHandle;
+					polygonCoordinatesHandle = inputPolygonCoordinatesHandle;
 
-                    if (HandToHand(&polygonCoordinatesHandle) != noErr)
-                        stopFlag = TRUE;
+					if (HandToHand (&polygonCoordinatesHandle) != noErr)
+						stopFlag = TRUE;
 
-                } // end "if (inputType == kPolygonType)"
+					}	// end "if (inputType == kPolygonType)"
 
-                if (!stopFlag) {
-                    // Invalidate the current selection rectangle if it exists.	
+				if (!stopFlag) 
+					{
+							// Invalidate the current selection rectangle if it exists.	
 
-                    ClearSelectionArea(gWindowList[windowIndex]);
+					ClearSelectionArea (gWindowList[windowIndex]);
 
-                    // For the selection flag to be the same as the input one.
+							// For the selection flag to be the same as the input one.
 
-                    selectionInfoPtr->typeFlag = inputType;
-                    selectionInfoPtr->numberPoints = (SInt16) inputNumberPoints;
-                    selectionInfoPtr->polygonCoordinatesHandle = polygonCoordinatesHandle;
+					selectionInfoPtr->typeFlag = inputType;
+					selectionInfoPtr->numberPoints = (SInt16)inputNumberPoints;
+					selectionInfoPtr->polygonCoordinatesHandle = polygonCoordinatesHandle;
 
-                    if (useStartLineColumnFlag && unitsToUseCode == kLineColumnUnits) {
-                        // Adjust the line and column values for any differences		
-                        // in the start line and column.										
+					if (useStartLineColumnFlag && unitsToUseCode == kLineColumnUnits) 
+						{
+								// Adjust the line and column values for any differences		
+								// in the start line and column.										
 
-                        lineAdjust = activeStartLine - fileInfoPtr->startLine;
-                        columnAdjust = activeStartColumn - fileInfoPtr->startColumn;
+						lineAdjust = activeStartLine - fileInfoPtr->startLine;
+						columnAdjust = activeStartColumn - fileInfoPtr->startColumn;
 
-                    } // end "if (useStartLineColumnFlag && ...)"
+						}	// end "if (useStartLineColumnFlag && ...)"
 
-                    if (selectionInfoPtr->typeFlag == kRectangleType)
-                        SetRectangleSelection(windowInfoPtr,
-                            selectionInfoPtr,
-                            inputLineColumnRectPtr,
-                            &coordinateRectangle,
-                            unitsToUseCode,
-                            lineAdjust,
-                            columnAdjust);
+					if (selectionInfoPtr->typeFlag == kRectangleType)
+						SetRectangleSelection (windowInfoPtr,
+														 selectionInfoPtr,
+														 inputLineColumnRectPtr,
+														 &coordinateRectangle,
+														 unitsToUseCode,
+														 lineAdjust,
+														 columnAdjust);
 
-                    else // selectionInfoPtr->typeFlag == kPolygonType
-                        SetPolygonSelection(windowInfoPtr,
-                            selectionInfoPtr,
-                            displaySpecsPtr,
-                            lineAdjust,
-                            columnAdjust);
+					else	// selectionInfoPtr->typeFlag == kPolygonType
+						SetPolygonSelection (windowInfoPtr,
+													 selectionInfoPtr,
+													 displaySpecsPtr,
+													 lineAdjust,
+													 columnAdjust);
 
-                    // Now also get the selected area in coordinate units.
+							// Now also get the selected area in coordinate units.
 
-                    ComputeSelectionCoordinates(windowInfoHandle,
-                            &selectionInfoPtr->lineColumnRectangle,
-                            &selectionInfoPtr->coordinateRectangle);
+					ComputeSelectionCoordinates (windowInfoHandle,
+															 &selectionInfoPtr->lineColumnRectangle,
+															 &selectionInfoPtr->coordinateRectangle);
 
-                    // Get the selection rectangle location relative to the 		
-                    // offscreen bit/pix map												
+							// Get the selection rectangle location relative to the 		
+							// offscreen bit/pix map												
 
-                    if (selectionInfoPtr->typeFlag > 0) {
-                        SetSelectionInformation(
-                                gWindowList[windowIndex],
-                                displaySpecsPtr,
-                                selectionInfoPtr,
-                                selectionInfoPtr->typeFlag,
-                                0,
-                                &selectionInfoPtr->lineColumnRectangle,
-                                &selectionInfoPtr->coordinateRectangle);
+					if (selectionInfoPtr->typeFlag > 0) 
+						{
+						SetSelectionInformation (gWindowList[windowIndex],
+														  displaySpecsPtr,
+														  selectionInfoPtr,
+														  selectionInfoPtr->typeFlag,
+														  0,
+														  &selectionInfoPtr->lineColumnRectangle,
+														  &selectionInfoPtr->coordinateRectangle);
 
-                        SetPortWindowPort(gWindowList[windowIndex]);
-                        OutlineSelectionArea(gWindowList[windowIndex]);
+						SetPortWindowPort (gWindowList[windowIndex]);
+						OutlineSelectionArea (gWindowList[windowIndex]);
 
-							#if defined multispec_win || defined multispec_lin
-                        gWindowList[windowIndex]->UpdateSelectionCoordinates();
-							#endif	// defined multispec_win || defined multispec_lin
+						#if defined multispec_win || defined multispec_lin
+							gWindowList[windowIndex]->UpdateSelectionCoordinates ();
+						#endif	// defined multispec_win || defined multispec_lin
 
-                    } // end "if (selectionInfoPtr->typeFlag > 0)" 
+						}	// end "if (selectionInfoPtr->typeFlag > 0)" 
 
-                } // end "if (!stopFlag)"
+					}	// end "if (!stopFlag)"
 
-                // Reset the handles to their input lock status.				
+						// Reset the handles to their input lock status.				
 
-                MHSetState(windowInfoPtr->selectionInfoHandle, selectHandleStatus);
-                MHSetState(displaySpecsHandle, displayHandleStatus);
-                MHSetState(fileInfoHandle, fileHandleStatus);
-                MHSetState(windowInfoHandle, windowHandleStatus);
+				MHSetState (windowInfoPtr->selectionInfoHandle, selectHandleStatus);
+				MHSetState (displaySpecsHandle, displayHandleStatus);
+				MHSetState (fileInfoHandle, fileHandleStatus);
+				MHSetState (windowInfoHandle, windowHandleStatus);
 
-            } // end "if (continueFlag)" 
+				}	// end "if (continueFlag)" 
 
-        } // end "if (gWindowList[windowIndex] != gActiveImageWindow)" 
+			}	// end "if (gWindowList[windowIndex] != gActiveImageWindow)" 
 
-        window++;
-        windowIndex++;
+		window++;
+		windowIndex++;
 
-        if (stopFlag)
-            break;
+		if (stopFlag)
+			break;
 
-    } // end "while (window<gNumberOfIWindows)" 
+		}	// end "while (window<gNumberOfIWindows)" 
 
-    SetPort(savedPort);
+	SetPort (savedPort);
 
-} // end "SetSelectionForAllWindows"
+}	// end "SetSelectionForAllWindows"
 
 
 
@@ -5500,30 +5669,31 @@ void SetSelectionForAllWindows(
 //	Coded By:			Larry L. Biehl			Date: 02/13/1998
 //	Revised By:			Larry L. Biehl			Date: 11/08/2000			
 
-void SetSelectionInformation(
-        WindowPtr windowPtr,
-        DisplaySpecsPtr displaySpecsPtr,
-        SelectionInfoPtr selectionInfoPtr,
-        SInt16 typeFlag,
-        SInt16 startChannel,
-        LongRect* lineColumnRectPtr,
-        DoubleRect* coordinateRectPtr)
- {
-    Rect offScreenRectangle;
+void SetSelectionInformation (
+				WindowPtr							windowPtr,
+				DisplaySpecsPtr					displaySpecsPtr,
+				SelectionInfoPtr					selectionInfoPtr,
+				SInt16								typeFlag,
+				SInt16								startChannel,
+				LongRect*							lineColumnRectPtr,
+				DoubleRect*							coordinateRectPtr)
+ 
+{
+	Rect offScreenRectangle;
 
 
-    ComputeSelectionOffscreenRectangle(displaySpecsPtr,
-            lineColumnRectPtr,
-            &offScreenRectangle,
-            startChannel);
+	ComputeSelectionOffscreenRectangle (displaySpecsPtr,
+													lineColumnRectPtr,
+													&offScreenRectangle,
+													startChannel);
 
-    selectionInfoPtr->typeFlag = typeFlag;
-    selectionInfoPtr->coordinateRectangle = *coordinateRectPtr;
-    selectionInfoPtr->lineColumnRectangle = *lineColumnRectPtr;
-    selectionInfoPtr->offScreenRectangle = offScreenRectangle;
-    selectionInfoPtr->numberPixels = GetNumberPixelsInSelection(selectionInfoPtr);
+	selectionInfoPtr->typeFlag = typeFlag;
+	selectionInfoPtr->coordinateRectangle = *coordinateRectPtr;
+	selectionInfoPtr->lineColumnRectangle = *lineColumnRectPtr;
+	selectionInfoPtr->offScreenRectangle = offScreenRectangle;
+	selectionInfoPtr->numberPixels = GetNumberPixelsInSelection (selectionInfoPtr);
 
-} // end "SetSelectionInformation" 
+}	// end "SetSelectionInformation" 
 
 
 
@@ -5547,47 +5717,14 @@ void SetSelectionInformation(
 //	Coded By:			Larry L. Biehl			Date: 12/09/1991
 //	Revised By:			Larry L. Biehl			Date: 10/15/1995			
 
-void ShowGraphSelection(void)
+void ShowGraphSelection (void)
+
 {
 	if (gSelectionGraphViewCPtr != NULL &&
-				gSelectionGraphViewCPtr->GetSelectionIOHandle() != NULL){
-		ShowGraphWindowSelection(NULL);
-      
-#if 0
-      
-      SignedByte							handleStatus;
-      
-      GraphPtr graphRecordPtr = (GraphPtr)GetHandleStatusAndPointer (
-											gSelectionGraphViewCPtr->m_graphRecordHandle,
-											&handleStatus,
-											kNoMoveHi); 
-      // Get pointer to display specifications which will be needed later
+									gSelectionGraphViewCPtr->GetSelectionIOHandle () != NULL)
+		ShowGraphWindowSelection (NULL);
 
-        Handle displaySpecsHandle = gActiveImageWindow->GetDisplaySpecsHandle();
-        DisplaySpecsPtr s_displaySpecsPtr = (DisplaySpecsPtr) GetHandlePointer(
-                displaySpecsHandle, kLock, kNoMoveHi);
-        
-      UInt16 numberchannel = s_displaySpecsPtr->displayedNumberChannels; //graphRecordPtr->numberStatisticsChannels;
-//      printf("number of channels = %d,\n" , numberchannel);
-      
-      
-        
-        SInt32* errorPtr;
-        
-        LockAndGetVectorPointer ( &(graphRecordPtr->yVector), errorPtr );
-//        GRAPHDATA* ValuePtr = graphRecordPtr->yVector.basePtr;
-//        double yVal;
-//        if (ValuePtr != NULL){
-//            for(int n = 0; n < numberchannel; n++){
-//               printf("channel %d = %.2f \n" , n, *ValuePtr);
-//               ValuePtr++;           
-//            }
-//        }
-
-#endif
-   }
-
-} // end "ShowGraphSelection" 
+}	// end "ShowGraphSelection" 
 
 
 
@@ -5611,38 +5748,22 @@ void ShowGraphSelection(void)
 //	Coded By:			Larry L. Biehl			Date: 11/08/2000
 //	Revised By:			Larry L. Biehl			Date: 12/28/2000			
 
-void UpdateSelectionCoordinates(
-        Handle windowInfoHandle)
- {
-    //	PlanarCoordinateSystemInfoPtr	planarCoordinateSystemInfoPtr;
+void UpdateSelectionCoordinates (
+							Handle					windowInfoHandle)
+							
+{
+	SelectionInfoPtr					selectionInfoPtr;
 
-    SelectionInfoPtr selectionInfoPtr;
-
-    Handle //							mapProjectionHandle,
-    selectionInfoH;
+	Handle								selectionInfoH;
 
 
-    //	planarCoordinateSystemInfoPtr = NULL;
+	selectionInfoH = GetSelectionInfoHandle (windowInfoHandle);
+	selectionInfoPtr = (SelectionInfoPtr)GetHandlePointer (selectionInfoH, kLock);
 
-    //	mapProjectionHandle = GetFileMapProjectionHandle2 (windowInfoHandle);
+	ComputeSelectionCoordinates (windowInfoHandle,
+											&selectionInfoPtr->lineColumnRectangle,
+											&selectionInfoPtr->coordinateRectangle);
 
-    //	MapProjectionInfoPtr mapProjectionInfoPtr = 
-    //					(MapProjectionInfoPtr)GetHandlePointer(
-    //												mapProjectionHandle, kLock, kNoMoveHi);
-    //	
-    //	if (mapProjectionInfoPtr != NULL)											
-    //		planarCoordinateSystemInfoPtr = &mapProjectionInfoPtr->planarCoordinate;	 		
+	CheckAndUnlockHandle (selectionInfoH);
 
-    selectionInfoH = GetSelectionInfoHandle(windowInfoHandle);
-    selectionInfoPtr = (SelectionInfoPtr) GetHandlePointer(selectionInfoH,
-            kLock,
-            kNoMoveHi);
-
-    ComputeSelectionCoordinates(windowInfoHandle,
-            &selectionInfoPtr->lineColumnRectangle,
-            &selectionInfoPtr->coordinateRectangle);
-
-    CheckAndUnlockHandle(selectionInfoH);
-    //	CheckAndUnlockHandle (mapProjectionHandle);
-
-} // end "UpdateSelectionCoordinates" 
+}	// end "UpdateSelectionCoordinates" 

@@ -510,8 +510,8 @@ STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     ICON            IDR_MAINFRAME,IDC_STATIC,11,17,20,20
-    CTEXT           "MultiSpec Application Version 3.6\n8/28/2017",IDC_STATIC,37,6,119,17
-    CTEXT           "Copyright © 1995-2017\nPurdue Research Foundation\nAll Rights Reserved",IDC_STATIC,40,38,121,27
+    CTEXT           "MultiSpec Application\nVersion 2018.01.04",IDC_STATIC,37,6,119,17
+    CTEXT           "Copyright © 1995-2018\nPurdue Research Foundation\nAll Rights Reserved",IDC_STATIC,40,38,121,27
     DEFPUSHBUTTON   "OK",IDOK,176,194,42,14,WS_GROUP
     LTEXT           "Available Memory:",IDC_STATIC,13,144,63,8
     CONTROL         "",IDC_STATIC,"Static",SS_BLACKRECT,3,138,201,1

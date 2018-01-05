@@ -1,6 +1,45 @@
+//	 									MultiSpec
+//
+//					Laboratory for Applications of Remote Sensing
+//									Purdue University
+//								West Lafayette, IN 47907
+//								 Copyright (1988-2017)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	File:						SThreads.cpp
+//
+//	Authors:					Larry L. Biehl
+//
+//	Revision date:			12/21/2017
+//
+//	Language:				C
+//
+//	System:					Linux, Macintosh, and Windows Operating Systems
+//
+//	Brief description:	The routines in this file handle the creation and use of
+//								threads for reading data in the Mac version. It was never 
+//								implemented. More work is needed for this. And what is here
+//								now is very out of date.
+//
+//	Functions in file:	
+//
+//	Include files:			"MultiSpecHeaders"
+//								"SMultiSpec.h"
+//
+//------------------------------------------------------------------------------------
 
-#include	"SMulSpec.h"
-#include "SExtGlob.h"
+#include "SMultiSpec.h"
+
+#if defined multispec_lin
+	#include "SMultiSpec.h"
+#endif
+
+#if defined multispec_win
+	#include "SMultiSpec.h"
+#endif
+
+//#include "SExtGlob.h"
 
 
 
@@ -29,19 +68,19 @@ typedef ExtendedParamBlk *ExtendedParamBlkPtr;
 
 		// Routine prototypes.
 		
-// OSErr 								CreateFileIOThreadPool (void);
+//OSErr 			CreateFileIOThreadPool (void);
 							 
 //#if GENERATINGCFM
 #if TARGET_RT_MAC_CFM || TARGET_RT_MAC_MACHO
-	pascal void 						FileIOCompletionRoutine (ParmBlkPtr pbPtr);
+	pascal void	FileIOCompletionRoutine (ParmBlkPtr pbPtr);
 #else
-	pascal void 						FileIOCompletionRoutine (ParmBlkPtr pbPtr : __A0);
+	pascal void	FileIOCompletionRoutine (ParmBlkPtr pbPtr : __A0);
 #endif
  
-pascal void 						FileIOThread (void);
+pascal void	FileIOThread (void);
 							 
-pascal void 						WakeUpThread (
-											ThreadID 					threadToWake);
+pascal void	WakeUpThread (
+				ThreadID								threadToWake);
 							
 							
                   
@@ -50,20 +89,20 @@ pascal void 						WakeUpThread (
 		
 //#if GENERATINGCFM
 #if TARGET_RT_MAC_CFM ||TARGET_RT_MAC_MACHO
-inline ExtendedParamBlk*	GetParmBlkPtr(ParmBlkPtr pbPtr)
+	inline ExtendedParamBlk*	GetParmBlkPtr (ParmBlkPtr pbPtr)
 #else
-inline ExtendedParamBlk*	GetParmBlkPtr(ParmBlkPtr pbPtr : __A0) : __A0
+	inline ExtendedParamBlk*	GetParmBlkPtr (ParmBlkPtr pbPtr : __A0) : __A0
 #endif
 {
-	return ( (ExtendedParamBlk*)pbPtr );
+	return ((ExtendedParamBlk*)pbPtr);
 }        
 #endif	// defined multispec_mac
 
 
 
-//-----------------------------------------------------------------------------
-//								 Copyright (1988-2016)
-//								c Purdue Research Foundation
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2017)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void CreateFileIOThreadPool
@@ -88,24 +127,28 @@ inline ExtendedParamBlk*	GetParmBlkPtr(ParmBlkPtr pbPtr : __A0) : __A0
 OSErr CreateFileIOThreadPool (void) 
 
 {  
-#if defined multispec_mac
-	return ( CreateThreadPool (kCooperativeThread, 
+	#if defined multispec_mac
+		return (CreateThreadPool (kCooperativeThread,
 											2, 
-											0x1000) );
-//											kDefaultThreadStackSize) );
-#endif	// defined multispec_mac
+											0x1000));
+											//kDefaultThreadStackSize));
+	#endif	// defined multispec_mac
 
-#if defined multispec_win | defined multispec_lin
-	return ( TRUE );	
-#endif	// defined multispec_win | defined multispec_lin
+	#if defined multispec_mac_swift
+		return (TRUE);
+	#endif	// defined multispec_mac_swift
+
+	#if defined multispec_win | defined multispec_lin
+		return (TRUE);
+	#endif	// defined multispec_win | defined multispec_lin
 	
-}		// end "CreateFileIOThreadPool"
+}	// end "CreateFileIOThreadPool"
 
 
 
-//-----------------------------------------------------------------------------
-//								 Copyright (1988-2016)
-//								c Purdue Research Foundation
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2017)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void EndFileIOThread
@@ -138,10 +181,10 @@ void EndFileIOThread (
 			
 			fileIOInstructionsPtr->asyncIOThread = 0; 
 												
-//			if (theError) 
-//				DebugStr("\p Could not dispose I/O thread"); 
+			//if (theError) 
+			//	DebugStr ("\p Could not dispose I/O thread"); 
 				
-			}		// end "if (fileIOInstructionsPtr->asyncIOThread != 0)"
+			}	// end "if (fileIOInstructionsPtr->asyncIOThread != 0)"
 		
 		if (fileIOInstructionsPtr->wakeUpThread != 0)
 			{
@@ -149,10 +192,10 @@ void EndFileIOThread (
 			
 			fileIOInstructionsPtr->wakeUpThread = 0; 
 												
-//			if (theError) 
-//				DebugStr("\p Could not dispose wakeup thread"); 
+			//if (theError) 
+			//	DebugStr ("\p Could not dispose wakeup thread"); 
 				
-			}		// end "if (fileIOInstructionsPtr->asyncIOThread != 0)"
+			}	// end "if (fileIOInstructionsPtr->asyncIOThread != 0)"
 			
 				// Set some FileIOInstruction structure parameters back to
 				// initial settings.
@@ -160,19 +203,16 @@ void EndFileIOThread (
 		InitializeFileIOInstructions (fileIOInstructionsPtr);
 	#endif	// defined multispec_mac
 
-	#if defined multispec_win
-	#endif	// defined multispec_win
-	
 	fileIOInstructionsPtr->fileStreamPtr = NULL;
 	
-}		// end "EndFileIOThread"
+}	// end "EndFileIOThread"
 
 
    
 #if defined multispec_mac
-//-----------------------------------------------------------------------------
-//								 Copyright (1988-2016)
-//								c Purdue Research Foundation
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2017)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void FileIOCompletionRoutine
@@ -194,9 +234,9 @@ void EndFileIOThread (
 
 //#if GENERATINGCFM
 #if TARGET_RT_MAC_CFM || TARGET_RT_MAC_MACHO
-pascal void FileIOCompletionRoutine(ParmBlkPtr pbPtr)
+	pascal void FileIOCompletionRoutine (ParmBlkPtr pbPtr)
 #else
-pascal void FileIOCompletionRoutine(ParmBlkPtr pbPtr : __A0)
+	pascal void FileIOCompletionRoutine (ParmBlkPtr pbPtr : __A0)
 #endif
 				 
 { 
@@ -214,35 +254,35 @@ pascal void FileIOCompletionRoutine(ParmBlkPtr pbPtr : __A0)
 	#endif	// !TARGET_API_MAC_CARBON
 
 	
-//	ThreadID 							theThreadID2;
-//	ThreadTaskRef 						theAppTaskRef2; 
+	//ThreadID 							theThreadID2;
+	//ThreadTaskRef 					theAppTaskRef2; 
 	
 	
 			// Get the parameter block
 			
-//	DebugStr("\pEnter completion routine"); 
-			
-	myAsyncPBPtr = GetParmBlkPtr(pbPtr);
+	myAsyncPBPtr = GetParmBlkPtr (pbPtr);
 	
 			// Get the data. 
 			
 	theAppTaskRef = myAsyncPBPtr->theAppTask; 
 	theThreadID = myAsyncPBPtr->wakeUpThread;
+	
 	#if !TARGET_API_MAC_CARBON
 		theA5 = SetCurrentA5();
 	#endif	// !TARGET_API_MAC_CARBON
-//	theAppTaskRef2 = fileIOInstructionsPtr->theAppRef; 
-//	theThreadID2 = fileIOInstructionsPtr->wakeUpThread;
+	/*
+	theAppTaskRef2 = fileIOInstructionsPtr->theAppRef; 
+	theThreadID2 = fileIOInstructionsPtr->wakeUpThread;
 	
-//	if (theAppTaskRef1 != theAppTaskRef2)
-//		DebugStr("\pTaskRef1 not equal to TaskRef2");
+	if (theAppTaskRef1 != theAppTaskRef2)
+		DebugStr ("\pTaskRef1 not equal to TaskRef2");
 	
-//	if (theAppTaskRef1 != theAppTaskRef2)
-//		DebugStr("\ptheThreadID1 not equal to theThreadID2");
-	
+	if (theAppTaskRef1 != theAppTaskRef2)
+		DebugStr ("\ptheThreadID1 not equal to theThreadID2");
+	*/
 			// See if the thread is stopped yet - just to be sure. 
 			
-	theError = GetThreadStateGivenTaskRef(theAppTaskRef, theThreadID, &theThreadState);
+	theError = GetThreadStateGivenTaskRef (theAppTaskRef, theThreadID, &theThreadState);
 	
 			// If we can get the thread state, go for it!
 			
@@ -252,40 +292,35 @@ pascal void FileIOCompletionRoutine(ParmBlkPtr pbPtr : __A0)
 				
 		if (theThreadState == kStoppedThreadState) 
 			{ 
-			theError = SetThreadReadyGivenTaskRef(theAppTaskRef, theThreadID);
-//			if (theError != noErr) 
-//				DebugStr("\pSet Thread Ready Error");
-			::WakeUpProcess(&gProcessSerialNumber);
+			theError = SetThreadReadyGivenTaskRef (theAppTaskRef, theThreadID);
+
+			::WakeUpProcess (&gProcessSerialNumber);
 				
-			}		// end "else theThreadState == kStoppedThreadState"
+			}	// end "else theThreadState == kStoppedThreadState"
 				
-		else		// It's awake, the last read must have been immediate. Do
+		else	// It's awake, the last read must have been immediate. Do
 					// not need to wake the wake-up thread.
 			{
-//			DebugStr("\pWake-up thread is in the wrong state!");
 			theError = 2;
 
-			}		// end "else theThreadState != kStoppedThreadState"
+			}	// end "else theThreadState != kStoppedThreadState"
 			
-		}		// end "if (theError == noErr)"
+		}	// end "if (theError == noErr)"
 		
-//	else		// theError != noErr
-//		DebugStr("\pGetThreadStateGivenTaskRef error");
-
-	if (theError != noErr) 
+	if (theError != noErr)
 		gFileIOInstructions[0].errCode = theError;
 		
 	#if !TARGET_API_MAC_CARBON
 		theA5 = SetA5 (theA5);
 	#endif	// !TARGET_API_MAC_CARBON
 		
-}		// end "FileIOCompletionRoutine" 
+}	// end "FileIOCompletionRoutine" 
 
 
 
-//-----------------------------------------------------------------------------
-//								 Copyright (1988-2016)
-//								c Purdue Research Foundation
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2017)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		pascal void FileIOThread
@@ -309,16 +344,16 @@ pascal void FileIOCompletionRoutine(ParmBlkPtr pbPtr : __A0)
 pascal void FileIOThread (void) 
 
 { 
-	ThreadID 				wakeupThreadID, 
-								myThreadID; 
-//	ThreadTaskRef 			theAppRef;
-	ExtendedParamBlk 		myAsyncPB; 
-	OSErr 					theError;
+	ThreadID								wakeupThreadID, 
+											myThreadID; 
+	//ThreadTaskRef					theAppRef;
+	ExtendedParamBlk					myAsyncPB; 
+	OSErr									theError;
 	
 	
 			// Get the ID of IOExampleThread. 
 			
-	theError = GetCurrentThread(&myThreadID);
+	theError = GetCurrentThread (&myThreadID);
 	
 			// Get the wake-up thread. 
 	
@@ -330,7 +365,7 @@ pascal void FileIOThread (void)
 		gFileIOInstructions[0].bufferReadyFlag = TRUE;
 		gFileIOInstructions[0].errCode = theError;
 		
-		}		// end "if (theError != noErr)"
+		}	// end "if (theError != noErr)"
 		
 			// Prepare the I/O parameters that will not change.
 			
@@ -344,8 +379,8 @@ pascal void FileIOThread (void)
 		{
 				// Get the stack space available for this thread.
 		
-//		UInt32 freeStackSpace;		
-//		theError = ThreadCurrentStackSpace (myThreadID, &freeStackSpace);
+		//UInt32 freeStackSpace;		
+		//theError = ThreadCurrentStackSpace (myThreadID, &freeStackSpace);
 	
 				// HereÕs where you prepare for the I/O call Ñ a simple asynchronous read 
 				// command.
@@ -356,7 +391,7 @@ pascal void FileIOThread (void)
 		
 		myAsyncPB.pb.ioParam.ioBuffer = 
 			(char*)gFileIOInstructions[0].inputBufferPtrs[
-																gFileIOInstructions[0].bufferUsedForIO];
+															gFileIOInstructions[0].bufferUsedForIO];
 			
 		myAsyncPB.pb.ioParam.ioReqCount = gFileIOInstructions[0].count; 
 		myAsyncPB.pb.ioParam.ioPosOffset = gFileIOInstructions[0].posOff;
@@ -367,51 +402,49 @@ pascal void FileIOThread (void)
 				// to Ñ stopped. The kNoThreadID parameter indicates that any ready thread 
 				// can run next.
 				
-		PBReadAsync((ParmBlkPtr)&myAsyncPB);
+		PBReadAsync ((ParmBlkPtr)&myAsyncPB);
 		
 				// Only suspend this thread if the IO request is queued or executing.
 				// If the disk driver only handles synchronous requests, then PBReadAsync
 				// will not return until the read has been done.
 				
-//		if (myAsyncPB.pb.ioParam.ioResult == 1)
-			theError = SetThreadState(kCurrentThreadID, kStoppedThreadState, kNoThreadID);
+		//if (myAsyncPB.pb.ioParam.ioResult == 1)
+		theError = SetThreadState (kCurrentThreadID, kStoppedThreadState, kNoThreadID);
 	 
 		if (theError == noErr)
 			{ 
-					// Next the completion routine fires off and tells the Thread Manager to 
-					// ready the wake-up thread. The wake-up thread eventually runs and tells 
-					// the Thread Manager to ready the I/O thread. Then the I/O thread awakes 
-					// and continues running as if nothing happened, continuing with the rest 
-					// of the code.
+					// Next the completion routine fires off and tells the Thread Manager 
+					// to ready the wake-up thread. The wake-up thread eventually runs and 
+					// tells the Thread Manager to ready the I/O thread. Then the I/O 
+					// thread awakes and continues running as if nothing happened, 
+					// continuing with the rest of the code.
 				
 			if (gFileIOInstructions[0].errCode == noErr)
 				gFileIOInstructions[0].errCode = myAsyncPB.pb.ioParam.ioResult;
 			
-			}		// end "if (theError == noErr)"
+			}	// end "if (theError == noErr)"
 			
-		else		// theError != noErr
+		else	// theError != noErr
 			{
 			if (gFileIOInstructions[0].errCode == noErr) 
 				gFileIOInstructions[0].errCode = theError;
 			
-//			DebugStr ("\pFailed to put ourselves to sleep");
-
-			}		// end "else theError != noErr"
+			}	// end "else theError != noErr"
 			
 		gFileIOInstructions[0].bufferReadyFlag = TRUE;
 		
 		if (gFileIOInstructions[0].errCode == noErr)
 			{ 
-			gFileIOInstructions[0].errCode = SetThreadState(
-								kCurrentThreadID, kStoppedThreadState, kNoThreadID);
-//							kCurrentThreadID, kStoppedThreadState, kApplicationThreadID);
+			gFileIOInstructions[0].errCode = SetThreadState (
+							kCurrentThreadID, kStoppedThreadState, kNoThreadID);
+							//kCurrentThreadID, kStoppedThreadState, kApplicationThreadID);
 							
-			}		// end "if (gFileIOInstructions[0].errCode == noErr)"
+			}	// end "if (gFileIOInstructions[0].errCode == noErr)"
 			
 		if (gFileIOInstructions[0].errCode != noErr)
 			gFileIOInstructions[0].doneFlag = TRUE;
 		
-		}		// end "while (!gFileIOInstructions[0].doneFlag)"
+		}	// end "while (!gFileIOInstructions[0].doneFlag)"
 		
 			// Put the wakeup thread back into the IO thread pool.
 				
@@ -420,26 +453,21 @@ pascal void FileIOThread (void)
 		gFileIOInstructions[0].wakeUpThread = 0;
 		theError = DisposeThread (wakeupThreadID, nil, TRUE);
 		
-//		if (theError != noErr) 
-//			DebugStr ("\pFailed to dispose wakeup thread");
-		
-		}		// end "if (gFileIOInstructions[0].wakeUpThread != 0)"
+		}	// end "if (gFileIOInstructions[0].wakeUpThread != 0)"
 	
 			//	This thread will be disposed of now by the Thread Manager automatically.
 			
 	gFileIOInstructions[0].asyncIOThread = 0;
 	theError = DisposeThread (myThreadID, nil, TRUE);
-//	if (theError != noErr) 
-//		DebugStr ("\pFailed to dispose IO thread");
 	
-}		// end "FileIOThread"  
+}	// end "FileIOThread"  
 #endif	// defined multispec_mac
 
 
 
-//-----------------------------------------------------------------------------
-//								 Copyright (1988-2016)
-//								c Purdue Research Foundation
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2017)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		SInt16 GetLineFileIOThread
@@ -482,15 +510,15 @@ SInt16 GetLineFileIOThread (
 		{
 		if (!fileIOInstructionsPtr->fileIOThreadStartedFlag)
 			{	
-			posOff = (UInt32)GetFilePositionOffset ( fileIOInstructionsPtr,
-															fileInfoPtr,
-															lineNumber, 
-															channelNumber, 
-															columnStart, 
-															columnEnd,
-															numberSamplesPtr,
-															&count,
-															&endHalfByte);
+			posOff = (UInt32)GetFilePositionOffset (fileIOInstructionsPtr,
+																	fileInfoPtr,
+																	lineNumber, 
+																	channelNumber, 
+																	columnStart, 
+																	columnEnd,
+																	numberSamplesPtr,
+																	&count,
+																	&endHalfByte);
 													
 			fileIOInstructionsPtr->posOff = posOff;
 			fileIOInstructionsPtr->count = count;
@@ -500,7 +528,7 @@ SInt16 GetLineFileIOThread (
 					
 			errCode = StartFileIOThread (fileIOInstructionsPtr);
 			
-			}		// end "if (!fileIOInstructionsPtr->fileIOThreadStartedFlag)"
+			}	// end "if (!fileIOInstructionsPtr->fileIOThreadStartedFlag)"
 			
 				// Now wait until the requested line has been read into
 				// the buffer.
@@ -509,26 +537,26 @@ SInt16 GetLineFileIOThread (
 			{
 			while (!fileIOInstructionsPtr->bufferReadyFlag)
 				{
-				errCode = YieldToThread(fileIOInstructionsPtr->wakeUpThread);
+				errCode = YieldToThread (fileIOInstructionsPtr->wakeUpThread);
 				
 				if (errCode != noErr)
 					{
 					fileIOInstructionsPtr->bufferReadyFlag = TRUE;
 					fileIOInstructionsPtr->errCode = errCode;
 					
-					}		// end "if (errCode != noErr)"
+					}	// end "if (errCode != noErr)"
 				
-				}		// end "while (!fileIOInstructionsPtr->bufferReadyFlag)"
+				}	// end "while (!fileIOInstructionsPtr->bufferReadyFlag)"
 			
-			}		// end "if (errCode == noErr)"
+			}	// end "if (errCode == noErr)"
 		
 				// Set the buffer that is being used for the line of data just
 				// read.
 					
-		*fileIOBufferPtrPtr = 
-			fileIOInstructionsPtr->inputBufferPtrs[fileIOInstructionsPtr->bufferUsedForIO];
+		*fileIOBufferPtrPtr = fileIOInstructionsPtr->inputBufferPtrs[
+															fileIOInstructionsPtr->bufferUsedForIO];
 			
-		}		// end "if (!fileIOInstructionsPtr->bufferReadyFlag)"
+		}	// end "if (!fileIOInstructionsPtr->bufferReadyFlag)"
 	
 			// Get the error code from the last buffer read if no error already.
 				
@@ -543,16 +571,15 @@ SInt16 GetLineFileIOThread (
 		
 		if (nextLineNumber <= (UInt32)fileIOInstructionsPtr->lineEnd)
 			{
-			posOff = (UInt32)GetFilePositionOffset (
-															fileIOInstructionsPtr,
-															fileInfoPtr,
-															nextLineNumber, 
-															channelNumber, 
-															columnStart, 
-															columnEnd,
-															numberSamplesPtr,
-															&count,
-															&endHalfByte);
+			posOff = (UInt32)GetFilePositionOffset (fileIOInstructionsPtr,
+																	fileInfoPtr,
+																	nextLineNumber, 
+																	channelNumber, 
+																	columnStart, 
+																	columnEnd,
+																	numberSamplesPtr,
+																	&count,
+																	&endHalfByte);
 													
 			fileIOInstructionsPtr->posOff = posOff;
 			fileIOInstructionsPtr->count = count;
@@ -560,35 +587,35 @@ SInt16 GetLineFileIOThread (
 			fileIOInstructionsPtr->bufferUsedForIO = 
 													1 - fileIOInstructionsPtr->bufferUsedForIO;
 			
-			errCode = SetThreadState(fileIOInstructionsPtr->asyncIOThread, 
+			errCode = SetThreadState (fileIOInstructionsPtr->asyncIOThread, 
 												kReadyThreadState, 
 												fileIOInstructionsPtr->asyncIOThread);  
-//												kNoThreadID); 
+												//kNoThreadID); 
 			
 			if (errCode == noErr)									
-				errCode = YieldToThread(fileIOInstructionsPtr->asyncIOThread);
+				errCode = YieldToThread (fileIOInstructionsPtr->asyncIOThread);
 													
-			}		// end "if (nextLineNumber <= fileIOInstructionsPtr->lineEnd)"
+			}	// end "if (nextLineNumber <= fileIOInstructionsPtr->lineEnd)"
 			
-		else		// nextLineNumber > fileIOInstructionsPtr->lineEnd
+		else	// nextLineNumber > fileIOInstructionsPtr->lineEnd
 			{
 					// Indicate that the threaded IO series is done.
 					
 			fileIOInstructionsPtr->doneFlag = TRUE;
 		
-			}		// end "else nextLineNumber > fileIOInstructionsPtr->lineEnd"
+			}	// end "else nextLineNumber > fileIOInstructionsPtr->lineEnd"
 			
-		}		// end "if (errCode == noErr)"
+		}	// end "if (errCode == noErr)"
 		
 	return (errCode);
 	
-}		// end "GetLineFileIOThread"
+}	// end "GetLineFileIOThread"
 
 
 
-//-----------------------------------------------------------------------------
-//								 Copyright (1988-2016)
-//								c Purdue Research Foundation
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2017)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		SInt16 StartFileIOThread
@@ -611,14 +638,14 @@ SInt16 StartFileIOThread (
 				FileIOInstructionsPtr			fileIOInstructionsPtr) 
 
 { 
-//	ThreadID 		newCoopID; 
-	OSErr 			errCode = noErr;
+	//ThreadID							newCoopID; 
+	OSErr									errCode = noErr;
 	
 	
 	#if defined multispec_mac
 		if (!fileIOInstructionsPtr->fileIOThreadStartedFlag)
 			{
-			errCode = SetThreadState(fileIOInstructionsPtr->asyncIOThread, 
+			errCode = SetThreadState (fileIOInstructionsPtr->asyncIOThread, 
 												kReadyThreadState, 
 												kNoThreadID); 
 									
@@ -627,25 +654,22 @@ SInt16 StartFileIOThread (
 					// Now let the thread start the IO request.
 					
 			if (errCode == noErr)
-				errCode = YieldToThread(fileIOInstructionsPtr->asyncIOThread);
+				errCode = YieldToThread (fileIOInstructionsPtr->asyncIOThread);
 	
-			}		// end "if (fileIOInstructionsPtr->asyncIOThread == 0)"
+			}	// end "if (fileIOInstructionsPtr->asyncIOThread == 0)"
 	#endif	// defined multispec_mac
-	
-	#if defined multispec_win
-	#endif	// defined multispec_win
 	
 			// Return and let the I/O thread do its thing!
 		
 	return (errCode); 
 	
-}		// end "StartFileIOThread"
+}	// end "StartFileIOThread"
 
 
                     
-//-----------------------------------------------------------------------------
-//								 Copyright (1988-2016)
-//								c Purdue Research Foundation
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2017)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		SInt16 SetupFileIOThread
@@ -676,8 +700,8 @@ SInt16 SetupFileIOThread (
 	fileIOInstructionsPtr->channelEnd = 0;
 	fileIOInstructionsPtr->channelStart = 0;
 	
-	fileIOInstructionsPtr->fileStreamPtr = 
-									GetFileStreamPointer (fileIOInstructionsPtr->fileInfoPtr);
+	fileIOInstructionsPtr->fileStreamPtr = GetFileStreamPointer (
+																fileIOInstructionsPtr->fileInfoPtr);
 		
 	#if defined multispec_mac  
 				// Initialize thread information in File IO Instructions structure.
@@ -688,13 +712,13 @@ SInt16 SetupFileIOThread (
 			{
 					// Get the task reference for this application.
 						 
-			errCode = GetThreadCurrentTaskRef(&fileIOInstructionsPtr->theAppRef);
+			errCode = GetThreadCurrentTaskRef (&fileIOInstructionsPtr->theAppRef);
 			
 					// Create the IO thread.
 			
 			if (errCode == noErr)
-				errCode = NewThread(kCooperativeThread, 
-//											(ThreadEntryProcPtr)FileIOThread, 
+				errCode = NewThread (kCooperativeThread, 
+											//(ThreadEntryProcPtr)FileIOThread, 
 											(ThreadEntryTPP)FileIOThread,
 											nil, 
 											0x0c00, 
@@ -705,8 +729,8 @@ SInt16 SetupFileIOThread (
 					// Create the wake-up thread. 
 				
 			if (errCode == noErr)
-				errCode = NewThread(kCooperativeThread, 
-//											(ThreadEntryProcPtr)WakeUpThread,
+				errCode = NewThread (kCooperativeThread, 
+											//(ThreadEntryProcPtr)WakeUpThread,
 											(ThreadEntryTPP)WakeUpThread, 
 											(void*)fileIOInstructionsPtr->asyncIOThread, 
 											0x0c00, 
@@ -714,26 +738,19 @@ SInt16 SetupFileIOThread (
 											nil, 
 											&fileIOInstructionsPtr->wakeUpThread);
 			
-			}		// end "if (gUseThreadedIOFlag)" 
+			}	// end "if (gUseThreadedIOFlag)" 
 	#endif	// defined multispec_mac
 	
-	#if defined multispec_win
-	#endif	// defined multispec_win
-	
-	#if defined multispec_lin
-		
-	#endif	// defined multispec_lin
-		
 	return (errCode);
 	
-}		// end "SetupFileIOThread"
+}	// end "SetupFileIOThread"
 
 
            
 #if defined multispec_mac 
-//-----------------------------------------------------------------------------
-//								 Copyright (1988-2016)
-//								c Purdue Research Foundation
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		pascal void WakeUpThread
@@ -753,59 +770,53 @@ SInt16 SetupFileIOThread (
 //	Revised By:			Larry L. Biehl			Date: 06/03/1996
 		
 pascal void WakeUpThread (
-			ThreadID 				threadToWake) 
+				ThreadID								threadToWake)
 
 { 
-	OSErr 				theError;
-//	ThreadID 			myThreadID;
+	OSErr									theError;
+	//ThreadID							myThreadID;
 	
 	
 	while (!gFileIOInstructions[0].doneFlag)
 		{
 				// Get the stack space available for this thread.
 		
-//		UInt32 freeStackSpace;		
-//		theError = ThreadCurrentStackSpace (kCurrentThreadID, &freeStackSpace);
+		//UInt32 freeStackSpace;		
+		//theError = ThreadCurrentStackSpace (kCurrentThreadID, &freeStackSpace);
 	
 				// Wake up the specified thread.
 		
-		theError = SetThreadState(threadToWake, kReadyThreadState, kNoThreadID); 
+		theError = SetThreadState (threadToWake, kReadyThreadState, kNoThreadID); 
 		if (theError == noErr)
 			{ 
 					// We've done our deed, so stop and be ready for the next time.
 				
-			theError = SetThreadState(kCurrentThreadID, 
+			theError = SetThreadState (kCurrentThreadID, 
 												kStoppedThreadState, 
 												gFileIOInstructions[0].asyncIOThread);
 			
-//			if (theError != noErr) 
-//				DebugStr ("\pFailed to put wakeup thread to sleep");
-
-			}		// end "if (theError == noErr)"
+			}	// end "if (theError == noErr)"
 			
-//		else		// theError != noErr
-//			DebugStr("\pFailed to wake our thread");
-	 
 		if (theError != noErr)
 			{
 			gFileIOInstructions[0].bufferReadyFlag = TRUE;
 			gFileIOInstructions[0].doneFlag = TRUE;
 			gFileIOInstructions[0].errCode = theError; 
 
-			}		// end "if (theError != noErr)"
+			}	// end "if (theError != noErr)"
 			
-		}		// end "while (!gFileIOInstructions[0].doneFlag)"
-/*		
+		}	// end "while (!gFileIOInstructions[0].doneFlag)"
+	/*		
 			// We should only fall through to here when there is an error condition.
 			// Therefore, dispose of this thread.
 				
-	theError = GetCurrentThread(&myThreadID);
+	theError = GetCurrentThread (&myThreadID);
 	if (theError == noErr)
 		{
 		gFileIOInstructions[0].wakeUpThread = 0;
 		theError = DisposeThread (myThreadID, nil, TRUE);
 		
-		}		// end "if (theError == noErr)"
-*/			
-}		// end "WakeUpThread" 
+		}	// end "if (theError == noErr)"
+	*/			
+}	// end "WakeUpThread" 
 #endif	// defined multispec_mac

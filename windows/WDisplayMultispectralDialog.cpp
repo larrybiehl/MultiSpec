@@ -1,20 +1,22 @@
 // WDisplayMultispectralDialog.cpp : implementation file
 //
-//	Revised by Larry Biehl on 08/21/2017
+//	Revised by Larry Biehl on 12/21/2017
 //
                    
-#include "SMulSpec.h"
-                                                                               
-#include "WDisplayMultispectralDialog.h"
-#include "CImagVew.h"
-#include "CImagWin.h"
-#include "CDisplay.h"
-#include "CProcess.h"
-#include "WChanDlg.h"  
+#include "SMultiSpec.h"
 
-#include	"SExtGlob.h" 
-#include "wdisplaymultispectraldialog.h"
-#include ".\wdisplaymultispectraldialog.h"
+#include "WDisplayMultispectralDialog.h"
+
+#include "CImageWindow.h"
+#include "CDisplay.h"
+#include "CProcessor.h"
+
+#include "WImageView.h"
+#include "WChannelsDialog.h"  
+
+//#include	"SExtGlob.h" 
+//#include "wdisplaymultispectraldialog.h"
+//#include ".\wdisplaymultispectraldialog.h"
 
 //#define k1_ChannelDisplayType				2
 //#define k2_ChannelDisplayType				4
@@ -821,8 +823,7 @@ CMDisplaySpecsDlg::OnDropdownBitsOfColor(void)
 void CMDisplaySpecsDlg::OnDropdownEnhancement() 
 {
 	m_optionKeyFlag = FALSE;
-	
-	if (GetKeyState (VK_RBUTTON) < 0)
+	if (GetKeyState (VK_RBUTTON) < 0 || GetKeyState(VK_SHIFT) & 0x8000)
 		{                                                                             
 		SetComboItemText (ID3C_Enhancement, 
 									2, 

@@ -1,17 +1,17 @@
 // WLegendList.cpp : implementation file
 //
-// Revised by Larry Biehl on 03/25/2017
+// Revised by Larry Biehl on 12/21/2017
 //                    
                     
-#include "SMulSpec.h"       
+#include "SMultiSpec.h"       
 
-#include "CImagVew.h"
-#include "WImagDoc.h"  
-#include "WImagFrm.h" 
+#include "WImageView.h"
+#include "WImageDoc.h"  
+#include "WImageFrame.h" 
 #include "WLegendList.h" 
 #include "CPalette.h" 
 
-#include	"SExtGlob.h" 
+//#include	"SExtGlob.h" 
 
 extern Boolean 	DoBlinkCursor1 (
 							ListHandle				legendListHandle, 
@@ -362,7 +362,7 @@ void CMLegendList::GetTextValue (
 //		returnStringPtr = (char*)gTextString;
 //#	endif
 
-	stringLength = gStatisticsListHandle->GetText (selectedCell, (LPTSTR)returnStringPtr);
+ 	stringLength = GetText (selectedCell, (LPTSTR)returnStringPtr);
 	
 //#	if defined multispec_win_unicode
 		wcstombs ((char*)gTextString, (TBYTE*)returnStringPtr, 254);

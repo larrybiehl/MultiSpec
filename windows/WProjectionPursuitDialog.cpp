@@ -1,11 +1,11 @@
 // MProjectionPursuitDialog.cpp : implementation file
 //
-// Revised by Larry Biehl on 08/21/2017
+// Revised by Larry Biehl on 12/21/2017
 //
 
-#include	"SMulSpec.h" 
+#include	"SMultiSpec.h" 
 #include "WProjectionPursuitDialog.h" 
-#include "SExtGlob.h"
+//#include "SExtGlob.h"
 
 extern void 		ProjectionPursuitDialogInitialize (
 							DialogPtr							dialogPtr,

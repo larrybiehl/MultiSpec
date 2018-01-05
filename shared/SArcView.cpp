@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//							 Copyright (1988-2017)
+//							 Copyright (1988-2018)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,44 +11,44 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision number:		3.0
-//
-//	Revision date:			07/26/2017
+//	Revision date:			01/05/2018
 //
 //	Language:				C
 //
-//	System:					Macintosh and Windows Operating Systems	
+//	System:					Linux, Macintosh and Windows Operating Systems	
 //
 //	Brief description:	This file contains routines which are used to access
-//								various disk files.
+//								various Esri ArcView type disk files including .bil, .bsq,
+//								.bip, and shape files.
 //
 //	Functions in file:
 //
 //	Diagram of MultiSpec routine calls for the routines in the file.
 //		.
 //		.
-//		etc.
+//		etc. (
 //
 //	Include files:			"MultiSpecHeaders"
 //								"multiSpec.h"
 //
-//------------------------------------------------------------------------------------
 /* Template for debugging
-		int numberChars = sprintf ((char*)&gTextString3,
+		int numberChars = sprintf ((char*)gTextString3,
 												" SArcView::xxx (entered routine. %s", 
 												gEndOfLine);
-		ListString ((char*)&gTextString3, numberChars, gOutputTextH);	
+		ListString ((char*)gTextString3, numberChars, gOutputTextH);	
 */
-#include "SMulSpec.h"
+//------------------------------------------------------------------------------------
+
+#include "SMultiSpec.h"
    
 #if defined multispec_lin
-	#include "CFileStr.h"  
+	#include "CFileStream.h"  
 	#include "LImageView.h"
    #include "LOverlayParametersDialog.h"
 	//#define include_gdal_capability 0
 #endif
 	
-#if defined multispec_mac	
+#if defined multispec_mac || defined multispec_mac_swift
 	#define	IDC_LineColorPrompt		3
 	#define	IDC_LineColor				4
 	#define	IDC_ValuePrompt			5
@@ -64,16 +64,16 @@
 	#define	IDS_FileIO186				186
 	#define	IDS_FileIO191				191
 	#define	IDS_FileIO203				203
-#endif	// defined multispec_mac    
+#endif	// defined multispec_mac || defined multispec_mac_swift
 
 #if defined multispec_win
-	#include "CFileStr.h"
-	#include "WOverlayParameterDlg.h"
+	#include "CFileStream.h"
+	#include "WOverlayParametersDialog.h"
 
-	extern void 					SetPenCharacteristics (
-											CPen*									newPenPtr,
-											RGBColor*							rgbColorPtr,
-											SInt16								lineThickness);	 
+	void SetPenCharacteristics (
+					CPen*									newPenPtr,
+					RGBColor*							rgbColorPtr,
+					SInt16								lineThickness);	 
 #endif	// defined multispec_win
 
 #define	kAllShapeHandleMemory				0
@@ -81,7 +81,7 @@
 
 #include "errno.h"
 
-#include "SExtGlob.h"
+//#include "SExtGlob.h"
 
 #if include_gdal_capability
 //#ifndef multispec_lin
@@ -92,27 +92,27 @@
 	// oul: added definition of SIZE_UNSIGNED_LONG and SIZEOF_VOIDP
 	// which are not defined in cpl_config.h
 	
-#	if defined multispec_lin
-#		if defined NetBeansProject
+	#if defined multispec_lin
+		#if defined NetBeansProject
 				// The size of a 'unsigned long', as computed by sizeof.
-#			define SIZEOF_UNSIGNED_LONG 8
+			#define SIZEOF_UNSIGNED_LONG 8
 				// The size of a 'void p', as computed by sizeof.
-#			define SIZEOF_VOIDP 8
-#		endif
-#	endif
+			#define SIZEOF_VOIDP 8
+		#endif
+	#endif
 
-#	include "ogr_spatialref.h"
+	#include "ogr_spatialref.h"
 /*
-#	ifdef multispec_lin
-#		include "dbfopen.h"
-#	endif
-#	ifdef multispec_mac
-#		//include "shapefil.h"
-#		include "dbfopen.h"
-#	endif
-#	ifdef multispec_win
-#		include "shapefil.h"
-#	endif
+	#ifdef multispec_lin
+		#include "dbfopen.h"
+	#endif
+	#ifdef multispec_mac
+		#//include "shapefil.h"
+		#include "dbfopen.h"
+	#endif
+	#ifdef multispec_win
+		#include "shapefil.h"
+	#endif
 */
 //#endif	
 #endif	// include_gdal_capability
@@ -125,36 +125,16 @@
 #define	kAVDecimalSecondsCode						3
 #define	kAVDegreesMinutesSecondsCode				4
 #define	kAVRadiansCode									5
-				
 
-//extern Boolean					ConvertLatLongRectToMapRectinNativeImageUnits (
-//										MapProjectionInfoPtr				mapProjectionInfoPtr,
-//										DoubleRect*							coordinateRectPtr);
-							
-extern void 					OverlayDialogInitialize (
-										DialogPtr							dialogPtr,
-										WindowInfoPtr						windowInfoPtr,
-										SInt16								overlayCode,
-										SInt16								overlayIndex,
-										RGBColor*							overlayColorPtr,
-										UInt16*								lineThicknessPtr,
-										UInt16*								transparencyPtr);
-
-extern void 					OverlayDialogOK (
-										WindowInfoPtr						windowInfoPtr,
-										SInt16								overlayCode,
-										SInt16								overlayIndex,
-										RGBColor*							overlayColorPtr,
-										UInt16								value);
 
 	 
 #if defined multispec_win || defined multispec_lin
-#	pragma pack(4)
+	#pragma pack(4)
 #endif	// defined multispec_win || defined multispec_lin
 
 #if PRAGMA_STRUCT_ALIGN
 	//#pragma options align=mac68k
-#	pragma pack(2)
+	#pragma pack(2)
 #endif
 
 //#if PRAGMA_STRUCT_PACK
@@ -166,7 +146,7 @@ typedef struct ArcViewMultiPoint
 	UInt32						recordNumber;
 	UInt32						recordLength;
 	UInt32						shapeType;
-//	SDoubleRect					box;
+	//SDoubleRect					box;
 	DoubleRect					box;
 	UInt32						numPoints; 
 	ArcViewDoublePoint		points[1];
@@ -189,7 +169,7 @@ typedef struct ArcViewPolyLine
 	UInt32						recordNumber;
 	UInt32						recordLength;
 	UInt32						shapeType;
-//	SDoubleRect					box;
+	//SDoubleRect					box;
 	DoubleRect					box;
 	UInt32						numParts;
 	UInt32						numPoints; 
@@ -207,7 +187,7 @@ typedef struct ArcViewRecordHeader
 	} ArcViewRecordHeader, *ArcViewRecordHeaderPtr;
 	
 #if PRAGMA_STRUCT_ALIGN
-#	pragma options align=reset
+	#pragma options align=reset
 #endif
 	 
 //#if PRAGMA_STRUCT_PACK
@@ -215,7 +195,7 @@ typedef struct ArcViewRecordHeader
 //#endif	// PRAGMA_STRUCT_PACK
 	 
 #if defined multispec_win || defined multispec_lin
-#	pragma pack()
+	#pragma pack()
 #endif	// defined multispec_win || defined multispec_lin
 							
 
@@ -224,14 +204,14 @@ typedef struct ArcViewRecordHeader
 
 SInt16 						AddToWindowOverlayList (
 									WindowPtr							windowPtr,
-//									SDoubleRect*						boundingRectPtr,
+									//SDoubleRect*						boundingRectPtr,
 									DoubleRect*							boundingRectPtr,
 									SInt32								overlayNumber,
 									Boolean								mapUnitsFlag);
 
 SInt16 						CheckIfOverlayFileLoaded (
 									CMFileStream*						fileStreamPointer,
-//									SDoubleRect*						boundingRectPtr,
+									//SDoubleRect*						boundingRectPtr,
 									DoubleRect*							boundingRectPtr,
 									SInt16*								overlayNumberPtr,
 									UInt16*								versionNumberLoadedPtr);
@@ -243,7 +223,7 @@ Boolean 						CheckIfOverlayMayBeLatLong (
 SInt16 						CheckIfOverlayNeedsReloaded (
 									WindowPtr							newWindow,
 									SInt16								overlayNumber,
-//									SDoubleRect*		 				boundingRectPtr);	
+									//SDoubleRect*		 				boundingRectPtr);	
 									DoubleRect*							boundingRectPtr);	
 
 #if include_gdal_capability
@@ -298,25 +278,15 @@ void 							SetLastVectorColorAndWidth (
 
 Boolean 						ShapeAndWindowAreasIntersect (
 									SInt16								overlayNumber,
-//									SDoubleRect*		 				boundingRectPtr);
+									//SDoubleRect*		 				boundingRectPtr);
 									DoubleRect*							boundingRectPtr);
 
 Boolean 						WindowBoundingAreaAndRectIntersect (
 									WindowPtr							windowPtr,
-//									SDoubleRect*		 				boundingRectPtr,
+									//SDoubleRect*		 				boundingRectPtr,
 									DoubleRect*							boundingRectPtr,
 									Boolean								inputIsMapTypeFlag);
 									
-/*	
-SInt16						gOverlayColorList[7] = {blackColor,
-																	cyanColor,
-																	greenColor, 
-																	blueColor, 
-																	magentaColor,
-																	redColor,
-																	yellowColor};	
-*/	
-
 
 
 //------------------------------------------------------------------------------------
@@ -375,16 +345,15 @@ void AddCurrentVectorOverlaysToImageWindow (
 	
 	windowPtr = GetWindowPtr (windowInfoPtr);
 		
-	shapeHandlePtr = (Handle*)GetHandlePointer(
-													gShapeFilesHandle, kLock, kNoMoveHi);
+	shapeHandlePtr = (Handle*)GetHandlePointer (gShapeFilesHandle, kLock);
 
 	if (shapeHandlePtr != NULL) 
 		{
 		mapProjectionHandle = GetFileMapProjectionHandle2 (
 															windowInfoPtr->windowInfoHandle);
 
-		mapProjectionInfoPtr = (MapProjectionInfoPtr)GetHandlePointer(
-													mapProjectionHandle, kLock, kNoMoveHi);
+		mapProjectionInfoPtr = (MapProjectionInfoPtr)GetHandlePointer (
+															mapProjectionHandle, kLock);
 
 				// Loop through existing overlay files and check if the shape file
 				// intesects with the input image.
@@ -393,8 +362,7 @@ void AddCurrentVectorOverlaysToImageWindow (
 			{
 			shapeInfoPtr = (ShapeInfoPtr)GetHandlePointer (
 															shapeHandlePtr[index],
-															kLock,
-															kNoMoveHi);
+															kLock);
 															
 			if (shapeInfoPtr != NULL)
 				{										
@@ -443,7 +411,7 @@ void AddCurrentVectorOverlaysToImageWindow (
 												&lBoundingRect);
 					mapUnitsFlag = FALSE;	
 					
-					}		// end "if (convertedFlag && ...->conversionCode == 2)"
+					}	// end "if (convertedFlag && ...->conversionCode == 2)"
 				
 						// Add vector overlay to the window if the shape file intersects 
 						// with the image.
@@ -485,24 +453,24 @@ void AddCurrentVectorOverlaysToImageWindow (
 														kDoNotCloseOverlayFileIfNoRecordsRead);
 						windowInfoPtr->drawVectorOverlaysFlag = TRUE;
 						
-						}		// end "if (overlayCheckReturn == 0)"
+						}	// end "if (overlayCheckReturn == 0)"
 						
-					}		// end "if (overlayCheckReturn == 2)"
+					}	// end "if (overlayCheckReturn == 2)"
 				
 				CheckAndUnlockHandle (shapeHandlePtr[index]);
 				
-				}		// end "if (shapeInfoPtr != NULL)"
+				}	// end "if (shapeInfoPtr != NULL)"
 											
-			}		// end "for (index=0; index<gShapeHandleListLength; index++)"
+			}	// end "for (index=0; index<gShapeHandleListLength; index++)"
 			
 		CheckAndUnlockHandle (mapProjectionHandle);
 		CheckAndUnlockHandle (gShapeFilesHandle);
 				
 		UpdateOverlayControl (windowPtr);
 	
-		}		// end "if (shapeHandlePtr != NULL)"
+		}	// end "if (shapeHandlePtr != NULL)"
 	
-}		// end "AddCurrentVectorOverlaysToImageWindow"
+}	// end "AddCurrentVectorOverlaysToImageWindow"
 
 
 
@@ -547,28 +515,27 @@ SInt16 AddToWindowOverlayList (
 			
 		// Now load the list for the window.
 			
-	windowInfoHandle = GetWindowInfoHandle(windowPtr);
-	windowInfoPtr = (WindowInfoPtr)GetHandlePointer(
-										windowInfoHandle, kNoLock, kNoMoveHi);
+	windowInfoHandle = GetWindowInfoHandle (windowPtr);
+	windowInfoPtr = (WindowInfoPtr)GetHandlePointer (windowInfoHandle);
 										
 	if (windowInfoPtr != NULL)
 		{
 		if (WindowBoundingAreaAndRectIntersect ((WindowPtr)windowInfoPtr->windowPtr,
-															boundingRectPtr,
-															mapUnitsFlag))
+																boundingRectPtr,
+																mapUnitsFlag))
 			{
 					// Now check if the overlay is already included in the list.
 					
 			for (index=0; index<windowInfoPtr->numberOverlays; index++)
 				{
-				if (abs(windowInfoPtr->overlayList[index].index) == overlayNumber)
+				if (abs (windowInfoPtr->overlayList[index].index) == overlayNumber)
 					{
 					returnCode = 3;
 					break;
 					
-					}		// end "if (abs(windowInfoPtr->overlayList[index].index) == ..."
+					}	// end "if (abs (windowInfoPtr->overlayList[index].index) == ..."
 				
-				}		// end "for (index=0; index<windowInfoPtr->numberOverlays; ..."
+				}	// end "for (index=0; index<windowInfoPtr->numberOverlays; ..."
 			
 			if (returnCode == 1)
 				{	
@@ -578,18 +545,18 @@ SInt16 AddToWindowOverlayList (
 				InitializeOverlay (windowInfoPtr, overlayNumber);
 				returnCode = 2;
 				
-				}		// end "if (returnCode == 1)"
+				}	// end "if (returnCode == 1)"
 			
-			}		// end "if (AreaIntersects (...->boundingMapRectangle, ..."
+			}	// end "if (AreaIntersects (...->boundingMapRectangle, ..."
 			
-		else		// !AreasIntersect (&windowInfoPtr->boundingMapRectangle,
+		else	// !AreasIntersect (&windowInfoPtr->boundingMapRectangle,
 			returnCode = 5;
 			
-		}		// end "if (windowInfoPtr != NULL)"
+		}	// end "if (windowInfoPtr != NULL)"
 		
 	return (returnCode);
 	
-}		// end "AddToWindowOverlayList"
+}	// end "AddToWindowOverlayList"
 
 
 
@@ -617,7 +584,7 @@ SInt16 AddToWindowOverlayList (
 // Called By:			ReadArcViewShapeHeader in SArcView.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/29/2001
-//	Revised By:			Larry L. Biehl			Date: 03/09/2017
+//	Revised By:			Larry L. Biehl			Date: 09/01/2017
 
 SInt16 CheckIfOverlayFileLoaded (
 				CMFileStream*						fileStreamPointer,
@@ -655,13 +622,12 @@ SInt16 CheckIfOverlayFileLoaded (
 	conversionCode = 0;
 	mapUnitsFlag = TRUE;		
 	
-	newOverlayFileNamePPointer = (FileStringPtr)GetFileNamePPointer (fileStreamPointer);
+	newOverlayFileNamePPointer = (FileStringPtr)GetFileNamePPointerFromFileStream (fileStreamPointer);
 
 	mayBeLatLongUnitsFlag = CheckIfOverlayMayBeLatLong (fileStreamPointer, 
 																			boundingRectPtr);
 		
-	shapeHandlePtr = (Handle*)GetHandlePointer(
-													gShapeFilesHandle, kLock, kNoMoveHi);
+	shapeHandlePtr = (Handle*)GetHandlePointer (gShapeFilesHandle, kLock);
 
 	if (shapeHandlePtr != NULL) 
 		{
@@ -671,8 +637,7 @@ SInt16 CheckIfOverlayFileLoaded (
 		mapProjectionHandle = GetFileMapProjectionHandle2 (gActiveImageWindowInfoH);											
 		mapProjectionInfoPtr = (MapProjectionInfoPtr)GetHandlePointer (
 																	mapProjectionHandle,
-																	kLock,
-																	kNoMoveHi);	
+																	kLock);	
 																	
 		referenceSystemCode = mapProjectionInfoPtr->gridCoordinate.referenceSystemCode;
 																	
@@ -684,12 +649,11 @@ SInt16 CheckIfOverlayFileLoaded (
 			{
 			shapeInfoPtr = (ShapeInfoPtr)GetHandlePointer (
 															shapeHandlePtr[index],
-															kLock,
-															kNoMoveHi);
+															kLock);
 															
 			if (shapeInfoPtr != NULL)
 				{										
-				fileNamePPointer = (FileStringPtr)GetFileNamePPointer (shapeInfoPtr);
+				fileNamePPointer = (FileStringPtr)GetFileNamePPointerFromShapeInfo (shapeInfoPtr);
 			
 				if (StringCompare (&newOverlayFileNamePPointer[1],
 												 &fileNamePPointer[1]) == 0)
@@ -729,9 +693,9 @@ SInt16 CheckIfOverlayFileLoaded (
 																mapProjectionInfoPtr, &lBoundingRect);
 							mapUnitsFlag = FALSE;	
 							
-							}		// end "else if (shapeInfoPtr->conversionCode == 2"
+							}	// end "else if (shapeInfoPtr->conversionCode == 2"
 							
-						}		// end "if (mapInfoSameFlag)"
+						}	// end "if (mapInfoSameFlag)"
 					
 							// Now verify that the bounding area of the shape file intersects
 							// with that for the active image window.  If not then continue 
@@ -740,7 +704,7 @@ SInt16 CheckIfOverlayFileLoaded (
 					if (convertedFlag &&
 							WindowBoundingAreaAndRectIntersect (gActiveImageWindow,
 																			boundingRectPtr,
-																			mapUnitsFlag) )
+																			mapUnitsFlag))
 						{
 								// Check for situation when the image and vector bounding rects
 								// intersect but it may very well be that the vector is lat/long
@@ -755,17 +719,17 @@ SInt16 CheckIfOverlayFileLoaded (
 							conversionCode = shapeInfoPtr->conversionCode;
 							break;
 								
-							}		// end "if (!mayBeLatLongUnitsFlag || ..."
+							}	// end "if (!mayBeLatLongUnitsFlag || ..."
 						
-						}		// end "if ( WindowBoundingAreaAndRectIntersect ( ..."
+						}	// end "if (WindowBoundingAreaAndRectIntersect (..."
 					
-					}		// end "if (stringCompare == 0)"
+					}	// end "if (stringCompare == 0)"
 				
 				CheckAndUnlockHandle (shapeHandlePtr[index]);
 				
-				}		// end "if (shapeInfoPtr != NULL)"
+				}	// end "if (shapeInfoPtr != NULL)"
 											
-			}		// end "for (index=0; index<gShapeHandleListLength; index++)"
+			}	// end "for (index=0; index<gShapeHandleListLength; index++)"
 			
 				// The overlay file is already loaded. Now check to see if it needs
 				// to be added to the active image window.
@@ -780,7 +744,7 @@ SInt16 CheckIfOverlayFileLoaded (
 																			overlayNumber,
 																			mapUnitsFlag);
 																			
-			}		// end "if (alreadyLoadedFlag)"
+			}	// end "if (alreadyLoadedFlag)"
 																
 		if (overlayCheckReturn == 2)
 			{
@@ -805,13 +769,13 @@ SInt16 CheckIfOverlayFileLoaded (
 				if (gNumberShapeFiles > 0)
 					gNumberShapeFiles--;
 				
-				}		// end "if (overlayCheckReturn == 0)"
+				}	// end "if (overlayCheckReturn == 0)"
 																				
-			}		// end "if (overlayCheckReturn == 2)"
+			}	// end "if (overlayCheckReturn == 2)"
 			
 		CheckAndUnlockHandle (mapProjectionHandle);
 													
-		}		// end "if (shapeHandlePtr != NULL)"
+		}	// end "if (shapeHandlePtr != NULL)"
 		
 	if (overlayCheckReturn == 0)
 		{
@@ -822,7 +786,7 @@ SInt16 CheckIfOverlayFileLoaded (
 																	mapUnitsFlag))
 			overlayCheckReturn = 5;
 			
-		else		// WindowBoundingAreaAndRectIntersect (...
+		else	// WindowBoundingAreaAndRectIntersect (...
 			{
 					// Check for situation when the image and vector bounding rects
 					// intersect but it may very well be that the vector is lat/long
@@ -832,7 +796,7 @@ SInt16 CheckIfOverlayFileLoaded (
 			if (mayBeLatLongUnitsFlag && referenceSystemCode != kGeographicRSCode)
 				overlayCheckReturn = 10;
 				
-			}		// end "else WindowBoundingAreaAndRectIntersect (..."
+			}	// end "else WindowBoundingAreaAndRectIntersect (..."
 		
 		if (overlayCheckReturn == 5 && conversionCode == 0)	
 			{
@@ -842,12 +806,12 @@ SInt16 CheckIfOverlayFileLoaded (
 			if (mayBeLatLongUnitsFlag)
 				overlayCheckReturn = 10;
 			
-			}		// end "if (overlayCheckReturn == 5&& ..."
+			}	// end "if (overlayCheckReturn == 5&& ..."
 			
 		if (overlayCheckReturn == 0 && conversionCode == 2)
 			overlayCheckReturn = 10;
 									
-		}		// end "if (overlayCheckReturn == 0)"
+		}	// end "if (overlayCheckReturn == 0)"
 			
 	CheckAndUnlockHandle (gShapeFilesHandle);
 	
@@ -858,7 +822,7 @@ SInt16 CheckIfOverlayFileLoaded (
 	
 	return (overlayCheckReturn);
 	
-}		// end "CheckIfOverlayFileLoaded"
+}	// end "CheckIfOverlayFileLoaded"
 
 
 
@@ -920,8 +884,7 @@ Boolean CheckIfVectorOverlaysIntersectImage (
 	conversionCode = 0;
 	mapUnitsFlag = TRUE;		
 		
-	shapeHandlePtr = (Handle*)GetHandlePointer(
-													gShapeFilesHandle, kLock, kNoMoveHi);
+	shapeHandlePtr = (Handle*)GetHandlePointer (gShapeFilesHandle, kLock);
 
 	if (shapeHandlePtr != NULL) 
 		{
@@ -930,8 +893,8 @@ Boolean CheckIfVectorOverlaysIntersectImage (
 		mapProjectionHandle = GetFileMapProjectionHandle2 (
 															windowInfoPtr->windowInfoHandle);
 
-		mapProjectionInfoPtr = (MapProjectionInfoPtr)GetHandlePointer(
-													mapProjectionHandle, kLock, kNoMoveHi);
+		mapProjectionInfoPtr = (MapProjectionInfoPtr)GetHandlePointer (
+																	mapProjectionHandle, kLock);
 													
 				// Loop through existing overlay files and check if the shape file
 				// intesects with the input image.
@@ -940,8 +903,7 @@ Boolean CheckIfVectorOverlaysIntersectImage (
 			{
 			shapeInfoPtr = (ShapeInfoPtr)GetHandlePointer (
 															shapeHandlePtr[index],
-															kLock,
-															kNoMoveHi);
+															kLock);
 															
 			if (shapeInfoPtr != NULL)
 				{	
@@ -971,14 +933,14 @@ Boolean CheckIfVectorOverlaysIntersectImage (
 													&lBoundingRect);
 						mapUnitsFlag = FALSE;	
 						
-						}		// end "if (shapeInfoPtr->conversionCode == 2)"
+						}	// end "if (shapeInfoPtr->conversionCode == 2)"
 					
 							// Check if the shape file intersects with the image.
 							
 					if (convertedFlag &&	
 							WindowBoundingAreaAndRectIntersect (windowInfoPtr,
-																		&shapeInfoPtr->boundingXYBox,
-																		mapUnitsFlag))
+																			&shapeInfoPtr->boundingXYBox,
+																			mapUnitsFlag))
 						vectorOverlayIntersectsFlag = TRUE;
 					
 					CheckAndUnlockHandle (shapeHandlePtr[index]);
@@ -986,21 +948,21 @@ Boolean CheckIfVectorOverlaysIntersectImage (
 					if (vectorOverlayIntersectsFlag)
 						break;
 						
-					}		// end "if (mapInfoSameFlag)"
+					}	// end "if (mapInfoSameFlag)"
 				
-				}		// end "if (shapeInfoPtr != NULL)"
+				}	// end "if (shapeInfoPtr != NULL)"
 											
-			}		// end "for (index=0; index<gShapeHandleListLength; index++)"
+			}	// end "for (index=0; index<gShapeHandleListLength; index++)"
 			
 		CheckAndUnlockHandle (mapProjectionHandle);
 			
 		CheckAndUnlockHandle (gShapeFilesHandle);
 	
-		}		// end "if (shapeHandlePtr != NULL)"
+		}	// end "if (shapeHandlePtr != NULL)"
 	
 	return (vectorOverlayIntersectsFlag);
 	
-}		// end "CheckIfVectorOverlaysIntersectImage"
+}	// end "CheckIfVectorOverlaysIntersectImage"
 
 
 
@@ -1042,14 +1004,14 @@ Boolean CheckIfOverlayMayBeLatLong (
 	Boolean								mayBeLatLongUnitsFlag = FALSE;
 	
 	
-#	if include_gdal_capability
+	#if include_gdal_capability
 				// If gdal capability exists, then use this library to get information
 				// from an associated prj file.
 				
 		latLongCode = CheckIfprjFileDefinesLatLong (shapeFileStreamPtr);
 		if (latLongCode == 1)
 			mayBeLatLongUnitsFlag = TRUE;				
-#	endif	// include_gdal_capability
+	#endif	// include_gdal_capability
 	
 	if (latLongCode == -1)
 		{
@@ -1059,14 +1021,13 @@ Boolean CheckIfOverlayMayBeLatLong (
 				boundingOverlayRectPtr->right <= 180 &&
 				boundingOverlayRectPtr->top >= -90 &&
 				boundingOverlayRectPtr->bottom <= 90)
-				
 			mayBeLatLongUnitsFlag = TRUE;
 			
-		}		// end "if (latLongCode == -1)"
+		}	// end "if (latLongCode == -1)"
 		
 	return (mayBeLatLongUnitsFlag);
 	
-}		// end "CheckIfOverlayMayBeLatLong"
+}	// end "CheckIfOverlayMayBeLatLong"
 
 
 
@@ -1094,7 +1055,7 @@ Boolean CheckIfOverlayMayBeLatLong (
 // Called By:			CheckIfOverlayMayBeLatLong in SArcView.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/02/2013
-//	Revised By:			Larry L. Biehl			Date: 02/22/2017
+//	Revised By:			Larry L. Biehl			Date: 09/01/2017
 
 SInt16 CheckIfprjFileDefinesLatLong (
 				CMFileStream						*shapeFileStreamPtr)
@@ -1121,7 +1082,7 @@ SInt16 CheckIfprjFileDefinesLatLong (
 			
 	prjFileStreamPtr = &prjFileStream;		
 	InitializeFileStream (prjFileStreamPtr, shapeFileStreamPtr);
-	prjFileNamePtr = (FileStringPtr)GetFilePathPPointer (prjFileStreamPtr);
+	prjFileNamePtr = (FileStringPtr)GetFilePathPPointerFromFileStream (prjFileStreamPtr);
 	
 			// Remove the '.shp' suffix at the end of the file name
 			// and then look for a corresponding '.prj' file.
@@ -1162,15 +1123,15 @@ SInt16 CheckIfprjFileDefinesLatLong (
 				else if (projcsCode == 0 && geogcsCode == 1 && unitsCode == kAVDecimalDegreesCode)
 					latLongCode = 1;
 					
-				}		// end "if (ReadPRJFileInformation (..."
+				}	// end "if (ReadPRJFileInformation (..."
 			
-			}		// end "if (errCode == noErr)"
+			}	// end "if (errCode == noErr)"
 		
-		}		// end "if (errCode == noErr)"
+		}	// end "if (errCode == noErr)"
 		
 	return (latLongCode);		
 	
-}		// end "CheckIfprjFileDefinesLatLong"
+}	// end "CheckIfprjFileDefinesLatLong"
 #endif	// include_gdal_capability
 
 
@@ -1224,9 +1185,8 @@ SInt16 CheckIfOverlayNeedsReloaded (
 
 			// Get the map overage of the new image window.
 			
-	windowInfoHandle = GetWindowInfoHandle(newWindow);
-	windowInfoPtr = (WindowInfoPtr)GetHandlePointer(
-										windowInfoHandle, kNoLock, kNoMoveHi);
+	windowInfoHandle = GetWindowInfoHandle (newWindow);
+	windowInfoPtr = (WindowInfoPtr)GetHandlePointer (windowInfoHandle);
 	newMapRectangle = windowInfoPtr->boundingMapRectangle;
 										
 			// Now check if the map rectangle falls within any of the
@@ -1243,15 +1203,14 @@ SInt16 CheckIfOverlayNeedsReloaded (
 		
 		if (windowPtr != newWindow)
 			{       
-			windowInfoHandle = GetWindowInfoHandle(windowPtr);
-			windowInfoPtr = (WindowInfoPtr)GetHandlePointer(
-												windowInfoHandle, kNoLock, kNoMoveHi);
+			windowInfoHandle = GetWindowInfoHandle (windowPtr);
+			windowInfoPtr = (WindowInfoPtr)GetHandlePointer (windowInfoHandle);
 												
 					// Now check if the overlay is already included in the list.
 					
 			for (index=0; index<windowInfoPtr->numberOverlays; index++)
 				{
-				if (abs(windowInfoPtr->overlayList[index].index) == overlayNumber)
+				if (abs (windowInfoPtr->overlayList[index].index) == overlayNumber)
 					{
 					needToLoadFlag = FALSE;
 
@@ -1273,42 +1232,41 @@ SInt16 CheckIfOverlayNeedsReloaded (
 					else if (newMapRectangle.bottom > windowInfoPtr->boundingMapRectangle.bottom &&
 								boundingRectPtr->bottom > windowInfoPtr->boundingMapRectangle.bottom)
 						needToLoadFlag = TRUE;
-
-//					overallMapRectangle.left = MIN(overallMapRectangle.left,
-//													windowInfoPtr->boundingMapRectangle.left);
+					/*
+					overallMapRectangle.left = MIN (overallMapRectangle.left,
+													windowInfoPtr->boundingMapRectangle.left);
 				
-//					overallMapRectangle.right = MAX(overallMapRectangle.right,
-//													windowInfoPtr->boundingMapRectangle.right);
+					overallMapRectangle.right = MAX (overallMapRectangle.right,
+													windowInfoPtr->boundingMapRectangle.right);
 				
-//					overallMapRectangle.top = MIN(overallMapRectangle.top,
-//													windowInfoPtr->boundingMapRectangle.top);
+					overallMapRectangle.top = MIN (overallMapRectangle.top,
+													windowInfoPtr->boundingMapRectangle.top);
 				
-//					overallMapRectangle.bottom = MAX(overallMapRectangle.bottom,
-//													windowInfoPtr->boundingMapRectangle.bottom);
-					
-					}		// end "if (abs(windowInfoPtr->overlayList[index].index) == ..."
+					overallMapRectangle.bottom = MAX (overallMapRectangle.bottom,
+													windowInfoPtr->boundingMapRectangle.bottom);
+					*/
+					}	// end "if (abs (windowInfoPtr->overlayList[index].index) == ..."
 					
 				if (!needToLoadFlag)
 					break;
 				
-				}		// end "for (index=0; index<windowInfoPtr->numberOverlays; ..."
+				}	// end "for (index=0; index<windowInfoPtr->numberOverlays; ..."
 					
 			if (!needToLoadFlag)
 				break;
 				
-			}		// end "if (windowPtr != newWindow)"
+			}	// end "if (windowPtr != newWindow)"
 		
 		windowListIndex++;
 		windowCount++;
 													
-		}		while (windowCount<gNumberOfIWindows);
-		
-/*			// Now determine if the new overall size would include more vectors
+		}	while (windowCount<gNumberOfIWindows);
+	/*	
+			// Now determine if the new overall size would include more vectors
 			// from the shape file.
 			
-	windowInfoHandle = GetWindowInfoHandle(newWindow);
-	windowInfoPtr = (WindowInfoPtr)GetHandlePointer(
-										windowInfoHandle, kNoLock, kNoMoveHi);
+	windowInfoHandle = GetWindowInfoHandle (newWindow);
+	windowInfoPtr = (WindowInfoPtr)GetHandlePointer (windowInfoHandle);
 										
 	if (windowInfoPtr->boundingMapRectangle.left < overallMapRectangle.left &&
 											boundingRectPtr->left < overallMapRectangle.left)
@@ -1325,13 +1283,13 @@ SInt16 CheckIfOverlayNeedsReloaded (
 	else if (windowInfoPtr->boundingMapRectangle.bottom > overallMapRectangle.bottom &&
 											boundingRectPtr->bottom > overallMapRectangle.bottom)
 		overlayCheckReturn = 0;	
-*/
+	*/
 	if (!needToLoadFlag)
 		overlayCheckReturn = 2;
 
 	return (overlayCheckReturn);
 	
-}		// end "CheckIfOverlayNeedsReloaded"	
+}	// end "CheckIfOverlayNeedsReloaded"	
 
 
 
@@ -1368,13 +1326,13 @@ void CloseAllVectorOverlayFiles (void)
 		{
 		CloseOverlayFile (index);
 		
-		}		// end "for (index=0; index<gShapeHandleListLength; index++)"
+		}	// end "for (index=0; index<gShapeHandleListLength; index++)"
 		
 	gShapeFilesHandle = UnlockAndDispose (gShapeFilesHandle);
 	gShapeHandleListLength = 0;
 	gNumberShapeFiles = 0;
 	
-}		// end "CloseAllVectorOverlayFiles"		
+}	// end "CloseAllVectorOverlayFiles"		
 
 
 
@@ -1422,8 +1380,7 @@ void CloseOverlayFile (
 	if (overlayIndex < gShapeHandleListLength)
 		{
 		shapeHandlePtr = (Handle*)GetHandlePointer (gShapeFilesHandle, 
-																	kLock, 
-																	kNoMoveHi);
+																	kLock);
 																	
 		if (shapeHandlePtr != NULL)
 			{												
@@ -1443,9 +1400,9 @@ void CloseOverlayFile (
 			do
 				{
 				windowPtr = gWindowList[windowListIndex];         
-				windowInfoHandle = GetWindowInfoHandle(windowPtr);
-				windowInfoPtr = (WindowInfoPtr)GetHandlePointer(
-																windowInfoHandle, kLock, kNoMoveHi);
+				windowInfoHandle = GetWindowInfoHandle (windowPtr);
+				windowInfoPtr = (WindowInfoPtr)GetHandlePointer (
+																windowInfoHandle, kLock);
 			
 				if (windowInfoPtr != NULL)
 					{
@@ -1453,7 +1410,7 @@ void CloseOverlayFile (
 					moveFlag = FALSE;
 					while (overlayListIndex < windowInfoPtr->numberOverlays)
 						{
-						if (abs(windowInfoPtr->overlayList[overlayListIndex].index) == 
+						if (abs (windowInfoPtr->overlayList[overlayListIndex].index) == 
 																				(UInt8)(overlayIndex + 1))
 							{
 							if (windowInfoPtr->overlayList[overlayListIndex].index > 0)
@@ -1463,7 +1420,7 @@ void CloseOverlayFile (
 								
 							moveFlag = TRUE;
 							
-							}		// end "if (abs(...->overlayList[overlayListIndex]..."
+							}	// end "if (abs (...->overlayList[overlayListIndex]..."
 							
 						if (moveFlag && overlayListIndex+1 < windowInfoPtr->numberOverlays)
 							windowInfoPtr->overlayList[overlayListIndex] = 
@@ -1471,34 +1428,34 @@ void CloseOverlayFile (
 						
 						overlayListIndex++;
 						
-						}		// end "while (overlayListIndex < windowInfoPtr->numberOverlays)"
+						}	// end "while (overlayListIndex < windowInfoPtr->numberOverlays)"
 						
 					if (moveFlag)
 						{
 						windowInfoPtr->numberOverlays--;
 						UpdateOverlayControl (windowPtr);
 						
-						}		// end "if (moveFlag)"
+						}	// end "if (moveFlag)"
 						
-					}		// end "if (windowInfoPtr != NULL)"
+					}	// end "if (windowInfoPtr != NULL)"
 					
 				CheckAndUnlockHandle (windowInfoHandle);
 				
 				windowListIndex++;
 				windowCount++;
 															
-				}		while (windowCount<gNumberOfIWindows);
+				}	while (windowCount<gNumberOfIWindows);
 				
 			if (gNumberShapeFiles > 0)
 				gNumberShapeFiles--;
 			
-			}		// end "if (shapeInfoPtr != NULL)"
+			}	// end "if (shapeInfoPtr != NULL)"
 			
 		CheckAndUnlockHandle (gShapeFilesHandle);
 			
-		}		// end "if (overlayIndex < gShapeHandleListLength)"
+		}	// end "if (overlayIndex < gShapeHandleListLength)"
 	
-}		// end "CloseOverlayFile"		
+}	// end "CloseOverlayFile"		
 
 
 
@@ -1537,9 +1494,7 @@ void ClearVectorOverlay (
 	
 	if (menuItemIndex <= gShapeHandleListLength)
 		{
-		shapeHandlePtr = (Handle*)GetHandlePointer (gShapeFilesHandle, 
-																	kNoLock, 
-																	kNoMoveHi);
+		shapeHandlePtr = (Handle*)GetHandlePointer (gShapeFilesHandle);
 		
 		count = 0;
 		selectedOverlay = -1;															
@@ -1554,18 +1509,18 @@ void ClearVectorOverlay (
 					selectedOverlay = index;
 					break;
 					
-					}		// end "if (count == menuItemIndex)"
+					}	// end "if (count == menuItemIndex)"
 					
-				}		// end "if (shapeHandlePtr[index] != NULL)"
+				}	// end "if (shapeHandlePtr[index] != NULL)"
 				
-			}		// end "for (index=0; index<gShapeHandleListLength; index++)"
+			}	// end "for (index=0; index<gShapeHandleListLength; index++)"
 		
 		if (selectedOverlay >= 0)
 			CloseOverlayFile (selectedOverlay);
 																	
-		}		// end "if (menuItemIndex <= gShapeHandleListLength)"
+		}	// end "if (menuItemIndex <= gShapeHandleListLength)"
 	
-}		// end "ClearVectorOverlay"
+}	// end "ClearVectorOverlay"
 
 
 
@@ -1609,7 +1564,7 @@ void ConvertLatLongPointToMapPoint (
 	sdoubleCoordinatePointPtr->y = coordinatePoint.v;
 	sdoubleCoordinatePointPtr->x = coordinatePoint.h;
 
-}		// end "ConvertLatLongPointToMapPoint" 
+}	// end "ConvertLatLongPointToMapPoint" 
 
 
 /*
@@ -1664,7 +1619,7 @@ Boolean ConvertLatLongRectToMapRect (
 	
 	return (convertedFlag);
 
-}		// end "ConvertLatLongRectToMapRect" 
+}	// end "ConvertLatLongRectToMapRect" 
 */
 
 
@@ -1797,9 +1752,9 @@ Boolean CreateCLRSupportFile (
 															groupName,
 															gEndOfLine);
 															
-							}		// end "if (listAllGroupInfoPtr[classNumber])"
+							}	// end "if (listAllGroupInfoPtr[classNumber])"
 						
-						else		// !listAllGroupInfoPtr[classNumber]
+						else	// !listAllGroupInfoPtr[classNumber]
 							stringLength = sprintf ((char*)ioTempBufferPtr, 
 															"%d %3d %3d %3d n:%s~ g:%d%s",
 															classValue,
@@ -1810,9 +1765,9 @@ Boolean CreateCLRSupportFile (
 															groupNumber,
 															gEndOfLine);
 													
-						}		// end "if (groupNumber >= 0)"
+						}	// end "if (groupNumber >= 0)"
 													
-					}		// end "if (numberGroups > 0)"
+					}	// end "if (numberGroups > 0)"
 					
 				if (groupNumber < 0)
 					stringLength = sprintf ((char*)ioTempBufferPtr, 
@@ -1829,19 +1784,19 @@ Boolean CreateCLRSupportFile (
 									
 				ioTempBufferPtr += stringLength;
 																						
-				}		// end "if (classSymbolPtr == NULL || classNumber == ..."
+				}	// end "if (classSymbolPtr == NULL || classNumber == ..."
 			
 			classColorTablePtr++;
 			classNameTablePtr += 32;			
 											 
-			}		// end "for (classNumber=0; classNumber<...)"
+			}	// end "for (classNumber=0; classNumber<...)"
 			
 				// Write buffer of data	to trailer file.								
 					
 		count = (SInt32)(ioTempBufferPtr - (StringPtr)ioBufferPtr);
 		errCode = MWriteData (trailerStreamPtr, &count, ioBufferPtr, kErrorMessages);
 						
-		}		// end "if (continueFlag && errCode == noErr) 
+		}	// end "if (continueFlag && errCode == noErr) 
 	
 			// Unlock dispose of handles to temporary buffer.							
 				
@@ -1849,7 +1804,7 @@ Boolean CreateCLRSupportFile (
 	
 	return (continueFlag && errCode == noErr);
 
-}		// end "CreateCLRSupportFile"
+}	// end "CreateCLRSupportFile"
 
 
 
@@ -1885,7 +1840,7 @@ void DisplayNoIntersectionAlert (
 	MGetString (gTextString3, kAlertStrID, stringNumber);
 	stringLength = gTextString3[0];
 	
-	MGetString ( &gTextString3[stringLength+1], kAlertStrID, IDS_Alert87);
+	MGetString (&gTextString3[stringLength+1], kAlertStrID, IDS_Alert87);
 	stringLength += gTextString3[stringLength+1];
 	gTextString3[stringLength+1] = 0;
 	
@@ -1912,7 +1867,7 @@ void DisplayNoIntersectionAlert (
 						0, 
 						&gTextString3[stringStart]);
 	
-}		// end "DisplayNoIntersectionAlert"
+}	// end "DisplayNoIntersectionAlert"
 
 
 
@@ -1960,7 +1915,7 @@ void DoShowOverlaySelection (
 	
 	
 	windowInfoPtr = (WindowInfoPtr)GetHandleStatusAndPointer (
-								windowInfoHandle, &windowHandleStatus, kNoMoveHi);
+													windowInfoHandle, &windowHandleStatus);
 
 	if (windowInfoPtr != NULL) 
 		{
@@ -1987,16 +1942,16 @@ void DoShowOverlaySelection (
 				{
 				if (overlayListPtr[index].index > 0)
 					{
-					overlayListPtr[index].index = -abs(overlayListPtr[index].index);
+					overlayListPtr[index].index = -abs (overlayListPtr[index].index);
 					callFlag = TRUE;
 					
-					}		// end "if (overlayListPtr[index].index > 0)"
+					}	// end "if (overlayListPtr[index].index > 0)"
 					
-				}		// end "for (index=0; index<numberVectorOverlays; index++)"
+				}	// end "for (index=0; index<numberVectorOverlays; index++)"
 				
 			invalidateFlag = TRUE;
 			
-			}		// end "if (selection == 1)"
+			}	// end "if (selection == 1)"
 			
 		else if (selection == 2)
 			{
@@ -2007,12 +1962,12 @@ void DoShowOverlaySelection (
 				if (imageOverlayListPtr[index].index < 0)
 					{
 					imageOverlayListPtr[index].index = 
-														abs(imageOverlayListPtr[index].index);
+														abs (imageOverlayListPtr[index].index);
 					callFlag = TRUE;
 					
-					}		// end "if (overlayListPtr[index].index > 0)"
+					}	// end "if (overlayListPtr[index].index > 0)"
 					
-				}		// end "for (index=0; index<numberImageOverlays; index++)"
+				}	// end "for (index=0; index<numberImageOverlays; index++)"
 				
 					// Show all vector overlays
 					
@@ -2020,26 +1975,26 @@ void DoShowOverlaySelection (
 				{
 				if (overlayListPtr[index].index < 0)
 					{
-					overlayListPtr[index].index = abs(overlayListPtr[index].index);
+					overlayListPtr[index].index = abs (overlayListPtr[index].index);
 					callFlag = TRUE;
 					
-					}		// end "if (overlayListPtr[index].index > 0)"
+					}	// end "if (overlayListPtr[index].index > 0)"
 					
-				}		// end "for (index=0; index<numberVectorOverlays; index++)"
+				}	// end "for (index=0; index<numberVectorOverlays; index++)"
 				
-#			if defined multispec_mac
+			#if defined multispec_mac
 				invalidateFlag = FALSE;
 				if (numberImageOverlays > 0) 	
 					invalidateFlag = TRUE;         
-#			endif	// defined multispec_mac
+			#endif	// defined multispec_mac
 				
-#			if defined multispec_win || defined multispec_lin
+			#if defined multispec_win || defined multispec_lin
 				invalidateFlag = TRUE;          
-#			endif	// defined multispec_win || defined multispec_lin
+			#endif	// defined multispec_win || defined multispec_lin
 			
-			}		// end "else if (selection == 2)"
+			}	// end "else if (selection == 2)"
 			
-		else		// selection > 2
+		else	// selection > 2
 			{
 			index = selection - 4;
 			
@@ -2050,28 +2005,28 @@ void DoShowOverlaySelection (
 				if (optionKeyFlag)
 					{
 					imageOverlayListPtr[index].index = 
-															abs(imageOverlayListPtr[index].index);
+															abs (imageOverlayListPtr[index].index);
 
 					invalidateFlag = TRUE; 
 					callFlag = TRUE; 
 						
 					
-					}		// end "if (optionKeyFlag)"
+					}	// end "if (optionKeyFlag)"
 				
-				else		// !optionKeyFlag
+				else	// !optionKeyFlag
 					{
 					imageOverlayListPtr[index].index = 
 														-1 * imageOverlayListPtr[index].index;
 				
 					invalidateFlag = TRUE;
-//					#if defined multispec_mac
-//						if (imageOverlayListPtr[index].index > 0)
-//							invalidateFlag = FALSE;         
-//					#endif	// defined multispec_mac
+					//#if defined multispec_mac
+					//	if (imageOverlayListPtr[index].index > 0)
+					//		invalidateFlag = FALSE;         
+					//#endif	// defined multispec_mac
 					
 					callFlag = TRUE;
 					
-					}		// end "else !optionKeyFlag"
+					}	// end "else !optionKeyFlag"
 					
 				if (imageOverlayListPtr[index].index > 0 && !shiftKeyFlag)
 					{
@@ -2082,13 +2037,13 @@ void DoShowOverlaySelection (
 													numberImageOverlays);
 													
 					imageOverlayListPtr[index].index =  
-															abs(imageOverlayListPtr[index].index);
+															abs (imageOverlayListPtr[index].index);
 															
-					}		// end "if (imageOverlayListPtr[index].index > 0&& ..."
+					}	// end "if (imageOverlayListPtr[index].index > 0&& ..."
 					
-				}		// end "if (index < numberImageOverlays)"
+				}	// end "if (index < numberImageOverlays)"
 				
-			else		// index >= numberImageOverlays
+			else	// index >= numberImageOverlays
 				{
 				index -= numberImageOverlays;
 				
@@ -2096,14 +2051,14 @@ void DoShowOverlaySelection (
 			
 				if (optionKeyFlag)
 					{
-					overlayListPtr[index].index = abs(overlayListPtr[index].index);
+					overlayListPtr[index].index = abs (overlayListPtr[index].index);
 					
 					invalidateFlag = TRUE; 
 					callFlag = TRUE;   
 					
-					}		// end "if (optionKeyFlag)"
+					}	// end "if (optionKeyFlag)"
 				
-				else		// !optionKeyFlag
+				else	// !optionKeyFlag
 					{
 					overlayListPtr[index].index = -1 * overlayListPtr[index].index;
 				
@@ -2115,11 +2070,11 @@ void DoShowOverlaySelection (
 					
 					callFlag = TRUE;
 					
-					}		// end "else !optionKeyFlag"
+					}	// end "else !optionKeyFlag"
 					
-				}		// end "if (index < numberImageOverlays)"
+				}	// end "if (index < numberImageOverlays)"
 			
-			}		// end "else selection > 2"
+			}	// end "else selection > 2"
 		
 		if (invalidateFlag && callFlag)	
 			InvalidateWindow (windowPtr, kImageFrameArea, FALSE);
@@ -2133,9 +2088,9 @@ void DoShowOverlaySelection (
 		
 		MHSetState (windowInfoHandle, windowHandleStatus);
 		
-		}		// end "if (windowInfoPtr != NULL)"	
+		}	// end "if (windowInfoPtr != NULL)"	
 	
-}		// end "DoShowOverlaySelection"	
+}	// end "DoShowOverlaySelection"	
 
 
 
@@ -2158,7 +2113,7 @@ void DoShowOverlaySelection (
 // Called By:			CopyOffScreenImage in multiSpec.c
 //
 //	Coded By:			Larry L. Biehl			Date: 12/29/2000
-//	Revised By:			Larry L. Biehl			Date: 02/20/2016
+//	Revised By:			Larry L. Biehl			Date: 09/01/2017
 
 void DrawArcViewShapes (
 				WindowPtr							windowPtr,
@@ -2168,15 +2123,15 @@ void DrawArcViewShapes (
 				CGContextRef						context)
 				
 { 					
-#	if defined multispec_win
+	#if defined multispec_win
 		CPen									overlayPen;
 		CPen*									overlayPenPtr = NULL;
-#	endif	// defined multispec_win
+	#endif	// defined multispec_win
 	
-#	if defined multispec_lin
+	#if defined multispec_lin
 		wxPen									overlayPen;
 		wxPen*								overlayPenPtr = NULL;
-#	endif	// defined multispec_win
+	#endif	// defined multispec_win
 				
 	DoubleRect							boundingWindowBox;
 	
@@ -2187,9 +2142,9 @@ void DrawArcViewShapes (
 											
 	MapToWindowUnitsVariables		mapToWindowUnitsVariables;
 											
-#	if defined multispec_mac
+	#if defined multispec_mac
 		Pattern								black;
-#	endif	// defined multispec_mac
+	#endif	// defined multispec_mac
 	
 	ArcViewDoublePoint*				arcViewDoublePointPtr;
 	ArcViewPointPtr					arcViewPointPtr;
@@ -2219,50 +2174,50 @@ void DrawArcViewShapes (
 											winUseOriginFlag;
 	
 	SignedByte							windowHandleStatus;
-/*   
+	/*   
 	#if defined multispec_lin
 		UInt32                        savedVScroll;
 		UInt32                        savedHScroll;
 		DisplaySpecsPtr					displaySpecsPtr;
 		Handle                        displaySpecsH;
 	#endif
-*/			
-#	if defined multispec_mac
+	*/			
+	#if defined multispec_mac
 		PenState								penState; 
-#	endif	// defined multispec_mac
+	#endif	// defined multispec_mac
 
-#	if defined multispec_win
+	#if defined multispec_win
 		if (gCDCPointer == NULL)            
 																								return; 
-#	endif	// defined multispec_win
+	#endif	// defined multispec_win
 	
-#	if defined multispec_lin
+	#if defined multispec_lin
 		//wxMemoryDC displaydc;
-		//bool bitok = (windowPtr->m_ScaledBitmap).IsOk();
-		//displaydc.SelectObject(windowPtr->m_ScaledBitmap);
+		//bool bitok = (windowPtr->m_ScaledBitmap).IsOk ();
+		//displaydc.SelectObject (windowPtr->m_ScaledBitmap);
 		//wxDC* oldgCDCpt = gCDCPointer; // Save the global DC pointer
 		//gCDCPointer = &displaydc;
 		if (gCDCPointer == NULL)
 																								return;
-#	endif	// defined multispec_lin
+	#endif	// defined multispec_lin
 	
 	shapeHandlePtr = NULL;
 	SetChannelWindowVariables (windowCode, windowInfoHandle, kNotCoreGraphics);
 	
-#	if defined multispec_win
+	#if defined multispec_win
 		CPen* 				pOldPen = NULL;
 		
 		Boolean				continueFlag = TRUE;
-#	endif	// defined multispec_win
+	#endif	// defined multispec_win
 	
-#	if defined multispec_lin
+	#if defined multispec_lin
 		wxPen* 				pOldPen = NULL;
 		
 		Boolean				continueFlag = TRUE;
-#	endif	// defined multispec_lin
+	#endif	// defined multispec_lin
 	
 	windowInfoPtr = (WindowInfoPtr)GetHandleStatusAndPointer (
-										windowInfoHandle, &windowHandleStatus, kNoMoveHi);
+														windowInfoHandle, &windowHandleStatus);
 	
 	if (windowInfoPtr != NULL) 
 		{
@@ -2271,10 +2226,10 @@ void DrawArcViewShapes (
 		numberOverlays = windowInfoPtr->numberOverlays;
 		overlayListPtr = windowInfoPtr->overlayList;
 		
-		shapeHandlePtr = (Handle*)GetHandlePointer(
-														gShapeFilesHandle, kLock, kNoMoveHi);
+		shapeHandlePtr = (Handle*)GetHandlePointer (
+															gShapeFilesHandle, kLock);
 														
-		}		// end "if (windowInfoPtr != NULL)"
+		}	// end "if (windowInfoPtr != NULL)"
 	
 	if (shapeHandlePtr != NULL)
 		{  
@@ -2286,36 +2241,36 @@ void DrawArcViewShapes (
 			
 		winUseOriginFlag = FALSE;
 		
-#		if defined multispec_win
+		#if defined multispec_win
 			GetWindowClipRectangle (windowPtr, kImageArea, &gViewRect);
-			if (!gMFC_Rgn.CreateRectRgn(gViewRect.left,
-												gViewRect.top,
-												gViewRect.right,
-												gViewRect.bottom) )
+			if (!gMFC_Rgn.CreateRectRgn (gViewRect.left,
+													gViewRect.top,
+													gViewRect.right,
+													gViewRect.bottom))
 				continueFlag = FALSE;
          
          if (continueFlag)
          	{  
 				LOGPEN 						logpen;
 
-				overlayPenPtr = new CPen();
+				overlayPenPtr = new CPen ();
 
 				logpen.lopnStyle = PS_SOLID;
 				logpen.lopnWidth.x = 1;
 				logpen.lopnWidth.y = 1;
 	
-				logpen.lopnColor = RGB(0, 0, 0);
+				logpen.lopnColor = RGB (0, 0, 0);
 									
-				continueFlag = overlayPenPtr->CreatePenIndirect(&logpen);
+				continueFlag = overlayPenPtr->CreatePenIndirect (&logpen);
 
-				pOldPen = gCDCPointer->SelectObject(overlayPenPtr);  
+				pOldPen = gCDCPointer->SelectObject (overlayPenPtr);  
 				
-				gCDCPointer->SetBkMode(TRANSPARENT);
+				gCDCPointer->SetBkMode (TRANSPARENT);
 					
-				}		// end " if (continueFlag)"                                
-#		endif	// defined multispec_win
+				}	// end " if (continueFlag)"                                
+		#endif	// defined multispec_win
 			
-#		if defined multispec_mac
+		#if defined multispec_mac
 			if (context == NULL)
 				{
 						// Save the current pen state.												
@@ -2323,30 +2278,27 @@ void DrawArcViewShapes (
 				GetPenState (&penState);
 				
 				PenMode (patCopy);
-				PenPat (GetQDGlobalsBlack(&black));
+				PenPat (GetQDGlobalsBlack (&black));
 					
-				}		// end "if (context == NULL"
+				}	// end "if (context == NULL"
 			
-#			if TARGET_API_MAC_CARBON
-				else		// context != NULL
-					gCGContextBeginPathPtr (context);
-#			endif		// TARGET_API_MAC_CARBON
-#		endif	// defined multispec_mac
+			else	// context != NULL
+				gCGContextBeginPathPtr (context);
+		#endif	// defined multispec_mac
       
-#		if defined multispec_lin
+		#if defined multispec_lin
 					// Initialize pen to white 
          GetWindowClipRectangle (windowPtr, kImageArea, &gViewRect);
 			//inputBoundingRectPtr = &gViewRect;
-			overlayPenPtr = new wxPen(*wxWHITE);
-#		endif
+			overlayPenPtr = new wxPen (*wxWHITE);
+		#endif
 											
 				// Set some parameters for converting from map units to window units.
 		/*
 		#if defined multispec_lin
 			// Save the scrolling in displayspecsptr and set it to 1 for linux
-			displaySpecsH = GetDisplaySpecsHandle(windowInfoHandle);
-			displaySpecsPtr = (DisplaySpecsPtr)GetHandlePointer(
-														displaySpecsH, kNoLock, kNoMoveHi);		
+			displaySpecsH = GetDisplaySpecsHandle (windowInfoHandle);
+			displaySpecsPtr = (DisplaySpecsPtr)GetHandlePointer (displaySpecsH);		
 			savedVScroll = displaySpecsPtr->origin[kVertical];
 			savedHScroll = displaySpecsPtr->origin[kHorizontal];
 			displaySpecsPtr->origin[kHorizontal] = 0;
@@ -2385,22 +2337,22 @@ void DrawArcViewShapes (
 					
 			clipRect = gViewRect;   
 				
-#			ifdef multispec_mac
+			#ifdef multispec_mac
 				clipRect.left = (SInt16)MAX (0, gStartChannelWindow);
 				clipRect.right = (SInt16)MIN (gViewRect.right, 
 														gStartChannelWindow + gChannelWindowWidth);
 				ClipRect (&clipRect);
-#			endif	// multispec_mac
+			#endif	// multispec_mac
 
-#			if defined multispec_win || defined multispec_lin
+			#if defined multispec_win || defined multispec_lin
 				clipRect.left = (int)MAX (0, gStartChannelWindow);
 				clipRect.right = (int)MIN (gViewRect.right, 
 														gStartChannelWindow + gChannelWindowWidth);
 				if (windowCode != kToPrintWindow)
 					ClipRect (&clipRect);
-#			endif	// defined multispec_win || defined multispec_lin
+			#endif	// defined multispec_win || defined multispec_lin
 			
-			}		// end "if (gSideBySideChannels > 1)"     
+			}	// end "if (gSideBySideChannels > 1)"     
 
 		//SInt16 countPolygons = 0;
 		
@@ -2414,15 +2366,13 @@ void DrawArcViewShapes (
 				shapeFileIndex--;
 				shapeInfoPtr = (ShapeInfoPtr)GetHandlePointer (
 																shapeHandlePtr[shapeFileIndex],
-																kLock,
-																kNoMoveHi);
+																kLock);
 			
 				if (shapeInfoPtr != NULL)		
 					vectorDataPtr = (Ptr)GetHandlePointer (shapeInfoPtr->vectorDataHandle,
-																	kLock,
-																	kNoMoveHi);
+																			kLock);
 																
-				}		// end "if (shapeFileIndex > 0)"
+				}	// end "if (shapeFileIndex > 0)"
 																										
 			if (vectorDataPtr != NULL)
 				{	
@@ -2437,17 +2387,15 @@ void DrawArcViewShapes (
 						PenSize (windowInfoPtr->overlayList[overlayIndex].lineThickness, 
 									windowInfoPtr->overlayList[overlayIndex].lineThickness);
 									
-						}		// end "if (context == NULL)"
+						}	// end "if (context == NULL)"
 				
-					#if TARGET_API_MAC_CARBON	
-						else		// context != NULL
-							{
-//							CGContextSetRGBStrokeColor (context, );
-							gCGContextSetLineWidthPtr (context, 
-															(float)windowInfoPtr->overlayList[overlayIndex].lineThickness);
-						
-						}		// end "else context != NULL"
-					#endif		// TARGET_API_MAC_CARBON
+					else	// context != NULL
+						{
+						//CGContextSetRGBStrokeColor (context,);
+						gCGContextSetLineWidthPtr (context, 
+														(float)windowInfoPtr->overlayList[overlayIndex].lineThickness);
+					
+						}	// end "else context != NULL"
 				#endif	// defined multispec_mac
 						
 				#if defined multispec_win
@@ -2469,18 +2417,18 @@ void DrawArcViewShapes (
 					if (overlayPenPtr != NULL)
 						delete overlayPenPtr;
 					RGBColor pcolor = windowInfoPtr->overlayList[overlayIndex].overlayColor;
-					wxColour pwxcolor((unsigned char)pcolor.red, (unsigned char)pcolor.green, (unsigned char)pcolor.blue);
+					wxColour pwxcolor ((unsigned char)pcolor.red, (unsigned char)pcolor.green, (unsigned char)pcolor.blue);
 
                int pthick = (int)windowInfoPtr->overlayList[overlayIndex].lineThickness;
 							// Now make sure pthick is thick enough when zoomed out
 					/*
-               if(pthick*(mapToWindowUnitsVariables.magnification) < 1)
-                  pthick = ceil(1/mapToWindowUnitsVariables.magnification);
+               if (pthick*(mapToWindowUnitsVariables.magnification) < 1)
+                  pthick = ceil (1/mapToWindowUnitsVariables.magnification);
 					*/
-					overlayPenPtr = new wxPen(pwxcolor, pthick);               
-               //overlayPenPtr = new wxPen(pwxcolor);
-               gCDCPointer->SetUserScale(1, 1);
-					gCDCPointer->SetPen(*overlayPenPtr);
+					overlayPenPtr = new wxPen (pwxcolor, pthick);               
+               //overlayPenPtr = new wxPen (pwxcolor);
+               gCDCPointer->SetUserScale (1, 1);
+					gCDCPointer->SetPen (*overlayPenPtr);
 
 					if (windowCode == kToPrintWindow || windowCode == kToClipboardWindow)
 						winUseOriginFlag = TRUE;
@@ -2522,7 +2470,7 @@ void DrawArcViewShapes (
 										MoveTo ((SInt16)nextPoint.h, (SInt16)nextPoint.v-2);
 										LineTo ((SInt16)nextPoint.h, (SInt16)nextPoint.v+2);
 											
-										}		// end "if (withInLimitsFlag)"
+										}	// end "if (withInLimitsFlag)"
 								#endif	// defined multispec_mac
 								
 								#if defined multispec_win
@@ -2539,14 +2487,14 @@ void DrawArcViewShapes (
 									gCDCPointer->DrawLine ((int)nextPoint.h, (int)nextPoint.v-3, (int)nextPoint.h, (int)nextPoint.v+4);
 								#endif	// defined multispec_lin
 								
-								}		// end "if (PointInBox (&areaViewPolyLinePtr->box, ..."
+								}	// end "if (PointInBox (&areaViewPolyLinePtr->box, ..."
 		      			break;
 		      			
 		      		case 3:	// PolyLine shape	
 		      		case 5:	// Polygon shape
 		      			arcViewPolyLinePtr = (ArcViewPolyLinePtr)arcViewRecordHeaderPtr;
 		      			if (AreasIntersect (&boundingWindowBox,
-		      										&arcViewPolyLinePtr->box) )
+		      										&arcViewPolyLinePtr->box))
 		      				{
 		      				pointIndex = 0;
 		      				arcViewDoublePointPtr = (ArcViewDoublePoint*)
@@ -2568,12 +2516,10 @@ void DrawArcViewShapes (
 										if (context == NULL)
 											MoveTo ((SInt16)nextPoint.h, (SInt16)nextPoint.v);
 										
-										#if TARGET_API_MAC_CARBON	
-											else		// context != NULL
-												gCGContextMoveToPointPtr (context,
-																					(float)nextPoint.h,
-																					(float)nextPoint.v);
-										#endif		// TARGET_API_MAC_CARBON
+										else	// context != NULL
+											gCGContextMoveToPointPtr (context,
+																				(float)nextPoint.h,
+																				(float)nextPoint.v);
 									#endif	// defined multispec_mac
 									
 									#if defined multispec_win
@@ -2593,7 +2539,7 @@ void DrawArcViewShapes (
 		      					
 		      					if (partIndex+1 < arcViewPolyLinePtr->numParts)
 		      						pointStop = arcViewPolyLinePtr->parts[partIndex+1];
-		      					else		// partIndex+1 == areaViewPolyLinePtr->numParts
+		      					else	// partIndex+1 == areaViewPolyLinePtr->numParts
 		      						pointStop = arcViewPolyLinePtr->numPoints;
 				
 		      					for (pointIndex=pointStart; pointIndex<pointStop; pointIndex++)
@@ -2614,41 +2560,42 @@ void DrawArcViewShapes (
 													if (context == NULL)
 														LineTo ((SInt16)nextPoint.h, (SInt16)nextPoint.v);
 													
-													#if TARGET_API_MAC_CARBON	
-														else		// context != NULL
-															gCGContextAddLineToPointPtr (context,
-																						(float)nextPoint.h,
-																						(float)nextPoint.v);
-													#endif		// TARGET_API_MAC_CARBON
-													}		// end "if (withInLimitsFlag)"
+													else	// context != NULL
+														gCGContextAddLineToPointPtr (context,
+																								(float)nextPoint.h,
+																								(float)nextPoint.v);
+													}	// end "if (withInLimitsFlag)"
 											#endif	// defined multispec_mac
 											
 											#if defined multispec_win
-												gCDCPointer->LineTo ( (int)nextPoint.h, 
+												gCDCPointer->LineTo ((int)nextPoint.h, 
 																				(int)nextPoint.v); 
 											#endif	// defined multispec_win
 											
 											#if defined multispec_lin
-												gCDCPointer->DrawLine ((int)lastPoint.h, (int)lastPoint.v, (int)nextPoint.h, (int)nextPoint.v);       	
+												gCDCPointer->DrawLine ((int)lastPoint.h, 
+																				(int)lastPoint.v, 
+																				(int)nextPoint.h, 
+																				(int)nextPoint.v);       	
 											#endif	// defined multispec_lin
 									
 											lastPoint = nextPoint;
 											
-											}		// end "if (nextPoint != lastPoint)"
+											}	// end "if (nextPoint != lastPoint)"
 										
 										arcViewDoublePointPtr++;
 										
-										}		// end "for (pointIndex=partStart; ..."
+										}	// end "for (pointIndex=partStart; ..."
 										
-									}		// end "for (partIndex=0; ..."
+									}	// end "for (partIndex=0; ..."
 								
-								}		// end "if (AreasIntersect (&areaViewPolyLinePtr->box, ..."
+								}	// end "if (AreasIntersect (&areaViewPolyLinePtr->box, ..."
 		      			break;
 		      			
 		      		default:
 		      			break;
 						
-						}		// end "switch (areaViewRecordHeaderPtr->shapeType)"
+						}	// end "switch (areaViewRecordHeaderPtr->shapeType)"
 						
 					vectorDataIndex += arcViewRecordHeaderPtr->recordLength;
 			
@@ -2656,29 +2603,29 @@ void DrawArcViewShapes (
 							
 					#if defined multispec_mac
 						if (gProcessorCode != kZoomButtonControl && 
-																	TickCount() >= gNextTime)
+																	TickCount () >= gNextTime)
 							{
 							if (!CheckSomeEvents (keyDownMask))
 								break;
 								
-							}		// end "if (gProcessorCode != kZoomButtonControl && ..." 
+							}	// end "if (gProcessorCode != kZoomButtonControl && ..." 
 					#endif	// defined multispec_mac 
 					
-					}		// end "for (recordIndex=0; ..."
+					}	// end "for (recordIndex=0; ..."
 				
 				CheckAndUnlockHandle (shapeInfoPtr->vectorDataHandle);
 				
-				}		// end "if (vectorDataPtr != NULL)"
+				}	// end "if (vectorDataPtr != NULL)"
 			
 			if (shapeFileIndex >= 0)	
 				CheckAndUnlockHandle (shapeHandlePtr[shapeFileIndex]);
 			
-			}		// end "for (overlayIndex=0; overlayIndex<..."
+			}	// end "for (overlayIndex=0; overlayIndex<..."
 	
-		#if TARGET_API_MAC_CARBON	
-			if (QDIsPortBuffered (GetWindowPort(windowPtr)))
-				QDFlushPortBuffer (GetWindowPort(windowPtr), NULL);
-		#endif	// TARGET_API_MAC_CARBON					
+		#if defined multispec_mac
+			if (QDIsPortBuffered (GetWindowPort (windowPtr)))
+				QDFlushPortBuffer (GetWindowPort (windowPtr), NULL);        
+		#endif	// defined multispec_mac
       
 		ResetDestinationWindowParameters (windowCode,
 														windowPtr);
@@ -2687,17 +2634,17 @@ void DrawArcViewShapes (
 													&mapToWindowUnitsVariables);
 					
 		#if defined multispec_win
-//			GetWindowClipRectangle ( windowPtr, 
-//												kImageFrameArea, 
-//												&gViewRect);
+			//GetWindowClipRectangle (windowPtr, 
+			//									kImageFrameArea, 
+			//									&gViewRect);
 
-//			ClipRect (&gViewRect);
+			//ClipRect (&gViewRect);
 
-			gCDCPointer->SelectObject(pOldPen);
+			gCDCPointer->SelectObject (pOldPen);
 			
-			gCDCPointer->SetBkMode(OPAQUE);  
+			gCDCPointer->SetBkMode (OPAQUE);  
 			
-			gMFC_Rgn.DeleteObject();
+			gMFC_Rgn.DeleteObject ();
 
 			if (overlayPenPtr != NULL)
 				delete overlayPenPtr;          
@@ -2709,42 +2656,40 @@ void DrawArcViewShapes (
 						// Reset the pen state back to the original settings.					
 			
 				SetPenState (&penState);
-//				PenNormal();
+				//PenNormal ();
 					
-				}		// end "if (context == NULL"
+				}	// end "if (context == NULL"
 			
-			#if TARGET_API_MAC_CARBON	
-				else		// context != NULL
-					gCGContextStrokePathPtr (context);
-			#endif		// TARGET_API_MAC_CARBON
+			else	// context != NULL
+				gCGContextStrokePathPtr (context);
 		#endif	// defined multispec_mac
 					
 		#if defined multispec_lin
-//			gCDCPointer = oldgCDCpt;
-			//gCDCPointer->SelectObject(pOldPen);
+			//gCDCPointer = oldgCDCpt;
+			//gCDCPointer->SelectObject (pOldPen);
 
-			//gCDCPointer->SetBkMode(OPAQUE);  
+			//gCDCPointer->SetBkMode (OPAQUE);  
 
-			//gMFC_Rgn.DeleteObject();
-         gCDCPointer->DestroyClippingRegion();
+			//gMFC_Rgn.DeleteObject ();
+         gCDCPointer->DestroyClippingRegion ();
          
 			if (overlayPenPtr != NULL)
 				delete overlayPenPtr;
 			
-			//windowPtr->OnUpdate(NULL, NULL);       
+			//windowPtr->OnUpdate (NULL, NULL);       
 		#endif	// multispec_lin
 		
 		ForeColor (blackColor);
 				
 		SetPort (savedPort);
 		
-		}		// end "if (shapeHandlePtr != NULL)"
+		}	// end "if (shapeHandlePtr != NULL)"
 		
 	CheckAndUnlockHandle (gShapeFilesHandle);
 		
 	MHSetState (windowInfoHandle, windowHandleStatus);
 
-}		// end "DrawArcViewShapes"
+}	// end "DrawArcViewShapes"
 
 
 
@@ -2753,7 +2698,39 @@ void DrawArcViewShapes (
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
-//	Function name:		FileStringPtr GetFileNamePPointer
+//	Function name:		FileStringPtr GetFileNamePPointerFromShapeInfo
+//
+//	Software purpose:	The purpose of this routine is to return the file name
+//							associated with the input shapeInfo structure. It return a 
+//							pointer to a P string.
+//
+//	Parameters in:		None
+//
+//	Parameters out:	None
+//
+//	Value Returned:	None
+// 
+// Called By:			CheckIfOverlayFileLoaded in SArcView.cpp
+//
+//	Coded By:			Larry L. Biehl			Date: 09/01/2017
+//	Revised By:			Larry L. Biehl			Date: 09/01/2017
+
+void* GetFileNamePPointerFromShapeInfo (
+				ShapeInfoPtr						shapeInfoPtr)
+
+{  
+	return (GetFileNamePPointerFromShapeInfo (shapeInfoPtr, kDefaultFileStringCode));
+	
+}	// end "GetFileNamePPointerFromShapeInfo"
+
+
+
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		FileStringPtr GetFileNamePPointerFromShapeInfo
 //
 //	Software purpose:	The purpose of this routine is to return the file name
 //							associated with the input shapeInfo structure. It return a 
@@ -2768,9 +2745,9 @@ void DrawArcViewShapes (
 // Called By:			CheckIfOverlayFileLoaded in SArcView.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/27/2001
-//	Revised By:			Larry L. Biehl			Date: 03/09/2017
+//	Revised By:			Larry L. Biehl			Date: 09/01/2017
 
-void* GetFileNamePPointer (
+void* GetFileNamePPointerFromShapeInfo (
 				ShapeInfoPtr						shapeInfoPtr,
 				SInt16								returnCode)
 
@@ -2781,25 +2758,13 @@ void* GetFileNamePPointer (
 	if (shapeInfoPtr != NULL)
 		{              
 		CMFileStream* fileStreamPtr = GetFileStreamPointer (shapeInfoPtr);
-		fileNamePtr = GetFileNamePPointer (fileStreamPtr, returnCode);
-		/*
-		if (fileStreamPtr != NULL)
-			{
-			#if defined multispec_mac
-				fileNamePtr = &fileStreamPtr->fileName[0];
-			#endif	// defined multispec_mac 
-						  
-			#if defined multispec_win ||defined  multispec_lin                 
-				fileNamePtr = fileStreamPtr->GetFileNamePPtr (returnCode);
-			#endif	// defined multispec_win || defined multispec_lin
-			
-			}		// end "if (fileStreamPtr != NULL)"
-		*/
-		}		// end "if (shapeInfoPtr != NULL)" 
+		fileNamePtr = GetFileNamePPointerFromFileStream (fileStreamPtr, returnCode);
+
+		}	// end "if (shapeInfoPtr != NULL)"
 
 	return (fileNamePtr);
 	
-}		// end "GetFileNamePPointer"  
+}	// end "GetFileNamePPointerFromShapeInfo"
 
 
 
@@ -2839,11 +2804,11 @@ CMFileStream* GetFileStreamPointer (
 			fileStreamPtr = shapeInfoPtr->fileStreamCPtr;
 		#endif	// defined multispec_win || defined multispec_lin
 		
-		}		// end "if (shapeInfoPtr != NULL)"
+		}	// end "if (shapeInfoPtr != NULL)"
 		
 	return (fileStreamPtr);
 
-}		// end "GetFileStreamPointer"
+}	// end "GetFileStreamPointer"
 
 
 
@@ -2881,8 +2846,7 @@ void GetLastVectorColorAndWidth (
 	UInt32								colorIndex;
 	
 		
-	shapeHandlePtr = (Handle*)GetHandlePointer(
-													gShapeFilesHandle, kNoLock, kNoMoveHi);
+	shapeHandlePtr = (Handle*)GetHandlePointer (gShapeFilesHandle);
 
 	colorIndex = (overlayNumber-1 % 7);
 	*lastLineColorPtr = gOverlayColorList[colorIndex];
@@ -2891,20 +2855,18 @@ void GetLastVectorColorAndWidth (
 	if (shapeHandlePtr != NULL) 
 		{
 		shapeInfoPtr = (ShapeInfoPtr)GetHandlePointer (
-															shapeHandlePtr[overlayNumber-1],
-															kNoLock,
-															kNoMoveHi);
+																shapeHandlePtr[overlayNumber-1]);
 															
 		if (shapeInfoPtr != NULL)
 			{					
 			*lastLineColorPtr = shapeInfoPtr->lastOverlayColor;
 			*lastLineThicknessPtr = shapeInfoPtr->lastLineThickness;					
 
-			}		// end "if (shapeInfoPtr != NULL)"
+			}	// end "if (shapeInfoPtr != NULL)"
 				
-		}		// end "if (shapeHandlePtr != NULL)"
+		}	// end "if (shapeHandlePtr != NULL)"
 
-}		// end "GetLastVectorColorAndWidth"
+}	// end "GetLastVectorColorAndWidth"
 
 
 
@@ -2971,7 +2933,7 @@ Boolean GetArcViewMapInformation (
 	if (tReturnCode == 0)
 		infoExistsFlag = TRUE;
 		
-	else		// tReturnCode != 0
+	else	// tReturnCode != 0
 		ulXmap = 1.;
 		
 			// Find "ULYMAP" in the buffer.								
@@ -2986,7 +2948,7 @@ Boolean GetArcViewMapInformation (
 	if (tReturnCode == 0)
 		infoExistsFlag = TRUE;
 		
-	else		// tReturnCode != 0
+	else	// tReturnCode != 0
 		ulYmap = 1.;
 						
 			// Find "XDIM" in the buffer.								
@@ -3001,7 +2963,7 @@ Boolean GetArcViewMapInformation (
 	if (tReturnCode == 0)
 		infoExistsFlag = TRUE;
 		
-	else		// tReturnCode != 0
+	else	// tReturnCode != 0
 		xDim = 1.;
 						
 			// Find "YDIM" in the buffer.								
@@ -3016,7 +2978,7 @@ Boolean GetArcViewMapInformation (
 	if (tReturnCode == 0)
 		infoExistsFlag = TRUE;
 		
-	else		// tReturnCode != 0
+	else	// tReturnCode != 0
 		yDim = -1.;
 		
 			// The following are not true ArcView parameters. But sometimes the 
@@ -3031,7 +2993,7 @@ Boolean GetArcViewMapInformation (
 												&stringPtr, 
 												4, 
 												kDoNotSkipEqual,
-												(char*)&gTextString,
+												(char*)gTextString,
 												50,
 												kNoSubstringAllowed);
 						
@@ -3045,11 +3007,11 @@ Boolean GetArcViewMapInformation (
 													&stringPtr, 
 													4, 
 													kDoNotSkipEqual,
-													(char*)&gTextString,
+													(char*)gTextString,
 													50,
 													kNoSubstringAllowed);
 													
-		}		// end "if (tReturnCode != 0)"
+		}	// end "if (tReturnCode != 0)"
 	
 	mapUnitsCode = kUnknownCode;	
 	if (tReturnCode == 0)
@@ -3064,7 +3026,7 @@ Boolean GetArcViewMapInformation (
 		
 		*geoSpotHeaderFlagPtr = TRUE;
 		
-		}		// end "if (tReturnCode == 0)"
+		}	// end "if (tReturnCode == 0)"
 		
 			// Read Datum
 	
@@ -3084,7 +3046,7 @@ Boolean GetArcViewMapInformation (
 												&stringPtr, 
 												15, 
 												kDoNotSkipEqual,
-												(char*)&gTextString,
+												(char*)gTextString,
 												50,
 												kNoSubstringAllowed);
 	
@@ -3094,7 +3056,7 @@ Boolean GetArcViewMapInformation (
 																	&referenceSystemCode);
 		infoExistsFlag = TRUE;
 		
-		}		// end "if (tReturnCode == 0)"
+		}	// end "if (tReturnCode == 0)"
 		
 			// Find "PROJECTION_ZONE" in the buffer.								
 	
@@ -3113,11 +3075,11 @@ Boolean GetArcViewMapInformation (
 				referenceSystemCode <= kUTMRSCode &&
 					gridZone != 0 &&
 						ulYmap > 0)
-			gridZone = -abs(gridZone);
+			gridZone = -abs (gridZone);
 			
 		infoExistsFlag = TRUE;
 		
-		}		// end "if (tReturnCode == 0)"
+		}	// end "if (tReturnCode == 0)"
 		
 	if (infoExistsFlag)
 		{
@@ -3130,8 +3092,7 @@ Boolean GetArcViewMapInformation (
 			{ 								
 			mapProjectionInfoPtr = (MapProjectionInfoPtr)
 												GetHandlePointer (mapProjectionHandle,
-																			kLock,
-																			kNoMoveHi);
+																			kLock);
                                                                       
 			mapProjectionInfoPtr->planarCoordinate.xMapCoordinate11 = ulXmap;
 			mapProjectionInfoPtr->planarCoordinate.yMapCoordinate11 = ulYmap;
@@ -3152,13 +3113,13 @@ Boolean GetArcViewMapInformation (
 	
 			CheckAndUnlockHandle (mapProjectionHandle); 
 			
-			}		// end "if (mapProjectionHandle != NULL)"
+			}	// end "if (mapProjectionHandle != NULL)"
 		
-		}		// end "if (infoExistsFlag)"
+		}	// end "if (infoExistsFlag)"
 		
 	return (infoExistsFlag);
 
-}		// end "GetArcViewMapInformation"
+}	// end "GetArcViewMapInformation"
 
 
 
@@ -3197,7 +3158,7 @@ Boolean GetMemoryForVectorData (
 	
 	return (shapeInfoPtr->vectorDataHandle != NULL);
 
-}		// end "GetMemoryForVectorData"
+}	// end "GetMemoryForVectorData"
 
 
 
@@ -3242,36 +3203,31 @@ UInt32 GetShapeFileNumberRecordsAndType (
 		{
 					// Get a pointer to the overlay list and the number of overlays.
 					
-		shapeHandlePtr = (Handle*)GetHandlePointer(
-															shapeFilesHandle, kNoLock, kNoMoveHi);
+		shapeHandlePtr = (Handle*)GetHandlePointer (shapeFilesHandle);
 															
 		if (shapeHandlePtr != NULL)
 			{  
 			shapeInfoPtr = (ShapeInfoPtr)GetHandlePointer (
-																	shapeHandlePtr[shapeFileIndex],
-																	kNoLock,
-																	kNoMoveHi);
+																	shapeHandlePtr[shapeFileIndex]);
 								
 			if (shapeInfoPtr != NULL)
 				{
 				numberRecords = shapeInfoPtr->numberRecords;
 					
 				arcViewRecordHeaderPtr = (ArcViewRecordHeaderPtr)GetHandlePointer (
-																		shapeInfoPtr->vectorDataHandle,
-																		kNoLock,
-																		kNoMoveHi);
+																		shapeInfoPtr->vectorDataHandle);
 																		
 				*shapeTypePtr = (SInt16)arcViewRecordHeaderPtr->shapeType;
 				
-				}		// end "if (shapeInfoPtr != NULL)"
+				}	// end "if (shapeInfoPtr != NULL)"
 															
-			}		// end "if (shapeFileIndex > 0)"
+			}	// end "if (shapeFileIndex > 0)"
 			
-		}		// end "if (shapeFileIndex >= 0)"
+		}	// end "if (shapeFileIndex >= 0)"
 		
 	return (numberRecords);
 
-}		// end "GetShapeFileNumberRecordsAndType"
+}	// end "GetShapeFileNumberRecordsAndType"
 
 
 
@@ -3316,7 +3272,7 @@ void InitializeOverlay (
 
 	windowInfoPtr->numberOverlays++;	
 
-}		// end "InitializeOverlay"
+}	// end "InitializeOverlay"
 
 
 
@@ -3363,84 +3319,83 @@ void ListNonIntersectionMessage (
 	continueFlag = ListSpecifiedStringNumber (
 											kAlertStrID, 
 											stringNumber, 
-											(unsigned char*)&gTextString, 
+											(unsigned char*)gTextString, 
 											NULL, 
 											gOutputForce1Code,
-											continueFlag );
+											continueFlag);
 													
-	windowInfoPtr = (WindowInfoPtr)GetHandlePointer(
-										windowInfoHandle, kNoLock, kNoMoveHi);
+	windowInfoPtr = (WindowInfoPtr)GetHandlePointer (windowInfoHandle);
 										
 	if (windowInfoPtr != NULL)
 		{
 		boundingMapRectangle = windowInfoPtr->boundingMapRectangle;
 		
-		sprintf((char*)&gTextString, 
-			"%s  Bounding map rectangle for image is:%s", 
-			gEndOfLine,
-			gEndOfLine);
+		sprintf ((char*)gTextString, 
+						"%s  Bounding map rectangle for image is:%s", 
+						gEndOfLine,
+						gEndOfLine);
 						
-		continueFlag = OutputString (	NULL, 
-												(char*)&gTextString, 
+		continueFlag = OutputString (NULL, 
+												(char*)gTextString, 
 												0, 
 												gOutputForce1Code, 
 												continueFlag);
 		
-		sprintf((char*)&gTextString, 
-			"    x: %f - %f%s", 
-			boundingMapRectangle.left,
-			boundingMapRectangle.right, 
-			gEndOfLine);
+		sprintf ((char*)gTextString, 
+						"    x: %f - %f%s", 
+						boundingMapRectangle.left,
+						boundingMapRectangle.right, 
+						gEndOfLine);
 						
-		continueFlag = OutputString (	NULL, 
-												(char*)&gTextString, 
+		continueFlag = OutputString (NULL, 
+												(char*)gTextString, 
 												0, 
 												gOutputForce1Code, 
 												continueFlag);
 		
-		sprintf((char*)&gTextString, 
-			"    y: %f - %f%s", 
-			boundingMapRectangle.top,
-			boundingMapRectangle.bottom, 
-			gEndOfLine);
+		sprintf ((char*)gTextString, 
+						"    y: %f - %f%s", 
+						boundingMapRectangle.top,
+						boundingMapRectangle.bottom, 
+						gEndOfLine);
 						
-		continueFlag = OutputString (	NULL, 
-												(char*)&gTextString, 
+		continueFlag = OutputString (NULL, 
+												(char*)gTextString, 
 												0, 
 												gOutputForce1Code, 
 												continueFlag);
 												
-		sprintf( (char*)&gTextString, 
-			"%s  Bounding map rectangle for shape file is:%s", 
-			gEndOfLine,
-			gEndOfLine);
+		sprintf ((char*)gTextString, 
+						"%s  Bounding map rectangle for shape file is:%s", 
+						gEndOfLine,
+						gEndOfLine);
 						
-		continueFlag = OutputString (	NULL, 
-												(char*)&gTextString, 
+		continueFlag = OutputString (NULL, 
+												(char*)gTextString, 
 												0, 
 												gOutputForce1Code, 
 												continueFlag);
 												
-		sprintf( (char*)&gTextString, 
-			"    x: %f - %f%s", 
-			boundingOverlayRectanglePtr->left,
-			boundingOverlayRectanglePtr->right, 
-			gEndOfLine);
+		sprintf ((char*)gTextString, 
+						"    x: %f - %f%s", 
+						boundingOverlayRectanglePtr->left,
+						boundingOverlayRectanglePtr->right, 
+						gEndOfLine);
 						
-		continueFlag = OutputString (	NULL, 
-												(char*)&gTextString, 
+		continueFlag = OutputString (NULL, 
+												(char*)gTextString, 
 												0, 
 												gOutputForce1Code, 
 												continueFlag);
 												
-		sprintf( (char*)&gTextString, 
-			"    y: %f - %f%s", 
-			boundingOverlayRectanglePtr->top,
-			boundingOverlayRectanglePtr->bottom, 
-			gEndOfLine);
+		sprintf ((char*)gTextString, 
+						"    y: %f - %f%s", 
+						boundingOverlayRectanglePtr->top,
+						boundingOverlayRectanglePtr->bottom, 
+						gEndOfLine);
 						
-		continueFlag = OutputString (	NULL, 
-												(char*)&gTextString, 
+		continueFlag = OutputString (NULL, 
+												(char*)gTextString, 
 												0, 
 												gOutputForce1Code, 
 												continueFlag);
@@ -3457,7 +3412,7 @@ void ListNonIntersectionMessage (
 				(boundingMapRectangle.left < -180 ||
 					boundingMapRectangle.right > 180 ||
 					boundingMapRectangle.top < -90 ||
-					boundingMapRectangle.bottom > 90) )
+					boundingMapRectangle.bottom > 90))
 			stringNumber = IDS_Alert85;	
 										
 		else if (boundingMapRectangle.left >= -180 &&
@@ -3468,7 +3423,7 @@ void ListNonIntersectionMessage (
 				(boundingOverlayRectanglePtr->left < -180 ||
 					boundingOverlayRectanglePtr->right > 180 ||
 					boundingOverlayRectanglePtr->top < -90 ||
-					boundingOverlayRectanglePtr->bottom > 90) )
+					boundingOverlayRectanglePtr->bottom > 90))
 			stringNumber = IDS_Alert86;	
 										
 		if (boundingOverlayRectanglePtr->left == boundingOverlayRectanglePtr->right ||
@@ -3481,14 +3436,14 @@ void ListNonIntersectionMessage (
 			continueFlag = ListSpecifiedStringNumber (
 													kAlertStrID, 
 													stringNumber, 
-													(unsigned char*)&gTextString, 
+													(unsigned char*)gTextString, 
 													NULL, 
 													gOutputForce1Code,
-													continueFlag );
+													continueFlag);
 			
-		}		// end "if (windowInfoPtr != NULL)"
+		}	// end "if (windowInfoPtr != NULL)"
 
-}		// end "ListNonIntersectionMessage"
+}	// end "ListNonIntersectionMessage"
 
 
                        
@@ -3529,7 +3484,7 @@ Boolean OverlayControlDialog (
 	
 	
 	windowInfoPtr = (WindowInfoPtr)GetHandleStatusAndPointer (
-								windowInfoHandle, &windowHandleStatus, kNoMoveHi);
+													windowInfoHandle, &windowHandleStatus);
 	
 	if (windowInfoPtr == NULL)
 																			return (continueFlag);
@@ -3540,7 +3495,7 @@ Boolean OverlayControlDialog (
 		overlayCode = kVectorOverlay;
 		overlayIndex -= (SInt16)windowInfoPtr->numberImageOverlays;
 		
-		}		// end "if (overlayIndex >= windowInfoPtr->numberImageOverlays)"
+		}	// end "if (overlayIndex >= windowInfoPtr->numberImageOverlays)"
 	
 	#if defined multispec_mac
 		Rect									theBox,
@@ -3575,7 +3530,7 @@ Boolean OverlayControlDialog (
 			MHSetState (windowInfoHandle, windowHandleStatus);
 																							return (0);
 																							
-			}		// end "if (dialogPtr == NULL)"
+			}	// end "if (dialogPtr == NULL)"
 		
 				// Intialize local user item proc pointers.	
 				
@@ -3605,9 +3560,9 @@ Boolean OverlayControlDialog (
 			maxValue = 100;
 			minValue = 0;
 			
-			}		// end "if (overlayCode == kImageOverlay)"
+			}	// end "if (overlayCode == kImageOverlay)"
 			
-		else		// overlayCode == kVectorOverlay
+		else	// overlayCode == kVectorOverlay
 			{
 					// Set current line thickness	
 						
@@ -3615,7 +3570,7 @@ Boolean OverlayControlDialog (
 			maxValue = 20;
 			minValue = 1;
 			
-			}		// end "else overlayCode == kVectorOverlay"
+			}	// end "else overlayCode == kVectorOverlay"
 		
 				// Center the dialog and then show it.											
 				
@@ -3644,20 +3599,20 @@ Boolean OverlayControlDialog (
 
 						if (SelectColor (3, 
 												&gCurrentSelectedColor, 
-												&newRGB) )
+												&newRGB))
 							{
 							gCurrentSelectedColor = newRGB;
-							InvalWindowRect ( GetDialogWindow(dialogPtr), &theColorBox );
+							InvalWindowRect (GetDialogWindow (dialogPtr), &theColorBox);
 							
-							}		// end "if (SelectColor (3,..."
+							}	// end "if (SelectColor (3,..."
 						break;
 						
 					case 6:
 						break;
 							
-					}		// end "switch (itemHit)" 
+					}	// end "switch (itemHit)" 
 					
-				}		// end "if (itemHit > 2)" 
+				}	// end "if (itemHit > 2)" 
 				
 			else if (itemHit > 0)	// and <= 2
 				{
@@ -3679,13 +3634,13 @@ Boolean OverlayControlDialog (
 											overlayCode,
 											overlayIndex,
 											&gCurrentSelectedColor,
-											(SInt32)GetDItemValue (dialogPtr, 6) );
+											(SInt32)GetDItemValue (dialogPtr, 6));
 					
 					continueFlag = TRUE;
 					
-					}		// end "if (itemHit == 1)"
+					}	// end "if (itemHit == 1)"
 					
-				}		// end "else if (itemHit > 0)" 
+				}	// end "else if (itemHit > 0)" 
 					
 			} while (!modalDone);
 			
@@ -3699,7 +3654,7 @@ Boolean OverlayControlDialog (
 		
 		TRY
 			{ 
-			dialogPtr = new CMOverlayParameterDlg(); 
+			dialogPtr = new CMOverlayParameterDlg (); 
 			                                                                  
 			continueFlag = dialogPtr->DoDialog (windowInfoPtr,
 																overlayCode,
@@ -3708,9 +3663,9 @@ Boolean OverlayControlDialog (
 			delete dialogPtr;
 			}
 			
-		CATCH_ALL(e)
+		CATCH_ALL (e)
 			{
-			MemoryMessage(0, kObjectMessage);
+			MemoryMessage (0, kObjectMessage);
 			}
 		END_CATCH_ALL 
 	#endif // defined multispec_win 
@@ -3718,7 +3673,7 @@ Boolean OverlayControlDialog (
    #if defined multispec_lin                         
 		CMOverlayParameterDlg*		dialogPtr = NULL;
 		
-		dialogPtr = new CMOverlayParameterDlg(wxTheApp->GetTopWindow()); 
+		dialogPtr = new CMOverlayParameterDlg (wxTheApp->GetTopWindow ()); 
 			                                                                  
 		continueFlag = dialogPtr->DoDialog (windowInfoPtr,
 																overlayCode,
@@ -3731,7 +3686,7 @@ Boolean OverlayControlDialog (
 	
 	return (continueFlag);
 	
-}		// end OverlayControlDialog"
+}	// end OverlayControlDialog"
 
 
 
@@ -3783,7 +3738,7 @@ void OverlayDialogInitialize (
 		*transparencyPtr = (UInt16)(100 * 
 					(1 - windowInfoPtr->imageOverlayList[overlayIndex].opacity));
 					
-		}		// end "if (overlayCode == kImageOverlay)"
+		}	// end "if (overlayCode == kImageOverlay)"
 		
 	else 	// overlayCode == kVectorOverlay
 		{	
@@ -3798,9 +3753,9 @@ void OverlayDialogInitialize (
 			
 		*lineThicknessPtr = windowInfoPtr->overlayList[overlayIndex].lineThickness;
 		
-		}		// end "else overlayCode == kVectorOverlay"
+		}	// end "else overlayCode == kVectorOverlay"
 	
-}		// end "OverlayDialogInitialize"
+}	// end "OverlayDialogInitialize"
 
 									
 
@@ -3843,7 +3798,7 @@ void OverlayDialogOK (
 		windowInfoPtr->imageOverlayList[overlayIndex].opacity = 
 																			(float)(100-value)/100;
 		
-		}		// end "if (overlayCode == kImageOverlay)"
+		}	// end "if (overlayCode == kImageOverlay)"
 		
 	else 	// overlayCode == kVectorOverlay
 		{	
@@ -3860,13 +3815,13 @@ void OverlayDialogOK (
 		windowInfoPtr->overlayList[overlayIndex].lineThickness = value;
 		
 		SetLastVectorColorAndWidth (
-									abs(windowInfoPtr->overlayList[overlayIndex].index),
+									abs (windowInfoPtr->overlayList[overlayIndex].index),
 									overlayColorPtr,
 									value);
 		
-		}		// end "else overlayCode == kVectorOverlay"
+		}	// end "else overlayCode == kVectorOverlay"
 	
-}		// end "OverlayDialogOK" 
+}	// end "OverlayDialogOK" 
 
 
 
@@ -3989,7 +3944,7 @@ Boolean ReadArcViewClassNames (
 
 				// Get a pointer to storage for the class symbols.					
 				
-		classSymbolPtr = (UInt16*)&classNamePtr[numberClasses*sizeof(Str31)];
+		classSymbolPtr = (UInt16*)&classNamePtr[numberClasses*sizeof (Str31)];
 		
 				// First create the default class names. It is possible for classes to
 				// be skipped in the .clr file.
@@ -4016,14 +3971,14 @@ Boolean ReadArcViewClassNames (
 				{
 					// This check is included to catch problem files which may cause an infinite loop.
 				
-				int numberChars = sprintf ((char*)&gTextString3,
+				int numberChars = sprintf ((char*)gTextString3,
 												" There is a problem reading the .clr file; default class names will be used.%s",
 												gEndOfLine);
-				ListString ((char*)&gTextString3, numberChars, gOutputTextH);
+				ListString ((char*)gTextString3, numberChars, gOutputTextH);
 				
 				errCode = eofErr;
 				
-				}		// end "if (whileLoopCount > fileInfoPtr->numberBins)"
+				}	// end "if (whileLoopCount > fileInfoPtr->numberBins)"
 			
 			else	 // whileLoopCount <= fileInfoPtr->numberBins
 				errCode = GetNextLine ((ParmBlkPtr)&paramBlock, &inputStringPtr);
@@ -4047,14 +4002,14 @@ Boolean ReadArcViewClassNames (
 				
 					endOfLinePtr = SkipToNextCarriageReturn (inputStringPtr);
 				
-					//CheckSomeEvents(osMask + keyDownMask + updateMask + mDownMask + mUpMask);
+					//CheckSomeEvents (osMask + keyDownMask + updateMask + mDownMask + mUpMask);
 					if (endOfLinePtr != NULL)
 						{
 						endOfLinePtr--;
 						savedCharacter = *endOfLinePtr;
 						*endOfLinePtr = 0;
 
-						}		// end "if (endOfLinePtr != NULL)"
+						}	// end "if (endOfLinePtr != NULL)"
 				#endif	// defined multispec_win || defined multispec_lin
 
 					// Get the data, red, green & blue values.
@@ -4105,7 +4060,7 @@ Boolean ReadArcViewClassNames (
 						if (classSymbolPtr[classSymbolIndex] == classNumber)
 							continueFlag = TRUE;
 							
-						else		// != classNumber
+						else	// != classNumber
 							{
 							while (classSymbolPtr[classSymbolIndex] > classNumber && 
 															classSymbolIndex > 0)
@@ -4114,14 +4069,14 @@ Boolean ReadArcViewClassNames (
 							if (classSymbolPtr[classSymbolIndex] == classNumber)
 								continueFlag = TRUE;
 							
-							}		// end "else != classNumber"
+							}	// end "else != classNumber"
 						
-						}		// end "if (classSymbolPtr[classSymbolIndex] != classnumber)"
+						}	// end "if (classSymbolPtr[classSymbolIndex] != classnumber)"
 						
 					else	// == classNumber
 						continueFlag = TRUE;
 
-					}		// end "if (if (tReturnCode == 5 && classNumber >= 0 && ..."
+					}	// end "if (if (tReturnCode == 5 && classNumber >= 0 && ..."
 					
 				if (continueFlag)
 					{	
@@ -4147,9 +4102,9 @@ Boolean ReadArcViewClassNames (
 						if (numberCharacters < 0 || numberCharacters > 31)
 							numberCharacters = 31;
 							
-						}		// end "if (endClassNamePtr != NULL)"
+						}	// end "if (endClassNamePtr != NULL)"
 																	
-					else		// startClassNamePtr == NULL || ...
+					else	// startClassNamePtr == NULL || ...
 						numberCharacters = 0;
 					
 							// Remove any leading blanks in the class name.				
@@ -4160,7 +4115,7 @@ Boolean ReadArcViewClassNames (
 						firstClassNameCharacter++;
 						numberCharacters--;
 						
-						}		// end "while (numberCharacters != 0 && ..." 
+						}	// end "while (numberCharacters != 0 && ..." 
 						
 					if (numberCharacters > 0) 
 						{
@@ -4171,9 +4126,9 @@ Boolean ReadArcViewClassNames (
 						if (numberCharacters < 31)
 							localClassNamePtr[numberCharacters+1] = kNullTerminator;
 						
-						}		// end "if (numberCharacters > 0)"
+						}	// end "if (numberCharacters > 0)"
 			
-					}		// end "if (continueFlag)"
+					}	// end "if (continueFlag)"
 
 				#if defined multispec_win //|| defined multispec_lin
 							// Set the end of line character back to the original value.
@@ -4183,18 +4138,18 @@ Boolean ReadArcViewClassNames (
 					endOfLinePtr = NULL;  	 
 				#endif	// defined multispec_win || defined multispec_lin
 
-				}		// end "if (errCode == noErr && inputStringPtr[0] >= '0' && ..."
+				}	// end "if (errCode == noErr && inputStringPtr[0] >= '0' && ..."
 			
 			whileLoopCount++;
 
-			}		// end "while (errCode == noErr)" 
+			}	// end "while (errCode == noErr)" 
 		
 				// Indicate that the class names have been created.				
 				
 		returnFlag = TRUE;
 		fileInfoPtr->ancillaryInfoformat = kArcViewDefaultSupportType;
 		
-		}		// end "if (errCode == noErr)"  
+		}	// end "if (errCode == noErr)"  
 		
 	if (checkIOErrorFlag)
 		IOCheck (errCode, supportFileStreamPtr);
@@ -4205,7 +4160,7 @@ Boolean ReadArcViewClassNames (
 		
 	return (returnFlag);
 	
-}		// end "ReadArcViewClassNames"
+}	// end "ReadArcViewClassNames"
 
 
 
@@ -4301,7 +4256,7 @@ Boolean ReadArcViewColorPalette (
 		classToGroupPtr = GetClassToGroupPointer (imageFileInfoPtr);
 		groupToPalettePtr = GetGroupToPalettePointer (imageFileInfoPtr);
 			
-		}		// end "if (!classCodeFlag)" 
+		}	// end "if (!classCodeFlag)" 
 	
 			// If the file is not open, then open a path to the file that			
 			// contains the palette. The OpenFileReadOnly routine will
@@ -4309,7 +4264,7 @@ Boolean ReadArcViewColorPalette (
 	
 	errCode = noErr;
 	closeFileAtEnd = FALSE;
-	if (!FileOpen(paletteFileStreamPtr))
+	if (!FileOpen (paletteFileStreamPtr))
 		{
 		errCode = OpenFileReadOnly (paletteFileStreamPtr, 
 											 kDontResolveAliasChains, 
@@ -4321,7 +4276,7 @@ Boolean ReadArcViewColorPalette (
 		if (errCode == noErr)
 			closeFileAtEnd = TRUE;
 		
-		}		// end "if (!FileOpen(paletteFileStreamPtr))"
+		}	// end "if (!FileOpen (paletteFileStreamPtr))"
 	
 			// Continue if okay.																	
 	
@@ -4348,15 +4303,15 @@ Boolean ReadArcViewColorPalette (
 				{
 					// This check is included to catch problem files which may cause an infinite loop.
 				
-				int numberChars = sprintf ((char*)&gTextString3,
+				int numberChars = sprintf ((char*)gTextString3,
 													" There is a problem reading the .clr file; default palette will be used.%s",
 													gEndOfLine);
-				ListString ((char*)&gTextString3, numberChars, gOutputTextH);
+				ListString ((char*)gTextString3, numberChars, gOutputTextH);
 				
 					//cancelWhileLoopFlag = TRUE;
 				errCode = eofErr;
 				
-				}		// end "if (whileLoopCount > fileInfoPtr->numberBins)"
+				}	// end "if (whileLoopCount > fileInfoPtr->numberBins)"
 			
 			else	 // whileLoopCount <= fileInfoPtr->numberBins
 				errCode = GetNextLine ((ParmBlkPtr)&paramBlock, &inputStringPtr);
@@ -4395,13 +4350,13 @@ Boolean ReadArcViewColorPalette (
 						vectorGreenPtr[classNumber] = green;
 						vectorBluePtr[classNumber] =  blue;		
 					#endif		
-					}		// end "if (tReturnCode == 4 && classNumber >= 0 && classNumber <= 255)"
+					}	// end "if (tReturnCode == 4 && classNumber >= 0 && classNumber <= 255)"
 				
-				}		// end "if (errCode == noErr && inputStringPtr[0] >= '0' && ..."
+				}	// end "if (errCode == noErr && inputStringPtr[0] >= '0' && ..."
 			
 			whileLoopCount++;
 			
-			}		// end "while (errCode == noErr)"
+			}	// end "while (errCode == noErr)"
 		
 		errCode = noErr;
 		
@@ -4417,7 +4372,7 @@ Boolean ReadArcViewColorPalette (
 									vectorGreenPtr,
 									vectorRedPtr);
 		
-		}		// end "if (errCode == noErr)" 
+		}	// end "if (errCode == noErr)" 
 	
 	if (closeFileAtEnd)
 		CloseFile (paletteFileStreamPtr);
@@ -4426,7 +4381,7 @@ Boolean ReadArcViewColorPalette (
 	
 	return (errCode == noErr);
 	
-}		// end "ReadArcViewColorPalette"   
+}	// end "ReadArcViewColorPalette"   
 
 
 
@@ -4546,9 +4501,9 @@ Boolean ReadArcViewGroups (
 			// the File menu.
 	
 	if (gProcessorCode == kOpenThematicInfo)
-		supportFileStreamPtr = GetFileStreamPointer(inputFileInfoPtr);
+		supportFileStreamPtr = GetFileStreamPointer (inputFileInfoPtr);
 	
-	else		// gProcessorCode != kOpenThematicInfo
+	else	// gProcessorCode != kOpenThematicInfo
 		supportFileStreamPtr = GetSupportFileStreamPointer (windowInfoHandle,
 																		&supportHandleStatus);
 																		
@@ -4601,8 +4556,8 @@ Boolean ReadArcViewGroups (
 		
 				// Get memory for group color table.
 		
-		bytesNeeded = 256*sizeof(ColorSpec) + sizeof(ColorTable);
-		cTablePtr = (CTabPtr)CheckHandleSize ( 
+		bytesNeeded = 256*sizeof (ColorSpec) + sizeof (ColorTable);
+		cTablePtr = (CTabPtr)CheckHandleSize (
 									(Handle*)&cTableHandle,
 									&continueFlag, 
 									&changedFlag,  
@@ -4616,9 +4571,9 @@ Boolean ReadArcViewGroups (
 			cTablePtr->ctFlags = 0;
 			cTablePtr->ctSize = (SInt16)(256 - 1);
 			
-			}		// end "if (cTableHandle != NULL)" 
+			}	// end "if (cTableHandle != NULL)" 
 									
-		}		// end "if (errCode == noErr)"
+		}	// end "if (errCode == noErr)"
 
 	if (continueFlag)
 		{
@@ -4631,7 +4586,7 @@ Boolean ReadArcViewGroups (
 			groupToPalettePtr[classNumber] = -1;
 			classToGroupPtr[classNumber] = -1;
 			
-			}		// end "for (classNumber=0; classNumber<..."
+			}	// end "for (classNumber=0; classNumber<..."
 		
 				// Now load the group information. Allow for classes to be skipped. 
 				// Skip the palette information in the file and class names.
@@ -4649,23 +4604,23 @@ Boolean ReadArcViewGroups (
 			{
 			if (whileLoopCount > inputFileInfoPtr->numberBins)
 				{
-				int numberChars2 = sprintf ((char*)&gTextString3,
+				int numberChars2 = sprintf ((char*)gTextString3,
 													" inputFileInfoPtr->numberBins: %d%s",
 													inputFileInfoPtr->numberBins,
 													gEndOfLine);
-				ListString ((char*)&gTextString3, numberChars2, gOutputTextH);
+				ListString ((char*)gTextString3, numberChars2, gOutputTextH);
 
 					// This check is included to catch problem files which may cause an infinite loop.
 				
-				int numberChars = sprintf ((char*)&gTextString3,
+				int numberChars = sprintf ((char*)gTextString3,
 													" There is a problem reading the .clr file; default group names will be used.%s",
 													gEndOfLine);
-				ListString ((char*)&gTextString3, numberChars, gOutputTextH);
+				ListString ((char*)gTextString3, numberChars, gOutputTextH);
 				
 					//cancelWhileLoopFlag = TRUE;
 				errCode = eofErr;
 				
-				}		// end "if (whileLoopCount > fileInfoPtr->numberBins)"
+				}	// end "if (whileLoopCount > fileInfoPtr->numberBins)"
 			
 			else	 // whileLoopCount <= fileInfoPtr->numberBins
 				errCode = GetNextLine ((ParmBlkPtr)&paramBlock, &inputStringPtr);
@@ -4694,7 +4649,7 @@ Boolean ReadArcViewGroups (
 						savedCharacter = *endOfLinePtr;
 						*endOfLinePtr = 0;
 						
-						}		// end "if (endOfLinePtr != NULL)"	 
+						}	// end "if (endOfLinePtr != NULL)"	 
 				#endif	// defined multispec_win || defined multispec_lin
 
 						// Get the data, red, green & blue values.
@@ -4774,9 +4729,9 @@ Boolean ReadArcViewGroups (
 									if (numberCharacters < 0 || numberCharacters > 31)
 										numberCharacters = 31;
 										
-									}		// end "if (endGroupNamePtr != NULL)"
+									}	// end "if (endGroupNamePtr != NULL)"
 																				
-								else		// startGroupNamePtr == NULL || ...
+								else	// startGroupNamePtr == NULL || ...
 									numberCharacters = 0; 
 									
 								if (numberCharacters > 0) 
@@ -4788,7 +4743,7 @@ Boolean ReadArcViewGroups (
 									if (numberCharacters < 31)
 										localGroupNamePtr[numberCharacters+1] = kNullTerminator;
 									
-									}		// end "if (numberCharacters > 0)"
+									}	// end "if (numberCharacters > 0)"
 								
 										// Get the color
 								
@@ -4806,25 +4761,25 @@ Boolean ReadArcViewGroups (
 
 								groupToPalettePtr[groupNumber] = (SInt16)classNumber;
 								
-								}		// end "if (tReturnCode == 5)"			
+								}	// end "if (tReturnCode == 5)"			
 							
 							classToGroupPtr[classNumber] = (SInt16)groupNumber;
 								
-							}		// end "if (tReturnCode > 1 && groupNumber >= 0 ..."
+							}	// end "if (tReturnCode > 1 && groupNumber >= 0 ..."
 							
-						}		// end "if (startGroupInfoPtr != NULL)"
+						}	// end "if (startGroupInfoPtr != NULL)"
 					
-					else		// No group information given for this class
+					else	// No group information given for this class
 						{
 						colorSpecPtr[groupToPaletteValue].rgb.red = 0;
 						colorSpecPtr[groupToPaletteValue].rgb.green = 0;
 						colorSpecPtr[groupToPaletteValue].rgb.blue = 0;
 						
-						}		// end "else No group information given for this class"
+						}	// end "else No group information given for this class"
 									
 					colorSpecPtr[groupToPaletteValue].value = (SInt16)groupToPaletteValue;
 						
-					}		// end "if (tReturnCode == 5 && dataValue >= 0 && ..."
+					}	// end "if (tReturnCode == 5 && dataValue >= 0 && ..."
 
 				#if defined multispec_win || multispec_lin //09.10.2015
 							// Set the end of line character back to the original value.
@@ -4856,9 +4811,9 @@ Boolean ReadArcViewGroups (
 				firstGroupClassNumber = groupToPalettePtr[groupNumber];					
 				colorSpecPtr[groupToPaletteValue].rgb = colorSpecPtr[firstGroupClassNumber].rgb;
 				
-				}		// end "if (classToGroupPtr[classNumber] >= 0)"
+				}	// end "if (classToGroupPtr[classNumber] >= 0)"
 						
-			}		// end "for (classNumber=0; classNumber<numberclasses; classNumber++)"
+			}	// end "for (classNumber=0; classNumber<numberclasses; classNumber++)"
 			
 				// Now get the number of groups that were created. Verify group vector
 				// is consistant with the classes that are actually being used. Also
@@ -4874,9 +4829,8 @@ Boolean ReadArcViewGroups (
 		numberClasses = inputFileInfoPtr->numberClasses;
 		if (numberClasses <= 256)
 			{
-			classNamePtr = (CharPtr)GetHandlePointer (
-												inputFileInfoPtr->classDescriptionH, kNoLock, kNoMoveHi);
-			classSymbolPtr = (UInt16*)&classNamePtr[numberClasses*sizeof(Str31)];
+			classNamePtr = (CharPtr)GetHandlePointer (inputFileInfoPtr->classDescriptionH);
+			classSymbolPtr = (UInt16*)&classNamePtr[numberClasses*sizeof (Str31)];
 			for (classNumber=0; classNumber<(SInt32)numberClasses; classNumber++)
 				{
 				classToGroupPtr[classNumber] = classToGroupPtr[classSymbolPtr[classNumber]];
@@ -4885,13 +4839,13 @@ Boolean ReadArcViewGroups (
 					paletteIndex = paletteIndex % 256;
 				colorSpecPtr[classNumber].rgb = colorSpecPtr[paletteIndex].rgb;
 							
-				}		// end "for (classNumber=0; classNumber<numberclasses; classNumber++)"
+				}	// end "for (classNumber=0; classNumber<numberclasses; classNumber++)"
 				
 					// Now indicate the size of the color table actually being used.
 					
 			cTablePtr->ctSize = (SInt16)(numberClasses - 1);
 			
-			}		// end "if (numberClasses <= 256)"
+			}	// end "if (numberClasses <= 256)"
 			
 				// Now find the maximum group number. Also determine if a group needs 
 				// to be added to handle those classes that were not assigned to a group
@@ -4905,7 +4859,7 @@ Boolean ReadArcViewGroups (
 			if (classToGroupPtr[classNumber] < 0)
 				addGroupFlag = TRUE;				
 			
-			}		// end "for (classNumber=0; classNumber<numberclasses; classNumber++)"
+			}	// end "for (classNumber=0; classNumber<numberclasses; classNumber++)"
 		
 				// Now determine which groups actually contain classes that exist and 
 				// delete those groups in the vectors that do not exist.
@@ -4939,13 +4893,13 @@ Boolean ReadArcViewGroups (
 											&numberGroups,
 											groupNameHandle);
 											
-				else		// groupExistsFlag
+				else	// groupExistsFlag
 					groupNumber++;
 					
 				if (groupNumber >= (SInt32)numberGroups)
 					notDoneFlag = FALSE;
 				
-				}		// end "while (doneFlag)"
+				}	// end "while (doneFlag)"
 					
 					// Add a group if needed to include those classes that were not
 					// assigned to groups.
@@ -4966,9 +4920,9 @@ Boolean ReadArcViewGroups (
 							groupToPalettePtr[groupNumber] = (SInt16)classNumber;
 							firstTimeFlag = FALSE;
 							
-							}		// end "if (firstTimeFlag)"
+							}	// end "if (firstTimeFlag)"
 						
-						}		// end "if (classToGroupPtr[classNumber] < 0)"
+						}	// end "if (classToGroupPtr[classNumber] < 0)"
 									
 					}			// end "for (classNumber=0; classNumber<numberClasses; classNumber++)"
 					
@@ -4979,9 +4933,9 @@ Boolean ReadArcViewGroups (
 												&localGroupNamePtr[1], 19);
 				localGroupNamePtr[0] = (UInt8)19;
 				
-				}		// end "if (addGroupFlag)"
+				}	// end "if (addGroupFlag)"
 				
-			}		// end "if (numberGroups > 0 && numberGroups <= 256)"
+			}	// end "if (numberGroups > 0 && numberGroups <= 256)"
 			
 				// Indicate that groups have been created.				
 		//numberGroups = groupCount + 1;
@@ -5000,14 +4954,14 @@ Boolean ReadArcViewGroups (
 				for (classNumber=0; classNumber<(SInt32)numberClasses; classNumber++)
 					newClassToGroupPtr[classNumber] = classToGroupPtr[classNumber];
 					
-				}		// end "if (numberClasses < maxNumberClasses)"
+				}	// end "if (numberClasses < maxNumberClasses)"
 			*/						
-			}		// end "if (numberGroups > 0 && numberGroups <= 256)"
+			}	// end "if (numberGroups > 0 && numberGroups <= 256)"
 			
-		else		// numberGroups == 0
+		else	// numberGroups == 0
 			continueFlag = FALSE;
 			
-		}		// end "if (continueFlag)" 
+		}	// end "if (continueFlag)" 
 		
 	if (continueFlag)
 		{
@@ -5032,15 +4986,15 @@ Boolean ReadArcViewGroups (
 		gPaletteOffset = displaySpecsPtr->paletteOffset;
 		gClassPaletteEntries = displaySpecsPtr->numPaletteEntriesUsed;		
 		
-		}		// end "if (continueFlag)"
+		}	// end "if (continueFlag)"
 	
-	else		// !continueFlag
+	else	// !continueFlag
 		{
 		UnlockAndDispose ((Handle)cTableHandle);
 		UnlockAndDispose (groupNameHandle);
 		UnlockAndDispose (groupTablesHandle);
 		
-		}		// end "if (!continueFlag)" 
+		}	// end "if (!continueFlag)" 
 			
 	CheckAndUnlockHandle ((Handle)displaySpecsPtr->savedGroupCTableHandle);
 	CheckAndUnlockHandle (outputFileInfoPtr->groupNameHandle);
@@ -5056,7 +5010,7 @@ Boolean ReadArcViewGroups (
 		
 	return (returnFlag);
 	
-}		// end "ReadArcViewGroups"
+}	// end "ReadArcViewGroups"
 
 			
 
@@ -5081,7 +5035,7 @@ Boolean ReadArcViewGroups (
 // Called By:			CheckImageHeader in SOpnImag.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 03/03/2000
-//	Revised By:			Larry L. Biehl			Date: 03/15/2017
+//	Revised By:			Larry L. Biehl			Date: 12/18/2017
 
 SInt16 ReadArcViewHeader (
 				FileInfoPtr 						fileInfoPtr, 
@@ -5125,32 +5079,32 @@ SInt16 ReadArcViewHeader (
 		UInt16				numSuffixChars;
 		
 		fileStreamPtr = GetFileStreamPointer (fileInfoPtr);
-		filePathPtr = (FileStringPtr)GetFilePathPPointer (fileStreamPtr);
+		filePathPtr = (FileStringPtr)GetFilePathPPointerFromFileStream (fileStreamPtr);
 		
-		if (CompareSuffixNoCase ( (char*)"\0.bil", 
+		if (CompareSuffixNoCase ((char*)"\0.bil", 
 											filePathPtr,
-											&numSuffixChars) )
+											&numSuffixChars))
 			fileNameCode = 1;
 			
-		else if (CompareSuffixNoCase ( (char*)"\0.bsq", 
+		else if (CompareSuffixNoCase ((char*)"\0.bsq", 
 													filePathPtr,
-													&numSuffixChars) )
+													&numSuffixChars))
 			fileNameCode = 2;
 			
-		else if (CompareSuffixNoCase ( (char*)"\0.bip", 
+		else if (CompareSuffixNoCase ((char*)"\0.bip", 
 													filePathPtr,
-													&numSuffixChars) )
+													&numSuffixChars))
 			fileNameCode = 3;
 			
-		else if (CompareSuffixNoCase ( (char*)"\0.hdr", 
+		else if (CompareSuffixNoCase ((char*)"\0.hdr", 
 													filePathPtr,
-													&numSuffixChars) )
+													&numSuffixChars))
 			fileNameCode = 4;
 			
 		if (fileNameCode > 0)
 			fileType = kArcViewType;
 			
-		}		// end "if (headerRecordPtr != NULL && fileInfoPtr != NULL)"
+		}	// end "if (headerRecordPtr != NULL && fileInfoPtr != NULL)"
 		
 	if (fileType != 0)
 		{
@@ -5160,7 +5114,7 @@ SInt16 ReadArcViewHeader (
 			fileInfoPtr->thematicType = FALSE;
 																			return (noErr);
 																								
-			}		// end "if (formatOnlyCode != kLoadHeader)"
+			}	// end "if (formatOnlyCode != kLoadHeader)"
 			
 		errCode = noErr;
 		fileStreamPtr = GetFileStreamPointer (fileInfoPtr);
@@ -5170,7 +5124,8 @@ SInt16 ReadArcViewHeader (
 				// an image file then we don't need it for now and need to look for
 				// the ArcView header file.
 			
-		imageFileNamePtr = (FileStringPtr)GetFilePathPPointer(fileStreamPtr);
+		imageFileNamePtr = 
+						(FileStringPtr)GetFilePathPPointerFromFileStream (fileStreamPtr);
 		
 		if (fileNameCode == 4)
 			{
@@ -5193,7 +5148,7 @@ SInt16 ReadArcViewHeader (
 															&stringPtr, 
 															3, 
 															kDoNotSkipEqual,
-															(char*)&gTextString,
+															(char*)gTextString,
 															50,
 															kNoSubstringAllowed);
 								
@@ -5210,12 +5165,12 @@ SInt16 ReadArcViewHeader (
 				else if (CompareStringsNoCase (&gTextString[1], (UCharPtr)"BIP", 3) == 0)
 					ConcatFilenameSuffix (imageFileNamePtr, (UCharPtr)"\0.bip\0");
 					
-				else		// not known
+				else	// not known
 					errCode = -1;
 					
-				}		// end "if (tReturnCode == 0)"
+				}	// end "if (tReturnCode == 0)"
 				
-			else		// tReturnCode != 0
+			else	// tReturnCode != 0
 				errCode = tReturnCode;
 		
 					// This will be an attempt to read a file with the expected suffix.
@@ -5226,15 +5181,15 @@ SInt16 ReadArcViewHeader (
 														kLockFile,
 														kVerifyFileStream);
 				
-			}		// end "if (fileNameCode == 4)"
+			}	// end "if (fileNameCode == 4)"
 			
-		else		// fileNameCode != 4
+		else	// fileNameCode != 4
 			{
 					// This may be an ArcView image file, find the header file for it.
 					
 			headerFileStreamPtr = &headerFileStream;		
 			InitializeFileStream (headerFileStreamPtr, fileStreamPtr);
-			headerFileNamePtr = (FileStringPtr)GetFilePathPPointer(headerFileStreamPtr);
+			headerFileNamePtr = (FileStringPtr)GetFilePathPPointerFromFileStream (headerFileStreamPtr);
 			
 					// Remove the ".bil", ".bsq", ".bip" at the end.
 					
@@ -5265,13 +5220,13 @@ SInt16 ReadArcViewHeader (
 					headerRecord[count] = 0;
 					headerRecordPtr = &headerRecord[0];
 					
-					}		// end "if (errCode == noErr)"
+					}	// end "if (errCode == noErr)"
 				
 				CloseFile (headerFileStreamPtr);
 				
-				}		// end "if (errCode == noErr)"
+				}	// end "if (errCode == noErr)"
 			
-			}		// end "else fileNameCode != 4"
+			}	// end "else fileNameCode != 4"
 			
 				// If there has been no error to this point then try to read the
 				// ArcView header to see if the needed parameters are there.
@@ -5290,10 +5245,10 @@ SInt16 ReadArcViewHeader (
 			if (tReturnCode == 0 && value > 0)
 				fileInfoPtr->numberColumns = value;
 				
-			else		// tReturnCode != 0
+			else	// tReturnCode != 0
 				errCode = tReturnCode;
 			
-			}		// end "if (errCode == noErr)" 
+			}	// end "if (errCode == noErr)" 
 		
 		if (errCode == noErr)
 			{
@@ -5309,10 +5264,10 @@ SInt16 ReadArcViewHeader (
 			if (tReturnCode == 0 && value > 0)
 				fileInfoPtr->numberLines = value;
 				
-			else		// tReturnCode != 0
+			else	// tReturnCode != 0
 				errCode = tReturnCode;
 			
-			}		// end "if (errCode == noErr)"  
+			}	// end "if (errCode == noErr)"  
 		
 		if (errCode == noErr)
 			{
@@ -5331,10 +5286,10 @@ SInt16 ReadArcViewHeader (
 			else if (tReturnCode == 6)		// nbands is not found; default is 1.
 				fileInfoPtr->numberChannels = 1;
 				
-			else		// tReturnCode != 0
+			else	// tReturnCode != 0
 				errCode = tReturnCode;
 			
-			}		// end "if (errCode == noErr)"
+			}	// end "if (errCode == noErr)"
 		
 		if (errCode == noErr)
 			{
@@ -5360,55 +5315,55 @@ SInt16 ReadArcViewHeader (
 						fileInfoPtr->numberBits = 16;
 						fileInfoPtr->numberBytes = 2;
 						
-						}		// end "if (value == 16)"
+						}	// end "if (value == 16)"
 						
 					else if (value == 32)
 						{
 						fileInfoPtr->numberBits = 32;
 						fileInfoPtr->numberBytes = 4;
 						
-						}		// end "else if (value == 32)"
+						}	// end "else if (value == 32)"
 						
 					else if (value == 64)
 						{
 						fileInfoPtr->numberBits = 64;
 						fileInfoPtr->numberBytes = 8;
 						
-						}		// end "else if (value == 32)"
+						}	// end "else if (value == 32)"
 							
 //					fileInfoPtr->numberBins = 
-//										(UInt32)ldexp( (double)1, fileInfoPtr->numberBits);
+//										(UInt32)ldexp ((double)1, fileInfoPtr->numberBits);
 					
-					}		// end "if (tReturnCode == 0)"
+					}	// end "if (tReturnCode == 0)"
 					
-				else		// value < 8 || value > 64
+				else	// value < 8 || value > 64
 					{
 					fileInfoPtr->numberBytes = 1;
 					
 					if (value < 8)
 						formatErrorCode = 4;
 
-					else		// value > 64
+					else	// value > 64
 						{
 						formatErrorCode = 4;
 
-						}		// end "else value > 4"
+						}	// end "else value > 4"
 
-					}		// end "else value < 8 || value > 32"
+					}	// end "else value < 8 || value > 32"
 
-				}		// end "if (tReturnCode == 0)"
+				}	// end "if (tReturnCode == 0)"
 			
-			else if (tReturnCode == 5)		// nbits is not found; default is 8.
+			else if (tReturnCode == 5)	// nbits is not found; default is 8.
 				{
 				fileInfoPtr->numberBits = 8;
 				fileInfoPtr->numberBytes = 1;
 				
-				}		// end "else if (tReturnCode == 5) nbits is not found; default is 8."
+				}	// end "else if (tReturnCode == 5) nbits is not found; default is 8."
 				
-			else		// tReturnCode != 0
+			else	// tReturnCode != 0
 				errCode = tReturnCode;
 			
-			}		// end "if (errCode == noErr)" 
+			}	// end "if (errCode == noErr)" 
 		
 		if (errCode == noErr)
 			{
@@ -5420,7 +5375,7 @@ SInt16 ReadArcViewHeader (
 															&stringPtr, 
 															3, 
 															kDoNotSkipEqual,
-															(char*)&gTextString,
+															(char*)gTextString,
 															50,
 															kNoSubstringAllowed);
 								
@@ -5437,18 +5392,18 @@ SInt16 ReadArcViewHeader (
 				else if (CompareStringsNoCase (&gTextString[1], (UCharPtr)"BIP", 3) == 0)
 					fileInfoPtr->bandInterleave = kBIS;
 					
-				else		// not known
+				else	// not known
 					errCode = -1;
 					
-				}		// end "if (tReturnCode == 0)"
+				}	// end "if (tReturnCode == 0)"
 			
 			else if (tReturnCode == 6)		// layout is not found; default is bil.
 				fileInfoPtr->bandInterleave = kBIL;
 				
-			else		// tReturnCode != 0
+			else	// tReturnCode != 0
 				errCode = tReturnCode;
 			
-			}		// end "if (errCode == noErr)"     
+			}	// end "if (errCode == noErr)"     
 		
 		if (errCode == noErr && fileInfoPtr->numberBytes >= 2)
 			{
@@ -5460,7 +5415,7 @@ SInt16 ReadArcViewHeader (
 															&stringPtr, 
 															1, 
 															kDoNotSkipEqual,
-															(char*)&gTextString,
+															(char*)gTextString,
 															50,
 															kNoSubstringAllowed);
 								
@@ -5469,18 +5424,18 @@ SInt16 ReadArcViewHeader (
 				if (CompareStringsNoCase (&gTextString[1], (UCharPtr)"M", 1) == 0)
 					fileInfoPtr->swapBytesFlag = !gBigEndianFlag; 
 					
-				else		// CompareStringsNoCase ((char*)&gTextString[1], "M", 1) != 0
+				else	// CompareStringsNoCase ((char*)&gTextString[1], "M", 1) != 0
 					fileInfoPtr->swapBytesFlag = gBigEndianFlag;
 				
-				}		// end "if (tReturnCode == 0)"
+				}	// end "if (tReturnCode == 0)"
 			
 			else if (tReturnCode == 9)		// byteorder is not found; default is bil.
 				fileInfoPtr->swapBytesFlag = gBigEndianFlag;
 				
-			else		// tReturnCode != 0
+			else	// tReturnCode != 0
 				errCode = tReturnCode;
 			
-			}		// end "if (errCode == noErr && fileInfoPtr->numberBytes >= 2)"   
+			}	// end "if (errCode == noErr && fileInfoPtr->numberBytes >= 2)"   
 		
 		if (errCode == noErr)
 			{
@@ -5494,10 +5449,10 @@ SInt16 ReadArcViewHeader (
 													&tReturnCode);
 								
 			if (tReturnCode == 0 && value > 0)
-//				fileInfoPtr->numberPostLineBytes = value;
+				//fileInfoPtr->numberPostLineBytes = value;
 				fileInfoPtr->numberHeaderBytes = value;
 			
-			}		// end "if (errCode == noErr)"    
+			}	// end "if (errCode == noErr)"    
 		
 		if (errCode == noErr && fileInfoPtr->bandInterleave == kBIL)
 			{
@@ -5511,17 +5466,17 @@ SInt16 ReadArcViewHeader (
 													&tReturnCode);
 								
 			if (tReturnCode == 0 && 
-						value > 0 && 
-								value > (SInt32)(fileInfoPtr->numberColumns*fileInfoPtr->numberBytes))
+					value > 0 && 
+						value > (SInt32)(fileInfoPtr->numberColumns*fileInfoPtr->numberBytes))
 				fileInfoPtr->numberPostChannelBytes = value - 
 										fileInfoPtr->numberColumns * fileInfoPtr->numberBytes;
 			
-			}		// end "if (errCode == noErr && ...)"    
+			}	// end "if (errCode == noErr && ...)"    
 		
 		if (errCode == noErr && fileInfoPtr->bandInterleave == kBIL)
 			{
-					// Find "NODATA" in the buffer. Use this as a clue to whether the data is signed
-					// or unsigned.						
+					// Find "NODATA" in the buffer. Use this as a clue to whether the data 
+					// is signed or unsigned.						
 				
 			value = GetFileHeaderValue (kFileIOStrID, 
 													IDS_FileIO180,
@@ -5533,12 +5488,12 @@ SInt16 ReadArcViewHeader (
 			if (tReturnCode == 0 && value < 0)
 				fileInfoPtr->signedDataFlag = TRUE;
 			
-			}		// end "if (errCode == noErr && ...)"  
+			}	// end "if (errCode == noErr && ...)"  
 		
 		if (errCode == noErr)
 			{
-					// Find "DATAVALUETYPE" in the buffer. This is not a true ArcView keyword.
-					// I added to make things easier for the users of MultiSpec								
+					// Find "DATAVALUETYPE" in the buffer. This is not a true ArcView 
+					// keyword. I added to make things easier for the users of MultiSpec								
 				
 			stringPtr = headerRecordPtr;
 			tReturnCode = GetFileHeaderString (kFileIOStrID, 
@@ -5546,7 +5501,7 @@ SInt16 ReadArcViewHeader (
 															&stringPtr, 
 															6, 
 															kDoNotSkipEqual,
-															(char*)&gTextString,
+															(char*)gTextString,
 															50,
 															kNoSubstringAllowed);
 								
@@ -5557,9 +5512,9 @@ SInt16 ReadArcViewHeader (
 				if (CompareStringsNoCase (&gTextString[1], (UCharPtr)"SIGNED", 6) == 0)
 					fileInfoPtr->signedDataFlag = TRUE;
 					
-				}		// end "if (tReturnCode == 0)"
+				}	// end "if (tReturnCode == 0)"
 			
-			}		// end "if (errCode == noErr)"  
+			}	// end "if (errCode == noErr)"  
 		
 		if (errCode == noErr)
 			{
@@ -5571,7 +5526,7 @@ SInt16 ReadArcViewHeader (
 															&stringPtr, 
 															6, 
 															kDoNotSkipEqual,
-															(char*)&gTextString,
+															(char*)gTextString,
 															50,
 															kNoSubstringAllowed);
 								
@@ -5585,9 +5540,9 @@ SInt16 ReadArcViewHeader (
 				if (CompareStringsNoCase (&gTextString[1], (UCharPtr)"FLOAT", 5) == 0)
 					fileInfoPtr->dataTypeCode = kRealType;
 					
-				}		// end "if (tReturnCode == 0)"
+				}	// end "if (tReturnCode == 0)"
 			
-			}		// end "if (errCode == noErr)"  
+			}	// end "if (errCode == noErr)"  
 		
 		if (errCode == noErr)
 					// Check if ArcView map information exists. 
@@ -5609,7 +5564,7 @@ SInt16 ReadArcViewHeader (
 					gGetFileImageType = kImageWindowType;
 					fileInfoPtr->numberClasses = 0;
 					
-					}		// end "if (gGetFileImageType == 0)"
+					}	// end "if (gGetFileImageType == 0)"
 						
 				fileInfoPtr->format = kArcViewType;
 				
@@ -5630,16 +5585,16 @@ SInt16 ReadArcViewHeader (
 						// override any that has already been loaded.
 						// now being read later
 				
-//				ReadArcViewWorldFile (fileInfoPtr);
+				//ReadArcViewWorldFile (fileInfoPtr);
 				
 						// Get projection information from a projection (prj) file if it
 						// exists.
 						
-//				ReadGTOPO30PrjFile (fileInfoPtr, headerRecordPtr);
+				//ReadGTOPO30PrjFile (fileInfoPtr, headerRecordPtr);
 
-				}		// end "if (formatErrorCode == noErr)"
-/*
-			else		// formatErrorCode != noErr
+				}	// end "if (formatErrorCode == noErr)"
+			/*
+			else	// formatErrorCode != noErr
 				{
 						// Display an alert if MultiSpec cannot read this type of ArcView
 						//	file.						
@@ -5651,15 +5606,23 @@ SInt16 ReadArcViewHeader (
 									0, 
 									NULL);
 									
-				}		// end "if (formatErrorCode != noErr)" 
-*/			
-			}		// end "if (errCode == noErr)"
+				}	// end "if (formatErrorCode != noErr)" 
+			*/			
+			}	// end "if (errCode == noErr)"
+			
+		if (returnCode != 0 && fileNameCode == 4)
+			{
+					// Add the .hdr suffix back to the name. It may be needed later.
+					
+			ConcatFilenameSuffix (imageFileNamePtr, (UCharPtr)"\0.hdr\0");
+			
+			}	// end "if (returnCode != 0 && fileNameCode == 4)"
 		
-		}		// end "if (fileType != 0)"
+		}	// end "if (fileType != 0)"
 		
 	return (returnCode);
 	
-}		// end "ReadArcViewHeader"
+}	// end "ReadArcViewHeader"
 
 
 
@@ -5684,7 +5647,7 @@ SInt16 ReadArcViewHeader (
 // Called By:			ReadArcViewHeader in SOpnImag.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/11/2000
-//	Revised By:			Larry L. Biehl			Date: 03/14/2017
+//	Revised By:			Larry L. Biehl			Date: 09/01/2017
 
 Boolean ReadArcViewWorldFile (
 				FileInfoPtr 						fileInfoPtr)
@@ -5734,7 +5697,7 @@ Boolean ReadArcViewWorldFile (
 				// an image file then we don't need it for now and need to look for
 				// the ArcView header file.
 			
-		imageFileNamePtr = (FileStringPtr)GetFilePathPPointer (fileStreamPtr);
+		imageFileNamePtr = (FileStringPtr)GetFilePathPPointerFromFileStream (fileStreamPtr);
 		
 				// The suffix for the planar map information file consists of the
 				// 1st and 3rd characters in the image file suffix plus w as the third
@@ -5747,7 +5710,7 @@ Boolean ReadArcViewWorldFile (
 					
 		blwFileStreamPtr = &blwFileStream;		
 		InitializeFileStream (blwFileStreamPtr, fileStreamPtr);
-		blwFileNamePtr = (FileStringPtr)GetFilePathPPointer (blwFileStreamPtr);
+		blwFileNamePtr = (FileStringPtr)GetFilePathPPointerFromFileStream (blwFileStreamPtr);
 		
 		numberCharacters = blwFileNamePtr[0];
 		suffix[0] = 4;	
@@ -5764,15 +5727,15 @@ Boolean ReadArcViewWorldFile (
 							
 			RemoveCharsNoCase ((char*)"\0.tiff\0", blwFileNamePtr);
 			
-			}		// end "if ( CompareSuffixNoCase ("\0.tiff\0", ..."
+			}	// end "if (CompareSuffixNoCase ("\0.tiff\0", ..."
 		
-		else		// suffix is not .tiff
+		else	// suffix is not .tiff
 			{
 			suffix[2] = blwFileNamePtr[numberCharacters-2];	
 							
 			RemoveCharsNoCase ((char*)"\0.???\0", blwFileNamePtr);
 			
-			}		// end "else suffix is not .tiff"
+			}	// end "else suffix is not .tiff"
 				
 		//ConcatFilenameSuffix (blwFileNamePtr, (StringPtr)T2A(suffix));
 		ConcatFilenameSuffix (blwFileNamePtr, suffix);
@@ -5804,7 +5767,7 @@ Boolean ReadArcViewWorldFile (
 												kLockFile,
 												kVerifyFileStream);
 
-			}		// end "if (errCode != noErr)"
+			}	// end "if (errCode != noErr)"
 		
 		count = 1024;
 		if (errCode == noErr)
@@ -5822,11 +5785,11 @@ Boolean ReadArcViewWorldFile (
 				blwRecord[count] = 0;
 				blwRecordPtr = &blwRecord[0];
 				
-				}		// end "if (errCode == noErr)"
+				}	// end "if (errCode == noErr)"
 			
 			CloseFile (blwFileStreamPtr);
 			
-			}		// end "if (errCode == noErr)"
+			}	// end "if (errCode == noErr)"
 			
 				// If there has been no error to this point then try to read the
 				// ArcView blw information. There should be 6 floating point 
@@ -5861,9 +5824,7 @@ Boolean ReadArcViewWorldFile (
 				if (fileInfoPtr->mapProjectionHandle != NULL)
 					{ 								
 					mapProjectionInfoPtr = (MapProjectionInfoPtr)
-								GetHandlePointer (fileInfoPtr->mapProjectionHandle,
-															kNoLock,
-															kNoMoveHi);
+												GetHandlePointer (fileInfoPtr->mapProjectionHandle);
 															
 					LoadPlanarCoordinates (mapProjectionInfoPtr,
 													dataValue1,
@@ -5872,8 +5833,8 @@ Boolean ReadArcViewWorldFile (
 													dataValue4,
 													dataValue5,
 													dataValue6);
-															
-/*					if (dataValue2 == 0 && dataValue3 == 0)
+					/*										
+					if (dataValue2 == 0 && dataValue3 == 0)
 						{
 								// This is non rotated or skewed image
 							
@@ -5888,24 +5849,24 @@ Boolean ReadArcViewWorldFile (
 						mapProjectionInfoPtr->planarCoordinate.xMapOrientationOrigin = dataValue5;
 						mapProjectionInfoPtr->planarCoordinate.yMapOrientationOrigin = dataValue6;
 						
-						}		// end "if (dataValue2 == 0 && dataValue3 == 0)"
-*/					
-					}		// end "if (fileInfoPtr->mapProjectionHandle != NULL)"
+						}	// end "if (dataValue2 == 0 && dataValue3 == 0)"
+					*/					
+					}	// end "if (fileInfoPtr->mapProjectionHandle != NULL)"
 				
-				}		// end "if (returnCode == 6)"
+				}	// end "if (returnCode == 6)"
 				
-			else		// tReturnCode != 0
+			else	// tReturnCode != 0
 				errCode = 1;
 			
-			}		// end "if (returnCode == 6)" 
+			}	// end "if (returnCode == 6)" 
 			
 		fileReadFlag = (errCode == noErr);
 		
-		}		// end "if (fileInfoPtr != NULL && ...)"
+		}	// end "if (fileInfoPtr != NULL && ...)"
 		
 	return (fileReadFlag);
 	
-}		// end "ReadArcViewWorldFile"
+}	// end "ReadArcViewWorldFile"
 
 
 
@@ -5943,7 +5904,7 @@ SInt16 ReadArcViewShapeFile (
 	
 	DoublePoint							doublePoint;
 	
-//	SDoubleRect							boundingBox;
+	//SDoubleRect							boundingBox;
 	DoubleRect							boundingBox,
 											boundingBox2,
 											boundingBox3;
@@ -6000,9 +5961,7 @@ SInt16 ReadArcViewShapeFile (
 																					
 	overlayNumber = shapeFileIndex + 1;
 																					
-	handlePtr = (Handle*)GetHandlePointer (gShapeFilesHandle,
-															kNoLock,
-															kNoMoveHi);
+	handlePtr = (Handle*)GetHandlePointer (gShapeFilesHandle);
 															
 	shapeFileHandle = handlePtr[shapeFileIndex];
 	
@@ -6010,17 +5969,15 @@ SInt16 ReadArcViewShapeFile (
 	if (shapeFileHandle != NULL)
 		{
 		shapeInfoPtr = (ShapeInfoPtr)GetHandlePointer (shapeFileHandle,
-																					kLock,
-																					kNoMoveHi);
+																					kLock);
 							
 		shapeFileStreamPtr = GetFileStreamPointer (shapeInfoPtr);
 		
-		}		// end "if (shapeFileHandle != NULL)"
+		}	// end "if (shapeFileHandle != NULL)"
 		
 	if (shapeFileStreamPtr != NULL)
 		bufferPtr = (UCharPtr)GetHandlePointer (shapeInfoPtr->vectorDataHandle,
-															kLock,
-															kNoMoveHi);
+															kLock);
 		
 	if (bufferPtr != NULL)
 		{																			
@@ -6030,8 +5987,7 @@ SInt16 ReadArcViewShapeFile (
 		mapProjectionHandle = GetFileMapProjectionHandle2 (gActiveImageWindowInfoH);											
 		mapProjectionInfoPtr = (MapProjectionInfoPtr)GetHandlePointer (
 																	mapProjectionHandle,
-																	kLock,
-																	kNoMoveHi);	
+																	kLock);	
 																	
 				// Open the shape file.
 							
@@ -6057,7 +6013,7 @@ SInt16 ReadArcViewShapeFile (
 				// Determine if the status dialog box needs to be displayed.
 				
 		gNextTime = SInt32_MAX;
-		gNextStatusTime = TickCount() + gNextStatusTimeOffset;
+		gNextStatusTime = TickCount () + gNextStatusTimeOffset;
 		
 		if (numberBytes > 4000000)
 			{
@@ -6070,17 +6026,17 @@ SInt16 ReadArcViewShapeFile (
 											IDS_FileIO138, 
 											gStatusDialogPtr, 
 											IDC_Status2, 
-											(Str255*)&gTextString);
+											(Str255*)gTextString);
 											
 			CheckSomeEvents (osMask+keyDownMask+updateMask+mDownMask+mUpMask);
 											
-			gNextTime = TickCount();
+			gNextTime = TickCount ();
 			
-			}		// end "if (numberBytes > 4000000)"
+			}	// end "if (numberBytes > 4000000)"
 			
 		while (errCode == noErr && notDoneFlag)
 			{
-			count = MIN(4000000, numberBytes);
+			count = MIN (4000000, numberBytes);
 			errCode = MReadData (shapeFileStreamPtr, &count, ioBufferPtr, kErrorMessages);
 			
 			totalCount += count;
@@ -6090,9 +6046,9 @@ SInt16 ReadArcViewShapeFile (
 				ioBufferPtr += count;
 				numberBytes -= count;
 				
-				}		// end "if (count < numberBytes)"
+				}	// end "if (count < numberBytes)"
 				
-			else		// count >= numberBytes
+			else	// count >= numberBytes
 				notDoneFlag = FALSE;
 					
 			if (gStatusProgressControlHandle != NULL)		
@@ -6106,9 +6062,9 @@ SInt16 ReadArcViewShapeFile (
       		quitFlag = TRUE;
 				break;
 				
-				}		// end "if ( !CheckSomeEvents (osMask + ..." 
+				}	// end "if (!CheckSomeEvents (osMask + ..." 
 			
-			}		// end "while (errCode == noErr && notDoneFlag)"
+			}	// end "while (errCode == noErr && notDoneFlag)"
 			
 		numberBytes = totalCount;
 			
@@ -6128,8 +6084,8 @@ SInt16 ReadArcViewShapeFile (
 						// Get record number and length of record.
 						
 				gSwapBytesFlag = !gBigEndianFlag; 
-		      recordNumber = GetLongIntValue( (char*)&bufferPtr[bufferStart] );
-		      recordLength = GetLongIntValue( (char*)&bufferPtr[bufferStart+4] );
+		      recordNumber = GetLongIntValue ((char*)&bufferPtr[bufferStart]);
+		      recordLength = GetLongIntValue ((char*)&bufferPtr[bufferStart+4]);
 		      
 		      		// Convert 16-bit length to 8-bit byte length.
 		      		
@@ -6138,7 +6094,7 @@ SInt16 ReadArcViewShapeFile (
 		      		// Get the shape type for the record.
 		      		
 				gSwapBytesFlag = gBigEndianFlag;
-		      shapeType = GetShortIntValue( (char*)&bufferPtr[bufferStart+8] );
+		      shapeType = GetShortIntValue ((char*)&bufferPtr[bufferStart+8]);
 		      
 		      switch (shapeType)
 		      	{
@@ -6152,9 +6108,9 @@ SInt16 ReadArcViewShapeFile (
 				      
 						includeFlag = TRUE;
 				      boundingBox.left = 
-				      				GetShortDoubleValue (&bufferPtr[bufferStart+12] );
+				      				GetShortDoubleValue (&bufferPtr[bufferStart+12]);
 				      boundingBox.top = 
-				      				GetShortDoubleValue (&bufferPtr[bufferStart+20] );
+				      				GetShortDoubleValue (&bufferPtr[bufferStart+20]);
 				      boundingBox.right = boundingBox.left;
 				      boundingBox.bottom = boundingBox.top;
 				      
@@ -6216,7 +6172,7 @@ SInt16 ReadArcViewShapeFile (
 								boundingBox.top = MIN (boundingBox.top, boundingBox2.bottom);
 								boundingBox.bottom = MAX (boundingBox.bottom, boundingBox2.top);
 								
-								}		// end "if (includeFlag)"
+								}	// end "if (includeFlag)"
 								
 									// Also need to allow for central meridian if within the bounding
 									// box. The lowest point in map units may not be the corners.
@@ -6235,16 +6191,16 @@ SInt16 ReadArcViewShapeFile (
 								if (includeFlag)
 									boundingBox.top = MIN (boundingBox.top, doublePoint.v);
 									
-								}		// end "if (includeFlag)"
+								}	// end "if (includeFlag)"
 
 																	
-							}		// end "if (convertToMapUnitsFlag)"
+							}	// end "if (convertToMapUnitsFlag)"
 				      
 				      if (includeFlag)
 				      	includeFlag = ShapeAndWindowAreasIntersect (overlayNumber, &boundingBox);
 		      		break;
 		      	
-		      	}		// end "switch (shapeType)"
+		      	}	// end "switch (shapeType)"
 		      	
 		      if (includeFlag)
 		      	{
@@ -6269,8 +6225,8 @@ SInt16 ReadArcViewShapeFile (
 		      			
 		      		case 3:	// PolyLine shape
 		      		case 5:	// Polygon shape
-							numberParts = GetLongIntValue( (char*)&bufferPtr[bufferStart+44] );
-							numberPoints = GetLongIntValue( (char*)&bufferPtr[bufferStart+48] );
+							numberParts = GetLongIntValue ((char*)&bufferPtr[bufferStart+44]);
+							numberPoints = GetLongIntValue ((char*)&bufferPtr[bufferStart+48]);
 		      			doubleNumberBytes = (double)44 + numberParts * 4 + numberPoints * 16;	
 		      																
 		      			if (doubleNumberBytes == (double)recordLength)
@@ -6284,10 +6240,10 @@ SInt16 ReadArcViewShapeFile (
 			      			for (index=0; index<numberParts; index++)
 			      				{
 			      				arcViewPolyLinePtr->parts[index] = 
-			      											GetLongIntValue( (char*)&bufferPtr[bufferIndex] );
+			      											GetLongIntValue ((char*)&bufferPtr[bufferIndex]);
 			      				bufferIndex += 4;
 			      				
-			      				}		// end "for (index=0; index<..."
+			      				}	// end "for (index=0; index<..."
 			      				
 			      					// Now move the points
 			      						
@@ -6297,11 +6253,11 @@ SInt16 ReadArcViewShapeFile (
 			      			count = 2 * numberPoints;								
 			      			for (index=0; index<count; index++)
 			      				{
-			      				*doublePtr = GetShortDoubleValue (&bufferPtr[bufferIndex] );
+			      				*doublePtr = GetShortDoubleValue (&bufferPtr[bufferIndex]);
 			      				doublePtr++;
 			      				bufferIndex += 8;
 			      
-			      				}		// end "for (index=0; index<count; index++)"
+			      				}	// end "for (index=0; index<count; index++)"
 			      				
 			      			if (convertToMapUnitsFlag)
 				      			{	
@@ -6314,18 +6270,18 @@ SInt16 ReadArcViewShapeFile (
 																					(ArcViewDoublePointPtr)doublePtr);
 				      				doublePtr += 2;
 				      
-				      				}		// end "for (index=0; index<count; index++)"
+				      				}	// end "for (index=0; index<count; index++)"
 				      				
-				      			}		// end "if (convertToMapUnitsFlag)"
+				      			}	// end "if (convertToMapUnitsFlag)"
 			      				
-			      			}		// end "if (doubleNumberBytes == (double)recordLength)"
+			      			}	// end "if (doubleNumberBytes == (double)recordLength)"
 		      				
-		      			else		// doubleNumberBytes != (double)recordLength
+		      			else	// doubleNumberBytes != (double)recordLength
 		      				{
 		      				includeFlag = FALSE;
 								returnCode = 6;
 								
-								}		// end "else doubleNumberBytes != (double)recordLength"
+								}	// end "else doubleNumberBytes != (double)recordLength"
 		      				
 		      			break;
 		      			
@@ -6335,7 +6291,7 @@ SInt16 ReadArcViewShapeFile (
 		      			
 		      			arcViewMultiPointPtr->box = boundingBox;
 		      			arcViewMultiPointPtr->numPoints = 
-		      							GetLongIntValue( (char*)&bufferPtr[bufferStart+44] );
+		      							GetLongIntValue ((char*)&bufferPtr[bufferStart+44]);
 		      			
 		      			doubleNumberBytes = 48 + arcViewMultiPointPtr->numPoints * 16;			
 		      			if (doubleNumberBytes == (double)recordLength)
@@ -6348,11 +6304,11 @@ SInt16 ReadArcViewShapeFile (
 			      			count = 2 * arcViewMultiPointPtr->numPoints;								
 			      			for (index=0; index<count; index++)
 			      				{
-			      				*doublePtr = GetShortDoubleValue (&bufferPtr[bufferIndex] );
+			      				*doublePtr = GetShortDoubleValue (&bufferPtr[bufferIndex]);
 			      				doublePtr++;
 			      				bufferIndex += 8;
 			      
-			      				}		// end "for (index=0; index<count; index++)"
+			      				}	// end "for (index=0; index<count; index++)"
 			      				
 			      			if (convertToMapUnitsFlag)
 				      			{	
@@ -6364,18 +6320,18 @@ SInt16 ReadArcViewShapeFile (
 																					(ArcViewDoublePointPtr)doublePtr);
 				      				doublePtr += 2;
 				      
-				      				}		// end "for (index=0; index<count; index++)"
+				      				}	// end "for (index=0; index<count; index++)"
 				      				
-				      			}		// end "if (convertToMapUnitsFlag)"
+				      			}	// end "if (convertToMapUnitsFlag)"
 		      				
-		      				}		// end "if (doubleNumberBytes == (double)recordLength)"	
+		      				}	// end "if (doubleNumberBytes == (double)recordLength)"	
 		      					
 		      			else	// doubleNumberBytes != (double)recordLength
 		      				{
 		      				includeFlag = FALSE;
 								returnCode = 6;
 								
-								}		// end "else doubleNumberBytes != (double)recordLength"
+								}	// end "else doubleNumberBytes != (double)recordLength"
 		      				
 		      			break;
 		      			
@@ -6387,20 +6343,20 @@ SInt16 ReadArcViewShapeFile (
 					      							&bufferPtr[outputIndex], 
 					      							recordLength+8);
 					      	
-					      	}		// end "if (outputIndex != bufferStart)"
+					      	}	// end "if (outputIndex != bufferStart)"
 		      				
 		      			break;
 		      		
-		      		}		// switch (shapeType)
+		      		}	// switch (shapeType)
 			      
 			      if (includeFlag)
 			      	{							
 			      	outputIndex += recordLength + 8;
 		      		numberRecords++;
 		      		
-		      		}		// end "if (includeFlag)"
+		      		}	// end "if (includeFlag)"
 		      	
-		      	}		// end "if (includeFlag)"
+		      	}	// end "if (includeFlag)"
 		      	
 		      bufferStart += recordLength + 8;
 		      
@@ -6409,7 +6365,7 @@ SInt16 ReadArcViewShapeFile (
 			
 						// Exit routine if user has "command period" down.					
 						
-				if (TickCount() >= gNextTime)
+				if (TickCount () >= gNextTime)
 					{
 					if (!CheckSomeEvents (osMask+keyDownMask+mDownMask+mUpMask))
 						{
@@ -6417,11 +6373,11 @@ SInt16 ReadArcViewShapeFile (
 		      		quitFlag = TRUE;
 						break;
 						
-						}		// end "if ( !CheckSomeEvents (osMask + ..." 
+						}	// end "if (!CheckSomeEvents (osMask + ..." 
 						
-					}		// end "if (TickCount() >= nextTime)" 
+					}	// end "if (TickCount () >= nextTime)" 
 				
-				}		// end "while (notDoneFlag)"
+				}	// end "while (notDoneFlag)"
 				
 					// Dispose of status box.													
 					
@@ -6448,7 +6404,7 @@ SInt16 ReadArcViewShapeFile (
 									
 				returnCode = 5;
 									
-				}		// end "if (!quitFlag && numberRecords == 0)"
+				}	// end "if (!quitFlag && numberRecords == 0)"
 				
 			else if (!quitFlag)
 				{	
@@ -6459,26 +6415,26 @@ SInt16 ReadArcViewShapeFile (
 				
 				outputIndex = ((outputIndex + 7)/8) * 8;
 				
-				if ( MSetHandleSize (&shapeInfoPtr->vectorDataHandle, outputIndex) )
+				if (MSetHandleSize (&shapeInfoPtr->vectorDataHandle, outputIndex))
 					returnCode = 0;
 				/*
-				numberChars = sprintf ((char*)&gTextString3,
+				numberChars = sprintf ((char*)gTextString3,
 															" returnCode: %3ld%s", 
 															returnCode,
 															gEndOfLine);
-				ListString ((char*)&gTextString3, numberChars, gOutputTextH);
+				ListString ((char*)gTextString3, numberChars, gOutputTextH);
 	
-				numberChars = sprintf ((char*)&gTextString3,
+				numberChars = sprintf ((char*)gTextString3,
 															" numberRecords: %3ld%s", 
 															numberRecords,
 															gEndOfLine);
-				ListString ((char*)&gTextString3, numberChars, gOutputTextH);
+				ListString ((char*)gTextString3, numberChars, gOutputTextH);
 	
-				numberChars = sprintf ((char*)&gTextString3,
+				numberChars = sprintf ((char*)gTextString3,
 															" outputIndex: %3ld%s", 
 															outputIndex,
 															gEndOfLine);
-				ListString ((char*)&gTextString3, numberChars, gOutputTextH);
+				ListString ((char*)gTextString3, numberChars, gOutputTextH);
 				*/			
 						// Make sure that the windows are updated before the shape file 
 						// is drawn.
@@ -6486,13 +6442,13 @@ SInt16 ReadArcViewShapeFile (
 									
 				// CheckSomeEvents (osMask+keyDownMask+updateMask+mDownMask+mUpMask);
 				
-				}		// end "else numberRecords != 0"
+				}	// end "else numberRecords != 0"
 			
-			}		// end "if (!quitFlag && errCode == noErr)"
+			}	// end "if (!quitFlag && errCode == noErr)"
 
 		CheckAndUnlockHandle (mapProjectionHandle);
 			
-		}		// end "if (bufferPtr != NULL)"
+		}	// end "if (bufferPtr != NULL)"
 	
 	if (shapeInfoPtr != NULL)
 		CheckAndUnlockHandle (shapeInfoPtr->vectorDataHandle);
@@ -6507,7 +6463,7 @@ SInt16 ReadArcViewShapeFile (
 		
 	return (returnCode);
 	
-}		// end "ReadArcViewShapeFile"
+}	// end "ReadArcViewShapeFile"
 
 
 
@@ -6546,7 +6502,7 @@ SInt16 ReadArcViewShapeFile (
 // Called By:			CheckImageHeader in SOpnImag.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/20/2000
-//	Revised By:			Larry L. Biehl			Date: 03/15/2017
+//	Revised By:			Larry L. Biehl			Date: 09/01/2017
 
 SInt16 ReadArcViewShapeHeader (
 				FileInfoPtr 						fileInfoPtr, 
@@ -6619,7 +6575,7 @@ SInt16 ReadArcViewShapeHeader (
 			// Now check if this is an Arc View Index file (suffix of '.shx')
 			// or a dBASE file (suffix of '.dbf'). If so, then look for a 
 			// corresponding Arc View Shape file (suffix of '.shp').
-	//wxBell();
+	//wxBell ();
 	FileStringPtr		filePathPtr;		
 	UInt16				numSuffixChars;
 	SInt16				fileNameCode = 0;
@@ -6627,39 +6583,39 @@ SInt16 ReadArcViewShapeHeader (
 	*shapeFileIndexPtr = -1;
 	
 	fileStreamPtr = GetFileStreamPointer (fileInfoPtr);
-	filePathPtr = (FileStringPtr)GetFilePathPPointer (fileStreamPtr);
+	filePathPtr = (FileStringPtr)GetFilePathPPointerFromFileStream (fileStreamPtr);
 	
-	if (CompareSuffixNoCase ( (char*)"\0.shx", 
+	if (CompareSuffixNoCase ((char*)"\0.shx", 
 										filePathPtr,
-										&numSuffixChars) )
+										&numSuffixChars))
 		fileNameCode = 1;
 	
-	else if (CompareSuffixNoCase ( (char*)"\0.dbf", 
+	else if (CompareSuffixNoCase ((char*)"\0.dbf", 
 										filePathPtr,
-										&numSuffixChars) )
+										&numSuffixChars))
 		fileNameCode = 2;
 	
-	else if (CompareSuffixNoCase ( (char*)"\0.sbx", 
+	else if (CompareSuffixNoCase ((char*)"\0.sbx", 
 										filePathPtr,
-										&numSuffixChars) )
+										&numSuffixChars))
 		fileNameCode = 3;
 	
-	else if (CompareSuffixNoCase ( (char*)"\0.sbn", 
+	else if (CompareSuffixNoCase ((char*)"\0.sbn", 
 										filePathPtr,
-										&numSuffixChars) )
+										&numSuffixChars))
 		fileNameCode = 4;
 	
 	if (fileNameCode != 0)
 		{
 		if (formatOnlyCode == kShapeFiles)
-//		if (formatOnlyCode != kLoadHeader)
+		//if (formatOnlyCode != kLoadHeader)
 			{
 					// This is for just searching for shape files. We will ignore
 					// any files with .shx, .dgf, .sbx & .sbn suffixes.
 					
 																					return (0);
 			
-			}		// end "if (formatOnlyCode == kShapeFormatOnly)"
+			}	// end "if (formatOnlyCode == kShapeFormatOnly)"
 		
 				// The user may be requesting that a shape file be opened. Look
 				// for the shape file that goes with the .shx, .dbf, sbx or .sbn file.
@@ -6668,12 +6624,12 @@ SInt16 ReadArcViewShapeHeader (
 				
 		shapeFileStreamPtr = &shapeFileStream;		
 		InitializeFileStream (shapeFileStreamPtr, fileStreamPtr);
-		shapeFileNamePtr = (FileStringPtr)GetFilePathPPointer(shapeFileStreamPtr);
+		shapeFileNamePtr = (FileStringPtr)GetFilePathPPointerFromFileStream (shapeFileStreamPtr);
 		
 				// Close the input file. It is a header file and it has already
 				// been ready. We don't need it any more.
 				
-//			CloseFile (fileStreamPtr);
+		//CloseFile (fileStreamPtr);
 	
 				// Remove the '.shx', '.dbf' or '.sbx' suffix at the end of the file name
 				// and then look for a corresponding '.shp' file.
@@ -6713,11 +6669,11 @@ SInt16 ReadArcViewShapeHeader (
 						
 				fileStreamPtr = shapeFileStreamPtr;
 				
-				}		// end "if (errCode == noErr)"
+				}	// end "if (errCode == noErr)"
 			
-			}		// end "if (errCode == noErr)"
+			}	// end "if (errCode == noErr)"
 			
-		}		// end "if (fileNameCode != 0)"
+		}	// end "if (fileNameCode != 0)"
 		
 	if (errCode == noErr)
 		{
@@ -6728,35 +6684,35 @@ SInt16 ReadArcViewShapeHeader (
 		
 				// Get the File Code
       
-      fileCode = GetLongIntValue( (char*)&headerRecordPtr[0] );
+      fileCode = GetLongIntValue ((char*)&headerRecordPtr[0]);
       
       		// Get zero fields
       		
-      zeroField4 = GetLongIntValue( (char*)&headerRecordPtr[4] );
-      zeroField8 = GetLongIntValue( (char*)&headerRecordPtr[8] );
-      zeroField12 = GetLongIntValue( (char*)&headerRecordPtr[12] );
-      zeroField16 = GetLongIntValue( (char*)&headerRecordPtr[16] );
-      zeroField20 = GetLongIntValue( (char*)&headerRecordPtr[20] );
+      zeroField4 = GetLongIntValue ((char*)&headerRecordPtr[4]);
+      zeroField8 = GetLongIntValue ((char*)&headerRecordPtr[8]);
+      zeroField12 = GetLongIntValue ((char*)&headerRecordPtr[12]);
+      zeroField16 = GetLongIntValue ((char*)&headerRecordPtr[16]);
+      zeroField20 = GetLongIntValue ((char*)&headerRecordPtr[20]);
 		
 				// Get the File Length
       
-      fileLength = GetLongIntValue( (char*)&headerRecordPtr[24] );
+      fileLength = GetLongIntValue ((char*)&headerRecordPtr[24]);
 		
 				// Get the Version
       
 		gSwapBytesFlag = gBigEndianFlag; 
-      version = GetLongIntValue( (char*)&headerRecordPtr[28] );
+      version = GetLongIntValue ((char*)&headerRecordPtr[28]);
 		
 				// Get the Shape Type
       
-      shapeType = GetLongIntValue( (char*)&headerRecordPtr[32] );
+      shapeType = GetLongIntValue ((char*)&headerRecordPtr[32]);
 		
 				// Get the Bounding Box
       
-      boundingBox.left = GetShortDoubleValue (&headerRecordPtr[36] );
-    	boundingBox.top = GetShortDoubleValue (&headerRecordPtr[44] );
-      boundingBox.right = GetShortDoubleValue (&headerRecordPtr[52] );
-      boundingBox.bottom = GetShortDoubleValue (&headerRecordPtr[60] );
+      boundingBox.left = GetShortDoubleValue (&headerRecordPtr[36]);
+    	boundingBox.top = GetShortDoubleValue (&headerRecordPtr[44]);
+      boundingBox.right = GetShortDoubleValue (&headerRecordPtr[52]);
+      boundingBox.bottom = GetShortDoubleValue (&headerRecordPtr[60]);
       
       		// Now check parameters to see if this file makes sense as an ArcView
       		// shape file.
@@ -6779,7 +6735,7 @@ SInt16 ReadArcViewShapeHeader (
 									boundingBox.top > boundingBox.bottom)
 			fileType = 0;
 			
-		}		// end "if (errCode == noErr)"
+		}	// end "if (errCode == noErr)"
 		
 	if (fileType == kArcViewShapeType)
 		{
@@ -6798,7 +6754,7 @@ SInt16 ReadArcViewShapeHeader (
 			
 																					return (0);
 			
-			}		// end "if (formatOnlyCode != kLoadHeader)"
+			}	// end "if (formatOnlyCode != kLoadHeader)"
 				
 		if (gOpenImageSelectionListCount > 1)
 			{
@@ -6813,12 +6769,12 @@ SInt16 ReadArcViewShapeHeader (
 								NULL);
 								
 			fileInfoPtr->format = kArcViewShapeType;
-//			gGetFileImageType = kVectorImageType;
+			//gGetFileImageType = kVectorImageType;
 																					return (7);
 			
-			}		// end "if (gOpenImageSelectionListCount > 1)"
+			}	// end "if (gOpenImageSelectionListCount > 1)"
 		
-		}		// end "if (fileType == kArcViewShapeType)"
+		}	// end "if (fileType == kArcViewShapeType)"
 		
 	if (fileType == kArcViewShapeType)
 		{			
@@ -6839,7 +6795,6 @@ SInt16 ReadArcViewShapeHeader (
       	case 5:	// Polygon shape
       	case 8:	// MultiPoint shape
       	case 11:	// PointZ shape
-      	
       				// MultiSpec can read these shape files.
       				
       		string = 0;
@@ -6848,7 +6803,6 @@ SInt16 ReadArcViewShapeHeader (
       	case 13:	// PolyLineZ shape
       	case 15:	// PolygonZ shape
       	case 18:	// MultiPointZ shape
-      	
       		string = IDS_Alert76;
       		break;
       		
@@ -6856,21 +6810,18 @@ SInt16 ReadArcViewShapeHeader (
       	case 23:	// PolyLineM shape
       	case 25:	// PolygonM shape
       	case 28:	// MultiPointM shape
-      	
       		string = IDS_Alert77;
       		break;
       		
       	case 31:	// MultiPatch shape
-      	
       		string = IDS_Alert78;
       		break;
       		
       	default:
-      	
       		string = IDS_Alert79;
       		break;
 								
-			}		// end "switch (shapeType)"
+			}	// end "switch (shapeType)"
       
       if (string != 0)
       	{		
@@ -6886,9 +6837,9 @@ SInt16 ReadArcViewShapeHeader (
 								
 			fileType = 0;
 			
-			}		// end "if (string != 0)"
+			}	// end "if (string != 0)"
 		
-		}		// end "if (fileType == kArcViewShapeType)"
+		}	// end "if (fileType == kArcViewShapeType)"
 		
 	if (fileType == kArcViewShapeType && gActiveImageWindow == NULL)
 		{				
@@ -6904,10 +6855,10 @@ SInt16 ReadArcViewShapeHeader (
 							
 		overlayCheckReturn = 4;
 		
-		}		// end "if (fileType == kArcViewShapeType && "
+		}	// end "if (fileType == kArcViewShapeType && "
 		
-	windowInfoHandle = GetWindowInfoHandle(gActiveImageWindow);
-	mapProjectionHandle = GetFileMapProjectionHandle2(windowInfoHandle);
+	windowInfoHandle = GetWindowInfoHandle (gActiveImageWindow);
+	mapProjectionHandle = GetFileMapProjectionHandle2 (windowInfoHandle);
 	if (fileType == kArcViewShapeType && overlayCheckReturn == 0)
 		{	
 		if (mapProjectionHandle == NULL)
@@ -6925,9 +6876,9 @@ SInt16 ReadArcViewShapeHeader (
 								
 			overlayCheckReturn = 6;
 			
-			}		// end "if (mapProjectionHandle == NULL)"
+			}	// end "if (mapProjectionHandle == NULL)"
 		
-		}		// end "if (fileType == kArcViewShapeType && "
+		}	// end "if (fileType == kArcViewShapeType && "
 		
 	if (fileType == kArcViewShapeType && overlayCheckReturn == 0)
 		{				
@@ -6945,7 +6896,7 @@ SInt16 ReadArcViewShapeHeader (
 						
 			DisplayNoIntersectionAlert (IDS_Alert80);	
 			
-		}		// end "fileType == kArcViewShapeType && overlayCheckReturn == 0"
+		}	// end "fileType == kArcViewShapeType && overlayCheckReturn == 0"
 		
 	if (fileType == kArcViewShapeType && (overlayCheckReturn == 0 || overlayCheckReturn == 10))
 		{
@@ -6953,36 +6904,34 @@ SInt16 ReadArcViewShapeHeader (
 		
 		if (gNumberShapeFiles >= gShapeHandleListLength)
 			{		
-			handlePtr = (Handle*)CheckHandleSize ( 
+			handlePtr = (Handle*)CheckHandleSize (
 											&gShapeFilesHandle,
 											&continueFlag, 
 											&changedFlag, 
-											(gNumberShapeFiles+1)*sizeof(Handle) );
+											(gNumberShapeFiles+1)*sizeof (Handle));
 											
 			if (continueFlag)
 				{
 				handlePtr[gNumberShapeFiles] = NULL;
 				gShapeHandleListLength++;
 				
-				}		// end "if (continueFlag)"	
+				}	// end "if (continueFlag)"	
 				
-			}		// end "if (gNumberShapeFiles >= gShapeHandleListLength)"
+			}	// end "if (gNumberShapeFiles >= gShapeHandleListLength)"
 			
-		else		// gNumberShapeFiles < gShapeHandleListLength
-			handlePtr = (Handle*)GetHandlePointer ( 
+		else	// gNumberShapeFiles < gShapeHandleListLength
+			handlePtr = (Handle*)GetHandlePointer (
 												gShapeFilesHandle,
-												kLock, 
-												kNoMoveHi );
+												kLock);
 			
 		if (handlePtr == NULL)
 			continueFlag = FALSE;
 											
 		if (continueFlag)
 			{
-			shapeInfoHandle = MNewHandle (sizeof(ShapeInfo));
+			shapeInfoHandle = MNewHandle (sizeof (ShapeInfo));
 			shapeInfoPtr = (ShapeInfoPtr)GetHandlePointer (shapeInfoHandle,
-																			kLock,
-																			kNoMoveHi);
+																			kLock);
 			
 			continueFlag = (shapeInfoPtr != NULL);
 	
@@ -6994,10 +6943,10 @@ SInt16 ReadArcViewShapeHeader (
 					if (shapeInfoPtr->fileStreamCPtr == NULL)
 						continueFlag = FALSE;
 						
-					}		// end "if (continueFlag)"
+					}	// end "if (continueFlag)"
 			#endif	// defined multispec_win || defined multispec_lin
 			
-			}		// end "if (continueFlag)"
+			}	// end "if (continueFlag)"
 						
 		if (continueFlag)
 			{		
@@ -7019,22 +6968,22 @@ SInt16 ReadArcViewShapeHeader (
 				if (returnCode == noErr)
 					dbfHandle = DBFOpen ((char*)filePathPtr, "rb");
 			#endif	// include_gdal_capability
-			
-/*			if (dbfHandle != NULL)
+			/*
+			if (dbfHandle != NULL)
 				{
 				numberRecords = DBFGetRecordCount (dbfHandle);				
 				numberFields = DBFGetFieldCount (dbfHandle);
 				
 				fieldType = DBFGetFieldInfo (dbfHandle, 1, fieldName, &fieldWidth, &numberDecimals);
 				
-	//			int DBFReadIntegerAttribute (dbfHandle, 1, 1);
+				//int DBFReadIntegerAttribute (dbfHandle, 1, 1);
 				
-	//			DBFReadAttribute (dbfHandle, int hEntity, 1, char chReqType );
+				//DBFReadAttribute (dbfHandle, int hEntity, 1, char chReqType);
 				
-	//			int DBFLoadRecord (dbfHandle, 2);
+				//int DBFLoadRecord (dbfHandle, 2);
 			
-				}		// end "if (dbfHandle != NULL)"
-*/			
+				}	// end "if (dbfHandle != NULL)"
+			*/			
 					// Copy file stream parameters to shape file structure.
 			
 			shapeFileStreamPtr = GetFileStreamPointer (shapeInfoPtr);			
@@ -7044,8 +6993,8 @@ SInt16 ReadArcViewShapeHeader (
 					// that this shape file is being used for.  It will be needed if 
 					// the vector is in (or being converted to) map units.
 			
-			mapProjectionInfoPtr = (MapProjectionInfoPtr)GetHandlePointer(
-													mapProjectionHandle, kNoLock, kNoMoveHi);		
+			mapProjectionInfoPtr = (MapProjectionInfoPtr)GetHandlePointer (
+																						mapProjectionHandle);		
 			shapeInfoPtr->geodetic = mapProjectionInfoPtr->geodetic;
 			shapeInfoPtr->gridCoordinate = mapProjectionInfoPtr->gridCoordinate;
 			
@@ -7089,16 +7038,16 @@ SInt16 ReadArcViewShapeHeader (
 					// Get buffer to read shape file into. For now assume that file
 					// will not be too large.
 					
-//			numberBytes = shapeInfoPtr->fileLength - 100;
-//			numberBytes = ((numberBytes + 7)/8) * 8;
-//			shapeInfoPtr->vectorDataHandle = MNewHandle (numberBytes);
+			//numberBytes = shapeInfoPtr->fileLength - 100;
+			//numberBytes = ((numberBytes + 7)/8) * 8;
+			//shapeInfoPtr->vectorDataHandle = MNewHandle (numberBytes);
 			
 			if (!GetMemoryForVectorData (shapeInfoPtr))
 				continueFlag = FALSE;
 			
 			CheckAndUnlockHandle (shapeInfoHandle);
 			
-			}		// end "if (continueFlag)"
+			}	// end "if (continueFlag)"
 		
 		if (continueFlag)
 			{		
@@ -7110,9 +7059,9 @@ SInt16 ReadArcViewShapeHeader (
 				*shapeFileIndexPtr = overlayNumber - 1;
 				handlePtr[*shapeFileIndexPtr] = shapeInfoHandle;
 				
-				}		// end "if (overlayNumber > 0)"
+				}	// end "if (overlayNumber > 0)"
 				
-			else		// overlayNumber == 0
+			else	// overlayNumber == 0
 				{	
 						// Load handle for shape info structure into the first available
 						// location in the shape file handle list.
@@ -7125,11 +7074,11 @@ SInt16 ReadArcViewShapeHeader (
 						*shapeFileIndexPtr = (SInt16)index;
 						break;
 						
-						}		// end "if (handlePtr[index]	== NULL)"
+						}	// end "if (handlePtr[index]	== NULL)"
 						
-					}		// end "for (index=0; index<gShapeHandleListLength; index++)"
+					}	// end "for (index=0; index<gShapeHandleListLength; index++)"
 					
-				}		// end "else overlayNumber == 0"
+				}	// end "else overlayNumber == 0"
 			
 			if (*shapeFileIndexPtr >= 0)
 				{				
@@ -7137,61 +7086,59 @@ SInt16 ReadArcViewShapeHeader (
 				returnCode = 0;
 				
 						// Now load the list for the active image window.
-/*							
+				/*							
 				windowCount = 0;
 				windowListIndex = kImageWindowStart;
 				do
 					{
 					windowPtr = gWindowList[windowListIndex];         
-					windowInfoHandle = GetWindowInfoHandle(windowPtr);
-					windowInfoPtr = (WindowInfoPtr)GetHandlePointer(
-														windowInfoHandle, kNoLock, kNoMoveHi);
+					windowInfoHandle = GetWindowInfoHandle (windowPtr);
+					windowInfoPtr = (WindowInfoPtr)GetHandlePointer (windowInfoHandle);
 					
-					if ( AreasIntersect (&windowInfoPtr->boundingMapRectangle, 
-													&boundingBox) )
+					if (AreasIntersect (&windowInfoPtr->boundingMapRectangle, 
+													&boundingBox))
 						{				
 						windowInfoPtr->overlayList[windowInfoPtr->numberOverlays].index = 
 																				(SInt8)(*shapeFileIndexPtr + 1);	
 																								
 						windowInfoPtr->numberOverlays++;
 						
-						}		// end "if ( AreaIntersects (...->boundingMapRectangle, ..."
+						}	// end "if (AreaIntersects (...->boundingMapRectangle, ..."
 					
 					windowListIndex++;
 					windowCount++;
 																
-					}		while (windowCount<gNumberOfIWindows);
-*/				
+					}	while (windowCount<gNumberOfIWindows);
+				*/				
 						// If this is a new shape file and not a reloaded shape file, add it
 						// to the active image window list.
 						
 				if (overlayNumber == 0)
 					{
-					windowInfoHandle = GetWindowInfoHandle(gActiveImageWindow);
-					windowInfoPtr = (WindowInfoPtr)GetHandlePointer(
-														windowInfoHandle, kNoLock, kNoMoveHi);
+					windowInfoHandle = GetWindowInfoHandle (gActiveImageWindow);
+					windowInfoPtr = (WindowInfoPtr)GetHandlePointer (windowInfoHandle);
 														
 														
 					InitializeOverlay (windowInfoPtr, *shapeFileIndexPtr+1);
 					
-					}		// end "if (overlayNumber == 0)"
+					}	// end "if (overlayNumber == 0)"
 			
-				}		// end "if (*shapeFileIndexPtr >= 0)"
+				}	// end "if (*shapeFileIndexPtr >= 0)"
 				
-			else		// *shapeFileIndexPtr < 0
+			else	// *shapeFileIndexPtr < 0
 				continueFlag = FALSE;
 			
-			}		// end "if (continueFlag)"
+			}	// end "if (continueFlag)"
 			
 		if (!continueFlag)
 			{
 			UnlockAndDispose (shapeInfoHandle);
 			
-			}		// if (!continueFlag)
+			}	// if (!continueFlag)
 					
 		CheckAndUnlockHandle (gShapeFilesHandle);
 		
-		}		// end "if (fileType == kArcViewShapeType && (overlayCheckReturn == 0 || ..."
+		}	// end "if (fileType == kArcViewShapeType && (overlayCheckReturn == 0 || ..."
 		
 	if (fileType == kArcViewShapeType)
 		{
@@ -7199,18 +7146,18 @@ SInt16 ReadArcViewShapeHeader (
 				
 		fileInfoPtr->format = kArcViewShapeType;
 		fileInfoPtr->ancillaryInfoformat = kArcViewShapeType;
-//		gGetFileImageType = kVectorImageType;
+		//gGetFileImageType = kVectorImageType;
 		
 		returnCode = overlayCheckReturn;
-		//wxBell();
-		}		// end "if (fileType == kArcViewShapeType)"
+		//wxBell ();
+		}	// end "if (fileType == kArcViewShapeType)"
 		
 	if (returnCode != 0 && shapeFileStreamPtr != NULL)
 		CloseFile (shapeFileStreamPtr);
 		
 	return (returnCode);
 	
-}		// end "ReadArcViewShapeHeader"
+}	// end "ReadArcViewShapeHeader"
 
 
 
@@ -7236,7 +7183,7 @@ SInt16 ReadArcViewShapeHeader (
 // Called By:			CheckImageHeader in SOpnImag.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 02/27/2009
-//	Revised By:			Larry L. Biehl			Date: 03/15/2017
+//	Revised By:			Larry L. Biehl			Date: 09/01/2017
 
 void ReadGTOPO30PrjFile (
 				FileInfoPtr 						fileInfoPtr,
@@ -7274,7 +7221,7 @@ void ReadGTOPO30PrjFile (
 			
 	prjFileStreamPtr = &prjFileStream;		
 	InitializeFileStream (prjFileStreamPtr, fileStreamPtr);
-	prjFileNamePtr = (FileStringPtr)GetFilePathPPointer(prjFileStreamPtr);
+	prjFileNamePtr = (FileStringPtr)GetFilePathPPointerFromFileStream (prjFileStreamPtr);
 			
 			// Remove the ".bil", ".bsq", ".bip" at the end.
 					
@@ -7308,7 +7255,7 @@ void ReadGTOPO30PrjFile (
 			
 		CloseFile (prjFileStreamPtr);
 			
-		}		// end "if (errCode == noErr)"
+		}	// end "if (errCode == noErr)"
 		
 	if (errCode == noErr)
 		{
@@ -7323,7 +7270,7 @@ void ReadGTOPO30PrjFile (
 		if (strPtr != NULL)
 			errCode = 1;		
 		
-		}		// end "if (errCode == noErr)"
+		}	// end "if (errCode == noErr)"
 					
 	if (errCode == noErr)
 		{
@@ -7335,15 +7282,14 @@ void ReadGTOPO30PrjFile (
 			mapProjectionInfoPtr = (MapProjectionInfoPtr)
 						GetHandleStatusAndPointer (
 											fileInfoPtr->mapProjectionHandle,
-											&handleStatus,
-											kNoMoveHi);
+											&handleStatus);
 											
-			}		// end "if (fileInfoPtr->mapProjectionHandle != NULL)"
+			}	// end "if (fileInfoPtr->mapProjectionHandle != NULL)"
 			
 		if (mapProjectionInfoPtr == NULL)
 			errCode = 1;
 			
-		}		// end "if (errCode == noErr)"
+		}	// end "if (errCode == noErr)"
 					
 	if (errCode == noErr)
 		{	
@@ -7363,7 +7309,7 @@ void ReadGTOPO30PrjFile (
 														&strPtr, 
 														10, 
 														kDoNotSkipEqual,
-														(char*)&gTextString,
+														(char*)gTextString,
 														50,
 														kNoSubstringAllowed);	
 						
@@ -7380,7 +7326,7 @@ void ReadGTOPO30PrjFile (
 			else if (CompareStringsNoCase (&gTextString[1], (UCharPtr)"LAMBERT_AZ", 10) == 0)
 				mapProjectionInfoPtr->gridCoordinate.projectionCode = kLambertAzimuthalEqualAreaCode;
 				
-			}		// end "if (tReturnCode == 0)"
+			}	// end "if (tReturnCode == 0)"
 			
 				// Find "Datum" in the buffer.	
 				
@@ -7398,7 +7344,7 @@ void ReadGTOPO30PrjFile (
 														&strPtr, 
 														4, 
 														kDoNotSkipEqual,
-														(char*)&gTextString,
+														(char*)gTextString,
 														50,
 														kNoSubstringAllowed);	
 						
@@ -7412,7 +7358,7 @@ void ReadGTOPO30PrjFile (
 			else if (CompareStringsNoCase (&gTextString[1], (UCharPtr)"FEET", 4) == 0)	
 				mapProjectionInfoPtr->planarCoordinate.zMapUnitsCode = kFeetCode;
 				
-			}		// end "if (tReturnCode == 0)"
+			}	// end "if (tReturnCode == 0)"
 			
 				// Find "Units" in the buffer.	
 				
@@ -7422,7 +7368,7 @@ void ReadGTOPO30PrjFile (
 														&strPtr, 
 														3, 
 														kDoNotSkipEqual,
-														(char*)&gTextString,
+														(char*)gTextString,
 														50,
 														kNoSubstringAllowed);	
 		
@@ -7459,7 +7405,7 @@ void ReadGTOPO30PrjFile (
 			
 			mapProjectionInfoPtr->planarCoordinate.mapUnitsCode = mapUnitsCode;
 				
-			}		// end "if (tReturnCode == 0)"
+			}	// end "if (tReturnCode == 0)"
 			
 				// Find "Spheroid" in the buffer.								
 		
@@ -7469,7 +7415,7 @@ void ReadGTOPO30PrjFile (
 														&strPtr, 
 														5, 
 														kDoNotSkipEqual,
-														(char*)&gTextString,
+														(char*)gTextString,
 														50,
 														kNoSubstringAllowed);	
 						
@@ -7480,16 +7426,16 @@ void ReadGTOPO30PrjFile (
 			if (CompareStringsNoCase (&gTextString[1], (UCharPtr)"WGS84", 5) == 0)
 				mapProjectionInfoPtr->geodetic.spheroidCode = kWGS84EllipsoidCode;
 				
-			}		// end "if (tReturnCode == 0)"	
+			}	// end "if (tReturnCode == 0)"	
 			
-		else		// tReturnCode != 0
+		else	// tReturnCode != 0
 			{
 					// Spheroid not found; Set according to datum definition
 				
 			if (mapProjectionInfoPtr->geodetic.datumCode == kSphereDatumCode)
 				mapProjectionInfoPtr->geodetic.spheroidCode = kSphereEllipsoidCode;
 			
-			}		// end "else tReturnCode != 0"
+			}	// end "else tReturnCode != 0"
 			
 				// Find "Xshift" in the buffer.		
 				
@@ -7504,7 +7450,7 @@ void ReadGTOPO30PrjFile (
 			{
 			xShift = realValue;
 							
-			}		// end "if (tReturnCode == 0)"
+			}	// end "if (tReturnCode == 0)"
 			
 				// Find "Yshift" in the buffer.		
 				
@@ -7519,7 +7465,7 @@ void ReadGTOPO30PrjFile (
 			{
 			yShift = realValue;
 							
-			}		// end "if (tReturnCode == 0)"  
+			}	// end "if (tReturnCode == 0)"  
 		
 		if (errCode == noErr)
 			{
@@ -7533,7 +7479,7 @@ void ReadGTOPO30PrjFile (
 															&strPtr, 
 															-1, 
 															kDoNotSkipEqual,
-															(char*)&gTextString,
+															(char*)gTextString,
 															50,
 															kNoSubstringAllowed);		
 								
@@ -7549,7 +7495,7 @@ void ReadGTOPO30PrjFile (
 				tReturnCode = sscanf (strPtr, 
 											"%lf %s", 
 											&realValues[0], 
-											(char*)&gTextString);
+											(char*)gTextString);
 											
 				#if defined multispec_lin
 					strPtr = savedcharptr;
@@ -7558,9 +7504,9 @@ void ReadGTOPO30PrjFile (
 					//			if (returnCode >= 8)
 					//				SetProjectionParameters (mapProjectionInfoPtr, realValues, kPackedDegrees, kDegrees);
 				
-				}		// end "if (tReturnCode == 0)"
+				}	// end "if (tReturnCode == 0)"
 			
-			}		// end "if (errCode == noErr)" 	
+			}	// end "if (errCode == noErr)" 	
 			
 				// Adjust the upper left map location if needed.
 				
@@ -7583,17 +7529,17 @@ void ReadGTOPO30PrjFile (
 																		
 				mapProjectionInfoPtr->planarCoordinate.mapUnitsCode = kDecimalDegreesCode;
 													
-				}		// end "if (mapUnitsCode == kAVDecimalSecondsCode)"
+				}	// end "if (mapUnitsCode == kAVDecimalSecondsCode)"
 			
-			}		// end "if (...->gridCoordinate.referenceSystemCode == kGeographicRSCode)"
+			}	// end "if (...->gridCoordinate.referenceSystemCode == kGeographicRSCode)"
 			
-		}		// end "if (errCode == noErr)"	
+		}	// end "if (errCode == noErr)"	
 	
 	MHSetState (fileInfoPtr->mapProjectionHandle, handleStatus);
 		
 	return;
 	
-}		// end "ReadGTOPO30PrjFile"
+}	// end "ReadGTOPO30PrjFile"
 
 
 
@@ -7629,8 +7575,7 @@ void ReleaseShapeFileMemory (
 	
 	
 	shapeInfoPtr = (ShapeInfoPtr)GetHandlePointer (shapeHandlePtr[overlayIndex],
-																		kLock,
-																		kNoMoveHi);
+																		kLock);
 		
 	if (shapeInfoPtr != NULL)
 		{
@@ -7659,18 +7604,18 @@ void ReleaseShapeFileMemory (
 			UnlockAndDispose (shapeHandlePtr[overlayIndex]);
 			shapeHandlePtr[overlayIndex] = NULL;
 
-			}		// end "if (memoryReleaseCode == kAllShapeHandleMemory)"
+			}	// end "if (memoryReleaseCode == kAllShapeHandleMemory)"
 			
-		else		// memoryReleaseCode != kAllShapeHandleMemory
+		else	// memoryReleaseCode != kAllShapeHandleMemory
 			{
 			shapeInfoPtr->numberRecords = 0;
 			CheckAndUnlockHandle (shapeHandlePtr[overlayIndex]);
 
-			}		// end "else memoryReleaseCode != kAllShapeHandleMemory"
+			}	// end "else memoryReleaseCode != kAllShapeHandleMemory"
 		
-		}		// end "if (shapeInfoPtr != NULL)"
+		}	// end "if (shapeInfoPtr != NULL)"
 	
-}		// end "ReleaseShapeFileMemory"
+}	// end "ReleaseShapeFileMemory"
 
 
 
@@ -7716,14 +7661,14 @@ Boolean WindowBoundingAreaAndRectIntersect (
 			boundingRectanglePtr = &windowInfoPtr->boundingLatLongRectangle;
 		
 		if (AreasIntersect (boundingRectanglePtr, 
-									boundingRectPtr) )
+									boundingRectPtr))
 			areasIntersectFlag = TRUE;
 			
-		}		// end "if (windowInfoPtr != NULL)"
+		}	// end "if (windowInfoPtr != NULL)"
 		
 	return (areasIntersectFlag);
 	
-}		// end "WindowBoundingAreaAndRectIntersect"
+}	// end "WindowBoundingAreaAndRectIntersect"
 
 
 
@@ -7764,30 +7709,29 @@ Boolean WindowBoundingAreaAndRectIntersect (
 
 			// Verify that shape file intersects with the active image window.
 			
-	windowInfoHandle = GetWindowInfoHandle(gActiveImageWindow);
-	windowInfoPtr = (WindowInfoPtr)GetHandlePointer(
-										windowInfoHandle, kNoLock, kNoMoveHi);
+	windowInfoHandle = GetWindowInfoHandle (gActiveImageWindow);
+	windowInfoPtr = (WindowInfoPtr)GetHandlePointer (windowInfoHandle);
 			
 	areasIntersectFlag = WindowBoundingAreaAndRectIntersect (
 														windowInfoPtr,
 										 				boundingRectPtr,
 														inputIsMapTypeFlag);
-
-/*	if (windowInfoPtr != NULL)
+	/*
+	if (windowInfoPtr != NULL)
 		{
 		boundingRectanglePtr = &windowInfoPtr->boundingMapRectangle;
 		if (!inputIsMapTypeFlag)
 			boundingRectanglePtr = &windowInfoPtr->boundingLatLongRectangle;
 		
 		if (AreasIntersect (boundingRectanglePtr, 
-									boundingRectPtr) )
+									boundingRectPtr))
 			areasIntersectFlag = TRUE;
 			
-		}		// end "if (windowInfoPtr != NULL)"
-*/		
+		}	// end "if (windowInfoPtr != NULL)"
+	*/		
 	return (areasIntersectFlag);
 	
-}		// end "WindowBoundingAreaAndRectIntersect"
+}	// end "WindowBoundingAreaAndRectIntersect"
 
 
 
@@ -7823,26 +7767,23 @@ void SetLastVectorColorAndWidth (
 	ShapeInfoPtr						shapeInfoPtr;
 	
 		
-	shapeHandlePtr = (Handle*)GetHandlePointer(
-													gShapeFilesHandle, kNoLock, kNoMoveHi);
+	shapeHandlePtr = (Handle*)GetHandlePointer (gShapeFilesHandle);
 
 	if (shapeHandlePtr != NULL) 
 		{
 		shapeInfoPtr = (ShapeInfoPtr)GetHandlePointer (
-															shapeHandlePtr[overlayNumber-1],
-															kNoLock,
-															kNoMoveHi);
+															shapeHandlePtr[overlayNumber-1]);
 															
 		if (shapeInfoPtr != NULL)
 			{					
 			shapeInfoPtr->lastOverlayColor = *lastLineColorPtr;
 			shapeInfoPtr->lastLineThickness = lastLineThickness;					
 
-			}		// end "if (shapeInfoPtr != NULL)"
+			}	// end "if (shapeInfoPtr != NULL)"
 				
-		}		// end "if (shapeHandlePtr != NULL)"
+		}	// end "if (shapeHandlePtr != NULL)"
 
-}		// end "SetLastVectorColorAndWidth"
+}	// end "SetLastVectorColorAndWidth"
 
 
 
@@ -7897,15 +7838,14 @@ Boolean ShapeAndWindowAreasIntersect (
 	do
 		{
 		windowPtr = gWindowList[windowListIndex];         
-		windowInfoHandle = GetWindowInfoHandle(windowPtr);
-		windowInfoPtr = (WindowInfoPtr)GetHandlePointer(
-											windowInfoHandle, kNoLock, kNoMoveHi);
+		windowInfoHandle = GetWindowInfoHandle (windowPtr);
+		windowInfoPtr = (WindowInfoPtr)GetHandlePointer (windowInfoHandle);
 											
 				// Now check if the overlay is already included in the list.
 				
 		for (index=0; index<windowInfoPtr->numberOverlays; index++)
 			{
-			if (abs(windowInfoPtr->overlayList[index].index) == overlayNumber)
+			if (abs (windowInfoPtr->overlayList[index].index) == overlayNumber)
 				{
 				if (AreasIntersect (&windowInfoPtr->boundingMapRectangle, 
 												boundingRectPtr))
@@ -7913,11 +7853,11 @@ Boolean ShapeAndWindowAreasIntersect (
 					includeFlag = TRUE;
 					break;
 					
-					}		// end "if (AreaIntersects (...->boundingMapRectangle, ..."
+					}	// end "if (AreaIntersects (...->boundingMapRectangle, ..."
 				
-				}		// end "if ( abs(windowInfoPtr->overlayList[index].index) == ..."
+				}	// end "if (abs (windowInfoPtr->overlayList[index].index) == ..."
 			
-			}		// end "for (index=0; index<windowInfoPtr->numberOverlays; ..."
+			}	// end "for (index=0; index<windowInfoPtr->numberOverlays; ..."
 			
 		if (includeFlag)
 			break;
@@ -7925,10 +7865,10 @@ Boolean ShapeAndWindowAreasIntersect (
 		windowListIndex++;
 		windowCount++;
 													
-		}		while (windowCount<gNumberOfIWindows);
+		}	while (windowCount<gNumberOfIWindows);
 		
 	return (includeFlag);
 	
-}		// end "ShapeAndWindowAreasIntersect"
+}	// end "ShapeAndWindowAreasIntersect"
 
 

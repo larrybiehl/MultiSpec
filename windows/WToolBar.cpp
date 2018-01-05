@@ -1,15 +1,15 @@
 // WToolBar.cpp : implementation of the CMToolBar class
 //
-// Revised by Larry Biehl on 03/27/2017
+// Revised by Larry Biehl on 12/21/2017
 //
                    
-#include "SMulSpec.h"
+#include "SMultiSpec.h"
                     
 #include "WMultiSpec.h"  
-#include "CImagVew.h" 
+#include "WImageView.h" 
 #include "WToolBar.h"
 
-#include	"SExtGlob.h"
+//#include	"SExtGlob.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE

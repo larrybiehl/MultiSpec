@@ -3,21 +3,19 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//							 Copyright (1988-2016)
-//							(c) Purdue Research Foundation
+//							 Copyright (1988-2017)
+//						(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	File:						SGeoTIFF.cpp
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision number:		3.0
-//
-//	Revision date:			04/29/2016
+//	Revision date:			12/21/2017
 //
 //	Language:				C
 //
-//	System:					Macintosh and Windows Operating Systems
+//	System:					Linux, Macintosh and Windows Operating Systems
 //
 //	Brief description:	This file contains routines which are used to access
 //								various disk files.
@@ -41,18 +39,21 @@
 //
 //------------------------------------------------------------------------------------
 
-#include "SMulSpec.h"
+#include "SMultiSpec.h"
 	
 #if defined multispec_mac
 #endif	// defined multispec_mac    
 
+#if defined multispec_lin
+	#include "SMultiSpec.h"
+#endif
+
 #if defined multispec_win
-   	 
 #endif	// defined multispec_win
 
 #include 	"errno.h"
 
-#include "SExtGlob.h"	
+//#include "SExtGlob.h"	
 
 	// MultiSpec tiff code will be used for large file sizes. GDAL is very slow when
 	// reading large files particular when the files are not striped.
@@ -108,6 +109,11 @@ SInt16 				GetGeoDoubleParametersFromGeoTIFF (
 							TIFF_IFD_Ptr						imageFileDirectoryPtr,
 							double*								geoParametersPtr);
 
+SInt16				GetGeoASCIIStringFromGeoTIFF (
+							FileInfoPtr							fileInfoPtr,
+							char*									geoASCIIStringPtr,
+							UInt32								stringLengthLimit);
+
 SInt16 				GetGeoASCIIStringFromGeoTIFF (
 							FileInfoPtr							fileInfoPtr,
 							TIFF_IFD_Ptr						geoASCIIStringTagPtr,
@@ -154,7 +160,7 @@ SInt16 				SetPixelScaleParametersFromGeoTIFF (
 
 #if use_multispec_tiffcode
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -202,7 +208,6 @@ SInt16 CheckRowsPerStrip (
 											index,
 											lastBytesPerStrip,
 											lastStripOffset,
-//											nextChannelStripStart,
 											stripsPerChannel,
 											tempOffset;
 	
@@ -215,7 +220,6 @@ SInt16 CheckRowsPerStrip (
 	numberPostLineBytes = 0;
 	returnCode = 0;
 	nonContiguousStripsFlag = FALSE;
-//	nextChannelStripStart = 0;
 	channelIndex = 0;
 	errCode = noErr;
 	
@@ -253,20 +257,19 @@ SInt16 CheckRowsPerStrip (
 			
 			bytesPerStripForAllChannels = bytesPerStrip * 
 												fileInfoPtr->numberChannels;
-//			nextChannelStripStart = stripsPerChannel + 1;
 			break;
 			
-		}		// end "switch (fileInfoPtr->bandInterleave)"
+		}	// end "switch (fileInfoPtr->bandInterleave)"
 
 			// Get memory to store the block (strip) start values in.  If no
 			// memory is available then we cannot continue with this.
 			
-	blockStartsPtr = (UInt32*)MNewPointer (numberStripOffsets * sizeof(UInt32));
+	blockStartsPtr = (UInt32*)MNewPointer (numberStripOffsets * sizeof (UInt32));
 	if (blockStartsPtr == NULL)
 		errCode = -1;
 			
 	if (errCode == noErr)
-		errCode = MGetMarker(fileStreamPtr, 
+		errCode = MGetMarker (fileStreamPtr,
 										&savedPosOff,
 										kErrorMessages);
 	
@@ -303,9 +306,9 @@ SInt16 CheckRowsPerStrip (
 			fileInfoPtr->numberHeaderBytes = tempOffset;
 			stripOffsetVector = tempOffset;
 			
-			}		// end "if (index == 1)" 
+			}	// end "if (index == 1)" 
 			
-		else		// index > 2 
+		else	// index > 2 
 			{		
 			stripOffsetVector += bytesPerStrip + numberPostLineBytes;
 				
@@ -328,13 +331,13 @@ SInt16 CheckRowsPerStrip (
 											
 						stripOffsetVector += numberPostLineBytes;
 											
-						}		// end "if (index == 2)"
+						}	// end "if (index == 2)"
 											
 					else if (numberPostLineBytes != 
 								(SInt32)(tempOffset - stripOffsetVector))
 						nonContiguousStripsFlag = TRUE;
 							
-					}		// end "if (... == ...->numberLines)"
+					}	// end "if (... == ...->numberLines)"
 					
 						// Check if the strip offsets could be one 
 						// channel and line at a time. This would be
@@ -356,23 +359,23 @@ SInt16 CheckRowsPerStrip (
 					
 						stripOffsetVector += bytesPerStrip;
 										
-						}		// end "else if (numberStripOffsets == 
+						}	// end "else if (numberStripOffsets == 
 						
 					if (stripOffsetVector != tempOffset)
 						nonContiguousStripsFlag = TRUE;
 					
-					}		// end "if (stripOffsetVector != tempOffset)"
+					}	// end "if (stripOffsetVector != tempOffset)"
 					
-				else		// numberStripOffsets != ...
+				else	// numberStripOffsets != ...
 					nonContiguousStripsFlag = TRUE;
 					
-				}		// end "if (stripOffsetVector != ..." 
+				}	// end "if (stripOffsetVector != ..." 
 			
-			}		// end "else index > 1"
+			}	// end "else index > 1"
 			
 		lastStripOffset = tempOffset; 
 			
-		}		// end "for (index=1, ..." 
+		}	// end "for (index=1, ..." 
 										
 	if (errCode != noErr)
 		returnCode = -8;
@@ -401,7 +404,7 @@ SInt16 CheckRowsPerStrip (
 																numberStripByteCounts,
 																stripByteCountType,
 																stripByteCountVector);
-				}		// end "if (fileInfoPtr->numberChannels == 1 && ..."
+				}	// end "if (fileInfoPtr->numberChannels == 1 && ..."
 			
 			if (returnCode == 0)
 				returnCode = LoadHierarchalFileStructure (fileInfoPtr,
@@ -413,9 +416,9 @@ SInt16 CheckRowsPerStrip (
 																		lastBytesPerStrip,
 																		bytesPerStripForAllChannels);
 			
-			}		// end "if (nonContiguousStripsFlag)"
+			}	// end "if (nonContiguousStripsFlag)"
 		
-		else		// !nonContiguousStripsFlag		
+		else	// !nonContiguousStripsFlag		
 			{				
 			if (fileInfoPtr->bandInterleave == kBSQ)
 				{
@@ -427,14 +430,14 @@ SInt16 CheckRowsPerStrip (
 					fileInfoPtr->numberPostChannelBytes = numberBlankLines * 
 								fileInfoPtr->numberColumns * fileInfoPtr->numberBytes;
 										
-				}		// end "if (fileInfoPtr->bandInterleave == kBSQ)"
+				}	// end "if (fileInfoPtr->bandInterleave == kBSQ)"
 				
-			else		// fileInfoPtr->bandInterleave != kBSQ
+			else	// fileInfoPtr->bandInterleave != kBSQ
 				fileInfoPtr->numberPostLineBytes = (UInt32)numberPostLineBytes;
 				
-			}		// end "else !nonContiguousStripsFlag"	
+			}	// end "else !nonContiguousStripsFlag"	
 		
-		}		// end "if (returnCode == 0)"
+		}	// end "if (returnCode == 0)"
 			
 	if (errCode == noErr)
 		errCode = MSetMarker (fileStreamPtr, 
@@ -447,12 +450,12 @@ SInt16 CheckRowsPerStrip (
 		
 	return (returnCode);
 	
-}		// end "CheckRowsPerStrip" 
+}	// end "CheckRowsPerStrip" 
   
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -497,7 +500,7 @@ SInt16 GetBlockSizesVector (
 			// Get memory to store the block (strip) size values in.  If no
 			// memory is available then we cannot continue with this.
 			
-	*blockSizesPtrPtr = (UInt32*)MNewPointer ((SInt64)numberStripByteCounts * sizeof(UInt32));
+	*blockSizesPtrPtr = (UInt32*)MNewPointer ((SInt64)numberStripByteCounts * sizeof (UInt32));
 	if (*blockSizesPtrPtr == NULL)
 		errCode = -1;
 	
@@ -529,20 +532,20 @@ SInt16 GetBlockSizesVector (
 			
 		localBlockSizesPtr[index] = (UInt32)GetLongIntValue ((char*)&stripByteCount);
 		
-		}		// end "for (index=0; index<numberStripByteCounts; index++)"
+		}	// end "for (index=0; index<numberStripByteCounts; index++)"
 		
 	if (errCode != noErr)
 		returnCode = -8;
 		
 	return (returnCode);
 	
-}		// end "GetBlockSizesVector" 	
+}	// end "GetBlockSizesVector" 	
 #endif	// use_multispec_tiffcode
   
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -581,12 +584,12 @@ SInt16 GetGeoASCIIStringFromGeoTIFF (
 		
 	return (noErr);
 	
-}		// end "GetGeoASCIIStringFromGeoTIFF"
+}	// end "GetGeoASCIIStringFromGeoTIFF"
   
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -624,7 +627,7 @@ SInt16 GetGeoASCIIStringFromGeoTIFF (
 				geoASCIIStringTagPtr->count > 0 && 
 						geoASCIIStringTagPtr->type == kTIFFASCII)
 		{
-			// Will read a string up to stringLengthLimit.
+				// Will read a string up to stringLengthLimit.
 		
 		fileStreamPtr = GetFileStreamPointer (fileInfoPtr);
 		
@@ -639,16 +642,16 @@ SInt16 GetGeoASCIIStringFromGeoTIFF (
 		if (errCode != noErr)
 			geoASCIIStringTagPtr->tag = 0;
 			
-		}		// end "if (geoDoubleParamsTagPtr->tag == 34736 && ..."
+		}	// end "if (geoDoubleParamsTagPtr->tag == 34736 && ..."
 		
 	return (noErr);
 	
-}		// end "GetGeoASCIIStringFromGeoTIFF"
+}	// end "GetGeoASCIIStringFromGeoTIFF"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -685,12 +688,12 @@ SInt16 GetGTModelTypeGeoKey (
 		
 	return (gtModelTypeGeoKey);
 	
-}		// end "GetGTModelTypeGeoKey"
+}	// end "GetGTModelTypeGeoKey"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -739,7 +742,7 @@ SInt16 GetGTModelTypeGeoKeyFromGeoDirectory (
 		{																																									
 		fileStreamPtr = GetFileStreamPointer (fileInfoPtr);
 			
-		errCode = MGetMarker(fileStreamPtr, 
+		errCode = MGetMarker (fileStreamPtr, 
 											&savedPosOff,
 											kErrorMessages);
 			
@@ -776,8 +779,8 @@ SInt16 GetGTModelTypeGeoKeyFromGeoDirectory (
 					geoTagInformation[index] = 
 									(UInt16)GetShortIntValue ((char*)&geoTagInformation[index]);
 			
-					// The first geo key record is the version and number of geo keys.
-					// We will skip it.
+						// The first geo key record is the version and number of geo keys.
+						// We will skip it.
 					
 				if (recordIndex == 0)
 					geoKeyRecordPtr[0] = 0;
@@ -789,14 +792,14 @@ SInt16 GetGTModelTypeGeoKeyFromGeoDirectory (
 						foundFlag = TRUE;
 						break;
 																									
-					}		// end "switch (geoKeyRecordPtr[0])"
+					}	// end "switch (geoKeyRecordPtr[0])"
 											
 				if (foundFlag)
 					break;
 									
-				}		// end "for (recordIndex=0; recordIndex<count; recordIndex++)"
+				}	// end "for (recordIndex=0; recordIndex<count; recordIndex++)"
 			
-			}		// end "if (errCode == noErr)"
+			}	// end "if (errCode == noErr)"
 				
 		if (errCode == noErr)
 			errCode = MSetMarker (fileStreamPtr, 
@@ -804,16 +807,16 @@ SInt16 GetGTModelTypeGeoKeyFromGeoDirectory (
 											savedPosOff,
 											kErrorMessages);
 			
-		}		// end "if (imageFileDirectoryPtr->type == kTIFFShort && ..."
+		}	// end "if (imageFileDirectoryPtr->type == kTIFFShort && ..."
 		
 	return (gtModelTypeGeoKey);
 		
-}		// end "GetGTModelTypeGeoKeyFromGeoDirectory"
+}	// end "GetGTModelTypeGeoKeyFromGeoDirectory"
   
 
 #if use_multispec_tiffcode
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -852,25 +855,24 @@ SInt16 GetGeoDoubleParametersFromGeoTIFF (
 		
 		fileStreamPtr = GetFileStreamPointer (fileInfoPtr);
 										
-		errCode = GetTIFFDoubleParameters (
-								fileStreamPtr, 
-								geoDoubleParamsTagPtr, 
-								geoParametersPtr, 
-								(SInt32)geoDoubleParamsTagPtr->count);
-								
+		errCode = GetTIFFDoubleParameters (fileStreamPtr,
+														geoDoubleParamsTagPtr, 
+														geoParametersPtr, 
+														(SInt32)geoDoubleParamsTagPtr->count);
+		
 		if (errCode != noErr)
 			geoDoubleParamsTagPtr->tag = 0;
 			
-		}		// end "if (geoDoubleParamsTagPtr->tag == 34736 && ..."
+		}	// end "if (geoDoubleParamsTagPtr->tag == 34736 && ..."
 		
 	return (noErr);
 	
-}		// end "GetGeoDoubleParametersFromGeoTIFF"
+}	// end "GetGeoDoubleParametersFromGeoTIFF"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -936,12 +938,11 @@ SInt16 GetGeoKeyParameters (
 																								
 			mapProjectionInfoPtr = (MapProjectionInfoPtr)
 												GetHandlePointer (mapProjectionHandle,
-																			kLock,
-																			kNoMoveHi);
+																			kLock);
 			
 			fileStreamPtr = GetFileStreamPointer (fileInfoPtr);
 			
-			errCode = MGetMarker(fileStreamPtr, 
+			errCode = MGetMarker (fileStreamPtr, 
 											&savedPosOff,
 											kErrorMessages);
 			
@@ -976,10 +977,10 @@ SInt16 GetGeoKeyParameters (
 					for (i=0; i<4; i++, index++)
 								// Swap the bytes if needed.
 						geoTagInformation[index] = 
-										(UInt16)GetShortIntValue( (char*)&geoTagInformation[index] );
+										(UInt16)GetShortIntValue ((char*)&geoTagInformation[index]);
 				
-						// The first geo key record is the version and number of geo keys.
-						// We will skip it.
+							// The first geo key record is the version and number of geo keys.
+							// We will skip it.
 						
 					if (recordIndex == 0)
 						geoKeyRecordPtr[0] = 0;
@@ -992,7 +993,7 @@ SInt16 GetGeoKeyParameters (
 								mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = kGeographicRSCode;
 								mapProjectionInfoPtr->planarCoordinate.mapUnitsCode = kDecimalDegreesCode;
 								
-								}		// end "if (geoKeyRecordPtr[3] == 2)"
+								}	// end "if (geoKeyRecordPtr[3] == 2)"
 							break;
 							
 						case 1025:	// GTRasterTypeGeoKey RasterPixelIsArea (=1) or RasterPixelIsPoint (=2)
@@ -1037,7 +1038,6 @@ SInt16 GetGeoKeyParameters (
 								mapProjectionInfoPtr->geodetic.datumCode = kWGS84Code;
 								
 							SetEllipsoidFromDatum (mapProjectionInfoPtr);
-								
 							break;
 							
 						case 2049:	// GeogCitationGeoKey
@@ -1074,7 +1074,6 @@ SInt16 GetGeoKeyParameters (
 								
 							else if (geoKeyRecordPtr[3] == 6326)
 								mapProjectionInfoPtr->geodetic.datumCode = kWGS84Code;
-								
 							break;
 							
 						case 2052:	// GeogLinearUnitsGeoKey
@@ -1132,22 +1131,22 @@ SInt16 GetGeoKeyParameters (
 									mapProjectionInfoPtr->geodetic.spheroidCode = kGRS1967ModifiedEllipsoidCode;
 									break;
 								
-								}		// end "switch (geoKeyRecordPtr[3])"
+								}	// end "switch (geoKeyRecordPtr[3])"
 							break;
 								
 						case 2057:		// GeogSemiMajorAxisGeoKey
 							if (geoDoubleParamsPtr->tag == geoKeyRecordPtr[1])
-								mapProjectionInfoPtr->geodetic.semiMajorAxis = geoDoubleParameters[ geoKeyRecordPtr[3] ];
+								mapProjectionInfoPtr->geodetic.semiMajorAxis = geoDoubleParameters[geoKeyRecordPtr[3]];
 							break;
 								
 						case 2058:		// GeogSemiMinorAxisGeoKeyCode
 							if (geoDoubleParamsPtr->tag == geoKeyRecordPtr[1])
-								mapProjectionInfoPtr->geodetic.semiMinorAxis = geoDoubleParameters[ geoKeyRecordPtr[3] ];
+								mapProjectionInfoPtr->geodetic.semiMinorAxis = geoDoubleParameters[geoKeyRecordPtr[3]];
 							break;
 								
 						case 2059:		// ProjNatOriginLongGeoKey
 							if (geoDoubleParamsPtr->tag == geoKeyRecordPtr[1])
-								inverseFlatteningParameter = geoDoubleParameters[ geoKeyRecordPtr[3] ];
+								inverseFlatteningParameter = geoDoubleParameters[geoKeyRecordPtr[3]];
 							break;
 							
 						case 3072:	// ProjectedCSTypeGeoKey 
@@ -1163,7 +1162,7 @@ SInt16 GetGeoKeyParameters (
 																	(SInt16)(projectedCSTypeGeoKey - 32200);
 								mapProjectionInfoPtr->planarCoordinate.mapUnitsCode = kMetersCode;
 								
-								}		// end "if (projectedCSTypeGeoKey > 32200 && ..."
+								}	// end "if (projectedCSTypeGeoKey > 32200 && ..."
 								
 							else if (projectedCSTypeGeoKey > 32300 && 
 																		projectedCSTypeGeoKey <= 32360)
@@ -1176,7 +1175,7 @@ SInt16 GetGeoKeyParameters (
 																	(SInt16)(-(projectedCSTypeGeoKey - 32300));
 								mapProjectionInfoPtr->planarCoordinate.mapUnitsCode = kMetersCode;
 								
-								}		// end "if (projectedCSTypeGeoKey > 32600 && ..."
+								}	// end "if (projectedCSTypeGeoKey > 32600 && ..."
 								
 							else if (projectedCSTypeGeoKey > 32600 && 
 																		projectedCSTypeGeoKey <= 32660)
@@ -1190,7 +1189,7 @@ SInt16 GetGeoKeyParameters (
 																	(SInt16)(projectedCSTypeGeoKey - 32600);
 								mapProjectionInfoPtr->planarCoordinate.mapUnitsCode = kMetersCode;
 								
-								}		// end "if (projectedCSTypeGeoKey > 32600 && ..."
+								}	// end "if (projectedCSTypeGeoKey > 32600 && ..."
 								
 							else if (projectedCSTypeGeoKey > 32700 && 
 																		projectedCSTypeGeoKey <= 32760)
@@ -1204,7 +1203,7 @@ SInt16 GetGeoKeyParameters (
 																	(SInt16)(-(projectedCSTypeGeoKey - 32700));
 								mapProjectionInfoPtr->planarCoordinate.mapUnitsCode = kMetersCode;
 								
-								}		// end "if (projectedCSTypeGeoKey > 32600 && ..."
+								}	// end "if (projectedCSTypeGeoKey > 32600 && ..."
 								
 							else if (projectedCSTypeGeoKey > 26703 && 
 																		projectedCSTypeGeoKey <= 26722)
@@ -1218,7 +1217,7 @@ SInt16 GetGeoKeyParameters (
 																	(SInt16)(projectedCSTypeGeoKey - 26700);
 								mapProjectionInfoPtr->planarCoordinate.mapUnitsCode = kMetersCode;
 								
-								}		// end "if (projectedCSTypeGeoKey > 32600 && ..."
+								}	// end "if (projectedCSTypeGeoKey > 32600 && ..."
 								
 							else if (projectedCSTypeGeoKey > 26903 && 
 																		projectedCSTypeGeoKey <= 26923)
@@ -1232,12 +1231,12 @@ SInt16 GetGeoKeyParameters (
 																	(SInt16)(projectedCSTypeGeoKey - 26900);
 								mapProjectionInfoPtr->planarCoordinate.mapUnitsCode = kMetersCode;
 								
-								}		// end "if (projectedCSTypeGeoKey > 32600 && ..."
+								}	// end "if (projectedCSTypeGeoKey > 32600 && ..."
 								
 							else if ((projectedCSTypeGeoKey >= 26729 && 
 																		projectedCSTypeGeoKey <= 26798) ||
 										(projectedCSTypeGeoKey >= 32001 && 
-																		projectedCSTypeGeoKey <= 32058) )
+																		projectedCSTypeGeoKey <= 32058))
 								{
 								mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = kStatePlaneNAD27RSCode;
 								mapProjectionInfoPtr->geodetic.datumCode = kNAD27Code;
@@ -1259,14 +1258,14 @@ SInt16 GetGeoKeyParameters (
 										mapProjectionInfoPtr->gridCoordinate.gridZone = 3104;
 										break;
 									
-									}		// end "switch (projectedCSTypeGeoKey)"
+									}	// end "switch (projectedCSTypeGeoKey)"
 								
-								}		// end "if (projectedCSTypeGeoKey > 32600 && ..."
+								}	// end "if (projectedCSTypeGeoKey > 32600 && ..."
 								
 							else if ((projectedCSTypeGeoKey >= 26929 && 
 																		projectedCSTypeGeoKey <= 26998) ||
 										(projectedCSTypeGeoKey >= 32100 && 
-																		projectedCSTypeGeoKey <= 32158) )
+																		projectedCSTypeGeoKey <= 32158))
 								{
 								mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = kStatePlaneNAD83RSCode;
 								mapProjectionInfoPtr->geodetic.datumCode = kNAD83Code;
@@ -1288,9 +1287,9 @@ SInt16 GetGeoKeyParameters (
 										mapProjectionInfoPtr->gridCoordinate.gridZone = 3104;
 										break;
 									
-									}		// end "switch (projectedCSTypeGeoKey)"
+									}	// end "switch (projectedCSTypeGeoKey)"
 								
-								}		// end "if (projectedCSTypeGeoKey >= 32600 && ..."
+								}	// end "if (projectedCSTypeGeoKey >= 32600 && ..."
 								
 							else if (projectedCSTypeGeoKey >= 28348 && 
 																		projectedCSTypeGeoKey <= 28358)
@@ -1304,7 +1303,7 @@ SInt16 GetGeoKeyParameters (
 																	(SInt16)(projectedCSTypeGeoKey - 28300);
 								mapProjectionInfoPtr->planarCoordinate.mapUnitsCode = kMetersCode;
 								
-								}		// end "if (projectedCSTypeGeoKey >= 28348 && ..."
+								}	// end "if (projectedCSTypeGeoKey >= 28348 && ..."
 								
 							else if (projectedCSTypeGeoKey >= 28402 && 
 																		projectedCSTypeGeoKey <= 28432)
@@ -1318,7 +1317,7 @@ SInt16 GetGeoKeyParameters (
 																	(SInt16)(projectedCSTypeGeoKey - 28400);
 								mapProjectionInfoPtr->planarCoordinate.mapUnitsCode = kMetersCode;
 								
-								}		// end "if (projectedCSTypeGeoKey >= 28402 && ..."
+								}	// end "if (projectedCSTypeGeoKey >= 28402 && ..."
 								
 							else if (projectedCSTypeGeoKey >= 29177 && 
 																		projectedCSTypeGeoKey <= 29185)
@@ -1332,12 +1331,11 @@ SInt16 GetGeoKeyParameters (
 																	(SInt16)(-(projectedCSTypeGeoKey - 29160));
 								mapProjectionInfoPtr->planarCoordinate.mapUnitsCode = kMetersCode;
 								
-								}		// end "if (projectedCSTypeGeoKey >= 29177 && ..."
+								}	// end "if (projectedCSTypeGeoKey >= 29177 && ..."
 								
 									// Save this geo key in case needed to write out to a new file.
 									
 							mapProjectionInfoPtr->projectedCSTypeGeoKey = projectedCSTypeGeoKey;
-								
 							break;
 							
 						case 3073:	// PCSCitationGeoKey
@@ -1346,12 +1344,6 @@ SInt16 GetGeoKeyParameters (
 							
 						case 3074:		// ProjectionGeoKey 
 							projectionGeoKey = geoKeyRecordPtr[3]; 
-//							switch (projectionGeoKey)
-//								{
-//								default:
-//									break;
-//								
-//								}		// end "switch (projectedCoordTransGeoKey)"
 							break;
 							
 						case 3075:		// ProjCoordTransGeoKey 
@@ -1427,19 +1419,9 @@ SInt16 GetGeoKeyParameters (
 									break;
 								case 28:
 									mapProjectionInfoPtr->gridCoordinate.projectionCode = kCylindricalEqualAreaCode;
-									
-											// Set some parameters for now that are not now being written
-											// by MultiSpec.  They will be written over if available from another
-											// source file.
-											// Commented out on 6/1/2011.
-									
-//									mapProjectionInfoPtr->gridCoordinate.standardParallel1 = 30;
-//									mapProjectionInfoPtr->gridCoordinate.longitudeCentralMeridian = 0;
-//									mapProjectionInfoPtr->geodetic.radiusSpheroid = 6371228;
 									break;
 								
-								}		// end "switch (geoKeyRecordPtr[3])"
-																
+								}	// end "switch (geoKeyRecordPtr[3])"
 							break;
 							
 						case 3076:		// ProjLinearUnitsGeoKey 
@@ -1457,110 +1439,110 @@ SInt16 GetGeoKeyParameters (
 									mapProjectionInfoPtr->planarCoordinate.mapUnitsCode = kUSSurveyFeetCode;
 									break;
 								
-								}		// end "switch (geoKeyRecordPtr[3])"
+								}	// end "switch (geoKeyRecordPtr[3])"
 							break;
 								
 						case 3078:		// ProjStdParallel1GeoKey
 							if (geoDoubleParamsPtr->tag == geoKeyRecordPtr[1])
 								mapProjectionInfoPtr->gridCoordinate.standardParallel1 =
-																	geoDoubleParameters[ geoKeyRecordPtr[3] ];
+																	geoDoubleParameters[geoKeyRecordPtr[3]];
 							break;
 								
 						case 3079:		// ProjStdParallel2GeoKey
 							if (geoDoubleParamsPtr->tag == geoKeyRecordPtr[1])
 								mapProjectionInfoPtr->gridCoordinate.standardParallel2 =
-																	geoDoubleParameters[ geoKeyRecordPtr[3] ];
+																	geoDoubleParameters[geoKeyRecordPtr[3]];
 							break;
 								
 						case 3080:		// ProjNatOriginLongGeoKey
 							if (geoDoubleParamsPtr->tag == geoKeyRecordPtr[1])
 								mapProjectionInfoPtr->gridCoordinate.longitudeCentralMeridian = 
-																	geoDoubleParameters[ geoKeyRecordPtr[3] ];
+																	geoDoubleParameters[geoKeyRecordPtr[3]];
 							break;
 								
 						case 3081:		// ProjNatOriginLatGeoKey
 							if (geoDoubleParamsPtr->tag == geoKeyRecordPtr[1])
 								mapProjectionInfoPtr->gridCoordinate.latitudeOrigin =
-																	geoDoubleParameters[ geoKeyRecordPtr[3] ];
+																	geoDoubleParameters[geoKeyRecordPtr[3]];
 							break;
 								
 						case 3082:		// ProjFalseEastingGeoKey
 							if (geoDoubleParamsPtr->tag == geoKeyRecordPtr[1])
 								mapProjectionInfoPtr->gridCoordinate.falseEasting =
-																	geoDoubleParameters[ geoKeyRecordPtr[3] ];
+																	geoDoubleParameters[geoKeyRecordPtr[3]];
 							break;
 								
 						case 3083:		// ProjFalseNorthingGeoKey
 							if (geoDoubleParamsPtr->tag == geoKeyRecordPtr[1])
 								mapProjectionInfoPtr->gridCoordinate.falseNorthing =
-																	geoDoubleParameters[ geoKeyRecordPtr[3] ];
+																	geoDoubleParameters[geoKeyRecordPtr[3]];
 							break;
 								
 						case 3084:		// ProjFalseOriginLongGeoKey
 							if (geoDoubleParamsPtr->tag == geoKeyRecordPtr[1])
 								mapProjectionInfoPtr->gridCoordinate.falseOriginLongitude =
-																	geoDoubleParameters[ geoKeyRecordPtr[3] ];
+																	geoDoubleParameters[geoKeyRecordPtr[3]];
 							break;
 								
 						case 3085:		// ProjFalseOriginLatGeoKey
 							if (geoDoubleParamsPtr->tag == geoKeyRecordPtr[1])
 								mapProjectionInfoPtr->gridCoordinate.falseOriginLatitude =
-																	geoDoubleParameters[ geoKeyRecordPtr[3] ];
+																	geoDoubleParameters[geoKeyRecordPtr[3]];
 							break;
 								
 						case 3086:		// ProjFalseEastingLatGeoKey
 							if (geoDoubleParamsPtr->tag == geoKeyRecordPtr[1])
 								mapProjectionInfoPtr->gridCoordinate.falseOriginEasting =
-																	geoDoubleParameters[ geoKeyRecordPtr[3] ];
+																	geoDoubleParameters[geoKeyRecordPtr[3]];
 							break;
 								
 						case 3087:		// ProjFalseNorthingLatGeoKey
 							if (geoDoubleParamsPtr->tag == geoKeyRecordPtr[1])
 								mapProjectionInfoPtr->gridCoordinate.falseOriginNorthing =
-																	geoDoubleParameters[ geoKeyRecordPtr[3] ];
+																	geoDoubleParameters[geoKeyRecordPtr[3]];
 							break;
 								
 						case 3088:		// ProjCenterLongGeoKey
 							if (geoDoubleParamsPtr->tag == geoKeyRecordPtr[1])
 								mapProjectionInfoPtr->gridCoordinate.longitudeCentralMeridian =
-																	geoDoubleParameters[ geoKeyRecordPtr[3] ];
+																	geoDoubleParameters[geoKeyRecordPtr[3]];
 							break;
 								
 						case 3089:		// ProjCenterLatGeoKey
 							if (geoDoubleParamsPtr->tag == geoKeyRecordPtr[1])
 								mapProjectionInfoPtr->gridCoordinate.latitudeOrigin =
-																	geoDoubleParameters[ geoKeyRecordPtr[3] ];
+																	geoDoubleParameters[geoKeyRecordPtr[3]];
 							break;
 								
 						case 3092:		// ProjScaleAtNatOriginGeoKey
 							if (geoDoubleParamsPtr->tag == geoKeyRecordPtr[1])
 								mapProjectionInfoPtr->gridCoordinate.scaleFactorOfCentralMeridian =
-																	geoDoubleParameters[ geoKeyRecordPtr[3] ];
+																	geoDoubleParameters[geoKeyRecordPtr[3]];
 							break;
 								
 						case 3093:		// ProjScaleAtCenterGeoKey
 							if (geoDoubleParamsPtr->tag == geoKeyRecordPtr[1])
 								mapProjectionInfoPtr->gridCoordinate.scaleFactorOfCentralMeridian =
-																	geoDoubleParameters[ geoKeyRecordPtr[3] ];
+																	geoDoubleParameters[geoKeyRecordPtr[3]];
 							break;
 								
 						case 3094:		// ProjAzimuthAngleGeoKey
 							if (geoDoubleParamsPtr->tag == geoKeyRecordPtr[1])
 								mapProjectionInfoPtr->gridCoordinate.projAzimuthAngle =
-																	geoDoubleParameters[ geoKeyRecordPtr[3] ];
+																	geoDoubleParameters[geoKeyRecordPtr[3]];
 							break;
 								
 						case 3095:		// ProjStraightVertPoleLongGeoKey
 							if (geoDoubleParamsPtr->tag == geoKeyRecordPtr[1])
 								mapProjectionInfoPtr->gridCoordinate.longitudeCentralMeridian =
-																	geoDoubleParameters[ geoKeyRecordPtr[3] ];
+																	geoDoubleParameters[geoKeyRecordPtr[3]];
 							break;
 						
-						}		// end "switch (geoKeyRecordPtr[0])"
+						}	// end "switch (geoKeyRecordPtr[0])"
 										
-					}		// end "for (recordIndex=0; recordIndex<count; recordIndex++)"
+					}	// end "for (recordIndex=0; recordIndex<count; recordIndex++)"
 				
-				}		// end "if (errCode == noErr)"
+				}	// end "if (errCode == noErr)"
 					
 			if (errCode == noErr)
 				errCode = MSetMarker (fileStreamPtr, 
@@ -1577,19 +1559,19 @@ SInt16 GetGeoKeyParameters (
 												
 			CheckAndUnlockHandle (mapProjectionHandle);
 												
-			}		// end "if (mapProjectionHandle != NULL)"
+			}	// end "if (mapProjectionHandle != NULL)"
 			
-		}		// end "if (imageFileDirectoryPtr->type == kTIFFShort && ..."
+		}	// end "if (imageFileDirectoryPtr->type == kTIFFShort && ..."
 		
 	return (errCode);
 	
-}		// end "GetGeoKeyParameters"
+}	// end "GetGeoKeyParameters"
 #endif		// use_multispec_tiffcode
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1676,7 +1658,7 @@ Boolean GetSpecifiedTIFFKeyDirectory (
 											&numberEntries,
 											kErrorMessages);
 				
-			}		// end "if (errCode == noErr)" 
+			}	// end "if (errCode == noErr)" 
 			
 		if (errCode == noErr)
 			{
@@ -1695,16 +1677,16 @@ Boolean GetSpecifiedTIFFKeyDirectory (
 						
 					break;
 					
-					}		// end "if (imageFileDirectoryPtr->tag >= tiffKeyNumber)"
+					}	// end "if (imageFileDirectoryPtr->tag >= tiffKeyNumber)"
 					
 				if (tiffFileDirectoryPtr->tag == 0 || errCode != noErr)
 					break;
 					
-				}		// end "for (item=1, item<=numberEntries, item++)" 
+				}	// end "for (item=1, item<=numberEntries, item++)" 
 																					
-			}		// end "if (errCode == noErr)"
+			}	// end "if (errCode == noErr)"
 					
-		}		// end "if (errCode == noErr)"	
+		}	// end "if (errCode == noErr)"	
 		
 			// Reset the global swap byte flag
 				
@@ -1712,11 +1694,11 @@ Boolean GetSpecifiedTIFFKeyDirectory (
 		
 	return (foundFlag);
 	
-}		// end "GetSpecifiedTIFFKeyDirectory"
+}	// end "GetSpecifiedTIFFKeyDirectory"
   
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1735,7 +1717,7 @@ Boolean GetSpecifiedTIFFKeyDirectory (
 //	Coded By:			Larry L. Biehl			Date: 02/07/2012
 //	Revised By:			Larry L. Biehl			Date: 02/07/2012
 
-Boolean GetSwapBytesFlagForTiffFile ( 
+Boolean GetSwapBytesFlagForTiffFile (
 				char*									headerRecordPtr)
 
 {	
@@ -1757,7 +1739,7 @@ Boolean GetSwapBytesFlagForTiffFile (
 		if (stringCompare == 0)
 			swapBytesFlag = !gBigEndianFlag;
 			
-		else		// stringCompare != 0
+		else	// stringCompare != 0
 			{              
 			charKeyCode[0] = 0x49;
 			charKeyCode[1] = 0x49;
@@ -1768,18 +1750,18 @@ Boolean GetSwapBytesFlagForTiffFile (
 			if (stringCompare == 0)
 				swapBytesFlag = gBigEndianFlag;
 				
-			}		// end "if (stringCompare != 0)" 
+			}	// end "if (stringCompare != 0)" 
 			
-		}		// end "if (headerRecordPtr != NULL)"
+		}	// end "if (headerRecordPtr != NULL)"
 		
 	return (swapBytesFlag);
 	
-}		// end "GetSwapBytesFlagForTiffFile"
+}	// end "GetSwapBytesFlagForTiffFile"
 							
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1816,25 +1798,25 @@ SInt16 GetTiffEntry (
 	
 			
 	count = 12;
-	errCode = MReadData(fileStreamPtr, &count, inputBufferPtr, kErrorMessages);
+	errCode = MReadData (fileStreamPtr, &count, inputBufferPtr, kErrorMessages);
 	
 	if (errCode == noErr)
 		{
 				// Get the tag number.												
 				
-		BlockMoveData ( (char*)&inputBufferPtr[0], (char*)&tempInt, 2);
+		BlockMoveData ((char*)&inputBufferPtr[0], (char*)&tempInt, 2);
 		
-      tag = GetShortIntValue( (char*)&tempInt );
+      tag = GetShortIntValue ((char*)&tempInt);
 			
 				// Get the type code.												
 				
-		BlockMoveData ( (char*)&inputBufferPtr[2], (char*)&tempInt, 2);
+		BlockMoveData ((char*)&inputBufferPtr[2], (char*)&tempInt, 2);
 		
-      type = GetShortIntValue( (char*)&tempInt );
+      type = GetShortIntValue ((char*)&tempInt);
 			
 				// Get the number of values of the indicated type.			
 				
-		BlockMoveData ( (char*)&inputBufferPtr[4], (char*)&tempLongInt, 4);
+		BlockMoveData ((char*)&inputBufferPtr[4], (char*)&tempLongInt, 4);
 		
 		count = (UInt32)GetLongIntValue ((char*)&tempLongInt);
 			
@@ -1842,21 +1824,21 @@ SInt16 GetTiffEntry (
 		
 		if (type == kTIFFShort && count == 1)
 			{
-			BlockMoveData ( (char*)&inputBufferPtr[8], (char*)&tempInt, 2);
+			BlockMoveData ((char*)&inputBufferPtr[8], (char*)&tempInt, 2);
 			
-      	value = (UInt32)((UInt16)GetShortIntValue( (char*)&tempInt ));
+      	value = (UInt32)((UInt16)GetShortIntValue ((char*)&tempInt));
 				
-			}		// end "if (type == kTIFFShort && count == 1)" 
+			}	// end "if (type == kTIFFShort && count == 1)" 
 			
 		else if (type == kTIFFLong || kTIFFRational || count > 1)
 			{
-			BlockMoveData ( (char*)&inputBufferPtr[8], (char*)&tempLongInt, 4);
+			BlockMoveData ((char*)&inputBufferPtr[8], (char*)&tempLongInt, 4);
 			
 			value = (UInt32)GetLongIntValue ((char*)&tempLongInt);
 				
-			}		// end "if (type == kTIFFLong || kTIFFRational || count > 1)" 
+			}	// end "if (type == kTIFFLong || kTIFFRational || count > 1)" 
 			
-		else		// something else
+		else	// something else
 			value = 0;
 			
 		imageFileDirectoryPtr->tag = (UInt16)tag;
@@ -1864,19 +1846,19 @@ SInt16 GetTiffEntry (
 		imageFileDirectoryPtr->count = count;
 		imageFileDirectoryPtr->value = value;
 			
-		}		// end "if (errCode == noErr)" 
+		}	// end "if (errCode == noErr)" 
 		
-	else		// errCode != noErr 
+	else	// errCode != noErr 
 		imageFileDirectoryPtr->tag = 0;
 			
 	return (errCode);
 	
-}		// end "GetTiffEntry"    
+}	// end "GetTiffEntry"    
   
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1913,7 +1895,7 @@ SInt16 GetTIFFASCIIParameters (
 	if (imageFileDirectoryPtr->type == kTIFFASCII && 
 						numberCharacters <= (SInt32)imageFileDirectoryPtr->count)
 		{		
-		errCode = MGetMarker(fileStreamPtr, 
+		errCode = MGetMarker (fileStreamPtr, 
 										&savedPosOff,
 										kErrorMessages);
 		
@@ -1942,17 +1924,17 @@ SInt16 GetTIFFASCIIParameters (
 											savedPosOff,
 											kErrorMessages);
 			
-		}		// end "if (imageFileDirectoryPtr->type == kTIFFASCII && ..."
+		}	// end "if (imageFileDirectoryPtr->type == kTIFFASCII && ..."
 		
 	return (errCode);
 	
-}		// end "GetTIFFASCIIParameters"
+}	// end "GetTIFFASCIIParameters"
   
 
 
 #if use_multispec_tiffcode
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1991,9 +1973,9 @@ SInt16 GetTIFFDoubleParameters (
 	
 	
 	if (imageFileDirectoryPtr->type == kTIFFDouble && 
-												numberParameters <= (SInt32)imageFileDirectoryPtr->count)
+										numberParameters <= (SInt32)imageFileDirectoryPtr->count)
 		{		
-		errCode = MGetMarker(fileStreamPtr, 
+		errCode = MGetMarker (fileStreamPtr, 
 										&savedPosOff,
 										kErrorMessages);
 		
@@ -2017,7 +1999,7 @@ SInt16 GetTIFFDoubleParameters (
 												
 			doubleParameterPtr[index] = GetDoubleValue (tempDouble);
 			
-			}		// end "for (index=0; index<numberParameters; index++)"
+			}	// end "for (index=0; index<numberParameters; index++)"
 				
 		if (errCode == noErr)
 			errCode = MSetMarker (fileStreamPtr, 
@@ -2025,17 +2007,17 @@ SInt16 GetTIFFDoubleParameters (
 											savedPosOff,
 											kErrorMessages);
 			
-		}		// end "if (imageFileDirectoryPtr->type == kTIFFDouble && count <= ..."
+		}	// end "if (imageFileDirectoryPtr->type == kTIFFDouble && count <= ..."
 		
 	return (errCode);
 	
-}		// end "GetTIFFDoubleParameters"
+}	// end "GetTIFFDoubleParameters"
 #endif		// use_multispec_tiffcode
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2074,15 +2056,15 @@ UInt32 GetTIFFNumberHeaderBytes (
 		if (tiffFileDirectory.count == 1)
 			numberHeaderBytes = tiffFileDirectory.value;
 
-		}		// end "if (GetSpecifiedTIFFKeyDirectory (fileInfoPtr, 273, ..."
+		}	// end "if (GetSpecifiedTIFFKeyDirectory (fileInfoPtr, 273, ..."
 		
 	return (numberHeaderBytes);
 	
-}		// end "GetTIFFNumberHeaderBytes"
+}	// end "GetTIFFNumberHeaderBytes"
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2132,19 +2114,18 @@ Boolean ListGeoTiffTextDescriptionParameters (
 											stringListedFlag;
 	
 	
-	if (imageFileDirectoryPtr->type == kTIFFShort && 
-																imageFileDirectoryPtr->count > 0)
+	if (imageFileDirectoryPtr->type == kTIFFShort && imageFileDirectoryPtr->count > 0)
 		{																	
 				// Get ascii information in case it will be needed later.
 					
 		GetGeoASCIIStringFromGeoTIFF (fileInfoPtr,
-														geoAsciiStringPtr,
-														textString,
-														1023);
+													geoAsciiStringPtr,
+													textString,
+													1023);
 																								
 		fileStreamPtr = GetFileStreamPointer (fileInfoPtr);
 			
-		errCode = MGetMarker(fileStreamPtr, 
+		errCode = MGetMarker (fileStreamPtr, 
 											&savedPosOff,
 											kErrorMessages);
 			
@@ -2193,9 +2174,9 @@ Boolean ListGeoTiffTextDescriptionParameters (
 					{
 					case 1026:	// GTCitationGeoKey
 						textStringLength = MIN (geoKeyRecordPtr[2], 1023);
-						stringLength = sprintf ((char*)&gTextString,
+						stringLength = sprintf ((char*)gTextString,
 														"    GeoTIFF GTCitationGeoKey: ");						
-						continueFlag = ListString((char*)&gTextString,  
+						continueFlag = ListString ((char*)gTextString,  
 															stringLength,
 															gOutputTextH);
 								
@@ -2216,9 +2197,9 @@ Boolean ListGeoTiffTextDescriptionParameters (
 													
 					case 2049:	// GeogCitationGeoKey
 						textStringLength = MIN (geoKeyRecordPtr[2], 1023);
-						stringLength = sprintf ((char*)&gTextString,
+						stringLength = sprintf ((char*)gTextString,
 														"    GeoTIFF GeogCitationGeoKey: ");						
-						continueFlag = ListString((char*)&gTextString,  
+						continueFlag = ListString ((char*)gTextString,  
 															stringLength,
 															gOutputTextH);
 								
@@ -2239,9 +2220,9 @@ Boolean ListGeoTiffTextDescriptionParameters (
 													
 					case 3073:	// PCSCitationGeoKey
 						textStringLength = MIN (geoKeyRecordPtr[2], 1023);
-						stringLength = sprintf ((char*)&gTextString,
+						stringLength = sprintf ((char*)gTextString,
 															"    GeoTIFF PCSCitationGeoKey: ");						
-						continueFlag = ListString((char*)&gTextString,  
+						continueFlag = ListString ((char*)gTextString,  
 															stringLength,
 															gOutputTextH);
 															
@@ -2253,25 +2234,25 @@ Boolean ListGeoTiffTextDescriptionParameters (
 						stringListedFlag = TRUE;
 						break;
 												
-					}		// end "switch (geoKeyRecordPtr[0])"
+					}	// end "switch (geoKeyRecordPtr[0])"
 					
 				if (stringListedFlag && continueFlag)
 					{
-					continueFlag = ListString(
+					continueFlag = ListString (
 											(char*)gEndOfLine, 
 											gNumberOfEndOfLineCharacters, 
 											gOutputTextH);		
 											
 					*addBlankLineFlagPtr = TRUE;
 					
-					}		// end "if (stringListedFlag && continueFlag)"
+					}	// end "if (stringListedFlag && continueFlag)"
 											
 				if (!continueFlag || geoKeyRecordPtr[0] > 3073)
 					break;
 									
-				}		// end "for (recordIndex=0; recordIndex<count; recordIndex++)"
+				}	// end "for (recordIndex=0; recordIndex<count; recordIndex++)"
 			
-			}		// end "if (errCode == noErr)"
+			}	// end "if (errCode == noErr)"
 				
 		if (errCode == noErr)
 			errCode = MSetMarker (fileStreamPtr, 
@@ -2279,16 +2260,16 @@ Boolean ListGeoTiffTextDescriptionParameters (
 											savedPosOff,
 											kErrorMessages);
 			
-		}		// end "if (imageFileDirectoryPtr->type == kTIFFShort && ..."
+		}	// end "if (imageFileDirectoryPtr->type == kTIFFShort && ..."
 		
 	return (continueFlag);
 		
-}		// end "ListGeoTiffTextDescriptionParameters"
+}	// end "ListGeoTiffTextDescriptionParameters"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2381,7 +2362,7 @@ Boolean ListTiffTextDescriptionParameters (
 											&numberEntries,
 											kErrorMessages);
 				
-			}		// end "if (errCode == noErr)" 
+			}	// end "if (errCode == noErr)" 
 			
 		if (errCode == noErr)
 			{
@@ -2403,16 +2384,15 @@ Boolean ListTiffTextDescriptionParameters (
 														textString,
 														textStringLength);
 														
-						stringLength = sprintf ((char*)&gTextString,
+						stringLength = sprintf ((char*)gTextString,
 														"    Image Description: ");						
-						continueFlag = ListString((char*)&gTextString,  
+						continueFlag = ListString ((char*)gTextString,  
 															stringLength,
 															gOutputTextH);
 						
-						continueFlag = ListString (
-												textString, 
-												textStringLength, 
-												gOutputTextH);
+						continueFlag = ListString (textString,
+																textStringLength,
+																gOutputTextH);
 						
 						stringListedFlag = TRUE;
 						break;
@@ -2424,16 +2404,15 @@ Boolean ListTiffTextDescriptionParameters (
 														textString,
 														textStringLength);
 														
-						stringLength = sprintf ((char*)&gTextString,
+						stringLength = sprintf ((char*)gTextString,
 														"    Copyright: ");						
-						continueFlag = ListString((char*)&gTextString,  
+						continueFlag = ListString ((char*)gTextString,  
 															stringLength,
 															gOutputTextH);
 						
-						continueFlag = ListString (
-												textString, 
-												textStringLength, 
-												gOutputTextH);
+						continueFlag = ListString (textString,
+																textStringLength,
+																gOutputTextH);
 						
 						stringListedFlag = TRUE;
 						break;
@@ -2450,23 +2429,22 @@ Boolean ListTiffTextDescriptionParameters (
 						errCode = noErr;
 						break;
 						
-					}		// end "switch (imageFileDirectory.tag)" 
+					}	// end "switch (imageFileDirectory.tag)" 
 					
 				if (stringListedFlag && continueFlag)
 					{
-					continueFlag = ListString(
-											(char*)gEndOfLine, 
-											gNumberOfEndOfLineCharacters, 
-											gOutputTextH);		
-											
+					continueFlag = ListString ((char*)gEndOfLine,
+														gNumberOfEndOfLineCharacters,
+														gOutputTextH);		
+					
 					addBlankLineFlag = TRUE;
 					
-					}		// end "if (stringListedFlag && continueFlag)"
+					}	// end "if (stringListedFlag && continueFlag)"
 					
 				if (imageFileDirectory.tag == 0 || errCode != noErr || !continueFlag)
 					break;
 					
-				}		// end "for (item=1, item<=numberEntries, item++)" 
+				}	// end "for (item=1, item<=numberEntries, item++)" 
 				
 			if (geoKeyDirectoryTag.tag == 34735 && errCode == noErr)
 				continueFlag = ListGeoTiffTextDescriptionParameters (fileInfoPtr,
@@ -2474,15 +2452,14 @@ Boolean ListTiffTextDescriptionParameters (
 																						&geoAsciiParamsTag,
 																						&addBlankLineFlag);
 																					
-			}		// end "if (errCode == noErr)"
+			}	// end "if (errCode == noErr)"
 					
 		if (continueFlag && addBlankLineFlag)
-			continueFlag = ListString(
-									(char*)gEndOfLine, 
-									gNumberOfEndOfLineCharacters, 
-									gOutputTextH);	
-			
-		}		// end "if (errCode == noErr)"	
+			continueFlag = ListString ((char*)gEndOfLine,
+													gNumberOfEndOfLineCharacters,
+													gOutputTextH);	
+		
+		}	// end "if (errCode == noErr)"	
 		
 			// Reset the global swap byte flag
 				
@@ -2490,12 +2467,12 @@ Boolean ListTiffTextDescriptionParameters (
 		
 	return (continueFlag);
 	
-}		// end "ListTiffTextDescriptionParameters"
+}	// end "ListTiffTextDescriptionParameters"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2546,17 +2523,13 @@ SInt16 LoadHierarchalFileStructure (
 
 			// Get the storage for the heirarchal information.
 			
-	fileInfoPtr->hfaHandle = InitializeHierarchalFileStructure (
-																NULL,
-																fileInfoPtr,
-																numberBlocks);
+	fileInfoPtr->hfaHandle = InitializeHierarchalFileStructure (NULL,
+																					fileInfoPtr,
+																					numberBlocks);
 	
 			// Get pointer to the hfa structure.
 				
-	hfaPtr = (HierarchalFileFormatPtr)GetHandlePointer(
-																fileInfoPtr->hfaHandle,
-																kNoLock,
-																kNoMoveHi);
+	hfaPtr = (HierarchalFileFormatPtr)GetHandlePointer (fileInfoPtr->hfaHandle);
 	
 	if (hfaPtr != NULL)
 		{
@@ -2587,10 +2560,10 @@ SInt16 LoadHierarchalFileStructure (
 			if (fileInfoPtr->bandInterleave == kBSQ)
 				hfaPtr[index].blockOffset = bytesPerStrip;
 			
-			else		// fileInfoPtr->bandInterleave != kBSQ
+			else	// fileInfoPtr->bandInterleave != kBSQ
 				hfaPtr[index].blockOffset = bytesPerStripForAllChannels;
 			
-			}		// end "for (index=0; index<fileInfoPtr->numberChannels; index++)"
+			}	// end "for (index=0; index<fileInfoPtr->numberChannels; index++)"
 			
 		if (fileInfoPtr->gdalDataSetH != NULL)
 			{
@@ -2600,7 +2573,7 @@ SInt16 LoadHierarchalFileStructure (
 			fileInfoPtr->nonContiguousStripsFlag = FALSE;
 			minimumBlockStart = 0;
 			
-			}		// end "if (fileInfoPtr->gdalDataSetH != NULL)"
+			}	// end "if (fileInfoPtr->gdalDataSetH != NULL)"
 						
 		else if (blockStartsPtr != NULL && blockByteCountsPtr != NULL)
 			{				
@@ -2611,16 +2584,16 @@ SInt16 LoadHierarchalFileStructure (
 													
 			for (index=0; index<numberBlocks; index++)
 				{				
-				minimumBlockStart = MIN(minimumBlockStart, blockStartsPtr[index]);
+				minimumBlockStart = MIN (minimumBlockStart, blockStartsPtr[index]);
 													
 				blockFormatPtr[index].blockOffsetBytes = blockStartsPtr[index];
 				blockFormatPtr[index].blockSize = blockByteCountsPtr[index];
 					
-				}		// end "for (index=0; index<numberBlocks; index++)"
+				}	// end "for (index=0; index<numberBlocks; index++)"
 				
-			}		// end "else fileInfoPtr->gdalDataSetH == NULL && (blockStartsPtr != NULL && ..."
+			}	// end "else fileInfoPtr->gdalDataSetH == NULL && blockStartsPtr != NULL)"
 			
-		else		// blockStartsPtr == NULL || blockByteCountsPtr == NULL
+		else	// blockStartsPtr == NULL || blockByteCountsPtr == NULL
 			blockStartsOKFlag = FALSE;
 			
 				// Set the number of header bytes to the minimum block start. This
@@ -2637,16 +2610,16 @@ SInt16 LoadHierarchalFileStructure (
 		if (blockStartsOKFlag)
 			returnCode = noErr;
 															
-		}		// end "if (hfaPtr != NULL)"
+		}	// end "if (hfaPtr != NULL)"
 		
 	return (returnCode);
 	
-}		// end "LoadHierarchalFileStructure"
+}	// end "LoadHierarchalFileStructure"
 
 
 #if use_multispec_tiffcode
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2774,21 +2747,21 @@ SInt16 ReadTIFFHeader (
 				fileInfoPtr->swapBytesFlag = gBigEndianFlag;
 				fileInfoPtr->swapHeaderBytesFlag = gBigEndianFlag;
 				
-				}		// end "if (stringCompare == 0)"
+				}	// end "if (stringCompare == 0)"
 				
-			}		// end "if (stringCompare != 0)"
+			}	// end "if (stringCompare != 0)"
 			
-		else		// stringCompare == 0  
+		else	// stringCompare == 0  
 			{
 			fileInfoPtr->swapBytesFlag = !gBigEndianFlag;
 			fileInfoPtr->swapHeaderBytesFlag = !gBigEndianFlag;
 			
-			}		// end "else stringCompare == 0"
+			}	// end "else stringCompare == 0"
 										
 		if (stringCompare == 0)
 			fileType = kTIFFType;
 				
-		}		// end "if (fileInfoPtr != NULL && fileStreamPtr != NULL)"
+		}	// end "if (fileInfoPtr != NULL && fileStreamPtr != NULL)"
 		
 	if (fileType != 0)
 		{
@@ -2807,7 +2780,7 @@ SInt16 ReadTIFFHeader (
 				
 																			return (noErr);
 																								
-			}		// end "if (formatOnlyCode != kLoadHeader)"
+			}	// end "if (formatOnlyCode != kLoadHeader)"
 			
 		returnCode = noErr;
 		
@@ -2870,7 +2843,7 @@ SInt16 ReadTIFFHeader (
 												&numberEntries,
 												kErrorMessages);
 					
-				}		// end "if (errCode == noErr)" 
+				}	// end "if (errCode == noErr)" 
 				
 			if (errCode == noErr)
 				{
@@ -2898,28 +2871,28 @@ SInt16 ReadTIFFHeader (
 								returnCode = -1;
 								break;
 								
-								}		// end "imageFileDirectory.type != kTIFFShort" 
+								}	// end "imageFileDirectory.type != kTIFFShort" 
 
 							if (imageFileDirectory.count == 1)
 								{
 								savedNumberBits = (SInt16)imageFileDirectory.value;
 								numberBits = savedNumberBits;
 
-								}		// end "if (imageFileDirectory.count == 1)"
+								}	// end "if (imageFileDirectory.count == 1)"
 
 							else if (imageFileDirectory.count == 2)
 								{
 								savedNumberBits = (SInt16)(imageFileDirectory.value>>16);
 								numberBits = (SInt16)(imageFileDirectory.value & 0x0000ffff);
 
-								}		// end "else if (imageFileDirectory.count == 2)"
+								}	// end "else if (imageFileDirectory.count == 2)"
 								
-							else		// imageFileDirectory.count > 2 
+							else	// imageFileDirectory.count > 2 
 								{
 										// Make certain that the number of bits is		
 										// the same for all 'channels'.						
 										
-								errCode = MGetMarker(fileStreamPtr, 
+								errCode = MGetMarker (fileStreamPtr, 
 																&savedPosOff,
 																kErrorMessages);
 								
@@ -2938,9 +2911,7 @@ SInt16 ReadTIFFHeader (
 																		headerRecordPtr,
 																		kErrorMessages);
 																
-									BlockMoveData ( headerRecordPtr, 
-													(char*)&numberBits, 
-													2);
+									BlockMoveData (headerRecordPtr, (char*)&numberBits, 2);
 													
       							numberBits = GetShortIntValue ((char*)&numberBits);
 											
@@ -2953,7 +2924,7 @@ SInt16 ReadTIFFHeader (
 									if (savedNumberBits != numberBits)
 										break;
 										
-									}		// end "for (index=1, ..." 
+									}	// end "for (index=1, ..." 
 										
 								if (errCode == noErr)
 									errCode = MSetMarker (fileStreamPtr, 
@@ -2961,27 +2932,16 @@ SInt16 ReadTIFFHeader (
 																	savedPosOff,
 																	kErrorMessages);
 								
-								}		// end "else imageFileDirectory.count > 2" 
+								}	// end "else imageFileDirectory.count > 2" 
 										
 							if (savedNumberBits != numberBits)
 								returnCode = -1;
 										
-//							if (savedNumberBits < 8 || savedNumberBits > 16)
 							if (savedNumberBits < 8)
 								returnCode = -6;
 							
 									// The rest of the checks will occur at the end so
 									// that we know if the data is integer or floating point.
-												
-/*							if (returnCode == 0 && errCode == noErr)
-								{					
-								fileInfoPtr->numberBytes = 1;
-								fileInfoPtr->numberBits = savedNumberBits;
-								if (savedNumberBits > 8)
-									fileInfoPtr->numberBytes = 2;
-								
-								}		// end "if (returnCode == 0 && ..." 
-*/								
 							break;
 								
 						case 259:	// Compression 
@@ -3002,14 +2962,13 @@ SInt16 ReadTIFFHeader (
 								fileInfoPtr->thematicType = TRUE;
 								fileInfoPtr->numberClasses = 256;
 								
-								}		// end "imageFileDirectory.value == 3" 
+								}	// end "imageFileDirectory.value == 3" 
 								
 							else if (imageFileDirectory.value == 8)
 								fileInfoPtr->thematicType = FALSE;
 									
-							else		// imageFileDirectory.value >= 4 
+							else	// imageFileDirectory.value >= 4 
 								returnCode = -3;
-								
 							break;
 								
 						case 270:	// Image Description
@@ -3020,7 +2979,7 @@ SInt16 ReadTIFFHeader (
 							if (imageFileDirectory.count == 1)
 								fileInfoPtr->numberHeaderBytes = imageFileDirectory.value;
 																	
-							else		// imageFileDirectory.count != 1 
+							else	// imageFileDirectory.count != 1 
 								{
 								numberStripOffsets = imageFileDirectory.count;
 								stripOffsetVector = imageFileDirectory.value;
@@ -3028,8 +2987,7 @@ SInt16 ReadTIFFHeader (
 								
 								checkRowsPerStripFlag = TRUE;
 								
-								}		// end "else imageFileDirectory.count != 1" 
-								
+								}	// end "else imageFileDirectory.count != 1"
 							break;
 								
 						case 274:	// Orientation (Not used)
@@ -3043,7 +3001,6 @@ SInt16 ReadTIFFHeader (
 							rowsPerStrip = imageFileDirectory.value;
 							if (imageFileDirectory.value < fileInfoPtr->numberLines)
 								checkRowsPerStripFlag = TRUE;
-								
 							break;
 							
 						case 279:	// StripByteCounts
@@ -3067,7 +3024,6 @@ SInt16 ReadTIFFHeader (
 								
 							else	// imageFileDirectory.value != 1 or 2 
 								returnCode = -3;
-							
 							break;
 							
 						case 296:	// Resolution Unit (Not used) 
@@ -3086,23 +3042,22 @@ SInt16 ReadTIFFHeader (
 									fileInfoPtr->colorTableValueBytes = 2;
 									fileInfoPtr->swapColorTableBytes = gSwapBytesFlag;
 									
-									}		// end "if (imageFileDirectory.type ..." 
+									}	// end "if (imageFileDirectory.type ..." 
 								
-								}		// end "if (imageFileDirectory.count == 768)" 
+								}	// end "if (imageFileDirectory.count == 768)" 
 																	
-							else		// imageFileDirectory.count != 768 
+							else	// imageFileDirectory.count != 768 
 								returnCode = -5;
-								
 							break;
 							
 						case 322:	// Tile width
 							tileWidth = imageFileDirectory.value;				
-//							returnCode = -7;
+							//returnCode = -7;
 							break;
 							
 						case 323:	// Tile length	
 							tileLength = imageFileDirectory.value;			
-//							returnCode = -7;
+							//returnCode = -7;
 							break;
 							
 						case 324:	// Tile offsets
@@ -3112,7 +3067,7 @@ SInt16 ReadTIFFHeader (
 									// will have to be added to the hfa structure to save
 									// the tile line start offsets
 
-							errCode = MGetMarker(fileStreamPtr, 
+							errCode = MGetMarker (fileStreamPtr, 
 															&savedPosOff,
 															kErrorMessages);
 							
@@ -3139,35 +3094,24 @@ SInt16 ReadTIFFHeader (
 																	kErrorMessages);
 													
 								if (errCode == noErr)
-									tempOffset = (UInt32)GetLongIntValue((char*)&tempOffset);
+									tempOffset = (UInt32)GetLongIntValue ((char*)&tempOffset);
 									
 								if (errCode != noErr)
 									break;										
-/*	
-								sprintf(	(char*)&gTextString, 
-												" %4ld  %10ld  %10ld%s",
-												index,
-												tempOffset, 
-												tempOffset-tileOffsetVector,
-												gEndOfLine);
-									
-								ListString ((char*)&gTextString, 
-													30, 
-													gOutputTextH);
-*/										
+
 								if (index == 1)
 									{
 									tileOffsetVector = tempOffset;
 									fileInfoPtr->numberHeaderBytes = tempOffset;
 									
-									}		// end "if (index == 1)"
+									}	// end "if (index == 1)"
 									
 								else if (index == 2)
 									{
 									tileByteCount = tempOffset - tileOffsetVector;
 									tileOffsetVector = tempOffset;
 									
-									}		// end "if (index == 1)"
+									}	// end "if (index == 1)"
 									
 								else // index > 2
 									{
@@ -3178,11 +3122,11 @@ SInt16 ReadTIFFHeader (
 										returnCode = -7;
 										break;
 										
-										}		// end "if (tileOffsetVector != tempOffset)"
+										}	// end "if (tileOffsetVector != tempOffset)"
 									
-									}		// end "else index > 2"
+									}	// end "else index > 2"
 									
-								}		// end "for (index=1; index<=numberTiles; index++)"
+								}	// end "for (index=1; index<=numberTiles; index++)"
 									
 							if (errCode == noErr)
 								errCode = MSetMarker (fileStreamPtr, 
@@ -3190,12 +3134,12 @@ SInt16 ReadTIFFHeader (
 																savedPosOff,
 																kErrorMessages);
 																	
-//							returnCode = -7;
+							//returnCode = -7;
 							break;
 							
 						case 325:	// Tile byte counts
 							tiffTileByteCount = imageFileDirectory.value;	
-//							returnCode = -7;
+							//returnCode = -7;
 							break;
 							
 						case 338:	// Extra Samples (not used)
@@ -3207,28 +3151,28 @@ SInt16 ReadTIFFHeader (
 								returnCode = -1;
 								break;
 								
-								}		// end "imageFileDirectory.type != kTIFFShort" 
+								}	// end "imageFileDirectory.type != kTIFFShort" 
 
 							if (imageFileDirectory.count == 1)
 								{
 								savedSampleFormat = (SInt16)imageFileDirectory.value;
 								sampleFormat = savedSampleFormat;
 
-								}		// end "if (imageFileDirectory.count == 1)"
+								}	// end "if (imageFileDirectory.count == 1)"
 
 							else if (imageFileDirectory.count == 2)
 								{
 								savedSampleFormat = (SInt16)(imageFileDirectory.value>>16);
 								sampleFormat = (SInt16)(imageFileDirectory.value & 0x0000ffff);
 
-								}		// end "else if (imageFileDirectory.count == 2)"
+								}	// end "else if (imageFileDirectory.count == 2)"
 								
-							else		// imageFileDirectory.count > 2 
+							else	// imageFileDirectory.count > 2 
 								{
 										// Make certain that the format is the same for all of
 										// the channels.						
 										
-								errCode = MGetMarker(fileStreamPtr, 
+								errCode = MGetMarker (fileStreamPtr, 
 																&savedPosOff,
 																kErrorMessages);
 								
@@ -3263,7 +3207,7 @@ SInt16 ReadTIFFHeader (
 									if (savedSampleFormat != sampleFormat)
 										break;
 										
-									}		// end "for (index=1, ..." 
+									}	// end "for (index=1, ..." 
 										
 								if (errCode == noErr)
 									errCode = MSetMarker (fileStreamPtr, 
@@ -3271,13 +3215,12 @@ SInt16 ReadTIFFHeader (
 																	savedPosOff,
 																	kErrorMessages);
 								
-								}		// end "else imageFileDirectory.count > 1" 
+								}	// end "else imageFileDirectory.count > 1" 
 										
 							if (savedSampleFormat != sampleFormat)
 								returnCode = -1;
 										
 							if (savedSampleFormat == 3)	//IEEE floating point data
-//								returnCode = -8;
 								fileInfoPtr->dataTypeCode = kRealType;
 										
 							if (returnCode == 0 && errCode == noErr)
@@ -3285,7 +3228,7 @@ SInt16 ReadTIFFHeader (
 								if (savedSampleFormat == 2 || savedSampleFormat == 3)
 									fileInfoPtr->signedDataFlag = TRUE;
 								
-								}		// end "if (returnCode == 0 && ..." 
+								}	// end "if (returnCode == 0 && ..." 
 							break;
 							
 						case 33432:	// Copyright
@@ -3301,7 +3244,7 @@ SInt16 ReadTIFFHeader (
 																				&imageFileDirectory);
 								pixelScaleSetFlag = TRUE;
 								
-								}		// end "if (loadMapProjectionInfoFlag)"
+								}	// end "if (loadMapProjectionInfoFlag)"
 							break;
 							
 						case 33922:	// Geo Tie Points
@@ -3309,8 +3252,7 @@ SInt16 ReadTIFFHeader (
 									// Note that tie points need to be reloaded. The upper-left point
 									// may be adjusted to represent the center of the pixel later.
 									// Do not want this done twice.
-							// if (loadMapProjectionInfoFlag)
-								errCode = SetGeoTiePointsFromGeoTIFF (fileInfoPtr,
+							errCode = SetGeoTiePointsFromGeoTIFF (fileInfoPtr,
 																				&imageFileDirectory,
 																				&numberControlPoints);
 							break;
@@ -3321,14 +3263,10 @@ SInt16 ReadTIFFHeader (
 									// upper-left point may be adjusted to represent the center of the 
 									// pixel later. Do not want this adjustment done twice.
 
-//							if (loadMapProjectionInfoFlag)
-//								{
-								errCode = SetModelTransformationParametersFromGeoTIFF (
+							errCode = SetModelTransformationParametersFromGeoTIFF (
 																				fileInfoPtr,
 																				&imageFileDirectory);
-								modelTransformationTag = TRUE;
-								
-//								}		// end "if (loadMapProjectionInfoFlag)"
+							modelTransformationTag = TRUE;
 							break;
 							
 						case 34735:	// Geo Key Directory
@@ -3350,7 +3288,7 @@ SInt16 ReadTIFFHeader (
 							errCode = noErr;
 							break;
 							
-						}		// end "switch (imageFileDirectory.tag)" 
+						}	// end "switch (imageFileDirectory.tag)" 
 						
 					if (imageFileDirectory.tag == 0 || errCode != noErr)
 						break;
@@ -3358,7 +3296,7 @@ SInt16 ReadTIFFHeader (
 					if (returnCode < 0)
 						break;
 						
-					}		// end "for (item=1, item<=numberEntries, item++)" 
+					}	// end "for (item=1, item<=numberEntries, item++)" 
 					
 				if (geoKeyDirectoryTag.tag == 34735 && errCode == noErr && returnCode >= 0)
 					errCode = GetGeoKeyParameters (fileInfoPtr,
@@ -3372,9 +3310,6 @@ SInt16 ReadTIFFHeader (
 																		&geoAsciiParamsTag);
 				
 						// This is the rest of the checks for the number of bits.
-							
-//				if (returnCode == noErr && errCode == noErr && savedNumberBits > 16)
-//					returnCode = -9;
 							
 				if (returnCode == 0 && errCode == noErr)
 					{					
@@ -3395,9 +3330,9 @@ SInt16 ReadTIFFHeader (
 						fileInfoPtr->numberClasses = 0;
 						fileInfoPtr->numberBins = (UInt32)ldexp ((double)1, 16);
 						
-						}		// end "if (fileInfoPtr->thematicType && fileInfoPtr->numberBytes == 2)"
+						}	// end "if (fileInfoPtr->thematicType && fileInfoPtr->numberBytes == 2)"
 					
-					}		// end "if (returnCode == 0 && ..." 
+					}	// end "if (returnCode == 0 && ..." 
 					
 				if (returnCode == noErr && errCode == noErr && checkRowsPerStripFlag)
 					returnCode = CheckRowsPerStrip (fileInfoPtr,
@@ -3423,25 +3358,25 @@ SInt16 ReadTIFFHeader (
 					if (errCode == noErr)
 						ifdOffset = (UInt32)GetLongIntValue ((char*)&ifdOffset);
 						
-					}		// end "if (returnCode >= 0 && errCode == noErr)" 
+					}	// end "if (returnCode >= 0 && errCode == noErr)" 
 					
 						// For now we will ignore other image data in the file.	
 					
 				notDoneFlag = FALSE;
 					
-				}		// end "if (errCode == noErr)"
+				}	// end "if (errCode == noErr)"
 				
 			if (errCode != noErr)
 				notDoneFlag = FALSE;
 					
-			}		// end "while (notDoneFlag)" 
+			}	// end "while (notDoneFlag)" 
 				
 		if (returnCode < 0)
 			{
 					// Display an alert if the needed parameters were not 		
 					// found in the file.
 					
-			index = IDS_Alert26 + abs(returnCode);
+			index = IDS_Alert26 + abs (returnCode);
 			if (returnCode == -7)
 				index = IDS_Alert90;	
 			else if (returnCode == -8)
@@ -3458,9 +3393,9 @@ SInt16 ReadTIFFHeader (
 								
 			errCode = eofErr;
 			
-			}		// end "if (returnCode < 0)" 
+			}	// end "if (returnCode < 0)" 
 		
-		if ( returnCode == noErr && errCode != noErr)
+		if (returnCode == noErr && errCode != noErr)
 			returnCode = 1;
 			
 		if (returnCode == noErr)
@@ -3481,14 +3416,13 @@ SInt16 ReadTIFFHeader (
 				if (fileInfoPtr->hfaHandle == NULL)
 					returnCode = 1;
 					
-				else		// fileInfoPtr->hfaHandle != NULL
+				else	// fileInfoPtr->hfaHandle != NULL
 					{
 							// Get pointer to the hfa structure.
 							
-					fileInfoPtr->hfaPtr = (HierarchalFileFormatPtr)GetHandlePointer(
+					fileInfoPtr->hfaPtr = (HierarchalFileFormatPtr)GetHandlePointer (
 																			fileInfoPtr->hfaHandle,
-																			kLock,
-																			kNoMoveHi);
+																			kLock);
 						
 					fileInfoPtr->blockedFlag = TRUE;
 															
@@ -3500,7 +3434,7 @@ SInt16 ReadTIFFHeader (
 						fileInfoPtr->bandInterleave = kBNonSQBlocked;
 						fileInfoPtr->numberHeaderBytes = 0;
 						
-						}		// end "if (fileInfoPtr->bandInterleave != kBIS)"
+						}	// end "if (fileInfoPtr->bandInterleave != kBIS)"
 																			
 					fileInfoPtr->hfaPtr->blockWidth = tileWidth;
 					fileInfoPtr->hfaPtr->blockHeight = tileLength;
@@ -3513,21 +3447,21 @@ SInt16 ReadTIFFHeader (
 							// line to the start of the next line, taking the tiles into
 							// account.
 						
-					ratio = ldiv((SInt32)fileInfoPtr->numberColumns, (SInt32)tileWidth);
+					ratio = ldiv ((SInt32)fileInfoPtr->numberColumns, (SInt32)tileWidth);
 					numberBlockWidths = (UInt32)ratio.quot;
 					if (ratio.rem > 0)
 						numberBlockWidths++;
 					
 					fileInfoPtr->hfaPtr->numberBlockWidths = numberBlockWidths;
 					
-					}		// end "else fileInfoPtr->hfaHandle != NULL"
+					}	// end "else fileInfoPtr->hfaHandle != NULL"
 				
-				}		// end "if (numberTiles > 0)"
+				}	// end "if (numberTiles > 0)"
 				
 			CheckAndUnlockHandle (fileInfoPtr->hfaHandle);
 			fileInfoPtr->hfaPtr = NULL;
 				
-			}		// end "if (returnCode == noErr)"
+			}	// end "if (returnCode == noErr)"
 			
 				// Get polynomial model to relate line/column to map location if
 				// needed and can.
@@ -3542,23 +3476,23 @@ SInt16 ReadTIFFHeader (
 					
 			UpdateUpperLeftMapValues (fileInfoPtr);
 			
-			}		// end "if (numberControlPoints > 0 && ..."
+			}	// end "if (numberControlPoints > 0 && ..."
 				
 		if (returnCode == noErr)
 			{
 			if (fileInfoPtr->numberBytes == 1)
 				fileInfoPtr->swapBytesFlag = FALSE;
 				
-//			fileInfoPtr->numberBins = (UInt32)ldexp( (double)1, fileInfoPtr->numberBits);
+			//fileInfoPtr->numberBins = (UInt32)ldexp ((double)1, fileInfoPtr->numberBits);
 				
 			if (fileInfoPtr->thematicType)
 				{
 				fileInfoPtr->bandInterleave = kBIL;
 				fileInfoPtr->collapseClassSelection = kCollapseClass;
 				
-				}		// end "fileInfoPtr->thematicType"
+				}	// end "fileInfoPtr->thematicType"
 				
-			else		// !fileInfoPtr->thematicType
+			else	// !fileInfoPtr->thematicType
 				{
 						// If the number of channels is one, then indicate that the band
 						// interleave format is BIL. (It doesn't make any difference for
@@ -3571,7 +3505,7 @@ SInt16 ReadTIFFHeader (
 								!fileInfoPtr->blockedFlag)
 					fileInfoPtr->bandInterleave = kBIL;
 				
-				}		// end "else !fileInfoPtr->thematicType"
+				}	// end "else !fileInfoPtr->thematicType"
 			
 			if (gGetFileImageType == 0)
 				{
@@ -3587,15 +3521,15 @@ SInt16 ReadTIFFHeader (
 					if (CheckIfSpecifiedFileExists (fileStreamPtr, (char*)"\0.clr\0"))
 						fileInfoPtr->thematicType = TRUE;
 					
-					}		// end "if (!fileInfoPtr->thematicType && ..."
+					}	// end "if (!fileInfoPtr->thematicType && ..."
 					
 				if (fileInfoPtr->thematicType)
 					gGetFileImageType = kThematicImageType;
 					
-				else		// !fileInfoPtr->thematicType 
+				else	// !fileInfoPtr->thematicType 
 					gGetFileImageType = kMultispectralImageType;
 					
-				}		// end "if (gGetFileImageType == 0)" 
+				}	// end "if (gGetFileImageType == 0)" 
 				
 					// Check if this is a GeoTIFF file.
 					
@@ -3612,22 +3546,22 @@ SInt16 ReadTIFFHeader (
 				if (!modelTransformationTag)			
 					SetGeoTiePointsForRasterPixelType (fileInfoPtr, rasterTypeGeoKey);
 				
-				}		// end "if (fileInfoPtr->mapProjectionHandle != NULL)"
+				}	// end "if (fileInfoPtr->mapProjectionHandle != NULL)"
 				
-			}		// end "if (returnCode == noErr)" 												
+			}	// end "if (returnCode == noErr)" 												
 				
 		gSwapBytesFlag = FALSE;
 		
-		}		// end "if (fileInfoPtr != NULL && ..." 
+		}	// end "if (fileInfoPtr != NULL && ..." 
 		
 	return (returnCode);
 	
-}		// end "ReadTIFFHeader" 
+}	// end "ReadTIFFHeader" 
 #endif		// use_multispec_tiffcode
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3674,7 +3608,7 @@ void SetProjectionInformationFromString (
 		if (mapProjectionInfoPtr->gridCoordinate.referenceSystemCode <= kUserDefinedRSCode)
 			{	
 			if (strstr (inputStringPtr, "UTM") != NULL || 
-									strstr (inputStringPtr, "Universal Transverse Mercator") != NULL)
+							strstr (inputStringPtr, "Universal Transverse Mercator") != NULL)
 				{
 						// Note than an attempt to reset the following to a specific UTM reference
 						// system will be done later.
@@ -3699,7 +3633,7 @@ void SetProjectionInformationFromString (
 					if (stringPtr != NULL)
 						returnCode = (SInt16)sscanf ((char*)stringPtr, "Zone %s", zone);
 						
-					}		// end "esle if (stringPtr == NULL)"
+					}	// end "esle if (stringPtr == NULL)"
 					
 				if (stringPtr != NULL)
 					{
@@ -3718,33 +3652,33 @@ void SetProjectionInformationFromString (
 									// Find whether it is North or South Zone if not identified
 									// already.
 													
-							sprintf ((char*)gTextString, "%dN", gridZone);
+							sprintf ((char*)gTextString, "%dN", (int)gridZone);
 							if (strstr ((char*)zone, (char*)gTextString) != NULL)
 								direction = 'N';
 							
 							if (direction == ' ')
 								{
-								sprintf ((char*)gTextString, "%d N", gridZone);
+								sprintf ((char*)gTextString, "%d N", (int)gridZone);
 								if (strstr ((char*)zone, (char*)gTextString) != NULL)
 									direction = 'N';
 									
-								}		// end "if (direction == ' ')"
+								}	// end "if (direction == ' ')"
 							
 							if (direction == ' ')
 								{
-								sprintf ((char*)gTextString, "%dS", gridZone);
+								sprintf ((char*)gTextString, "%dS", (int)gridZone);
 								if (strstr ((char*)zone, (char*)gTextString) != NULL)
 									direction = 'S';
 									
-								}		// end "if (direction == ' ')"
+								}	// end "if (direction == ' ')"
 							
 							if (direction == ' ')
 								{
-								sprintf ((char*)gTextString, "%d S", gridZone);
+								sprintf ((char*)gTextString, "%d S", (int)gridZone);
 								if (strstr ((char*)zone, (char*)gTextString) != NULL)
 									direction = 'S';
 									
-								}		// end "if (direction == ' ')"
+								}	// end "if (direction == ' ')"
 							
 							if (direction == ' ')
 								{
@@ -3753,23 +3687,23 @@ void SetProjectionInformationFromString (
 								if (mapProjectionInfoPtr->planarCoordinate.yMapCoordinate11 <= 0)
 									direction = 'S';
 									
-								else		// ...->planarCoordinate.yMapCoordinate11 > 0
+								else	// ...->planarCoordinate.yMapCoordinate11 > 0
 									direction = 'N';
 									
-								}		// end "if (direction == ' ')"
+								}	// end "if (direction == ' ')"
 								
 							if (direction == 'S')
-								gridZone = -abs(gridZone);
+								gridZone = -abs (gridZone);
 								
 							mapProjectionInfoPtr->gridCoordinate.gridZone = (SInt16)gridZone;
 							
-							}		// end "if (returnCode == 1)"
+							}	// end "if (returnCode == 1)"
 						
-						}		// end "if (returnCode == 1)"
+						}	// end "if (returnCode == 1)"
 
-					}		// end "if (stringPtr != NULL)"
+					}	// end "if (stringPtr != NULL)"
 				
-				}		// if (strstr (inputStringPtr, "UTM") != NULL)
+				}	// if (strstr (inputStringPtr, "UTM") != NULL)
 				
 			else if (strstr (inputStringPtr, "State Plane") != NULL || 
 							strstr (inputStringPtr, "StatePlane") != NULL ||
@@ -3782,7 +3716,7 @@ void SetProjectionInformationFromString (
 				else if (mapProjectionInfoPtr->geodetic.datumCode == kNAD83Code)
 					mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = kStatePlaneNAD83RSCode;
 					
-				else		// Set state plane type after trying to read the datum
+				else	// Set state plane type after trying to read the datum
 					setStatePlaneTypeFlag = TRUE;
 					
 						// Try to get the FIPS number if included.
@@ -3801,14 +3735,14 @@ void SetProjectionInformationFromString (
 					else if (strstr (inputStringPtr, "Indiana West") != NULL)
 						fipsNumber = 1302;
 					
-					}		// end "if (fipsNumber == 0)"
+					}	// end "if (fipsNumber == 0)"
 					
 				if (fipsNumber > 0 && fipsNumber < 32767)
 					mapProjectionInfoPtr->gridCoordinate.gridZone = (SInt16)fipsNumber;
 				
-				}		// else if (strstr (inputStringPtr, "State Plane") != NULL)
+				}	// else if (strstr (inputStringPtr, "State Plane") != NULL)
 				
-			}		// end ""
+			}	// end ""
 			
 		if (mapProjectionInfoPtr->gridCoordinate.projectionCode == kNotDefinedCode)
 			{
@@ -3817,14 +3751,14 @@ void SetProjectionInformationFromString (
 				mapProjectionInfoPtr->gridCoordinate.projectionCode = kLambertConformalConicCode;
 				mapProjectionInfoPtr->planarCoordinate.mapUnitsCode = kMetersCode;
 				
-				}		// else if (strstr (inputStringPtr, "LCC") != NULL)
+				}	// else if (strstr (inputStringPtr, "LCC") != NULL)
 				
 			else if (strstr (inputStringPtr, "LON/LAT") != NULL)
 				{
 				if (strstr (inputStringPtr, "Degrees") != NULL)
 					mapProjectionInfoPtr->planarCoordinate.mapUnitsCode = kDecimalDegreesCode;
 				
-				}		// else if (strstr (string, "LON/LAT") != NULL)
+				}	// else if (strstr (string, "LON/LAT") != NULL)
 				
 			else if (strstr (inputStringPtr, "Geographic") != NULL)
 				{
@@ -3834,7 +3768,7 @@ void SetProjectionInformationFromString (
 				if (mapProjectionInfoPtr->gridCoordinate.referenceSystemCode == kGeographicRSCode)
 					mapProjectionInfoPtr->planarCoordinate.mapUnitsCode = kDecimalDegreesCode;
 				
-				}		// else if (strstr (inputStringPtr, "Geographic") != NULL)
+				}	// else if (strstr (inputStringPtr, "Geographic") != NULL)
 				
 			else if (strstr (inputStringPtr, "Krovak") != NULL)
 				{
@@ -3844,7 +3778,7 @@ void SetProjectionInformationFromString (
 				
 				SetKrovakParameters (mapProjectionInfoPtr);
 				
-				}		// else if (strstr (inputStringPtr, "Krovak") != NULL)
+				}	// else if (strstr (inputStringPtr, "Krovak") != NULL)
 				
 			else if (strstr (inputStringPtr, "LAMBERT_AZ") != NULL)
 				{
@@ -3852,9 +3786,9 @@ void SetProjectionInformationFromString (
 				mapProjectionInfoPtr->planarCoordinate.mapUnitsCode = kMetersCode;
 				mapProjectionInfoPtr->geodetic.spheroidCode = kSphereEllipsoidCode;
 				
-				}		// else if (strstr (inputStringPtr, "Krovak") != NULL)
+				}	// else if (strstr (inputStringPtr, "Krovak") != NULL)
 				
-			}		// end "if (...->gridCoordinate.projectionCode == kNotDefinedCode)"
+			}	// end "if (...->gridCoordinate.projectionCode == kNotDefinedCode)"
 			
 		if (mapProjectionInfoPtr->geodetic.datumCode == kNoDatumDefinedCode)
 			{
@@ -3869,9 +3803,9 @@ void SetProjectionInformationFromString (
 					mapProjectionInfoPtr->geodetic.datumCode = kWGS84Code;
 					mapProjectionInfoPtr->geodetic.spheroidCode = kWGS84EllipsoidCode;
 					
-					}		// end "if (strstr (inputStringPtr, "using WGS84") == NULL)"
+					}	// end "if (strstr (inputStringPtr, "using WGS84") == NULL)"
 				
-				}		// end "else if (strstr (inputStringPtr, "WGS84") != NULL || ..."
+				}	// end "else if (strstr (inputStringPtr, "WGS84") != NULL || ..."
 				
 			else if (strstr (inputStringPtr, "NAD27") != NULL || 
 								strstr (inputStringPtr, "NAD 27") != NULL || 
@@ -3880,7 +3814,7 @@ void SetProjectionInformationFromString (
 				mapProjectionInfoPtr->geodetic.datumCode = kNAD27Code;
 				mapProjectionInfoPtr->geodetic.spheroidCode = kClarke1866EllipsoidCode;
 				
-				}		// end "else if ( strstr (inputStringPtr, "NAD27") != NULL || ..."
+				}	// end "else if (strstr (inputStringPtr, "NAD27") != NULL || ..."
 				
 			else if (strstr (inputStringPtr, "NAD83") != NULL || 
 								strstr (inputStringPtr, "NAD 83") != NULL || 
@@ -3890,27 +3824,27 @@ void SetProjectionInformationFromString (
 				mapProjectionInfoPtr->geodetic.datumCode = kNAD83Code;
 				mapProjectionInfoPtr->geodetic.spheroidCode = kGRS80EllipsoidCode;
 				
-				}		// end "else if (strstr (inputStringPtr, "NAD83") != NULL || ..."
-				
-			}		// end "if (...->geodetic.datumCode == kNoDatumDefinedCode)"
+				}	// end "else if (strstr (inputStringPtr, "NAD83") != NULL || ..."
+			
+			}	// end "if (...->geodetic.datumCode == kNoDatumDefinedCode)"
 			
 		if (mapProjectionInfoPtr->geodetic.spheroidCode == 0)
 			{
 					// Get the ellipsoid
 				
-			if ( strstr (inputStringPtr, "Clarke, 1866") != NULL )
+			if (strstr (inputStringPtr, "Clarke, 1866") != NULL)
 				mapProjectionInfoPtr->geodetic.spheroidCode = 
 																	kClarke1866EllipsoidCode;
 				
-			else if ( strstr (inputStringPtr, "Clarke, 1880") != NULL )
+			else if (strstr (inputStringPtr, "Clarke, 1880") != NULL)
 				mapProjectionInfoPtr->geodetic.spheroidCode = 
 																	kClarke1880EllipsoidCode;
 				
-			else if ( strstr (inputStringPtr, "GRS_1980") != NULL )
+			else if (strstr (inputStringPtr, "GRS_1980") != NULL)
 				mapProjectionInfoPtr->geodetic.spheroidCode = 
 																	kGRS80EllipsoidCode;
 																	
-			}		// end "if (...->geodetic.spheroidCode == 0)"
+			}	// end "if (...->geodetic.spheroidCode == 0)"
 			
 		if (mapProjectionInfoPtr->planarCoordinate.mapUnitsCode == kUnknownCode)
 			{				
@@ -3920,7 +3854,7 @@ void SetProjectionInformationFromString (
 			else if (strstr (inputStringPtr, "Meter") != NULL)
 				mapProjectionInfoPtr->planarCoordinate.mapUnitsCode = kMetersCode;
 			
-			}		// end "if (...->planarCoordinate.mapUnitsCode == kUnknownCode)"
+			}	// end "if (...->planarCoordinate.mapUnitsCode == kUnknownCode)"
 			
 		if (setStatePlaneTypeFlag)
 			{
@@ -3930,7 +3864,7 @@ void SetProjectionInformationFromString (
 			else // default to NAD83 Set
 				mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = kStatePlaneNAD83RSCode;
 				
-			}		// end "if (setStatePlaneTypeFlag)"
+			}	// end "if (setStatePlaneTypeFlag)"
 			
 		if (mapProjectionInfoPtr->gridCoordinate.referenceSystemCode == kStatePlaneNAD27RSCode &&
 											mapProjectionInfoPtr->geodetic.datumCode == kNAD83Code)
@@ -3951,16 +3885,16 @@ void SetProjectionInformationFromString (
 			if (mapProjectionInfoPtr->projectedCSTypeGeoKey != 0)
 				mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = kByEPSGCodeCode;
 			
-			}		// end "if (...->gridCoordinate.referenceSystemCode == kStatePlaneNAD83RSCode && ..."
+			}	// end "if (...->gridCoordinate.referenceSystemCode == kStatePlaneNAD83RSCode && ..."
 			
-		}		// end "if (mapProjectionInfoPtr != NULL && inputStringPtr != NULL)"
+		}	// end "if (mapProjectionInfoPtr != NULL && inputStringPtr != NULL)"
 	
-}		// end "SetProjectionInformationFromString"
+}	// end "SetProjectionInformationFromString"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3994,15 +3928,14 @@ void SetProjectionInformationFromString2 (
 												1024);
 	
 	if (stringList[0] != 0)
-		SetProjectionInformationFromString (mapProjectionInfoPtr,
-														(char*)stringList);
+		SetProjectionInformationFromString (mapProjectionInfoPtr, (char*)stringList);
 	
-}		// end "GetProjectionInformationFromString2"
+}	// end "GetProjectionInformationFromString2"
   
 
 #if use_multispec_tiffcode
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4050,8 +3983,7 @@ SInt16 SetGeoProjectionFromGeoTIFF (
 			{ 
 			mapProjectionInfoPtr = (MapProjectionInfoPtr)
 												GetHandlePointer (mapProjectionHandle,
-																			kLock,
-																			kNoMoveHi);
+																			kLock);
 							
 			fileStreamPtr = GetFileStreamPointer (fileInfoPtr);
 			
@@ -4065,18 +3997,18 @@ SInt16 SetGeoProjectionFromGeoTIFF (
 															
 			CheckAndUnlockHandle (mapProjectionHandle); 
 			
-			}		// end "if (mapProjectionHandle != NULL)"
+			}	// end "if (mapProjectionHandle != NULL)"
 			
-		}		// end "if (imageFileDirectory.count == 3 && ..."
+		}	// end "if (imageFileDirectory.count == 3 && ..."
 		
 	return (errCode);
 	
-}		// end "SetGeoProjectionFromGeoTIFF"
+}	// end "SetGeoProjectionFromGeoTIFF"
   
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4122,9 +4054,7 @@ void SetGeoTiePointsForRasterPixelType (
 		if (mapProjectionHandle != NULL)
 			{ 								
 			mapProjectionInfoPtr = (MapProjectionInfoPtr)
-												GetHandlePointer (mapProjectionHandle,
-																			kNoLock,
-																			kNoMoveHi);
+												GetHandlePointer (mapProjectionHandle);
 	                                                                         
 			if (mapProjectionInfoPtr->planarCoordinate.xMapCoordinate11 != 0 ||
 					 mapProjectionInfoPtr->planarCoordinate.yMapCoordinate11 != 0)
@@ -4140,18 +4070,18 @@ void SetGeoTiePointsForRasterPixelType (
 				mapProjectionInfoPtr->planarCoordinate.yMapOrientationOrigin =
 										mapProjectionInfoPtr->planarCoordinate.yMapCoordinate11;
 							
-				}		// end "if (...->planarCoordinate.xMapCoordinate11 ..."
+				}	// end "if (...->planarCoordinate.xMapCoordinate11 ..."
 			
-			}		// end "if (mapProjectionHandle != NULL)"
+			}	// end "if (mapProjectionHandle != NULL)"
 			
-		}		// end "if (rasterTypeGeoKey == 1)"
+		}	// end "if (rasterTypeGeoKey == 1)"
 	
-}		// end "SetGeoTiePointsForRasterPixelType"
+}	// end "SetGeoTiePointsForRasterPixelType"
   
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4209,7 +4139,7 @@ SInt16 SetGeoTiePointsFromGeoTIFF (
 		if (checkLoadControlPointsFlag) 
 			count = MAX (imageFileDirectoryPtr->count, 72);
 		
-		else		// !checkLoadControlPointsFlag
+		else	// !checkLoadControlPointsFlag
 			count = imageFileDirectoryPtr->count;
 		
 		geoTiePointsPtr = NULL;
@@ -4217,14 +4147,13 @@ SInt16 SetGeoTiePointsFromGeoTIFF (
 		mapProjectionHandle = GetFileMapProjectionHandle (fileInfoPtr);
 			
 		if (mapProjectionHandle != NULL)
-			geoTiePointsPtr = (double*)MNewPointer (count * sizeof(double));
+			geoTiePointsPtr = (double*)MNewPointer (count * sizeof (double));
 		
 		if (geoTiePointsPtr != NULL)
 			{ 								
 			mapProjectionInfoPtr = (MapProjectionInfoPtr)
 												GetHandlePointer (mapProjectionHandle,
-																			kLock,
-																			kNoMoveHi);
+																			kLock);
 		
 					// The following lines are currently for loading control points into
 					// the Corona data.
@@ -4238,7 +4167,7 @@ SInt16 SetGeoTiePointsFromGeoTIFF (
 				count = 72;
 				loadControlPointsFlag = TRUE;
 				
-				}		// end "if (checkLoadControlPointsFlag && ..."
+				}	// end "if (checkLoadControlPointsFlag && ..."
 			
 			fileStreamPtr = GetFileStreamPointer (fileInfoPtr);
 			
@@ -4312,7 +4241,7 @@ SInt16 SetGeoTiePointsFromGeoTIFF (
 					geoTiePointsPtr[69] = -85.82248;
 					geoTiePointsPtr[70] = 39.51889;
 						
-					}		// end "if (loadControlPointsFlag)"
+					}	// end "if (loadControlPointsFlag)"
 				                                 
 				mapProjectionInfoPtr->planarCoordinate.xMapCoordinate11 = geoTiePointsPtr[3];
 				mapProjectionInfoPtr->planarCoordinate.yMapCoordinate11 = geoTiePointsPtr[4]; 
@@ -4332,12 +4261,10 @@ SInt16 SetGeoTiePointsFromGeoTIFF (
 							// Get memory for the control points.
 							
 					fileInfoPtr->controlPointsHandle = MNewHandle (sizeof (ControlPoints) + 
-									numberControlPoints * (4*sizeof (double) + sizeof(SInt16)));
+									numberControlPoints * (4*sizeof (double) + sizeof (SInt16)));
 									
-					controlPointsPtr = (ControlPointsPtr)GetHandlePointer(
-																		fileInfoPtr->controlPointsHandle,
-																		kNoLock,
-																		kNoMoveHi);
+					controlPointsPtr = (ControlPointsPtr)GetHandlePointer (
+																		fileInfoPtr->controlPointsHandle);
 					if (controlPointsPtr != NULL)
 						controlPointsPtr->count = numberControlPoints;
 									
@@ -4360,34 +4287,34 @@ SInt16 SetGeoTiePointsFromGeoTIFF (
 							
 							geoIndex += 6;
 							
-							}		// end "for (index=0; index<numberControlPoints; index++)"
+							}	// end "for (index=0; index<numberControlPoints; index++)"
 							
 						*numberControlPointsPtr = numberControlPoints;
 						
-						}		// end "if (controlPointsPtr->easting1Ptr != NULL)"
+						}	// end "if (controlPointsPtr->easting1Ptr != NULL)"
 						
 					CloseControlPointVectorPointers (fileInfoPtr->controlPointsHandle);
 					
-					}		// end "if (numberControlPoints >= 3)"
+					}	// end "if (numberControlPoints >= 3)"
 			
-				}		// end "if (errcode == noErr)"
+				}	// end "if (errcode == noErr)"
 				
 			CheckAndDisposePtr (geoTiePointsPtr);
 				
 			CheckAndUnlockHandle (mapProjectionHandle); 
 			
-			}		// end "if (if (geoTiePointsPtr != NULL)"
+			}	// end "if (if (geoTiePointsPtr != NULL)"
 			
-		}		// end "if (imageFileDirectoryPtr->count >= 6 && ..."
+		}	// end "if (imageFileDirectoryPtr->count >= 6 && ..."
 		
 	return (errCode);
 	
-}		// end "SetGeoTiePointsFromGeoTIFF"
+}	// end "SetGeoTiePointsFromGeoTIFF"
   
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4437,8 +4364,7 @@ SInt16 SetModelTransformationParametersFromGeoTIFF (
 			{ 								
 			mapProjectionInfoPtr = (MapProjectionInfoPtr)
 												GetHandlePointer (mapProjectionHandle,
-																			kLock,
-																			kNoMoveHi);
+																			kLock);
 			
 			fileStreamPtr = GetFileStreamPointer (fileInfoPtr);
 			
@@ -4455,10 +4381,10 @@ SInt16 SetModelTransformationParametersFromGeoTIFF (
 			orientationAngle = atan2(-modelTransformation[1],modelTransformation[0]);
 	                                                                         
 			mapProjectionInfoPtr->planarCoordinate.horizontalPixelSize = 
-														modelTransformation[0]/cos(orientationAngle);
+														modelTransformation[0]/cos (orientationAngle);
 				
 			mapProjectionInfoPtr->planarCoordinate.verticalPixelSize = 
-														-modelTransformation[5]/cos(orientationAngle);
+														-modelTransformation[5]/cos (orientationAngle);
 														
 			mapProjectionInfoPtr->planarCoordinate.mapOrientationAngle = orientationAngle;
 	                                                                         
@@ -4472,18 +4398,18 @@ SInt16 SetModelTransformationParametersFromGeoTIFF (
 	
 			CheckAndUnlockHandle (mapProjectionHandle); 
 			
-			}		// end "if (mapProjectionHandle != NULL)"
+			}	// end "if (mapProjectionHandle != NULL)"
 			
-		}		// end "if (imageFileDirectory.count == 3 && ..."
+		}	// end "if (imageFileDirectory.count == 3 && ..."
 		
 	return (errCode);
 	
-}		// end "SetModelTransformationParametersFromGeoTIFF"
+}	// end "SetModelTransformationParametersFromGeoTIFF"
   
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4530,20 +4456,17 @@ SInt16 SetPixelScaleParametersFromGeoTIFF (
 		if (mapProjectionHandle != NULL)
 			{ 								
 			mapProjectionInfoPtr = (MapProjectionInfoPtr)
-												GetHandlePointer (mapProjectionHandle,
-																			kLock,
-																			kNoMoveHi);
+												GetHandlePointer (mapProjectionHandle, kLock);
 			
 			fileStreamPtr = GetFileStreamPointer (fileInfoPtr);
 			
 			count = MIN (3, (SInt32)imageFileDirectoryPtr->count);
 											
-			errCode = GetTIFFDoubleParameters (
-									fileStreamPtr, 
-									imageFileDirectoryPtr, 
-									scaleParameters, 
-									count);
-	                                                                         
+			errCode = GetTIFFDoubleParameters (fileStreamPtr,
+															imageFileDirectoryPtr,
+															scaleParameters, 
+															count);
+				
 			mapProjectionInfoPtr->planarCoordinate.horizontalPixelSize = 
 																					scaleParameters[0];
 				
@@ -4552,19 +4475,19 @@ SInt16 SetPixelScaleParametersFromGeoTIFF (
 	
 			CheckAndUnlockHandle (mapProjectionHandle); 
 			
-			}		// end "if (mapProjectionHandle != NULL)"
+			}	// end "if (mapProjectionHandle != NULL)"
 			
-		}		// end "if (imageFileDirectory.count == 3 && ..."
+		}	// end "if (imageFileDirectory.count == 3 && ..."
 		
 	return (errCode);
 	
-}		// end "SetPixelScaleParametersFromGeoTIFF"
+}	// end "SetPixelScaleParametersFromGeoTIFF"
 #endif		// use_multispec_tiffcode
   
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2016)
+//								 Copyright (1988-2017)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4592,9 +4515,8 @@ void UpdateUpperLeftMapValues (
 	MapProjectionInfoPtr				mapProjectionInfoPtr;
 	
 									
-	controlPointsPtr = GetControlPointVectorPointers (
-														fileInfoPtr->controlPointsHandle,
-														kLock);
+	controlPointsPtr = GetControlPointVectorPointers (fileInfoPtr->controlPointsHandle,
+																		kLock);
 														
 	if (controlPointsPtr != NULL)
 		{			
@@ -4605,8 +4527,7 @@ void UpdateUpperLeftMapValues (
 			{
 			mapProjectionInfoPtr = (MapProjectionInfoPtr)
 												GetHandlePointer (fileInfoPtr->mapProjectionHandle,
-																			kLock,
-																			kNoMoveHi);
+																			kLock);
 																			
 			if (mapProjectionInfoPtr != NULL)
 				{ 		
@@ -4623,12 +4544,12 @@ void UpdateUpperLeftMapValues (
 								
 				CloseCoefficientsVectorPointers (mapProjectionInfoPtr);
 				
-				}		// end "if (mapProjectionInfoPtr != NULL)"
+				}	// end "if (mapProjectionInfoPtr != NULL)"
 				
-			}		// end "if (controlPointsPtr->easting1Ptr[0] != 1 || ..."
+			}	// end "if (controlPointsPtr->easting1Ptr[0] != 1 || ..."
 			
-		}		// end "if (controlPointsPtr != NULL)"
+		}	// end "if (controlPointsPtr != NULL)"
 						
 	CloseControlPointVectorPointers (fileInfoPtr->controlPointsHandle);
 	
-}		// end "UpdateUpperLeftMapValues"
+}	// end "UpdateUpperLeftMapValues"

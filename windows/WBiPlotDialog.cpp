@@ -2,9 +2,9 @@
 //
 // Revised by Larry Biehl on 08/21/2017
 
-#include	"SMulSpec.h"
+#include	"SMultiSpec.h"
 #include	"WBiPlotDialog.h"
-#include	"SExtGlob.h"
+#include	"SExternalGlobals.h"
 
 
 extern void				BiPlotDataDialogInitialize(

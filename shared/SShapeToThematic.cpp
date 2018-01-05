@@ -11,13 +11,11 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision number:		3.0
-//
-//	Revision date:			04/10/2017
+//	Revision date:			12/21/2017
 //
 //	Language:				C
 //
-//	System:					Macintosh Operating System
+//	System:					Linux, Macintosh, and Windows Operating Systems
 //								
 //	Brief description:	The purpose of the routines in this file is to convert the
 //								requested ArcView shape file into a Thematic type file with 
@@ -41,34 +39,28 @@
 //								"multiSpec.h"
 //
 /*  Following is template used for testing/debugging
-	int numberChars = sprintf ((char*)&gTextString3,
+	int numberChars = sprintf ((char*)gTextString3,
 										" SShapeToThematicFile: (test): %d%s",
 										test,
 										gEndOfLine);
-	ListString ((char*)&gTextString3, numberChars, gOutputTextH);
+	ListString ((char*)gTextString3, numberChars, gOutputTextH);
 */
 //
 //------------------------------------------------------------------------------------
 
-#include	"SMulSpec.h"
+#include "SMultiSpec.h"
+
+#if defined multispec_lin
+	#include "SMultiSpec.h"
+#endif
 
 #if defined multispec_mac 
 #endif	// defined multispec_mac    
   
 #if defined multispec_win 
-#endif	// defined multispec_win   
-
-#if defined multispec_lin
-//#include "shapefil.h"
-#endif
-
-#include "SExtGlob.h"
+#endif	// defined multispec_win 
 
 
-extern void			LoadShapeToThematicClassNames (
-							ShapeInfoPtr						shapeInfoPtr,
-							char*									classNameTablePtr,
-							UInt32								numberClasses);
 
 extern void 		LoadShapeToThematicDialogInitialize (
 							DialogPtr							dialogPtr,
@@ -79,7 +71,7 @@ extern void 		LoadShapeToThematicDialogInitialize (
 							SInt16*								classSelectionPtr,
 							UInt16**								localClassPtrPtr,
 							UInt32*								localNumberClassesPtr,
-							Boolean*								includeHeaderFlagPtr );
+							Boolean*								includeHeaderFlagPtr);
 
 extern void 		LoadShapeToThematicDialogOK (
 							ReformatOptionsPtr				reformatOptionsPtr,
@@ -88,7 +80,7 @@ extern void 		LoadShapeToThematicDialogOK (
 							Boolean								testTypeFlag,
 							SInt16								classSelection,
 							UInt32								localNumberClasses,
-							Boolean								includeHeaderFlag );
+							Boolean								includeHeaderFlag);
 	 
 #if defined multispec_win || defined multispec_lin
 	#pragma pack(4)
@@ -233,9 +225,10 @@ bool IsPointInPolygon2 (
 				ArcViewDoublePoint*				vert,  
 				double								testx, 
 				double								testy) 
+				
 {
-	int   i, j=polySides-1 ;
-	bool  oddNodes=NO      ;
+	int   i, j=polySides-1;
+	bool  oddNodes = NO;
 
 	for (i=0; i<polySides; i++) 
 		{
@@ -243,7 +236,7 @@ bool IsPointInPolygon2 (
 				|| polyY[j]< y && polyY[i]>=y)
 				&& (polyX[i]<=x || polyX[j]<=x)) 
 			{
-			oddNodes^=(polyX[i]+(y-polyY[i])/(polyY[j]-polyY[i])*(polyX[j]-polyX[i])<x); 
+			oddNodes ^= (polyX[i]+(y-polyY[i])/(polyY[j]-polyY[i])*(polyX[j]-polyX[i])<x); 
 			}
 		
 		j=i; 
@@ -251,21 +244,34 @@ bool IsPointInPolygon2 (
 		}
 
   return oddNodes; 
-}
+  
+}	// end "IsPointInPolygon2"
 
-private bool IsPointInPolygon(PointF[] polygon, PointF point)
+
+
+private bool IsPointInPolygon (
+				PointF[]								polygon, 
+				PointF								point)
+				
 {
-bool isInside = false;
-for (int i = 0, j = polygon.Length - 1; i < polygon.Length; j = i++)
-{
-if (((polygon[i].Y > point.Y) != (polygon[j].Y > point.Y)) &&
-(point.X < (polygon[j].X - polygon[i].X) * (point.Y - polygon[i].Y) / (polygon[j].Y - polygon[i].Y) + polygon[i].X))
-{
-isInside = !isInside;
-}
-}
-return isInside;
-}
+	bool									isInside = false;
+	
+	
+	for (int i=0, j=polygon.Length-1; i<polygon.Length; j=i++)
+		{
+		if (((polygon[i].Y > point.Y) != (polygon[j].Y > point.Y)) &&
+									(point.X < (polygon[j].X - polygon[i].X) * 
+											(point.Y - polygon[i].Y) / 
+												(polygon[j].Y - polygon[i].Y) + polygon[i].X))
+			{
+			isInside = !isInside;
+			}
+			
+		}	// end "for (int i=0, j=polygon.Length-1; i<polygon.Length; j=i++)"
+		
+	return isInside;
+
+}	// end "IsPointInPolygon"
 */
 
 
@@ -367,9 +373,12 @@ SInt16 ConvertPolygonShapeToClassNumber (
 		if (recordIndex == shapeInfoPtr->numberRecords-1)
 			{
 			lineColumnRect.top = MAX (reformatOptionsPtr->lineStart, lineColumnRect.top);
-			lineColumnRect.bottom =  MIN (reformatOptionsPtr->lineEnd, lineColumnRect.bottom);
-			lineColumnRect.left = MAX (reformatOptionsPtr->columnStart, lineColumnRect.left);
-			lineColumnRect.right = MIN (reformatOptionsPtr->columnEnd, lineColumnRect.right);
+			lineColumnRect.bottom =  MIN (
+										reformatOptionsPtr->lineEnd, lineColumnRect.bottom);
+			lineColumnRect.left = MAX (
+										reformatOptionsPtr->columnStart, lineColumnRect.left);
+			lineColumnRect.right = MIN (
+										reformatOptionsPtr->columnEnd, lineColumnRect.right);
 					
 			}		// end "if (recordIndex == shapeInfoPtr->numberRecords-1)"
 
@@ -377,7 +386,7 @@ SInt16 ConvertPolygonShapeToClassNumber (
 	
 			// Load the total number of lines into the status dialog.				
 				
-	gNextStatusTime = TickCount();
+	gNextStatusTime = TickCount ();
 	LoadDItemValue (gStatusDialogPtr, 
 							IDC_Status20, 
 							lineColumnRect.bottom-lineColumnRect.top+1);
@@ -395,13 +404,13 @@ SInt16 ConvertPolygonShapeToClassNumber (
 	for (line=(UInt32)lineColumnRect.top; line<=(UInt32)lineColumnRect.bottom; line++)
 		{
 		lineCount++;	
-		if (TickCount() >= gNextStatusTime)
+		if (TickCount () >= gNextStatusTime)
 			{
 			LoadDItemValue (gStatusDialogPtr, IDC_Status18, lineCount);
 			CheckSomeEvents (updateMask);
-			gNextStatusTime = TickCount() + gNextStatusTimeOffset;
+			gNextStatusTime = TickCount () + gNextStatusTimeOffset;
 			
-			}		// end "if ( TickCount() >= gNextStatusTime)"
+			}		// end "if (TickCount () >= gNextStatusTime)"
 		
 		lastRecordIndex = shapeInfoPtr->numberRecords + 1;
 		lastClassNumber = 0;
@@ -420,15 +429,18 @@ SInt16 ConvertPolygonShapeToClassNumber (
 				{
 				arcViewPolyLinePtr = (ArcViewPolyLinePtr)&vectorDataPtr[vectorDataIndex];
 					
-				if (arcViewPolyLinePtr->shapeType == 3 || arcViewPolyLinePtr->shapeType == 5)
+				if (arcViewPolyLinePtr->shapeType == 3 || 
+																arcViewPolyLinePtr->shapeType == 5)
 					{
 					if (PointInRectangle (&mapPoint, &arcViewPolyLinePtr->box))
 						{
 						pointIndex = 0;
 						doublePointPtr = (ArcViewDoublePoint*)
-											&arcViewPolyLinePtr->parts[arcViewPolyLinePtr->numParts];
+									&arcViewPolyLinePtr->parts[arcViewPolyLinePtr->numParts];
 						
-						for (partIndex=0; partIndex<arcViewPolyLinePtr->numParts; partIndex++)
+						for (partIndex=0; 
+								partIndex<arcViewPolyLinePtr->numParts; 
+								partIndex++)
 							{	
 							pointStart = arcViewPolyLinePtr->parts[partIndex];
 							
@@ -452,9 +464,10 @@ SInt16 ConvertPolygonShapeToClassNumber (
 								
 								else		// recordIndex != lastRecordIndex
 									{
-									classNumber = GetValueForRecordIndex (shapeInfoPtr->dbfInfoPtr,
-																					  featureNumber,
-																					  recordIndex);
+									classNumber = GetValueForRecordIndex (
+																				shapeInfoPtr->dbfInfoPtr,
+																				featureNumber,
+																				recordIndex);
 									lastRecordIndex = recordIndex;
 									lastClassNumber = classNumber;
 									
@@ -466,7 +479,7 @@ SInt16 ConvertPolygonShapeToClassNumber (
 
 							}		// end "for (partIndex=0; partIndex<..."
 							
-						}		// end "if (PointInRectangle (&mapPoint, &arcViewPolyLinePtr->box))"
+						}		// end "if (PointInRectangle (&mapPoint, ..."
 						
 					if (classNumber > 0)
 						break;
@@ -498,7 +511,7 @@ SInt16 ConvertPolygonShapeToClassNumber (
 		if (errCode != noErr)
 			break;
 		
-		}		// end "for (line=lineColumnRect.top; line<=lineColumnRect.bottom; line++)"
+		}		// end "for (line=lineColumnRect.top; line<=lineColumnRect.bottom; ..."
 		
 	LoadDItemValue (gStatusDialogPtr, IDC_Status18, lineCount);
 		
@@ -574,8 +587,7 @@ Boolean ConvertShapeToClassNumber (
 	
 	if (outFileInfoPtr != NULL && shapeInfoPtr != NULL) 
 		vectorDataPtr = (Ptr)GetHandlePointer (shapeInfoPtr->vectorDataHandle,
-																kLock,
-																kNoMoveHi);
+																kLock);
 								
 	if (vectorDataPtr != NULL)
 		{
@@ -618,10 +630,11 @@ Boolean ConvertShapeToClassNumber (
 											
 				// Get pointer to the map projection information
 			
-		mapProjectionHandle = GetFileMapProjectionHandle2 (gImageWindowInfoPtr->windowInfoHandle);
+		mapProjectionHandle = GetFileMapProjectionHandle2 (
+															gImageWindowInfoPtr->windowInfoHandle);
 	
 		mapProjectionInfoPtr = (MapProjectionInfoPtr)GetHandlePointer (
-													mapProjectionHandle, kLock, kNoMoveHi);
+													mapProjectionHandle, kLock);
 		
 			// Get the rectangle in map units that is going to be converted to
 			// a raster thematic image file.
@@ -642,8 +655,8 @@ Boolean ConvertShapeToClassNumber (
 		classNumber = 1;
 		ioOutBufferPtr = (HUCharPtr)reformatOptionsPtr->ioOutBufferPtr;
 		
-				// Get the shape type for use later. Not the code will not have mix types as
-				// it is written now.
+				// Get the shape type for use later. Not the code will not have mix types 
+				// as it is written now.
 				
 		arcViewRecordHeaderPtr = (ArcViewRecordHeaderPtr)vectorDataPtr;
 		shapeType = arcViewRecordHeaderPtr->shapeType;
@@ -669,14 +682,15 @@ Boolean ConvertShapeToClassNumber (
 													&arcViewPointPtr->point, 
 													&nextPoint);
 													
-						errCode = SetClassInMaskImage (fileIOInstructionsPtr,
-																	reformatOptionsPtr->ioOutBufferPtr,
-																	maskInMemoryFlag,
-																	&currentLine,
-																	&lineToBeWrittenFlag,
-																	nextPoint.v-reformatOptionsPtr->lineStart, 
-																	nextPoint.h-reformatOptionsPtr->columnStart, 
-																	classNumber);
+						errCode = SetClassInMaskImage (
+														fileIOInstructionsPtr,
+														reformatOptionsPtr->ioOutBufferPtr,
+														maskInMemoryFlag,
+														&currentLine,
+														&lineToBeWrittenFlag,
+														nextPoint.v-reformatOptionsPtr->lineStart, 
+														nextPoint.h-reformatOptionsPtr->columnStart, 
+														classNumber);
 					
 						}		// end "if (PointInBox (&areaViewPolyLinePtr->box, ..."
 						
@@ -685,14 +699,14 @@ Boolean ConvertShapeToClassNumber (
       		case 3:	// PolyLine shape	
       		case 5:	// Polygon shape
 					errCode = ConvertPolygonShapeToClassNumber (
-																		reformatOptionsPtr,
-																		fileIOInstructionsPtr,
-																		mapProjectionInfoPtr,
-																		shapeInfoPtr,
-																		vectorDataPtr,
-																		outFileStreamPtr,
-																		gImageWindowInfoPtr->windowInfoHandle,
-																		maskInMemoryFlag);
+																reformatOptionsPtr,
+																fileIOInstructionsPtr,
+																mapProjectionInfoPtr,
+																shapeInfoPtr,
+																vectorDataPtr,
+																outFileStreamPtr,
+																gImageWindowInfoPtr->windowInfoHandle,
+																maskInMemoryFlag);
 								
 					recordIndex = shapeInfoPtr->numberRecords;
       			break;
@@ -736,7 +750,7 @@ Boolean ConvertShapeToClassNumber (
 				count = outFileInfoPtr->numberColumns;
 				
 				if (errCode == noErr)
-					errCode = MWriteData(outFileStreamPtr, 
+					errCode = MWriteData (outFileStreamPtr,
 													&count, 
 													ioOutBufferPtr,
 													kErrorMessages);
@@ -757,7 +771,7 @@ Boolean ConvertShapeToClassNumber (
 																			outFileInfoPtr->numberBytes;
 				
 				if (errCode == noErr)
-					errCode = MWriteData(outFileStreamPtr, 
+					errCode = MWriteData (outFileStreamPtr,
 													&count, 
 													(HUCharPtr)reformatOptionsPtr->ioOutBufferPtr,
 													kErrorMessages);
@@ -847,11 +861,13 @@ UInt32 GetValueForRecordIndex (
 		switch (fieldType)
 			{
 			case FTInteger:
-				classNumber = DBFReadIntegerAttribute (dbfInfoPtr, recordIndex, featureNumber);
+				classNumber = DBFReadIntegerAttribute (
+															dbfInfoPtr, recordIndex, featureNumber);
 				break;
 					
 			case FTDouble:
-				doubleValue = DBFReadDoubleAttribute (dbfInfoPtr, recordIndex, featureNumber);
+				doubleValue = DBFReadDoubleAttribute (
+															dbfInfoPtr, recordIndex, featureNumber);
 				classNumber = (UInt32)doubleValue;
 				break;
 					
@@ -908,7 +924,8 @@ Boolean IsPointInPolygon (
 	for (i =0, j=nvert-1; i<nvert; j=i++) 
 		{
 		if (((vert[i].y>testy) != (vert[j].y>testy)) &&
-			(testx < (vert[j].x-vert[i].x)*(testy-vert[i].y) / (vert[j].y-vert[i].y) + vert[i].x))
+			(testx < (vert[j].x-vert[i].x)*(testy-vert[i].y) / 
+																(vert[j].y-vert[i].y) + vert[i].x))
 			inPolygonFlag = !inPolygonFlag;
 			
 		}		// end "for (i = 0, j = nvert-1; i < nvert; j = i++)"
@@ -971,7 +988,8 @@ Boolean IsPointInPolygon2 (
 				|| vert[j].y < testy && vert[i].y >= testy)
 					&& (vert[i].x <= testx || vert[j].y <= testx)) 
 			{
-			oddNodes ^= (vert[i].x+(testy-vert[i].y)/(vert[j].y-vert[i].y)*(vert[j].x-vert[i].x) < testx); 
+			oddNodes ^= (vert[i].x+(testy-vert[i].y)/
+											(vert[j].y-vert[i].y)*(vert[j].x-vert[i].x) < testx); 
 			}
 		
 		j = i; 
@@ -1047,7 +1065,11 @@ Boolean ListShapeDBFFieldNames (
 		
 				// Get type for first field
 				
-		DBFGetFieldInfo (dbfInfoPtr, fieldNumber[0], fieldName, &fieldWidth, &numberDecimals);
+		DBFGetFieldInfo (dbfInfoPtr, 
+								fieldNumber[0], 
+								fieldName, 
+								&fieldWidth, 
+								&numberDecimals);
 		length = sprintf (textString,
 								"%s    Shape dbf fields used for output support file: %s",
 								gEndOfLine,
@@ -1056,7 +1078,11 @@ Boolean ListShapeDBFFieldNames (
 
 		if (numberFields > 1)
 			{
-			DBFGetFieldInfo (dbfInfoPtr, fieldNumber[1], fieldName, &fieldWidth, &numberDecimals);
+			DBFGetFieldInfo (dbfInfoPtr, 
+									fieldNumber[1], 
+									fieldName, 
+									&fieldWidth, 
+									&numberDecimals);
 			length = sprintf (&textString[totalLength],
 								", _%s",
 								fieldName);
@@ -1066,7 +1092,11 @@ Boolean ListShapeDBFFieldNames (
 			
 		if (numberFields > 2)
 			{
-			DBFGetFieldInfo (dbfInfoPtr, fieldNumber[2], fieldName, &fieldWidth, &numberDecimals);
+			DBFGetFieldInfo (dbfInfoPtr, 
+									fieldNumber[2], 
+									fieldName, 
+									&fieldWidth, 
+									&numberDecimals);
 			length = sprintf (&textString[totalLength],
 								", _%s",
 								fieldName);
@@ -1163,8 +1193,7 @@ void LoadShapeToThematicClassNames (
 	
 			
 	vectorDataPtr = (Ptr)GetHandlePointer (shapeInfoPtr->vectorDataHandle,
-														kLock,
-														kNoMoveHi);
+														kLock);
 		
 	if (vectorDataPtr != NULL)
 		arcViewRecordHeaderPtr = (ArcViewRecordHeaderPtr)&vectorDataPtr[vectorDataIndex];
@@ -1181,33 +1210,47 @@ void LoadShapeToThematicClassNames (
 			numberFields = DBFGetFieldCount (dbfInfoPtr);
 			fieldLimit = MIN (numberFields, 3);
 			/*
-			int numberChars = sprintf ((char*)&gTextString3,
-												" SShapeToThematicFile:LoadShapeToThematicClassNames (numberFields): %d%s",
-												numberFields,
-												gEndOfLine);
-			ListString ((char*)&gTextString3, numberChars, gOutputTextH);
+			int numberChars = sprintf (
+				(char*)gTextString3,
+				" SShapeToThematicFile:LoadShapeToThematicClassNames (numberFields): %d%s",
+				numberFields,
+				gEndOfLine);
+			ListString ((char*)gTextString3, numberChars, gOutputTextH);
 			*/
-					// Include code to determine if this is a shape file for the PhenoSorg project. It may very well
-					// change but do this for the initial version of the shape file for processing work on the project.
+					// Include code to determine if this is a shape file for the PhenoSorg 
+					// project. It may very well change but do this for the initial version 
+					// of the shape file for processing work on the project.
 					// 4/28/2016.
 					
 			if (numberFields == 11)
 				{
 				c_phenoSorgProjectFlag = true;
-				fieldType[0] = DBFGetFieldInfo (dbfInfoPtr, 8, (char*)fieldName, &fieldWidth, &numberDecimals[0]);
+				fieldType[0] = DBFGetFieldInfo (dbfInfoPtr, 
+															8, 
+															(char*)fieldName, 
+															&fieldWidth, 
+															&numberDecimals[0]);
 				if (CompareStringsNoCase (fieldName, (UCharPtr)"Plot", 4))
 					c_phenoSorgProjectFlag = false;
 					
 				if (c_phenoSorgProjectFlag)
 					{
-					fieldType[0] = DBFGetFieldInfo (dbfInfoPtr, 9, (char*)fieldName, &fieldWidth, &numberDecimals[0]);
+					fieldType[0] = DBFGetFieldInfo (dbfInfoPtr, 
+																9, 
+																(char*)fieldName, 
+																&fieldWidth, 
+																&numberDecimals[0]);
 					if (CompareStringsNoCase (fieldName, (UCharPtr)"Ent", 3))
 						c_phenoSorgProjectFlag = false;
 					}
 						
 				if (c_phenoSorgProjectFlag)
 					{
-					fieldType[0] = DBFGetFieldInfo (dbfInfoPtr, 10, (char*)fieldName, &fieldWidth, &numberDecimals[0]);
+					fieldType[0] = DBFGetFieldInfo (dbfInfoPtr, 
+																10, 
+																(char*)fieldName, 
+																&fieldWidth, 
+																&numberDecimals[0]);
 					if (CompareStringsNoCase (fieldName, (UCharPtr)"K", 1))
 						c_phenoSorgProjectFlag = false;
 					}
@@ -1224,13 +1267,25 @@ void LoadShapeToThematicClassNames (
 			
 					// Get type for first field
 					
-			fieldType[0] = DBFGetFieldInfo (dbfInfoPtr, fieldNumber[0], (char*)fieldName, &fieldWidth, &numberDecimals[0]);
+			fieldType[0] = DBFGetFieldInfo (dbfInfoPtr, 
+														fieldNumber[0], 
+														(char*)fieldName, 
+														&fieldWidth, 
+														&numberDecimals[0]);
 
 			if (fieldLimit > 1)
-				fieldType[1] = DBFGetFieldInfo (dbfInfoPtr, fieldNumber[1], (char*)fieldName, &fieldWidth, &numberDecimals[1]);
+				fieldType[1] = DBFGetFieldInfo (dbfInfoPtr, 
+															fieldNumber[1], 
+															(char*)fieldName, 
+															&fieldWidth, 
+															&numberDecimals[1]);
 				
 			if (fieldLimit > 2)
-				fieldType[2] = DBFGetFieldInfo (dbfInfoPtr, fieldNumber[2], (char*)fieldName, &fieldWidth, &numberDecimals[2]);
+				fieldType[2] = DBFGetFieldInfo (dbfInfoPtr, 
+															fieldNumber[2], 
+															(char*)fieldName, 
+															&fieldWidth, 
+															&numberDecimals[2]);
 		
 			}		// end "if (shapeInfoPtr->dbfInfoPtr != NULL && ...)"
 	#endif	// include_gdal_capability
@@ -1239,7 +1294,8 @@ void LoadShapeToThematicClassNames (
 		{
 		if (vectorDataPtr != NULL)
 			{
-			arcViewRecordHeaderPtr = (ArcViewRecordHeaderPtr)&vectorDataPtr[vectorDataIndex];
+			arcViewRecordHeaderPtr = 
+									(ArcViewRecordHeaderPtr)&vectorDataPtr[vectorDataIndex];
 			identifier = arcViewRecordHeaderPtr->recordNumber - 1; 
 			vectorDataIndex += arcViewRecordHeaderPtr->recordLength;
 			
@@ -1258,18 +1314,31 @@ void LoadShapeToThematicClassNames (
 					switch (fieldType[field])
 						{
 						case FTString:
-							charLabelPtr = (char*)DBFReadStringAttribute (shapeInfoPtr->dbfInfoPtr, identifier, fieldNumber[field]);
-							length = sprintf ((char*)&textString[nameLength], "%s", charLabelPtr);
+							charLabelPtr = (char*)DBFReadStringAttribute (
+																				shapeInfoPtr->dbfInfoPtr, 
+																				identifier, 
+																				fieldNumber[field]);
+							length = sprintf ((char*)&textString[nameLength], 
+													"%s", 
+													charLabelPtr);
 							break;
 							
 						case FTInteger:
-							integerLabel = DBFReadIntegerAttribute (shapeInfoPtr->dbfInfoPtr, identifier, fieldNumber[field]);
-							length = sprintf ((char*)&textString[nameLength], "%d", integerLabel);
+							integerLabel = DBFReadIntegerAttribute (shapeInfoPtr->dbfInfoPtr, 
+																					identifier, 
+																					fieldNumber[field]);
+							length = sprintf ((char*)&textString[nameLength], 
+													"%d", 
+													integerLabel);
 							break;
 						
 						case FTDouble:
-							doubleLabel = DBFReadDoubleAttribute (shapeInfoPtr->dbfInfoPtr, identifier, fieldNumber[field]);
-							length = sprintf ((char*)&textString[nameLength], "%.*f", numberDecimals[field], doubleLabel);
+							doubleLabel = DBFReadDoubleAttribute (shapeInfoPtr->dbfInfoPtr, 
+																				identifier, 
+																				fieldNumber[field]);
+							length = sprintf ((char*)&textString[nameLength], 
+													"%.*f", numberDecimals[field], 
+													doubleLabel);
 							break;
 						
 						default:
@@ -1285,13 +1354,17 @@ void LoadShapeToThematicClassNames (
 								// For PhenoSorg case	
 						if (field == 1 && integerLabel > 0)
 							{
-							length = sprintf ((char*)&textString[nameLength], "ent%d", integerLabel);
+							length = sprintf ((char*)&textString[nameLength], 
+													"ent%d", 
+													integerLabel);
 							nameLength += length;
 							}
 							
 						else if (field == 2 && integerLabel > 0)
 							{
-							length = sprintf ((char*)&textString[nameLength], "k%d", integerLabel);
+							length = sprintf ((char*)&textString[nameLength], 
+													"k%d", 
+													integerLabel);
 							nameLength += length;
 							}
 							
@@ -1399,7 +1472,7 @@ Boolean LoadShapeToThematicDialog (
 											testTypeFlag,
 											trainTypeFlag;
 	
-																						return(TRUE);
+																							return (TRUE);
 			// Initialize local variables.													
 			
 	dialogPtr = NULL;
@@ -1408,7 +1481,7 @@ Boolean LoadShapeToThematicDialog (
 				
 	dialogPtr = LoadRequestedDialog (kfieldsToImageID, kCopyScrap, 1, 2);
 	if (dialogPtr == NULL)													
-																						return(FALSE);
+																							return (FALSE);
 	
 			// Set Procedure pointers for those dialog items that need them.			
 	
@@ -1426,7 +1499,7 @@ Boolean LoadShapeToThematicDialog (
 														&gClassSelection,
 														&localClassPtr,
 														&localNumberClasses,
-														&includeHeaderFlag );
+														&includeHeaderFlag);
 	
 			// Save handle for the OK button for use later.								
 			
@@ -1434,12 +1507,12 @@ Boolean LoadShapeToThematicDialog (
 	
 			// Use training and/or testing fields.						
 					
-	SetDLogControl ( dialogPtr, 15, trainTypeFlag );
-	SetDLogControl ( dialogPtr, 16, testTypeFlag );
+	SetDLogControl (dialogPtr, 15, trainTypeFlag);
+	SetDLogControl (dialogPtr, 16, testTypeFlag);
 	
 			// Write ERDAS header record and trailer file.					
 	
-	SetDLogControl (dialogPtr, 20, includeHeaderFlag );
+	SetDLogControl (dialogPtr, 20, includeHeaderFlag);
 	
 			// Center the dialog and then show it.											
 			
@@ -1467,7 +1540,7 @@ Boolean LoadShapeToThematicDialog (
 			if (theType == 16)
 				{
 				GetDialogItemText (theHandle, gTextString);	
-				StringToNum ( gTextString, &theNum);
+				StringToNum (gTextString, &theNum);
 				
 				}		// end "if (theType == 16)" 
 				
@@ -1481,7 +1554,7 @@ Boolean LoadShapeToThematicDialog (
 				case 12:				//	 Display end column of image  
 				case 13:				//	 Display column interval of image  
 
-					DialogLineColumnHits ( &dialogSelectArea,
+					DialogLineColumnHits (&dialogSelectArea,
 													dialogPtr, 
 													itemHit,
 													theHandle,
@@ -1491,7 +1564,7 @@ Boolean LoadShapeToThematicDialog (
 				case 15:			// Check box for 'Use training fields/areas'.		
 				case 16:			// Check box for 'Use testing fields/areas'.			
 				case 20:			// Check box for 'Write ERDAS header record ...		
-					ChangeDLogCheckBox ( (ControlHandle)theHandle );
+					ChangeDLogCheckBox ((ControlHandle)theHandle);
 					break;
 					
 				case 18:		// Classes 
@@ -1521,8 +1594,7 @@ Boolean LoadShapeToThematicDialog (
 							// Make certain that the correct label is drawn in the	
 							// class pop up box.													
 					
-//					InvalRect (&theBox);
-					InvalWindowRect ( GetDialogWindow(dialogPtr), &theBox );
+					InvalWindowRect (GetDialogWindow (dialogPtr), &theBox);
 					break;
 						
 				}		// end "switch (itemHit)" 
@@ -1553,7 +1625,7 @@ Boolean LoadShapeToThematicDialog (
 														(GetDLogControl (dialogPtr, 16) == 1),
 														gClassSelection,
 														localNumberClasses,
-														(GetDLogControl(dialogPtr, 20) == 1) );
+														(GetDLogControl (dialogPtr, 20) == 1));
 														
 				}		// end "if	(itemHit == 1)" 
 				
@@ -1569,30 +1641,28 @@ Boolean LoadShapeToThematicDialog (
 		} while (!modalDone);                    
 		
 	CloseRequestedDialog (dialogPtr, kSetUpDFilterTable);
-	
 #endif	// defined multispec_mac
 
-
 	#if defined multispec_win   
-/*	
+		/*	
 		CMFieldsToThematicDialog*		dialogPtr = NULL;
 		
 		TRY
 			{ 
-			dialogPtr = new CMFieldsToThematicDialog(); 
+			dialogPtr = new CMFieldsToThematicDialog ();
 			
 			returnFlag = dialogPtr->DoDialog (reformatOptionsPtr); 
 		                       
 			delete dialogPtr;
 			}
 			
-		CATCH_ALL(e)
+		CATCH_ALL (e)
 			{
-			MemoryMessage(0, kObjectMessage);
+			MemoryMessage (0, kObjectMessage);
 			returnFlag = FALSE;
 			}
 		END_CATCH_ALL
-*/	
+		*/	
 	#endif	// defined multispec_win  
 	
 	return (returnFlag);
@@ -1610,7 +1680,7 @@ void LoadShapeToThematicDialogInitialize (
 				SInt16*								classSelectionPtr,
 				UInt16**								localClassPtrPtr,
 				UInt32*								localNumberClassesPtr,
-				Boolean*								includeHeaderFlagPtr )
+				Boolean*								includeHeaderFlagPtr)
 
 {	
 			// Update the specification dialog with the information given in 		
@@ -1629,12 +1699,16 @@ void LoadShapeToThematicDialogInitialize (
 											reformatOptionsPtr->lineInterval,
 											8,
 											6,
-											kAdjustToBaseImage );										
+											kAdjustToBaseImage);										
 			
 	dialogSelectAreaPtr->imageWindowInfoPtr = gImageWindowInfoPtr;
 								
 	#if defined multispec_mac 
-		LoadLineColumnItems ( dialogSelectAreaPtr, dialogPtr);
+		LoadLineColumnItems (dialogSelectAreaPtr, 
+										dialogPtr, 
+										kInitializeLineColumnValues, 
+										kIntervalEditBoxesExist,
+										1);
 	#endif	// defined multispec_mac             
 				
 			// Display all or subset of classes/groups.
@@ -1658,7 +1732,7 @@ void LoadShapeToThematicDialogOK (
 				Boolean								testTypeFlag,
 				SInt16								classSelection,
 				UInt32								localNumberClasses,
-				Boolean								includeHeaderFlag )
+				Boolean								includeHeaderFlag)
 
 {	
 			// Selected reformat area.												
@@ -1673,9 +1747,9 @@ void LoadShapeToThematicDialogOK (
 			// Use training and/or testing fields/areas.	
 			
 	reformatOptionsPtr->fieldType = 0;
-	if ( trainTypeFlag )
+	if (trainTypeFlag)
 		reformatOptionsPtr->fieldType += kTrainingType;
-	if ( testTypeFlag )
+	if (testTypeFlag)
 		reformatOptionsPtr->fieldType += kTestingType;
 		
 			// Classes				
@@ -1744,16 +1818,16 @@ Boolean LoadShapeToThematicSpecs (
 			// Get a handle to a block of memory to use for the reformatting		
 			// options.  Then lock it and get a pointer to the block.				
 		
-	continueFlag = GetReformatAndFileInfoStructures ( 
-													&outFileInfoHandle, reformatOptionsHPtr );
+	continueFlag = GetReformatAndFileInfoStructures (
+													&outFileInfoHandle, reformatOptionsHPtr);
 	
 	if (continueFlag)
 		{														
-		reformatOptionsPtr = (ReformatOptionsPtr)GetHandlePointer(
-												*reformatOptionsHPtr, kLock, kNoMoveHi);
+		reformatOptionsPtr = (ReformatOptionsPtr)GetHandlePointer (
+												*reformatOptionsHPtr, kLock);
 
-		outFileInfoPtr = (FileInfoPtr)GetHandlePointer(
-												outFileInfoHandle, kLock, kNoMoveHi);
+		outFileInfoPtr = (FileInfoPtr)GetHandlePointer (
+												outFileInfoHandle, kLock);
 												
 		reformatOptionsPtr->numberClasses = 1;
 		reformatOptionsPtr->numberChannels = 1;
@@ -1938,7 +2012,8 @@ SInt16 SetClassInMaskImage (
 						// writing the output data.				
 				
 				writePosOff = outFileInfoPtr->numberHeaderBytes +
-					(*currentLinePtr-1)*outFileInfoPtr->numberColumns * outFileInfoPtr->numberBytes;
+					(*currentLinePtr-1)*outFileInfoPtr->numberColumns * 
+																		outFileInfoPtr->numberBytes;
 														
 						// Set pointer to correct location for writing.			
 			
@@ -2043,7 +2118,7 @@ void ShapeToThematicFileControl (void)
 			// routine.																				
 			
 	if (gMemoryTypeNeeded < 0)
-																							return;
+																									return;
 																							
 			// Code resources loaded okay, so set flag back for non-Code			
 			// resources.																			
@@ -2056,26 +2131,26 @@ void ShapeToThematicFileControl (void)
 			// Get the shape file index for the window. For now we will use the
 			// first one in the list.
 			
-	shapeFileIndex = abs(gImageWindowInfoPtr->overlayList[0].index) - 1;
+	shapeFileIndex = abs (gImageWindowInfoPtr->overlayList[0].index) - 1;
 																								
 			// Get the reformat structure and initialize it.							
 			
 	if (!LoadShapeToThematicSpecs (&reformatOptionsHandle))
-																							return;
+																									return;
 																							
 			// Verify that the shape file index makes sense.
 			
 	if (shapeFileIndex < 0 || shapeFileIndex >= (SInt16)gShapeHandleListLength)
-																							return;
+																									return;
 	
 			// Note that the following handles were locked in the call to
 			// 'LoadShapeToThematicSpecs'
 			
-	reformatOptionsPtr = (ReformatOptionsPtr)GetHandlePointer(
-										reformatOptionsHandle, kNoLock, kNoMoveHi);
+	reformatOptionsPtr = (ReformatOptionsPtr)GetHandlePointer (
+										reformatOptionsHandle);
 
-	outFileInfoPtr = (FileInfoPtr)GetHandlePointer(
-					reformatOptionsPtr->outFileInfoHandle, kNoLock, kNoMoveHi);
+	outFileInfoPtr = (FileInfoPtr)GetHandlePointer (
+					reformatOptionsPtr->outFileInfoHandle);
 	
 			// Present the user with a dialog box to allow a change in the default	
 			// specifications.																	
@@ -2097,7 +2172,8 @@ void ShapeToThematicFileControl (void)
 				// Get potential number of classes. Allow for background class.
 				
 		reformatOptionsPtr->numberClasses = 
-			GetShapeFileNumberRecordsAndType (gShapeFilesHandle, shapeFileIndex, &shapeType);
+			GetShapeFileNumberRecordsAndType (
+												gShapeFilesHandle, shapeFileIndex, &shapeType);
 					
 		if (shapeType == 1)		// point type
 			reformatOptionsPtr->numberClasses = 2;
@@ -2124,10 +2200,10 @@ void ShapeToThematicFileControl (void)
 				// Update parameters in the structure for the output file.			
 		
 		UpdateOutputFileStructure (outFileInfoPtr, 
-												reformatOptionsPtr, 
-												gImageFileInfoPtr->startLine, 
-												gImageFileInfoPtr->startColumn,
-												gImageFileInfoPtr->mapProjectionHandle);
+											reformatOptionsPtr, 
+											gImageFileInfoPtr->startLine, 
+											gImageFileInfoPtr->startColumn,
+											gImageFileInfoPtr->mapProjectionHandle);
 		
 				// Get buffer for output data.													
 				
@@ -2143,7 +2219,7 @@ void ShapeToThematicFileControl (void)
 		
 		MSetCursor (kWait);
 													
-		startTime = time(NULL);
+		startTime = time (NULL);
 		
 				// Get the status dialog window.													
 		
@@ -2151,13 +2227,14 @@ void ShapeToThematicFileControl (void)
 		if (continueFlag)	
 			continueFlag = (gStatusDialogPtr != NULL);
 	
-				//	Title for creating background image.										
+				//	Title for creating background image.	
+				//		"\pCreating Thematic Image Background"									
 	
 		LoadDItemStringNumber (kReformatStrID,
-											IDS_Reform13, 	// "\pCreating Thematic Image Background"
+											IDS_Reform13, 
 											gStatusDialogPtr, 
 											IDC_Status11,
-											(Str255*)&gTextString);
+											(Str255*)gTextString);
 				
 				// Create the base Thematic Image file with all background values.	
 				
@@ -2169,35 +2246,34 @@ void ShapeToThematicFileControl (void)
 													reformatOptionsPtr->numberOutputBufferLines,
 													(UInt8)reformatOptionsPtr->backgroundValue,
 													(reformatOptionsPtr->numberOutputBufferLines < 
-																				outFileInfoPtr->numberLines)); 
+																		outFileInfoPtr->numberLines)); 
 	
 				//	Set title and dialog items for changing pixels to class numbers.	
 	
 		if (continueFlag)
 			{
+					// "\pShape File to Thematic Image"
+					
 			LoadDItemStringNumber (kReformatStrID,
-											IDS_Reform32,  	// "\pShape File to Thematic Image"
+											IDS_Reform32,  	
 											gStatusDialogPtr, 
 											IDC_Status11,
-											(Str255*)&gTextString); 
+											(Str255*)gTextString); 
 											
 			ShowStatusDialogItemSet (kStatusLine);
-			gNextStatusTime = TickCount();
+			gNextStatusTime = TickCount ();
 			
 			CheckSomeEvents (updateMask);
 			
 					// Now get a pointer to the overlay list and the number of overlays.
 					
-			shapeHandlePtr = (Handle*)GetHandlePointer(
-															gShapeFilesHandle, kNoLock, kNoMoveHi);
+			shapeHandlePtr = (Handle*)GetHandlePointer (gShapeFilesHandle);
 																	
 			if (shapeHandlePtr != NULL)
 				{
 				shapeInfoHandle = shapeHandlePtr[shapeFileIndex];
-				shapeInfoPtr = (ShapeInfoPtr)GetHandlePointer (
-																		shapeInfoHandle,
-																		kLock,
-																		kNoMoveHi);
+				shapeInfoPtr = (ShapeInfoPtr)GetHandlePointer (shapeInfoHandle,
+																				kLock);
             													
 				continueFlag = (shapeInfoPtr != NULL);
 				
@@ -2210,7 +2286,7 @@ void ShapeToThematicFileControl (void)
 		
 		if (continueFlag)	
 			continueFlag = ConvertShapeToClassNumber (
-													outFileInfoPtr, shapeInfoPtr, reformatOptionsPtr);
+												outFileInfoPtr, shapeInfoPtr, reformatOptionsPtr);
 																
 				// Create the ERDAS Trailer file if needed.									
 		
@@ -2224,23 +2300,22 @@ void ShapeToThematicFileControl (void)
 					// creating the background class. It will be handled separately
 					// in this routine.
 			
-			continueFlag = CreateThematicSupportFile ( 
-										outFileInfoPtr,
-										shapeInfoPtr,
-										(UInt16)reformatOptionsPtr->numberClasses-1,
-										NULL,
-										0,
-										NULL,
-										NULL,
-										NULL,
-										kDefaultColors,
-										(UInt16)reformatOptionsPtr->numberClasses-1,
-//										1,
-										kFromShapeToThematicCode,
-										kPaletteHistogramClassNames,
-										kClassDisplay,
-										kCollapseToHighest,
-										supportFileType);
+			continueFlag = CreateThematicSupportFile (
+														outFileInfoPtr,
+														shapeInfoPtr,
+														(UInt16)reformatOptionsPtr->numberClasses-1,
+														NULL,
+														0,
+														NULL,
+														NULL,
+														NULL,
+														kDefaultColors,
+														(UInt16)reformatOptionsPtr->numberClasses-1,
+														kFromShapeToThematicCode,
+														kPaletteHistogramClassNames,
+														kClassDisplay,
+														kCollapseToHighest,
+														supportFileType);
 										
 			}		// end "if (continueFlag)"	
 		
@@ -2248,7 +2323,7 @@ void ShapeToThematicFileControl (void)
 		
 		if (continueFlag)		
 			continueFlag = ListReformatResultsInformation (
-															reformatOptionsPtr, outFileInfoPtr);
+																reformatOptionsPtr, outFileInfoPtr);
 			
 		#if include_gdal_capability				
 			if (continueFlag)								
@@ -2260,8 +2335,8 @@ void ShapeToThematicFileControl (void)
 				// List the CPU time taken for reformatting.					
 					
 		continueFlag = ListCPUTimeInformation (NULL, 
-														continueFlag, 
-														startTime);
+															continueFlag, 
+															startTime);
 				  		
 	  					// Close the output file.													
 	  				
@@ -2272,7 +2347,6 @@ void ShapeToThematicFileControl (void)
 			// Release memory used for the reformat structure.	
 							
 	ReleaseReformatOutputFileInfoAndBuffers (reformatOptionsPtr, NULL);									
-//	ReleaseReformatSpecsMemory (&reformatOptionsHandle, NULL);
 					
 			// Dispose of updating statistics status dialog box.						
 		

@@ -2,4 +2,4 @@
 //  WMultiSpec_pch.pch will be the pre-compiled header
 //  WMultiSpec_pch.obj will contain the pre-compiled type information
 
-#include "SMulSpec.h"
+#include "SMultiSpec.h"

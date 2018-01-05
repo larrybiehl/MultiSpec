@@ -3,21 +3,19 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2017)
-//								(c) Purdue Research Foundation
+//								 Copyright (1988-2018)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	File:						SPalette.cpp
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision number:		3.0
-//
-//	Revision date:			07/28/2017
+//	Revision date:			01/04/2018
 //
 //	Language:				C
 //
-//	System:					Macintosh and Windows Operating Systems
+//	System:					Linux, Macintosh, and Windows Operating Systems
 //
 //	Brief description:	Display a pattern image file on the screen.
 //
@@ -45,9 +43,16 @@
 //	Include files:			"MultiSpecHeaders"
 //								"multiSpec.h"
 //
+/*
+			// Template for debugging.
+		int numberChars = sprintf ((char*)gTextString3,
+									" SPalette:xxxx (): %s",
+									gEndOfLine);
+		ListString ((char*)gTextString3, numberChars, gOutputTextH);
+*/
 //------------------------------------------------------------------------------------
 
-#include "SMulSpec.h"     
+#include "SMultiSpec.h"     
 
 #if defined multispec_lin
 	#include "CPalette.h"
@@ -62,169 +67,168 @@
 #endif	// defined multispec_mac   
                              
 #if defined multispec_win     
-	#include "CImagVew.h"
-	#include "CPalette.h" 
-	//#include	"WDisTDlg.h" 
-	#include	"WFColDlg.h"
-	#include "WMainFrm.h"	 
+	#include "WImageView.h"
+	#include "CPalette.h"  
+	#include	"WFalseColorDialog.h"
+	#include "WMainFrame.h"	 
 #endif	// defined multispec_win
 
 #define kArcViewDefaultSupportType		1024
 
-#include	"SExtGlob.h"	
+//#include	"SExtGlob.h"	
 
-extern void				CreateDefaultGroupTable (
-								FileInfoPtr							fileInfoPtr,
-								DisplaySpecsPtr					displaySpecsPtr);
+
+
+extern void CreateDefaultGroupTable (
+				FileInfoPtr							fileInfoPtr,
+				DisplaySpecsPtr					displaySpecsPtr);
 /*
-extern Boolean			GetClassColorTable (
-								FileInfoPtr							gisFileInfoPtr, 
-								UInt16								numberClasses, 
-								SInt16*								classPtr,
-								UInt16								numberListClasses,
-								UInt16*								numberTRLClassesPtr,  
-								ColorSpec**							inputColorSpecPtrPtr,
-								CMPaletteInfo						paletteHandle,
-								UInt16*								paletteIndexPtr,
-								SInt16								paletteType,
-								UInt16								numberPaletteEntriesToRead, 
-								SInt16								paletteOffset, 
-								SInt16								classNameCode,
-								SInt16								thematicListType,
-								SInt16								collapseClassCode);	
+extern Boolean	GetClassColorTable (
+				FileInfoPtr							gisFileInfoPtr,
+				UInt16								numberClasses, 
+				SInt16*								classPtr,
+				UInt16								numberListClasses,
+				UInt16*								numberTRLClassesPtr,  
+				ColorSpec**							inputColorSpecPtrPtr,
+				CMPaletteInfo						paletteHandle,
+				UInt16*								paletteIndexPtr,
+				SInt16								paletteType,
+				UInt16								numberPaletteEntriesToRead, 
+				SInt16								paletteOffset, 
+				SInt16								classNameCode,
+				SInt16								thematicListType,
+				SInt16								collapseClassCode);	
 */
+extern void LoadOSXColorTable (
+				CMPaletteInfo						paletteHandle,
+				UCharPtr								osxColorTablePtr);	
 
-extern void 			LoadOSXColorTable (
-								CMPaletteInfo						paletteHandle, 
-								UCharPtr								osxColorTablePtr);	
+extern void LoadTwoBytePalette (
+				ColorSpec*							colorSpecPtr,
+				FileInfoPtr							imageFileInfoPtr,
+				DisplaySpecsPtr					displaySpecsPtr,
+				UInt16*								classSymbolPtr,
+				UInt16*								paletteCodePtr,
+				UInt32								colorVectorLength,
+				UInt16*								vectorBluePtr,
+				UInt16*								vectorGreenPtr,
+				UInt16*								vectorRedPtr);
 
-extern void				LoadTwoBytePalette (
-								ColorSpec*								colorSpecPtr, 
-								FileInfoPtr								imageFileInfoPtr, 
-								DisplaySpecsPtr						displaySpecsPtr, 
-								UInt16*									classSymbolPtr, 
-								UInt16*									paletteCodePtr,
-								UInt32									colorVectorLength,
-								UInt16*									vectorBluePtr,
-								UInt16*									vectorGreenPtr,
-								UInt16*									vectorRedPtr);
+extern void UpdateOSXColorSpace (
+				CMPaletteInfo						paletteHandle,
+				UCharPtr								osxColorTablePtr);
 
-extern void 			UpdateOSXColorSpace (
-								CMPaletteInfo						paletteHandle,
-								UCharPtr								osxColorTablePtr);
+extern Boolean ReadArcViewColorPalette (
+				ColorSpec*							colorSpecPtr,
+				FileInfoPtr							imageFileInfoPtr, 
+				CMFileStream*						paletteFileStreamPtr,
+				DisplaySpecsPtr					displaySpecsPtr, 
+				UInt16*								classSymbolPtr, 
+				UInt16*								paletteCodePtr);
 
-extern Boolean					ReadArcViewColorPalette (
-										ColorSpec*							colorSpecPtr, 
-										FileInfoPtr							imageFileInfoPtr, 
-										CMFileStream*						paletteFileStreamPtr,
-										DisplaySpecsPtr					displaySpecsPtr, 
-										UInt16*								classSymbolPtr, 
-										UInt16*								paletteCodePtr);
 
 
 			// Prototypes for routines in this file that are only called by		
-			// other routines in this file.	
+			// other routines in this file.
 
+Boolean CopyColorsFromClassTableToGroupTable (
+				FileInfoPtr							fileInfoPtr,
+				ColorSpec*							colorSpecPtr,
+				DisplaySpecsPtr					displaySpecsPtr,
+				UInt16								numberPaletteEntriesUsed,
+				UInt32								numberClasses,
+				UInt16*								paletteCodePtr);
 
-Boolean 					CopyColorsFromClassTableToGroupTable (
-								FileInfoPtr							fileInfoPtr, 
-								ColorSpec*							colorSpecPtr,
-								DisplaySpecsPtr					displaySpecsPtr,
-								UInt16								numberPaletteEntriesUsed,
-								UInt32								numberClasses,
-								UInt16*								paletteCodePtr);
+Boolean CreateFalseColorPalette (
+				FileInfoPtr							fileInfoPtr,
+				ColorSpec*							colorSpecPtr, 
+				UInt16*								classSymbolPtr,
+				UInt32								numberClasses, 
+				SInt16								classGroupCode,
+				UInt16*								paletteCodePtr);
 
-Boolean 					CreateFalseColorPalette (
-								FileInfoPtr							fileInfoPtr, 
-								ColorSpec*							colorSpecPtr, 
-								UInt16*								classSymbolPtr,
-								UInt32								numberClasses, 
-								SInt16								classGroupCode,
-								UInt16*								paletteCodePtr);
+Boolean CreateGrayLevelPalette (
+				ColorSpec*							colorSpecPtr,
+				UInt32								numberClasses);
+
+void CreatePPalette (
+				Handle								windowInfoHandle,
+				DisplaySpecsPtr					displaySpecsPtr);											
+
+Boolean CreateThematicColorPalette (
+				Handle								windowInfoHandle,
+				DisplaySpecsPtr					displaySpecsPtr);
+
+void Create1CPalette (
+				DisplaySpecsPtr					displaySpecsPtr);
+
+void Create2CPalette (
+				DisplaySpecsPtr					displaySpecsPtr);
+
+void Create3CPalette (
+				DisplaySpecsPtr					displaySpecsPtr);
 								
-Boolean 					CreateGrayLevelPalette (
-								ColorSpec*							colorSpecPtr,
-								UInt32								numberClasses);
+Boolean DetermineIfFalseColorAvailable (
+				SInt16								fileFormat,
+				UInt32								numberClasses,
+				Handle								classDescriptionH);													
+
+void  DrawCPalette (
+				Rect*									rectPtr,
+				DisplaySpecsPtr					displaySpecsPtr);
+
+void 	DrawPPalette (
+				Rect*									rectPtr,
+				DisplaySpecsPtr					displaySpecsPtr);
+
+SInt16 FalseColorCheckColorChannel (
+				DialogPtr							dialogPtr,
+				SInt16								itemNumber,
+				SInt32								itemValue,
+				SInt16*								channelIndexPtr);
+
+Boolean GetBackgroundIncludedFlag (
+				FileInfoPtr							fileInfoPtr,
+				UInt16*								classSymbolPtr);
+
+void LoadDefaultProjectFalseColorChannels (void);
 										
-void 						CreatePPalette (
-								Handle								windowInfoHandle, 
-								DisplaySpecsPtr					displaySpecsPtr);											
-			
-Boolean					CreateThematicColorPalette (
-								Handle								windowInfoHandle, 
-								DisplaySpecsPtr					displaySpecsPtr);
+Boolean MVerifyPaletteSize (
+				CMPaletteInfo						paletteObject,
+				UInt32								numberEntries);
 
-void 						Create1CPalette (
-								DisplaySpecsPtr					displaySpecsPtr);
+Boolean PaletteExists (
+				CMPaletteInfo						paletteObject);
 
-void 						Create2CPalette (
-								DisplaySpecsPtr					displaySpecsPtr);
+Boolean ReadOneBytePalette (
+				ColorSpec*							colorSpecPtr,
+				FileInfoPtr							imageFileInfoPtr, 
+				CMFileStream*						paletteFileStreamPtr, 
+				DisplaySpecsPtr					displaySpecsPtr, 
+				UInt16*								classSymbolPtr, 
+				UInt32								paletteStart, 
+				SInt16								paletteOffset, 
+				SInt16								colorOrder,
+				UInt16*								paletteCodePtr);
 
-void 						Create3CPalette (
-								DisplaySpecsPtr					displaySpecsPtr);
-								
-Boolean 					DetermineIfFalseColorAvailable (       
-								SInt16								fileFormat,
-								UInt32								numberClasses,
-								Handle								classDescriptionH);													
-			
-void 						DrawCPalette (
-								Rect*									rectPtr, 
-								DisplaySpecsPtr					displaySpecsPtr);
+Boolean ReadPaletteFromResource (
+				FileInfoPtr							fileInfoPtr,
+				ColorSpec*							colorSpecPtr,
+				DisplaySpecsPtr					displaySpecsPtr,
+				Boolean								channelThematicDisplayTypeFlag,
+				CMPaletteInfo						inputResourcePHandle,
+				UInt16								inputPaletteOffset,
+				UInt16								numberPaletteEntriesUsed, 
+				UInt16*								classSymbolPtr, 
+				UInt16								thematicPaletteType,
+				UInt32								numberClasses,
+				SInt16								classGroupCode,
+				UInt16*								paletteCodePtr);
 
-void 						DrawPPalette (
-								Rect*									rectPtr, 
-								DisplaySpecsPtr					displaySpecsPtr);
-				
-SInt16 					FalseColorCheckColorChannel (
-								DialogPtr							dialogPtr,
-								SInt16								itemNumber,
-								SInt32								itemValue,
-								SInt16*								channelIndexPtr);
-								
-Boolean 					GetBackgroundIncludedFlag (
-								FileInfoPtr							fileInfoPtr,
-								UInt16*								classSymbolPtr);
-								
-void 						LoadDefaultProjectFalseColorChannels (void);
-										
-Boolean					MVerifyPaletteSize (
-								CMPaletteInfo						paletteObject,
-								UInt32								numberEntries);
-								
-Boolean 					PaletteExists (
-								CMPaletteInfo						paletteObject);
-
-Boolean					ReadOneBytePalette (
-								ColorSpec*							colorSpecPtr, 
-								FileInfoPtr							imageFileInfoPtr, 
-								CMFileStream*						paletteFileStreamPtr, 
-								DisplaySpecsPtr					displaySpecsPtr, 
-								UInt16*								classSymbolPtr, 
-								UInt32								paletteStart, 
-								SInt16								paletteOffset, 
-								SInt16								colorOrder,
-								UInt16*								paletteCodePtr);
-															
-Boolean 					ReadPaletteFromResource (
-								FileInfoPtr							fileInfoPtr, 
-								ColorSpec*							colorSpecPtr,
-								DisplaySpecsPtr					displaySpecsPtr,
-								Boolean								channelThematicDisplayTypeFlag,
-								CMPaletteInfo						inputResourcePHandle,
-								UInt16								inputPaletteOffset,
-								UInt16								numberPaletteEntriesUsed, 
-								UInt16*								classSymbolPtr, 
-								UInt16								thematicPaletteType,
-								UInt32								numberClasses,
-								SInt16								classGroupCode,
-								UInt16*								paletteCodePtr);
-									
-
-Boolean					SetBackgroundPaletteEntries (
-								CTabHandle							cTableHandle, 
-								DisplaySpecsPtr					displaySpecsPtr, 
-								FileInfoPtr							fileInfoPtr); 
+Boolean SetBackgroundPaletteEntries (
+				CTabHandle							cTableHandle,
+				DisplaySpecsPtr					displaySpecsPtr, 
+				FileInfoPtr							fileInfoPtr); 
 
 
 
@@ -259,7 +263,7 @@ void ActivateImageWindowPalette (
 				CMPaletteInfo						paletteHandle)
 
 {
-#	if defined multispec_mac 
+	#if defined multispec_mac 
 		CTabHandle							cTabHandle;
 		Handle								offScreenMapH;
 		SInt32								ctSeed;
@@ -277,7 +281,7 @@ void ActivateImageWindowPalette (
 			(*cTabHandle)->ctFlags = (*cTabHandle)->ctFlags | 0x4000;
 		ActivatePalette (gActiveImageWindow);
 		
-#		if TARGET_API_MAC_CARBON	
+		#if TARGET_API_MAC_CARBON	
 			if (gOSXCoreGraphicsFlag)
 				{
 				unsigned char						osxColorTablePtr[3*256];
@@ -285,23 +289,23 @@ void ActivateImageWindowPalette (
 				LoadOSXColorTable (paletteHandle, osxColorTablePtr);
 				UpdateOSXColorSpace (paletteHandle, osxColorTablePtr);
 				
-				}		// end "if (gOSXCoreGraphicsFlag)"
-#		endif	// TARGET_API_MAC_CARBON
+				}	// end "if (gOSXCoreGraphicsFlag)"
+		#endif	// TARGET_API_MAC_CARBON
 	
 		InvalidateWindow (gActiveImageWindow, kFrameArea, FALSE);
-#	endif	// defined multispec_mac 
+	#endif	// defined multispec_mac 
 
-#	if defined multispec_win 
-		CMainFrame* pAppFrame = (CMainFrame*) AfxGetApp()->m_pMainWnd;
-		pAppFrame->SendMessage(WM_QUERYNEWPALETTE, NULL, NULL);
+	#if defined multispec_win 
+		CMainFrame* pAppFrame = (CMainFrame*) AfxGetApp ()->m_pMainWnd;
+		pAppFrame->SendMessage (WM_QUERYNEWPALETTE, NULL, NULL);
 	
-		//gActiveImageViewCPtr->SendMessage(WM_DOREALIZE, 0, 1);
-		//gActiveImageViewCPtr->Invalidate(FALSE); 
-#	endif	// defined multispec_win 
+		//gActiveImageViewCPtr->SendMessage (WM_DOREALIZE, 0, 1);
+		//gActiveImageViewCPtr->Invalidate (FALSE); 
+	#endif	// defined multispec_win 
 							
-#	if defined multispec_lin
-    // Right now, i dont think anything has to be done for linux
-#	endif
+	#if defined multispec_lin
+			// Right now, i dont think anything has to be done for linux
+	#endif
 
 }	// end "ActivateImageWindowPalette"  
 
@@ -349,15 +353,14 @@ Boolean CopyColorsFromClassTableToGroupTable (
 			
 			// Get the number of colors.  					
 			
-	numberColors = (UInt16)MIN(256, numberClasses);
+	numberColors = (UInt16)MIN (256, numberClasses);
 	
 			// Get the class color table that is to be copied to the group
 			// color table.
 			
 	classCTableHandle = displaySpecsPtr->savedClassCTableHandle;
 		
-	classCTablePtr = (CTabPtr)GetHandlePointer (
-										(Handle)classCTableHandle, kLock, kNoMoveHi);	
+	classCTablePtr = (CTabPtr)GetHandlePointer ((Handle)classCTableHandle, kLock);
 	classColorSpecPtr = classCTablePtr->ctTable;
 				
 	for (index=0; index<numberColors; index++)
@@ -370,13 +373,13 @@ Boolean CopyColorsFromClassTableToGroupTable (
 		colorSpecPtr++;
 		classColorSpecPtr++;
 		
-		}		// end "for (index=0; index<numberColors; index++)" 
+		}	// end "for (index=0; index<numberColors; index++)" 
 	  						
 	CheckAndUnlockHandle ((Handle)classCTableHandle);
 			
 	return (TRUE);
 	
-}		// end "CopyColorsFromClassTableToGroupTable" 
+}	// end "CopyColorsFromClassTableToGroupTable" 
 
 
 
@@ -436,13 +439,12 @@ Boolean CreateFalseColorPalette (
 	
 	
 	if (gProjectInfoPtr == NULL)
-																				return (FALSE);
+																							return (FALSE);
 	
 			// Check that there is a valid class to group handle if needed.		
 			
-	if (classGroupCode != kClassDisplay && 
-											fileInfoPtr->groupTablesHandle == NULL)
-																				return (FALSE);
+	if (classGroupCode != kClassDisplay && fileInfoPtr->groupTablesHandle == NULL)
+																							return (FALSE);
 	
 			// Initialize local variables.
 			
@@ -462,11 +464,11 @@ Boolean CreateFalseColorPalette (
 	continueFlag = TRUE;
 	if (continueFlag)
 		{
-		UInt32 bytesNeeded = (UInt32)numberClasses * 3 * sizeof(double);
+		UInt32 bytesNeeded = (UInt32)numberClasses * 3 * sizeof (double);
 		savedClassChannelMeanPtr = (HDoublePtr)MNewPointer (bytesNeeded);
 		continueFlag = (savedClassChannelMeanPtr != NULL);
 		
-		}		// end "if (continueFlag)"
+		}	// end "if (continueFlag)"
 		
 	if (continueFlag)
 		{
@@ -478,8 +480,7 @@ Boolean CreateFalseColorPalette (
 				// allowed for a background color.	If there is 254 classes or more	
 				// then the background color is forced to be white.						
 				
-////		numberColors = (UInt16)MIN(254, numberClasses);
-		numberColors = (UInt16)MIN(256, numberClasses);
+		numberColors = (UInt16)MIN (256, numberClasses);
 		
 		classCodeFlag = (classGroupCode == kClassDisplay);
 		
@@ -490,7 +491,7 @@ Boolean CreateFalseColorPalette (
 			classToGroupPtr = GetClassToGroupPointer (fileInfoPtr);
 			groupToPalettePtr = GetGroupToPalettePointer (fileInfoPtr);
 			
-			}		// end "if (!classCodeFlag)"
+			}	// end "if (!classCodeFlag)"
 			
 				// Determine if first class is the background class. This check
 				// is for MultiSpec ascii and ERDAS classifications.
@@ -502,7 +503,7 @@ Boolean CreateFalseColorPalette (
 		
 		classChannelMeanPtr = savedClassChannelMeanPtr;
 		UInt16 projectClassIndex = 0;
-		for ( classIndex=0; classIndex<numberClasses; classIndex++)
+		for (classIndex=0; classIndex<numberClasses; classIndex++)
 			{
 			if (classIndex == 0 && backgroundFlag)
 				{
@@ -513,41 +514,42 @@ Boolean CreateFalseColorPalette (
 					*classChannelMeanPtr = 65535.;
 					classChannelMeanPtr++;
 					
-					}		// end "for (index=0; index<3; index++)"
+					}	// end "for (index=0; index<3; index++)"
 				
-				}		// end "if (classIndex == 0 && backgroundFlag)"
+				}	// end "if (classIndex == 0 && backgroundFlag)"
 				
-			else		// !backgroundFlag || classIndex] != 0
+			else	// !backgroundFlag || classIndex] != 0
 				{
 				for (index=0; index<3; index++)
 					{
-					GetClassCovarianceMatrix (
-								1, 
-								&classChannelStats,
-								&classCovariance, 
-								&featurePtr[index], 
-								projectClassIndex, 
-								kTriangleOutputMatrix,
-								kMeanStdDevOnly,
-								kOriginalStats);
-								
+					GetClassCovarianceMatrix (1,
+														&classChannelStats,
+														&classCovariance, 
+														&featurePtr[index], 
+														projectClassIndex, 
+														kTriangleOutputMatrix,
+														kMeanStdDevOnly,
+														kOriginalStats);
+					
 					*classChannelMeanPtr = classChannelStats.mean;
 								
-					minMean[index] = MIN(minMean[index], 
-						classChannelStats.mean - classChannelStats.standardDev);
+					minMean[index] = MIN (
+										minMean[index],
+										classChannelStats.mean - classChannelStats.standardDev);
 				
-					maxMean[index] = MAX(maxMean[index], 
-						classChannelStats.mean + classChannelStats.standardDev);
+					maxMean[index] = MAX (
+										maxMean[index],
+										classChannelStats.mean + classChannelStats.standardDev);
 
 					classChannelMeanPtr++;
 				
-					}		// end "for (index=0; index<3; index++)"
+					}	// end "for (index=0; index<3; index++)"
 					
 				projectClassIndex++;
 					
-				}		// end "else !backgroundFlag || classIndex] != 0"
+				}	// end "else !backgroundFlag || classIndex] != 0"
 				
-			}		// end "for ( classIndex=0; classIndex<numberClasses;..."
+			}	// end "for (classIndex=0; classIndex<numberClasses;..."
 			
 				// Verify that the min and max are not the same value.
 				
@@ -556,7 +558,7 @@ Boolean CreateFalseColorPalette (
 			if (minMean[index] >= maxMean[index])
 				maxMean[index] = minMean[index] + 1.;
 		
-			}		// end "for (index=0; index<3; index++)"
+			}	// end "for (index=0; index<3; index++)"
 																					
 				// Compute the colors for the palette based class means. Make 
 				// certain that white is the first color in the palette and black 
@@ -569,54 +571,54 @@ Boolean CreateFalseColorPalette (
 			if (classCodeFlag)
 				{
 				classIndex = index - 1;
-//				inputIndex = classSymbolPtr[index];
+				//inputIndex = classSymbolPtr[index];
 
-				}		// end "if (classCodeFlag)"	
+				}	// end "if (classCodeFlag)"	
 						
-			else		// !classCodeFlag
+			else	// !classCodeFlag
 				{ 
 				classIndex = classToGroupPtr[index-1];
 				classIndex = groupToPalettePtr[classIndex];
 				
-				}		// end "else !classCodeFlag"
+				}	// end "else !classCodeFlag"
 				
 			classChannelMeanPtr = &savedClassChannelMeanPtr[3*classIndex];
 				
 			colorSpecPtr->value = index;
 			
-			paletteValue = (classChannelMeanPtr[0] - minMean[0])/
-									(maxMean[0] - minMean[0]) * 65535.;
+			paletteValue = (classChannelMeanPtr[0] - minMean[0]) /
+																(maxMean[0] - minMean[0]) * 65535.;
 			longPaletteValue = (SInt32)(paletteValue + .5);
-			longPaletteValue = MIN(65535, longPaletteValue);
-			longPaletteValue = MAX(0, longPaletteValue);
+			longPaletteValue = MIN (65535, longPaletteValue);
+			longPaletteValue = MAX (0, longPaletteValue);
 			colorSpecPtr->rgb.blue = (SInt16)longPaletteValue;
 				
-			paletteValue = (classChannelMeanPtr[1] - minMean[1])/
-									(maxMean[1] - minMean[1]) * 65535.;
+			paletteValue = (classChannelMeanPtr[1] - minMean[1]) /
+																(maxMean[1] - minMean[1]) * 65535.;
 			longPaletteValue = (SInt32)(paletteValue + .5);
-			longPaletteValue = MIN(65535, longPaletteValue);
-			longPaletteValue = MAX(0, longPaletteValue);
+			longPaletteValue = MIN (65535, longPaletteValue);
+			longPaletteValue = MAX (0, longPaletteValue);
 			colorSpecPtr->rgb.green = (SInt16)longPaletteValue;
 				
 			paletteValue = (classChannelMeanPtr[2] - minMean[2])/
-									(maxMean[2] - minMean[2]) * 65535.;
+																(maxMean[2] - minMean[2]) * 65535.;
 			longPaletteValue = (SInt32)(paletteValue + .5);
-			longPaletteValue = MIN(65535, longPaletteValue);
-			longPaletteValue = MAX(0, longPaletteValue);
+			longPaletteValue = MIN (65535, longPaletteValue);
+			longPaletteValue = MAX (0, longPaletteValue);
 			colorSpecPtr->rgb.red = (SInt16)longPaletteValue;
 			
 			colorSpecPtr++;
 			
-			}		// end "for (index=1; index<=numberColors; index++)"
+			}	// end "for (index=1; index<=numberColors; index++)"
 			
-		}		// end "if (continueFlag)"
+		}	// end "if (continueFlag)"
 		
 	CheckAndDisposePtr (savedClassChannelMeanPtr); 
 	UnlockGroupTablesHandle (fileInfoPtr);
 
-	return ( continueFlag );
+	return (continueFlag);
 	
-}		// end "CreateFalseColorPalette" 
+}	// end "CreateFalseColorPalette"
 											
 
 
@@ -655,13 +657,11 @@ Boolean CreateGrayLevelPalette (
 	
 	
 	if (colorSpecPtr == NULL)
-																				return (FALSE);
+																						return (FALSE);
 																				
-			// Get the last palette class.  The limit for palette classes 	
-			// is 254.																		
+			// Get the last palette class.
 	
-////	numberColors = (UInt16)MIN(254, numberClasses);
-	numberColors = (UInt16)MIN(256, numberClasses);
+	numberColors = (UInt16)MIN (256, numberClasses);
 
 			// Make a default gray level color scheme for the classes.		
 			
@@ -685,11 +685,11 @@ Boolean CreateGrayLevelPalette (
 		if (paletteValue > kMaxColorValue)
 			paletteValue = kMaxColorValue;
 		
-		}		// end "for (index=1; index<=numberColors; index++)"
+		}	// end "for (index=1; index<=numberColors; index++)"
 		
 	return (TRUE);
 	
-}		// end "CreateGrayLevelPalette" 
+}	// end "CreateGrayLevelPalette" 
 											
 
 
@@ -723,7 +723,7 @@ Boolean CreateGrayLevelPalette (
 //	Coded By:			Larry L. Biehl			Date: 04/25/1988
 //	Revised By:			Larry L. Biehl			Date: 04/26/2011
 
-Boolean CreatePalette ( 
+Boolean CreatePalette (
 				Handle								windowInfoHandle, 
 				DisplaySpecsPtr					displaySpecsPtr,
 				SInt16								windowType)
@@ -754,10 +754,10 @@ Boolean CreatePalette (
 			{
 			checkHandle = MNewHandle (minMemoryForPaletteCreation);
 			if (checkHandle == NULL)
-																				return (FALSE);
+																						return (FALSE);
 			UnlockAndDispose (checkHandle);
 			
-			}		// end "if (windowType == kThematicWindowType)" 
+			}	// end "if (windowType == kThematicWindowType)" 
 			
 				// Save the number of entries in the current palette that are 		
 				// used for image display in case it is needed later.					
@@ -772,54 +772,28 @@ Boolean CreatePalette (
 					// Find the number of entries needed in the palette.				
 						
 			numberEntries = displaySpecsPtr->numberPaletteLevels;
-			if (displaySpecsPtr->displayType == 4 || 
-														displaySpecsPtr->displayType == 5)
+			if (displaySpecsPtr->displayType == 4 || displaySpecsPtr->displayType == 5)
 				numberEntries *= numberEntries;
 				
 			else if (displaySpecsPtr->displayType == 3)
 				numberEntries *= numberEntries*numberEntries;
 				
-					// Allow space for black and white.										
-			
-////			if (windowType == kImageWindowType)		/// test for now 4/21/2011
-////				numberEntries += 2;
-/*			
-					// Allow space for systems colors and grays
-					
-			if (windowType == kImageWindowType)
-				{
-//				if (displaySpecsPtr->displayType == 3)	
-//					numberEntries += 7;
-										
-				if (displaySpecsPtr->displayType == 4 || 
-													displaySpecsPtr->displayType == 5)
-					numberEntries += 22;
-				
-				}		// end "if (windowType == kImageWindowType)" 
-*/			
-					// Allow space for background color.									
-					
-//			if (windowType == kThematicWindowType)	// test for now 4/21/2011
-//				numberEntries++; // test for now 4/21/2011
-			
-					// Make certain that the number of entries is not more than 	
-					// 256.																			
+					// Make certain that the number of entries is not more than 256.
 					
 			numberEntries = MIN (256, numberEntries);
 			
 					// Check if new palette for the color window is needed.			
 			
-			if (PaletteExists (displaySpecsPtr->paletteObject) )
+			if (PaletteExists (displaySpecsPtr->paletteObject))
 				{
 						// Make certain that the size of the palette is okay.			
 				 
-				if (!MVerifyPaletteSize (displaySpecsPtr->paletteObject,
-													numberEntries)) 
-																					return (FALSE); 
+				if (!MVerifyPaletteSize (displaySpecsPtr->paletteObject, numberEntries))
+																						return (FALSE);
 				
-				}		// end "if (PaletteExists(..." 
+				}	// end "if (PaletteExists (..." 
 			
-			if (!PaletteExists (displaySpecsPtr->paletteObject) )
+			if (!PaletteExists (displaySpecsPtr->paletteObject))
 				{
 						// A new palette needs to be generated.							
 				#ifdef multispec_lin
@@ -827,13 +801,12 @@ Boolean CreatePalette (
 				#endif						
 				
 				if (!MNewPalette (&displaySpecsPtr->paletteObject,
-											(SInt16)numberEntries)) 	
-																					return (FALSE); 
+										(SInt16)numberEntries))
+																						return (FALSE);
 				
-				}		// end "if (!PaletteExists (..." 
+				}	// end "if (!PaletteExists (..." 
 				
          #if defined multispec_win || defined multispec_lin
-			       
 				if (windowType == kThematicWindowType)
 					{
 							// Check if new background palette for the color window 
@@ -844,37 +817,32 @@ Boolean CreatePalette (
 						{
 								// Make certain that the size of the palette is okay.			
 						 
-						if (!MVerifyPaletteSize(
-										displaySpecsPtr->backgroundPaletteObject,
-										numberEntries) ) 
-																					return (FALSE); 
+						if (!MVerifyPaletteSize (
+											displaySpecsPtr->backgroundPaletteObject,
+											numberEntries))
+																						return (FALSE);
 						
-						}		// end "if (PaletteExists(..." 
+						}	// end "if (PaletteExists (..." 
 					
 					if (!PaletteExists (displaySpecsPtr->backgroundPaletteObject))
 						{
 								// A new palette needs to be generated.							
 						
-						if (!MNewPalette ( 
+						if (!MNewPalette (
 										&displaySpecsPtr->backgroundPaletteObject,
 										(SInt16)numberEntries)) 	
-																					return (FALSE); 
+																						return (FALSE);
 						
-						}		// end "if ( !PaletteExists (..."
+						}	// end "if (!PaletteExists (..."
 						
-					}		// end "if (windowType == kThematicWindowType)"
-					 
+					}	// end "if (windowType == kThematicWindowType)"
 			#endif	// defined multispec_win | lin 
 			
 					// Save number of entries in palette to be used for the			
-					// display.  The first is reserved for white and the last is	
-					// reserved for black.														
-					
-//			displaySpecsPtr->numPaletteEntriesUsed = (UInt16)(numberEntries - 2);
+					// display.
 			
 			if (windowType == kImageWindowType)
 				{
-//				displaySpecsPtr->numPaletteEntriesUsed = (UInt16)(numberEntries - 2);
 				displaySpecsPtr->numPaletteEntriesUsed = (UInt16)numberEntries;
 			
 				if (displaySpecsPtr->displayType == 2 || 
@@ -884,11 +852,11 @@ Boolean CreatePalette (
 				if (displaySpecsPtr->displayType == 3)
 					Create3CPalette (displaySpecsPtr);
 										
-				if (displaySpecsPtr->displayType == 4 || 
-													displaySpecsPtr->displayType == 5)
+				if (displaySpecsPtr->displayType == 4 ||
+														displaySpecsPtr->displayType == 5)
 					Create2CPalette (displaySpecsPtr);
 				
-				}		// end "if (windowType == kImageWindowType)" 
+				}	// end "if (windowType == kImageWindowType)" 
 			
 			if (windowType == kThematicWindowType)
 				{ 
@@ -896,24 +864,23 @@ Boolean CreatePalette (
 						// background color.														
 						
 				displaySpecsPtr->numPaletteEntriesUsed = (UInt16)numberEntries;
-//				displaySpecsPtr->numPaletteEntriesUsed--;
 				
-				if (!CreateThematicColorPalette(windowInfoHandle, displaySpecsPtr))
-																					return (FALSE);
+				if (!CreateThematicColorPalette (windowInfoHandle, displaySpecsPtr))
+																						return (FALSE);
 				
-				}		// end "if (windowType == kThematicWindowType)" 
+				}	// end "if (windowType == kThematicWindowType)" 
 				
-			}		// end "if (displaySpecsPtr->pixelSize > 1)" 
+			}	// end "if (displaySpecsPtr->pixelSize > 1)" 
 		
 				// Indicate that the palette is up-to-date.								
 		
 		displaySpecsPtr->paletteUpToDateFlag = TRUE;
 												
-		}		// end "if (!displaySpecsPtr->paletteUpToDateFlag)" 
+		}	// end "if (!displaySpecsPtr->paletteUpToDateFlag)" 
 		
 	return (TRUE);
 	
-}		// end "CreatePalette"  
+}	// end "CreatePalette"  
 
 
 
@@ -978,8 +945,7 @@ void CreatePPalette (
 	numberLevels = MIN (displaySpecsPtr->numberPaletteLevels, kNumPatterns - 2);
 	windowType = ((WindowInfoPtr)*windowInfoHandle)->windowType;
 	
-			// Load the white pattern for the first element of the pattern 		
-			// array.	
+			// Load the white pattern for the first element of the pattern array.
 			
 	GetIndPattern (&gPatterns[0], kPatternID, 1);
 	
@@ -994,7 +960,7 @@ void CreatePPalette (
 		switchValue = 9;
 		numberLevels = MIN (numberLevels, kNumPatterns - 3);
 		
-		}		// end "if (windowType == kThematicWindowType)" 
+		}	// end "if (windowType == kThematicWindowType)" 
 			
 	if (displaySpecsPtr->numberPaletteLevels <= switchValue)
 		{
@@ -1002,7 +968,7 @@ void CreatePPalette (
 		if (displaySpecsPtr->invertValues)
 			index = 1;
 		
-		}		// end "if (displaySpecsPtr->numberPaletteLevels <= 10)" 
+		}	// end "if (displaySpecsPtr->numberPaletteLevels <= 10)" 
 			
 	if (displaySpecsPtr->numberPaletteLevels > switchValue)
 		{
@@ -1010,21 +976,21 @@ void CreatePPalette (
 		if (displaySpecsPtr->invertValues)
 			index = 11;
 		
-		}		// end "if (displaySpecsPtr->numberPaletteLevels > 10)" 
+		}	// end "if (displaySpecsPtr->numberPaletteLevels > 10)" 
 		
 			// Load the pattern set into memory from the resource file.				
 	
-	for ( i=1; i<=numberLevels; i++)
+	for (i=1; i<=numberLevels; i++)
 		{
 		GetIndPattern (&gPatterns[i], kPatternID, index);
 		
 		if (!displaySpecsPtr->invertValues)
 			index--;
 			
-		else		// displaySpecsPtr->invertValues 
+		else	// displaySpecsPtr->invertValues 
 		   index++;
 		   
-		}		// end "for ( i=1; i<=numberLevels; i++)" 
+		}	// end "for (i=1; i<=numberLevels; i++)" 
 		
 			// Load the black pattern for the last element of the pattern 			
 			// array.
@@ -1048,8 +1014,7 @@ void CreatePPalette (
 				// Get pointer to symbol-to-palette vector.								
 				
 		HLock (displaySpecsPtr->symbolToPaletteEntryH);
-		symbolToPalettePtr = 
-							(unsigned char*)*displaySpecsPtr->symbolToPaletteEntryH;
+		symbolToPalettePtr = (unsigned char*)*displaySpecsPtr->symbolToPaletteEntryH;
 																						
 				// Get pointer to the classes/groups to be displayed.					
 		
@@ -1060,7 +1025,7 @@ void CreatePPalette (
 		if (displaySpecsPtr->classGroupCode == kClassDisplay)
 			setting = 0x0001;
 			
-		else		// displaySpecsPtr->classGroupCode != kClassDisplay 
+		else	// displaySpecsPtr->classGroupCode != kClassDisplay 
 			setting = 0x0100;
 						
 				// Determine whether this is a class or group display.				
@@ -1069,13 +1034,11 @@ void CreatePPalette (
 		
 		imageFileInfoH = ((WindowInfoPtr)*windowInfoHandle)->fileInfoHandle;
 		maxIndex = displaySpecsPtr->numberPaletteLevels;
-		if ( ((FileInfoPtr)*imageFileInfoH)->asciiSymbols)
+		if (((FileInfoPtr)*imageFileInfoH)->asciiSymbols)
 			maxIndex = 256;
 		
 		if (groupCodeFlag)
 			{
-//			numberGroups = ((FileInfoPtr)*imageFileInfoH)->numberGroups;
-			
 			classToGroupPtr = GetClassToGroupPointer (imageFileInfoH);
 			
 			for (index=0; index<maxIndex; index++)
@@ -1084,56 +1047,55 @@ void CreatePPalette (
 					{
 					classNumber = symbolToPalettePtr[index] - 1;
 				
-					if ( !(displayClassGroupsPtr[classNumber] & setting) )
+					if (!(displayClassGroupsPtr[classNumber] & setting))
 						symbolToPalettePtr[index] = 0;
 					
-					else		// (displayClassGroupsPtr[index] & setting) 
+					else	// (displayClassGroupsPtr[index] & setting) 
 						{
 						groupNumber = classToGroupPtr[classNumber] + 1;
 						
-						if (groupNumber > numberLevels )
+						if (groupNumber > numberLevels)
 							groupNumber = ((groupNumber - 1) % numberLevels) + 1; 
 						
 						symbolToPalettePtr[index] = groupNumber;
 						
-						}		// end "else (displayClassGroupsPtr[index] & setting)" 
+						}	// end "else (displayClassGroupsPtr[index] & setting)" 
 						
-					}		// end "if (symbolToPalettePtr[index] > 0)"
+					}	// end "if (symbolToPalettePtr[index] > 0)"
 				
-				}		// end "for (index=0; index<..." 
+				}	// end "for (index=0; index<..." 
 			
 			UnlockGroupTablesHandle (imageFileInfoH);
 			
-			}		// end "if (groupCodeFlag)" 
+			}	// end "if (groupCodeFlag)" 
 						
-		else		// !groupCodeFlag 
+		else	// !groupCodeFlag 
 			{
 			for (index=0; index<maxIndex; index++)
 				{
 				classNumber = symbolToPalettePtr[index] - 1;
 				
-				if ( !(displayClassGroupsPtr[classNumber] & setting) )
+				if (!(displayClassGroupsPtr[classNumber] & setting))
 					symbolToPalettePtr[index] = 0;
 					
-				else if ( symbolToPalettePtr[index] > numberLevels )
+				else if (symbolToPalettePtr[index] > numberLevels)
 					symbolToPalettePtr[index] = (classNumber % numberLevels) + 1; 
 				
-				}		// end "for (index=0; index<..." 
+				}	// end "for (index=0; index<..." 
 			
-			}		// end "else !groupCodeFlag" 
+			}	// end "else !groupCodeFlag" 
 			
 		HUnlock (displaySpecsPtr->symbolToPaletteEntryH);
 		HUnlock (displaySpecsPtr->displayClassGroupsHandle);
 													
-		}		// end "if ( windowType == kThematicWindowType )" 
+		}	// end "if (windowType == kThematicWindowType)" 
 #endif	// defined multispec_mac 
-
 
 #if defined multispec_win 
 
 #endif	// defined multispec_win 
 	
-}		// end "CreatePPalette" 
+}	// end "CreatePPalette" 
 
 
 
@@ -1190,7 +1152,7 @@ Boolean CreateThematicColorPalette (
 			// Check input variables.															
 			
 	if (windowInfoHandle == NULL)											
-																			return (FALSE);
+																						return (FALSE);
 	
 			// Initialize local variables.													
 			
@@ -1210,11 +1172,11 @@ Boolean CreateThematicColorPalette (
 			if (displaySpecsPtr->savedGroupCTableHandle == NULL)
 				tryCreateGroupPaletteFlag = TRUE;
 			
-			}		// end "if (savedCTableHandle == NULL)"
+			}	// end "if (savedCTableHandle == NULL)"
 		
-		}		// end "if (displaySpecsPtr->classGroupCode == kClassDisplay)" 
+		}	// end "if (displaySpecsPtr->classGroupCode == kClassDisplay)" 
 		
-	else		// displaySpecsPtr->classGroupCode == kGroupDisplay 
+	else	// displaySpecsPtr->classGroupCode == kGroupDisplay 
 		{
 		savedCTableHandle = displaySpecsPtr->savedGroupCTableHandle;
 		thematicPaletteType = displaySpecsPtr->thematicGroupPaletteType;
@@ -1226,7 +1188,7 @@ Boolean CreateThematicColorPalette (
 			
 		displaySpecsPtr->classToGroupChangeFlag = FALSE;
 		
-		}		// end "else displaySpecsPtr->classGroupCode == kGroupDisplay" 
+		}	// end "else displaySpecsPtr->classGroupCode == kGroupDisplay" 
 		
 			// Get the number of palette entries.											
 			
@@ -1236,72 +1198,61 @@ Boolean CreateThematicColorPalette (
 			
 	if (savedCTableHandle == NULL)
 		{
-		savedCTableHandle = (CTabHandle)MNewHandle ( 
-				(SInt32)tableSize*sizeof(ColorSpec) + sizeof(ColorTable) );
+		savedCTableHandle = (CTabHandle)MNewHandle (
+				(SInt32)tableSize*sizeof (ColorSpec) + sizeof (ColorTable));
 		if (savedCTableHandle == NULL)					
-																					return (FALSE);
+																						return (FALSE);
+		
 		if (displaySpecsPtr->classGroupCode == kClassDisplay)
 			displaySpecsPtr->savedClassCTableHandle = savedCTableHandle;
 			
-		else		// displaySpecsPtr->classGroupCode != kClassDisplay 
+		else	// displaySpecsPtr->classGroupCode != kClassDisplay 
 			displaySpecsPtr->savedGroupCTableHandle = savedCTableHandle;
 		
-		savedCTablePtr = (CTabPtr)GetHandlePointer (
-											(Handle)savedCTableHandle, kLock, kNoMoveHi);	
+		savedCTablePtr = (CTabPtr)GetHandlePointer ((Handle)savedCTableHandle, kLock);
 		savedCTablePtr->ctSeed = GetCTSeed ();
 		savedCTablePtr->ctFlags = 0;
 		savedCTablePtr->ctSize = tableSize - 1;
-		CheckAndUnlockHandle ( (Handle)savedCTableHandle );
+		CheckAndUnlockHandle ((Handle)savedCTableHandle);
 		
-		}		// end "if (savedPaletteHandle == NULL)" 
+		}	// end "if (savedPaletteHandle == NULL)" 
 		
 				// Get pointers to the file information.									
 	
 	imageFileInfoH = GetFileInfoHandle (windowInfoHandle);	
 	if (imageFileInfoH == NULL)											
-																				return (FALSE);
+																						return (FALSE);
 	
 			// Check status of file information structure.								
 			// The Get pointer to file information.										
 			
-	fileInfoPtr = (FileInfoPtr)GetHandleStatusAndPointer(
-										imageFileInfoH, &fileHandleStatus, kNoMoveHi);
+	fileInfoPtr = (FileInfoPtr)GetHandleStatusAndPointer (
+																imageFileInfoH, &fileHandleStatus);
 	
 	if (displaySpecsPtr->readPaletteFromDiskFlag)
 		{
 					// Lock handle to color table.	
 					
-		savedCTablePtr = (CTabPtr)GetHandlePointer (
-										(Handle)savedCTableHandle, kLock, kNoMoveHi);
+		savedCTablePtr = (CTabPtr)GetHandlePointer ((Handle)savedCTableHandle, kLock);
 		colorSpecPtr = savedCTablePtr->ctTable;
-			
-////		if (displaySpecsPtr->numberPaletteLevels > 253) test for 4/21/2011
-////			{
-					// Indicate that the background color will be used for
-					// a display palette entry.	
-					
-////			displaySpecsPtr->numPaletteEntriesUsed++;
-			
-////			}		//  end "if (displaySpecsPtr->numberPaletteLevels > 253)" 
 		
 		displaySpecsPtr->paletteOffset = 0;
 		
 		paletteCode = 0;
 		if (thematicPaletteType != kUserDefinedColors)
-			continueFlag = LoadColorSpecTable (
-												windowInfoHandle, 
-												NULL,
-												displaySpecsPtr,
-												colorSpecPtr,
-												NULL,
-												2,
-												tableSize,
-												displaySpecsPtr->numPaletteEntriesUsed,
-												thematicPaletteType,
-												displaySpecsPtr->numberPaletteLevels,
-												displaySpecsPtr->classGroupCode,
-												&paletteCode);
-					
+			continueFlag = LoadColorSpecTable (windowInfoHandle,
+															NULL,
+															displaySpecsPtr,
+															colorSpecPtr,
+															NULL,
+															2,
+															tableSize,
+															displaySpecsPtr->numPaletteEntriesUsed,
+															thematicPaletteType,
+															displaySpecsPtr->numberPaletteLevels,
+															displaySpecsPtr->classGroupCode,
+															&paletteCode);
+		
 				// Update palette offset and number of entries used based on 
 				// the returned code.
 													
@@ -1322,21 +1273,21 @@ Boolean CreateThematicColorPalette (
 			displaySpecsPtr->readPaletteFromDiskFlag = FALSE;
 			
 		CheckAndUnlockHandle ((Handle)savedCTableHandle);
-				
-//		if ( displaySpecsPtr->classGroupCode == kClassDisplay)
-//			fileInfoPtr->classChangedFlag = TRUE;
-//			
-//		else		// displaySpecsPtr->classGroupCode != kClassDisplay
-//			fileInfoPtr->groupChangedFlag = TRUE;
-
+		/*
+		if (displaySpecsPtr->classGroupCode == kClassDisplay)
+			fileInfoPtr->classChangedFlag = TRUE;
+			
+		else	// displaySpecsPtr->classGroupCode != kClassDisplay
+			fileInfoPtr->groupChangedFlag = TRUE;
+		*/
 				// Create a default group table if possible.
 		
 		if (tryCreateGroupPaletteFlag)
 			CreateDefaultGroupTable (fileInfoPtr, displaySpecsPtr);
 			
-		}		// end "if (displaySpecsPtr->readPaletteFromDiskFlag)" 
+		}	// end "if (displaySpecsPtr->readPaletteFromDiskFlag)" 
 		
-	else		// !displaySpecsPtr->readPaletteFromDiskFlag 
+	else	// !displaySpecsPtr->readPaletteFromDiskFlag 
 		displaySpecsPtr->numPaletteEntriesUsed = gClassPaletteEntries;
 	
 			// Now set color for any class that is not to be shown to the			
@@ -1344,7 +1295,7 @@ Boolean CreateThematicColorPalette (
 			
 	if (continueFlag)
 		continueFlag = SetBackgroundPaletteEntries (
-							savedCTableHandle, displaySpecsPtr, fileInfoPtr);
+											savedCTableHandle, displaySpecsPtr, fileInfoPtr);
 				
 			// Unlock the file information handle if needed.							
 	
@@ -1352,7 +1303,7 @@ Boolean CreateThematicColorPalette (
 	
 	return (continueFlag);
 
-}		// end "CreateThematicColorPalette"  
+}	// end "CreateThematicColorPalette"  
 
 
 
@@ -1410,21 +1361,13 @@ void Create1CPalette (
 	
 	increment[1] = (SInt32)kMaxColorValue;
 	if (displaySpecsPtr->numberPaletteLevels > 1)
-		increment[1] = (SInt32)(kMaxColorValue / (displaySpecsPtr->numberPaletteLevels-1));
+		increment[1] = (SInt32)(kMaxColorValue /
+														(displaySpecsPtr->numberPaletteLevels-1));
 	
 	rinc = increment[1];
 	ginc = increment[1];
 	binc = increment[1];
 	
-			// Put the colors into the palette.												
-			// The first color will be white followed by the colors used for 		
-			// displaying the image.															
-	
-////	theColor.red   = (UInt16)kMaxColorValue;
-////	theColor.green = (UInt16)kMaxColorValue;
-////	theColor.blue  = (UInt16)kMaxColorValue;
-////	MSetEntryColor(paletteObject, 0, &theColor);
-
 			// Set up the initial value of the palette based on whether the		
 			// palette is to be inverted (light to dark) or not-inverted (dark	
 			// to light). Assume inverted to start with. This will properly 		
@@ -1448,31 +1391,23 @@ void Create1CPalette (
 			
 		direction = 1;
 		
-		}		// end "if (!displaySpecsPtr->invertValues)" 
+		}	// end "if (!displaySpecsPtr->invertValues)" 
 	
 			// Put the colors into the palette that will be used to display the	
 			// image																					
 			
-////	MSetEntryColor(paletteObject, 1, &theColor);
-	MSetEntryColor(paletteObject, 0, &theColor);
+	MSetEntryColor (paletteObject, 0, &theColor);
 			
 	for (entry=1; entry<displaySpecsPtr->numberPaletteLevels; entry++) 
 		{
 		theColor.red   += (UInt16)(direction*rinc);
 		theColor.green += (UInt16)(direction*ginc);
 		theColor.blue  += (UInt16)(direction*binc);
-		MSetEntryColor(paletteObject, (UInt16)entry, &theColor);
+		MSetEntryColor (paletteObject, (UInt16)entry, &theColor);
 		
-		}		// end "for (entry=1; entry<displaySpecsPtr->numberPaletteLevels;... )" 
+		}	// end "for (entry=1; entry<displaySpecsPtr->numberPaletteLevels;...)" 
 		
-			// The last color in the palette will be black.								
-				
-////	theColor.red   = 0;
-////	theColor.green = 0;
-////	theColor.blue  = 0;
-////	MSetEntryColor(paletteObject, (UInt16)entry, &theColor);
-	
-}		// end "Create1CPalette" 
+}	// end "Create1CPalette"
 
 
 
@@ -1534,20 +1469,10 @@ void Create2CPalette (
 		
 			// Set the color increment value based on the number of display		
 			// levels																				
-															
 	
 	increment = (SInt32)kMaxColorValue;
 	if (displaySpecsPtr->numberPaletteLevels > 1)
 		increment = (SInt32)(kMaxColorValue / (displaySpecsPtr->numberPaletteLevels-1));
-	
-			// Put the colors into the palette.												
-			// The first color will be white followed by the colors used for 		
-			// displaying the image.															
-	
-////	theColor.red   = kMaxColorValue;
-////	theColor.green = kMaxColorValue;
-////	theColor.blue  = kMaxColorValue;
-////	MSetEntryColor(paletteObject, 0, &theColor);
 	
 			// Set up the initial value of the palette based on whether				
 			// the palette is to be inverted (dark to light) or						
@@ -1559,9 +1484,9 @@ void Create2CPalette (
 		greenInit = 0;
 		blueInit  = 0;
 		
-		}		// end "if (!displaySpecsPtr->invertValues)" 
+		}	// end "if (!displaySpecsPtr->invertValues)" 
 	
-	else		// displaySpecsPtr->invertValues 
+	else	// displaySpecsPtr->invertValues 
 		{
 		redInit   = kMaxColorValue;
 		greenInit = kMaxColorValue;
@@ -1569,7 +1494,7 @@ void Create2CPalette (
 		
 		increment = -increment;
 		
-		}		// end "else displaySpecsPtr->invertValues" 
+		}	// end "else displaySpecsPtr->invertValues" 
 		
 	paletteEntry = 0;
 	
@@ -1588,14 +1513,14 @@ void Create2CPalette (
 				theColor.green = (UInt16)(greenInit + green*increment);
 				if (displayType == 5)
 					theColor.blue = theColor.green;
-				MSetEntryColor(paletteObject, paletteEntry, &theColor);
+				MSetEntryColor (paletteObject, paletteEntry, &theColor);
 				paletteEntry++;
 				
-				}		// end 'for ( green=0; ...' 
+				}	// end 'for (green=0; ...' 
 				
-			}		// end 'for ( red=0; ...' 
+			}	// end 'for (red=0; ...' 
 			
-		}		// if (rgbColors == kRGColor) 
+		}	// if (rgbColors == kRGColor) 
 	
 	if (displaySpecsPtr->rgbColors == kGBColor)
 		{
@@ -1612,93 +1537,85 @@ void Create2CPalette (
 				theColor.blue = (UInt16)(blueInit + blue*increment);
 				if (displayType == 5)
 					theColor.red = theColor.blue;
-				MSetEntryColor(paletteObject, paletteEntry, &theColor);
+				MSetEntryColor (paletteObject, paletteEntry, &theColor);
 				paletteEntry++;
 				
-				}		// end 'for ( blue=0; ...' 
+				}	// end 'for (blue=0; ...' 
 				
-			}		// end 'for ( green=0; ...' 
+			}	// end 'for (green=0; ...' 
 			
-		}		// if (rgbColors == kGBColor) 
+		}	// if (rgbColors == kGBColor) 
 	
 	if (displaySpecsPtr->rgbColors == kRBColor)
 		{
 		theColor.green = 0;
 		for (red=0; red<numberLevels; red++)
 			{
-				// Set color table for red-blue display. If displaytype is 5, then	
-				// green will be the same level as for red.									
+					// Set color table for red-blue display. If displaytype is 5, then
+					// green will be the same level as for red.
 				
 			theColor.red = (UInt16)(redInit + red*increment);
 			if (displayType == 5)
 				theColor.green = theColor.red;
 	
-			for ( blue=0; blue<numberLevels; blue++ ) 
+			for (blue=0; blue<numberLevels; blue++) 
 				{
 				theColor.blue = (UInt16)(blueInit + blue*increment);
-				MSetEntryColor(paletteObject, paletteEntry, &theColor);
+				MSetEntryColor (paletteObject, paletteEntry, &theColor);
 				paletteEntry++;
 				
-				}		// end 'for ( blue=0; ...' 
+				}	// end 'for (blue=0; ...' 
 				
-			}		// end 'for ( red=0; ...' 
+			}	// end 'for (red=0; ...' 
 			
-		}		// if (rgbColors == kRBColor) 
-		
-			// The last color in the palette will be black.								
-				
-////	theColor.red   = 0;
-////	theColor.green = 0;
-////	theColor.blue  = 0;
-////	paletteEntry++;
-////	MSetEntryColor(paletteObject, paletteEntry, &theColor);
-/*	
+		}	// if (rgbColors == kRBColor)
+	/*
 			// Now put the system colors in the palette.							
 				
 	theColor.red   = 22016;
 	theColor.green = 11421;
 	theColor.blue  = 1316;
 	paletteEntry++;
-	MSetEntryColor(paletteObject, paletteEntry, &theColor);							
+	MSetEntryColor (paletteObject, paletteEntry, &theColor);							
 				
 	theColor.red   = 0;
 	theColor.green = 25765;
 	theColor.blue  = 4541;
 	paletteEntry++;
-	MSetEntryColor(paletteObject, paletteEntry, &theColor);							
+	MSetEntryColor (paletteObject, paletteEntry, &theColor);							
 				
 	theColor.red   = 0;
 	theColor.green = 0;
 	theColor.blue  = 54272;
 	paletteEntry++;
-	MSetEntryColor(paletteObject, paletteEntry, &theColor);							
+	MSetEntryColor (paletteObject, paletteEntry, &theColor);							
 				
 	theColor.red   = 577;
 	theColor.green = 43860;
 	theColor.blue  = 60159;
 	paletteEntry++;
-	MSetEntryColor(paletteObject, paletteEntry, &theColor);							
+	MSetEntryColor (paletteObject, paletteEntry, &theColor);							
 				
 	theColor.red   = 62167;
 	theColor.green = 2134;
 	theColor.blue  = 34028;
 	paletteEntry++;
-	MSetEntryColor(paletteObject, paletteEntry, &theColor);							
+	MSetEntryColor (paletteObject, paletteEntry, &theColor);							
 				
 	theColor.red   = 56680;
 	theColor.green = 2242;
 	theColor.blue  = 1698;
 	paletteEntry++;
-	MSetEntryColor(paletteObject, paletteEntry, &theColor);							
+	MSetEntryColor (paletteObject, paletteEntry, &theColor);							
 				
 	theColor.red   = 65535;
 	theColor.green = 25738;
 	theColor.blue  = 652;
 	paletteEntry++;
-	MSetEntryColor(paletteObject, paletteEntry, &theColor);
+	MSetEntryColor (paletteObject, paletteEntry, &theColor);
 	
 	SInt16 index;
-	increment = abs(increment);
+	increment = abs (increment);
 	theColor.red   = 0;
 	theColor.green = 0;
 	theColor.blue  = 0;
@@ -1707,11 +1624,11 @@ void Create2CPalette (
 		theColor.red   += increment;
 		theColor.green += increment;
 		theColor.blue  += increment;
-		MSetEntryColor(paletteObject, index, &theColor);
+		MSetEntryColor (paletteObject, index, &theColor);
 		
-		}		// end "for (index=paletteEntry+1; ..."
-*/	
-}		// end "Create2CPalette" 
+		}	// end "for (index=paletteEntry+1; ..."
+	*/
+}	// end "Create2CPalette" 
 
 
 
@@ -1778,16 +1695,8 @@ void Create3CPalette (
 	if (displaySpecsPtr->numberPaletteLevels > 1)
 		increment = (SInt32)(kMaxColorValue / (displaySpecsPtr->numberPaletteLevels-1));
 	
-			// Put the colors into the palette.												
-			// The first color will be white followed by the colors used for 		
-			// displaying the image.															
-	
-////	theColor.red   = kMaxColorValue;
-////	theColor.green = kMaxColorValue;
-////	theColor.blue  = kMaxColorValue;
-////	MSetEntryColor(paletteObject, 0, &theColor);
-	
-			// Set up the initial value of the palette based on whether				
+			// Put the colors into the palette.
+			// Set up the initial value of the palette based on whether
 			// the palette is to be inverted (dark to light) or						
 			// not-inverted (light to dark)													
 
@@ -1797,16 +1706,16 @@ void Create3CPalette (
 		greenInit = 0;
 		blueInit  = 0;
 		
-		}		// end "if (!displaySpecsPtr->invertValues)" 
+		}	// end "if (!displaySpecsPtr->invertValues)" 
 	
-	else		// displaySpecsPtr->invertValues	
+	else	// displaySpecsPtr->invertValues	
 		{
 		redInit   = kMaxColorValue;
 		greenInit = kMaxColorValue;
 		blueInit  = kMaxColorValue;
 		increment = -increment;
 		
-		}		// end "else displaySpecsPtr->invertValues" 
+		}	// end "else displaySpecsPtr->invertValues" 
 		
 	paletteEntry = 0;
 	limitReachedFlag = FALSE;
@@ -1822,10 +1731,7 @@ void Create3CPalette (
 			for (blue=0; blue<displaySpecsPtr->numberPaletteLevels; blue++) 
 				{
 				theColor.blue  = (UInt16)(blueInit + blue*increment);
-            ///////Temporary/////
-//#ifndef multispec_lin
-				MSetEntryColor(paletteObject, paletteEntry, &theColor);
-//#endif
+				MSetEntryColor (paletteObject, paletteEntry, &theColor);
 				paletteEntry++;
 				
 				if (paletteEntry >= tableSize)
@@ -1833,29 +1739,21 @@ void Create3CPalette (
 					limitReachedFlag = TRUE;
 					break;
 					
-					}		// end "if (paletteEntry >= tableSize)"
+					}	// end "if (paletteEntry >= tableSize)"
 					
-				}		// end 'for (blue=0; ...' 
+				}	// end 'for (blue=0; ...' 
 			
 			if (limitReachedFlag)
 				break;
 				
-			}		// end 'for (green=0; ...' 
+			}	// end 'for (green=0; ...' 
 			
 		if (limitReachedFlag)
 			break; 
 				
-		}		// end 'for (red=0; ...' 
-		
-			// The last color in the palette will be black.								
-				
-////	theColor.red   = 0;
-////	theColor.green = 0;
-////	theColor.blue  = 0;
-////	paletteEntry++;
-////	MSetEntryColor(paletteObject, paletteEntry, &theColor);
+		}	// end 'for (red=0; ...' 
 	
-}		// end "Create3CPalette" 
+}	// end "Create3CPalette" 
 
 
 
@@ -1882,13 +1780,13 @@ void Create3CPalette (
 //	Coded By:			Larry L. Biehl			Date: ??/??/??
 //	Revised By:			Larry L. Biehl			Date: 09/18/2006	
 
-Boolean DetermineIfFalseColorAvailable (       
+Boolean DetermineIfFalseColorAvailable (
 				SInt16								fileFormat,
 				UInt32								numberClasses,
 				Handle								classDescriptionH)
  
 {
-	Boolean		returnFlag = FALSE;
+	Boolean								returnFlag = FALSE;
 	
 	
 			// Determine if the FALSE color item is to be included. 
@@ -1897,223 +1795,44 @@ Boolean DetermineIfFalseColorAvailable (
 		{
 		if (fileFormat == kMultiSpecClassificationType)
 			{		
-			UInt16* classSymbolPtr = (UInt16*)GetHandlePointer(
-													classDescriptionH, kNoLock, kNoMoveHi);
+			UInt16* classSymbolPtr = (UInt16*)GetHandlePointer (classDescriptionH);
 													
 			if (classSymbolPtr != NULL)
 				{
-				classSymbolPtr = &classSymbolPtr[ numberClasses*sizeof(Str15) ];
+				classSymbolPtr = &classSymbolPtr[numberClasses*sizeof (Str15)];
 				
-				if ( *classSymbolPtr == 0 &&
-						numberClasses == 
-								(UInt32)gProjectInfoPtr->numberStatisticsClasses+1 )
+				if (*classSymbolPtr == 0 &&
+						numberClasses == (UInt32)gProjectInfoPtr->numberStatisticsClasses+1)
 					returnFlag = TRUE;
 				
-				if ( *classSymbolPtr == ' ' &&
-						numberClasses == 
-								(UInt32)gProjectInfoPtr->numberStatisticsClasses+1 )
+				if (*classSymbolPtr == ' ' &&
+						numberClasses == (UInt32)gProjectInfoPtr->numberStatisticsClasses+1)
 					returnFlag = TRUE;
 				
-				if ( *classSymbolPtr != ' ' &&
-						numberClasses == 
-								(UInt32)gProjectInfoPtr->numberStatisticsClasses ) 
+				if (*classSymbolPtr != ' ' &&
+						numberClasses == (UInt32)gProjectInfoPtr->numberStatisticsClasses)
 					returnFlag = TRUE;
 					
-				}		// end "if (classSymbolPtr != NULL)"
+				}	// end "if (classSymbolPtr != NULL)"
 				
-			}		// end "if (fileFormat == kMultiSpecClassificationType)"
+			}	// end "if (fileFormat == kMultiSpecClassificationType)"
 			
 		else if (fileFormat == kErdas74Type &&
-				numberClasses == 
-								(UInt32)gProjectInfoPtr->numberStatisticsClasses+1)
+				numberClasses == (UInt32)gProjectInfoPtr->numberStatisticsClasses+1)
 			returnFlag = TRUE;
 				
-		else if ( (fileFormat == kGAIAType || fileFormat == kGAIA2Type) &&
-				numberClasses == 
-								(UInt32)gProjectInfoPtr->numberStatisticsClasses+1)
+		else if ((fileFormat == kGAIAType || fileFormat == kGAIA2Type) &&
+				numberClasses == (UInt32)gProjectInfoPtr->numberStatisticsClasses+1)
 			returnFlag = TRUE;
 			
-		}		// end "if (gProjectInfoPtr != NULL)"
+		}	// end "if (gProjectInfoPtr != NULL)"
 			
 	return (returnFlag); 
 			
-}		// end "DetermineIfFalseColorAvailable" 
+}	// end "DetermineIfFalseColorAvailable" 
 
 
-/* Disabled feature on 3/28/2014
-#if defined multispec_mac   
-//------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
-//
-//	Function name:		DrawPalette
-//
-//	Software purpose:	The purpose of this routine is to set up the palette 
-//							based on the user requests.
-//
-//	Parameters in:		None
-//
-//	Parameters out:	None
-//
-// Value Returned:	None		
-// 
-// Called By:
-//
-//	Coded By:			Larry L. Biehl			Date: 04/25/1988
-//	Revised By:			Larry L. Biehl			Date: 01/09/1992	
-
-void DrawPalette (void)
-
-{
-	Rect									rect;
-	
-	DisplaySpecsPtr					displaySpecsPtr;
-	GrafPtr								savedPort;
-	
-	Handle								displaySpecsH,
-											windowInfoHandle;
-	
-	PaletteHandle						paletteHandle;
-	
-	PicHandle							myPicture;
-	
-	SInt16								numberEntries,
-											windowType;
-	
-	
-			// Initialize local variables.													
-			
-	savedPort = NULL;
-	paletteHandle = NULL;
-	numberEntries = 0;
-	
-			// Get pointer to palette display specifications.							
-				
-	displaySpecsPtr = GetActiveDisplaySpecsPtr (&displaySpecsH);
-		
-															
-			// Exit if proper information doesn't exist.									
-	
-	if (displaySpecsPtr == NULL)
-																							return;
-	
-			// Create the palette window if needed.										
-			
-	if (gPaletteWindow == NULL)
-		{
-		gPaletteWindow = CreatePaletteWindow ();
-		
-				// Exit routine if palette window is not set up okay.					
-				
-		if (gPaletteWindow == NULL)
-			{
-			CheckAndUnlockHandle (displaySpecsH);
-																							return;
-			
-			}		// end "if (gPaletteWindow == NULL)" 
-		
-		}		// end "if (gPaletteWindow == NULL)" 
-		
-	else		// gPaletteWindow != NULL 
-		{
-		GetPort (&savedPort);
-		
-//		ShowWindow (gPaletteWindow);
-			
-		SetPortWindowPort (gPaletteWindow);
-		
-		}		// end "else gPaletteWindow != NULL" 
-
-			//	Dispose of picture for window if one already exists					
-			
-	myPicture = GetWindowPic (gPaletteWindow);
-	if (myPicture != NULL)
-		{
-		KillPicture (myPicture);
-		SetWindowPic (gPaletteWindow, NULL);
-		
-		}		// end "if (myPicture != NULL)" 
-		
-			// Get the window type.																
-			
-	windowType = ((WindowInfoPtr)*gActiveImageWindowInfoH)->windowType;
-	
-			// Erase what is currently in the palette window.							
-			
-	ClipRect (GetWindowPortBounds(gPaletteWindow, &gTempRect));
-	EraseRect (&gTempRect);
-		
-	     	// Get handle to additional window information.							
-	     		
-	windowInfoHandle = (Handle)GetWRefCon(gPaletteWindow);
-	
-			// Create the palette if needed. 												
-			
-	if ( CreatePalette (windowInfoHandle, displaySpecsPtr, windowType) )
-		{					
-		if (displaySpecsPtr->displayType != 1 && displaySpecsPtr->paletteObject != NULL)
-			{
-			paletteHandle = displaySpecsPtr->paletteObject;
-			SetPalette	(gPaletteWindow, paletteHandle, TRUE);
-			
-//			windowPortPixMap = ((CGrafPtr)gPaletteWindow)->portPixMap;
-//			cTableHandle = ((PixMapPtr)*windowPortPixMap)->pmTable;
-//			Palette2CTab (displaySpecsPtr->paletteObject, cTableHandle);
-//			
-//			HLock ( (Handle)cTableHandle );
-//			cTabPtr = *cTableHandle;
-//			cTabPtr->ctSeed = GetCTSeed ();
-//			if (gQD32IsImplemented)
-//				cTabPtr->ctFlags = cTabPtr->ctFlags | 0x4000;
-//			HUnlock ( (Handle)cTableHandle );
-			
-			ActivatePalette (gPaletteWindow);
-			
-			}		// end "if (displaySpecsPtr->displayType != 1 && ...)" 
-		
-				// Set up rectangle to draw picture into.									
-				
-		GetWindowPortBounds(gPaletteWindow, &rect);
-		
-		myPicture = OpenPicture (&rect);
-		
-		if (displaySpecsPtr->displayType == 1) 
-			DrawPPalette (&rect, displaySpecsPtr);
-				
-		if (displaySpecsPtr->displayType != 1 && displaySpecsPtr->paletteObject != NULL)
-			DrawCPalette (&rect, displaySpecsPtr);
-			
-		ClosePicture();
-		
-		DrawPicture (myPicture, &rect);
-		
-		SetWindowPic (gPaletteWindow, myPicture);
-		
-				// Validate the area of this window.										
-				
-		ValidWindowRect (gPaletteWindow, &rect);
-	
-				// Reset pen to initial state. 												
-				
-		PenNormal();
-		
-		}		// end "if (  CreatePalette (gPaletteWindow, ..." 
-		
-				// Set the front window back to what it was upon entry.				
-	
-	if (savedPort)
-		SetPort (savedPort);
-		
-			// Unlock handle to display specifications if needed.						
-			
-	CheckAndUnlockHandle (displaySpecsH);
-	
-}		// end "DrawPalette" 
-#endif	// defined multispec_mac
-*/
-	
-	
+/*
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
 //								 Copyright (1988-2017)
@@ -2159,15 +1878,13 @@ void DrawCPalette (
 			// Get the number of entries.														
 			
 	numberEntries = displaySpecsPtr->numPaletteEntriesUsed;
-////	colorIndexStart = 1;
 	colorIndexStart = 0;
-////	if (displaySpecsPtr->pixelSize >= 16)
-////		colorIndexStart = 0;
-		
+	
 			// Set width of the pen based on the number of levels 					
 			
 	penWidth = (rectPtr->bottom)/numberEntries;
-	if (penWidth < 1)  penWidth = 1;
+	if (penWidth < 1)
+		penWidth = 1;
 	PenSize (2, penWidth);
 	PenMode (8);
 	
@@ -2191,11 +1908,11 @@ void DrawCPalette (
 		y2 += penWidth;
 		y1 += penWidth;
 		
-		}		// end "for (color=colorIndexStart; color<numberEntries; ..." 
+		}	// end "for (color=colorIndexStart; color<numberEntries; ..." 
 	
-}		// end "DrawCPalette" 
+}	// end "DrawCPalette" 
 #endif	// defined multispec_mac
-
+*/
 
 
 #if defined multispec_mac
@@ -2229,14 +1946,17 @@ pascal void DrawPalettePopUp (
 {
 			// Use the generic pop up drawing routine.									
 			
-	DrawPopUpMenuItem (dialogPtr, itemNumber, 
-										gPopUpPaletteMenu, gPaletteSelection, TRUE);
+	DrawPopUpMenuItem (dialogPtr, 
+								itemNumber, 
+								gPopUpPaletteMenu, 
+								gPaletteSelection, 
+								TRUE);
 	
-}		// end "DrawPalettePopUp" 
+}	// end "DrawPalettePopUp" 
 #endif	// defined multispec_mac
 
 
-
+/*
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
 //								 Copyright (1988-2017)
@@ -2301,7 +2021,7 @@ void DrawPPalette (
 		if (patternIndex > maxNumber)
 			patternIndex = 1;
 			
-		PenPat ( (ConstPatternParam)&gPatterns[patternIndex] );
+		PenPat ((ConstPatternParam)&gPatterns[patternIndex]);
 		MoveTo (x1,y1);
 		LineTo (x2,y2);
 		y2 += penWidth;
@@ -2309,11 +2029,11 @@ void DrawPPalette (
 		
 		patternIndex++;
 		
-		}		// end "for ( pattern=1; pattern<=displaySpecsPtr->..." 
+		}	// end "for (pattern=1; pattern<=displaySpecsPtr->..." 
 	
-}		// end "DrawPPalette" 
+}	// end "DrawPPalette" 
 #endif	// defined multispec_mac   
-
+*/
 
                    
 //------------------------------------------------------------------------------------
@@ -2323,9 +2043,8 @@ void DrawPPalette (
 //
 //	Function name:		Boolean FalseColorPaletteDialog
 //
-//	Software purpose:	The purpose of this routine is to handle the 		
-//							modal dialog for the channels for the FALSE
-//							color palette.
+//	Software purpose:	The purpose of this routine is to handle the modal dialog for
+//							the channels for the FALSE color palette.
 //
 //	Parameters in:		None
 //
@@ -2338,6 +2057,7 @@ void DrawPPalette (
 //	Coded By:			Larry L. Biehl			Date: 11/26/1996
 //	Revised By:			Larry L. Biehl			Date: 07/16/1999	
 // TODO: For Linux
+
 Boolean FalseColorPaletteDialog (void)
 
 {
@@ -2375,7 +2095,7 @@ Boolean FalseColorPaletteDialog (void)
 				
 	dialogPtr = LoadRequestedDialog (kFalseColorPaletteDialogID, kCopyScrap, 1, 2);
 	if (dialogPtr == NULL)											
-																					return(FALSE);
+																						return (FALSE);
 																				
 			// Get Project window information structure pointer.
 			
@@ -2394,11 +2114,11 @@ Boolean FalseColorPaletteDialog (void)
 			// Get default values.  			
 			
 	redChannel = 
-		gProjectInfoPtr->channelsPtr[ gProjectInfoPtr->falseColorPaletteRed ] + 1;
+			gProjectInfoPtr->channelsPtr[gProjectInfoPtr->falseColorPaletteRed] + 1;
 	greenChannel = 
-		gProjectInfoPtr->channelsPtr[ gProjectInfoPtr->falseColorPaletteGreen ] + 1;
+			gProjectInfoPtr->channelsPtr[gProjectInfoPtr->falseColorPaletteGreen] + 1;
 	blueChannel = 
-		gProjectInfoPtr->channelsPtr[ gProjectInfoPtr->falseColorPaletteBlue ] + 1;
+			gProjectInfoPtr->channelsPtr[gProjectInfoPtr->falseColorPaletteBlue] + 1;
 		
 	maxChannelFeatureNum = projectWindowInfoPtr->totalNumberChannels;
 	
@@ -2414,17 +2134,16 @@ Boolean FalseColorPaletteDialog (void)
 			
 	SetDialogItemDrawRoutine (dialogPtr, 10, gCreateOneColumnList1Ptr);
 	
-	AddChannelsToDialogList (
-								gDialogListHandle,
-								0, 
-								NULL, 
-								projectLayerInfoPtr,
-								projectFileInfoPtr,
-								kItemsListOnly, 
-								(SInt16*)gProjectInfoPtr->channelsPtr, 
-								gProjectInfoPtr->numberStatisticsChannels,
-								kSubsetMenuItem);
-		
+	AddChannelsToDialogList (gDialogListHandle,
+										0, 
+										NULL, 
+										projectLayerInfoPtr,
+										projectFileInfoPtr,
+										kItemsListOnly, 
+										(SInt16*)gProjectInfoPtr->channelsPtr, 
+										gProjectInfoPtr->numberStatisticsChannels,
+										kSubsetMenuItem);
+	
 			// Center the dialog and then show it.											
 			
 	ShowDialogWindow (dialogPtr, kFalseColorPaletteDialogID, kDoNotSetUpDFilterTable);
@@ -2450,9 +2169,9 @@ Boolean FalseColorPaletteDialog (void)
 			if (theType == 16)
 				{
 				GetDialogItemText (theHandle, gTextString);	
-				StringToNum ( gTextString, &theNum);
+				StringToNum (gTextString, &theNum);
 				
-				}		// end "if (theType == 16)" 
+				}	// end "if (theType == 16)" 
 			
 			switch (itemHit)
 				{
@@ -2468,11 +2187,11 @@ Boolean FalseColorPaletteDialog (void)
 					channelPtr = &blueChannel;	
 					break;
 						
-				}		// end "switch (itemHit)" 
+				}	// end "switch (itemHit)" 
 				
-			}		// end "if (itemHit > 2)" 
+			}	// end "if (itemHit > 2)" 
 			
-		else		// itemHit <= 2 
+		else	// itemHit <= 2 
 			{
 			if (itemHit == 1)
 				itemHit = CheckMaxValue (dialogPtr, 
@@ -2501,7 +2220,7 @@ Boolean FalseColorPaletteDialog (void)
 				itemHit = FalseColorCheckColorChannel (
 														dialogPtr, 4, theNum, &redChannelIndex);
 				
-				}		// end "if	(itemHit == 1)"
+				}	// end "if	(itemHit == 1)"
 				
 			if	(itemHit == 1)
 				{                    
@@ -2509,7 +2228,7 @@ Boolean FalseColorPaletteDialog (void)
 				itemHit = FalseColorCheckColorChannel (
 														dialogPtr, 6, theNum, &greenChannelIndex);
 				
-				}		// end "if	(itemHit == 1)"
+				}	// end "if	(itemHit == 1)"
 				
 			if	(itemHit == 1)   
 				{
@@ -2517,7 +2236,7 @@ Boolean FalseColorPaletteDialog (void)
 				itemHit = FalseColorCheckColorChannel (
 														dialogPtr, 8, theNum, &blueChannelIndex);
 				
-				}		// end "if	(itemHit == 1)"
+				}	// end "if	(itemHit == 1)"
 					
 			if	(itemHit == 1)      // User selected OK and channels are okay
 				{		
@@ -2530,47 +2249,46 @@ Boolean FalseColorPaletteDialog (void)
 				gProjectInfoPtr->falseColorPaletteGreen = greenChannelIndex;
 				gProjectInfoPtr->falseColorPaletteBlue = blueChannelIndex;		  
 												
-				}		// end "if (itemHit == 1)" 
+				}	// end "if (itemHit == 1)" 
 				
 			if	(itemHit == 2)      // User selected Cancel for information 
 				{
 				modalDone = TRUE;
 				returnFlag = FALSE;
 				
-				}		// end "if	(itemHit == 2)" 
+				}	// end "if	(itemHit == 2)" 
 			
-			}		// end "else itemHit <= 2" 
+			}	// end "else itemHit <= 2" 
 				
-		} while (!modalDone); 
+		}	while (!modalDone);
 		
 			// Dispose of the dialog list handle.										
 			
 	if (gDialogListHandle != NULL)  
-		LDispose(gDialogListHandle);
+		LDispose (gDialogListHandle);
 	gDialogListHandle = NULL;
 	
 	UnlockImageInformationHandles (projectHandleStatus, 
-												gProjectInfoPtr->windowInfoHandle );
+												gProjectInfoPtr->windowInfoHandle);
 		
 	CloseRequestedDialog (dialogPtr, kDoNotSetUpDFilterTable); 
-#endif	// defined multispec_mac 
-
+#endif	// defined multispec_mac
 
 	#if defined multispec_win   	
 		CMFalseColorDlg*		dialogPtr = NULL;
 		
 		TRY
 			{ 
-			dialogPtr = new CMFalseColorDlg(); 
+			dialogPtr = new CMFalseColorDlg ();
 			
 			returnFlag = dialogPtr->DoDialog (); 
 		                       
 			delete dialogPtr;
 			}
 			
-		CATCH_ALL(e)
+		CATCH_ALL (e)
 			{
-			MemoryMessage(0, kObjectMessage);
+			MemoryMessage (0, kObjectMessage);
 			returnFlag = FALSE;
 			}
 		END_CATCH_ALL  	
@@ -2578,7 +2296,7 @@ Boolean FalseColorPaletteDialog (void)
 	
 	return (returnFlag);
 	
-}		// end "FalseColorPaletteDialog"
+}	// end "FalseColorPaletteDialog"
 
 
 
@@ -2603,18 +2321,18 @@ SInt16 FalseColorCheckColorChannel (
 			// used for the project statistics.
 				                                       
 	*channelIndexPtr = -1;
-	for ( index=0; 
+	for (index=0; 
 			index<gProjectInfoPtr->numberStatisticsChannels; 
-			index++)
+				index++)
 		{
-		if (itemValue == (SInt32)gProjectInfoPtr->channelsPtr[ index ] + 1)
+		if (itemValue == (SInt32)gProjectInfoPtr->channelsPtr[index] + 1)
 			*channelIndexPtr = index;
 				
-		}		// end "for ( index=0; ..."
+		}	// end "for (index=0; ..."
 						
 	if (*channelIndexPtr < 0)
 		{
-		NumberErrorAlert ( itemValue, 
+		NumberErrorAlert (itemValue, 
 								dialogPtr, 
 								itemNumber);
 																			
@@ -2624,21 +2342,21 @@ SInt16 FalseColorCheckColorChannel (
 		HiliteControl ((ControlHandle)okHandle, 255);
 					
 		DisplayAlert (kErrorAlertID, 
-								kCautionAlert, 
-								kAlertStrID, 
-								IDS_Alert53,
-								0, 
-								NULL);	
+							kCautionAlert,
+							kAlertStrID, 
+							IDS_Alert53,
+							0, 
+							NULL);	
 			
 		HiliteControl ((ControlHandle)okHandle, 0);
 
 		itemHit = 0;
 			
-		}		// end "if (redChannelIndex < 0 || ..."		
+		}	// end "if (redChannelIndex < 0 || ..."		
 		
 	return (itemHit);
 					
-}		// end "FalseColorCheckColorChannel"  
+}	// end "FalseColorCheckColorChannel"  
  
 
 
@@ -2666,26 +2384,24 @@ SInt16 FalseColorCheckColorChannel (
 CMPaletteInfo GetActivePaletteHandle (void)
  
 {       
-	#if defined multispec_mac  	                                          
-		return ( GetPalette (gActiveImageWindow) );		
-	#endif	// defined multispec_mac 
+	#if defined multispec_mac || defined multispec_mac_swift
+		return (GetPalette (gActiveImageWindow));
+	#endif	// defined multispec_mac_swift
 				
 	#if defined multispec_win || defined multispec_lin	
 		CMPaletteInfo paletteHandle = NULL;
 		
 		Handle displaySpecsHandle = GetActiveDisplaySpecsHandle (); 
-		DisplaySpecsPtr displaySpecsPtr = (DisplaySpecsPtr)GetHandlePointer(
-																	displaySpecsHandle,
-																	kNoLock,
-																	kNoMoveHi);
-												
+		DisplaySpecsPtr displaySpecsPtr = (DisplaySpecsPtr)GetHandlePointer (
+																					displaySpecsHandle);
+	
 		if (displaySpecsPtr != NULL)
 			paletteHandle = displaySpecsPtr->paletteObject;
 			
 		return (paletteHandle);		
 	#endif	// defined multispec_win | lin
 
-}		// end "GetActivePaletteHandle" 
+}	// end "GetActivePaletteHandle" 
 
 
 
@@ -2725,23 +2441,23 @@ Boolean GetBackgroundIncludedFlag (
 	if (classSymbolPtr != NULL)
 		{		
 		if (fileInfoPtr->format == kMultiSpecClassificationType &&
-																*classSymbolPtr == ' ' )
+																		*classSymbolPtr == ' ')
 			backgroundFlag = TRUE;
 			
 		else if (fileInfoPtr->format == kErdas74Type &&
-																*classSymbolPtr == 0)
+																		*classSymbolPtr == 0)
 			backgroundFlag = TRUE;
 			
-		else if ( (fileInfoPtr->format == kGAIAType ||
+		else if ((fileInfoPtr->format == kGAIAType ||
 											fileInfoPtr->format == kGAIA2Type) &&
-																*classSymbolPtr == 0)
+																		*classSymbolPtr == 0)
 			backgroundFlag = TRUE;
 			
-		}		// end "if (classSymbolPtr != NULL)"
+		}	// end "if (classSymbolPtr != NULL)"
 		
 	return (backgroundFlag); 
 					
-}		// end "GetBackgroundIncludedFlag" 
+}	// end "GetBackgroundIncludedFlag" 
 
 
 
@@ -2766,20 +2482,19 @@ Boolean GetBackgroundIncludedFlag (
 //	Revised By:			Larry L. Biehl			Date: 05/07/2013	
 
 Boolean GetClassColorTable (
-										FileInfoPtr							gisFileInfoPtr, 
-										UInt16								numberClasses, 
-										SInt16*								classPtr,
-										UInt16								numberListClasses,
-										UInt16*								numberTRLClassesPtr,  
-										ColorSpec**							inputColorSpecPtrPtr,
-										CMPaletteInfo						paletteHandle,
-										UInt16*								paletteIndexPtr,
-										SInt16								paletteType,
-										UInt16								numberPaletteEntriesToRead, 
-//										SInt16								paletteOffset, 
-										SInt16								classNameCode,
-										SInt16								thematicListType,
-										SInt16								collapseClassCode)
+				FileInfoPtr							gisFileInfoPtr,
+				UInt16								numberClasses, 
+				SInt16*								classPtr,
+				UInt16								numberListClasses,
+				UInt16*								numberTRLClassesPtr,  
+				ColorSpec**							inputColorSpecPtrPtr,
+				CMPaletteInfo						paletteHandle,
+				UInt16*								paletteIndexPtr,
+				SInt16								paletteType,
+				UInt16								numberPaletteEntriesToRead, 
+				SInt16								classNameCode,
+				SInt16								thematicListType,
+				SInt16								collapseClassCode)
 
 {
 	ColorSpec*							colorSpecPtr;
@@ -2794,13 +2509,13 @@ Boolean GetClassColorTable (
 	
 	
 	if (gisFileInfoPtr == NULL)
-		return (FALSE);
+																							return (FALSE);
 	
 			// Do not get colors for the classes if there are more classes than the class		
 			// limit.																				
 	
 	if (numberClasses > gClassListLimit)
-																									return (TRUE);
+																							return (TRUE);
 	
 			// Make certain that we have the proper information for the 			
 			// palette information.																
@@ -2808,9 +2523,9 @@ Boolean GetClassColorTable (
 	if (paletteHandle != NULL || *inputColorSpecPtrPtr != NULL)
 		paletteType = 0;
 	
-	else		// paletteHandle == NULL && *inputColorSpecPtrPtr == NULL
+	else	// paletteHandle == NULL && *inputColorSpecPtrPtr == NULL
 		if (paletteType <= 0)
-																									return (FALSE);
+																							return (FALSE);
 	
 	continueFlag = TRUE;
 	numberProjectClasses = 0;
@@ -2832,8 +2547,8 @@ Boolean GetClassColorTable (
 			// Allow for the background class if needed.
 	
 	if (classNameCode < kFromDescriptionCode)
-		*numberTRLClassesPtr = MIN(kMaxNumberStatClasses-1, *numberTRLClassesPtr);
-	*numberTRLClassesPtr = MIN(kMaxNumberStatClasses, *numberTRLClassesPtr);
+		*numberTRLClassesPtr = MIN (kMaxNumberStatClasses-1, *numberTRLClassesPtr);
+	*numberTRLClassesPtr = MIN (kMaxNumberStatClasses, *numberTRLClassesPtr);
 	
 			// Get buffer to load color table into if needed.
 	
@@ -2846,11 +2561,11 @@ Boolean GetClassColorTable (
 				// the trailer file, but the routines being called will
 				// fix those colors.
 		
-		colorSpecPtr = (ColorSpec*)MNewPointer ( 
-										(SInt32)(numberPaletteEntriesToRead+3)*sizeof(ColorSpec));
+		colorSpecPtr = (ColorSpec*)MNewPointer (
+									(SInt32)(numberPaletteEntriesToRead+3)*sizeof (ColorSpec));
 		continueFlag = (colorSpecPtr != NULL);
 		
-		}		// end "if (continueFlag && colorSpecPtr != NULL)"
+		}	// end "if (continueFlag && colorSpecPtr != NULL)"
 	
 			// Set up the palette type variable depending upon the source
 			// for the palette information.
@@ -2866,17 +2581,16 @@ Boolean GetClassColorTable (
 				thematicPaletteType = kPaletteHandle;
 				
 				if (gProcessorCode != kMultispecToThematicProcessor)
-//					inputPaletteOffset = 1;
 					inputPaletteOffset = 0;
 				
-				}		// end "if (paletteHandle != NULL)"
+				}	// end "if (paletteHandle != NULL)"
 			
-			else		// resourcePHandle == NULL 
+			else	// resourcePHandle == NULL 
 				thematicPaletteType = kComputedGrays;
 			
-			}		// end "if (inputColorSpecPtr == NULL)"
+			}	// end "if (inputColorSpecPtr == NULL)"
 		
-		}		// end "if (thematicPaletteType == 0)"
+		}	// end "if (thematicPaletteType == 0)"
 	
 			// Get the requested color scheme for the classes.
 	
@@ -2887,8 +2601,7 @@ Boolean GetClassColorTable (
 													  colorSpecPtr,
 													  paletteHandle,
 													  inputPaletteOffset,
-//													  MIN(*numberTRLClassesPtr+3, 256),
-													  MIN(*numberTRLClassesPtr, 256),
+													  MIN (*numberTRLClassesPtr, 256),
 													  *numberTRLClassesPtr,
 													  thematicPaletteType,
 													  numberPaletteEntriesToRead,
@@ -2899,7 +2612,7 @@ Boolean GetClassColorTable (
 	
 	return (continueFlag);
 	
-}		// end "GetClassColorTable"
+}	// end "GetClassColorTable"
 
 
 
@@ -2943,7 +2656,7 @@ Boolean GetDefaultThematicFilePalette (
 				// This overrides other possibilities.
 		returnFlag = TRUE;
 			
-	else		// fileInfoPtr->ancillaryInfoformat != kArcViewDefaultSupportType
+	else	// fileInfoPtr->ancillaryInfoformat != kArcViewDefaultSupportType
 		{
 				// Branch to appropriate palette setup routine based on the file	
 				// format.																				
@@ -2987,13 +2700,13 @@ Boolean GetDefaultThematicFilePalette (
 					break;
 			#endif	// include_gdal_capability
 				
-			}		// end "switch (fileInfoPtr->format)"
+			}	// end "switch (fileInfoPtr->format)"
 			
-		}		// end "else fileInfoPtr->ancillaryInfoformat != ..."
+		}	// end "else fileInfoPtr->ancillaryInfoformat != ..."
 		
 	return (returnFlag);
 
-}		// end "GetDefaultThematicFilePalette" 
+}	// end "GetDefaultThematicFilePalette" 
  
 
                    
@@ -3030,17 +2743,14 @@ CMPaletteInfo GetPaletteHandle (void)
    
    displaySpecsHandle = GetDisplaySpecsHandle (gImageWindowInfoPtr); 
    
-	displaySpecsPtr = (DisplaySpecsPtr)GetHandlePointer(
-											displaySpecsHandle,
-											kNoLock,
-											kNoMoveHi);
+	displaySpecsPtr = (DisplaySpecsPtr)GetHandlePointer (displaySpecsHandle);
 												
 	if (displaySpecsPtr != NULL)
 		paletteHandle = displaySpecsPtr->paletteObject;	
 
 	return (paletteHandle);
 
-}		// end "GetPaletteHandle" 
+}	// end "GetPaletteHandle" 
  
 
 
@@ -3105,11 +2815,11 @@ SInt16 GetPaletteID (
 		default:
 			paletteId = gDefaultImagePalette;
 			
-		}		// end "switch (thematicPaletteType)"	
+		}	// end "switch (thematicPaletteType)"	
 					
 	return (paletteId);
 
-}		// end "GetPaletteID" 
+}	// end "GetPaletteID" 
 
 
                     
@@ -3146,17 +2856,14 @@ SInt16 GetPaletteOffset (void)
    
    displaySpecsHandle = GetDisplaySpecsHandle (gImageWindowInfoPtr); 
    
-	displaySpecsPtr = (DisplaySpecsPtr)GetHandlePointer(
-											displaySpecsHandle,
-											kNoLock,
-											kNoMoveHi);
+	displaySpecsPtr = (DisplaySpecsPtr)GetHandlePointer (displaySpecsHandle);
 												
 	if (displaySpecsPtr != NULL)
 		paletteOffset = displaySpecsPtr->paletteOffset;
 
 	return (paletteOffset);
 
-}		// end "GetPaletteOffset"
+}	// end "GetPaletteOffset"
  
 
                    
@@ -3193,17 +2900,14 @@ SInt16 GetPaletteType (void)
    
    displaySpecsHandle = GetDisplaySpecsHandle (gImageWindowInfoPtr); 
    
-	displaySpecsPtr = (DisplaySpecsPtr)GetHandlePointer(
-											displaySpecsHandle,
-											kNoLock,
-											kNoMoveHi);
+	displaySpecsPtr = (DisplaySpecsPtr)GetHandlePointer (displaySpecsHandle);
 												
 	if (displaySpecsPtr != NULL)
 		paletteType = displaySpecsPtr->thematicClassPaletteType;
 
 	return (paletteType);
 
-}		// end "GetPaletteType"
+}	// end "GetPaletteType"
 
 
 
@@ -3277,80 +2981,44 @@ Boolean LoadColorSpecTable (
 				// Check status of file information structure.								
 				// The Get pointer to file information.										
 				
-		fileInfoPtr = (FileInfoPtr)GetHandleStatusAndPointer(
-												imageFileInfoH, &fileHandleStatus, kNoMoveHi);
+		fileInfoPtr = (FileInfoPtr)GetHandleStatusAndPointer (
+															imageFileInfoH, &fileHandleStatus);
 											
-		}		// end "if (fileInfoPtr == NULL)"
+		}	// end "if (fileInfoPtr == NULL)"
 	
 	if (fileInfoPtr != NULL)
 		{		
-		if (GetImageType(windowInfoHandle) == kThematicImageType)
+		if (GetImageType (windowInfoHandle) == kThematicImageType)
 			{
 					// Get pointer to class symbol table.										
 					// Remember to take into account that classSymbolPtr 					
 					// points to a short int vector.	Str15 is used instead of			
 					// Str31.																			
 		  					
-			classSymbolPtr = (UInt16*)GetHandlePointer(
-										fileInfoPtr->classDescriptionH, kLock, kNoMoveHi);
+			classSymbolPtr = (UInt16*)GetHandlePointer (
+															fileInfoPtr->classDescriptionH, kLock);
 			
 			if (classSymbolPtr != NULL)
-				classSymbolPtr = &classSymbolPtr[fileInfoPtr->numberClasses*sizeof(Str15)];
+				classSymbolPtr = &classSymbolPtr[fileInfoPtr->numberClasses*sizeof (Str15)];
 				
-			}		// end "if (GetImageType(windowInfoHandle) == kThematicImageType)"
+			}	// end "if (GetImageType (windowInfoHandle) == kThematicImageType)"
 					
-		}		// end "if (fileInfoPtr != NULL)"
+		}	// end "if (fileInfoPtr != NULL)"
 	
 	channelThematicDisplayTypeFlag = FALSE;
-	if (GetImageType(windowInfoHandle) == kMultispectralImageType)
+	if (GetImageType (windowInfoHandle) == kMultispectralImageType)
 		channelThematicDisplayTypeFlag = TRUE;
-	
-			// Set the first and last palette entries to be white and black	
-			// respectively.																	
-	
-///	colorSpecPtr[0].value     = 0;
-///	colorSpecPtr[0].rgb.red   = kMaxColorValue;
-///	colorSpecPtr[0].rgb.green = kMaxColorValue;
-///	colorSpecPtr[0].rgb.blue  = kMaxColorValue;
-
-///	colorSpecPtr[tableSize-1].value     = tableSize-1;
-///	colorSpecPtr[tableSize-1].rgb.red   = 0;
-///	colorSpecPtr[tableSize-1].rgb.green = 0;
-///	colorSpecPtr[tableSize-1].rgb.blue  = 0;
-
-			// The next to the last color in the palette will be the				
-			// background color.	 If there are more than 253 classes then the	
-			// background color will be fixed to be white, the first color		
-			// in the palette.																
-
-///	if (numberClasses <= 253 && displaySpecsPtr != NULL)
-///		{
-///		colorSpecPtr[tableSize-2].value     = tableSize - 2;
-///		colorSpecPtr[tableSize-2].rgb.red   = 
-///												displaySpecsPtr->backgroundColor.red;
-///		colorSpecPtr[tableSize-2].rgb.green = 
-///												displaySpecsPtr->backgroundColor.green;
-///		colorSpecPtr[tableSize-2].rgb.blue  = 
-///												displaySpecsPtr->backgroundColor.blue;
-												
-///		}		// end "if (numberClasses <= 253 && ...)" 
-												
-			// Increment colorSpecPtr so that it starts at the beginning of 	
-			// the next color value, the 2nd color for the table.					
-			
-///	colorSpecPtr++;
 	
 			// Branch to appropriate palette setup routine based on the 		
 			// type of palette to use.	
 			
-	CMFileStream*		paletteFileStreamPtr;													
-			
+	CMFileStream*		paletteFileStreamPtr;			
+	
 	switch (thematicPaletteType)
 		{
 		case kImageDefaultColorTable:		// File default 
-			
 			if (fileInfoPtr == NULL)
-																				return (FALSE);
+																							return (FALSE);
 																						
 			switch (fileInfoPtr->ancillaryInfoformat)
 				{
@@ -3374,60 +3042,54 @@ Boolean LoadColorSpecTable (
 							
 					fileInfoPtr->colorTableValueBytes = 1;
 					
-					continueFlag = ReadOneBytePalette (
-												colorSpecPtr, 
-												fileInfoPtr, 
-												paletteFileStreamPtr, 
-												displaySpecsPtr, 
-												classSymbolPtr, 
-												128, 
-												256, 
-												2,
-												paletteCodePtr);
-												
+					continueFlag = ReadOneBytePalette (colorSpecPtr,
+																	fileInfoPtr, 
+																	paletteFileStreamPtr, 
+																	displaySpecsPtr, 
+																	classSymbolPtr, 
+																	128, 
+																	256, 
+																	2,
+																	paletteCodePtr);
+					
 					CloseFile (paletteFileStreamPtr);
 					
-					UnlockSupportFileStream (
-										windowInfoHandle, supportHandleStatus);
-						
+					UnlockSupportFileStream (windowInfoHandle, supportHandleStatus);
 					break;
 				
 				case kSunScreenDumpType:
 					paletteFileStreamPtr = GetFileStreamPointer (fileInfoPtr);
-					continueFlag = ReadOneBytePalette (
-											colorSpecPtr, 
-											fileInfoPtr,
-											paletteFileStreamPtr, 
-											displaySpecsPtr, 
-											classSymbolPtr, 
-											32, 
-											256, 
-											1,
-											paletteCodePtr);
+					continueFlag = ReadOneBytePalette (colorSpecPtr,
+																	fileInfoPtr,
+																	paletteFileStreamPtr, 
+																	displaySpecsPtr, 
+																	classSymbolPtr, 
+																	32, 
+																	256, 
+																	1,
+																	paletteCodePtr);
 					break;
 				
 				case kTIFFType:
 				case kGeoTIFFType:
 					paletteFileStreamPtr = GetFileStreamPointer (fileInfoPtr);
-					continueFlag = ReadOneBytePalette (
-											colorSpecPtr, 
-											fileInfoPtr,
-											paletteFileStreamPtr, 
-											displaySpecsPtr, 
-											classSymbolPtr, 
-											fileInfoPtr->colorTableOffset, 
-											512, 
-											1,
-											paletteCodePtr);
+					continueFlag = ReadOneBytePalette (colorSpecPtr,
+																	fileInfoPtr,
+																	paletteFileStreamPtr, 
+																	displaySpecsPtr, 
+																	classSymbolPtr, 
+																	fileInfoPtr->colorTableOffset, 
+																	512, 
+																	1,
+																	paletteCodePtr);
 					break;
 				
 				case kImagineType:
-					continueFlag = ReadImagineClassPalette (
-											fileInfoPtr, 
-											colorSpecPtr, 
-											displaySpecsPtr, 
-											classSymbolPtr,
-											paletteCodePtr);
+					continueFlag = ReadImagineClassPalette (fileInfoPtr,
+																			colorSpecPtr, 
+																			displaySpecsPtr, 
+																			classSymbolPtr,
+																			paletteCodePtr);
 					break;
 					
 				case kArcViewDefaultSupportType:
@@ -3443,24 +3105,20 @@ Boolean LoadColorSpecTable (
 												
 					CloseFile (paletteFileStreamPtr);
 					
-					UnlockSupportFileStream (
-										windowInfoHandle, supportHandleStatus);
-					
+					UnlockSupportFileStream (windowInfoHandle, supportHandleStatus);
 					break;				
 
 				#if include_gdal_capability					
 					case kArcViewType:						
-						continueFlag = ReadGDALColorTable (
-												colorSpecPtr, 
-												fileInfoPtr, 
-												displaySpecsPtr, 
-												classSymbolPtr, 
-												paletteCodePtr);
+						continueFlag = ReadGDALColorTable (colorSpecPtr,
+																		fileInfoPtr, 
+																		displaySpecsPtr, 
+																		classSymbolPtr, 
+																		paletteCodePtr);
 						break;
 				#endif	// include_gdal_capability
 					
-				}		// end "switch (fileInfoPtr->ancillaryInfoformat)"
-		
+				}	// end "switch (fileInfoPtr->ancillaryInfoformat)"
 			break;
 			
 		case kDefaultColors:
@@ -3470,38 +3128,33 @@ Boolean LoadColorSpecTable (
 		case kMODIS_NDVI_Colors:
 		case kProbablilityColors:
 		case kProbablilityColors2:
-		case kPaletteHandle:
-			continueFlag = ReadPaletteFromResource (
-											fileInfoPtr, 
-											colorSpecPtr,
-											displaySpecsPtr,
-											channelThematicDisplayTypeFlag,
-											inputResourcePHandle,
-											inputPaletteOffset,
-											numPaletteEntriesUsed, 
-											classSymbolPtr, 
-											thematicPaletteType,
-											numberClasses,
-											classGroupCode,
-											paletteCodePtr);
+		case kPaletteHandle:	
+			continueFlag = ReadPaletteFromResource (fileInfoPtr,
+																	colorSpecPtr,
+																	displaySpecsPtr,
+																	channelThematicDisplayTypeFlag,
+																	inputResourcePHandle,
+																	inputPaletteOffset,
+																	numPaletteEntriesUsed, 
+																	classSymbolPtr, 
+																	thematicPaletteType,
+																	numberClasses,
+																	classGroupCode,
+																	paletteCodePtr);
 			break;
 			
 		case kFalseColors:
-			continueFlag = CreateFalseColorPalette (
-											fileInfoPtr, 
-											colorSpecPtr, 
-											classSymbolPtr,
-											numberClasses,
-											classGroupCode,
-											paletteCodePtr);
-		
+			continueFlag = CreateFalseColorPalette (fileInfoPtr,
+																	colorSpecPtr, 
+																	classSymbolPtr,
+																	numberClasses,
+																	classGroupCode,
+																	paletteCodePtr);
 			break;
 			
 		case kComputedGrays:
-			continueFlag = CreateGrayLevelPalette (
-											colorSpecPtr,
-											numberClasses);
-		
+			continueFlag = CreateGrayLevelPalette (colorSpecPtr,
+																numberClasses);
 			break;
 			
 		case kUserDefinedColors:
@@ -3509,18 +3162,17 @@ Boolean LoadColorSpecTable (
 			break;
 			
 		case kCopyColorsFromClassTable:
-			continueFlag = CopyColorsFromClassTableToGroupTable (
-												fileInfoPtr, 
-												colorSpecPtr,
-												displaySpecsPtr,
-												numPaletteEntriesUsed,
-												numberClasses,
-												paletteCodePtr);
-												
+			continueFlag = CopyColorsFromClassTableToGroupTable (fileInfoPtr,
+																					colorSpecPtr,
+																					displaySpecsPtr,
+																					numPaletteEntriesUsed,
+																					numberClasses,
+																					paletteCodePtr);
+			
 			displaySpecsPtr->thematicGroupPaletteType = kUserDefinedColors;
 			break;
 			
-		}		// end "switch (thematicPaletteType)"
+		}	// end "switch (thematicPaletteType)"
 				
 				// Unlock handles.
 	
@@ -3533,7 +3185,7 @@ Boolean LoadColorSpecTable (
 	
 	return (continueFlag);
 
-}		// end "LoadColorSpecTable"                                                    
+}	// end "LoadColorSpecTable"                                                    
 
 
 
@@ -3571,7 +3223,7 @@ void LoadDefaultProjectFalseColorChannels (void)
 					gProjectInfoPtr->falseColorPaletteGreen = 
 							gProjectInfoPtr->falseColorPaletteBlue = 0;				
 			
-			}		// end "if (...->numberStatisticsChannels == 1)" 
+			}	// end "if (...->numberStatisticsChannels == 1)" 
 		
 		else if (gProjectInfoPtr->numberStatisticsChannels == 2)		
 			{
@@ -3579,7 +3231,7 @@ void LoadDefaultProjectFalseColorChannels (void)
 			gProjectInfoPtr->falseColorPaletteGreen = 
 							gProjectInfoPtr->falseColorPaletteBlue = 0;		
 			
-			}		// end "else if (...->totalNumberChannels == 2)" 
+			}	// end "else if (...->totalNumberChannels == 2)" 
 			
 		else if (gProjectInfoPtr->numberStatisticsChannels == 3)
 			{
@@ -3587,7 +3239,7 @@ void LoadDefaultProjectFalseColorChannels (void)
 			gProjectInfoPtr->falseColorPaletteGreen = 1;
 			gProjectInfoPtr->falseColorPaletteBlue = 0;	
 			
-			}		// end "else if (...->numberStatisticsChannels == 3)" 
+			}	// end "else if (...->numberStatisticsChannels == 3)" 
 			
 		else if (gProjectInfoPtr->numberStatisticsChannels == 12)
 			{
@@ -3595,7 +3247,7 @@ void LoadDefaultProjectFalseColorChannels (void)
 			gProjectInfoPtr->falseColorPaletteGreen = 8;
 			gProjectInfoPtr->falseColorPaletteBlue = 6;
 			
-			}		// end "else if ...->numberStatisticsChannels == 12)" 
+			}	// end "else if ...->numberStatisticsChannels == 12)" 
 			
 		else if (gProjectInfoPtr->numberStatisticsChannels < 85)
 			{
@@ -3603,9 +3255,9 @@ void LoadDefaultProjectFalseColorChannels (void)
 			gProjectInfoPtr->falseColorPaletteGreen = 2;
 			gProjectInfoPtr->falseColorPaletteBlue = 1;
 			
-			}		// end "if (gProjectInfoPtr->numberStatisticsChannels < 85)" 
+			}	// end "if (gProjectInfoPtr->numberStatisticsChannels < 85)" 
 					
-		else		// gProjectInfoPtr->numberStatisticsChannels >= 85 
+		else	// gProjectInfoPtr->numberStatisticsChannels >= 85 
 			{
 					// Assume Imaging Spectrometer data.	
 					
@@ -3613,11 +3265,11 @@ void LoadDefaultProjectFalseColorChannels (void)
 			gProjectInfoPtr->falseColorPaletteGreen = 26;
 			gProjectInfoPtr->falseColorPaletteBlue = 16;	
 			
-			}		// end "else ...->numberStatisticsChannels >= 85" 
+			}	// end "else ...->numberStatisticsChannels >= 85" 
 				
-		}		// end "if (gProjectInfoPtr->falseColorPaletteRed < 0)"
+		}	// end "if (gProjectInfoPtr->falseColorPaletteRed < 0)"
 
-}		// end "LoadDefaultProjectFalseColorChannels" 
+}	// end "LoadDefaultProjectFalseColorChannels" 
 
 
 
@@ -3651,23 +3303,22 @@ void LoadDefaultProjectFalseColorChannels (void)
 //	Revised By:			Larry L. Biehl			Date: 04/30/2013	
 
 void LoadTwoBytePalette (
-				ColorSpec*								colorSpecPtr, 
-				FileInfoPtr								imageFileInfoPtr, 
-				DisplaySpecsPtr						displaySpecsPtr, 
-				UInt16*									classSymbolPtr, 
-				UInt16*									paletteCodePtr,
-				UInt32									colorVectorLength,
-				UInt16*									vectorBluePtr,
-				UInt16*									vectorGreenPtr,
-				UInt16*									vectorRedPtr)
+				ColorSpec*							colorSpecPtr,
+				FileInfoPtr							imageFileInfoPtr,
+				DisplaySpecsPtr					displaySpecsPtr,
+				UInt16*								classSymbolPtr,
+				UInt16*								paletteCodePtr,
+				UInt32								colorVectorLength,
+				UInt16*								vectorBluePtr,
+				UInt16*								vectorGreenPtr,
+				UInt16*								vectorRedPtr)
 
 {
 	SInt16								*classToGroupPtr,
 											*groupToPalettePtr;
 	
 	UInt32								index,
-											inputIndex; 
-//											startIndex;
+											inputIndex;
 	
 	SInt16								entry;
 	
@@ -3678,48 +3329,28 @@ void LoadTwoBytePalette (
 	
 	entry = 1;
 	
-		// Get the number of classes.  If the number of classes is 		
-		// more than 254 then set the number of colors to be read from 
-		// the color table file to 254.  This is so that there is 		
-		// space in the 256 entry palette for white and black.			
-		// Note that if there is less that 254 classes then space is 	
-		// allowed for a background color.	If there is 254 classes or 
-		//	more then the background color is forced to be white.		
-		// The palette specified by colorSpecsPtr is limited to 256 colors.		
+			// Get the number of classes.  If the number of classes is
+			// more than 254 then set the number of colors to be read from 
+			// the color table file to 254.  This is so that there is 		
+			// space in the 256 entry palette for white and black.			
+			// Note that if there is less that 254 classes then space is 	
+			// allowed for a background color.	If there is 254 classes or 
+			//	more then the background color is forced to be white.		
+			// The palette specified by colorSpecsPtr is limited to 256 colors.		
 	
-		//	numberLevels = (UInt16)MIN(254, displaySpecsPtr->numberPaletteLevels);
 	numberLevels = MIN (256, (UInt16)displaySpecsPtr->numberPaletteLevels);
 	
 	classCodeFlag = (displaySpecsPtr->classGroupCode == kClassDisplay);
 	
-		// Get the class to group pointer if needed.							
+			// Get the class to group pointer if needed.
 	
 	if (!classCodeFlag)
 		{		
 		classToGroupPtr = GetClassToGroupPointer (imageFileInfoPtr);
 		groupToPalettePtr = GetGroupToPalettePointer (imageFileInfoPtr);
 			
-		}		// end "if (!classCodeFlag)"
+		}	// end "if (!classCodeFlag)"
 	
-		// If there are more than 255 classes, then check if the 		
-		// first color in the palette is white.  If so skip it, 			
-		// since white has already been loaded in.							
-
-//	startIndex = 0;
-/*	if (displaySpecsPtr->numberPaletteLevels >= 255)
-		{
-		if (vectorRedPtr[0] >= 65280 && 
-			 vectorGreenPtr[0] >= 65280 && 
-			 vectorBluePtr[0] >= 65280)
-			{
-			startIndex = 1;
-			numberLevels++;
-			*paletteCodePtr |= 0x0001;
-			
-			}		// end "if (vectorRedPtr[0] >= 65280 && ..." 
-		
-		}		// end "if (...->numberPaletteLevels >= 255 )" 
-*/
 	for (index=0; index<numberLevels; index++)
 		{
 		if (classSymbolPtr != NULL)
@@ -3727,17 +3358,17 @@ void LoadTwoBytePalette (
 			if (classCodeFlag)
 				inputIndex = classSymbolPtr[index];
 				
-			else		// !classCodeFlag
+			else	// !classCodeFlag
 				{ 
 				inputIndex = classToGroupPtr[index];
 				inputIndex = groupToPalettePtr[inputIndex];
 				inputIndex = classSymbolPtr[inputIndex];
 					
-				}		// end "else  !classCodeFlag"
+				}	// end "else  !classCodeFlag"
 			
-			}		// end "if (classSymbolPtr != NULL)"
+			}	// end "if (classSymbolPtr != NULL)"
 		
-		else		// classSymbolPtr == NULL
+		else	// classSymbolPtr == NULL
 			inputIndex = index;
 		
 		if (inputIndex >= colorVectorLength)
@@ -3749,7 +3380,8 @@ void LoadTwoBytePalette (
 		colorSpecPtr->rgb.green = vectorGreenPtr[inputIndex];
 		colorSpecPtr->rgb.blue  = vectorBluePtr[inputIndex];
 		
-/* Start test code									
+		/* 
+		Start test code
 				// List the palette to the text window. This is for testing.
 				
 		char									string[256];		// for testing only
@@ -3762,46 +3394,29 @@ void LoadTwoBytePalette (
 		blue = colorSpecPtr->rgb.blue/256;
 										
 		sprintf (string, "%d %3d %3d %3d%s",
-						inputIndex,
-						red,
-						green,
-						blue,
-						gEndOfLine);
+					inputIndex,
+					red,
+					green,
+					blue,
+					gEndOfLine);
 						
 		OutputString ((CMFileStream*)NULL,
-											string, 
-											0, 
-											gOutputForce1Code,
-											TRUE);
-// End test code.
-*/				
+							string,
+							0, 
+							gOutputForce1Code,
+							TRUE);
+		// End test code.
+		*/
 		colorSpecPtr++;
 		entry++; 
 		
-		}		// end "for (index=0; index<numberLevels; index++)"
-/*
-			// If there are more than 255 classes, then check if the 		
-			// last color in the palette is black.  If so indicate			
-			// that the last black color will be used to display				
-			// the class.																	
+		}	// end "for (index=0; index<numberLevels; index++)"
 
-	if (numberLevels < colorVectorLength &&
-		 displaySpecsPtr->numberPaletteLevels > 
-		 displaySpecsPtr->numPaletteEntriesUsed &&
-		 displaySpecsPtr->numberPaletteLevels == 256)
-		{
-		if (vectorRedPtr[numberLevels] == 0 && 
-			 vectorGreenPtr[numberLevels] == 0 && 
-			 vectorBluePtr[numberLevels] == 0)
-			*paletteCodePtr |= 0x0002;
-			
-		}		// end "if (...->numberPaletteLevels > ... )" 
-*/
-		// Unlock the class to group handle in case it is locked.		
+		// Unlock the class to group handle in case it is locked.
 
 	UnlockGroupTablesHandle (imageFileInfoPtr); 	
 
-}		// end "LoadTwoBytePalette"                                                 
+}	// end "LoadTwoBytePalette"                                                 
 
 
 
@@ -3833,7 +3448,7 @@ void MDisposePalette (
 	if (paletteObject != NULL)
 		{   
 		#if defined multispec_mac             		                                             
-			DisposePalette ( paletteObject );		
+			DisposePalette (paletteObject);		
 		#endif	// defined multispec_mac
 				
 				      
@@ -3842,12 +3457,12 @@ void MDisposePalette (
 		#endif	// defined multispec_win 
 		
 		#if defined multispec_lin
-			wxDELETE(paletteObject);
+			wxDELETE (paletteObject);
 		#endif
 
-		}		// end "if (paletteObject != NULL)"              
+		}	// end "if (paletteObject != NULL)"              
 
-}		// end "MDisposePalette"                                                       
+}	// end "MDisposePalette"                                                       
 
 
 
@@ -3886,7 +3501,7 @@ void MGetEntryColor (
 	#if defined multispec_win	
 		PALETTEENTRY		paletteEntry; 
 		                           
-		paletteObject->GetPaletteEntries(entry, 1, &paletteEntry); 
+		paletteObject->GetPaletteEntries (entry, 1, &paletteEntry); 
 	               
 		theColorPtr->red = (UInt16)(paletteEntry.peRed << 8);
 		theColorPtr->green = (UInt16)(paletteEntry.peGreen << 8);
@@ -3895,7 +3510,7 @@ void MGetEntryColor (
 
    #if defined multispec_lin
       unsigned char red,green,blue;
-      paletteObject->GetRGB(entry, &red, &green, &blue);
+      paletteObject->GetRGB (entry, &red, &green, &blue);
       //theColorPtr->red = (UInt16) (red << 8);
       //theColorPtr->green = (UInt16) (green << 8);
       //theColorPtr->blue = (UInt16) (blue << 8);    
@@ -3904,7 +3519,7 @@ void MGetEntryColor (
       theColorPtr->blue = (UInt16)blue;      
    #endif
 
-}		// end "MGetEntryColor"                                                       
+}	// end "MGetEntryColor"                                                       
 
 
 
@@ -3936,19 +3551,19 @@ SInt16 MGetNumberPaletteEntries (
 	if (paletteObject != NULL)
 		{       
 		#if defined multispec_mac             		                                             
-			return ( (*paletteObject)->pmEntries );		
+			return ((*paletteObject)->pmEntries);		
 		#endif	// defined multispec_mac
 				
 				      
       #if defined multispec_win	|| defined multispec_lin		                           
-			return (paletteObject->GetNumberPaletteEntries());		   
+			return (paletteObject->GetNumberPaletteEntries ());		   
 		#endif	// defined multispec_win 
 		
-		}		// end "if (paletteObject != NULL)"
+		}	// end "if (paletteObject != NULL)"
 		
 	return (NULL);  
 	
-}		// end "MGetNumberPaletteEntries" 
+}	// end "MGetNumberPaletteEntries" 
                                                                   
 
 
@@ -3986,7 +3601,6 @@ Boolean MNewPalette (
 		
 		continueFlag = (*paletteObjectPtr != NULL);	
 	#endif	// defined multispec_mac
-			
 			      
 	#if defined multispec_win	   
 		LOGPALETTE*		logicalPalettePtr; 
@@ -3999,29 +3613,29 @@ Boolean MNewPalette (
 			*paletteObjectPtr = new CMPalette;
 			
 			if (*paletteObjectPtr == NULL)
-																					return (FALSE);
+																							return (FALSE);
 																					
-			}		// end "if (*paletteObjectPtr == NULL)"
+			}	// end "if (*paletteObjectPtr == NULL)"
 		
 		
-		logicalPalettePtr = (LOGPALETTE*)MNewPointer(
-							sizeof(LOGPALETTE) + sizeof(PALETTEENTRY) );
+		logicalPalettePtr = (LOGPALETTE*)MNewPointer (
+							sizeof (LOGPALETTE) + sizeof (PALETTEENTRY));
 							
 		if (logicalPalettePtr == NULL)
-																					return (FALSE);
+																							return (FALSE);
 																					
-		(*paletteObjectPtr)->SetNumberPaletteEntries(1);										
-		logicalPalettePtr->palNumEntries = (*paletteObjectPtr)->GetNumberPaletteEntries();
+		(*paletteObjectPtr)->SetNumberPaletteEntries (1);										
+		logicalPalettePtr->palNumEntries =
+												(*paletteObjectPtr)->GetNumberPaletteEntries ();
 		logicalPalettePtr->palVersion = 0x300;
 		logicalPalettePtr->palPalEntry->peRed = 255;
 		logicalPalettePtr->palPalEntry->peGreen = 255;
 		logicalPalettePtr->palPalEntry->peBlue = 255;
 		logicalPalettePtr->palPalEntry->peFlags = 0;
 		
-		continueFlag = 
-				(*paletteObjectPtr)->CPalette::CreatePalette (logicalPalettePtr);
+		continueFlag = (*paletteObjectPtr)->CPalette::CreatePalette (logicalPalettePtr);
 		
-		CheckAndDisposePtr ( (Ptr)logicalPalettePtr ); 
+		CheckAndDisposePtr ((Ptr)logicalPalettePtr); 
 		  
 					// Now resize to the requested number of entries.
 			
@@ -4030,30 +3644,33 @@ Boolean MNewPalette (
 			
 		if (continueFlag)
 			{
-			(*paletteObjectPtr)->SetNumberPaletteEntries(numberEntries);
+			(*paletteObjectPtr)->SetNumberPaletteEntries (numberEntries);
 			
 					// Indicate that a palette does exist
 					
 			(*paletteObjectPtr)->mPaletteObject = (PaletteHandle)1;
 			
-			}		// end "if (continueFlag)"	   
+			}	// end "if (continueFlag)"	   
 	#endif	// defined multispec_win  
 	                    
-   #if defined multispec_lin
-		if (*paletteObjectPtr == NULL) {
-			// Get new palette class.
+   #if defined multispec_lin	
+		if (*paletteObjectPtr == NULL)
+			{
+					// Get new palette class.
 
-			*paletteObjectPtr = new CMPalette(numberEntries);
+			*paletteObjectPtr = new CMPalette (numberEntries);
 
 			if (*paletteObjectPtr == NULL)
-				return (FALSE);
+																							return (FALSE);
 
-			} // end "if (*paletteObjectPtr == NULL)"
+			}	// end "if (*paletteObjectPtr == NULL)"
+	
 		return (TRUE);
-   #endif
+   #endif	// defined multispec_lin
+	
 	return (continueFlag);
 	
-}		// end "MNewPalette"                                                        
+}	// end "MNewPalette"                                                        
 
 
 
@@ -4086,7 +3703,7 @@ void MSetEntryColor (
 
 {          
 	#if defined multispec_mac             	                                             
-		::SetEntryColor(paletteObject, entry, theColorPtr);	
+		::SetEntryColor (paletteObject, entry, theColorPtr);	
 	#endif	// defined multispec_mac
 			
 	#if defined multispec_win	
@@ -4096,69 +3713,87 @@ void MSetEntryColor (
 		paletteEntry.peRed = (UInt8)(theColorPtr->red >> 8);
 		paletteEntry.peGreen = (UInt8)(theColorPtr->green >> 8);
 		paletteEntry.peBlue = (UInt8)(theColorPtr->blue >> 8);
-//		paletteEntry.peFlags = PC_NOCOLLAPSE + PC_RESERVED; 
+		//paletteEntry.peFlags = PC_NOCOLLAPSE + PC_RESERVED;
 		paletteEntry.peFlags = PC_RESERVED; 
-//		paletteEntry.peFlags = 0; 
+		//paletteEntry.peFlags = 0;
 		                           
-		paletteObject->SetPaletteEntries(entry, 1, &paletteEntry);	   
+		paletteObject->SetPaletteEntries (entry, 1, &paletteEntry);	   
 	#endif	// defined multispec_win
 
 	#if defined multispec_lin
 		 bool continueFlag;
-		 UInt16 numberColors = paletteObject->GetNumberPaletteEntries();
-		 //UInt16 numberColors = paletteObject->GetColoursCount();
-		 if(entry < numberColors)
+		 UInt16 numberColors = paletteObject->GetNumberPaletteEntries ();
+		 //UInt16 numberColors = paletteObject->GetColoursCount ();
+		 if (entry < numberColors)
 			{
 			UInt8 redp[numberColors];
 			UInt8 greenp[numberColors];
 			UInt8 bluep[numberColors];
-			for (int index = 0; index < numberColors; index++) {
-				continueFlag = paletteObject->GetRGB(index,&redp[index],&greenp[index],&bluep[index]);
-				} // end "for (index=0; index<numberColors; index++)"
+			for (int index = 0; index < numberColors; index++)
+				{
+				continueFlag = paletteObject->GetRGB (index,
+																	&redp[index],
+																	&greenp[index],
+																	&bluep[index]);
+				
+				}	// end "for (index=0; index<numberColors; index++)"
 			 
-				// Now make changes in the palette
-			if(continueFlag){
+					// Now make changes in the palette
+			
+			if (continueFlag)
+				{
 				//redp[entry] = (UInt8)(theColorPtr->red >> 8);
 				//greenp[entry] = (UInt8)(theColorPtr->green >> 8);
 				//bluep[entry] = (UInt8)(theColorPtr->blue >> 8);
 				redp[entry] = (UInt8)theColorPtr->red;
 				greenp[entry] = (UInt8)theColorPtr->green;
 				bluep[entry] = (UInt8)theColorPtr->blue;
-				paletteObject->Create(numberColors,redp,greenp,bluep);
+				paletteObject->Create (numberColors,redp,greenp,bluep);
 
-				}
-			}		// end if(entry < numberColors)
+				}	// end "if (continueFlag)"
+			
+			}	// end if (entry < numberColors)
 		
 		else	// entry >= numberColors
 			{
 			UInt8 redp[entry];
 			UInt8 greenp[entry];
 			UInt8 bluep[entry];
-			for (int index = 0; index < numberColors; index++) {
-				continueFlag = paletteObject->GetRGB(index,&redp[index],&greenp[index],&bluep[index]);
-				} // end "for (index=0; index<numberColors; index++)"
+			for (int index = 0; index < numberColors; index++)
+				{
+				continueFlag = paletteObject->GetRGB (index,
+																	&redp[index],
+																	&greenp[index],
+																	&bluep[index]);
+				
+				}	// end "for (index=0; index<numberColors; index++)"
 			
-			for (int index = numberColors; index < (entry+1); index++) {
+			for (int index = numberColors; index < (entry+1); index++)
+				{
 				redp[index] = 255;
 				greenp[index] = 255;
 				bluep[index] = 255;
-				} // end "for (index=0; index<numberColors; index++)"
+				
+				}	// end "for (index=0; index<numberColors; index++)"
 				
 					// Now make changes in the palette
 					
-			if(continueFlag){
+			if (continueFlag)
+				{
 				//redp[entry] = (UInt8)(theColorPtr->red >> 8);
 				//greenp[entry] = (UInt8)(theColorPtr->green >> 8);
 				//bluep[entry] = (UInt8)(theColorPtr->blue >> 8);
 				redp[entry] = (UInt8)theColorPtr->red;
 				greenp[entry] = (UInt8)theColorPtr->green;
 				bluep[entry] = (UInt8)theColorPtr->blue;
-				paletteObject->Create((entry+1),redp,greenp,bluep);
-				}
-			}		// end "else entry >= numberColors"
-	#endif
+				paletteObject->Create ((entry+1),redp,greenp,bluep);
+				
+				}	// end "if (continueFlag)"
+			
+			}	// end "else entry >= numberColors"
+	#endif	// defined multispec_lin
 
-}		// end "MSetEntryColor" 
+}	// end "MSetEntryColor" 
                                                                   
 
 
@@ -4181,7 +3816,7 @@ void MSetEntryColor (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 04/27/1995
-//	Revised By:			Larry L. Biehl			Date: 04/27/1995	
+//	Revised By:			Larry L. Biehl			Date: 09/09/2017
 
 Boolean MVerifyPaletteSize (
 				CMPaletteInfo						paletteObject,
@@ -4191,21 +3826,24 @@ Boolean MVerifyPaletteSize (
 	#if defined multispec_mac                                     							
 		if ((*paletteObject)->pmEntries != numberEntries)
 			{
-	//		SetPalette (window, NULL ,FALSE);
-	//		DisposePalette (displaySpecsPtr->paletteObject);
-	//		displaySpecsPtr->paletteObject = NULL;
-						
+			//SetPalette (window, NULL ,FALSE);
+			//DisposePalette (displaySpecsPtr->paletteObject);
+			//displaySpecsPtr->paletteObject = NULL;
+			
 					// Use this routine when new routines can be accessed.	
 								 
 			::ResizePalette (paletteObject, numberEntries); 
 						
-			}		// end "if ( *(displaySpecsPtr->paletteObject)->pmEntries..."
+			}	// end "if (*(displaySpecsPtr->paletteObject)->pmEntries..."
 		
-		return ((*paletteObject)->pmEntries == numberEntries );		 
+		return ((*paletteObject)->pmEntries == numberEntries);
 	#endif	// defined multispec_mac
-			
 			      
-	#if defined multispec_win	
+	#if defined multispec_mac_swift
+		return (FALSE);
+	#endif	// defined multispec_mac_swift
+	
+	#if defined multispec_win
 		Boolean		continueFlag;
 		
 		
@@ -4218,26 +3856,33 @@ Boolean MVerifyPaletteSize (
 	#endif	// defined multispec_win  
 
    #if defined multispec_lin
-    Boolean continueFlag;
-    if(paletteObject != NULL && paletteObject->GetNumberPaletteEntries() == numberEntries)
-       return true;
-    
-    UInt16 redIndex, greenIndex, blueIndex;
-    UInt8 redpalette[numberEntries];
-    UInt8 greenpalette[numberEntries];
-    UInt8 bluepalette[numberEntries];
-      
-    for (int index = 0; index < numberEntries; index++) {
-        redpalette[index] = (UInt8) (255);
-        greenpalette[index] = (UInt8) (255);
-        bluepalette[index] = (UInt8) (255);
-    } // end "for (index=0; index<numberColors; index++)"
-    paletteObject->SetNumberPaletteEntries((UInt16) numberEntries);
-    continueFlag = paletteObject->Create(numberEntries, redpalette, greenpalette, bluepalette);
-    return continueFlag;
+		Boolean continueFlag;
+		if (paletteObject != NULL &&
+								paletteObject->GetNumberPaletteEntries () == numberEntries)
+																							return (true);
+
+		UInt16 redIndex, greenIndex, blueIndex;
+		UInt8 redpalette[numberEntries];
+		UInt8 greenpalette[numberEntries];
+		UInt8 bluepalette[numberEntries];
+
+		for (int index = 0; index < numberEntries; index++)
+			{
+			redpalette[index] = (UInt8)(255);
+			greenpalette[index] = (UInt8)(255);
+			bluepalette[index] = (UInt8)(255);
+			
+			}	// end "for (index=0; index<numberColors; index++)"
+	
+		paletteObject->SetNumberPaletteEntries ((UInt16) numberEntries);
+		continueFlag = paletteObject->Create (numberEntries,
+															redpalette,
+															greenpalette,
+															bluepalette);
+		return (continueFlag);
    #endif
       
-}		// end "MVerifyPaletteSize" 
+}	// end "MVerifyPaletteSize" 
                                                                   
 
 
@@ -4260,7 +3905,7 @@ Boolean MVerifyPaletteSize (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 11/06/1995
-//	Revised By:			Larry L. Biehl			Date: 12/01/2006	
+//	Revised By:			Larry L. Biehl			Date: 09/09/2017
 
 Boolean PaletteExists (
 				CMPaletteInfo						paletteObject)
@@ -4269,7 +3914,10 @@ Boolean PaletteExists (
 	#if defined multispec_mac 
 		return (paletteObject != NULL);
 	#endif	// defined multispec_mac
-			
+	
+	#if defined multispec_mac_swift
+		return (FALSE);
+	#endif	// defined multispec_mac_swift
 			      
 	#if defined multispec_win 
 	   Boolean			paletteExistsFlag = FALSE;
@@ -4278,19 +3926,20 @@ Boolean PaletteExists (
 			paletteExistsFlag = TRUE;
 
 		return (paletteExistsFlag); 
-	#endif	// defined multispec_win 
+	#endif	// defined multispec_win
+	
    #if defined multispec_lin
-    Boolean paletteExistsFlag = FALSE;
-	 
-    if (paletteObject != NULL && paletteObject->mPaletteObject != 0)
-        paletteExistsFlag = TRUE;
-    else // It does not exist. Make sure its NULL
-       paletteObject = NULL;
+		Boolean paletteExistsFlag = FALSE;
 
-    return (paletteExistsFlag);
+		if (paletteObject != NULL && paletteObject->mPaletteObject != 0)
+			paletteExistsFlag = TRUE;
+		else // It does not exist. Make sure its NULL
+			paletteObject = NULL;
+
+		return (paletteExistsFlag);
    #endif
 
-}		// end "PaletteExists"
+}	// end "PaletteExists"
 
 
 
@@ -4355,10 +4004,8 @@ Boolean ReadOneBytePalette (
 	Boolean								closeFileAtEnd;
 											
 	#if defined multispec_mac			
-		#if !TARGET_API_MAC_CARBON	
-		
+		#if !TARGET_API_MAC_CARBON
 			Boolean								writePaletteToResourceFile = FALSE;
-			
 		#endif	// !TARGET_API_MAC_CARBON				
 	#endif	// defined multispec_mac  
 
@@ -4367,13 +4014,13 @@ Boolean ReadOneBytePalette (
 				displaySpecsPtr == NULL || 
 					colorSpecPtr == NULL ||
 						imageFileInfoPtr == NULL)
-																		return (FALSE);
+																						return (FALSE);
 	
 			// Check that there is a valid class to group handle if needed.		
 			
 	if (displaySpecsPtr->classGroupCode != kClassDisplay && 
 									imageFileInfoPtr->groupTablesHandle == NULL)
-																				return (FALSE);
+																						return (FALSE);
 																				
 			// If the file is not open, then open a path to the file that			
 			// contains the palette. The OpenFileReadOnly routine will
@@ -4381,19 +4028,19 @@ Boolean ReadOneBytePalette (
 		
 	errCode = noErr;
 	closeFileAtEnd = FALSE;
-	if (!FileOpen(paletteFileStreamPtr) )
+	if (!FileOpen (paletteFileStreamPtr))
 		{
 		errCode = OpenFileReadOnly (paletteFileStreamPtr, 
-											kDontResolveAliasChains, 
-											kLockFile, 
-											kDoNotVerifyFileStream);
+												kDontResolveAliasChains,
+												kLockFile, 
+												kDoNotVerifyFileStream);
 	
 		IOCheck (errCode, paletteFileStreamPtr);
 		
 		if (errCode == noErr)
 			closeFileAtEnd = TRUE;
 			
-		}		// end "if ( !FileOpen(paletteFileStreamPtr) )"
+		}	// end "if (!FileOpen (paletteFileStreamPtr))"
 		
 			// Continue if okay.																	
 
@@ -4409,11 +4056,11 @@ Boolean ReadOneBytePalette (
 			
 					// Get the number of bytes to read.
 						
-			count = MIN(256, paletteOffset); 
+			count = MIN (256, paletteOffset); 
 			
-			}		// end "if (...->colorTableValueBytes == 1)" 
+			}	// end "if (...->colorTableValueBytes == 1)" 
 			
-		else		// imageFileInfoPtr->colorTableValueBytes != 1 
+		else	// imageFileInfoPtr->colorTableValueBytes != 1 
 			{
 			tempVector1Ptr = (unsigned char*)vector1Ptr;
 			tempVector2Ptr = (unsigned char*)vector2Ptr;
@@ -4421,9 +4068,9 @@ Boolean ReadOneBytePalette (
 			
 					// Get the number of bytes to read.
 						
-			count = MIN(512, paletteOffset); 
+			count = MIN (512, paletteOffset); 
 			
-			}		// end "else ...->colorTableValueBytes != 1" 
+			}	// end "else ...->colorTableValueBytes != 1" 
 	
 				// Read the colors for the classes from the file.						
 				// Read the values for the first color										
@@ -4437,11 +4084,11 @@ Boolean ReadOneBytePalette (
 		if (errCode == noErr)
 			{                    
 			errCode = MReadData (paletteFileStreamPtr, 
-											&count, 
-											tempVector1Ptr,
-											kErrorMessages);
+										&count,
+										tempVector1Ptr,
+										kErrorMessages);
 			
-			}		// end "if (errCode == noErr)" 
+			}	// end "if (errCode == noErr)" 
 		
 				// Read the values for the second color.									
   	
@@ -4449,11 +4096,11 @@ Boolean ReadOneBytePalette (
   			{
 			posOff += paletteOffset;                                     
 			errCode = MSetMarker (paletteFileStreamPtr, 
-										fsFromStart, 
-										posOff,
-										kErrorMessages);
+											fsFromStart,
+											posOff,
+											kErrorMessages);
 			
-			}		// end "if (errCode == noErr)" 
+			}	// end "if (errCode == noErr)" 
 	
   		if (errCode == noErr)
   			{                                                              
@@ -4462,7 +4109,7 @@ Boolean ReadOneBytePalette (
 											tempVector2Ptr,
 											kErrorMessages);
 			
-			}		// end "if (errCode == noErr)" 
+			}	// end "if (errCode == noErr)" 
 		
 				// Read the values for the third color.									
   	
@@ -4470,84 +4117,51 @@ Boolean ReadOneBytePalette (
   			{
 			posOff += paletteOffset;                                      
 			errCode = MSetMarker (paletteFileStreamPtr, 
-										fsFromStart, 
-										posOff,
-										kErrorMessages);
+											fsFromStart,
+											posOff,
+											kErrorMessages);
 			
-			}		// end "if (errCode == noErr)" 
+			}	// end "if (errCode == noErr)" 
 	
   		if (errCode == noErr)
   			{                                                              
 			errCode = MReadData (paletteFileStreamPtr, 
-											&count, 
-											tempVector3Ptr,
-											kErrorMessages);
+										&count, 
+										tempVector3Ptr,
+										kErrorMessages);
 			
-			}		// end "if (errCode == noErr)" 
+			}	// end "if (errCode == noErr)" 
 			
 				// Loop for the number of classes.  Convert one byte value to		
 				// a two byte value.																
 				
   		if (errCode == noErr)
   			{
-/*  			entry = 1;
-		
-					// Get the number of classes.  If the number of classes is 		
-					// more than 254 then set the number of colors to be read from 
-					// the color table file to 254.  This is so that there is 		
-					// space in the 256 entry palette for white and black.			
-					// Note that if there is less that 254 classes then space is 	
-					// allowed for a background color.	If there is 254 classes or 
-					//	more then the background color is forced to be white.				
-					
-			numberLevels = (UInt16)MIN(254, displaySpecsPtr->numberPaletteLevels);
-//			if (displaySpecsPtr->numberPaletteLevels > 253)
-//				displaySpecsPtr->numPaletteEntriesUsed++;
-	
-			classCodeFlag = (displaySpecsPtr->classGroupCode == kClassDisplay);
-		
-					// Get the class to group pointer if needed.							
-			
-			if (!classCodeFlag)
-				{		
-				classToGroupPtr = GetClassToGroupPointer (imageFileInfoPtr);
-				groupToPalettePtr = GetGroupToPalettePointer (imageFileInfoPtr);
-				
-				}		// end "if (!classCodeFlag)" 
-*/				
-					// Make certain that the color table is stored in a two-byte	
-					// format.																		
+					// Make certain that the color table is stored in a two-byte format.
 				
 			if (imageFileInfoPtr->colorTableValueBytes == 1)
 				{
-						// 'count' is the number of entries read in the color 		
-						// table.																	
+						// 'count' is the number of entries read in the color table.
 					
 				for (index=0; index<count; index++)
 					{
 					#if defined multispec_mac || defined multispec_win
-						vector1Ptr[index]   =
-				 					(unsigned short int)tempVector1Ptr[index] * 256;
-						vector2Ptr[index]   = 
-									(unsigned short int)tempVector2Ptr[index] * 256;
-						vector3Ptr[index]  = 
-									(unsigned short int)tempVector3Ptr[index] * 256;
+						vector1Ptr[index] = (UInt16)tempVector1Ptr[index] * 256;
+						vector2Ptr[index] = (UInt16)tempVector2Ptr[index] * 256;
+						vector3Ptr[index] = (UInt16)tempVector3Ptr[index] * 256;
 					#endif	// defined multispec_mac || defined multispec_win
 					
 					#if defined multispec_lin
-						vector1Ptr[index]   =
-				 					(unsigned short int)tempVector1Ptr[index];
-						vector2Ptr[index]   = 
-									(unsigned short int)tempVector2Ptr[index];
-						vector3Ptr[index]  = 
-									(unsigned short int)tempVector3Ptr[index];
+						vector1Ptr[index] = (UInt16)tempVector1Ptr[index];
+						vector2Ptr[index] = (UInt16)tempVector2Ptr[index];
+						vector3Ptr[index] = (UInt16)tempVector3Ptr[index];
 					#endif	// defined multispec_lin
 				
-					}		// end "for (index=0; index<=numberColors; index++)" 
+					}	// end "for (index=0; index<=numberColors; index++)" 
 				
-				}		// end "if (...->colorTableValueBytes == 1)" 
+				}	// end "if (...->colorTableValueBytes == 1)" 
 				
-			else		// imageFileInfoPtr->colorTableValueBytes != 1 
+			else	// imageFileInfoPtr->colorTableValueBytes != 1 
 				{
 						// Swap the bytes if needed.											
 						
@@ -4561,17 +4175,16 @@ Boolean ReadOneBytePalette (
 						vector2Ptr[index] = Swap2Bytes (vector2Ptr[index]);
 						vector3Ptr[index] = Swap2Bytes (vector3Ptr[index]);
 					
-						}		// end "for (index=0; index<=numberColors; index++)" 
+						}	// end "for (index=0; index<=numberColors; index++)" 
 				
-					}		// end "if (imageFileInfoPtr->swapColorTableBytes)" 
+					}	// end "if (imageFileInfoPtr->swapColorTableBytes)" 
 					
-				}		// end "else ...->colorTableValueBytes != 1" 
+				}	// end "else ...->colorTableValueBytes != 1" 
 					
 						// Set up the char string pointers relative to the order	of	
 						// the colors.																
 						
-  			if (colorOrder == 1)		// For Sun Screen Dump and TIFF type 			
-  											// files.												
+  			if (colorOrder == 1)		// For Sun Screen Dump and TIFF type  files.												
   				{
   						// Order of colors is Red, Green, Blue.							
 					
@@ -4579,9 +4192,9 @@ Boolean ReadOneBytePalette (
 				green2ByteStringPtr = vector2Ptr;
 				blue2ByteStringPtr = vector3Ptr;
 				
-				}		// end "if (colorOrder == 1)" 
+				}	// end "if (colorOrder == 1)" 
 				
-			else		// colorOrder == 2 
+			else	// colorOrder == 2 
 				{
   						// Order of colors is Green, Red, Blue.							
 					
@@ -4589,7 +4202,7 @@ Boolean ReadOneBytePalette (
 				green2ByteStringPtr = vector1Ptr;
 				blue2ByteStringPtr = vector3Ptr;
   						
-  				}		// end "else colorOrder == 2" 
+  				}	// end "else colorOrder == 2" 
 			
 			LoadTwoBytePalette (colorSpecPtr, 
 										imageFileInfoPtr, 
@@ -4600,84 +4213,11 @@ Boolean ReadOneBytePalette (
 										blue2ByteStringPtr,
 										green2ByteStringPtr,
 										red2ByteStringPtr);
-	  				
-/*  					// If there are more than 255 classes, then check if the 		
-  					// first color in the palette is white.  If so skip it, 			
-  					// since white has already been loaded in.							
-  			
-  			startIndex = 0;
-  			if (displaySpecsPtr->numberPaletteLevels >= 255 )
-  				{
-  				if (red2ByteStringPtr[0] >= 65280 && 
-  								green2ByteStringPtr[0] >= 65280 && 
-  											blue2ByteStringPtr[0] >= 65280)
-  					{
-  					startIndex = 1;
-  					numberLevels++;
-  					*paletteCodePtr |= 0x0001;
-  					
-  					}		// end "if ( red2ByteStringPtr[0] >= 65280 && ..." 
-  					
-  				}		// end "if (...->numberPaletteLevels >= 255 )" 
-	  				
-			for (index=startIndex; index<numberLevels; index++)
-				{
-				if (classSymbolPtr != NULL)
-					{
-					if (classCodeFlag)
-						inputIndex = classSymbolPtr[index];
-						
-					else		// !classCodeFlag
-						{ 
-						inputIndex = classToGroupPtr[index];
-						inputIndex = groupToPalettePtr[inputIndex];
-						inputIndex = classSymbolPtr[inputIndex];
-						
-						}		// end "else  !classCodeFlag"
-						
-					}		// end "if (classSymbolPtr != NULL)"
-					
-				else		// classSymbolPtr == NULL
-					inputIndex = index;
-	
-				colorSpecPtr->value     = entry;
-				
-				colorSpecPtr->rgb.red   = red2ByteStringPtr[inputIndex];
-				colorSpecPtr->rgb.green = green2ByteStringPtr[inputIndex];
-				colorSpecPtr->rgb.blue  = blue2ByteStringPtr[inputIndex];
-				
-				colorSpecPtr++;
-				entry++;
-				
-				}		// end "for (index=0; index<=numberColors; index++)" 
-	  				
-  					// If there are more than 255 classes, then check if the 		
-  					// last color in the palette is black.  If so indicate			
-  					// that the last black color will be used to display				
-  					// the class.																	
-  			
-  			if (numberLevels < count &&
-  						displaySpecsPtr->numberPaletteLevels > 
-  											displaySpecsPtr->numPaletteEntriesUsed &&
-  						displaySpecsPtr->numberPaletteLevels == 256)
-  				{
-  				if ( red2ByteStringPtr[numberLevels] == 0 && 
-  								green2ByteStringPtr[numberLevels] == 0 && 
-  											blue2ByteStringPtr[numberLevels] == 0)
-  					*paletteCodePtr |= 0x0002;
-//					displaySpecsPtr->numPaletteEntriesUsed++;
-  					
-  				}		// end "if (...->numberPaletteLevels > ... )" 
-			
-					// Unlock the class to group handle in case it is locked.		
-				
-			UnlockGroupTablesHandle (imageFileInfoPtr);
-*/		
-			}		// end "if (errCode == noErr)" 	
+
+			}	// end "if (errCode == noErr)"
 		
 		#if defined multispec_mac			
-			#if !TARGET_API_MAC_CARBON	
-			
+			#if !TARGET_API_MAC_CARBON
 					// Add palette to a resource file.  This is test code for now.	
 		 		
 			if (writePaletteToResourceFile)
@@ -4687,7 +4227,8 @@ Boolean ReadOneBytePalette (
 														
 						// Copy color table to the window palette.							
 				
-//				CTab2Palette (cTableHandle, displaySpecsPtr->paletteObject, pmTolerant, 0);
+				//CTab2Palette (
+								cTableHandle, displaySpecsPtr->paletteObject, pmTolerant, 0);
 		
 				CreateResFile ("\pPalette Resource File");
 				errCode = ResError ();
@@ -4696,42 +4237,42 @@ Boolean ReadOneBytePalette (
 					resourceFileReference = OpenResFile ("\pPalette Resource File");
 					errCode = ResError ();
 					
-					}		// end "errCode == noErr" 
+					}	// end "errCode == noErr" 
 					
 				if (errCode == noErr)
 					{
 					resourcePHandle = displaySpecsPtr->paletteObject;
-					errCode = HandToHand ( (Handle*)&resourcePHandle);
+					errCode = HandToHand ((Handle*)&resourcePHandle);
 					
-					}		// end "errCode == noErr" 
+					}	// end "errCode == noErr" 
 					
 				if (errCode == noErr)
 					{
 					AddResource (
-						(Handle)resourcePHandle, 'pltt', 1003, "\pCorrelation Palette");
+							(Handle)resourcePHandle, 'pltt', 1003, "\pCorrelation Palette");
 					errCode = ResError ();
 					
-					}		// end "errCode == noErr" 
+					}	// end "errCode == noErr" 
 					
 				if (errCode == noErr)
 					{
 					CloseResFile (resourceFileReference);
 					errCode = ResError ();
 					
-					}		// end "errCode == noErr" 
+					}	// end "errCode == noErr" 
 				
-				}		// end "writePaletteToResourceFile"
+				}	// end "writePaletteToResourceFile"
 			#endif	// !TARGET_API_MAC_CARBON				
 		#endif	// defined multispec_mac  
 		
-		}		// end "if (errCode == noErr)" 
+		}	// end "if (errCode == noErr)" 
 		
 	if (closeFileAtEnd)
 		CloseFile (paletteFileStreamPtr);
 	
-	return ( errCode == noErr );
+	return (errCode == noErr);
 	
-}		// end "ReadOneBytePalette"   
+}	// end "ReadOneBytePalette"   
 
 
 
@@ -4801,48 +4342,37 @@ Boolean ReadPaletteFromResource (
 			// Check that there is a valid class to group handle if needed.		
 			
 	if (classGroupCode != kClassDisplay && (fileInfoPtr == NULL ||
-									fileInfoPtr->groupTablesHandle == NULL) )
-																				return (FALSE);
+											fileInfoPtr->groupTablesHandle == NULL))
+																							return (FALSE);
 		
-			// Get the number of colors.  If the number of classes is more			
-			// than 254 then set the number of colors to be read from the			
-			// color table file to 254.  This is so that there is space in			
-			// the 256 entry palette for white and black.  								
-			// Note that if there is less than 254 classes then space is 			
-			// allowed for a background color.	If there is 254 classes or more	
-			// then the background color is forced to be white.						
+			// Get the number of colors.						
 			
-////	numberColors = (UInt16)MIN(254, numberClasses);
-	numberColors = (UInt16)MIN(256, numberClasses);
+	numberColors = (UInt16)MIN (256, numberClasses);
 	
-//	if (displaySpecsPtr->numberPaletteLevels > 253)
-//		displaySpecsPtr->numPaletteEntriesUsed++;
-
 	if (thematicPaletteType == kPaletteHandle)
 		{
 		resourcePHandle = inputResourcePHandle;
 		offset = inputPaletteOffset;
 		
-		}		// end "if (thematicPaletteType == kPaletteHandle)"
+		}	// end "if (thematicPaletteType == kPaletteHandle)"
 		
-	else		// thematicPaletteType != kPaletteHandle
+	else	// thematicPaletteType != kPaletteHandle
 		{
-		paletteId = GetPaletteID (thematicPaletteType);
+		paletteId = GetPaletteID (thematicPaletteType);																							
 		resourcePHandle = GetNewPalette (paletteId);
 		offset = 2;
 		
-		}		// end "else thematicPaletteType != kPaletteHandle"
+		}	// end "else thematicPaletteType != kPaletteHandle"
 		
 	if (resourcePHandle == NULL)
-																				return (FALSE);
+																							return (FALSE);
 																				
 			// Get the number of palette entries less white and black for
 			// the non-paletteHandle case.				
 	
-	numberResourcePaletteEntries = 
-								MGetNumberPaletteEntries(resourcePHandle) - offset;
+	numberResourcePaletteEntries = MGetNumberPaletteEntries (resourcePHandle) - offset;
 	
-	classCodeFlag = (classGroupCode == kClassDisplay);
+	classCodeFlag = (classGroupCode == kClassDisplay);	
 	
 			// Get the class to group pointer if needed.									
 	
@@ -4851,7 +4381,7 @@ Boolean ReadPaletteFromResource (
 		classToGroupPtr = GetClassToGroupPointer (fileInfoPtr);
 		groupToPalettePtr = GetGroupToPalettePointer (fileInfoPtr);
 		
-		}		// end "if (!classCodeFlag)" 
+		}	// end "if (!classCodeFlag)" 
 
 			// Determine if the class symbol pointer vector needs to be used.
 			// It is used for color ramps.
@@ -4871,7 +4401,7 @@ Boolean ReadPaletteFromResource (
 			useClassSymbolPtrFlag = TRUE;
 			classValueRange = classSymbolPtr[numberColors-1];
 			
-			}		// end "if (classSymbolPtr != NULL)"
+			}	// end "if (classSymbolPtr != NULL)"
 		
 		paletteIndexSkip = (double)(numberResourcePaletteEntries-2)/classValueRange;
 		if (displaySpecsPtr != NULL &&
@@ -4880,7 +4410,7 @@ Boolean ReadPaletteFromResource (
 			paletteIndexSkip = 
 							(double)(numberResourcePaletteEntries-2)/(classValueRange-2);
 			
-		}		// end "if (thematicPaletteType == kCorrelationMatrixColors || ..."
+		}	// end "if (thematicPaletteType == kCorrelationMatrixColors || ..."
 			
 			// Determine if first class is the background class. This check
 			// is for MultiSpec ascii, ERDAS and GAIA classifications.
@@ -4907,7 +4437,7 @@ Boolean ReadPaletteFromResource (
 		colorSpecPtr->rgb.blue  = 65535;
 		colorSpecPtr++;
 		
-		}		// end "if (gProcessorCode == kRefChangeFileFormatProcessor && ..."
+		}	// end "if (gProcessorCode == kRefChangeFileFormatProcessor && ..."
 																				
 			// Copy the number of colors need from the resource palette to the	
 			// display palette.			
@@ -4927,28 +4457,28 @@ Boolean ReadPaletteFromResource (
 					paletteIndex = 
 							(UInt16)((double)classSymbolPtr[index] * paletteIndexSkip);
 				
-				else		// paletteIndexSkip <= 1
+				else	// paletteIndexSkip <= 1
 					paletteIndex = classSymbolPtr[index];
 					
-				}		// end "if (useClassSymbolPtrFlag)"
+				}	// end "if (useClassSymbolPtrFlag)"
 			
-			else		// !useClassSymbolPtrFlag
+			else	// !useClassSymbolPtrFlag
 				{
 				if (index != 0 && paletteIndexSkip > 1)
 					{
 					doublePaletteIndex += paletteIndexSkip;
 					paletteIndex = (UInt16)doublePaletteIndex;
 					
-					}		// end "if (index != 0 && paletteIndexSkip > 1)"
+					}	// end "if (index != 0 && paletteIndexSkip > 1)"
 					
-				else		// index == 0 || paletteIndexSkip <= 1
+				else	// index == 0 || paletteIndexSkip <= 1
 					paletteIndex = index;
 					
-				}		// end "else !useClassSymbolPtrFlag"
+				}	// end "else !useClassSymbolPtrFlag"
 
-			}		// end "if (classCodeFlag)"	
+			}	// end "if (classCodeFlag)"	
 					
-		else		// !classCodeFlag
+		else	// !classCodeFlag
 			{ 
 			paletteIndex = classToGroupPtr[index];
 			paletteIndex = groupToPalettePtr[paletteIndex];
@@ -4956,24 +4486,24 @@ Boolean ReadPaletteFromResource (
 				{
 				if (paletteIndexSkip > 1)
 					paletteIndex = 
-							(UInt16)((double)classSymbolPtr[paletteIndex] * paletteIndexSkip);
+						(UInt16)((double)classSymbolPtr[paletteIndex] * paletteIndexSkip);
 				
-				else		// paletteIndexSkip <= 1
+				else	// paletteIndexSkip <= 1
 					paletteIndex = classSymbolPtr[paletteIndex];
 				
-				}		// end "if (useClassSymbolPtrFlag)"
+				}	// end "if (useClassSymbolPtrFlag)"
 			
-			else		// !useClassSymbolPtrFlag
+			else	// !useClassSymbolPtrFlag
 				{
 				if (index != 0 && paletteIndexSkip > 1)
 					{
 					paletteIndex = (UInt16)((double)paletteIndex * paletteIndexSkip);
 					
-					}		// end "if (index != 0 && paletteIndexSkip > 1)"
+					}	// end "if (index != 0 && paletteIndexSkip > 1)"
 					
-				}		// end "else !useClassSymbolPtrFlag"
+				}	// end "else !useClassSymbolPtrFlag"
 			
-			}		// end "else !classCodeFlag"
+			}	// end "else !classCodeFlag"
 		
 		if (paletteIndex == 0 && backgroundFlag)
 			{	
@@ -4981,23 +4511,22 @@ Boolean ReadPaletteFromResource (
 			backgroundFlag = FALSE;
 			backgroundOffset = 1;
 			
-			}		// end "if (paletteIndex == 0 && backgroundFlag)"
+			}	// end "if (paletteIndex == 0 && backgroundFlag)"
 			
-		else		// paletteIndex != 0 || !backgroundFlag
+		else	// paletteIndex != 0 || !backgroundFlag
 			{
-//			if (displaySpecsPtr->displayType == k1_ChannelThematicDisplayType &&
 			if (channelThematicDisplayTypeFlag &&
-							(index == 0 || index == numberColors - 1))
+											(index == 0 || index == numberColors - 1))
 				{
 				if (index == 0)
 					paletteResourceIndex = 1;
 				
-				else		// index == numberColors - 1
+				else	// index == numberColors - 1
 					paletteResourceIndex = 0;
 				
-				}		// end "if (channelThematicDisplayTypeFlag && ..."
+				}	// end "if (channelThematicDisplayTypeFlag && ..."
 				
-			else		// ...->displayType != k1_ChannelThematicDisplayType || ...
+			else	// ...->displayType != k1_ChannelThematicDisplayType || ...
 				{
 						// Allow for a background offset. In otherwords the color
 						// for the first class in the palette may have been set to
@@ -5017,11 +4546,11 @@ Boolean ReadPaletteFromResource (
 				
 				paletteResourceIndex += offset;
 					
-				}		// end "else ...->displayType != k1_ChannelThematicDisplayType || ..."
+				}	// end "else ...->displayType != k1_ChannelThematicDisplayType || ..."
 			
 			GetEntryColor (resourcePHandle, paletteResourceIndex, &theColor);
 			
-			}		// end "else paletteIndex != 0 || !backgroundFlag"
+			}	// end "else paletteIndex != 0 || !backgroundFlag"
 		
 				// Adjust palette index assuming a class display.					
 				
@@ -5034,24 +4563,25 @@ Boolean ReadPaletteFromResource (
 		
 		colorSpecPtr++;
 		
-		}		// end "for (index=1; index<=numberColors; index++)" 
-	
-/*			// This is to list the palette for use for uses such as copying to the Windows version.
+		}	// end "for (index=1; index<=numberColors; index++)" 
+	/*
+			// This is to list the palette for use for uses such as copying to the 
+			// Windows version.
 			
 	sprintf ((char*)gTextString, "paletteId = %d%s", paletteId, gEndOfLine);
-	ListString ((char*)&gTextString,  strlen((char*)&gTextString), gOutputTextH);
+	ListString ((char*)gTextString,  strlen ((char*)gTextString), gOutputTextH);
 
 	UInt32 i;
 	for (i=0; i<numberResourcePaletteEntries+2; i++)
 		{
 		GetEntryColor (resourcePHandle, i, &theColor);
 		sprintf ((char*)gTextString, "%3ld %5ld, %5ld, %5ld%s", i, theColor.red, theColor.green, theColor.blue, gEndOfLine);
-		ListString ((char*)&gTextString,  strlen((char*)&gTextString), gOutputTextH);
+		ListString ((char*)gTextString,  strlen ((char*)gTextString), gOutputTextH);
 	
-		}		// end "for (i=0; i<=255; i++)"
+		}	// end "for (i=0; i<=255; i++)"
 		
-	ListString ((char*)gEndOfLine,  strlen((char*)gEndOfLine), gOutputTextH);
-*/	  				
+	ListString ((char*)gEndOfLine,  strlen ((char*)gEndOfLine), gOutputTextH);
+	*/	  				
 			// If the number of classes is more than the number of colors in 
 			// the palette, then check if first wrap around color is black. 		
 			// If so indicate that the last black color will be used to display				
@@ -5063,28 +4593,19 @@ Boolean ReadPaletteFromResource (
 
 		if (theColor.red == 0 && theColor.green == 0 && theColor.blue == 0)
 			*paletteCodePtr |= 0x0004;
-//			(*numberPaletteEntriesUsedPtr)++;
 
-		}		// end "if (numberClasses > ... )"
+		}	// end "if (numberClasses > ...)"
 			
 	UnlockGroupTablesHandle (fileInfoPtr);
 	
 			// Dispose of the resource palette if needed.												
 	
-//#ifndef multispec_lin   
 	if (thematicPaletteType != kPaletteHandle)	
 		MDisposePalette (resourcePHandle);
-//#endif
 
-/*   
-#if defined multispec_lin
-   if (thematicPaletteType != kPaletteHandle)	
-		displaySpecsPtr->paletteObject = resourcePHandle;
-#endif
-*/
 	return (TRUE);
 	
-}		// end "ReadPaletteFromResource" 
+}	// end "ReadPaletteFromResource" 
 
 
 
@@ -5133,10 +4654,10 @@ Boolean SetBackgroundPaletteEntries (
 			// Check if palette handles make sense.										
 			
 	paletteObject = displaySpecsPtr->paletteObject;
-	numberEntries = MGetNumberPaletteEntries(paletteObject);
-	cTabPtr = (CTabPtr)GetHandlePointer ((Handle)cTableHandle, kNoLock, kNoMoveHi);
+	numberEntries = MGetNumberPaletteEntries (paletteObject);
+	cTabPtr = (CTabPtr)GetHandlePointer ((Handle)cTableHandle);
 	if (numberEntries != (UInt16)(cTabPtr->ctSize + 1))
-																			return (FALSE);
+																						return (FALSE);
 																				
 			// Copy color table to the window palette.									
 			// Make all palette entries animated except for black, white and		
@@ -5149,26 +4670,25 @@ Boolean SetBackgroundPaletteEntries (
 			SetEntryUsage (paletteObject, 0, pmTolerant, 0);
 			SetEntryUsage (paletteObject, numberEntries-1, pmTolerant, 0);
 			
-////			if (displaySpecsPtr->numberPaletteLevels <= 253)
+				//if (displaySpecsPtr->numberPaletteLevels <= 253)
 				SetEntryUsage (paletteObject, numberEntries-2, pmTolerant, 0);
 			
-			}		// end "if (gBlinkProcedure == kBlink2)" 
+			}	// end "if (gBlinkProcedure == kBlink2)" 
 			
-		else		// gBlinkProcedure == kBlink1 
+		else	// gBlinkProcedure == kBlink1 
 			CTab2Palette (cTableHandle, paletteObject, pmTolerant, 0);
 			
 		displaySpecsPtr->blinkProcedure = gBlinkProcedure;			
 	#endif	// defined multispec_mac
 	
 	#if defined multispec_win	
-//		SInt16 pmTolerant	= 0x0002;
-//		SInt16 pmTolerant	= PC_RESERVED;
+		//SInt16 pmTolerant	= 0x0002;
+		//SInt16 pmTolerant	= PC_RESERVED;
 		CTab2Palette (cTableHandle, paletteObject, PC_RESERVED, 0);
 		CTab2Palette (cTableHandle, displaySpecsPtr->backgroundPaletteObject, 0, 0);			
 	#endif	// defined multispec_win
 
    #if defined multispec_lin
-
 		CTab2Palette (cTableHandle, paletteObject, 0, 0);
 		CTab2Palette (cTableHandle, displaySpecsPtr->backgroundPaletteObject, 0, 0);			
 	#endif	// defined multispec_win
@@ -5176,16 +4696,15 @@ Boolean SetBackgroundPaletteEntries (
 			// Set classes/groups that are not to be displayed to the background	
 			// color.																				
 	
-	displayClassGroupsPtr = (SInt16*)GetHandlePointer(
-												displaySpecsPtr->displayClassGroupsHandle,
-												kLock,
-												kNoMoveHi);
+	displayClassGroupsPtr = (SInt16*)GetHandlePointer (
+													displaySpecsPtr->displayClassGroupsHandle,
+													kLock);
 	numberClasses = fileInfoPtr->numberClasses;
 		
 	if (displaySpecsPtr->classGroupCode == kClassDisplay)
 		setting = 0x0001;
 		
-	else		// displaySpecsPtr->classGroupCode != kClassDisplay 
+	else	// displaySpecsPtr->classGroupCode != kClassDisplay 
 		setting = 0x0100;
 		
 			// Set color for any class that is not to be displayed to the			
@@ -5195,18 +4714,18 @@ Boolean SetBackgroundPaletteEntries (
 		{
 		for (classIndex=0; classIndex<numberClasses; classIndex++)
 			{
-			if ( !(displayClassGroupsPtr[classIndex] & setting) )
+			if (!(displayClassGroupsPtr[classIndex] & setting))
 				{
 				paletteIndex = classIndex + displaySpecsPtr->paletteOffset;
 				
 				if (paletteIndex > numberEntries)
 					break;
 				
-				MSetEntryColor( 
+				MSetEntryColor (
 					paletteObject, (SInt16)paletteIndex, &displaySpecsPtr->backgroundColor); 
 				
             #if defined multispec_win || defined multispec_lin                                           
-					MSetEntryColor( displaySpecsPtr->backgroundPaletteObject, 
+					MSetEntryColor (displaySpecsPtr->backgroundPaletteObject, 
 											(SInt16)paletteIndex, 
 											&displaySpecsPtr->backgroundColor);
 				#endif	// defined multispec_win
@@ -5219,17 +4738,17 @@ Boolean SetBackgroundPaletteEntries (
 					SetEntryUsage (paletteObject, (SInt16)paletteIndex, 0, 0);
 				#endif	// defined multispec_win
 				
-				}		// end "if ( !(displayClassGroupsPtr[classIndex] & setting) )" 
+				}	// end "if (!(displayClassGroupsPtr[classIndex] & setting))" 
 			
-			}		// end "for (classIndex=0; classIndex<..." 
+			}	// end "for (classIndex=0; classIndex<..." 
 			
-		}		// end "if (displayClassGroupsPtr != NULL)"
+		}	// end "if (displayClassGroupsPtr != NULL)"
 		
 	CheckAndUnlockHandle (displaySpecsPtr->displayClassGroupsHandle);
 		 
 	return (TRUE);
 		
-}		// end "SetBackgroundPaletteEntries" 
+}	// end "SetBackgroundPaletteEntries" 
 
 
 
@@ -5276,12 +4795,11 @@ void SetPaletteSpecification (
 					
 		if (displaySpecsPtr->displayType == k1_ChannelThematicDisplayType &&
 												gDisplaySpecsDefault.structureLoadedFlag)
-			gDisplaySpecsDefault.oneChannelThematicClassPaletteType = 
-																				paletteSelection;
+			gDisplaySpecsDefault.oneChannelThematicClassPaletteType = paletteSelection;
 					
-		}		// end "if (classGroupCode == kClassDisplay)" 
+		}	// end "if (classGroupCode == kClassDisplay)" 
 				
-	else		// classGroupCode == kGroupDisplay 
+	else	// classGroupCode == kGroupDisplay 
 		{	
 		if (displaySpecsPtr->thematicGroupPaletteType != paletteSelection)
 			displaySpecsPtr->readPaletteFromDiskFlag = TRUE;
@@ -5291,7 +4809,7 @@ void SetPaletteSpecification (
 					
 		displaySpecsPtr->thematicGroupPaletteType = paletteSelection;
 					
-		}		// end "else classGroupCode == kGroupDisplay" 								
+		}	// end "else classGroupCode == kGroupDisplay" 								
 						
 	if (displaySpecsPtr->readPaletteFromDiskFlag)
 		displaySpecsPtr->paletteUpToDateFlag = FALSE;
@@ -5303,26 +4821,25 @@ void SetPaletteSpecification (
 			// window has been displayed.
 				
 	if (!displaySpecsPtr->paletteUpToDateFlag && 
-											displaySpecsPtr->displayedLineStart > 0)
+													displaySpecsPtr->displayedLineStart > 0)
 		{
 		Handle fileInfoHandle = GetActiveImageFileInfoHandle ();
-		FileInfoPtr fileInfoPtr = (FileInfoPtr)GetHandlePointer(
-												fileInfoHandle, kNoLock, kNoMoveHi);
+		FileInfoPtr fileInfoPtr = (FileInfoPtr)GetHandlePointer (fileInfoHandle);
 		
 		if (classGroupCode == kClassDisplay)										
 			fileInfoPtr->classChangedFlag = TRUE;
 			
-		else		// classGroupCode == kGroupDisplay								
+		else	// classGroupCode == kGroupDisplay								
 			fileInfoPtr->groupChangedFlag = TRUE;
 			
 		#if defined multispec_lin
 				// Make sure that wxWidgets knows the document has changed.
-			gActiveImageViewCPtr->GetDocument()->Modify(TRUE);
+			gActiveImageViewCPtr->GetDocument ()->Modify (TRUE);
 		#endif // defined multispec_lin
 		
-		}		// end "if (!displaySpecsPtr->paletteUpToDateFlag && ..."
+		}	// end "if (!displaySpecsPtr->paletteUpToDateFlag && ..."
 		
-}		// end "SetPaletteSpecification"  
+}	// end "SetPaletteSpecification"  
 
 
                    
@@ -5365,20 +4882,21 @@ void SetUpPalettePopUpMenu (
 {    
 	#if defined multispec_mac	
 		EnableMenuItem (popUpPaletteMenu, kImageDefaultColorTable);
-		if ( (fileFormat == 0 && displaySpecsPtr->filePaletteFlag) || 
+		if ((fileFormat == 0 && displaySpecsPtr->filePaletteFlag) || 
 					fileFormat == kErdas73Type || 
 					fileFormat == kErdas74Type ||
 					fileFormat == kMultiSpecClassificationType ||
 					fileFormat == kArcViewType ||
 					((fileFormat == kGeoTIFFType || fileFormat == kTIFFType) && 
-						(ancillaryInfoFormat == kArcViewDefaultSupportType || ancillaryInfoFormat == kErdas74Type)))
+						(ancillaryInfoFormat == kArcViewDefaultSupportType || 
+															ancillaryInfoFormat == kErdas74Type)))
 			{
 			if (ancillaryInfoFormat == kArcViewDefaultSupportType)
 				SetMenuItemText (popUpPaletteMenu, 
 										kImageDefaultColorTable, 
 										"\pArcView .clr file");
 			
-			else		// ancillaryInfoFormat != kArcViewDefaultSupportType
+			else	// ancillaryInfoFormat != kArcViewDefaultSupportType
 				SetMenuItemText (popUpPaletteMenu, 
 										kImageDefaultColorTable, 
 										"\pERDAS .trl file");
@@ -5388,48 +4906,48 @@ void SetUpPalettePopUpMenu (
 			if (!displaySpecsPtr->filePaletteFlag)
 				DisableMenuItem (popUpPaletteMenu, kImageDefaultColorTable);
 	 		
-	 		}		// end "if (fileFormat == kErdas73Type || ...)" 
+	 		}	// end "if (fileFormat == kErdas73Type || ...)" 
 	 		
 		else if (fileFormat == kSunScreenDumpType) 
 	 		SetMenuItemText (popUpPaletteMenu, 
-							kImageDefaultColorTable, 
-							"\pSUN screendump file");
+									kImageDefaultColorTable, 
+									"\pSUN screendump file");
 	 		
 		else if (fileFormat == kTIFFType) 
 			{
 	 		SetMenuItemText (popUpPaletteMenu, 
-							kImageDefaultColorTable, 
-							"\pTIFF file");
+									kImageDefaultColorTable, 
+									"\pTIFF file");
 							
 			if (colorTableOffset == 0)		// Implies no table exist in TIFF file
 				DisableMenuItem (popUpPaletteMenu, kImageDefaultColorTable);
 			
-			}		// end "else if (fileFormat == kTIFFType)"
+			}	// end "else if (fileFormat == kTIFFType)"
 	 		
 		else if (fileFormat == kGeoTIFFType)
 			{ 
 	 		SetMenuItemText (popUpPaletteMenu, 
-							kImageDefaultColorTable, 
-							"\pGeoTIFF file");
+									kImageDefaultColorTable, 
+									"\pGeoTIFF file");
 							
 			if (colorTableOffset == 0)		// Implies no table exist in GeoTIFF file
 				DisableMenuItem (popUpPaletteMenu, kImageDefaultColorTable);
 			
-			}		// end "else if (fileFormat == kTIFFType)"
+			}	// end "else if (fileFormat == kTIFFType)"
 	 		
 		else if (fileFormat == kImagineType) 
 	 		SetMenuItemText (popUpPaletteMenu, 
-							kImageDefaultColorTable, 
-							"\pImagine file");
+									kImageDefaultColorTable, 
+									"\pImagine file");
 	 		
-	 	else		// fileFormat is not one of above but has color table. 
+	 	else	// fileFormat is not one of above but has color table. 
 	 		{
 	 		SetMenuItemText (popUpPaletteMenu, 
-						kImageDefaultColorTable, 
-						"\pImage file default");
+									kImageDefaultColorTable, 
+									"\pImage file default");
 			DisableMenuItem (popUpPaletteMenu, kImageDefaultColorTable);
 	 		
-	 		}		// end "else fileFormat != kSunScreenDumpType"
+	 		}	// end "else fileFormat != kSunScreenDumpType"
 	 		
 		EnableMenuItem (popUpPaletteMenu, kDefaultColors);
 		EnableMenuItem (popUpPaletteMenu, kDefaultGrays);
@@ -5437,19 +4955,19 @@ void SetUpPalettePopUpMenu (
 		EnableMenuItem (popUpPaletteMenu, kAVHRR_NDVI_Colors);
 		EnableMenuItem (popUpPaletteMenu, kMODIS_NDVI_Colors);
 		
-		if ( DetermineIfFalseColorAvailable (fileFormat, numberClasses, classDescriptionH) ) 
+		if (DetermineIfFalseColorAvailable (fileFormat, numberClasses, classDescriptionH)) 
 			EnableMenuItem (popUpPaletteMenu, kFalseColors);
 		
-		else		// !DetermineIfFalseColorAvailable (fileFormat)	
+		else	// !DetermineIfFalseColorAvailable (fileFormat)	
 			DisableMenuItem (popUpPaletteMenu, kFalseColors);
 		
 		EnableMenuItem (popUpPaletteMenu, kUserDefinedColors);
 		if (classGroupCode == kClassDisplay &&
-				displaySpecsPtr->thematicClassPaletteType != kUserDefinedColors)
+						displaySpecsPtr->thematicClassPaletteType != kUserDefinedColors)
 			DisableMenuItem (popUpPaletteMenu, kUserDefinedColors);
 		
 		if (classGroupCode != kClassDisplay &&
-				displaySpecsPtr->thematicGroupPaletteType != kUserDefinedColors)
+						displaySpecsPtr->thematicGroupPaletteType != kUserDefinedColors)
 			DisableMenuItem (popUpPaletteMenu, kUserDefinedColors); 			
 	#endif	// defined multispec_mac 
 		
@@ -5459,113 +4977,118 @@ void SetUpPalettePopUpMenu (
 	
 				// Set user defined values for palette combo box.
 				
-		CComboBox* comboBoxPtr = (CComboBox*)(dialogPtr->GetDlgItem(IDC_PaletteCombo));                                  
+		CComboBox* comboBoxPtr = (CComboBox*)(dialogPtr->GetDlgItem (IDC_PaletteCombo));
 		 
-		comboBoxPtr->SetItemData(0, kDefaultColors);
-		comboBoxPtr->SetItemData(1, kDefaultGrays);
-		comboBoxPtr->SetItemData(2, kCorrelationMatrixColors);
-		comboBoxPtr->SetItemData(3, kAVHRR_NDVI_Colors);  
-		comboBoxPtr->SetItemData(4, kMODIS_NDVI_Colors);
+		comboBoxPtr->SetItemData (0, kDefaultColors);
+		comboBoxPtr->SetItemData (1, kDefaultGrays);
+		comboBoxPtr->SetItemData (2, kCorrelationMatrixColors);
+		comboBoxPtr->SetItemData (3, kAVHRR_NDVI_Colors);  
+		comboBoxPtr->SetItemData (4, kMODIS_NDVI_Colors);
 		
 				// Make sure that the 6th, 7th & 8th strings do not exist. 
 		                             
-		comboBoxPtr->DeleteString(8);
-		comboBoxPtr->DeleteString(7); 
-		comboBoxPtr->DeleteString(6); 
-		comboBoxPtr->DeleteString(5);
+		comboBoxPtr->DeleteString (8);
+		comboBoxPtr->DeleteString (7);
+		comboBoxPtr->DeleteString (6);
+		comboBoxPtr->DeleteString (5);
 		nextStringIndex = 5;    
 		
 				// Determine if the FALSE color item is to be included. 
 				                                   
-		if ( DetermineIfFalseColorAvailable (fileFormat, numberClasses, classDescriptionH) )
+		if (DetermineIfFalseColorAvailable (fileFormat, numberClasses, classDescriptionH))
 			{                                                     
 		 	comboBoxPtr->InsertString (nextStringIndex, (LPCTSTR)_T("False Color..."));
-			comboBoxPtr->SetItemData(nextStringIndex, kFalseColors);
+			comboBoxPtr->SetItemData (nextStringIndex, kFalseColors);
 			nextStringIndex++;
 			
-			}		// end "if ( DetermineIfFalseColorAvailable (fileFormat) )" 
+			}	// end "if (DetermineIfFalseColorAvailable (fileFormat))" 
 			
 				// Determine if image default color is to be include in the list.
 	
-		if ( (fileFormat == 0 && displaySpecsPtr->filePaletteFlag) || 
+		if ((fileFormat == 0 && displaySpecsPtr->filePaletteFlag) || 
 					fileFormat == kErdas73Type || 
 					fileFormat == kErdas74Type ||
 					fileFormat == kMultiSpecClassificationType ||
 					fileFormat == kArcViewType ||
 					((fileFormat == kGeoTIFFType || fileFormat == kTIFFType) && 
-						(ancillaryInfoFormat == kArcViewDefaultSupportType || ancillaryInfoFormat == kErdas74Type)))
+						(ancillaryInfoFormat == kArcViewDefaultSupportType || 
+															ancillaryInfoFormat == kErdas74Type)))
 			{                                                                                 
 					// Determine if .trl file is present.										
 					
 			if (displaySpecsPtr->filePaletteFlag) 
 				{                    
 				if (ancillaryInfoFormat == kArcViewDefaultSupportType)
-					comboBoxPtr->InsertString (nextStringIndex, (LPCTSTR)_T("ArcView .clr file"));
+					comboBoxPtr->InsertString (
+											nextStringIndex, (LPCTSTR)_T("ArcView .clr file"));
 				
-				else		// ancillaryInfoFormat != kArcViewDefaultSupportType
-					comboBoxPtr->InsertString (nextStringIndex, (LPCTSTR)_T("ERDAS .trl file")); 
+				else	// ancillaryInfoFormat != kArcViewDefaultSupportType
+					comboBoxPtr->InsertString (
+											nextStringIndex, (LPCTSTR)_T("ERDAS .trl file")); 
 					
-				comboBoxPtr->SetItemData(nextStringIndex, kImageDefaultColorTable);
+				comboBoxPtr->SetItemData (nextStringIndex, kImageDefaultColorTable);
 				nextStringIndex++;
 				
-				}		// end "if (displaySpecsPtr->filePaletteFlag)"
+				}	// end "if (displaySpecsPtr->filePaletteFlag)"
 	 		
-	 		}		// end "if (fileFormat == kErdas73Type || ...)" 
+	 		}	// end "if (fileFormat == kErdas73Type || ...)" 
 	 		
 		else if (fileFormat == kSunScreenDumpType)
 			{                                  
-	 		comboBoxPtr->InsertString (nextStringIndex, (LPCTSTR)_T("SUN screendump file")); 
-			comboBoxPtr->SetItemData(nextStringIndex, kImageDefaultColorTable);
+	 		comboBoxPtr->InsertString (
+										nextStringIndex, (LPCTSTR)_T("SUN screendump file")); 
+			comboBoxPtr->SetItemData (nextStringIndex, kImageDefaultColorTable);
 			nextStringIndex++;
 				
-			}		// end "else if (fileFormat == kSunScreenDumpType)"  
+			}	// end "else if (fileFormat == kSunScreenDumpType)"  
 	 		
 		else if (fileFormat == kTIFFType && colorTableOffset > 0)
 			{                                
 	 		comboBoxPtr->InsertString (nextStringIndex, (LPCTSTR)_T("TIFF file")); 
-			comboBoxPtr->SetItemData(nextStringIndex, kImageDefaultColorTable);
+			comboBoxPtr->SetItemData (nextStringIndex, kImageDefaultColorTable);
 			nextStringIndex++;
 				
-			}		// end "else if (fileFormat == kTIFFType && ..."  
+			}	// end "else if (fileFormat == kTIFFType && ..."  
 	 		
 		else if (fileFormat == kGeoTIFFType && colorTableOffset > 0)
 			{                                  
 	 		comboBoxPtr->InsertString (nextStringIndex, (LPCTSTR)_T("GeoTIFF file")); 
-			comboBoxPtr->SetItemData(nextStringIndex, kImageDefaultColorTable);
+			comboBoxPtr->SetItemData (nextStringIndex, kImageDefaultColorTable);
 			nextStringIndex++;
 				
-			}		// end "else if (fileFormat == kGeoTIFFType && ..."  
+			}	// end "else if (fileFormat == kGeoTIFFType && ..."  
 	 		
 		else if (fileFormat == kImagineType)
 			{                                  
 	 		comboBoxPtr->InsertString (nextStringIndex, (LPCTSTR)_T("Imagine file")); 
-			comboBoxPtr->SetItemData(nextStringIndex, kImageDefaultColorTable);
+			comboBoxPtr->SetItemData (nextStringIndex, kImageDefaultColorTable);
 			nextStringIndex++;
 				
-			}		// end "else if (fileFormat == kImagineType)"  
+			}	// end "else if (fileFormat == kImagineType)"  
 	 		
-		else		// fileFormat not one of above but has a color table
+		else	// fileFormat not one of above but has a color table
 			{                                  
-	 		comboBoxPtr->InsertString (nextStringIndex, (LPCTSTR)_T("Image file default")); 
-			comboBoxPtr->SetItemData(nextStringIndex, kImageDefaultColorTable);
+	 		comboBoxPtr->InsertString (
+										nextStringIndex, (LPCTSTR)_T("Image file default")); 
+			comboBoxPtr->SetItemData (nextStringIndex, kImageDefaultColorTable);
 			nextStringIndex++;
 				
-			}		// end "else if (fileFormat == kImagineType)" 
+			}	// end "else if (fileFormat == kImagineType)" 
 		 	
 		if (nextStringIndex == 6)    
-			comboBoxPtr->SetItemData(6, kUserDefinedColors);   
+			comboBoxPtr->SetItemData (6, kUserDefinedColors);   
 	 		
 	 			// Determine if user defined colors is to be included in the list.               
 		
-		if ( (classGroupCode == kClassDisplay &&
+		if ((classGroupCode == kClassDisplay &&
 					displaySpecsPtr->thematicClassPaletteType == kUserDefinedColors) ||
 			  (classGroupCode != kClassDisplay &&
-					displaySpecsPtr->thematicGroupPaletteType == kUserDefinedColors) ) 
+					displaySpecsPtr->thematicGroupPaletteType == kUserDefinedColors)) 
 			{
 		 	comboBoxPtr->InsertString (nextStringIndex, (LPCTSTR)_T("User Defined Colors"));  
-			comboBoxPtr->SetItemData(nextStringIndex, kUserDefinedColors);
+			comboBoxPtr->SetItemData (nextStringIndex, kUserDefinedColors);
 			
-			}		// end "if ( (classGroupCode == kClassDisplay && ..."			
+			}	// end "if ((classGroupCode == kClassDisplay && ..."			
 	#endif	// defined multispec_win 
 
    #if defined multispec_lin		
@@ -5574,118 +5097,124 @@ void SetUpPalettePopUpMenu (
 	
 				// Set user defined values for palette combo box.
 				
-		wxChoice* comboBoxPtr = (wxChoice*)(dialogPtr->FindWindow(IDC_PaletteCombo));                                  
-		int comboitemcount = comboBoxPtr->GetCount(); 
-		comboBoxPtr->SetClientData(0, (void*)gDefaultColors);
-		comboBoxPtr->SetClientData(1, (void*)gDefaultGrays);
-		comboBoxPtr->SetClientData(2, (void*)gCorrelationMatrixColors);
-		comboBoxPtr->SetClientData(3, (void*)gAVHRR_NDVI_Colors);  
-		comboBoxPtr->SetClientData(4, (void*)gMODIS_NDVI_Colors);
+		wxChoice* comboBoxPtr = (wxChoice*)(dialogPtr->FindWindow (IDC_PaletteCombo));
+		int comboitemcount = comboBoxPtr->GetCount (); 
+		comboBoxPtr->SetClientData (0, (void*)gDefaultColors);
+		comboBoxPtr->SetClientData (1, (void*)gDefaultGrays);
+		comboBoxPtr->SetClientData (2, (void*)gCorrelationMatrixColors);
+		comboBoxPtr->SetClientData (3, (void*)gAVHRR_NDVI_Colors);  
+		comboBoxPtr->SetClientData (4, (void*)gMODIS_NDVI_Colors);
 		
-				// Make sure that the 6th, 7th & 8th strings do not exist. 
-      int nument = comboBoxPtr->GetCount();
-		if(nument > 5){                               
+				// Make sure that the 6th, 7th & 8th strings do not exist.
+				 
+      int nument = comboBoxPtr->GetCount ();
+		if (nument > 5)
+			{
+         for (int j = nument; j >= 6; j--)
+            comboBoxPtr->Delete (j-1);
 		
-         for(int j = nument; j >= 6; j--)
-            comboBoxPtr->Delete(j-1);
-		
-      }
+			}	// end "if (nument > 5)"
+			
 		nextStringIndex = 5;    
 		
 				// Determine if the FALSE color item is to be included. 
 				                                   
-		if ( DetermineIfFalseColorAvailable (fileFormat, numberClasses, classDescriptionH) )
+		if (DetermineIfFalseColorAvailable (
+													fileFormat, numberClasses, classDescriptionH))
 			{                                                     
 		 	comboBoxPtr->Append (wxT("False Color..."), &gFalseColors);
-			comboBoxPtr->SetClientData(nextStringIndex, (void*)kFalseColors);
+			comboBoxPtr->SetClientData (nextStringIndex, (void*)kFalseColors);
 			nextStringIndex++;
 			
-			}		// end "if ( DetermineIfFalseColorAvailable (fileFormat) )" 
+			}	// end "if (DetermineIfFalseColorAvailable (fileFormat))" 
 			
 				// Determine if image default color is to be include in the list.
 	
-		if ( (fileFormat == 0 && displaySpecsPtr->filePaletteFlag) || 
+		if ((fileFormat == 0 && displaySpecsPtr->filePaletteFlag) || 
 					fileFormat == kErdas73Type || 
 					fileFormat == kErdas74Type ||
 					fileFormat == kMultiSpecClassificationType ||
 					fileFormat == kArcViewType ||
 					((fileFormat == kGeoTIFFType || fileFormat == kTIFFType) && 
-						(ancillaryInfoFormat == kArcViewDefaultSupportType || ancillaryInfoFormat == kErdas74Type)))
+						(ancillaryInfoFormat == kArcViewDefaultSupportType || 
+															ancillaryInfoFormat == kErdas74Type)))
 			{                                                                                 
 					// Determine if .trl file is present.										
 					
 			if (displaySpecsPtr->filePaletteFlag) 
 				{                    
 				if (ancillaryInfoFormat == kArcViewDefaultSupportType)
-					comboBoxPtr->Append (wxT("ArcView .clr file"), &gImageDefaultColorTable);
+					comboBoxPtr->Append (
+											wxT("ArcView .clr file"), &gImageDefaultColorTable);
 				
-				else		// ancillaryInfoFormat != kArcViewDefaultSupportType
+				else	// ancillaryInfoFormat != kArcViewDefaultSupportType
 					comboBoxPtr->Append (wxT("ERDAS .trl file"),&gImageDefaultColorTable); 
 					
-				comboBoxPtr->SetClientData(nextStringIndex, (void*)kImageDefaultColorTable);
+				comboBoxPtr->SetClientData (
+												nextStringIndex, (void*)kImageDefaultColorTable);
 				nextStringIndex++;
 				
-				}		// end "if (displaySpecsPtr->filePaletteFlag)"
+				}	// end "if (displaySpecsPtr->filePaletteFlag)"
 	 		
-	 		}		// end "if (fileFormat == kErdas73Type || ...)" 
+	 		}	// end "if (fileFormat == kErdas73Type || ...)" 
 	 		
 		else if (fileFormat == kSunScreenDumpType)
 			{                                  
 	 		comboBoxPtr->Append (wxT("SUN screendump file"), &gImageDefaultColorTable); 
-			comboBoxPtr->SetClientData(nextStringIndex, (void*)kImageDefaultColorTable);
+			comboBoxPtr->SetClientData (nextStringIndex, (void*)kImageDefaultColorTable);
 			nextStringIndex++;
 				
-			}		// end "else if (fileFormat == kSunScreenDumpType)"  
+			}	// end "else if (fileFormat == kSunScreenDumpType)"  
 	 		
 		else if (fileFormat == kTIFFType && colorTableOffset > 0)
 			{                                
 	 		comboBoxPtr->Append (wxT("TIFF file"), &gImageDefaultColorTable); 
-			comboBoxPtr->SetClientData(nextStringIndex, (void*)kImageDefaultColorTable);
+			comboBoxPtr->SetClientData (nextStringIndex, (void*)kImageDefaultColorTable);
 			nextStringIndex++;
 				
-			}		// end "else if (fileFormat == kTIFFType && ..."  
+			}	// end "else if (fileFormat == kTIFFType && ..."  
 	 		
 		else if (fileFormat == kGeoTIFFType && colorTableOffset > 0)
 			{                                  
 	 		comboBoxPtr->Append (wxT("GeoTIFF file"), &gImageDefaultColorTable); 
-			comboBoxPtr->SetClientData(nextStringIndex, (void*)kImageDefaultColorTable);
+			comboBoxPtr->SetClientData (nextStringIndex, (void*)kImageDefaultColorTable);
 			nextStringIndex++;
 				
-			}		// end "else if (fileFormat == kGeoTIFFType && ..."  
+			}	// end "else if (fileFormat == kGeoTIFFType && ..."  
 	 		
 		else if (fileFormat == kImagineType)
 			{                                  
 	 		comboBoxPtr->Append (wxT("Imagine file"), &gImageDefaultColorTable); 
-			comboBoxPtr->SetClientData(nextStringIndex, (void*)kImageDefaultColorTable);
+			comboBoxPtr->SetClientData (nextStringIndex, (void*)kImageDefaultColorTable);
 			nextStringIndex++;
 				
-			}		// end "else if (fileFormat == kImagineType)"  
+			}	// end "else if (fileFormat == kImagineType)"  
 	 		
-		else		// fileFormat not one of above but has a color table
+		else	// fileFormat not one of above but has a color table
 			{                                  
 	 		comboBoxPtr->Append (wxT("Image file default"), &gImageDefaultColorTable); 
-			comboBoxPtr->SetClientData(nextStringIndex, (void*)kImageDefaultColorTable);
+			comboBoxPtr->SetClientData (nextStringIndex, (void*)kImageDefaultColorTable);
 			nextStringIndex++;
 				
-			}		// end "else if (fileFormat == kImagineType)" 
+			}	// end "else if (fileFormat == kImagineType)" 
 		 	
-//		if (nextStringIndex == 6)    
-//			comboBoxPtr->SetClientData(nextStringIndex, (void*)gUserDefinedColors);   
+		//if (nextStringIndex == 6)    
+		//	comboBoxPtr->SetClientData (nextStringIndex, (void*)gUserDefinedColors);   
 	 		
 	 			// Determine if user defined colors is to be included in the list.               
 		
-		if ( (classGroupCode == kClassDisplay &&
+		if ((classGroupCode == kClassDisplay &&
 					displaySpecsPtr->thematicClassPaletteType == kUserDefinedColors) ||
 			  (classGroupCode != kClassDisplay &&
-					displaySpecsPtr->thematicGroupPaletteType == kUserDefinedColors) ) 
+					displaySpecsPtr->thematicGroupPaletteType == kUserDefinedColors)) 
 			{
 		 	comboBoxPtr->Append (wxT("User Defined Colors"), &gUserDefinedColors);  
-			comboBoxPtr->SetClientData(nextStringIndex, (void*)kUserDefinedColors);
+			comboBoxPtr->SetClientData (nextStringIndex, (void*)kUserDefinedColors);
 			
-			}		// end "if ( (classGroupCode == kClassDisplay && ..."			
+			}	// end "if ((classGroupCode == kClassDisplay && ..."			
 	#endif	// defined multispec_lin 
 			
-}		// end Routine "SetUpPalettePopUpMenu"          
+}	// end Routine "SetUpPalettePopUpMenu"          
 
 
 
@@ -5721,14 +5250,15 @@ void UpdateActiveImageLegend (
 				Boolean								callCreatePaletteFlag)
  
 {
-	DisplaySpecsPtr				displaySpecsPtr;
+	DisplaySpecsPtr					displaySpecsPtr;
 	
-	Handle 							displaySpecsH,
-										windowInfoHandle;
+	Handle								displaySpecsH,
+											windowInfoHandle;
 	
 	
-	if (classGroupCode == kClassDisplay || classGroupCode == kGroupDisplay ||
-														classGroupCode == kGroupClassDisplay)
+	if (classGroupCode == kClassDisplay || 
+				classGroupCode == kGroupDisplay ||
+						classGroupCode == kGroupClassDisplay)
 		{
 		windowInfoHandle = GetActiveImageWindowInfoHandle ();
 		
@@ -5741,30 +5271,29 @@ void UpdateActiveImageLegend (
 				displaySpecsPtr->classGroupCode = classGroupCode;
 				displaySpecsPtr->paletteUpToDateFlag = FALSE;
 				
-				}		// end "if (...->classGroupCode != classGroupCode)"
+				}	// end "if (...->classGroupCode != classGroupCode)"
 				
-			LoadThematicLegendList (
-							GetActiveLegendListHandle (),
-							FALSE);
+			LoadThematicLegendList (GetActiveLegendListHandle (),
+											FALSE);
 		
 			if (callCreatePaletteFlag)
 				{
-				if (CreatePalette ( windowInfoHandle, 
+				if (CreatePalette (windowInfoHandle, 
 											displaySpecsPtr, 
-											GetWindowType(windowInfoHandle) ) )
+											GetWindowType (windowInfoHandle)))
 					{
 					ActivateImageWindowPalette (displaySpecsPtr->paletteObject);
 								
-					}		// end "if ( CreatePalette (..."
+					}	// end "if (CreatePalette (..."
 					
-				}		// end "if (callCreatePaletteFlag)"
+				}	// end "if (callCreatePaletteFlag)"
 				
-			}		// end "if (displaySpecsPtr != NULL)" 
+			}	// end "if (displaySpecsPtr != NULL)" 
 							
-			// Unlock the display specification handle if needed.				
+				// Unlock the display specification handle if needed.				
 
 		CheckAndUnlockHandle (displaySpecsH);
 		
-		}		// end "if (classGroupCode == kClassDisplay || ..."
+		}	// end "if (classGroupCode == kClassDisplay || ..."
 		
-}		// end "UpdateActiveImageLegend"
+}	// end "UpdateActiveImageLegend"

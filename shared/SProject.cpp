@@ -3,24 +3,22 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2017)
-//								(c) Purdue Research Foundation
+//								 Copyright (1988-2018)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	File:						SProject.cpp
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision number:		3.0
-//
-//	Revision date:			07/21/2017
+//	Revision date:			01/05/2018
 //
 //	Language:				C
 //
-//	System:					Macintosh Operating System
+//	System:					Linux, Macintosh, and Windows Operating Systems
 //
-//	Brief description:	This file contains routines that open, close, save
-//								and read project files.
+//	Brief description:	This file contains routines that open, close, save and read 
+//								project files.
 //
 //	Functions in file:	void 						AdjustFieldBoundaries
 //								void 						ChangeProjectBaseImage
@@ -54,55 +52,56 @@
 //
 //	Include files:			"MultiSpecHeaders"
 //								"multiSpec.h"
+//------------------------------------------------------------------------------------
 /*
-	Template for debugging.
-         int numberChars = sprintf ((char*)&gTextString3,
-                                    " SProject:GetSpecifiedImageFile (hdfDataSetSelection): %d%s",
-                                    fileInfoPtr->hdfDataSetSelection,
-                                    gEndOfLine);
-         ListString ((char*)&gTextString3, numberChars, gOutputTextH);
+Template for debugging.
+	int numberChars = sprintf ((char*)gTextString3,
+										" SProject:xxx (hdfDataSetSelection): %d%s",
+										fileInfoPtr->hdfDataSetSelection,
+										gEndOfLine);
+	ListString ((char*)gTextString3, numberChars, gOutputTextH);
 */
 
-#include	"SMulSpec.h" 
+#include "SMultiSpec.h" 
 
 #if defined multispec_lin
-#	include "wx/wx.h"
-#	include "CImagWin.h"
-#	include "LImageView.h"
-#	include "LMultiSpec.h"
+	#include "wx/wx.h"
+	#include "CImageWindow.h"
+	#include "LImageView.h"
+	#include "LMultiSpec.h"
 #endif
 
 #if defined multispec_mac
 #endif	// defined multispec_mac  
   
 #if defined multispec_win
-	#include "CImagWin.h"
-	#include "CImagVew.h" 
+	#include "CImageWindow.h"
+	#include "WImageView.h" 
 	#include "WMultiSpec.h"
 #endif	// defined multispec_win 
 
-#include "SExtGlob.h"
+//#include "SExtGlob.h"
 
 #include "errno.h" 
+/*
+extern SInt16 LoadGDALInformation (
+				FileInfoPtr 						fileInfoPtr, 
+				char*									headerRecordPtr, 
+				SInt16								format);
+*/
+extern void SetFileMapProjectionHandle2 (
+				Handle								windowInfoHandle,
+				Handle								mapProjectionHandle);
 
-//extern SInt16					LoadGDALInformation (
-//										FileInfoPtr 						fileInfoPtr, 
-//										char*									headerRecordPtr, 
-//										SInt16								format);
+extern Boolean VerifyImageFileCanBeForProject (
+				Handle								imageWindowInfoH);
 
-extern void						SetFileMapProjectionHandle2 (
-										Handle								windowInfoHandle,
-										Handle								mapProjectionHandle);
-
-extern Boolean					VerifyImageFileCanBeForProject (
-										Handle								imageWindowInfoH);
-
-extern void						SetProjectWindowBoxes (
-										SInt16*								borderPtr,
-										SInt16*								windowCenterPtr,
-										SInt16*								windowWidthPtr,
-										SInt16*								topStartPtr,
-										SInt16								pushButtonSpacing);
+extern void SetProjectWindowBoxes (
+				SInt16*								borderPtr,
+				SInt16*								windowCenterPtr,
+				SInt16*								windowWidthPtr,
+				SInt16*								topStartPtr,
+				SInt16								pushButtonSpacing);
 
 
 
@@ -187,7 +186,7 @@ SInt16	 				ReadModifiedStats (
 																	
 SInt16	 				ReadProjectFile (void);
 
-SInt16	 				ReadStatistics ( 
+SInt16	 				ReadStatistics (
 								HPClassNamesPtr 					classNamesPtr, 
 								SInt16	 							storageIndex, 
 								ParmBlkPtr 							paramBlockPtr,
@@ -300,11 +299,11 @@ void AdjustFieldBoundaries (
 			// Check input parameters.															
 			
 	if (gProjectInfoPtr == NULL || fileInfoPtr == NULL)
-																							return;
+																									return;
 																							
-	if ( (gProjectInfoPtr->startLine == fileInfoPtr->startLine) &&
-				(gProjectInfoPtr->startColumn == fileInfoPtr->startColumn) )
-																							return;
+	if ((gProjectInfoPtr->startLine == fileInfoPtr->startLine) &&
+						(gProjectInfoPtr->startColumn == fileInfoPtr->startColumn))
+																									return;
 	
 	lineAdjust = gProjectInfoPtr->startLine - fileInfoPtr->startLine;
 	columnAdjust = gProjectInfoPtr->startColumn - fileInfoPtr->startColumn;
@@ -317,16 +316,16 @@ void AdjustFieldBoundaries (
 			
 	for (point=0; 
 			point<totalNumberPoints; 
-			point++)
+				point++)
 		{
 		fieldPointsPtr[point].line += lineAdjust;
 		fieldPointsPtr[point].col += columnAdjust;
 		
-		}		// end "for (point=0; ..."
+		}	// end "for (point=0; ..."
 		
 	return;																						
 																				
-}		// end "AdjustFieldBoundaries" 
+}	// end "AdjustFieldBoundaries" 
 
 
                    
@@ -369,11 +368,11 @@ void AdjustLabelPoints (
 			// Check input parameters.															
 			
 	if (gProjectInfoPtr == NULL || fileInfoPtr == NULL)
-																							return;
+																									return;
 																							
-	if ( (gProjectInfoPtr->startLine == fileInfoPtr->startLine) &&
-				(gProjectInfoPtr->startColumn == fileInfoPtr->startColumn) )
-																							return;
+	if ((gProjectInfoPtr->startLine == fileInfoPtr->startLine) &&
+						(gProjectInfoPtr->startColumn == fileInfoPtr->startColumn))
+																									return;
 	
 	lineAdjust = gProjectInfoPtr->startLine - fileInfoPtr->startLine;
 	columnAdjust = gProjectInfoPtr->startColumn - fileInfoPtr->startColumn;
@@ -381,25 +380,25 @@ void AdjustLabelPoints (
 	
 	fieldIdentPtr = gProjectInfoPtr->fieldIdentPtr;
 	
-			// Need to adjust all possible field points even if the fields have been deleted
-			// in case any of the fields are 'uncut'.
+			// Need to adjust all possible field points even if the fields have been
+			// deleted in case any of the fields are 'uncut'.
 			
 	for (field=0; 
 			field<totalNumberFields; 
-			field++)
+				field++)
 		{
 		if (fieldIdentPtr[field].pointType == kPolygonType)
 			{		
 			fieldIdentPtr[field].labelPoint.v += lineAdjust;
 			fieldIdentPtr[field].labelPoint.h += columnAdjust;
 			
-			}		// end "if (fieldIdentPtr[field].pointType == kPolygonType)"
+			}	// end "if (fieldIdentPtr[field].pointType == kPolygonType)"
 		
-		}		// end "for (field=0; ..."
+		}	// end "for (field=0; ..."
 		
 	return;																						
 																				
-}		// end "AdjustLabelPoints" 
+}	// end "AdjustLabelPoints" 
 
 
                    
@@ -426,7 +425,7 @@ void AdjustLabelPoints (
 // Called By:			Menus in menus.c
 //
 //	Coded By:			Larry L. Biehl			Date: 06/21/1990
-//	Revised By:			Larry L. Biehl			Date: 09/08/2006
+//	Revised By:			Larry L. Biehl			Date: 09/01/2017
 
 void ChangeProjectBaseImage (void)
 
@@ -447,7 +446,7 @@ void ChangeProjectBaseImage (void)
 			// Check input parameters.															
 			
 	if (gProjectInfoPtr == NULL)
-																							return;
+																									return;
 																							
 	gProcessorCode = kChangeBaseImageProcessor;
 																							
@@ -468,13 +467,13 @@ void ChangeProjectBaseImage (void)
 				// Lock the memory for newImageFileInfoH.									
 				// Then get the pointer to the file information block.				
 					
-		newImageFileInfoPtr = (FileInfoPtr)GetHandlePointer(
-												newImageFileInfoH, kLock, kNoMoveHi);
+		newImageFileInfoPtr = (FileInfoPtr)GetHandlePointer (
+																		newImageFileInfoH, kLock);
 		
 				// Get the new project base image file.									
 				
 		continueFlag = UserLocateProjectBaseImage (
-										newImageFileInfoH, IDS_SelectNewBaseImage, 2);
+											newImageFileInfoH, IDS_SelectNewBaseImage, 2);
 											
 				// Allocate structures for the window information to be certain	
 				// that there is enough memory for them in case they are needed.	
@@ -517,38 +516,35 @@ void ChangeProjectBaseImage (void)
 				
 			window = 0;
 			windowIndex = kImageWindowStart;
-			while ( window<gNumberOfIWindows )
+			while (window<gNumberOfIWindows)
 				{
-				windowInfoHandle = 
-						(Handle)GetWindowInfoHandle( gWindowList[windowIndex] );
+				windowInfoHandle = (Handle)GetWindowInfoHandle (gWindowList[windowIndex]);
 				
 				WindowInfoPtr windowInfoPtr = (WindowInfoPtr)GetHandlePointer (
-																windowInfoHandle,
-																kNoLock,
-																kNoMoveHi);
+																						windowInfoHandle);
 				if (windowInfoPtr != NULL)		
 					windowInfoPtr->projectBaseImageFlag = FALSE;
 				
 				window++;
 				windowIndex++;
 															
-				}		// end "while ( window<gNumberOfIWindows )" 
+				}	// end "while (window<gNumberOfIWindows)" 
 				
 			CloseProjectImageFile (gProjectInfoPtr);
-/*			
+			/*			
 			if (gProjectInfoPtr->windowInfoHandle != NULL)
 				{
 				windowInfoHandle = gProjectInfoPtr->windowInfoHandle;
 				CloseWindowImageFiles (windowInfoHandle);
-				UnlockAndDispose ( GetLayerInfoHandle (windowInfoHandle) );    
+				UnlockAndDispose (GetLayerInfoHandle (windowInfoHandle));    
 				windowInfoHandle = UnlockAndDispose (windowInfoHandle);
 				
-				}		// end "if (gProjectInfoPtr->windowInfoHandle != ...)" 
-*/		
+				}	// end "if (gProjectInfoPtr->windowInfoHandle != ...)" 
+			*/		
 			gProjectInfoPtr->windowInfoHandle = newWindowInfoHandle;
 			
-			GetCopyOfPFileName (
-							newImageFileInfoPtr, gProjectInfoPtr->imageFileName);
+			GetCopyOfPFileNameFromFileInfo (
+									newImageFileInfoPtr, gProjectInfoPtr->imageFileName);
 			
 			gProjectInfoPtr->startLine = newImageFileInfoPtr->startLine;
 			gProjectInfoPtr->startColumn = newImageFileInfoPtr->startColumn;
@@ -558,26 +554,23 @@ void ChangeProjectBaseImage (void)
 					// the new project base image and update their parameter			
 					// settings.																	
 					
-			if ( FindProjectImageWindows (FALSE) )
-			
+			if (FindProjectImageWindows (FALSE))
 						// Outline the fields in the image windows for the new 		
-						// base image.																
-						
-				OutlineFieldsInProjectBaseWindows (
-														gProjectInfoPtr->statsWindowMode);
+						// base image.
+				OutlineFieldsInProjectBaseWindows (gProjectInfoPtr->statsWindowMode);
 			
 					// Document change to the text window.									
 						
 			ForceTextToEnd (); 
 			
-			continueFlag = ListSpecifiedStringNumber ( 
-													kProjectStrID, 
-													IDS_Project39,
-													NULL, 
-													gOutputForce1Code, 
-													(char*)&gProjectInfoPtr->imageFileName[1], 
-													continueFlag,
-													kUTF8CharString);
+			continueFlag = ListSpecifiedStringNumber (
+														kProjectStrID,
+														IDS_Project39,
+														NULL, 
+														gOutputForce1Code, 
+														(char*)&gProjectInfoPtr->imageFileName[1], 
+														continueFlag,
+														kUTF8CharString);
 					
 			UpdateOutputWScrolls (gOutputWindow, 1, kDisplayMessage);
 		
@@ -585,9 +578,9 @@ void ChangeProjectBaseImage (void)
 								
 			gUpdateProjectMenuItemsFlag = TRUE;
 					
-			}		// end "if (continueFlag)" 
+			}	// end "if (continueFlag)" 
 			
-		else		// !continueFlag 
+		else	// !continueFlag 
 			disposeMemoryFlag = TRUE;
 			
 		if (disposeMemoryFlag)
@@ -596,16 +589,16 @@ void ChangeProjectBaseImage (void)
 			newImageFileInfoH = NULL;
 			
 			if (newWindowInfoHandle != NULL)
-				UnlockAndDispose ( GetLayerInfoHandle (newWindowInfoHandle) );
+				UnlockAndDispose (GetLayerInfoHandle (newWindowInfoHandle));
 			UnlockAndDispose (newWindowInfoHandle);
 			
-			}		// end "if (disposeMemoryFlag)" 
+			}	// end "if (disposeMemoryFlag)" 
 					
 		CheckAndUnlockHandle (newImageFileInfoH);
 		
-		}		// end "if (newImageFileInfoH != NULL)" 
+		}	// end "if (newImageFileInfoH != NULL)" 
 																				
-}		// end "ChangeProjectBaseImage"
+}	// end "ChangeProjectBaseImage"
 
 
 
@@ -647,11 +640,11 @@ Boolean CheckIfProjectAssociatedImage (
 				
 		returnFlag = FALSE;
 		
-		}		// end "if (fileInfoHandle != NULL && gProjectInfoPtr != NULL)"
+		}	// end "if (fileInfoHandle != NULL && gProjectInfoPtr != NULL)"
 		
 	return (returnFlag);
 																				
-}		// end "CheckIfProjectAssociatedImage" 
+}	// end "CheckIfProjectAssociatedImage" 
 
 
 
@@ -676,7 +669,7 @@ Boolean CheckIfProjectAssociatedImage (
 // Called By:			CreateImageWindow in window.c
 //
 //	Coded By:			Larry L. Biehl			Date: 05/10/1990
-//	Revised By:			Larry L. Biehl			Date: 03/06/2017
+//	Revised By:			Larry L. Biehl			Date: 09/01/2017
 
 Boolean CheckIfProjectBaseImage (
 				Handle								fileInfoHandle)
@@ -691,15 +684,15 @@ Boolean CheckIfProjectBaseImage (
 	
 	if (fileInfoHandle != NULL && gProjectInfoPtr != NULL)
 		{
-		fileInfoPtr = (FileInfoPtr)GetHandlePointer(
-														fileInfoHandle, kLock, kNoMoveHi);
+		fileInfoPtr = (FileInfoPtr)GetHandlePointer (fileInfoHandle, kLock);
 		
-		if ( !fileInfoPtr->thematicType )
+		if (!fileInfoPtr->thematicType)
 			{
 					// First check if the image belongs to the project base image file.
 					// Get pointer to image window file name.		
 			
-			FileStringPtr fileNamePtr = (FileStringPtr)GetFileNameCPointer (fileInfoPtr);
+			FileStringPtr fileNamePtr =
+								(FileStringPtr)GetFileNameCPointerFromFileInfo (fileInfoPtr);
 
 					// Get pointer to project image file name.
 					
@@ -712,15 +705,15 @@ Boolean CheckIfProjectBaseImage (
 						// agrees with the project information.
 				returnFlag = CompareImageProjectFileInfo (fileInfoHandle);
 				
-			}		// end "if ( !fileInfoPtr->thematicType )" 
+			}	// end "if (!fileInfoPtr->thematicType)" 
 			
 		CheckAndUnlockHandle (fileInfoHandle);
 		
-		}		// end "if (fileInfoHandle != NULL && ...)" 
+		}	// end "if (fileInfoHandle != NULL && ...)" 
 		
 	return (returnFlag);
 																				
-}		// end "CheckIfProjectBaseImage" 
+}	// end "CheckIfProjectBaseImage" 
 
 
                    
@@ -759,11 +752,10 @@ void CloseProjectImageFile (
 		#if defined multispec_mac 		
 			CloseWindowImageFiles (inputProjectInfoPtr->windowInfoHandle);
 		
-			windowInfoPtr = (WindowInfoPtr)GetHandlePointer(
-													inputProjectInfoPtr->windowInfoHandle,
-													kLock,
-													kNoMoveHi);
-													
+			windowInfoPtr = (WindowInfoPtr)GetHandlePointer (
+															inputProjectInfoPtr->windowInfoHandle,
+															kLock);
+			
 			if (windowInfoPtr != NULL)
 				{
 				UnlockAndDispose (windowInfoPtr->layerInfoHandle);
@@ -773,7 +765,7 @@ void CloseProjectImageFile (
 				UnlockAndDispose (windowInfoPtr->imageSecondOrderStats.sumsHandle);
 				UnlockAndDispose (windowInfoPtr->imageSecondOrderStats.sumSquaresHandle);
 				
-				}		// end "if (windowInfoPtr != NULL)"
+				}	// end "if (windowInfoPtr != NULL)"
 		
 					// Unlock handle to window information structure						
 		
@@ -784,24 +776,22 @@ void CloseProjectImageFile (
       #if defined multispec_win || defined multispec_lin
 			CMImageWindow* imageWindowCPtr = NULL;
 			                                                 
-			windowInfoPtr = (WindowInfoPtr)GetHandlePointer(
-													inputProjectInfoPtr->windowInfoHandle,
-													kNoLock,
-													kNoMoveHi); 
+			windowInfoPtr = (WindowInfoPtr)GetHandlePointer (
+															inputProjectInfoPtr->windowInfoHandle);
 			
 			if (windowInfoPtr != NULL)		
 				{				
 						// Dispose of memory for the image sums and sums of squares.
 				
 				windowInfoPtr->imageSecondOrderStats.sumsHandle = 								
-					UnlockAndDispose (windowInfoPtr->imageSecondOrderStats.sumsHandle);
+						UnlockAndDispose (windowInfoPtr->imageSecondOrderStats.sumsHandle);
 				
 				windowInfoPtr->imageSecondOrderStats.sumSquaresHandle = 	
 					UnlockAndDispose (windowInfoPtr->imageSecondOrderStats.sumSquaresHandle);
 				
 				imageWindowCPtr = windowInfoPtr->cImageWindowPtr;
 				
-				}		// end "if (windowInfoPtr != NULL)"								
+				}	// end "if (windowInfoPtr != NULL)"								
 			                    
 			if (imageWindowCPtr != NULL)
 				delete imageWindowCPtr;                             						
@@ -809,9 +799,9 @@ void CloseProjectImageFile (
 			inputProjectInfoPtr->windowInfoHandle = NULL;
 		#endif	// defined multispec_win 
 		
-		}		// end "if (inputProjectInfoPtr)" 
+		}	// end "if (inputProjectInfoPtr)" 
 																				
-}		// end "CloseProjectImageFile" 
+}	// end "CloseProjectImageFile" 
 
 
 
@@ -897,15 +887,15 @@ void CloseProjectStructure (
 			if (gActiveImageWindow == NULL)
 				gRedrawMenuBar = TRUE;
 			
-			}		// end "if (projectActiveFlag)" 
+			}	// end "if (projectActiveFlag)" 
 		
 				// Dispose of handle to project information strucure.					
 				
 		UnlockAndDispose (projectInfoHandle);
 	
-		}		// end "if (inputProjectInfoPtr != NULL)" 
+		}	// end "if (inputProjectInfoPtr != NULL)" 
 
-}		// end "CloseProjectStructure"
+}	// end "CloseProjectStructure"
 
 
     
@@ -945,7 +935,7 @@ Boolean ClusterStatisticsVerification (void)
 	
 
 	if (gProjectInfoPtr == NULL)
-																			return (FALSE);
+																						return (FALSE);
 																			
 			// Intialize local variables.												
 			
@@ -955,25 +945,25 @@ Boolean ClusterStatisticsVerification (void)
 								
 	fieldTypesPresentCode = DetermineFieldTypes ();
 	
-	if ( fieldTypesPresentCode & 0x0004 )
+	if (fieldTypesPresentCode & 0x0004)
 		{
 		if (gProjectInfoPtr->keepClassStatsOnlyFlag)
 			{
-			if ( !gProjectInfoPtr->saveClassMeansCovFlag &&
-								!gProjectInfoPtr->saveClassSumsSquaresFlag)
+			if (!gProjectInfoPtr->saveClassMeansCovFlag &&
+													!gProjectInfoPtr->saveClassSumsSquaresFlag)
 				continueFlag = FALSE;
 			
-			}		// end "if (...->keepClassStatsOnlyFlag)" 
+			}	// end "if (...->keepClassStatsOnlyFlag)" 
 			
-		else		// !gProjectInfoPtr->keepClassStatsOnlyFlag 
+		else	// !gProjectInfoPtr->keepClassStatsOnlyFlag 
 			{
-			if ( !gProjectInfoPtr->saveFieldMeansCovFlag &&
-								!gProjectInfoPtr->saveFieldSumsSquaresFlag)
+			if (!gProjectInfoPtr->saveFieldMeansCovFlag &&
+													!gProjectInfoPtr->saveFieldSumsSquaresFlag)
 				continueFlag = FALSE;
 			
-			}		// end "if (...->keepClassStatsOnlyFlag)" 
+			}	// end "if (...->keepClassStatsOnlyFlag)" 
 			
-		if ( !continueFlag )
+		if (!continueFlag)
 			{
 					// Cluster fields exist and the statistics are not 		
 					// being saved to disk.												
@@ -983,13 +973,13 @@ Boolean ClusterStatisticsVerification (void)
 			if (returnCode == 3)
 				continueFlag = TRUE;
 			
-			}		// end "if ( !continueFlag )" 
+			}	// end "if (!continueFlag)" 
 		
-		}		// end "if ( fieldTypesPresentCode & 0x0004 )" 
+		}	// end "if (fieldTypesPresentCode & 0x0004)" 
 		
 	return (continueFlag);
 		
-}		// end "ClusterStatisticsVerification"  
+}	// end "ClusterStatisticsVerification"  
 #endif	// defined multispec_mac 
 
 
@@ -1037,12 +1027,12 @@ SInt16 CompareImageDimensionsWithProjectFields (
 			// Check input parameters.															
 			
 	if (gProjectInfoPtr == NULL || fileInfoPtr == NULL)
-																					return (-1);
+																							return (-1);
 	
 	returnCode = 1;
 	InitializeAreaDescription (&areaDescription);
 	
-	for ( classIndex=0; 
+	for (classIndex=0; 
 			classIndex<gProjectInfoPtr->numberStatisticsClasses; 
 			classIndex++)
 		{
@@ -1052,7 +1042,7 @@ SInt16 CompareImageDimensionsWithProjectFields (
 		
 		fieldNumber = gProjectInfoPtr->classNamesPtr[classStorage].firstFieldNumber;
 		
-		while ( (fieldNumber != -1) && (returnCode == 1) )
+		while ((fieldNumber != -1) && (returnCode == 1))
 			{
 			if (gProjectInfoPtr->fieldIdentPtr[fieldNumber].pointType != kClusterType)
 				{
@@ -1063,14 +1053,14 @@ SInt16 CompareImageDimensionsWithProjectFields (
 						// Compare the coordinates of the field.								
 				
 				if (areaDescription.lineStart + gProjectInfoPtr->startLine - 1 <
-																		fileInfoPtr->startLine )
+																		fileInfoPtr->startLine)
 					returnCode = 0;
 				if (areaDescription.lineEnd + gProjectInfoPtr->startLine > 
 									fileInfoPtr->numberLines + fileInfoPtr->startLine)
 					returnCode = 0;
 					
 				if (areaDescription.columnStart + gProjectInfoPtr->startColumn - 1 <
-																		fileInfoPtr->startColumn )
+																		fileInfoPtr->startColumn)
 					returnCode = 0;
 				if (areaDescription.columnEnd + gProjectInfoPtr->startColumn > 
 									fileInfoPtr->numberColumns + fileInfoPtr->startColumn)
@@ -1080,23 +1070,23 @@ SInt16 CompareImageDimensionsWithProjectFields (
 				
 				CloseUpAreaDescription (&areaDescription);
 					
-				}		// end "if (...fieldIdentPtr[fieldNumber].pointType != kClusterType)" 
+				}	// end "if (...fieldIdentPtr[fieldNumber].pointType != kClusterType)" 
 			
-			else		// ...fieldIdentPtr[fieldNumber].pointType == kClusterType
+			else	// ...fieldIdentPtr[fieldNumber].pointType == kClusterType
 				{
 				if (returnCode != 0)
 					returnCode = 2;
 					
-				}		// end "else ...[fieldNumber].pointType == kClusterType" 
+				}	// end "else ...[fieldNumber].pointType == kClusterType" 
 			
 			fieldNumber = gProjectInfoPtr->fieldIdentPtr[fieldNumber].nextField;
 			
-			}		// end "while ( (fieldNumber != -1) && ..."
+			}	// end "while ((fieldNumber != -1) && ..."
 			
-		if ( returnCode < 1)
+		if (returnCode < 1)
 			break;
 			
-		}		// end "for ( classIndex=0; classIndex<..." 
+		}	// end "for (classIndex=0; classIndex<..." 
 		
 			// Display an alert indicating that the project fields do not fit	
 			// within the lines and columns of the proposed new base image.	
@@ -1105,11 +1095,11 @@ SInt16 CompareImageDimensionsWithProjectFields (
 	
 	if (returnCode == 0)
 		{
-		if ( DisplayAlert (
-				kOKCancelAlertID, kCautionAlert, kAlertStrID, IDS_Alert10, 0, NULL) == 2 )
+		if (DisplayAlert (
+				kOKCancelAlertID, kCautionAlert, kAlertStrID, IDS_Alert10, 0, NULL) == 2)
 			returnCode = -1;
 		
-		}		// end "if (returnCode == 0)"  
+		}	// end "if (returnCode == 0)"  
 		
 			// Display an alert indicating that the cluster fields will have
 			// to be deleted.	
@@ -1117,18 +1107,18 @@ SInt16 CompareImageDimensionsWithProjectFields (
 	
 	if (returnCode == 2)
 		{
-		if ( DisplayAlert (
-				kOKCancelAlertID, kCautionAlert, kAlertStrID, IDS_Alert48, 0, NULL) == 2 )
+		if (DisplayAlert (
+				kOKCancelAlertID, kCautionAlert, kAlertStrID, IDS_Alert48, 0, NULL) == 2)
 			returnCode = -1;
 			
-		else		// DisplayAlert (... != 2
+		else	// DisplayAlert (... != 2
 			returnCode = 1;
 		
-		}		// end "if (returnCode == 2)" 
+		}	// end "if (returnCode == 2)" 
 	
 	return (returnCode);																						
 																				
-}		// end "CompareImageDimensionsWithProjectFields"
+}	// end "CompareImageDimensionsWithProjectFields"
 
 
 
@@ -1171,10 +1161,9 @@ Boolean CompareImageProjectFileInfo (
 		returnFlag = TRUE;
 		
 		projectWindowInfoPtr = (WindowInfoPtr)GetHandlePointer (
-							gProjectInfoPtr->windowInfoHandle, kNoLock, kNoMoveHi);
+																gProjectInfoPtr->windowInfoHandle);
 														
-		fileInfoPtr = (FileInfoPtr)GetHandlePointer (
-														fileInfoHandle, kNoLock, kNoMoveHi);
+		fileInfoPtr = (FileInfoPtr)GetHandlePointer (fileInfoHandle);
 		
 				// Check if image window file information compares to project		
 				// image file information.														
@@ -1218,13 +1207,13 @@ Boolean CompareImageProjectFileInfo (
 			
 			gProjectInfoPtr->changedFlag = TRUE;
 			
-			}		// end "if (returnFlag && ..." 
+			}	// end "if (returnFlag && ..." 
 		
-		}		// end "if (fileInfoHandle != NULL)" 
+		}	// end "if (fileInfoHandle != NULL)" 
 		
 	return (returnFlag);
 																				
-}		// end "CompareImageProjectFileInfo" 
+}	// end "CompareImageProjectFileInfo" 
 
 
 
@@ -1264,9 +1253,10 @@ Boolean	CopyFileInfoFromProject (
 	
 			// Check input variables.															
 			
-	if (fileInfoHandle == NULL || gProjectInfoPtr == NULL || 
-												gProjectInfoPtr->windowInfoHandle == NULL)
-																				return (FALSE);
+	if (fileInfoHandle == NULL ||
+				gProjectInfoPtr == NULL ||
+						gProjectInfoPtr->windowInfoHandle == NULL)
+																							return (FALSE);
 																				
 			// Initialize local variables.													
 			
@@ -1276,11 +1266,11 @@ Boolean	CopyFileInfoFromProject (
 			// isn't already locked, until the information has been loaded			
 			// in. Then get the pointer to the file information block				
 	
-	fileInfoPtr = (FileInfoPtr)GetHandleStatusAndPointer(
-												fileInfoHandle, &handleStatus, kNoMoveHi);
+	fileInfoPtr = (FileInfoPtr)GetHandleStatusAndPointer (
+																	fileInfoHandle, &handleStatus);
 	
-	projectWindowInfoPtr = (WindowInfoPtr)GetHandlePointer(
-								gProjectInfoPtr->windowInfoHandle, kLock, kNoMoveHi);
+	projectWindowInfoPtr = (WindowInfoPtr)GetHandlePointer (
+													gProjectInfoPtr->windowInfoHandle, kLock);
 	
 	if (gProjectInfoPtr != NULL)
 		{
@@ -1293,8 +1283,7 @@ Boolean	CopyFileInfoFromProject (
 		fileInfoPtr->numberBits = projectWindowInfoPtr->numberBits;
 		fileInfoPtr->numberBins = 0;
 		if (fileInfoPtr->numberBits > 0)
-			fileInfoPtr->numberBins = 
-					(UInt32)ldexp( (double)1, fileInfoPtr->numberBits);
+			fileInfoPtr->numberBins = (UInt32)ldexp ((double)1, fileInfoPtr->numberBits);
 		
 		fileInfoPtr->signedDataFlag = gProjectInfoPtr->signedDataFlag;		
 		fileInfoPtr->swapBytesFlag = gProjectInfoPtr->swapBytesFlag;
@@ -1308,13 +1297,13 @@ Boolean	CopyFileInfoFromProject (
 		
 		returnFlag = TRUE;
 			
-		}		// end "if (gProjectInfoPtr)" 
+		}	// end "if (gProjectInfoPtr)" 
 		
 	MHSetState (fileInfoHandle, handleStatus);
 		
 	return (returnFlag);
 
-}		// end "CopyFileInfoFromProject" 
+}	// end "CopyFileInfoFromProject" 
 
 
 
@@ -1347,7 +1336,7 @@ SInt16 CopyFileInfoHandles (
 				FileInfoPtr							outputFileInfoPtr)
 
 { 
-	SInt16				errCode = NULL;
+	SInt16								errCode = NULL;
 	
 	   	
 			// Don't use the same handles for the channel descriptions,		
@@ -1356,19 +1345,20 @@ SInt16 CopyFileInfoHandles (
 	
 	if (outputFileInfoPtr->channelValuesHandle != NULL &&
 					outputFileInfoPtr->channelValuesHandle == 
-														inputFileInfoPtr->channelValuesHandle)
+															inputFileInfoPtr->channelValuesHandle)
 		{
 		errCode = HandToHand (&outputFileInfoPtr->channelValuesHandle);
 
-		}		// end "inputFileInfoPtr->channelValuesHandle != NULL" 
+		}	// end "inputFileInfoPtr->channelValuesHandle != NULL && ..."
 
 	if (errCode == noErr && 
 			outputFileInfoPtr->channelDescriptionH != NULL &&
-				outputFileInfoPtr->channelDescriptionH == inputFileInfoPtr->channelDescriptionH)
+				outputFileInfoPtr->channelDescriptionH ==
+																inputFileInfoPtr->channelDescriptionH)
 		{
 		errCode = HandToHand (&outputFileInfoPtr->channelDescriptionH);
 
-		}		// end "if (errCode == noErr && ..."
+		}	// end "if (errCode == noErr && ..."
 
 	if (errCode == noErr && 
 			outputFileInfoPtr->classDescriptionH != NULL &&
@@ -1376,15 +1366,16 @@ SInt16 CopyFileInfoHandles (
 		{
 		errCode = HandToHand (&outputFileInfoPtr->classDescriptionH);
 
-		}		// end "if (errCode == noErr && ..."
+		}	// end "if (errCode == noErr && ..."
 
 	if (errCode == noErr && 
 			outputFileInfoPtr->controlPointsHandle != NULL &&
-				outputFileInfoPtr->controlPointsHandle == inputFileInfoPtr->controlPointsHandle)
+				outputFileInfoPtr->controlPointsHandle ==
+																inputFileInfoPtr->controlPointsHandle)
 		{
 		errCode = HandToHand (&outputFileInfoPtr->controlPointsHandle);
 
-		}		// end "if (errCode == noErr && ..."
+		}	// end "if (errCode == noErr && ..."
 
 	if (errCode == noErr && 
 			outputFileInfoPtr->groupTablesHandle != NULL &&
@@ -1392,7 +1383,7 @@ SInt16 CopyFileInfoHandles (
 		{
 		errCode = HandToHand (&outputFileInfoPtr->groupTablesHandle);
 
-		}		// end "if (errCode == noErr && ..."
+		}	// end "if (errCode == noErr && ..."
 
 	if (errCode == noErr && 
 			outputFileInfoPtr->groupNameHandle != NULL &&
@@ -1400,7 +1391,7 @@ SInt16 CopyFileInfoHandles (
 		{
 		errCode = HandToHand (&outputFileInfoPtr->groupNameHandle);
 
-		}		// end "if (errCode == noErr && ..."
+		}	// end "if (errCode == noErr && ..."
 
 	if (errCode == noErr && 
 			outputFileInfoPtr->hdfHandle != NULL &&
@@ -1414,18 +1405,18 @@ SInt16 CopyFileInfoHandles (
 				{
 				errCode = HandToHand (&outputFileInfoPtr->channelToHdfDataSetHandle);
 				
-				}		// end "if (errCode == noErr)"
+				}	// end "if (errCode == noErr)"
 			
-			}		// end "inputFileInfoPtr->callGetHDFLineFlag"
+			}	// end "inputFileInfoPtr->callGetHDFLineFlag"
 			
-		else		// !inputFileInfoPtr->callGetHDFLineFlag
+		else	// !inputFileInfoPtr->callGetHDFLineFlag
 			{
 			outputFileInfoPtr->channelToHdfDataSetHandle = NULL;
 			outputFileInfoPtr->hdfHandle = NULL;
 				
-			}		// end "else !inputFileInfoPtr->callGetHDFLineFlag"
+			}	// end "else !inputFileInfoPtr->callGetHDFLineFlag"
 
-		}		// end "if (errCode == noErr && ..."
+		}	// end "if (errCode == noErr && ..."
 	
 	if (errCode == noErr && 
 			outputFileInfoPtr->hfaHandle != NULL &&
@@ -1433,7 +1424,7 @@ SInt16 CopyFileInfoHandles (
 		{
 		errCode = HandToHand (&outputFileInfoPtr->hfaHandle);
 
-		}		// end "if (errCode == noErr && ..." 
+		}	// end "if (errCode == noErr && ..." 
 	
 	if (errCode == noErr && 
 			outputFileInfoPtr->mapProjectionHandle != NULL &&
@@ -1443,7 +1434,7 @@ SInt16 CopyFileInfoHandles (
 		errCode = CopyMapProjectionHandle (inputFileInfoPtr->mapProjectionHandle,
 														&outputFileInfoPtr->mapProjectionHandle);
 
-		}		// end "if (errCode == noErr && ..."
+		}	// end "if (errCode == noErr && ..."
 		
 			// Make sure that all output file handles are null if there is an error and
 			// the output handle is the same as the input handle. We do not want an 
@@ -1490,11 +1481,11 @@ SInt16 CopyFileInfoHandles (
 														inputFileInfoPtr->mapProjectionHandle)
 			outputFileInfoPtr->mapProjectionHandle = NULL;
 		
-		}		// end "if (errCode != noErr)"
+		}	// end "if (errCode != noErr)"
 		
 	return (errCode);
 
-}		// end "CopyFileInfoHandles"
+}	// end "CopyFileInfoHandles"
 
 
 
@@ -1544,7 +1535,7 @@ Boolean CreateNewProject (
 		if (gProjectInfoPtr->changedFlag)
 			returnCode = SaveProjectFile (2);
 			
-		}		// end "if (gProjectInfoPtr != NULL)" 
+		}	// end "if (gProjectInfoPtr != NULL)" 
 			
 	if (returnCode == 0)
 		{
@@ -1558,7 +1549,7 @@ Boolean CreateNewProject (
 		DeactivateProject ();
 			
 		if (gProjectInfoPtr != NULL && !saveProjectFlag)
-			ReleaseProjectHandles(gProjectInfoPtr);
+			ReleaseProjectHandles (gProjectInfoPtr);
 			
 				// Now create the new project.											
 				
@@ -1570,8 +1561,10 @@ Boolean CreateNewProject (
 		if (gProjectInfoPtr && savedProjectInfoPtr)
 			{
 			gProjectInfoPtr->listMatrixType = savedProjectInfoPtr->listMatrixType;
-			gProjectInfoPtr->listMeanStdPrecision = savedProjectInfoPtr->listMeanStdPrecision;
-			gProjectInfoPtr->listCovCorPrecision = savedProjectInfoPtr->listCovCorPrecision;
+			gProjectInfoPtr->listMeanStdPrecision =
+														savedProjectInfoPtr->listMeanStdPrecision;
+			gProjectInfoPtr->listCovCorPrecision =
+														savedProjectInfoPtr->listCovCorPrecision;
 			
 			gProjectInfoPtr->outlineFieldType = savedProjectInfoPtr->outlineFieldType;
 			gProjectInfoPtr->labelFieldCode = savedProjectInfoPtr->labelFieldCode;
@@ -1581,14 +1574,15 @@ Boolean CreateNewProject (
 			
 			gProjectInfoPtr->statsWindowMode = savedProjectInfoPtr->statsWindowMode;
 			
-//					Decided not to save the processor handles.  3-27-91.  Too big	
-//					of a chance that the specs will not make sense for the new 		
-//					project.																			
+					// Decided not to save the processor handles.  3-27-91.  Too big
+					// of a chance that the specs will not make sense for the new
+					// project.
 
 			gProjectInfoPtr->toFieldControlH = savedProjectInfoPtr->toFieldControlH;
 			gProjectInfoPtr->updateControlH = savedProjectInfoPtr->updateControlH;
 			gProjectInfoPtr->newFieldControlH = savedProjectInfoPtr->newFieldControlH;
-			gProjectInfoPtr->polygonTypeControlH = savedProjectInfoPtr->polygonTypeControlH;
+			gProjectInfoPtr->polygonTypeControlH =
+														savedProjectInfoPtr->polygonTypeControlH;
 			gProjectInfoPtr->toClassControlH = savedProjectInfoPtr->toClassControlH;
 			gProjectInfoPtr->addToControlH = savedProjectInfoPtr->addToControlH;
 			gProjectInfoPtr->toProjectControlH = savedProjectInfoPtr->toProjectControlH;
@@ -1596,7 +1590,8 @@ Boolean CreateNewProject (
 			gProjectInfoPtr->histogramControlH = savedProjectInfoPtr->histogramControlH;
 			gProjectInfoPtr->editNameControlH = savedProjectInfoPtr->editNameControlH;
 			
-			gProjectInfoPtr->projectNameControlRef = savedProjectInfoPtr->projectNameControlRef;
+			gProjectInfoPtr->projectNameControlRef =
+														savedProjectInfoPtr->projectNameControlRef;
 			
 					// Exchange the project window information handles.  The		
 					// current project window information structure may be in	
@@ -1609,7 +1604,7 @@ Boolean CreateNewProject (
 			savedProjectInfoPtr->windowInfoHandle = windowInfoHandle;
 			CloseProjectImageFile (savedProjectInfoPtr);
 			
-			}		// end "if (gProjectInfoPtr && savedProjectInfoPtr)" 
+			}	// end "if (gProjectInfoPtr && savedProjectInfoPtr)" 
 			
 				// Now close the rest of the old project if it is not to be		
 				// saved.																		
@@ -1626,17 +1621,17 @@ Boolean CreateNewProject (
 			SetPortWindowPort (gProjectWindow);
 			InvalWindowRect (gProjectWindow, &gProjectInfoPtr->popUpClassBox);
 			SetPort (savedPort);
-//			NewFieldStatMode();
+			//NewFieldStatMode ();
 			
-			}		// end "if (gProjectWindow != NULL)"
+			}	// end "if (gProjectWindow != NULL)"
 			
 		return (TRUE);
 		
-		}		// end "if (returnCode == 0)" 
+		}	// end "if (returnCode == 0)" 
 		
 	return (FALSE);
 
-}		// end "CreateNewProject" 
+}	// end "CreateNewProject" 
 
 
                   
@@ -1683,9 +1678,9 @@ void DeactivateProject (void)
 		
 				// Remove class names from class popup menu.					
 	
-		for (	classNumber=1; 
-				classNumber<=gProjectInfoPtr->numberStatisticsClasses; 
-				classNumber++)
+		for (classNumber=1;
+					classNumber<=gProjectInfoPtr->numberStatisticsClasses;
+						classNumber++)
 			{
 			#if defined multispec_mac
 				DeleteMenuItem (gPopUpClassMenu, 2);
@@ -1693,17 +1688,17 @@ void DeactivateProject (void)
 																			
 			#if defined multispec_win
 				if (gProjectWindow != NULL)
-					((CComboBox*)gProjectWindow->GetDlgItem(IDC_ClassList))->DeleteString(1);
+					((CComboBox*)gProjectWindow->GetDlgItem (IDC_ClassList))->DeleteString (1);
 			#endif	// defined multispec_win
 			
-			}		// end "for (classNumber=1; ..."
+			}	// end "for (classNumber=1; ..."
 		
 				// Put 'Output Window' as the name of the output window.				
-				
-//		gTextString[0] = 0;
-//		ConcatPStrings (gTextString, (char*)"\0Text Output\0", 255);
-//		SetOutputWTitle(gTextString);
-	
+		/*
+		gTextString[0] = 0;
+		ConcatPStrings (gTextString, (char*)"\0Text Output\0", 255);
+		SetOutputWTitle (gTextString);
+		*/
 				// Set project related flags in window information structure			
 				// to FALSE.																			
 					           
@@ -1718,25 +1713,24 @@ void DeactivateProject (void)
 		if (gNumberOfIWindows > 0)
 			{
 			windowListIndex = kImageWindowStart;
-			for ( windowCount=0; windowCount<gNumberOfIWindows; windowCount++ )
+			for (windowCount=0; windowCount<gNumberOfIWindows; windowCount++)
 				{
 				windowInfoHandle = 
-							(Handle)GetWindowInfoHandle(gWindowList[windowListIndex]);
+							(Handle)GetWindowInfoHandle (gWindowList[windowListIndex]);
 				windowListIndex++;
 				
-				windowInfoPtr = (WindowInfoPtr)GetHandlePointer (
-														windowInfoHandle, kNoLock, kNoMoveHi);
+				windowInfoPtr = (WindowInfoPtr)GetHandlePointer (windowInfoHandle);
 					
 				windowInfoPtr->projectBaseImageFlag = FALSE;
 				windowInfoPtr->projectWindowFlag = FALSE;
 																	
-				}		// end "for ( windowCount=0; windowCount<gNumberOfIWindows;..." 
+				}	// end "for (windowCount=0; windowCount<gNumberOfIWindows;..." 
 					
-			}		// end "if (gNumberOfIWindows > 0)"
+			}	// end "if (gNumberOfIWindows > 0)"
 			
-		}		// end "if (gProjectInfoPtr != NULL)" 
+		}	// end "if (gProjectInfoPtr != NULL)" 
 
-}		// end "DeactivateProject" 
+}	// end "DeactivateProject" 
 
 
                    
@@ -1785,30 +1779,27 @@ Handle FindProjectBaseImageFileInfoHandle ()
 		do
 			{
 			windowPtr = gWindowList[windowIndex];
-			windowInfoHandle = (Handle)GetWindowInfoHandle(windowPtr);
+			windowInfoHandle = (Handle)GetWindowInfoHandle (windowPtr);
 				
-			windowInfoPtr = (WindowInfoPtr)GetHandlePointer (
-															windowInfoHandle,
-															kNoLock,
-															kNoMoveHi);							
+			windowInfoPtr = (WindowInfoPtr)GetHandlePointer (windowInfoHandle);
 						
 			if (windowInfoPtr->projectBaseImageFlag)
 				{
-				fileInfoHandle = GetFileInfoHandle(windowInfoHandle);
+				fileInfoHandle = GetFileInfoHandle (windowInfoHandle);
 				break;
 				
-				}		// end "if (windowInfoPtr->projectBaseImageFlag)"
+				}	// end "if (windowInfoPtr->projectBaseImageFlag)"
 			
 			window++;
 			windowIndex++;
 														
 			}		while (window<gNumberOfIWindows);
 			
-		}		// end "if (gNumberOfIWindows > 0)" 
+		}	// end "if (gNumberOfIWindows > 0)" 
 		
 	return (fileInfoHandle);
 			
-}		// end "FindProjectBaseImageFileInfoHandle"
+}	// end "FindProjectBaseImageFileInfoHandle"
 
 
                    
@@ -1859,12 +1850,9 @@ Handle FindProjectBaseImageWindowInfoHandle ()
 		do
 			{
 			windowPtr = gWindowList[windowIndex];
-			windowInfoHandle = (Handle)GetWindowInfoHandle(windowPtr);
+			windowInfoHandle = (Handle)GetWindowInfoHandle (windowPtr);
 				
-			windowInfoPtr = (WindowInfoPtr)GetHandlePointer (
-															windowInfoHandle,
-															kNoLock,
-															kNoMoveHi);							
+			windowInfoPtr = (WindowInfoPtr)GetHandlePointer (windowInfoHandle);
 						
 			if (windowInfoPtr->projectBaseImageFlag)
 				{
@@ -1873,18 +1861,18 @@ Handle FindProjectBaseImageWindowInfoHandle ()
 				if (windowInfoHandle == activeWindowInfoHandle)
 					break;
 				
-				}		// end "if (windowInfoPtr->projectBaseImageFlag)"
+				}	// end "if (windowInfoPtr->projectBaseImageFlag)"
 			
 			window++;
 			windowIndex++;
 														
 			}		while (window<gNumberOfIWindows);
 			
-		}		// end "if (gNumberOfIWindows > 0)" 
+		}	// end "if (gNumberOfIWindows > 0)" 
 		
 	return (returnWindowInfoHandle);
 			
-}		// end "FindProjectBaseImageWindowInfoHandle"
+}	// end "FindProjectBaseImageWindowInfoHandle"
 
 
                    
@@ -1922,7 +1910,7 @@ WindowPtr FindProjectBaseImageWindowPtr ()
 		
 	return (windowPtr);
 			
-}		// end "FindProjectBaseImageWindowPtr"
+}	// end "FindProjectBaseImageWindowPtr"
 
 
                    
@@ -1948,9 +1936,9 @@ WindowPtr FindProjectBaseImageWindowPtr ()
 //							OpenProjectFile in project.c
 //
 //	Coded By:			Larry L. Biehl			Date: 01/02/1989
-//	Revised By:			Larry L. Biehl			Date: 03/15/2017
+//	Revised By:			Larry L. Biehl			Date: 09/01/2017
 
-Boolean FindProjectImageWindows ( 
+Boolean FindProjectImageWindows (
 				Boolean								loadFileAndLayerInfoFlag)
 
 {
@@ -1981,13 +1969,12 @@ Boolean FindProjectImageWindows (
 		{
 		continueFlag = loadFileAndLayerInfoFlag;
 	
-		projectWindowInfoPtr = (WindowInfoPtr)GetHandleStatusAndPointer(
-					gProjectInfoPtr->windowInfoHandle, &handleStatus, kNoMoveHi);
+		projectWindowInfoPtr = (WindowInfoPtr)GetHandleStatusAndPointer (
+											gProjectInfoPtr->windowInfoHandle, &handleStatus);
 		
 				// Load project image file name into a temporary C string.			
 				
-		//pstr ((char*)gTextString,
-		//							(char*)gProjectInfoPtr->imageFileName, &strLength);
+		//pstr ((char*)gTextString, (char*)gProjectInfoPtr->imageFileName, &strLength);
 		//CopyPToP (gProjectInfoPtr->imageFileName)
 		
 		returnCode = 1;
@@ -1996,30 +1983,25 @@ Boolean FindProjectImageWindows (
 		do
 			{
 			windowPtr = gWindowList[windowIndex];
-			windowInfoHandle = (Handle)GetWindowInfoHandle(windowPtr);
-			fileInfoHandle = GetFileInfoHandle(windowInfoHandle);
+			windowInfoHandle = (Handle)GetWindowInfoHandle (windowPtr);
+			fileInfoHandle = GetFileInfoHandle (windowInfoHandle);
 			
 					// Load image window file name into a temporary C string.		
 			
-			FileInfoPtr fileInfoPtr = (FileInfoPtr)GetHandlePointer(fileInfoHandle,
-																	kNoLock,
-																	kNoMoveHi);
-			fileNamePtr	= (FileStringPtr)GetFileNameCPointer (fileInfoPtr);
-//			returnCode = CompareStringsNoCase ( (char*)&gTextString, (char*)fileNamePtr);
+			FileInfoPtr fileInfoPtr = (FileInfoPtr)GetHandlePointer (fileInfoHandle);
+			fileNamePtr	= (FileStringPtr)GetFileNameCPointerFromFileInfo (fileInfoPtr);
+			//returnCode = CompareStringsNoCase ((char*)gTextString, (char*)fileNamePtr);
 			
 			if (CompareStringsNoCase (&gProjectInfoPtr->imageFileName[1],
-															fileNamePtr) == 0)
+												fileNamePtr) == 0)
 				{
 						// Check if image window file information compares to 		
 						// project image file information.
 				
-				windowInfoPtr = (WindowInfoPtr)GetHandlePointer (
-																windowInfoHandle,
-																kNoLock,
-																kNoMoveHi);			
+				windowInfoPtr = (WindowInfoPtr)GetHandlePointer (windowInfoHandle);
 						
 				if (windowInfoPtr->numberImageFiles == 1 &&
-									CompareImageProjectFileInfo (fileInfoHandle))
+													CompareImageProjectFileInfo (fileInfoHandle))
 					{
 							// The image window corresponding to the image file in  	
 							// the project file was found.  Indicate that the image 	
@@ -2035,17 +2017,16 @@ Boolean FindProjectImageWindows (
 							// structures).
 					
 					if (continueFlag && projectWindowInfoPtr->fileInfoHandle == NULL)
-						continueFlag = 
-								LoadProjectFileAndLayerInformation (windowInfoHandle);
+						continueFlag = LoadProjectFileAndLayerInformation (windowInfoHandle);
 					
-					}		// end "if ( CompareImageProjectFileInfo (..." 
+					}	// end "if (CompareImageProjectFileInfo (..." 
 				
-				}		// end "if CompareStringsNoCase ( (char*)&gTextString, ..." 
+				}	// end "if CompareStringsNoCase ((char*)gTextString, ..." 
 			
 			window++;
 			windowIndex++;
 														
-			}		while (window<gNumberOfIWindows);
+			}	while (window<gNumberOfIWindows);
 			
 				// Set return flag to indicate whether the project file and layer	
 				// structures have been loaded.												
@@ -2054,11 +2035,11 @@ Boolean FindProjectImageWindows (
 		
 		MHSetState (gProjectInfoPtr->windowInfoHandle, handleStatus);
 			
-		}		// end "if (gNumberOfIWindows > 0)" 
+		}	// end "if (gNumberOfIWindows > 0)" 
 		
 	return (continueFlag);
 			
-}		// end "FindProjectImageWindows"
+}	// end "FindProjectImageWindows"
 
 
 
@@ -2092,14 +2073,14 @@ void ForceProjectCodeResourceLoad (void)
 			// routine.																				
 			
 	if (gMemoryTypeNeeded < 0)
-																							return;
+																								return;
 																							
 			// Code resources loaded okay, so set flag back for non-Code			
 			// resources.																			
 			
 	gMemoryTypeNeeded = 0;
 
-}		// end "ForceProjectCodeResourceLoad" 
+}	// end "ForceProjectCodeResourceLoad" 
 
 
 
@@ -2134,19 +2115,19 @@ double GetDefaultZeroVarianceFactor (
 	double								defaultZeroVariance;
 	
 					
-	defaultZeroVariance = exp ( (gLowerDeterminantOffsetAllowed+2)/numberChannels );
-	defaultZeroVariance = MIN(1, defaultZeroVariance);
-	defaultZeroVariance = MAX(.01, defaultZeroVariance);
+	defaultZeroVariance = exp ((gLowerDeterminantOffsetAllowed+2)/numberChannels);
+	defaultZeroVariance = MIN (1, defaultZeroVariance);
+	defaultZeroVariance = MAX (.01, defaultZeroVariance);
 	if (defaultZeroVariance > .01)
 		{
 		defaultZeroVariance = (double)((UInt32)(defaultZeroVariance * 1000));
 		defaultZeroVariance /= 1000;
 		
-		}		// end "if (gProjectInfoPtr->zeroVarianceFactor > .01)"
+		}	// end "if (gProjectInfoPtr->zeroVarianceFactor > .01)"
 			
 	return (defaultZeroVariance);
 
-}		// end "GetDefaultZeroVarianceFactor" 
+}	// end "GetDefaultZeroVarianceFactor" 
 
 
 
@@ -2155,7 +2136,42 @@ double GetDefaultZeroVarianceFactor (
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
-//	Function name:		void* GetFileNameCPointer
+//	Function name:		void* GetFileNameCPointerFromProjectInfo
+//
+//	Software purpose:	The purpose of this routine is to return the input file 
+//							stream class pointer for the image window.  Note that
+//							this routine  returns the file stream object for the
+//							first file only if the image window represents a linked 
+//							list. It returns a pointer to a C string.
+//
+//	Parameters in:		None
+//
+//	Parameters out:	None
+//
+//	Value Returned:	None
+// 
+// Called By:		
+//
+//	Coded By:			Larry L. Biehl			Date: 09/01/2017
+//	Revised By:			Larry L. Biehl			Date: 09/01/2017
+
+void* GetFileNameCPointerFromProjectInfo (
+				ProjectInfoPtr						projectInfoPtr)
+
+{  
+	return (GetFileNameCPointerFromProjectInfo (projectInfoPtr,
+																kDefaultFileStringCode));
+	
+}	// end "GetFileNameCPointerFromProjectInfo"  
+
+
+
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		void* GetFileNameCPointerFromProjectInfo
 //
 //	Software purpose:	The purpose of this routine is to return the input file 
 //							stream class pointer for the image window.  Note that
@@ -2172,26 +2188,27 @@ double GetDefaultZeroVarianceFactor (
 // Called By:		
 //
 //	Coded By:			Larry L. Biehl			Date: 12/12/1995
-//	Revised By:			Larry L. Biehl			Date: 03/03/2017
+//	Revised By:			Larry L. Biehl			Date: 09/01/2017
 
-void* GetFileNameCPointer (
+void* GetFileNameCPointerFromProjectInfo (
 				ProjectInfoPtr						projectInfoPtr,
 				SInt16								returnCode)
 
 {  
-	FileStringPtr							fileNamePtr = NULL;
+	FileStringPtr						fileNamePtr = NULL;
 	
 	
 	if (projectInfoPtr != NULL)
 		{              
 		CMFileStream* fileStreamPtr = GetFileStreamPointer (projectInfoPtr);
-		fileNamePtr = (FileStringPtr)GetFileNameCPointer (fileStreamPtr, returnCode);
+		fileNamePtr = (FileStringPtr)GetFileNameCPointerFromFileStream (fileStreamPtr,
+																								returnCode);
 		
-		}		// end "if (projectInfoPtr != NULL)" 
+		}	// end "if (projectInfoPtr != NULL)" 
 
 	return (fileNamePtr);
 	
-}		// end "GetFileNameCPointer"    
+}	// end "GetFileNameCPointerFromProjectInfo"    
 
 
 
@@ -2200,7 +2217,42 @@ void* GetFileNameCPointer (
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
-//	Function name:		void GetFileNamePPointer
+//	Function name:		void GetFileNamePPointerFromProjectInfo
+//
+//	Software purpose:	The purpose of this routine is to return the input file 
+//							stream class pointer for the image window.  Note that
+//							this routine  returns the file stream object for the
+//							first file only if the image window represents a linked 
+//							list. It return a pointer to a P string.
+//
+//	Parameters in:		None
+//
+//	Parameters out:	None
+//
+//	Value Returned:	None
+// 
+// Called By:		
+//
+//	Coded By:			Larry L. Biehl			Date: 09/01/2017
+//	Revised By:			Larry L. Biehl			Date: 09/01/2017	
+
+void* GetFileNamePPointerFromProjectInfo (
+				ProjectInfoPtr						projectInfoPtr)
+
+{  
+	return (GetFileNamePPointerFromProjectInfo (projectInfoPtr,
+																kDefaultFileStringCode));
+	
+}	// end "GetFileNamePPointerFromProjectInfo" 
+
+
+
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		void GetFileNamePPointerFromProjectInfo
 //
 //	Software purpose:	The purpose of this routine is to return the input file 
 //							stream class pointer for the image window.  Note that
@@ -2217,9 +2269,9 @@ void* GetFileNameCPointer (
 // Called By:		
 //
 //	Coded By:			Larry L. Biehl			Date: 10/25/1995
-//	Revised By:			Larry L. Biehl			Date: 03/09/2017	
+//	Revised By:			Larry L. Biehl			Date: 09/01/2017	
 
-void* GetFileNamePPointer (
+void* GetFileNamePPointerFromProjectInfo (
 				ProjectInfoPtr						projectInfoPtr,
 				SInt16								returnCode)
 
@@ -2231,13 +2283,13 @@ void* GetFileNamePPointer (
 		{              
 		CMFileStream* fileStreamPtr = GetFileStreamPointer (projectInfoPtr);
 		
-		fileNamePtr = GetFileNamePPointer (fileStreamPtr, returnCode);
+		fileNamePtr = GetFileNamePPointerFromFileStream (fileStreamPtr, returnCode);
 		
-		}		// end "if (projectInfoPtr != NULL)" 
+		}	// end "if (projectInfoPtr != NULL)" 
 
 	return (fileNamePtr);
 	
-}		// end "GetFileNamePPointer"   
+}	// end "GetFileNamePPointerFromProjectInfo"   
 
 
 
@@ -2268,20 +2320,20 @@ CMFileStream* GetFileStreamPointer (
 {
 	if (projectInfoPtr != NULL)
 		{
-		#if defined multispec_mac		
-			return ( &projectInfoPtr->fileStream );		
-		#endif	// defined multispec_mac
+		#if defined multispec_mac || defined multispec_mac_swift
+			return (&projectInfoPtr->fileStream);
+		#endif	// defined multispec_mac || defined multispec_mac_swift
 				
       #if defined multispec_win	|| defined multispec_lin	
 			return (projectInfoPtr->fileStreamCPtr);		
 		#endif	// defined multispec_win
 		
-		}		// end "if (projectInfoPtr != NULL)"
+		}	// end "if (projectInfoPtr != NULL)"
 		
-	else		// projectInfoPtr == NULL
+	else	// projectInfoPtr == NULL
 		return (NULL);
 
-}		// end "GetFileStreamPointer"
+}	// end "GetFileStreamPointer"
 
 
 
@@ -2347,30 +2399,29 @@ Boolean GetProjectImageFileInfo (
 			
 	if (gProjectInfoPtr != NULL && gProjectInfoPtr->windowInfoHandle != NULL)
 		{
-		if ( gImageWindowInfoPtr == NULL && 
+		if (gImageWindowInfoPtr == NULL && 
 						gImageLayerInfoPtr == NULL && 
 									gImageFileInfoPtr == NULL)
 			{
-			returnFlag = GetProjectImageFileInfo (
-											userPromptFlag, 
-											setupGlobalInfoPointers,
-											&gImageWindowInfoPtr,
-											&gImageLayerInfoPtr,
-											&gImageFileInfoPtr,
-											&projectHandleStatus);
-											
-			}		// end "if (gImageWindowInfoPtr == NULL && ..." 
+			returnFlag = GetProjectImageFileInfo (userPromptFlag,
+																setupGlobalInfoPointers,
+																&gImageWindowInfoPtr,
+																&gImageLayerInfoPtr,
+																&gImageFileInfoPtr,
+																&projectHandleStatus);
+			
+			}	// end "if (gImageWindowInfoPtr == NULL && ..." 
 				
 		if (gImageWindowInfoPtr != NULL && 
 					gImageLayerInfoPtr != NULL && 
 							gImageFileInfoPtr != NULL)
 			returnFlag = TRUE;
 			
-		}		// end "if (gProjectInfoPtr != NULL && ..."
+		}	// end "if (gProjectInfoPtr != NULL && ..."
 		
 	return (returnFlag);
 								
-}		// end "GetProjectImageFileInfo" 
+}	// end "GetProjectImageFileInfo" 
 
 
 
@@ -2403,12 +2454,11 @@ Boolean GetProjectImageFileInfo (
 	
 			// Check some variables.															
 			
-	if ( gProjectInfoPtr == NULL || 
-								gProjectInfoPtr->windowInfoHandle == NULL )
-																			return (returnFlag);
+	if (gProjectInfoPtr == NULL || gProjectInfoPtr->windowInfoHandle == NULL)
+																					return (returnFlag);
 																			
 	projectWindowInfoPtr = (WindowInfoPtr)GetHandleStatusAndPointer (
-					gProjectInfoPtr->windowInfoHandle, &handleStatus, kMoveHi);
+							gProjectInfoPtr->windowInfoHandle, &handleStatus, kMoveHi);
 		
 			// Continue if image file information handle for project is NULL,	
 			// i.e., the information has not been loaded.							
@@ -2420,30 +2470,30 @@ Boolean GetProjectImageFileInfo (
 				// First check if project image file is already one of the 		
 				// opened image files.														
 
-		if (!FindProjectImageWindows (TRUE) )
+		if (!FindProjectImageWindows (TRUE))
 			{
 					// Project image file is not one of the opened image			
 					// windows.  Look for the file on the disk.						
 		
-			fileFoundFlag = GetSpecifiedImageFile ( 
+			fileFoundFlag = GetSpecifiedImageFile (
 								gProjectInfoPtr->imageFileName, userPromptFlag);
 								
-			}		// end "if ( !FindProjectImageWindows (TRUE) )" 
+			}	// end "if (!FindProjectImageWindows (TRUE))" 
 			
 		fileInfoHandle = projectWindowInfoPtr->fileInfoHandle; 
 			
-		}		// end "if (projectWindowInfoPtr->fileInfoHandle == NULL)" 
+		}	// end "if (projectWindowInfoPtr->fileInfoHandle == NULL)" 
 				
-	if (fileInfoHandle != NULL && 
-					setupGlobalInfoPointers == kDoNotSetupGlobalInfoPointers)
-		returnFlag = TRUE;
+	if (fileInfoHandle != NULL &&
+							setupGlobalInfoPointers == kDoNotSetupGlobalInfoPointers)
+																						returnFlag = TRUE;
 			
 	if (fileInfoHandle == NULL && 
-					setupGlobalInfoPointers == kSetupGlobalInfoPointersIfCan)
-		returnFlag = TRUE;
+							setupGlobalInfoPointers == kSetupGlobalInfoPointersIfCan)
+																						returnFlag = TRUE;
 			
 	if (fileInfoHandle != NULL && 
-					setupGlobalInfoPointers != kDoNotSetupGlobalInfoPointers)
+							setupGlobalInfoPointers != kDoNotSetupGlobalInfoPointers)
 		{
 				// Put the handle status back to the original state so that the
 				// output handle state correctly reflects what it was upon input
@@ -2452,14 +2502,13 @@ Boolean GetProjectImageFileInfo (
 		if (handleStatus >= 0)
 			CheckAndUnlockHandle (gProjectInfoPtr->windowInfoHandle);
 		
-		returnFlag = GetImageInformationPointers (
-												handleStatusPtr, 
-												gProjectInfoPtr->windowInfoHandle,
-												projectWindowInfoPtrPtr, 
-												projectLayerInfoPtrPtr, 
-												projectFileInfoPtrPtr);
-			
-		}		// end "if (fileInfoHandle != NULL && ..." 
+		returnFlag = GetImageInformationPointers (handleStatusPtr,
+																gProjectInfoPtr->windowInfoHandle,
+																projectWindowInfoPtrPtr, 
+																projectLayerInfoPtrPtr, 
+																projectFileInfoPtrPtr);
+		
+		}	// end "if (fileInfoHandle != NULL && ..." 
 		
 	if (*projectWindowInfoPtrPtr == NULL && handleStatus >= 0)
 		CheckAndUnlockHandle (gProjectInfoPtr->windowInfoHandle);
@@ -2471,7 +2520,7 @@ Boolean GetProjectImageFileInfo (
 		
 	return (returnFlag);
 								
-}		// end "GetProjectImageFileInfo" 
+}	// end "GetProjectImageFileInfo" 
 
 
                       
@@ -2514,7 +2563,7 @@ void GetProjectSelectionWindow (void)
 			Boolean						foundFlag;
 	
 	                          
-			window = (WindowPtr)GetWindowList();
+			window = (WindowPtr)GetWindowList ();
 			while (window != NULL && gProjectSelectionWindow == NULL)
 				{
 						// Find if this window is one of the image windows.				
@@ -2533,39 +2582,37 @@ void GetProjectSelectionWindow (void)
 															
 					}		while (imageWindowCount<gNumberOfIWindows && !foundFlag);
 				
-				if ( foundFlag && IsWindowVisible(window) )
+				if (foundFlag && IsWindowVisible (window))
 					{
-					windowInfoHandle = (Handle)GetWindowInfoHandle(imageWindowPtr);
+					windowInfoHandle = (Handle)GetWindowInfoHandle (imageWindowPtr);
 					
 					if (windowInfoHandle != NULL &&	
-								 ((WindowInfoPtr)*windowInfoHandle)->projectWindowFlag )
+								 ((WindowInfoPtr)*windowInfoHandle)->projectWindowFlag)
 						gProjectSelectionWindow = imageWindowPtr;
 					
-					}		// end "if (foundFlag && ((WindowPeek)window)->visible)" 
+					}	// end "if (foundFlag && ((WindowPeek)window)->visible)" 
 				
-				window = GetNextWindow(window);
+				window = GetNextWindow (window);
 															
-				}		// end "while (window != NULL && ..."				  
+				}	// end "while (window != NULL && ..."				  
 		#endif	// defined multispec_mac
 		                           
-      #if defined multispec_win	|| defined multispec_lin	
+      #if defined multispec_win || defined multispec_lin
 					// I do not know how to go through a list if image views in
 					// from top to bottom order. For now I will just check the
 					// active image window to see if it is a project image window. 
 		
 			Handle activeImageWindowInfoH = GetActiveImageWindowInfoHandle ();
 			WindowInfoPtr windowInfoPtr = (WindowInfoPtr)GetHandlePointer (
-																	activeImageWindowInfoH,
-																	kNoLock,
-																	kNoMoveHi);
+																				activeImageWindowInfoH);
 					
-			if (windowInfoPtr != NULL && windowInfoPtr->projectWindowFlag )
+			if (windowInfoPtr != NULL && windowInfoPtr->projectWindowFlag)
 				gProjectSelectionWindow = gActiveImageViewCPtr;				  
-		#endif	// defined multispec_win 
+		#endif	// defined multispec_win || defined multispec_lin
 			
-		}		// end "if (gNumberOfIWindows > 0)" 
+		}	// end "if (gNumberOfIWindows > 0)" 
 					
-}		// end "GetProjectSelectionWindow"
+}	// end "GetProjectSelectionWindow"
 
 
 
@@ -2622,38 +2669,38 @@ void GetProjectStatisticsPointers (
 			
 		if (gProjectInfoPtr->fieldChanStatsPtr && chanStatsPtrPtr)
 			*chanStatsPtrPtr = &gProjectInfoPtr->fieldChanStatsPtr[
-						storageIndex * gProjectInfoPtr->numberStatisticsChannels];
+								storageIndex * gProjectInfoPtr->numberStatisticsChannels];
 										
 		if (gProjectInfoPtr->fieldSumSquaresStatsPtr && sumSquaresStatsPtrPtr)
 			*sumSquaresStatsPtrPtr = &gProjectInfoPtr->fieldSumSquaresStatsPtr[
-						storageIndex * gProjectInfoPtr->numberCovarianceEntries];
+								storageIndex * gProjectInfoPtr->numberCovarianceEntries];
 						
-		}		// end "if (classFieldCode == kFieldStatsOnly)" 
+		}	// end "if (classFieldCode == kFieldStatsOnly)" 
 		
-	else		// classFieldCode != kFieldStatsOnly 
+	else	// classFieldCode != kFieldStatsOnly 
 		{
 		if (gProjectInfoPtr->classChanStatsPtr && chanStatsPtrPtr)
 			*chanStatsPtrPtr = &gProjectInfoPtr->classChanStatsPtr[
-						storageIndex * gProjectInfoPtr->numberStatisticsChannels];
+								storageIndex * gProjectInfoPtr->numberStatisticsChannels];
 										
 		if (gProjectInfoPtr->classSumSquaresStatsPtr && sumSquaresStatsPtrPtr)
 			*sumSquaresStatsPtrPtr = &gProjectInfoPtr->classSumSquaresStatsPtr[
-						storageIndex * gProjectInfoPtr->numberCovarianceEntries];
+								storageIndex * gProjectInfoPtr->numberCovarianceEntries];
 
 		modifiedIndex = 
-				gProjectInfoPtr->classNamesPtr[storageIndex].modifiedStatsStorage;
+					gProjectInfoPtr->classNamesPtr[storageIndex].modifiedStatsStorage;
 										
 		if (gProjectInfoPtr->modifiedClassChanStatsPtr && modChanStatsPtrPtr)
 			*modChanStatsPtrPtr = &gProjectInfoPtr->modifiedClassChanStatsPtr[
-						modifiedIndex * gProjectInfoPtr->numberStatisticsChannels];
+								modifiedIndex * gProjectInfoPtr->numberStatisticsChannels];
 										
 		if (gProjectInfoPtr->modifiedClassCovStatsPtr && modCovStatsPtrPtr)
 			*modCovStatsPtrPtr = &gProjectInfoPtr->modifiedClassCovStatsPtr[
-						modifiedIndex * gProjectInfoPtr->numberCovarianceEntries];
+								modifiedIndex * gProjectInfoPtr->numberCovarianceEntries];
 						
-		}		// end "else classFieldCode != kFieldStatsOnly" 
+		}	// end "else classFieldCode != kFieldStatsOnly" 
 	
-}		// end "GetProjectStatisticsPointers" 
+}	// end "GetProjectStatisticsPointers" 
 
 
 
@@ -2685,9 +2732,9 @@ Boolean GetProjectStructure (
 				SInt16								numberChannels)
 				
 {                               
-#if defined multispec_win || defined multispec_lin
+	#if defined multispec_win || defined multispec_lin
 		CMImageWindow* 					imageWindowCPtr = NULL;
-	#endif	// defined multispec_win
+	#endif	// defined multispec_win || defined multispec_lin
 	
 	Handle								channelHandle,
 											fileInfoHandle,
@@ -2712,15 +2759,14 @@ Boolean GetProjectStructure (
 	
 	if (projectInfoHandle == NULL)
 		{
-		projectInfoHandle = MNewHandle ( sizeof(ProjectInfo) );
+		projectInfoHandle = MNewHandle (sizeof (ProjectInfo));
 		newProjectHandleFlag = TRUE;
 		
-		}		// end "if (projectInfoHandle == NULL)" 
+		}	// end "if (projectInfoHandle == NULL)" 
 		
-	else		// projectInfoHandle != NULL 
+	else	// projectInfoHandle != NULL 
 		{
-		gProjectInfoPtr = (ProjectInfoPtr)GetHandlePointer(
-												projectInfoHandle, kNoLock, kNoMoveHi);
+		gProjectInfoPtr = (ProjectInfoPtr)GetHandlePointer (projectInfoHandle);
 		
 		channelHandle = gProjectInfoPtr->channelHandle;
 		storageClassHandle = gProjectInfoPtr->storageClassHandle;
@@ -2733,22 +2779,22 @@ Boolean GetProjectStructure (
 		CheckAndUnlockHandle (projectInfoHandle);
 		setUpOkay = TRUE;
 		
-		}		// end "else projectInfoHandle != NULL" 
+		}	// end "else projectInfoHandle != NULL" 
 		
 	if (projectInfoHandle != NULL && newProjectHandleFlag)
 		{             
 		setUpOkay = TRUE;
 		
-      #if defined multispec_win	|| defined multispec_lin		
-			gProjectInfoPtr = (ProjectInfoPtr)GetHandlePointer(
-												projectInfoHandle, kLock, kNoMoveHi); 
-			gProjectInfoPtr->fileStreamCPtr = InitializeFileStream((CMFileStream*)NULL);
+      #if defined multispec_win || defined multispec_lin
+			gProjectInfoPtr = (ProjectInfoPtr)GetHandlePointer (
+																		projectInfoHandle, kLock);
+			gProjectInfoPtr->fileStreamCPtr = InitializeFileStream ((CMFileStream*)NULL);
 			
 			if (gProjectInfoPtr->fileStreamCPtr == NULL)
 				setUpOkay = FALSE;
 
 			CheckAndUnlockHandle (projectInfoHandle);			
-		#endif	// defined multispec_win		
+		#endif	// defined multispec_win || defined multispec_lin
 		
 				// Get storage for some of project structure information.			
 				
@@ -2758,47 +2804,46 @@ Boolean GetProjectStructure (
 		if (numberChannels <= 0)
 			numberChannels = 10;
 			
-		numberBytes = (SInt32)numberChannels * sizeof(short int);
+		numberBytes = (SInt32)numberChannels * sizeof (SInt16);
 		
 		if (setUpOkay)				
-			channelHandle = MNewHandleClear ( numberBytes );
+			channelHandle = MNewHandleClear (numberBytes);
 					
 		if (channelHandle != NULL)
 				// Get storage for class list.												
-			storageClassHandle = MNewHandleClear ( (SInt32)256 * sizeof(SInt16) );
+			storageClassHandle = MNewHandleClear ((SInt32)256 * sizeof (SInt16));
 			
 		if (storageClassHandle != NULL)
 			{               
 			#if defined multispec_mac
-				windowInfoHandle = InitializeWindowInfoStructure (
-																		windowInfoHandle, 
-																		kNotPointer, 
-																		fileInfoHandle, 
-																		kNoImageType,
-																		kProjectWindowType);
+				windowInfoHandle = InitializeWindowInfoStructure (windowInfoHandle,
+																					kNotPointer, 
+																					fileInfoHandle, 
+																					kNoImageType,
+																					kProjectWindowType);
 			#endif	// defined multispec_mac
 			                  
          #if defined multispec_win || defined multispec_lin
 				imageWindowCPtr = new CMImageWindow (fileInfoHandle);
 				if (imageWindowCPtr != NULL)
 					{
-					imageWindowCPtr->SetImageWindowCPtrInWindowInfo(imageWindowCPtr);
+					imageWindowCPtr->SetImageWindowCPtrInWindowInfo (imageWindowCPtr);
 					windowInfoHandle = imageWindowCPtr->GetWindowInfoHandle ();
 					
-					}		// end "if (imageWindowCPtr != NULL)" 
+					}	// end "if (imageWindowCPtr != NULL)" 
 			#endif	// defined multispec_win
 			
-			}		// end "if (storageClassHandle != NULL)"
+			}	// end "if (storageClassHandle != NULL)"
 			
 		if (windowInfoHandle == NULL)
 			setUpOkay = FALSE;
 		
-		}		// end "if (projectInfoHandle != NULL && newProjectHandleFlag)" 
+		}	// end "if (projectInfoHandle != NULL && newProjectHandleFlag)" 
 		
 	if (setUpOkay)
 		{
 		gProjectInfoPtr = (ProjectInfoPtr)GetHandlePointer (
-														projectInfoHandle, kLock, kMoveHi);
+																projectInfoHandle, kLock, kMoveHi);
 		
 				// Initialize the project structure.										
 				
@@ -2806,24 +2851,24 @@ Boolean GetProjectStructure (
 		
 		gProjectInfoPtr->channelHandle = channelHandle;
 		gProjectInfoPtr->channelsPtr = (UInt16*)GetHandlePointer (
-														channelHandle, kLock, kMoveHi);
+																channelHandle, kLock, kMoveHi);
 		
 		gProjectInfoPtr->storageClassHandle = storageClassHandle;
 		gProjectInfoPtr->storageClass = (SInt16*)GetHandlePointer (
-													storageClassHandle, kLock, kMoveHi);
+															storageClassHandle, kLock, kMoveHi);
 			
 				// Initialize the window information record.								
 		                                           
 		gProjectInfoPtr->windowInfoHandle = windowInfoHandle;
-		WindowInfoPtr windowInfoPtr = (WindowInfoPtr)GetHandlePointer(
-													windowInfoHandle, kNoLock, kNoMoveHi);
+		WindowInfoPtr windowInfoPtr = (WindowInfoPtr)GetHandlePointer (
+																					windowInfoHandle);
 		windowInfoPtr->numberImageFiles = 1;    
 		
 		gProjectInfoPtr->handlesLockedFlag = TRUE;
 		
-		}		// end "if (setUpOkay)" 
+		}	// end "if (setUpOkay)" 
 		
-	else		// !setUpOkay 
+	else	// !setUpOkay 
 		{
 		UnlockAndDispose (projectInfoHandle);
 		UnlockAndDispose (channelHandle);
@@ -2835,13 +2880,13 @@ Boolean GetProjectStructure (
 		
       #if defined multispec_win || defined multispec_lin
 			delete imageWindowCPtr;
-		#endif	// defined multispec_win
+		#endif	// defined multispec_win || defined multispec_lin
 		
-		}		// end "else !setUpOkay" 
+		}	// end "else !setUpOkay" 
 		
 	return (setUpOkay);
 		
-}		// end "GetProjectStructure" 
+}	// end "GetProjectStructure" 
 
 
 
@@ -2870,7 +2915,7 @@ Boolean GetProjectStructure (
 //							GetProjectImageFileInfo in project.c
 //
 //	Coded By:			Larry L. Biehl			Date: 01/02/1989
-//	Revised By:			Larry L. Biehl			Date: 03/14/2017
+//	Revised By:			Larry L. Biehl			Date: 09/01/2017
 
 Boolean GetSpecifiedImageFile (
 				UInt8*								inputFileNamePtr,
@@ -2911,22 +2956,20 @@ Boolean GetSpecifiedImageFile (
 				// Lock the memory until the information has been loaded in.		
 				// Then get the pointer to the file information block.				
 					
-		fileInfoPtr = (FileInfoPtr)GetHandlePointer(
-												fileInfoHandle, kLock, kNoMoveHi);
+		fileInfoPtr = (FileInfoPtr)GetHandlePointer (fileInfoHandle, kLock);
 												
 		fileStreamPtr = GetFileStreamPointer (fileInfoPtr);
-		CMFileStream* projectFileStreamPtr = 
-												GetFileStreamPointer (gProjectInfoPtr);
+		CMFileStream* projectFileStreamPtr = GetFileStreamPointer (gProjectInfoPtr);
 		
 				// Initialize variables in the structure.	
 				
 		InitializeFileStream (fileStreamPtr, projectFileStreamPtr);
-		FileStringPtr fileNamePtr = (FileStringPtr)GetFileNameCPointer (fileStreamPtr);
+		FileStringPtr fileNamePtr =
+						(FileStringPtr)GetFileNameCPointerFromFileStream (fileStreamPtr);
 		memcpy (fileNamePtr, (char*)&inputFileNamePtr[1], inputFileNamePtr[0]+1);
-		//MemoryCopy (fileNamePtr, &inputFileNamePtr[1], inputFileNamePtr[0]+1);
-		FileStringPtr filePathPtr = (FileStringPtr)GetFilePathPPointer (fileStreamPtr);
-		filePathPtr[0] = strlen ((char*)&filePathPtr[1]);
-		//filePathPtr[0] = StringLength (&filePathPtr[1]);
+		FileStringPtr filePathPtr =
+						(FileStringPtr)GetFilePathPPointerFromFileStream (fileStreamPtr);
+		filePathPtr[0] = (UInt8)strlen ((char*)&filePathPtr[1]);
 		
 				// Copy the HDF Data set information from the project structure to the
 				// file information structure. It will be need if an hdf file is the
@@ -2956,65 +2999,65 @@ Boolean GetSpecifiedImageFile (
 			if (gProjectInfoPtr->version >= 911106)
 				getFileInfoFromProjectFlag = TRUE;
 				
-			if (LoadImageInformation (NULL, fileInfoHandle, getFileInfoFromProjectFlag, NULL, 0))
+			if (LoadImageInformation (
+								NULL, fileInfoHandle, getFileInfoFromProjectFlag, NULL, 0))
 				fileFound = CompareImageProjectFileInfo (fileInfoHandle);
 				
 			if (!fileFound)
 				CloseFile (fileInfoPtr);
 				
-			}		// end "if (errCode == noErr)" 
+			}	// end "if (errCode == noErr)" 
 			
 				// If file not found at this point, allow user to locate the		
 				// image file.																		
 		
 		if (!fileFound && userPrompt)
 			fileFound = UserLocateProjectBaseImage (
-												fileInfoHandle, IDS_WhereIsProjectImage, 1);
+														fileInfoHandle, IDS_WhereIsProjectImage, 1);
 			
 		CheckAndUnlockHandle (fileInfoHandle);
 		
-		}		// end "if (fileNamePtr && ...)" 
+		}	// end "if (fileNamePtr && ...)" 
 	
 	if (fileFound)
 		{		
-		projectWindowInfoPtr = (WindowInfoPtr)GetHandleStatusAndPointer(
-						gProjectInfoPtr->windowInfoHandle, &handleStatus, kNoMoveHi);
+		projectWindowInfoPtr = (WindowInfoPtr)GetHandleStatusAndPointer (
+												gProjectInfoPtr->windowInfoHandle, &handleStatus);
 		
 		projectWindowInfoPtr->numberImageFiles = 0;
 		projectWindowInfoPtr->totalNumberChannels = 0;
-		if ( UpdateLayerInfoStructure (projectWindowInfoPtr, fileInfoHandle) )
+		if (UpdateLayerInfoStructure (projectWindowInfoPtr, fileInfoHandle))
 			{			
 					// The following assignment will indicate that the base
 					// image information has been loaded.
 					
 			SetFileInfoHandle (projectWindowInfoPtr, fileInfoHandle);
 					
-//			projectWindowInfoPtr->fileInfoHandle = fileInfoHandle;
+			//projectWindowInfoPtr->fileInfoHandle = fileInfoHandle;
 			
-			}		// end "if ( UpdateLayerInfoStructure (..."
+			}	// end "if (UpdateLayerInfoStructure (..."
 		
-		else		// !UpdateLayerInfoStructure... 
+		else	// !UpdateLayerInfoStructure... 
 			fileFound = FALSE;
 			
 		MHSetState (gProjectInfoPtr->windowInfoHandle, handleStatus);
 			
-		}		// end "if (fileFound)" 
+		}	// end "if (fileFound)" 
 		
 	if (!fileFound)
 		{  		
-		fileInfoPtr = (FileInfoPtr)GetHandlePointer(
-												fileInfoHandle, kNoLock, kNoMoveHi);
+		fileInfoPtr = (FileInfoPtr)GetHandlePointer (fileInfoHandle);
 												
 		if (fileInfoPtr != NULL)
 			UnlockAndDispose (fileInfoPtr->channelDescriptionH);
 		                                                      
 		UnlockAndDispose (fileInfoHandle);
 		
-		}		// end "if (!fileFound)" 	
+		}	// end "if (!fileFound)" 	
 		
 	return (fileFound);
 
-}		// end "GetSpecifiedImageFile" 
+}	// end "GetSpecifiedImageFile" 
 
 
 
@@ -3046,13 +3089,13 @@ SInt16 GetVolumeReferenceNumber (
 	SInt16								vRefNum = 0;
 	
 	
-	CMFileStream* fileStreamPtr = GetFileStreamPointer(projectInfoPtr);
+	CMFileStream* fileStreamPtr = GetFileStreamPointer (projectInfoPtr);
 	
 	vRefNum = GetVolumeReferenceNumber (fileStreamPtr);
 
 	return (vRefNum);
 	
-}		// end "GetVolumeReferenceNumber" 
+}	// end "GetVolumeReferenceNumber" 
 
 
                    
@@ -3078,7 +3121,7 @@ SInt16 GetVolumeReferenceNumber (
 //							StatisticsControl in statistics.c
 //
 //	Coded By:			Larry L. Biehl			Date: 09/28/1988
-//	Revised By:			Larry L. Biehl			Date: 03/22/2017	
+//	Revised By:			Larry L. Biehl			Date: 09/05/2017	
 
 void InitializeNewProject (
 				Handle								projectInfoHandle, 
@@ -3096,28 +3139,27 @@ void InitializeNewProject (
 	SignedByte							handleStatus;
 	
 	
-	if ( !VerifyImageFileCanBeForProject (imageWindowInfoH) )
-																					return;
+	if (!VerifyImageFileCanBeForProject (imageWindowInfoH))
+																									return;
 	
 	numberChannels = 0;
 	if (imageWindowInfoH != NULL)
 		{
-		windowInfoPtr = (WindowInfoPtr)GetHandlePointer (
-													imageWindowInfoH, kNoLock, kNoMoveHi);
+		windowInfoPtr = (WindowInfoPtr)GetHandlePointer (imageWindowInfoH);
 		numberChannels = windowInfoPtr->totalNumberChannels;
 		
-		}		// end "if (imageWindowInfoH != NULL)"
+		}	// end "if (imageWindowInfoH != NULL)"
 	
 			// Set up handle to project file information									
 			
-	if ( GetProjectStructure (projectInfoHandle, numberChannels) )
+	if (GetProjectStructure (projectInfoHandle, numberChannels))
 		{
 		if (imageWindowInfoH != NULL)
 			{
 					// Get pointer to file information for active image window.		
 					
 			windowInfoPtr = (WindowInfoPtr)GetHandleStatusAndPointer (
-											imageWindowInfoH, &handleStatus, kNoMoveHi);
+																imageWindowInfoH, &handleStatus);
 			
 					// Load channel array.  Assume for now that all channels will  
 					// be used.																		
@@ -3131,9 +3173,8 @@ void InitializeNewProject (
 					// Store handle to image window file information.  Assume 		
 					// image file is for the active image window.						
 					
-			Handle fileInfoHandle = GetFileInfoHandle(imageWindowInfoH);
-			fileInfoPtr = (FileInfoPtr)GetHandlePointer(
-														fileInfoHandle, kNoLock, kNoMoveHi);
+			Handle fileInfoHandle = GetFileInfoHandle (imageWindowInfoH);
+			fileInfoPtr = (FileInfoPtr)GetHandlePointer (fileInfoHandle);
 			
 			
 					// Initialize the file stream information to that for the
@@ -3152,11 +3193,12 @@ void InitializeNewProject (
 					// It will be forced to TEXT when the project file is saved to disk.
 			
 			//SetFileDoesNotExist (projectFileStreamPtr, kKeepUTF8CharName);
-			SetFileDoesNotExist (projectFileStreamPtr);
+			SetFileDoesNotExist (projectFileStreamPtr, kDoNotKeepUTF8CharName);
 			
 					// Store the image file name.
 					
-			GetCopyOfPFileName (fileStreamPtr, gProjectInfoPtr->imageFileName);
+			GetCopyOfPFileNameFromFileStream (
+												fileStreamPtr, gProjectInfoPtr->imageFileName);
 			
 			gProjectInfoPtr->startLine = fileInfoPtr->startLine;
 			gProjectInfoPtr->startColumn = fileInfoPtr->startColumn;
@@ -3168,8 +3210,8 @@ void InitializeNewProject (
 			gProjectInfoPtr->numberPostLineBytes = fileInfoPtr->numberPostLineBytes;
 			gProjectInfoPtr->hdfDataSetSelection = fileInfoPtr->hdfDataSetSelection;
 			
-			projectWindowInfoPtr = (WindowInfoPtr)GetHandlePointer(
-									gProjectInfoPtr->windowInfoHandle, kNoLock, kNoMoveHi);
+			projectWindowInfoPtr = (WindowInfoPtr)GetHandlePointer (
+																gProjectInfoPtr->windowInfoHandle);
 			projectWindowInfoPtr->maxNumberLines = fileInfoPtr->numberLines;
 			projectWindowInfoPtr->maxNumberColumns = fileInfoPtr->numberColumns;
 			projectWindowInfoPtr->totalNumberChannels = fileInfoPtr->numberChannels;
@@ -3189,13 +3231,13 @@ void InitializeNewProject (
 				windowInfoPtr->projectBaseImageFlag = TRUE;
 				gProjectSelectionWindow = gActiveImageWindow;
 				
-				}		// end "if (activeImageWindowInfoH == imageWindowInfoH)" 
+				}	// end "if (activeImageWindowInfoH == imageWindowInfoH)" 
 					
 					// Unlock the file information handle if needed.					
 			
 			MHSetState (imageWindowInfoH, handleStatus);
 				
-			}		// end "if (imageWindowInfoH)" 
+			}	// end "if (imageWindowInfoH)" 
 				
 				// Indicate that the project information has not changed.  			
 				// This will be used to determine whether to offer user chance 	
@@ -3203,20 +3245,21 @@ void InitializeNewProject (
 				
 		gProjectInfoPtr->changedFlag = FALSE;
 		
-				// Put 'Untitled Project' as the name of the output window			
+				// Put 'Untitled Project' as the name of the output window
+				// Decided to not do here for now.
 				
-//		gTextString[0] = 0;
-//		ConcatPStrings (gTextString, (char*)"\0Untitled Project\0", 255);
-//		SetOutputWTitle(gTextString);
+		//gTextString[0] = 0;
+		//ConcatPStrings (gTextString, (char*)"\0Untitled Project\0", 255);
+		//SetOutputWTitle (gTextString);
 		
 				// Update menu items.															
 							
 		gUpdateProjectMenuItemsFlag = TRUE;
 		gUpdateProcessorMenuItemsFlag = TRUE;
 		
-		}		// end "if ( GetProjectStructure (..." 
+		}	// end "if (GetProjectStructure (..." 
 
-}		// end "InitializeNewProject" 
+}	// end "InitializeNewProject" 
 
 
 
@@ -3252,12 +3295,12 @@ void InitializeProjectStructure (
 				// structure.			
 				
 		#if defined multispec_mac
-			InitializeFileStream ( &gProjectInfoPtr->fileStream );
+			InitializeFileStream (&gProjectInfoPtr->fileStream);
 		#endif	// defined multispec_mac 
 		
       #if defined multispec_win	|| defined multispec_lin
 			gProjectInfoPtr->fileStreamCPtr = 
-		    						InitializeFileStream(gProjectInfoPtr->fileStreamCPtr);
+		    						InitializeFileStream (gProjectInfoPtr->fileStreamCPtr);
 		#endif	// defined multispec_win
 	
 				// Parameters for train and/or test mask files.
@@ -3279,7 +3322,7 @@ void InitializeProjectStructure (
 		gProjectInfoPtr->hdfDataSetSelection = 0;
 				
 		gProjectInfoPtr->zeroVarianceFactor = 
-										GetDefaultZeroVarianceFactor (numberChannels);
+												GetDefaultZeroVarianceFactor (numberChannels);
 			
 		gProjectInfoPtr->userMixingParameter = 1.0;
 		
@@ -3324,10 +3367,9 @@ void InitializeProjectStructure (
 		gProjectInfoPtr->falseColorPaletteRed = -1;
 		gProjectInfoPtr->imagePalettePopupMenuSelection = kDefaultColors;
 		gProjectInfoPtr->lastPointType = 0;
-		gProjectInfoPtr->listResultsTestCode = 
-										kClassSummary+kAreasUsed+kAreasSummary;
+		gProjectInfoPtr->listResultsTestCode = kClassSummary+kAreasUsed+kAreasSummary;
 		gProjectInfoPtr->listResultsTrainingCode = 
-										kClassSummary+kAreasUsed+kAreasSummary;
+															kClassSummary+kAreasUsed+kAreasSummary;
 		gProjectInfoPtr->listClassFlag = TRUE;
 		gProjectInfoPtr->listFieldFlag = FALSE;
 		gProjectInfoPtr->histogramClassFlag = TRUE;
@@ -3486,9 +3528,9 @@ void InitializeProjectStructure (
 		gProjectInfoPtr->histogramControlH = NULL;
 		gProjectInfoPtr->editNameControlH = NULL;
 		
-		}		// end "if (gProjectInfoPtr != NULL)" 
+		}	// end "if (gProjectInfoPtr != NULL)" 
 	
-}		// end "InitializeProjectStructure" 
+}	// end "InitializeProjectStructure" 
 
 
 
@@ -3531,8 +3573,8 @@ Boolean	LoadProjectFileAndLayerInformation (
 											projectImageFileInfoHandle;
 	
 	SInt16								errCode =  noErr,
-//											savedHdfDataSetSelection,
-//											savedNumberChannels,
+											//savedHdfDataSetSelection,
+											//savedNumberChannels,
 											savedRefNum;
 											
 	Boolean								continueFlag;
@@ -3542,7 +3584,7 @@ Boolean	LoadProjectFileAndLayerInformation (
 			// Check input variables.															
 			
 	if (windowInfoHandle == NULL)
-																				return (FALSE);
+																						return (FALSE);
 																				
 			// Initialize local variables.													
 			                                                      
@@ -3563,8 +3605,7 @@ Boolean	LoadProjectFileAndLayerInformation (
 					// structure represented by "projectImageFileInfoHandle". It will
 					// be written over in the following handle copy.
 				
-			fileInfoPtr = (FileInfoPtr)GetHandlePointer(
-												projectImageFileInfoHandle, kNoLock, kNoMoveHi);
+			fileInfoPtr = (FileInfoPtr)GetHandlePointer (projectImageFileInfoHandle);
 			fileStreamPtr = GetFileStreamPointer (fileInfoPtr);    								
 		#endif	// defined multispec_win           
 	
@@ -3582,28 +3623,26 @@ Boolean	LoadProjectFileAndLayerInformation (
 						// Reset the project image file stream pointer. It was changed during
 						// the copy above. 
 				
-				fileInfoPtr = (FileInfoPtr)GetHandlePointer(
-													projectImageFileInfoHandle, kNoLock, kNoMoveHi);
+				fileInfoPtr = (FileInfoPtr)GetHandlePointer (projectImageFileInfoHandle);
 				fileInfoPtr->fileStreamCPtr = fileStreamPtr;  
 				
 						// Now copy the input image file stream information to the project
 						// image file stream information.         
 								
-				fileInfoPtr = (FileInfoPtr)GetHandlePointer(
-															inputFileInfoHandle, kNoLock, kNoMoveHi);
+				fileInfoPtr = (FileInfoPtr)GetHandlePointer (inputFileInfoHandle);
 				CMFileStream* inputFileStreamPtr = fileInfoPtr->fileStreamCPtr; 
 						
 				InitializeFileStream (fileStreamPtr, inputFileStreamPtr);
 				
-				}		// end "else errCode == noErr"  								
+				}	// end "else errCode == noErr"  								
 		#endif	// defined multispec_win    
 		
-		}		// end "if (projectImageFileInfoHandle != NULL)"
+		}	// end "if (projectImageFileInfoHandle != NULL)"
 		                   
 	if (continueFlag)
 		{
-		fileInfoPtr = (FileInfoPtr)GetHandlePointer(
-											projectImageFileInfoHandle, kLock, kNoMoveHi);
+		fileInfoPtr = (FileInfoPtr)GetHandlePointer (
+															projectImageFileInfoHandle, kLock);
 												
 		fileStreamPtr = GetFileStreamPointer (fileInfoPtr);
 		
@@ -3615,10 +3654,8 @@ Boolean	LoadProjectFileAndLayerInformation (
 		
 				// Get copies of some of the file information structure handles.
 		
-		inputFileInfoPtr = (FileInfoPtr)GetHandleStatusAndPointer(
-																	inputFileInfoHandle, 
-																	&handleStatus, 
-																	kNoMoveHi);
+		inputFileInfoPtr = (FileInfoPtr)GetHandleStatusAndPointer (inputFileInfoHandle,
+																						&handleStatus);
 		
 		errCode = CopyFileInfoHandles (inputFileInfoPtr, fileInfoPtr);
 		if (errCode != noErr)
@@ -3628,12 +3665,12 @@ Boolean	LoadProjectFileAndLayerInformation (
 				// case needed later to reset the parameters being used for the input
 				// image when it represents hdf4/hdf5/netcdf data sets.
 				
-//		savedHdfDataSetSelection = inputFileInfoPtr->hdfDataSetSelection;
-//		savedNumberChannels = inputFileInfoPtr->numberChannels;
+		//savedHdfDataSetSelection = inputFileInfoPtr->hdfDataSetSelection;
+		//savedNumberChannels = inputFileInfoPtr->numberChannels;
 			
 		MHSetState (inputFileInfoHandle, handleStatus);
 		
-		}		// end "if (continueFlag)" 
+		}	// end "if (continueFlag)" 
 		
 	if (continueFlag)
 		{
@@ -3648,7 +3685,7 @@ Boolean	LoadProjectFileAndLayerInformation (
 		if (errCode != noErr)
 			continueFlag = FALSE;
 		
-		}		// end "if (continueFlag)" 
+		}	// end "if (continueFlag)" 
 		
 	if (fileInfoPtr->hdfFileID != 0)
 		{
@@ -3656,47 +3693,48 @@ Boolean	LoadProjectFileAndLayerInformation (
 		
 		if (fileInfoPtr->callGetHDFLineFlag)
 			{
-					// Need to set up new hdf references to access the file by for the project.
-					// This is only needed for hdf files with compressed data.
+					// Need to set up new hdf references to access the file by for the
+					// project. This is only needed for hdf files with compressed data.
 			
 			#if include_hdf_capability
 				continueFlag = GetNewHDF4FileReferences (fileInfoPtr);
 			#endif		// include_hdf_capability
 				
-			}		// end "if (fileInfoPtr->callGetHDFLineFlag)"
+			}	// end "if (fileInfoPtr->callGetHDFLineFlag)"
 		
-		}		// end "fileInfoPtr->hdfFileID != 0"
+		}	// end "fileInfoPtr->hdfFileID != 0"
 		
 	#if include_gdal_capability
 		if (fileInfoPtr->gdalDataSetH != 0)
 			{
-					// Need to set up new gdal references to access the file by for the project.
+					// Need to set up new gdal references to access the file by for the
+					// project.
 						
 			fileInfoPtr->gdalDataSetH = 0;		
 			continueFlag = GetNewGDALFileReference (fileInfoPtr);
-						
-/*			if (continueFlag && fileInfoPtr->hdfHandle != NULL)
+			/*
+			if (continueFlag && fileInfoPtr->hdfHandle != NULL)
 				continueFlag = (LoadGDALInformation (fileInfoPtr, NULL, fileInfoPtr->format) == noErr);
 				
 			if (continueFlag)
 				{
-						// Force the data set selection and the number of channels to be the same
-						// as that being used for the input image.
+						// Force the data set selection and the number of channels to be the 
+						// same as that being used for the input image.
 				
 				fileInfoPtr->hdfDataSetSelection = savedHdfDataSetSelection;
 				fileInfoPtr->numberChannels = savedNumberChannels;
 				
-				}		// end "if (continueFlag)"
-*/							
-			}		// end "fileInfoPtr->gdalDataSetH != 0"
+				}	// end "if (continueFlag)"
+			*/
+			}	// end "fileInfoPtr->gdalDataSetH != 0"
 	#endif	// include_gdal_capability
 		
 	CheckAndUnlockHandle (projectImageFileInfoHandle);
 			
 	if (continueFlag)
 		{		
-		projectWindowInfoPtr	= (WindowInfoPtr)GetHandleStatusAndPointer(
-					gProjectInfoPtr->windowInfoHandle, &handleStatus, kNoMoveHi);
+		projectWindowInfoPtr	= (WindowInfoPtr)GetHandleStatusAndPointer (
+											gProjectInfoPtr->windowInfoHandle, &handleStatus);
 		
 		projectWindowInfoPtr->numberImageFiles = 0;
 		projectWindowInfoPtr->totalNumberChannels = 0;
@@ -3713,26 +3751,26 @@ Boolean	LoadProjectFileAndLayerInformation (
 			
 		MHSetState (gProjectInfoPtr->windowInfoHandle, handleStatus);
 			
-		}		// end "if (continueFlag)" 
+		}	// end "if (continueFlag)" 
 		
 	if (!continueFlag && projectImageFileInfoHandle != NULL)
 		{
-		fileInfoPtr = (FileInfoPtr)GetHandlePointer(
-													projectImageFileInfoHandle, kLock, kNoMoveHi);
+		fileInfoPtr = (FileInfoPtr)GetHandlePointer (projectImageFileInfoHandle, kLock);
 												
 		fileStreamPtr = GetFileStreamPointer (fileInfoPtr);
 		
 		if (GetReferenceNumber (fileStreamPtr) != savedRefNum)
 			CloseFile (fileStreamPtr);
 		
-		fileInfoPtr->channelDescriptionH = UnlockAndDispose (fileInfoPtr->channelDescriptionH);
+		fileInfoPtr->channelDescriptionH =
+											UnlockAndDispose (fileInfoPtr->channelDescriptionH);
 		UnlockAndDispose (projectImageFileInfoHandle);
 		
-		}		// end "if (!continueFlag && ..." 
+		}	// end "if (!continueFlag && ..." 
 	
 	return (continueFlag);
 
-}		// end "LoadProjectFileAndLayerInformation"
+}	// end "LoadProjectFileAndLayerInformation"
 
 
 
@@ -3764,17 +3802,16 @@ void OpenNewProject (void)
 {   
 	if (gProjectInfoPtr == NULL)
 		{              
-				// Make certain that the statistics window is closed at this		
-				// point.																			
+				// Make certain that the statistics window is closed at this point.
 				
 		CloseProjectWindow ();
 		
 		Handle windowInfoHandle = GetActiveImageWindowInfoHandle ();
 		InitializeNewProject (NULL, windowInfoHandle);
 		
-		}		// end "if (gProjectInfoPtr == NULL)"  
+		}	// end "if (gProjectInfoPtr == NULL)"  
 
-}		// end "OpenNewProject"  
+}	// end "OpenNewProject"  
 
 
 
@@ -3798,7 +3835,7 @@ void OpenNewProject (void)
 //							main in multiSpec.c
 //
 //	Coded By:			Larry L. Biehl			Date: 12/29/1988
-//	Revised By:			Larry L. Biehl			Date: 03/21/2017	
+//	Revised By:			Larry L. Biehl			Date: 09/01/2017	
 
 void OpenProjectFile (
 				LocalAppFile*						localAppFilePtr)
@@ -3815,7 +3852,7 @@ void OpenProjectFile (
 			// Exit if a project is already open.											
 			
 	if (gProjectInfoPtr != NULL)
-																						return;
+																								return;
 	
 			// Initialize local variables.													
 			
@@ -3824,11 +3861,11 @@ void OpenProjectFile (
 	
 			// Set up handle to project file information									
 	
-	if ( GetProjectStructure (NULL, 0) )
+	if (GetProjectStructure (NULL, 0))
 		{
 				// Get the name of the project file to read the information from.	
 				
-		if ( GetProjectFile(localAppFilePtr) )
+		if (GetProjectFile (localAppFilePtr))
 			{
 					// Get status information dialog box.									
 						
@@ -3856,31 +3893,30 @@ void OpenProjectFile (
 					
 			gCharBufferPtr1 = CheckAndDisposePtr (gCharBufferPtr1);
 		
-			MInitCursor();
+			MInitCursor ();
 			
 			if (returnCode)
 				{
 				if (returnCode != -2)
 					{
-					if (LoadSpecifiedStringNumberLongP (
-														kAlertStrID, 
-														IDS_Alert35, 
-														(char*)gTextString,
-														(char*)gTextString2,
-														TRUE,
-														(SInt32)returnCode,
-														0 ) )
+					if (LoadSpecifiedStringNumberLongP (kAlertStrID,
+																	IDS_Alert35, 
+																	(char*)gTextString,
+																	(char*)gTextString2,
+																	TRUE,
+																	(SInt32)returnCode,
+																	0))
 						returnCode = DisplayAlert (
 										kErrorAlertID, kStopAlert, 0, 0, 0, gTextString);
 					
-					}		// end "if (returnCode != -2)" 
+					}	// end "if (returnCode != -2)" 
 				
-				}		// end "if (returnCode != NULL)" 
+				}	// end "if (returnCode != NULL)" 
 			
-			else		// returnCode == NULL 
+			else	// returnCode == NULL 
 					okFlag = TRUE;
 					
-			CloseFile ( gProjectInfoPtr );
+			CloseFile (gProjectInfoPtr);
 	
 					// If project file loaded, try to get handle to image file	
 					// information. First check image window files.					
@@ -3899,47 +3935,49 @@ void OpenProjectFile (
 						// image windows.  If the image file is not displayed then	
 						// wait to get image file information until it is needed.
 						
-				if (!FindProjectImageWindows(TRUE))
+				if (!FindProjectImageWindows (TRUE))
 					{
 							// The image file is not displayed.  Ask user if 		
 							// he/she wants the file displayed.	 A returnCode of	
 							// 1 means display image, 2 means cancel open project	
 							// request, and 3 means do not display image.			
 							
-//					"\pOpen image window for project: "
+							//	"\pOpen image window for project: "
 					                  
 					returnCode = 0;   
 					FileStringPtr projectFileNameCPtr = 
-											(FileStringPtr)GetFileNameCPointer (gProjectInfoPtr);
-					if (LoadSpecifiedStringNumberStringP (
-														kAlertStrID, 
-														IDS_Alert36, 
-														(char*)gTextString,
-														(char*)gTextString2,
-														TRUE,
-														projectFileNameCPtr) )
-						returnCode = DisplayAlert (
-									kOpenImageWAlertID, kCautionAlert, 0, 0, 0, gTextString, kUTF8CharString);
+						(FileStringPtr)GetFileNameCPointerFromProjectInfo (gProjectInfoPtr);
+					if (LoadSpecifiedStringNumberStringP (kAlertStrID,
+																		IDS_Alert36, 
+																		(char*)gTextString,
+																		(char*)gTextString2,
+																		TRUE,
+																		projectFileNameCPtr))
+						returnCode = DisplayAlert (kOpenImageWAlertID,
+																kCautionAlert,
+																0,
+																0,
+																0,
+																gTextString,
+																kUTF8CharString);
 						
 					if (returnCode == 2)		
 						okFlag = FALSE;
 						
 					if (returnCode == 1)
 						{
-						if (GetSpecifiedImageFile (
-											gProjectInfoPtr->imageFileName,
-											TRUE ) )
+						if (GetSpecifiedImageFile (gProjectInfoPtr->imageFileName, TRUE))
 							OpenProjectImageWindow ();
 																
-						}		// end "if (returnCode == 1)" 
+						}	// end "if (returnCode == 1)" 
 					
-					}		// end "if (!FindProjectImageWindows(TRUE))" 
+					}	// end "if (!FindProjectImageWindows (TRUE))"
 					
-				}		// end "if (okFlag)" 
+				}	// end "if (okFlag)" 
 				
-			}		// end "if ( GetProjectFile() )" 
+			}	// end "if (GetProjectFile ())" 
 			
-		}		// end "if ( GetProjectStructure (NULL, 0) )" 
+		}	// end "if (GetProjectStructure (NULL, 0))" 
 		
 			// If routine was not successful in loading the file information	
 			// structure, release the handle and set the file pointer to NULL.	
@@ -3947,7 +3985,7 @@ void OpenProjectFile (
 	if (!okFlag)  
 		CloseProjectStructure (gProjectInfoPtr);
 		
-	else		// okFlag 
+	else	// okFlag 
 		{
 				// Force update of menu items.															
 		                          
@@ -3959,23 +3997,24 @@ void OpenProjectFile (
 					
 			UInt16				classIndex;						
 			
-			for (	classIndex=0; 
+			for (classIndex=0;
 					classIndex<gProjectInfoPtr->numberStatisticsClasses; 
-					classIndex++)
+						classIndex++)
 				{
 				AppendMenu (gPopUpClassMenu, "\pNewClass");
-				SetMenuItemText (gPopUpClassMenu, 
-					classIndex+2, 
-					(ConstStr255Param)&gProjectInfoPtr->classNamesPtr[classIndex].name );
+				SetMenuItemText (
+						gPopUpClassMenu,
+						classIndex+2,
+						(ConstStr255Param)&gProjectInfoPtr->classNamesPtr[classIndex].name);
 				
-				}		// end "for (classIndex=0; classIndex<..." 
+				}	// end "for (classIndex=0; classIndex<..." 
 		
 			if (gProjectInfoPtr->numberStatisticsClasses >= kMaxNumberStatClasses-1)
 				{
 	 			DisableMenuItem (gPopUpClassMenu, 1);
 	 			gProjectInfoPtr->currentClass = 0;
 	 			
-	 			}		// end "if (... >= kMaxNumberStatClasses-1)" 	 			
+	 			}	// end "if (... >= kMaxNumberStatClasses-1)" 	 			
 		#endif	// defined multispec_mac  
 															
 				// Outline field boundaries if requested.									
@@ -3987,9 +4026,9 @@ void OpenProjectFile (
 				
 		GetProjectSelectionWindow ();
 
-		}		// end "else okFlag" 
+		}	// end "else okFlag" 
 
-}		// end "OpenProjectFile" 
+}	// end "OpenProjectFile" 
 
 
                   
@@ -4012,7 +4051,7 @@ void OpenProjectFile (
 //							OpenProjectFile in project.c
 //
 //	Coded By:			Larry L. Biehl			Date: 11/18/1991
-//	Revised By:			Larry L. Biehl			Date: 07/21/2017	
+//	Revised By:			Larry L. Biehl			Date: 09/18/2017	
 
 void	OpenProjectImageWindow (void)
 
@@ -4031,17 +4070,17 @@ void	OpenProjectImageWindow (void)
 				
 	windowInfoHandle = NULL;
 		
-			// Check handle to image file information.  If handle to					
-			// image file information doesn't exists. Find the	image					
-			// file and get the information for it.										
+			// Check handle to image file information.  If handle to image file
+			// information doesn't exists. Find the image file and get the information
+			// for it.
 	
 	if (GetProjectImageFileInfo (kPrompt, kDoNotSetupGlobalInfoPointers))
 		{
 		projectWindowInfoHandle = gProjectInfoPtr->windowInfoHandle;
 		fileInfoHandle = projectFileInfoHandle =
-											GetFileInfoHandle (projectWindowInfoHandle);
+													GetFileInfoHandle (projectWindowInfoHandle);
 												
-#		if defined multispec_mac   			
+		#if defined multispec_mac   			
 			CMFileStream*				fileStreamPtr;
 			FileInfoPtr					projectFileInfoPtr; 
 			SignedByte					projectHandleStatus;
@@ -4054,13 +4093,12 @@ void	OpenProjectImageWindow (void)
 				
 			if (errCode == noErr)
 				{
-				fileInfoPtr = (FileInfoPtr)GetHandlePointer(
-															fileInfoHandle, kLock, kNoMoveHi);
+				fileInfoPtr = (FileInfoPtr)GetHandlePointer (fileInfoHandle, kLock);
 				fileStreamPtr = GetFileStreamPointer (fileInfoPtr);
 				SetReferenceNumber (fileStreamPtr, 0);
 		
-				projectFileInfoPtr = (FileInfoPtr)GetHandleStatusAndPointer(
-								projectFileInfoHandle, &projectHandleStatus, kNoMoveHi);
+				projectFileInfoPtr = (FileInfoPtr)GetHandleStatusAndPointer (
+													projectFileInfoHandle, &projectHandleStatus);
 					
 						// Don't use the same handles in the project and image 
 						// file information structures.		
@@ -4069,28 +4107,31 @@ void	OpenProjectImageWindow (void)
 				
 				MHSetState (projectFileInfoHandle, projectHandleStatus);
 					
-				}		// end "if (errCode == noErr)" 	
+				}	// end "if (errCode == noErr)" 	
 				
-#			if include_gdal_capability
+			#if include_gdal_capability
 				if (fileInfoPtr->gdalDataSetH != 0)
 					{
-							// Need to set up new gdal references to access the file by for the project.
+							// Need to set up new gdal references to access the file for
+							// the project.
 								
 					fileInfoPtr->gdalDataSetH = 0;		
 					if (!GetNewGDALFileReference (fileInfoPtr))
 						errCode = 1;
 						
-//					if (errCode == noErr && fileInfoPtr->hdfHandle != NULL)
-//						errCode = LoadGDALInformation (fileInfoPtr, NULL, fileInfoPtr->format);
-											
-					}		// end "fileInfoPtr->gdalDataSetH != 0"
-#			endif	// include_gdal_capability
+					//if (errCode == noErr && fileInfoPtr->hdfHandle != NULL)
+					//	errCode = LoadGDALInformation (
+					//									fileInfoPtr, NULL, fileInfoPtr->format);
+					
+					}	// end "fileInfoPtr->gdalDataSetH != 0"
+			#endif	// include_gdal_capability
 
-#			if include_hdf_capability
+			#if include_hdf_capability
 				if (errCode == noErr && 
-								(fileInfoPtr->format == kHDF4Type || fileInfoPtr->format == kNETCDFType))
+								(fileInfoPtr->format == kHDF4Type ||
+																fileInfoPtr->format == kNETCDFType))
 					errCode = LoadHDF4Information (fileInfoPtr, fileInfoPtr->format, TRUE);
-#			endif		// include_hdf_capability
+			#endif		// include_hdf_capability
 				
 			if (errCode == noErr)
 				{
@@ -4102,9 +4143,9 @@ void	OpenProjectImageWindow (void)
 														kDoNotVerifyFileStream);		
 				IOCheck (errCode, fileStreamPtr);
 						
-				}		// end "if (errCode == noErr)" 
+				}	// end "if (errCode == noErr)" 
 					
-			CheckAndUnlockHandle(fileInfoHandle);
+			CheckAndUnlockHandle (fileInfoHandle);
 				
 			if (errCode == noErr)
 				{
@@ -4114,52 +4155,51 @@ void	OpenProjectImageWindow (void)
 																			kMultispectralImageType, 
 																			kImageWindowType);
 						
-				}		// end "if (errCode == noErr)" 
+				}	// end "if (errCode == noErr)" 
 				
 			if (windowInfoHandle != NULL)
 				SetUpImageWindow (windowInfoHandle);
 			
 			if (windowInfoHandle == NULL && fileInfoHandle != NULL)
 				{
-				fileInfoPtr = (FileInfoPtr)GetHandlePointer(
-																fileInfoHandle, kLock, kNoMoveHi);
+				fileInfoPtr = (FileInfoPtr)GetHandlePointer (fileInfoHandle, kLock);
 				CloseFile (fileInfoPtr);
 				CheckAndUnlockHandle (fileInfoHandle);
 					
-				}		// end "if (windowInfoHandle == NULL && ..."		
-#		endif	// defined multispec_mac 				
+				}	// end "if (windowInfoHandle == NULL && ..."		
+		#endif	// defined multispec_mac 				
 				
-#		if defined multispec_win  
+		#if defined multispec_win  
 			CDocument* 		documentPtr = NULL;
 				 
 				                                        
-			fileInfoPtr = (FileInfoPtr)GetHandlePointer(
-													fileInfoHandle, kNoLock, kNoMoveHi);
+			fileInfoPtr = (FileInfoPtr)GetHandlePointer (fileInfoHandle);
 				
-			TBYTE* filePathPointer = (TBYTE*)GetFilePathPPointer (fileInfoPtr, kReturnUnicode);  
+			TBYTE* filePathPointer = (TBYTE*)GetFilePathPPointerFromFileInfo (
+																		fileInfoPtr, kReturnUnicode);
 					
-			((CMultiSpecApp*)AfxGetApp())->OpenImageFileWin (
-										filePathPointer,
-										&documentPtr,
-										TRUE,
-										fileInfoPtr->hdfDataSetSelection);				
-#		endif	// defined multispec_win   
+			((CMultiSpecApp*)AfxGetApp ())->OpenImageFileWin (
+																filePathPointer,
+																&documentPtr,
+																TRUE,
+																fileInfoPtr->hdfDataSetSelection);				
+		#endif	// defined multispec_win
 
-#		if defined multispec_lin
-			fileInfoPtr = (FileInfoPtr) GetHandlePointer (
-										fileInfoHandle, kNoLock, kNoMoveHi);
+		#if defined multispec_lin
+			fileInfoPtr = (FileInfoPtr) GetHandlePointer (fileInfoHandle);
 
-			wchar_t* filePathPointer = (wchar_t*)GetFilePathPPointer(fileInfoPtr, kReturnUnicode);
+			wchar_t* filePathPointer =
+					(wchar_t*)GetFilePathPPointerFromFileInfo (fileInfoPtr, kReturnUnicode);
 
 			((CMultiSpecApp*)wxTheApp)->OpenImageFileLin (
-										filePathPointer,
-										TRUE,
-										fileInfoPtr->hdfDataSetSelection);
-#		endif
+																filePathPointer,
+																TRUE,
+																fileInfoPtr->hdfDataSetSelection);
+		#endif	// defined multispec_lin
 		
-		}		// end "if (GetProjectImageFileInfo (..."
+		}	// end "if (GetProjectImageFileInfo (..."
    
-}		// end "OpenProjectImageWindow"
+}	// end "OpenProjectImageWindow"
 
 
                    
@@ -4209,24 +4249,24 @@ void ReleaseProjectHandles (
 				// Dispose of handle to field name information							
 				
 		inputProjectInfoPtr->fieldIdentifiersHandle = 
-					UnlockAndDispose (inputProjectInfoPtr->fieldIdentifiersHandle);
+						UnlockAndDispose (inputProjectInfoPtr->fieldIdentifiersHandle);
 		
 				// Dispose of handle to field coordinates									
 				
 		inputProjectInfoPtr->fieldCoordinatesHandle = 
-				UnlockAndDispose (inputProjectInfoPtr->fieldCoordinatesHandle);
+						UnlockAndDispose (inputProjectInfoPtr->fieldCoordinatesHandle);
 				
 				// Release memory for class pair weights vector if it has been 	
 				// allocated.																		
 		
 		inputProjectInfoPtr->classPairWeightsHandle =		
-				UnlockAndDispose (inputProjectInfoPtr->classPairWeightsHandle);
+						UnlockAndDispose (inputProjectInfoPtr->classPairWeightsHandle);
 				
 				// Release memory for user class pair weights list vector if 		
 				// it has been allocated.														
 		
 		inputProjectInfoPtr->classPairWeightsListHandle = 		
-				UnlockAndDispose (inputProjectInfoPtr->classPairWeightsListHandle);
+						UnlockAndDispose (inputProjectInfoPtr->classPairWeightsListHandle);
 				
 				// Close test and training mask files and release memory.
 		
@@ -4254,11 +4294,11 @@ void ReleaseProjectHandles (
 		
 				// Dispose of statistics histogram specifications if they exist.	
 				
-		ReleaseStatHistogramSpecsMemory(&inputProjectInfoPtr->statHistogramSpecsH);
+		ReleaseStatHistogramSpecsMemory (&inputProjectInfoPtr->statHistogramSpecsH);
 		
 				// Dispose of statistics histogram specifications if they exist.	
 				
-		ReleaseStatisticsEnhanceSpecsMemory(
+		ReleaseStatisticsEnhanceSpecsMemory (
 											&inputProjectInfoPtr->statisticsEnhanceSpecsH);
 											
 				// Dispose of 'covariance check' specification structure.
@@ -4266,9 +4306,9 @@ void ReleaseProjectHandles (
 		ReleaseEvalCovarianceHandleMemory (
 											&inputProjectInfoPtr->evalCovarianceSpecsHandle);
 		
-		}		// end "if (inputProjectInfoPtr != NULL)" 
+		}	// end "if (inputProjectInfoPtr != NULL)" 
 		
-}		// end "ReleaseProjectHandles" 
+}	// end "ReleaseProjectHandles" 
 
 
 
@@ -4327,7 +4367,7 @@ void ReleaseStatisticsHandles (
 					UnlockAndDispose (inputProjectInfoPtr->fieldSumSquaresStatsHandle);
 			inputProjectInfoPtr->fieldSumSquaresStatsPtr = NULL;
 			
-			}		// end "if (statsCode & kOriginalStats)"
+			}	// end "if (statsCode & kOriginalStats)"
 			
 		if (statsCode & kLeaveOneOutStats)
 			{
@@ -4341,7 +4381,7 @@ void ReleaseStatisticsHandles (
 			inputProjectInfoPtr->commonCovarianceStatsHandle = 
 					UnlockAndDispose (inputProjectInfoPtr->commonCovarianceStatsHandle);
 					
-			}		// end "if (statsCode & kLeaveOneOutStats)"
+			}	// end "if (statsCode & kLeaveOneOutStats)"
 			
 		if (statsCode & kEnhancedStats)
 			{
@@ -4357,11 +4397,11 @@ void ReleaseStatisticsHandles (
 					UnlockAndDispose (inputProjectInfoPtr->modifiedClassCovStatsHandle);
 			inputProjectInfoPtr->modifiedClassCovStatsPtr = NULL;
 			
-			}		// end "if (statsCode & kEnhancedStats)"
+			}	// end "if (statsCode & kEnhancedStats)"
 		
-		}		// end "if (inputProjectInfoPtr != NULL)" 
+		}	// end "if (inputProjectInfoPtr != NULL)" 
 		
-}		// end "ReleaseStatisticsHandles" 
+}	// end "ReleaseStatisticsHandles" 
 
 
 
@@ -4373,8 +4413,8 @@ void ReleaseStatisticsHandles (
 //	Function name:		void UnlockProjectWindowInfoHandles
 //
 //	Software purpose:	This routine unlocks the window information handles
-//							associated with the project.  The global pointers
-//							the those structures are set to NULL.
+//							associated with the project.  The global pointers the those
+//							structures are set to NULL.
 //
 //	Parameters in:		None.
 //
@@ -4407,15 +4447,14 @@ void UnlockProjectWindowInfoHandles (void)
 		{
 		if (gProjectInfoPtr->windowInfoHandle)
 			{                                          
-			windowInfoPtr = (WindowInfoPtr)GetHandlePointer(
-														gProjectInfoPtr->windowInfoHandle,
-														kLock,
-														kNoMoveHi);
+			windowInfoPtr = (WindowInfoPtr)GetHandlePointer (
+															gProjectInfoPtr->windowInfoHandle,
+															kLock);
 			
-			Handle fileInfoHandle = GetFileInfoHandle(windowInfoPtr);
+			Handle fileInfoHandle = GetFileInfoHandle (windowInfoPtr);
 			CheckAndUnlockHandle (fileInfoHandle);
 		                                               
-			Handle layerInfoHandle = GetLayerInfoHandle(windowInfoPtr);
+			Handle layerInfoHandle = GetLayerInfoHandle (windowInfoPtr);
 			CheckAndUnlockHandle (layerInfoHandle);
 		
 			CheckAndUnlockHandle (gProjectInfoPtr->windowInfoHandle);
@@ -4426,13 +4465,13 @@ void UnlockProjectWindowInfoHandles (void)
 				gImageLayerInfoPtr = NULL;
 				gImageFileInfoPtr = NULL;
 				
-				}		// end "if (windowInfoPtr == gImageWindowInfoPtr)" 
+				}	// end "if (windowInfoPtr == gImageWindowInfoPtr)" 
 				
-			}		// end "if (gProjectInfoPtr->windowInfoHandle)" 
+			}	// end "if (gProjectInfoPtr->windowInfoHandle)" 
 			
-		}		// end "if (gProjectInfoPtr != NULL)" 
+		}	// end "if (gProjectInfoPtr != NULL)" 
 		
-}		// end "UnlockProjectWindowInfoHandles" 
+}	// end "UnlockProjectWindowInfoHandles" 
 
 
 
@@ -4483,9 +4522,9 @@ void UpdateProjectMapProjectionHandle (
 		SetFileMapProjectionHandle2 (gProjectInfoPtr->windowInfoHandle,
 												projectMapProjectionHandle);
 		
-		}		// end "if (gProjectInfoPtr != NULL && inputMapProjectionHandle != NULL"
+		}	// end "if (gProjectInfoPtr != NULL && inputMapProjectionHandle != NULL"
 
-}		// end "UpdateProjectMapProjectionHandle"
+}	// end "UpdateProjectMapProjectionHandle"
 
 
 
@@ -4521,7 +4560,7 @@ void UpdateProjectMapProjectionHandle (
 //							ChangeProjectBaseImage in project.c
 //
 //	Coded By:			Larry L. Biehl			Date: 06/21/1990
-//	Revised By:			Larry L. Biehl			Date: 03/15/2017
+//	Revised By:			Larry L. Biehl			Date: 09/01/2017
 
 Boolean UserLocateProjectBaseImage (
 				Handle								fileInfoHandle, 
@@ -4549,10 +4588,10 @@ Boolean UserLocateProjectBaseImage (
 		// Check input variables.															
 			
 	if (fileInfoHandle == NULL)
-																					return (FALSE);
+																							return (FALSE);
 			
 	if (option < 1 || option > 2)
-																					return (FALSE);
+																							return (FALSE);
 																						
 			// Initialize local variables.													
 			
@@ -4560,16 +4599,25 @@ Boolean UserLocateProjectBaseImage (
 	
 			// Lock handle to file information and get pointer to it.				
 			
-	fileInfoPtr = (FileInfoPtr)GetHandleStatusAndPointer(
-												fileInfoHandle, &handleStatus, kNoMoveHi);
+	fileInfoPtr = (FileInfoPtr)GetHandleStatusAndPointer (
+																fileInfoHandle, &handleStatus);
 																
 	fileStreamPtr = GetFileStreamPointer (fileInfoPtr);
+	
+			// Make sure the mUTF8PathLength in fileStreamPtr is set to 0. I may
+			// still represent the path length for the project file. The user
+			// may select a different location for the project image file in
+			// which case this length needs to be recalcuated.
+	
+	#if defined multispec_lin || multispec_win
+		fileStreamPtr->mUTF8PathLength = 0;
+	#endif	 // defined multispec_lin || multispec_win
 	
 			// If the option key was down when the 'Open Image' menu item			
 			// was selected then include all files in the file list.  				
 			// Otherwise just show the selected file types.								
 			
-	numberFileTypes = GetNumberFileTypes(); 
+	numberFileTypes = GetNumberFileTypes ();
 
 			// Loop until an acceptable base image file is located or the user	
 			// cancels.																				
@@ -4584,7 +4632,7 @@ Boolean UserLocateProjectBaseImage (
 									NULL,
 									NULL, 
 									promptStringNumber);
-	   continueFlag = ((errCode == noErr) & FileExists(fileStreamPtr));
+	   continueFlag = ((errCode == noErr) & FileExists (fileStreamPtr));
 	   				
 	   		// Continue if no IO error and user did not cancel.					
 	   
@@ -4596,7 +4644,7 @@ Boolean UserLocateProjectBaseImage (
 					// image file information.													
 			
 			gGetFileImageType = kMultispectralImageType;
-			if ( LoadImageInformation (NULL, fileInfoHandle, FALSE, NULL, 0) )
+			if (LoadImageInformation (NULL, fileInfoHandle, FALSE, NULL, 0))
 				{
 				if (option == 1)
 					{									
@@ -4610,9 +4658,11 @@ Boolean UserLocateProjectBaseImage (
 								// that the project has changed and for the statistics
 								// to be recomputed.		
 						
-						FileStringPtr fileNamePtr = (FileStringPtr)GetFileNameCPointer (fileInfoPtr);
-						FileStringPtr projectImageNamePtr = (FileStringPtr)gProjectInfoPtr->imageFileName;
-							
+						FileStringPtr fileNamePtr =
+								(FileStringPtr)GetFileNameCPointerFromFileInfo (fileInfoPtr);
+						FileStringPtr projectImageNamePtr =
+													(FileStringPtr)gProjectInfoPtr->imageFileName;
+						
 								// Check if the file names agree.										
 									
 						if (CompareStringsNoCase (&projectImageNamePtr[1],
@@ -4631,37 +4681,38 @@ Boolean UserLocateProjectBaseImage (
 								alertString[0] = (UInt8)length;
 	
 								itemHit = DisplayAlert (kYesNoAlertID, 
-																	kStopAlert, 
-																	0, 
-																	0,
-																	0, 
-																	(UCharPtr)alertString);
+																kStopAlert,
+																0, 
+																0,
+																0, 
+																(UCharPtr)alertString);
 													
-								}		// end "if (gTextString3[0] != 0)"
+								}	// end "if (gTextString3[0] != 0)"
 								
 							if (itemHit == 1)
 								{
 								ClearProjectStatistics (1);
-								GetCopyOfPFileName (fileInfoPtr, gProjectInfoPtr->imageFileName);
+								GetCopyOfPFileNameFromFileInfo (
+													fileInfoPtr, gProjectInfoPtr->imageFileName);
 								
-								}		// end "if (itemHit == 1)"
+								}	// end "if (itemHit == 1)"
 								
-							else		// itemHit != 1
+							else	// itemHit != 1
 								fileFound = FALSE;
 							
-							}		// end "if ( CompareStringsNoCase (..."
+							}	// end "if (CompareStringsNoCase (..."
 																		
-						}		// end "if (fileFound)"
+						}	// end "if (fileFound)"
 						
-					else		// !fileFound
+					else	// !fileFound
 							// Display an alert indicating that the selected image 	
 							// file description does not match that expected as the 	
 							// base image for the project file.								
 					
 						returnCode = DisplayAlert (
-									kErrorAlertID, kStopAlert, kAlertStrID, IDS_Alert12, 0, NULL);
+								kErrorAlertID, kStopAlert, kAlertStrID, IDS_Alert12, 0, NULL);
 						
-					}		// end "if (option == 1)" 
+					}	// end "if (option == 1)" 
 					
 				if (option == 2)
 					{
@@ -4672,14 +4723,14 @@ Boolean UserLocateProjectBaseImage (
 					if (returnCode < 0)
 						continueFlag = FALSE;
 					
-					}		// end "if (option == 2)" 
+					}	// end "if (option == 2)" 
 					
 				if (!fileFound)
 					CloseFile (fileStreamPtr);
 					
-				}		// end "if ( LoadImageInformation (fileInfoHandle, ..." 
+				}	// end "if (LoadImageInformation (fileInfoHandle, ..." 
 					
-			}		// end "if (continueFlag)" 
+			}	// end "if (continueFlag)" 
 			
 		}		while (continueFlag && !fileFound);
 				
@@ -4689,7 +4740,7 @@ Boolean UserLocateProjectBaseImage (
 		
 	return (fileFound);
 
-}		// end "UserLocateProjectBaseImage" 
+}	// end "UserLocateProjectBaseImage" 
 
 
 
@@ -4698,10 +4749,10 @@ Boolean UserLocateProjectBaseImage (
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
-//	Function name:		Boolean UserLocateProjectBaseImage
+//	Function name:		Boolean VerifyImageFileCanBeForProject
 //
-//	Software purpose:	This routine allows the user to locate the project
-//							base image file.
+//	Software purpose:	This routine determines if the input image window represents
+//							a file that can be used as a base image for a project.
 //
 //	Parameters in:		
 //
@@ -4738,4 +4789,4 @@ Boolean VerifyImageFileCanBeForProject (
 	
 	return (returnFlag);
 
-}		// end "VerifyImageFileCanBeForProject" 
+}	// end "VerifyImageFileCanBeForProject" 

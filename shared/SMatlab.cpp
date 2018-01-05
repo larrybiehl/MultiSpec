@@ -1,32 +1,65 @@
+//	 									MultiSpec
 //
-//		Matlab Header Create
+//					Laboratory for Applications of Remote Sensing
+//									Purdue University
+//								West Lafayette, IN 47907
+//								 Copyright (1988-2018)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
 //
-//		Writes necessary data to "header" of Matlab file.  Create structures
-//		in .mat file for number_of_lines, number_of_columns, number_of_bands,
-//		and initial information for the actual pixels.  Support BIS only.
+//	File:						SMatlab.cpp
 //
-//		Michael T. Gansler
+//	Authors:					Michael T. Gansler & Larry L. Biehl
 //
-//-----------------------------------------------------------------------------
+//	Revision date:			01/05/2018
+//
+//	Language:				C
+//
+//	System:					Linux, Macintosh, and Windows Operating Systems
+//
+//	Brief description:	Matlab Header Create
+//								Writes necessary data to "header" of Matlab file.  Create
+//								structures in .mat file for number_of_lines, number_of_columns,
+//								number_of_bands, and initial information for the actual pixels.
+//								Support BIS only.
+//
+//	Functions in file:	void					savemat
+//								void					savematHeaderOnly
+//								void					WriteMatlabHeader
+//
+//	Include files:			"SMultiSpec.h"
+//								SExtGlob.h
+//
+/* Template for debugging
+	int numberChars2 = sprintf ((char*)gTextString3,
+											" SMatlab::xxx (linWidth, width): %d, %d%s",
+											linWidth,
+											width,
+											gEndOfLine);
+	ListString ((char*)gTextString3, numberChars2, gOutputTextH);
+*/
+//------------------------------------------------------------------------------------
 
-#include "SMulSpec.h"
+#include "SMultiSpec.h"  
+
+#if defined multispec_lin
+	#include "SMultiSpec.h"
+#endif
 	
-#	if defined multispec_mac
-	
-#	endif	// defined multispec_mac   
+#if defined multispec_mac
+#endif	// defined multispec_mac
                              
-#	if defined multispec_win
-//#		include "CDatFile.h"	 
-#	endif	// defined multispec_win 
+#if defined multispec_win
+#endif	// defined multispec_win
   
-#include	"SExtGlob.h"
+//#include	"SExtGlob.h"
 
 
 
 			// Prototype descriptions for routines in this file that are only		
 			// called by routines in this file.
 										
-void 								savemat(
+void 								savemat (
 										CMFileStream*		outFileStreamPtr, 
 										SInt32				type, 
 										char					*pname, 
@@ -34,7 +67,7 @@ void 								savemat(
 										SInt32				ncols, 
 										SDouble				preal); 	// short double
 										
- void 							savematHeaderOnly(
+ void 							savematHeaderOnly (
 										CMFileStream*		outFileStreamPtr, 
 										SInt32				type, 
 										char					*pname, 
@@ -50,10 +83,10 @@ void 								savemat(
 //
 //	FILE *fp;
 //	double xyz[1000], ar[1000], ai[1000];
-//	fp = fopen("foo.mat","wb");
-//	savemat(fp, 2000, "xyz", 2, 3, 0, xyz, (double *)0);
-//	savemat(fp, 2000, "a", 5, 5, 1, ar, ai);
-//	fclose(fp);
+//	fp = fopen ("foo.mat","wb");
+//	savemat (fp, 2000, "xyz", 2, 3, 0, xyz, (double *)0);
+//	savemat (fp, 2000, "a", 5, 5, 1, ar, ai);
+//	fclose (fp);
 //
 // Author J.N. Little 11-3-86
 //
@@ -63,13 +96,14 @@ void 								savemat(
 //					 Remove imaginary portions for this application
 //
 
-typedef struct {
+typedef struct 
+	{
      long type;	// type
      long mrows;	// row dimension
      long ncols;	// column dimension
      long imagf;	// flag indicating imag part
      long namlen;	// name length (including NULL)
-} Fmatrix;
+	} Fmatrix;
 
 
 // FileInfoPtr		outFileInfoPtr;		 File pointer
@@ -82,15 +116,13 @@ typedef struct {
 // char				*pname;			 pointer to matrix name
 // SDouble			preal;			 actual real data : 1 SCALAR VALUE
 
-void savemat(
+void savemat (
 				CMFileStream*						outFileStreamPtr, 
 				SInt32								type, 
 				char									*pname, 
 				SInt32								mrows, 
 				SInt32								ncols, 
 				SDouble								preal)
-
-
 {
 	Fmatrix								x;
 	SInt32								mn;
@@ -102,28 +134,28 @@ void savemat(
 	x.mrows = mrows;
 	x.ncols = ncols;
 	x.imagf = (SInt32)0;
-	x.namlen = strlen(pname) + 1;
+	x.namlen = (long)strlen (pname) + 1;
 	mn = x.mrows * x.ncols;
 	
-	temp = (SInt32)sizeof(Fmatrix);
+	temp = (SInt32)sizeof (Fmatrix);
 	
 			// write header structure
 	
-	errCode = MWriteData(outFileStreamPtr, &temp, &x, kNoErrorMessages);
+	errCode = MWriteData (outFileStreamPtr, &temp, &x, kNoErrorMessages);
 	
 			// write name of array
 				
-	temp = (SInt32)(sizeof(char)*x.namlen);
+	temp = (SInt32)(sizeof (char) * x.namlen);
 	if (errCode == noErr)
-		errCode = MWriteData(outFileStreamPtr, &temp, pname, kNoErrorMessages);
+		errCode = MWriteData (outFileStreamPtr, &temp, pname, kNoErrorMessages);
 	
 			// write array values
 		
-	temp = (SInt32)(sizeof(SDouble)*mn);
+	temp = (SInt32)(sizeof (SDouble) * mn);
 	if (errCode == noErr)
-		errCode = MWriteData(outFileStreamPtr, &temp, &preal, kNoErrorMessages);
+		errCode = MWriteData (outFileStreamPtr, &temp, &preal, kNoErrorMessages);
 	
-}
+}	// end "savemat"
 
 
 //
@@ -141,7 +173,7 @@ void savemat(
 //
 //	5/7/93 Revised : Michael Gansler
 
-void savematHeaderOnly(
+void savematHeaderOnly (
 				CMFileStream*						outFileStreamPtr, 
 				SInt32								type, 
 				char									*pname, 
@@ -159,27 +191,45 @@ void savematHeaderOnly(
 	x.mrows = mrows;
 	x.ncols = ncols;
 	x.imagf = (SInt32)0;
-	x.namlen = strlen(pname) + 1;
+	x.namlen = (long)strlen (pname) + 1;
 	mn = x.mrows * x.ncols;
 	
-			// write header structure
+			// Write header structure
 				
-	temp = (SInt32)sizeof(Fmatrix);
-	errCode = MWriteData(outFileStreamPtr, &temp, &x, kNoErrorMessages);
+	temp = (SInt32)sizeof (Fmatrix);
+	errCode = MWriteData (outFileStreamPtr, &temp, &x, kNoErrorMessages);
 	
-			// write name of array
+			// Write name of array
 						
-	temp = (SInt32)(sizeof(char)*x.namlen);
+	temp = (SInt32)(sizeof (char) * x.namlen);
 	if (errCode == noErr)
-		errCode = MWriteData(outFileStreamPtr, &temp, pname, kNoErrorMessages);
+		errCode = MWriteData (outFileStreamPtr, &temp, pname, kNoErrorMessages);
 		
 }		// end "savematHeaderOnly"
 
 
 
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2017)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		Boolean CheckIfGeodeticModelInfoMatch
+//
+//	Software purpose:	This routine checks if the geodetic model information in the
+//							two input geodetic structures are the same.
+//
+//	Parameters in:		Pointer to file information structure
+//
+//	Parameters out:	None		
+//
+//	Value Returned:	None
+// 
+// Called By:
+//
 //	Revised By:			Larry L. Biehl			Date: 12/22/2003
 
-void WriteMatlabHeader(
+void WriteMatlabHeader (
 				FileInfoPtr 						outFileInfoPtr)
 
 {
@@ -190,7 +240,6 @@ void WriteMatlabHeader(
 	double								rows, 
 											columns;
 	
-	
 	if (gBigEndianFlag)	
 		type = 1000;
 	else		// !gBigEndianFlag	
@@ -198,14 +247,14 @@ void WriteMatlabHeader(
 							
 	fileStreamPtr = GetFileStreamPointer (outFileInfoPtr);
 
-	savemat(fileStreamPtr, type, (char*)"number_of_bands", 
+	savemat (fileStreamPtr, type, (char*)"number_of_bands",
 									1, 1,(SDouble)outFileInfoPtr->numberChannels);
-	savemat(fileStreamPtr, type, (char*)"number_of_rows", 
+	savemat (fileStreamPtr, type, (char*)"number_of_rows",
 									1, 1,(SDouble)outFileInfoPtr->numberLines);
-	savemat(fileStreamPtr, type, (char*)"number_of_columns", 
+	savemat (fileStreamPtr, type, (char*)"number_of_columns",
 									1, 1,(SDouble)outFileInfoPtr->numberColumns);
 	
-	columns = (outFileInfoPtr->numberLines) * (outFileInfoPtr->numberColumns);
+	columns = outFileInfoPtr->numberLines * outFileInfoPtr->numberColumns;
 	rows = outFileInfoPtr->numberChannels;
 	savematHeaderOnly (fileStreamPtr, type, 
 									(char*)"pixels", (SInt32)rows, (SInt32)columns);
@@ -217,7 +266,7 @@ void WriteMatlabHeader(
 	if (errCode == noErr)
 		outFileInfoPtr->numberHeaderBytes = (UInt32)numberHeaderBytes;
 
-}		// end "WriteMatlabHeader"
+}	// end "WriteMatlabHeader"
 
 /*
 //
@@ -226,7 +275,7 @@ void WriteMatlabHeader(
 //
 //		Michael Gansler
 
-void ConvertToMatlabFormat(
+void ConvertToMatlabFormat (
 				HUCharPtr							savedOutBufferPtr, 
 				SInt16								numberBytes, 
 				Boolean								signedDataFlag, 
@@ -240,14 +289,14 @@ void ConvertToMatlabFormat(
 
 
 	matlabBufferPtr = (SDouble*)savedOutBufferPtr;
-	matlabBufferPtr = &matlabBufferPtr [numberSamples-1]; 
+	matlabBufferPtr = &matlabBufferPtr[numberSamples-1];
 
 	if (numberBytes == 1)
 		{
 		HUCharPtr				ioOut1BufferPtr;
 	
 		ioOut1BufferPtr = (HUCharPtr)savedOutBufferPtr;
-		ioOut1BufferPtr = &ioOut1BufferPtr [numberSamples-1];
+		ioOut1BufferPtr = &ioOut1BufferPtr[numberSamples-1];
 		
 		for (i=numberSamples; i>0; i--)
 			{
@@ -255,9 +304,9 @@ void ConvertToMatlabFormat(
 			ioOut1BufferPtr--;
 			matlabBufferPtr--;
 			
-			}		// end "for (i=numberSamples; i>0; i--)"
+			}	// end "for (i=numberSamples; i>0; i--)"
 	
-		}		// end "if (numberBytes == 1)"
+		}	// end "if (numberBytes == 1)"
 	
 	if (numberBytes == 2)
 		{
@@ -266,7 +315,7 @@ void ConvertToMatlabFormat(
 			HSInt16Ptr				ioOut2BufferPtr;
 		
 			ioOut2BufferPtr = (HSInt16Ptr)savedOutBufferPtr;
-			ioOut2BufferPtr = &ioOut2BufferPtr [numberSamples-1];
+			ioOut2BufferPtr = &ioOut2BufferPtr[numberSamples-1];
 			
 			for (i=numberSamples; i>0; i--)
 				{
@@ -274,16 +323,16 @@ void ConvertToMatlabFormat(
 				ioOut2BufferPtr--;
 				matlabBufferPtr--;
 									
-				}		// end "for (i=numberSamples; i>0; i--)"
+				}	// end "for (i=numberSamples; i>0; i--)"
 				
-			}		// end "if (signedDataFlag)"
+			}	// end "if (signedDataFlag)"
 			
-		else		// !signedDataFlag
+		else	// !signedDataFlag
 			{
 			HUInt16Ptr		ioOut2BufferPtr;
 		
 			ioOut2BufferPtr = (HUInt16Ptr)savedOutBufferPtr;
-			ioOut2BufferPtr = &ioOut2BufferPtr [numberSamples-1];
+			ioOut2BufferPtr = &ioOut2BufferPtr[numberSamples-1];
 			
 			for (i=numberSamples; i>0; i--)
 				{
@@ -291,12 +340,12 @@ void ConvertToMatlabFormat(
 				ioOut2BufferPtr--;
 				matlabBufferPtr--;
 									
-				}		// end "for (i=numberSamples; i>0; i--)"
+				}	// end "for (i=numberSamples; i>0; i--)"
 			
-			}		// end "else !signedDataFlag"
+			}	// end "else !signedDataFlag"
 	
-		}		// end "if (numberBytes == 2)"
+		}	// end "if (numberBytes == 2)"
 
-}		// end "ConvertToMatlabFormat"
+}	// end "ConvertToMatlabFormat"
 */
 	

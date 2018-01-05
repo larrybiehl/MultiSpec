@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,13 +11,11 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision number:		3.0
-//
-//	Revision date:			06/21/2017
+//	Revision date:			01/04/2018
 //
 //	Language:				C
 //
-//	System:					Macintosh & Windows Operating Systems
+//	System:					Linux, Macintosh & Windows Operating Systems
 //
 //	Functions in file:	Boolean 					ClusterClassification
 //								void 						ClusterControl
@@ -89,15 +87,23 @@
 //	Include files:			"MultiSpecHeaders"
 //								"multiSpec.h"
 //
+/*
+			// Template for debugging.
+		int numberChars = sprintf ((char*)gTextString3,
+									" SCluster:xxxx (): %s",
+									gEndOfLine);
+		ListString ((char*)gTextString3, numberChars, gOutputTextH);
+*/
+//------------------------------------------------------------------------------------
 
-#include	"SMulSpec.h"     
+#include "SMultiSpec.h"     
 
 #if defined multispec_lin   
 	#include "LClusterDialog.h" 
 	#include "wx/wx.h"
 #endif	// defined multispec_lin
 
-#if defined multispec_mac 
+#if defined multispec_mac || defined multispec_mac_swift
 	#define	IDC_ClassifyTrainingAreas		10
 	#define	IDC_ImageOverlay					36
 	#define	IDC_UsePixelsThresholdFlag		37
@@ -109,13 +115,13 @@
 	
 	#define	IDS_Alert141						141
 	#define	IDS_Alert142						142
-#endif	// defined multispec_mac 
+#endif	// defined multispec_mac || defined multispec_mac_swift 
   
 #if defined multispec_win   
-	#include "WClusDlg.h"
+	#include "WClusterDialog.h"
 #endif	// defined multispec_win 
 
-#include "SExtGlob.h"   
+
 
 #define	kmaxNumberCharactersForLine		2000
 
@@ -126,65 +132,10 @@
 #define	kClusterERDAS74OutputFormat		1
 #define	kClusterTIFFGeoTIFFOutputFormat	2
 
-
-extern void 	ClusterDialogInitialize (
-						DialogPtr							dialogPtr,
-						UInt16*								localFeaturesPtr, 
-						unsigned char*						localSymbolsPtr,
-						Boolean								newProjectFlag,
-						SInt16*								clusterModePtr,
-						Boolean*								modeSetFlagPtr,
-						SInt16*								classificationAreaPtr,
-						DialogSelectArea*					dialogSelectAreaPtr,
-						double*								classifyThresholdPtr,
-						SInt16*								channelSelectionPtr,
-						UInt16*								localNumberChannelsPtr,
-						SInt16*								symbolSelectionPtr,
-						SInt16*								saveStatisticsSelectionPtr,
-						Boolean*								outputWindowFlagPtr,
-						Boolean*								outputDiskFileFlagPtr,
-						Boolean*								clusterMaskFileFlagPtr,
-						SInt16*								maskFileFormatCodePtr,
-						Boolean*								createImageOverlayFlagPtr,
-						SInt16*								selectImageOverlaySelectionPtr,
-						Boolean*								thresholdFlagPtr,
-						double*								thresholdPercentPtr,
-						SInt32*								transparencyValuePtr);
-
-extern void 	ClusterDialogOK (
-						DialogPtr							dialogPtr,
-						SInt16								clusterMode,
-						Boolean								trainingAreasFlag,
-						Boolean								selectedAreaFlag,
-						DialogSelectArea*					dialogSelectAreaPtr,
-						double								classifyThreshold,
-						SInt16								channelSelection,
-						SInt16								localNumberFeatures,
-						SInt16*								localFeaturesPtr,
-						SInt16								symbolSelection,
-						unsigned char*						localSymbolsPtr,
-						SInt16								saveStatisticsSelection,
-						Boolean								textWindowFlag,
-						Boolean								outputDiskFileFlag,
-						Boolean								clusterMaskFileFlag,
-						SInt16								maskFileFormatCode,
-						Boolean								createImageOverlayFlag,
-						SInt16								selectImageOverlaySelection,
-						Boolean								thresholdFlag,
-						double								thresholdPercent,
-						SInt32								transparencyValue);
-
-extern SInt16		CheckIfTextForTextWindowIsWithinLimits (
-							Handle								okHandle,
-							UInt32								possibleNumberChannels,
-							double								maxDataValue,
-							double								minDataValue,
-							Boolean								writeToDiskFileFlag);
-
 #if defined multispec_mac         
-PascalVoid 	SpinCursorTimer (
-						EventLoopTimerRef					inTimer,
-						void*									inUserData);
+	PascalVoid SpinCursorTimer (
+					EventLoopTimerRef					inTimer,
+					void*									inUserData);
 #endif	// defined multispec_mac 
 
 
@@ -218,78 +169,78 @@ PascalVoid 	SpinCursorTimer (
 //****************************************************************************
 
 			// Prototypes for file routines that are only called from other 		
-			// routines in this file.															
+			// routines in this file.														
 
-Boolean 					ClusterDialog (
-								FileInfoPtr							fileInfoPtr, 
-								Boolean								newProjectFlag);
+Boolean	ClusterDialog (
+				FileInfoPtr							fileInfoPtr, 
+				Boolean								newProjectFlag);
 
-void 						ClusterDialogItems9to11 (
-								DialogPtr							dialogPtr, 
-								SInt16								itemHit);
+void		ClusterDialogItems9to11 (
+				DialogPtr							dialogPtr, 
+				SInt16								itemHit);
 								
-Boolean 					CreateMaskFileClassNames (
-								FileInfoPtr							maskFileInfoPtr,
-								SInt32								numberClasses);
+Boolean	CreateMaskFileClassNames (
+				FileInfoPtr							maskFileInfoPtr,
+				SInt32								numberClasses);
 
-SInt32 					DeleteCluster (
-								SInt32								clusterCount,
-								ClusterType*						clusterToDelete,
-								ClusterType*						previousCluster);
+SInt32 	DeleteCluster (
+				SInt32								clusterCount,
+				ClusterType*						clusterToDelete,
+				ClusterType*						previousCluster);
 
-void						GetMinimumAndMaximumValueForListing (
-								ClusterType*						clusterHead,
-								SInt16								numberChannels,
-								Boolean								stdDevFlag,
-								double*								numberEDecimalDigitsPtr,
-								double*								numberFDecimalDigitsPtr);	
+void		GetMinimumAndMaximumValueForListing (
+				ClusterType*						clusterHead,
+				SInt16								numberChannels,
+				Boolean								stdDevFlag,
+				double*								numberEDecimalDigitsPtr,
+				double*								numberFDecimalDigitsPtr);	
 
-PascalVoid				DrawClusterDiskFilePopUp (
-								DialogPtr							dialogPtr, 
-								SInt16								itemNumber);
+PascalVoid DrawClusterDiskFilePopUp (
+				DialogPtr							dialogPtr, 
+				SInt16								itemNumber);
 
-PascalVoid	 			DrawSaveStatsPopUp (
-								DialogPtr							dialogPtr, 
-								SInt16								itemNumber);
+PascalVoid DrawSaveStatsPopUp (
+				DialogPtr							dialogPtr, 
+				SInt16								itemNumber);
 								
-SInt32 					FindSmallestCluster (
-								SInt32								numberClustersToSearch,
-								ClusterType**						minClusterPtr,
-								ClusterType**						previousClusterPtr);	
+SInt32 	FindSmallestCluster (
+				SInt32								numberClustersToSearch,
+				ClusterType**						minClusterPtr,
+				ClusterType**						previousClusterPtr);	
 
-double 					GetAverageChannelStandardDev (
-								Handle								windowInfoHandle,
-								FileInfoPtr							fileInfoPtr);
+double 	GetAverageChannelStandardDev (
+				Handle								windowInfoHandle,
+				FileInfoPtr							fileInfoPtr);
 
-Boolean 					GetClusterAreaStatistics (
-								FileIOInstructionsPtr			fileIOInstructionsPtr, 
-								ProjectInfoPtr						projectClassInfoPtr, 
-								SInt16								storageIndex, 
-								HUInt16Ptr*							dataClassPtrPtr, 
-								SInt16								firstLineCode);
+Boolean 	GetClusterAreaStatistics (
+				FileIOInstructionsPtr			fileIOInstructionsPtr, 
+				ProjectInfoPtr						projectClassInfoPtr, 
+				SInt16								storageIndex, 
+				HUInt16Ptr*							dataClassPtrPtr, 
+				SInt16								firstLineCode);
 									
-Boolean 					GetClusterProjectStatistics (
-								FileIOInstructionsPtr			fileIOInstructionsPtr, 
-								ProjectInfoPtr						projectClassInfoPtr, 
-								SInt16								numberClasses, 
-								SInt16								fieldStatStorage);
+Boolean 	GetClusterProjectStatistics (
+				FileIOInstructionsPtr			fileIOInstructionsPtr, 
+				ProjectInfoPtr						projectClassInfoPtr, 
+				SInt16								numberClasses, 
+				SInt16								fieldStatStorage);
 								
-SInt16 					GetMeanStdDevLength (
-								double								maxDataValue, 
-								double								minDataValue,
-								SInt16								numberFDecimalDigits,
-								SInt16								numberEDecimalDigits);
+SInt16 	GetMeanStdDevLength (
+				double								maxDataValue, 
+				double								minDataValue,
+				SInt16								numberFDecimalDigits,
+				SInt16								numberEDecimalDigits);
 
-Boolean 					GetProbabilityFile (
-								FileInfoPtr							fileInfoPtr,
-								Handle*								probabilityFileInfoHPtr);
+Boolean 	GetProbabilityFile (
+				FileInfoPtr							fileInfoPtr,
+				Handle*								probabilityFileInfoHPtr);
 								
-Boolean 					ListClusterInputParameters (
-								FileInfoPtr							fileInfoPtr,
-								CMFileStream*						resultsFileStreamPtr);
+Boolean 	ListClusterInputParameters (
+				FileInfoPtr							fileInfoPtr,
+				CMFileStream*						resultsFileStreamPtr);
 
-Boolean 					LoadClusterSpecs (
-								FileInfoPtr							fileInfoPtr);
+Boolean 	LoadClusterSpecs (
+				FileInfoPtr							fileInfoPtr);
 
 
 
@@ -335,19 +286,19 @@ SInt16 CheckIfTextForTextWindowIsWithinLimits (
 											
 		
 	GetNumberDecimalDigits (kRealType,
-										maxDataValue,
-										minDataValue,
-										1,
-										&numberEDecimalDigits,
-										&numberFDecimalDigits);
+									maxDataValue,
+									minDataValue,
+									1,
+									&numberEDecimalDigits,
+									&numberFDecimalDigits);
 
 	numChars = LoadRealValueString ((char*)gTextString3,
-															maxDataValue,
-															0,
-															numberFDecimalDigits,
-															numberEDecimalDigits,
-															(char*)"",
-															(char*)"");
+												maxDataValue,
+												0,
+												numberFDecimalDigits,
+												numberEDecimalDigits,
+												(char*)"",
+												(char*)"");
 
 	numChars2 = LoadRealValueString ((char*)gTextString3,
 												minDataValue,
@@ -375,27 +326,27 @@ SInt16 CheckIfTextForTextWindowIsWithinLimits (
 								0, 
 								NULL);
 								
-		else		// !writeToDiskFileFlag
+		else	// !writeToDiskFileFlag
 			{
 			returnCode = DisplayAlert (kContinueCancelAlertID, 
-													kCautionAlert, 
-													kAlertStrID, 
-													IDS_Alert141,
-													IDS_Alert142,
-													NULL);
+												kCautionAlert,
+												kAlertStrID, 
+												IDS_Alert141,
+												IDS_Alert142,
+												NULL);
 			
 			if (returnCode == 2)										
 				returnCode = 0;
 			
-			}		// end "else !writeToDiskFileFlag"
+			}	// end "else !writeToDiskFileFlag"
 
 		HiliteControl ((ControlHandle)okHandle, 0);
 		
-		}		// end "if (numChars * (possibleNumberChannels + 1) + ..."
+		}	// end "if (numChars * (possibleNumberChannels + 1) + ..."
 	
 	return (returnCode);
 
-}		// end "CheckIfTextForTextWindowIsWithinLimits"
+}	// end "CheckIfTextForTextWindowIsWithinLimits"
 
 
 
@@ -508,10 +459,9 @@ Boolean ClusterClassification (
    		// Cluster classify the requested image area(s) according to the 		
    		// clusters already found if requested. 										
    
-   if (gClusterSpecsPtr->classificationArea != 0  
-   		&& gClusterSpecsPtr->clusterHead != NULL
-   		&& numberClusters > 0
-   		&& fileIOInstructionsPtr->fileInfoPtr != NULL)
+   if (gClusterSpecsPtr->classificationArea != 0 &&
+				gClusterSpecsPtr->clusterHead != NULL &&
+					fileIOInstructionsPtr->fileInfoPtr != NULL)
    	{                      
 				// Initialize local variables. 												
       
@@ -523,21 +473,21 @@ Boolean ClusterClassification (
    	numberChannels 	= gClusterSpecsPtr->numberChannels;
 		columnInterval		= gClusterSpecsPtr->imageColumnInterval;
 		lineInterval		= gClusterSpecsPtr->imageLineInterval;
-		channelsPtr 		= (UInt16*)GetHandlePointer(
-							gClusterSpecsPtr->channelsHandle, kNoLock, kNoMoveHi);
-		symbolsPtr			= (UCharPtr)GetHandlePointer(
-							gClusterSpecsPtr->symbolsHandle, kNoLock, kNoMoveHi);
+		channelsPtr 		= (UInt16*)GetHandlePointer (
+																gClusterSpecsPtr->channelsHandle);
+		symbolsPtr			= (UCharPtr)GetHandlePointer (
+																gClusterSpecsPtr->symbolsHandle);
 							
 		numberClusterClasses = gClusterSpecsPtr->numberClusterClasses;
-		clusterClassPtr = (SInt16*)GetHandlePointer(
-						gClusterSpecsPtr->clusterClassHandle, kNoLock, kNoMoveHi); 
+		clusterClassPtr = (SInt16*)GetHandlePointer (
+															gClusterSpecsPtr->clusterClassHandle); 
 		
 		clusterHead 		= gClusterSpecsPtr->clusterHead;
-		clResultsFileStreamPtr 	= GetResultsFileStreamPtr(0);
+		clResultsFileStreamPtr 	= GetResultsFileStreamPtr (0);
 			
 		maxDistance = (double)gClusterSpecsPtr->numberChannels *
-		  									(gClusterSpecsPtr->classifyThreshold *
-		  												gClusterSpecsPtr->classifyThreshold);
+													(gClusterSpecsPtr->classifyThreshold *
+																gClusterSpecsPtr->classifyThreshold);
 	
 		outputBufferPtr = (CType*)gOutputBufferPtr;
 		 
@@ -560,59 +510,59 @@ Boolean ClusterClassification (
 				numberClusterClasses = gProjectInfoPtr->numberStatisticsClasses;
 				clusterClassPtr = NULL;   
 			
-				totalNumberAreas = GetNumberOfAreas (
-										clusterClassPtr, 
-										numberClusterClasses, 
-										kTrainingType,
-										kDontIncludeClusterFields);
+				totalNumberAreas = GetNumberOfAreas (clusterClassPtr,
+																	numberClusterClasses, 
+																	kTrainingType,
+																	kDontIncludeClusterFields);
 				
-				}		// end "if (gClusterSpecsPtr->clustersFrom != kTrainingType)" 
+				}	// end "if (gClusterSpecsPtr->clustersFrom != kTrainingType)" 
 			
-			LoadDItemStringNumber (	kClassifyStrID, 
-											IDS_Classify15,		// "\pClassifying Training Areas."
+						// "\pClassifying Training Areas."
+			LoadDItemStringNumber (kClassifyStrID, 
+											IDS_Classify15,
 											gStatusDialogPtr, 
 											IDC_Status11, 
-											(Str255*)&gTextString );
+											(Str255*)gTextString);
 			LoadDItemValue (gStatusDialogPtr, 
 									IDC_Status5, 
 									(SInt32)totalNumberAreas);
 			
-			ShowStatusDialogItemSet ( kStatusClassB );
-			HideStatusDialogItemSet ( kStatusMinutes );
+			ShowStatusDialogItemSet (kStatusClassB);
+			HideStatusDialogItemSet (kStatusMinutes);
 			
-			}		// end "if (gClusterSpecsPtr->classificationArea == 1)" 
+			}	// end "if (gClusterSpecsPtr->classificationArea == 1)" 
 			
 		if (gClusterSpecsPtr->classificationArea == 2)
 			{
 			totalNumberAreas = 1;
 			
-//									(Str255*)"\pClassifying Selected Image Area." );
-			LoadDItemStringNumber (	kClassifyStrID, 
+					// (Str255*)"\pClassifying Selected Image Area.");
+			LoadDItemStringNumber (kClassifyStrID, 
 											IDS_Classify17,
 											gStatusDialogPtr, 
 											IDC_Status11, 
-											(Str255*)&gTextString );
+											(Str255*)gTextString);
 										
-			HideStatusDialogItemSet ( kStatusClassB );
-			ShowStatusDialogItemSet ( kStatusMinutes );
+			HideStatusDialogItemSet (kStatusClassB);
+			ShowStatusDialogItemSet (kStatusMinutes);
 			
-			}		// end "if (clusterSpecsPtr->classificationArea == 2)" 
+			}	// end "if (clusterSpecsPtr->classificationArea == 2)" 
 	
 				// List the number of cluster classes used.								
 				
 		continueFlag = MGetString (gTextString2, kFileIOStrID, IDS_NumberClasses);
 		
-		sprintf((char*)&gTextString, 
-							"%s%s %hd%s", 
-							gEndOfLine, 
-							&gTextString2[1], 
-							numberClusters+1,
-							gEndOfLine);
-		continueFlag = OutputString (	clResultsFileStreamPtr,
-									(char*)&gTextString, 
-									(short int)0, 
-									gOutputCode, 
-									continueFlag);
+		sprintf ((char*)gTextString, 
+					"%s%s %hd%s", 
+					gEndOfLine, 
+					&gTextString2[1], 
+					numberClusters+1,
+					gEndOfLine);
+		continueFlag = OutputString (clResultsFileStreamPtr,
+												(char*)gTextString, 
+												(short int)0, 
+												gOutputCode, 
+												continueFlag);
 	
 				// List the cluster classes and symbols used.							
 		
@@ -620,60 +570,62 @@ Boolean ClusterClassification (
 			{	
 			continueFlag = MGetString (gTextString2, kProjectStrID, IDS_Project2);
 			
-			sprintf( (char*)&gTextString, 
-									"%s %s%s", 
-									gEndOfLine, 
-									&gTextString2[1],
-									gEndOfLine );
-			continueFlag = OutputString (	clResultsFileStreamPtr,
-									(char*)&gTextString, 
-									0, 
-									gOutputCode,
-									continueFlag);
+			sprintf ((char*)gTextString, 
+						"%s %s%s", 
+						gEndOfLine, 
+						&gTextString2[1],
+						gEndOfLine);
+			continueFlag = OutputString (clResultsFileStreamPtr,
+													(char*)gTextString, 
+													0, 
+													gOutputCode,
+													continueFlag);
 									
-			}		// end "if (continueFlag)" 
+			}	// end "if (continueFlag)" 
 			
-		if ( !continueFlag )
-																					return(FALSE); 
+		if (!continueFlag)
+																							return (FALSE); 
 			
 				// Include the "thresholded" class.											
 																						
-		sprintf( (char*)&gTextString2, "Thresholded                     ");
-		sprintf( (char*)&gTextString, "    %3d: %s %c%s", 
-													0, 
-													gTextString2,
-													symbolsPtr[0],
-													gEndOfLine );
-		if ( !OutputString (	clResultsFileStreamPtr,
-									(char*)&gTextString, 
+		sprintf ((char*)gTextString2, "Thresholded                     ");
+		sprintf ((char*)gTextString, 
+					"    %3d: %s %c%s", 
+					0, 
+					gTextString2,
+					symbolsPtr[0],
+					gEndOfLine);
+		if (!OutputString (clResultsFileStreamPtr,
+									(char*)gTextString, 
 									0, 
 									gOutputCode,
-									TRUE) )
-																					return(FALSE);
+									TRUE))
+																							return (FALSE);
 		
-		sprintf( (char*)&gTextString2, "Cluster                        ");	
-		for (	currentClusterNumber=1; 
+		sprintf ((char*)gTextString2, "Cluster                        ");	
+		for (currentClusterNumber=1; 
 				currentClusterNumber<=numberClusters; 
-				currentClusterNumber++)
+					currentClusterNumber++)
 			{
 			NumToString ((UInt32)currentClusterNumber, gTextString3);
-			BlockMoveData ( (Ptr)&gTextString3[1], 
+			BlockMoveData ((Ptr)&gTextString3[1], 
 									(Ptr)&gTextString2[8],
 									(SInt32)gTextString3[0]);
-			sprintf( (char*)&gTextString, "    %3d: %s  %c%s", 
-													currentClusterNumber, 
-													gTextString2,
-													symbolsPtr[currentClusterNumber],
-													gEndOfLine );
+			sprintf ((char*)gTextString, 
+						"    %3d: %s  %c%s", 
+						currentClusterNumber, 
+						gTextString2,
+						symbolsPtr[currentClusterNumber],
+						gEndOfLine);
 																		
-			if ( !OutputString (	clResultsFileStreamPtr,
-										(char*)&gTextString, 
+			if (!OutputString (clResultsFileStreamPtr,
+										(char*)gTextString, 
 										0, 
 										gOutputCode, 
-										TRUE) )
-																					return(FALSE);
+										TRUE))
+																							return (FALSE);
 			
-			}		// end "for (currentClusterNumber=1;..."
+			}	// end "for (currentClusterNumber=1;..."
 		
 				// Insert a blank line
 			
@@ -686,7 +638,7 @@ Boolean ClusterClassification (
 				// Intialize the nextTime variable to indicate when the next 		
 				// check should occur for a command-.										
 				
-		gNextTime = TickCount();
+		gNextTime = TickCount ();
 		
 				// Loop by number of cluster areas.											
 			
@@ -695,7 +647,7 @@ Boolean ClusterClassification (
 					// Initialize status variables.											
 					
 			lineCount = 0;
-			gNextStatusTime = TickCount();
+			gNextStatusTime = TickCount ();
 			gNextMinutesLeftTime = 0;
 						
 					// If no status dialog is available then set 'gNextMinutesLeftTime'		
@@ -722,17 +674,16 @@ Boolean ClusterClassification (
 			
 						// Clusters to come from training areas.							
 						
-				fieldNumber = GetNextFieldArea (
-										gProjectInfoPtr,
-										clusterClassPtr, 
-										numberClusterClasses, 
-										&lastClassIndex, 
-										lastFieldIndex, 
-										kTrainingType,
-										kDontIncludeClusterFields);
+				fieldNumber = GetNextFieldArea (gProjectInfoPtr,
+															clusterClassPtr, 
+															numberClusterClasses, 
+															&lastClassIndex, 
+															lastFieldIndex, 
+															kTrainingType,
+															kDontIncludeClusterFields);
 						
 				if (fieldNumber < 0)
-																					return(FALSE);
+																							return (FALSE);
 																						
 				lastFieldIndex = fieldNumber;
 				
@@ -748,19 +699,18 @@ Boolean ClusterClassification (
 				columnEnd = gAreaDescription.columnEnd;
 				rgnHandle = gAreaDescription.rgnHandle;
 							
-				continueFlag = ListSpecifiedStringNumber ( 
-										kClusterStrID, 
-										IDS_Cluster1,
-										clResultsFileStreamPtr, 
-										gOutputCode, 
-										(SInt32)areaNumber, 
-										continueFlag );
+				continueFlag = ListSpecifiedStringNumber (kClusterStrID, 
+																		IDS_Cluster1,
+																		clResultsFileStreamPtr, 
+																		gOutputCode, 
+																		(SInt32)areaNumber, 
+																		continueFlag);
 				
 				if (continueFlag)
 					continueFlag = ListFieldInformation (
-								fieldNumber, 0, 0, lineInterval, columnInterval, 3);
+										fieldNumber, 0, 0, lineInterval, columnInterval, 3);
 				
-				}		// end "if (gClusterSpecsPtr->classificationArea == 1)" 
+				}	// end "if (gClusterSpecsPtr->classificationArea == 1)" 
 				
 			else if (gClusterSpecsPtr->classificationArea == 2)
 				{
@@ -772,36 +722,35 @@ Boolean ClusterClassification (
 		   	columnEnd = gClusterSpecsPtr->imageColumnEnd;
 				rgnHandle = NULL;
 				
-				continueFlag = ListSpecifiedStringNumber (
-										kClassifyStrID, 
-										IDS_Classify14, 	// "Classification of Selected Area"
-										(UCharPtr)&gTextString, 
-										clResultsFileStreamPtr, 
-										gOutputCode,
-										TRUE );
+						// "Classification of Selected Area"
+				continueFlag = ListSpecifiedStringNumber (kClassifyStrID, 
+																		IDS_Classify14, 	
+																		(UCharPtr)gTextString, 
+																		clResultsFileStreamPtr, 
+																		gOutputCode,
+																		TRUE);
 	
 						// List line and column number of area being classified.	
-//								"  Lines %ld to %ld by %ld.  Columns %ld to %ld by %ld.%s"
-
-				continueFlag = ListLineColumnIntervalString (
-														clResultsFileStreamPtr, 
-														gOutputCode,
-														lineStart, 
-														lineEnd, 
-														lineInterval,
-														columnStart, 
-														columnEnd, 
-														columnInterval, 
-														continueFlag);
+						
+						// "  Lines %ld to %ld by %ld.  Columns %ld to %ld by %ld.%s"
+				continueFlag = ListLineColumnIntervalString (clResultsFileStreamPtr, 
+																			gOutputCode,
+																			lineStart, 
+																			lineEnd, 
+																			lineInterval,
+																			columnStart, 
+																			columnEnd, 
+																			columnInterval, 
+																			continueFlag);
 				
-				}		// end "else if (gClusterSpecsPtr->classificationArea == 2)" 
+				}	// end "else if (gClusterSpecsPtr->classificationArea == 2)" 
 							
 			if (!continueFlag)
 				{
 				CloseUpAreaDescription (&gAreaDescription);		
 																							return (FALSE);
 																					
-				}		// end "if (!continueFlag)"
+				}	// end "if (!continueFlag)"
 			
 					// Get the point type for the area.
 					
@@ -813,7 +762,7 @@ Boolean ClusterClassification (
 					// location in line.															
 			
 			numberClassifiedColumns =
-							(columnEnd - columnStart + columnInterval)/columnInterval;
+									(columnEnd - columnStart + columnInterval)/columnInterval;
 			stringLength = numberClassifiedColumns + gNumberOfEndOfLineCharacters;
 			classifyBufferPtr[numberClassifiedColumns] = gEndOfLine[0];
 			
@@ -827,15 +776,15 @@ Boolean ClusterClassification (
 			
 			linesLeft = (lineEnd - lineStart + lineInterval)/lineInterval;
 			LoadDItemValue (gStatusDialogPtr, IDC_Status10, linesLeft);
-			LoadDItemStringNumber (	kDialogStrID, 
+			LoadDItemStringNumber (kDialogStrID, 
 											IDS_Dialog18,		// Blank string
 											gStatusDialogPtr, 
 											IDC_Status14, 
-											(Str255*)&gTextString );
+											(Str255*)gTextString);
 			
 					// Initialize time left variables.
 					
-			startTick = TickCount();
+			startTick = TickCount ();
 			if (gNextMinutesLeftTime != ULONG_MAX)
 				gNextMinutesLeftTime = startTick + 3*gNextStatusTimeOffset;	
 			
@@ -864,22 +813,23 @@ Boolean ClusterClassification (
 						// information.															
 		
 				lineCount++;
-				if ( TickCount() >= gNextStatusTime)
+				if (TickCount () >= gNextStatusTime)
 					{
 					LoadDItemValue (gStatusDialogPtr, IDC_Status8, lineCount);
-					gNextStatusTime = TickCount() + gNextStatusTimeOffset;
+					gNextStatusTime = TickCount () + gNextStatusTimeOffset;
 					
-					}		// end "if ( TickCount() >= gNextStatusTime)" 
+					}	// end "if (TickCount () >= gNextStatusTime)" 
 				
 						// Exit routine if user has "command period" down.				
 				
-				if (TickCount() >= gNextTime)
+				if (TickCount () >= gNextTime)
 					{ 
-					continueFlag = CheckSomeEvents (osMask+keyDownMask+updateMask+mDownMask+mUpMask);            
+					continueFlag = CheckSomeEvents (
+												osMask+keyDownMask+updateMask+mDownMask+mUpMask);            
 					if (!continueFlag)
 						break;
 						
-					}		// end "if (TickCount() >= nextTime)" 
+					}	// end "if (TickCount () >= nextTime)" 
 												
 						// Set vertical (line) point in case it is needed for	
 						// polygonal field.															
@@ -902,7 +852,7 @@ Boolean ClusterClassification (
 					continueFlag = FALSE;
 					break;
 																									
-					}		// end "if (errCode < noErr)"
+					}	// end "if (errCode < noErr)"
 					
 				binPtr = classifyBufferPtr;
 			
@@ -916,9 +866,9 @@ Boolean ClusterClassification (
 					
 			   			// Loop through samples for the line. 								
 			   		
-			   	for (	column = columnStart;
+			   	for (column = columnStart;
 			       		column <= columnEnd;
-			       		column += columnInterval)
+								column += columnInterval)
 						{					
 								// Set horizotal (column) point in case it is needed 	
 								// for polygonal field.														
@@ -929,10 +879,11 @@ Boolean ClusterClassification (
 						if (pointType == kRectangleType)
 							includePixelFlag = TRUE;
 							
-						else if (pointType == kPolygonType && PtInRgn (point, rgnHandle) )
+						else if (pointType == kPolygonType && PtInRgn (point, rgnHandle))
 							includePixelFlag = TRUE;
 						
-						else if (pointType == kMaskType && *maskBufferPtr == maskRequestValue)
+						else if (pointType == kMaskType && 
+																*maskBufferPtr == maskRequestValue)
 							includePixelFlag = TRUE;
 							
 						if (includePixelFlag)
@@ -946,7 +897,7 @@ Boolean ClusterClassification (
 					      		// Find closest cluster in absolute sense 				
 					      		// (Euclidean distance). 										
 					      		
-					      while (currentCluster && (currentClusterNumber <= 255) )
+					      while (currentCluster && (currentClusterNumber <= 255))
 					      	{
 					         Distance(currentCluster, currentPixel, currentDistance);
 					
@@ -956,12 +907,12 @@ Boolean ClusterClassification (
 					            closestDistance = currentDistance;
 					            closestClusterNumber = currentClusterNumber;
 					            
-					         	}		// end "if (currentDistance && ..." 
+					         	}	// end "if (currentDistance && ..." 
 					
 					         currentCluster = currentCluster->next;
 					        	currentClusterNumber++;
 					         
-					      	}		// end " while (currentCluster != NULL)" 
+					      	}	// end " while (currentCluster != NULL)" 
 					
 					      		// Assign pixel to cluster class. 					
 					      
@@ -970,78 +921,78 @@ Boolean ClusterClassification (
 					      	(closestCluster->numPixInCluster)++;
 					      	*binPtr = symbolsPtr[closestClusterNumber];
 					      	
-					      	}		// end "if (closestDistance <= maxDistance)" 
+					      	}	// end "if (closestDistance <= maxDistance)" 
 					      	
-					      else		// closestDistance > maxDistance 
+					      else	// closestDistance > maxDistance 
 					      	{
 					      	numberPixelsNotClassified++;
 					      	*binPtr = kBlank;
 					      	
-					      	}		// end "else closestDistance > maxDistance" 
+					      	}	// end "else closestDistance > maxDistance" 
 					      	
 				   		currentPixel += numberChannels;
 					         
-					      }		// end "if (includePixelFlag)" 
+					      }	// end "if (includePixelFlag)" 
 					      
-					   else		// !includePixelFlag"
+					   else	// !includePixelFlag"
 					   	{ 
 					   	*binPtr = kBlank;
 					   	
 							if (pointType != kMaskType)
 								currentPixel += numberChannels;	
 										   	
-					   	}		// end "else !includePixelFlag""
+					   	}	// end "else !includePixelFlag""
 					   	
 					   binPtr++;
 						
 						if (pointType == kMaskType)
 							maskBufferPtr += columnInterval;
 			         
-			  			}		// end "for (column=columnStart; ..." 
+			  			}	// end "for (column=columnStart; ..." 
 		  			
-		  			}		// end "if (errCode != kSkipLine)"
+		  			}	// end "if (errCode != kSkipLine)"
 		  			
-		  		else		// errCode == kSkipLine
+		  		else	// errCode == kSkipLine
 		  			{
 			   	for (column = columnStart;
 			       		column <= columnEnd;
-			       		column += columnInterval)
+								column += columnInterval)
 			       	{
 					   *binPtr = kBlank;
 					   binPtr++;
 					   
-					   }		// end "for (column = columnStart; ..."
+					   }	// end "for (column = columnStart; ..."
 		  			
-		  			}		// end "else errCode == kSkipLine"
+		  			}	// end "else errCode == kSkipLine"
 		  		
-				continueFlag = OutputString (	clResultsFileStreamPtr,
-											(char*)classifyBufferPtr, 
-											stringLength, 
-											gOutputCode,
-											TRUE);
+				continueFlag = OutputString (clResultsFileStreamPtr,
+														(char*)classifyBufferPtr, 
+														stringLength, 
+														gOutputCode,
+														TRUE);
 						
 				if (!continueFlag)
 					break;
 				
 				linesLeft--;
-				if (TickCount() >= gNextMinutesLeftTime)
+				if (TickCount () >= gNextMinutesLeftTime)
 					{
-					minutesLeft = (linesLeft * (TickCount() - startTick))/
+					minutesLeft = (linesLeft * (TickCount () - startTick))/
 																	(double)(lineCount*kTicksPerMinute);
 				
-					sprintf ( (char*)&gTextString, " %.1f", minutesLeft);
-					stringPtr = (char*)CtoPstring (gTextString, gTextString );
-					LoadDItemString(gStatusDialogPtr, IDC_Status14, (Str255*)&gTextString);
+					sprintf ((char*)gTextString, " %.1f", minutesLeft);
+					stringPtr = (char*)CtoPstring (gTextString, gTextString);
+					LoadDItemString (gStatusDialogPtr, IDC_Status14, (Str255*)gTextString);
 					
-					gNextMinutesLeftTime = TickCount() + gNextMinutesLeftTimeOffset;
+					gNextMinutesLeftTime = TickCount () + gNextMinutesLeftTimeOffset;
 					
-					}		// end "if (TickCount() >= gNextMinutesLeftTime)" 
+					}	// end "if (TickCount () >= gNextMinutesLeftTime)" 
 			
 				if (pointType == kMaskType)
 					fileIOInstructionsPtr->maskBufferPtr += 
 												fileIOInstructionsPtr->numberMaskColumnsPerLine;
 		  			
-		  		}		// end "for ( line=lineStart; line<=lineEnd; ...)"
+		  		}	// end "for (line=lineStart; line<=lineEnd; ...)"
 		  				
 			if (continueFlag)
 				LoadDItemValue (gStatusDialogPtr, IDC_Status8, lineCount);
@@ -1058,58 +1009,57 @@ Boolean ClusterClassification (
 			if (!continueFlag)
 																							return (FALSE);
 	  			
-	  		}		// end "for (areaNumber=1; areaNumber<=...)" 
+	  		}	// end "for (areaNumber=1; areaNumber<=...)" 
 
 	   		// List cluster classification statistics. 								
 		
-		if ( !ListSpecifiedStringNumber (
+		if (!ListSpecifiedStringNumber (
 										kClusterStrID, 
 										IDS_Cluster2, 
-										(unsigned char*)&gTextString, 
+										(unsigned char*)gTextString, 
 										clResultsFileStreamPtr, 
 										gOutputCode,
-										continueFlag ) )
+										continueFlag))
 	   																					return (FALSE);
 	   		
 	   currentCluster = clusterHead;
 	   currentClusterNumber = 0;
-	   while ( currentCluster && (currentClusterNumber <= 254) )
+	   while (currentCluster && (currentClusterNumber <= 254))
 	   	{
 	   	currentClusterNumber++;
 			
 					// Print number of pixels in classified cluster.					
 					
-//									" Cluster %2ld classification size:  %ld%s"
-			if ( !ListSpecifiedStringNumber (
+					// " Cluster %2ld classification size:  %ld%s"
+			if (!ListSpecifiedStringNumber (
 										kClusterStrID, 
 										IDS_Cluster42, 
 										clResultsFileStreamPtr, 
 										gOutputCode,
 	              					(SInt32)currentClusterNumber,
 	              					currentCluster->numPixInCluster,
-										continueFlag ) )
-	   																			return (FALSE);
+										continueFlag))
+																							return (FALSE);
 				
 	      currentCluster = currentCluster->next;
 	      
-	   	}		// end "while (currentCluster&& ...)" 
+	   	}	// end "while (currentCluster&& ...)" 
 			
 				// List summary of number of pixels that were not classified.		
 							
-		if ( !ListSpecifiedStringNumber ( 
-										kClusterStrID, 
-										IDS_Cluster3,
-										clResultsFileStreamPtr, 
-										gOutputCode, 
-										numberPixelsNotClassified, 
-										continueFlag ) )
-																					return(FALSE);
+		if (!ListSpecifiedStringNumber (kClusterStrID, 
+													IDS_Cluster3,
+													clResultsFileStreamPtr, 
+													gOutputCode, 
+													numberPixelsNotClassified, 
+													continueFlag))
+																							return (FALSE);
    		
-   	}		// end "if (gClusterSpecsPtr->classificationArea != 0  && ...)" 
+   	}	// end "if (gClusterSpecsPtr->classificationArea != 0  && ...)" 
   	
   	return (returnFlag);
   		
-}		// end "ClusterClassification"
+}	// end "ClusterClassification"
  
 
 
@@ -1132,7 +1082,7 @@ Boolean ClusterClassification (
 // Called By:			Menus in menus.c
 //
 //	Coded By:			Larry L. Biehl			Date: 09/12/1989
-//	Revised By:			Larry L. Biehl			Date: 03/22/2006
+//	Revised By:			Larry L. Biehl			Date: 10/31/2017
 
 void ClusterControl (void)
 
@@ -1159,7 +1109,7 @@ void ClusterControl (void)
 			// routine.																				
 			
 	if (gMemoryTypeNeeded < 0)
-																							return;
+																										return;
 																							
 			// Code resources loaded okay, so set flag back for non-Code			
 			// resources.																			
@@ -1210,40 +1160,41 @@ void ClusterControl (void)
 							// them.
 								
 					numberClusters = gClusterSpecsPtr->maxNumberClusters;
-					if (gClusterSpecsPtr->mode == 1 || (gClusterSpecsPtr->mode == 2 &&
-														gClusterSpecsPtr->initializationOption == 3) )
+					if (gClusterSpecsPtr->mode == kSinglePass || 
+											(gClusterSpecsPtr->mode == kISODATA &&
+													gClusterSpecsPtr->initializationOption == 3))
 						numberClusters = kMaxNumberStatClasses;
 						
-					else if (gClusterSpecsPtr->mode == 2 &&
+					else if (gClusterSpecsPtr->mode == kISODATA &&
 													gClusterSpecsPtr->projectClassMeansCode == 1)
 						numberClusters += gProjectInfoPtr->numberStatTrainClasses;
 					
-					numberClusters = MIN(numberClusters, kMaxNumberStatClasses);
+					numberClusters = MIN (numberClusters, kMaxNumberStatClasses);
 					
 							// Get the bounding area to be clustered.
 					
-					clusterClassPtr = (SInt16*)GetHandlePointer(
-								gClusterSpecsPtr->clusterClassHandle, kNoLock, kNoMoveHi);
+					clusterClassPtr = (SInt16*)GetHandlePointer (
+															gClusterSpecsPtr->clusterClassHandle);
 										
 					if (GetProjectFieldsBoundingArea (
-														gClusterSpecsPtr->clustersFrom, 
-														clusterClassPtr, 
-														gClusterSpecsPtr->numberClusterClasses, 
-														gClusterSpecsPtr->clusterLineStart,
-														gClusterSpecsPtr->clusterLineEnd,
-														gClusterSpecsPtr->clusterColumnStart,
-														gClusterSpecsPtr->clusterColumnEnd,
-														&boundingClusterArea) != noErr)
+															gClusterSpecsPtr->clustersFrom, 
+															clusterClassPtr, 
+															gClusterSpecsPtr->numberClusterClasses, 
+															gClusterSpecsPtr->clusterLineStart,
+															gClusterSpecsPtr->clusterLineEnd,
+															gClusterSpecsPtr->clusterColumnStart,
+															gClusterSpecsPtr->clusterColumnEnd,
+															&boundingClusterArea) != noErr)
 						continueFlag = FALSE;
 					
 					if (continueFlag)
 						gClusterSpecsPtr->imageOverlayIndex = SetUpImageOverlayInformation (
-														FindProjectBaseImageWindowInfoHandle(),
-														overlayIndex,
-														numberClusters,
-														&boundingClusterArea,
-														kDefaultColors,
-														gClusterSpecsPtr->transparency);
+															FindProjectBaseImageWindowInfoHandle (),
+															overlayIndex,
+															numberClusters,
+															&boundingClusterArea,
+															kDefaultColors,
+															gClusterSpecsPtr->transparency);
 						
 					if (!continueFlag || gClusterSpecsPtr->imageOverlayIndex <= -1)
 								// Not possible to create an image overlay.
@@ -1252,34 +1203,32 @@ void ClusterControl (void)
 					if (gOutputCode == 0)
 						continueFlag = FALSE;
 					
-					}		// end "if (gOutputCode & kCreateImageOverlayCode)"
+					}	// end "if (gOutputCode & kCreateImageOverlayCode)"
 				
 						// Update statistics for project if needed	
 		
-				if (gClusterSpecsPtr->mode == 2 &&
+				if (gClusterSpecsPtr->mode == kISODATA &&
 							gClusterSpecsPtr->projectClassMeansCode == 1 &&
 									continueFlag)
 					{
 					gProjectInfoPtr->numberStatTrainClasses;
-					SInt16* initializationClassPtr = (SInt16*)GetHandlePointer(
-												gClusterSpecsPtr->initializationClassHandle,
-												kNoLock,
-												kNoMoveHi);
+					SInt16* initializationClassPtr = (SInt16*)GetHandlePointer (
+													gClusterSpecsPtr->initializationClassHandle);
 														
 					continueFlag = VerifyProjectStatsUpToDate (
-									&gClusterSpecsPtr->numberInitializationClasses,
-									initializationClassPtr,
-									1,
-									gProjectInfoPtr->covarianceStatsToUse, 
-									kSetupGlobalInfoPointers,
-									NULL);
+													&gClusterSpecsPtr->numberInitializationClasses,
+													initializationClassPtr,
+													1,
+													gProjectInfoPtr->covarianceStatsToUse, 
+													kSetupGlobalInfoPointers,
+													NULL);
 					
 							// Update 'fileInfoPtr' in case it changed when updating
 							// the statistics.
 							 				
 					fileInfoPtr = gImageFileInfoPtr;
 									
-					}		// end "if (gClusterSpecsPtr->mode == 2 && ..."			
+					}	// end "if (gClusterSpecsPtr->mode == kISODATA && ..."			
 				
 						// If cluster classification is to go to a disk file, 		
 						// open the	disk file.												
@@ -1287,22 +1236,22 @@ void ClusterControl (void)
 				if (continueFlag)
 					{
 					InitializeAreaDescription (&gAreaDescription, 
-															1, 
-															gImageWindowInfoPtr->maxNumberLines, 
-															1, 
-															gImageWindowInfoPtr->maxNumberColumns, 
-															1, 
-															1,
-															gImageFileInfoPtr->startLine,
-															gImageFileInfoPtr->startColumn,
-															gClusterSpecsPtr->diskFileFormat);
+														1, 
+														gImageWindowInfoPtr->maxNumberLines, 
+														1, 
+														gImageWindowInfoPtr->maxNumberColumns, 
+														1, 
+														1,
+														gImageFileInfoPtr->startLine,
+														gImageFileInfoPtr->startColumn,
+														gClusterSpecsPtr->diskFileFormat);
 						
 					continueFlag = CreateResultsDiskFiles (
-												gClusterSpecsPtr->outputStorageType,
-												0,
-												0);
+																gClusterSpecsPtr->outputStorageType,
+																0,
+																0);
 												
-					}		// end "if (continueFlag)"
+					}	// end "if (continueFlag)"
 			
  				clResultsFileStreamPtr = GetResultsFileStreamPtr (0);
  				
@@ -1318,9 +1267,8 @@ void ClusterControl (void)
 						
 					ForceTextToEnd ();
 					
-					continueFlag = ListClusterInputParameters (
-																	fileInfoPtr,
-																	clResultsFileStreamPtr);
+					continueFlag = ListClusterInputParameters (fileInfoPtr,
+																				clResultsFileStreamPtr);
 																	
 							// Get dialog box to display cluster status.					
 							
@@ -1330,70 +1278,71 @@ void ClusterControl (void)
 					if (gStatusDialogPtr == NULL)
 						continueFlag = FALSE;
 					
-					else		// gStatusDialogPtr != NULL) 
+					else	// gStatusDialogPtr != NULL) 
 						{
-						LoadDItemStringNumber (	kDialogStrID, 
+						LoadDItemStringNumber (kDialogStrID, 
 														IDS_Dialog18, // Blank string
 														gStatusDialogPtr, 
 														IDC_Status11, 
-														(Str255*)&gTextString );
+														(Str255*)gTextString);
 														
-						LoadDItemStringNumber (	kClusterStrID, 
+						LoadDItemStringNumber (kClusterStrID, 
 														IDS_Cluster27,	// "Area:"
 														gStatusDialogPtr, 
 														IDC_Status2, 
-														(Str255*)&gTextString );
+														(Str255*)gTextString);
 							
-						LoadDItemStringNumber (	kClusterStrID, 
+						LoadDItemStringNumber (kClusterStrID, 
 														IDS_Cluster28,	// "Line:"
 														gStatusDialogPtr, 
 														IDC_Status7, 
-														(Str255*)&gTextString );
+														(Str255*)gTextString);
 														
-						ShowStatusDialogItemSet ( kStatusCommand );
+						ShowStatusDialogItemSet (kStatusCommand);
 						
 						if (gClusterSpecsPtr->clustersFrom == kTrainingType)
-							ShowStatusDialogItemSet ( kStatusClassB );
+							ShowStatusDialogItemSet (kStatusClassB);
 						
-						}		// end "else gStatusDialogPtr != NULL)" 
+						}	// end "else gStatusDialogPtr != NULL)" 
 					
 					if (continueFlag)
 						{
-						startTime = time(NULL);
+						startTime = time (NULL);
 						
 								// Turn spin cursor on
 				
 						gPresentCursor = kSpin;
+						/*
+								// Could not get this to work properly
+						const EventTimerInterval	kSpinCursorAnimationInterval = 
+																	kEventDurationMillisecond * 250.;
+						EventLoopTimerUPP aTimerUPP = NewEventLoopTimerUPP (SpinCursorTimer);
+						EventLoopTimerRef aTimerRef = NULL;
 						
-//						const EventTimerInterval	kSpinCursorAnimationInterval = 
-//																	kEventDurationMillisecond * 250.;
-//						EventLoopTimerUPP aTimerUPP = NewEventLoopTimerUPP (SpinCursorTimer);
-//						EventLoopTimerRef aTimerRef = NULL;
-						
-//						InstallEventLoopTimer (GetCurrentEventLoop (),
-//														kSpinCursorAnimationInterval,
-//														kSpinCursorAnimationInterval,
-//														aTimerUPP,
-//														NULL,
-//														&aTimerRef);
-						
+						InstallEventLoopTimer (GetCurrentEventLoop (),
+														kSpinCursorAnimationInterval,
+														kSpinCursorAnimationInterval,
+														aTimerUPP,
+														NULL,
+														&aTimerRef);
+						*/
 						switch (gClusterSpecsPtr->mode)
 							{
-							case 1:			// One Pass Cluster 	
+							case kSinglePass:			// One Pass Cluster 	
 								continueFlag = ClusterOnePassControl (fileInfoPtr);
 								break;
 								
-							case 2:			// ISODATA Cluster 
+							case kISODATA:			// ISODATA Cluster 
 								continueFlag = ISODATAClusterControl (fileInfoPtr);
 								break;
 								
-							case 3:			//  
+							case 3:			// Future algorithm 
 								break;
 								
-							case 4:			//	 
+							case 4:			//	Future algorithm
 								break;
 								
-							}		// end "switch (gClusterSpecsPtr->mode)" 
+							}	// end "switch (gClusterSpecsPtr->mode)" 
 							
 						if (gOutputCode & kCreateImageOverlayCode)
 							{
@@ -1401,18 +1350,19 @@ void ClusterControl (void)
 									
 							GetDefaultImageOverlayName (gClusterSpecsPtr->imageOverlayIndex);
 			
-							UpdateOverlayControl (FindProjectBaseImageWindowPtr());
+							UpdateOverlayControl (FindProjectBaseImageWindowPtr ());
 							
-							}		// end "if (gOutputCode & kCreateImageOverlayCode)"
+							}	// end "if (gOutputCode & kCreateImageOverlayCode)"
 	
 								// Make sure that any image overlay handle is unlocked.
 								
 						UnlockImageOverlayInfoHandle (gClusterSpecsPtr->imageOverlayIndex, 0);
 						
-//						RemoveEventLoopTimer (aTimerRef);
-//						DisposeEventLoopTimerUPP (aTimerUPP);
+						//RemoveEventLoopTimer (aTimerRef);
+						//DisposeEventLoopTimerUPP (aTimerUPP);
 						
-								// List message if memory was not available to complete the process
+								// List message if memory was not available to complete the 
+								// process
 								
 						ListMemoryMessage (clResultsFileStreamPtr);
 
@@ -1422,12 +1372,11 @@ void ClusterControl (void)
 					
 								// Print the CPU time taken for the clustering.			
 							
-						continueFlag = ListCPUTimeInformation (
-											clResultsFileStreamPtr, 
-											continueFlag, 
-											startTime);
+						continueFlag = ListCPUTimeInformation (clResultsFileStreamPtr, 
+																			continueFlag, 
+																			startTime);
 							
-						}		// end "if (continueFlag)" 
+						}	// end "if (continueFlag)" 
 						
 					//HideStatusDialogItemSet (kStatusField);
 					//HideStatusDialogItemSet (kStatusCluster);
@@ -1447,16 +1396,16 @@ void ClusterControl (void)
 								
 					MInitCursor ();
 						
-					}		// end "if (continueFlag)" 
+					}	// end "if (continueFlag)" 
 					
 						// Close the classification results file if needed and		
 						// release the memory assigned to it.								
 						
 				CloseResultsFiles ();
 				
-				}		// end "if ( ClusterDialog(fileInfoPtr, newProjectFlag) )" 
+				}	// end "if (ClusterDialog (fileInfoPtr, newProjectFlag))" 
 				
-			}		// end "if ( LoadClusterSpecs () )" 
+			}	// end "if (LoadClusterSpecs ())" 
 			
 					// Unlock the memory for the cluster specifications.				
 		
@@ -1469,7 +1418,7 @@ void ClusterControl (void)
 			CheckAndUnlockHandle (gClusterSpecsPtr->initializationClassHandle);
 			CheckAndUnlockHandle (gClusterSpecsPtr->probabilityFileInfoHandle);
 				
-			}		// end "if (gClusterSpecsPtr)" 
+			}	// end "if (gClusterSpecsPtr)" 
 			
 				// Close the probability file if needed.									
 				
@@ -1480,7 +1429,7 @@ void ClusterControl (void)
 		
 		UnlockProjectWindowInfoHandles (); 
 		
-		}		// end "if ( GetProjectImageFileInfo (..." 
+		}	// end "if (GetProjectImageFileInfo (..." 
 			
 			// If this project was initialized at the beginning and it is 		
 			// still a new project, then dispose of the project structure.		
@@ -1492,9 +1441,9 @@ void ClusterControl (void)
  			CloseProjectStructure (gProjectInfoPtr);
 			CloseProjectWindow ();
 			
-			}		// end "if (gProjectInfoPtr->newProjectFlag)"
+			}	// end "if (gProjectInfoPtr->newProjectFlag)"
 			
-		else		// !gProjectInfoPtr->newProjectFlag
+		else	// !gProjectInfoPtr->newProjectFlag
 			{
 					// Make sure that the project window is open. It may not be if the
 					// project was created by this run of clustering.
@@ -1502,11 +1451,11 @@ void ClusterControl (void)
 			if (gProjectWindow == NULL)
 				CreateProjectWindow ();
 			
-			}		// end "else !gProjectInfoPtr->newProjectFlag"
+			}	// end "else !gProjectInfoPtr->newProjectFlag"
 
-		}		// end "if (gProjectInfoPtr != NULL)"
+		}	// end "if (gProjectInfoPtr != NULL)"
 
-}		// end "ClusterControl" 
+}	// end "ClusterControl" 
 
 
 
@@ -1544,7 +1493,6 @@ Boolean ClusterDialog (
 	Boolean								returnFlag;
 									
 #if defined multispec_mac
-								
 	DialogSelectArea					dialogSelectArea;
 								
 	double								classifyThreshold,
@@ -1557,8 +1505,8 @@ Boolean ClusterDialog (
 	
 	DialogPtr							dialogPtr;
 	
-//	SInt16								*channels,
-//											*featurePtr;
+	//SInt16								*channels,
+	//										*featurePtr;
 											
 	UInt16								*localActiveFeaturesPtr = NULL,
 											*localFeaturesPtr = NULL;
@@ -1578,8 +1526,8 @@ Boolean ClusterDialog (
 	SInt16								channelListType,
 											classificationArea,
 											clusterMode,
-//											fieldsExistCode,
-//											index,
+											//fieldsExistCode,
+											//index,
 											itemHit,
 											itemHit2,
 											theType;
@@ -1599,16 +1547,13 @@ Boolean ClusterDialog (
 
 			
 			// Initialize local variables.													
-/*			
-	channels = (SInt16*)GetHandlePointer(
-							gClusterSpecsPtr->channelsHandle, kNoLock, kNoMoveHi);
+	/*			
+	channels = (SInt16*)GetHandlePointer (gClusterSpecsPtr->channelsHandle);
 							
-	featurePtr = (SInt16*)GetHandlePointer(
-							gClusterSpecsPtr->featureHandle, kNoLock, kNoMoveHi);
+	featurePtr = (SInt16*)GetHandlePointer (gClusterSpecsPtr->featureHandle);
 							
-	symbolsPtr = (UCharPtr)GetHandlePointer(
-							gClusterSpecsPtr->symbolsHandle, kNoLock, kNoMoveHi);
-*/	
+	symbolsPtr = (UCharPtr)GetHandlePointer (gClusterSpecsPtr->symbolsHandle);
+	*/	
 	dialogPtr = NULL;
 	returnFlag = GetDialogLocalVectors (&localFeaturesPtr,
 														NULL,
@@ -1634,9 +1579,9 @@ Boolean ClusterDialog (
 											localSymbolsPtr,
 											NULL,
 											NULL);																
-																					return(FALSE);
+																							return (FALSE);
 																					
-		}		// end "if (dialogPtr == NULL)"
+		}	// end "if (dialogPtr == NULL)"
 		
 			// Intialize local user item proc pointers.									
 
@@ -1650,7 +1595,8 @@ Boolean ClusterDialog (
 	SetDialogItemDrawRoutine (dialogPtr, 29, gDrawSymbolsPopUpPtr);
 	SetDialogItemDrawRoutine (dialogPtr, 31, drawSaveStatsPopUpPtr);
 	SetDialogItemDrawRoutine (dialogPtr, 40, drawImageOverlayPopUpPtr);
-	SetDialogItemDrawRoutine (dialogPtr, 41, &maskDiskFilePopUpBox, drawDiskFilePopUpPtr);
+	SetDialogItemDrawRoutine (
+								dialogPtr, 41, &maskDiskFilePopUpBox, drawDiskFilePopUpPtr);
 
 	ClusterDialogInitialize (dialogPtr,
 										localFeaturesPtr,
@@ -1761,14 +1707,13 @@ Boolean ClusterDialog (
 			if (theType == 16)
 				{
 				GetDialogItemText (theHandle, gTextString);	
-				StringToNum ( gTextString, &theNum);
+				StringToNum (gTextString, &theNum);
 				
-				}		// end "if (theType == 16)" 
+				}	// end "if (theType == 16)" 
 			
 			switch (itemHit)
 				{
 				case 5:				// Use Single Pass cluster 
-				
 					saveEntireImageFlag = gEntireImageFlag;
 					
 					HiliteControl ((ControlHandle)okHandle, 255);
@@ -1777,10 +1722,10 @@ Boolean ClusterDialog (
 						SetControlValue ((ControlHandle)theHandle, 1);
 						modeSetFlag = TRUE;
 						
-						SetDLogControl (dialogPtr, 6, 0 );
-						SetDLogControl (dialogPtr, 7, 0 );
+						SetDLogControl (dialogPtr, 6, 0);
+						SetDLogControl (dialogPtr, 7, 0);
 						
-						}		// end "if (OnePassClusterDialog (fileInfoPtr, dialogPtr))" 
+						}	// end "if (OnePassClusterDialog (fileInfoPtr, dialogPtr))" 
 		
 					if (!gAppearanceManagerFlag)
 						SetDLogControlHilite (dialogPtr, 2, 0);
@@ -1789,11 +1734,9 @@ Boolean ClusterDialog (
 						
 					gEntireImageFlag = saveEntireImageFlag;
 					updateDialogWindowFlag = TRUE;
-						
 					break;
 						
 				case 6:				// Use ISODATA cluster 
-				
 					saveEntireImageFlag = gEntireImageFlag;
 					
 					HiliteControl ((ControlHandle)okHandle, 255);
@@ -1802,10 +1745,10 @@ Boolean ClusterDialog (
 						SetControlValue ((ControlHandle)theHandle, 1);
 						modeSetFlag = TRUE;
 						
-						SetDLogControl (dialogPtr, 5, 0 );
-						SetDLogControl (dialogPtr, 7, 0 );
+						SetDLogControl (dialogPtr, 5, 0);
+						SetDLogControl (dialogPtr, 7, 0);
 						
-						}		// end "if (ISODATAClusterDialog (fileInfoPtr, dialogPtr))" 
+						}	// end "if (ISODATAClusterDialog (fileInfoPtr, dialogPtr))" 
 					HiliteControl ((ControlHandle)okHandle, 0);
 						
 					gEntireImageFlag = saveEntireImageFlag;
@@ -1818,7 +1761,6 @@ Boolean ClusterDialog (
 				case 9:		// No cluster classification 
 				case 10:		// Classify training fields 
 				case 11:		// Classify Image area. 
-				
 					ClusterDialogItems9to11 (dialogPtr, itemHit);
 					break;
 					
@@ -1830,8 +1772,7 @@ Boolean ClusterDialog (
 				case 21:				//	 columnStart  
 				case 22:				//	 columnEnd  
 				case 23:				//	 columnInterval  
-
-					DialogLineColumnHits ( &dialogSelectArea,
+					DialogLineColumnHits (&dialogSelectArea,
 													dialogPtr, 
 													itemHit,
 													theHandle,
@@ -1854,40 +1795,39 @@ Boolean ClusterDialog (
 															channelListType);
 															
 					if (itemHit == kSubsetMenuItem || 
-							(itemHit == 1 && channelListType == kSelectedItemsListOnly))
+								(itemHit == 1 && channelListType == kSelectedItemsListOnly))
 						{
 								// Subset of channels to be used.							
 								
 						HiliteControl ((ControlHandle)okHandle, 255);
-						ChannelsDialog (
-										(SInt16*)&localActiveNumberFeatures,
-										(SInt16*)localActiveFeaturesPtr,
-										gImageLayerInfoPtr,
-										fileInfoPtr,
-										channelListType,
-										kNoTransformation,
-										NULL,
-										fileInfoPtr->numberChannels,
-										gChannelSelection);
+						ChannelsDialog ((SInt16*)&localActiveNumberFeatures,
+												(SInt16*)localActiveFeaturesPtr,
+												gImageLayerInfoPtr,
+												fileInfoPtr,
+												channelListType,
+												kNoTransformation,
+												NULL,
+												fileInfoPtr->numberChannels,
+												gChannelSelection);
 						HiliteControl ((ControlHandle)okHandle, 0);
 						updateDialogWindowFlag = TRUE;
 								
-						}		// end "if (itemHit == kSubsetMenuItem || ..." 
+						}	// end "if (itemHit == kSubsetMenuItem || ..." 
 					
 					if (channelListType == kSelectItemsList && itemHit != 0)
 						gChannelSelection = UpdateDialogNumberFeatureParameters (
-															kNoTransformation, 
-															&localActiveNumberFeatures,
-															&localNumberFeatures,
-															fileInfoPtr->numberChannels, 
-															NULL,
-															0,
-															itemHit);
+																			kNoTransformation, 
+																			&localActiveNumberFeatures,
+																			&localNumberFeatures,
+																			fileInfoPtr->numberChannels, 
+																			NULL,
+																			0,
+																			itemHit);
 	
 							// Make certain that the correct label is drawn in the	
 							// channel pop up box.												
 					
-					InvalWindowRect (GetDialogWindow(dialogPtr), &theBox);
+					InvalWindowRect (GetDialogWindow (dialogPtr), &theBox);
 					break;
 					
 				case 29:		// Symbol selection. 
@@ -1903,16 +1843,16 @@ Boolean ClusterDialog (
 								// User specified symbols to be used.						
 								
 						HiliteControl ((ControlHandle)okHandle, 255);
-						if( !SymbolsDialog (kMaxNumberStatClasses, // gClusterSpecsPtr->maxNumberClusters,
-														NULL,
-														localSymbolsPtr,
-														TRUE) )
+						if (!SymbolsDialog (kMaxNumberStatClasses,
+													NULL,
+													localSymbolsPtr,
+													TRUE))
 							itemHit2 = gSymbolSelection;
 							
 						HiliteControl ((ControlHandle)okHandle, 0);
 						updateDialogWindowFlag = TRUE;
 							
-						}		// end "if (itemHit2 == kUserMenuItem)" 
+						}	// end "if (itemHit2 == kUserMenuItem)" 
 					
 					if (itemHit2 != 0)
 						gSymbolSelection = itemHit2;
@@ -1920,11 +1860,10 @@ Boolean ClusterDialog (
 							// Make certain that the correct label is drawn in the	
 							// class pop up box.													
 					
-					InvalWindowRect (GetDialogWindow(dialogPtr), &theBox);
+					InvalWindowRect (GetDialogWindow (dialogPtr), &theBox);
 					break;
 					
 				case 31:		// Cluster statistics to: 
-					
 					itemHit2 = StandardPopUpMenu (dialogPtr, 
 															30, 
 															31, 
@@ -1938,7 +1877,7 @@ Boolean ClusterDialog (
 							// Make certain that the correct label is drawn in the	
 							// class pop up box.													
 					
-					InvalWindowRect ( GetDialogWindow(dialogPtr), &theBox );
+					InvalWindowRect (GetDialogWindow (dialogPtr), &theBox);
 					break;
 					
 				case 33:		// Write cluster classification to output window 
@@ -1950,7 +1889,7 @@ Boolean ClusterDialog (
 					ChangeDLogCheckBox ((ControlHandle)theHandle);
 					
 					gOutputFormatCode = -gOutputFormatCode;
-					InvalWindowRect (GetDialogWindow(dialogPtr), &maskDiskFilePopUpBox);
+					InvalWindowRect (GetDialogWindow (dialogPtr), &maskDiskFilePopUpBox);
 					break;
 					
 				case 36:		// Create image overlay 
@@ -1959,16 +1898,16 @@ Boolean ClusterDialog (
 					
 					if (createImageOverlayFlag)
 						ShowDialogItem (dialogPtr, 40);
-					else		// !createImageOverlayFlag
+					else	// !createImageOverlayFlag
 						HideDialogItem (dialogPtr, 40);
 					break;
 					
 				case 37:		// Threshold the results. 
-					ChangeDLogCheckBox ( (ControlHandle)theHandle );
+					ChangeDLogCheckBox ((ControlHandle)theHandle);
 					
-					if ( GetControlValue ( (ControlHandle)theHandle) )
+					if (GetControlValue ((ControlHandle)theHandle))
 						ShowDialogItems (dialogPtr, 38, 39);
-					else		// !GetControlValue (theHandle) 
+					else	// !GetControlValue (theHandle) 
 						HideDialogItems (dialogPtr, 38, 39);
 					break;
 					
@@ -1991,21 +1930,22 @@ Boolean ClusterDialog (
 					if (itemHit != 0)
 						gSelectImageOverlaySelection = itemHit;
 															
-					InvalWindowRect (GetDialogWindow(dialogPtr), &theBox);
+					InvalWindowRect (GetDialogWindow (dialogPtr), &theBox);
 					break;
 					
 				case 41:		// Disk file format 
-					itemHit = DiskFilePopUpMenu (dialogPtr, gPopUpClusterMaskDiskFileMenu, 41);
+					itemHit = DiskFilePopUpMenu (
+													dialogPtr, gPopUpClusterMaskDiskFileMenu, 41);
 					if (itemHit != 0)
 						{
 						gOutputFormatCode = itemHit;
 						
-						}		// end "if (itemHit != 0)"
+						}	// end "if (itemHit != 0)"
 					break;
 						
-				}		// end "switch (itemHit)" 
+				}	// end "switch (itemHit)" 
 				
-			}		// end "if (itemHit > 2)" 
+			}	// end "if (itemHit > 2)" 
 			
 		else if (itemHit > 0) 	// and itemHit <= 2 
 			{		
@@ -2023,18 +1963,17 @@ Boolean ClusterDialog (
 				itemHit = 0;
 				updateDialogWindowFlag = TRUE;
 										
-				}		// end "if (itemHit == 1 && !modeSetFlag)"
+				}	// end "if (itemHit == 1 && !modeSetFlag)"
 										
 					// If item hit is 1, check if classify area line-column values	
 					// make sense.  If they don't, sound an alert and make item 	
 					// hit equal to 0 to allow user to make changes.					
 					
 			if (itemHit == 1 && GetDLogControl (dialogPtr, 11) == 1)
-				itemHit = CheckLineColValues (
-										&dialogSelectArea,
-										gClusterSpecsPtr->imageLineStart,
-										gClusterSpecsPtr->imageColumnStart,
-										dialogPtr);
+				itemHit = CheckLineColValues (&dialogSelectArea,
+														gClusterSpecsPtr->imageLineStart,
+														gClusterSpecsPtr->imageColumnStart,
+														dialogPtr);
 						
 					// If item hit is 'OK', check if the pixels are to be 			
 					// threshholded.  If so allow the user to select the 				
@@ -2043,12 +1982,12 @@ Boolean ClusterDialog (
 			if (itemHit == 1 && GetDLogControl (dialogPtr, 37))
 				{
 				returnFlag = GetProbabilityFile (
-						fileInfoPtr, &gClusterSpecsPtr->probabilityFileInfoHandle);
+								fileInfoPtr, &gClusterSpecsPtr->probabilityFileInfoHandle);
 						
-				if ( !returnFlag )
+				if (!returnFlag)
 					itemHit = 0;
 							
-				}		// end "if ( itemHit == 1 && ..." 
+				}	// end "if (itemHit == 1 && ..." 
 				
 					// Check if listing the stats in the output text window is more than
 					// the define limit. If so present message to the user and allow them
@@ -2056,11 +1995,11 @@ Boolean ClusterDialog (
 					
 			if (itemHit == 1)
 				itemHit = CheckIfTextForTextWindowIsWithinLimits (
-														okHandle,
-														localNumberFeatures,
-														fileInfoPtr->maxDataValue,
-														fileInfoPtr->minDataValue,
-														(Boolean)GetDLogControl (dialogPtr, 34));
+															okHandle,
+															localNumberFeatures,
+															fileInfoPtr->maxDataValue,
+															fileInfoPtr->minDataValue,
+															(Boolean)GetDLogControl (dialogPtr, 34));
 																										
 					// If item hit is 1, check if the save statistics option will	
 					// require the current project to be saved.  Set item hit to	
@@ -2073,25 +2012,24 @@ Boolean ClusterDialog (
 					if (SaveProjectFile (2) != 0)
 						itemHit = 0;
 												
-					}		// end "if (gProjectInfoPtr->changedFlag)"
+					}	// end "if (gProjectInfoPtr->changedFlag)"
 					
-				}		// end "if (itemHit == 1 && ..." 
+				}	// end "if (itemHit == 1 && ..." 
 				
 			if (itemHit == 1 && gSaveStatisticsSelection == 3)
 				{
-				if (fileInfoPtr->numberChannels != 
-												gClusterSpecsPtr->numberChannels ||
-					gProjectInfoPtr->numberStatisticsChannels != 
-														localActiveNumberFeatures)
+				if (fileInfoPtr->numberChannels != gClusterSpecsPtr->numberChannels ||
+											gProjectInfoPtr->numberStatisticsChannels != 
+																				localActiveNumberFeatures)
 					{
 					itemHit = DisplayAlert (
-										kOKCancelAlertID, kCautionAlert, kAlertStrID, 11, 0, NULL);
+									kOKCancelAlertID, kCautionAlert, kAlertStrID, 11, 0, NULL);
 					if (itemHit != 1)
 						itemHit = 0;
 						
-					}		// end "if (fileInfoPtr->numberChannels != ..." 
+					}	// end "if (fileInfoPtr->numberChannels != ..." 
 					
-				}		// end "if (itemHit == 1 && gSaveStatisticsSelection == 3)" 
+				}	// end "if (itemHit == 1 && gSaveStatisticsSelection == 3)" 
 				
 			if	(itemHit == 1)      // User selected OK for information 
 				{
@@ -2101,10 +2039,10 @@ Boolean ClusterDialog (
 						// Cluster algorithm options.					
 
 				if (GetDLogControl (dialogPtr, 5) == 1)
-					gClusterSpecsPtr->mode = 1;
+					gClusterSpecsPtr->mode = kSinglePass;
 
 				else if (GetDLogControl (dialogPtr, 6) == 1)
-					gClusterSpecsPtr->mode = 2;
+					gClusterSpecsPtr->mode = kISODATA;
 
 				else if (GetDLogControl (dialogPtr, 7) == 1)
 					gClusterSpecsPtr->mode = 3;
@@ -2131,29 +2069,29 @@ Boolean ClusterDialog (
 										saveThresholdPercent,
 										transparencyValue);
 
-				}		// end "if (itemHit == 1)" 
+				}	// end "if (itemHit == 1)" 
 				
 			if	(itemHit == 2)      // User selected Cancel for information 
 				{
 				modalDone = TRUE;
 				returnFlag = FALSE;
 				
-				}		// end "if	(itemHit == 2)" 
+				}	// end "if	(itemHit == 2)" 
 			
-			}		// end "else if (itemHit > 0) and itemHit <= 2" 
+			}	// end "else if (itemHit > 0) and itemHit <= 2" 
 			
 		if (updateDialogWindowFlag)
 			{		
 					// Force the main dialog box to be redrawn.
 					
-			InvalWindowRect (GetDialogWindow(dialogPtr), 
-								GetPortBounds(GetDialogPort(dialogPtr), &gTempRect));
+			InvalWindowRect (GetDialogWindow (dialogPtr), 
+									GetPortBounds (GetDialogPort (dialogPtr), &gTempRect));
 								
 			updateDialogWindowFlag = FALSE;
 								
-			}		// end "if (updateDialogWindowFlag)"
+			}	// end "if (updateDialogWindowFlag)"
 				
-		} while (!modalDone);
+		}	while (!modalDone);
 		
 	ReleaseDialogLocalVectors (localFeaturesPtr,
 										NULL,
@@ -2170,47 +2108,42 @@ Boolean ClusterDialog (
 	CloseRequestedDialog (dialogPtr, kSetUpDFilterTable);
 	
 	CheckSomeEvents (activMask+updateMask);
-									
 #endif	// defined multispec_mac
 									
 	#if defined multispec_win               
-	
 		CMClusterDialog*		dialogPtr = NULL;
 		
 		TRY
 			{ 
-			dialogPtr = new CMClusterDialog(); 
+			dialogPtr = new CMClusterDialog (); 
 			
 			returnFlag = dialogPtr->DoDialog (newProjectFlag); 
 		                       
 			delete dialogPtr;
 			}
 			
-		CATCH_ALL(e)
+		CATCH_ALL (e)
 			{
-			MemoryMessage(0, kObjectMessage);
+			MemoryMessage (0, kObjectMessage);
 			returnFlag = FALSE;
 			}
 		END_CATCH_ALL       
-									
 	#endif	// defined multispec_win
 
 	#if defined multispec_lin               
-
 		CMClusterDialog* dialogPtr = NULL;
 
 
-		dialogPtr = new CMClusterDialog(wxTheApp->GetTopWindow());
+		dialogPtr = new CMClusterDialog (wxTheApp->GetTopWindow ());
 
-		returnFlag = dialogPtr->DoDialog(newProjectFlag);
+		returnFlag = dialogPtr->DoDialog (newProjectFlag);
 
 		delete dialogPtr;
-
 	#endif	// defined multispec_lin
 	
 	return (returnFlag);
 	
-}		// end "ClusterDialog" 
+}	// end "ClusterDialog" 
 
 
 
@@ -2233,7 +2166,7 @@ Boolean ClusterDialog (
 // Called By:			ClusterDialog in SCluster.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/11/2003
-//	Revised By:			Larry L. Biehl			Date: 01/03/2015	
+//	Revised By:			Larry L. Biehl			Date: 09/05/2017	
 
 void ClusterDialogInitialize (
 				DialogPtr							dialogPtr,
@@ -2306,30 +2239,30 @@ void ClusterDialogInitialize (
 			// type, i.e. not cluster type.													
 		
 	index	= -1;			
-	fieldsExistCode = GetNextFieldArea (
-										gProjectInfoPtr,
-										NULL, 
-										gProjectInfoPtr->numberStatisticsClasses, 
-										&index, 
-										-1, 
-										kTrainingType,
-										kDontIncludeClusterFields);
+	fieldsExistCode = GetNextFieldArea (gProjectInfoPtr,
+													NULL, 
+													gProjectInfoPtr->numberStatisticsClasses, 
+													&index, 
+													-1, 
+													kTrainingType,
+													kDontIncludeClusterFields);
 
 	*classificationAreaPtr = gClusterSpecsPtr->classificationArea;										
-//	if (fieldsExistCode == -1 || gClusterSpecsPtr->clustersFrom != kTrainingType)
+	//if (fieldsExistCode == -1 || gClusterSpecsPtr->clustersFrom != kTrainingType)
 	if (fieldsExistCode == -1)
 		{
 		#ifndef multispec_lin
-			SetDLogControlHilite(dialogPtr, IDC_ClassifyTrainingAreas, 255);
+			SetDLogControlHilite (dialogPtr, IDC_ClassifyTrainingAreas, 255);
 		#endif
 		#if defined multispec_lin
-			wxRadioBox* classopt = (wxRadioBox*)dialogPtr->FindWindow(IDC_ClassificationMap);
-			classopt->Enable(1, false);
+			wxRadioBox* classopt = 
+									(wxRadioBox*)dialogPtr->FindWindow (IDC_ClassificationMap);
+			classopt->Enable (1, false);
 		#endif
 		if (*classificationAreaPtr == 1)
 			*classificationAreaPtr = 2;
 			
-		}		// end "if (fieldsExistCode == -1)"
+		}	// end "if (fieldsExistCode == -1)"
 				
 			// Initialize selected area structure.	
 			
@@ -2354,16 +2287,24 @@ void ClusterDialogInitialize (
 			//	Load default area to be classified											
 						
 	#if defined multispec_mac 
-		LoadLineColumnItems (dialogSelectAreaPtr, dialogPtr, TRUE);
+		LoadLineColumnItems (dialogSelectAreaPtr, 
+									dialogPtr, 
+									kInitializeLineColumnValues, 
+									kIntervalEditBoxesExist,
+									1);
 		
 		if (gAppearanceManagerFlag)
 			HideDialogItem (dialogPtr, 12);
-		else		// !gAppearanceManagerFlag
+		else	// !gAppearanceManagerFlag
 			HideDialogItem (dialogPtr, 3);
 	#endif	// defined multispec_mac  	
 			
 	#if defined multispec_win || defined multispec_lin
-		LoadLineColumnItems (dialogSelectAreaPtr, dialogPtr, FALSE);
+		LoadLineColumnItems (dialogSelectAreaPtr, 
+									dialogPtr, 
+									kDoNotInitializeLineColumnValues, 
+									kIntervalEditBoxesExist,
+									1);
 	#endif	// defined multispec_win || defined multispec_lin      
 						
 			// Make changes needed related to items 9, 10, and 11						
@@ -2392,20 +2333,25 @@ void ClusterDialogInitialize (
 		
 	if (newProjectFlag || !gFullVersionFlag)
 		{
+		#if defined multispec_lin
+			wxChoice* clusterstats = 
+									((wxChoice*)dialogPtr->FindWindow (IDC_ClusterStatsCombo));
+			if (clusterstats->GetCount () > 2)
+				clusterstats->Delete (2);
+		#endif	// defined multispec_lin
+		
 		#if defined multispec_mac 
  			DisableMenuItem (gPopUpSaveStatsMenu, 3);
 		#endif	// defined multispec_mac 
+		
 		#if defined multispec_win 
-			((CComboBox*)dialogPtr->GetDlgItem(IDC_ClusterStatsCombo))->DeleteString(2);
-		#endif	// defined multispec_win  
-		#if defined multispec_lin
-			wxChoice* clusterstats = ((wxChoice*) dialogPtr->FindWindow(IDC_ClusterStatsCombo));//->Delete(2);
-			if(clusterstats->GetCount() > 2)
-				clusterstats->Delete(2);
-		#endif	// defined multispec_lin
-		}
+			((CComboBox*)dialogPtr->GetDlgItem (IDC_ClusterStatsCombo))->DeleteString (2);
+		#endif	// defined multispec_win 
+		
+		}	// end "if (newProjectFlag || !gFullVersionFlag)"
+		
 	#if defined multispec_mac
- 		else		// !newProjectFlag && gFullVersionFlag 
+ 		else	// !newProjectFlag && gFullVersionFlag 
  			EnableMenuItem (gPopUpSaveStatsMenu, 3);
 	#endif	// defined multispec_mac 
 	
@@ -2414,20 +2360,26 @@ void ClusterDialogInitialize (
 	if (!gFullVersionFlag)
 		{
 		*saveStatisticsSelectionPtr = 1;
+		
+		#if defined multispec_lin
+			wxChoice* clusterstats = 
+									((wxChoice*)dialogPtr->FindWindow (IDC_ClusterStatsCombo));
+			if (clusterstats->GetCount () > 1)
+				clusterstats->Delete (1);
+		#endif	// defined multispec_lin
+		
 		#if defined multispec_mac 
  			DisableMenuItem (gPopUpSaveStatsMenu, 2);
 		#endif	// defined multispec_mac 
+		 
 		#if defined multispec_win 
-			((CComboBox*)dialogPtr->GetDlgItem(IDC_ClusterStatsCombo))->DeleteString(1);
-		#endif	// defined multispec_win  
-		#if defined multispec_lin
-			wxChoice* clusterstats = ((wxChoice*) dialogPtr->FindWindow(IDC_ClusterStatsCombo));//->Delete(2);
-			if(clusterstats->GetCount() > 1)
-				clusterstats->Delete(1);
-		#endif	// defined multispec_lin
-		}
+			((CComboBox*)dialogPtr->GetDlgItem (IDC_ClusterStatsCombo))->DeleteString (1);
+		#endif	// defined multispec_win 
+		
+		}	// end "if (!gFullVersionFlag)"
+		
 	#if defined multispec_mac
- 		else		// !newProjectFlag && gFullVersionFlag 
+ 		else	// gFullVersionFlag 
  			EnableMenuItem (gPopUpSaveStatsMenu, 2);
 	#endif	// defined multispec_mac 
 	
@@ -2455,7 +2407,7 @@ void ClusterDialogInitialize (
 	if (gClusterSpecsPtr->outputStorageType & kClusterMaskCode)
 		*clusterMaskFileFlagPtr = TRUE;      
 		
-	else		// !(lOutputStorageType & kClusterMaskCode)
+	else	// !(lOutputStorageType & kClusterMaskCode)
 		*maskFileFormatCodePtr = -*maskFileFormatCodePtr;
 													
 			// Set text indicating whether the output file format could be GeoTIFF
@@ -2463,14 +2415,15 @@ void ClusterDialogInitialize (
 			
 	SetTIFF_GeoTIFF_MenuItemString (gImageWindowInfoPtr,
 												dialogPtr,
+                                    #if defined multispec_lin
+                                       NULL,
+												#endif	// defined multispec_lin  
 												#if defined multispec_mac  
 													gPopUpClusterMaskDiskFileMenu,
 												#endif	// defined multispec_mac
 												#if defined multispec_win 
 													IDC_DiskCombo,
-                                    #elif defined multispec_lin
-                                       NULL,
-												#endif	// defined multispec_win  
+												#endif	// defined multispec_win
 												kClusterTIFFGeoTIFFOutputFormat);
 	
 			// Cluster map to image overlay.		
@@ -2482,14 +2435,14 @@ void ClusterDialogInitialize (
 		if (gClusterSpecsPtr->outputStorageType & kCreateImageOverlayCode)
 			*createImageOverlayFlagPtr = TRUE;
 
-		}		// end "if (baseImageWindowInfoHandle != NULL)"
+		}	// end "if (baseImageWindowInfoHandle != NULL)"
 						
-	else		// baseImageWindowInfoHandle == NULL
+	else	// baseImageWindowInfoHandle == NULL
 		SetDLogControlHilite (dialogPtr, IDC_ImageOverlay, 255);
 					
 	if (*createImageOverlayFlagPtr)
 		ShowDialogItem (dialogPtr, IDC_ImageOverlayCombo);
-	else		// !*createImageOverlayFlagPtr
+	else	// !*createImageOverlayFlagPtr
 		HideDialogItem (dialogPtr, IDC_ImageOverlayCombo);
 	
 	*selectImageOverlaySelectionPtr = GetWindowImageOverlayIndex (
@@ -2497,9 +2450,11 @@ void ClusterDialogInitialize (
 														gClusterSpecsPtr->imageOverlayIndex) + 2;
 				
 	#if defined multispec_win 
-		CComboBox* comboBoxPtr = (CComboBox*)(dialogPtr->GetDlgItem(IDC_ImageOverlayCombo));
+		CComboBox* comboBoxPtr = 
+								(CComboBox*)(dialogPtr->GetDlgItem (IDC_ImageOverlayCombo));
 		gPopUpImageOverlayMenu = (MenuHandle)comboBoxPtr;
-	#endif	// defined multispec_win 																				
+	#endif	// defined multispec_win
+	 																				
 	SetUpImageOverlayPopUpMenu (gPopUpImageOverlayMenu, 
 											baseImageWindowInfoHandle,
 											*selectImageOverlaySelectionPtr);
@@ -2514,19 +2469,15 @@ void ClusterDialogInitialize (
 		HideDialogItem (dialogPtr, IDC_UsePixelsThresholdValue);
 		HideDialogItem (dialogPtr, IDC_Percent);
 		
-		}		// end "if (!gClusterSpecsPtr->thresholdFlag)"
+		}	// end "if (!gClusterSpecsPtr->thresholdFlag)"
 		
-//	if (newProjectFlag)
-//		{
-		HideDialogItem (dialogPtr, IDC_UsePixelsThresholdFlag);
-		HideDialogItem (dialogPtr, IDC_UsePixelsThresholdValue);
-		HideDialogItem (dialogPtr, IDC_Percent);
+	HideDialogItem (dialogPtr, IDC_UsePixelsThresholdFlag);
+	HideDialogItem (dialogPtr, IDC_UsePixelsThresholdValue);
+	HideDialogItem (dialogPtr, IDC_Percent);
 		
-//		}		// end "if (newProjectFlag)"
-						
 	*transparencyValuePtr = gClusterSpecsPtr->transparency;
 	
-}		// end "ClusterDialogInitialize"
+}	// end "ClusterDialogInitialize"
 
 
 		
@@ -2558,16 +2509,16 @@ void ClusterDialogItems9to11 (
 				SInt16								itemHit)
 
 {		
-	SetDLogControl (dialogPtr, 9, (short int)(itemHit == 9) );
-	SetDLogControl (dialogPtr, 10, (short int)(itemHit == 10) );
-	SetDLogControl (dialogPtr, 11, (short int)(itemHit == 11) );
+	SetDLogControl (dialogPtr, 9, (short int)(itemHit == 9));
+	SetDLogControl (dialogPtr, 10, (short int)(itemHit == 10));
+	SetDLogControl (dialogPtr, 11, (short int)(itemHit == 11));
 	
 	if (itemHit == 9)
 		{
 		HideDialogItem (dialogPtr, 3);
 		HideDialogItems (dialogPtr, 12, 25);
 		
-		}		// end "if (itemHit == 9)"
+		}	// end "if (itemHit == 9)"
 		
 	else if (itemHit == 10)
 		{
@@ -2581,22 +2532,22 @@ void ClusterDialogItems9to11 (
 		
 		SelectDialogItemText (dialogPtr, 20, 0, INT16_MAX);
 		
-		}		// end "else if (itemHit == 10)" 
+		}	// end "else if (itemHit == 10)" 
 						
-	else		// itemHit == 11
+	else	// itemHit == 11
 		{
 		ShowDialogItems (dialogPtr, 13, 25);
 		
 		if (gAppearanceManagerFlag)
 			ShowDialogItem (dialogPtr, 3);
-		else		// !gAppearanceManagerFlag
+		else	// !gAppearanceManagerFlag
 			ShowDialogItem (dialogPtr, 12);
 		
 		SelectDialogItemText (dialogPtr, 18, 0, INT16_MAX);
 		
-		}		// end "else itemHit == 11" 
+		}	// end "else itemHit == 11" 
 		
-}		// end "ClusterDialogItems9to11"		
+}	// end "ClusterDialogItems9to11"		
 #endif	// defined multispec_mac  
 
 
@@ -2647,9 +2598,6 @@ void 	ClusterDialogOK (
 				SInt32								transparencyValue)
 
 {
-//	UInt32								index;
-	
-	
 			// Cluster algorithm options.					
 
 	gClusterSpecsPtr->mode = clusterMode;
@@ -2666,13 +2614,11 @@ void 	ClusterDialogOK (
 	
 	gClusterSpecsPtr->imageLineStart = dialogSelectAreaPtr->lineStart;
 	gClusterSpecsPtr->imageLineEnd = dialogSelectAreaPtr->lineEnd;
-	gClusterSpecsPtr->imageLineInterval = 
-												dialogSelectAreaPtr->lineInterval;
+	gClusterSpecsPtr->imageLineInterval = dialogSelectAreaPtr->lineInterval;
 													
 	gClusterSpecsPtr->imageColumnStart = dialogSelectAreaPtr->columnStart;
 	gClusterSpecsPtr->imageColumnEnd = dialogSelectAreaPtr->columnEnd;
-	gClusterSpecsPtr->imageColumnInterval = 
-												dialogSelectAreaPtr->columnInterval;
+	gClusterSpecsPtr->imageColumnInterval = dialogSelectAreaPtr->columnInterval;
 								
 			// Classification threshold.								
 	
@@ -2681,7 +2627,8 @@ void 	ClusterDialogOK (
 			// Cluster Statistics To.							
 			
 	gClusterSpecsPtr->saveStatisticsCode = saveStatisticsSelection - 1;
-/*	if (gClusterSpecsPtr->saveStatisticsCode == kSaveStatisticsToNewProject)
+	/*
+	if (gClusterSpecsPtr->saveStatisticsCode == kSaveStatisticsToNewProject)
 		{
 				// Need to reset the project channels pointer to represent the entire
 				// set of channels for cluster subset to work properly.
@@ -2689,36 +2636,36 @@ void 	ClusterDialogOK (
 		for (index=0; index<gImageFileInfoPtr->numberChannels; index++)
 			gProjectInfoPtr->channelsPtr[index] = index;
 							
-		}		// end "if (gClusterSpecsPtr->saveStatisticsCode == kSaveStatisticsToNewProject)"
-*/														
+		}	// end "if (gClusterSpecsPtr->saveStatisticsCode == kSaveStatisticsToNewProject)"
+	*/														
 			// Load some common processor parameters
 			// 	Channels
 			// 	Class symbols	
 			
 	LoadProcessorVectorsFromDialogLocalVectors (
-									channelSelection,
-									kNoTransformation,
-									gImageFileInfoPtr->numberChannels,
-									localNumberFeatures,
-									(UInt16*)localFeaturesPtr,
-									&gClusterSpecsPtr->channelSet,
-									(UInt16*)&gClusterSpecsPtr->numberChannels,
-									gClusterSpecsPtr->featureHandle,
-									(UInt16*)&gClusterSpecsPtr->numberChannels,
-									gClusterSpecsPtr->channelsHandle,
-									0,
-									0,
-									NULL,
-									NULL,
-									NULL,
-									NULL,
-									symbolSelection,
-									localSymbolsPtr,
-									&gClusterSpecsPtr->symbolSet,
-									gClusterSpecsPtr->symbolsHandle,
-									0,
-									NULL,
-									NULL);
+														channelSelection,
+														kNoTransformation,
+														gImageFileInfoPtr->numberChannels,
+														localNumberFeatures,
+														(UInt16*)localFeaturesPtr,
+														&gClusterSpecsPtr->channelSet,
+														(UInt16*)&gClusterSpecsPtr->numberChannels,
+														gClusterSpecsPtr->featureHandle,
+														(UInt16*)&gClusterSpecsPtr->numberChannels,
+														gClusterSpecsPtr->channelsHandle,
+														0,
+														0,
+														NULL,
+														NULL,
+														NULL,
+														NULL,
+														symbolSelection,
+														localSymbolsPtr,
+														&gClusterSpecsPtr->symbolSet,
+														gClusterSpecsPtr->symbolsHandle,
+														0,
+														NULL,
+														NULL);
 		
 			// Write classification to output window.				
 			
@@ -2747,13 +2694,13 @@ void 	ClusterDialogOK (
 				gClusterSpecsPtr->diskFileFormat = kTIFFType;
 				break;
 				
-			}		// end "switch (maskFileFormatCode)"
+			}	// end "switch (maskFileFormatCode)"
 			
 		gOutputFormatCode = 0;
 		if (gClusterSpecsPtr->outputStorageType & kClusterMaskCode)
 			gOutputFormatCode = gClusterSpecsPtr->diskFileFormat;
 			
-		}		// end "if (diskFileFlag)" 
+		}	// end "if (diskFileFlag)" 
 		
 			// Write cluster results to image overlay.
 	
@@ -2761,8 +2708,8 @@ void 	ClusterDialogOK (
 		gClusterSpecsPtr->outputStorageType += kCreateImageOverlayCode;
 
 	gClusterSpecsPtr->imageOverlayIndex = GetImageOverlayIndex (
-													FindProjectBaseImageWindowInfoHandle (),
-													selectImageOverlaySelection - 2);
+															FindProjectBaseImageWindowInfoHandle (),
+															selectImageOverlaySelection - 2);
 			
 			// Threshold results flag.												
 			
@@ -2774,17 +2721,16 @@ void 	ClusterDialogOK (
 		
 		gClusterSpecsPtr->probabilityThreshold = thresholdPercent;
 
-		gClusterSpecsPtr->probabilityThresholdCode =
-				GetProbabilityThresholdCode (
-								thresholdPercent, 
-								gClusterSpecsPtr->probabilityFileInfoHandle);
+		gClusterSpecsPtr->probabilityThresholdCode = GetProbabilityThresholdCode (
+													thresholdPercent, 
+													gClusterSpecsPtr->probabilityFileInfoHandle);
 											
-		}		// end "if (gClusterSpecsPtr->thresholdFlag)" 
+		}	// end "if (gClusterSpecsPtr->thresholdFlag)" 
 		
 	if (createImageOverlayFlag)
 		gClusterSpecsPtr->transparency = (SInt16)transparencyValue;
 		
-}		// end "ClusterDialogOK"		
+}	// end "ClusterDialogOK"		
 
 
 
@@ -2811,7 +2757,7 @@ void 	ClusterDialogOK (
 //							ClusterOnePassControl in SClustSP.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/12/1999
-//	Revised By:			Larry L. Biehl			Date: 03/16/2017
+//	Revised By:			Larry L. Biehl			Date: 09/01/2017
 
 Boolean CreateClusterMaskFile (void)
 
@@ -2871,8 +2817,8 @@ Boolean CreateClusterMaskFile (void)
 			// Verify some variables.
 			
 	if (gClusterSpecsPtr->dataClassPtr == NULL || 
-				gClusterSpecsPtr->clusterClassToFinalClassPtr == NULL)
-																					return (FALSE);
+							gClusterSpecsPtr->clusterClassToFinalClassPtr == NULL)
+																							return (FALSE);
 	
 			// Initialize local variables.
 			
@@ -2894,10 +2840,10 @@ Boolean CreateClusterMaskFile (void)
 	
 			//	List the name of the mask file in the cluster output information.	
 	
-	char* maskFileCNamePtr = (char*)GetFileNameCPointer (maskFileInfoPtr);
+	char* maskFileCNamePtr = (char*)GetFileNameCPointerFromFileInfo (maskFileInfoPtr);
 	ListSpecifiedStringNumber (kClusterStrID, 
 										IDS_Cluster39,
-										GetResultsFileStreamPtr(0), 
+										GetResultsFileStreamPtr (0), 
 										gOutputForce1Code, 
 										maskFileCNamePtr,
 										TRUE,
@@ -2906,10 +2852,10 @@ Boolean CreateClusterMaskFile (void)
 			//	Title for creating background image.										
 
 	LoadDItemStringNumber (kClusterStrID,
-									IDS_Cluster46, 	// "\pCreating Cluster Mask Background"
+									IDS_Cluster46,	// "\pCreating Cluster Mask Background"
 									gStatusDialogPtr, 
 									IDC_Status11,
-									(Str255*)&gTextString);
+									(Str255*)gTextString);
 				
 			// Create the base Thematic Image file with all background values.	
 			
@@ -2926,17 +2872,17 @@ Boolean CreateClusterMaskFile (void)
 	if (continueFlag)
 		{
 		LoadDItemStringNumber (kReformatStrID,
-										IDS_Cluster47,  	// "\pCreating Cluster Mask File"
+										IDS_Cluster47,		// "\pCreating Cluster Mask File"
 										gStatusDialogPtr, 
 										IDC_Status11,
-										(Str255*)&gTextString); 
+										(Str255*)gTextString); 
 										
 		ShowStatusDialogItemSet (kStatusClassA);
 		ShowStatusDialogItemSet (kStatusField);
 		
 		CheckSomeEvents (updateMask);
 		
-		}		// end "if (continueFlag)" 
+		}	// end "if (continueFlag)" 
 				
 			// Now change those pixels that belong to one of the cluster classes.																	
 	
@@ -2950,19 +2896,19 @@ Boolean CreateClusterMaskFile (void)
 	  	classToFinalClassPtr = 	gClusterSpecsPtr->clusterClassToFinalClassPtr;
 	  	
 		SetUpGeneralFileIOInstructions (&gFileIOInstructions[1],
-														NULL,	
-														NULL,
-														maskFileInfoPtr,
-														1,
-														NULL,
-														NULL,
-														NULL,
-														NULL,
-														0,
-														kDoNotPackData,
-														kDoNotForceBISFormat,	
-														kDoNotForceBytes,
-														&fileIOInstructionsPtr);
+													NULL,	
+													NULL,
+													maskFileInfoPtr,
+													1,
+													NULL,
+													NULL,
+													NULL,
+													NULL,
+													0,
+													kDoNotPackData,
+													kDoNotForceBISFormat,	
+													kDoNotForceBytes,
+													&fileIOInstructionsPtr);
 	  	
 				// Initialize parameters controlling the first line code which is
 				// based on the algorithm that is being used.
@@ -2970,28 +2916,28 @@ Boolean CreateClusterMaskFile (void)
 		firstLineCodeStart = 1;
 		firstLineCodeEnd = 0;
 		
-		if (gClusterSpecsPtr->mode == 1)
+		if (gClusterSpecsPtr->mode == kSinglePass)
 			{
 					// Single pass clustering.
 					
 			firstLineCodeStart = 1;
 			firstLineCodeEnd = 2;
 																						
-			}		// end "if (gClusterSpecsPtr->mode == 1)" 		
+			}	// end "if (gClusterSpecsPtr->mode == kSinglePass)" 		
 		
-		else if (gClusterSpecsPtr->mode == 2)
+		else if (gClusterSpecsPtr->mode == kISODATA)
 			{
 					// ISODATA clustering.
 					
 			firstLineCodeStart = 0;
 			firstLineCodeEnd = 0;
 																						
-			}		// end "if (gClusterSpecsPtr->mode == 2)" 
+			}	// end "if (gClusterSpecsPtr->mode == kISODATA)" 
 							
 				// Intialize the nextTime variable to indicate when the next check	
 				// should occur for a command-.													
 				
-		gNextTime = TickCount();
+		gNextTime = TickCount ();
 	  	
 	  	for (firstLineCode=firstLineCodeStart; 
 	  			firstLineCode<=firstLineCodeEnd; 
@@ -3018,9 +2964,8 @@ Boolean CreateClusterMaskFile (void)
 													NULL, 
 													&lastClassIndex, 
 													&lastFieldIndex, 
-//													NULL,
-													NULL) )
-																					return (FALSE);
+													NULL))
+																							return (FALSE);
 					
 				lineStart = gAreaDescription.lineStart;
 				lineEnd = gAreaDescription.lineEnd;
@@ -3036,7 +2981,7 @@ Boolean CreateClusterMaskFile (void)
 							
 					columnInterval = gClusterSpecsPtr->clusterColumnInterval;
 					
-					}		// end "if (firstLineCode == 1)" 
+					}	// end "if (firstLineCode == 1)" 
 					
 				else if (firstLineCode == 1)
 					{
@@ -3045,7 +2990,7 @@ Boolean CreateClusterMaskFile (void)
 					lineEnd = lineStart;
 					columnInterval = 1;
 					
-					}		// end "else if (firstLineCode == 1)" 
+					}	// end "else if (firstLineCode == 1)" 
 				
 				else if (firstLineCode == 2)
 					{
@@ -3063,7 +3008,7 @@ Boolean CreateClusterMaskFile (void)
 					if (pointType == kMaskType)
 						gAreaDescription.maskLineStart += lineInterval;
 					
-					}		// end "else if (firstLineCode == 2)" 
+					}	// end "else if (firstLineCode == 2)" 
 					
 						// Get first sample.																
 			   	
@@ -3085,7 +3030,7 @@ Boolean CreateClusterMaskFile (void)
 					
 						// Set up variables for controlling when status checks are made.														
 									
-				startTick = gNextStatusTime = TickCount();	
+				startTick = gNextStatusTime = TickCount ();	
 					
 						// Load some of the File IO Instructions structure that pertain
 						// to the specific area being used.
@@ -3112,12 +3057,12 @@ Boolean CreateClusterMaskFile (void)
 							// If this in an image area, update dialog status information.	
 				
 					lineCount++;
-					if (TickCount() >= gNextStatusTime)
+					if (TickCount () >= gNextStatusTime)
 						{
 						LoadDItemValue (gStatusDialogPtr, IDC_Status8, (SInt32)lineCount);
-						gNextStatusTime = TickCount() + gNextStatusTimeOffset;
+						gNextStatusTime = TickCount () + gNextStatusTimeOffset;
 						
-						}		// end "if ( TickCount() >= gNextStatusTime)"
+						}	// end "if (TickCount () >= gNextStatusTime)"
 						
 					skipLineFlag = FALSE;
 					if (pointType == kMaskType)
@@ -3129,20 +3074,20 @@ Boolean CreateClusterMaskFile (void)
 							
 						maskBufferPtr += gAreaDescription.maskColumnStart;
 							
-						}		// end "if (pointType == kMaskType)"
+						}	// end "if (pointType == kMaskType)"
 					
 					if (!skipLineFlag)
 						{ 
 								// Exit routine if user has "command period" down.					
 						
-						if ( TickCount() >= gNextTime)
+						if (TickCount () >= gNextTime)
 							{
-							continueFlag = CheckSomeEvents ( 
-															osMask+keyDownMask+updateMask+mDownMask+mUpMask);
+							continueFlag = CheckSomeEvents (
+												osMask+keyDownMask+updateMask+mDownMask+mUpMask);
 							if (!continueFlag)
 								break;
 								
-							}		// end "if ( TickCount() >= nextTime)" 
+							}	// end "if (TickCount () >= nextTime)" 
 										
 								// Initialize the output buffer to that already existing for 
 								// that line. This is need in case polygonal field are being 
@@ -3156,8 +3101,6 @@ Boolean CreateClusterMaskFile (void)
 													(UInt32)columnEnd,
 													&count,
 													(HUCharPtr)gInputBufferPtr);
-//													maskFileInfoPtr,
-//													FALSE );
 													
 						if (errCode != noErr)
 							{
@@ -3181,10 +3124,11 @@ Boolean CreateClusterMaskFile (void)
 							if (pointType == kRectangleType)
 								includePixelFlag = TRUE;
 								
-							else if (pointType == kPolygonType && PtInRgn (point, rgnHandle) )
+							else if (pointType == kPolygonType && PtInRgn (point, rgnHandle))
 								includePixelFlag = TRUE;
 							
-							else if (pointType == kMaskType && *maskBufferPtr == maskRequestValue)
+							else if (pointType == kMaskType && 
+																	*maskBufferPtr == maskRequestValue)
 								includePixelFlag = TRUE;
 								
 							if (includePixelFlag)
@@ -3196,14 +3140,14 @@ Boolean CreateClusterMaskFile (void)
 									
 								dataClassPtr++;
 						         
-						      }		// end "if (includePixelFlag)" 
+						      }	// end "if (includePixelFlag)" 
 						      
 							ioOutBufferPtr += columnInterval;
 										
 							if (pointType == kMaskType)
 								maskBufferPtr += columnInterval;
 				         
-				  			}		// end "for (column=firstColumn; ..." 
+				  			}	// end "for (column=firstColumn; ..." 
 				  			
 						if (pointType != kMaskType)
 			  				{
@@ -3215,17 +3159,17 @@ Boolean CreateClusterMaskFile (void)
 					  		firstColumn = columnStart + column - columnEnd - 1;
 							if (firstColumn > columnEnd)
 								{
-								lDivideStruct = ldiv(firstColumn-columnStart, columnWidth);
+								lDivideStruct = ldiv (firstColumn-columnStart, columnWidth);
 								firstColumn = columnStart + lDivideStruct.rem;
 								
-								}		// end "if (firstColumn > columnEnd)"
+								}	// end "if (firstColumn > columnEnd)"
 								
-							}		// end "if (pointType != kMaskType)"
+							}	// end "if (pointType != kMaskType)"
 								
 								// Set pointer to correct location for writing.			
 						
 						if (errCode == noErr)	
-							errCode = MSetMarker ( maskFileStreamPtr, 
+							errCode = MSetMarker (maskFileStreamPtr, 
 															fsFromStart, 
 															writePosOff,
 															kErrorMessages);
@@ -3234,12 +3178,12 @@ Boolean CreateClusterMaskFile (void)
 								// output disk file.						
 						
 						if (errCode == noErr)
-							errCode = MWriteData(maskFileStreamPtr, 
+							errCode = MWriteData (maskFileStreamPtr, 
 															&count, 
 															gInputBufferPtr,
 															kErrorMessages);
 															
-						}		// end "if (!skipLineFlag)"
+						}	// end "if (!skipLineFlag)"
 						
 							// Ready counter for next position to write to file.	
 							
@@ -3249,7 +3193,7 @@ Boolean CreateClusterMaskFile (void)
 						fileIOInstructionsPtr->maskBufferPtr += 
 												fileIOInstructionsPtr->numberMaskColumnsPerLine;
 			  			
-			  		}		// end "for ( line=lineStart; line<=lineEnd; ...)" 
+			  		}	// end "for (line=lineStart; line<=lineEnd; ...)" 
 			  	
 			  	if (continueFlag && firstLineCode != 1)	
 					LoadDItemValue (gStatusDialogPtr, IDC_Status8, lineCount);
@@ -3264,21 +3208,21 @@ Boolean CreateClusterMaskFile (void)
 				CloseUpAreaDescription (&gAreaDescription);
 				
 				if (!continueFlag)
-																								return (FALSE);
+																							return (FALSE);
 		  			
-		  		}		// end "for (areaNumber=1; areaNumber<=totolNumberAreas; ...)"
+		  		}	// end "for (areaNumber=1; areaNumber<=totolNumberAreas; ...)"
 		  		
-		  	}		// end "for (firstLineCode=firstLineCodeStart; ..."
+		  	}	// end "for (firstLineCode=firstLineCodeStart; ..."
 		  	
 		CloseUpGeneralFileIOInstructions (fileIOInstructionsPtr);
 	
-		}		// end "if (continueFlag)"
+		}	// end "if (continueFlag)"
 		
 			// Create the class names for the mask file.
 
 	if (continueFlag)
 		continueFlag = CreateMaskFileClassNames (maskFileInfoPtr,
-																gClusterSpecsPtr->numberFinalClusters);
+															gClusterSpecsPtr->numberFinalClusters);
 															
 			// Create the ERDAS Trailer or CLR file if needed.									
 	
@@ -3288,32 +3232,31 @@ Boolean CreateClusterMaskFile (void)
 		if (maskFileInfoPtr->format != kErdas74Type)
 			supportFileType = kICLRFileType;
 				
-		continueFlag = CreateThematicSupportFile ( 
-									maskFileInfoPtr,
-									NULL,
-									(UInt16)gClusterSpecsPtr->numberFinalClusters,
-									NULL,
-									0,
-									NULL,
-									NULL,
-									NULL,
-									kDefaultColors,
-									(UInt16)gClusterSpecsPtr->numberFinalClusters,
-//									1,
-									kClusterMaskCode,
-									kPaletteHistogramClassNames,
-									kClassDisplay,
-									kCollapseClass,
-									supportFileType);
+		continueFlag = CreateThematicSupportFile (
+													maskFileInfoPtr,
+													NULL,
+													(UInt16)gClusterSpecsPtr->numberFinalClusters,
+													NULL,
+													0,
+													NULL,
+													NULL,
+													NULL,
+													kDefaultColors,
+													(UInt16)gClusterSpecsPtr->numberFinalClusters,
+													kClusterMaskCode,
+													kPaletteHistogramClassNames,
+													kClassDisplay,
+													kCollapseClass,
+													supportFileType);
 									
-		}		// end "if (continueFlag && ... )" 
+		}	// end "if (continueFlag && ...)" 
 		
 	HideStatusDialogItemSet (kStatusClassA);
 	HideStatusDialogItemSet (kStatusField);
 
 	return (continueFlag);
 		
-}		// end "CreateClusterMaskFile"	 
+}	// end "CreateClusterMaskFile"	 
 
 
 
@@ -3360,73 +3303,62 @@ Boolean CreateMaskFileClassNames (
 	
 
 			// Get handle for mask file names.
-			// Note that this is another place that the classDiscriptionH structure handling
-			// needs to be done differently. There ends up being numberClasses + 1 later on to 
-			// handle the background class. It is handled differently later on.
+			// Note that this is another place that the classDiscriptionH structure 
+			// handling needs to be done differently. There ends up being 
+			// numberClasses + 1 later on to handle the background class. It is handled 
+			// differently later on.
 			
-	maskFileInfoPtr->classDescriptionH = MNewHandle ( 
-	//								maskFileInfoPtr->numberClasses * (sizeof(Str31) + sizeof(UInt16)));
-									numberClasses * (sizeof(Str31) + sizeof(UInt16)));
+	maskFileInfoPtr->classDescriptionH = MNewHandle (
+											numberClasses * (sizeof (Str31) + sizeof (UInt16)));
 								
-	classNamePtr = (UCharPtr)GetHandlePointer (
-									maskFileInfoPtr->classDescriptionH,
-									kLock,
-									kNoMoveHi);							
+	classNamePtr = (UCharPtr)GetHandlePointer (maskFileInfoPtr->classDescriptionH,
+																kLock);							
 								
 	classSymbolPtr = (UInt16*)classNamePtr;
 				
 	if (classSymbolPtr != NULL)
-		classSymbolPtr = &classSymbolPtr[numberClasses*sizeof(Str15)];
+		classSymbolPtr = &classSymbolPtr[numberClasses*sizeof (Str15)];
 								
 	if (classNamePtr != NULL)
 		{					
 		cluster = gClusterSpecsPtr->clusterHead;
 					
-		//for (index=0; index<maskFileInfoPtr->numberClasses; index++)
 		for (index=1; index<=numberClasses; index++)
 			{
-//			if (index == 0)
-//				stringLength = sprintf ((char*)&classNamePtr[1], "background", index);
-			
-//			else		// index > 0
-//				{
-				stringLength = sprintf ((char*)&classNamePtr[1], "Cluster %ld", index);
-			
-						// Add project class name if needed.
-				
-				if (gClusterSpecsPtr->projectClassMeansCode == 1 &&
-																cluster->projectStatClassNumber >= 0)
-					{
-					classStorage = gProjectInfoPtr->storageClass[
-																		cluster->projectStatClassNumber];
+			stringLength = sprintf ((char*)&classNamePtr[1], "Cluster %ld", index);
 		
-					namePtr = (UCharPtr)&gProjectInfoPtr->classNamesPtr[classStorage].name;
-					
-					stringLength = AddSpecifiedStringToClassName (classNamePtr,
-																					stringLength,
-																					TRUE,
-																					namePtr);	
-					
-					}		// end "if (gClusterSpecsPtr->projectClassMeansCode == 1 && ..."
+					// Add project class name if needed.
 			
-				cluster = cluster->next;
-					
-//				}		// end "else index > 0"
+			if (gClusterSpecsPtr->projectClassMeansCode == 1 &&
+															cluster->projectStatClassNumber >= 0)
+				{
+				classStorage = gProjectInfoPtr->storageClass[
+																	cluster->projectStatClassNumber];
+	
+				namePtr = (UCharPtr)&gProjectInfoPtr->classNamesPtr[classStorage].name;
+				
+				stringLength = AddSpecifiedStringToClassName (classNamePtr,
+																				stringLength,
+																				TRUE,
+																				namePtr);	
+				
+				}	// end "if (gClusterSpecsPtr->projectClassMeansCode == 1 && ..."
+		
+			cluster = cluster->next;
 				
 			classNamePtr[0] = (SInt8)stringLength;
 			
 			classNamePtr += 32;
 			
-//			classSymbolPtr[index] = index;
 			classSymbolPtr[index-1] = (UInt16)(index-1);
 													
-			}		// end "for (index=1; index<=numberClasses; index++)" 
+			}	// end "for (index=1; index<=numberClasses; index++)" 
 			
-		}		// end "if (classNamePtr != NULL)"
+		}	// end "if (classNamePtr != NULL)"
 		
 	return (classNamePtr != NULL);
 	
-}		//  end "CreateMaskFileClassNames"  
+}	//  end "CreateMaskFileClassNames"  
 
 
 
@@ -3467,21 +3399,21 @@ SInt32 DeleteCluster (
 		if (previousCluster != NULL)
 			previousCluster->next = nextCluster;
 			
-		else		// previousCluster == NULL
+		else	// previousCluster == NULL
   			gClusterSpecsPtr->clusterHead = nextCluster;
 			
 				// Delete the memory if it was generated in one pass cluster.	
 				
 		if (gClusterSpecsPtr->clusterMemoryHead == NULL)
-			CheckAndDisposePtr( (char*)clusterToDelete );
+			CheckAndDisposePtr ((char*)clusterToDelete);
 			
 		clusterCount--;
 		
-		}		// end "if (clusterToDelete != NULL)"
+		}	// end "if (clusterToDelete != NULL)"
 	
 	return (clusterCount);
 		
-}		// end "DeleteCluster"	
+}	// end "DeleteCluster"	
 
 
 
@@ -3516,14 +3448,13 @@ SInt16 DeleteSpecifiedClusters (
 {
 	ClusterType							*currentCluster,	// Cluster currently working on.	
 											*nextCluster,
-//   										*newClusterHead,
    										*previousCluster;
 	
 
    		// Delete those clusters with too few pixels. 								
 	
-//   newClusterHead = NULL;
-   previousCluster = NULL;	
+	//newClusterHead = NULL;
+	previousCluster = NULL;	
    currentCluster = gClusterSpecsPtr->clusterHead;
    while (currentCluster != NULL)
    	{
@@ -3534,7 +3465,7 @@ SInt16 DeleteSpecifiedClusters (
    		clusterCount = DeleteCluster (clusterCount,
 														currentCluster,
 														previousCluster);
-/*				
+			/*				
    		clusterCount--;
    		
    		if (newClusterHead != NULL)
@@ -3543,28 +3474,28 @@ SInt16 DeleteSpecifiedClusters (
    				// Delete the memory if it was generated in one pass cluster.	
    				
    		if (gClusterSpecsPtr->clusterMemoryHead == NULL)
-   			CheckAndDisposePtr( (char*)currentCluster );
-*/   		
-   		}		// if (currentCluster->numPixels < minimumClusterSize) 
+   			CheckAndDisposePtr ((char*)currentCluster);
+			*/   		
+   		}	// if (currentCluster->numPixels < minimumClusterSize) 
    		
-   	else		// currentCluster->numPixels >= numberPixelsRequired 
+   	else	// currentCluster->numPixels >= numberPixelsRequired 
    		{
-//   		if (newClusterHead == NULL)
-//   			newClusterHead = currentCluster;
+   		//if (newClusterHead == NULL)
+   		//	newClusterHead = currentCluster;
    			
    		previousCluster = currentCluster;
    		
-   		}		// else currentCluster->numPixels >= ... 
+   		}	// else currentCluster->numPixels >= ... 
    		
    	currentCluster = nextCluster;
       
-   	}		// end "while (currentCluster != NULL)"
+   	}	// end "while (currentCluster != NULL)"
    	
-//   gClusterSpecsPtr->clusterHead = newClusterHead;
+	//gClusterSpecsPtr->clusterHead = newClusterHead;
    
-   return ( (SInt16)clusterCount );
+   return ((SInt16)clusterCount);
 		
-}		// end "DeleteSpecifiedClusters"	
+}	// end "DeleteSpecifiedClusters"	
 
 
 
@@ -3599,10 +3530,13 @@ pascal void DrawClusterDiskFilePopUp (
 {
 			// Use the generic pop up drawing routine.									
 	
-	DrawPopUpMenuItem (dialogPtr, itemNumber, 
-			gPopUpClusterMaskDiskFileMenu, gOutputFormatCode, (gOutputFormatCode > 0));
+	DrawPopUpMenuItem (dialogPtr, 
+								itemNumber, 
+								gPopUpClusterMaskDiskFileMenu, 
+								gOutputFormatCode, 
+								(gOutputFormatCode > 0));
 	
-}		// end "DrawClusterDiskFilePopUp" 
+}	// end "DrawClusterDiskFilePopUp" 
 #endif	// defined multispec_mac	
 
 
@@ -3639,10 +3573,13 @@ pascal void DrawSaveStatsPopUp (
 {
 			// Use the generic pop up drawing routine.									
 			
-	DrawPopUpMenuItem (dialogPtr, itemNumber, 
-								gPopUpSaveStatsMenu, gSaveStatisticsSelection, TRUE);
+	DrawPopUpMenuItem (dialogPtr, 
+								itemNumber, 
+								gPopUpSaveStatsMenu, 
+								gSaveStatisticsSelection, 
+								TRUE);
 	
-}		// end "DrawSaveStatsPopUp"	
+}	// end "DrawSaveStatsPopUp"	
 #endif	// defined multispec_mac  
 
 
@@ -3698,16 +3635,16 @@ SInt32 FindSmallestCluster (
    		*minClusterPtr = currentCluster;
    		*previousClusterPtr = previousCluster;
    		
-   		}		// if (currentCluster->numPixels < minNumberPixels) 
+   		}	// if (currentCluster->numPixels < minNumberPixels) 
    	
    	previousCluster = currentCluster;	
    	currentCluster = currentCluster->next;
       
-   	}		// end "while (currentCluster != NULL && ...)"
+   	}	// end "while (currentCluster != NULL && ...)"
    
    return (minNumberPixels);
 		
-}		// end "FindSmallestCluster"	
+}	// end "FindSmallestCluster"	
 
 
 
@@ -3755,15 +3692,11 @@ double GetAverageChannelStandardDev (
 											
 	aveageStandardDeviation = 0;
 	
-	windowInfoPtr = (WindowInfoPtr)GetHandlePointer (windowInfoHandle,
-																		kNoLock,
-																		kNoMoveHi);
+	windowInfoPtr = (WindowInfoPtr)GetHandlePointer (windowInfoHandle);
 
 	histogramSpecsHandle = GetHistogramSpecsHandle (windowInfoPtr);
 	
-	histogramSpecsPtr = (HistogramSpecsPtr)GetHandlePointer (histogramSpecsHandle,
-																				kNoLock,
-																				kNoMoveHi);
+	histogramSpecsPtr = (HistogramSpecsPtr)GetHandlePointer (histogramSpecsHandle);
 																				
 	if (histogramSpecsPtr != NULL)
 		{
@@ -3772,9 +3705,8 @@ double GetAverageChannelStandardDev (
 		histogramSummaryHandle = GetHistogramSummaryHandle (windowInfoPtr);
 	
 		histogramSummaryPtr = (HistogramSummaryPtr)GetHandlePointer (
-																			histogramSummaryHandle,
-																			kLock,
-																			kNoMoveHi);
+																					histogramSummaryHandle,
+																					kLock);
 		
 		if (histogramSummaryPtr != NULL)
 			{
@@ -3782,7 +3714,7 @@ double GetAverageChannelStandardDev (
 			
 			for (index=0; 
 					index<numberChannels; 
-					index++)
+						index++)
 				{
 					
 				if (histogramSummaryPtr[index].availableFlag)
@@ -3791,9 +3723,9 @@ double GetAverageChannelStandardDev (
 					
 					availableCount++;
 										
-					}		// end "if (...histogram[channelNum].availableFlag)"
+					}	// end "if (...histogram[channelNum].availableFlag)"
 				
-				}		// end "for ( index=0; ... "
+				}	// end "for (index=0; ... "
 				
 			if (availableCount > 0)
 				aveageStandardDeviation /= availableCount;
@@ -3803,16 +3735,16 @@ double GetAverageChannelStandardDev (
 			
 			CheckAndUnlockHandle (histogramSummaryHandle);
 				
-			}		// end "if (histogramSummaryPtr != NULL)" 
+			}	// end "if (histogramSummaryPtr != NULL)" 
 			
-		}		// end "if (histogramSpecsPtr != NULL)"
+		}	// end "if (histogramSpecsPtr != NULL)"
 		
 	if (aveageStandardDeviation == 0)
 		aveageStandardDeviation = 17 * fileInfoPtr->numberBins/256;
 		
 	return (aveageStandardDeviation);
 	
-}		//  end "GetAverageChannelStandardDev" 
+}	//  end "GetAverageChannelStandardDev" 
 
 
 
@@ -3951,7 +3883,7 @@ Boolean GetClusterAreaStatistics (
 			// Intialize the nextTime variable to indicate when the next check	
 			// should occur for a command-.													
 			
-	gNextTime = TickCount();
+	gNextTime = TickCount ();
 		
 			// Loop by number of cluster areas.												
 			
@@ -3972,9 +3904,8 @@ Boolean GetClusterAreaStatistics (
 											&gNextMinutesLeftTime, 
 											&lastClassIndex, 
 											&lastFieldIndex, 
-											&linesLeft) )
-//											&BILSpecialFlag) )
-																			return (FALSE);
+											&linesLeft))
+																							return (FALSE);
 			
 		lineStart = gAreaDescription.lineStart;
 		lineEnd = gAreaDescription.lineEnd;
@@ -3992,7 +3923,7 @@ Boolean GetClusterAreaStatistics (
 			lineEnd = lineStart;
 			columnInterval = 1;
 			
-			}		// end "if (firstLineCode == 1)" 
+			}	// end "if (firstLineCode == 1)" 
 		
 		if (firstLineCode == 2)
 			{
@@ -4009,7 +3940,7 @@ Boolean GetClusterAreaStatistics (
 			if (pointType == kMaskType)
 				gAreaDescription.maskLineStart += lineInterval;
 			
-			}		// end "if (firstLineCode == 2)" 
+			}	// end "if (firstLineCode == 2)" 
 			
 				// Get first sample.																
 	   	
@@ -4021,7 +3952,7 @@ Boolean GetClusterAreaStatistics (
 			
 				// Set up variables for controlling when status checks are made.														
 							
-		startTick = gNextStatusTime = TickCount();
+		startTick = gNextStatusTime = TickCount ();
 		
 		if (gNextMinutesLeftTime != ULONG_MAX)
 			gNextMinutesLeftTime = startTick + gNextStatusTimeOffset;	
@@ -4044,27 +3975,28 @@ Boolean GetClusterAreaStatistics (
 		
 				// Loop by rest of lines for cluster area.								
 		
-		for ( line=lineStart; line<=lineEnd; line+=lineInterval )
+		for (line=lineStart; line<=lineEnd; line+=lineInterval)
 			{
 					// If this in an image area, update dialog status information.	
 		
 			lineCount++;
-			if ( TickCount() >= gNextStatusTime)
+			if (TickCount () >= gNextStatusTime)
 				{
 				LoadDItemValue (gStatusDialogPtr, IDC_Status8, (SInt32)lineCount);
-				gNextStatusTime = TickCount() + gNextStatusTimeOffset;
+				gNextStatusTime = TickCount () + gNextStatusTimeOffset;
 				
-				}		// end "if ( TickCount() >= gNextStatusTime)" 
+				}	// end "if (TickCount () >= gNextStatusTime)" 
 			
 					// Exit routine if user has "command period" down.					
 			
-			if ( TickCount() >= gNextTime)
+			if (TickCount () >= gNextTime)
 				{
-				continueFlag = CheckSomeEvents ( osMask+keyDownMask+updateMask+mDownMask+mUpMask);
+				continueFlag = CheckSomeEvents (
+												osMask+keyDownMask+updateMask+mDownMask+mUpMask);
 				if (!continueFlag)
 					break;
 					
-				}		// end "if ( TickCount() >= nextTime)" 
+				}	// end "if (TickCount () >= nextTime)" 
 				
 			column = firstColumn;
 	  			
@@ -4086,7 +4018,7 @@ Boolean GetClusterAreaStatistics (
 				continueFlag = FALSE;
 				break;
 																								
-				}		// end "if (errCode < noErr)"
+				}	// end "if (errCode < noErr)"
 			
 			if (errCode != kSkipLine)
 				{
@@ -4095,8 +4027,9 @@ Boolean GetClusterAreaStatistics (
 				if (pointType == kMaskType)
 					numberSamples = fileIOInstructionsPtr->numberOutputBufferSamples;
 					
-				else		// pointType != kMaskType
-					numberSamples = (columnEnd - firstColumn + columnInterval)/columnInterval;
+				else	// pointType != kMaskType
+					numberSamples = 
+									(columnEnd - firstColumn + columnInterval)/columnInterval;
 		       		
 		   	for (sample=1; sample<=numberSamples; sample++)
 					{
@@ -4105,15 +4038,15 @@ Boolean GetClusterAreaStatistics (
 							
 				   point.h = (SInt16)column;
 					
-					if (!polygonFieldFlag || PtInRgn (point, rgnHandle) )
+					if (!polygonFieldFlag || PtInRgn (point, rgnHandle))
 		   			{
 						finalClass = classToFinalClassPtr[*dataClassPtr];
 						
 						if (finalClass >= 0)
 							{
-							areaChanPtr = &localChanStatsPtr[ finalClass*numberChannels ];
+							areaChanPtr = &localChanStatsPtr[finalClass*numberChannels];
 							areaSumSquaresPtr = 
-									&localSumSquaresStatsPtr[ finalClass*numberSumSquares ];
+									&localSumSquaresStatsPtr[finalClass*numberSumSquares];
 				   		bufferPtr = tOutputBufferPtr;
 							covIndex = 0;
 							
@@ -4124,9 +4057,9 @@ Boolean GetClusterAreaStatistics (
 										// Get the minimum and maximum value.					
 										
 								areaChanPtr[channel].minimum = 
-														MIN(areaChanPtr[channel].minimum, dValue);
+														MIN (areaChanPtr[channel].minimum, dValue);
 								areaChanPtr[channel].maximum = 
-														MAX(areaChanPtr[channel].maximum, dValue);
+														MAX (areaChanPtr[channel].maximum, dValue);
 								
 										// Accumulate channel sums 								
 								
@@ -4138,32 +4071,32 @@ Boolean GetClusterAreaStatistics (
 											
 						      	bufferPtr2 = tOutputBufferPtr;
 						      		
-									for ( covChan=0; covChan<channel; covChan++ )
+									for (covChan=0; covChan<channel; covChan++)
 										{
 										areaSumSquaresPtr[covIndex++] += dValue * *bufferPtr2;
 						      		bufferPtr2++;
 										
-										}		// end "for ( covChan=channel+1; ..." 
+										}	// end "for (covChan=channel+1; ..." 
 										
-									}		// end "if (...->statisticsCode	== kMeanCovariance)" 
+									}	// end "if (...->statisticsCode	== kMeanCovariance)" 
 								
 								areaSumSquaresPtr[covIndex++] += dValue * dValue;
 								
 					      	bufferPtr++;
 									
-								}		// end "for ( channel=1; channel<..." 
+								}	// end "for (channel=1; channel<..." 
 								
-							}		// end "if (finalClass >= 0)" 
+							}	// end "if (finalClass >= 0)" 
 							
 						dataClassPtr++;
 				         
-				      }		// end "if (includePixelFlag)" 
+				      }	// end "if (includePixelFlag)" 
 				      
 					tOutputBufferPtr += numberChannels;													
 							
 				   column += columnInterval;
 		         
-		  			}		// end "for (column=firstColumn; ..." 
+		  			}	// end "for (column=firstColumn; ..." 
 		  			
 				if (pointType != kMaskType)
 	  				{
@@ -4175,35 +4108,35 @@ Boolean GetClusterAreaStatistics (
 			  		firstColumn = columnStart + column - columnEnd - 1;
 					if (firstColumn > columnEnd)
 						{
-						lDivideStruct = ldiv(firstColumn-columnStart, columnWidth);
+						lDivideStruct = ldiv (firstColumn-columnStart, columnWidth);
 						firstColumn = columnStart + lDivideStruct.rem;
 						
-						}		// end "if (firstColumn > columnEnd)"
+						}	// end "if (firstColumn > columnEnd)"
 						
-					}		// end "if (pointType != kMaskType)"
+					}	// end "if (pointType != kMaskType)"
 			      
-				}		// end "if (errCode != kSkipLine)"
+				}	// end "if (errCode != kSkipLine)"
 			
 			linesDone++;
 			linesLeft--;
-			if (TickCount() >= gNextMinutesLeftTime)
+			if (TickCount () >= gNextMinutesLeftTime)
 				{
-				minutesLeft = (linesLeft * (TickCount() - startTick))/
+				minutesLeft = (linesLeft * (TickCount () - startTick))/
 																(double)(lineCount*kTicksPerMinute);
 				
-				sprintf ( (char*)&gTextString, " %.1f", minutesLeft);
-				stringPtr = (char*)CtoPstring (gTextString, gTextString );
-				LoadDItemString(gStatusDialogPtr, IDC_Status14, (Str255*)&gTextString);
+				sprintf ((char*)gTextString, " %.1f", minutesLeft);
+				stringPtr = (char*)CtoPstring (gTextString, gTextString);
+				LoadDItemString (gStatusDialogPtr, IDC_Status14, (Str255*)gTextString);
 					
-				gNextMinutesLeftTime = TickCount() + gNextMinutesLeftTimeOffset;
+				gNextMinutesLeftTime = TickCount () + gNextMinutesLeftTimeOffset;
 				
-				}		// end "if (TickCount() >= gNextMinutesLeftTime)" 
+				}	// end "if (TickCount () >= gNextMinutesLeftTime)" 
 			
 			if (pointType == kMaskType)
 				fileIOInstructionsPtr->maskBufferPtr += 
-													fileIOInstructionsPtr->numberMaskColumnsPerLine;
+												fileIOInstructionsPtr->numberMaskColumnsPerLine;
 	  			
-	  		}		// end "for ( line=lineStart; line<=lineEnd; ...)" 
+	  		}	// end "for (line=lineStart; line<=lineEnd; ...)" 
 	  	
 	  	if (continueFlag && firstLineCode != 1)	
 			LoadDItemValue (gStatusDialogPtr, IDC_Status8, lineCount);
@@ -4220,13 +4153,13 @@ Boolean GetClusterAreaStatistics (
 		if (!continueFlag)
 																							return (FALSE);
   			
-  		}		// end "for (areaNumber=1; areaNumber<=totolNumberAreas; ...)" 
+  		}	// end "for (areaNumber=1; areaNumber<=totolNumberAreas; ...)" 
   		
   	*dataClassPtrPtr = dataClassPtr;
   	
   	return (TRUE);
   		
- }		// end "GetClusterAreaStatistics" 
+}	// end "GetClusterAreaStatistics" 
 
 
 
@@ -4291,32 +4224,32 @@ Boolean GetClusterProjectStatistics (
 			// Show status dialog items pertaining to clustering the rest of 		
 			// the lines.																			
 	
-	ShowStatusDialogItemSet ( kStatusField );
-	ShowStatusDialogItemSet ( kStatusCluster );
+	ShowStatusDialogItemSet (kStatusField);
+	ShowStatusDialogItemSet (kStatusCluster);
 
 	if (gClusterSpecsPtr->clustersFrom == kTrainingType)
 		{
-		LoadDItemValue ( gStatusDialogPtr, 
+		LoadDItemValue (gStatusDialogPtr, 
 								IDC_Status5, 
 								(SInt32)gClusterSpecsPtr->totalNumberAreas);
-		ShowStatusDialogItemSet ( kStatusClassB );
-		HideStatusDialogItemSet ( kStatusMinutes );
+		ShowStatusDialogItemSet (kStatusClassB);
+		HideStatusDialogItemSet (kStatusMinutes);
 		
-		}		// end "if (gClusterSpecsPtr->clustersFrom == kTrainingType)" 
+		}	// end "if (gClusterSpecsPtr->clustersFrom == kTrainingType)" 
 
 	if (gClusterSpecsPtr->clustersFrom == kAreaType)
 		{
-		HideStatusDialogItemSet ( kStatusClassB );
-		ShowStatusDialogItemSet ( kStatusMinutes );
+		HideStatusDialogItemSet (kStatusClassB);
+		ShowStatusDialogItemSet (kStatusMinutes);
 		
-		}		// end "if (gClusterSpecsPtr->clustersFrom == kAreaType)" 
+		}	// end "if (gClusterSpecsPtr->clustersFrom == kAreaType)" 
 													
 			// Initialize the memory for the class or field statistics. 		
 	
   	classFieldCode = gProjectInfoPtr->keepClassStatsOnlyFlag + 1;
-	for (	storageIndex=startStorageIndex; 
+	for (storageIndex=startStorageIndex; 
 			storageIndex<lastStorageIndex; 
-			storageIndex++)
+				storageIndex++)
 		{
 		GetProjectStatisticsPointers (classFieldCode, 
 												storageIndex, 
@@ -4325,13 +4258,13 @@ Boolean GetClusterProjectStatistics (
 												NULL,
 												NULL);
 									
-		ZeroStatisticsMemory (	chanStatsPtr, 
+		ZeroStatisticsMemory (chanStatsPtr, 
 										sumSquaresStatsPtr, 
 										(UInt16)numberChannels,
 										gProjectInfoPtr->statisticsCode,
 										kTriangleOutputMatrix);
 										
-		}		// end "for (	storageIndex=startStorageIndex; ..." 
+		}	// end "for (storageIndex=startStorageIndex; ..." 
 										
 			// Make certain that we have a proper pointer to the project class	
 			// information.																		
@@ -4341,43 +4274,43 @@ Boolean GetClusterProjectStatistics (
 	
 			// Get the statistics for clusters found with single pass clustering.
 	
-	if (gClusterSpecsPtr->mode == 1)
+	if (gClusterSpecsPtr->mode == kSinglePass)
 		{
 				// This is for the first lines.												
 				
-		if (!GetClusterAreaStatistics ( fileIOInstructionsPtr, 
+		if (!GetClusterAreaStatistics (fileIOInstructionsPtr, 
 													projectClassInfoPtr, 
 													fieldStatStorage, 
 													&dataClassPtr, 
-													1) )
-																					return (FALSE);
+													1))
+																							return (FALSE);
 				// This is for the rest of the lines.										
 				
-		if (!GetClusterAreaStatistics ( fileIOInstructionsPtr, 
+		if (!GetClusterAreaStatistics (fileIOInstructionsPtr, 
 													projectClassInfoPtr, 
 													fieldStatStorage, 
 													&dataClassPtr, 
-													2) )
-																					return (FALSE);
+													2))
+																							return (FALSE);
 																					
-		}		// end "if (gClusterSpecsPtr->mode == 1)" 
+		}	// end "if (gClusterSpecsPtr->mode == kSinglePass)" 
 	
 			// Get the statistics for clusters found with ISODATA clustering.		
 	
-	if (gClusterSpecsPtr->mode == 2)
+	if (gClusterSpecsPtr->mode == kISODATA)
 		{
-		if (!GetClusterAreaStatistics ( fileIOInstructionsPtr, 
+		if (!GetClusterAreaStatistics (fileIOInstructionsPtr, 
 													projectClassInfoPtr, 
 													fieldStatStorage, 
 													&dataClassPtr, 
-													0) )
-																					return (FALSE);
+													0))
+																							return (FALSE);
 																					
-		}		// end "if (gClusterSpecsPtr->mode == 2)" 
+		}	// end "if (gClusterSpecsPtr->mode == kISODATA)" 
   	
   	return (TRUE);
   		
-}		// end "GetClusterProjectStatistics" 
+}	// end "GetClusterProjectStatistics" 
 
 
 
@@ -4425,7 +4358,7 @@ SInt16 GetMeanStdDevLength (
 													(char*)"",
 													(char*)"");			
 			
-	maximumLength = (SInt16)MAX(numChars, maximumLength);
+	maximumLength = (SInt16)MAX (numChars, maximumLength);
 			
 	numChars = LoadRealValueString ((char*)gTextString3,
 													minDataValue,
@@ -4435,11 +4368,11 @@ SInt16 GetMeanStdDevLength (
 													(char*)"",
 													(char*)"");
 				
-	maximumLength = (SInt16)MAX(numChars, maximumLength);
+	maximumLength = (SInt16)MAX (numChars, maximumLength);
 		
 	return (maximumLength);
 
-}		// end "GetMeanStdDevLength" 
+}	// end "GetMeanStdDevLength" 
 
 
 
@@ -4476,7 +4409,6 @@ Boolean GetNextClusterArea (
 				SInt16*								lastClassIndexPtr, 
 				SInt16*								lastFieldIndexPtr, 
 				SInt32*								linesLeftPtr)
-//				Boolean*								BILSpecialFlagPtr)
 
 {
 	SInt16*							clusterClassPtr;
@@ -4498,22 +4430,21 @@ Boolean GetNextClusterArea (
 				
 		LoadDItemValue (gStatusDialogPtr, IDC_Status3, (SInt32)areaNumber);
 		
-		clusterClassPtr = (SInt16*)GetHandlePointer(
-					gClusterSpecsPtr->clusterClassHandle, kNoLock, kNoMoveHi);
+		clusterClassPtr = (SInt16*)GetHandlePointer (
+															gClusterSpecsPtr->clusterClassHandle);
 		
 				// Clusters to come from training areas.									
 				
-		fieldNumber = GetNextFieldArea (
-								projectClassInfoPtr,
-								clusterClassPtr, 
-								gClusterSpecsPtr->numberClusterClasses, 
-								lastClassIndexPtr, 
-								*lastFieldIndexPtr, 
-								kTrainingType,
-								kDontIncludeClusterFields);
+		fieldNumber = GetNextFieldArea (projectClassInfoPtr,
+													clusterClassPtr, 
+													gClusterSpecsPtr->numberClusterClasses, 
+													lastClassIndexPtr, 
+													*lastFieldIndexPtr, 
+													kTrainingType,
+													kDontIncludeClusterFields);
 				
 		if (fieldNumber < 0)
-																						return(FALSE);
+																							return (FALSE);
 																				
 		*lastFieldIndexPtr = fieldNumber;
 		
@@ -4524,17 +4455,16 @@ Boolean GetNextClusterArea (
 					
 		GetFieldBoundary (projectClassInfoPtr, &gAreaDescription, fieldNumber);
 		
-		if (gAreaDescription.polygonFieldFlag && 
-								gAreaDescription.rgnHandle == NULL)
-																						return (FALSE);
+		if (gAreaDescription.polygonFieldFlag && gAreaDescription.rgnHandle == NULL)
+																							return (FALSE);
 		
-		}		// end "if (gClusterSpecsPtr->clustersFrom == ...)" 
+		}	// end "if (gClusterSpecsPtr->clustersFrom == ...)" 
 		
 	if (gClusterSpecsPtr->clustersFrom == kAreaType)
 		{
 				// Clusters to come from selected area.
 				
-		InitializeAreaDescription ( &gAreaDescription, 
+		InitializeAreaDescription (&gAreaDescription, 
 												gClusterSpecsPtr->clusterLineStart, 
 												gClusterSpecsPtr->clusterLineEnd, 
 												gClusterSpecsPtr->clusterColumnStart, 
@@ -4543,15 +4473,15 @@ Boolean GetNextClusterArea (
 												gClusterSpecsPtr->clusterColumnInterval,
 												1,
 												1,
-												0 );	
+												0);	
 												
-		LoadDItemStringNumber (	kDialogStrID, 
+		LoadDItemStringNumber (kDialogStrID, 
 										IDS_Dialog18,		// Blank string
 										gStatusDialogPtr, 
 										IDC_Status14, 
-										(Str255*)&gTextString );	
+										(Str255*)gTextString);	
 		
-		}		// end "if (gClusterSpecsPtr->clustersFrom == ...)" 
+		}	// end "if (gClusterSpecsPtr->clustersFrom == ...)" 
 	
 			// Load some status dialog information.										
 			// Get lines left to do.															
@@ -4561,23 +4491,23 @@ Boolean GetNextClusterArea (
 		*linesLeftPtr = gAreaDescription.numberLines;
 		LoadDItemValue (gStatusDialogPtr, IDC_Status10, (SInt32)*linesLeftPtr);
 		
-		}		// end "if (linesLeftPtr != NULL)" 
-				
+		}	// end "if (linesLeftPtr != NULL)" 
+	/*			
 			// Set flag to indicate whether entire line of data for all 			
 			// channels can be read in at one time, rather than separate 			
-			// reads for each channel.															
+			// reads for each channel.
+			// Decided to remove this feature															
 	
-//	if (BILSpecialFlagPtr != NULL)	
-//		*BILSpecialFlagPtr = GetBILSpecial(
-//									channelsPtr, 
-//									numberChannels, 
-//									gAreaDescription.columnStart,
-//									gAreaDescription.columnEnd,
-//									1);
-									
+	if (BILSpecialFlagPtr != NULL)	
+		*BILSpecialFlagPtr = GetBILSpecial (channelsPtr, 
+														numberChannels, 
+														gAreaDescription.columnStart,
+														gAreaDescription.columnEnd,
+														1);
+	*/								
 	return (TRUE);
 										
-}		// end "GetNextClusterArea" 
+}	// end "GetNextClusterArea" 
 
 
 
@@ -4639,18 +4569,18 @@ void GetMinimumAndMaximumValueForListing (
 				minValue = MIN (minValue, currentCluster->variancePtr[channel]);
 				maxValue = MAX (maxValue, currentCluster->variancePtr[channel]);
 				
-				}		// end "if (stdDevFlag)"
+				}	// end "if (stdDevFlag)"
 							
-			}		// end "for (channel=0; channel<numberChannels; channel++)" 
+			}	// end "for (channel=0; channel<numberChannels; channel++)" 
 		
       currentCluster = currentCluster->next;
       
-   	}		// end "while (currentCluster != NULL)" 
+   	}	// end "while (currentCluster != NULL)" 
 			
 	*maxDataValuePtr = maxValue;
 	*minDataValuePtr = minValue;
 	
-}		// end "GetMinimumAndMaximumValueForListing" 
+}	// end "GetMinimumAndMaximumValueForListing" 
 
 	
 			
@@ -4698,8 +4628,8 @@ Boolean GetProbabilityFile (
 	
 	
 	continueFlag = TRUE;
-	string1Ptr = (char*)&gTextString;
-	string2Ptr = (char*)&gTextString2;
+	string1Ptr = (char*)gTextString;
+	string2Ptr = (char*)gTextString2;
 	
 			// Get a handle to a block of memory to be used for						
 			// file information for the probability file.								
@@ -4707,23 +4637,23 @@ Boolean GetProbabilityFile (
 			// in. Then get the pointer to the file information block				
 	
 	if (fileInfoPtr == NULL)									
-																				return (FALSE);
+																							return (FALSE);
 	
 	if (*probabilityFileInfoHPtr == NULL)
 		{
-		*probabilityFileInfoHPtr = MNewHandle ( sizeof(MFileInfo) );
+		*probabilityFileInfoHPtr = MNewHandle (sizeof (MFileInfo));
 		
 				// Initialize the variables and handles in the structure.			
 		
 		if (*probabilityFileInfoHPtr != NULL)
 			InitializeFileInfoStructure (*probabilityFileInfoHPtr, kNotPointer);
 			
-		}		// end "if (*probabilityFileInfoHPtr == NULL)" 
+		}	// end "if (*probabilityFileInfoHPtr == NULL)" 
 					
 	if (*probabilityFileInfoHPtr != NULL)
 		{
-		probabilityFileInfoPtr = (FileInfoPtr)GetHandlePointer(
-												*probabilityFileInfoHPtr, kLock, kNoMoveHi);
+		probabilityFileInfoPtr = (FileInfoPtr)GetHandlePointer (
+																	*probabilityFileInfoHPtr, kLock);
 		
 		probabilityFileInfoPtr->format = 0;
 		probabilityFileInfoPtr->ancillaryInfoformat = 0;
@@ -4744,16 +4674,15 @@ Boolean GetProbabilityFile (
 				
 			gGetFileImageType = 0;
 			
-			errCode = GetFile ( 
-						probabilityFileStreamPtr, 
-						1, 
-						&fileType, 
-						NULL, 
-						NULL,
-						NULL, 
-						IDS_FileIO65);
+			errCode = GetFile (probabilityFileStreamPtr, 
+										1, 
+										&fileType, 
+										NULL, 
+										NULL,
+										NULL, 
+										IDS_FileIO65);
 			continueFlag = (errCode == noErr) & 
-											(probabilityFileStreamPtr->fileName[0] != 0);
+													(probabilityFileStreamPtr->fileName[0] != 0);
 		
 					// If file is set up to read probability information from, 		
 					// check if file is of correct format.									
@@ -4762,48 +4691,15 @@ Boolean GetProbabilityFile (
 				{
 				count = 128;
 				errCode = MReadData (probabilityFileStreamPtr, 
-										&count, 
-										&gTextString,
-										kErrorMessages);
+											&count, 
+											gTextString,
+											kErrorMessages);
 				continueFlag = (errCode == noErr);
 					
-						//  Verify that image file is in ERDAS format.					
-/*				
-				continueFlag = GetSpecifiedStringNumber (
-									kFileIOStrID, 66, &gTextString2, continueFlag );
-								
-				if (continueFlag)
-					{
-					stringCompare = strncmp(
-												string1Ptr, &string2Ptr[1], string2Ptr[0]);
-					
-					if (stringCompare == 0)
-						probabilityFileInfoPtr->format = kErdas73Type;
-				
-					else		// stringCompare != 0 
-						{
-								//  Check if image file is in ERDAS 74 format.			
-								
-						continueFlag = GetSpecifiedStringNumber (
-									kFileIOStrID, 67, &gTextString2, continueFlag );
-							
-						if (continueFlag)		
-							stringCompare = strncmp (
-												string1Ptr, &string2Ptr[1], string2Ptr[0]);
-												
-						if (stringCompare == 0)
-							probabilityFileInfoPtr->format = kErdas74Type;
-							
-						}		// end "else stringCompare != 0" 
-						
-					continueFlag = (probabilityFileInfoPtr->format != 0);
-						
-					}		// end "if (continueFlag)" 
-*/					
 				if (continueFlag)
 					continueFlag = ReadERDASHeader (
 										probabilityFileInfoPtr, 
-										(char*)&gTextString, 
+										(char*)gTextString, 
 										0);
 					
 				if (continueFlag)
@@ -4813,33 +4709,33 @@ Boolean GetProbabilityFile (
 					if (probabilityFileInfoPtr->thematicType == FALSE)
 						stringCompare = -1;
 						
-					if ( (probabilityFileInfoPtr->numberClasses != 
+					if ((probabilityFileInfoPtr->numberClasses != 
 														gNumberProbabilityClasses+1) &&
-										(probabilityFileInfoPtr->numberClasses != 110) )
+											(probabilityFileInfoPtr->numberClasses != 110))
 						stringCompare = -1;
 					
-					}		// end "if (continueFlag)" 
+					}	// end "if (continueFlag)" 
 							
 						// Beep to alert user that file is not an image 				
 						// probability file that matches the image parameters.		
 					
 				if (stringCompare != 0)  
-					SysBeep(10);
+					SysBeep (10);
 				
-				}		// end "if (continueFlag)" 
+				}	// end "if (continueFlag)" 
 			
-			}		while (continueFlag & stringCompare != 0);
+			}	while (continueFlag & stringCompare != 0);
 			
-		CheckAndUnlockHandle ( *probabilityFileInfoHPtr );
+		CheckAndUnlockHandle (*probabilityFileInfoHPtr);
 
-		}		// end "if (*probabilityFileInfoHPtr != NULL)" 
+		}	// end "if (*probabilityFileInfoHPtr != NULL)" 
 
 	else		
 		continueFlag = FALSE;
   	
 	return (continueFlag);
 	
-}		// end "GetProbabilityFile" 		
+}	// end "GetProbabilityFile" 		
 #endif	// defined multispec_mac
 
 
@@ -4889,13 +4785,11 @@ Boolean InitializeClusterMemory (
 	numberChannels = gClusterSpecsPtr->numberChannels;
 	if (gClusterSpecsPtr->saveStatisticsCode > 0)
 		numberChannels = 
-					MAX (numberChannels, gProjectInfoPtr->numberStatisticsChannels);
+						MAX (numberChannels, gProjectInfoPtr->numberStatisticsChannels);
 					
-	clusterClassPtr = (SInt16*)GetHandlePointer(
-					gClusterSpecsPtr->clusterClassHandle, kNoLock, kNoMoveHi);
+	clusterClassPtr = (SInt16*)GetHandlePointer (gClusterSpecsPtr->clusterClassHandle);
 					
-	channelsPtr = (UInt16*)GetHandlePointer(
-					gClusterSpecsPtr->channelsHandle, kNoLock, kNoMoveHi);
+	channelsPtr = (UInt16*)GetHandlePointer (gClusterSpecsPtr->channelsHandle);
 																						
 			// Get total number of cluster areas.  First, assume that the			
 			// cluster area is the selection area, I.E. not training areas.		
@@ -4903,10 +4797,10 @@ Boolean InitializeClusterMemory (
 	gClusterSpecsPtr->totalNumberAreas = 1;
 	if (gClusterSpecsPtr->clustersFrom == kTrainingType)
 		gClusterSpecsPtr->totalNumberAreas = GetNumberOfAreas (
-								clusterClassPtr, 
-								gClusterSpecsPtr->numberClusterClasses, 
-								kTrainingType,
-								kDontIncludeClusterFields);
+															clusterClassPtr, 
+															gClusterSpecsPtr->numberClusterClasses, 
+															kTrainingType,
+															kDontIncludeClusterFields);
 											
 	if (gClusterSpecsPtr->totalNumberAreas <= 0)
 		continueFlag = FALSE;
@@ -4915,39 +4809,37 @@ Boolean InitializeClusterMemory (
 			// Get buffer to read data from image file into.							
 						
    if (continueFlag)						
-		continueFlag = GetIOBufferPointers (
-								&gFileIOInstructions[0],
-								gImageWindowInfoPtr,
-								gImageLayerInfoPtr,
-								gImageFileInfoPtr,
-								&gInputBufferPtr, 
-								&gOutputBufferPtr,
-								1, 
-								gImageWindowInfoPtr->maxNumberColumns, 
-				 				1,
-				 				numberChannels,
-				 				channelsPtr, 
-								kPackData, 
-								kForceBISFormat, 
-								kForceReal8Bytes,
-//								kForce4Bytes,
-								kDoNotAllowForThreadedIO,
-								fileIOInstructionsPtrPtr);
+		continueFlag = GetIOBufferPointers (&gFileIOInstructions[0],
+														gImageWindowInfoPtr,
+														gImageLayerInfoPtr,
+														gImageFileInfoPtr,
+														&gInputBufferPtr, 
+														&gOutputBufferPtr,
+														1, 
+														gImageWindowInfoPtr->maxNumberColumns, 
+														1,
+														numberChannels,
+														channelsPtr, 
+														kPackData, 
+														kForceBISFormat, 
+														kForceReal8Bytes,
+														kDoNotAllowForThreadedIO,
+														fileIOInstructionsPtrPtr);
 	
 			// Get the number of cluster pixels.											
 	
 	if (continueFlag && 
 		(gClusterSpecsPtr->saveStatisticsCode > 0 || 
-				gClusterSpecsPtr->mode == 2 ||
+				gClusterSpecsPtr->mode == kISODATA ||
 							gOutputCode & kClusterMaskCode ||
-										gOutputCode & kCreateImageOverlayCode) )	
+										gOutputCode & kCreateImageOverlayCode))	
 		{
 		gClusterSpecsPtr->totalNumberClusterPixels = 
-					GetTotalNumberOfPixels (gClusterSpecsPtr->clustersFrom,
-														clusterClassPtr, 
-														gClusterSpecsPtr->numberClusterClasses,
-														&gClusterSpecsPtr->clusterLineStart,
-														gClusterSpecsPtr->mode*2 + 1);
+							GetTotalNumberOfPixels (gClusterSpecsPtr->clustersFrom,
+															clusterClassPtr, 
+															gClusterSpecsPtr->numberClusterClasses,
+															&gClusterSpecsPtr->clusterLineStart,
+															gClusterSpecsPtr->mode*2 + 1);
 										
 			// Check if number of cluster pixels make sense.							
 			
@@ -4958,28 +4850,28 @@ Boolean InitializeClusterMemory (
 		if (continueFlag)	
 			{
 			gClusterSpecsPtr->dataClassPtr = (HUInt16Ptr)MNewPointerClear (
-						gClusterSpecsPtr->totalNumberClusterPixels * sizeof(SInt16));
+							gClusterSpecsPtr->totalNumberClusterPixels * sizeof (SInt16));
 			continueFlag = (gClusterSpecsPtr->dataClassPtr != NULL);
 			
-			}		// end "if (continueFlag)"
+			}	// end "if (continueFlag)"
 			
-		}		// end "if (continueFlag && ..."
+		}	// end "if (continueFlag && ..."
 		
 			// Get memory to store the cluster class to final class vector in.	
 			
 	if (continueFlag && (gClusterSpecsPtr->saveStatisticsCode > 0 || 
 									gClusterSpecsPtr->classificationArea != 0 ||
-									gClusterSpecsPtr->outputStorageType & kClusterMaskCode) )	
+									gClusterSpecsPtr->outputStorageType & kClusterMaskCode))	
 		{
 		gClusterSpecsPtr->clusterClassToFinalClassPtr = 
-							(SInt16*)MNewPointerClear ((SInt64)512 * sizeof(SInt16));
+								(SInt16*)MNewPointerClear ((SInt64)512 * sizeof (SInt16));
 		continueFlag = (gClusterSpecsPtr->clusterClassToFinalClassPtr != NULL);
 			
-		}		// end "if (continueFlag && ...)" 
+		}	// end "if (continueFlag && ...)" 
 		
 	return (continueFlag);
 
-}		// end "InitializeClusterMemory" 
+}	// end "InitializeClusterMemory" 
 
 
 
@@ -5023,8 +4915,8 @@ void KeepLargestClusters (
 	  			// numberClusterClassesToKeep. 
 	   
 	   minNumberPixels = FindSmallestCluster (numberClustersToKeep, 
-	   														&minCluster,
-	   														&previousCluster);
+															&minCluster,
+															&previousCluster);
    
 	   		// Now delete all cluster classes with fewer pixels than this. 
 	   
@@ -5036,14 +4928,14 @@ void KeepLargestClusters (
 	   
 	   if (clusterCount > numberClustersToKeep)
 	   	clusterCount = DeleteCluster (clusterCount,
-														minCluster,
-														previousCluster);
+													minCluster,
+													previousCluster);
 	   
-	   }		// end "while (clusterCount > numberClustersToKeep)"
+	   }	// end "while (clusterCount > numberClustersToKeep)"
 	   
 	gClusterSpecsPtr->numberFinalClusters = (SInt16)clusterCount;
 		
-}		// end "KeepLargestClusters"
+}	// end "KeepLargestClusters"
 
 
 
@@ -5084,64 +4976,57 @@ Boolean ListClusterInputParameters (
 				
 			// List the classification header information.				
 			
-	continueFlag = ListClassificationHeaderInfo (
-									resultsFileStreamPtr, 
-									&gOutputForce1Code,
-									kNoStatisticsUsed,
-									continueFlag);
+	continueFlag = ListClassificationHeaderInfo (resultsFileStreamPtr, 
+																&gOutputForce1Code,
+																kNoStatisticsUsed,
+																continueFlag);
 									
-	if (gClusterSpecsPtr->mode == 1)
+	if (gClusterSpecsPtr->mode == kSinglePass)
 		{
 				//	"Cluster algorithm is "one pass"
-		continueFlag = ListSpecifiedStringNumber ( 
-											kClusterStrID, 
-											IDS_Cluster36, 
-											gTextString, 
-											resultsFileStreamPtr, 
-											gOutputForce1Code, 
-											continueFlag );											
+		continueFlag = ListSpecifiedStringNumber (kClusterStrID, 
+																IDS_Cluster36, 
+																gTextString, 
+																resultsFileStreamPtr, 
+																gOutputForce1Code, 
+																continueFlag);											
 		
 				// "Critical distance 1:  %ld\r"													
-			
-		continueFlag = ListSpecifiedStringNumber ( 
-											kClusterStrID, 
-											IDS_Cluster24,
-											resultsFileStreamPtr, 
-											gOutputForce1Code, 
-											gClusterSpecsPtr->criticalDistance1, 
-											continueFlag );
+		continueFlag = ListSpecifiedStringNumber (kClusterStrID, 
+																IDS_Cluster24,
+																resultsFileStreamPtr, 
+																gOutputForce1Code, 
+																gClusterSpecsPtr->criticalDistance1, 
+																continueFlag);
 		
 				// "Critical distance 2:  %ld\r"													
+		continueFlag = ListSpecifiedStringNumber (kClusterStrID, 
+																IDS_Cluster25,
+																resultsFileStreamPtr, 
+																gOutputForce1Code, 
+																gClusterSpecsPtr->criticalDistance2, 
+																continueFlag);
 			
-		continueFlag = ListSpecifiedStringNumber ( 
-											kClusterStrID, 
-											IDS_Cluster25,
-											resultsFileStreamPtr, 
-											gOutputForce1Code, 
-											gClusterSpecsPtr->criticalDistance2, 
-											continueFlag );
-			
-		continueFlag = ListSpecifiedStringNumber ( 
-											kClusterStrID, 
-											IDS_Cluster12,
-											resultsFileStreamPtr, 
-											gOutputForce1Code, 
-											(SInt32)gClusterSpecsPtr->minClusterSize, 
-											continueFlag );
+		continueFlag = ListSpecifiedStringNumber (
+															kClusterStrID, 
+															IDS_Cluster12,
+															resultsFileStreamPtr, 
+															gOutputForce1Code, 
+															(SInt32)gClusterSpecsPtr->minClusterSize, 
+															continueFlag);
 											
-		}		// end "if (gClusterSpecsPtr->mode == 1)"
+		}	// end "if (gClusterSpecsPtr->mode == kSinglePass)"
 			
-	else if (gClusterSpecsPtr->mode == 2)
+	else if (gClusterSpecsPtr->mode == kISODATA)
 		{
 				//	Cluster algorithm is "ISODATA"
 				
-		continueFlag = ListSpecifiedStringNumber ( 
-											kClusterStrID, 
-											IDS_Cluster38, 
-											gTextString, 
-											resultsFileStreamPtr, 
-											gOutputForce1Code, 
-											continueFlag );														
+		continueFlag = ListSpecifiedStringNumber (kClusterStrID, 
+																IDS_Cluster38, 
+																gTextString, 
+																resultsFileStreamPtr, 
+																gOutputForce1Code, 
+																continueFlag);														
 			
 				// " Initialize ...					
 				
@@ -5151,7 +5036,7 @@ Boolean ListClusterInputParameters (
 			if (gClusterSpecsPtr->useCorrelationMatrixFlag)
 				index = IDS_Cluster7;
 			
-			}		// end "if (gClusterSpecsPtr->initializationOption == 1)"
+			}	// end "if (gClusterSpecsPtr->initializationOption == 1)"
 			
 		else if (gClusterSpecsPtr->initializationOption == 2)	
 			{
@@ -5159,284 +5044,264 @@ Boolean ListClusterInputParameters (
 			if (gClusterSpecsPtr->useCorrelationMatrixFlag)
 				index = IDS_Cluster43;
 			
-			}		// end "if (gClusterSpecsPtr->initializationOption == 2)"
+			}	// end "if (gClusterSpecsPtr->initializationOption == 2)"
 			
 		else 		// gClusterSpecsPtr->initializationOption == 3
 			index = IDS_Cluster9;	
 							
-		continueFlag = ListSpecifiedStringNumber (
-											kClusterStrID, 
-											(SInt16)index, 
-											(unsigned char*)&gTextString, 
-											resultsFileStreamPtr, 
-											gOutputForce1Code,
-											continueFlag );
+		continueFlag = ListSpecifiedStringNumber (kClusterStrID, 
+																(SInt16)index, 
+																(unsigned char*)gTextString, 
+																resultsFileStreamPtr, 
+																gOutputForce1Code,
+																continueFlag);
 											
 		if (gClusterSpecsPtr->projectClassMeansCode == 1)
-			continueFlag = ListSpecifiedStringNumber (
-											kClusterStrID, 
-											IDS_Cluster44, 
-											(unsigned char*)&gTextString, 
-											resultsFileStreamPtr, 
-											gOutputForce1Code,
-											continueFlag );
+			continueFlag = ListSpecifiedStringNumber (kClusterStrID, 
+																	IDS_Cluster44, 
+																	(unsigned char*)gTextString, 
+																	resultsFileStreamPtr, 
+																	gOutputForce1Code,
+																	continueFlag);
 		
 		if (gClusterSpecsPtr->initializationOption == 3)
 			{
 					// "Critical distance 1:  %ld\r"												
-				
-			continueFlag = ListSpecifiedStringNumber ( 
-												kClusterStrID, 
-												IDS_Cluster24,
-												resultsFileStreamPtr, 
-												gOutputForce1Code, 
-												gClusterSpecsPtr->criticalDistance1, 
-												continueFlag );
+			continueFlag = ListSpecifiedStringNumber (
+																kClusterStrID, 
+																IDS_Cluster24,
+																resultsFileStreamPtr, 
+																gOutputForce1Code, 
+																gClusterSpecsPtr->criticalDistance1, 
+																continueFlag);
 			
 					// "Critical distance 2:  %ld\r"												
-				
-			continueFlag = ListSpecifiedStringNumber ( 
-												kClusterStrID, 
-												IDS_Cluster25,
-												resultsFileStreamPtr, 
-												gOutputForce1Code, 
-												gClusterSpecsPtr->criticalDistance2, 
-												continueFlag );
+			continueFlag = ListSpecifiedStringNumber (
+																kClusterStrID, 
+																IDS_Cluster25,
+																resultsFileStreamPtr, 
+																gOutputForce1Code, 
+																gClusterSpecsPtr->criticalDistance2, 
+																continueFlag);
 	
-			}		// end "if (gClusterSpecsPtr->initializationOption == 3)" 
+			}	// end "if (gClusterSpecsPtr->initializationOption == 3)" 
 		
-		else		// gClusterSpecsPtr->initializationOption != 3 
+		else	// gClusterSpecsPtr->initializationOption != 3 
 					// "Number Clusters:  %ld\r"
-			continueFlag = ListSpecifiedStringNumber ( 
-												kClusterStrID, 
-												IDS_Cluster10,
-												resultsFileStreamPtr, 
-												gOutputForce1Code, 
-												(SInt32)gClusterSpecsPtr->maxNumberClusters, 
-												continueFlag );
+			continueFlag = ListSpecifiedStringNumber (
+														kClusterStrID, 
+														IDS_Cluster10,
+														resultsFileStreamPtr, 
+														gOutputForce1Code, 
+														(SInt32)gClusterSpecsPtr->maxNumberClusters, 
+														continueFlag);
 																							
 				// "Convergence (percent):  %5.1f\r"											
-			
-		continueFlag = ListSpecifiedStringNumber ( 
-											kClusterStrID, 
-											IDS_Cluster11,
-											resultsFileStreamPtr, 
-											gOutputForce1Code, 
-											gClusterSpecsPtr->convergence, 
-											continueFlag );
+		continueFlag = ListSpecifiedStringNumber (kClusterStrID, 
+																IDS_Cluster11,
+																resultsFileStreamPtr, 
+																gOutputForce1Code, 
+																gClusterSpecsPtr->convergence, 
+																continueFlag);
 																							
 				// "Minimum cluster size:  %ld\r"												
+		continueFlag = ListSpecifiedStringNumber (
+															kClusterStrID, 
+															IDS_Cluster12,
+															resultsFileStreamPtr, 
+															gOutputForce1Code, 
+															(SInt32)gClusterSpecsPtr->minClusterSize, 
+															continueFlag);
 			
-		continueFlag = ListSpecifiedStringNumber ( 
-											kClusterStrID, 
-											IDS_Cluster12,
-											resultsFileStreamPtr, 
-											gOutputForce1Code, 
-											(SInt32)gClusterSpecsPtr->minClusterSize, 
-											continueFlag );
-			
-		}		// end "else if (gClusterSpecsPtr->mode == 2)"
+		}	// end "else if (gClusterSpecsPtr->mode == kISODATA)"
 														
 			// List the cluster specifications.							
 	
 	if (gClusterSpecsPtr->clustersFrom == kTrainingType)
 		{ 										
 				//	"Clusters from training area(s).%s"
-		continueFlag = ListSpecifiedStringNumber ( 
-												kClusterStrID, 
-												IDS_Cluster34, 
-												gTextString, 
-												resultsFileStreamPtr, 
-												gOutputForce1Code, 
-												continueFlag );
+		continueFlag = ListSpecifiedStringNumber (kClusterStrID, 
+																IDS_Cluster34, 
+																gTextString, 
+																resultsFileStreamPtr, 
+																gOutputForce1Code, 
+																continueFlag);
 
 				// List the training fields/areas used.									
 					
-		clusterClassAreaPtr = (SInt16*)GetHandlePointer(
-					gClusterSpecsPtr->clusterClassHandle, kNoLock, kNoMoveHi);	
+		clusterClassAreaPtr = (SInt16*)GetHandlePointer (
+																gClusterSpecsPtr->clusterClassHandle);	
 					
 		gAreaDescription.lineInterval = gClusterSpecsPtr->clusterLineInterval; 
 		gAreaDescription.columnInterval = gClusterSpecsPtr->clusterColumnInterval;
 	
 		if (continueFlag)							
-			continueFlag = ListProjectFieldsUsed ( 
-												fileInfoPtr, 
-												clusterClassAreaPtr, 
-												gClusterSpecsPtr->numberClusterClasses, 
-												NULL, 
-												kTrainingType, 
-												resultsFileStreamPtr, 
-												&gOutputForce1Code,
-												FALSE);
+			continueFlag = ListProjectFieldsUsed (fileInfoPtr, 
+																clusterClassAreaPtr, 
+																gClusterSpecsPtr->numberClusterClasses, 
+																NULL, 
+																kTrainingType, 
+																resultsFileStreamPtr, 
+																&gOutputForce1Code,
+																FALSE);
 												
-		}		// end "if (gClusterSpecsPtr->clustersFrom == ...)" 
+		}	// end "if (gClusterSpecsPtr->clustersFrom == ...)" 
 					
-	else		// gClusterSpecsPtr->clustersFrom == kAreaType 
+	else	// gClusterSpecsPtr->clustersFrom == kAreaType 
 		{                           	
 				//	"Clusters from selected area.%s"
-		continueFlag = ListSpecifiedStringNumber ( 
-												kClusterStrID, 
-												IDS_Cluster41, 
-												gTextString, 
-												resultsFileStreamPtr, 
-												gOutputForce1Code, 
-												continueFlag );
+		continueFlag = ListSpecifiedStringNumber (kClusterStrID, 
+																IDS_Cluster41, 
+																gTextString, 
+																resultsFileStreamPtr, 
+																gOutputForce1Code, 
+																continueFlag);
 												
-				//	sprintf( (char*)&gTextString, " Lines:   %4ld to %4ld by %ld%s"
-		continueFlag = ListSpecifiedStringNumber ( 
-											kSharedStrID, 
-											IDS_Shared1,
-											resultsFileStreamPtr, 
-											gOutputForce1Code,
-											gClusterSpecsPtr->clusterLineStart,
-											gClusterSpecsPtr->clusterLineEnd,
-											gClusterSpecsPtr->clusterLineInterval, 
-											continueFlag );
+				//	sprintf ((char*)gTextString, " Lines:   %4ld to %4ld by %ld%s"
+		continueFlag = ListSpecifiedStringNumber (kSharedStrID, 
+																IDS_Shared1,
+																resultsFileStreamPtr, 
+																gOutputForce1Code,
+																gClusterSpecsPtr->clusterLineStart,
+																gClusterSpecsPtr->clusterLineEnd,
+																gClusterSpecsPtr->clusterLineInterval, 
+																continueFlag);
 												
-				//	sprintf( (char*)&gTextString, " Columns: %4ld to %4ld by %ld%s"
-		continueFlag = ListSpecifiedStringNumber ( 
-											kSharedStrID, 
-											IDS_Shared2,
-											resultsFileStreamPtr, 
-											gOutputForce1Code,
-											gClusterSpecsPtr->clusterColumnStart,
-											gClusterSpecsPtr->clusterColumnEnd,
-											gClusterSpecsPtr->clusterColumnInterval, 
-											continueFlag );
+				//	sprintf ((char*)gTextString, " Columns: %4ld to %4ld by %ld%s"
+		continueFlag = ListSpecifiedStringNumber (
+															kSharedStrID, 
+															IDS_Shared2,
+															resultsFileStreamPtr, 
+															gOutputForce1Code,
+															gClusterSpecsPtr->clusterColumnStart,
+															gClusterSpecsPtr->clusterColumnEnd,
+															gClusterSpecsPtr->clusterColumnInterval, 
+															continueFlag);
 		
 				// Insert a blank line
 			
-		continueFlag = OutputString ( resultsFileStreamPtr, 
-											(char*)gEndOfLine, 
-											0, 
-											gOutputForce1Code,
-											continueFlag); 	
+		continueFlag = OutputString (resultsFileStreamPtr, 
+												(char*)gEndOfLine, 
+												0, 
+												gOutputForce1Code,
+												continueFlag); 	
 												
-		}		// end "else gClusterSpecsPtr->clustersFrom == ..." 
+		}	// end "else gClusterSpecsPtr->clustersFrom == ..." 
 		
-	channelsPtr = (SInt16*)GetHandlePointer(
-			gClusterSpecsPtr->channelsHandle, kNoLock, kNoMoveHi);
+	channelsPtr = (SInt16*)GetHandlePointer (gClusterSpecsPtr->channelsHandle);
 
 			// Print a list of the channels used.							
 	
 	if (continueFlag)
 		continueFlag = ListChannelsUsed (fileInfoPtr,
-														NULL,
-														channelsPtr,
-														gClusterSpecsPtr->numberChannels, 
-														resultsFileStreamPtr, 
-														&gOutputForce1Code,
-														kNoTransformation);	
+													NULL,
+													channelsPtr,
+													gClusterSpecsPtr->numberChannels, 
+													resultsFileStreamPtr, 
+													&gOutputForce1Code,
+													kNoTransformation);	
 					
 			// Save Project statistics.											
 			
 	if (gClusterSpecsPtr->saveStatisticsCode > 0)
 				//	"The cluster statistics will be saved to the project file."
-		continueFlag = ListSpecifiedStringNumber ( 
-												kClusterStrID, 
-												IDS_Cluster30, 
-												gTextString, 
-												resultsFileStreamPtr, 
-												gOutputForce1Code, 
-												continueFlag );
+		continueFlag = ListSpecifiedStringNumber (kClusterStrID, 
+																IDS_Cluster30, 
+																gTextString, 
+																resultsFileStreamPtr, 
+																gOutputForce1Code, 
+																continueFlag);
 												
 	if (gClusterSpecsPtr->outputStorageType & kClusterMaskCode)
 				//	"A cluster source statistics mask file will be created"
-		continueFlag = ListSpecifiedStringNumber ( 
-												kClusterStrID, 
-												IDS_Cluster35, 
-												gTextString, 
-												resultsFileStreamPtr, 
-												gOutputForce1Code, 
-												continueFlag );
+		continueFlag = ListSpecifiedStringNumber (kClusterStrID, 
+																IDS_Cluster35, 
+																gTextString, 
+																resultsFileStreamPtr, 
+																gOutputForce1Code, 
+																continueFlag);
 												
 			// List Cluster Classification request.
 	
 	if (gClusterSpecsPtr->classificationArea == 0)
 				//	"No cluster classification.", 
-		continueFlag = ListSpecifiedStringNumber ( 
-												kClusterStrID, 
-												IDS_Cluster31, 
-												gTextString, 
-												resultsFileStreamPtr, 
-												gOutputForce1Code, 
-												continueFlag );
+		continueFlag = ListSpecifiedStringNumber (kClusterStrID, 
+																IDS_Cluster31, 
+																gTextString, 
+																resultsFileStreamPtr, 
+																gOutputForce1Code, 
+																continueFlag);
 	
 	else if (gClusterSpecsPtr->classificationArea == 1)
 				// "Cluster classify training area(s).", 
-		continueFlag = ListSpecifiedStringNumber ( 
-												kClusterStrID, 
-												IDS_Cluster32, 
-												gTextString, 
-												resultsFileStreamPtr, 
-												gOutputForce1Code, 
-												continueFlag );
+		continueFlag = ListSpecifiedStringNumber (kClusterStrID, 
+																IDS_Cluster32, 
+																gTextString, 
+																resultsFileStreamPtr, 
+																gOutputForce1Code, 
+																continueFlag);
 					
 	else if (gClusterSpecsPtr->classificationArea == 2)
 		{
 				//	"Classify selected area:"
-		continueFlag = ListSpecifiedStringNumber ( 
-												kClusterStrID, 
-												IDS_Cluster33, 
-												gTextString, 
-												resultsFileStreamPtr, 
-												gOutputForce1Code, 
-												continueFlag );
+		continueFlag = ListSpecifiedStringNumber (kClusterStrID, 
+																IDS_Cluster33, 
+																gTextString, 
+																resultsFileStreamPtr, 
+																gOutputForce1Code, 
+																continueFlag);
 												
-				//	sprintf( (char*)&gTextString, "  Lines:   %4ld to %4ld by %ld%s"
-		continueFlag = ListSpecifiedStringNumber ( 
-												kSharedStrID, 
-												IDS_Shared1,
-												resultsFileStreamPtr, 
-												gOutputForce1Code,
-												gClusterSpecsPtr->imageLineStart,
-												gClusterSpecsPtr->imageLineEnd,
-												gClusterSpecsPtr->imageLineInterval, 
-												continueFlag );
+				//	sprintf ((char*)gTextString, "  Lines:   %4ld to %4ld by %ld%s"
+		continueFlag = ListSpecifiedStringNumber (kSharedStrID, 
+																IDS_Shared1,
+																resultsFileStreamPtr, 
+																gOutputForce1Code,
+																gClusterSpecsPtr->imageLineStart,
+																gClusterSpecsPtr->imageLineEnd,
+																gClusterSpecsPtr->imageLineInterval, 
+																continueFlag);
 												
-				//	sprintf( (char*)&gTextString, "  Columns: %4ld to %4ld by %ld%s"
-		continueFlag = ListSpecifiedStringNumber ( 
-												kSharedStrID, 
-												IDS_Shared2,
-												resultsFileStreamPtr, 
-												gOutputForce1Code,
-												gClusterSpecsPtr->imageColumnStart,
-												gClusterSpecsPtr->imageColumnEnd,
-												gClusterSpecsPtr->imageColumnInterval, 
-												continueFlag );
+				//	sprintf ((char*)gTextString, "  Columns: %4ld to %4ld by %ld%s"
+		continueFlag = ListSpecifiedStringNumber (kSharedStrID, 
+																IDS_Shared2,
+																resultsFileStreamPtr, 
+																gOutputForce1Code,
+																gClusterSpecsPtr->imageColumnStart,
+																gClusterSpecsPtr->imageColumnEnd,
+																gClusterSpecsPtr->imageColumnInterval, 
+																continueFlag);
 												
-		}		// end "else if gClusterSpecsPtr->..." 
+		}	// end "else if gClusterSpecsPtr->..." 
 		
 	if (gClusterSpecsPtr->classificationArea > 0) 
 				// List the classify threshold value.	
-		continueFlag = ListSpecifiedStringNumber ( 
-											kClusterStrID, 
-											IDS_Cluster52,
-											resultsFileStreamPtr, 
-											gOutputForce1Code, 
-											gClusterSpecsPtr->classifyThreshold, 
-											continueFlag );
+		continueFlag = ListSpecifiedStringNumber (kClusterStrID, 
+																IDS_Cluster52,
+																resultsFileStreamPtr, 
+																gOutputForce1Code, 
+																gClusterSpecsPtr->classifyThreshold, 
+																continueFlag);
 		
 			// Insert a blank line
 		
-	continueFlag = OutputString ( resultsFileStreamPtr, 
-										(char*)gEndOfLine, 
-										0, 
-										gOutputForce1Code,
-										continueFlag); 
+	continueFlag = OutputString (resultsFileStreamPtr, 
+											(char*)gEndOfLine, 
+											0, 
+											gOutputForce1Code,
+											continueFlag); 
 										
 			// List "  Output Information:"
 			
 	continueFlag = ListSpecifiedStringNumber (kSharedStrID, 
-																IDS_Shared8, 
-																(unsigned char*)&gTextString, 
-																resultsFileStreamPtr, 
-																gOutputForce1Code, 
-																continueFlag);
+															IDS_Shared8, 
+															(unsigned char*)gTextString, 
+															resultsFileStreamPtr, 
+															gOutputForce1Code, 
+															continueFlag);
 																
 	return (continueFlag);
 										
-}		// end "ListClusterInputParameters"
+}	// end "ListClusterInputParameters"
 
 
 
@@ -5467,7 +5332,7 @@ Boolean ListClusterInputParameters (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 08/08/1990
-//	Revised By:			Larry L. Biehl			Date: 08/15/2012
+//	Revised By:			Larry L. Biehl			Date: 09/05/2017
 
 Boolean ListClusterStatistics (
 				CMFileStream*						clResultsFileStreamPtr, 
@@ -5519,14 +5384,13 @@ Boolean ListClusterStatistics (
 			// Check input variables.															
 			
 	if (gClusterSpecsPtr == NULL || gClusterSpecsPtr->clusterHead == NULL)
-																					return(FALSE);
+																							return (FALSE);
 
    		// Initialize local variables. 													
    
    continueFlag = TRUE;	
    numberChannels = gClusterSpecsPtr->numberChannels;
-   channelsPtr = (SInt16*)GetHandlePointer(
-   							gClusterSpecsPtr->channelsHandle, kNoLock, kNoMoveHi);
+   channelsPtr = (SInt16*)GetHandlePointer (gClusterSpecsPtr->channelsHandle);
 								
 	GetMinimumAndMaximumValueForListing (gClusterSpecsPtr->clusterHead,
 														numberChannels,
@@ -5535,16 +5399,16 @@ Boolean ListClusterStatistics (
 														&minDataValue);
 		
 	GetNumberDecimalDigits (kRealType,
-										maxDataValue,
-										minDataValue,
-										1,
-										&numberEDecimalDigits,
-										&numberFDecimalDigits);
+									maxDataValue,
+									minDataValue,
+									1,
+									&numberEDecimalDigits,
+									&numberFDecimalDigits);
    
    		// Get the field sizes.
    		
 	WindowInfoPtr projectWindowInfoPtr = (WindowInfoPtr)GetHandlePointer (
-									gProjectInfoPtr->windowInfoHandle, kNoLock, kNoMoveHi);																
+																gProjectInfoPtr->windowInfoHandle);																
    
    numberBytes = projectWindowInfoPtr->numberBytes;
    
@@ -5562,20 +5426,20 @@ Boolean ListClusterStatistics (
 			// labels.																				
 			
 	tempInteger = characterIncrement + 1;
-	numberBytes = (UInt32)200 + numberChannels * MAX(7,tempInteger);
-	numberBytes = MAX(1024, numberBytes);
+	numberBytes = (UInt32)200 + numberChannels * MAX (7,tempInteger);
+	numberBytes = MAX (1024, numberBytes);
 	gCharBufferPtr1 = MNewPointer (numberBytes);
 	
 	if (gCharBufferPtr1 == NULL)
-																					return (FALSE);
+																							return (FALSE);
 
 			// Get the number width for the number of pixels in each cluster. Allow
 			// for maximum number of pixels that were clustered. The minimum number will be
 			// 6 characters.
 						
 	numberPixelsInClusterWidth = CreateNumberWithCommasInString (
-																(char*)pixelCountString, 
-																gClusterSpecsPtr->totalNumberClusterPixels);	
+														(char*)pixelCountString, 
+														gClusterSpecsPtr->totalNumberClusterPixels);	
 	numberPixelsInClusterWidth = MAX (numberPixelsInClusterWidth, 6);														
 	
 			// Get area conversion factor. If 0, then the map units information do not
@@ -5589,18 +5453,18 @@ Boolean ListClusterStatistics (
 															baseImageWindowHandle);
 															
 	GetAreaNumberWidths (areaConversionFactor,
-									gClusterSpecsPtr->totalNumberClusterPixels,
-									&totalAreaNumberWidth,
-									&areaPrecision);
+								gClusterSpecsPtr->totalNumberClusterPixels,
+								&totalAreaNumberWidth,
+								&areaPrecision);
 
 			// Allow for "()" on the units string.
 			
 	areaUnitsStringWidth = GetAreaUnitString (baseImageWindowHandle,
-																FALSE,
-																(char*)gTextString) + 2;
+															FALSE,
+															(char*)gTextString) + 2;
 																
-	totalAreaNumberWidth = MAX(totalAreaNumberWidth, areaUnitsStringWidth);
-	totalAreaNumberWidth = MAX(totalAreaNumberWidth, 4);
+	totalAreaNumberWidth = MAX (totalAreaNumberWidth, areaUnitsStringWidth);
+	totalAreaNumberWidth = MAX (totalAreaNumberWidth, 4);
 	
 	if (areaConversionFactor <= 0)
 		totalAreaNumberWidth = 0;
@@ -5611,46 +5475,42 @@ Boolean ListClusterStatistics (
 	if (gClusterSpecsPtr->projectClassMeansCode == 1)
 		{						
 		UInt32 numberProjectClassClusters = 
-											gClusterSpecsPtr->numberInitializationClasses;
-		SInt16* initializationClassPtr = (SInt16*)GetHandlePointer(
-												gClusterSpecsPtr->initializationClassHandle,
-												kNoLock,
-												kNoMoveHi);
+												gClusterSpecsPtr->numberInitializationClasses;
+		SInt16* initializationClassPtr = (SInt16*)GetHandlePointer (
+												gClusterSpecsPtr->initializationClassHandle);
 												
 		maxNameLength = GetClassNameMaxLength (numberProjectClassClusters, 
 															initializationClassPtr,
 															NULL);
-		maxNameLength = MAX(13, maxNameLength);
+		maxNameLength = MAX (13, maxNameLength);
 		
    	channelStart += maxNameLength + 4;
 		sprintf (gCharBufferPtr1, 
-							"  %*s", 
-							-((SInt16)(maxNameLength+2)),
-							"\t Project_Class");
+					"  %*s", 
+					-((SInt16)(maxNameLength+2)),
+					"\t Project_Class");
   		
-  		}		// end "if (gClusterSpecsPtr->projectClassMeansCode == 1)"
+  		}	// end "if (gClusterSpecsPtr->projectClassMeansCode == 1)"
   		
-  	else		// gClusterSpecsPtr->projectClassMeansCode != 1
-		sprintf (gCharBufferPtr1, 
-							"");
+  	else	// gClusterSpecsPtr->projectClassMeansCode != 1
+		sprintf (gCharBufferPtr1, "");
 
   	sprintf (titleSpaceString, "%*s", numberPixelsInClusterWidth-6, ""); 
 
-	continueFlag = ListSpecifiedStringNumber ( 
-										kClusterStrID, 
-										IDS_Cluster45,
-										clResultsFileStreamPtr, 
-										*outputCodePtr, 
-										gCharBufferPtr1, 
-										titleSpaceString,
-										continueFlag);
+	continueFlag = ListSpecifiedStringNumber (kClusterStrID, 
+															IDS_Cluster45,
+															clResultsFileStreamPtr, 
+															*outputCodePtr, 
+															gCharBufferPtr1, 
+															titleSpaceString,
+															continueFlag);
 	
 			// Get a blank string and force the pascal string count to be blank.
 								
 	if (continueFlag)						
 		continueFlag = MGetString ((UCharPtr)gCharBufferPtr1, 
-													kSharedStrID, 
-													IDS_Shared4);
+												kSharedStrID, 
+												IDS_Shared4);
 													
 	gCharBufferPtr1[0] = ' ';
 			
@@ -5671,19 +5531,19 @@ Boolean ListClusterStatistics (
 													numChars, 
 													*outputCodePtr, 
 													continueFlag);
+													
 			#if defined multispec_win || defined multispec_lin   
 				gCharBufferPtr1[numChars] = ' '; 
 			#endif	// defined multispec_win || defined multispec_lin  
 
-			}		// end "if (numChars > 0)"
+			}	// end "if (numChars > 0)"
 		
-		continueFlag = ListSpecifiedStringNumber ( 
-										kClusterStrID, 
-										IDS_Cluster48,
-										(unsigned char*)&gTextString, 
-										clResultsFileStreamPtr, 
-										*outputCodePtr, 
-										continueFlag);
+		continueFlag = ListSpecifiedStringNumber (kClusterStrID, 
+																IDS_Cluster48,
+																(unsigned char*)gTextString, 
+																clResultsFileStreamPtr, 
+																*outputCodePtr, 
+																continueFlag);
 										
 		numChars = totalAreaNumberWidth + 2 - 6 - numChars;
 		if (numChars > 0)
@@ -5693,23 +5553,23 @@ Boolean ListClusterStatistics (
 													numChars, 
 													*outputCodePtr, 
 													continueFlag);
+													
 			#if defined multispec_win || defined multispec_lin  
 				gCharBufferPtr1[numChars] = ' '; 
 			#endif	// defined multispec_win || defined multispec_lin 
 
-			}		// end "if (numChars > 0)"
+			}	// end "if (numChars > 0)"
 									
    	channelStart += totalAreaNumberWidth + 2;
 		
-		}		// end "if (areaConversionFactor > 0)"
+		}	// end "if (areaConversionFactor > 0)"
 		
-	continueFlag = ListSpecifiedStringNumber ( 
-									kClusterStrID, 
-									IDS_Cluster49,
-									(unsigned char*)&gTextString, 
-									clResultsFileStreamPtr, 
-									*outputCodePtr, 
-									continueFlag);
+	continueFlag = ListSpecifiedStringNumber (kClusterStrID, 
+															IDS_Cluster49,
+															(unsigned char*)gTextString, 
+															clResultsFileStreamPtr, 
+															*outputCodePtr, 
+															continueFlag);
 															
    		// List the second title line for cluster means.	
 		
@@ -5723,12 +5583,12 @@ Boolean ListClusterStatistics (
 		GetAreaUnitString (baseImageWindowHandle, FALSE, (char*)gTextString);
 		
 		strLength = sprintf (&gCharBufferPtr1[channelStart-totalAreaNumberWidth-2],
-										"\t(%s) ",
-										(char*)&gTextString[1]);
+									"\t(%s) ",
+									(char*)&gTextString[1]);
 										
 		gCharBufferPtr1[channelStart-totalAreaNumberWidth-2+strLength] = ' ';
 		
-		}		// end "if (areaConversionFactor > 0)"
+		}	// end "if (areaConversionFactor > 0)"
 
 	stringPtr1 = gCharBufferPtr1 + channelStart - 1;
 	tempInteger = characterIncrement - 1;
@@ -5737,7 +5597,7 @@ Boolean ListClusterStatistics (
 		sprintf (stringPtr1, "\t%*hd", tempInteger, channelsPtr[channel]+1);
 		stringPtr1 += characterIncrement;
 										
-		}		// end "for (channel=0; channel<numberChannels; channel++)"
+		}	// end "for (channel=0; channel<numberChannels; channel++)"
 		
 			// Add the carriage return 
 			
@@ -5748,7 +5608,8 @@ Boolean ListClusterStatistics (
 											0, 
 											*outputCodePtr, 
 											continueFlag,
-											kmaxNumberCharactersForLine);
+											kmaxNumberCharactersForLine,
+											kASCIICharString);
 
 			// Now list the cluster means for each of the clusters.
 			
@@ -5773,7 +5634,7 @@ Boolean ListClusterStatistics (
      		percent = (double)currentCluster->numPixels/
       									gClusterSpecsPtr->totalNumberClusterPixels * 100;
       									
-      else		// gClusterSpecsPtr->totalNumberClusterPixels <= 0
+      else	// gClusterSpecsPtr->totalNumberClusterPixels <= 0
       	percent = 0;
       
 		if (gClusterSpecsPtr->projectClassMeansCode == 1)
@@ -5783,14 +5644,14 @@ Boolean ListClusterStatistics (
 			if (currentCluster->projectStatClassNumber >= 0)
 				{	
 				classStorage = 
-						gProjectInfoPtr->storageClass[currentCluster->projectStatClassNumber];
+					gProjectInfoPtr->storageClass[currentCluster->projectStatClassNumber];
 			
 				namePtr = (char*)&gProjectInfoPtr->classNamesPtr[classStorage].name;
-				pstr ((char*)&gTextString, namePtr, &strLength);
+				pstr ((char*)gTextString, namePtr, &strLength);
 			
-				}		// end "if (...->projectStatClassNumber >= 0)"
+				}	// end "if (...->projectStatClassNumber >= 0)"
 				
-			else		// currentCluster->projectStatClassNumber < 0
+			else	// currentCluster->projectStatClassNumber < 0
 				sprintf ((char*)gTextString, " ");
 					
 					// Load the class name into a string.					
@@ -5804,9 +5665,9 @@ Boolean ListClusterStatistics (
 										pixelCountString,
 										percent);
 							
-			}		// end "if (gClusterSpecsPtr->projectClassMeansCode == 1)"
+			}	// end "if (gClusterSpecsPtr->projectClassMeansCode == 1)"
 						
-		else		// gClusterSpecsPtr->projectClassMeansCode != 1
+		else	// gClusterSpecsPtr->projectClassMeansCode != 1
 			numChars = sprintf (gCharBufferPtr1, 
 										"      %5d\t %*s\t %5.1f ", 
 										clusterCount,
@@ -5822,22 +5683,22 @@ Boolean ListClusterStatistics (
 							areaPrecision,
 							(double)currentCluster->numPixels * areaConversionFactor);
 			
-			}		// end "if (areaConversionFactor > 0)"
+			}	// end "if (areaConversionFactor > 0)"
 						
 		stringPtr1 += channelStart;
       for (channel=0; channel<numberChannels; channel++)
       	{
 			LoadRealValueString (stringPtr1,
-											currentCluster->meanPtr[channel],
-											fieldSize,
-											numberFDecimalDigits,
-											numberEDecimalDigits,
-											(char*)"\t",
-											(char*)"");
+										currentCluster->meanPtr[channel],
+										fieldSize,
+										numberFDecimalDigits,
+										numberEDecimalDigits,
+										(char*)"\t",
+										(char*)"");
 			
 			stringPtr1 += characterIncrement;
 		
-			}		// end "for (channel=0; channel<numberChannels; channel++)" 
+			}	// end "for (channel=0; channel<numberChannels; channel++)" 
 		
 				// Add the carriage return 
 				
@@ -5848,11 +5709,12 @@ Boolean ListClusterStatistics (
 												0, 
 												*outputCodePtr, 
 												continueFlag,
-												kmaxNumberCharactersForLine);
+												kmaxNumberCharactersForLine,
+												kASCIICharString);
 			
       currentCluster = currentCluster->next;
       
-   	}		// end "while (currentCluster != NULL && continueFlag)" 
+   	}	// end "while (currentCluster != NULL && continueFlag)" 
    
    		// Write out a carriage return.													
 	                        
@@ -5867,17 +5729,17 @@ Boolean ListClusterStatistics (
    			// List the first title line for cluster standard deviations.	
    	
    	if (gClusterSpecsPtr->projectClassMeansCode == 1)		
-			sprintf( gCharBufferPtr1, 
+			sprintf (gCharBufferPtr1, 
 							"  %*s", 
 							-((SInt16)(maxNameLength+2)),
 							"\t Project_Class");
   		
-  		else		// gClusterSpecsPtr->projectClassMeansCode != 1
-			sprintf( (char*)gCharBufferPtr1, 
+  		else	// gClusterSpecsPtr->projectClassMeansCode != 1
+			sprintf ((char*)gCharBufferPtr1, 
 							"");			
    		
-//					"\r\nCluster          Channel Standard Deviations\r\n");
-		continueFlag = ListSpecifiedStringNumber ( 
+				// "\r\nCluster          Channel Standard Deviations\r\n");
+		continueFlag = ListSpecifiedStringNumber (
 										kClusterStrID, 
 										IDS_Cluster40,
 										clResultsFileStreamPtr, 
@@ -5889,18 +5751,18 @@ Boolean ListClusterStatistics (
 									
 		if (continueFlag)						
 			continueFlag = MGetString ((UCharPtr)gCharBufferPtr1, 
-														kSharedStrID, 
-														IDS_Shared4);
+													kSharedStrID, 
+													IDS_Shared4);
 														
 		gCharBufferPtr1[0] = ' ';
-/*		
+		/*		
 				// Allow for width for the area if it was used.
 									
 		if (areaConversionFactor > 0)
 			totalAreaNumberWidth += 2;
-		else		// areaConversionFactor <= 0
+		else	// areaConversionFactor <= 0
 			totalAreaNumberWidth = 0;
-*/		
+		*/		
    	if (gClusterSpecsPtr->projectClassMeansCode == 1)
 			sprintf (&gCharBufferPtr1[areaStringStart-3], "\t");
 		
@@ -5916,10 +5778,13 @@ Boolean ListClusterStatistics (
 		tempInteger = characterIncrement - 1;
 		for (channel=0; channel<numberChannels; channel++)
 			{
-			numChars = sprintf (stringPtr1, "\t%*hd", tempInteger, channelsPtr[channel]+1);
+			numChars = sprintf (stringPtr1, 
+										"\t%*hd", 
+										tempInteger, 
+										channelsPtr[channel]+1);
 			stringPtr1 += numChars;
 											
-			}		// end "for (channel=0; channel<numberChannels; channel++)" 
+			}	// end "for (channel=0; channel<numberChannels; channel++)" 
 		
 				// Add the carriage return 
 				
@@ -5930,7 +5795,8 @@ Boolean ListClusterStatistics (
 												0, 
 												*outputCodePtr, 
 												continueFlag,
-												kmaxNumberCharactersForLine);
+												kmaxNumberCharactersForLine,
+												kASCIICharString);
 
    	clusterCount = 0;			
    	currentCluster = gClusterSpecsPtr->clusterHead;														
@@ -5940,8 +5806,8 @@ Boolean ListClusterStatistics (
 	   	
 	      		// List cluster standard deviations.									
 	      
-//			sprintf( gCharBufferPtr1, "%s  %3d          ", gEndOfLine, clusterCount);
-//			stringPtr1 += 15 + gNumberOfEndOfLineCharacters;
+			//sprintf (gCharBufferPtr1, "%s  %3d          ", gEndOfLine, clusterCount);
+			//stringPtr1 += 15 + gNumberOfEndOfLineCharacters;
 			
 			if (gClusterSpecsPtr->projectClassMeansCode == 1)
 				{
@@ -5949,31 +5815,31 @@ Boolean ListClusterStatistics (
 						
 				if (currentCluster->projectStatClassNumber >= 0)
 					{	
-					classStorage = 
-							gProjectInfoPtr->storageClass[currentCluster->projectStatClassNumber];
+					classStorage = gProjectInfoPtr->storageClass[
+															currentCluster->projectStatClassNumber];
 				
 					namePtr = (char*)&gProjectInfoPtr->classNamesPtr[classStorage].name;
-					pstr( (char*)&gTextString, namePtr, &strLength);
+					pstr ((char*)gTextString, namePtr, &strLength);
 				
-					}		// end "if (...->projectStatClassNumber >= 0)"
+					}	// end "if (...->projectStatClassNumber >= 0)"
 					
-				else		// currentCluster->projectStatClassNumber < 0
-					sprintf( (char*)gTextString, " ");
+				else	// currentCluster->projectStatClassNumber < 0
+					sprintf ((char*)gTextString, " ");
 						
 						// Load the class name into a string.					
 			
 				numChars = sprintf (gCharBufferPtr1, 
-												"      %5d\t %*s  \t          \t  ", 
-												clusterCount,
-												-((SInt16)(maxNameLength+2)),
-												gTextString);
+											"      %5d\t %*s  \t          \t  ", 
+											clusterCount,
+											-((SInt16)(maxNameLength+2)),
+											gTextString);
 								
-				}		// end "if (gClusterSpecsPtr->projectClassMeansCode == 1)"
+				}	// end "if (gClusterSpecsPtr->projectClassMeansCode == 1)"
 							
-			else		// gClusterSpecsPtr->projectClassMeansCode != 1
+			else	// gClusterSpecsPtr->projectClassMeansCode != 1
 				numChars = sprintf (gCharBufferPtr1, 
-												"      %5d\t            \t  ", 
-												clusterCount);
+											"      %5d\t            \t  ", 
+											clusterCount);
 		
 			if (areaConversionFactor > 0)
 				sprintf (&gCharBufferPtr1[areaStringStart-1], "\t");
@@ -5985,16 +5851,16 @@ Boolean ListClusterStatistics (
 	      for (channel=0; channel<numberChannels; channel++)
 	      	{
 				LoadRealValueString (stringPtr1,
-												currentCluster->variancePtr[channel],
-												fieldSize,
-												numberFDecimalDigits,
-												numberEDecimalDigits,
-												(char*)"\t",
-												(char*)"");
+											currentCluster->variancePtr[channel],
+											fieldSize,
+											numberFDecimalDigits,
+											numberEDecimalDigits,
+											(char*)"\t",
+											(char*)"");
 												
 				stringPtr1 += characterIncrement;
 			
-				}		// end "for (channel=0; channel<numberChannels; channel++)" 
+				}	// end "for (channel=0; channel<numberChannels; channel++)" 
 		
 					// Add the carriage return 
 					
@@ -6005,11 +5871,12 @@ Boolean ListClusterStatistics (
 													0, 
 													*outputCodePtr, 
 													continueFlag,
-													kmaxNumberCharactersForLine);
+													kmaxNumberCharactersForLine,
+													kASCIICharString);
 
 	      currentCluster = currentCluster->next;
 	      
-	   	}		// end "while (currentCluster != NULL && continueFlag)" 
+	   	}	// end "while (currentCluster != NULL && continueFlag)" 
 	   
 	   		// Write out a carriage return.												
 		                       
@@ -6019,7 +5886,7 @@ Boolean ListClusterStatistics (
 												*outputCodePtr, 
 												continueFlag);
 			
-		}		// end "if (stdDevFlag && continueFlag)" 
+		}	// end "if (stdDevFlag && continueFlag)" 
    																			
    		// Release the memory for the character buffer.								
    		
@@ -6027,7 +5894,7 @@ Boolean ListClusterStatistics (
    	
    return (continueFlag);
    	
-}		// end "ListClusterStatistics" 
+}	// end "ListClusterStatistics" 
 
 
 
@@ -6107,39 +5974,39 @@ Boolean LoadClusterSpecs (
 							gNonProjProcessorSpecs.clusterSpecsH, kLock, kMoveHi);
 							
 		if (gClusterSpecsPtr->fileInfoHandle != fileInfoHandle || 
-			gImageWindowInfoPtr->fileInfoVersion != gClusterSpecsPtr->fileInfoVersion)
+				gImageWindowInfoPtr->fileInfoVersion != gClusterSpecsPtr->fileInfoVersion)
 			{
-			ReleaseClusterSpecsMemory ( &gNonProjProcessorSpecs.clusterSpecsH );
+			ReleaseClusterSpecsMemory (&gNonProjProcessorSpecs.clusterSpecsH);
 			gClusterSpecsPtr = NULL;
 			
-			}		// end "if (gClusterSpecsPtr->fileInfoHandle != ..." 
+			}	// end "if (gClusterSpecsPtr->fileInfoHandle != ..." 
 			
-		else		// gClusterSpecsPtr->fileInfoHandle == ...
+		else	// gClusterSpecsPtr->fileInfoHandle == ...
 			{
 			if (gProjectInfoPtr->newProjectFlag && 
-											gClusterSpecsPtr->saveStatisticsCode == 2)	
+													gClusterSpecsPtr->saveStatisticsCode == 2)	
 				gClusterSpecsPtr->saveStatisticsCode = 1;
 			
-			}		// end "else gClusterSpecsPtr->fileInfoHandle == ..." 
+			}	// end "else gClusterSpecsPtr->fileInfoHandle == ..." 
 				
-		}		// end "else gNonProjProcessorSpecs.clusterSpecsH != NULL" 
+		}	// end "else gNonProjProcessorSpecs.clusterSpecsH != NULL" 
 	
 	if (gNonProjProcessorSpecs.clusterSpecsH == NULL)
 		{
 				// Set up handle to project file information								
 			
-		gNonProjProcessorSpecs.clusterSpecsH = MNewHandle ( sizeof(ClusterSpecs) );
+		gNonProjProcessorSpecs.clusterSpecsH = MNewHandle (sizeof (ClusterSpecs));
 		if (gNonProjProcessorSpecs.clusterSpecsH != NULL)
 			{
 			gClusterSpecsPtr = (ClusterSpecsPtr)GetHandlePointer (
-							gNonProjProcessorSpecs.clusterSpecsH, kLock, kMoveHi);
+										gNonProjProcessorSpecs.clusterSpecsH, kLock, kMoveHi);
 			
 					// Initialize the cluster specification structure.					
 		
 			if (gProjectInfoPtr->newProjectFlag)	
 				gClusterSpecsPtr->saveStatisticsCode = 1;
 				
-			else		// !gProjectInfoPtr->newProjectFlag 
+			else	// !gProjectInfoPtr->newProjectFlag 
 				gClusterSpecsPtr->saveStatisticsCode = 1;
 			
 			gClusterSpecsPtr->fileInfoHandle = fileInfoHandle;
@@ -6171,7 +6038,7 @@ Boolean LoadClusterSpecs (
 			gClusterSpecsPtr->minNumberClusters = 6;
 			gClusterSpecsPtr->maxNumberClusters = 10;
 			gClusterSpecsPtr->minClusterSize = 
-											gImageWindowInfoPtr->totalNumberChannels + 1;
+													gImageWindowInfoPtr->totalNumberChannels + 1;
 			gClusterSpecsPtr->numberClusters = 0;
 			gClusterSpecsPtr->numberFinalClusters = 0;
 			gClusterSpecsPtr->symbolSet = kDefaultMenuItem;
@@ -6187,7 +6054,7 @@ Boolean LoadClusterSpecs (
 					// Options for single pass cluster algorithm.						
 			
 			gClusterSpecsPtr->criticalDistance1 = GetAverageChannelStandardDev (
-																	baseImageWindowHandle, fileInfoPtr);
+																baseImageWindowHandle, fileInfoPtr);
 			gClusterSpecsPtr->criticalDistance2 = 2 * gClusterSpecsPtr->criticalDistance1;
 	
 					// The following variables are for the ISODATA algorithm.		
@@ -6237,14 +6104,14 @@ Boolean LoadClusterSpecs (
 					
 			gClusterSpecsPtr->transparency = 0;
 			
-			}		// end "if (gNonProjProcessorSpecs.clusterSpecsH != NULL)" 
+			}	// end "if (gNonProjProcessorSpecs.clusterSpecsH != NULL)" 
 		
-		else		// else gNonProjProcessorSpecs.clusterSpecsH == NULL 
+		else	// else gNonProjProcessorSpecs.clusterSpecsH == NULL 
 			returnFlag = FALSE;
 	
 		firstTimeFlag = TRUE;
 			
-		}		// end "if (gNonProjProcessorSpecs.clusterSpecsH == NULL)" 
+		}	// end "if (gNonProjProcessorSpecs.clusterSpecsH == NULL)" 
 		
 			// Force the default for the popup overlay to be a new overlay.
 			
@@ -6262,29 +6129,27 @@ Boolean LoadClusterSpecs (
 
 	if (returnFlag)
 		{
-		bytesNeeded = (SInt32)fileInfoPtr->numberChannels * sizeof(short int);
-		featurePtr = (SInt16*)CheckHandleSize ( 
-								&gClusterSpecsPtr->featureHandle, 
-								&returnFlag, 
-								&changedFlag, 
-								bytesNeeded);
+		bytesNeeded = (SInt32)fileInfoPtr->numberChannels * sizeof (SInt16);
+		featurePtr = (SInt16*)CheckHandleSize (&gClusterSpecsPtr->featureHandle, 
+															&returnFlag, 
+															&changedFlag, 
+															bytesNeeded);
 		if (changedFlag)
 			gClusterSpecsPtr->channelSet = kAllMenuItem;
 			
-		}		// end "if (returnFlag)" 
+		}	// end "if (returnFlag)" 
 			
 			// If memory is not full, set up memory for cluster						
 			// channels vector.																	
 
 	if (returnFlag)
 		{
-		channels = (SInt16*)CheckHandleSize ( 
-								&gClusterSpecsPtr->channelsHandle,
-								&returnFlag, 
-								&changedFlag, 
-								bytesNeeded);
+		channels = (SInt16*)CheckHandleSize (&gClusterSpecsPtr->channelsHandle,
+															&returnFlag, 
+															&changedFlag, 
+															bytesNeeded);
 			
-		}		// end "if (returnFlag)" 
+		}	// end "if (returnFlag)" 
 			
 			// If memory is not full, set up memory for cluster						
 			// classes vector.
@@ -6292,66 +6157,63 @@ Boolean LoadClusterSpecs (
 	if (gProjectInfoPtr->newProjectFlag)
 		gClusterSpecsPtr->numberClusterClasses = 0;
 		
-	else		// !gProjectInfoPtr->newProjectFlag
+	else	// !gProjectInfoPtr->newProjectFlag
 		{ 
 		if (gClusterSpecsPtr->numberClusterClasses == 0)
 			gClusterSpecsPtr->numberClusterClasses = 
 														gProjectInfoPtr->numberStatisticsClasses;
 														
-		else		// gClusterSpecsPtr->numberClusterClasses > 0
-			gClusterSpecsPtr->numberClusterClasses = MIN(
-												gProjectInfoPtr->numberStatisticsClasses,
-												gClusterSpecsPtr->numberClusterClasses);
-		}		// end "else !gProjectInfoPtr->newProjectFlag"	
+		else	// gClusterSpecsPtr->numberClusterClasses > 0
+			gClusterSpecsPtr->numberClusterClasses = MIN (
+														gProjectInfoPtr->numberStatisticsClasses,
+														gClusterSpecsPtr->numberClusterClasses);
+		}	// end "else !gProjectInfoPtr->newProjectFlag"	
 															
 
 	if (returnFlag && gProjectInfoPtr->numberStatisticsClasses > 0)
 		{	
 		bytesNeeded = (SInt32)gProjectInfoPtr->numberStatisticsClasses * 
-																	sizeof(SInt16);
-		clusterClassPtr = (SInt16*)CheckHandleSize ( 
-									&gClusterSpecsPtr->clusterClassHandle,
-									&returnFlag,  
-									&changedFlag, 
-									bytesNeeded);
+																						sizeof (SInt16);
+		clusterClassPtr = (SInt16*)CheckHandleSize (
+															&gClusterSpecsPtr->clusterClassHandle,
+															&returnFlag,  
+															&changedFlag, 
+															bytesNeeded);
 
 		if (changedFlag)
 			gClusterSpecsPtr->clusterClassSet = kAllMenuItem;
 			
-		}		// end "if (returnFlag && ...)" 
+		}	// end "if (returnFlag && ...)" 
 			
-			// If memory is not full, set up memory for initialization						
-			// classes vector.																	
+			// If memory is not full, set up memory for initialization classes vector.																	
 
 	if (returnFlag && gClusterSpecsPtr->numberInitializationClasses > 0)
 		{	
-		bytesNeeded = (SInt32)gProjectInfoPtr->numberStatTrainClasses * 
-																	sizeof(SInt16);
-		initializationClassPtr = (SInt16*)CheckHandleSize ( 
-									&gClusterSpecsPtr->initializationClassHandle,
-									&returnFlag,  
-									&changedFlag, 
-									bytesNeeded);
+		bytesNeeded = (SInt32)gProjectInfoPtr->numberStatTrainClasses * sizeof (SInt16);
+		initializationClassPtr = (SInt16*)CheckHandleSize (
+													&gClusterSpecsPtr->initializationClassHandle,
+													&returnFlag,  
+													&changedFlag, 
+													bytesNeeded);
 
 		if (changedFlag)
 			gClusterSpecsPtr->initializationClassSet = kAllMenuItem;
 			
-		}		// end "if (returnFlag && ...)" 
+		}	// end "if (returnFlag && ...)" 
 			
 			// If memory is not full, check memory for cluster symbols vector.	
 
 	if (returnFlag)
 		{			
-		bytesNeeded = (SInt32)(kMaxNumberStatClasses+1) * sizeof(char);
-		symbolsPtr = (UCharPtr)CheckHandleSize (
-									&gClusterSpecsPtr->symbolsHandle,
-									&returnFlag,  
-									&changedFlag, 
-									bytesNeeded);
+		bytesNeeded = (SInt32)(kMaxNumberStatClasses+1) * sizeof (char);
+		symbolsPtr = (UCharPtr)CheckHandleSize (&gClusterSpecsPtr->symbolsHandle,
+																&returnFlag,  
+																&changedFlag, 
+																bytesNeeded);
 		if (changedFlag)
 			gClusterSpecsPtr->symbolSet = kDefaultMenuItem;
 										
-		}		// end "if (returnFlag)" 
+		}	// end "if (returnFlag)" 
 		
 			// Load selection area information into the cluster 						
 			// specification information if the selection rectangle has 			
@@ -6360,43 +6222,43 @@ Boolean LoadClusterSpecs (
 	gSelectionRectangleFlag = FALSE;
 	if (returnFlag)
 		{
-		if ( GetSelectedAreaInfo (
-						gProjectSelectionWindow,
-						gImageWindowInfoPtr,
-						&gClusterSpecsPtr->imageLineStart,
-						&gClusterSpecsPtr->imageLineEnd,
-						&gClusterSpecsPtr->imageColumnStart,
-						&gClusterSpecsPtr->imageColumnEnd,
-						kDontClearSelectionArea,
-						kUseThreshold,
-						kAdjustToBaseImage) )
+		if (GetSelectedAreaInfo (gProjectSelectionWindow,
+											gImageWindowInfoPtr,
+											&gClusterSpecsPtr->imageLineStart,
+											&gClusterSpecsPtr->imageLineEnd,
+											&gClusterSpecsPtr->imageColumnStart,
+											&gClusterSpecsPtr->imageColumnEnd,
+											kDontClearSelectionArea,
+											kUseThreshold,
+											kAdjustToBaseImage))
 			{
-			gClusterSpecsPtr->clusterLineStart = 
-													gClusterSpecsPtr->imageLineStart;
-			gClusterSpecsPtr->clusterLineEnd = 
-													gClusterSpecsPtr->imageLineEnd;
-			gClusterSpecsPtr->clusterColumnStart = 
-													gClusterSpecsPtr->imageColumnStart;
-			gClusterSpecsPtr->clusterColumnEnd = 
-													gClusterSpecsPtr->imageColumnEnd;
+			gClusterSpecsPtr->clusterLineStart = gClusterSpecsPtr->imageLineStart;
+			gClusterSpecsPtr->clusterLineEnd = gClusterSpecsPtr->imageLineEnd;
+			gClusterSpecsPtr->clusterColumnStart = gClusterSpecsPtr->imageColumnStart;
+			gClusterSpecsPtr->clusterColumnEnd = gClusterSpecsPtr->imageColumnEnd;
 				
-			}		// end "if (GetSelectedAreaInfo (..." 
+			}	// end "if (GetSelectedAreaInfo (..." 
 													
 		if (firstTimeFlag)
 			{
-			gClusterSpecsPtr->clusterColumnInterval = MAX(1,
-				(gClusterSpecsPtr->clusterColumnEnd - gClusterSpecsPtr->clusterColumnStart) * 
-					(gClusterSpecsPtr->clusterLineEnd - gClusterSpecsPtr->clusterLineStart)/10000000);
-			gClusterSpecsPtr->clusterColumnInterval = MIN(5,
+			gClusterSpecsPtr->clusterColumnInterval = MAX (
+				1,
+				(gClusterSpecsPtr->clusterColumnEnd - 
+															gClusterSpecsPtr->clusterColumnStart) * 
+					(gClusterSpecsPtr->clusterLineEnd - 
+													gClusterSpecsPtr->clusterLineStart)/10000000);
+			
+			gClusterSpecsPtr->clusterColumnInterval = MIN (
+														5,
 														gClusterSpecsPtr->clusterColumnInterval);
 														
-			}		// end "if (firstTimeFlag)"
+			}	// end "if (firstTimeFlag)"
 				
 				// Fill in array of pointers to all channels.							
 		
 		if (gClusterSpecsPtr->channelSet == kAllMenuItem)				
 			LoadFeatureVector (kNoTransformation,
-									(short int*)&gClusterSpecsPtr->numberChannels,
+									(SInt16*)&gClusterSpecsPtr->numberChannels,
 									featurePtr,
 									fileInfoPtr->numberChannels);
 			
@@ -6404,16 +6266,15 @@ Boolean LoadClusterSpecs (
 				// filled in properly.															
 															
 		LoadChannelsVector (kNoProject,
-								kNoTransformation,
-								gClusterSpecsPtr->numberChannels, 
-								featurePtr, 
-								(short int*)&gClusterSpecsPtr->numberChannels,
-								channels);
+									kNoTransformation,
+									gClusterSpecsPtr->numberChannels, 
+									featurePtr, 
+									(SInt16*)&gClusterSpecsPtr->numberChannels,
+									channels);
 		
 		if (gClusterSpecsPtr->clusterClassSet == kAllMenuItem && 
-											gClusterSpecsPtr->numberClusterClasses > 0)								
-			LoadClassVector (&gClusterSpecsPtr->numberClusterClasses,
-															clusterClassPtr);
+													gClusterSpecsPtr->numberClusterClasses > 0)								
+			LoadClassVector (&gClusterSpecsPtr->numberClusterClasses, clusterClassPtr);
 		
 		if (gClusterSpecsPtr->initializationClassSet == kAllMenuItem && 
 											gClusterSpecsPtr->numberInitializationClasses > 0)								
@@ -6424,21 +6285,21 @@ Boolean LoadClusterSpecs (
 		if (gClusterSpecsPtr->symbolSet == kDefaultMenuItem)
 			LoadClassSymbolVector (symbolsPtr, IDS_Symbol1, kMaxNumberStatClasses);
 			
-		}		// end "if (returnFlag)" 
+		}	// end "if (returnFlag)" 
 	
 			// If unable to set up information for cluster specifications, 		
 			// release memory allocated to it (if any).									
 			
 	if (!returnFlag)
 		{
-		ReleaseClusterSpecsMemory(&gNonProjProcessorSpecs.clusterSpecsH);
+		ReleaseClusterSpecsMemory (&gNonProjProcessorSpecs.clusterSpecsH);
 		gClusterSpecsPtr = NULL;
 		
-		}		// end "if (!returnFlag)" 
+		}	// end "if (!returnFlag)" 
 		
 	return (returnFlag);
 
-}		// end "LoadClusterSpecs" 
+}	// end "LoadClusterSpecs" 
 
 
 
@@ -6503,18 +6364,17 @@ Boolean SaveClusterStatistics (
 			&& fileIOInstructionsPtr->fileInfoPtr != NULL)
 		{
 		if (gClusterSpecsPtr->clusterClassToFinalClassPtr == NULL)
-																				return (FALSE);
+																							return (FALSE);
 	
-		LoadDItemStringNumber (	kClusterStrID, 
+		LoadDItemStringNumber (kClusterStrID, 
 										IDS_Cluster29,	// "Saving Statistics ..."
 										gStatusDialogPtr, 
 										IDC_Status11, 
-										(Str255*)&gTextString );
+										(Str255*)gTextString);
 		
 				// Initialize local variables.												
 				
-		channelsPtr = (SInt16*)GetHandlePointer(
-								gClusterSpecsPtr->channelsHandle, kNoLock, kNoMoveHi);
+		channelsPtr = (SInt16*)GetHandlePointer (gClusterSpecsPtr->channelsHandle);
 		continueFlag = TRUE;
 		projectStatsUpToDateFlag = gProjectInfoPtr->statsUpToDate;
 		savedProjectInfoPtr = NULL;
@@ -6524,7 +6384,7 @@ Boolean SaveClusterStatistics (
 				// Current project was saved, if needed, before clustering began.	
 		
 		if (gClusterSpecsPtr->saveStatisticsCode == 1 &&	
-															!gProjectInfoPtr->newProjectFlag)
+																!gProjectInfoPtr->newProjectFlag)
 			{
 					// Save the old project for a while in case needed for
 					// the field boundaries or the project class means were used
@@ -6535,18 +6395,18 @@ Boolean SaveClusterStatistics (
 				
 			savedProjectInfoPtr = gProjectInfoPtr;
 			gProjectInfoPtr->changedFlag = FALSE;
-			if ( !CreateNewProject (TRUE) )		// Save the old project.
+			if (!CreateNewProject (TRUE))		// Save the old project.
 				{
 				CloseProjectStructure (savedProjectInfoPtr);
 				
-																					return (FALSE);
-				}		// end "if ( !CreateNewProject () )" 
+																							return (FALSE);
+				}	// end "if (!CreateNewProject ())" 
 																				
 			projectStatsUpToDateFlag = TRUE;
 			
 			FindProjectImageWindows (FALSE);
 			
-			}		// end "if (gClusterSpecsPtr->saveStatisticsCode == 1 && ..." 
+			}	// end "if (gClusterSpecsPtr->saveStatisticsCode == 1 && ..." 
 		
 				// Indicate that an attempt should be made to move the project		
 				// memory high.																	
@@ -6558,10 +6418,10 @@ Boolean SaveClusterStatistics (
 		savedClassStorage = gProjectInfoPtr->numberStorageClasses;
 		savedFieldStatStorage = gProjectInfoPtr->numberStorageStatFields;
 		
-		sprintf ( (char*)&gTextString[1], "Cluster");
+		sprintf ((char*)&gTextString[1], "Cluster");
 		gTextString[0] = 7; 
 		
-		sprintf ( (char*)&gTextString3[1], "pClusterF");
+		sprintf ((char*)&gTextString3[1], "pClusterF");
 		gTextString3[0] = 8; 
 		
 		fieldNumber = 1;
@@ -6588,16 +6448,16 @@ Boolean SaveClusterStatistics (
 				namePtr = 
 						(char*)&classNameProjectInfoPtr->classNamesPtr[classStorage].name;	
 				
-				}		// end "if (gClusterSpecsPtr->projectClassMeansCode == 1)"
+				}	// end "if (gClusterSpecsPtr->projectClassMeansCode == 1)"
 					
-			GetUniqueClassName ( classIndex,
-											(UCharPtr)&gTextString,
-											7,
-											(gClusterSpecsPtr->projectClassMeansCode == 1),
-											namePtr);
+			GetUniqueClassName (classIndex,
+										(UCharPtr)gTextString,
+										7,
+										(gClusterSpecsPtr->projectClassMeansCode == 1),
+										namePtr);
 											
 			GetUniqueFieldName (fieldNumber,
-										(UCharPtr)&gTextString3,
+										(UCharPtr)gTextString3,
 										8);
 										
 			continueFlag = AddClassToProject (gTextString);
@@ -6614,18 +6474,17 @@ Boolean SaveClusterStatistics (
 			
 			fieldNumber++;
 				
-			}		// end "for (classIndex=0; classIndex<..." 
+			}	// end "for (classIndex=0; classIndex<..." 
 			
 		if (!continueFlag)
-																					return(FALSE);
+																							return (FALSE);
 			
-				// Update the project channels information for the new project 	
-				// case.																				
+				// Update the project channels information for the new project case.																				
 		
 		if (gClusterSpecsPtr->saveStatisticsCode == 1)
 			{		
 			gProjectInfoPtr->numberStatisticsChannels =
-															gClusterSpecsPtr->numberChannels;
+																gClusterSpecsPtr->numberChannels;
 		
 					// Copy channel array from cluster information to project 		
 					// information.																
@@ -6633,7 +6492,7 @@ Boolean SaveClusterStatistics (
 			for (index=0; index<gProjectInfoPtr->numberStatisticsChannels; index++)
 				gProjectInfoPtr->channelsPtr[index] = channelsPtr[index];
 				
-			}		// end "if (gClusterSpecsPtr->saveStatisticsCode == 1)" 
+			}	// end "if (gClusterSpecsPtr->saveStatisticsCode == 1)" 
 			
 		if (gProjectInfoPtr->numberCovarianceEntries <= 0)
 			gProjectInfoPtr->numberCovarianceEntries = 
@@ -6643,17 +6502,17 @@ Boolean SaveClusterStatistics (
 				// Make certain that memory for statistics information is 			
 				// sufficient.																		
 				 
-		if ( !SetupStatsMemory () )
-																					return(FALSE);
+		if (!SetupStatsMemory ())
+																							return (FALSE);
 														
   		storageIndex = savedFieldStatStorage;
   		if (gProjectInfoPtr->keepClassStatsOnlyFlag)	
   			storageIndex = savedClassStorage;
   									
-		continueFlag = GetClusterProjectStatistics ( fileIOInstructionsPtr, 
-																		savedProjectInfoPtr, 
-																		numberClasses, 
-																		storageIndex);
+		continueFlag = GetClusterProjectStatistics (fileIOInstructionsPtr, 
+																	savedProjectInfoPtr, 
+																	numberClasses, 
+																	storageIndex);
 				
 				// Release the memory for the project structure saved for the 		
 				// class information.															
@@ -6661,7 +6520,7 @@ Boolean SaveClusterStatistics (
 		CloseProjectStructure (savedProjectInfoPtr);
 		
 		if (!continueFlag)
-																					return(FALSE);
+																							return (FALSE);
 		
 				// Compute the standard deviation, correlation matrix and			
 				// covariance matrices.															
@@ -6672,12 +6531,12 @@ Boolean SaveClusterStatistics (
 		numberChannels = gProjectInfoPtr->numberStatisticsChannels;
 		numberSumSquares = gProjectInfoPtr->numberCovarianceEntries;
 		
-		GetProjectStatisticsPointers ( gProjectInfoPtr->keepClassStatsOnlyFlag+1, 
-									storageIndex, 
-									&chanStatsPtr, 
-									&sumSquaresStatsPtr,
-									NULL,
-									NULL);
+		GetProjectStatisticsPointers (gProjectInfoPtr->keepClassStatsOnlyFlag+1, 
+												storageIndex, 
+												&chanStatsPtr, 
+												&sumSquaresStatsPtr,
+												NULL,
+												NULL);
 		
 		
   		classStorage = savedClassStorage;
@@ -6696,23 +6555,24 @@ Boolean SaveClusterStatistics (
 			fieldStorage = classNamesPtr[classStorage].firstFieldNumber;
 					
 			gProjectInfoPtr->fieldIdentPtr[fieldStorage].numberPixels = 
-																			cluster->numPixels;
+																					cluster->numPixels;
 																			
 			gProjectInfoPtr->fieldIdentPtr[fieldStorage].numberPixelsUsedForStats = 
-																			cluster->numPixels;
+																					cluster->numPixels;
 																
 			gProjectInfoPtr->fieldIdentPtr[fieldStorage].loadedIntoClassStats = TRUE;
 										
 					// Compute the first order statistics.																		
 			
-			ComputeMeanStdDevVector (chanStatsPtr, 
-							sumSquaresStatsPtr, 
-							numberChannels, 
-							gProjectInfoPtr->fieldIdentPtr[fieldStorage].numberPixels,
-							gProjectInfoPtr->statisticsCode,
-							kTriangleInputMatrix);
+			ComputeMeanStdDevVector (
+									chanStatsPtr, 
+									sumSquaresStatsPtr, 
+									numberChannels, 
+									gProjectInfoPtr->fieldIdentPtr[fieldStorage].numberPixels,
+									gProjectInfoPtr->statisticsCode,
+									kTriangleInputMatrix);
 								
-  			if ( !gProjectInfoPtr->keepClassStatsOnlyFlag )	
+  			if (!gProjectInfoPtr->keepClassStatsOnlyFlag)	
 				gProjectInfoPtr->fieldIdentPtr[fieldStorage].statsUpToDate = TRUE;
 				
 			cluster = cluster->next;
@@ -6723,10 +6583,9 @@ Boolean SaveClusterStatistics (
 			chanStatsPtr += numberChannels;
 			sumSquaresStatsPtr += numberSumSquares;
 			
-			}		// end "for (classIndex=1; classIndex<=..." 
+			}	// end "for (classIndex=1; classIndex<=..." 
 			
-				// Indicate that project information has changed and update	menu	
-				// item.																				
+				// Indicate that project information has changed and update	menu item.																				
 				
 		gProjectInfoPtr->newProjectFlag = FALSE;
 		gProjectInfoPtr->changedFlag = TRUE;
@@ -6741,11 +6600,11 @@ Boolean SaveClusterStatistics (
 		if (gProjectWindow != NULL && gProjectInfoPtr->statsWindowMode != 1) 
 			NewFieldStatMode ();
 		
-		}		// end "if (gClusterSpecsPtr->createProjectStatistics)" 
+		}	// end "if (gClusterSpecsPtr->createProjectStatistics)" 
 		
 	return (TRUE);
 
-}		// end "SaveClusterStatistics" 
+}	// end "SaveClusterStatistics" 
 
 
 
@@ -6787,14 +6646,14 @@ Boolean SetUpClassToFinalClassPtr (void)
 	
 	
 	if (gClusterSpecsPtr == NULL)
-																			return (FALSE);
+																							return (FALSE);
 	
 	if (gClusterSpecsPtr->numberClusters <= 0 ||
-												gClusterSpecsPtr->clusterHead == NULL)
-																			return (FALSE);
+													gClusterSpecsPtr->clusterHead == NULL)
+																							return (FALSE);
 	
 	if (gClusterSpecsPtr->clusterClassToFinalClassPtr == NULL)
-																			return (TRUE);
+																							return (TRUE);
 			
 			// Verify that the vector is long enough.	
 			// Release current vector and get the correct size vector that is needed.
@@ -6802,11 +6661,11 @@ Boolean SetUpClassToFinalClassPtr (void)
 	gClusterSpecsPtr->clusterClassToFinalClassPtr = CheckAndDisposePtr (
 													gClusterSpecsPtr->clusterClassToFinalClassPtr);								
 																			
-	if ( !CheckPointerSize (
+	if (!CheckPointerSize (
 				(Ptr*)&gClusterSpecsPtr->clusterClassToFinalClassPtr, 
-				(gClusterSpecsPtr->numberClusters+1) * sizeof(SInt16), 
-				&changedFlag) )
-																			return (FALSE);
+				(gClusterSpecsPtr->numberClusters+1) * sizeof (SInt16), 
+				&changedFlag))
+																							return (FALSE);
 
 	clusterClassToFinalClassPtr = gClusterSpecsPtr->clusterClassToFinalClassPtr;
 																						
@@ -6821,34 +6680,54 @@ Boolean SetUpClassToFinalClassPtr (void)
 	currentCluster = gClusterSpecsPtr->clusterHead;
 	while (currentCluster != NULL)
    	{
-   	clusterClassToFinalClassPtr[ currentCluster->clusterNumber ] = 
-   																		finalClusterNumber;
+   	clusterClassToFinalClassPtr[currentCluster->clusterNumber] = finalClusterNumber;
       currentCluster = currentCluster->next;
       
       finalClusterNumber++;
    		
-   	}		// end "while (currentCluster != NULL)" 
+   	}	// end "while (currentCluster != NULL)" 
    	
    gClusterSpecsPtr->numberFinalClusters = finalClusterNumber;
    	
    return (TRUE);
    	
-}		// end "SetUpClassToFinalClassPtr" 
+}	// end "SetUpClassToFinalClassPtr" 
 
 
 #if defined multispec_mac
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2017)
+//								c Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		pascal void SpinCursorTimer
+//
+//	Software purpose:	The purpose of this routine is to spin the cursor under
+//							system control. It was created for testing. It needs more work.
+//
+//	Parameters in:		Event Loop Timer
+//
+//	Parameters out:	None
+//
+// Value Returned:	None
+// 
+// Called By:
+//
+//	Coded By:			Larry L. Biehl			Date: ??/??/????
+//	Revised By:			Larry L. Biehl			Date: ??/??/????	
+
 pascal void SpinCursorTimer (
 				EventLoopTimerRef					inTimer,
 				void*									inUserData)
 				
 {
-		gSpinCursorIndex++;
-		if (gSpinCursorIndex > kSpinEnd)
-			gSpinCursorIndex = kSpin;
+	gSpinCursorIndex++;
+	if (gSpinCursorIndex > kSpinEnd)
+		gSpinCursorIndex = kSpin;
 
-		SetCursor (gCursorPtr[gSpinCursorIndex]);
+	SetCursor (gCursorPtr[gSpinCursorIndex]);
 
-}		// end "SpinCursorTimer"	
+}	// end "SpinCursorTimer"	
 #endif	// defined multispec_mac
 
 
@@ -6881,24 +6760,24 @@ Boolean UpdateClusterStdDeviations (
 				ClusterType*						newCluster)
 
 {
-	HDoublePtr					clusterSumPtr,
-									clusterSumSquarePtr,
-									clusterVariancePtr;
+	HDoublePtr							clusterSumPtr,
+											clusterSumSquarePtr,
+											clusterVariancePtr;
 	
-	SInt32						numberPixels,
-									numberPixelsLessOne;
+	SInt32								numberPixels,
+											numberPixelsLessOne;
 	
-	SInt16						channel,
-									numberChannels;
+	SInt16								channel,
+											numberChannels;
 	
 	
 			// Check input variables.															
 			
 	if (gClusterSpecsPtr->clusterHead == NULL)
-																					return (FALSE);
+																							return (FALSE);
 																					
 	if (gClusterSpecsPtr->numberChannels <= 0)
-																					return (FALSE);
+																							return (FALSE);
 																					
 			// Initialize local variables.													
 			
@@ -6917,8 +6796,8 @@ Boolean UpdateClusterStdDeviations (
 			for (channel=0; channel < numberChannels; channel++)
 				{
 				*clusterVariancePtr = (*clusterSumSquarePtr - 
-					   *clusterSumPtr * *clusterSumPtr/numberPixels)/
-					      												numberPixelsLessOne;
+												*clusterSumPtr * *clusterSumPtr/numberPixels)/
+																					numberPixelsLessOne;
 					      												
 				*clusterVariancePtr = sqrt (*clusterVariancePtr);	      												
 				
@@ -6926,9 +6805,9 @@ Boolean UpdateClusterStdDeviations (
 			   clusterSumSquarePtr++;
 			   clusterVariancePtr++;
 			   
-			   }		// end "for (channel = 0; channel < ..." 
+			   }	// end "for (channel = 0; channel < ..." 
 			   
-			}		// end "if (numberPixels > 1)" 
+			}	// end "if (numberPixels > 1)" 
 			
 		else if (numberPixels == 1)
 			{
@@ -6938,14 +6817,14 @@ Boolean UpdateClusterStdDeviations (
 				
 			   clusterVariancePtr++;
 			   
-			   }		// end "for (channel = 0; channel < ..." 
+			   }	// end "for (channel = 0; channel < ..." 
 			
-			}		// end "else if (numberPixels == 1)" 
+			}	// end "else if (numberPixels == 1)" 
 		   
 		newCluster = newCluster->next;
 		
-		}		while (newCluster != NULL);
+		}	while (newCluster != NULL);
 		
 	return (TRUE);
 	
-}		//  end "UpdateClusterStdDeviations" 
+}	//  end "UpdateClusterStdDeviations" 
