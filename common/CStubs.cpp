@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl, Abdur Maud
 //
-//	Revision date:			01/04/2018
+//	Revision date:			11/05/2018
 //
 //	Language:				C
 //
@@ -41,10 +41,10 @@
 #include "CPalette.h"
 
 #ifdef multispec_lin
-	#include <wx/evtloop.h>
-	#include <wx/menu.h>
-	#include <wx/pen.h>
-	#include <wx/wx.h>
+	#include "wx/evtloop.h"
+	#include "wx/menu.h"
+	#include "wx/pen.h"
+	#include "wx/wx.h"
 	#include "LMultiSpec.h"
 	#include "LMainFrame.h"
 	#include "LImageView.h"
@@ -54,12 +54,13 @@
 #endif
 
 #ifdef multispec_win
-	#include "SGraphView.h"
-	
 	#include "CProcessor.h"
 	
 	#include "WMultiSpec.h"
 	#include "WDialog.h" 
+	#include "WGraphDoc.h"
+	#include "WGraphFrame.h"
+	#include "WGraphView.h"
 	#include "WImageDoc.h"
 	#include "WImageFrame.h"
 	#include "WImageView.h"
@@ -229,7 +230,7 @@ SInt16 CharWidth (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -246,10 +247,10 @@ SInt16 CharWidth (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 08/11/1995
-//	Revised By:			Larry L. Biehl			Date: 05/18/2016			
+//	Revised By:			Larry L. Biehl			Date: 04/09/2018			
 
 Boolean CheckSomeEvents (
-				SInt16								code)
+				UInt16								code)
 				
 {
 	Boolean								returnFlag = TRUE;
@@ -475,7 +476,7 @@ void ClipRect (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -492,7 +493,7 @@ void ClipRect (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 08/21/1995
-//	Revised By:			Larry L. Biehl			Date: 01/18/2017
+//	Revised By:			Larry L. Biehl			Date: 03/21/2018
 
 void CloseGraphicsWindow (
 				WindowPtr							theWindow)
@@ -504,7 +505,9 @@ void CloseGraphicsWindow (
 	#endif
 
 	#if defined multispec_win
-		((CView*)theWindow)->SendMessage (WM_CLOSE, 0, 0);
+		CMGraphDoc* graphDocumentPtr = (CMGraphDoc*) ((CMGraphView*)theWindow)->GetDocument ();																					
+		HWND hWnd = (graphDocumentPtr->GetGraphFrameCPtr ())->m_hWnd;
+		LRESULT returnCode = SendMessage (hWnd, WM_CLOSE, 0, 0);
 	#endif
 
 }	// end "CloseGraphicsWindow"
@@ -516,7 +519,7 @@ void CloseWindow (
 		  
 {
 	#if defined multispec_win
-		((CView*) windowPtr)->SendMessage (WM_CLOSE, 0, 0);
+		((CView*)windowPtr)->SendMessage (WM_CLOSE, 0, 0);
 	#endif
 
 }	// end "CloseWindow"
@@ -721,19 +724,22 @@ SInt16 CountMenuItems (
 				MenuHandle							menuHandle)
 
 {
-	#if defined multispec_win
-		CMenu*								cMenuPtr;
+	if (menuHandle != NULL)
+		{
+		#if defined multispec_win
+					// Note that this is assuming the input is a combox box pointer
 
+			CComboBox* cComboBoxPtr = (CComboBox*)menuHandle;
 
-		cMenuPtr = (CMenu*)menuHandle;
+			return (cComboBoxPtr->GetCount ());
+		#endif	// defined multispec_win
 
-		return (cMenuPtr->GetMenuItemCount ());
-	#endif	// defined multispec_win
-
-	#if defined multispec_lin
-		wxMenu* menuptr = (wxMenu*)menuHandle;
-		return (SInt16)(menuptr->GetMenuItemCount ());
-	#endif	// defined multispec_lin
+		#if defined multispec_lin
+			wxComboBox* wxComboBoxPtr = (wxComboBox*)menuHandle;
+			return (SInt16)(wxComboBoxPtr->GetCount ());
+		#endif	// defined multispec_lin
+		
+		}	// end "if (menuHandle != NULL)"
 
 }	// end "CountMenuItems"
 
@@ -790,12 +796,27 @@ void DeleteMenuItem (
 				SInt16								itemNumber)
 
 {
+	if (menuHandle != NULL)
+		{
+		#if defined multispec_lin
+			wxComboBox* wxComboBoxPtr = (wxComboBox*)menuHandle;
+			
+			wxComboBoxPtr->Delete (itemNumber-1);
+		#endif	// defined multispec_lin
+		
+		#if defined multispec_win
+			CComboBox* comboBoxPtr = (CComboBox*)menuHandle;
+			
+			comboBoxPtr->DeleteString (itemNumber-1);
+		#endif	// defined multispec_win
+		
+		}	// end "if (menuHandle != NULL"
 
 }	// end "DeleteMenuItem"
 
 
 
-void DisableItem (
+void DisableMenuItem (
 				MenuHandle							menuHandle,
 				SInt16								itemNumber)
 {
@@ -803,16 +824,14 @@ void DisableItem (
 		wxMenu* menuptr = (wxMenu*)menuHandle;
 		menuptr->Enable (itemNumber, false);
 	#endif	// defined multispec_lin
-   /*	
+   	
 	#if defined multispec_win
-		CMenu*								cMenuPtr;
-	
-		cMenuPtr = (CMenu*)menuHandle;
+		CMenu* cMenuPtr = (CMenu*)menuHandle;
 		
-		cMenuPtr->DisableMenuItem (itemNumber-1, 1);
+		cMenuPtr->EnableMenuItem (itemNumber-1, 0);
 	#endif	// defined multispec_win
-	*/
-}	// end "DisableItem"
+	
+}	// end "DisableMenuItem"
 
 
 
@@ -874,7 +893,7 @@ void DrawDialog (
 
 
 
-void EnableItem (
+void EnableMenuItem (
 				MenuHandle							menuHandle,
 				SInt16								itemNumber)
 
@@ -889,7 +908,7 @@ void EnableItem (
 		cMenuPtr->EnableMenuItem (itemNumber - 1, 1);
 	#endif
 	
-}	// end "EnableItem"
+}	// end "EnableMenuItem"
 
 
 
@@ -1835,7 +1854,7 @@ SInt16 ResError (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1901,10 +1920,17 @@ void SetControlValue (
 				SInt16								setting)
 				
 {
-	#if defined multispec_lin
-		if (controlHandle != NULL)
+	if (controlHandle != NULL)
+		{
+		#if defined multispec_lin
 			((wxComboBox*)controlHandle)->SetSelection (setting);
-	#endif
+		#endif
+
+		#if defined multispec_win
+			((CComboBox*)controlHandle)->SetCurSel (setting);
+		#endif
+
+		}	// end "if (controlHandle != NULL)"
 	
 }	// end "SetControlValue"   
                                          
@@ -1920,8 +1946,11 @@ void SelectDialogItemText (
 				// ToDo: Find a way to select the chars from startselection to endselection
 		wxWindow* dialogObject = (dialogPtr)->FindWindow (itemNumber);
 		if (dialogObject != NULL)
+			{
 			dialogObject->SetFocus ();
-		//dialogPtr->FindWindow (itemNumber)->SetFocus ();
+			((wxTextCtrl*)dialogObject)->SelectAll ();
+			
+			}	// end "if (dialogObject != NULL)"
 	#endif
 
 	#if defined multispec_win
@@ -2068,7 +2097,9 @@ void SetWTitle (
 	#endif
 
 	#if defined multispec_win
-		dialogPtr->SetWindowText ((LPCTSTR)&textStringPtr[1]);
+		USES_CONVERSION;
+
+		dialogPtr->SetWindowText (A2T((LPCSTR)&textStringPtr[1]));
 	#endif
 	
 }	// end "SetWTitle"  
@@ -2165,7 +2196,7 @@ void ShowStatusDialogWindow (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
