@@ -1,0 +1,6 @@
+// String Defines for About Dialog Box 
+#define AboutStaticText "MultiSpec Application for mygeohub.org\n July 20, 2018 \n\n (64-bit version) \n\n Copyright © 2015-2018\nPurdue Research Foundation\nAll Rights Reserved \n\n Work leading to MultiSpec was funded in part by NASA Grants \n NAGW-925, NAGW-3924 and NAGW5-3975\n\n and NSF Grant-#1261727 \n\n Supported by AmericaView (www.americaview.org)" 
+
+#define AboutImagePath "../SharedMultispec/res/mspec.xpm"
+
+
