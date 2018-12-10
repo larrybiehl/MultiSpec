@@ -1,6 +1,6 @@
 // WToolBar.cpp : implementation of the CMToolBar class
 //
-// Revised by Larry Biehl on 12/21/2017
+// Revised by Larry Biehl on 04/11/2018
 //
                    
 #include "SMultiSpec.h"
@@ -124,98 +124,99 @@ void CMToolBar::IsZoomPressed(CPoint point)
 
 void CMToolBar::OnLButtonDblClk(UINT nFlags, CPoint point)
 {
-//	OnLButtonUp(nFlags,point);
-//	OnLButtonUp(nFlags,point);
-	CToolBar::OnLButtonDblClk(nFlags, point); 
-
-//	#ifdef _WIN32
-		IsZoomPressed(point);
-//	#endif
-
-//end new
-	
-	if (m_iButtonCapture == 11 || m_iButtonCapture == 12)
+	if (gProcessorCode == 0)
 		{
-		if (nFlags & MK_CONTROL)                 		
-			gActiveImageViewCPtr->SetControlKeyFlag(TRUE);
+		//OnLButtonUp(nFlags,point);
+		//OnLButtonUp(nFlags,point);
+		CToolBar::OnLButtonDblClk(nFlags, point); 
+
+		IsZoomPressed(point);
+	
+		if (m_iButtonCapture == 11 || m_iButtonCapture == 12)
+			{
+			if (nFlags & MK_CONTROL)                 		
+				gActiveImageViewCPtr->SetControlKeyFlag(TRUE);
 		                        
-		SInt16 itemID = GetItemID(m_iButtonCapture); 
-		((CMultiSpecApp*)AfxGetApp())->SetZoomCode (itemID);
+			SInt16 itemID = GetItemID(m_iButtonCapture); 
+			((CMultiSpecApp*)AfxGetApp())->SetZoomCode (itemID);
 		
-		gNextTime = GetTickCount ();                          
-		((CMultiSpecApp*)AfxGetApp())->m_nextControlTime=0;		  	             
-//		while (GetCapture() == this)
-//			{                                               
-//			GetOwner()->SendMessage(WM_COMMAND, itemID);    // send command
-//			
-//			}		// end "while (GetCapture() == this)" 
-//		
-		}		// end "if (m_iButtonCapture == 11 || ...)"
+			gNextTime = GetTickCount ();                          
+			((CMultiSpecApp*)AfxGetApp())->m_nextControlTime=0;		  	             
+			//while (GetCapture() == this)
+			//	{                                               
+			//	GetOwner()->SendMessage(WM_COMMAND, itemID);    // send command
+			//			
+			//	}	// end "while (GetCapture() == this)" 
+			//		
+			}	// end "if (m_iButtonCapture == 11 || ...)"
+
+		}	// end "if (gProcessorCode == 0)"
 }
 
-void CMToolBar::OnLButtonDown(UINT nFlags, CPoint point)
+void CMToolBar::OnLButtonDown (UINT nFlags, CPoint point)
 {      
-	CToolBar::OnLButtonDown(nFlags, point);
+	if (gProcessorCode == 0)
+		{
+		CToolBar::OnLButtonDown(nFlags, point);
 
-//	#ifdef _WIN32
 		IsZoomPressed(point);
-//	#endif
 
-	if (m_iButtonCapture == 11 || m_iButtonCapture == 12)
-		{
-		if (nFlags & MK_CONTROL)                 		
-			gActiveImageViewCPtr->SetControlKeyFlag(TRUE);
-		                        
-		SInt16 itemID = GetItemID(m_iButtonCapture); 
-		((CMultiSpecApp*)AfxGetApp())->SetZoomCode (itemID);
-		
-		gNextTime = GetTickCount ();                          
-		((CMultiSpecApp*)AfxGetApp())->m_nextControlTime=0;		  	             
-//		while (GetCapture() == this)
-//			{                                               
-//			GetOwner()->SendMessage(WM_COMMAND, itemID);    // send command
-//			
-//			}		// end "while (GetCapture() == this)" 
-//		
-		}		// end "if (m_iButtonCapture == 11 || ...)"
-
-	else if (m_iButtonCapture == 14)
-		{
-		tagRECT			buttonRectangle;
-
-		m_optionOverlayFlag = FALSE;
-		if (GetKeyState (VK_RBUTTON) < 0 || GetKeyState(VK_SHIFT) & 0x8000)
-			m_optionOverlayFlag = TRUE;
-		
-		SetUpWindowOverlayPopUpMenu ((Handle)m_overlayMenu, m_optionOverlayFlag);
-
-		if (m_overlayMenu->GetMenuItemCount() > 3)
+		if (m_iButtonCapture == 11 || m_iButtonCapture == 12)
 			{
-			GetItemRect (m_iButtonCapture, &buttonRectangle);
-			ClientToScreen (&buttonRectangle);
+			if (nFlags & MK_CONTROL)                 		
+				gActiveImageViewCPtr->SetControlKeyFlag(TRUE);
+		                        
+			SInt16 itemID = GetItemID(m_iButtonCapture); 
+			((CMultiSpecApp*)AfxGetApp())->SetZoomCode (itemID);
+		
+			gNextTime = GetTickCount ();                          
+			((CMultiSpecApp*)AfxGetApp())->m_nextControlTime=0;		  	             
+			//while (GetCapture() == this)
+			//	{                                               
+			//	GetOwner()->SendMessage(WM_COMMAND, itemID);    // send command
+			//			
+			//	}		// end "while (GetCapture() == this)" 
+			//		
+			}	// end "if (m_iButtonCapture == 11 || ...)"
 
-			if (!m_overlayMenu->TrackPopupMenu (TPM_LEFTALIGN, 
-															buttonRectangle.left, 
-															buttonRectangle.bottom, 
-															this, 
-															NULL) )
+		else if (m_iButtonCapture == 14)
+			{
+			tagRECT			buttonRectangle;
+
+			m_optionOverlayFlag = FALSE;
+			if (GetKeyState (VK_RBUTTON) < 0 || GetKeyState(VK_SHIFT) & 0x8000)
+				m_optionOverlayFlag = TRUE;
+		
+			SetUpWindowOverlayPopUpMenu ((Handle)m_overlayMenu, m_optionOverlayFlag);
+
+			if (m_overlayMenu->GetMenuItemCount() > 3)
 				{
-						// No selection is made; turn the right button flag off.
+				GetItemRect (m_iButtonCapture, &buttonRectangle);
+				ClientToScreen (&buttonRectangle);
 
-//				m_optionOverlayFlag = FALSE;
+				if (!m_overlayMenu->TrackPopupMenu (TPM_LEFTALIGN, 
+																buttonRectangle.left, 
+																buttonRectangle.bottom, 
+																this, 
+																NULL) )
+					{
+							// No selection is made;
+							// Seems like we never get here though
 
-				} 
+					}	// end "if (!m_overlayMenu->TrackPopupMenu (..."
+				
+				ReleaseCapture ();
+				ClearMenuItems (m_overlayMenu, 3);
 
-			ClearMenuItems (m_overlayMenu, 3);
+				}		// end "if (m_overlayMenu->GetMenuItemCount() > 3)"
 
-			}		// end "if (m_overlayMenu->GetMenuItemCount() > 3)"
-
-		ReleaseCapture ();
-		m_iButtonCapture = 0;
+			m_iButtonCapture = 0;
 			
-		OnLButtonUp (nFlags, point);
+			//OnLButtonUp (nFlags, point);
 
-		}		// end "else if (m_iButtonCapture == 14)"
+			}		// end "else if (m_iButtonCapture == 14)"
+
+		}	// end "if (gProcessorCode == 0)"
 
 }		// end "OnLButtonDown"
 
@@ -240,7 +241,10 @@ void CMToolBar::OnMouseMove(UINT nFlags, CPoint point)
 			                                            
 		((CMultiSpecApp*)AfxGetApp())->SetZoomCode (itemID);
 		
-		}		// end "if (m_iButtonCapture == 11 || ..."                       
+		}		// end "if (m_iButtonCapture == 11 || ..."  
+
+	//else if (m_iButtonCapture == 14)
+	//	ReleaseCapture ();
 	
 }		// end "OnMouseMove"
 
@@ -248,84 +252,78 @@ void CMToolBar::OnMouseMove(UINT nFlags, CPoint point)
 
 void CMToolBar::OnLButtonUp(UINT nFlags, CPoint point)
 {      
-	if (m_iButtonCapture == 14)
+	if (gProcessorCode == 0)
 		{
-		ClearMenuItems (m_overlayMenu, 3);
-		ReleaseCapture ();
+		if (m_iButtonCapture == 14)
+			{
+			ClearMenuItems (m_overlayMenu, 3);
+			ReleaseCapture ();
 
-		m_rightButtonFlag = FALSE;
+			m_rightButtonFlag = FALSE;
 
-		}		// end "if (m_iButtonCapture == 14)"
+			}		// end "if (m_iButtonCapture == 14)"
 		 
-//	#ifdef _WIN32
 		m_iButtonCapture = 0;
-//	#endif
                                                       
-	((CMultiSpecApp*)AfxGetApp())->SetZoomCode (0);                  
-	((CMultiSpecApp*)AfxGetApp())->SetControlDelayFlag (TRUE);
-	gActiveImageViewCPtr->SetControlKeyFlag(FALSE);                
+		((CMultiSpecApp*)AfxGetApp())->SetZoomCode (0);                  
+		((CMultiSpecApp*)AfxGetApp())->SetControlDelayFlag (TRUE);
+		gActiveImageViewCPtr->SetControlKeyFlag(FALSE);                
 	
-	CToolBar::OnLButtonUp(nFlags, point);
+		CToolBar::OnLButtonUp(nFlags, point);
+
+		}	// end "if (gProcessorCode == 0)"
 	
 }		// end "OnLButtonUp"
 
 
 
 void CMToolBar::OnRButtonDown(UINT nFlags, CPoint point)
-{                                                                 
-//	CToolBar::OnRButtonDown(nFlags, point); 
-
-//	#ifdef _WIN32
-		IsZoomPressed(point);
-//	#endif
-	
-	if (m_iButtonCapture == 11 || m_iButtonCapture == 12)
-		{                                                            		
-//		gActiveImageViewCPtr->SetControlKeyFlag(TRUE);
-//		if (nFlags & MK_CONTROL)                 		
-//			gActiveImageViewCPtr->SetControlKeyFlag(TRUE);
-			
-//		SInt16 itemID = GetItemID(m_iButtonCapture); 
-		((CMultiSpecApp*)AfxGetApp())->SetControlDelayFlag (FALSE); 
-		
-		}		// end "if (m_iButtonCapture == 11 || ...)"
-
-	else if (m_iButtonCapture == 14)
+{           
+	if (gProcessorCode == 0)
 		{
-		tagRECT			buttonRectangle;
-
-		m_optionOverlayFlag = TRUE;
-		SetUpWindowOverlayPopUpMenu ((Handle)m_overlayMenu, m_optionOverlayFlag);
-
-		if (m_overlayMenu->GetMenuItemCount() > 3)
-			{
-			GetItemRect (m_iButtonCapture, &buttonRectangle);
-			ClientToScreen (&buttonRectangle);
-
-			if (!m_overlayMenu->TrackPopupMenu (TPM_LEFTALIGN, 
-															buttonRectangle.left, 
-															buttonRectangle.bottom, 
-															this, 
-															NULL) )
-				{
-						// No selection is made; turn the right button flag off.
-
-//				m_optionOverlayFlag = FALSE;
-
-				} 
-
-			ClearMenuItems (m_overlayMenu, 3);
-
-			}		// end "if (m_overlayMenu->GetMenuItemCount() > 3)"
-
-		ReleaseCapture ();
-		m_iButtonCapture = 0;
-			
-		OnRButtonUp (nFlags, point);
-
-		}		// end "else if (m_iButtonCapture == 14)"
+		IsZoomPressed (point);
+	
+		if (m_iButtonCapture == 11 || m_iButtonCapture == 12)
+			{                                                            		
+			((CMultiSpecApp*)AfxGetApp())->SetControlDelayFlag (FALSE); 
 		
-	m_rightButtonFlag = TRUE;
+			}		// end "if (m_iButtonCapture == 11 || ...)"
+
+		else if (m_iButtonCapture == 14)
+			{
+			tagRECT			buttonRectangle;
+
+			SetCapture ();
+			m_optionOverlayFlag = TRUE;
+			SetUpWindowOverlayPopUpMenu ((Handle)m_overlayMenu, m_optionOverlayFlag);
+
+			if (m_overlayMenu->GetMenuItemCount() > 3)
+				{
+				GetItemRect (m_iButtonCapture, &buttonRectangle);
+				ClientToScreen (&buttonRectangle);
+			
+				m_rightButtonFlag = TRUE;
+				if (!m_overlayMenu->TrackPopupMenu (TPM_LEFTALIGN, 
+																buttonRectangle.left, 
+																buttonRectangle.bottom, 
+																this, 
+																NULL) )
+					{
+							// No selection is made; turn the right button flag off.
+							// Seems we never get to this point.
+
+					} 
+				
+				ReleaseCapture ();
+				ClearMenuItems (m_overlayMenu, 3);
+
+				}		// end "if (m_overlayMenu->GetMenuItemCount() > 3)"
+
+			m_iButtonCapture = 0;
+
+			}		// end "else if (m_iButtonCapture == 14)"
+
+		}	// end "if (gProcessorCode == 0)"
 	
 } 		// end "OnRButtonDown"
 
@@ -344,10 +342,11 @@ void CMToolBar::OnRButtonUp(UINT nFlags, CPoint point)
 
 	else		// m_iButtonCapture == 14
 		{
-		ClearMenuItems (m_overlayMenu, 3);
-		ReleaseCapture ();
-
-		m_rightButtonFlag = FALSE;
+		if (!m_rightButtonFlag)
+			{
+			ClearMenuItems (m_overlayMenu, 3);
+			ReleaseCapture ();
+			}
 
 		}		// end "else m_iButtonCapture == 14"
 	
@@ -395,6 +394,7 @@ void CMToolBar::OnShowOverlay (
 										shiftKeyFlag);
 
 	m_optionOverlayFlag = FALSE;
+	m_rightButtonFlag = FALSE;
 	
 	GetButtonInfo (14, itemID, itemStyle, itemImage);
 		

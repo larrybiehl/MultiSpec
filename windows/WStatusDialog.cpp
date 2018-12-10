@@ -42,6 +42,8 @@ void CShortStatusDlg::DoDataExchange(CDataExchange* pDX)
 
 BEGIN_MESSAGE_MAP(CShortStatusDlg, CMDialog)
 	//{{AFX_MSG_MAP(CShortStatusDlg)
+	ON_WM_MOUSEMOVE ()
+	ON_WM_NCMOUSEMOVE ()
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP() 
 
@@ -76,7 +78,76 @@ BOOL CShortStatusDlg::OnInitDialog()
 	PositionDialogWindow (); 
 	
 	return TRUE;  // return TRUE  unless you set the focus to a control
-}
+
+}	// end "OnInitDialog"
+
+
+
+void CShortStatusDlg::OnMouseMove(
+				UINT 			nFlags, 
+				CPoint 		point)
+
+{  	
+	if (gPresentCursor == kWait || gPresentCursor == kSpin)
+		{		
+				// Make sure the cursor is the wait cursor. It may have 
+				// gotten changed to the arrow cursor if over the status
+				// dialog
+		AfxGetApp ()->DoWaitCursor (0);
+
+																				return;
+			            
+		}		// end "if (gPresentCursor != kWait || ..."              
+	
+	CMDialog::OnMouseMove (nFlags, point); 
+	
+}	// end "OnMouseMove"
+
+
+
+void CShortStatusDlg::OnNcMouseMove(
+				UINT 			nFlags, 
+				CPoint 		point)
+
+{  	
+	if (gPresentCursor == kWait || gPresentCursor == kSpin)
+		{		
+				// Make sure the cursor is the wait cursor. It may have 
+				// gotten changed to the arrow cursor if over the status
+				// dialog
+		AfxGetApp ()->DoWaitCursor (0);
+
+																				return;
+			            
+		}		// end "if (gPresentCursor != kWait || ..."              
+	
+	CMDialog::OnNcMouseMove (nFlags, point); 
+	
+}	// end "OnNcMouseMove"
+
+
+
+BOOL CShortStatusDlg::OnSetCursor (
+			CWnd* 		pWnd, 
+			UINT 			nHitTest, 
+			UINT 			message)
+			
+{                                                                                              
+	if (gPresentCursor == kWait || gPresentCursor == kSpin)
+		{
+				// Make sure the wait cursor is on. The cursor may have just
+				// move over the legend from being outside the window.
+		
+		AfxGetApp ()->DoWaitCursor (0);
+																		return (TRUE);
+
+		}	// end "if (gPresentCursor != kArrow && ..."
+
+	gPresentCursor = kArrow;	// Non image window cursor
+		
+	return CMDialog::OnSetCursor (pWnd, nHitTest, message);
+	
+}	// end "OnSetCursor"
 
                        
 

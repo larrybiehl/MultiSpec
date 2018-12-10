@@ -301,6 +301,7 @@
 #define IDS_Reform30                    730
 #define IDS_Reform31                    731
 #define IDS_Reform32                    732
+#define IDS_Reform33                    733
 #define IDS_ProjectClassesUsed          801
 #define IDS_Project1                    801
 #define IDS_ClassesUsed2                802
@@ -671,6 +672,7 @@
 #define IDC_WriteChanDescriptions       1174
 #define IDS_Alert74                     1174
 #define IDS_Alert75                     1175
+#define IDC_OutputInWavelengthOrder     1175
 #define IDS_Alert76                     1176
 #define IDC_InputFileName               1177
 #define IDS_Alert77                     1177
@@ -1562,6 +1564,7 @@
 #define IDC_COMBO2                      1846
 #define IDC_ResampleMethod              1846
 #define IDC_RightImageFileList          1846
+#define IDC_xAxis                       1846
 #define IDC_ResampleMethodPrompt        1847
 #define IDC_RADIO1                      1848
 #define IDC_RT_FunctionOfChannels       1848
@@ -1607,6 +1610,7 @@
 #define IDC_StatisticMax                1891
 #define IDC_OptionHeading               1892
 #define IDC_MFCBUTTON1                  1897
+#define IDC_LIST1                       1898
 #define IDS_PrincipalComponent1         1901
 #define IDS_PrincipalComponent2         1902
 #define IDS_PrincipalComponent3         1903
@@ -1634,6 +1638,7 @@
 #define IDS_ListData12                  2012
 #define IDS_ListData13                  2013
 #define IDS_ListData14                  2014
+#define IDS_ListData15                  2015
 #define IDS_FeatureSelection1           2101
 #define IDS_FeatureSelection2           2102
 #define IDS_FeatureSelection3           2103
@@ -1942,6 +1947,24 @@
 #define IDS_ChanDescription63           2563
 #define IDS_ChanDescription64           2564
 #define IDS_ChanDescription65           2565
+#define IDS_ChanDescription66           2566
+#define IDS_ChanDescription67           2567
+#define IDS_ChanDescription68           2568
+#define IDS_ChanDescription69           2569
+#define IDS_ChanDescription70           2570
+#define IDS_ChanDescription71           2571
+#define IDS_ChanDescription72           2572
+#define IDS_ChanDescription73           2573
+#define IDS_ChanDescription74           2574
+#define IDS_ChanDescription75           2575
+#define IDS_ChanDescription76           2576
+#define IDS_ChanDescription77           2577
+#define IDS_ChanDescription78           2578
+#define IDS_ChanDescription79           2579
+#define IDS_ChanDescription80           2580
+#define IDS_ChanDescription81           2581
+#define IDS_ChanDescription82           2582
+#define IDS_ChanDescription83           2583
 #define IDS_FileIO201                   2701
 #define IDS_FileIO202                   2702
 #define IDS_FileIO203                   2703
@@ -1962,6 +1985,8 @@
 #define IDS_InstrumentName15            3015
 #define IDS_STRING3016                  3016
 #define IDS_InstrumentName16            3016
+#define IDS_InstrumentName17            3017
+#define IDS_InstrumentName18            3018
 #define IDS_ProjectionType01            5001
 #define IDS_ProjectionType02a           5002
 #define IDS_ProjectionType02            5002
@@ -2128,6 +2153,11 @@
 #define IDS_FileType38                  5738
 #define IDS_FileType39                  5739
 #define IDS_FileType40                  5740
+#define IDS_FileType41                  5741
+#define IDS_STRING5742                  5742
+#define IDS_FileType42                  5742
+#define IDS_FileType43                  5743
+#define IDS_FileType44                  5744
 #define IDS_Compression01               5801
 #define IDS_Compression02               5802
 #define IDS_Compression03               5803
@@ -2302,9 +2332,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        258
+#define _APS_NEXT_RESOURCE_VALUE        262
 #define _APS_NEXT_COMMAND_VALUE         32931
-#define _APS_NEXT_CONTROL_VALUE         1898
+#define _APS_NEXT_CONTROL_VALUE         1899
 #define _APS_NEXT_SYMED_VALUE           111
 #endif
 #endif

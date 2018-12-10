@@ -1,5 +1,6 @@
 // WCoordinateBar.cpp : implementation file
 //
+// Revised by Larry Biehl on 08/30/2018
                     
 #include "SMultiSpec.h"
                      
@@ -63,21 +64,30 @@ void CMCoordinateBar::DoDataExchange(CDataExchange* pDX)
 
 
 
-BOOL 
-CMCoordinateBar::OnSetCursor(
+BOOL CMCoordinateBar::OnSetCursor(
 				CWnd* 		pWnd, 
 				UINT 			nHitTest, 
 				UINT 			message)
 			
 {                                    
-	if (gPresentCursor != 0)
-		{                           
+	if (gPresentCursor == kWait || gPresentCursor == kSpin)
+		{
+				// Make sure the wait cursor is on. The cursor may have just
+				// move over the legend from being outside the window.
+		
+		AfxGetApp ()->DoWaitCursor (0);
+																		return (TRUE);
+
+		}	// end "if (gPresentCursor != kArrow && ..."
+
+	if (gPresentCursor != kArrow)
+		{
 		if (gActiveImageViewCPtr != NULL)                
 			gActiveImageViewCPtr->UpdateCursorCoordinates();
 		                                                                
-		gPresentCursor = 0; 		// Non image window cursors 
+		gPresentCursor = kArrow; 		// Non image window cursor
 		
-		}		// end "if (gPresentCursor != 5)"  
+		}		// end "if (gPresentCursor != kArrow)"  
 		
 	return CDialogBar::OnSetCursor(pWnd, nHitTest, message); 
 	

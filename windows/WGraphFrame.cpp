@@ -1,12 +1,13 @@
 // WGraphFrame.cpp : implementation file
 //
+// Revised by Larry Biehl on 03/27/2018
                        
 #include "SMultiSpec.h"
 
 //new                    
 #include <afxext.h>
 //end new            
-#include "SGraphView.h" 
+#include "WGraphView.h" 
 #include "WMultiSpec.h"
 #include "WGraphDoc.h" 
 #include "WGraphFrame.h"
@@ -39,7 +40,7 @@ CMGraphFrame::PreCreateWindow(CREATESTRUCT& cs)
 
 {                   
 	SInt16		xSize = 280,
-					ySize = 180;
+					ySize = 190;
 					                
 	
 	if (cs.cx != 0)
@@ -75,6 +76,13 @@ CMGraphFrame::PreCreateWindow(CREATESTRUCT& cs)
 
 
 
+void CMGraphFrame::OnClose()
+{  
+	CMDIChildWnd::OnClose();
+}		// end "OnClose" 
+
+
+
 BOOL 
 CMGraphFrame::OnCreateClient(
 				LPCREATESTRUCT 		lpcs, 
@@ -103,6 +111,7 @@ BEGIN_MESSAGE_MAP(CMGraphFrame, CMDIChildWnd)
 	ON_UPDATE_COMMAND_UI(ID_FILE_PRINT, OnUpdateFilePrint)
 	ON_UPDATE_COMMAND_UI(ID_FILE_PRINT_PREVIEW, OnUpdateFilePrintPreview)
 	ON_WM_SYSCOMMAND()
+	ON_WM_CLOSE()
 	ON_COMMAND(ID_FILE_PRINT, OnFilePrint)
 	ON_COMMAND(ID_FILE_PRINT_PREVIEW, OnFilePrintPreview)
 	//}}AFX_MSG_MAP
@@ -115,10 +124,18 @@ CMGraphFrame::OnSysCommand (
 				LPARAM		lParam)
                       
 {                     
-	if (gProcessorCode != kListDataProcessor || nID != SC_CLOSE)
+	if (gProcessorCode != kListDataProcessor || 
+										(nID != SC_CLOSE && nID != SC_MAXIMIZE))
 		CFrameWnd::OnSysCommand (nID, lParam);
 
-}		// end "OnSysCommand"
+	else   // gProcessorCode == kListDataProcessor && ...
+		{
+		if (nID == SC_CLOSE)
+			m_graphViewCPtr->m_closeGraphSelectedFlag = TRUE;
+
+		}	// end "else   // gProcessorCode == kListDataProcessor && ..."
+
+}	// end "OnSysCommand"
 
 
 									

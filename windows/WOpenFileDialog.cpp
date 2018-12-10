@@ -445,7 +445,7 @@ CMOpenFileDialog::SetImageLinkToTrue(void)
 			CString string = CString((char*)&gTextString[1]);
 			DDX_Text(m_dialogToPtr, 11, string);
 		
-	//		SetWindowText( (char*)&gTextString[1] );                    
+			//SetWindowText ((char*)&gTextString[1]);                    
 			
 			}		// end "if (MGetString (..."
 

@@ -495,7 +495,7 @@ CMSelectTool::OnChar(
 //	Revised By:			Larry L. Biehl			Date: 09/18/2002	
 
 void 
-CMSelectTool::OnLButtonDown(
+CMSelectTool::OnLButtonDown (
 				CMImageView* 			imageViewCPtr, 
 				UInt16 					nFlags, 
 				const CPoint& 			point)

@@ -1,6 +1,6 @@
 // WFileFormatDialog.cpp : implementation file
 //
-//	Revised by Larry Biehl on 08/21/2017
+//	Revised by Larry Biehl on 07/30/2018
 //
 
 #include "SMultiSpec.h"
@@ -245,7 +245,8 @@ void CMFileFormatSpecsDlg::DoDataExchange(CDataExchange* pDX)
 				         
 		sizeDifference = 0;
 		if ((m_fileInfoPtr->format != kHDF4Type && m_fileInfoPtr->format != kNETCDFType &&
-					m_fileInfoPtr->format != kHDF5Type && m_fileInfoPtr->format != kNETCDF2Type) || 
+					m_fileInfoPtr->format != kHDF5Type && m_fileInfoPtr->format != kNETCDF2Type &&
+							m_fileInfoPtr->format != kNITFType) || 
 											m_fileInfoPtr->numberHdfDataSets <= 1)
 			{
 			theNum = 1;
@@ -652,9 +653,10 @@ void CMFileFormatSpecsDlg::OnPaint()
 
 		if (gProcessorCode == kOpenImageFileProcessor && 
 					(m_fileInfoPtr->format == kHDF4Type || m_fileInfoPtr->format == kNETCDFType ||
-						m_fileInfoPtr->format == kHDF5Type || m_fileInfoPtr->format == kNETCDF2Type) &&
-							m_fileInfoPtr->numberHdfDataSets > 1 &&
-									!gHDFDataSetSelectionAlertDisplayedFlag)
+						m_fileInfoPtr->format == kHDF5Type || m_fileInfoPtr->format == kNETCDF2Type ||
+							m_fileInfoPtr->format == kNITFType) &&
+											m_fileInfoPtr->numberHdfDataSets > 1 &&
+																!gHDFDataSetSelectionAlertDisplayedFlag)
 			{
 			DisplayAlert (kErrorAlertID, 
 							kNoteAlert, 
@@ -672,7 +674,8 @@ void CMFileFormatSpecsDlg::OnPaint()
 				
 		if (gProcessorCode == kOpenImageFileProcessor && 
 				(m_fileInfoPtr->format == kHDF4Type || m_fileInfoPtr->format == kNETCDFType ||
-						m_fileInfoPtr->format == kHDF5Type || m_fileInfoPtr->format == kNETCDF2Type))	
+						m_fileInfoPtr->format == kHDF5Type || m_fileInfoPtr->format == kNETCDF2Type ||
+								m_fileInfoPtr->format == kNITFType))	
 			{
 			FileSpecificationDialogSetHDFValues (this,
 																m_fileInfoPtr,

@@ -1,6 +1,6 @@
 // WLegendView.cpp : implementation file
 //       
-// Revised by Larry Biehl on 12/21/2017
+// Revised by Larry Biehl on 08/30/2018
 //
                     
 #include "SMultiSpec.h"
@@ -411,10 +411,11 @@ CMLegendView::OnDropdownClassGroupCombo()
 }		// end "OnDropdownClassGroupCombo"
 
 
-void CMLegendView::OnDropdownLegendCombo()
+void CMLegendView::OnDropdownLegendCombo ()
 
 {                                           
 	DisplaySpecsPtr 					displaySpecsPtr;
+	FileInfoPtr							fileInfoPtr;
 		
 	Handle 								nameHandle; 
 		   
@@ -423,13 +424,11 @@ void CMLegendView::OnDropdownLegendCombo()
 	
 	SInt16								ancillaryInfoFormat,
 											format,         
-											paletteSelection;
+											paletteCode;
  	
 	
-	FileInfoPtr fileInfoPtr = (FileInfoPtr)GetHandlePointer (
-											GetLegendListCPtr()->m_imageFileInfoHandle,
-											kNoLock, 
-											kNoMoveHi);
+	fileInfoPtr = (FileInfoPtr)GetHandlePointer (
+											GetLegendListCPtr ()->m_imageFileInfoHandle);
 
 	if (fileInfoPtr != NULL)
 		{								
@@ -440,11 +439,16 @@ void CMLegendView::OnDropdownLegendCombo()
 		colorTableOffset = fileInfoPtr->colorTableOffset;
                                                                         
 		displaySpecsPtr = (DisplaySpecsPtr)GetHandlePointer (
-															m_imageViewCPtr->GetDisplaySpecsHandle(), 
-															kLock, 
-															kNoMoveHi);
+															m_imageViewCPtr->GetDisplaySpecsHandle (), 
+															kLock);
 
-		SetUpPalettePopUpMenu ( (CMDialog*)this,
+		if (displaySpecsPtr->classGroupCode == kClassDisplay)
+			paletteCode = displaySpecsPtr->thematicClassPaletteType;
+			
+		else		// ...classGroupCode != kClassDisplay 
+			paletteCode = displaySpecsPtr->thematicGroupPaletteType;
+
+		SetUpPalettePopUpMenu ((CMDialog*)this,
 										NULL,
 										format,
 										ancillaryInfoFormat,
@@ -452,21 +456,16 @@ void CMLegendView::OnDropdownLegendCombo()
 										nameHandle,
 										colorTableOffset,
 										displaySpecsPtr,
-										displaySpecsPtr->classGroupCode);
-
-		if (displaySpecsPtr->classGroupCode == kClassDisplay)
-			paletteSelection = displaySpecsPtr->thematicClassPaletteType;
+										displaySpecsPtr->classGroupCode,
+										paletteCode); 
 			
-		else		// ...classGroupCode != kClassDisplay 
-			paletteSelection = displaySpecsPtr->thematicGroupPaletteType; 
-			
-		CheckAndUnlockHandle ( m_imageViewCPtr->GetDisplaySpecsHandle() );                                   
+		CheckAndUnlockHandle (m_imageViewCPtr->GetDisplaySpecsHandle ());                                   
 														
-		m_paletteSelection = ::GetComboListSelection ( this,
+		m_paletteSelection = ::GetComboListSelection (this,
 																		IDC_PaletteCombo, 
-																		paletteSelection);
+																		paletteCode);
 			                                       		
-		DDX_CBIndex(m_dialogToPtr, IDC_PaletteCombo, m_paletteSelection);
+		DDX_CBIndex (m_dialogToPtr, IDC_PaletteCombo, m_paletteSelection);
 
 		}		// end "if (fileInfoPtr != NULL)"
 
@@ -663,25 +662,25 @@ CMLegendView::OnLButtonUp(UINT nFlags, CPoint point)
 
  
 
-void 
-CMLegendView::OnMouseMove(UINT nFlags, CPoint point)
+void CMLegendView::OnMouseMove (UINT nFlags, CPoint point)
 
 {                    
-	if (gPresentCursor != kArrow)
-		{                                 
-		::SetCursor(AfxGetApp()->LoadCursor(IDC_ARROW));
-		gPresentCursor = kArrow;
+//	if (gPresentCursor != kArrow &&
+//				gPresentCursor != kWait &&
+//						gPresentCursor != kSpin)
+//		{
+//		::SetCursor(AfxGetApp()->LoadCursor(IDC_ARROW));
+//		gPresentCursor = kArrow;
 			
-		}		// end "if (gPresentCursor != kArrow)"
+//		}		// end "if (gPresentCursor != kArrow && ..."
 			                             
-	CFormView::OnMouseMove(nFlags, point);
+	CFormView::OnMouseMove (nFlags, point);
 	
-}		// end "OnMouseMove" 
+}	// end "OnMouseMove" 
 
  
 
-void 
-CMLegendView::OnPaint(void)
+void CMLegendView::OnPaint (void)
 
 {                                                                 
 	CPaintDC dc(this); // device context for painting);                                 
@@ -819,23 +818,22 @@ CMLegendView::GetLegendListCPtr (void)
 
                                  
 
-void 
-CMLegendView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
+void CMLegendView::OnKeyDown (UINT nChar, UINT nRepCnt, UINT nFlags)
 
 {       
 	if (nChar == 0x10)
 		m_legendListBox.CheckShiftKeyDown ();
 	                                                                                                                                                                                        
 	else if (nChar == 0x11)           
-		gActiveImageViewCPtr->SetControlKeyFlag(TRUE);
+		gActiveImageViewCPtr->SetControlKeyFlag (TRUE);
 	
-	CFormView::OnKeyDown(nChar, nRepCnt, nFlags);
+	CFormView::OnKeyDown (nChar, nRepCnt, nFlags);
 } 
 
 
 
 void 
-CMLegendView::OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags) 
+CMLegendView::OnKeyUp (UINT nChar, UINT nRepCnt, UINT nFlags)
 
 {           
 	if (nChar == 0x10)
@@ -850,8 +848,25 @@ CMLegendView::OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags)
 
 
 
-BOOL CMLegendView::OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message)
-{                                                                          
+BOOL CMLegendView::OnSetCursor (
+				CWnd* pWnd,
+				UINT nHitTest,
+				UINT message)
+
+{
+	if (gPresentCursor == kWait || gPresentCursor == kSpin)
+		{
+				// Make sure the wait cursor is on. The cursor may have just
+				// move over the legend from being outside the window.
+		
+		//if (nHitTest != HTNOWHERE)
+		AfxGetApp ()->DoWaitCursor (0);
+																		return (TRUE);
+
+		}	// end "if (gPresentCursor != kArrow && ..."
+	
+	gPresentCursor = kArrow;
+	
 	return CFormView::OnSetCursor(pWnd, nHitTest, message); 
 	
 }		// end "OnSetCursor" 

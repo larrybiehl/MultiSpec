@@ -1,5 +1,5 @@
 // MultiSpec.cpp : Defines the class behaviors for the application.
-// Revised By:		Larry L. Biehl		Date: 12/21/2017
+// Revised By:		Larry L. Biehl		Date: 03/19/2018
 //
                   
 #include "SMultiSpec.h"
@@ -8,9 +8,8 @@
 #include "CFileStream.h"
 #include "CImageWindow.h"
 
-#include "SGraphView.h"
-
 #include "WMultiSpec.h"
+#include "WGraphView.h"
 #include "WImageView.h" 
 #include "WImageDoc.h"
 #include "WImageFrame.h" 

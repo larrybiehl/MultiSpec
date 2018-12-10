@@ -246,31 +246,8 @@ BEGIN_MESSAGE_MAP(CMainFrame, CMDIFrameWnd)
 
 /////////////////////////////////////////////////////////////////////////////
 // arrays of IDs used to initialize control bars
-/*
-#if !defined _WIN32
-// toolbar buttons - IDs are command buttons
-static UINT BASED_CODE buttons[] =
-{
-	// same order as in the bitmap 'toolbar.bmp' 
-	ID_FILE_OPEN,
-	ID_FILE_SAVE,
-		ID_SEPARATOR,
-	ID_EDIT_CUT,
-	ID_EDIT_COPY,
-	ID_EDIT_PASTE,
-		ID_SEPARATOR,
-	ID_FILE_PRINT,
-	ID_APP_ABOUT,  
-		ID_SEPARATOR,
-	ID_MAGNIFICATION,
-	ID_ZOOM_IN,
-	ID_ZOOM_OUT,
-		ID_SEPARATOR,
-	ID_OVERLAY,
-};
-#endif	// !_WIN32
-*/
-static UINT BASED_CODE indicators[] =
+
+	static UINT BASED_CODE indicators[] =
 {                                                
 	ID_SEPARATOR,           // status line indicator
 	ID_INDICATOR_ZOOM,
@@ -314,26 +291,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
 	if (CMDIFrameWnd::OnCreate(lpCreateStruct) == -1)
 		return -1;
-/*
-#if !defined _WIN32
-	if (!m_wndToolBar.Create(this) ||
-		!m_wndToolBar.LoadBitmap(IDR_MAINFRAME) ||
-		!m_wndToolBar.SetButtons(buttons,
-		  sizeof(buttons)/sizeof(UINT)))
-		{
-			TRACE("Failed to create toolbar\n");
-			return -1;      // fail to create
-		}
-		
-	else		// Tool bar created.
-		{
-		SInt16 itemID = m_wndToolBar.GetItemID(12);
-		CWnd* zoomInWindow = GetDlgItem(itemID);
-		
-		}		// end "else Tool bar created"
-#endif		// !_WIN32
-*/
-//#if defined _WIN32
+
 	if (!m_wndToolBar.Create(this) ||
 		!m_wndToolBar.LoadToolBar(IDR_TOOLBAR))
 		{
@@ -347,7 +305,6 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		CWnd* zoomInWindow = GetDlgItem(itemID);
 		
 		}		// end "else Tool bar created"
-//#endif		// _WIN32
 
 	if (!m_wndStatusBar.Create(this) ||
 		!m_wndStatusBar.SetIndicators(indicators,
@@ -1356,26 +1313,42 @@ void CMainFrame::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags)
 
 
 // Coded By:			Larry L. Biehl				Date:
-// Revised By:			Larry L. Biehl				Date: 10/18/95
+// Revised By:			Larry L. Biehl				Date: 08/30/2018
 
-BOOL 
-CMainFrame::OnSetCursor(
+BOOL CMainFrame::OnSetCursor (
 				CWnd* pWnd, 
 				UINT nHitTest, 
 				UINT message)
 				
 {  
-	if (gPresentCursor != 0)
-		{                           
+	if (gPresentCursor == kWait || gPresentCursor == kSpin)
+		{
+				// Wait cursor in affect. Processing in progress.
+				// Do not change the cursor or change it back to wait cursor
+
+				// If the nHitTest is set then the cursor may have moved 
+				// outside of the application window and them back. 
+				// Make sure it is set back to the wait cursor.
+
+		//if (nHitTest != HTNOWHERE)
+		AfxGetApp ()->DoWaitCursor (0);
+
+																		return (TRUE);
+
+		}	// end "if (gPresentCursor == kWait || gPresentCursor == kSpin)"
+
+	if (gPresentCursor != kArrow)
+		{        
+
 		if (gActiveImageViewCPtr != NULL && 
-								gActiveImageViewCPtr->CheckIfOffscreenImageExists() )                
+								gActiveImageViewCPtr->CheckIfOffscreenImageExists ())
 			gActiveImageViewCPtr->UpdateCursorCoordinates();
 		                                                                
-		gPresentCursor = 0; 		// Non image window cursors 
+		gPresentCursor = kArrow; 		// Non image window cursor
 		
-		}		// end "if (gPresentCursor != 0)"
+		}		// end "if (gPresentCursor != kArrow)"
 	
-	return CMDIFrameWnd::OnSetCursor(pWnd, nHitTest, message);
+	return CMDIFrameWnd::OnSetCursor (pWnd, nHitTest, message);
 	
 }		// end "OnSetCursor"
 
@@ -1590,7 +1563,8 @@ CMainFrame::OnProcListResults()
 
 void CMainFrame::OnSysCommand(UINT nID, LPARAM lParam)
 {                                                                 
-	if (gProcessorCode == 0 || nID != SC_CLOSE)
+	//if (gProcessorCode == 0 || nID != SC_CLOSE)                   
+	if (gProcessorCode != kListDataProcessor)
 		CMDIFrameWnd::OnSysCommand(nID, lParam);
 }
 

@@ -6,7 +6,8 @@
 #include "SMultiSpec.h"
  
 #include "WEditClassFieldDialog.h"
-#include	"WChannelsDialog.h"       
+#include "WImageView.h"   
+#include "WStatisticsView.h"     
 
 //#include	"SExtGlob.h" 
 
@@ -154,14 +155,15 @@ CMEditClassFieldDlg::DoDialog(
 			{ 
 					// Class Name
 					                  
-			#if defined _UNICODE
-				strcpy ((char*)string, T2A(m_classNameCStringPtr)); 
-			#endif                                 
-			#if !defined _UNICODE
-				strcpy ((char*)string, (const char*)m_classNameCStringPtr); 
-			#endif                                        
+			strcpy ((char*)string, T2A(m_classNameCStringPtr)); 
 			CtoPstring (string, 
 							gProjectInfoPtr->classNamesPtr[m_classStorage].name);
+			
+			CComboBox*	classListComboBoxPtr = 
+						(CComboBox*)gProjectWindow->GetDlgItem (IDC_ClassList);	
+			classListComboBoxPtr->DeleteString (currentClass+1);
+			classListComboBoxPtr->InsertString (currentClass+1,
+															m_classNameCStringPtr);
 						
 			}		// end "if (classFieldCode == 2)" 
 					             
@@ -171,12 +173,7 @@ CMEditClassFieldDlg::DoDialog(
 			
 					// Field Identifier
 					  
-			#if defined _UNICODE
-				strcpy ((char*)string, T2A(m_fieldNameCStringPtr)); 
-			#endif                                 
-			#if !defined _UNICODE
-				strcpy ((char*)string, (const char*)m_fieldNameCStringPtr); 
-			#endif               
+			strcpy ((char*)string, T2A(m_fieldNameCStringPtr)); 
 			CtoPstring (string, 
 								gProjectInfoPtr->fieldIdentPtr[m_currentField].name);
 					
@@ -188,7 +185,7 @@ CMEditClassFieldDlg::DoDialog(
 				
 			fieldIdentPtr[currentField].fieldType = fieldType;
 				
-			}		// end "if (classFieldCode == 3)" 
+			}		// end "if (classFieldCode == 3)"  
 		
 		}		// end "if (returnCode == IDOK)"
 		
@@ -206,6 +203,8 @@ CMEditClassFieldDlg::OnInitDialog(void)
 {                                         
 	UInt16					selectedItem;
 	
+	USES_CONVERSION;
+
 	
 	CDialog::OnInitDialog();
 
@@ -215,7 +214,7 @@ CMEditClassFieldDlg::OnInitDialog(void)
 												m_currentField,
 												&selectedItem);
 												
-	SetWindowText ((LPCTSTR)m_titleStringPtr); 
+	SetWindowText (A2T((LPCSTR)m_titleStringPtr)); 
 	
 	PositionDialogWindow ();  
 		

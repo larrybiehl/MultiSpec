@@ -102,33 +102,33 @@ void CMListDataDialog::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CMListDataDialog)
-	DDX_Check(pDX, IDC_Area, m_areaFlag);
-	DDX_Check(pDX, IDC_Classes, m_classFlag);
-	DDX_Check(pDX, IDC_DiskFile, m_diskFileFlag);
-	DDX_Check(pDX, IDC_GraphData, m_graphDataFlag);
-	DDX_Check(pDX, IDC_IncludeClassField, m_includeClassFieldFlag);
-	DDX_Check(pDX, IDC_IncludeLineColumn, m_includeLineColumnFlag);
-	DDX_Check(pDX, IDC_IncludeLatitudeLongitude, m_includeLatLongFlag);
-	DDX_Check(pDX, IDC_TextWindow, m_textWindowFlag);
-	DDX_Check(pDX, IDC_Training, m_trainingFlag);
-	DDX_Check(pDX, IDC_Test, m_testFlag);
-	DDX_Text(pDX, IDC_LineEnd, m_LineEnd);
-	DDV_MinMaxLong(pDX, m_LineEnd, 1, m_maxNumberLines);
-	DDX_Text(pDX, IDC_LineInterval, m_LineInterval);
-	DDV_MinMaxLong(pDX, m_LineInterval, 1, m_maxNumberLines);
-	DDX_Text(pDX, IDC_LineStart, m_LineStart);                              
-	DDV_MinMaxLong(pDX, m_LineStart, 1, m_maxNumberLines); 
-	DDX_Text(pDX, IDC_ColumnEnd, m_ColumnEnd);
-	DDV_MinMaxLong(pDX, m_ColumnEnd, 1, m_maxNumberColumns);
-	DDX_Text(pDX, IDC_ColumnInterval, m_ColumnInterval);
-	DDV_MinMaxLong(pDX, m_ColumnInterval, 1, m_maxNumberColumns);
-	DDX_Text(pDX, IDC_ColumnStart, m_ColumnStart);
-	DDV_MinMaxLong(pDX, m_ColumnStart, 1, m_maxNumberColumns);   
-	DDX_CBIndex(pDX, IDC_ChannelCombo, m_channelSelection);
-	DDX_CBIndex(pDX, IDC_ClassCombo, m_classSelection);
-	DDX_CBIndex(pDX, IDC_ListChannelsFormatCombo, m_listDataFormatCode);
-	DDX_Text(pDX, IDC_NumberDecimalPlaces, m_numberDecimalPlaces);
-	DDV_MinMaxLong(pDX, m_numberDecimalPlaces, 0, 9);
+	DDX_Check (pDX, IDC_Area, m_areaFlag);
+	DDX_Check (pDX, IDC_Classes, m_classFlag);
+	DDX_Check (pDX, IDC_DiskFile, m_diskFileFlag);
+	DDX_Check (pDX, IDC_GraphData, m_graphDataFlag);
+	DDX_Check (pDX, IDC_IncludeClassField, m_includeClassFieldFlag);
+	DDX_Check (pDX, IDC_IncludeLineColumn, m_includeLineColumnFlag);
+	DDX_Check (pDX, IDC_IncludeLatitudeLongitude, m_includeLatLongFlag);
+	DDX_Check (pDX, IDC_TextWindow, m_textWindowFlag);
+	DDX_Check (pDX, IDC_Training, m_trainingFlag);
+	DDX_Check (pDX, IDC_Test, m_testFlag);
+	DDX_Text (pDX, IDC_LineEnd, m_LineEnd);
+	DDV_MinMaxLong (pDX, m_LineEnd, 1, m_maxNumberLines);
+	DDX_Text (pDX, IDC_LineInterval, m_LineInterval);
+	DDV_MinMaxLong (pDX, m_LineInterval, 1, m_maxNumberLines);
+	DDX_Text (pDX, IDC_LineStart, m_LineStart);                              
+	DDV_MinMaxLong (pDX, m_LineStart, 1, m_maxNumberLines); 
+	DDX_Text (pDX, IDC_ColumnEnd, m_ColumnEnd);
+	DDV_MinMaxLong (pDX, m_ColumnEnd, 1, m_maxNumberColumns);
+	DDX_Text (pDX, IDC_ColumnInterval, m_ColumnInterval);
+	DDV_MinMaxLong (pDX, m_ColumnInterval, 1, m_maxNumberColumns);
+	DDX_Text (pDX, IDC_ColumnStart, m_ColumnStart);
+	DDV_MinMaxLong (pDX, m_ColumnStart, 1, m_maxNumberColumns);   
+	DDX_CBIndex (pDX, IDC_ChannelCombo, m_channelSelection);
+	DDX_CBIndex (pDX, IDC_ClassCombo, m_classSelection);
+	DDX_CBIndex (pDX, IDC_ListChannelsFormatCombo, m_listDataFormatCode);
+	DDX_Text (pDX, IDC_NumberDecimalPlaces, m_numberDecimalPlaces);
+	DDV_MinMaxLong (pDX, m_numberDecimalPlaces, 0, 9);
 	//}}AFX_DATA_MAP
 
 			// Verify that the line and column values make sense
@@ -149,6 +149,7 @@ BEGIN_MESSAGE_MAP(CMListDataDialog, CMDialog)
 	ON_BN_CLICKED(IDSelectedImage, ToSelectedImage)
 	ON_BN_CLICKED(IDC_Classes, OnClasses)
 	ON_BN_CLICKED(IDC_Area, OnArea)
+	ON_BN_CLICKED (IDC_GraphData, OnGraphData)
 //	ON_EN_CHANGE(IDC_NumberDecimalPlaces, CheckNumberDecimalPlaces)
 	//}}AFX_MSG_MAP
 	ON_CBN_SELENDOK(IDC_ListChannelsFormatCombo, OnCbnSelendokListchannelsformatcombo)
@@ -283,7 +284,7 @@ BOOL CMListDataDialog::OnInitDialog()
 			//	Selected area for list data
 			// 	Initialize selected area structure.		
 	
-	InitializeDialogSelectArea ( &m_dialogSelectArea,
+	InitializeDialogSelectArea (&m_dialogSelectArea,
 											gImageWindowInfoPtr,
 											gActiveImageWindow,
 											gListDataSpecsPtr->columnStart,
@@ -314,7 +315,7 @@ BOOL CMListDataDialog::OnInitDialog()
 		
 		}		// end "if (gListDataSpecsPtr->listSelectedAreaDataFlag)" 
 					
-	else		// !gListDataSpecsPtr->listSelectedAreaDataFlag 
+	else	// !gListDataSpecsPtr->listSelectedAreaDataFlag 
 		{                                   
 		HideSomeAreaSelectionItems ();
 		
@@ -342,14 +343,14 @@ BOOL CMListDataDialog::OnInitDialog()
 		MHideDialogItem (this, IDC_ChannelPrompt);
 		MHideDialogItem (this, IDC_ChannelCombo);
 		
-		}		// end "if (gImageFileInfoPtr->thematicType)"
+		}	// end "if (gImageFileInfoPtr->thematicType)"
 		
-	else		// !gImageFileInfoPtr->thematicType
+	else	// !gImageFileInfoPtr->thematicType
 		{                                     
 		MShowDialogItem (this, IDC_ChannelPrompt);
 		MShowDialogItem (this, IDC_ChannelCombo);
 		
-		}		// end "else !gImageFileInfoPtr->thematicType"
+		}	// end "else !gImageFileInfoPtr->thematicType"
 	
 			// Set check box for "Include line and column values".		
 	
@@ -403,12 +404,17 @@ BOOL CMListDataDialog::OnInitDialog()
 		
 		}		// end "if (gProjectInfoPtr != NULL && ..."
 	
-			// Set check box for "Graph data values".						
+			// Set check box for "Graph data values".	
 			
-	if (gNumberOfGWindows < kMaxNumberGWindows)
-		m_graphDataFlag = gListDataSpecsPtr->graphDataFlag;              
+	m_localGraphDataFlag = gListDataSpecsPtr->graphDataFlag;
+	if (gNumberOfGWindows < kMaxNumberGWindows &&
+									m_channelSelection == kAllMenuItem)
+		{
+		m_graphDataFlag = gListDataSpecsPtr->graphDataFlag;    
+
+		}	// if (gNumberOfGWindows < kMaxNumberGWindows)
 		
-	else		// gNumberOfGWindows >= kMaxNumberGWindows                                          
+	else	// gNumberOfGWindows >= kMaxNumberGWindows                                          
 		SetDLogControlHilite (this, IDC_GraphData, 255); 
 		
 	m_listDataFormatCode = gListDataSpecsPtr->outputFormatCode - 1;	 
@@ -445,13 +451,31 @@ BOOL CMListDataDialog::OnInitDialog()
 
 void CMListDataDialog::OnSelendokChannelCombo()
 {                                                                                                                      
-	HandleChannelsMenu(IDC_ChannelCombo, 
+	HandleChannelsMenu (IDC_ChannelCombo, 
 								kNoTransformation,
 								(SInt16)gImageWindowInfoPtr->totalNumberChannels,
 								1,
 								TRUE);
+
+	DDX_CBIndex (m_dialogFromPtr, IDC_ChannelCombo, m_channelSelection); 
 	
-}		// end "OnInitDialog" 
+	if (gNumberOfGWindows < kMaxNumberGWindows &&
+													m_channelSelection == kAllMenuItem)
+		{
+		DDX_Check (m_dialogToPtr, IDC_GraphData, m_localGraphDataFlag);
+		SetDLogControlHilite (this, IDC_GraphData, 0);
+						
+		}	// end "if (m_channelSelection == kAllMenuItem)"
+					
+	else	// m_channelSelection == kSubsetMenuItem
+		{
+		BOOL localGraphDataFlag = FALSE;
+		DDX_Check (m_dialogToPtr, IDC_GraphData, localGraphDataFlag);
+		SetDLogControlHilite (this, IDC_GraphData, 255);
+						
+		}	// end "else m_channelSelection == kSubsetMenuItem"
+
+}		// end "OnSelendokChannelCombo" 
 
 
 
@@ -485,7 +509,7 @@ void CMListDataDialog::OnArea()
 	UInt16			selectItem;
 	
 	                                                                                      
-	DDX_Check(m_dialogFromPtr, IDC_Area, m_areaFlag); 
+	DDX_Check (m_dialogFromPtr, IDC_Area, m_areaFlag); 
 	
 	if (m_areaFlag)
 		{                                
@@ -510,6 +534,14 @@ void CMListDataDialog::OnArea()
 	CheckOKButton ();
 	
 }		// end "OnArea"  
+
+
+
+void CMListDataDialog::OnGraphData ()
+{  
+	DDX_Check (m_dialogFromPtr, IDC_GraphData, m_localGraphDataFlag); 
+		
+}		// end "OnGraphData"  
 
 
 
@@ -564,15 +596,3 @@ void CMListDataDialog::OnCbnSelendokListchannelsformatcombo()
 		MHideDialogItem (this, IDC_IncludeLatitudeLongitude); 
 	
 }		// end "OnCbnSelendokListchannelsformatcombo"
-
-
-
-//void CMListDataDialog::CheckNumberDecimalPlaces()
-//{
-	// TODO:  If this is a RICHEDIT control, the control will not
-	// send this notification unless you override the CMDialog::OnInitDialog()
-	// function and call CRichEditCtrl().SetEventMask()
-	// with the ENM_CHANGE flag ORed into the mask.
-
-	// TODO:  Add your control notification handler code here
-//}

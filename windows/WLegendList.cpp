@@ -439,10 +439,13 @@ void CMLegendList::OnDrawItem(int nIDCtl, LPDRAWITEMSTRUCT lpDrawItemStruct)
 void CMLegendList::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 {                                                                                                                                                                       
 	if (nChar == 0x11)           
-		gActiveImageViewCPtr->SetControlKeyFlag(TRUE);
+		gActiveImageViewCPtr->SetControlKeyFlag (TRUE);
 		
 	else if (nChar == 0x10)
 		CheckShiftKeyDown ();
+
+	else if (nChar == 0x25 || nChar == 0x26 || nChar == 0x27 || nChar == 0x28)
+		DoNextDisplayChannelEvent (gActiveImageViewCPtr, nChar);
 	
 	CListBox::OnKeyDown(nChar, nRepCnt, nFlags);
 	

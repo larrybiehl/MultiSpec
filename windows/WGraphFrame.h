@@ -27,6 +27,7 @@ protected:
 			// Generated message map functions
 			
 	//{{AFX_MSG(CMGraphFrame)
+	afx_msg void OnClose();
 	afx_msg void OnSysCommand(UINT nID, LPARAM lParam);
 	afx_msg void OnUpdateFilePrint(CCmdUI* pCmdUI);
 	afx_msg void OnFilePrint();

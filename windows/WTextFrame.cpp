@@ -1,5 +1,6 @@
 // WTextFrame.cpp : implementation file
 //
+// Revised by Larry Biehl on 08/30/2018
                     
 #include "SMultiSpec.h"
                      
@@ -106,25 +107,37 @@ CMTextFrame::OnClose()
 
 
 
-BOOL 
-CMTextFrame::OnSetCursor(
+BOOL CMTextFrame::OnSetCursor (
 			CWnd* 		pWnd, 
 			UINT 			nHitTest, 
 			UINT 			message)
 			
 {                                                                                              
+	if (gPresentCursor == kWait || gPresentCursor == kSpin)
+		{
+				// Wait cursor in affect. Processing underway.
+				// Restart the wait cursor in case in was changed to pointer
+				// before entering the image frame.
+		
+		AfxGetApp ()->DoWaitCursor (0);
+																			return (TRUE);
+		
+		}	// end "if (gPresentCursor == kWait || gPresentCursor == kSpin)"
+
 	if (gPresentCursor != kArrow)
-		{                           
-		if (gActiveImageViewCPtr != NULL)                
+		{                  
+		if (gActiveImageViewCPtr != NULL)
 			gActiveImageViewCPtr->UpdateCursorCoordinates();
 		                                                                
-		gPresentCursor = kArrow; 		// Non image window cursors 
+		gPresentCursor = kArrow; 		// Non image window cursor
 		
 		}		// end "if (gPresentCursor != kArrow)"
 	
 	return CMDIChildWnd::OnSetCursor(pWnd, nHitTest, message);
 	
-}		// end "OnSetCursor"
+}	// end "OnSetCursor"
+
+
 
 void CMTextFrame::OnUpdateFileTextClose(CCmdUI* pCmdUI) 
 {

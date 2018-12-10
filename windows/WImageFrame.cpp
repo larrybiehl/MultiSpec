@@ -1,6 +1,6 @@
 // WImageFrame.cpp : implementation file
 //
-// Revised by Larry Biehl on 12/21/2017
+// Revised by Larry Biehl on 08/30/2018
                     
 #include "SMultiSpec.h"
 
@@ -10,7 +10,7 @@
 #include "WMultiSpec.h"   
 #include "WImageFrame.h" 
 #include "WImageView.h"
-#include "SGraphView.h"
+#include "WGraphView.h"
 #include "WImageDoc.h"
 #include "WMainFrame.h"
 #include "WLegendView.h"
@@ -94,6 +94,7 @@ BEGIN_MESSAGE_MAP(CMImageFrame, CMDIChildWnd)
 	ON_COMMAND(ID_FILE_PRINT, OnFilePrint)
 	ON_UPDATE_COMMAND_UI(ID_OVERLAY, OnUpdateOverlay)
 	ON_COMMAND(ID_OVERLAY, OnOverlay)
+	ON_WM_SYSCOMMAND()
 	//}}AFX_MSG_MAP
 	// Standard printing commands 
 END_MESSAGE_MAP() 
@@ -412,6 +413,16 @@ CMImageFrame::InitialUpdate (
 
 
 
+void CMImageFrame::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags)
+{
+	// Add your message handler code here and/or call default
+	
+	CMDIChildWnd::OnChar(nChar, nRepCnt, nFlags);
+	
+}
+
+
+
 void CMImageFrame::OnClose()
 {                                                                 
 	Handle						windowInfoHandle;
@@ -429,12 +440,44 @@ void CMImageFrame::OnClose()
 	if (closeFlag || gProcessorCode == -1)
 		CMDIChildWnd::OnClose();
 	
-}		// end "OnClose"
+}	// end "OnClose"
+   
 
 
 
-BOOL 
-CMImageFrame::OnCreateClient(
+int 
+CMImageFrame::OnCreate(
+				LPCREATESTRUCT 			lpCreateStruct)
+
+{ 
+	SInt16		returnValue;
+	
+	
+	if ( (returnValue = CMDIChildWnd::OnCreate(lpCreateStruct)) != -1)
+		{
+				// Add Dialog Bar to the view for the coordinates
+				
+		if ( !m_coordinatesBar.Create(
+										this, IDD_Coordinates, CBRS_TOP, IDD_Coordinates) )
+			returnValue = -1;
+			
+		else	// m_coordinatesBar.Create(...
+			{
+					// Bar has been set up. Hide for now.
+		
+			m_coordinatesBar.ShowWindow(SW_HIDE);              
+			
+			}		// end "" 
+		
+		}		// end "if ( (returnValue = ..."
+	
+	return returnValue;
+	
+}	// end "OnCreate"
+
+
+
+BOOL CMImageFrame::OnCreateClient(
 				LPCREATESTRUCT 		lpcs, 
 				CCreateContext* 		pContext)
 				
@@ -551,80 +594,38 @@ CMImageFrame::OnGetMinMaxInfo(
 	CMDIChildWnd::OnGetMinMaxInfo(lpMMI); 
 	
 }		// end "OnGetMinMaxInfo"
-   
 
 
 
-int 
-CMImageFrame::OnCreate(
-				LPCREATESTRUCT 			lpCreateStruct)
-
-{ 
-	SInt16		returnValue;
-	
-	
-	if ( (returnValue = CMDIChildWnd::OnCreate(lpCreateStruct)) != -1)
-		{
-				// Add Dialog Bar to the view for the coordinates
-				
-		if ( !m_coordinatesBar.Create(
-										this, IDD_Coordinates, CBRS_TOP, IDD_Coordinates) )
-			returnValue = -1;
-			
-		else	// m_coordinatesBar.Create(...
-			{
-					// Bar has been set up. Hide for now.
-		
-			m_coordinatesBar.ShowWindow(SW_HIDE);              
-			
-			}		// end "" 
-		
-		}		// end "if ( (returnValue = ..."
-	
-	return returnValue;
-	
-}		// end "OnCreate" 
-
-
-
-BOOL 
-CMImageFrame::OnSetCursor(
+BOOL CMImageFrame::OnSetCursor (
 				CWnd* 			pWnd, 
 				UINT 				nHitTest, 
 				UINT 				message)   
 				
-{                                                       
-	if (gPresentCursor != 0)
-		{                           
+{                       
+	if (gPresentCursor == kWait || gPresentCursor == kSpin)
+		{
+				// Wait cursor in affect. Processing underway.
+				// Restart the wait cursor in case in was changed to pointer
+				// before entering the image frame.
+		
+		AfxGetApp ()->DoWaitCursor (0);
+																			return (TRUE);
+		
+		}	// end "if (gPresentCursor == kWait || gPresentCursor == kSpin)"
+	
+	if (gPresentCursor != kArrow)
+		{
 		if (gActiveImageViewCPtr != NULL)                
 			gActiveImageViewCPtr->UpdateCursorCoordinates();
 		                                                                
-		gPresentCursor = 0; 		// Non image window cursors 
+		gPresentCursor = kArrow; 	// Non image window cursor
 		
-		}		// end "if (gPresentCursor != 0)"
+		}	// end "if (gPresentCursor != kArrow)"
 	
-	return CMDIChildWnd::OnSetCursor(pWnd, nHitTest, message);
-} 
-
-
-
-void CMImageFrame::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags)
-{
-	// TODO: Add your message handler code here and/or call default
+	return CMDIChildWnd::OnSetCursor (pWnd, nHitTest, message);
 	
-	CMDIChildWnd::OnChar(nChar, nRepCnt, nFlags);
-}  
-
-
-									
-void 
-CMImageFrame::SetImageViewCPtr(
-				CMImageView*			imageViewCPtr)  
-				
-{               
-	m_imageViewCPtr = imageViewCPtr;
-	
-}		// end "SetImageViewCPtr" 
+}	// end "OnSetCursor"
 
 
 
@@ -707,6 +708,19 @@ CMImageFrame::OnSetFocus(CWnd* pOldWnd)
 }		// end "OnSetFocus"
 
 
+afx_msg void 
+CMImageFrame::OnSysCommand (
+				UINT 			nID,
+				LPARAM		lParam)
+                      
+{                     
+	if (gProcessorCode != kListDataProcessor || 
+								(nID != SC_CLOSE && nID != SC_MAXIMIZE))
+		CFrameWnd::OnSysCommand (nID, lParam);
+
+}	// end "OnSysCommand"
+
+
 
 void CMImageFrame::OnUpdateClearSelectionRectangle(CCmdUI* pCmdUI)
 {  
@@ -742,8 +756,9 @@ void CMImageFrame::OnClearSelectionRectangle()
  
 
 void CMImageFrame::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
+
 {
-	// TODO: Add your message handler code here and/or call default
+	// Add your message handler code here and/or call default
 	
 	CMDIChildWnd::OnKeyDown(nChar, nRepCnt, nFlags);
 }
@@ -1035,6 +1050,16 @@ CMImageFrame::OnViewCoordinatesBar(
 }		// end "OnViewCoordinatesBar"
 
 
+									
+void CMImageFrame::SetImageViewCPtr(
+				CMImageView*			imageViewCPtr)  
+				
+{               
+	m_imageViewCPtr = imageViewCPtr;
+	
+}		// end "SetImageViewCPtr"
+
+
 
 void CMImageFrame::SetLegendWidth(
 				SInt16		newLegendWidth)
@@ -1283,7 +1308,7 @@ void CMImageFrame::UpdateSelectedAreaInformation(
 
 //-----------------------------------------------------------------------------
 //								 Copyright (1988-1998)
-//								© Purdue Research Foundation
+//								ï¿½ Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void UpdateCursorCoordinates
@@ -1322,7 +1347,7 @@ CMImageFrame::UpdateCursorCoordinates (
 
 //-----------------------------------------------------------------------------
 //								 Copyright (1988-1998)
-//								© Purdue Research Foundation
+//								ï¿½ Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void UpdateCursorCoordinates
@@ -1383,6 +1408,6 @@ void CMImageFrame::OnUpdateOverlay(CCmdUI* pCmdUI)
 
 void CMImageFrame::OnOverlay() 
 {
-	// TODO: Add your command handler code here
+	// Add your command handler code here
 	
 }

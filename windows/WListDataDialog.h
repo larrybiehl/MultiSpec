@@ -1,5 +1,7 @@
 // WListDataDialog.h : header file
-//       
+// 
+// Revised by Larry Biehl on 07/03/2018
+
 #if !defined __WLSTDDLG_H__
 	#define	__WLSTDDLG_H__             
 	     
@@ -25,6 +27,7 @@ public:
 	BOOL	m_classFlag;
 	BOOL	m_diskFileFlag;
 	BOOL	m_graphDataFlag;
+	BOOL	m_localGraphDataFlag;
 	BOOL	m_includeClassFieldFlag;
 	BOOL	m_includeLineColumnFlag;
 	BOOL	m_includeLatLongFlag;
@@ -54,6 +57,7 @@ protected:
 	afx_msg void OnSelendokClassCombo();
 	afx_msg void OnClasses();
 	afx_msg void OnArea();
+	afx_msg void OnGraphData();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 	

@@ -1,6 +1,6 @@
 // WReformatChangeDialog.h : header file
 //   
-// Revised by Larry Biehl on 03/16/2017
+// Revised by Larry Biehl on 07/03/2018
 //
 #if !defined __WRCHANGE_H__
 	#define	__WRCHANGE_H__  
@@ -32,8 +32,9 @@ public:
 	int		m_outputFileSelection;
 	int		m_bandInterleaveSelection;
 	BOOL		m_invertBottomToTopFlag;
-	BOOL		m_writeChanDescriptionFlag;
 	BOOL		m_invertLeftToRightFlag;
+	BOOL		m_outputInWavelengthOrderFlag;
+	BOOL		m_writeChanDescriptionFlag;
 	//}}AFX_DATA
 
 // Implementation
@@ -46,15 +47,14 @@ protected:
 
 	// Generated message map functions
 	//{{AFX_MSG(CMChangeFormatDlg)
-	virtual BOOL OnInitDialog();
-//	afx_msg void OnEntireImage();
-//	afx_msg void OnSelectedImage();
-	afx_msg void OnTransformData();
-	afx_msg void OnSelendokBandInterleave();
-	afx_msg void OnSelendokOutChannels();
-	afx_msg void OnSelendokHeader();
-	afx_msg void OnWriteChanDescriptions();
-	afx_msg void OnSelendokDataValueType();
+	virtual BOOL OnInitDialog ();
+	afx_msg void OnOutputInWavelengthOrder ();
+	afx_msg void OnTransformData ();
+	afx_msg void OnSelendokBandInterleave ();
+	afx_msg void OnSelendokOutChannels ();
+	afx_msg void OnSelendokHeader ();
+	afx_msg void OnWriteChanDescriptions ();
+	afx_msg void OnSelendokDataValueType ();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 
@@ -64,12 +64,13 @@ protected:
 	 
 	static ReformatOptionsPtr		s_reformatOptionsPtr;
 	
-	Boolean								m_dataValueTypeSelectionFlag,
-											m_channelDescriptionAllowedFlag,
+	Boolean								m_channelDescriptionAllowedFlag,
 											m_channelThematicDisplayFlag,
+											m_dataValueTypeSelectionFlag,
 											m_GAIAFormatAllowedFlag,
-											m_savedChannelDescriptionFlag,
 											m_initializedFlag,
+											m_outputInWavelengthOrderAllowedFlag,
+											m_savedChannelDescriptionFlag,
 											m_sessionUserSetDataValueTypeSelectionFlag;
 
 	int									m_headerOptionsSelection;
@@ -79,6 +80,6 @@ protected:
 											m_noTransformDataValueTypeSelection,
 											m_savedDataValueTypeSelection;
 	
-};          
+};
    
 #endif	// !defined __WRCHANGE_H__

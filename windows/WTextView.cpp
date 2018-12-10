@@ -1,6 +1,6 @@
 // WTextView.cpp : implementation file
 //
-//	Revised by Larry Biehl on 12/21/2017
+//	Revised by Larry Biehl on 08/30/2018
                    
 #include "SMultiSpec.h"
                    
@@ -162,7 +162,7 @@ void CMTextView::OnDraw(CDC* pDC)
 	CDocument* pDoc = GetDocument();
 	ASSERT_VALID(pDoc);
 	
-		// TODO: add draw code here
+		// Add draw code here
 }
 */
 
@@ -234,9 +234,7 @@ CMTextView::OnActivateView(
 
  
 
-//new
-//#ifdef _WIN32
-BOOL CMTextView::PreCreateWindow(           
+BOOL CMTextView::PreCreateWindow(
 				CREATESTRUCT&			cs)
 
 {      
@@ -248,10 +246,8 @@ BOOL CMTextView::PreCreateWindow(
 	
 //	return (TRUE);
 
-}		// end "PreCreateWindow"
-//#endif	// _WIN32
-//end new
- 
+}	// end "PreCreateWindow"
+
  
  
 /////////////////////////////////////////////////////////////////////////////
@@ -393,8 +389,7 @@ void CMTextView::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags)
 
 
 
-void 
-CMTextView::OnMouseMove(
+void CMTextView::OnMouseMove(
 				UINT 			nFlags, 
 				CPoint 		point)
 				
@@ -402,48 +397,58 @@ CMTextView::OnMouseMove(
 	
 	CEditView::OnMouseMove(nFlags, point);
 	
-} 		// end "OnMouseMove"
+} 	// end "OnMouseMove"
 
 
 
-BOOL 
-CMTextView::OnSetCursor(
+BOOL CMTextView::OnSetCursor (
 				CWnd* 		pWnd, 
 				UINT 			nHitTest, 
 				UINT 			message)
 				
-{                                            
+{  
+	if (gPresentCursor == kWait || gPresentCursor == kSpin)
+		{
+				// Wait cursor in affect. Processing underway.
+				// Restart the wait cursor in case in was changed to pointer
+				// before entering the image frame.
+		
+		AfxGetApp ()->DoWaitCursor (0);
+																					return (TRUE);
+		
+		}	// end "if (gPresentCursor == kWait || gPresentCursor == kSpin)"
+
 	if (!m_activeFlag)
-		{                                                        
-		if (gPresentCursor != 0 && gActiveImageViewCPtr != NULL)                
+		{
+		if (gPresentCursor != kArrow && gActiveImageViewCPtr != NULL)
 			gActiveImageViewCPtr->UpdateCursorCoordinates();
-			
-		SetCursor(AfxGetApp()->LoadStandardCursor(IDC_ARROW));
-		gPresentCursor = 0;		// Non-image window cursors.
+
+		SetCursor (AfxGetApp()->LoadStandardCursor (IDC_ARROW));
+		gPresentCursor = kArrow;		// Non-image window cursors.
 		
-		return TRUE;
+																					return TRUE;
 		
-		}		// end "if (GetActiveWindow() != pWnd)"
+		}	// end "if (!m_activeFlag)"
 		
-	gPresentCursor = 3; 
+	gPresentCursor = kIBeam;
 	
-	return CEditView::OnSetCursor(pWnd, nHitTest, message);
+	return CEditView::OnSetCursor (pWnd, nHitTest, message);
 	
-}		// end "OnSetCursor"
+}	// end "OnSetCursor"
 
 
 
-void 
-CMTextView::OnFilePrintPreview()
+void CMTextView::OnFilePrintPreview ()
 
 {                                                       
-	CEditView::OnFilePrintPreview();
+	CEditView::OnFilePrintPreview ();
 	
 }
 
 
 
-void CMTextView::OnUpdateEditClear(CCmdUI* pCmdUI)
+void CMTextView::OnUpdateEditClear (CCmdUI* pCmdUI)
+
 {  
 	int		startSel, endSel;
 	

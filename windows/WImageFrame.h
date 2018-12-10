@@ -139,6 +139,7 @@ public:
 	afx_msg void OnFilePrint();
 	afx_msg void OnUpdateOverlay(CCmdUI* pCmdUI);
 	afx_msg void OnOverlay();
+	afx_msg void OnSysCommand(UINT nID, LPARAM lParam);
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };   

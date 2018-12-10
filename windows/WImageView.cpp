@@ -11,9 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision number:		2.7
-//
-//	Revision date:			11/29/2017
+//	Revision date:			08/30/2018
 //
 //	Language:				C++
 //
@@ -35,6 +33,7 @@
 #include "CHistogram.h"
 #include "CImageWindow.h"
 
+#include "WGraphView.h"
 #include "WImageDoc.h"  
 #include "WImageFrame.h"
 #include "WImageView.h"
@@ -200,7 +199,7 @@ CMImageView::CMImageView ()
 // Called By:	
 //
 //	Coded By:			Larry L. Biehl			Date: 06/05/1995
-//	Revised By:			Larry L. Biehl			Date: 02/26/1997	
+//	Revised By:			Larry L. Biehl			Date: 03/15/2018	
 
 CMImageView::~CMImageView ()
 
@@ -238,22 +237,33 @@ CMImageView::~CMImageView ()
 		}	// end "if (gActiveImageViewCPtr == this)"
 		
 	RemoveWindowFromList (this, 0);
+
+	if (gSelectionGraphViewCPtr != NULL)
+		{
+		if (GetSelectionGraphImageWindow (gSelectionGraphViewCPtr) == this)
+			{
+			GraphPtr		graphRecordPtr;
+			Handle		graphRecordHandle;
+
+
+			SetDefaultSelectionGraphWindowTitle (gSelectionGraphViewCPtr);
+			graphRecordHandle = gSelectionGraphViewCPtr->GetGraphRecordHandle ();
+			graphRecordPtr = (GraphPtr)GetHandlePointer (graphRecordHandle);
+			graphRecordPtr->imageWindow = NULL;
+			graphRecordPtr->imageViewCPtr = NULL;
+
+			}	// end "if (GetSelectionGraphImageWindow (..."
+
+		gSelectionGraphViewCPtr->SetCheckIOMemoryFlag (TRUE);
+
+		}	// end "if (gSelectionGraphViewCPtr != NULL)"
 		
 }	// end "~CMImageView"
 
 
-void CMImageView::ClientToDoc(CPoint& point)
-{
-	CClientDC dc(this);
-	OnPrepareDC(&dc, NULL);
-	dc.DPtoLP(&point);
-	
-}		// end "ClientToDoc" 
-
-
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -298,6 +308,17 @@ Boolean CMImageView::CheckIfOffscreenImageExists (void)
 
 
 
+void CMImageView::ClientToDoc (CPoint& point)
+
+{
+	CClientDC dc(this);
+	OnPrepareDC(&dc, NULL);
+	dc.DPtoLP(&point);
+	
+}	// end "ClientToDoc"
+
+
+
 //------------------------------------------------------------------------------------
 //								 Copyright (1988-2017)
 //								c Purdue Research Foundation
@@ -332,43 +353,256 @@ void CMImageView::DisposeImageWindowSupportMemory (void)
 	
 	m_imageWindowCPtr->ReleaseOffscreenSupportMemory ();
 	
-}	// end "DisposeImageWindowSupportMemory" 
+}	// end "DisposeImageWindowSupportMemory"
 
-  
-#ifdef _DEBUG  // debug version in WImagevView.cpp 
-//------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
-//								c Purdue Research Foundation
-//									All rights reserved.
-//
-//	Function name:		Boolean GetImageWindowCPtr
-//
-//	Software purpose:	The purpose of this routine is to return the image window class
-//							pointer member of the class.
-//							Note that the non-debug version is inline
-//
-//	Parameters in:		None			
-//
-//	Parameters out:	None			
-//
-//	Value Returned:	TRUE if offscreen image exists
-//							FALSE if offscreen image does not exist
-// 
-// Called By:						
-//
-//	Coded By:			Larry L. Biehl			Date: 08/01/1995
-//	Revised By:			Larry L. Biehl			Date: 08/01/1995	
+ 
 
-CMImageWindow* CMImageView::GetImageWindowCPtr () 
+Boolean CMImageView::DoDeleteKey (
+				UINT 						nChar)
+
+{                                                         
+	Boolean		charHandledFlag = FALSE;
+	
+	if (this != NULL)                    
+		{                                                                  
+		if (gProjectSelectionWindow != NULL && this == gProjectSelectionWindow)
+			{
+			if (gStatisticsMode == kStatNewFieldPolyMode && GetCapture() == this)
+				{
+						// A polygon selection is in process. Delete the last selected polygon 
+						// point.
+							
+				CMTool* pTool = CMTool::FindTool(CMTool::c_toolType);
+				if (pTool != NULL)
+					pTool->OnChar(this, nChar);  
+									
+				charHandledFlag = TRUE;
+					
+				}	// end "if (gStatisticsMode == kStatNewFieldPolyMode && "
+			
+			else if (gStatisticsMode == kStatNewFieldRectMode || 
+												gStatisticsMode == kStatNewFieldPolyMode )
+				{
+						// Delete the selected field if one exists. 
+						
+				if ( GetSelectionTypeCode (gActiveImageViewCPtr) != 0 )
+					{               
+					ClearSelectionArea (gActiveImageViewCPtr);
+		
+					ShowGraphSelection ();
+									
+					charHandledFlag = TRUE;
+						
+					}	// end "if ( GetSelectionTypeCode (gActiveImageViewCPtr) != 0)"
+					
+				}	// end "else if (gStatisticsMode == kStatNewFieldRectMode || ..."
+				
+			}	// end "if (gProjectSelectionWindow != NULL && ..." 
+			
+		}	// end "if (this != NULL)"
+	
+	return (charHandledFlag);
+	
+} 	// end "DoDeleteKey"
+
+
+
+void CMImageView::DoEditCopy()
+{
+	CBitmap				cBmp;
+
+   CRect					rect, 
+							destinationRect;	// For storing the size of the image to be copied.
+
+   CDC					hDC;
+
+	LongPoint			topleftLPoint, 
+							rightbottomLPoint;
+	                
+	LongPoint			tempPoint;
+	
+   Rect					sourceRect;
+   
+   SInt16				legendWidth;
+
+
+			// Get the size of the window
+	
+	GetClientRect(rect);
+	
+  	Handle windowInfoHandle = GetWindowInfoHandle(gActiveImageWindow);
+	Handle selectionInfoHandle = GetSelectionInfoHandle (windowInfoHandle);
+
+	WindowInfoPtr windowInfoPtr = (WindowInfoPtr)GetHandlePointer(
+											windowInfoHandle, kLock, kNoMoveHi);
+																											
+	GetSelectedOffscreenRectangle ( windowInfoPtr,
+												&sourceRect,
+												TRUE,
+												TRUE );
+
+	tempPoint.h = sourceRect.top;
+	tempPoint.v = sourceRect.left;
+
+   ConvertOffScreenPointToWinPoint (windowInfoHandle, 
+												&tempPoint, 
+												&topleftLPoint);
+
+	tempPoint.h = sourceRect.bottom;
+	tempPoint.v = sourceRect.right;
+
+   ConvertOffScreenPointToWinPoint (windowInfoHandle, 
+												&tempPoint, 
+												&rightbottomLPoint);
+
+	destinationRect.bottom = (int)rightbottomLPoint.h;
+	destinationRect.top = (int)topleftLPoint.h;
+	destinationRect.right = (int)rightbottomLPoint.v;
+	destinationRect.left = (int)topleftLPoint.v;
+
+	CClientDC   cWndDC(this);					// View is an hWnd, so we can use "this"  
+   hDC.CreateCompatibleDC(&cWndDC);			// Create the memory DC. 
+                                                     
+	destinationRect.bottom += ::GetTitleHeight(windowInfoHandle);
+
+	legendWidth = ::GetLegendWidth(windowInfoHandle);
+
+			//compare the height of image and the height of the legend
+
+	if (legendWidth > 0)
+		{
+		SInt16 legendBottom = GetLegendFullHeight();
+		destinationRect.bottom = MAX(destinationRect.bottom, 
+												destinationRect.top + legendBottom);
+		destinationRect.right += legendWidth;
+
+		}	// end "if (legendWidth > 0)"  
+                                                                     
+   cBmp.CreateCompatibleBitmap(&cWndDC, 
+   										destinationRect.Width(), 
+   										destinationRect.Height() );
+	
+			// Keep the old bitmap
+                                                       
+   CBitmap* pOldBitmap = hDC.SelectObject(&cBmp);
+
+			//prepare the DC
+                      
+	hDC.BitBlt( 0, 
+					0, 
+					destinationRect.Width(),
+					destinationRect.Height(), 
+					&cWndDC, 
+					0, 
+					0, 
+					WHITENESS); 
+
+			//copy the image to the DC  
+			
+	m_pDC = &hDC;
+	gCDCPointer = m_pDC;
+	m_printCopyModeFlag = TRUE;
+			
+	CopyOffScreenImage (this, 
+								&hDC,
+								m_imageWindowCPtr,
+								NULL, 
+								&sourceRect,                                        
+								1);
+		     
+	m_pDC = NULL; 
+	gCDCPointer = NULL;
+	m_printCopyModeFlag = FALSE;
+	
+			// here are the actual clipboard functions.
+
+   AfxGetApp()->m_pMainWnd->OpenClipboard();
+   EmptyClipboard();
+   SetClipboardData (CF_BITMAP, cBmp.GetSafeHandle() );
+   CloseClipboard () ;
+
+        // next we select the old bitmap back into the memory DC
+        // so that our bitmap is not deleted when cMemDC is destroyed.
+        // Then we detach the bitmap handle from the cBmp object so that
+        // the bitmap is not deleted when cBmp is destroyed.
+
+	CheckAndUnlockHandle (windowInfoHandle);
+	CheckAndUnlockHandle (selectionInfoHandle);
+                                     
+	hDC.SelectObject(pOldBitmap);
+   cBmp.Detach();
+
+}	// end "DoEditCopy"
+
+
+
+void CMImageView::DoFilePrint ()
+
+{
+	gProcessorCode = kPrintProcessor;
+	CScrollView::OnFilePrint();
+	gProcessorCode = 0;
+	
+} 	// end "DoFilePrint"
+
+
+
+void CMImageView::DoFilePrintPreview ()
 
 {  
-	if (this == NULL)
-		return (NULL);
+	gProcessorCode = kPrintProcessor;
+	CScrollView::OnFilePrintPreview();
+	gProcessorCode = 0;
+	
+} 	// end "DoFilePrintPreview"
+
+
+
+void CMImageView::DrawLegend ()
+{	                                          
+	CMLegendView* legendViewCPtr = 
+								GetDocument()->GetImageFrameCPtr()->GetLegendViewCPtr();
+
+	CMLegendList* legendListPtr = (CMLegendList*)GetActiveLegendListHandle();
+	if (legendListPtr != NULL)
+		{
+		/*
+		if (m_printCopyModeFlag)
+			{
+			CPoint		windowOrigin;
+			CRect			windowRect;
+
+			windowOrigin = m_pDC->GetWindowOrg ();
+			GetWindowRect (windowRect);
+
+			if (!gMFC_Rgn.CreateRectRgn(
+						0,
+						0,
+						580,
+						windowRect.bottom) )
+																							return;
+				
+			gMFC_Rgn.SetRectRgn(
+						0,
+						0,
+						580,
+						windowRect.bottom);
+											
+			m_pDC->SelectClipRgn(&gMFC_Rgn); 
+
+			gMFC_Rgn.DeleteObject();
+
+			}	// end "if (m_printCopyModeFlag)"
+		*/
+		legendListPtr->DrawLegendList(); 
 		
-	else	// this != NULL                                                                  
-		return (CMImageWindow*)m_imageWindowCPtr;
-}  	   
-#endif	// _DEBUG. debug version in mimagevw.cpp  
+		}	// end "if (legendListPtr != NULL)"
+	
+	CMComboBox* listBoxPtr = &(legendViewCPtr->m_legendTitleCombo); 
+	if (listBoxPtr != NULL)
+		listBoxPtr->DrawLegendTitle();  
+	
+}	// end "DrawLegend"
 
 
 
@@ -377,7 +611,7 @@ Boolean CMImageView::GetActiveWindowFlag (void)
 {
 	return (GetImageFrameCPtr()->GetActiveWindowFlag());
 
-}		// end "GetActiveWindowFlag"
+}	// end "GetActiveWindowFlag"
 
 
 
@@ -438,7 +672,7 @@ Boolean CMImageView::GetControlKeyFlag(void)
 	else
 		return (FALSE); 
 	
-}		// end "SetContolKeyFlag"
+}	// end "SetContolKeyFlag"
  
 
 
@@ -448,7 +682,7 @@ CMImageView::GetDisplayPixelSize (void)
 {                                       
 	return ( GetImageFrameCPtr()->GetDisplayPixelSize() );
 	
-}		// end "GetDisplayPixelSize"
+}	// end "GetDisplayPixelSize"
 
 
 
@@ -462,7 +696,7 @@ Handle CMImageView::GetDisplaySpecsHandle (void)
 		
 	return (displaySpecsHandle);
 		
-}		// end "GetDisplaySpecsHandle" 
+}	// end "GetDisplaySpecsHandle"
     
 
 
@@ -475,19 +709,11 @@ CMImageFrame* CMImageView::GetImageFrameCPtr (void)
 		{
 		imageFrameCPtr = GetDocument()->GetImageFrameCPtr();
 		
-		}		// end "if (this != NULL)"
+		}	// end "if (this != NULL)"
 		
 	return (imageFrameCPtr);
 	
-}		// end "GetImageFrameCPtr"   
-
-
-CMLegendView* CMImageView::GetImageLegendViewCPtr (void)
-
-{
-	return ( GetDocument()->GetImageFrameCPtr()->GetLegendViewCPtr() );
-	
-}		// end "GetImageLegendViewCPtr" 
+}	// end "GetImageFrameCPtr"
   
 
 
@@ -504,7 +730,15 @@ CMLegendList* CMImageView::GetImageLegendListCPtr (void)
 									
 	return ( legendListCPtr );
 	
-}		// end "GetImageLegendListCPtr" 
+}	// end "GetImageLegendListCPtr"
+
+
+CMLegendView* CMImageView::GetImageLegendViewCPtr (void)
+
+{
+	return ( GetDocument()->GetImageFrameCPtr()->GetLegendViewCPtr() );
+	
+}	// end "GetImageLegendViewCPtr"
 
 
 
@@ -689,7 +923,20 @@ SInt16 CMImageView::GetNumberGroups (void)
 
 	return (numberGroups);
 	
-}	// end "GetNumberGroups" 
+}	// end "GetNumberGroups"
+
+
+
+CMOutlineArea* CMImageView::GetSelectionAreaCPtr(void)
+
+{ 
+	if (this != NULL)
+		return ( GetDocument()->GetSelectionAreaCPtr() );
+		
+	else	// this == NULL 
+		return ( NULL ); 
+
+}	// end "GetSelectionAreaCPtr"
 
 
 
@@ -770,6 +1017,27 @@ SInt16 CMImageView::GetWindowType (void)
 	
 }	// end "GetWindowType"   
 
+
+
+SInt32 CMImageView::NormalizeScrollOffset(
+				double				magnification,
+				SInt32				scrollIncrement,
+				SInt32				scrollOffset)
+
+{
+	SInt32			normalizedIncrement;
+	  
+							
+	normalizedIncrement = 
+				(SInt32)(((double)scrollOffset + scrollIncrement)/magnification + .5);
+	normalizedIncrement = MAX(0, normalizedIncrement);
+		
+	normalizedIncrement = (SInt32)((double)normalizedIncrement * magnification - scrollOffset);
+	
+	return (normalizedIncrement);                   
+			
+}	// end "NormalizeScrollOffset"
+
  
 
 void CMImageView::OnActivateView(
@@ -789,22 +1057,108 @@ void CMImageView::OnActivateView(
 		
 	GetImageFrameCPtr()->ActivateImageWindowItems (bActivate, changeWindowFlag);
 	
-}		// end "OnActivateView" 
+}	// end "OnActivateView"   
+
+
+/*
+void CMImageView::OnBeginPrinting(
+				CDC* pDC, 
+				CPrintInfo* pInfo) 
+				
+{
+
+}
+*/
+
+
+void CMImageView::OnChar (UINT nChar, UINT nRepCnt, UINT nFlags)
+
+{  
+	Boolean		charHandledFlag = FALSE;
+	
+	if (nChar == 0x08)
+		charHandledFlag = DoDeleteKey (nChar); 
+		
+   else if (nChar == 13 && GetCapture() != this)
+		{                        
+		if ( gProjectSelectionWindow != NULL &&
+		     	this == gProjectSelectionWindow &&
+				(gStatisticsMode == kStatNewFieldRectMode ||
+									gStatisticsMode == kStatNewFieldPolyMode) )
+			{                  
+			if ( GetSelectionTypeCode(gActiveImageViewCPtr) != 0 )
+				{
+				Point			location;
+				location.h = 0;
+				location.v = 0;
+				StatisticsWControlEvent ( gProjectInfoPtr->addToControlH, 
+													FALSE, 
+													location,
+													kAddToListControl);
+					 
+				}	// end "if ( GetSelectionTypeCode (gActiveImageViewCPtr) ..."
+				
+			}	// end "if ( gProjectSelectionWindow && ..."
+			
+		}	// end "else if (nChar == 13 && GetCapture() != this)"
+
+	CScrollView::OnChar(nChar, nRepCnt, nFlags);
+	
+} 	// end "OnChar"
 
 
 
-/////////////////////////////////////////////////////////////////////////////
-// CMImageView drawing
+LRESULT CMImageView::OnDoRealize(
+				WPARAM 			wParam, 
+				LPARAM			lParam)
 
-void 
-CMImageView::OnDraw(
+{  
+	LRESULT			returnCode;
+	
+	                                  
+	if (m_imageWindowCPtr == NULL || m_displayMultiCPtr == NULL)
+	
+			// must be a new document
+																							return 0L; 
+																							
+			// If wParam == NULL, then assume that wParam is to equal the
+			// m_hWnd parameter for this view. 
+			// wParam is not used as of 2/27/97.
+			
+	//if (wParam == NULL)
+	//		wParam = (WPARAM)m_hWnd;
+	/*
+	sprintf(	(char*)&gTextString,
+				"Image OnDoRealize %s",
+				gEndOfLine);
+	OutputString ( NULL, 
+					(char*)&gTextString, 
+					0, 
+					1, 
+					TRUE);  
+	*/
+	returnCode = GetImageFrameCPtr()->DoRealize(lParam != 1, this);
+	/*
+	sprintf(	(char*)&gTextString,
+				"%s",
+				gEndOfLine);
+	OutputString ( NULL, 
+					(char*)&gTextString, 
+					0, 
+					1, 
+					TRUE); 
+	*/
+	return returnCode;
+	
+}	// end "OnDoRealize"
+
+
+
+void CMImageView::OnDraw(
 				CDC* 				pDC)
 				
-{  
-
-//	#ifdef	_WIN32
-		SCROLLINFO			scrollInfo;
-//	#endif	// _WIN32
+{
+	SCROLLINFO			scrollInfo;
 
 	Boolean			continueFlag = TRUE;
 	Rect				sourceRect;
@@ -827,7 +1181,7 @@ CMImageView::OnDraw(
 			{ 																					
 			copyType = 5;                        
 			
-			}		// end "if (pDC->IsPrinting())"
+			}	// end "if (pDC->IsPrinting())"
 			
 		else   // not printer DC
 			{             
@@ -835,15 +1189,11 @@ CMImageView::OnDraw(
 					
 			CPoint scrollOffset;
 
-//			#ifndef	_WIN32
-//				scrollOffset = GetScrollPosition();
-//			#else		// _WIN32
-				GetScrollInfo (SB_HORZ, &scrollInfo, SIF_ALL);
-				scrollOffset.x = scrollInfo.nPos;
-				GetScrollInfo (SB_VERT, &scrollInfo, SIF_ALL);
-				scrollOffset.y = scrollInfo.nPos;
-//			#endif	// !_WIN32
-					
+			GetScrollInfo (SB_HORZ, &scrollInfo, SIF_ALL);
+			scrollOffset.x = scrollInfo.nPos;
+			GetScrollInfo (SB_VERT, &scrollInfo, SIF_ALL);
+			scrollOffset.y = scrollInfo.nPos;
+				
 			sourceRect.top += scrollOffset.y;		  
 			sourceRect.bottom += scrollOffset.y;
 			sourceRect.left += scrollOffset.x;	
@@ -884,7 +1234,7 @@ CMImageView::OnDraw(
 			gCDCPointer = NULL; 
 			m_pDC = NULL;
 			
-         }		// end "if (continueFlag)"
+         }	// end "if (continueFlag)"
               
 		if ( !pDC->IsPrinting() )
 			{            
@@ -894,21 +1244,95 @@ CMImageView::OnDraw(
 	                                
 			pDoc->Draw(pDC, this);
 			
-			}		// end "if ( !pDC->IsPrinting() )"
+			}	// end "if ( !pDC->IsPrinting() )"
 	
 		}	// end "if ( CheckIfOffscreenImageExists() )"
 		
 }	// end "OnDraw" 
+     
+
+
+void CMImageView::OnEditCut ()
+
+{
+	
+}	// end "OnEditCut"
+
+             
+
+void CMImageView::OnEditPaste (void)
+
+{                        
+	
+}	// end "OnEditPaste"
+
+
+/*
+void CMImageView::OnEndPrinting(
+				CDC* pDC, 
+				CPrintInfo* pInfo)
+				
+{
+	
+}	// end "OnEndPrinting"  
+*/
+
+
+
+BOOL CMImageView::OnEraseBkgnd(CDC* pDC) 
+{        
+	if ( CheckIfOffscreenImageExists() )
+		{
+		SInt16					titleHeight; 
+		
+		
+		CBrush brush( GetSysColor( COLOR_WINDOW ) ); 
+		
+		titleHeight = GetTitleHeight();
+		                                
+		if (titleHeight > 0)
+			{
+			RECT				windowRect;
+									      
+			GetClientRect( &windowRect );
+			                               
+			windowRect.top = 0;
+			windowRect.bottom = titleHeight;                        
+			pDC->FillRect (&windowRect, &brush);
+				
+			}	// end "if (titleHeight > 0)" 
+		                                          
+	   FillOutsideRect( pDC, &brush );
+	   return TRUE;                   // Erased  
+	   
+	   }	// end "if ( CheckIfOffscreenImageExists() )" 
+	   
+	else	// !CheckIfOffscreenImageExists()
+		return CScrollView::OnEraseBkgnd(pDC);
+
+}	// end "OnEraseBkgnd"
+
+
+
+void CMImageView::OnHScroll (UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
+
+{
+	if (nSBCode == SB_THUMBPOSITION || nSBCode == SB_THUMBTRACK)
+		m_thumbScrollFlag = TRUE;
+	
+	CScrollView::OnHScroll(nSBCode, nPos, pScrollBar);
+
+	m_thumbScrollFlag = FALSE;
+
+}	// end "OnHScroll"
 
 
 
 void CMImageView::OnInitialUpdate(void)
 
 {  
-//	#ifdef	_WIN32
-		CSize					sizeDoc;
-		SCROLLINFO			scrollInfo;
-//	#endif	// _WIN32
+	CSize					sizeDoc;
+	SCROLLINFO			scrollInfo;
 
 	SIZE					lineIncrement,
 							pageIncrement;
@@ -933,17 +1357,15 @@ void CMImageView::OnInitialUpdate(void)
 							lineIncrement);
 	ResizeParentToFit(FALSE);   
 
-//	#ifdef _WIN32
-		scrollInfo.fMask = SIF_RANGE;
-		scrollInfo.nMin = 0;
+	scrollInfo.fMask = SIF_RANGE;
+	scrollInfo.nMin = 0;
 
-		scrollInfo.nMax = sizeDoc.cx;
-		SetScrollInfo (SB_HORZ, &scrollInfo, FALSE);
+	scrollInfo.nMax = sizeDoc.cx;
+	SetScrollInfo (SB_HORZ, &scrollInfo, FALSE);
 
-		scrollInfo.nMax = sizeDoc.cy;
-		SetScrollInfo (SB_VERT, &scrollInfo, FALSE);
-//	#endif	_WIN32
-			
+	scrollInfo.nMax = sizeDoc.cy;
+	SetScrollInfo (SB_VERT, &scrollInfo, FALSE);
+	
 	windowType = GetWindowType ();
 			
 	if (windowType == kThematicWindowType)
@@ -951,9 +1373,9 @@ void CMImageView::OnInitialUpdate(void)
 		CMImageFrame* imageFrameCPtr = GetDocument()->GetImageFrameCPtr();
 		imageFrameCPtr->InitialUpdate( GetDocument()->GetDocSize() ); 
 		
-		}		// end "if (windowType == kThematicWindowType)"
+		}	// end "if (windowType == kThematicWindowType)"
 			
-//	else		// windowType != kThematicType)
+//	else	// windowType != kThematicType)
 //		ResizeParentToFit(FALSE); 
 	
 	CScrollView::OnInitialUpdate(); 
@@ -981,9 +1403,9 @@ void CMImageView::OnInitialUpdate(void)
 						         
 			m_displayMultiCPtr = (CMDisplay*)new CMDisplay;
 			
-			}		// end "if (windowType == kThematicWindowType)"
+			}	// end "if (windowType == kThematicWindowType)"
 			
-		else		// windowType != kThematicWindowType
+		else	// windowType != kThematicWindowType
 			{       
 					// Save this image view in the frame class for non-thematic images.
 					// It was already saved for thematic type images when the splitter
@@ -992,19 +1414,198 @@ void CMImageView::OnInitialUpdate(void)
 			CMImageFrame* imageFrameCPtr = GetDocument()->GetImageFrameCPtr();
 			imageFrameCPtr->SetImageViewCPtr (this);
 			
-			}		// end "else windowType != kThematicWindowType"    
+			}	// end "else windowType != kThematicWindowType"    
 		
 //   	gMemoryTypeNeeded = 1;  	
 //		DisplayImage();			
 //   	gMemoryTypeNeeded = 0;
    	
-   	}		// end "if (m_imageWindowCPtr != NULL)"
+   	}	// end "if (m_imageWindowCPtr != NULL)"
 	
-}		// end "OnInitialUpdate"
+}	// end "OnInitialUpdate"
 
 
-/////////////////////////////////////////////////////////////////////////////
-// CMImageView printing
+                                                              		
+void CMImageView::OnKeyDown (
+				UINT nChar, UINT nRepCnt, UINT nFlags)
+
+{        
+	if (nChar == 0x11)
+		m_ctlKeyDownFlag = TRUE;
+
+	else if (nChar == 0x25 || nChar == 0x26 || nChar == 0x27 || nChar == 0x28)
+		DoNextDisplayChannelEvent (this, nChar);
+
+	CScrollView::OnKeyDown(nChar, nRepCnt, nFlags);
+	
+}	// end "OnKeyDown"
+
+ 
+
+void CMImageView::OnKeyUp (UINT nChar, UINT nRepCnt, UINT nFlags)
+
+{                                                                  
+	if (nChar == 0x11)
+		m_ctlKeyDownFlag = FALSE;
+	
+	CScrollView::OnKeyUp(nChar, nRepCnt, nFlags);
+
+}	// end "OnKeyUp"
+
+
+
+void CMImageView::OnLButtonDblClk (UINT nFlags, CPoint point)
+
+{                                                                                                              
+	if (!m_activeFlag || !CheckIfOffscreenImageExists())
+		return;
+	
+	CMTool* pTool = CMTool::FindTool(CMTool::c_toolType);
+	if (pTool != NULL)
+		pTool->OnLButtonDblClk(this, nFlags);
+	
+	CScrollView::OnLButtonDblClk(nFlags, point);
+	
+}	// end "OnLButtonDblClk"
+
+
+
+void CMImageView::OnLButtonDown (UINT nFlags, CPoint point)
+
+{                                                                 
+	if (!m_activeFlag || !CheckIfOffscreenImageExists())
+		return;  
+				
+	//::SetCursor(AfxGetApp()->LoadCursor (gCrossCursorID));
+	//gPresentCursor = kCross;
+		
+	CMTool* pTool = CMTool::FindTool(CMTool::c_toolType);
+	if (pTool != NULL)
+		pTool->OnLButtonDown (this, nFlags, point);
+	
+	CScrollView::OnLButtonDown (nFlags, point);
+
+}	// end "OnLButtonDown"
+
+
+
+void CMImageView::OnLButtonUp(UINT nFlags, CPoint point)
+
+{                                                                                                              
+	if (!m_activeFlag || !CheckIfOffscreenImageExists())
+		return;
+		
+	CMTool* pTool = CMTool::FindTool(CMTool::c_toolType);
+	if (pTool != NULL)                                                   
+		pTool->OnLButtonUp(this, nFlags, point, gNewSelectedWindowFlag);
+		                              
+	gNewSelectedWindowFlag = FALSE;
+	
+	CScrollView::OnLButtonUp (nFlags, point);
+
+}	// end "OnLButtonUp"
+
+
+
+void CMImageView::OnMouseMove (
+				UINT 			nFlags, 
+				CPoint 		point)
+
+{                                                
+	if (GetActiveWindowFlag () && CheckIfOffscreenImageExists ())
+		{
+		Boolean			handledFlag = FALSE;
+		
+		                               
+		CMTool* pTool = CMTool::FindTool(CMTool::c_toolType);
+		
+				// Set Cursor 
+		/*
+		if (gPresentCursor != kCross)
+			{		
+			//SetCursor(AfxGetApp()->LoadStandardCursor(IDC_CROSS));
+			//::SetCursor(AfxGetApp()->LoadCursor(IDC_CROSS_CURSOR));
+			::SetCursor(AfxGetApp()->LoadCursor(gCrossCursorID));
+			gPresentCursor = kCross;
+			
+			}	// end "if (gPresentCursor != kCross)"
+		*/
+		if (pTool != NULL)
+			handledFlag = pTool->OnMouseMove(this, nFlags, point);
+		
+		if (!handledFlag)
+			{
+			LongPoint longLocalPoint;
+			longLocalPoint.h = point.x;
+			longLocalPoint.v = point.y;	
+			UpdateCursorCoordinates (&longLocalPoint);
+			
+			}	// end "if (!handledFlag)"
+			
+		}	// end "if (GetActiveWindowFlag() && ..."
+	/*
+	else	// !GetActiveWindowFlag() || !CheckIfOffscreenImageExists()
+		{    
+		if (gPresentCursor != kWait && gPresentCursor != kSpin)
+			{		
+			SetCursor(AfxGetApp()->LoadStandardCursor (IDC_ARROW));
+			gPresentCursor = kArrow;
+			
+			if (gActiveImageViewCPtr != NULL)                
+				gActiveImageViewCPtr->UpdateCursorCoordinate();
+				
+			}	// end "if (gPresentCursor != kWait && ..."
+		   	
+		}	// end "else !GetActiveWindowFlag() || ..."
+	*/
+	CScrollView::OnMouseMove (nFlags, point);
+	
+}	// end "OnMouseMove"    
+
+
+/*
+void CMImageView::OnNcMouseMove(
+				UINT 			nFlags, 
+				CPoint 		point)
+
+{  	
+	if (gPresentCursor != kWait && gPresentCursor != kSpin)
+		{		
+		SetCursor(AfxGetApp()->LoadStandardCursor (IDC_ARROW));
+		gPresentCursor = kArrow;            
+			            
+		if (gActiveImageViewCPtr != NULL)                
+			gActiveImageViewCPtr->UpdateCursorCoordinates();
+			
+		}	// end "if (gPresentCursor != kWait && ..."              
+	
+	CScrollView::OnNcMouseMove (nFlags, point); 
+	
+}	// end "OnNcMouseMove"
+*/
+
+
+void CMImageView::OnPaint ()
+
+{                   
+//	Boolean			returnFlag;
+//	RECT				updateRect; 
+	
+	
+	if ( GetUpdateRect(&s_updateRect) )
+		{ 
+			
+		CPaintDC dc(this); // device context for painting 
+		OnPrepareDC(&dc);
+		OnDraw(&dc); 
+		
+		}	// end "	if ( GetUpdateRect(&updateRect) )"    
+
+	//already
+	// Do not call CScrollView::OnPaint() for painting messages
+}
+
+
 
 BOOL CMImageView::OnPreparePrinting(
 				CPrintInfo			*pInfo)
@@ -1013,30 +1614,10 @@ BOOL CMImageView::OnPreparePrinting(
 	// default preparation
 	return DoPreparePrinting(pInfo);
 }
-/*
-void 
-CMImageView::OnBeginPrinting(
-				CDC* pDC, 
-				CPrintInfo* pInfo) 
-				
-{
-	// TODO: add extra initialization before printing
-}
 
-void 
-CMImageView::OnEndPrinting(
-				CDC* pDC, 
-				CPrintInfo* pInfo)
-				
-{
-	// TODO: add cleanup after printing
-	
-}		// end "OnEndPrinting"  
-*/                                                                             
 
                                                                              
-void 
-CMImageView::OnPrint(CDC* pDC, CPrintInfo* pInfo)
+void CMImageView::OnPrint(CDC* pDC, CPrintInfo* pInfo)
 
 {
 	double 		saveMagnification;
@@ -1047,14 +1628,14 @@ CMImageView::OnPrint(CDC* pDC, CPrintInfo* pInfo)
 					legendWidth,
 					titleHeight;
 	
-	
-/*	if (pInfo->m_nCurPage == 1)  // page no. 1 is the title page
+	/*
+	if (pInfo->m_nCurPage == 1)  // page no. 1 is the title page
 		{
 		PrintTitlePage(pDC, pInfo); 
 		
 		return; // nothing else to print on page 1 but the page title 
 		
-		}		// end "if (pInfo->m_nCurPage == 1)"
+		}	// end "if (pInfo->m_nCurPage == 1)"
 	
 	CString strHeader = GetDocument()->GetTitle();
 
@@ -1064,7 +1645,7 @@ CMImageView::OnPrint(CDC* pDC, CPrintInfo* pInfo)
 			// amount of the page used for the header.
 
 	pDC->SetWindowOrg(pInfo->m_rectDraw.left,-pInfo->m_rectDraw.top);
- */
+ 	*/
  			// If Stretch Device Independant Bitmaps are not support on this
  			// printer, then exit.
  			            
@@ -1176,7 +1757,7 @@ CMImageView::OnPrint(CDC* pDC, CPrintInfo* pInfo)
 	
 	m_printerTextScaling = 1.0;										
 	
-}		// end "OnPrint"
+}	// end "OnPrint"
 
    
 
@@ -1185,11 +1766,8 @@ CMImageView::OnScrollBy(
 				CSize 			sizeScroll, 
 				BOOL 				bDoScroll)
 				
-{ 
-
-//	#ifdef	_WIN32
-		SCROLLINFO			scrollInfo;
-//	#endif	// _WIN32
+{
+	SCROLLINFO			scrollInfo;
 
 	CPoint					scrollOffset;
 	
@@ -1200,34 +1778,26 @@ CMImageView::OnScrollBy(
 
 			// Get current scroll setting.
 
-//	#ifndef	_WIN32
-//		scrollOffset = GetScrollPosition();
-//	#endif	// !_WIN32
-	
 	if (sizeScroll.cx != 0)
 		{
-//		#ifdef	_WIN32
-			GetScrollInfo (SB_HORZ, &scrollInfo, SIF_ALL); // SIF_TRACKPOS
-			scrollOffset.x = scrollInfo.nPos;
-			if (m_thumbScrollFlag)
-				sizeScroll.cx = scrollInfo.nTrackPos - scrollInfo.nPos;
-//		#endif	// _WIN32
+		GetScrollInfo (SB_HORZ, &scrollInfo, SIF_ALL); // SIF_TRACKPOS
+		scrollOffset.x = scrollInfo.nPos;
+		if (m_thumbScrollFlag)
+			sizeScroll.cx = scrollInfo.nTrackPos - scrollInfo.nPos;
 
 		sizeScroll.cx = (int)NormalizeScrollOffset(magnification, 
 																sizeScroll.cx,
 																scrollOffset.x);
 		
-		}		// end "if (sizeScroll.cx != 0)"
+		}	// end "if (sizeScroll.cx != 0)"
 				
 	if (sizeScroll.cy != 0)
 		{	   
-//		#ifdef	_WIN32
-			GetScrollInfo (SB_VERT, &scrollInfo, SIF_ALL);
-			scrollOffset.y = scrollInfo.nPos;
-			if (m_thumbScrollFlag)
-				sizeScroll.cy = scrollInfo.nTrackPos - scrollInfo.nPos;
-//		#endif	// _WIN32
-                
+		GetScrollInfo (SB_VERT, &scrollInfo, SIF_ALL);
+		scrollOffset.y = scrollInfo.nPos;
+		if (m_thumbScrollFlag)
+			sizeScroll.cy = scrollInfo.nTrackPos - scrollInfo.nPos;
+			
 		sizeScroll.cy = (int)NormalizeScrollOffset(magnification, 
 																sizeScroll.cy,
 																scrollOffset.y); 
@@ -1243,9 +1813,9 @@ CMImageView::OnScrollBy(
 			windowRect.bottom = titleHeight;                        
 			InvalidateRect(&windowRect, TRUE);
 			
-			}		// end "if (titleHeight > 0)"
+			}	// end "if (titleHeight > 0)"
 			
-		}		// end "if (sizeScroll.cy != 0)"
+		}	// end "if (sizeScroll.cy != 0)"
 	
 	
 	BOOL scrolledFlag = CScrollView::OnScrollBy(sizeScroll, bDoScroll);
@@ -1255,22 +1825,256 @@ CMImageView::OnScrollBy(
 	
 	return (scrolledFlag);
 
-}		// end "OnScrollBy" 
+}	// end "OnScrollBy"
+
+
+
+BOOL CMImageView::OnSetCursor (
+				CWnd* 		pWnd, 
+				UINT 			nHitTest, 
+				UINT 			message)
+
+{  
+			// This is done so that the 'OnSetCursor' routine in CMImageFrame
+			// does not get called.
+			                                                      
+//	return TRUE;
+	
+//already	
+//	return CScrollView::OnSetCursor(pWnd, nHitTest, message);
+
+	if (gPresentCursor == kWait || gPresentCursor == kSpin)
+		{
+				// Wait cursor in affect. Processing underway.
+				// Restart the wait cursor in case in was change to pointer
+				// before entering the image frame.
+		
+		AfxGetApp ()->DoWaitCursor (0);
+																					return (TRUE);
+		
+		}	// end "if (gPresentCursor == kWait || gPresentCursor == kSpin)"
+
+	if (GetActiveWindowFlag () && CheckIfOffscreenImageExists ())
+		{
+		if (gPresentCursor != kCross)
+			{		
+			::SetCursor(AfxGetApp()->LoadCursor (gCrossCursorID));
+			gPresentCursor = kCross;
+			
+			}	// end "if (gPresentCursor != kCross)"
+		
+																					return (TRUE);
+			
+		}	// end "if (GetActiveWindowFlag() && ..."
+		
+	else	// !GetActiveWindowFlag () || !CheckIfOffscreenImageExists ()
+		{    
+		//::SetCursor (AfxGetApp()->LoadStandardCursor (IDC_ARROW));
+			
+		if (gActiveImageViewCPtr != NULL)
+			gActiveImageViewCPtr->UpdateCursorCoordinates();
+				
+		gPresentCursor = kArrow;
+			
+		return CScrollView::OnSetCursor (pWnd, nHitTest, message);
+		   	
+		}	// end "else !GetActiveWindowFlag() || ..."
+
+}	// end "OnSetCursor"
+
+
+
+void CMImageView::OnSetFocus(
+				CWnd* 				pOldWnd)
+
+{         
+			// These settings will change only when
+			// there is no active processing funtion running.
+	                                		
+	if (gProcessorCode == 0) 
+		GetImageFrameCPtr()->UpdateActiveImageWindowInfo(); 
+		                                     
+	CScrollView::OnSetFocus(pOldWnd);
+	
+}	// end "OnSetFocus"
+
+
+
+void CMImageView::OnSize (
+				UINT 		nType, 
+				int 		cx, 
+				int 		cy)
+				
+{  
+	if ( m_withinOnSizeFlag )
+																						return;
+																						
+	CScrollView::OnSize(nType, cx, cy);
+	
+//	if (m_activeFlag && m_callUpdateScrollRangeFlag)
+	if (m_callUpdateScrollRangeFlag &&
+								GetImageFrameCPtr()->GetActiveWindowFlag() )
+		{                                
+		double magnification = m_displayMultiCPtr->GetMagnification();
+		UpdateScrollRange (magnification); 
+			                       
+		UpdateOffscreenMapOrigin ();
+		
+		}	// end "if (m_callUpdateScrollRangeFlag && ...)"                
+	
+}	// end "OnSize"
+
  
 
-void CMImageView::Remove(CMDrawObject* pObject)
+void CMImageView::OnSysKeyDown (UINT nChar, UINT nRepCnt, UINT nFlags)
 
-{/*
+{
+	CScrollView::OnSysKeyDown(nChar, nRepCnt, nFlags);
+	
+} 	// end "OnSysKeyDown"
+
+
+
+void CMImageView::OnSysKeyUp (UINT nChar, UINT nRepCnt, UINT nFlags)
+
+{                                                                                                       
+	if (nChar == 0x11)
+		m_ctlKeyDownFlag = FALSE;
+	
+	CScrollView::OnSysKeyUp (nChar, nRepCnt, nFlags);
+	
+}	// end "OnSysKeyUp"
+
+
+							
+void CMImageView::OnUpdate(
+				CView*		pSender,
+				LPARAM		lHint,
+				CObject*		pHint)
+				
+{  
+			// The following is what is in "CView::OnUpdate" except that the
+			// argument passed is TRUE.
+	/*
+	sprintf(	(char*)&gTextString,
+				"Image Invalidate%s",
+				gEndOfLine);
+	OutputString ( NULL, 
+					(char*)&gTextString, 
+					0, 
+					1, 
+					TRUE);
+	*/
+	Invalidate (FALSE);
+
+}	// end "OnUpdate"
+
+
+
+void CMImageView::OnUpdateEditClear(
+				CCmdUI* 		pCmdUI)
+{                                                                                                                                                     
+	pCmdUI->Enable(FALSE);
+	
+}	// end "OnUpdateEditClear"
+
+
+
+void CMImageView::OnUpdateEditCut(
+				CCmdUI* 		pCmdUI)
+{                                                                                                             
+	pCmdUI->Enable(FALSE);
+	
+}
+
+            
+
+void CMImageView::OnUpdateEditPaste(
+				CCmdUI* 		pCmdUI)
+
+{                                                                                                             
+	pCmdUI->Enable(FALSE);
+	
+}
+  
+
+
+void CMImageView::OnUpdateEditUndo(
+				CCmdUI* 		pCmdUI) 
+				
+{                                                                                                                                                     
+	pCmdUI->Enable(FALSE);
+	
+}	// end "OnUpdateEditUndo"
+
+ 
+ 
+void CMImageView::OnUpdateFilePrintSetup(
+				CCmdUI* 		pCmdUI)
+				
+{	                                                              
+	pCmdUI->Enable(TRUE);
+	
+}	// end "OnUpdateFilePrintSetup"
+
+
+
+void CMImageView::OnVScroll (UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
+
+{              	    
+	if (nSBCode == SB_THUMBPOSITION || nSBCode == SB_THUMBTRACK)
+		m_thumbScrollFlag = TRUE;      
+	
+	CScrollView::OnVScroll (nSBCode, nPos, pScrollBar);
+
+	m_thumbScrollFlag = FALSE;      
+	
+}	// end "OnVScroll"
+
+ 
+
+void CMImageView::Remove (CMDrawObject* pObject)
+
+{
+	/*
 	POSITION pos = m_selection.Find(pObject);
 	if (pos != NULL)
 		m_selection.RemoveAt(pos);
-*/		
-}		// end "Remove"
+	*/
+}	// end "Remove"
+
+
+
+void CMImageView::ScrollH (UINT nSBCode)
+
+{
+	OnHScroll(nSBCode,0,NULL);
+	
+}	// end "ScrollH"
+
+
+
+void CMImageView::ScrollV (UINT nSBCode)
+
+{
+	OnVScroll(nSBCode,0,NULL);
+	
+}	// end "ScrollV"
+
+
+                                                              		
+void CMImageView::SetControlKeyFlag(
+			Boolean				flag)
+{  
+	if (this != NULL)                  
+		m_ctlKeyDownFlag = flag; 
+	
+}	// end "SetContolKeyFlag"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1335,901 +2139,63 @@ void CMImageView::SetLegendBitMapInfoHeaderHandle (
 
 		}	// end "if (this != NULL)"
 	
-}	// end "SetBitMapInfoHeader"     
+}	// end "SetBitMapInfoHeader"
 
+ 
 
-
-/////////////////////////////////////////////////////////////////////////////
-// CMspecView diagnostics
-
-#ifdef _DEBUG
-void 
-CMImageView::AssertValid() const
+void CMImageView::SetScrollSizes(int nMapMode, 
+											SIZE sizeTotal,
+											const SIZE& sizePage, 
+											const SIZE& sizeLine)
 {
-	CScrollView::AssertValid();
-}
+	ASSERT(sizeTotal.cx >= 0 && sizeTotal.cy >= 0);
+	ASSERT(nMapMode > 0);
+	ASSERT(nMapMode != MM_ISOTROPIC && nMapMode != MM_ANISOTROPIC);
 
-void 
-CMImageView::Dump(CDumpContext& dc) const
-{
-	CScrollView::Dump(dc);
-}
+	int nOldMapMode = m_nMapMode;
+	m_nMapMode = nMapMode;
+	m_totalLog = sizeTotal;
 
+	//BLOCK: convert logical coordinate space to device coordinates
+	{
+		CWindowDC dc(NULL);
+		ASSERT(m_nMapMode > 0);
+		dc.SetMapMode(m_nMapMode);
 
-CMImageDoc* 
-CMImageView::GetDocument() // non-debug version is inline
-{
-	if (this != NULL)
+		// total size
+		m_totalDev = m_totalLog;
+//		dc.LPtoDP((LPPOINT)&m_totalDev);
+		m_pageDev = sizePage;
+//		dc.LPtoDP((LPPOINT)&m_pageDev);
+		m_lineDev = sizeLine;
+	} // release DC here
+
+	// now adjust device specific sizes
+	ASSERT(m_totalDev.cx >= 0 && m_totalDev.cy >= 0);
+	if (m_pageDev.cx == 0)
+		m_pageDev.cx = m_totalDev.cx / 10;
+	if (m_pageDev.cy == 0)
+		m_pageDev.cy = m_totalDev.cy / 10;
+	if (m_lineDev.cx == 0)
+		m_lineDev.cx = m_pageDev.cx / 10;
+	if (m_lineDev.cy == 0)
+		m_lineDev.cy = m_pageDev.cy / 10;
+
+	if (m_hWnd != NULL)
 		{
-		ASSERT(m_pDocument->IsKindOf(RUNTIME_CLASS(CMImageDoc)));
-		return (CMImageDoc*)m_pDocument;
-
-		}		// end "if (this != NULL)"
-
-	else		// this == NULL
-		return (NULL);
-}
-#endif //_DEBUG
-
-
-/////////////////////////////////////////////////////////////////////////////
-// CMImageView message handlers    
-                         
-LRESULT 
-CMImageView::OnDoRealize(
-				WPARAM 			wParam, 
-				LPARAM			lParam)
-
-{  
-	LRESULT			returnCode;
+		// window has been created, invalidate now
+		UpdateBars();
+		if (nOldMapMode != m_nMapMode)
+			Invalidate(TRUE);
+		}
 	
-	                                  
-	if (m_imageWindowCPtr == NULL || m_displayMultiCPtr == NULL)
-	
-			// must be a new document
-																							return 0L; 
-																							
-			// If wParam == NULL, then assume that wParam is to equal the
-			// m_hWnd parameter for this view. 
-			// wParam is not used as of 2/27/97.
-			
-//	if (wParam == NULL)
-//		wParam = (WPARAM)m_hWnd; 
-/*					             
-	sprintf(	(char*)&gTextString,
-				"Image OnDoRealize %s",
-				gEndOfLine);
-	OutputString ( NULL, 
-					(char*)&gTextString, 
-					0, 
-					1, 
-					TRUE);  
-*/	
-	returnCode = GetImageFrameCPtr()->DoRealize(lParam != 1, this);
-/*	
-	sprintf(	(char*)&gTextString,
-				"%s",
-				gEndOfLine);
-	OutputString ( NULL, 
-					(char*)&gTextString, 
-					0, 
-					1, 
-					TRUE); 
-*/
-	return returnCode;
-	
-}		// end "OnDoRealize" 
-
-
-							
-void 
-CMImageView::OnUpdate(
-				CView*		pSender,
-				LPARAM		lHint,
-				CObject*		pHint)
-				
-{  
-			// The following is what is in "CView::OnUpdate" except that the
-			// argument passed is TRUE.
-/*					             
-	sprintf(	(char*)&gTextString,
-				"Image Invalidate%s",
-				gEndOfLine);
-	OutputString ( NULL, 
-					(char*)&gTextString, 
-					0, 
-					1, 
-					TRUE);
-*/			
-	Invalidate (FALSE);
-
-}		// end "OnUpdate"
-
-
-
-void 
-CMImageView::OnUpdateEditCut(
-				CCmdUI* 		pCmdUI)
-{                                                                                                             
-	pCmdUI->Enable(FALSE);
-	
-}
-
-            
-
-void 
-CMImageView::OnUpdateEditPaste(
-				CCmdUI* 		pCmdUI)
-{                                                                                                             
-	pCmdUI->Enable(FALSE);
-	
-}
-     
-
-
-void 
-CMImageView::OnEditCut()
-{
-	// TODO: Add your command handler code here
-	
-}
-
-             
-
-void 
-CMImageView::OnEditPaste(void)
-
-{                        
-	
-}
-
- 
- 
-void 
-CMImageView::OnUpdateFilePrintSetup(
-				CCmdUI* 		pCmdUI)
-				
-{	                                                              
-	pCmdUI->Enable(TRUE);
-	
-}  
-
-
-
-void 
-CMImageView::OnUpdateEditClear(
-				CCmdUI* 		pCmdUI)
-{                                                                                                                                                     
-	pCmdUI->Enable(FALSE);
-	
-}		// end "OnUpdateEditClear"
-  
-
-
-void 
-CMImageView::OnUpdateEditUndo(
-				CCmdUI* 		pCmdUI) 
-				
-{                                                                                                                                                     
-	pCmdUI->Enable(FALSE);
-	
-}		// end "OnUpdateEditUndo"
-
- 
-
-void 
-CMImageView::ZoomIn(void) 
-				
-{   			
-	double		magnification,
-					maxMagnification,
-					inverse,
-					step;   
-					
-					                 
-	if ( ((CMultiSpecApp*)AfxGetApp())->GetZoomCode() == 0 )
-																			return;
-								                                                      
-	magnification = m_displayMultiCPtr->GetMagnification();
-					
-	maxMagnification = m_displayMultiCPtr->GetMaxMagnification();
-						
-	if (magnification < maxMagnification)
-		{  
-		inverse = 1./magnification;
-		            
-		step = 0.1;
-		
-		if (!m_ctlKeyDownFlag)
-			{       
-			step = 1.0;   
-		
-			if (magnification > 1)
-				magnification = (double)(UInt16)(magnification + .5);
-				
-			if (inverse > 1)
-				inverse = (double)(UInt16)(inverse + .5);
-				
-			}		// end "if (!m_ctlKeyDownFlag)"
-			
-		if (magnification >= 1.0)
-			magnification += step;
-			
-		else		// magnification < 1.0 
-			magnification = 1./(inverse - step); 
-			                                                    
-		magnification = MIN(magnification, maxMagnification);
-		
-		UpdateScrolls(magnification); 
-
-		UpdateScaleInformation (gActiveImageWindowInfoH);
-		
-		}		// end "if (magnification < maxMagnification)" 
-	
-}		// end "ZoomIn"
-
-
-void 
-CMImageView::ZoomOut(void) 
-				
-{  
-	double		magnification,
-					inverse,
-					step;  
-					
-					                 
-	if ( ((CMultiSpecApp*)AfxGetApp())->GetZoomCode() == 0)
-																			return; 
-	                				                                                      
-	magnification = m_displayMultiCPtr->GetMagnification();
-						
-	if (magnification > gMinMagnification)
-		{  
-		inverse = 1./magnification; 
-		            
-		step = 0.1;
-		
-		if (!m_ctlKeyDownFlag)
-			{       
-			step = 1.0;   
-		
-			if (magnification > 1)
-				magnification = (double)(UInt16)(magnification + .5);
-				
-			if (inverse > 1)
-				inverse = (double)(UInt16)(inverse + .5);
-				
-			}		// end "if (!m_ctlKeyDownFlag)"
-			
-		if (magnification > 1.)
-			magnification -= step;
-			
-		else		// magnification <= 1.
-			magnification = 1./(inverse + step);
-			
-		magnification = MAX(magnification, gMinMagnification);
-		
-		UpdateScrolls(magnification); 
-
-		UpdateScaleInformation (gActiveImageWindowInfoH);
-		
-		}		// end "if (magnification < gMaxMagnification)"                                
-	
-}		// end "ZoomOut"
-   
-void 
-CMImageView::ScrollV(UINT nSBCode) 
-{
-	OnVScroll(nSBCode,0,NULL);
-}
-
-void 
-CMImageView::ScrollH(UINT nSBCode) 
-{
-	OnHScroll(nSBCode,0,NULL);
-}
-
-void 
-CMImageView::OnSetFocus(
-				CWnd* 				pOldWnd)
-
-{         
-			// These settings will change only when
-			// there is no active processing funtion running.
-	                                		
-	if (gProcessorCode == 0) 
-		GetImageFrameCPtr()->UpdateActiveImageWindowInfo(); 
-		                                     
-	CScrollView::OnSetFocus(pOldWnd);
-	
-}		// end "OnSetFocus"
-
-
-
-void 
-CMImageView::OnMouseMove(
-				UINT 			nFlags, 
-				CPoint 		point)
-
-{                                                
-	if (GetActiveWindowFlag() && CheckIfOffscreenImageExists() )
-		{
-		Boolean			handledFlag = FALSE;
-		
-		                               
-		CMTool* pTool = CMTool::FindTool(CMTool::c_toolType);
-		
-				// Set Cursor 
-		
-		if (gPresentCursor != kCross)
-			{		
-//			SetCursor(AfxGetApp()->LoadStandardCursor(IDC_CROSS));
-//			::SetCursor(AfxGetApp()->LoadCursor(IDC_CROSS_CURSOR));
-			::SetCursor(AfxGetApp()->LoadCursor(gCrossCursorID));
-			gPresentCursor = kCross;
-			
-			}		// end "if (gPresentCursor != kCross)"
-				
-		if (pTool != NULL)
-			handledFlag = pTool->OnMouseMove(this, nFlags, point);
-		
-		if (!handledFlag)
-			{
-			LongPoint longLocalPoint;
-			longLocalPoint.h = point.x;
-			longLocalPoint.v = point.y;	
-			UpdateCursorCoordinates( &longLocalPoint );
-			
-			}		// end "if (!handledFlag)"
-			
-		}		// end "if (GetActiveWindowFlag() && ..."
-		
-	else		// !GetActiveWindowFlag() || !CheckIfOffscreenImageExists()
-		{    
-		if (gPresentCursor != 2)
-			{		
-			SetCursor(AfxGetApp()->LoadStandardCursor(IDC_ARROW));
-			gPresentCursor = 2;
-			
-			if (gActiveImageViewCPtr != NULL)                
-				gActiveImageViewCPtr->UpdateCursorCoordinates();
-				
-			}		// end "if (gPresentCursor != 2)"
-		   	
-		}		// end "else !GetActiveWindowFlag() || ..."              
-	
-	CScrollView::OnMouseMove(nFlags, point);
-	
-}		// end "OnMouseMove"    
-
-
-
-void 
-CMImageView::OnNcMouseMove(
-				UINT 			nFlags, 
-				CPoint 		point)
-
-{  	
-	if (gPresentCursor != 2)
-		{		
-		SetCursor(AfxGetApp()->LoadStandardCursor(IDC_ARROW));
-		gPresentCursor = 2;            
-			            
-		if (gActiveImageViewCPtr != NULL)                
-			gActiveImageViewCPtr->UpdateCursorCoordinates();
-			
-		}		// end "if (gPresentCursor != 2)"              
-	
-	CScrollView::OnNcMouseMove(nFlags, point); 
-	
-}		// end "OnNcMouseMove"
-
-
-
-void CMImageView::OnLButtonDown(UINT nFlags, CPoint point)
-{                                                                 
-	if (!m_activeFlag || !CheckIfOffscreenImageExists())
-		return;  
-				
-//	SetCursor(AfxGetApp()->LoadStandardCursor(IDC_CROSS));
-//	SetCursor(AfxGetApp()->LoadCursor(IDC_CROSS_CURSOR));
-	::SetCursor(AfxGetApp()->LoadCursor(gCrossCursorID)); 
-	gPresentCursor = kCross;
-		
-	CMTool* pTool = CMTool::FindTool(CMTool::c_toolType);
-	if (pTool != NULL)
-		pTool->OnLButtonDown(this, nFlags, point);
-	
-	CScrollView::OnLButtonDown(nFlags, point);
-
-}		// end "OnLButtonDown"
-
-
-
-void CMImageView::OnLButtonUp(UINT nFlags, CPoint point)
-{                                                                                                              
-	if (!m_activeFlag || !CheckIfOffscreenImageExists())
-		return;
-		
-	CMTool* pTool = CMTool::FindTool(CMTool::c_toolType);
-	if (pTool != NULL)                                                   
-		pTool->OnLButtonUp(this, nFlags, point, gNewSelectedWindowFlag);
-		                              
-	gNewSelectedWindowFlag = FALSE;
-	
-	CScrollView::OnLButtonUp(nFlags, point);
-
-}		// end "OnLButtonUp"
-
-//new
-void CMImageView::OnLButtonDblClk(UINT nFlags, CPoint point)
-{                                                                                                              
-	if (!m_activeFlag || !CheckIfOffscreenImageExists())
-		return;
-	
-	CMTool* pTool = CMTool::FindTool(CMTool::c_toolType);
-	if (pTool != NULL)
-		pTool->OnLButtonDblClk(this, nFlags);
-	
-	CScrollView::OnLButtonDblClk(nFlags, point);
-}
-//end new
-
-void 
-CMImageView::OnSize(
-				UINT 		nType, 
-				int 		cx, 
-				int 		cy)
-				
-{  
-	if ( m_withinOnSizeFlag )
-																						return;
-																						
-	CScrollView::OnSize(nType, cx, cy);
-	
-//	if (m_activeFlag && m_callUpdateScrollRangeFlag)
-	if (m_callUpdateScrollRangeFlag &&
-								GetImageFrameCPtr()->GetActiveWindowFlag() )
-		{                                
-		double magnification = m_displayMultiCPtr->GetMagnification();
-		UpdateScrollRange (magnification); 
-			                       
-		UpdateOffscreenMapOrigin ();
-		
-		}		// end "if (m_callUpdateScrollRangeFlag && ...)"                
-	
-}		// end "OnSize" 
-
-
-
-SInt32 
-CMImageView::NormalizeScrollOffset(
-				double				magnification,
-				SInt32				scrollIncrement,
-				SInt32				scrollOffset)
-
-{
-	SInt32			normalizedIncrement;
-	  
-							
-	normalizedIncrement = 
-				(SInt32)(((double)scrollOffset + scrollIncrement)/magnification + .5);
-	normalizedIncrement = MAX(0, normalizedIncrement);
-		
-	normalizedIncrement = (SInt32)((double)normalizedIncrement * magnification - scrollOffset);
-	
-	return (normalizedIncrement);                   
-			
-}		// end "NormalizeScrollOffset" 
-
-
-
-BOOL 
-CMImageView::OnSetCursor(
-				CWnd* 		pWnd, 
-				UINT 			nHitTest, 
-				UINT 			message)
-
-{  
-			// This is done so that the 'OnSetCursor' routine in CMImageFrame
-			// does not get called.
-			                                                      
-	return TRUE;
-//already	
-//	return CScrollView::OnSetCursor(pWnd, nHitTest, message);
-}
-
-
-                                                              		
-void CMImageView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
-{        
-	if (nChar == 0x11)
-		m_ctlKeyDownFlag = TRUE;
-
-	else if (nChar == 0x25 || nChar == 0x26 || nChar == 0x27 || nChar == 0x28)
-		DoNextDisplayChannelEvent (this, nChar);
-
-	CScrollView::OnKeyDown(nChar, nRepCnt, nFlags);
-} 
-
-                            
-
-void CMImageView::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags)
-{  
-	Boolean		charHandledFlag = FALSE;
-	
-	if (nChar == 0x08)
-		charHandledFlag = DoDeleteKey (nChar); 
-		
-   else if (nChar == 13 && GetCapture() != this)
-		{                        
-		if ( gProjectSelectionWindow != NULL &&
-		     	this == gProjectSelectionWindow &&
-				(gStatisticsMode == kStatNewFieldRectMode ||
-									gStatisticsMode == kStatNewFieldPolyMode) )
-			{                  
-			if ( GetSelectionTypeCode(gActiveImageViewCPtr) != 0 )
-				{
-				Point			location;
-				location.h = 0;
-				location.v = 0;
-				StatisticsWControlEvent ( gProjectInfoPtr->addToControlH, 
-													FALSE, 
-													location,
-													kAddToListControl);
-					 
-				}		// end "if ( GetSelectionTypeCode (gActiveImageViewCPtr) ..."
-				
-			}		// end "if ( gProjectSelectionWindow && ..."
-			
-		}		// end "else if (nChar == 13 && GetCapture() != this)"
-
-	CScrollView::OnChar(nChar, nRepCnt, nFlags);
-	
-} 		// end "OnChar"                             
-
- 
-
-Boolean 
-CMImageView::DoDeleteKey (
-				UINT 						nChar)
-
-{                                                         
-	Boolean		charHandledFlag = FALSE;
-	
-	if (this != NULL)                    
-		{                                                                  
-		if (gProjectSelectionWindow != NULL && this == gProjectSelectionWindow)
-			{
-			if (gStatisticsMode == kStatNewFieldPolyMode && GetCapture() == this)
-				{
-						// A polygon selection is in process. Delete the last selected polygon 
-						// point.
-							
-				CMTool* pTool = CMTool::FindTool(CMTool::c_toolType);
-				if (pTool != NULL)
-					pTool->OnChar(this, nChar);  
-									
-				charHandledFlag = TRUE;
-					
-				}		// end "if (gStatisticsMode == kStatNewFieldPolyMode && "
-			
-			else if (gStatisticsMode == kStatNewFieldRectMode || 
-												gStatisticsMode == kStatNewFieldPolyMode )
-				{
-						// Delete the selected field if one exists. 
-						
-				if ( GetSelectionTypeCode (gActiveImageViewCPtr) != 0 )
-					{               
-					ClearSelectionArea (gActiveImageViewCPtr);
-		
-					ShowGraphSelection ();
-									
-					charHandledFlag = TRUE;
-						
-					}		// end "if ( GetSelectionTypeCode (gActiveImageViewCPtr) != 0)"
-					
-				}		// end "else if (gStatisticsMode == kStatNewFieldRectMode || ..."
-				
-			}		// end "if (gProjectSelectionWindow != NULL && ..." 
-			
-		}		// end "if (this != NULL)"
-	
-	return (charHandledFlag);
-	
-} 		// end "DoDeleteKey"                             
-
- 
-
-void CMImageView::OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags)
-{                                                                  
-	if (nChar == 0x11)
-		m_ctlKeyDownFlag = FALSE;
-	
-	CScrollView::OnKeyUp(nChar, nRepCnt, nFlags);
-}
-
-
-
-void CMImageView::OnSysKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags)
-{                                                                                                       
-	if (nChar == 0x11)
-		m_ctlKeyDownFlag = FALSE;
-	
-	CScrollView::OnSysKeyUp(nChar, nRepCnt, nFlags);
-}
-
-
-
-void CMImageView::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
-{              	    
-	if (nSBCode == SB_THUMBPOSITION || nSBCode == SB_THUMBTRACK)
-		m_thumbScrollFlag = TRUE;      
-	
-	CScrollView::OnVScroll(nSBCode, nPos, pScrollBar);
-
-	m_thumbScrollFlag = FALSE;      
-	
-}		// end "OnVScroll"
-
-
-
-void CMImageView::OnPaint()
-{                   
-//	Boolean			returnFlag;
-//	RECT				updateRect; 
-	
-	
-	if ( GetUpdateRect(&s_updateRect) )
-		{ 
-			
-		CPaintDC dc(this); // device context for painting 
-		OnPrepareDC(&dc);
-		OnDraw(&dc); 
-		
-		}		// end "	if ( GetUpdateRect(&updateRect) )"    
-
-	//already
-	// Do not call CScrollView::OnPaint() for painting messages
-}                                                               
-
-
-                                                              		
-void CMImageView::SetControlKeyFlag(
-			Boolean				flag)
-{  
-	if (this != NULL)                  
-		m_ctlKeyDownFlag = flag; 
-	
-}		// end "SetContolKeyFlag"
-
- 
-
-void CMImageView::OnSysKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
-{
-	// TODO: Add your message handler code here and/or call default
-	
-	CScrollView::OnSysKeyDown(nChar, nRepCnt, nFlags);
-	
-} 		// end "OnSysKeyDown"
-
-
-
-void 
-CMImageView::DoFilePrint()
-
-{
-	gProcessorCode = kPrintProcessor;
-	CScrollView::OnFilePrint();
-	gProcessorCode = 0;
-	
-} 		// end "DoFilePrint"
-
-
-
-void CMImageView::DoFilePrintPreview()
-
-{  
-	gProcessorCode = kPrintProcessor;
-	CScrollView::OnFilePrintPreview();
-	gProcessorCode = 0;
-	
-} 		// end "DoFilePrintPreview" 
-
-
-
-void CMImageView::DrawLegend ()
-{	                                          
-	CMLegendView* legendViewCPtr = 
-								GetDocument()->GetImageFrameCPtr()->GetLegendViewCPtr();
-
-	CMLegendList* legendListPtr = (CMLegendList*)GetActiveLegendListHandle();
-	if (legendListPtr != NULL)
-		{
-/*		if (m_printCopyModeFlag)
-			{
-			CPoint		windowOrigin;
-			CRect			windowRect;
-
-			windowOrigin = m_pDC->GetWindowOrg ();
-			GetWindowRect (windowRect);
-
-			if (!gMFC_Rgn.CreateRectRgn(
-						0,
-						0,
-						580,
-						windowRect.bottom) )
-																							return;
-				
-			gMFC_Rgn.SetRectRgn(
-						0,
-						0,
-						580,
-						windowRect.bottom);
-											
-			m_pDC->SelectClipRgn(&gMFC_Rgn); 
-
-			gMFC_Rgn.DeleteObject();
-
-			}		// end "if (m_printCopyModeFlag)"
-*/
-		legendListPtr->DrawLegendList(); 
-		
-		}		// end "if (legendListPtr != NULL)"
-	
-	CMComboBox* listBoxPtr = &(legendViewCPtr->m_legendTitleCombo); 
-	if (listBoxPtr != NULL)
-		listBoxPtr->DrawLegendTitle();  
-	
-}		// end "DrawLegend"
-
-
-
-void CMImageView::DoEditCopy()
-{
-	CBitmap				cBmp;
-
-   CRect					rect, 
-							destinationRect;	// For storing the size of the image to be copied.
-
-   CDC					hDC;
-
-	LongPoint			topleftLPoint, 
-							rightbottomLPoint;
-	                
-	LongPoint			tempPoint;
-	
-   Rect					sourceRect;
-   
-   SInt16				legendWidth;
-
-
-			// Get the size of the window
-	
-	GetClientRect(rect);
-	
-  	Handle windowInfoHandle = GetWindowInfoHandle(gActiveImageWindow);
-	Handle selectionInfoHandle = GetSelectionInfoHandle (windowInfoHandle);
-
-	WindowInfoPtr windowInfoPtr = (WindowInfoPtr)GetHandlePointer(
-											windowInfoHandle, kLock, kNoMoveHi);
-																											
-	GetSelectedOffscreenRectangle ( windowInfoPtr,
-												&sourceRect,
-												TRUE,
-												TRUE );
-
-	tempPoint.h = sourceRect.top;
-	tempPoint.v = sourceRect.left;
-
-   ConvertOffScreenPointToWinPoint (windowInfoHandle, 
-												&tempPoint, 
-												&topleftLPoint);
-
-	tempPoint.h = sourceRect.bottom;
-	tempPoint.v = sourceRect.right;
-
-   ConvertOffScreenPointToWinPoint (windowInfoHandle, 
-												&tempPoint, 
-												&rightbottomLPoint);
-
-	destinationRect.bottom = (int)rightbottomLPoint.h;
-	destinationRect.top = (int)topleftLPoint.h;
-	destinationRect.right = (int)rightbottomLPoint.v;
-	destinationRect.left = (int)topleftLPoint.v;
-
-	CClientDC   cWndDC(this);					// View is an hWnd, so we can use "this"  
-   hDC.CreateCompatibleDC(&cWndDC);			// Create the memory DC. 
-                                                     
-	destinationRect.bottom += ::GetTitleHeight(windowInfoHandle);
-
-	legendWidth = ::GetLegendWidth(windowInfoHandle);
-
-			//compare the height of image and the height of the legend
-
-	if (legendWidth > 0)
-		{
-		SInt16 legendBottom = GetLegendFullHeight();
-		destinationRect.bottom = MAX(destinationRect.bottom, 
-												destinationRect.top + legendBottom);
-		destinationRect.right += legendWidth;
-
-		}		// end "if (legendWidth > 0)"  
-                                                                     
-   cBmp.CreateCompatibleBitmap(&cWndDC, 
-   										destinationRect.Width(), 
-   										destinationRect.Height() );
-	
-			// Keep the old bitmap
-                                                       
-   CBitmap* pOldBitmap = hDC.SelectObject(&cBmp);
-
-			//prepare the DC
-                      
-	hDC.BitBlt( 0, 
-					0, 
-					destinationRect.Width(),
-					destinationRect.Height(), 
-					&cWndDC, 
-					0, 
-					0, 
-					WHITENESS); 
-
-			//copy the image to the DC  
-			
-	m_pDC = &hDC;
-	gCDCPointer = m_pDC;
-	m_printCopyModeFlag = TRUE;
-			
-	CopyOffScreenImage (this, 
-								&hDC,
-								m_imageWindowCPtr,
-								NULL, 
-								&sourceRect,                                        
-								1);
-		     
-	m_pDC = NULL; 
-	gCDCPointer = NULL;
-	m_printCopyModeFlag = FALSE;
-	
-			// here are the actual clipboard functions.
-
-   AfxGetApp()->m_pMainWnd->OpenClipboard();
-   EmptyClipboard();
-   SetClipboardData (CF_BITMAP, cBmp.GetSafeHandle() );
-   CloseClipboard () ;
-
-        // next we select the old bitmap back into the memory DC
-        // so that our bitmap is not deleted when cMemDC is destroyed.
-        // Then we detach the bitmap handle from the cBmp object so that
-        // the bitmap is not deleted when cBmp is destroyed.
-
-	CheckAndUnlockHandle (windowInfoHandle);
-	CheckAndUnlockHandle (selectionInfoHandle);
-                                     
-	hDC.SelectObject(pOldBitmap);
-   cBmp.Detach();
-
-}		// end "DoEditCopy"
-
-
- 
-void 
-CMImageView::UpdateSelectionCoordinates(void) 
-				
-{   
-	CMImageDoc* imageDocCPtr = GetDocument();
-	
-	if ( imageDocCPtr->GetDisplayCoordinatesFlag() )
-		(imageDocCPtr->GetImageFrameCPtr())->UpdateSelectionCoordinates();
-	
-}		// end "UpdateSelectionCoordinates"  
+}	// end "SetScrollSizes"
 
 	
 
 //-----------------------------------------------------------------------------
 //								 Copyright (1988-1998)
-//								© Purdue Research Foundation
+//								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void UpdateCursorCoordinates
@@ -2247,7 +2213,7 @@ CMImageView::UpdateSelectionCoordinates(void)
 // 
 // Called By:			FixCursor in multiSpec.c 
 //
-//	Coded By:			Larry L. Biehl			Date: 06/22/92
+//	Coded By:			Larry L. Biehl			Date: 06/22/1992
 //	Revised By:			Larry L. Biehl			Date: 12/08/2000	
 
 void	
@@ -2260,23 +2226,23 @@ CMImageView::UpdateCursorCoordinates (
 		                 
 	CMImageDoc* imageDocCPtr = GetDocument();
 	
-	if ( imageDocCPtr->GetDisplayCoordinatesFlag() &&
-						 					CheckIfOffscreenImageExists() )
+	if (imageDocCPtr->GetDisplayCoordinatesFlag () &&
+						 					CheckIfOffscreenImageExists ())
 		{
 		updateMapCoordinateFlag = GetCursorCoordinates (mousePtPtr);
 		
 		if (updateMapCoordinateFlag)
 			DrawCursorCoordinates (gActiveImageWindowInfoH); 
 			
-		}		// end "if ( imageDocCPtr->GetDisplayCoordinatesFlag() && ...)" 
+		}	// end "if ( imageDocCPtr->GetDisplayCoordinatesFlag() && ...)" 
 
-}		// end "UpdateCursorCoordinates"
+}	// end "UpdateCursorCoordinates"
 
 	
 
 //-----------------------------------------------------------------------------
 //								 Copyright (1988-1998)
-//								© Purdue Research Foundation
+//								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void UpdateCursorCoordinates
@@ -2297,8 +2263,7 @@ CMImageView::UpdateCursorCoordinates (
 //	Coded By:			Larry L. Biehl			Date: 06/22/92
 //	Revised By:			Larry L. Biehl			Date: 08/03/95	
 
-void	
-CMImageView::UpdateCursorCoordinates (void)
+void	CMImageView::UpdateCursorCoordinates (void)
 
 {   	                 
 	CMImageDoc* imageDocCPtr = GetDocument();
@@ -2306,29 +2271,22 @@ CMImageView::UpdateCursorCoordinates (void)
 	if ( imageDocCPtr->GetDisplayCoordinatesFlag() )                              
 		(imageDocCPtr->GetImageFrameCPtr())->UpdateCursorCoordinates(); 
 
-}		// end "UpdateCursorCoordinates" 
+}	// end "UpdateCursorCoordinates"
 
    
 
-void 
-CMImageView::UpdateOffscreenMapOrigin(void)
+void CMImageView::UpdateOffscreenMapOrigin(void)
 				
 {  			
-//	#ifdef	_WIN32
-		SCROLLINFO			scrollInfo;
-//	#endif	// _WIN32
+	SCROLLINFO			scrollInfo;
 
 	CPoint scrollOffset;
 
-//	#ifndef	_WIN32
-//		scrollOffset = GetScrollPosition();
-//	#else		// _WIN32
-		GetScrollInfo (SB_HORZ, &scrollInfo, SIF_POS);
-		scrollOffset.x = scrollInfo.nPos;
-		GetScrollInfo (SB_VERT, &scrollInfo, SIF_POS);
-		scrollOffset.y = scrollInfo.nPos;
-//	#endif	// !_WIN32
-		
+	GetScrollInfo (SB_HORZ, &scrollInfo, SIF_POS);
+	scrollOffset.x = scrollInfo.nPos;
+	GetScrollInfo (SB_VERT, &scrollInfo, SIF_POS);
+	scrollOffset.y = scrollInfo.nPos;
+	
 	Handle displaySpecsHandle = m_displayMultiCPtr->mDisplaySpecsHandle;
 	DisplaySpecsPtr displaySpecsPtr = 
 						(DisplaySpecsPtr)GetHandlePointer(
@@ -2339,12 +2297,11 @@ CMImageView::UpdateOffscreenMapOrigin(void)
 	displaySpecsPtr->origin[kHorizontal] = 
 					(SInt16)((double)scrollOffset.x/displaySpecsPtr->magnification + .5);
 
-}		// end "UpdateOffscreenMapOrigin"  
+}	// end "UpdateOffscreenMapOrigin"  
 
 
 
-void 
-CMImageView::UpdateScrollRange(
+void CMImageView::UpdateScrollRange(
 				double				magnification)
 
 {           
@@ -2352,14 +2309,8 @@ CMImageView::UpdateScrollRange(
 			// Force scroll range to be a multiple of the pixel size or
 			// force to zero if no scroll present.
 
-//	#ifdef	_WIN32
-		SCROLLINFO			scrollInfo;
-//	#endif	// _WIN32
-
-//	#ifndef	_WIN32
-//		int	 				minRange;
-//	#endif	// !_WIN32
-	      
+	SCROLLINFO			scrollInfo;
+	
 	int	 					maxRange; 
 	
 	                     
@@ -2376,28 +2327,20 @@ CMImageView::UpdateScrollRange(
 //		SetScrollRange(SB_HORZ, 0, 0, FALSE);
 //		EnableScrollBarCtrl(SB_HORZ, 0);
 		
-		}		// end "if (!(dwStyle & WS_HSCROLL))"
+		}	// end "if (!(dwStyle & WS_HSCROLL))"
 		
-	else		// (dwStyle & WS_HSCROLL)
+	else	// (dwStyle & WS_HSCROLL)
 		{
-//		#ifndef	_WIN32
-//			GetScrollRange(SB_HORZ, &minRange, &maxRange);
-//		#else		// _WIN32
-			GetScrollInfo (SB_HORZ, &scrollInfo, SIF_RANGE);
-			maxRange = scrollInfo.nMax;
-//		#endif	// !_WIN32
-				
+		GetScrollInfo (SB_HORZ, &scrollInfo, SIF_RANGE);
+		maxRange = scrollInfo.nMax;
+		
 		maxRange = (int)((maxRange + magnification + .5)/magnification);
 	   maxRange = (int)(maxRange * magnification);
 
-//		#ifndef	_WIN32
-//			SetScrollRange(SB_HORZ, 0, maxRange, FALSE);
-//		#else		// _WIN32
-			scrollInfo.nMax = maxRange;
-			SetScrollInfo (SB_HORZ, &scrollInfo, FALSE);
-//		#endif	// !_WIN32
+		scrollInfo.nMax = maxRange;
+		SetScrollInfo (SB_HORZ, &scrollInfo, FALSE);
 		
-		}		// end "else (dwStyle & WS_HSCROLL)"   
+		}	// end "else (dwStyle & WS_HSCROLL)"   
 		
 //	GetScrollRange(SB_HORZ, &minRange, &maxRange);   
 	                                          
@@ -2407,29 +2350,21 @@ CMImageView::UpdateScrollRange(
 //		SetScrollRange(SB_VERT, 0, 0, FALSE);
 //		EnableScrollBarCtrl(SB_VERT, 0);
 		
-		}		// end "!(dwStyle & WS_VSCROLL)"
+		}	// end "!(dwStyle & WS_VSCROLL)"
 		
-	else		// (dwStyle & WS_VSCROLL)
+	else	// (dwStyle & WS_VSCROLL)
 		{	
 
-//		#ifndef	_WIN32
-//			GetScrollRange(SB_VERT, &minRange, &maxRange);
-//		#else		// _WIN32
-			GetScrollInfo (SB_VERT, &scrollInfo, SIF_RANGE);
-			maxRange = scrollInfo.nMax;
-//		#endif	// !_WIN32
-		             
+		GetScrollInfo (SB_VERT, &scrollInfo, SIF_RANGE);
+		maxRange = scrollInfo.nMax;
+			
 		maxRange = (int)((maxRange + magnification + .5)/magnification);
 	   maxRange = (int)(maxRange * magnification);
 
-//		#ifndef	_WIN32
-//			SetScrollRange(SB_VERT, 0, maxRange, FALSE);
-//		#else		// _WIN32
-			scrollInfo.nMax = maxRange;
-			SetScrollInfo (SB_VERT, &scrollInfo, FALSE);
-//		#endif	// !_WIN32         
+		scrollInfo.nMax = maxRange;
+		SetScrollInfo (SB_VERT, &scrollInfo, FALSE);
 		
-		}		// end "else (dwStyle & WS_VSCROLL)"  
+		}	// end "else (dwStyle & WS_VSCROLL)"  
 	
 //	GetScrollRange(SB_VERT, &minRange, &maxRange);  
 		
@@ -2437,18 +2372,15 @@ CMImageView::UpdateScrollRange(
 		
 	m_withinOnSizeFlag = FALSE;               
 			
-}		// end "UpdateScrollRange"
+}	// end "UpdateScrollRange"
 
 
 
-void 
-CMImageView::UpdateScrolls(
+void CMImageView::UpdateScrolls(
 				double				newMagnification)
 
 {  
-//	#ifdef	_WIN32
-		SCROLLINFO			scrollInfo;
-//	#endif	// _WIN32
+	SCROLLINFO			scrollInfo;
 
 	Boolean				clearWindowFlag = FALSE;
 	
@@ -2559,43 +2491,39 @@ CMImageView::UpdateScrolls(
 		columnLogicalCenter = newMagnification *
 				((double)offScreenRectangle.left + offScreenRectangle.right + 1)/2.;
 										
-		}		// end "if (selectionExistsFlag && ...)" 
+		}	// end "if (selectionExistsFlag && ...)" 
 		
-	else		//	if (!selectionExistsFlag || ...																				
+	else	//	if (!selectionExistsFlag || ...																				
 		{
 				// No selection rectangle has been made or the user is zooming		
 				// out.      
 			
-//		#ifndef	_WIN32
-//			scrollOffset = GetScrollPosition();
-//		#else		// _WIN32
-			GetScrollInfo (SB_HORZ, &scrollInfo, SIF_POS);
-			scrollOffset.x = scrollInfo.nPos;
-			GetScrollInfo (SB_VERT, &scrollInfo, SIF_POS);
-			scrollOffset.y = scrollInfo.nPos;
-//		#endif	// !_WIN32
+		GetScrollInfo (SB_HORZ, &scrollInfo, SIF_POS);
+		scrollOffset.x = scrollInfo.nPos;
+		GetScrollInfo (SB_VERT, &scrollInfo, SIF_POS);
+		scrollOffset.y = scrollInfo.nPos;
 		
 		if (offscreenHeight * oldMagnification < oldRectHeight) 
 			lineLogicalCenter = (double)height/2.;
 			
-		else		// offscreenHeight*oldMagnification >= oldRectHeight
+		else	// offscreenHeight*oldMagnification >= oldRectHeight
 			{ 	
 			lineLogicalCenter = (double)oldRectHeight/2. + scrollOffset.y; 		
 			lineLogicalCenter *= newMagnification/oldMagnification;
 			
-			}		// end "else offscreenHeight*oldMagnification >= oldRectHeight" 
+			}	// end "else offscreenHeight*oldMagnification >= oldRectHeight" 
 		
 		if (offscreenWidth * oldMagnification < oldRectWidth) 
 			columnLogicalCenter = (double)width/2.;
 			
-		else		// offscreenWidth*oldMagnification >= oldRectWidth
+		else	// offscreenWidth*oldMagnification >= oldRectWidth
 			{ 	                                               
 			columnLogicalCenter = (double)oldRectWidth/2. + scrollOffset.x;		
 			columnLogicalCenter *= newMagnification/oldMagnification; 
 			
-			}		// end "else offscreenWidth*oldMagnification >= oldRectWidth"
+			}	// end "else offscreenWidth*oldMagnification >= oldRectWidth"
 							
-		}		// end "else !selectionExistsFlag || ..." 
+		}	// end "else !selectionExistsFlag || ..." 
 	
 			// Get new scroll position for the x direction. 
 	
@@ -2627,20 +2555,15 @@ CMImageView::UpdateScrolls(
 	
 			// Set new scroll postions.
 			
-//	#ifndef	_WIN32
-//		SetScrollPos(SB_HORZ, scrollOffset.x, TRUE);
-//		SetScrollPos(SB_VERT, scrollOffset.y, TRUE);
-//	#else		// _WIN32
-		GetScrollInfo (SB_HORZ, &scrollInfo);
-		scrollInfo.fMask = SIF_POS; 
-		scrollInfo.nPos = scrollOffset.x;
-		SetScrollInfo (SB_HORZ, &scrollInfo, TRUE);
+	GetScrollInfo (SB_HORZ, &scrollInfo);
+	scrollInfo.fMask = SIF_POS;
+	scrollInfo.nPos = scrollOffset.x;
+	SetScrollInfo (SB_HORZ, &scrollInfo, TRUE);
 		
-		GetScrollInfo (SB_VERT, &scrollInfo);
-		scrollInfo.fMask = SIF_POS; 
-		scrollInfo.nPos = scrollOffset.y;
-		SetScrollInfo (SB_VERT, &scrollInfo, TRUE);
-//	#endif	// !_WIN32
+	GetScrollInfo (SB_VERT, &scrollInfo);
+	scrollInfo.fMask = SIF_POS;
+	scrollInfo.nPos = scrollOffset.y;
+	SetScrollInfo (SB_VERT, &scrollInfo, TRUE);
 	
 			// Set new magnification    
 		
@@ -2662,11 +2585,11 @@ CMImageView::UpdateScrolls(
 			selRect.bottom = titleHeight;                        
 			InvalidateRect(&selRect, TRUE);
 			
-			}		// end "if (GetTitleHeight(this) > 0)"
+			}	// end "if (GetTitleHeight(this) > 0)"
 			
-		}		// end "if (newMagnification >= oldMagnification)"
+		}	// end "if (newMagnification >= oldMagnification)"
 		
-	else		// newMagnification < oldMagnification
+	else	// newMagnification < oldMagnification
 		{
 		LongPoint	newWindowPoint,	
 						offScreenPoint;
@@ -2686,7 +2609,7 @@ CMImageView::UpdateScrolls(
 			selRect.bottom = MIN(selRect.bottom, (int)newWindowPoint.v);
 			InvalidateRect(&selRect, TRUE);
 			
-			}		// end "if (newWindowPoint.h < imageRect.right)" 
+			}	// end "if (newWindowPoint.h < imageRect.right)" 
 							
 		if (newWindowPoint.v < windowRect.bottom)
 			{
@@ -2694,122 +2617,199 @@ CMImageView::UpdateScrolls(
 			selRect.top = (int)newWindowPoint.v;                        
 			InvalidateRect(&selRect, TRUE);
 			
-			}		// end "if (newWindowPoint.v < imageRect.bottom)" 
+			}	// end "if (newWindowPoint.v < imageRect.bottom)" 
 		
-		}		// end "else newMagnification < oldMagnification"
+		}	// end "else newMagnification < oldMagnification"
 		
 	Invalidate(clearWindowFlag);                           
 			
-}		// end "UpdateScrolls"
+}	// end "UpdateScrolls"
+
+
+ 
+void CMImageView::UpdateSelectionCoordinates (void)
+				
+{   
+	CMImageDoc* imageDocCPtr = GetDocument();
+	
+	if ( imageDocCPtr->GetDisplayCoordinatesFlag() )
+		(imageDocCPtr->GetImageFrameCPtr())->UpdateSelectionCoordinates();
+	
+}	// end "UpdateSelectionCoordinates"
 
  
 
-void CMImageView::SetScrollSizes(int nMapMode, 
-											SIZE sizeTotal,
-											const SIZE& sizePage, 
-											const SIZE& sizeLine)
-{
-	ASSERT(sizeTotal.cx >= 0 && sizeTotal.cy >= 0);
-	ASSERT(nMapMode > 0);
-	ASSERT(nMapMode != MM_ISOTROPIC && nMapMode != MM_ANISOTROPIC);
-
-	int nOldMapMode = m_nMapMode;
-	m_nMapMode = nMapMode;
-	m_totalLog = sizeTotal;
-
-	//BLOCK: convert logical coordinate space to device coordinates
-	{
-		CWindowDC dc(NULL);
-		ASSERT(m_nMapMode > 0);
-		dc.SetMapMode(m_nMapMode);
-
-		// total size
-		m_totalDev = m_totalLog;
-//		dc.LPtoDP((LPPOINT)&m_totalDev);
-		m_pageDev = sizePage;
-//		dc.LPtoDP((LPPOINT)&m_pageDev);
-		m_lineDev = sizeLine;
-	} // release DC here
-
-	// now adjust device specific sizes
-	ASSERT(m_totalDev.cx >= 0 && m_totalDev.cy >= 0);
-	if (m_pageDev.cx == 0)
-		m_pageDev.cx = m_totalDev.cx / 10;
-	if (m_pageDev.cy == 0)
-		m_pageDev.cy = m_totalDev.cy / 10;
-	if (m_lineDev.cx == 0)
-		m_lineDev.cx = m_pageDev.cx / 10;
-	if (m_lineDev.cy == 0)
-		m_lineDev.cy = m_pageDev.cy / 10;
-
-	if (m_hWnd != NULL)
-	{
-		// window has been created, invalidate now
-		UpdateBars();
-		if (nOldMapMode != m_nMapMode)
-			Invalidate(TRUE);
-	}
-}		// end "SetScrollSizes"
-
-
-
-void CMImageView::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar) 
-{
-	// TODO: Add your message handler code here and/or call default
-
-	if (nSBCode == SB_THUMBPOSITION || nSBCode == SB_THUMBTRACK)
-		m_thumbScrollFlag = TRUE;
-	
-	CScrollView::OnHScroll(nSBCode, nPos, pScrollBar);
-
-	m_thumbScrollFlag = FALSE;
-
-}		// end "OnHScroll"
-
-
-
-BOOL CMImageView::OnEraseBkgnd(CDC* pDC) 
-{        
-	if ( CheckIfOffscreenImageExists() )
-		{
-		SInt16					titleHeight; 
-		
-		
-		CBrush brush( GetSysColor( COLOR_WINDOW ) ); 
-		
-		titleHeight = GetTitleHeight();
-		                                
-		if (titleHeight > 0)
-			{
-			RECT				windowRect;
-									      
-			GetClientRect( &windowRect );
-			                               
-			windowRect.top = 0;
-			windowRect.bottom = titleHeight;                        
-			pDC->FillRect (&windowRect, &brush);
+void CMImageView::ZoomIn (void)
 				
-			}		// end "if (titleHeight > 0)" 
-		                                          
-	   FillOutsideRect( pDC, &brush );
-	   return TRUE;                   // Erased  
-	   
-	   }		// end "if ( CheckIfOffscreenImageExists() )" 
-	   
-	else		// !CheckIfOffscreenImageExists()
-		return CScrollView::OnEraseBkgnd(pDC);
-
-}	// end "OnEraseBkgnd" 
-
-
-
-CMOutlineArea* CMImageView::GetSelectionAreaCPtr(void)
-
-{ 
-	if (this != NULL)
-		return ( GetDocument()->GetSelectionAreaCPtr() );
+{   			
+	double		magnification,
+					maxMagnification,
+					inverse,
+					step;   
+					
+					                 
+	if ( ((CMultiSpecApp*)AfxGetApp())->GetZoomCode() == 0 )
+																			return;
+								                                                      
+	magnification = m_displayMultiCPtr->GetMagnification();
+					
+	maxMagnification = m_displayMultiCPtr->GetMaxMagnification();
+						
+	if (magnification < maxMagnification)
+		{  
+		inverse = 1./magnification;
+		            
+		step = 0.1;
 		
-	else		// this == NULL 
-		return ( NULL ); 
+		if (!m_ctlKeyDownFlag)
+			{       
+			step = 1.0;   
+		
+			if (magnification > 1)
+				magnification = (double)(UInt16)(magnification + .5);
+				
+			if (inverse > 1)
+				inverse = (double)(UInt16)(inverse + .5);
+				
+			}	// end "if (!m_ctlKeyDownFlag)"
+			
+		if (magnification >= 1.0)
+			magnification += step;
+			
+		else	// magnification < 1.0
+			magnification = 1./(inverse - step); 
+			                                                    
+		magnification = MIN(magnification, maxMagnification);
+		
+		UpdateScrolls(magnification); 
 
-}	// end "GetSelectionAreaCPtr"  
+		UpdateScaleInformation (gActiveImageWindowInfoH);
+		
+		}	// end "if (magnification < maxMagnification)"
+	
+}	// end "ZoomIn"
+
+
+void CMImageView::ZoomOut(void)
+				
+{  
+	double		magnification,
+					inverse,
+					step;  
+					
+					                 
+	if ( ((CMultiSpecApp*)AfxGetApp())->GetZoomCode() == 0)
+																			return; 
+	                				                                                      
+	magnification = m_displayMultiCPtr->GetMagnification();
+						
+	if (magnification > gMinMagnification)
+		{  
+		inverse = 1./magnification; 
+		            
+		step = 0.1;
+		
+		if (!m_ctlKeyDownFlag)
+			{       
+			step = 1.0;   
+		
+			if (magnification > 1)
+				magnification = (double)(UInt16)(magnification + .5);
+				
+			if (inverse > 1)
+				inverse = (double)(UInt16)(inverse + .5);
+				
+			}	// end "if (!m_ctlKeyDownFlag)"
+			
+		if (magnification > 1.)
+			magnification -= step;
+			
+		else	// magnification <= 1.
+			magnification = 1./(inverse + step);
+			
+		magnification = MAX(magnification, gMinMagnification);
+		
+		UpdateScrolls(magnification); 
+
+		UpdateScaleInformation (gActiveImageWindowInfoH);
+		
+		}	// end "if (magnification < gMaxMagnification)"                                
+	
+}	// end "ZoomOut"
+
+
+
+  
+#ifdef _DEBUG  // debug version in WImagevView.cpp
+
+/////////////////////////////////////////////////////////////////////////////
+// CMImageView diagnostics
+
+void CMImageView::AssertValid() const
+
+{
+	CScrollView::AssertValid();
+	
+}
+
+
+
+void CMImageView::Dump(CDumpContext& dc) const
+
+{
+	CScrollView::Dump(dc);
+	
+}
+
+
+
+CMImageDoc* CMImageView::GetDocument() // non-debug version is inline
+
+{
+	if (this != NULL)
+		{
+		ASSERT(m_pDocument->IsKindOf(RUNTIME_CLASS(CMImageDoc)));
+		return (CMImageDoc*)m_pDocument;
+
+		}	// end "if (this != NULL)"
+
+	else	// this == NULL
+		return (NULL);
+	
+}
+
+
+
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2017)
+//								c Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		Boolean GetImageWindowCPtr
+//
+//	Software purpose:	The purpose of this routine is to return the image window class
+//							pointer member of the class.
+//							Note that the non-debug version is inline
+//
+//	Parameters in:		None			
+//
+//	Parameters out:	None			
+//
+//	Value Returned:	TRUE if offscreen image exists
+//							FALSE if offscreen image does not exist
+// 
+// Called By:						
+//
+//	Coded By:			Larry L. Biehl			Date: 08/01/1995
+//	Revised By:			Larry L. Biehl			Date: 08/01/1995	
+
+CMImageWindow* CMImageView::GetImageWindowCPtr () 
+
+{  
+	if (this == NULL)
+		return (NULL);
+		
+	else	// this != NULL                                                                  
+		return (CMImageWindow*)m_imageWindowCPtr;
+}  	   
+#endif	// _DEBUG. debug version in WImagevView.cpp

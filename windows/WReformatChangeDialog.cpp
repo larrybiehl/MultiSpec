@@ -1,6 +1,6 @@
 // WReformatChangeDialog.cpp : implementation file
 //
-// Revised by Larry Biehl on 12/21/2017
+// Revised by Larry Biehl on 07/03/2018
 //
                    
 #include "SMultiSpec.h"
@@ -36,6 +36,8 @@ extern void 		ChangeImageFormatDialogInitialize (
 							Boolean*								swapBytesFlagPtr,
 							Boolean*								channelDescriptionAllowedFlagPtr,
 							Boolean*								savedChannelDescriptionFlagPtr,
+							Boolean*								outputInWavelengthOrderAllowedFlagPtr,
+							Boolean*								outputInWavelengthOrderFlagPtr,
 							SInt16*								headerOptionsSelectionPtr,
 							Boolean*								GAIAFormatAllowedFlagPtr,
 							Boolean*								channelThematicDisplayFlagPtr);
@@ -57,6 +59,7 @@ extern Boolean		ChangeImageFormatDialogOK (
 							Boolean								rightToLeftFlag,
 							Boolean								swapBytesFlag,
 							Boolean								channelDescriptionsFlag,
+							Boolean								outputInWavelengthOrderFlag,
 							SInt16								headerOptionsSelection,
 							Boolean								channelThematicDisplayFlag);
 
@@ -138,6 +141,7 @@ CMChangeFormatDlg::CMChangeFormatDlg(CWnd* pParent /*=NULL*/)
 	m_writeChanDescriptionFlag = FALSE;
 	m_invertLeftToRightFlag = FALSE;
 	m_channelThematicDisplayFlag = FALSE;
+	m_outputInWavelengthOrderFlag = FALSE;
 	m_sessionUserSetDataValueTypeSelectionFlag = FALSE;
 	//}}AFX_DATA_INIT                                          
 	
@@ -173,6 +177,7 @@ void CMChangeFormatDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_CBIndex(pDX, IDC_BandInterleave, m_bandInterleaveSelection);
 	DDX_Check(pDX, IDC_InvertBottomToTop, m_invertBottomToTopFlag);
 	DDX_Check(pDX, IDC_WriteChanDescriptions, m_writeChanDescriptionFlag);
+	DDX_Check(pDX, IDC_OutputInWavelengthOrder, m_outputInWavelengthOrderFlag);
 	DDX_Check(pDX, IDC_InvertRightToLeft, m_invertLeftToRightFlag);
 	//}}AFX_DATA_MAP
 
@@ -188,22 +193,23 @@ void CMChangeFormatDlg::DoDataExchange(CDataExchange* pDX)
 	}		// end "if (pDX->m_bSaveAndValidate)"
 }
 
-BEGIN_MESSAGE_MAP(CMChangeFormatDlg, CMDialog)
-	//{{AFX_MSG_MAP(CMChangeFormatDlg) 
-	ON_BN_CLICKED(IDEntireImage, ToEntireImage)
-	ON_BN_CLICKED(IDSelectedImage, ToSelectedImage)
-	ON_BN_CLICKED(IDC_TransformData, OnTransformData)
-	ON_CBN_SELENDOK(IDC_BandInterleave, OnSelendokBandInterleave)
-	ON_CBN_SELENDOK(IDC_OutChannels, OnSelendokOutChannels)
-	ON_CBN_SELENDOK(IDC_DataValueType, OnSelendokDataValueType)
-	ON_CBN_SELENDOK(IDC_ChangeHeader, OnSelendokHeader)
-	ON_EN_CHANGE(IDC_ColumnEnd, CheckColumnEnd)
-	ON_EN_CHANGE(IDC_ColumnStart, CheckColumnStart)
-	ON_EN_CHANGE(IDC_LineEnd, CheckLineEnd)
-	ON_EN_CHANGE(IDC_LineStart, CheckLineStart)
-	ON_BN_CLICKED(IDC_WriteChanDescriptions, OnWriteChanDescriptions)
+BEGIN_MESSAGE_MAP (CMChangeFormatDlg, CMDialog)
+	//{{AFX_MSG_MAP(CMChangeFormatDlg)
+	ON_BN_CLICKED (IDEntireImage, ToEntireImage)
+	ON_BN_CLICKED (IDC_OutputInWavelengthOrder, OnOutputInWavelengthOrder)
+	ON_BN_CLICKED (IDSelectedImage, ToSelectedImage)
+	ON_BN_CLICKED (IDC_TransformData, OnTransformData)
+	ON_BN_CLICKED (IDC_WriteChanDescriptions, OnWriteChanDescriptions)
+	ON_CBN_SELENDOK (IDC_BandInterleave, OnSelendokBandInterleave)
+	ON_CBN_SELENDOK (IDC_OutChannels, OnSelendokOutChannels)
+	ON_CBN_SELENDOK (IDC_DataValueType, OnSelendokDataValueType)
+	ON_CBN_SELENDOK (IDC_ChangeHeader, OnSelendokHeader)
+	ON_EN_CHANGE (IDC_ColumnEnd, CheckColumnEnd)
+	ON_EN_CHANGE (IDC_ColumnStart, CheckColumnStart)
+	ON_EN_CHANGE (IDC_LineEnd, CheckLineEnd)
+	ON_EN_CHANGE (IDC_LineStart, CheckLineStart)
 	//}}AFX_MSG_MAP
-END_MESSAGE_MAP() 
+END_MESSAGE_MAP()
 
 
 
@@ -280,9 +286,10 @@ CMChangeFormatDlg::DoDialog(
 														m_invertLeftToRightFlag,
 														m_swapBytesFlag,
 														m_writeChanDescriptionFlag,
+														m_outputInWavelengthOrderFlag,
 														m_headerOptionsSelection,
 														m_channelThematicDisplayFlag);
-
+		 
 		}		// end "if (returnCode == IDOK)"
 		
 	return (OKFlag);
@@ -308,6 +315,7 @@ BOOL CMChangeFormatDlg::OnInitDialog(void)
 
 	Boolean									invertBottomToTopFlag,
 												invertLeftToRightFlag,
+												outputInWavelengthOrderFlag,
 												swapBytesFlag;
 	
 	
@@ -336,6 +344,8 @@ BOOL CMChangeFormatDlg::OnInitDialog(void)
 													&swapBytesFlag,
 													&m_channelDescriptionAllowedFlag,
 													&m_savedChannelDescriptionFlag,
+													&m_outputInWavelengthOrderAllowedFlag,
+													&outputInWavelengthOrderFlag,
 													&headerOptionsSelection,
 													&m_GAIAFormatAllowedFlag,
 													&m_channelThematicDisplayFlag);
@@ -351,6 +361,7 @@ BOOL CMChangeFormatDlg::OnInitDialog(void)
 	m_swapBytesFlag = swapBytesFlag;
 	m_writeChanDescriptionFlag = m_savedChannelDescriptionFlag;
 	m_headerOptionsSelection = headerOptionsSelection;
+	m_outputInWavelengthOrderFlag = outputInWavelengthOrderFlag;
 	m_noTransformDataValueTypeSelection = m_savedDataValueTypeSelection;
 	
 	if (s_reformatOptionsPtr->transformDataCode != kNoTransform)
@@ -401,6 +412,15 @@ BOOL CMChangeFormatDlg::OnInitDialog(void)
 	return FALSE;  // return TRUE  unless you set the focus to a control
 	
 }		// end "OnInitDialog"
+
+  
+
+void CMChangeFormatDlg::OnOutputInWavelengthOrder (void)
+
+{                                                           
+	DDX_Check (m_dialogFromPtr, IDC_OutputInWavelengthOrder, m_outputInWavelengthOrderFlag);
+	
+}	// end "OnOutputInWavelengthOrder" 
 
 
 
@@ -454,6 +474,15 @@ CMChangeFormatDlg::OnTransformData(void)
 			m_dataValueTypeSelectionFlag  = TRUE;
 			m_dataValueTypeSelection = m_noTransformDataValueTypeSelection;
 							
+			if (m_outputInWavelengthOrderAllowedFlag)
+				{
+				SetDLogControl (this,
+										IDC_OutputInWavelengthOrder,
+										m_outputInWavelengthOrderFlag);
+				SetDLogControlHilite (this, IDC_OutputInWavelengthOrder, 0);
+								
+				}	// end "if (outputInWavelengthOrderAllowedFlag)"
+							
 			}		// end "if (...->transformDataCode == kNoTransform)" 
 							
 		else		// s_reformatOptionsPtr->transformDataCode != kNoTransform 
@@ -497,6 +526,15 @@ CMChangeFormatDlg::OnTransformData(void)
 
 			gTextString[0] = (UInt8)numChars;
 			LoadDItemString (IDC_MinimumBitsPrompt, (char*)&gTextString2[1]);
+							
+			if (m_outputInWavelengthOrderAllowedFlag)
+				{
+				SetDLogControl (this,
+										IDC_OutputInWavelengthOrder,
+										0);
+				SetDLogControlHilite (this, IDC_OutputInWavelengthOrder, 255);
+								
+				}	// end "if (m_outputInWavelengthOrderAllowedFlag)"
 
 			m_transformDataFlag = TRUE; 
 			 							
@@ -534,8 +572,7 @@ CMChangeFormatDlg::OnTransformData(void)
 
 
 
-void 
-CMChangeFormatDlg::OnSelendokBandInterleave(void)
+void CMChangeFormatDlg::OnSelendokBandInterleave(void)
 
 {    
 	SInt16					headerOptionsSelection,

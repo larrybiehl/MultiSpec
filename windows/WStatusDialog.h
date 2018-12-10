@@ -24,12 +24,15 @@ public:
 
 // Implementation
 protected:
-	virtual void 	DoDataExchange(CDataExchange* pDX);	// DDX/DDV support
+	virtual void 	DoDataExchange (CDataExchange* pDX);	// DDX/DDV support
 
 	// Generated message map functions
 	//{{AFX_MSG(CShortStatusDlg)
-	virtual BOOL OnInitDialog();
-	virtual void OnCancel();
+	virtual void OnCancel ();
+	virtual BOOL OnInitDialog ();
+	afx_msg void OnMouseMove (UINT nFlags, CPoint point);
+	afx_msg void OnNcMouseMove (UINT nFlags, CPoint point);
+	afx_msg BOOL OnSetCursor (CWnd* pWnd, UINT nHitTest, UINT message);
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 

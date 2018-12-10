@@ -510,14 +510,14 @@ STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     ICON            IDR_MAINFRAME,IDC_STATIC,11,17,20,20
-    CTEXT           "MultiSpec Application\nVersion 2018.01.04",IDC_STATIC,37,6,119,17
+    CTEXT           "MultiSpec Application\nVersion 2018.08.30",IDC_STATIC,37,6,119,17
     CTEXT           "Copyright © 1995-2018\nPurdue Research Foundation\nAll Rights Reserved",IDC_STATIC,40,38,121,27
     DEFPUSHBUTTON   "OK",IDOK,176,194,42,14,WS_GROUP
     LTEXT           "Available Memory:",IDC_STATIC,13,144,63,8
     CONTROL         "",IDC_STATIC,"Static",SS_BLACKRECT,3,138,201,1
     LTEXT           "(Avail. memory)",IDC_AboutMemory,79,144,116,8
     CTEXT           "Work leading to MultiSpec was funded in part by NASA Grants NAGW-925, NAGW-3924 and NAGW5-3975",IDC_STATIC,5,69,206,20
-    LTEXT           "(32-bit version)",IDC_BitVersion,75,26,49,10
+    LTEXT           "(64-bit version)",IDC_BitVersion,75,26,49,10
     CTEXT           "GDAL, Kakadu (jpeg2000) and ERDAS/Earth Resource Mapping ECW software libraries are used.",IDC_STATIC,12,112,192,20
     LTEXT           "Physical Memory:",IDC_STATIC,13,154,63,8
     LTEXT           "(Physical memory)",IDC_AboutContiguousMemory,79,154,122,8
@@ -760,13 +760,13 @@ BEGIN
     PUSHBUTTON      "Edit Image Map Parameters",IDC_ChangeMapParameters,13,191,105,14
 END
 
-IDD_FileFormatChange DIALOGEX 0, 0, 326, 233
+IDD_FileFormatChange DIALOGEX 0, 0, 327, 237
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
 CAPTION "Set Image File Format Change Specifications"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    DEFPUSHBUTTON   "OK",IDOK,261,206,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,202,206,50,14
+    DEFPUSHBUTTON   "OK",IDOK,261,208,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,202,208,50,14
     LTEXT           "Input file:",IDC_STATIC,11,10,33,8
     LTEXT           "'filename'",IDC_InputFileName,50,10,264,8
     LTEXT           "Lines:",IDC_STATIC,44,25,30,8
@@ -796,20 +796,22 @@ BEGIN
     LTEXT           "Recommended minimum data bits:",IDC_MinimumBitsPrompt,10,163,144,8
     LTEXT           "Data value type:",IDC_STATIC,10,186,54,8
     COMBOBOX        IDC_DataValueType,63,184,123,91,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    LTEXT           "Band format:",IDC_BandInterleaveLabel,11,208,43,8
-    COMBOBOX        IDC_BandInterleave,54,206,132,47,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Band format:",IDC_BandInterleaveLabel,11,210,43,8
+    COMBOBOX        IDC_BandInterleave,54,208,132,47,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     LTEXT           "Channels:",IDC_ChannelsLabel,199,80,34,8
     COMBOBOX        IDC_OutChannels,234,78,48,46,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    GROUPBOX        "Options",IDC_STATIC,198,96,117,96
+    GROUPBOX        "Options",IDC_STATIC,198,96,117,109
     CONTROL         "Invert bottom to top",IDC_InvertBottomToTop,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,205,108,100,10
     CONTROL         "Invert right to left",IDC_InvertRightToLeft,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,205,124,79,10
     CONTROL         "Swap Bytes",IDC_SwapBytes,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,205,142,81,10
     CONTROL         "Write channel descriptions",IDC_WriteChanDescriptions,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,205,158,99,10
-    LTEXT           "Header:",IDC_STATIC,205,177,27,8
-    COMBOBOX        IDC_ChangeHeader,233,175,78,58,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Header:",IDC_STATIC,205,190,27,8
+    COMBOBOX        IDC_ChangeHeader,233,188,78,58,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     CONTROL         "ToSelectedImage",IDSelectedImage,"Button",BS_OWNERDRAW | WS_TABSTOP,17,100,15,15
     LTEXT           "8-bit Unsigned Integer",IDC_FixedDataType,66,186,105,8
+    CONTROL         "Output in wavelength order",IDC_OutputInWavelengthOrder,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,205,174,101,10
 END
 
 IDD_ShortStatus DIALOG 0, 0, 185, 53
@@ -831,7 +833,7 @@ BEGIN
     PUSHBUTTON      "Cancel",IDCANCEL,156,164,50,14
     PUSHBUTTON      "All",IDC_AllSelected,190,22,50,14
     PUSHBUTTON      "None",IDC_NoneSelected,190,41,50,14
-    LISTBOX         IDC_List1,11,20,141,138,LBS_MULTIPLESEL | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+    LISTBOX         1186,11,20,141,138,LBS_MULTIPLESEL | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
     LTEXT           "Item List",IDC_ListTitle,11,7,140,8
     RTEXT           "First",IDC_FirstLabel,178,76,30,8
     EDITTEXT        IDC_First,214,73,40,13,ES_AUTOHSCROLL
@@ -967,9 +969,9 @@ BEGIN
     LTEXT           "Strike 'Esc' key to cancel operation",IDC_EscapeMessage,119,122,118,8
 END
 
-IDD_StatisticsWindow DIALOG 0, 0, 104, 276
+IDD_StatisticsWindow DIALOGEX 0, 0, 104, 276
 STYLE DS_SETFONT | WS_CHILD
-FONT 8, "MS Sans Serif"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     DEFPUSHBUTTON   "Add To List...",IDC_AddToList,6,135,90,14
     PUSHBUTTON      "Upate Project Stats",IDC_Update,13,135,74,14
@@ -1413,7 +1415,7 @@ STYLE DS_SETFONT | WS_CHILD
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     COMBOBOX        IDC_COMBO1,10,5,70,55,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    LISTBOX         IDC_List1,6,23,73,33,LBS_OWNERDRAWVARIABLE | NOT WS_BORDER | WS_TABSTOP
+    LISTBOX         1186,6,23,73,33,LBS_OWNERDRAWVARIABLE | NOT WS_BORDER | WS_TABSTOP
     PUSHBUTTON      "v",IDC_ScrollDown,108,89,11,11
     PUSHBUTTON      "^",IDC_ScrollUp,95,88,10,12
     COMBOBOX        IDC_PaletteCombo,22,88,71,94,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
@@ -1442,7 +1444,7 @@ BEGIN
     EDITTEXT        IDC_EDITRed,42,42,40,13,ES_AUTOHSCROLL
     EDITTEXT        IDC_EDITGreen,42,66,40,13,ES_AUTOHSCROLL
     EDITTEXT        IDC_EDITBlue,42,89,40,13,ES_AUTOHSCROLL
-    LISTBOX         IDC_List1,100,17,107,115,LBS_SORT | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+    LISTBOX         1186,100,17,107,115,LBS_SORT | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
     LTEXT           "Available Channels",IDC_STATIC,101,6,65,8
 END
 
@@ -2091,15 +2093,16 @@ BEGIN
     CONTROL         "Overlay density functions",IDC_OverlayCheck,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,35,164,95,10
 END
 
-IDD_GraphWindow DIALOG 0, 0, 193, 89
+IDD_GraphWindow DIALOGEX 0, 0, 240, 118
 STYLE DS_SETFONT | WS_CHILD
-FONT 8, "MS Sans Serif"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    PUSHBUTTON      "^",IDC_NextChannel,76,68,13,14,NOT WS_VISIBLE
-    PUSHBUTTON      "v",IDC_PreviousChannel,89,68,13,14,NOT WS_VISIBLE
-    PUSHBUTTON      "",IDC_SelectVectors,113,68,15,14,BS_BITMAP | BS_LEFT | BS_TOP | NOT WS_VISIBLE
-    PUSHBUTTON      "",IDC_GraphOverlay,128,68,15,14,BS_BITMAP | BS_LEFT | BS_TOP | NOT WS_VISIBLE
-    PUSHBUTTON      "",IDC_BinWidth,143,68,15,14,BS_BITMAP | BS_LEFT | BS_TOP | NOT WS_VISIBLE
+    PUSHBUTTON      "^",IDC_NextChannel,67,96,13,14,NOT WS_VISIBLE
+    PUSHBUTTON      "v",IDC_PreviousChannel,87,97,13,14,NOT WS_VISIBLE
+    PUSHBUTTON      "",IDC_SelectVectors,109,97,15,14,BS_BITMAP | BS_LEFT | BS_TOP | NOT WS_VISIBLE
+    PUSHBUTTON      "",IDC_GraphOverlay,131,97,15,14,BS_BITMAP | BS_LEFT | BS_TOP | NOT WS_VISIBLE
+    PUSHBUTTON      "",IDC_BinWidth,151,97,15,14,BS_BITMAP | BS_LEFT | BS_TOP | NOT WS_VISIBLE
+    COMBOBOX        IDC_xAxis,74,97,87,78,CBS_DROPDOWNLIST
 END
 
 IDD_GaussianParameter DIALOG 0, 0, 260, 113
@@ -3452,6 +3455,18 @@ BEGIN
     0
 END
 
+IDD_GraphWindow DLGINIT
+BEGIN
+    IDC_xAxis, 0x403, 15, 0
+0x6843, 0x6e61, 0x656e, 0x206c, 0x756e, 0x626d, 0x7265, "\000" 
+    IDC_xAxis, 0x403, 16, 0
+0x6157, 0x6576, 0x656c, 0x676e, 0x6874, 0x2820, 0x6d75, 0x0029, 
+    IDC_xAxis, 0x403, 26, 0
+0x6157, 0x6576, 0x656c, 0x676e, 0x6874, 0x6220, 0x6e61, 0x7764, 0x6469, 
+0x6874, 0x2820, 0x6d75, 0x0029, 
+    0
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -3496,6 +3511,16 @@ BEGIN
     IDD_Coordinates, DIALOG
     BEGIN
         BOTTOMMARGIN, 17
+    END
+
+    IDD_Reformat, DIALOG
+    BEGIN
+    END
+
+    IDD_FileFormatChange, DIALOG
+    BEGIN
+        RIGHTMARGIN, 326
+        BOTTOMMARGIN, 233
     END
 
     IDD_ReformatTransform, DIALOG
@@ -3648,9 +3673,9 @@ BEGIN
     IDD_GraphWindow, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 186
+        RIGHTMARGIN, 233
         TOPMARGIN, 7
-        BOTTOMMARGIN, 82
+        BOTTOMMARGIN, 111
     END
 
     IDD_GaussianParameter, DIALOG
@@ -3769,6 +3794,26 @@ BEGIN
 END
 
 IDD_ProcessorCreateImageStat AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_GraphWindow AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_ClassifyDialog AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_StatisticsWindow AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_FileFormatChange AFX_DIALOG_LAYOUT
 BEGIN
     0
 END
@@ -4351,8 +4396,8 @@ END
 
 STRINGTABLE
 BEGIN
-    IDS_Classify1           "Writing ERDAS Trailer (.TRL) Disk File"
-    IDS_Classify2           "Classification results for training and/or test fields can not be written to an ERDAS disk file."
+    IDS_Classify1           "Writing Support (.clr or .trl) Disk File"
+    IDS_Classify2           "Classification results for training and/or test fields can not be written to an ERDAS or (Geo)TIFF disk file."
     IDS_Classify3           "    This is a cluster type field. It can not be classified.\r\n"
     IDS_Classify4           "    Classification cancelled because covariance matrix could not be inverted for one or more classes.\r\n"
     IDS_Classify5           "      Cell Homogeneity Test Threshold:\r\n"
@@ -4595,6 +4640,7 @@ BEGIN
     IDS_ListData12          "          \t           \t"
     IDS_ListData13          "  Latitude  \t  Longitude  \t"
     IDS_ListData14          "            \t             \t"
+    IDS_ListData15          "    A graph window could not be created.\r\n"
 END
 
 STRINGTABLE
@@ -4609,7 +4655,7 @@ BEGIN
     IDS_Alert59             "The specification for the channels were different in this ERDAS Imagine formatted image file. Only the first channel will be used."
     IDS_Alert60             "MultiSpec cannot handle image data defined by 1-bit values in this ERDAS Imagine formatted image file."
     IDS_Alert61             "MultiSpec cannot handle image data defined by 2-bit values in this ERDAS Imagine formatted image file."
-    IDS_Alert62             "MultiSpec cannot handle image data defined by 32-bit integer values in this ERDAS Imagine formatted image file."
+    IDS_Alert62             "MultiSpec is reading the information for data set:"
     IDS_Alert63             "MultiSpec cannot handle image data defined by 32-bit float values in this ERDAS Imagine formatted image file."
     IDS_Alert64             "MultiSpec cannot handle image data defined by complex values in this ERDAS Imagine formatted image file."
     IDS_Alert65             "MultiSpec cannot handle the data values in this ERDAS Imagine formatted image file."
@@ -4619,7 +4665,7 @@ END
 
 STRINGTABLE
 BEGIN
-    IDS_FilterString        "All Files (*.*) | *.*|Multispectral (*.bil;*.ecw;*.hdf;*.img;*.jpg;*.jp2;*.lan;*.png;*.tif;*.nc;.h5;*.grb) | *.bil;*.ecw;*.hdf;*.img;*jpg;*.jp2;*.lan;*.png;*.tif;*.nc;*.h5;*.grb|Thematic (*.gis;*.tif;*.clu;*.sti) | *.gis;*.tif;*.clu;*.sti|Shape (*.shp) | *.shp||"
+    IDS_FilterString        "All Files (*.*) | *.*|Multispectral (*.bil;*.ecw;*.hdf;*.img;*.jpg;*.jp2;*.lan;*.png;*.tif;*.nc;.h5;*.grb;*.ntf;*nsf;*.pix) | *.bil;*.ecw;*.hdf;*.img;*jpg;*.jp2;*.lan;*.png;*.tif;*.nc;*.h5;*.grb;*.ntf;*nsf;*.pix|Thematic (*.gis;*.tif;*.clu;*.sti) | *.gis;*.tif;*.clu;*.sti|Shape (*.shp) | *.shp||"
     IDS_ProjectFilterString "Project (*.prj, *project) | *.prj;*project|All File (*.*) | *.*||"
     IDS_TransformFilterString 
                             "Transformation Matrix (*.tra) | *.tra|All File (*.*) | *.*||"
@@ -4629,7 +4675,7 @@ BEGIN
                             "Thematic (*.gis, *.tif, *.clu;*.sti) | *.gis;*.tif;*.clu;*.sti|All Files (*.*) | *.*||"
     IDS_TRLFilterString     "Trailer (*.trl, *.clr) | *.trl;*.clr|All Files (*.*) | *.*||"
     IDS_MultispectralFilterString 
-                            "Multispectral (*.bil;*.ecw;*.hdf;*.img;*.jpg;*jp2;*.lan;*png;*.tif;*.nc;*.h5;*.grb) | *.bil;*.ecw;*.hdf;*.img;*.jpg;*.jpg;*.jp2;*.lan;*.png;*.tif;*.nc;*.h5;*.grb|All Files (*.*) | *.*||"
+                            "Multispectral (*.bil;*.ecw;*.hdf;*.img;*.jpg;*jp2;*.lan;*png;*.tif;*.nc;*.h5;*.grb;*.ntf;*.nsf;*.pix) | *.bil;*.ecw;*.hdf;*.img;*.jpg;*.jpg;*.jp2;*.lan;*.png;*.tif;*.nc;*.h5;*.grb;*.ntf;*.nsf;*.pix|All Files (*.*) | *.*||"
     IDS_TextFileFilterString "Text (*.txt) | *.txt|All Files (*.*) | *.*||"
 END
 
@@ -4937,6 +4983,7 @@ BEGIN
     IDS_Reform30            "    Create Image from Function of Selected Channels\r\n"
     IDS_Reform31            "    Adjust data values for all channels by a channel\r\n"
     IDS_Reform32            "Shape File to Thematic Image"
+    IDS_Reform33            "    Output image file changed to wavelength order.\r\n"
 END
 
 STRINGTABLE
@@ -4986,37 +5033,37 @@ BEGIN
     IDS_FileIO198           "BAND4_FILENAME"
     IDS_FileIO199           "BAND5_FILENAME"
     IDS_FileIO200           "BAND6_FILENAME"
-    IDS_ChanDescription1    "0.485  0.45- 0.52 um"
-    IDS_ChanDescription2    "0.570  0.53- 0.61 um"
-    IDS_ChanDescription3    "0.660  0.63- 0.69 um"
-    IDS_ChanDescription4    "0.840  0.78- 0.90 um"
-    IDS_ChanDescription5    "1.650  1.55- 1.75 um"
-    IDS_ChanDescription6    "11.45 10.4 -12.5  um"
-    IDS_ChanDescription7    "2.220  2.09- 2.35 um"
-    IDS_ChanDescription8    "0.710  0.52- 0.90 um"
-    IDS_ChanDescription9    "0.545  0.50- 0.59 um"
-    IDS_ChanDescription10   "0.645  0.61- 0.68 um"
-    IDS_ChanDescription11   "0.840  0.79- 0.89 um"
+    IDS_ChanDescription1    "0.485 0.070 0.45- 0.52 um"
+    IDS_ChanDescription2    "0.570 0.080 0.53- 0.61 um"
+    IDS_ChanDescription3    "0.660 0.060 0.63- 0.69 um"
+    IDS_ChanDescription4    "0.840 0.120 0.78- 0.90 um"
+    IDS_ChanDescription5    "1.650 0.200 1.55- 1.75 um"
+    IDS_ChanDescription6    "11.45 2.100 10.4 -12.5  um"
+    IDS_ChanDescription7    "2.220 0.260  2.09- 2.35 um"
+    IDS_ChanDescription8    "0.710 0.380 0.52- 0.90 um"
+    IDS_ChanDescription9    "0.545 0.090 0.50- 0.59 um"
+    IDS_ChanDescription10   "0.645 0.070 0.61- 0.68 um"
+    IDS_ChanDescription11   "0.840 0.100 0.79- 0.89 um"
 END
 
 STRINGTABLE
 BEGIN
-    IDS_ChanDescription12   "1.665  1.58- 1.75 um"
-    IDS_ChanDescription13   "0.620  0.51- 0.73 um"
-    IDS_ChanDescription14   "0.560  0.52- 0.60 um"
-    IDS_ChanDescription15   "0.660  0.63- 0.69 um"
-    IDS_ChanDescription16   "0.810  0.76- 0.86 um"
-    IDS_ChanDescription17   "1.650  1.600- 1.700 um"
-    IDS_ChanDescription18   "2.165  2.145- 2.185 um"
-    IDS_ChanDescription19   "2.205  2.185- 2.225 um"
-    IDS_ChanDescription20   "2.260  2.235- 2.285 um"
-    IDS_ChanDescription21   "2.330  2.295- 2.365 um"
-    IDS_ChanDescription22   "2.395  2.360- 2.430 um"
-    IDS_ChanDescription23   "8.300  8.125- 8.475 um"
-    IDS_ChanDescription24   "8.650  8.475- 8.825 um"
-    IDS_ChanDescription25   "9.100  8.925- 9.275 um"
-    IDS_ChanDescription26   "10.600  10.25- 10.95 um"
-    IDS_ChanDescription27   "11.300  10.95- 11.65 um"
+    IDS_ChanDescription12   "1.665 0.170 1.58- 1.75 um"
+    IDS_ChanDescription13   "0.620 0.220 0.51- 0.73 um"
+    IDS_ChanDescription14   "0.560 0.080 0.52- 0.60 um"
+    IDS_ChanDescription15   "0.660 0.060 0.63- 0.69 um"
+    IDS_ChanDescription16   "0.810 0.100 0.76- 0.86 um"
+    IDS_ChanDescription17   "1.650 0.100 1.600- 1.700 um"
+    IDS_ChanDescription18   "2.165 0.040 2.145- 2.185 um"
+    IDS_ChanDescription19   "2.205 0.040 2.185- 2.225 um"
+    IDS_ChanDescription20   "2.260 0.050 2.235- 2.285 um"
+    IDS_ChanDescription21   "2.330 0.070 2.295- 2.365 um"
+    IDS_ChanDescription22   "2.395 0.070 2.360- 2.430 um"
+    IDS_ChanDescription23   "8.300 0.350 8.125- 8.475 um"
+    IDS_ChanDescription24   "8.650 0.350 8.475- 8.825 um"
+    IDS_ChanDescription25   "9.100 0.350 8.925- 9.275 um"
+    IDS_ChanDescription26   "10.600 0.700 10.25- 10.95 um"
+    IDS_ChanDescription27   "11.300 0.700 10.95- 11.65 um"
 END
 
 STRINGTABLE
@@ -5249,7 +5296,7 @@ BEGIN
     IDS_Alert106            "-not used in windows-"
     IDS_Alert107            "Select the algorithm to be used."
     IDS_Alert108            "The shape file may be corrupted. It was not used."
-    IDS_Alert109            "Double-Click on the graph in the graph window to go to the plot for the next pixel. Strike the 'esc' key to cancel the operation."
+    IDS_Alert109            "Click on the graph or use the right arrow key to go to the plot for the next pixel. Select the graph close box or strike the 'esc' key to cancel the operation."
     IDS_Alert110            "FYI. This image appears to actually be a multispectral image file that is being treated as a thematic image."
     IDS_Alert111            "The size of the selected class info file does not agree with what is expected for the number of classes in the thematic image."
     IDS_Alert112            "MultiSpec cannot handle the compressed data in this Windows bitmap formatted image file."
@@ -5502,9 +5549,12 @@ BEGIN
     IDS_FileType35          "Arc Grid"
     IDS_FileType36          "ECW"
     IDS_FileType37          "GRIB"
-    IDS_FileType38          "netCDF2"
+    IDS_FileType38          "netCDF (from GDAL)"
     IDS_FileType39          "ArcGIS ASCII Grid"
     IDS_FileType40          "GRASS ASCII Grid"
+    IDS_FileType41          "HDF4 (from GDAL)"
+    IDS_FileType42          "VRT (from GDAL)"
+    IDS_FileType43          "NITF (from GDAL)"
 END
 
 STRINGTABLE
@@ -5584,22 +5634,22 @@ END
 
 STRINGTABLE
 BEGIN
-    IDS_ChanDescription28   "0.765 0.75- 0.78 um"
-    IDS_ChanDescription29   "1.640 1.56- 1.72 um"
-    IDS_ChanDescription30   "2.000 1.92- 2.08 um"
-    IDS_ChanDescription31   "9.900 5.50-14.30 um"
-    IDS_ChanDescription32   "0.3795 0.372-0.387 um"
-    IDS_ChanDescription33   "0.6735 0.667-0.680 um"
-    IDS_ChanDescription34   "0.8715 0.866-0.877 um"
-    IDS_ChanDescription35   "1.6000 1.560-1.640 um"
-    IDS_ChanDescription36   "0.0 not known"
-    IDS_ChanDescription37   "0.443 0.433- 0.453 um"
-    IDS_ChanDescription38   "0.482 0.450- 0.515 um"
-    IDS_ChanDescription39   "0.562 0.525- 0.600 um"
-    IDS_ChanDescription40   "0.655 0.630- 0.680 um"
-    IDS_ChanDescription41   "0.865 0.845- 0.885 um"
-    IDS_ChanDescription42   "1.610 1.560-1.660 um"
-    IDS_ChanDescription43   "2.220 2.100-2.300 um"
+    IDS_ChanDescription28   "0.765 0.030 0.75- 0.78 um"
+    IDS_ChanDescription29   "1.640 0.160 1.56- 1.72 um"
+    IDS_ChanDescription30   "2.000 0.160 1.92- 2.08 um"
+    IDS_ChanDescription31   "9.900 8.800 5.50-14.30 um"
+    IDS_ChanDescription32   "0.3795 0.015 0.372-0.387 um"
+    IDS_ChanDescription33   "0.6735 0.013 0.667-0.680 um"
+    IDS_ChanDescription34   "0.8715 0.011 0.866-0.877 um"
+    IDS_ChanDescription35   "1.6000 0.080 1.560-1.640 um"
+    IDS_ChanDescription36   "0.0 0.0 not known"
+    IDS_ChanDescription37   "0.443 0.020 0.433- 0.453 um"
+    IDS_ChanDescription38   "0.482 0.065 0.450- 0.515 um"
+    IDS_ChanDescription39   "0.562 0.075 0.525- 0.600 um"
+    IDS_ChanDescription40   "0.655 0.050 0.630- 0.680 um"
+    IDS_ChanDescription41   "0.865 0.040 0.845- 0.885 um"
+    IDS_ChanDescription42   "1.610 0.100 1.560-1.660 um"
+    IDS_ChanDescription43   "2.220 0.200 2.100-2.300 um"
 END
 
 STRINGTABLE
@@ -5616,22 +5666,22 @@ END
 
 STRINGTABLE
 BEGIN
-    IDS_ChanDescription44   "0.590 0.500- 0.680 um"
-    IDS_ChanDescription45   "1.375 1.360-1.390 um"
-    IDS_ChanDescription46   "10.80 10.30-11.30 um"
-    IDS_ChanDescription47   "12.00 11.50-12.50 um"
-    IDS_ChanDescription48   "0.55 0.50- 0.60 um"
-    IDS_ChanDescription49   "0.65 0.60- 0.70 um"
-    IDS_ChanDescription50   "0.75 0.70- 0.80 um"
-    IDS_ChanDescription51   "0.95 0.80- 1.10 um"
-    IDS_ChanDescription52   "11.51 10.41-12.6 um"
-    IDS_ChanDescription53   "0.443 0.433-0.453 um"
-    IDS_ChanDescription54   "0.490 0.458-0.523 um"
-    IDS_ChanDescription55   "0.560 0.543-0.578 um"
-    IDS_ChanDescription56   "0.665 0.650-0.680 um"
-    IDS_ChanDescription57   "0.705 0.698-0.713 um"
-    IDS_ChanDescription58   "0.740 0.733-0.748 um"
-    IDS_ChanDescription59   "0.783 0.773-0.793 um"
+    IDS_ChanDescription44   "0.590 0.180 0.500- 0.680 um"
+    IDS_ChanDescription45   "1.375 0.030 1.360-1.390 um"
+    IDS_ChanDescription46   "10.80 1.000 10.30-11.30 um"
+    IDS_ChanDescription47   "12.00 1.000 11.50-12.50 um"
+    IDS_ChanDescription48   "0.55 0.100 0.50- 0.60 um"
+    IDS_ChanDescription49   "0.65 0.100 0.60- 0.70 um"
+    IDS_ChanDescription50   "0.75 0.100 0.70- 0.80 um"
+    IDS_ChanDescription51   "0.95 0.300 0.80- 1.10 um"
+    IDS_ChanDescription52   "11.51 2.190 10.41-12.6 um"
+    IDS_ChanDescription53   "0.444 0.027 0.430-0.457 um"
+    IDS_ChanDescription54   "0.497 0.098 0.448-0.546 um"
+    IDS_ChanDescription55   "0.560 0.045 0.538-0.583 um"
+    IDS_ChanDescription56   "0.665 0.038 0.646-0.684 um"
+    IDS_ChanDescription57   "0.704 0.019 0.694-0.713 um"
+    IDS_ChanDescription58   "0.740 0.018 0.731-0.749 um"
+    IDS_ChanDescription59   "0.783 0.028 0.769-0.797 um"
 END
 
 STRINGTABLE
@@ -5655,7 +5705,9 @@ BEGIN
     IDS_InstrumentName13    "Landsat 8 - OLI & TIRS"
     IDS_InstrumentName14    "Landsat 8 - OLI"
     IDS_InstrumentName15    "Landsat 8 - TIRS"
-    IDS_InstrumentName16    "Sentinel-2 MSI"
+    IDS_InstrumentName16    "Sentinel-2A MSI"
+    IDS_InstrumentName17    "Sentinel-2B MSI"
+    IDS_InstrumentName18    "PeruSat 1"
 END
 
 STRINGTABLE
@@ -5694,12 +5746,39 @@ END
 
 STRINGTABLE
 BEGIN
-    IDS_ChanDescription60   "0.842 0.785-0.900 um"
-    IDS_ChanDescription61   "0.865 0.855-0.875 um"
-    IDS_ChanDescription62   "0.945 0.935-0.955 um"
-    IDS_ChanDescription63   "1.375 1.365-1.385 um"
-    IDS_ChanDescription64   "1.610 1.565-1.655 um"
-    IDS_ChanDescription65   "2.190 2.100-2.280 um"
+    IDS_ChanDescription60   "0.835 0.145 0.763-0.908 um"
+    IDS_ChanDescription61   "0.865 0.033 0.848-0.881 um"
+    IDS_ChanDescription62   "0.945 0.026 0.932-0.958 um"
+    IDS_ChanDescription63   "1.374 0.075 1.336-1.411 um"
+    IDS_ChanDescription64   "1.614 0.143 1.542-1.685 um"
+    IDS_ChanDescription65   "2.202 0.242 2.081-2.323 um"
+    IDS_ChanDescription66   "0.442 0.045 0.420-0.465 um"
+    IDS_ChanDescription67   "0.492 0.098 0.443-0.541 um"
+    IDS_ChanDescription68   "0.559 0.046 0.544-0.590 um"
+    IDS_ChanDescription69   "0.665 0.039 0.646-0.685 um"
+    IDS_ChanDescription70   "0.704 0.020 0.694-0.714 um"
+    IDS_ChanDescription71   "0.739 0.018 0.730-0.748 um"
+    IDS_ChanDescription72   "0.780 0.028 0.766-0.794 um"
+    IDS_ChanDescription73   "0.833 0.133 0.767-0.900 um"
+    IDS_ChanDescription74   "0.864 0.032 0.848-0.880 um"
+    IDS_ChanDescription75   "0.943 0.027 0.930-0.957 um"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_ChanDescription76   "1.377 0.076 1.339-1.415 um"
+    IDS_ChanDescription77   "1.610 0.141 1.540-1.681 um"
+    IDS_ChanDescription78   "2.186 0.238 2.067-2.305 um"
+    IDS_ChanDescription79   "0.485 0.070 0.450-0.520 um"
+    IDS_ChanDescription80   "0.560 0.060 0.530-0.590 um"
+    IDS_ChanDescription81   "0.665 0.070 0.630-0.700 um"
+    IDS_ChanDescription82   "0.819 0.133 0.752-0.885 um"
+    IDS_ChanDescription83   "0.600 0.300 0.450-0.750 um"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_FileType44          "PCIDSK (from GDAL)"
 END
 
 #endif    // English (United States) resources
