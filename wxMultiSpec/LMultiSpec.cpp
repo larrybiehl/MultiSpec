@@ -2,7 +2,7 @@
  *	LMultiSpec.cpp
  *      
  * Copyright 2017 multispec
- *	Revised by Larry Biehl		on 11/09/2018
+ *	Revised by Larry Biehl		on 12/07/2018
  *	Revised by Tsung Tai Yeh	on 09/10/2015
  *      
  */
@@ -177,7 +177,8 @@ CMultiSpecApp::CMultiSpecApp ()
 	m_nextControlTime = 0;
 	//m_imageZoomCode = 0;
     
-		// Initialize some standard color pens
+			// Initialize some standard color pens
+	
 	gBlackPen.SetColour(*wxBLACK);
 	gBluePen.SetColour(*wxBLUE);
 	gCyanPen.SetColour(*wxCYAN);
@@ -290,7 +291,7 @@ wxDocument* CMultiSpecApp::ActivateGraphView ()
 void CMultiSpecApp::ActivateProjectView ()
 
 {
-   wxDocument* init_doc = pStatisticsDocTemplate->CreateDocument(wxEmptyString, wxDOC_NEW | wxDOC_SILENT);
+   pStatisticsDocTemplate->CreateDocument(wxEmptyString, wxDOC_NEW | wxDOC_SILENT);
 	
 }		// end "ActivateProjectView"
 
@@ -308,8 +309,10 @@ wxDocument* CMultiSpecApp::ActivateListDataView ()
 
 
 
+#if defined multispec_wxlin
 void CMultiSpecApp::GetUserInputFilePath (
 				wxString								toolParameterFilePath)
+
 {
 	wxString								wxImageFilePath;
 	wxWCharBuffer						wideCharBuffer;
@@ -333,8 +336,7 @@ void CMultiSpecApp::GetUserInputFilePath (
 	toolParametersFileStreamPtr = InitializeFileStream ((CMFileStream*)NULL);
 	
 	if (toolParametersFileStreamPtr != NULL && toolParameterFilePath.Length() > 0)
-		{
-		toolParametersFilePathPtr = (FileStringPtr)toolParametersFileStreamPtr->GetFilePathPPtr();
+		{		toolParametersFilePathPtr = (FileStringPtr)toolParametersFileStreamPtr->GetFilePathPPtr();
 		strncpy ((char*)&toolParametersFilePathPtr[1], 
 					(const char*)(toolParameterFilePath.mb_str(wxConvUTF8)), 
 					toolParameterFilePath.Length()); 
@@ -346,7 +348,7 @@ void CMultiSpecApp::GetUserInputFilePath (
 												toolParametersFilePathPtr,
 												gEndOfLine);
 		ListString ((char*)&gTextString3, numberChars, gOutputTextH);
-
+		
 		errCode = OpenFileReadOnly (toolParametersFileStreamPtr,
 											  kResolveAliasChains,
 											  kLockFile,
@@ -422,12 +424,56 @@ void CMultiSpecApp::GetUserInputFilePath (
 				}		// end "if (errCode != eofErr || count == 0)"
 				
 			toolParametersFileStreamPtr->MCloseFile();
+	
+			MInitCursor ();
 			
 			}	// end "if (errCode == noErr)"
-		
+			
 		}		// end "if (toolParametersFileStreamPtr != NULL)"
 		
-}	// end "GetUserInputFilePath" 
+}	// end "GetUserInputFilePath"
+#endif	// defined multispec_wxlin
+
+#if defined multispec_wxmac
+void CMultiSpecApp::MacOpenFiles (const wxArrayString & fileNames)
+
+{
+	wxWCharBuffer						wideCharBuffer;
+	
+	wchar_t								wideImageFilePathPtr[256];
+	
+	size_t 								i,
+											fileCount,
+											wxImageFilePathLength;
+	
+	
+	fileCount = fileNames.GetCount ();
+	for (i=0; i<fileCount; i++)
+		{
+		//CheckSomeEvents(0);
+		
+		wideCharBuffer = fileNames[i].wc_str();
+		wxImageFilePathLength = wideCharBuffer.length();
+
+		wmemcpy (&wideImageFilePathPtr[1],
+					wideCharBuffer.data(),
+					wxImageFilePathLength);
+
+		wideImageFilePathPtr[0] = (wchar_t)wxImageFilePathLength;
+
+		gProcessorCode = kOpenImageFileProcessor;
+		gFromToolParameterFileFlag = TRUE;
+		gCallProcessorDialogFlag = FALSE;
+		OpenImageFileLin (wideImageFilePathPtr, FALSE, 0);
+		gFromToolParameterFileFlag = FALSE;
+		gCallProcessorDialogFlag = TRUE;
+		gProcessorCode = 0;
+
+		}	// end "for (i=0; i<fileCount; i++)"
+	
+	MInitCursor ();
+}
+#endif
 
 
 #if !defined NetBeansProject
@@ -559,12 +605,15 @@ bool CMultiSpecApp::OnInit ()
 	SetTopWindow (pMainFrame);
 	SetAppName ("MultiSpec");
 	
-	wxDocument* init_doc = pOutputDocTemplate->CreateDocument (wxEmptyString, wxDOC_NEW | wxDOC_SILENT);
+	pOutputDocTemplate->CreateDocument (wxEmptyString, wxDOC_NEW | wxDOC_SILENT);
 	
-			// Determine if a file has already been selected for opening and set the flag for that
-			// in the MainFrame. It will be acted upon during the first idle period.
-		
-	bool returnFlag = wxGetEnv (wxT("TOOL_PARAMETERS"), NULL);
+	bool returnFlag = FALSE;
+	#if defined multispec_wxlin
+				// Determine if a file has already been selected for opening and set the flag for that
+				// in the MainFrame. It will be acted upon during the first idle period.
+	
+		returnFlag = wxGetEnv (wxT("TOOL_PARAMETERS"), NULL);
+	#endif
 	pMainFrame->SetToolParametersFlag (returnFlag);
 
 	#ifdef NetBeansProject
@@ -733,7 +782,7 @@ Handle CMultiSpecApp::SetUpNewImageDocument (
 	CMFileStream*							fileStreamPtr;
 	FileInfoPtr								fileInfoPtr;
 
-	Handle									windowInfoHandle;
+	Handle									windowInfoHandle = NULL;
 	
 	SignedByte								handleStatus;
 

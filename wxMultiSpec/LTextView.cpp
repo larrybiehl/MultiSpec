@@ -127,29 +127,29 @@ bool CMTextView::OnCreate(wxDocument *doc, long WXUNUSED(flags) )
 
 	doc->SetFilename (wxT("MultiSpec_Text_Output"), false);
 	wxFont font (gFontSize, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL); 
-   m_frame->SetFont(font);
-	m_frame->GetClientSize(&width, &height);
-   m_frame->SetTitle(_T("Text Output"));
+   m_frame->SetFont (font);
+	m_frame->GetClientSize (&width, &height);
+   m_frame->SetTitle (_T("Text Output"));
    
-	m_textsw = new TextWindow2(this, m_frame, wxPoint(0, 0), wxSize(width, height), wxTE_MULTILINE); //wxHSCROLL|wxTE_READONLY|   
-	//wxFont textwf(8, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
+	m_textsw = new TextWindow2 (this, m_frame, wxPoint(0, 0), wxSize (width, height), wxTE_MULTILINE); //wxHSCROLL|wxTE_READONLY|
+	//wxFont textwf (8, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
 	wxFont textwf (gFontSize, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
-	m_textsw->StyleSetFont(wxSTC_STYLE_DEFAULT,textwf);
-   m_textsw->StyleClearAll(); 
+	m_textsw->StyleSetFont (wxSTC_STYLE_DEFAULT, textwf);
+   m_textsw->StyleClearAll ();
 	
 	gOutputViewCPtr = this;
 	gTheActiveWindow = (WindowPtr)this;
 	#ifdef __X__
 			// X seems to require a forced resize
 		int x, y;
-		m_frame->GetSize(&x, &y);
-		m_frame->SetSize(wxDefaultCoord, wxDefaultCoord, x, y);
+		m_frame->GetSize (&x, &y);
+		m_frame->SetSize (wxDefaultCoord, wxDefaultCoord, x, y);
 	#endif
 
-	m_frame->Show(true);
-	Activate(true);
+	m_frame->Show (true);
+	Activate (true);
 	
-	InitialUpdate();
+	InitialUpdate ();
 
 	return true;
 	

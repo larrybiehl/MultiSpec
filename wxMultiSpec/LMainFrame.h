@@ -1,6 +1,6 @@
 // LMainFrame.h
 //
-// Revised by Larry L Biehl    11/09/2018
+// Revised by Larry L Biehl    12/07/2018
 
 #ifndef __LMainFrame__
 #	define __LMainFrame__
@@ -57,8 +57,10 @@ class CMainFrame : public wxDocParentFrame
 		SInt16						m_imageZoomCode;
 		Boolean						m_controlDelayFlag;
 		Boolean						m_TOOL_PARAMETER_file_flag;
-                bool						m_optionOverlayFlag;
-                bool                                            m_tooltipFlag;          
+	
+		bool							m_cancelOperationEventFlag;
+		bool							m_optionOverlayFlag;
+		bool							m_tooltipFlag;
 #ifndef multispec_wxmac
     enum{
       ID_FILE_SAVE,
@@ -67,8 +69,7 @@ class CMainFrame : public wxDocParentFrame
 #endif
    
 
-   
-	Boolean GetEnableFlagForStatisticsAndCluster(void);
+	Boolean 	GetEnableFlagForStatisticsAndCluster (void);
 	
 	void OnActivate(wxActivateEvent& event);
 	
@@ -140,7 +141,7 @@ class CMainFrame : public wxDocParentFrame
 	void OnUpdateToolBarMagnification (wxUpdateUIEvent& event);
 	void OnUpdateToolBarZoomIn (wxUpdateUIEvent& event);
 	void OnUpdateToolBarZoomOut (wxUpdateUIEvent& event);
-        void OnUpdateZoomInfo(wxUpdateUIEvent& event);
+	void OnUpdateZoomInfo(wxUpdateUIEvent& event);
 	void OnUpdateToolBarOverlay (wxUpdateUIEvent& event);
 	
 	void OnFileCloseWindow(wxCommandEvent& event);
@@ -182,7 +183,7 @@ class CMainFrame : public wxDocParentFrame
 	void OnProjAddAsAssociatedImage(wxCommandEvent& event);
 	void OnProjSaveProject(wxCommandEvent& event);
 	void OnProjSaveProjectAs(wxCommandEvent& event);
-	void OnChar(unsigned int nChar, unsigned int nRepCnt, unsigned int nFlags);
+	void OnChar (wxKeyEvent& event);
 	void OnPalShowClasses(wxCommandEvent& event);
 	void OnPalShowInformationGroups(wxCommandEvent& event);
 	void OnProcCluster(wxCommandEvent& event);
@@ -296,8 +297,15 @@ class CMainFrame : public wxDocParentFrame
 
 	};
 	public:
-		CMainFrame(wxDocManager *manager, wxDocParentFrame *frame, const wxString& title = wxT("MultiSpec"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 800,600 ), long type=wxDEFAULT_FRAME_STYLE);
-		SInt16 GetZoomCode(void);
+		CMainFrame (wxDocManager *manager,
+						wxDocParentFrame *frame,
+						const wxString& title = wxT("MultiSpec"),
+						const wxPoint& pos = wxDefaultPosition,
+						const wxSize& size = wxSize( 800,600 ),
+						long type=wxDEFAULT_FRAME_STYLE);
+	
+		Boolean	GetCancelOperationEventFlag (void);
+		SInt16 GetZoomCode (void);
 		void OnAsyncTermination (FileUploadProcess *process);
       void OnOptionsSwitchcrosscursor(wxCommandEvent& event);
 		void OnOverlaySelection(wxCommandEvent& event);

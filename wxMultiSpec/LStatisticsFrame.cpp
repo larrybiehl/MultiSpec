@@ -1,6 +1,6 @@
 // LStatisticsFrame.cpp : implementation file
 //
-// Revised by Larry Biehl on 11/08/2018
+// Revised by Larry Biehl on 12/03/2018
 //
 /*  Template for writing something to text window for debugging.             
 	int numberChars = sprintf ((char*)&gTextString3,
@@ -161,6 +161,9 @@ void CMStatisticsFrame::ActivateStatisticsWindowItems (
 void CMStatisticsFrame::CreateControls2()
 
 {
+	int	buttonWidth = 210;
+	
+	
    this->SetSizeHints (wxDefaultSize, wxDefaultSize);
 	
 	wxFont  font (gFontSize, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
@@ -256,17 +259,23 @@ void CMStatisticsFrame::CreateControls2()
 	
 	fgSizer12->Add( bSizer281, 0, wxEXPAND|wxLEFT|wxRIGHT, 6);
 	
-	m_button56 = new wxButton( this, IDC_EditName, wxT("Edit Class Name ..."), wxDefaultPosition, wxSize(170,25), 0 );
+	m_button56 = new wxButton (this,
+										IDC_EditName,
+										wxT("Edit Class Name ..."),
+										wxDefaultPosition,
+										wxSize (buttonWidth, 25), 0);
    SetUpToolTip(m_button56, IDS_ToolTip3);
+   /*
 	m_button56->SetFont (wxFont (gFontSize,
 											wxFONTFAMILY_DEFAULT,
 											wxFONTSTYLE_NORMAL,
 											wxFONTWEIGHT_NORMAL,
 											false,
 											wxEmptyString) );
-	
+	*/
 	//fgSizer12->Add( m_button56, 0, wxALIGN_CENTER|wxEXPAND|wxLEFT|wxRIGHT, 5 );
-	fgSizer12->Add (m_button56, wxSizerFlags(0).Align(wxALIGN_CENTER).Border(wxLEFT|wxRIGHT, 5));
+	//fgSizer12->Add (m_button56, wxSizerFlags(0).Align(wxALIGN_CENTER).Border(wxLEFT|wxRIGHT, 5));
+	fgSizer12->Add (m_button56, wxSizerFlags(0).Expand().Border(wxLEFT|wxRIGHT, 5));
 	
 	//bSizer233->Add( fgSizer12, 0, wxBOTTOM|wxEXPAND|wxLEFT|wxRIGHT, 3);
 	bSizer233->Add (fgSizer12, wxSizerFlags(0).Border(wxBOTTOM|wxLEFT|wxRIGHT, 3));
@@ -303,21 +312,19 @@ void CMStatisticsFrame::CreateControls2()
 	
 	fgSizer13->Add( bSizer236, 0, wxEXPAND|wxLEFT|wxRIGHT, 5 );
 	
-	bSizer233->Add( fgSizer13, 0, wxEXPAND, 5 );
+	bSizer233->Add (fgSizer13, 0, wxEXPAND);
 	
 	wxFlexGridSizer* fgSizer14;
 	fgSizer14 = new wxFlexGridSizer (3, 1, 0, 0);
 	fgSizer14->SetFlexibleDirection (wxBOTH);
 	fgSizer14->SetNonFlexibleGrowMode (wxFLEX_GROWMODE_SPECIFIED);
 	
-	wxBoxSizer* bSizer282;
-	bSizer282 = new wxBoxSizer (wxHORIZONTAL);
-	
+	wxBoxSizer* bSizer282 = new wxBoxSizer (wxHORIZONTAL);
 	m_comboBox42 = new wxComboBox (this,
 												IDC_HistogramStatsCombo,
 												wxT ("Combo!"),
 												wxDefaultPosition,
-												wxSize(170, 25),
+												wxSize (buttonWidth, 25),
 												0,
 												NULL,
 												wxCB_READONLY);
@@ -325,24 +332,23 @@ void CMStatisticsFrame::CreateControls2()
 	m_comboBox42->Append (wxT("Histrgram Fields"));
 	m_comboBox42->Append (wxT("Histogram..."));
    SetUpToolTip (m_comboBox42, IDS_ToolTip5);
-	//bSizer282->Add (m_comboBox42, 0, wxALIGN_CENTER|wxEXPAND|wxBOTTOM, 5);
-   bSizer282->Add (m_comboBox42, wxSizerFlags(0).Align(wxALIGN_CENTER).Border(wxBOTTOM, 5));
+   bSizer282->Add (
+   		m_comboBox42,
+			wxSizerFlags(0).ReserveSpaceEvenIfHidden().Expand().Border(wxBOTTOM, 5));
 	
-	m_staticText263 = new wxStaticText (this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0);
-	m_staticText263->Wrap (-1);
-	//bSizer282->Add (m_staticText263, 0, wxALIGN_CENTER|wxALL, 5);
-   bSizer282->Add (m_staticText263, wxSizerFlags(0).Align(wxALIGN_CENTER).Border(wxALL, 5));
+	//m_staticText263 = new wxStaticText (this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0);
+	//m_staticText263->Wrap (-1);
+   //bSizer282->Add (m_staticText263, wxSizerFlags(0).Align(wxALIGN_CENTER).Border(wxALL, 5));
 	
-	//fgSizer14->Add (bSizer282, 0, wxALIGN_CENTER|wxEXPAND|wxLEFT|wxRIGHT|wxTOP, 5);
-   fgSizer14->Add (bSizer282, wxSizerFlags(0).Align(wxALIGN_CENTER).Border(wxTOP, 5));
+   //fgSizer14->Add (bSizer282, wxSizerFlags(0).Align(wxALIGN_CENTER).Border(wxTOP|wxLEFT|wxRIGHT, 5));
+   fgSizer14->Add (bSizer282, wxSizerFlags(0).Expand().Border(wxTOP|wxLEFT|wxRIGHT, 5));
 	
 	wxBoxSizer* bSizer283 = new wxBoxSizer (wxHORIZONTAL);
-	
 	m_comboBox43 = new wxComboBox (this,
 												IDC_ListStatsCombo,
 												wxT("Combo!"),
 												wxDefaultPosition,
-												wxSize (170, 25),
+												wxSize (buttonWidth, 25),
 												0,
 												NULL,
 												wxCB_READONLY);
@@ -351,28 +357,34 @@ void CMStatisticsFrame::CreateControls2()
 	m_comboBox43->Append( wxT("List Fields Stats") );
 	m_comboBox43->Append( wxT("List Stats...") );
    SetUpToolTip(m_comboBox43, IDS_ToolTip6);
-	//bSizer283->Add (m_comboBox43, 0, wxEXPAND|wxLEFT|wxRIGHT, 5);
-   //bSizer283->Add (m_comboBox43, wxSizerFlags(0).Align(wxALIGN_CENTER).Border(wxLEFT|wxRIGHT, 5));
-   bSizer283->Add (m_comboBox43, wxSizerFlags(0).Align(wxALIGN_CENTER));
+   bSizer283->Add (m_comboBox43, wxSizerFlags(0).ReserveSpaceEvenIfHidden().Expand());
 	
-	m_staticText264 = new wxStaticText (this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0);
-	m_staticText264->Wrap (-1);
-	//bSizer283->Add (m_staticText264, 0, wxALIGN_CENTER|wxTOP|wxBOTTOM, 5);
-   bSizer283->Add (m_staticText264, wxSizerFlags(0).Align(wxALIGN_CENTER).Border(wxTOP|wxBOTTOM, 5));
+	//m_staticText264 = new wxStaticText (this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0);
+	//m_staticText264->Wrap (-1);
+   //bSizer283->Add (m_staticText264, wxSizerFlags(0).Align(wxALIGN_CENTER).Border(wxTOP|wxBOTTOM, 5));
 	
-	//fgSizer14->Add( bSizer283, 0, wxEXPAND, 5 );
-   //fgSizer14->Add (bSizer283, wxSizerFlags(0).Align(wxALIGN_CENTER).Border(wxLEFT|wxRIGHT|wxTOP, 5));
-   fgSizer14->Add (bSizer283, wxSizerFlags(0).Align(wxALIGN_CENTER).Border(wxTOP, 5));
+   //fgSizer14->Add (bSizer283, wxSizerFlags(0).Align(wxALIGN_CENTER).Border(wxTOP|wxLEFT|wxRIGHT, 5));
+   fgSizer14->Add (bSizer283, wxSizerFlags(0).Expand().Border(wxTOP|wxLEFT|wxRIGHT, 5));
 	
 	wxBoxSizer* bSizer238;
 	bSizer238 = new wxBoxSizer( wxHORIZONTAL );
 	
-	m_button61 = new wxButton( this, IDC_AddToList, wxT("Add To List..."), wxDefaultPosition, wxSize(170,25), 0 );
+	m_button61 = new wxButton (this,
+										IDC_AddToList,
+										wxT("Add To List..."),
+										wxDefaultPosition,
+										wxSize (buttonWidth, 25),
+										0);
    SetUpToolTip(m_button61, IDS_ToolTip7);
 	//bSizer238->Add( m_button61, 0, wxALIGN_CENTER|wxEXPAND|wxALL, 5 );
 	bSizer238->Add (m_button61, wxSizerFlags(0).Align(wxALIGN_CENTER).Border(wxALL, 5));
 	
-	m_button60 = new wxButton( this, IDC_Update, wxT("Update Project Stats"), wxDefaultPosition, wxSize(170,25), 0 );
+	m_button60 = new wxButton (this,
+										IDC_Update,
+										wxT("Update Project Stats"),
+										wxDefaultPosition,
+										wxSize (buttonWidth, 25),
+										0);
    SetUpToolTip(m_button60, IDS_ToolTip8);
 	//bSizer238->Add( m_button60, 0, wxALIGN_CENTER|wxEXPAND|wxALL, 5 );
    bSizer238->Add (m_button60, wxSizerFlags(0).Align(wxALIGN_CENTER).Border(wxALL, 5));
@@ -382,26 +394,47 @@ void CMStatisticsFrame::CreateControls2()
 	//bSizer233->Add( fgSizer14, 0, wxALIGN_CENTER|wxEXPAND|wxLEFT|wxRIGHT, 3);
 	bSizer233->Add (fgSizer14, wxSizerFlags(0).Align(wxALIGN_CENTER).Border(wxLEFT|wxRIGHT, 3));
 	
-	wxFlexGridSizer* fgSizer15 = new wxFlexGridSizer( 2, 2, 0, 0 );
+	wxFlexGridSizer* fgSizer15 = new wxFlexGridSizer (2, 2, 0, 0 );
 	fgSizer15->SetFlexibleDirection (wxBOTH);
 	fgSizer15->SetNonFlexibleGrowMode (wxFLEX_GROWMODE_SPECIFIED);
 	
-	m_button62 = new wxButton( this, IDC_Project, wxT(">Classes"), wxDefaultPosition, wxSize(80,-1), 0 );
+	m_button62 = new wxButton (this,
+										IDC_Project,
+										wxT(">Classes"),
+										wxDefaultPosition,
+										wxSize (90, -1),
+										0 )
+										;
    SetUpToolTip(m_button62, IDS_ToolTip9);
 	//fgSizer15->Add( m_button62, 0, wxALIGN_LEFT|wxLEFT|wxRIGHT, 5 );
    fgSizer15->Add (m_button62, wxSizerFlags(0).Border(wxLEFT|wxRIGHT, 5));
 	
-	m_button63 = new wxButton( this, IDC_Class, wxT(">Fields"), wxDefaultPosition, wxSize(80,-1), 0 );
+	m_button63 = new wxButton (this,
+										IDC_Class,
+										wxT(">Fields"),
+										wxDefaultPosition,
+										wxSize (105, -1),
+										0);
    SetUpToolTip(m_button63, IDS_ToolTip10);
 	//fgSizer15->Add( m_button63, 0, wxALIGN_RIGHT|wxLEFT|wxRIGHT, 5 );
    fgSizer15->Add (m_button63, wxSizerFlags(0).Border(wxLEFT|wxRIGHT, 5));
 	
-	m_button64 = new wxButton( this, IDC_Select, wxT(">Select"), wxDefaultPosition, wxSize(80,-1), 0 );
+	m_button64 = new wxButton (this,
+										IDC_Select,
+										wxT(">Select"),
+										wxDefaultPosition,
+										wxSize (90,-1),
+										0);
    SetUpToolTip(m_button64, IDS_ToolTip11);
 	//fgSizer15->Add( m_button64, 0, wxALIGN_LEFT|wxRIGHT|wxTOP|wxLEFT, 5 );
    fgSizer15->Add (m_button64, wxSizerFlags(0).Border(wxRIGHT|wxTOP|wxLEFT, 5));
 	
-	m_button65 = new wxButton( this, IDC_Field, wxT(">Coord."), wxDefaultPosition, wxSize(80,-1), 0 );
+	m_button65 = new wxButton (this,
+										IDC_Field,
+										wxT(">Coordinates"),
+										wxDefaultPosition,
+										wxSize (105, -1),
+										0);
    SetUpToolTip(m_button65, IDS_ToolTip12);
 	//fgSizer15->Add( m_button65, 0, wxALIGN_RIGHT|wxLEFT|wxTOP|wxRIGHT, 5 );
 	fgSizer15->Add (m_button65, wxSizerFlags(0).Border(wxLEFT|wxTOP|wxRIGHT, 5));
@@ -416,12 +449,18 @@ void CMStatisticsFrame::CreateControls2()
 	//bSizer242->Add( m_staticText229, 0, wxALIGN_BOTTOM|wxALIGN_CENTER_HORIZONTAL|wxTOP, 5 );
 	bSizer242->Add (m_staticText229, wxSizerFlags(0).Align(wxALIGN_CENTER).Border(wxTOP, 5));
 	
-	m_listBox4 = new wxListBox (this, IDC_ListBox, wxDefaultPosition, wxSize (175,150), 0, NULL, 0);
+	m_listBox4 = new wxListBox (this,
+											IDC_ListBox,
+											wxDefaultPosition,
+											wxSize (buttonWidth, 156),
+											0,
+											NULL,
+											0);
 	//bSizer242->Add( m_listBox4, 0, wxALIGN_BOTTOM|wxALIGN_CENTER_HORIZONTAL|wxALL|wxEXPAND, 5 );
-	bSizer242->Add (m_listBox4, wxSizerFlags(0).Align(wxALIGN_CENTER_HORIZONTAL).Border(wxTOP|wxLEFT|wxRIGHT, 5));
+	bSizer242->Add (m_listBox4, wxSizerFlags(0).Align(wxALIGN_CENTER_HORIZONTAL).Border(wxTOP, 5));
 	
 	//bSizer233->Add( bSizer242, 0, wxALIGN_BOTTOM|wxALIGN_CENTER|wxBOTTOM|wxEXPAND|wxLEFT|wxRIGHT, 3);
-	bSizer233->Add (bSizer242, wxSizerFlags(0).Align(wxALIGN_CENTER).Border(wxBOTTOM|wxLEFT|wxRIGHT, 3));
+	bSizer233->Add (bSizer242, wxSizerFlags(0).Align(wxALIGN_CENTER).Border(wxBOTTOM|wxLEFT|wxRIGHT, 8));
 	
 	m_listBox = m_listBox4;
 	
@@ -438,8 +477,8 @@ void CMStatisticsFrame::CreateControls2()
     m_staticText260->SetFont(font);
     m_staticText261->SetFont(font);
     m_staticText262->SetFont(font);
-    m_staticText263->SetFont(font);
-    m_staticText264->SetFont(font);
+    //m_staticText263->SetFont(font);
+    //m_staticText264->SetFont(font);
     m_comboBox40->SetFont(font);
     m_comboBox41->SetFont(font);
     m_comboBox42->SetFont(font);

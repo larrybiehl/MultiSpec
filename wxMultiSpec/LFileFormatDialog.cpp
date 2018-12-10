@@ -1,6 +1,6 @@
 // LFileFormatDialog.cpp : implementation file
 //
-//	Revised by Larry Biehl on 10/19/2018
+//	Revised by Larry Biehl on 11/30/2018
 /*		
 	int numberChars = sprintf ((char*)&gTextString3,
 												" LFormDlg:OnPaint (m_hdfDataSetSelection): %ld%s", 
@@ -179,7 +179,8 @@ CMFileFormatSpecsDlg::CMFileFormatSpecsDlg(wxWindow* pParent, wxWindowID id, con
 }
 
 
-void CMFileFormatSpecsDlg::CreateControls() 
+void CMFileFormatSpecsDlg::CreateControls ()
+
 {
 	this->SetSizeHints(wxDefaultSize, wxDefaultSize);
 
@@ -390,8 +391,14 @@ void CMFileFormatSpecsDlg::CreateControls()
 	//bSizer80->Add (m_staticText80, 0, wxALIGN_CENTER | wxALL, 5);
 	bSizer80->Add (m_staticText80, wxSizerFlags(0).Center().Border(wxALL,5));
 
-	m_comboBox5 = new wxComboBox(this, IDC_BandInterleavePopUp, wxT("BIL-Band Interleaved by Line"), //wxDefaultPosition, wxDefaultSize, 0, NULL, 0 | wxTAB_TRAVERSAL | wxVSCROLL|wxCB_READONLY);
-      wxDefaultPosition, wxDefaultSize, 0, NULL, 0 | wxTAB_TRAVERSAL | wxCB_READONLY);
+	m_comboBox5 = new wxComboBox (this,
+											IDC_BandInterleavePopUp,
+											wxT("BIL-Band Interleaved by Line"),
+      									wxDefaultPosition,
+      									wxSize (230, -1),
+      									0,
+      									NULL,
+      									wxTAB_TRAVERSAL | wxCB_READONLY);  // wxTAB_TRAVERSAL | wxVSCROLL | wxCB_READONLY
 	m_comboBox5->Append(wxT("BIL-Band Interleaved by Line"));
 	m_comboBox5->Append(wxT("BSQ-Band Sequential"));
 	m_comboBox5->Append(wxT("BIS-Band Interleaved by Sample"));
@@ -415,8 +422,14 @@ void CMFileFormatSpecsDlg::CreateControls()
 	//bSizer81->Add(m_staticText81, 0, wxALIGN_CENTER | wxALL, 5);
 	bSizer81->Add (m_staticText81, wxSizerFlags(0).Center().Border(wxALL,5));
 
-	m_comboBox4 = new wxComboBox(this, IDC_DataValueTypePopUp, wxT("4-bit Unsigned Integer"), //wxDefaultPosition, wxDefaultSize, 0, NULL, 0 | wxTAB_TRAVERSAL | wxVSCROLL|wxCB_READONLY);
-      wxDefaultPosition, wxDefaultSize, 0, NULL, 0 | wxTAB_TRAVERSAL |wxCB_READONLY);
+	m_comboBox4 = new wxComboBox (this,
+											IDC_DataValueTypePopUp,
+											wxT("4-bit Unsigned Integer"),
+      									wxDefaultPosition,
+      									wxSize (175, -1),
+      									0,
+      									NULL,
+      									wxTAB_TRAVERSAL |wxCB_READONLY);	// 0 | wxTAB_TRAVERSAL | wxVSCROLL|wxCB_READONLY
 	m_comboBox4->Append(wxT("4-bit Unsigned Integer"));
 	m_comboBox4->Append(wxT("8-bit Signed Integer"));
 	m_comboBox4->Append(wxT("8-bit Unsigned Integer"));
@@ -506,17 +519,24 @@ void CMFileFormatSpecsDlg::CreateControls()
    SetUpToolTip(m_staticText83, IDS_ToolTip289);
 	bSizer86->Add(m_staticText83, 0, wxALIGN_CENTER | wxALL, 5);
 
-	m_comboBox7 = new wxComboBox(this, IDC_HDFDataSet, wxT(""), wxDefaultPosition, wxDefaultSize, 0, NULL, 0|wxCB_READONLY);
+	m_comboBox7 = new wxComboBox (this,
+											IDC_HDFDataSet,
+											wxT(""),
+											wxDefaultPosition,
+											wxSize (350, -1),
+											0,
+											NULL,
+											wxCB_READONLY);
    SetUpToolTip(m_comboBox7, IDS_ToolTip289);
 	bSizer86->Add(m_comboBox7, 0, wxALL, 5);
 
-	m_button7 = new wxButton(this, IDC_HDFDataSetHelp, wxT("?"), wxDefaultPosition, wxSize(25, 25), 0);
+	m_button7 = new wxButton(this, IDC_HDFDataSetHelp, wxT("?"), wxDefaultPosition, wxSize (25, 25), 0);
 	bSizer86->Add(m_button7, 0, wxALL, 5);
 
 
 	//bSizer79->Add(bSizer86, 1, wxALL | wxEXPAND, 5);
 	bSizer79->Add (bSizer86, wxSizerFlags(0).Expand());
-
+	/*
 	wxBoxSizer* bSizer87;
 	bSizer87 = new wxBoxSizer(wxHORIZONTAL);
 
@@ -528,16 +548,14 @@ void CMFileFormatSpecsDlg::CreateControls()
 	//bSizer87->Add (m_button9, 0, wxALL, 5);
 	bSizer87->Add (m_button9, wxSizerFlags(0));
 
-
 	bSizer79->Add(bSizer87, 0, wxALIGN_RIGHT);
+	*/
+	bSizer47->Add (bSizer79, wxSizerFlags(0).Expand().Border(wxLEFT|wxRIGHT, 12));
+	
+	CreateStandardButtons (bSizer47);
 
-
-	//bSizer47->Add (bSizer79, 0, wxEXPAND, 5);
-	bSizer47->Add (bSizer79, wxSizerFlags(0).Expand().Border(wxLEFT|wxRIGHT|wxBOTTOM,12));
-
-
-	this->SetSizer(bSizer47);
-	this->Layout();
+	this->SetSizer (bSizer47);
+	this->Layout ();
 	//this->Centre(wxBOTH);
 	
 }		// end "CreateControls"
@@ -1107,7 +1125,8 @@ bool CMFileFormatSpecsDlg::TransferDataFromWindow()
 
 	if (m_fileInfoPtr->thematicType &&
 			(m_dataValueType < k4BitUnsignedIntegerMenuItem ||
-			m_dataValueType > k2ByteUnsignedIntegerMenuItem)) {
+			m_dataValueType > k2ByteUnsignedIntegerMenuItem))
+		{
 		DisplayAlert(kErrorAlertID,
 				 kStopAlert,
 				 kAlertStrID,
@@ -1117,7 +1136,7 @@ bool CMFileFormatSpecsDlg::TransferDataFromWindow()
 				 
 		returnCode = 1;
 
-		} // end "if (m_fileInfoPtr->thematicType &&"
+		}	// end "if (m_fileInfoPtr->thematicType &&"
 
 	sizeDifference = 0;
 	if ((m_fileInfoPtr->format != kHDF4Type && m_fileInfoPtr->format != kNETCDFType &&
@@ -1129,38 +1148,55 @@ bool CMFileFormatSpecsDlg::TransferDataFromWindow()
 		if (!m_fileInfoPtr->thematicType)
 			theNum = m_numberChannels;
 
-	  numberBytes = FileSpecificationDialogGetNumberBytes(m_dataValueType);
+	  numberBytes = FileSpecificationDialogGetNumberBytes (m_dataValueType);
 
-	  sizeDifference = CompareFileInfoAndFileSize(
-				 m_fileInfoPtr,
-				 m_numberLines,
-				 m_numberColumns,
-				 theNum,
-				 numberBytes,
-				 m_preLineBytes,
-				 m_postLineBytes,
-				 m_preChannelBytes,
-				 m_postChannelBytes,
-				 m_headerBytes,
-				 m_trailerBytes,
-				 m_bandInterleave + 1,
-				 (m_dataValueType == 0));
+	  sizeDifference = CompareFileInfoAndFileSize (m_fileInfoPtr,
+																	 m_numberLines,
+																	 m_numberColumns,
+																	 theNum,
+																	 numberBytes,
+																	 m_preLineBytes,
+																	 m_postLineBytes,
+																	 m_preChannelBytes,
+																	 m_postChannelBytes,
+																	 m_headerBytes,
+																	 m_trailerBytes,
+																	 m_bandInterleave + 1,
+																	 (m_dataValueType == 0));
 
 		}	// end "if (fileInfoPtr->format != kHDFType || ..."
 
-	if (sizeDifference > 0) {
-		DisplayAlert(kErrorAlertID,
-				 kCautionAlert,
-				 kAlertStrID,
-				 IDS_FileSizeLimit,
-				 0,
-				 NULL);
+	if (sizeDifference > 0 && SizeOfImageFileCanBeCalculated (m_fileInfoPtr))
+		{
+				// Display an alert.
 
-		FindWindow(IDC_NumberLines)->SetFocus();
-				 
-		returnCode = IDC_NumberLines;
+		FileStringPtr							fileNamePtr;
+		SInt16									alertReturnCode;
+		
+		fileNamePtr = (FileStringPtr)GetFileNameCPointerFromFileInfo (m_fileInfoPtr);
+		
+		MGetString (gTextString2, kAlertStrID, IDS_FileSizeLimit);
+		
+		sprintf ((char*)gTextString,
+						 (char*)gTextString2,
+						 fileNamePtr,
+						 sizeDifference);
+		
+		alertReturnCode = DisplayAlert (kRedoDontCancelAlertID,
+													 kCautionAlert,
+													 kAlertStrID,
+													 0,
+													 0,
+													 gTextString);
 
-		}	// end "if (sizeDifference > 0)"	
+		if (alertReturnCode == 1)
+			{
+			FindWindow(IDC_NumberLines)->SetFocus();
+			returnCode = IDC_NumberLines;
+			
+			}	// end "if (alertReturnCode == 1)"
+
+		}	// end "if (sizeDifference > 0 && ..."
 
 	else // sizeDifference <= 0
 		{
@@ -1172,13 +1208,13 @@ bool CMFileFormatSpecsDlg::TransferDataFromWindow()
 			comboBoxPtr->SetSelection(m_hdfDataSetSelection);
 			m_dataSetIndex = comboBoxPtr->GetSelection();
 
-			} // end "if (m_fileInfoPtr->hdfHandle != NULL)"
+			}	// end "if (m_fileInfoPtr->hdfHandle != NULL)"
 
-		} // end "else sizeDifference <= 0"
+		}	// end "else sizeDifference <= 0"
 		
 	return (returnCode == 0);
 	 
-}		// end "TransferDataFromWindow"
+}	// end "TransferDataFromWindow"
 
 
 bool CMFileFormatSpecsDlg::TransferDataToWindow() {

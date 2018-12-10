@@ -115,12 +115,12 @@ protected:
     wxStaticText* m_staticText260;
     wxStaticText* m_staticText261;
     wxStaticText* m_staticText262;
-    wxStaticText* m_staticText263;
-    wxStaticText* m_staticText264;
+    //wxStaticText* m_staticText263;
+    //wxStaticText* m_staticText264;
     wxComboBox* m_comboBox40;
     wxComboBox* m_comboBox41;
-    wxComboBox* m_comboBox42;
-    wxComboBox* m_comboBox43;
+    //wxComboBox* m_comboBox42;
+    //wxComboBox* m_comboBox43;
     wxCheckBox* m_checkBox53;
     wxButton* m_button56;
     wxButton* m_button60;

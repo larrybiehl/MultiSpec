@@ -76,8 +76,8 @@ bool CMStatisticsView::OnCreate (wxDocument *doc, long WXUNUSED(flags) )
 {
    int	clientWidth,
 			clientHeight,
-			width = 190,
-			height = 500,
+			width = 225,
+			height = 505,
 			textWindowXPosition,
 			textWindowYPosition;
 			
@@ -102,7 +102,7 @@ bool CMStatisticsView::OnCreate (wxDocument *doc, long WXUNUSED(flags) )
 								wxID_ANY,
 								wxT("Project"),
 								wxPoint (textWindowXPosition, textWindowYPosition),
-								wxSize (width,height),
+								wxSize (width, height),
 								#if defined multispec_wxmac
 									(wxDEFAULT_FRAME_STYLE | wxFRAME_FLOAT_ON_PARENT) & ~(wxRESIZE_BORDER | wxMAXIMIZE_BOX));
 								#else

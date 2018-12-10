@@ -12,7 +12,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			11/21/2018
+//	Revision date:			12/07/2018
 //
 //	Language:				C++
 //
@@ -27,11 +27,12 @@
 
 #include "LAbout.h"
 #ifdef multispec_wxmac
-	#include "res/wxmac_Multispec.rc"
+	#include "wxmac_Multispec.rc"
+	#include "mspec.xpm"
 #else
 	#include "LMultispec.rc"
+	#include "res/mspec.xpm"
 #endif
-#include "res/mspec.xpm"
 
 ///////////////////////////////////////////////////////////////////////////
 

@@ -33,14 +33,14 @@
 #include "LImageFrame.h"
 #include "LImageDoc.h"
 
-//#ifdef multispec_wxmac
-	//#include "res/overlay_24.png"
-	//#include "res/zoomx1_24.png"
-	//#include "res/zoom_out_24.png"
-	//#include "res/zoom_in_24.png"
-//#else
+#ifdef multispec_wxmac
+	//#include "Resources/overlay_24.png"
+	//#include "Resources/zoomx1_24.png"
+	//#include "Resources/zoom_out_24.png"
+	//#include "Resources/zoom_in_24.png"
+#else
 	#include "LToolbar_img.cpp"
-//#endif
+#endif
 
 #define kDefaultMaxLegendWidth 170
 
@@ -102,19 +102,19 @@ CMImageFrame::CMImageFrame (
 {
 			// Initialize variables
 	
-	//#if defined multispec_wxmac
-		/*
-		wxBitmap overlayi = wxBITMAP_PNG(Resources/overlay_24);
-		wxBitmap zoom1 = wxBITMAP_PNG(Resources/zoomx1_24);
-		wxBitmap zoomout = wxBITMAP_PNG(Resources/zoom_out_24);
-		wxBitmap zoomin = wxBITMAP_PNG(Resources/zoom_in_24);
-		*/
-	//#else
+	#if defined multispec_wxmac
+	
+		wxBitmap overlayi = wxBITMAP_PNG(overlay_24);
+		wxBitmap zoom1 = wxBITMAP_PNG(zoomx1_24);
+		wxBitmap zoomout = wxBITMAP_PNG(zoom_out_24);
+		wxBitmap zoomin = wxBITMAP_PNG(zoom_in_24);
+	
+	#else
 		wxBitmap overlayi = wxBITMAP_PNG_FROM_DATA(overlay);
 		wxBitmap zoom1 = wxBITMAP_PNG_FROM_DATA(zoomx1);
 		wxBitmap zoomout = wxBITMAP_PNG_FROM_DATA(zoom_out);
 		wxBitmap zoomin = wxBITMAP_PNG_FROM_DATA(zoom_in);
-	//#endif
+	#endif
 	
 	m_imageViewCPtr = (CMImageView*)view;
 	m_imageFrameActiveFlag = FALSE;
@@ -169,14 +169,14 @@ CMImageFrame::CMImageFrame (
 	m_mainWindow = win;
 	
 	#if defined multispec_wxmac
-		wxToolBar* l_toolBar = this->CreateToolBar (wxTB_HORIZONTAL, wxID_ANY);
-		l_toolBar->SetToolBitmapSize (wxSize (16, 16));
+		wxToolBar* l_toolBar = CreateToolBar (wxTB_HORIZONTAL, wxID_ANY);
+		l_toolBar->SetToolBitmapSize (wxSize (24, 24));
 		l_toolBar->AddTool (ID_MAGNIFICATION,
 									wxT("tool"),
 									zoom1,
 									wxNullBitmap,
 									wxITEM_NORMAL,
-									wxT("Zoom to X1.0 magnification"),
+									wxT("Zoom image to X1.0 magnification"),
 									wxEmptyString);
 	
 		//wxToolBarToolBase* zoomInTool = l_toolBar->AddTool (ID_ZOOM_IN,
@@ -185,7 +185,7 @@ CMImageFrame::CMImageFrame (
 									zoomin,
 									wxNullBitmap,
 									wxITEM_NORMAL,
-									wxT("Zoom in for active image window"),
+									wxT("Zoom into image"),
 									wxEmptyString);
 	
 		//wxToolBarToolBase* zoomOutTool = l_toolBar->AddTool (ID_ZOOM_OUT,
@@ -194,7 +194,7 @@ CMImageFrame::CMImageFrame (
 									zoomout,
 									wxNullBitmap,
 									wxITEM_NORMAL,
-									wxT("Zoom out for active image window"),
+									wxT("Zoom out of image"),
 									wxEmptyString);
 	
 		m_zoomText = new wxStaticText (l_toolBar,
@@ -214,9 +214,10 @@ CMImageFrame::CMImageFrame (
 									overlayi,
 									wxNullBitmap,
 									wxITEM_NORMAL,
-									wxT("Control overlays on active image window"),
+									wxT("Control overlays on image"),
 									wxEmptyString);
 		l_toolBar->EnableTool (ID_OVERLAY, false);
+	
 		l_toolBar->Realize ();
 	#endif
 
@@ -993,7 +994,7 @@ void CMImageFrame::OnUpdateFilePrint(CCmdUI& pCmdUI) {
             kLock,
             kNoMoveHi);
 
-    Boolean enableFlag = UpdateFileImagePrint (&pCmdUI, windowInfoPtr);
+    UpdateFileImagePrint (&pCmdUI, windowInfoPtr);
 
     CheckAndUnlockHandle(windowInfoHandle);
 
@@ -1155,8 +1156,7 @@ void CMImageFrame::SetLegendWidth(SInt16 newLegendWidth)
 {
 	Handle		windowInfoHandle;
 	wxSize		legendsize;
-	int			currentWidth, 
-					minimumWidth;
+	int			currentWidth;
 
 	SInt16 windowType;
 
@@ -1169,20 +1169,24 @@ void CMImageFrame::SetLegendWidth(SInt16 newLegendWidth)
 	if (newLegendWidth < 0 || m_imageLegendViewCPtr == NULL)
 		return;
 
-	windowInfoHandle = GetActiveImageWindowInfoHandle();
-	windowType = GetWindowType(windowInfoHandle);
+	windowInfoHandle = GetActiveImageWindowInfoHandle ();
+	windowType = GetWindowType (windowInfoHandle);
 
 			// Get the current settings.
-	legendsize = m_leftWindow->GetSize();
+	
+	legendsize = m_leftWindow->GetSize ();
+	currentWidth = legendsize.GetWidth ();
 
 	if (windowType == kThematicWindowType) 
 		{
-		if (newLegendWidth < 7) {
-			// Force the legend width to be 0;
+		if (newLegendWidth < 7)
+			{
+					// Force the legend width to be 0;
+			
 			m_leftWindow->Show(false);
 			newLegendWidth = 0;
 
-			}	// end "if (currentWidth < 7)"
+			}	// end "if (newLegendWidth < 7)"
 
 		else if (newLegendWidth < 145) {
 					// Force the legend width to be 145;

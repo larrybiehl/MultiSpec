@@ -1,6 +1,6 @@
 // LLegendList.cpp : implementation file
 //
-// Revised by Larry Biehl on 10/19/2018
+// Revised by Larry Biehl on 12/06/2018
 //                    
 #include "CPalette.h"
 
@@ -182,7 +182,7 @@ void CMLegendList::DrawItem (
 
 	double 							magnification; 
 		
-	RECT				colorRect;
+	//RECT				colorRect;
 		
 	char*				namePtr; 
 	Handle			nameHandle;
@@ -469,11 +469,11 @@ void CMLegendList::OnLButtonDown(wxListEvent& event)
 				
 {  
 	Point							lCell;
-	RECT							rect; 
-	int                     flags;
-	UInt32						longCellValue;
+	//RECT							rect;
+	//int                     flags;
+	//UInt32						longCellValue;
 	
-	UInt16						cellValue;
+	//UInt16						cellValue;
 	
 	                                                                
 	s_lastMouseDnPoint = event.GetPoint(); 
@@ -846,10 +846,12 @@ void CMLegendList::OnDrawItem()
    this->Show();
 	s_isPrintingFlag = FALSE;
 
-}		// end "OnDrawItem"
+}	// end "OnDrawItem"
 
 
-void CMLegendList::OnKeyDown (wxKeyEvent& event)
+void CMLegendList::OnKeyDown (
+				wxKeyEvent& 					event)
+
 {
 	Point							lCell;
 
@@ -857,6 +859,16 @@ void CMLegendList::OnKeyDown (wxKeyEvent& event)
 
 	if (event.GetKeyCode() == WXK_SHIFT)
 		{
+		int modifiers = event.GetModifiers();
+		s_shiftKeyDownFlag = (modifiers & wxMOD_SHIFT);
+		#if defined multispec_wxlin
+			s_controlKeyDownFlag = (modifiers & wxMOD_CONTROL);
+		#endif
+		#if defined multispec_wxmac
+			s_controlKeyDownFlag = (modifiers & wxMOD_RAW_CONTROL);
+		#endif
+		s_altKeyDownFlag = (modifiers & wxMOD_ALT);
+	
 		code = 1;
 		if (s_controlKeyDownFlag)
 			code = 2;
@@ -867,7 +879,7 @@ void CMLegendList::OnKeyDown (wxKeyEvent& event)
 		lCell.h = 0;
 		lCell.v = GetFocusedItem();
 		
-		s_shiftKeyDownFlag = true;
+		//s_shiftKeyDownFlag = true;
 
 		DoBlinkCursor1 (this, lCell, (SInt16)m_listType, code);
 		
@@ -875,8 +887,9 @@ void CMLegendList::OnKeyDown (wxKeyEvent& event)
 		
 			//event.Skip();
 		}
-
-	else if (event.GetKeyCode() == WXK_CONTROL)
+	/*
+	//else if (event.GetKeyCode() == WXK_CONTROL)
+	else if (event.GetKeyCode() == WXK_RAW_CONTROL)
 		{
 		s_controlKeyDownFlag = true;
 		s_altKeyDownFlag = false;
@@ -889,7 +902,7 @@ void CMLegendList::OnKeyDown (wxKeyEvent& event)
 		s_altKeyDownFlag = true;
 
 		}
-	
+	*/
 	else
 		event.Skip();
 
@@ -898,8 +911,7 @@ void CMLegendList::OnKeyDown (wxKeyEvent& event)
 
 /*
 void CMLegendList::CheckShiftKeyDown(void)
-{   
-   /*
+{
 	POINT		position;
 	RECT		rectangle;
 		
@@ -912,9 +924,9 @@ void CMLegendList::CheckShiftKeyDown(void)
 			position.y <= rectangle.bottom && position.y >= 0 &&
 			gPresentCursor != kBlinkOpenCursor1)
 		MSetCursor (kBlinkOpenCursor1);
-	*/
-	//}		// end "CheckShiftKeyDown"
-
+ 
+}	// end "CheckShiftKeyDown"
+*/
 
 /*
 void CMLegendList::CheckShiftKeyUp (void)
@@ -928,14 +940,23 @@ void CMLegendList::CheckShiftKeyUp (void)
 */
 
 
-void CMLegendList::OnKeyUp (wxKeyEvent& event)
-{                                
-	if (event.GetKeyCode() == WXK_SHIFT)
-		{
-		s_shiftKeyDownFlag = false;
+void CMLegendList::OnKeyUp (
+				wxKeyEvent& event)
 
-		}
+{
+	int modifiers = event.GetModifiers ();
+	s_shiftKeyDownFlag = (modifiers & wxMOD_SHIFT);
+	#if defined multispec_wxlin
+		s_controlKeyDownFlag = (modifiers & wxMOD_CONTROL);
+	#endif
+	#if defined multispec_wxmac
+		s_controlKeyDownFlag = (modifiers & wxMOD_RAW_CONTROL);
+	#endif
+	s_altKeyDownFlag = (modifiers & wxMOD_ALT);
 	
+	if (event.GetKeyCode () == WXK_SHIFT)
+		s_shiftKeyDownFlag = false;
+	/*
 	else if (event.GetKeyCode() == WXK_CONTROL)
 		{
          s_controlKeyDownFlag = false;
@@ -954,19 +975,11 @@ void CMLegendList::OnKeyUp (wxKeyEvent& event)
 
 			}
 		}
-	
+	*/
 	else
-		event.Skip();
-/*
-	if (nChar == 0x11)
-		gActiveImageViewCPtr->SetControlKeyFlag(FALSE);
-		
-	else if (nChar == 0x10) 
-		CheckShiftKeyUp ();                    
+		event.Skip ();
 	
-	CListBox::OnKeyUp(nChar, nRepCnt, nFlags);
-*/
-}		// end "OnKeyUp"
+}	// end "OnKeyUp"
 
 
 /*
@@ -1003,14 +1016,13 @@ void CMLegendList::OnCharHook (wxKeyEvent& event)
 			code = 4;
 		
 		}
-	/*
+
 	else if (event.GetKeyCode() == WXK_CONTROL)
 		code = 2;
 	
 	else if (event.GetKeyCode() == WXK_ALT)
 		code = 4;
-	*/
-/*
+
 	if (code > 0)
 		{
 		lCell.h = 0;

@@ -1,7 +1,7 @@
 // LMultiSpec.h : main header file for the MultSpec application
 // Only for linux
 //
-// Revised by Larry Biehl		on 10/19/2018
+// Revised by Larry Biehl		on 12/07/2018
 // Revised by Tsung Tai Yeh	on 08/03/2015
 
 #include "wx/wx.h"
@@ -67,7 +67,13 @@ public:
 									SInt16				windowType);
 	wxFrame* CreateChildFrame(wxDocument *doc, wxView *view);
 	
-	void GetUserInputFilePath (wxString toolParameterFilePath);
+	#if defined multispec_wxlin
+		void GetUserInputFilePath (wxString toolParameterFilePath);
+	#endif
+	
+	#if defined multispec_wxmac
+		void MacOpenFiles (const wxArrayString& 		fileNames);
+	#endif
 	
 	//SInt16		GetZoomCode(void);
 	//void		SetZoomCode(SInt16	zoomCode);

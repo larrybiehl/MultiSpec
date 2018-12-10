@@ -438,7 +438,7 @@ void CMSelectTool::OnLButtonDblClk (
 		if (wxGetKeyState (WXK_SHIFT))
 			useStartLineColumnFlag = FALSE;
 
-		if (wxGetKeyState (WXK_CONTROL) < 0)
+		if (!wxGetKeyState (WXK_CONTROL))
 			{
 			unitsToUseCode = kLineColumnUnits;
 

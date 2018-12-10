@@ -423,7 +423,7 @@ void CopyOffScreenImage (
 		
 		else	// Thematic image
 			{
-			int numpentries = paletteCPtr->GetNumberPaletteEntries ();
+			//int numpentries = paletteCPtr->GetNumberPaletteEntries ();
 
 					  // Use palette to assign colors
 			
@@ -481,14 +481,14 @@ void CopyOffScreenImage (
 		  
 				// originally in LImageCanvas.cpp OnPaint
 			wxBitmap my_image (imageViewCPtr->m_ScaledBitmap);   
-			wxSize bitmapSize = my_image.GetSize ();
+			//wxSize bitmapSize = my_image.GetSize ();
 			wxMemoryDC displaydc;
 			displaydc.SelectObject (imageViewCPtr->m_ScaledBitmap);         
 			  
 		  
 		if (my_image.Ok ())
 			{
-			double m_zoom = imageViewCPtr->m_Scale;   
+			//double m_zoom = imageViewCPtr->m_Scale;
 			int destinationRectWidth =  destinationRect.right - destinationRect.left;
 			int destinationRectHeight = destinationRect.bottom - destinationRect.top;
 			//pDC->Clear ();
@@ -531,7 +531,7 @@ void CopyOffScreenImage (
 		
 		if (numberImageOverlays > 0 ||
 					numberOverlays > 0 ||
-							projectWindowFlag && windowCode >= 2)
+							(projectWindowFlag && windowCode >= 2))
 			{
 			displaySpecsPtr = (DisplaySpecsPtr) GetHandlePointer (displaySpecsHandle);
 

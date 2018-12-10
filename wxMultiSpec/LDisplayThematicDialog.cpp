@@ -12,7 +12,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			11/16/2018
+//	Revision date:			11/30/2018
 //
 //	Language:				C++
 //
@@ -179,8 +179,13 @@ void CMDisplayThematicDlg::CreateControls ()
 	bSizer25->Add (m_staticText30, wxSizerFlags(0).Border(wxBOTTOM,5));
 
 	wxStaticBoxSizer* sbSizer8;
-	sbSizer8 = new wxStaticBoxSizer(new wxStaticBox(this, IDC_LineColFrame, wxT("Area to Display")), wxHORIZONTAL);
-
+	sbSizer8 = new wxStaticBoxSizer (new wxStaticBox (this,
+																		IDC_LineColFrame,
+																		wxT("Area to Display")),
+												wxHORIZONTAL);
+	
+	CreateLineColumnControls (sbSizer8);
+	/*
 	wxBoxSizer* bSizer791;
 	bSizer791 = new wxBoxSizer(wxHORIZONTAL);
 
@@ -189,12 +194,12 @@ void CMDisplayThematicDlg::CreateControls ()
 	m_bpButton4->SetBitmapDisabled(toentirei);
 	//m_bpButton4->SetToolTip(wxT("Switch between the user selected area and the entire image area"));
    SetUpToolTip(m_bpButton4, IDS_ToolTip40);
-	bSizer791->Add(m_bpButton4, 0, wxALIGN_CENTER_VERTICAL | wxALIGN_RIGHT | wxLEFT|wxTOP|wxBOTTOM, 5);
+	bSizer791->Add(m_bpButton4, 0, wxALIGN_CENTER_VERTICAL | wxLEFT|wxTOP|wxBOTTOM, 5);
 
 	// m_bpButton5 = new wxBitmapButton(sbSizer8->GetStaticBox(), IDSelectedImage, wxBitmap(wxT("../../NetBeansProjects/CWP/project/trunk/res/selected.bmp"), wxBITMAP_TYPE_ANY), wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW);
 	m_bpButton5 = new wxBitmapButton(sbSizer8->GetStaticBox(), IDSelectedImage, selectedi, wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW);
 	m_bpButton5->SetBitmapDisabled(bmp4i);
-	bSizer791->Add(m_bpButton5, 0, wxALIGN_CENTER_VERTICAL | wxALIGN_RIGHT | wxLEFT|wxTOP|wxBOTTOM, 5);
+	bSizer791->Add(m_bpButton5, 0, wxALIGN_CENTER_VERTICAL | wxLEFT|wxTOP|wxBOTTOM, 5);
 
 
 	sbSizer8->Add(bSizer791, 0, wxEXPAND, 5);
@@ -263,7 +268,7 @@ void CMDisplayThematicDlg::CreateControls ()
 	gSizer1->Add(m_colintctrl, 0, wxALIGN_CENTER | wxALL, 5);
 
 	sbSizer8->Add(gSizer1, 1, wxEXPAND, 5);
-
+	*/
 	bSizer25->Add (sbSizer8, wxSizerFlags(0).Expand().Border(wxTOP|wxRIGHT|wxBOTTOM,5));
 
 	bSizer19->Add (bSizer25, wxSizerFlags(1).Expand().Border(wxTOP|wxRIGHT|wxBOTTOM,5));

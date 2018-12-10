@@ -1,6 +1,6 @@
 // LOneColumnDialog.cpp
 //
-// Revised by Larry Biehl on 11/12/2018
+// Revised by Larry Biehl on 12/04/2018
 //
 //------------------------------------------------------------------------------------
 #include "LOneColumnDialog.h"
@@ -126,6 +126,13 @@ void CMOneColDlg::CreateControls ()
 											0,
 											NULL,
 											wxLB_MULTIPLE|wxLB_NEEDED_SB /*|wxLB_EXTENDED*/);
+	wxFont font (gFontSize,
+						wxFONTFAMILY_TELETYPE,
+						wxFONTSTYLE_NORMAL,
+						wxFONTWEIGHT_NORMAL,
+						false,
+						wxEmptyString);
+   m_listBox1->SetFont (font);
    bSizervl->Add (
 				m_listBox1,
 				wxSizerFlags(0).Align(wxALIGN_CENTER).Border(wxTOP|wxRIGHT|wxBOTTOM, 5));

@@ -79,7 +79,7 @@ void MyExtraPanel::OnInitDialog (void)
   
 	if (m_showLinkPopupMenuFlag)
 		{
-		m_link->Append (wxT("Do not link"));
+		//m_link->Append (wxT("Do not link"));
 		m_link->Append (wxT("Link selected file(s) to active image window"));
 		m_link->Append (wxT("Link selected file(s) to new image window"));
 		//m_staticText5->Hide();
@@ -88,7 +88,7 @@ void MyExtraPanel::OnInitDialog (void)
 	
 	else
 		{
-		m_link->Append (wxT("Do not link"));
+		//m_link->Append (wxT("Do not link"));
 		m_link->Append (wxT("Link selected file(s) to new image window"));
 		
 		}
@@ -544,20 +544,34 @@ bool CMOpenFileDialog::DoDialog (int stringIndex, long style)
          
          MyExtraPanel* extra_panel = (MyExtraPanel*)extra;
          int link_option = extra_panel->m_link->GetSelection();
-         if (filenames.size() > 1 &&  link_option <= 0) 
+         if (filenames.size() > 1)
          	{
-            		// More than 1 files selected, ask if want to link them
+          	if (link_option <= 0)
+					{
+							// More than 1 files selected, ask if want to link them
+					
+					if (wxYES == wxMessageBox (wxT("Multiple files selected. Link them together?"),
+														wxT("Link Images"),
+														wxYES_NO | wxCENTRE | wxSTAY_ON_TOP))
+						{
+						extra_panel->m_linkOptionSelectionDataCode = 0;
+						extra_panel->SetImageLinkToTrue ();
+						
+						}	// end "if (wxYES == wxMessageBox (..."
+					
+					}	// end "if (link_option <= 0)"
 				
-            if (wxYES == wxMessageBox (wxT("Multiple files selected. Link them together?"),
-                  							wxT("Link Images"),
-													wxYES_NO | wxCENTRE | wxSTAY_ON_TOP))
-               { 
+				else if (link_option == 1)
+					{
+							// Adding this since 'SetImageLinkToTrue' is not being called
+							// in the multispec_wxmac version.
+							
 					extra_panel->m_linkOptionSelectionDataCode = 0;
 					extra_panel->SetImageLinkToTrue ();
 					
-               }	// end "if (wxYES == wxMessageBox (..."
-				
-         	}	// end "if (filenames.size() > 1 && ..."
+					}	// end "else if (link_option == 1)"
+					
+				}	// end "if (filenames.size() > 1)"
 
 			continueFlag = TRUE;
 			

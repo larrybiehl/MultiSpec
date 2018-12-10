@@ -1,6 +1,6 @@
 // LMainFrame.cpp
 //
-//	Revised By:			Larry L. Biehl			Date: 11/08/2018
+//	Revised By:			Larry L. Biehl			Date: 12/07/2018
 // Revised by:			Tsung Tai Yeh			Date: 10/05/2015
 
 #include "LMainFrame.h"
@@ -8,13 +8,21 @@
 //#include <wx/toolbar.h>
 
 // Toolbar icons//////
-#include "res/open.xpm"
-#include "res/save.xpm"
-#include "res/cut.xpm"
-#include "res/copy.xpm"
-#include "res/paste.xpm"
-#include "res/print.xpm"
-#include "res/help.xpm"
+#if defined multispec_wxlin
+	#include "res/open.xpm"
+	#include "res/save.xpm"
+	#include "res/cut.xpm"
+	#include "res/copy.xpm"
+	#include "res/paste.xpm"
+	#include "res/print.xpm"
+	#include "res/help.xpm"
+	#include "res/mspec.xpm"
+#endif
+
+#if defined multispec_wxmac
+	//#include "mspec.xpm"
+#endif
+
 #include "LToolbar_img.cpp"
 
 //////////////////////
@@ -29,7 +37,6 @@
 #include "LStatisticsView.h"
 #include "LTextFrame.h"
 #include "LTextView.h"
-#include "res/mspec.xpm"	
 
 extern void		GetWindowTitle (
 						WindowPtr							windowPtr,
@@ -56,24 +63,27 @@ CMainFrame::CMainFrame (
 	m_TOOL_PARAMETER_file_flag = TRUE;
    m_tooltipFlag = TRUE;
    m_toolBar1 = NULL;
+   m_cancelOperationEventFlag = FALSE;
    
 	wxInitAllImageHandlers();
-	SetIcon(wxICON(mspec));
-	wxBitmap openbmp = wxBitmap(open_xpm);
-	wxBitmap savebmp = wxBitmap(save_xpm);
-	wxBitmap cutbmp = wxBitmap(cut_xpm);
-	wxBitmap copybmp = wxBitmap(copy_xpm);
-	wxBitmap pastebmp = wxBitmap(paste_xpm);
-	wxBitmap printbmp = wxBitmap(print_xpm);
-	wxBitmap helpbmp = wxBitmap(help_xpm);
+	#if defined multispec_wxlin
+		SetIcon (wxICON(mspec));
+		wxBitmap openbmp = wxBitmap(open_xpm);
+		wxBitmap savebmp = wxBitmap(save_xpm);
+		wxBitmap cutbmp = wxBitmap(cut_xpm);
+		wxBitmap copybmp = wxBitmap(copy_xpm);
+		wxBitmap pastebmp = wxBitmap(paste_xpm);
+		wxBitmap printbmp = wxBitmap(print_xpm);
+		wxBitmap helpbmp = wxBitmap(help_xpm);
+		wxBitmap overlayi = wxBITMAP_PNG_FROM_DATA(overlay);
+		wxBitmap zoom1 = wxBITMAP_PNG_FROM_DATA(zoomx1);
+		wxBitmap zoomout = wxBITMAP_PNG_FROM_DATA(zoom_out);
+		wxBitmap zoomin = wxBITMAP_PNG_FROM_DATA(zoom_in);
+	#endif
 	//wxBitmap zoom1 = wxBitmap(wxT("res/zoomx1.png"), wxBITMAP_TYPE_BMP);
 	//wxBitmap zoomin = wxBitmap(wxT("res/zoom_in.bmp"), wxBITMAP_TYPE_BMP);
 	//wxBitmap zoomout = wxBitmap(wxT("res/zoom_out.png"), wxBITMAP_TYPE_BMP);
 	//wxBitmap overlay = wxBitmap(wxT("res/overlay.png"), wxBITMAP_TYPE_BMP);
-	wxBitmap overlayi = wxBITMAP_PNG_FROM_DATA(overlay);
-	wxBitmap zoom1 = wxBITMAP_PNG_FROM_DATA(zoomx1);
-	wxBitmap zoomout = wxBITMAP_PNG_FROM_DATA(zoom_out);
-	wxBitmap zoomin = wxBITMAP_PNG_FROM_DATA(zoom_in);
 	//SetIcon(wxIcon(wxT("res/mspec.xpm"),wxBITMAP_TYPE_XPM));
 	
 	m_menubar1 = new wxMenuBar(0);
@@ -840,6 +850,19 @@ void CMainFrame::ActiveViewUpdate (wxCommandEvent& event)
 */
 
 
+Boolean CMainFrame::GetCancelOperationEventFlag ()
+
+{
+	return (m_cancelOperationEventFlag);
+	
+			// Be sure to turn the flag off since it has been used.
+	
+	m_cancelOperationEventFlag = FALSE;
+	
+}	// end "GetCancelOperationEventFlag"
+
+
+
 Boolean CMainFrame::GetEnableFlagForStatisticsAndCluster ()
 {
 	Boolean enableFlag = FALSE;
@@ -897,15 +920,20 @@ void CMainFrame::OnAsyncTermination (FileUploadProcess *process)
 }		// end "OnAsyncTermination"
 
 
-// TODO: See if it is needed in Linux
-#ifndef multispec_lin
-void CMainFrame::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags) {
-    // TODO: Add your message handler code here and/or call default
 
-    CMDIFrameWnd::OnChar(nChar, nRepCnt, nFlags);
+void CMainFrame::OnChar (
+				wxKeyEvent& 					event)
 
-} // end "OnChar"
-#endif
+{
+	if (event.GetKeyCode() == '.' && event.GetModifiers() == wxMOD_CONTROL)
+		{
+		m_cancelOperationEventFlag = TRUE;
+		event.Skip();
+		
+		}	// end "if (event.GetKeyCode() == '.' && ..."
+	
+}	// end "OnChar"
+
 
 
 void CMainFrame::OnClose() {
@@ -1284,9 +1312,12 @@ void CMainFrame::OnHistogramImage(wxCommandEvent& event)
 }		// end "OnHistogramImage"
 
 
-void CMainFrame::OnIdle(wxIdleEvent& event) 
+void CMainFrame::OnIdle (
+				wxIdleEvent& 					event)
+				
 {
-	if (m_imageZoomCode > 0) {
+	if (m_imageZoomCode > 0)
+		{
 		/*
 		int numberChars = sprintf ((char*)&gTextString3,
 										" CMainFrame::OnIdle: (zoomCode): %d%s", 
@@ -1295,10 +1326,12 @@ void CMainFrame::OnIdle(wxIdleEvent& event)
 		ListString ((char*)&gTextString3, numberChars, gOutputTextH);
 		*/
 		wxMouseState currentMouseState = wxGetMouseState();
-		if (currentMouseState.RightIsDown()) {
+		if (currentMouseState.RightIsDown())
+			{
 			UInt32 currentTickCount = GetTickCount();
 			/*
-			if (currentTickCount >= m_nextControlTime) {
+			if (currentTickCount >= m_nextControlTime)
+				{
 			
 				int numberChars3 = sprintf ((char*)&gTextString3,
 											" CMainFrame::OnIdle: (currentTickCount >= m_nextControlTime): %d, %d%s",
@@ -1306,19 +1339,23 @@ void CMainFrame::OnIdle(wxIdleEvent& event)
 											m_nextControlTime,
 											gEndOfLine);
 				ListString ((char*)&gTextString3, numberChars3, gOutputTextH);
+			 
 				}
-			/*
-			else {
+			
+			else
+				{
 				int numberChars4 = sprintf ((char*)&gTextString3,
 											" CMainFrame::OnIdle: (currentTickCount >= m_nextControlTime): %d, %d%s",
 											currentTickCount, 
 											m_nextControlTime,
 											gEndOfLine);
-				//ListString ((char*)&gTextString3, numberChars4, gOutputTextH);
+				ListString ((char*)&gTextString3, numberChars4, gOutputTextH);
+			 
 				}
 			*/
 			m_controlDelayFlag = !wxGetKeyState(WXK_SHIFT);
-			if (currentTickCount >= m_nextControlTime || !m_controlDelayFlag) {
+			if (currentTickCount >= m_nextControlTime || !m_controlDelayFlag)
+				{
 				m_nextControlTime = currentTickCount + gControlOffset;
 				/*
 				int numberChars = sprintf ((char*)&gTextString3,
@@ -1333,12 +1370,12 @@ void CMainFrame::OnIdle(wxIdleEvent& event)
 				else if (m_imageZoomCode == ID_ZOOM_OUT)
 					gActiveImageViewCPtr->ZoomOut();
 					
-				}		// end "if (!m_controlDelayFlag || (GetTickCount() > m_nextControlTime))
+				}	// end "if (!m_controlDelayFlag || (GetTickCount() > m_nextControlTime))
 				
 			event.RequestMore(true);
 			//SetZoomCode(m_imageZoomCode);
 				
-			}		// end "if (wxMouseState().RightIsDown())"
+			}	// end "if (wxMouseState().RightIsDown())"
 			
 		else { // quit zooming
 			/*
@@ -1350,22 +1387,24 @@ void CMainFrame::OnIdle(wxIdleEvent& event)
 			SetZoomCode(0);
 			}
 			
-		}		// end "if (m_imageZoomCode > 0)"
-		
-	if (m_TOOL_PARAMETER_file_flag)
-		{
-		m_TOOL_PARAMETER_file_flag = false;
-		
-				// Check if a file was selected for opening upon startup.
+		}	// end "if (m_imageZoomCode > 0)"
+	
+	#if defined multispec_wxlin
+		if (m_TOOL_PARAMETER_file_flag)
+			{
+			m_TOOL_PARAMETER_file_flag = false;
 			
-		wxString	parameterValue;
-		if (wxGetEnv (wxT("TOOL_PARAMETERS"), &parameterValue))
-			((CMultiSpecApp*)wxTheApp)->GetUserInputFilePath (parameterValue);
+					// Check if a file was selected for opening upon startup.
 			
-		else
-			((CMultiSpecApp*)wxTheApp)->GetUserInputFilePath (parameterValue);
+			wxString	parameterValue;
+			if (wxGetEnv (wxT("TOOL_PARAMETERS"), &parameterValue))
+				((CMultiSpecApp*)wxTheApp)->GetUserInputFilePath (parameterValue);
 			
-		}		// end "if (m_TOOL_PARAMETER_file_flag)"
+			else
+				((CMultiSpecApp*)wxTheApp)->GetUserInputFilePath (parameterValue);
+			
+			}	// end "if (m_TOOL_PARAMETER_file_flag)"
+	#endif
 
 }	// end "OnIdle"
 
@@ -1398,7 +1437,7 @@ void CMainFrame::OnProjSaveProjectAs(wxCommandEvent& event) {
 
 void CMainFrame::OnProjClearStats(wxCommandEvent& event) {
 
-    Boolean returnFlag = ProjectMenuClearStatistics();
+    ProjectMenuClearStatistics ();
 
 } // end "OnProjClearStats"
 
@@ -3527,7 +3566,10 @@ void CMainFrame::SetToolParametersFlag (
 				Boolean							toolParameterFileFlag) 
 {
 	m_TOOL_PARAMETER_file_flag = toolParameterFileFlag;
-	m_TOOL_PARAMETER_file_flag = TRUE;
+	
+	#if defined multispec_wxmac
+		m_TOOL_PARAMETER_file_flag = FALSE;
+	#endif
 		
 }		// end "SetToolParametersFlag"
 
