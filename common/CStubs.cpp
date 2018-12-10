@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl, Abdur Maud
 //
-//	Revision date:			11/05/2018
+//	Revision date:			12/07/2018
 //
 //	Language:				C
 //
@@ -247,7 +247,7 @@ SInt16 CharWidth (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 08/11/1995
-//	Revised By:			Larry L. Biehl			Date: 04/09/2018			
+//	Revised By:			Larry L. Biehl			Date: 12/07/2018
 
 Boolean CheckSomeEvents (
 				UInt16								code)
@@ -329,7 +329,7 @@ Boolean CheckSomeEvents (
 			}	// end "else returnFlag"
 
 		gNextTime = GetTickCount () + gTimeOffset;
-	#endif defined multispec_win
+	#endif	// defined multispec_win
 
 	#if defined multispec_lin
 		/*
@@ -345,6 +345,8 @@ Boolean CheckSomeEvents (
 		*/
 		UInt32			count = 0;
 		Boolean			yieldForReturnFlag = true;
+	
+	
 		wxEventLoopBase* eventLoopBasePtr = wxEventLoopBase::GetActive ();
 		if (eventLoopBasePtr != NULL)
 			{	
@@ -363,7 +365,12 @@ Boolean CheckSomeEvents (
 			*/
 			}	// end "if (eventLoopBasePtr != NULL)"
 
-		if (wxGetKeyState (wxKeyCode (WXK_COMMAND)) && wxGetKeyState (wxKeyCode ('.'))) 
+		//if ((wxGetKeyState (WXK_COMMAND) & wxGetKeyState (wxKeyCode('.'))) ||
+		//				wxGetKeyState (WXK_ESCAPE))
+	
+		//CMainFrame* pMainFrame = (CMainFrame*) wxGetApp ().GetTopWindow ();
+		//if (wxGetKeyState (WXK_ESCAPE) || pMainFrame->GetCancelOperationEventFlag ())
+		if (wxGetKeyState (WXK_ESCAPE))
 			{
 			returnFlag = FALSE;
 			}

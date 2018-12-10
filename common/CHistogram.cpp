@@ -61,7 +61,7 @@ HistogramSummaryPtr	CMHistogram::sHistogramSummaryPtr = NULL;
                                                      					
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -107,7 +107,7 @@ CMHistogram::CMHistogram ()
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -137,8 +137,8 @@ CMHistogram::~CMHistogram ()
 									
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2010)
-//								c Purdue Research Foundation
+//								 Copyright (1988-2018)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		Boolean Dialog
@@ -199,8 +199,8 @@ Boolean CMHistogram::Dialog (void)
 
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2010)
-//								c Purdue Research Foundation
+//								 Copyright (1988-2018)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		UInt32* GetHistogramArrayPtr
@@ -229,8 +229,8 @@ HUInt32Ptr CMHistogram::GetHistogramArrayPtr (void)
 
 /*
 //------------------------------------------------------------------------------------
-/								 Copyright (1988-2010)
-//								c Purdue Research Foundation
+/								 Copyright (1988-2018)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		Boolean GetHistogramChangedSinceDisplayFlag
@@ -260,8 +260,8 @@ Boolean CMHistogram::GetHistogramChangedSinceDisplayFlag (void)
 
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2010)
-//								c Purdue Research Foundation
+//								 Copyright (1988-2018)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		Boolean GetHistogramLoadedFlag
@@ -290,8 +290,8 @@ Boolean CMHistogram::GetHistogramLoadedFlag (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2010)
-//								c Purdue Research Foundation
+//								 Copyright (1988-2018)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		HistogramSpecsPtr GetHistogramSpecsPtr
@@ -320,8 +320,8 @@ HistogramSpecsPtr CMHistogram::GetHistogramSpecsPtr (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2010)
-//								c Purdue Research Foundation
+//								 Copyright (1988-2018)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void ReleaseHistogramSpecsPtr
@@ -358,8 +358,8 @@ void CMHistogram::ReleaseHistogramSpecsPtr (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2010)
-//								c Purdue Research Foundation
+//								 Copyright (1988-2018)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void ReleaseHistogramSupportMemory
@@ -374,7 +374,7 @@ void CMHistogram::ReleaseHistogramSpecsPtr (void)
 //
 //	Value Returned: 
 //
-// Called By:			~CMHistogram in MHistGrm.cpp
+// Called By:			~CMHistogram
 //
 //	Coded By:			Larry L. Biehl					Date:	06/12/1995
 //	Revised By:			Larry L. Biehl					Date: 11/02/1999
@@ -389,8 +389,8 @@ void CMHistogram::ReleaseHistogramSupportMemory (void)
 
 /*
 ///------------------------------------------------------------------------------------
-//								 Copyright (1988-2010)
-//								c Purdue Research Foundation
+//								 Copyright (1988-2018)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void SetHistogramChangedSinceDisplayFlag
@@ -421,8 +421,8 @@ void CMHistogram::SetHistogramChangedSinceDisplayFlag (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2010)
-//								c Purdue Research Foundation
+//								 Copyright (1988-2018)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void SetUpHistogramSpecsPtr

@@ -12,7 +12,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			11/28/2017
+//	Revision date:			08/27/2018
 //
 //	Language:				C++
 //
@@ -1727,7 +1727,7 @@ SInt16 CMFileStream::MPeekData (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 04/14/1995
-//	Revised By:			Larry L. Biehl			Date: 05/01/2015
+//	Revised By:			Larry L. Biehl			Date: 08/27/2018
                       
 SInt16 CMFileStream::MReadData (
 				void									*outBufferPtr,
@@ -1748,7 +1748,7 @@ SInt16 CMFileStream::MReadData (
 			bytesRead = Read (outBufferPtr, *numberBytesPtr);
 
 			if (*numberBytesPtr != bytesRead)       
-			AfxThrowFileException (CFileException::endOfFile, -1);
+				AfxThrowFileException (CFileException::endOfFile, -1);
 
 			}
 
@@ -1757,7 +1757,7 @@ SInt16 CMFileStream::MReadData (
 			errCode = e->m_cause;
 
 			if (messageCode == kErrorMessages)                                                       
-			IOCheck (errCode); 
+				IOCheck (errCode); 
 
 			errCode = ConvertFileErrorNumber (errCode);
 
@@ -1769,21 +1769,22 @@ SInt16 CMFileStream::MReadData (
 		if (IsOpened ())
 			{
 			SInt32								linuxBytesRead;
-			wxFileOffset						flength = Length ();
-			wxFileOffset						cmarker = Tell ();
+			//wxFileOffset						flength = Length ();
+			//wxFileOffset						cmarker = Tell ();
 			
 					// First see if the number of bytes left in file is less than bytes to 
 					// read
 					
-			wxFileOffset bytesinFile = flength - cmarker;
-			UInt32 bytestoread = (UInt32)MIN (bytesinFile, *numberBytesPtr);
+			//wxFileOffset bytesinFile = flength - cmarker;
+			//UInt32 bytestoread = (UInt32)MIN (bytesinFile, *numberBytesPtr);
 			linuxBytesRead = (SInt32)Read	(outBufferPtr, (size_t)*numberBytesPtr);
-			if (linuxBytesRead != bytestoread)
-				errCode = -1;
+			//if (linuxBytesRead != bytestoread)
+			//	errCode = eofErr;
 				
 					// Also, Check if end of file has been reached
 					
-			if (bytestoread < *numberBytesPtr)
+			//if (bytestoread < *numberBytesPtr)
+			if (linuxBytesRead != *numberBytesPtr)
 				errCode = eofErr;
 				
 			bytesRead = MAX (linuxBytesRead, 0);

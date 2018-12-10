@@ -12,7 +12,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			01/04/2018
+//	Revision date:			01/26/2018
 //
 //	Language:				C++
 //
@@ -130,8 +130,8 @@ CMImageWindow::~CMImageWindow ()
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
-//								c Purdue Research Foundation
+//								 Copyright (1988-2018)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void CloseSupportFile
@@ -162,8 +162,8 @@ void CMImageWindow::CloseSupportFile (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
-//								c Purdue Research Foundation
+//								 Copyright (1988-2018)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		WindowPtr CreateImageWindow
@@ -184,7 +184,7 @@ void CMImageWindow::CloseSupportFile (void)
 //
 //	Coded By:			Larry L. Biehl			Date: 06/27/1988
 //	Revised By:			Ravi S. Budruk			Date: 08/02/1988	
-//	Revised By:			Larry L. Biehl			Date: 03/01/1999	
+//	Revised By:			Larry L. Biehl			Date: 01/26/2018	
 
 Boolean CMImageWindow::CreateImageWindow (
 				Boolean								thematicWindowFlag)
@@ -228,7 +228,7 @@ Boolean CMImageWindow::CreateImageWindow (
 				// Set description code
 				
 		if (fileInfoPtr->descriptionsFlag)
-			windowInfoPtr->descriptionCode = -1;
+			windowInfoPtr->descriptionCode |= fileInfoPtr->descriptionCode;
 													 
 		fileStreamCPtr = fileInfoPtr->fileStreamCPtr;
 		
@@ -294,8 +294,8 @@ Boolean CMImageWindow::CreateImageWindow (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
-//								c Purdue Research Foundation
+//								 Copyright (1988-2018)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		Boolean FinishCreateSelf
@@ -338,8 +338,8 @@ Boolean CMImageWindow::FinishCreateSelf	()
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
-//								c Purdue Research Foundation
+//								 Copyright (1988-2018)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		Boolean FlushSupportFile
@@ -368,8 +368,8 @@ Boolean CMImageWindow::FlushSupportFile (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
-//								c Purdue Research Foundation
+//								 Copyright (1988-2018)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void GetImageFileNamePointer
@@ -409,8 +409,8 @@ void* CMImageWindow::GetImageFileNamePointer (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
-//								c Purdue Research Foundation
+//								 Copyright (1988-2018)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void GetImageFileStreamPointer
@@ -462,8 +462,8 @@ CMFileStream* CMImageWindow::GetImageFileStreamPointer ()
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
-//								c Purdue Research Foundation
+//								 Copyright (1988-2018)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void GetSupportFileStreamPointer
@@ -496,8 +496,8 @@ CMFileStream* CMImageWindow::GetSupportFileStreamPointer ()
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
-//								c Purdue Research Foundation
+//								 Copyright (1988-2018)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		SInt16 OpenImageWindow
@@ -560,8 +560,8 @@ SInt16 CMImageWindow::OpenImageWindow (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
-//								c Purdue Research Foundation
+//								 Copyright (1988-2018)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void SetImageFileStreamPointer
@@ -603,8 +603,8 @@ void CMImageWindow::SetImageFileStreamPointer (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
-//								c Purdue Research Foundation
+//								 Copyright (1988-2018)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void SetSupportFileStreamPointer
@@ -640,8 +640,8 @@ CMImageWindow::SetSupportFileStreamPointer (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
-//								c Purdue Research Foundation
+//								 Copyright (1988-2018)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void UpdateLayerInfoStructure

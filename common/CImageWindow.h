@@ -12,9 +12,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision number:		2.7
-//
-//	Revision date:			11/28/2017
+//	Revision date:			11/19/2018
 //
 //	Language:				C++
 //
@@ -30,7 +28,11 @@
 #include "CFileStream.h"
 #include "CWindowInfo.h"
 #ifdef multispec_lin
-	#include "../linux_files/LImageDoc.h"
+	#ifdef multispec_wxmac
+		#include "LImageDoc.h"
+	#else
+		#include "../linux_files/LImageDoc.h"
+	#endif
 #endif
 
 //class	CMImageWindow : public CMDataFile, public CMWindowInfo

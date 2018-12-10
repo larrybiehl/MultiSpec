@@ -14,7 +14,7 @@
 //
 //	Revision number:		2.7
 //
-//	Revision date:			11/28/2017
+//	Revision date:			10/19/2018
 //
 //	Language:				C++
 //
@@ -39,11 +39,11 @@
 	
 #if defined multispec_lin
 	#include "SMultiSpec.h"
-	#include <wx/file.h>
-	#include <wx/string.h>
-	#include <wx/filename.h>
-	#include <wx/utils.h>
-	#include <wx/filefn.h>
+	#include "wx/file.h"
+	#include "wx/string.h"
+	#include "wx/filename.h"
+	#include "wx/utils.h"
+	#include "wx/filefn.h"
 	#define	kRead				wxFile::read//|CFile::typeBinary
 	#define	kWrite			wxFile::write//|CFile::typeBinary
 	#define	kReadWrite     wxFile::read_write
