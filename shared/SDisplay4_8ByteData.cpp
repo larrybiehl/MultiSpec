@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -42,7 +42,7 @@
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -123,7 +123,7 @@ void Display1Channel4Byte8BitLine (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -226,7 +226,7 @@ void Display2Channel4Byte8BitLine (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -485,7 +485,7 @@ void Display2Channel4Byte16BitLine (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1015,7 +1015,7 @@ void Display2Channel4Byte24BitLine (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1161,7 +1161,7 @@ void Display3Channel4Byte8BitLine (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1297,7 +1297,7 @@ void Display3Channel4Byte16BitLine (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

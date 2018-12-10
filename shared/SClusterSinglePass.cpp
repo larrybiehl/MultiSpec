@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -216,7 +216,7 @@ ClusterType*	gClusterHead; // ptr to head of cluster list.
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -362,7 +362,7 @@ Boolean ClusterOnePassControl (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -471,7 +471,7 @@ Boolean GetOnePassClusterCenters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -635,7 +635,7 @@ SInt16 OnePassCluster (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1313,7 +1313,7 @@ Boolean OnePassClusterAreas (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1682,7 +1682,7 @@ Boolean OnePassClusterDialog (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1855,7 +1855,7 @@ void OnePassClusterDialogInitialize (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1943,7 +1943,7 @@ void OnePassClusterDialogOK (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1991,7 +1991,7 @@ void OnePassClusterDialogOnImageArea (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

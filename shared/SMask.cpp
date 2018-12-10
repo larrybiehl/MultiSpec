@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//							 Copyright (1988-2017)
+//							 Copyright (1988-2018)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -90,7 +90,7 @@ Boolean 				UserLocateProjectMaskImage (
 	
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -235,7 +235,7 @@ SInt16 CheckCurrentMaskFields (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -321,7 +321,7 @@ Boolean CheckMaskFileInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -359,7 +359,7 @@ void CloseFile (
 
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -413,7 +413,7 @@ UInt32 ConvertFieldNumberToMaskValue (
 	
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -458,7 +458,7 @@ void CloseMaskStructure (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -536,7 +536,7 @@ Boolean DetermineIfMaskDataInLine (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -593,7 +593,7 @@ Boolean DetermineIfClassesSameAsProjectClassNames (
 	
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -704,7 +704,7 @@ UInt32 GetFirstMaskLine (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -853,7 +853,7 @@ Boolean GetMaskArea (
 	
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -980,7 +980,7 @@ Handle GetMaskFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1018,7 +1018,7 @@ FileStringPtr GetMaskFileNamePPointer (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1071,7 +1071,7 @@ CMFileStream* GetMaskFileStreamPointer (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1135,7 +1135,7 @@ MaskInfoPtr GetMaskInfoPointer (
 	
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1279,7 +1279,7 @@ SInt64 GetNumberPixelsInMaskArea (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1431,7 +1431,7 @@ Boolean GetSpecifiedMaskFile (
 	
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1480,7 +1480,7 @@ void InitializeMaskStructure (
 	
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1949,7 +1949,7 @@ SInt16 LoadMask (
 	
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2028,7 +2028,7 @@ Handle LoadMaskFileInfo (
 	
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2298,7 +2298,7 @@ Boolean LoadNewMaskFields (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2399,7 +2399,7 @@ void SetUpMaskAreaDescriptionParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

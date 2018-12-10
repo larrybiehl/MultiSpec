@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			01/04/2018
+//	Revision date:			08/27/2018
 //
 //	Language:				C
 //
@@ -55,7 +55,8 @@
 #endif   // defined multispec_lin
 
 #if defined multispec_mac
-	#define kOpenPrefKey						1
+	#define kOpenPrefKey						1234
+	#define kPutPrefKey						4321
 	#define IDS_FileIO192					192
 	#define IDS_Alert147						147
 	#define IDS_FileIOStr202				202
@@ -332,7 +333,7 @@ static Boolean				sInitialLinkSelectedFilesFlag = FALSE;
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -408,7 +409,7 @@ void AdjustSignedData (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -482,7 +483,7 @@ Boolean CheckIfSpecifiedFileExists (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -544,7 +545,7 @@ SInt16 CheckIfSTAFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -615,7 +616,7 @@ SInt16 CheckIfThematicSupportFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -633,7 +634,7 @@ SInt16 CheckIfThematicSupportFile (
 // Called By:	
 //
 //	Coded By:			Larry L. Biehl			Date: 03/23/1988
-//	Revised By:			Larry L. Biehl			Date: 10/23/1995
+//	Revised By:			Larry L. Biehl			Date: 02/27/2018
 
 void CloseFile (
 				FileInfoPtr							fileInfoPtr)
@@ -662,7 +663,7 @@ void CloseFile (
 	if (fileStreamPtr != NULL)
 		{
 		#if defined multispec_mac
-			SInt16				errCode;
+			SInt16				errCode = 1;
 			
 		
 			if (fileStreamPtr->refNum != 0)
@@ -733,7 +734,7 @@ void CloseFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -787,7 +788,7 @@ void CloseUpFileIOInstructions (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -853,7 +854,7 @@ void CloseUpGeneralFileIOInstructions (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -961,7 +962,7 @@ void CloseUpHeirarchalFileIOParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1015,7 +1016,7 @@ void CloseWindowImageFiles (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1051,7 +1052,7 @@ SInt32 ConvertATRealtoInt (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1156,7 +1157,7 @@ double ConvertATRealtoReal (
 
 
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1240,7 +1241,7 @@ double ConvertIBM370RealtoReal (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1377,7 +1378,7 @@ SInt32 ConvertRealAT (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1585,7 +1586,7 @@ Boolean CopyFileStream (
 
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1638,7 +1639,7 @@ void CopyWideStringToUnicodeStringInFileStream (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1676,6 +1677,9 @@ SInt16 CreateNewFile (
 	
 	
 	#if defined multispec_mac
+		FileInfo*							finderFileInfoPtr;
+		FSCatalogInfo						catalogInformation;
+	
 		SInt32								parID;
 	
 		if (fileStreamPtr->fSSpecFlag)
@@ -1689,9 +1693,6 @@ SInt16 CreateNewFile (
 		if (fileStreamPtr->fSRefFlag)
 			{					
 			fileStreamPtr->pathLength = 0;
-				
-			FileInfo*							finderFileInfoPtr;
-			FSCatalogInfo						catalogInformation;
 	
 	
 			finderFileInfoPtr = (FileInfo*)&catalogInformation.finderInfo;
@@ -1829,7 +1830,7 @@ SInt16 CreateNewFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1867,7 +1868,7 @@ SInt16 CreateNewFile (
 //							WriteThematicClassesAs in SSaveWrt.cpp
 //							
 //	Coded By:			Larry L. Biehl			Date: 02/21/1990
-//	Revised By:			Larry L. Biehl			Date: 03/15/2017	
+//	Revised By:			Larry L. Biehl			Date: 05/18/2018
 
 Boolean CreateThematicSupportFile (
 				FileInfoPtr							gisFileInfoPtr, 
@@ -1891,7 +1892,7 @@ Boolean CreateThematicSupportFile (
 	//unsigned char					classColorTable[768],
 	//										groupColorTable[768];
 											
-	Boolean								*listAllGroupInfoPtr;
+	Boolean								*listAllGroupInfoPtr = NULL;
 	EchoClassifierVarPtr				echoClassifierVarPtr;
 	CMFileStream*						trailerStreamPtr;
 	ColorSpec*							colorSpecPtr;
@@ -1900,10 +1901,10 @@ Boolean CreateThematicSupportFile (
 											groupColorTablePtr = NULL;	
 	
 	char									*classNameTablePtr = NULL,
-											*groupNameTablePtr,
+											*groupNameTablePtr = NULL,
 											*tempClassNameTablePtr;
 											
-	SInt16								*classToGroupPtr;
+	SInt16								*classToGroupPtr = NULL;
 											
 	UInt16								*classSymbolPtr,
 											*groupToPalettePtr;
@@ -1939,7 +1940,7 @@ Boolean CreateThematicSupportFile (
 			
 	if (numberClasses > gClassListLimit)
 																							return (TRUE);
-
+	
 			// Get buffer to load the class names into. Allow for minimum
 			// of 256 classes. Allow for background classes being created for some
 			// situations.
@@ -2032,6 +2033,8 @@ Boolean CreateThematicSupportFile (
 			{
 			MGetString (gTextString, kClassifyStrID, IDS_Classify1);
 			LoadDItemString (gStatusDialogPtr, stringNumber, (Str255*)gTextString);
+		
+			CheckSomeEvents (updateMask);
 
 			}	// end "if (stringNumber != 0)"
 	
@@ -2221,8 +2224,8 @@ Boolean CreateThematicSupportFile (
 								{
 								nameLength = sprintf (tempClassNameTablePtr, 
 																(char*)"%d-%d",
-																correlationValue-correlationStep,
-																correlationValue);
+																(int)(correlationValue-correlationStep),
+																(int)correlationValue);
 								correlationValue -= correlationStep;
 								
 								}	// end "else index > 1"
@@ -2368,7 +2371,7 @@ Boolean CreateThematicSupportFile (
 			
 			numberGroups = 0;
 			if (gisFileInfoPtr->numberGroups > 0)
-				{													
+				{
 				groupNameTablePtr = (char*)GetHandlePointer (
 																		gisFileInfoPtr->groupNameHandle,
 																		kLock);
@@ -2470,7 +2473,7 @@ Boolean CreateThematicSupportFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2754,7 +2757,7 @@ Boolean LoadProbabilityGroupInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2937,7 +2940,7 @@ Boolean CreateTRLSupportFile (
 
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3171,7 +3174,7 @@ Boolean WriteSupportInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3217,7 +3220,7 @@ CMFileStream* DisposeCMFileStream (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3290,7 +3293,7 @@ void DiskFullAlert (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3335,7 +3338,7 @@ Boolean FileExists (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3379,7 +3382,7 @@ Boolean FileOpen (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3558,7 +3561,7 @@ Boolean GetBILSpecial (
 
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3642,7 +3645,7 @@ void GetClassNameFromDescription (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3676,7 +3679,7 @@ void GetCopyOfPFileNameFromFileStream (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3728,7 +3731,7 @@ void GetCopyOfPFileNameFromFileStream (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3761,7 +3764,7 @@ void GetCopyOfPFileNameFromFileInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3808,7 +3811,7 @@ void GetCopyOfPFileNameFromFileInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3828,7 +3831,7 @@ void GetCopyOfPFileNameFromFileInfo (
 // Called By:		
 //
 //	Coded By:			Larry L. Biehl			Date: 01/11/2006
-//	Revised By:			Larry L. Biehl			Date: 02/01/2006	
+//	Revised By:			Larry L. Biehl			Date: 02/27/2018
 
 UInt32 GetDataConversionCode (
 				UInt32								inputDataTypeCode,
@@ -3841,9 +3844,9 @@ UInt32 GetDataConversionCode (
 {  
 	UInt32								dataConversionCode;
 	
-	UInt32								inputByteCode,
+	UInt32								inputByteCode = 0,
 											inputSignCode,
-											outputByteCode,
+											outputByteCode = 0,
 											outputSignCode;
 											
 	Boolean								changePossibleFlag;
@@ -3988,100 +3991,12 @@ UInt32 GetDataConversionCode (
 		
 	return (dataConversionCode);
 	
-}	// end "GetDataConversionCode" 
+}	// end "GetDataConversionCode"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
-//
-//	Function name:		Boolean GetFSSpecFlag
-//
-//	Software purpose:	The purpose of this routine is to return the input file 
-//							directory id.
-//
-//	Parameters in:		None
-//
-//	Parameters out:	None
-//
-//	Value Returned:	None
-// 
-// Called By:		
-//
-//	Coded By:			Larry L. Biehl			Date: 10/31/2002
-//	Revised By:			Larry L. Biehl			Date: 10/31/2002	
-
-Boolean GetFSSpecFlag (
-				FileInfoPtr							fileInfoPtr)
-
-{  
-	Boolean								fSSpecFlag = FALSE;
-	
-	
-	CMFileStream* fileStreamPtr = GetFileStreamPointer (fileInfoPtr);
-	
-	
-	if (fileStreamPtr != NULL)
-		{              
-		#if defined multispec_mac                       
-			fSSpecFlag = fileStreamPtr->fSSpecFlag;
-		#endif	// defined multispec_mac 
-	              
-      #if defined multispec_win | defined multispec_lin
-	 
-		#endif	// defined multispec_win  | defined multispec_lin
-		
-		}	// end "if (fileInfoPtr != NULL)" 
-	
-
-	return (fSSpecFlag);
-	
-}	// end "GetFSSpecFlag"  
-
-
-
-//------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
-//
-//	Function name:		Boolean GetFSSpecFlag
-//
-//	Software purpose:	The purpose of this routine is to return the input file 
-//							volume reference number.
-//
-//	Parameters in:		None
-//
-//	Parameters out:	None
-//
-//	Value Returned:	None
-// 
-// Called By:		
-//
-//	Coded By:			Larry L. Biehl			Date: 10/31/2002
-//	Revised By:			Larry L. Biehl			Date: 10/31/2002	
-
-Boolean GetFSSpecFlag (
-				Handle								fileInfoHandle)
-
-{  
-	Boolean								fSSpecFlag = FALSE;
-	
-	
-	FileInfoPtr fileInfoPtr = (FileInfoPtr)GetHandlePointer (fileInfoHandle);
-													
-	fSSpecFlag = GetFSSpecFlag (fileInfoPtr);
-
-	return (fSSpecFlag);
-	
-}	// end "GetFSSpecFlag" 
-
-
-
-//------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4355,8 +4270,9 @@ SInt16 GetFile (
 			//else if (gActiveImageViewCPtr != NULL)
 			//	frame = (wxWindow*)gActiveImageViewCPtr->m_frame;
 			
-			wxFrame* frame = GetActiveFrame ();
-			wxFrame* mainFrame = GetMainFrame ();
+			//wxFrame* frame = GetActiveFrame ();
+			wxFrame* frame = gOutputViewCPtr->m_frame;
+			//wxFrame* mainFrame = GetMainFrame ();
 
 			CMOpenFileDialog *filedlgobj = new CMOpenFileDialog (frame);
 			wxString 					filePathName;
@@ -4367,7 +4283,7 @@ SInt16 GetFile (
 			int							filePathIndex;
 			
 			if (fileAsFSRefPtr != NULL)
-				style = wxFD_MULTIPLE | wxFD_OPEN;	
+				style = wxFD_MULTIPLE | wxFD_OPEN | wxFD_FILE_MUST_EXIST;	
 				//style = wxFD_MULTIPLE;	
 			else
 				style = wxFD_OPEN;
@@ -4533,7 +4449,7 @@ SInt16 GetFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4579,7 +4495,7 @@ SInt32 GetFileCreator (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4621,7 +4537,7 @@ Boolean GetFileDlgDetermineLinkVisibility ()
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4640,7 +4556,7 @@ Boolean GetFileDlgDetermineLinkVisibility ()
 // Called By:		
 //
 //	Coded By:			Larry L. Biehl			Date: 02/04/2013
-//	Revised By:			Larry L. Biehl			Date: 01/04/2018
+//	Revised By:			Larry L. Biehl			Date: 07/27/2018
 
 SInt16 GetFileNameFromFSRef (
 				FSRef*								fileAsFSRefPtr,
@@ -4684,7 +4600,7 @@ SInt16 GetFileNameFromFSRef (
 			}	// end "if (errCode == noErr)" 
 	#endif	// defined multispec_mac
 
-	#if defined multispec_win	|| defined multispec_lin
+	#if defined multispec_win || defined multispec_lin
 		UInt8									uft8String[_MAX_PATH];
 		FileStringPtr						localFileNamePtr;
 		WideFileStringPtr					inputFileStringPtr;
@@ -4698,12 +4614,14 @@ SInt16 GetFileNameFromFSRef (
 		inputFileStringPtr = fileAsFSRefPtr[0].hidden;
 		int size = (int)inputFileStringPtr[0];
 
-		ConvertUnicodeStringToMultibyteString (inputFileStringPtr, uft8String, size);
-		pathLength = uft8String[0];
-		
+		ConvertUnicodeStringToMultibyteString (inputFileStringPtr,
+															uft8String,
+															size,
+															&pathLength);
+	
 		if (pathLength > 0)
 			{              
-			localFileNamePtr = &uft8String[pathLength-1];
+			localFileNamePtr = &uft8String[pathLength];
 			
 			nameLength = 0;
 			#if defined multispec_win
@@ -4738,7 +4656,7 @@ SInt16 GetFileNameFromFSRef (
 				// Now copy the file name to the output file string location.
 
 		CtoPstring (localFileNamePtr, fileNamePtr);
-	#endif	// defined multispec_win
+	#endif	// defined multispec_win || defined multispec_lin
 		
 	return (errCode);
 	
@@ -4747,7 +4665,7 @@ SInt16 GetFileNameFromFSRef (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4780,7 +4698,7 @@ void* GetFileNameCPointerFromFileHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4819,7 +4737,7 @@ void* GetFileNameCPointerFromFileHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4852,7 +4770,7 @@ void* GetFileNameCPointerFromFileInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4897,7 +4815,7 @@ void* GetFileNameCPointerFromFileInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4930,7 +4848,7 @@ void* GetFileNameCPointerFromFileStream (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4981,7 +4899,7 @@ void* GetFileNameCPointerFromFileStream (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5017,7 +4935,7 @@ void* GetFileNamePPointerFromFileHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5063,7 +4981,7 @@ void* GetFileNamePPointerFromFileHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5096,7 +5014,7 @@ void* GetFileNamePPointerFromFileInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5141,7 +5059,7 @@ void* GetFileNamePPointerFromFileInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5176,7 +5094,7 @@ void* GetFileNamePPointerFromFileStream  (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5238,7 +5156,115 @@ void* GetFileNamePPointerFromFileStream  (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		SInt16 GetFilePathFromFSRef
+//
+//	Software purpose:	The purpose of this routine is to get the file path from the
+//							input FSRef. The path will be returned as a pascal name with
+//							c terminator at the end.
+//
+//	Parameters in:		None
+//
+//	Parameters out:	None
+//
+//	Value Returned:	None
+// 
+// Called By:		
+//
+//	Coded By:			Larry L. Biehl			Date: 07/27/2018
+//	Revised By:			Larry L. Biehl			Date: 07/27/2018
+
+SInt16 GetFilePathFromFSRef (
+				FSRef*								fileAsFSRefPtr,
+				StringPtr							filePathPtr)
+
+{  	
+	SInt16								errCode;
+
+
+	#if defined multispec_mac
+		UInt8									uft8String[256];
+		//CFStringRef							cfStringRef;
+												
+		//HFSUniStr255						uniFileName;
+		
+		
+		filePathPtr[0] = 0;
+		filePathPtr[1] = 0;
+	
+		errCode = FSRefMakePath (fileAsFSRefPtr,
+											(UInt8*)uft8String,
+											255);
+		/*
+		errCode = FSGetCatalogInfo (fileAsFSRefPtr,
+												kFSCatInfoNone,
+												NULL,
+												&uniFileName,
+												NULL,
+												NULL);
+	
+		if (errCode == noErr)
+			{
+			cfStringRef = CFStringCreateWithCharacters (kCFAllocatorDefault,
+																		uniFileName.unicode,
+																		uniFileName.length);
+			
+			CFStringGetCString (cfStringRef,
+										(char*)&filePathPtr[1],
+										(CFIndex)255,
+										kCFStringEncodingUTF8);
+			filePathPtr[0] = strlen ((char*)&filePathPtr[1]);
+												
+			//CFAllocatorDeallocate (kCFAllocatorDefault, (void*)cfStringRef);
+			CFRelease (cfStringRef);
+										
+			}	// end "if (errCode == noErr)"
+		*/
+	
+				// Now copy the path name to the output file string location.
+
+		CtoPstring (uft8String, filePathPtr);
+	#endif	// defined multispec_mac
+
+	#if defined multispec_win	|| defined multispec_lin
+		UInt8									uft8String[_MAX_PATH];
+		WideFileStringPtr					inputFileStringPtr;
+		
+		SInt16								pathLength;
+		
+		
+				// Need to convert input unicode path name to multibyte string.
+		
+		inputFileStringPtr = fileAsFSRefPtr[0].hidden;
+		int size = (int)inputFileStringPtr[0];
+
+		ConvertUnicodeStringToMultibyteString (inputFileStringPtr,
+															uft8String,
+															size,
+															&pathLength);
+
+		if (pathLength > 0)
+			errCode = noErr;
+	
+		else	// pathLength == 0
+			errCode = 1;
+	
+				// Now copy the path name to the output file string location.
+
+		CtoPstring (uft8String, filePathPtr);
+	#endif	// defined multispec_win
+		
+	return (errCode);
+	
+}	// end "GetFilePathFromFSRef"
+
+
+
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5271,7 +5297,7 @@ void* GetFilePathPPointerFromFileInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5316,7 +5342,7 @@ void* GetFilePathPPointerFromFileInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5351,7 +5377,7 @@ void* GetFilePathPPointerFromFileStream (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5406,7 +5432,7 @@ void* GetFilePathPPointerFromFileStream (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5452,7 +5478,7 @@ SInt32 GetFileType (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5528,7 +5554,7 @@ SInt16 GetFileTypeAndCreator (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5758,20 +5784,19 @@ SInt64 GetFilePositionOffset (
 
 	return (posOff); 
 	
-}	// end "GetFilePositionOffset" 
+}	// end "GetFilePositionOffset"
 
 
-/*
-//This routine is not used any more. See GetSizeOfFile.
+
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
-//	Function name:		SInt16 GetFileSize
+//	Function name:		Boolean GetFSSpecFlag
 //
-//	Software purpose:	The purpose of this routine is to return the size of the input
-//							file
+//	Software purpose:	The purpose of this routine is to return the input file 
+//							directory id.
 //
 //	Parameters in:		None
 //
@@ -5781,36 +5806,78 @@ SInt64 GetFilePositionOffset (
 // 
 // Called By:		
 //
-//	Coded By:			Larry L. Biehl			Date: 02/03/2001
-//	Revised By:			Larry L. Biehl			Date: 02/03/2001
+//	Coded By:			Larry L. Biehl			Date: 10/31/2002
+//	Revised By:			Larry L. Biehl			Date: 10/31/2002	
 
-UInt32 GetFileSize (
-				CMFileStream*						fileStreamPtr)
+Boolean GetFSSpecFlag (
+				FileInfoPtr							fileInfoPtr)
 
 {  
-	UInt32								fileSize = 0;
+	Boolean								fSSpecFlag = FALSE;
+	
+	
+	CMFileStream* fileStreamPtr = GetFileStreamPointer (fileInfoPtr);
 	
 	
 	if (fileStreamPtr != NULL)
 		{              
 		#if defined multispec_mac                       
-	   	fileSize = fileStreamPtr->fileSize;
+			fSSpecFlag = fileStreamPtr->fSSpecFlag;
 		#endif	// defined multispec_mac 
 	              
       #if defined multispec_win | defined multispec_lin
-	   	fileSize = fileStreamPtr->mFileSize;
-		#endif	// defined multispec_win | defined multispec_lin
+	 
+		#endif	// defined multispec_win  | defined multispec_lin
 		
 		}	// end "if (fileInfoPtr != NULL)" 
-
-	return (fileSize);
 	
-}	// end "GetFileSize" 
-*/
+
+	return (fSSpecFlag);
+	
+}	// end "GetFSSpecFlag"  
+
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		Boolean GetFSSpecFlag
+//
+//	Software purpose:	The purpose of this routine is to return the input file 
+//							volume reference number.
+//
+//	Parameters in:		None
+//
+//	Parameters out:	None
+//
+//	Value Returned:	None
+// 
+// Called By:		
+//
+//	Coded By:			Larry L. Biehl			Date: 10/31/2002
+//	Revised By:			Larry L. Biehl			Date: 10/31/2002	
+
+Boolean GetFSSpecFlag (
+				Handle								fileInfoHandle)
+
+{  
+	Boolean								fSSpecFlag = FALSE;
+	
+	
+	FileInfoPtr fileInfoPtr = (FileInfoPtr)GetHandlePointer (fileInfoHandle);
+													
+	fSSpecFlag = GetFSSpecFlag (fileInfoPtr);
+
+	return (fSSpecFlag);
+	
+}	// end "GetFSSpecFlag"
+
+
+
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6156,7 +6223,7 @@ SInt16 GetLine (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6528,7 +6595,7 @@ SInt16 GetLineOfData (
 
 #if include_gdal_capability
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6549,7 +6616,7 @@ SInt16 GetLineOfData (
 // Called By:		
 //
 //	Coded By:			Larry L. Biehl			Date: 12/16/2009
-//	Revised By:			Larry L. Biehl			Date: 05/06/2015
+//	Revised By:			Larry L. Biehl			Date: 11/30/2018
 
 SInt16 GetGDALLineOfData (
 				FileInfoPtr							fileInfoPtr,	
@@ -6563,7 +6630,7 @@ SInt16 GetGDALLineOfData (
 				Boolean								oneReadFlag)
 
 {
-	HdfDataSets*						hdfDataSetsPtr;
+	HdfDataSets*						hdfDataSetsPtr = NULL;
 	HierarchalFileFormatPtr			hfaPtr = NULL;
 	
 	HUCharPtr							ioBlockBufferPtr,
@@ -6606,8 +6673,9 @@ SInt16 GetGDALLineOfData (
 	 
 	if ((fileInfoPtr->format == kHDF5Type ||
 				fileInfoPtr->format == kNETCDF2Type ||
-							fileInfoPtr->format == kHDF4Type2) &&
-											fileInfoPtr->hdfHandle)
+						fileInfoPtr->format == kHDF4Type2 ||
+								fileInfoPtr->format == kNITFType) &&
+										fileInfoPtr->hdfHandle)
 		{
 			 // Set up for case where subdatasets are being read from hdf5 formatted
 			 // files.
@@ -6787,7 +6855,7 @@ SInt16 GetGDALLineOfData (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6820,7 +6888,7 @@ SInt32 GetNumberGAIALineSegments (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6865,7 +6933,7 @@ SInt32 GetParID (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6898,12 +6966,12 @@ SInt32 GetParID (
 
 	return (dirID);
 	
-}	// end "GetParID"  
+}	// end "GetParID"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6945,7 +7013,7 @@ SInt16 GetReferenceNumber (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6988,7 +7056,7 @@ SInt16 GetShortIntValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7022,7 +7090,7 @@ SInt16 GetSizeOfFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7106,18 +7174,17 @@ SInt16 GetSizeOfFile (
 			if (errCode == noErr)
 				fileStreamPtr->mFileSize = (SInt32)forkSize;
 		#endif	// defined multispec_win || defined multispec_lin
-		
-		IOCheck (errCode2, fileStreamPtr);              
+			
+		IOCheck (errCode2, fileStreamPtr);
 		
 		if (closeFileFlag)
 			CloseFile (fileStreamPtr);
 		
 		}	// end "if (errCode == noErr)" 
-                                             
-		
-	if (errCode != fnfErr)  
-		IOCheck (errCode, fileStreamPtr);
 	
+	if (errCode != fnfErr)
+		IOCheck (errCode, fileStreamPtr);
+		
 	if (errCode == noErr)
 		errCode = errCode2;
 		
@@ -7131,7 +7198,7 @@ SInt16 GetSizeOfFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7188,7 +7255,7 @@ SInt64 GetSizeOfImage (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7259,7 +7326,7 @@ SInt16 GetThematicSupportFileToCreate (
 			
 		if (supportFileType == kITRLFileType)
 			{
-			UInt32 numberBytes = 7*128;
+			numberBytes = 7*128;
 			numberBytes += 9*128;
 			numberBytes += ((gisFileInfoPtr->numberClasses+4)/4) * 128;
 			
@@ -7329,7 +7396,7 @@ SInt16 GetThematicSupportFileToCreate (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							 Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7492,7 +7559,7 @@ SInt16 GetVolumeFreeSpace (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7534,7 +7601,7 @@ SInt16 GetVolumeReferenceNumber (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7572,7 +7639,7 @@ SInt16 GetVolumeReferenceNumber (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7610,7 +7677,7 @@ SInt16 GetVolumeReferenceNumber (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7657,7 +7724,7 @@ void IndicateFileClosed (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7702,7 +7769,7 @@ void InitializeFileIOInstructions (
 
 #if defined multispec_mac || defined multispec_lin
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7720,13 +7787,13 @@ void InitializeFileIOInstructions (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 10/24/1995
-//	Revised By:			Larry L. Biehl			Date: 03/22/2017
+//	Revised By:			Larry L. Biehl			Date: 02/27/2018
                    
 Handle InitializeFileStream (
 				Handle								fileStreamHandle)
 
 { 
-	CMFileStream*						fileStreamPtr;
+	CMFileStream*						fileStreamPtr = NULL;
 	SignedByte							handleStatus;
 								
 	
@@ -7808,7 +7875,7 @@ CMFileStream* InitializeFileStream (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7880,7 +7947,7 @@ void InitializeFileStream (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7977,7 +8044,7 @@ void IOCheck (
 			else	// stringIndex == 0
 				gTextString3[0] = 0;
 			
-			InitCursor ();
+			::InitCursor ();
 			returnCode = DisplayAlert (kErrorAlertID, 3, 0, 0, 0, gTextString);
 		#endif	// defined multispec_mac
 
@@ -8119,7 +8186,7 @@ void IOCheck (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8138,7 +8205,7 @@ void IOCheck (
 // Called By:		
 //
 //	Coded By:			Larry L. Biehl			Date: 04/25/1988
-//	Revised By:			Larry L. Biehl			Date: 10/24/1995
+//	Revised By:			Larry L. Biehl			Date: 08/27/2018
 
 void IOCheck (
 				SInt16								errCode,
@@ -8146,19 +8213,26 @@ void IOCheck (
                 
 {
 	if (errCode != noErr)
-		{		
-		#if defined multispec_mac
-			if (fileStreamPtr != NULL)
+		{
+		if (fileStreamPtr != NULL)
+			{
+			#if defined multispec_mac
 				IOCheck (errCode, (CharPtr)&fileStreamPtr->fileName);
-				
-			else	// fileStreamPtr == NULL
-				IOCheck (errCode, (CharPtr)NULL);                
-		#endif	// defined multispec_mac
+			#endif	// defined multispec_mac
 
-		#if defined multispec_win || defined multispec_lin
-			IOCheck (errCode, (CharPtr)NULL);	                   
-		#endif	// defined multispec_win || defined multispec_lin
-			
+			#if defined multispec_lin || defined multispec_win
+				CharPtr filePathPtr = (CharPtr)fileStreamPtr->GetFilePathPPtr ();
+				if (filePathPtr != NULL)
+					IOCheck (errCode, (CharPtr)&filePathPtr[1]);
+				else	// filePathPtr == NULL
+					IOCheck (errCode, (CharPtr)NULL);
+			#endif	// defined multispec_lin
+
+			}	// end "if fileStreamPtr != NULL)"
+					
+		else	// fileStreamPtr == NULL
+			IOCheck (errCode, (CharPtr)NULL);
+		
 		}	// end "if (errCode != noErr)"
 		
 }	// end "IOCheck"   
@@ -8167,7 +8241,7 @@ void IOCheck (
 
 //------------------------------------------------------------------------------------
 //
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //
 //	Function name:		Boolean LoadErdasHeader
@@ -8352,7 +8426,7 @@ Boolean	LoadErdasHeader (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8370,7 +8444,7 @@ Boolean	LoadErdasHeader (
 // Called By:			CreateThematicSupportFile in SFileIO.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 05/14/2004
-//	Revised By:			Larry L. Biehl			Date: 07/22/2011 
+//	Revised By:			Larry L. Biehl			Date: 05/17/2018
                        
 void LoadErdasTRLClassNameBufferFromDescriptions (
 				FileInfoPtr							gisFileInfoPtr,
@@ -8399,7 +8473,6 @@ void LoadErdasTRLClassNameBufferFromDescriptions (
 					// structure.
 					
 			outputNumberClasses = inputNumberClasses;
-			
 			for (classNumber=1; classNumber<=outputNumberClasses; classNumber++)
 				{
 				count = MIN (classNamePtr[0], 31);
@@ -8447,7 +8520,7 @@ void LoadErdasTRLClassNameBufferFromDescriptions (
 				
 				else	// classSymbolPtr[classSymbolIndex] != classNumber
 					{
-					count = sprintf ((char*)ioTempBufferPtr, "Class %d", classNumber);
+					count = sprintf ((char*)ioTempBufferPtr, "Class %d", (unsigned int)classNumber);
 					count = MIN (count, 31);
 					
 					}	// end "if (classSymbolPtr[classSymbolIndex] == classNumber)"
@@ -8458,16 +8531,30 @@ void LoadErdasTRLClassNameBufferFromDescriptions (
 				}	// end "for (classNumber=0; classNumber<=outputNumberClasses; ..." 
 				
 			}	// end "else collapseClassCode != kCollapseClass"
+		
+		CheckAndUnlockHandle (gisFileInfoPtr->classDescriptionH);
 			
 		}	// end "if (classNamePtr != NULL)"
+	
+	else	// classNamePtr == NULL
+		{
+				// Make sure the class name structure is initialized.
+			
+		outputNumberClasses = inputNumberClasses;
+		for (classNumber=1; classNumber<=outputNumberClasses; classNumber++)
+			{
+			ioTempBufferPtr[0] = 0;
+			ioTempBufferPtr += 32;
 		
-	CheckAndUnlockHandle (gisFileInfoPtr->classDescriptionH);
+			}	// end "for (classNumber=1; classNumber<=outputNumberClasses; ..."
+		
+		}	// end "else classNamePtr == NULL"
 		
 }	// end "LoadErdasTRLClassNameBufferFromDescriptions"
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8651,7 +8738,7 @@ void LoadErdasTRLClassColorBuffer (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8783,7 +8870,7 @@ SInt16 LoadGroupInformationBuffers (
 
 //------------------------------------------------------------------------------------
 //
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //
 //	Function name:		Boolean LoadNewErdasHeader
@@ -8836,7 +8923,7 @@ Boolean	LoadNewErdasHeader (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8902,7 +8989,7 @@ SInt16 MDeleteFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8961,7 +9048,7 @@ SInt16 MGetMarker (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9021,7 +9108,7 @@ SInt16 MReadData (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9073,7 +9160,7 @@ SInt16 MSetMarker (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9124,7 +9211,7 @@ SInt16 MSetSizeOfFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9183,7 +9270,7 @@ SInt16 MWriteData (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9259,7 +9346,7 @@ Boolean NavServicesCheckForIgnoredFiles (
 
 #if defined multispec_mac 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9489,7 +9576,7 @@ pascal Boolean NavServicesFilterProc (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9872,8 +9959,7 @@ pascal void NavServicesGetEventProc (
 			if (navMenuItemSpecPtr != NULL)
 				localMenuItemSpec = navMenuItemSpecPtr[initialSelection];
 			
-			if (gOSXFlag)
-				localMenuItemSpec.menuType = initialSelection;
+			localMenuItemSpec.menuType = initialSelection;
 		
 			NavCustomControl (callBackParms->context, 
 										kNavCtlSelectCustomType, 
@@ -10008,24 +10094,17 @@ pascal void NavServicesGetEventProc (
 				menuItemSpecPtr = 
 						(NavMenuItemSpec*)callBackParms->eventData.eventDataParms.param;
 				
-				if (gOSXFlag)
-					{
-					navMenuItemSpecPtr = (NavMenuItemSpec*)GetHandlePointer (
-												(Handle)navUserDataPtr->navMenuItemSpecHandle);
-												
-					if (menuItemSpecPtr->menuCreator)	// (= 'extn')
-						navUserDataPtr->filterSelection = 
-								navMenuItemSpecPtr[menuItemSpecPtr->menuType].menuType;
+				navMenuItemSpecPtr = (NavMenuItemSpec*)GetHandlePointer (
+											(Handle)navUserDataPtr->navMenuItemSpecHandle);
+											
+				if (menuItemSpecPtr->menuCreator)	// (= 'extn')
+					navUserDataPtr->filterSelection = 
+							navMenuItemSpecPtr[menuItemSpecPtr->menuType].menuType;
+				
+				else	// !menuItemSpecPtr->menuCreator  (= \0\0\0\0)
+							// All Documents
+					navUserDataPtr->filterSelection = 0;
 					
-					else	// !menuItemSpecPtr->menuCreator  (= \0\0\0\0)
-								// All Documents
-						navUserDataPtr->filterSelection = 0;
-								
-					}	// end "if (gOSXFlag)"
-				
-				else	// !gOSXFlag
-					navUserDataPtr->filterSelection = menuItemSpecPtr->menuType;
-				
 				}	// end "if (callBackParms != NULL)"
 			break;
 				
@@ -10056,7 +10135,7 @@ pascal void NavServicesGetEventProc (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -10102,7 +10181,7 @@ SInt16 NavServicesGetFile (
 	FSRef*								localFileAsFSRefPtr;
 
 	NavReplyRecord						theReply;
-	NavDialogOptions					dialogOptions;
+	//NavDialogOptions					dialogOptions;
 	
 	FileInfoPtr							fileInfoPtr = NULL;
 	CMFileStream*						getFile_FileStreamPtr;
@@ -10116,9 +10195,9 @@ SInt16 NavServicesGetFile (
 	
 	NavUserData							navUserData;
 					
-	AEKeyword							keyword;
-	DescType								returnedType;
-	Size									actSize;
+	//AEKeyword							keyword;
+	//DescType								returnedType;
+	//Size									actSize;
 	
 	SInt32								countIndex,
 											itemCount;
@@ -10460,358 +10539,253 @@ SInt16 NavServicesGetFile (
 			filterUPP = NewNavObjectFilterUPP (NavServicesFilterProc);
 			//previewUPP = NewNavPreviewUPP (NavServicesPreviewProc);
 
-			if (gOSXFlag)
-				{	
-						// Get the standard set of default dialog options
-						
-				errCode = NavGetDefaultDialogCreationOptions (&dialogCreationOptions);
-				
-				if (errCode == noErr)
-					{
-					dialogCreationOptions.modality = kWindowModalityAppModal;
+					// Get the standard set of default dialog options
 					
-					dialogCreationOptions.clientName = CFStringCreateWithPascalString (
-																			NULL,
-																			(UCharPtr)"\0MultiSpec", 
-																			kCFStringEncodingMacRoman);
-					
-					dialogCreationOptions.windowTitle = CFStringCreateWithPascalString (
-																			NULL,
-																			(UCharPtr)gTextString, 
-																			kCFStringEncodingMacRoman);
-				
-					dialogCreationOptions.preferenceKey = kOpenPrefKey;
-				
-							// We will do the translation ourselves later
-						
-					dialogCreationOptions.optionFlags |= kNavDontAutoTranslate;
-					
-							// Clear the preview option
-							
-					dialogCreationOptions.optionFlags ^= kNavAllowPreviews;
-					//dialogCreationOptions.optionFlags &= ~kNavAllowPreviews;
-					
-							// Include 'All Files' in popup
-						
-					dialogCreationOptions.optionFlags |= kNavAllFilesInPopup;
-					
-							// Force all readable file types in popup to be selected when
-							// opened.
-					
-					dialogCreationOptions.optionFlags |= kNavSelectAllReadableItem;
-																			
-							// Determine whether the user can select multiple files.
-							// If the type of request is limited to just one file, then use
-							// use the local FSRef structure. This is signified by the input
-							// fileAsFSRefPtr being NULL.
-							
-					dialogCreationOptions.optionFlags ^= kNavAllowMultipleFiles;
-					localFileAsFSRefPtr = &fileAsFSRef;
-					if (fileAsFSRefPtr != NULL && 
-							(filterCode == kMultiThematicFiles || 
-									filterCode == kMultiThematicShapeFiles ||
-											stringIndex == IDS_SelectFileToLink))
-						{
-						dialogCreationOptions.optionFlags |= kNavAllowMultipleFiles;
-						localFileAsFSRefPtr = fileAsFSRefPtr;
-						
-						}	// end "if (fileAsFSRefPtr != NULL && ..."
-					
-							// Fill the array with the strings for the popup type menu.
-					
-					if (numberPopupMenuItem > 0)		
-						menuItemString[0] = CFStringCreateWithPascalString (
-													NULL,
-													(UCharPtr)navMenuItemSpecPtr[0].menuItemName, 
-													kCFStringEncodingMacRoman);
-					
-					if (numberPopupMenuItem > 1)
-						menuItemString[1] = CFStringCreateWithPascalString (
-													NULL,
-													(UCharPtr)navMenuItemSpecPtr[1].menuItemName, 
-													kCFStringEncodingMacRoman);
-					if (numberPopupMenuItem > 2)
-						menuItemString[2] = CFStringCreateWithPascalString (
-													NULL,
-													(UCharPtr)navMenuItemSpecPtr[2].menuItemName, 
-													kCFStringEncodingMacRoman);
-					
-					if (numberPopupMenuItem > 3)
-						menuItemString[3] = CFStringCreateWithPascalString (
-													NULL,
-													(UCharPtr)navMenuItemSpecPtr[3].menuItemName, 
-													kCFStringEncodingMacRoman);
-					
-					if (numberPopupMenuItem > 4)
-						menuItemString[4] = CFStringCreateWithPascalString (
-													NULL,
-													(UCharPtr)navMenuItemSpecPtr[4].menuItemName, 
-													kCFStringEncodingMacRoman);
-					
-					dialogCreationOptions.popupExtension = CFArrayCreate (
-													kCFAllocatorDefault,
-													(const void**)menuItemString, 
-													numberPopupMenuItem, 
-													NULL);
-					
-					}	// end "if (errCode == noErr)"
-				
-				if (errCode == noErr)
-					errCode = NavCreateGetFileDialog (&dialogCreationOptions,
-																	NULL,
-																	eventUPP,
-																	previewUPP,		// Custom previews
-																	filterUPP,		// filterUPP,
-																	&navUserData,  // can be NULL
-																	&dialog);
-
-						// Show the dialog box
-	
-				if (errCode == noErr)
-					errCode = NavDialogRun (dialog);
-				
-						// Release the CFStrings.
-						
-				CFRelease (dialogCreationOptions.clientName);
-				CFRelease (dialogCreationOptions.windowTitle);
-				
-				if (numberPopupMenuItem > 0)	
-					CFRelease (menuItemString[0]);
-				
-				if (numberPopupMenuItem > 1)	
-					CFRelease (menuItemString[1]);
-				
-				if (numberPopupMenuItem > 2)	
-					CFRelease (menuItemString[2]);
-				
-				if (numberPopupMenuItem > 3)	
-					CFRelease (menuItemString[3]);
-				
-				if (numberPopupMenuItem > 4)	
-					CFRelease (menuItemString[4]);
-					
-				if (dialogCreationOptions.popupExtension != NULL)
-					CFRelease (dialogCreationOptions.popupExtension);
-
-						// Get the reply
-						
-				if (errCode == noErr)
-					errCode = NavDialogGetReply (dialog, &theReply);
-				
-				if (theReply.validRecord && errCode == noErr)
-					{
-							// Count the items in the list.												
-							
-					errCode = AECountItems (&(theReply.selection), &itemCount);
-					
-					if (errCode == noErr && itemCount > 0)
-						{						
-						errCode = AEGetNthPtr (&(theReply.selection), 
-														1, 
-														typeFSRef, 
-														NULL, 
-														NULL, 
-														localFileAsFSRefPtr, 
-														sizeof (FSRef),
-														NULL);
-				  			
-				  		if (errCode == noErr)
-				  			{
-							fileStreamPtr->fSRefFlag = TRUE;
-							fileStreamPtr->fsRef = localFileAsFSRefPtr[0];
-							
-							errCode = FSGetCatalogInfo (&fileStreamPtr->fsRef,
-																	kFSCatInfoVolume,
-																	&fsCatalogInfo,
-																	&fileStreamPtr->uniFileName,
-																	NULL,
-																	&fileStreamPtr->parentFSRef);
+			errCode = NavGetDefaultDialogCreationOptions (&dialogCreationOptions);
 			
-							if (errCode == noErr)
-								{
-								fileSelectedFlag = TRUE;
-							
-								fileStreamPtr->vRefNum = fsCatalogInfo.volume;
-																	
-								cfStringRef = CFStringCreateWithCharacters (
-										   						kCFAllocatorDefault,
-										   						fileStreamPtr->uniFileName.unicode,
-										   						fileStreamPtr->uniFileName.length);
-										   						
-								CFStringGetCString (cfStringRef,
-													   (char*)&fileStreamPtr->fileName[1],
-													   (CFIndex)255,
-													   kCFStringEncodingUTF8);
-								fileStreamPtr->fileName[0] =
-													strlen ((char*)&fileStreamPtr->fileName[1]);
-								
-										// This indicates that the full path is not part of the
-										// file name.
-								
-								fileStreamPtr->pathLength = 0;
-																   
-								//CFAllocatorDeallocate (kCFAllocatorDefault,
-								//									(void*)cfStringRef);
-								CFRelease (cfStringRef);
-								
-								}	// end "if (errCode == noErr)"
-							
-							}	// end "if (errCode == noErr)"
-							
-						if (errCode == noErr && itemCount > 1)
-							{
-									// Get the rest of the FSRef's. They will get handled
-									// later when the images are linked with the first one.
-									// Note that the count is currently limited to 500.
-							
-							if (itemCount > 500)
-								DisplayAlert (kErrorAlertID,
-													kStopAlert,
-													kAlertStrID,
-													IDS_Alert147,
-													0,
-													NULL);
-								
-							itemCount = MIN (itemCount, 500);
-							for (countIndex=2; countIndex<=itemCount; countIndex++)
-								{
-								errCode = AEGetNthPtr (&(theReply.selection), 
-																countIndex, 
-																typeFSRef, 
-																NULL, 
-																NULL, 
-																&fileAsFSRefPtr[countIndex-1], 
-																sizeof (FSRef),
-																NULL);
-																
-								if (errCode != noErr)
-									{
-									itemCount = countIndex - 1;
-									break;
-									
-									}	// end "if (errCode != noErr)"
-																
-								}	// end "for (countIndex=2; countIndex<=itemCount; ..."
-								
-							//if (itemCount > 1)
-							//	gMultipleImageFileCode = 3;
-							
-							}	// end "if (itemCount > 1)"
-						
-						if (itemCountPtr != NULL)
-							*itemCountPtr = itemCount;
-							
-						}	// end "if (errCode == noErr && itemCount > 0)"
-						
-					}	// end "if (theReply.validRecord && errCode == noErr)"
-
-				}	// end "if (gOSXFlag)"
-				
-			else	// !gOSXFlag
+			if (errCode == noErr)
 				{
-						// Default behavior for browser and dialog
-						
-				errCode = NavGetDefaultDialogOptions (&dialogOptions);
-					
-				CopyPToP (dialogOptions.clientName, (UCharPtr)"\0MultiSpec"); 
-				CopyPToP (dialogOptions.windowTitle, gTextString);
+				dialogCreationOptions.modality = kWindowModalityAppModal;
 				
-				dialogOptions.preferenceKey = kOpenPrefKey;
+				dialogCreationOptions.clientName = CFStringCreateWithPascalString (
+																		NULL,
+																		(UCharPtr)"\0MultiSpec", 
+																		kCFStringEncodingMacRoman);
 				
+				dialogCreationOptions.windowTitle = CFStringCreateWithPascalString (
+																		NULL,
+																		(UCharPtr)gTextString, 
+																		kCFStringEncodingMacRoman);
+			
+				dialogCreationOptions.preferenceKey = kOpenPrefKey;
+			
 						// We will do the translation ourselves later
-						
-				dialogOptions.dialogOptionFlags |= kNavDontAutoTranslate;
+					
+				dialogCreationOptions.optionFlags |= kNavDontAutoTranslate;
 				
 						// Clear the preview option
 						
-				dialogOptions.dialogOptionFlags ^= kNavAllowPreviews;
+				dialogCreationOptions.optionFlags ^= kNavAllowPreviews;
+				//dialogCreationOptions.optionFlags &= ~kNavAllowPreviews;
 				
 						// Include 'All Files' in popup
 					
-				dialogOptions.dialogOptionFlags |= kNavAllFilesInPopup;
+				dialogCreationOptions.optionFlags |= kNavAllFilesInPopup;
 				
-				//if (openListResourceItem == 0)
-				//	dialogOptions.dialogOptionFlags |= kNavNoTypePopup;
+						// Force all readable file types in popup to be selected when
+						// opened.
 				
-				//dialogOptions.dialogOptionFlags ^= kNavNoTypePopup;
-				
-						// Force all readable file types in popup to be selected when opened.
-				
-				//if (numberTypes != -1)
-				dialogOptions.dialogOptionFlags |= kNavSelectAllReadableItem;
-				/*
-				if (stringIndex == IDS_WhereIsProjectImage ||
-						stringIndex == IDS_SelectProject ||
-							stringIndex == IDS_FileIO103 ||
-								stringIndex == IDS_FileIO104)
+				dialogCreationOptions.optionFlags |= kNavSelectAllReadableItem;
+																		
+						// Determine whether the user can select multiple files.
+						// If the type of request is limited to just one file, then use
+						// use the local FSRef structure. This is signified by the input
+						// fileAsFSRefPtr being NULL.
+						
+				dialogCreationOptions.optionFlags ^= kNavAllowMultipleFiles;
+				localFileAsFSRefPtr = &fileAsFSRef;
+				if (fileAsFSRefPtr != NULL && 
+						(filterCode == kMultiThematicFiles || 
+								filterCode == kMultiThematicShapeFiles ||
+										stringIndex == IDS_SelectFileToLink))
 					{
-				*/
-						// Do not allow multiple files.
-												
-				dialogOptions.dialogOptionFlags ^= kNavAllowMultipleFiles;
-				/*
-					}	// end "if (stringIndex == IDS_WhereIsProjectImage || ..."
+					dialogCreationOptions.optionFlags |= kNavAllowMultipleFiles;
+					localFileAsFSRefPtr = fileAsFSRefPtr;
 					
-				else	// stringIndex != IDS_WhereIsProjectImage && ...
-					{
-							// Allow multiple files.
-							
-					dialogOptions.dialogOptionFlags |= kNavAllowMultipleFiles;
-					
-					}	// end "else stringIndex != IDS_WhereIsProjectImage && ..."
-				*/
-				dialogOptions.popupExtension = navMenuItemSpecHandle;
+					}	// end "if (fileAsFSRefPtr != NULL && ..."
 				
-				errCode = NavGetFile (NULL,		// use system's default location
-												&theReply,
-												&dialogOptions,
-												eventUPP,
-												previewUPP,		// Custom previews
-												filterUPP,		// filterUPP,
-												NULL,				// openListHandle
-												&navUserData);		// Pointer to custom data
-				
-				if (theReply.validRecord && errCode == noErr)
-					{
-							// Count the items in the list.												
-							
-					errCode = AECountItems (&(theReply.selection), &itemCount);
+						// The default selection is the browser selection.
 					
-					if (errCode == noErr && itemCount > 0)
+				dialogCreationOptions.optionFlags |= kNavSelectDefaultLocation;
+				
+						// Fill the array with the strings for the popup type menu.
+				
+				if (numberPopupMenuItem > 0)		
+					menuItemString[0] = CFStringCreateWithPascalString (
+												NULL,
+												(UCharPtr)navMenuItemSpecPtr[0].menuItemName, 
+												kCFStringEncodingMacRoman);
+				
+				if (numberPopupMenuItem > 1)
+					menuItemString[1] = CFStringCreateWithPascalString (
+												NULL,
+												(UCharPtr)navMenuItemSpecPtr[1].menuItemName, 
+												kCFStringEncodingMacRoman);
+				if (numberPopupMenuItem > 2)
+					menuItemString[2] = CFStringCreateWithPascalString (
+												NULL,
+												(UCharPtr)navMenuItemSpecPtr[2].menuItemName, 
+												kCFStringEncodingMacRoman);
+				
+				if (numberPopupMenuItem > 3)
+					menuItemString[3] = CFStringCreateWithPascalString (
+												NULL,
+												(UCharPtr)navMenuItemSpecPtr[3].menuItemName, 
+												kCFStringEncodingMacRoman);
+				
+				if (numberPopupMenuItem > 4)
+					menuItemString[4] = CFStringCreateWithPascalString (
+												NULL,
+												(UCharPtr)navMenuItemSpecPtr[4].menuItemName, 
+												kCFStringEncodingMacRoman);
+				
+				dialogCreationOptions.popupExtension = CFArrayCreate (
+												kCFAllocatorDefault,
+												(const void**)menuItemString, 
+												numberPopupMenuItem, 
+												NULL);
+				
+				}	// end "if (errCode == noErr)"
+			
+			if (errCode == noErr)
+				errCode = NavCreateGetFileDialog (&dialogCreationOptions,
+																NULL,
+																eventUPP,
+																previewUPP,		// Custom previews
+																filterUPP,		// filterUPP,
+																&navUserData,  // can be NULL
+																&dialog);
+
+					// Show the dialog box
+
+			if (errCode == noErr)
+				errCode = NavDialogRun (dialog);
+			
+					// Release the CFStrings.
+					
+			CFRelease (dialogCreationOptions.clientName);
+			CFRelease (dialogCreationOptions.windowTitle);
+			
+			if (numberPopupMenuItem > 0)	
+				CFRelease (menuItemString[0]);
+			
+			if (numberPopupMenuItem > 1)	
+				CFRelease (menuItemString[1]);
+			
+			if (numberPopupMenuItem > 2)	
+				CFRelease (menuItemString[2]);
+			
+			if (numberPopupMenuItem > 3)	
+				CFRelease (menuItemString[3]);
+			
+			if (numberPopupMenuItem > 4)	
+				CFRelease (menuItemString[4]);
+				
+			if (dialogCreationOptions.popupExtension != NULL)
+				CFRelease (dialogCreationOptions.popupExtension);
+
+					// Get the reply
+					
+			if (errCode == noErr)
+				errCode = NavDialogGetReply (dialog, &theReply);
+			
+			if (theReply.validRecord && errCode == noErr)
+				{
+						// Count the items in the list.												
+						
+				errCode = AECountItems (&(theReply.selection), &itemCount);
+				
+				if (errCode == noErr && itemCount > 0)
+					{						
+					errCode = AEGetNthPtr (&(theReply.selection), 
+													1, 
+													typeFSRef, 
+													NULL, 
+													NULL, 
+													localFileAsFSRefPtr, 
+													sizeof (FSRef),
+													NULL);
+						
+					if (errCode == noErr)
 						{
-								// Get the file.															
-							
-				  		errCode = AEGetNthPtr (&(theReply.selection),
-														1,
-														typeFSS,
-														&keyword,
-														&returnedType,
-														(Ptr)&gFileFSSpec,
-														sizeof (FSSpec),
-														&actSize);
-				  									
-					  	//if (errCode == noErr)
-					  	//	errCode = FSpGetFInfo (&gFileFSSpec, &gFinderInfo);
-				  			
-				  		if (errCode == noErr)
-				  			{
-							fileStreamPtr->vRefNum = gFileFSSpec.vRefNum;
-							fileStreamPtr->parID = gFileFSSpec.parID;
-							CopyPToP (fileStreamPtr->fileName, gFileFSSpec.name);
-							fileStreamPtr->fSSpecFlag = TRUE;
-							
+						fileStreamPtr->fSRefFlag = TRUE;
+						fileStreamPtr->fsRef = localFileAsFSRefPtr[0];
+						
+						errCode = FSGetCatalogInfo (&fileStreamPtr->fsRef,
+																kFSCatInfoVolume,
+																&fsCatalogInfo,
+																&fileStreamPtr->uniFileName,
+																NULL,
+																&fileStreamPtr->parentFSRef);
+		
+						if (errCode == noErr)
+							{
 							fileSelectedFlag = TRUE;
+						
+							fileStreamPtr->vRefNum = fsCatalogInfo.volume;
+																
+							cfStringRef = CFStringCreateWithCharacters (
+																kCFAllocatorDefault,
+																fileStreamPtr->uniFileName.unicode,
+																fileStreamPtr->uniFileName.length);
+																
+							CFStringGetCString (cfStringRef,
+													(char*)&fileStreamPtr->fileName[1],
+													(CFIndex)255,
+													kCFStringEncodingUTF8);
+							fileStreamPtr->fileName[0] =
+												strlen ((char*)&fileStreamPtr->fileName[1]);
+							
+									// This indicates that the full path is not part of the
+									// file name.
+							
+							fileStreamPtr->pathLength = 0;
+																
+							//CFAllocatorDeallocate (kCFAllocatorDefault,
+							//									(void*)cfStringRef);
+							CFRelease (cfStringRef);
 							
 							}	// end "if (errCode == noErr)"
-							
-						}	// end "if (errCode == noErr && itemCount > 0)"
-							
-					//errCode = OpenOrPrintSelectedFiles (&(theReply.selection), FALSE);
 						
-					}	// end "if (theReply.validRecord && errCode == noErr)"
+						}	// end "if (errCode == noErr)"
+						
+					if (errCode == noErr && itemCount > 1)
+						{
+								// Get the rest of the FSRef's. They will get handled
+								// later when the images are linked with the first one.
+								// Note that the count is currently limited to 500.
+						
+						if (itemCount > 500)
+							DisplayAlert (kErrorAlertID,
+												kStopAlert,
+												kAlertStrID,
+												IDS_Alert147,
+												0,
+												NULL);
+							
+						itemCount = MIN (itemCount, 500);
+						for (countIndex=2; countIndex<=itemCount; countIndex++)
+							{
+							errCode = AEGetNthPtr (&(theReply.selection), 
+															countIndex, 
+															typeFSRef, 
+															NULL, 
+															NULL, 
+															&fileAsFSRefPtr[countIndex-1], 
+															sizeof (FSRef),
+															NULL);
+															
+							if (errCode != noErr)
+								{
+								itemCount = countIndex - 1;
+								break;
+								
+								}	// end "if (errCode != noErr)"
+															
+							}	// end "for (countIndex=2; countIndex<=itemCount; ..."
+							
+						//if (itemCount > 1)
+						//	gMultipleImageFileCode = 3;
+						
+						}	// end "if (itemCount > 1)"
 					
-				}	// end "else !gOSXFlag"
-				
+					if (itemCountPtr != NULL)
+						*itemCountPtr = itemCount;
+						
+					}	// end "if (errCode == noErr && itemCount > 0)"
+					
+				}	// end "if (theReply.validRecord && errCode == noErr)"
+
 			NavDisposeReply (&theReply);
 									
 			DisposeNavEventUPP (eventUPP);
@@ -10900,34 +10874,32 @@ SInt16 NavServicesGetFile (
 		
 		}	// end "if (fileStreamPtr->fSSpecFlag)"
 
-	#if TARGET_API_MAC_CARBON	
-		else	// !fileStreamPtr->fSSpecFlag
+	else	// !fileStreamPtr->fSSpecFlag
+		{
+		if (localAppFilePtr != NULL)
+			errCode = FSGetCatalogInfo (&fileStreamPtr->fsRef,
+													kFSCatInfoVolume,
+													&fsCatalogInfo,
+													&fileStreamPtr->uniFileName,
+													NULL,
+													&fileStreamPtr->parentFSRef);
+		
+		if (errCode == noErr)
+			errCode = FSGetCatalogInfo (&fileStreamPtr->fsRef,
+													kFSCatInfoFinderInfo,
+													&fsCatalogInfo,
+													NULL,
+													NULL,
+													NULL);													
+
+		if (errCode == noErr)
 			{
-			if (localAppFilePtr != NULL)
-				errCode = FSGetCatalogInfo (&fileStreamPtr->fsRef,
-														kFSCatInfoVolume,
-														&fsCatalogInfo,
-														&fileStreamPtr->uniFileName,
-														NULL,
-														&fileStreamPtr->parentFSRef);
-			
-			if (errCode == noErr)
-				errCode = FSGetCatalogInfo (&fileStreamPtr->fsRef,
-														kFSCatInfoFinderInfo,
-														&fsCatalogInfo,
-														NULL,
-														NULL,
-														NULL);													
+			fileStreamPtr->creator = ((FileInfo*)fsCatalogInfo.finderInfo)->fileCreator;
+			fileStreamPtr->type = ((FileInfo*)fsCatalogInfo.finderInfo)->fileType;
 
-			if (errCode == noErr)
-				{
-				fileStreamPtr->creator = ((FileInfo*)fsCatalogInfo.finderInfo)->fileCreator;
-				fileStreamPtr->type = ((FileInfo*)fsCatalogInfo.finderInfo)->fileType;
-
-				}	// end "if (errCode == noErr)"
-			
-			}	// end else	!fileStreamPtr->fSSpecFlag
-	#endif		// TARGET_API_MAC_CARBON		
+			}	// end "if (errCode == noErr)"
+		
+		}	// end else	!fileStreamPtr->fSSpecFlag
 	*/
 	if (errCode == noErr)
 		errCode = OpenFileReadOnly (fileStreamPtr, 
@@ -10955,7 +10927,7 @@ SInt16 NavServicesGetFile (
 /*
 #if defined multispec_mac 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -10990,7 +10962,7 @@ pascal Boolean NavServicesPreviewProc (
 
   
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11333,7 +11305,7 @@ pascal void NavServicesPutEventProc (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11362,7 +11334,7 @@ SInt16 NavServicesPutFile (
 
 {
 	NavReplyRecord						theReply;
-	NavDialogOptions					dialogOptions;
+	//NavDialogOptions					dialogOptions;
 	
 	SInt64								bytesNeeded,
 											freeBytes,
@@ -11372,11 +11344,11 @@ SInt16 NavServicesPutFile (
 	
 	NavEventUPP							eventUPP;
 					
-	AEKeyword							keyword;
-	DescType								returnedType;
-	Size									actSize;
+	//AEKeyword							keyword;
+	//DescType								returnedType;
+	//Size									actSize;
 		
-	SInt32								itemCount;
+	//SInt32								itemCount;
 	
 	SInt16								errCode = noErr;
 	Boolean								fileSelected;
@@ -11406,226 +11378,163 @@ SInt16 NavServicesPutFile (
 			
 		eventUPP = NewNavEventUPP (NavServicesPutEventProc);
 		
-		if (gOSXFlag)
+		AEDesc								aeDesc;
+		FSCatalogInfo						fsCatalogInfo;
+		NavDialogCreationOptions 		dialogCreationOptions;
+		NavDialogRef 						dialog;	
+		NavUserData							navUserData;
+
+				// Get the standard set of default dialog options
+				
+		if (errCode == noErr)
+			errCode = NavGetDefaultDialogCreationOptions (&dialogCreationOptions);
+		
+		dialogCreationOptions.clientName = CFStringCreateWithPascalString (
+																		NULL, 
+																		(UCharPtr)"\0MultiSpec", 
+																		kCFStringEncodingMacRoman);
+															
+		dialogCreationOptions.windowTitle = CFStringCreateWithPascalString (
+																		NULL, 
+																		(UCharPtr)gTextString3, 
+																		kCFStringEncodingMacRoman);
+		/*
+		dialogCreationOptions.saveFileName = CFStringCreateWithPascalString (
+																		NULL, 
+																		fileStreamPtr->fileName, 
+																		kCFStringEncodingUTF8);
+		*/	
+												
+		dialogCreationOptions.saveFileName = CFStringCreateWithBytes (
+															kCFAllocatorDefault, 
+															(UInt8*)&fileStreamPtr->fileName[1],
+															fileStreamPtr->fileName[0],
+															kCFStringEncodingUTF8,
+															false);
+		/*
+		dialogCreationOptions.saveFileName = CFStringCreateWithCharacters (
+															kCFAllocatorDefault,
+															fileStreamPtr->uniFileName.unicode,
+															fileStreamPtr->uniFileName.length);
+		*/
+		dialogCreationOptions.preferenceKey = kPutPrefKey;
+		
+		dialogCreationOptions.modality = kWindowModalityAppModal;
+	
+				// We will do the translation ourselves later
+				
+		dialogCreationOptions.optionFlags |= kNavDontAutoTranslate;
+		dialogCreationOptions.optionFlags |= kNavNoTypePopup;
+		
+				// Check if confirm alert is to be shown.
+				
+		if (!gConfirmReplacementAlertFlag)
+			dialogCreationOptions.optionFlags |= kNavDontConfirmReplacement;
+		
+				// Load client information.
+				
+		navUserData.parentFSRef = fileStreamPtr->parentFSRef;
+	
+		if (errCode == noErr)
+			errCode = NavCreatePutFileDialog (&dialogCreationOptions,
+															fileStreamPtr->type,
+															creator,
+															eventUPP,
+															&navUserData,
+															&dialog);
+
+				// Show the dialog box
+
+		if (errCode == noErr)
+			errCode = NavDialogRun (dialog);
+		
+		if (dialogCreationOptions.clientName != NULL)
+			CFRelease (dialogCreationOptions.clientName);
+		
+		if (dialogCreationOptions.windowTitle != NULL)
+			CFRelease (dialogCreationOptions.windowTitle);
+		
+		if (dialogCreationOptions.saveFileName != NULL)
+			CFRelease (dialogCreationOptions.saveFileName);
+		
+				// Get the reply
+				
+		if (errCode == noErr)
 			{
-			AEDesc								aeDesc;
-			FSCatalogInfo						fsCatalogInfo;
-			NavDialogCreationOptions 		dialogCreationOptions;
-			NavDialogRef 						dialog;	
-			NavUserData							navUserData;
-
-					// Get the standard set of default dialog options
-					
-			if (errCode == noErr)
-				errCode = NavGetDefaultDialogCreationOptions (&dialogCreationOptions);
-			
-			dialogCreationOptions.clientName = CFStringCreateWithPascalString (
-																			NULL, 
-																			(UCharPtr)"\0MultiSpec", 
-																			kCFStringEncodingMacRoman);
-																
-			dialogCreationOptions.windowTitle = CFStringCreateWithPascalString (
-																			NULL, 
-																			(UCharPtr)gTextString3, 
-																			kCFStringEncodingMacRoman);
-			/*
-			dialogCreationOptions.saveFileName = CFStringCreateWithPascalString (
-																			NULL, 
-																			fileStreamPtr->fileName, 
-																			kCFStringEncodingUTF8);
-			*/	
-													
-			dialogCreationOptions.saveFileName = CFStringCreateWithBytes (
-																kCFAllocatorDefault, 
-																(UInt8*)&fileStreamPtr->fileName[1],
-																fileStreamPtr->fileName[0],
-																kCFStringEncodingUTF8,
-																false);
-			/*
-			dialogCreationOptions.saveFileName = CFStringCreateWithCharacters (
-																kCFAllocatorDefault,
-																fileStreamPtr->uniFileName.unicode,
-																fileStreamPtr->uniFileName.length);
-			*/
-			dialogCreationOptions.preferenceKey = kOpenPrefKey;
-			
-			dialogCreationOptions.modality = kWindowModalityAppModal;
+			errCode = NavDialogGetReply (dialog, &theReply);
 		
-					// We will do the translation ourselves later
-					
-			dialogCreationOptions.optionFlags |= kNavDontAutoTranslate;
-			dialogCreationOptions.optionFlags |= kNavNoTypePopup;
-			
-					// Check if confirm alert is to be shown.
-					
-			if (!gConfirmReplacementAlertFlag)
-				dialogCreationOptions.optionFlags |= kNavDontConfirmReplacement;
-			
-					// Load client information.
-					
-			navUserData.parentFSRef = fileStreamPtr->parentFSRef;
-		
-			if (errCode == noErr)
-				errCode = NavCreatePutFileDialog (&dialogCreationOptions,
-																fileStreamPtr->type,
-																creator,
-																eventUPP,
-																&navUserData,
-																&dialog);
-
-					// Show the dialog box
-
-			if (errCode == noErr)
-				errCode = NavDialogRun (dialog);
-			
-			if (dialogCreationOptions.clientName != NULL)
-				CFRelease (dialogCreationOptions.clientName);
-			
-			if (dialogCreationOptions.windowTitle != NULL)
-				CFRelease (dialogCreationOptions.windowTitle);
-			
-			if (dialogCreationOptions.saveFileName != NULL)
-				CFRelease (dialogCreationOptions.saveFileName);
-			
-					// Get the reply
-					
-			if (errCode == noErr)
+			if (errCode == noErr && theReply.validRecord)
 				{
-				errCode = NavDialogGetReply (dialog, &theReply);
-			
-				if (errCode == noErr && theReply.validRecord)
+				errCode = AECoerceDesc (&theReply.selection, typeFSRef, &aeDesc);
+				
+				if (errCode == noErr)
 					{
-					errCode = AECoerceDesc (&theReply.selection, typeFSRef, &aeDesc);
+					errCode = AEGetDescData (&aeDesc, 
+														&tempFileStream.parentFSRef, 
+														sizeof (FSRef));
 					
-					if (errCode == noErr)
-						{
-						errCode = AEGetDescData (&aeDesc, 
+					AEDisposeDesc (&aeDesc);
+					
+					}	// end "if (errCode == noErr)"
+														
+				if (errCode == noErr)
+					{
+					tempFileStream.fSRefFlag = TRUE;
+						
+					tempFileStream.uniFileName.length = 
+													CFStringGetLength (theReply.saveFileName);
+					CFStringGetCharacters (
+										theReply.saveFileName, 
+										CFRangeMake (0, tempFileStream.uniFileName.length), 
+										tempFileStream.uniFileName.unicode);
+														
+							// Get the UTF8 version of the file name
+					/*		
+					CFStringGetCString (theReply.saveFileName,
+												(char*)&tempFileStream.fileName[1],
+												(CFIndex)255,
+												kCFStringEncodingUTF8);
+					tempFileStream.fileName[0] = 
+												strlen ((char*)&tempFileStream.fileName[1]);
+					*/								   
+					if (theReply.replacing)
+						errCode = FSMakeFSRefUnicode (
 															&tempFileStream.parentFSRef, 
-															sizeof (FSRef));
-						
-						AEDisposeDesc (&aeDesc);
-						
-						}	// end "if (errCode == noErr)"
-															
+															tempFileStream.uniFileName.length, 
+															tempFileStream.uniFileName.unicode, 
+															kTextEncodingUnicodeDefault, 
+															&tempFileStream.fsRef);
+											
+					if (errCode == noErr)	
+						errCode = FSGetCatalogInfo (&tempFileStream.parentFSRef,
+																kFSCatInfoVolume,
+																&fsCatalogInfo,
+																NULL,
+																NULL,
+																NULL);
+																
 					if (errCode == noErr)
 						{
-						tempFileStream.fSRefFlag = TRUE;
-							
-						tempFileStream.uniFileName.length = 
-														CFStringGetLength (theReply.saveFileName);
-						CFStringGetCharacters (
-											theReply.saveFileName, 
-											CFRangeMake (0, tempFileStream.uniFileName.length), 
-											tempFileStream.uniFileName.unicode);
-															
-								// Get the UTF8 version of the file name
-						/*		
+						fileSelected = TRUE;
+						
+						tempFileStream.vRefNum = fsCatalogInfo.volume;
+						
 						CFStringGetCString (theReply.saveFileName,
 													(char*)&tempFileStream.fileName[1],
 													(CFIndex)255,
-													kCFStringEncodingUTF8);
+													kCFStringEncodingUTF8);  
 						tempFileStream.fileName[0] = 
-													strlen ((char*)&tempFileStream.fileName[1]);
-						*/								   
-						if (theReply.replacing)
-							errCode = FSMakeFSRefUnicode (
-																&tempFileStream.parentFSRef, 
-																tempFileStream.uniFileName.length, 
-																tempFileStream.uniFileName.unicode, 
-																kTextEncodingUnicodeDefault, 
-																&tempFileStream.fsRef);
-												
-						if (errCode == noErr)	
-							errCode = FSGetCatalogInfo (&tempFileStream.parentFSRef,
-																	kFSCatInfoVolume,
-																	&fsCatalogInfo,
-																	NULL,
-																	NULL,
-																	NULL);
-																	
-						if (errCode == noErr)
-							{
-							fileSelected = TRUE;
+												strlen ((char*)&tempFileStream.fileName[1]);
 							
-							tempFileStream.vRefNum = fsCatalogInfo.volume;
-							
-							CFStringGetCString (theReply.saveFileName,
-														(char*)&tempFileStream.fileName[1],
-														(CFIndex)255,
-														kCFStringEncodingUTF8);  
-							tempFileStream.fileName[0] = 
-													strlen ((char*)&tempFileStream.fileName[1]);
-								
-							}	// end "if (errCode == noErr)"
-						
 						}	// end "if (errCode == noErr)"
 					
-					}	// end "if (theReply.validRecord && errCode == noErr)"
-		
-				NavDisposeReply (&theReply);
+					}	// end "if (errCode == noErr)"
 				
-				}	// end "if (errCode == noErr)"
-			
-			}	// end "if (gOSXFlag)"
-			
-		else	// !gOSXFlag
-			{
-					// Default behavior for browser and dialog			
-					
-			errCode = NavGetDefaultDialogOptions (&dialogOptions);
-				
-			CopyPToP (dialogOptions.clientName, (UCharPtr)"\0MultiSpec"); 
-			
-			CopyPToP (dialogOptions.windowTitle, gTextString3);
-			
-			CopyPToP (dialogOptions.savedFileName, fileStreamPtr->fileName);
-			
-			dialogOptions.preferenceKey = kOpenPrefKey;
-		
-					// We will do the translation ourselves later
-					
-			dialogOptions.dialogOptionFlags |= kNavDontAutoTranslate;
-			dialogOptions.dialogOptionFlags |= kNavNoTypePopup;
-		
-			errCode = NavPutFile (NULL,	// use system's default location
-											&theReply,
-											&dialogOptions,
-											eventUPP,
-											fileStreamPtr->type,
-											creator,
-											NULL);		// Handle to custom data
-			
-			if (theReply.validRecord && errCode == noErr)
-				{
-						// Count the items in the list.												
-						
-				errCode = AECountItems (&(theReply.selection), &itemCount);
-				
-				if (errCode == noErr && itemCount > 0)
-					{
-							// Get the file.															
-						
-			  		errCode = AEGetNthPtr (&(theReply.selection),
-					  									1,
-					  									typeFSS,
-					  									&keyword,
-					  									&returnedType,
-					  									(Ptr)&tempFileStream,
-					  									sizeof (FSSpec),
-					  									&actSize);
-					  									
-    				tempFileStream.fSSpecFlag = TRUE;
-					  									
-					if (errCode == noErr)
-						fileSelected = TRUE;
-						
-					}	// end "if (errCode == noErr && itemCount > 0)"
-					
 				}	// end "if (theReply.validRecord && errCode == noErr)"
-			
-			NavDisposeReply (&theReply);
 	
-			}	// end "else !gOSXFlag"
+			NavDisposeReply (&theReply);
+			
+			}	// end "if (errCode == noErr)"
 
 		if (eventUPP != NULL)
 			DisposeNavEventUPP (eventUPP);
@@ -11801,7 +11710,7 @@ SInt16 NavServicesPutFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11956,7 +11865,7 @@ SInt16 OpenFileReadOnly (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -12764,7 +12673,7 @@ void PackBISData (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -12916,7 +12825,7 @@ void PackBlockedData (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -12979,7 +12888,7 @@ void PackGAIAData (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -13079,7 +12988,7 @@ UInt32 PackMaskData (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -14200,7 +14109,7 @@ void PackNonBISData (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -14274,7 +14183,7 @@ SInt16 PrepareToReadTextFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -14630,7 +14539,7 @@ SInt16 PutFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -14651,7 +14560,7 @@ SInt16 PutFile (
 //							OpenFileReadOnly in fileIO.c
 //
 //	Coded By:			Larry L. Biehl			Date: 09/08/1993
-//	Revised By:			Larry L. Biehl			Date: 03/15/2017	
+//	Revised By:			Larry L. Biehl			Date: 02/27/2018
 
 SInt16 ResolveAnyAliases (
 				CMFileStream*						fileStreamPtr, 
@@ -14661,7 +14570,7 @@ SInt16 ResolveAnyAliases (
 	SInt16								errCode = noErr;
 	
 	#if defined multispec_mac 
-		Boolean								targetIsFolderFlag;
+		Boolean								targetIsFolderFlag = FALSE;
 		
 		
 		errCode = noErr;
@@ -14729,7 +14638,7 @@ SInt16 ResolveAnyAliases (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -14826,7 +14735,7 @@ void SetCFileName (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -14891,7 +14800,7 @@ void SetFileDoesNotExist (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -14935,7 +14844,7 @@ void SetFileReadOnly (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -14983,7 +14892,7 @@ SInt16 SetFileSizeToZero (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -15074,7 +14983,7 @@ SInt16 SetFileWriteEnabled (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -15117,7 +15026,7 @@ void SetFSSpecFlag (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -15155,7 +15064,7 @@ void SetParID (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -15193,7 +15102,7 @@ void SetReferenceNumber (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -15235,7 +15144,7 @@ void SetType (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -15296,7 +15205,7 @@ SInt16 SetUpFileIOInstructions (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -15578,7 +15487,7 @@ SInt16 SetUpFileIOInstructions (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -15671,7 +15580,7 @@ void SetUpGeneralFileIOInstructions (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -15758,7 +15667,7 @@ SInt16 SetUpDataConversionCode (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -15892,7 +15801,7 @@ void SetUpHeirarchalFileIOParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -15937,7 +15846,7 @@ SInt16 SetVolume (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -15985,7 +15894,7 @@ void SetVolumeReference (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -16030,7 +15939,7 @@ void SwapBytes (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -16071,7 +15980,7 @@ void Swap2Bytes (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -16115,7 +16024,7 @@ void Swap4Bytes (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -16171,7 +16080,7 @@ void Swap8Bytes (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -16295,7 +16204,7 @@ SInt16 UpdateFileNameInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

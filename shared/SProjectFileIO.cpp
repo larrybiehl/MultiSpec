@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			12/21/2017
+//	Revision date:			03/12/2018
 //
 //	Language:				C
 //
@@ -239,7 +239,7 @@ SInt16	 				WriteStatistics (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -278,7 +278,7 @@ void CloseFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -372,7 +372,7 @@ void ComputeSumSquaresMatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -428,7 +428,7 @@ void ComputeSumVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -504,7 +504,7 @@ UInt32 GetBufferForProjectReadWrites (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -538,7 +538,7 @@ void GetCopyOfPFileNameFromProjectInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -609,7 +609,7 @@ void GetCopyOfPFileNameFromProjectInfo (
 
                   
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -666,7 +666,7 @@ UInt16 GetLengthOfMaxSum (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -724,7 +724,7 @@ UInt16 GetLengthOfMaxSumOfSquares (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -852,7 +852,7 @@ Boolean GetProjectFile (
 
                   
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1072,7 +1072,7 @@ Boolean GetProjectFileName (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1231,7 +1231,7 @@ SInt32 GetSizeOfProjectFile (void)
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1403,7 +1403,7 @@ SInt16 ReadChannelInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1590,7 +1590,7 @@ SInt16 ReadCovarianceInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1653,7 +1653,7 @@ SInt16 ReadMaskInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1994,7 +1994,7 @@ SInt16 ReadModifiedStats (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2012,7 +2012,7 @@ SInt16 ReadModifiedStats (
 // Called By:			OpenProjectFile in SProject.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/21/1988
-//	Revised By:			Larry L. Biehl			Date: 03/15/2017
+//	Revised By:			Larry L. Biehl			Date: 02/07/2018
 
 SInt16 ReadProjectFile (void)
 
@@ -2076,7 +2076,9 @@ SInt16 ReadProjectFile (void)
 	continueFlag = TRUE;
 	differentFileSourceFlag = FALSE;
 	formatArchitectureCode = 0;
-	returnCode = -1;
+   returnCode = -1;
+   intTemp = 0;
+   intTemp2 = 0;
 	gNextTime = TickCount ();    
 	
 			// Check input pointers.  Continue if not NULL.								
@@ -2231,7 +2233,7 @@ SInt16 ReadProjectFile (void)
 			{	
 			sscanfReturnCode = sscanf ((const char*)inputStringPtr, 
 						"P2\t%d\t%d\t%hd\t%hd\t%hd\t%hd\t%hd\t%hd\t%hd\t%hd\t%hd\t%hd\r",
-						&projectWindowInfoPtr->maxNumberLines, 
+						&projectWindowInfoPtr->maxNumberLines,
 						&projectWindowInfoPtr->maxNumberColumns,
 						&projectWindowInfoPtr->totalNumberChannels, 
 						&projectWindowInfoPtr->numberBytes,
@@ -2254,7 +2256,7 @@ SInt16 ReadProjectFile (void)
 					(char*)inputStringPtr, 
 					"P2\t%d\t%d\t%hd\t%hd\t%d\t%d\t%hd\t%hd\t%hd\t%hd"
 						"\t%hd\t%hd\t%hd\t%hd\r",
-					&projectWindowInfoPtr->maxNumberLines, 
+					&projectWindowInfoPtr->maxNumberLines,
 					&projectWindowInfoPtr->maxNumberColumns,
 					&projectWindowInfoPtr->totalNumberChannels, 
 					&projectWindowInfoPtr->numberBytes,
@@ -3236,7 +3238,7 @@ SInt16 ReadProjectFile (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3752,7 +3754,7 @@ SInt16 ReadStatistics (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3893,7 +3895,7 @@ SInt16 SetupForStatisticsRead (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3957,7 +3959,7 @@ void FinishUpStatisticsRead (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3975,7 +3977,7 @@ void FinishUpStatisticsRead (
 // Called By:	
 //
 //	Coded By:			Larry L. Biehl			Date: 12/29/1988
-//	Revised By:			Larry L. Biehl			Date: 09/01/2015	
+//	Revised By:			Larry L. Biehl			Date: 02/07/2018
 
 UCharPtr ReadStringFromFile (
 				UCharPtr								inputStringPtr, 
@@ -3988,6 +3990,7 @@ UCharPtr ReadStringFromFile (
 	SInt16								strLength;
 	
 	
+   strLength = 0;
 	if (numberSkipTabs > 0)
 		inputStringPtr = SkipNTabs (inputStringPtr, numberSkipTabs);
 	
@@ -4021,7 +4024,7 @@ UCharPtr ReadStringFromFile (
 
                   
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4172,7 +4175,7 @@ SInt16 SaveProjectFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4249,7 +4252,7 @@ Boolean SetupClassFieldPointMemory (void)
 
 
 //------------------------------------------------------------------------------------
-//								 	Copyright (1988-2017)
+//								 	Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4303,7 +4306,7 @@ UCharPtr SkipNTabs (
 
                   
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4362,7 +4365,7 @@ void UpdateGraphicStatusBox (
 	
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4614,7 +4617,7 @@ void VerifyClassAndFieldParameters (
 
                   
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4826,7 +4829,7 @@ Boolean WriteChannelInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5137,7 +5140,7 @@ Boolean WriteCovarianceInformation (
 
            
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5335,7 +5338,7 @@ Boolean WriteModifiedStats (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5357,7 +5360,7 @@ Boolean WriteModifiedStats (
 // Called By:			SaveProjectFile in project.c
 //
 //	Coded By:			Larry L. Biehl			Date: 12/20/1998
-//	Revised By:			Larry L. Biehl			Date: 09/01/2017
+//	Revised By:			Larry L. Biehl			Date: 02/28/2018
 
 SInt16 WriteProjectFile (
 				SInt16								saveCode)
@@ -5491,7 +5494,7 @@ SInt16 WriteProjectFile (
 					//"PROJECT FORMAT VERSION 20060124 %ld%s",
 					//"PROJECT FORMAT VERSION 20110722 %ld%s",
 					"PROJECT FORMAT VERSION 20130424 %d%s",
-					gProjectInfoPtr->otherInformationPosition,
+					(int)gProjectInfoPtr->otherInformationPosition,
 					gEndOfLine);
 					
 		continueFlag = OutputString (projectFileStreamPtr,
@@ -5547,12 +5550,12 @@ SInt16 WriteProjectFile (
 				
 		sprintf ((char*)gTextString,
 				#if defined multispec_mac || defined multispec_win || defined multispec_mac_swift
-					"P2\t%ld\t%ld\t%hd\t%hd\t%ld\t%ld\t%hd\t%hd\t%hd\t%ld\t%ld\t%ld\t%ld"
-					"\t%hd\t%hd\t%hd\t%hd\t%hd\t%hd\t%hd\t%hd\t%hd\t%hd\t%hd\t%hd\t%hd\t%hd\t%hd\t%hd%s",
+					"P2\t%ld\t%ld\t%hd\t%hd\t%ld\t%ld\t%hd\t%d\t%hd\t%ld\t%ld\t%ld\t%ld"
+					"\t%hd\t%hd\t%hd\t%hd\t%hd\t%hd\t%hd\t%d\t%hd\t%d\t%d\t%d\t%hd\t%hd\t%hd\t%hd%s",
 				#endif
 				#if defined multispec_lin
-					"P2\t%ld\t%ld\t%hd\t%hd\t%d\t%d\t%hd\t%hd\t%hd\t%ld\t%ld\t%ld\t%ld"
-					"\t%hd\t%hd\t%hd\t%hd\t%hd\t%hd\t%hd\t%hd\t%hd\t%hd\t%hd\t%hd\t%hd\t%hd\t%hd\t%hd%s",
+					"P2\t%ld\t%ld\t%hd\t%hd\t%d\t%d\t%hd\t%d\t%hd\t%ld\t%ld\t%ld\t%ld"
+					"\t%hd\t%hd\t%hd\t%hd\t%hd\t%hd\t%hd\t%d\t%hd\t%d\t%d\t%d\t%hd\t%hd\t%hd\t%hd%s",
 				#endif
 					projectWindowInfoPtr->maxNumberLines,
 					projectWindowInfoPtr->maxNumberColumns,
@@ -5561,7 +5564,7 @@ SInt16 WriteProjectFile (
 					gProjectInfoPtr->startLine,
 					gProjectInfoPtr->startColumn,
 					projectWindowInfoPtr->numberBits,
-					gProjectInfoPtr->swapBytesFlag,
+					(int)(gProjectInfoPtr->swapBytesFlag),
 					projectWindowInfoPtr->bandInterleave,
 					gProjectInfoPtr->numberHeaderBytes,
 					gProjectInfoPtr->numberTrailerBytes,
@@ -5574,11 +5577,11 @@ SInt16 WriteProjectFile (
 					gProjectInfoPtr->numberStatTestFields,
 					gProjectInfoPtr->numberTotalPoints,
 					gProjectInfoPtr->numberStatisticsChannels,
-					gProjectInfoPtr->statsUpToDate,
+					(int)gProjectInfoPtr->statsUpToDate,
 					gProjectInfoPtr->statisticsCode,
-					gProjectInfoPtr->keepClassStatsOnlyFlag,
-					gProjectInfoPtr->signedDataFlag,
-					gProjectInfoPtr->useCommonCovarianceInLOOCFlag,
+					(int)gProjectInfoPtr->keepClassStatsOnlyFlag,
+					(int)gProjectInfoPtr->signedDataFlag,
+					(int)gProjectInfoPtr->useCommonCovarianceInLOOCFlag,
 					gProjectInfoPtr->covarianceStatsToUse,
 					projectWindowInfoPtr->dataTypeCode,
 					gProjectInfoPtr->hdfDataSetSelection,
@@ -5604,8 +5607,8 @@ SInt16 WriteProjectFile (
 					channel++)
 			{
 			sprintf ((char*)gTextString, 
-						"\t%hd",
-						gProjectInfoPtr->channelsPtr[channel]+1);
+						"\t%d",
+						(int)(gProjectInfoPtr->channelsPtr[channel]+1));
 					
 			continueFlag = OutputString (projectFileStreamPtr,
 													(char*)gTextString, 
@@ -5758,16 +5761,16 @@ SInt16 WriteProjectFile (
 				modifiedStatsFlag = FALSE;
 							
 			sprintf ((char*)gTextString, 
-							"C1\t%hd\t%s\t%hd\t%hd\t%hd\t%lld\t%hd\t%hd\t%f\t%f\t%f\t%f"
+							"C1\t%d\t%s\t%hd\t%hd\t%hd\t%lld\t%hd\t%d\t%f\t%f\t%f\t%f"
 									"\t%hd%s",
-							classNamesPtr[classStorage].name[0],
+							(int)classNamesPtr[classStorage].name[0],
 							gTextString2,
 							classNamesPtr[classStorage].numberOfFields,
 							classNamesPtr[classStorage].numberOfTrainFields,
 							classNamesPtr[classStorage].numberOfTestFields,
 							outLongLongTemp,		// numberTrainPixels 
 							outTemp,					// statsUpToDate 
-							modifiedStatsFlag,
+							(int)modifiedStatsFlag,
 							classNamesPtr[classStorage].priorWeights[0],
 							classNamesPtr[classStorage].priorWeights[1],
 							classNamesPtr[classStorage].priorWeights[3],
@@ -5878,11 +5881,11 @@ SInt16 WriteProjectFile (
 								&strLength);
 							
 					sprintf ((char*)gTextString, 
-								"F1\t%hd\t%s\t%hd\t%hd\t%hd\t%hd\t%lld\t%hd\t%hd\t%hd\t%lld%s",
-								fieldIdentPtr[field].name[0],
+								"F1\t%d\t%s\t%hd\t%d\t%hd\t%hd\t%lld\t%hd\t%hd\t%hd\t%lld%s",
+								(int)fieldIdentPtr[field].name[0],
 								gTextString2,
 								fieldIdentPtr[field].numberOfPolygonPoints,
-								classIndex+1,
+								(int)(classIndex+1),
 								fieldIdentPtr[field].fieldType,
 								fieldIdentPtr[field].pointType,
 								fieldIdentPtr[field].numberPixels,
@@ -5997,11 +6000,11 @@ SInt16 WriteProjectFile (
 							&strLength);
 							
 					sprintf ((char*)gTextString, 
-								"F1\t%hd\t%s\t%hd\t%hd\t%hd\t%hd\t%lld\t%hd\t%hd\t%hd\t%lld%s",
-								fieldIdentPtr[field].name[0],
+								"F1\t%d\t%s\t%hd\t%d\t%hd\t%hd\t%lld\t%hd\t%hd\t%hd\t%lld%s",
+								(int)(fieldIdentPtr[field].name[0]),
 								gTextString2,
 								fieldIdentPtr[field].numberOfPolygonPoints,
-								classIndex+1,
+								(int)(classIndex+1),
 								fieldIdentPtr[field].fieldType,
 								fieldIdentPtr[field].pointType,
 								fieldIdentPtr[field].numberPixels,
@@ -6094,7 +6097,7 @@ SInt16 WriteProjectFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

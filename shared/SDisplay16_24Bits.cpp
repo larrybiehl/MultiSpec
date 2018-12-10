@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -44,7 +44,7 @@
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -183,7 +183,7 @@ void Display1Channel16BitLine (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -578,7 +578,7 @@ void Display2Channel16BitLine (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1139,7 +1139,7 @@ void Display2Channel24BitLine (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1306,7 +1306,7 @@ void Display3Channel16BitLine (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1350,11 +1350,10 @@ void Display3Channel24BitLine (
 											dataValue,
 											j;
 
-	HUInt32Ptr							offScreen4BytePtr;
-																			
-		
-	offScreen4BytePtr = (UInt32*)offScreenPtr;
-		
+	#if defined multispec_mac
+		HUInt32Ptr							offScreen4BytePtr = (UInt32*)offScreenPtr;
+	#endif
+
 	for (j=0; j<numberSamples; j+=interval)
 		{
 		#if defined multispec_mac
@@ -1543,7 +1542,7 @@ void Display3Channel24BitLine (
  
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1689,19 +1688,6 @@ void UpdatePaletteFor16and24BImage (void)
 												
 			displaySpecsPtr->better8BitPaletteFlag = TRUE;
 							
-			#if !TARGET_API_MAC_CARBON
-						// Reclaim the placeholder memory.											
-				
-				if (gNumberAvailableGWorldPtrs < kMaxNumberIWindows)
-					{
-					gGWorldPlaceHolderList[gNumberAvailableGWorldPtrs] = 
-																		MNewPointer (sizeof (CGrafPort));
-					if (gGWorldPlaceHolderList[gNumberAvailableGWorldPtrs])
-						gNumberAvailableGWorldPtrs++;
-					
-					}		// end "if (gNumberAvailableGWorldPtrs < kMaxNumberIWindows)" 
-			#endif	// !TARGET_API_MAC_CARBON
-											
 			UnlockAndDispose ((Handle)tempCTableHandle);
 			
 			if (gImageWindowInfoPtr->offscreenGWorld != NULL)

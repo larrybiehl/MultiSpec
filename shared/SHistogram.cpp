@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl, Ravi Budruk
 //
-//	Revision date:			12/21/2017
+//	Revision date:			11/29/2018
 //
 //	Language:				C
 //
@@ -95,14 +95,14 @@
 //	Include files:			"MultiSpecHeaders"
 //								"multiSpec.h"
 //
-/*
-			// Template for debugging.
-			int numberChars = sprintf ((char*)gTextString3,
-										" SHistogram:ComputeHistorgram (gauge_range, gStatusGraphicsRight): %d, %f%s",
-										gauge_range,
-										gStatusGraphicsRight,
-										gEndOfLine);
-			ListString ((char*)gTextString3, numberChars, gOutputTextH);
+/* Template for debugging.
+		int numberChars = sprintf (
+				(char*)gTextString3,
+				" SHistogram:ComputeHistorgram (gauge_range, gStatusGraphicsRight): %d, %f%s",
+				gauge_range,
+				gStatusGraphicsRight,
+				gEndOfLine);
+		ListString ((char*)gTextString3, numberChars, gOutputTextH);
 */
 //------------------------------------------------------------------------------------
 
@@ -409,7 +409,7 @@ ControlRef			sControlRef = NULL;
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -457,7 +457,7 @@ Boolean CheckHistogramTextWindowSpaceNeeded (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -538,7 +538,7 @@ void CloseUpHistogramArrayReadParameters (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1184,6 +1184,13 @@ Boolean ComputeHistogram (
                #if defined multispec_lin
 						//int gauge_range = ((wxGauge*) (gStatusDialogPtr->FindWindow (IDC_Status7)))->GetRange ();
 						//gStatusGraphicsRight = MIN (gStatusGraphicsRight, gauge_range);
+						/* int numberChars = sprintf (
+								(char*)gTextString3,
+								" SHistogram: ComputeHistogram (gStatusGraphicsRight): %f%s",
+								gStatusGraphicsRight,
+								gEndOfLine);
+						ListString ((char*)gTextString3, numberChars, gOutputTextH);
+						*/
 						((wxGauge*)(gStatusDialogPtr->FindWindow (IDC_Status7)))->
 																SetValue ((SInt32)gStatusGraphicsRight);
 						CheckSomeEvents (osMask+updateMask);
@@ -1465,7 +1472,7 @@ Boolean ComputeHistogram (
 	
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1525,7 +1532,7 @@ UInt32 CountTotalNumberHistogramPixels (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1575,7 +1582,7 @@ UInt32 CountTotalNumberHistogramPixels (
 // Called By:			DoHistogramRequests in histogram.c
 //
 //	Coded By:			Larry L. Biehl			Date: 10/25/1988
-//	Revised By:			Larry L. Biehl			Date: 06/19/2017	
+//	Revised By:			Larry L. Biehl			Date: 11/29/2018
 
 Boolean CreateSTASupportFile (
 				FileInfoPtr							fileInfoPtr, 
@@ -2114,7 +2121,8 @@ Boolean CreateSTASupportFile (
 						// Write the number of values for the nonsaturated data		
 						// values if they exist.	
 					
-				if (histogramSummaryPtr[channel].minNonSatValue != -signedValueOffset)
+				if (histogramSummaryPtr[channel].minNonSatValue != -signedValueOffset ||
+										signedValueOffset == 0)
 					{
 					if (numberBins <= 256)
 						{
@@ -2249,7 +2257,7 @@ Boolean CreateSTASupportFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2295,7 +2303,7 @@ UInt32 GetNumberOfMaximumDataValues (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2338,7 +2346,7 @@ UInt32 GetNumberOfMinimumDataValues (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2975,7 +2983,7 @@ Boolean DecodeSTASupportFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3068,7 +3076,7 @@ UInt32 DetermineBytesForHistogramText (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3343,7 +3351,14 @@ Boolean DetermineMinAndMaxValuesForEachChannel (
          #if defined multispec_lin
 				//int gauge_range = ((wxGauge*) (gStatusDialogPtr->FindWindow (IDC_Status7)))->GetRange ();
 				//gStatusGraphicsRight = MIN (gStatusGraphicsRight, gauge_range);
-				((wxGauge*) (gStatusDialogPtr->FindWindow (IDC_Status7)))->SetValue ((SInt32) gStatusGraphicsRight);
+				/* int numberChars = sprintf (
+						(char*)gTextString3,
+						" SHistogram: DetermineMinAndMax... (gStatusGraphicsRight): %f%s",
+						gStatusGraphicsRight,
+						gEndOfLine);
+				ListString ((char*)gTextString3, numberChars, gOutputTextH);
+				*/
+				((wxGauge*)(gStatusDialogPtr->FindWindow (IDC_Status7)))->SetValue ((SInt32)gStatusGraphicsRight);
 				CheckSomeEvents (osMask+updateMask);
 			#endif
 			
@@ -3366,7 +3381,7 @@ Boolean DetermineMinAndMaxValuesForEachChannel (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3435,7 +3450,7 @@ Boolean DetermineIfEFormatRequired (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3455,7 +3470,7 @@ Boolean DetermineIfEFormatRequired (
 // Called By:			HistogramControl   in histogram.c
 //
 //	Coded By:			Larry L. Biehl			Date: 10/14/1993	
-//	Revised By:			Larry L. Biehl			Date: 09/05/2017
+//	Revised By:			Larry L. Biehl			Date: 05/02/2018
 
 Boolean DoHistogramRequests (
 				HistogramSpecsPtr					histogramSpecsPtr)
@@ -3641,11 +3656,14 @@ Boolean DoHistogramRequests (
 
                      #if defined multispec_win | defined multispec_lin
 								gStatusGraphicsRight *= gImageWindowInfoPtr->numberImageFiles;
-								if (gImageFileInfoPtr->numberBytes > 2)
-									gStatusGraphicsRight *= 2;
 							#endif	// defined multispec_win
 
 						}	// end "if (!twoPassFlag)"
+
+					#if defined multispec_win | defined multispec_lin
+						if (gImageFileInfoPtr->numberBytes > 2)
+							gStatusGraphicsRight *= 2;
+					#endif	// defined multispec_win
 						
 					}	// end "if (continueFlag)" 
 
@@ -3658,8 +3676,17 @@ Boolean DoHistogramRequests (
 				#endif	// defined multispec_win
 				
             #if defined multispec_lin
-               ((wxGauge*) (gStatusDialogPtr->FindWindow (IDC_Status7)))->
-															SetRange ((SInt32) gStatusGraphicsRight);
+					/*int numberChars = sprintf (
+							(char*)gTextString3,
+							" SHistogram: DoHistogramRequests SetRange (twoPassFlag, allChannelsAtOnceFlag, gStatusGraphicsRight): %d, %d, %f%s",
+							twoPassFlag,
+							histogramSpecsPtr->allChannelsAtOnceFlag,
+							gStatusGraphicsRight,
+							gEndOfLine);
+					ListString ((char*)gTextString3, numberChars, gOutputTextH);
+					*/
+               ((wxGauge*)(gStatusDialogPtr->FindWindow (IDC_Status7)))->
+															SetRange ((SInt32)gStatusGraphicsRight);
 					gStatusGraphicsRight = 0;
 				#endif
 				
@@ -3711,6 +3738,13 @@ Boolean DoHistogramRequests (
 													
 				#if defined multispec_lin
                 gStatusGraphicsRight = numberLines * histogramSpecsPtr->numberChannels;
+					/* int numberChars2 = sprintf (
+							(char*)gTextString3,
+							" SHistogram: DoHistogramRequests2 (gStatusGraphicsRight): %f%s",
+							gStatusGraphicsRight,
+							gEndOfLine);
+					ListString ((char*)gTextString3, numberChars2, gOutputTextH);
+					*/
                 ((wxGauge*)(gStatusDialogPtr->FindWindow (IDC_Status7)))->
 															SetValue ((SInt32)gStatusGraphicsRight);
 					gStatusGraphicsRight = 0;
@@ -3876,7 +3910,7 @@ Boolean DoHistogramRequests (
                
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3918,7 +3952,7 @@ pascal void DrawHistogramMethodPopUp (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3958,7 +3992,7 @@ void ForceHistogramCodeResourceLoad ()
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4032,7 +4066,7 @@ Boolean GetClippedMinMaxValues (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4269,7 +4303,7 @@ Boolean GetClippedMinMaxValueIndices (
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4313,7 +4347,7 @@ Boolean GetHistogramLoadedFlag (
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4360,7 +4394,7 @@ Handle* GetHistogramSpecsHandlePtr (
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4407,7 +4441,7 @@ Handle* GetHistogramSummaryHandlePtr (
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4465,7 +4499,7 @@ HUInt32Ptr GetHistogramValuesMemory (
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4557,7 +4591,7 @@ Boolean GetHistogramVectorForChannel (
 	
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4736,7 +4770,7 @@ Boolean GetSTASupportFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4812,7 +4846,7 @@ HCharPtr GetSTASupportFileBuffer (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4870,7 +4904,7 @@ Boolean GetStatFileBuffer (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4934,7 +4968,7 @@ void GetDataFormatString (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5218,7 +5252,7 @@ Boolean HistogramControl (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5251,7 +5285,7 @@ Boolean HistogramControl (
 //
 //	Coded By:			Ravi S. Budruk			Date: 06/01/1988
 //	Revised By:			Ravi S. Budruk			Date: 07/19/1988	
-//	Revised By:			Larry L. Biehl			Date: 12/16/2016
+//	Revised By:			Larry L. Biehl			Date: 10/22/2018
 	
 Boolean HistogramDialog (
 				FileInfoPtr							fileInfoPtr, 
@@ -5691,8 +5725,8 @@ Boolean HistogramDialog (
 	#if defined multispec_lin
 		CMHistogramSpecsDlg* dialogPtr = NULL;
 
-
-		dialogPtr = new CMHistogramSpecsDlg ((wxWindow *)GetMainFrame ());
+		//dialogPtr = new CMHistogramSpecsDlg ((wxWindow *)GetMainFrame ());
+		dialogPtr = new CMHistogramSpecsDlg (NULL);
 
 		returnFlag = dialogPtr->DoDialog (histogramSpecsPtr,
 														gImageWindowInfoPtr,
@@ -5708,7 +5742,7 @@ Boolean HistogramDialog (
 
 
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5838,7 +5872,7 @@ SInt16 HistogramDialogHandleMethod (
 
 
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5890,7 +5924,7 @@ void HistogramDialogHideAreaItems (
 
 
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6298,7 +6332,7 @@ void HistogramDialogOK (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6397,7 +6431,7 @@ void HistogramDialogSetListAndEmptyBins (
 
 
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6452,7 +6486,7 @@ void HistogramDialogShowAreaItems (
 
 
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6492,7 +6526,7 @@ void  HistogramDialogShowListItems (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6626,7 +6660,7 @@ void HistogramDialogStatisticsFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6712,7 +6746,7 @@ Boolean HistogramDialogUpdateAllChannelsAtOnceFlag (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6902,7 +6936,7 @@ Handle InitializeHistogramInfoStructure (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6956,7 +6990,7 @@ void InitializeHistogramSummaryStructure (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7094,12 +7128,12 @@ Boolean ListHistogramSummary (
 			sprintf (string, 
 							//"    %5ld\t%8ld\t%8ld\t%10ld\t%9ld\t%7ld%s%s",
 							"    %5u\t%8u\t%8u\t%10u\t%9u\t%7u%s%s",	// Need to use %u for linux
-							histogramSpecsPtr->lineStart,
-							histogramSpecsPtr->lineEnd,
-							histogramSpecsPtr->lineInterval,
-							histogramSpecsPtr->columnStart,
-							histogramSpecsPtr->columnEnd,
-							histogramSpecsPtr->columnInterval,
+							(unsigned int)histogramSpecsPtr->lineStart,
+							(unsigned int)histogramSpecsPtr->lineEnd,
+							(unsigned int)histogramSpecsPtr->lineInterval,
+							(unsigned int)histogramSpecsPtr->columnStart,
+							(unsigned int)histogramSpecsPtr->columnEnd,
+							(unsigned int)histogramSpecsPtr->columnInterval,
 							gEndOfLine,
 							gEndOfLine);
 			
@@ -7377,7 +7411,7 @@ Boolean ListHistogramSummary (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7532,7 +7566,7 @@ Boolean ListHistogramTitle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7953,7 +7987,7 @@ Boolean ListHistogramValues (
 				textLength = MAX (9, 4+valueCountTextWidth);
 				textLength = sprintf (gCharBufferPtr1,
 												"%*s",
-												textLength,
+												(int)textLength,
 												"Value");
 				charPtr = gCharBufferPtr1 + textLength;
 				
@@ -8025,7 +8059,7 @@ Boolean ListHistogramValues (
 													"%c%*d",
 													gTextTab,
 													countTextWidth,
-													m);
+													(int)m);
 					charPtr += textLength;
 					
 					}	// end "else !lineFormatHistFlag"
@@ -8172,7 +8206,7 @@ Boolean ListHistogramValues (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8350,7 +8384,7 @@ Boolean ListHistogramValuesInColumns (
 												"%c%*d",
 												gTextTab,
 												columnCountTextWidth,
-												medianArrayChanPtr[m]);
+												(unsigned int)medianArrayChanPtr[m]);
 				charPtr += textLength;
 				
 				medianArrayIndex += histogramSpecsPtr->maxNumberBins;
@@ -8424,7 +8458,7 @@ Boolean ListHistogramValuesInColumns (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8448,7 +8482,7 @@ Boolean ListHistogramValuesInColumns (
 // Called By:			ListHistogramValues
 //
 //	Coded By:			Larry L. Biehl			Date: 10/26/1993
-//	Revised By:			Larry L. Biehl			Date: 08/04/2016
+//	Revised By:			Larry L. Biehl			Date: 02/28/2018
 
 Boolean ListHistogramValuesInLines (
 				HistogramSpecsPtr					histogramSpecsPtr,
@@ -8507,7 +8541,7 @@ Boolean ListHistogramValuesInLines (
 		textLength = sprintf (charPtr,
 										"%*d%c", 
 										minValueCountTextWidth,
-										*medianArrayPtr,
+										(unsigned int)*medianArrayPtr,
 										gTextTab);
 		charPtr += textLength;
 					
@@ -8534,7 +8568,7 @@ Boolean ListHistogramValuesInLines (
 			textLength = sprintf (charPtr,
 											"%*d%c", 
 											valueCountTextWidth,
-											*medianArrayChanPtr,
+											(unsigned int)*medianArrayChanPtr,
 											gTextTab);
 			charPtr += textLength;
 			
@@ -8547,7 +8581,7 @@ Boolean ListHistogramValuesInLines (
 		textLength = sprintf (charPtr, 
 										"%*d%c", 
 										maxValueCountTextWidth,
-										medianArrayPtr[channelOffsetCount-1],
+										(unsigned int)medianArrayPtr[channelOffsetCount-1],
 										gTextTab);
 		charPtr += textLength;
 		
@@ -8587,7 +8621,7 @@ Boolean ListHistogramValuesInLines (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8692,7 +8726,7 @@ void LoadHistogramSpecs (
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8884,7 +8918,7 @@ Boolean LoadSTASupportFile (
 	
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8939,7 +8973,7 @@ Boolean LoadSupportFile (
 	
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8987,7 +9021,7 @@ CMFileStream* OpenSupportFile (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9077,7 +9111,7 @@ Boolean ReadSTASupportFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9132,7 +9166,7 @@ void ReleaseHistogramSpecsPtr (
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9197,7 +9231,7 @@ void SetHistogramLineColumnSpecs (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9251,7 +9285,7 @@ void SetNumberOfMaximumDataValuesInArray (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9305,7 +9339,7 @@ void SetNumberOfMinimumDataValuesInArray (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9397,7 +9431,7 @@ HistogramSpecsPtr SetUpHistogramSpecsPtr (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9467,7 +9501,7 @@ Boolean SetUpToReadHistogramArray (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

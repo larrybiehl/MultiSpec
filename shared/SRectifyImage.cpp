@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			01/05/2018
+//	Revision date:			06/25/2018
 //
 //	Include files:			"MultiSpecHeaders"
 //
@@ -255,7 +255,7 @@ Boolean 				ReprojectImage (
 void 					ReprojectNearestNeighborLineColumn (
 							MapProjectionInfoPtr				referenceMapProjectionInfoPtr,
 							MapProjectionInfoPtr				mapProjectionInfoPtr,
-							DoubleRect*							boundingLatLongRectPtr,
+							DoubleRect*							boundingRectPtr,
 							SInt32								line, 
 							SInt32								column, 
 							SInt32*								inputLinePtr, 
@@ -323,7 +323,7 @@ void ConcateMapping (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -368,7 +368,7 @@ Boolean DetermineIfIdentityMatrix (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2011)
+//								 Copyright (1988-2018)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -430,7 +430,7 @@ void ExtendRealRect (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -511,7 +511,7 @@ void GetMappingMatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -722,7 +722,7 @@ SInt16 GetReprojectToImageList (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -904,7 +904,7 @@ Boolean InvertMappingMatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -958,7 +958,7 @@ Boolean IsPointInPolygon (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1219,7 +1219,7 @@ Boolean ListRectifyResultsInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1332,7 +1332,7 @@ void MapNearestNeighborLineColumn (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1409,7 +1409,7 @@ void OffsetMappingMatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2156,7 +2156,7 @@ Boolean RectifyImage (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2725,7 +2725,7 @@ void RectifyImageControl (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3299,7 +3299,8 @@ Boolean RectifyImageDialog (
 
 	#if defined multispec_lin
 		CMReformatRectifyDlg*		dialogPtr = NULL;
-		dialogPtr = new CMReformatRectifyDlg ((wxWindow*)GetMainFrame ());
+		//dialogPtr = new CMReformatRectifyDlg ((wxWindow*)GetMainFrame ());
+		dialogPtr = new CMReformatRectifyDlg (NULL);
 		
 		OKFlag = dialogPtr->DoDialog (outFileInfoPtr,
 														fileInfoPtr,
@@ -3319,7 +3320,7 @@ Boolean RectifyImageDialog (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3494,7 +3495,7 @@ void RectifyImageDialogInitialize (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3701,7 +3702,7 @@ void RectifyImageDialogOK (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3796,7 +3797,7 @@ void RectifyImageDialogOnRectifyCode (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3931,7 +3932,7 @@ SInt16 RectifyImageDialogOnReferenceFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4185,7 +4186,7 @@ void RectifyUpdateMapProjectionStructure (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4202,7 +4203,7 @@ void RectifyUpdateMapProjectionStructure (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 11/02/2006
-//	Revised By:			Larry L. Biehl			Date: 02/26/2013
+//	Revised By:			Larry L. Biehl			Date: 07/16/2018
 
 Boolean ReprojectImage (
 				FileIOInstructionsPtr			fileIOInstructionsPtr,
@@ -4212,7 +4213,7 @@ Boolean ReprojectImage (
 {
 			// Declare local variables & structures
 			
-	DoubleRect							boundingLatLongRect;
+	DoubleRect							boundingRect;
 			
 	double								backgroundValue;
 												
@@ -4463,11 +4464,33 @@ Boolean ReprojectImage (
 		
 				// Get the bounding latitude-longitude rectangle for the active
 				// image window.
+				// Note that as of 7/16/2018 this is not being used. Will leave in for
+				// a while in case it is found it is needed again. This was used to try
+				// to save time by catching when the nearest neighbor calculation did not
+				// need to be done; but found this check caused problems by leaving out
+				// pixels that could really be used. The bounding rectangle is based on
+				// the upper left and lower right point. It is not guaranteed that
+				// the top or bottom coordinated does not vary across the width. The
+				// same for the left and right.
 		
-		boundingLatLongRect.top = gImageWindowInfoPtr->boundingLatLongRectangle.top;
-		boundingLatLongRect.left = gImageWindowInfoPtr->boundingLatLongRectangle.left;
-		boundingLatLongRect.bottom = gImageWindowInfoPtr->boundingLatLongRectangle.bottom;
-		boundingLatLongRect.right = gImageWindowInfoPtr->boundingLatLongRectangle.right;
+		//if (referenceMapProjectionInfoPtr->gridCoordinate.referenceSystemCode ==
+		//																				kGeographicRSCode)
+		//	{
+			boundingRect.top = gImageWindowInfoPtr->boundingLatLongRectangle.top;
+			boundingRect.left = gImageWindowInfoPtr->boundingLatLongRectangle.left;
+			boundingRect.bottom = gImageWindowInfoPtr->boundingLatLongRectangle.bottom;
+			boundingRect.right = gImageWindowInfoPtr->boundingLatLongRectangle.right;
+			
+		//	}	// end "...->gridCoordinate.referenceSystemCode == kGeographicRSCode"
+			
+		//else	// ...->gridCoordinate.referenceSystemCode != kGeographicRSCode
+		//	{
+		//	boundingRect.top = gImageWindowInfoPtr->boundingMapRectangle.top;
+		//	boundingRect.left = gImageWindowInfoPtr->boundingMapRectangle.left;
+		//	boundingRect.bottom = gImageWindowInfoPtr->boundingMapRectangle.bottom;
+		//	boundingRect.right = gImageWindowInfoPtr->boundingMapRectangle.right;
+			
+		//	}	// end "else ...->gridCoordinate.referenceSystemCode != kGeographicRSCode"
 					
 				// Intialize the nextTime variable to indicate when the next 		
 				// check should occur for a command-.										
@@ -4571,7 +4594,7 @@ Boolean ReprojectImage (
 						ReprojectNearestNeighborLineColumn (
 													referenceMapProjectionInfoPtr,
 													mapProjectionInfoPtr,
-													&boundingLatLongRect,
+													&boundingRect,
 													line, 
 													column, 
 													&inputLine, 
@@ -4822,7 +4845,7 @@ Boolean ReprojectImage (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5109,7 +5132,7 @@ void ReprojectWithMajorityRule (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5127,19 +5150,20 @@ void ReprojectWithMajorityRule (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 11/02/2006
-//	Revised By:			Larry L. Biehl			Date: 03/13/2012
+//	Revised By:			Larry L. Biehl			Date: 07/16/2018
 
 void ReprojectNearestNeighborLineColumn (
 				MapProjectionInfoPtr				referenceMapProjectionInfoPtr,
 				MapProjectionInfoPtr				mapProjectionInfoPtr,
-				DoubleRect*							boundingLatLongRectPtr,
+				DoubleRect*							boundingRectPtr,
 				SInt32								line, 
 				SInt32								column, 
 				SInt32*								inputLinePtr, 
 				SInt32*								inputColumnPtr)
 				
 {
-	DoublePoint							mapPoint;
+	DoublePoint							mapPoint,
+											referenceMapPoint;
 												
 	LongPoint							inputLineColumn,
 											lineColumnPoint;
@@ -5153,19 +5177,24 @@ void ReprojectNearestNeighborLineColumn (
 	
 	ConvertLCPointToMapPoint (referenceMapProjectionInfoPtr, 
 										&lineColumnPoint, 
-										&mapPoint);
+										&referenceMapPoint);
 	
+	mapPoint = referenceMapPoint;
 	validPointFlag = ConvertMapPointToLatLongPoint (referenceMapProjectionInfoPtr,
 																	&mapPoint);
-												
+	
+	//if (referenceMapProjectionInfoPtr->gridCoordinate.referenceSystemCode ==
+	//																					kGeographicRSCode)
+	//	referenceMapPoint = mapPoint;
+	/*
 	if (validPointFlag &&
-			(mapPoint.h < boundingLatLongRectPtr->left ||
-				mapPoint.h > boundingLatLongRectPtr->right ||
-					mapPoint.v < boundingLatLongRectPtr->top ||
-						mapPoint.v > boundingLatLongRectPtr->bottom))
+			(referenceMapPoint.h < boundingRectPtr->left ||
+				referenceMapPoint.h > boundingRectPtr->right ||
+					referenceMapPoint.v < boundingRectPtr->top ||
+						referenceMapPoint.v > boundingRectPtr->bottom))
 		validPointFlag = FALSE;
 	
-	
+	*/
 	if (validPointFlag)
 		{
 		ConvertLatLongPointToMapPoint (mapProjectionInfoPtr,
@@ -5231,7 +5260,7 @@ void SetIdentityMappingMatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //

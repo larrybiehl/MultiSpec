@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			01/04/2018
+//	Revision date:			03/13/2018
 //
 //	Language:				C
 //
@@ -130,80 +130,6 @@
 					DialogPtr							dialogPtr);
 #endif	// defined multispec_win 
 
-//#include "SExtGlob.h" 
-
-
-
-extern void ClassPairWeightsDialogChangeWeight (
-				DialogPtr							dialogPtr,
-				ListHandle							classListHandle,
-				ListHandle							weightListHandle,
-				SInt16								newWeight);
-
-extern SInt16 ClassPairWeightsDialogClassSelectionChange (
-				DialogPtr							dialogPtr,
-				ListHandle							listHandle,
-				SInt16								newWeight);
-
-extern SInt16 ClassPairWeightsDialogWeightSelectionChange (
-				DialogPtr							dialogPtr,
-				ListHandle							listHandle);
-
-extern void ClassPairWeightsDialogInitialize (
-				DialogPtr							dialogPtr,
-				SInt16								defaultClassPairWeight,
-				SInt16*								localDefaultClassPairWeightPtr);
-
-extern void ClassPairWeightsDialogOK (
-				DialogPtr							dialogPtr,
-				ListHandle							listHandle,
-				SInt16**								weightsListPtrPtr,
-				SInt16*								interClassWeightsSelectionPtr,
-				SInt16								localDefaultClassPairWeight,
-				SInt16*								defaultClassPairWeightPtr);
-
-extern SInt16 ClassPairWeightsDialogRemoveWeightSelection (
-				DialogPtr							dialogPtr,
-				ListHandle							listHandle,
-				SInt16								selectedWeightGroupCell);
-
-extern double ClassWeightsDialogChangeWeights (
-				DialogPtr							dialogPtr,
-				ListHandle							listHandle,
-				double*								weightSumPtr,
-				double								newWeight,
-				SInt16								okItemNumber);
-
-extern SInt16 ClassWeightsDialogClassSelectionChange (
-				DialogPtr							dialogPtr,
-				ListHandle							listHandle,
-				double								newWeight);
-
-extern void ClassWeightsDialogInitialize (
-				DialogPtr							dialogPtr,
-				SInt16*								weightUnitsPtr);
-
-extern SInt16 ClassWeightsDialogOK (
-				DialogPtr							dialogPtr,
-				ListHandle							listHandle,
-				UInt16								numberOfClassesToUse,
-				SInt16*								classPtr,
-				float*								weightsPtr);
-
-extern void ClassWeightsDialogSetEqualWeights (
-				DialogPtr							dialogPtr,
-				ListHandle							listHandle,
-				double*								weightSumPtr,
-				double								defaultEqualWeight,
-				SInt16								okItemNumber);
-
-extern double LoadClassWeightsIntoList (
-				ListHandle							listHandle,
-				UInt16								numberOfClassesToUse,
-				SInt16*								classPtr,
-				float*								weightsPtr,
-				Boolean								useEnhancedStatFlag);
-
 
 
 		// Prototypes for routines in this file that are only called by
@@ -271,7 +197,7 @@ Boolean VerifyAreaDescription (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -452,7 +378,7 @@ void Area_Of_SND_by_Direct_Calculation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -682,7 +608,7 @@ Boolean AssignClassInfoMemory (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -854,7 +780,7 @@ double Bhattacharyya (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -944,7 +870,7 @@ void ChangeProjectAssociatedImageItem (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1014,7 +940,7 @@ Boolean CheckClassEnhancedStats (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1161,7 +1087,7 @@ Boolean CheckClassStats (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1288,7 +1214,7 @@ Boolean CheckNumberOfPixelsInClass (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1436,7 +1362,7 @@ SInt16 ClassDialog (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1629,7 +1555,7 @@ SInt16 ClassPairWeightsDialog (
 
 //------------------------------------------------------------------------------------
 //
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1720,11 +1646,11 @@ void ClassPairWeightsDialogChangeWeight (
 
 //------------------------------------------------------------------------------------
 //
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
-//	Function name:		SInt16 ClassWeightsDialogClassSelectionChange
+//	Function name:		SInt16 ClassPairWeightsDialogClassSelectionChange
 //
 //	Software purpose:	The purpose of this routine is to handle a change in the 
 //							class list.
@@ -1799,7 +1725,7 @@ SInt16 ClassPairWeightsDialogClassSelectionChange (
 
 //------------------------------------------------------------------------------------
 //
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1840,7 +1766,7 @@ void ClassPairWeightsDialogInitialize (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1859,7 +1785,7 @@ void ClassPairWeightsDialogInitialize (
 // Called By:			ClassPairWeightsDialog   in separability.c
 //
 //	Coded By:			Larry L. Biehl			Date: 06/14/1990
-//	Revised By:			Larry L. Biehl			Date: 01/30/1998	
+//	Revised By:			Larry L. Biehl			Date: 02/27/2018
 
 Boolean ClassPairWeightsDialogModal (
 				DialogPtr							dialogPtr,
@@ -1877,7 +1803,7 @@ Boolean ClassPairWeightsDialogModal (
 											saveNewWeight;
 
    SInt16								//defaultEqualWeight = 10,
-											itemHit,
+											itemHit = 0,
 											//minimumItemsRequired = 2,
 											returnCode,
 											selectedCell,
@@ -2025,7 +1951,7 @@ Boolean ClassPairWeightsDialogModal (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2194,7 +2120,7 @@ void ClassPairWeightsDialogOK (
 
 //------------------------------------------------------------------------------------
 //
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2235,7 +2161,7 @@ SInt16 ClassPairWeightsDialogRemoveWeightSelection (
 
 //------------------------------------------------------------------------------------
 //
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2292,7 +2218,7 @@ SInt16 ClassPairWeightsDialogWeightSelectionChange (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2338,7 +2264,7 @@ Boolean ClassToBeUsed (
 
 //------------------------------------------------------------------------------------
 //
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2526,7 +2452,7 @@ SInt16 ClassWeightsDialog (
 
 //------------------------------------------------------------------------------------
 //
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2554,6 +2480,7 @@ SInt16 ClassWeightsDialogClassSelectionChange (
 					ListHandle							listHandle,
 				#endif
 				double								newWeight)
+
 {
 	Cell									cell;
 
@@ -2590,7 +2517,7 @@ SInt16 ClassWeightsDialogClassSelectionChange (
 
 //------------------------------------------------------------------------------------
 //
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2689,7 +2616,7 @@ double ClassWeightsDialogChangeWeights (
 
 //------------------------------------------------------------------------------------
 //
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2736,7 +2663,7 @@ void ClassWeightsDialogInitialize (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2755,7 +2682,7 @@ void ClassWeightsDialogInitialize (
 // Called By:			ClassWeightsDialog   in projectUtilities.c
 //
 //	Coded By:			Larry L. Biehl			Date: 01/23/1990
-//	Revised By:			Larry L. Biehl			Date: 12/20/1999	
+//	Revised By:			Larry L. Biehl			Date: 02/27/2018
 
 Boolean ClassWeightsDialogModal (
 				DialogPtr							dialogPtr,
@@ -2773,7 +2700,7 @@ Boolean ClassWeightsDialogModal (
    Handle								okHandle,
 											theHandle;
 
-   SInt16								itemHit,
+   SInt16								itemHit = 0,
 											returnCode,
 											selectedCell,
 											theType;
@@ -2894,7 +2821,7 @@ Boolean ClassWeightsDialogModal (
 
 //------------------------------------------------------------------------------------
 //
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2981,7 +2908,7 @@ SInt16 ClassWeightsDialogOK (
 
 //------------------------------------------------------------------------------------
 //
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3072,7 +2999,7 @@ void ClassWeightsDialogSetEqualWeights (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3106,7 +3033,7 @@ void ClearGlobalAlertVariables (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3170,7 +3097,7 @@ void ComputeChiSquaredConstants (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Fmundation
 //									All rights reserved.
 //
@@ -3299,7 +3226,7 @@ double ComputeChiSquaredValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3358,7 +3285,7 @@ void ComputeGammaFunctionHalfValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3475,7 +3402,7 @@ void CreateFieldRgn (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3568,7 +3495,7 @@ SInt16 DetermineFieldTypes (void)
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3616,7 +3543,7 @@ SInt16 DiskFilePopUpMenu (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3657,7 +3584,7 @@ pascal void DrawChannelsPopUp2 (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3696,7 +3623,7 @@ pascal void DrawInterClassWeightsPopUp (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3767,7 +3694,7 @@ pascal void DrawProjectChangesPopUp (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3808,7 +3735,7 @@ pascal void DrawSeparabilityDistancePopUp (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3926,7 +3853,7 @@ void FindRThreshold (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3964,7 +3891,7 @@ void ForceProjectUtilityCodeResourceLoad (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4021,7 +3948,7 @@ double GetChiSquaredValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4090,7 +4017,7 @@ UInt32 GetClassNameMaxLength (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4149,7 +4076,7 @@ ClassInfoPtr GetClassInfoStructure (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4198,7 +4125,7 @@ SInt16 GetClassWeightsIndex (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4242,7 +4169,7 @@ float* GetClassWeightsPtr (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4298,7 +4225,7 @@ double GetClassWeightValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4342,7 +4269,7 @@ UInt16 GetCommonCovarianceWeightsIndex ()
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4670,7 +4597,7 @@ void GetFieldBoundary (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4714,7 +4641,7 @@ Boolean GetListResultsFlag (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4840,7 +4767,7 @@ SInt64 GetMaximumPixelsPerClass (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4959,7 +4886,7 @@ SInt16 GetNextFieldArea (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5066,7 +4993,7 @@ SInt16 GetNumberOfAreas (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5169,7 +5096,7 @@ UInt32 GetNumberOfCombinations (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5307,7 +5234,7 @@ SInt16 GetProjectFieldsBoundingArea (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5361,7 +5288,7 @@ SInt16 GetProjectClassWeightsIndex (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5438,7 +5365,7 @@ void GetProjectWindowTitle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5581,7 +5508,7 @@ void GetBoundingRegionRectangle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5652,7 +5579,7 @@ float* GetTempClassWeightsPtr (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5722,7 +5649,7 @@ double GetTotalProbability (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5759,7 +5686,7 @@ void InitializeGlobalAlertVariables (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5808,7 +5735,7 @@ void Intg_Normal (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5872,7 +5799,7 @@ double Intg_Normal_2 (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5951,7 +5878,7 @@ Boolean IsClassData (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6043,7 +5970,7 @@ Boolean IsFieldData (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6179,7 +6106,7 @@ Boolean IsProjectData (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6513,7 +6440,7 @@ Boolean ListClassesUsed (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6748,7 +6675,7 @@ Boolean ListClassFieldsUsed (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6819,7 +6746,7 @@ Boolean ListClassificationHeaderInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6950,7 +6877,7 @@ Boolean ListFieldsTitle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7035,7 +6962,7 @@ Boolean ListProjectFieldsUsed (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7131,7 +7058,7 @@ Boolean ListClassInformationMessage (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7283,7 +7210,7 @@ void LoadClassList (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7399,7 +7326,7 @@ void LoadClassPairWeightVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7459,7 +7386,7 @@ void LoadClassSymbolVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7500,7 +7427,7 @@ void LoadClassVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7605,7 +7532,7 @@ void LoadClassWeightGroups (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7711,7 +7638,7 @@ double LoadClassWeightsIntoList (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7765,7 +7692,7 @@ void LoadFieldVector (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7857,7 +7784,7 @@ void LoadSymbolList (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7921,7 +7848,7 @@ void LoadTrainClassVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8067,7 +7994,7 @@ void LockProjectMemory (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8100,7 +8027,7 @@ Boolean ModalSymbolsDialog (
 											theHandle;
 
    SInt16								fixedCellWidth = 33,
-											itemHit,
+											itemHit = 0,
 											newSymbolLength,
 											returnCode,
 											selectedCell,
@@ -8234,7 +8161,7 @@ Boolean ModalSymbolsDialog (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8278,7 +8205,7 @@ void NoClassStatsAlert (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8392,7 +8319,7 @@ SInt16 ProjectChangesPopUpMenu (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8487,7 +8414,7 @@ Boolean ProjectMenuClearStatistics (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8586,7 +8513,7 @@ void ReleaseClassifySpecsMemory (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8639,7 +8566,7 @@ void ReleaseClassInfoMemory (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8715,7 +8642,7 @@ void ReleaseFeatureExtractionSpecsMemory (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8815,7 +8742,7 @@ void ReleaseSeparabilitySpecsMemory (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8882,7 +8809,7 @@ void ReleaseStatHistogramSpecsMemory (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8934,7 +8861,7 @@ void ReleaseStatisticsEnhanceSpecsMemory (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8999,7 +8926,7 @@ SInt32 SetClassListSelections (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9119,7 +9046,7 @@ SInt16 StatHistogramPopUpMenu (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9288,7 +9215,7 @@ SInt16 StatisticsPopUpMenu (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9406,7 +9333,7 @@ SInt16 StatListPopUpMenu (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9445,7 +9372,7 @@ Boolean SymbolsDialog (
 											index,
 											stringLength;
 
-   Boolean								returnFlag;
+   Boolean								returnFlag = FALSE;
 
 
 			// Get the modal dialog for the reformat specification					
@@ -9581,7 +9508,7 @@ Boolean SymbolsDialog (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9722,7 +9649,7 @@ void UnlockProjectMemory (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9836,7 +9763,7 @@ SInt16 UpdateDialogClassWeightsInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9912,7 +9839,7 @@ void UpdateProjectClassWeights (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9961,7 +9888,7 @@ Boolean VerifyAreaDescription (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

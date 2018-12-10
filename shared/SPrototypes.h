@@ -21,7 +21,7 @@
 //	Written By:				Larry L. Biehl			Date: 03/29/1988
 //	Revised By:				Abdur Maud				Date: 06/24/2013
 //	Revised By:				Tsung Tai Yeh			Date: 09/23/2015
-//	Revised By:				Larry L. Biehl			Date: 01/05/2018 
+//	Revised By:				Larry L. Biehl			Date: 10/19/2018
 //	
 //------------------------------------------------------------------------------------
 
@@ -31,7 +31,7 @@
 #include "SGraphic.h"
 
 #if defined multispec_lin
-	#include <wx/docview.h>
+	#include "wx/docview.h"
 #endif
 
 		// Function Prototypes for those routines that are called by routines
@@ -47,7 +47,7 @@
 					char									character);
 
 	Boolean CheckSomeEvents (
-					SInt16								code);
+					UInt16								code);
 
 	void ClipRect (
 					Rect*									viewRect);
@@ -279,8 +279,8 @@
 
 //-----------------------------------------------------------------------------
 #if defined multispec_lin
-	#include <wx/combobox.h>
-	#include <wx/panel.h>
+	#include "wx/combobox.h"
+	#include "wx/panel.h"
 
 			// Linux Routines in CStubs.cpp
 		
@@ -317,7 +317,7 @@
 					char									character);
 
 	extern Boolean CheckSomeEvents (
-					SInt16								code);
+					UInt16								code);
 
 	extern void ClipRect (
 					Rect*									clipRectanglePtr);
@@ -352,7 +352,7 @@
 					MenuHandle							menuHandle,
 					SInt16								itemNumber);
 
-	extern void DisableItem (
+	extern void DisableMenuItem (
 					MenuHandle							menuHandle,
 					SInt16								itemNumber);
 
@@ -779,6 +779,16 @@
 					void*									ptr);
 
 			//	end SMemoryUtilities.cpp
+
+
+			//	Linux Routines in SStrings.cpp
+
+	extern void	GetGraphWindowTitle (
+					WindowPtr							windowPtr,
+					UCharPtr								titleStringPtr);
+
+			//	end SStrings.cpp
+
 #endif // defined multispec_lin
 
 #if defined multispec_mac || defined multispec_mac_swift
@@ -1211,6 +1221,16 @@
 				//	end MFileIO.c
 
 
+				//	Routines in MGraphView.cpp
+
+		extern void DoGraphWActivateEvent (
+						WindowPtr							windowPtr,
+						Handle								windowInfoHandle,
+						Boolean								becomingActiveFlag);
+
+				//	end MGraphView.cpp
+
+
 				//	Routines in MInitialize.c
 
 		extern Boolean CreateOutputWControls (
@@ -1305,7 +1325,7 @@
 				//	Routines in MMultiSpec.c
 
 		extern Boolean CheckSomeEvents (
-						SInt16								eventMask);
+						UInt16								eventMask);
 
 		extern void ClearCoordinates (void);
 
@@ -1567,6 +1587,8 @@
 		extern void CloseOutputWindow (
 						WindowPtr							theWindow);
 
+		extern CMGraphView* CreateGraphWindow (void);
+
 		extern Boolean CreateImageWindow (
 						Handle								windowInfoHandle,
 						Boolean								thematicWindowFlag);
@@ -1668,7 +1690,7 @@
 							char									character);
 
 			extern Boolean CheckSomeEvents (
-							SInt16								code);
+							UInt16								code);
 
 			extern void ClipRect (
 							Rect*									clipRectanglePtr);
@@ -1703,7 +1725,7 @@
 							MenuHandle							menuHandle,
 							SInt16								itemNumber);
 
-			extern void DisableItem (
+			extern void DisableMenuItem (
 							MenuHandle							menuHandle,
 							SInt16								itemNumber);
 
@@ -1720,7 +1742,7 @@
 							GraphPtr								graphRecPtr,
 							SInt32*								error);
 
-			extern void EnableItem (
+			extern void EnableMenuItem (
 							MenuHandle							menuHandle,
 							SInt16								itemNumber);
 
@@ -2355,6 +2377,13 @@ extern void CEMClassifyDialogOK (
 
 extern Boolean ClassifyDialog (
 				FileInfoPtr							fileInfoPtr);
+								
+extern Boolean ClassifyDialogGetFeatureTransformAllowedFlag (
+				SInt16								classificationProcedure,
+				UInt16								numberEigenvectors);
+								
+extern Boolean ClassifyDialogGetThresholdAllowedFlag (
+				SInt16								classificationProcedure);
 
 extern void ClassifyDialogInitialize (
 				DialogPtr							dialogPtr,
@@ -2455,6 +2484,12 @@ extern SInt16 ClassifyDialogOnClassificationProcedure (
 				UInt16*								classifyProcedureEnteredCodePtr,
 				Boolean								optionKeyFlag);
 	                
+extern void ClassifyDialogOnOverlay (
+				DialogPtr							dialogPtr,
+				SInt16								fileNamesSelection,
+				Handle								targetWindowInfoHandle,
+				Boolean*								createImageOverlayFlagPtr);
+	                
 extern SInt16 ClassifyDialogOnTargetFile (
 				DialogPtr							dialogPtr,
 				SInt16								fileNamesSelection,
@@ -2462,17 +2497,36 @@ extern SInt16 ClassifyDialogOnTargetFile (
 				Boolean*								checkOKFlagPtr,
 				DialogSelectArea*					dialogSelectAreaPtr,
 				Boolean*								createImageOverlayFlagPtr);
+								
+extern Boolean ClassifyDialogSetLeaveOneOutItems (
+				DialogPtr							dialogPtr,
+				SInt16								classificationProcedure,
+				SInt16								fileNamesSelection,
+				Boolean								userLeaveOneOutFlag,
+				Boolean								trainingFieldExistFlag,
+				Boolean*								leaveOneOutSettingFlagPtr);
                     
 extern void ClassifyDialogSetPaletteItems (
 				DialogPtr							dialogPtr,
 				SInt16								outputFormatCode,
 				Boolean								createImageOverlayFlag);
-	                
-extern void ClassifyDialogOnOverlay (
+								
+extern Boolean ClassifyDialogSetThresholdItems (
 				DialogPtr							dialogPtr,
-				SInt16								fileNamesSelection,
-				Handle								targetWindowInfoHandle,
-				Boolean*								createImageOverlayFlagPtr);
+				SInt16								classificationProcedure,
+				Boolean								classifyImageAreaFlag,
+				Boolean								createProbabilityFileFlag,
+				Boolean								thresholdResultsFlag,
+				Boolean								thresholdAllowedFlag);
+				
+extern Boolean EchoClassifyDialog (void);
+
+extern void ListResultsOptionsDialog (
+				SInt16*								listResultsTrainingCode, 
+				SInt16*								listResultsTestCode);
+								
+extern void SetUpPalettePopUpMenu (
+				DialogPtr							dialogPtr);
 
 		// end SClassifyDialogs.cpp    	
 
@@ -3460,6 +3514,11 @@ extern void LoadClassGroupVector (
 				UInt32								numberGroups,
 				SInt16								classGroupCode);
 
+extern void LoadLocalClassGroupDisplayInfo (
+				DisplaySpecsPtr					displaySpecsPtr,
+				FileInfoPtr							fileInfoPtr, 
+				SInt16*								localClassGroupsPtr);
+
 extern void LoadThematicClassNamesIntoList (
 				ListHandle							listHandle);
 
@@ -3907,7 +3966,11 @@ extern void ChannelCombinationsDialogInitialize (
 
 extern Boolean ChannelCombinationsDialogLoadList (
 				DialogPtr							dialogPtr,
-				ListHandle							dialogListHandle,
+				#if defined multispec_lin
+					wxListBox*							dialogListHandle,
+				#else
+					ListHandle							dialogListHandle,
+				#endif
 				UInt16								numberOutputChannelCombinations, 
 				UInt16* 								channelCombinationsPtr, 
 				UInt32								numberInputChannelCombinations, 
@@ -4389,6 +4452,10 @@ extern void* GetFileNamePPointerFromFileStream (
 				CMFileStream*						fileStreamPtr,
 				SInt16								returnCode);
 
+extern SInt16 GetFilePathFromFSRef (
+				FSRef*								fileAsFSRefPtr,
+				StringPtr							filePathPtr);
+
 extern void* GetFilePathPPointerFromFileInfo (
 				FileInfoPtr							fileInfoPtr);
 
@@ -4413,9 +4480,6 @@ extern SInt64 GetFilePositionOffset (
 				UInt32*								numberSamplesPtr,
 				UInt32*								countPtr,
 				Boolean*								endHalfBytePtr);
-
-extern UInt32 GetFileSize (
-				CMFileStream*						fileStreamPtr);
 
 extern SInt32 GetFileType (
 				CMFileStream*						fileStreamPtr);
@@ -4830,6 +4894,11 @@ extern SInt16 GetTIFFASCIIParameters (
 				char*									stringPtr,
 				SInt32								numberCharacters);
 
+extern void GetTIFFImageDescription (
+				FileInfoPtr							fileInfoPtr,
+				char*									imageDescriptionStringPtr,
+				UInt32								stringLengthLimit);
+
 extern UInt32 GetTIFFNumberHeaderBytes (
 				FileInfoPtr							fileInfoPtr);
 
@@ -4866,8 +4935,6 @@ extern Boolean CheckGraphVectorsSize (
 extern Boolean CheckSomeGraphWindowEvents (
 				GraphPtr								graphRecordPtr);
 
-extern CMGraphView* CreateGraphWindow (void);
-
 extern void CloseGraphWindow (
 				WindowPtr							windowPtr);
 
@@ -4885,11 +4952,6 @@ extern Boolean CreateGraph (
 
 extern void DisposeOfGraphRecordMemory (
 				GraphPtr								graphRecordPtr);
-
-extern void DoGraphWActivateEvent (
-				WindowPtr							windowPtr,
-				Handle								windowInfoHandle,
-				Boolean								becomingActiveFlag);
 
 extern Boolean DoGraphWindowEdit (
 				SInt16								menuItem);
@@ -4922,6 +4984,9 @@ extern void DrawGraphGrowIcon (
 
 extern void ForceGraphCodeResourceLoad (void);
 
+extern void GetGraphLabels (
+				GraphPtr								graphRecPtr);
+
 extern Handle GetGraphRecordHandle (
 				WindowPtr							window);
 
@@ -4940,11 +5005,18 @@ extern GraphPtr GetGraphRecordPtr (
 
 extern void GetGraphWindowLocation (
 				SInt16*								xSizePtr,
-				SInt16*								ySizePtr);
+				SInt16*								ySizePtr);	
+
+extern WindowPtr GetSelectionGraphImageWindow (
+				CMGraphView*						graphViewCPtr);
 
 extern PascalVoid GraphChangeSetControlEvent (
 				ControlHandle						theControl,
 				SInt16								partCode);
+					
+extern void InvalidateGraphWindow (
+				WindowPtr							windowPtr,
+				SInt16								areaCode);
 
 extern void ListBinWidthValue (
 				GraphPtr								graphRecordPtr,
@@ -4957,7 +5029,9 @@ extern void LoadGraphSupportArrays (
 extern Boolean LoadGraphXVector (
 				GraphPtr								graphRecordPtr,
 				SInt16*								channelListPtr,
-				SInt32								vectorLength);
+				SInt32								channelListLength,
+				SInt32								vectorLength,
+				SInt16*								inputChannelWavelengthOrderPtr);
 
 extern void LoadGraphYVector (
 				GraphPtr								graphRecordPtr,
@@ -4970,8 +5044,20 @@ extern void LoadGraphYVector2 (
 				ChannelStatisticsPtr				channelStatsPtr,
 				UInt32								vectorLength);
 
+extern void MSetGraphWindowTitle (
+				CMGraphView*						graphViewCPtr,
+				StringPtr							titleStringPtr);
+
+extern void ReloadXAxis (
+				GraphPtr								graphRecordPtr,
+				int									xAxisSelection);
+
 extern void SetGraphMinMax (
 				GraphPtr								graphRecordPtr,
+				SInt16								axisCode);
+
+extern void SetGraphMinMax (
+				Handle								windowInfoHandle,
 				SInt16								axisCode);
 
 extern void SetGraphWindowTitle (
@@ -5001,12 +5087,24 @@ extern void SetUpVectorPopUpMenu (
 				CMGraphView*						graphViewCPtr,
 				MenuHandle							popUpMenuHandle);
 
+extern SInt16 SetUpXAxisPopUpMenu (
+				GraphPtr								graphRecordPtr,
+				MenuHandle							popUpMenuHandle);
+
 extern void SetVectorDisplayList (
 				CMGraphView*						graphViewCPtr,
 				SInt16								vectorSelection);
 
+extern void SetXAxisDescriptionInfo (
+				GraphPtr								graphRecordPtr,
+				WindowInfoPtr						windowInfoPtr,
+				FileInfoPtr							fileInfoPtr);
+
 extern void UpdateGraphControls (
 				WindowPtr							windowPtr);
+
+extern void	UpdateGraphScales (
+				Handle								graphRecordHandle);
 
 extern void VerifyNeedForSelectVectorControl (
 				WindowPtr							windowPtr);
@@ -6522,6 +6620,19 @@ extern SInt16 GetPopUpMenuBitsPerDataValue (
 
 extern Boolean GetRectangularSelectionFlag (void);
 
+extern void MAppendMenuItemText (
+				MenuRef								theMenu,
+				UInt8*								itemStringPascalPtr);
+
+extern void MCheckMenuItem (
+				MenuRef								theMenu,
+				int									menuItem,
+				Boolean								checkFlag);
+
+extern void MDisableMenuItem (
+				MenuRef								theMenu,
+				int									menuItem);
+
 extern void MSetMenuItemText (
 				MenuRef								theMenu,
 				MenuItemIndex						menuIndex,
@@ -6934,12 +7045,23 @@ extern Boolean CreatePalette (
 				Handle								windowInfoHandle,
 				DisplaySpecsPtr					displaySpecsPtr,
 				SInt16								windowType);
+								
+extern Boolean DetermineIfFalseColorAvailable (
+				SInt16								fileFormat,
+				UInt32								numberClasses,
+				Handle								classDescriptionH);
 
 extern void DrawPalette (void);
 
 extern PascalVoid DrawPalettePopUp (
 				DialogPtr							dialogPtr,
 				SInt16								itemNumber);
+				
+extern SInt16 FalseColorCheckColorChannel (
+				DialogPtr							dialogPtr,
+				SInt16								itemNumber,
+				SInt32								itemValue,
+				SInt16*								channelIndexPtr);
 
 extern Boolean FalseColorPaletteDialog (void);
 
@@ -6986,6 +7108,8 @@ extern Boolean LoadColorSpecTable (
 				UInt32								numberClasses,
 				SInt16								classGroupCode,
 				UInt16*								paletteCodePtr);
+								
+extern void LoadDefaultProjectFalseColorChannels (void);
 
 extern void LoadTwoBytePalette (
 				ColorSpec*							colorSpecPtr,
@@ -7018,7 +7142,7 @@ extern void SetPaletteSpecification (
 				SInt16								paletteSelection,
 				Boolean								paletteUpToDateFlag);
 
-extern void SetUpPalettePopUpMenu (
+extern SInt16 SetUpPalettePopUpMenu (
 				DialogPtr							dialogPtr,
 				MenuHandle							popUpPaletteMenu,
 				SInt16								fileFormat,
@@ -7027,7 +7151,8 @@ extern void SetUpPalettePopUpMenu (
 				Handle								channelDescriptionH,
 				UInt32								colorTableOffset,
 				DisplaySpecsPtr					displaySpecsPtr,
-				SInt16								classGroupCode);
+				SInt16								classGroupCode,
+				SInt16								inputPaletteSelection);
 
 extern void UpdateActiveImageLegend (
 				SInt16								classGroupCode,
@@ -7621,12 +7746,113 @@ extern SInt16 ClassPairWeightsDialog (
 				SInt16								interClassWeightsSelection,
 				SInt16*								defaultClassPairWeightPtr);
 
+extern void ClassPairWeightsDialogChangeWeight (
+				DialogPtr							dialogPtr,
+				#if defined multispec_lin
+					wxListBox*							classListHandle,
+					wxListBox*							weightListHandle,
+				#else
+					ListHandle							classListHandle,
+					ListHandle							weightListHandle,
+				#endif
+				SInt16								newWeight);
+
+extern SInt16 ClassPairWeightsDialogClassSelectionChange (
+				DialogPtr							dialogPtr,
+				#if defined multispec_lin
+					wxListBox*							listHandle,
+				#else
+					ListHandle							listHandle,
+				#endif
+				SInt16								newWeight);
+
+extern void ClassPairWeightsDialogInitialize (
+				DialogPtr							dialogPtr,
+				SInt16								defaultClassPairWeight,
+				SInt16*								localDefaultClassPairWeightPtr);
+				
+extern void ClassPairWeightsDialogOK (
+				DialogPtr							dialogPtr,
+				#if defined multispec_lin
+					wxListBox*							listHandle,
+				#else
+					ListHandle							listHandle,
+				#endif
+				SInt16**								weightsListPtrPtr,
+				SInt16*								interClassWeightsSelectionPtr,
+				SInt16								localDefaultClassPairWeight,
+				SInt16*								defaultClassPairWeightPtr);
+
+extern SInt16 ClassPairWeightsDialogRemoveWeightSelection (
+				DialogPtr							dialogPtr,
+				#if defined multispec_lin
+					wxListBox*							listHandle,
+				#else
+					ListHandle							listHandle,
+				#endif
+				SInt16								selectedWeightGroupCell);
+
+extern SInt16 ClassPairWeightsDialogWeightSelectionChange(
+				DialogPtr							dialogPtr,
+				#if defined multispec_lin
+					wxListBox*							listHandle);
+				#else
+					ListHandle							listHandle);
+				#endif
+
 extern SInt16 ClassWeightsDialog (
 				UInt16								numberOfClassesToUse,
 				SInt16*								classPtr,
 				float*								weightsPtr,
 				SInt16								weightsSelection,
 				Boolean								useEnhancedStatFlag);
+
+extern double ClassWeightsDialogChangeWeights (
+				DialogPtr							dialogPtr,
+				#if defined multispec_lin
+					wxListBox*							listHandle,
+				#else
+					ListHandle							listHandle,
+				#endif
+				double*								weightSumPtr,
+				double								newWeight,
+				SInt16								okItemNumber);
+
+extern SInt16 ClassWeightsDialogClassSelectionChange (
+				DialogPtr							dialogPtr,
+				#if defined multispec_lin
+					wxListBox*							listHandle,
+				#else
+					ListHandle							listHandle,
+				#endif
+				double								newWeight);
+
+
+extern SInt16 ClassWeightsDialogOK (
+				DialogPtr							dialogPtr,
+				#if defined multispec_lin
+					wxListBox*							listHandle,
+				#else
+					ListHandle							listHandle,
+				#endif
+				UInt16								numberOfClassesToUse,
+				SInt16*								classPtr,
+				float*								weightsPtr);
+
+extern void ClassWeightsDialogInitialize (
+				DialogPtr							dialogPtr,
+				SInt16*								weightUnitsPtr);
+
+extern void ClassWeightsDialogSetEqualWeights (
+				DialogPtr							dialogPtr,
+				#if defined multispec_lin
+					wxListBox*							listHandle,
+				#else
+					ListHandle							listHandle,
+				#endif
+				double*								weightSumPtr,
+				double								defaultEqualWeight,
+				SInt16								okItemNumber);
 
 extern void ClearGlobalAlertVariables (void);
 
@@ -7860,6 +8086,17 @@ extern void LoadClassVector (
 				UInt32*								numberClassesPtr,
 				SInt16*								classPtr);
 
+extern double LoadClassWeightsIntoList (
+				#if defined multispec_lin
+					wxListBox*							listHandle,
+				#else
+					ListHandle							listHandle,
+				#endif
+				UInt16								numberOfClassesToUse,
+				SInt16*								classPtr,
+				float*								weightsPtr,
+				Boolean								useEnhancedStatFlag);
+
 extern void LoadFieldVector (
 				UInt16*								numberFieldsPtr,
 				SInt16*								fieldPtr,
@@ -8028,7 +8265,8 @@ extern SInt16 LoadHDF4Information (
 extern SInt16 SetUpHDF_FileInformation (
 				FileInfoPtr							fileInfoPtr,
 				HdfDataSets*						hdfDataSetsPtr,
-				SInt32								dataSetIndex);
+				SInt32								dataSetIndex,
+				Boolean								useGroupedDataSetsFlag);
 
 		// end SReadHDFHeader.cpp 
 
@@ -8118,6 +8356,11 @@ extern Boolean GetReformatOutputFile (
 extern Boolean ListReformatResultsInformation (
 				ReformatOptionsPtr				reformatOptionsPtr,
 				FileInfoPtr							outFileInfoPtr);
+
+extern void LoadDescriptionIntoDItem (
+				DialogPtr 							dialogPtr, 
+				SInt16	 							itemNumber, 
+				ChannelDescriptionPtr 			channelDescriptionPtr);
 
 extern void ModifyChannelDescriptions (
 				SInt16								requestedProcedure);
@@ -8263,11 +8506,17 @@ extern void WriteTransformationFile (void);
 
 		// Routines in SSelectionGraph.cpp
 
+extern void HandleSelectionGraphImageWindowClosing  (
+				WindowPtr							theWindow);
+
 extern void ShowGraphWindowSelection (
 				Handle								oldSelectionGraphRecHandle);
 
 extern Boolean SelectionGraphControl (
-				CMGraphView*						newSelectionGraphViewCPtr);
+				CMGraphView*						newSelectionGraphViewCPtr);	
+
+extern void SetDefaultSelectionGraphWindowTitle (
+				CMGraphView*						graphViewCPtr);
 
 		//	end SSelectionGraph.cpp
 
@@ -8616,6 +8865,18 @@ extern void LoadRectangleInStatList (
 extern Boolean LOOCOptionsDialog (
 				SInt16								statsWindowMode);
 
+extern void LOOCOptionsDialogInitialize (
+				DialogPtr							dialogPtr,
+				SInt16								statsWindowMode,
+				SInt16*								mixingParameterCodePtr,
+				double*								loocMixingParameterPtr,
+				double*								userMixingParameterPtr);
+
+extern void LOOCOptionsDialogOK (
+				SInt16								statsWindowMode,
+				SInt16								mixingParameterCode,
+				double								userMixingParameter);
+
 extern Boolean NewClassFieldDialog (
 				Boolean								newClassOnlyFlag,
 				UCharPtr								classNamePtr,
@@ -8742,7 +9003,8 @@ wchar_t* ConvertMultibyteStringToUnicodeString (
 void ConvertUnicodeStringToMultibyteString (
 				wchar_t*								inputUnicodeStringPtr,
 				UCharPtr								outputUTF8StringPtr,
-				UInt16								numberCharacters);		// default is 0
+				UInt16								numberCharacters,
+				SInt16*								outputStringLengthPtr);
 
 extern void CopyPToP (
 				UCharPtr								p1,
@@ -8807,6 +9069,10 @@ extern char* GetStringToComma (
 				char*									inputStringEndPtr,
 				char*									stringPtr,
 				SInt16								maxStringLength);
+
+extern void GetWindowTitle (
+				WindowPtr							windowPtr,
+				UCharPtr								titleStringPtr);
 
 extern void InitializeDateVersionStrings (void);
 
@@ -9927,7 +10193,13 @@ extern Handle GetFileMapProjectionHandle2 (
 extern CMFileStream* GetFileStreamPointer (
 				Handle								windowInfoHandle,
 				SignedByte*							handleStatusPtr);
+/*
+extern Boolean GetHasWavelengthValuesFlag (
+				WindowPtr 							windowPtr);
 
+extern Boolean GetHasWavelengthValuesFlag (
+				Handle 								windowInfoHandle);
+*/
 extern Handle GetHistogramSpecsHandle (
 				Handle								windowInfoHandle);
 
@@ -10104,7 +10376,11 @@ extern void SetCoordinateViewUnits (
 extern void SetCoordinateViewUnitsControl (
 				Handle								windowInfoHandle,
 				ControlHandle						coordinateUnitsControl);
-
+/*
+extern void SetHasWavelengthValuesFlag (
+				Handle 								windowInfoHandle,
+				Boolean								hasWavelengthValuesFlag);
+*/
 extern void SetHistogramSpecsHandle (
 				WindowInfoPtr						windowInfoPtr,
 				Handle								histogramSpecsHandle);

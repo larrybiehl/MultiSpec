@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -19,7 +19,7 @@
 //
 //	Brief description:	definition for CMGraphView class
 //
-//	Revised By:				Larry L. Biehl			Date: 12/20/2017
+//	Revised By:				Larry L. Biehl			Date: 03/15/2018
 //
 // **Note:					This file needs to be split into Mac and Windows files. It
 //								is too confusing to try to make all work in one file.
@@ -32,7 +32,7 @@
 #if defined multispec_lin
 	#include "SMultiSpec.h"
 #endif
-
+/*
 typedef struct SelectionIOInfo
 	{
 	Handle				channelStatsHandle;
@@ -56,7 +56,7 @@ typedef struct SelectionIOInfo
 	Boolean				memoryWarningFlag;
 	
 	} SelectionIOInfo, *SelectionIOInfoPtr;                              
-       
+*/       
 
 #ifndef multispec_lin
 	#if defined multispec_win
@@ -140,17 +140,22 @@ typedef struct SelectionIOInfo
 				// Generated message map functions 
 			
 		//{{AFX_MSG(CMGraphView)
-		afx_msg int OnCreate (LPCREATESTRUCT lpCreateStruct);
+		afx_msg int			OnCreate (LPCREATESTRUCT lpCreateStruct);
 		afx_msg void 		OnUpdateFileSaveAs (CCmdUI* pCmdUI);
-		afx_msg void OnDestroy ();
-		afx_msg void OnUpdateEditCopy (CCmdUI* pCmdUI);
-		afx_msg void OnEditCopy ();
-		afx_msg void OnNextChannel ();
-		afx_msg void OnPreviousChannel ();
-		afx_msg void OnLines ();
-		afx_msg void OnSize (UINT nType, int cx, int cy);
+		afx_msg void		OnDestroy ();
+		afx_msg void		OnUpdateEditCopy (CCmdUI* pCmdUI);
+		afx_msg void		OnEditCopy ();
+		afx_msg void		OnNextChannel ();
+		afx_msg void		OnPreviousChannel ();
+		afx_msg void		OnLines ();
+		afx_msg void		OnSize (UINT nType, int cx, int cy);
+		afx_msg void		OnDropdownXAxisDropList ();
+		afx_msg void		OnSelendokXAxisDropList ();
 		//}}AFX_MSG
 		DECLARE_MESSAGE_MAP() 
+
+		CDataExchange		*m_dialogFromPtr,
+								*m_dialogToPtr; 
 
 	// Form Data
 	public: 
@@ -161,6 +166,7 @@ typedef struct SelectionIOInfo
 		CMGraphViewButton				m_selectVectors;
 		CMGraphViewButton				m_overlayControl;
 		CMGraphViewButton				m_binWidth;
+		int								m_xAxisSelection;
 		//}}AFX_DATA
 				
 		public: 
@@ -179,6 +185,8 @@ typedef struct SelectionIOInfo
 			CMenu*				GetSelectVectorPopupMenu ();
 			
 			CMenu*				GetBinWidthPopupMenu ();
+			
+			CMenu*				GetXAxisPopupMenu ();
 
 			Boolean				UpdateGraphControls (void);
 
@@ -263,11 +271,11 @@ typedef struct SelectionIOInfo
 	
 				// This structure contains the rectangle to be updated in the current window.
 	
-			static RECT			s_updateRect;
+			static RECT					s_updateRect;
 			
-			CMenu*								m_graphOverlayMenu;
-			CMenu*								m_selectVectorMenu;
-			CMenu*								m_binWidthMenu;
+			CMenu							*m_binWidthMenu,
+											*m_graphOverlayMenu,
+											*m_selectVectorMenu;
 		#endif	// defined multispec_win  
 							
 	};  

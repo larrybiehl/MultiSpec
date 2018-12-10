@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			01/04/2018
+//	Revision date:			12/07/2018
 //
 //	Language:				C
 //
@@ -245,7 +245,7 @@ Boolean 	LoadClusterSpecs (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -351,7 +351,7 @@ SInt16 CheckIfTextForTextWindowIsWithinLimits (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -553,10 +553,10 @@ Boolean ClusterClassification (
 		continueFlag = MGetString (gTextString2, kFileIOStrID, IDS_NumberClasses);
 		
 		sprintf ((char*)gTextString, 
-					"%s%s %hd%s", 
+					"%s%s %d%s",
 					gEndOfLine, 
 					&gTextString2[1], 
-					numberClusters+1,
+					(int)(numberClusters+1),
 					gEndOfLine);
 		continueFlag = OutputString (clResultsFileStreamPtr,
 												(char*)gTextString, 
@@ -1064,7 +1064,7 @@ Boolean ClusterClassification (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1082,7 +1082,7 @@ Boolean ClusterClassification (
 // Called By:			Menus in menus.c
 //
 //	Coded By:			Larry L. Biehl			Date: 09/12/1989
-//	Revised By:			Larry L. Biehl			Date: 10/31/2017
+//	Revised By:			Larry L. Biehl			Date: 12/07/2018
 
 void ClusterControl (void)
 
@@ -1211,7 +1211,7 @@ void ClusterControl (void)
 							gClusterSpecsPtr->projectClassMeansCode == 1 &&
 									continueFlag)
 					{
-					gProjectInfoPtr->numberStatTrainClasses;
+					//gProjectInfoPtr->numberStatTrainClasses;
 					SInt16* initializationClassPtr = (SInt16*)GetHandlePointer (
 													gClusterSpecsPtr->initializationClassHandle);
 														
@@ -1427,7 +1427,12 @@ void ClusterControl (void)
 		CheckAndUnlockHandle (gNonProjProcessorSpecs.clusterSpecsH);
 		gClusterSpecsPtr = NULL;
 		
-		UnlockProjectWindowInfoHandles (); 
+		UnlockProjectWindowInfoHandles ();
+		
+				// Make sure the cancel operation flag is off since the routine is now
+				// done.
+		
+		gOperationCanceledFlag = FALSE;
 		
 		}	// end "if (GetProjectImageFileInfo (..." 
 			
@@ -1460,7 +1465,7 @@ void ClusterControl (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1483,7 +1488,7 @@ void ClusterControl (void)
 // Called By:			ClusterControl   in cluster.c
 //
 //	Coded By:			Larry L. Biehl			Date: 09/14/1989
-//	Revised By:			Larry L. Biehl			Date: 07/24/2015
+//	Revised By:			Larry L. Biehl			Date: 10/22/2018
 
 Boolean ClusterDialog (
 				FileInfoPtr							fileInfoPtr, 
@@ -2134,7 +2139,8 @@ Boolean ClusterDialog (
 		CMClusterDialog* dialogPtr = NULL;
 
 
-		dialogPtr = new CMClusterDialog (wxTheApp->GetTopWindow ());
+		//dialogPtr = new CMClusterDialog (wxTheApp->GetTopWindow ());
+		dialogPtr = new CMClusterDialog (NULL);
 
 		returnFlag = dialogPtr->DoDialog (newProjectFlag);
 
@@ -2148,7 +2154,7 @@ Boolean ClusterDialog (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2483,7 +2489,7 @@ void ClusterDialogInitialize (
 		
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2553,7 +2559,7 @@ void ClusterDialogItems9to11 (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2735,7 +2741,7 @@ void 	ClusterDialogOK (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2757,7 +2763,7 @@ void 	ClusterDialogOK (
 //							ClusterOnePassControl in SClustSP.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/12/1999
-//	Revised By:			Larry L. Biehl			Date: 09/01/2017
+//	Revised By:			Larry L. Biehl			Date: 05/18/2018
 
 Boolean CreateClusterMaskFile (void)
 
@@ -2848,14 +2854,6 @@ Boolean CreateClusterMaskFile (void)
 										maskFileCNamePtr,
 										TRUE,
 										kUTF8CharString);
-	
-			//	Title for creating background image.										
-
-	LoadDItemStringNumber (kClusterStrID,
-									IDS_Cluster46,	// "\pCreating Cluster Mask Background"
-									gStatusDialogPtr, 
-									IDC_Status11,
-									(Str255*)gTextString);
 				
 			// Create the base Thematic Image file with all background values.	
 			
@@ -2871,13 +2869,21 @@ Boolean CreateClusterMaskFile (void)
 
 	if (continueFlag)
 		{
-		LoadDItemStringNumber (kReformatStrID,
+		LoadDItemStringNumber (kClusterStrID,
 										IDS_Cluster47,		// "\pCreating Cluster Mask File"
 										gStatusDialogPtr, 
 										IDC_Status11,
 										(Str255*)gTextString); 
-										
-		ShowStatusDialogItemSet (kStatusClassA);
+		
+		if (gClusterSpecsPtr->totalNumberAreas > 1)
+			{
+			ShowStatusDialogItemSet (kStatusClassA);
+			LoadDItemValue (gStatusDialogPtr,
+									IDC_Status5,
+									(SInt32)gClusterSpecsPtr->totalNumberAreas);
+			
+			}	// end "if (gClusterSpecsPtr->totalNumberAreas > 1)"
+		
 		ShowStatusDialogItemSet (kStatusField);
 		
 		CheckSomeEvents (updateMask);
@@ -2954,6 +2960,14 @@ Boolean CreateClusterMaskFile (void)
 						// Initialize status variables.												
 						
 				lineCount = 0;
+				
+				if (totalNumberAreas > 1)
+					{
+					LoadDItemValue (gStatusDialogPtr, IDC_Status3, (SInt32)areaNumber);
+					
+					CheckSomeEvents (mUpMask);
+					
+					}	// end "if (totalNumberAreas > 1)"
 				
 						// Get information for next cluster area.									
 						
@@ -3198,6 +3212,8 @@ Boolean CreateClusterMaskFile (void)
 			  	if (continueFlag && firstLineCode != 1)	
 					LoadDItemValue (gStatusDialogPtr, IDC_Status8, lineCount);
 				
+				CheckSomeEvents (mUpMask);
+				
 						// Close up any File IO Instructions structure that pertain to the 
 						// specific area used for the list data.
 						
@@ -3261,16 +3277,13 @@ Boolean CreateClusterMaskFile (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		Boolean CreateMaskFileClassNames
 //
-//	Software purpose:	The purpose of this routine is to update the standard
-//							deviations for the clusters.  A new standard deviation
-//							will be computed base on the latest counts, sums and sums of
-//							squares.
+//	Software purpose:	The purpose of this routine is to create the cluster class names.
 //
 //	Parameters in:		ClusterType structure pointer
 //
@@ -3282,7 +3295,7 @@ Boolean CreateClusterMaskFile (void)
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 10/05/2000
-//	Revised By:			Larry L. Biehl			Date: 10/02/2013	
+//	Revised By:			Larry L. Biehl			Date: 05/16/2018
 
 Boolean CreateMaskFileClassNames (
 				FileInfoPtr							maskFileInfoPtr,
@@ -3329,7 +3342,8 @@ Boolean CreateMaskFileClassNames (
 		
 					// Add project class name if needed.
 			
-			if (gClusterSpecsPtr->projectClassMeansCode == 1 &&
+			if (cluster != NULL &&
+					gClusterSpecsPtr->projectClassMeansCode == 1 &&
 															cluster->projectStatClassNumber >= 0)
 				{
 				classStorage = gProjectInfoPtr->storageClass[
@@ -3344,7 +3358,8 @@ Boolean CreateMaskFileClassNames (
 				
 				}	// end "if (gClusterSpecsPtr->projectClassMeansCode == 1 && ..."
 		
-			cluster = cluster->next;
+			if (cluster != NULL)
+				cluster = cluster->next;
 				
 			classNamePtr[0] = (SInt8)stringLength;
 			
@@ -3363,7 +3378,7 @@ Boolean CreateMaskFileClassNames (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3418,7 +3433,7 @@ SInt32 DeleteCluster (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3501,7 +3516,7 @@ SInt16 DeleteSpecifiedClusters (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3543,7 +3558,7 @@ pascal void DrawClusterDiskFilePopUp (
            
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3585,7 +3600,7 @@ pascal void DrawSaveStatsPopUp (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3649,7 +3664,7 @@ SInt32 FindSmallestCluster (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3749,7 +3764,7 @@ double GetAverageChannelStandardDev (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4138,8 +4153,12 @@ Boolean GetClusterAreaStatistics (
 	  			
 	  		}	// end "for (line=lineStart; line<=lineEnd; ...)" 
 	  	
-	  	if (continueFlag && firstLineCode != 1)	
+	  	if (continueFlag && firstLineCode != 1)
+			{
 			LoadDItemValue (gStatusDialogPtr, IDC_Status8, lineCount);
+			CheckSomeEvents (updateMask);
+			
+			}	// end "if (continueFlag && firstLineCode != 1)"
 		
 				// Close up any File IO Instructions structure that pertain to the 
 				// specific area used for the list data.
@@ -4164,7 +4183,7 @@ Boolean GetClusterAreaStatistics (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4191,7 +4210,7 @@ Boolean GetClusterAreaStatistics (
 // Called By:			SaveClusterStatistics in SCluster.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 03/18/1991
-//	Revised By:			Larry L. Biehl			Date: 10/25/1999	
+//	Revised By:			Larry L. Biehl			Date: 05/18/2018
 
 Boolean GetClusterProjectStatistics (
 				FileIOInstructionsPtr			fileIOInstructionsPtr,  
@@ -4243,6 +4262,8 @@ Boolean GetClusterProjectStatistics (
 		ShowStatusDialogItemSet (kStatusMinutes);
 		
 		}	// end "if (gClusterSpecsPtr->clustersFrom == kAreaType)" 
+		
+	CheckSomeEvents (updateMask);
 													
 			// Initialize the memory for the class or field statistics. 		
 	
@@ -4315,7 +4336,7 @@ Boolean GetClusterProjectStatistics (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4377,7 +4398,7 @@ SInt16 GetMeanStdDevLength (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4512,7 +4533,7 @@ Boolean GetNextClusterArea (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4586,7 +4607,7 @@ void GetMinimumAndMaximumValueForListing (
 			
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4724,7 +4745,7 @@ Boolean GetProbabilityFile (
 				
 				}	// end "if (continueFlag)" 
 			
-			}	while (continueFlag & stringCompare != 0);
+			}	while (continueFlag && (stringCompare != 0));
 			
 		CheckAndUnlockHandle (*probabilityFileInfoHPtr);
 
@@ -4741,7 +4762,7 @@ Boolean GetProbabilityFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4876,7 +4897,7 @@ Boolean InitializeClusterMemory (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4940,7 +4961,7 @@ void KeepLargestClusters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5306,7 +5327,7 @@ Boolean ListClusterInputParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5332,7 +5353,7 @@ Boolean ListClusterInputParameters (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 08/08/1990
-//	Revised By:			Larry L. Biehl			Date: 09/05/2017
+//	Revised By:			Larry L. Biehl			Date: 03/12/2018
 
 Boolean ListClusterStatistics (
 				CMFileStream*						clResultsFileStreamPtr, 
@@ -5594,7 +5615,7 @@ Boolean ListClusterStatistics (
 	tempInteger = characterIncrement - 1;
 	for (channel=0; channel<numberChannels; channel++)
 		{
-		sprintf (stringPtr1, "\t%*hd", tempInteger, channelsPtr[channel]+1);
+		sprintf (stringPtr1, "\t%*d", tempInteger, (int)(channelsPtr[channel]+1));
 		stringPtr1 += characterIncrement;
 										
 		}	// end "for (channel=0; channel<numberChannels; channel++)"
@@ -5779,9 +5800,9 @@ Boolean ListClusterStatistics (
 		for (channel=0; channel<numberChannels; channel++)
 			{
 			numChars = sprintf (stringPtr1, 
-										"\t%*hd", 
+										"\t%*d",
 										tempInteger, 
-										channelsPtr[channel]+1);
+										(int)(channelsPtr[channel]+1));
 			stringPtr1 += numChars;
 											
 			}	// end "for (channel=0; channel<numberChannels; channel++)" 
@@ -5899,7 +5920,7 @@ Boolean ListClusterStatistics (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6304,7 +6325,7 @@ Boolean LoadClusterSpecs (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6526,6 +6547,9 @@ Boolean SaveClusterStatistics (
 				// covariance matrices.															
 		
 		cluster = gClusterSpecsPtr->clusterHead;
+		if (cluster == NULL)
+																							return (FALSE);
+
 		classNamesPtr = gProjectInfoPtr->classNamesPtr;
 		
 		numberChannels = gProjectInfoPtr->numberStatisticsChannels;
@@ -6537,7 +6561,6 @@ Boolean SaveClusterStatistics (
 												&sumSquaresStatsPtr,
 												NULL,
 												NULL);
-		
 		
   		classStorage = savedClassStorage;
 		for (classIndex=1; classIndex<=numberClasses; classIndex++)
@@ -6609,7 +6632,7 @@ Boolean SaveClusterStatistics (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6696,7 +6719,7 @@ Boolean SetUpClassToFinalClassPtr (void)
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6733,7 +6756,7 @@ pascal void SpinCursorTimer (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //

@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//							 Copyright (1988-2017)
+//							 Copyright (1988-2018)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			12/21/2017
+//	Revision date:			10/17/2018
 //
 //	Language:				C
 //
@@ -84,7 +84,7 @@ Boolean						CheckIfHDF5FormattedFile (
 
 #if include_gdal_capability
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -153,7 +153,7 @@ Boolean CheckIfHDF5FormattedFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -203,7 +203,7 @@ void AppendGroupIndicater (
 		
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -290,7 +290,7 @@ void CreateFullDataSetIdentifierName (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -349,7 +349,7 @@ Boolean DetermineIfHDFProjectPossible (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -463,7 +463,7 @@ SInt16 DisplayHDFAlerts (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -471,7 +471,7 @@ SInt16 DisplayHDFAlerts (
 //
 //	Software purpose:	This routine returns the specified hdf data set channel number.
 //							It will take into account whether this is part of a group of 
-//							data sets.
+//							data sets. This is currently only used for ASTER image files.
 //
 //	Parameters in:					
 //
@@ -482,13 +482,14 @@ SInt16 DisplayHDFAlerts (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 03/28/2005
-//	Revised By:			Larry L. Biehl			Date: 12/16/2005
+//	Revised By:			Larry L. Biehl			Date: 09/11/2018
 
 UInt16 GetHdfDataSetInstrumentChannelNumber (
 				FileInfoPtr 						fileInfoPtr,
 				UInt16								fileChannelNumber)
 
 {	
+	UInt16*								channelToHdfDataSetPtr;
 	HdfDataSets*						hdfDataSetsPtr;
 	
 	SInt16								hdfDataSetIndex,
@@ -507,22 +508,43 @@ UInt16 GetHdfDataSetInstrumentChannelNumber (
 	if (hdfDataSetsPtr != NULL && 
 						(fileInfoPtr->numberBytes == 1 || fileInfoPtr->numberBytes == 2))
 		{
-		hdfDataSetIndex = fileInfoPtr->hdfDataSetSelection;
+		channelToHdfDataSetPtr = (UInt16*)GetHandlePointer (
+															fileInfoPtr->channelToHdfDataSetHandle);
+		
+		//hdfDataSetIndex = fileInfoPtr->hdfDataSetSelection;
+		hdfDataSetIndex = channelToHdfDataSetPtr[fileChannelNumber-1];
 		
 		instrumentChannelNumber = hdfDataSetsPtr[hdfDataSetIndex].instrumentChannelNumber;
-		
+		/*
 				// Now determine if this is part of a group of hdf data sets.
 						
 		if (hdfDataSetsPtr[hdfDataSetIndex].groupedNumber > 0)
 			{
-			hdfDataSetIndex = fileInfoPtr->numberHdfDataSets +
-													hdfDataSetsPtr[hdfDataSetIndex].groupedNumber;
+			if (fileInfoPtr->format == kHDF4Type)
+				{
+				
+				hdfDataSetIndex = hdfDataSetsPtr[hdfDataSetIndex].dataSet + 1;
+				
+						// Beginning in 9/2018, allowance is made for the channels for
+						// ASTER to not be in order in HDF4 formatted files.
 			
-			instrumentChannelNumber = 
-										hdfDataSetsPtr[hdfDataSetIndex].instrumentChannelNumber;
+				instrumentChannelNumber = hdfDataSetsPtr[
+								hdfDataSetIndex+fileChannelNumber-1].instrumentChannelNumber;
+				
+				}	// end "if (fileInfoPtr->format != kHDF4Type)"
+			
+			else	// fileInfoPtr->format != kHDF4Type
+				{
+				hdfDataSetIndex = fileInfoPtr->numberHdfDataSets +
+													hdfDataSetsPtr[hdfDataSetIndex].groupedNumber;
+				instrumentChannelNumber =
+						hdfDataSetsPtr[hdfDataSetIndex].instrumentChannelNumber +
+																					fileChannelNumber - 1;
+				
+				}	// end "if (fileInfoPtr->format != kHDF4Type)"
 			
 			}	// end "if (hdfDataSetsPtr[hdfDataSetIndex].groupedNumber > 0)"
-		
+		*/
 		}	// end "if (hdfDataSetsPtr != NULL && fileInfoPtr->numberBytes == 2)"
 		
 	return (instrumentChannelNumber);
@@ -532,7 +554,7 @@ UInt16 GetHdfDataSetInstrumentChannelNumber (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -608,7 +630,7 @@ void GetHdfDataSetName (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -703,7 +725,7 @@ return (0);
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -756,7 +778,7 @@ void GetHdfHeaderFileName (
 
 #if include_hdf_capability
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -774,7 +796,7 @@ void GetHdfHeaderFileName (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 07/25/1995
-//	Revised By:			Larry L. Biehl			Date: 11/27/2017
+//	Revised By:			Larry L. Biehl			Date: 11/29/2018
 
 SInt16 ReadHDFHeader (
 				FileInfoPtr 						fileInfoPtr, 
@@ -815,19 +837,21 @@ SInt16 ReadHDFHeader (
 		if (strncmp ((char*)headerRecordPtr, (CharPtr)charKeyCode, 4) == 0)
 			fileType = kHDF4Type;
 		
-		if (fileType == 0)
-			{
-					// Check if netCDF formatted image file.
-					
-			charKeyCode[0] = 'C';
-			charKeyCode[1] = 'D';
-			charKeyCode[2] = 'F';
-			charKeyCode[3] = 0x01;
-			
-			if (strncmp ((char*)headerRecordPtr, (CharPtr)charKeyCode, 4) == 0)
-				fileType = kNETCDFType;
+		//#if !defined multispec_wxmac
+			if (fileType == 0)
+				{
+						// Check if netCDF formatted image file.
 				
-			}	// end "if (fileType == 0)"
+				charKeyCode[0] = 'C';
+				charKeyCode[1] = 'D';
+				charKeyCode[2] = 'F';
+				charKeyCode[3] = 0x01;
+				
+				if (strncmp ((char*)headerRecordPtr, (CharPtr)charKeyCode, 4) == 0)
+					fileType = kNETCDFType;
+				
+				}	// end "if (fileType == 0)"
+		//#endif	// !multispec_wxmac
 		/*
 				// The library being used does not handle cdf2 format.
 				
@@ -960,14 +984,17 @@ SInt16 ReadHDFHeader (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2014)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		SInt16 SetUpHDF_FileInformation
 //
 //	Software purpose:	This sets up the vector that is used to relate image channels
-//							to the hdf scientific data set access values.
+//							to the hdf scientific data set access values. This is always
+//							set up even though it may not be used. It is used when the
+//							hdf4 library is used to read the data ... compressed data, netcdf
+//							data and some ASTER data when the bands are not in order.
 //
 //	Parameters in:					
 //
@@ -978,25 +1005,27 @@ SInt16 ReadHDFHeader (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 10/25/2007
-//	Revised By:			Larry L. Biehl			Date: 04/27/2012
+//	Revised By:			Larry L. Biehl			Date: 10/17/2018
 
 SInt16 SetUpHDF_FileInformation (
 				FileInfoPtr							fileInfoPtr,
 				HdfDataSets*						hdfDataSetsPtr,
-				SInt32								hdfDataSetSelection)
+				SInt32								hdfDataSetSelection,
+				Boolean								useGroupedDataSetsFlag)
 				
 {	
 	UInt16*								channelToHdfDataSetPtr;
 	
 	UInt32								channelIndex,
-											dataSetIndex;
+											dataSetIndex,
+											savedChannelIndex;
 	
 	SInt16								groupedNumber,
 											returnCode = noErr;
 	
 	
-	if (fileInfoPtr->callGetHDFLineFlag)
-		{
+//	if (fileInfoPtr->callGetHDFLineFlag)
+//		{
 		if (hdfDataSetsPtr == NULL)
 																								return (1);
 			
@@ -1008,16 +1037,22 @@ SInt16 SetUpHDF_FileInformation (
 		if (fileInfoPtr->channelToHdfDataSetHandle == NULL)
 																								return (1);
 		
-		
 		channelToHdfDataSetPtr = (UInt16*)GetHandlePointer (
 															fileInfoPtr->channelToHdfDataSetHandle);
 		
 				// Get the group number for the data set.
-				
-		groupedNumber = hdfDataSetsPtr[hdfDataSetSelection].groupedNumber;
+		
+		groupedNumber = 0;
+		if (useGroupedDataSetsFlag)
+			groupedNumber = hdfDataSetsPtr[hdfDataSetSelection].groupedNumber;
 		
 		if (groupedNumber > 0)
 			{
+			if (fileInfoPtr->instrumentCode == kASTER &&
+						fileInfoPtr->dataCompressionCode == kNoCompression &&
+								fileInfoPtr->format == kHDF4Type)
+				fileInfoPtr->callGetHDFLineFlag = FALSE;
+				
 				// Now find the data sets for each of the channels in the group.
 				// Note that 'hdfDataSetSelection' may not point to the first channel
 				// in the group so go through the entire list of data sets.
@@ -1031,8 +1066,38 @@ SInt16 SetUpHDF_FileInformation (
 					{
 							// Verify that we have a valid sdid for the data set.
 						
-					if (hdfDataSetsPtr[dataSetIndex].sdid > 0)
+					if (hdfDataSetsPtr[dataSetIndex].sdid != NULL)
+						{
+						savedChannelIndex = channelIndex;
+						if (fileInfoPtr->instrumentCode == kASTER &&
+								groupedNumber == 1 &&
+									fileInfoPtr->numberChannels == 3)
+							{
+									// Need to handle case for L1T data in which the VNIR
+									// channels may be out of order
+							
+							if (strcmp ((char*)&hdfDataSetsPtr[dataSetIndex].name[2],
+											"ImageData1_G1") == 0)
+								channelIndex = 0;
+							
+							else if (strcmp ((char*)&hdfDataSetsPtr[dataSetIndex].name[2],
+											"ImageData2_G1") == 0)
+								channelIndex = 1;
+							
+							else if (strcmp ((char*)&hdfDataSetsPtr[dataSetIndex].name[2],
+											"ImageData3N_G1") == 0)
+								channelIndex = 2;
+							
+							if (channelIndex != savedChannelIndex)
+								fileInfoPtr->callGetHDFLineFlag = TRUE;
+							
+							}	// end "if (fileInfoPtr->instrumentCode == kASTER)
+						
 						channelToHdfDataSetPtr[channelIndex] = (UInt16)dataSetIndex;
+						
+						channelIndex = savedChannelIndex;
+						
+						}	// end "if (hdfDataSetsPtr[dataSetIndex].sdid != NULL)"
 					
 					else	// hdfDataSetsPtr[dataSetIndex].sdid <= 0
 						{
@@ -1057,7 +1122,7 @@ SInt16 SetUpHDF_FileInformation (
 		else	// groupedNumber = 0
 			{
 			dataSetIndex = hdfDataSetSelection;
-			if (hdfDataSetsPtr[dataSetIndex].sdid > 0)
+			if (hdfDataSetsPtr[dataSetIndex].sdid != NULL)
 				{
 						// All channels belong to the same data set (and therefore sdid)
 						
@@ -1066,14 +1131,14 @@ SInt16 SetUpHDF_FileInformation (
 									channelIndex++) 
 					channelToHdfDataSetPtr[channelIndex] = (UInt16)dataSetIndex;
 				
-				}	// end "if (hdfDataSetsPtr[dataSetIndex].sdid > 0)"
+				}	// end "if (hdfDataSetsPtr[dataSetIndex].sdid != NULL))"
 				
-			else	// hdfDataSetsPtr[dataSetIndex].sdid <= 0
+			else	// hdfDataSetsPtr[dataSetIndex].sdid == NULL)
 				returnCode = 7;
 			
 			}	// end "else groupedNumber = 0"
 			
-		}	// end "if (fileInfoPtr->callGetHDFLineFlag)"
+//		}	// end "if (fileInfoPtr->callGetHDFLineFlag)"
 		
 	return (returnCode);
     

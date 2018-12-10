@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			12/21/2017
+//	Revision date:			02/07/2018
 //
 //	Language:				C
 //
@@ -77,7 +77,7 @@ SInt16 GetGAIAHeaderParameters (
 
 																
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -206,7 +206,7 @@ SInt32 ConvertLineToGAIAFormat (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -629,7 +629,7 @@ Boolean CopyToNewGAIAHeader (
 
 /*
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -670,7 +670,7 @@ void ForceGAIACodeResourceLoad (void)
     
 #if defined multispec_mac || defined multispec_mac_swift
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -735,7 +735,7 @@ Boolean GetGAIAClassMeans (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -900,7 +900,7 @@ SInt16 GetGAIAHeaderParameters (
 																
 																
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -947,7 +947,7 @@ SInt32 GetNumberBytesInGAIALine (
 																
 																
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1022,7 +1022,7 @@ void InitializeGAIALineBytes (
 
 
 //-------------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1040,7 +1040,7 @@ void InitializeGAIALineBytes (
 // Called By:			LoadClassNameDescriptions in fileIO.c
 //
 //	Coded By:			Larry L. Biehl			Date: 09/30/1992
-//	Revised By:			Larry L. Biehl			Date: 03/15/2017	
+//	Revised By:			Larry L. Biehl			Date: 02/07/2018
 
 Boolean ReadGAIAClassNames (
 				FileInfoPtr							fileInfoPtr, 
@@ -1084,6 +1084,7 @@ Boolean ReadGAIAClassNames (
 												  NULL,
 												  NULL);
 	
+   numberGAIAClasses = 0;
 	if (errCode == noErr)
 		{
 				// Position the file pointer to where the class names should be	
@@ -1170,7 +1171,7 @@ Boolean ReadGAIAClassNames (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1518,7 +1519,7 @@ SInt16 ReadGAIAHeader (
 
 			             													
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1548,8 +1549,6 @@ Boolean WriteGAIAHeader (
 
 {    
 #if defined multispec_mac || defined multispec_mac_swift
-	Boolean								releaseHeaderRecordPtrFlag;
-	
 	CMFileStream*						fileStreamPtr;
 												
 	ChannelDescriptionPtr			channelDescriptionPtr;
@@ -1558,7 +1557,12 @@ Boolean WriteGAIAHeader (
 	
 	double								meanValue; 
 	
-	SInt32								tempLongInt;
+	SInt64								tempS64Int;
+	
+	SInt32								classNumber,
+											index,
+											index2,
+											tempLongInt;
 												
 	UInt32								count;
 	
@@ -1566,6 +1570,7 @@ Boolean WriteGAIAHeader (
 											channelList[3],
 											classNameCode,
 											classStorage,
+											errCode,
 											firstIndex,
 											lastIndex,
 											numberGAIAClasses,
@@ -1576,11 +1581,10 @@ Boolean WriteGAIAHeader (
 	
 	char									*tempHeaderRecordPtr;
 	
-	Boolean								continueFlag;
-	SInt32								classNumber,
-											index,
-											index2;
-	SInt16								errCode;
+	Boolean								continueFlag,
+											releaseHeaderRecordPtrFlag;
+	
+	
 	
 		
 	if (fileInfoPtr == NULL)
@@ -1975,18 +1979,18 @@ Boolean WriteGAIAHeader (
 											gProcessorCode != kMultispecToThematicProcessor)
 					{
 					classStorage = gProjectInfoPtr->storageClass[classNumber-1];
-					tempLongInt = 
+					tempS64Int =
 						gProjectInfoPtr->classNamesPtr[classStorage].numberStatisticsPixels;
 				
 					if (classIndex < numberClasses-1)
 						classIndex++;
 						
-					}	// end "if (classPtr[classIndex] == index2 && ...)" 
+					}	// end "if (classPtr[classIndex] == index2 && ...)"
 					
 				else	// classNumber != index2 || ...
 					tempLongInt = 0;
 								
-				sprintf (tempHeaderRecordPtr, "%9ld", tempLongInt);
+				sprintf (tempHeaderRecordPtr, "%9ld", tempS64Int);
 				tempHeaderRecordPtr += 9;
 				
 				}	// end "for (index2=Index; index2<=Index; index2++)" 

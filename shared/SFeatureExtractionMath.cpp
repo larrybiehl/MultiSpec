@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -12,7 +12,7 @@
 //	Author:					Chulhee Lee
 //	Revised by:				Larry L. Biehl
 //
-//	Revision date:			12/21/2017
+//	Revision date:			02/07/2018
 //
 //	Language:				C
 //
@@ -373,7 +373,7 @@ void TransposeMatrix (
 // UInt32		gSampleMultipleCount = 0;
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -443,7 +443,7 @@ void cal_h_X (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -463,8 +463,8 @@ void cal_h_X (
 // 
 // Called By:
 //
-//	Coded By:			Chulhee Lee				Date: ??/??/??
-//	Revised By:			Larry L. Biehl			Date: 05/13/2016	
+//	Coded By:			Chulhee Lee				Date: ??/??/????
+//	Revised By:			Larry L. Biehl			Date: 02/07/2018
 
 void FS_decision_boundary (
 				struct class_info_str* 			class_info, 
@@ -535,6 +535,8 @@ void FS_decision_boundary (
 	continueFlag = TRUE;
 	minimumNumberUsedFlag = FALSE;
 	savedNumberClasses = no_class;
+   classPairCount = 0;
+   numberClassPairs = 0;
 
 			// Assign memory. 
 			
@@ -888,13 +890,13 @@ void FS_decision_boundary (
 										classPtr[j],
 										class_info[i].no_sample,
 										class_info[j].no_sample,
-										countMahDistance[0],
-										countMahDistance[1],
-										countMahDistance[2],
+										(int)countMahDistance[0],
+										(int)countMahDistance[1],
+										(int)countMahDistance[2],
 										footNoteSymbol[symbolIndex1],
-										countMahDistance[3],
+										(int)countMahDistance[3],
 										footNoteSymbol[symbolIndex2],
-										numberFeatures,
+										(unsigned int)numberFeatures,
 										gEndOfLine);
 						
 						LoadDItemString (gStatusDialogPtr, IDC_Status21, (Str255*)"\0");
@@ -914,11 +916,11 @@ void FS_decision_boundary (
 										classPtr[j],
 										class_info[i].no_sample,
 										class_info[j].no_sample,
-										countMahDistance[0],
-										countMahDistance[1], 
-										countMahDistance[2],
+										(int)countMahDistance[0],
+										(int)countMahDistance[1],
+										(int)countMahDistance[2],
 										footNoteSymbol[symbolIndex1],
-										countMahDistance[3],
+										(int)countMahDistance[3],
 										footNoteSymbol[symbolIndex2],
 										gEndOfLine);
 					
@@ -1078,7 +1080,7 @@ void FS_decision_boundary (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1329,7 +1331,7 @@ void FS_discriminant_analysis (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1525,7 +1527,7 @@ void FS_eigen_inverse_SwSb_gen (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1541,8 +1543,8 @@ void FS_eigen_inverse_SwSb_gen (
 // 
 // Called By:
 //
-//	Coded By:			Chulhee Lee				Date: ??/??/??
-//	Revised By:			Larry L. Biehl			Date: 06/17/2006	
+//	Coded By:			Chulhee Lee				Date: ??/??/????
+//	Revised By:			Larry L. Biehl			Date: 02/07/2018
 
 UInt32 FS_optimize_2_class (
 				struct class_info_str* 			class_info, 
@@ -1636,6 +1638,7 @@ UInt32 FS_optimize_2_class (
 	if ((*ERROR_FLAG == 0) && numberIterations <= 0)
 		*ERROR_FLAG = 702;
 	
+   i2 = 0;
 	if (*ERROR_FLAG==0)
 		{
 		icov_all=(HDoublePtr)memoryBlockPtr;
@@ -1900,7 +1903,7 @@ UInt32 FS_optimize_2_class (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2045,7 +2048,7 @@ void FS_quick_feature_extraction (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2316,7 +2319,7 @@ void FS_sol_bnd_line (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2508,7 +2511,7 @@ Boolean FS_sol_bnd_line_2 (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2988,7 +2991,7 @@ UInt32 FS_sub_find_edbfm_2_class (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3051,7 +3054,7 @@ void FS_sub_linear_transform (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3208,7 +3211,7 @@ HPtr GetDecisionBoundaryMemoryBlock (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3273,7 +3276,7 @@ void normalize_rows (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3749,7 +3752,7 @@ SInt32 NWFE (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3813,7 +3816,7 @@ void AddBxSymMatrixToSymMatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3873,7 +3876,7 @@ void RegularizeSymMatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3939,7 +3942,7 @@ void NWFE_AddToScatterMatrixForClass_i (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4077,7 +4080,7 @@ SInt32 NWFE_GetLocalMean (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4141,7 +4144,7 @@ double NWFE_GetScatterMatrixWeight (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4249,7 +4252,7 @@ SInt32 NWFE_SumInvDistXLocalMean (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4382,7 +4385,7 @@ void TransformLineOfCovariance (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4626,7 +4629,7 @@ L280:
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4756,7 +4759,7 @@ void balbak (
 
 #define SWAP(g,h) {y=(g);(g)=(h);(h)=y;}
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4906,7 +4909,7 @@ void elmhes (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5027,7 +5030,7 @@ void eltran (
 
 static double c_b50 = 0.;
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5828,7 +5831,7 @@ void cdiv (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6005,7 +6008,7 @@ void orthes (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6140,7 +6143,7 @@ void ortran (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6371,7 +6374,7 @@ SInt32 MatlabEigFunction (
 //#include <math.h>
 //#include "nrutil.h"
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6687,7 +6690,7 @@ void FindEigenvaluesOfUpperHessenbergMatrix (
 //#include "nrutil.h"
 //#include "nr.h"
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7142,7 +7145,7 @@ double dpythag (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

@@ -12,7 +12,7 @@
 //	Authors:					Behzad M Shahshahani
 //								Larry L. Biehl
 //
-//	Revision date:			01/04/2018
+//	Revision date:			12/07/2018
 //
 //	Language:				C
 //
@@ -376,7 +376,7 @@ SInt16									gSoftThresholdSelection;
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1190,7 +1190,7 @@ SInt16 behzad_ModifyStatistics (
 		
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1359,7 +1359,7 @@ void CopyEnhancedStatsToProject (
 
 #if defined multispec_mac                                                              
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1400,7 +1400,7 @@ pascal void DrawHardThresholdPopUp (
 
 #if defined multispec_mac                                                              
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1440,7 +1440,7 @@ pascal void DrawSoftThresholdPopUp (
 		
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1536,7 +1536,7 @@ double Gaussian (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1656,7 +1656,7 @@ SInt16 GetLongestDistanceClass (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1912,7 +1912,7 @@ SInt16 GetLongestDistanceField (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2023,7 +2023,7 @@ Boolean GetLongestDistanceProject (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2104,7 +2104,7 @@ void GetMaximumClassDistances (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2281,7 +2281,7 @@ UInt32 GetStatisticsEnhancePixelInterval (void)
 
 		
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2338,7 +2338,7 @@ SInt64 GetTotalNumberTrainPixels (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2524,7 +2524,7 @@ UInt32 GetUnlabeledLogLikes (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2659,7 +2659,7 @@ Boolean InitializeStatisticsVariables (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2679,7 +2679,7 @@ Boolean InitializeStatisticsVariables (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 12/02/1999
-//	Revised By:			Larry L. Biehl			Date: 02/11/2000
+//	Revised By:			Larry L. Biehl			Date: 03/12/2012
 
 Boolean ListStatEnhanceSpecifications (
 				StatEnhanceSpecsPtr 				statEnhanceSpecsPtr)
@@ -2745,8 +2745,8 @@ Boolean ListStatEnhanceSpecifications (
 			classTypicalityPtr = statEnhanceSpecsPtr->classTypicalityPtr;
 				
 			sprintf ((char*)gTextString,
-							"      Chi*Chi threshold value for class %ld = %g%s",
-							statClassNumber,
+							"      Chi*Chi threshold value for class %d = %g%s",
+							(int)statClassNumber,
 							classTypicalityPtr[index].distance,
 							gEndOfLine);
 						
@@ -2926,7 +2926,7 @@ Boolean ListStatEnhanceSpecifications (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3103,7 +3103,7 @@ Boolean LoadStatEnhanceClassStatistics (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3347,7 +3347,7 @@ Boolean LoadStatisticsEnhanceSpecs (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3767,7 +3767,7 @@ Boolean StatisticsEnhance (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3785,7 +3785,7 @@ Boolean StatisticsEnhance (void)
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 11/19/1993
-//	Revised By:			Larry L. Biehl			Date: 03/03/1998
+//	Revised By:			Larry L. Biehl			Date: 12/07/2018
 
 void StatisticsEnhanceControl (void)
 
@@ -3958,6 +3958,8 @@ void StatisticsEnhanceControl (void)
 			
 		UnlockProjectWindowInfoHandles ();
 		
+		gOperationCanceledFlag = FALSE;
+		
 		}	// end "if (GetProjectImageFileInfo (..." 
 
 }	// end "StatisticsEnhanceControl" 
@@ -3965,7 +3967,7 @@ void StatisticsEnhanceControl (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3984,13 +3986,11 @@ void StatisticsEnhanceControl (void)
 // Called By:			StatisticsEnhanceControl
 //
 //	Coded By:			Larry L. Biehl			Date: 11/19/1993
-//	Revised By:			Larry L. Biehl			Date: 11/13/2017
+//	Revised By:			Larry L. Biehl			Date: 10/22/2018
 	
 Boolean StatisticsEnhanceDialog (void)	
 	
 {
-	float*								localClassWeightsPtr = NULL;
-	
 	Boolean								returnFlag = TRUE;
 									
 #if defined multispec_mac
@@ -4028,7 +4028,7 @@ Boolean StatisticsEnhanceDialog (void)
 											variable;
 	
 	DialogPtr							dialogPtr;
-	
+	float*								localClassWeightsPtr = NULL;
 	UInt16								*localClassPtr = NULL;
 									
 	UserItemUPP							drawHardThresholdPopUpPtr,
@@ -4625,7 +4625,8 @@ Boolean StatisticsEnhanceDialog (void)
 	#if defined multispec_lin
 		CMEnhanceStatisticsDialog*		dialogPtr = NULL;
      
-		dialogPtr = new CMEnhanceStatisticsDialog ((wxWindow*)GetMainFrame ());
+		//dialogPtr = new CMEnhanceStatisticsDialog ((wxWindow*)GetMainFrame ());
+		dialogPtr = new CMEnhanceStatisticsDialog (NULL);
 		
 		returnFlag = dialogPtr->DoDialog (gStatEnhanceSpecsPtr); 
 	                       
@@ -4639,7 +4640,7 @@ Boolean StatisticsEnhanceDialog (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4848,7 +4849,7 @@ void StatisticsEnhanceDialogInitialize (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4970,7 +4971,7 @@ void StatisticsEnhanceDialogOK (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5039,7 +5040,7 @@ void StatisticsEnhanceDialogUpdateThresholdItems (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5085,7 +5086,7 @@ void StatisticsEnhanceDialogUpdateChiSquaredValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5130,7 +5131,7 @@ void UpdateNumberUnlabeledSamples (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5177,7 +5178,7 @@ void UpdateNumberLabeledSamples (
 
                                                                                  
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

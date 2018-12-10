@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			12/21/2017
+//	Revision date:			02/28/2018
 //
 //	Language:				C
 //
@@ -131,7 +131,7 @@ Boolean 					MultispectralToThematicDialog (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -351,7 +351,7 @@ void AreasToThematicFileControl (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -797,7 +797,7 @@ Boolean ConvertImagePixelsToClassNumbers (
 	
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1219,7 +1219,7 @@ Boolean CovertMultispectralToThematic (
 	
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1410,7 +1410,7 @@ void CovertMultispectralToThematicControl (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1451,7 +1451,7 @@ pascal void DrawDiskFileFormatPopUp (
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1470,7 +1470,7 @@ pascal void DrawDiskFileFormatPopUp (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 03/11/1997
-//	Revised By:			Larry L. Biehl			Date: 09/01/2017
+//	Revised By:			Larry L. Biehl			Date: 02/07/2018
 
 void ENVI_ROIToThematicFileControl (void)
 
@@ -1566,6 +1566,7 @@ void ENVI_ROIToThematicFileControl (void)
 															
 		}	// end "if (continueFlag)"
 	
+   startTime = time (NULL);
 	if (continueFlag)
 		{
 				// Update parameters in the structure for the output file.				
@@ -1586,8 +1587,6 @@ void ENVI_ROIToThematicFileControl (void)
 			
 			}	// end "if (reformatOptionsPtr->ioOutBufferPtr != NULL)"
 		
-		startTime = time (NULL);
-					
 				// Set up the disk file to be used for the new reformatted				
 				// image file.																			
 		
@@ -1815,7 +1814,7 @@ void ENVI_ROIToThematicFileControl (void)
 
 							
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2024,7 +2023,7 @@ Boolean ENVI_ROIToThematicGetASCIIFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2218,7 +2217,7 @@ Boolean ENVI_ROIToThematicConvertPixelsToClassNumbers1 (
 
 							
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2240,7 +2239,7 @@ Boolean ENVI_ROIToThematicConvertPixelsToClassNumbers1 (
 // Called By:			ENVI_ROIToThematicFileControl in SFieldsT.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 07/26/2011
-//	Revised By:			Larry L. Biehl			Date: 03/15/2017
+//	Revised By:			Larry L. Biehl			Date: 02/28/2018
 
 Boolean ENVI_ROIToThematicConvertPixelsToClassNumbers2 (
 				FileInfoPtr							outFileInfoPtr, 
@@ -2507,7 +2506,7 @@ Boolean ENVI_ROIToThematicConvertPixelsToClassNumbers2 (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2580,7 +2579,7 @@ void ENVI_ROIToThematicGetClassName (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2683,7 +2682,7 @@ Boolean ENVI_ROIToThematicLoadSpecs (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3129,7 +3128,7 @@ void LoadAreasToThematicDialogOK (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3305,7 +3304,7 @@ Boolean LoadAreasToThematicSpecs (
 
 #if defined multispec_mac 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

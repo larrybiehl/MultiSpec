@@ -155,7 +155,7 @@ Boolean	StatisticsImageDialog (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -897,7 +897,7 @@ Boolean CreateStatisticsImages (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1270,7 +1270,7 @@ void StatisticsImageControl (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1348,7 +1348,7 @@ void LoadStatImageInformationStructure (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1660,7 +1660,7 @@ Boolean LoadStatisticsImageSpecs (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2157,7 +2157,8 @@ Boolean StatisticsImageDialog (
 			{
 			CMStatImageDialog*   dialogPtr = NULL;
 		
-			dialogPtr = new CMStatImageDialog ((wxWindow *)GetMainFrame ());
+			//dialogPtr = new CMStatImageDialog ((wxWindow *)GetMainFrame ());
+			dialogPtr = new CMStatImageDialog (NULL);
 		
 			returnFlag = dialogPtr->DoDialog (); 
 		
@@ -2172,12 +2173,13 @@ Boolean StatisticsImageDialog (
 	#endif
 
    return returnFlag;
-}
+	
+}	// end "StatisticsImageDialog"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2504,7 +2506,7 @@ void StatisticsImageDialogInitialize (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

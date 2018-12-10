@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			01/05/2018
+//	Revision date:			12/07/2018
 //
 //	Language:				C
 //
@@ -126,7 +126,7 @@ Boolean LoadEvaluateTransformationSpecs (void);
 
 
 //------------------------------------------------------------------------------------
-//										Copyright (1988-2017)
+//										Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -144,7 +144,7 @@ Boolean LoadEvaluateTransformationSpecs (void);
 // Called By:			Menus in menus.c
 //
 //	Coded By:			Larry L. Biehl			Date: 11/14/1988
-//	Revised By:			Larry L. Biehl			Date: 09/23/2015
+//	Revised By:			Larry L. Biehl			Date: 12/07/2018
 
 void EvaluateCovariancesControl (void)
 
@@ -1134,6 +1134,8 @@ void EvaluateCovariancesControl (void)
 			// Dispose of status dialog box.													
 	
 	CloseStatusDialog (TRUE);
+	
+	gOperationCanceledFlag = FALSE;
 				
 			// Change cursor back to pointer.												
 							
@@ -1144,7 +1146,7 @@ void EvaluateCovariancesControl (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1453,7 +1455,7 @@ Boolean EvaluateCovariancesDialog (
 									
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1532,7 +1534,7 @@ void EvaluateCovariancesDialogOK (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1826,7 +1828,7 @@ void EvaluateTransformationControl (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2087,7 +2089,7 @@ void EvaluateTransformationOK (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2222,7 +2224,7 @@ void ListCovarianceMatrix (
 																
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2555,7 +2557,7 @@ void ListDescriptionInformation (void)
 																
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3049,7 +3051,7 @@ Boolean ListDescriptionInformationForFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3105,7 +3107,7 @@ void ListInstrumentName (
 																
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3373,7 +3375,7 @@ Boolean ListLARSYSMISTHeaderInformation (
 																
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3391,7 +3393,7 @@ Boolean ListLARSYSMISTHeaderInformation (
 // Called By:		
 //
 //	Coded By:			Larry L. Biehl			Date: 11/28/2000
-//	Revised By:			Larry L. Biehl			Date: 05/24/2012
+//	Revised By:			Larry L. Biehl			Date: 02/28/2018
 
 Boolean ListMapParameters (
 				FileInfoPtr							fileInfoPtr,
@@ -3704,7 +3706,7 @@ Boolean ListMapParameters (
 				{
 				sprintf ((char*)gTextString,
 							"        Coefficient%2d %13.6g %13.6g %13.6g %13.6g%s",
-							index,
+							(unsigned int)index,
 							mapProjectionInfoPtr->planarCoordinate.easting1CoefficientsPtr[index], 
 							mapProjectionInfoPtr->planarCoordinate.northing1CoefficientsPtr[index], 
 							mapProjectionInfoPtr->planarCoordinate.easting2CoefficientsPtr[index], 
@@ -3749,7 +3751,7 @@ Boolean ListMapParameters (
 						
 				sprintf ((char*)gTextString,
 							"      EPSG Code:        %d  %s%s",
-							abs (mapProjectionInfoPtr->projectedCSTypeGeoKey),
+							mapProjectionInfoPtr->projectedCSTypeGeoKey,
 							&mapProjectionInfoPtr->gridCoordinate.epsgName[1],
 							gEndOfLine);
 						
@@ -4188,7 +4190,7 @@ Boolean ListMapParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4372,7 +4374,7 @@ Boolean LoadEvaluateCovariancesSpecs (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

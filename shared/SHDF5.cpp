@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//							 Copyright (1988-2017)
+//							 Copyright (1988-2018)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			12/21/2017
+//	Revision date:			07/29/2018
 //
 //	Language:				C
 //
@@ -276,7 +276,7 @@ SInt16	ReadDataSetString2 (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -335,7 +335,7 @@ void CloseHDF5DataSetInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -554,7 +554,7 @@ herr_t file_info (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -622,7 +622,7 @@ SInt16 GetHDF5CompressionInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -944,7 +944,7 @@ SInt16 GetHDF5ProjectionInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1000,7 +1000,7 @@ SInt16 GetInstumentCodeFromHDF5File (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1214,7 +1214,7 @@ Boolean GetMapInfoFromHDF5_CAIGlobalRadiance (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1302,7 +1302,7 @@ Boolean GetMapInfoFromHDF5_CAIGlobalReflectance (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1584,7 +1584,7 @@ Boolean GetMapInfoFromHDF5_CAIL1BPlus (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1664,7 +1664,7 @@ SInt16 GetDataProductCodeFromHDF5File (
 
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1753,7 +1753,7 @@ Boolean ListHDF5DataSetAttributes (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1799,7 +1799,7 @@ SInt32 group_check (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1885,7 +1885,7 @@ Boolean ListHDF5FileInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1903,7 +1903,7 @@ Boolean ListHDF5FileInformation (
 // Called By:			LoadHDFInformation in SReadHDFHeader.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/18/2012
-//	Revised By:			Larry L. Biehl			Date: 09/01/2017
+//	Revised By:			Larry L. Biehl			Date: 07/29/2018
 
 SInt32 LoadHdf5DataSetNames (
 				GDALDatasetH						hDS,
@@ -1985,8 +1985,10 @@ SInt32 LoadHdf5DataSetNames (
 	startDataSetRead = time (NULL);
 	gdalDataSetH = hDS;
 	statusDialogCreatedFlag = FALSE;
+	hdfDataSetsPtr = NULL;
 	
-	H5Eset_auto2 (NULL, NULL, NULL);
+	if (format != kNITFType)
+		H5Eset_auto2 (NULL, NULL, NULL);
 	
 	//gFromToolParameterFileFlag = TRUE;
 	
@@ -2057,7 +2059,7 @@ SInt32 LoadHdf5DataSetNames (
 			//pszSDSName = CPLStrdup (CSLFetchNameValue (poDS->papszSubDatasets,
          //                   "SUBDATASET_1_NAME"));
 									 
-			snprintf (szKeyName, sizeof (szKeyName), "SUBDATASET_%d_NAME", dataSet);
+			snprintf (szKeyName, sizeof (szKeyName), "SUBDATASET_%d_NAME", (int)dataSet);
 			szKeyName[sizeof (szKeyName) - 1] = '\0';
 			pszSubdatasetName = CPLStrdup (CSLFetchNameValue (metadata, szKeyName));
 			
@@ -2068,26 +2070,27 @@ SInt32 LoadHdf5DataSetNames (
 				
 				}	// end "if (gStatusDialogPtr != NULL)"
 
-			if (gStatusDialogPtr == NULL)
+			//if (gStatusDialogPtr == NULL)
+			if (dataSet >= 1)
 				{
 				hDS = GDALOpen (pszSubdatasetName, GA_ReadOnly);
 			
 				returnCode = ReadGDALHeaderInformation (hDS,
-																	format,
-																	&numberChannels,
-																	&numberLines,
-																	&numberColumns,
-																	&numberBytes,
-																	&numberBits,
-																	&dataTypeCode,
-																	&dataCompressionCode,
-																	&bandInterleaveFormat,
-																	&signedDataFlag,
-																	&xBlockSize, 
-																	&yBlockSize,
-																	&gdalDataTypeCode,
-																	&noDataValueFlag,
-																	&noDataValue);
+																		format,
+																		&numberChannels,
+																		&numberLines,
+																		&numberColumns,
+																		&numberBytes,
+																		&numberBits,
+																		&dataTypeCode,
+																		&dataCompressionCode,
+																		&bandInterleaveFormat,
+																		&signedDataFlag,
+																		&xBlockSize,
+																		&yBlockSize,
+																		&gdalDataTypeCode,
+																		&noDataValueFlag,
+																		&noDataValue);
 			
 				if (returnCode == noErr)
 					{
@@ -2171,9 +2174,9 @@ SInt32 LoadHdf5DataSetNames (
 							
 					}	// end "else if (format == kNETCDF2Type)"
 						
-				else	// format == kHDF4Type2
+				else if (format == kHDF4Type2)
 					{
-					snprintf (szKeyName, sizeof (szKeyName), "SUBDATASET_%d_DESC", dataSet);
+					snprintf (szKeyName, sizeof (szKeyName), "SUBDATASET_%d_DESC", (int)dataSet);
 					szKeyName[sizeof (szKeyName) - 1] = '\0';
 					pszHDF4SubdatasetName = CPLStrdup (CSLFetchNameValue (metadata, szKeyName));
 
@@ -2210,6 +2213,25 @@ SInt32 LoadHdf5DataSetNames (
 						}	// end "if (pszHDF4SubdatasetName[0] != 0)"
 							
 					}	// end "else if (format == kHDF4Type2)"
+					
+				else	// format == kNITFType
+					{
+					snprintf (szKeyName, sizeof (szKeyName), "SUBDATASET_%d_DESC", (int)dataSet);
+					szKeyName[sizeof (szKeyName) - 1] = '\0';
+					pszHDF4SubdatasetName = CPLStrdup (CSLFetchNameValue (metadata, szKeyName));
+
+					if (pszHDF4SubdatasetName[0] != 0)
+						{
+								// Use the characters before 'of ...'
+						
+						dataSetNamePtr = strstr (pszHDF4SubdatasetName, " of");
+						*dataSetNamePtr = 0;
+						dataSetNamePtr = pszHDF4SubdatasetName;
+						lastLevelStringPtr = dataSetNamePtr;
+						
+						}	// end "if (pszHDF4SubdatasetName[0] != 0)"
+					
+					}	// end "else format == kNITFType"
 
 				if (dataSetNamePtr != NULL)
 					{
@@ -2464,7 +2486,7 @@ SInt32 LoadHdf5DataSetNames (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2534,7 +2556,7 @@ SInt16 LoadHDF5HeaderInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2617,7 +2639,7 @@ SInt16 ReadDataSetNumerical (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2701,7 +2723,7 @@ UInt32 ReadDataSetNumerical (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2761,7 +2783,7 @@ SInt16 ReadDataSetString (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2779,7 +2801,7 @@ SInt16 ReadDataSetString (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 04/25/2012
-//	Revised By:			Larry L. Biehl			Date: 01/22/2013
+//	Revised By:			Larry L. Biehl			Date: 02/27/2018
 
 SInt16 ReadDataSetString2 (
 				hid_t									dataset_id,
@@ -2817,6 +2839,7 @@ SInt16 ReadDataSetString2 (
 											listMoreInfoFlag = FALSE;
 	
 
+	stringLength = 0;
 	if (dataset_id > 0 && dataspace > 0)
 		{
 		maxStringLength = sizeof (charString) - 20;
@@ -2950,7 +2973,7 @@ SInt16 ReadDataSetString2 (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3037,7 +3060,7 @@ SInt16 GetDataSetValueAsNumericalValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3207,7 +3230,7 @@ SInt16 GetDataSetValueAsString (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3227,7 +3250,7 @@ SInt16 GetDataSetValueAsString (
 //							LoadHDF5HeaderInformation in SHDF5.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/21/2012
-//	Revised By:			Larry L. Biehl			Date: 03/16/2014
+//	Revised By:			Larry L. Biehl			Date: 07/30/2018
 
 SInt16 SetUpHDF5_FileInformation (
 				FileInfoPtr							fileInfoPtr,
@@ -3263,7 +3286,8 @@ SInt16 SetUpHDF5_FileInformation (
 		
 		returnCode = SetUpHDF_FileInformation (fileInfoPtr, 
 																hdfDataSetsPtr,
-																hdfDataSetSelection);
+																hdfDataSetSelection,
+																useGroupedDataSetsFlag);
 																
 		}	// end "if (numberDataSets > 0 && hdfDataSetsPtr != NULL)"
 		

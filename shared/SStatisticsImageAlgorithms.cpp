@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -289,7 +289,7 @@ void		put_real (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -356,7 +356,7 @@ void enlarge_cor (
 
  
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -489,7 +489,7 @@ void FS_find_STI_size (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -677,13 +677,13 @@ void FS_gen_make_stat_image_same_scale (
 
 		if (addProjectIdentifierFlag)
 			{
-			sprintf ((char*)&newFilePathPtr[newFilePathPtr[0]+1], (char*)"_project\0");
+			sprintf ((char*)&newFilePathPtr[newFilePathPtr[0]+1], (char*)"_project");
 			 						
 			newFilePathPtr[0] += 8;
 			
 			}	// end "if (addProjectIdentifierFlag)"
   
-		sprintf ((char*)&newFilePathPtr[newFilePathPtr[0]+1], (char*)".sti\0");
+		sprintf ((char*)&newFilePathPtr[newFilePathPtr[0]+1], (char*)".sti");
 			 						
 		newFilePathPtr[0] += 4;
 		  
@@ -832,7 +832,7 @@ void FS_gen_make_stat_image_same_scale (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1477,7 +1477,7 @@ void FS_make_cor_mean_std (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1548,7 +1548,7 @@ void FS_make_half_STI (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1874,7 +1874,7 @@ void FS_make_stat_image_same_scale (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2246,7 +2246,7 @@ void gen_put_number (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2277,7 +2277,7 @@ void make_even (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2405,7 +2405,7 @@ void put_integer (
 
 		
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

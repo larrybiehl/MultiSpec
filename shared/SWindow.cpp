@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			12/21/2017
+//	Revision date:			03/19/2018
 //
 //	Language:				C
 //
@@ -23,16 +23,16 @@
 //	Brief description:	This file contains functions that operate on image and
 //								output windows.
 //
-//	Include files:			"MultiSpecHeaders"
-//								"multiSpec.h"
-//
 //------------------------------------------------------------------------------------
 
 #include "SMultiSpec.h" 
-#include	"SGraphView.h"
+
+#if defined multispec_mac
+	#include	"MGraphView.h"
+#endif	// defined multispec_mac 
   
 #if defined multispec_win
-	#include	"SMultiSpec.h" 
+	#include	"WGraphView.h"
 	extern SInt16 StringWidth (UCharPtr     	stringPtr);
 #endif	// defined multispec_win    
 
@@ -46,7 +46,7 @@
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -165,7 +165,7 @@ Boolean SaveIfWindowChanged (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -263,7 +263,7 @@ void RemoveWindowFromList (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -315,7 +315,7 @@ void UpdateLegendParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

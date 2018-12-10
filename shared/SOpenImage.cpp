@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			01/04/2018
+//	Revision date:			11/06/2018
 //
 //	Language:				C
 //
@@ -68,10 +68,9 @@
 //	Include files:			"MultiSpecHeaders"
 //								"multiSpec.h"
 //
-/*
-	Template for debugging
+/* Template for debugging
 		int numberChars = sprintf ((char*)gTextString3,
-													" SOpnImag: (): %s",
+													" SOpenImage: (): %s",
 													gEndOfLine);
 		ListString ((char*)gTextString3, numberChars, gOutputTextH);	
 */
@@ -83,8 +82,8 @@
 	#include "SMultiSpec.h"
 
 	Rect rect;
-	#include <wx/app.h>
-	#include <wx/docview.h>
+	#include "wx/app.h"
+	#include "wx/docview.h"
 	
 	#include "CFileStream.h"
 	#include "CImageWindow.h"
@@ -114,6 +113,9 @@
 	#define	IDS_ChanDescription37			37
 	#define	IDS_ChanDescription48			48
 	#define	IDS_ChanDescription53			53
+	#define	IDS_ChanDescription66			66
+	#define	IDS_ChanDescription79			79
+	#define	IDS_ChanDescription83			83
 	#define	IDS_Dialog33						33
 	#define	IDS_FileIO158						158
 	#define	IDS_FileIO160						160
@@ -171,6 +173,10 @@
 void AdjustImageWSize (
 				Handle								windowInfoHandle);
 
+float* CheckChannelValuesHandleSize (
+				FileInfoPtr							fileInfoPtr,
+				Boolean*								continueFlagPtr);
+
 SInt16 CheckForENVIHeader (
 				FileInfoPtr							fileInfoPtr,
 				char*									headerRecordPtr);
@@ -183,6 +189,9 @@ SInt16 DetermineIfFileSpecsDialogNeedsCalled (
 				Handle								windowInfoHandle,
 				FileInfoPtr							fileInfoPtr,
 				SInt16								linkFileNumber);
+
+SInt16 DeterminePeruSatBandOrder (
+				FileInfoPtr							fileInfoPtr);
 
 void FinishMapInformationSetUp (
 				FileInfoPtr							fileInfoPtr,
@@ -202,6 +211,16 @@ void GetInstrumentChannelDescriptionsAndValues (
 
 void GetInstrumentCode (
 				FileInfoPtr							fileInfoPtr);
+				
+void GetMultiSpecChannelWidths (
+				FileInfoPtr							fileInfoPtr);
+
+//SInt16 GetChannelWavelengthOrder (
+//				FileInfoPtr							fileInfoPtr);
+
+SInt16 GetChannelWavelengthOrder (
+				WindowInfoPtr						windowInfoPtr,
+				LayerInfoPtr						layerInfoPtr);
 
 Boolean LoadSelectedDataSetInformation (
 				Handle								fileInfoHandle);
@@ -302,7 +321,7 @@ SInt16 ReadWindowsBitMapHeader (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -392,7 +411,7 @@ Boolean AddToImageWindowFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -415,7 +434,7 @@ Boolean AddToImageWindowFile (
 //							SetUpThematicImageWindow in SOpnImag.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 08/11/1988
-//	Revised By:			Larry L. Biehl			Date: 06/01/2016
+//	Revised By:			Larry L. Biehl			Date: 11/06/2018
 
 void AdjustImageWSize (
 				Handle								windowInfoHandle)
@@ -485,42 +504,34 @@ void AdjustImageWSize (
 
 				// Allow for dock in OSX.
 
-		#if TARGET_API_MAC_CARBON
-					// for OSX
+		GDHandle currentDevice;
+		OSStatus status;
 
-			if (gOSXFlag)
+
+		currentDevice = GetDevicePointIsIn (&gEventRecord.where);
+
+		if (currentDevice == NULL)
+			currentDevice = GetGDevice ();
+
+		if (currentDevice != NULL)
+			{
+			status = GetAvailableWindowPositioningBounds (currentDevice, &rect);
+
+			if (status == noErr)
 				{
-				GDHandle currentDevice;
-				OSStatus status;
+						// Allow for window title bar.
 
+				rect.top += 20;
 
-				currentDevice = GetDevicePointIsIn (&gEventRecord.where);
+						// Allow for a few pixels around the window.
 
-				if (currentDevice == NULL)
-					currentDevice = GetGDevice ();
+				InsetRect (&rect, 6, 4);
 
-				if (currentDevice != NULL)
-					{
-					status = GetAvailableWindowPositioningBounds (currentDevice, &rect);
+				MoveWindow (windowPtr, rect.left, rect.top, FALSE);
 
-					if (status == noErr)
-						{
-								// Allow for window title bar.
+				}	// end "if (status == noErr)"
 
-						rect.top += 20;
-
-								// Allow for a few pixels around the window.
-
-						InsetRect (&rect, 6, 4);
-
-						MoveWindow (windowPtr, rect.left, rect.top, FALSE);
-
-						}	// end "if (status == noErr)"
-
-					}	// end "if (currentDevice != NULL)"
-
-				}	// end "if (gOSXFlag)"
-		#endif		// TARGET_API_MAC_CARBON
+			}	// end "if (currentDevice != NULL)"
 
 				// Allow for the scroll bars
 
@@ -622,11 +633,11 @@ void AdjustImageWSize (
 										gEndOfLine);
 		ListString ((char*)gTextString3, numberChars, gOutputTextH);
 		*/
-
-				// Allow space for the status bar 
-				// The tool bar is taken care of in the client area.
-				
-		//rect.bottom -= 22;	 // Looks like this is taken care of in mainFrame rect.
+				// Get the total of the title and toolbar height
+	
+		wxRect wxFrameRect = imageFramePtr->GetRect ();
+		wxRect wxFrameClientRect = imageFramePtr->GetClientRect ();
+		int titleToolBarHeight = wxFrameRect.height - wxFrameClientRect.height;
 
 				// Amount to allow for window border.
 		#ifdef NetBeansProject
@@ -636,17 +647,32 @@ void AdjustImageWSize (
 			amountToAllowForHStuff = 7;
 			amountToAllowForVStuff = 33;
 		#else	// mygeohub
-			rect.right -= 2 * 5;
-			rect.bottom -= 2 * 5 + 21;
+			#if defined multispec_wxmac
+				//wxSize toolBarSize = imageFramePtr->GetToolBar ()->GetToolBitmapSize ();
+				amountToAllowForHStuff = 2 * 2 + wxFrameRect.width - wxFrameClientRect.width;	// 9
+				amountToAllowForVStuff = 2 * 2 + titleToolBarHeight;		// 2 * 5 + 24
+	
+				rect.right -= amountToAllowForHStuff;
+				rect.bottom -= amountToAllowForVStuff;		// 2 * 5 + 24
+			#else
+				rect.right -= 2 * 5;
+				rect.bottom -= 2 * 5 + 21;
 
-			amountToAllowForHStuff = 6;
-			amountToAllowForVStuff = 6;	// Allows for border
+				amountToAllowForHStuff = 6;
+				amountToAllowForVStuff = 6;	// Allows for border
+			#endif
 		#endif
 		
 		if (latLongPossibleFlag)
 			{
-			rect.bottom -= 39;
-			amountToAllowForVStuff += 39;
+					// Allow for coordinate view.
+			#if defined multispec_wxmac
+				rect.bottom -= 40;
+				amountToAllowForVStuff += 40;
+			#else
+				rect.bottom -= 39;
+				amountToAllowForVStuff += 39;
+			#endif
 
 			} // end "if (latLongPossibleFlag)"
 	#endif   // defined multispec_lin
@@ -696,7 +722,7 @@ void AdjustImageWSize (
 					// since it has not been set yet. It will be needed for the 
 					// AdjustLegendListLength routine.
 
-			if (windowInfoPtr->showLegend);
+			if (windowInfoPtr->showLegend)
 				gActiveLegendWidth = windowInfoPtr->legendWidth;
 			
 			AdjustLegendListLength (windowPtr, FALSE);
@@ -799,7 +825,7 @@ void AdjustImageWSize (
 			SetCoordinateViewLocationParameters (windowInfoHandle);
 			imageFramePtr->ShowCoordinateView (1);
 
-			}		// end "if (imageViewCPtr != NULL && ..."
+			}	// end "if (imageViewCPtr != NULL && ..."
 			
 		imageFramePtr->Layout ();
 		/*
@@ -823,7 +849,52 @@ void AdjustImageWSize (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		float* CheckChannelValuesHandleSize
+//
+//	Software purpose:	The purpose of this routine is to get the channel values
+//							handle for the input file information structure and very that
+//							the memory allocated to it is sufficient for the number of
+//							channels in the image.
+//
+//	Parameters in:		pointer to file information structure.
+//
+//	Parameters out:	None
+//
+//	Value Returned:	None			
+// 
+// Called By:
+//
+//	Coded By:			Larry L. Biehl			Date: 06/28/2018
+//	Revised By:			Larry L. Biehl			Date: 07/10/2018
+
+float* CheckChannelValuesHandleSize (
+				FileInfoPtr							fileInfoPtr,
+				Boolean*								continueFlagPtr)
+{
+	float*								channelValuesPtr;
+	UInt32								count;
+	
+	Boolean								changedFlag;
+	
+	
+	count = 2 * fileInfoPtr->numberChannels * sizeof (float);
+	channelValuesPtr = (float*)CheckHandleSize (&fileInfoPtr->channelValuesHandle,
+																continueFlagPtr,
+																&changedFlag,
+																count);
+	
+	return (channelValuesPtr);
+
+}	// end "CheckChannelValuesHandleSize"
+
+
+
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -871,7 +942,7 @@ SInt16 CheckFileInfoParameters (
 		fileInfoPtr->numberChannels = kMaxNumberChannels;
 		returnCode = 0;
 
-		}		// end "if (fileInfoPtr->numberChannels > kMaxNumberChannels"
+		}	// end "if (fileInfoPtr->numberChannels > kMaxNumberChannels"
 
 	if (fileInfoPtr->numberColumns < 1 ||
             fileInfoPtr->numberColumns > kMaxNumberColumns)
@@ -888,19 +959,19 @@ SInt16 CheckFileInfoParameters (
 			fileInfoPtr->numberClasses = fileInfoPtr->numberBins;
 			returnCode = 0;
 
-			}		// end "if (fileInfoPtr->numberClasses == 0)"
+			}	// end "if (fileInfoPtr->numberClasses == 0)"
 
 		if (fileInfoPtr->numberClasses > kMaxNumberClasses)
 			{
 			fileInfoPtr->numberClasses = kMaxNumberClasses;
 			returnCode = 0;
 
-			}		// end "if (fileInfoPtr->numberClasses > kMaxNumberClasses)"
+			}	// end "if (fileInfoPtr->numberClasses > kMaxNumberClasses)"
 
 		if (fileInfoPtr->numberClasses > 0)
 			fileInfoPtr->maxClassNumberValue = fileInfoPtr->numberClasses - 1;
 
-		}		// end "if (fileInfoPtr->thematicType)"
+		}	// end "if (fileInfoPtr->thematicType)"
 
 			// Force start line and column to be larger than 0.
 
@@ -948,13 +1019,7 @@ SInt16 CheckFileInfoParameters (
 				// what is computed based on parameters because of the way that gdal
 				// treats the data value ... always real even though data may be 
 				// ascii integers.
-		/*		
-		if (fileInfoPtr->dataCompressionCode != kNoCompression ||
-					fileInfoPtr->format == kGRIBType ||
-							fileInfoPtr->format == kImagineType ||
-									fileInfoPtr->format == kArcGISASCIIGridType ||
-											fileInfoPtr->format == kGRASSASCIIGridType)
-		*/
+
 		if (!SizeOfImageFileCanBeCalculated (fileInfoPtr))
 			returnCode = 1;
 
@@ -967,7 +1032,7 @@ SInt16 CheckFileInfoParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1099,7 +1164,7 @@ SInt16 CheckForENVIHeader (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1167,7 +1232,7 @@ SInt16 CheckForPDS_LBL_File (
 
 			RemoveCharsNoCase ((char*)"\0.LBL\0", headerFileNamePtr);
 			RemoveCharsNoCase ((char*)"\0.???\0", headerFileNamePtr);
-			ConcatFilenameSuffix (headerFileNamePtr, (StringPtr) "\0.LBL\0");
+			ConcatFilenameSuffix (headerFileNamePtr, (StringPtr)"\0.LBL\0");
 
 			errCode = OpenFileReadOnly (headerFileStreamPtr,
 												  kResolveAliasChains,
@@ -1221,7 +1286,7 @@ SInt16 CheckForPDS_LBL_File (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1346,7 +1411,7 @@ SInt32 CheckIfProjectFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1365,7 +1430,7 @@ SInt32 CheckIfProjectFile (
 // Called By:			LoadImageInformation	in SOpnImag.cpp	
 //
 //	Coded By:			Larry L. Biehl			Date: 08/23/1988
-//	Revised By:			Larry L. Biehl			Date: 12/18/2017
+//	Revised By:			Larry L. Biehl			Date: 06/22/2018
 
 SInt16 CheckImageHeader (
 				Handle								windowInfoHandle,
@@ -1391,6 +1456,7 @@ SInt16 CheckImageHeader (
 	SInt16								errCode,
 											fileInfoLoaded,
 											returnCode,
+											savedGDALReturnCode,
 											savedProcessorCode,
 											shapeFileIndex,
 											stringNumber,
@@ -1562,7 +1628,7 @@ SInt16 CheckImageHeader (
 
 			//fileType = CheckForENVIHeader (fileInfoPtr, headerRecordPtr);
 						
-			}		// end "if (fileInfoPtr->format == 0 && count >= 128)"
+			}	// end "if (fileInfoPtr->format == 0 && count >= 128)"
 		*/
 				// Check if image file is a LAS file.	
 
@@ -1646,6 +1712,7 @@ SInt16 CheckImageHeader (
 
 						GDALDatasetH gdalDataSetH = fileInfoPtr->gdalDataSetH;
 						fileInfoPtr->gdalDataSetH = 0;
+						savedGDALReturnCode = returnCode;
 
 						returnCode = ReadTIFFHeader (fileInfoPtr, headerRecordPtr, formatOnlyCode);
 
@@ -1668,9 +1735,14 @@ SInt16 CheckImageHeader (
 							}	// end "if (returnCode == noErr)"
 
 						else	// returnCode != noErr
-                        // Error occurred trying to use MultiSpec TIFF read function. Indicate that
-								// gdal will be used.
+							{
+									// Error occurred trying to use MultiSpec TIFF read function. Indicate that
+									// gdal will be used.
+							
 							fileInfoPtr->gdalDataSetH = gdalDataSetH;
+							returnCode = savedGDALReturnCode;
+							
+							}	// end "else returnCode != noErr"
 
 						}	// end "if (fileInfoPtr->blockHeight * fileInfoPtr->blockWidth * fileInfoPtr->numberBytes > 16000000 || ...
 
@@ -1809,7 +1881,7 @@ SInt16 CheckImageHeader (
 			if (returnCode == 0 && fileInfoPtr->format != 0)
 				{
 						// Check if parameters make sense
-
+				
 				fileInfoLoaded = CheckFileInfoParameters (fileInfoPtr);
 				
 						// Continue section only if parameters make sense.
@@ -1819,9 +1891,9 @@ SInt16 CheckImageHeader (
 
 				FinishMapInformationSetUp (fileInfoPtr, headerRecordPtr);
 
-            }		// end "if (returnCode == 0 && ..."
+            }	// end "if (returnCode == 0 && ..."
 
-			}		// end "if (fileInfoPtr->format != kArcViewShapeType)"
+			}	// end "if (fileInfoPtr->format != kArcViewShapeType)"
 
 		else	// fileInfoPtr->format == kArcViewShapeType
 			{
@@ -1933,7 +2005,7 @@ SInt16 CheckImageHeader (
 														 &boundingShapeRectangle,
 														 stringNumber);
 
-					}		// end "if (returnCode == 5)"
+					}	// end "if (returnCode == 5)"
 
 				else if (convertFromLatLongToMapUnitsFlag)
 					{
@@ -1980,12 +2052,12 @@ SInt16 CheckImageHeader (
 
 	return (fileInfoLoaded);
 
-}		// end "CheckImageHeader" 
+}	// end "CheckImageHeader" 
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2001,8 +2073,8 @@ SInt16 CheckImageHeader (
 //
 //	Value Returned:	None				
 // 
-// Called By:			FileSpecificationDialog in SOpenDlg.cpp
-//							CheckFileInfoParameters in SOpnImag.cpp
+// Called By:			FileSpecificationDialog in SOpenDialog.cpp
+//							CheckFileInfoParameters in SOpenImage.cpp
 //
 //	Global Data:
 //
@@ -2081,7 +2153,7 @@ double CompareFileInfoAndFileSize (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2217,7 +2289,7 @@ SInt16 ConvertMultiSpecProjectionCodeToERDASCode (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2261,7 +2333,7 @@ void CreateDefaultClassName (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2315,7 +2387,7 @@ void CreateDefaultClassNames (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2340,7 +2412,7 @@ void CreateDefaultClassNames (
 //	Global Data:
 //
 //	Coded By:			Larry L. Biehl			Date: 12/11/2012
-//	Revised By:			Larry L. Biehl			Date: 03/15/2017	
+//	Revised By:			Larry L. Biehl			Date: 07/30/2018
 
 SInt16 DetermineIfFileSpecsDialogNeedsCalled (
 				Handle								windowInfoHandle,
@@ -2361,8 +2433,9 @@ SInt16 DetermineIfFileSpecsDialogNeedsCalled (
 
 
 	if ((fileInfoPtr->format == kHDF4Type || fileInfoPtr->format == kNETCDFType ||
-			  fileInfoPtr->format == kHDF5Type || fileInfoPtr->format == kNETCDF2Type ||
-			  fileInfoPtr->format == kHDF4Type2) && fileInfoPtr->numberHdfDataSets > 1 &&
+			fileInfoPtr->format == kHDF5Type || fileInfoPtr->format == kNETCDF2Type ||
+				fileInfoPtr->format == kHDF4Type2 || fileInfoPtr->format == kNITFType) &&
+					fileInfoPtr->numberHdfDataSets > 1 &&
 							gProcessorCode != kOpenProjectImageProcessor &&
 												gProcessorCode != kOpenProjectFileProcessor)
 		returnCode = 2;
@@ -2388,9 +2461,9 @@ SInt16 DetermineIfFileSpecsDialogNeedsCalled (
 				windowFileInfoHandle = GetFileInfoHandle (windowInfoHandle);
 				numberImageFiles = (SInt16)GetNumberImageFiles (windowInfoHandle);
 
-				windowFileInfoPtr = (FileInfoPtr) GetHandlePointer (windowFileInfoHandle);
+				windowFileInfoPtr = (FileInfoPtr)GetHandlePointer (windowFileInfoHandle);
 
-				firstHdfFileInfoPtr = &windowFileInfoPtr [numberImageFiles - linkOffsetIndex];
+				firstHdfFileInfoPtr = &windowFileInfoPtr[numberImageFiles - linkOffsetIndex];
 
 				firstHdfDataSetsPtr = (HdfDataSets*)GetHandlePointer (
 																		firstHdfFileInfoPtr->hdfHandle);
@@ -2419,7 +2492,59 @@ SInt16 DetermineIfFileSpecsDialogNeedsCalled (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		SInt16 DeterminePeruSatBandOrder
+//
+//	Software purpose:	The purpose of this routine is to determine the order of the
+//							bands in the PeruSat image file. It is assumed that the
+//							information is in the TIFF image description tag.
+//
+//	Parameters in:		File information structure
+//
+//	Parameters out:	None
+//
+//	Value Returned:	Code for band order
+//								=0: band wavelength order
+//								=1: original band order; red, green, blue, near IR
+// 
+// Called By:			
+//
+//	Global Data:
+//
+//	Coded By:			Larry L. Biehl			Date: 06/28/2018
+//	Revised By:			Larry L. Biehl			Date: 06/28/2018
+
+SInt16 DeterminePeruSatBandOrder (
+				FileInfoPtr							fileInfoPtr)
+
+{
+	char									textString[1024];
+	
+	Boolean								returnCode = 0;
+
+	
+	GetTIFFImageDescription (fileInfoPtr,
+										textString,
+										1023);
+	
+	if (textString[0] != 0)
+		{
+		if (StrStrNoCase (textString, "B2 B1 B0 B3"))
+			returnCode = 1;
+			
+		}	// end "if (textString[0] != 0)"
+
+	return (returnCode);
+
+}	// end "DeterminePeruSatBandOrder"
+
+
+
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2504,7 +2629,7 @@ void FinishMapInformationSetUp (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2611,7 +2736,7 @@ Boolean GetClassesFromHistogram (
             gHasThreadManager,
             &fileIOInstructionsPtr))
 		{
-		CheckAndDisposePtr ((Ptr) classSymbolPtr);
+		CheckAndDisposePtr ((Ptr)classSymbolPtr);
 		return (FALSE);
 
 		} // end "else end "ioBufferPtr == NULL"
@@ -2651,7 +2776,7 @@ Boolean GetClassesFromHistogram (
 								 1,
 								 fileInfoPtr->numberColumns,
 								 &numberSamples,
-								 (HUCharPtr) ioBufferPtr);
+								 (HUCharPtr)ioBufferPtr);
 
 		if (errCode != noErr)
 			break;
@@ -2687,7 +2812,7 @@ Boolean GetClassesFromHistogram (
 
 				gStatusDialogPtr = GetStatusDialog (kShortStatusInfoID, FALSE);
 
-				MGetString ((UCharPtr) gTextString, kDialogStrID, IDS_Dialog33);
+				MGetString ((UCharPtr)gTextString, kDialogStrID, IDS_Dialog33);
 
 				#if defined multispec_mac
 					SetWTitle (GetDialogWindow (gStatusDialogPtr), (UCharPtr)gTextString);
@@ -2788,7 +2913,7 @@ Boolean GetClassesFromHistogram (
 				{
 				if (fileInfoPtr->classDescriptionH != NULL && fileInfoPtr->descriptionsFlag)
 					{
-					oldClassNamePtr = (HUCharPtr) GetHandlePointer (fileInfoPtr->classDescriptionH);
+					oldClassNamePtr = (HUCharPtr)GetHandlePointer (fileInfoPtr->classDescriptionH);
 					oldClassSymbolPtr = (HUInt16Ptr)&oldClassNamePtr[oldNumberClasses * sizeof (Str31)];
 
 							// Assume that the class symbol lists are the same.
@@ -2830,7 +2955,7 @@ Boolean GetClassesFromHistogram (
 
 				if (newDescriptionHandle != NULL)
 					{
-					classNamePtr = (HUCharPtr) GetHandlePointer (
+					classNamePtr = (HUCharPtr)GetHandlePointer (
 																		newDescriptionHandle, kLock);
 					newClassSymbolPtr = (HUInt16Ptr)&classNamePtr[
                             numberOutputClasses * sizeof (Str31)];
@@ -2844,7 +2969,7 @@ Boolean GetClassesFromHistogram (
 
 					if (fileInfoPtr->classDescriptionH != NULL && fileInfoPtr->descriptionsFlag)
 						{
-						oldClassNamePtr = (HUCharPtr) GetHandlePointer (
+						oldClassNamePtr = (HUCharPtr)GetHandlePointer (
 															fileInfoPtr->classDescriptionH, kLock);
 						oldClassSymbolPtr =
 								(HUInt16Ptr)&oldClassNamePtr[oldNumberClasses * sizeof (Str31)];
@@ -2852,7 +2977,7 @@ Boolean GetClassesFromHistogram (
 						for (index = 0; index < numberOutputClasses; index++)
 							{
 							oldIndex = 0;
-							oldClassNamePtr = (HUCharPtr) GetHandlePointer (
+							oldClassNamePtr = (HUCharPtr)GetHandlePointer (
 																		fileInfoPtr->classDescriptionH);
 
 							while (oldIndex < oldNumberClasses)
@@ -2883,7 +3008,7 @@ Boolean GetClassesFromHistogram (
 
 							}	// end "for (index=0; index<..."
 
-						classNamePtr = (HUCharPtr) GetHandlePointer (newDescriptionHandle);
+						classNamePtr = (HUCharPtr)GetHandlePointer (newDescriptionHandle);
 
 						classNamesCopiedFlag = TRUE;
 
@@ -2953,7 +3078,7 @@ Boolean GetClassesFromHistogram (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3030,7 +3155,7 @@ SInt16 GetDatumInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3334,7 +3459,7 @@ Boolean GetDefaultSupportFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3392,7 +3517,7 @@ void GetDefaultSupportFileName (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3551,7 +3676,7 @@ void GetDefaultSupportFileName (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3732,7 +3857,7 @@ SInt16 GetFileHeaderString (
 				stringPtr[0] = (char)numberCharacters;
 				stringPtr[numberCharacters + 1] = 0;
 
-				}		// end "else if (numberCharacters == 0)"
+				}	// end "else if (numberCharacters == 0)"
 
 			else if (numberCharacters == -1)
                 // Just return the string pointer such that it is just after
@@ -3764,12 +3889,12 @@ SInt16 GetFileHeaderString (
 
 	return (returnCode);
 
-}		// end "GetFileHeaderString"
+}	// end "GetFileHeaderString"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3867,7 +3992,7 @@ double GetFileHeaderRealValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3966,7 +4091,7 @@ SInt32 GetFileHeaderValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4026,54 +4151,55 @@ SInt32 GetFileHeaderValues (
 
 				strPtr += stringLength;
 
-				if (skipEqualFlag) {
+				if (skipEqualFlag) 
+					{
 					strPtr = (char*)strstr (strPtr, "=");
+
+					if (strPtr != NULL)
+						strPtr++;
+
+					}	// end "if (skipEqualFlag)"
+
+						// Now skip the "("
+
+				strPtr = (char*)strstr (strPtr, "(");
 
 				if (strPtr != NULL)
 					strPtr++;
 
-				}	// end "if (skipEqualFlag)"
+				if (strPtr != NULL)
+						// Get the values for the string identifier.
+						// Note that this is set for 3 values for now. Only used for
+						//  reading PDS type formats.
+					returnCode = sscanf (strPtr,
+												"%ld,%ld,%ld",
+												&valuesPtr[0],
+												&valuesPtr[1],
+												&valuesPtr[2]);
 
-					// Now skip the "("
+				if (returnCode == numberValues)
+					{
+					returnValue = numberValues;
+					*returnCodePtr = 0;
 
-			strPtr = (char*)strstr (strPtr, "(");
+					}	// end "if (returnCode == numberValues)"
 
-			if (strPtr != NULL)
-				strPtr++;
+				else	// returnCode != 1
+					*returnCodePtr = stringLength + 10;
 
-			if (strPtr != NULL)
-					// Get the values for the string identifier.
-					// Note that this is set for 3 values for now. Only used for
-					//  reading PDS type formats.
-				returnCode = sscanf (strPtr,
-											"%ld,%ld,%ld",
-											&valuesPtr[0],
-											&valuesPtr[1],
-											&valuesPtr[2]);
+				}	// end "if (numberValues > 0)"
 
-			if (returnCode == numberValues)
-				{
-				returnValue = numberValues;
+			else	// numberValues == 0
+					// No value is to be returned; just an indication that the label
+					// was found.
 				*returnCodePtr = 0;
 
-				}	// end "if (returnCode == numberValues)"
+			}	// end "if (strPtr != NULL)"
 
-			else	// returnCode != 1
-				*returnCodePtr = stringLength + 10;
+		else	// strPtr == NULL
+			*returnCodePtr = stringLength;
 
-			}	// end "if (numberValues > 0)"
-
-		else	// numberValues == 0
-				// No value is to be returned; just an indication that the label
-				// was found.
-			*returnCodePtr = 0;
-
-		}	// end "if (strPtr != NULL)"
-
-	else	// strPtr == NULL
-		*returnCodePtr = stringLength;
-
-	}	// end "else MGetString (..."
+		}	// end "else MGetString (..."
 
 	return (returnValue);
 
@@ -4082,7 +4208,7 @@ SInt32 GetFileHeaderValues (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4099,26 +4225,32 @@ SInt32 GetFileHeaderValues (
 //
 //	Value Returned:	None
 //
-// Called By:			ReadMultiSpecChannelDescriptionsAndValues in SFileIO.cpp
+// Called By:			ReadChannelDescriptionsAndValues
 //
 //	Coded By:			Larry L. Biehl			Date: 11/18/1999
-//	Revised By:			Larry L. Biehl			Date: 11/07/2017
+//	Revised By:			Larry L. Biehl			Date: 09/04/2018
 
 void GetInstrumentChannelDescriptionsAndValues (
 				FileInfoPtr							fileInfoPtr)
+				
 {
 	ChannelDescriptionPtr			channelDescriptionPtr;
 
 	CharPtr								charPtr;
 
+	float									*channelValuesPtr,
+											*channelWidthsPtr;
+
 	UInt8									*fileNamePtr,
 											*filePathPPtr,
 											*startBandIdentiferPtr;
+	
+	//UInt16								*channelWavelengthOrderPtr;
+	
+	int									channelNumber;
 
-	float*								channelValuesPtr;
-
-	UInt32								channel,
-											channelNumber,
+	UInt32								blankNumber,
+											channel,
 											count,
 											index;
 
@@ -4144,13 +4276,24 @@ void GetInstrumentChannelDescriptionsAndValues (
 
 	if (continueFlag)
 		{
-				// Get handle to memory to store the channel values in.
-
-		count = fileInfoPtr->numberChannels * sizeof (float);
-		channelValuesPtr = (float*)CheckHandleSize (&fileInfoPtr->channelValuesHandle,
-																	 &continueFlag,
-																	 &changedFlag,
-																	 count);
+				// Get handle to memory to store the center channel (band) values,
+				// channel (band) widths, and channel wavelength order.
+		
+		channelValuesPtr = CheckChannelValuesHandleSize (fileInfoPtr,
+																			&continueFlag);
+		
+		if (continueFlag)
+			{
+			channelWidthsPtr = &channelValuesPtr[fileInfoPtr->numberChannels];
+			
+					// This will be flag indicating that widths are not available.
+					
+			*channelWidthsPtr = 0;
+			
+			//channelWavelengthOrderPtr =
+			//							(UInt16*)&channelWidthsPtr[fileInfoPtr->numberChannels];
+			
+			}	// end "if (continueFlag)"
 
 		}	// end "if (continueFlag)"
 
@@ -4190,16 +4333,16 @@ void GetInstrumentChannelDescriptionsAndValues (
 
 						channelNumber -= 3;
 
-						}		// end "if (startBandIdentifer != NULL)"
+						}	// end "if (startBandIdentifer != NULL)"
 
-					}		// end "else if (GetNumberImageFiles (windowInfoHandle) > 1)"
+					}	// end "else if (GetNumberImageFiles (windowInfoHandle) > 1)"
 
 				else	// combined file set
 					{
 					if (fileInfoPtr->numberChannels == 4)
 						channelNumber = channel;
 
-					}		// end "else combined file set"
+					}	// end "else combined file set"
 
 				//sprintf ((char*)gTextString, "    channelNumber2 = %hd%s", channelNumber, gEndOfLine);
 				//ListString ((char*)gTextString, strlen ((char*)gTextString), gOutputTextH);
@@ -4328,7 +4471,7 @@ void GetInstrumentChannelDescriptionsAndValues (
 					
 						}	// end "else startBandIdentifierPtr == NULL"
 
-					}		// end "else if (GetNumberImageFiles (windowInfoHandle) > 1)"
+					}	// end "else if (GetNumberImageFiles (windowInfoHandle) > 1)"
 
 				else	// not kNdfType or kFastL7AType or other linked file set
 					{
@@ -4356,7 +4499,7 @@ void GetInstrumentChannelDescriptionsAndValues (
 				else	//
 					resourceStringID = IDS_ChanDescription36;
 
-				}		// end "if (fileInfoPtr->instrumentCode == kLandsatTM7)"
+				}	// end "if (fileInfoPtr->instrumentCode == kLandsatTM7)"
 
 			else if (fileInfoPtr->instrumentCode == kLandsatLC8_OLI_TIRS ||
 					  fileInfoPtr->instrumentCode == kLandsatLC8_OLI ||
@@ -4424,28 +4567,35 @@ void GetInstrumentChannelDescriptionsAndValues (
 				else	// not linked file set
 					{
 							// Check if a combined file set.
+							// If the number of channels is 7, then the assumption is made
+							// that this is a surface reflectance leve 2 data set.
 
 					if (fileInfoPtr->instrumentCode == kLandsatLC8_TIRS &&
 										fileInfoPtr->numberChannels >= 1 &&
 													fileInfoPtr->numberChannels <= 2)
 						channelNumber = channel + 9;
 
-					else if (fileInfoPtr->numberChannels >= 8 &&
+					else if (fileInfoPtr->numberChannels >= 7 &&
 																	fileInfoPtr->numberChannels <= 10)
 						channelNumber = channel;
 
-							// The channels in the combined data set are assumed to be in
-							// wavelength order. The info in the resource file is in band
-							// number order. Adjust channel number to take this into account.
+					if (fileInfoPtr->numberChannels >= 8)
+						{
+								// The channels in the combined data set are assumed to be in
+								// wavelength order. The info in the resource file is in band
+								// number order. Adjust channel number to take this into
+								// account.
 
-					if (channelNumber == 6)
-						channelNumber = 9;
+						if (channelNumber == 6)
+							channelNumber = 9;
 
-					else if (channelNumber == 7 || channelNumber == 8)
-						channelNumber--;
+						else if (channelNumber == 7 || channelNumber == 8)
+							channelNumber--;
 
-					else if (channelNumber == 9 || channelNumber == 10)
-						channelNumber++;
+						else if (channelNumber == 9 || channelNumber == 10)
+							channelNumber++;
+						
+						}	// end "if (fileInfoPtr->numberChannels >= 8)"
 
 					}	// end "else not linked file set"
 
@@ -4457,7 +4607,8 @@ void GetInstrumentChannelDescriptionsAndValues (
 
 				}	// end "if (fileInfoPtr->instrumentCode == kLandsatLC8)"
 
-			else if (fileInfoPtr->instrumentCode == kSentinel2_MSI)
+			else if (fileInfoPtr->instrumentCode == kSentinel2A_MSI ||
+							fileInfoPtr->instrumentCode == kSentinel2B_MSI)
 				{
 						// Handle channel descriptions for Sentinel 2 MSI
 
@@ -4531,12 +4682,19 @@ void GetInstrumentChannelDescriptionsAndValues (
 					}	// end "else not linked file set"
 
 				if (channelNumber >= 1 && channelNumber <= 13)
-					resourceStringID = (SInt16)(IDS_ChanDescription53 + channelNumber - 1);
+					{
+					resourceStringID = (SInt16)IDS_ChanDescription53;
+					if (fileInfoPtr->instrumentCode == kSentinel2B_MSI)
+						resourceStringID = (SInt16)IDS_ChanDescription66;
+					
+					resourceStringID += (channelNumber - 1);
+					
+					}	// end "if (channelNumber >= 1 && channelNumber <= 13)"
 
 				else	// channelNumber > 13
 					resourceStringID = IDS_ChanDescription36;
 
-				}	// end "if (fileInfoPtr->instrumentCode == kSentinel2_MSI)"
+				}	// end "if (fileInfoPtr->instrumentCode == kSentinel2A_MSI ..."
 
 			else if (fileInfoPtr->instrumentCode == kSPOT ||
 					  fileInfoPtr->instrumentCode == kSPOT4)
@@ -4558,7 +4716,7 @@ void GetInstrumentChannelDescriptionsAndValues (
 																fileInfoPtr->format == kNETCDFType)
 					{
 							// Try to get the channel number
-
+					
 					instrumentChannelNumber = GetHdfDataSetInstrumentChannelNumber (
 																						 fileInfoPtr,
 																						 (UInt16)channel);
@@ -4580,7 +4738,7 @@ void GetInstrumentChannelDescriptionsAndValues (
 
 				if (instrumentChannelNumber > 0)
 					resourceStringID = (SInt16)(IDS_ChanDescription14 +
-															instrumentChannelNumber + channel - 2);
+																	instrumentChannelNumber - 1);
 
 				}	// end "else if (fileInfoPtr->instrumentCode == kASTER)"
 
@@ -4607,34 +4765,79 @@ void GetInstrumentChannelDescriptionsAndValues (
 
 				}	// end "else if (fileInfoPtr->instrumentCode == kTANSO_CAI)"
 
+			else if (fileInfoPtr->instrumentCode == kPeruSat)
+				{
+				if (fileInfoPtr->numberChannels == 4)
+					{
+							// A check needs to be made to determine the channel order.
+							// PeruSat data directly from the source appears to be ordered
+							// as red, green, blue, near IR. It is described in the TIFF
+							// Image Description Tag.
+					
+					SInt16	peruSatChannel = channel;
+					SInt16 bandOrderCode = DeterminePeruSatBandOrder (fileInfoPtr);
+					if (bandOrderCode == 1)
+						{
+						if (channel == 1)
+							peruSatChannel = 3;
+						
+						else if (channel == 3)
+							peruSatChannel = 1;
+						
+						}	// end "if (bandOrderCode == 1)"
+					
+					resourceStringID = (SInt16)(IDS_ChanDescription79 + peruSatChannel - 1);
+					
+					}	// end "if (fileInfoPtr->numberChannels == 4)"
+				
+				else if (fileInfoPtr->numberChannels == 1)
+					resourceStringID = (SInt16)(IDS_ChanDescription83 + channel - 1);
+
+				}	// end "else if (fileInfoPtr->instrumentCode == kPeruSat)"
+
 			if (continueFlag && resourceStringID != 0) 
 				{
 				//sprintf ((char*)gTextString, "    resourceID = %hd%s", resourceStringID, gEndOfLine);
 				//ListString ((char*)gTextString, strlen ((char*)gTextString), gOutputTextH);
 
-				if (MGetString ((UCharPtr) gTextString3,
-							kChanDescriptionStrID,
-							resourceStringID)) 
+				if (MGetString ((UCharPtr)gTextString3,
+										kChanDescriptionStrID,
+										resourceStringID)) 
 					{
 					sscanf ((char*)&gTextString3[1],
-								 "%f",
-								 channelValuesPtr);
+								 "%f %f",
+								 channelValuesPtr,
+								 channelWidthsPtr);
 
-							// Find the first blank character in the string.
+							// Find the second blank character in the string.
 
 					charPtr = (char*)&gTextString3[1];
 					index = gTextString3[0];
-					while (*charPtr != ' ' && index > 0) 
+					blankNumber = 0;
+					
+					while (blankNumber < 2)
 						{
-						charPtr++;
-						index--;
+						while (*charPtr != ' ' && index > 0) 
+							{
+							charPtr++;
+							index--;
 
-						}	// end "while (*charPtr != ' ' && index > 0)"
+							}	// end "while (*charPtr != ' ' && index > 0)"
+							
+						if (*charPtr == ' ')
+							{
+							blankNumber++;
+							charPtr++;
+							index--;
+							
+							}	// end "if (*charPtr == ' ')"
+							
+						}	// end "while (blankNumber < 2)"
 
-							// Now skip the first blank character. This is the
+							// Now skip the second blank character. This is the
 							// start of the channel description.
 
-					charPtr++;
+					//charPtr++;
 
 							// Now get the length of the channel description string.
 							// Force it to be no more than 16 characters.
@@ -4665,16 +4868,39 @@ void GetInstrumentChannelDescriptionsAndValues (
 					}	// end "if (MGetString (gTextString3, ..."
 
 				}	// end "if (continueFlag && resourceStringID != 0)"
+				
+					// Set description code information.
+					
+			if (*channelWidthsPtr > 0)
+				fileInfoPtr->descriptionCode |= kBandWidthInfoExists;
+				
+			if (*channelValuesPtr > 0)
+				{
+				if (*channelValuesPtr < 3.0)
+					fileInfoPtr->descriptionCode |= kReflectiveData;
+			
+				else	// *channelValuesPtr >= 3.0
+					fileInfoPtr->descriptionCode |= kThermalData;
+					
+				}	// end "if (*channelValuesPtr > 0)"
+			
+					// Initially assume that the channels are in wavelength order
+			
+			//*channelWavelengthOrderPtr = channel;
 
 			channelDescriptionPtr++;
 			channelValuesPtr++;
+			channelWidthsPtr++;
+			//channelWavelengthOrderPtr++;
 
-			}	// end "for (channel=0; channel<fileInfoPtr->numberChannels; ..."
+			}	// end "for (channel=1; channel<=fileInfoPtr->numberChannels; ..."
 
 		}	// end "if (continueFlag)"
 
 	if (fileInfoPtr->descriptionsFlag) 
 		{
+		fileInfoPtr->descriptionCode |= kDescriptionExists;
+		
 		CheckAndUnlockHandle (fileInfoPtr->channelDescriptionH);
 		CheckAndUnlockHandle (fileInfoPtr->channelValuesHandle);
 
@@ -4694,7 +4920,7 @@ void GetInstrumentChannelDescriptionsAndValues (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4714,7 +4940,7 @@ void GetInstrumentChannelDescriptionsAndValues (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 03/12/2013
-//	Revised By:			Larry L. Biehl			Date: 10/19/2017
+//	Revised By:			Larry L. Biehl			Date: 07/19/2018
 
 void GetInstrumentCode (
 				FileInfoPtr							fileInfoPtr)
@@ -4743,9 +4969,9 @@ void GetInstrumentCode (
 			fileStreamPtr = GetFileStreamPointer (fileInfoPtr);
 
 			if (GetTIFFASCIIParameters (fileStreamPtr,
-						 &tiffFileDirectory,
-						 textString,
-						 textStringLength) == noErr) 
+												 &tiffFileDirectory,
+												 textString,
+												 textStringLength) == noErr) 
 				{
 				startInstrumentNamePtr = (UCharPtr)strstr ((char*)textString, "| Instrument Name: ");
 				if (startInstrumentNamePtr != NULL) 
@@ -4757,14 +4983,16 @@ void GetInstrumentCode (
 					instrumentResourceCode = IDS_InstrumentName01;
 					for (index = 1; index <= kNumberInstrumentCodes; index++) 
 						{
-						if (MGetString ((UCharPtr) gTextString3,
-										 kInstrumentNameStrID,
-										 instrumentResourceCode)) 
+						if (MGetString ((UCharPtr)gTextString3,
+												kInstrumentNameStrID,
+												instrumentResourceCode)) 
 							{
 									// Now see if the name instrument name in the file matches the 
 									// resource name.
 
-							if (!strncmp ((char*)&gTextString3[1], (char*)startInstrumentNamePtr, gTextString3[0])) 
+							if (!strncmp ((char*)&gTextString3[1], 
+												(char*)startInstrumentNamePtr, 
+												gTextString3[0])) 
 								{
 								fileInfoPtr->instrumentCode = (UInt16)index;
 								break;
@@ -4800,7 +5028,7 @@ void GetInstrumentCode (
 			if (fileInfoPtr->numberChannels == 7 && fileInfoPtr->numberBytes == 1)
 				fileInfoPtr->instrumentCode = (UInt16)kLandsatTM;
 			
-			}		// end "if (CompareStringsNoCase ("L4_", fileNamePtr, 3) ..."
+			}	// end "if (CompareStringsNoCase ("L4_", fileNamePtr, 3) ..."
 				
 		else if (StrStrNoCase ((char*)fileNamePtr, "L4") || 
 												StrStrNoCase ((char*)fileNamePtr, "L5"))
@@ -4819,7 +5047,7 @@ void GetInstrumentCode (
 			if (fileInfoPtr->numberChannels == 8 && fileInfoPtr->numberBytes == 1)
 				fileInfoPtr->instrumentCode = (UInt16)kLandsatTM7;
 			
-			}		// end "else if (!CompareStringsNoCase ((UCharPtr)"L7_", ..."
+			}	// end "else if (!CompareStringsNoCase ((UCharPtr)"L7_", ..."
 				
 		else if (!CompareStringsNoCase ((UCharPtr)"LC8_", fileNamePtr, 4))
 			{
@@ -4828,7 +5056,7 @@ void GetInstrumentCode (
 			if (fileInfoPtr->numberChannels == 10 && fileInfoPtr->numberBytes == 2)
 				fileInfoPtr->instrumentCode = (UInt16)kLandsatLC8_OLI_TIRS;
 			
-			}		// end "else if (!CompareStringsNoCase ((UCharPtr)"LC8_", ..."
+			}	// end "else if (!CompareStringsNoCase ((UCharPtr)"LC8_", ..."
 				
 		else if (!CompareStringsNoCase ((UCharPtr)"LO8_", fileNamePtr, 4))
 			{
@@ -4837,7 +5065,7 @@ void GetInstrumentCode (
 			if (fileInfoPtr->numberChannels == 8 && fileInfoPtr->numberBytes == 2)
 				fileInfoPtr->instrumentCode = (UInt16)kLandsatLC8_OLI;
 			
-			}		// end "else if (!CompareStringsNoCase ((UCharPtr)"LO8_", ..."
+			}	// end "else if (!CompareStringsNoCase ((UCharPtr)"LO8_", ..."
 				
 		else if (!CompareStringsNoCase ((UCharPtr)"LT8_", fileNamePtr, 4))
 			{
@@ -4856,6 +5084,37 @@ void GetInstrumentCode (
 				fileInfoPtr->instrumentCode = (UInt16)kLandsatLC8_OLI_TIRS;
 			
 			}	// end "else if (StrStrNoCase ((char*)fileNamePtr, "LC8"))"
+				
+		else if (StrStrNoCase ((char*)fileNamePtr, "S2A_"))
+			{
+					// This may be a Sentinel 2A, single channel data set.
+					
+			if (fileInfoPtr->numberChannels == 1 && fileInfoPtr->numberBytes == 2)
+				fileInfoPtr->instrumentCode = (UInt16)kSentinel2A_MSI;
+			
+			}	// end "else if (StrStrNoCase ((char*)fileNamePtr, "S2A"))"
+				
+		else if (StrStrNoCase ((char*)fileNamePtr, "S2B_"))
+			{
+					// This may be a Sentinel 2B, single channel data set.
+					
+			if (fileInfoPtr->numberChannels == 1 && fileInfoPtr->numberBytes == 2)
+				fileInfoPtr->instrumentCode = (UInt16)kSentinel2B_MSI;
+			
+			}	// end "else if (StrStrNoCase ((char*)fileNamePtr, "S2B"))"
+				
+		else if (StrStrNoCase ((char*)fileNamePtr, "PER1"))
+			{
+					// This may be a PeruSat data set.
+					
+			if (fileInfoPtr->numberChannels == 4 && fileInfoPtr->numberBytes == 2)
+				fileInfoPtr->instrumentCode = (UInt16)kPeruSat;
+					
+			else if (fileInfoPtr->numberChannels == 1 && fileInfoPtr->numberBytes == 2)
+						// Assume 0.7 meter panchromatic data
+				fileInfoPtr->instrumentCode = (UInt16)kPeruSat;
+			
+			}	// end "else if (StrStrNoCase ((char*)fileNamePtr, "PER1"))"
 		
 		}	// end "if (fileInfoPtr->instrumentCode == 0)"
 
@@ -4864,7 +5123,7 @@ void GetInstrumentCode (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5056,7 +5315,128 @@ SInt16 GetMapProjectionCodeFromGCTPNumber (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		void GetMultiSpecChannelWidths
+//
+//	Software purpose:	The purpose of this routine is to get the channel widths from
+//							the MultiSpec channel descriptions that have been read from 
+//							the end of the file if possible.
+//
+//	Parameters in:		None
+//
+//	Parameters out:	None
+//
+// Value Returned: 	None
+//
+// Called By:			ReadMultiSpecChannelDescriptionsAndValues in SFileIO.cpp
+//
+//	Coded By:			Larry L. Biehl			Date: 01/29/2018
+//	Revised By:			Larry L. Biehl			Date: 06/28/2018
+
+void GetMultiSpecChannelWidths (
+				FileInfoPtr							fileInfoPtr)
+{
+	char									tempString[32];
+	
+	ChannelDescriptionPtr			channelDescriptionPtr;
+	
+	char*									tempStringPtr;
+
+	float									*channelValuesPtr,
+											*channelWidthsPtr;
+											
+	float									bandEnd,
+											bandStart;
+											
+	int									returnCode;
+
+	UInt16								channel;
+
+
+	if (fileInfoPtr != NULL &&
+			fileInfoPtr->channelDescriptionH != NULL &&
+					fileInfoPtr->channelValuesHandle != NULL)
+		{
+				// Get pointer to the channel descriptions.
+				
+		channelDescriptionPtr = (ChannelDescriptionPtr)GetHandlePointer (
+																	  fileInfoPtr->channelDescriptionH,
+																	  kLock);
+
+				// Get handle to memory to store the channel values in.				
+
+		channelValuesPtr = (float*)GetHandlePointer (fileInfoPtr->channelValuesHandle,
+																	kLock);
+																	 
+		channelWidthsPtr = &channelValuesPtr[fileInfoPtr->numberChannels];
+		
+		bandStart = 0;
+		bandEnd = 0;
+			
+		for (channel=0; channel<fileInfoPtr->numberChannels; channel++)
+			{
+					// Copy the channel description for the string to the temporary
+					// string and forcd a string terminator after the 16th character.
+					// The channel descriptions may not have a c terminator at the end
+					// of the string and the string can be up to 16 characters long.
+					
+			BlockMoveData (channelDescriptionPtr, tempString, 16);
+			tempString[16] = 0;
+			returnCode = sscanf ((char*)tempString, 
+										 (char*)"%f-%f",
+										 &bandStart,
+										 &bandEnd);
+										 
+			if (returnCode == 1 && bandStart > bandEnd)
+				{
+						// Assume that bandEnd was not found because the '-' was next
+						// to the band end value.
+				
+				tempStringPtr = strchr ((char*)tempString, '-');
+				if (tempStringPtr != NULL)
+					{
+					tempStringPtr++;
+					returnCode = sscanf (tempStringPtr,
+												 (char*)"%f",
+												 &bandEnd);
+					
+					if (returnCode == 1)
+						returnCode++;
+					
+					}	// end "if (tempStringPtr != NULL)"
+				
+				}	// end "if (returnCode == 1 && bandStart > bandEnd)"
+			
+			if (returnCode == 2 && bandStart < bandEnd)
+				{
+				*channelWidthsPtr	= fabs (bandEnd - bandStart);
+				fileInfoPtr->descriptionCode |= kBandWidthInfoExists;
+				
+				}	// end "if (returnCode == 2 && bandStart < bandEnd)"
+			
+			else	// something wrong; cannot get bandwidth
+				*channelWidthsPtr = 0;
+				
+			channelDescriptionPtr++;
+													 
+			channelWidthsPtr++;
+
+			}	// end "for (channel=0; channel<..."
+
+		CheckAndUnlockHandle (fileInfoPtr->channelDescriptionH);
+		CheckAndUnlockHandle (fileInfoPtr->channelValuesHandle);
+
+		}	// end "if (fileInfoPtr != NULL)" 
+
+}	// end "GetMultiSpecChannelWidths" 
+
+
+
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5135,7 +5515,7 @@ SInt16 GetProjectionNameInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5189,9 +5569,249 @@ HUInt16Ptr GetSymbolToBinaryVector (
 }	// end "GetSymbolToBinaryVector"
 
 
+/*
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2018)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		SInt16 GetChannelWavelengthOrder
+//
+//	Software purpose:	The purpose of this routine is to set the vector defining the
+//							wavelength order of the channels. This will only be done if
+//							information exists for the center wavelengths for each of the
+//							channels.
+//
+//	Parameters in:		window
+//
+//	Parameters out:	None
+//
+//	Value Returned:	Channel wavelength order code:
+//								=0; not applicable; no center wavelengths
+//								=1; channels are in wavelength order
+//								=2; channels are not in wavelength order
+// 
+// Called By:
+//
+//	Coded By:			Larry L. Biehl			Date: 06/28/2018
+//	Revised By:			Larry L. Biehl			Date: 06/29/2018
+
+SInt16 GetChannelWavelengthOrder (
+				FileInfoPtr							fileInfoPtr)
+
+{
+	float									*channelValuesPtr;
+	
+	UInt16								*channelWavelengthOrderPtr;
+	
+	UInt32								channelNumber,
+											endIndex,
+											lastIndex,
+											index;
+	
+	SInt16								returnCode = 0;
+
+
+	if (fileInfoPtr->channelValuesHandle != NULL)
+		{
+		returnCode = 1;
+		channelValuesPtr = (float*)GetHandlePointer (
+										fileInfoPtr->channelValuesHandle, kLock);
+		channelWavelengthOrderPtr =
+									(UInt16*)&channelValuesPtr[2*fileInfoPtr->numberChannels];
+		
+				// Initialize order
+		
+		for (index=0; index<fileInfoPtr->numberChannels; index++)
+			channelWavelengthOrderPtr[index] = index;
+		
+				// This is a simple bubble sort
+
+		endIndex = fileInfoPtr->numberChannels - 1;
+		do
+			{
+			lastIndex = 0;
+			for (index=0; index<endIndex; index++)
+				{
+            if (channelValuesPtr[channelWavelengthOrderPtr[index]] >
+											channelValuesPtr[channelWavelengthOrderPtr[index+1]])
+					{
+							// swap channel number in the sorted list
+					
+					channelNumber = channelWavelengthOrderPtr[index];
+					channelWavelengthOrderPtr[index] = channelWavelengthOrderPtr[index+1];
+					channelWavelengthOrderPtr[index+1] = channelNumber;
+
+					lastIndex = index;
+					returnCode = 2;
+					
+					}	// end "if (channelValuesPtr[index] > channelValuesPtr[index+1])"
+				
+				}	// end "for (index=0; index< fileInfoPtr->numberChannels; index++)"
+			
+			endIndex = lastIndex;
+			
+			}	while (endIndex > 0);
+
+		}	// end "if (fileInfoPtr->channelValuesHandle != NULL)"
+
+	return (returnCode);
+
+}	// end "GetChannelWavelengthOrder"
+*/
+
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		SInt16 GetChannelWavelengthOrder
+//
+//	Software purpose:	The purpose of this routine is to set the vector defining the
+//							wavelength order of the channels. This will only be done if
+//							information exists for the center wavelengths for each of the
+//							channels.
+//
+//	Parameters in:		window
+//
+//	Parameters out:	None
+//
+//	Value Returned:	Channel wavelength order code:
+//								=0; not applicable; no center wavelengths
+//								=1; channels are in wavelength order
+//								=2; channels are not in wavelength order
+// 
+// Called By:
+//
+//	Coded By:			Larry L. Biehl			Date: 07/10/2018
+//	Revised By:			Larry L. Biehl			Date: 07/11/2018
+
+SInt16 GetChannelWavelengthOrder (
+				WindowInfoPtr						windowInfoPtr,
+				LayerInfoPtr						layerInfoPtr)
+
+{
+	FileInfoPtr							fileInfoPtr,
+											localFileInfoPtr;
+	
+	float									*localChannelValuesPtr,
+											*tempChannelValuesPtr;
+	
+	UInt16								*channelWavelengthOrderPtr;
+	
+	Handle								fileInfoHandle;
+	
+	UInt32								channelNumber,
+											endIndex,
+											fileIndex,
+											lastIndex,
+											index,
+											tempIndex;
+	
+	SInt16								returnCode = 0;
+
+
+			// Verify there are wavelength information for all the channels associated
+			// with the window.
+	
+	fileInfoHandle = GetFileInfoHandle (windowInfoPtr);
+	fileInfoPtr = (FileInfoPtr)GetHandlePointer (fileInfoHandle, kLock);
+	if (fileInfoPtr == NULL)
+																						return (returnCode);
+	
+	for (fileIndex=0; fileIndex<windowInfoPtr->numberImageFiles; fileIndex++)
+		{
+		localFileInfoPtr = &fileInfoPtr[fileIndex];
+		if (localFileInfoPtr->channelValuesHandle == NULL)
+																						return (returnCode);
+		
+		}	// end "for (fileIndex=0; fileIndex<windowInfoPtr->numberImageFiles; ..."
+	
+			// Load the channel values into a temporary vector.
+	
+	tempChannelValuesPtr = (float*)MNewPointer (
+									2 * windowInfoPtr->totalNumberChannels * sizeof (float));
+	
+	if (tempChannelValuesPtr != NULL)
+		{
+		returnCode = 1;
+		tempIndex = 0;
+		for (fileIndex=0; fileIndex<windowInfoPtr->numberImageFiles; fileIndex++)
+			{
+			localFileInfoPtr = &fileInfoPtr[fileIndex];
+			localChannelValuesPtr = (float*)GetHandlePointer (
+															localFileInfoPtr->channelValuesHandle);
+			
+			for (index=0; index<localFileInfoPtr->numberChannels; index++)
+				{
+				tempChannelValuesPtr[tempIndex] = localChannelValuesPtr[index];
+				tempIndex++;
+				
+				}	// end "for (index=0; index<localFileInfoPtr->numberChannels; index++)"
+			
+			}	// end "for (index=0; index<windowInfoPtr->numberImageFiles; index++)"
+		
+		CheckAndUnlockHandle (fileInfoHandle);
+
+		channelWavelengthOrderPtr =
+						(UInt16*)&tempChannelValuesPtr[windowInfoPtr->totalNumberChannels];
+			
+				// Initialize order
+			
+		for (index=0; index<windowInfoPtr->totalNumberChannels; index++)
+			channelWavelengthOrderPtr[index] = index;
+			
+				// This is a simple bubble sort
+	
+		endIndex = windowInfoPtr->totalNumberChannels - 1;
+		do
+			{
+			lastIndex = 0;
+			for (index=0; index<endIndex; index++)
+				{
+				if (tempChannelValuesPtr[channelWavelengthOrderPtr[index]] >
+										tempChannelValuesPtr[channelWavelengthOrderPtr[index+1]])
+					{
+							// swap channel number in the sorted list
+					
+					channelNumber = channelWavelengthOrderPtr[index];
+					channelWavelengthOrderPtr[index] = channelWavelengthOrderPtr[index+1];
+					channelWavelengthOrderPtr[index+1] = channelNumber;
+
+					lastIndex = index;
+					returnCode = 2;
+					
+					}	// end "if (tempChannelValuesPtr[index] > ..."
+				
+				}	// end "for (index=0; index<endIndex; index++)"
+			
+			endIndex = lastIndex;
+			
+			}	while (endIndex > 0);
+		
+				// Sorting has been completed. Move the wavelength order to the
+				// layer information structure for later use.
+			
+		for (index=0; index<windowInfoPtr->totalNumberChannels; index++)
+			{
+			layerInfoPtr[index+1].wavelengthOrder = channelWavelengthOrderPtr[index];
+			layerInfoPtr[channelWavelengthOrderPtr[index]+1].wavelengthIndex = index;
+			
+			}	// end "for (index=0; index<windowInfoPtr->totalNumberChannels; index++)"
+		
+		CheckAndDisposePtr (tempChannelValuesPtr);
+		
+		}	// end "if (tempChannelValuesPtr != NULL)"
+
+	return (returnCode);
+
+}	// end "GetChannelWavelengthOrder"
+
+
+
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5369,7 +5989,7 @@ void IntermediateFileUpdate (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5387,7 +6007,7 @@ void IntermediateFileUpdate (
 // Called By:			LinkFiles in SOpenDlg.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/12/1999
-//	Revised By:			Larry L. Biehl			Date: 01/25/2013	
+//	Revised By:			Larry L. Biehl			Date: 02/07/2018
 
 SInt16 LinkFastL7AFiles (
 				Handle								windowInfoHandle)
@@ -5407,7 +6027,7 @@ SInt16 LinkFastL7AFiles (
 	SInt16								returnCode,
 											version;
 
-	Boolean								continueFlag,
+	Boolean								continueFlag = FALSE,
 											doneFlag;
 
 	SignedByte							handleStatus;
@@ -5515,7 +6135,7 @@ SInt16 LinkFastL7AFiles (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5577,7 +6197,7 @@ void LoadClassNameDescriptions (
 
 			// Get handles/pointers to file information.
 
-	fileInfoPtr = (FileInfoPtr) GetHandleStatusAndPointer (fileInfoHandle, &handleStatus);
+	fileInfoPtr = (FileInfoPtr)GetHandleStatusAndPointer (fileInfoHandle, &handleStatus);
 
 	if (fileInfoPtr->classDescriptionH == NULL)
 		{
@@ -5770,7 +6390,7 @@ void LoadClassNameDescriptions (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5880,7 +6500,7 @@ Boolean LoadImageInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5937,7 +6557,7 @@ Boolean LoadSelectedDataSetInformation	(
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5982,7 +6602,7 @@ Boolean ModalFileFormat (
 			// isn't already locked, until the information has been loaded			
 			// in. Then get the pointer to the file information block
 
-	fileInfoPtr = (FileInfoPtr) GetHandleStatusAndPointer (
+	fileInfoPtr = (FileInfoPtr)GetHandleStatusAndPointer (
 														fileInfoHandle, &handleStatus1);
 
 	if (fileInfoPtr->format == 0)
@@ -5996,7 +6616,7 @@ Boolean ModalFileFormat (
 					// An active image window exists already, then use those
 					// parameters as the default.
 
-			activeFileInfoPtr = (FileInfoPtr) GetHandleStatusAndPointer (
+			activeFileInfoPtr = (FileInfoPtr)GetHandleStatusAndPointer (
 					  activeImageFileInfoH, &handleStatus2);
 
 			fileInfoPtr->numberLines = activeFileInfoPtr->numberLines;
@@ -6088,7 +6708,7 @@ Boolean ModalFileFormat (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6104,14 +6724,15 @@ Boolean ModalFileFormat (
 //
 //	Value Returned:	None
 //
-// Called By:			LoadImageInformation in fileIO.c
-//							ModalFileSpecification in fileIO.c
+// Called By:			LoadImageInformation in SFileIO.cpp
+//							ModalFileSpecification in SFileIO.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 02/22/1993
-//	Revised By:			Larry L. Biehl			Date: 03/12/2013
+//	Revised By:			Larry L. Biehl			Date: 07/10/2018
 
 void ReadChannelDescriptionsAndValues (
 				Handle								fileInfoHandle)
+
 {
 	SignedByte							handleStatus;
 
@@ -6124,7 +6745,7 @@ void ReadChannelDescriptionsAndValues (
 			// Get handles/pointers to file information
 
 	fileInfoPtr = (FileInfoPtr)GetHandleStatusAndPointer (
-														fileInfoHandle, &handleStatus);
+																	fileInfoHandle, &handleStatus);
 
 	if (fileInfoPtr != NULL)
 		{
@@ -6142,6 +6763,11 @@ void ReadChannelDescriptionsAndValues (
 			
 		if (!fileInfoPtr->descriptionsFlag && fileInfoPtr->instrumentCode > 0)
 			GetInstrumentChannelDescriptionsAndValues (fileInfoPtr);
+		
+				// Get a vector with the channels in wavelength order
+		
+		//fileInfoPtr->channelsInWavelengthOrderCode =
+		//												GetChannelWavelengthOrder (fileInfoPtr);
 
 		}	// end "if (fileInfoPtr != NULL)"
 
@@ -6152,7 +6778,7 @@ void ReadChannelDescriptionsAndValues (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6310,7 +6936,7 @@ SInt16 ReadENVIHeader (
 						// Try getting file with ".img" suffix at the end.
 
             RemoveCharsNoCase ((char*)"\0.dat\0", imageFileNamePtr);
-            ConcatFilenameSuffix (imageFileNamePtr, (StringPtr) "\0.img\0");
+            ConcatFilenameSuffix (imageFileNamePtr, (StringPtr)"\0.img\0");
 
             errCode = OpenFileReadOnly (fileStreamPtr,
 													  kResolveAliasChains,
@@ -6324,7 +6950,7 @@ SInt16 ReadENVIHeader (
 						// Try getting file with ".cal" suffix at the end.
 
             RemoveCharsNoCase ((char*)"\0.img\0", imageFileNamePtr);
-            ConcatFilenameSuffix (imageFileNamePtr, (StringPtr) "\0.cal\0");
+            ConcatFilenameSuffix (imageFileNamePtr, (StringPtr)"\0.cal\0");
 
             errCode = OpenFileReadOnly (fileStreamPtr,
 													  kResolveAliasChains,
@@ -6338,7 +6964,7 @@ SInt16 ReadENVIHeader (
 						// Try getting file with ".drk" suffix at the end.
 
             RemoveCharsNoCase ((char*)"\0.cal\0", imageFileNamePtr);
-            ConcatFilenameSuffix (imageFileNamePtr, (StringPtr) "\0.drk\0");
+            ConcatFilenameSuffix (imageFileNamePtr, (StringPtr)"\0.drk\0");
 
             errCode = OpenFileReadOnly (fileStreamPtr,
 													  kResolveAliasChains,
@@ -6352,7 +6978,7 @@ SInt16 ReadENVIHeader (
 						// Try getting file with ".lan" suffix at the end.
 
             RemoveCharsNoCase ((char*)"\0.drk\0", imageFileNamePtr);
-            ConcatFilenameSuffix (imageFileNamePtr, (StringPtr) "\0.lan\0");
+            ConcatFilenameSuffix (imageFileNamePtr, (StringPtr)"\0.lan\0");
 
             errCode = OpenFileReadOnly (fileStreamPtr,
 													  kResolveAliasChains,
@@ -6685,7 +7311,7 @@ SInt16 ReadENVIHeader (
 
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6818,7 +7444,7 @@ SInt16 ReadENVIHeaderBandNamesInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7305,7 +7931,7 @@ SInt16 ReadENVIHeaderMapInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7323,7 +7949,7 @@ SInt16 ReadENVIHeaderMapInfo (
 // Called By:			ReadChannelDescriptionsAndValues in SOpenImage.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/31/2017
-//	Revised By:			Larry L. Biehl			Date: 11/01/2017
+//	Revised By:			Larry L. Biehl			Date: 01/29/2018
 
 void ReadENVIChannelDescriptionsAndValues (
 				FileInfoPtr							fileInfoPtr)
@@ -7333,7 +7959,10 @@ void ReadENVIChannelDescriptionsAndValues (
 	char									*charPtr,
 											*metaDataStringPtr;
 
-	float*								channelValuesPtr;
+	float									*channelValuesPtr,
+											*channelWidthsPtr;
+											
+	float									reflectiveThermalCrossover;
 
 	UInt32								channel,
 											count,
@@ -7343,9 +7972,11 @@ void ReadENVIChannelDescriptionsAndValues (
 											continueFlag = TRUE;
 
 
+	#if include_gdal_capability
 	if (fileInfoPtr == NULL)
 																										return;
 
+	
 			// Get handle to memory to store the channel information	in.
 
 	count = fileInfoPtr->numberChannels * sizeof (ChannelDescription);
@@ -7357,14 +7988,21 @@ void ReadENVIChannelDescriptionsAndValues (
 
 	if (continueFlag)
 		{
-				// Get handle to memory to store the channel values in.
-
-		count = fileInfoPtr->numberChannels * sizeof (float);
-		channelValuesPtr = (float*)CheckHandleSize (
-																 &fileInfoPtr->channelValuesHandle,
-																 &continueFlag,
-																 &changedFlag,
-																 count);
+				// Get handle to memory to store the center channel (band) values,
+				// channel (band) widths, and channel wavelength order.
+		
+		channelValuesPtr = CheckChannelValuesHandleSize (fileInfoPtr,
+																			&continueFlag);
+		
+		if (continueFlag)
+			{
+			channelWidthsPtr = &channelValuesPtr[fileInfoPtr->numberChannels];
+			
+					// This will be flag indicating that widths are not available.
+					
+			*channelWidthsPtr = 0;
+			
+			}	// end "if (continueFlag)"
 
 		}	// end "if (continueFlag)"
 	
@@ -7378,13 +8016,15 @@ void ReadENVIChannelDescriptionsAndValues (
 		}	// end "if (continueFlag)"
 
 	if (continueFlag)
-		{					
+		{			
+		reflectiveThermalCrossover = 3.0;
+				
 				// Get the units for the wavelengths if available.
 					
 		metaDataStringPtr = (char*)GDALGetMetadataItem (
-										GDALGetRasterBand (fileInfoPtr->gdalDataSetH, 1),
-										"wavelength_units",
-										NULL);
+									GDALGetRasterBand (fileInfoPtr->gdalDataSetH, 1),
+									"wavelength_units",
+									NULL);
 		
 		unitStringLength = 0;
 		if (metaDataStringPtr != NULL)
@@ -7405,6 +8045,11 @@ void ReadENVIChannelDescriptionsAndValues (
 				
 			unitStringLength = 
 							(UInt32)strlen ((char*)fileInfoPtr->channelDescriptionUnitString);
+							
+			if (CompareStringsNoCase (fileInfoPtr->channelDescriptionUnitString, 
+												(UCharPtr)"nm",
+												2))
+				reflectiveThermalCrossover = 3000.;
 			
 			}	// end "if (metaDataStringPtr != NULL)"
 
@@ -7452,6 +8097,18 @@ void ReadENVIChannelDescriptionsAndValues (
 													fileInfoPtr->maxNumberDescriptionCharacters,
 													(SInt16)count);
 				
+						// Set description code information.
+						
+				if (*channelValuesPtr > 0)
+					{
+					if (*channelValuesPtr < reflectiveThermalCrossover)
+						fileInfoPtr->descriptionCode |= kReflectiveData;
+				
+					else	// *channelValuesPtr >= reflectiveThermalCrossover
+						fileInfoPtr->descriptionCode |= kThermalData;
+						
+					}	// end "if (*channelValuesPtr > 0)"
+				
 				}	// end "if (metaDataStringPtr != NULL)"
 
 			channelDescriptionPtr++;
@@ -7476,13 +8133,14 @@ void ReadENVIChannelDescriptionsAndValues (
 											UnlockAndDispose (fileInfoPtr->channelValuesHandle);
 
 		}	// end "else !fileInfoPtr->descriptionsFlag"
+	#endif	// include_gdal_capability
 
 }	// end "ReadENVIChannelDescriptionsAndValues"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7615,7 +8273,7 @@ Boolean ReadERDASClassNames (
 							// Find the end of the class name.
 
 					gTextString[32] = kNullTerminator;
-					endClassNamePtr = (char*)strchr ((char*)gTextString, (int) tilde);
+					endClassNamePtr = (char*)strchr ((char*)gTextString, (int)tilde);
 
 					if (endClassNamePtr != NULL)
 						{
@@ -7707,7 +8365,7 @@ Boolean ReadERDASClassNames (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8114,7 +8772,7 @@ SInt16 ReadERDASHeader (
 													1,
 													numberColumns,
 													&count,
-													(HUCharPtr) ioBufferPtr2);
+													(HUCharPtr)ioBufferPtr2);
 
 						}	// end "if (errCode == noErr)"
 
@@ -8239,7 +8897,7 @@ SInt16 ReadERDASHeader (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8259,7 +8917,7 @@ SInt16 ReadERDASHeader (
 // Called By:			CheckImageHeader in SOpnImag.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/10/1999
-//	Revised By:			Larry L. Biehl			Date: 09/01/2017
+//	Revised By:			Larry L. Biehl			Date: 02/07/2018
 
 SInt16 ReadFastL7AHeader (
 				FileInfoPtr							fileInfoPtr,
@@ -8285,7 +8943,7 @@ SInt16 ReadFastL7AHeader (
 	CMFileStream						*fileStreamPtr,
 											*headerFileStreamPtr;
 
-	MapProjectionInfoPtr				mapProjectionInfoPtr;
+	MapProjectionInfoPtr				mapProjectionInfoPtr = NULL;
 
 	FileStringPtr						headerFileNameCPtr,
 											headerFilePathPPtr,
@@ -8450,9 +9108,9 @@ SInt16 ReadFastL7AHeader (
 			headerFilePathPPtr =
 					(FileStringPtr)GetFilePathPPointerFromFileStream (headerFileStreamPtr);
 
-			headerSuffixNamePtr[0] = (StringPtr) headerSuffixName1;
-			headerSuffixNamePtr[1] = (StringPtr) headerSuffixName2;
-			headerSuffixNamePtr[2] = (StringPtr) headerSuffixName3;
+			headerSuffixNamePtr[0] = (StringPtr)headerSuffixName1;
+			headerSuffixNamePtr[1] = (StringPtr)headerSuffixName2;
+			headerSuffixNamePtr[2] = (StringPtr)headerSuffixName3;
 
 			foundFlag = FALSE;
 			headerSet = 0;
@@ -8945,7 +9603,7 @@ SInt16 ReadFastL7AHeader (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9119,7 +9777,7 @@ SInt16 ReadLARSYSMISTHeader (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9265,7 +9923,7 @@ SInt16 ReadLASHeader (
 						(FileStringPtr)GetFilePathPPointerFromFileStream (fileStreamddrPtr);
 
 			RemoveCharsNoCase ((char*)"\0.img\0", fileNamePtr);
-			ConcatFilenameSuffix (fileNamePtr, (StringPtr) "\0.ddr\0");
+			ConcatFilenameSuffix (fileNamePtr, (StringPtr)"\0.ddr\0");
 
 			errCode = OpenFileReadOnly (fileStreamddrPtr,
 												  kResolveAliasChains,
@@ -9602,7 +10260,7 @@ SInt16 ReadLASHeader (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -10017,7 +10675,7 @@ SInt16 ReadLGSOWGHeader (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -10127,7 +10785,7 @@ SInt16 ReadMacSADIEHeader (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -10638,7 +11296,7 @@ SInt16 ReadMultiSpecClassificationHeader (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -10656,7 +11314,7 @@ SInt16 ReadMultiSpecClassificationHeader (
 // Called By:			ReadChannelDescriptionsAndValues in openImageRoutines.c
 //
 //	Coded By:			Larry L. Biehl			Date: 02/22/1993
-//	Revised By:			Larry L. Biehl			Date: 12/05/2012
+//	Revised By:			Larry L. Biehl			Date: 06/28/2018
 
 void ReadLARSYSChannelDescriptionsAndValues (
 				FileInfoPtr							fileInfoPtr)
@@ -10669,7 +11327,8 @@ void ReadLARSYSChannelDescriptionsAndValues (
 
 	CMFileStream*						fileStreamPtr;
 
-	float*								channelValuesPtr;
+	float									*channelValuesPtr,
+											*channelWidthsPtr;
 
 	UInt32								count;
 
@@ -10703,15 +11362,23 @@ void ReadLARSYSChannelDescriptionsAndValues (
 
 	if (errCode == noErr)
 		{
-				// Get handle to memory to store the channel values in.
+				// Get handle to memory to store the center channel (band) values,
+				// channel (band) widths, and channel wavelength order.
+		
+		channelValuesPtr = CheckChannelValuesHandleSize (fileInfoPtr,
+																			&continueFlag);
+		
+		if (continueFlag)
+			{
+			channelWidthsPtr = &channelValuesPtr[fileInfoPtr->numberChannels];
+			
+					// This will be flag indicating that widths are not available.
+					
+			*channelWidthsPtr = 0;
+			
+			}	// end "if (continueFlag)"
 
-		count = fileInfoPtr->numberChannels * sizeof (float);
-		channelValuesPtr = (float*)CheckHandleSize (&fileInfoPtr->channelValuesHandle,
-																	 &continueFlag,
-																	 &changedFlag,
-																	 count);
-
-		if (!continueFlag)
+		else	// !continueFlag)
 			errCode = -1;
 
 		}	// end "if (errCode == noErr)"
@@ -10803,7 +11470,7 @@ void ReadLARSYSChannelDescriptionsAndValues (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -10824,16 +11491,18 @@ void ReadLARSYSChannelDescriptionsAndValues (
 //							ModalFileSpecification in fileIO.c
 //
 //	Coded By:			Larry L. Biehl			Date: 02/09/1989
-//	Revised By:			Larry L. Biehl			Date: 12/11/2009
+//	Revised By:			Larry L. Biehl			Date: 07/09/2018
 
 void ReadMultiSpecChannelDescriptionsAndValues (
 				FileInfoPtr							fileInfoPtr)
+
 {
 	CMFileStream*						fileStreamPtr;
 
 	UInt32								count;
 
-	SInt64								sizeImageFile;
+	SInt64								sizeFile,
+											sizeImageFile;
 
 	SInt16								errCode,
 											foundCode;
@@ -10848,10 +11517,34 @@ void ReadMultiSpecChannelDescriptionsAndValues (
 				// Get the size of the image without any channel descriptions.
 
 		sizeImageFile = GetSizeOfImage (fileInfoPtr);
-
+		
+		if (fileInfoPtr->numberHeaderBytes == 0 &&
+					(fileInfoPtr->format == kTIFFType || fileInfoPtr->format == kGeoTIFFType))
+			{
+					// This implies that the tiff image has multiple strips and the number
+					// of header bytes is not known. If the MultiSpec channel descriptions
+					// exist they should be at a set location from the end of the file.
+					// Try that location.
+			
+			errCode = GetSizeOfFile (fileInfoPtr, &sizeFile);
+			
+			if (errCode == noErr)
+				{
+						// Get size of the channel descriptions.
+			
+				sizeFile -= (20 + fileInfoPtr->numberChannels * 16 +
+															20 + fileInfoPtr->numberChannels * 9);
+			
+				if (sizeFile >= 0)
+					sizeImageFile = sizeFile;
+			
+				}	// end "if (errCode == noErr)"
+			
+			}	// end "if (fileInfoPtr->numberHeaderBytes == 0 && ..."
+		
 				// Set file pointer to end of image data.  If no eof error, then
 				// read in characters to check for channel description identifier.	
-
+		
 		errCode = MSetMarker (fileStreamPtr,
 									 fsFromStart,
 									 sizeImageFile,
@@ -10869,7 +11562,7 @@ void ReadMultiSpecChannelDescriptionsAndValues (
 
 			if (errCode != eofErr)
 				IOCheck (errCode, fileStreamPtr);
-
+			
 			}	// end "if (errCode == noErr)"
 
 				// If not at end of the file, then check if characters read in are
@@ -10882,25 +11575,7 @@ void ReadMultiSpecChannelDescriptionsAndValues (
 			{
 			if (strncmp ((char*)gTextString, (char*)&gTextString2[1], gTextString2[0]) == 0)
 								foundCode = 0;
-			/*
-			if (foundCode == -1 && strncmp (
-						(char*)gTextString, (char*)&gTextString2[2], gTextString2[0]-1) == 0)
-				{
-				foundCode = 0;
 
-						// Back up one byte if we need to to handle the channel
-						// description writing error done before 6-20-90.
-
-				errCode = MSetMarker (fileStreamPtr,
-												fsFromMark,
-												-1, 
-												kNoErrorMessages);
-				IOCheck (errCode, fileStreamPtr);
-				if (errCode != noErr)
-					foundCode = -1;
-
-				}	// end "if (foundCode == -1 && strncmp..."
-			*/
 			}	// end "if (errCode == noErr && ...)"
 
 		if (foundCode >= 0)
@@ -10931,6 +11606,11 @@ void ReadMultiSpecChannelDescriptionsAndValues (
 		 
 		if (foundCode >= 0)
 			errCode = ReadMultiSpecChannelValues (fileInfoPtr);
+			
+				// Try to get the channel (band) widths from the descriptions.
+			
+		if (foundCode >= 0 && errCode == noErr)
+			GetMultiSpecChannelWidths (fileInfoPtr);
 
 		}	// end "if (fileInfoPtr->dataCompressionCode == kNoCompression)"
 
@@ -10939,7 +11619,7 @@ void ReadMultiSpecChannelDescriptionsAndValues (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -10959,10 +11639,11 @@ void ReadMultiSpecChannelDescriptionsAndValues (
 // Called By:			ReadMultiSpecChannelDescriptionsAndValues in SOpnImag.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 02/09/1989
-//	Revised By:			Larry L. Biehl			Date: 09/18/2006
+//	Revised By:			Larry L. Biehl			Date: 02/07/2018
 
 SInt16 ReadMultiSpecChannelDescriptions (
 				FileInfoPtr							fileInfoPtr)
+				
 {
 	ChannelDescriptionPtr			channelDescriptionPtr;
 	char*									charPtr;
@@ -10977,12 +11658,11 @@ SInt16 ReadMultiSpecChannelDescriptions (
 
 
 	errCode = -1;
+   maxNumberCharactersUsed = 0;
 
 	if (fileInfoPtr != NULL)
 		{
 		CMFileStream* fileStreamPtr = GetFileStreamPointer (fileInfoPtr);
-
-		maxNumberCharactersUsed = 0;
 
 				// Get handle to memory to store the channel information	in.
 
@@ -10991,7 +11671,7 @@ SInt16 ReadMultiSpecChannelDescriptions (
 
 		if (fileInfoPtr->channelDescriptionH != NULL)
 			{
-			channelDescriptionPtr = (ChannelDescriptionPtr) GetHandlePointer (
+			channelDescriptionPtr = (ChannelDescriptionPtr)GetHandlePointer (
 																	  fileInfoPtr->channelDescriptionH,
 																	  kLock);
 
@@ -11028,7 +11708,7 @@ SInt16 ReadMultiSpecChannelDescriptions (
 
 							// Determine maximum number of non-blank characters.
 
-					for (index = 16; index > 0; index--)
+					for (index=16; index>0; index--)
 						{
 						if (*charPtr != ' ')
 							break;
@@ -11061,7 +11741,7 @@ SInt16 ReadMultiSpecChannelDescriptions (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11082,7 +11762,7 @@ SInt16 ReadMultiSpecChannelDescriptions (
 // Called By:			ReadMultiSpecChannelDescriptionsAndValues in fileIO.c
 //
 //	Coded By:			Larry L. Biehl			Date: 09/15/1992
-//	Revised By:			Larry L. Biehl			Date: 01/10/2017
+//	Revised By:			Larry L. Biehl			Date: 06/28/2018
 
 SInt16 ReadMultiSpecChannelValues (
 				FileInfoPtr							fileInfoPtr)
@@ -11090,7 +11770,8 @@ SInt16 ReadMultiSpecChannelValues (
 	SInt64								fileSize,
 											positionOffset;
 
-	float*								channelValuesPtr;
+	float									*channelValuesPtr,
+											*channelWidthsPtr;
 
 	UInt32								count;
 
@@ -11105,20 +11786,28 @@ SInt16 ReadMultiSpecChannelValues (
 
     errCode = -1;
 
-    if (fileInfoPtr != NULL) 
+    if (fileInfoPtr != NULL)
 		{
 		CMFileStream* fileStreamPtr = GetFileStreamPointer (fileInfoPtr);
-
-				// Get handle to memory to store the channel values in.				
-
+		
+				// Get handle to memory to store the center channel (band) values,
+				// channel (band) widths, and channel wavelength order.
+		
 		errCode = noErr;
-		count = fileInfoPtr->numberChannels * sizeof (float);
-		channelValuesPtr = (float*)CheckHandleSize (&fileInfoPtr->channelValuesHandle,
-																	 &continueFlag,
-																	 &changedFlag,
-																	 count);
+		channelValuesPtr = CheckChannelValuesHandleSize (fileInfoPtr,
+																			&continueFlag);
+		
+		if (continueFlag)
+			{
+			channelWidthsPtr = &channelValuesPtr[fileInfoPtr->numberChannels];
+			
+					// This will be flag indicating that widths are not available.
+					
+			*channelWidthsPtr = 0;
+			
+			}	// end "if (continueFlag)"
 
-		if (channelValuesPtr == NULL)
+		else	// !continueFlag
 			errCode = -1;
 
 				// Get temporary memory to read the channel values in.				
@@ -11133,7 +11822,7 @@ SInt16 ReadMultiSpecChannelValues (
 										 &positionOffset,
 										 kNoErrorMessages);
 		
-		if (errCode == noErr) 
+		if (errCode == noErr)
 			{
 			count = 0;
 			if (fileSize >= positionOffset)
@@ -11151,7 +11840,7 @@ SInt16 ReadMultiSpecChannelValues (
 			if (!continueFlag)
 				errCode = -1;
 
-			}		// end "if (errCode == noErr)"
+			}	// end "if (errCode == noErr)"
 
 					// If there has been no memory or file error, read all channel 	
 					// values into memory.															
@@ -11168,21 +11857,33 @@ SInt16 ReadMultiSpecChannelValues (
 			errno = 0;
 			inputStringPtr[count] = 0;
 
-			for (channel = 0; channel < fileInfoPtr->numberChannels; channel++) 
+			for (channel=0; channel<fileInfoPtr->numberChannels; channel++)
 				{
 				*channelValuesPtr = (float)strtod (inputStringPtr, (char**)&inputStringPtr);
-				if (errno == ERANGE) 
+				if (errno == ERANGE)
 					{
 					errCode = -2;
 					break;
 
-					}		// end "if (errno == ERANGE)" 
+					}	// end "if (errno == ERANGE)" 
+				
+						// Set description code information.
+						
+				if (*channelValuesPtr > 0)
+					{
+					if (*channelValuesPtr < 3.0)
+						fileInfoPtr->descriptionCode |= kReflectiveData;
+				
+					else	// *channelValuesPtr >= 3.0
+						fileInfoPtr->descriptionCode |= kThermalData;
+						
+					}	// end "if (*channelValuesPtr > 0)"
 				
 				channelValuesPtr++;
 
-            }		// end "for (channel=0; channel<..."
+            }	// end "for (channel=0; channel<..."
 
-			}		// end "if (errCode == noErr)"
+			}	// end "if (errCode == noErr)"
 
 		if (errCode == noErr)
 			CheckAndUnlockHandle (fileInfoPtr->channelValuesHandle);
@@ -11194,22 +11895,22 @@ SInt16 ReadMultiSpecChannelValues (
 
 			} // end "else errCode != noErr" 
 
-		if (disposeBufferHandleFlag) 
+		if (disposeBufferHandleFlag)
 			{
 			gCharBufferHandle1 = UnlockAndDispose (gCharBufferHandle1);
 			gCharBufferPtr1 = NULL;
 
-			}		// end "if (disposeBufferHandleFlag)"
+			}	// end "if (disposeBufferHandleFlag)"
 
-		}		// end "if (fileInfoPtr != NULL)" 
+		}	// end "if (fileInfoPtr != NULL)" 
 
 	return (errCode);
 
-}		// end "ReadMultiSpecChannelValues" 
+}	// end "ReadMultiSpecChannelValues" 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11354,7 +12055,7 @@ Boolean ReadMultiSpecClassNames (
 
 				while (classIndex < fileInfoPtr->numberClasses && strPtr != NULL)
 					{
-					strPtr = (HUCharPtr) strchr ((char*)strPtr, ':');
+					strPtr = (HUCharPtr)strchr ((char*)strPtr, ':');
 					if (strPtr != NULL)
 						{
 								// Make certain that we can read the entire class
@@ -11424,7 +12125,7 @@ Boolean ReadMultiSpecClassNames (
 
 		}	// end "while (classIndex < fileInfoPtr->numberClasses)"
 
-	CheckAndDisposePtr ((Ptr) ioBufferPtr);
+	CheckAndDisposePtr ((Ptr)ioBufferPtr);
 
 	return (TRUE);
 
@@ -11433,7 +12134,7 @@ Boolean ReadMultiSpecClassNames (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11494,7 +12195,7 @@ SInt16 ReadPDSHeader (
 	returnCode = 1;
 	fileStreamPtr = GetFileStreamPointer (fileInfoPtr);
 
-	if (fileInfoPtr != NULL && fileStreamPtr != NULL) 
+	if (fileInfoPtr != NULL && fileStreamPtr != NULL)
 		{
 				// First check for PDS identifier.
 				
@@ -11513,7 +12214,7 @@ SInt16 ReadPDSHeader (
 			{
 			if (MGetString (gTextString2, kFileIOStrID, IDS_FileIO152))		// PDS_VERSION_ID
 				{
-				CopyPascalStringToC ((ConstStr255Param) gTextString2, (char*)gTextString2);
+				CopyPascalStringToC ((ConstStr255Param)gTextString2, (char*)gTextString2);
 				stringCompare = strncmp ((char*)headerRecordPtr, (char*)gTextString2, 14);		
 			
 				if (stringCompare == 0)
@@ -11631,9 +12332,9 @@ SInt16 ReadPDSHeader (
 
 		}	// end "if (fileInfoPtr != NULL && fileStreamPtr != NULL)"
 
-	if (fileType != 0) 
+	if (fileType != 0)
 		{
-		if (formatOnlyCode != kLoadHeader) 
+		if (formatOnlyCode != kLoadHeader)
 			{
 			fileInfoPtr->format = fileType;
 			fileInfoPtr->thematicType = FALSE;
@@ -12164,7 +12865,7 @@ SInt16 ReadPDSHeader (
 
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -12237,7 +12938,7 @@ SInt16 ReadSPOTHeader (
 				fileInfoPtr->numberHeaderBytes = returnValue;
 				fileInfoPtr->numberColumns = returnValue;
 
-				}		// end "if (sscanfReturnCode == 1)"
+				}	// end "if (sscanfReturnCode == 1)"
 
 			else	// sscanfReturnCode != 1
 				errCode = 1;
@@ -12335,7 +13036,7 @@ SInt16 ReadSPOTHeader (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -12382,7 +13083,7 @@ SInt16 ReadSunScreenDumpHeader (
 		charKeyCode[2] = 0x6a;
 		charKeyCode[3] = 0x95;
 
-		if (strncmp ((char*)headerRecordPtr, (CharPtr) charKeyCode, 4) == 0)
+		if (strncmp ((char*)headerRecordPtr, (CharPtr)charKeyCode, 4) == 0)
 			fileType = kSunScreenDumpType;
 
 		}	// end "if (headerRecordPtr != NULL && fileInfoPtr != NULL)"
@@ -12487,7 +13188,7 @@ SInt16 ReadSunScreenDumpHeader (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -12625,7 +13326,7 @@ SInt16 ReadTGAHeader (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -12703,7 +13404,7 @@ Boolean ReadThematicGroups (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -13107,7 +13808,7 @@ Boolean ReadThematicGroupsFromImageFile (
 		{
 		outputFileInfoPtr->numberGroups = groupCount;
 
-		UnlockAndDispose ((Handle) displaySpecsPtr->savedGroupCTableHandle);
+		UnlockAndDispose ((Handle)displaySpecsPtr->savedGroupCTableHandle);
 		displaySpecsPtr->savedGroupCTableHandle = cTableHandle;
 
 		UnlockAndDispose (outputFileInfoPtr->groupNameHandle);
@@ -13149,7 +13850,7 @@ Boolean ReadThematicGroupsFromImageFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -13356,7 +14057,7 @@ SInt16 ReadVICARHeader (
 
 						// Get next set of information.										
 
-				if (nextSet == 2) 
+				if (nextSet == 2)
 					{
 					index = 0;
 					stringNumber[0] = IDS_FileIO60;
@@ -13372,7 +14073,7 @@ SInt16 ReadVICARHeader (
 																kDoNotSkipEqual,
 																&tReturnCode);
 
-						if (tReturnCode == 0) 
+						if (tReturnCode == 0)
 							{
 							fileInfoPtr->numberBytes = index + 1;
 							fileInfoPtr->numberBits = 8 * fileInfoPtr->numberBytes;
@@ -13397,7 +14098,7 @@ SInt16 ReadVICARHeader (
 
 					}	// end "if (nextSet == 2)" 
 
-				if (nextSet == 3) 
+				if (nextSet == 3)
 					{
 					index = 0;
 					stringNumber[0] = IDS_FileIO46;
@@ -13415,7 +14116,7 @@ SInt16 ReadVICARHeader (
 															  kDoNotSkipEqual,
 															  &tReturnCode);
 
-						if (tReturnCode == 0) 
+						if (tReturnCode == 0)
 							{
 							fileInfoPtr->bandInterleave = index + 1;
 							nextSet = 4;
@@ -13434,7 +14135,7 @@ SInt16 ReadVICARHeader (
 
 					}	// end "if (nextSet == 3)" 
 
-				if (nextSet == 4) 
+				if (nextSet == 4)
 					{
 							// Find "NL=" in the buffer.										
 
@@ -13460,7 +14161,7 @@ SInt16 ReadVICARHeader (
 
 					}	// end "if (nextSet == 4)" 
 
-				if (nextSet == 5) 
+				if (nextSet == 5)
 					{
 							// Find "NS=" in the buffer.										
 
@@ -13486,7 +14187,7 @@ SInt16 ReadVICARHeader (
 
 					}	// end "if (nextSet == 5)" 
 
-				if (nextSet == 6) 
+				if (nextSet == 6)
 					{
 							// Find "NB=" in the buffer.										
 
@@ -13515,7 +14216,7 @@ SInt16 ReadVICARHeader (
 
 						// Get next set of information.										
 
-				if (nextSet == 7) 
+				if (nextSet == 7)
 					{
 							// Find "INTFMT='HIGH'" in the buffer.							
 
@@ -13526,7 +14227,7 @@ SInt16 ReadVICARHeader (
 														 kDoNotSkipEqual,
 														 &tReturnCode);
 
-					if (tReturnCode >= 0) 
+					if (tReturnCode >= 0)
 						{
 						if (tReturnCode == 0)
 							fileInfoPtr->swapBytesFlag = !gBigEndianFlag;
@@ -13571,7 +14272,7 @@ SInt16 ReadVICARHeader (
 				*/
 				}	// end "if (errCode == noErr)" 
 
-			if (atEndOfFile && notFound) 
+			if (atEndOfFile && notFound)
 				{
 						// Display an alert if the needed parameters were not 		
 						// found in the file.													
@@ -13597,7 +14298,7 @@ SInt16 ReadVICARHeader (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -13640,26 +14341,26 @@ SInt16 ReadWindowsBitMapHeader	(
 	returnCode = 1;
 	fileType = 0;
 
-	if (headerRecordPtr != NULL && fileInfoPtr != NULL) 
+	if (headerRecordPtr != NULL && fileInfoPtr != NULL)
 		{
 				//  Check Windows BitMap identifier.
 
 		charKeyCode[0] = 0x42;
 		charKeyCode[1] = 0x4D;
 
-		if (strncmp ((char*)headerRecordPtr, (CharPtr) charKeyCode, 2) == 0)
+		if (strncmp ((char*)headerRecordPtr, (CharPtr)charKeyCode, 2) == 0)
 			fileType = kWindowsBitMapType;
 
 		}	// end "if (headerRecordPtr != NULL && fileInfoPtr != NULL)"
 
-	if (formatOnlyCode != kLoadHeader) 
+	if (formatOnlyCode != kLoadHeader)
 		{
 		fileInfoPtr->format = fileType;
 																						return (returnCode);
 
 		}	// end "if (formatOnlyCode != kLoadHeader)"
 
-	if (fileType != 0) 
+	if (fileType != 0)
 		{
 				// Set up swap bytes flag depending upon the system architecture
 
@@ -13697,7 +14398,7 @@ SInt16 ReadWindowsBitMapHeader	(
 		fileInfoPtr->bandInterleave = kBIL;
 
 		fileInfoPtr->thematicType = FALSE;
-		if (fileInfoPtr->numberBits >= 8) 
+		if (fileInfoPtr->numberBits >= 8)
 			{
 			if (gGetFileImageType == kMultispectralImageType ||
 					  (gGetFileImageType != kThematicImageType && numberOfColors == 0) ||
@@ -13788,7 +14489,7 @@ SInt16 ReadWindowsBitMapHeader	(
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -13919,7 +14620,7 @@ Boolean SetUpImageWindow (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -14040,7 +14741,9 @@ Boolean SetUpThematicImageWindow (
 
 					AdjustImageWSize (windowInfoHandle);
 
-							// Force the image window to be displayed before the dialog box is displayed.
+							// Force the image window to be displayed before the dialog
+							// box is displayed.
+					
 					CheckSomeEvents (0);
 
 					gMemoryTypeNeeded = 1;
@@ -14061,7 +14764,7 @@ Boolean SetUpThematicImageWindow (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -14081,7 +14784,7 @@ Boolean SetUpThematicImageWindow (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 12/11/2012
-//	Revised By:			Larry L. Biehl			Date: 03/05/2017
+//	Revised By:			Larry L. Biehl			Date: 08/14/2018
 
 Boolean SizeOfImageFileCanBeCalculated (
 				FileInfoPtr							fileInfoPtr)
@@ -14090,11 +14793,13 @@ Boolean SizeOfImageFileCanBeCalculated (
 
 
 	if (fileInfoPtr->dataCompressionCode != kNoCompression ||
-					fileInfoPtr->format == kGRIBType ||
-					fileInfoPtr->format == kImagineType ||
-					fileInfoPtr->format == kArcGISASCIIGridType ||
-					fileInfoPtr->format == kGRASSASCIIGridType ||
-					(fileInfoPtr->format == kPDSType && fileInfoPtr->gdalDataSetH != NULL))
+			fileInfoPtr->format == kGRIBType ||
+			fileInfoPtr->format == kImagineType ||
+			fileInfoPtr->format == kArcGISASCIIGridType ||
+			fileInfoPtr->format == kGRASSASCIIGridType ||
+			(fileInfoPtr->format == kPDSType && fileInfoPtr->gdalDataSetH != NULL) ||
+			fileInfoPtr->format == kGDALVRTType ||
+			fileInfoPtr->format == kPCIDSKType)
 		returnFlag = FALSE;
 
 	return (returnFlag);
@@ -14104,7 +14809,7 @@ Boolean SizeOfImageFileCanBeCalculated (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -14125,7 +14830,7 @@ Boolean SizeOfImageFileCanBeCalculated (
 //							AddToImageWindowFile in openImageRoutines.c
 //
 //	Coded By:			Larry L. Biehl			Date: 08/15/1991
-//	Revised By:			Larry L. Biehl			Date: 09/05/2017	
+//	Revised By:			Larry L. Biehl			Date: 07/11/2018
 
 Boolean UpdateLayerInfoStructure (
 				WindowInfoPtr						windowInfoPtr,
@@ -14141,7 +14846,7 @@ Boolean UpdateLayerInfoStructure (
 											newFileInfoHandle;
 											//oldFileInfoHandle;
 
-	SInt32 bytesNeeded;
+	SInt32								bytesNeeded;
 
 	UInt16								channel,
 											index,
@@ -14230,6 +14935,7 @@ Boolean UpdateLayerInfoStructure (
 
 			layerInfoPtr->fileInfoIndex = 0;
 			layerInfoPtr->fileChannelNumber = 0;
+			layerInfoPtr->wavelengthOrder = 0;
 
 			}	// end "if (newTotalNumberChannels == ..." 
 
@@ -14265,7 +14971,7 @@ Boolean UpdateLayerInfoStructure (
 																				kLock);
 				continueFlag =  (newFileInfoPtr != NULL);	
 																										
-				}		// end "if (continueFlag)"
+				}	// end "if (continueFlag)"
 
 			if (continueFlag)
 				{
@@ -14274,7 +14980,7 @@ Boolean UpdateLayerInfoStructure (
 																				kLock);
 				continueFlag =  (oldFileInfoPtr != NULL);	
 																										
-				}		// end "if (continueFlag)"
+				}	// end "if (continueFlag)"
 			*/
 			if (continueFlag) 
 				{
@@ -14313,15 +15019,16 @@ Boolean UpdateLayerInfoStructure (
 				windowInfoPtr->maxNumberDescriptionCharacters =
 										MAX (windowInfoPtr->maxNumberDescriptionCharacters,
 												fileInfoPtr->maxNumberDescriptionCharacters);
-
+												
 				if (fileInfoPtr->descriptionsFlag)
-					windowInfoPtr->descriptionCode = -1;
-
-						// Now move the file information to its new location.	
-								
-				//bytesNeeded = sizeof (MFileInfo) * windowInfoPtr->numberImageFiles;	
-				//BlockMoveData (oldFileInfoPtr, newFileInfoPtr, bytesNeeded);					
-				//UnlockAndDispose (oldFileInfoHandle);
+					windowInfoPtr->descriptionCode |= fileInfoPtr->descriptionCode;
+				
+				else	// !fileInfoPtr->descriptionsFlag
+							// If description information does not exist for one of
+							// the linked files, need to indicate that it does not exist
+							// for the window or there will be problems with selection
+							// graphs.
+					windowInfoPtr->descriptionCode = 0;
 				
 				newFileInfoPtr = &newFileInfoPtr[windowInfoPtr->numberImageFiles];
 				bytesNeeded = sizeof (MFileInfo);
@@ -14356,7 +15063,7 @@ Boolean UpdateLayerInfoStructure (
 			}	// end "else newTotalNumberChannels != ..." 
 
 		SetBoundingMapRectangle (windowInfoPtr->windowInfoHandle);
-
+		
 				// Update the image second order statistics structure. Release any
 				// memory already in use for the sums and sums of squares.
 		
@@ -14391,13 +15098,19 @@ Boolean UpdateLayerInfoStructure (
 			{
 			layerInfoPtr[index].fileInfoIndex = windowInfoPtr->numberImageFiles;
 			layerInfoPtr[index].fileChannelNumber = channel;
+			layerInfoPtr[index].wavelengthOrder = index - 1;
 			channel++;
 
 			}	// end "for (index=oldTotalNumberChannels; ..." 
 
 		windowInfoPtr->numberImageFiles++;
 
-		}	// end "if (continueFlag)" 
+				// Get the wavelength order information in case it will be needed later
+		
+		windowInfoPtr->channelsInWavelengthOrderCode =
+					GetChannelWavelengthOrder (windowInfoPtr, layerInfoPtr);
+
+		}	// end "if (continueFlag)"
 
 	CheckAndUnlockHandle (layerInfoHandle);
 

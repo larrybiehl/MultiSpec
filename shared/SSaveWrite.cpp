@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							 (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			12/21/2017
+//	Revision date:			07/02/2018
 //
 //	Language:				C
 //
@@ -304,7 +304,7 @@ Boolean 	WriteTextOutputFile (
 
 
 //------------------------------------------------------------------------------------
-//								 	Copyright (1992-2017)
+//								 	Copyright (1992-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -476,7 +476,7 @@ SInt16 FindEndOfLineCode (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -496,7 +496,7 @@ SInt16 FindEndOfLineCode (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 11/13/1996
-//	Revised By:			Larry L. Biehl			Date: 09/01/2017	
+//	Revised By:			Larry L. Biehl			Date: 02/07/2018
 
 Boolean GetGroupInfoFile (
 				Handle								inputFileInfoHandle,
@@ -504,7 +504,7 @@ Boolean GetGroupInfoFile (
 
 {								
 	CMFileStream*						fileStreamPtr;
-	FileInfoPtr							inputFileInfoPtr;
+	FileInfoPtr							inputFileInfoPtr = NULL;
 	FileStringPtr						fileNamePtr;
 	
 	SInt16								errCode,
@@ -632,7 +632,7 @@ Boolean GetGroupInfoFile (
 
 
 //------------------------------------------------------------------------------------
-//								 		Copyright (1992-2017)
+//								 		Copyright (1992-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -850,7 +850,7 @@ SInt16 GetNextLine (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1001,7 +1001,7 @@ UInt32 GetNumberStripsToUse (
 	
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1182,7 +1182,7 @@ Boolean GetThematicSupportFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1221,7 +1221,7 @@ UInt32 LoadGeoDoubleValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2653,7 +2653,7 @@ UInt32 LoadGeoKeyDirectory (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2693,7 +2693,7 @@ void LoadGeoKeyEntry (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2826,7 +2826,7 @@ UInt32 LoadGeoModelTiePoints (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2844,7 +2844,7 @@ UInt32 LoadGeoModelTiePoints (
 // Called By:			WriteTIFFImageFile in SSaveWrt.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 03/10/2013
-//	Revised By:			Larry L. Biehl			Date: 06/17/2015
+//	Revised By:			Larry L. Biehl			Date: 07/02/2018
 
 UInt16 LoadInstrumentNameToTIFFAsciiTag (
 				FileInfoPtr 						fileInfoPtr,
@@ -2887,7 +2887,14 @@ UInt16 LoadInstrumentNameToTIFFAsciiTag (
 				
 			stringLength += 
 					sprintf ((char*)&stringPtr[stringLength],"%s |", &gTextString2[1]);
-				
+			
+					// For PeruSat data add info for band order if it is known that the
+					// bands are not in wavelength order.
+			
+			if (fileInfoPtr->channelsInWavelengthOrderCode == kNotInOrder)
+				stringLength +=
+							sprintf ((char*)&stringPtr[stringLength]," B2 B1 B0 B3 |");
+			
 			}	// end "if (continueFlag)"
 									
 		}	// end "if (fileInfoPtr->instrumentCode > 0)" 
@@ -2899,7 +2906,7 @@ UInt16 LoadInstrumentNameToTIFFAsciiTag (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3057,7 +3064,7 @@ UInt32 LoadGeoModelTransformationParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3171,7 +3178,7 @@ void LoadThematicClasses (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3265,7 +3272,7 @@ void LoadThematicGroups (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3332,7 +3339,7 @@ void LoadThematicInfo (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3501,7 +3508,7 @@ void LoadTIFFColorBuffer (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3578,7 +3585,7 @@ void LoadTiffEntry (
                    
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3805,7 +3812,7 @@ void LoadTransformationFile (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4145,7 +4152,7 @@ Boolean ReadOffsetGainFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4711,7 +4718,7 @@ Boolean ReadTransformationFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4821,7 +4828,7 @@ SInt16 ReadTransformationFileSetSwapInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4922,7 +4929,7 @@ void ReadTransformationGetFileSizes (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5121,11 +5128,10 @@ void SaveImageWindowAs (void)
 				RemoveSuffix (filePathPtr);
 				ConcatFilenameSuffix (filePathPtr, (StringPtr)"\0.kml\0");
 	
-				#if TARGET_API_MAC_CARBON
-							// Force the uniFileName to be recreated to match the kml file 
-							// name.
-					fileStreamPtr->uniFileName.length = 0;
-				#endif	// TARGET_API_MAC_CARBON
+						// Force the uniFileName to be recreated to match the kml file
+						// name.
+						
+				fileStreamPtr->uniFileName.length = 0;
 				
 						// Now open the kml file.
 						
@@ -5181,7 +5187,7 @@ void SaveImageWindowAs (void)
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5201,8 +5207,8 @@ void SaveImageWindowAs (void)
 //
 // Called By:
 //
-//	Coded By:			?							Date: ??/??/??
-//	Revised By:			Larry L. Biehl			Date: 03/15/2017
+//	Coded By:			?							Date: ??/??/????
+//	Revised By:			Larry L. Biehl			Date: 02/07/2018
 
 Boolean SaveTextOutputAs (void)
 
@@ -5210,7 +5216,7 @@ Boolean SaveTextOutputAs (void)
 									
 	CMFileStream*						fileStreamPtr;
 	
-	Boolean								abortedFlag;
+	Boolean								abortedFlag = FALSE;
 	Handle								windowInfoHandle;
 	
 	#if use_mlte_for_text_window
@@ -5329,7 +5335,7 @@ Boolean SaveTextOutputAs (void)
 
 
 //------------------------------------------------------------------------------------
-//								 	Copyright (1988-2017)
+//								 	Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5381,7 +5387,7 @@ UCharPtr SkipToNextCarriageReturn (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5400,7 +5406,7 @@ UCharPtr SkipToNextCarriageReturn (
 // Called By:			WriteNewImageHeader in SReform2.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/13/2000
-//	Revised By:			Larry L. Biehl			Date: 09/01/2017
+//	Revised By:			Larry L. Biehl			Date: 04/09/2018
 
 Boolean WriteArcViewWorldFile (
 				FileInfoPtr 						fileInfoPtr)
@@ -5474,12 +5480,13 @@ Boolean WriteArcViewWorldFile (
 							
 			ConcatFilenameSuffix (blwFileNamePtr, (StringPtr)"\0.blw\0");			
 			
-			#if TARGET_API_MAC_CARBON
-						// Force the uniFileName to be recreated to match the support file 
+			#if defined multispec_mac
+						// Force the uniFileName to be recreated to match the support file
 						// name.
+			
 				blwStreamPtr->uniFileName.length = 0;
-			#endif	// TARGET_API_MAC_CARBON																
-						
+			#endif	// defined multispec_mac
+			
 			SetType (blwStreamPtr, kTEXTFileType);
 				
 					// Create the header file in the same volume as that for the image file.
@@ -5534,7 +5541,7 @@ Boolean WriteArcViewWorldFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5553,7 +5560,7 @@ Boolean WriteArcViewWorldFile (
 // Called By:			WriteNewImageHeader in SReform2.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/07/2000
-//	Revised By:			Larry L. Biehl			Date: 11/01/2017
+//	Revised By:			Larry L. Biehl			Date: 02/07/2018
 
 Boolean WriteArcViewHeaderFile (
 				FileInfoPtr 						fileInfoPtr)
@@ -5580,9 +5587,9 @@ Boolean WriteArcViewHeaderFile (
 	char									byteOrderCharacter;
 	
 			
+   errCode = noErr;
 	if (fileInfoPtr != NULL)
 		{
-		errCode = noErr;
 		fileStreamPtr = GetFileStreamPointer (fileInfoPtr);
 					
 				// Get the pointer to the header stream block and initialize it.
@@ -5609,12 +5616,7 @@ Boolean WriteArcViewHeaderFile (
 		RemoveSuffix (headerFileNamePtr);
 					
 		ConcatFilenameSuffix (headerFileNamePtr, (StringPtr)"\0.hdr\0");	
-		/*
-		#if TARGET_API_MAC_CARBON
-				// Force the uniFileName to be recreated to match the support file name.
-			headerStreamPtr->uniFileName.length = 0;
-		#endif	// TARGET_API_MAC_CARBON																	
-		*/			
+
 		SetType (headerStreamPtr, kTEXTFileType);
 		SInt16 vRefNum = GetVolumeReferenceNumber (fileStreamPtr);
 		
@@ -5704,7 +5706,7 @@ Boolean WriteArcViewHeaderFile (
 				
 			count = sprintf ((char*)gTextString,
 									"NBITS       %d%s", 
-									numberBits,
+									(unsigned int)numberBits,
 									gEndOfLine);
 				
 			errCode = MWriteData (headerStreamPtr, &count, gTextString, kErrorMessages);
@@ -6016,7 +6018,7 @@ Boolean WriteArcViewHeaderFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6062,7 +6064,7 @@ Boolean WriteArcViewSupportFiles (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6193,7 +6195,7 @@ SInt16 WriteArcViewMapInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //
 //	Function name:		Boolean WriteErdasHeader
@@ -6261,7 +6263,7 @@ Boolean	WriteErdasHeader (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6663,7 +6665,7 @@ SInt16 WriteGeoTIFFInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //
 //	Function name:		Boolean WriteKMLFile
@@ -7054,7 +7056,7 @@ Boolean	WriteKMLFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //
 //	Function name:		Boolean WriteNewErdasHeader
@@ -7103,7 +7105,7 @@ Boolean	WriteNewErdasHeader (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7291,7 +7293,7 @@ Boolean WriteNewImageHeader (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7404,7 +7406,7 @@ Boolean WriteTextOutputFile (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7422,14 +7424,14 @@ Boolean WriteTextOutputFile (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 11/08/1996
-//	Revised By:			Larry L. Biehl			Date: 09/01/2017
+//	Revised By:			Larry L. Biehl			Date: 02/07/2018
 
 void WriteThematicClassesAs (
 				Handle								windowInfoHandle,
 				FileInfoPtr							fileInfoPtr)
 
 {                  
-	ColorSpec*							colorSpecPtr;
+	ColorSpec*							colorSpecPtr = NULL;
 	
 	CTabHandle							cTableHandle;
 	CTabPtr								colorTablePtr;
@@ -7450,7 +7452,7 @@ void WriteThematicClassesAs (
 	gPaletteOffset = displaySpecsPtr->paletteOffset;
 	
 	if (cTableHandle != NULL)
-		{ 
+		{
 		colorTablePtr = (CTabPtr)GetHandlePointer ((Handle)cTableHandle, kLock);
 		colorSpecPtr = colorTablePtr->ctTable;
 		
@@ -7536,7 +7538,7 @@ void WriteThematicClassesAs (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7844,7 +7846,7 @@ void WriteThematicGroups (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7918,7 +7920,7 @@ void WriteThematicInfo (
 
 /*                   
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8049,7 +8051,7 @@ SInt16 WriteTIFFColorMap2 (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8276,7 +8278,7 @@ SInt16 WriteTIFFColorMap2 (
 
 /*                   
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8426,7 +8428,7 @@ SInt16 WriteTIFFColorMap (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8483,9 +8485,7 @@ SInt16 WriteTIFFImageData (
 	#if defined multispec_mac		
 		if (gOSXCoreGraphicsFlag)
 			{
-			#if TARGET_API_MAC_CARBON	
-				rowBytes = gImageWindowInfoPtr->cgInfo.contextRowBytes;
-			#endif	// TARGET_API_MAC_CARBON	
+			rowBytes = gImageWindowInfoPtr->cgInfo.contextRowBytes;
 			
 			}	// end "if (gOSXCoreGraphicsFlag)"
 			
@@ -8839,7 +8839,7 @@ SInt16 WriteTIFFImageData (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9706,7 +9706,7 @@ Boolean WriteTIFFImageFile (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

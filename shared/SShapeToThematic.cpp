@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			12/21/2017
+//	Revision date:			02/27/2018
 //
 //	Language:				C
 //
@@ -277,7 +277,7 @@ private bool IsPointInPolygon (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -522,7 +522,7 @@ SInt16 ConvertPolygonShapeToClassNumber (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -543,7 +543,7 @@ SInt16 ConvertPolygonShapeToClassNumber (
 // Called By:			AreasToThematicFileControl in fieldsToThematicFile.c
 //
 //	Coded By:			Larry L. Biehl			Date: 04/02/2001
-//	Revised By:			Larry L. Biehl			Date: 05/07/2013
+//	Revised By:			Larry L. Biehl			Date: 02/27/2018
 
 Boolean ConvertShapeToClassNumber (
 				FileInfoPtr							outFileInfoPtr,
@@ -559,7 +559,7 @@ Boolean ConvertShapeToClassNumber (
 	ArcViewPointPtr					arcViewPointPtr;
 	ArcViewRecordHeaderPtr			arcViewRecordHeaderPtr;
 	CMFileStream*						outFileStreamPtr;
-	FileIOInstructionsPtr			fileIOInstructionsPtr;
+	FileIOInstructionsPtr			fileIOInstructionsPtr = NULL;
 	HUCharPtr				 			ioOutBufferPtr;
 	MapProjectionInfoPtr				mapProjectionInfoPtr;
 	Ptr									vectorDataPtr;
@@ -571,7 +571,7 @@ Boolean ConvertShapeToClassNumber (
 	UInt32								count,
 											currentLine,
 											recordIndex,
-											shapeType,
+											shapeType = 0,
 											vectorDataIndex;
 											
 	SInt16								errCode;
@@ -589,8 +589,7 @@ Boolean ConvertShapeToClassNumber (
 		vectorDataPtr = (Ptr)GetHandlePointer (shapeInfoPtr->vectorDataHandle,
 																kLock);
 								
-	if (vectorDataPtr != NULL)
-		{
+	{
 				// Set up status dialog.  Load in number of classes.						
 					
 		LoadDItemValue (gStatusDialogPtr, 
@@ -805,7 +804,7 @@ Boolean ConvertShapeToClassNumber (
 /*
 // Currently not used; was done for a test.
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -884,7 +883,7 @@ UInt32 GetValueForRecordIndex (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -937,7 +936,7 @@ Boolean IsPointInPolygon (
 
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1004,7 +1003,7 @@ Boolean IsPointInPolygon2 (
 
 #if include_gdal_capability
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1123,7 +1122,7 @@ Boolean ListShapeDBFFieldNames (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1399,13 +1398,13 @@ void LoadShapeToThematicClassNames (
 			
 		else if (shapeInfoPtr->shapeType == 1)
 			{
-			nameLength = sprintf ((char*)classNameTablePtr, "Class %d", identifier);
+			nameLength = sprintf ((char*)classNameTablePtr, "Class %d", (unsigned int)identifier);
 			
 			}		// end "else dbfInfoPtr == NULL || identifier >= numberRecords"
 			
 		else		// (dbfInfoPtr == NULL || identifier >= numberRecords) && ->shapeType != 1
 			{
-			nameLength = sprintf ((char*)classNameTablePtr, "Shape Record %d", identifier);
+			nameLength = sprintf ((char*)classNameTablePtr, "Shape Record %d", (unsigned int)identifier);
 			
 			}		// end "else dbfInfoPtr == NULL || identifier >= numberRecords"
 				
@@ -1421,7 +1420,7 @@ void LoadShapeToThematicClassNames (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1429,8 +1428,9 @@ void LoadShapeToThematicClassNames (
 //
 //	Software purpose:	The purpose of this routine is to handle the modal
 //							dialog for confirming the specification for creating
-//							a Thematic image file from the project fields.  The 
+//							a Thematic image file from the top most shape file.  The
 //							modal dialog template is in the resource file.
+//							This dialog has not been completed.
 //
 //	Parameters in:		None
 //
@@ -1771,7 +1771,7 @@ void LoadShapeToThematicDialogOK (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1879,7 +1879,7 @@ Boolean LoadShapeToThematicSpecs (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1917,7 +1917,7 @@ Boolean PointInRectangle (
  
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2072,7 +2072,7 @@ SInt16 SetClassInMaskImage (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //

@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -21,7 +21,7 @@
 //
 //	Written By:				Larry L. Biehl			Date: 07/31/1992
 //	Revised By:				Tsung Tai Yeh			Date: 08/06/2015
-//	Revised By:				Larry L. Biehl			Date: 12/20/2017
+//	Revised By:				Larry L. Biehl			Date: 06/29/2018
 //
 //------------------------------------------------------------------------------------
 
@@ -126,27 +126,36 @@ typedef struct
 	Str31				title2;
 	Str31				xLabel;
 	Str31				yLabel;
-	Str15				xAxisUnitsString;
+	Str15				channelDescriptionUnitString;
+	
 	vector			xVector;
 	vector			yVector;
 	Rect				clientRect;
 	double			textScaling;
-	double			xMin;
-	double			xMax;
-	double			yMin;
-	double			yMax;
 	double			xDataMin;
 	double			xDataMax;
-	double			yDataMin;
-	double			yDataMax;
-	double			xScaleMin;
-	double			xScaleMax;
-	double			yScaleMin;
-	double			yScaleMax;
 	double			xEllipseMin;
 	double			xEllipseMax;
+	double			xMin;
+	double			xMax;
+	
+			// Reflective and Thermal Data min/max used for response vs wavelength 
+			// (selection) graphs.
+	double			xReflectiveDataMin;
+	double			xReflectiveDataMax;
+	double			xScaleMin;
+	double			xScaleMax;
+	double			xThermalDataMin;
+	double			xThermalDataMax;
+	
+	double			yDataMin;
+	double			yDataMax;
 	double			yEllipseMin;
-	double			yEllipseMax; 
+	double			yEllipseMax;
+	double			yMin;
+	double			yMax;
+	double			yScaleMin;
+	double			yScaleMax;
 	
 			// Probability threshold to use when drawing class information.
 	double			classThresholdValue; 
@@ -174,6 +183,13 @@ typedef struct
 			// Pointer to the window structure of the image window that
 			// is the 'parent' of this graph window.
 	CMImageView*	imageViewCPtr;
+	
+			// Control handle for the xAxis popup menu control
+	ControlHandle		xAxisPopupControlHandle;
+	
+			// Pointer to the pattern or brush to be used for the background
+			// of the graphs.
+	Ptr				backgroundPatternPtr;
 	
 			// Pointer to the graph view class which uses this graph record.
 	CMGraphView*	graphViewCPtr;
@@ -213,10 +229,6 @@ typedef struct
 			//
 	LongRect			imageLineColRect;
 	
-			// Pointer to the pattern or brush to be used for the background
-			// of the graphs.
-	Ptr				backgroundPatternPtr;
-	
 			// Pointer to Mac window structure for this graph.
 	WindowPtr		window;
 	
@@ -235,6 +247,10 @@ typedef struct
 	
 			// Code indicating whether the axes are linear or log.
 	SInt16			attrb;
+	
+			// Code indicating what wavelength data is available to plot
+			//		See description code in Window Info structure for details.
+	SInt16			descriptionCode;
 	
 			// Code indicating whether the graph is to be drawn, 
 			//		0 = no, 
@@ -297,6 +313,16 @@ typedef struct
 			// The maximum width of the text used for labels.
 	SInt16			textWidth;
 	
+			// Code for type of x-axis to plot
+			//		= 1 channel numbers
+			//		= 2 wavelength band centers
+			//		= 3 wavelength band widths
+			//		= 4 wavelength band centers for reflective bands
+			//		= 5 wavelength band widths for reflective bands
+			//		= 6 wavelength band centers for thermal bands
+			//		= 7 wavelength band widths for thermal bands
+	SInt16			xAxisCode;
+	
 			// The number of significant digits to be used in x and y labels.
 	UInt16			xESignificantDigits;
 	UInt16			xFSignificantDigits;
@@ -310,8 +336,8 @@ typedef struct
 	SInt16			xValueTypeCode;
 	SInt16			yValueTypeCode;  
 	 
+	bool				channelsInWavelengthOrderFlag;
 	bool				graphWindowFlag;
-	bool				plotWavelength;
 	
 	} GraphRecord, *GraphPtr;
 

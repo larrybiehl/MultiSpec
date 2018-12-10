@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			12/21/2017
+//	Revision date:			07/03/2018
 //
 //	Language:				C
 //
@@ -236,7 +236,7 @@ SInt16				gMosaicDirectionCode;
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -277,7 +277,7 @@ pascal void DrawMosaicDirectionPopUp (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -351,7 +351,7 @@ UInt32 FindLeftBytesToMove (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -426,7 +426,7 @@ UInt32 FindRightBytesToMove (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -444,7 +444,7 @@ UInt32 FindRightBytesToMove (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 01/24/2006
-//	Revised By:			Larry L. Biehl			Date: 01/24/2006
+//	Revised By:			Larry L. Biehl			Date: 02/27/2018
 
 UInt32 GetBackgroundValueForDataTypeCode (
 				FileInfoPtr							outFileInfoPtr, 
@@ -452,7 +452,7 @@ UInt32 GetBackgroundValueForDataTypeCode (
 				double*								backgroundValueStringPtr)
 
 {
-	UInt32								backgroundValueByteLength;
+	UInt32								backgroundValueByteLength = 0;
 	
 	float									backgroundFloatValue;
 	SInt32								backgroundSInt32Value;
@@ -552,7 +552,7 @@ UInt32 GetBackgroundValueForDataTypeCode (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -757,7 +757,7 @@ Boolean MosaicTwoImages (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1212,7 +1212,7 @@ Boolean MosaicTwoImagesLeftRight (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1647,7 +1647,7 @@ Boolean MosaicTwoImagesTopBottom (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1960,7 +1960,7 @@ void MosaicTwoImagesControl (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2402,7 +2402,8 @@ Boolean MosaicTwoImagesDialog (
    #if defined multispec_lin
 		CMMosaicTwoImagesDialog*		dialogPtr = NULL;
 
-		dialogPtr = new CMMosaicTwoImagesDialog ((wxWindow*)GetMainFrame ());
+		//dialogPtr = new CMMosaicTwoImagesDialog ((wxWindow*)GetMainFrame ());
+		dialogPtr = new CMMosaicTwoImagesDialog (NULL);
 
 		returnFlag = dialogPtr->DoDialog (fileInfoPtr,
 													 outFileInfoPtr,
@@ -2871,19 +2872,19 @@ void MosaicTwoImagesDialogUpdateChannelDescriptionItem (
 {	
 	if (gImageWindowInfoPtr->descriptionCode && !thematicTypeFlag)
 		{
-		if (headerFormat == kTIFFType)
-			{		
-			SetDLogControl (dialogPtr, IDC_WriteChannelDescriptions, 0);
-			SetDLogControlHilite (dialogPtr, IDC_WriteChannelDescriptions, 255);
+		//if (headerFormat == kTIFFType)
+		//	{
+		//	SetDLogControl (dialogPtr, IDC_WriteChannelDescriptions, 0);
+		//	SetDLogControlHilite (dialogPtr, IDC_WriteChannelDescriptions, 255);
 	 			
-			}	// end "if (headerFormat == kTIFFType)"
+		//	}	// end "if (headerFormat == kTIFFType)"
 			
-		else	// headerFormat != kTIFFType
-			{
+		//else	// headerFormat != kTIFFType
+		//	{
 			SetDLogControl (dialogPtr, IDC_WriteChannelDescriptions, 1);
 			SetDLogControlHilite (dialogPtr, IDC_WriteChannelDescriptions, 0);
 			
-			}	// end "else headerFormat != kTIFFType"
+		//	}	// end "else headerFormat != kTIFFType"
 	
 		}	// end "if (gImageWindowInfoPtr->descriptionCode && ..."
 		

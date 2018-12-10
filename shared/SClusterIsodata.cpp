@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			12/21/2017
+//	Revision date:			05/21/2018
 //
 //	Language:				C
 //
@@ -295,7 +295,7 @@ Boolean		 				UpdateClusterMeans (
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -381,7 +381,7 @@ Boolean DetermineIfCheckToBeMadeForFillData (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -696,7 +696,7 @@ Boolean GetCentersFromEigenvectorVolume (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -893,7 +893,7 @@ Boolean GetClassMeanClusterCenters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -996,7 +996,7 @@ Boolean GetEigenvectorClusterCenters (
 		
 	HideStatusDialogItemSet (kStatusLine);						
 					
-	LoadDItemStringNumber (	kClusterStrID, 
+	LoadDItemStringNumber (kClusterStrID,
 						IDS_Cluster17, // "Determining Initial Clusters (P. Eigenvector)"	
 						gStatusDialogPtr, 
 						IDC_Status11, 
@@ -1101,7 +1101,7 @@ Boolean GetEigenvectorClusterCenters (
 			// Now get the initial cluster centers by scattering along the			
 			// principal eigenvector.														
 			
-	LoadDItemStringNumber (	kClusterStrID, 
+	LoadDItemStringNumber (kClusterStrID,
 									IDS_Cluster18, // "Determining Initial Clusters"
 									gStatusDialogPtr, 
 									IDC_Status11, 
@@ -1134,7 +1134,7 @@ Boolean GetEigenvectorClusterCenters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1152,7 +1152,7 @@ Boolean GetEigenvectorClusterCenters (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 08/08/1990
-//	Revised By:			Larry L. Biehl			Date: 04/18/1991	
+//	Revised By:			Larry L. Biehl			Date: 02/07/2018
 
 ClusterType* GetMemoryForClusters (
 				SInt16								numberClusters)
@@ -1194,6 +1194,7 @@ ClusterType* GetMemoryForClusters (
 	numberBytes = (SInt32)numberClusters * numberChannels * sizeof (CMeanType);
 	meanPtr = (HCMeanTypePtr) MNewPointerClear (numberBytes);
 	
+   sumPtr = NULL;
 	if (meanPtr != NULL)
 		{
 				// Get memory for cluster sums, variances and sum of squares.		
@@ -1256,7 +1257,7 @@ ClusterType* GetMemoryForClusters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1351,7 +1352,7 @@ Boolean InitializeClusterCenters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1369,21 +1370,27 @@ Boolean InitializeClusterCenters (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 08/06/1990
-//	Revised By:			Larry L. Biehl			Date: 08/26/2010	
+//	Revised By:			Larry L. Biehl			Date: 05/18/2018
 
 SInt16 ISODATACluster (
 				FileIOInstructionsPtr			fileIOInstructionsPtr)
 
 {		
 			// Define local structures and variables.
+	
+	char									percentNotChangedString[32],
+											savedPercentNotChangedString[32];
 			
 	Str255								numberChangesString,
 											totalNumberClusterPixelsString;
     
-	double								percentNotChanged;
+	double								constant,
+											percentNotChanged;
 	
 	SInt64								changeThreshold,
 											numberChanges;
+											//savedNumberChanges;
+											//stepDifference;
    		
 	ClusterType							*currentCluster;	// Cluster currently working on.	
 									
@@ -1392,7 +1399,9 @@ SInt16 ISODATACluster (
 	Ptr									*clusterAddressesPtr;
 	
 	SInt32								numberActiveClusters,
-											passNumber;	
+											passNumber;
+	
+	UInt32								numberDecimalPlaces;
    		
 	SInt16	           				minimumClusterSize,
  											numberChannels,
@@ -1443,15 +1452,15 @@ SInt16 ISODATACluster (
 		if (gClusterSpecsPtr->clustersFrom == kTrainingType)
 			LoadDItemValue (gStatusDialogPtr, 
 									IDC_Status5, 
-										(SInt32)gClusterSpecsPtr->totalNumberAreas);
+									(SInt32)gClusterSpecsPtr->totalNumberAreas);
 		
-		LoadDItemStringNumber (	kClusterStrID, 
+		LoadDItemStringNumber (kClusterStrID,
 										IDS_Cluster19, // Percent of pixels not changed:
 										gStatusDialogPtr, 
 										IDC_Status15, 
 										(Str255*)&gTextString);
 										
-		LoadDItemStringNumber (	kDialogStrID, 
+		LoadDItemStringNumber (kDialogStrID,
 										IDS_Dialog18,		// Blank string
 										gStatusDialogPtr, 
 										IDC_Status16, 
@@ -1471,6 +1480,9 @@ SInt16 ISODATACluster (
    
    firstPassFlag = TRUE;
    numberActiveClusters = gClusterSpecsPtr->numberClusters;
+	constant = (double)100/gClusterSpecsPtr->totalNumberClusterPixels;
+	savedPercentNotChangedString[0] = 0;
+	numberDecimalPlaces = 0;
    do
    	{
    			// Update dialog box.															
@@ -1480,7 +1492,7 @@ SInt16 ISODATACluster (
    					"ISODATA Cluster - Pass %ld  with %ld active clusters.", 
    					passNumber,
    					numberActiveClusters);
-		LoadDItemString (gStatusDialogPtr, IDC_Status11, (Str255*)&gTextString);
+		LoadDItemString (gStatusDialogPtr, IDC_Status11, (Str255*)gTextString);
 		
 		numberChanges = 0;						
    	returnCode = ISODATAClusterPass (
@@ -1491,18 +1503,44 @@ SInt16 ISODATACluster (
    											&numberActiveClusters))
    			returnCode = -1;
    			
-   			// Update status dialog with the percent that did not change.		
+   			// Update status dialog with the percent that did not change.
+				// Note that the decimal place calculation will not be correct if
+				// the number of pixel changes is more than max int. Need a
+				// 64 bit abs function.
    	
    	percentNotChanged = 
-   		((double)gClusterSpecsPtr->totalNumberClusterPixels - numberChanges)/
-   									gClusterSpecsPtr->totalNumberClusterPixels * 100;
-   	if (gStatusDialogPtr)
-			LoadDItemRealValue (gStatusDialogPtr, IDC_Status16, percentNotChanged, 2);
-	  		
+   		((double)gClusterSpecsPtr->totalNumberClusterPixels - numberChanges) *
+																									constant;
+		
+   	percentNotChangedString[0] = sprintf (&percentNotChangedString[1],
+															"%.*f",
+															(int)numberDecimalPlaces,
+															percentNotChanged);
+		
+		if (!strcmp (percentNotChangedString, savedPercentNotChangedString))
+			{
+			numberDecimalPlaces++;
+			numberDecimalPlaces = MIN (numberDecimalPlaces, 7);
+			percentNotChangedString[0] = sprintf (&percentNotChangedString[1],
+																"%.*f",
+																(int)numberDecimalPlaces,
+																percentNotChanged);
+			
+			}	// end "if (strcmp (percentNotChangedString, ..."
+
+		LoadDItemString (gStatusDialogPtr, IDC_Status16, (Str255*)percentNotChangedString);
+
+		strcpy (savedPercentNotChangedString, percentNotChangedString);
+		
 	  	firstPassFlag = FALSE;
 	  		
-	  	}		while (numberChanges > changeThreshold && returnCode == 1);
+	  	}	while (numberChanges > changeThreshold && returnCode == 1);
+	
+	HideStatusDialogItemSet (kStatusMinutes);
    
+	if (!CheckSomeEvents (osMask+keyDownMask+updateMask+mDownMask+mUpMask))
+		returnCode = -1;
+	
    		// Change returnCode to indicate to continue if the user just requested
    		// to quit after completion of the current iteration. The user still
    		// wants the output.
@@ -1595,7 +1633,7 @@ SInt16 ISODATACluster (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1723,7 +1761,7 @@ Boolean ISODATAClusterControl (
 					// Put the label for final number of clusters in the status 	
 					// dialog.																		
 					
-			LoadDItemStringNumber (	kClusterStrID, 
+			LoadDItemStringNumber (kClusterStrID, 
 											IDS_Cluster15, 
 											gStatusDialogPtr, 
 											IDC_Status15, 
@@ -1842,7 +1880,7 @@ Boolean ISODATAClusterControl (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2363,7 +2401,7 @@ Boolean ISODATAClusterDialog (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2591,7 +2629,7 @@ void ISODATAClusterDialogInitialize (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2646,7 +2684,7 @@ SInt16 ISODATAClusterDialogCheckNumberPixels (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2762,7 +2800,7 @@ void ISODATAClusterDialogOK (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2818,7 +2856,7 @@ void ISODATAClusterDialogOnImageArea (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2884,7 +2922,7 @@ void ISODATAClusterDialogOnTrainingAreas (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2903,7 +2941,7 @@ void ISODATAClusterDialogOnTrainingAreas (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 08/06/1990
-//	Revised By:			Larry L. Biehl			Date: 03/23/2006	
+//	Revised By:			Larry L. Biehl			Date: 05/21/2018	
 
 SInt16 ISODATAClusterPass (
 				FileIOInstructionsPtr			fileIOInstructionsPtr, 
@@ -3057,7 +3095,7 @@ SInt16 ISODATAClusterPass (
 				// The first time left message will be after 1 second.
 		
 		startTick = TickCount ();		
-		gNextMinutesLeftTime = startTick + 3*gNextStatusTimeOffset;	
+		gNextMinutesLeftTime = startTick + 3*gNextStatusTimeOffset;
 			
 				// Load some of the File IO Instructions structure that pertain
 				// to the specific area being used.
@@ -3084,7 +3122,7 @@ SInt16 ISODATAClusterPass (
 			lineCount++;
 			if (TickCount () >= gNextStatusTime)
 				{
-				LoadDItemValue (gStatusDialogPtr,IDC_Status8, lineCount);
+				LoadDItemValue (gStatusDialogPtr, IDC_Status8, lineCount);
 				gNextStatusTime = TickCount () + gNextStatusTimeOffset;
 				
 				}	// end "if (TickCount () >= gNextStatusTime)" 
@@ -3298,7 +3336,7 @@ SInt16 ISODATAClusterPass (
 				
 			}	// end "if (gOutputCode & kCreateImageOverlayCode)"
 	  	
-	  	if (returnCode != -1)	
+	  	if (returnCode != -1)
 			LoadDItemValue (gStatusDialogPtr, IDC_Status8, lineCount);
 		
 				// Close up any File IO Instructions structure that pertain to the 
@@ -3314,7 +3352,7 @@ SInt16 ISODATAClusterPass (
 			break;
   			
   		}	// end "for (areaNumber=1; areaNumber<=totalNumberAreas; ...)" 
-	  		
+
 	UnlockImageOverlayOffscreenBuffer (imageOverlayInfoPtr);	
 							
 	if (!gOSXCoreGraphicsFlag)
@@ -3325,6 +3363,11 @@ SInt16 ISODATAClusterPass (
 			imageWindowInfoPtr->drawBaseImageFlag = TRUE;
 		
 		}	// end "if (!gOSXCoreGraphicsFlag)"
+
+			// Make sure the latest status dialog box changes have been displayed.
+	
+	if (returnCode != -1)
+		CheckSomeEvents (mUpMask);
 			
 	if (returnCode != -1 && gAlertReturnCode == 1)
 		returnCode = 0;
@@ -3336,7 +3379,7 @@ SInt16 ISODATAClusterPass (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

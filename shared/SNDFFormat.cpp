@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//							 Copyright (1988-2017)
+//							 Copyright (1988-2018)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			12/21/2017
+//	Revision date:			02/27/2018
 //
 //	Language:				C
 //
@@ -65,7 +65,7 @@
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -83,7 +83,7 @@
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 04/07/2007
-//	Revised By:			Larry L. Biehl			Date: 01/25/2013	
+//	Revised By:			Larry L. Biehl			Date: 02/27/2018
 
 SInt16 LinkNDFFiles (
 				Handle								windowInfoHandle)
@@ -105,7 +105,7 @@ SInt16 LinkNDFFiles (
 	SInt16								returnCode,
 											version;
 	
-	Boolean								continueFlag,
+	Boolean								continueFlag = FALSE,
 											doneFlag,
 											tryBand6_7_SwapFlag;
 	
@@ -254,7 +254,7 @@ SInt16 LinkNDFFiles (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -274,7 +274,7 @@ SInt16 LinkNDFFiles (
 // Called By:			CheckImageHeader in SOpnImag.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/05/2007
-//	Revised By:			Larry L. Biehl			Date: 09/01/2017
+//	Revised By:			Larry L. Biehl			Date: 02/27/2018
 
 SInt16 ReadNDFHeader (
 				FileInfoPtr 						fileInfoPtr,
@@ -307,7 +307,7 @@ SInt16 ReadNDFHeader (
 	CMFileStream						*fileStreamPtr,
 											*headerFileStreamPtr;
 											
-	MapProjectionInfoPtr				mapProjectionInfoPtr;
+	MapProjectionInfoPtr				mapProjectionInfoPtr = NULL;
 	
 	FileStringPtr						headerFileNameCPtr,
 											headerFilePathPPtr,
@@ -841,7 +841,7 @@ SInt16 ReadNDFHeader (
 			fileInfoPtr->mapProjectionHandle = GetMapProjectionHandle ();
 			
 			if (fileInfoPtr->mapProjectionHandle != NULL)
-				{ 								
+				{
 				mapProjectionInfoPtr = (MapProjectionInfoPtr)
 								GetHandleStatusAndPointer (fileInfoPtr->mapProjectionHandle,
 																	&handleStatus);

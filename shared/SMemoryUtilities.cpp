@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//							 Copyright (1988-2017)
+//							 Copyright (1988-2018)
 //							c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			11/28/2017
+//	Revision date:			10/19/2018
 //
 //	Language:				C
 //
@@ -35,6 +35,12 @@
 //								void						ReleaseSpareMemoryForWarningMessage
 //								void						UnlockAndDispose
 //
+/*
+	int numberChars = sprintf ((char*)gTextString3,
+			" SMemoryUtilities: (xDataMin, xDataMax): %s",
+			gEndOfLine);
+	ListString ((char*)gTextString3, numberChars, gOutputTextH);
+*/
 //------------------------------------------------------------------------------------
 
 #include "SMultiSpec.h"  
@@ -44,12 +50,17 @@
 	
 			// Temporary definitions
 	#include <stdlib.h>
-	#include <wx/filefn.h>
-	#define memsize sizeof (UInt32)
+	#include "wx/filefn.h"
+	#define memsize sizeof (void*)
 	typedef Byte onebyte;
 #endif
 
 #if defined multispec_mac
+	#include <sys/sysctl.h>
+	#include <mach/host_info.h>
+	#include <mach/mach_host.h>
+	#include <mach/task_info.h>
+	#include <mach/task.h>
 #endif	// defined multispec_mac    
 
 #if defined multispec_win
@@ -72,12 +83,12 @@ Boolean			CheckIfBytesRequestedAreWithinLimit (
 						SInt64								bytesRequested);
 
 void				OSXMemoryMessage (
-						UInt32								bytesRequested);
+						SInt64								bytesRequested);
 						
 						
 #if defined multispec_mac_swift
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -112,7 +123,7 @@ void BlockMoveData (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -348,7 +359,7 @@ UInt32* CheckAndDisposePtr (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -402,7 +413,7 @@ void CheckAndUnlockHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -495,18 +506,17 @@ Ptr CheckHandleSize (
 					{
 					newHandle = memreallocate (bytesNeeded, handle);
 					*changedFlagPtr = TRUE;
-					}
 					
-				else
+					}	// end "if (getsize (handle) < bytesNeeded)"
+					
+				else	// getsize (handle) >= bytesNeeded
 					{
 							// Already have enough memory so do nothing
 					
 					//outputPtr = (Ptr)memallocate (bytesNeeded, handle);
 					newHandle = handle;
-					}
 					
-				//if (newHandle != NULL)
-				//returnFlag = (newHandle != NULL);
+					}	// end "else getsize (handle) >= bytesNeeded"
 				
 				}	// end "if (handle != NULL)"
 				
@@ -535,7 +545,7 @@ Ptr CheckHandleSize (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -555,7 +565,7 @@ Ptr CheckHandleSize (
 //	Global Data:
 //
 //	Coded By:			Larry L. Biehl			Date: 08/25/2010
-//	Revised By:			Larry L. Biehl			Date: 08/25/2010			
+//	Revised By:			Larry L. Biehl			Date: 09/14/2018			
 
 Boolean CheckIfBytesRequestedAreWithinLimit (
 				SInt64								bytesRequested)
@@ -563,8 +573,12 @@ Boolean CheckIfBytesRequestedAreWithinLimit (
 {
 	Boolean								memoryRequestFlag = TRUE;
 	
-	
-	if (bytesRequested > SInt32_MAX)
+	#if defined multispec_mac || defined multispec_lin
+		if (bytesRequested > SInt32_MAX)
+	#endif
+	#if defined multispec_win
+		if (bytesRequested > SInt32_MAX)
+	#endif
 		{
 		memoryRequestFlag = FALSE;
 		
@@ -585,7 +599,7 @@ Boolean CheckIfBytesRequestedAreWithinLimit (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -643,7 +657,7 @@ Boolean CheckIfMemoryAvailable (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -720,7 +734,7 @@ Boolean CheckMemoryForColorPicker (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -825,7 +839,7 @@ Boolean CheckPointerSize (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -888,7 +902,7 @@ void CheckSizeAndUnlockHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -974,7 +988,7 @@ SInt16 CopyHandleToHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1056,7 +1070,7 @@ SInt16 CopyHandleToPointer (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1142,7 +1156,7 @@ SInt16 CopyPointerToHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1180,7 +1194,7 @@ void DisposeIOBufferPointers (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1280,7 +1294,7 @@ Handle GetCountVectorTableMemory (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1312,7 +1326,7 @@ Ptr GetHandlePointer (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1345,7 +1359,7 @@ Ptr GetHandlePointer (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1426,7 +1440,7 @@ Ptr GetHandlePointer (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1460,7 +1474,7 @@ Ptr GetHandleStatusAndPointer (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1510,7 +1524,7 @@ Ptr GetHandleStatusAndPointer (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1850,7 +1864,7 @@ Boolean GetIOBufferPointers (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1969,7 +1983,7 @@ UInt32 GetSetTiledIOBufferBytes (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2057,7 +2071,7 @@ void GetSpareMemory (void)
 	      
 #if defined multispec_lin || defined multispec_win
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2202,7 +2216,7 @@ void MemoryMessage (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2222,80 +2236,90 @@ void MemoryMessage (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 04/24/1995
-//	Revised By:			Larry L. Biehl			Date: 09/06/2017
+//	Revised By:			Larry L. Biehl			Date: 06/25/2018
 
 UInt32 MGetFreeMemory (
 				UInt32*								lContBlockPtr)
 
 {         
 	#if defined multispec_mac
+		mach_msg_type_number_t 			count = HOST_VM_INFO_COUNT;
+		vm_statistics_data_t 			vmstat;
 		//SInt64								physicalMemoryAvailable;
 		Ptr									pointer;
-		//SInt32								gestaltResponse;
+	
+		int 									i,
+												mib[6];
 		
-		UInt32								freeMemory = 0,
-												i;
-						
+		SInt64								freeMemory = 0;
+	
+		SInt16								errCode = noErr;
+	
 		
-		if (gOSXFlag)
+				// Information is from:
+				// https://stackoverflow.com/questions/6094444/how-can-i-programmatically-check-free-system-memory-on-mac-like-the-activity-mon
+				//
+				// If the sysctl approach is not available, the approach being used is to
+				// turn the memory flag off and just make requests
+				// 100 megabytes at a time less until an amount is found that works. I 
+				// will start checking at 510 MB of RAM for now.
+		
+		mib[0] = CTL_HW;
+		mib[1] = HW_PAGESIZE;
+
+		int pagesize;
+		size_t length;
+		length = sizeof (pagesize);
+		errCode = sysctl (mib, 2, &pagesize, &length, NULL, 0);
+
+		if (errCode == noErr)
 			{
-			//rlimit								resourceLimits;
+			if (host_statistics (mach_host_self (),
+										HOST_VM_INFO,
+										(host_info_t)&vmstat,
+										&count) != KERN_SUCCESS)
+				errCode = -1;
+				
+			}	// end "if (errCode == noErr)"
+	
+		if (errCode == noErr)
+			{
+			freeMemory = pagesize * (vmstat.free_count + vmstat.inactive_count);
 			
+					// Limit it to max of 32 bit unsigned integer untill software
+					// is 64-bit
 			
-					// It is difficult to determine the amount of memory available in OSX. 
-					// There are no routine that I have found to give an estimate directly. 
-					// Suggestions are to use Gestalt-gestaltPhysicalRAMSize but this is 
-					// only valid when memory available is 2 Gig or less. sysctl has also 
-					// been suggested. I don't know how to use this yet. Knowing physical 
-					// RAM is just a start because one needs to know how much the 
-					// application is taking up.
-					// The approach being used is to turn the memory flag off and just make requests
-					// 100 megabytes at a time less until an amount is found that works. I 
-					// will start checking at 1.1 gigabytes of RAM for now. 1 gig seems to 
-					// be the starting point for the machine being used now ... Mac Pro 
-					// with 8 gig of ram.
+			if (freeMemory > UInt32_MAX)
+				freeMemory = UINT32_MAX;
 			
+			}	// end "if (errCode == noErr)"
+	
+		else	// errCode != noErr
+			{
 			gDisplayOSXMemoryMessageFlag = FALSE;
-			
+	
 			pointer = NULL;
-			freeMemory = 1100000000;
-			//freeMemory = 11000000;
+			freeMemory = 550000010;
 			for (i=11; i>0; i--)
 				{
-				pointer = ::NewPtr (freeMemory);
+				pointer = ::NewPtr ((UInt32)freeMemory);
 				if (pointer != NULL)
 					break;
 				
-				freeMemory -= 100000000;
-				//freeMemory -= 1000000;
+				freeMemory -= 50000000;
 				
 				}	// end "for (i=11; i>0; i--)"
 			
 			if (pointer != NULL)
 				DisposePtr (pointer);
 			
-			*lContBlockPtr = freeMemory;
-			
-					// The following just gave very large 64-bit integer amount.
-					// Larry Biehl on 3/22/2013
-			
-			//if (getrlimit (RLIMIT_AS, &resourceLimits) == 0)
-			//	freeMemory = resourceLimits.rlim_cur;
-			
 			gDisplayOSXMemoryMessageFlag = TRUE;
 			
-			//if (!Gestalt (gestaltPhysicalRAMSize, &gestaltResponse))
-			//	physicalMemoryAvailable = (SInt64)gestaltResponse;
+			}	// end "else errCode != noErr"
+			
+		*lContBlockPtr = (UInt32)freeMemory;
 
-			}	// end "if (gOSXFlag)"
-		
-		else	// !gOSXFlag
-			{
-			::PurgeSpace ((SInt32*)&freeMemory, (SInt32*)lContBlockPtr);
-
-			}	// end "else !gOSXFlag"
-		
-		return (freeMemory);  
+		return ((UInt32)freeMemory);
 	#endif	// defined multispec_mac
 		
 	#if defined multispec_mac_swift
@@ -2332,7 +2356,7 @@ UInt32 MGetFreeMemory (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2384,7 +2408,7 @@ SInt32 MGetHandleSize (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2440,7 +2464,7 @@ SInt32 MGetPointerSize (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2505,7 +2529,7 @@ SignedByte MHGetState (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2552,7 +2576,7 @@ void MHLock (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2599,7 +2623,7 @@ void MHSetState (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2617,7 +2641,7 @@ void MHSetState (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 04/07/1995
-//	Revised By:			Larry L. Biehl			Date: 08/26/2010	
+//	Revised By:			Larry L. Biehl			Date: 03/12/2018
 
 Handle MNewHandle (
 				SInt64								numberBytes)
@@ -2629,10 +2653,9 @@ Handle MNewHandle (
 	if (CheckIfBytesRequestedAreWithinLimit (numberBytes))
 		{
 		#if defined multispec_mac 
-			handle = ::NewHandle (numberBytes);
+			handle = ::NewHandle ((long)numberBytes);
 			
-			if (gOSXFlag)
-				OSXMemoryMessage (numberBytes);
+			OSXMemoryMessage (numberBytes);
 			
 			gMemoryAlertDisplayFlag = FALSE;
 		#endif	// defined multispec_mac 
@@ -2659,7 +2682,7 @@ Handle MNewHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2678,7 +2701,7 @@ Handle MNewHandle (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 11/13/1995
-//	Revised By:			Larry L. Biehl			Date: 08/26/2010	
+//	Revised By:			Larry L. Biehl			Date: 03/12/2018
 
 Handle MNewHandleClear (
 				SInt64								numberBytes)
@@ -2690,10 +2713,9 @@ Handle MNewHandleClear (
 	if (CheckIfBytesRequestedAreWithinLimit (numberBytes))
 		{	     
 		#if defined multispec_mac 
-			handle = ::NewHandleClear (numberBytes);
+			handle = ::NewHandleClear ((long)numberBytes);
 			
-			if (gOSXFlag)
-				OSXMemoryMessage (numberBytes);
+			OSXMemoryMessage (numberBytes);
 		#endif	// defined multispec_mac 
 					
 		#if defined multispec_win    
@@ -2731,7 +2753,7 @@ Handle MNewHandleClear (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2749,7 +2771,7 @@ Handle MNewHandleClear (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 04/07/1995
-//	Revised By:			Larry L. Biehl			Date: 08/26/2010	
+//	Revised By:			Larry L. Biehl			Date: 03/12/2018
 
 Ptr MNewPointer (
 				SInt64								numberBytes)
@@ -2761,10 +2783,9 @@ Ptr MNewPointer (
 	if (CheckIfBytesRequestedAreWithinLimit (numberBytes))
 		{	     			
 		#if defined multispec_mac 
-			ptr = ::NewPtr (numberBytes);
+			ptr = ::NewPtr ((long)numberBytes);
 			
-			if (gOSXFlag)
-				OSXMemoryMessage (numberBytes);
+			OSXMemoryMessage (numberBytes);
 				
 			gMemoryAlertDisplayFlag = FALSE;
 		#endif	// defined multispec_mac 
@@ -2791,7 +2812,7 @@ Ptr MNewPointer (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2810,7 +2831,7 @@ Ptr MNewPointer (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 11/10/1995
-//	Revised By:			Larry L. Biehl			Date: 08/15/2013	
+//	Revised By:			Larry L. Biehl			Date: 03/12/2018
 
 Ptr MNewPointerClear (
 				SInt64								numberBytes)
@@ -2821,10 +2842,9 @@ Ptr MNewPointerClear (
 	if (CheckIfBytesRequestedAreWithinLimit (numberBytes))
 		{	     						
 		#if defined multispec_mac 			
-			ptr = ::NewPtrClear (numberBytes);
+			ptr = ::NewPtrClear ((long)numberBytes);
 			
-			if (gOSXFlag)
-				OSXMemoryMessage (numberBytes);
+			OSXMemoryMessage (numberBytes);
 		#endif	// defined multispec_mac 
 								
 		#if defined multispec_win   				  
@@ -2868,7 +2888,7 @@ Ptr MNewPointerClear (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2887,7 +2907,7 @@ Ptr MNewPointerClear (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 04/20/1995
-//	Revised By:			Larry L. Biehl			Date: 08/26/2010	
+//	Revised By:			Larry L. Biehl			Date: 03/12/2018
 
 Boolean MSetHandleSize (
 				Handle*								handlePtr,
@@ -2903,15 +2923,14 @@ Boolean MSetHandleSize (
 			if (*handlePtr != NULL)
 				{
 				::HUnlock (*handlePtr);
-				::SetHandleSize (*handlePtr, bytesNeeded);
+				::SetHandleSize (*handlePtr, (long)bytesNeeded);
 						
 						// Check if memory is full. 												
 						
 				if (::LMGetMemErr () == noErr)
 					returnFlag = TRUE;
 							
-				if (gOSXFlag)
-					OSXMemoryMessage (bytesNeeded);
+				OSXMemoryMessage (bytesNeeded);
 					
 				gMemoryAlertDisplayFlag = FALSE;
 					
@@ -2966,7 +2985,7 @@ Boolean MSetHandleSize (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2987,7 +3006,7 @@ Boolean MSetHandleSize (
 //							CheckPointerSize in SMemUtil.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/20/1995
-//	Revised By:			Larry L. Biehl			Date: 03/27/2017	
+//	Revised By:			Larry L. Biehl			Date: 03/12/2018
 										
 Boolean MSetPointerSize (
 				Ptr*									pointerPtr,
@@ -3002,15 +3021,14 @@ Boolean MSetPointerSize (
 		#if defined multispec_mac 
 			if (*pointerPtr != NULL)
 				{
-				::SetPtrSize (*pointerPtr, bytesNeeded);
+				::SetPtrSize (*pointerPtr, (long)bytesNeeded);
 						
 						// Check if memory is full. 												
 				
 				if (::LMGetMemErr () == noErr)
 					returnFlag = TRUE;
 							
-				if (gOSXFlag)
-					OSXMemoryMessage (bytesNeeded);
+				OSXMemoryMessage (bytesNeeded);
 					
 				gMemoryAlertDisplayFlag = FALSE;
 					
@@ -3045,11 +3063,11 @@ Boolean MSetPointerSize (
       #if defined multispec_lin
          if (*pointerPtr != NULL)
 				{
-            Ptr newHandle = (Ptr)memreallocate (bytesNeeded,*pointerPtr);
+				Ptr newHandle = (Ptr)memreallocate (bytesNeeded, *pointerPtr);
             if (newHandle != NULL)
 					{
-               returnFlag = TRUE;
-               *pointerPtr = newHandle;
+					returnFlag = TRUE;
+					*pointerPtr = newHandle;
 					
 					}	// end "newHandle != NULL"
 					
@@ -3069,7 +3087,7 @@ Boolean MSetPointerSize (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3087,10 +3105,10 @@ Boolean MSetPointerSize (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 07/09/2009
-//	Revised By:			Larry L. Biehl			Date: 08/17/2010
+//	Revised By:			Larry L. Biehl			Date: 03/12/2018
 
 void OSXMemoryMessage (
-				UInt32								bytesRequested)
+				SInt64								bytesRequested)
 
 { 
 	Str255								alertString;
@@ -3107,8 +3125,6 @@ void OSXMemoryMessage (
 	if (memoryError != noErr && gDisplayOSXMemoryMessageFlag)
 		{
 		gMemoryError = 1;
-		
-		//		maxSizeBlock = MaxBlock ();
 		
 		doubleBytesNeeded = bytesRequested;
 			
@@ -3141,7 +3157,7 @@ void OSXMemoryMessage (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3193,7 +3209,7 @@ void ReleaseSpareMemoryForWarningMessage (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3287,7 +3303,10 @@ void freememory (
 				
 {
 	if (ptr != NULL)
-		free ((void *)((onebyte *)ptr-memsize));
+		{
+		free ((void*)((onebyte*)ptr-memsize));
+		
+		}
 		
 }	// end "freememory"
 
@@ -3303,9 +3322,10 @@ void* memallocate (
 	UInt32								*ptr3;
 	
 	
-	if (bytesneeded < 255)
-	  bytesneeded = 255;
-	  
+			// Make total size with bytes needed and size count to be no less than 256 bytes
+	
+	bytesneeded = MAX (256-memsize, bytesneeded);
+	
 	ptr = malloc (bytesneeded + memsize);
 	
 	if (ptr != NULL)
@@ -3338,16 +3358,18 @@ void *memreallocate (
 	UInt32								*ptr2,
 											*ptr3;
 											
-											
-	if (bytesneeded < 255)
-		bytesneeded = 255;
-		
+	
+			// Make total size with bytes needed and size count to be no less than 256 bytes
+	
+	bytesneeded = MAX (256-memsize, bytesneeded);
+	
 	ptr = realloc ((void*)((onebyte*)handle-memsize), bytesneeded+memsize);
+	
 	if (ptr != NULL)
 		{
 		ptr2 = (UInt32*)ptr;
 		*ptr2 = bytesneeded;
-		ptr3 = (UInt32*)((onebyte *)ptr2 + memsize);
+		ptr3 = (UInt32*)((onebyte*)ptr2 + memsize);
 		ptr4 = (void*)ptr3;
 		
 		}	// end "if (ptr != NULL)"

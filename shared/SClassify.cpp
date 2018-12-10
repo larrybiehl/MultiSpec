@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			12/21/2017
+//	Revision date:			12/07/2018
 //
 //	Language:				C
 //
@@ -459,7 +459,7 @@ void 						WriteProbabilityGrouping (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1024,7 +1024,7 @@ void CEMClsfierControl (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1228,7 +1228,7 @@ SInt16 CEMClassifier (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1263,7 +1263,7 @@ void CheckAndUnlockCEMParameterHandles (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1382,7 +1382,7 @@ Boolean CheckClassifyTextWindowSpaceNeeded (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1456,7 +1456,7 @@ SInt16 ClassifyArea (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1475,7 +1475,7 @@ SInt16 ClassifyArea (
 // Called By:			MaxLikeClsfierControl
 //
 //	Coded By:			Larry L. Biehl			Date: 12/15/1988
-//	Revised By:			Larry L. Biehl			Date: 09/01/2017
+//	Revised By:			Larry L. Biehl			Date: 02/28/2018
 
 void ClassifyAreasControl (
 				FileInfoPtr							fileInfoPtr, 
@@ -1648,7 +1648,7 @@ void ClassifyAreasControl (
 					if (echoClassifierVarPtr->thresholds_phase1[index] != -DBL_MAX)
 						sprintf ((char*)gTextString,
 										"      \tClass %d\t%.2f%s",
-										statClassNumber,
+										(int)statClassNumber,
 										echoClassifierVarPtr->thresholds_phase1[index],
 										gEndOfLine);
 								
@@ -2177,7 +2177,7 @@ void ClassifyAreasControl (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2196,7 +2196,7 @@ void ClassifyAreasControl (
 // Called By:			Menus in menus.c
 //
 //	Coded By:			Larry L. Biehl			Date: 12/06/1988
-//	Revised By:			Larry L. Biehl			Date: 01/22/2016
+//	Revised By:			Larry L. Biehl			Date: 12/07/2018
 
 void ClassifyControl (void)
 
@@ -2649,6 +2649,8 @@ void ClassifyControl (void)
 		
 		UnlockProjectWindowInfoHandles ();
 		
+		gOperationCanceledFlag = FALSE;
+		
 		}	// end "if (GetProjectImageFileInfo (TRUE, TRUE))" 
 
 }	// end "ClassifyControl" 
@@ -2656,7 +2658,7 @@ void ClassifyControl (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3072,7 +3074,7 @@ SInt16 ClassifyPerPointArea (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3090,7 +3092,7 @@ SInt16 ClassifyPerPointArea (
 // Called By:			ClassifyAreasControl
 //
 //	Coded By:			Larry L. Biehl			Date: 12/15/1988
-//	Revised By:			Larry L. Biehl			Date: 02/14/2014
+//	Revised By:			Larry L. Biehl			Date: 02/28/2018
 
 SInt16 ClassifyTrainTestFields (
 				AreaDescriptionPtr				areaDescriptionPtr, 
@@ -3209,7 +3211,7 @@ SInt16 ClassifyTrainTestFields (
 							(char*)&classNamesPtr[classStorage].name,&strLength);
 		sprintf ((char*)gTextString, 
 					"     Class number = %d '%s'%s",
-					statClassNumber+1,
+					(int)(statClassNumber+1),
 					(char*)gTextString2,
 					gEndOfLine);
 		continueFlag = OutputString (classifyFileStreamPtr, 
@@ -3246,15 +3248,15 @@ SInt16 ClassifyTrainTestFields (
 				pstr ((char*)gTextString2, (char*)&fieldIdentPtr->name, &strLength);
 				if (fieldType == kTrainingType)
 					sprintf ((char*)gTextString, 
-								"      Training field number = %hd '%s'%s",
-								fieldNumber+1,
+								"      Training field number = %d '%s'%s",
+								(int)(fieldNumber+1),
 								(char*)gTextString2,
 								gEndOfLine);
 								
 				else if (fieldType == kTestingType)
 					sprintf ((char*)gTextString, 
-								"      Test field number = %hd '%s'%s",
-								fieldNumber+1, 
+								"      Test field number = %d '%s'%s",
+								(int)(fieldNumber+1),
 								(char*)gTextString2,
 								gEndOfLine);
 				
@@ -3371,7 +3373,7 @@ SInt16 ClassifyTrainTestFields (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3664,7 +3666,7 @@ SInt16 CorrelationClassifier (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4093,7 +4095,7 @@ void CorrelationClsfierControl (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4111,7 +4113,7 @@ void CorrelationClsfierControl (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 01/13/1998
-//	Revised By:			Larry L. Biehl			Date: 01/13/1998
+//	Revised By:			Larry L. Biehl			Date: 02/07/2018
 
 UInt32 CorrelationThresholdClass (
 				double								dValue,
@@ -4125,12 +4127,12 @@ UInt32 CorrelationThresholdClass (
 	UInt32								index,
 											step;
 		
-
+   
+   index = 0;
 	if (thresholdTablePtr != NULL) 
 		{
 				// Set up local variables.														
 
-		index = 0;
 		offsetPtr = offsetCorrelation;
 		
 	   		// Get the threshold table index.										
@@ -4160,7 +4162,7 @@ UInt32 CorrelationThresholdClass (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4306,7 +4308,7 @@ Boolean CreateChiSquareThresholdTable (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4355,7 +4357,7 @@ Boolean CreateCorrelationThresholdTable (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4423,7 +4425,7 @@ Boolean CreateThresholdTables (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4596,7 +4598,7 @@ Boolean CreateTrailerFiles (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4770,7 +4772,7 @@ SInt16 EuclideanClassifier (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4907,7 +4909,7 @@ void EuclideanClsfierControl (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5137,7 +5139,7 @@ SInt16 FisherClassifier (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5443,7 +5445,7 @@ void FisherClsfierControl (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5646,7 +5648,7 @@ Boolean GetClassifyDataBuffers (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5689,7 +5691,7 @@ Handle GetTargetOverlayImageWindowInfoHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5708,7 +5710,7 @@ Handle GetTargetOverlayImageWindowInfoHandle (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 05/26/1993
-//	Revised By:			Larry L. Biehl			Date: 01/13/1998
+//	Revised By:			Larry L. Biehl			Date: 02/07/2018
 
 UInt16 GetThresholdClass (
 				double								dValue,
@@ -5724,12 +5726,11 @@ UInt16 GetThresholdClass (
 											step;
 		
 
-	if (thresholdTablePtr != NULL) 
+   index = 0;
+	if (thresholdTablePtr != NULL)
 		{
 				// Set up local variables.														
 
-		index = 0;
-		
 		offsetPtr = offsetChiSquared;
 		
 	   		// Get the threshold table index.										
@@ -5761,7 +5762,7 @@ UInt16 GetThresholdClass (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5823,7 +5824,7 @@ Boolean GetThresholdTableMemory (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5909,7 +5910,7 @@ Boolean GetTransformedCommonCovariance (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6019,7 +6020,7 @@ Boolean GetTtInvTransformedCommonCovarianceT (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6128,7 +6129,7 @@ Boolean GetTtInvTransformedCovarianceT (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6201,7 +6202,7 @@ void InitializeClassifierVarStructure (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6273,7 +6274,7 @@ Boolean ListAverageDiscriminantValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6653,7 +6654,7 @@ Boolean ListClassifyInputParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6673,7 +6674,7 @@ Boolean ListClassifyInputParameters (
 //							
 //
 //	Coded By:			Larry L. Biehl			Date: 04/08/1992
-//	Revised By:			Larry L. Biehl			Date: 08/23/2010	
+//	Revised By:			Larry L. Biehl			Date: 02/28/2018
 
 SInt16 ListTrainTestSummary (
 				SInt16								classPointer, 
@@ -6724,8 +6725,8 @@ SInt16 ListTrainTestSummary (
 					(char*)&gProjectInfoPtr->fieldIdentPtr[fieldNumber].name, 
 					&strLength);
 		sprintf ((char*)gTextString, 
-					"      Field %hd '%s' Percent correct %5.1f%s",
-					fieldNumber+1, 
+					"      Field %d '%s' Percent correct %5.1f%s",
+					(int)(fieldNumber+1),
 					(char*)gTextString2,
 					percentCorrect,
 					gEndOfLine);
@@ -6761,7 +6762,7 @@ SInt16 ListTrainTestSummary (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7084,7 +7085,7 @@ Boolean LoadClassifySpecs (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7162,7 +7163,7 @@ Boolean LoadProbabilityTable (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7246,7 +7247,7 @@ Boolean LoadThresholdTable (
 
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7584,7 +7585,7 @@ SInt16 MahalanobisClassifier (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7944,7 +7945,7 @@ void MahalanobisClsfierControl (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8281,7 +8282,7 @@ SInt16 MaximumLikelihoodClassifier (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8644,7 +8645,7 @@ void MaxLikeClsfierControl (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8813,7 +8814,7 @@ SInt16 ParallelPipedClassifier (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9000,7 +9001,7 @@ void ParallelPipedClsfierControl (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9211,7 +9212,7 @@ Boolean SetupClsfierMemory (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9378,7 +9379,7 @@ SInt16 WriteClassificationResults (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

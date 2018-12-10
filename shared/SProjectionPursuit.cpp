@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Luis Jiminez, Larry L. Biehl
 //
-//	Revision date:			12/21/2017
+//	Revision date:			02/27/2018
 //
 //	Language:				C
 //
@@ -457,7 +457,7 @@ void 				sum_matrix (
         					
         					
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -614,7 +614,7 @@ double brent (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -693,7 +693,7 @@ double **dmatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -740,7 +740,7 @@ double *dvector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1434,7 +1434,7 @@ Boolean First_stage_matrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1791,7 +1791,7 @@ Boolean First_stage_matrix2HB (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1955,7 +1955,7 @@ Boolean First_stage_matrix2TD (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1974,7 +1974,7 @@ Boolean First_stage_matrix2TD (
 // Called By:			
 //
 //	Coded By:			Luis Jiminez			Date: 04/??/1996
-//	Revised By:			Larry L. Biehl			Date: 06/14/1996
+//	Revised By:			Larry L. Biehl			Date: 02/07/2018
 	
 Boolean First_stage_topDownAlgorithm (
 				SInt32								final_num_features, 
@@ -2019,6 +2019,7 @@ Boolean First_stage_topDownAlgorithm (
 			// the algorithm checks if final_num_features is less than the
 			// minimum number of samples/class -1.
 
+   Q1 = 0;
    if (final_num_features < min_num_samples)
    	{
 		IGB = 0;
@@ -2140,9 +2141,6 @@ Boolean First_stage_topDownAlgorithm (
 
 		}	// end "if (final_num_features < min_num_samples)"
 
-	else	// final_num_features >= min_num_samples
-		Q1 = 0;
-		
 	*Q1Ptr = (SInt16)Q1;
 		
 	return (continueFlag);
@@ -2152,7 +2150,7 @@ Boolean First_stage_topDownAlgorithm (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2196,7 +2194,7 @@ double** free_dmatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2231,7 +2229,7 @@ double* free_dvector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2275,7 +2273,7 @@ SInt32** free_imatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2310,7 +2308,7 @@ SInt32* free_ivector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2349,7 +2347,7 @@ double f1dim (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2407,7 +2405,7 @@ void get_sub_matrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2454,7 +2452,7 @@ void group_bands_delete (
  
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2515,7 +2513,7 @@ void group_bands_insert (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2594,7 +2592,7 @@ SInt32 **imatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2633,7 +2631,7 @@ SInt32 imax_elm_vector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2675,7 +2673,7 @@ SInt32 *ivector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2746,7 +2744,7 @@ void linmin (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2764,6 +2762,7 @@ void linmin (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: ??/??/1996
+// Revised By:			Larry L. Biehl			Date: 02/27/2018
 
 Boolean ListGroupOfBands (
 				double								mBvalue,
@@ -2826,7 +2825,7 @@ Boolean ListGroupOfBands (
 			// List line in Channel Decision Tree Table
 			
 	sprintf ((char*)gTextString, "    %5d       %9.4f      %3ld-%3ld   [", 
-					final_num_features,
+					(int)final_num_features,
 					mBvalue,
 					class1,
 					class2);
@@ -2838,7 +2837,7 @@ Boolean ListGroupOfBands (
 											
 	for (k=1; k<=final_num_features; ++k)
 		{
-		sprintf ((char*)gTextString, "%5d", group_of_bands[k]);
+		sprintf ((char*)gTextString, "%5d", (int)group_of_bands[k]);
 		continueFlag = OutputString (resultsFileStreamPtr, 
 												(char*)gTextString, 
 												0, 
@@ -2867,7 +2866,7 @@ Boolean ListGroupOfBands (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3031,7 +3030,7 @@ Boolean minBhatt (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3119,7 +3118,7 @@ double minBhatt_function (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3253,7 +3252,7 @@ void mnbrak (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3377,7 +3376,7 @@ Boolean powell (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3968,7 +3967,7 @@ Boolean ProjectionPursuit (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4240,7 +4239,7 @@ Boolean Preprocess (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4282,7 +4281,7 @@ SInt16 PPRandom (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4336,7 +4335,7 @@ void SaveTransformationToVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4567,7 +4566,7 @@ Boolean Second_Stage_matrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4609,7 +4608,7 @@ void SetupGroupingVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4655,7 +4654,7 @@ void subtract_matrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

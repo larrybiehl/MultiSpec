@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			01/05/2018
+//	Revision date:			10/22/2018
 //
 //	Language:				C
 //
@@ -105,29 +105,6 @@ SInt16			gEchoAlgorithmProcedure = 0;
 Boolean  				ClassifyDialog (
 								FileInfoPtr							fileInfoPtr);
 								
-Boolean 					ClassifyDialogGetFeatureTransformAllowedFlag (
-								SInt16								classificationProcedure,
-								UInt16								numberEigenvectors);
-								
-Boolean 					ClassifyDialogGetThresholdAllowedFlag (
-								SInt16								classificationProcedure);
-								
-Boolean 					ClassifyDialogSetLeaveOneOutItems (
-								DialogPtr							dialogPtr,
-								SInt16								classificationProcedure,
-								SInt16								fileNamesSelection,
-								Boolean								userLeaveOneOutFlag,
-								Boolean								trainingFieldExistFlag,
-								Boolean*								leaveOneOutSettingFlagPtr);
-								
-Boolean 					ClassifyDialogSetThresholdItems (
-								DialogPtr							dialogPtr,
-								SInt16								classificationProcedure,
-								Boolean								classifyImageAreaFlag,
-								Boolean								createProbabilityFileFlag,
-								Boolean								thresholdResultsFlag,
-								Boolean								thresholdAllowedFlag);
-								
 Boolean 					CorrelationClassifyDialog (
 								SInt16*								covarianceEstimatePtr);
 											
@@ -153,17 +130,8 @@ PascalVoid	 			DrawDiskFilePopUp (
 								
 Boolean 					DecisionTreeDialog (void);
 								
-Boolean 					EchoClassifyDialog (void);
-
-void 						ListResultsOptionsDialog (
-								SInt16*								listResultsTrainingCode, 
-								SInt16*								listResultsTestCode);
-								
 Boolean 					LoadCEMParameterSpecs (
 								UInt16								classifyProcedureEnteredCode);
-								
-void 						SetUpPalettePopUpMenu (
-								DialogPtr							dialogPtr);
 								
 								
 		// Global variables for file.
@@ -173,7 +141,7 @@ SInt16					gfile_EntireIconItem;
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -596,7 +564,7 @@ void CEMClassifyDialogOK (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2426,7 +2394,7 @@ SInt16 ClassifyDialogOnClassificationProcedure (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2482,7 +2450,7 @@ void ClassifyDialogOnOverlay (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3121,7 +3089,7 @@ void ClassifyDialogOK (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3310,7 +3278,7 @@ Boolean CorrelationClassifyDialog (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3627,7 +3595,7 @@ Boolean DecisionTreeDialog (void)
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3668,7 +3636,7 @@ pascal void DrawClassificationProcedurePopUp (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3710,7 +3678,7 @@ pascal void DrawCorrelationMatrixClassAreaPopUp (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3752,7 +3720,7 @@ pascal void DrawCovarianceEstimatePopUp (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3794,7 +3762,7 @@ pascal void DrawEchoAlgorithmPopUp (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3835,7 +3803,7 @@ pascal void DrawDiskFilePopUp (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3851,17 +3819,17 @@ pascal void DrawDiskFilePopUp (
 //
 // Value Returned: 	
 //
-// Called By:			ClassifyDialog   in classify.c
+// Called By:			ClassifyDialog   in SClassify.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 07/29/1991
-//	Revised By:			Larry L. Biehl			Date: 08/17/2010	
+//	Revised By:			Larry L. Biehl			Date: 10/22/2018
 
 Boolean EchoClassifyDialog (void)
 
 {		
 	EchoClassifierVarPtr				echoClassifierVarPtr;
 										
-	Boolean								returnFlag;
+	Boolean								returnFlag = FALSE;
 	
 	
 			// Make certain that we have memory for the echo parameter				
@@ -4266,7 +4234,7 @@ Boolean EchoClassifyDialog (void)
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4466,7 +4434,7 @@ void ListResultsOptionsDialog (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4590,7 +4558,7 @@ Boolean LoadCEMParameterSpecs (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4665,7 +4633,7 @@ void SetUpPalettePopUpMenu (
 
 				// Make sure that the 6th and 7th strings do not exist. 
 
-		while (numbermenuitem > 5)
+		while (numbermenuitem > 6) // changed from 5
 			{
 			comboBoxPtr->Delete (numbermenuitem - 1);
 			numbermenuitem--;

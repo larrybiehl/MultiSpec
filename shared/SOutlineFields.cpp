@@ -3,13 +3,13 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			12/21/2017
+//	Revision date:			11/02/2018
 //
 //	File:						SOutlineFields.cpp
 //
@@ -82,7 +82,7 @@ void OutlineProjectFields (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -150,7 +150,7 @@ void ForceFieldOutlineUpdate (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -192,7 +192,7 @@ double GetAngle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -236,7 +236,7 @@ double GetHalfAngle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -548,7 +548,7 @@ void GetPolygonLabelPoint (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -634,7 +634,7 @@ void OutlineFieldsInProjectWindows (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -705,7 +705,7 @@ void OutlineFieldsInProjectBaseWindows (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -732,7 +732,7 @@ void OutlineFieldsInProjectBaseWindows (
 //							ChangeProjectAssociatedImageItem in SProjUtl.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/10/1989
-//	Revised By:			Larry L. Biehl			Date: 10/09/2015
+//	Revised By:			Larry L. Biehl			Date: 11/02/2018
 
 void OutlineFieldsControl (
 				SInt16								statsWindowMode,
@@ -994,7 +994,7 @@ void OutlineFieldsControl (
             printf ("measured scale = %.1f\n", actualScale);
 				int pointSize = 9/actualScale;	
 				*/		
-				wxFont font (9, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL); 
+				wxFont font (gFontSize, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL); 
             gCDCPointer->SetFont (font);
             gCDCPointer->SetUserScale (1, 1);
 			#endif	// defined multispec_lin
@@ -1128,7 +1128,7 @@ void OutlineFieldsControl (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1179,7 +1179,7 @@ void OutlineProjectFields (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1252,7 +1252,7 @@ void OutlineClassFields (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			01/04/2018
+//	Revision date:			07/23/2018
 //
 //	Language:				C
 //
@@ -59,6 +59,7 @@
    #include "LDialog.h"
 	#include "LImageDoc.h"
 	#include "LImageView.h"
+   #include "LFalseColorDialog.h"
 	#include "LMainFrame.h"
 #endif 
 
@@ -167,11 +168,6 @@ void Create2CPalette (
 
 void Create3CPalette (
 				DisplaySpecsPtr					displaySpecsPtr);
-								
-Boolean DetermineIfFalseColorAvailable (
-				SInt16								fileFormat,
-				UInt32								numberClasses,
-				Handle								classDescriptionH);													
 
 void  DrawCPalette (
 				Rect*									rectPtr,
@@ -181,17 +177,12 @@ void 	DrawPPalette (
 				Rect*									rectPtr,
 				DisplaySpecsPtr					displaySpecsPtr);
 
-SInt16 FalseColorCheckColorChannel (
-				DialogPtr							dialogPtr,
-				SInt16								itemNumber,
-				SInt32								itemValue,
-				SInt16*								channelIndexPtr);
-
 Boolean GetBackgroundIncludedFlag (
 				FileInfoPtr							fileInfoPtr,
 				UInt16*								classSymbolPtr);
 
-void LoadDefaultProjectFalseColorChannels (void);
+SInt16 GetPaletteID (
+				SInt16								thematicPaletteType);
 										
 Boolean MVerifyPaletteSize (
 				CMPaletteInfo						paletteObject,
@@ -233,7 +224,7 @@ Boolean SetBackgroundPaletteEntries (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -281,16 +272,14 @@ void ActivateImageWindowPalette (
 			(*cTabHandle)->ctFlags = (*cTabHandle)->ctFlags | 0x4000;
 		ActivatePalette (gActiveImageWindow);
 		
-		#if TARGET_API_MAC_CARBON	
-			if (gOSXCoreGraphicsFlag)
-				{
-				unsigned char						osxColorTablePtr[3*256];
-				
-				LoadOSXColorTable (paletteHandle, osxColorTablePtr);
-				UpdateOSXColorSpace (paletteHandle, osxColorTablePtr);
-				
-				}	// end "if (gOSXCoreGraphicsFlag)"
-		#endif	// TARGET_API_MAC_CARBON
+		if (gOSXCoreGraphicsFlag)
+			{
+			unsigned char						osxColorTablePtr[3*256];
+			
+			LoadOSXColorTable (paletteHandle, osxColorTablePtr);
+			UpdateOSXColorSpace (paletteHandle, osxColorTablePtr);
+			
+			}	// end "if (gOSXCoreGraphicsFlag)"
 	
 		InvalidateWindow (gActiveImageWindow, kFrameArea, FALSE);
 	#endif	// defined multispec_mac 
@@ -312,7 +301,7 @@ void ActivateImageWindowPalette (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -384,7 +373,7 @@ Boolean CopyColorsFromClassTableToGroupTable (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -415,7 +404,8 @@ Boolean CreateFalseColorPalette (
  
 {
 	double 								maxMean[3],
-											minMean[3],	
+											minMean[3],
+											maxPaletteValue,
 											paletteValue;
 										
 	ChannelStatistics					classChannelStats;
@@ -437,7 +427,12 @@ Boolean CreateFalseColorPalette (
 											index,
 											numberColors;
 	
-	
+   #ifdef multispec_lin
+      maxPaletteValue = 255;
+   #else
+      maxPaletteValue = 65535;
+   #endif
+   
 	if (gProjectInfoPtr == NULL)
 																							return (FALSE);
 	
@@ -511,7 +506,7 @@ Boolean CreateFalseColorPalette (
 						
 				for (index=0; index<3; index++)
 					{
-					*classChannelMeanPtr = 65535.;
+					*classChannelMeanPtr = maxPaletteValue;
 					classChannelMeanPtr++;
 					
 					}	// end "for (index=0; index<3; index++)"
@@ -587,23 +582,23 @@ Boolean CreateFalseColorPalette (
 			colorSpecPtr->value = index;
 			
 			paletteValue = (classChannelMeanPtr[0] - minMean[0]) /
-																(maxMean[0] - minMean[0]) * 65535.;
+																(maxMean[0] - minMean[0]) * maxPaletteValue;
 			longPaletteValue = (SInt32)(paletteValue + .5);
-			longPaletteValue = MIN (65535, longPaletteValue);
+			longPaletteValue = (SInt32)MIN (maxPaletteValue, longPaletteValue);
 			longPaletteValue = MAX (0, longPaletteValue);
 			colorSpecPtr->rgb.blue = (SInt16)longPaletteValue;
 				
 			paletteValue = (classChannelMeanPtr[1] - minMean[1]) /
-																(maxMean[1] - minMean[1]) * 65535.;
+																(maxMean[1] - minMean[1]) * maxPaletteValue;
 			longPaletteValue = (SInt32)(paletteValue + .5);
-			longPaletteValue = MIN (65535, longPaletteValue);
+			longPaletteValue = (SInt32)MIN (maxPaletteValue, longPaletteValue);
 			longPaletteValue = MAX (0, longPaletteValue);
 			colorSpecPtr->rgb.green = (SInt16)longPaletteValue;
 				
 			paletteValue = (classChannelMeanPtr[2] - minMean[2])/
-																(maxMean[2] - minMean[2]) * 65535.;
+																(maxMean[2] - minMean[2]) * maxPaletteValue;
 			longPaletteValue = (SInt32)(paletteValue + .5);
-			longPaletteValue = MIN (65535, longPaletteValue);
+			longPaletteValue = (SInt32)MIN (maxPaletteValue, longPaletteValue);
 			longPaletteValue = MAX (0, longPaletteValue);
 			colorSpecPtr->rgb.red = (SInt16)longPaletteValue;
 			
@@ -623,7 +618,7 @@ Boolean CreateFalseColorPalette (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -694,7 +689,7 @@ Boolean CreateGrayLevelPalette (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -885,7 +880,7 @@ Boolean CreatePalette (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1100,7 +1095,7 @@ void CreatePPalette (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1308,7 +1303,7 @@ Boolean CreateThematicColorPalette (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1412,7 +1407,7 @@ void Create1CPalette (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1633,7 +1628,7 @@ void Create2CPalette (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1758,7 +1753,7 @@ void Create3CPalette (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1777,8 +1772,8 @@ void Create3CPalette (
 //
 //	Global Data:
 //
-//	Coded By:			Larry L. Biehl			Date: ??/??/??
-//	Revised By:			Larry L. Biehl			Date: 09/18/2006	
+//	Coded By:			Larry L. Biehl			Date: ??/??/????
+//	Revised By:			Larry L. Biehl			Date: 04/24/2018
 
 Boolean DetermineIfFalseColorAvailable (
 				SInt16								fileFormat,
@@ -1817,12 +1812,15 @@ Boolean DetermineIfFalseColorAvailable (
 				
 			}	// end "if (fileFormat == kMultiSpecClassificationType)"
 			
-		else if (fileFormat == kErdas74Type &&
-				numberClasses == (UInt32)gProjectInfoPtr->numberStatisticsClasses+1)
+		else if ((fileFormat == kErdas74Type ||
+								fileFormat == kTIFFType ||
+											fileFormat == kGeoTIFFType) &&
+					(numberClasses == (UInt32)gProjectInfoPtr->numberStatisticsClasses ||
+						numberClasses == (UInt32)gProjectInfoPtr->numberStatisticsClasses+1))
 			returnFlag = TRUE;
 				
 		else if ((fileFormat == kGAIAType || fileFormat == kGAIA2Type) &&
-				numberClasses == (UInt32)gProjectInfoPtr->numberStatisticsClasses+1)
+					numberClasses == (UInt32)gProjectInfoPtr->numberStatisticsClasses+1)
 			returnFlag = TRUE;
 			
 		}	// end "if (gProjectInfoPtr != NULL)"
@@ -1835,7 +1833,7 @@ Boolean DetermineIfFalseColorAvailable (
 /*
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1917,7 +1915,7 @@ void DrawCPalette (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1959,7 +1957,7 @@ pascal void DrawPalettePopUp (
 /*
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2037,7 +2035,7 @@ void DrawPPalette (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2052,11 +2050,12 @@ void DrawPPalette (
 //
 // Value Returned: 	
 //
-// Called By:			ClassifyDialog   in SClassfy.cpp
+// Called By:			ImageWControlEvent in MControls.c
+//							ClassifyDialog in SClassfy.cpp
+//							DisplayThematicDialog in SDisplayThematic.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/26/1996
-//	Revised By:			Larry L. Biehl			Date: 07/16/1999	
-// TODO: For Linux
+//	Revised By:			Larry L. Biehl			Date: 04/25/2018
 
 Boolean FalseColorPaletteDialog (void)
 
@@ -2146,7 +2145,7 @@ Boolean FalseColorPaletteDialog (void)
 	
 			// Center the dialog and then show it.											
 			
-	ShowDialogWindow (dialogPtr, kFalseColorPaletteDialogID, kDoNotSetUpDFilterTable);
+	ShowDialogWindow (dialogPtr, kFalseColorPaletteDialogID, kSetUpDFilterTable);
 	
 			// Set default text selection to first edit text item						
 			
@@ -2271,7 +2270,7 @@ Boolean FalseColorPaletteDialog (void)
 	UnlockImageInformationHandles (projectHandleStatus, 
 												gProjectInfoPtr->windowInfoHandle);
 		
-	CloseRequestedDialog (dialogPtr, kDoNotSetUpDFilterTable); 
+	CloseRequestedDialog (dialogPtr, kSetUpDFilterTable);
 #endif	// defined multispec_mac
 
 	#if defined multispec_win   	
@@ -2294,6 +2293,22 @@ Boolean FalseColorPaletteDialog (void)
 		END_CATCH_ALL  	
 	#endif	// defined multispec_win 
 	
+	#if defined multispec_lin   
+		CMFalseColorDlg*		dialogPtr = NULL;
+		
+			try
+				{ 
+				dialogPtr = new CMFalseColorDlg ();
+				returnFlag = dialogPtr->DoDialog (); 
+				delete dialogPtr;
+				}
+			catch (int e)
+				{
+				MemoryMessage (0, kObjectMessage);
+				returnFlag = FALSE;
+				} 
+	#endif	// defined multispec_lin
+
 	return (returnFlag);
 	
 }	// end "FalseColorPaletteDialog"
@@ -2361,7 +2376,7 @@ SInt16 FalseColorCheckColorChannel (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2406,15 +2421,17 @@ CMPaletteInfo GetActivePaletteHandle (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		Boolean GetBackgroundIncludedFlag
 //
 //	Software purpose:	The purpose of this routine is to determine if the first
-//							class is the background class. This check will only be done
-//							for ERDAS and MultiSpec ascii files.
+//							class is the background class. This check was original done
+//							for for only ERDAS and MultiSpec ascii files. It has since
+//							been changed so be done for all file times for which a
+//							classSymbolPtr array is available.
 //
 //	Parameters in:		window
 //
@@ -2425,7 +2442,7 @@ CMPaletteInfo GetActivePaletteHandle (void)
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 12/09/1996
-//	Revised By:			Larry L. Biehl			Date: 12/11/1996	
+//	Revised By:			Larry L. Biehl			Date: 04/25/2018
 
 Boolean GetBackgroundIncludedFlag (
 				FileInfoPtr							fileInfoPtr,
@@ -2444,12 +2461,7 @@ Boolean GetBackgroundIncludedFlag (
 																		*classSymbolPtr == ' ')
 			backgroundFlag = TRUE;
 			
-		else if (fileInfoPtr->format == kErdas74Type &&
-																		*classSymbolPtr == 0)
-			backgroundFlag = TRUE;
-			
-		else if ((fileInfoPtr->format == kGAIAType ||
-											fileInfoPtr->format == kGAIA2Type) &&
+		else if (fileInfoPtr->format != kMultiSpecClassificationType &&
 																		*classSymbolPtr == 0)
 			backgroundFlag = TRUE;
 			
@@ -2462,7 +2474,7 @@ Boolean GetBackgroundIncludedFlag (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2617,7 +2629,7 @@ Boolean GetClassColorTable (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2711,7 +2723,7 @@ Boolean GetDefaultThematicFilePalette (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2755,7 +2767,7 @@ CMPaletteInfo GetPaletteHandle (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2824,7 +2836,7 @@ SInt16 GetPaletteID (
 
                     
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2868,7 +2880,7 @@ SInt16 GetPaletteOffset (void)
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2912,7 +2924,7 @@ SInt16 GetPaletteType (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3190,7 +3202,7 @@ Boolean LoadColorSpecTable (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3274,7 +3286,7 @@ void LoadDefaultProjectFalseColorChannels (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3421,7 +3433,7 @@ void LoadTwoBytePalette (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3467,7 +3479,7 @@ void MDisposePalette (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3524,7 +3536,7 @@ void MGetEntryColor (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3568,7 +3580,7 @@ SInt16 MGetNumberPaletteEntries (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3675,7 +3687,7 @@ Boolean MNewPalette (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3798,7 +3810,7 @@ void MSetEntryColor (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3887,7 +3899,7 @@ Boolean MVerifyPaletteSize (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3944,7 +3956,7 @@ Boolean PaletteExists (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3968,7 +3980,7 @@ Boolean PaletteExists (
 // Called By:			CreateThematicColorPalette in SPalette.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/20/1989
-//	Revised By:			Larry L. Biehl			Date: 07/09/2015	
+//	Revised By:			Larry L. Biehl			Date: 07/23/2018
 
 Boolean ReadOneBytePalette (
 				ColorSpec*							colorSpecPtr, 
@@ -4003,12 +4015,6 @@ Boolean ReadOneBytePalette (
 	
 	Boolean								closeFileAtEnd;
 											
-	#if defined multispec_mac			
-		#if !TARGET_API_MAC_CARBON
-			Boolean								writePaletteToResourceFile = FALSE;
-		#endif	// !TARGET_API_MAC_CARBON				
-	#endif	// defined multispec_mac  
-
 		
 	if (paletteFileStreamPtr == NULL ||
 				displaySpecsPtr == NULL || 
@@ -4216,56 +4222,7 @@ Boolean ReadOneBytePalette (
 
 			}	// end "if (errCode == noErr)"
 		
-		#if defined multispec_mac			
-			#if !TARGET_API_MAC_CARBON
-					// Add palette to a resource file.  This is test code for now.	
-		 		
-			if (writePaletteToResourceFile)
-				{
-				PaletteHandle			resourcePHandle;
-				SInt16					resourceFileReference;
-														
-						// Copy color table to the window palette.							
-				
-				//CTab2Palette (
-								cTableHandle, displaySpecsPtr->paletteObject, pmTolerant, 0);
-		
-				CreateResFile ("\pPalette Resource File");
-				errCode = ResError ();
-				if (errCode == noErr)
-					{
-					resourceFileReference = OpenResFile ("\pPalette Resource File");
-					errCode = ResError ();
-					
-					}	// end "errCode == noErr" 
-					
-				if (errCode == noErr)
-					{
-					resourcePHandle = displaySpecsPtr->paletteObject;
-					errCode = HandToHand ((Handle*)&resourcePHandle);
-					
-					}	// end "errCode == noErr" 
-					
-				if (errCode == noErr)
-					{
-					AddResource (
-							(Handle)resourcePHandle, 'pltt', 1003, "\pCorrelation Palette");
-					errCode = ResError ();
-					
-					}	// end "errCode == noErr" 
-					
-				if (errCode == noErr)
-					{
-					CloseResFile (resourceFileReference);
-					errCode = ResError ();
-					
-					}	// end "errCode == noErr" 
-				
-				}	// end "writePaletteToResourceFile"
-			#endif	// !TARGET_API_MAC_CARBON				
-		#endif	// defined multispec_mac  
-		
-		}	// end "if (errCode == noErr)" 
+		}	// end "if (errCode == noErr)"
 		
 	if (closeFileAtEnd)
 		CloseFile (paletteFileStreamPtr);
@@ -4277,7 +4234,7 @@ Boolean ReadOneBytePalette (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4324,6 +4281,8 @@ Boolean ReadPaletteFromResource (
 											
 	SInt16								paletteId;
 	
+	UInt16								maxPaletteValue;
+	
 	UInt16								backgroundOffset,
 											classValueRange,
 											index,
@@ -4338,7 +4297,12 @@ Boolean ReadPaletteFromResource (
 											invertPaletteFlag,
 											useClassSymbolPtrFlag;
 											
-	
+											
+   #ifdef multispec_lin
+      maxPaletteValue = 255;
+   #else
+      maxPaletteValue = 65535;
+   #endif
 			// Check that there is a valid class to group handle if needed.		
 			
 	if (classGroupCode != kClassDisplay && (fileInfoPtr == NULL ||
@@ -4432,9 +4396,9 @@ Boolean ReadPaletteFromResource (
 						numberPaletteEntriesUsed == numberClasses + 1)
 		{
 		colorSpecPtr->value     = 0;
-		colorSpecPtr->rgb.red   = 65535;
-		colorSpecPtr->rgb.green = 65535;
-		colorSpecPtr->rgb.blue  = 65535;
+		colorSpecPtr->rgb.red   = maxPaletteValue;
+		colorSpecPtr->rgb.green = maxPaletteValue;
+		colorSpecPtr->rgb.blue  = maxPaletteValue;
 		colorSpecPtr++;
 		
 		}	// end "if (gProcessorCode == kRefChangeFileFormatProcessor && ..."
@@ -4610,7 +4574,7 @@ Boolean ReadPaletteFromResource (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4753,7 +4717,7 @@ Boolean SetBackgroundPaletteEntries (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4844,7 +4808,7 @@ void SetPaletteSpecification (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4858,7 +4822,7 @@ void SetPaletteSpecification (
 //
 //	Parameters out:				
 //
-// Value Returned:
+// Value Returned:	paletteCode to be used.
 //
 // Called By:			ImageWControlEvent in controls.c
 //							DisplayThematicDialog in SDisThem.cpp
@@ -4866,9 +4830,9 @@ void SetPaletteSpecification (
 //							CMDisplayThematicDlg::OnDropdownPaletteCombo in WDistDlg.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/31/1990
-//	Revised By:			Larry L. Biehl			Date: 04/01/2015
+//	Revised By:			Larry L. Biehl			Date: 04/27/2018
 
-void SetUpPalettePopUpMenu (
+SInt16 SetUpPalettePopUpMenu (
 				DialogPtr							dialogPtr,
 				MenuHandle							popUpPaletteMenu,
 				SInt16								fileFormat,
@@ -4877,7 +4841,8 @@ void SetUpPalettePopUpMenu (
 				Handle								classDescriptionH, 
 				UInt32								colorTableOffset, 
 				DisplaySpecsPtr					displaySpecsPtr, 
-				SInt16								classGroupCode)
+				SInt16								classGroupCode,
+				SInt16								paletteCode)
 
 {    
 	#if defined multispec_mac	
@@ -4968,7 +4933,9 @@ void SetUpPalettePopUpMenu (
 		
 		if (classGroupCode != kClassDisplay &&
 						displaySpecsPtr->thematicGroupPaletteType != kUserDefinedColors)
-			DisableMenuItem (popUpPaletteMenu, kUserDefinedColors); 			
+			DisableMenuItem (popUpPaletteMenu, kUserDefinedColors);
+	
+		return paletteCode;
 	#endif	// defined multispec_mac 
 		
 	#if defined multispec_win		
@@ -5088,32 +5055,34 @@ void SetUpPalettePopUpMenu (
 		 	comboBoxPtr->InsertString (nextStringIndex, (LPCTSTR)_T("User Defined Colors"));  
 			comboBoxPtr->SetItemData (nextStringIndex, kUserDefinedColors);
 			
-			}	// end "if ((classGroupCode == kClassDisplay && ..."			
+			}	// end "if ((classGroupCode == kClassDisplay && ..."
+	
+		return paletteCode;
 	#endif	// defined multispec_win 
 
-   #if defined multispec_lin		
-		SInt16								nextStringIndex;
-		 
+   #if defined multispec_lin	
+		wxComboBox*							comboBoxPtr;
+	
+		int									comboItemCount,
+												j;
+	
+		SInt16								nextStringIndex,
+												paletteSelection;
+	
 	
 				// Set user defined values for palette combo box.
 				
-		wxChoice* comboBoxPtr = (wxChoice*)(dialogPtr->FindWindow (IDC_PaletteCombo));
-		int comboitemcount = comboBoxPtr->GetCount (); 
-		comboBoxPtr->SetClientData (0, (void*)gDefaultColors);
-		comboBoxPtr->SetClientData (1, (void*)gDefaultGrays);
-		comboBoxPtr->SetClientData (2, (void*)gCorrelationMatrixColors);
-		comboBoxPtr->SetClientData (3, (void*)gAVHRR_NDVI_Colors);  
-		comboBoxPtr->SetClientData (4, (void*)gMODIS_NDVI_Colors);
-		
+		comboBoxPtr = (wxComboBox*)(dialogPtr->FindWindow (IDC_PaletteCombo));
+	
 				// Make sure that the 6th, 7th & 8th strings do not exist.
 				 
-      int nument = comboBoxPtr->GetCount ();
-		if (nument > 5)
+		comboItemCount = comboBoxPtr->GetCount ();
+		if (comboItemCount > 5)
 			{
-         for (int j = nument; j >= 6; j--)
+         for (j=comboItemCount; j>=6; j--)
             comboBoxPtr->Delete (j-1);
 		
-			}	// end "if (nument > 5)"
+			}	// end "if (comboItemCount > 5)"
 			
 		nextStringIndex = 5;    
 		
@@ -5122,7 +5091,7 @@ void SetUpPalettePopUpMenu (
 		if (DetermineIfFalseColorAvailable (
 													fileFormat, numberClasses, classDescriptionH))
 			{                                                     
-		 	comboBoxPtr->Append (wxT("False Color..."), &gFalseColors);
+		 	comboBoxPtr->Append (wxT("False Color..."));
 			comboBoxPtr->SetClientData (nextStringIndex, (void*)kFalseColors);
 			nextStringIndex++;
 			
@@ -5144,11 +5113,10 @@ void SetUpPalettePopUpMenu (
 			if (displaySpecsPtr->filePaletteFlag) 
 				{                    
 				if (ancillaryInfoFormat == kArcViewDefaultSupportType)
-					comboBoxPtr->Append (
-											wxT("ArcView .clr file"), &gImageDefaultColorTable);
+					comboBoxPtr->Append (wxT("ArcView .clr file"));
 				
 				else	// ancillaryInfoFormat != kArcViewDefaultSupportType
-					comboBoxPtr->Append (wxT("ERDAS .trl file"),&gImageDefaultColorTable); 
+					comboBoxPtr->Append (wxT("ERDAS .trl file"));
 					
 				comboBoxPtr->SetClientData (
 												nextStringIndex, (void*)kImageDefaultColorTable);
@@ -5160,7 +5128,7 @@ void SetUpPalettePopUpMenu (
 	 		
 		else if (fileFormat == kSunScreenDumpType)
 			{                                  
-	 		comboBoxPtr->Append (wxT("SUN screendump file"), &gImageDefaultColorTable); 
+	 		comboBoxPtr->Append (wxT("SUN screendump file"));
 			comboBoxPtr->SetClientData (nextStringIndex, (void*)kImageDefaultColorTable);
 			nextStringIndex++;
 				
@@ -5168,7 +5136,7 @@ void SetUpPalettePopUpMenu (
 	 		
 		else if (fileFormat == kTIFFType && colorTableOffset > 0)
 			{                                
-	 		comboBoxPtr->Append (wxT("TIFF file"), &gImageDefaultColorTable); 
+	 		comboBoxPtr->Append (wxT("TIFF file"));
 			comboBoxPtr->SetClientData (nextStringIndex, (void*)kImageDefaultColorTable);
 			nextStringIndex++;
 				
@@ -5176,7 +5144,7 @@ void SetUpPalettePopUpMenu (
 	 		
 		else if (fileFormat == kGeoTIFFType && colorTableOffset > 0)
 			{                                  
-	 		comboBoxPtr->Append (wxT("GeoTIFF file"), &gImageDefaultColorTable); 
+	 		comboBoxPtr->Append (wxT("GeoTIFF file"));
 			comboBoxPtr->SetClientData (nextStringIndex, (void*)kImageDefaultColorTable);
 			nextStringIndex++;
 				
@@ -5184,7 +5152,7 @@ void SetUpPalettePopUpMenu (
 	 		
 		else if (fileFormat == kImagineType)
 			{                                  
-	 		comboBoxPtr->Append (wxT("Imagine file"), &gImageDefaultColorTable); 
+	 		comboBoxPtr->Append (wxT("Imagine file"));
 			comboBoxPtr->SetClientData (nextStringIndex, (void*)kImageDefaultColorTable);
 			nextStringIndex++;
 				
@@ -5192,7 +5160,7 @@ void SetUpPalettePopUpMenu (
 	 		
 		else	// fileFormat not one of above but has a color table
 			{                                  
-	 		comboBoxPtr->Append (wxT("Image file default"), &gImageDefaultColorTable); 
+	 		comboBoxPtr->Append (wxT("Image file default"));
 			comboBoxPtr->SetClientData (nextStringIndex, (void*)kImageDefaultColorTable);
 			nextStringIndex++;
 				
@@ -5208,10 +5176,35 @@ void SetUpPalettePopUpMenu (
 			  (classGroupCode != kClassDisplay &&
 					displaySpecsPtr->thematicGroupPaletteType == kUserDefinedColors)) 
 			{
-		 	comboBoxPtr->Append (wxT("User Defined Colors"), &gUserDefinedColors);  
+		 	comboBoxPtr->Append (wxT("User Defined Colors"));
 			comboBoxPtr->SetClientData (nextStringIndex, (void*)kUserDefinedColors);
 			
-			}	// end "if ((classGroupCode == kClassDisplay && ..."			
+			}	// end "if ((classGroupCode == kClassDisplay && ..."	
+
+				// Now try to reset the selection back to that which represents the
+				// original selection code. If not possible set to the last
+				// selection in the list.
+	
+		paletteSelection = ::GetComboListSelection (dialogPtr,
+																	IDC_PaletteCombo,
+																	paletteCode);
+	
+		if (paletteSelection < 0)
+			{
+					// This implies that the False Color option is not available now.
+					// Set paletteSelection to the last option available which is the
+					// the original
+			paletteSelection = comboBoxPtr->GetCount () - 1;
+			
+			SInt64 palette64 =
+					(SInt64)((int*)comboBoxPtr->GetClientData (paletteSelection));
+			paletteCode = (SInt16)palette64;
+			
+			}	// end "if (paletteSelection < 0)"
+
+		comboBoxPtr->SetSelection (paletteSelection);
+	
+		return paletteCode;
 	#endif	// defined multispec_lin 
 			
 }	// end Routine "SetUpPalettePopUpMenu"          
@@ -5219,7 +5212,7 @@ void SetUpPalettePopUpMenu (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

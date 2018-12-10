@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -56,7 +56,7 @@ double translate_threshold (
 
 
 //------------------------------------------------------------------------------------
-//								 	Copyright (1989-2017)
+//								 	Copyright (1989-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -122,7 +122,7 @@ void free_epix (
 
 
 //------------------------------------------------------------------------------------
-//								 	Copyright (1989-2017)
+//								 	Copyright (1989-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -237,7 +237,7 @@ double log_lik_ratio (
 
 
 //------------------------------------------------------------------------------------
-//								 	Copyright (1989-2017)
+//								 	Copyright (1989-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -418,7 +418,7 @@ Boolean malloc_epix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -469,7 +469,7 @@ SInt16 read_lines_of_data1 (
 
 
 //------------------------------------------------------------------------------------
-//								 	Copyright (1989-2017)
+//								 	Copyright (1989-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -600,7 +600,7 @@ SInt16 setup_basic_echo_information (
 
 
 //------------------------------------------------------------------------------------
-//								 	Copyright (1989-2017)
+//								 	Copyright (1989-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -618,18 +618,19 @@ SInt16 setup_basic_echo_information (
 // Called By:			EchoClassifier in SEchoSpec.cpp
 //
 //	Coded By:			Byeungwoo Jeon			Date: 01/01/1989
-// Revised By:			Byeungwoo Jeon			Date: 09/28/1991
+// Revised By:			Byeungwoo Jeon			Date: 03/12/2018
 
 void setup_echo_image_selection (
 				common_classifier_information	*c_info,
 				EchoClassifierVar					*echo_info)
 
 {
+	SInt64								ipixels;
+	
 	SInt32								num_row,
 											num_col;
    									
-   UInt32								ipixels,
-											ncls;
+   UInt32								ncls;
    									
    SInt16								cell_width;
    
@@ -676,7 +677,7 @@ void setup_echo_image_selection (
 
 
 //------------------------------------------------------------------------------------
-//								 	Copyright (1989-2017)
+//								 	Copyright (1989-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -724,7 +725,7 @@ void stuffing (
 
 
 //------------------------------------------------------------------------------------
-//								 	Copyright (1989-2017)
+//								 	Copyright (1989-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -784,7 +785,7 @@ UInt16 subtract_log_lik (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -858,7 +859,7 @@ void symtrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -933,7 +934,7 @@ void threshold (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

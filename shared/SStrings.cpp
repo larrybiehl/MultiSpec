@@ -11,11 +11,11 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			01/05/2018
+//	Revision date:			12/06/2018
 //
 //	Language:				C
 //
-//	System:					Linux, Macintos,h and Windows Operating Systems
+//	System:					Linux, Macintosh, and Windows Operating Systems
 //
 //	Brief description:	The purpose of the routines in this file is to
 //								provide utility type functions in MultiSpec that are 
@@ -57,14 +57,13 @@
 //------------------------------------------------------------------------------------
 
 #include "SMultiSpec.h"
-#include	"SGraphView.h"
 #include	<ctype.h>  
 
 #if defined multispec_lin
 	#include	"SMultiSpec.h"
 	
-	#include <wx/string.h>
-	#include <wx/textfile.h>
+	#include "wx/string.h"
+	#include "wx/textfile.h"
    #include "LGraphDoc.h"
    #include "LGraphFrame.h"
    #include "LGraphView.h"
@@ -76,6 +75,8 @@
 #endif   // defined multispec_lin
 
 #if defined multispec_mac || defined multispec_mac_swift
+	#include	"MGraphView.h"
+	
 	#define	IDS_Processor20					20
 	#define	IDS_Processor21					21
 	#define	IDS_Processor22					22
@@ -87,9 +88,11 @@
                             
 #if defined multispec_win
 	#include	"CDisplay.h"
-	#include	"WImageView.h"
 	#include	"CImageWindow.h"
 	#include "CProcessor.h"
+
+	#include	"WGraphView.h"
+	#include	"WImageView.h"
 	#include "WImageDoc.h"
 	#include "WStatisticsView.h"
 	#include "WTextDoc.h"
@@ -110,14 +113,6 @@
 	*/
 #endif	// defined multispec_win
 
-
-extern void GetWindowTitle (
-				WindowPtr							windowPtr,
-				UCharPtr								titleStringPtr);
-
-extern void GetGraphWindowTitle (
-				WindowPtr							windowPtr,
-				UCharPtr								titleStringPtr);
 
 extern Boolean	ListString (
 				char*									textBuffer,
@@ -167,7 +162,7 @@ Boolean 	LoadSpecifiedStringNumberString (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -251,7 +246,7 @@ void CheckStringLength (
 				
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -334,7 +329,7 @@ Boolean CheckTextWindowSpaceNeeded (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -390,7 +385,7 @@ SInt16 CompareStringsNoCase (
    
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -452,7 +447,7 @@ SInt16 CompareStringsNoCase (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -541,7 +536,7 @@ Boolean CompareSuffixNoCase (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -632,7 +627,7 @@ Boolean CompareSuffixNoCase (
 
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -707,7 +702,7 @@ void ConcatFilenameSuffix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -760,7 +755,7 @@ void ConcatFilenameSuffix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -829,7 +824,7 @@ void ConcatPStrings (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -904,10 +899,8 @@ wchar_t* ConvertMultibyteStringToUnicodeString (
 
 
 
-
-
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -917,21 +910,22 @@ wchar_t* ConvertMultibyteStringToUnicodeString (
 //							string to a UTF8 string. 
 //
 //	Parameters in:		Address of input unicode string set up as pascal string.
-//							Address of output utf8 formatted string set up as pascal string.
+//							Address of output utf8 formatted string set up as a C string.
 //
-//	Parameters out:	None
+//	Parameters out:	Number of characters in the output string
 //
 //	Value Returned:	Address of output unicode string
 //
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 03/22/2017
-//	Revised By:			Larry L. Biehl			Date: 01/04/2018
+//	Revised By:			Larry L. Biehl			Date: 07/27/2018
 
 void ConvertUnicodeStringToMultibyteString (
 				wchar_t*								inputUnicodeStringPtr,
 				UCharPtr								outputUTF8StringPtr,
-				UInt16								numberCharactersToCopy)
+				UInt16								numberCharactersToCopy,
+				SInt16*								outputStringLengthPtr)
 
 {
 	#if defined multispec_mac
@@ -957,10 +951,10 @@ void ConvertUnicodeStringToMultibyteString (
 		if (cfStringRef != NULL)
 			{
 			CFStringGetCString (cfStringRef,
-									(char*)&outputUTF8StringPtr[1],
-									(CFIndex)255,
-									kCFStringEncodingUTF8);
-			outputUTF8StringPtr[0] = strlen ((char*)&outputUTF8StringPtr[1]);
+										(char*)outputUTF8StringPtr,
+										(CFIndex)255,
+										kCFStringEncodingUTF8);
+			*outputStringLengthPtr = strlen ((char*)outputUTF8StringPtr);
 			
 			}	// end "if (cfStringRef != NULL)"
 	#endif
@@ -983,8 +977,8 @@ void ConvertUnicodeStringToMultibyteString (
 															numberChars, 
 															&numberMultiByteChars);
 																			
-		strncpy ((char*)&outputUTF8StringPtr[1], multiByteString, numberMultiByteChars);
-		outputUTF8StringPtr[0] = numberMultiByteChars;
+		strncpy ((char*)outputUTF8StringPtr, multiByteString, numberMultiByteChars);
+		*outputStringLengthPtr = numberMultiByteChars;
 	#endif // end "multispec_lin"
 
 	#if defined multispec_win
@@ -1006,22 +1000,23 @@ void ConvertUnicodeStringToMultibyteString (
 									0,
 									&inputUnicodeStringPtr[1], 
 									numberChars, 
-									(LPSTR)&outputUTF8StringPtr[1], 
+									(LPSTR)outputUTF8StringPtr,
 									sizeNeeded, 
 									NULL, 
 									NULL);
-		outputUTF8StringPtr[0] = sizeNeeded;
+		*outputStringLengthPtr = sizeNeeded;
 	#endif	// end "multispec_win"
 
 			// Make sure this can also be treated as a c string.
 
-	outputUTF8StringPtr[outputUTF8StringPtr[0]+1] = 0;
+	if (*outputStringLengthPtr < 256)
+		outputUTF8StringPtr[*outputStringLengthPtr] = 0;
 	
 }	// end "ConvertUnicodeStringToMultibyteString"
 
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1090,7 +1085,7 @@ void ConcatPStrings (
 
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1159,7 +1154,7 @@ void ConcatPStringsUnicode (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1197,7 +1192,7 @@ void CopyPToP (
 
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1237,7 +1232,7 @@ void CopyPToP (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1278,7 +1273,7 @@ SInt16 CreateNumberWithCommasInString (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1319,7 +1314,7 @@ SInt16 CreateNumberWithCommasInString (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1369,7 +1364,7 @@ UCharPtr CtoPstring (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1419,7 +1414,7 @@ wchar_t* CtoPstring (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1482,7 +1477,7 @@ void ForceTextToEnd (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1500,7 +1495,7 @@ void ForceTextToEnd (void)
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 11/29/1995
-//	Revised By:			Larry L. Biehl			Date: 03/21/2017 
+//	Revised By:			Larry L. Biehl			Date: 03/20/2018 
  
 void GetActiveImageWindowTitle (
 				UCharPtr								titleStringPtr)
@@ -1544,8 +1539,9 @@ void GetActiveImageWindowTitle (
 							
 			titleString.ReleaseBuffer ();
 				
-			titleStringPtr[0] = (UInt8)strlen ((char*)&titleStringPtr[1]);
-			titleStringPtr[titleStringPtr[0]+1] = 0; 
+			//titleStringPtr[0] = (UInt8)strlen ((char*)&titleStringPtr[1]);
+			titleStringPtr[0] = (UInt8)sizeNeeded;
+			titleStringPtr[sizeNeeded+1] = 0; 
 			
 			}	// end "if (gActiveImageViewCPtr != NULL)"
 	#endif	// defined multispec_win 
@@ -1567,7 +1563,7 @@ void GetActiveImageWindowTitle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1588,7 +1584,7 @@ void GetActiveImageWindowTitle (
 //							CreateImageWindow in window.c
 //
 //	Coded By:			Larry L. Biehl			Date: 10/23/2000
-//	Revised By:			Larry L. Biehl			Date: 09/05/2017
+//	Revised By:			Larry L. Biehl			Date: 02/27/2018
 
 void GetImageWindowName (
 				DisplaySpecsPtr					displaySpecsPtr, 
@@ -1794,7 +1790,8 @@ void GetImageWindowName (
 			
 		else if (displaySpecsPtr->displayType == k2_ChannelDisplayType)
 			{
-			SInt16		channel1, channel2;
+			SInt16		channel1 = 1,
+							channel2 = 1;
 						
 			if (displaySpecsPtr->rgbColors == kRGColor)
 				{
@@ -1855,7 +1852,7 @@ void GetImageWindowName (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1928,7 +1925,7 @@ void GetImageWindowTitle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1976,7 +1973,7 @@ UInt16 GetNumberLeadingDecimalZeros (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2020,7 +2017,7 @@ UInt16 GetNumberWholeDigits (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2095,7 +2092,7 @@ void GetOutputWindowTitle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2444,7 +2441,7 @@ SInt32 GetSpecifiedString (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2486,7 +2483,7 @@ Boolean GetSpecifiedStringNumber (
 
 #if defined multispec_win
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2530,7 +2527,7 @@ Boolean GetSpecifiedStringNumber (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2619,7 +2616,7 @@ char* GetStringToComma (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2713,7 +2710,7 @@ void GetGraphWindowTitle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2732,14 +2729,14 @@ void GetGraphWindowTitle (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 03/09/2007
-//	Revised By:			Larry L. Biehl			Date: 01/05/2018
+//	Revised By:			Larry L. Biehl			Date: 12/06/2018
 
 void InitializeDateVersionStrings ()
 
 {
 		// Date version string
 		
-	sprintf (gDateVersionString, "2018.01.05");
+	sprintf (gDateVersionString, "2018.12.06");
 
 		// Application identifier string
 		
@@ -2749,9 +2746,7 @@ void InitializeDateVersionStrings ()
 				sprintf (gApplicationIdentifierString, "MultiSpecPPC_%s", gDateVersionString);
 			#endif		// TARGET_CPU_PPC
 			
-			#if TARGET_API_MAC_CARBON
-				sprintf (gApplicationIdentifierString, "MultiSpecCarb_%s", gDateVersionString);
-			#endif /* TARGET_API_MAC_CARBON */
+			sprintf (gApplicationIdentifierString, "MultiSpecCarb_%s", gDateVersionString);
 		#endif		// !__XCODE__
 			
 		#ifdef __XCODE__		
@@ -2775,7 +2770,11 @@ void InitializeDateVersionStrings ()
 		#ifdef NetBeansProject
 			sprintf ((char*)gApplicationIdentifierString, "MultiSpecLinux_%s", gDateVersionString);
 		#else
-			sprintf ((char*)gApplicationIdentifierString, "MultiSpec_on_MyGeohub_%s", gDateVersionString);
+			#if defined multispec_wxmac
+				sprintf ((char*)gApplicationIdentifierString, "MultiSpec64_%s", gDateVersionString);
+			#else
+				sprintf ((char*)gApplicationIdentifierString, "MultiSpec_on_MyGeohub_%s", gDateVersionString);
+			#endif
 		#endif
    #endif
 
@@ -2784,7 +2783,7 @@ void InitializeDateVersionStrings ()
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2968,7 +2967,7 @@ SInt16 InsertCommasInNumberString (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3332,7 +3331,7 @@ Boolean ListChannelsUsed (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3399,7 +3398,7 @@ SInt16 ListCountValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3650,7 +3649,7 @@ Boolean ListCPUTimeInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3727,7 +3726,7 @@ Boolean ListHeaderInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3788,7 +3787,7 @@ Boolean ListLineColumnIntervalString (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3878,7 +3877,7 @@ Boolean ListMapProjectionString (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3960,7 +3959,7 @@ Boolean ListMapReferenceSystemString (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4026,7 +4025,7 @@ Boolean ListMemoryMessage (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4277,7 +4276,7 @@ Boolean ListProcessorTitleLine (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4439,7 +4438,7 @@ Boolean ListProjectAndImageName (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4494,7 +4493,7 @@ Boolean ListSpecifiedStringNumber (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4557,7 +4556,7 @@ Boolean ListSpecifiedStringNumber (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4620,7 +4619,7 @@ Boolean ListSpecifiedStringNumber (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4685,7 +4684,7 @@ Boolean ListSpecifiedStringNumber (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4752,7 +4751,7 @@ Boolean ListSpecifiedStringNumber (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4815,7 +4814,7 @@ Boolean ListSpecifiedStringNumber (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4879,7 +4878,7 @@ Boolean ListSpecifiedStringNumber (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4936,7 +4935,7 @@ Boolean ListSpecifiedStringNumber (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5004,7 +5003,7 @@ Boolean ListSpecifiedStringNumber (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5072,7 +5071,7 @@ Boolean ListSpecifiedStringNumber (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5142,7 +5141,7 @@ Boolean ListSpecifiedStringNumber (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5225,7 +5224,7 @@ Boolean ListString (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5265,7 +5264,7 @@ Boolean ListString (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5544,7 +5543,7 @@ Boolean ListString (
 
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5630,7 +5629,7 @@ Boolean ListZoneMapProjectionString (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5705,7 +5704,7 @@ SInt16 LoadRealValueString (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5761,7 +5760,7 @@ Boolean LoadSpecifiedStringNumberDouble (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5811,7 +5810,7 @@ Boolean LoadSpecifiedStringNumberLong (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5869,7 +5868,7 @@ Boolean LoadSpecifiedStringNumberLongP (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5920,7 +5919,7 @@ Boolean LoadSpecifiedStringNumberString (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5971,7 +5970,7 @@ Boolean LoadSpecifiedStringNumberString (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6029,7 +6028,7 @@ Boolean LoadSpecifiedStringNumberStringP (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6087,7 +6086,7 @@ Boolean LoadSpecifiedStringNumberStringP (
    
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6127,7 +6126,7 @@ void* MemoryCopy (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6232,14 +6231,23 @@ Boolean MGetString (
 	#endif	// defined multispec_win
    
 	#if defined multispec_lin
-				// First get the path to this executable file
-		wxStandardPaths std = wxStandardPaths::Get ();
-		wxString exePath = std.GetExecutablePath ();
-		wxString exeDir = exePath.BeforeLast ('/');
-		exeDir.Append ("/LStringTable.def");
 		#ifdef NetBeansProject
 			wxTextFile file (wxT("LStringTable.def"));
 		#else
+					// First get the path to this executable file
+	
+			wxStandardPaths std = wxStandardPaths::Get ();
+			wxString exePath = std.GetExecutablePath ();
+			#ifdef multispec_wxmac
+				wxString exeDir = exePath.BeforeLast (wxUniChar('M'));
+				exeDir = exeDir.BeforeLast (wxUniChar('M'));
+				exeDir.Append ("Resources/LStringTable.def");
+			#else
+						// This will be for MultiSpec on mygeohub
+				wxString exeDir = exePath.BeforeLast ('/');
+				exeDir.Append ("/LStringTable.def");
+			#endif
+	
 			wxTextFile file (exeDir);
 		#endif
 		if (!file.Exists ())
@@ -6308,7 +6316,7 @@ Boolean MGetString (
 #if defined multispec_win 
 #if defined _UNICODE
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6353,7 +6361,7 @@ Boolean MGetString (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6493,7 +6501,7 @@ void MSetWindowTitle (
 
 
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6529,7 +6537,7 @@ void	NumToString (
 
 
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6565,7 +6573,7 @@ void	NumToString (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6611,7 +6619,7 @@ Boolean OutputString (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6657,7 +6665,7 @@ Boolean OutputString (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6750,7 +6758,7 @@ Boolean OutputString2 (
 
 		
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6797,7 +6805,7 @@ void pstr (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6843,7 +6851,7 @@ CharPtr 	PtoCstring (
 
 		
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6960,7 +6968,7 @@ void RemoveCharsAddVersion (
 		
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7022,7 +7030,7 @@ void RemoveCharsNoCase (
 		
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7068,7 +7076,7 @@ void RemoveCharsNoCase (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7125,7 +7133,7 @@ void SetActiveImageWindowTitle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7184,7 +7192,7 @@ void SetImageWindowTitle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7222,7 +7230,7 @@ void SetOutputWTitle (
    
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7270,7 +7278,7 @@ void SetPascalStringLengthCharacter (
    
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7304,7 +7312,7 @@ SInt16 StringCompare (
    
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7362,7 +7370,7 @@ void* StringCopy (
    
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7404,7 +7412,7 @@ int StringLength (
 				
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7454,7 +7462,7 @@ void StringToNumber (
 				
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7530,7 +7538,7 @@ char* StrStrNoCase (
 				
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7613,7 +7621,7 @@ char* StrStrNoCase (
 
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7710,7 +7718,7 @@ void VerifyDOSFileName (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7767,7 +7775,7 @@ Boolean WriteSpecifiedStringNumber (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7831,7 +7839,7 @@ Boolean WriteSpecifiedStringNumber (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

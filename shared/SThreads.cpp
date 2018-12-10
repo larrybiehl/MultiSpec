@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -101,7 +101,7 @@ pascal void	WakeUpThread (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -147,7 +147,7 @@ OSErr CreateFileIOThreadPool (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -211,7 +211,7 @@ void EndFileIOThread (
    
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -249,11 +249,6 @@ void EndFileIOThread (
 	ThreadState 						theThreadState; 
 	OSErr 								theError;
 	
-	#if !TARGET_API_MAC_CARBON
-		SInt32								theA5;
-	#endif	// !TARGET_API_MAC_CARBON
-
-	
 	//ThreadID 							theThreadID2;
 	//ThreadTaskRef 					theAppTaskRef2; 
 	
@@ -266,10 +261,6 @@ void EndFileIOThread (
 			
 	theAppTaskRef = myAsyncPBPtr->theAppTask; 
 	theThreadID = myAsyncPBPtr->wakeUpThread;
-	
-	#if !TARGET_API_MAC_CARBON
-		theA5 = SetCurrentA5();
-	#endif	// !TARGET_API_MAC_CARBON
 	/*
 	theAppTaskRef2 = fileIOInstructionsPtr->theAppRef; 
 	theThreadID2 = fileIOInstructionsPtr->wakeUpThread;
@@ -309,17 +300,13 @@ void EndFileIOThread (
 		
 	if (theError != noErr)
 		gFileIOInstructions[0].errCode = theError;
-		
-	#if !TARGET_API_MAC_CARBON
-		theA5 = SetA5 (theA5);
-	#endif	// !TARGET_API_MAC_CARBON
-		
+				
 }	// end "FileIOCompletionRoutine" 
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -466,7 +453,7 @@ pascal void FileIOThread (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -614,7 +601,7 @@ SInt16 GetLineFileIOThread (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -668,7 +655,7 @@ SInt16 StartFileIOThread (
 
                     
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -749,7 +736,7 @@ SInt16 SetupFileIOThread (
            
 #if defined multispec_mac 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

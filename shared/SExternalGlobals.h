@@ -3,15 +3,13 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	File:						SExternalGlobals.h
 //
 //	Authors:					Larry L. Biehl
-//
-//	Revision number:		3.0
 //
 //	Language:				C
 //
@@ -20,7 +18,7 @@
 //	Brief description:	This file contain globals declared as external
 //
 //	Revised By:				Abdur Maud				Date: 06/24/2013
-//	Revised By:				Larry L. Biehl			Date: 12/20/2017 
+//	Revised By:				Larry L. Biehl			Date: 04/04/2018
 //	
 //------------------------------------------------------------------------------------
 
@@ -49,6 +47,12 @@
 
 	//extern Boolean			gCallProcessorDialogFlag;
 	//extern SInt16			gOutputForce1CodeSetting;
+
+	#if defined multispec_wxmac
+		extern int 			gFontSize;
+	#else
+		extern int			gFontSize;
+	#endif
 #endif	// defined multispec_lin
 
 
@@ -590,6 +594,9 @@ extern MenuHandle						gPopUpFEAlgorithmMenu;
 	
 		// Handle to reformat transform function popup menu.										
 extern MenuHandle						gPopUpFunctionMenu;
+
+		// Handle to mosaic direction popup menu.														
+extern MenuHandle						gPopUpGraphAxisLabelMenu;
 
 		// Handle to hard threshold popup menu. Used in Enhance Statistics.								
 extern MenuHandle						gPopUpHardThresholdMenu;
@@ -1148,6 +1155,9 @@ extern UInt32							gStatusIDNumber;
 		// solution engine.																		
 extern UInt32							gTextMemoryMinimum;
 
+			// Variable containing the time to yield to background applications.	
+extern UInt32							gYieldTime;
+
 		// Variable containing the legend width for the active window.				
 extern SInt16							gActiveLegendWidth;
 
@@ -1509,9 +1519,6 @@ extern SInt16							gWeightsSelection;
 
 			// Font number to be used in the windows.										
 extern SInt16							gWindowTextFont;
-
-			// Variable containing the time to yield to background applications.	
-extern SInt16							gYieldTime;
 
 #if defined multispec_lin                        
                         // Disable other windows when executing list Data graph window

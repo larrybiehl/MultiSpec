@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			01/04/2018
+//	Revision date:			10/19/2018
 //
 //	Language:				C
 //
@@ -39,7 +39,7 @@ ListString ((char*)gTextString3, numberChars, gOutputTextH);
 #include "SMultiSpec.h"   
                              
 #if defined multispec_lin
-	#include <wx/menu.h>    
+	#include "wx/menu.h"
    #include "LDialog.h"
 #endif	// defined multispec_lin 
 	
@@ -79,7 +79,7 @@ Boolean 						CharactersSelected (void);
 
 class CMGraphView;
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -131,7 +131,7 @@ Boolean CharactersSelected (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -231,7 +231,7 @@ void ClearMenuItems (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -267,7 +267,7 @@ void ClearOverlay (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -299,7 +299,7 @@ void CloseAllOverlayFiles (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -340,7 +340,7 @@ Boolean DetermineIfProjectPossible (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -460,7 +460,7 @@ void DoEditSelectAllImage (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -516,7 +516,7 @@ void GetControlPopUpMenuText (
 
 
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -599,7 +599,7 @@ SInt16 GetPopUpMenuBitsPerDataValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -633,12 +633,176 @@ Boolean GetRectangularSelectionFlag (void)
 		
 	return (rectangularSelectionFlag);   
 					
-}	// end "GetRectangularSelectionFlag"	 
+}	// end "GetRectangularSelectionFlag"	
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		void MAppendMenuItemText
+//
+//	Software purpose:	The purpose of this routine is to set the text in the specified
+//							menu with the input text using a CFString to handle cases
+//							when the input string could be in UTF8 format.
+//
+//	Parameters in:		
+//
+//	Parameters out:	None
+//
+// Value Returned:	None
+// 
+// Called By:	
+//
+//	Coded By:			Larry L. Biehl			Date: 03/12/2018
+//	Revised By:			Larry L. Biehl			Date: 04/13/2018
+
+void MAppendMenuItemText (
+				MenuRef								theMenu,
+				UInt8*								itemStringPascalPtr)
+    
+{
+	#if defined multispec_lin
+		wxComboBox*							wxComboBoxPtr;
+		int									returnValue;
+
+		wxComboBoxPtr = (wxComboBox*)theMenu;
+		returnValue = 
+					wxComboBoxPtr->Append (wxString::FromAscii ((char*)&itemStringPascalPtr[1]));	
+	#endif	// defined multispec_lin
+				
+	#if defined multispec_mac
+		CFStringRef				cfStringRef;
+	
+		cfStringRef = CFStringCreateWithBytes (kCFAllocatorDefault,
+																&itemStringPascalPtr[1],
+																itemStringPascalPtr[0],
+																kCFStringEncodingUTF8,
+																false);
+																
+		if (cfStringRef != NULL)
+			{
+			AppendMenuItemTextWithCFString (theMenu,
+														cfStringRef,
+														0,
+														0,
+														NULL);
+			CFRelease (cfStringRef);
+			
+			}	// end "if (cfStringRef != NULL)
+	#endif	// defined multispec_mac
+	
+	#if defined multispec_mac_swift
+			// To be done.
+	#endif
+	
+	#if defined multispec_win
+		CComboBox*							cComboBoxPtr;	
+		int									returnValue;
+
+		USES_CONVERSION;
+
+
+		cComboBoxPtr = (CComboBox*)theMenu;
+		returnValue = 
+					cComboBoxPtr->AddString ((LPCTSTR)A2T((char*)&itemStringPascalPtr[1]));
+	#endif	// defined multispec_win
+				
+}	// end "MAppendMenuItemText"	
+
+
+
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2018)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		void MDisableMenuItem
+//
+//	Software purpose:	The purpose of this routine is to check the specified menu
+//							item.
+//
+//	Parameters in:		
+//
+//	Parameters out:	None
+//
+// Value Returned:	None
+// 
+// Called By:	
+//
+//	Coded By:			Larry L. Biehl			Date: 03/13/2018
+//	Revised By:			Larry L. Biehl			Date: 03/13/2018
+
+void MCheckMenuItem (
+				MenuRef								theMenu,
+				int									menuItem,
+				Boolean								checkFlag)
+    
+{
+	#if defined multispec_mac
+		CheckMenuItem (theMenu, menuItem,checkFlag);
+	#endif	// defined multispec_mac
+	
+	#if defined multispec_mac_swift
+			// To be done.
+	#endif
+	
+	#if defined multispec_win
+		CMenu* menuPtr = (CMenu*)theMenu;
+		menuPtr->CheckMenuItem (menuItem, checkFlag);
+	#endif	// defined multispec_win
+				
+}	// end "MDisableMenuItem"
+
+
+
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2018)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		void MDisableMenuItem
+//
+//	Software purpose:	The purpose of this routine is to disable the specified menu
+//							item.
+//
+//	Parameters in:		
+//
+//	Parameters out:	None
+//
+// Value Returned:	None
+// 
+// Called By:	
+//
+//	Coded By:			Larry L. Biehl			Date: 03/13/2018
+//	Revised By:			Larry L. Biehl			Date: 03/13/2018
+
+void MDisableMenuItem (
+				MenuRef								theMenu,
+				int									menuItem)
+    
+{
+	#if defined multispec_mac
+		DisableMenuItem (theMenu, menuItem);
+	#endif	// defined multispec_mac
+	
+	#if defined multispec_mac_swift
+			// To be done.
+	#endif
+	
+	#if defined multispec_win
+		CMenu* menuPtr = (CMenu*)theMenu;
+		menuPtr->EnableMenuItem (menuItem, MF_DISABLED);
+	#endif	// defined multispec_win
+				
+}	// end "MDisableMenuItem"
+
+
+
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -701,7 +865,7 @@ void MSetMenuItemText (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -801,7 +965,7 @@ Boolean SetTIFF_GeoTIFF_MenuItemString (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1046,7 +1210,7 @@ void SetUpClearOverlaysSubMenu (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1149,7 +1313,7 @@ void SetUpImageOverlayPopUpMenu (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1169,7 +1333,7 @@ void SetUpImageOverlayPopUpMenu (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 01/21/2001
-//	Revised By:			Larry L. Biehl			Date: 03/21/2017
+//	Revised By:			Larry L. Biehl			Date: 02/28/2018
 
 void SetUpWindowOverlayPopUpMenu (
 				MenuHandle							popUpMenuHandle,
@@ -1307,8 +1471,8 @@ void SetUpWindowOverlayPopUpMenu (
 				
 			else	// imageOverlayInfoPtr == NULL
 				gTextString[0] = sprintf ((char*)&gTextString[1],
-													(char*)"No Image Overlay %ld", 
-													imageFileIndex);
+													(char*)"No Image Overlay %d",
+													(int)imageFileIndex);
 				
 			if (optionKeyFlag)
 				ConcatPStrings ((UCharPtr)gTextString, (StringPtr)"\0...", 255);
@@ -1462,7 +1626,7 @@ void SetUpWindowOverlayPopUpMenu (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2692,7 +2856,7 @@ Boolean UpdateReformatMosaicImages (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

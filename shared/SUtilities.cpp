@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl, Ravi Budruk
 //
-//	Revision date:			01/04/2018
+//	Revision date:			12/07/2018
 //
 //	Language:				C
 //
@@ -76,18 +76,19 @@
 #endif
 
 #if defined multispec_mac
-	#include	"SGraphView.h"
+	#include	"MGraphView.h"
 #endif	// defined multispec_mac    
                             
 #if defined multispec_win
-	#include	"SGraphView.h"
 	#include	"CDisplay.h"
 	#include "CHistogram.h"
-	#include	"WImageView.h"
 	#include	"CImageWindow.h"
 	#include "CProcessor.h"
+
 	#include "WDialog.h"
+	#include	"WGraphView.h"
 	#include "WImageDoc.h"
+	#include	"WImageView.h"
 	#include "WTextDoc.h"
 	#include "WTextView.h"
 	#include "WLegendView.h"	
@@ -131,7 +132,7 @@ Boolean 	GetNumberNonZeroLeadingDigits (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -179,7 +180,7 @@ Boolean CheckIfOffscreenImageExists (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -232,7 +233,7 @@ SInt16 CheckIfValueInList (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -270,7 +271,7 @@ void ClearAreaDescriptionOffsetVariables (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -332,7 +333,7 @@ void CloseResultsFiles (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -391,7 +392,7 @@ Boolean CloseTheProject (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -435,7 +436,7 @@ void CloseUpAreaDescription (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -479,7 +480,7 @@ void ConvertLCToOffscreenPoint (
 
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -603,7 +604,7 @@ void ConvertLCToWinPoint (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -662,7 +663,7 @@ void ConvertLCToWinPoint (
 
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -822,7 +823,7 @@ void ConvertLCRectToWinRect (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -905,7 +906,7 @@ void ConvertLCRectToWinRect (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -975,7 +976,7 @@ void ConvertOffScreenPointToWinPoint (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1022,7 +1023,7 @@ void ConvertOffScreenRectToWinRect (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1147,7 +1148,7 @@ void ConvertWinPointToLC (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1270,7 +1271,7 @@ void ConvertWinPointToDoubleLC (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1344,12 +1345,18 @@ Boolean CreateBackgroundImageFile (
 														1,
 														1,
 														kClassDisplay,
-														paletteSelection);										
-	/*
-	if (headerFormat == kErdas74Type)
-		continueFlag = WriteNewErdasHeader (
-										fileInfoPtr, (SInt16*)ioOutBufferPtr, kErdas74Type);
-	*/
+														paletteSelection);	
+	
+			//	Title for creating background image.										
+
+	LoadDItemStringNumber (kClusterStrID,
+									IDS_Cluster46,	// "\pCreating Cluster Mask Background"
+									gStatusDialogPtr, 
+									IDC_Status11,
+									(Str255*)gTextString);
+									
+	CheckSomeEvents (updateMask);
+
 	if (continueFlag)
 		{
 		numberLines = fileInfoPtr->numberLines;
@@ -1371,8 +1378,7 @@ Boolean CreateBackgroundImageFile (
 			localIOOut2ByteBufferPtr = (UInt16*)ioOutBufferPtr;
 			endioOut2ByteBufferPtr = &localIOOut2ByteBufferPtr[
 											numberLinesToFill * fileInfoPtr->numberColumns];
-			for (;
-						localIOOut2ByteBufferPtr<endioOut2ByteBufferPtr;
+			for (; localIOOut2ByteBufferPtr<endioOut2ByteBufferPtr;
 							localIOOut2ByteBufferPtr++)
 				*localIOOut2ByteBufferPtr = backgroundValue;
 				
@@ -1411,7 +1417,7 @@ Boolean CreateBackgroundImageFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1941,7 +1947,7 @@ Boolean CreateResultsDiskFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2313,7 +2319,7 @@ Boolean CreateResultsDiskFiles (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2421,7 +2427,7 @@ UInt16 DefaultBitsPerDataValueSelection (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2478,7 +2484,7 @@ Boolean DetermineIfChannelsInOrder (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2535,7 +2541,7 @@ Boolean DetermineIfContinuousChannels (
 	
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2555,7 +2561,7 @@ Boolean DetermineIfContinuousChannels (
 //							CopyPrintOffscreenImage in print.c
 //
 //	Coded By:			Larry L. Biehl			Date: ??/??/1991
-//	Revised By:			Larry L. Biehl			Date: 03/03/2017	
+//	Revised By:			Larry L. Biehl			Date: 11/02/2018
 
 void	DrawSideBySideTitles (
 				Handle								windowInfoHandle, 
@@ -2771,7 +2777,7 @@ void	DrawSideBySideTitles (
 	#endif	// defined multispec_win 
 
 	#if defined multispec_lin            
-		wxFont font (9, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
+		wxFont font (gFontSize, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
 			   
 		/*
 		if (windowPtr->m_pDC->IsPrinting ())          
@@ -3008,7 +3014,7 @@ void	DrawSideBySideTitles (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3070,7 +3076,7 @@ SInt16 FormatHistogramSummaryString (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3120,7 +3126,7 @@ void GetActiveImageClipRectangle (
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3206,7 +3212,7 @@ double DetermineHistogramBinWidth (
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3264,7 +3270,7 @@ UInt32 GetBinIndexForDataValue (
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3310,7 +3316,7 @@ void GetClipRectangle (
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3446,7 +3452,7 @@ Boolean GetCommonArea (
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3511,7 +3517,7 @@ double GetDataValueForBinIndex (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3558,7 +3564,7 @@ double GetDoubleValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3618,7 +3624,7 @@ SDouble GetShortDoubleValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3726,7 +3732,7 @@ Boolean GetFileInformationForChannelList (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3840,7 +3846,7 @@ Boolean GetImageInformationPointers (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4138,7 +4144,7 @@ SInt16 GetImageList (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4242,7 +4248,7 @@ Boolean GetInformationPointers (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4318,7 +4324,7 @@ SInt16 GetLegendWidthForWindow (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4386,7 +4392,7 @@ SInt16 GetListBottom (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4431,7 +4437,7 @@ SInt32 GetLongIntValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4499,7 +4505,7 @@ SInt64 GetLongInt64Value (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4520,8 +4526,8 @@ SInt64 GetLongInt64Value (
 //							CreateImageWindow in window.c
 //							CreatePaletteWindow in window.c
 //
-//	Coded By:			Larry L. Biehl			Date:  9/06/1989
-//	Revised By:			Larry L. Biehl			Date: 02/07/1997		
+//	Coded By:			Larry L. Biehl			Date: 09/06/1989
+//	Revised By:			Larry L. Biehl			Date: 12/07/2018
 
 SInt16 GetMaxSystemPixelSize (void)
 
@@ -4577,7 +4583,15 @@ SInt16 GetMaxSystemPixelSize (void)
 			
 	#if defined multispec_lin
 		pixelSize = wxDisplayDepth ();
-		//pixelSize = 24;
+	
+				// Note that for now this needs to be 24 bits for wx macos. The
+				// offscreen bit map routines are set up for 24 bits. It may be
+				// advantageous to change these routines to the 32 bit max to better fit
+				// mac os in the future.
+	
+		#if defined multispec_wxmac
+			pixelSize = MIN (24, pixelSize);
+		#endif
 	#endif
 
 	return (pixelSize);
@@ -4587,7 +4601,7 @@ SInt16 GetMaxSystemPixelSize (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4665,7 +4679,7 @@ SInt16 GetMinSystemPixelSize (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4909,7 +4923,7 @@ void GetNumberDecimalDigits (
 	
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4965,7 +4979,7 @@ void GetNumberDecimalDigitsForDataVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5006,7 +5020,7 @@ SInt16 GetNumberFileTypes (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5078,7 +5092,7 @@ Boolean GetNumberNonZeroLeadingDigits (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5164,7 +5178,7 @@ SInt64 GetNumberPixelsInArea (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5235,7 +5249,7 @@ DisplaySpecsPtr GetActiveDisplaySpecsPtr (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5300,7 +5314,7 @@ void GetOneChannelThematicDisplayConversionValues (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5409,7 +5423,7 @@ SInt16 GetProbabilityThresholdCode (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5458,7 +5472,7 @@ FileInfoPtr GetResultsFilePtr (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5508,7 +5522,7 @@ CMFileStream* GetResultsFileStreamPtr (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5571,7 +5585,7 @@ SInt16 GetThresholdCode (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5620,7 +5634,7 @@ UInt32 GetTotalTime (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5852,7 +5866,7 @@ SInt64 GetTotalNumberOfPixels (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6198,7 +6212,7 @@ void GetWindowClipRectangle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6242,7 +6256,7 @@ double GetWindowImageMagnification (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6282,7 +6296,7 @@ void InitializeAreaDescription (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6377,7 +6391,7 @@ void InitializeAreaDescription (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6449,7 +6463,7 @@ void InitializeDoubleVariables (void)
 
                        
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6507,7 +6521,7 @@ void InvalidateWindow (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6596,7 +6610,7 @@ void LoadChannelsVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6685,7 +6699,7 @@ SInt16 LoadClassName (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6730,7 +6744,7 @@ void LoadFeatureVector (
 
                        
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6866,6 +6880,8 @@ void LoadFeatureVector (
 		oldPenPtr = newPenPtr;
 		
 	pDC->SetPen (wxPen (*oldPenPtr));
+	
+	return ((void*)oldPenPtr);
 #endif
 
 }	// end "MForeColor" 
@@ -6873,7 +6889,7 @@ void LoadFeatureVector (
 
 /*                       
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6918,7 +6934,7 @@ Boolean MGetSelectionRectangle (
 
                                                            
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6965,7 +6981,7 @@ void MHiliteControl (
 
                        
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6983,38 +6999,42 @@ void MHiliteControl (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 08/23/1995
-//	Revised By:			Larry L. Biehl			Date: 08/23/1995	
+//	Revised By:			Larry L. Biehl			Date: 08/28/2018
 
 void MInitCursor (void)
 
 {         
 	#if defined multispec_mac 
-		::InitCursor (); 
-		gPresentCursor = kArrow;
+		::InitCursor ();
 	#endif	// defined multispec_mac	
 				
 	#if defined multispec_win
 		AfxGetApp ()->DoWaitCursor (0);
-		gPresentCursor = kArrow;   
 	#endif	// defined multispec_win 
 		
 	#if defined multispec_lin
 		//(wxTheApp->GetTopWindow ())->SetCursor (wxCursor (wxCURSOR_ARROW));
-		CMainFrame* mframeptr = (CMainFrame*) (wxTheApp->GetTopWindow ());
+		CMainFrame* mframeptr = (CMainFrame*)(wxTheApp->GetTopWindow ());
 		CMImageView* currentview = wxDynamicCast (
 						mframeptr->GetDocumentManager ()->GetCurrentView (), CMImageView);
-		if (currentview != NULL) {
+		if (currentview != NULL)
+			{
 			CMImageCanvas* canvasptr = currentview->m_Canvas;
-			canvasptr->SetCursor (wxCursor (wxCURSOR_CROSS));
+			//canvasptr->SetCursor (wxCursor (wxCURSOR_ARROW));
+			canvasptr->SetCursor (wxCURSOR_ARROW);
 			}
+	
+		wxSetCursor (wxNullCursor);
 	#endif
+	
+	gPresentCursor = kArrow;
 		
 }	// end "MInitCursor"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7032,7 +7052,7 @@ void MInitCursor (void)
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 08/29/1995
-//	Revised By:			Larry L. Biehl			Date: 01/20/2016 
+//	Revised By:			Larry L. Biehl			Date: 08/30/2018
  
 void MSetCursor (
 				SInt16			cursorIndex)
@@ -7050,7 +7070,7 @@ void MSetCursor (
 		switch (cursorIndex)
 			{
 			case kArrow:
-				AfxGetApp ()->DoWaitCursor (0);                   
+				AfxGetApp ()->DoWaitCursor (-1);                   
 				::SetCursor (AfxGetApp ()->LoadStandardCursor (IDC_ARROW));
 				break;
 	  
@@ -7059,23 +7079,23 @@ void MSetCursor (
 				break;
 				
 			case kCross:
-				AfxGetApp ()->DoWaitCursor (0); 
+				AfxGetApp ()->DoWaitCursor (-1); 
 				//::SetCursor (AfxGetApp ()->LoadCursor (IDC_CROSS_CURSOR));
 				::SetCursor (AfxGetApp ()->LoadCursor (gCrossCursorID));
 				break;
 			
 			case kBlinkOpenCursor1:
-				AfxGetApp ()->DoWaitCursor (0); 
+				AfxGetApp ()->DoWaitCursor (-1); 
 				::SetCursor (AfxGetApp ()->LoadCursor (IDC_BLINK_OPEN));
 				break;
 				
 			case kBlinkShutCursor:
-				AfxGetApp ()->DoWaitCursor (0); 
+				AfxGetApp ()->DoWaitCursor (-1); 
 				::SetCursor (AfxGetApp ()->LoadCursor (IDC_BLINK_SHUT));
 				break;
 				
 			default:
-				AfxGetApp ()->DoWaitCursor (0);                   
+				AfxGetApp ()->DoWaitCursor (-1);                   
 				::SetCursor (AfxGetApp ()->LoadStandardCursor (IDC_ARROW));
 				cursorIndex = kArrow;
 				break;
@@ -7084,45 +7104,65 @@ void MSetCursor (
 	#endif	// defined multispec_win   
 
 	#if defined multispec_lin 
+				// Based on what I understand now:
+				//		canvasptr->SetCursor sets the cursor for the respective window
+				//			that the cursor is over.
+				//		wxSetCursor sets the cursor overall and overrides the window
+				//			setting. One needs to use wxSetCursor (wxNullCursor) to set the
+				//			overall cursor to the 'default' such that the window cursor
+				//			setting takes over.
+	
 		CMainFrame* mframeptr = (CMainFrame*) (wxTheApp->GetTopWindow ());
-		CMImageView* currentview = wxDynamicCast (mframeptr->GetDocumentManager ()->GetCurrentView (), CMImageView);
-		if (currentview != NULL) {
+		CMImageView* currentview = wxDynamicCast (
+						mframeptr->GetDocumentManager ()->GetCurrentView (), CMImageView);
+		if (currentview != NULL)
+			{
 			CMImageCanvas* canvasptr = currentview->m_Canvas;
 			
 			switch (cursorIndex)
 				{
 				case kArrow:
-					canvasptr->SetCursor (wxCursor (wxCURSOR_ARROW));
-					//(wxTheApp->GetTopWindow ())->SetCursor (wxCursor (wxCURSOR_ARROW));
+					canvasptr->SetCursor (wxCURSOR_ARROW);
 					break;
 
 				case kWait:
-					canvasptr->SetCursor (wxCursor (wxCURSOR_WAIT));
-					//(wxTheApp->GetTopWindow ())->SetCursor (wxCursor (wxCURSOR_WAIT));
+					canvasptr->SetCursor (wxCURSOR_WAIT);
 					break;
 
 				case kCross:
-					canvasptr->SetCursor (wxCursor (wxCURSOR_CROSS));
-					//(wxTheApp->GetTopWindow ())->SetCursor (wxCursor (wxCURSOR_CROSS));
+					canvasptr->SetCursor (wxCURSOR_CROSS);
 					break;
 
 				case kBlinkOpenCursor1:
-					//(wxTheApp->GetTopWindow ())->SetCursor (wxCursor (wxCURSOR_eyeOpen));
+							// This has not been implemented.
+					//canvasptr->SetCursor (wxCursor (wxCURSOR_eyeOpen));
 					break;
 
 				case kBlinkShutCursor:
-					//(wxTheApp->GetTopWindow ())->SetCursor (wxCursor (wxCURSOR_eyeClosed));
+							// This has not been implemented.
+					//canvasptr->SetCursor (wxCursor (wxCURSOR_eyeClosed));
 					break;
 				
 				default:
-					canvasptr->SetCursor (wxCursor (wxCURSOR_ARROW));
+					canvasptr->SetCursor (wxCURSOR_ARROW);
 					cursorIndex = kArrow;
 					break;
 				
 				}	// end "switch (cursorIndex)"
 				
 			}	// end "if (currentview != NULL)"
-	#endif	// defined multispec_lin  
+	
+					// If wait cursor is being requested make this the overall cursor.
+			
+		if (cursorIndex == kWait)
+			wxSetCursor (wxCURSOR_WAIT);
+	
+		//else if (gPresentCursor == kWait || gPresentCursor == kSpin)
+		else	// cursorIndex != kWait
+					// Set overall cursor setting to default so that cursor setting for
+					// window take precidence
+			wxSetCursor (wxNullCursor);
+	#endif	// defined multispec_lin
 	
    gPresentCursor = cursorIndex;                               
 		
@@ -7131,7 +7171,7 @@ void MSetCursor (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7180,7 +7220,7 @@ void PauseIfInBackground (void)
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7198,7 +7238,7 @@ void PauseIfInBackground (void)
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 11/22/1999
-//	Revised By:			Larry L. Biehl			Date: 13/13/2017
+//	Revised By:			Larry L. Biehl			Date: 08/16/2018
 
 void RemoveSuffix (
 				FileStringPtr							fileNamePtr)
@@ -7245,13 +7285,16 @@ void RemoveSuffix (
 	RemoveCharsNoCase ((char*)"\0.lbl\0", fileNamePtr);
 	RemoveCharsNoCase ((char*)"\0.project\0", fileNamePtr);
 	RemoveCharsNoCase ((char*)"\0.STI\0", fileNamePtr);
+	RemoveCharsNoCase ((char*)"\0.ntf\0", fileNamePtr);
+	RemoveCharsNoCase ((char*)"\0.nsf\0", fileNamePtr);
+	RemoveCharsNoCase ((char*)"\0.pix\0", fileNamePtr);
 		
 }	// end "RemoveSuffix"  
 
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7314,7 +7357,7 @@ void ResetDestinationWindowParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7363,7 +7406,7 @@ void ResetMapToWindowUnitsVariables (
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7404,7 +7447,7 @@ void SetActiveDisplaySpecsHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7472,7 +7515,7 @@ void SetAreaDescriptionOffsetVariables (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7637,7 +7680,7 @@ void SetChannelWindowVariables (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7682,7 +7725,7 @@ void SetDestinationWindowParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7923,7 +7966,7 @@ void SetLCToWindowUnitVariables (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8194,7 +8237,7 @@ void SetMapToWindowUnitsVariables (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8254,7 +8297,7 @@ Boolean SetUpActiveImageInformationGlobals (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8492,7 +8535,7 @@ void SetUpAreaUnitsPopUpMenu (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8758,7 +8801,7 @@ void SetUpCoordinateUnitsPopUpMenu (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8788,7 +8831,7 @@ SInt16 Swap2Bytes (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8833,7 +8876,7 @@ void UnlockActiveImageInformationGlobals (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8888,7 +8931,7 @@ void UnlockImageInformationHandles (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8932,7 +8975,7 @@ void UpdateActiveImageWScrolls (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9023,7 +9066,7 @@ void UpdateMapProjectionStructure (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //

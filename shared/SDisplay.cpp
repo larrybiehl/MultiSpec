@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			01/05/2018
+//	Revision date:			07/23/2018
 //
 //	Language:				C
 //
@@ -94,7 +94,7 @@ void SetWindowToImageSize (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -179,7 +179,7 @@ Boolean CheckSomeDisplayEvents (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -331,7 +331,7 @@ SInt16 CheckNumberDisplayColumns (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -414,7 +414,7 @@ SInt16 CheckNumberDisplayLines (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -547,41 +547,12 @@ void DisplayColorImage (
 	displayBottomMax = sourceRect.bottom;
 
 	#if defined multispec_mac
-		//if (gOSXCoreGraphicsFlag)
-			//{
-			//#if TARGET_API_MAC_CARBON
-				offScreenBufferPtr = (HPtr)GetHandlePointer (
-														gImageWindowInfoPtr->imageBaseAddressH);
+		offScreenBufferPtr = (HPtr)GetHandlePointer (
+												gImageWindowInfoPtr->imageBaseAddressH);
 
-				offScreenPixMapH =
-						 (PixMapHandle)gImageWindowInfoPtr->offScreenMapHandle;
-				pixRowBytes = gImageWindowInfoPtr->cgInfo.contextRowBytes;
-			//#endif	// TARGET_API_MAC_CARBON
-
-			//}	// end "if (gOSXCoreGraphicsFlag)"
-		/*
-		else	// !gOSXCoreGraphicsFlag
-			{
-					// Get storage for save the window portPixMap in. Do not use
-					// NewPixMap because we just want storage to store a PixMap
-
-			savedImageWindowPortPixMap = (PixMapHandle)MNewHandle (sizeof (PixMap));
-			if (savedImageWindowPortPixMap == NULL)
-																									return;
-
-			imageWindowPortPixMap = GetPortPixMap (GetWindowPort (gActiveImageWindow));
-
-					// Save the image window port pix map in case needed later.
-
-			CopyHandleToHandle ((Handle)imageWindowPortPixMap,
-										(Handle)savedImageWindowPortPixMap);
-
-			offScreenPixMapH = GetPortPixMap (gImageWindowInfoPtr->offscreenGWorld);
-			offScreenBufferPtr = GetPixBaseAddr (offScreenPixMapH);
-			pixRowBytes = MGetPixRowBytes (offScreenPixMapH);
-
-			}	// end "else !gOSXCoreGraphicsFlag
-		*/
+		offScreenPixMapH =
+				 (PixMapHandle)gImageWindowInfoPtr->offScreenMapHandle;
+		pixRowBytes = gImageWindowInfoPtr->cgInfo.contextRowBytes;
 	#endif	// defined multispec_mac
 
 	#if defined multispec_win
@@ -850,7 +821,7 @@ void DisplayColorImage (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1007,7 +978,7 @@ void DisplayImage ()
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1043,7 +1014,7 @@ void ForceDisplayCodeResourceLoad (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1092,7 +1063,7 @@ SInt16 GetDefaultImagePixelSize (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1136,7 +1107,7 @@ Boolean GetIncludeVectorOverlaysFlag (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1190,7 +1161,7 @@ UInt32 GetNumberPixRowBytes (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1243,7 +1214,7 @@ DisplaySpecsPtr GetActiveDisplaySpecsPtr (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1306,7 +1277,7 @@ Handle GetDisplaySpecsStructure (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1399,13 +1370,11 @@ SInt16 GetOffscreenGWorld (
 
 			}	// end "if (offscreenGWorld != NULL)" 
 
-		#if TARGET_API_MAC_CARBON	
-			if (gOSXCoreGraphicsFlag)
-				{
-				UnlockAndDispose (windowInfoPtr->imageBaseAddressH);
+		if (gOSXCoreGraphicsFlag)
+			{
+			UnlockAndDispose (windowInfoPtr->imageBaseAddressH);
 
-				}		// end "if (gOSXCoreGraphicsFlag)"
-		#endif	// TARGET_API_MAC_CARBON
+			}		// end "if (gOSXCoreGraphicsFlag)"
 		*/
 				// Make certain that the number of pixel row bytes is less than the
 				// maximum allowed.
@@ -1419,157 +1388,155 @@ SInt16 GetOffscreenGWorld (
 
 		freeBytesNeeded = *pixRowBytesPtr * (UInt32)longRectPtr->bottom;
 
-		#if TARGET_API_MAC_CARBON
-			RGBColor theColor;
+		RGBColor theColor;
 
-			UInt32 index,
-					 tableIndex;
+		UInt32 index,
+				 tableIndex;
 
-			Boolean indexedColorSpaceFlag;
+		Boolean indexedColorSpaceFlag;
 
 
-			windowInfoPtr->imageBaseAddressH = MNewHandle (freeBytesNeeded);
+		windowInfoPtr->imageBaseAddressH = MNewHandle (freeBytesNeeded);
 
-			if (windowInfoPtr->imageBaseAddressH == NULL)
-				resultCode = 1;
+		if (windowInfoPtr->imageBaseAddressH == NULL)
+			resultCode = 1;
 
-					// Get storage for save a portPixMap in.
+				// Get storage for save a portPixMap in.
 
-			if (offScreenPixMapH == NULL)
-				offScreenPixMapH = NewPixMap ();
+		if (offScreenPixMapH == NULL)
+			offScreenPixMapH = NewPixMap ();
 
-			if (offScreenPixMapH == NULL)
-				resultCode = 1;
+		if (offScreenPixMapH == NULL)
+			resultCode = 1;
 
-			if (resultCode == noErr)
+		if (resultCode == noErr)
+			{
+			unsigned char tablePtr[3 * 256];
+
+			CGColorSpaceRef baseColorSpace = NULL,
+					  colorSpace = NULL;
+
+			CGDataProviderRef provider = NULL;
+			CGImageAlphaInfo alphaInfo;
+			Ptr offScreenBufferPtr = NULL;
+			size_t bitsPerComponent;
+
+			windowInfoPtr->offScreenMapHandle = (Handle)offScreenPixMapH;
+			windowInfoPtr->offscreenMapSize = freeBytesNeeded;
+
+			windowInfoPtr->cgInfo.contextRowBytes = *pixRowBytesPtr;
+
+					// Lock the handle for the offscreen bit map and keep it locked.
+
+			offScreenBufferPtr = GetHandlePointer (
+												  windowInfoPtr->imageBaseAddressH,
+												  kLock);
+
+					// Note that the image base address handle is already locked.
+
+			provider = gCGDataProviderCreateWithDataPtr (
+												  NULL,
+												  offScreenBufferPtr,
+												  freeBytesNeeded,
+												  NULL);
+
+					// Create the colorspace.
+
+			indexedColorSpaceFlag = FALSE;
+			if (displaySpecsPtr->pixelSize == 8 &&
+					  (displaySpecsPtr->displayType == k1_ChannelGrayLevelDisplayType ||
+					  displaySpecsPtr->displayType == k3_ChannelDisplayType ||
+					  displaySpecsPtr->displayType == k2_ChannelDisplayType ||
+					  displaySpecsPtr->displayType == k3_2_ChannelDisplayType))
+				 indexedColorSpaceFlag = TRUE;
+
+			if (windowInfoPtr->windowType == kThematicWindowType)
+				indexedColorSpaceFlag = TRUE;
+
+			if (!indexedColorSpaceFlag)
 				{
-				unsigned char tablePtr[3 * 256];
+				if (displaySpecsPtr->pixelSize == 8)
+					baseColorSpace = gCGColorSpaceCreateDeviceGrayPtr ();
 
-				CGColorSpaceRef baseColorSpace = NULL,
-						  colorSpace = NULL;
-
-				CGDataProviderRef provider = NULL;
-				CGImageAlphaInfo alphaInfo;
-				Ptr offScreenBufferPtr = NULL;
-				size_t bitsPerComponent;
-
-				windowInfoPtr->offScreenMapHandle = (Handle)offScreenPixMapH;
-				windowInfoPtr->offscreenMapSize = freeBytesNeeded;
-
-				windowInfoPtr->cgInfo.contextRowBytes = *pixRowBytesPtr;
-
-						// Lock the handle for the offscreen bit map and keep it locked.
-
-				offScreenBufferPtr = GetHandlePointer (
-													  windowInfoPtr->imageBaseAddressH,
-													  kLock);
-
-						// Note that the image base address handle is already locked.
-
-				provider = gCGDataProviderCreateWithDataPtr (
-													  NULL,
-													  offScreenBufferPtr,
-													  freeBytesNeeded,
-													  NULL);
-
-						// Create the colorspace.
-
-				indexedColorSpaceFlag = FALSE;
-				if (displaySpecsPtr->pixelSize == 8 &&
-						  (displaySpecsPtr->displayType == k1_ChannelGrayLevelDisplayType ||
-						  displaySpecsPtr->displayType == k3_ChannelDisplayType ||
-						  displaySpecsPtr->displayType == k2_ChannelDisplayType ||
-						  displaySpecsPtr->displayType == k3_2_ChannelDisplayType))
-					 indexedColorSpaceFlag = TRUE;
-
-				if (windowInfoPtr->windowType == kThematicWindowType)
-					indexedColorSpaceFlag = TRUE;
-
-				if (!indexedColorSpaceFlag)
-					{
-					if (displaySpecsPtr->pixelSize == 8)
-						baseColorSpace = gCGColorSpaceCreateDeviceGrayPtr ();
-
-					else // displaySpecsPtr->pixelSize > 8
-						baseColorSpace = gCGColorSpaceCreateDeviceRGBPtr ();
-
-					colorSpace = baseColorSpace;
-
-					}	// end "if (!indexedColorSpaceFlag)"
-
-				else	// indexedColorSpaceFlag
-					{
-							// Create an indexed color space for a thematic window.
-
+				else // displaySpecsPtr->pixelSize > 8
 					baseColorSpace = gCGColorSpaceCreateDeviceRGBPtr ();
 
-					numberEntries =
-								MGetNumberPaletteEntries (displaySpecsPtr->paletteObject);
+				colorSpace = baseColorSpace;
 
-					//numberEntries = 256;
-					tableIndex = 0;
-					for (index = 0; index < numberEntries; index++)
-						{
-						::GetEntryColor (displaySpecsPtr->paletteObject,
-								 index,
-								 &theColor);
+				}	// end "if (!indexedColorSpaceFlag)"
 
-						tablePtr[tableIndex] = (theColor.red >> 8);
-						tablePtr[tableIndex + 1] = (theColor.green >> 8);
-						tablePtr[tableIndex + 2] = (theColor.blue >> 8);
+			else	// indexedColorSpaceFlag
+				{
+						// Create an indexed color space for a thematic window.
 
-						tableIndex += 3;
+				baseColorSpace = gCGColorSpaceCreateDeviceRGBPtr ();
 
-						}	// end "for (index=0; index<numberEntries; index++)"
+				numberEntries =
+							MGetNumberPaletteEntries (displaySpecsPtr->paletteObject);
 
-					colorSpace = gCGColorSpaceCreateIndexedPtr (
-																	baseColorSpace,
-																	numberEntries - 1,
-																	tablePtr);
-
-					if (colorSpace == NULL)
-																										return (1);
-
-					}	// end "else indexedColorSpaceFlag"
-
-						// Create the image.
-
-				alphaInfo = kCGImageAlphaNoneSkipFirst;
-				bitsPerComponent = 8;
-				if (displaySpecsPtr->pixelSize == 16)
+				//numberEntries = 256;
+				tableIndex = 0;
+				for (index = 0; index < numberEntries; index++)
 					{
-					 bitsPerComponent = 5;
-					 //alphaInfo = kCGBitmapByteOrder16Big;
+					::GetEntryColor (displaySpecsPtr->paletteObject,
+							 index,
+							 &theColor);
 
-					}	// end "if (displaySpecsPtr->pixelSize == 16)"
+					tablePtr[tableIndex] = (theColor.red >> 8);
+					tablePtr[tableIndex + 1] = (theColor.green >> 8);
+					tablePtr[tableIndex + 2] = (theColor.blue >> 8);
 
-				windowInfoPtr->cgInfo.imageRef = gCGImageCreatePtr (
-																  longRectPtr->right,
-																  longRectPtr->bottom,
-																  bitsPerComponent,
-																  displaySpecsPtr->pixelSize,
-																  windowInfoPtr->cgInfo.contextRowBytes,
-																  colorSpace,
-																  alphaInfo,
-																  provider,
-																  NULL,
-																  1,
-																  kCGRenderingIntentDefault);
+					tableIndex += 3;
 
-						// Release the references to the provider and the colorspace. Copies
-						// are retained by cgImage.
+					}	// end "for (index=0; index<numberEntries; index++)"
 
-				gCGDataProviderReleasePtr (provider);
+				colorSpace = gCGColorSpaceCreateIndexedPtr (
+																baseColorSpace,
+																numberEntries - 1,
+																tablePtr);
 
-				gCGColorSpaceReleasePtr (baseColorSpace);
+				if (colorSpace == NULL)
+																									return (1);
 
-				if (indexedColorSpaceFlag)
-					gCGColorSpaceReleasePtr (colorSpace);
+				}	// end "else indexedColorSpaceFlag"
 
-				(*offScreenPixMapH)->pixelSize = displaySpecsPtr->pixelSize;
+					// Create the image.
+
+			alphaInfo = kCGImageAlphaNoneSkipFirst;
+			bitsPerComponent = 8;
+			if (displaySpecsPtr->pixelSize == 16)
+				{
+				 bitsPerComponent = 5;
+				 //alphaInfo = kCGBitmapByteOrder16Big;
+
+				}	// end "if (displaySpecsPtr->pixelSize == 16)"
+
+			windowInfoPtr->cgInfo.imageRef = gCGImageCreatePtr (
+															  longRectPtr->right,
+															  longRectPtr->bottom,
+															  bitsPerComponent,
+															  displaySpecsPtr->pixelSize,
+															  windowInfoPtr->cgInfo.contextRowBytes,
+															  colorSpace,
+															  alphaInfo,
+															  provider,
+															  NULL,
+															  1,
+															  kCGRenderingIntentDefault);
+
+					// Release the references to the provider and the colorspace. Copies
+					// are retained by cgImage.
+
+			gCGDataProviderReleasePtr (provider);
+
+			gCGColorSpaceReleasePtr (baseColorSpace);
+
+			if (indexedColorSpaceFlag)
+				gCGColorSpaceReleasePtr (colorSpace);
+
+			(*offScreenPixMapH)->pixelSize = displaySpecsPtr->pixelSize;
 
 			}	// end "if (resultCode == noErr)" 
-		#endif	// TARGET_API_MAC_CARBON
 
 		if (!gOSXCoreGraphicsFlag)
 			{
@@ -1623,24 +1590,7 @@ SInt16 GetOffscreenGWorld (
 					resultCode = 1;
 
 				}	// end "if (resultCode == noErr)"
-			/*
-			#if !TARGET_API_MAC_CARBON
-				else // resultCode != noErr
-					{
-							// Reclaim the placeholder memory.
 
-					if (gNumberAvailableGWorldPtrs < kMaxNumberIWindows)
-						{
-						gGWorldPlaceHolderList[gNumberAvailableGWorldPtrs] =
-									MNewPointer (sizeof (CGrafPort));
-						if (gGWorldPlaceHolderList[gNumberAvailableGWorldPtrs])
-							gNumberAvailableGWorldPtrs++;
-
-						}	// end "if (gNumberAvailableGWorldPtrs < kMaxNumberIWindows)"
-
-					}	// end "else resultCode != noErr"
-			#endif	// !TARGET_API_MAC_CARBON
-			*/
 			}	// end "else !gOSXCoreGraphicsFlag"
 
 		SetGWorld (savedPort, savedDevice);
@@ -1843,7 +1793,7 @@ SInt16 GetOffscreenGWorld (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2035,7 +1985,7 @@ void InitializeDisplaySpecsStructure (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2101,7 +2051,7 @@ SInt16 InitializeClassGroupsVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2184,7 +2134,7 @@ void InvalidateImageSegment (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2396,7 +2346,7 @@ void SetDisplayImageWindowSizeVariables (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2508,7 +2458,7 @@ Boolean SetUpColorImageMemory (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2720,7 +2670,7 @@ void SetUpImageWindowTypeParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2793,7 +2743,7 @@ void SetVectorOverlays (
 
 #if defined multispec_mac	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

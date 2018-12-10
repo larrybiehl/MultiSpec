@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			01/04/2018
+//	Revision date:			12/06/2018
 //
 //	Language:				C
 //
@@ -38,9 +38,8 @@
 //
 /*  Following is template used for testing/debugging
 	int numberChars = sprintf ((char*)gTextString3,
-										" SThemWin: (test): %d%s",
-										test,
-										gEndOfLine);
+				" SThemWin: (): %s",
+					gEndOfLine);
 	ListString ((char*)gTextString3, numberChars, gOutputTextH);
  */
 //
@@ -55,12 +54,13 @@
 	#include "LImageView.h" 
 	#include "LLegendList.h" 
 	#include "LLegendView.h" 
-	#include "LMainFrame.h" 
+	#include "LMainFrame.h"
+	#include "LMultiSpec.h"
 	#include "wx/colordlg.h"
 #endif	// defined multispec_lin
 
 #if defined multispec_win
-	#include "WImageView.h"  
+	#include "WImageView.h" 
 	#include "WEditClassGroupDialog.h"
 	#include "WImageDoc.h"
 	#include "WImageFrame.h" 
@@ -119,7 +119,7 @@ void	 	UpdateUserDefinedGroupColorTable (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -309,8 +309,8 @@ void AddCellsToLegendList (
 
 			#if defined multispec_lin
 				legendListHandle->SetItemData (cell.v, cellValue);
-			#endif
-		
+			#endif		
+				
 			cell.v++;
 			
 			}	// end "if (classGroupCode != kClassDisplay)"
@@ -344,7 +344,7 @@ void AddCellsToLegendList (
 					#if defined multispec_lin
 						legendListHandle->SetItemData (cell.v, cellValue);
 					#endif
-				
+
 					cell.v++;
 			
 					if (gMemoryError != noErr)
@@ -369,12 +369,12 @@ void AddCellsToLegendList (
 	                   
 	UpdateThematicLegendControls (gActiveImageWindow);
 	
-}	// end "AddCellsToList" 
+}	// end "AddCellsToLegendList"
 
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -468,7 +468,7 @@ void ChangeClassGroupPalette (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -543,17 +543,12 @@ void ChangeClassPalette (
 	#endif	// defined multispec_win 
 	
 	#if defined multispec_lin
-		/*
-		int numberChars = sprintf ((char*)gTextString3,
-											" SThemWin:ChangeClassPalette (WXK_CONTROL): %d%s",
-											wxGetKeyState (WXK_CONTROL),
-											gEndOfLine);
-		ListString ((char*)gTextString3, numberChars, gOutputTextH);
-		CheckSomeEvents (updateMask);
-		*/
-		//if (wxGetKeyState (WXK_CONTROL) && !changeColorTableFlag)
 		if (code == 2 && !changeColorTableFlag)
-   #endif	// defined multispec_lin 
+   #endif	// defined multispec_lin
+	
+	//#if defined multispec_wxmac
+	//	if (wxGetKeyState (WXK_CONTROL) && !changeColorTableFlag)
+   //#endif	// defined multispec_wxmac
 		{
 				// This turns all classes except the selected class to the
 				// background color.
@@ -717,7 +712,7 @@ void ChangeClassPalette (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -737,7 +732,7 @@ void ChangeClassPalette (
 // Called By:			ChangeClassGroupPalette  in multiSpec.c
 //
 //	Coded By:			Larry L. Biehl			Date: 09/14/1992
-//	Revised By:			Larry L. Biehl			Date: 04/27/2016
+//	Revised By:			Larry L. Biehl			Date: 12/06/2018
 
 void ChangeGroupPalette (
 				CMPaletteInfo						paletteHandle, 
@@ -886,8 +881,8 @@ void ChangeGroupPalette (
 					for (index=startIndex; index<=endIndex; index++)
 						{
 						paletteIndex = GetPaletteEntry (index);
-						//if (classToGroupPtr[index] != groupNumber)
-						if (paletteIndex != inputPaletteIndex)
+						if (classToGroupPtr[index] != groupNumber)
+						//if (paletteIndex != inputPaletteIndex)
 							{
 							paletteIndex = GetPaletteEntry (index);
 							MSetEntryColor (paletteHandle, 
@@ -1054,7 +1049,7 @@ void ChangeGroupPalette (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1145,7 +1140,7 @@ UInt16 CheckForDuplicateName (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1276,7 +1271,7 @@ void CreateDefaultGroupTable (
 					
 							// Load default group name.
 							
-					stringLength = sprintf (&groupNamePtr[1], "Group %d", groupCount);
+					stringLength = sprintf (&groupNamePtr[1], "Group %d", (unsigned int)groupCount);
 					groupNamePtr[0] = (UInt8)stringLength;
 					groupNamePtr += 32;
 					
@@ -1346,7 +1341,7 @@ void CreateDefaultGroupTable (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1364,7 +1359,7 @@ void CreateDefaultGroupTable (
 // Called By:			LegendCClickLoop  in thematicWindow.c
 //
 //	Coded By:			Larry L. Biehl			Date: 01/16/1997
-//	Revised By:			Larry L. Biehl			Date: 05/01/2016
+//	Revised By:			Larry L. Biehl			Date: 12/05/2018
 
 Boolean DoBlinkCursor1 (
 				LegendListHandle					legendListHandle,
@@ -1385,11 +1380,11 @@ Boolean DoBlinkCursor1 (
 											paletteIndex;
 											
 	#if defined multispec_lin
-		bool                          ctrlflag,
-												altflag,
-												pctrlflag,
-												paltflag,
-												changeflag;
+		//bool                          ctrlflag = FALSE,
+		//										altflag = FALSE,
+		//										pctrlflag = FALSE,
+		//										paltflag = FALSE,
+		//										changeflag = FALSE;
 	#endif	// defined multispec_lin
 									
 									
@@ -1526,19 +1521,6 @@ Boolean DoBlinkCursor1 (
 			//rclickflag = wxGetMouseState ().RightIsDown ();
 			//altflag = wxGetKeyState (WXK_ALT);
 			/*
-			int numberChars = sprintf (
-						(char*)gTextString3,
-						" SThemWin:DoblinkCursor1 (
-								ctrlflag, altflag, pctrlflag, paltflag): %d, %d, %d, %d%s",
-						ctrlflag,
-						altflag,
-						pctrlflag,
-						paltflag,
-						gEndOfLine);
-			ListString ((char*)gTextString3, numberChars, gOutputTextH);
-			CheckSomeEvents (updateMask);
-			*/
-			/*
 			if (ctrlflag != pctrlflag || altflag != paltflag)
 				{
 				pctrlflag = ctrlflag;
@@ -1606,7 +1588,7 @@ Boolean DoBlinkCursor1 (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1661,10 +1643,8 @@ void DoThematicWColorsUpdate (void)
 					GetWindowPort (gActiveImageWindow), gTempRegion1), legendListHandle);
 			SetEmptyRgn (gTempRegion1);
 	
-			#if TARGET_API_MAC_CARBON	
-				if (QDIsPortBuffered (GetWindowPort (gActiveImageWindow)))
-					QDFlushPortBuffer (GetWindowPort (gActiveImageWindow), NULL);
-			#endif	// TARGET_API_MAC_CARBON
+			if (QDIsPortBuffered (GetWindowPort (gActiveImageWindow)))
+				QDFlushPortBuffer (GetWindowPort (gActiveImageWindow), NULL);
 			
 			}	// end "((WindowInfoPtr)*gActiveImageWindowInfoH)->..." 
 			
@@ -1689,11 +1669,17 @@ void DoThematicWColorsUpdate (void)
 	#if defined multispec_lin
       CMImageCanvas* canvasptr = gActiveImageViewCPtr->m_Canvas;
       canvasptr->Refresh ();
-      canvasptr->Update ();
+      //canvasptr->Update ();
       CMImageFrame* frameptr = gActiveImageViewCPtr->m_frame;
-      (frameptr->GetLegendViewCPtr ())->Update ();
+      (frameptr->GetLegendViewCPtr ())->Refresh ();
+      //(frameptr->GetLegendViewCPtr ())->Update ();
       ((frameptr->GetLegendViewCPtr ())->GetLegendListCPtr ())->DrawLegendList ();
-      ((frameptr->GetLegendViewCPtr ())->GetLegendListCPtr ())->Update ();
+      ((frameptr->GetLegendViewCPtr ())->GetLegendListCPtr ())->Refresh ();
+      //((frameptr->GetLegendViewCPtr ())->GetLegendListCPtr ())->Update ();
+	
+      #if defined multispec_wxmac
+			((CMultiSpecApp*)wxTheApp)->SafeYieldFor (NULL, wxEVT_CATEGORY_UI);
+      #endif
 	#endif
 	
 }	// end "DoThematicWColorsUpdate" 
@@ -1701,7 +1687,7 @@ void DoThematicWColorsUpdate (void)
 
  
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1922,7 +1908,7 @@ UINT ColorDialogHookProcedure (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1940,7 +1926,7 @@ UINT ColorDialogHookProcedure (
 // Called By:			ModalGroupsDialog   in displayThematic.c
 //
 //	Coded By:			Larry L. Biehl			Date: 01/16/1991
-//	Revised By:			Larry L. Biehl			Date: 12/16/2016
+//	Revised By:			Larry L. Biehl			Date: 10/22/2018
 
 Boolean EditGroupClassDialog (
 				LegendListHandle					legendListHandle,
@@ -2167,7 +2153,8 @@ Boolean EditGroupClassDialog (
 	#if defined multispec_lin   
 		CMEditClassGroupDlg* dialogPtr = NULL;
 
-		dialogPtr = new CMEditClassGroupDlg ((wxWindow*)gActiveImageViewCPtr->m_frame);
+		//dialogPtr = new CMEditClassGroupDlg ((wxWindow*)gActiveImageViewCPtr->m_frame);
+		dialogPtr = new CMEditClassGroupDlg (NULL);
 
 		OKFlag = dialogPtr->DoDialog ((CMLegendList*)legendListHandle,
 												  selectedCell,
@@ -2188,7 +2175,7 @@ Boolean EditGroupClassDialog (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2206,7 +2193,7 @@ Boolean EditGroupClassDialog (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 01/07/1997
-//	Revised By:			Larry L. Biehl			Date: 07/26/2017
+//	Revised By:			Larry L. Biehl			Date: 04/27/2018
 
 void EditGroupClassDialogOK (
 				LegendListHandle					legendListHandle,
@@ -2248,7 +2235,8 @@ void EditGroupClassDialogOK (
 
 		cell.h = 0;
 		cell.v = selectedCell;
-            
+		gSelectedCell = selectedCell;
+			
 		#if defined multispec_lin
 			classValue = legendListHandle->GetItemData (gSelectedCell);
 		#endif 
@@ -2371,7 +2359,7 @@ void EditGroupClassDialogOK (
 
 //#if defined multispec_mac 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2645,7 +2633,7 @@ void EditGroups (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2739,7 +2727,7 @@ Boolean GetGroupStructureMemory (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2795,7 +2783,7 @@ UInt16 GetPaletteEntry (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3350,7 +3338,7 @@ void LoadThematicLegendList (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3476,7 +3464,7 @@ Boolean SelectColor (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3595,7 +3583,7 @@ void UpdateUserDefinedGroupColorTable (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3728,7 +3716,7 @@ Boolean UpdateGroupTables (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3824,7 +3812,7 @@ Boolean UpdateGroupTables (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

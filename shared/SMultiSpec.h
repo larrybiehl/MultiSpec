@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -23,7 +23,7 @@
 //
 //	Written By:				Larry L. Biehl			Date: 03/29/1988
 //	Revised By:				Abdur Maud				Date: 06/24/2013
-//	Revised By:				Larry L. Biehl			Date: 12/20/2017
+//	Revised By:				Larry L. Biehl			Date: 10/19/2018
 //
 //------------------------------------------------------------------------------------
 
@@ -82,12 +82,18 @@
          // GDAL capability
 	#ifdef NetBeansProject
 		#define include_hdf_capability 1
-		#define include_gdal_capability 0
-		#define include_hdf5_capability 0
-	#else	// ifndef NetBeansProject
-		#define include_hdf_capability 1
 		#define include_gdal_capability 1
-		#define include_hdf5_capability 1 
+		#define include_hdf5_capability 1
+	#else	// ifndef NetBeansProject
+		#ifdef multispec_wxmac
+			#define include_hdf_capability 1
+			#define include_gdal_capability 1
+			#define include_hdf5_capability 1
+		#else
+			#define include_hdf_capability 1
+			#define include_gdal_capability 1
+			#define include_hdf5_capability 1
+		#endif
 	#endif
 #endif	// end "defined multispec_lin"
 
@@ -101,7 +107,7 @@
 #if defined multispec_lin
 	//#include "SDeclareGlobals.h" // DO NOT include this. SExternalGlobals.h is sufficient
 	#include "LResource.h"
-	#include "SGraphView.h"
+	//#include "SGraphView.h"
 	#include <time.h>
 	#include <cmath>
 	#include <cfloat>
@@ -112,7 +118,7 @@
 	#include <limits.h>
 	#include <iostream>
 	#include <string>
-	#include <wx/gdicmn.h>
+	#include "wx/gdicmn.h"
 #endif	// defined multispec_lin
 
 #endif // __SMulSpec__             

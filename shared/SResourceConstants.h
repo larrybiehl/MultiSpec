@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -22,7 +22,7 @@
 //
 //	Written By:				Larry L. Biehl			Date: 03/29/1988
 //	Revised By:				Abdur Maud				Date: 06/24/2013
-//	Revised By:				Larry L. Biehl			Date: 12/20/2017
+//	Revised By:				Larry L. Biehl			Date: 11/30/2018
 //	
 //------------------------------------------------------------------------------------
 
@@ -139,6 +139,7 @@
 	#define	kPopUpLinkOptionsMenuID					204
 	#define	kPopUpDiskFileFormatMenuID				205
 	#define	kPopUpMosaicDirectionMenuID			206
+	#define	kPopUpGraphAxisLabelMenuID				207
 	
 		// resource IDs of modal dialogs 													
 		
@@ -857,6 +858,7 @@
 	#define  IDS_ListData7						7
 	#define  IDS_ListData8						8
 	#define 	IDS_ListData10 					10
+	#define 	IDS_ListData15 					15
 	
 			// 	List Results Processor strings													
 			
@@ -974,6 +976,7 @@
 	#define	IDS_Reform30						30
 	#define	IDS_Reform31						31
 	#define	IDS_Reform32						32
+	#define	IDS_Reform33						33
 	
 			// Project string indexes
 			
@@ -1215,7 +1218,7 @@
 		#define	kTextWindowResultsAlertID			wxOK
 		#define	kUpdateCancelAlertID					wxOK|wxCANCEL
 		#define	kFinishDontCancelAlertID			wxYES_NO|wxCANCEL
-		#define	kRedoDontCancelAlertID				wxYES_NO|wxCANCEL
+		#define	kRedoDontCancelAlertID				wxYES_NO
 		#define	kSaveDontSaveAlertID					wxYES_NO|wxCANCEL
 		#define	kYesNoAlertID							wxOK|wxCANCEL
 		#define	kContinueStopAlertID					wxYES_NO|wxCANCEL

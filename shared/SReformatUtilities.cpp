@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			01/04/2018
+//	Revision date:			07/10/2018
 //
 //	Language:				C
 //
@@ -160,7 +160,7 @@ SInt16	WriteChannelValues (
 
                        
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -573,7 +573,7 @@ SInt16 AppendFile (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -918,7 +918,7 @@ void AppendFileDialogOK (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1022,7 +1022,7 @@ void ChangeErdasHeader (void)
 
                       
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1042,14 +1042,14 @@ void ChangeErdasHeader (void)
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 08/28/1988
-//	Revised By:			Larry L. Biehl			Date: 03/31/2003
+//	Revised By:			Larry L. Biehl			Date: 10/22/2018
 
 Boolean ChangeErdasHeaderDialog (
 				FileInfoPtr							fileInfoPtr, 
 				SInt16*								requestedFormatPtr)
 
 {                             
-	Boolean								returnFlag;
+	Boolean								returnFlag = FALSE;
 	
 #if defined multispec_mac
 	Rect									theBox;
@@ -1212,6 +1212,7 @@ Boolean ChangeErdasHeaderDialog (
 		CATCH_ALL (e)
 			{
 			MemoryMessage (0, kObjectMessage);
+			returnFlag = FALSE;
 			}
 		END_CATCH_ALL 
 	#endif	// defined multispec_win
@@ -1224,7 +1225,7 @@ Boolean ChangeErdasHeaderDialog (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1266,7 +1267,7 @@ pascal void DrawHeaderOptionsPopUp (
 
 #if defined multispec_mac 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1307,7 +1308,7 @@ pascal void DrawOutputFilePopUp (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1377,7 +1378,7 @@ void GetOutputBufferParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1395,7 +1396,7 @@ void GetOutputBufferParameters (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 01/24/2013
-//	Revised By:			Larry L. Biehl			Date: 09/01/2017
+//	Revised By:			Larry L. Biehl			Date: 06/26/2018
 
 void GetOutputFileName (
 				FileInfoPtr							inputFileInfoPtr,
@@ -1481,7 +1482,8 @@ void GetOutputFileName (
 								inputFileInfoPtr->instrumentCode == kLandsatLC8_OLI_TIRS ||
 									inputFileInfoPtr->instrumentCode == kLandsatLC8_OLI ||
 										inputFileInfoPtr->instrumentCode == kLandsatLC8_TIRS ||
-											inputFileInfoPtr->instrumentCode == kSentinel2_MSI)
+						inputFileInfoPtr->instrumentCode == kSentinel2A_MSI ||
+							inputFileInfoPtr->instrumentCode == kSentinel2B_MSI)
 					{
 					if (stringLength == originalStringLength)
 						{
@@ -1508,7 +1510,8 @@ void GetOutputFileName (
 				outFileNamePtr[0] = (UInt8)stringLength;
 				outFileNamePtr[stringLength+1] = 0;
 					
-				if (inputFileInfoPtr->instrumentCode == kSentinel2_MSI &&
+				if ((inputFileInfoPtr->instrumentCode == kSentinel2A_MSI ||
+							inputFileInfoPtr->instrumentCode == kSentinel2B_MSI) &&
 														gImageWindowInfoPtr->numberImageFiles > 2)
 					{
 					double		horizontalPixelSize,
@@ -1527,7 +1530,7 @@ void GetOutputFileName (
 					else if (horizontalPixelSize == 60 && verticalPixelSize == 60)
 						ConcatPStrings (outFileNamePtr, (UCharPtr)"\0_60m", 254);
 					
-					}	// end "if (inputFileInfoPtr->instrumentCode == kSentinel2_MSI)"
+					}	// end "if (inputFileInfoPtr->instrumentCode == kSentinel2_MSI ..."
 				
 				}	// end "if (gImageWindowInfoPtr != NULL && ...)"
 				
@@ -1548,7 +1551,7 @@ void GetOutputFileName (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1566,7 +1569,7 @@ void GetOutputFileName (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 11/30/1990
-//	Revised By:			Larry L. Biehl			Date: 11/27/2017
+//	Revised By:			Larry L. Biehl			Date: 02/07/2018
 
 Boolean GetReformatOutputFile (
 				FileInfoPtr							outFileInfoPtr, 
@@ -1703,6 +1706,7 @@ Boolean GetReformatOutputFile (
 					
 			gTextString[0] = 0;
 			stringLength = outFileNamePtr[0];
+         savedSuffixPtr = NULL;
 			if (outFileNamePtr[stringLength-3] == _T('.'))
 				{
 						// Save the suffix to be used later.
@@ -1730,13 +1734,13 @@ Boolean GetReformatOutputFile (
 				
 				}	// end "else gMultiSpecWorkflowInfo.workFlowCode != 0"
 			
-			if (savedSuffixPtr[0] == 4)
+			if (savedSuffixPtr != NULL && savedSuffixPtr[0] == 4)
 				{
 						// Add the suffix back.
 				
 				strncpy ((char*)&outFileNamePtr[stringLength+1], (char*)&gTextString[1], 4);
 	
-							}	// end "if (gTextString[0] == 4)"
+            }	// end "if (savedSuffixPtr != NULL && gTextString[0] == 4)"
 				
 			stringLength += 4;
 			outFileNamePtr[0] = (UInt8)stringLength;
@@ -1866,7 +1870,7 @@ Boolean GetReformatOutputFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2110,7 +2114,7 @@ Boolean InsertNewErdasHeader (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2440,6 +2444,23 @@ Boolean ListReformatResultsInformation (
 		}	// end "if (...->format == kTIFFType || ...->format == kGeoTIFFType)"
 											
 	continueFlag = ListDescriptionInformationForFile (outFileInfoPtr, formatName, 32);
+																	
+	if (continueFlag && gProcessorCode == kRefChangeFileFormatProcessor)
+		{
+				// List message if file converted to wavelength order
+		
+		if (reformatOptionsPtr->outputInWavelengthOrderFlag)
+			{
+			continueFlag = ListSpecifiedStringNumber (kReformatStrID, 
+																		IDS_Reform33,
+																		(unsigned char*)gTextString, 
+																		NULL, 
+																		gOutputForce1Code, 
+																		continueFlag);
+			
+			}	// end "if (reformatOptionsPtr->outputInWavelengthOrderFlag)"
+		
+		}	// end "if (continueFlag && gProcessorCode == kRefChangeFileFormatProcessor)"
 			
 	if (reformatOptionsPtr->transformDataCode != kNoTransform ||
 										reformatOptionsPtr->checkForSaturationFlag)
@@ -2532,7 +2553,7 @@ Boolean ListReformatResultsInformation (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2604,7 +2625,7 @@ void LoadCurrentHeaderParametersInDialog (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2654,7 +2675,7 @@ void LoadDescriptionIntoDItem (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2675,7 +2696,7 @@ void LoadDescriptionIntoDItem (
 // Called By:			ReformatControl   in reformat.c
 //
 //	Coded By:			Larry L. Biehl			Date: 02/09/1989
-//	Revised By:			Larry L. Biehl			Date: 09/01/2017
+//	Revised By:			Larry L. Biehl			Date: 01/25/2018
 
 void ModifyChannelDescriptions (
 				SInt16								requestedProcedure)
@@ -2828,10 +2849,8 @@ void ModifyChannelDescriptions (
 			gImageFileInfoPtr->descriptionsFlag = TRUE;
 			
 			if (gImageWindowInfoPtr->descriptionCode == 0)
-				gImageWindowInfoPtr->descriptionCode = -1;
+				gImageWindowInfoPtr->descriptionCode = kDescriptionExists;
 				
-			else if (gImageWindowInfoPtr->descriptionCode > 0)
-				gImageWindowInfoPtr->descriptionCode = -2;
 			//printf ("ModifyChannelDescriptions returnCode:%d, %d, %d\n", returnCode, 
           //     gImageFileInfoPtr->numberChannels, gImageWindowInfoPtr->descriptionCode);
 			WriteChannelDescriptionsAndValues (gImageFileInfoPtr, 
@@ -2895,7 +2914,7 @@ void ModifyChannelDescriptions (
 
                       
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3179,7 +3198,7 @@ SInt16 ModifyChannelDescriptionsViaKeyboard (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3244,7 +3263,7 @@ Boolean ModifyChannelDescriptionsUpdate (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3288,7 +3307,7 @@ void ModifyChannelDescriptionsChangeChannel (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3312,7 +3331,7 @@ void ModifyChannelDescriptionsChangeChannel (
 //							ChangeImageFileFormat in SReform1.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/29/1990
-//	Revised By:			Larry L. Biehl			Date: 03/15/2014
+//	Revised By:			Larry L. Biehl			Date: 07/10/2018
 
 void UpdateOutputFileStructure (
 				FileInfoPtr							outFileInfoPtr,
@@ -3398,10 +3417,23 @@ void UpdateOutputFileStructure (
 	IntermediateFileUpdate (outFileInfoPtr); 
 	
 			// Make sure instrument code will still make sense.
+			// Will allow output number of channels to be fewer than the original file
+			// number of channels for the instrument code. This will allow the source
+			// instrument to be document. The wavelength bands written at the end
+			// will indicate which bands are in the file. (7/9/2018). Will see if
+			// this causes problems down the road.
 			
-	if (outFileInfoPtr->thematicType || 
-				outFileInfoPtr->numberChannels != gImageWindowInfoPtr->totalNumberChannels)
+	if (outFileInfoPtr->thematicType)
+	//if (outFileInfoPtr->thematicType ||
+	//			outFileInfoPtr->numberChannels != gImageWindowInfoPtr->totalNumberChannels)
 		outFileInfoPtr->instrumentCode = 0;
+	
+			// Set channel wavelength order code
+	
+	if (outFileInfoPtr->instrumentCode == kPeruSat &&
+			gImageWindowInfoPtr->channelsInWavelengthOrderCode == kNotInOrder &&
+				!reformatOptionsPtr->outputInWavelengthOrderFlag)
+		outFileInfoPtr->channelsInWavelengthOrderCode = kNotInOrder;
 	
 			// Now copy map project information to the output file info structure
 			// the information exists for the input file and a new file is being
@@ -3433,7 +3465,7 @@ void UpdateOutputFileStructure (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3448,10 +3480,10 @@ void UpdateOutputFileStructure (
 //
 // Value Returned:	None
 //
-// Called By:			WriteChannelDescriptionsAndValues in SReform2.cpp
+// Called By:			WriteChannelDescriptionsAndValues
 //
 //	Coded By:			Larry L. Biehl			Date: 02/10/1989
-//	Revised By:			Larry L. Biehl			Date: 09/18/2006
+//	Revised By:			Larry L. Biehl			Date: 07/11/2018
 
 SInt16 WriteChannelDescriptions (
 				FileInfoPtr							fileInfoPtr, 
@@ -3530,22 +3562,61 @@ SInt16 WriteChannelDescriptions (
 					
 		channelIndex = 0;
 		channel = 1;
+		fileIndex = -1;
+		
+		while (errCode == noErr && channelIndex < numberChannels)
+			{
+			if (channelPtr != NULL)
+				channel = channelPtr[channelIndex] + 1;
+		
+			fileInfoIndex = gImageLayerInfoPtr[channel].fileInfoIndex;
+			
+			if (fileIndex != fileInfoIndex)
+				{
+				fileIndex = fileInfoIndex;
+				localFileInfoPtr = &gImageFileInfoPtr[fileInfoIndex];
+			
+				channelDescriptionPtr = (ChannelDescriptionPtr)GetHandlePointer (
+															localFileInfoPtr->channelDescriptionH);
+				
+				}	// end "if (fileIndex != fileInfoIndex)"
+				
+			if (channelDescriptionPtr != NULL)
+				{
+				fileChannel = gImageLayerInfoPtr[channel].fileChannelNumber;
+				descriptionPtr = (char*)&channelDescriptionPtr[fileChannel-1];
+										
+				}	// end "if (channelDescriptionPtr != NULL)"
+					
+			else	// channelDescriptionPtr == NULL
+				descriptionPtr = blankPtr;
+				
+			count = 16;
+			errCode = MWriteData (fileStreamPtr,
+											&count,
+											descriptionPtr,
+											kErrorMessages);
+			
+			channelIndex++;
+			channel++;
+		
+			}	// end "while (errCode == noErr && ..."
 		
 				// Loop through the image files.												
-		
-		for (	fileIndex=0; 
+		/*
+		for (fileIndex=0;
 				fileIndex<gImageWindowInfoPtr->numberImageFiles;
 				fileIndex++)
 			{
 			localFileInfoPtr = &gImageFileInfoPtr[fileIndex];
 			
 			channelDescriptionPtr = NULL;
-			if (localFileInfoPtr->channelDescriptionH != NULL){
-            //printf ("returnCode:%d, %d, %s\n", errCode, count, fileStreamPtr->mFilePathName);
+			if (localFileInfoPtr->channelDescriptionH != NULL)
+				{
 				channelDescriptionPtr = (ChannelDescriptionPtr)GetHandlePointer (
 															localFileInfoPtr->channelDescriptionH, 
 															kLock); 
-         }
+				}
 			
 						// If the pointer to a list of channels to be used is  		
 						// NULL (implies to use all channels), then write all   		
@@ -3618,7 +3689,7 @@ SInt16 WriteChannelDescriptions (
 			CheckAndUnlockHandle (localFileInfoPtr->channelDescriptionH);
 				
 			}	// end "for (fileIndex=0; ..." 
-		
+		*/
 		}	// end "if (errCode == noErr && ..." 
 		
 	return (errCode);
@@ -3628,7 +3699,7 @@ SInt16 WriteChannelDescriptions (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3689,19 +3760,17 @@ void WriteChannelDescriptionsAndValues (
 										sizeImageFile,
 										kErrorMessages);
 		
-		if (errCode == noErr){
-        
+		if (errCode == noErr)
 			errCode = WriteChannelDescriptions (fileInfoPtr, 
 																channelPtr, 
 																numberChannels,
 																appendToFileFlag);
-      }
 		
 		if (errCode == noErr)
-			errCode = WriteChannelValues (fileInfoPtr, 
-														channelPtr, 
-														numberChannels,
-														appendToFileFlag);
+			errCode = WriteChannelValues (fileInfoPtr,
+													channelPtr,
+													numberChannels,
+													appendToFileFlag);
 					
 		}	// end "if (fileInfoPtr->descriptionsFlag)" 
 
@@ -3710,7 +3779,7 @@ void WriteChannelDescriptionsAndValues (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3725,10 +3794,10 @@ void WriteChannelDescriptionsAndValues (
 //
 // Value Returned:	None
 //
-// Called By:			WriteChannelDescriptionsAndValues in SReform2.cpp
+// Called By:			WriteChannelDescriptionsAndValues
 //
 //	Coded By:			Larry L. Biehl			Date: 09/16/1992
-//	Revised By:			Larry L. Biehl			Date: 12/22/2003
+//	Revised By:			Larry L. Biehl			Date: 07/11/2018
 
 SInt16 WriteChannelValues (
 				FileInfoPtr							fileInfoPtr, 
@@ -3824,10 +3893,74 @@ SInt16 WriteChannelValues (
 					
 		channelIndex = 0;
 		channel = 1;
+		fileIndex = -1;
+		
+		while (errCode == noErr && channelIndex < numberChannels)
+			{
+			if (channelPtr != NULL)
+				channel = channelPtr[channelIndex] + 1;
+		
+			fileInfoIndex = gImageLayerInfoPtr[channel].fileInfoIndex;
+			
+			if (fileIndex != fileInfoIndex)
+				{
+				fileIndex = fileInfoIndex;
+				localFileInfoPtr = &gImageFileInfoPtr[fileInfoIndex];
+			
+				channelValuePtr = (float*)GetHandlePointer (
+															localFileInfoPtr->channelValuesHandle);
+				
+				}	// end "if (fileIndex != fileInfoIndex)"
+			
+			if (channelValuePtr != NULL)
+				{
+				fileChannel = gImageLayerInfoPtr[channel].fileChannelNumber;
+				sprintf ((char*)gTextString, 
+								" %f", 
+								channelValuePtr[fileChannel-1]);
+								
+				}	// end "if (channelValuePtr != NULL)"
+				
+			else if (numberChannelsWritten > 0)
+				{
+				sprintf ((char*)gTextString, 
+								" %f", 
+								noValue);
+				
+				}	// end "else if (numberChannelsWritten > 0)"
+					
+			else	// channelValuePtr == NULL && numberChannelsWritten == 0
+				{
+						// If channel values do not exist for any channel, then		
+						// do not write any channel values to the output file.	
+					                                                   
+				errCode = MSetSizeOfFile (fileStreamPtr, 
+													positionOffset,
+													kErrorMessages);
+				
+				errCode = -1;
+				break;
+				
+				}	// end "else channelValuePtr == NULL && numberChannelsWritten == 0"
+			
+										
+			count = (UInt32)strlen ((char*)gTextString);
+			errCode = MWriteData (fileStreamPtr,
+											&count, 
+											(char*)gTextString,
+											kErrorMessages);
+			
+			channelIndex++;
+			channel++;
+		
+			}	// end "while (errCode == noErr && ..."
+		/*
+		channelIndex = 0;
+		channel = 1;
 		
 				// Loop through the image files.												
 				
-		for (	fileIndex=0; 
+		for (fileIndex=0;
 				fileIndex<gImageWindowInfoPtr->numberImageFiles;
 				fileIndex++)
 			{
@@ -3907,7 +4040,7 @@ SInt16 WriteChannelValues (
 				break;
 				
 			}	// end "for (fileIndex=0; ..." 
-		
+		*/
 		}	// end "if (errCode == noErr && ..." 
 		
 	return (errCode);
@@ -3917,7 +4050,7 @@ SInt16 WriteChannelValues (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //

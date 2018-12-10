@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl, Ravi Budruk
 //
-//	Revision date:			01/05/2018
+//	Revision date:			10/22/2018
 //
 //	Language:				C
 //
@@ -53,7 +53,7 @@
 /*
 	Template for debugging
 		int numberChars = sprintf ((char*)gTextString3,
-													" SDlgUtil: (): %s", 
+													" SDialogUtilities: (): %s",
 													gEndOfLine);
 		ListString ((char*)gTextString3, numberChars, gOutputTextH);	
 */
@@ -63,9 +63,9 @@
 
 #if defined multispec_lin
 	#include "wx/wx.h"
-	#include <wx/msgdlg.h>
-	#include <wx/string.h>
-	#include <wx/colour.h>
+	#include "wx/msgdlg.h"
+	#include "wx/string.h"
+	#include "wx/colour.h"
 	#include "LMultiSpec.h"
 	#include "LStatusDialog.h"
 #endif
@@ -93,10 +93,15 @@
 //  kItemDisableBit               = 128
 
 
+void LoadDItemString (
+				DialogPtr							dialogPtr,
+				SInt16								itemNumber,
+				CharPtr								theStringPtr);
+
 
 /*                       
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -153,7 +158,7 @@ void ActivateDialogItem (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								 Purdue Research Foundation
 //									All rights reserved.
 //
@@ -172,7 +177,7 @@ void ActivateDialogItem (
 //							FalseColorPaletteDialog in SPalette.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/10/1996
-//	Revised By:			Larry L. Biehl			Date: 12/21/2016	
+//	Revised By:			Larry L. Biehl			Date: 02/07/2018
 
 SInt32 AddChannelsToDialogList (
 			#ifdef multispec_lin
@@ -214,6 +219,7 @@ SInt32 AddChannelsToDialogList (
 	channelDescriptionPtr = NULL;
 	fileInfoIndex = -1;
 	localFileInfoPtr = NULL;
+   index = 0;
 	
 			// Get estimate of the length of the description in the list.			
 			// Use 22 for the description list - 4 for channel number and 18 		
@@ -546,7 +552,7 @@ SInt32 AddChannelsToDialogList (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -628,7 +634,7 @@ SInt16 CheckMaxValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -776,7 +782,7 @@ SInt16 CheckDialogRealValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -837,7 +843,7 @@ Boolean CheckFeatureTransformationDialog (
 
                        
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -891,7 +897,7 @@ void CloseStatusDialog (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -972,7 +978,7 @@ SInt16 CreateUnicodeStaticTextControl (
  
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1029,7 +1035,7 @@ void DeactivateDialogItem (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1075,7 +1081,7 @@ return (DisplayAlert (alertResourceId,
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1096,7 +1102,7 @@ return (DisplayAlert (alertResourceId,
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 06/25/1990
-//	Revised By:			Larry L. Biehl			Date: 07/26/2017
+//	Revised By:			Larry L. Biehl			Date: 07/31/2018
 
 SInt16 DisplayAlert (
 				SInt16								alertResourceId, 
@@ -1342,6 +1348,8 @@ SInt16 DisplayAlert (
 															string2Ptr[0],
 															kCFStringEncodingUTF8,
 															false);
+				
+
 			DialogRef		outAlert;
 			OSStatus osErr = CreateStandardAlert (
 										standardAlertType,
@@ -1572,7 +1580,7 @@ SInt16 DisplayAlert (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1631,7 +1639,7 @@ void DupClassFieldNameAlert (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1818,7 +1826,7 @@ Boolean GetDialogLocalVectors (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1895,7 +1903,7 @@ SInt32 GetDItemValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1950,7 +1958,7 @@ void GetMultiSpecDialogItemText (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1996,7 +2004,7 @@ SInt64 GetNumberOfSelectedPixels (
 
                        
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2015,7 +2023,7 @@ SInt64 GetNumberOfSelectedPixels (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 03/27/1992
-//	Revised By:			Larry L. Biehl			Date: 05/19/2016
+//	Revised By:			Larry L. Biehl			Date: 10/22/2018
 
 DialogPtr GetStatusDialog (
 				SInt16								statusInfoID, 
@@ -2227,12 +2235,10 @@ DialogPtr GetStatusDialog (
 	#endif	// defined multispec_win
 		
 	#if defined multispec_lin
-		//CShortStatusDlg* statusDialogPtr2 = new CShortStatusDlg (
-		//												statusInfoID,
-		//												(wxWindow *)gActiveImageViewCPtr->m_frame);
 		CShortStatusDlg* statusDialogPtr2 = new CShortStatusDlg (
 																		statusInfoID,
-																		(wxWindow*)GetMainFrame ());
+																		//(wxWindow*)GetMainFrame ());
+																		NULL);
  
 		if (statusDialogPtr2 != NULL)
 			{
@@ -2338,7 +2344,7 @@ DialogPtr GetStatusDialog (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2539,7 +2545,7 @@ void HideStatusDialogItemSet (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2599,7 +2605,7 @@ void InitializeDialogFeatureParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2652,7 +2658,7 @@ void InitializeDialogSelectArea (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2703,7 +2709,7 @@ void InvalDialogItemRect (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2816,7 +2822,7 @@ void LoadDialogLocalVectors (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2856,7 +2862,7 @@ void LoadDItemRealValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2994,7 +3000,7 @@ void LoadDItemRealValue (
 
                                            
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3032,7 +3038,7 @@ void LoadDItemString (
 
                                            
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3051,7 +3057,7 @@ void LoadDItemString (
 // Called By:			ClassifyDialog   in classify.c
 //
 //	Coded By:			Larry L. Biehl			Date: 01/06/1989
-//	Revised By:			Larry L. Biehl			Date: 03/25/2017
+//	Revised By:			Larry L. Biehl			Date: 02/07/2018
                          
 void LoadDItemString (
 				DialogPtr							dialogPtr, 
@@ -3099,6 +3105,7 @@ void LoadDItemString (
 																		&theControl);
 						//SetDialogItem (dialogPtr, itemNumber, theType, theHandle, &theBox);
 						
+                  validControlFlag = FALSE;
 						if (osErr == noErr)
 							validControlFlag = IsValidControlHandle (theControl);
 							/*
@@ -3116,8 +3123,8 @@ void LoadDItemString (
 																			cfStringRef,
 																			kCFStringEncodingMacRoman));
 							*/
-							if (validControlFlag)
-								osErr = SetControlTitleWithCFString (theControl, cfStringRef);
+                  if (validControlFlag)
+                     osErr = SetControlTitleWithCFString (theControl, cfStringRef);
 						
 						SetDialogItem (dialogPtr, itemNumber, theType, theHandle, &theBox);
 						
@@ -3189,7 +3196,7 @@ void LoadDItemString (
 
                      
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3237,7 +3244,7 @@ void LoadDItemStringNumber (
 
                        
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3292,7 +3299,7 @@ void LoadDItemValue (
 
                        
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3355,7 +3362,7 @@ void LoadDItemValueWithCommas (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3596,7 +3603,7 @@ void LoadLineColumnItems (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3762,7 +3769,7 @@ void LoadProcessorVectorsFromDialogLocalVectors (
 
                        
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3866,7 +3873,7 @@ void LoadSubsetList (
 
                        
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3908,7 +3915,7 @@ void MHideDialogItem (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3948,7 +3955,7 @@ void NumberErrorAlert (
                                                 
 #if defined multispec_win
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4012,7 +4019,7 @@ void PositionDialogWindow (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4057,7 +4064,7 @@ void ReleaseDialogLocalVectors (
 
                        
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4149,7 +4156,7 @@ void SaveSubsetList (
 
                        
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4208,7 +4215,7 @@ void SetDialogItemToEditText (
 
                        
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4269,7 +4276,7 @@ void SetDialogItemToStaticText (
 
 
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4298,7 +4305,7 @@ void SetDLogControl (
    #if defined multispec_lin
 		wxCheckBox* buttonPtr = wxDynamicCast (
 											dialogPtr->FindWindow (itemNumber), wxCheckBox);
-
+	
 		if (buttonPtr != NULL)
 			buttonPtr->SetValue (setting);
       
@@ -4351,7 +4358,7 @@ void SetDLogControl (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4424,7 +4431,7 @@ void SetDLogControlHilite (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4498,7 +4505,7 @@ void SetDLogControlTitle (
 
                      
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4542,7 +4549,7 @@ void SetDLogControlTitleNumber (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4610,7 +4617,7 @@ void ShowHideDialogItem (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4787,7 +4794,7 @@ void ShowStatusDialogItemSet (
 
 
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4852,7 +4859,7 @@ SInt16 UpdateDialogFeatureParameters (
 
 
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

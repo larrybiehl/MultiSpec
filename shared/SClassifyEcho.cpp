@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -84,7 +84,7 @@ SInt16			Write_Homogeneous_Fields_File (
 					
 
 //------------------------------------------------------------------------------------
-//								 	Copyright (1989-2017)
+//								 	Copyright (1989-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -313,7 +313,7 @@ SInt16 EchoClassifier (
 
 
 //------------------------------------------------------------------------------------
-//								 	Copyright (1989-2017)
+//								 	Copyright (1989-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -368,7 +368,7 @@ UInt32 EstimateNumberOfHomogeneousFields (
 
 
 //------------------------------------------------------------------------------------
-//								 	Copyright (1989-2017)
+//								 	Copyright (1989-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -457,7 +457,7 @@ SInt64 GetMemoryNeededForEchoInfoParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 	Copyright (1989-2017)
+//								 	Copyright (1989-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -635,7 +635,7 @@ SInt16 SaveProbabilityInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 	Copyright (1989-2017)
+//								 	Copyright (1989-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -709,16 +709,16 @@ Boolean SetUseTempDiskFileFlag (
 			SetType (tempFileStreamPtr, 'BINA');		
 			SetFSSpecFlag (tempFileStreamPtr, fSSpecFlag);
 			SetParID (tempFileStreamPtr, parID);
-		
-			#if TARGET_API_MAC_CARBON
+			
+			#if defined multispec_mac
 						// Set parent FSRef
 			
 				CMFileStream*						fileStreamPtr;
 			
 				fileStreamPtr = GetFileStreamPointer (gImageFileInfoPtr);
-				tempFileStreamPtr->parentFSRef = fileStreamPtr->parentFSRef;		
-			#endif		// TARGET_API_MAC_CARBON
-				
+				tempFileStreamPtr->parentFSRef = fileStreamPtr->parentFSRef;	
+			#endif	// defined multispec_mac
+			
 			tempFileNamePtr = (FileStringPtr)GetFileNamePPointerFromFileStream (tempFileStreamPtr);
 			CopyPToP (tempFileNamePtr,  (UCharPtr)"\0tempEcho0000.tmp");
 			  
@@ -813,7 +813,7 @@ Boolean SetUseTempDiskFileFlag (
 
 
 //------------------------------------------------------------------------------------
-//								 	Copyright (1989-2017)
+//								 	Copyright (1989-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1166,7 +1166,7 @@ SInt16 Write_Homogeneous_Fields_File (
 
 
 //------------------------------------------------------------------------------------
-//								 	Copyright (1989-2017)
+//								 	Copyright (1989-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

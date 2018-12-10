@@ -3,15 +3,13 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 // File:						SDeclareGlobals.h
 //
 //	Authors:					Larry L. Biehl
-//
-//	Revision number:		3.0
 //
 //	Language:				C
 //
@@ -21,7 +19,7 @@
 //								MultiSpec.
 //
 //	Revised By:				Abdur Maud				Date: 01/24/2013
-//	Revised By:				Larry L. Biehl			Date: 12/20/2017
+//	Revised By:				Larry L. Biehl			Date: 11/02/2018
 //
 //------------------------------------------------------------------------------------
 
@@ -103,6 +101,13 @@
 	int			gComputedGrays = 11;
 	int			gPaletteHandle = 12;
 	int			gProbablilityColors2 = 13;
+
+	#if defined multispec_wxmac
+		int 			gFontSize = 12;
+	#endif
+	#if !defined multispec_wxmac
+		int			gFontSize = 9;
+	#endif
 #endif   // defined multispec_lin
 
 typedef struct 	DecisionTreeVar 
@@ -174,11 +179,7 @@ Boolean							gAppleEventsFlag = FALSE;
 Boolean							gCallProcessorDialogFlag = TRUE;
 
 		// Flag indicating whether this is a carbon application.
-#if TARGET_API_MAC_CARBON
-	Boolean							gCarbonFlag = TRUE;
-#else		// !TARGET_API_MAC_CARBON
-	Boolean							gCarbonFlag = FALSE;
-#endif	// TARGET_API_MAC_CARBON, else...
+Boolean							gCarbonFlag = TRUE;
 
 		// if TRUE, application is being run on Mac with a color screen. 						
 Boolean							gColorQDflag = FALSE;
@@ -425,13 +426,7 @@ DateTimeRec						gDateTimeRecord;
 		// Pointer to the decision tree classifier variable structure.				
 DecisionTreeVarPtr 			gDecisionTreeVarPtr = NULL;
 
-#if !TARGET_API_MAC_CARBON
-			// UniversalProcPtr for the standard file hook routines.						
-	DlgHookUPP						gGetFileHookPtr = NULL;
-	DlgHookUPP						gPutFileHookPtr = NULL;
-#endif	// !TARGET_API_MAC_CARBON
-
-		// dialog pointer to grag gray rgn coordinate dialog box						
+		// dialog pointer to grag gray rgn coordinate dialog box
 // DialogPtr						gCoordinatePtr = NULL;
 
 		// Dialog pointer to the status dialog window.  This is used by several	
@@ -695,6 +690,9 @@ MenuHandle						gPopUpFEAlgorithmMenu = NULL;
 		// Handle to reformat transform function popup menu.										
 MenuHandle						gPopUpFunctionMenu = NULL;
 
+		// Handle to mosaic direction popup menu.														
+MenuHandle						gPopUpGraphAxisLabelMenu = NULL;
+
 		// Handle to hard threshold popup menu. Used in Enhance Statistics.								
 MenuHandle						gPopUpHardThresholdMenu = NULL;
 
@@ -897,12 +895,7 @@ RgnHandle						gTempRegion1 = NULL;
 		// InitializeMultiSpec.c																
 RgnHandle						gTempRegion2 = NULL;
 
-#if !TARGET_API_MAC_CARBON
-			// structure for file information from SFPutFile and SFGetFile.			
-	SFReply							gFileReply;
-#endif	// !TARGET_API_MAC_CARBON
-
-		// Pointer to the statistics enhancement information structure.			
+		// Pointer to the statistics enhancement information structure.
 StatEnhanceSpecsPtr			gStatEnhanceSpecsPtr = NULL;
 
 			// Pointer to statistics histogram information.								
@@ -938,11 +931,8 @@ wchar_t							gWideTextString[256];
 wchar_t							gWideTextString2[256];								
 wchar_t							gWideTextString3[256];
 
-#if !TARGET_API_MAC_CARBON
-	THPrint 							gHPrint = NULL;
-#endif	// !TARGET_API_MAC_CARBON
 
-		// Structure containing information for a transformation matrix.			
+		// Structure containing information for a transformation matrix.
 TransformationSpecs			gTransformationMatrix;
 
 #if defined multispec_mac || defined multispec_mac_swift
@@ -1309,6 +1299,9 @@ UInt32							gStatusIDNumber = 0;
 		// solution engine.																		
 UInt32							gTextMemoryMinimum= 12000;
 
+			// Variable containing the time to yield to background applications.	
+UInt32							gYieldTime = kFrontYieldTime;
+
 		// Variable containing the legend width for the active window.				
 SInt16							gActiveLegendWidth = 0;
 
@@ -1460,13 +1453,7 @@ SInt16							gDisplayIntervalTime = 120;
 #endif	// defined multispec_win, else...
 
 		// Variable indicating the file name length limit.
-#if defined multispec_mac || defined multispec_mac_swift
-	UInt16							gFileNameLengthLimit = 31;
-#endif	// defined multispec_mac || defined multispec_mac_swift
-	
-#if defined multispec_win || defined multispec_lin
-	UInt16							gFileNameLengthLimit = 254;
-#endif	// defined multispec_win
+UInt16							gFileNameLengthLimit = 254;
 
 		// Variable indicating what the current file name selection is.			
 SInt16							gFileNamesSelection = 0;
@@ -1658,7 +1645,7 @@ SInt16							gPresentCursor = kArrow;
 		//		=1040 Principal Components.													
 SInt16							gProcessorCode = 0;
 
-SInt16                                                  gListDataCode = 0;
+SInt16                     gListDataCode = 0;
 
 		// Variable indicating what the current save cluster statistics			
 		// selection type is. It is used by processor dialogs.  =1 do not save, 
@@ -1726,9 +1713,6 @@ SInt16							gWeightsSelection = 0;
 
 			// Font number to be used in the windows.										
 SInt16							gWindowTextFont = 0;
-
-			// Variable containing the time to yield to background applications.	
-SInt16							gYieldTime = kFrontYieldTime;
 
 #if defined multispec_lin 
 			// Disable other windows when executing list Data graph window

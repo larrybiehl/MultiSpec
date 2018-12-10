@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -25,7 +25,7 @@
 //	Revised By:				Byeungwoo Jeon			Date: 08/01/1990 
 //	Revised By:				Byeungwoo Jeon			Date: 03/26/1992
 //	Revised By:				Abdur Maud				Date: 06/24/2013
-//	Revised By:				Larry L. Biehl			Date: 12/20/2017
+//	Revised By:				Larry L. Biehl			Date: 03/12/2018
 //	
 //------------------------------------------------------------------------------------
 
@@ -48,7 +48,7 @@ typedef struct 	pixel_information_def
 									ncol1;
 	UInt32						num_row,
 									num_col;
-	UInt32						ipixels;
+	SInt64						ipixels;
 
 	}	pixel_information, *pixel_infoPtr;
 

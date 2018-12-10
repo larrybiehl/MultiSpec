@@ -1,6 +1,6 @@
 //									Purdue University
 //								West Lafayette, IN 47907
-//							 Copyright (1988-2017)
+//							 Copyright (1988-2018)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8,7 +8,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			12/21/2017
+//	Revision date:			07/30/2018
 //
 //	Language:				C
 //
@@ -27,6 +27,14 @@
 	#include "CFileStream.h"
 	#define FALSE false
 	#define TRUE true
+   #if defined multispec_lin
+		#if defined NetBeansProject
+				// The size of a 'unsigned long', as computed by sizeof.
+			#define SIZEOF_UNSIGNED_LONG 8
+				// The size of a 'void p', as computed by sizeof.
+			#define SIZEOF_VOIDP 8
+		#endif
+	#endif
 #endif	// defined multispec_lin
 
 #if defined multispec_win 
@@ -42,7 +50,7 @@
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -88,7 +96,7 @@ void CloseControlPointVectorPointers (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -137,7 +145,7 @@ void CloseImageFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -160,7 +168,7 @@ void CloseImageFile (
 //							CloseImageWindow in window.c
 //
 //	Coded By:			Larry L. Biehl			Date: 12/01/1995
-//	Revised By:			Larry L. Biehl			Date: 07/03/2012
+//	Revised By:			Larry L. Biehl			Date: 07/30/2018
 
 void CloseImageFile (
 				FileInfoPtr							fileInfoPtr)
@@ -173,7 +181,7 @@ void CloseImageFile (
 				// Make sure that file elements in any hdf file are closed also.
 		
 		#if include_hdf_capability
-			if (fileInfoPtr->hdfFileID > 0 && 
+			if (fileInfoPtr->hdf4FileID > 0 && 
 						fileInfoPtr->format != kHDF5Type &&
 								fileInfoPtr->format != kNETCDF2Type)
 				CloseHDF4File (fileInfoPtr);
@@ -182,7 +190,10 @@ void CloseImageFile (
 		#if include_gdal_capability
 			#if include_hdf5_capability
 				if (fileInfoPtr->hdfHandle != NULL && 
-						(fileInfoPtr->format == kHDF5Type || fileInfoPtr->format == kNETCDF2Type))
+						(fileInfoPtr->format == kHDF5Type ||
+							fileInfoPtr->format == kNETCDF2Type ||
+								fileInfoPtr->format == kHDF4Type2 ||
+									fileInfoPtr->format == kNITFType))
 					CloseHDF5DataSetInfo (fileInfoPtr);
 			#endif	// include_hdf5_capability
 			
@@ -226,7 +237,7 @@ void CloseImageFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -295,7 +306,7 @@ void DisposeFileInfoHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -333,7 +344,7 @@ UInt32 GetActiveNumberClasses (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -374,7 +385,7 @@ SInt16 GetBandInterleave (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -452,7 +463,7 @@ void GetBlockInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -523,7 +534,7 @@ SInt16* GetClassToGroupPointer (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -563,7 +574,7 @@ Handle GetChannelDescriptionHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -603,7 +614,7 @@ Handle GetClassDescriptionHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -644,7 +655,7 @@ Handle GetControlPointsHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -700,7 +711,7 @@ ControlPointsPtr GetControlPointVectorPointers (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -743,7 +754,7 @@ CMFileStream* GetFileStreamPointer (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -784,7 +795,7 @@ SInt16 GetFileFormat (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -822,7 +833,7 @@ SInt16 GetFileFormatFromWindowHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -879,7 +890,7 @@ Handle GetFileMapProjectionHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -941,7 +952,7 @@ SInt16* GetGroupToPalettePointer (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -979,7 +990,7 @@ SInt16 GetHdfDataSetSelection (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1038,7 +1049,7 @@ void GetHDF_FilePointers (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1100,7 +1111,7 @@ void GetHierarchalFilePointers (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1140,7 +1151,7 @@ UInt32 GetNumberClasses (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1183,7 +1194,7 @@ UInt32 GetNumberControlPoints (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1222,7 +1233,7 @@ Boolean GetThematicType (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1247,7 +1258,7 @@ Boolean GetThematicType (
 //							ChangeImageFileFormat in reformat.c
 //
 //	Coded By:			Larry L. Biehl			Date: 03/05/1991
-//	Revised By:			Larry L. Biehl			Date: 10/08/2014
+//	Revised By:			Larry L. Biehl			Date: 07/10/2018
 
 Handle InitializeFileInfoStructure (
 				Handle								fileInfoHandle,
@@ -1337,7 +1348,8 @@ Handle InitializeFileInfoStructure (
 		fileInfoPtr->hfaHandle = NULL;
 		fileInfoPtr->mapProjectionHandle = NULL;
 		
-		fileInfoPtr->hdfFileID = 0;
+		fileInfoPtr->hdf4FileID = 0;
+		fileInfoPtr->hdf5FileID = 0;
 		
 		fileInfoPtr->signedValueOffset = 0;
 
@@ -1370,7 +1382,9 @@ Handle InitializeFileInfoStructure (
 		fileInfoPtr->fileExists = -1;	
 		fileInfoPtr->format = 0; 
 		fileInfoPtr->ancillaryInfoformat = 0;
+		fileInfoPtr->channelsInWavelengthOrderCode = kNotApplicable;
 		fileInfoPtr->collapseClassSelection = kDoNotCollapseClass;
+		fileInfoPtr->descriptionCode = 0;
 		fileInfoPtr->hdfDataSetSelection = 0;
 		fileInfoPtr->numberHdfDataSets = 0;
 		fileInfoPtr->instrumentCode = 0;
@@ -1417,7 +1431,7 @@ Handle InitializeFileInfoStructure (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1520,7 +1534,7 @@ Handle InitializeHierarchalFileStructure (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1553,7 +1567,7 @@ void SetFileInfoHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1590,7 +1604,7 @@ void SetFileInstrumentCode (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1627,7 +1641,7 @@ void SetFileMapProjectionHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1677,7 +1691,7 @@ void UnlockGroupTablesHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1734,7 +1748,7 @@ void UnlockHDF_FileHandles (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

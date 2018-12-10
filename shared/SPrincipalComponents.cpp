@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			01/05/2018
+//	Revision date:			10/19/2018
 //
 //	Language:				C
 //
@@ -96,7 +96,7 @@ void PrincipalComponentDialogOK (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -376,7 +376,7 @@ Boolean LoadPrincipalComponentSpecs (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -838,7 +838,7 @@ Boolean PrincipalComponentAnalysis (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1232,7 +1232,7 @@ void PrincipalComponentControl (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1252,7 +1252,7 @@ void PrincipalComponentControl (void)
 // Called By:			PrincipalComponentControl
 //
 //	Coded By:			Larry L. Biehl			Date: 12/28/1990
-//	Revised By:			Larry L. Biehl			Date: 09/05/2017
+//	Revised By:			Larry L. Biehl			Date: 10/19/2018
 	
 Boolean PrincipalComponentDialog (
 				FileInfoPtr							fileInfoPtr)
@@ -1674,7 +1674,8 @@ Boolean PrincipalComponentDialog (
 	#if defined multispec_lin
 		CMPrincipalCompDialog* dialogPtr = NULL;
 
-		dialogPtr = new CMPrincipalCompDialog ((wxWindow *)GetMainFrame ());
+		//dialogPtr = new CMPrincipalCompDialog ((wxWindow *)GetMainFrame ());
+		dialogPtr = new CMPrincipalCompDialog (NULL);
 
 		returnFlag = dialogPtr->DoDialog ();
 
@@ -1688,7 +1689,7 @@ Boolean PrincipalComponentDialog (
 									
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //

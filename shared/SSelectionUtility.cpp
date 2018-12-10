@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl, Ravi Budruk
 //
-//	Revision date:			01/05/2018
+//	Revision date:			03/19/2018
 //
 //	Language:				C
 //
@@ -47,6 +47,12 @@
 //								void 						SetSelectionInformation
 //								void 						ShowGraphSelection
 //                     
+/*
+	int numberChars = sprintf ((char*)gTextString3,
+			" SSelectionUtility.cpp: (): %s",
+			gEndOfLine);
+	ListString ((char*)gTextString3, numberChars, gOutputTextH);
+*/
 //------------------------------------------------------------------------------------
 
 #include "SMultiSpec.h"      
@@ -61,7 +67,7 @@
 #endif	// defined multispec_lin
 
 #if defined multispec_mac || defined multispec_mac_swift
-	#include "SGraphView.h"
+	#include "MGraphView.h"
 	#define		IDC_NewLineStart			3 
 	#define		IDC_NewLineEnd				4 
 	#define		IDC_NewColumnStart		5 
@@ -90,10 +96,9 @@
 	#include "CProcessor.h"
 	#include	"CImageWindow.h"
 
-	#include "SGraphView.h"
-
 	#include "WDrawObjects.h"
 	#include "WEditSelectionDialog.h"
+	#include "WGraphView.h"
 	#include "WImageView.h"
 	#include "WImageDoc.h"	
 #endif	// defined multispec_win
@@ -196,7 +201,7 @@ SInt16		gSelectionDisplayUnits = 0;
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -254,7 +259,7 @@ void ClearNewFieldList (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -494,7 +499,7 @@ void ClearSelectionArea (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -545,7 +550,7 @@ void ClosePolygonSelection (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -608,11 +613,11 @@ void ComputeMapCoordinates (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
-//	Function name:		void UpdateSelectionCoordinates
+//	Function name:		void ComputeSelectionCoordinates
 //
 //	Software purpose:	
 //
@@ -656,12 +661,12 @@ void ComputeSelectionCoordinates (
 
 	MHSetState (mapProjectionHandle, handleStatus);
 
-}	// end "UpdateSelectionCoordinates" 
+}	// end "ComputeSelectionCoordinates"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -738,7 +743,7 @@ void ComputeSelectionCoordinates (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -919,7 +924,7 @@ void ComputeSelectionCoordinates (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1011,7 +1016,7 @@ void ComputeSelectionLineColumns (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1162,7 +1167,7 @@ void ComputeSelectionOffscreenRectangle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1235,7 +1240,7 @@ Boolean ConvertCoordinateRectToLCRect (
 
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1292,7 +1297,7 @@ Boolean ConvertLatLongRectToMapRectinNativeImageUnits (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1338,7 +1343,7 @@ Boolean ConvertLatLongRectToMapRectinNativeImageUnits (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1507,12 +1512,12 @@ void DrawSelectionArea (
 
 	MHSetState (selectionInfoH, handleStatus);
 
-}	// end "DrawSelectionArea" 
+}	// end "DrawSelectionArea"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1769,7 +1774,7 @@ void DrawSelectionPolygon (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1871,13 +1876,13 @@ void DrawSelectionRectangle (
 
 		}	// end "if ((selectionRect.top >= viewRectPtr->top && ..."  
 
-}	// end "DrawSelectionRectangle" 
+}	// end "DrawSelectionRectangle"
 
 
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2003)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1919,7 +1924,7 @@ pascal void DrawSelectionUnitsPopUp (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2119,7 +2124,7 @@ Boolean EditSelectionDialog (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2271,7 +2276,7 @@ void EditSelectionDialogShowSelection (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2523,7 +2528,7 @@ void EditSelectionDialogSetCoordinates (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3031,7 +3036,7 @@ Boolean EditLineColumnDialog (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3321,7 +3326,7 @@ void EditLineColumnDialogInitialize (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3383,7 +3388,7 @@ void EditLineColumnDialogOK (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3420,7 +3425,7 @@ void EditLineColumnDialogSetStartLC (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3746,7 +3751,7 @@ SInt16 EditLineColumnDialogCheckCoordinates (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3819,7 +3824,7 @@ void GetBoundingSelectionRectangles (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4104,7 +4109,7 @@ SInt64 GetNumberPixelsInSelection (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4171,7 +4176,7 @@ Handle GetNewSelectionInfoHandle (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4241,7 +4246,7 @@ Boolean GetSelectedAreaInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4347,7 +4352,7 @@ Boolean GetSelectedOffscreenRectangle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4465,7 +4470,7 @@ void GetSelectionBoundary (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4481,7 +4486,7 @@ void GetSelectionBoundary (
 //
 // Value Returned:	None
 // 
-// Called By:			ShowGraphWindowSelection in SSelGraf.cpp
+// Called By:			ShowGraphWindowSelection in SSelectionGraph.cpp
 //							CMOutlineArea::Invalidate in WDrawObj.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/02/1998
@@ -4494,11 +4499,11 @@ SInt16 GetSelectionCoordinates (
 				SInt64*								numberPixelsPtr)
 
 {
-	SelectionInfoPtr selectionInfoPtr;
+	SelectionInfoPtr					selectionInfoPtr;
 
-	Handle selectionInfoHandle;
+	Handle								selectionInfoHandle;
 
-	SInt16 typeCode = 0;
+	SInt16								typeCode = 0;
 
 
 	selectionInfoHandle = GetSelectionInfoHandle (windowPtr);
@@ -4534,7 +4539,7 @@ SInt16 GetSelectionCoordinates (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4589,7 +4594,7 @@ SInt64 GetSelectionNumberPixels (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4648,7 +4653,7 @@ Boolean GetSelectionOffscreenRectangle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4678,7 +4683,7 @@ Boolean GetSelectionOffscreenRectangle (
 //							SaveImageWindowAs in SSaveWrt.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 09/08/1988
-//	Revised By:			Larry L. Biehl			Date: 03/19/1999			
+//	Revised By:			Larry L. Biehl			Date: 02/23/2018
 
 Boolean GetSelectionRectangle (
 				WindowPtr							windowPtr,
@@ -4688,14 +4693,18 @@ Boolean GetSelectionRectangle (
 				Boolean								adjustToBaseImageFlag)
  
 {
-	FileInfoPtr							fileInfoPtr;
+	FileInfoPtr							fileInfoPtr,
+											projectFileInfoPtr;
+	
 	SelectionInfoPtr					selectionInfoPtr;
 
 	Handle								fileInfoHandle,
+											projectFileInfoHandle,
 											selectionInfoH,
 											windowInfoH;
 
-	SInt32								offset;
+	SInt32								columnOffset,
+											lineOffset;
 
 	UInt32								maxNumberColumns,
 											maxNumberLines;
@@ -4732,17 +4741,49 @@ Boolean GetSelectionRectangle (
 					{
 							// Get pointer to file specification.  We do not need 	
 							// to lock it here since no other routines are called.
-
+					
+							// Note that a check is being make here to determine if this is
+							// a case where the associated file is tiff and the base image
+							// for the project is ERDAS .lan. If this is the case, then if,
+							// the base ERDAS .lan file has start line and columns which are
+							// not 1, we will ignore the start line and column as long as
+							// the number of lines and columns in the associated image and
+							// base image are the same. Tiff files do not have tags to
+							// store a start line and column. We will assume that no
+							// adjust will need to be made.
+					
 					fileInfoHandle = GetFileInfoHandle (windowInfoH);
 					fileInfoPtr = (FileInfoPtr)GetHandlePointer (fileInfoHandle);
+					
+					projectFileInfoHandle = GetFileInfoHandle (
+																	gProjectInfoPtr->windowInfoHandle);
+					projectFileInfoPtr =
+											(FileInfoPtr)GetHandlePointer (projectFileInfoHandle);
+					
+					if ((fileInfoPtr->format == kTIFFType ||
+											fileInfoPtr->format == kGeoTIFFType) &&
+							projectFileInfoPtr->format == kErdas74Type &&
+							fileInfoPtr->numberLines == projectFileInfoPtr->numberLines &&
+							fileInfoPtr->numberColumns == projectFileInfoPtr->numberColumns)
+						{
+						lineOffset = 0;
+						columnOffset = 0;
 
-					offset = fileInfoPtr->startColumn - gProjectInfoPtr->startColumn;
-					selectionRectanglePtr->left += offset;
-					selectionRectanglePtr->right += offset;
+						}	// end "fileInfoPtr->format == kTIFFType && ...
+					
+					else	// take into account different start lines and columns
+						{
 
-					offset = fileInfoPtr->startLine - gProjectInfoPtr->startLine;
-					selectionRectanglePtr->top += offset;
-					selectionRectanglePtr->bottom += offset;
+						lineOffset = fileInfoPtr->startColumn - gProjectInfoPtr->startColumn;
+						columnOffset = fileInfoPtr->startLine - gProjectInfoPtr->startLine;
+						
+						}	// end "take into account different start lines and columns"
+					
+					selectionRectanglePtr->left += columnOffset;
+					selectionRectanglePtr->right += columnOffset;
+
+					selectionRectanglePtr->top += lineOffset;
+					selectionRectanglePtr->bottom += lineOffset;
 
 							// Now verify that the selection is still within the
 							// project base image.
@@ -4796,7 +4837,7 @@ Boolean GetSelectionRectangle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4915,7 +4956,7 @@ SInt16 GetSelectionRectangleLimits (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4989,7 +5030,7 @@ SInt16 GetSelectionTypeCode (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5049,7 +5090,7 @@ Boolean InitializePolygonSelection (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5137,7 +5178,7 @@ void OutlineSelectionArea (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5222,7 +5263,7 @@ void SetPolygonSelection (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5349,7 +5390,7 @@ void SetRectangleSelection (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5649,7 +5690,7 @@ void SetSelectionForAllWindows (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5698,7 +5739,7 @@ void SetSelectionInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5729,7 +5770,7 @@ void ShowGraphSelection (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

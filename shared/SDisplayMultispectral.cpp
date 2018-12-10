@@ -11,15 +11,15 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			01/04/2018
+//	Revision date:			10/19/2018
 //
 //	Language:				C
 //
 //	System:					Linux, Macintosh and Windows Operating Systems
 //
-//	Brief description:	This file contains routines to handle displaying multispectral image
-//                      windows. Some routines which write into the offscreen buffers 
-//								are in other files.
+//	Brief description:	This file contains routines to handle displaying multispectral
+//								image windows. Some routines which write into the offscreen
+//								buffers are in other files.
 //
 //	Functions in file:	void 					DisplayImagesSideBySide
 //								void 					DisplayMultispectralImage
@@ -51,9 +51,12 @@
 //								void 					UpdatePopUpDisplayTypeMenu
 //								void 					UpdateEnhancementMinMaxes	 
 //
-//	Include files:			"MultiSpecHeaders"
-//								"multiSpec.h"
-//
+/* Template for debugging
+		int numberChars = sprintf ((char*)gTextString3,
+													" SDisplayMultispectral.cpp: (): %s",
+													gEndOfLine);
+		ListString ((char*)gTextString3, numberChars, gOutputTextH);	
+*/
 //------------------------------------------------------------------------------------
 
 #include "SMultiSpec.h"    
@@ -344,7 +347,7 @@ void UpdateThematicTypeMinMaxes (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -447,9 +450,7 @@ void DisplayImagesSideBySide (
 	stopFlag = FALSE;
 	fileIOInstructionsPtr = NULL;
 
-	separatorByte = 0x00;
-	if (gOSXFlag)
-	  separatorByte = (char)0xFF;
+	separatorByte = (char)0xFF;
 
 	#if defined multispec_lin
 		separatorByte = (char)0xFF;
@@ -894,7 +895,7 @@ void DisplayImagesSideBySide (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1001,9 +1002,7 @@ void Display4_8ByteImagesSideBySide (
 	stopFlag = FALSE;
 	fileIOInstructionsPtr = NULL;
 
-	separatorByte = 0x00;
-	if (gOSXFlag)
-		separatorByte = (char)0xFF;
+	separatorByte = (char)0xFF;
 	#if defined multispec_lin
 		separatorByte = (char)0xFF;
 	#endif
@@ -1404,7 +1403,7 @@ void Display4_8ByteImagesSideBySide (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1469,9 +1468,9 @@ Boolean DisplayMultispectralImage (void)
 			// up the memory that can be used to compute enhancement information.
 
 	histogramSpecsPtr = SetUpHistogramSpecsPtr (
-			kSetUpHistogramArray, &histogramHandleStatus);
+													kSetUpHistogramArray, &histogramHandleStatus);
 	continueFlag = (histogramSpecsPtr != NULL);
-
+	
 	if (continueFlag)
 		{
 		displaySpecsPtr = LoadMultispectralDisplaySpecs ();
@@ -1539,10 +1538,14 @@ Boolean DisplayMultispectralImage (void)
 			SetImageWTitle (gActiveImageWindow, displaySpecsPtr, fileInfoPtr);
 
 			if (gCallProcessorDialogFlag)
+				{
                 // Not calling the display processor implies that the arrow keys
                 // are being used to go to the previous or next channels. Do not
-                // need to the cursor to a wait status.
+                // need change the cursor to a wait status.
 				MSetCursor (kWait);
+				UpdateOutputWScrolls (gOutputWindow, 1, kDisplayMessage);
+				
+				}	// end "if (gCallProcessorDialogFlag)"
 
 					// Set up the vector to convert image data values to display
 					// level values
@@ -1671,6 +1674,8 @@ Boolean DisplayMultispectralImage (void)
 
 		if (gCallProcessorDialogFlag)
 			MInitCursor ();
+		
+		UpdateOutputWScrolls (gOutputWindow, 1, kDisplayMessage);
 
 				// Unlock display specifications handles.
 
@@ -1694,7 +1699,7 @@ Boolean DisplayMultispectralImage (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2171,7 +2176,7 @@ void DisplayCImage (
 			 // to last line at the beginning of the bitmap.	
 
 	#if defined multispec_mac || defined multispec_lin
-		offScreenLinePtr = (HUCharPtr) offScreenBufferPtr;
+		offScreenLinePtr = (HUCharPtr)offScreenBufferPtr;
 	#endif	// defined multispec_mac || defined multispec_lin
 
 	#if defined multispec_win
@@ -2747,7 +2752,7 @@ void DisplayCImage (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3780,7 +3785,8 @@ Boolean DisplayMultispectralDialog (
 		try
 			{
 			//dialogPtr = new CMDisplaySpecsDlg ((wxWindow*)gActiveImageViewCPtr->m_frame);
-			dialogPtr = new CMDisplaySpecsDlg ((wxWindow*)GetMainFrame ());
+			//dialogPtr = new CMDisplaySpecsDlg ((wxWindow*)GetMainFrame ());
+         dialogPtr = new CMDisplaySpecsDlg (NULL);
 			gActiveImageViewCPtr->m_displayMultiCPtr->SetDisplaySpecsPtr (
 																							displaySpecsPtr);
 
@@ -3801,7 +3807,7 @@ Boolean DisplayMultispectralDialog (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3861,7 +3867,7 @@ void DisplayMultispectralDialogCheckDisplayLevels (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3926,7 +3932,7 @@ void DisplayMultispectralDialogCheckMinMaxSettings (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3999,7 +4005,7 @@ Boolean DisplayMultispectralDialogUpdateComputeHistogram (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4464,7 +4470,7 @@ void DisplayMultispectralDialogInitialize (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4813,7 +4819,7 @@ void DisplayMultispectralDialogOK (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4866,7 +4872,7 @@ void DisplayMultispectralDialogSetDefaultSelection (
 
 #if defined multispec_mac  
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4944,7 +4950,7 @@ Boolean DisplayMultispectralDialogUpdateBitsOfColor (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5078,7 +5084,7 @@ SInt16 DisplayMultispectralDialogUpdateDisplayType (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5174,7 +5180,7 @@ void DisplayMultispectralDialogUpdateDisplayLevels (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5298,7 +5304,7 @@ void Display1Channel8BitLine (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5430,7 +5436,7 @@ void Display2Channel8BitLine (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5523,7 +5529,7 @@ void Display3Channel8BitLine (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5695,7 +5701,7 @@ void DoNextDisplayChannelEvent (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5735,7 +5741,7 @@ PascalVoid DrawBitsColorPopUp (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5776,7 +5782,7 @@ PascalVoid DrawDisplayTypePopUp (
 /*
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5817,7 +5823,7 @@ PascalVoid DrawEnhancementPopUp (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5857,7 +5863,7 @@ PascalVoid DrawMinMaxPopUp (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5897,7 +5903,7 @@ PascalVoid DrawStretchPopUp (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5937,7 +5943,7 @@ PascalVoid DrawZeroAsPopUp (
 /*
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6072,7 +6078,7 @@ SInt16 EnhancementPopUpMenu (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6199,7 +6205,7 @@ SInt16 EnhanceMinMaxPopUpMenu (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6601,7 +6607,7 @@ Boolean EqualAreaDataToDisplayLevels (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7057,7 +7063,7 @@ Boolean FillDataToDisplayLevels (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7079,6 +7085,7 @@ Boolean FillDataToDisplayLevels (
 
 Boolean GaussianParameterDialog (
 				double*								gaussianStretchPtr)
+
 {
 	Boolean continueFlag = FALSE;
 
@@ -7198,6 +7205,7 @@ Boolean GaussianParameterDialog (
 
 			delete dialogPtr;
 			}
+			
 		catch (int e)
 			{
 			MemoryMessage (0, kObjectMessage);
@@ -7211,7 +7219,7 @@ Boolean GaussianParameterDialog (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7561,10 +7569,10 @@ Boolean GaussianToDisplayLevels (
 				if (listFlag && dataLevel == 0) 
 					{
 					numberChars = sprintf ((char*)gTextString3,
-													 " %3ld   %3ld   %3ld%s",
-													 dataLevel,
-													 dataDisplayPtr[dataLevel],
-													 numberValuesInDisplayLevel,
+													 " %3d   %3d   %3d%s",
+													 (int)dataLevel,
+													 (int)dataDisplayPtr[dataLevel],
+													 (int)numberValuesInDisplayLevel,
 													 gEndOfLine);
 					if (!ListString ((char*)gTextString3, numberChars, gOutputTextH))
 																							return (FALSE);
@@ -7617,10 +7625,10 @@ Boolean GaussianToDisplayLevels (
 						if (listFlag) 
 							{
 							numberChars = sprintf ((char*)gTextString3,
-															" %3ld   %3ld   %3ld%s",
-															dataLevel,
-															dataDisplayPtr[dataLevel],
-															testCount,
+															" %3d   %3d   %3d%s",
+															(int)dataLevel,
+															(int)dataDisplayPtr[dataLevel],
+															(int)testCount,
 															gEndOfLine);
 							if (!ListString ((char*)gTextString3, numberChars, gOutputTextH))
 																							return (FALSE);
@@ -7648,10 +7656,10 @@ Boolean GaussianToDisplayLevels (
 				if (listFlag) 
 					{
 					numberChars = sprintf ((char*)gTextString3,
-													 " %3ld   %3ld   %3ld%s",
-													 dataLevel,
-													 dataDisplayPtr[dataLevel - 1],
-													 testCount,
+													 " %3d   %3d   %3d%s",
+													 (int)dataLevel,
+													 (int)dataDisplayPtr[dataLevel - 1],
+													 (int)testCount,
 													 gEndOfLine);
 					if (!ListString ((char*)gTextString3, numberChars, gOutputTextH))
 																							return (FALSE);
@@ -7698,10 +7706,10 @@ Boolean GaussianToDisplayLevels (
 						if (listFlag) 
 							{
 							numberChars = sprintf ((char*)gTextString3,
-															" %3ld   %3ld   %3ld%s",
-															dataLevel,
-															dataDisplayPtr[dataLevel],
-															testCount,
+															" %3d   %3d   %3d%s",
+															(int)dataLevel,
+															(int)dataDisplayPtr[dataLevel],
+															(int)testCount,
 															gEndOfLine);
 							if (!ListString ((char*)gTextString3, numberChars, gOutputTextH))
 																							return (FALSE);
@@ -7730,10 +7738,10 @@ Boolean GaussianToDisplayLevels (
 				if (listFlag && dataLevel == lastDataLevel) 
 					{
 					numberChars = sprintf ((char*)gTextString3,
-													" %3ld   %3ld   %3ld%s",
-													dataLevel,
-													dataDisplayPtr[dataLevel],
-													testCount,
+													" %3d   %3d   %3d%s",
+													(int)dataLevel,
+													(int)dataDisplayPtr[dataLevel],
+													(int)testCount,
 													gEndOfLine);
 					if (!ListString ((char*)gTextString3, numberChars, gOutputTextH))
 																							return (FALSE);
@@ -7802,7 +7810,7 @@ Boolean GaussianToDisplayLevels (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7886,7 +7894,7 @@ void GetDefaultPaletteSpecs (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7955,7 +7963,7 @@ SInt16 GetHistogramComputeCode (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7997,7 +8005,7 @@ Boolean GetHistogramRequiredFlag (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8049,7 +8057,7 @@ SInt16 GetMinMaxPopupCode (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8276,7 +8284,7 @@ void GetMinMaxValuesIndices (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8361,7 +8369,7 @@ SInt16 GetThematicClassForDataValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8380,7 +8388,7 @@ SInt16 GetThematicClassForDataValue (
 // Called By:	
 //
 //	Coded By:			Larry L. Biehl			Date: 10/21/2006
-//	Revised By:			Larry L. Biehl			Date: 10/22/2006	
+//	Revised By:			Larry L. Biehl			Date: 02/07/2018
 
 void GetThematicTypeMinMaxIndices (
 				SInt16								numberClassBins,
@@ -8395,7 +8403,7 @@ void GetThematicTypeMinMaxIndices (
 											//minThematicValue,
 											minThematicValueWithSignedOffset;
 
-	HistogramSpecsPtr					histogramSpecsPtr;
+	HistogramSpecsPtr					histogramSpecsPtr = NULL;
 	HistogramSummaryPtr				histogramSummaryPtr;
 
 	Handle								histogramSpecsHandle;
@@ -8454,7 +8462,7 @@ void GetThematicTypeMinMaxIndices (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8810,7 +8818,7 @@ Boolean HistogramVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8831,7 +8839,7 @@ Boolean HistogramVector (
 //
 //	Coded By:			Larry L. Biehl			Date: 04/20/1988
 //	Revised By:			Ravi S. Budruk			Date: 08/09/1988	
-//	Revised By:			Larry L. Biehl			Date: 08/31/2017
+//	Revised By:			Larry L. Biehl			Date: 07/12/2018
 
 DisplaySpecsPtr LoadMultispectralDisplaySpecs (void)
 {
@@ -9084,17 +9092,22 @@ DisplaySpecsPtr LoadMultispectralDisplaySpecs (void)
 
                }	// end "else if (gImageFileInfoPtr->instrumentCode == kLandsatMSS)
 
-            else if (gImageFileInfoPtr->instrumentCode == kSentinel2_MSI)
+            else if (gImageFileInfoPtr->instrumentCode == kSentinel2A_MSI ||
+								gImageFileInfoPtr->instrumentCode == kSentinel2B_MSI)
                {
+							// This assumes the 10 meter spatial bands
+					
 					if (useNaturalColorBandsFlag)
 						{
-						displaySpecsPtr->blueChannelNumber = 1;
+						displaySpecsPtr->blueChannelNumber = 2;
 						displaySpecsPtr->greenChannelNumber = 2;
 						displaySpecsPtr->redChannelNumber = 3;
+						if (displaySpecsPtr->pixelSize >= 16)
+							displaySpecsPtr->blueChannelNumber = 1;
 						
 						}	// end "if (useNaturalColorBandsFlag)"
 					
-					else	// !useNaturalColorBandsFlag
+					else	// use color infrared
 						{
 						displaySpecsPtr->blueChannelNumber = 3;
 						displaySpecsPtr->greenChannelNumber = 3;
@@ -9104,9 +9117,57 @@ DisplaySpecsPtr LoadMultispectralDisplaySpecs (void)
 							
 						}	// end "else !useNaturalColorBandsFlag"
 
-               }	// end "else if (gImageFileInfoPtr->instrumentCode == kSentinel2_MSI)
+               }	// end "else if (gImageFileInfoPtr->instrumentCode == kSentinel2A_MSI ...
 
-            else // gImageFileInfoPtr->instrumentCode != kSPOT && != kLandsatMSS != kSentinel2_MSI
+            else if (gImageFileInfoPtr->instrumentCode == kPeruSat)
+               {
+					if (gImageWindowInfoPtr->channelsInWavelengthOrderCode == kNotInOrder)
+						{
+						if (useNaturalColorBandsFlag)
+							{
+							displaySpecsPtr->blueChannelNumber = 3;
+							displaySpecsPtr->greenChannelNumber = 2;
+							displaySpecsPtr->redChannelNumber = 1;
+							
+							}	// end "if (useNaturalColorBandsFlag)"
+						
+						else	// !useNaturalColorBandsFlag
+							{
+							displaySpecsPtr->blueChannelNumber = 1;
+							displaySpecsPtr->greenChannelNumber = 1;
+							displaySpecsPtr->redChannelNumber = 4;
+							if (displaySpecsPtr->pixelSize >= 16)
+								displaySpecsPtr->blueChannelNumber = 2;
+								
+							}	// end "else !useNaturalColorBandsFlag"
+						
+						}	// end "if (...->channelsInWavelengthOrderCode == kNotInOrder)"
+					
+					else	// channelsInWavelengthOrderCode == kInOrder or not known
+						{
+						if (useNaturalColorBandsFlag)
+							{
+							displaySpecsPtr->blueChannelNumber = 1;
+							displaySpecsPtr->greenChannelNumber = 2;
+							displaySpecsPtr->redChannelNumber = 3;
+							
+							}	// end "if (useNaturalColorBandsFlag)"
+						
+						else	// !useNaturalColorBandsFlag
+							{
+							displaySpecsPtr->blueChannelNumber = 3;
+							displaySpecsPtr->greenChannelNumber = 3;
+							displaySpecsPtr->redChannelNumber = 4;
+							if (displaySpecsPtr->pixelSize >= 16)
+								displaySpecsPtr->blueChannelNumber = 2;
+								
+							}	// end "else !useNaturalColorBandsFlag"
+						
+						}	// end "else channelsInWavelengthOrderCode == kInOrder or ..."
+
+               }	// end "else if (gImageFileInfoPtr->instrumentCode == kPeruSat)
+
+            else // ...->instrumentCode != kSPOT && != kLandsatMSS != kSentinel2A_MSI
                {
                if (gImageWindowInfoPtr->totalNumberChannels == 4)
                   {
@@ -9135,6 +9196,45 @@ DisplaySpecsPtr LoadMultispectralDisplaySpecs (void)
                }	// end "else gImageFileInfoPtr->instrumentCode != kSPOT"
 
             }	// end "if (gImageWindowInfoPtr->totalNumberChannels == 4 || ..."
+
+         else if (gImageWindowInfoPtr->totalNumberChannels == 6 &&
+							(gImageFileInfoPtr->instrumentCode == kSentinel2A_MSI ||
+									gImageFileInfoPtr->instrumentCode == kSentinel2B_MSI))
+            {
+						// This assumes the 20 meter spatial bands
+				
+				displaySpecsPtr->blueChannelNumber = 3;
+				displaySpecsPtr->greenChannelNumber = 3;
+				displaySpecsPtr->redChannelNumber = 5;
+				if (displaySpecsPtr->pixelSize >= 16)
+					displaySpecsPtr->blueChannelNumber = 6;
+
+            }	// end "if (windowInfoPtr->totalNumberChannels == 6 ...)"
+
+         else if (gImageWindowInfoPtr->totalNumberChannels == 7 &&
+                    gImageFileInfoPtr->instrumentCode == kLandsatLC8_OLI)
+            {
+                  // Assume Landsat 8 surface reflectance
+
+            if (useNaturalColorBandsFlag)
+               {
+               displaySpecsPtr->blueChannelNumber = 3;
+               displaySpecsPtr->greenChannelNumber = 3;
+               displaySpecsPtr->redChannelNumber = 4;
+               if (displaySpecsPtr->pixelSize >= 16)
+                  displaySpecsPtr->blueChannelNumber = 2;
+               }
+               
+            else  // use color IR bands
+               {
+               displaySpecsPtr->blueChannelNumber = 4;
+               displaySpecsPtr->greenChannelNumber = 4;
+               displaySpecsPtr->redChannelNumber = 5;
+               if (displaySpecsPtr->pixelSize >= 16)
+                  displaySpecsPtr->blueChannelNumber = 3;
+               }
+
+            }	// end "if (windowInfoPtr->totalNumberChannels == 7 && ..."
 
          else if (gImageWindowInfoPtr->totalNumberChannels == 8 &&
                     gImageFileInfoPtr->instrumentCode != kLandsatLC8_OLI_TIRS &&
@@ -9211,6 +9311,32 @@ DisplaySpecsPtr LoadMultispectralDisplaySpecs (void)
                }
 
             }	// end "if (windowInfoPtr->totalNumberChannels == 12)"
+
+         else if (gImageWindowInfoPtr->totalNumberChannels == 13 &&
+							(gImageFileInfoPtr->instrumentCode == kSentinel2A_MSI ||
+									gImageFileInfoPtr->instrumentCode == kSentinel2B_MSI))
+            {
+						// This assumes a combined 10, 20 and 60 meter spatial bands
+						
+            if (useNaturalColorBandsFlag)
+					{
+               displaySpecsPtr->blueChannelNumber = 3;
+               displaySpecsPtr->greenChannelNumber = 3;
+               displaySpecsPtr->redChannelNumber = 4;
+               if (displaySpecsPtr->pixelSize >= 16)
+                  displaySpecsPtr->blueChannelNumber = 2;
+               }
+               
+            else	// use color IR bands
+               {
+               displaySpecsPtr->blueChannelNumber = 4;
+               displaySpecsPtr->greenChannelNumber = 4;
+               displaySpecsPtr->redChannelNumber = 8;
+               if (displaySpecsPtr->pixelSize >= 16)
+                  displaySpecsPtr->blueChannelNumber = 3;
+               }
+
+            }	// end "if (windowInfoPtr->totalNumberChannels == 13 ...)"
 
          else if (gImageWindowInfoPtr->totalNumberChannels == 15)
             {
@@ -9397,7 +9523,10 @@ DisplaySpecsPtr LoadMultispectralDisplaySpecs (void)
 
          if (gImageWindowInfoPtr->dataTypeCode == gDisplaySpecsDefault.dataTypeCode &&
 					gImageWindowInfoPtr->numberBytes == gDisplaySpecsDefault.numberBytes &&
-					gImageFileInfoPtr->signedDataFlag == gDisplaySpecsDefault.signedDataFlag &&
+					gImageFileInfoPtr->signedDataFlag ==
+															gDisplaySpecsDefault.signedDataFlag &&
+					gImageWindowInfoPtr->channelsInWavelengthOrderCode ==
+										gDisplaySpecsDefault.channelsInWavelengthOrderCode &&
 					gImageWindowInfoPtr->totalNumberChannels == gDisplaySpecsDefault.numberChannels)
             {
             if (gDisplaySpecsDefault.lastDisplayType == k1_ChannelThematicDisplayType)
@@ -9552,7 +9681,7 @@ DisplaySpecsPtr LoadMultispectralDisplaySpecs (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -10012,9 +10141,10 @@ Boolean MinMaxEnhancementDialog (
 		CMDisplayMinMaxDialog* dialogPtr = NULL;
 
 		//dialogPtr = new CMDisplayMinMaxDialog ((wxWindow*)gActiveImageViewCPtr->m_frame);
-		dialogPtr = new CMDisplayMinMaxDialog ((wxWindow*)GetMainFrame ());
-
-		returnFlag = dialogPtr-> DoDialog (channelsPtr,
+		//dialogPtr = new CMDisplayMinMaxDialog ((wxWindow*)GetMainFrame ());
+      dialogPtr = new CMDisplayMinMaxDialog (NULL);
+      
+		returnFlag = dialogPtr->DoDialog (channelsPtr,
 														rgbColors,
 														displayType,
 														numberLevels,
@@ -10032,7 +10162,7 @@ Boolean MinMaxEnhancementDialog (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -10551,7 +10681,7 @@ void MinMaxEnhancementDialogSetSelection (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -10609,7 +10739,7 @@ void SetImageWTitle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -10628,7 +10758,7 @@ void SetImageWTitle (
 // Called By:			DisplayMultispectralImage in SDisMulc.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/05/2006
-//	Revised By:			Larry L. Biehl			Date: 06/25/2012
+//	Revised By:			Larry L. Biehl			Date: 06/29/2018
 
 void SaveDisplayStructureSettings (
 				DisplaySpecsPtr					displaySpecsPtr,
@@ -10689,6 +10819,8 @@ void SaveDisplayStructureSettings (
 		gDisplaySpecsDefault.redChannelNumber = displaySpecsPtr->redChannelNumber;
 		gDisplaySpecsDefault.greenChannelNumber = displaySpecsPtr->greenChannelNumber;
 		gDisplaySpecsDefault.blueChannelNumber = displaySpecsPtr->blueChannelNumber;
+		gDisplaySpecsDefault.channelsInWavelengthOrderCode =
+											imageWindowInfoPtr->channelsInWavelengthOrderCode;
 		gDisplaySpecsDefault.invertValuesFlag[0] = displaySpecsPtr->invertValuesFlag[0];
 		gDisplaySpecsDefault.invertValuesFlag[1] = displaySpecsPtr->invertValuesFlag[1];
 		gDisplaySpecsDefault.invertValuesFlag[2] = displaySpecsPtr->invertValuesFlag[2];
@@ -10706,7 +10838,7 @@ void SaveDisplayStructureSettings (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -10756,7 +10888,7 @@ void SetUpMinMaxPopUpMenu (
 	#endif	// defined multispec_win 
 
 	#if defined multispec_lin
-		wxChoice* comboBoxPtr = (wxChoice*)(dialogPtr->FindWindow (ID3C_MinMaxValues));
+		wxComboBox* comboBoxPtr = (wxComboBox*)(dialogPtr->FindWindow (ID3C_MinMaxValues));
 
 		if (comboBoxPtr != NULL) 
 			{
@@ -10775,7 +10907,7 @@ void SetUpMinMaxPopUpMenu (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -10854,7 +10986,7 @@ void UnSetDialogItemDrawRoutine (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11006,7 +11138,7 @@ void UpdateDialogChannelItems (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11359,7 +11491,7 @@ void UpdateEnhancementMinMaxes (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11442,7 +11574,7 @@ void UpdateMinMaxValueIndices (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11503,7 +11635,7 @@ void UpdatePopUpDisplayTypeMenu (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11522,7 +11654,7 @@ void UpdatePopUpDisplayTypeMenu (
 // Called By:	
 //
 //	Coded By:			Larry L. Biehl			Date: 10/02/2006
-//	Revised By:			Larry L. Biehl			Date: 03/28/2017	
+//	Revised By:			Larry L. Biehl			Date: 02/27/2018
 
 void UpdateThematicTypeMinMaxes (
 				SInt16								numberClassBins,
@@ -11537,7 +11669,7 @@ void UpdateThematicTypeMinMaxes (
 											minValue,
 											newMaxValue;
 
-   HistogramSpecsPtr					histogramSpecsPtr;
+   HistogramSpecsPtr					histogramSpecsPtr = NULL;
    HistogramSummaryPtr				histogramSummaryPtr;
 
    Handle								histogramSpecsHandle;

@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			12/21/2017
+//	Revision date:			12/07/2018
 //
 //	Language:				C
 //
@@ -326,7 +326,7 @@ SInt16	 			UpdateSeparabilityLists (
 
                                                                                 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -395,7 +395,7 @@ double EFBhattacharyya (
 
                                                                                 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -589,7 +589,7 @@ void CalculateSeparabilityControl (void)
 						channelCombinationsPtr[channelCombinationSet] * 
 										gSeparabilitySpecsPtr->numberContiguousPerGroup;
 				
-		sprintf ((char*)gTextString2, "channel feature\0"); 
+		sprintf ((char*)gTextString2, "channel feature"); 
 		gTextString2[7] = kNullTerminator;
 		
 		sprintf ((char*)gTextString, 
@@ -699,7 +699,7 @@ void CalculateSeparabilityControl (void)
 
                                                                                 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -720,7 +720,7 @@ void CalculateSeparabilityControl (void)
 // Called By:			SeparabilityDialog   in separability.c
 //
 //	Coded By:			Larry L. Biehl			Date: 11/02/1989
-//	Revised By:			Larry L. Biehl			Date: 05/04/1998
+//	Revised By:			Larry L. Biehl			Date: 02/23/2018
 
 Boolean ChannelCombinationsDialog (
 				UInt16*								numberOutputChannelCombinationsPtr, 
@@ -731,7 +731,7 @@ Boolean ChannelCombinationsDialog (
 				Boolean								featureTransformationFlag)
 
 {
-	Boolean								returnFlag;
+	Boolean								returnFlag = FALSE;
 	
 	#if defined multispec_mac
 		Rect									theBox;
@@ -791,7 +791,6 @@ Boolean ChannelCombinationsDialog (
 					// Handle modal dialog selections for one column channel 			
 					// combination list.																
 			
-			returnFlag = FALSE;
 			if (gMemoryError == noErr)
 				{
 				UInt32 numberOutputChannelCombinations = 
@@ -950,9 +949,9 @@ void ChannelCombinationsDialogOK (
 Boolean ChannelCombinationsDialogLoadList (
 				DialogPtr							dialogPtr,
 				#if defined multispec_lin
-					wxListBox* dialogListHandle,
+					wxListBox*							dialogListHandle,
 				#else
-					ListHandle dialogListHandle,
+					ListHandle							dialogListHandle,
 				#endif
 				UInt16								numberOutputChannelCombinations, 
 				UInt16* 								channelCombinationsPtr, 
@@ -1042,7 +1041,7 @@ Boolean ChannelCombinationsDialogLoadList (
 
                                                                                 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1298,7 +1297,7 @@ SInt16 ComputeSeparabilityForAllChannelCombinations (
 
                                                                                  
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1632,7 +1631,7 @@ SInt16 ComputeSeparabilityForStepChannelCombinations (
 
                                                                                 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1844,7 +1843,7 @@ SInt16 ComputeSeparabilityForAllClassCombinations (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1949,7 +1948,7 @@ double CovarianceBhattacharyya (
 
                                                                                 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2065,7 +2064,7 @@ double Divergence (
 
 #if defined multispec_mac                                                              
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2107,7 +2106,7 @@ pascal void DrawChannelCombinationsPopUp (
 
                                                                                 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2213,7 +2212,7 @@ SInt32 GetCombinationLimit (
 
                                                                                 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2318,7 +2317,7 @@ UInt32 GetMaxCombinationSelected (
 
                                                                                 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2385,7 +2384,7 @@ Boolean GetNextCombination (
 
                                                                                 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2479,7 +2478,7 @@ Boolean GetNextStepCombination (
 
 /*                                                                               
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2533,7 +2532,7 @@ double GetProductVectorValues (
 
                                                                                 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2591,7 +2590,7 @@ Boolean InvertVectorValues (
 
                                                                                 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2806,8 +2805,8 @@ SInt16 ListSeparabilityMeasurements (
 		   
 			for (channel=0; channel<numberSeparabilityChannels; channel++)
 				{
-				sprintf (stringPtr1, "%*hd", channelNumberWidth,
-					gProjectInfoPtr->channelsPtr[channelSetsPtr[channel]] + 1);
+				sprintf (stringPtr1, "%*d", channelNumberWidth,
+					(int)(gProjectInfoPtr->channelsPtr[channelSetsPtr[channel]]+1));
 				stringPtr1 += channelNumberWidth;
 				
 				}	// end "for (channel=0; ..." 
@@ -2963,7 +2962,7 @@ SInt16 ListSeparabilityMeasurements (
 
                                                                                 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3150,7 +3149,7 @@ Boolean ListSeparabilityTitleLine (
 
                                                                                 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3236,7 +3235,7 @@ SInt32 LoadAllChannelCombinationsVector (
 
                                                                                 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3286,7 +3285,7 @@ void LoadChannelCombinationsVector (
 
                                                                                 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3611,7 +3610,7 @@ Boolean LoadSeparabilitySpecs (void)
 
                                                                                 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3865,7 +3864,7 @@ SInt16  LoadSeparabilityStatistics (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4033,7 +4032,7 @@ double MeanBhattacharyya (
 
                                                                                 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4149,7 +4148,7 @@ double NonCovarianceBhattacharyya (
 
                                                                                 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4167,7 +4166,7 @@ double NonCovarianceBhattacharyya (
 // Called By:	
 //
 //	Coded By:			Larry L. Biehl			Date: 09/10/1989
-//	Revised By:			Larry L. Biehl			Date: 03/06/1998	
+//	Revised By:			Larry L. Biehl			Date: 12/07/2018
 
 void SeparabilityControl (void)
 
@@ -4646,6 +4645,8 @@ void SeparabilityControl (void)
 		
 		UnlockProjectWindowInfoHandles ();
 		
+		gOperationCanceledFlag = FALSE;
+		
 		}	// end "if (gProjectInfoPtr != NULL && ..." 
 
 }	// end "SeparabilityControl" 
@@ -4653,7 +4654,7 @@ void SeparabilityControl (void)
 
                                                                                 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5886,7 +5887,7 @@ void SeparabilityDialogUpdateMaxChannelsPerGroup (
 
                                                               
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6014,7 +6015,7 @@ void SeparabilityDialogCheckFeatureTransformation (
 
                                                                                 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6573,7 +6574,7 @@ void SeparabilityListDialogOK (
 
                                                                                 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6806,7 +6807,7 @@ Boolean SetupSeparabilityDistanceMemory (
 
                                                                                 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6954,7 +6955,7 @@ Boolean SetupSeparabilityStatMemory (
 
                                                                                 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7019,7 +7020,7 @@ double TransformedDivergence (
 
                                                                                  
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

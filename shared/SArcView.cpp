@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			01/05/2018
+//	Revision date:			05/16/2018
 //
 //	Language:				C
 //
@@ -290,7 +290,7 @@ Boolean 						WindowBoundingAreaAndRectIntersect (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -475,7 +475,7 @@ void AddCurrentVectorOverlaysToImageWindow (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -561,7 +561,7 @@ SInt16 AddToWindowOverlayList (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -827,7 +827,7 @@ SInt16 CheckIfOverlayFileLoaded (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -967,7 +967,7 @@ Boolean CheckIfVectorOverlaysIntersectImage (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1033,7 +1033,7 @@ Boolean CheckIfOverlayMayBeLatLong (
 
 #if include_gdal_capability
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1137,7 +1137,7 @@ SInt16 CheckIfprjFileDefinesLatLong (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1294,7 +1294,7 @@ SInt16 CheckIfOverlayNeedsReloaded (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1337,7 +1337,7 @@ void CloseAllVectorOverlayFiles (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1460,7 +1460,7 @@ void CloseOverlayFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1525,7 +1525,7 @@ void ClearVectorOverlay (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017
+//								 Copyright (1988-2018
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1571,7 +1571,7 @@ void ConvertLatLongPointToMapPoint (
 // This routine is now left out since code is now not being generated for pre-powerpc
 // processors
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1624,7 +1624,7 @@ Boolean ConvertLatLongRectToMapRect (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017
+//								 Copyright (1988-2018
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1641,7 +1641,7 @@ Boolean ConvertLatLongRectToMapRect (
 // Called By:			CreateThematicSupportFile in SFileIO.cpp
 //							
 //	Coded By:			Larry L. Biehl			Date: 05/15/2011
-//	Revised By:			Larry L. Biehl			Date: 04/29/2013	
+//	Revised By:			Larry L. Biehl			Date: 05/16/2018
 
 Boolean CreateCLRSupportFile (
 				CMFileStream*						trailerStreamPtr, 
@@ -1794,6 +1794,7 @@ Boolean CreateCLRSupportFile (
 				// Write buffer of data	to trailer file.								
 					
 		count = (SInt32)(ioTempBufferPtr - (StringPtr)ioBufferPtr);
+		count = MIN (count, numberBytes);
 		errCode = MWriteData (trailerStreamPtr, &count, ioBufferPtr, kErrorMessages);
 						
 		}	// end "if (continueFlag && errCode == noErr) 
@@ -1809,7 +1810,7 @@ Boolean CreateCLRSupportFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1872,7 +1873,7 @@ void DisplayNoIntersectionAlert (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2095,7 +2096,7 @@ void DoShowOverlaySelection (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2694,7 +2695,7 @@ void DrawArcViewShapes (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2726,7 +2727,7 @@ void* GetFileNamePPointerFromShapeInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2769,7 +2770,7 @@ void* GetFileNamePPointerFromShapeInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2813,7 +2814,7 @@ CMFileStream* GetFileStreamPointer (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2871,7 +2872,7 @@ void GetLastVectorColorAndWidth (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3124,7 +3125,7 @@ Boolean GetArcViewMapInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3163,7 +3164,7 @@ Boolean GetMemoryForVectorData (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3232,7 +3233,7 @@ UInt32 GetShapeFileNumberRecordsAndType (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3277,7 +3278,7 @@ void InitializeOverlay (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3448,7 +3449,7 @@ void ListNonIntersectionMessage (
 
                        
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017
+//								 Copyright (1988-2018
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3691,7 +3692,7 @@ Boolean OverlayControlDialog (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3760,7 +3761,7 @@ void OverlayDialogInitialize (
 									
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017
+//								 Copyright (1988-2018
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3826,7 +3827,7 @@ void OverlayDialogOK (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017
+//								 Copyright (1988-2018
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3845,7 +3846,7 @@ void OverlayDialogOK (
 //							LoadThematicClasses in SSaveWrt.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 05/10/2011
-//	Revised By:			Larry L. Biehl			Date: 03/15/2017
+//	Revised By:			Larry L. Biehl			Date: 02/28/2018
 
 Boolean ReadArcViewClassNames (
 				FileInfoPtr							fileInfoPtr, 
@@ -3869,8 +3870,9 @@ Boolean ReadArcViewClassNames (
 	
 	UInt16								*classSymbolPtr;
 	
-	SInt32								classNumber,
-											classSymbolIndex,
+	int									classNumber;
+	
+	SInt32								classSymbolIndex,
 											numberCharacters;
 	
 	UInt32								numberClasses,
@@ -4165,7 +4167,7 @@ Boolean ReadArcViewClassNames (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017
+//								 Copyright (1988-2018
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4183,7 +4185,7 @@ Boolean ReadArcViewClassNames (
 // Called By:			LoadColorSpecTable in SPalette.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/11/2011
-//	Revised By:			Larry L. Biehl			Date: 03/15/2017	
+//	Revised By:			Larry L. Biehl			Date: 02/28/2018
 
 Boolean ReadArcViewColorPalette (
 									 ColorSpec*							colorSpecPtr, 
@@ -4207,7 +4209,7 @@ Boolean ReadArcViewColorPalette (
 	
 	UCharPtr								inputStringPtr = NULL;
 	
-	SInt32								classNumber;
+	int									classNumber;
 	
 	UInt32								index,
 											maxNumberClrTableClasses,
@@ -4386,7 +4388,7 @@ Boolean ReadArcViewColorPalette (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017
+//								 Copyright (1988-2018
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4412,7 +4414,7 @@ Boolean ReadArcViewColorPalette (
 // Called By:			LoadThematicDisplaySpecs in SDisThem.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 05/10/2011
-//	Revised By:			Larry L. Biehl			Date: 07/26/2017
+//	Revised By:			Larry L. Biehl			Date: 02/28/2018
 
 Boolean ReadArcViewGroups (
 				FileInfoPtr							inputFileInfoPtr,
@@ -4446,14 +4448,15 @@ Boolean ReadArcViewGroups (
 											
 	UInt16								*classSymbolPtr;
 	
+	int									classNumber,
+											groupNumber;
+	
 	CTabHandle							cTableHandle;
 	Handle								groupNameHandle,
 											groupTablesHandle;
 	
-	SInt32								classNumber,
-											firstGroupClassNumber,
+	SInt32								firstGroupClassNumber,
 											groupCount,
-											groupNumber,
 											maxNumberClasses,
 											numberCharacters;
 	
@@ -4606,7 +4609,7 @@ Boolean ReadArcViewGroups (
 				{
 				int numberChars2 = sprintf ((char*)gTextString3,
 													" inputFileInfoPtr->numberBins: %d%s",
-													inputFileInfoPtr->numberBins,
+													(unsigned int)inputFileInfoPtr->numberBins,
 													gEndOfLine);
 				ListString ((char*)gTextString3, numberChars2, gOutputTextH);
 
@@ -5015,7 +5018,7 @@ Boolean ReadArcViewGroups (
 			
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5627,7 +5630,7 @@ SInt16 ReadArcViewHeader (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5871,7 +5874,7 @@ Boolean ReadArcViewWorldFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6468,7 +6471,7 @@ SInt16 ReadArcViewShapeFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7162,7 +7165,7 @@ SInt16 ReadArcViewShapeHeader (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7183,7 +7186,7 @@ SInt16 ReadArcViewShapeHeader (
 // Called By:			CheckImageHeader in SOpnImag.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 02/27/2009
-//	Revised By:			Larry L. Biehl			Date: 09/01/2017
+//	Revised By:			Larry L. Biehl			Date: 02/26/2018
 
 void ReadGTOPO30PrjFile (
 				FileInfoPtr 						fileInfoPtr,
@@ -7216,6 +7219,7 @@ void ReadGTOPO30PrjFile (
 	
 		
 	errCode = noErr;
+	mapProjectionInfoPtr = NULL;
 	
 	fileStreamPtr = GetFileStreamPointer (fileInfoPtr);
 			
@@ -7278,7 +7282,7 @@ void ReadGTOPO30PrjFile (
 			fileInfoPtr->mapProjectionHandle = GetMapProjectionHandle ();
 		
 		if (fileInfoPtr->mapProjectionHandle != NULL)
-			{ 								
+			{
 			mapProjectionInfoPtr = (MapProjectionInfoPtr)
 						GetHandleStatusAndPointer (
 											fileInfoPtr->mapProjectionHandle,
@@ -7544,7 +7548,7 @@ void ReadGTOPO30PrjFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7620,7 +7624,7 @@ void ReleaseShapeFileMemory (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7673,7 +7677,7 @@ Boolean WindowBoundingAreaAndRectIntersect (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7736,7 +7740,7 @@ Boolean WindowBoundingAreaAndRectIntersect (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7788,7 +7792,7 @@ void SetLastVectorColorAndWidth (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

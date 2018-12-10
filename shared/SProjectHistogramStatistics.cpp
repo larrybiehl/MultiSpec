@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			01/05/2018
+//	Revision date:			10/22/2018
 //
 //	Language:				C
 //
@@ -36,13 +36,9 @@
 //								UInt32	 			stci_d
 //								UInt32 				stc_d
 //
-//	Include files:			"MultiSpecHeaders"
-//								"multiSpec.h"
-//
 //------------------------------------------------------------------------------------
 
 #include "SMultiSpec.h" 
-#include	"SGraphView.h" 
 
 #if defined multispec_lin
    #include "LGraphDoc.h"
@@ -53,6 +49,8 @@
 #endif  
 	
 #if defined multispec_mac || defined multispec_mac_swift
+	#include	"MGraphView.h"
+
 	#define IDC_ClassesRadio					4
 	#define IDC_FieldsRadio						5
 	#define IDC_ChannelsPrompt					11
@@ -69,6 +67,8 @@
 #endif	// defined multispec_mac || defined multispec_mac_swift
   
 #if defined multispec_win
+	#include	"WGraphView.h"
+	
 	#include "WMultiSpec.h"
 	#include "WStatisticsHistogramDialog.h"
 	#include "WGraphDoc.h"
@@ -262,7 +262,7 @@ UInt32 	stc_d (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -335,7 +335,7 @@ Boolean CheckIfCanMatrixChannels (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -417,8 +417,8 @@ Boolean CheckSizeOfStatHistogramGraphVectors (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
-//								c Purdue Research Foundation
+//								 Copyright (1988-2018)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void ForceStatHistogramCodeResourceLoad
@@ -458,8 +458,8 @@ void ForceStatHistogramCodeResourceLoad (void)
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
-//								c Purdue Research Foundation
+//								 Copyright (1988-2018)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		double GetBinIndexForStatDataValue
@@ -510,8 +510,8 @@ UInt32 GetBinIndexForStatDataValue (
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
-//								c Purdue Research Foundation
+//								 Copyright (1988-2018)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		double GetDataValueForStatBinIndex
@@ -574,7 +574,7 @@ double GetDataValueForStatBinIndex (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -649,7 +649,7 @@ void GetEstimatedTransformedChannelMinMaxes (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -738,7 +738,7 @@ void GetSumOfClassFieldColumns (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -850,7 +850,7 @@ void GetTransformedChannelMinMaxes (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -869,7 +869,7 @@ void GetTransformedChannelMinMaxes (
 //							HistogramProjectStats
 //
 //	Coded By:			Larry L. Biehl			Date: 04/02/1990
-//	Revised By:			Larry L. Biehl			Date: 01/29/2006	
+//	Revised By:			Larry L. Biehl			Date: 02/28/2018
 
 SInt16 HistogramClassStats (
 				FileIOInstructionsPtr			fileIOInstructionsPtr, 
@@ -969,7 +969,7 @@ SInt16 HistogramClassStats (
 				sprintf ((char*)&gTextString[index], 
 								"%3d of %3d", 
 								channelSet+1, 
-								numberChannelSets);
+								(unsigned int)numberChannelSets);
 				gTextString[0] += 10; 
 						
 				LoadDItemString (gStatusDialogPtr, 
@@ -1213,7 +1213,7 @@ SInt16 HistogramClassStats (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1759,7 +1759,7 @@ SInt16 HistogramFieldStats (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1853,8 +1853,8 @@ SInt16 HistogramProjectStats (
 		
 					sprintf ((char*)&gTextString[index], 
 									"%3d of %3d", 
-									channelSet+1, 
-									numberChannelSets);
+									(int)(channelSet+1),
+									(int)numberChannelSets);
 					gTextString[0] += 10; 
 							
 					LoadDItemString (gStatusDialogPtr, 
@@ -1972,7 +1972,7 @@ SInt16 HistogramProjectStats (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1991,7 +1991,7 @@ SInt16 HistogramProjectStats (
 // Called By:			StatisticsWControlEvent
 //
 //	Coded By:			Larry L. Biehl			Date: 04/02/1990
-//	Revised By:			Larry L. Biehl			Date: 02/23/2016
+//	Revised By:			Larry L. Biehl			Date: 04/06/2018
 
 SInt16 HistogramStatsControl (
 				SInt16								statsWindowMode, 
@@ -2222,30 +2222,29 @@ SInt16 HistogramStatsControl (
 				if (continueFlag && 
 									gStatHistogramSpecsPtr->histogramOutputCode == kPlotData)
 					{
-					#if defined __Not_Framework
+							// Open a graph window 
+								
+					#if defined multispec_mac
 						graphViewCPtr = CreateGraphWindow ();
-					#endif	// defined __Not_Framework
+					#endif	// defined multispec_mac
 					
-					#if !defined __Not_Framework                
-								// open a graph window 
-						#ifdef multispec_win
-							CMultiDocTemplate* graphDocTemplatePtr = 
-									((CMultiSpecApp*)AfxGetApp ())->GetGraphDocTemplate ();
-							CMGraphDoc* graphDocCPtr = 
-									(CMGraphDoc*)graphDocTemplatePtr->OpenDocumentFile (NULL);
-							graphViewCPtr = graphDocCPtr->GetGraphViewCPtr ();
-						#endif
+					#if defined multispec_win
+						CMultiDocTemplate* graphDocTemplatePtr = 
+								((CMultiSpecApp*)AfxGetApp ())->GetGraphDocTemplate ();
+						CMGraphDoc* graphDocCPtr = 
+								(CMGraphDoc*)graphDocTemplatePtr->OpenDocumentFile (NULL);
+						graphViewCPtr = graphDocCPtr->GetGraphViewCPtr ();
+					#endif	// defined multispec_win
 
-						#ifdef multispec_lin
-							wxDocument*  graph_doc =
-												((CMultiSpecApp*)wxTheApp)->ActivateGraphView ();
-		                
-							graphViewCPtr = ((CMGraphDoc*)graph_doc)->GetGraphViewCPtr ();
-                     
-                     // Assign window ID for Histogram window
-                     ((wxWindow*)graphViewCPtr)->SetId (GR_HISTOGRAM);                     
-						#endif
-					#endif	// !defined __Not_Framework
+					#if defined multispec_lin
+						wxDocument*  graph_doc =
+											((CMultiSpecApp*)wxTheApp)->ActivateGraphView ();
+						 
+						graphViewCPtr = ((CMGraphDoc*)graph_doc)->GetGraphViewCPtr ();
+						
+								// Assign window ID for Histogram window
+						((wxWindow*)graphViewCPtr)->SetId (GR_HISTOGRAM);                     
+					#endif	// defined multispec_lin
 					
 					continueFlag = (graphViewCPtr != NULL);
 					
@@ -2439,6 +2438,7 @@ SInt16 HistogramStatsControl (
 					
 					continueFlag = graphViewCPtr->FinishGraphRecordSetUp (
 								NULL,
+								0,
 								(SInt32)gStatHistogramSpecsPtr->initialNumberHistogramDataBins,
 								(SInt32)gStatHistogramSpecsPtr->numberVectors,
 								gStatHistogramSpecsPtr->numberFeatures,
@@ -2673,6 +2673,8 @@ SInt16 HistogramStatsControl (
 							}	// end "if (gGraphRecordPtr->xVector.numberPoints < ..."
 							
 						VerifyNeedForSelectVectorControl (gGraphRecordPtr->window);
+						
+						GetGraphLabels (gGraphRecordPtr);
 							
 								// Now allow the graph to be drawn.
 														 
@@ -2743,7 +2745,7 @@ SInt16 HistogramStatsControl (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2952,7 +2954,7 @@ void InitializeStatHistogramBuffers (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3331,7 +3333,7 @@ Boolean ListStatHistogramValues (
 							value = columnIndex + 1;
 							
 						sprintf (
-								&gCharBufferPtr1[charIndex], "\t%*d", numberFieldSize, value);
+								&gCharBufferPtr1[charIndex], "\t%*d", numberFieldSize, (int)value);
 						charIndex += numberFieldSize + 1;
 					
 						}	// end "for (columnIndex=0; columnIndex<..." 
@@ -3616,7 +3618,7 @@ Boolean ListStatHistogramValues (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3711,7 +3713,7 @@ Boolean ListChannelInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3888,7 +3890,7 @@ Boolean LoadClassMeanAndStdDevData (
 					if (_isnan (*outputVectorPtr))
 				#endif	// defined multispec_win  	 	
             #if defined multispec_lin
-					if (isnan (*outputVectorPtr))
+                  if (std::isnan (*outputVectorPtr))
 				#endif
 						{
 						continueFlag = FALSE;
@@ -3960,7 +3962,7 @@ Boolean LoadClassMeanAndStdDevData (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4153,7 +4155,7 @@ Boolean LoadGraphData (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4198,7 +4200,7 @@ void LoadListOfClassFieldNames (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4270,7 +4272,7 @@ void LoadProjectClassFieldNames (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4347,7 +4349,7 @@ Str31* LoadClassClassFieldNames (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4585,7 +4587,7 @@ Boolean LoadStatHistogramSpecs (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4687,7 +4689,7 @@ void SetSomeStatHistogramGraphParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4789,7 +4791,7 @@ void SetStatHistogramGraphTitles (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5087,7 +5089,7 @@ Boolean SetupStatHistogramMemory (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5107,7 +5109,7 @@ Boolean SetupStatHistogramMemory (
 // Called By:			HistogramStatsControl
 //
 //	Coded By:			Larry L. Biehl			Date: 04/09/1990
-//	Revised By:			Larry L. Biehl			Date: 12/16/2016
+//	Revised By:			Larry L. Biehl			Date: 10/22/2018
 	
 Boolean StatHistogramDialog (
 				FileInfoPtr							fileInfoPtr)
@@ -5584,7 +5586,8 @@ Boolean StatHistogramDialog (
    #if defined multispec_lin
       CMStatHistogramSpecsDlg*		dialogPtr = NULL;
       
-      dialogPtr = new CMStatHistogramSpecsDlg ((wxWindow*)GetMainFrame ());
+      //dialogPtr = new CMStatHistogramSpecsDlg ((wxWindow*)GetMainFrame ());
+      dialogPtr = new CMStatHistogramSpecsDlg (NULL);
 			                  
 	   returnFlag = dialogPtr->DoDialog (gStatHistogramSpecsPtr, fileInfoPtr);
 		                       

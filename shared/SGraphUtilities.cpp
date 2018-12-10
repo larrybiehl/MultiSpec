@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -12,7 +12,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			12/21/2017
+//	Revision date:			11/20/2018
 //
 //	Language:				C
 //
@@ -47,12 +47,6 @@
 //								void					LoadGraphYVector2
 //								void 					SetGraphWindowTitle
 //								void 					UpdateGraphControls
-//
-//	Diagram of MultiSpec routine calls for the routines in the file.
-//
-//	Include files:			"MultiSpecHeaders"
-//								"multiSpec.h"
-//
 /*
 	int numberChars = sprintf ((char*)gTextString3,
 			" SGraphUtilities:LoadGraphXVector (xDataMin, xDataMax): %f, %f%s",
@@ -72,22 +66,18 @@
 	#include "LMultiSpec.h" 
    #include "SGraphic.h"
    //#include "SProtype.h"
-   #include <wx/evtloop.h>
-   
-						
-	extern void		GetGraphWindowTitle (
-							WindowPtr							windowPtr,
-							UCharPtr								titleStringPtr);
+   #include "wx/evtloop.h"
+   #include "SPrototypes.h"
 #endif	// defined multispec_lin
 	
 #if defined multispec_mac || defined multispec_mac_swift
-	#include	"SGraphView.h"   
+	#include	"MGraphView.h"
 #endif	// defined multispec_mac || defined multispec_mac_swift
                             
 #if defined multispec_win                 
 	//#include	"CDatFile.h"
 	#include "WMultiSpec.h"
-	#include	"SGraphView.h" 
+	#include	"WGraphView.h" 
 	#include	"WGraphDoc.h" 
 	#include	"WGraphFrame.h"	 
 #endif	// defined multispec_win
@@ -98,28 +88,7 @@
 #define	kYAxis			2
 #define	kBothXYAxes		3	
 
-
-extern void				SetGraphMinMax (
-								GraphPtr								graphRecordPtr,
-								SInt16								axisCode);		
-
-extern void				UpdateGraphScales (
-								Handle								graphRecordHandle);
-
-extern double			ConvertToScientificFormat (
-								double								value, 
-								SInt32*								base10ExponentPtr);		
-
-extern void				MSetGraphWindowTitle (
-								CMGraphView*						graphViewCPtr,
-								StringPtr							titleStringPtr);
-
-extern void				GetWindowTitle (
-								WindowPtr							windowPtr,
-								UCharPtr								titleStringPtr);		
-
-extern WindowPtr		GetSelectionGraphImageWindow (
-								CMGraphView*						graphViewCPtr);
+#define	kLeftEdgeSpace	10
 
 
 																															
@@ -133,9 +102,6 @@ void 			DrawGraphLegend (
 					GraphPtr								graphRecPtr);
 
 void			DrawGraphTitle (
-					GraphPtr								graphRecPtr);
-
-void			GetGraphLabels (
 					GraphPtr								graphRecPtr);
 
 void			GetGraphTitle (
@@ -155,37 +121,26 @@ double 		GetUserHistogramBinWidth (
 					double*								histogramBinWidthPtr,
 					double								xMin,
 					double								xMax);
-
-void 			GraphWControlEvent (
-					ControlHandle						theControl, 
-					WindowPtr							windowPtr, 
-					Point									location, 
-					SInt16								partCode);
-					
-void 			InvalidateGraphWindow (
-					WindowPtr							windowPtr, 
-					SInt16								areaCode);	
-
-void 			SetGraphMinMax (
-					Handle								windowInfoHandle,
-					SInt16								axisCode);			
-
-void 			SetXGraphScale (
-					GraphPtr								graphRecordPtr);		
-
-void 			SetYGraphScale (
-					GraphPtr								graphRecordPtr);
 					
 void 			SetLikeWindowMinMax (
 					WindowPtr							imageWindowPtr,
 					double								min,
 					double								max,
 					double								interval);
+
+void 			SetXGraphScale (
+					GraphPtr								graphRecordPtr);		
+
+void 			SetYGraphScale (
+					GraphPtr								graphRecordPtr);
+
+void			UpdateSelectionGraphXAxisMinMax (
+					GraphPtr								graphPtr);
  
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -203,11 +158,11 @@ void 			SetLikeWindowMinMax (
 //
 // Value Returned:	None
 // 
-// Called By:			CMGraphView::FinishGraphRecordSetUp in SGrafVew.cpp
-//							ShowGraphWindowSelection in SSelGraf.cpp
+// Called By:			CMGraphView::FinishGraphRecordSetUp in SGraphView.cpp
+//							ShowGraphWindowSelection in SSelectionGraph.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/09/1991
-//	Revised By:			Larry L. Biehl			Date: 02/08/2006			
+//	Revised By:			Larry L. Biehl			Date: 06/29/2018
 
 Boolean CheckGraphVectorsSize (
 				GraphPtr								graphRecordPtr, 
@@ -223,6 +178,8 @@ Boolean CheckGraphVectorsSize (
 											numberStatVariables,
 											xVectorSize,
 											yVectorSize;
+
+	SInt16								processorCode;
 									
 	Boolean								changedFlag,
 											continueFlag;
@@ -232,6 +189,7 @@ Boolean CheckGraphVectorsSize (
 			
 	continueFlag = FALSE;
 	error = 0;
+	processorCode = graphRecordPtr->processorCode; 
 
 			// Check input variables.													
 			
@@ -239,32 +197,34 @@ Boolean CheckGraphVectorsSize (
 		{
 		continueFlag = TRUE;
 		
-		if (gProcessorCode == kBiPlotDataProcessor)
+		if (processorCode == kBiPlotDataProcessor)
 			{
 			xVectorSize = requestedLength;
 			yVectorSize = requestedLength;
 			
-			}	// end "if (gProcessorCode == kBiPlotDataProcessor)"
+			}	// end "if (processorCode == kBiPlotDataProcessor)"
 			
-		else if (gProcessorCode == kHistogramStatsProcessor)
+		else if (processorCode == kHistogramStatsProcessor)
 			{
 			xVectorSize = graphRecordPtr->xVector.size;
 			yVectorSize = graphRecordPtr->xVector.size;
 			
 			graphRecordPtr->xVector.size = 0;
 			
-			}	// end "else if (gProcessorCode == kHistogramStatsProcessor)" 
+			}	// end "else if (processorCode == kHistogramStatsProcessor)" 
 			
-		else	// gProcessorCode != kBiPlotDataProcessor 
+		else	// processorCode != kBiPlotDataProcessor 
 			{
-					// For x vector, allow for channel number and				
-					// wavelength.															
+					// For x vector, allow for channel number, wavelength and band width.															
 					
-			xVectorSize = requestedLength * 2;
-			yVectorSize = requestedLength * numberVectors;
+			xVectorSize = 3 * requestedLength;
 			
-			}	// end "else gProcessorCode != kBiPlotDataProcessor" 
+					// For y vector, allow for wavelengths not being in order.
 			
+			yVectorSize = 2 * requestedLength * numberVectors;
+			
+			}	// end "else processorCode != kBiPlotDataProcessor"
+		
 		AllocateV (&graphRecordPtr->xVector, xVectorSize, &error);
 		
 		if (!error)
@@ -277,14 +237,14 @@ Boolean CheckGraphVectorsSize (
 					// Get memory for the rest of the vectors.					
 			
 			numberBytes = 0;		
-			if (gProcessorCode == kBiPlotDataProcessor && 
+			if (processorCode == kBiPlotDataProcessor && 
 						gProjectInfoPtr != NULL &&
 							(gBiPlotDataSpecsPtr->outlineClassCode & kOutlineClasses))
 				{
 				numberBytes = (numberVectors-1) * sizeof (double) *
 											(5 + 3 * gProjectInfoPtr->numberStatisticsChannels);
 							
-				}	// end "if (gProcessorCode == kBiPlotDataProcessor..."					
+				}	// end "if (processorCode == kBiPlotDataProcessor..."					
 					
 			else if (graphRecordPtr->flag == NU_HISTOGRAM_PLOT)
 				{
@@ -390,7 +350,7 @@ Boolean CheckGraphVectorsSize (
 
                     
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -410,13 +370,17 @@ Boolean CheckGraphVectorsSize (
 // Called By:			ListFieldData in listData.c
 //
 //	Coded By:			Larry L. Biehl			Date: 10/04/1991
-//	Revised By:			Larry L. Biehl			Date: 01/20/2017			
+//	Revised By:			Larry L. Biehl			Date: 04/06/2018
 
 Boolean CheckSomeGraphWindowEvents (
 				GraphPtr								graphRecPtr)
 
 {  
 #if defined multispec_mac
+	char									theChar;
+	
+	Point									mousePt;
+	
 	DialogPtr							dialogPtr;
 	WindowPtr							window;
 	
@@ -465,11 +429,6 @@ Boolean CheckSomeGraphWindowEvents (
 					switch (mouseLoc) 
 						{
 						case inSysWindow:
-							/*
-		    				#if !TARGET_API_MAC_CARBON
-								SystemClick (&gEventRecord, window);
-		    				#endif	// !TARGET_API_MAC_CARBON
-							*/
 							break;
 							
 						case inDrag:
@@ -478,7 +437,7 @@ Boolean CheckSomeGraphWindowEvents (
 							
 						case inGoAway:
 							if (TrackGoAway (window, gEventRecord.where)) 
-																							return (TRUE);
+																							return (FALSE);
 							break;
 							
 						case inGrow:
@@ -487,6 +446,9 @@ Boolean CheckSomeGraphWindowEvents (
 							break;
 							
 						case inContent:
+							mousePt = gEventRecord.where;
+							GlobalToLocal (&mousePt);
+							DoGraphWMouseDnContent (window, mousePt);
 							break;
 							
 						default:
@@ -517,6 +479,14 @@ Boolean CheckSomeGraphWindowEvents (
 																					return (FALSE);
 							
 						}
+					
+					else	// Check for right arrow to go to the next graph
+						{
+						theChar = (char)gEventRecord.message&charCodeMask;
+						if (theChar == kRightArrowCharCode)
+																							return (TRUE);
+						
+						}	// end "else !(gEventRecord.modifiers&cmdKey)" 						
 					break;
 		  
 		  		case updateEvt:
@@ -567,22 +537,49 @@ Boolean CheckSomeGraphWindowEvents (
    
    CMGraphDoc* graphDocumentPtr = (CMGraphDoc*)graphRecPtr->graphViewCPtr->GetDocument ();																					
    frame_hWnd = (graphDocumentPtr->GetGraphFrameCPtr ())->m_hWnd;						
-   view_hWnd = graphRecPtr->graphViewCPtr->m_hWnd;
+   view_hWnd = graphViewCPtr->m_hWnd;
    	             
    quitFlag = FALSE; 
    do
    	{                                                                           
- 		while (::PeekMessage (&msgCur, NULL, 0, 0, PM_NOREMOVE))
-	 		{  
-			if (!((CMultiSpecApp*)AfxGetApp ())->PumpMessage ()) 
+ 		while (::PeekMessage (&msgCur, NULL, 0, 0, PM_NOREMOVE))		//PM_NOREMOVE
+	 		{ 
+			if (graphViewCPtr->m_closeGraphSelectedFlag)
+				{                                     
+ 				quitFlag = TRUE;
+				graphViewCPtr->m_closeGraphSelectedFlag = FALSE;
 	 																					return (FALSE);
+
+				}	// end "if (graphViewCPtr->m_closeGraphSelectedFlag)"
+			
+	 		//if (msgCur.hwnd == view_hWnd || msgCur.hwnd == frame_hWnd ||
+			//																msgCur.hwnd == NULL)
+			//	{
+				if (!((CMultiSpecApp*)AfxGetApp ())->PumpMessage ()) 
+	 																					return (FALSE);
+
+			//	}	// end "if (msgCur.hwnd == frame_hWnd)"
 				
 	 		if (msgCur.message == WM_KEYDOWN)
 	 			{
-	 			if (msgCur.wParam == 0x001b)
+	 			if (msgCur.wParam == VK_ESCAPE)
 	 																					return (FALSE);
+				/*
+				else if (msgCur.wParam == VK_LEFT)
+					{
+					::PeekMessage (&msgCur, NULL, VK_LEFT, VK_LEFT, PM_REMOVE);
+	 																					return (FALSE);
+					}
+				*/
+				else if (msgCur.wParam == VK_RIGHT)
+					{
+					::PeekMessage (&msgCur, NULL, VK_RIGHT, VK_RIGHT, PM_REMOVE);
+   				quitFlag = TRUE;
+ 					break;  
+
+					}	// end "else if ((msgCur.wParam == VK_RIGHT)"
 	 			
-	 			}	// end "if (msgCur.message == WM_CHAR)" 
+	 			}	// end "if (msgCur.message == WM_KEYDOWN)" 
 	 			
 	 		else if (msgCur.hwnd == view_hWnd && msgCur.message == WM_LBUTTONDBLCLK)
 	 			{                                                                             
@@ -590,6 +587,13 @@ Boolean CheckSomeGraphWindowEvents (
  				break;   
 	 			
 	 			}	// end "else if (msgCur.message == WM_LBUTTONDBLCLK)"
+	 			
+	 		else if (msgCur.hwnd == view_hWnd && msgCur.message == WM_LBUTTONDOWN)
+	 			{                                                                             
+ 				quitFlag = TRUE;
+ 				break;   
+	 			
+	 			}	// end "else if (msgCur.message == WM_LBUTTONDOWN)"
 	 			
 	 		else if (msgCur.message == WM_SYSCOMMAND)
 	 			{
@@ -647,7 +651,7 @@ Boolean CheckSomeGraphWindowEvents (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -722,7 +726,7 @@ void CopyGraphYVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -744,7 +748,7 @@ void CopyGraphYVector (
 //							HistogramStatsControl in statHistogram.c
 //
 //	Coded By:			Larry L. Biehl			Date: 10/03/1991
-//	Revised By:			Larry L. Biehl			Date: 01/25/1999
+//	Revised By:			Larry L. Biehl			Date: 02/21/2018
 
 Boolean CreateGraph	(
 				CMGraphView*						graphViewCPtr,
@@ -770,10 +774,10 @@ Boolean CreateGraph	(
 				
 		GetGraphTitle (graphRecordPtr, lineStart, columnStart, lineEnd, columnEnd);
 										
-				// Get the labels for the graph.											
-				
-		GetGraphLabels (graphRecordPtr);
-      
+				// Get the labels for the graph.
+					
+		//GetGraphLabels (graphRecordPtr);
+		
 		graphRecordPtr = NewGraph (graphRecordPtr, 
 											graphRecordPtr->window,
 											graphRecordPtr->xScaleMin, 
@@ -822,448 +826,8 @@ Boolean CreateGraph	(
            
 
 
-#if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
-//
-//	Function name:		CMGraphView* CreateGraphWindow
-//
-//	Software purpose:	The purpose of this routine is to create a graph
-//							window and allocate a structure that contains handles to
-//							other structures which will be connected with the
-//							window and create the controls for the window.
-//
-//	Parameters in:		Handle to window information for image.
-//
-//	Parameters out:	None
-//
-// Value Returned:	Window pointer
-// 
-// Called By:			BiPlotDataControl in biPlotData.c
-//							ListDataControl in SLstData.cpp
-//							SelectionGraphControl in SSelGraf.cpp
-//							HistogramStatsControl in statHistogram.c
-//
-//	Coded By:			Larry L. Biehl			Date: 09/27/1991
-//	Revised By:			Larry L. Biehl			Date: 08/07/2013	
-
-CMGraphView* CreateGraphWindow (void)
-
-{
-			// Declare local variables 
-			
-	Rect									tempRect;	
-	
-	CMGraphView*						newSelectionGraphCPtr = NULL;
-	GrafPtr								savedPort;
-	GraphPtr								graphRecordPtr;
-	WindowInfoPtr						windowInfoPtr;
-	WindowPtr							front,
-											windowPtr;												 
-  
-	ControlHandle						controlHandle,
-											theRootControl;
-	
-	Handle								graphRecordHandle = NULL,
-											selectionWindowInfoHandle,
-											windowInfoHandle,
-											windowRecordHandle = NULL;
-												
-	OSStatus								errorCode;
-	
-	SInt16								grafPortType,
-											graphWindowID,
-											windowMenuItem,
-											xSize = 280,
-											ySize = 150;
-											
-	Boolean								continueFlag = TRUE;
-	
-	SignedByte							handleStatus;
-
-									
-	front = (WindowPtr)-1;
-					
-	graphWindowID = kGraphWindowID;
-	if (gProcessorCode == kSelectionGraphProcessor)								
-		graphWindowID = kGraphSelectionWindowID;
-	/*
-	#if !TARGET_API_MAC_CARBON
-				// Get handle to window record.	
-		windowRecordHandle = GetImageWindowRecord ();
-		if (windowRecordHandle == NULL)
-																					return (NULL);
-																					
-		if (GetMaxSystemPixelSize () > 1)
-			{
-					// Window for Macs with color displays 									
-
-			windowPtr = GetNewCWindow (
-										graphWindowID, *windowRecordHandle, gActiveImageWindow);
-			grafPortType = kCGrafType;
-			
-			}	// end "if (GetMaxSystemPixelSize () > 1)" 
-			
-		else	// GetMaxSystemPixelSize () == 1 
-			{
-					// Window for Macs with Black&white only displays.						
-					
-			windowPtr = GetNewWindow (
-								graphWindowID, *windowRecordHandle, gActiveImageWindow);
-			grafPortType = kGrafType;
-			
-			}	// end "else GetMaxSystemPixelSize () == 1 " 
-	#else	// TARGET_API_MAC_CARBON
-	*/
-	windowPtr = GetNewCWindow (graphWindowID, NULL, front);
-	//windowPtr = GetNewCWindow (graphWindowID, NULL, gActiveImageWindow);
-	grafPortType = kCGrafType;
-	//#endif	// !TARGET_API_MAC_CARBON, else...
-		
-	if (windowPtr == NULL)													
-																						return (NULL);
-		
-	GetPort (&savedPort);
-	SetPortWindowPort (windowPtr);
-	
-	windowInfoHandle = (Handle)MNewHandle (sizeof (WindowInfo));
-	
-			// If windowInfoHandle is NULL then there isn't enough memory.		
-			// Clean up at end and exit the routine if there isn't enough	
-			// memory.																			
-		
-	continueFlag = (windowInfoHandle != NULL);
-	
-	if (continueFlag)
-		{
-		SetWRefCon (windowPtr, (SInt32)windowInfoHandle);	
-	
-			// Initialize the window information record.									
-			
-		InitializeWindowInfoStructure (
-					windowInfoHandle, kNotPointer, NULL, kNoImageType, kGraphicsWindowType);
-		
-		newSelectionGraphCPtr = new (CMGraphView);
-
-		continueFlag = (newSelectionGraphCPtr != NULL);
-		
-		}	// end "if (continueFlag)"
-   		
-   if (continueFlag)
-		{	
-				// Set the font and font size for the window.							
-				
-		TextFont (gWindowTextFont); 		// monaco  
-		TextSize (9);							// 9 point 
-	
-		windowInfoPtr = (WindowInfoPtr)GetHandlePointer (windowInfoHandle, kLock); 
-						
-		windowInfoPtr->windowRecordHandle = windowRecordHandle;
-		windowInfoPtr->grafPortType = grafPortType;
-		windowInfoPtr->graphViewCPtr = newSelectionGraphCPtr;
-		
-				// Initialize some more of graph record handle parameters.							
-		
-		graphRecordHandle = newSelectionGraphCPtr->GetGraphRecordHandle ();	
-		graphRecordPtr = (GraphPtr)GetHandleStatusAndPointer (
-																	graphRecordHandle, 
-																	&handleStatus, 
-																	kMoveHi);	
-						
-		graphRecordPtr->window = windowPtr;
-		graphRecordPtr->imageWindow = NULL;
-		graphRecordPtr->textSize = GetPortTextSize (GetWindowPort (windowPtr));
-		
-		newSelectionGraphCPtr->SetWindowPtr (windowPtr);
-	 	
-	 			// Change name of current selection graph if it exists.				
-	 			// Also unlock the graph record handle since it will not be			
-	 			// the selection graph any more.												
-	 			
-	 	if (gSelectionGraphViewCPtr != NULL && 
-	 										gProcessorCode == kSelectionGraphProcessor)
-	 		{
-			WindowPtr currentSelectionWindow = 
-													gSelectionGraphViewCPtr->GetWindowPtr ();
-			SetGraphWindowTitle (gSelectionGraphViewCPtr, FALSE);
-			GetWTitle (currentSelectionWindow, gTextString);
-			selectionWindowInfoHandle = (Handle)GetWRefCon (currentSelectionWindow);
-			if (selectionWindowInfoHandle != NULL)
-				{
-				windowMenuItem = 
-						((WindowInfoPtr)*selectionWindowInfoHandle)->windowMenuItem;
-				SetMenuItemText (gMultiSpecMenus[kWindowM], 
-										windowMenuItem, 
-										gTextString);
-									
-				}	// end "if (selectionWindowInfoHandle != NULL)" 
-	 		
-			CheckAndUnlockHandle (gSelectionGraphViewCPtr->GetGraphRecordHandle ());
-		
-	 		}	// end "if (gSelectionGraphViewCPtr != NULL && ..." 
-		
-				// Add new graph window to window list. Add to end of list.	
-				
-		UpdateWindowList (windowPtr, kGraphicsWindowType);	
-			
-		gUpdateWindowsMenuItemsFlag = TRUE;
-		
-				// Set the window title and then show the window on the screen
-		
-		SetGraphWindowTitle (newSelectionGraphCPtr, TRUE);
-		GetWTitle (windowPtr, gTextString);
-		AppendMenu (gMultiSpecMenus[kWindowM], "\pNewGraph");	
-		SetMenuItemText (gMultiSpecMenus[kWindowM], 
-									windowInfoPtr->windowMenuItem, 
-									gTextString);
-				
-				// Set the location and size of the window.
-				
-		GetGraphWindowLocation (&xSize, &ySize);                            
-		
-		MoveWindow (windowPtr, 
-						gNextGraphicsWindowStart.h, 
-						gNextGraphicsWindowStart.v, 
-						FALSE);
-						
-		SizeWindow (windowPtr, xSize, ySize, TRUE); 
-		
-				// Create the controls for the graph window if needed.												
-				
-		if (gProcessorCode == kHistogramStatsProcessor)	
-			{
-			if (gAppearanceManagerFlag)
-				{
-						// Create the Root control
-						
-				errorCode = CreateRootControl (windowPtr, &theRootControl);
-				if (errorCode != noErr)
-																							return (FALSE);
-																							
-				}	// end "if (gAppearanceManagerFlag)"
-																					
-					// Make the graph next set control					
-			
-			GetWindowPortBounds (windowPtr, &gTempRect);
-			tempRect.top    = gTempRect.bottom - kSBarWidth;
-			tempRect.left   = gTempRect.left - 1;
-			tempRect.bottom = gTempRect.bottom + 1;
-			tempRect.right  = tempRect.left + kLegendScrollWidth;															
-	
-			if (gAppearanceManagerFlag)	
-				controlHandle = NewControl (windowPtr, 
-														&tempRect, 
-														"\p^", 
-														FALSE, 
-														0, 
-														0, // kControlContentIconSuiteRes,
-														0,	// 10001,
-														kControlBevelButtonSmallBevelProc, 
-														kNextGraphSetControl);
-								
-			else	// !gAppearanceManagerFlag	
-				controlHandle = NewControl (windowPtr, 
-														&tempRect, 
-														"\p^", 
-														FALSE, 
-														0, 
-														0, 
-														0, 
-														pushButProc, 
-														kNextGraphSetControl);
-														
-							
-			if (controlHandle == NULL)
-																							return (FALSE);
-			HiliteControl (controlHandle, 255);
-		
-					// Make the graph previous set control				
-						
-			tempRect.left   = tempRect.right;
-			tempRect.right  = tempRect.left + kLegendScrollWidth;															
-	
-			if (gAppearanceManagerFlag)	
-				controlHandle = NewControl (windowPtr, 
-														&tempRect, 
-														"\pv", 
-														FALSE, 
-														0, 
-														0, // kControlContentIconSuiteRes,
-														0,	// 10001,
-														kControlBevelButtonSmallBevelProc, 
-														kPreviousGraphSetControl);
-								
-			else	// !gAppearanceManagerFlag	
-				controlHandle = NewControl (windowPtr, 
-														&tempRect, 
-														"\pv", 
-														FALSE, 
-														0, 
-														0, 
-														0, 
-														pushButProc, 
-														kPreviousGraphSetControl);
-														
-			if (controlHandle == NULL)
-																						return (FALSE);
-			HiliteControl (controlHandle, 255);
-			
-					// Make the graph select vector control				
-						
-			tempRect.left   = tempRect.right;
-			tempRect.right  = tempRect.left + kBottomButtonWidth;
-				
-			if (gAppearanceManagerFlag)
-				controlHandle = NewControl (
-							windowPtr, 
-							&tempRect, 
-							"\p", 
-							FALSE,
-							kColorMenuID, 
-							kControlContentIconSuiteRes+kControlBehaviorMultiValueMenu, 
-							10002, 
-							kControlBevelButtonSmallBevelProc+kControlBevelButtonMenuOnRight,
-							kGraphVectorControl);
-			
-			else	// !gAppearanceManagerFlag	
-				controlHandle = NewControl (windowPtr, 
-														&tempRect, 
-														"\p", 
-														FALSE, 
-														0, 
-														0, 
-														0, 
-														16*131 + 2, 
-														kGraphVectorControl);
-			
-			if (controlHandle == NULL)
-																						return (FALSE);
-			HiliteControl (controlHandle, 255);
-			
-					// Make the graph overlay control				
-						
-			tempRect.left   = tempRect.right;
-			tempRect.right  = tempRect.left + kBottomButtonWidth;	
-				
-			if (gAppearanceManagerFlag)
-				controlHandle = NewControl (
-								windowPtr, 
-								&tempRect, 
-								"\p", 
-								FALSE,
-								kColorMenuID, 
-								kControlContentIconSuiteRes+kControlBehaviorMultiValueMenu, 
-								10001, 
-								kControlBevelButtonSmallBevelProc+kControlBevelButtonMenuOnRight,
-								kGraphOverlayControl);
-			
-			else	// !gAppearanceManagerFlag	
-				controlHandle = NewControl (windowPtr, 
-														&tempRect, 
-														"\p", 
-														FALSE, 
-														0, 
-														0, 
-														0, 
-														16*131 + 1, 
-														kGraphOverlayControl);
-			
-			if (controlHandle == NULL)
-																						return (FALSE);
-			HiliteControl (controlHandle, 255);
-			
-					// Make the graph bin width control				
-						
-			tempRect.left   = tempRect.right;
-			tempRect.right  = tempRect.left + kBottomButtonWidth;	
-				
-			if (gAppearanceManagerFlag)
-				controlHandle = NewControl (
-							windowPtr, 
-							&tempRect, 
-							"\p", 
-							FALSE,
-							kColorMenuID, 
-							kControlContentIconSuiteRes+kControlBehaviorMultiValueMenu, 
-							10004, 
-							kControlBevelButtonSmallBevelProc+kControlBevelButtonMenuOnRight,
-							kGraphBinWidthControl);
-			
-			else	// !gAppearanceManagerFlag	
-				controlHandle = NewControl (windowPtr, 
-														&tempRect, 
-														"\p", 
-														FALSE, 
-														0, 
-														0, 
-														0, 
-														16*131 + 4, 
-														kGraphBinWidthControl);
-			
-			if (controlHandle == NULL)
-																						return (FALSE);
-			HiliteControl (controlHandle, 255);
-			
-			}	// end "if (gProcessorCode == kHistogramStatsProcessor)"
-		
-				// Show and select the window.	
-			
-		ShowWindow (windowPtr);											
-				
-		if (gProcessorCode != kBiPlotDataProcessor && 
-												gProcessorCode != kHistogramStatsProcessor)
-			{	
-					// Activate the window
-					
-			SelectWindow (windowPtr);
-			
-			}	// end "if (gProcessorCode != kBiPlotDataProcessor && ..."
-		
-		CheckSomeEvents (activMask+updateMask);
-		
-		SetPort (savedPort);
-		
-	   		// Unlock the information handles.											
-	  
-	  	MHSetState (graphRecordHandle, handleStatus);
-		CheckAndUnlockHandle (windowInfoHandle);
-	   
-	   }	// end "if (continueFlag)" 
-   
-   		// If there was a lack of memory, make certain that all handles have	
-   		// been disposed of properly and dipose of the window.					
-   		
-   if (!continueFlag)
-		{
-		//#if TARGET_API_MAC_CARBON
-		DisposeWindow (windowPtr);
-		/*
-		#else
-			CloseWindow (windowPtr);
-			ReleaseWindowRecord (windowRecordHandle);
-		#endif	// TARGET_API_MAC_CARBON else...
-		*/
-		windowPtr = NULL;
-		UnlockAndDispose (windowInfoHandle);
-
-		if (newSelectionGraphCPtr != NULL)
-			delete (newSelectionGraphCPtr);
-		
-		newSelectionGraphCPtr = NULL;
-		
-		}	// end "if (!continueFlag)" 
-	
-	return (newSelectionGraphCPtr);
-	
-}	// end "CreateGraphWindow" 
-#endif	// defined multispec_mac 
-
-
-
-//------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1310,432 +874,10 @@ void DisposeOfGraphRecordMemory (
 			
 }	// end "DisposeOfGraphRecordMemory" 
 
-
-
-#if defined multispec_mac
-//------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
-//
-//	Function name:		void DoGraphWActivateEvent
-//
-//	Software purpose:	This routine handles the activate events for graph windows.
-//
-//	Parameters in:				
-//
-//	Parameters out:				
-//
-// Value Returned:	None
-// 
-// Called By:			DoGraphWActivateEvent
-//
-//	Coded By:			Larry L. Biehl			Date: 06/23/1993
-//	Revised By:			Larry L. Biehl			Date: 01/26/1999				
-
-void DoGraphWActivateEvent (
-				WindowPtr							windowPtr, 
-				Handle								windowInfoHandle,
-				Boolean								becomingActiveFlag)
-		
-{
-			//	Local Declarations 	
-			
-	GraphPtr								graphRecordPtr;
-	
-	ControlHandle						controlHandle,
-											rootControlHandle;
-											
-	Handle								graphRecordHandle;
-	
-	UInt16								index,
-											numberControls;
-	
-	SignedByte							handleStatus;
-	
-	
-	
-	if (becomingActiveFlag)
-		{	
-				// Hilite the controls as needed.
-	
-		graphRecordHandle = GetGraphRecordHandle (windowPtr);
-		graphRecordPtr = (GraphPtr)GetHandleStatusAndPointer (graphRecordHandle,
-																					&handleStatus);
-				
-		UpdateGraphControls (windowPtr);
-              	
-		MHSetState (graphRecordHandle, handleStatus);
-	     	
-		}	// end "if (becomingActiveFlag)"
-		
-	else	// !becomingActiveFlag
-		{
-				// This is a deactivate event. Unhilite the graph controls			
-							
-		if (gAppearanceManagerFlag)
-			{	
-			GetRootControl (windowPtr, &rootControlHandle);
-			
-			if (rootControlHandle != NULL)
-				{
-				CountSubControls (rootControlHandle, &numberControls);
-				for (index=numberControls; index>=1; index--)
-					{
-					GetIndexedSubControl (rootControlHandle, index, &controlHandle);
-					HiliteControl (controlHandle, 255);
-			     		
-			     	}	// end "for (index=numberControls; index>=1; index--)"
-			     	
-				}	// end "if (rootControlHandle != NULL)"
-	     	
-	     	}	// end "if (gAppearanceManagerFlag)"
-	   /*  	
-		#if !TARGET_API_MAC_CARBON
-			else	// !gAppearanceManagerFlag
-				{
-				controlHandle = (ControlHandle)((WindowPeek)windowPtr)->controlList;
-				while (controlHandle != NULL)	
-					{
-					HiliteControl (controlHandle, 255);
-		     		controlHandle = (*controlHandle)->nextControl;
-		     		
-		     		}	// end "while (controlHandle != NULL)"
-				
-				}	// end "else !gAppearanceManagerFlag"
-		#endif	// !TARGET_API_MAC_CARBON
-		*/
-		}	// end "else !becomingActiveFlag"
-
-}	// end "DoGraphWActivateEvent" 
-#endif	// defined multispec_mac
-
-#if defined multispec_mac
-//------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
-//
-//	Function name:		void DoGraphicsWindowEdit
-//
-//	Software purpose:	This routine handle the editing function for a
-//							Graph window.
-//
-//	Parameters in:				
-//
-//	Parameters out:				
-//
-// Value Returned:	None
-// 
-// Called By:
-//
-//	Coded By:			Larry L. Biehl			Date: 02/09/1993
-//	Revised By:			Larry L. Biehl			Date: 06/04/1996			
-
-Boolean DoGraphWindowEdit (
-				SInt16								menuItem)
-													
-{
-	GraphPtr								graphRecordPtr;
-	
-	PicHandle							thePic;
-	
-	SInt32								errCode,
-											handleSize;
-											
-	Boolean								continueFlag;
-	SignedByte							handleStatus;
-		
-	
-	continueFlag = TRUE;
-	
-	switch (menuItem)
-		{
-		case kUndo:
-					//	Cannot Undo 
-			break;
-	
-		case kCut:
-					//	Cannot Cut 
-			break;
-			
-		case kCopy:		
-			SetPortWindowPort (gTheActiveWindow);
-			thePic = (PicHandle)OpenPicture (
-									GetWindowPortBounds (gTheActiveWindow, &gTempRect));
-				
-			if (thePic != NULL)
-				{
-				WindowInfoPtr windowInfoPtr = (WindowInfoPtr)GetHandlePointer (
-																				gActiveWindowInfoH);
-				CMGraphView* graphViewCPtr = windowInfoPtr->graphViewCPtr;
-				
-				graphRecordPtr = (GraphPtr)GetHandleStatusAndPointer (
-												graphViewCPtr->GetGraphRecordHandle (),
-												&handleStatus);
-			
-				continueFlag = DrawGraph (graphRecordPtr, TRUE);
-			
-				ClosePicture ();
-				/*
-				#if !TARGET_API_MAC_CARBON
-       			ZeroScrap ();
-				#else
-				*/
-				ScrapRef 	scrapRef;
-				ClearCurrentScrap ();
-				errCode = GetCurrentScrap (&scrapRef);
-				//#endif	// !TARGET_API_MAC_CARBON
-							
-            handleSize = GetHandleSize ((Handle)thePic);
-            MHLock ((Handle)thePic);
-				/*
-				#if !TARGET_API_MAC_CARBON
-           		errCode = PutScrap (handleSize, 'PICT', (Ptr)*thePic);
-				#else
-				*/
-				errCode = PutScrapFlavor (scrapRef, 
-													'PICT', 
-													kScrapFlavorMaskNone, 
-													handleSize,
-													(Ptr)*thePic);
-				//#endif	// !TARGET_API_MAC_CARBON
-            
-            if (errCode != noErr)  
-					errCode = DisplayAlert (1153, kStopAlert, 0, 0, 0, NULL);
-					
-				else	// errCode == noErr 
-					{
-							// Make certain that any text edit scrap does not		
-							// write over the desk scrap.		
-														
-					TESetScrapLength (0);
-					gLastScrapCount = 0;
-								
-					}	// end "else errCode == noErr" 
-					
-            CheckAndUnlockHandle ((Handle)thePic);
-            KillPicture (thePic);
-              	
-				MHSetState (graphViewCPtr->GetGraphRecordHandle (), handleStatus);
-              	
-				}	// end "if (graphPic !=NULL)" 
-				
-		case kPaste:
-			//	Cannot Paste 
-			break;
-		
-		case kClear:
-			//	Cannot Clear 
-			break;
-			
-		case kSelectAll:
-			//	Cannot Select All 
-			break;
-			
-		}	// end "switch (menuItem)" 
-		
-	return (continueFlag);
-
-}	// end "DoGraphWindowEdit" 
-#endif	// defined multispec_mac
-
-
-
-#if defined multispec_mac
-//------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
-//
-//	Function name:		void DoGraphWindowGrow
-//
-//	Software purpose:	This routine handles mouse down events in the
-//							grow box for graph windows.
-//
-//	Parameters in:				
-//
-//	Parameters out:				
-//
-// Value Returned:	None
-// 
-// Called By:			main
-//
-//	Coded By:			Larry L. Biehl			Date: 10/04/1991
-//	Revised By:			Larry L. Biehl			Date: 04/30/2003		
-
-void DoGraphWindowGrow (
-				WindowPtr							window,
-				Handle								windowInfoHandle)
-
-{
-	Rect									growArea;
-	//GraphPtr								graphRecordPtr;
-	Handle								graphRecordHandle;
-	SInt32								newSize;
-										
-	
-			// Get the current maximum rectangular display area.
-													
-	GetDisplayRegionRectangle (&growArea);	
-			
-	growArea.right -= growArea.left;
-	growArea.bottom -= growArea.top;
-	growArea.left = growArea.top = gGrowAreaMinimum;
-
-	newSize = GrowWindow (window, gEventRecord.where, &growArea);
-	SizeWindow (window, LoWord (newSize), HiWord (newSize), TRUE);
-	InvalWindowRect (window, GetWindowPortBounds (window, &gTempRect));
-	graphRecordHandle = GetGraphRecordHandle (windowInfoHandle);
-	
-	UpdateGraphScales (graphRecordHandle);
-	/*
-	graphRecordPtr = (GraphPtr)GetHandlePointer (graphRecordHandle, kLock);
-	SetXGraphScale (window, graphRecordPtr);
-	
-	if (graphRecordPtr->graphCodesAvailable & 0x0001 &&
-										graphRecordPtr->flag & NU_HISTOGRAM_PLOT)
-		SetGraphMinMax (graphRecordPtr, kYAxis);
-		
-	else	// !...->graphCodesAvailable & 0x0001 && ...
-		SetYGraphScale (window, graphRecordPtr);
-		
-	CheckAndUnlockHandle (graphRecordHandle);
-	*/	
-	//EraseRect (&gTempRect);
-	DrawGraphControls (window);
-	
-}	// end "DoGraphWindowGrow" 
-#endif	// defined multispec_mac
-
-
-
-#if defined multispec_mac
-//------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
-//
-//	Function name:		DoGraphWMouseDnContent
-//
-//	Software purpose:	This routine handle mouse down events in the
-//							content part of a window.
-//
-//	Parameters in:				
-//
-//	Parameters out:				
-//
-// Value Returned:	None
-// 
-// Called By:			main
-//
-//	Coded By:			Larry L. Biehl			Date: 01/23/1999
-//	Revised By:			Larry L. Biehl			Date: 01/23/1999			
-
-void DoGraphWMouseDnContent (
-				WindowPtr							theWindow,
-				Point									mousePt)
-
-{
-			//	Local Declarations 																
-	
-	ControlHandle						whichControl;
-	
-	SInt16								partCode;
-
-		
-	partCode = FindControl (mousePt, theWindow, &whichControl);
-	if (partCode > 0)
-     	{
-     			// Set clip region to include the scroll bars.							
-     			
-		ClipRect (GetWindowPortBounds (theWindow, &gTempRect));
-			
-				// Exit if this was a mouse down in a control area of an		
-				// inactive image window.  We will assume that the user was	
-				// just wanting to select the window.								
-				
-		if (gNewSelectedWindowFlag)
-																					return;
-																					
-		GraphWControlEvent (whichControl, theWindow, mousePt, partCode);
-   		
-		}	// end "if (partCode > 0)" 
-		 
-	else	// partCode == 0.  Mouse not within controls 
-		{
-		
-		}	// end "else partCode == 0" 
-
-}	// end "DoGraphWMouseDnContent"  
-#endif	// defined multispec_mac
-
-
-#if defined multispec_mac
-//------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
-//
-//	Function name:		void DoGraphWUpdateEvent
-//
-//	Software purpose:	This routine handles the update events for the graph
-//							window.
-//
-//	Parameters in:				
-//
-//	Parameters out:				
-//
-// Value Returned:	None
-// 
-// Called By:			main
-//
-//	Coded By:			Larry L. Biehl			Date: 09/27/1991
-//	Revised By:			Larry L. Biehl			Date: 06/04/1996		
-
-void DoGraphWUpdateEvent (
-				WindowPtr							window, 
-				CMGraphView*						graphViewCPtr)
-				
-{
-	GraphPtr								graphRecordPtr;
-	
-	Handle								graphRecordHandle;
-	
-	SignedByte							handleStatus;
-	
-	
-	if (graphViewCPtr == NULL)
-																								return;
-	
-	graphRecordHandle = graphViewCPtr->GetGraphRecordHandle ();
-	graphRecordPtr = (GraphPtr)GetHandleStatusAndPointer (graphRecordHandle,
-																				&handleStatus);
-	
-	BeginUpdate (window);
-	GetWindowPortBounds (window, &graphRecordPtr->clientRect);
-	
-	//EraseRect (&window->portRect);
-	
-	DrawGraph (graphRecordPtr, FALSE);
-	
-	DrawControls (window);
-	
-	graphViewCPtr->DrawGraphGrowIcon (graphRecordPtr);
-	
-	EndUpdate (window);
-	
-	ClipRect (&graphRecordPtr->clientRect);
-	
-	MHSetState (graphRecordHandle, handleStatus);
-	
-}	// end "DoGraphWUpdateEvent" 
-#endif	// defined multispec_mac
-
                             
                             
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1819,7 +961,7 @@ void DoNextOrPreviousChannel	(
                             
                             
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1838,7 +980,7 @@ void DoNextOrPreviousChannel	(
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 10/03/1991
-//	Revised By:			Larry L. Biehl			Date: 12/01/2017
+//	Revised By:			Larry L. Biehl			Date: 11/02/2018
 
 Boolean DrawGraph	(
 				GraphPtr								graphRecPtr,
@@ -1847,7 +989,8 @@ Boolean DrawGraph	(
 {
 	SInt32								error;
 	
-	SInt16								leftInset,
+	SInt16								bottomInset,
+											leftInset,
 											rightInset;
 	
 	Boolean								continueFlag;
@@ -1855,10 +998,6 @@ Boolean DrawGraph	(
 	
 	error = noErr;
 	continueFlag = TRUE;
-   
-
-   
-
 	
 	if (graphRecPtr != NULL)
 		{			
@@ -1867,28 +1006,57 @@ Boolean DrawGraph	(
 				// Make sure the inset of the graph from the outside edge is correct.
 				// The extra 3 allows for a box to be drawn around the outside of
 				// the graph. Also allow for controls along the bottom of the graph window.
+				// kLeftEdgeSpace extra pixels are allow on the left for some white space before the y-axis
+				// labels
 				
-		leftInset = (SInt16)MAX (graphRecPtr->yTicLabelWidth*graphRecPtr->textScaling, 
-											graphRecPtr->xTicLabelWidth/2 + 3);
+		leftInset = (SInt16)MAX (graphRecPtr->yTicLabelWidth*graphRecPtr->textScaling + kLeftEdgeSpace,
+											graphRecPtr->xTicLabelWidth/2 + 3 + kLeftEdgeSpace);
+			
 		rightInset = (SInt16)MAX (23*graphRecPtr->textScaling, 
 											graphRecPtr->xTicLabelWidth/2 + 3);
-      
+
+		if (graphRecPtr->processorCode == kHistogramStatsProcessor)
+			{
+			#if defined multispec_mac || defined multispec_mac_swift
+				bottomInset = (SInt16)(graphRecPtr->textSize * 3.2 + 3*graphRecPtr->textScaling + 17);
+			#endif	// defined multispec_mac || defined multispec_mac_swift
+										 
+			#if defined multispec_win 
+				bottomInset = (SInt16)(graphRecPtr->textSize * 3.2 + 3*graphRecPtr->textScaling + 28);	// + 19
+			#endif	// defined multispec_win
+				
+			#if defined multispec_lin 
+				#if defined multispec_wxmac
+					bottomInset = (SInt16)(graphRecPtr->textSize * 3.2 + 3*graphRecPtr->textScaling + 60);
+				#else
+					bottomInset = (SInt16)(graphRecPtr->textSize * 3.2 + 3*graphRecPtr->textScaling + 19);
+				#endif
+			#endif	// defined multispec_lin
+
+			}	// end "if (graphRecPtr->processorCode == kHistogramStatsProcessor)"
+
+		else   // graphRecPtr->processorCode != kHistogramStatsProcessor)
+			{
+			#if defined multispec_mac || defined multispec_mac_swift
+				bottomInset = (SInt16)(graphRecPtr->textSize * 3.2 + 3*graphRecPtr->textScaling + 17);
+			#endif	// defined multispec_mac || defined multispec_mac_swift
+										 
+			#if defined multispec_win 
+				bottomInset = (SInt16)(graphRecPtr->textSize * 3.2 + 3*graphRecPtr->textScaling + 15);
+			#endif	// defined multispec_win
+				
+			#if defined multispec_lin 
+				bottomInset = (SInt16)(graphRecPtr->textSize * 3.2 + 3*graphRecPtr->textScaling + 19);
+			#endif	// defined multispec_lin
+
+			}	// end "else graphRecPtr->processorCode != kHistogramStatsProcessor"
+			
 		InsetGraph (
 				graphRecPtr, 
 				leftInset,		// 36 + 3
 				(SInt16)(graphRecPtr->textSize * 3.0 + 3*graphRecPtr->textScaling),
 				rightInset,		// 20 + 3                          
-				#if defined multispec_mac || defined multispec_mac_swift
-					(SInt16)(graphRecPtr->textSize * 3.2 + 3*graphRecPtr->textScaling + 17),
-				#endif	// defined multispec_mac || defined multispec_mac_swift
-										 
-				#if defined multispec_win 
-					(SInt16)(graphRecPtr->textSize * 3.2 + 3*graphRecPtr->textScaling + 19),
-				#endif	// defined multispec_win
-				
-				#if defined multispec_lin 
-					(SInt16)(graphRecPtr->textSize * 3.2 + 3*graphRecPtr->textScaling + 19),
-				#endif	// defined multispec_lin
+				bottomInset,
 				&error);
 			
       //if (gProcessorCode == kSelectionGraphProcessor)
@@ -1907,10 +1075,6 @@ Boolean DrawGraph	(
 												graphRecPtr->yVector.numberPoints == 0))
 																						return (noErr);   
 
-		//if (graphRecPtr->drawGraphCode == 0)     
-		//	continueFlag = FALSE;
-		//																				return (noErr);
-      
 		if (continueFlag)
 			{
 			if (graphRecPtr->attrb & NU_GRID) 
@@ -1931,7 +1095,7 @@ Boolean DrawGraph	(
 					DrawLinTicks (graphRecPtr, 
 										graphRecPtr->xInt, 
 										graphRecPtr->yInt, 
-										1000, 
+										1000 * graphRecPtr->textScaling,
 										&error);
 										
 					RGBForeColor (&savedForeGroundColor);
@@ -1958,47 +1122,13 @@ Boolean DrawGraph	(
                graphRecPtr->pDC->SetPen (wxPen (gray)); 
 
 							// Draw gray grid column line
-					      //		Need to change the following
-							
-               if (graphRecPtr->imageViewCPtr && 
-							graphRecPtr->imageViewCPtr->m_hasWaveLength && 
-								graphRecPtr->plotWavelength)
-						{
-						graphRecPtr->xInt = MIN (
-										0.5, (graphRecPtr->xScaleMax- graphRecPtr->xScaleMin)/5);
-										
-						}	// end "if (graphRecPtr->imageViewCPtr && ..."
-						
-               else
-                  graphRecPtr->xInt = 1;    
-               
-               char		number[64];
-               int		xFSigfigs = 0; 
-               double	xint = graphRecPtr->xInt;
-               double	x_pos = graphRecPtr->xScaleMax;
-               
-               if (xint == floor (xint)) 
-						xFSigfigs = 0;
-               else  
-						xFSigfigs = 2;
-                  
-               wxDC* pDC = graphRecPtr->pDC;
-               wxFont ffont (
-							8, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL); 
-               pDC->SetFont (ffont);
-               FormatR (number, 
-								&x_pos, 
-								graphRecPtr->xESignificantDigits, 
-								xFSigfigs, 
-								true, 
-								&error);
-					
-							 // Get longest textwidth 
-							 
-               graphRecPtr->textWidth = TextWidth (
-													(UCharPtr)number, 0, (SInt16)strlen (number)); 
 
-					DrawLinTicks (graphRecPtr, 
+					wxDC* pDC = graphRecPtr->pDC;
+               wxFont ffont (
+							gFontSize, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
+               pDC->SetFont (ffont);
+
+					DrawLinTicks (graphRecPtr,
 										graphRecPtr->xInt, 
 										graphRecPtr->yInt, 
 										(SInt16)(1000 * graphRecPtr->textScaling), 
@@ -2048,7 +1178,6 @@ Boolean DrawGraph	(
 								graphRecPtr->yESignificantDigits, 
 								graphRecPtr->yFSignificantDigits, 
 								&error);
-         
 								
 			DrawGraphTitle (graphRecPtr);
 
@@ -2103,7 +1232,7 @@ Boolean DrawGraph	(
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2121,7 +1250,7 @@ Boolean DrawGraph	(
 //							DrawGraph in SGraUtil.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/23/1999
-//	Revised By:			Larry L. Biehl			Date: 05/01/2003			
+//	Revised By:			Larry L. Biehl			Date: 04/06/2018
 
 void DrawGraphControls (
 				WindowPtr							windowPtr)
@@ -2181,8 +1310,98 @@ void DrawGraphControls (
 			
 				// Now draw the controls for the graph window.	
 				
-		if (gAppearanceManagerFlag)
-			{	
+		GetRootControl (windowPtr, &rootControlHandle);
+		if (rootControlHandle != NULL)
+			{																					
+			CountSubControls (rootControlHandle, &numberControls);
+			for (index=numberControls; index>=1; index--)
+				{
+				GetIndexedSubControl (rootControlHandle, index, &controlHandle);
+				validateFlag = FALSE;
+				refCon = (SInt16)GetControlReference (controlHandle);
+				switch (refCon)
+					{
+					case kNextGraphSetControl:
+						
+								// Draw the go to next set control.											
+				
+						left = rect.left + 105;
+						top  = rect.bottom - kSBarWidth;
+						MoveControl (controlHandle, left, top);
+						
+						SizeControl (controlHandle, kLegendScrollWidth, kSBarWidth+1);
+						break;
+							
+					case kPreviousGraphSetControl:
+						
+								// Draw the go back to previous set control.										
+								
+						left = rect.left + 105 + kLegendScrollWidth;
+						top  = rect.bottom - kSBarWidth;
+						MoveControl (controlHandle, left, top);
+						
+						SizeControl (controlHandle, kLegendScrollWidth, kSBarWidth+1);
+						break;
+							
+					case kGraphVectorControl:
+						
+								// Draw the select vector control.										
+								
+						left = rect.left + 105 + 3*kLegendScrollWidth;
+						top  = rect.bottom - kSBarWidth;
+						MoveControl (controlHandle, left, top);
+						
+						SizeControl (controlHandle, kBottomButtonWidth, kSBarWidth+1);
+						break;
+							
+					case kGraphOverlayControl:
+						
+								// Draw overlay options control.										
+								
+						left = rect.left + 105 + 4*kLegendScrollWidth+7;
+						top  = rect.bottom - kSBarWidth;
+						MoveControl (controlHandle, left, top);
+						
+						SizeControl (controlHandle, kBottomButtonWidth, kSBarWidth+1);
+						break;
+							
+					case kGraphBinWidthControl:
+						
+								// Draw bin width control.										
+								
+						left = rect.left + 105 + 5*kLegendScrollWidth+14;
+						top  = rect.bottom - kSBarWidth;
+						MoveControl (controlHandle, left, top);
+						
+						SizeControl (controlHandle, kBottomButtonWidth, kSBarWidth+1);
+						break;
+							
+					case kGraphXAxisLabelControl:
+						
+								// Draw x-axis label control.
+								
+						left = (rect.left + rect.right)/2 - 115;
+						left = MAX (0, left);
+						top  = rect.bottom - kSBarWidth - 10;
+						MoveControl (controlHandle, left, top);
+						
+						SizeControl (controlHandle, 230, kSBarWidth+1);
+						break;
+								
+					default:
+						validateFlag = FALSE;
+						break;
+							
+					}	// end "switch (refCon)" 
+
+				}	// end "for (index=numberControls; index>=1; index--)"
+					
+			}	// end "if (rootControlHandle != NULL)"
+
+				//	Show window controls for histogram statistics graph windows.
+	
+		if (graphRecordPtr->processorCode == kHistogramStatsProcessor)
+			{
 			GetRootControl (windowPtr, &rootControlHandle);
 			if (rootControlHandle != NULL)
 				{																					
@@ -2190,218 +1409,19 @@ void DrawGraphControls (
 				for (index=numberControls; index>=1; index--)
 					{
 					GetIndexedSubControl (rootControlHandle, index, &controlHandle);
-					validateFlag = FALSE;
 					refCon = (SInt16)GetControlReference (controlHandle);
-					switch (refCon)
-						{
-						case kNextGraphSetControl:
 						
-									// Draw the go to next set control.											
-				
-							left = rect.left + 95;
-							top  = rect.bottom - kSBarWidth;
-							MoveControl (controlHandle, left, top);
-						
-							SizeControl (controlHandle, kLegendScrollWidth, kSBarWidth+1);
-							break;
+					if (numberSets > 1 || (refCon != kNextGraphSetControl && 
+													refCon != kPreviousGraphSetControl))
+						ShowControl (controlHandle);
 							
-						case kPreviousGraphSetControl:
+					}	// end "while (controlHandle != NULL)"
 						
-									// Draw the go back to previous set control.										
-								
-							left = rect.left + 95 + kLegendScrollWidth;
-							top  = rect.bottom - kSBarWidth;
-							MoveControl (controlHandle, left, top);
-						
-							SizeControl (controlHandle, kLegendScrollWidth, kSBarWidth+1);
-							break;
-							
-						case kGraphVectorControl:
-						
-									// Draw the select vector control.										
-								
-							left = rect.left + 95 + 3*kLegendScrollWidth;
-							top  = rect.bottom - kSBarWidth;
-							MoveControl (controlHandle, left, top);
-						
-							SizeControl (controlHandle, kBottomButtonWidth, kSBarWidth+1);
-							break;
-							
-						case kGraphOverlayControl:
-						
-									// Draw overlay options control.										
-								
-							left = rect.left + 95 + 4*kLegendScrollWidth+7;
-							top  = rect.bottom - kSBarWidth;
-							MoveControl (controlHandle, left, top);
-						
-							SizeControl (controlHandle, kBottomButtonWidth, kSBarWidth+1);
-							break;
-							
-						case kGraphBinWidthControl:
-						
-									// Draw bin width control.										
-								
-							left = rect.left + 95 + 5*kLegendScrollWidth+14;
-							top  = rect.bottom - kSBarWidth;
-							MoveControl (controlHandle, left, top);
-						
-							SizeControl (controlHandle, kBottomButtonWidth, kSBarWidth+1);
-							break;
-								
-						default:
-							validateFlag = FALSE;
-							break;
-							
-						}	// end "switch (refCon)" 
-					/*	
-					#if !TARGET_API_MAC_CARBON
-						if (validateFlag)
-							{
-							MHLock ((Handle)controlHandle);
-							ValidWindowRect (windowPtr, GetControlBounds (controlHandle, &gTempRect));
-							HUnlock ((Handle)controlHandle);
-							
-							}	// end "if (validateFlag)"
-				 	#endif	// !TARGET_API_MAC_CARBON
-					*/
-					}	// end "for (index=numberControls; index>=1; index--)"
-					
 				}	// end "if (rootControlHandle != NULL)"
 			
-			}	// end "if (gAppearanceManagerFlag)"
-		/*	
-		#if !TARGET_API_MAC_CARBON
-			else	// end "!gAppearanceManagerFlag"
-				{
-				controlHandle = (ControlHandle)((WindowPeek)windowPtr)->controlList;	
-																																
-				while (controlHandle != NULL)
-					{
-					validateFlag = TRUE;
-					refCon = (SInt16)GetControlReference (controlHandle);
-					switch (refCon)
-						{
-						case kNextGraphSetControl:
-						
-									// Draw the go to next set control.											
-				
-							left = rect.left + 95;
-							top  = rect.bottom - kSBarWidth;
-							MoveControl (controlHandle, left, top);
-						
-							SizeControl (controlHandle, kLegendScrollWidth, kSBarWidth+1);
-							break;
-							
-						case kPreviousGraphSetControl:
-						
-									// Draw the go back to previous set control.										
-								
-							left = rect.left + 95 + kLegendScrollWidth;
-							top  = rect.bottom - kSBarWidth;
-							MoveControl (controlHandle, left, top);
-						
-							SizeControl (controlHandle, kLegendScrollWidth, kSBarWidth+1);
-							break;
-							
-						case kGraphVectorControl:
-						
-									// Draw the select vector control.										
-								
-							left = rect.left + 95 + 3*kLegendScrollWidth;
-							top  = rect.bottom - kSBarWidth;
-							MoveControl (controlHandle, left, top);
-						
-							SizeControl (controlHandle, kBottomButtonWidth, kSBarWidth+1);
-							break;
-							
-						case kGraphOverlayControl:
-						
-									// Draw overlay options control.										
-								
-							left = rect.left + 95 + 4*kLegendScrollWidth+7;
-							top  = rect.bottom - kSBarWidth;
-							MoveControl (controlHandle, left, top);
-						
-							SizeControl (controlHandle, kBottomButtonWidth, kSBarWidth+1);
-							break;
-							
-						case kGraphBinWidthControl:
-						
-									// Draw bin width control.										
-								
-							left = rect.left + 95 + 5*kLegendScrollWidth+14;
-							top  = rect.bottom - kSBarWidth;
-							MoveControl (controlHandle, left, top);
-						
-							SizeControl (controlHandle, kBottomButtonWidth, kSBarWidth+1);
-							break;
-								
-						default:
-							validateFlag = FALSE;
-							break;
-							
-						}	// end "switch (refCon)" 
-						
-					if (validateFlag)
-						{
-						MHLock ((Handle)controlHandle);
-						ValidWindowRect (windowPtr, GetControlBounds (controlHandle, &gTempRect));
-						HUnlock ((Handle)controlHandle);
-						
-						}	// end "if (validateFlag)"
-				
-					controlHandle = (*controlHandle)->nextControl;
-					
-					}	// end "while (controlHandle != NULL)"
-				
-				}	// end "else !gAppearanceManagerFlag"
-		#endif	// !TARGET_API_MAC_CARBON
-		*/
-					//	Show window controls.		
-						
-		if (gAppearanceManagerFlag)
-			{	
-			GetRootControl (windowPtr, &rootControlHandle);
-			if (rootControlHandle != NULL)
-				{																					
-				CountSubControls (rootControlHandle, &numberControls);
-				for (index=numberControls; index>=1; index--)
-					{
-					GetIndexedSubControl (rootControlHandle, index, &controlHandle);
-					refCon = (SInt16)GetControlReference (controlHandle);
-					
-					if (numberSets > 1 || (refCon != kNextGraphSetControl && 
-													refCon != kPreviousGraphSetControl))
-						ShowControl (controlHandle);
-			     		
-			     	}	// end "while (controlHandle != NULL)"
-			     	
-				}	// end "if (rootControlHandle != NULL)"
+			}	// end "if (graphRecordPtr->processorCode == kHistogramStatsProcessor)"
 	     	
-	     	}	// end "if (gAppearanceManagerFlag)"
-	   /*  	
-		#if !TARGET_API_MAC_CARBON
-			else	// !gAppearanceManagerFlag
-				{
-				controlHandle = (ControlHandle)((WindowPeek)windowPtr)->controlList;
-				while (controlHandle != NULL)
-					{
-					refCon = (SInt16)GetControlReference (controlHandle);
-					
-					if (numberSets > 1 || (refCon != kNextGraphSetControl && 
-													refCon != kPreviousGraphSetControl))
-						ShowControl (controlHandle);
-						
-					controlHandle = (*controlHandle)->nextControl;
-					
-					}	// end "while (controlHandle != NULL)"
-				
-				}	// end "else !gAppearanceManagerFlag"
-		#endif	// !TARGET_API_MAC_CARBON
-		*/
 		SetPort (savedPort);
-	
 	#endif	// defined multispec_mac                    
 		                                                         
 	#if defined multispec_win                                                    
@@ -2416,7 +1436,7 @@ void DrawGraphControls (
                            
                            
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2434,7 +1454,7 @@ void DrawGraphControls (
 // Called By:			CreateGraphWindow
 //
 //	Coded By:			Larry L. Biehl			Date: 10/09/1991
-//	Revised By:			Larry L. Biehl			Date: 03/03/2017			
+//	Revised By:			Larry L. Biehl			Date: 04/04/2018
 
 void DrawGraphLabels (
 				GraphPtr								graphRecPtr)
@@ -2470,14 +1490,16 @@ void DrawGraphLabels (
 			                                                         
 		#if defined multispec_mac
 			yPos = clientRectPtr->bottom - graphRecPtr->bottomInset + 
-														(SInt16)(3.5 * graphRecPtr->textSize);
+												(SInt16)(3.5 * graphRecPtr->textSize) + 2;
+			if (graphRecPtr->processorCode == kHistogramStatsProcessor)
+				yPos -= 4;
 			MoveTo (xPos, yPos);
 			DrawText (&graphRecPtr->xLabel, 1, graphRecPtr->xLabel[0]);
 		#endif	// defined multispec_mac                    
 			                                                         
 		#if defined multispec_win  
 			yPos = clientRectPtr->bottom - graphRecPtr->bottomInset + 
-												(SInt16)(3.5 * graphRecPtr->textSize);                                                
+												(SInt16)(3.5 * graphRecPtr->textSize) + 4;                                                
 			graphRecPtr->pDC->TextOut (xPos, 
 												yPos, 
 												(LPCTSTR)A2T((char*)&graphRecPtr->xLabel[1]), 
@@ -2504,7 +1526,7 @@ void DrawGraphLabels (
 		textWidth = TextWidth (
 						(UCharPtr)&graphRecPtr->yLabel, 1, graphRecPtr->yLabel[0]);
 							
-		xPos = clientRectPtr->left + 3;
+		xPos = clientRectPtr->left + 3 + kLeftEdgeSpace;
 		
 		#if defined multispec_lin			
 			yPos = clientRectPtr->top + (SInt16)(1.8* graphRecPtr->textSize); 
@@ -2540,7 +1562,7 @@ void DrawGraphLabels (
                            
                            
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2685,7 +1707,7 @@ void DrawGraphLegend (
 
                             
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2825,7 +1847,11 @@ void DrawGraphTitle (
 				#endif	// defined multispec_mac                    
 					                                                         
 				#if defined multispec_win  
+					UINT	savedTextAlign;
+
+
 					graphRecPtr->pDC->MoveTo (xPos, yPos);
+					savedTextAlign = graphRecPtr->pDC->GetTextAlign (); 
 					graphRecPtr->pDC->SetTextAlign (TA_BASELINE + TA_UPDATECP); 	
 					graphRecPtr->pDC->SetTextColor (RGB (0, 0, 0));                                                    
 					graphRecPtr->pDC->TextOut (xPos, 
@@ -2856,7 +1882,7 @@ void DrawGraphTitle (
 														yPos, 
 														(LPCTSTR)A2T((char*)&graphRecPtr->title2[29]), 
 														1); 
-					graphRecPtr->pDC->SetTextAlign (TA_BASELINE);
+					graphRecPtr->pDC->SetTextAlign (savedTextAlign);
 				#endif	// defined multispec_win 
 
             #if defined multispec_lin 
@@ -2922,7 +1948,7 @@ void DrawGraphTitle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2963,7 +1989,7 @@ void ForceGraphCodeResourceLoad (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3053,7 +2079,7 @@ Handle GetGraphRecordHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3108,7 +2134,7 @@ GraphPtr GetGraphRecordPtr (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3127,62 +2153,100 @@ GraphPtr GetGraphRecordPtr (
 // Called By:			CreateGraphWindow
 //
 //	Coded By:			Larry L. Biehl			Date: 10/09/1991
-//	Revised By:			Larry L. Biehl			Date: 12/01/2017			
+//	Revised By:			Larry L. Biehl			Date: 04/19/2018
 
 void GetGraphLabels (
 				GraphPtr								graphRecordPtr)
 													
 {
-	char									number[64];
-	
-	double								maxValue,
-											minValue;
-	
 	char									*xLabelStringPtr,
 											*yLabelStringPtr;
-											
-	SInt32								error,
-											ticLabelWidth;
-											
+	
+	Boolean								hasWavelengthValuesFlag;
+	
+	
+	if (graphRecordPtr == NULL)
+																							return;
 	
 	xLabelStringPtr = (char*)&graphRecordPtr->xLabel;
 	yLabelStringPtr = (char*)&graphRecordPtr->yLabel;
 	
 	if (xLabelStringPtr != NULL)
 		{
+		hasWavelengthValuesFlag =
+							(graphRecordPtr->descriptionCode & kBothReflectiveThermalData);
+		
 		switch (graphRecordPtr->processorCode)
 			{
 			case kListDataProcessor:
-			case kSelectionGraphProcessor:
-				#if defined multispec_lin
-					if (graphRecordPtr->imageViewCPtr->m_hasWaveLength)
-								// Has combobox to replace text label
-						xLabelStringPtr[0] = sprintf ((char*)&xLabelStringPtr[1],
-																"");
-					else
-						xLabelStringPtr[0] = sprintf ((char*)&xLabelStringPtr[1],
-																"Channel");
+				#if defined multispec_lin	
+					if (graphRecordPtr->imageViewCPtr != NULL)
+						{
+						if (hasWavelengthValuesFlag &&
+								graphRecordPtr->graphViewCPtr->m_frame->m_comboXlabel != NULL)
+							graphRecordPtr->graphViewCPtr->m_frame->m_comboXlabel->Show ();
+							
+						}	// end "if (graphRecordPtr->imageViewCPtr != NULL)"
 				#endif	// defined multispec_lin
-
-				#if defined multispec_mac || defined multispec_win
+			
+			case kSelectionGraphProcessor:
+				if (hasWavelengthValuesFlag)
+					{
+							// Has combobox to replace text label
 					xLabelStringPtr[0] = sprintf ((char*)&xLabelStringPtr[1],
-															"Channel");
-				#endif	// defined multispec_mac || ...
-		
-				graphRecordPtr->xESignificantDigits = 0; 
-				graphRecordPtr->xFSignificantDigits = 0; 
+																"");
+					
+					#if defined multispec_lin
+						wxComboBox* xAxisComboBoxPtr =
+										(wxComboBox*)graphRecordPtr->xAxisPopupControlHandle;
+						if (xAxisComboBoxPtr != NULL)
+							xAxisComboBoxPtr->Show ();
+					#endif	// defined multispec_lin
+
+					#if defined multispec_mac
+						ShowControl (graphRecordPtr->xAxisPopupControlHandle);
+					#endif	// defined multispec_mac
+					
+					#if defined multispec_win
+						CMGraphView* graphViewCPtr = graphRecordPtr->graphViewCPtr;
+						graphViewCPtr->GetDlgItem (IDC_xAxis)->ShowWindow (SW_SHOW);
+					#endif	// defined multispec_win
+				
+					}	// end "if (hasWavelengthValuesFlag)"
+
+				else	// !hasWavelengthValuesFlag
+					{
+					xLabelStringPtr[0] = sprintf ((char*)&xLabelStringPtr[1],
+																"Channel Number");
+					#if defined multispec_lin
+						wxComboBox* xAxisComboBoxPtr =
+										(wxComboBox*)graphRecordPtr->xAxisPopupControlHandle;
+						if (xAxisComboBoxPtr != NULL)
+							xAxisComboBoxPtr->Hide ();
+					#endif	// defined multispec_lin
+
+					#if defined multispec_mac
+						HideControl (graphRecordPtr->xAxisPopupControlHandle);
+					#endif	// defined multispec_mac
+					
+					#if defined multispec_win
+						CMGraphView* graphViewCPtr = graphRecordPtr->graphViewCPtr;
+						graphViewCPtr->GetDlgItem (IDC_xAxis)->ShowWindow (SW_HIDE);
+					#endif	// defined multispec_win
+
+					}	// end "else !hasWavelengthValuesFlag"
 				break;
 				
 			case kBiPlotDataProcessor:
 				if (gBiPlotDataSpecsPtr->featureTransformationFlag)
 					xLabelStringPtr[0] = sprintf ((char*)&xLabelStringPtr[1],
-													"Feature %hd",
-													gBiPlotDataSpecsPtr->axisFeaturePtr[0]+1);
+													"Feature %d",
+													(int)(gBiPlotDataSpecsPtr->axisFeaturePtr[0]+1));
 									
 				else	// !...->featureTransformationFlag 
 					xLabelStringPtr[0] = sprintf ((char*)&xLabelStringPtr[1],
-													"Channel %hd",
-													gBiPlotDataSpecsPtr->axisFeaturePtr[0]+1);
+													"Channel %d",
+													(int)(gBiPlotDataSpecsPtr->axisFeaturePtr[0]+1));
 		
 				graphRecordPtr->xESignificantDigits = 0; 
 				graphRecordPtr->xFSignificantDigits = 0;  
@@ -3191,8 +2255,6 @@ void GetGraphLabels (
 			case kHistogramStatsProcessor:
 				xLabelStringPtr[0] = sprintf ((char*)&xLabelStringPtr[1],
 														"Data Value");
-		
-				//graphRecordPtr->xSignificantDigits = 0; 
 				break;
 			
 			}	// end "switch (graphRecordPtr->processorCode)" 
@@ -3207,28 +2269,19 @@ void GetGraphLabels (
 			case kSelectionGraphProcessor:
 				yLabelStringPtr[0] = sprintf ((char*)&yLabelStringPtr[1],
 														"Value");
-														
-				//minValue = graphRecordPtr->yMin;
-				//maxValue = graphRecordPtr->yMax;
-				minValue = graphRecordPtr->yScaleMin;
-				maxValue = graphRecordPtr->yScaleMax;
-				
-				//graphRecordPtr->ySignificantDigits = 0; 
 				break;
 				
 			case kBiPlotDataProcessor:
 				if (gBiPlotDataSpecsPtr->featureTransformationFlag)
 					yLabelStringPtr[0] = sprintf ((char*)&yLabelStringPtr[1],
-															"Feature %hd",
-															gBiPlotDataSpecsPtr->axisFeaturePtr[1]+1);
+															"Feature %d",
+															(int)(gBiPlotDataSpecsPtr->axisFeaturePtr[1]+1));
 									
 				else	// !...->featureTransformationFlag 
 					yLabelStringPtr[0] = sprintf ((char*)&yLabelStringPtr[1],
-															"Channel %hd",
-															gBiPlotDataSpecsPtr->axisFeaturePtr[1]+1);
+															"Channel %d",
+															(int)(gBiPlotDataSpecsPtr->axisFeaturePtr[1]+1));
 														
-				minValue = graphRecordPtr->yMin;
-				maxValue = graphRecordPtr->yMax;
 				graphRecordPtr->yESignificantDigits = 0;
 				graphRecordPtr->yFSignificantDigits = 0;
 				break;
@@ -3236,37 +2289,9 @@ void GetGraphLabels (
 			case kHistogramStatsProcessor:
 				yLabelStringPtr[0] = sprintf ((char*)&yLabelStringPtr[1],
 														"Count");
-														
-				minValue = 0;
-				maxValue = gStatHistogramSpecsPtr->totalNumberValues;
-				//graphRecordPtr->yESignificantDigits = 0; 
-				//graphRecordPtr->yFSignificantDigits = 0; 
 				break;
 			
-			}	// end "switch (graphRecordPtr->processorCode)" 
-			
-				// Get length of max y tic label string.
-				
-		FormatR (number, 
-						&minValue, 
-						graphRecordPtr->yESignificantDigits, 
-						graphRecordPtr->yFSignificantDigits,
-						false, 
-						&error);
-		ticLabelWidth = TextWidth ((UCharPtr)number, 0, (SInt16)strlen (number));
-				
-		FormatR (number, 
-						&maxValue, 
-						graphRecordPtr->yESignificantDigits, 
-						graphRecordPtr->yFSignificantDigits,
-						false, 
-						&error);
-		graphRecordPtr->yTicLabelWidth = 
-									TextWidth ((UCharPtr)number, 0, (SInt16)strlen (number));
-		graphRecordPtr->yTicLabelWidth = (SInt16)
-											MAX (graphRecordPtr->yTicLabelWidth, ticLabelWidth);
-		
-		graphRecordPtr->yTicLabelWidth = MAX (39, graphRecordPtr->yTicLabelWidth+8);
+			}	// end "switch (graphRecordPtr->processorCode)"
 		
 		}	// end "if (yLabelString != NULL)" 
 		
@@ -3275,7 +2300,7 @@ void GetGraphLabels (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3365,7 +2390,7 @@ void GetGraphTitle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3430,8 +2455,7 @@ void GetGraphWindowLocation (
 		gNextGraphicsWindowStart.h	= MAX ((rect.right - *xSizePtr - 9), 5);
 		gNextGraphicsWindowStart.v	= MAX ((rect.bottom - *ySizePtr - 9), 
 														40); 
-		if (gOSXFlag)
-			gNextGraphicsWindowStart.v	= MAX ((gNextGraphicsWindowStart.v - 70), 
+		gNextGraphicsWindowStart.v	= MAX ((gNextGraphicsWindowStart.v - 70), 
 															40);
 		
 		gGraphicsWindowOffset = 10;
@@ -3447,7 +2471,7 @@ void GetGraphWindowLocation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3510,7 +2534,7 @@ double GetUserHistogramBinWidth (
 		
 	else	// graphRecordPtr->histogramBinCode > 0
 		binWidth = graphRecordPtr->histogramBinCode * histogramBinWidth;
-      
+	
 	return (binWidth);
 
 }	// end "GetUserHistogramBinWidth" 
@@ -3518,7 +2542,7 @@ double GetUserHistogramBinWidth (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3584,7 +2608,7 @@ void GetLikeWindowMinMax (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3628,408 +2652,8 @@ WindowPtr GetSelectionGraphImageWindow (
 	
 
 
-#if defined multispec_mac 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
-//
-//	Function name:		pascal void GraphChangeSetControlEvent
-//
-//	Software purpose:	This routine handles the next/previous channel action in 
-//							TrackControl for next and previous channel control actions.
-//
-//	Parameters in:					
-//
-//	Parameters out:				
-//
-// Value Returned:	None
-// 
-// Called By:			
-//
-//	Coded By:			Larry L. Biehl			Date: 01/26/1999
-//	Revised By:			Larry L. Biehl			Date: 11/15/2002			
-
-pascal void GraphChangeSetControlEvent (
-				ControlHandle						theControl, 
-				SInt16								partCode)
-				
-{	
-	Point									mousePoint;
-	Rect									controlRect;
-	
-	GraphPtr								graphRecordPtr;
-	
-	Handle								graphRecordHandle; 
-	
-	SInt16								refCon;
-	
-	Boolean								nextGraphFlag;
-	
-	
-			// Return if mouse location has moved outside of control area.			
-			
-	if (partCode == 0)
-																							return;
-																							
-	GetControlBounds (theControl, &controlRect);
-																							
-	while (StillDown ()) 
-		{				
-				// Only zoom if the mouse is still in the control.
-				
-		::GetMouse (&mousePoint);
-		if (!PtInRect (mousePoint, &controlRect))
-																							return;
-	
-				// If the command key is down, then do not need to wait
-				// 'gControlOffset' ticks - zoom away.
-		
-		nextGraphFlag = TRUE;
-		if (!(gEventRecord.modifiers & cmdKey))
-			{				
-					// Make certain that at least 'gControlOffset' ticks 
-					// have passed since the last zoom operation.	This is 
-					// need for very fast systems where one click of the 
-					// mouse may cause two loops through this routine.																		
-																									
-			if (TickCount () < gNextTime + gControlOffset)
-				nextGraphFlag = FALSE;
-																								
-			}	// end "if (!(gEventRecord.modifiers & cmdKey))"
-			
-		if (nextGraphFlag)
-			{
-			gNextTime = TickCount ();
-																									
-					// Initialize variables.
-			
-			refCon = (SInt16)GetControlReference (theControl);
-			
-			graphRecordHandle = GetGraphRecordHandle (gActiveWindowInfoH);
-			graphRecordPtr = (GraphPtr)GetHandlePointer (graphRecordHandle);
-			
-			DoNextOrPreviousChannel	(graphRecordPtr->graphViewCPtr, refCon);
-			
-					// Do an event available to load into the gEventRecord the status	
-					// of the command key.
-					
-			//#if TARGET_API_MAC_CARBON
-			gEventRecord.modifiers = GetCurrentKeyModifiers ();
-			/*
-			#else	// !TARGET_API_MAC_CARBON
-				EventAvail (updateMask, &gEventRecord);
-			#endif	// TARGET_API_MAC_CARBON, else ...
-			*/
-			
-			}	// end "if (nextGraphFlag)"
-			
-		}	// end "while (StillDown ())"
-
-}	// end "GraphChangeSetControlEvent" 	 
-#endif	// defined multispec_mac    
-	
-
-
-#if defined multispec_mac
-//------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
-//
-//	Function name:		void GraphWControlEvent
-//
-//	Software purpose:	This routine handles control events in graph windows. 
-//							Graph window control events include advance to next set, go
-//							back to previous set.
-//
-//	Parameters in:					
-//
-//	Parameters out:				
-//
-// Value Returned:	None
-// 
-// Called By:			DoMouseDnContent
-//
-//	Coded By:			Larry L. Biehl			Date: 01/23/1999
-//	Revised By:			Larry L. Biehl			Date: 11/23/2008			
-
-void GraphWControlEvent (
-				ControlHandle						theControl, 
-				WindowPtr							windowPtr, 
-				Point									location, 
-				SInt16								partCode)
-				
-{
-			// Local Structures and Variables
-	
-	CMGraphView*						graphViewCPtr;		
-	GraphPtr								graphRecordPtr;
-			
-	Handle								graphRecordHandle;
-	MenuHandle							popUpMenuHandle;
-	
-	//#ifdef AVAILABLE_MAC_OS_X_VERSION_10_5_AND_LATER
-	#if __MAC_OS_X_VERSION_MAX_ALLOWED >= 1050
-		MenuItemIndex						selection;
-	#else
-		SInt16								selection;
-	#endif
-	
-	OSErr									errCode;	
-			
-	SInt16								index,
-											numberMenuItems,
-											refCon;
-	
-	
-			// Get the refCon of the control. This will contain a code for which 
-			// control it is.																		
-			// refCon = 0: Vertical scroll bar												
-			// refCon = 1: Horizontal scroll bar									
-	
-	refCon = (SInt16)GetControlReference (theControl);
-	
-	if (refCon >= kNextGraphSetControl && refCon <= kGraphBinWidthControl)
-		{
-		gNextTime = 0;
-		
-		switch (refCon)
-			{
-			case kNextGraphSetControl:				// Advance to next graph set
-			case kPreviousGraphSetControl:		// Go back to previous graph set 
-			
-						// If there was a mouseup in this control, advance to the
-						// next graph set or go back to the previous one.						
-					
-				partCode = TrackControl (theControl, location, gGraphChangeSetControlActionPtr);
-				UpdateGraphControls (windowPtr);
-				break;
-				
-			case kGraphVectorControl:
-				errCode = noErr;
-				selection =  0;
-				
-				graphRecordHandle = GetGraphRecordHandle (windowPtr);
-				graphRecordPtr = (GraphPtr)GetHandlePointer (graphRecordHandle);
-				graphViewCPtr = graphRecordPtr->graphViewCPtr;
-				
-				if (gAppearanceManagerFlag)
-					{
-					popUpMenuHandle = GetPopUpMenuHandle (theControl);
-					if (popUpMenuHandle != NULL)
-						{
-						SetUpVectorPopUpMenu (graphViewCPtr, popUpMenuHandle);
-													
-						selection = TrackControl (theControl, location, NIL);		
-						
-						if (selection > 0)
-							errCode = GetBevelButtonMenuValue (theControl, &selection);					
-										
-								// Now delete the current menu items.
-															
-						numberMenuItems = CountMenuItems (gPopUpTemporaryMenu);
-						for (index=0; index<numberMenuItems; index++)			
-							DeleteMenuItem (gPopUpTemporaryMenu, 1);
-							
-						}	// end "if (popUpMenuHandle != NULL)"
-								
-					}	// end "if (gAppearanceManagerFlag)"
-						
-				else	// !gAppearanceManagerFlag
-					{
-							// Set the hilite to indicate that the button has been pushed in.
-								
-					HiliteControl (theControl, kControlButtonPart);
-					DrawPopupControl (theControl, 10002);
-											
-					SetUpVectorPopUpMenu (graphViewCPtr, gPopUpTemporaryMenu);
-					
-					numberMenuItems = CountMenuItems (gPopUpTemporaryMenu);
-							
-					selection = StandardControlPopUpMenu (theControl, 
-																		gPopUpTemporaryMenu, 
-																		numberMenuItems, 
-																		kColorMenuID,
-																		kNoCheckItem);	
-																
-							// Now delete the current menu items.
-														
-					for (index=0; index<numberMenuItems; index++)			
-						DeleteMenuItem (gPopUpTemporaryMenu, 1);
-						
-					HiliteControl (theControl, 0);
-
-					}	// end "else !gAppearanceManagerFlag"
-														
-				if (errCode == noErr && selection > 0)
-					{
-					SetVectorDisplayList (graphViewCPtr, selection-1);
-					
-					SetGraphMinMax (gActiveWindowInfoH, kBothXYAxes);
-							
-					InvalidateGraphWindow (windowPtr, kGraphArea);
-						
-					}	// end "if (errCode == noErr && selection > 0)"
-					
-				InvalWindowRect (windowPtr, GetControlBounds (theControl, &gTempRect));
-				break;
-				
-			case kGraphOverlayControl:
-				errCode = noErr;
-				selection =  0;
-				
-				graphRecordHandle = GetGraphRecordHandle (windowPtr);
-				graphRecordPtr = (GraphPtr)GetHandlePointer (graphRecordHandle);
-				graphViewCPtr = graphRecordPtr->graphViewCPtr;
-												
-				if (gAppearanceManagerFlag)
-					{
-					popUpMenuHandle = GetPopUpMenuHandle (theControl);
-					if (popUpMenuHandle != NULL)
-						{
-						SetUpOverlayPopUpMenu (graphViewCPtr, popUpMenuHandle);
-													
-						selection = TrackControl (theControl, location, NIL);		
-						
-						if (selection > 0)
-							errCode = GetBevelButtonMenuValue (theControl, &selection);				
-										
-								// Now delete the current menu items.
-															
-						numberMenuItems = CountMenuItems (gPopUpTemporaryMenu);
-						for (index=0; index<numberMenuItems; index++)			
-							DeleteMenuItem (gPopUpTemporaryMenu, 1);
-							
-						}	// end "if (popUpMenuHandle != NULL)"
-								
-					}	// end "if (gAppearanceManagerFlag)"
-						
-				else	// !gAppearanceManagerFlag
-					{
-							// Set the hilite to indicate that the button has been pushed in.
-								
-					HiliteControl (theControl, kControlButtonPart);
-					DrawPopupControl (theControl, 10001);
-											
-					SetUpOverlayPopUpMenu (graphViewCPtr, gPopUpTemporaryMenu);
-					
-					numberMenuItems = CountMenuItems (gPopUpTemporaryMenu);
-							
-					selection = StandardControlPopUpMenu (
-																theControl, 
-																gPopUpTemporaryMenu, 
-																numberMenuItems, 
-																kColorMenuID,
-																kNoCheckItem);
-						
-							// Now delete the current menu items.
-														
-					for (index=0; index<numberMenuItems; index++)			
-						DeleteMenuItem (gPopUpTemporaryMenu, 1);	
-						
-					HiliteControl (theControl, 0);
-						
-					}	// end "else !gAppearanceManagerFlag"
-														
-				if (errCode == noErr && selection > 0)
-					{
-					SetOverlayDisplayList (graphViewCPtr, selection);
-							
-					InvalidateGraphWindow (windowPtr, kGraphArea);
-						
-					}	// end "if (errCode == noErr && selection > 0)"
-					
-				InvalWindowRect (windowPtr, GetControlBounds (theControl, &gTempRect));
-				break;
-				
-			case kGraphBinWidthControl:
-				errCode = noErr;
-				selection =  0;
-				
-				graphRecordHandle = GetGraphRecordHandle (windowPtr);
-				graphRecordPtr = (GraphPtr)GetHandlePointer (graphRecordHandle);
-				graphViewCPtr = graphRecordPtr->graphViewCPtr;
-												
-				if (gAppearanceManagerFlag)
-					{
-					popUpMenuHandle = GetPopUpMenuHandle (theControl);
-					if (popUpMenuHandle != NULL)
-						{
-						SetUpBinWidthPopUpMenu (graphViewCPtr, popUpMenuHandle);
-													
-						selection = TrackControl (theControl, location, NIL);		
-						
-						if (selection > 0)
-							errCode = GetBevelButtonMenuValue (theControl, &selection);
-						
-								// Now delete the current menu items.
-															
-						numberMenuItems = CountMenuItems (gPopUpTemporaryMenu);
-						for (index=0; index<numberMenuItems; index++)			
-							DeleteMenuItem (gPopUpTemporaryMenu, 1);	
-							
-						}	// end "if (popUpMenuHandle != NULL)"
-								
-					}	// end "if (gAppearanceManagerFlag)"
-						
-				else	// !gAppearanceManagerFlag
-					{
-							// Set the hilite to indicate that the button has been pushed in.
-								
-					HiliteControl (theControl, kControlButtonPart);
-					DrawPopupControl (theControl, 10001);
-											
-					SetUpBinWidthPopUpMenu (graphViewCPtr, gPopUpTemporaryMenu);
-					
-					numberMenuItems = CountMenuItems (gPopUpTemporaryMenu);
-							
-					selection = StandardControlPopUpMenu (
-																theControl, 
-																gPopUpTemporaryMenu, 
-																numberMenuItems, 
-																kColorMenuID,
-																kNoCheckItem);
-						
-							// Now delete the current menu items.
-														
-					for (index=0; index<numberMenuItems; index++)			
-						DeleteMenuItem (gPopUpTemporaryMenu, 1);	
-						
-					HiliteControl (theControl, 0);
-						
-					}	// end "else !gAppearanceManagerFlag"
-														
-				if (errCode == noErr && selection > 0)
-					{
-					if (SetHistogramBinWidth (graphViewCPtr, selection))
-						{
-						SetGraphMinMax (graphRecordPtr, kBothXYAxes);
-						
-						InvalidateGraphWindow (windowPtr, kGraphArea);
-						InvalidateGraphWindow (windowPtr, kGraphBinWidth);
-						
-						}	// end "if (SetHistogramBinWidth (graphViewCPtr, selection))"
-						
-					}	// end "if (errCode == noErr && selection > 0)"
-					
-				InvalWindowRect (windowPtr, GetControlBounds (theControl, &gTempRect));
-				break;
-				
-			default:
-				break;
-	    	
-			}	// end "switch (refCon)" 
-
-		}	// end of "if (refCon >= kNextGraphSetControl && ..." 
-	  
-}	// end "GraphWControlEvent" 		 
-#endif	// defined multispec_mac    
-
-
-
-//------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4073,7 +2697,7 @@ void InvalidateGraphWindow (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4139,7 +2763,7 @@ void ListBinWidthValue (
 	#if defined multispec_mac
 		ClipRect (&graphRecordPtr->clientRect); 
 			
-		left = graphRecordPtr->clientRect.left + 95 + 6*kLegendScrollWidth+25;
+		left = graphRecordPtr->clientRect.left + 105 + 6*kLegendScrollWidth+25;
 		top  = graphRecordPtr->clientRect.bottom - 4;  
 		
 		if (!drawInWindowFlag)
@@ -4151,23 +2775,28 @@ void ListBinWidthValue (
 	#endif	// defined multispec_win
 			
 	#if defined multispec_win
-		left = 95 + 6*kLegendScrollWidth + 25;
+		UINT	savedTextAlign;
+
+		left = 105 + 6*kLegendScrollWidth + 16;
 		top  = graphRecordPtr->clientRect.bottom - 
-													graphRecordPtr->clientRect.top - 3;
+													graphRecordPtr->clientRect.top - 6;	// -3
 		if (!drawInWindowFlag)
 					// This is for a copy or printed page.
 			top -= 15;
 
 		SetBackgroundColor (graphRecordPtr->pDC, 192);
+		savedTextAlign = graphRecordPtr->pDC->GetTextAlign ();
+		graphRecordPtr->pDC->SetTextAlign (TA_BASELINE);
 		graphRecordPtr->pDC->SetTextColor (RGB (0,0,0));
 		graphRecordPtr->pDC->TextOut (left, 
 													top, 
 													(LPCTSTR)A2T((char*)tempString), 
 													numChars);
+		graphRecordPtr->pDC->SetTextAlign (savedTextAlign);
 	#endif	// defined multispec_win
    
 	#if defined multispec_lin
-		left = 95 + 6*kLegendScrollWidth + 25;
+		left = 105 + 6*kLegendScrollWidth + 25;
 		top  = graphRecordPtr->clientRect.bottom - 
 													graphRecordPtr->clientRect.top - 3;
 		if (!drawInWindowFlag)
@@ -4186,7 +2815,7 @@ void ListBinWidthValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4207,7 +2836,7 @@ void ListBinWidthValue (
 // Called By:	
 //
 //	Coded By:			Larry L. Biehl			Date: 04/25/1994
-//	Revised By:			Larry L. Biehl			Date: 08/09/2013		
+//	Revised By:			Larry L. Biehl			Date: 03/15/2018		
 
 void LoadGraphSupportArrays (
 				GraphPtr								graphRecordPtr,
@@ -4233,6 +2862,8 @@ void LoadGraphSupportArrays (
 	                                     
 	UInt32								colorIndex,
 											vectorLengthInitialValue;
+
+	SInt16								processorCode;
 	
 	
 	if (graphRecordPtr != NULL)
@@ -4241,7 +2872,9 @@ void LoadGraphSupportArrays (
 				// of points in each graph vector, and the start location		
 				// for x vector for each y vector.										
 				// For the Response versus wavelength graphs, the x vector		
-				// is the same for the possible 5 y vectors.							
+				// is the same for the possible 5 y vectors.	
+
+		processorCode = graphRecordPtr->processorCode;
 		
 		numberVectors = graphRecordPtr->numberVectors;
 		
@@ -4250,7 +2883,7 @@ void LoadGraphSupportArrays (
 		vectorDisplayPtr = (UInt8*)GetHandlePointer (
 															graphRecordPtr->vectorDisplayHandle);
 											
-		if (gProcessorCode == kBiPlotDataProcessor)
+		if (processorCode == kBiPlotDataProcessor)
 			{
 			*vectorDisplayPtr = 1;
 			
@@ -4261,20 +2894,20 @@ void LoadGraphSupportArrays (
 			for (index=0; index<(SInt32)gBiPlotDataSpecsPtr->numberClasses; index++)
 				vectorDisplayPtr[classPtr[index]] = 1;
 				
-			}	// end "if (gProcessorCode == kBiPlotDataProcessor)" 
+			}	// end "if (processorCode == kBiPlotDataProcessor)" 
 			
-		else	// gProcessorCode != kBiPlotDataProcessor 
+		else	// processorCode != kBiPlotDataProcessor 
 			{
 			for (index=0; index<numberVectors; index++, vectorDisplayPtr++)
 				*vectorDisplayPtr = 1;
 			
-			}	// end "else gProcessorCode != kBiPlotDataProcessor" 
+			}	// end "else processorCode != kBiPlotDataProcessor" 
 		
 				// Load the symbols that are to be used.		
 		
 		vectorSymbolPtr = (UInt8*)GetHandlePointer (graphRecordPtr->vectorSymbolHandle);
 		
-		if (gProcessorCode == kBiPlotDataProcessor)
+		if (processorCode == kBiPlotDataProcessor)
 			{
 			*vectorSymbolPtr = '+';
 			vectorSymbolPtr++;
@@ -4284,14 +2917,14 @@ void LoadGraphSupportArrays (
 			for (index=1; index<numberVectors; index++, vectorSymbolPtr++)
 				*vectorSymbolPtr = symbolsPtr[index];
 				
-			}	// end "if (gProcessorCode == kBiPlotDataProcessor)" 
+			}	// end "if (processorCode == kBiPlotDataProcessor)" 
 				
-		else	// gProcessorCode != kBiPlotDataProcessor 
+		else	// processorCode != kBiPlotDataProcessor 
 			{
 			for (index=0; index<numberVectors; index++, vectorSymbolPtr++)
 				*vectorSymbolPtr = '+';
 			
-			}	// end "else gProcessorCode != kBiPlotDataProcessor" 
+			}	// end "else processorCode != kBiPlotDataProcessor" 
 			
 			
 				// Load the x vector offset to be used for each associated		
@@ -4329,8 +2962,8 @@ void LoadGraphSupportArrays (
 				// graphs.			
 		
 		vectorLengthInitialValue = vectorLength;
-		if (gProcessorCode == kBiPlotDataProcessor || 
-											gProcessorCode == kHistogramStatsProcessor)	 
+		if (processorCode == kBiPlotDataProcessor || 
+											processorCode == kHistogramStatsProcessor)	 
 			vectorLengthInitialValue = 0;
 		
 		vectorLengthsPtr = (SInt32*)GetHandlePointer (
@@ -4446,7 +3079,7 @@ void LoadGraphSupportArrays (
 			
 				// Load the set list vector. 
 			
-		if (gProcessorCode == kHistogramStatsProcessor)
+		if (processorCode == kHistogramStatsProcessor)
 			{
 					// Get a copy of the channel numbers or feature numbers being
 					// loaded in for the histogram graphs.
@@ -4473,7 +3106,7 @@ void LoadGraphSupportArrays (
 														gProjectInfoPtr->statsWindowMode))
 				graphRecordPtr->graphCodesAvailable = 1;
 			
-			}	// end "else if (gProcessorCode == kHistogramStatsProcessor)"
+			}	// end "else if (processorCode == kHistogramStatsProcessor)"
 		
 		}	// end "if (graphRecordPtr != NULL)" 
 
@@ -4482,14 +3115,16 @@ void LoadGraphSupportArrays (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void LoadGraphXVector
 //
-//	Software purpose:	This routine loads the data into the x vector for a
-//							graph window.
+//	Software purpose:	This routine loads the data into the x vector for a graph window.
+//							The routine will also find the min and max values for the x-axis
+//							for channel number, overall wavelength, reflective wavelengths,
+//							and thermal wavelengths.
 //
 //	Parameters in:				
 //
@@ -4497,36 +3132,57 @@ void LoadGraphSupportArrays (
 //
 // Value Returned:	None
 // 
-// Called By:			CreateGraphWindow in graphicsUtilities.c
-//							ShowGraphWindowSelection in selectionGraph.c
+// Called By:			FinishGraphRecordSetUp in SGraphView.cpp
+//							ShowGraphWindowSelection in SSelectionGraph.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/09/1991
-//	Revised By:			Larry L. Biehl			Date: 12/01/2017			
+//	Revised By:			Larry L. Biehl			Date: 07/11/2018
 
 Boolean LoadGraphXVector (
 				GraphPtr								graphRecordPtr,
 				SInt16*								channelListPtr, 
-				SInt32								vectorLength)
+				SInt32								channelListLength,
+				SInt32								vectorLength,
+				SInt16*								inputChannelWavelengthOrderPtr)
 													
 {
-	float*								channelValuePtr;
+	float									*channelValuePtr,
+											*channelWidthsPtr;
 	
-	double								value;
+	double								value,
+											widthValue;
+											
+	FileInfoPtr							fileInfoPtr,
+											localFileInfoPtr = NULL;
+
+	LayerInfoPtr						layerInfoPtr = NULL;
+	
+	//UInt16*								channelWavelengthOrderPtr;
+	
+	WindowInfoPtr						windowInfoPtr;
 	
 	Handle								channelValuesHandle,
 											windowInfoHandle;
 	
 	SInt32								error = noErr, 
-											index2;
+											//localIndexStart,
+											wavelengthIndex,
+											wavelengthWidthIndex;
 	
 	SInt16								channel,
-											index;
+											fileInfoIndex,
+											index,
+											localChannel;
 	
 	Boolean								continueFlag;
+											//xDataMaxSetFlag,
+											//xDataMinSetFlag;
+	
+   //SignedByte						handleStatus,
+	//										windowHandleStatus;
 	
 
 	continueFlag = FALSE;
-
 	if (graphRecordPtr != NULL)
 		{
 				// Initialize values for x vector.											
@@ -4534,24 +3190,33 @@ Boolean LoadGraphXVector (
 				// will be loaded second if they exist.									
 		
 		channelValuePtr = NULL;
+		channelWidthsPtr = NULL;
+		//channelWavelengthOrderPtr = NULL;
 		channelValuesHandle = NULL;
 		windowInfoHandle = GetWindowInfoHandle (graphRecordPtr->imageWindow);
+		windowInfoPtr = (WindowInfoPtr)GetHandlePointer (windowInfoHandle);
 
 		Handle fileInfoHandle = GetFileInfoHandle (windowInfoHandle);
-		FileInfoPtr fileInfoPtr = (FileInfoPtr)GetHandlePointer (fileInfoHandle);
-		if (fileInfoPtr != NULL)
+		fileInfoPtr = (FileInfoPtr)GetHandlePointer (fileInfoHandle);
+		
+		if (fileInfoPtr != NULL &&
+					windowInfoPtr != NULL &&
+							windowInfoPtr->channelsInWavelengthOrderCode != kNotApplicable)
 			channelValuesHandle = fileInfoPtr->channelValuesHandle;
 
 		if (channelValuesHandle != NULL)
 			{
 			channelValuePtr = (float*)GetHandlePointer (channelValuesHandle, kLock);
 			
-         #if defined multispec_lin
-            gActiveImageViewCPtr->m_hasWaveLength = true;
-				
-				char* xLabelStringPtr = (char*)&graphRecordPtr->xLabel;
-				xLabelStringPtr[0] = sprintf ((char*)&xLabelStringPtr[1], "");
-			#endif	// defined multispec_lin
+			channelWidthsPtr = &channelValuePtr[fileInfoPtr->numberChannels];
+			
+			//channelWavelengthOrderPtr = (UInt16*)inputChannelWavelengthOrderPtr;
+			//if (inputChannelWavelengthOrderPtr == NULL)
+			//channelWavelengthOrderPtr =
+			//							(UInt16*)&channelWidthsPtr[fileInfoPtr->numberChannels];
+			
+			char* xLabelStringPtr = (char*)&graphRecordPtr->xLabel;
+			xLabelStringPtr[0] = sprintf ((char*)&xLabelStringPtr[1], "");
 
 			}	// end "if (channelValuesHandle)" 
 			
@@ -4559,97 +3224,122 @@ Boolean LoadGraphXVector (
 		LockAndGetVectorPointer (&graphRecordPtr->xVector, &error);
 		
 		channel = 0;	
-		for (index=0; index<vectorLength; index++)
+		for (index=0; index<channelListLength; index++)
 			{		
 			if (error != noErr)
 				break;
 				
 			if (channelListPtr != NULL)
 				channel = channelListPtr[index];
-			
+
 			channel++;
-				
-			if (index == 0)
-				graphRecordPtr->xDataMin = channel;
 				
 			SetV (&graphRecordPtr->xVector, index, channel, &error);
 				
-			}	// end "for (index=0; index<vectorLength; index++)" 
+			}	// end "for (index=0; index<channelListLength; index++)"
 			
 		continueFlag = (error == noErr);
-			
-		graphRecordPtr->xDataMax = channel;
-														
-		graphRecordPtr->xInt = (SInt32)
-						(graphRecordPtr->xDataMax - graphRecordPtr->xDataMin  + 5)/5;
-				
-		#if defined multispec_lin
-					// Update xDataMin and xDataMax for graphWindow
-					
-			if (graphRecordPtr->graphWindowFlag)
-				{ 
-				if (graphRecordPtr->plotWavelength)
-					{
-							// Wavelength data starts from position vectorLength
-							
-					graphRecordPtr->xDataMin = 
-												graphRecordPtr->xVector.basePtr[vectorLength];
-					graphRecordPtr->xDataMax = 
-												graphRecordPtr->xVector.basePtr[2*vectorLength-1];
-							
-					}	// end "if (graphRecordPtr->plotWavelength)"
-					
-				else	// !graphRecordPtr->plotWavelength
-					{
-					graphRecordPtr->xDataMin = 
-												graphRecordPtr->xVector.basePtr[0];
-					graphRecordPtr->xDataMax = 
-												graphRecordPtr->xVector.basePtr[vectorLength-1];
-					
-					}	// end "else !graphRecordPtr->plotWavelength"
-					        
-				}	// end "if (graphRecordPtr->graphWindowFlag)"
-      #endif	// defined multispec_lin
-
-				// Load the channel values.													
 		
+				// Load the channel values.
+
+		layerInfoPtr = (LayerInfoPtr)GetHandlePointer (windowInfoPtr->layerInfoHandle);
+		
+		fileInfoIndex = -1;
 		if (channelValuePtr != NULL && continueFlag)
 			{
 			channel = 0;	
-			index2 = vectorLength;
-			for (index=0; index<vectorLength; index++)
+			//wavelengthIndex = vectorLength;
+			wavelengthWidthIndex = 2 * vectorLength;
+			/*
+			if (channelListLength < vectorLength)
+				{
+						// Fill wavelength vectors with default values of -100 to represent
+						// no data for the channels not being used.
+			
+				wavelengthIndex = vectorLength;
+				wavelengthWidthIndex = 2 * vectorLength;
+				for (index=0; index<vectorLength; index++)
+					{
+					SetV (&graphRecordPtr->xVector, wavelengthIndex+index, -100, &error);
+					if (error != noErr)
+						break;
+					
+					SetV (&graphRecordPtr->xVector, wavelengthWidthIndex, -100, &error);
+			
+					if (error != noErr)
+						break;
+					
+					}	// end "for (index=0; index<vectorLength; index++)"
+				
+				}	// end "if (channelListLength < vectorLength)"
+			*/
+			//localIndexStart = 0;
+			localChannel = 0;
+			for (index=0; index<channelListLength; index++)
 				{		
+				//if (error != noErr)
+				//	break;
+
 				if (channelListPtr != NULL)
 					channel = channelListPtr[index];
-			
-				value = channelValuePtr[channel];
-				
-            #if defined multispec_lin
-					if (index == 0 && graphRecordPtr->plotWavelength)
-						graphRecordPtr->xDataMin = value;
-            #endif	// defined multispec_lin
-
-				SetV (&graphRecordPtr->xVector, index2, value, &error);	
-				index2++;
-			
-				if (error != noErr)
-					break;
+				else	// chanelListPtr == NULL
+					channel = index;
 					
 				channel++;
-				
-				}	// end "for (index=0; index<vectorLength; index++)" 
+				localChannel++;
+            
+            if (fileInfoPtr != NULL && layerInfoPtr != NULL &&
+							fileInfoIndex != (SInt16)layerInfoPtr[channel].fileInfoIndex)
+               {
+					//localIndexStart = index;
+               fileInfoIndex = layerInfoPtr[channel].fileInfoIndex;
+               localFileInfoPtr = &fileInfoPtr[fileInfoIndex];         
+               if (localFileInfoPtr->channelValuesHandle != NULL) 
+                  {
+						channelValuePtr = (float*)GetHandlePointer (
+												localFileInfoPtr->channelValuesHandle, kLock);
+						channelWidthsPtr = &channelValuePtr[localFileInfoPtr->numberChannels];
+						//channelWavelengthOrderPtr =
+						//			(UInt16*)&channelWidthsPtr[localFileInfoPtr->numberChannels];
+												
+                  }	// end "if (fileInfoPtr != NULL && fileInfoPtr->...)" 
+						
+					localChannel = layerInfoPtr[channel].fileChannelNumber;
+						
+               }	// end "if (fileInfoPtr != NULL && ..." 
 			
-         #if defined multispec_lin
-				if (graphRecordPtr->plotWavelength)
-					graphRecordPtr->xDataMax = value;
-         #endif	// defined multispec_lin
+				value = channelValuePtr[localChannel-1];
+
+				wavelengthIndex =
+					//vectorLength + localIndexStart + channelWavelengthOrderPtr[localChannel-1];
+					vectorLength + layerInfoPtr[channel].wavelengthIndex;
+				SetV (&graphRecordPtr->xVector, wavelengthIndex, value, &error);	
+			
+				if (error != noErr)
+					break;	
+					
+				widthValue = 0;
+				if (*channelWidthsPtr > 0)
+					widthValue = 0.5 * channelWidthsPtr[localChannel-1];
+				
+						// Load the channel band width
+						
+				wavelengthWidthIndex = wavelengthIndex + vectorLength;
+				SetV (&graphRecordPtr->xVector, wavelengthWidthIndex, widthValue, &error);	
+				
+				if (error != noErr)
+					break;
+
+				}	// end "for (index=0; index<vectorLength; index++)"
 
 			continueFlag = (error == noErr);
-				
+			
 			}	// end "if (channelValuePtr && continueFlag)" 
 		
 		CheckAndUnlockHandle (channelValuesHandle);
 		UnlockVectorPointer (&graphRecordPtr->xVector);
+		
+		UpdateSelectionGraphXAxisMinMax (graphRecordPtr);
 		
 		}	// end "if (graphRecordPtr)" 
 		
@@ -4660,14 +3350,18 @@ Boolean LoadGraphXVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void LoadGraphYVector
 //
-//	Software purpose:	This routine loads the data into the y vector for a
-//							graph window.
+//	Software purpose:	This routine loads the data into the y vector for a graph
+//							window. The response values will be loaded in channel number
+//							order in the first vector and when wavelength information is
+//							available the reponse values will be loaded in wavelength
+//							order. Most of the time this will be the same but there are
+//							some image files where they are different.
 //
 //	Parameters in:				
 //
@@ -4675,11 +3369,11 @@ Boolean LoadGraphXVector (
 //
 // Value Returned:	None
 // 
-// Called By:			ListFieldData in listData.c
-//							ShowGraphWindowSelection in selectionGraph.c
+// Called By:			ListFieldData in SListData.cpp
+//							ShowGraphWindowSelection in SSelectionGraph.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/04/1991
-//	Revised By:			Larry L. Biehl			Date: 12/29/2005			
+//	Revised By:			Larry L. Biehl			Date: 07/11/2018
 
 void LoadGraphYVector (
 				GraphPtr								graphRecordPtr, 
@@ -4689,10 +3383,25 @@ void LoadGraphYVector (
 													
 { 
 	double*								bufferReal8BytePtr;
+	//float*								channelValuePtr;
+	
+	FileInfoPtr							fileInfoPtr;
+
+	LayerInfoPtr						layerInfoPtr = NULL;
+	
+	//UInt16*								channelWavelengthOrderPtr;
+	
+	WindowInfoPtr						windowInfoPtr;
+	
+	Handle								//channelValuesHandle,
+											fileInfoHandle,
+											windowInfoHandle;
 	
 	SInt32								error;
 	
-	UInt32								index;
+	UInt32								channelIndex,
+											index,
+											indexStart;
 	
 	
 	graphRecordPtr->yVector.numberPoints = vectorLength;
@@ -4708,7 +3417,50 @@ void LoadGraphYVector (
 		SetV (&graphRecordPtr->yVector, index, *bufferReal8BytePtr, &error);
 		bufferReal8BytePtr += inputIndex;
 			
-		}	// end "for (index=0; index<localNumberChannels..."
+		}	// end "for (index=0; index<vectorLength..."
+	
+			// Determine if the channel wavelengths are available and if so whether
+			// they are in order. If they are not in order then the response values
+			// need to be loaded in the vector in wavelength order
+	
+	windowInfoHandle = GetWindowInfoHandle (graphRecordPtr->imageWindow);
+	windowInfoPtr = (WindowInfoPtr)GetHandlePointer (windowInfoHandle);
+
+	if (windowInfoPtr != NULL)
+		layerInfoPtr = (LayerInfoPtr)GetHandlePointer (windowInfoPtr->layerInfoHandle);
+		
+	graphRecordPtr->channelsInWavelengthOrderFlag = TRUE;
+	if (windowInfoPtr->channelsInWavelengthOrderCode == kNotInOrder &&
+																				layerInfoPtr != NULL)
+		{
+		fileInfoHandle = GetFileInfoHandle (windowInfoHandle);
+		fileInfoPtr = (FileInfoPtr)GetHandlePointer (fileInfoHandle);
+		//channelValuesHandle = fileInfoPtr->channelValuesHandle;
+
+		//if (channelValuesHandle != NULL)
+			//{
+			//channelValuePtr = (float*)GetHandlePointer (channelValuesHandle, kLock);
+			//channelWavelengthOrderPtr =
+			//						(UInt16*)&channelValuePtr[2*fileInfoPtr->numberChannels];
+		
+			bufferReal8BytePtr = (double*)buffer8BytePtr;
+			indexStart = graphRecordPtr->yVector.size/2;
+			for (channelIndex=1; channelIndex<=vectorLength; channelIndex++)
+				{
+				//index = indexStart + channelWavelengthOrderPtr[bufferIndex];
+				index = indexStart + layerInfoPtr[channelIndex].wavelengthIndex;
+				SetV (&graphRecordPtr->yVector, index, *bufferReal8BytePtr, &error);
+				bufferReal8BytePtr += inputIndex;
+					
+				}	// end "for (channelIndex=0; channelIndex<vectorLength; ..."
+			
+			graphRecordPtr->channelsInWavelengthOrderFlag = FALSE;
+			
+			//CheckAndUnlockHandle (channelValuesHandle);
+			
+			//}	// end "if (channelValuesHandle)"
+
+		}	// end "if (windowInfoPtr->channelsInWavelengthOrderCode == kNotInOrder)"
 			
 	UnlockVectorPointer (&graphRecordPtr->yVector);
 
@@ -4717,7 +3469,7 @@ void LoadGraphYVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4732,10 +3484,10 @@ void LoadGraphYVector (
 //
 // Value Returned:	None
 // 
-// Called By:			ShowGraphWindowSelection in selectionGraph.c
+// Called By:			ShowGraphWindowSelection in SSelectionGraph.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 07/27/1992
-//	Revised By:			Larry L. Biehl			Date: 03/11/1997			
+//	Revised By:			Larry L. Biehl			Date: 07/11/2018
 
 void LoadGraphYVector2 (
 				GraphPtr								graphRecordPtr, 
@@ -4744,12 +3496,25 @@ void LoadGraphYVector2 (
 													
 {
 	ChannelStatisticsPtr				lChannelStatsPtr;
+	//float*								channelValuePtr;
+	
+	FileInfoPtr							fileInfoPtr;
+
+	LayerInfoPtr						layerInfoPtr = NULL;
+	
+	//UInt16*								channelWavelengthOrderPtr;
+	
+	WindowInfoPtr						windowInfoPtr;
+	
+	Handle								//channelValuesHandle,
+											fileInfoHandle,
+											windowInfoHandle;
 	
 	SInt32								error;
 	
-	UInt32								index,
+	UInt32								channelIndex,
+											index,
 											index2;
-	
 	
 	graphRecordPtr->numberVectors = 5;
 	graphRecordPtr->yVector.numberPoints = 
@@ -4829,6 +3594,118 @@ void LoadGraphYVector2 (
 		lChannelStatsPtr++;
 			
 		}	// end "for (index=0; index<vectorLength..." 
+	
+			// Determine if the channel wavelengths are available and if so whether
+			// they are in order. If they are not in order then the response values
+			// need to be loaded in a vector in wavelength order
+	
+	windowInfoHandle = GetWindowInfoHandle (graphRecordPtr->imageWindow);
+	windowInfoPtr = (WindowInfoPtr)GetHandlePointer (windowInfoHandle);
+
+	if (windowInfoPtr != NULL)
+		layerInfoPtr = (LayerInfoPtr)GetHandlePointer (windowInfoPtr->layerInfoHandle);
+	
+	graphRecordPtr->channelsInWavelengthOrderFlag = TRUE;
+	if (windowInfoPtr->channelsInWavelengthOrderCode == kNotInOrder &&
+																			layerInfoPtr != NULL)
+		{
+		fileInfoHandle = GetFileInfoHandle (windowInfoHandle);
+		fileInfoPtr = (FileInfoPtr)GetHandlePointer (fileInfoHandle);
+		//channelValuesHandle = fileInfoPtr->channelValuesHandle;
+
+		//if (channelValuesHandle != NULL)
+			//{
+			//channelValuePtr = (float*)GetHandlePointer (channelValuesHandle, kLock);
+			//channelWavelengthOrderPtr =
+			//						(UInt16*)&channelValuePtr[2*fileInfoPtr->numberChannels];
+	
+					// Load the channel means.
+					
+			lChannelStatsPtr = channelStatsPtr;
+			index2 = graphRecordPtr->yVector.size/2;
+			for (channelIndex=1; channelIndex<=vectorLength; channelIndex++)
+				{
+				//index = index2 + channelWavelengthOrderPtr[channelIndex];
+				index = index2 + layerInfoPtr[channelIndex].wavelengthIndex;
+				SetV (&graphRecordPtr->yVector, 
+						index,
+						lChannelStatsPtr->mean, 
+						&error);
+				lChannelStatsPtr++;
+					
+				}	// end "for (channelIndex=1; channelIndex<=vectorLength..."
+			
+					// Load the channel means + 1 standard deviation.						
+					
+			lChannelStatsPtr = channelStatsPtr;
+			index2 += vectorLength;
+			for (channelIndex=1; channelIndex<=vectorLength; channelIndex++)
+				{
+				//index = index2 + channelWavelengthOrderPtr[channelIndex];
+				index = index2 + layerInfoPtr[channelIndex].wavelengthIndex;
+				SetV (&graphRecordPtr->yVector, 
+						index,
+						lChannelStatsPtr->mean + lChannelStatsPtr->standardDev, 
+						&error);
+				lChannelStatsPtr++;
+					
+				}	// end "for (channelIndex=1; channelIndex<=vectorLength..."
+			
+					// Load the channel means - 1 standard deviation.						
+					
+			lChannelStatsPtr = channelStatsPtr;
+			index2 += vectorLength;
+			for (channelIndex=1; channelIndex<=vectorLength; channelIndex++)
+				{
+				//index = index2 + channelWavelengthOrderPtr[channelIndex];
+				index = index2 + layerInfoPtr[channelIndex].wavelengthIndex;
+				SetV (&graphRecordPtr->yVector, 
+						index,
+						lChannelStatsPtr->mean - lChannelStatsPtr->standardDev,  
+						&error);
+				lChannelStatsPtr++;
+					
+				}	// end "for (channelIndex=1; channelIndex<=vectorLength..."
+			
+					// Load the channel minimum values.											
+					
+			lChannelStatsPtr = channelStatsPtr;
+			index2 += vectorLength;
+			for (channelIndex=1; channelIndex<=vectorLength; channelIndex++)
+				{
+				//index = index2 + channelWavelengthOrderPtr[channelIndex];
+				index = index2 + layerInfoPtr[channelIndex].wavelengthIndex;
+				SetV (&graphRecordPtr->yVector, 
+						index,
+						lChannelStatsPtr->minimum, 
+						&error);
+				lChannelStatsPtr++;
+					
+				}	// end "for (channelIndex=1; channelIndex<=vectorLength..."
+			
+					// Load the channel maximum values.											
+					
+			lChannelStatsPtr = channelStatsPtr;
+			index2 += vectorLength;
+			for (channelIndex=1; channelIndex<=vectorLength; channelIndex++)
+				{
+				//index = index2 + channelWavelengthOrderPtr[channelIndex];
+				index = index2 + layerInfoPtr[channelIndex].wavelengthIndex;
+				SetV (&graphRecordPtr->yVector, 
+						index,
+						lChannelStatsPtr->maximum,  
+						&error);
+				lChannelStatsPtr++;
+					
+				}	// end "for (channelIndex=1; channelIndex<=vectorLength..."
+			
+			graphRecordPtr->channelsInWavelengthOrderFlag = FALSE;
+			
+			//CheckAndUnlockHandle (channelValuesHandle);
+			
+			//}	// end "if (channelValuesHandle)"
+
+		}	// end "if (windowInfoPtr->channelsInWavelengthOrderCode == kNotInOrder)"
 		
 	UnlockVectorPointer (&graphRecordPtr->yVector);
 
@@ -4837,7 +3714,7 @@ void LoadGraphYVector2 (
 
                            
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4881,7 +3758,41 @@ void MSetGraphWindowTitle (
 
                            
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		void ReloadXAxis
+//
+//	Software purpose:	This routine reloads the selection graph data to be plotted
+//							to match the user request for channel number, wavelengh or
+//							wavelength band width
+//
+//	Parameters in:				
+//
+//	Parameters out:				
+//
+// Value Returned:	None
+// 
+// Called By:			CreateGraphWindow
+//
+//	Coded By:			Larry L. Biehl			Date: 03/02/2018
+//	Revised By:			Larry L. Biehl			Date: 03/16/2018
+
+void ReloadXAxis (
+				GraphPtr								graphRecordPtr,
+				int									xAxisSelection) 
+				
+{	
+	UpdateSelectionGraphXAxisMinMax (graphRecordPtr);
+   SetGraphMinMax (graphRecordPtr, kBothXYAxes);
+	
+}	// end "ReloadXAxis"
+
+
+                           
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4900,7 +3811,7 @@ void MSetGraphWindowTitle (
 // Called By:			CreateGraphWindow
 //
 //	Coded By:			Larry L. Biehl			Date: 10/07/1991
-//	Revised By:			Larry L. Biehl			Date: 09/01/2017
+//	Revised By:			Larry L. Biehl			Date: 04/06/2018
 
 void SetGraphWindowTitle (
 				CMGraphView*						graphViewCPtr,
@@ -4911,12 +3822,18 @@ void SetGraphWindowTitle (
 	GraphPtr								graphRecordPtr;
 	
 	Handle								graphRecordHandle;
+
+	SInt16								processorCode;
 	
 
 	if (graphViewCPtr == NULL)
 																								return;
-																								
-	if (gProcessorCode == kSelectionGraphProcessor)
+											
+	graphRecordHandle = graphViewCPtr->GetGraphRecordHandle ();		
+	graphRecordPtr = (GraphPtr)GetHandlePointer (graphRecordHandle);
+	processorCode = graphRecordPtr->processorCode;
+
+	if (processorCode == kSelectionGraphProcessor)
 		{
 		if (newWindowFlag)
 			{
@@ -4939,9 +3856,6 @@ void SetGraphWindowTitle (
 
 			charPtr = (UCharPtr)strchr ((char*)&gTextString2[1], ':');			
 			
-			graphRecordHandle = graphViewCPtr->GetGraphRecordHandle ();		
-			graphRecordPtr = (GraphPtr)GetHandlePointer (graphRecordHandle);
-			
 			if (charPtr == NULL || graphRecordPtr == NULL || (graphRecordPtr->drawGraphCode & 0x8000))
 				sprintf ((char*)gTextString, 
 							"Graph Window %hd",
@@ -4959,9 +3873,9 @@ void SetGraphWindowTitle (
 			
 			}	// end "else !newWindowFlag" 
 		
-		}	// end "if (gProcessorCode == kSelectionGraphProcessor)" 
+		}	// end "if (processorCode == kSelectionGraphProcessor)" 
 		
-	else	// gProcessorCode != kSelectionGraphProcessor 
+	else	// processorCode != kSelectionGraphProcessor 
 		{
 		Handle								fileInfoHandle,
 												imageWindowInfoHandle;
@@ -4971,10 +3885,20 @@ void SetGraphWindowTitle (
 		SInt16								numberCharacters,
 												stringLength;
 												
-			
-		numberCharacters = sprintf ((char*)&gTextString[1], 
-												"Graph %hd (", 
-												gNumberOfGWindows);
+		
+		if (processorCode == kListDataProcessor)
+			numberCharacters = sprintf ((char*)&gTextString[1], 
+													"List Data Graph (");
+
+		else if (processorCode == kBiPlotDataProcessor)
+			numberCharacters = sprintf ((char*)&gTextString[1], 
+													"Biplot Graph %hd (",
+													gNumberOfGWindows);
+
+		else	// processorCode == kHistogramStatsProcessor
+			numberCharacters = sprintf ((char*)&gTextString[1], 
+													"Histogram Graph %hd (",
+													gNumberOfGWindows);
 						
 		charPtr = &gTextString[numberCharacters+1];
 		stringLength = numberCharacters;
@@ -4982,14 +3906,14 @@ void SetGraphWindowTitle (
 		gTextString2[0] = 0;
 		fileNamePtr = &gTextString2[0];
 									
-		if (gProcessorCode == kHistogramStatsProcessor)
+		if (processorCode == kHistogramStatsProcessor)
 			{
 			//fileNamePtr = &gProjectInfoPtr->imageFileName[1];
 			gTextString3[0] = 0;
 			strcpy ((char*)gTextString3, (char*)&gProjectInfoPtr->imageFileName[1]);
 			fileNamePtr = (FileStringPtr)gTextString3;
 			
-			} // end "if (gProcessorCode == kHistogramStatsProcessor)"
+			}	// end "if (processorCode == kHistogramStatsProcessor)"
 			
 		else if (gActiveImageWindow != NULL)
 			{                                                                                                  
@@ -5017,7 +3941,7 @@ void SetGraphWindowTitle (
 				
 			}	// end "else if (gActiveImageWindow != NULL)" 
 				
-		else	// gProcessorCode != kHistogramStatsProcessor && gActiveImageWindow == NULL 
+		else	// processorCode != kHistogramStatsProcessor && gActiveImageWindow == NULL 
 			{
 			if (gProjectInfoPtr != NULL)
 				{
@@ -5027,14 +3951,14 @@ void SetGraphWindowTitle (
 				
 				}	// end "if (gProjectInfoPtr != NULL)"
 				
-			}	// end "else gProcessorCode != kHistogramStatsProcessor && ..." 
+			}	// end "else processorCode != kHistogramStatsProcessor && ..." 
 				
 		numberCharacters = sprintf ((char*)charPtr, "%s)", fileNamePtr);
 		stringLength += numberCharacters;
 			
 		gTextString[0] = (UInt8)stringLength;
 			
-		}	// end "else gProcessorCode != kSelectionGraphProcessor" 
+		}	// end "else processorCode != kSelectionGraphProcessor" 
 				
 			// Make certain that there is at least 500 bytes left for setting		
 			//	a new title.																			
@@ -5050,7 +3974,7 @@ void SetGraphWindowTitle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5155,25 +4079,6 @@ void SetGraphMinMax (
 							max = min + fortyBinWidths;
 							
 							}	// end "if (max-min < fortyBinWidths)"
-						/*							
-								// Allow for width of data value bin.
-						
-						if (graphRecordPtr->histogramBinCode <= 0)
-							{
-							screen_width = (clientRectPtr->right - clientRectPtr->left) -
-													graph->rightInset - graph->leftInset;
-													
-							x_scale = screen_width / (graph->xScaleMax - graph->xScaleMin);
-							binWidth = floor (histogramBinWidthPtr[graphRecordPtr->set-1] * 
-																							2/x_scale + 1);
-							if (binWidth <= 0)
-								binWidth = 1;
-							
-							}	// end "if (graphRecordPtr->histogramBinCode <= 0)"
-							
-						else	// graphRecordPtr->histogramBinCode > 0
-							binWidth = graph->histogramBinCode * histogramBinWidthPtr[set];
-						*/							
 						
                   graphRecordPtr->histogramBinWidth = GetUserHistogramBinWidth (
 																				graphRecordPtr,
@@ -5217,7 +4122,7 @@ void SetGraphMinMax (
 				
 				graphRecordPtr->xMin = min;
 				graphRecordPtr->xMax = max;
-				
+	
 						// Now set the scales for the x axis. This will be needed for
 						// determining the scales for the y axis for histogram type
 						// plots.
@@ -5330,385 +4235,12 @@ void SetGraphMinMax (
 	
 	CheckAndUnlockHandle (graphRecordHandle);
 	
-}	// end "SetGraphMinMax" 		
+}	// end "SetGraphMinMax"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
-//
-//	Function name:		void SetXGraphScale
-//
-//	Software purpose:	The purpose of this routine is to set the x scales and tic
-//							intervals relative to the size of the graph.
-//
-//	Parameters in:				
-//
-//	Parameters out:				
-//
-// Value Returned:	None
-// 
-// Called By:
-//
-//	Coded By:			Larry L. Biehl			Date: 04/26/2003
-//	Revised By:			Larry L. Biehl			Date: 02/14/2006			
-
-void SetXGraphScale (
-				GraphPtr								graphRecordPtr)
-
-{
-	char									number[64];
-	
-	double								interval;
-	
-	Rect*									clientRectPtr;
-	
-	SInt32								error,
-											numberDecimalDigits,
-											numberIntervals,
-											screen_width,
-											ticLabelWidth;
-	
-	
-			// Get the size of the graph window.
-	
-	#if defined multispec_mac
-		GetWindowPortBounds (graphRecordPtr->window, &graphRecordPtr->clientRect);
-	#endif	// defined multispec_mac
-           
-	#if defined multispec_win
-		CMGraphView* graphViewCPtr = graphRecordPtr->graphViewCPtr;
-		graphViewCPtr->GetClientRect ((RECT*)&graphRecordPtr->clientRect);
-	#endif	// defined multispec_win
-	
-	#if defined multispec_lin
-      CMGraphView* graphViewCPtr = graphRecordPtr->graphViewCPtr;
-		graphViewCPtr->GetGraphWindowClientRect (&graphRecordPtr->clientRect);
-
-      //graphViewCPtr->GetClientRect ((RECT*)&graphRecordPtr->clientRect);
-		//graphRecordPtr->clientRect.bottom = ((wxRect*)graphViewCPtr)->GetWidth ();
-		//printf ("clientRect:%d\n", graphRecordPtr->clientRect.bottom);
-      //graphRecordPtr->clientRect.top = clientRectPtr->top;
-      //graphRecordPtr->clientRect.bottom = clientRectPtr->bottom;
-      //graphRecordPtr->clientRect.left = clientRectPtr->left;
-      //graphRecordPtr->clientRect.right = clientRectPtr->right;
-	#endif
-			// Get length of max x tic label string.
-	
-	graphRecordPtr->xESignificantDigits = 0;
-	graphRecordPtr->xFSignificantDigits = 0;		
-	if (graphRecordPtr->flag & NU_HISTOGRAM_PLOT)
-		{
-		GetNumberDecimalDigits (graphRecordPtr->xValueTypeCode,
-											graphRecordPtr->xMin,
-											graphRecordPtr->xMax,
-											graphRecordPtr->origHistogramBinWidth,
-											&graphRecordPtr->xESignificantDigits,
-											&graphRecordPtr->xFSignificantDigits);
-											
-		}	// end "if (graphRecordPtr->flag & NU_HISTOGRAM_PLOT)"
-	
-	graphRecordPtr->xScaleMax = graphRecordPtr->xMax;
-   	
-	FormatR (number, 
-					&graphRecordPtr->xScaleMax, 
-					graphRecordPtr->xESignificantDigits, 
-					graphRecordPtr->xFSignificantDigits, 
-					false, 
-					&error);
-	ticLabelWidth = TextWidth ((UCharPtr)number, 0, (SInt16)strlen (number));
-	
-	graphRecordPtr->xScaleMin = graphRecordPtr->xMin;
-   	
-	FormatR (number, 
-					&graphRecordPtr->xScaleMin, 
-					graphRecordPtr->xESignificantDigits, 
-					graphRecordPtr->xFSignificantDigits, 
-					false, 
-					&error);
-	graphRecordPtr->xTicLabelWidth = 
-									TextWidth ((UCharPtr)number, 0, (SInt16)strlen (number));
-	
-	graphRecordPtr->xTicLabelWidth = (SInt16)
-										MAX (graphRecordPtr->xTicLabelWidth, ticLabelWidth);
-	
-			// Now get the x tick interval.
-	
-	clientRectPtr = &graphRecordPtr->clientRect;
-	screen_width = (clientRectPtr->right - clientRectPtr->left) -
-										graphRecordPtr->rightInset - graphRecordPtr->leftInset;
-   
-	numberIntervals = screen_width / (2*graphRecordPtr->xTicLabelWidth);
-
-	numberIntervals = MAX (1, numberIntervals);
-					
-			// Now get the interval distance in "whole" graph units.
-									
-	interval = (graphRecordPtr->xMax - graphRecordPtr->xMin);
-	if (interval == 0)
-		interval = 1;
-	if (graphRecordPtr->flag & NU_HISTOGRAM_PLOT)
-		interval += graphRecordPtr->origHistogramBinWidth;
-		
-	interval /= numberIntervals;
-	
- 	if (graphRecordPtr->flag & NU_HISTOGRAM_PLOT)
- 		{
-		interval = ceil (interval/graphRecordPtr->origHistogramBinWidth);
-		interval *= graphRecordPtr->origHistogramBinWidth;
-		
-		}	// end "if (graphRecordPtr->flag & NU_HISTOGRAM_PLOT)"
-		
-	else	// !(graphRecordPtr->flag & NU_HISTOGRAM_PLOT)
-		{	
-		if (graphRecordPtr->xValueTypeCode == kIntegerType)
-			interval = ceil (interval);
-		
-		else	// graphRecordPtr->xValueTypeCode != kIntegerType
-			{
-			interval = ConvertToScientificFormat (interval, &numberDecimalDigits);
-			interval = ceil (interval);
-			interval = interval * pow ((double)10, (double)numberDecimalDigits);
-		
-			}	// end "else graphRecordPtr->xValueTypeCode != kIntegerType"
-			
-		}	// end "else !(graphRecordPtr->flag & NU_HISTOGRAM_PLOT)"
-	
-	if (!(graphRecordPtr->attrb & NU_XLOG))
-		{
-		graphRecordPtr->xScaleMin = floor (graphRecordPtr->xMin/interval)*interval;
-		
-		graphRecordPtr->xScaleMax = ceil (graphRecordPtr->xMax/interval)*interval;
-		
-		if ((graphRecordPtr->flag & NU_HISTOGRAM_PLOT) ||
-							graphRecordPtr->xScaleMin == graphRecordPtr->xScaleMax)
-			{
-			if (graphRecordPtr->xScaleMin == graphRecordPtr->xMin)
-				graphRecordPtr->xScaleMin -= interval;
-				
-			if (graphRecordPtr->xScaleMax == graphRecordPtr->xMax)
-				graphRecordPtr->xScaleMax += interval;
-				
-			}	// end "if (graphRecordPtr->xScaleMin == graphRecordPtr->xScaleMax)" 
-		
-		}	// end "if (!(graphRecordPtr->attrb & NU_XLOG))"
-		
-			// Redo the determing the decimal digits in case the calculated scale
-			// min/max causes them to change.  There should be enough space to allow
-			// for another decimal in the tic labels if needed.
-			
-	if (graphRecordPtr->flag & NU_HISTOGRAM_PLOT)
-		{
-		GetNumberDecimalDigits (graphRecordPtr->xValueTypeCode,
-											graphRecordPtr->xScaleMin,
-											graphRecordPtr->xScaleMax,
-											graphRecordPtr->origHistogramBinWidth,
-											&graphRecordPtr->xESignificantDigits,
-											&graphRecordPtr->xFSignificantDigits);
-											
-		}	// end "if (graphRecordPtr->flag & NU_HISTOGRAM_PLOT)"
-		
-	graphRecordPtr->xInt = interval;
-	
-}	// end "SetXGraphScale"		
-
-
-
-//------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
-//
-//	Function name:		void SetYGraphScale
-//
-//	Software purpose:	The purpose of this routine is to set the y scales and tic
-//							intervals relative to the size of the graph.
-//
-//	Parameters in:				
-//
-//	Parameters out:				
-//
-// Value Returned:	None
-// 
-// Called By:
-//
-//	Coded By:			Larry L. Biehl			Date: 04/26/2003
-//	Revised By:			Larry L. Biehl			Date: 02/21/2006			
-
-void SetYGraphScale (
-				GraphPtr								graphRecordPtr)
-
-{
-	char									number[64];
-	
-	double								interval,
-											realAdditional;
-	
-	SInt32								numberDecimalPlaces,
-											numberDigits,
-											numberIntervalDigits;
-	
-	UInt32								additional,
-											integerInterval;
-	
-	
-			// Get the size of the graph window.
-	
-	#if defined multispec_mac
-		GetWindowPortBounds (graphRecordPtr->window, &graphRecordPtr->clientRect);
-	#endif	// defined multispec_mac
-           
-	#if defined multispec_win
-		CMGraphView* graphViewCPtr = graphRecordPtr->graphViewCPtr;
-		graphViewCPtr->GetClientRect ((RECT*)&graphRecordPtr->clientRect);
-	#endif	// defined multispec_win
-			
-				// Now determine the y-axis min, max and interval.\
-														
-	interval = (graphRecordPtr->yMax - graphRecordPtr->yMin)/5;
-	
-	if (graphRecordPtr->yValueTypeCode == kIntegerType)
-		{
-		if (interval < 1)
-			interval = 1;
-			
-		integerInterval = (UInt32)(interval + 0.5);
-	
-		numberDigits = sprintf (number, "%ld", integerInterval) - 2;
-		if (numberDigits >= 1)
-			{
-			additional = (UInt32)pow ((double)10,(double)numberDigits);
-			integerInterval = (integerInterval+additional)/additional;
-			integerInterval *= additional;
-			
-			}	// end "if (numberDigits >= 1)"
-			
-		interval = (double)integerInterval;
-		
-		graphRecordPtr->yESignificantDigits = 0;
-		graphRecordPtr->yFSignificantDigits = 0; 
-			
-		}	// end "if (graphRecordPtr->yValueTypeCode == kIntegerType)"
-				
-	else	// ...->yValueTypeCode == kRealType
-		{
-		numberDigits = 1;
-		if (graphRecordPtr->yMax != 0)
-			numberDigits = (SInt32)log10 (fabs (graphRecordPtr->yMax));
-		
-		if (interval == 0)
-			{
-			if (numberDigits > 10)
-				interval = pow ((double)10,(double)(numberDigits-10));
-				
-			else	// numberWholeDigits <= 10
-				interval = pow ((double)10,(double)(numberDigits-1));
-
-			if (interval == 0)
-				interval = 1;
-				
-			}	// end "if (interval == 0)"
-			
-		else	// interval > 0
-			{
-			if (interval < 1)
-				{
-				numberDigits = 0;
-				numberDecimalPlaces = GetNumberLeadingDecimalZeros (interval);
-				realAdditional = pow ((double)10,(double)(-numberDecimalPlaces));
-				if (realAdditional > 0)
-					{
-					interval += realAdditional;
-					interval = floor (interval/realAdditional)*realAdditional;
-
-					}	// end "if (realAdditional > 0)"
-				
-				}	// end "if (interval < 1)"
-			
-			else	// interval >= 1
-				{
-				numberIntervalDigits = (SInt32)log10 (interval);
-				//interval = pow ((double)10,(double)(numberDigits-1));
-				
-				realAdditional = pow ((double)10,(double)numberIntervalDigits);
-				if (realAdditional > 0)
-					{
-					interval = (interval+realAdditional)/realAdditional;
-					interval = floor (interval)*realAdditional;
-
-					}	// end "if (realAdditional > 0)"
-				
-				}	// end "else interval >= 1"
-				
-			}	// end "else interval > 0"
-		
-		numberIntervalDigits = 0;
-		if (interval > 1)
-			numberIntervalDigits = (SInt32)log10 (interval);
-			
-		graphRecordPtr->yFSignificantDigits = GetNumberLeadingDecimalZeros (interval);
-		
-		if (graphRecordPtr->yFSignificantDigits == 0 && 
-													numberDigits > numberIntervalDigits)
-			{
-			graphRecordPtr->yFSignificantDigits = (UInt16)(numberDigits - numberIntervalDigits);
-//			numberDecimalPlaces = MIN (6, numberDecimalPlaces);
-			
-			}	// end "if (graphRecordPtr->yFSignificantDigits == 0)"
-		
-		}	// end "else ...->yValueTypeCode == kRealType"
-	
-	if (!(graphRecordPtr->attrb & NU_YLOG))
-		{
-		graphRecordPtr->yScaleMin = floor (graphRecordPtr->yMin/interval)*interval;
-		graphRecordPtr->yScaleMax = ceil (graphRecordPtr->yMax/interval)*interval;
-		
-		if (graphRecordPtr->yScaleMin == graphRecordPtr->yScaleMax)
-			{
-			if (graphRecordPtr->yScaleMin == graphRecordPtr->yMin)
-				graphRecordPtr->yScaleMin -= interval;
-				
-			if (graphRecordPtr->yScaleMax == graphRecordPtr->yMax)
-				graphRecordPtr->yScaleMax += interval;
-				
-			}	// end "if (graphRecordPtr->yMin == graphRecordPtr->yMax)" 
-		
-		}	// end "if (!(graphRecordPtr->attrb & NU_YLOG))"
-	
-	graphRecordPtr->yInt = interval;
-		
-		// Get the significant digits to use for the y-scale.
-		
-	GetNumberDecimalDigits (graphRecordPtr->yValueTypeCode,
-										graphRecordPtr->yScaleMin,
-										graphRecordPtr->yScaleMax,
-										interval,
-										&graphRecordPtr->yESignificantDigits,
-										&graphRecordPtr->yFSignificantDigits);
-		
-			//	User defined.
-						
-	//graphRecordPtr->yMin = 7;
-	//graphRecordPtr->yMax = 49;
-	//graphRecordPtr->yInt = 7;
-			
-			// Now for selection graph windows, force the y-axis min, max and interval
-			// to be the same for all graph windows that belong to this image window. 
-		
-	if (graphRecordPtr->processorCode == kSelectionGraphProcessor)
-		SetLikeWindowMinMax (graphRecordPtr->imageWindow, 
-										graphRecordPtr->yScaleMin, 
-										graphRecordPtr->yScaleMax,
-										graphRecordPtr->yInt);
-	
-}	// end "SetYGraphScale" 		 	
-
-
-
-//------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5776,7 +4308,7 @@ void SetLikeWindowMinMax (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5859,7 +4391,7 @@ Boolean SetHistogramBinWidth (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5922,7 +4454,7 @@ void SetOverlayDisplayList (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5985,7 +4517,7 @@ void SetStatHistogramGraphTitle2 (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6140,7 +4672,7 @@ void SetUpBinWidthPopUpMenu (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6240,7 +4772,7 @@ void SetUpOverlayPopUpMenu (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6258,7 +4790,7 @@ void SetUpOverlayPopUpMenu (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 01/27/1999
-//	Revised By:			Larry L. Biehl			Date: 11/27/2002
+//	Revised By:			Larry L. Biehl			Date: 04/09/2018
 
 void SetUpVectorPopUpMenu (
 				CMGraphView*						graphViewCPtr,
@@ -6275,6 +4807,8 @@ void SetUpVectorPopUpMenu (
 		CMenu*								selectVectorsPopupMenuPtr;
 		UInt32								popupMenuIndex;
 		UINT									checkCode;
+
+		USES_CONVERSION;
 	#endif	// defined multispec_win
 	
 	
@@ -6305,7 +4839,7 @@ void SetUpVectorPopUpMenu (
 			selectVectorsPopupMenuPtr = (CMenu*)popUpMenuHandle;
 			ClearMenuItems (selectVectorsPopupMenuPtr, 0);
 			popupMenuIndex = ID_SELECTVECTORMENUITEMSTART;
-		#endif	// defined multispec_mac
+		#endif	// defined multispec_win
 
 		stringPtr = (unsigned char*)GetHandlePointer (
 															graphRecordPtr->vectorLabelHandle,
@@ -6326,13 +4860,13 @@ void SetUpVectorPopUpMenu (
 			#if defined multispec_win
 				selectVectorsPopupMenuPtr->AppendMenu (MF_STRING, 
 																		popupMenuIndex+index, 
-																		(LPCTSTR)&stringPtr[1]);
+																		(LPCTSTR)A2T((char*)&stringPtr[1]));
 
 				checkCode = MF_BYPOSITION | MF_UNCHECKED;
 				if (vectorDisplayPtr[index])
 					checkCode = MF_BYPOSITION | MF_CHECKED;
 				selectVectorsPopupMenuPtr->CheckMenuItem (index, checkCode);
-			#endif	// defined multispec_mac
+			#endif	// defined multispec_win
 			
 			stringPtr += 32;
 											
@@ -6350,7 +4884,7 @@ void SetUpVectorPopUpMenu (
 			selectVectorsPopupMenuPtr->AppendMenu (MF_STRING,
 																popupMenuIndex+index+1, 
 																(LPCTSTR)_T("None"));
-		#endif	// defined multispec_mac
+		#endif	// defined multispec_win
 
 		CheckAndUnlockHandle (graphRecordPtr->vectorDisplayHandle);
 		CheckAndUnlockHandle (graphRecordPtr->vectorLabelHandle);
@@ -6362,9 +4896,335 @@ void SetUpVectorPopUpMenu (
 }	// end Routine "SetUpVectorPopUpMenu"   
 
 
+                   
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2018)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		SInt16 SetUpXAxisPopUpMenu
+//
+//	Software purpose:	The purpose of this routine is to set up the x-axis label popup
+//							menu.
+//
+//	Parameters in:					
+//
+//	Parameters out:				
+//
+// Value Returned:	The default popup menu selection
+//
+// Called By:
+//
+//	Coded By:			Larry L. Biehl			Date: 03/02/2018
+//	Revised By:			Larry L. Biehl			Date: 04/12/2018
+
+SInt16 SetUpXAxisPopUpMenu (
+				GraphPtr								graphRecordPtr,
+				MenuHandle							popUpMenuHandle)
+
+{
+	char									xAxisLabel [256],
+											wavelengthUnits[16];
+	
+	int									length,
+											newSelection = kChannels;
+
+	SInt32								index,
+											numberMenuItems;
+													
+	SInt16								descriptionCode = kChannels,
+											xAxisCode;
+
+	Boolean								useDisabledMenuItemFlag = TRUE;
+
+	#if defined multispec_lin
+		wxComboBox*							xLabelComboBoxPtr = (wxComboBox*)popUpMenuHandle;
+	
+		//int									currentSelection;
+	
+		//currentSelection = xLabelComboBoxPtr->GetSelection ();
+		//xAxisCode = (SInt64)((int*)xLabelComboBoxPtr->GetClientData (currentSelection));
+	#endif
+
+	#if defined multispec_win
+		CComboBox*							xLabelComboBoxPtr = (CComboBox*)popUpMenuHandle;
+		
+		
+		useDisabledMenuItemFlag	= FALSE;
+	#endif
+
+	if (graphRecordPtr != NULL && popUpMenuHandle != NULL)
+		{
+		//#if defined multispec_mac || defined multispec_win
+			descriptionCode = graphRecordPtr->descriptionCode;
+		
+					// Get the units string
+		
+			sprintf (wavelengthUnits, "um)");
+			if (graphRecordPtr->channelDescriptionUnitString[0] != 0)
+				{
+				length = snprintf (wavelengthUnits,
+										14,
+										"%s",
+										graphRecordPtr->channelDescriptionUnitString);
+				length = sprintf (&wavelengthUnits[length],
+										")");
+			
+				}	// end "if (fgraphRecordPtr->channelDescriptionUnitString[0] != 0)"
+
+			xAxisCode = graphRecordPtr->xAxisCode;
+		
+					// Now delete the current menu items except for the first one.
+					
+			numberMenuItems = CountMenuItems	(popUpMenuHandle);
+			for (index=numberMenuItems; index>1; index--)
+				DeleteMenuItem (popUpMenuHandle, index);				
+
+			#if defined multispec_lin
+				xLabelComboBoxPtr->SetClientData (0, (void*)kChannels);
+			#endif
+
+			#if defined multispec_win
+				xLabelComboBoxPtr->SetItemData (0, kChannels);
+			#endif
+
+					// Add and enable those items that make sense for the data set.
+		
+			index = 1;
+			newSelection = kChannels;
+			if (descriptionCode & kBothReflectiveThermalData)
+				{
+						// Either Reflective and/or thermal wavelength data exists.											
+						// An AppendMenu and then SetMenuItemText is used so that no characters
+						// will be interpreted as "metacharacters" by AppendMenu.
+				
+				length = sprintf (&xAxisLabel[1], "Wavelength (%s", wavelengthUnits);
+				xAxisLabel[0] = length;
+         
+				MAppendMenuItemText ((MenuRef)popUpMenuHandle, (UInt8*)xAxisLabel);
+   
+            #if defined multispec_lin
+					xLabelComboBoxPtr->SetClientData (index, (void*)kWavelengths);
+				#endif
+				#if defined multispec_win
+					xLabelComboBoxPtr->SetItemData (index, kWavelengths);
+				#endif
+				index++;
+				if (xAxisCode == kWavelengths ||
+								xAxisCode == kReflectiveWavelengths ||
+											xAxisCode == kThermalWavelengths)
+					newSelection = kWavelengths;
+				
+				if (descriptionCode & kBandWidthInfoExists ||
+						(descriptionCode & kReflectiveData && descriptionCode & kThermalData))
+					{
+					length = sprintf (&xAxisLabel[1],
+												"Wavelength-bandwidths (%s",
+												wavelengthUnits);
+					xAxisLabel[0] = length;
+					if (useDisabledMenuItemFlag || (descriptionCode & kBandWidthInfoExists))
+						{
+              
+						MAppendMenuItemText ((MenuRef)popUpMenuHandle, (UInt8*)xAxisLabel);
+      
+						#if defined multispec_lin
+							xLabelComboBoxPtr->SetClientData (index, (void*)kBandWidths);
+						#endif
+						#if defined multispec_win
+							xLabelComboBoxPtr->SetItemData (index, kBandWidths);
+						#endif
+						index++;
+
+						}	// end "if (useDisabledMenuItemFlag || ..."
+					
+					if (descriptionCode & kBandWidthInfoExists)
+						{
+						if (xAxisCode == kBandWidths)
+							newSelection = kBandWidths;
+					
+						}	// end "if (descriptionCode & kBandWidthInfoExists)"
+				
+					if (descriptionCode & kReflectiveData && descriptionCode & kThermalData)
+						{
+						if (useDisabledMenuItemFlag && !(descriptionCode & kBandWidthInfoExists))
+							DisableMenuItem (popUpMenuHandle, kBandWidths);
+						
+								// Both Reflective and Thermal data exists, allow the ability
+								// for the user to select one or the other.
+						
+						length = sprintf (&xAxisLabel[1],
+												"Wavelength-reflective (%s",
+												wavelengthUnits);
+						xAxisLabel[0] = length;
+             
+						MAppendMenuItemText ((MenuRef)popUpMenuHandle, (UInt8*)xAxisLabel);
+         
+                  #if defined multispec_lin
+							xLabelComboBoxPtr->SetClientData (index, (void*)kReflectiveWavelengths);
+						#endif
+						#if defined multispec_win
+							xLabelComboBoxPtr->SetItemData (index, kReflectiveWavelengths);
+						#endif
+						index++;
+
+						if (xAxisCode == kReflectiveWavelengths)
+							newSelection = kReflectiveWavelengths;
+						
+						length = sprintf (&xAxisLabel[1],
+												"Wavelength-reflective bandwidths (%s",
+												wavelengthUnits);
+						xAxisLabel[0] = length;
+						
+						if (useDisabledMenuItemFlag || (descriptionCode & kBandWidthInfoExists))
+							{
+                    
+							MAppendMenuItemText ((MenuRef)popUpMenuHandle, (UInt8*)xAxisLabel);
+                 
+                     #if defined multispec_lin
+								xLabelComboBoxPtr->SetClientData (index, (void*)kReflectiveBandWidths);
+							#endif
+							#if defined multispec_win
+								xLabelComboBoxPtr->SetItemData (index, kReflectiveBandWidths);
+							#endif
+							index++;
+
+							}	// end "if (useDisabledMenuItemFlag || ..."
+						
+						if (descriptionCode & kBandWidthInfoExists)
+							{
+							if (xAxisCode == kReflectiveBandWidths)
+								newSelection = kReflectiveBandWidths;
+							
+							}	// end "if (descriptionCode & kBandWidthInfoExists)"
+					
+						else if (useDisabledMenuItemFlag) // bandWidth info does not exist
+							DisableMenuItem (popUpMenuHandle, kReflectiveBandWidths);
+										
+						length = sprintf (&xAxisLabel[1],
+												"Wavelength-thermal (%s",
+												wavelengthUnits);
+						xAxisLabel[0] = length;
+                
+						MAppendMenuItemText ((MenuRef)popUpMenuHandle, (UInt8*)xAxisLabel);
+        
+                  #if defined multispec_lin
+							xLabelComboBoxPtr->SetClientData (index, (void*)kThermalWavelengths);
+						#endif
+						#if defined multispec_win
+							xLabelComboBoxPtr->SetItemData (index, kThermalWavelengths);
+						#endif
+						index++;
+
+						if (xAxisCode == kThermalWavelengths)
+							newSelection = kThermalWavelengths;
+						
+						length = sprintf (&xAxisLabel[1],
+												"Wavelength-thermal bandwidths (%s",
+												wavelengthUnits);
+						xAxisLabel[0] = length;
+
+						if (useDisabledMenuItemFlag || (descriptionCode & kBandWidthInfoExists))
+							{
+                    
+							MAppendMenuItemText ((MenuRef)popUpMenuHandle, (UInt8*)xAxisLabel);
+                
+                     #if defined multispec_lin
+								xLabelComboBoxPtr->SetClientData (index, (void*)kThermalBandWidths);
+							#endif
+							#if defined multispec_win
+								xLabelComboBoxPtr->SetItemData (index, kThermalBandWidths);
+							#endif
+							index++;
+
+							}	// end "if (useDisabledMenuItemFlag || ..."
+						
+						if (descriptionCode & kBandWidthInfoExists)
+							{
+							if (xAxisCode == kThermalBandWidths)
+								newSelection = kThermalBandWidths;
+							
+							}	// end "if (descriptionCode & kBandWidthInfoExists)"
+					
+						else if (useDisabledMenuItemFlag)	// bandWidth info does not exist
+							DisableMenuItem (popUpMenuHandle, kThermalBandWidths);
+								
+						}	// end "if (descriptionCode & kReflectiveData && ...)"
+					
+					else	// Either reflective or thermal data exists not both
+						{
+								// Update new selection to be wavelength or bandwidth if the
+								// current selection is for reflective or thermal of the same.
+								
+						if (xAxisCode > kBandWidths)
+							{
+							newSelection = kWavelengths;
+							if ((xAxisCode == kReflectiveBandWidths || 
+																	xAxisCode == kThermalBandWidths) &&
+																descriptionCode & kBandWidthInfoExists)
+								newSelection = kBandWidths;
+								
+							}	// end "if (xAxisCode > kBandWidths)"
+						
+						}	// end "else Either reflective or thermal data exists not both"
+					
+					}	// end "if (descriptionCode & kBandWidthInfoExists || ..."	
+			
+				}	// end "if (descriptionCode & kBothReflectiveThermalData)"
+		
+					// Change graph record settings if the default graph type had to
+					// change because of a different set of channels.
+		
+			if (xAxisCode != newSelection)
+				{
+				#if defined multispec_lin
+					xLabelComboBoxPtr->SetSelection (newSelection);
+				#endif
+
+				#if defined multispec_win
+					//CMGraphView* graphViewCPtr = graphRecordPtr->graphViewCPtr;
+					//CComboBox* comboBoxPtr = (CComboBox*)graphViewCPtr->GetDlgItem (IDC_xAxis);
+					xLabelComboBoxPtr->SetCurSel (newSelection-1);
+				#endif
+
+				graphRecordPtr->xAxisCode = newSelection;
+				
+				if (newSelection == kChannels)
+					graphRecordPtr->xValueTypeCode = kIntegerType;
+					
+				else	// selection != kChannels
+					graphRecordPtr->xValueTypeCode = kRealType;
+				
+				}	// end "if (xAxisCode != newSelection)"
+ 
+			#if defined multispec_lin
+				xLabelComboBoxPtr->SetSelection (newSelection-1);
+			#endif
+
+			#if defined multispec_mac
+				CheckMenuItem (popUpMenuHandle, kChannels, (newSelection<=kChannels));
+				CheckMenuItem (popUpMenuHandle, newSelection, TRUE);
+			#endif
+ 
+			#if defined multispec_win
+				xLabelComboBoxPtr->SetCurSel (newSelection-1);
+			#endif
+
+		//#endif	// defined multispec_mac || defined multispec_win
+		}	// end "if (graphRecordPtr != NULL)"
+					
+	#if defined multispec_lin || defined multispec_win
+				// Make the return value 0 based.
+		newSelection--;
+	#endif
+
+	return (newSelection);
+			
+}	// end Routine "SetUpXAxisPopUpMenu"
+
+
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6468,195 +5328,497 @@ void SetVectorDisplayList (
 }	// end "SetVectorDisplayList"   
 
 
-
-#if defined multispec_mac 
+                           
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
-//	Function name:		void UpdateGraphControls
+//	Function name:		void SetXAxisDescriptionInfo
 //
-//	Software purpose:	This routine controls updating the thematic image legend
-//							controls.  The routine is called after any change is made 
-//							in the size or content of the thematic legend.
+//	Software purpose:	This routine sets the x-axis description information to match
+//							that for the input image being used.
 //
-//	Parameters in:					
+//	Parameters in:				
 //
 //	Parameters out:				
 //
-// Value Returned:	None	
+// Value Returned:	None
 // 
-// Called By:			DoGraphWActivateEvent in SGraUtil.cpp
-//							GraphWControlEvent in SGraUtil.cpp
+// Called By:			CreateGraphWindow
 //
-//	Coded By:			Larry L. Biehl			Date: 01/25/1999
-//	Revised By:			Larry L. Biehl			Date: 01/26/1999		
+//	Coded By:			Larry L. Biehl			Date: 03/16/2018
+//	Revised By:			Larry L. Biehl			Date: 04/06/2018
 
-void UpdateGraphControls (
-				WindowPtr							windowPtr)
-
-{	     
-	GraphPtr								graphRecordPtr;
-	             
-	ControlHandle						controlHandle,
-											rootControlHandle;
-												
-	Handle								graphRecordHandle;
-	
-	SInt16								numberSets,
-											refCon,
-											set;		
-	
-	UInt16								index,
-											numberControls;
-	
-	
-			// Update graph window controls
+void SetXAxisDescriptionInfo (
+				GraphPtr								graphRecordPtr,
+				WindowInfoPtr						windowInfoPtr,
+				FileInfoPtr							fileInfoPtr)
 				
-	if (gAppearanceManagerFlag)
-		GetRootControl (windowPtr, &rootControlHandle);
-	/*	
-	#if !TARGET_API_MAC_CARBON
-		else	// !gAppearanceManagerFlag
-			rootControlHandle = (ControlHandle)((WindowPeek)windowPtr)->controlList;
-	#endif	// !TARGET_API_MAC_CARBON
-	*/
-	if (rootControlHandle == NULL)
-																						return;
-	
-	graphRecordHandle = GetGraphRecordHandle (windowPtr);
-	graphRecordPtr = (GraphPtr)GetHandlePointer (graphRecordHandle);
-											
-	numberSets = graphRecordPtr->numberSets;
-	set = graphRecordPtr->set;
-											
-	if (gAppearanceManagerFlag)
-		{						
-		CountSubControls (rootControlHandle, &numberControls);
-		for (index=numberControls; index>=1; index--)
+{
+	if (graphRecordPtr != NULL)
+		{
+		graphRecordPtr->descriptionCode = 0;
+		graphRecordPtr->channelDescriptionUnitString[0] = 0;
+		if (windowInfoPtr != NULL)
 			{
-			GetIndexedSubControl (rootControlHandle, index, &controlHandle);
-			refCon = (SInt16)GetControlReference (controlHandle);
+			strcpy ((char*)graphRecordPtr->channelDescriptionUnitString,
+							(char*)fileInfoPtr->channelDescriptionUnitString);
+			graphRecordPtr->descriptionCode = windowInfoPtr->descriptionCode;
 			
-			switch (refCon)
-				{
-				case kNextGraphSetControl:
-					if (numberSets <= 1)
-						HideControl (controlHandle);
-						
-					else	// numberSets > 1
-						{
-						if (set < numberSets)
-							HiliteControl (controlHandle, 0);
-							
-						else	// set >= numberSets
-							HiliteControl (controlHandle, 255);
-							
-						}	// end "else numberSets > 1"
-					break;
-					
-				case kPreviousGraphSetControl:
-					if (numberSets <= 1)
-						HideControl (controlHandle);
-						
-					else	// >numberSets > 1
-						{
-						if (set > 1)
-							HiliteControl (controlHandle, 0);
-							
-						else	// >set <= 1
-							HiliteControl (controlHandle, 255);
-							
-						}	// end "else numberSets <= 1"
-					break;
-					
-				case kGraphVectorControl:
-					HiliteControl (controlHandle, 0);
-					break;
-					
-				case kGraphOverlayControl:
-					HiliteControl (controlHandle, 0);
-					break;
-					
-				case kGraphBinWidthControl:
-					HiliteControl (controlHandle, 0);
-					break;
-				
-				}	// end "switch (refCon)" 
-	     			
-	     	}	// end "while (controlHandle != NULL)" 
-     	
-     	}	// end "if (gAppearanceManagerFlag)"
-   /*  	
-	#if !TARGET_API_MAC_CARBON
-		else	// !gAppearanceManagerFlag
-			{		
-			controlHandle = rootControlHandle;				
-			while (controlHandle != NULL)
-				{
-				refCon = (SInt16)GetControlReference (controlHandle);
-				
-				switch (refCon)
-					{
-					case kNextGraphSetControl:
-						if (numberSets <= 1)
-							HideControl (controlHandle);
-							
-						else	// numberSets > 1
-							{
-							if (set < numberSets)
-								HiliteControl (controlHandle, 0);
-								
-							else	// set >= numberSets
-								HiliteControl (controlHandle, 255);
-								
-							}	// end "else numberSets > 1"
-						break;
-						
-					case kPreviousGraphSetControl:
-						if (numberSets <= 1)
-							HideControl (controlHandle);
-							
-						else	// >numberSets > 1
-							{
-							if (set > 1)
-								HiliteControl (controlHandle, 0);
-								
-							else	// >set <= 1
-								HiliteControl (controlHandle, 255);
-								
-							}	// end "else numberSets <= 1"
-						break;
-						
-					case kGraphVectorControl:
-						HiliteControl (controlHandle, 0);
-						break;
-						
-					case kGraphOverlayControl:
-						HiliteControl (controlHandle, 0);
-						break;
-					
-					case kGraphBinWidthControl:
-						HiliteControl (controlHandle, 0);
-						break;
-					
-					}	// end "switch (refCon)" 
-					
-		     	controlHandle = (*controlHandle)->nextControl;
-		     			
-		     	}	// end "while (controlHandle != NULL)" 
-		     	
-			}	// end "else !gAppearanceManagerFlag"
-	#endif	// !TARGET_API_MAC_CARBON
-	*/
-}	// end "UpdateGraphControls"
-#endif	// defined multispec_mac   
+			}	// end "if (windowInfoPtr != NULL)"
+		
+		}	// end "if (graphRecordPtr != NULL)"
+	
+}	// end "SetXAxisDescriptionInfo"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		void SetXGraphScale
+//
+//	Software purpose:	The purpose of this routine is to set the x scales and tic
+//							intervals relative to the size of the graph.
+//
+//	Parameters in:				
+//
+//	Parameters out:				
+//
+// Value Returned:	None
+// 
+// Called By:
+//
+//	Coded By:			Larry L. Biehl			Date: 04/26/2003
+//	Revised By:			Larry L. Biehl			Date: 03/08/2018
+
+void SetXGraphScale (
+				GraphPtr								graphRecordPtr)
+
+{
+	char									number[64];
+	
+	double								interval;
+	
+	Rect*									clientRectPtr;
+	
+	//int									xFSigfigs;
+	
+	SInt32								error,
+											numberDecimalDigits,
+											numberIntervals,
+											screen_width,
+											ticLabelWidth;
+	
+	//Boolean								hasWavelengthValuesFlag;
+	
+	
+			// Get the size of the graph window.
+	
+	#if defined multispec_mac
+		GetWindowPortBounds (graphRecordPtr->window, &graphRecordPtr->clientRect);
+	#endif	// defined multispec_mac
+           
+	#if defined multispec_win
+		CMGraphView* graphViewCPtr = graphRecordPtr->graphViewCPtr;
+		graphViewCPtr->GetClientRect ((RECT*)&graphRecordPtr->clientRect);
+	#endif	// defined multispec_win
+	
+	#if defined multispec_lin
+      CMGraphView* graphViewCPtr = graphRecordPtr->graphViewCPtr;
+		graphViewCPtr->GetGraphWindowClientRect (&graphRecordPtr->clientRect);
+
+      //graphViewCPtr->GetClientRect ((RECT*)&graphRecordPtr->clientRect);
+		//graphRecordPtr->clientRect.bottom = ((wxRect*)graphViewCPtr)->GetWidth ();
+		//printf ("clientRect:%d\n", graphRecordPtr->clientRect.bottom);
+      //graphRecordPtr->clientRect.top = clientRectPtr->top;
+      //graphRecordPtr->clientRect.bottom = clientRectPtr->bottom;
+      //graphRecordPtr->clientRect.left = clientRectPtr->left;
+      //graphRecordPtr->clientRect.right = clientRectPtr->right;
+	#endif
+			// Get length of max x tic label string.
+	
+	//hasWavelengthValuesFlag = GetHasWavelengthValuesFlag (graphRecordPtr->imageWindow);
+
+	graphRecordPtr->xESignificantDigits = 0;
+	graphRecordPtr->xFSignificantDigits = 0;
+	interval = 1;
+	if (graphRecordPtr->flag & NU_HISTOGRAM_PLOT)
+		interval = graphRecordPtr->origHistogramBinWidth;
+	
+	GetNumberDecimalDigits (graphRecordPtr->xValueTypeCode,
+										graphRecordPtr->xMin,
+										graphRecordPtr->xMax,
+										interval,
+										&graphRecordPtr->xESignificantDigits,
+										&graphRecordPtr->xFSignificantDigits);
+	
+	if ((graphRecordPtr->processorCode == kSelectionGraphProcessor ||
+			graphRecordPtr->processorCode == kListDataProcessor) &&
+				graphRecordPtr->xMax - graphRecordPtr->xMin > 10 &&
+					graphRecordPtr->xFSignificantDigits >= 1)
+		graphRecordPtr->xFSignificantDigits -= 1;
+	
+	graphRecordPtr->xScaleMax = graphRecordPtr->xMax;
+	/*
+	hasWavelengthValuesFlag = GetHasWavelengthValuesFlag (graphRecordPtr->imageWindow);
+	
+	xFSigfigs = 0;
+	if (hasWavelengthValuesFlag && graphRecordPtr->xAxisCode > kChannels)
+		{
+				// If the difference between the min and max x value is less than 20,
+				// assume 2 decimal digits. Otherwise assume labels can be integer
+				// values. Less than 20 implies units are um and much larger infers
+				// units are nm. But there may be other units at times.
+		
+		if ((graphRecordPtr->xMax - graphRecordPtr->xMin) < 20)
+			xFSigfigs = 2;
+
+		}	// end "if (hasWavelengthValuesFlag && graphRecordPtr->xAxisCode ...)"
+   */
+	FormatR (number, 
+					&graphRecordPtr->xScaleMax, 
+					graphRecordPtr->xESignificantDigits, 
+					graphRecordPtr->xFSignificantDigits, 
+					false, 
+					&error);
+	ticLabelWidth = TextWidth ((UCharPtr)number, 0, (SInt16)strlen (number));
+	
+	graphRecordPtr->xScaleMin = graphRecordPtr->xMin;
+   	
+	FormatR (number, 
+					&graphRecordPtr->xScaleMin, 
+					graphRecordPtr->xESignificantDigits, 
+					graphRecordPtr->xFSignificantDigits, 
+					false, 
+					&error);
+	graphRecordPtr->xTicLabelWidth = 
+									TextWidth ((UCharPtr)number, 0, (SInt16)strlen (number));
+	
+	graphRecordPtr->xTicLabelWidth = (SInt16)
+										MAX (graphRecordPtr->xTicLabelWidth, ticLabelWidth);
+	
+			// Now get the x tick interval.
+	
+	clientRectPtr = &graphRecordPtr->clientRect;
+	screen_width = (clientRectPtr->right - clientRectPtr->left) -
+										graphRecordPtr->rightInset - graphRecordPtr->leftInset;
+   
+	numberIntervals = screen_width / (2*graphRecordPtr->xTicLabelWidth);
+
+	numberIntervals = MAX (1, numberIntervals);
+					
+			// Now get the interval distance in "whole" graph units.
+									
+	interval = (graphRecordPtr->xMax - graphRecordPtr->xMin);
+	if (interval == 0)
+		interval = 1;
+	
+	if (graphRecordPtr->flag & NU_HISTOGRAM_PLOT)
+		interval += graphRecordPtr->histogramBinWidth;
+	
+	interval /= numberIntervals;
+	
+ 	if (graphRecordPtr->flag & NU_HISTOGRAM_PLOT)
+ 		{
+		interval = ceil (interval/graphRecordPtr->histogramBinWidth);
+		interval *= graphRecordPtr->histogramBinWidth;
+	
+		}	// end "if (graphRecordPtr->flag & NU_HISTOGRAM_PLOT)"
+		
+	else	// !(graphRecordPtr->flag & NU_HISTOGRAM_PLOT)
+		{	
+		if (graphRecordPtr->xValueTypeCode == kIntegerType)
+			interval = ceil (interval);
+		
+		else	// graphRecordPtr->xValueTypeCode != kIntegerType
+			{
+			interval = ConvertToScientificFormat (interval, &numberDecimalDigits);
+			interval = ceil (interval);
+			interval = interval * pow ((double)10, (double)numberDecimalDigits);
+		
+			}	// end "else graphRecordPtr->xValueTypeCode != kIntegerType"
+			
+		}	// end "else !(graphRecordPtr->flag & NU_HISTOGRAM_PLOT)"
+	
+	if (!(graphRecordPtr->attrb & NU_XLOG))
+		{
+		if (graphRecordPtr->flag & NU_HISTOGRAM_PLOT)
+			{
+			/*
+			if (graphRecordPtr->xScaleMin == graphRecordPtr->xMin)
+				graphRecordPtr->xScaleMin -= interval;
+				
+			if (graphRecordPtr->xScaleMax == graphRecordPtr->xMax)
+				graphRecordPtr->xScaleMax += interval;
+			*/
+			graphRecordPtr->xScaleMin =
+								floor ((graphRecordPtr->xMin-interval/2)/interval)*interval;
+		
+			graphRecordPtr->xScaleMax =
+								ceil ((graphRecordPtr->xMax+interval/2)/interval)*interval;
+				
+			}	// end "if (graphRecordPtr->flag & NU_HISTOGRAM_PLOT)"
+		
+		else	// !(graphRecordPtr->flag & NU_HISTOGRAM_PLOT)
+			{
+			graphRecordPtr->xScaleMin = floor (graphRecordPtr->xMin/interval)*interval;
+		
+			graphRecordPtr->xScaleMax = ceil (graphRecordPtr->xMax/interval)*interval;
+			
+			}	// end "else !(graphRecordPtr->flag & NU_HISTOGRAM_PLOT)"
+		
+		if (graphRecordPtr->xScaleMin == graphRecordPtr->xScaleMax)
+			{
+			graphRecordPtr->xScaleMin -= interval;
+			graphRecordPtr->xScaleMax += interval;
+			
+			}	// end "if (graphRecordPtr->xScaleMin == graphRecordPtr->xScaleMax)"
+		
+		}	// end "if (!(graphRecordPtr->attrb & NU_XLOG))"
+		
+			// Redo the determing the decimal digits in case the calculated scale
+			// min/max causes them to change.  There should be enough space to allow
+			// for another decimal in the tic labels if needed.
+			
+	if (graphRecordPtr->flag & NU_HISTOGRAM_PLOT)
+		{
+		GetNumberDecimalDigits (graphRecordPtr->xValueTypeCode,
+											graphRecordPtr->xScaleMin,
+											graphRecordPtr->xScaleMax,
+											graphRecordPtr->origHistogramBinWidth,
+											&graphRecordPtr->xESignificantDigits,
+											&graphRecordPtr->xFSignificantDigits);
+											
+		}	// end "if (graphRecordPtr->flag & NU_HISTOGRAM_PLOT)"
+		
+	graphRecordPtr->xInt = interval;
+	
+}	// end "SetXGraphScale"		
+
+
+
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2018)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		void SetYGraphScale
+//
+//	Software purpose:	The purpose of this routine is to set the y scales and tic
+//							intervals relative to the size of the graph.
+//
+//	Parameters in:				
+//
+//	Parameters out:				
+//
+// Value Returned:	None
+// 
+// Called By:
+//
+//	Coded By:			Larry L. Biehl			Date: 04/26/2003
+//	Revised By:			Larry L. Biehl			Date: 04/05/2018
+
+void SetYGraphScale (
+				GraphPtr								graphRecordPtr)
+
+{
+	char									number[64];
+	
+	double								interval,
+											realAdditional;
+	
+	SInt32								error,
+											numberDecimalPlaces,
+											numberDigits,
+											numberIntervalDigits,
+											ticLabelWidth;
+	
+	UInt32								additional,
+											integerInterval;
+	
+	
+			// Get the size of the graph window.
+	
+	#if defined multispec_mac
+		GetWindowPortBounds (graphRecordPtr->window, &graphRecordPtr->clientRect);
+	#endif	// defined multispec_mac
+           
+	#if defined multispec_win
+		CMGraphView* graphViewCPtr = graphRecordPtr->graphViewCPtr;
+		graphViewCPtr->GetClientRect ((RECT*)&graphRecordPtr->clientRect);
+	#endif	// defined multispec_win
+			
+				// Now determine the y-axis min, max and interval.\
+														
+	interval = (graphRecordPtr->yMax - graphRecordPtr->yMin)/5;
+	
+	if (graphRecordPtr->yValueTypeCode == kIntegerType)
+		{
+		if (interval < 1)
+			interval = 1;
+			
+		integerInterval = (UInt32)(interval + 0.5);
+	
+		numberDigits = sprintf (number, "%ld", integerInterval) - 2;
+		if (numberDigits >= 1)
+			{
+			additional = (UInt32)pow ((double)10,(double)numberDigits);
+			integerInterval = (integerInterval+additional)/additional;
+			integerInterval *= additional;
+			
+			}	// end "if (numberDigits >= 1)"
+			
+		interval = (double)integerInterval;
+		
+		graphRecordPtr->yESignificantDigits = 0;
+		graphRecordPtr->yFSignificantDigits = 0; 
+			
+		}	// end "if (graphRecordPtr->yValueTypeCode == kIntegerType)"
+				
+	else	// ...->yValueTypeCode == kRealType
+		{
+		numberDigits = 1;
+		if (graphRecordPtr->yMax != 0)
+			numberDigits = (SInt32)log10 (fabs (graphRecordPtr->yMax));
+		
+		if (interval == 0)
+			{
+			if (numberDigits > 10)
+				interval = pow ((double)10,(double)(numberDigits-10));
+				
+			else	// numberWholeDigits <= 10
+				interval = pow ((double)10,(double)(numberDigits-1));
+
+			if (interval == 0)
+				interval = 1;
+				
+			}	// end "if (interval == 0)"
+			
+		else	// interval > 0
+			{
+			if (interval < 1)
+				{
+				numberDigits = 0;
+				numberDecimalPlaces = GetNumberLeadingDecimalZeros (interval);
+				realAdditional = pow ((double)10,(double)(-numberDecimalPlaces));
+				if (realAdditional > 0)
+					{
+					interval += realAdditional;
+					interval = floor (interval/realAdditional)*realAdditional;
+
+					}	// end "if (realAdditional > 0)"
+				
+				}	// end "if (interval < 1)"
+			
+			else	// interval >= 1
+				{
+				numberIntervalDigits = (SInt32)log10 (interval);
+				//interval = pow ((double)10,(double)(numberDigits-1));
+				
+				realAdditional = pow ((double)10,(double)numberIntervalDigits);
+				if (realAdditional > 0)
+					{
+					interval = (interval+realAdditional)/realAdditional;
+					interval = floor (interval)*realAdditional;
+
+					}	// end "if (realAdditional > 0)"
+				
+				}	// end "else interval >= 1"
+				
+			}	// end "else interval > 0"
+		
+		numberIntervalDigits = 0;
+		if (interval > 1)
+			numberIntervalDigits = (SInt32)log10 (interval);
+			
+		graphRecordPtr->yFSignificantDigits = GetNumberLeadingDecimalZeros (interval);
+		
+		if (graphRecordPtr->yFSignificantDigits == 0 && 
+													numberDigits > numberIntervalDigits)
+			{
+			graphRecordPtr->yFSignificantDigits = (UInt16)(numberDigits - numberIntervalDigits);
+//			numberDecimalPlaces = MIN (6, numberDecimalPlaces);
+			
+			}	// end "if (graphRecordPtr->yFSignificantDigits == 0)"
+		
+		}	// end "else ...->yValueTypeCode == kRealType"
+	
+	if (!(graphRecordPtr->attrb & NU_YLOG))
+		{
+		graphRecordPtr->yScaleMin = floor (graphRecordPtr->yMin/interval)*interval;
+		graphRecordPtr->yScaleMax = ceil (graphRecordPtr->yMax/interval)*interval;
+		
+		if (graphRecordPtr->yScaleMin == graphRecordPtr->yScaleMax)
+			{
+			if (graphRecordPtr->yScaleMin == graphRecordPtr->yMin)
+				graphRecordPtr->yScaleMin -= interval;
+				
+			if (graphRecordPtr->yScaleMax == graphRecordPtr->yMax)
+				graphRecordPtr->yScaleMax += interval;
+				
+			}	// end "if (graphRecordPtr->yMin == graphRecordPtr->yMax)" 
+		
+		}	// end "if (!(graphRecordPtr->attrb & NU_YLOG))"
+	
+	graphRecordPtr->yInt = interval;
+		
+		// Get the significant digits to use for the y-scale.
+		
+	GetNumberDecimalDigits (graphRecordPtr->yValueTypeCode,
+										graphRecordPtr->yScaleMin,
+										graphRecordPtr->yScaleMax,
+										interval,
+										&graphRecordPtr->yESignificantDigits,
+										&graphRecordPtr->yFSignificantDigits);
+		
+			//	User defined.
+						
+	//graphRecordPtr->yMin = 7;
+	//graphRecordPtr->yMax = 49;
+	//graphRecordPtr->yInt = 7;
+			
+			// Now for selection graph windows, force the y-axis min, max and interval
+			// to be the same for all graph windows that belong to this image window. 
+		
+	if (graphRecordPtr->processorCode == kSelectionGraphProcessor)
+		SetLikeWindowMinMax (graphRecordPtr->imageWindow, 
+										graphRecordPtr->yScaleMin, 
+										graphRecordPtr->yScaleMax,
+										graphRecordPtr->yInt);
+			
+				// Get length of max y tic label string.
+				
+		FormatR (number, 
+						&graphRecordPtr->yScaleMin,
+						graphRecordPtr->yESignificantDigits, 
+						graphRecordPtr->yFSignificantDigits,
+						false, 
+						&error);
+		ticLabelWidth = TextWidth ((UCharPtr)number, 0, (SInt16)strlen (number));
+				
+		FormatR (number, 
+						&graphRecordPtr->yScaleMax,
+						graphRecordPtr->yESignificantDigits, 
+						graphRecordPtr->yFSignificantDigits,
+						false, 
+						&error);
+		graphRecordPtr->yTicLabelWidth = 
+									TextWidth ((UCharPtr)number, 0, (SInt16)strlen (number));
+		graphRecordPtr->yTicLabelWidth = (SInt16)
+											MAX (graphRecordPtr->yTicLabelWidth, ticLabelWidth);
+		
+		graphRecordPtr->yTicLabelWidth = MAX (39, graphRecordPtr->yTicLabelWidth+8);
+	
+}	// end "SetYGraphScale"
+
+
+
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6710,7 +5872,200 @@ void UpdateGraphScales (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		void UpdateSelectionGraphXAxisMinMax
+//
+//	Software purpose:	The routine finds the min and max values for the x-axis
+//							for channel number, overall wavelength, reflective wavelengths,
+//							and thermal wavelengths.
+//							xAxis value of -100 indicate no data. This can occur for images
+//							which are not in wavelength order and a subset of channels are
+//							being used (such as in ListData processor).
+//
+//	Parameters in:				
+//
+//	Parameters out:				
+//
+// Value Returned:	None
+// 
+// Called By:
+//
+//	Coded By:			Larry L. Biehl			Date: 03/16/2018
+//	Revised By:			Larry L. Biehl			Date: 06/29/2018
+
+void UpdateSelectionGraphXAxisMinMax (
+				GraphPtr								graphPtr)
+													
+{
+	GRAPHDATA							*xValuePtr,
+											*xWidthPtr;
+	
+	double								value,
+											widthValue;
+	
+	SInt32								error = noErr;
+	
+	UInt32								numberPoints;
+	
+	SInt16								index;
+	
+	Boolean								xDataMaxSetFlag,
+											xDataMinSetFlag;
+	
+
+	if (graphPtr != NULL)
+		{
+		graphPtr->xDataMin = 1;
+		graphPtr->xDataMax = 1;
+		
+				// Initialize values for x vector.
+		
+		LockAndGetVectorPointer (&graphPtr->xVector, &error);
+		
+		if (error != noErr)
+																									return;
+		
+		xValuePtr = NULL;
+		xWidthPtr = NULL;
+		numberPoints = graphPtr->xVector.numberPoints;
+		if	((graphPtr->descriptionCode & kBothReflectiveThermalData) &&
+				graphPtr->xAxisCode > kChannels)
+			{
+			xValuePtr = &((&graphPtr->xVector)->basePtr[numberPoints]);
+			
+			if (graphPtr->xAxisCode == kBandWidths ||
+					graphPtr->xAxisCode == kReflectiveBandWidths ||
+						graphPtr->xAxisCode == kThermalBandWidths)
+				{
+				xWidthPtr = &((&graphPtr->xVector)->basePtr[2*numberPoints]);
+				
+				}	// end "if (graph->xAxisCode == kBandWidths || ..."
+			
+			}	// end "if	(hasWavelengthValuesFlag && ..."
+			
+		else
+			xValuePtr = &((&graphPtr->xVector)->basePtr[0]);
+														
+		xDataMinSetFlag = FALSE;
+		xDataMaxSetFlag = FALSE;
+		
+		for (index=0; index<numberPoints; index++)
+			{
+			value = *xValuePtr;
+			
+			if (value > 0)
+				{
+				widthValue = 0;
+				if (xWidthPtr != NULL)
+					{
+					widthValue = *xWidthPtr;
+					xWidthPtr++;
+					
+					}	// end "if (xWidthPtr != NULL)"
+				
+				if (!xDataMinSetFlag)
+					{
+					if (graphPtr->xAxisCode == kWavelengths ||
+								graphPtr->xAxisCode == kChannels)
+						{
+						graphPtr->xDataMin = value;
+						xDataMinSetFlag = TRUE;
+						
+						}	// end "if (graphRecordPtr->xAxisCode == kWavelengths || ..."
+						
+					else if (graphPtr->xAxisCode == kBandWidths)
+						{
+						graphPtr->xDataMin = value - widthValue;
+						xDataMinSetFlag = TRUE;
+						
+						}	// end "if (graphRecordPtr->xAxisCode == kBandWidths)"
+					
+					else if (graphPtr->xAxisCode == kReflectiveWavelengths && value < 3)
+						{
+						graphPtr->xDataMin = value;
+						xDataMinSetFlag = TRUE;
+						
+						}	// end "if (...->xAxisCode == kReflectiveWavelengths && ...)"
+					
+					else if (graphPtr->xAxisCode == kReflectiveBandWidths && value < 3)
+						{
+						graphPtr->xDataMin = value - widthValue;
+						xDataMinSetFlag = TRUE;
+						
+						}	// end "else if (...->xAxisCode == kReflectiveBandWidths ...)"
+					
+					else if (graphPtr->xAxisCode == kThermalWavelengths && value >= 3)
+						{
+						graphPtr->xDataMin = value;
+						xDataMinSetFlag = true;
+						
+						}	// end "else if (...->xAxisCode == kThermalWavelengths && ..."
+					
+					else if (graphPtr->xAxisCode == kThermalBandWidths && value >= 3)
+						{
+						graphPtr->xDataMin = value - widthValue;
+						xDataMinSetFlag = true;
+						
+						}	// end "else if (...->xAxisCode == kThermalBandWidths ..."
+						
+					}	// end "if (!xDataMinSetFlag)"
+					
+				if (!xDataMaxSetFlag)
+					{
+					if (graphPtr->xAxisCode == kReflectiveWavelengths)
+						{
+						if (value < 3)
+							graphPtr->xDataMax = value;
+							
+						else	// value >= 3
+							xDataMaxSetFlag = TRUE;
+							
+						}	// end "if (...->xAxisCode == kReflectiveWavelengths)"
+
+					else if (graphPtr->xAxisCode == kReflectiveBandWidths)
+						{
+						if (value < 3)
+							graphPtr->xDataMax = value + widthValue;
+							
+						else	// value >= 3
+							xDataMaxSetFlag = TRUE;
+							
+						}	// end "else if (...->xAxisCode == kReflectiveBandWidths)"
+					
+					}	// end "if (!xDataMaxSetFlag)"
+				
+				}	// end "if (value > 0)"
+			
+			xValuePtr++;
+		
+			}	// end "for (index=0; index<numberPoints; index++)"
+			
+		if (graphPtr->xAxisCode == kWavelengths ||
+					graphPtr->xAxisCode == kChannels)
+			graphPtr->xDataMax = value;
+			
+		else if (graphPtr->xAxisCode == kBandWidths)
+			graphPtr->xDataMax = value + widthValue;
+			
+		else if (graphPtr->xAxisCode == kThermalWavelengths && value > 3)
+			graphPtr->xDataMax = value;
+			
+		else if (graphPtr->xAxisCode == kThermalBandWidths && value > 3)
+			graphPtr->xDataMax = value + widthValue;
+	
+		UnlockVectorPointer (&graphPtr->xVector);
+		
+		}	// end "if (graphPtr)"
+
+}	// end "UpdateSelectionGraphXAxisMinMax"
+
+
+
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6729,22 +6084,17 @@ void UpdateGraphScales (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 01/27/1999
-//	Revised By:			Larry L. Biehl			Date: 02/05/1999		
+//	Revised By:			Larry L. Biehl			Date: 02/23/2018
 
 void VerifyNeedForSelectVectorControl (
 				WindowPtr							windowPtr)
 
 {	                  
 #if defined multispec_mac 
-	GraphPtr								graphRecordPtr;
+	GraphPtr								graphRecordPtr = NULL;
 
 	ControlHandle						controlHandle,
-	/*
-	#if !TARGET_API_MAC_CARBON
-												nextControlHandle,
-	#endif	// !TARGET_API_MAC_CARBON
-	*/
-											rootControlHandle;
+											rootControlHandle = NULL;
 											
 	Handle								graphRecordHandle;
 	
@@ -6756,14 +6106,8 @@ void VerifyNeedForSelectVectorControl (
 	
 			// Update graph window controls	
 				
-	if (gAppearanceManagerFlag)
-		GetRootControl (windowPtr, &rootControlHandle);
-	/*	
-	#if !TARGET_API_MAC_CARBON
-		else	// !gAppearanceManagerFlag
-			rootControlHandle = (ControlHandle)((WindowPeek)windowPtr)->controlList;
-	#endif	// !TARGET_API_MAC_CARBON
-	*/
+	GetRootControl (windowPtr, &rootControlHandle);
+
 	if (rootControlHandle != NULL)
 		{
 		graphRecordHandle = GetGraphRecordHandle (windowPtr);
@@ -6773,62 +6117,28 @@ void VerifyNeedForSelectVectorControl (
 		
 	if (graphRecordPtr != NULL)
 		{					
-		if (gAppearanceManagerFlag)	
-			{												
-			CountSubControls (rootControlHandle, &numberControls);
-			for (index=numberControls; index>=1; index--)
+		CountSubControls (rootControlHandle, &numberControls);
+		for (index=numberControls; index>=1; index--)
+			{
+			GetIndexedSubControl (rootControlHandle, index, &controlHandle);
+			refCon = (SInt16)GetControlReference (controlHandle);
+			
+			switch (refCon)
 				{
-				GetIndexedSubControl (rootControlHandle, index, &controlHandle);
-				refCon = (SInt16)GetControlReference (controlHandle);
-				
-				switch (refCon)
-					{
-					case kGraphVectorControl:
-						if (graphRecordPtr->numberVectors <= 1)
-							DisposeControl (controlHandle);
-						break;
-						
-					case kGraphOverlayControl:
-						if (graphRecordPtr->graphCodesAvailable == 1)
-							DisposeControl (controlHandle);
-						break;
-						
-					}	// end "switch (refCon)"
-		     			
-		     	}	// end "while (controlHandle != NULL)" 
-		
-			}	// end "if (gAppearanceManagerFlag)"
-		/*
-		#if !TARGET_API_MAC_CARBON
-			else	// !gAppearanceManagerFlag
-				{
-				controlHandle = rootControlHandle;			
-				while (controlHandle != NULL)	
-					{
-					refCon = (SInt16)GetControlReference (controlHandle);
-					nextControlHandle = (*controlHandle)->nextControl;
+				case kGraphVectorControl:
+					if (graphRecordPtr->numberVectors <= 1)
+						DisposeControl (controlHandle);
+					break;
 					
-					switch (refCon)
-						{
-						case kGraphVectorControl:
-							if (graphRecordPtr->numberVectors <= 1)
-								DisposeControl (controlHandle);
-							break;
-							
-						case kGraphOverlayControl:
-							if (graphRecordPtr->graphCodesAvailable == 1)
-								DisposeControl (controlHandle);
-							break;
-							
-						}	// end "switch (refCon)"
-						
-					controlHandle = nextControlHandle;
-			     			
-			     	}	// end "while (controlHandle != NULL)"
-				
-				}	// end "else !gAppearanceManagerFlag"
-		#endif	// !TARGET_API_MAC_CARBON
-	   */  	
+				case kGraphOverlayControl:
+					if (graphRecordPtr->graphCodesAvailable == 1)
+						DisposeControl (controlHandle);
+					break;
+					
+				}	// end "switch (refCon)"
+					
+			}	// end "while (controlHandle != NULL)" 
+		
 		}	// end "if (graphRecordPtr != NULL)"
 #endif	// defined multispec_mac
 	

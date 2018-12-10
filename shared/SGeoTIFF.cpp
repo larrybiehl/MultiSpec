@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//							 Copyright (1988-2017)
+//							 Copyright (1988-2018)
 //						(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			12/21/2017
+//	Revision date:			06/28/2018
 //
 //	Language:				C
 //
@@ -160,7 +160,7 @@ SInt16 				SetPixelScaleParametersFromGeoTIFF (
 
 #if use_multispec_tiffcode
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -455,7 +455,7 @@ SInt16 CheckRowsPerStrip (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -545,20 +545,20 @@ SInt16 GetBlockSizesVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		SInt16 GetGeoASCIIStringFromGeoTIFF
 //
-//	Software purpose:	The purpose of this routine is to get the textinformation in 
+//	Software purpose:	The purpose of this routine is to get the text information in
 //							the GEOTIFF tag.
 //
 //	Parameters in:		None
 //
 //	Parameters out:	None
 //
-//	Value Returned:	None				
+//	Value Returned:	error code
 // 
 // Called By:			
 //
@@ -589,7 +589,7 @@ SInt16 GetGeoASCIIStringFromGeoTIFF (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -633,12 +633,11 @@ SInt16 GetGeoASCIIStringFromGeoTIFF (
 		
 		count = MIN (geoASCIIStringTagPtr->count, stringLengthLimit);
 										
-		errCode = GetTIFFASCIIParameters (
-								fileStreamPtr, 
-								geoASCIIStringTagPtr, 
-								geoASCIIStringPtr, 
-								(SInt32)count);
-								
+		errCode = GetTIFFASCIIParameters (fileStreamPtr,
+														geoASCIIStringTagPtr, 
+														geoASCIIStringPtr, 
+														(SInt32)count);
+		
 		if (errCode != noErr)
 			geoASCIIStringTagPtr->tag = 0;
 			
@@ -651,7 +650,7 @@ SInt16 GetGeoASCIIStringFromGeoTIFF (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -693,7 +692,7 @@ SInt16 GetGTModelTypeGeoKey (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -816,7 +815,7 @@ SInt16 GetGTModelTypeGeoKeyFromGeoDirectory (
 
 #if use_multispec_tiffcode
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -872,7 +871,7 @@ SInt16 GetGeoDoubleParametersFromGeoTIFF (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1571,7 +1570,7 @@ SInt16 GetGeoKeyParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1698,7 +1697,7 @@ Boolean GetSpecifiedTIFFKeyDirectory (
   
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1761,7 +1760,7 @@ Boolean GetSwapBytesFlagForTiffFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1858,7 +1857,7 @@ SInt16 GetTiffEntry (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1934,7 +1933,7 @@ SInt16 GetTIFFASCIIParameters (
 
 #if use_multispec_tiffcode
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2013,11 +2012,61 @@ SInt16 GetTIFFDoubleParameters (
 	
 }	// end "GetTIFFDoubleParameters"
 #endif		// use_multispec_tiffcode
+  
+
+
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2018)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		void GetTIFFImageDescription
+//
+//	Software purpose:	The purpose of this routine is to get the text for the "Image
+//							Description Tag (270) in the TIFF/GeoTIFF file.
+//
+//	Parameters in:		None
+//
+//	Parameters out:	Text for the TIFF Image Description tag (270). No text is returned
+//							if there is no 270 tag.
+//
+//	Value Returned:	None				
+// 
+// Called By:			
+//
+//	Coded By:			Larry L. Biehl			Date: 06/28/2018
+//	Revised By:			Larry L. Biehl			Date: 06/28/2018
+
+void GetTIFFImageDescription (
+				FileInfoPtr							fileInfoPtr,
+				char*									imageDescriptionStringPtr,
+				UInt32								stringLengthLimit)
+
+{
+	CMFileStream*						fileStreamPtr;
+	TIFFImageFileDirectory			tiffFileDirectory;
+	
+	
+	imageDescriptionStringPtr[0] = 0;
+	fileStreamPtr = GetFileStreamPointer (fileInfoPtr);
+	if (GetSpecifiedTIFFKeyDirectory (fileInfoPtr,
+													270,
+													&tiffFileDirectory))
+		{
+		stringLengthLimit = (SInt16)MIN (tiffFileDirectory.count, stringLengthLimit);
+		GetTIFFASCIIParameters (fileStreamPtr,
+										&tiffFileDirectory,
+										imageDescriptionStringPtr,
+										stringLengthLimit);
+		
+		}	// end "if (GetSpecifiedTIFFKeyDirectory (fileInfoPtr, ..."
+	
+}	// end "GetTIFFImageDescription"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2064,7 +2113,7 @@ UInt32 GetTIFFNumberHeaderBytes (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2269,7 +2318,7 @@ Boolean ListGeoTiffTextDescriptionParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2472,7 +2521,7 @@ Boolean ListTiffTextDescriptionParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2491,7 +2540,7 @@ Boolean ListTiffTextDescriptionParameters (
 //							CheckRowsPerStrip in SGeoTIFF.cpp
 //							
 //	Coded By:			Larry L. Biehl			Date: 01/26/2007
-//	Revised By:			Larry L. Biehl			Date: 07/23/2012
+//	Revised By:			Larry L. Biehl			Date: 02/26/2018
 
 SInt16 LoadHierarchalFileStructure (
 				FileInfoPtr 						fileInfoPtr,
@@ -2564,7 +2613,7 @@ SInt16 LoadHierarchalFileStructure (
 				hfaPtr[index].blockOffset = bytesPerStripForAllChannels;
 			
 			}	// end "for (index=0; index<fileInfoPtr->numberChannels; index++)"
-			
+		
 		if (fileInfoPtr->gdalDataSetH != NULL)
 			{
 					// The GDAL interface routines will force the data to be continuous if not
@@ -2594,7 +2643,11 @@ SInt16 LoadHierarchalFileStructure (
 			}	// end "else fileInfoPtr->gdalDataSetH == NULL && blockStartsPtr != NULL)"
 			
 		else	// blockStartsPtr == NULL || blockByteCountsPtr == NULL
+			{
 			blockStartsOKFlag = FALSE;
+			minimumBlockStart = 0;
+			
+			}	// end "else blockStartsPtr == NULL || blockByteCountsPtr == NULL"
 			
 				// Set the number of header bytes to the minimum block start. This
 				// will allow for proper calculation of the minimum file size based
@@ -2619,7 +2672,7 @@ SInt16 LoadHierarchalFileStructure (
 
 #if use_multispec_tiffcode
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3561,7 +3614,7 @@ SInt16 ReadTIFFHeader (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3583,7 +3636,7 @@ SInt16 ReadTIFFHeader (
 //							SetGeoProjectionFromGeoTIFF in SGeoTIFF.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 02/17/2012
-//	Revised By:			Larry L. Biehl			Date: 04/18/2013
+//	Revised By:			Larry L. Biehl			Date: 02/27/2018
 
 void SetProjectionInformationFromString (
 				MapProjectionInfoPtr				mapProjectionInfoPtr,
@@ -3595,8 +3648,9 @@ void SetProjectionInformationFromString (
 	
 	UCharPtr								stringPtr;
 	
-	SInt32								fipsNumber,
-											gridZone;
+	int									gridZone;
+	
+	SInt32								fipsNumber;
 	
 	SInt16								returnCode;
 	
@@ -3652,13 +3706,13 @@ void SetProjectionInformationFromString (
 									// Find whether it is North or South Zone if not identified
 									// already.
 													
-							sprintf ((char*)gTextString, "%dN", (int)gridZone);
+							sprintf ((char*)gTextString, "%dN", gridZone);
 							if (strstr ((char*)zone, (char*)gTextString) != NULL)
 								direction = 'N';
 							
 							if (direction == ' ')
 								{
-								sprintf ((char*)gTextString, "%d N", (int)gridZone);
+								sprintf ((char*)gTextString, "%d N", gridZone);
 								if (strstr ((char*)zone, (char*)gTextString) != NULL)
 									direction = 'N';
 									
@@ -3666,7 +3720,7 @@ void SetProjectionInformationFromString (
 							
 							if (direction == ' ')
 								{
-								sprintf ((char*)gTextString, "%dS", (int)gridZone);
+								sprintf ((char*)gTextString, "%dS", gridZone);
 								if (strstr ((char*)zone, (char*)gTextString) != NULL)
 									direction = 'S';
 									
@@ -3674,7 +3728,7 @@ void SetProjectionInformationFromString (
 							
 							if (direction == ' ')
 								{
-								sprintf ((char*)gTextString, "%d S", (int)gridZone);
+								sprintf ((char*)gTextString, "%d S", gridZone);
 								if (strstr ((char*)zone, (char*)gTextString) != NULL)
 									direction = 'S';
 									
@@ -3894,7 +3948,7 @@ void SetProjectionInformationFromString (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3935,7 +3989,7 @@ void SetProjectionInformationFromString2 (
 
 #if use_multispec_tiffcode
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4008,7 +4062,7 @@ SInt16 SetGeoProjectionFromGeoTIFF (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4081,7 +4135,7 @@ void SetGeoTiePointsForRasterPixelType (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4314,7 +4368,7 @@ SInt16 SetGeoTiePointsFromGeoTIFF (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4409,7 +4463,7 @@ SInt16 SetModelTransformationParametersFromGeoTIFF (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4487,7 +4541,7 @@ SInt16 SetPixelScaleParametersFromGeoTIFF (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

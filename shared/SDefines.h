@@ -15,13 +15,13 @@
 //
 //	System:					Linux, Macintosh and Windows Operating Systems
 //
-//	Brief description:	Header file for MultiSpec which contains variable and 
+//	Brief description:	Header file for MultiSpec which contains variable and
 //								structure definitions used by MultiSpec.
 //
 //	Written By:				Larry L. Biehl			Date: 03/29/1988
 //	Revised By:				Abdur Maud				Date: 06/24/2013
 //	Revised By:				Tsung Tai Yeh			Date: 09/25/2015
-//	Revised By:				Larry L. Biehl			Date: 01/05/2018
+//	Revised By:				Larry L. Biehl			Date: 11/26/2018
 //	
 //------------------------------------------------------------------------------------
 
@@ -29,8 +29,12 @@
 #define __SDEFINES__
 
 #if include_gdal_capability
-	#ifdef multispec_lin
+	#if defined multispec_lin && !defined multispec_wxmac
 		#include "dbfopen.h"
+	#endif	// multispec_lin
+
+	#if defined multispec_lin && defined multispec_wxmac
+		#include "shapefil.h"
 	#endif	// multispec_lin
 	
 	#ifdef multispec_mac
@@ -45,10 +49,10 @@
 	
 		// Forward definition of classes
 #if defined multispec_lin
-	#include <wx/wx.h>
-	#include <wx/listbox.h>
-	#include <wx/dc.h>
-	#include <wx/listctrl.h>
+	#include "wx/wx.h"
+	#include "wx/listbox.h"
+	#include "wx/dc.h"
+	#include "wx/listctrl.h"
 	//#include "SGraphView.h"
 	#include "SConstants.h"
 
@@ -578,7 +582,6 @@ typedef double				CMeanType2;
 		#define kPMPortrait	1
 	#endif	// !defined PP_Target_Carbon
 		
-	#if TARGET_API_MAC_CARBON
 		typedef struct CGInfo
 			{
 			CGContextRef			contextRef;
@@ -735,7 +738,6 @@ typedef double				CMeanType2;
 											  CGrafPtr        					inPort,
 											  CGContextRef*  						inoutContext);
 											  
-	#endif	// TARGET_API_MAC_CARBON											
 #endif	// defined multispec_mac
 
 #if defined multispec_lin
@@ -785,8 +787,9 @@ typedef double				CMeanType2;
 			// Define some variables for MultiSpec
 			//**** Using GLOBALHANDLE type to be void for now
 	typedef void*					GLOBALHANDLE;
-
-	typedef UInt32					CGContextRef;
+	#ifndef multispec_wxmac
+		typedef UInt32					CGContextRef;
+	#endif
 	typedef UInt32					CGRect;
 	typedef UInt32					AEAddressDesc;
 	typedef UInt32					AEDesc;
@@ -809,7 +812,9 @@ typedef double				CMeanType2;
 	typedef wxListBox*			ListHandle;
 	typedef GLOBALHANDLE			MenuHandle;
 	typedef UInt16					MenuItemIndex;
-	typedef GLOBALHANDLE			MenuRef;
+	#ifndef multispec_wxmac
+		typedef GLOBALHANDLE			MenuRef;
+	#endif
 	typedef GLOBALHANDLE			PixMapHandle;
 	typedef UInt16					PMOrientation;
 	typedef GLOBALHANDLE			StringHandle;
@@ -2390,6 +2395,9 @@ typedef struct DisplaySpecsDefault
 			// displays.																							
 	SInt16							blueChannelNumber;
 	
+			// Code indicating whether the channels are in wavelength order
+	SInt16							channelsInWavelengthOrderCode;
+	
 			// The channel number to be display for one channel images.				
 	SInt16							channelNumber;	
 	
@@ -2671,6 +2679,10 @@ typedef struct MFileInfo
 	HierarchalFileFormatPtr		hfaPtr;
 	BlockFormatPtr					blockFormatPtr;
 	void*								gdalDataSetH;
+		
+			// Used to store the hdf5 file_id when using the hdf routines to read
+			// lines of the image file.
+	void*								hdf5FileID;
 	
 	Str15								channelDescriptionUnitString;
 	
@@ -2712,12 +2724,11 @@ typedef struct MFileInfo
 	Handle							hfaHandle;
 	
 			// Handle to map projection information.
-			
 	Handle							mapProjectionHandle;
 		
 			// Used to store the hdf file_id when using the hdf routines to read
 			// lines of the image file.
-	void*								hdfFileID;
+	SInt32							hdf4FileID;
 	
 	SInt32							signedValueOffset;
 	
@@ -2756,6 +2767,12 @@ typedef struct MFileInfo
 	SInt16							ancillaryInfoformat;
 	
 	SInt16							bandInterleave;	// 1=BIL,   2=BSQ,	 3=BIS
+	
+			// Code indicating whether the channels are in wavelength order
+			// 0=no applicable; 1=in wavelength order; 2=not in wavelength order
+			// This variable is only used when creating new image files to indicate
+			// whether the output image files are in wavelength order.
+	SInt16							channelsInWavelengthOrderCode;
 	
 			// For Thematic image files, this variable indicates how the classes were
 			// collapsed if any. In otherwords, a classSymbolPtr vector was created to
@@ -2799,6 +2816,17 @@ typedef struct MFileInfo
 			//		= 1, kRealType
 	UInt16							dataTypeCode;
 	
+			// Code providing information about the description for the channels.
+			//		Bit 0 = 0x0: no description information for the channels
+			//		Bit 0 = 0x1: description information exists
+			//		Bit 1,2 = 0x00: no information exists whether reflective or thermal
+			//		Bit 1,2 = 0x01: Reflective data only
+			//		Bit 1,2 = 0x10: Thermal data only
+			//		Bit 1,2 = 0x11: Both reflective and thermal data exists
+			//		Bit 3 = 0x0: no band width information
+			//		Bit 3 = 0x1: band width information exists
+	UInt16							descriptionCode;
+	
 	UInt16							hdfDataSetSelection;
 	UInt16							numberHdfDataSets;
 	
@@ -2839,7 +2867,7 @@ typedef struct MFileInfo
 	Boolean							swapHeaderBytesFlag;			// 0=No		1=Yes
 	Boolean							thematicType;
 	
-	SInt32							filler;			// to force structure to be even multiple of 8
+	//SInt32							filler;			// to force structure to be even multiple of 8
 	
 	} MFileInfo, *FileInfoPtr, **FileInfoHandle;
 
@@ -3344,11 +3372,11 @@ typedef struct PlanarCoordinateSystemInfo
 typedef struct ImageOverlayInfo
 	{
 	Str255									overlayName;
-		
-	#if TARGET_API_MAC_CARBON
-		CGInfo							cgInfo;
-	#endif	// TARGET_API_MAC_CARBON
-		
+	
+	#if defined multispec_mac
+		CGInfo									cgInfo;
+	#endif	// defined multispec_mac
+	
 	#if defined multispec_win
 		HDC								overlayDC;
 	#endif	// defined multispec_win
@@ -3443,11 +3471,25 @@ typedef struct InverseMatrixMemory
 typedef struct LayerInfo
 	{
 			// Index into the FileInfo structure for the given channel number.	
-	UInt16				fileInfoIndex;
+	UInt16					fileInfoIndex;
 	
 			// The channel number within the defined FileInfo structure which		
-			// corresponds "Window" file channel.											
-	UInt16				fileChannelNumber;
+			// corresponds "Window" file channel. This value is 0 based.
+	UInt16					fileChannelNumber;
+	
+			// Value indicating the channel which is in wavelength order for the
+			// respective index in LayerInfo. This would be the channel for
+			// a layer info structure for case when the channels are in wavelength
+			// order. This value is 0 based. This is used when using change image
+			// file format to put a new file in wavelength order.
+	UInt16					wavelengthOrder;
+	
+			// Value indicating the index of this channel within the wavelength
+			// order of all channels associated with the window. By default the
+			// value will just be the index in the LayerInfo structure. This value
+			// is 0 based. This is used when putting the wavelengths in proper order
+			// for selection and list data graphs.
+	UInt16					wavelengthIndex;
 	
 	} LayerInfo, *LayerInfoPtr, **LayerInfoHandle;
 	
@@ -4324,6 +4366,7 @@ typedef struct ReformatOptions
 	Boolean							checkForSaturationFlag;
 	Boolean							firstTimeFlag;
 	Boolean							ignoreBackgroundFlag;
+	Boolean							outputInWavelengthOrderFlag;
 	Boolean							rightToLeft;
 	Boolean							signedOutputDataFlag;
 	Boolean							swapBytesFlag;
@@ -4368,6 +4411,31 @@ typedef struct SelectionInfo
 	SInt16								unitsDisplayCode;
 	
 	} SelectionInfo, *SelectionInfoPtr;
+	
+
+typedef struct SelectionIOInfo
+	{
+	Handle				channelStatsHandle;
+	
+			// Handle to graphics record.
+																	
+	Handle				ioBufferHandle;
+	Handle				sumSquaresHandle;
+	SInt32				bufferSize;
+	SInt32				outputBufferOffset;
+
+			// Flag indicating when the memory for the selection graph 				
+			// parameters need to be checked.
+															
+	Boolean				checkIOMemoryFlag;
+	
+			// This flag will be turned on after a memory warning has been			
+			// displayed one time so that the warning will not be displayed		
+			// again.								
+															
+	Boolean				memoryWarningFlag;
+	
+	} SelectionIOInfo, *SelectionIOInfoPtr;  
 	
 	
 typedef struct SeparabilitySpecs
@@ -4767,34 +4835,25 @@ typedef struct TransformationSpecs
 typedef struct WindowInfo
 	{
 			// Pointer to the class structure which defines this image window.
-			// Used in Windows version only
+			
    #if defined multispec_lin
-      Ptr windowPtr;
-      wxImage offScreenImage;
+		CMImageWindow*				cImageWindowPtr;
+      Ptr							windowPtr;
+      wxImage						offScreenImage;
    #endif	// defined multispec_lin
-
-
-	#if defined multispec_mac || defined multispec_mac_swift
-		Ptr						cImageWindowPtr;
-	#endif	// defined multispec_mac || defined multispec_mac_swift
-		
-   #if defined multispec_win | defined multispec_lin
-		CMImageWindow*			cImageWindowPtr;
-	#endif	// defined multispec_win
 	
 			// Pointer to the window structure for this image window.
 			// Used in Macintosh version only
 	#if defined multispec_mac || defined multispec_mac_swift
-		WindowPtr				windowPtr;
+		CGInfo						cgInfo;
+		Ptr							cImageWindowPtr;
+		WindowPtr					windowPtr;
 	#endif	// defined multispec_mac || defined multispec_mac_swift
 		
 	#if defined multispec_win 
-		Ptr						windowPtr;
+		CMImageWindow*				cImageWindowPtr;
+		Ptr							windowPtr;
 	#endif	// defined multispec_win
-	
-	#if TARGET_API_MAC_CARBON
-		CGInfo						cgInfo;
-	#endif	// TARGET_API_MAC_CARBON
 	
 	DoubleRect					boundingLatLongRectangle;
 	
@@ -4984,6 +5043,10 @@ typedef struct WindowInfo
 			// since the last save.  0=not changed, 1=changed.							
 	SInt16					changed;
 	
+			// Code indicating whether the channels are in wavelength order
+			// 0=not applicable; 1=in wavelength order; 2=not in wavelength order
+	SInt16					channelsInWavelengthOrderCode;
+	
 			// Code indicating the units to use to display the number of pixels
 			// or the area of the selected area.  The codes are defined by the 
 			// area units constants.							
@@ -4993,12 +5056,6 @@ typedef struct WindowInfo
 			// and selection area.  The codes are defined by the coordinate units
 			// constants.							
 	SInt16					coordinateViewUnitsCode;
-	
-			// Code indicating how the description for the channels can be			
-			// accessed.  >1 is a table number, -1 means at end of image file,	
-			// -2 means a mixture of table and at end of file and 0 means no 		
-			// description.																		
-	SInt16					descriptionCode;
 	
 			// This variables is used to keep track of changes in the file			
 			// specification (such as number of lines, etc.  It is incremented	
@@ -5055,6 +5112,17 @@ typedef struct WindowInfo
 			// 0=project																			
 	SInt16					windowType;
 	
+			// Code providing information about the description for the channels.
+			//		Bit 0 = 0x0: no description information for the channels
+			//		Bit 0 = 0x1: description information exists
+			//		Bit 1,2 = 0x00: no information exists whether reflective or thermal
+			//		Bit 1,2 = 0x01: Reflective data only
+			//		Bit 1,2 = 0x10: Thermal data only
+			//		Bit 1,2 = 0x11: Both reflective and thermal data exists
+			//		Bit 3 = 0x0: no band width information
+			//		Bit 3 = 0x1: band width information exists
+	UInt16					descriptionCode;
+	
 			// The maximum number of bits per data value in the "window" file.	
 	UInt16					numberBits;
 	
@@ -5084,6 +5152,10 @@ typedef struct WindowInfo
 			// in steps.  At the end of the display processor function the flag is
 			// turn back on again so that any vectors for the window are drawn. 
 	Boolean					drawVectorOverlaysFlag;
+	
+			// Flag indicating whether wavelength values are available for the channels
+			// in the file.
+	//Boolean					hasWavelengthValuesFlag;
 	
 			// Flag indicating whether the number of data bytes differ for the	
 			// local channel list.																

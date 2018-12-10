@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			01/05/2018
+//	Revision date:			02/27/2018
 //
 //	Language:				C
 //
@@ -154,7 +154,7 @@ char*			l_CharBufferPtr5 = NULL;
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -233,7 +233,7 @@ SInt16 GetMeanStdDevLength (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -312,7 +312,7 @@ SInt16 GetVarianceLength (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -570,7 +570,7 @@ Boolean ListClassInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -747,7 +747,7 @@ void ListClassStats (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -778,7 +778,7 @@ void ListClassStats (
 //							ClusterClassification in SCluster.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/10/1990
-//	Revised By:			Larry L. Biehl			Date: 04/24/2013	
+//	Revised By:			Larry L. Biehl			Date: 02/27/2018
 
 Boolean ListFieldInformation (
 				SInt16								fieldNumber, 
@@ -887,12 +887,12 @@ Boolean ListFieldInformation (
 		{
 		sprintf ((char*)gTextString,
 					"     Lines %d to %d by %d.  Columns %d to %d by %d.",
-					fieldPointsPtr[pointIndex].line, 
-					fieldPointsPtr[pointIndex+1].line,
-					lineInterval, 
-					fieldPointsPtr[pointIndex].col, 
-					fieldPointsPtr[pointIndex+1].col,
-					columnInterval);
+					(int)fieldPointsPtr[pointIndex].line,
+					(int)fieldPointsPtr[pointIndex+1].line,
+					(int)lineInterval,
+					(int)fieldPointsPtr[pointIndex].col,
+					(int)fieldPointsPtr[pointIndex+1].col,
+					(int)columnInterval);
 		
 		continueFlag = OutputString ((CMFileStream*)NULL, 
 											(char*)gTextString, 
@@ -926,8 +926,8 @@ Boolean ListFieldInformation (
 			{
 			sprintf ((char*)gTextString,
 						"     Line %d, Column %d%s",
-						fieldPointsPtr[pointIndex].line,
-						fieldPointsPtr[pointIndex].col,
+						(int)fieldPointsPtr[pointIndex].line,
+						(int)fieldPointsPtr[pointIndex].col,
 						gEndOfLine);
 			
 			continueFlag = OutputString ((CMFileStream*)NULL, 
@@ -1065,7 +1065,7 @@ Boolean ListFieldInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1239,7 +1239,7 @@ void ListFieldStats (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1257,7 +1257,7 @@ void ListFieldStats (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 11/21/1988
-//	Revised By:			Larry L. Biehl			Date: 01/09/2006	
+//	Revised By:			Larry L. Biehl			Date: 02/27/2018
 
 Boolean ListLowerTriangularMatrix (
 				HDoublePtr							matrixPtr, 
@@ -1284,7 +1284,7 @@ Boolean ListLowerTriangularMatrix (
 	for (channel=0; channel<numberChannels; channel++)
 		{
 		sprintf (stringPtr1,
-					"\t%*hd",
+					"\t%*d",
 					fieldSize,
 					gProjectInfoPtr->channelsPtr[channel]+1);
 		stringPtr1 += stringSkip;
@@ -1341,7 +1341,7 @@ Boolean ListLowerTriangularMatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1408,7 +1408,7 @@ void ListProjectStats (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1524,7 +1524,7 @@ void ListStatistics (
 			for (channel=0; channel<numberChannels; channel++)
 				{
 				sprintf (stringPtr1, 
-							"\t%*hd",
+							"\t%*d",
 							numberLength, 
 							gProjectInfoPtr->channelsPtr[channel]+1);
 							
@@ -1696,7 +1696,7 @@ void ListStatistics (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2137,7 +2137,7 @@ void ListStatsControl (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

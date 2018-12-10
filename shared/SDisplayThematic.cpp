@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			01/04/2018
+//	Revision date:			10/22/2018
 //
 //	Language:				C
 //
@@ -146,11 +146,6 @@ void LoadClassGroupDisplayInfo (
 				FileInfoPtr							fileInfoPtr, 
 				SInt16*								localClassGroupsPtr);
 
-void LoadLocalClassGroupDisplayInfo (
-				DisplaySpecsPtr					displaySpecsPtr,
-				FileInfoPtr							fileInfoPtr, 
-				SInt16*								localClassGroupsPtr);
-
 DisplaySpecsPtr LoadThematicDisplaySpecs (void);
 								
 void RemoveListCells (
@@ -162,7 +157,7 @@ void UpdateLegendWidth (void);
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -328,7 +323,7 @@ Boolean ClassGroupDialog (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -784,7 +779,7 @@ void DisplayColorThematicImage (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -805,7 +800,7 @@ void DisplayColorThematicImage (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 12/19/1989
-//	Revised By:			Larry L. Biehl			Date: 09/05/2017
+//	Revised By:			Larry L. Biehl			Date: 10/22/2018
 
 Boolean DisplayThematicDialog (
 				DisplaySpecsPtr					displaySpecsPtr)
@@ -1020,7 +1015,8 @@ Boolean DisplayThematicDialog (
 														fileInfoPtr->classDescriptionH, 
 														fileInfoPtr->colorTableOffset, 
 														displaySpecsPtr, 
-														abs (gClassGroupSelection));
+														abs (gClassGroupSelection),
+														gPaletteSelection);
 		
 						itemHit = StandardPopUpMenu (dialogPtr, 
 																19, 
@@ -1323,15 +1319,16 @@ Boolean DisplayThematicDialog (
 	#endif	// defined multispec_win  
 
 	#if defined multispec_lin
-      CMDisplayThematicDlg* dialogPtr = NULL;
-		 dialogPtr = new CMDisplayThematicDlg ((wxWindow*)GetMainFrame ());
+		CMDisplayThematicDlg* dialogPtr = NULL;
+		//dialogPtr = new CMDisplayThematicDlg ((wxWindow*)GetMainFrame ());
+		dialogPtr = new CMDisplayThematicDlg (NULL);
 
-		 CMDisplay* displayCPtr = gActiveImageViewCPtr->m_displayMultiCPtr;
-		 displayCPtr->SetDisplaySpecsPtr (displaySpecsPtr);
+		CMDisplay* displayCPtr = gActiveImageViewCPtr->m_displayMultiCPtr;
+		displayCPtr->SetDisplaySpecsPtr (displaySpecsPtr);
 
-		 returnFlag = dialogPtr->DoDialog (displaySpecsPtr);
+		returnFlag = dialogPtr->DoDialog (displaySpecsPtr);
 
-		 delete dialogPtr;
+		delete dialogPtr;
 	#endif // defined multispec_lin   
 	
 	return (returnFlag);
@@ -1341,7 +1338,7 @@ Boolean DisplayThematicDialog (
 									
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1359,7 +1356,7 @@ Boolean DisplayThematicDialog (
 // Called By:			Menus
 //
 //	Coded By:			Larry L. Biehl			Date: 12/12/2006
-//	Revised By:			Larry L. Biehl			Date: 09/05/2017	
+//	Revised By:			Larry L. Biehl			Date: 04/27/2018
 
 void DisplayThematicDialogInitialize (
 				DialogPtr							dialogPtr,
@@ -1472,15 +1469,16 @@ void DisplayThematicDialogInitialize (
 	
 			// Set up the palette popup menu.											
 	
-	SetUpPalettePopUpMenu (dialogPtr,
-									gPopUpPaletteMenu,
-									fileInfoPtr->format,
-									fileInfoPtr->ancillaryInfoformat,
-									fileInfoPtr->numberClasses,
-									fileInfoPtr->classDescriptionH, 
-									fileInfoPtr->colorTableOffset,
-									displaySpecsPtr, 
-									abs (*classGroupSelectionPtr));
+	gPaletteSelection = SetUpPalettePopUpMenu (dialogPtr,
+																gPopUpPaletteMenu,
+																fileInfoPtr->format,
+																fileInfoPtr->ancillaryInfoformat,
+																fileInfoPtr->numberClasses,
+																fileInfoPtr->classDescriptionH, 
+																fileInfoPtr->colorTableOffset,
+																displaySpecsPtr, 
+																abs (*classGroupSelectionPtr),
+																gPaletteSelection);
 	
 			// Display all or subset of classes/groups.	
 	
@@ -1563,7 +1561,7 @@ void DisplayThematicDialogInitialize (
 									
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1779,7 +1777,7 @@ void DisplayThematicDialogOK (
 									
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2048,7 +2046,7 @@ Boolean DisplayThematicImage (void)
 /*
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2131,7 +2129,7 @@ pascal void DrawBackgroundColorBox (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2174,7 +2172,7 @@ pascal void DrawDisplayAllSubsetClassesGroupsPopUp (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2216,7 +2214,7 @@ pascal void DrawDisplayClassesGroupsPopUp (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2433,7 +2431,7 @@ Boolean HistogramThematicVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2543,7 +2541,7 @@ void LoadClassGroupDisplayInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2633,7 +2631,7 @@ void LoadClassGroupVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2725,7 +2723,7 @@ void LoadLocalClassGroupDisplayInfo (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2818,7 +2816,7 @@ void LoadLocalClassGroupDisplayInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3054,7 +3052,7 @@ DisplaySpecsPtr LoadThematicDisplaySpecs (void)
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3154,7 +3152,7 @@ DisplaySpecsPtr LoadThematicDisplaySpecs (void)
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3199,7 +3197,7 @@ void RemoveListCells (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

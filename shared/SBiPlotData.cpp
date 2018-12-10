@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			01/04/2018
+//	Revision date:			12/07/2018
 //
 //	Language:				C
 //
@@ -53,14 +53,14 @@
 
 #include "SMultiSpec.h"
 
-#include	"SGraphView.h" 
-
 #ifdef multispec_lin    
    #include "LBiplotDialog.h"
    #include "LGraphView.h"
 #endif
 
 #if defined multispec_mac || defined multispec_mac_swift
+	#include	"MGraphView.h"
+	
 	#define IDC_ChannelPrompt					4
 	#define IDC_FeatureTransformation		9
 	#define IDC_CreateNewGraphWindow			11
@@ -90,7 +90,8 @@
 #endif	// defined multispec_mac || defined multispec_mac_swift 
   
 #if defined multispec_win 
-	#include "SMultiSpec.h"  
+	#include	"WGraphView.h" 
+	 
 	#include "WGraphDoc.h"
 	#include "WBiPlotDialog.h"
 	#include "WMultiSpec.h"
@@ -153,7 +154,7 @@ void 					UpdateEllipseMinMax2 (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -255,7 +256,7 @@ SInt16 BiPlotClassData (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -274,7 +275,7 @@ SInt16 BiPlotClassData (
 // Called By:		
 //
 //	Coded By:			Larry L. Biehl			Date: 03/08/1994
-//	Revised By:			Larry L. Biehl			Date: 11/27/2017
+//	Revised By:			Larry L. Biehl			Date: 12/07/2018
 //	Revised By:			Wei-Kang Hsu			Date: 08/03/2016
 
 void BiPlotDataControl (void)
@@ -609,6 +610,7 @@ void BiPlotDataControl (void)
 				if (continueFlag)
 					continueFlag = graphViewCPtr->FinishGraphRecordSetUp (
 								(SInt16*)channelsPtr,
+								2,
 								(SInt32)totalNumberPixels,
 								numberVectors,
 								1,
@@ -750,12 +752,17 @@ void BiPlotDataControl (void)
 			ReleaseFeatureTransformationMemory ();
 			
 			if (continueFlag && gBiPlotDataSpecsPtr->plotDataCode != 0)
+				{
+				GetGraphLabels (gGraphRecordPtr);
+			
 				continueFlag = CreateGraph (gGraphRecordPtr->graphViewCPtr,
 														gGraphRecordPtr, 
 														1, 
 														1, 
 														0, 
 														0);
+				
+				}	// end "if (continueFlag && ...->plotDataCode != 0)"
 				
 			else	// !continueFlag || gBiPlotDataSpecsPtr->plotDataCode == 0
 				{
@@ -795,6 +802,8 @@ void BiPlotDataControl (void)
 				CheckAndUnlockHandle (graphRecHandle);
 				
 			gGraphRecordPtr = NULL;
+			
+			gOperationCanceledFlag = FALSE;
 				
 			}	// end "if (BiPlotDataDialog ())" 
 			
@@ -832,8 +841,8 @@ void BiPlotDataControl (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
-//								(c) Purdue Research Foundation
+//								 Copyright (1988-2018)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		Boolean BiPlotDataDialog
@@ -851,7 +860,7 @@ void BiPlotDataControl (void)
 // Called By:			BiPlotDataControl ()
 //
 //	Coded By:			Larry L. Biehl			Date: 03/08/1994
-//	Revised By:			Larry L. Biehl			Date: 12/16/2016
+//	Revised By:			Larry L. Biehl			Date: 02/28/2018
 	
 Boolean BiPlotDataDialog (void)
 	
@@ -1004,6 +1013,12 @@ Boolean BiPlotDataDialog (void)
 		
 		controlValue = (displayPixelCode & kDisplayPixels)  ? 1 : 0;
 		SetDLogControl (dialogPtr, 26, controlValue);
+																
+				// Initialize entireIconItem value for later use.	
+		
+		entireIconItem = 15;
+		if (gAppearanceManagerFlag)
+			entireIconItem = 44;
 
 				// Hide some of the area selection boxes if needed.						
 				
@@ -1024,12 +1039,6 @@ Boolean BiPlotDataDialog (void)
 		LoadDItemRealValue (dialogPtr, IDC_ThresholdLevel, saveThresholdPercent, 10);
 			
 		SetDLogControl (dialogPtr, IDC_ThresholdPixelCheck, thresholdFlag);
-																
-				// Initialize entireIconItem value for later use.	
-		
-		entireIconItem = 15;
-		if (gAppearanceManagerFlag)
-			entireIconItem = 44;
 
 				// Center the dialog and then show it.											
 				
@@ -1534,7 +1543,8 @@ Boolean BiPlotDataDialog (void)
 		
 		try
 			{ 
-			dialogPtr = new CMBiPlotDialog ((wxWindow *)GetMainFrame ());
+			//dialogPtr = new CMBiPlotDialog ((wxWindow *)GetMainFrame ());
+			dialogPtr = new CMBiPlotDialog (NULL);
 			
 			returnFlag = dialogPtr->DoDialog ();
 		                       
@@ -1980,7 +1990,7 @@ Boolean BiPlotDataDialogCheckFeatureTransform (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2031,7 +2041,7 @@ void BiPlotDataDialogHideShowClassItems (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2050,7 +2060,7 @@ void BiPlotDataDialogHideShowClassItems (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 03/08/1994
-//	Revised By:			Larry L. Biehl			Date: 02/19/2014
+//	Revised By:			Larry L. Biehl			Date: 02/27/2018
 
 SInt16 BiPlotFieldData (
 				FileIOInstructionsPtr			fileIOInstructionsPtr, 
@@ -2095,7 +2105,7 @@ SInt16 BiPlotFieldData (
 	UInt32								columnEnd,
 											columnInterval,
 											columnStart,
-											lineCount;
+											lineCount = 0;
 											
 	SInt16								errCode,
 											localNumberChannels;	
@@ -2417,7 +2427,7 @@ SInt16 BiPlotFieldData (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2566,7 +2576,7 @@ Boolean BiPlotProjectData ()
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2622,7 +2632,7 @@ Boolean CheckIfStatisticsChannel (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2679,7 +2689,7 @@ void FillVectorOffsets (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2714,7 +2724,7 @@ void GetBiPlotGraphTitle (
 			sprintf ((char*)gTextString, "Channels");
 		
 		sprintf ((char*)&graphRecordPtr->title[1],
-								"BiPlot of %s %hd vs %hd",
+								"BiPlot of %s %d vs %d",
 								gTextString,
 								gBiPlotDataSpecsPtr->axisFeaturePtr[1] + 1,
 								gBiPlotDataSpecsPtr->axisFeaturePtr[0] + 1);
@@ -2733,7 +2743,7 @@ void GetBiPlotGraphTitle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2793,7 +2803,7 @@ SInt16 GetStatisticsChannelFeature (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3219,7 +3229,7 @@ Boolean LoadBiPlotClassStats (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3507,7 +3517,7 @@ Boolean LoadBiPlotDataSpecs (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3599,7 +3609,7 @@ Boolean SetupBiPlotStatMemory (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3680,7 +3690,7 @@ void UpdateEllipseMinMax (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

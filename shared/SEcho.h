@@ -3,15 +3,13 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	File:						SEcho.h
 //
 //	Authors:					Byeungwoo Jeon
-//
-//	Revision number:		3.0
 //
 //	Language:				C
 //

@@ -3,15 +3,13 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	File:						SConstants.h
 //
 //	Authors:					Larry L. Biehl
-//
-//	Revision number:		3.0
 //
 //	Language:				C
 //
@@ -21,7 +19,7 @@
 //
 //	Written By:				Larry L. Biehl			Date: 03/29/1988
 //	Revised By:				Abdur Maud				Date: 06/18/2013
-//	Revised By:				Larry L. Biehl			Date: 12/20/2017
+//	Revised By:				Larry L. Biehl			Date: 08/14/2018
 //	
 //------------------------------------------------------------------------------------
 
@@ -544,12 +542,18 @@
 #define	kNumberBaseWindows			3
 #define	kImageWindowStart				3
 
+		// Channel wavelength order codes
+#define	kNotApplicable					0
+#define	kInOrder							1
+#define	kNotInOrder						2
+
 		// Graph window constants
 #define	kNextGraphSetControl				0
 #define	kPreviousGraphSetControl		1	
 #define	kGraphVectorControl				2
 #define	kGraphOverlayControl				3
 #define	kGraphBinWidthControl			4
+#define	kGraphXAxisLabelControl			5
 
 		// Overlay codes
 #define	kImageOverlay					1
@@ -634,6 +638,9 @@
 #define	kArcGISASCIIGridType				38
 #define	kGRASSASCIIGridType				39
 #define	kHDF4Type2							40
+#define	kGDALVRTType						41
+#define	kNITFType							42
+#define	kPCIDSKType							43
 
 #define	kArcViewDefaultSupportType		1024
 
@@ -657,9 +664,11 @@
 #define	kLandsatLC8_OLI_TIRS				13
 #define	kLandsatLC8_OLI					14
 #define	kLandsatLC8_TIRS					15
-#define	kSentinel2_MSI						16
+#define	kSentinel2A_MSI					16
+#define	kSentinel2B_MSI					17
+#define	kPeruSat								18
 
-#define	kNumberInstrumentCodes			16
+#define	kNumberInstrumentCodes			18
 
 		// Image type codes
 #define	kNoImageType						0
@@ -1814,6 +1823,22 @@
 #define	kDoNotKeepUTF8CharName				0
 #define	kKeepUTF8CharName						1
 #define	kKeepWideCharName						2
+
+		// Mask codes for WindowInfo.descriptionCode variable
+#define	kDescriptionExists					0x0001
+#define	kReflectiveData						0x0002
+#define	kThermalData							0x0004
+#define	kBothReflectiveThermalData			0x0006
+#define	kBandWidthInfoExists					0x0008
+
+		// x Axis plot choices for selection graphs
+#define	kChannels								1
+#define	kWavelengths							2
+#define	kBandWidths								3
+#define	kReflectiveWavelengths				4
+#define	kReflectiveBandWidths				5
+#define	kThermalWavelengths					6
+#define	kThermalBandWidths					7
 
 		// Macros 
 #define	MAX(a, b) (a > b ? a : b) 

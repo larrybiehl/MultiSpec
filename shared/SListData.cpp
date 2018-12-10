@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//									Copyright (1988-2017)
+//									Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			12/21/2017
+//	Revision date:			10/19/2018
 //
 //	Language:				C
 //
@@ -43,18 +43,19 @@
 //
 //------------------------------------------------------------------------------------
 
-#include "SMultiSpec.h" 
-#include	"SGraphView.h"    
+#include "SMultiSpec.h"    
 
 #if defined multispec_lin
    #include "LGraphDoc.h"
 	#include "LImageView.h" 
 	#include "LListDataDialog.h" 
 	#include "LMultiSpec.h"
-   #include <wx/evtloop.h>
+   #include "wx/evtloop.h"
 #endif
 
 #if defined multispec_mac || defined multispec_mac_swift
+	#include	"MGraphView.h"
+	
 	#define	IDS_ListData11		11
 	#define	IDS_ListData12		12
 	#define	IDS_ListData13		13
@@ -62,6 +63,8 @@
 #endif	// defined multispec_mac || defined multispec_mac_swift  
   
 #if defined multispec_win 
+	#include	"WGraphView.h"
+	
 	#include "WMultiSpec.h" 
 	#include "WGraphDoc.h"
 	#include "WListDataDialog.h"
@@ -80,7 +83,13 @@ SInt16					gListDataFormatCode = 0;
 			
 Boolean 				CheckListDataTextWindowSpaceNeeded (
 							ListDataSpecsPtr 					listDataSpecsPtr);
-														
+/*
+void					CreateChannelWavelengthOrderSubset (
+							WindowInfoPtr						windowInfoPtr,
+							FileInfoPtr							fileInfoPtr,
+							SInt16*								channelListPtr,
+							SInt32								channelListLength);
+*/
 UInt32	 			DetermineBytesForListDataText (
 							ListDataSpecsPtr 					listDataSpecsPtr, 
 							Boolean 								textWindowFlag);
@@ -169,7 +178,7 @@ Boolean 				ListProjectData (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -219,9 +228,151 @@ Boolean CheckListDataTextWindowSpaceNeeded (
 }	// end "CheckListDataTextWindowSpaceNeeded" 
 
 
+/*
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2018)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		void CreateChannelWavelengthOrderSubset ()
+//
+//	Software purpose:	The purpose of this routine is to load the List 
+//							Data Specification structure with the default set of
+//							parameters.
+//
+//	Parameters in:		.
+//
+//	Parameters out:	None
+//
+// Value Returned:	None			
+// 
+// Called By:			ListDataControl ()
+//
+//	Coded By:			Larry L. Biehl			Date: 06/29/2018
+//	Revised By:			Larry L. Biehl			Date: 07/02/2018
+
+void CreateChannelWavelengthOrderSubset (
+				WindowInfoPtr						windowInfoPtr,
+				FileInfoPtr							fileInfoPtr,
+				SInt16*								channelListPtr,
+				SInt32								channelListLength)
+			
+{
+	float*								channelValuePtr;
+	
+	SInt16*								listDataChannelOrderPtr;
+	
+	UInt16*								channelWavelengthOrderPtr;
+	
+	Handle								channelValuesHandle = NULL;
+	
+	SInt32								missingIndex;
+	
+	UInt32								index,
+											loops,
+											nextIndex;
+	
+	
+	if (fileInfoPtr != NULL)
+		channelValuesHandle = fileInfoPtr->channelValuesHandle;
+
+	if (channelValuesHandle != NULL)
+		{
+		channelValuePtr = (float*)GetHandlePointer (channelValuesHandle, kLock);
+		
+		channelWavelengthOrderPtr =
+									(UInt16*)&channelValuePtr[2*fileInfoPtr->numberChannels];
+		
+				// Initialize the List Data channel order vector
+		
+		listDataChannelOrderPtr =
+								&channelListPtr[windowInfoPtr->totalNumberChannels];
+		
+		if (channelListLength == fileInfoPtr->numberChannels)
+			{
+					// Just make copy of the image channel wavelength order
+			
+			for (index=0; index<fileInfoPtr->numberChannels; index++)
+				listDataChannelOrderPtr[index] = channelWavelengthOrderPtr[index];
+			
+			}	// end "if (channelListLength == fileInfoPtr->numberChannels)"
+		
+		else	// create a channel wavelength order subset
+			{
+					// First fill the vector with -1s.
+			
+			for (index=0; index<fileInfoPtr->numberChannels; index++)
+				listDataChannelOrderPtr[index] = -1;
+			
+					// Now fill with the input channel subset
+			
+			for (index=0; index<channelListLength; index++)
+				listDataChannelOrderPtr[channelListPtr[index]] =
+												channelWavelengthOrderPtr[channelListPtr[index]];
+			
+					// Now change listDataChannelOrder to reflect order for just
+					// the channels being used. Reduce any channel index values higher
+					// that channels not being used.
+			
+			for (loops=0; loops<fileInfoPtr->numberChannels-channelListLength; loops++)
+				{
+						// Find -1 in the list
+				
+				missingIndex = -1;
+				for (index=0; index<fileInfoPtr->numberChannels; index++)
+					{
+					if (listDataChannelOrderPtr[index] == -1)
+						{
+						missingIndex = channelWavelengthOrderPtr[index];
+						listDataChannelOrderPtr[index] = -2;
+						break;
+						
+						}	// end "if (listDataChannelOrderPtr[index] == -1)"
+						
+					}	// end "for (index=0; index<fileInfoPtr->numberChannels; index++)"
+				
+						// Now reduce channel index values greater than the missing index
+						// by 1.
+				
+				if (missingIndex >= 0)
+					{
+					for (index=0; index<fileInfoPtr->numberChannels; index++)
+						{
+						if (listDataChannelOrderPtr[index] > missingIndex)
+							listDataChannelOrderPtr[index]--;
+						
+						}	// end "for (index=0; index<fileInfoPtr->numberChannels; index++)"
+					
+					}	// end "if (missingIndex >= 0)"
+				
+				}	// end "for (loops=0; loops<fileInfoPtr->numberChannels-..."
+			
+					// Now remove any -1s in the listDataChannelOrder list and move
+					// actually channel indices up in the list to replace them
+			
+			nextIndex = 0;
+			for (index=0; index<channelListLength; index++)
+				{
+				nextIndex++;
+				while (listDataChannelOrderPtr[nextIndex] == -1 &&
+															nextIndex < fileInfoPtr->numberChannels)
+					nextIndex++;
+				
+				if (listDataChannelOrderPtr[index] < 0)
+					listDataChannelOrderPtr[index] = listDataChannelOrderPtr[nextIndex];
+						
+				}	// end "for (index=0; index<fileInfoPtr->numberChannels; index++)"
+			
+			}	// end "else create a channel wavelength order subset"
+		
+		}	// end "if (channelValuesHandle != NULL)"
+
+}	// end "CreateChannelWavelengthOrderSubset"
+*/
+
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -352,7 +503,7 @@ UInt32 DetermineBytesForListDataText (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -393,7 +544,7 @@ pascal void DrawListDataFormatPopUp (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -513,7 +664,7 @@ SInt16 GetMaximumDataValueStringLength (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -552,7 +703,7 @@ SInt16 GetStringLengthForNumber (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -664,7 +815,7 @@ SInt16 ListClassData (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -683,7 +834,7 @@ SInt16 ListClassData (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 05/24/1990
-//	Revised By:			Larry L. Biehl			Date: 01/18/2017
+//	Revised By:			Larry L. Biehl			Date: 06/29/2018
 
 void ListDataControl (void)
 
@@ -693,6 +844,7 @@ void ListDataControl (void)
 	CMFileStream*						resultsFileStreamPtr;
 	CMGraphView*						graphViewCPtr = NULL;
 	FileIOInstructionsPtr			fileIOInstructionsPtr;
+	GraphPtr								graphRecordPtr;
 	MapProjectionInfoPtr 			mapProjectionInfoPtr;
 	
 	Handle								activeWindowInfoHandle,  
@@ -708,6 +860,7 @@ void ListDataControl (void)
 											savedThresholdSize;
 	
 	Boolean								continueFlag,
+											continueGraphFlag,
 											showStatusDialogFlag;
 	  
 	SignedByte							handleStatus;
@@ -732,6 +885,7 @@ void ListDataControl (void)
 	fileIOInstructionsPtr = NULL;
 	mapProjectionHandle = NULL; 
 	mapProjectionInfoPtr = NULL;
+	numberBytes = 0;
 	
 			// Reset global variables for list data.										
 			
@@ -788,7 +942,6 @@ void ListDataControl (void)
 										kPackData,
 										kForceBISFormat,
 										kForceReal8Bytes,
-//										kForce4Bytes,
 										kDoNotAllowForThreadedIO,
 										&fileIOInstructionsPtr);
 	
@@ -984,10 +1137,8 @@ void ListDataControl (void)
 					// Get dialog box to display list data status.	
 					
 			showStatusDialogFlag = TRUE;
-			//#if TARGET_API_MAC_CARBON
 			//	if (gListDataSpecsPtr->graphDataFlag)
 			//		showStatusDialogFlag = FALSE;
-			//#endif	// TARGET_API_MAC_CARBON
 			
 			gStatusDialogPtr = NULL;
 			if (continueFlag && !gListDataSpecsPtr->graphDataFlag)
@@ -1002,80 +1153,93 @@ void ListDataControl (void)
 			ShowStatusDialogItemSet (kStatusCommand);
 	
 					// Get the graph window if needed.										
-				
+			
 			if (continueFlag && gListDataSpecsPtr->graphDataFlag)
 				{
-				#ifndef multispec_lin
-					#if defined __Not_Framework
-						graphViewCPtr = CreateGraphWindow ();
-					#endif	// defined __Not_Framework
-				
-					#if !defined __Not_Framework                
-								// open a graph window 
-					
-						CMultiDocTemplate* graphDocTemplatePtr = 
-											((CMultiSpecApp*)AfxGetApp ())->GetGraphDocTemplate ();
-						CMGraphDoc* graphDocCPtr = 
-										(CMGraphDoc*)graphDocTemplatePtr->OpenDocumentFile (NULL);
-						graphViewCPtr = graphDocCPtr->GetGraphViewCPtr ();
-					#endif	// !defined __Not_Framework
-				
-					continueFlag = (graphViewCPtr != NULL);
-		
-					if (continueFlag)
-						continueFlag = graphViewCPtr->FinishGraphRecordSetUp (
-															(SInt16*)channelsPtr,
-															(SInt32)gListDataSpecsPtr->numberChannels,
-															1,
-															1,
-															kIntegerType,
-															gImageFileInfoPtr->dataTypeCode);
-				
-					if (continueFlag)
-						gGraphRecordPtr = GetGraphRecordPtr (graphViewCPtr,
-																			&handleStatus,
-																			&graphRecHandle);
-				
-				//#if TARGET_API_MAC_CARBON
-				//	ActivateWindow (GetDialogWindow (gStatusDialogPtr), FALSE);
-				//#endif	// TARGET_API_MAC_CARBON
-				#else	// defined multispec_lin
+				#if defined multispec_lin
 					wxDocument*  graph_doc =
-												((CMultiSpecApp*)wxTheApp)->ActivateListDataView ();
-              
+											((CMultiSpecApp*)wxTheApp)->ActivateListDataView ();
+				
                graphViewCPtr = ((CMGraphDoc*)graph_doc)->GetGraphViewCPtr ();
                
 							// Assign window ID for list data window
 				
                ((wxWindow*)graphViewCPtr)->SetId (GR_LISTDATA);
-              
-               continueFlag = (graphViewCPtr != NULL);
+				#endif	// defined multispec_lin
+
+				#if defined multispec_mac
+					graphViewCPtr = CreateGraphWindow ();
+				#endif	// defined multispec_mac
+			
+				#if defined multispec_win                
+							// open a graph window 
+				
+					CMultiDocTemplate* graphDocTemplatePtr = 
+										((CMultiSpecApp*)AfxGetApp ())->GetGraphDocTemplate ();
+					CMGraphDoc* graphDocCPtr = 
+									(CMGraphDoc*)graphDocTemplatePtr->OpenDocumentFile (NULL);
+					graphViewCPtr = graphDocCPtr->GetGraphViewCPtr ();
+				#endif	// defined multispec_win
+			
+				continueGraphFlag = (graphViewCPtr != NULL);
 	
-					if (continueFlag)
-						continueFlag = graphViewCPtr->FinishGraphRecordSetUp (
-															(SInt16*)channelsPtr,
-															(SInt32)gListDataSpecsPtr->numberChannels,
-															1,
-															1,
-															kIntegerType,
-															gImageFileInfoPtr->dataTypeCode);
+				if (continueGraphFlag)
+					continueGraphFlag = graphViewCPtr->FinishGraphRecordSetUp (
+														(SInt16*)channelsPtr,
+														(SInt32)gListDataSpecsPtr->numberChannels,
+														gImageFileInfoPtr->numberChannels,
+														1,
+														1,
+														kIntegerType,
+														gImageFileInfoPtr->dataTypeCode);
+			
+				graphRecordPtr = GetGraphRecordPtr (graphViewCPtr,
+																	&handleStatus,
+																	&graphRecHandle);
+
+				if (continueGraphFlag && graphRecordPtr != NULL)
+					{
+					gGraphRecordPtr = graphRecordPtr;
+					SetXAxisDescriptionInfo (gGraphRecordPtr,
+														gImageWindowInfoPtr,
+														gImageFileInfoPtr);
+					GetGraphLabels (gGraphRecordPtr);
+														
+					#if defined multispec_lin	
+						//wxComboBox* comboBoxPtr = (wxComboBox*)graphViewCPtr->GetXAxisComboBoxPtr();
+						//MenuHandle popUpMenuHandle = (MenuHandle)comboBoxPtr;
+						//SetUpXAxisPopUpMenu (gGraphRecordPtr, popUpMenuHandle);
+						gActiveImageWindow->m_frame->Update ();
+					#endif	// defined multispec_lin
+					
+					gGraphRecordPtr->imageWindow = gActiveImageWindow;
+						
+					DisplayAlert (kErrorAlertID,
+										kNoteAlert, 
+										kAlertStrID, 
+										IDS_Alert109,
+										0,
+										NULL);
+					
+					}	// end "if (continueGraphFlag && ..."
 				
-               if (continueFlag)
-						gGraphRecordPtr = GetGraphRecordPtr (graphViewCPtr,
-																			&handleStatus,
-																			&graphRecHandle);
-				
-               //if (gProjectWindow != NULL)
-                  //((CMStatisticsView*)gProjectWindow)->GetFrame ()->Update ();
-					gActiveImageWindow->m_frame->Update ();
-				#endif	// "ifndef multispec_lin, else"
-									
-				DisplayAlert (kErrorAlertID, 
-									kNoteAlert, 
-									kAlertStrID, 
-									IDS_Alert109,
-									0,
-									NULL);
+				else	// !continueGraphFlag || ...
+					{
+							// Graphing not possible. Turn flag off and list a message.
+					
+					gListDataSpecsPtr->graphDataFlag = FALSE;
+					
+					continueFlag = ListSpecifiedStringNumber (kListDataStrID,
+																			IDS_ListData15,
+																			(unsigned char*)gTextString, 
+																			resultsFileStreamPtr, 
+																			gOutputCode,
+																			TRUE);
+					
+					if (graphRecordPtr != NULL)
+						CloseGraphicsWindow (graphRecordPtr->window);
+					
+					}	// end "else !continueGraphFlag || ..."
 				
 				}	// end "if (... && gListDataSpecsPtr->graphDataFlag)" 
 				
@@ -1224,7 +1388,7 @@ void ListDataControl (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1243,7 +1407,7 @@ void ListDataControl (void)
 // Called By:			ListDataControl
 //
 //	Coded By:			Larry L. Biehl			Date: 05/24/1990
-//	Revised By:			Larry L. Biehl			Date: 09/05/2017
+//	Revised By:			Larry L. Biehl			Date: 07/05/2018
 	
 Boolean ListDataDialog (
 				FileInfoPtr							fileInfoPtr)
@@ -1283,6 +1447,7 @@ Boolean ListDataDialog (
 	
 	Boolean								continueFlag,
 											latLongPossibleFlag,
+											localGraphDataFlag,
 											modalDone;
 
 	
@@ -1513,11 +1678,13 @@ Boolean ListDataDialog (
 		}	// end "if (gProjectInfoPtr && ..."
 	
 			// Set check box for "Graph data values".						
-			
-	if (gNumberOfGWindows < kMaxNumberGWindows)
+	
+	localGraphDataFlag = gListDataSpecsPtr->graphDataFlag;
+	if (gNumberOfGWindows < kMaxNumberGWindows &&
+															gChannelSelection == kAllMenuItem)
 		SetDLogControl (dialogPtr, 31, gListDataSpecsPtr->graphDataFlag);
 		
-	else	// gNumberOfGWindows >= kMaxNumberGWindows
+	else	// gNumberOfGWindows >= kMaxNumberGWindows || ...
 		{
 		SetDLogControl (dialogPtr, 31, 0);
 		SetDLogControlHilite (dialogPtr, 31, 255);
@@ -1713,6 +1880,21 @@ Boolean ListDataDialog (
 					if (itemHit != 0)
 						gChannelSelection = itemHit;
 	
+					if (gNumberOfGWindows < kMaxNumberGWindows &&
+																	gChannelSelection == kAllMenuItem)
+						{
+						SetDLogControl (dialogPtr, 31, localGraphDataFlag);
+						SetDLogControlHilite (dialogPtr, 31, 0);
+						
+						}	// end "if (gChannelSelection == kAllMenuItem)"
+					
+					else	// gChannelSelection == kSubsetMenuItem || ...
+						{
+						SetDLogControl (dialogPtr, 31, 0);
+						SetDLogControlHilite (dialogPtr, 31, 255);
+						
+						}	// end "else gChannelSelection == kSubsetMenuItem"
+	
 							// Make certain that the correct label is drawn in the	
 							// channel pop up box.												
 					
@@ -1724,10 +1906,14 @@ Boolean ListDataDialog (
 				case 24:		// check box for "write results to output window." 
 				case 25:		// check box for "write results to disk file." 
 				case 29:		// check box for "training fields" 
-				case 30:		// check box for "test fields" 
-				case 31:		// check box for "test fields" 
+				case 30:		// check box for "test fields"
 				case 34:		// check box for "include latitude and longitude values." 
 					ChangeDLogCheckBox ((ControlHandle)theHandle);
+					break;
+					
+				case 31:		// check box for "graphing data"
+					ChangeDLogCheckBox ((ControlHandle)theHandle);
+					localGraphDataFlag = !localGraphDataFlag;
 					break;
 					
 				case 33:		// List data format code 
@@ -1877,7 +2063,8 @@ Boolean ListDataDialog (
 	#if defined multispec_lin
 		CMListDataDialog* dialogPtr = NULL;
 
-		dialogPtr = new CMListDataDialog ((wxWindow*)GetMainFrame ());
+		//dialogPtr = new CMListDataDialog ((wxWindow*)GetMainFrame ());
+		dialogPtr = new CMListDataDialog (NULL);
 
 		returnFlag = dialogPtr->DoDialog ();
 
@@ -2026,8 +2213,22 @@ void ListDataDialogOK (
 													
 			// Graph data flag.											
 					
-	listDataSpecsPtr->graphDataFlag = graphDataFlag; 
-		
+	listDataSpecsPtr->graphDataFlag = graphDataFlag;
+	
+			// If data will be graphed, create the channel wavelength or vector in case
+			// it is needed.
+			// This capability was not fully implemented on 7/2/2018. It does not
+			// seem to be worth the effort at this time to be able to handle
+			// out of order wavelengths for subsets of channels for graphing. One
+			// will also need to be able to handle this for linked files if it is
+			// implemented.
+	/*
+	if (graphDataFlag)
+		CreateChannelWavelengthOrderSubset (gImageWindowInfoPtr,
+														gImageFileInfoPtr,
+														channelsPtr,
+														listDataSpecsPtr->numberChannels);
+	*/
 			// List data format.
 			
 	listDataSpecsPtr->outputFormatCode = listDataFormatCode;
@@ -2041,7 +2242,7 @@ void ListDataDialogOK (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2259,9 +2460,9 @@ Boolean ListDataTitleLine (
 					channelIndex++)
 					{
 					sprintf (tempCharBufferPtr, 
-									"%*hd\t", 	
+									"%*d\t",
 									dataValueFieldSize, 
-									channelsPtr[channelIndex]+1);
+									(int)(channelsPtr[channelIndex]+1));
 					tempCharBufferPtr += dataValueFieldIndexSkip;
 			
 					}	// end "for (channelNum=1; channelNum<=..." 
@@ -2294,7 +2495,7 @@ Boolean ListDataTitleLine (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2421,7 +2622,7 @@ Boolean ListDataTitleLine2 (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2570,7 +2771,7 @@ Boolean ListDataTitleLine3 (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3076,9 +3277,9 @@ SInt16 ListFieldData (
 					if (!gImageFileInfoPtr->thematicType && localNumberChannels > 1)
 						{
 						sprintf (&gCharBufferPtr1[charIndex], 
-										"%*hd\t",
+										"%*d\t",
 										channelFieldSize, 	
-										localChannelsPtr[index]+1);
+										(int)(localChannelsPtr[index]+1));
 										
 						charIndex += channelFieldSize + 1;
 						
@@ -3157,7 +3358,7 @@ SInt16 ListFieldData (
 					
 				if (fileIOInstructionsPtr->maskBufferPtr != NULL)
 					maskBufferPtr = &fileIOInstructionsPtr->maskBufferPtr[
-																fileIOInstructionsPtr->maskColumnStart];
+															fileIOInstructionsPtr->maskColumnStart];
 			   
 				for (column=columnStart; column<=columnEnd; column+=columnInterval)
 					{
@@ -3255,7 +3456,7 @@ SInt16 ListFieldData (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3353,7 +3554,7 @@ Boolean ListProjectData (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3372,7 +3573,7 @@ Boolean ListProjectData (
 // Called By:			ListDataControl ()
 //
 //	Coded By:			Larry L. Biehl			Date: 05/24/1990
-//	Revised By:			Larry L. Biehl			Date: 04/25/2013
+//	Revised By:			Larry L. Biehl			Date: 07/02/2018
 
 Boolean LoadListDataSpecs (
 				Handle								windowInfoHandle)
@@ -3573,6 +3774,9 @@ Boolean LoadListDataSpecs (
 
 	if (returnFlag)
 		{
+				// Allow for a channel wavelength order vector
+				// Do not allow for wavelength order for now. It is not being implemented.
+		
 		channelsPtr = (SInt16*)CheckHandleSize (&gListDataSpecsPtr->channelsHandle,
 																&returnFlag, 
 																&changedFlag, 
