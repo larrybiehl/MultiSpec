@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			12/06/2018
+//	Revision date:			12/13/2018
 //
 //	Language:				C
 //
@@ -2729,14 +2729,14 @@ void GetGraphWindowTitle (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 03/09/2007
-//	Revised By:			Larry L. Biehl			Date: 12/06/2018
+//	Revised By:			Larry L. Biehl			Date: 12/13/2018
 
 void InitializeDateVersionStrings ()
 
 {
 		// Date version string
 		
-	sprintf (gDateVersionString, "2018.12.06");
+	sprintf (gDateVersionString, "2018.12.13");
 
 		// Application identifier string
 		

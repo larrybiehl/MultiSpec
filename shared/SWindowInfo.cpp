@@ -3560,7 +3560,7 @@ void ReleaseOffscreenSupportMemory (
 			}	// end "if (gOSXCoreGraphicsFlag)"
 	#endif // defined multispec_mac 
 			                               
-	#if defined multispec_win || defined multispec_lin
+	#if defined multispec_win
 		windowInfoPtr->offScreenMapHandle =  
 										UnlockAndDispose (windowInfoPtr->offScreenMapHandle);
 		
@@ -3571,7 +3571,17 @@ void ReleaseOffscreenSupportMemory (
 		
 		CMImageView* imageViewCPtr = GetWindowPtr (windowInfoPtr);
 		imageViewCPtr->SetLegendBitMapInfoHeaderHandle (NULL);
-	#endif // defined multispec_win || multispec_lin
+	#endif // defined multispec_win
+	
+	#if defined multispec_lin
+		//windowInfoPtr->offScreenMapHandle =
+		//								UnlockAndDispose (windowInfoPtr->offScreenMapHandle);
+	
+		windowInfoPtr->offscreenMapSize = 0;
+	
+		CMImageView* imageViewCPtr = GetWindowPtr (windowInfoPtr);
+		imageViewCPtr->SetLegendBitMapInfoHeaderHandle (NULL);
+	#endif // defined multispec_lin
 	
 }	// end "ReleaseOffscreenSupportMemory" 
 

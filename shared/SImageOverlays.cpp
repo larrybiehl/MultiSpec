@@ -930,8 +930,8 @@ void DrawImageOverlays  (
 													destinationRectHeight,
 													(unsigned char*)imagebuffer);
 
-					wxMemoryDC overlaydc;
 					wxBitmap ovbitmap (overlayimage);
+					wxMemoryDC overlaydc;
 					overlaydc.SelectObject (ovbitmap);
 
 					wxMemoryDC displaydc;

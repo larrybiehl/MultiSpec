@@ -132,7 +132,7 @@ Boolean CheckSomeDisplayEvents (
 
 	Boolean returnFlag = TRUE;
 
-
+	/*
 	#if defined multispec_mac 
 		if (!gOSXCoreGraphicsFlag) 
 			{
@@ -142,7 +142,7 @@ Boolean CheckSomeDisplayEvents (
 
 			}	// end "if (!gOSXCoreGraphicsFlag)"
 	#endif	// defined multispec_mac 
-
+	*/
 	if (displayBottomMax != -1)
 		InvalidateImageSegment (gImageWindowInfoPtr,
 											displaySpecsPtr,
@@ -155,18 +155,22 @@ Boolean CheckSomeDisplayEvents (
 
 	#if defined multispec_lin
 		//gActiveImageWindow->OnUpdate (NULL, NULL);
+				// Force palette info to bitmap to be loaded again since since more of
+				// image may have been loaded.
+		displaySpecsPtr->paletteObject->SetPaletteLoadedFlag (FALSE);
+	
 		gActiveImageWindow->OnUpdate (gActiveImageWindow, NULL);
 		(gActiveImageWindow->m_Canvas)->Update ();
 	#endif
 
 	returnFlag = CheckSomeEvents (osMask + keyDownMask + mDownMask + updateMask + mUpMask);
-
+	/*
 	#if defined multispec_mac 
 		if (!gOSXCoreGraphicsFlag)
 			CopyHandleToHandle ((Handle)offScreenPixMapH,
 										(Handle)imageWindowPortPixMap);
 	#endif	// defined multispec_mac 
-
+	*/
 	if (!returnFlag)
 		sourceRectPtr->bottom = -1;
 
@@ -298,11 +302,11 @@ SInt16 CheckNumberDisplayColumns (
 			}	// end "if (numberColumns > maxNumberColumns)"		 
 	#endif	// defined multispec_win
 
-	#if defined multispec_lin
+	#if defined multispec_wxlin
 				// A test indicated that 32,767 columns was the max. More than this 
 				// caused the system to crash. Note that for wxWidgets gray scale and
 				// color take the same amount of memory per pixel.
-				
+	
 		UInt32 maxNumberColumns = gMaxRowBytes;
 
 		if (numberColumns > maxNumberColumns) 
@@ -739,13 +743,14 @@ void DisplayColorImage (
 				// Unlock handle to offscreen image storage.
 				// ... only if the size of the storage is less than
 				// 'gMaxMoveableBlockSize'.
-
+		/*
 		if (!gOSXCoreGraphicsFlag)
 			{
 			if (gImageWindowInfoPtr->offscreenMapSize < gMaxMoveableBlockSize)
 				UnlockPixels ((PixMapHandle)gImageWindowInfoPtr->offScreenMapHandle);
 
 			}	// end "if (!gOSXCoreGraphicsFlag)"
+		*/
 	#endif // defined multispec_mac
 
 	#if defined multispec_win || defined multispec_lin
@@ -1275,7 +1280,7 @@ Handle GetDisplaySpecsStructure (
 }	// end "GetDisplaySpecsStructure"
 
 
-
+#if defined multispec_mac || defined multispec_win
 //------------------------------------------------------------------------------------
 //								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
@@ -1537,7 +1542,7 @@ SInt16 GetOffscreenGWorld (
 			(*offScreenPixMapH)->pixelSize = displaySpecsPtr->pixelSize;
 
 			}	// end "if (resultCode == noErr)" 
-
+		/*
 		if (!gOSXCoreGraphicsFlag)
 			{
 			rect.left = longRectPtr->left; //  - 32767;
@@ -1592,7 +1597,7 @@ SInt16 GetOffscreenGWorld (
 				}	// end "if (resultCode == noErr)"
 
 			}	// end "else !gOSXCoreGraphicsFlag"
-
+		*/
 		SetGWorld (savedPort, savedDevice);
 
 		UnlockAndDispose ((Handle)tempCTableHandle);
@@ -1716,19 +1721,14 @@ SInt16 GetOffscreenGWorld (
 
 			}	// end "if (resultCode != noErr)"
 	#endif	// defined multispec_win 
-
-	#if defined multispec_lin
+	/*
+	#if defined multispec_wxlin
 		UInt32							bytesNeeded,
 											maxNumberColumns,
 											numberColumns;
 
 		SInt16							numberEntries;
 		
-
-				// Verify that the number of columns to be displayed is less
-				// than the maximum allowed.
-				// Note that gMaxRowBytes & gMaxRowBytesFor24Bits really represent
-				// columns not bytes.
 
 		numberColumns = (UInt32)longRectPtr->right - longRectPtr->left;
 		
@@ -1762,34 +1762,100 @@ SInt16 GetOffscreenGWorld (
 		if (displaySpecsPtr->pixelSize == 24)
 			numberEntries = 0;
 
-				// Check if the number of bytes needed for the new BITMAP
-				// is the same as that in the current BITMAP; if not release the
-				// old block of memory and get a new one.
-				// Change on 2/16/2000 so that the old BITMAP was always cleared out.
-
 		bytesNeeded =
 				*pixRowBytesPtr * ((UInt32)longRectPtr->bottom - longRectPtr->top + 1);
-		UnlockAndDispose (windowInfoPtr->imageBaseAddressH);
-		windowInfoPtr->imageBaseAddressH = MNewHandle (bytesNeeded);
+		//UnlockAndDispose (windowInfoPtr->imageBaseAddressH);
+		//windowInfoPtr->imageBaseAddressH = MNewHandle (bytesNeeded);
 		windowInfoPtr->offscreenMapSize = bytesNeeded;
+
+		wxBitmap scaledBitmap = wxBitmap (longRectPtr->right, longRectPtr->bottom, 32);
+		gActiveImageViewCPtr->m_ScaledBitmap = scaledBitmap;
+		windowInfoPtr->imageBaseAddressH = scaledBitmap.GetRawAccess();
 
 		if (windowInfoPtr->imageBaseAddressH == NULL)
 			resultCode = 1;
 
 		if (resultCode != noErr) 
 			{
-			windowInfoPtr->imageBaseAddressH =
-					 UnlockAndDispose (windowInfoPtr->imageBaseAddressH);
+			//windowInfoPtr->imageBaseAddressH =
+			//		 UnlockAndDispose (windowInfoPtr->imageBaseAddressH);
 
 			windowInfoPtr->offscreenMapSize = 0;
 
 			}	// end "if (resultCode != noErr)"
-	#endif	// defined multispec_lin
+	#endif	// defined multispec_wxlin
 
+	#if defined multispec_wxmac
+		int								pixelSize;
+	
+		UInt32							maxNumberColumns,
+											numberColumns;
+
+		SInt16							numberEntries;
+		
+
+		numberColumns = (UInt32)longRectPtr->right - longRectPtr->left;
+		
+				// Since gray scale and color in wxWidgets are both represented by RGB, there is no difference in the max
+				// whether the pixel size is 8 or 24.
+
+		maxNumberColumns = gMaxRowBytes;
+
+		if (numberColumns > maxNumberColumns) 			
+			{
+			UnlockAndDispose (windowInfoPtr->imageBaseAddressH);
+			windowInfoPtr->imageBaseAddressH = NULL;
+			unsigned char message[] = " Cannot display more than 32,767 columns. Please reduce number of columns or number of channels.";
+			DisplayAlert (wxOK | wxICON_EXCLAMATION, 0, 0, 0, 0, message);
+
+			return (1);
+
+			}	// end "if (numberColumns > maxNumberColumns)"
+
+				// Now get memory for the offscreen bit map and header.
+
+		resultCode = noErr;
+		numberEntries = displaySpecsPtr->paletteObject->GetNumberPaletteEntries ();
+		if (displaySpecsPtr->pixelSize == 24)
+			numberEntries = 0;
+	
+		pixelSize = displaySpecsPtr->pixelSize;
+		if (pixelSize == 24)
+			pixelSize = 32;
+	
+		wxBitmap & scaledBitmap = gActiveImageViewCPtr->m_ScaledBitmap;
+		//wxBitmap & scaledBitmap = gActiveImageViewCPtr->GetScaledBitmap();
+		scaledBitmap.Create (longRectPtr->right, longRectPtr->bottom, pixelSize);
+		//gActiveImageViewCPtr->GetScaledBitmap().
+		//								Create (longRectPtr->right, longRectPtr->bottom, 32);
+	 
+		//wxBitmap* scaledBitmapPtr = gActiveImageViewCPtr->GetScaledBitmapPtr ();
+		//if (scaledBitmapPtr != NULL)
+		//	delete scaledBitmapPtr;
+		//scaledBitmapPtr = new wxBitmap (longRectPtr->right, longRectPtr->bottom, 32);
+		
+		windowInfoPtr->imageBaseAddressH = scaledBitmap.GetRawAccess();
+		*pixRowBytesPtr = scaledBitmap.GetBitmapData()->GetBytesPerRow();
+	
+		windowInfoPtr->offscreenMapSize = *pixRowBytesPtr * longRectPtr->bottom;
+	
+		if (displaySpecsPtr->paletteObject != NULL)
+			scaledBitmap.SetPalette (*displaySpecsPtr->paletteObject);
+
+		if (windowInfoPtr->imageBaseAddressH == NULL)
+			resultCode = 1;
+
+		if (resultCode != noErr) 
+			{
+			windowInfoPtr->offscreenMapSize = 0;
+
+			}	// end "if (resultCode != noErr)"
+	#endif	// defined multispec_wxmac
+	*/
 	return (resultCode);
 
 }	// end "GetOffscreenGWorld" 
-
+#endif
 
 
 //------------------------------------------------------------------------------------

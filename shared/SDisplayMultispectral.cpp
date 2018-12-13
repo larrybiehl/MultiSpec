@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			10/19/2018
+//	Revision date:			12/13/2018
 //
 //	Language:				C
 //
@@ -194,6 +194,7 @@ Boolean MinMaxEnhancementDialog (
 				double*								minMaxValuesPtr);
 
 void Display1Channel8BitLine (
+				SInt16								displayCode,
 				UInt32								numberSamples,
 				UInt32								interval,
 				FileInfoPtr							fileInfoPtr,
@@ -363,10 +364,10 @@ void UpdateThematicTypeMinMaxes (
 //
 // Value Returned:	None			
 // 
-// Called By:			DisplayColorImage in display.c
+// Called By:			DisplayColorImage in SDisplay.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 06/26/1990
-//	Revised By:			Larry L. Biehl			Date: 05/01/2017
+//	Revised By:			Larry L. Biehl			Date: 12/13/2018
 
 void DisplayImagesSideBySide (
 				DisplaySpecsPtr					displaySpecsPtr,
@@ -704,6 +705,11 @@ void DisplayImagesSideBySide (
 
 							for (j = 0; j < numberSamples; j += interval)
 								{
+								#if defined multispec_wxmac
+											// Skip first (alpha) byte in wxBitmap
+									offScreenPtr++;
+								#endif
+							
 								dataValue = *buffer1Ptr;
 								*offScreenPtr = (SInt8)(dataToLevelPtr[dataValue]);
 
@@ -719,6 +725,11 @@ void DisplayImagesSideBySide (
 								buffer1Ptr += interval;
 
 								}	// end "for (j=0;..."
+							
+							#if defined multispec_wxmac
+										// Skip first (alpha) byte in wxBitmap
+								offScreenPtr++;
+							#endif
 
 							*offScreenPtr = separatorByte;
 							offScreenPtr++;
@@ -727,9 +738,13 @@ void DisplayImagesSideBySide (
 
 								offScreenPtr++;
 								*offScreenPtr = separatorByte;
+							
+								#if defined multispec_wxmac
+											// Skip first (alpha) byte in wxBitmap
+									offScreenPtr++;
+								#endif
 
 								offScreenPtr++;
-
 								*offScreenPtr = separatorByte;
 
 								offScreenPtr++;
@@ -763,6 +778,11 @@ void DisplayImagesSideBySide (
 
 							for (j=0; j<numberSamples; j+=interval)
 								{
+								#if defined multispec_wxmac
+											// Skip first (alpha) byte in wxBitmap
+									offScreenPtr++;
+								#endif
+							
 								dataValue = (UInt32)*buffer2Ptr;
 								if (dataValue > maxValue)
 									dataValue = 0;
@@ -780,6 +800,11 @@ void DisplayImagesSideBySide (
 								  buffer2Ptr += interval;
 
 								}	// end "for (j=0;..."
+							
+							#if defined multispec_wxmac
+										// Skip first (alpha) byte in wxBitmap
+								offScreenPtr++;
+							#endif
 
 							*offScreenPtr = separatorByte;
 							offScreenPtr++;
@@ -787,12 +812,16 @@ void DisplayImagesSideBySide (
 							offScreenPtr++;
 							#if defined multispec_lin
 								*offScreenPtr = separatorByte;
+							
+								#if defined multispec_wxmac
+											// Skip first (alpha) byte in wxBitmap
+									offScreenPtr++;
+								#endif
 
 								offScreenPtr++;
 								*offScreenPtr = separatorByte;
 
 								offScreenPtr++;
-
 								*offScreenPtr = separatorByte;
 
 								offScreenPtr++;
@@ -2418,13 +2447,14 @@ void DisplayCImage (
 					{
 					case 1:
 					case 51:
-						Display1Channel8BitLine (numberSamples,
-														  interval,
-														  localFileInfoPtr1,
-														  (HUCharPtr) ioBuffer1Ptr,
-														  dataDisplay1Ptr,
-														  maxBin1,
-														  offScreenPtr);
+						Display1Channel8BitLine (displayCode,
+															numberSamples,
+															interval,
+															localFileInfoPtr1,
+															(HUCharPtr) ioBuffer1Ptr,
+															dataDisplay1Ptr,
+															maxBin1,
+															offScreenPtr);
 						break;
 
 					case 2:
@@ -2542,17 +2572,7 @@ void DisplayCImage (
 														  maxBin3,
 														  offScreenPtr);
 						break;
-					/*
-					case 51:
-						Display1Channel8BitLine (numberSamples,
-															interval,
-															localFileInfoPtr1,
-															(HUCharPtr)ioBuffer1Ptr,
-															dataDisplay1Ptr,
-															maxBin1,
-															offScreenPtr);
-						break;
-					*/
+						
 					case 101:
 					case 151:
 						Display1Channel4Byte8BitLine (numberSamples,
@@ -2693,11 +2713,11 @@ void DisplayCImage (
 					{
 					longSourceRect.bottom = lineCount;
 					if (!CheckSomeDisplayEvents (gImageWindowInfoPtr,
-                            displaySpecsPtr,
-                            savedPortPixMapH,
-                            offScreenPixMapH,
-                            &longSourceRect,
-                            displayBottomMax))
+															 displaySpecsPtr,
+															 savedPortPixMapH,
+															 offScreenPixMapH,
+															 &longSourceRect,
+															 displayBottomMax))
 						break;
 
 					}	// end "if (TickCount () >= gNextTime)"
@@ -5199,9 +5219,10 @@ void DisplayMultispectralDialogUpdateDisplayLevels (
 // Called By:			DisplayColorImage in display.c
 //
 //	Coded By:			Larry L. Biehl			Date: 06/01/1996
-//	Revised By:			Larry L. Biehl			Date: 05/12/2003
+//	Revised By:			Larry L. Biehl			Date: 12/13/2018
 
 void Display1Channel8BitLine (
+				SInt16								displayCode,
 				UInt32								numberSamples,
 				UInt32								interval,
 				FileInfoPtr							fileInfoPtr,
@@ -5213,7 +5234,7 @@ void Display1Channel8BitLine (
 	UInt32								dataValue,
 											j;
 
-	#ifndef multispec_lin
+	#if defined multispec_mac || defined multispec_win
 				//	 This loop will draw the image lines for one byte data		
 
 		if (fileInfoPtr->numberBytes == 1) 
@@ -5245,28 +5266,54 @@ void Display1Channel8BitLine (
 				}	// end "for (j=0;..." 
 
 			}	// end "else if (fileInfoPtr->numberBytes == 2)"
-	#else
+	#endif
+	
+	#if defined multispec_lin
 				//	 This loop will draw the image lines for one byte data
 
 		if (fileInfoPtr->numberBytes == 1) 
 			{
-			for (j = 0; j < numberSamples; j += interval) 
+			if (displayCode == 1)
 				{
-				dataValue = ioBuffer1Ptr[j];
-				
-						// Red value
-				*offScreenPtr = (Byte) dataDisplayPtr[dataValue];
-				offScreenPtr++;
-				
-						// Green Value
-				*offScreenPtr = (Byte) dataDisplayPtr[dataValue];
-				offScreenPtr++;
-				
-						// Blue value
-				*offScreenPtr = (Byte) dataDisplayPtr[dataValue];
-				offScreenPtr++;
+				for (j = 0; j < numberSamples; j += interval)
+					{
+					#if defined multispec_wxmac
+						offScreenPtr++;
+					#endif
+					
+					dataValue = ioBuffer1Ptr[j];
+					
+							// Red value
+					*offScreenPtr = (Byte) dataDisplayPtr[dataValue];
+					offScreenPtr++;
+					
+							// Green Value
+					*offScreenPtr = (Byte) dataDisplayPtr[dataValue];
+					offScreenPtr++;
+					
+							// Blue value
+					*offScreenPtr = (Byte) dataDisplayPtr[dataValue];
+					offScreenPtr++;
 
-				}	// end "for (j=0;..."
+					}	// end "for (j=0;..."
+				
+				}	// end "if (displayCode == 1)"
+			
+			else	// displayCode == 51
+				{
+						// This is for one channel thematic images for wxWidgets
+						// interface. The thematic value is loaded into the buffer.
+				
+				for (j = 0; j < numberSamples; j += interval)
+					{
+					dataValue = ioBuffer1Ptr[j];
+					
+					*offScreenPtr = (Byte)dataDisplayPtr[dataValue];
+					offScreenPtr++;
+
+					}	// end "for (j=0;..."
+				
+				}	// end "else displayCode == 51"
 
 			}	// end "if (fileInfoPtr->numberBytes == 1)"
 
@@ -5275,26 +5322,52 @@ void Display1Channel8BitLine (
 		else if (fileInfoPtr->numberBytes == 2) 
 			{
 			HUInt16Ptr ioBuffer2Ptr = (HUInt16Ptr)ioBuffer1Ptr;
-
-			for (j = 0; j < numberSamples; j += interval) 
+			
+			if (displayCode == 1)
 				{
-				dataValue = ioBuffer2Ptr[j];
-				if (dataValue > maxValue)
-					dataValue = 0;
+				for (j = 0; j < numberSamples; j += interval)
+					{
+					#if defined multispec_wxmac
+						offScreenPtr++;
+					#endif
 					
-						// Red Value
-				*offScreenPtr = dataDisplayPtr[dataValue];
-				offScreenPtr++;
-				
-						// Green Value
-				*offScreenPtr = dataDisplayPtr[dataValue];
-				offScreenPtr++;
-				
-						// Blue Value
-				*offScreenPtr = dataDisplayPtr[dataValue];
-				offScreenPtr++;
+					dataValue = ioBuffer2Ptr[j];
+					if (dataValue > maxValue)
+						dataValue = 0;
+					
+							// Red Value
+					*offScreenPtr = dataDisplayPtr[dataValue];
+					offScreenPtr++;
+					
+							// Green Value
+					*offScreenPtr = dataDisplayPtr[dataValue];
+					offScreenPtr++;
+					
+							// Blue Value
+					*offScreenPtr = dataDisplayPtr[dataValue];
+					offScreenPtr++;
 
-				}	// end "for (j=0;..."
+					}	// end "for (j=0;..."
+			
+				}	// end "if (displayCode == 1)"
+	
+			else	// displayCode == 51
+				{
+						// This is for one channel thematic images for wxWidgets
+						// interface. The thematic value is loaded into the buffer.
+				
+				for (j = 0; j < numberSamples; j += interval)
+					{
+					dataValue = ioBuffer2Ptr[j];
+					if (dataValue > maxValue)
+						dataValue = 0;
+					
+					*offScreenPtr = (Byte)dataDisplayPtr[dataValue];
+					offScreenPtr++;
+
+					}	// end "for (j=0;..."
+				
+				}	// end "else displayCode == 51"
 
 			}	// end "else if (fileInfoPtr->numberBytes == 2)"
 	#endif
@@ -5323,7 +5396,7 @@ void Display1Channel8BitLine (
 // Called By:			DisplayColorImage in display.c
 //
 //	Coded By:			Larry L. Biehl			Date: 07/12/1988
-//	Revised By:			Larry L. Biehl			Date: 10/24/2009
+//	Revised By:			Larry L. Biehl			Date: 12/12/2018
 
 void Display2Channel8BitLine (
 				UInt32								numberSamples,

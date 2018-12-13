@@ -8816,7 +8816,7 @@ SInt16 WriteTIFFImageData (
 		}	// end "else numberBytes == 4" 
 		
 			// Unlock Handle to offscreen storage.	
-			
+	/*
 	#if defined multispec_mac									
 		if (!gOSXCoreGraphicsFlag)
 			{
@@ -8825,7 +8825,7 @@ SInt16 WriteTIFFImageData (
 						
 			}	// end "if (!gOSXCoreGraphicsFlag)"
 	#endif	// defined multispec_mac 
-	
+	*/
 	#if defined multispec_win || defined multispec_lin 
 		CheckAndUnlockHandle (gImageWindowInfoPtr->imageBaseAddressH);  
 	#endif	// defined multispec_win || defined multispec_lin 

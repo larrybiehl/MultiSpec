@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			10/22/2018
+//	Revision date:			12/13/2018
 //
 //	Language:				C
 //
@@ -341,7 +341,7 @@ Boolean ClassGroupDialog (
 // Called By:			DisplayColorImage
 //
 //	Coded By:			Larry L. Biehl			Date: 12/19/1989
-//	Revised By:			Larry L. Biehl			Date: 10/16/2001	
+//	Revised By:			Larry L. Biehl			Date: 12/13/2018
 
 void DisplayColorThematicImage (
 				DisplaySpecsPtr					displaySpecsPtr, 
@@ -406,9 +406,9 @@ void DisplayColorThematicImage (
 	offscreenProcedure = 0;
 	if (fileInfoPtr->numberBytes == 1)
 		{
-		#if defined multispec_lin
-			pixRowBytes = pixRowBytes/3;
-		#endif	// end "defined multispec_lin"
+		//#if defined multispec_lin
+		//	pixRowBytes = pixRowBytes/3;
+		//#endif	// end "defined multispec_lin"
 
 		if (!fileInfoPtr->asciiSymbols)
 			{
@@ -441,10 +441,10 @@ void DisplayColorThematicImage (
 		
 	else if (fileInfoPtr->numberBytes == 2)
 		{
-		#if defined multispec_lin
+		//#if defined multispec_lin
 			//pixRowBytes = 2*(pixRowBytes/3);
-			pixRowBytes = pixRowBytes/3;
-		#endif	// end "defined multispec_lin"
+		//	pixRowBytes = pixRowBytes/3;
+		//#endif	// end "defined multispec_lin"
 
 		if (!fileInfoPtr->asciiSymbols)
 			{
