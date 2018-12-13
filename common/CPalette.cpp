@@ -1268,7 +1268,7 @@ CMPalette::CMPalette ()
 // Called By:	
 //
 //	Coded By:			Abdur Maud				Date: ??/??/2015
-//	Revised By:			Larry L. Biehl			Date: 12/19/2017	
+//	Revised By:			Larry L. Biehl			Date: 12/13/2018
 
 CMPalette::CMPalette (
 				SInt16								numberEntries) 
@@ -1285,6 +1285,7 @@ CMPalette::CMPalette (
 
 	mPaletteObject = 1;
 	mNumberEntries = numberEntries;
+	m_loadedFlag = FALSE;
 
 	redIndex = 0;
 	greenIndex = 1;
@@ -1367,6 +1368,7 @@ bool CMPalette::Create (
 				
 {
    SetNumberPaletteEntries (numberEntries);
+	m_loadedFlag = FALSE;
 	
    return (wxPalette::Create (numberEntries, redpalette, greenpalette, bluepalette));
 }
@@ -1406,8 +1408,8 @@ Boolean CMPalette::LoadRGBQUADStructure (
 	                  
 	if (wUsage == DIB_RGB_COLORS)
 		{                                                        
-   	if ( GetPaletteEntries (0, mNumberEntries, (PALETTEENTRY*)rgbQuadPtr) != 
-																				(UInt16)mNumberEntries )
+   	if (GetPaletteEntries (0, mNumberEntries, (PALETTEENTRY*)rgbQuadPtr) !=
+																				(UInt16)mNumberEntries)
   			continueFlag = FALSE; 
   		
   		if (continueFlag)

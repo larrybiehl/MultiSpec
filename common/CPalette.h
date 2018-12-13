@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//							 Copyright (1988-2017)
+//							 Copyright (1988-2018)
 //						(c) Purdue Research Foundation
 //								All rights reserved.
 //
@@ -12,9 +12,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision number:		2.7
-//
-//	Revision date:			11/29/2017
+//	Revision date:			12/13/2018
 //
 //	Language:				C++
 //
@@ -62,12 +60,16 @@
 			#endif	// defined multispec_win
 												
 			SInt16					GetNumberPaletteEntries (void);
+		
+			Boolean					GetPaletteLoadedFlag () {return (m_loadedFlag);}
 			
 			void						SetNumberPaletteEntries (
 											SInt16								numberEntries);
 													
 			void 						SetPalette (
-											SInt16								paletteId);  
+											SInt16								paletteId);
+		
+			void						SetPaletteLoadedFlag (Boolean loadedFlag) {m_loadedFlag = loadedFlag;}
 											
 			PaletteHandle			mPaletteObject; 
 	
@@ -91,6 +93,8 @@
 			static UInt16			s_palette1007[768];
 			
 			static UInt16			s_palette1008[768];
+		
+			Boolean					m_loadedFlag;
 			
 		};  
 #endif	// !defined __MPALETTE_H__
