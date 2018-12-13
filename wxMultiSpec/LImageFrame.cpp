@@ -10,9 +10,9 @@
 //	File:						LImageFrame.cpp : class implementation file
 //	Class Definition:		LImageFrame.h
 //
-//	Authors:					Larry L. Biehl, Wei-Kang Hsu
+//	Authors:					Larry L. Biehl, Wei-Kang Hsu, Tsung Tai Yeh
 //
-//	Revision date:			11/20/2018
+//	Revision date:			12/12/2018
 //
 //	Language:				C++
 //
@@ -230,14 +230,20 @@ CMImageFrame::CMImageFrame (
 									offsetCount;
 	 
 	offsetCount = div (gNumberOfIWindows-1, 5).rem;
-	xLocation = 5 + offsetCount * 20;
-	#ifdef NetBeansProject
+	xLocation = 3 + offsetCount * 10;
+	#if defined NetBeansProject
 		yLocation = 110;
-	#else	// mygeohub
+	#elif defined multispec_wxmac
+ 		//yLocation = 25;
+ 				// Added by Tsung Tai 12/10/2018
+  		int xSize = 0;
+   	GetMainFrame()->m_menubar1->GetSize (&xSize, &yLocation);
+		yLocation += 3;
+	#else
 		yLocation = 80; 
 	#endif
-	yLocation += offsetCount * 20;
-	Move(xLocation, yLocation);
+	yLocation += offsetCount * 10;
+	Move (xLocation, yLocation);
 	
 			//SetSize ... use this eventually when one knows the size of the image.
 

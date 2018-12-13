@@ -797,7 +797,8 @@ CMLegendView* CMImageView::GetImageLegendViewCPtr(void)
 } // end "GetImageLegendViewCPtr"
 
 
-wxBitmap & CMImageView::GetScaledBitmap()
+wxBitmap CMImageView::GetScaledBitmap()
+//wxBitmap* CMImageView::GetScaledBitmapPtr()
 {
 	return m_ScaledBitmap;
 }

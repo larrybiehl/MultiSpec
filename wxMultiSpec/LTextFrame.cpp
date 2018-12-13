@@ -1,6 +1,6 @@
 // LTextFrame.cpp
 //
-//	Revised By:			Larry L. Biehl			Date: 10/19/2018
+//	Revised By:			Larry L. Biehl			Date: 12/12/2018
 //
 #include "LMainFrame.h"
 #include "LMultiSpec.h"
@@ -9,6 +9,7 @@
 #include "LTextFrame.h"
 
 #include "wx/app.h"
+#include "wx/display.h"
 #include "wx/filedlg.h"
 
 IMPLEMENT_DYNAMIC_CLASS(CMTextFrame, wxDocChildFrame)
@@ -55,6 +56,23 @@ CMTextFrame::CMTextFrame (
 	Layout();
 	SetLabel (wxT("Text Output"));
 	//Centre(wxHORIZONTAL);
+	
+   		// Change text dialog window to the top-right screen -- Tsung Tai 12/10/18
+   		// 20 in y-axis is for the menu bar size
+	
+   int			menuHeight = 0,
+   				menuWidth = 0,
+   				windowHeight = 0,
+   				windowWidth = 0,
+   				xPosition,
+   				yPosition;
+	
+   GetSize (&windowWidth, &windowHeight);
+   xPosition = wxDisplay().GetGeometry().GetWidth() - windowWidth - 3;
+   xPosition = MAX (3, xPosition);
+   GetMainFrame()->m_menubar1->GetSize (&menuWidth, &menuHeight);
+   yPosition = menuHeight + 3;
+   Move (xPosition, yPosition);
 	
 			// Set Accelerator Table
 

@@ -1,6 +1,6 @@
 // LStatisticsFrame.cpp : implementation file
 //
-// Revised by Larry Biehl on 12/03/2018
+// Revised by Larry Biehl on 12/12/2018
 //
 /*  Template for writing something to text window for debugging.             
 	int numberChars = sprintf ((char*)&gTextString3,
@@ -16,6 +16,8 @@
 #include "LImageDoc.h"
 #include "LStatisticsFrame.h"
 #include "LStatisticsDoc.h"
+
+#include "wx/display.h"
 	
 extern SInt16 GetCurrentField(
    SInt16 classNumber,
@@ -51,6 +53,22 @@ CMStatisticsFrame::CMStatisticsFrame(wxDocument* doc, wxView* view, wxDocParentF
    m_optionKeyFlag = FALSE;
    
    CreateControls2();
+	
+   		// Change statistic dialog window to the top-right screen -- Tsung Tai 12/10/18
+	
+   int			menuHeight = 0,
+   				menuWidth = 0,
+   				windowHeight = 0,
+   				windowWidth = 0,
+   				xPosition,
+   				yPosition;
+	
+   GetSize (&windowWidth, &windowHeight);
+   xPosition = wxDisplay().GetGeometry().GetWidth() - windowWidth - 3;
+   xPosition = MAX (3, xPosition);
+   GetMainFrame()->m_menubar1->GetSize (&menuWidth, &menuHeight);
+   yPosition = menuHeight + 3;
+   Move (xPosition, yPosition);
 	
 			// Disable the polygon enter checkbox for now until implemented.
 			

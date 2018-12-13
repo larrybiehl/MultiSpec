@@ -1,6 +1,6 @@
 // LMainFrame.h
 //
-// Revised by Larry L Biehl    12/07/2018
+// Revised by Larry L Biehl    12/12/2018
 
 #ifndef __LMainFrame__
 #	define __LMainFrame__
@@ -33,7 +33,6 @@ class CMainFrame : public wxDocParentFrame
 {
 	DECLARE_CLASS(CMainFrame)
 	protected:
-		wxMenuBar*					m_menubar1;
 		wxMenu*						filemenu;
 		wxMenu*						editmenu;
 		wxMenu*						m_editClearOverlayMenu;
@@ -289,13 +288,13 @@ class CMainFrame : public wxDocParentFrame
 									UInt16 hdfDataSetSelection);
 	
 	void UpdateWindowMenuList ();
-                 
+	/*
 	enum{
 		//ID_IMAGE_OPEN
                // ID_PROC_UTIL_LIST_IMAGE_DESC
           //ID_SHOWOVERLAYMENUITEMSTART
 
-	};
+	}; */
 	public:
 		CMainFrame (wxDocManager *manager,
 						wxDocParentFrame *frame,
@@ -315,8 +314,9 @@ class CMainFrame : public wxDocParentFrame
 		void UpdateStatusBar(double magnification);
 		//void OnImageOpen(wxCommandEvent& event);
 		~CMainFrame();
-		
-		wxMenuItem* m_closeWindowMenuItem;
+	
+		wxMenuBar*					m_menubar1;
+		wxMenuItem* 				m_closeWindowMenuItem;
 	private:
 		DECLARE_EVENT_TABLE()
                 void SetUpdateAreaUnits(wxUpdateUIEvent& pCmdUI, SInt16 unitsCode);

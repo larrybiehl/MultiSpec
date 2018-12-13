@@ -287,12 +287,13 @@ wxSize CMImageCanvas::GetCurrentSize ()
       return wxSize (0, 0);
 	
    double scale = m_View->m_Scale;
-   if ((m_View->GetScaledBitmap ()).IsOk ())
-      return wxSize (m_View->GetScaledBitmap ().GetWidth () * scale,
-							m_View->GetScaledBitmap ().GetHeight () * scale);
+   //if (m_View->GetScaledBitmapPtr() != NULL &&
+   if (m_View->GetScaledBitmap().IsOk())
+      return wxSize (m_View->GetScaledBitmap().GetWidth() * scale,
+							m_View->GetScaledBitmap().GetHeight() * scale);
 	
 	else
-      return wxSize(0, 0);
+      return wxSize (0, 0);
 	
 }	// end "GetCurrentSize"
 
@@ -303,7 +304,7 @@ wxRect CMImageCanvas::GetImageDisplayRect (
 
 {
    wxSize currentSize = GetCurrentSize ();
-   wxSize clients = GetClientSize ();
+  // wxSize clients = GetClientSize ();
    // calculate actual image position if it is centered
    /*wxPoint ptTest(
            (GetClientSize().x - currentSize.GetWidth()) <= 0 ?
@@ -702,7 +703,7 @@ void CMImageCanvas::OnPaint (
 	
 	int xx, yy;
 	double m_zoom = m_View->m_Scale;
-	wxSize mframesize = (this->GetParent())->GetClientSize ();
+	//wxSize mframesize = (this->GetParent())->GetClientSize ();
 	
 			// Shifts the device origin so we don't have to worry about the current
 			// scroll position ourselves
@@ -730,9 +731,10 @@ void CMImageCanvas::OnPaint (
 	else
 				// Next time call copy offscreenimage
 		updatedbmp = true;
-   
+	
 	wxBitmap my_image (m_View->m_ScaledBitmap);
-      
+	//wxBitmap my_image (*m_View->m_ScaledBitmapPtr);
+	
 	if (m_displayImageFlag && my_image.IsOk())
 		{
 		size_h = my_image.GetHeight() * m_zoom;
@@ -740,29 +742,26 @@ void CMImageCanvas::OnPaint (
 
 		SetVirtualSize (size_w, size_h); //Sets the virtual size of the window in pixels.
 		
-      dc.SetUserScale(1, 1);
-      if (m_View)
-			{
-         //m_View->OnDraw(&dc);
-         if (!m_Selection.IsEmpty())
-				{
-            dc.SetBrush(*wxTRANSPARENT_BRUSH);
-            //dc.SetLogicalFunction(wxXOR);
-            dc.SetPen(wxPen(*wxWHITE, 1, wxDOT));
-            CalcUnscrolledPosition (m_Selection.GetX(), m_Selection.GetY(), &xx, &yy);
-            dc.DrawRectangle(wxPoint(xx, yy), m_Selection.GetSize());
-            dc.SetPen(wxPen(*wxBLACK, 1, wxDOT));
-            wxSize rectSpec = m_Selection.GetSize();
-            rectSpec.x -= 2;
-            rectSpec.y -= 2;
-            dc.DrawRectangle (wxPoint(xx+1, yy+1), rectSpec);
-				
-				}	// end "if (!m_Selection.IsEmpty())"
-			
-			}	// end "if (m_View)"
+		dc.SetUserScale (1, 1);
 		
-      CMImageDoc* pDoc = m_View->GetDocument();
-      pDoc->Draw(&dc, m_View);
+		//m_View->OnDraw(&dc);
+		if (!m_Selection.IsEmpty())
+			{
+			dc.SetBrush (*wxTRANSPARENT_BRUSH);
+			//dc.SetLogicalFunction (wxXOR);
+			dc.SetPen(wxPen (*wxWHITE, 1, wxPENSTYLE_DOT));
+			CalcUnscrolledPosition (m_Selection.GetX(), m_Selection.GetY(), &xx, &yy);
+			dc.DrawRectangle (wxPoint(xx, yy), m_Selection.GetSize());
+			dc.SetPen(wxPen (*wxBLACK, 1, wxPENSTYLE_DOT));
+			wxSize rectSpec = m_Selection.GetSize ();
+			rectSpec.x -= 2;
+			rectSpec.y -= 2;
+			dc.DrawRectangle (wxPoint(xx+1, yy+1), rectSpec);
+			
+			}	// end "if (!m_Selection.IsEmpty())"
+		
+		CMImageDoc* pDoc = m_View->GetDocument ();
+		pDoc->Draw (&dc, m_View);
 		
 		}	// end "if (m_displayImageFlag && my_image.IsOk())"
 

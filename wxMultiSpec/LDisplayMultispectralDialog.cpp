@@ -294,7 +294,8 @@ void CMDisplaySpecsDlg::CreateControls ()
 													ID3C_DisplayType,
 													/*wxT("3-Channel Color")*/wxEmptyString,
 													wxDefaultPosition,
-													wxDefaultSize, 0,
+													wxSize (180, -1),
+													0,
 													NULL,
 													wxCB_READONLY);
 	m_displaytypectrl->Append (wxT("1-Channel Thematic"));

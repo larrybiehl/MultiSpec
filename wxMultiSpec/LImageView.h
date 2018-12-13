@@ -89,7 +89,8 @@ public:
     double m_printerTextScaling;
     // Linux specific functions
     bool OnCreate(wxDocument* doc, long flags);
-    wxBitmap & GetScaledBitmap();
+    wxBitmap GetScaledBitmap();
+    //wxBitmap* GetScaledBitmapPtr();
     const wxSize & GetViewOffset();
     void SetViewOffset(const wxSize & value);
     virtual void OnDraw(wxDC* dc);
@@ -104,8 +105,9 @@ public:
     CDC* m_pDC;
     // Zooming factor
     double m_Scale;
-    // Bitmap object to display
-    wxBitmap m_ScaledBitmap;
+	
+    		// Bitmap object to display
+    wxBitmap 	m_ScaledBitmap;
 
     bool m_hasWaveLength;
     
