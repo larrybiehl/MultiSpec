@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -12,7 +12,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			12/19/2017
+//	Revision date:			12/19/2018
 //
 //	Language:				C++
 //
@@ -1215,7 +1215,7 @@ UInt16		CMPalette::s_palette1007[768] = {65535, 65535, 65535,
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2019)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1251,7 +1251,7 @@ CMPalette::CMPalette ()
 
 #if defined multispec_lin
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2019)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1268,51 +1268,39 @@ CMPalette::CMPalette ()
 // Called By:	
 //
 //	Coded By:			Abdur Maud				Date: ??/??/2015
-//	Revised By:			Larry L. Biehl			Date: 12/13/2018
+//	Revised By:			Larry L. Biehl			Date: 12/19/2018
 
 CMPalette::CMPalette (
 				SInt16								numberEntries) 
 {
-	UInt16								redIndex, 
-											greenIndex, 
-											blueIndex,
-											numberColors = numberEntries;
-										
-	UInt8									redpalette[numberColors],
-											greenpalette[numberColors],
-											bluepalette[numberColors];
+	int 									index;
+	UInt16								numberColors = numberEntries;
 
 
-	mPaletteObject = 1;
+	//mPaletteObject = 1;
 	mNumberEntries = numberEntries;
 	m_loadedFlag = FALSE;
 
-	redIndex = 0;
-	greenIndex = 1;
-	blueIndex = 2;
 	numberColors = numberEntries;
 
-	for (int index=0; index<numberColors; index++) 
+			// Fill all 256 entries with white
+	
+	for (index=0; index<256; index++)
 		{
-		redpalette[index] = (UInt8)255;
-		greenpalette[index] = (UInt8)255;
-		bluepalette[index] = (UInt8)255;
+		mPaletteObject[index].red = 255;
+		mPaletteObject[index].green = 255;
+		mPaletteObject[index].blue = 255;
 
-		//SetPaletteEntries (index, 1, &paletteEntry);
-		redIndex += 3;
-		greenIndex += 3;
-		blueIndex += 3;
-
-		} // end "for (index=0; index<numberColors; index++)"
+		} // end "for (index=0; index<256; index++)"
 		
-	this->Create (numberColors, redpalette, greenpalette, bluepalette);
+	//Create (numberColors, redpalette, greenpalette, bluepalette);
 	  
 }	// end "CMPalette"
 #endif
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2019)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1336,10 +1324,10 @@ CMPalette::~CMPalette ()
 
 }	// end "~CMPalette"
                                                      
-
+/*
 #ifdef multispec_lin
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2019)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1358,7 +1346,7 @@ CMPalette::~CMPalette ()
 // Called By:
 //
 //	Coded By:			Abdur Maud				Date: ??/??/2015
-//	Revised By:			Larry L. Biehl			Date: 11/29/2017	
+//	Revised By:			Larry L. Biehl			Date: 1/19/2018
 
 bool CMPalette::Create (
 				SInt16								numberEntries,
@@ -1370,14 +1358,16 @@ bool CMPalette::Create (
    SetNumberPaletteEntries (numberEntries);
 	m_loadedFlag = FALSE;
 	
-   return (wxPalette::Create (numberEntries, redpalette, greenpalette, bluepalette));
+	
+	
+   //return (wxPalette::Create (numberEntries, redpalette, greenpalette, bluepalette));
 }
 #endif
-
+*/
 
 #if defined multispec_win
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2019)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1460,7 +1450,7 @@ Boolean CMPalette::LoadRGBQUADStructure (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2019)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1490,7 +1480,7 @@ SInt16 CMPalette::GetNumberPaletteEntries (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2019)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1521,7 +1511,7 @@ void CMPalette::SetNumberPaletteEntries (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2019)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1538,7 +1528,7 @@ void CMPalette::SetNumberPaletteEntries (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 03/12/1996
-//	Revised By:			Larry L. Biehl			Date: 07/09/2015	
+//	Revised By:			Larry L. Biehl			Date: 12/19/2018
 
 void CMPalette::SetPalette (
 				SInt16								paletteId)
@@ -1554,7 +1544,7 @@ void CMPalette::SetPalette (
 						
 	if (this != NULL) 
 		{              
-		#if multispec_win		
+		#if defined multispec_win
 			PALETTEENTRY						paletteEntry; 
 			
 									
@@ -1602,7 +1592,7 @@ void CMPalette::SetPalette (
 				blueIndex += 3;
 				
 				}	// end "for (index=0; index<numberColors; index++)"
-		#endif	// defined multispec_lin
+		#endif	// defined multispec_win
 	
 		#if defined multispec_lin
 			if (paletteId == 1001)
@@ -1631,32 +1621,30 @@ void CMPalette::SetPalette (
 
 			numberColors = GetNumberPaletteEntries ();
 			
-			UInt8 redpalette[numberColors];
-			UInt8 greenpalette[numberColors];
-			UInt8 bluepalette[numberColors];
+			//UInt8 redpalette[numberColors];
+			//UInt8 greenpalette[numberColors];
+			//UInt8 bluepalette[numberColors];
 			redIndex = 0;
 			greenIndex = 1;
 			blueIndex = 2;
 
-			for (index = 0; index < numberColors; index++) 
+			for (index=0; index<numberColors; index++)
 				{
-				redpalette[index] = (UInt8) (palettePtr[redIndex] >> 8);
-				greenpalette[index] = (UInt8) (palettePtr[greenIndex] >> 8);
-				bluepalette[index] = (UInt8) (palettePtr[blueIndex] >> 8);
-				//redpalette[index] = (UInt8)palettePtr[redIndex];
-				//greenpalette[index] = (UInt8)palettePtr[greenIndex];
-				//bluepalette[index] = (UInt8)palettePtr[blueIndex];
-					
-				//SetPaletteEntries (index, 1, &paletteEntry);
+				//redpalette[index] = (UInt8)(palettePtr[redIndex] >> 8);
+				//greenpalette[index] = (UInt8)(palettePtr[greenIndex] >> 8);
+				//bluepalette[index] = (UInt8)(palettePtr[blueIndex] >> 8);
+				mPaletteObject[index].red = (UInt8)(palettePtr[redIndex] >> 8);
+				mPaletteObject[index].green = (UInt8)(palettePtr[greenIndex] >> 8);
+				mPaletteObject[index].blue = (UInt8)(palettePtr[blueIndex] >> 8);
 				redIndex += 3;
 				greenIndex += 3;
 				blueIndex += 3;
 
 				}	// end "for (index=0; index<numberColors; index++)"
 				
-			this->Create (numberColors, redpalette, greenpalette, bluepalette);
+			//Create (numberColors, redpalette, greenpalette, bluepalette);
 		#endif	// defined multispec_lin
 		
-		} // end "if (this != NULL)"
+		}	// end "if (this != NULL)"
 	
 }	// end "SetPalette" 

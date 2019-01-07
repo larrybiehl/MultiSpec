@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//							 Copyright (1988-2018)
+//							 Copyright (1988-2019)
 //						(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -229,8 +229,9 @@ SInt16 CharWidth (
 
 
 
+#if defined multispec_win
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -255,162 +256,84 @@ Boolean CheckSomeEvents (
 {
 	Boolean								returnFlag = TRUE;
 	
-
-	#if defined multispec_win
-		HWND hWnd = NULL;
-		MSG msgCur;
+	HWND hWnd = NULL;
+	MSG msgCur;
 
 
-		if (gStatusDialogPtr != NULL)
-			hWnd = gStatusDialogPtr->m_hWnd;
+	if (gStatusDialogPtr != NULL)
+		hWnd = gStatusDialogPtr->m_hWnd;
 
-		while (::PeekMessage (&msgCur, NULL, 0, 0, PM_REMOVE))
+	while (::PeekMessage (&msgCur, NULL, 0, 0, PM_REMOVE))
+		{
+		if (msgCur.message == WM_KEYDOWN)
 			{
-			if (msgCur.message == WM_KEYDOWN) 
+			//if (msgCur.wParam == 0x001b)
+			if (msgCur.wParam == VK_ESCAPE)
 				{
-				if (msgCur.wParam == 0x001b) 
-					{
-					returnFlag = FALSE;
-					code = keyDownMask;
-					break;
+				returnFlag = FALSE;
+				code = keyDownMask;
+				break;
 
-					}	// end "if (msgCur.wParam == 0x001b)"
+				}	// end "if (msgCur.wParam == VK_ESCAPE)"
 
-				}	// end "if (msgCur.message == WM_CHAR)"
+			}	// end "if (msgCur.message == WM_CHAR)"
 
-			if (returnFlag && !IsDialogMessage (hWnd, &msgCur)) 
+		if (returnFlag && !IsDialogMessage (hWnd, &msgCur))
+			{
+			if (msgCur.message == WM_PAINT)
 				{
-				if (msgCur.message == WM_PAINT) 
-					{
-					TranslateMessage (&msgCur);
-					DispatchMessage (&msgCur);
+				TranslateMessage (&msgCur);
+				DispatchMessage (&msgCur);
 
-					}	// end "if (msgCur.message == WM_PAINT)"
+				}	// end "if (msgCur.message == WM_PAINT)"
 
-				}	// end "if (returnFlag && !IsDialogMessage (hWnd, &msgCur))"
+			}	// end "if (returnFlag && !IsDialogMessage (hWnd, &msgCur))"
 
-			}	// end "while (::PeekMessage (..."
+		}	// end "while (::PeekMessage (..."
 
-		if (!returnFlag) 
-			{
-			gOperationCanceledFlag = TRUE;
+	if (!returnFlag)
+		{
+		gOperationCanceledFlag = TRUE;
 
-			if (gAlertId != 0)
-				gAlertReturnCode = DisplayAlert (gAlertId,
-															 kCautionAlert,
-															 gAlertStrID,
-															 gAlertStringNumber,
-															 0,
-															 NULL);
+		if (gAlertId != 0)
+			gAlertReturnCode = DisplayAlert (gAlertId,
+														 kCautionAlert,
+														 gAlertStrID,
+														 gAlertStringNumber,
+														 0,
+														 NULL);
 
-			if (gAlertId == 0 || gAlertReturnCode == 3)
-						// Quit immediately.
-				return (FALSE);
+		if (gAlertId == 0 || gAlertReturnCode == 3)
+					// Quit immediately.
+			return (FALSE);
 
-			gOperationCanceledFlag = FALSE;
+		gOperationCanceledFlag = FALSE;
 
-			if (gAlertReturnCode == 2)
-						// Cancel the quit request.
-				gAlertReturnCode = 0;
+		if (gAlertReturnCode == 2)
+					// Cancel the quit request.
+			gAlertReturnCode = 0;
 
-			returnFlag = TRUE;
+		returnFlag = TRUE;
 
-			}	// end "if (!returnFlag)"
+		}	// end "if (!returnFlag)"
 
-		else // returnFlag
-			{
-			/*
-					// Call base class idle for any other messages.
-
-			Boolean bResult = ((CMultiSpecApp*)AfxGetApp ())->DoIdle (0);
-			((CMultiSpecApp*)AfxGetApp ())->m_pMainWnd->SendMessage (
-											WM_ENTERIDLE, MSGF_DIALOGBOX, 0);	// send command
-			*/
-			}	// end "else returnFlag"
-
-		gNextTime = GetTickCount () + gTimeOffset;
-	#endif	// defined multispec_win
-
-	#if defined multispec_lin
+	else // returnFlag
+		{
 		/*
-		wxBell ();
-		if (wxUpdateUIEvent::CanUpdate (this))
-			(wxTheApp->GetTopWindow ())->UpdateWindowUI ();
-		while (...) 
-			{
-			myApp->Yield ();
-			wxMilliSleep (1);
-		 
-			}	// end "while (...)"
+				// Call base class idle for any other messages.
+
+		Boolean bResult = ((CMultiSpecApp*)AfxGetApp ())->DoIdle (0);
+		((CMultiSpecApp*)AfxGetApp ())->m_pMainWnd->SendMessage (
+										WM_ENTERIDLE, MSGF_DIALOGBOX, 0);	// send command
 		*/
-		UInt32			count = 0;
-		Boolean			yieldForReturnFlag = true;
-	
-	
-		wxEventLoopBase* eventLoopBasePtr = wxEventLoopBase::GetActive ();
-		if (eventLoopBasePtr != NULL)
-			{	
-			while (count<3 && yieldForReturnFlag)
-				{
-				yieldForReturnFlag = eventLoopBasePtr->YieldFor (wxEVT_CATEGORY_UI);
-				count++;
-				
-				}	// end "while (count<5 && returnFlag)"
-			/*
-			int numberChars = sprintf ((char*)&gTextString3,
-												" CStubs:CheckSomeEvents (count): %d%s",
-												count,
-												gEndOfLine);
-			ListString ((char*)&gTextString3, numberChars, gOutputTextH);
-			*/
-			}	// end "if (eventLoopBasePtr != NULL)"
+		}	// end "else returnFlag"
 
-		//if ((wxGetKeyState (WXK_COMMAND) & wxGetKeyState (wxKeyCode('.'))) ||
-		//				wxGetKeyState (WXK_ESCAPE))
-	
-		//CMainFrame* pMainFrame = (CMainFrame*) wxGetApp ().GetTopWindow ();
-		//if (wxGetKeyState (WXK_ESCAPE) || pMainFrame->GetCancelOperationEventFlag ())
-		if (wxGetKeyState (WXK_ESCAPE))
-			{
-			returnFlag = FALSE;
-			}
-			
-		if (!returnFlag) 
-			{
-			gOperationCanceledFlag = TRUE;
-		  
-			if (gAlertId != 0)
-				{           
-				//eventLoopBasePtr->Yield (false);
-				gAlertReturnCode = DisplayAlert (gAlertId,
-															 kCautionAlert,
-															 gAlertStrID,
-															 gAlertStringNumber,
-															 0,
-															 NULL);
-					
-				}	// end "if (gAlertId != 0)"
-
-			if (gAlertId == 0 || gAlertReturnCode == 3)
-						// Quit immediately.
-																							return (FALSE);
-
-			gOperationCanceledFlag = FALSE;
-
-			if (gAlertReturnCode == 2)
-						// Cancel the quit request.
-				gAlertReturnCode = 0;
-
-			returnFlag = TRUE;
-
-			}	// end "if !returnFlag"
-
-		gNextTime = GetTickCount () + gTimeOffset;
-	#endif	// defined multispec_lin
+	gNextTime = GetTickCount () + gTimeOffset;
     
 	return (returnFlag);
 
-}	// end "CheckSomeEvents" 
+}	// end "CheckSomeEvents"
+#endif	// defined multispec_win
 
 
 
@@ -483,7 +406,7 @@ void ClipRect (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1861,7 +1784,7 @@ SInt16 ResError (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2203,7 +2126,7 @@ void ShowStatusDialogWindow (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
