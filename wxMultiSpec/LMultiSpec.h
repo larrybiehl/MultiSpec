@@ -92,7 +92,9 @@ private:
 	wxDocTemplate* pOutputDocTemplate;
 	wxDocTemplate* pGraphDocTemplate;
 	wxDocTemplate* pStatisticsDocTemplate;
-        wxDocTemplate* pListDataDocTemplate;
+	wxDocTemplate* pListDataDocTemplate;
+	
+	void OnCharHook (wxKeyEvent& event);
 	
 	void OnQueryEndSession (wxCloseEvent& event);
 	

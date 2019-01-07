@@ -12,7 +12,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			04/27/2018
+//	Revision date:			12/19/2018
 //
 //	Language:				C++
 //
@@ -286,12 +286,10 @@ void CMLegendView::OnSelendokPalette (
 											m_localPaletteUpToDateFlag);
 
       UpdateActiveImageLegend (displaySpecsPtr->classGroupCode, kCallCreatePalette);
+		
+		displaySpecsPtr->paletteObject->SetPaletteLoadedFlag (FALSE);
 
 		}	// end "if (paletteCode != lastPaletteSelection)"
-
-			// Add 'Palette' to the end of the combo list and set the combo selection to
-			// that item so that Palette will always appear as the 'title' of the combo
-			// list.
 
    (m_imageViewCPtr->m_Canvas)->Refresh ();
 	

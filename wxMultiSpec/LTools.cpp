@@ -171,17 +171,17 @@ Boolean CMTool::OnMouseMove (
 }	// end "CMTool::OnMouseMove"
 
 
-
+/*
 void CMTool::OnChar (
 				CMImageView*						pView,
 				unsigned int						nChar)
 {
 
 }	// end "OnChar"
+*/
 
 
-
-void CMTool::OnButtonPress ()
+void CMTool::OnCharHook ()
 
 {
 	if (c_flag_addtolist == TRUE)
@@ -202,7 +202,7 @@ void CMTool::OnButtonPress ()
 		
 		}	// end "if (c_flag_addtolist == TRUE)"
 
-}	// end "OnButtonPress"
+}	// end "OnCharHook"
 
 
 
@@ -332,7 +332,7 @@ void CMSelectTool::AddPolygonPoint (
 }	// end AddPolygonPoint
 
 
-
+/*
 void CMSelectTool::OnChar (
 				CMImageView*						imageViewCPtr,
 				unsigned int						nChar)
@@ -340,7 +340,7 @@ void CMSelectTool::OnChar (
 {
 
 }	// end "OnChar"
-
+*/
 
 
 void CMSelectTool::OnLButtonDblClk (
@@ -1018,8 +1018,6 @@ Boolean CMSelectTool::OnMouseMove (
       
 		if (point != c_last)
 			{
-			DWORD dwStyle;
-
 			Handle windowInfoHandle = GetWindowInfoHandle(pImageView);
                   
 			CRect		rect;
@@ -1040,7 +1038,6 @@ Boolean CMSelectTool::OnMouseMove (
 					// Get the scroll info. It will be used in determining whether
 					// the image needs to be scrolled.
 			
-			int minRange = 0;
 			scrollOffset = (pImageView->m_Canvas)->GetScrollPosition();
 			maxHRange = (pImageView->m_Canvas)->GetScrollRange(wxHORIZONTAL);
 			maxVRange = (pImageView->m_Canvas)->GetScrollRange(wxVERTICAL);
@@ -1110,6 +1107,7 @@ Boolean CMSelectTool::OnMouseMove (
 
 				selectionClearedFlag = TRUE;
 
+						// Something not right below.
 				hOffset = s_displaySpecsPtr->origin[kHorizontal];
 				vOffset = s_displaySpecsPtr->origin[kVertical];
 
@@ -1208,7 +1206,7 @@ Boolean CMSelectTool::OnMouseMove (
                int sideBysideImage_offset =
 									s_startChannel * gChannelWindowInterval - gChannelWindowOffset;
 					int pointIndex = 0;
-					wxPoint scrollOffset = pImageView->m_Canvas->GetScrollPosition();  
+					//wxPoint scrollOffset = pImageView->m_Canvas->GetScrollPosition();
 					for (pointIndex=0; pointIndex<pointCount; pointIndex++)
 						{
 						ConvertLCToWinPoint ((LongPoint*)&selectionPointsPtr[pointIndex],

@@ -1,8 +1,8 @@
 /*
  *	LMultiSpec.cpp
  *      
- * Copyright 2017 multispec
- *	Revised by Larry Biehl		on 12/07/2018
+ * Copyright 2019 multispec
+ *	Revised by Larry Biehl		on 01/05/2019
  *	Revised by Tsung Tai Yeh	on 09/10/2015
  *      
  */
@@ -23,12 +23,16 @@
 
 //#include "wx/filedlg.h"
 #include "wx/cshelp.h"
-#include "LMultiSpec.h"
-#include "SDeclareGlobals.h"
 #include "CFileStream.h"
-//#define multispec_lin
+#include "LMultiSpec.h"
+#include "LStatusDialog.h"
+#include "SDeclareGlobals.h"
 #if !defined multispec_wxmac
 	#define production_multiSpec_tool
+#endif
+
+#if defined multispec_wxmac
+	#include "wx/sysopt.h"
 #endif
 
 CMainFrame *pMainFrame = (CMainFrame *) NULL;
@@ -40,114 +44,107 @@ time_t				LinGetTime (void);
 CMultiSpecApp::CMultiSpecApp ()
 
 {
-    //LOGPEN 				logpen;
-    //int 					numChars;
-    //Boolean 				continueFlag;
-
-
     		// Initialize some global variables here.
 	
-    gDisplaySpecsDefault.structureLoadedFlag = FALSE;
-    gDisplaySpecsDefault.numberThematicLevels = 12;
-    
-    gTransformationMatrix.imageFileName[0] = 0;
-    gTransformationMatrix.eigenValueHandle = NULL;
-    gTransformationMatrix.eigenVectorHandle = NULL;
-    gTransformationMatrix.eigenFeatureHandle = NULL;
-    gTransformationMatrix.createdByCode = 0;
-    gTransformationMatrix.numberFeatures = 0;
-    gTransformationMatrix.eigenVectorPtr = NULL;
-    gTransformationMatrix.tempMatrixPtr = NULL;
-    gTransformationMatrix.eigenFeaturePtr = NULL;
-    /***Temporary
-    gNonProjProcessorSpecs.biPlotDataSpecsH = NULL;
-    gNonProjProcessorSpecs.clusterSpecsH = NULL;
-    gNonProjProcessorSpecs.listDataSpecsH = NULL;
-    gNonProjProcessorSpecs.listResultsSpecsH = NULL;
-    gNonProjProcessorSpecs.principalCompSpecsH = NULL;
-    gNonProjProcessorSpecs.statisticsImageSpecsH = NULL;
-    gNonProjProcessorSpecs.evalTransformationSpecsH = NULL;
-     */
-    gResultsFileSummary.numberFiles = 0;
-    gResultsFileSummary.diskFileListH = NULL;
-    gResultsFileSummary.diskFileListPtr = NULL;
+	gDisplaySpecsDefault.structureLoadedFlag = FALSE;
+	gDisplaySpecsDefault.numberThematicLevels = 12;
 
-    // Initialize the conversion factors from one distance unit to
-    // another. This is used in displaying the coordinates in the coordinate
-    // view. Everything is relative to 1 mm.
+	gTransformationMatrix.imageFileName[0] = 0;
+	gTransformationMatrix.eigenValueHandle = NULL;
+	gTransformationMatrix.eigenVectorHandle = NULL;
+	gTransformationMatrix.eigenFeatureHandle = NULL;
+	gTransformationMatrix.createdByCode = 0;
+	gTransformationMatrix.numberFeatures = 0;
+	gTransformationMatrix.eigenVectorPtr = NULL;
+	gTransformationMatrix.tempMatrixPtr = NULL;
+	gTransformationMatrix.eigenFeaturePtr = NULL;
 
-    gDistanceFileConversionFactors[0] = 1000000.; // km to mm
-    gDistanceFileConversionFactors[1] = 1000.; // m  to mm
-    gDistanceFileConversionFactors[2] = 10.; // cm to mm
-    gDistanceFileConversionFactors[3] = 1.; // mm to mm
-    gDistanceFileConversionFactors[4] = 0.001; // um to mm
-    gDistanceFileConversionFactors[5] = 1609344.; // mi to mm
-    gDistanceFileConversionFactors[6] = 914.4; // yd to mm
-    gDistanceFileConversionFactors[7] = 304.800609601219; // survery ft to mm
-    gDistanceFileConversionFactors[8] = 304.8; // ft to mm
-    gDistanceFileConversionFactors[9] = 25.4; // in to mm
+	gNonProjProcessorSpecs.biPlotDataSpecsH = NULL;
+	gNonProjProcessorSpecs.clusterSpecsH = NULL;
+	gNonProjProcessorSpecs.listDataSpecsH = NULL;
+	gNonProjProcessorSpecs.listResultsSpecsH = NULL;
+	gNonProjProcessorSpecs.principalCompSpecsH = NULL;
+	gNonProjProcessorSpecs.statisticsImageSpecsH = NULL;
+	gNonProjProcessorSpecs.evalTransformationSpecsH = NULL;
 
-    // Initialize the conversion factors from one distance unit to
-    // another. This is used in displaying the coordinates in the coordinate
-    // view. Everything is relative to 1 mm.
+	gResultsFileSummary.numberFiles = 0;
+	gResultsFileSummary.diskFileListH = NULL;
+	gResultsFileSummary.diskFileListPtr = NULL;
 
-    gDistanceDisplayConversionFactors[0] = 1000000.;				// km to mm
-	 gDistanceDisplayConversionFactors[1] = 100000.;					// sq root of hectare to mm
-	 gDistanceDisplayConversionFactors[2] = 1000.;					// m  to mm
-	 gDistanceDisplayConversionFactors[3] = 10.;						// cm to mm
-	 gDistanceDisplayConversionFactors[4] = 1.;						// mm to mm
-	 gDistanceDisplayConversionFactors[5] = 0.001;					// um to mm
-	 gDistanceDisplayConversionFactors[6] = 1609344.;				// mi to mm
-	 gDistanceDisplayConversionFactors[7] = 63614.90724;			// acre to mm
-	 gDistanceDisplayConversionFactors[8] = 914.4;					// yd to mm
-	 gDistanceDisplayConversionFactors[9] = 304.800609601219;		// survey ft to mm
-	 gDistanceDisplayConversionFactors[10] = 304.8;					// ft to mm
-	 gDistanceDisplayConversionFactors[11] = 25.4;					// in to mm
-		
+			// Initialize the conversion factors from one distance unit to
+			// another. This is used in displaying the coordinates in the coordinate
+			// view. Everything is relative to 1 mm.
 
-   
-                    // Initialize the default overlay colors
-                    //		blackColor
-			
-    gOverlayColorList[0].red = 0x0000;
-    gOverlayColorList[0].green = 0x0000;
-    gOverlayColorList[0].blue = 0x0000;
+	gDistanceFileConversionFactors[0] = 1000000.; // km to mm
+	gDistanceFileConversionFactors[1] = 1000.; // m  to mm
+	gDistanceFileConversionFactors[2] = 10.; // cm to mm
+	gDistanceFileConversionFactors[3] = 1.; // mm to mm
+	gDistanceFileConversionFactors[4] = 0.001; // um to mm
+	gDistanceFileConversionFactors[5] = 1609344.; // mi to mm
+	gDistanceFileConversionFactors[6] = 914.4; // yd to mm
+	gDistanceFileConversionFactors[7] = 304.800609601219; // survery ft to mm
+	gDistanceFileConversionFactors[8] = 304.8; // ft to mm
+	gDistanceFileConversionFactors[9] = 25.4; // in to mm
+
+			// Initialize the conversion factors from one distance unit to
+			// another. This is used in displaying the coordinates in the coordinate
+			// view. Everything is relative to 1 mm.
+
+	gDistanceDisplayConversionFactors[0] = 1000000.;				// km to mm
+	gDistanceDisplayConversionFactors[1] = 100000.;					// sq root of hectare to mm
+	gDistanceDisplayConversionFactors[2] = 1000.;					// m  to mm
+	gDistanceDisplayConversionFactors[3] = 10.;						// cm to mm
+	gDistanceDisplayConversionFactors[4] = 1.;						// mm to mm
+	gDistanceDisplayConversionFactors[5] = 0.001;					// um to mm
+	gDistanceDisplayConversionFactors[6] = 1609344.;				// mi to mm
+	gDistanceDisplayConversionFactors[7] = 63614.90724;			// acre to mm
+	gDistanceDisplayConversionFactors[8] = 914.4;					// yd to mm
+	gDistanceDisplayConversionFactors[9] = 304.800609601219;		// survey ft to mm
+	gDistanceDisplayConversionFactors[10] = 304.8;					// ft to mm
+	gDistanceDisplayConversionFactors[11] = 25.4;					// in to mm
 	
-                    //		cyanColor
+			// Initialize the default overlay colors
+			//		blackColor
 			
-    gOverlayColorList[1].red = 0x0000;
-    gOverlayColorList[1].green =0xFFFF;
-    gOverlayColorList[1].blue = 0xFFFF;
+	gOverlayColorList[0].red = 0x0000;
+	gOverlayColorList[0].green = 0x0000;
+	gOverlayColorList[0].blue = 0x0000;
 	
-                    //		greenColor
+			//		cyanColor
 			
-    gOverlayColorList[2].red = 0x0000;
-    gOverlayColorList[2].green = 0xFFFF;
-    gOverlayColorList[2].blue = 0x0000;
+	gOverlayColorList[1].red = 0x0000;
+	gOverlayColorList[1].green =0xFFFF;
+	gOverlayColorList[1].blue = 0xFFFF;
 	
-                    //		blueColor
+			//		greenColor
 			
-    gOverlayColorList[3].red = 0x0000;
-    gOverlayColorList[3].green = 0x0000;
-    gOverlayColorList[3].blue = 0xFFFF;
+	gOverlayColorList[2].red = 0x0000;
+	gOverlayColorList[2].green = 0xFFFF;
+	gOverlayColorList[2].blue = 0x0000;
 	
-                    //		magentaColor
+			//		blueColor
 			
-    gOverlayColorList[4].red = 0xFFFF;
-    gOverlayColorList[4].green = 0x0000;
-    gOverlayColorList[4].blue = 0xFFFF;
+	gOverlayColorList[3].red = 0x0000;
+	gOverlayColorList[3].green = 0x0000;
+	gOverlayColorList[3].blue = 0xFFFF;
 	
-                    //		redColor
+			//		magentaColor
 			
-    gOverlayColorList[5].red = 0xFFFF;
-    gOverlayColorList[5].green = 0x0000;
-    gOverlayColorList[5].blue = 0x0000;
+	gOverlayColorList[4].red = 0xFFFF;
+	gOverlayColorList[4].green = 0x0000;
+	gOverlayColorList[4].blue = 0xFFFF;
 	
-                    //		yellowColor
+			//		redColor
 			
-    gOverlayColorList[6].red = 0xFFFF;
-    gOverlayColorList[6].green = 0xFFFF;
-    gOverlayColorList[6].blue = 0x0000;
+	gOverlayColorList[5].red = 0xFFFF;
+	gOverlayColorList[5].green = 0x0000;
+	gOverlayColorList[5].blue = 0x0000;
+	
+			//		yellowColor
+			
+	gOverlayColorList[6].red = 0xFFFF;
+	gOverlayColorList[6].green = 0xFFFF;
+	gOverlayColorList[6].blue = 0x0000;
 
 			// Maximum number of columns possible.
 			// Note that the MaxRowBytes actually represents columns
@@ -156,118 +153,37 @@ CMultiSpecApp::CMultiSpecApp ()
 
 	gMaxRowBytes = 32767;
 	gMaxRowBytesFor24Bits = 32767;
-	/*
-			// Initialize location parameters for first graph window,
-	   			
-	gNextGraphicsWindowStart.h = 0;
-	gNextGraphicsWindowStart.v = 0;
-	 
-	gUseGWorldFlag = TRUE;
-
-	gBlinkProcedure = kBlink2;
-
-	m_dwSplashTime = 0;
-
-
-	m_graphDocTemplatePtr = NULL;
-	m_imageDocTemplatePtr = NULL;
-	m_statisticsDocTemplatePtr = NULL;
-	*/
+	
 	m_openImageFileInfoHandle = NULL;
 	m_nextControlTime = 0;
-	//m_imageZoomCode = 0;
     
 			// Initialize some standard color pens
 	
-	gBlackPen.SetColour(*wxBLACK);
-	gBluePen.SetColour(*wxBLUE);
-	gCyanPen.SetColour(*wxCYAN);
-	gGreenPen.SetColour(*wxGREEN);
-	gRedPen.SetColour(*wxRED);
-	gWhitePen.SetColour(*wxWHITE);
-	gYellowPen.SetColour(*wxYELLOW);
-    /*
-    m_controlDelayFlag = TRUE;
-
-                    // Get the separator to use for thousands and decimals
-                    // in numbers.
-
-    numChars = GetNumberFormat(
-                    LOCALE_USER_DEFAULT, // locale for which string is to be formatted
-                    0,							// bit flag that controls the function's operation
-                    "1000.12",           // pointer to input number string
-                    NULL,						// pointer to a formatting information structure
-                    (char*)&gTextString, // pointer to output buffer; gTextStrOnUpdateWindowNewSelectionGraphing
-                    100);						// size of output buffer
-
-    if (numChars == 9)
-            {
-            gThousandsSeparator = gTextString[1];
-            gDecimalSeparator = gTextString[5];
-
-            }		// end "if (numChars == 9)"
+	gBlackPen.SetColour (*wxBLACK);
+	gBluePen.SetColour (*wxBLUE);
+	gCyanPen.SetColour (*wxCYAN);
+	gGreenPen.SetColour (*wxGREEN);
+	gRedPen.SetColour (*wxRED);
+	gWhitePen.SetColour (*wxWHITE);
+	gYellowPen.SetColour (*wxYELLOW);
 	
-                    // Initialize some standard color pens
-   	               
-    logpen.lopnStyle = PS_SOLID;
-    logpen.lopnWidth.x = 1;
-    logpen.lopnWidth.y = 1;
+	InitializeDateVersionStrings ();
 	
-    gRGBColorList[0] = RGB(0, 0, 0);
-    logpen.lopnColor = gRGBColorList[0];
-    continueFlag = gBlackPen.CreatePenIndirect(&logpen);
-		         
-    gRGBColorList[1] = RGB(0, 0, 255);
-    logpen.lopnColor = RGB(0, 0, 255);
-    if (continueFlag)
-            continueFlag = gBluePen.CreatePenIndirect(&logpen);
-		         
-    gRGBColorList[2] = RGB(0, 255, 255);
-    logpen.lopnColor = RGB(0, 255, 255);
-    if (continueFlag)
-            continueFlag = gCyanPen.CreatePenIndirect(&logpen);
-		         
-    gRGBColorList[3] = RGB(0, 128, 0);
-    logpen.lopnColor = RGB(0, 128, 0);
-    if (continueFlag)
-            continueFlag = gGreenPen.CreatePenIndirect(&logpen);
-		         
-    gRGBColorList[4] = RGB(255, 0, 255);
-    logpen.lopnColor = RGB(255, 0, 255);
-    if (continueFlag)
-            continueFlag = gMagentaPen.CreatePenIndirect(&logpen);
-		         
-    gRGBColorList[5] = RGB(255, 0, 0);
-    logpen.lopnColor = RGB(255, 0, 0);
-    if (continueFlag)
-            continueFlag = gRedPen.CreatePenIndirect(&logpen);
-		         
-    gRGBColorList[6] = RGB(255, 255, 255);
-    logpen.lopnColor = RGB(255, 255, 255);
-    if (continueFlag)
-            continueFlag = gWhitePen.CreatePenIndirect(&logpen);
-		         
-    gRGBColorList[7] = RGB(255, 255, 0);
-    logpen.lopnColor = RGB(255, 255, 0);
-    if (continueFlag)
-            continueFlag = gYellowPen.CreatePenIndirect(&logpen);
-     * */
-    InitializeDateVersionStrings ();
+	#if defined multispec_wxmac
+		wxSystemOptions::SetOption (wxT("osx.openfiledialog.always-show-types"), 1);
+	#endif
      
-} // end "CMultiSpecApp"
+}	// end "CMultiSpecApp"
 
-/////////////////////////////////////////////////////////////////////////////
-// The one and only CMspecApp object
+IMPLEMENT_APP (CMultiSpecApp)
 
-IMPLEMENT_APP(CMultiSpecApp)
-/////////////////////////////////////////////////////////////////////////////
-BEGIN_EVENT_TABLE(CMultiSpecApp, wxApp)
-	EVT_QUERY_END_SESSION(CMultiSpecApp::OnQueryEndSession) 
-	//EVT_MENU(ID_FILE_OPEN, CMultiSpecApp::OnFileOpen)
-	EVT_MENU(ID_IMAGE_OPEN, CMultiSpecApp::OnFileOpen)
+BEGIN_EVENT_TABLE (CMultiSpecApp, wxApp)
+	EVT_CHAR_HOOK (CMultiSpecApp::OnCharHook)
+	EVT_MENU (ID_IMAGE_OPEN, CMultiSpecApp::OnFileOpen)
 			// The following event handler is in CMainFrame
-	EVT_MENU(ID_PROC_UTIL_LIST_IMAGE_DESC, CMainFrame::OnProcUtilListImageDesc)
-END_EVENT_TABLE()
+	EVT_MENU (ID_PROC_UTIL_LIST_IMAGE_DESC, CMainFrame::OnProcUtilListImageDesc)
+	EVT_QUERY_END_SESSION (CMultiSpecApp::OnQueryEndSession)
+END_EVENT_TABLE ()
 
 
 wxDocument* CMultiSpecApp::ActivateGraphView ()
@@ -285,7 +201,7 @@ wxDocument* CMultiSpecApp::ActivateGraphView ()
 
    return init_doc;
 	
-}		// end "ActivateGraphView"
+}	// end "ActivateGraphView"
 
 
 void CMultiSpecApp::ActivateProjectView ()
@@ -293,7 +209,7 @@ void CMultiSpecApp::ActivateProjectView ()
 {
    pStatisticsDocTemplate->CreateDocument(wxEmptyString, wxDOC_NEW | wxDOC_SILENT);
 	
-}		// end "ActivateProjectView"
+}	// end "ActivateProjectView"
 
 
 
@@ -306,6 +222,41 @@ wxDocument* CMultiSpecApp::ActivateListDataView ()
 	return init_doc;
 	
 }	// end "ActivateListDataView"
+
+
+//------------------------------------------------------------------------------------
+//											Copyright (1988-2016)
+//                          (c) Purdue Research Foundation
+//											All rights reserved.
+//
+//	Function name:		void ListDescriptionInformation
+//
+//	Software purpose:	The purpose of this routine is to list the descriptive
+//							information for the active image window.
+//
+//	Parameters in:		None
+//
+//	Parameters out:	None
+//
+// Value Returned:	None
+//
+// Called By:
+//
+//	Coded By:			Larry L. Biehl			Date: 03/01/1993
+//	Revised By:			Larry L. Biehl			Date: 11/26/2008
+
+wxFrame *CMultiSpecApp::CreateChildFrame(wxDocument *doc, wxView *view)
+
+{
+			// create a child frame of image display frame
+	
+	wxFrame *subframe;
+
+	subframe = new CMImageFrame(doc, view, wxStaticCast(GetTopWindow(), wxDocParentFrame));
+
+	return subframe;
+	
+}	// end "CreateChildFrame"
 
 
 
@@ -476,8 +427,33 @@ void CMultiSpecApp::MacOpenFiles (const wxArrayString & fileNames)
 #endif
 
 
+void CMultiSpecApp::OnCharHook (
+				wxKeyEvent& 									event)
+
+{
+	if (gProcessorCode == kDisplayProcessor)
+		{
+				// Note that the command (control) period is not caught here. One only gets
+				// the command key not the period. Because of this, the command period is caught
+				// using an accel entry in CMImageFrame class (1/2/2019; Larry Biehl)
+		if (event.GetKeyCode () == WXK_ESCAPE) // ||
+				//(event.GetKeyCode() == wxKeyCode('.') && event.GetModifiers () == wxMOD_CONTROL))
+			{
+			gOperationCanceledFlag = TRUE;
+			event.Skip ();
+			
+			}	// end "if (event.GetKeyCode () == WXK_ESCAPE || ..."
+		
+		}	// end "if (gProcesorCode == kDisplayProcessor)"
+	
+	else
+		event.Skip ();
+	
+}	// end "OnCharHook"
+
+
 #if !defined NetBeansProject
-int CMultiSpecApp::OnExit(void) 
+int CMultiSpecApp::OnExit (void)
 {
 	#ifndef multispec_wxmac
 		//wxDELETE(m_docManager);
@@ -498,17 +474,17 @@ int CMultiSpecApp::OnExit(void)
 	
 	return 1;
 	 
-}		// end "OnExit"
+}	// end "OnExit"
 #endif
 
 
-void CMultiSpecApp::OnFileOpen(wxCommandEvent& event)
+void CMultiSpecApp::OnFileOpen (wxCommandEvent& event)
 {
 	gProcessorCode = kOpenImageFileProcessor;
 	OpenImageFileLin (NULL, FALSE, 0);
 	gProcessorCode = 0;
 
-}		// end "OnFileOpen" 
+}	// end "OnFileOpen"
 
 
 		// CMultiSpecApp initialization
@@ -646,11 +622,11 @@ void CMultiSpecApp::OnQueryEndSession (wxCloseEvent& event)
 	if (!CloseTheProject())
 		event.Veto();
  
-}		// end "OnQueryEndSession"
+}	// end "OnQueryEndSession"
 
 
 //-----------------------------------------------------------------------------
-//				                    Copyright (1988-2016)
+//				                    Copyright (1988-2019)
 //                          (c) Purdue Research Foundation
 //                             	All rights reserved.
 //
@@ -691,47 +667,21 @@ SInt32 CMultiSpecApp::OpenImageFileLin (
 
 	return (projectFileCode);
 
-} // end "OpenImageFileLin"
+}	// end "OpenImageFileLin"
 
-
-//------------------------------------------------------------------------------------
-//											Copyright (1988-2016)
-//                          (c) Purdue Research Foundation
-//											All rights reserved.
-//
-//	Function name:		void ListDescriptionInformation
-//
-//	Software purpose:	The purpose of this routine is to list the descriptive
-//							information for the active image window.
-//
-//	Parameters in:		None
-//
-//	Parameters out:	None
-//
-// Value Returned:	None
-//
-// Called By:
-//
-//	Coded By:			Larry L. Biehl			Date: 03/01/1993
-//	Revised By:			Larry L. Biehl			Date: 11/26/2008
-
-wxFrame *CMultiSpecApp::CreateChildFrame(wxDocument *doc, wxView *view) {
-			// create a child frame of image display frame
-	wxFrame *subframe;
-
-	subframe = new CMImageFrame(doc, view, wxStaticCast(GetTopWindow(), wxDocParentFrame));
-
-	return subframe;
-}
 
 /*
-SInt16 CMultiSpecApp::GetZoomCode(void) {
+SInt16 CMultiSpecApp::GetZoomCode (void)
+
+{
     return (m_imageZoomCode);
 
-} // end "GetZoomCode"
+}	// end "GetZoomCode"
 
 
-void CMultiSpecApp::SetZoomCode(SInt16 zoomCode) 
+void CMultiSpecApp::SetZoomCode (
+				SInt16 zoomCode)
+
 {
 	m_imageZoomCode = zoomCode;
 
@@ -758,7 +708,9 @@ void CMultiSpecApp::SetZoomCode(SInt16 zoomCode)
 } // end "SetZoomCode"
 */
 /*
-void CMultiSpecApp::SetControlDelayFlag(Boolean delayFlag) {
+void CMultiSpecApp::SetControlDelayFlag (Boolean delayFlag)
+
+{
     m_controlDelayFlag = delayFlag;
 
     if (m_imageZoomCode == 0)
@@ -767,9 +719,13 @@ void CMultiSpecApp::SetControlDelayFlag(Boolean delayFlag) {
 } // end "SetControlDelayFlag"
 */
 
-Handle CMultiSpecApp::GetOpenImageFileInfoHandle() {
+
+Handle CMultiSpecApp::GetOpenImageFileInfoHandle ()
+
+{
     return m_openImageFileInfoHandle;
-} // end "GetOpenImageFileInfoHan
+	
+}	// end "GetOpenImageFileInfoHandle
 
 
 Handle CMultiSpecApp::SetUpNewImageDocument (
@@ -832,7 +788,6 @@ Handle CMultiSpecApp::SetUpNewImageDocument (
 	return (windowInfoHandle);
 	
 }	// end "SetUpNewImageDocument"
-
 
 /*
 //----------------------------------------------------------------------------
@@ -939,26 +894,144 @@ wxString wxFileSelectorEx(const wxString& title,
 */
 
 
-wxFrame* GetActiveFrame(void) 
+
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2018)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		CheckSomeEvents
+//
+//	Software purpose:	This routine is a stub for the Windows version.
+//
+//	Parameters in:
+//
+//	Parameters out:
+//
+//	Value Returned:	None
+//
+// Called By:
+//
+//	Coded By:			Larry L. Biehl			Date: 08/11/1995
+//	Revised By:			Larry L. Biehl			Date: 01/02/2019
+
+Boolean CheckSomeEvents (
+				UInt16								code)
+
+{
+	CShortStatusDlg* 					statusDialogPtr = NULL;
+	
+	UInt32								count = 0;
+	
+	Boolean								returnFlag = TRUE,
+											yieldForReturnFlag = true;
+
+
+	//if (wxGetKeyState (WXK_ESCAPE))
+	//	returnFlag = FALSE;
+
+	//if ((wxGetKeyState (WXK_COMMAND) & wxGetKeyState (wxKeyCode('.'))) ||
+	//				wxGetKeyState (WXK_ESCAPE))
+
+	//CMainFrame* pMainFrame = (CMainFrame*) wxGetApp ().GetTopWindow ();
+	//if (wxGetKeyState (WXK_ESCAPE) || pMainFrame->GetCancelOperationEventFlag ())
+	
+				// Handle other user interface events in the queue
+	
+	wxEventLoopBase* eventLoopBasePtr = wxEventLoopBase::GetActive ();
+	if (eventLoopBasePtr != NULL)
+		{
+		while (count<3 && yieldForReturnFlag)
+			{
+			yieldForReturnFlag = eventLoopBasePtr->YieldFor (wxEVT_CATEGORY_UI);
+			count++;
+				
+			}	// end "while (count<5 && returnFlag)"
+		/*
+		int numberChars = sprintf ((char*)&gTextString3,
+											" CStubs:CheckSomeEvents (count): %d%s",
+											count,
+											gEndOfLine);
+		ListString ((char*)&gTextString3, numberChars, gOutputTextH);
+		*/
+		}	// end "if (eventLoopBasePtr != NULL)"
+	
+	statusDialogPtr = (CShortStatusDlg*)gStatusDialogPtr;
+	if (statusDialogPtr != NULL)
+		{
+		returnFlag = !statusDialogPtr->m_canceledCommandInitiatedFlag;
+
+		if (!returnFlag || gOperationCanceledFlag)
+			{
+			if (gAlertId != 0 && !gOperationCanceledFlag)
+				{
+				//eventLoopBasePtr->Yield (false);
+				gAlertReturnCode = DisplayAlert (gAlertId,
+															 kCautionAlert,
+															 gAlertStrID,
+															 gAlertStringNumber,
+															 0,
+															 NULL);
+				
+				}	// end "if (gAlertId != 0 && !gOperationCanceledFlag"
+
+			gOperationCanceledFlag = TRUE;
+			if (gAlertId == 0 || gAlertReturnCode == 3)
+						// Quit immediately.
+																							return (FALSE);
+
+			gOperationCanceledFlag = FALSE;
+
+			if (gAlertReturnCode == 2)
+						// Cancel the quit request.
+				gAlertReturnCode = 0;
+
+			returnFlag = TRUE;
+			
+			if (statusDialogPtr != NULL)
+				statusDialogPtr->m_canceledCommandInitiatedFlag = FALSE;
+
+			}	// end "if (!returnFlag || gOperationCanceledFlag)"
+		
+		}	// end "if (statusDialogPtr != NULL)"
+	
+	else	// statusDialogPtr == NULL
+		{
+		returnFlag = !gOperationCanceledFlag;
+		
+		}	// end "else statusDialogPtr == NULL"
+
+	gNextTime = GetTickCount () + gTimeOffset;
+	
+	return (returnFlag);
+
+}	// end "CheckSomeEvents"
+
+
+
+wxFrame* GetActiveFrame (void)
+
 { 
 	wxFrame* frame = NULL;
 	int		height,
 				width;
 	
 	
-	if (gOutputViewCPtr != NULL && (WindowPtr)gOutputViewCPtr == gTheActiveWindow) {
+	if (gOutputViewCPtr != NULL && (WindowPtr)gOutputViewCPtr == gTheActiveWindow)
+		{
 		gOutputViewCPtr->m_frame->GetClientSize (&width, &height);
 		if (width > 0 && height > 0)
 			frame = gOutputViewCPtr->m_frame;
 			
-		}
+		}	// end "if (gOutputViewCPtr != NULL && ..."
 	
-	if (frame == NULL && gActiveImageViewCPtr != NULL) {
+	if (frame == NULL && gActiveImageViewCPtr != NULL)
+		{
 		gActiveImageViewCPtr->m_frame->GetClientSize (&width, &height);
 		if (width > 0 && height > 0)
 			frame = gActiveImageViewCPtr->m_frame;
 			
-		}
+		}	// end "if (frame == NULL && ..."
 		
 	if (frame == NULL)
 		frame = pMainFrame;
@@ -968,13 +1041,17 @@ wxFrame* GetActiveFrame(void)
 }	// end "GetActiveChildFrame"
 
 
-CMainFrame *GetMainFrame(void) 
+
+CMainFrame* GetMainFrame (void)
+
 {
     return pMainFrame;
-}
+	
+}	// end "GetMainFrame"
 
 
 time_t LinGetTime ()
+
 {
 	time_t		returnValue = 1;
 	
@@ -986,23 +1063,31 @@ time_t LinGetTime ()
 		}		// end "if (clock_gettime (CLOCK_MONOTONIC, &tp) == 0)"
 	
 	return (returnValue);
-}
+	
+}	// end "LinGetTime"
 
 
-void FileUploadProcess::OnTerminate(int pid, int status)
+void FileUploadProcess::OnTerminate (
+				int pid,
+				int status)
+
 {
 	int numberChars;
 	
-	
-//	wxLogStatus(m_parent, wxT("Process %u ('%s') terminated with exit code %d."),
-//					pid, m_cmd.c_str(), status);
-
+	/*
+	wxLogStatus (m_parent,
+						wxT("Process %u ('%s') terminated with exit code %d."),
+						pid,
+						m_cmd.c_str(),
+						status);
+	*/
 	if (status == 0)
 		numberChars = sprintf ((char*)&gTextString3,
 										"%sSelected file was uploaded successfully%s",
 										gEndOfLine,
 										gEndOfLine);
-	else		// status != 0
+	
+	else	// status != 0
 		numberChars = sprintf ((char*)&gTextString3,
 										"%sSelected file was not uploaded successfully%s",
 										gEndOfLine,
@@ -1012,4 +1097,4 @@ void FileUploadProcess::OnTerminate(int pid, int status)
 	
 	pMainFrame->OnAsyncTermination (this);
 
-}		// end "OnTerminate"
+}	// end "OnTerminate"

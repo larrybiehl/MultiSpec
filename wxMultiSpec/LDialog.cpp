@@ -1,3 +1,5 @@
+
+
 //	 									MultiSpec
 //
 //					Laboratory for Applications of Remote Sensing
@@ -159,7 +161,7 @@ CMDialog::~CMDialog ()
 
 
 BEGIN_EVENT_TABLE (CMDialog, wxDialog)
-	EVT_CHAR_HOOK (CMDialog::OnButtonPress)
+	EVT_CHAR_HOOK (CMDialog::OnCharHook)
 END_EVENT_TABLE ()
 
 
@@ -1126,20 +1128,20 @@ void CMDialog::MShowDialogItem (
 
 
 
-void CMDialog::OnButtonPress (
+void CMDialog::OnCharHook (
 				wxKeyEvent&							event)
 {
-	if (event.GetKeyCode () == WXK_RETURN)
+	if (event.GetKeyCode () == WXK_RETURN || event.GetKeyCode () == WXK_NUMPAD_ENTER)
 		{
 		if (Validate () && TransferDataFromWindow ())
 			this->EndModal (wxID_OK);
 		
-		}	// end "if (event.GetKeyCode () == WXK_RETURN)"
+		}	// end "if (event.GetKeyCode () == WXK_RETURN || ..."
 	
 	else
 		event.Skip();
 	
-}	// end "OnButtonPress"
+}	// end "OnCharHook"
 
 
 
@@ -1165,6 +1167,60 @@ void CMDialog::OnFeatureTransformation ()
 
 }	// end "OnFeatureTransformation"
 
+
+/*
+void wxWidgetsDialog::OnKey(wxKeyEvent &event)
+{
+  wxWindow *win = FindFocus();
+  if(win == NULL){
+     event.Skip ();
+     return;
+  }
+
+  if(event.GetKeyCode()==WXK_RETURN){
+      switch(win->GetId()){
+     case ID_BUTTON1:
+           wxMessageBox("Button1");
+           break;
+      case ID_BUTTON2:
+           wxMessageBox("Button2");
+           break;
+      case ID_BUTTON3:
+           wxMessageBox("Button3");
+          Destroy();
+           break;
+   }
+   event.Skip ();
+  }
+
+  if(event.GetKeyCode() == WXK_TAB){
+    bool backward = event.ShiftDown();
+   switch (win->GetId()){
+     case ID_BUTTON1:
+          if(backward)
+            FindWindow(ID_BUTTON3)->SetFocus();
+          else
+            FindWindow(ID_BUTTON2)->SetFocus();
+          return;
+
+      case ID_BUTTON2:
+          if(backward)
+            FindWindow(ID_BUTTON1)->SetFocus();
+          else
+            FindWindow(ID_BUTTON3)->SetFocus();
+          return;
+
+      case ID_BUTTON3:
+          if(backward)
+            FindWindow(ID_BUTTON2)->SetFocus();
+          else
+            FindWindow(ID_BUTTON1)->SetFocus();
+          return;
+   }
+  }
+  event.Skip ();
+}
+*/
 
 
 void CMDialog::OnSelendokClassCombo (

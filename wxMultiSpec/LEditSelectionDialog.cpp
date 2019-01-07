@@ -301,7 +301,7 @@ void CMEditCoordinatesDlg::CreateControls ()
 	fgSizer20->Add (m_staticText318, wxSizerFlags(0).Align(wxALIGN_CENTER_VERTICAL).Border(wxTOP|wxRIGHT|wxBOTTOM, 5));
 
 	m_textCtrl182 = new wxTextCtrl(this, IDC_NewLineStart);//, wxT("1"), wxDefaultPosition, wxSize( 120,-1 ), 0);
-	m_textCtrl182->SetSize(wxSize(120,-1));
+	m_textCtrl182->SetSize (wxSize(120,-1));
    SetUpToolTip(m_textCtrl182, IDS_ToolTip317);
    //m_textCtrl182->SetValidator(wxTextValidator(wxFILTER_NUMERIC, &m_stringCheck));
 	fgSizer20->Add(m_textCtrl182, 0, wxALIGN_CENTER | wxALL, 5);
@@ -349,7 +349,7 @@ void CMEditCoordinatesDlg::CreateControls ()
 	fgSizer201->Add (m_staticText3181, wxSizerFlags(0).Align(wxALIGN_CENTER_VERTICAL).Border(wxTOP|wxRIGHT|wxBOTTOM, 5));
 
 	m_textCtrl1821 = new wxTextCtrl(this, IDC_NewColumnStart);//, wxT("1"), wxDefaultPosition, wxSize( 120,-1 ), 0);
-	m_textCtrl1821->SetSize(wxSize(120,-1));
+	m_textCtrl1821->SetSize (wxSize(120,-1));
    SetUpToolTip(m_textCtrl1821, IDS_ToolTip319);
    //m_textCtrl1821->SetValidator(wxTextValidator(wxFILTER_NUMERIC, &m_stringCheck));
 	fgSizer201->Add(m_textCtrl1821, 0, wxALIGN_CENTER | wxALL, 5);

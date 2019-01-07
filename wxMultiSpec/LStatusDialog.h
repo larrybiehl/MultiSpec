@@ -1,7 +1,7 @@
 // LStatusDialog.h : header file
 // CShortStatusDlg dialog 
 //
-// Revised by Larry Biehl on 06/21/2017
+// Revised by Larry Biehl on 01/02/2019
 //
 
 #include "SMultiSpec.h"
@@ -12,25 +12,23 @@
 
 typedef long unsigned int UINT;
 
-class CShortStatusDlg : public CMDialog {
-    DECLARE_DYNAMIC_CLASS( CShortStatusDlg )
+class CShortStatusDlg : public CMDialog
+	{
+	DECLARE_DYNAMIC_CLASS (CShortStatusDlg)
     // Construction
 public:
-    CShortStatusDlg();
-    CShortStatusDlg(UInt16 identifier, wxWindow* pParent = NULL); // standard constructor
+    CShortStatusDlg ();
+    CShortStatusDlg (UInt16 identifier, wxWindow* pParent = NULL); // standard constructor
 
-    //	Boolean			Initialize(void);
+    Boolean				m_initializedFlag,
+    						m_canceledCommandInitiatedFlag;
 
-    Boolean m_initializedFlag;
-
-    // Dialog Data
-    //{{AFX_DATA(CShortStatusDlg)
+    		// Dialog Data
 
     enum {
         IDD = IDD_GraphicsStatus
     };
-    // NOTE: the ClassWizard will add data members here
-    //}}AFX_DATA
+
     wxBoxSizer* bSizer35;
     wxBoxSizer* bSizer93;
     wxBoxSizer* bSizer195;
@@ -72,21 +70,18 @@ protected:
     wxGauge* m_gauge3;
     wxButton* m_button28;
     wxButton* m_button6;
-    // Generated message map functions
-    //{{AFX_MSG(CShortStatusDlg)
-    void OnInitDialog(wxInitDialogEvent& event);
-    //void OnButtonPress(wxKeyEvent& event);
-    //virtual void OnCancel();
-    void CreateControl();
-    void CreateControl_Short();
-    void CreateControl_Graphics();
-    //}}AFX_MSG
-    DECLARE_EVENT_TABLE()
 
-    // Overrides
-    //void PostNcDestroy();
+    void CreateControl ();
+    void CreateControl_Short ();
+    void CreateControl_Graphics ();
+	void OnInitDialog (wxInitDialogEvent& event);
+
+    DECLARE_EVENT_TABLE()
 
     // Implementation
 private:
+	virtual void OnCharHook (wxKeyEvent& event);
+	void OnClose (wxCloseEvent& event);
+	void OnKeyDown (wxKeyEvent& event);
 
 };

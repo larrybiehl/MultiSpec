@@ -58,7 +58,7 @@ protected:
     void OnSelendokChannelComboDropDown(wxCommandEvent& event);    
     void OnBackgroundColor(wxCommandEvent& event);
     void OnPaint();
-	 void OnButtonPress(wxKeyEvent& event);
+	 void OnCharHook (wxKeyEvent& event);
     //}}AFX_MSG
     //DECLARE_MESSAGE_MAP()
     DECLARE_EVENT_TABLE()

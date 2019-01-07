@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//							 Copyright (1988-2018)
+//							 Copyright (1988-2019)
 //						(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -12,7 +12,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			11/19/2018
+//	Revision date:			01/04/2019
 //
 //	Language:				C++
 //
@@ -61,7 +61,17 @@ class CMImageFrame : public wxDocChildFrame
     DECLARE_DYNAMIC_CLASS(CMImageFrame)
 
 private:
+	void 	DoZoomIn (
+				wxMouseEvent&							event);
+	
+	void 	DoZoomOut (
+				wxMouseEvent&							event);
+	
+	void 	DoZoomToOne (
+				wxMouseEvent&							event);
+	
 	void OnActivate(wxActivateEvent& event);
+	void OnCancelDraw (wxCommandEvent& event);
 	
 	void OnClose(wxCommandEvent& event);
 	
@@ -70,14 +80,13 @@ private:
 	
 	void OnFileSave(wxCommandEvent& event);
 	void OnFileSaveAs(wxCommandEvent& event);
-	//void OnFocus(wxActivateEvent& event);
 	void OnFocus(wxFocusEvent& event);
-	
+	void OnMouseWheel (wxMouseEvent& event);
 	void OnRefresh(wxCommandEvent& event);
 	void OnSize(wxSizeEvent& event);
         
-        void OnMaximizeWindow(wxMaximizeEvent& event);
-        void GetMinimumDisplaySizeForImage (Handle windowInfoHandle,LongPoint* minimumWindowSizePointPtr);
+	void OnMaximizeWindow(wxMaximizeEvent& event);
+	void GetMinimumDisplaySizeForImage (Handle windowInfoHandle,LongPoint* minimumWindowSizePointPtr);
 	void OnSashDrag(wxSashEvent& event);
 	
 	void OnUpdateFileCloseWindow(wxUpdateUIEvent& pCmdUI);
@@ -115,6 +124,11 @@ protected:
     wxMenu* m_menu5;
     wxMenu* windowmenu;
     wxMenu* helpmenu;
+	
+#if defined multispec_wxmac
+	wxToolBar* 					m_toolBar;
+#endif
+
 #ifndef multispec_wxmac
     enum{
       ID_FILE_SAVE,

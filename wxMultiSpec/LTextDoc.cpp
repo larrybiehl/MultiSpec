@@ -1,4 +1,4 @@
-// Revised by Larry Biehl on 02/17/2016
+// Revised by Larry Biehl on 01/06/2019
 
 #include "wx/wxprec.h"
 
@@ -26,41 +26,42 @@
 IMPLEMENT_DYNAMIC_CLASS(CMTextDoc, wxDocument)
 
 
-bool CMTextDoc::Close()
+bool CMTextDoc::Close ()
+
 {
-		// The application is closing. First determine whether any project needs to be
-		// saved and give the user a chance to cancel the shutdown.
+			// The application is closing. First determine whether any project needs to be
+			// saved and give the user a chance to cancel the shutdown.
 		
-	if (CloseTheProject())
+	if (CloseTheProject ())
 		{
-		CMTextView *view = (CMTextView *)GetFirstView();
-		if (IsModified() && view->m_textsw->GetNumberOfLines() > 2) {
+		CMTextView *view = (CMTextView*)GetFirstView ();
+		if (IsModified () && view->m_textsw->GetNumberOfLines () > 2)
+			{
 			/*
-			if (LoadSpecifiedStringNumberStringP (
-									kAlertStrID,
-									IDS_Alert54,
-									(char*)gTextString,
-									(char*)gTextString2,
-									TRUE,
-									(char*)&gTextString3[1]))
+			if (LoadSpecifiedStringNumberStringP (kAlertStrID,
+																IDS_Alert54,
+																(char*)gTextString,
+																(char*)gTextString2,
+																TRUE,
+																(char*)&gTextString3[1]))
 				itemHit = DisplayAlert (kSaveAlertID, kStopAlert, 0, 0, 0, gTextSTring);
 				
-				if (itemHit == 1)
-					return Save();
+			if (itemHit == 1)
+				return Save();
 				
-				if (itemHit == 2)
-					closeFlag = false;
+			if (itemHit == 2)
+				closeFlag = false;
 			*/
 			//printf("before saving text window\n");
 			
 			switch (wxMessageBox (
-							wxString::Format(_("Do you want to save changes to %s?"), 
-							GetUserReadableName()),
-							wxTheApp->GetAppDisplayName(),
-							wxYES_NO | wxCANCEL | wxICON_QUESTION | wxCENTRE | wxSTAY_ON_TOP ) )
+								wxString::Format(_("Do you want to save changes to %s?"),
+								GetUserReadableName ()),
+							wxTheApp->GetAppDisplayName (),
+							wxYES_NO | wxCANCEL | wxICON_QUESTION | wxCENTRE | wxSTAY_ON_TOP ))
 				{
 				case wxNO:
-					Modify(false);
+					Modify (false);
 					break;
 
 				case wxYES:
@@ -69,18 +70,18 @@ bool CMTextDoc::Close()
 				case wxCANCEL:
 					return false;
 						 
-				}		// end "switch (wxMessageBox (... "
+				}	// end "switch (wxMessageBox (... "
 				
 			}	// end "if (IsModified() && gOutputViewCPtr->..."
 			
-		}		// end "if (CloseTheProject())"
+		}	// end "if (CloseTheProject ())"
 		
-	else		// !CloseTheProject()
+	else	// !CloseTheProject ()
 		return false;
 		
    return true;
 	
-}		// end "Close"
+}	// end "Close"
 
 
 bool CMTextDoc::IsModified(void) const
@@ -119,28 +120,34 @@ bool CMTextDoc::OnOpenDocument(const wxString& filename)
 }
 
 
-// Since text windows have their own method for saving to/loading from files,
-// we override OnSave/OpenDocument instead of Save/LoadObject
-bool CMTextDoc::OnSaveDocument(const wxString& filename)
+		// Since text windows have their own method for saving to/loading from files,
+		// we override OnSave/OpenDocument instead of Save/LoadObject
+
+bool CMTextDoc::OnSaveDocument (const wxString& filename)
+
 {
-	CMTextView *view = (CMTextView *)GetFirstView();
+	CMTextView *view = (CMTextView*)GetFirstView ();
 	 
 			// writing this to the output text window never worked.
 	
-	SInt16 numberChars = sprintf ((char*)&gTextString3,
+	SInt16 numberChars = sprintf ((char*)gTextString3,
 												" default output file name: %s%s",
-												(char*)&filename, 
+												(const char*)filename.mb_str (wxConvUTF8),
 												gEndOfLine);
-	ListString ((char*)&gTextString3, numberChars, gOutputTextH);
+	ListString ((char*)gTextString3, numberChars, gOutputTextH);
 	
-	if (!view->m_textsw->SaveFile(filename))
+	if (!view->m_textsw->SaveFile (filename))
 		return false;
-	Modify(false);
+	
+	Modify (false);
 	return true;
-}		// end "OnSaveDocument"
+	
+}	// end "OnSaveDocument"
+
 
 /*
-bool CMTextDoc::SaveAs()
+bool CMTextDoc::SaveAs ()
+
 {
 	wxBell();
     wxDocTemplate *docTemplate = GetDocumentTemplate();

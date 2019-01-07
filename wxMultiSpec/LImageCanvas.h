@@ -75,17 +75,17 @@ public:
     bool updatedbmp;
 
 private:
-    void OnPaint(wxPaintEvent& event);
-    void OnIdle(wxIdleEvent& event);
-    void OnEraseBackground(wxEraseEvent& event);
+    void OnPaint (wxPaintEvent& event);
+    void OnIdle (wxIdleEvent& event);
+    void OnEraseBackground (wxEraseEvent& event);
 	 //void OnKeyDown(wxKeyEvent& event);
-    void OnLeftDown(wxMouseEvent& event);
-    void OnLeftUp(wxMouseEvent& event);
-    void OnDlbClk(wxMouseEvent& event);
-    void OnLeaveImageWindow(wxMouseEvent& event);
-    void OnMotion(wxMouseEvent& event);
-    void OnScrollChanged(wxScrollWinEvent& event);
-    void OnButtonPress(wxKeyEvent& event) ;
+    void OnLeftDown (wxMouseEvent& event);
+    void OnLeftUp (wxMouseEvent& event);
+    void OnDlbClk (wxMouseEvent& event);
+    void OnLeaveImageWindow (wxMouseEvent& event);
+    void OnMotion (wxMouseEvent& event);
+    void OnScrollChanged (wxScrollWinEvent& event);
+    void OnCharHook (wxKeyEvent& event) ;
     DECLARE_EVENT_TABLE()
 };
 

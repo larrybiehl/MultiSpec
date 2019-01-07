@@ -126,21 +126,26 @@ bool CMImageDoc::Close()
 	
 }		// end "Close"
 
+/*
+bool CMImageDoc::DoOpenDocument (const wxString& file)
 
-bool CMImageDoc::DoOpenDocument(const wxString& file){
-}
-
-
-void CMImageDoc::Draw( CDC* pDC, CMImageView* pImageView)
 {
-   wxNode* pos = m_objects.First();
-    while (pos) {
-        CMDrawObject* object = (CMDrawObject*) pos->Data();
-        object->Draw(pDC, pImageView);
-        pos = pos->Next();
-    } // end "while (pos != NULL)"
+}
+*/
 
-} // end "Draw"
+void CMImageDoc::Draw (CDC* pDC, CMImageView* pImageView)
+
+{
+	wxNode* pos = m_objects.First();
+	while (pos)
+    	{
+		CMDrawObject* object = (CMDrawObject*)pos->Data();
+		object->Draw(pDC, pImageView);
+		pos = pos->Next();
+		
+    	}	// end "while (pos != NULL)"
+
+}	// end "Draw"
 
 
 Boolean CMImageDoc::GetCoordinateFlag()
@@ -242,7 +247,7 @@ bool CMImageDoc::OnOpenDocument(
 } // end "OnOpenDocument"
 
 
-Boolean CMImageDoc::OnViewCoordinatesBar()
+Boolean CMImageDoc::OnViewCoordinatesBar ()
 {
     m_displayCoordinatesFlag = !m_displayCoordinatesFlag;
 

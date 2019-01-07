@@ -42,7 +42,7 @@
 		void OnSelendokClassList(wxCommandEvent& event);
 		void OnFieldType(wxCommandEvent& event);
 		void CheckLength(wxCommandEvent& event);
-		void OnButtonPress(wxKeyEvent& event);
+		void OnCharHook (wxKeyEvent& event);
 		void CreateControls();
 		DECLARE_EVENT_TABLE()
 

@@ -1,6 +1,6 @@
 // LMainFrame.h
 //
-// Revised by Larry L Biehl    12/12/2018
+// Revised by Larry L Biehl    01/04/2019
 
 #ifndef __LMainFrame__
 #	define __LMainFrame__
@@ -51,8 +51,8 @@ class CMainFrame : public wxDocParentFrame
 		wxToolBar*					m_toolBar1;
 		wxToolBarToolBase*		m_zoomInTool;
 		wxToolBarToolBase*		m_zoomOutTool;
+		UInt32 						m_nextControlTime;
 
-		UInt32						m_nextControlTime;
 		SInt16						m_imageZoomCode;
 		Boolean						m_controlDelayFlag;
 		Boolean						m_TOOL_PARAMETER_file_flag;
@@ -161,7 +161,6 @@ class CMainFrame : public wxDocParentFrame
 	void OnZoomInMouseDown(wxMouseEvent& event);
 	void OnZoomInMouseDown2(wxCommandEvent& event);
 	void ActiveViewUpdate(wxCommandEvent& event);
-	void OnShowOverlay(wxCommandEvent& event);
 
 	void OnUpdateZoomIndicator(wxUpdateUIEvent& pCmdUI);
 	void OnUpdateEditImageMapParameters(wxUpdateUIEvent& pCmdUI);
@@ -305,10 +304,12 @@ class CMainFrame : public wxDocParentFrame
 	
 		Boolean	GetCancelOperationEventFlag (void);
 		SInt16 GetZoomCode (void);
+		void OnShowOverlay(wxCommandEvent& event);
 		void OnAsyncTermination (FileUploadProcess *process);
       void OnOptionsSwitchcrosscursor(wxCommandEvent& event);
 		void OnOverlaySelection(wxCommandEvent& event);
 		void OnProcUtilListImageDesc(wxCommandEvent& event);
+		void SetNextControlTime (UInt32 offset);
 		void SetZoomCode(SInt16 zoomCode);
 		void SetToolParametersFlag(Boolean TOOL_PARAMETER_file_flag);
 		void UpdateStatusBar(double magnification);

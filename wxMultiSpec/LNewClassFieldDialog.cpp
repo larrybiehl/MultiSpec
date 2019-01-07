@@ -85,7 +85,7 @@ EVT_RADIOBUTTON(IDC_Training, CMNewClassFieldDlg::OnFieldType)
 //EVT_TEXT(IDC_FieldName, CMNewClassFieldDlg::OnEditFieldName)
 EVT_TEXT_MAXLEN(IDC_ClassName, CMNewClassFieldDlg::CheckLength)
 EVT_TEXT_MAXLEN(IDC_FieldName, CMNewClassFieldDlg::CheckLength)
-EVT_CHAR_HOOK(CMNewClassFieldDlg::OnButtonPress)
+EVT_CHAR_HOOK(CMNewClassFieldDlg::OnCharHook)
 END_EVENT_TABLE()
 
 
@@ -201,7 +201,7 @@ void CMNewClassFieldDlg::CreateControls ()
 
 
 //Press keyboard "Enter"  -> wxID_OK
-void CMNewClassFieldDlg::OnButtonPress (wxKeyEvent& event)
+void CMNewClassFieldDlg::OnCharHook (wxKeyEvent& event)
 
 {
 	if (event.GetKeyCode() == WXK_RETURN)
@@ -216,7 +216,7 @@ void CMNewClassFieldDlg::OnButtonPress (wxKeyEvent& event)
 		
     	}
 	
-}	// end "OnButtonPress"
+}	// end "OnCharHook"
 
 
 

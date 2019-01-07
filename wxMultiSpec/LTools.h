@@ -51,7 +51,7 @@ public:
 
     // Overridables
 
-    virtual void OnButtonPress();
+    virtual void OnCharHook ();
 
     virtual void OnLButtonDown(
             CMImageView* pView,
@@ -72,11 +72,11 @@ public:
             CMImageView* pView,
             UInt16 nFlags,
             const CPoint point);
-
-    virtual void OnChar(
+	/*
+	virtual void OnChar(
             CMImageView* pView,
             unsigned int nChar);
-
+	*/
     /*UINT SetTimer(
         HWND hWnd,	// handle of window for timer messages
         UINT nIDEvent,	// timer identifier
@@ -138,11 +138,11 @@ public:
     virtual void OnLButtonDblClk(
             CMImageView* pView,
             UInt16 nFlags);
-
+	/*
     virtual void OnChar(
             CMImageView* pView,
             unsigned int nChar);
-
+	*/
     static Rect s_viewRect;
 
     static Boolean s_initPolygonFlag;

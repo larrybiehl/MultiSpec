@@ -105,9 +105,9 @@ class CMDialog : public wxDialog
    // Implementation
 protected:
    
-   void OnButtonPress(wxKeyEvent& event);
-   void ResetComboBox(int controlID);
-   //        void ResetClassComboBox(int controlID);
+   void OnCharHook (wxKeyEvent& event);
+   void ResetComboBox (int controlID);
+   //void ResetClassComboBox(int controlID);
    DECLARE_EVENT_TABLE();
    
    void CheckColumnEnd(wxCommandEvent& event);

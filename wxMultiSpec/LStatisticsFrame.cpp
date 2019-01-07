@@ -1,6 +1,6 @@
 // LStatisticsFrame.cpp : implementation file
 //
-// Revised by Larry Biehl on 12/12/2018
+// Revised by Larry Biehl on 01/03/2019
 //
 /*  Template for writing something to text window for debugging.             
 	int numberChars = sprintf ((char*)&gTextString3,
@@ -541,8 +541,10 @@ void CMStatisticsFrame::OnAddToList(wxCommandEvent& event)
 
 } // end "OnAddToList"
 
-#ifndef multispec_lin
-void CMStatisticsFrame::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags) {
+/*
+void CMStatisticsFrame::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags)
+
+{
    Boolean charHandledFlag = FALSE;
 
    if (nChar == 0x08)
@@ -550,7 +552,7 @@ void CMStatisticsFrame::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags) {
 
    CFormView::OnChar(nChar, nRepCnt, nFlags);
 }
-#endif
+*/
 
 void CMStatisticsFrame::OnClass(wxCommandEvent& event) 
 {

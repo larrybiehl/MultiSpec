@@ -474,6 +474,7 @@ bool CMOpenFileDialog::DoDialog (int stringIndex, long style)
    dialog.SetMinSize (wxSize (600, 300));
    //wxString wildcard (&gTextString[1], wxConvUTF8);
    dialog.SetWildcard (wildcard);
+   dialog.SetFilterIndex (1);
    
 			// Create additional panel in the file dialog window
 	

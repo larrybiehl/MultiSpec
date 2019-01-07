@@ -138,7 +138,7 @@ BEGIN_EVENT_TABLE (CMDisplayThematicDlg, CMDialog)
 	EVT_BUTTON (IDC_BackgroundColor, CMDisplayThematicDlg::OnBackgroundColor)
 	EVT_BUTTON (IDEntireImage, CMDisplayThematicDlg::ToEntireImage)
 	EVT_BUTTON (IDSelectedImage, CMDisplayThematicDlg::ToSelectedImage)
-	EVT_CHAR_HOOK (CMDisplayThematicDlg::OnButtonPress)
+	EVT_CHAR_HOOK (CMDisplayThematicDlg::OnCharHook)
 	EVT_COMBOBOX (IDC_PaletteCombo, CMDisplayThematicDlg::OnSelendokPaletteCombo)
 	EVT_COMBOBOX (IDC_ClassesGroupsCombo, CMDisplayThematicDlg::OnSelendokClassesGroupsCombo)
 	EVT_COMBOBOX_DROPDOWN (IDC_ClassesGroupsCombo, CMDisplayThematicDlg::OnSelendokChannelComboDropDown)
@@ -642,7 +642,7 @@ void CMDisplayThematicDlg::OnBackgroundColor (
 
 		//Press keyboard "Enter"  -> wxID_OK
 
-void CMDisplayThematicDlg::OnButtonPress (
+void CMDisplayThematicDlg::OnCharHook (
 				wxKeyEvent& event)
 	{
 	if (event.GetKeyCode() == WXK_RETURN)
@@ -656,7 +656,7 @@ void CMDisplayThematicDlg::OnButtonPress (
 		event.Skip();
 		}
 	
-}	// end "OnButtonPress"
+}	// end "OnCharHook"
 
 
 

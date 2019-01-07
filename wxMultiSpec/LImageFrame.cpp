@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 // 								Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (2009-2018)
+//								 Copyright (2009-2019)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -12,7 +12,7 @@
 //
 //	Authors:					Larry L. Biehl, Wei-Kang Hsu, Tsung Tai Yeh
 //
-//	Revision date:			12/12/2018
+//	Revision date:			01/05/2019
 //
 //	Language:				C++
 //
@@ -32,6 +32,8 @@
 #include "LMultiSpec.h"
 #include "LImageFrame.h"
 #include "LImageDoc.h"
+
+#include "wx/display.h"
 
 #ifdef multispec_wxmac
 	//#include "Resources/overlay_24.png"
@@ -55,6 +57,9 @@ BEGIN_EVENT_TABLE (CMImageFrame, wxDocChildFrame)
 	EVT_MENU (ID_VIEW_COORDINATES_BAR, CMImageFrame::OnViewCoordinatesBar)
 	EVT_MENU (ID_WINDOW_NEW_SELECTION_GRAPH, CMImageFrame::OnWindowNewSelectionGraph)
 	EVT_MENU (ID_WINDOW_SHOW_COORDINATE_VIEW, CMImageFrame::OnWindowShowCoordinateView)
+	EVT_MENU (ID_CANCEL_DRAW, CMImageFrame::OnCancelDraw)
+
+	EVT_MOUSEWHEEL (CMImageFrame::OnMouseWheel)
 
 	EVT_SASH_DRAGGED_RANGE (ID_WINDOW_TOP, ID_WINDOW_LEFT, CMImageFrame::OnSashDrag)
 
@@ -103,12 +108,14 @@ CMImageFrame::CMImageFrame (
 			// Initialize variables
 	
 	#if defined multispec_wxmac
-	
-		wxBitmap overlayi = wxBITMAP_PNG(overlay_24);
-		wxBitmap zoom1 = wxBITMAP_PNG(zoomx1_24);
-		wxBitmap zoomout = wxBITMAP_PNG(zoom_out_24);
-		wxBitmap zoomin = wxBITMAP_PNG(zoom_in_24);
-	
+		//wxBitmap overlayi = wxBITMAP_PNG(overlay_24);
+		//wxBitmap zoom1 = wxBITMAP_PNG(zoomx1_24);
+		//wxBitmap zoomout = wxBITMAP_PNG(zoom_out_24);
+		//wxBitmap zoomin = wxBITMAP_PNG(zoom_in_24);
+		wxBitmap overlayi = wxBITMAP_PNG(overlay);
+		wxBitmap zoom1 = wxBITMAP_PNG(zoomx1);
+		wxBitmap zoomout = wxBITMAP_PNG(zoom_out);
+		wxBitmap zoomin = wxBITMAP_PNG(zoom_in);
 	#else
 		wxBitmap overlayi = wxBITMAP_PNG_FROM_DATA(overlay);
 		wxBitmap zoom1 = wxBITMAP_PNG_FROM_DATA(zoomx1);
@@ -169,56 +176,102 @@ CMImageFrame::CMImageFrame (
 	m_mainWindow = win;
 	
 	#if defined multispec_wxmac
-		wxToolBar* l_toolBar = CreateToolBar (wxTB_HORIZONTAL, wxID_ANY);
-		l_toolBar->SetToolBitmapSize (wxSize (24, 24));
-		l_toolBar->AddTool (ID_MAGNIFICATION,
+		m_toolBar = CreateToolBar (wxTB_HORIZONTAL, wxID_ANY);
+		m_toolBar->SetToolBitmapSize (wxSize (16, 16));
+		/*
+		m_toolBar->AddTool (ID_MAGNIFICATION,
 									wxT("tool"),
 									zoom1,
 									wxNullBitmap,
 									wxITEM_NORMAL,
 									wxT("Zoom image to X1.0 magnification"),
 									wxEmptyString);
+		*/
+   	wxBitmapButton* bpButtonX1 = new wxBitmapButton (m_toolBar,
+																				ID_MAGNIFICATION,
+																				zoom1,
+																				wxDefaultPosition,
+																				//wxDefaultSize,
+																				wxSize (16, 16),
+																				wxBORDER_NONE+wxBU_EXACTFIT);
+   	bpButtonX1->SetToolTip (wxT("Zoom image to X1.0 magnification"));
+		bpButtonX1->Bind (wxEVT_LEFT_DOWN, &CMImageFrame::DoZoomToOne, this);
+		m_toolBar->AddControl (bpButtonX1);
 	
-		//wxToolBarToolBase* zoomInTool = l_toolBar->AddTool (ID_ZOOM_IN,
-		l_toolBar->AddTool (ID_ZOOM_IN,
+		/*
+		m_toolBar->AddTool (ID_ZOOM_IN,
 									wxT("tool"),
 									zoomin,
 									wxNullBitmap,
 									wxITEM_NORMAL,
 									wxT("Zoom into image"),
 									wxEmptyString);
-	
-		//wxToolBarToolBase* zoomOutTool = l_toolBar->AddTool (ID_ZOOM_OUT,
-		l_toolBar->AddTool (ID_ZOOM_OUT,
+		*/
+   	wxBitmapButton* bpButtonZoomIn = new wxBitmapButton (m_toolBar,
+																				ID_ZOOM_IN,
+																				zoomin,
+																				wxDefaultPosition,
+																				//wxDefaultSize,
+																				wxSize (16, 16),
+																				wxBORDER_NONE+wxBU_EXACTFIT);
+   	bpButtonZoomIn->SetToolTip (wxT("Zoom into image"));
+		bpButtonZoomIn->Bind (wxEVT_LEFT_DOWN, &CMImageFrame::DoZoomIn, this);
+		m_toolBar->AddControl (bpButtonZoomIn);
+		/*
+		m_toolBar->AddTool (ID_ZOOM_OUT,
 									wxT("tool"),
 									zoomout,
 									wxNullBitmap,
 									wxITEM_NORMAL,
 									wxT("Zoom out of image"),
 									wxEmptyString);
+		*/
+   	wxBitmapButton* bpButtonZoomOut = new wxBitmapButton (m_toolBar,
+																				ID_ZOOM_OUT,
+																				zoomout,
+																				wxDefaultPosition,
+																				//wxDefaultSize,
+																				wxSize (16, 16),
+																				wxBORDER_NONE+wxBU_EXACTFIT);
+			//SetUpToolTip (bpButton, IDS_ToolTip40);
+   	bpButtonZoomOut->SetToolTip (wxT("Zoom out of image"));
+		bpButtonZoomOut->Bind (wxEVT_LEFT_DOWN, &CMImageFrame::DoZoomOut, this);
+		m_toolBar->AddControl (bpButtonZoomOut);
 	
-		m_zoomText = new wxStaticText (l_toolBar,
+		m_zoomText = new wxStaticText (m_toolBar,
 													ID_ZOOMINFO,
 													wxT(""),
 													wxDefaultPosition,
 													wxSize (50, 16));
-		l_toolBar->AddControl (m_zoomText, wxT("add a fixed text"));
-		wxFont currentFont = l_toolBar->GetFont ();
-		currentFont.SetPointSize (gFontSize+2);
+		m_toolBar->AddControl (m_zoomText, wxT("add a fixed text"));
+		wxFont currentFont = m_toolBar->GetFont ();
+		currentFont.SetPointSize (gFontSize+1);
 		currentFont.SetWeight (wxFONTWEIGHT_LIGHT);
 		m_zoomText->SetFont (currentFont);
-	
-		//l_toolBar->AddSeparator ();
-		l_toolBar->AddTool (ID_OVERLAY,
+		/*
+		//m_toolBar->AddSeparator ();
+		m_toolBar->AddTool (ID_OVERLAY,
 									wxT("tool"),
 									overlayi,
 									wxNullBitmap,
 									wxITEM_NORMAL,
 									wxT("Control overlays on image"),
 									wxEmptyString);
-		l_toolBar->EnableTool (ID_OVERLAY, false);
+		m_toolBar->EnableTool (ID_OVERLAY, false);
+		*/
+   	wxBitmapButton* bpButtonOverlay = new wxBitmapButton (m_toolBar,
+																				ID_OVERLAY,
+																				overlayi,
+																				wxDefaultPosition,
+																				//wxDefaultSize,
+																				wxSize (16, 16),
+																				wxBORDER_NONE+wxBU_EXACTFIT);
+   	bpButtonOverlay->SetToolTip (wxT("Control overlays on image"));
+		bpButtonOverlay->Bind (wxEVT_BUTTON, &CMainFrame::OnShowOverlay, GetMainFrame());
+		m_toolBar->AddControl (bpButtonOverlay);
+		m_toolBar->EnableTool (ID_OVERLAY, false);
 	
-		l_toolBar->Realize ();
+		m_toolBar->Realize ();
 	#endif
 
 	Layout ();
@@ -273,7 +326,7 @@ CMImageFrame::CMImageFrame (
 	 
 			// Set Accelerator Table
 	
-	wxAcceleratorEntry entries[36];
+	wxAcceleratorEntry entries[37];
 	entries[0].Set(wxACCEL_CTRL, (int) 'O', ID_IMAGE_OPEN);
 	entries[1].Set(wxACCEL_CTRL, (int) ';', ID_FILE_OPEN_PROJECT);
 	entries[2].Set(wxACCEL_CTRL, (int) 'W', ID_FILE_CLOSE_WINDOW);
@@ -313,8 +366,9 @@ CMImageFrame::CMImageFrame (
 	entries[32].Set(wxACCEL_NORMAL, (int) WXK_LEFT, ID_LEFT_ARROW);
 	entries[33].Set(wxACCEL_NORMAL, (int) WXK_RIGHT, ID_RIGHT_ARROW);
 	entries[34].Set(wxACCEL_NORMAL, (int) WXK_UP, ID_UP_ARROW);
-	entries[35].Set(wxACCEL_NORMAL, (int) WXK_DOWN, ID_DOWN_ARROW);	
-	wxAcceleratorTable accel(36, entries);
+	entries[35].Set(wxACCEL_NORMAL, (int) WXK_DOWN, ID_DOWN_ARROW);
+	entries[36].Set(wxACCEL_CTRL, (int) '.', ID_CANCEL_DRAW);
+	wxAcceleratorTable accel(37, entries);
 	SetAcceleratorTable (accel);
 
 }	// end "CMImageFrame"
@@ -326,310 +380,6 @@ CMImageFrame::~CMImageFrame ()
 {
 
 }	// end "~CMImageFrame"
-
-
-
-void CMImageFrame::OnMaximizeWindow(wxMaximizeEvent& event)
-{
-   wxPoint ImgNewOrig = GetPosition();
-   wxPoint MainOrig;
-   int	clientWidth,
-			clientHeight,
-         legendHeight = 0,
-         legendWidth = 0,
-         coordinateBarHeight = 0;
-   wxRect tempArea;
-   WindowInfoPtr windowInfoPtr = NULL;
-   
-   //   gActiveImageViewCPtr->m_frame->Refresh(false, NULL);
-   Maximize(false);
-   
-//   m_imageViewCPtr->m_frame->GetSize();
-   
-//   if (gActiveImageViewCPtr != NULL) {
-		
-//      // Update the standard state to be the size of						
-//				// the window that allows the entire image to						
-//      		// be viewed or if that is larger than the 							
-//      		// screen then the entire													
-//      		// screen for the device that the cursor is in. 
-//				
-////		GetWindowStandardState (window, &idealStandardState);
-////		gTempRect = idealStandardState;
-////		GetWindowUserState (window, &userStateRect);
-//				
-//				// Determine whether the top left corner of the user				
-//				// rectangle is within the current device.  If so use				
-//				// this as the top left for the standard state.  If not			
-//				// use the upper left of the 'new' current device.					
-//						
-////		if (PtInRect (topLeft(userStateRect), &gViewRect))
-////			topLeft(idealStandardState) = topLeft(userStateRect);
-////			
-////		else		// !PtInRect (&topLeft(... 
-////			topLeft(idealStandardState) = topLeft(gViewRect);
-//      
-//      windowInfoPtr = (WindowInfoPtr)GetHandlePointer (windowInfoHandle,
-//																			kNoLock,
-//																			kNoMoveHi);
-//	if (windowInfoPtr != NULL)
-//			displaySpecsPtr = GetActiveDisplaySpecsPtr();
-//
-//      
-////      CMImageFrame* activechild = (CMImageFrame*) (gActiveImageViewCPtr->GetFrame());
-//   if (displaySpecsPtr != NULL)
-//    {
-//         GetWindowClipRectangle(gActiveImageWindow, kImageFrameArea, &gViewRect);
-//					// Adjust down to the size needed to enclose the image.						
-//			idealStandardState.right = MIN(gViewRect.right,
-//									origin.y + (SInt16)gTempLongPoint.h);
-//											
-//			idealStandardState.bottom = MIN(gViewRect.bottom,
-//									origin.x + (SInt16)gTempLongPoint.v);
-//											
-//					// Now force the upper left if possible to enclose the		
-//					// image if needed.														
-//				
-//			idealStandardState.left = MAX(gViewRect.left,
-//									origin.y - (SInt16)gTempLongPoint.h);
-//											
-//			idealStandardState.top = MAX(gViewRect.top,
-//									origin.x - (SInt16)gTempLongPoint.v);
-//			
-//	}	// end "if (displaySpecsPtr)" 
-////      int width_max = idealStandardState.right-idealStandardState.left;
-////      int height_max = idealStandardState.bottom-idealStandardState.top;
-//      int width_max = gViewRect.right-gViewRect.left;
-//      int height_max = gViewRect.bottom-gViewRect.top;
-
-//   }      
-   
-//   gActiveImageWindow->m_frame->SetSize(1200, 800);
-	
-	if (m_frameMaximized == true)
-		{
-				// currently maximized, set to the saved values
-		
-		SetSize (m_frameSizeSaved.x, m_frameSizeSaved.y);
-		m_frameMaximized = false;
-		Restore ();
-		SetPosition (ImgNewOrig);
-		
-				// Adjusting the scrollbar is not effective now, not sure why @ 07.11.16
-			
-		m_imageViewCPtr->m_Canvas->SetScrollPos (wxVERTICAL, m_scrollPos.y, true);
-		m_imageViewCPtr->m_Canvas->SetScrollPos (wxHORIZONTAL, m_scrollPos.x, true);
-		
-      }
-	
-	else
-		{
-				// Currently unmaximized
-		
-		m_frameSizeSaved = GetSize();
-		m_scrollPos = m_imageViewCPtr->m_Canvas->GetScrollPosition ();
-		
-		Handle windowInfoHandle = GetWindowInfoHandle(gActiveImageViewCPtr);
-		if (windowInfoHandle != NULL)
-			windowInfoPtr = (WindowInfoPtr)GetHandlePointer(windowInfoHandle,kNoLock,kNoMoveHi);
-		GetMinimumDisplaySizeForImage (windowInfoHandle, &m_TempLongPoint);  
-		m_frameMaximized = true;
-		
-		GetMainFrame()->GetClientSize(&clientWidth, &clientHeight);
-		GetMainFrame()->GetPosition(&MainOrig.x, &MainOrig.y);
-		UInt16 MainFrameBarHeight, OtherLegendStuffHeight;
-			#ifdef NetBeansProject
-					MainFrameBarHeight = 150;
-					OtherLegendStuffHeight = 130;
-			#else	// mygeohub
-					MainFrameBarHeight = 80;
-					OtherLegendStuffHeight = 90;
-					clientHeight -= 30;
-			#endif
-		
-				// Set the window height to max(legend height, image size)
-		
-		if (windowInfoPtr->legendWidth > 0)
-			{
-			if (GetCoordinateHeight(windowInfoHandle) > 0)
-				{ // has coordinate bar
-				tempArea = (m_imageViewCPtr->m_frame)->m_topWindow->GetClientRect();
-				coordinateBarHeight = tempArea.GetBottom();                  
-				}
-			
-			legendHeight = m_imageViewCPtr->m_frame->m_imageLegendViewCPtr->m_legendListBox->m_ilist->GetImageCount()*22;
-			legendHeight += OtherLegendStuffHeight + coordinateBarHeight;
-			m_imageViewCPtr->m_frame->m_imageLegendViewCPtr->GetClientSize(&legendWidth, &legendHeight);
-			#ifndef multispec_wxmac
-				legendWidth = m_imageViewCPtr->m_frame->m_imageLegendViewCPtr->m_clientWidth;
-			#endif
-			m_TempLongPoint.v = MAX(m_TempLongPoint.v, legendHeight);
-			
-			}
-					
-				// set the image frame height no larger than the client height
-		if(m_TempLongPoint.v > clientHeight)
-			{
-			m_TempLongPoint.v = MIN(m_TempLongPoint.v, clientHeight);           
-			ImgNewOrig = wxPoint(ImgNewOrig.x, MainOrig.y+ MainFrameBarHeight);
-		}
-		// set the image frame width no larger than the client width
-		if(m_TempLongPoint.h > clientWidth){
-			m_TempLongPoint.h = MIN(m_TempLongPoint.h, clientWidth);
-			ImgNewOrig = wxPoint(MainOrig.x, ImgNewOrig.y);
-		}
-		
-		// realize the modification, adjust scrollbar later
-		Restore();
-		SetSize(m_TempLongPoint.h, m_TempLongPoint.v); 
-		SetPosition(ImgNewOrig);                
-		
-			// Increase width to hide unnecessary horizontal scroll bars
-		
-		int scrollRangeH = m_imageViewCPtr->m_Canvas->GetScrollRange(wxHORIZONTAL);
-		int scrollRangeV = m_imageViewCPtr->m_Canvas->GetScrollRange(wxVERTICAL);
-		 
-		if (m_TempLongPoint.h < clientWidth)
-			if(scrollRangeH > 1)
-				{
-				m_TempLongPoint.h += (m_TempLongPoint.h -scrollRangeH) - windowInfoPtr->legendWidth + 11;
-				//m_TempLongPoint.h += legendWidth - 170;
-				//m_TempLongPoint.h += (legendWidth -scrollRangeH)  + 11;
-				}
-		if (m_TempLongPoint.v < clientHeight)
-			if(scrollRangeV > 1)
-				{
-				m_TempLongPoint.v += 20; //(m_TempLongPoint.v - scrollRangeV);
-				
-				}
-		
-		SetSize (m_TempLongPoint.h, m_TempLongPoint.v);
-		 
-		 		// Check if the right border has exceed the window limit
-		
-		if (ImgNewOrig.x + m_TempLongPoint.h > MainOrig.x + clientWidth)
-		 	{
-			ImgNewOrig.x =  MAX(0,MainOrig.x + clientWidth - m_TempLongPoint.h);
-			SetPosition(ImgNewOrig);
-			}
-		
-		 		// Check if the lower border has exceed the window limit
-		
-		if (ImgNewOrig.y + m_TempLongPoint.v > MainOrig.y + clientHeight)
-			{
-			ImgNewOrig.y =  MAX(MainOrig.y+MainFrameBarHeight, MainOrig.y + clientHeight - m_TempLongPoint.v);
-			SetPosition(ImgNewOrig);
-			
-		 	}
-		
-		//printf("legend image list height = %d \n",
-		//m_imageViewCPtr->m_frame->m_imageLegendViewCPtr->m_legendListBox->m_ilist->GetImageCount()*20);
-		//printf("legend image list = %d \n",m_imageViewCPtr->m_frame->m_imageLegendViewCPtr->m_legendListBox->m_ilist->GetImageCount());
-		
-		}
-}
-
-
-
-void CMImageFrame::GetMinimumDisplaySizeForImage ( 
-   Handle windowInfoHandle,
-   LongPoint* minimumWindowSizePointPtr)
-{
-   LongPoint offScreenPoint;
-
-   DisplaySpecsPtr displaySpecsPtr = NULL;
-   WindowInfoPtr windowInfoPtr = NULL;
-
-   SInt16 savedOrigin[2];
-
-   if (windowInfoHandle != NULL)
-      windowInfoPtr = (WindowInfoPtr)GetHandlePointer(windowInfoHandle,kNoLock,kNoMoveHi);
-
-   if (windowInfoPtr != NULL)
-      displaySpecsPtr = (DisplaySpecsPtr)GetHandlePointer(GetDisplaySpecsHandle(windowInfoPtr),kNoLock,kNoMoveHi);
-   
-
-   if (displaySpecsPtr != NULL)
-   	{
-      savedOrigin[kVertical] = displaySpecsPtr->origin[kVertical];
-      savedOrigin[kHorizontal] = displaySpecsPtr->origin[kHorizontal];
-
-      displaySpecsPtr->origin[kVertical] = 0;
-      displaySpecsPtr->origin[kHorizontal] = 0;
-
-				 // Note that this will include the height of the coordinate bar if
-				 // it is showing since the coordinate bar is part of the client area
-				 // of the window.
-		
-      offScreenPoint.v = displaySpecsPtr->imageDimensions[kVertical];
-      offScreenPoint.h = displaySpecsPtr->imageDimensions[kHorizontal];
-      ConvertOffScreenPointToWinPoint ( 
-      windowInfoHandle, &offScreenPoint, minimumWindowSizePointPtr);
-
-      displaySpecsPtr->origin[kVertical] = savedOrigin[kVertical];
-      displaySpecsPtr->origin[kHorizontal] = savedOrigin[kHorizontal];
-
-      		// Adjust the size needed to allow for scroll bars and
-      		// one pixel extra.
-	
-      //int titleHeight = gDefaultTitleHeight;
-      int coordinateBarHeight = 0; 
-      wxRect tempArea;
-      UInt16 amountToAllowForHStuff, amountToAllowForVStuff;
-	
-				// Get the total of the title and toolbar height
-	
-		wxRect wxFrameRect = this->GetRect ();
-		wxRect wxFrameClientRect = this->GetClientRect ();
-		int titleToolBarHeight = wxFrameRect.height - wxFrameClientRect.height;
-	
-      #ifdef NetBeansProject
-			amountToAllowForHStuff = 7;
-			amountToAllowForVStuff = 33;
-      #else	// mygeohub
-			#if defined multispec_wxmac
-						// Allow 2 pixels around edge for border
-						// Do not allow for title height
-		
-				titleToolBarHeight -= 20;
-						
-				amountToAllowForHStuff = 2 * 2 + wxFrameRect.width - wxFrameClientRect.width;
-				amountToAllowForVStuff = 2 * 2 + titleToolBarHeight;
-			#else
-				amountToAllowForHStuff = 6;
-				amountToAllowForVStuff = 6;	// Allows for border
-			#endif
-		#endif	
-
-		//coordinateBarHeight = GetCoordinateHeight(windowInfoHandle);
-		/*
-      if (GetCoordinateHeight(windowInfoHandle) > 0)
-      	{ // has coordinate bar
-         tempArea = (m_imageViewCPtr->m_frame)->m_topWindow->GetClientRect();
-         coordinateBarHeight = tempArea.GetBottom();                  
-      	}
-		*/
-		//minimumWindowSizePointPtr->v += kSBarWidth + coordinateBarHeight + titleHeight + 1 ;
-      minimumWindowSizePointPtr->v += amountToAllowForVStuff + coordinateBarHeight;
-      
-      minimumWindowSizePointPtr->h += amountToAllowForHStuff;
-      
-      		// The image size needed has to be larger than the minimum.
-
-      minimumWindowSizePointPtr->v = MAX (minimumWindowSizePointPtr->v, 
-      												gGrowAreaMinimum);
-      minimumWindowSizePointPtr->h = MAX (minimumWindowSizePointPtr->h,  
-      												gGrowAreaMinimum + windowInfoPtr->legendWidth);
-	
-   	}	// end "if (displaySpecsPtr != NULL)"
-   else // displaySpecsPtr == NULL
-   	{
-      minimumWindowSizePointPtr->h = gGrowAreaMinimum;
-      minimumWindowSizePointPtr->v = gGrowAreaMinimum;
-		
-   	}	// end "else displaySpecsPtr == NULL"
-
-}	// end "GetMinimumDisplaySizeForImage"
 
 
 
@@ -766,7 +516,9 @@ void CMImageFrame::DoKeyDownLeftArrow (wxCommandEvent& event)
 }	// end "DoKeyDownLeftArrow"
  
 
-void CMImageFrame::DoKeyDownRightArrow (wxCommandEvent& event) {
+void CMImageFrame::DoKeyDownRightArrow (wxCommandEvent& event)
+
+{
 	char  theChar = 0x27;
 	
 	DoNextDisplayChannelEvent (m_imageViewCPtr, theChar);
@@ -774,7 +526,9 @@ void CMImageFrame::DoKeyDownRightArrow (wxCommandEvent& event) {
 }	// end "DoKeyDownRightArrow"
  
 
-void CMImageFrame::DoKeyDownUpArrow (wxCommandEvent& event) {
+void CMImageFrame::DoKeyDownUpArrow (wxCommandEvent& event)
+
+{
 	char  theChar = 0x26;
 	
 	DoNextDisplayChannelEvent (m_imageViewCPtr, theChar);
@@ -782,30 +536,207 @@ void CMImageFrame::DoKeyDownUpArrow (wxCommandEvent& event) {
 }	// end "DoKeyDownUpArrow"
 
 
-Boolean CMImageFrame::GetActiveWindowFlag(void) {
-    if (this != NULL)
-        return (m_imageFrameActiveFlag);
 
-    else // this == NULL
-        return (FALSE);
+void CMImageFrame::DoZoomIn (
+				wxMouseEvent&							event)
+
+{
+	GetMainFrame()->SetZoomCode (ID_ZOOM_IN);
+	m_imageViewCPtr->ZoomIn ();
+	
+   m_frameMaximized = false;
+   //m_frameSizeSaved = GetSize ();
+	
+			// Prepare for case when user holds mouse button down.
+	GetMainFrame()->SetNextControlTime (gControlOffset);
+	
+	event.Skip ();
+
+}	// end "DoZoomIn"
+
+
+
+void CMImageFrame::DoZoomOut (
+				wxMouseEvent&							event)
+
+{
+	GetMainFrame()->SetZoomCode (ID_ZOOM_OUT);
+	m_imageViewCPtr->ZoomOut ();
+	
+   m_frameMaximized = false;
+   //m_frameSizeSaved = GetSize ();
+	
+			// Prepare for case when user holds mouse button down.
+	GetMainFrame()->SetNextControlTime (gControlOffset);
+	
+	event.Skip ();
+
+}	// end "DoZoomIn"
+
+
+
+void CMImageFrame::DoZoomToOne (
+				wxMouseEvent&							event)
+
+{
+	GetMainFrame()->SetZoomCode (ID_MAGNIFICATION);
+	m_imageViewCPtr->ZoomSize ();
+	
+   m_frameMaximized = false;
+   //m_frameSizeSaved = GetSize ();
+	
+	GetMainFrame()->SetZoomCode (0);
+	
+	event.Skip ();
+
+}	// end "DoZoomToOne"
+
+
+
+Boolean CMImageFrame::GetActiveWindowFlag(void)
+
+{
+	return (m_imageFrameActiveFlag);
 
 }	// end "GetActiveWindowFlag"
 
+
+
 void CMImageFrame::GetCoordinateViewComboText(char* comboItemStringPtr, UInt16 itemNumber) 
 {
-	if (this != NULL)
-		{
-		wxComboBox* comboBoxPtr = (wxComboBox*)m_coordinatesBar->FindWindow(itemNumber);
-		//wxString selvalue = comboBoxPtr->GetString(comboBoxPtr->GetSelection());
-      wxString selvalue = comboBoxPtr->GetString (0);
-		comboItemStringPtr[0] = (UInt8) selvalue.Len();
-		strncpy(&comboItemStringPtr[1], (const char*)selvalue.mb_str(wxConvUTF8), (int) selvalue.Len());
-		(&comboItemStringPtr[1])[(int) selvalue.Len()] = '\0';
-		//(UInt8) comboBoxPtr->GetLBText(comboBoxPtr->GetCurSel(), &comboItemStringPtr[1]);
-		
-		}	// end "if (this != NULL)"
-
+	wxComboBox* comboBoxPtr = (wxComboBox*)m_coordinatesBar->FindWindow(itemNumber);
+	//wxString selvalue = comboBoxPtr->GetString(comboBoxPtr->GetSelection());
+	wxString selvalue = comboBoxPtr->GetString (0);
+	comboItemStringPtr[0] = (UInt8) selvalue.Len();
+	strncpy(&comboItemStringPtr[1], (const char*)selvalue.mb_str(wxConvUTF8), (int) selvalue.Len());
+	(&comboItemStringPtr[1])[(int) selvalue.Len()] = '\0';
+	//(UInt8) comboBoxPtr->GetLBText(comboBoxPtr->GetCurSel(), &comboItemStringPtr[1]);
+	
 }	// end "GetCoordinateViewComboText"
+
+
+
+void CMImageFrame::GetMinimumDisplaySizeForImage (
+				Handle 					windowInfoHandle,
+				LongPoint* 				minimumWindowSizePointPtr)
+
+{
+   LongPoint 				offScreenPoint;
+	
+   double 					savedOrigin[2];
+
+   DisplaySpecsPtr 		displaySpecsPtr = NULL;
+   WindowInfoPtr 			windowInfoPtr = NULL;
+
+	
+
+	windowInfoPtr = (WindowInfoPtr)GetHandlePointer (windowInfoHandle);
+
+	displaySpecsPtr = (DisplaySpecsPtr)GetHandlePointer (GetDisplaySpecsHandle(windowInfoPtr));
+	
+   if (displaySpecsPtr != NULL)
+   	{
+      savedOrigin[kVertical] = displaySpecsPtr->origin[kVertical];
+      savedOrigin[kHorizontal] = displaySpecsPtr->origin[kHorizontal];
+
+      displaySpecsPtr->origin[kVertical] = 0;
+      displaySpecsPtr->origin[kHorizontal] = 0;
+
+				 // Note that this will include the height of the coordinate bar if
+				 // it is showing since the coordinate bar is part of the client area
+				 // of the window.
+		
+      offScreenPoint.v = displaySpecsPtr->imageDimensions[kVertical];
+      offScreenPoint.h = displaySpecsPtr->imageDimensions[kHorizontal];
+      ConvertOffScreenPointToWinPoint (
+      					windowInfoHandle, &offScreenPoint, minimumWindowSizePointPtr);
+
+      displaySpecsPtr->origin[kVertical] = savedOrigin[kVertical];
+      displaySpecsPtr->origin[kHorizontal] = savedOrigin[kHorizontal];
+
+      		// Adjust the size needed to allow for scroll bars and
+      		// one pixel extra.
+	
+      //int titleHeight = gDefaultTitleHeight;
+      int coordinateBarHeight = 0;
+      wxRect tempArea;
+      UInt16 amountToAllowForHStuff, amountToAllowForVStuff;
+	
+				// Get the total of the title and toolbar height
+	
+		wxRect wxFrameRect = GetRect ();
+		wxRect wxFrameClientRect = GetClientRect ();
+		int titleToolBarHeight = wxFrameRect.height - wxFrameClientRect.height;
+		
+      		// Tsung Tai modified 12/18/2018
+		
+      int hx = 0, hy = 0;
+      if (windowInfoPtr->legendWidth > 0)
+      	{
+         m_imageLegendViewCPtr->FindWindow (IDC_COMBO1)->GetSize (&hx, &hy);
+         hy -= 1;
+			
+      	}	// end "if (windowInfoPtr->legendWidth > 0)"
+		
+      		// Get coordinate window height
+		
+      coordinateBarHeight = GetCoordinateHeight (windowInfoHandle);
+      /*
+		wxRect coordinateRect = m_coordinatesBar->GetRect ();
+		coordinateBarHeight = coordinateRect.GetHeight ();
+      if (!m_coordinatesBar->MacIsReallyEnabled ())
+         coordinateBarHeight = 0;
+		*/
+      #ifdef NetBeansProject
+			amountToAllowForHStuff = 7;
+			amountToAllowForVStuff = 33;
+      #else	// mygeohub
+			#if defined multispec_wxmac
+						// Allow 2 pixels around edge for border
+						// Do not allow for title height
+		
+				//titleToolBarHeight -= (coordinateBarHeight + hy);
+				titleToolBarHeight += (coordinateBarHeight - hy);
+		
+				amountToAllowForHStuff = 2 * 2 + wxFrameRect.width - wxFrameClientRect.width;
+				amountToAllowForVStuff = 2 * 2 + titleToolBarHeight;
+			#else
+				amountToAllowForHStuff = 6;
+				amountToAllowForVStuff = 6;	// Allows for border
+			#endif
+		#endif
+
+		//coordinateBarHeight = GetCoordinateHeight(windowInfoHandle);
+		/*
+      if (GetCoordinateHeight(windowInfoHandle) > 0)
+      	{ // has coordinate bar
+         tempArea = (m_imageViewCPtr->m_frame)->m_topWindow->GetClientRect();
+         coordinateBarHeight = tempArea.GetBottom();
+      	}
+		*/
+		//minimumWindowSizePointPtr->v += kSBarWidth + coordinateBarHeight + titleHeight + 1 ;
+      //minimumWindowSizePointPtr->v += amountToAllowForVStuff + coordinateBarHeight;
+      minimumWindowSizePointPtr->v += amountToAllowForVStuff;
+		
+      minimumWindowSizePointPtr->h += amountToAllowForHStuff;
+		
+      		// The image size needed has to be larger than the minimum.
+
+      minimumWindowSizePointPtr->v = MAX (minimumWindowSizePointPtr->v,
+      												gGrowAreaMinimum);
+      minimumWindowSizePointPtr->h = MAX (minimumWindowSizePointPtr->h,
+      												gGrowAreaMinimum + windowInfoPtr->legendWidth);
+	
+   	}	// end "if (displaySpecsPtr != NULL)"
+	
+   else // displaySpecsPtr == NULL
+   	{
+      minimumWindowSizePointPtr->h = gGrowAreaMinimum;
+      minimumWindowSizePointPtr->v = gGrowAreaMinimum;
+		
+   	}	// end "else displaySpecsPtr == NULL"
+
+}	// end "GetMinimumDisplaySizeForImage"
 
 
 
@@ -866,6 +797,16 @@ void CMImageFrame::OnActivate (
 
 
 
+void CMImageFrame::OnCancelDraw (wxCommandEvent& event)
+
+{
+	if (gProcessorCode == kDisplayProcessor)
+		gOperationCanceledFlag = TRUE;
+
+}	// end "OnCancelDraw"
+
+
+
 void CMImageFrame::OnFileSave(wxCommandEvent& event) 
 {
 	gProcessorCode = kSaveProcessor;
@@ -881,6 +822,265 @@ void CMImageFrame::OnFileSaveAs(wxCommandEvent& event)
 	gProcessorCode = 0;
 
 }	// end "OnFileSaveAs"
+
+
+
+void CMImageFrame::OnMaximizeWindow (
+				wxMaximizeEvent& 					event)
+
+{
+   wxPoint 								imgNewOrig = GetPosition (),
+   	 									mainOrig;
+	
+   WindowInfoPtr 						windowInfoPtr = NULL;
+	
+   int									clientWidth,
+											clientHeight,
+         								legendHeight = 0,
+         								legendWidth = 0,
+         								coordinateBarHeight = 0;
+   wxRect 								tempArea;
+	
+	
+   //gActiveImageViewCPtr->m_frame->Refresh(false, NULL);
+   Maximize (false);
+   /*
+   m_imageViewCPtr->m_frame->GetSize();
+	 
+   if (gActiveImageViewCPtr != NULL)
+   	{
+      		// Update the standard state to be the size of
+				// the window that allows the entire image to
+      		// be viewed or if that is larger than the
+      		// screen then the entire
+      		// screen for the device that the cursor is in.
+	 
+		//GetWindowStandardState (window, &idealStandardState);
+		//gTempRect = idealStandardState;
+		//GetWindowUserState (window, &userStateRect);
+	 
+				// Determine whether the top left corner of the user
+				// rectangle is within the current device.  If so use
+				// this as the top left for the standard state.  If not
+				// use the upper left of the 'new' current device.
+	 
+		//if (PtInRect (topLeft(userStateRect), &gViewRect))
+		//	topLeft(idealStandardState) = topLeft(userStateRect);
+	 
+		//else		// !PtInRect (&topLeft(...
+		//	topLeft(idealStandardState) = topLeft(gViewRect);
+	 
+      windowInfoPtr = (WindowInfoPtr)GetHandlePointer (windowInfoHandle);
+		if (windowInfoPtr != NULL)
+			displaySpecsPtr = GetActiveDisplaySpecsPtr();
+
+      //CMImageFrame* activechild = (CMImageFrame*) (gActiveImageViewCPtr->GetFrame());
+   	if (displaySpecsPtr != NULL)
+    		{
+         GetWindowClipRectangle(gActiveImageWindow, kImageFrameArea, &gViewRect);
+					// Adjust down to the size needed to enclose the image.
+			idealStandardState.right = MIN(gViewRect.right,
+									origin.y + (SInt16)gTempLongPoint.h);
+	 
+			idealStandardState.bottom = MIN(gViewRect.bottom,
+								origin.x + (SInt16)gTempLongPoint.v);
+	 
+					// Now force the upper left if possible to enclose the
+					// image if needed.
+	 
+			idealStandardState.left = MAX(gViewRect.left,
+									origin.y - (SInt16)gTempLongPoint.h);
+	 
+			idealStandardState.top = MAX(gViewRect.top,
+									origin.x - (SInt16)gTempLongPoint.v);
+	 
+			}	// end "if (displaySpecsPtr)"
+	 
+      //int width_max = idealStandardState.right-idealStandardState.left;
+      //int height_max = idealStandardState.bottom-idealStandardState.top;
+      int width_max = gViewRect.right-gViewRect.left;
+      int height_max = gViewRect.bottom-gViewRect.top;
+
+   	}	// end "if (gActiveImageViewCPtr != NULL)"
+   */
+	//gActiveImageWindow->m_frame->SetSize (1200, 800);
+	
+	if (m_frameMaximized)
+		{
+				// currently maximized, set to the saved values
+		
+		SetSize (m_frameSizeSaved.x, m_frameSizeSaved.y);
+		m_frameMaximized = false;
+		Restore ();
+		SetPosition (imgNewOrig);
+		
+				// Adjusting the scrollbar is not effective now, not sure why @ 07.11.16
+		
+		m_imageViewCPtr->m_Canvas->SetScrollPos (wxVERTICAL, m_scrollPos.y, true);
+		m_imageViewCPtr->m_Canvas->SetScrollPos (wxHORIZONTAL, m_scrollPos.x, true);
+		
+      }	// end "if (m_frameMaximized)"
+	
+	else	// Currently unmaximized
+		{
+		UInt16 					mainFrameBarHeight = 0,
+									otherLegendStuffHeight = 0;
+		
+		m_frameSizeSaved = GetSize();
+		m_scrollPos = m_imageViewCPtr->m_Canvas->GetScrollPosition ();
+		
+		Handle windowInfoHandle = GetWindowInfoHandle (gActiveImageViewCPtr);
+		windowInfoPtr = (WindowInfoPtr)GetHandlePointer (windowInfoHandle);
+		
+		GetMinimumDisplaySizeForImage (windowInfoHandle, &m_TempLongPoint);
+		m_frameMaximized = true;
+		
+		#ifdef NetBeansProject
+			GetMainFrame()->GetClientSize (&clientWidth, &clientHeight);
+			GetMainFrame()->GetPosition (&mainOrig.x, &mainOrig.y);
+		
+			mainFrameBarHeight = 150;
+			otherLegendStuffHeight = 130;
+		#else	// mygeohub or multispec_wxmac
+		
+			#if defined multispec_wxlin
+				GetMainFrame()->GetClientSize (&clientWidth, &clientHeight);
+				GetMainFrame()->GetPosition (&mainOrig.x, &mainOrig.y);
+		
+				mainFrameBarHeight = 80;
+				otherLegendStuffHeight = 90;
+				clientHeight -= 30;
+			#endif
+			#if defined multispec_wxmac
+				wxRect	clientRect;
+		
+				clientRect = wxDisplay().GetClientArea ();
+		
+				clientWidth = clientRect.GetWidth ();
+				clientHeight = clientRect.GetHeight ();
+				mainOrig.x = 2;
+				mainOrig.y = 2;
+		
+				mainFrameBarHeight = clientRect.GetTop ();
+				otherLegendStuffHeight = 90;
+		
+						// Allow for 2 pixel space around image frame within the display area
+		
+				clientHeight -= 4;
+				clientWidth -= 4;
+			#endif
+		#endif
+		
+				// Set the window height to max(legend height, image size)
+		
+		if (windowInfoPtr != NULL && windowInfoPtr->legendWidth > 0)
+			{
+			if (GetCoordinateHeight (windowInfoHandle) > 0)
+				{
+						// Has coordinate bar
+				
+				tempArea = (m_imageViewCPtr->m_frame)->m_topWindow->GetClientRect ();
+				coordinateBarHeight = tempArea.GetBottom ();
+				
+				}	// end "if (GetCoordinateHeight (windowInfoHandle) > 0)"
+			
+			legendHeight = m_imageViewCPtr->m_frame->m_imageLegendViewCPtr->m_legendListBox->m_ilist->GetImageCount() * 22;
+			legendHeight += otherLegendStuffHeight + coordinateBarHeight;
+			m_imageViewCPtr->m_frame->m_imageLegendViewCPtr->GetClientSize (&legendWidth, &legendHeight);
+			#if defined multispec_wxlin
+				legendWidth = m_imageViewCPtr->m_frame->m_imageLegendViewCPtr->m_clientWidth;
+			#endif
+			m_TempLongPoint.v = MAX (m_TempLongPoint.v, legendHeight);
+			
+			}	// end "if (windowInfoPtr->legendWidth > 0)"
+		
+				// set the image frame height no larger than the client height
+		
+		if (m_TempLongPoint.v > clientHeight)
+			{
+			m_TempLongPoint.v = MIN (m_TempLongPoint.v, clientHeight);
+			imgNewOrig = wxPoint (imgNewOrig.x, mainOrig.y + mainFrameBarHeight);
+			
+			}	// end "if (m_TempLongPoint.v > clientHeight)"
+		
+				// Set the image frame width no larger than the client width
+		
+		if (m_TempLongPoint.h > clientWidth)
+			{
+			m_TempLongPoint.h = MIN (m_TempLongPoint.h, clientWidth);
+			imgNewOrig = wxPoint (mainOrig.x, imgNewOrig.y);
+			
+			}	// end "if (m_TempLongPoint.h > clientWidth)"
+		
+				// Realize the modification, adjust scrollbar later
+		
+		Restore ();
+		SetSize (m_TempLongPoint.h, m_TempLongPoint.v);
+		SetPosition (imgNewOrig);
+		
+				// Increase width to hide unnecessary horizontal scroll bars
+		
+		int scrollRangeH = m_imageViewCPtr->m_Canvas->GetScrollRange (wxHORIZONTAL);
+		int scrollRangeV = m_imageViewCPtr->m_Canvas->GetScrollRange(wxVERTICAL);
+		
+		if (m_TempLongPoint.h < clientWidth && scrollRangeH > 1)
+			{
+			//m_TempLongPoint.h += (m_TempLongPoint.h - scrollRangeH) - windowInfoPtr->legendWidth + 11;
+			m_TempLongPoint.h += (m_TempLongPoint.h - scrollRangeH) - legendWidth + 11;
+			//m_TempLongPoint.h += legendWidth - 170;
+			//m_TempLongPoint.h += (legendWidth -scrollRangeH)  + 11;
+			
+			}	// end "if (m_TempLongPoint.h < clientWidth && scrollRangeH > 1)"
+		
+		if (m_TempLongPoint.v < clientHeight && scrollRangeV > 1)
+			{
+			//m_TempLongPoint.v += (m_TempLongPoint.v - scrollRangeV);
+			m_TempLongPoint.v += 20;
+			
+			}	// end "if (m_TempLongPoint.v < clientHeight && scrollRangeV > 1)"
+		
+		SetSize (m_TempLongPoint.h, m_TempLongPoint.v);
+		
+		 		// Check if the right border has exceed the window limit
+		
+		if (imgNewOrig.x + m_TempLongPoint.h > mainOrig.x + clientWidth)
+		 	{
+			imgNewOrig.x =  MAX (0, mainOrig.x+clientWidth-m_TempLongPoint.h);
+			SetPosition (imgNewOrig);
+			
+			}	// end "if (ImgNewOrig.x + m_TempLongPoint.h > MainOrig.x + clientWidth)"
+		
+		 		// Check if the lower border has exceed the window limit
+		
+		if (imgNewOrig.y + m_TempLongPoint.v > mainOrig.y + clientHeight)
+			{
+			imgNewOrig.y =  MAX (mainOrig.y+mainFrameBarHeight, mainOrig.y+clientHeight-m_TempLongPoint.v);
+			SetPosition (imgNewOrig);
+			
+		 	}	// end "if (ImgNewOrig.y + m_TempLongPoint.v > MainOrig.y + clientHeight)"
+		
+		}	// end "else currently unmaximized"
+	
+	m_imageViewCPtr->UpdateOffscreenMapOrigin ();
+	
+}	// end "OnMaximizeWindow"
+
+
+
+void CMImageFrame::OnMouseWheel (wxMouseEvent& event)
+
+{
+	int			doSomething,
+					wheelRotation;
+	
+	wheelRotation = event.GetWheelRotation ();
+	if (wheelRotation != 0)
+		{
+		doSomething = abs (wheelRotation);
+		
+		}	// end "if (wheelRotation != 0)"
+	
+}	// end "OnMouseWheel"
 
 
 
@@ -1099,10 +1299,11 @@ void CMImageFrame::OnUpdateWindowNewSelectionGraph(wxUpdateUIEvent& pCmdUI) {
 
 
 
-void CMImageFrame::OnViewCoordinatesBar(wxCommandEvent& event)
+void CMImageFrame::OnViewCoordinatesBar (wxCommandEvent& event)
 
 {
-    // Just for the coordinate view to be toggled.
+    		// Just for the coordinate view to be toggled.
+	
     ShowCoordinateView(2);
 
 }	// end "OnViewCoordinatesBar"
@@ -1115,41 +1316,44 @@ void CMImageFrame::OnWindowNewSelectionGraph(wxCommandEvent& event)
 }	// end "OnWindowNewSelectionGraph"
 
 
-void CMImageFrame::OnWindowShowCoordinateView(wxCommandEvent& event) 
+void CMImageFrame::OnWindowShowCoordinateView (wxCommandEvent& event)
+
 {
 			// Toggle the coordinates bar
 
-	ShowCoordinateView(2);
+	ShowCoordinateView (2);
 
 }	// end "OnWindowShowCoordinateView"
 
 
-void CMImageFrame::OnZoom(wxCommandEvent& event)
+void CMImageFrame::OnZoom (wxCommandEvent& event)
 
 {
 	if (event.GetId() == ID_ZOOM_IN)
-		m_imageViewCPtr->ZoomIn();
+		m_imageViewCPtr->ZoomIn ();
+	
 	else if (event.GetId() == ID_ZOOM_OUT)
-		m_imageViewCPtr->ZoomOut();
+		m_imageViewCPtr->ZoomOut ();
 	else
-		m_imageViewCPtr->ZoomSize();
+		m_imageViewCPtr->ZoomSize ();
 		
    m_frameMaximized = false;   
-   m_frameSizeSaved = GetSize();
+   m_frameSizeSaved = GetSize ();
+	
 }	// end "OnZoom"
 
 
 
-void CMImageFrame::SetActiveWindowFlag(Boolean setting) 
+void CMImageFrame::SetActiveWindowFlag (Boolean setting)
+
 {
-	if (this != NULL)
-		m_imageFrameActiveFlag = setting;
+	m_imageFrameActiveFlag = setting;
 
 }	// end "SetActiveWindowFlag"
 
 
 
-void CMImageFrame::SetImageViewCPtr(
+void CMImageFrame::SetImageViewCPtr (
         CMImageView* imageViewCPtr)
 {
 	m_imageViewCPtr = imageViewCPtr;
@@ -1270,58 +1474,63 @@ void CMImageFrame::SetSplitterParameters(SInt16 windowType)
 
 void CMImageFrame::ShowCoordinateView (
 				SInt16								inputCode)
-{
 
-	RECT									coordinateRect,
-											displayUnitsRect,
-											linePromptRect;
+{
 	wxComboBox*							comboPtr;
+	
 	Handle								windowInfoHandle;
-	Boolean								cflag = false;
+	
+	int									coordinateBarHeight = 0;
+	
+	Boolean								cflag = false,
+											setCoordinateHeightFlag = false;
 	
 
-	windowInfoHandle = GetWindowInfoHandle(m_imageViewCPtr);
+	windowInfoHandle = GetWindowInfoHandle (m_imageViewCPtr);
 
 			// Toggle the coordinates bar
+	
 	if (inputCode == 1)
 		{
 				// From an new image being opened. Request is to force displayed
 				
 		cflag = true;
 		((CMImageDoc*)GetDocument())->SetDisplayCoordinatesFlag (true);
+		setCoordinateHeightFlag = true;
 		
-		}
-	else if (inputCode == 2) // inputCode == 2
+		}	// end "if (inputCode == 1)"
+	
+	else if (inputCode == 2)
 		{
 				// Toggle the coordinate view bar on or off
-		cflag = ((CMImageDoc*)GetDocument())->OnViewCoordinatesBar();
 		
-		}
-	else 
-		{  // inputCode == 3, update when the coordinates bar is already showed
-		if (GetCoordinateHeight(windowInfoHandle) > 0)
-			{ //coordinates bar is shown
+		cflag = ((CMImageDoc*)GetDocument())->OnViewCoordinatesBar();
+		setCoordinateHeightFlag = true;
+		
+		}	// end "else if (inputCode == 2)"
+	
+	else	// inputCode == 3, update when the coordinates bar is already showed
+		{
+		if (GetCoordinateHeight (windowInfoHandle) > 0)
+					// Coordinates bar is shown
 			cflag = true;
-			}
-		}
+			
+		}	// end "else inputCode == 3, update when the coordinates bar is already showed"
 	  
 	if (cflag)
 		UpdateSelectionCoordinates ();
 
-	//windowInfoHandle = GetWindowInfoHandle(m_imageViewCPtr);
-
 	if (cflag && windowInfoHandle != NULL)
 		{
-		m_coordinatesBar->Show(true);
-		m_topWindow->Show(true);
+		m_coordinatesBar->Show (true);
+		m_topWindow->Show (true);
 
 		SetUpCoordinateUnitsPopUpMenu (NULL,
-													windowInfoHandle, //gActiveImageWindowInfoH,
+													windowInfoHandle,
 													m_coordinatesBar);
 
 		m_coordinatesBar->m_displayUnitsCode =
-				 GetCoordinateViewUnits(windowInfoHandle);
-		//GetCoordinateViewUnits(gActiveImageWindowInfoH);
+				 											GetCoordinateViewUnits (windowInfoHandle);
 
 		m_coordinatesBar->m_displayUnitsListSelection =
 				 GetComboListSelection (m_coordinatesBar,
@@ -1337,7 +1546,7 @@ void CMImageFrame::ShowCoordinateView (
 										 m_coordinatesBar);
 
 		m_coordinatesBar->m_areaUnitsCode =
-				 GetCoordinateViewAreaUnits(windowInfoHandle); // gActiveImageWindowInfoH);
+				 GetCoordinateViewAreaUnits (windowInfoHandle); // gActiveImageWindowInfoH);
 
 		m_coordinatesBar->m_areaUnitsListSelection =
 				 GetComboListSelection (m_coordinatesBar,
@@ -1347,14 +1556,27 @@ void CMImageFrame::ShowCoordinateView (
 		comboPtr = (wxComboBox*)m_coordinatesBar->FindWindow (IDC_AreaUnitsCombo);
 		if (comboPtr != NULL)
 			comboPtr->SetSelection ((int)m_coordinatesBar->m_areaUnitsListSelection);
+		
+		if (setCoordinateHeightFlag)
+			{
+					// Set the coordinate bar height variable
+		
+			wxRect coordinateRect = m_coordinatesBar->GetRect ();
+			coordinateBarHeight = coordinateRect.GetHeight ();
+			
+			}	// end "if (setCoordinateHeightFlag)"
 			
 		}	// end "if (cflag && ...)"
 
-	else 
-		{ // !displayCoordinatesFlag
-		m_coordinatesBar->Show(false);
-		m_topWindow->Show(false);
-		}
+	else	// !displayCoordinatesFlag
+		{
+		m_coordinatesBar->Show (false);
+		m_topWindow->Show (false);
+		
+		}	// end "else !displayCoordinatesFlag"
+	
+	if (setCoordinateHeightFlag)
+		SetCoordinateHeight (windowInfoHandle, coordinateBarHeight);
 		
 	// Update the image frame
 	//Update();
@@ -1368,7 +1590,7 @@ void CMImageFrame::ShowCoordinateView (
 
 	if (cflag)
 		{
-		::UpdateScaleInformation(windowInfoHandle);
+		::UpdateScaleInformation (windowInfoHandle);
 
 		}	// end "if (cflag)"
 	

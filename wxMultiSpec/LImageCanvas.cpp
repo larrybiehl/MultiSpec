@@ -48,7 +48,7 @@ wxSize CMImageCanvas::ScrollingIncrement = wxSize (10, 10);	// 10, 10
 
 wxBEGIN_EVENT_TABLE (CMImageCanvas, wxScrolledWindow)
 	//EVT_CHAR (CMImageCanvas::OnChar)
-   EVT_CHAR_HOOK (CMImageCanvas::OnButtonPress)
+   EVT_CHAR_HOOK (CMImageCanvas::OnCharHook)
 	EVT_ERASE_BACKGROUND (CMImageCanvas::OnEraseBackground)
 	EVT_IDLE (CMImageCanvas::OnIdle)
 	//EVT_KEY_DOWN (CMImageCanvas::OnKeyDown)
@@ -359,7 +359,7 @@ void CMImageCanvas::Init()
 
 
 
-void CMImageCanvas::OnButtonPress (
+void CMImageCanvas::OnCharHook (
 				wxKeyEvent&							event)
 
 {
@@ -368,7 +368,7 @@ void CMImageCanvas::OnButtonPress (
 	if (pTool != NULL)
 		{
 		if (event.GetKeyCode() == WXK_RETURN) 
-			pTool->OnButtonPress();
+			pTool->OnCharHook();
 		
 		else if (event.GetKeyCode() == WXK_DELETE)
 			{
@@ -387,7 +387,7 @@ void CMImageCanvas::OnButtonPress (
 		
 		}	// end "if (pTool != NULL)"
 	
-}	// end "OnButtonPress"
+}	// end "OnCharHook"
 
 
 
@@ -458,7 +458,6 @@ void CMImageCanvas::OnLeftDown (
 
 {
 	wxPoint								cursorPosOnImage; // unit: window point
-	ShapeInfoPtr						shapeInfoPtr = NULL;
 	
 	
 	SetFocus ();

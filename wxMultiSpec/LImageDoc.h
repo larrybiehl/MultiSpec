@@ -22,7 +22,7 @@ public:
    //virtual bool OnOpenDocument(const wxString& filename);
    virtual bool IsModified(void) const;
    virtual void Modify(bool mod);
-   bool DoOpenDocument(const wxString& file);
+   //bool DoOpenDocument(const wxString& file);
    //virtual bool DoSaveDocument(const wxString& file);
    virtual bool SaveAs();
    virtual bool Close();

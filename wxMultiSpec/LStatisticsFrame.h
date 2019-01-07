@@ -12,7 +12,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			10/19/2018
+//	Revision date:			01/03/2019
 //
 //	Language:				C++
 //
@@ -101,7 +101,6 @@ protected:
 	void OnListStatsComboDropDown(wxCommandEvent& event);
 	void OnListStatsComboCloseUp(wxCommandEvent& event);
 	void OnSelendokStatsCombo(wxCommandEvent& event);
-	void OnChar(UINT nChar, UINT nRepCnt, UINT nFlags);
 	void OnDropdownStatsTypeCombo(wxCommandEvent& event);
 
 	void CreateControls2();

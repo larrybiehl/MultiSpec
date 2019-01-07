@@ -1,5 +1,6 @@
-// Revised 04/24/2018  by Larry L Biehl
+// Revised 01/04/2019  by Larry L Biehl
 // Revised 03/12/2016 by Wei-Kang Hsu
+// Revised 12/19/2018 by Tsung Tai Yeh
 
 #include "SMultiSpec.h"
 
@@ -27,12 +28,6 @@ END_EVENT_TABLE ()
 IMPLEMENT_DYNAMIC_CLASS (CMImageView, wxView)
 
 RECT		CMImageView::s_updateRect;
-
-/////////////////////////////////////////////////////////////////////////////
-// CMImageView
-
-/////////////////////////////////////////////////////////////////////////////
-// CMspecView construction/destruction
 
 CMImageView::CMImageView ()
 
@@ -157,7 +152,7 @@ CMImageView::~CMImageView()
 
 
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2019)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -195,7 +190,7 @@ void CMImageView::DisposeImageWindowSupportMemory (void)
 
 
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -241,7 +236,7 @@ CMImageView::CheckIfOffscreenImageExists(void)
 
 
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2019)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -291,7 +286,7 @@ CMImageView::GetClassGroupCode(void)
 
 
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2019)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -394,7 +389,7 @@ CMImageView::GetLegendWidth(void)
 
 
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2019)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -449,7 +444,7 @@ SInt16 CMImageView::GetNumberGroups(void)
 
 
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2019)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -486,7 +481,7 @@ CMImageView::GetTitleHeight (void)
 
 
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2019)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -530,7 +525,7 @@ CMImageView::GetWindowType(void)
 
 
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2019)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -611,48 +606,51 @@ void CMImageView::CreateScaledBitmap()
 }
 
 
-Boolean CMImageView::DoDeleteKey()
- {
+Boolean CMImageView::DoDeleteKey ()
 
-    Boolean charHandledFlag = FALSE;
+{
+	Boolean 				charHandledFlag = FALSE;
    // TODO: For Linux
-#ifndef multispec_lin
-    if (this != NULL) {
-        if (gProjectSelectionWindow != NULL && this == gProjectSelectionWindow) {
-            if (gStatisticsMode == kStatNewFieldPolyMode && m_Canvas->IsShown() == true) {
-                // A polygon selection is in process. Delete the last selected polygon
-                // point.
+	/*
+	if (this != NULL)
+		{
+		if (gProjectSelectionWindow != NULL && this == gProjectSelectionWindow)
+			{
+			if (gStatisticsMode == kStatNewFieldPolyMode && m_Canvas->IsShown() == true)
+				{
+						// A polygon selection is in process. Delete the last selected polygon
+						// point.
 
-                CMTool* pTool = CMTool::FindTool(CMTool::c_toolType);
-                if (pTool != NULL)
-                    pTool->OnChar(this, nChar);
+				CMTool* pTool = CMTool::FindTool(CMTool::c_toolType);
+				if (pTool != NULL)
+					pTool->OnChar(this, nChar);
 
-                charHandledFlag = TRUE;
+				charHandledFlag = TRUE;
 
-            }// end "if (gStatisticsMode == kStatNewFieldPolyMode && "
+				}	// end "if (gStatisticsMode == kStatNewFieldPolyMode && "
 
-            else if (gStatisticsMode == kStatNewFieldRectMode ||
-                    gStatisticsMode == kStatNewFieldPolyMode) {
-                // Delete the selected field if one exists.
+			else if (gStatisticsMode == kStatNewFieldRectMode ||
+					  									gStatisticsMode == kStatNewFieldPolyMode)
+				{
+						// Delete the selected field if one exists.
 
-                //if (GetSelectionTypeCode(gActiveImageViewCPtr) != 0) {
-                if (GetSelectionTypeCode(this) != 0) {
-                    //ClearSelectionArea(gActiveImageViewCPtr);
-                    ClearSelectionArea(this);
+				if (GetSelectionTypeCode(this) != 0)
+				 	{
+					ClearSelectionArea (this);
 
-                    ShowGraphSelection();
+					ShowGraphSelection();
 
-                    charHandledFlag = TRUE;
+					charHandledFlag = TRUE;
 
-                } // end "if ( GetSelectionTypeCode (gActiveImageViewCPtr) != 0)"
+					}	// end "if ( GetSelectionTypeCode (gActiveImageViewCPtr) != 0)"
 
-            } // end "else if (gStatisticsMode == kStatNewFieldRectMode || ..."
+				}	// end "else if (gStatisticsMode == kStatNewFieldRectMode || ..."
 
-        } // end "if (gProjectSelectionWindow != NULL && ..."
+	  		}	// end "if (gProjectSelectionWindow != NULL && ..."
 
-    } // end "if (this != NULL)"
-#endif
-    return (charHandledFlag);
+		}	// end "if (this != NULL)"
+	*/
+	return (charHandledFlag);
 
 } // end "DoDeleteKey"
 
@@ -906,9 +904,14 @@ void CMImageView::InitialUpdate(void)
 	m_frame->m_coordinatesBar->InitialUpdate ();
 	
 			// Get coordinate bar height
+			//		Note: do not set the size of the coordinate bar in the window
+			// 	information structure. The coordinate bar is not a part of the image
+			//		window in wx version. It is a separate panel within the image frame.
+			//		Doing so will cause problems later when drawing selections and
+			//		fields.
 	
-	//wxRect coordinateRect = m_frame->m_coordinatesBar->GetRect ();
-	//SetCoordinateHeight (gActiveImageWindowInfoH, coordinateRect.height);
+	wxRect coordinateRect = m_frame->m_coordinatesBar->GetRect ();
+	SetCoordinateHeight (gActiveImageWindowInfoH, coordinateRect.height);
 
    ShapeInfoPtr shapeInfoPtr = NULL;
 	if (gActiveImageWindow != NULL && gSelectionGraphViewCPtr!= NULL)
@@ -1059,7 +1062,7 @@ bool CMImageView::OnCreate (
 
 
 
-void CMImageView::OnDraw(CDC* pDC)
+void CMImageView::OnDraw (CDC* pDC)
 
 {
 
@@ -1069,7 +1072,9 @@ void CMImageView::OnDraw(CDC* pDC)
 
 	if (CheckIfOffscreenImageExists())
 		{
-		pDC->SetMapMode(wxMM_TEXT);
+		pDC->SetMapMode (wxMM_TEXT);
+		wxGraphicsContext* graphicsContext = pDC->GetGraphicsContext ();
+		graphicsContext->SetInterpolationQuality (wxINTERPOLATION_NONE);
 		sourceRect.top = s_updateRect.top;
 		sourceRect.bottom = s_updateRect.bottom;
 		sourceRect.left = s_updateRect.left;
@@ -1109,15 +1114,15 @@ void CMImageView::OnDraw(CDC* pDC)
 
       wxPoint scrollOffset;
 		m_Canvas->CalcUnscrolledPosition (0, 0, &scrollOffset.x, &scrollOffset.y);
-      Handle displaySpecsHandle = m_displayMultiCPtr->mDisplaySpecsHandle;
-      DisplaySpecsPtr displaySpecsPtr =
-            (DisplaySpecsPtr) GetHandlePointer (displaySpecsHandle);
+      //Handle displaySpecsHandle = m_displayMultiCPtr->mDisplaySpecsHandle;
+      //DisplaySpecsPtr displaySpecsPtr =
+      //      (DisplaySpecsPtr) GetHandlePointer (displaySpecsHandle);
             
-      Handle windowInfoHandle = GetWindowInfoHandle(this);
+      Handle windowInfoHandle = GetWindowInfoHandle (this);
       WindowInfoPtr windowInfoPtr = (WindowInfoPtr)GetHandlePointer(
 												windowInfoHandle, kLock, kNoMoveHi);
-//																								
-      GetSelectedOffscreenRectangle ( windowInfoPtr,
+		
+      GetSelectedOffscreenRectangle (windowInfoPtr,
 												&sourceRect,
 												TRUE,
 												TRUE);
@@ -1359,7 +1364,7 @@ void CMImageView::DoEditCopy() {
 
 
 //-----------------------------------------------------------------------------
-//					 Copyright (1988-2018)
+//					 Copyright (1988-2019)
 //           (c) Purdue Research Foundation
 //					All rights reserved.
 //
@@ -1406,7 +1411,7 @@ void CMImageView::UpdateCursorCoordinates (
 
 
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2015)
+//								 Copyright (1988-2019)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1428,7 +1433,7 @@ void CMImageView::UpdateCursorCoordinates (
 //	Coded By:			Larry L. Biehl			Date: 06/22/1992
 //	Revised By:			Larry L. Biehl			Date: 07/24/2015
 
-void CMImageView::UpdateCursorCoordinates(void)
+void CMImageView::UpdateCursorCoordinates (void)
  {
 	if (this != NULL)
 		{
@@ -1443,7 +1448,8 @@ void CMImageView::UpdateCursorCoordinates(void)
 
 
 
-void CMImageView::UpdateOffscreenMapOrigin(void)
+void CMImageView::UpdateOffscreenMapOrigin (void)
+
 {
     wxPoint scrollOffset;
 	 
@@ -1452,15 +1458,16 @@ void CMImageView::UpdateOffscreenMapOrigin(void)
 
     Handle displaySpecsHandle = m_displayMultiCPtr->mDisplaySpecsHandle;
     DisplaySpecsPtr displaySpecsPtr =
-            (DisplaySpecsPtr) GetHandlePointer(
-            displaySpecsHandle, kNoLock, kNoMoveHi);
+            						(DisplaySpecsPtr) GetHandlePointer (displaySpecsHandle);
 
     displaySpecsPtr->origin[kVertical] =
-            (SInt16) ((double) scrollOffset.y / displaySpecsPtr->magnification + .5);
+            //(SInt16)((double)scrollOffset.y / displaySpecsPtr->magnification);
+            (double)scrollOffset.y / displaySpecsPtr->magnification;
     displaySpecsPtr->origin[kHorizontal] =
-            (SInt16) ((double) scrollOffset.x / displaySpecsPtr->magnification + .5);
+            //(SInt16)((double)scrollOffset.x / displaySpecsPtr->magnification);
+            (double)scrollOffset.x / displaySpecsPtr->magnification;
 				 
-} // end "UpdateOffscreenMapOrigin"
+}	// end "UpdateOffscreenMapOrigin"
 
 
 
@@ -1776,30 +1783,34 @@ void CMImageView::ZoomIn (void)
 							inverse,
 							step;
 
-	if (m_mainFrame->GetZoomCode() == 0)
-		return;
+	if (m_mainFrame->GetZoomCode () == 0)
+																							return;
 
-	magnification = m_displayMultiCPtr->GetMagnification();
+	magnification = m_displayMultiCPtr->GetMagnification ();
 
-	maxMagnification = m_displayMultiCPtr->GetMaxMagnification();
+	maxMagnification = m_displayMultiCPtr->GetMaxMagnification ();
 
-	if (magnification < maxMagnification) {
+	if (magnification < maxMagnification)
+		{
 		inverse = 1. / magnification;
 
 		step = 0.1;
-
-		//if (!m_ctlKeyDownFlag) {
-		if (!wxGetKeyState(WXK_CONTROL)) {
-		//if (!wxGetKeyState(WXK_SHIFT)) {
+		#if defined multispec_wxlin
+			if (!wxGetKeyState (WXK_CONTROL))
+		#endif
+		#if defined multispec_wxmac
+			if (!wxGetKeyState (WXK_ALT))
+		#endif
+			{
 			step = 1.0;
 
 			if (magnification > 1)
-				 magnification = (double) (UInt16) (magnification + .5);
+				 magnification = (double)((UInt16)(magnification + .5));
 
 			if (inverse > 1)
-				 inverse = (double) (UInt16) (inverse + .5);
+				 inverse = (double)((UInt16)(inverse + .5));
 
-			} // end "if (!m_ctlKeyDownFlag)"
+			}	// end "if (!m_ctlKeyDownFlag)"
 
 		if (magnification >= 1.0)
 			magnification += step;
@@ -1807,54 +1818,56 @@ void CMImageView::ZoomIn (void)
 		else // magnification < 1.0
 			magnification = 1. / (inverse - step);
 
-		magnification = MIN(magnification, maxMagnification);
-
-		/////// Linux modification//////////
-		//int xscrollpos = m_Canvas->GetScrollPos(wxHORIZONTAL);
-		//int yscrollpos = m_Canvas->GetScrollPos(wxVERTICAL);
+				// Set new magnification
+		
+		magnification = MIN (magnification, maxMagnification);
 		m_Scale = magnification;
 		UpdateScrolls (magnification);
-			// Set new magnification
-		//m_displayMultiCPtr->SetMagnification(magnification);
+		
 		this->OnUpdate (this, NULL);
 		UpdateScaleInformation (GetWindowInfoHandle (this));
 	  
-		} // end "if (magnification < maxMagnification)"
+		}	// end "if (magnification < maxMagnification)"
 		
 	else	// At max zoom value
-		m_mainFrame->SetZoomCode(0);
+		m_mainFrame->SetZoomCode (0);
 
-} // end "ZoomIn"
+}	// end "ZoomIn"
 
 
-void CMImageView::ZoomOut(void)
+void CMImageView::ZoomOut (void)
+
 {
-	double magnification,
-			inverse,
-			step;
+	double 						magnification,
+									inverse,
+									step;
 
 
-	if (m_mainFrame->GetZoomCode() == 0)
-		return;
+	if (m_mainFrame->GetZoomCode () == 0)
+																							return;
 
-	magnification = m_displayMultiCPtr->GetMagnification();
+	magnification = m_displayMultiCPtr->GetMagnification ();
 
-	if (magnification > gMinMagnification) {
+	if (magnification > gMinMagnification)
+		{
 		inverse = 1. / magnification;
 
 		step = 0.1;
 
-		//if (!m_ctlKeyDownFlag) {
-		if (!wxGetKeyState(WXK_CONTROL))
+		#if defined multispec_wxlin
+			if (!wxGetKeyState (WXK_CONTROL))
+		#endif
+		#if defined multispec_wxmac
+			if (!wxGetKeyState (WXK_ALT))
+		#endif
 			{
-		//if (!wxGetKeyState(WXK_SHIFT)) {
 			step = 1.0;
 
 			if (magnification > 1)
-				 magnification = (double) (UInt16) (magnification + .5);
+				 magnification = (double)((UInt16)(magnification + .5));
 
 			if (inverse > 1)
-				 inverse = (double) (UInt16) (inverse + .5);
+				 inverse = (double)((UInt16)(inverse + .5));
 
 			}	// end "if (!m_ctlKeyDownFlag)"
 
@@ -1863,18 +1876,16 @@ void CMImageView::ZoomOut(void)
 
 		else	// magnification <= 1.
 			magnification = 1. / (inverse + step);
+		
+				// Set new magnification
 
-		magnification = MAX(magnification, gMinMagnification);
+		magnification = MAX (magnification, gMinMagnification);
 
 		m_Scale = magnification;
 		UpdateScrolls (magnification);
-		/////// Linux modification//////////
 		this->OnUpdate (this, NULL);
 		
-				// Set new magnification
-		
-		//m_displayMultiCPtr->SetMagnification(magnification);
-		UpdateScaleInformation(GetWindowInfoHandle (this));
+		UpdateScaleInformation (GetWindowInfoHandle (this));
 
 		}	// end "if (magnification < gMaxMagnification)"
 		
@@ -1884,13 +1895,16 @@ void CMImageView::ZoomOut(void)
 }	// end "ZoomOut"
 
 
+
 void CMImageView::ZoomSize (void)
+
 {
 	m_Scale = 1.0;
 	UpdateScrolls (m_Scale);
-	// Set new magnification
-	//m_displayMultiCPtr->SetMagnification(m_Scale);
+	
+			// Set new magnification
+	
 	this->OnUpdate (this, NULL);
-	UpdateScaleInformation(GetWindowInfoHandle (this));
+	UpdateScaleInformation (GetWindowInfoHandle (this));
 
-} // end "ZoomSize"
+}	// end "ZoomSize"

@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 // 								Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (2009-2018)
+//								 Copyright (2009-2019)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -12,7 +12,7 @@
 //
 //	Authors:					Abdur Rahman Maud, Larry L. Biehl
 //
-//	Revision date:			10/04/2018
+//	Revision date:			01/02/2019
 //
 //	Language:				C++
 //
@@ -34,8 +34,8 @@ CShortStatusDlg::CShortStatusDlg()
 
 }
 
-CShortStatusDlg::CShortStatusDlg(UInt16 identifier, wxWindow* pParent /*=NULL*/)
-: CMDialog(CShortStatusDlg::IDD, pParent, wxT("Status"))
+CShortStatusDlg::CShortStatusDlg (UInt16 identifier, wxWindow* pParent /*=NULL*/)
+		: CMDialog(CShortStatusDlg::IDD, pParent, wxT("Status"))
 
 {
 
@@ -44,6 +44,7 @@ CShortStatusDlg::CShortStatusDlg(UInt16 identifier, wxWindow* pParent /*=NULL*/)
     // is constructed.
 
     m_initializedFlag = CMDialog::m_initializedFlag;
+    m_canceledCommandInitiatedFlag = FALSE;
     m_identifier = identifier;
     if (identifier == kShortStatusInfoID)
         CreateControl_Short();
@@ -51,46 +52,25 @@ CShortStatusDlg::CShortStatusDlg(UInt16 identifier, wxWindow* pParent /*=NULL*/)
         CreateControl();
     else     //kGraphicStatusDialogID
         CreateControl_Graphics();
-    
-    
-    //    if (m_initializedFlag)
-    //        m_initializedFlag = Create(identifier, pParent);
-}
+	
+}	// end "CShortStatusDlg"
 
 
 
-BEGIN_EVENT_TABLE(CShortStatusDlg, CMDialog)
-	EVT_INIT_DIALOG(CShortStatusDlg::OnInitDialog)
-END_EVENT_TABLE()
-
-
-
-void CShortStatusDlg::OnInitDialog(wxInitDialogEvent& event)
-
-{
-    wxDialog::OnInitDialog(event);
-
-    PositionDialogWindow();
-
-    if (m_identifier == kShortStatusInfoID)
-        SetSizerAndFit(bSizer93);
-    else if (m_identifier == kUpdateStatsInfoID)
-        SetSizerAndFit(bSizer35);
-    else //kGraphicStatusDialogID
-        SetSizerAndFit(bSizer195);
-
-//    this->Layout();
-//    this->Fit();
-    //return TRUE; // return TRUE  unless you set the focus to a control
-}
+BEGIN_EVENT_TABLE (CShortStatusDlg, CMDialog)
+	EVT_CLOSE (CShortStatusDlg::OnClose)
+	EVT_INIT_DIALOG (CShortStatusDlg::OnInitDialog)
+	EVT_KEY_DOWN (CShortStatusDlg::OnKeyDown)
+	EVT_CHAR_HOOK (CShortStatusDlg::OnCharHook)
+END_EVENT_TABLE ()
 
 
 
 void CShortStatusDlg::CreateControl_Graphics()
 
 {
-    	//this->SetSizeHints( wxDefaultSize, wxDefaultSize );
-	this->SetSize(wxSize(480,160));
+	//this->SetSizeHints( wxDefaultSize, wxDefaultSize );
+	SetSize (wxSize (480,160));
 	//wxBoxSizer* bSizer195;
 	bSizer195 = new wxBoxSizer( wxVERTICAL );
 	
@@ -346,7 +326,22 @@ void CShortStatusDlg::CreateControl ()
 	wxBoxSizer* bSizer43;
 	bSizer43 = new wxBoxSizer(wxHORIZONTAL);
 
-	m_staticText55 = new wxStaticText(this, IDC_EscapeMessage, wxT("Hold 'Ctrl' + '.' key to cancel operation"), wxDefaultPosition, wxDefaultSize, 0);
+	#if defined multispec_wxlin
+		m_staticText55 = new wxStaticText (this,
+														IDC_EscapeMessage,
+														wxT("Hold 'Ctrl' + '.' key to cancel operation"),
+														wxDefaultPosition,
+														wxDefaultSize,
+														0);
+	#endif
+	#if defined multispec_wxmac
+		m_staticText55 = new wxStaticText (this,
+														IDC_EscapeMessage,
+														wxT("Strike esc key or Hold 'Cmd' + '.' key to cancel operation"),
+														wxDefaultPosition,
+														wxDefaultSize,
+														0);
+	#endif
 	m_staticText55->Wrap(-1);
 	//bSizer43->Add (m_staticText55, 0, wxALIGN_CENTER | wxALL, 5);
 	bSizer43->Add (m_staticText55, wxSizerFlags(0).Align(wxALIGN_CENTER_VERTICAL).Border(wxALL, 5));
@@ -401,3 +396,69 @@ void CShortStatusDlg::CreateControl ()
 	//    this->SetSizer(bSizer92);
 	//    this->Layout();
 }	// end "CreateControl"
+
+
+
+void CShortStatusDlg::OnCharHook (
+				wxKeyEvent& 									event)
+
+{
+	Boolean		escapeFlag = FALSE;
+	
+	if (event.GetKeyCode () == WXK_ESCAPE)
+		escapeFlag = TRUE;
+	
+}	// end "OnCharHook"
+
+
+
+void CShortStatusDlg::OnClose (
+				wxCloseEvent& 									event)
+
+{
+	if (event.CanVeto ())
+		{
+		m_canceledCommandInitiatedFlag = TRUE;
+		event.Veto ();
+																									return;
+		}
+	
+	event.Skip ();
+	
+}	// end "OnClose"
+
+
+
+void CShortStatusDlg::OnInitDialog (
+				wxInitDialogEvent& 							event)
+
+{
+    wxDialog::OnInitDialog(event);
+
+    PositionDialogWindow();
+
+    if (m_identifier == kShortStatusInfoID)
+        SetSizerAndFit(bSizer93);
+    else if (m_identifier == kUpdateStatsInfoID)
+        SetSizerAndFit(bSizer35);
+    else //kGraphicStatusDialogID
+        SetSizerAndFit(bSizer195);
+
+//    this->Layout();
+//    this->Fit();
+    //return TRUE; // return TRUE  unless you set the focus to a control
+	
+}	// end "OnInitDialog"
+
+
+
+void CShortStatusDlg::OnKeyDown (
+				wxKeyEvent& 									event)
+
+{
+	Boolean		escapeFlag = FALSE;
+	
+	if (event.GetKeyCode () == WXK_ESCAPE)
+		escapeFlag = TRUE;
+	
+}	// end "OnKeyDown"

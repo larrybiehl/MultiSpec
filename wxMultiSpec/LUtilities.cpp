@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//							 Copyright (1988-2017)
+//							 Copyright (1988-2019)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -13,7 +13,7 @@
 //
 //	Revision number:		3.0
 //
-//	Revision date:			12/12/2018
+//	Revision date:			01/03/2019
 //
 //	Language:				C
 //
@@ -137,7 +137,7 @@ extern void GetApplicationStartupPath (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -156,7 +156,7 @@ extern void GetApplicationStartupPath (
 // Called By:			DoUpdateEvent
 //
 //	Coded By:			Larry L. Biehl			Date: 08/31/1988
-//	Revised By:			Larry L. Biehl			Date: 12/12/2018
+//	Revised By:			Larry L. Biehl			Date: 01/03/2019
 
 void CopyOffScreenImage (
 				CMImageView*						imageViewCPtr,
@@ -168,7 +168,9 @@ void CopyOffScreenImage (
 				SInt16								copyType)
 
 {
-   double								magnification;
+   double								hOrigin,
+											magnification,
+											vOrigin;
 
    LongRect								lDestinationRect,
 											lSourceRect;
@@ -189,9 +191,7 @@ void CopyOffScreenImage (
 
    DisplaySpecsPtr					displaySpecsPtr;
 
-   SInt32								hOrigin,
-											numberImageOverlays,
-											vOrigin;
+   SInt32								numberImageOverlays;
 
    UInt32								numberOverlays;
 
@@ -237,8 +237,8 @@ void CopyOffScreenImage (
       displaySpecsPtr = (DisplaySpecsPtr)GetHandlePointer (displaySpecsHandle);
 
       magnification = displaySpecsPtr->magnification;
-      vOrigin = displaySpecsPtr->origin[0];
-      hOrigin = displaySpecsPtr->origin[1];
+      vOrigin = displaySpecsPtr->origin[kVertical];
+      hOrigin = displaySpecsPtr->origin[kHorizontal];
       yDimension = (SInt16) displaySpecsPtr->imageDimensions[0];
       xDimension = (SInt16) displaySpecsPtr->imageDimensions[1];
       
@@ -476,13 +476,20 @@ void CopyOffScreenImage (
 										// Skip first (Alpha) byte
 								bitmapBufferPtr++;
 							#endif
-							
+							/*
 							paletteCPtr->GetRGB ((int)*imageDataPtr,
 														bitmapBufferPtr,
 														bitmapBufferPtr + 1,
 														bitmapBufferPtr + 2);
+							*/
+							*bitmapBufferPtr = paletteCPtr->mPaletteObject[*imageDataPtr].red;
+							bitmapBufferPtr++;
+							*bitmapBufferPtr = paletteCPtr->mPaletteObject[*imageDataPtr].green;
+							bitmapBufferPtr++;
+							*bitmapBufferPtr = paletteCPtr->mPaletteObject[*imageDataPtr].blue;
+							
 							imageDataPtr++;
-							bitmapBufferPtr += 3;
+							bitmapBufferPtr++;
 							
 							}	// end "for (column=0; column<numberColumns; column++)"
 						
@@ -598,24 +605,25 @@ void CopyOffScreenImage (
 				{
 				displaySpecsPtr = (DisplaySpecsPtr)GetHandlePointer (displaySpecsHandle);
 
-				displaySpecsPtr->origin[kVertical] = (SInt16) lSourceRect.top;
-				displaySpecsPtr->origin[kHorizontal] = (SInt16) lSourceRect.left;
+				displaySpecsPtr->origin[kVertical] = (SInt16)lSourceRect.top;
+				displaySpecsPtr->origin[kHorizontal] = (SInt16)lSourceRect.left;
 				
 				}	// end "if (windowCode >= 2)"
 			
 			}	// end "if (numberImageOverlays > 0 || numberOverlays > 0 || ..."
 					  
 			// Draw the image overlay if they exist.
-		
+		/*
 		if (numberImageOverlays > 0)
 			DrawImageOverlays (imageViewCPtr,
 										  imageWindowCPtr->GetWindowInfoHandle (),
+										  pDC,
 										  NULL,
 										  NULL,
 										  &destinationRect,
 										  &sourceRect, // sourceRect changed inside
 										  windowCode);         
-		  
+		*/
 				// originally in LImageCanvas.cpp OnPaint
 		
 		//wxBitmap my_image (imageViewCPtr->m_ScaledBitmap);
@@ -649,6 +657,18 @@ void CopyOffScreenImage (
 			}	// end "if (my_image.Ok ())"
 		
 		displaydc.SelectObject (wxNullBitmap);
+		
+			// Draw the image overlay if they exist.
+		
+		if (numberImageOverlays > 0)
+			DrawImageOverlays (imageViewCPtr,
+										  imageWindowCPtr->GetWindowInfoHandle (),
+										  pDC,
+										  NULL,
+										  NULL,
+										  &destinationRect,
+										  &sourceRect, // sourceRect changed inside
+										  windowCode);
 		  
 			// Draw the vector overlays if they exist.
 		
@@ -732,7 +752,7 @@ void CopyOffScreenImage (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -945,7 +965,7 @@ void GetMenuItemText (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1126,7 +1146,7 @@ SInt16 GetOffscreenGWorld (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1159,7 +1179,7 @@ void GetScreenRect (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1218,7 +1238,7 @@ void GetScrollOffset (
 
 
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1252,7 +1272,7 @@ void NumToString (
 
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1287,7 +1307,7 @@ void	NumToString (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1331,7 +1351,7 @@ CharPtr PtoCstr (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

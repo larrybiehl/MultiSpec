@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (2009-2018)
+//								 Copyright (2009-2019)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -19,7 +19,7 @@
 //
 //	Written By:				Abdur Rahman Maud		Date: ??/??/2009
 // Revised By:				Tsung Tai Yeh			Date: 07/28/2015
-//	Revised By:				Larry L. Biehl			Date: 10/19/2018
+//	Revised By:				Larry L. Biehl			Date: 01/02/2019
 //	
 //------------------------------------------------------------------------------------
 
@@ -3147,6 +3147,7 @@
 #define ID_RIGHT_ARROW							29155
 #define ID_DOWN_ARROW							29156
 #define ID_UP_ARROW								29157
+#define ID_CANCEL_DRAW							29158
 #define ID_WINDOW_MENUITEMSTART				30201
 #define ID_WINDOW_MENUITEMEND					30300
 #define ID_FILE_CLOSE               30301

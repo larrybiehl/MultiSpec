@@ -1,4 +1,4 @@
-//		Revised 04/24/2018 by Larry L. Biehl
+//		Revised 01/03/2019 by Larry L. Biehl
 
 
 #ifndef __VIEWIMAGEH__
@@ -18,141 +18,170 @@
 
 class CMImageCanvas;
 
-class CMImageView : public wxView {
-public:
-	wxDocChildFrame *frame;
-    //MyTextWindow *textsw;
-  
-// Following is copied from shared directive portion of previous Image View
-public:
-    CMImageView();
-    virtual 	~CMImageView();
-    CMImageDoc* GetDocument(void);// Its already declared in wxview
-
-    Boolean CheckIfOffscreenImageExists(void);
-
-    void DisposeImageWindowSupportMemory(void);
-
-    Boolean GetControlKeyFlag(void);
-
-    UInt16 GetDisplayPixelSize(void);
-
-    Handle GetDisplaySpecsHandle(void);
-
-    CMImageWindow* GetImageWindowCPtr(void);
-
-    CMImageFrame* GetImageFrameCPtr(void);
-
-    CMLegendView* GetImageLegendViewCPtr(void);
-
-    CMLegendList* GetImageLegendListCPtr(void);
-
-    Boolean GetShiftKeyFlag(void);
-
-    void InvalidateRect(Rect* rect, bool erase);
-    void InvalidateRect(wxRect* rectp, bool erase);
-    void ClientToDoc(wxPoint& 	point);
-    Boolean	GetActiveWindowFlag (void);
-    virtual void OnActivateView(bool bActivate, wxView* pActivateView, wxView* pDeactiveView);
-    void	UpdateSelectionCoordinates(void);
-    void	UpdateCursorCoordinates (void);
-    void        UpdateCursorCoordinates(LongPoint* mousePtPtr);
-    SInt16	GetClassGroupCode(void);
-    SInt16	GetImageType(void);
-    SInt16	GetNumberGroups(void);
-    SInt16	GetTitleHeight (void);
-    SInt16 	GetWindowType(void);
-
-    
-    Boolean	DoDeleteKey ();
-    void DrawLegend();
-
-    SInt16 GetLegendFullHeight(void);
-
-    SInt16 GetLegendWidth(void);
-	 
-	 void	SetActiveWindowFlag (
-					Boolean				setting);
-
-    void SetControlKeyFlag(Boolean flag);
-
-    void SetLegendBitMapInfoHeaderHandle(Handle bitMapInfoHeaderHandle);
-
-    void SetImageWindowCPtr(CMImageWindow *imageWindowCPtr);
-
-    void SetShiftKeyFlag(Boolean flag);
-
-    void UpdateScrolls(double newMagnification);
-    void ZoomIn(void);
-    void ZoomOut(void);
-    void ZoomSize(void);
-    double m_printerTextScaling;
-    // Linux specific functions
-    bool OnCreate(wxDocument* doc, long flags);
-    wxBitmap GetScaledBitmap();
-    //wxBitmap* GetScaledBitmapPtr();
-    const wxSize & GetViewOffset();
-    void SetViewOffset(const wxSize & value);
-    virtual void OnDraw(wxDC* dc);
-    virtual void OnUpdate(wxView *sender, wxObject *hint = (wxObject *) NULL);
-    virtual bool OnClose(bool deleteWindow = true);
-    void CreateScaledBitmap();
-    void ClearView(bool);
-    void	ScrollChanged(void);
-	 void OnFocus(wxFocusEvent& event);
-         
-    // Pointer to CDC class
-    CDC* m_pDC;
-    // Zooming factor
-    double m_Scale;
+class CMImageView : public wxView
+	{
+	public:
+		wxDocChildFrame *frame;
 	
-    		// Bitmap object to display
-    wxBitmap 	m_ScaledBitmap;
+	public:
+		CMImageView();
+		virtual 			~CMImageView();
 
-    bool m_hasWaveLength;
-    
-    wxSize m_ViewOffset;    
-    SInt16 m_startchannel_sbs; // save the channel number for side by side display
-    CMImageCanvas* m_Canvas;
-    CMImageFrame* m_frame;
-    CMainFrame* m_mainFrame;
+		Boolean 			CheckIfOffscreenImageExists (void);
 
-    // This structure contains the rectangle to be updated in the current window.
+		void 				ClearView (bool);
 
-    static RECT s_updateRect;
-    
-    // Pointer to the display class for multispectral image.
+		void 				ClientToDoc (wxPoint& 	point);
 
-    CMDisplay* m_displayMultiCPtr;
+		void 				CreateScaledBitmap ();
 
-    // Pointer to the histogram class for the image.
+		void 				DisposeImageWindowSupportMemory (void);
 
-    CMHistogram* m_histogramCPtr;
+		Boolean			DoDeleteKey ();
 
-    // Flag indicating whether the current draw mode is for printing
-    // or copying.
+		void 				DrawLegend();
 
-    Boolean m_printCopyModeFlag;
+		Boolean			GetActiveWindowFlag (void);
 
-    // Flag indicating whether the class members have been
-    // initialized successfully.
+		SInt16			GetClassGroupCode (void);
 
-    Boolean m_initializedFlag;
+		Boolean 			GetControlKeyFlag (void);
 
-    SInt16 m_xPixelsPerInch;
-    SInt16 m_yPixelsPerInch;    
-    //void  OnChar(wxKeyEvent& event);
-    //void OnKeyDown(wxKeyEvent& event);
-	 void OnZoomInTool(wxCommandEvent& event);
+		UInt16 			GetDisplayPixelSize(void);
 
-protected:
-    SInt32	NormalizeScrollOffset(double	magnification,
+		Handle 			GetDisplaySpecsHandle(void);
+
+		CMImageDoc* 	GetDocument (void);// Its already declared in wxview
+
+		SInt16			GetImageType (void);
+
+		CMImageWindow* GetImageWindowCPtr (void);
+
+		CMImageFrame* 	GetImageFrameCPtr (void);
+
+		CMLegendList* 	GetImageLegendListCPtr (void);
+
+		CMLegendView* 	GetImageLegendViewCPtr (void);
+
+		SInt16 			GetLegendFullHeight (void);
+
+		SInt16 			GetLegendWidth (void);
+
+		SInt16			GetNumberGroups (void);
+
+		wxBitmap 		GetScaledBitmap ();
+
+		Boolean 			GetShiftKeyFlag (void);
+
+		SInt16			GetTitleHeight (void);
+
+		const wxSize& 	GetViewOffset (void);
+
+		SInt16 			GetWindowType (void);
+
+		void 				InvalidateRect (Rect* rect, bool erase);
+
+		void 				InvalidateRect (wxRect* rectp, bool erase);
+
+		virtual void 	OnActivateView (bool bActivate, wxView* pActivateView, wxView* pDeactiveView);
+
+		virtual bool 	OnClose (bool deleteWindow = true);
+
+		bool 				OnCreate(wxDocument* doc, long flags);
+
+		virtual void 	OnDraw (wxDC* dc);
+
+		void 				OnFocus (wxFocusEvent& event);
+
+		virtual void 	OnUpdate (wxView *sender, wxObject *hint = (wxObject*)NULL);
+
+		void 				OnZoomInTool(wxCommandEvent& event);
+
+		void				UpdateCursorCoordinates (void);
+
+		void        	UpdateCursorCoordinates (LongPoint* mousePtPtr);
+
+		void				UpdateSelectionCoordinates (void);
+
+		void				ScrollChanged (void);
+
+		void				SetActiveWindowFlag (
+								Boolean				setting);
+
+		void 				SetControlKeyFlag(Boolean flag);
+
+		void 				SetImageWindowCPtr(CMImageWindow *imageWindowCPtr);
+
+		void 				SetLegendBitMapInfoHeaderHandle(Handle bitMapInfoHeaderHandle);
+
+		void 				SetShiftKeyFlag(Boolean flag);
+
+		void 				SetViewOffset (const wxSize & value);
+
+		void				UpdateOffscreenMapOrigin (void);
+
+		void 				UpdateScrolls(double newMagnification);
+
+		void 				ZoomIn (void);
+
+		void 				ZoomSize (void);
+
+		void 				ZoomOut (void);
+
+		double 				m_printerTextScaling;
+	
+				// Pointer to CDC class
+		CDC* 					m_pDC;
+	
+				// Zooming factor
+		double 				m_Scale;
+
+				// Bitmap object to display
+		wxBitmap 			m_ScaledBitmap;
+
+		bool 					m_hasWaveLength;
+
+		wxSize 				m_ViewOffset;
+	
+		SInt16 				m_startchannel_sbs; // save the channel number for side by side display
+	
+		CMImageCanvas* 	m_Canvas;
+	
+		CMImageFrame* 		m_frame;
+	
+		CMainFrame* 		m_mainFrame;
+
+				// This structure contains the rectangle to be updated in the current window.
+
+		static RECT 		s_updateRect;
+
+				// Pointer to the display class for multispectral image.
+
+		CMDisplay* 			m_displayMultiCPtr;
+
+				// Pointer to the histogram class for the image.
+
+		CMHistogram* 		m_histogramCPtr;
+
+				// Flag indicating whether the current draw mode is for printing
+				// or copying.
+
+		Boolean 				m_printCopyModeFlag;
+
+				// Flag indicating whether the class members have been
+				// initialized successfully.
+
+		Boolean 				m_initializedFlag;
+
+		SInt16 				m_xPixelsPerInch;
+		SInt16 				m_yPixelsPerInch;
+
+	protected:
+		SInt32	NormalizeScrollOffset (double	magnification,
                                      SInt32	scrollIncrement,
                                      SInt32	scrollOffset);
 
-    void	UpdateScrollRange(double	magnification);
-
-    void	UpdateOffscreenMapOrigin(void);
+    void	UpdateScrollRange (double	magnification);
 
     void        InitialUpdate(void);
     // Flag indicated whether this view is active

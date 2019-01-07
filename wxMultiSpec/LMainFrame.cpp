@@ -1,6 +1,6 @@
 // LMainFrame.cpp
 //
-//	Revised By:			Larry L. Biehl			Date: 12/07/2018
+//	Revised By:			Larry L. Biehl			Date: 01/05/2019
 // Revised by:			Tsung Tai Yeh			Date: 10/05/2015
 
 #include "LMainFrame.h"
@@ -64,6 +64,7 @@ CMainFrame::CMainFrame (
    m_tooltipFlag = TRUE;
    m_toolBar1 = NULL;
    m_cancelOperationEventFlag = FALSE;
+   m_nextControlTime = 0;
    
 	wxInitAllImageHandlers();
 	#if defined multispec_wxlin
@@ -243,18 +244,20 @@ CMainFrame::CMainFrame (
 	m_menubar1->Append(editmenu, wxT("&Edit"));
 
 	viewmenu = new wxMenu();
-	wxMenuItem* m_menuItem31;
-	m_menuItem31 = new wxMenuItem(viewmenu, ID_VIEW_TOOLBAR, wxString(wxT("Toolbar")), wxEmptyString, wxITEM_CHECK);
-	viewmenu->Append(m_menuItem31);
+	#if defined multispec_wxlin
+		wxMenuItem* m_menuItem31;
+		m_menuItem31 = new wxMenuItem (viewmenu, ID_VIEW_TOOLBAR, wxString(wxT("Toolbar")), wxEmptyString, wxITEM_CHECK);
+		viewmenu->Append (m_menuItem31);
 
-	wxMenuItem* m_menuItem32;
-	m_menuItem32 = new wxMenuItem(viewmenu, ID_VIEW_STATUS_BAR, wxString(wxT("Status Bar")), wxEmptyString, wxITEM_CHECK);
-	viewmenu->Append(m_menuItem32);
+		wxMenuItem* m_menuItem32;
+		m_menuItem32 = new wxMenuItem (viewmenu, ID_VIEW_STATUS_BAR, wxString(wxT("Status Bar")), wxEmptyString, wxITEM_CHECK);
+		viewmenu->Append (m_menuItem32);
+	#endif
 
 	wxMenuItem* m_menuItem33;
-	m_menuItem33 = new wxMenuItem(viewmenu, ID_VIEW_COORDINATES_BAR, wxString(wxT("Coordinate View")), wxT("Show/hide coordinate info above active image window"), wxITEM_CHECK);
-	viewmenu->Append(m_menuItem33);
-	m_menuItem33->Enable(false);
+	m_menuItem33 = new wxMenuItem (viewmenu, ID_VIEW_COORDINATES_BAR, wxString(wxT("Coordinate View")), wxT("Show/hide coordinate info above active image window"), wxITEM_CHECK);
+	viewmenu->Append (m_menuItem33);
+	m_menuItem33->Enable (false);
 
 	m_menubar1->Append(viewmenu, wxT("&View"));
 
@@ -521,10 +524,14 @@ CMainFrame::CMainFrame (
 	 windowmenu->AppendSeparator();
 	*/
 	wxMenuItem* m_menuItem90;
-	m_menuItem90 = new wxMenuItem(windowmenu, ID_WINDOW_SHOW_COORDINATE_VIEW, wxString(wxT("&Show Coordinate View")), wxT("Show/hide coordinate info above active image window"), wxITEM_NORMAL);
-	windowmenu->Append(m_menuItem90);
+	m_menuItem90 = new wxMenuItem (windowmenu,
+												ID_WINDOW_SHOW_COORDINATE_VIEW,
+												wxString (wxT("&Show Coordinate View")),
+												wxT("Show/hide coordinate info above active image window"),
+												wxITEM_NORMAL);
+	windowmenu->Append (m_menuItem90);
 
-	windowmenu->AppendSeparator();
+	windowmenu->AppendSeparator ();
 
 	wxMenuItem* m_menuItem91;
 	m_menuItem91 = new wxMenuItem(windowmenu, ID_WINDOW_NEW_SELECTION_GRAPH, wxString(wxT("New Selection Window")), wxEmptyString, wxITEM_NORMAL);
@@ -550,7 +557,7 @@ CMainFrame::CMainFrame (
 	m_menubar1->Append(helpmenu, wxT("&Help"));
 	this->SetMenuBar (m_menubar1);
 	
-	#if !defined multispec_wxmac
+	#if defined multispec_wxlin
 		//statusBar = this->CreateStatusBar(3, wxST_SIZEGRIP, wxID_ANY);
 		m_toolBar1 = this->CreateToolBar(wxTB_HORIZONTAL, wxID_ANY);
 		m_toolBar1->SetToolBitmapSize (wxSize (16,16));
@@ -566,7 +573,6 @@ CMainFrame::CMainFrame (
 		m_toolBar1->AddTool (wxID_ABOUT, wxT("tool"), helpbmp, wxNullBitmap, wxITEM_NORMAL, wxT("Display MultiSpec Information"), wxEmptyString);
 		m_toolBar1->AddSeparator ();
 		m_toolBar1->AddTool (ID_MAGNIFICATION, wxT("tool"), zoom1, wxNullBitmap, wxITEM_NORMAL, wxT("Zoom to X1.0 magnification"), wxEmptyString);
-		//m_toolBar1->AddTool (ID_ZOOM_INi, wxT("tool"), zoomin, wxNullBitmap, wxITEM_NORMAL, wxEmptyString, wxEmptyString);
 		m_zoomInTool = m_toolBar1->AddTool (ID_ZOOM_IN, wxT("tool"), zoomin, wxNullBitmap, wxITEM_NORMAL, wxT("Zoom in for active image window"), wxEmptyString);
 		m_zoomOutTool = m_toolBar1->AddTool (ID_ZOOM_OUT, wxT("tool"), zoomout, wxNullBitmap, wxITEM_NORMAL, wxT("Zoom out for active image window"), wxEmptyString);
 
@@ -602,7 +608,7 @@ CMainFrame::CMainFrame (
 		Maximize (true);
 	
 		m_toolBar1->Bind (wxEVT_LEFT_DOWN, &CMainFrame::OnZoomInMouseDown, this);
-	#endif	// !defined multispec_wxmac
+	#endif	// defined multispec_wxlin
 	
 	SetFont (*wxSMALL_FONT);
 
@@ -615,6 +621,8 @@ BEGIN_EVENT_TABLE(CMainFrame, wxDocParentFrame)
 	//EVT_UPDATE_UI(ID_ZOOM_IN, CMainFrame::OnUpdateZoomIn)
 	//EVT_UPDATE_UI(ID_ZOOM_OUT, CMainFrame::OnUpdateZoomOut)
 	//EVT_UPDATE_UI(ID_INDICATOR_ZOOM, CMainFrame::OnUpdateZoomIndicator)
+
+	EVT_CHAR (CMainFrame::OnChar)
 
 	EVT_UPDATE_UI(ID_FILE_NEW_PROJECT, CMainFrame::OnUpdateFileNewProject)
 	EVT_UPDATE_UI(ID_IMAGE_OPEN, CMainFrame::OnUpdateFileOpen)
@@ -810,10 +818,14 @@ BEGIN_EVENT_TABLE(CMainFrame, wxDocParentFrame)
 	//EVT_TOOL(ID_ZOOM_INi, CMainFrame::OnZoom)
 	//EVT_LEFT_DOWN(CMainFrame::OnZoomInMouseDown)
 
-	EVT_TOOL_RCLICKED_RANGE(ID_ZOOM_IN, ID_MAGNIFICATION, CMainFrame::OnZoomInMouseDown2)
-
-	EVT_TOOL_RANGE(ID_ZOOM_IN, ID_MAGNIFICATION, CMainFrame::OnZoom)
-	EVT_TOOL(ID_OVERLAY, CMainFrame::OnShowOverlay)
+	//EVT_TOOL_RCLICKED_RANGE(ID_ZOOM_IN, ID_MAGNIFICATION, CMainFrame::OnZoomInMouseDown2)
+	#if defined multispec_wxlin
+		EVT_TOOL_RANGE (ID_ZOOM_IN, ID_MAGNIFICATION, CMainFrame::OnZoom)
+		EVT_TOOL (ID_OVERLAY, CMainFrame::OnShowOverlay)
+	#endif
+	#if defined multispec_wxmac
+		EVT_TOOL_RANGE (ID_MAGNIFICATION, ID_MAGNIFICATION, CMainFrame::OnZoom)
+	#endif
 	EVT_MENU_RANGE(ID_CLEAROVERLAYMENUITEMSTART, ID_CLEAROVERLAYMENUITEMEND, CMainFrame::OnEditClearSelectedOverlay)
 	EVT_MENU_RANGE(ID_SHOWOVERLAYMENUITEMSTART, ID_SHOWOVERLAYMENUITEMEND, CMainFrame::OnOverlaySelection)
 
@@ -875,15 +887,7 @@ Boolean CMainFrame::GetEnableFlagForStatisticsAndCluster ()
 		{
 		Handle windowInfoHandle = GetWindowInfoHandle(gActiveImageViewCPtr);
 		WindowInfoPtr windowInfoPtr = (WindowInfoPtr) GetHandlePointer(
-				 windowInfoHandle,
-				 kNoLock,
-				 kNoMoveHi);
-
-		Handle fileInfoHandle = GetFileInfoHandle(windowInfoPtr);
-		FileInfoPtr fileInfoPtr = (FileInfoPtr) GetHandlePointer(
-				 fileInfoHandle,
-				 kNoLock,
-				 kNoMoveHi);
+				 windowInfoHandle);
 
 		if (windowInfoPtr->numberImageFiles == 1 &&
 				 (windowInfoPtr->imageType == kMultispectralImageType ||
@@ -897,11 +901,12 @@ Boolean CMainFrame::GetEnableFlagForStatisticsAndCluster ()
 } // end "GetEnableFlagForStatisticsAndCluster"
 
 
-SInt16 CMainFrame::GetZoomCode(void) 
+SInt16 CMainFrame::GetZoomCode (void)
+
 {
     return (m_imageZoomCode);
 
-} // end "GetZoomCode"
+}	// end "GetZoomCode"
 
 /*
 void CMainFrame::OnActivate(wxActivateEvent& event) {
@@ -925,12 +930,23 @@ void CMainFrame::OnChar (
 				wxKeyEvent& 					event)
 
 {
-	if (event.GetKeyCode() == '.' && event.GetModifiers() == wxMOD_CONTROL)
+	if (event.GetEventType() == wxEVT_KEY_DOWN && gProcessorCode != 0)
 		{
-		m_cancelOperationEventFlag = TRUE;
-		event.Skip();
+		if (event.GetKeyCode() == WXK_ESCAPE)
+			{
+			m_cancelOperationEventFlag = TRUE;
+			event.Skip();
+			
+			}	// end "if (event.GetKeyCode() == WXK_ESCAPE)"
+			
+		else if (event.GetKeyCode() == '.' && event.GetModifiers() == wxMOD_CONTROL)
+			{
+			m_cancelOperationEventFlag = TRUE;
+			event.Skip();
+			
+			}	// end "if (event.GetKeyCode() == '.' && ..."
 		
-		}	// end "if (event.GetKeyCode() == '.' && ..."
+		}	// end "if (event.GetEventType() == wxEVT_KEY_DOWN)"
 	
 }	// end "OnChar"
 
@@ -1265,29 +1281,37 @@ void CMainFrame::OnFileSave (wxCommandEvent& event)
 
 void CMainFrame::OnFileSaveAs (wxCommandEvent& event) 
 {
-/*	
+	/*
 	int numberChars = sprintf ((char*)&gTextString3,
 													" CMainFrame::OnFileSaveAs (gActiveWindowType): %ld%s", 
 													gActiveWindowType,
 													gEndOfLine);
 	ListString ((char*)&gTextString3, numberChars, gOutputTextH);
-*/
+	*/
 	gProcessorCode = kSaveOutputAsProcessor;
 	
 	if (gActiveWindowType == kOutputWindowType) 
 		{
-		wxFrame* frame = GetActiveFrame();	// GetMainFrame()
-		wxFileDialog dialog(frame, wxT("Save Text Output..."), wxT(""), wxT("MultiSpec_Text_Output.txt"),wxT("*.txt"), wxFD_SAVE|wxFD_OVERWRITE_PROMPT|wxSTAY_ON_TOP);
-		if (dialog.ShowModal() == wxID_OK) {
-			wxString path = dialog.GetPath();
-			gOutputViewCPtr->GetDocument()->OnSaveDocument(path);
-			}
+		wxFrame* frame = GetActiveFrame ();	// GetMainFrame()
+		wxFileDialog dialog (frame,
+									wxT("Save Text Output..."),
+									wxT(""), wxT("MultiSpec_Text_Output.txt"),
+									wxT("*.txt"),
+									wxFD_SAVE|wxFD_OVERWRITE_PROMPT|wxSTAY_ON_TOP);
+		
+		if (dialog.ShowModal() == wxID_OK)
+			{
+			wxString path = dialog.GetPath ();
+			gOutputViewCPtr->GetDocument ()->OnSaveDocument (path);
 			
-		gOutputViewCPtr->m_frame->SetTitle(wxT("Text Output"));
+			}	// end "if (dialog.ShowModal() == wxID_OK)"
+			
+		gOutputViewCPtr->m_frame->SetTitle (wxT("Text Output"));
+		
 		}
 	
 	else if (gActiveWindowType == kImageWindowType || gActiveWindowType == kThematicWindowType)
-		SaveImageWindowAs();
+		SaveImageWindowAs ();
 		
 	gProcessorCode = 0;
 
@@ -1325,35 +1349,32 @@ void CMainFrame::OnIdle (
 										gEndOfLine);
 		ListString ((char*)&gTextString3, numberChars, gOutputTextH);
 		*/
-		wxMouseState currentMouseState = wxGetMouseState();
-		if (currentMouseState.RightIsDown())
+		wxMouseState currentMouseState = wxGetMouseState ();
+		if (currentMouseState.LeftIsDown())
 			{
+			m_controlDelayFlag = !wxGetKeyState (WXK_CONTROL);
 			UInt32 currentTickCount = GetTickCount();
 			/*
 			if (currentTickCount >= m_nextControlTime)
 				{
-			
 				int numberChars3 = sprintf ((char*)&gTextString3,
 											" CMainFrame::OnIdle: (currentTickCount >= m_nextControlTime): %d, %d%s",
 											currentTickCount, 
 											m_nextControlTime,
 											gEndOfLine);
 				ListString ((char*)&gTextString3, numberChars3, gOutputTextH);
-			 
 				}
 			
 			else
 				{
 				int numberChars4 = sprintf ((char*)&gTextString3,
-											" CMainFrame::OnIdle: (currentTickCount >= m_nextControlTime): %d, %d%s",
+											" CMainFrame::OnIdle: (currentTickCount < m_nextControlTime): %d, %d%s",
 											currentTickCount, 
 											m_nextControlTime,
 											gEndOfLine);
 				ListString ((char*)&gTextString3, numberChars4, gOutputTextH);
-			 
 				}
 			*/
-			m_controlDelayFlag = !wxGetKeyState(WXK_SHIFT);
 			if (currentTickCount >= m_nextControlTime || !m_controlDelayFlag)
 				{
 				m_nextControlTime = currentTickCount + gControlOffset;
@@ -1366,26 +1387,29 @@ void CMainFrame::OnIdle (
 				ListString ((char*)&gTextString3, numberChars, gOutputTextH);
 				*/
 				if (m_imageZoomCode == ID_ZOOM_IN)
-					gActiveImageViewCPtr->ZoomIn();
+					gActiveImageViewCPtr->ZoomIn ();
+				
 				else if (m_imageZoomCode == ID_ZOOM_OUT)
-					gActiveImageViewCPtr->ZoomOut();
+					gActiveImageViewCPtr->ZoomOut ();
 					
 				}	// end "if (!m_controlDelayFlag || (GetTickCount() > m_nextControlTime))
 				
-			event.RequestMore(true);
-			//SetZoomCode(m_imageZoomCode);
+			event.RequestMore (true);
 				
-			}	// end "if (wxMouseState().RightIsDown())"
+			}	// end "if (wxMouseState().LeftIsDown())"
 			
-		else { // quit zooming
+		else	// quit zooming
+			{
 			/*
 			int numberChars2 = sprintf ((char*)&gTextString3,
-												" CMainFrame::OnIdle: (right mouse button up): %s",
+												" CMainFrame::OnIdle: (left mouse button up): %s",
 												gEndOfLine);
 			ListString ((char*)&gTextString3, numberChars2, gOutputTextH);
 			*/
 			SetZoomCode(0);
-			}
+			m_nextControlTime = 0;
+			
+			}	// end "else quit zooming"
 			
 		}	// end "if (m_imageZoomCode > 0)"
 	
@@ -3354,20 +3378,21 @@ void CMainFrame::OnViewCoordinatesBar(wxCommandEvent& event)
 
 {
 			// Toggle the coordinates bar
-	gActiveImageViewCPtr->m_frame->ShowCoordinateView(2);
+	
+	gActiveImageViewCPtr->m_frame->ShowCoordinateView (2);
 
-} // end "OnViewCoordinatesBar"
+}	// end "OnViewCoordinatesBar"
 
 
 
-void CMainFrame::OnWindowShowCoordinateView(wxCommandEvent& event)
+void CMainFrame::OnWindowShowCoordinateView (wxCommandEvent& event)
 
 {
 			// Toggle the coordinates bar
 
-	gActiveImageViewCPtr->m_frame->ShowCoordinateView(2);
+	gActiveImageViewCPtr->m_frame->ShowCoordinateView (2);
 
-} // end "OnWindowShowCoordinateView"
+}	// end "OnWindowShowCoordinateView"
 
 
 
@@ -3397,18 +3422,21 @@ void CMainFrame::OnZoom (
 		if (activechild != NULL)
 			{
 			if (event.GetId() == ID_ZOOM_IN || event.GetId() == ID_ZOOM_OUT)
-				SetZoomCode(event.GetId());
-			activechild->OnZoom(event);	
-			SetZoomCode(0);
+				SetZoomCode (event.GetId());
+			activechild->OnZoom (event);
+			SetZoomCode (0);
 			
-			}
-		}
+			}	// end "if (activechild != NULL)"
+		
+		}	// end "if (gActiveImageViewCPtr != NULL)"
 		
 }	// end "OnZoom"
 
 
 
-void CMainFrame::OnZoomInMouseDown(wxMouseEvent& event) {
+void CMainFrame::OnZoomInMouseDown (wxMouseEvent& event)
+
+{
 	//CMImageView* currentview = wxDynamicCast(GetDocumentManager()->GetCurrentView(), CMImageView);
 	
 	int numberChars = sprintf ((char*)&gTextString3,
@@ -3425,7 +3453,9 @@ void CMainFrame::OnZoomInMouseDown(wxMouseEvent& event) {
 }	// end "OnZoomInMouseDown"
 
 
-void CMainFrame::OnZoomInMouseDown2(wxCommandEvent& event) {
+void CMainFrame::OnZoomInMouseDown2 (wxCommandEvent& event)
+
+{
 	//CMImageView* currentview = wxDynamicCast(GetDocumentManager()->GetCurrentView(), CMImageView);
 	/*
 	int numberChars = sprintf ((char*)&gTextString3,
@@ -3433,7 +3463,8 @@ void CMainFrame::OnZoomInMouseDown2(wxCommandEvent& event) {
 												gEndOfLine);
 	ListString ((char*)&gTextString3, numberChars, gOutputTextH);	
 	*/
-	if (gActiveImageViewCPtr != NULL) {
+	if (gActiveImageViewCPtr != NULL)
+		{
 		CMImageFrame* activechild = (CMImageFrame*) (gActiveImageViewCPtr->GetFrame());
 		if (activechild != NULL) {
 			if (event.GetId() == ID_ZOOM_IN || event.GetId() == ID_ZOOM_OUT)
@@ -3448,7 +3479,9 @@ void CMainFrame::OnZoomInMouseDown2(wxCommandEvent& event) {
 }		// end "OnZoomInMouseDown2"
 
 
-void CMainFrame::OnShowOverlay(wxCommandEvent& event) {
+void CMainFrame::OnShowOverlay (wxCommandEvent& event)
+
+{
 	//wxKeyboardState	keyBoardState;
 	//m_optionOverlayFlag = (keyBoardState.GetModifiers() == wxMOD_SHIFT);
 	m_optionOverlayFlag = false; // Flag to see if option key is pressed
@@ -3503,8 +3536,15 @@ void CMainFrame::OnOverlaySelection(wxCommandEvent& event) {
 }	// end "OnOverlaySelection"
 
 
-void CMainFrame::OnAbout(wxCommandEvent& event) {
-    LAbout dlg(this);
+void CMainFrame::OnAbout (wxCommandEvent& event)
+
+{
+	#if defined multispec_wxlin
+		LAbout dlg (this);
+	#endif
+	#if defined multispec_wxmac
+		LAbout dlg (NULL);
+	#endif
     dlg.ShowModal();
 }
 
@@ -3562,6 +3602,17 @@ void CMainFrame::OnWindowIorGWindowSelection(wxCommandEvent& event) {
 }	// end "OnWindowWindowSelection"
 
 
+
+void CMainFrame::SetNextControlTime (
+				UInt32 								offset)
+
+{
+	m_nextControlTime = GetTickCount() + offset;
+
+}	// end "SetNextControlTime"
+
+
+
 void CMainFrame::SetToolParametersFlag (
 				Boolean							toolParameterFileFlag) 
 {
@@ -3572,6 +3623,7 @@ void CMainFrame::SetToolParametersFlag (
 	#endif
 		
 }		// end "SetToolParametersFlag"
+
 
 
 void CMainFrame::SetZoomCode (
