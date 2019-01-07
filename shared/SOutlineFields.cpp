@@ -3,13 +3,13 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			11/02/2018
+//	Revision date:			01/05/2019
 //
 //	File:						SOutlineFields.cpp
 //
@@ -82,7 +82,7 @@ void OutlineProjectFields (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -150,7 +150,7 @@ void ForceFieldOutlineUpdate (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -192,7 +192,7 @@ double GetAngle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -236,7 +236,7 @@ double GetHalfAngle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -548,7 +548,7 @@ void GetPolygonLabelPoint (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -634,7 +634,7 @@ void OutlineFieldsInProjectWindows (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -705,7 +705,7 @@ void OutlineFieldsInProjectBaseWindows (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1128,7 +1128,7 @@ void OutlineFieldsControl (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1179,7 +1179,7 @@ void OutlineProjectFields (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1252,7 +1252,7 @@ void OutlineClassFields (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1272,7 +1272,7 @@ void OutlineClassFields (
 //							OutlineClassFields.c		in outlineFields.c
 //
 //	Coded By:			Larry L. Biehl			Date: 01/10/1989
-//	Revised By:			Larry L. Biehl			Date: 03/03/2017	
+//	Revised By:			Larry L. Biehl			Date: 01/05/2019
 
 void OutlineField (
 				SInt16								classNumber, 
@@ -1289,10 +1289,10 @@ void OutlineField (
 	LongRect*							LCRectPtr; 
 												
 	LongPoint							drawPoint,
-											nextPoint,
+											//nextPoint,
 											startPoint; 
 	#if defined multispec_lin
-		LongPoint							lastPoint;
+		//LongPoint							lastPoint;
       LongPoint							windowPoint;
       wxPoint scrollOffset;
 	#endif // defined multispec_lin
@@ -1686,8 +1686,11 @@ void OutlineField (
 			#if defined multispec_lin
 						// Draw polygon
 			
+				CMImageView* imageViewCPtr = GetWindowPtr (windowInfoHandle);
+			
 				SetChannelWindowVariables (kToImageWindow,
-													gProjectSelectionWindow,
+													//gProjectSelectionWindow,
+													imageViewCPtr,
 													kNotCoreGraphics);
 			
 				SetLCToWindowUnitVariables (windowInfoHandle,
@@ -1697,7 +1700,8 @@ void OutlineField (
 				
 				pointCount = fieldIdentPtr[fieldNumber].numberOfPolygonPoints;  
 				wxPoint* pointlist = new wxPoint[pointCount];
-				scrollOffset = gProjectSelectionWindow->m_Canvas->GetScrollPosition ();
+				//scrollOffset = gProjectSelectionWindow->m_Canvas->GetScrollPosition ();
+				scrollOffset = imageViewCPtr->m_Canvas->GetScrollPosition ();
 				for (int index = 0; index < pointCount; index++)
 					{
 					ConvertLCToWinPoint ((LongPoint*) & fieldPointsPtr[pointIndex++],

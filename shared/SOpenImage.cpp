@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//									Copyright (1988-2018)
+//									Copyright (1988-2019)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			11/06/2018
+//	Revision date:			01/05/2019
 //
 //	Language:				C
 //
@@ -83,6 +83,7 @@
 
 	Rect rect;
 	#include "wx/app.h"
+	#include "wx/display.h"
 	#include "wx/docview.h"
 	
 	#include "CFileStream.h"
@@ -321,7 +322,7 @@ SInt16 ReadWindowsBitMapHeader (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -411,7 +412,7 @@ Boolean AddToImageWindowFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -434,7 +435,7 @@ Boolean AddToImageWindowFile (
 //							SetUpThematicImageWindow in SOpnImag.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 08/11/1988
-//	Revised By:			Larry L. Biehl			Date: 11/06/2018
+//	Revised By:			Larry L. Biehl			Date: 01/03/2019
 
 void AdjustImageWSize (
 				Handle								windowInfoHandle)
@@ -587,13 +588,27 @@ void AdjustImageWSize (
 		RECT rect, frameRect;
 		wxRect client_rect, frameClient_rect;
 
-		wxFrame* pMainFrame = (wxFrame*)GetMainFrame ();
-		client_rect = pMainFrame->GetClientRect ();
-		//client_rect = pMainFrame->GetRect ();
-		rect.top = client_rect.GetTop ();
-		rect.left = client_rect.GetLeft ();
-		rect.bottom = client_rect.GetBottom ();
-		rect.right = client_rect.GetRight ();
+		#if defined multispec_wxlin
+			wxFrame* pMainFrame = (wxFrame*)GetMainFrame ();
+			client_rect = pMainFrame->GetClientRect ();
+			//client_rect = pMainFrame->GetRect ();
+			rect.top = client_rect.GetTop ();
+			rect.left = client_rect.GetLeft ();
+			rect.bottom = client_rect.GetBottom ();
+			rect.right = client_rect.GetRight ();
+   	#endif
+		#if defined multispec_wxmac
+			//int			menuWidth,
+			//				menuHeight;
+	
+			client_rect = wxDisplay().GetClientArea ();
+	
+   		//GetMainFrame()->m_menubar1->GetSize (&menuWidth, &menuHeight);
+			rect.top = client_rect.GetTop ();
+			rect.left = client_rect.GetLeft ();
+			rect.bottom = client_rect.GetBottom ();
+			rect.right = client_rect.GetRight ();
+   	#endif
 		
 		CMImageWindow* imageWindowCPtr = windowInfoPtr->cImageWindowPtr;
 		CMImageView* imageViewCPtr = (CMImageView*)imageWindowCPtr->mImageViewCPtr;
@@ -681,7 +696,8 @@ void AdjustImageWSize (
 
 	legendWidth = 0;
 	if (GetWindowType (windowInfoHandle) == kThematicWindowType)
-		legendWidth = GetLegendWidth (windowInfoHandle);
+				// Allow for extra pixel
+		legendWidth = GetLegendWidth (windowInfoHandle) + 1;
 
 			// Initialize resolutionElement depending upon whether display			
 			// elements are color or B&W patterns and then number of display		
@@ -699,14 +715,31 @@ void AdjustImageWSize (
 
 	if (columnInterval > lineInterval)
 		lineInterval = columnInterval;
-
+	
+	double magnification = 1;
+	if (lineInterval > 1)
+		{
+				// Use the magnification value that will be used later when displaying
+				// the image
+	
+		magnification = (double)1/lineInterval;
+		magnification = roundf (magnification * 1000) / 1000;
+		
+		}	// end "if (lineInterval > 1)"
+	/*
 	windowHeight = (UInt16)((numberLines - 1)/lineInterval + 1) +
 																		amountToAllowForVStuff;
 
-	windowHeight = MAX (windowHeight, (UInt16)gGrowAreaMinimum);
-
 	windowWidth = (UInt16)((numberColumns - 1)/columnInterval + 1) +
 														legendWidth + amountToAllowForHStuff;
+	*/
+	windowHeight = (UInt16)(magnification * numberLines +
+																		amountToAllowForVStuff);
+
+	windowWidth = (UInt16)(magnification * numberColumns +
+														legendWidth + amountToAllowForHStuff);
+	
+	windowHeight = MAX (windowHeight, (UInt16)gGrowAreaMinimum);
 
 	windowWidth = MAX (windowWidth, gGrowAreaMinimum + legendWidth);
 	 
@@ -849,7 +882,7 @@ void AdjustImageWSize (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -894,7 +927,7 @@ float* CheckChannelValuesHandleSize (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1032,7 +1065,7 @@ SInt16 CheckFileInfoParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1164,7 +1197,7 @@ SInt16 CheckForENVIHeader (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1286,7 +1319,7 @@ SInt16 CheckForPDS_LBL_File (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1411,7 +1444,7 @@ SInt32 CheckIfProjectFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2057,7 +2090,7 @@ SInt16 CheckImageHeader (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2153,7 +2186,7 @@ double CompareFileInfoAndFileSize (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2289,7 +2322,7 @@ SInt16 ConvertMultiSpecProjectionCodeToERDASCode (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2333,7 +2366,7 @@ void CreateDefaultClassName (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2387,7 +2420,7 @@ void CreateDefaultClassNames (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2492,7 +2525,7 @@ SInt16 DetermineIfFileSpecsDialogNeedsCalled (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2544,7 +2577,7 @@ SInt16 DeterminePeruSatBandOrder (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2629,7 +2662,7 @@ void FinishMapInformationSetUp (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3078,7 +3111,7 @@ Boolean GetClassesFromHistogram (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3155,7 +3188,7 @@ SInt16 GetDatumInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3459,7 +3492,7 @@ Boolean GetDefaultSupportFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3517,7 +3550,7 @@ void GetDefaultSupportFileName (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3676,7 +3709,7 @@ void GetDefaultSupportFileName (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3894,7 +3927,7 @@ SInt16 GetFileHeaderString (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3992,7 +4025,7 @@ double GetFileHeaderRealValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4091,7 +4124,7 @@ SInt32 GetFileHeaderValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4208,7 +4241,7 @@ SInt32 GetFileHeaderValues (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4920,7 +4953,7 @@ void GetInstrumentChannelDescriptionsAndValues (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5123,7 +5156,7 @@ void GetInstrumentCode (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5315,7 +5348,7 @@ SInt16 GetMapProjectionCodeFromGCTPNumber (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5436,7 +5469,7 @@ void GetMultiSpecChannelWidths (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5515,7 +5548,7 @@ SInt16 GetProjectionNameInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5571,7 +5604,7 @@ HUInt16Ptr GetSymbolToBinaryVector (
 
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5662,7 +5695,7 @@ SInt16 GetChannelWavelengthOrder (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5811,7 +5844,7 @@ SInt16 GetChannelWavelengthOrder (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5989,7 +6022,7 @@ void IntermediateFileUpdate (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6135,7 +6168,7 @@ SInt16 LinkFastL7AFiles (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6390,7 +6423,7 @@ void LoadClassNameDescriptions (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6500,7 +6533,7 @@ Boolean LoadImageInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6557,7 +6590,7 @@ Boolean LoadSelectedDataSetInformation	(
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6708,7 +6741,7 @@ Boolean ModalFileFormat (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6778,7 +6811,7 @@ void ReadChannelDescriptionsAndValues (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7311,7 +7344,7 @@ SInt16 ReadENVIHeader (
 
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7444,7 +7477,7 @@ SInt16 ReadENVIHeaderBandNamesInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7931,7 +7964,7 @@ SInt16 ReadENVIHeaderMapInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8140,7 +8173,7 @@ void ReadENVIChannelDescriptionsAndValues (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8365,7 +8398,7 @@ Boolean ReadERDASClassNames (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8897,7 +8930,7 @@ SInt16 ReadERDASHeader (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9603,7 +9636,7 @@ SInt16 ReadFastL7AHeader (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9777,7 +9810,7 @@ SInt16 ReadLARSYSMISTHeader (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -10260,7 +10293,7 @@ SInt16 ReadLASHeader (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -10675,7 +10708,7 @@ SInt16 ReadLGSOWGHeader (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -10785,7 +10818,7 @@ SInt16 ReadMacSADIEHeader (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11296,7 +11329,7 @@ SInt16 ReadMultiSpecClassificationHeader (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11470,7 +11503,7 @@ void ReadLARSYSChannelDescriptionsAndValues (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11619,7 +11652,7 @@ void ReadMultiSpecChannelDescriptionsAndValues (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11741,7 +11774,7 @@ SInt16 ReadMultiSpecChannelDescriptions (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11910,7 +11943,7 @@ SInt16 ReadMultiSpecChannelValues (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -12134,7 +12167,7 @@ Boolean ReadMultiSpecClassNames (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -12865,7 +12898,7 @@ SInt16 ReadPDSHeader (
 
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -13036,7 +13069,7 @@ SInt16 ReadSPOTHeader (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -13188,7 +13221,7 @@ SInt16 ReadSunScreenDumpHeader (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -13326,7 +13359,7 @@ SInt16 ReadTGAHeader (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -13404,7 +13437,7 @@ Boolean ReadThematicGroups (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -13850,7 +13883,7 @@ Boolean ReadThematicGroupsFromImageFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -14298,7 +14331,7 @@ SInt16 ReadVICARHeader (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -14489,7 +14522,7 @@ SInt16 ReadWindowsBitMapHeader	(
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -14620,7 +14653,7 @@ Boolean SetUpImageWindow (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -14764,7 +14797,7 @@ Boolean SetUpThematicImageWindow (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -14809,7 +14842,7 @@ Boolean SizeOfImageFileCanBeCalculated (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

@@ -21,7 +21,7 @@
 //	Written By:				Larry L. Biehl			Date: 03/29/1988
 //	Revised By:				Abdur Maud				Date: 06/24/2013
 //	Revised By:				Tsung Tai Yeh			Date: 09/23/2015
-//	Revised By:				Larry L. Biehl			Date: 10/19/2018
+//	Revised By:				Larry L. Biehl			Date: 12/18/2018
 //	
 //------------------------------------------------------------------------------------
 
@@ -5323,6 +5323,7 @@ extern void CopyToOffscreenBuffer (
 extern void DrawImageOverlays (
 				WindowPtr							windowPtr,
 				Handle								windowInfoHandle,
+				CDC*									pDC,
 				CGContextRef						context,
 				CGRect*								rectangle,
 				Rect*									destinationRectPtr,

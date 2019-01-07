@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			07/23/2018
+//	Revision date:			01/03/2019
 //
 //	Language:				C
 //
@@ -94,7 +94,7 @@ void SetWindowToImageSize (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -183,7 +183,7 @@ Boolean CheckSomeDisplayEvents (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -335,7 +335,7 @@ SInt16 CheckNumberDisplayColumns (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -418,7 +418,7 @@ SInt16 CheckNumberDisplayLines (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -826,7 +826,7 @@ void DisplayColorImage (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -846,7 +846,7 @@ void DisplayColorImage (
 //							SetUpThematicImageWindow in menus.c
 //
 //	Coded By:			Larry L. Biehl			Date: 12/18/1988
-//	Revised By:			Larry L. Biehl			Date: 11/27/2017
+//	Revised By:			Larry L. Biehl			Date: 01/02/2019
 
 void DisplayImage ()
 {
@@ -890,6 +890,11 @@ void DisplayImage ()
 				// has been loaded.
 
 		gImageWindowInfoPtr->drawVectorOverlaysFlag = FALSE;
+		
+				// Make sure gOperationCanceledFlag is set to false at the
+				// beginning.
+		
+		gOperationCanceledFlag = FALSE;
 
 				// Call the appropriate image display routine.							
         
@@ -973,6 +978,7 @@ void DisplayImage ()
 
 		gMemoryTypeNeeded = 0;
 		gProcessorCode = 0;
+		gOperationCanceledFlag = FALSE;
 
 		}	// end "SetUpActiveImageInformationGlobals (..." 
 
@@ -983,7 +989,7 @@ void DisplayImage ()
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1019,7 +1025,7 @@ void ForceDisplayCodeResourceLoad (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1068,7 +1074,7 @@ SInt16 GetDefaultImagePixelSize (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1112,7 +1118,7 @@ Boolean GetIncludeVectorOverlaysFlag (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1166,7 +1172,7 @@ UInt32 GetNumberPixRowBytes (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1219,7 +1225,7 @@ DisplaySpecsPtr GetActiveDisplaySpecsPtr (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1282,7 +1288,7 @@ Handle GetDisplaySpecsStructure (
 
 #if defined multispec_mac || defined multispec_win
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1859,7 +1865,7 @@ SInt16 GetOffscreenGWorld (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2051,7 +2057,7 @@ void InitializeDisplaySpecsStructure (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2117,7 +2123,7 @@ SInt16 InitializeClassGroupsVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2136,7 +2142,7 @@ SInt16 InitializeClassGroupsVector (
 //							DisplayColorImage in SDisplay.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 02/02/1994
-//	Revised By:			Larry L. Biehl			Date: 12/29/2003	
+//	Revised By:			Larry L. Biehl			Date: 01/03/2019
 
 void InvalidateImageSegment (
 				WindowInfoPtr						windowInfoPtr,
@@ -2150,8 +2156,8 @@ void InvalidateImageSegment (
 			// Get the destination rectangle for the input source.
 
 	double magnification = displaySpecsPtr->magnification;
-	SInt32 vOrigin = displaySpecsPtr->origin[kVertical];
-	SInt32 hOrigin = displaySpecsPtr->origin[kHorizontal];
+	double vOrigin = displaySpecsPtr->origin[kVertical];
+	double hOrigin = displaySpecsPtr->origin[kHorizontal];
 	SInt32 imageTopOffset = windowInfoPtr->imageTopOffset;
 	SInt32 legendWidth = windowInfoPtr->legendWidth;
 
@@ -2200,7 +2206,7 @@ void InvalidateImageSegment (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2412,7 +2418,7 @@ void SetDisplayImageWindowSizeVariables (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2437,7 +2443,7 @@ void SetDisplayImageWindowSizeVariables (
 //	Global Data:
 //
 //	Coded By:			Larry L. Biehl			Date: 08/11/1988
-//	Revised By:			Larry L. Biehl			Date: 04/19/2000	
+//	Revised By:			Larry L. Biehl			Date: 01/03/2019
 
 Boolean SetUpColorImageMemory (
 				DisplaySpecsPtr					displaySpecsPtr,
@@ -2496,25 +2502,22 @@ Boolean SetUpColorImageMemory (
 			// Initialize the size of the title height for the window.				
 
 	gImageWindowInfoPtr->titleHeight = 0;
-	gImageWindowInfoPtr->imageTopOffset = gImageWindowInfoPtr->coordinateHeight;
-
-	//Initialize the window origin to (0,0)										
-
-	//displaySpecsPtr->origin[0] = 0;
-	//displaySpecsPtr->origin[1] = 0; 
 
 	#if defined multispec_mac
 		ActivatePalette (gActiveImageWindow);
+		gImageWindowInfoPtr->imageTopOffset = gImageWindowInfoPtr->coordinateHeight;
 	#endif	// defined multispec_mac
 
 	#if defined multispec_win
 		gActiveImageViewCPtr->SendMessage (
 								WM_DOREALIZE, (WPARAM)gActiveImageViewCPtr->m_hWnd, 1);
+		gImageWindowInfoPtr->imageTopOffset = gImageWindowInfoPtr->coordinateHeight;
 	#endif	// defined multispec_win
 
 	#if defined multispec_lin
-			// TODO: For Linux
-			// For now, do nothing
+				// The image top offset is 0 for wx implementation since the
+				// coordinate bar is not a part of the image window.
+		gImageWindowInfoPtr->imageTopOffset = 0;
 	#endif
 
 	return (TRUE);
@@ -2524,7 +2527,7 @@ Boolean SetUpColorImageMemory (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2736,7 +2739,7 @@ void SetUpImageWindowTypeParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2809,7 +2812,7 @@ void SetVectorOverlays (
 
 #if defined multispec_mac	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			09/17/2018
+//	Revision date:			12/19/2018
 //
 //	Language:				C
 //
@@ -45,6 +45,92 @@
 
 #if defined multispec_lin
 	#include "LImageView.h"
+#if defined multispec_wxmac
+	class WXDLLEXPORT wxBitmapRefData: public wxGDIRefData
+	{
+		 friend class WXDLLIMPEXP_FWD_CORE wxIcon;
+		 friend class WXDLLIMPEXP_FWD_CORE wxCursor;
+	public:
+		 wxBitmapRefData(int width , int height , int depth, double logicalscale = 1.0);
+		 wxBitmapRefData(CGContextRef context);
+		 wxBitmapRefData(CGImageRef image, double scale);
+		 wxBitmapRefData();
+		 wxBitmapRefData(const wxBitmapRefData &tocopy);
+
+		 virtual ~wxBitmapRefData();
+
+		 virtual bool IsOk() const wxOVERRIDE { return m_ok; }
+
+		 void Free();
+		 void SetOk( bool isOk) { m_ok = isOk; }
+
+		 void SetWidth( int width ) { m_width = width; }
+		 void SetHeight( int height ) { m_height = height; }
+		 void SetDepth( int depth ) { m_depth = depth; }
+
+		 int GetWidth() const { return m_width; }
+		 int GetHeight() const { return m_height; }
+		 int GetDepth() const { return m_depth; }
+		 double GetScaleFactor() const { return m_scaleFactor; }
+		 void *GetRawAccess() const;
+		 void *BeginRawAccess();
+		 void EndRawAccess();
+
+		 bool HasAlpha() const { return m_hasAlpha; }
+		 void UseAlpha( bool useAlpha );
+
+		 bool IsTemplate() const { return m_isTemplate; }
+		 void SetTemplate(bool is) { m_isTemplate = is; }
+
+	public:
+	#if wxUSE_PALETTE
+		 wxPalette     m_bitmapPalette;
+	#endif // wxUSE_PALETTE
+
+		 wxMask *      m_bitmapMask; // Optional mask
+		 CGImageRef    CreateCGImage() const;
+
+		 // returns true if the bitmap has a size that
+		 // can be natively transferred into a true icon
+		 // if no is returned GetIconRef will still produce
+		 // an icon but it will be generated via a PICT and
+		 // rescaled to 16 x 16
+		 bool          HasNativeSize();
+
+	#ifndef __WXOSX_IPHONE__
+		 // caller should increase ref count if needed longer
+		 // than the bitmap exists
+		 IconRef       GetIconRef();
+	#endif
+
+		 CGContextRef  GetBitmapContext() const;
+
+		 int           GetBytesPerRow() const { return m_bytesPerRow; }
+		 private :
+		 bool Create(int width , int height , int depth, double logicalscale);
+		 bool Create( CGImageRef image, double scale );
+		 bool Create( CGContextRef bitmapcontext);
+		 void Init();
+
+		 int           m_width;
+		 int           m_height;
+		 int           m_bytesPerRow;
+		 int           m_depth;
+		 bool          m_hasAlpha;
+		 wxMemoryBuffer m_memBuf;
+		 int           m_rawAccessCount;
+		 bool          m_ok;
+		 mutable CGImageRef    m_cgImageRef;
+		 bool          m_isTemplate;
+
+	#ifndef __WXOSX_IPHONE__
+		 IconRef       m_iconRef;
+	#endif
+
+		 CGContextRef  m_hBitmap;
+		 double        m_scaleFactor;
+	};
+#endif	// defined multispec_wxmac
 #endif	// defined multispec_lin
 
 //#include "SExtGlob.h" 
@@ -422,11 +508,12 @@ void CopyToOffscreenBuffer (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 01/06/2003
-//	Revised By:			Larry L. Biehl			Date: 02/26/2018
+//	Revised By:			Larry L. Biehl			Date: 12/18/2018
 
 void DrawImageOverlays  (
 				WindowPtr							windowPtr,
 				Handle								windowInfoHandle,
+				CDC*									pDC,
 				CGContextRef						context,
 				CGRect*								rectanglePtr,
 				Rect*									inputWindowRectPtr,
@@ -898,14 +985,14 @@ void DrawImageOverlays  (
 												(destinationRect.right - destinationRect.left), 0);
 					int destinationRectHeight = MAX (
 												(destinationRect.bottom - destinationRect.top), 0);
-					int sourceRectWidth = MAX (
-												(sourceRectPtr->right - sourceRectPtr->left), 0);
-					int sourceRectHeight = MAX (
-												(sourceRectPtr->bottom - sourceRectPtr->top), 0);
+					//int sourceRectWidth = MAX (
+					//							(sourceRectPtr->right - sourceRectPtr->left), 0);
+					//int sourceRectHeight = MAX (
+					//							(sourceRectPtr->bottom - sourceRectPtr->top), 0);
 
 							// Now take into account that the device independant bitmap is
 							// is stored in memory in reverse order last line to first line.
-
+					/*
 							// First define a new image buffer data to get rgb values from
 							// offscreenstoragehandle. The format of data in
 							// offscreenstoragehandle is rgb,alpha.
@@ -948,7 +1035,26 @@ void DrawImageOverlays  (
 															  0,//sourceRectPtr->left, // SrcX
 															  0); //sourceRectPtr->top // SrcY
 													
-						}
+						}	// end "if (copyBitsFlag)"
+					*/
+					wxMemoryDC overlaydc;
+					wxBitmap* overlayBitmapPtr = overlayInfoPtr->overlayBitmapPtr;
+					overlaydc.SelectObject (*overlayBitmapPtr);
+					if (copyBitsFlag)
+						{
+						pDC->Blit (destinationRect.left, // DestX
+										destinationRect.top, // DestY
+										destinationRectWidth, // nDestWidth
+										destinationRectHeight, // nDestHeight
+										&overlaydc,
+										0, // SrcX
+										0, // SrcY
+										wxCOPY, //
+										false, // useMask
+										wxDefaultCoord, //
+										wxDefaultCoord); //
+						
+						}	// end "if (copyBitsFlag)"
 				#endif // defined multispec_lin 
 				
 				CheckAndUnlockHandle (imageOverlayHandlePtr[imageOverlayIndex]);
@@ -987,7 +1093,7 @@ void DrawImageOverlays  (
 // Called By:			CopyToOffscreenBuffer in SImageOverlays.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/06/2003
-//	Revised By:			Larry L. Biehl			Date: 05/12/2017	
+//	Revised By:			Larry L. Biehl			Date: 12/14/2018
 
 void FillLineOfOffscreenBuffer (
 				FileIOInstructionsPtr			fileIOInstructionsPtr,
@@ -1094,15 +1200,21 @@ void FillLineOfOffscreenBuffer (
 				if (twoByteInputBufferFlag)
 					{
 					colorTableIndex = *twoByteInputBufferPtr % 256;
-					*colorOffscreenPtr = 
-								imageOverlayInfoPtr->colorTable[colorTableIndex];
+					//*colorOffscreenPtr = imageOverlayInfoPtr->colorTable[colorTableIndex];
 
 					twoByteInputBufferPtr++;
 					
 					}	// end "if (twoByteInputBufferFlag)"
 					
 				else	// !twoByteInputBufferFlag
-					*colorOffscreenPtr = imageOverlayInfoPtr->colorTable[*inputBufferPtr];
+					colorTableIndex = *inputBufferPtr;
+				
+				//#if defined multispec_mac || defined multispec_win
+					*colorOffscreenPtr = imageOverlayInfoPtr->colorTable[colorTableIndex];
+				//#endif
+				
+				//#if defined multispec_lin
+				//#endif
 					
 				}	// end "if (includePixelFlag)" 
 				
@@ -1677,7 +1789,7 @@ SInt16 GetWindowImageOverlayIndex (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 01/06/2003
-//	Revised By:			Larry L. Biehl			Date: 09/17/2018			
+//	Revised By:			Larry L. Biehl			Date: 12/14/2018
 
 HPtr GetImageOverlayOffscreenPointer (
 				ImageOverlayInfoPtr				imageOverlayInfoPtr)
@@ -1685,7 +1797,7 @@ HPtr GetImageOverlayOffscreenPointer (
 {  
 	HPtr									offScreenBufferPtr;
 	
-	PixMapHandle						offScreenPixMapH;
+	//PixMapHandle						offScreenPixMapH;
 	
 	
 	offScreenBufferPtr = NULL;
@@ -1693,35 +1805,34 @@ HPtr GetImageOverlayOffscreenPointer (
 	if (imageOverlayInfoPtr != NULL)
 		{
 		#if defined multispec_mac 
-			if (gOSXCoreGraphicsFlag)
-				{
+			//if (gOSXCoreGraphicsFlag)
+			//	{
 						// Note that this handle is already locked.
 				
 				offScreenBufferPtr = (HPtr)GetHandlePointer (
 										imageOverlayInfoPtr->offscreenStorageHandle);
 			 
-				offScreenPixMapH = 
-							(PixMapHandle)imageOverlayInfoPtr->offScreenMapHandle;
+				//offScreenPixMapH =
+				//			(PixMapHandle)imageOverlayInfoPtr->offScreenMapHandle;
 			
-				}	// end "if (gOSXCoreGraphicsFlag)"
+			//	}	// end "if (gOSXCoreGraphicsFlag)"
 				
-			else	// !gOSXCoreGraphicsFlag
-				{
-				offScreenPixMapH = GetPortPixMap (imageOverlayInfoPtr->offscreenGWorld);
-				offScreenBufferPtr = GetPixBaseAddr (offScreenPixMapH);
+			//else	// !gOSXCoreGraphicsFlag
+			//	{
+			//	offScreenPixMapH = GetPortPixMap (imageOverlayInfoPtr->offscreenGWorld);
+			//	offScreenBufferPtr = GetPixBaseAddr (offScreenPixMapH);
 				
-				}	// end "else !gOSXCoreGraphicsFlag"
+			//	}	// end "else !gOSXCoreGraphicsFlag"
 		#endif // defined multispec_mac 
 		
 		#if defined multispec_lin
-			offScreenBufferPtr = (HPtr)GetHandlePointer (
-										imageOverlayInfoPtr->offscreenStorageHandle, kLock);
-			offScreenPixMapH = (PixMapHandle)imageOverlayInfoPtr->offScreenMapHandle;
+			offScreenBufferPtr = (HPtr)(imageOverlayInfoPtr->offscreenStorageHandle);
+			//offScreenPixMapH = (PixMapHandle)imageOverlayInfoPtr->offScreenMapHandle;
 		#endif // defined multispec_lin
 		
 		#if defined multispec_win
 			offScreenBufferPtr = (HPtr)imageOverlayInfoPtr->offscreenStorageHandle;
-			offScreenPixMapH = (PixMapHandle)imageOverlayInfoPtr->offScreenMapHandle;
+			//offScreenPixMapH = (PixMapHandle)imageOverlayInfoPtr->offScreenMapHandle;
 		#endif // defined multispec_win
 		
 		}	// end "if (imageOverlayInfoPtr != NULL)"
@@ -2316,7 +2427,7 @@ SInt16 GetOverlayOffscreenGWorld (
 
 	#if defined multispec_lin 
 		SInt64					sInt64FreeBytesNeeded;
-		BITMAPINFOHEADER*		bitMapInfoHeadPtr;
+		//BITMAPINFOHEADER*		bitMapInfoHeadPtr;
 
 		UInt32					bytesNeeded,
 									maxRowBytes;
@@ -2337,17 +2448,12 @@ SInt16 GetOverlayOffscreenGWorld (
 
 		resultCode = noErr;
 
-				// Check if the number of bytes needed for the new BITMAP
-				// is the same as that in the current BITMAP; if not release the
-				// old block of memory and get a new one.
-				// Change on 2/16/2000 so that the old BITMAP was always cleared out.
-
 		sInt64FreeBytesNeeded = (SInt64)pixRowBytes *
 										((SInt64)offscreenRect.bottom - offscreenRect.top + 1);
 
 		if (sInt64FreeBytesNeeded > SInt32_MAX)
 			resultCode = 1;
-
+		/*
 		if (resultCode == noErr)
 			{
 			bytesNeeded = (SInt32)sInt64FreeBytesNeeded;
@@ -2358,13 +2464,13 @@ SInt16 GetOverlayOffscreenGWorld (
 			if (imageOverlayInfoPtr->offscreenStorageHandle == NULL)
 				resultCode = 1;
 
-			} // end "if (resultCode == noErr)"
-
+			}	// end "if (resultCode == noErr)"
+		*/
 				// Dispose of old BITMAPINFOHEADER if it exists and get a new one.	
 
-		imageOverlayInfoPtr->offScreenMapHandle =
-								UnlockAndDispose (imageOverlayInfoPtr->offScreenMapHandle);
-
+		//imageOverlayInfoPtr->offScreenMapHandle =
+		//						UnlockAndDispose (imageOverlayInfoPtr->offScreenMapHandle);
+		/*
 		if (resultCode == noErr)
 			{
 					// Get BITMAPINFOHEADER
@@ -2377,7 +2483,7 @@ SInt16 GetOverlayOffscreenGWorld (
 				resultCode = 1;
 
 			}	// end "if (resultCode == noErr)"
-
+		
 		if (resultCode == noErr)
 			{
 			//bitMapInfoHeadPtr = (BITMAPINFOHEADER*)&bitMapInfo;
@@ -2402,18 +2508,31 @@ SInt16 GetOverlayOffscreenGWorld (
 			CheckAndUnlockHandle (imageOverlayInfoPtr->offScreenMapHandle);
 
 			} // end "if (resultCode == noErr)" 
-
+		*/
+		if (resultCode == noErr)
+			{
+			wxBitmap* overlayBitmapPtr = imageOverlayInfoPtr->overlayBitmapPtr;
+		
+			if (!imageOverlayInfoPtr->overlayBitmapPtr->Create ((int)(offscreenRect.right - offscreenRect.left),
+												(int)(offscreenRect.bottom - offscreenRect.top),
+												(int)32))
+				resultCode = 1;
+		
+			if (resultCode == noErr)
+				{
+				overlayBitmapPtr->UseAlpha ();
+				imageOverlayInfoPtr->offscreenStorageHandle = overlayBitmapPtr->GetRawAccess();
+				pixRowBytes = overlayBitmapPtr->GetBitmapData()->GetBytesPerRow();
+				
+				}	// end "if (resultCode == noErr)"
+			
+			}	// end "if (resultCode == noErr)"
+	
 		if (resultCode != noErr)
 			{
-			imageOverlayInfoPtr->offScreenMapHandle =
-							UnlockAndDispose (imageOverlayInfoPtr->offScreenMapHandle);
-
-			imageOverlayInfoPtr->offscreenStorageHandle =
-							UnlockAndDispose (imageOverlayInfoPtr->offscreenStorageHandle);
-
 			imageOverlayInfoPtr->offscreenMapSize = 0;
 
-			} // end "if (resultCode != noErr)"
+			} // else resultCode != noErr)"
 	#endif	// defined multispec_lin 
 	
 	imageOverlayInfoPtr->rowBytes = pixRowBytes;
@@ -2490,7 +2609,7 @@ Boolean HideAllImageOverlays (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 01/03/2003
-//	Revised By:			Larry L. Biehl			Date: 05/19/2017
+//	Revised By:			Larry L. Biehl			Date: 12/18/2018
 
 void InitializeImageOverlayInfoStructure (
 				ImageOverlayInfoPtr				imageOverlayInfoPtr)
@@ -2507,6 +2626,10 @@ void InitializeImageOverlayInfoStructure (
 		#if defined multispec_win
 			imageOverlayInfoPtr->overlayDC = NULL;
 		#endif	// defined multispec_win
+
+		#if defined multispec_lin
+			imageOverlayInfoPtr->overlayBitmapPtr = new wxBitmap (wxNullBitmap);
+		#endif	// defined multispec_lin
 		
 		imageOverlayInfoPtr->paletteObject = NULL;
 		
@@ -2555,7 +2678,7 @@ void InitializeImageOverlayInfoStructure (
 // Called By:						
 //
 //	Coded By:			Larry L. Biehl			Date: 01/03/2003
-//	Revised By:			Larry L. Biehl			Date: 05/19/2017	
+//	Revised By:			Larry L. Biehl			Date: 12/19/2018
 
 void ReleaseImageOverlayStructureMemory (
 				Handle*								imageOverlayHandlePtr,
@@ -2577,15 +2700,6 @@ void ReleaseImageOverlayStructureMemory (
 		
 			if (imageOverlayInfoPtr->offscreenGWorld != NULL)
 				{
-				#if defined multispec_win 
-					if (imageOverlayInfoPtr->paletteObject != NULL)
-						{ 
-						delete imageOverlayInfoPtr->paletteObject;
-						imageOverlayInfoPtr->paletteObject = NULL;
-						
-						}	// end "if (imageOverlayInfoPtr->paletteObject != NULL)" 
-				#endif	// defined multispec_win 
-			
 				offscreenGWorld = imageOverlayInfoPtr->offscreenGWorld;
 				pixMapHandle = GetPortPixMap (offscreenGWorld);
 				
@@ -2599,8 +2713,8 @@ void ReleaseImageOverlayStructureMemory (
 				
 				}	// end "if (windowInfoPtr->offscreenGWorld != NULL)" 
 				
-			if (gOSXCoreGraphicsFlag)
-				{
+			//if (gOSXCoreGraphicsFlag)
+			//	{
 						// Release the core graphics image.
 				
 				if (imageOverlayInfoPtr->cgInfo.imageRef != NULL)		
@@ -2618,22 +2732,29 @@ void ReleaseImageOverlayStructureMemory (
 				imageOverlayInfoPtr->offScreenMapHandle = NULL;
 				imageOverlayInfoPtr->offscreenMapSize = 0;
 			
-				}	// end "if (gOSXCoreGraphicsFlag)"
+				//}	// end "if (gOSXCoreGraphicsFlag)"
 		#endif // defined multispec_mac
 				                               
 		#if defined multispec_lin
-				imageOverlayInfoPtr->offScreenMapHandle =
-								UnlockAndDispose (imageOverlayInfoPtr->offScreenMapHandle);
+				if (imageOverlayInfoPtr->overlayBitmapPtr != NULL)
+					{
+					delete imageOverlayInfoPtr->overlayBitmapPtr;
+					
+					}	// end "if (imageOverlayInfoPtr->paletteObject != NULL)"
 
-				imageOverlayInfoPtr->offscreenStorageHandle =
-								UnlockAndDispose (imageOverlayInfoPtr->offscreenStorageHandle);
+				imageOverlayInfoPtr->offscreenStorageHandle = NULL;
 
 				imageOverlayInfoPtr->offscreenMapSize = 0;
 		#endif // defined multispec_lin
 				                               
 		#if defined multispec_win
-			ReleaseImageOverlayStructureMemory (imageOverlayInfoPtr);
-			/*
+			if (imageOverlayInfoPtr->paletteObject != NULL)
+				{
+				delete imageOverlayInfoPtr->paletteObject;
+				imageOverlayInfoPtr->paletteObject = NULL;
+				
+				}	// end "if (imageOverlayInfoPtr->paletteObject != NULL)"
+			
 			imageOverlayInfoPtr->offScreenMapHandle =  
 								UnlockAndDispose (imageOverlayInfoPtr->offScreenMapHandle);
 			
@@ -2641,7 +2762,7 @@ void ReleaseImageOverlayStructureMemory (
 								UnlockAndDispose (imageOverlayInfoPtr->offscreenStorageHandle);
 			
 			imageOverlayInfoPtr->offscreenMapSize = 0;
-			*/
+			
 		#endif // defined multispec_win
 		
 		UnlockAndDispose (imageOverlayHandlePtr[overlayIndex]);

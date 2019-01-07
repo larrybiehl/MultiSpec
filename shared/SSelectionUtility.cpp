@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//							 Copyright (1988-2018)
+//							 Copyright (1988-2019)
 //						(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl, Ravi Budruk
 //
-//	Revision date:			03/19/2018
+//	Revision date:			01/03/2019
 //
 //	Language:				C
 //
@@ -201,7 +201,7 @@ SInt16		gSelectionDisplayUnits = 0;
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -259,7 +259,7 @@ void ClearNewFieldList (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -499,7 +499,7 @@ void ClearSelectionArea (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -550,7 +550,7 @@ void ClosePolygonSelection (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -613,7 +613,7 @@ void ComputeMapCoordinates (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -666,7 +666,7 @@ void ComputeSelectionCoordinates (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -743,7 +743,7 @@ void ComputeSelectionCoordinates (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -924,7 +924,7 @@ void ComputeSelectionCoordinates (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -939,10 +939,10 @@ void ComputeSelectionCoordinates (
 //
 // Value Returned:	None
 // 
-// Called By:			RectangleSelection in selectionArea.c
+// Called By:			RectangleSelection in SSelectionArea.cpp
 //
 //	Revised By:			Larry L. Biehl			Date: 06/03/1993	
-//	Revised By:			Larry L. Biehl			Date: 02/10/2007		
+//	Revised By:			Larry L. Biehl			Date: 01/03/2019
 
 void ComputeSelectionLineColumns (
 				DisplaySpecsPtr					displaySpecsPtr,
@@ -979,27 +979,27 @@ void ComputeSelectionLineColumns (
 	displayedColumnInterval = displaySpecsPtr->displayedColumnInterval;
 	displayedLineInterval = displaySpecsPtr->displayedLineInterval;
 
-	columnStart = columnOrigin + (SInt32)((displayRectPtr->left - startPointPtr->h) /
-															magnification) * displayedColumnInterval;
+	columnStart = columnOrigin + (SInt32)(((double)(displayRectPtr->left - startPointPtr->h) /
+													magnification) * displayedColumnInterval);
 	columnStart = MIN (columnStart, lastColumn);
 	lineColumnRectPtr->left = MAX (columnStart, 1);
 
-	lineStart = lineOrigin + (SInt32)((displayRectPtr->top - startPointPtr->v) /
-															magnification) * displayedLineInterval;
+	lineStart = lineOrigin + (SInt32)(((double)(displayRectPtr->top - startPointPtr->v) /
+													magnification) * displayedLineInterval);
 	lineStart = MIN (lineStart, lastLine);
 	lineColumnRectPtr->top = MAX (lineStart, 1);
 
 			// Convert the end point to line and column numbers.						
 			// The selection has to be at least one pixel in size.					
 
-	columnEnd = columnOrigin + (SInt32)((displayRectPtr->right - startPointPtr->h) /
-															magnification) * displayedColumnInterval;
+	columnEnd = columnOrigin + (SInt32)(((double)(displayRectPtr->right - startPointPtr->h) /
+													magnification) * displayedColumnInterval);
 	columnEnd = MIN (columnEnd, lastColumn);
 	columnEnd = MAX (columnEnd, 1);
 	lineColumnRectPtr->right = MAX (lineColumnRectPtr->left, columnEnd);
 
-	lineEnd = lineOrigin + (SInt32)((displayRectPtr->bottom - startPointPtr->v) /
-															magnification) * displayedLineInterval;
+	lineEnd = lineOrigin + (SInt32)(((double)(displayRectPtr->bottom - startPointPtr->v) /
+													magnification) * displayedLineInterval);
 	lineEnd = MIN (lineEnd, lastLine);
 	lineEnd = MAX (lineEnd, 1);
 	lineColumnRectPtr->bottom = MAX (lineColumnRectPtr->top, lineEnd);
@@ -1016,7 +1016,7 @@ void ComputeSelectionLineColumns (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1167,7 +1167,7 @@ void ComputeSelectionOffscreenRectangle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1240,7 +1240,7 @@ Boolean ConvertCoordinateRectToLCRect (
 
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1297,7 +1297,7 @@ Boolean ConvertLatLongRectToMapRectinNativeImageUnits (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1343,7 +1343,7 @@ Boolean ConvertLatLongRectToMapRectinNativeImageUnits (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1517,7 +1517,7 @@ void DrawSelectionArea (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1774,7 +1774,7 @@ void DrawSelectionPolygon (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1882,7 +1882,7 @@ void DrawSelectionRectangle (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1924,7 +1924,7 @@ pascal void DrawSelectionUnitsPopUp (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2124,7 +2124,7 @@ Boolean EditSelectionDialog (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2276,7 +2276,7 @@ void EditSelectionDialogShowSelection (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2528,7 +2528,7 @@ void EditSelectionDialogSetCoordinates (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3036,7 +3036,7 @@ Boolean EditLineColumnDialog (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3326,7 +3326,7 @@ void EditLineColumnDialogInitialize (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3388,7 +3388,7 @@ void EditLineColumnDialogOK (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3425,7 +3425,7 @@ void EditLineColumnDialogSetStartLC (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3751,7 +3751,7 @@ SInt16 EditLineColumnDialogCheckCoordinates (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3824,7 +3824,7 @@ void GetBoundingSelectionRectangles (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4109,7 +4109,7 @@ SInt64 GetNumberPixelsInSelection (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4176,7 +4176,7 @@ Handle GetNewSelectionInfoHandle (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4246,7 +4246,7 @@ Boolean GetSelectedAreaInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4352,7 +4352,7 @@ Boolean GetSelectedOffscreenRectangle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4470,7 +4470,7 @@ void GetSelectionBoundary (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4539,7 +4539,7 @@ SInt16 GetSelectionCoordinates (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4594,7 +4594,7 @@ SInt64 GetSelectionNumberPixels (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4653,7 +4653,7 @@ Boolean GetSelectionOffscreenRectangle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4837,7 +4837,7 @@ Boolean GetSelectionRectangle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4956,7 +4956,7 @@ SInt16 GetSelectionRectangleLimits (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5030,7 +5030,7 @@ SInt16 GetSelectionTypeCode (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5090,7 +5090,7 @@ Boolean InitializePolygonSelection (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5178,7 +5178,7 @@ void OutlineSelectionArea (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5263,7 +5263,7 @@ void SetPolygonSelection (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5390,7 +5390,7 @@ void SetRectangleSelection (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5690,7 +5690,7 @@ void SetSelectionForAllWindows (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5739,7 +5739,7 @@ void SetSelectionInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5770,7 +5770,7 @@ void ShowGraphSelection (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

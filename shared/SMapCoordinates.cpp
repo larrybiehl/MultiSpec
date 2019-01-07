@@ -3292,7 +3292,6 @@ Boolean CoordinateDialog (void)
 			CMImageView* imageViewCPtr = GetWindowPtr (gActiveImageWindowInfoH);
 			CMImageFrame* imageFrameCPtr = imageViewCPtr->GetImageFrameCPtr ();
 			imageFrameCPtr->ShowCoordinateView (3);
-			// To be added.
 		#endif // defined multispec_lin 
 						
 		SetCoordinateViewLocationParameters (gActiveImageWindowInfoH);

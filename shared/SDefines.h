@@ -21,7 +21,7 @@
 //	Written By:				Larry L. Biehl			Date: 03/29/1988
 //	Revised By:				Abdur Maud				Date: 06/24/2013
 //	Revised By:				Tsung Tai Yeh			Date: 09/25/2015
-//	Revised By:				Larry L. Biehl			Date: 11/26/2018
+//	Revised By:				Larry L. Biehl			Date: 12/19/2018
 //	
 //------------------------------------------------------------------------------------
 
@@ -888,6 +888,14 @@ typedef double				CMeanType2;
 		UInt16 blue;
 		};
 	typedef struct RGBColor RGBColor, *RGBColorPtr, **RGBColorHdl;
+
+	struct RGB8BitColor
+		{
+		UInt8 red;
+		UInt8 green;
+		UInt8 blue;
+		};
+	typedef struct RGB8BitColor RGB8BitColor, *RGB8BitColorPtr;
 
 	struct ColorSpec 
 		{
@@ -2021,7 +2029,13 @@ typedef struct DisplaySpecs
 
 		// Maximum magnification that can be used for the image stored in
 		// the offscreen map.																
-	double					maxMagnification; 
+	double					maxMagnification; 		
+	
+			// Location in bit/pix map of image to use as origin in display		
+			// window. double is being used to allow for a scrolled condition
+			// where only a portion of a pixel is being displayed. This can happen
+			// in wxWidgets based version.
+	double					origin[2];
 
 		// The scale of the currently displayed image (in x or column direction).	
 		//		The value will be -1. if scale cannot be computed.															
@@ -2142,11 +2156,7 @@ typedef struct DisplaySpecs
 	
 			// Width of one channel in offscreen units.	Used for side-by-side	
 			// displays																				
-	UInt32					offscreenChannelWidth;			
-	
-			// Location in bit/pix map of image to use as origin in display		
-			// window.																				
-	SInt32					origin[2];	
+	UInt32					offscreenChannelWidth;
 	
 			// Code indicating whether all or subset of classes are to be			
 			// displayed in thematic type images.											
@@ -3371,15 +3381,19 @@ typedef struct PlanarCoordinateSystemInfo
 	
 typedef struct ImageOverlayInfo
 	{
-	Str255									overlayName;
+	Str255								overlayName;
 	
 	#if defined multispec_mac
-		CGInfo									cgInfo;
+		CGInfo								cgInfo;
 	#endif	// defined multispec_mac
 	
 	#if defined multispec_win
-		HDC								overlayDC;
+		HDC									overlayDC;
 	#endif	// defined multispec_win
+	
+	#if defined multispec_lin
+		wxBitmap*								overlayBitmapPtr;
+	#endif
 
 			// Handle for color palette for overlay image.
 	CMPaletteInfo						paletteObject;

@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			12/06/2018
+//	Revision date:			01/06/2019
 //
 //	Language:				C
 //
@@ -516,7 +516,7 @@ void ChangeClassPalette (
 		colorSpecPtr = colorTablePtr->ctTable;
 		
 		}	// end "if (newRGBColorPtr == NULL || changeColorTableFlag)" 
-   
+   /*
 	#if defined multispec_lin
 			// Get the original palette back before making changes
 		if (cTableHandle != NULL)
@@ -532,7 +532,7 @@ void ChangeClassPalette (
 										&colorSpecPtr[index].rgb);
 		}
 	#endif
-		 
+	*/
 	#if defined multispec_mac || defined multispec_mac_swift
 		//if ((gEventRecord.modifiers & cmdKey) && !changeColorTableFlag)
 		if ((gEventRecord.modifiers & controlKey) && !changeColorTableFlag)
@@ -766,7 +766,7 @@ void ChangeGroupPalette (
 		colorSpecPtr = colorTablePtr->ctTable;
 		
 		}	// end "if (newRGBColorPtr == NULL || changeColorTableFlag)"
-		 
+	/*
    #if defined multispec_lin
 				// Get the original palette back before making changes
 	
@@ -788,7 +788,7 @@ void ChangeGroupPalette (
 			
 			}	// end "if (cTableHandle != NULL)"
 	#endif
-		
+	*/
 	//numberGroups = ((FileInfoPtr)*gActiveImageFileInfoH)->numberGroups;
 	//groupTablesHandle = ((FileInfoPtr)*gActiveImageFileInfoH)->groupTablesHandle;
 	classToGroupPtr = (UInt16*)GetClassToGroupPointer (gActiveImageFileInfoH);
@@ -1359,7 +1359,7 @@ void CreateDefaultGroupTable (
 // Called By:			LegendCClickLoop  in thematicWindow.c
 //
 //	Coded By:			Larry L. Biehl			Date: 01/16/1997
-//	Revised By:			Larry L. Biehl			Date: 12/05/2018
+//	Revised By:			Larry L. Biehl			Date: 12/19/2018
 
 Boolean DoBlinkCursor1 (
 				LegendListHandle					legendListHandle,
@@ -1504,6 +1504,7 @@ Boolean DoBlinkCursor1 (
 	#endif
 								
 	#if defined multispec_win || defined multispec_lin
+		displaySpecsPtr->paletteObject->SetPaletteLoadedFlag (FALSE);
 		DoThematicWColorsUpdate ();
 	#endif	// defined multispec_win    
 	
@@ -1571,7 +1572,8 @@ Boolean DoBlinkCursor1 (
 			DoThematicWColorsUpdate (); 
 	#endif	// defined multispec_win 
 								
-	#if defined multispec_win || defined multispec_lin 
+	#if defined multispec_win || defined multispec_lin
+		displaySpecsPtr->paletteObject->SetPaletteLoadedFlag (FALSE);
 		DoThematicWColorsUpdate ();
 	#endif	// defined multispec_win    
 	
@@ -1705,7 +1707,7 @@ void DoThematicWColorsUpdate (void)
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 11/06/1996
-//	Revised By:			Larry L. Biehl			Date: 04/26/2016	
+//	Revised By:			Larry L. Biehl			Date: 01/06/2019
 
 void EditClassGroupPalette (
 				LegendListHandle					legendListHandle,
@@ -1875,6 +1877,9 @@ void EditClassGroupPalette (
 			displaySpecsPtr = (DisplaySpecsPtr)GetHandlePointer (displaySpecsH);
 			displaySpecsPtr->paletteUpToDateFlag = FALSE;
 			UpdateActiveImageLegend (listType, kCallCreatePalette);
+			#if defined multispec_lin
+				displaySpecsPtr->paletteObject->SetPaletteLoadedFlag (FALSE);
+			#endif
 		#endif
 		
 		}	// end "if (SelectColor (4, &oldRGB, &newRGB))" 

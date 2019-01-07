@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			07/23/2018
+//	Revision date:			12/19/2018
 //
 //	Language:				C
 //
@@ -293,7 +293,7 @@ void ActivateImageWindowPalette (
 	#endif	// defined multispec_win 
 							
 	#if defined multispec_lin
-			// Right now, i dont think anything has to be done for linux
+			// Right now, i dont think anything has to be done for wxWidgets
 	#endif
 
 }	// end "ActivateImageWindowPalette"  
@@ -716,7 +716,7 @@ Boolean CreateGrayLevelPalette (
 //							UpdateActiveImageLegend in SPalette.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/25/1988
-//	Revised By:			Larry L. Biehl			Date: 04/26/2011
+//	Revised By:			Larry L. Biehl			Date: 12/19/2018
 
 Boolean CreatePalette (
 				Handle								windowInfoHandle, 
@@ -759,8 +759,8 @@ Boolean CreatePalette (
 				
 		gClassPaletteEntries = displaySpecsPtr->numPaletteEntriesUsed;
 		
-		if (displaySpecsPtr->pixelSize == 1)
-			CreatePPalette (windowInfoHandle, displaySpecsPtr); 
+		//if (displaySpecsPtr->pixelSize == 1)
+		//	CreatePPalette (windowInfoHandle, displaySpecsPtr);
 										
 		if (displaySpecsPtr->pixelSize > 1)
 			{
@@ -791,9 +791,9 @@ Boolean CreatePalette (
 			if (!PaletteExists (displaySpecsPtr->paletteObject))
 				{
 						// A new palette needs to be generated.							
-				#ifdef multispec_lin
-					displaySpecsPtr->paletteObject = NULL;
-				#endif						
+				//#ifdef multispec_lin
+				//	displaySpecsPtr->paletteObject = NULL;
+				//#endif
 				
 				if (!MNewPalette (&displaySpecsPtr->paletteObject,
 										(SInt16)numberEntries))
@@ -878,7 +878,7 @@ Boolean CreatePalette (
 }	// end "CreatePalette"  
 
 
-
+/*
 //------------------------------------------------------------------------------------
 //								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
@@ -1084,14 +1084,10 @@ void CreatePPalette (
 		HUnlock (displaySpecsPtr->displayClassGroupsHandle);
 													
 		}	// end "if (windowType == kThematicWindowType)" 
-#endif	// defined multispec_mac 
-
-#if defined multispec_win 
-
-#endif	// defined multispec_win 
+#endif	// defined multispec_mac
 	
 }	// end "CreatePPalette" 
-
+*/
 
 
 //------------------------------------------------------------------------------------
@@ -3451,7 +3447,7 @@ void LoadTwoBytePalette (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 12/11/1995
-//	Revised By:			Larry L. Biehl			Date: 12/11/1995	 
+//	Revised By:			Larry L. Biehl			Date: 12/19/2018
 
 void MDisposePalette (
 				CMPaletteInfo						paletteObject)
@@ -3469,7 +3465,8 @@ void MDisposePalette (
 		#endif	// defined multispec_win 
 		
 		#if defined multispec_lin
-			wxDELETE (paletteObject);
+			//wxDELETE (paletteObject);
+			delete paletteObject;
 		#endif
 
 		}	// end "if (paletteObject != NULL)"              
@@ -3498,7 +3495,7 @@ void MDisposePalette (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 01/16/1997
-//	Revised By:			Larry L. Biehl			Date: 07/09/2015	
+//	Revised By:			Larry L. Biehl			Date: 12/19/2018
 
 void MGetEntryColor (
 				CMPaletteInfo						paletteObject,
@@ -3521,14 +3518,16 @@ void MGetEntryColor (
 	#endif	// defined multispec_win  
 
    #if defined multispec_lin
+   	/*
       unsigned char red,green,blue;
       paletteObject->GetRGB (entry, &red, &green, &blue);
-      //theColorPtr->red = (UInt16) (red << 8);
-      //theColorPtr->green = (UInt16) (green << 8);
-      //theColorPtr->blue = (UInt16) (blue << 8);    
       theColorPtr->red = (UInt16)red;
       theColorPtr->green = (UInt16)green;
-      theColorPtr->blue = (UInt16)blue;      
+      theColorPtr->blue = (UInt16)blue;
+		*/
+      theColorPtr->red = paletteObject->mPaletteObject[entry].red;
+      theColorPtr->green = paletteObject->mPaletteObject[entry].green;
+      theColorPtr->blue = paletteObject->mPaletteObject[entry].blue;
    #endif
 
 }	// end "MGetEntryColor"                                                       
@@ -3713,97 +3712,102 @@ void MSetEntryColor (
 				UInt16								entry, 
 				RGBColor*							theColorPtr)
 
-{          
-	#if defined multispec_mac             	                                             
-		::SetEntryColor (paletteObject, entry, theColorPtr);	
-	#endif	// defined multispec_mac
-			
-	#if defined multispec_win	
-		PALETTEENTRY		paletteEntry;
-	   
-	               
-		paletteEntry.peRed = (UInt8)(theColorPtr->red >> 8);
-		paletteEntry.peGreen = (UInt8)(theColorPtr->green >> 8);
-		paletteEntry.peBlue = (UInt8)(theColorPtr->blue >> 8);
-		//paletteEntry.peFlags = PC_NOCOLLAPSE + PC_RESERVED;
-		paletteEntry.peFlags = PC_RESERVED; 
-		//paletteEntry.peFlags = 0;
-		                           
-		paletteObject->SetPaletteEntries (entry, 1, &paletteEntry);	   
-	#endif	// defined multispec_win
-
-	#if defined multispec_lin
-		 bool continueFlag;
-		 UInt16 numberColors = paletteObject->GetNumberPaletteEntries ();
-		 //UInt16 numberColors = paletteObject->GetColoursCount ();
-		 if (entry < numberColors)
-			{
-			UInt8 redp[numberColors];
-			UInt8 greenp[numberColors];
-			UInt8 bluep[numberColors];
-			for (int index = 0; index < numberColors; index++)
-				{
-				continueFlag = paletteObject->GetRGB (index,
-																	&redp[index],
-																	&greenp[index],
-																	&bluep[index]);
-				
-				}	// end "for (index=0; index<numberColors; index++)"
-			 
-					// Now make changes in the palette
-			
-			if (continueFlag)
-				{
-				//redp[entry] = (UInt8)(theColorPtr->red >> 8);
-				//greenp[entry] = (UInt8)(theColorPtr->green >> 8);
-				//bluep[entry] = (UInt8)(theColorPtr->blue >> 8);
-				redp[entry] = (UInt8)theColorPtr->red;
-				greenp[entry] = (UInt8)theColorPtr->green;
-				bluep[entry] = (UInt8)theColorPtr->blue;
-				paletteObject->Create (numberColors,redp,greenp,bluep);
-
-				}	// end "if (continueFlag)"
-			
-			}	// end if (entry < numberColors)
+{
+	if (entry >= 0 && entry < 256)
+		{
+		#if defined multispec_mac
+			::SetEntryColor (paletteObject, entry, theColorPtr);
+		#endif	// defined multispec_mac
 		
-		else	// entry >= numberColors
-			{
-			UInt8 redp[entry];
-			UInt8 greenp[entry];
-			UInt8 bluep[entry];
-			for (int index = 0; index < numberColors; index++)
+		#if defined multispec_win
+			PALETTEENTRY		paletteEntry;
+		
+		
+			paletteEntry.peRed = (UInt8)(theColorPtr->red >> 8);
+			paletteEntry.peGreen = (UInt8)(theColorPtr->green >> 8);
+			paletteEntry.peBlue = (UInt8)(theColorPtr->blue >> 8);
+			//paletteEntry.peFlags = PC_NOCOLLAPSE + PC_RESERVED;
+			paletteEntry.peFlags = PC_RESERVED;
+			//paletteEntry.peFlags = 0;
+		
+			paletteObject->SetPaletteEntries (entry, 1, &paletteEntry);
+		#endif	// defined multispec_win
+
+		#if defined multispec_lin
+			//bool continueFlag;
+			//UInt16 numberColors = paletteObject->GetNumberPaletteEntries ();
+			/*
+			if (entry < numberColors)
 				{
-				continueFlag = paletteObject->GetRGB (index,
-																	&redp[index],
-																	&greenp[index],
-																	&bluep[index]);
-				
-				}	// end "for (index=0; index<numberColors; index++)"
-			
-			for (int index = numberColors; index < (entry+1); index++)
+				UInt8 redp[numberColors];
+				UInt8 greenp[numberColors];
+				UInt8 bluep[numberColors];
+				for (int index = 0; index < numberColors; index++)
+					{
+					continueFlag = paletteObject->GetRGB (index,
+																		&redp[index],
+																		&greenp[index],
+																		&bluep[index]);
+			 
+					}	// end "for (index=0; index<numberColors; index++)"
+			 
+						// Now make changes in the palette
+			 
+				if (continueFlag)
+					{
+					//redp[entry] = (UInt8)(theColorPtr->red >> 8);
+					//greenp[entry] = (UInt8)(theColorPtr->green >> 8);
+					//bluep[entry] = (UInt8)(theColorPtr->blue >> 8);
+					redp[entry] = (UInt8)theColorPtr->red;
+					greenp[entry] = (UInt8)theColorPtr->green;
+					bluep[entry] = (UInt8)theColorPtr->blue;
+					paletteObject->Create (numberColors,redp,greenp,bluep);
+
+					}	// end "if (continueFlag)"
+			 
+				}	// end if (entry < numberColors)
+
+			else	// entry >= numberColors
 				{
-				redp[index] = 255;
-				greenp[index] = 255;
-				bluep[index] = 255;
-				
-				}	// end "for (index=0; index<numberColors; index++)"
-				
-					// Now make changes in the palette
-					
-			if (continueFlag)
-				{
-				//redp[entry] = (UInt8)(theColorPtr->red >> 8);
-				//greenp[entry] = (UInt8)(theColorPtr->green >> 8);
-				//bluep[entry] = (UInt8)(theColorPtr->blue >> 8);
-				redp[entry] = (UInt8)theColorPtr->red;
-				greenp[entry] = (UInt8)theColorPtr->green;
-				bluep[entry] = (UInt8)theColorPtr->blue;
-				paletteObject->Create ((entry+1),redp,greenp,bluep);
-				
-				}	// end "if (continueFlag)"
-			
-			}	// end "else entry >= numberColors"
-	#endif	// defined multispec_lin
+				UInt8 redp[entry];
+				UInt8 greenp[entry];
+				UInt8 bluep[entry];
+				for (int index = 0; index < numberColors; index++)
+					{
+					continueFlag = paletteObject->GetRGB (index,
+																		&redp[index],
+																		&greenp[index],
+																		&bluep[index]);
+			 
+					}	// end "for (index=0; index<numberColors; index++)"
+			 
+				for (int index=numberColors; index<(entry+1); index++)
+					{
+					redp[index] = 255;
+					greenp[index] = 255;
+					bluep[index] = 255;
+			 
+					}	// end "for (index=0; index<numberColors; index++)"
+			 
+						// Now make changes in the palette
+			 
+				if (continueFlag)
+					{
+					redp[entry] = (UInt8)theColorPtr->red;
+					greenp[entry] = (UInt8)theColorPtr->green;
+					bluep[entry] = (UInt8)theColorPtr->blue;
+					paletteObject->Create ((entry+1),redp,greenp,bluep);
+			 
+					}	// end "if (continueFlag)"
+			 
+				}	// end "else entry >= numberColors"
+			*/
+			paletteObject->mPaletteObject[entry].red = (UInt8)theColorPtr->red;
+			paletteObject->mPaletteObject[entry].green = (UInt8)theColorPtr->green;
+			paletteObject->mPaletteObject[entry].blue = (UInt8)theColorPtr->blue;
+		#endif	// defined multispec_lin
+		
+		}	// end "if (entry >= 0 && entry < 256)"
 
 }	// end "MSetEntryColor" 
                                                                   
@@ -3816,8 +3820,8 @@ void MSetEntryColor (
 //
 //	Function name:		Boolean MVerifyPaletteSize
 //
-//	Software purpose:	The purpose of this routine is to obtain a handle
-//							or pointer to a new palette.
+//	Software purpose:	The purpose of this routine is to verify that the size of the
+//							palette is set to the size required.
 //
 //	Parameters in:		None
 //
@@ -3828,51 +3832,45 @@ void MSetEntryColor (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 04/27/1995
-//	Revised By:			Larry L. Biehl			Date: 09/09/2017
+//	Revised By:			Larry L. Biehl			Date: 12/19/2018
 
 Boolean MVerifyPaletteSize (
 				CMPaletteInfo						paletteObject,
 				UInt32								numberEntries)
 
-{          
+{
+	Boolean 								continueFlag  = FALSE;
+	
+	
 	#if defined multispec_mac                                     							
 		if ((*paletteObject)->pmEntries != numberEntries)
 			{
-			//SetPalette (window, NULL ,FALSE);
-			//DisposePalette (displaySpecsPtr->paletteObject);
-			//displaySpecsPtr->paletteObject = NULL;
-			
 					// Use this routine when new routines can be accessed.	
 								 
 			::ResizePalette (paletteObject, numberEntries); 
 						
 			}	// end "if (*(displaySpecsPtr->paletteObject)->pmEntries..."
-		
-		return ((*paletteObject)->pmEntries == numberEntries);
+	
+		continueFlag = (*paletteObject)->pmEntries == numberEntries);
 	#endif	// defined multispec_mac
-			      
-	#if defined multispec_mac_swift
-		return (FALSE);
-	#endif	// defined multispec_mac_swift
 	
 	#if defined multispec_win
-		Boolean		continueFlag;
-		
-		
 		continueFlag = paletteObject->ResizePalette ((UInt16)numberEntries);
 		
 	   if (continueFlag)
-	   	paletteObject->SetNumberPaletteEntries ((UInt16)numberEntries); 
-	   	                          
-		return (continueFlag); 		
+	   	paletteObject->SetNumberPaletteEntries ((UInt16)numberEntries);
 	#endif	// defined multispec_win  
 
    #if defined multispec_lin
-		Boolean continueFlag;
-		if (paletteObject != NULL &&
-								paletteObject->GetNumberPaletteEntries () == numberEntries)
-																							return (true);
-
+   			// Note that 256 entries are available in the palette.
+		//if (paletteObject != NULL &&
+		//						paletteObject->GetNumberPaletteEntries () >= numberEntries)
+		if (paletteObject != NULL && numberEntries <= 256)
+			continueFlag = TRUE;
+	
+	   if (continueFlag)
+	   	paletteObject->SetNumberPaletteEntries ((UInt16)numberEntries);
+		/*
 		UInt16 redIndex, greenIndex, blueIndex;
 		UInt8 redpalette[numberEntries];
 		UInt8 greenpalette[numberEntries];
@@ -3891,8 +3889,10 @@ Boolean MVerifyPaletteSize (
 															redpalette,
 															greenpalette,
 															bluepalette);
-		return (continueFlag);
+		*/
    #endif
+	
+	return (continueFlag);
       
 }	// end "MVerifyPaletteSize" 
                                                                   
@@ -3917,7 +3917,7 @@ Boolean MVerifyPaletteSize (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 11/06/1995
-//	Revised By:			Larry L. Biehl			Date: 09/09/2017
+//	Revised By:			Larry L. Biehl			Date: 12/19/2018
 
 Boolean PaletteExists (
 				CMPaletteInfo						paletteObject)
@@ -3943,10 +3943,11 @@ Boolean PaletteExists (
    #if defined multispec_lin
 		Boolean paletteExistsFlag = FALSE;
 
-		if (paletteObject != NULL && paletteObject->mPaletteObject != 0)
+		//if (paletteObject != NULL && paletteObject->mPaletteObject != 0)
+		if (paletteObject != NULL)
 			paletteExistsFlag = TRUE;
-		else // It does not exist. Make sure its NULL
-			paletteObject = NULL;
+		//else // It does not exist. Make sure its NULL
+		//	paletteObject = NULL;
 
 		return (paletteExistsFlag);
    #endif

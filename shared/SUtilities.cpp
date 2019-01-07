@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//							 Copyright (1988-2018)
+//							 Copyright (1988-2019)
 //						(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -29,7 +29,6 @@
 //								pascal void 				CreateOneColumnList
 //								Boolean 						CreateResultsDiskFile
 //								Boolean 						CreateResultsDiskFiles
-//								SInt16	 					DefaultBitsPerDataValueSelection
 //								Boolean 						DetermineIfChannelsInOrder
 //								Boolean 						DetermineIfContinuousChannels
 //								void							DrawSideBySideTitles
@@ -132,7 +131,7 @@ Boolean 	GetNumberNonZeroLeadingDigits (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -180,7 +179,7 @@ Boolean CheckIfOffscreenImageExists (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -233,7 +232,7 @@ SInt16 CheckIfValueInList (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -271,7 +270,7 @@ void ClearAreaDescriptionOffsetVariables (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -333,7 +332,7 @@ void CloseResultsFiles (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -392,7 +391,7 @@ Boolean CloseTheProject (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -436,7 +435,7 @@ void CloseUpAreaDescription (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -480,7 +479,7 @@ void ConvertLCToOffscreenPoint (
 
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -604,7 +603,7 @@ void ConvertLCToWinPoint (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -663,7 +662,7 @@ void ConvertLCToWinPoint (
 
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -823,7 +822,7 @@ void ConvertLCRectToWinRect (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -906,7 +905,7 @@ void ConvertLCRectToWinRect (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -926,7 +925,7 @@ void ConvertLCRectToWinRect (
 //							DoWindowZoomInOutEvent in multiSpec.c	
 //
 //	Coded By:			Larry L. Biehl			Date: 08/30/1989
-//	Revised By:			Larry L. Biehl			Date: 10/16/2001			
+//	Revised By:			Larry L. Biehl			Date: 01/03/2019
 
 void ConvertOffScreenPointToWinPoint (
 				Handle								windowInfoH, 
@@ -955,11 +954,16 @@ void ConvertOffScreenPointToWinPoint (
 			displaySpecsPtr = (DisplaySpecsPtr)GetHandlePointer (displaySpecsH);
 			magnification = displaySpecsPtr->magnification;
 	
-			windowPointPtr->v -= displaySpecsPtr->origin[kVertical];
-			windowPointPtr->h -= displaySpecsPtr->origin[kHorizontal];
+			//windowPointPtr->v -= displaySpecsPtr->origin[kVertical];
+			//windowPointPtr->h -= displaySpecsPtr->origin[kHorizontal];
 							
-			windowPointPtr->v = (SInt32)(windowPointPtr->v * magnification);
-			windowPointPtr->h = (SInt32)(windowPointPtr->h * magnification);
+			//windowPointPtr->v = (SInt32)(windowPointPtr->v * magnification);
+			//windowPointPtr->h = (SInt32)(windowPointPtr->h * magnification);
+			
+			windowPointPtr->v = (SInt32)(magnification *
+								(windowPointPtr->v - displaySpecsPtr->origin[kVertical]));
+			windowPointPtr->h = (SInt32)(magnification *
+								(windowPointPtr->h - displaySpecsPtr->origin[kHorizontal]));
 			
 			WindowInfoPtr windowInfoPtr = (WindowInfoPtr)GetHandlePointer (
 																							windowInfoH);
@@ -976,7 +980,7 @@ void ConvertOffScreenPointToWinPoint (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1023,7 +1027,7 @@ void ConvertOffScreenRectToWinRect (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1038,11 +1042,11 @@ void ConvertOffScreenRectToWinRect (
 //
 // Value Returned:	None
 // 
-// Called By:			UpdateCursorCoordinates in multiSpec.c
-//							PolygonSelection in selectionArea.c
+// Called By:			UpdateCursorCoordinates in MMultiSpec.c
+//							PolygonSelection in SSelectionArea.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/04/1988
-//	Revised By:			Larry L. Biehl			Date: 04/19/2000		
+//	Revised By:			Larry L. Biehl			Date: 01/03/2019
 
 void ConvertWinPointToLC (
 				LongPoint*							selectedPointPtr, 
@@ -1059,6 +1063,8 @@ void ConvertWinPointToLC (
 											columnOrigin,
 											lineOrigin,
 											numberChannelWidths,
+											//originPixelXOffset,
+											//originPixelYOffset,
 											startChannelWindow;
 
 	SInt16								imageTopOffset,
@@ -1086,29 +1092,38 @@ void ConvertWinPointToLC (
 	#if defined multispec_mac
 		imageTopOffset = ((WindowInfoPtr)*gActiveImageWindowInfoH)->imageTopOffset;
 		legendWidth = ((WindowInfoPtr)*gActiveImageWindowInfoH)->legendWidth;
+		//originPixelXOffset = 0;
+		//originPixelYOffset = 0;
 	#endif	// defined multispec_mac
 	
 	#if defined multispec_win                 
 		imageTopOffset = gActiveImageViewCPtr->GetTitleHeight ();                
 		legendWidth = 0;
+		//originPixelXOffset = 0;
+		//originPixelYOffset = 0;
 	#endif	// defined multispec_win
 	
 	#if defined multispec_lin
+		//ldiv_t 		value;
 		imageTopOffset = 0;
 		legendWidth = 0;
+		//wxPoint scrollOffset = gActiveImageViewCPtr->m_Canvas->GetScrollPosition();
+		//value = ldiv (scrollOffset.x, displaySpecsPtr->magnification);
+		//originPixelXOffset = value.rem;
+		//value = ldiv (scrollOffset.y, displaySpecsPtr->magnification);
+		//originPixelYOffset = value.rem;
+		//imageTopOffset = -originPixelYOffset;
 	#endif	// defined multispec_lin
 
 			// Get the coordinates of the origin of the window 						
 			
 	columnOrigin = displaySpecsPtr->displayedColumnStart +
-							displaySpecsPtr->origin[kHorizontal]*
-										displaySpecsPtr->displayedColumnInterval; // /
-	//					displaySpecsPtr->displayHPixelsPerImagePixel);
+							displaySpecsPtr->origin[kHorizontal] *
+										displaySpecsPtr->displayedColumnInterval;
 					
 	lineOrigin = displaySpecsPtr->displayedLineStart +
-								displaySpecsPtr->origin[kVertical]*
-											displaySpecsPtr->displayedLineInterval; // /
-	//					displaySpecsPtr->displayVPixelsPerImagePixel);
+								displaySpecsPtr->origin[kVertical] *
+											displaySpecsPtr->displayedLineInterval;
 	
 	selectedPointPtr->h -= legendWidth;
 	
@@ -1130,13 +1145,13 @@ void ConvertWinPointToLC (
 	else
 		selectedPointPtr->h += startChannelWindow;
 	
-	lineColPointPtr->h = columnOrigin + 
-				(SInt32)(selectedPointPtr->h/magnificationFactor) *
-													displaySpecsPtr->displayedColumnInterval;
+	lineColPointPtr->h = (SInt32)(columnOrigin +
+				selectedPointPtr->h/magnificationFactor *
+													displaySpecsPtr->displayedColumnInterval);
 					
-	lineColPointPtr->v = lineOrigin + 
-				(SInt32)((selectedPointPtr->v-imageTopOffset)/magnificationFactor) *
-													displaySpecsPtr->displayedLineInterval;
+	lineColPointPtr->v = (SInt32)(lineOrigin +
+				(selectedPointPtr->v-imageTopOffset)/magnificationFactor *
+													displaySpecsPtr->displayedLineInterval);
 				
 	lineColPointPtr->h = 
 				MIN (lineColPointPtr->h, (SInt32)displaySpecsPtr->displayedColumnEnd);
@@ -1148,7 +1163,7 @@ void ConvertWinPointToLC (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1227,13 +1242,11 @@ void ConvertWinPointToDoubleLC (
 			
 	columnOrigin = displaySpecsPtr->displayedColumnStart +
 					((double)displaySpecsPtr->origin[kHorizontal]*
-										displaySpecsPtr->displayedColumnInterval) - 1; // /
-			//					displaySpecsPtr->displayHPixelsPerImagePixel) - 1;
+										displaySpecsPtr->displayedColumnInterval) - 1;
 					
 	lineOrigin = displaySpecsPtr->displayedLineStart +
 					((double)displaySpecsPtr->origin[kVertical]*
-											displaySpecsPtr->displayedLineInterval) - 1; // /
-			//					displaySpecsPtr->displayVPixelsPerImagePixel) - 1;
+											displaySpecsPtr->displayedLineInterval) - 1;
 	
 	selectedPointPtr->h -= legendWidth;
 	
@@ -1271,7 +1284,7 @@ void ConvertWinPointToDoubleLC (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1417,7 +1430,7 @@ Boolean CreateBackgroundImageFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1947,7 +1960,7 @@ Boolean CreateResultsDiskFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2317,9 +2330,9 @@ Boolean CreateResultsDiskFiles (
 }	// end "CreateResultsDiskFiles"
 
 
-
+/*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2423,11 +2436,11 @@ UInt16 DefaultBitsPerDataValueSelection (
 	return (bitsPerDataValueSelection);
 	
 }	// end "DefaultBitsPerDataValueSelection" 
-
+*/
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2484,7 +2497,7 @@ Boolean DetermineIfChannelsInOrder (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2541,7 +2554,7 @@ Boolean DetermineIfContinuousChannels (
 	
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3014,7 +3027,7 @@ void	DrawSideBySideTitles (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3076,7 +3089,7 @@ SInt16 FormatHistogramSummaryString (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3126,7 +3139,7 @@ void GetActiveImageClipRectangle (
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3212,7 +3225,7 @@ double DetermineHistogramBinWidth (
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3270,7 +3283,7 @@ UInt32 GetBinIndexForDataValue (
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3316,7 +3329,7 @@ void GetClipRectangle (
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3452,7 +3465,7 @@ Boolean GetCommonArea (
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3517,7 +3530,7 @@ double GetDataValueForBinIndex (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3564,7 +3577,7 @@ double GetDoubleValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3624,7 +3637,7 @@ SDouble GetShortDoubleValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3732,7 +3745,7 @@ Boolean GetFileInformationForChannelList (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3846,7 +3859,7 @@ Boolean GetImageInformationPointers (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4144,7 +4157,7 @@ SInt16 GetImageList (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4248,7 +4261,7 @@ Boolean GetInformationPointers (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4324,7 +4337,7 @@ SInt16 GetLegendWidthForWindow (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4392,7 +4405,7 @@ SInt16 GetListBottom (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4437,7 +4450,7 @@ SInt32 GetLongIntValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4505,7 +4518,7 @@ SInt64 GetLongInt64Value (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4601,7 +4614,7 @@ SInt16 GetMaxSystemPixelSize (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4679,7 +4692,7 @@ SInt16 GetMinSystemPixelSize (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4923,7 +4936,7 @@ void GetNumberDecimalDigits (
 	
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4979,7 +4992,7 @@ void GetNumberDecimalDigitsForDataVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5020,7 +5033,7 @@ SInt16 GetNumberFileTypes (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5092,7 +5105,7 @@ Boolean GetNumberNonZeroLeadingDigits (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5178,7 +5191,7 @@ SInt64 GetNumberPixelsInArea (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5249,7 +5262,7 @@ DisplaySpecsPtr GetActiveDisplaySpecsPtr (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5314,7 +5327,7 @@ void GetOneChannelThematicDisplayConversionValues (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5423,7 +5436,7 @@ SInt16 GetProbabilityThresholdCode (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5472,7 +5485,7 @@ FileInfoPtr GetResultsFilePtr (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5522,7 +5535,7 @@ CMFileStream* GetResultsFileStreamPtr (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5585,7 +5598,7 @@ SInt16 GetThresholdCode (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5634,7 +5647,7 @@ UInt32 GetTotalTime (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5866,7 +5879,7 @@ SInt64 GetTotalNumberOfPixels (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6102,7 +6115,7 @@ void GetWindowClipRectangle (
 		#endif	// defined multispec_win
 					
 		#if defined multispec_lin
-			Rect									inRect;
+			//Rect									inRect;
 			CMImageFrame*						imageFramePtr;
 			wxRect								frameArea;
 			wxRect								tempArea;
@@ -6212,7 +6225,7 @@ void GetWindowClipRectangle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6256,7 +6269,7 @@ double GetWindowImageMagnification (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6296,7 +6309,7 @@ void InitializeAreaDescription (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6391,7 +6404,7 @@ void InitializeAreaDescription (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6463,7 +6476,7 @@ void InitializeDoubleVariables (void)
 
                        
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6521,7 +6534,7 @@ void InvalidateWindow (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6610,7 +6623,7 @@ void LoadChannelsVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6699,7 +6712,7 @@ SInt16 LoadClassName (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6744,7 +6757,7 @@ void LoadFeatureVector (
 
                        
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6889,7 +6902,7 @@ void LoadFeatureVector (
 
 /*                       
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6934,7 +6947,7 @@ Boolean MGetSelectionRectangle (
 
                                                            
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6981,7 +6994,7 @@ void MHiliteControl (
 
                        
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7034,7 +7047,7 @@ void MInitCursor (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7171,7 +7184,7 @@ void MSetCursor (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7220,7 +7233,7 @@ void PauseIfInBackground (void)
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7294,7 +7307,7 @@ void RemoveSuffix (
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7357,7 +7370,7 @@ void ResetDestinationWindowParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7406,7 +7419,7 @@ void ResetMapToWindowUnitsVariables (
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7447,7 +7460,7 @@ void SetActiveDisplaySpecsHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7515,7 +7528,7 @@ void SetAreaDescriptionOffsetVariables (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7680,7 +7693,7 @@ void SetChannelWindowVariables (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7725,7 +7738,7 @@ void SetDestinationWindowParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7966,7 +7979,7 @@ void SetLCToWindowUnitVariables (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8237,7 +8250,7 @@ void SetMapToWindowUnitsVariables (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8297,7 +8310,7 @@ Boolean SetUpActiveImageInformationGlobals (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8535,7 +8548,7 @@ void SetUpAreaUnitsPopUpMenu (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8801,7 +8814,7 @@ void SetUpCoordinateUnitsPopUpMenu (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8831,7 +8844,7 @@ SInt16 Swap2Bytes (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8876,7 +8889,7 @@ void UnlockActiveImageInformationGlobals (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8931,7 +8944,7 @@ void UnlockImageInformationHandles (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8975,7 +8988,7 @@ void UpdateActiveImageWScrolls (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9066,7 +9079,7 @@ void UpdateMapProjectionStructure (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //

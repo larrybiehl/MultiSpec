@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -19,7 +19,7 @@
 //								MultiSpec.
 //
 //	Revised By:				Abdur Maud				Date: 01/24/2013
-//	Revised By:				Larry L. Biehl			Date: 11/02/2018
+//	Revised By:				Larry L. Biehl			Date: 01/04/2019
 //
 //------------------------------------------------------------------------------------
 
@@ -1186,9 +1186,15 @@ SInt32							gNumberOfOpenFilesLimit = 32000;
 	UInt32							gControlOffset = 150;
 #endif	// defined multispec_win	
 
-#if defined multispec_lin                                       												
+#if defined multispec_wxlin
 	UInt32							gControlOffset = CLOCKS_PER_SEC/4;
-#endif	// defined multispec_lin   
+#endif	// defined multispec_wxlin
+
+#if defined multispec_wxmac
+			// Looks like ticks are 1000 per second
+	UInt32							gControlOffset = 250;
+#endif	// defined multispec_wxmac
+
 			// Variable for storage of the current number of selections in
 			// the open image list. Will be used for knowing when to allow
 			// for vector files in this list. They are only allowed for 
