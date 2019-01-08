@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							 (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			07/02/2018
+//	Revision date:			01/07/2019
 //
 //	Language:				C
 //
@@ -304,7 +304,7 @@ Boolean 	WriteTextOutputFile (
 
 
 //------------------------------------------------------------------------------------
-//								 	Copyright (1992-2018)
+//								 	Copyright (1992-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -476,7 +476,7 @@ SInt16 FindEndOfLineCode (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -632,7 +632,7 @@ Boolean GetGroupInfoFile (
 
 
 //------------------------------------------------------------------------------------
-//								 		Copyright (1992-2018)
+//								 		Copyright (1992-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -850,7 +850,7 @@ SInt16 GetNextLine (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1001,7 +1001,7 @@ UInt32 GetNumberStripsToUse (
 	
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1182,7 +1182,7 @@ Boolean GetThematicSupportFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1221,7 +1221,7 @@ UInt32 LoadGeoDoubleValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2653,7 +2653,7 @@ UInt32 LoadGeoKeyDirectory (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2693,7 +2693,7 @@ void LoadGeoKeyEntry (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2826,7 +2826,7 @@ UInt32 LoadGeoModelTiePoints (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2906,7 +2906,7 @@ UInt16 LoadInstrumentNameToTIFFAsciiTag (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3064,7 +3064,7 @@ UInt32 LoadGeoModelTransformationParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3178,7 +3178,7 @@ void LoadThematicClasses (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3272,7 +3272,7 @@ void LoadThematicGroups (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3339,7 +3339,7 @@ void LoadThematicInfo (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3508,7 +3508,7 @@ void LoadTIFFColorBuffer (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3585,7 +3585,7 @@ void LoadTiffEntry (
                    
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3812,7 +3812,7 @@ void LoadTransformationFile (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4152,7 +4152,7 @@ Boolean ReadOffsetGainFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4718,7 +4718,7 @@ Boolean ReadTransformationFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4828,7 +4828,7 @@ SInt16 ReadTransformationFileSetSwapInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4929,7 +4929,7 @@ void ReadTransformationGetFileSizes (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5187,7 +5187,7 @@ void SaveImageWindowAs (void)
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5335,7 +5335,7 @@ Boolean SaveTextOutputAs (void)
 
 
 //------------------------------------------------------------------------------------
-//								 	Copyright (1988-2018)
+//								 	Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5387,7 +5387,7 @@ UCharPtr SkipToNextCarriageReturn (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5541,7 +5541,7 @@ Boolean WriteArcViewWorldFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6018,7 +6018,7 @@ Boolean WriteArcViewHeaderFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6064,7 +6064,7 @@ Boolean WriteArcViewSupportFiles (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6195,7 +6195,7 @@ SInt16 WriteArcViewMapInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //
 //	Function name:		Boolean WriteErdasHeader
@@ -6263,7 +6263,7 @@ Boolean	WriteErdasHeader (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6665,7 +6665,7 @@ SInt16 WriteGeoTIFFInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //
 //	Function name:		Boolean WriteKMLFile
@@ -7056,7 +7056,7 @@ Boolean	WriteKMLFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //
 //	Function name:		Boolean WriteNewErdasHeader
@@ -7105,7 +7105,7 @@ Boolean	WriteNewErdasHeader (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7293,7 +7293,7 @@ Boolean WriteNewImageHeader (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7406,7 +7406,7 @@ Boolean WriteTextOutputFile (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7538,7 +7538,7 @@ void WriteThematicClassesAs (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7557,7 +7557,7 @@ void WriteThematicClassesAs (
 //							SaveIfWindowChanged in SWindow.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 09/09/1992
-//	Revised By:			Larry L. Biehl			Date: 09/01/2017
+//	Revised By:			Larry L. Biehl			Date: 01/07/2019
 
 void WriteThematicGroups (
 				Handle								windowInfoHandle,
@@ -7768,12 +7768,26 @@ void WriteThematicGroups (
 				
 						// Fill temporary string with group color.						
 				
-				sprintf (
-						stringPtr,
-						" %4x %4x %4x ",
-						colorSpecPtr[groupToPalettePtr[group]+gPaletteOffset].rgb.red,
-						colorSpecPtr[groupToPalettePtr[group]+gPaletteOffset].rgb.green,
-						colorSpecPtr[groupToPalettePtr[group]+gPaletteOffset].rgb.blue);
+				#if defined multispec_mac || defined multispec_win
+					sprintf (
+							stringPtr,
+							" %4x %4x %4x ",
+							colorSpecPtr[groupToPalettePtr[group]+gPaletteOffset].rgb.red,
+							colorSpecPtr[groupToPalettePtr[group]+gPaletteOffset].rgb.green,
+							colorSpecPtr[groupToPalettePtr[group]+gPaletteOffset].rgb.blue);
+				#endif
+				
+				#if defined multispec_lin
+							// Need to allow for just 8-bit color definition in ColorSpec vector
+							// for wxWidgets version. The output format is expecting 16-bit
+							// color with useful color informtation in the upper 8 bits.
+					sprintf (
+							stringPtr,
+							" %4x %4x %4x ",
+							colorSpecPtr[groupToPalettePtr[group]+gPaletteOffset].rgb.red << 8,
+							colorSpecPtr[groupToPalettePtr[group]+gPaletteOffset].rgb.green << 8,
+							colorSpecPtr[groupToPalettePtr[group]+gPaletteOffset].rgb.blue << 8);
+				#endif
 							
 				count = 6 + groupNamePtr[0] + 15;
 				if (group == (UInt32)(fileInfoPtr->numberGroups - 1))
@@ -7846,7 +7860,7 @@ void WriteThematicGroups (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7920,7 +7934,7 @@ void WriteThematicInfo (
 
 /*                   
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8051,7 +8065,7 @@ SInt16 WriteTIFFColorMap2 (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8278,7 +8292,7 @@ SInt16 WriteTIFFColorMap2 (
 
 /*                   
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8428,7 +8442,7 @@ SInt16 WriteTIFFColorMap (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8839,7 +8853,7 @@ SInt16 WriteTIFFImageData (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9706,7 +9720,7 @@ Boolean WriteTIFFImageFile (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

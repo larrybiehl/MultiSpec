@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							(c) Purdue Research Foundation
 //									All rights reserved
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			04/23/2018
+//	Revision date:			01/07/2019
 //
 //	Language:				C
 //
@@ -73,7 +73,7 @@ Boolean 	CheckMemoryForStatisticsIO  (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -137,7 +137,7 @@ Boolean CheckMemoryForStatisticsIO  (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -190,7 +190,7 @@ void HandleSelectionGraphImageWindowClosing  (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -331,7 +331,7 @@ Boolean SelectionGraphControl (
 
                            
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -367,7 +367,7 @@ void SetDefaultSelectionGraphWindowTitle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -386,7 +386,7 @@ void SetDefaultSelectionGraphWindowTitle (
 //							ShowGraphSelection in selectionArea.c
 //
 //	Coded By:			Larry L. Biehl			Date: 11/27/1991
-//	Revised By:			Larry L. Biehl			Date: 04/12/2018
+//	Revised By:			Larry L. Biehl			Date: 01/07/2019
 
 void ShowGraphWindowSelection (
 				Handle								oldSelectionGraphRecHandle)
@@ -567,9 +567,16 @@ void ShowGraphWindowSelection (
 			}	// end "if (...->imageWindow == gActiveImageWindow ..." 
 				
 		else	// ...->imageWindow != gActiveImageWindow || ...
+			{
 			selectionIOInfoPtr->memoryWarningFlag = FALSE;
 			
-		if (!selectionIOInfoPtr->memoryWarningFlag)		
+			if (selectionGraphRecordPtr->imageWindow != gActiveImageWindow ||
+					selectionGraphRecordPtr->imageViewCPtr != gActiveImageViewCPtr)
+				selectionIOInfoPtr->checkIOMemoryFlag = TRUE;
+			
+			}	// end "else ...->imageWindow != gActiveImageWindow || ..."
+			
+		if (!selectionIOInfoPtr->memoryWarningFlag)
 			selectionGraphRecordPtr->drawGraphCode = 1;
 				
 				// Check memory allocation.													
