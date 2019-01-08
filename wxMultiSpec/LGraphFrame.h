@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//							 Copyright (1988-2018)
+//							 Copyright (1988-2019)
 //						(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -12,7 +12,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			11/20/2018
+//	Revision date:			01/08/2019
 //
 //	Language:				C++
 //
@@ -111,6 +111,9 @@ public:
 	wxCheckBox* m_checkBoxData;
 	wxComboBox* m_comboXlabel;
    wxBitmapButton* m_ButtonNext;
+	
+   bool	m_dataListShowFlag;
+   bool	m_featureListShowFlag;
 
 	bool m_initGraphUpdate;
 	void CreateControls ();

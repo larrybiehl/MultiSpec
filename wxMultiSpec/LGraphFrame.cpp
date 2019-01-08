@@ -96,6 +96,8 @@ CMGraphFrame::CMGraphFrame ()
    selectionVector = NULL;
 	m_listCtrl1 = NULL;
 	m_comboXlabel = NULL;
+	m_dataListShowFlag = false;
+	m_featureListShowFlag = false;
 	
 }	// end "CMGraphFrame"
 
@@ -933,25 +935,25 @@ void CMGraphFrame::OnData (
 
 {
    wxCheckBox* dataBtn = (wxCheckBox*)FindWindow (ID_DATALIST);
-   bool m_dataListShowFlag = dataBtn->GetValue ();
-   bool m_featureListShowFlag = false;
+   m_dataListShowFlag = dataBtn->GetValue ();
+   bool featureListShowFlag = m_featureListShowFlag;
       
    if (gActiveImageViewCPtr != NULL)
    	{ 
 				// Update show feature/data flag
 				
       gActiveImageViewCPtr->m_Canvas->m_dataListShowFlag = m_dataListShowFlag;
-      m_featureListShowFlag = gActiveImageViewCPtr->m_Canvas->m_featureListShowFlag;
+      featureListShowFlag = gActiveImageViewCPtr->m_Canvas->m_featureListShowFlag;
 		
    	}	// end " if (gActiveImageViewCPtr != NULL)"
-
+	
    if (m_dataListShowFlag == true) 
 		{
       m_splitter3->SplitHorizontally (m_panel3, m_panel4, 150);
       m_graphViewCPtr->UpdateDataListCtrl ();
       m_listCtrl2->Show ();
 
-      if (m_featureListShowFlag == false)
+      if (featureListShowFlag == false)
          m_splitter3->Unsplit (m_panel4);
 			
       else 
@@ -962,7 +964,7 @@ void CMGraphFrame::OnData (
    else	// m_dataListShowFlag != true"
    	{
       m_listCtrl2->Hide ();
-      if (m_featureListShowFlag == true)
+      if (featureListShowFlag == true)
          m_splitter3->Unsplit (m_panel3); 
 			
    	}	// end "else m_dataListShowFlag != true"
@@ -980,12 +982,12 @@ void CMGraphFrame::OnFeature (
 
 {
    wxCheckBox* featureBtn = (wxCheckBox*)FindWindow (ID_FEATURELIST);   
-   bool m_featureListShowFlag  = featureBtn->GetValue ();
-   bool m_dataListShowFlag = false;
+   m_featureListShowFlag  = featureBtn->GetValue ();
+   bool dataListShowFlag = m_dataListShowFlag;
    
    if (gActiveImageViewCPtr != NULL)
 		{
-      m_dataListShowFlag = gActiveImageViewCPtr->m_Canvas->m_dataListShowFlag;
+      dataListShowFlag = gActiveImageViewCPtr->m_Canvas->m_dataListShowFlag;
       gActiveImageViewCPtr->m_Canvas->m_featureListShowFlag = m_featureListShowFlag;
 		
 		}	// end "if (gActiveImageViewCPtr != NULL)"
@@ -995,12 +997,12 @@ void CMGraphFrame::OnFeature (
       m_listCtrl1->Show ();
       m_graphViewCPtr->UpdateShowOrHideFeatureList ();
       m_splitter3->SplitHorizontally (m_panel3, m_panel4, 0);
-      if (m_dataListShowFlag == true)
+      if (dataListShowFlag == true)
 			{
          m_splitter3->SetSashPosition (150,true);     
          m_checkBoxData->SetValue (true);
 			
-			}	// end "if (m_dataListShowFlag == true)"
+			}	// end "if (dataListShowFlag == true)"
 			
 		else
          m_splitter3->Unsplit (m_panel3); 
@@ -1683,29 +1685,36 @@ void CMGraphFrame::UpdateExpandFlag ()
 void CMGraphFrame::UpdateSplitterWindowLayout ()
 
 {
-   bool m_featureListShowFlag = false;
-   bool m_dataListShowFlag = false;
+   bool featureListShowFlag = false;
+   bool dataListShowFlag = false;
    wxSize windowSize, splitterWinSize;
 	
    
    if (gActiveImageViewCPtr != NULL)
 		{
-      m_featureListShowFlag = gActiveImageViewCPtr->m_Canvas->m_featureListShowFlag;
-      m_dataListShowFlag = gActiveImageViewCPtr->m_Canvas->m_dataListShowFlag;
+      featureListShowFlag = gActiveImageViewCPtr->m_Canvas->m_featureListShowFlag;
+      dataListShowFlag = gActiveImageViewCPtr->m_Canvas->m_dataListShowFlag;
 		
 		}	// end "if (gActiveImageViewCPtr != NULL)"
+	
+	else	// gActiveImageViewCPtr == NULL
+		{
+		dataListShowFlag = m_dataListShowFlag;
+		featureListShowFlag = m_featureListShowFlag;
+		
+		}	// end "else gActiveImageViewCPtr == NULL"
    
-   if (m_dataListShowFlag == true && m_featureListShowFlag == true)
+   if (dataListShowFlag == true && featureListShowFlag == true)
 		{
       m_splitter3->SetSashInvisible (false);   
       m_splitter3->SetSashPosition (m_splitter3->GetSashPosition (), true);
 		
-		}	// end "if (m_dataListShowFlag == true && m_featureListShowFlag == true)"
+		}	// end "if (dataListShowFlag == true && featureListShowFlag == true)"
 	
 	else
       m_splitter3->SetSashInvisible (true); 
 		  
-   if (m_dataListShowFlag == false && m_featureListShowFlag == false)
+   if (dataListShowFlag == false && featureListShowFlag == false)
 		{
       splitterWinSize = m_splitter2->GetSize ();
 		windowSize = GetSize();
@@ -1726,9 +1735,9 @@ void CMGraphFrame::UpdateSplitterWindowLayout ()
       //splitterWinSize = m_splitter2->GetSize ();
 		//windowSize = GetSize();
 		
-		}	// end "if (m_dataListShowFlag == false && m_featureListShowFlag == false)"
+		}	// end "if (dataListShowFlag == false && featureListShowFlag == false)"
 		
-   else	// m_dataListShowFlag || m_featureListShowFlag
+   else	// dataListShowFlag || featureListShowFlag
 		{
       if (!m_splitter1->IsSplit ())
 			{ 
@@ -1753,7 +1762,7 @@ void CMGraphFrame::UpdateSplitterWindowLayout ()
 			}	// end "if (!m_splitter1->IsSplit ())"
 			   
 		//this->Layout ();     
-		}	// end "else m_dataListShowFlag || m_featureListShowFlag"
+		}	// end "else dataListShowFlag || featureListShowFlag"
    
    if (!m_checkBoxGraph->GetValue ())
 		{

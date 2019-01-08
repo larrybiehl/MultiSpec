@@ -360,6 +360,128 @@ bool CMGraphView::LoadChannelDescriptionIntoList (
 
 
 
+bool CMGraphView::LoadChannelNumbersAndValues (
+				GraphPtr								graphRecordPtr)
+
+{
+   double 								x_val,
+											y_val;
+	
+	FileInfoPtr 						fileInfoPtr = NULL;
+	
+   GRAPHDATA  							*xValuePtr,
+   										*yValuePtr;
+	
+	LayerInfoPtr 						layerInfoPtr = NULL;
+	
+   long									points;
+	
+   int 									numberChannels,
+   										numberColumns,
+											numberVectors;
+	
+   SInt32 								error;
+	
+   UInt16 								numberFDecimalDigits;
+	
+   SignedByte 							handleStatus,
+   										windowHandleStatus;
+	
+	
+   numberVectors = graphRecordPtr->numberVectors;
+   numberFDecimalDigits = graphRecordPtr->yFSignificantDigits;
+	
+   LockAndGetVectorPointer (&(graphRecordPtr->xVector), &error);
+   LockAndGetVectorPointer (&(graphRecordPtr->yVector), &error);
+   yValuePtr = graphRecordPtr->yVector.basePtr;
+	
+   char* vectorDisplayPtr = (char*)GetHandlePointer (
+                                 graphRecordPtr->vectorDisplayHandle,
+											kLock);
+   SInt32* vectorLengthsPtr = (SInt32*)GetHandlePointer (
+                                 graphRecordPtr->vectorLengthsHandle,
+											kLock);
+   SInt32* xVectorDataPtr = (SInt32*)GetHandlePointer (
+                                 graphRecordPtr->xVectorDataHandle,
+											kLock);
+	
+   WindowInfoPtr windowInfoPtr = (WindowInfoPtr)GetHandleStatusAndPointer (
+                           	gActiveImageWindowInfoH, &windowHandleStatus);
+   if (windowInfoPtr != NULL)
+   	{
+   	fileInfoPtr = (FileInfoPtr) GetHandleStatusAndPointer (
+                              windowInfoPtr->fileInfoHandle, &handleStatus);
+   	layerInfoPtr = (LayerInfoPtr) GetHandleStatusAndPointer (
+                              windowInfoPtr->layerInfoHandle, &handleStatus);
+	
+   	numberFDecimalDigits =  fileInfoPtr->maxNumberFDecimalDigits;
+		
+   	}	// end "if (windowInfoPtr != NULL)"
+	
+   numberChannels = vectorLengthsPtr[0];
+	
+			// Inserts rows in the list (1 for each channel)
+	
+	xValuePtr = &(graphRecordPtr->xVector.basePtr[xVectorDataPtr[0]]);
+   for (int row=0; row<numberChannels; row++)
+   	{
+		m_frame->m_listCtrl2->InsertItem (row, -1);
+	
+				// Insert the channel number/description in the first column
+	
+		if (fileInfoPtr != NULL)
+			{
+			if (!LoadChannelDescriptionIntoList (fileInfoPtr, layerInfoPtr, row))
+																							return FALSE;
+			
+			}	// end "if (fileInfoPtr != NULL)"
+
+		else	// fileInfoPtr == NULL
+			{
+			x_val = *(xValuePtr++);
+			m_frame->m_listCtrl2->SetItem (row, 0, wxString::Format(wxT("%.0f"), x_val));
+			
+			}	// end "else fileInfoPtr == NULL"
+		
+		}	// end "for (int row=0; row<numberChannels; row++)"
+	
+			// Column 2 will represent the data value.
+			// The data values for a selected area will be the mean, standard deviation,
+			// min value & max value
+	
+	numberColumns = numberVectors;
+	for (int column=1; column<=numberColumns; column++)
+      {
+		if (vectorDisplayPtr [column-1] > 0)
+			{
+			points = vectorLengthsPtr[column-1];
+			
+			for (int row=0; row<points; row++)
+				{
+				y_val = *(yValuePtr++);
+					
+				m_frame->m_listCtrl2->SetItem (row, column, wxString::Format(wxT("%.*f"), numberFDecimalDigits, y_val));
+				
+				}	// end "for (int row=0; row<points; row++)"
+			
+			}	// end "if (vectorDisplayPtr [column-1] > 0)"
+		
+		else	// vectorDisplayPtr [column-1] <= 0
+			yValuePtr += vectorLengthsPtr[column-1];
+		
+		}	// end "for (lines=0; lines<numberVectors; lines++)"
+	
+			// Now set the column widths
+	
+	for (int column=0; column<=numberColumns; column++)
+		m_frame->m_listCtrl2->SetColumnWidth (column, wxLIST_AUTOSIZE_USEHEADER); // wxLIST_AUTOSIZE (-1)
+	
+   return true;
+	
+}	// end "LoadChannelNumbersAndValues"
+
+
+
 void CMGraphView::MoveGraphControls (void)
 
 {
@@ -398,7 +520,7 @@ void CMGraphView::OnActivateView (
       // active image information is up to date.
       if (gProcessorCode == 0 && bActivate) {
          gActiveWindowType = kGraphicsWindowType;
-         gTheActiveWindow = (WindowPtr) pActivateView;
+         gTheActiveWindow = (WindowPtr)pActivateView;
 
       } // end "if (gProcessorCode == 0 && bActivate)"
       
@@ -931,20 +1053,23 @@ void CMGraphView::OnUpdateFileSaveAs (
 
 
 void CMGraphView::ShowFeatureList ()
+
 {
-       m_frame->m_checkBoxFeature->SetValue (true);       
-//       m_frame->m_checkBoxFeature->Enable (true);
-       m_frame->m_listCtrl1->Show ();
-       m_frame->m_splitter3->SplitHorizontally (m_frame->m_panel3, m_frame->m_panel4, 0);
+	m_frame->m_checkBoxFeature->SetValue (true);
+	//m_frame->m_checkBoxFeature->Enable (true);
+	m_frame->m_listCtrl1->Show ();
+	m_frame->m_splitter3->SplitHorizontally (m_frame->m_panel3, m_frame->m_panel4, 0);
        
-      if (gActiveImageViewCPtr->m_Canvas!= NULL){
-         gActiveImageViewCPtr->m_Canvas->m_featureListShowFlag = true;
-         if (gActiveImageViewCPtr->m_Canvas->m_dataListShowFlag == true){
-            m_frame->m_splitter3->SetSashPosition (150,true);         
-         }else{
-            m_frame->m_splitter3->Unsplit (m_frame->m_panel3); 
-         }      
-      }
+	if (gActiveImageViewCPtr->m_Canvas != NULL)
+		{
+		gActiveImageViewCPtr->m_Canvas->m_featureListShowFlag = true;
+		if (gActiveImageViewCPtr->m_Canvas->m_dataListShowFlag == true)
+			m_frame->m_splitter3->SetSashPosition (150,true);
+
+		else
+			m_frame->m_splitter3->Unsplit (m_frame->m_panel3);
+		
+      }	// end "if (gActiveImageViewCPtr->m_Canvas != NULL)"
       
 }	// end "ShowFeatureList"
 
@@ -959,7 +1084,9 @@ void CMGraphView::UpdateListData (void)
 
 
 
-void CMGraphView::UpdateFeatureListCtrl (wxPoint SelectionPoint){   
+void CMGraphView::UpdateFeatureListCtrl (wxPoint SelectionPoint)
+
+{
    Handle*			shapeHandlePtr;
    WindowInfoPtr	windowInfoPtr;
    SignedByte		windowHandleStatus;
@@ -1061,10 +1188,10 @@ void CMGraphView::UpdateFeatureListCtrl (wxPoint SelectionPoint){
          // update Feature list when dbf file exists
          if (shapeInfoPtr != NULL && shapeInfoPtr->dbfInfoPtr != NULL) 
 				{
-#				if include_gdal_capability
+				#if include_gdal_capability
 					UpdateFieldNames (shapeInfoPtr, index);            
 					UpdateFieldValues (shapeInfoPtr, SelectionPoint, index);
-#				endif
+				#endif
 				}
 			}
 		}
@@ -1220,15 +1347,14 @@ void CMGraphView::UpdateFieldValues (
    wxString fieldValueString;   
     
    windowInfoPtr = (WindowInfoPtr) GetHandleStatusAndPointer (
-      gActiveImageWindowInfoH, &windowHandleStatus, kNoMoveHi);
+      gActiveImageWindowInfoH, &windowHandleStatus);
    
    mapProjectionHandle = GetFileMapProjectionHandle2 (windowInfoPtr->windowInfoHandle);	
    mapProjectionInfoPtr = (MapProjectionInfoPtr)GetHandlePointer (
 													mapProjectionHandle, kLock, kNoMoveHi);
       
    vectorDataPtr = (Ptr)GetHandlePointer (shapeInfoPtr->vectorDataHandle,
-																kLock,
-																kNoMoveHi);
+																kLock);
 
    vectorDataIndex = 0;
    numberFields = 0;
@@ -1239,7 +1365,7 @@ void CMGraphView::UpdateFieldValues (
    selectionPointLong.h = SelectionPoint.x ;
    selectionPointLong.v = SelectionPoint.y;
     
-   if (selectionPointLong.h ==0 && selectionPointLong.v == 0) // no selection made     
+   if (selectionPointLong.h == 0 && selectionPointLong.v == 0) // no selection made
       return;   
    
       // Convert the user-selected pt to mapPoint
@@ -1380,73 +1506,25 @@ void CMGraphView::ReloadXAxis (
 void CMGraphView::UpdateDataListCtrl (void)
 
 {
-   SignedByte handleStatus;
-   SInt16 numberVectors;
-	/*
-   SignedByte handleStatus, windowHandleStatus;
-   SInt32 error;
-   char *vectorDisplayPtr;
-   SInt32	*vectorLengthsPtr, *xVectorDataPtr;
-   long	loop,	points;
-   double x_val, y_val;
-   SInt16 numberVectors;
-   GRAPHDATA  *xValuePtr, *yValuePtr;
-   SInt16 numberchannel;
-   UInt16 numberFDecimalDigits;
-	*/
-      
+	int					lastColumnIndex;
+   SignedByte 			handleStatus;
+   SInt16 				numberVectors;
+
+
    GraphPtr graphRecordPtr = (GraphPtr)GetHandleStatusAndPointer (
-//														g CPtr->m_graphRecordHandle,
+	//													g CPtr->m_graphRecordHandle,
                                           m_graphRecordHandle,
 														&handleStatus,
 														kNoMoveHi);
-	/*
-   		// Get pointer to display specifications which will be needed later
-   vectorLengthsPtr = (SInt32*)GetHandlePointer (
-											graphRecordPtr->vectorLengthsHandle,
-											kLock,
-											kNoMoveHi);
-   vectorDisplayPtr = (char*)GetHandlePointer (
-											graphRecordPtr->vectorDisplayHandle,
-											kLock,
-											kNoMoveHi);
-   xVectorDataPtr = (SInt32*)GetHandlePointer (
-											graphRecordPtr->xVectorDataHandle,
-											kLock,
-											kNoMoveHi);
-	*/
-   numberVectors = graphRecordPtr->numberVectors;
-	/*
-   LockAndGetVectorPointer (&(graphRecordPtr->xVector), &error);
-   LockAndGetVectorPointer (&(graphRecordPtr->yVector), &error);
-   yValuePtr = graphRecordPtr->yVector.basePtr;
-   
-   numberchannel = vectorLengthsPtr[0];
 
-   WindowInfoPtr windowInfoPtr = (WindowInfoPtr) GetHandleStatusAndPointer (
-                           gActiveImageWindowInfoH, &windowHandleStatus, kNoMoveHi);
-   
-   // if not active image window exists
-   if (windowInfoPtr == NULL) return;
-	*/
-   // no user selection is made
-   if (gActiveImageViewCPtr->m_Canvas->GetLastSelectionPoint () == wxPoint (0,0)) 
-      return;   
-	/* 
-   FileInfoPtr fileInfoPtr = (FileInfoPtr) GetHandleStatusAndPointer (
-                              windowInfoPtr->fileInfoHandle, &handleStatus, kNoMoveHi);   
-   
-//   if (m_frame->m_comboXlabel && fileInfoPtr){
-//      if (graphRecordPtr->plotWavelength){
-//         if (fileInfoPtr->channelDescriptionUnitString[0]!= 0)
-//            m_frame->m_comboXlabel->ChangeValue (wxT("Wavelength (nm)"));
-//         else
-//            m_frame->m_comboXlabel->ChangeValue (wxT("Wavelength (um)"));
-//      }
-//   }
+   numberVectors = graphRecordPtr->numberVectors;
 	
-   numberFDecimalDigits =  gActiveImageViewCPtr->m_frame->m_numberFDecimalDigits;
-   */
+   		// no user selection is made
+	
+   if (gActiveImageViewCPtr != NULL &&
+						gActiveImageViewCPtr->m_Canvas->GetLastSelectionPoint () == wxPoint (0,0)) 
+      return;   
+
    m_frame->m_listCtrl2->DeleteAllItems ();
    m_frame->m_listCtrl2->DeleteAllColumns ();   
 
@@ -1454,208 +1532,47 @@ void CMGraphView::UpdateDataListCtrl (void)
 			
    if (numberVectors > 1)
 		{
-      m_frame->m_listCtrl2->InsertColumn (0, wxT("Channel"), wxLIST_FORMAT_RIGHT, wxLIST_AUTOSIZE_USEHEADER);
-      m_frame->m_listCtrl2->InsertColumn (1, wxT("Mean  "), wxLIST_FORMAT_RIGHT, wxLIST_AUTOSIZE_USEHEADER);
-      m_frame->m_listCtrl2->InsertColumn (2, wxT("+Std  "), wxLIST_FORMAT_RIGHT, wxLIST_AUTOSIZE_USEHEADER);
-      m_frame->m_listCtrl2->InsertColumn (3, wxT("-Std  "), wxLIST_FORMAT_RIGHT, wxLIST_AUTOSIZE_USEHEADER);
-      m_frame->m_listCtrl2->InsertColumn (4, wxT("Min  "), wxLIST_FORMAT_RIGHT, wxLIST_AUTOSIZE_USEHEADER);
-      m_frame->m_listCtrl2->InsertColumn (5, wxT("Max  "), wxLIST_FORMAT_RIGHT, wxLIST_AUTOSIZE_USEHEADER);
+		lastColumnIndex = 5;
+		
+      m_frame->m_listCtrl2->InsertColumn (0, wxT("Channel"), wxLIST_FORMAT_CENTRE, wxLIST_AUTOSIZE_USEHEADER);
+      m_frame->m_listCtrl2->InsertColumn (1, wxT("Mean  "), wxLIST_FORMAT_CENTRE, wxLIST_AUTOSIZE_USEHEADER);
+      m_frame->m_listCtrl2->InsertColumn (2, wxT("+Std  "), wxLIST_FORMAT_CENTRE, wxLIST_AUTOSIZE_USEHEADER);
+      m_frame->m_listCtrl2->InsertColumn (3, wxT("-Std  "), wxLIST_FORMAT_CENTRE, wxLIST_AUTOSIZE_USEHEADER);
+      m_frame->m_listCtrl2->InsertColumn (4, wxT("Min  "), wxLIST_FORMAT_CENTRE, wxLIST_AUTOSIZE_USEHEADER);
+      m_frame->m_listCtrl2->InsertColumn (5, wxT("Max"), wxLIST_FORMAT_CENTRE, wxLIST_AUTOSIZE_USEHEADER);
+	
+				// Now set the column widths
+		
+		for (int column=0; column<=5; column++)
+			m_frame->m_listCtrl2->SetColumnWidth (column, -1); // wxLIST_AUTOSIZE (-1)
 
-		if (!LoadChannelNumbersAndValues (graphRecordPtr))
-			DisplayAlert (kErrorAlertID, 
-								kStopAlert, 
-								0, 
-								0, 
-								0, 
-								(unsigned char*)"0Can not reload data!");
-		/*
-      for (int i = 0; i < numberchannel; i++)
-         m_frame->m_listCtrl2->InsertItem (i, -1); // inserts new row  
-      */
-		/*
-				// Insert numeric values
-				
-      for (int lines = 0; lines < numberVectors; lines++)
-			{
-         if (vectorDisplayPtr [lines] > 0 && numberchannel > 1)
-				{                                             			
-            xValuePtr = &(graphRecordPtr->xVector.basePtr[xVectorDataPtr[lines]]); 
-            x_val = *xValuePtr;
-            y_val = *yValuePtr;
-            points = vectorLengthsPtr[lines];
-            
-            // insert channel numbers             
-               m_frame->m_listCtrl2->SetItem (0, 0, wxString::Format (wxT("%.0f"), x_val));
-            
-            if (y_val - int (y_val) == 0) { // integer
-               m_frame->m_listCtrl2->SetItem (0, lines + 1, wxString::Format (wxT("%.0f"), y_val));
-            } else
-               m_frame->m_listCtrl2->SetItem (0, lines+1, wxString::Format (wxT("%.*f"),  numberFDecimalDigits, y_val));
-               
-            for (loop = 1; loop < points; loop++) 
-            {               
-               xValuePtr++;
-               yValuePtr++;
-               
-               x_val = *xValuePtr;
-               y_val = *yValuePtr;
-               
-               // insert channel numbers
-               m_frame->m_listCtrl2->SetItem (loop, 0, wxString::Format (wxT("%.0f"), x_val));
-               
-               if (y_val - int (y_val) == 0) // integer
-                  m_frame->m_listCtrl2->SetItem (loop, lines+1, wxString::Format (wxT("%.0f"), y_val));
-               else
-                  m_frame->m_listCtrl2->SetItem (loop, lines+1, wxString::Format (wxT("%.*f"),  numberFDecimalDigits, y_val));
-
-            }	// end "for (loop=1; loop<points; loop++)"
-            yValuePtr++;
-            
-            }	// end "if (vectorDisplayPtr [lines] > 0)"
-
-         else	// vectorDisplayPtr [lines] <= 0
-            yValuePtr += vectorLengthsPtr[lines];
-
-			}	// end "for (lines=0; lines<numberVectors; lines++)"
-		*/
-		}
+		}	// end "if (numberVectors > 1)"
 	
    else	// numberVectors == 1
 		{
-				// user selects a point
-         m_frame->m_listCtrl2->InsertColumn (0, wxT("Channel     "), wxLIST_FORMAT_RIGHT, wxLIST_AUTOSIZE);
-         m_frame->m_listCtrl2->InsertColumn (1, wxT("Data value"), wxLIST_FORMAT_RIGHT,wxLIST_AUTOSIZE);
-      /*
-         for (int i = 0; i < numberchannel; i++)
-            m_frame->m_listCtrl2->InsertItem (i, -1); // inserts new row  
-         */
-		if (!LoadChannelNumbersAndValues (graphRecordPtr))
-			DisplayAlert (kErrorAlertID, 
-								kStopAlert, 
-								0, 
-								0,
-								0, 
-								(unsigned char*)"0Can not reload data!");
-		/*
-		if (vectorDisplayPtr [0] > 0)
-         {                                             			
-            xValuePtr = &(graphRecordPtr->xVector.basePtr[xVectorDataPtr[0]]); 
-            points = vectorLengthsPtr[0];
+				// User selects a point
+		
+		lastColumnIndex = 1;
+		
+		m_frame->m_listCtrl2->InsertColumn (0, wxT("Channel"), wxLIST_FORMAT_CENTRE, wxLIST_AUTOSIZE_USEHEADER);
+		m_frame->m_listCtrl2->InsertColumn (1, wxT("Data value"), wxLIST_FORMAT_CENTRE, wxLIST_AUTOSIZE_USEHEADER);
 
-            for (loop = 0; loop < points; loop++) 
-            {  
-               x_val = *xValuePtr;
-               y_val = *yValuePtr;
-               
-               if (fileInfoPtr!= NULL) {
-                  LoadChannelDescriptionIntoList (fileInfoPtr, loop, numberchannel);   
-                  m_frame->m_listCtrl2->SetColumnWidth (0, -1); // wxLIST_AUTOSIZE (-1)
-            //      adapt to similar procedure in GetInstrumentChannelDescriptionsAndValues (fileInfoPtr);
-               } // end "if (fileInfoPtr != NULL)" 
-                else  
-                  m_frame->m_listCtrl2->SetItem (loop, 0, wxString::Format (wxT("%.0f"), x_val));
-                                
-               if (numberFDecimalDigits == 0) // integer
-                  m_frame->m_listCtrl2->SetItem (loop, 1, wxString::Format (wxT("%.0f"), y_val));
-               else
-                  m_frame->m_listCtrl2->SetItem (loop, 1, wxString::Format (wxT("%.*f"), numberFDecimalDigits, y_val));
-               
-               xValuePtr++;
-               yValuePtr++;
-               
-            } // end "for (loop=1; loop<points; loop++)"
+		}	// end "else numberVectors == 1"
+	
+			// Now set the column widths
 
-            yValuePtr++;
+	for (int column=0; column<=lastColumnIndex; column++)
+		m_frame->m_listCtrl2->SetColumnWidth (column, wxLIST_AUTOSIZE_USEHEADER);
 
-         }	// end "if (vectorDisplayPtr [lines] > 0)"
-            else	// vectorDisplayPtr [lines] <= 0
-               yValuePtr += vectorLengthsPtr[0];
-		*/
-		}
+	if (!LoadChannelNumbersAndValues (graphRecordPtr))
+		DisplayAlert (kErrorAlertID,
+							kStopAlert,
+							0,
+							0,
+							0,
+							(unsigned char*)"0Can not reload data!");
    
 }	// end "UpdateDataListCtrl"
-
-
-
-bool CMGraphView::LoadChannelNumbersAndValues (
-				GraphPtr												graphRecordPtr)
-
-{
-   SignedByte handleStatus, windowHandleStatus;
-   SInt32 error;
-   double x_val, y_val;  
-   long	points;  
-   SInt16 numberVectors, numberchannel;
-   GRAPHDATA  *xValuePtr, *yValuePtr;   
-  
-   numberVectors = graphRecordPtr->numberVectors;
-      
-   LockAndGetVectorPointer(&(graphRecordPtr->xVector), &error);
-   LockAndGetVectorPointer(&(graphRecordPtr->yVector), &error);
-   yValuePtr = graphRecordPtr->yVector.basePtr;
-         
-   WindowInfoPtr windowInfoPtr = (WindowInfoPtr) GetHandleStatusAndPointer(
-                           gActiveImageWindowInfoH, &windowHandleStatus, kNoMoveHi);
-   if(windowInfoPtr == NULL) // no active image window
-      return false;
-   FileInfoPtr fileInfoPtr = (FileInfoPtr) GetHandleStatusAndPointer(
-                              windowInfoPtr->fileInfoHandle, &handleStatus, kNoMoveHi);   
-   LayerInfoPtr layerInfoPtr = (LayerInfoPtr) GetHandleStatusAndPointer(
-                              windowInfoPtr->layerInfoHandle, &handleStatus, kNoMoveHi); 
- 
-   char* vectorDisplayPtr = (char*)GetHandlePointer (
-                                 graphRecordPtr->vectorDisplayHandle,
-											kLock, kNoMoveHi);
-   SInt32* vectorLengthsPtr = (SInt32*)GetHandlePointer (
-                                 graphRecordPtr->vectorLengthsHandle,
-											kLock,kNoMoveHi);
-   SInt32* xVectorDataPtr = (SInt32*)GetHandlePointer (
-                                 graphRecordPtr->xVectorDataHandle,
-											kLock, kNoMoveHi);
-   UInt16 numberFDecimalDigits =  gActiveImageViewCPtr->m_frame->m_numberFDecimalDigits;
-   numberchannel = vectorLengthsPtr[0];
-   
-   bool continueFlag = false;
-   
-   for (int i = 0; i < numberchannel; i++)
-            m_frame->m_listCtrl2->InsertItem(i, -1); // inserts new row 
-   
-   for (int lines = 0; lines < numberVectors; lines++)
-      {
-         if (vectorDisplayPtr [lines] > 0)
-            {                                             			
-               xValuePtr = &(graphRecordPtr->xVector.basePtr[xVectorDataPtr[lines]]); 
-               points = vectorLengthsPtr[lines];
-            
-               for (int loop = 0; loop < points; loop++) 
-                  {
-                     x_val = *(xValuePtr++);
-                     y_val = *(yValuePtr++);
-
-                     // insert channel numbers & descriptions
-                     if (fileInfoPtr != NULL) {
-                        continueFlag = LoadChannelDescriptionIntoList(fileInfoPtr, layerInfoPtr, loop);
-                        m_frame->m_listCtrl2->SetColumnWidth(0, -1); // wxLIST_AUTOSIZE (-1)                        
-                     }// end "if (fileInfoPtr != NULL)" 
-                     else
-                        m_frame->m_listCtrl2->SetItem(loop, 0, wxString::Format(wxT("%.0f"), x_val));
-
-                     if(!continueFlag) 
-                        return false;
-
-                     if (y_val - int(y_val) == 0) // integer
-                        m_frame->m_listCtrl2->SetItem(loop, lines + 1, wxString::Format(wxT("%.0f"), y_val));
-                     else
-                        m_frame->m_listCtrl2->SetItem(loop, lines+1, wxString::Format(wxT("%.*f"),  numberFDecimalDigits, y_val));      
-                  }       
-            }		
-         else		// vectorDisplayPtr [lines] <= 0
-            yValuePtr += vectorLengthsPtr[lines];
-		}		// end "for (lines=0; lines<numberVectors; lines++)"
-            
-   return true;
-	
-}	// end "LoadChannelNumbersAndValues"
 
 
 
@@ -1663,9 +1580,7 @@ void CMGraphView::ResetListControls ()
 
 {
    m_frame->m_listCtrl1->DeleteAllItems ();
-	//m_frame->m_listCtrl1->DeleteAllColumns ();
    m_frame->m_listCtrl2->DeleteAllItems ();
-	//m_frame->m_listCtrl2->DeleteAllColumns ();
 	
 }	// end "ResetListControls"
 
@@ -1688,10 +1603,12 @@ Boolean CMGraphView::UpdateGraphChannels (void)
 	set = graphRecordPtr->set;
 	numberVectors = graphRecordPtr->numberVectors;
    
-   if (numberSets <= 1){   
+   if (numberSets <= 1)
+   	{
       m_frame->m_toolBar1->EnableTool (IDC_NextChannel, 0);
       m_frame->m_toolBar1->EnableTool (IDC_PreviousChannel, 0);
-   }
+		
+   	}
    else // numberSets > 1
    { 
       if (set < numberSets){

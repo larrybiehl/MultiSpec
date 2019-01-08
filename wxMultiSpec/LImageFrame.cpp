@@ -12,7 +12,7 @@
 //
 //	Authors:					Larry L. Biehl, Wei-Kang Hsu, Tsung Tai Yeh
 //
-//	Revision date:			01/05/2019
+//	Revision date:			01/08/2019
 //
 //	Language:				C++
 //
@@ -318,8 +318,6 @@ CMImageFrame::CMImageFrame (
 								FALSE);
     wxString ntitle = wxString::FromUTF8 ((char*)&gTextString[1]);
     SetLabel (ntitle);
-	 
-    m_numberFDecimalDigits = fileInfoPtr->maxNumberFDecimalDigits;
     
     m_frameMaximized = false;
     m_frameSizeSaved = this->GetSize ();
@@ -440,12 +438,12 @@ void CMImageFrame::ActivateImageWindowItems (
 
 			}	// end "if (windowInfoPtr->projectWindowFlag)"
 
-		//ShowGraphSelection ();
+		ShowGraphSelection ();
 
       if (gSelectionGraphViewCPtr != NULL)
 			UpdateSelectionWindowList ();
       
-      ShowGraphSelection ();
+      //ShowGraphSelection ();
       
 				// This flag is used in selections to try to differentiate between a user
 				// making a selection or just selecting the image to work on.
@@ -473,24 +471,34 @@ void CMImageFrame::ActivateImageWindowItems (
 
 
 void CMImageFrame::ChangeClassGroupDisplay (
-				SInt16								newClassGroupCode,
-				Boolean								updateClassGroupListFlag)
+				SInt16								newClassGroupCode)
+				//Boolean								updateClassGroupListFlag)
 				 
 {
-	SInt16 currentClassGroupCode = m_imageViewCPtr->GetClassGroupCode();
+	SInt16 currentClassGroupCode = m_imageViewCPtr->GetClassGroupCode ();
 
 	if (currentClassGroupCode != 0 &&
-			newClassGroupCode != currentClassGroupCode)
+							newClassGroupCode != currentClassGroupCode)
 		{
-		//UpdateActiveImagePalette(newClassGroupCode);
-		UpdateActiveImageLegend(newClassGroupCode, kCallCreatePalette);
-
+		UpdateActiveImageLegend (newClassGroupCode, kCallCreatePalette);
+		
+		if (currentClassGroupCode == kClassDisplay ||
+												newClassGroupCode == kClassDisplay)
+			{
+      	Handle displaySpecsHandle = m_imageViewCPtr->GetDisplaySpecsHandle ();
+      	DisplaySpecsPtr displaySpecsPtr =
+										(DisplaySpecsPtr)GetHandlePointer (displaySpecsHandle);
+		
+			displaySpecsPtr->paletteObject->SetPaletteLoadedFlag (FALSE);
+			
+			}	// end "if (currentClassGroupCode != kGroupDisplay && ..."
+		/*
 		if (updateClassGroupListFlag)
 			{
-			m_imageLegendViewCPtr->UpdateClassGroupComboList(newClassGroupCode);
+			m_imageLegendViewCPtr->UpdateClassGroupComboList (newClassGroupCode);
 
 			}	// end "if (updateClassGroupListFlag)"
-
+		*/
 		}	// end "if (classGroupCode != m_classGroupCode + 1)"
 	
 }	// end "ChangeClassGroupDisplay"
@@ -657,26 +665,15 @@ void CMImageFrame::GetMinimumDisplaySizeForImage (
       		// Adjust the size needed to allow for scroll bars and
       		// one pixel extra.
 	
-      //int titleHeight = gDefaultTitleHeight;
       int coordinateBarHeight = 0;
-      wxRect tempArea;
+      //wxRect tempArea;
       UInt16 amountToAllowForHStuff, amountToAllowForVStuff;
 	
 				// Get the total of the title and toolbar height
-	
+		
 		wxRect wxFrameRect = GetRect ();
 		wxRect wxFrameClientRect = GetClientRect ();
 		int titleToolBarHeight = wxFrameRect.height - wxFrameClientRect.height;
-		
-      		// Tsung Tai modified 12/18/2018
-		
-      int hx = 0, hy = 0;
-      if (windowInfoPtr->legendWidth > 0)
-      	{
-         m_imageLegendViewCPtr->FindWindow (IDC_COMBO1)->GetSize (&hx, &hy);
-         hy -= 1;
-			
-      	}	// end "if (windowInfoPtr->legendWidth > 0)"
 		
       		// Get coordinate window height
 		
@@ -693,10 +690,8 @@ void CMImageFrame::GetMinimumDisplaySizeForImage (
       #else	// mygeohub
 			#if defined multispec_wxmac
 						// Allow 2 pixels around edge for border
-						// Do not allow for title height
 		
-				//titleToolBarHeight -= (coordinateBarHeight + hy);
-				titleToolBarHeight += (coordinateBarHeight - hy);
+				titleToolBarHeight += coordinateBarHeight;
 		
 				amountToAllowForHStuff = 2 * 2 + wxFrameRect.width - wxFrameClientRect.width;
 				amountToAllowForVStuff = 2 * 2 + titleToolBarHeight;
@@ -737,6 +732,18 @@ void CMImageFrame::GetMinimumDisplaySizeForImage (
    	}	// end "else displaySpecsPtr == NULL"
 
 }	// end "GetMinimumDisplaySizeForImage"
+
+
+
+int CMImageFrame::GetTitleAndToolBarHeight (void)
+
+{
+		wxRect wxFrameRect = GetRect ();
+		wxRect wxFrameClientRect = GetClientRect ();
+	
+		return (wxFrameRect.height - wxFrameClientRect.height);
+
+}	// end "GetTitleAndToolBarHeight"
 
 
 
@@ -842,68 +849,7 @@ void CMImageFrame::OnMaximizeWindow (
    wxRect 								tempArea;
 	
 	
-   //gActiveImageViewCPtr->m_frame->Refresh(false, NULL);
    Maximize (false);
-   /*
-   m_imageViewCPtr->m_frame->GetSize();
-	 
-   if (gActiveImageViewCPtr != NULL)
-   	{
-      		// Update the standard state to be the size of
-				// the window that allows the entire image to
-      		// be viewed or if that is larger than the
-      		// screen then the entire
-      		// screen for the device that the cursor is in.
-	 
-		//GetWindowStandardState (window, &idealStandardState);
-		//gTempRect = idealStandardState;
-		//GetWindowUserState (window, &userStateRect);
-	 
-				// Determine whether the top left corner of the user
-				// rectangle is within the current device.  If so use
-				// this as the top left for the standard state.  If not
-				// use the upper left of the 'new' current device.
-	 
-		//if (PtInRect (topLeft(userStateRect), &gViewRect))
-		//	topLeft(idealStandardState) = topLeft(userStateRect);
-	 
-		//else		// !PtInRect (&topLeft(...
-		//	topLeft(idealStandardState) = topLeft(gViewRect);
-	 
-      windowInfoPtr = (WindowInfoPtr)GetHandlePointer (windowInfoHandle);
-		if (windowInfoPtr != NULL)
-			displaySpecsPtr = GetActiveDisplaySpecsPtr();
-
-      //CMImageFrame* activechild = (CMImageFrame*) (gActiveImageViewCPtr->GetFrame());
-   	if (displaySpecsPtr != NULL)
-    		{
-         GetWindowClipRectangle(gActiveImageWindow, kImageFrameArea, &gViewRect);
-					// Adjust down to the size needed to enclose the image.
-			idealStandardState.right = MIN(gViewRect.right,
-									origin.y + (SInt16)gTempLongPoint.h);
-	 
-			idealStandardState.bottom = MIN(gViewRect.bottom,
-								origin.x + (SInt16)gTempLongPoint.v);
-	 
-					// Now force the upper left if possible to enclose the
-					// image if needed.
-	 
-			idealStandardState.left = MAX(gViewRect.left,
-									origin.y - (SInt16)gTempLongPoint.h);
-	 
-			idealStandardState.top = MAX(gViewRect.top,
-									origin.x - (SInt16)gTempLongPoint.v);
-	 
-			}	// end "if (displaySpecsPtr)"
-	 
-      //int width_max = idealStandardState.right-idealStandardState.left;
-      //int height_max = idealStandardState.bottom-idealStandardState.top;
-      int width_max = gViewRect.right-gViewRect.left;
-      int height_max = gViewRect.bottom-gViewRect.top;
-
-   	}	// end "if (gActiveImageViewCPtr != NULL)"
-   */
-	//gActiveImageWindow->m_frame->SetSize (1200, 800);
 	
 	if (m_frameMaximized)
 		{
@@ -935,6 +881,8 @@ void CMImageFrame::OnMaximizeWindow (
 		GetMinimumDisplaySizeForImage (windowInfoHandle, &m_TempLongPoint);
 		m_frameMaximized = true;
 		
+		int titleToolBarHeight = GetTitleAndToolBarHeight ();
+		
 		#ifdef NetBeansProject
 			GetMainFrame()->GetClientSize (&clientWidth, &clientHeight);
 			GetMainFrame()->GetPosition (&mainOrig.x, &mainOrig.y);
@@ -942,7 +890,6 @@ void CMImageFrame::OnMaximizeWindow (
 			mainFrameBarHeight = 150;
 			otherLegendStuffHeight = 130;
 		#else	// mygeohub or multispec_wxmac
-		
 			#if defined multispec_wxlin
 				GetMainFrame()->GetClientSize (&clientWidth, &clientHeight);
 				GetMainFrame()->GetPosition (&mainOrig.x, &mainOrig.y);
@@ -962,7 +909,11 @@ void CMImageFrame::OnMaximizeWindow (
 				mainOrig.y = 2;
 		
 				mainFrameBarHeight = clientRect.GetTop ();
-				otherLegendStuffHeight = 90;
+		
+						// Set space needed for Title/Tool bar and
+						// Classes & Palette dropdown menus
+		
+				otherLegendStuffHeight = titleToolBarHeight;
 		
 						// Allow for 2 pixel space around image frame within the display area
 		
@@ -973,7 +924,10 @@ void CMImageFrame::OnMaximizeWindow (
 		
 				// Set the window height to max(legend height, image size)
 		
-		if (windowInfoPtr != NULL && windowInfoPtr->legendWidth > 0)
+		if (m_imageViewCPtr->m_frame->m_imageLegendViewCPtr != NULL)
+			m_imageViewCPtr->m_frame->m_imageLegendViewCPtr->GetClientSize (&legendWidth, &legendHeight);
+		
+		if (legendWidth > 0)
 			{
 			if (GetCoordinateHeight (windowInfoHandle) > 0)
 				{
@@ -983,10 +937,22 @@ void CMImageFrame::OnMaximizeWindow (
 				coordinateBarHeight = tempArea.GetBottom ();
 				
 				}	// end "if (GetCoordinateHeight (windowInfoHandle) > 0)"
+		
+					// Get height for class and palette controls for thematic images
+		
+			int	hx, hy;
+			m_imageLegendViewCPtr->FindWindow (IDC_COMBO1)->GetSize (&hx, &hy);
+			otherLegendStuffHeight += hy;
 			
-			legendHeight = m_imageViewCPtr->m_frame->m_imageLegendViewCPtr->m_legendListBox->m_ilist->GetImageCount() * 22;
-			legendHeight += otherLegendStuffHeight + coordinateBarHeight;
-			m_imageViewCPtr->m_frame->m_imageLegendViewCPtr->GetClientSize (&legendWidth, &legendHeight);
+			m_imageLegendViewCPtr->FindWindow (IDC_PaletteCombo)->GetSize (&hx, &hy);
+			otherLegendStuffHeight += hy;
+			
+			legendHeight = m_imageViewCPtr->m_frame->m_imageLegendViewCPtr->m_legendListBox->
+																						m_ilist->GetImageCount() * 21;
+			
+					// The 10 extra allows for space around the combo boxes
+			
+			legendHeight += otherLegendStuffHeight + coordinateBarHeight + 10;
 			#if defined multispec_wxlin
 				legendWidth = m_imageViewCPtr->m_frame->m_imageLegendViewCPtr->m_clientWidth;
 			#endif
@@ -1079,6 +1045,8 @@ void CMImageFrame::OnMouseWheel (wxMouseEvent& event)
 		doSomething = abs (wheelRotation);
 		
 		}	// end "if (wheelRotation != 0)"
+	
+	event.Skip ();
 	
 }	// end "OnMouseWheel"
 
@@ -1576,18 +1544,12 @@ void CMImageFrame::ShowCoordinateView (
 		}	// end "else !displayCoordinatesFlag"
 	
 	if (setCoordinateHeightFlag)
+		{
 		SetCoordinateHeight (windowInfoHandle, coordinateBarHeight);
-		
-	// Update the image frame
-	//Update();
-	// Update the main frame
-	//GetParent()->Update();
-	//    m_topWindow->SetSize(m_coordinatesBar->GetSize());
-	//    m_topWindow->Layout();
-	//    this->Layout();
-	//    this->SetAutoLayout(true);
+		m_frameMaximized = false;
 	
-
+		}	// end "if (setCoordinateHeightFlag)"
+	
 	if (cflag)
 		{
 		::UpdateScaleInformation (windowInfoHandle);
@@ -1814,7 +1776,7 @@ void CMImageFrame::UpdateSelectionWindowList ()
    FileInfoPtr fileInfoPtr = (FileInfoPtr)GetHandlePointer (fileInfoHandle);
 	   
    
-   gSelectionGraphViewCPtr->SetCheckIOMemoryFlag (TRUE);
+   //gSelectionGraphViewCPtr->SetCheckIOMemoryFlag (TRUE);
    //printf("update selection window\n");
    //save expand/collapse information to ShapeInfoPtr
 	//gSelectionGraphViewCPtr->m_frame->UpdateExpandFlag ();

@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 // 								Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (2009-2018)
+//								 Copyright (2009-2019)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -12,7 +12,7 @@
 //
 //	Authors:					Larry L. Biehl, Abdur Rachman Maud
 //
-//	Revision date:			10/19/2018
+//	Revision date:			01/07/2019
 //
 //	Language:				C++
 //
@@ -46,7 +46,7 @@ IMPLEMENT_DYNAMIC_CLASS (CMImageCanvas, wxScrolledWindow)
 
 wxSize CMImageCanvas::ScrollingIncrement = wxSize (10, 10);	// 10, 10
 
-wxBEGIN_EVENT_TABLE (CMImageCanvas, wxScrolledWindow)
+BEGIN_EVENT_TABLE (CMImageCanvas, wxScrolledWindow)
 	//EVT_CHAR (CMImageCanvas::OnChar)
    EVT_CHAR_HOOK (CMImageCanvas::OnCharHook)
 	EVT_ERASE_BACKGROUND (CMImageCanvas::OnEraseBackground)
@@ -59,7 +59,8 @@ wxBEGIN_EVENT_TABLE (CMImageCanvas, wxScrolledWindow)
 	EVT_MOTION (CMImageCanvas::OnMotion)
 	EVT_PAINT (CMImageCanvas::OnPaint)
 	EVT_SCROLLWIN (CMImageCanvas::OnScrollChanged)
-wxEND_EVENT_TABLE ()
+	EVT_SET_CURSOR (CMImageCanvas::OnCursorChange)
+END_EVENT_TABLE ()
 
 
 CMImageCanvas::CMImageCanvas ()
@@ -425,14 +426,14 @@ void CMImageCanvas::OnIdle (
       if (!HasCapture()) break;
 
       // get scroll position
-      wxPoint scrollPos = GetScrollPosition();
+      wxPoint scrollPos = GetScrollPosition ();
       // get mouse in client coordinates
-      wxPoint currentPos = ScreenToClient(wxGetMousePosition());
+      wxPoint currentPos = ScreenToClient(wxGetMousePosition ());
       
       // auto scroll
       // check current drag position and update scroll regularly
-      if (AutoScroll(currentPos, scrollPos))
-         event.RequestMore();
+      if (AutoScroll (currentPos, scrollPos))
+         event.RequestMore ();
 	
 		FixViewOffset();
 		
@@ -796,6 +797,30 @@ void CMImageCanvas::OnScrollChanged (
 	//m_View->InvalidateRect(&displayRect, FALSE);
 	
 }	// end "OnScrollChanged"
+
+
+
+void CMImageCanvas::OnCursorChange (
+				wxSetCursorEvent& 						event)
+				
+{
+	
+	//wxCursor				cursor;
+	//wxCoord				xPosition,
+	//							yPosition;
+	
+	
+			// Setting the global cursor variable to 0 will force it to be set
+			// to the correct value later.
+	
+	//cursor = event.GetCursor ();
+	//xPosition = event.GetX ();
+	//yPosition = event.GetY ();
+	gPresentCursor = 0;
+	
+	event.Skip ();
+	
+}	// end "OnCursorChange"
 
 
 

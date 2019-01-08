@@ -433,7 +433,7 @@ void CMLegendList::OnLButtonDblClk(wxListEvent& event)
 			}		// end "else lastClickPoint.x <= 15" 
       this->DrawLegendList();
 		
-		}		// end "if (gPresentCursor == gPresentCursor == kArrow)"
+		}		// end "if (gPresentCursor == kArrow)"
 	/*	
 	else if (gPresentCursor == kBlinkOpenCursor1)
 		{             

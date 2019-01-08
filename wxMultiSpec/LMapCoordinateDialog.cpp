@@ -1,6 +1,6 @@
 // LMapCoordinateDialog.cpp : implementation file
 //
-// Revised by Larry Biehl on 10/19/2018
+// Revised by Larry Biehl on 01/07/2019
 //
 // Note that m_adjustUpperLeftMapPointFlag has not been fully integrated in this code
 // yet. See Mac version for more info. Is not being used right now till a better
@@ -704,7 +704,7 @@ void CMMapCoordinateDlg::CreateControls()
 	bSizer103->Add( bSizer104, 1, wxALIGN_BOTTOM, 5 );
 	
 	bSizer103->Add( 40, 0, 0, wxEXPAND, 5 );
-	
+	/*
 	wxBoxSizer* bSizer105;
 	bSizer105 = new wxBoxSizer( wxHORIZONTAL );
 	
@@ -719,13 +719,14 @@ void CMMapCoordinateDlg::CreateControls()
 	//bSizer103->Add (bSizer105, 0, wxALIGN_BOTTOM | wxALIGN_RIGHT, 5);
 	//bSizer103->Add (bSizer105, wxSizerFlags(0).Right().Bottom());
    bSizer103->Add (bSizer105, 0, wxALIGN_BOTTOM, 5);
-	
-	
+	*/
 	//bSizer96->Add (bSizer103, 0, wxALIGN_BOTTOM | wxALIGN_RIGHT, 5 );
 	//bSizer96->Add (bSizer103, wxSizerFlags(0).Expand().Right().Border(wxRIGHT|wxBOTTOM,12));
 	bSizer96->Add (bSizer103, wxSizerFlags(0).Expand().Border(wxRIGHT|wxBOTTOM,12));
 	
-	this->SetSizerAndFit(bSizer96);
+	CreateStandardButtons (bSizer96);
+	
+	this->SetSizerAndFit (bSizer96);
 //	this->Layout();
 	//this->Centre();
 	

@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 // 								Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (2009-2018)
+//								 Copyright (2009-2019)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -12,7 +12,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			11/16/2018
+//	Revision date:			01/07/2019
 //
 //	Language:				C++
 //
@@ -33,9 +33,6 @@
 #include "LReformatTransformDialog.h"
 
 #include "wx/gbsizer.h"
-
-extern SInt16 GetHeaderFormatFromPopUpSelection (
-				SInt16								headerOptionsSelection);
 
 extern void ChangeImageFormatDialogInitialize (
 				DialogPtr							dialogPtr,
@@ -204,29 +201,27 @@ CMChangeFormatDlg::CMChangeFormatDlg (wxWindow* pParent, wxWindowID id, const wx
 
 
 BEGIN_EVENT_TABLE(CMChangeFormatDlg, CMDialog)
-
-EVT_INIT_DIALOG(CMChangeFormatDlg::OnInitDialog)
-EVT_BUTTON(IDEntireImage, CMChangeFormatDlg::ToEntireImage)
-EVT_BUTTON(IDSelectedImage, CMChangeFormatDlg::ToSelectedImage)
-EVT_CHECKBOX(IDC_TransformData, CMChangeFormatDlg::OnTransformData)
-EVT_COMBOBOX(IDC_BandInterleave, CMChangeFormatDlg::OnSelendokBandInterleave)
-EVT_COMBOBOX(IDC_ChannelCombo, CMChangeFormatDlg::OnSelendokOutChannels)
-EVT_COMBOBOX_DROPDOWN(IDC_ChannelCombo, CMChangeFormatDlg::OnSelendokChannelComboDropDown)
-EVT_COMBOBOX(IDC_DataValueType, CMChangeFormatDlg::OnSelendokDataValueType)
-EVT_COMBOBOX(IDC_ChangeHeader, CMChangeFormatDlg::OnSelendokHeader)
-EVT_TEXT(IDC_ColumnEnd, CMChangeFormatDlg::CheckColumnEnd)
-EVT_TEXT(IDC_ColumnStart, CMChangeFormatDlg::CheckColumnStart)
-EVT_TEXT(IDC_LineEnd, CMChangeFormatDlg::CheckLineEnd)
-EVT_TEXT(IDC_LineStart, CMChangeFormatDlg::CheckLineStart)
-EVT_TEXT(IDC_LineInterval, CMChangeFormatDlg::CheckLineInterval)
-EVT_TEXT(IDC_ColumnInterval, CMChangeFormatDlg::CheckColumnInterval)
-//EVT_CHAR_HOOK(CMChangeFormatDlg::OnButtonPress)
-EVT_CHECKBOX (IDC_WriteChanDescriptions, CMChangeFormatDlg::OnWriteChanDescriptions)
-EVT_CHECKBOX (IDC_OutputInWavelengthOrder, CMChangeFormatDlg::OnOutputInWavelengthOrder)
-//EVT_CHECKBOX(IDC_InvertBottomToTop, OnWriteChanDescriptions)
-//EVT_CHECKBOX(IDC_InvertRightToLeft, OnWriteChanDescriptions)
-//EVT_CHECKBOX(IDC_SwapBytes, OnWriteChanDescriptions)
-
+	EVT_INIT_DIALOG(CMChangeFormatDlg::OnInitDialog)
+	EVT_BUTTON(IDEntireImage, CMChangeFormatDlg::ToEntireImage)
+	EVT_BUTTON(IDSelectedImage, CMChangeFormatDlg::ToSelectedImage)
+	EVT_CHECKBOX(IDC_TransformData, CMChangeFormatDlg::OnTransformData)
+	EVT_COMBOBOX(IDC_BandInterleave, CMChangeFormatDlg::OnSelendokBandInterleave)
+	EVT_COMBOBOX(IDC_ChannelCombo, CMChangeFormatDlg::OnSelendokOutChannels)
+	EVT_COMBOBOX_DROPDOWN(IDC_ChannelCombo, CMChangeFormatDlg::OnSelendokChannelComboDropDown)
+	EVT_COMBOBOX(IDC_DataValueType, CMChangeFormatDlg::OnSelendokDataValueType)
+	EVT_COMBOBOX(IDC_ChangeHeader, CMChangeFormatDlg::OnSelendokHeader)
+	EVT_TEXT(IDC_ColumnEnd, CMChangeFormatDlg::CheckColumnEnd)
+	EVT_TEXT(IDC_ColumnStart, CMChangeFormatDlg::CheckColumnStart)
+	EVT_TEXT(IDC_LineEnd, CMChangeFormatDlg::CheckLineEnd)
+	EVT_TEXT(IDC_LineStart, CMChangeFormatDlg::CheckLineStart)
+	EVT_TEXT(IDC_LineInterval, CMChangeFormatDlg::CheckLineInterval)
+	EVT_TEXT(IDC_ColumnInterval, CMChangeFormatDlg::CheckColumnInterval)
+	//EVT_CHAR_HOOK(CMChangeFormatDlg::OnButtonPress)
+	EVT_CHECKBOX (IDC_WriteChanDescriptions, CMChangeFormatDlg::OnWriteChanDescriptions)
+	EVT_CHECKBOX (IDC_OutputInWavelengthOrder, CMChangeFormatDlg::OnOutputInWavelengthOrder)
+	//EVT_CHECKBOX(IDC_InvertBottomToTop, OnWriteChanDescriptions)
+	//EVT_CHECKBOX(IDC_InvertRightToLeft, OnWriteChanDescriptions)
+	//EVT_CHECKBOX(IDC_SwapBytes, OnWriteChanDescriptions)
 END_EVENT_TABLE()
 
 
@@ -235,12 +230,6 @@ void CMChangeFormatDlg::CreateControls ()
 
 {
    this->SetSizeHints (wxDefaultSize, wxDefaultSize);
-   /*
-   wxBitmap entireimi = wxBITMAP_PNG_FROM_DATA (entireim);
-   wxBitmap toentirei = wxBITMAP_PNG_FROM_DATA (toentire);
-   wxBitmap selectedi = wxBITMAP_PNG_FROM_DATA (selected);
-   wxBitmap bmp4i = wxBITMAP_PNG_FROM_DATA (bmp4);
-	*/
    bSizer124 = new wxBoxSizer (wxVERTICAL);
 
    wxBoxSizer* bSizer125;
@@ -405,106 +394,9 @@ void CMChangeFormatDlg::CreateControls ()
 																		IDC_LineColFrame,
 																		wxT("Area to Reformat")),
 												wxHORIZONTAL);
-	/*
-   wxBoxSizer* bSizer791;
-   bSizer791 = new wxBoxSizer (wxHORIZONTAL);
 
-   m_bpButton4 = new wxBitmapButton (sbSizer8->GetStaticBox (),
-													IDEntireImage,
-													entireimi,
-													wxDefaultPosition,
-													wxDefaultSize,
-													wxBU_AUTODRAW);
-   SetUpToolTip (m_bpButton4, IDS_ToolTip40);
-   m_bpButton4->SetBitmapDisabled (toentirei);
-   //bSizer791->Add (m_bpButton4,
-	//						0,
-	//						wxALIGN_CENTER_VERTICAL | wxALIGN_RIGHT | wxALL,
-	//						5);
-	bSizer791->Add (m_bpButton4,
-							wxSizerFlags(0).Align(wxALIGN_CENTER_VERTICAL).Border(wxALL, 5));
-
-   m_bpButton5 = new wxBitmapButton (sbSizer8->GetStaticBox (),
-													IDSelectedImage,
-													selectedi,
-													wxDefaultPosition,
-													wxDefaultSize,
-													wxBU_AUTODRAW);
-
-   m_bpButton5->SetBitmapDisabled (bmp4i);
-   //bSizer791->Add (m_bpButton5, 0, wxALIGN_CENTER_VERTICAL | wxALIGN_RIGHT | wxALL, 5);
-	bSizer791->Add (m_bpButton5,
-							wxSizerFlags(0).Align(wxALIGN_CENTER_VERTICAL).Border(wxALL, 5));
-
-   //sbSizer8->Add (bSizer791, 0, wxALL|wxEXPAND, 5);
-	sbSizer8->Add (bSizer791, wxSizerFlags(0).Expand().Border(wxALL, 5));
-	*/
 	CreateLineColumnControls (sbSizer8);
-	/*
-   wxGridSizer* gSizer1;
-   gSizer1 = new wxGridSizer (3, 4, 0, 0);
-
-   m_staticText63 = new wxStaticText(sbSizer8->GetStaticBox(), wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0);
-   m_staticText63->Wrap(-1);
-   gSizer1->Add(m_staticText63, 0, wxALL, 5);
-
-   m_staticText64 = new wxStaticText(sbSizer8->GetStaticBox(), wxID_ANY, wxT("Start"), wxDefaultPosition, wxDefaultSize, 0);
-   m_staticText64->Wrap(-1);
-   gSizer1->Add(m_staticText64, 0, wxALIGN_CENTER | wxALL, 5);
-
-   m_staticText65 = new wxStaticText(sbSizer8->GetStaticBox(), wxID_ANY, wxT("End"), wxDefaultPosition, wxDefaultSize, 0);
-   m_staticText65->Wrap(-1);
-   gSizer1->Add(m_staticText65, 0, wxALIGN_CENTER | wxALL, 5);
-
-   m_staticText66 = new wxStaticText(sbSizer8->GetStaticBox(), wxID_ANY, wxT("Interval"), wxDefaultPosition, wxDefaultSize, 0);
-   m_staticText66->Wrap(-1);
-   gSizer1->Add(m_staticText66, 0, wxALIGN_CENTER | wxALL, 5);
-
-   m_staticText60 = new wxStaticText(sbSizer8->GetStaticBox(), wxID_ANY, wxT("Line"), wxDefaultPosition, wxDefaultSize, 0);
-   m_staticText60->Wrap(-1);
-   gSizer1->Add(m_staticText60, 0, wxALIGN_CENTER | wxALL, 5);
-
-   m_linestartctrl = new wxTextCtrl(sbSizer8->GetStaticBox(), IDC_LineStart, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0);
-   m_linestartctrl->SetValidator(wxTextValidator(wxFILTER_DIGITS, &m_LineStartString));
-
-   gSizer1->Add(m_linestartctrl, 0, wxALIGN_CENTER | wxALL, 5);
-
-   m_lineendctrl = new wxTextCtrl(sbSizer8->GetStaticBox(), IDC_LineEnd, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0);
-   m_lineendctrl->SetValidator(wxTextValidator(wxFILTER_DIGITS, &m_LineEndString));
-
-   gSizer1->Add(m_lineendctrl, 0, wxALIGN_CENTER | wxALL, 5);
-
-   m_lineintctrl = new wxTextCtrl(sbSizer8->GetStaticBox(), IDC_LineInterval, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0);
-   m_lineintctrl->SetValidator(wxTextValidator(wxFILTER_DIGITS, &m_LineIntervalString));
-
-   gSizer1->Add(m_lineintctrl, 0, wxALIGN_CENTER | wxALL, 5);
-
-   m_staticText62 = new wxStaticText (sbSizer8->GetStaticBox(), wxID_ANY, wxT("Column"), wxDefaultPosition, wxDefaultSize, 0);
-   m_staticText62->Wrap (-1);
-   gSizer1->Add (m_staticText62, 0, wxALIGN_CENTER | wxALL, 5);
-
-   m_colstartctrl = new wxTextCtrl (sbSizer8->GetStaticBox(), IDC_ColumnStart, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0);
-   m_colstartctrl->SetValidator (wxTextValidator(wxFILTER_DIGITS, &m_ColumnStartString));
-
-   gSizer1->Add (m_colstartctrl, 0, wxALIGN_CENTER | wxALL, 5);
-
-   m_colendctrl = new wxTextCtrl(sbSizer8->GetStaticBox(), IDC_ColumnEnd, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0);
-   m_colendctrl->SetValidator(wxTextValidator(wxFILTER_DIGITS, &m_ColumnEndString));
-   gSizer1->Add (m_colendctrl, 0, wxALIGN_CENTER | wxALL, 5);
-
-   m_colintctrl = new wxTextCtrl(sbSizer8->GetStaticBox(), IDC_ColumnInterval, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0);
-   m_colintctrl->SetValidator(wxTextValidator(wxFILTER_DIGITS, &m_ColumnIntervalString));
-   gSizer1->Add (m_colintctrl, 0, wxALIGN_CENTER | wxALL, 5);
-
-   SetUpToolTip (m_linestartctrl, IDS_ToolTip19);
-   SetUpToolTip (m_lineendctrl, IDS_ToolTip20);
-   SetUpToolTip (m_lineintctrl, IDS_ToolTip21);
-   SetUpToolTip (m_colstartctrl, IDS_ToolTip22);
-   SetUpToolTip (m_colendctrl, IDS_ToolTip23);
-   SetUpToolTip (m_colintctrl, IDS_ToolTip24);
-	 
-   sbSizer8->Add (gSizer1, 1, wxALL|wxEXPAND, 5);
-	*/
+	
    gbSizer2->Add (sbSizer8,
 						wxGBPosition (0, 0),
 						wxGBSpan (2, 1),
@@ -522,10 +414,6 @@ void CMChangeFormatDlg::CreateControls ()
 													0);
    m_staticText161->Wrap (-1);
    SetUpToolTip (m_staticText161, IDS_ToolTip52);
-   //bSizer130->Add (m_staticText161,
-	//						0,
-	//						wxALIGN_CENTER_VERTICAL | wxTOP|wxRIGHT|wxBOTTOM,
-	//						5);
    bSizer130->Add (
 		m_staticText161,
 		wxSizerFlags(0).Align(wxALIGN_CENTER_VERTICAL).Border(wxTOP|wxRIGHT|wxBOTTOM, 5));
@@ -541,7 +429,6 @@ void CMChangeFormatDlg::CreateControls ()
    m_comboBox23->Append (wxT("All"));
    m_comboBox23->Append (wxT("Subset..."));
    SetUpToolTip (m_comboBox23, IDS_ToolTip52);
-   //bSizer130->Add (m_comboBox23, 0, wxALIGN_CENTER_VERTICAL | wxALL, 5);
    bSizer130->Add (m_comboBox23,
 							wxSizerFlags(0).Align(wxALIGN_CENTER_VERTICAL).Border(wxALL, 5));
 
@@ -560,7 +447,6 @@ void CMChangeFormatDlg::CreateControls ()
 												wxDefaultSize,
 												0);
    SetUpToolTip (m_checkBox41, IDS_ToolTip70);
-   //sbSizer22->Add (m_checkBox41, 0, wxALL, 5);
    sbSizer22->Add (m_checkBox41, wxSizerFlags(0).Border(wxALL, 5));
 
    m_checkBox42 = new wxCheckBox (sbSizer22->GetStaticBox (),
@@ -570,7 +456,6 @@ void CMChangeFormatDlg::CreateControls ()
 												wxDefaultSize,
 												0);
    SetUpToolTip (m_checkBox42, IDS_ToolTip71);
-   //sbSizer22->Add (m_checkBox42, 0, wxALL, 5);
    sbSizer22->Add (m_checkBox42, wxSizerFlags(0).Border(wxALL, 5));
 
    m_checkBox43 = new wxCheckBox (sbSizer22->GetStaticBox (),
@@ -580,7 +465,6 @@ void CMChangeFormatDlg::CreateControls ()
 												wxDefaultSize,
 												0);
    SetUpToolTip (m_checkBox43, IDS_ToolTip72);
-   //sbSizer22->Add (m_checkBox43, 0, wxALL, 5);
    sbSizer22->Add (m_checkBox43, wxSizerFlags(0).Border(wxALL, 5));
 
    m_checkBox44 = new wxCheckBox (sbSizer22->GetStaticBox (),
@@ -590,7 +474,6 @@ void CMChangeFormatDlg::CreateControls ()
 												wxDefaultSize,
 												0);
    SetUpToolTip (m_checkBox44, IDS_ToolTip73);
-   //sbSizer22->Add (m_checkBox44, 0, wxALL, 5);
    sbSizer22->Add (m_checkBox44, wxSizerFlags(0).Border(wxALL, 5));
 
    m_checkBox46 = new wxCheckBox (sbSizer22->GetStaticBox (),
@@ -600,8 +483,9 @@ void CMChangeFormatDlg::CreateControls ()
 												wxDefaultSize,
 												0);
    SetUpToolTip (m_checkBox46, IDS_ToolTip77);
-   //sbSizer22->Add (m_checkBox46, 0, wxALL, 5);
-   sbSizer22->Add (m_checkBox46, wxSizerFlags(0).Border(wxALL, 5));
+   sbSizer22->Add (m_checkBox46,
+   						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Border(wxALL, 5));
+   //						wxSizerFlags(0).Border(wxALL, 5));
 
    wxBoxSizer* bSizer131;
    bSizer131 = new wxBoxSizer (wxHORIZONTAL);
@@ -613,7 +497,6 @@ void CMChangeFormatDlg::CreateControls ()
 													wxDefaultSize,
 													0);
    m_staticText162->Wrap (-1);
-   //bSizer131->Add (m_staticText162, 0, wxALIGN_CENTER_VERTICAL | wxALL, 5);
    bSizer131->Add (m_staticText162,
 							wxSizerFlags(0).Align(wxALIGN_CENTER_VERTICAL).Border(wxALL, 5));
 
@@ -632,11 +515,9 @@ void CMChangeFormatDlg::CreateControls ()
    m_comboBox24->Append (wxT("GeoTIFF format"));
    m_comboBox24->Append (wxT("Matlab format"));
    SetUpToolTip (m_comboBox24, IDS_ToolTip74);
-   //bSizer131->Add (m_comboBox24, 0, wxALIGN_CENTER_VERTICAL | wxALL, 5);
    bSizer131->Add (m_comboBox24,
 							wxSizerFlags(0).Align(wxALIGN_CENTER_VERTICAL).Border(wxALL, 5));
 
-   //sbSizer22->Add (bSizer131, 1, wxALL|wxEXPAND, 5);
    sbSizer22->Add (bSizer131, wxSizerFlags(1).Expand().Border(wxALL, 5));
 
    gbSizer2->Add (sbSizer22,
@@ -681,10 +562,6 @@ void CMChangeFormatDlg::CreateControls ()
 													wxDefaultSize,
 													0);
    m_staticText164->Wrap (-1);
-   //bSizer132->Add (m_staticText164,
-	//						0,
-	//						wxALIGN_CENTER_VERTICAL | wxTOP|wxRIGHT|wxBOTTOM,
-	//						5);
    bSizer132->Add (
 		m_staticText164,
 		wxSizerFlags(0).Align(wxALIGN_CENTER_VERTICAL).Border(wxTOP|wxRIGHT|wxBOTTOM, 5));
@@ -697,7 +574,6 @@ void CMChangeFormatDlg::CreateControls ()
 													0);
    m_staticText166->Wrap (-1);
    SetUpToolTip (m_staticText166, IDS_ToolTip68);
-   //bSizer132->Add (m_staticText166, 0, wxALIGN_CENTER_VERTICAL | wxALL, 5);
    bSizer132->Add (m_staticText166,
 							wxSizerFlags(0).Align(wxALIGN_CENTER_VERTICAL).Border(wxALL, 5));
    
@@ -706,7 +582,7 @@ void CMChangeFormatDlg::CreateControls ()
 												IDC_DataValueType,
 												wxEmptyString,
 												wxDefaultPosition,
-												wxDefaultSize,
+												wxSize (180, -1),
 												0,
 												NULL,
 												wxCB_READONLY);
@@ -719,7 +595,6 @@ void CMChangeFormatDlg::CreateControls ()
    m_comboBox25->Append (wxT("32-bit Real"));
    m_comboBox25->Append (wxT("64-bit Real"));
    SetUpToolTip (m_comboBox25, IDS_ToolTip68);
-   //bSizer132->Add (m_comboBox25, 0, wxALIGN_CENTER_VERTICAL | wxALL, 5);
    bSizer132->Add (m_comboBox25,
 							wxSizerFlags(0).Align(wxALIGN_CENTER_VERTICAL).Border(wxALL, 5));
    
@@ -740,10 +615,6 @@ void CMChangeFormatDlg::CreateControls ()
 													0);
    m_staticText165->Wrap (-1);
    SetUpToolTip (m_staticText165, IDS_ToolTip69);
-   //bSizer133->Add (m_staticText165,
-	//						0,
-	//						wxALIGN_CENTER_VERTICAL | wxTOP|wxRIGHT|wxBOTTOM,
-	//						5);
    bSizer133->Add (
 		m_staticText165,
 		wxSizerFlags(0).Align(wxALIGN_CENTER_VERTICAL).Border(wxTOP|wxRIGHT|wxBOTTOM, 5));
@@ -752,7 +623,7 @@ void CMChangeFormatDlg::CreateControls ()
 												IDC_BandInterleave,
 												wxEmptyString,
 												wxDefaultPosition,
-												wxDefaultSize,
+												wxSize (220, -1),
 												0,
 												NULL,
 												wxCB_READONLY);
@@ -760,38 +631,17 @@ void CMChangeFormatDlg::CreateControls ()
    m_comboBox26->Append (wxT("BSQ- Band Sequential"));
    m_comboBox26->Append (wxT("BIS- Band Interleave by Sample"));
    SetUpToolTip (m_comboBox26, IDS_ToolTip69);
-   //bSizer133->Add (m_comboBox26, 0, wxALIGN_CENTER_VERTICAL | wxLEFT|wxTOP, 5);
    bSizer133->Add (
-					m_comboBox26,
-					wxSizerFlags(0).Align(wxALIGN_CENTER_VERTICAL).Border(wxLEFT|wxTOP, 5));
+				m_comboBox26,
+				wxSizerFlags(0).ReserveSpaceEvenIfHidden().
+								Align(wxALIGN_CENTER_VERTICAL).Border(wxLEFT|wxTOP, 5));
 
    gbSizer2->Add (bSizer133,
 						wxGBPosition (5, 0),
 						wxGBSpan (1, 1),
 						wxEXPAND | wxTOP|wxRIGHT,
 						5);
-	/*
-   wxBoxSizer* bSizer134 = new wxBoxSizer(wxHORIZONTAL);
-   m_button40 = new wxButton (this,
-										wxID_CANCEL,
-										wxT("Cancel"),
-										wxDefaultPosition,
-										wxDefaultSize,
-										0);
-	bSizer134->Add (m_button40, wxSizerFlags(0).Border(wxRIGHT, 6));
-   m_button41 = new wxButton (this,
-										wxID_OK,
-										wxT("OK"),
-										wxDefaultPosition,
-										wxDefaultSize,
-										0);
- 	bSizer134->Add (m_button41, wxSizerFlags(0));
-   gbSizer2->Add (bSizer134,
-						wxGBPosition (6, 1),
-						wxGBSpan (1, 1),
-						wxALIGN_RIGHT | wxTOP,
-						5);
-	*/
+
 	bSizer124->Add (gbSizer2,
 							wxSizerFlags(0).Expand().Border(wxLEFT|wxRIGHT, 12));
 	
@@ -804,7 +654,7 @@ void CMChangeFormatDlg::CreateControls ()
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1071,11 +921,10 @@ void CMChangeFormatDlg::OnSelendokBandInterleave(wxCommandEvent& event)
 
    m_headerOptionsSelection = headerOptionsSelection;
    m_outputFileSelection = outputFileSelection;
-   m_headerListSelection = GetComboListSelection(IDC_ChangeHeader,
-           m_headerOptionsSelection);
-   //DDX_CBIndex(m_dialogToPtr, IDC_ChangeHeader, m_headerListSelection);
-   cmb = (wxComboBox *) FindWindow(IDC_ChangeHeader);
-   cmb->SetSelection(m_headerListSelection);
+   m_headerListSelection = GetComboListSelection (IDC_ChangeHeader,
+																	m_headerOptionsSelection);
+   cmb = (wxComboBox*)FindWindow(IDC_ChangeHeader);
+   cmb->SetSelection (m_headerListSelection);
 
    if (changedFlag)
       OnSelendokHeader(event);
@@ -1131,7 +980,7 @@ void CMChangeFormatDlg::OnSelendokDataValueType (
 
       m_headerListSelection = GetComboListSelection (IDC_ChangeHeader,
 																		m_headerOptionsSelection);
-      comboBoxPtr = (wxComboBox*) FindWindow(IDC_ChangeHeader);
+      comboBoxPtr = (wxComboBox*)FindWindow(IDC_ChangeHeader);
       comboBoxPtr->SetSelection(m_headerListSelection);
 
 		}	// end "if (dataValueTypeSelection != m_dataValueTypeSelection)"
@@ -1553,25 +1402,25 @@ bool CMChangeFormatDlg::TransferDataToWindow()
    //wxStaticText* inputBandInterleave = (wxStaticText*) FindWindow(IDC_ChangeFormatInInterleave);
    //wxStaticText* inputDataValueType = (wxStaticText*) FindWindow(IDC_ChangeFormatInBits);
 	
-   wxComboBox* opfile = (wxComboBox*) FindWindow(IDC_OutputFileSelection);
-   wxComboBox* datatype = (wxComboBox*) FindWindow(IDC_DataValueType);
-   wxComboBox* bandf = (wxComboBox*) FindWindow(IDC_BandInterleave);
-   wxComboBox* chan = (wxComboBox*) FindWindow(IDC_ChannelCombo);
-   wxComboBox* header = (wxComboBox*) FindWindow(IDC_ChangeHeader);
+   wxComboBox* opfile = (wxComboBox*)FindWindow(IDC_OutputFileSelection);
+   wxComboBox* datatype = (wxComboBox*)FindWindow(IDC_DataValueType);
+   wxComboBox* bandf = (wxComboBox*)FindWindow(IDC_BandInterleave);
+   wxComboBox* chan = (wxComboBox*)FindWindow(IDC_ChannelCombo);
+   wxComboBox* header = (wxComboBox*)FindWindow(IDC_ChangeHeader);
 
-   wxCheckBox* tdata = (wxCheckBox*) FindWindow(IDC_TransformData);
-   wxCheckBox* ibt = (wxCheckBox*) FindWindow(IDC_InvertBottomToTop);
-   wxCheckBox* irl = (wxCheckBox*) FindWindow(IDC_InvertRightToLeft);
-   wxCheckBox* swapb = (wxCheckBox*) FindWindow(IDC_SwapBytes);
-   wxCheckBox* writechan = (wxCheckBox*) FindWindow (IDC_WriteChanDescriptions);
-   wxCheckBox* wavelengthOrder = (wxCheckBox*) FindWindow (IDC_OutputInWavelengthOrder);
+   wxCheckBox* tdata = (wxCheckBox*)FindWindow(IDC_TransformData);
+   wxCheckBox* ibt = (wxCheckBox*)FindWindow(IDC_InvertBottomToTop);
+   wxCheckBox* irl = (wxCheckBox*)FindWindow(IDC_InvertRightToLeft);
+   wxCheckBox* swapb = (wxCheckBox*)FindWindow(IDC_SwapBytes);
+   wxCheckBox* writechan = (wxCheckBox*)FindWindow (IDC_WriteChanDescriptions);
+   wxCheckBox* wavelengthOrder = (wxCheckBox*)FindWindow (IDC_OutputInWavelengthOrder);
 
-   wxTextCtrl* c_end = (wxTextCtrl*) FindWindow(IDC_ColumnEnd);
-   wxTextCtrl* c_inter = (wxTextCtrl*) FindWindow(IDC_ColumnInterval);
-   wxTextCtrl* c_start = (wxTextCtrl*) FindWindow(IDC_ColumnStart);
-   wxTextCtrl* l_end = (wxTextCtrl*) FindWindow(IDC_LineEnd);
-   wxTextCtrl* l_inter = (wxTextCtrl*) FindWindow(IDC_LineInterval);
-   wxTextCtrl* l_start = (wxTextCtrl*) FindWindow(IDC_LineStart);
+   wxTextCtrl* c_end = (wxTextCtrl*)FindWindow(IDC_ColumnEnd);
+   wxTextCtrl* c_inter = (wxTextCtrl*)FindWindow(IDC_ColumnInterval);
+   wxTextCtrl* c_start = (wxTextCtrl*)FindWindow(IDC_ColumnStart);
+   wxTextCtrl* l_end = (wxTextCtrl*)FindWindow(IDC_LineEnd);
+   wxTextCtrl* l_inter = (wxTextCtrl*)FindWindow(IDC_LineInterval);
+   wxTextCtrl* l_start = (wxTextCtrl*)FindWindow(IDC_LineStart);
 	/*
 	tempString = wxString::FromAscii((char*)&m_inputBandInterleaveString[1]);
 	inputBandInterleave->SetLabel(tempString);

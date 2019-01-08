@@ -256,8 +256,7 @@ CMImageView::CheckIfOffscreenImageExists(void)
 //	Coded By:			Larry L. Biehl			Date: 04/03/1996
 //	Revised By:			Larry L. Biehl			Date: 04/04/1996
 
-SInt16
-CMImageView::GetClassGroupCode(void)
+SInt16 CMImageView::GetClassGroupCode(void)
 
 {  
 	SInt16		classGroupCode = 0;
@@ -269,19 +268,19 @@ CMImageView::GetClassGroupCode(void)
 		{
 		if (m_displayMultiCPtr != NULL)
 			{                                                                    
-			DisplaySpecsPtr displaySpecsPtr = (DisplaySpecsPtr)GetHandlePointer(
-							m_displayMultiCPtr->mDisplaySpecsHandle, kNoLock, kNoMoveHi);
+			DisplaySpecsPtr displaySpecsPtr = (DisplaySpecsPtr)GetHandlePointer (
+													m_displayMultiCPtr->mDisplaySpecsHandle);
 													
 			if (displaySpecsPtr != NULL && !displaySpecsPtr->initializeStructureFlag) 
 				classGroupCode = displaySpecsPtr->classGroupCode;
 				
-			}		// end "if (m_displayMultiCPtr != NULL)"
+			}	// end "if (m_displayMultiCPtr != NULL)"
 			
-		}		// end "if (this != NULL)"
+		}	// end "if (this != NULL)"
 
 	return (classGroupCode);
 	
-}		// end "GetClassGroupCode" 
+}	// end "GetClassGroupCode"
 
 
 
@@ -910,8 +909,8 @@ void CMImageView::InitialUpdate(void)
 			//		Doing so will cause problems later when drawing selections and
 			//		fields.
 	
-	wxRect coordinateRect = m_frame->m_coordinatesBar->GetRect ();
-	SetCoordinateHeight (gActiveImageWindowInfoH, coordinateRect.height);
+	//wxRect coordinateRect = m_frame->m_coordinatesBar->GetRect ();
+	//SetCoordinateHeight (gActiveImageWindowInfoH, coordinateRect.height);
 
    ShapeInfoPtr shapeInfoPtr = NULL;
 	if (gActiveImageWindow != NULL && gSelectionGraphViewCPtr!= NULL)
@@ -1431,19 +1430,16 @@ void CMImageView::UpdateCursorCoordinates (
 // Called By:			FixCursor in multiSpec.c
 //
 //	Coded By:			Larry L. Biehl			Date: 06/22/1992
-//	Revised By:			Larry L. Biehl			Date: 07/24/2015
+//	Revised By:			Larry L. Biehl			Date: 01/07/2019
 
 void CMImageView::UpdateCursorCoordinates (void)
- {
-	if (this != NULL)
-		{
-		CMImageDoc* imageDocCPtr = GetDocument();
 
-		if (imageDocCPtr->GetDisplayCoordinatesFlag())
-			(imageDocCPtr->GetImageFrameCPtr())->UpdateCursorCoordinates();
-		
-		}	// end "if (this != NULL)"
+{
+	CMImageDoc* imageDocCPtr = GetDocument();
 
+	if (imageDocCPtr->GetDisplayCoordinatesFlag())
+		(imageDocCPtr->GetImageFrameCPtr())->UpdateCursorCoordinates();
+ 
 }	// end "UpdateCursorCoordinates"
 
 

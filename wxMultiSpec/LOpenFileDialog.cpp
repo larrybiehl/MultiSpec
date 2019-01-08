@@ -120,12 +120,17 @@ void MyExtraPanel::OnInitDialog (void)
 		gGetFileStatus = 1;
     
 			// The event call of comboBox
+			// Note that the Connects (and Binds) do not work. The setting is obtain after
+			// the user selects OK.
 
-	m_list->Connect (14, wxEVT_COMMAND_COMBOBOX_SELECTED,
-                wxCommandEventHandler (MyExtraPanel::OnSelendokImageType), NULL, this);
+	//m_list->Connect (14, wxEVT_COMBOBOX,
+  	//           wxCommandEventHandler (MyExtraPanel::OnSelendokImageType), NULL, this);
+	m_list->Bind (wxEVT_COMMAND_COMBOBOX_SELECTED,
+                	&MyExtraPanel::OnSelendokImageType, this);
     
-	m_link->Connect (16, wxEVT_COMMAND_COMBOBOX_SELECTED,
-                    wxCommandEventHandler (MyExtraPanel::OnSelendokLinkOption), NULL, this);
+	//m_link->Connect (16, wxEVT_COMMAND_COMBOBOX_SELECTED,
+	m_link->Bind (wxEVT_COMMAND_COMBOBOX_SELECTED,
+                    &MyExtraPanel::OnSelendokLinkOption, this);
 	#if defined multispec_wxlin
 		uploadbutton->Connect (wxID_ANY,
 										wxEVT_BUTTON,
@@ -272,11 +277,11 @@ void MyExtraPanel::OnSelendokLinkOption (wxCommandEvent& event)
 	m_linkOptionSelectionDataCode = m_link->GetSelection() + 1;
     
 	if (m_linkOptionSelectionDataCode == 1)
-		SetImageLinkToFalse();
+		SetImageLinkToFalse ();
 	else if (m_linkOptionSelectionDataCode == 2)
-		SetImageLinkToTrue();
+		SetImageLinkToTrue ();
 	else if (m_linkOptionSelectionDataCode == 3)
-		SetImageLinkToTrue();
+		SetImageLinkToTrue ();
     
 }
 
@@ -512,39 +517,26 @@ bool CMOpenFileDialog::DoDialog (int stringIndex, long style)
       
       if (wxDynamicCast(extra, MyExtraPanel) != NULL) 
 			{
-         if (static_cast<MyExtraPanel*> (extra)->getimagetype() == 0)
-            gGetFileImageType = 0;
+         MyExtraPanel* extra_panel = (MyExtraPanel*)extra;
+			
+			int listOption = extra_panel->m_list->GetSelection();
+			gGetFileImageType = 0;
 
-         else if (static_cast<MyExtraPanel*> (extra)->getimagetype() == 1)
+         if (listOption == 1)
             gGetFileImageType = kMultispectralImageType;
 
-         else if (static_cast<MyExtraPanel*> (extra)->getimagetype() == 2)
+         else if (listOption == 2)
             gGetFileImageType = kThematicImageType;
-
-         else // (m_imageType > 2) 
-            gGetFileImageType = 0;
-         /*
-			#if 0  
-         if(static_cast<MyExtraPanel*> (extra)->getlinktoactiveimagevalue() == 0)
-            gMultipleImageFileCode = 0; 
-         else          
-         if(GetFileStatus > 1)
-             gGetFileStatus = 2;if (static_cast<MyExtraPanel*> (extra)->getlinktoactiveimagevalue() == 1)
-            gMultipleImageFileCode = 2;
-         else if (static_cast<MyExtraPanel*> (extra)->getlinktoactiveimagevalue() == 2)
-            gMultipleImageFileCode = 3;
-			#endif
-			*/   
-			if (style &= wxFD_MULTIPLE)
-            dialog.GetPaths(m_paths);
+ 
+ 			if (style &= wxFD_MULTIPLE)
+            dialog.GetPaths (m_paths);
          else 
-            m_path = dialog.GetPath();
+            m_path = dialog.GetPath ();
          
          wxArrayString filenames;
-         m_wxFileDialog->GetFilenames(filenames);
-         
-         MyExtraPanel* extra_panel = (MyExtraPanel*)extra;
-         int link_option = extra_panel->m_link->GetSelection();
+         m_wxFileDialog->GetFilenames (filenames);
+			
+         int link_option = extra_panel->m_link->GetSelection ();
          if (filenames.size() > 1)
          	{
           	if (link_option <= 0)

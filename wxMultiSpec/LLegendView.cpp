@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 // 								Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (2009-2018)
+//								 Copyright (2009-2019)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -12,7 +12,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			12/19/2018
+//	Revision date:			01/08/2019
 //
 //	Language:				C++
 //
@@ -137,7 +137,7 @@ void CMLegendView::OnDblclkList1 ()
 void CMLegendView::OnDropdownClassGroupCombo ()
 
 {
-	if (((wxChoice*) FindWindow (IDC_COMBO1))->GetCount () < 3)
+	if (((wxChoice*)FindWindow (IDC_COMBO1))->GetCount () < 3)
 		{
 				// Check if group string needs to be added.
 
@@ -203,28 +203,35 @@ void CMLegendView::OnSelendokClassGroup (
 				wxCommandEvent&					event)
 
 {
+	int						classGroupCode,
+								savedClassGroupCode;
+	
+	
+	savedClassGroupCode = m_classGroupCode;
    CMImageFrame* imageFrameCPtr = m_imageViewCPtr->GetImageFrameCPtr ();
    m_imageViewCPtr->GetImageFrameCPtr ()->UpdateActiveImageWindowInfo ();
 
-   if (imageFrameCPtr != NULL) 
+	wxChoice* clgroup = (wxChoice*)FindWindow (IDC_COMBO1);
+	m_classGroupCode = clgroup->GetSelection ();
+
+	if (m_classGroupCode != savedClassGroupCode)
 		{
-      wxChoice* clgroup = (wxChoice*)FindWindow (IDC_COMBO1);
-      m_classGroupCode = clgroup->GetSelection ();
+		classGroupCode = m_classGroupCode + 1;
+		if (m_imageViewCPtr->GetNumberGroups () <= 0 && m_classGroupCode == 1)
+			classGroupCode = kGroupClassDisplay;
 
-      SInt16 classGroupCode = m_classGroupCode + 1;
-      if (m_imageViewCPtr->GetNumberGroups () <= 0 && m_classGroupCode == 1)
-         classGroupCode = kGroupClassDisplay;
-
-      imageFrameCPtr->ChangeClassGroupDisplay (classGroupCode, FALSE);
-      OnDropdownClassGroupCombo ();
-      m_legendListBox->DrawLegendList ();
-      (m_imageViewCPtr->m_Canvas)->Refresh ();
+		//imageFrameCPtr->ChangeClassGroupDisplay (classGroupCode, FALSE);
+		imageFrameCPtr->ChangeClassGroupDisplay (classGroupCode);
 		
-				// Reset the maximization flag
-		
-      m_imageViewCPtr->m_frame->m_frameMaximized = false;
-		
-		}	// end "if (imageFrameCPtr != NULL)"
+		}	// end "if (m_classGroupCode != savedClassGroupCode)"
+	
+	OnDropdownClassGroupCombo ();
+	m_legendListBox->DrawLegendList ();
+	(m_imageViewCPtr->m_Canvas)->Refresh ();
+	
+			// Reset the maximization flag
+	
+	m_imageViewCPtr->m_frame->m_frameMaximized = false;
 
 }	// end "OnSelendokClassGroup"
 
@@ -338,7 +345,9 @@ void CMLegendView::SetupView ()
 										m_choice16Choices,
 										0);
    m_choice16->SetSelection (0);
-   bSizer133->Add (m_choice16, 0, wxALIGN_CENTER_HORIZONTAL | wxALL, 0);
+   //bSizer133->Add (m_choice16, 0, wxALIGN_CENTER_HORIZONTAL | wxALL, 0);
+   bSizer133->Add (m_choice16,
+   						wxSizerFlags(0).Align(wxALIGN_CENTER_HORIZONTAL).Border(wxTOP, 4));
 
    m_legendListBox = new CMLegendList (this);
     bSizer133->Add (m_legendListBox, 2, wxALL | wxEXPAND, 5);

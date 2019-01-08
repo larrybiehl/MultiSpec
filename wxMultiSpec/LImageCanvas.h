@@ -85,7 +85,8 @@ private:
     void OnLeaveImageWindow (wxMouseEvent& event);
     void OnMotion (wxMouseEvent& event);
     void OnScrollChanged (wxScrollWinEvent& event);
-    void OnCharHook (wxKeyEvent& event) ;
+    void OnCharHook (wxKeyEvent& event);
+	 void OnCursorChange (wxSetCursorEvent& event);
     DECLARE_EVENT_TABLE()
 };
 

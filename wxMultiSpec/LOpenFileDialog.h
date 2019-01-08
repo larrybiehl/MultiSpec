@@ -1,6 +1,6 @@
 // LOpenFileDialog.h
 //
-// Revised by Larry Biehl on 10/19/2018
+// Revised by Larry Biehl on 01/07/2019
 //
 #ifndef __FILEDLG__
 #	define __FILEDLG__
@@ -22,14 +22,15 @@
 #include "wx/wx.h"
 
 class MyExtraPanel : public wxPanel
-{
+	{
 	DECLARE_CLASS(MyExtraPanel)
-public:
-	int     m_imageType;
-	int     m_linkOption;
-        wxComboBox*			m_link;
-        int     m_linkOptionSelectionDataCode;
-	wxWindow* parent;        
+	public:
+		int     				m_imageType;
+		int     				m_linkOption;
+		wxComboBox*			m_link;
+		wxComboBox*			m_list;
+		int     				m_linkOptionSelectionDataCode;
+		wxWindow* 			parent;
         
 	enum {
 		ID_UploadButton
@@ -38,16 +39,16 @@ public:
 	MyExtraPanel (wxWindow *parent);
 	void OnCheckBox (wxCommandEvent& event) 
 		{
-		m_linkToActiveImageFlag = event.IsChecked();
+		m_linkToActiveImageFlag = event.IsChecked ();
 		
 		if (m_linkToActiveImageFlag)
-			SetImageLinkToTrue();
+			SetImageLinkToTrue ();
 		else		// !m_linkToActiveImageFlag
-			SetImageLinkToFalse();
+			SetImageLinkToFalse ();
 			
 		}
 
-	int getlinktoactiveimagevalue()
+	int getlinktoactiveimagevalue ()
 		{
 		return (int)m_linkToActiveImageFlag;
 		}
@@ -72,15 +73,15 @@ private:
 	bool    m_linkToActiveImageFlag;
 	bool    m_showLinkPopupMenuFlag;
 	bool    m_initialLinkSelectedFilesFlag;
-//	int     m_linkOptionSelectionDataCode;
+	//int     m_linkOptionSelectionDataCode;
 	int     m_numberImageFiles;
 
 	int     m_userSetImageType;
 	int     m_getSelectStatus;
 	int     m_selectedFileCount;
 
-	wxComboBox*			m_list;
-//	wxComboBox*			m_link;
+	//wxComboBox*			m_list;
+	//wxComboBox*			m_link;
 	wxCheckBox*			m_cb;
 	wxButton*			uploadbutton;
 

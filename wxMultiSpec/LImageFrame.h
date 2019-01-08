@@ -12,7 +12,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			01/04/2019
+//	Revision date:			01/08/2019
 //
 //	Language:				C++
 //
@@ -141,7 +141,6 @@ public:
 	CMImageFrame(wxDocument* doc, wxView* view, wxDocParentFrame *parent);
     ~CMImageFrame();
     double m_zoom;
-    UInt16 m_numberFDecimalDigits;
     CMCoordinateBar*		m_coordinatesBar;
     CMLegendView*		m_imageLegendViewCPtr;
     void ActivateImageWindowItems(
@@ -149,8 +148,8 @@ public:
             Boolean changeWindowFlag);
     void UpdateSelectionWindowList();
     void ChangeClassGroupDisplay(
-            SInt16 newClassGroupCode,
-            Boolean updateClassGroupListFlag);
+            SInt16 newClassGroupCode);
+            //Boolean updateClassGroupListFlag);
 
  /*   LRESULT DoRealize(
             Boolean backgroundFlag,
@@ -161,6 +160,8 @@ public:
     void GetCoordinateViewComboText(
             char* comboItemStringPtr,
             UInt16 itemNumber);
+	
+		int GetTitleAndToolBarHeight (void);
 
     UInt16 GetDisplayPixelSize(void); // inline
 
