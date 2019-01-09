@@ -1340,7 +1340,7 @@ void CMGraphFrame::OnUpdateMagnification (
 		
 	CMainFrame* pMainFrame = (CMainFrame*)wxGetApp ().GetTopWindow ();
 	if (pMainFrame != NULL)
-		pMainFrame->UpdateStatusBar (-1);
+		pMainFrame->UpdateStatusBar (NULL, -1);
 		
 }	// end "OnUpdateMagnification"
 

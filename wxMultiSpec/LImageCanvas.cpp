@@ -47,16 +47,15 @@ IMPLEMENT_DYNAMIC_CLASS (CMImageCanvas, wxScrolledWindow)
 wxSize CMImageCanvas::ScrollingIncrement = wxSize (10, 10);	// 10, 10
 
 BEGIN_EVENT_TABLE (CMImageCanvas, wxScrolledWindow)
-	//EVT_CHAR (CMImageCanvas::OnChar)
-   EVT_CHAR_HOOK (CMImageCanvas::OnCharHook)
+	EVT_CHAR_HOOK (CMImageCanvas::OnCharHook)
 	EVT_ERASE_BACKGROUND (CMImageCanvas::OnEraseBackground)
 	EVT_IDLE (CMImageCanvas::OnIdle)
-	//EVT_KEY_DOWN (CMImageCanvas::OnKeyDown)
 	EVT_LEAVE_WINDOW (CMImageCanvas::OnLeaveImageWindow)
    EVT_LEFT_DCLICK (CMImageCanvas::OnDlbClk)
 	EVT_LEFT_DOWN (CMImageCanvas::OnLeftDown)
 	EVT_LEFT_UP (CMImageCanvas::OnLeftUp)
 	EVT_MOTION (CMImageCanvas::OnMotion)
+	EVT_MOUSEWHEEL (CMImageCanvas::OnMouseWheel)
 	EVT_PAINT (CMImageCanvas::OnPaint)
 	EVT_SCROLLWIN (CMImageCanvas::OnScrollChanged)
 	EVT_SET_CURSOR (CMImageCanvas::OnCursorChange)
@@ -233,7 +232,74 @@ bool CMImageCanvas::Create (wxWindow * parent, wxWindowID id,
 
    return res;
 	
-}	// end ""
+}	// end "Create"
+
+
+
+void CMImageCanvas::DoMouseWheel (
+				wxMouseWheelAxis 					axis,
+				int 									rotation,
+				bool 									ctrlDown)
+
+{
+	wxPoint								scrollPos;
+	wxRect 								displayRect;
+	
+	if (ctrlDown) // Command key for MacOS
+		{
+		if (axis == wxMOUSE_WHEEL_VERTICAL)
+			{
+					// Zoom the image if Ctrl key down
+			
+			if (rotation > 0)
+				{
+				GetMainFrame ()->SetZoomCode (ID_ZOOM_IN);
+				m_View->ZoomIn ();
+				GetMainFrame ()->SetZoomCode (0);
+				
+				}	// end "if (rotation > 0)"
+			
+			else	// rotation <= 0
+				{
+				GetMainFrame ()->SetZoomCode (ID_ZOOM_OUT);
+				m_View->ZoomOut ();
+				GetMainFrame ()->SetZoomCode (0);
+				
+				}	// end "else rotation <= 0"
+			
+			}	// end "if (axis == wxMOUSE_WHEEL_VERTICAL)"
+		
+		}	// end "if (ctrlDown)"
+	
+	else	// !ctrlDown
+		{
+				// Scroll the image
+	
+		scrollPos = GetScrollPosition ();
+
+		if (axis == wxMOUSE_WHEEL_HORIZONTAL)
+			{
+			scrollPos.x += rotation;
+
+			}	// end "if (axis == wxMOUSE_WHEEL_HORIZONTAL)"
+		
+		else	// otherwise scroll the window vertically
+			{
+			scrollPos.y += rotation;
+			
+			}	// end "else otherwise just scroll the window"
+		
+		displayRect = m_View->m_Canvas->GetImageDisplayRect (scrollPos);
+		#if defined multispec_wxmac
+			m_View->m_Canvas->Scroll (scrollPos.x, scrollPos.y);
+		#endif
+		m_View->ScrollChanged ();
+		
+		m_View->m_Canvas->Refresh (false, &displayRect);
+		
+		}	// end "else !ctrlDown"
+	
+}	// end "DoMouseWheel"
 
 
 
@@ -314,7 +380,7 @@ wxRect CMImageCanvas::GetImageDisplayRect (
            (GetClientSize().y - currentSize.GetHeight()) <= 0 ?
            -scrollPos.y :
            ((GetClientSize().GetHeight() - currentSize.GetHeight()) * 0.5f));*/
-   wxPoint ptTest(0, 0);
+   wxPoint ptTest (0, 0);
 	
 		// calculate actual image diaply rectangle if centered
 	
@@ -691,6 +757,37 @@ void CMImageCanvas::OnMotion (
 		}	// end "else !hasCaptureFlag"
 		
 }	// end "OnMotion"
+
+
+
+void CMImageCanvas::OnMouseWheel (wxMouseEvent& event)
+
+{
+			// If the mouse wheel is not captured, test if the mouse
+			// pointer is over the image window and if not, don't
+			// handle the message but pass it on.
+
+	if (!GetRect().Contains (event.GetPosition ()))
+		{
+		wxWindow* parent = GetParent ();
+		if (parent != NULL)
+			{
+			wxMouseEvent newevt (event);
+			newevt.SetPosition (
+				parent->ScreenToClient (ClientToScreen (event.GetPosition ())));
+			parent->ProcessWindowEvent (newevt);
+			
+			}	// end "if (parent != NULL)"
+		
+		return;
+		
+		}	// end "if (!GetRect().Contains (event.GetPosition ()))"
+
+    DoMouseWheel (event.GetWheelAxis (),
+						event.GetWheelRotation (),
+						event.ControlDown ());
+	
+}	// end "OnMouseWheel"
 
 
 

@@ -81,7 +81,6 @@ private:
 	void OnFileSave(wxCommandEvent& event);
 	void OnFileSaveAs(wxCommandEvent& event);
 	void OnFocus(wxFocusEvent& event);
-	void OnMouseWheel (wxMouseEvent& event);
 	void OnRefresh(wxCommandEvent& event);
 	void OnSize(wxSizeEvent& event);
         

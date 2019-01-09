@@ -1,6 +1,6 @@
 // LMainFrame.cpp
 //
-//	Revised By:			Larry L. Biehl			Date: 01/05/2019
+//	Revised By:			Larry L. Biehl			Date: 01/09/2019
 // Revised by:			Tsung Tai Yeh			Date: 10/05/2015
 
 #include "LMainFrame.h"
@@ -3663,11 +3663,12 @@ void CMainFrame::SetZoomCode (
 
 
 void CMainFrame::UpdateStatusBar (
+				CMImageFrame* 						imageFrame,
 				double 								magnification)
 
 {
 		char 								tempString[32];
-		wxStaticText* 					zoomText;
+		wxStaticText* 					zoomText = NULL;
 	
 		SInt16 							fieldPrecision;
 
@@ -3693,17 +3694,22 @@ void CMainFrame::UpdateStatusBar (
    	wxString zoomStatusText (tempString, wxConvUTF8);
 	
 		#if defined multispec_wxmac
+			/*
 			if (gActiveImageViewCPtr != NULL)
 				{
 				CMImageFrame* frame = gActiveImageViewCPtr->m_frame;
 				zoomText = frame->m_zoomText;
 				
 				}	// end "if (gActiveImageViewCPtr != NULL)"
+			*/
+			if (imageFrame != NULL)
+				zoomText = imageFrame->m_zoomText;
 		#else
    		zoomText = m_zoomText;
 		#endif
 	
-		zoomText->SetLabel (zoomStatusText);
+		if (zoomText != NULL)
+			zoomText->SetLabel (zoomStatusText);
 	
 }	// end "UpdateStatusBar"
 

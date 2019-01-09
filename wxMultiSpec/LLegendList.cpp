@@ -1,6 +1,7 @@
 // LLegendList.cpp : implementation file
 //
-// Revised by Larry Biehl on 12/06/2018
+// Revised by Larry Biehl on 01/08/2019
+// Revised by Tsung Tai on 01/08/2019
 //                    
 #include "CPalette.h"
 
@@ -274,20 +275,27 @@ void CMLegendList::DrawItem (
 		}	// end "if ( m_listType != kGroupClassDisplay || ..."
 		
 			// Now add this color rectangle chip to the list
-			
+			// Rounded rectangular -- Tsung Tai
+	
 	wxMemoryDC imdc;
-	wxBrush cbrush (*wxicolor);
+	//wxBrush cbrush (*wxicolor);
 	wxBitmap legrect (16,16);
 	imdc.SelectObject (legrect);
-	imdc.SetBrush (cbrush);
-	imdc.SetBackground (cbrush);
+	//imdc.SetBrush (cbrush);
+	imdc.SetBackground (*wxWHITE);
 	imdc.Clear ();
 
-	m_ilist->Add (legrect);
+   wxBitmap bmp (legrect);
+	wxMemoryDC mdc (bmp);
+	mdc.SetPen (*wxTRANSPARENT_PEN);
+	mdc.SetBrush (*wxicolor);
+	mdc.DrawRoundedRectangle (0, 0, 16, 16, 3);
+	
+	m_ilist->Add (bmp);
 	
 			// Now draw the text.
 			
-	namePtr = (char*)GetHandlePointer (nameHandle, kLock, kNoMoveHi);
+	namePtr = (char*)GetHandlePointer (nameHandle, kLock);
 	namePtr = &namePtr[index*32];
 			
 	if (m_listType == kGroupClassDisplay && classGroupCode == 0)
@@ -369,84 +377,61 @@ void CMLegendList::OnLButtonDblClk(wxListEvent& event)
    wxPoint scrnpt = wxGetMousePosition();
 	s_lastMouseDnPoint = ScreenToClient(scrnpt); 
 		                           
-   // Update: 26/02/2015
-   // Removing check on gPresentCursor
-//	if (gPresentCursor == kArrow)
-   if (1)
-		{               
-		CPoint		lastClickPoint; 
-						   
-						            
-		lastClickPoint = LastClickPoint();
-      //lastClickPoint = (event.GetPoint());
-	
-		if (lastClickPoint.x > 25)
-			{                   
-			SInt16						cellLine;
+	CPoint		lastClickPoint;
 	
 	
-					// Edit class or group name.
-				
-			//cellLine = (SInt16)GetItemData(selection);
-         cellLine = (SInt16)event.GetData();
-			SInt16 classGroupChangeCode = kEditClass;
-			if (cellLine & 0x8000) 
-				classGroupChangeCode = kEditGroup;
-			
-			else		// !(cellLine & 0x8000)
-				{
-				if ( (m_listType == kGroupClassDisplay) &&
-//										(m_shiftKeyDownFlag) ) 
-                              s_controlKeyDownFlag
-//									gActiveImageViewCPtr->GetControlKeyFlag() 
-               )
-					classGroupChangeCode = kNewGroup;
-				}		// end "	else !(cellLine & 0x8000)"
-         
-			s_controlKeyDownFlag = false;
-			cellLine &= 0x7fff;
-		
-			EditGroupClassDialog (this, 
-											selection, 
-											classGroupChangeCode, 
-											cellLine);
-/*				{
-				if (classGroupChangeCode == kNewGroup)
-					UpdatePaletteWindow (TRUE, FALSE);
-				
-				}		// end "if ( EditGroupClassDialog (..."
-*/		
-			}		// end "if (lastClickPoint.x > 15)"
-		
-		else		// lastClickPoint.x <= 15
-			{  
-			Handle						displaySpecsHandle;
+	lastClickPoint = LastClickPoint();
+	//lastClickPoint = (event.GetPoint());
 
-			displaySpecsHandle = GetActiveDisplaySpecsHandle ();
+	if (lastClickPoint.x > 25)
+		{
+		SInt16						cellLine;
 
-			EditClassGroupPalette(this,
-					 				 displaySpecsHandle,
-									 selection,
-									 (SInt16)m_listType);
-         gActiveImageViewCPtr->m_frame->Refresh();
+
+				// Edit class or group name.
 		
-			}		// end "else lastClickPoint.x <= 15" 
-      this->DrawLegendList();
+		//cellLine = (SInt16)GetItemData(selection);
+		cellLine = (SInt16)event.GetData();
+		SInt16 classGroupChangeCode = kEditClass;
+		if (cellLine & 0x8000)
+			classGroupChangeCode = kEditGroup;
 		
-		}		// end "if (gPresentCursor == kArrow)"
-	/*	
-	else if (gPresentCursor == kBlinkOpenCursor1)
-		{             
-		Point							lCell;
+		else		// !(cellLine & 0x8000)
+			{
+			if ( (m_listType == kGroupClassDisplay) &&
+										//(m_shiftKeyDownFlag) )
+									s_controlKeyDownFlag
+									//gActiveImageViewCPtr->GetControlKeyFlag()
+				)
+				classGroupChangeCode = kNewGroup;
+			}		// end "	else !(cellLine & 0x8000)"
+		
+		s_controlKeyDownFlag = false;
+		cellLine &= 0x7fff;
 	
+		EditGroupClassDialog (this,
+										selection,
+										classGroupChangeCode,
+										cellLine);
+
+		}		// end "if (lastClickPoint.x > 15)"
 	
-		lCell.h = 0; 
-		lCell.v = selection;
-		
-		DoBlinkCursor1 (this, lCell, (SInt16)m_listType);
-		
-		}		// end "else if (gPresentCursor == kBlinkOpenCursor1)"
-*/
+	else		// lastClickPoint.x <= 25
+		{
+		Handle						displaySpecsHandle;
+
+		displaySpecsHandle = GetActiveDisplaySpecsHandle ();
+
+		EditClassGroupPalette(this,
+								 displaySpecsHandle,
+								 selection,
+								 (SInt16)m_listType);
+		gActiveImageViewCPtr->m_frame->Refresh();
+	
+		}		// end "else lastClickPoint.x <= 25"
+
+	this->DrawLegendList();
+
 			// Now check for blinking operation
 	
    if (wxGetKeyState(WXK_SHIFT))

@@ -1,6 +1,6 @@
 // LTextFrame.cpp
 //
-//	Revised By:			Larry L. Biehl			Date: 12/12/2018
+//	Revised By:			Larry L. Biehl			Date: 01/09/2019
 //
 #include "LMainFrame.h"
 #include "LMultiSpec.h"
@@ -212,7 +212,7 @@ void CMTextFrame::OnUpdateMagnification (wxUpdateUIEvent& event)
 		
 	CMainFrame* pMainFrame = (CMainFrame*)wxGetApp().GetTopWindow();
 	if (pMainFrame != NULL)
-		pMainFrame->UpdateStatusBar(-1);
+		pMainFrame->UpdateStatusBar (NULL, -1);
 }
 
 

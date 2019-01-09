@@ -35,12 +35,7 @@
 
 #include "wx/display.h"
 
-#ifdef multispec_wxmac
-	//#include "Resources/overlay_24.png"
-	//#include "Resources/zoomx1_24.png"
-	//#include "Resources/zoom_out_24.png"
-	//#include "Resources/zoom_in_24.png"
-#else
+#ifdef multispec_wxlin
 	#include "LToolbar_img.cpp"
 #endif
 
@@ -58,8 +53,6 @@ BEGIN_EVENT_TABLE (CMImageFrame, wxDocChildFrame)
 	EVT_MENU (ID_WINDOW_NEW_SELECTION_GRAPH, CMImageFrame::OnWindowNewSelectionGraph)
 	EVT_MENU (ID_WINDOW_SHOW_COORDINATE_VIEW, CMImageFrame::OnWindowShowCoordinateView)
 	EVT_MENU (ID_CANCEL_DRAW, CMImageFrame::OnCancelDraw)
-
-	EVT_MOUSEWHEEL (CMImageFrame::OnMouseWheel)
 
 	EVT_SASH_DRAGGED_RANGE (ID_WINDOW_TOP, ID_WINDOW_LEFT, CMImageFrame::OnSashDrag)
 
@@ -423,7 +416,7 @@ void CMImageFrame::ActivateImageWindowItems (
 
 			}	// end "if ( ...->CheckIfOffscreenImageExists() )"
       
-		GetMainFrame()->UpdateStatusBar(magnification);
+		GetMainFrame()->UpdateStatusBar (this, magnification);
       
 				// Handle project related items.
 				
@@ -1030,25 +1023,6 @@ void CMImageFrame::OnMaximizeWindow (
 	m_imageViewCPtr->UpdateOffscreenMapOrigin ();
 	
 }	// end "OnMaximizeWindow"
-
-
-
-void CMImageFrame::OnMouseWheel (wxMouseEvent& event)
-
-{
-	int			doSomething,
-					wheelRotation;
-	
-	wheelRotation = event.GetWheelRotation ();
-	if (wheelRotation != 0)
-		{
-		doSomething = abs (wheelRotation);
-		
-		}	// end "if (wheelRotation != 0)"
-	
-	event.Skip ();
-	
-}	// end "OnMouseWheel"
 
 
 

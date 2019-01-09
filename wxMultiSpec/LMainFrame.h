@@ -1,6 +1,6 @@
 // LMainFrame.h
 //
-// Revised by Larry L Biehl    01/04/2019
+// Revised by Larry L Biehl    01/09/2019
 
 #ifndef __LMainFrame__
 #	define __LMainFrame__
@@ -312,7 +312,7 @@ class CMainFrame : public wxDocParentFrame
 		void SetNextControlTime (UInt32 offset);
 		void SetZoomCode(SInt16 zoomCode);
 		void SetToolParametersFlag(Boolean TOOL_PARAMETER_file_flag);
-		void UpdateStatusBar(double magnification);
+		void UpdateStatusBar (CMImageFrame* imageFrame, double magnification);
 		//void OnImageOpen(wxCommandEvent& event);
 		~CMainFrame();
 	

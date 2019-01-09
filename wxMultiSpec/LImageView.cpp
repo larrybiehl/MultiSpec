@@ -1,4 +1,4 @@
-// Revised 01/04/2019  by Larry L Biehl
+// Revised 01/09/2019  by Larry L Biehl
 // Revised 03/12/2016 by Wei-Kang Hsu
 // Revised 12/19/2018 by Tsung Tai Yeh
 
@@ -1754,7 +1754,7 @@ void CMImageView::UpdateScrolls (
 
 	UpdateOffscreenMapOrigin ();
 	 
-	m_mainFrame->UpdateStatusBar (newMagnification);
+	m_mainFrame->UpdateStatusBar (m_frame, newMagnification);
     
 }		// end "UpdateScrolls"
 
