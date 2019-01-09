@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl, Abdur Maud
 //
-//	Revision date:			12/07/2018
+//	Revision date:			01/09/2019
 //
 //	Language:				C
 //
@@ -2230,8 +2230,9 @@ void UpdateImageZoomControls (
 	#if defined multispec_lin
 				// Make sure the zoom information in the status bar is up to date
 
-		CMainFrame* pMainFrame = (CMainFrame*) wxGetApp ().GetTopWindow ();
-		pMainFrame->UpdateStatusBar (magnification);
+		CMainFrame* pMainFrame = (CMainFrame*)wxGetApp ().GetTopWindow ();
+		CMImageFrame* imageFrame = ((CMImageView*)theWindow)->m_frame;
+		pMainFrame->UpdateStatusBar (imageFrame, magnification);
 
 				// Update the scale factor in the coordinate view if displayed.
 			
