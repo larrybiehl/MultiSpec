@@ -1,6 +1,6 @@
 // LMainFrame.cpp
 //
-//	Revised By:			Larry L. Biehl			Date: 01/09/2019
+//	Revised By:			Larry L. Biehl			Date: 01/10/2019
 // Revised by:			Tsung Tai Yeh			Date: 10/05/2015
 
 #include "LMainFrame.h"
@@ -1406,7 +1406,7 @@ void CMainFrame::OnIdle (
 												gEndOfLine);
 			ListString ((char*)&gTextString3, numberChars2, gOutputTextH);
 			*/
-			SetZoomCode(0);
+			SetZoomCode (0);
 			m_nextControlTime = 0;
 			
 			}	// end "else quit zooming"
@@ -3607,7 +3607,7 @@ void CMainFrame::SetNextControlTime (
 				UInt32 								offset)
 
 {
-	m_nextControlTime = GetTickCount() + offset;
+	m_nextControlTime = GetTickCount () + offset;
 
 }	// end "SetNextControlTime"
 
@@ -3622,7 +3622,7 @@ void CMainFrame::SetToolParametersFlag (
 		m_TOOL_PARAMETER_file_flag = FALSE;
 	#endif
 		
-}		// end "SetToolParametersFlag"
+}	// end "SetToolParametersFlag"
 
 
 
@@ -3632,10 +3632,11 @@ void CMainFrame::SetZoomCode (
 {
 	m_imageZoomCode = zoomCode;
 
-	if (m_imageZoomCode == 0)
-		m_nextControlTime = 0;
+	//if (m_imageZoomCode == 0)
+		//m_nextControlTime = 0;
 
-	else // m_imageZoomCode != 0
+	//else // m_imageZoomCode != 0
+	if (m_imageZoomCode != 0)
 		{
 		m_controlDelayFlag = TRUE;
 		
@@ -3654,7 +3655,7 @@ void CMainFrame::SetZoomCode (
 			*/
 			m_controlDelayFlag = FALSE;
 			
-			}		// end "if (wxGetKeyState(WXK_SHIFT))"
+			}	// end "if (wxGetKeyState(WXK_SHIFT))"
 		
 		}	// end "else m_imageZoomCode != 0"
 

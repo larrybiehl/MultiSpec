@@ -2,7 +2,7 @@
  *	LMultiSpec.cpp
  *      
  * Copyright 2019 multispec
- *	Revised by Larry Biehl		on 01/05/2019
+ *	Revised by Larry Biehl		on 01/10/2019
  *	Revised by Tsung Tai Yeh	on 09/10/2015
  *      
  */
@@ -155,7 +155,7 @@ CMultiSpecApp::CMultiSpecApp ()
 	gMaxRowBytesFor24Bits = 32767;
 	
 	m_openImageFileInfoHandle = NULL;
-	m_nextControlTime = 0;
+	//m_nextControlTime = 0;
     
 			// Initialize some standard color pens
 	
@@ -1060,7 +1060,7 @@ time_t LinGetTime ()
 		{
 		returnValue = (time_t)(tp.tv_sec*1000 + tp.tv_nsec/1000000);
 		
-		}		// end "if (clock_gettime (CLOCK_MONOTONIC, &tp) == 0)"
+		}	// end "if (clock_gettime (CLOCK_MONOTONIC, &tp) == 0)"
 	
 	return (returnValue);
 	

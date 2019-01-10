@@ -1,6 +1,6 @@
 // LMainFrame.h
 //
-// Revised by Larry L Biehl    01/09/2019
+// Revised by Larry L Biehl    01/10/2019
 
 #ifndef __LMainFrame__
 #	define __LMainFrame__
@@ -51,7 +51,7 @@ class CMainFrame : public wxDocParentFrame
 		wxToolBar*					m_toolBar1;
 		wxToolBarToolBase*		m_zoomInTool;
 		wxToolBarToolBase*		m_zoomOutTool;
-		UInt32 						m_nextControlTime;
+		time_t 						m_nextControlTime;
 
 		SInt16						m_imageZoomCode;
 		Boolean						m_controlDelayFlag;
@@ -303,6 +303,7 @@ class CMainFrame : public wxDocParentFrame
 						long type=wxDEFAULT_FRAME_STYLE);
 	
 		Boolean	GetCancelOperationEventFlag (void);
+		time_t GetNextControlTime () {return (m_nextControlTime);}
 		SInt16 GetZoomCode (void);
 		void OnShowOverlay(wxCommandEvent& event);
 		void OnAsyncTermination (FileUploadProcess *process);

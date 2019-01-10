@@ -1,7 +1,7 @@
 // LMultiSpec.h : main header file for the MultSpec application
 // Only for linux
 //
-// Revised by Larry Biehl		on 12/07/2018
+// Revised by Larry Biehl		on 01/10/2019
 // Revised by Tsung Tai Yeh	on 08/03/2015
 
 #include "wx/wx.h"
@@ -78,7 +78,7 @@ public:
 	//SInt16		GetZoomCode(void);
 	//void		SetZoomCode(SInt16	zoomCode);
 	//void		SetControlDelayFlag(Boolean delayFlag);
-	UInt32 	m_nextControlTime;
+	//UInt32 	m_nextControlTime;
 protected:
 	wxDocManager* m_docManager;
 	wxDocument* init_graph_doc;

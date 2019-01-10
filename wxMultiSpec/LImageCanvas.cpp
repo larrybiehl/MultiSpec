@@ -12,7 +12,7 @@
 //
 //	Authors:					Larry L. Biehl, Abdur Rachman Maud
 //
-//	Revision date:			01/07/2019
+//	Revision date:			01/10/2019
 //
 //	Language:				C++
 //
@@ -247,25 +247,32 @@ void CMImageCanvas::DoMouseWheel (
 	
 	if (ctrlDown) // Command key for MacOS
 		{
+					// Zoom the image when the Ctrl (Command for MacOS) key is down
+		
 		if (axis == wxMOUSE_WHEEL_VERTICAL)
 			{
-					// Zoom the image if Ctrl key down
-			
-			if (rotation > 0)
+			UInt32 currentTickCount = GetTickCount();
+			if (currentTickCount >= GetMainFrame()->GetNextControlTime ())
 				{
-				GetMainFrame ()->SetZoomCode (ID_ZOOM_IN);
-				m_View->ZoomIn ();
-				GetMainFrame ()->SetZoomCode (0);
-				
-				}	// end "if (rotation > 0)"
+				GetMainFrame()->SetNextControlTime (gControlOffset/4);
 			
-			else	// rotation <= 0
-				{
-				GetMainFrame ()->SetZoomCode (ID_ZOOM_OUT);
-				m_View->ZoomOut ();
-				GetMainFrame ()->SetZoomCode (0);
+				if (rotation > 0)
+					{
+					GetMainFrame ()->SetZoomCode (ID_ZOOM_IN);
+					m_View->ZoomIn ();
+					GetMainFrame ()->SetZoomCode (0);
+					
+					}	// end "if (rotation > 0)"
 				
-				}	// end "else rotation <= 0"
+				else	// rotation <= 0
+					{
+					GetMainFrame ()->SetZoomCode (ID_ZOOM_OUT);
+					m_View->ZoomOut ();
+					GetMainFrame ()->SetZoomCode (0);
+					
+					}	// end "else rotation <= 0"
+				
+				}	// end "if (currentTickCount >= GetMainFrame()->GetNextControlTime ())"
 			
 			}	// end "if (axis == wxMOUSE_WHEEL_VERTICAL)"
 		
