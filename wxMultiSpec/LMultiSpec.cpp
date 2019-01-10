@@ -440,9 +440,10 @@ void CMultiSpecApp::OnCharHook (
 				//(event.GetKeyCode() == wxKeyCode('.') && event.GetModifiers () == wxMOD_CONTROL))
 			{
 			gOperationCanceledFlag = TRUE;
-			event.Skip ();
 			
 			}	// end "if (event.GetKeyCode () == WXK_ESCAPE || ..."
+		
+		event.Skip ();
 		
 		}	// end "if (gProcesorCode == kDisplayProcessor)"
 	

@@ -1141,7 +1141,7 @@ void CMDialog::OnCharHook (
 	else
 		event.Skip();
 	
-}	// end "OnCharHook"
+}	// end "OnCharHook"	
 
 
 

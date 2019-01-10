@@ -8,8 +8,7 @@
 #include "LDialog.h"
 #include "SMultiSpec.h"
 #include "wx/wx.h"
-/////////////////////////////////////////////////////////////////////////////
-// CMDisplayThematicDlg dialog
+
 
 class CMDisplayThematicDlg : public CMDialog {
     // Construction
@@ -39,14 +38,10 @@ public:
     double m_magnification;
     bool m_useThresholdFileFlag;
     bool m_includeVectorOverlaysFlag;
-    //}}AFX_DATA
 
     // Implementation
 protected:
-    //virtual void DoDataExchange(CDataExchange* pDX); // DDX/DDV support
 
-    // Generated message map functions
-    //{{AFX_MSG(CMDisplayThematicDlg)
     void CreateControls();
     void OnInitDialog(wxInitDialogEvent& event);
     bool TransferDataFromWindow();
@@ -58,9 +53,7 @@ protected:
     void OnSelendokChannelComboDropDown(wxCommandEvent& event);    
     void OnBackgroundColor(wxCommandEvent& event);
     void OnPaint();
-	 void OnCharHook (wxKeyEvent& event);
-    //}}AFX_MSG
-    //DECLARE_MESSAGE_MAP()
+	 //void OnCharHook (wxKeyEvent& event);
     DECLARE_EVENT_TABLE()
             
     Boolean m_initializedFlag,
