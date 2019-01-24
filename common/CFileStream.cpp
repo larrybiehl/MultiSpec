@@ -2423,8 +2423,8 @@ void CMFileStream::SetUTF8FilePath ()
 		
 		#if defined multispec_lin
 			UInt8						tempMBPathName[_MAX_PATH+1];
-			UInt8*					mbStringPtr = mUTF8PathName;
-			UInt8						tempMBPathName2[_MAX_PATH+1];
+			//UInt8*					mbStringPtr = mUTF8PathName;
+			//UInt8						tempMBPathName2[_MAX_PATH+1];
 		
 			utf8PathCharBuffer = converter.cWC2MB (filePathCPtr, size, &outputSize);
 			utf8PathCharBufferPtr = utf8PathCharBuffer.data ();
