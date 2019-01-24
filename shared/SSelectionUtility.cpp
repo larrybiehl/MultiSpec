@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl, Ravi Budruk
 //
-//	Revision date:			01/03/2019
+//	Revision date:			01/16/2019
 //
 //	Language:				C
 //
@@ -288,7 +288,7 @@ void ClearNewFieldList (void)
 //							StatisticsWControlEvent in statistics.c
 //
 //	Coded By:			Larry L. Biehl			Date: 08/11/1989
-//	Revised By:			Larry L. Biehl			Date: 03/13/2015		
+//	Revised By:			Larry L. Biehl			Date: 01/16/2019
 
 void ClearSelectionArea (
 				WindowPtr							windowPtr)
@@ -385,10 +385,10 @@ void ClearSelectionArea (
 				#if defined multispec_lin   			
 					wxRect tempRect;
 
-					tempRect.x = (int)selectionRect.left - 1;
-					tempRect.y = (int)selectionRect.top - 1;
-					tempRect.width = (int)(selectionRect.right - selectionRect.left + 2);
-					tempRect.height = (int)(selectionRect.bottom - selectionRect.top + 2);
+					tempRect.x = (int)selectionRect.left - 3;
+					tempRect.y = (int)selectionRect.top - 3;
+					tempRect.width = (int)(selectionRect.right - selectionRect.left + 3);
+					tempRect.height = (int)(selectionRect.bottom - selectionRect.top + 3);
 				#endif	// defined multispec_lin     
 
 				#if defined multispec_mac || defined multispec_win
@@ -437,43 +437,41 @@ void ClearSelectionArea (
 									break;
 							#endif	// defined multispec_lin     
 
-							}	// end "for (channel=gStartChannel; channel<..." 
+							}	// end "for (channel=gStartChannel; channel<..."
 
-					  }	// end "if (tempRect.top <= gViewRect.bottom && ..."
+						}	// end "if (tempRect.top <= gViewRect.bottom && ..."
 
-					SetPort (savedPort);
+				SetPort (savedPort);
 
-					selectionInfoPtr->typeFlag = 0;
-					selectionInfoPtr->numberPoints = 0;
-					selectionInfoPtr->offScreenRectangle.top = 0;
-					selectionInfoPtr->offScreenRectangle.left = 0;
+				selectionInfoPtr->typeFlag = 0;
+				selectionInfoPtr->numberPoints = 0;
+				selectionInfoPtr->offScreenRectangle.top = 0;
+				selectionInfoPtr->offScreenRectangle.left = 0;
 
-					if (windowPtr == gActiveImageWindow)
-						{
-								// Make certain the selection coordinates window and		
-								// graph selection window is correct if the input			
-								// window is the active window.									
+				if (windowPtr == gActiveImageWindow)
+					{
+							// Make certain the selection coordinates window and
+							// graph selection window is correct if the input
+							// window is the active window.
 
-								// Make certain that the coordinates in the Selection 	
-								// Dialog Window are cleared.										
+							// Make certain that the coordinates in the Selection
+							// Dialog Window are cleared.
 
-						ShowSelection (windowInfoHandle);
+					ShowSelection (windowInfoHandle);
 
-								// Make certain that the graph is cleared.					
+							// Make certain that the graph is cleared.
 
-						ShowGraphSelection ();
+					ShowGraphSelection ();
 
-								// Force update of edit menu
+							// Force update of edit menu
 
-						gUpdateEditMenuItemsFlag = TRUE;
+					gUpdateEditMenuItemsFlag = TRUE;
 
-						}	// end "if (windowPtr == gActiveImageWindow)"
+					}	// end "if (windowPtr == gActiveImageWindow)"
 
-					#if defined multispec_mac  
-						InvalidateWindow (windowPtr, kCoordinateSelectionArea, FALSE);
+				InvalidateWindow (windowPtr, kCoordinateSelectionArea, FALSE);
 
-						UpdateCoordinateViewControls (windowPtr);
-					#endif	// defined multispec_mac    
+				UpdateCoordinateViewControls (windowPtr);
 
 							// Remove the coordinates from the statistics window 		
 							// list if they exist.												
@@ -1622,7 +1620,6 @@ void DrawSelectionPolygon (
 					{
 					selectionRectPtr->left += gChannelWindowInterval;
 					selectionRectPtr->right += gChannelWindowInterval;
-					//gChannelWindowOffset += gChannelWindowInterval;
 					lcToWindowUnitsVariablesPtr->channelWindowOffset += 
 																					gChannelWindowInterval;              
 					
@@ -1635,19 +1632,13 @@ void DrawSelectionPolygon (
 		#endif	// ifndef multispec_lin
 
 		#if defined multispec_lin
-			//SignedByte		displayHandleStatus;
-			//WindowPtr projectPtr = gProjectSelectionWindow;
 			Handle windowInfoHandle = GetWindowInfoHandle (gProjectSelectionWindow);
-			//Handle displaySpecsH = GetDisplaySpecsHandle (windowInfoHandle);
 			SetChannelWindowVariables (
 									kToImageWindow, gProjectSelectionWindow, kNotCoreGraphics);    
 			SetLCToWindowUnitVariables (windowInfoHandle,
 													 kWindowsUseOrigin,
 													 FALSE,
 													 lcToWindowUnitsVariablesPtr);
-			//DisplaySpecsPtr displaySpecsPtr = 
-			//			(DisplaySpecsPtr)GetHandleStatusAndPointer (displaySpecsH,
-			//																		&displayHandleStatus);
 			            
 					// Method 1 
 					       
@@ -1667,8 +1658,7 @@ void DrawSelectionPolygon (
 
 					}	// end "for (pointIndex = 0; pointIndex<pointCount; pointIndex++)"
 						 
-				gCDCPointer->SetBrush (*wxTRANSPARENT_BRUSH);                
-				//gCDCPointer->SetPen (wxPen (*wxWHITE, 1, wxPENSTYLE_DOT));   
+				gCDCPointer->SetBrush (*wxTRANSPARENT_BRUSH);
 				gCDCPointer->SetPen (wxPen (*wxWHITE, 1, wxPENSTYLE_SHORT_DASH));            
 				wxPoint scrollOffset = 
 									gProjectSelectionWindow->m_Canvas->GetScrollPosition ();
@@ -1740,7 +1730,6 @@ void DrawSelectionPolygon (
 								{
 								selectionRectPtr->left += gChannelWindowInterval;
 								selectionRectPtr->right += gChannelWindowInterval;
-								//gChannelWindowOffset += gChannelWindowInterval;                        
 								lcToWindowUnitsVariablesPtr->channelWindowOffset += 
 																					gChannelWindowInterval; 
 															
@@ -1838,11 +1827,15 @@ void DrawSelectionRectangle (
 													(int)selectionRectPtr->bottom);
 				#endif	// defined multispec_win
 
-				#if defined multispec_lin          
+				#if defined multispec_lin      
+							// Draw rectangle such that the right side is one pixel outside of
+							// the right and bottom border.
+				
 					int width = 
-								(int)selectionRectPtr->right - (int)selectionRectPtr->left;
+								(int)selectionRectPtr->right - (int)selectionRectPtr->left + 2;
 					int height = 
-								(int)selectionRectPtr->bottom - (int)selectionRectPtr->top;
+								(int)selectionRectPtr->bottom - (int)selectionRectPtr->top + 2;
+				
 					gCDCPointer->SetBrush (*wxTRANSPARENT_BRUSH);
 					//gCDCPointer->SetLogicalFunction (wxXOR);
 					//gCDCPointer->SetPen (wxPen (*wxWHITE, 1, wxPENSTYLE_DOT));

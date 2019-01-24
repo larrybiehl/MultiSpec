@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			12/13/2018
+//	Revision date:			01/21/2019
 //
 //	Language:				C
 //
@@ -44,7 +44,7 @@
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -63,7 +63,7 @@
 // Called By:			DisplayColorImage in display.c
 //
 //	Coded By:			Larry L. Biehl			Date: 09/14/2001
-//	Revised By:			Larry L. Biehl			Date: 12/12/2018
+//	Revised By:			Larry L. Biehl			Date: 01/21/2019
 
 void Display1Channel16BitLine (
 				UInt32								numberSamples,
@@ -175,6 +175,11 @@ void Display1Channel16BitLine (
 
 					}	// else !zeroAsBackgroundFlag || backgroundValue
 					
+				#if defined multispec_wxlin
+							// Leave lower order (alpha) byte blank.
+					imageptr++;
+				#endif
+					
             offScreen2BytePtr = (HUInt16Ptr)imageptr;
 			#endif	// !defined multispec_lin, else
 
@@ -187,7 +192,7 @@ void Display1Channel16BitLine (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -206,7 +211,7 @@ void Display1Channel16BitLine (
 // Called By:			DisplayColorImage in display.c
 //
 //	Coded By:			Larry L. Biehl			Date: 07/12/1988
-//	Revised By:			Larry L. Biehl			Date: 06/11/2013
+//	Revised By:			Larry L. Biehl			Date: 01/21/2019
 
 void Display2Channel16BitLine (
 				UInt32								numberSamples,
@@ -322,6 +327,11 @@ void Display2Channel16BitLine (
 						*imageptr = (Byte)dataDisplay1Ptr[dataValue];
 						imageptr++;
 						}
+					
+					#if defined multispec_wxlin
+								// Leave lower order (alpha) byte blank.
+						imageptr++;
+					#endif
 						
 					offScreen2BytePtr = (HUInt16Ptr)imageptr;
 				#else	// !defined multispec_lin
@@ -432,6 +442,11 @@ void Display2Channel16BitLine (
 						*imageptr = (Byte)dataDisplay1Ptr[dataValue];
 						imageptr++;
 						}
+					
+					#if defined multispec_wxlin
+								// Leave lower order (alpha) byte blank.
+						imageptr++;
+					#endif
 						
 					offScreen2BytePtr = (HUInt16Ptr)imageptr;
 				#else
@@ -569,6 +584,11 @@ void Display2Channel16BitLine (
 						*imageptr = (Byte)(0x00);
 						imageptr++;
 						}
+					
+					#if defined multispec_wxlin
+								// Leave lower order (alpha) byte blank.
+						imageptr++;
+					#endif
 						
 					offScreen2BytePtr = (HUInt16Ptr)imageptr;
 				#endif
@@ -582,7 +602,7 @@ void Display2Channel16BitLine (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -601,7 +621,7 @@ void Display2Channel16BitLine (
 // Called By:			DisplayColorImage in display.c
 //
 //	Coded By:			Larry L. Biehl			Date: 07/12/1988
-//	Revised By:			Larry L. Biehl			Date: 12/13/2018
+//	Revised By:			Larry L. Biehl			Date: 01/21/2019
 
 void Display2Channel24BitLine (
 				UInt32								numberSamples,
@@ -769,6 +789,11 @@ void Display2Channel24BitLine (
 					backgroundValue += dataValue;
 					*offScreenPtr = dataDisplay1Ptr[dataValue];
 					offScreenPtr++;
+					
+					#if defined multispec_wxlin
+								// Leave lower order (alpha) byte blank.
+						offScreenPtr++;
+					#endif
 
 					if (backgroundValueCode && !backgroundValue)
 						{
@@ -942,6 +967,11 @@ void Display2Channel24BitLine (
 					backgroundValue = dataValue;
 					*offScreenPtr = dataDisplay1Ptr[dataValue];
 					offScreenPtr++;
+					
+					#if defined multispec_wxlin
+								// Leave lower order (alpha) byte blank.
+						offScreenPtr++;
+					#endif
 									
 					if (backgroundValueCode && !backgroundValue)
 						{
@@ -1114,6 +1144,11 @@ void Display2Channel24BitLine (
 					
 					*offScreenPtr = 0;
 					offScreenPtr++;
+					
+					#if defined multispec_wxlin
+								// Leave lower order (alpha) byte blank.
+						offScreenPtr++;
+					#endif
                
 					if (backgroundValueCode && !backgroundValue)
 						{
@@ -1155,7 +1190,7 @@ void Display2Channel24BitLine (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1174,7 +1209,7 @@ void Display2Channel24BitLine (
 // Called By:			DisplayColorImage in display.c
 //
 //	Coded By:			Larry L. Biehl			Date: 08/04/1989
-//	Revised By:			Larry L. Biehl			Date: 04/28/2011
+//	Revised By:			Larry L. Biehl			Date: 01/21/2019
 
 void Display3Channel16BitLine (
 				UInt32								numberSamples,
@@ -1291,6 +1326,7 @@ void Display3Channel16BitLine (
 			backgroundValue += dataValue;
 			*offScreenPtr = dataDisplay1Ptr[dataValue];
 			offScreenPtr++;
+		
 			if (backgroundValueCode && !backgroundValue)
 				{
 				offScreenPtr -= 3;
@@ -1317,6 +1353,11 @@ void Display3Channel16BitLine (
 					}	// end "if (backgroundValueCode != 1) "
 
 				}	// end "if (zeroAsBackgroundFlag && ...)"
+		
+			#if defined multispec_wxlin
+						// Leave lower order (alpha) byte blank.
+				offScreenPtr++;
+			#endif
 
 			offScreen2BytePtr = (HUInt16Ptr)offScreenPtr;
 		#endif
@@ -1328,7 +1369,7 @@ void Display3Channel16BitLine (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1347,7 +1388,7 @@ void Display3Channel16BitLine (
 // Called By:			DisplayColorImage in display.c
 //
 //	Coded By:			Larry L. Biehl			Date: 08/04/1989
-//	Revised By:			Larry L. Biehl			Date: 12/12/2018
+//	Revised By:			Larry L. Biehl			Date: 01/21/2019
 
 void Display3Channel24BitLine (
 				UInt32								numberSamples,
@@ -1381,7 +1422,7 @@ void Display3Channel24BitLine (
 		#if defined multispec_mac
 					// Leave high order byte blank.					
 				
-//			*offScreenPtr = 0;
+			//*offScreenPtr = 0;
 			offScreenPtr++;
 		
 					// Red byte.																
@@ -1559,6 +1600,11 @@ void Display3Channel24BitLine (
 					}	//  end "else backgroundValueCode == 2"
 				
 				}	// end "if (backgroundValueCode && ...)"
+		
+			#if defined multispec_wxlin
+						// Leave lower order (alpha) byte blank.
+				offScreenPtr++;
+			#endif
 			
 		#endif	// defined multispec_lin
 		}	// end "for (j=0; ..."
@@ -1569,7 +1615,7 @@ void Display3Channel24BitLine (
  
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

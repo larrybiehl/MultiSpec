@@ -3851,7 +3851,7 @@ Boolean MVerifyPaletteSize (
 						
 			}	// end "if (*(displaySpecsPtr->paletteObject)->pmEntries..."
 	
-		continueFlag = (*paletteObject)->pmEntries == numberEntries);
+		continueFlag = ((*paletteObject)->pmEntries == numberEntries);
 	#endif	// defined multispec_mac
 	
 	#if defined multispec_win

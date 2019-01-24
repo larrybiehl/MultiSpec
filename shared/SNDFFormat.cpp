@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			02/27/2018
+//	Revision date:			01/17/2019
 //
 //	Language:				C
 //
@@ -274,7 +274,7 @@ SInt16 LinkNDFFiles (
 // Called By:			CheckImageHeader in SOpnImag.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/05/2007
-//	Revised By:			Larry L. Biehl			Date: 02/27/2018
+//	Revised By:			Larry L. Biehl			Date: 01/17/2019
 
 SInt16 ReadNDFHeader (
 				FileInfoPtr 						fileInfoPtr,
@@ -330,7 +330,8 @@ SInt16 ReadNDFHeader (
 											stringNumber,
 											tReturnCode;
 											
-	UInt16								numSuffixChars;
+	UInt16								numSuffixChars,
+											pathLength;
 											
 	Boolean								demFlag,
 											foundFlag;
@@ -370,6 +371,7 @@ SInt16 ReadNDFHeader (
 																	-3, 
 																	kDoNotSkipEqual,
 																	(char*)gTextString,
+																	0,
 																	50,
 																	kNoSubstringAllowed);	
 									
@@ -462,7 +464,14 @@ SInt16 ReadNDFHeader (
 						// in.
 				
 				ioBufferPtr[4999] = 0;	
-				ioBufferPtr[count] = 0;	
+				ioBufferPtr[count] = 0;
+				
+						// Save the path length
+				
+				pathLength = 0;
+				#if defined multispec_lin || defined multispec_win
+					pathLength = fileStreamPtr->GetFileUTF8PathLength ();
+				#endif
 				
 						// The header file has been read.  Close the header file.
 					
@@ -496,6 +505,7 @@ SInt16 ReadNDFHeader (
 																	-3, 
 																	kSkipEqual,
 																	(char*)gTextString,
+																	0,
 																	64,
 																	kNoSubstringAllowed);
 					#else
@@ -506,7 +516,8 @@ SInt16 ReadNDFHeader (
 																	-3, 
 																	kSkipEqual,
 																	(char*)imageFilePathPPtr,
-																	64,
+																	pathLength,
+																	254,
 																	kNoSubstringAllowed);
 					//#endif
 						
@@ -633,6 +644,13 @@ SInt16 ReadNDFHeader (
 				
 			if (foundFlag && fileNumber > 1)
 				{
+						// Save the path length
+				
+				pathLength = 0;
+				#if defined multispec_lin || defined multispec_win
+					pathLength = fileStreamPtr->GetFileUTF8PathLength ();
+				#endif
+				
 						// Get the name of the specified file in the list.
 						// Find "FILENAME=" in the buffer.	
 						
@@ -648,7 +666,8 @@ SInt16 ReadNDFHeader (
 																-3, 
 																kSkipEqual,
 																(char*)imageFilePathPPtr,
-																64,
+																pathLength,
+																254,
 																kNoSubstringAllowed);
 																
 				if (tReturnCode != noErr)
@@ -714,6 +733,7 @@ SInt16 ReadNDFHeader (
 															-3, 
 															kDoNotSkipEqual,
 															(char*)gTextString,
+															0,
 															50,
 															kNoSubstringAllowed);	
 							
@@ -756,6 +776,7 @@ SInt16 ReadNDFHeader (
 															-3, 
 															kDoNotSkipEqual,
 															(char*)gTextString,
+															0,
 															50,
 															kNoSubstringAllowed);	
 							
@@ -808,6 +829,7 @@ SInt16 ReadNDFHeader (
 															-3, 
 															kDoNotSkipEqual,
 															(char*)gTextString,
+															0,
 															50,
 															kNoSubstringAllowed);	
 							
@@ -939,6 +961,7 @@ SInt16 ReadNDFHeader (
 															-1, 
 															kDoNotSkipEqual,
 															(char*)gTextString,
+															0,
 															50,
 															kNoSubstringAllowed);		
 								
@@ -980,6 +1003,7 @@ SInt16 ReadNDFHeader (
 															-1, 
 															kDoNotSkipEqual,
 															(char*)gTextString,
+															0,
 															50,
 															kNoSubstringAllowed);		
 								
@@ -1032,6 +1056,7 @@ SInt16 ReadNDFHeader (
 															-1, 
 															kDoNotSkipEqual,
 															(char*)gTextString,
+															0,
 															50,
 															kNoSubstringAllowed);		
 								

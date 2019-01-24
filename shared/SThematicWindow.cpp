@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			01/06/2019
+//	Revision date:			01/22/2019
 //
 //	Language:				C
 //
@@ -38,7 +38,7 @@
 //
 /*  Following is template used for testing/debugging
 	int numberChars = sprintf ((char*)gTextString3,
-				" SThemWin: (): %s",
+				" SThematicWindow: (): %s",
 					gEndOfLine);
 	ListString ((char*)gTextString3, numberChars, gOutputTextH);
  */
@@ -505,7 +505,7 @@ void ChangeClassPalette (
 											index,
 											startIndex;
 	
-		
+	
 	if (newRGBColorPtr == NULL || changeColorTableFlag)
 		{
 		if (cTableHandle == NULL)
@@ -1609,7 +1609,7 @@ Boolean DoBlinkCursor1 (
 //							ThematicImageWBlink in thematicWindow.c
 //
 //	Coded By:			Larry L. Biehl			Date: 01/28/1991
-//	Revised By:			Larry L. Biehl			Date: 07/24/1998			
+//	Revised By:			Larry L. Biehl			Date: 01/22/2019
 
 void DoThematicWColorsUpdate (void)
 
@@ -1671,17 +1671,20 @@ void DoThematicWColorsUpdate (void)
 	#if defined multispec_lin
       CMImageCanvas* canvasptr = gActiveImageViewCPtr->m_Canvas;
       canvasptr->Refresh ();
-      //canvasptr->Update ();
       CMImageFrame* frameptr = gActiveImageViewCPtr->m_frame;
       (frameptr->GetLegendViewCPtr ())->Refresh ();
-      //(frameptr->GetLegendViewCPtr ())->Update ();
       ((frameptr->GetLegendViewCPtr ())->GetLegendListCPtr ())->DrawLegendList ();
       ((frameptr->GetLegendViewCPtr ())->GetLegendListCPtr ())->Refresh ();
-      //((frameptr->GetLegendViewCPtr ())->GetLegendListCPtr ())->Update ();
 	
-      #if defined multispec_wxmac
+      #if defined multispec_wxlin
+      	//canvasptr->Update ();
+      	//(frameptr->GetLegendViewCPtr ())->Update ();
+      	((frameptr->GetLegendViewCPtr ())->GetLegendListCPtr ())->Update ();
+		#endif
+	
+		#if defined multispec_wxmac
 			((CMultiSpecApp*)wxTheApp)->SafeYieldFor (NULL, wxEVT_CATEGORY_UI);
-      #endif
+		#endif
 	#endif
 	
 }	// end "DoThematicWColorsUpdate" 

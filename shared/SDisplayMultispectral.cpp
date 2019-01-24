@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			12/13/2018
+//	Revision date:			01/21/2019
 //
 //	Language:				C
 //
@@ -348,7 +348,7 @@ void UpdateThematicTypeMinMaxes (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -367,7 +367,7 @@ void UpdateThematicTypeMinMaxes (
 // Called By:			DisplayColorImage in SDisplay.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 06/26/1990
-//	Revised By:			Larry L. Biehl			Date: 12/13/2018
+//	Revised By:			Larry L. Biehl			Date: 01/21/2019
 
 void DisplayImagesSideBySide (
 				DisplaySpecsPtr					displaySpecsPtr,
@@ -551,7 +551,7 @@ void DisplayImagesSideBySide (
 
 	#if defined multispec_mac || defined multispec_lin
 		savedOffScreenLinePtr = (HUCharPtr)offScreenBufferPtr;
-	#endif	// defined multispec_mac | defined multispec_lin
+	#endif	// defined multispec_mac || defined multispec_lin
 
 	#if defined multispec_win
 		UInt32 numberLines = (lineEnd - lineStart + lineInterval) / lineInterval;
@@ -721,6 +721,11 @@ void DisplayImagesSideBySide (
 									*offScreenPtr = (SInt8)(dataToLevelPtr[dataValue]);
 
 								  offScreenPtr++;
+								
+									#if defined multispec_wxlin
+												// Skip first (alpha) byte in wxBitmap
+										offScreenPtr++;
+									#endif
 								#endif
 								buffer1Ptr += interval;
 
@@ -738,6 +743,11 @@ void DisplayImagesSideBySide (
 
 								offScreenPtr++;
 								*offScreenPtr = separatorByte;
+								
+								#if defined multispec_wxlin
+											// Skip first (alpha) byte in wxBitmap
+									offScreenPtr++;
+								#endif
 							
 								#if defined multispec_wxmac
 											// Skip first (alpha) byte in wxBitmap
@@ -754,6 +764,11 @@ void DisplayImagesSideBySide (
 							#endif
 							*offScreenPtr = separatorByte;
 							offScreenPtr++;
+								
+							#if defined multispec_wxlin
+										// Skip first (alpha) byte in wxBitmap
+								offScreenPtr++;
+							#endif
 
 							dataToLevelPtr += bytesOffset;
 
@@ -796,6 +811,12 @@ void DisplayImagesSideBySide (
 									*offScreenPtr = (SInt8)(dataToLevelPtr[dataValue]);
 
 								  offScreenPtr++;
+								
+								  #if defined multispec_wxlin
+											// Skip first (alpha) byte in wxBitmap
+									offScreenPtr++;
+								#endif
+
 								#endif
 								  buffer2Ptr += interval;
 
@@ -813,7 +834,8 @@ void DisplayImagesSideBySide (
 							#if defined multispec_lin
 								*offScreenPtr = separatorByte;
 							
-								#if defined multispec_wxmac
+								//#if defined multispec_wxmac
+								#if defined multispec_lin
 											// Skip first (alpha) byte in wxBitmap
 									offScreenPtr++;
 								#endif
@@ -828,6 +850,12 @@ void DisplayImagesSideBySide (
 								*offScreenPtr = separatorByte;
 
 								offScreenPtr++;
+							
+								#if defined multispec_wxlin
+											// Skip first (alpha) byte in wxBitmap
+									offScreenPtr++;
+								#endif
+
 							#endif
 
 							dataToLevelPtr += bytesOffset;
@@ -924,7 +952,7 @@ void DisplayImagesSideBySide (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1304,6 +1332,11 @@ void Display4_8ByteImagesSideBySide (
 								binIndex = MIN (binIndex, maxBin);
 
 								}	// end "else doubleBinIndex >= 0 && ..."
+								
+							#if defined multispec_wxmac
+										// Skip first (alpha) byte in wxBitmap
+								offScreenPtr++;
+							#endif
 
 							*offScreenPtr = (SInt8)dataToLevelPtr[binIndex];
 
@@ -1313,12 +1346,22 @@ void Display4_8ByteImagesSideBySide (
 
 								offScreenPtr++;
 								*offScreenPtr = (SInt8)(dataToLevelPtr[binIndex]);
+								
+								#if defined multispec_wxlin
+											// Skip last (alpha) byte in wxBitmap
+									offScreenPtr++;
+								#endif
 							#endif
 
 							offScreenPtr++;
 							buffer8BytePtr += interval;
 
 							}	// end "for (j=0;..."
+								
+						#if defined multispec_wxmac
+									// Skip first (alpha) byte in wxBitmap
+							offScreenPtr++;
+						#endif
 
 						*offScreenPtr = separatorByte;
 						#if defined multispec_lin
@@ -1327,6 +1370,16 @@ void Display4_8ByteImagesSideBySide (
 
 							offScreenPtr++;
 							*offScreenPtr = separatorByte;
+								
+							#if defined multispec_wxlin
+										// Skip last (alpha) byte in wxBitmap
+								offScreenPtr++;
+							#endif
+								
+							#if defined multispec_wxmac
+										// Skip first (alpha) byte in wxBitmap
+								offScreenPtr++;
+							#endif
 
 							offScreenPtr++;
 							*offScreenPtr = separatorByte;
@@ -1337,6 +1390,11 @@ void Display4_8ByteImagesSideBySide (
 
 						offScreenPtr++;
 						*offScreenPtr = separatorByte;
+								
+						#if defined multispec_wxlin
+									// Skip last (alpha) byte in wxBitmap
+							offScreenPtr++;
+						#endif
 
 						offScreenPtr++;
 						dataToLevelPtr += bytesOffset;
@@ -1432,7 +1490,7 @@ void Display4_8ByteImagesSideBySide (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1728,7 +1786,7 @@ Boolean DisplayMultispectralImage (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2575,7 +2633,8 @@ void DisplayCImage (
 						
 					case 101:
 					case 151:
-						Display1Channel4Byte8BitLine (numberSamples,
+						Display1Channel4Byte8BitLine (displayCode,
+																numberSamples,
 																  interval,
 																  minValue1,
 																  binFactor1,
@@ -2772,7 +2831,7 @@ void DisplayCImage (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3827,7 +3886,7 @@ Boolean DisplayMultispectralDialog (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3887,7 +3946,7 @@ void DisplayMultispectralDialogCheckDisplayLevels (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3952,7 +4011,7 @@ void DisplayMultispectralDialogCheckMinMaxSettings (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4025,7 +4084,7 @@ Boolean DisplayMultispectralDialogUpdateComputeHistogram (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4490,7 +4549,7 @@ void DisplayMultispectralDialogInitialize (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4839,7 +4898,7 @@ void DisplayMultispectralDialogOK (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4892,7 +4951,7 @@ void DisplayMultispectralDialogSetDefaultSelection (
 
 #if defined multispec_mac  
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4970,7 +5029,7 @@ Boolean DisplayMultispectralDialogUpdateBitsOfColor (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5104,7 +5163,7 @@ SInt16 DisplayMultispectralDialogUpdateDisplayType (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5200,7 +5259,7 @@ void DisplayMultispectralDialogUpdateDisplayLevels (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5284,16 +5343,21 @@ void Display1Channel8BitLine (
 					dataValue = ioBuffer1Ptr[j];
 					
 							// Red value
-					*offScreenPtr = (Byte) dataDisplayPtr[dataValue];
+					*offScreenPtr = (Byte)dataDisplayPtr[dataValue];
 					offScreenPtr++;
 					
 							// Green Value
-					*offScreenPtr = (Byte) dataDisplayPtr[dataValue];
+					*offScreenPtr = (Byte)dataDisplayPtr[dataValue];
 					offScreenPtr++;
 					
 							// Blue value
-					*offScreenPtr = (Byte) dataDisplayPtr[dataValue];
+					*offScreenPtr = (Byte)dataDisplayPtr[dataValue];
 					offScreenPtr++;
+					
+					#if defined multispec_wxlin
+								// Skip first (alpha) byte in wxBitmap
+						offScreenPtr++;
+					#endif
 
 					}	// end "for (j=0;..."
 				
@@ -5346,6 +5410,11 @@ void Display1Channel8BitLine (
 							// Blue Value
 					*offScreenPtr = dataDisplayPtr[dataValue];
 					offScreenPtr++;
+					
+					#if defined multispec_wxlin
+								// Skip first (alpha) byte in wxBitmap
+						offScreenPtr++;
+					#endif
 
 					}	// end "for (j=0;..."
 			
@@ -5377,7 +5446,7 @@ void Display1Channel8BitLine (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5509,7 +5578,7 @@ void Display2Channel8BitLine (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5602,7 +5671,7 @@ void Display3Channel8BitLine (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5774,7 +5843,7 @@ void DoNextDisplayChannelEvent (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5814,7 +5883,7 @@ PascalVoid DrawBitsColorPopUp (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5855,7 +5924,7 @@ PascalVoid DrawDisplayTypePopUp (
 /*
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5896,7 +5965,7 @@ PascalVoid DrawEnhancementPopUp (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5936,7 +6005,7 @@ PascalVoid DrawMinMaxPopUp (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5976,7 +6045,7 @@ PascalVoid DrawStretchPopUp (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6016,7 +6085,7 @@ PascalVoid DrawZeroAsPopUp (
 /*
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6151,7 +6220,7 @@ SInt16 EnhancementPopUpMenu (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6278,7 +6347,7 @@ SInt16 EnhanceMinMaxPopUpMenu (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6680,7 +6749,7 @@ Boolean EqualAreaDataToDisplayLevels (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7136,7 +7205,7 @@ Boolean FillDataToDisplayLevels (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7292,7 +7361,7 @@ Boolean GaussianParameterDialog (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7883,7 +7952,7 @@ Boolean GaussianToDisplayLevels (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7967,7 +8036,7 @@ void GetDefaultPaletteSpecs (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8036,7 +8105,7 @@ SInt16 GetHistogramComputeCode (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8078,7 +8147,7 @@ Boolean GetHistogramRequiredFlag (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8130,7 +8199,7 @@ SInt16 GetMinMaxPopupCode (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8357,7 +8426,7 @@ void GetMinMaxValuesIndices (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8442,7 +8511,7 @@ SInt16 GetThematicClassForDataValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8535,7 +8604,7 @@ void GetThematicTypeMinMaxIndices (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8891,7 +8960,7 @@ Boolean HistogramVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9754,7 +9823,7 @@ DisplaySpecsPtr LoadMultispectralDisplaySpecs (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -10235,7 +10304,7 @@ Boolean MinMaxEnhancementDialog (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -10754,7 +10823,7 @@ void MinMaxEnhancementDialogSetSelection (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -10812,7 +10881,7 @@ void SetImageWTitle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -10911,7 +10980,7 @@ void SaveDisplayStructureSettings (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -10980,7 +11049,7 @@ void SetUpMinMaxPopUpMenu (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11059,7 +11128,7 @@ void UnSetDialogItemDrawRoutine (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11211,7 +11280,7 @@ void UpdateDialogChannelItems (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11564,7 +11633,7 @@ void UpdateEnhancementMinMaxes (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11647,7 +11716,7 @@ void UpdateMinMaxValueIndices (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11708,7 +11777,7 @@ void UpdatePopUpDisplayTypeMenu (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

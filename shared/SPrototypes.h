@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//							 Copyright (1988-2018)
+//							 Copyright (1988-2019)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -21,7 +21,7 @@
 //	Written By:				Larry L. Biehl			Date: 03/29/1988
 //	Revised By:				Abdur Maud				Date: 06/24/2013
 //	Revised By:				Tsung Tai Yeh			Date: 09/23/2015
-//	Revised By:				Larry L. Biehl			Date: 12/18/2018
+//	Revised By:				Larry L. Biehl			Date: 01/17/2019
 //	
 //------------------------------------------------------------------------------------
 
@@ -3531,6 +3531,7 @@ extern void LoadThematicGroupNamesIntoList (
 		// Routines in SDisplay4_8ByteData.cpp
 
 extern void Display1Channel4Byte8BitLine (
+				SInt16								displayCode,
 				UInt32								numberSamples,
 				UInt32								interval,
 				double								minValue1,
@@ -6909,6 +6910,7 @@ extern SInt16 GetFileHeaderString (
 				SInt16								numberCharacters,
 				Boolean								skipEqualFlag,
 				CharPtr								stringPtr,
+				UInt16								pathLength,
 				SInt16								stringLimit,
 				Boolean								substringAllowedFlag);
 
@@ -8909,7 +8911,7 @@ extern void SetProjectWTitle (void);
 
 extern void StatisticsControl (void);
 
-extern void StatisticsWControlEvent (
+extern Boolean StatisticsWControlEvent (
 				ControlHandle						theControl,
 				Boolean								waitOnMouseUpFlag,
 				Point									location,

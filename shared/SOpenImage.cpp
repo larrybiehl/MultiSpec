@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			01/05/2019
+//	Revision date:			01/17/2019
 //
 //	Language:				C
 //
@@ -3155,6 +3155,7 @@ SInt16 GetDatumInfo (
 														 5, // 7
 														 skipEqualFlag,
 														 (char*)gTextString,
+														 0,
 														 50,
 														 kNoSubstringAllowed);
 
@@ -3736,7 +3737,7 @@ void GetDefaultSupportFileName (
 //							ReadFastL7AHeader in SOpnImag.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/11/1999
-//	Revised By:			Larry L. Biehl			Date: 02/25/2017
+//	Revised By:			Larry L. Biehl			Date: 01/17/2019
 
 SInt16 GetFileHeaderString (
 				SInt16								stringID,
@@ -3745,6 +3746,7 @@ SInt16 GetFileHeaderString (
 				SInt16								numberCharacters,
 				Boolean								skipEqualFlag,
 				CharPtr								stringPtr,
+				UInt16								pathLength,
 				SInt16								stringLimit,
 				Boolean								substringAllowedFlag)
 {
@@ -3853,13 +3855,16 @@ SInt16 GetFileHeaderString (
 
 						// Get the string that follows the identifer that is
 						// numberCharacters long.
-
-				BlockMoveData (strPtr, &stringPtr[1], numberCharacters);
+						// Note that if wx or windows version, stringPtr is a
+						// path name. Need to copy the name after the directory
+						// path given by pathLength.
+				
+				BlockMoveData (strPtr, &stringPtr[1+pathLength], numberCharacters);
 
 						// Make pascal and c string.
 
-				stringPtr[0] = (char)numberCharacters;
-				stringPtr[numberCharacters + 1] = 0;
+				stringPtr[0] = (char)(pathLength + numberCharacters);
+				stringPtr[pathLength + numberCharacters + 1] = 0;
 
 						// Set numberCharacters so that the comma will be skipped at the
 						// end if needed when set up the return address for the string
@@ -6831,7 +6836,7 @@ void ReadChannelDescriptionsAndValues (
 // Called By:			CheckImageHeader in SOpnImag.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/10/1999
-//	Revised By:			Larry L. Biehl			Date: 09/01/2017
+//	Revised By:			Larry L. Biehl			Date: 01/17/2019
 
 SInt16 ReadENVIHeader (
 				FileInfoPtr							fileInfoPtr,
@@ -7204,6 +7209,7 @@ SInt16 ReadENVIHeader (
 															  3,
 															  kSkipEqual,
 															  (char*)gTextString,
+																0,
 															  50,
 															  kNoSubstringAllowed);
 
@@ -7402,6 +7408,7 @@ SInt16 ReadENVIHeaderBandNamesInfo (
 														-1, 
 														kDoNotSkipEqual,
 														(char*)gTextString,
+														0,
 														64,
 														kNoSubstringAllowed);
 
@@ -7497,7 +7504,7 @@ SInt16 ReadENVIHeaderBandNamesInfo (
 // Called By:			ReadENVIHeader in SOpnImag.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 07/14/2006
-//	Revised By:			Larry L. Biehl			Date: 02/13/2014
+//	Revised By:			Larry L. Biehl			Date: 01/17/2019
 
 SInt16 ReadENVIHeaderMapInfo (
 				FileInfoPtr							fileInfoPtr,
@@ -7547,6 +7554,7 @@ SInt16 ReadENVIHeaderMapInfo (
 														 -1,
 														 kDoNotSkipEqual,
 														 (char*)gTextString,
+														0,
 														 64,
 														 kNoSubstringAllowed);
 
@@ -7806,6 +7814,7 @@ SInt16 ReadENVIHeaderMapInfo (
 																-1,
 																kDoNotSkipEqual,
 																(char*)gTextString,
+																0,
 																64,
 																kNoSubstringAllowed);
 
@@ -8950,7 +8959,7 @@ SInt16 ReadERDASHeader (
 // Called By:			CheckImageHeader in SOpnImag.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/10/1999
-//	Revised By:			Larry L. Biehl			Date: 02/07/2018
+//	Revised By:			Larry L. Biehl			Date: 01/17/2019
 
 SInt16 ReadFastL7AHeader (
 				FileInfoPtr							fileInfoPtr,
@@ -8984,6 +8993,8 @@ SInt16 ReadFastL7AHeader (
 											imageFilePathPPtr;
 
 	StringPtr							headerSuffixNamePtr[3];
+	
+	UInt16								pathLength;
 
 	SInt32								value;
 
@@ -9083,6 +9094,13 @@ SInt16 ReadFastL7AHeader (
 
 				ioBufferPtr[1535] = 0;
 				ioBufferPtr[count] = 0;
+				
+						// Save the path length
+				
+				pathLength = 0;
+				#if defined multispec_lin || defined multispec_win
+					pathLength = fileStreamPtr->GetFileUTF8PathLength ();
+				#endif
 
 						// The header file has been read.  Close the header file.
 
@@ -9100,7 +9118,8 @@ SInt16 ReadFastL7AHeader (
 																29,
 																kDoNotSkipEqual,
 																(char*)imageFilePathPPtr,
-																64,
+																pathLength,
+																254,
 																kNoSubstringAllowed);
 
 				if (tReturnCode == 0)
@@ -9216,6 +9235,13 @@ SInt16 ReadFastL7AHeader (
 
 			if (foundFlag && fileNumber > 1)
 				{
+						// Save the path length
+				
+				pathLength = 0;
+				#if defined multispec_lin || defined multispec_win
+					pathLength = fileStreamPtr->GetFileUTF8PathLength ();
+				#endif
+				
 						// Get the name of the specified file in the list.
 						// Find "FILENAME =" in the buffer.
 
@@ -9230,7 +9256,8 @@ SInt16 ReadFastL7AHeader (
 																	 29,
 																	 kDoNotSkipEqual,
 																	 (char*)imageFilePathPPtr,
-																	 64,
+																	 pathLength,
+																	 254,
 																	 kSubstringAllowed);
 
 					if (tReturnCode != noErr)
@@ -9333,6 +9360,7 @@ SInt16 ReadFastL7AHeader (
 														  0,
 														  kDoNotSkipEqual,
 														  (char*)gTextString,
+															0,
 														  50,
 														  kNoSubstringAllowed);
 
@@ -9373,6 +9401,7 @@ SInt16 ReadFastL7AHeader (
 																4,
 																kDoNotSkipEqual,
 																(char*)gTextString,
+																0,
 																50,
 																kNoSubstringAllowed);
 
@@ -9433,6 +9462,7 @@ SInt16 ReadFastL7AHeader (
 																7,
 																kDoNotSkipEqual,
 																(char*)gTextString,
+																0,
 																50,
 																kNoSubstringAllowed);
 
@@ -9491,6 +9521,7 @@ SInt16 ReadFastL7AHeader (
 																-1,
 																kDoNotSkipEqual,
 																(char*)gTextString,
+																0,
 																50,
 																kNoSubstringAllowed);
 
@@ -9535,6 +9566,7 @@ SInt16 ReadFastL7AHeader (
 																-1,
 																kDoNotSkipEqual,
 																(char*)gTextString,
+																0,
 																50,
 																kNoSubstringAllowed);
 
@@ -12185,7 +12217,7 @@ Boolean ReadMultiSpecClassNames (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 11/14/1996
-//	Revised By:			Larry L. Biehl			Date: 09/01/2017
+//	Revised By:			Larry L. Biehl			Date: 01/17/2019
 
 SInt16 ReadPDSHeader (
 				FileInfoPtr							fileInfoPtr,
@@ -12318,6 +12350,7 @@ SInt16 ReadPDSHeader (
 																  4,
 																  kSkipEqual,
 																  (char*)gTextString2,
+																	0,
 																  50,
 																  kNoSubstringAllowed);
 																  

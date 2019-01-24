@@ -2809,34 +2809,30 @@ Boolean EditCoordinatesDialog (
 				#if defined multispec_mac
 					NumToString (selectionRectangle.top, gTextString);
 					LSetCell ((char*)&(gTextString[1]), 
-										(SInt16)gTextString[0],
-			 							cell, 
-			 							gStatisticsListHandle);
+									(SInt16)gTextString[0],
+									cell, 
+									gStatisticsListHandle);
 			 														
 					cell.h = 1;
 					cell.v = polygonPoint - 2;
 					NumToString (selectionRectangle.left, gTextString);
 					LSetCell ((char*)&(gTextString[1]), 
-										(SInt16)gTextString[0],
-			 							cell, 
-			 							gStatisticsListHandle);				
-				
+									(SInt16)gTextString[0],
+									cell,
+									gStatisticsListHandle);
 				#endif	// defined multispec_mac 
 					
-				#if defined multispec_win
-				
+				#if defined multispec_win || defined multispec_lin
 					gTextString[0] = sprintf ((char*)&gTextString[1], 
-								"%ld\t%ld", 
-								selectionRectangle.top, 
-								selectionRectangle.left);
+														"%d\t%d",
+														(int)selectionRectangle.top,
+														(int)selectionRectangle.left);
 					
 					LSetCell ((char*)&gTextString[1], 
-										(SInt16)gTextString[0],
-			 							cell, 
-			 							gStatisticsListHandle);				
-					 													
-				#endif	// defined multispec_mac 
-
+									(SInt16)gTextString[0],
+									cell,
+									gStatisticsListHandle);
+				#endif	// defined multispec_win || defined multispec_lin
 			 						
 				GetPolygonLabelPoint (&fieldIdentPtr[currentField],
 								gProjectInfoPtr->fieldPointsPtr,

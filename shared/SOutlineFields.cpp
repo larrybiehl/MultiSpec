@@ -1289,7 +1289,7 @@ void OutlineField (
 	LongRect*							LCRectPtr; 
 												
 	LongPoint							drawPoint,
-											//nextPoint,
+											nextPoint,
 											startPoint; 
 	#if defined multispec_lin
 		//LongPoint							lastPoint;

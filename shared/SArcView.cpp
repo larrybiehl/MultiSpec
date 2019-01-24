@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			05/16/2018
+//	Revision date:			01/17/2019
 //
 //	Language:				C
 //
@@ -2890,7 +2890,7 @@ void GetLastVectorColorAndWidth (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 02/16/2001
-//	Revised By:			Larry L. Biehl			Date: 01/14/2013
+//	Revised By:			Larry L. Biehl			Date: 01/17/2019
 
 Boolean GetArcViewMapInformation (
 				FileInfoPtr							fileInfoPtr,
@@ -2995,6 +2995,7 @@ Boolean GetArcViewMapInformation (
 												4, 
 												kDoNotSkipEqual,
 												(char*)gTextString,
+												0,
 												50,
 												kNoSubstringAllowed);
 						
@@ -3009,6 +3010,7 @@ Boolean GetArcViewMapInformation (
 													4, 
 													kDoNotSkipEqual,
 													(char*)gTextString,
+													0,
 													50,
 													kNoSubstringAllowed);
 													
@@ -3048,6 +3050,7 @@ Boolean GetArcViewMapInformation (
 												15, 
 												kDoNotSkipEqual,
 												(char*)gTextString,
+												0,
 												50,
 												kNoSubstringAllowed);
 	
@@ -5038,7 +5041,7 @@ Boolean ReadArcViewGroups (
 // Called By:			CheckImageHeader in SOpnImag.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 03/03/2000
-//	Revised By:			Larry L. Biehl			Date: 12/18/2017
+//	Revised By:			Larry L. Biehl			Date: 01/17/2019
 
 SInt16 ReadArcViewHeader (
 				FileInfoPtr 						fileInfoPtr, 
@@ -5152,6 +5155,7 @@ SInt16 ReadArcViewHeader (
 															3, 
 															kDoNotSkipEqual,
 															(char*)gTextString,
+															0,
 															50,
 															kNoSubstringAllowed);
 								
@@ -5379,6 +5383,7 @@ SInt16 ReadArcViewHeader (
 															3, 
 															kDoNotSkipEqual,
 															(char*)gTextString,
+															0,
 															50,
 															kNoSubstringAllowed);
 								
@@ -5419,6 +5424,7 @@ SInt16 ReadArcViewHeader (
 															1, 
 															kDoNotSkipEqual,
 															(char*)gTextString,
+															0,
 															50,
 															kNoSubstringAllowed);
 								
@@ -5505,6 +5511,7 @@ SInt16 ReadArcViewHeader (
 															6, 
 															kDoNotSkipEqual,
 															(char*)gTextString,
+															0,
 															50,
 															kNoSubstringAllowed);
 								
@@ -5530,6 +5537,7 @@ SInt16 ReadArcViewHeader (
 															6, 
 															kDoNotSkipEqual,
 															(char*)gTextString,
+															0,
 															50,
 															kNoSubstringAllowed);
 								
@@ -7186,7 +7194,7 @@ SInt16 ReadArcViewShapeHeader (
 // Called By:			CheckImageHeader in SOpnImag.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 02/27/2009
-//	Revised By:			Larry L. Biehl			Date: 02/26/2018
+//	Revised By:			Larry L. Biehl			Date: 01/17/2019
 
 void ReadGTOPO30PrjFile (
 				FileInfoPtr 						fileInfoPtr,
@@ -7314,6 +7322,7 @@ void ReadGTOPO30PrjFile (
 														10, 
 														kDoNotSkipEqual,
 														(char*)gTextString,
+														0,
 														50,
 														kNoSubstringAllowed);	
 						
@@ -7349,6 +7358,7 @@ void ReadGTOPO30PrjFile (
 														4, 
 														kDoNotSkipEqual,
 														(char*)gTextString,
+														0,
 														50,
 														kNoSubstringAllowed);	
 						
@@ -7373,6 +7383,7 @@ void ReadGTOPO30PrjFile (
 														3, 
 														kDoNotSkipEqual,
 														(char*)gTextString,
+														0,
 														50,
 														kNoSubstringAllowed);	
 		
@@ -7420,6 +7431,7 @@ void ReadGTOPO30PrjFile (
 														5, 
 														kDoNotSkipEqual,
 														(char*)gTextString,
+														0,
 														50,
 														kNoSubstringAllowed);	
 						
@@ -7484,6 +7496,7 @@ void ReadGTOPO30PrjFile (
 															-1, 
 															kDoNotSkipEqual,
 															(char*)gTextString,
+															0,
 															50,
 															kNoSubstringAllowed);		
 								

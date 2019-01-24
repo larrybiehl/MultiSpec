@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl, Ravi Budruk
 //
-//	Revision date:			12/07/2018
+//	Revision date:			01/16/2019
 //
 //	Language:				C
 //
@@ -470,7 +470,7 @@ void ConvertLCToOffscreenPoint (
 		((selectedlineColPtr->v - displaySpecsPtr->displayedLineStart)/
 														displaySpecsPtr->displayedLineInterval);
 											
-	offscreenPointPtr->h = (SInt16)
+	offscreenPointPtr->h = (SInt32)
 		((selectedlineColPtr->h - displaySpecsPtr->displayedColumnStart)/
 														displaySpecsPtr->displayedColumnInterval);
 
@@ -1452,7 +1452,7 @@ Boolean CreateBackgroundImageFile (
 // Called By:			CreateResultsDiskFiles in SUtility.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 09/18/1989
-//	Revised By:			Larry L. Biehl			Date: 09/06/2017
+//	Revised By:			Larry L. Biehl			Date: 01/15/2019
 
 Boolean CreateResultsDiskFile (
 				SInt32								numberLines, 
@@ -1591,6 +1591,7 @@ Boolean CreateResultsDiskFile (
 			RemoveCharsAddVersion ((UCharPtr)"\0.bsq\0", resultsFileNamePtr);
 			RemoveCharsAddVersion ((UCharPtr)"\0.clu\0", resultsFileNamePtr);
 			RemoveCharsAddVersion ((UCharPtr)"\0.dat\0", resultsFileNamePtr);
+			RemoveCharsAddVersion ((UCharPtr)"\0.ecw\0", resultsFileNamePtr);
 			RemoveCharsAddVersion ((UCharPtr)"\0.fst\0", resultsFileNamePtr);
 			RemoveCharsAddVersion ((UCharPtr)"\0.hdf\0", resultsFileNamePtr);
 			RemoveCharsAddVersion ((UCharPtr)"\0.img\0", resultsFileNamePtr);
@@ -2574,7 +2575,7 @@ Boolean DetermineIfContinuousChannels (
 //							CopyPrintOffscreenImage in print.c
 //
 //	Coded By:			Larry L. Biehl			Date: ??/??/1991
-//	Revised By:			Larry L. Biehl			Date: 11/02/2018
+//	Revised By:			Larry L. Biehl			Date: 01/16/2019
 
 void	DrawSideBySideTitles (
 				Handle								windowInfoHandle, 
@@ -2871,17 +2872,23 @@ void	DrawSideBySideTitles (
 	
 			// Write channel numbers.															
 	#if defined multispec_lin
+		/*
 		wxClientDC pdc (windowPtr->m_Canvas);
 		(windowPtr->m_Canvas)->DoPrepareDC (pdc);
-		wxRect rectangleRegion;
-		rectangleRegion.x = updateRectPtr->left;
-		rectangleRegion.y = updateRectPtr->top;
-		rectangleRegion.width = updateRectPtr->right - updateRectPtr->left;
-		rectangleRegion.height = 15;
-         
-		//pdc.SetClippingRegion (rectangleRegion);
-		pdc.DrawRectangle (rectangleRegion);
-		//pdc.DestroyClippingRegion ();
+		pdc.SetMapMode (wxMM_TEXT);
+		pdc.SetFont (font);
+		pdc.SetUserScale (1/magnification, 1/magnification);
+		*/
+		/*
+		wxPoint	scrollOffset;
+		windowPtr->m_Canvas->CalcUnscrolledPosition (0,
+																	0,
+																	&scrollOffset.x,
+																	&scrollOffset.y);
+		*/
+		gCDCPointer->SetMapMode (wxMM_TEXT);
+		gCDCPointer->SetFont (font);
+		gCDCPointer->SetUserScale (1, 1);
 	#endif
 	
 	for (index=gStartChannel; index<gSideBySideChannels; index++)
@@ -2951,40 +2958,18 @@ void	DrawSideBySideTitles (
 			#endif // defined multispec_win
          
          #if defined multispec_lin
-            pdc.SetFont (font);
-            pdc.SetUserScale (1, 1);
             wxString image_label ((char*)&gTextString[1], wxConvUTF8);
             wxSize label_size;
-            label_size = pdc.GetTextExtent (image_label);
-            width = (label_size.GetWidth ())/2;
-            pdc.DrawText (image_label,
-									(int)(drawCenter-width-columnOrigin),
-									(int)updateRectPtr->top);
-            
-				/*
-            gCDCPointer->DrawRectangle (updateRectPtr->left,
-														updateRectPtr->top,
-														updateRectPtr->right - updateRectPtr->left,
-														15);
-            gCDCPointer->SetFont (font);
-            gCDCPointer->SetUserScale (1, 1);
-            wxPen oldpen = gCDCPointer->GetPen ();
-            gCDCPointer->SetPen (wxPen (*wxRED));
-            wxPoint	scrollOffset;
-            wxString image_label ((char*)&gTextString[1], wxConvUTF8);
-            wxSize label_size;
+            //label_size = pdc.GetTextExtent (image_label);
             label_size = gCDCPointer->GetTextExtent (image_label);
+			
             width = (label_size.GetWidth ())/2;
-            windowPtr->m_Canvas->CalcUnscrolledPosition (0, 
-																			0, 
-																			&scrollOffset.x, 
-																			&scrollOffset.y);
-            gCDCPointer->DrawText (image_label, 
-												(int)(drawCenter-width-columnOrigin),
-												(int)updateRectPtr->top);
-
-            gCDCPointer->SetPen (oldpen);
-				*/
+            //pdc.DrawText (image_label,
+            gCDCPointer->DrawText (image_label,
+									(int)(drawCenter-width-columnOrigin),
+									//(int)(drawCenter-width),
+									//(int)(updateRectPtr->top),
+									updateRectPtr->top);
          #endif
 			
 			}	// end "if (imageRight >= 0)" 
@@ -7251,7 +7236,7 @@ void PauseIfInBackground (void)
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 11/22/1999
-//	Revised By:			Larry L. Biehl			Date: 08/16/2018
+//	Revised By:			Larry L. Biehl			Date: 01/15/2019
 
 void RemoveSuffix (
 				FileStringPtr							fileNamePtr)
@@ -7273,6 +7258,7 @@ void RemoveSuffix (
 	RemoveCharsNoCase ((char*)"\0.bil\0", fileNamePtr);
 	RemoveCharsNoCase ((char*)"\0.bsq\0", fileNamePtr);
 	RemoveCharsNoCase ((char*)"\0.bip\0", fileNamePtr);
+	RemoveCharsNoCase ((char*)"\0.ecw\0", fileNamePtr);
 	RemoveCharsNoCase ((char*)"\0.fst\0", fileNamePtr);
 	RemoveCharsNoCase ((char*)"\0.cal\0", fileNamePtr);
 	RemoveCharsNoCase ((char*)"\0.drk\0", fileNamePtr);

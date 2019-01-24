@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			12/19/2018
+//	Revision date:			01/20/2019
 //
 //	Language:				C
 //
@@ -45,92 +45,96 @@
 
 #if defined multispec_lin
 	#include "LImageView.h"
-#if defined multispec_wxmac
-	class WXDLLEXPORT wxBitmapRefData: public wxGDIRefData
-	{
-		 friend class WXDLLIMPEXP_FWD_CORE wxIcon;
-		 friend class WXDLLIMPEXP_FWD_CORE wxCursor;
-	public:
-		 wxBitmapRefData(int width , int height , int depth, double logicalscale = 1.0);
-		 wxBitmapRefData(CGContextRef context);
-		 wxBitmapRefData(CGImageRef image, double scale);
-		 wxBitmapRefData();
-		 wxBitmapRefData(const wxBitmapRefData &tocopy);
+	#if defined multispec_wxmac
+		class WXDLLEXPORT wxBitmapRefData: public wxGDIRefData
+		{
+			 friend class WXDLLIMPEXP_FWD_CORE wxIcon;
+			 friend class WXDLLIMPEXP_FWD_CORE wxCursor;
+		public:
+			 wxBitmapRefData(int width , int height , int depth, double logicalscale = 1.0);
+			 wxBitmapRefData(CGContextRef context);
+			 wxBitmapRefData(CGImageRef image, double scale);
+			 wxBitmapRefData();
+			 wxBitmapRefData(const wxBitmapRefData &tocopy);
 
-		 virtual ~wxBitmapRefData();
+			 virtual ~wxBitmapRefData();
 
-		 virtual bool IsOk() const wxOVERRIDE { return m_ok; }
+			 virtual bool IsOk() const wxOVERRIDE { return m_ok; }
 
-		 void Free();
-		 void SetOk( bool isOk) { m_ok = isOk; }
+			 void Free();
+			 void SetOk( bool isOk) { m_ok = isOk; }
 
-		 void SetWidth( int width ) { m_width = width; }
-		 void SetHeight( int height ) { m_height = height; }
-		 void SetDepth( int depth ) { m_depth = depth; }
+			 void SetWidth( int width ) { m_width = width; }
+			 void SetHeight( int height ) { m_height = height; }
+			 void SetDepth( int depth ) { m_depth = depth; }
 
-		 int GetWidth() const { return m_width; }
-		 int GetHeight() const { return m_height; }
-		 int GetDepth() const { return m_depth; }
-		 double GetScaleFactor() const { return m_scaleFactor; }
-		 void *GetRawAccess() const;
-		 void *BeginRawAccess();
-		 void EndRawAccess();
+			 int GetWidth() const { return m_width; }
+			 int GetHeight() const { return m_height; }
+			 int GetDepth() const { return m_depth; }
+			 double GetScaleFactor() const { return m_scaleFactor; }
+			 void *GetRawAccess() const;
+			 void *BeginRawAccess();
+			 void EndRawAccess();
 
-		 bool HasAlpha() const { return m_hasAlpha; }
-		 void UseAlpha( bool useAlpha );
+			 bool HasAlpha() const { return m_hasAlpha; }
+			 void UseAlpha( bool useAlpha );
 
-		 bool IsTemplate() const { return m_isTemplate; }
-		 void SetTemplate(bool is) { m_isTemplate = is; }
+			 bool IsTemplate() const { return m_isTemplate; }
+			 void SetTemplate(bool is) { m_isTemplate = is; }
 
-	public:
-	#if wxUSE_PALETTE
-		 wxPalette     m_bitmapPalette;
-	#endif // wxUSE_PALETTE
+		public:
+		#if wxUSE_PALETTE
+			 wxPalette     m_bitmapPalette;
+		#endif // wxUSE_PALETTE
 
-		 wxMask *      m_bitmapMask; // Optional mask
-		 CGImageRef    CreateCGImage() const;
+			 wxMask *      m_bitmapMask; // Optional mask
+			 CGImageRef    CreateCGImage() const;
 
-		 // returns true if the bitmap has a size that
-		 // can be natively transferred into a true icon
-		 // if no is returned GetIconRef will still produce
-		 // an icon but it will be generated via a PICT and
-		 // rescaled to 16 x 16
-		 bool          HasNativeSize();
+			 // returns true if the bitmap has a size that
+			 // can be natively transferred into a true icon
+			 // if no is returned GetIconRef will still produce
+			 // an icon but it will be generated via a PICT and
+			 // rescaled to 16 x 16
+			 bool          HasNativeSize();
 
-	#ifndef __WXOSX_IPHONE__
-		 // caller should increase ref count if needed longer
-		 // than the bitmap exists
-		 IconRef       GetIconRef();
+		#ifndef __WXOSX_IPHONE__
+			 // caller should increase ref count if needed longer
+			 // than the bitmap exists
+			 IconRef       GetIconRef();
+		#endif
+
+			 CGContextRef  GetBitmapContext() const;
+
+			 int           GetBytesPerRow() const { return m_bytesPerRow; }
+			 private :
+			 bool Create(int width , int height , int depth, double logicalscale);
+			 bool Create( CGImageRef image, double scale );
+			 bool Create( CGContextRef bitmapcontext);
+			 void Init();
+
+			 int           m_width;
+			 int           m_height;
+			 int           m_bytesPerRow;
+			 int           m_depth;
+			 bool          m_hasAlpha;
+			 wxMemoryBuffer m_memBuf;
+			 int           m_rawAccessCount;
+			 bool          m_ok;
+			 mutable CGImageRef    m_cgImageRef;
+			 bool          m_isTemplate;
+
+		#ifndef __WXOSX_IPHONE__
+			 IconRef       m_iconRef;
+		#endif
+
+			 CGContextRef  m_hBitmap;
+			 double        m_scaleFactor;
+		};
+	#endif	// defined multispec_wxmac
+
+	#if defined multispec_wxlin
+		#include "wx/rawbmp.h"
 	#endif
-
-		 CGContextRef  GetBitmapContext() const;
-
-		 int           GetBytesPerRow() const { return m_bytesPerRow; }
-		 private :
-		 bool Create(int width , int height , int depth, double logicalscale);
-		 bool Create( CGImageRef image, double scale );
-		 bool Create( CGContextRef bitmapcontext);
-		 void Init();
-
-		 int           m_width;
-		 int           m_height;
-		 int           m_bytesPerRow;
-		 int           m_depth;
-		 bool          m_hasAlpha;
-		 wxMemoryBuffer m_memBuf;
-		 int           m_rawAccessCount;
-		 bool          m_ok;
-		 mutable CGImageRef    m_cgImageRef;
-		 bool          m_isTemplate;
-
-	#ifndef __WXOSX_IPHONE__
-		 IconRef       m_iconRef;
-	#endif
-
-		 CGContextRef  m_hBitmap;
-		 double        m_scaleFactor;
-	};
-#endif	// defined multispec_wxmac
 #endif	// defined multispec_lin
 
 //#include "SExtGlob.h" 
@@ -170,7 +174,7 @@ typedef struct UInt8ColorTable
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -235,7 +239,7 @@ void ClearImageOverlay (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -278,7 +282,7 @@ void CloseAllImageOverlayFiles (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -396,7 +400,7 @@ void CloseImageOverlayFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -490,7 +494,7 @@ void CopyToOffscreenBuffer (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -892,14 +896,17 @@ void DrawImageOverlays  (
 					DoubleRect							boundingMapRectangle;
 					Rect									destinationRect;
 					LongRect								intersectWindowRectangle;
+					
+					wxBitmap* 							overlayBitmapPtr;
 
-					BITMAPINFOHEADER*					bitMapInfoHeadPtr;
-					SInt16								bSuccess = 0; // Success/fail flag
+					//BITMAPINFOHEADER*					bitMapInfoHeadPtr;
+					//SInt16								bSuccess = 0; // Success/fail flag
 					Boolean								copyBitsFlag;
 
-					bitMapInfoHeadPtr = (BITMAPINFOHEADER*)GetHandlePointer (
-														overlayInfoPtr->offScreenMapHandle, kLock);
-
+					//bitMapInfoHeadPtr = (BITMAPINFOHEADER*)GetHandlePointer (
+					//									overlayInfoPtr->offScreenMapHandle, kLock);
+					
+					overlayBitmapPtr = overlayInfoPtr->overlayBitmapPtr;
 
 					copyBitsFlag = TRUE;
 
@@ -975,9 +982,11 @@ void DrawImageOverlays  (
 						destinationRect.right = overlayDestinationRect.right;
 
 						sourceRectPtr->top = 0;
-						sourceRectPtr->bottom = bitMapInfoHeadPtr->biHeight;
+						//sourceRectPtr->bottom = bitMapInfoHeadPtr->biHeight;
+						sourceRectPtr->bottom = overlayBitmapPtr->GetHeight ();
 						sourceRectPtr->left = 0;
-						sourceRectPtr->right = bitMapInfoHeadPtr->biWidth;
+						//sourceRectPtr->right = bitMapInfoHeadPtr->biWidth;
+						sourceRectPtr->right = overlayBitmapPtr->GetWidth ();
 
 						}	// end "else !...->usePlanarCoordinateInfoFlag" 
 
@@ -1038,7 +1047,6 @@ void DrawImageOverlays  (
 						}	// end "if (copyBitsFlag)"
 					*/
 					wxMemoryDC overlaydc;
-					wxBitmap* overlayBitmapPtr = overlayInfoPtr->overlayBitmapPtr;
 					overlaydc.SelectObject (*overlayBitmapPtr);
 					if (copyBitsFlag)
 						{
@@ -1074,7 +1082,7 @@ void DrawImageOverlays  (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1235,7 +1243,7 @@ void FillLineOfOffscreenBuffer (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1418,7 +1426,7 @@ void GetDefaultImageOverlayName (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1468,7 +1476,7 @@ SInt16 GetImageOverlayIndex (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1611,7 +1619,7 @@ Handle GetImageOverlayInfoMemory (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1672,7 +1680,7 @@ ImageOverlayInfoPtr GetImageOverlayInfoPtr (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1713,7 +1721,7 @@ SInt16 GetWindowImageOverlayIndex (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1771,7 +1779,7 @@ SInt16 GetWindowImageOverlayIndex (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1844,7 +1852,7 @@ HPtr GetImageOverlayOffscreenPointer (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1911,7 +1919,7 @@ HPtr GetImageOverlayLineOffscreenPointer (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1930,7 +1938,7 @@ HPtr GetImageOverlayLineOffscreenPointer (
 // Called By:			DisplayColorImage
 //
 //	Coded By:			Larry L. Biehl			Date: 03/29/2002
-//	Revised By:			Larry L. Biehl			Date: 09/17/2018
+//	Revised By:			Larry L. Biehl			Date: 01/19/2019
 
 SInt16 GetOverlayOffscreenGWorld (
 				UInt32								numberClasses, 
@@ -2520,9 +2528,16 @@ SInt16 GetOverlayOffscreenGWorld (
 		
 			if (resultCode == noErr)
 				{
-				overlayBitmapPtr->UseAlpha ();
-				imageOverlayInfoPtr->offscreenStorageHandle = overlayBitmapPtr->GetRawAccess();
-				pixRowBytes = overlayBitmapPtr->GetBitmapData()->GetBytesPerRow();
+				#if defined multispec_wxmac
+					overlayBitmapPtr->UseAlpha ();
+					imageOverlayInfoPtr->offscreenStorageHandle = overlayBitmapPtr->GetRawAccess();
+					pixRowBytes = overlayBitmapPtr->GetBitmapData()->GetBytesPerRow();
+				#endif
+				#if defined multispec_wxlin
+					wxAlphaPixelData pixeldata (*overlayBitmapPtr);
+					imageOverlayInfoPtr->offscreenStorageHandle = pixeldata.GetPixels().m_ptr;
+					pixRowBytes = pixeldata.GetRowStride();
+				#endif
 				
 				}	// end "if (resultCode == noErr)"
 			
@@ -2544,7 +2559,7 @@ SInt16 GetOverlayOffscreenGWorld (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2591,7 +2606,7 @@ Boolean HideAllImageOverlays (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2660,7 +2675,7 @@ void InitializeImageOverlayInfoStructure (
 
 
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2775,7 +2790,7 @@ void ReleaseImageOverlayStructureMemory (
 
 
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2817,7 +2832,7 @@ void ReleaseImageOverlayStructureMemory (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3022,7 +3037,7 @@ SInt16 SetUpImageOverlayInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3067,7 +3082,7 @@ void UnlockImageOverlayInfoHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

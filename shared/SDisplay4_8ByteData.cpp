@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			12/12/2018
+//	Revision date:			01/22/2019
 //
 //	Language:				C
 //
@@ -42,7 +42,7 @@
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -61,12 +61,13 @@
 //
 // Value Returned:	None				
 // 
-// Called By:			DisplayColorImage in display.c
+// Called By:			DisplayColorImage in SDisplay.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 07/25/2003
-//	Revised By:			Larry L. Biehl			Date: 12/12/2018
+//	Revised By:			Larry L. Biehl			Date: 01/22/2019
 
 void Display1Channel4Byte8BitLine (
+				SInt16								displayCode,
 				UInt32								numberSamples,
 				UInt32								interval, 
 				double								minValue1,
@@ -105,22 +106,40 @@ void Display1Channel4Byte8BitLine (
 			
 		#if defined multispec_mac || defined multispc_win
 			*offScreenPtr = dataDisplayPtr[binIndex];
-			offScreenPtr++;
 		#endif
 		
 		#if defined multispec_lin
-			#if defined multispec_wxmac
-						// Leave high order (alpha) byte blank.
+			if (displayCode == 101)
+				{
+				#if defined multispec_wxmac
+							// Leave high order (alpha) byte blank.
+					offScreenPtr++;
+				#endif
+						// Need to load the same value for R, G, B bytes.
+				*offScreenPtr = dataDisplayPtr[binIndex];
 				offScreenPtr++;
-			#endif
-					// Need to load the same value for R, G, B bytes.
-			*offScreenPtr = dataDisplayPtr[binIndex];
-			offScreenPtr++;
-			*offScreenPtr = dataDisplayPtr[binIndex];
-			offScreenPtr++;
-			*offScreenPtr = dataDisplayPtr[binIndex];
-			offScreenPtr++;
+				*offScreenPtr = dataDisplayPtr[binIndex];
+				offScreenPtr++;
+				*offScreenPtr = dataDisplayPtr[binIndex];
+				
+				#if defined multispec_wxlin
+							// Leave low order (alpha) byte blank.
+					offScreenPtr++;
+				#endif
+				
+				}	// end "if (displayCode == 51)"
+		
+			else	// displayCode == 151
+				{
+						// This is for one channel thematic images for wxWidgets
+						// interface. The thematic value is loaded into the buffer.
+				
+				*offScreenPtr = (Byte)dataDisplayPtr[binIndex];
+				
+				}	// end "else displayCode == 151"
 		#endif
+		
+		offScreenPtr++;
 			
 		}	// end "for (j=0;..." 
 	
@@ -129,7 +148,7 @@ void Display1Channel4Byte8BitLine (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -148,7 +167,7 @@ void Display1Channel4Byte8BitLine (
 // Called By:			DisplayColorImage in display.c
 //
 //	Coded By:			Larry L. Biehl			Date: 01/05/2006
-//	Revised By:			Larry L. Biehl			Date: 10/25/2012
+//	Revised By:			Larry L. Biehl			Date: 01/22/2019
 
 void Display2Channel4Byte8BitLine (
 				UInt32								numberSamples,
@@ -176,6 +195,11 @@ void Display2Channel4Byte8BitLine (
 							
 	for (j=0; j<numberSamples; j+=interval)
 		{
+		#if defined multispec_wxmac
+					// Leave hight order (alpha) byte blank.
+			offScreenPtr++;
+		#endif
+		
 		doubleBinIndex = (ioBuffer1Ptr[j] - minValue1)*binFactor1 + 1;
 		if (doubleBinIndex < 0)
 			binIndex = 0;
@@ -224,6 +248,11 @@ void Display2Channel4Byte8BitLine (
 			}	// end "if (backgroundValueCode && !backgroundValue)"
 
 		offScreenPtr++;
+		
+		#if defined multispec_wxlin
+					// Leave low order (alpha) byte blank.
+			offScreenPtr++;
+		#endif
 
 		}	// end "for (j=0; ..."  
 		
@@ -232,7 +261,7 @@ void Display2Channel4Byte8BitLine (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -277,23 +306,23 @@ void Display2Channel4Byte16BitLine (
 	UInt32								backgroundValue,
 											binIndex,
 											j;
-							
-			
+	
+	
+	#if defined multispec_lin
+				// 16-bit color is not used for wxWidgets version
+																								return;
+	#endif	// defined multispec_lin
+	
 	switch (rgbColors)
 		{
 		case kGBColor:	
 			for (j=0; j<numberSamples; j+=interval)
 				{
-				#if defined multispec_mac || defined multispec_wxmac
+				#if defined multispec_mac
 							// Set high order bit and Red bits to 0).						
 						
 					*offScreen2BytePtr = 0;					
 				#endif	// defined multispec_mac || ...
-				
-				#if defined multispec_lin	
-							// Red byte for Linux version must be included.
-					*offScreen2BytePtr = 0;	
-				#endif	// defined multispec_lin
 				
 						// Green bits.				
 						
@@ -355,7 +384,7 @@ void Display2Channel4Byte16BitLine (
 		case kRBColor:	
 			for (j=0; j<numberSamples; j+=interval)
 				{
-				#if defined multispec_mac || defined multispec_wxmac
+				#if defined multispec_mac
 							// Set high order bit and Green bits to 0).						
 						
 					*offScreen2BytePtr = 0;					
@@ -421,7 +450,7 @@ void Display2Channel4Byte16BitLine (
 		case kRGColor:	
 			for (j=0; j<numberSamples; j+=interval)
 				{
-				#if defined multispec_mac || defined multispec_wxmac
+				#if defined multispec_mac
 							// Set high order bit and Blue bits to 0).						
 						
 					*offScreen2BytePtr = 0;					
@@ -491,7 +520,7 @@ void Display2Channel4Byte16BitLine (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -510,7 +539,7 @@ void Display2Channel4Byte16BitLine (
 // Called By:			DisplayColorImage in display.c
 //
 //	Coded By:			Larry L. Biehl			Date: 01/05/2006
-//	Revised By:			Larry L. Biehl			Date: 12/12/2018
+//	Revised By:			Larry L. Biehl			Date: 01/22/2019
 
 void Display2Channel4Byte24BitLine (
 				UInt32								numberSamples,
@@ -545,14 +574,14 @@ void Display2Channel4Byte24BitLine (
 		{
 		case kGBColor:	
 			for (j=0; j<numberSamples; j+=interval)
-				{		 
-				#if defined multispec_mac || defined multispec_wxmac
-							// Leave high order byte blank.					
-						
-					offScreenPtr++;
-				#endif
-					
+				{
 				#if defined multispec_mac || defined multispec_lin
+					#if defined multispec_mac || defined multispec_wxmac
+								// Leave high order byte blank.
+				
+						offScreenPtr++;
+					#endif
+				
 							// Set Red byte to zero.											
 							
 					*offScreenPtr = 0;
@@ -600,7 +629,12 @@ void Display2Channel4Byte24BitLine (
 
 					backgroundValue += binIndex;
 					*offScreenPtr = dataDisplay1Ptr[binIndex];
-					offScreenPtr++; 
+					offScreenPtr++;
+					
+					#if defined multispec_wxlin
+								// Leave low order byte blank.
+						offScreenPtr++;
+					#endif
 
 					if (backgroundValueCode && !backgroundValue)
 						{
@@ -702,14 +736,12 @@ void Display2Channel4Byte24BitLine (
 			
 		case kRBColor:	
 			for (j=0; j<numberSamples; j+=interval)
-				{ 
-				#if defined multispec_mac || defined multispec_wxmac
-							// Leave high order byte blank.					
-						
-					offScreenPtr++;
-				#endif
-					
+				{
 				#if defined multispec_mac || defined multispec_lin
+					#if defined multispec_mac || defined multispec_wxmac
+								// Leave high order byte blank.
+						offScreenPtr++;
+					#endif
 							// Red byte.						
 						
 					doubleBinIndex = (ioBuffer2Ptr[j] - minValue2)*binFactor2 + 1;
@@ -758,6 +790,11 @@ void Display2Channel4Byte24BitLine (
 					backgroundValue += binIndex;
 					*offScreenPtr = dataDisplay1Ptr[binIndex];
 					offScreenPtr++;
+					
+					#if defined multispec_wxlin
+								// Leave low order byte blank.
+						offScreenPtr++;
+					#endif
 
 					if (backgroundValueCode && !backgroundValue)
 						{
@@ -860,13 +897,12 @@ void Display2Channel4Byte24BitLine (
 		case kRGColor:	
 			for (j=0; j<numberSamples; j+=interval)
 				{
-				#if defined multispec_mac || defined multispec_wxmac
-							// Leave high order byte blank.					
-						
-					offScreenPtr++;
-				#endif
-					
-				#if defined multispec_mac || defined multispec_lin 
+				#if defined multispec_mac || defined multispec_lin
+					#if defined multispec_mac || defined multispec_wxmac
+								// Leave high order byte blank.
+						offScreenPtr++;
+					#endif
+				
 							// Red byte.							
 						
 					doubleBinIndex = (ioBuffer2Ptr[j] - minValue2)*binFactor2 + 1;
@@ -915,6 +951,11 @@ void Display2Channel4Byte24BitLine (
 					
 					*offScreenPtr = 0;
 					offScreenPtr++;
+				
+					#if defined multispec_wxlin
+								// Leave low order byte blank.
+						offScreenPtr++;
+					#endif
 
 					if (backgroundValueCode && !backgroundValue)
 						{
@@ -1021,7 +1062,7 @@ void Display2Channel4Byte24BitLine (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1160,6 +1201,11 @@ void Display3Channel4Byte8BitLine (
 			*offScreenPtr += offScreenValue;
 			offScreenPtr++;
 			*offScreenPtr += offScreenValue;
+		
+			#if defined multispec_wxlin
+						// Leave low order (alpha) byte blank.
+				offScreenPtr++;
+			#endif
 		#endif
 		
 		offScreenPtr++;
@@ -1171,7 +1217,7 @@ void Display3Channel4Byte8BitLine (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1220,7 +1266,12 @@ void Display3Channel4Byte16BitLine (
 											binIndex,
 											j;
 							
-				
+	
+	#if defined multispec_lin
+			// 16-bit color not used in wxWidgets version
+																						return;
+	#endif
+	
 	for (j=0; j<numberSamples; j+=interval)
 		{
 		*offScreen2BytePtr = 0;
@@ -1307,7 +1358,7 @@ void Display3Channel4Byte16BitLine (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1326,7 +1377,7 @@ void Display3Channel4Byte16BitLine (
 // Called By:			DisplayColorImage in display.c
 //
 //	Coded By:			Larry L. Biehl			Date: 06/19/2003
-//	Revised By:			Larry L. Biehl			Date: 03/11/2015
+//	Revised By:			Larry L. Biehl			Date: 01/22/2019
 
 void Display3Channel4Byte24BitLine (
 				UInt32								numberSamples,
@@ -1363,14 +1414,13 @@ void Display3Channel4Byte24BitLine (
 		
 	for (j=0; j<numberSamples; j+=interval)
 		{
-		#if defined multispec_mac || defined multispec_wxmac
-					// Leave high order byte blank.					
-				
-			//*offScreenPtr = 0;
-			offScreenPtr++;
-		#endif	// defined multispec_mac || ...
-		
 		#if defined multispec_mac || defined multispec_lin
+			#if defined multispec_mac || defined multispec_wxmac
+						// Leave high order byte blank.
+		
+				//*offScreenPtr = 0;
+				offScreenPtr++;
+			#endif	// defined multispec_mac || ...
 					// Red byte.				
 						
 			doubleBinIndex = (ioBuffer3Ptr[j] - minValue3)*binFactor3 + 1;
@@ -1436,6 +1486,11 @@ void Display3Channel4Byte24BitLine (
 			backgroundValue += binIndex;
 			*offScreenPtr = dataDisplay1Ptr [binIndex];
 			offScreenPtr++;
+		
+			#if defined multispec_wxlin
+						// Leave low order (alpha) byte blank.
+				offScreenPtr++;
+			#endif
 
 			if (backgroundValueCode && !backgroundValue)
 				{

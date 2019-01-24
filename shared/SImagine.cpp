@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//							 Copyright (1988-2018)
+//							 Copyright (1988-2019)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			01/05/2018
+//	Revision date:			01/18/2019
 //
 //	Language:				C
 //
@@ -52,13 +52,13 @@
 #define	kRadians						2								
 			
 
-#if defined multispec_win	
+#if defined multispec_win || defined multispec_lin
 	#pragma pack (push, 2)
-#endif	// defined multispec_win					
+#endif	// defined multispec_win || ...
 	
 //#if PRAGMA_ALIGN_SUPPORTED
 #if PRAGMA_STRUCT_ALIGN
-#pragma options align=mac68k
+	#pragma options align=mac68k
 #endif
 	
 typedef struct Edms_State
@@ -239,12 +239,12 @@ typedef struct LayerStackValidFlags
 
 //#if PRAGMA_ALIGN_SUPPORTED
 #if PRAGMA_STRUCT_ALIGN
-#pragma options align=reset
+	#pragma options align=reset
 #endif 
 	
-#if defined multispec_win	
+#if defined multispec_win || defined multispec_lin
 	#pragma pack (pop, 2)
-#endif	// defined multispec_win	
+#endif	// defined multispec_win || ...
 
 		
 
@@ -448,7 +448,7 @@ void 					ReadImagineNumberOfClasses (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -606,7 +606,7 @@ Boolean CheckForImagineEstaStatistics (
 	
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -686,7 +686,7 @@ Boolean CheckIfDefaultImaginePaletteExists (
 	
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -757,7 +757,7 @@ SInt16 DetermineDatumCode (
 	
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -832,7 +832,7 @@ SInt16 DetermineEllipsoidCode (
 	
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -877,7 +877,7 @@ SInt16 DetermineGridCoordinateCode (
 	
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -974,7 +974,7 @@ Boolean GetDefaultImaginePaletteInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1112,7 +1112,7 @@ Boolean GetEdscColumnNode (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1198,7 +1198,7 @@ Boolean GetFirstImagineLayerNode (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1242,7 +1242,7 @@ HCharPtr GetImagineHistogramBuffer (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1358,7 +1358,7 @@ Boolean GetNextNode (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1444,7 +1444,7 @@ Boolean GetLayerForRequestedChannel (
 	
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1843,7 +1843,7 @@ Boolean LoadImagineImageMapInfoForChannel (
 	
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2036,7 +2036,7 @@ Boolean LoadImagineImageStatistics (
 	
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2266,7 +2266,7 @@ Boolean LoadImagineImageStatisticsForChannel (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2429,7 +2429,7 @@ Boolean ReadImagineClassNameColumn (
 	
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2517,7 +2517,7 @@ Boolean ReadImagineClassNames (
 	
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2595,7 +2595,7 @@ Boolean ReadImagineClassPalette (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2860,7 +2860,7 @@ Boolean ReadImagineClassPaletteColumns (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3235,7 +3235,7 @@ SInt16 ReadImagineHeader (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3303,7 +3303,7 @@ SInt16 ReadImagineEdmsState (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3387,7 +3387,7 @@ SInt16 ReadImagineEdmsVirtualBlockInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3459,7 +3459,7 @@ Boolean ReadImagineEdscBinFunction (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3527,7 +3527,7 @@ Boolean ReadImagineEdscColumn (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3589,7 +3589,7 @@ SInt16 ReadImagineEhfaEntry (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3653,7 +3653,7 @@ SInt16 ReadImagineEhfaFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3715,7 +3715,7 @@ SInt16 ReadImagineEimgLayer (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3854,7 +3854,7 @@ SInt16 ReadImagineExternalDMSLayerBlockParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3969,7 +3969,7 @@ SInt16 ReadImagineExternalRasterDMS (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4302,7 +4302,7 @@ Boolean ReadImagineHistogramColumn (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4535,7 +4535,7 @@ Boolean ReadImagineImageParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4807,7 +4807,7 @@ Boolean ReadImagineLayerBlockParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4877,7 +4877,7 @@ Boolean ReadImageEstaStatistics (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5127,7 +5127,7 @@ Boolean ReadImageEprjMapInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5370,7 +5370,7 @@ Boolean ReadImageEprjMapProjection (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5535,7 +5535,7 @@ Boolean ReadImageEprjDatum (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5848,7 +5848,7 @@ Boolean ReadImageEprjProParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5964,7 +5964,7 @@ Boolean ReadImageSpheroid (
 	
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			10/19/2018
+//	Revision date:			01/16/2019
 //
 //	Language:				C
 //
@@ -440,7 +440,7 @@ SInt16 StatisticsDialogSetMaskItems (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -894,7 +894,7 @@ void ActivateStatControls (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1061,7 +1061,7 @@ Boolean AddClassToProject (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1081,7 +1081,7 @@ Boolean AddClassToProject (
 //							StatisticsWControlEvent SStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 09/30/1988
-//	Revised By:			Larry L. Biehl			Date: 03/15/2017			
+//	Revised By:			Larry L. Biehl			Date: 01/16/2019
 
 Boolean AddFieldToProject (
 				SInt16								currentClass,
@@ -1107,7 +1107,7 @@ Boolean AddFieldToProject (
 
    Boolean								changedFlag,
 											continueFlag,
-											OKClicked;
+											OKClickedFlag;
 
 
    // Initialize local variables.													
@@ -1119,13 +1119,13 @@ Boolean AddFieldToProject (
    if (pointType == kRectangleType || pointType == kPolygonType)
 		{
       fieldType = gProjectInfoPtr->lastFieldTypeForAddFieldSelection;
-      OKClicked = NewClassFieldDialog (
+      OKClickedFlag = NewClassFieldDialog (
 											FALSE, className, fieldIdentifierPtr, &fieldType);
 
 				// Continue only if OK was clicked in dialog box otherwise exit	
 				// routine																			
 
-      if (OKClicked)
+      if (OKClickedFlag)
 			{
          if (gProjectInfoPtr->lastClassForAddFieldSelection == 1)
 				{
@@ -1147,11 +1147,11 @@ Boolean AddFieldToProject (
 
    else	// pointType == kClusterType || pointType == kMaskType
 		{
-      OKClicked = TRUE;
+      OKClickedFlag = TRUE;
 
 		}	// end "else pointType == kClusterType || pointType == kMaskType" 
 
-   if (OKClicked)
+   if (OKClickedFlag)
 		{
       currentStorageClass = gProjectInfoPtr->storageClass[currentClass];
 
@@ -1362,16 +1362,16 @@ Boolean AddFieldToProject (
 
 			}	// end "if (gProjectWindow != NULL && ..."
 
-		}	// end "if (OKClicked)"
+		}	// end "if (OKClickedFlag)"
 
-   return (TRUE);
+   return (OKClickedFlag);
 
 }	// end "AddFieldToProject" 
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1474,7 +1474,7 @@ Boolean AddPointsToProject (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1700,7 +1700,7 @@ void AddPolyPointStatNewFieldW (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1757,7 +1757,7 @@ SInt16 AddSpecifiedStringToClassName (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1854,7 +1854,7 @@ SInt16 CheckForDuplicateClassName (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1966,7 +1966,7 @@ SInt16 CheckForDuplicateFieldName (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2149,7 +2149,7 @@ void ClassListStatMode (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2272,7 +2272,7 @@ void CloseProjectWindow (void)
 
 #if defined multispec_mac 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2578,7 +2578,7 @@ Boolean CreateProjectWControls (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2849,7 +2849,7 @@ void CreateProjectWindow (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2909,7 +2909,7 @@ void DeletePolyPointStatNewFieldW (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2957,7 +2957,7 @@ void DoProjectWindowGrow (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3011,7 +3011,7 @@ void DoStatWActivateEvent (void)
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3053,7 +3053,7 @@ void DoStatWUpdateEvent (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3101,7 +3101,7 @@ void DrawClassPopUp (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3177,7 +3177,7 @@ void DrawClassPrompt (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3219,7 +3219,7 @@ pascal void DrawDialogClassPopUp2 (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3280,7 +3280,7 @@ void DrawFieldPrompt (void)
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3321,7 +3321,7 @@ pascal void DrawOutlineColorPopUp (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3362,7 +3362,7 @@ pascal void DrawSelectTestImageMaskPopUp (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3403,7 +3403,7 @@ pascal void DrawSelectTrainImageMaskPopUp (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3459,7 +3459,7 @@ void DrawStatPopUp (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3511,7 +3511,7 @@ void DrawStatPrompt (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3742,7 +3742,7 @@ void FieldListStatMode (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3781,7 +3781,7 @@ void ForceStatisticsCodeResourceLoad (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3832,7 +3832,7 @@ SInt16 GetControlValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3917,7 +3917,7 @@ SInt16 GetCurrentClassField (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4003,7 +4003,7 @@ SInt16 GetCurrentField (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4045,7 +4045,7 @@ void GetDefaultClassName (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4087,7 +4087,7 @@ void GetDefaultFieldName (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4136,7 +4136,7 @@ void GetFieldNameWithType (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4240,7 +4240,7 @@ void GetLineColFromList (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4303,7 +4303,7 @@ SInt16 GetNumberListLines (
 #endif
 */
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4346,7 +4346,7 @@ SInt16 GetCovarianceStatsFromMenuItem (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4389,7 +4389,7 @@ SInt16 GetClassStatisticsTypeMenuItem (void){
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4430,7 +4430,7 @@ SInt16 GetProjectStatisticsTypeMenuItem (void){
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4495,7 +4495,7 @@ void GetProjectStatisticsTypeText (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4579,7 +4579,7 @@ void GetUniqueClassName (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4634,7 +4634,7 @@ void GetUniqueFieldName (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4687,7 +4687,7 @@ void HideStatControl (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4753,7 +4753,7 @@ void InvalPopUpCovarianceToUse (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4876,7 +4876,7 @@ void LoadClassNamesIntoList (
 */
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5113,7 +5113,7 @@ void LoadPolyStatNewFieldW (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5171,7 +5171,7 @@ void LoadRectStatNewFieldW (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5334,7 +5334,7 @@ void LoadRectangleInStatList (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5372,7 +5372,7 @@ void LoadNewFieldListBox (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5659,7 +5659,7 @@ void LOOCOptionsDialogOK (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5711,7 +5711,7 @@ void MSetControlValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6068,7 +6068,7 @@ Boolean NewClassFieldDialog (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6128,7 +6128,7 @@ void NewClassFieldDialogChangeClass (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6243,7 +6243,7 @@ void NewClassFieldDialogInitialize (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6303,7 +6303,7 @@ void SetNumberClassTrainPixels (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6463,7 +6463,7 @@ void NewFieldStatMode (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6680,7 +6680,7 @@ void PolygonListStatMode (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6756,7 +6756,7 @@ void RemoveListCells (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6793,7 +6793,7 @@ void SetListControlHilite (void)
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6862,7 +6862,7 @@ void SetOutlineAreaOptions (
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
 //
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6998,7 +6998,7 @@ void SetProjectWindowBoxes (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7037,7 +7037,7 @@ void SetProjectWTitle (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7089,7 +7089,7 @@ void SetStatControlTitle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7136,7 +7136,7 @@ void ShowStatControl (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7253,7 +7253,7 @@ void StatisticsControl (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7894,7 +7894,7 @@ void StatisticsDialogInitialize (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8326,7 +8326,7 @@ SInt16 StatisticsDialogSelectMaskItem (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8503,7 +8503,7 @@ void StatisticsDialogOK (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8845,7 +8845,7 @@ void StatisticsOptionsDialogOK (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8863,9 +8863,9 @@ void StatisticsOptionsDialogOK (
 // Called By:			DoStatisticsMouseDnContent in multiSpec.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 09/28/1988
-//	Revised By:			Larry L. Biehl			Date:	11/27/2017			
+//	Revised By:			Larry L. Biehl			Date:	01/16/2019
 
-void StatisticsWControlEvent (
+Boolean StatisticsWControlEvent (
 				ControlHandle						theControl,
 				Boolean								waitOnMouseUpFlag,
 				Point									location,
@@ -8888,11 +8888,11 @@ void StatisticsWControlEvent (
    SInt16								returnCode;
 
    Boolean								continueFlag,
-											returnFlag;
+											returnFlag = TRUE;
 
 
    if (gProjectInfoPtr == NULL)
-																									return;
+																					return (FALSE);
 
 			// Get the refCon of the control. This will contain a code for which 
 			// control it is.																		
@@ -9086,7 +9086,12 @@ void StatisticsWControlEvent (
 
       gMemoryError = noErr;
 
-		}	// end "if (continueFlag)" 
+		}	// end "if (continueFlag)"
+	
+	else	// !continueFlag
+		returnFlag = FALSE;
+	
+	return (returnFlag);
 
 }	// end "StatisticsWControlEvent" 
 
@@ -9094,7 +9099,7 @@ void StatisticsWControlEvent (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9334,7 +9339,7 @@ void StatisticsWMouseDn (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9500,7 +9505,7 @@ void UpdateStatisticsWindow (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9551,7 +9556,7 @@ void UpdateToClassControl (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
