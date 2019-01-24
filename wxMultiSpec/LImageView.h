@@ -37,8 +37,6 @@ class CMImageView : public wxView
 
 		void 				DisposeImageWindowSupportMemory (void);
 
-		Boolean			DoDeleteKey ();
-
 		void 				DrawLegend();
 
 		Boolean			GetActiveWindowFlag (void);

@@ -1,6 +1,6 @@
 // LMainFrame.h
 //
-// Revised by Larry L Biehl    01/10/2019
+// Revised by Larry L Biehl    01/24/2019
 
 #ifndef __LMainFrame__
 #	define __LMainFrame__
@@ -48,7 +48,6 @@ class CMainFrame : public wxDocParentFrame
 		wxMenu*						helpmenu;
 		//wxStatusBar*				statusBar;
 		wxStaticText*           m_zoomText;
-		wxToolBar*					m_toolBar1;
 		wxToolBarToolBase*		m_zoomInTool;
 		wxToolBarToolBase*		m_zoomOutTool;
 		time_t 						m_nextControlTime;
@@ -318,6 +317,7 @@ class CMainFrame : public wxDocParentFrame
 		~CMainFrame();
 	
 		wxMenuBar*					m_menubar1;
+		wxToolBar*					m_toolBar1;
 		wxMenuItem* 				m_closeWindowMenuItem;
 	private:
 		DECLARE_EVENT_TABLE()

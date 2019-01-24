@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -12,7 +12,7 @@
 //	Authors:					Abdur Rahman Maud, Larry L. Biehl
 //
 //	Revision date:			02/20/2017 by Wei-Kang Hsu
-//								11/20/2018 by Larry L. Biehl
+//								01/17/2019 by Larry L. Biehl
 //
 //	Language:				C++
 //
@@ -1663,18 +1663,17 @@ Boolean CMGraphView::UpdateGraphControls (void)
    m_frame->CreateSelectVector ((int)numberVectors);
    
    if (graphRecordPtr->graphCodesAvailable > 1)
-   	{
-      m_frame->m_toolBar1->EnableTool (IDC_GraphOverlay, 1);
+       m_frame->m_toolBar1->EnableTool (IDC_GraphOverlay, 1);
 
-   	}
-   else
-   	{
+    else
       m_frame->m_toolBar1->EnableTool (IDC_GraphOverlay, 0);
-   	}
-   
+	
    m_frame->GetToolBar ()->DeleteToolByPos (0);
    wxStaticText *text1;
-   wxFont font (gFontSize, wxDEFAULT, wxNORMAL, wxNORMAL);
+   wxFont font (gFontSize,
+						wxFONTFAMILY_DEFAULT,
+						wxFONTSTYLE_NORMAL,
+						wxFONTWEIGHT_NORMAL);
    
    if (graphRecordPtr->numberSets > 1)
    	{
@@ -1684,12 +1683,15 @@ Boolean CMGraphView::UpdateGraphControls (void)
          text1 = new wxStaticText (m_frame->GetToolBar (), wxID_ANY, 
                               		wxT("Change Channels:"));
          text1->SetFont (font);
+			
 			}
-		else
-			{		// graphRecordPtr->setCode == 2
+		
+		else	// graphRecordPtr->setCode == 2
+			{
 			text1 = new wxStaticText (m_frame->GetToolBar (), wxID_ANY, 
                               		wxT("Change Feature:"));
          text1->SetFont (font);
+			
          }
          
       m_frame->GetToolBar ()->InsertControl (0, text1, wxEmptyString);
@@ -1712,7 +1714,7 @@ void CMGraphView::UpdateShowOrHideFeatureList ()
 	
    shapeInfoPtr = GetShapeInfoFromHandle (gShapeFilesHandle, gActiveImageWindowInfoH);
    
-   if (gActiveImageViewCPtr->m_Canvas != NULL)
+   if (gActiveImageViewCPtr != NULL && gActiveImageViewCPtr->m_Canvas != NULL)
 		{
 		windowInfoPtr = (WindowInfoPtr)GetHandlePointer (gActiveImageWindowInfoH);
    
@@ -1735,7 +1737,7 @@ void CMGraphView::UpdateShowOrHideFeatureList ()
       
       m_frame->UpdateSplitterWindowLayout ();
 		
-		} 
+		}	// end "if (gActiveImageViewCPtr != NULL && ..."
 		     
 }	// end "UpdateShowOrHideFeatureList"
 

@@ -1,6 +1,6 @@
 // LLegendList.h : header file
 //
-// Revised by Larry Biehl on 10/19/2018
+// Revised by Larry Biehl on 01/24/2019
 //
 #if !defined __LLEGLIST_H__
 #	define __LLEGLIST_H__
@@ -36,10 +36,6 @@ public:
 	
 	CPoint				LastClickPoint(void);
 	
-	void					CheckShiftKeyDown(void);
-	
-	void					CheckShiftKeyUp(void);
-	
 	void					DrawLegendList ();
 
 	Handle				GetBitMapInfoHeaderHandle(); 
@@ -69,17 +65,17 @@ public:
 		    
 protected:								
 	// Generated message map functions
-	void OnLButtonDblClk(wxListEvent& event);
-	void OnLButtonDown(wxListEvent& event);
-   void OnLButtonUp(wxMouseEvent& event);
-	void OnCharHook(wxKeyEvent& event);
-	void OnKeyDown(wxKeyEvent& event);
-	void OnKeyUp(wxKeyEvent& event);
-	void OnMouseMove(wxMouseEvent& event);
+	void OnLButtonDblClk (wxListEvent& event);
+	void OnBeginDrag (wxListEvent& event);
+   void OnLButtonUp (wxMouseEvent& event);
+	void OnCharHook (wxKeyEvent& event);
+	void OnKeyDown (wxKeyEvent& event);
+	void OnKeyUp (wxKeyEvent& event);
+	void OnMouseMove (wxMouseEvent& event);
         /*Newly added paint functions*/
-        void paintEvent(wxPaintEvent & evt);
-        void render(wxDC&  dc);
-        void paintNow();
+	void paintEvent(wxPaintEvent & evt);
+	//void render(wxDC&  dc);
+	//void paintNow();
 	void OnDrawItem();
 
 	DECLARE_EVENT_TABLE()

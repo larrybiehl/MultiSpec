@@ -243,8 +243,8 @@ CMainFrame::CMainFrame (
 
 	m_menubar1->Append(editmenu, wxT("&Edit"));
 
-	viewmenu = new wxMenu();
 	#if defined multispec_wxlin
+		viewmenu = new wxMenu();
 		wxMenuItem* m_menuItem31;
 		m_menuItem31 = new wxMenuItem (viewmenu, ID_VIEW_TOOLBAR, wxString(wxT("Toolbar")), wxEmptyString, wxITEM_CHECK);
 		viewmenu->Append (m_menuItem31);
@@ -252,15 +252,15 @@ CMainFrame::CMainFrame (
 		wxMenuItem* m_menuItem32;
 		m_menuItem32 = new wxMenuItem (viewmenu, ID_VIEW_STATUS_BAR, wxString(wxT("Status Bar")), wxEmptyString, wxITEM_CHECK);
 		viewmenu->Append (m_menuItem32);
+
+		wxMenuItem* m_menuItem33;
+		m_menuItem33 = new wxMenuItem (viewmenu, ID_VIEW_COORDINATES_BAR, wxString(wxT("Coordinate View")), wxT("Show/hide coordinate info above active image window"), wxITEM_CHECK);
+		viewmenu->Append (m_menuItem33);
+		m_menuItem33->Enable (false);
+
+		m_menubar1->Append(viewmenu, wxT("&View"));
 	#endif
-
-	wxMenuItem* m_menuItem33;
-	m_menuItem33 = new wxMenuItem (viewmenu, ID_VIEW_COORDINATES_BAR, wxString(wxT("Coordinate View")), wxT("Show/hide coordinate info above active image window"), wxITEM_CHECK);
-	viewmenu->Append (m_menuItem33);
-	m_menuItem33->Enable (false);
-
-	m_menubar1->Append(viewmenu, wxT("&View"));
-
+	
 	projectmenu = new wxMenu();
 	wxMenuItem* m_menuItem34;
 	m_menuItem34 = new wxMenuItem(projectmenu, ID_PROJ_USE_ORIGINAL_STATS, wxString(wxT("Use original statistics")), wxEmptyString, wxITEM_CHECK);
@@ -1010,7 +1010,8 @@ void CMainFrame::OnDisplayImage (wxCommandEvent& event)
 } // end "OnDisplayImage"
 
 
-void CMainFrame::OnEditClearSelectedOverlay (wxCommandEvent& event) 
+void CMainFrame::OnEditClearSelectedOverlay (wxCommandEvent& event)
+
 {
     SInt32 selection;
 
@@ -1025,20 +1026,26 @@ void CMainFrame::OnEditClearSelectedOverlay (wxCommandEvent& event)
          gSelectionGraphViewCPtr->m_frame->m_checkBoxFeature->Enable(false);
          gActiveImageViewCPtr->m_Canvas->m_featureListShowFlag = false;
          gSelectionGraphViewCPtr->m_frame->m_initGraphUpdate = false;
+			
 			}
 		
 		gSelectionGraphViewCPtr->UpdateShowOrHideFeatureList();
+		
 		}
     
-} // end "OnEditClearSelectedOverlay"
+}	// end "OnEditClearSelectedOverlay"
 
 
-void CMainFrame::OnEditClearSelectionRectangle(wxCommandEvent& event) {
-    ClearSelectionArea(gActiveImageViewCPtr);
-    //ClearSelectionArea(m_imageViewCPtr);
-    ShowGraphSelection();
 
-} // end "OnEditClearSelectionRectangle"
+void CMainFrame::OnEditClearSelectionRectangle (
+				wxCommandEvent& 							event)
+
+{
+    ClearSelectionArea (gActiveImageViewCPtr);
+    ShowGraphSelection ();
+
+}	// end "OnEditClearSelectionRectangle"
+
 
 /*
 void CMainFrame::OnProjectListStatistics(wxCommandEvent& event)

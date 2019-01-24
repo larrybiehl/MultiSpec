@@ -1,7 +1,15 @@
 // LTextFrame.cpp
 //
-//	Revised By:			Larry L. Biehl			Date: 01/09/2019
+//	Revised By:			Larry L. Biehl			Date: 01/24/2019
 //
+/* Template for debugging
+	int numberChars = sprintf ((char*)gTextString3,
+				" LTextFrame: (): %s",
+				gEndOfLine);
+	ListString ((char*)gTextString3, numberChars, gOutputTextH);
+*/
+//------------------------------------------------------------------------------------
+
 #include "LMainFrame.h"
 #include "LMultiSpec.h"
 #include "LOpenFileDialog.h"
@@ -41,7 +49,7 @@ CMTextFrame::CMTextFrame (
 
 {
 	//this->SetSizeHints(wxDefaultSize, wxDefaultSize);
-	EnableCloseButton( false);
+	EnableCloseButton (false);
 	SetMinSize (wxSize (150,150));
 
 	m_statusBar1 = this->CreateStatusBar(1, wxST_SIZEGRIP, wxID_ANY);
@@ -67,11 +75,25 @@ CMTextFrame::CMTextFrame (
    				xPosition,
    				yPosition;
 	
+	GetMainFrame()->m_menubar1->GetSize (&menuWidth, &menuHeight);
+
    GetSize (&windowWidth, &windowHeight);
-   xPosition = wxDisplay().GetGeometry().GetWidth() - windowWidth - 3;
-   xPosition = MAX (3, xPosition);
-   GetMainFrame()->m_menubar1->GetSize (&menuWidth, &menuHeight);
-   yPosition = menuHeight + 3;
+   #if defined multispec_wxlin
+   	int		toolBarHeight, toolBarWidth, windowFrameWidth = 7;
+	
+		GetMainFrame()->m_toolBar1->GetSize (&toolBarWidth, &toolBarHeight);
+	
+		xPosition = wxDisplay().GetGeometry().GetWidth() - windowWidth - 2*windowFrameWidth;
+		xPosition = MAX (2*windowFrameWidth, xPosition);
+		GetMainFrame()->m_menubar1->GetSize (&menuWidth, &menuHeight);
+		yPosition = 20 + menuHeight + toolBarHeight + 2;	// Allow 2 pixel space below toolbar
+   #endif
+   #if defined multispec_wxmac
+		xPosition = wxDisplay().GetGeometry().GetWidth() - windowWidth - 3;
+		xPosition = MAX (3, xPosition);
+		yPosition = menuHeight + 3;
+   #endif
+	
    Move (xPosition, yPosition);
 	
 			// Set Accelerator Table
@@ -218,6 +240,7 @@ void CMTextFrame::OnUpdateMagnification (wxUpdateUIEvent& event)
 
 void CMTextFrame::OnUpdateZoomIn(wxUpdateUIEvent& event) {
       event.Enable(false);
+
 }
 
 void CMTextFrame::OnUpdateZoomOut(wxUpdateUIEvent& event) {

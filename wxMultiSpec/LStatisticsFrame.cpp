@@ -1,6 +1,6 @@
 // LStatisticsFrame.cpp : implementation file
 //
-// Revised by Larry Biehl on 01/03/2019
+// Revised by Larry Biehl on 01/16/2019
 //
 /*  Template for writing something to text window for debugging.             
 	int numberChars = sprintf ((char*)&gTextString3,
@@ -16,6 +16,7 @@
 #include "LImageDoc.h"
 #include "LStatisticsFrame.h"
 #include "LStatisticsDoc.h"
+#include "LTools.h"
 
 #include "wx/display.h"
 	
@@ -138,6 +139,7 @@ BEGIN_EVENT_TABLE(CMStatisticsFrame, wxDocChildFrame)
    EVT_BUTTON(IDC_Select, CMStatisticsFrame::OnSelect)
    EVT_BUTTON(IDC_AddToList, CMStatisticsFrame::OnAddToList)
    EVT_BUTTON(IDC_EditName, CMStatisticsFrame::OnEditName)
+	EVT_CHAR_HOOK (CMStatisticsFrame::OnCharHook)
    EVT_COMBOBOX(IDC_ClassList, CMStatisticsFrame::OnSelendokClassList)
    EVT_COMBOBOX(IDC_ListStatsCombo, CMStatisticsFrame::OnSelendokListStatsCombo)
    EVT_COMBOBOX_DROPDOWN(IDC_ListStatsCombo, CMStatisticsFrame::OnListStatsComboDropDown)
@@ -525,34 +527,42 @@ void CMStatisticsFrame::CreateControls2()
 }	// end "CreateControls2"
 
 
-void CMStatisticsFrame::OnAddToList(wxCommandEvent& event)
- {
+void CMStatisticsFrame::OnAddToList (
+				wxCommandEvent& 						event)
+
+{
    Point location;
 
 
    location.h = 0;
    location.v = 0;
 
-   StatisticsWControlEvent(
-      gProjectInfoPtr->addToControlH,
-      FALSE,
-      location,
-      kAddToListControl);
+   StatisticsWControlEvent (gProjectInfoPtr->addToControlH,
+										FALSE,
+										location,
+										kAddToListControl);
 
-} // end "OnAddToList"
+}	// end "OnAddToList"
 
-/*
-void CMStatisticsFrame::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags)
+
+
+void CMStatisticsFrame::OnCharHook (
+				wxKeyEvent& 									event)
 
 {
-   Boolean charHandledFlag = FALSE;
+   CMTool* pTool = CMTool::FindTool(CMTool::c_toolType);
+	if (pTool != NULL)
+		{
+		int keyCode = event.GetKeyCode ();
+	
+		if (keyCode == WXK_RETURN || keyCode == WXK_NUMPAD_ENTER)
+			pTool->OnCharHook();
+		
+		}	// end "if (pTool != NULL)"
 
-   if (nChar == 0x08)
-      charHandledFlag = gProjectSelectionWindow->DoDeleteKey(nChar);
+}	// end "OnCharHook"
 
-   CFormView::OnChar(nChar, nRepCnt, nFlags);
-}
-*/
+
 
 void CMStatisticsFrame::OnClass(wxCommandEvent& event) 
 {

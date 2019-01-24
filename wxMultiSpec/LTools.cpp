@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //                 Purdue University
 //						West Lafayette, IN 47907
-//						 Copyright (1988-2018)
+//						 Copyright (1988-2019)
 //						(c) Purdue Research Foundation
 //                     All rights reserved.
 //
@@ -23,7 +23,7 @@
 //
 //	Authors:					Larry L. Biehl, A.R. Maud
 //
-//	Revision date:			11/19/2018
+//	Revision date:			01/18/2019
 //
 /* Template for debugging
 	int numberChars = sprintf ((char*)gTextString3,
@@ -186,19 +186,26 @@ void CMTool::OnCharHook ()
 {
 	if (c_flag_addtolist == TRUE)
 		{
-		Point location;
-		location.h = 0;
-		location.v = 0;
-		
 		if (gProjectInfoPtr != NULL)
 			{
-			StatisticsWControlEvent (gProjectInfoPtr->addToControlH,
+			Boolean	returnFlag;
+			
+			Point location;
+			location.h = 0;
+			location.v = 0;
+		
+			returnFlag = StatisticsWControlEvent (
+												gProjectInfoPtr->addToControlH,
 												FALSE,
 												location,
-												kAddToListControl);    
-			}
+												kAddToListControl);
 		
-		c_flag_addtolist = FALSE;
+			c_flag_addtolist = !returnFlag;
+			
+			}	// end "if (gProjectInfoPtr != NULL)"
+		
+		else	// gProjectInfoPtr == NULL
+			c_flag_addtolist = FALSE;
 		
 		}	// end "if (c_flag_addtolist == TRUE)"
 
@@ -797,7 +804,9 @@ void CMSelectTool::OnLButtonUp (
 {
 	if (imageViewCPtr->m_Canvas->HasCapture())
 		{
-		imageViewCPtr->m_Canvas->ReleaseMouse ();
+		if (s_selectType != kPolygonType)
+			imageViewCPtr->m_Canvas->ReleaseMouse ();
+		
 		c_last = point;
 		if (s_selectMode == netSelect)
 			{

@@ -223,7 +223,7 @@ CMImageView::CheckIfOffscreenImageExists(void)
 	if (this != NULL && m_imageWindowCPtr != NULL)
 		{																								
 		WindowInfoPtr windowInfoPtr = (WindowInfoPtr)GetHandlePointer(
-							m_imageWindowCPtr->GetWindowInfoHandle(), kNoLock, kNoMoveHi);
+							m_imageWindowCPtr->GetWindowInfoHandle ());
 	
 		if (windowInfoPtr != NULL)                                                   
 			returnFlag = (windowInfoPtr->imageBaseAddressH != NULL);
@@ -604,54 +604,6 @@ void CMImageView::CreateScaledBitmap()
 //	}
 }
 
-
-Boolean CMImageView::DoDeleteKey ()
-
-{
-	Boolean 				charHandledFlag = FALSE;
-   // TODO: For Linux
-	/*
-	if (this != NULL)
-		{
-		if (gProjectSelectionWindow != NULL && this == gProjectSelectionWindow)
-			{
-			if (gStatisticsMode == kStatNewFieldPolyMode && m_Canvas->IsShown() == true)
-				{
-						// A polygon selection is in process. Delete the last selected polygon
-						// point.
-
-				CMTool* pTool = CMTool::FindTool(CMTool::c_toolType);
-				if (pTool != NULL)
-					pTool->OnChar(this, nChar);
-
-				charHandledFlag = TRUE;
-
-				}	// end "if (gStatisticsMode == kStatNewFieldPolyMode && "
-
-			else if (gStatisticsMode == kStatNewFieldRectMode ||
-					  									gStatisticsMode == kStatNewFieldPolyMode)
-				{
-						// Delete the selected field if one exists.
-
-				if (GetSelectionTypeCode(this) != 0)
-				 	{
-					ClearSelectionArea (this);
-
-					ShowGraphSelection();
-
-					charHandledFlag = TRUE;
-
-					}	// end "if ( GetSelectionTypeCode (gActiveImageViewCPtr) != 0)"
-
-				}	// end "else if (gStatisticsMode == kStatNewFieldRectMode || ..."
-
-	  		}	// end "if (gProjectSelectionWindow != NULL && ..."
-
-		}	// end "if (this != NULL)"
-	*/
-	return (charHandledFlag);
-
-} // end "DoDeleteKey"
 
 /*
  * TODO: For Linux
@@ -1034,16 +986,19 @@ bool CMImageView::OnCreate (
 
 	if (m_mainFrame)
 		{
-		m_frame = wxDynamicCast (wxGetApp().CreateChildFrame (GetDocument(), this),CMImageFrame);
+		m_frame = wxDynamicCast (wxGetApp().CreateChildFrame (GetDocument(), this), CMImageFrame);
 		CreateScaledBitmap ();
 		m_Canvas = new CMImageCanvas (m_frame->m_mainWindow);
 		m_frame->m_coordinatesBar = new CMCoordinateBar (m_frame->m_topWindow);
-		m_frame->m_imageLegendViewCPtr = new CMLegendView (m_frame->m_leftWindow, IDD_LegendWindow, doc, this);
+		m_frame->m_imageLegendViewCPtr = new CMLegendView (m_frame->m_leftWindow,
+																			IDD_LegendWindow,
+																			doc,
+																			this);
 		SetFrame (m_frame);
 		m_Canvas->SetView (this);
 		(m_frame->m_imageLegendViewCPtr)->SetImageView (this);
 		m_frame->Show (true);
-		((CMImageDoc *)doc)->SetImageFrameCPtr (m_frame);
+		((CMImageDoc*)doc)->SetImageFrameCPtr (m_frame);
 		Activate (true);
 		}
 	else
@@ -1072,8 +1027,10 @@ void CMImageView::OnDraw (CDC* pDC)
 	if (CheckIfOffscreenImageExists())
 		{
 		pDC->SetMapMode (wxMM_TEXT);
-		wxGraphicsContext* graphicsContext = pDC->GetGraphicsContext ();
-		graphicsContext->SetInterpolationQuality (wxINTERPOLATION_NONE);
+		#if defined multispec_wxmac
+			wxGraphicsContext* graphicsContext = pDC->GetGraphicsContext ();
+			graphicsContext->SetInterpolationQuality (wxINTERPOLATION_NONE);
+		#endif
 		sourceRect.top = s_updateRect.top;
 		sourceRect.bottom = s_updateRect.bottom;
 		sourceRect.left = s_updateRect.left;

@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 // 								Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (2009-2018)
+//								 Copyright (2009-2019)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -12,7 +12,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			11/21/2018
+//	Revision date:			01/18/2019
 //
 //	Language:				C++
 //
@@ -806,7 +806,7 @@ void CMBiPlotDialog::OnInitDialog (
     if (TransferDataToWindow ())
       PositionDialogWindow ();
 	
-	SelectDialogItemText (this, IDC_HorizontalAxis, 0, INT16_MAX);
+	SelectDialogItemText (this, IDC_HorizontalAxis, 0, SInt16_MAX);
       
 }	// end "OnInitDialog"
 

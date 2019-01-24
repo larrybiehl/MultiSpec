@@ -1640,6 +1640,8 @@ void CMDisplaySpecsDlg::OnSelendokMinMaxValuesCloseUp (
 
 {
    int minMaxPopupCode = event.GetSelection ();
+	
+	event.Skip ();
 
 			// set to -1 so that it can be active again when user selects it second time directly
 	

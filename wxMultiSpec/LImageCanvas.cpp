@@ -12,7 +12,7 @@
 //
 //	Authors:					Larry L. Biehl, Abdur Rachman Maud
 //
-//	Revision date:			01/10/2019
+//	Revision date:			01/18/2019
 //
 //	Language:				C++
 //
@@ -297,9 +297,9 @@ void CMImageCanvas::DoMouseWheel (
 			}	// end "else otherwise just scroll the window"
 		
 		displayRect = m_View->m_Canvas->GetImageDisplayRect (scrollPos);
-		#if defined multispec_wxmac
+		//#if defined multispec_wxmac
 			m_View->m_Canvas->Scroll (scrollPos.x, scrollPos.y);
-		#endif
+		//#endif
 		m_View->ScrollChanged ();
 		
 		m_View->m_Canvas->Refresh (false, &displayRect);
@@ -441,10 +441,12 @@ void CMImageCanvas::OnCharHook (
 	
 	if (pTool != NULL)
 		{
-		if (event.GetKeyCode() == WXK_RETURN) 
+		int keyCode = event.GetKeyCode ();
+		
+		if (keyCode == WXK_RETURN || keyCode == WXK_NUMPAD_ENTER)
 			pTool->OnCharHook();
 		
-		else if (event.GetKeyCode() == WXK_DELETE)
+		else if (keyCode == WXK_DELETE)
 			{
 			ClearSelectionArea (gActiveImageViewCPtr);
 			ShowGraphSelection ();
@@ -454,7 +456,7 @@ void CMImageCanvas::OnCharHook (
 			if (gSelectionGraphViewCPtr != NULL)
 				gSelectionGraphViewCPtr->ResetListControls ();
 			
-			}	// end "else if (event.GetKeyCode () == WXK_DELETE)"
+			}	// end "else if (keyCode == WXK_DELETE)"
 		
 		else 
 			event.Skip ();
@@ -534,6 +536,10 @@ void CMImageCanvas::OnLeftDown (
 	wxPoint								cursorPosOnImage; // unit: window point
 	
 	
+	if (gActiveImageViewCPtr != m_View)
+				// Force this image window to be active.
+		m_View->Activate (true);
+	
 	SetFocus ();
    wxRect imageRect = GetImageDisplayRect (GetScrollPosition ());
 
@@ -559,7 +565,7 @@ void CMImageCanvas::OnLeftDown (
       CMTool* pTool = CMTool::FindTool(CMTool::c_toolType);
       if (pTool != NULL)
 			{
-			m_View->SetControlKeyFlag (wxGetKeyState(WXK_CONTROL));
+			m_View->SetControlKeyFlag (wxGetKeyState (WXK_CONTROL));
 			m_View->SetShiftKeyFlag (wxGetKeyState(WXK_SHIFT));
          pTool->OnLButtonDown (m_View, 0, event.GetPosition());
 			
@@ -849,7 +855,8 @@ void CMImageCanvas::OnPaint (
 		dc.SetUserScale (1, 1);
 		
 		//m_View->OnDraw(&dc);
-		if (!m_Selection.IsEmpty())
+      CMTool* pTool = CMTool::FindTool (CMTool::c_toolType);
+		if (!m_Selection.IsEmpty() && pTool->s_selectType != kPolygonType)
 			{
 			dc.SetBrush (*wxTRANSPARENT_BRUSH);
 			//dc.SetLogicalFunction (wxXOR);
@@ -862,7 +869,7 @@ void CMImageCanvas::OnPaint (
 			rectSpec.y -= 2;
 			dc.DrawRectangle (wxPoint(xx+1, yy+1), rectSpec);
 			
-			}	// end "if (!m_Selection.IsEmpty())"
+			}	// end "if (!m_Selection.IsEmpty() && ...)"
 		
 		CMImageDoc* pDoc = m_View->GetDocument ();
 		pDoc->Draw (&dc, m_View);

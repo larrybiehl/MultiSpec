@@ -11,9 +11,7 @@
 //
 //	Authors:					Larry L. Biehl, Tsung Tai Yeh
 //
-//	Revision number:		3.0
-//
-//	Revision date:			01/03/2019
+//	Revision date:			01/21/2019
 //
 //	Language:				C
 //
@@ -24,6 +22,12 @@
 //
 //	Functions in file:	
 //
+/* Template for debugging
+		int numberChars = sprintf ((char*)gTextString3,
+													" LUtilities.cpp: (): %s",
+													gEndOfLine);
+		ListString ((char*)gTextString3, numberChars, gOutputTextH);	
+*/
 //------------------------------------------------------------------------------------
 
 #include "SMultiSpec.h"
@@ -35,6 +39,10 @@
 #include "wx/combobox.h"
 #include "wx/stdpaths.h"
 #include "LImageView.h"
+
+#if defined multispec_wxlin
+	#include "wx/rawbmp.h"
+#endif
 
 
 #if defined multispec_wxmac
@@ -156,7 +164,7 @@ extern void GetApplicationStartupPath (
 // Called By:			DoUpdateEvent
 //
 //	Coded By:			Larry L. Biehl			Date: 08/31/1988
-//	Revised By:			Larry L. Biehl			Date: 01/03/2019
+//	Revised By:			Larry L. Biehl			Date: 01/16/2019
 
 void CopyOffScreenImage (
 				CMImageView*						imageViewCPtr,
@@ -190,6 +198,8 @@ void CopyOffScreenImage (
    WindowInfoPtr						windowInfoPtr;
 
    DisplaySpecsPtr					displaySpecsPtr;
+	
+	int 									pixRowBytes;
 
    SInt32								numberImageOverlays;
 
@@ -459,10 +469,18 @@ void CopyOffScreenImage (
 											index,
 											line;
 					
+					
 					wxBitmap& scaledBitmap = imageViewCPtr->m_ScaledBitmap;
 					unsigned char* imageDataPtr = (unsigned char*)imageBaseAddressH;
-					unsigned char* baseBitmapBufferPtr = (unsigned char*)scaledBitmap.GetRawAccess();
-					int pixRowBytes = scaledBitmap.GetBitmapData()->GetBytesPerRow();
+					#if defined multispec_wxmac
+						unsigned char* baseBitmapBufferPtr = (unsigned char*)scaledBitmap.GetRawAccess();
+						pixRowBytes = scaledBitmap.GetBitmapData()->GetBytesPerRow();
+					#endif
+					#if defined multispec_wxlin
+						wxAlphaPixelData pixeldata (scaledBitmap);
+						unsigned char* baseBitmapBufferPtr = (unsigned char*)pixeldata.GetPixels().m_ptr;
+						pixRowBytes = pixeldata.GetRowStride();
+					#endif
 					int numberColumns = scaledBitmap.GetWidth ();
 					int numberLines = scaledBitmap.GetHeight ();
 				
@@ -487,6 +505,11 @@ void CopyOffScreenImage (
 							*bitmapBufferPtr = paletteCPtr->mPaletteObject[*imageDataPtr].green;
 							bitmapBufferPtr++;
 							*bitmapBufferPtr = paletteCPtr->mPaletteObject[*imageDataPtr].blue;
+							
+							#if defined multispec_wxlin
+										// Skip last (Alpha) byte
+								bitmapBufferPtr++;
+							#endif
 							
 							imageDataPtr++;
 							bitmapBufferPtr++;
@@ -530,16 +553,18 @@ void CopyOffScreenImage (
 				imageViewCPtr->DrawLegend ();
 				
 				}	// end "if (displaySpecsPtr->displayType == ...)"
-				 
+		
 		else	// ...->imageType == kMultispectralImageType &&
 				//							...->displayType != k1_ChannelThematicDisplayType
 				{
+				/*
 				#if defined multispec_wxlin
 					wxImage ipimage (xDimension,
 											yDimension,
 											(unsigned char*)imageBaseAddressH,
 											true);
 				#endif
+				*/
 				/*
 				ipimage.SetPalette (*paletteCPtr);
 				(windowInfoPtr->offScreenImage).Create (
@@ -556,10 +581,11 @@ void CopyOffScreenImage (
 				wxImage ipsubimage = ipimage.GetSubImage (wxSourceRect);
 				imageViewCPtr->m_ScaledBitmap = wxBitmap (ipsubimage);
 				*/
+				/*
 				#if defined multispec_wxlin
 					imageViewCPtr->m_ScaledBitmap = wxBitmap (ipimage);
 				#endif
-
+				*/
 				}	// end "else displaySpecsPtr->displayType != ..."
 				
 			//}	// end if multispectral image
@@ -720,7 +746,8 @@ void CopyOffScreenImage (
 
          else // copyType != kClipboardCopy && copyType != kPrinterCopy)
 				{
-            destinationRect = windowRect;
+            destinationRect.left = inSourceRect->left;
+            destinationRect.right = inSourceRect->right;
 				destinationRect.top = 0;
 				destinationRect.bottom = titleHeight;
 				
@@ -743,7 +770,7 @@ void CopyOffScreenImage (
          
 			}	// end "if (titleHeight > 0)" 
 			 
-		gCDCPointer->DestroyClippingRegion ();
+		pDC->DestroyClippingRegion ();
 		
 		}	// end "if (imageViewCPtr->CheckIfOffscreenImageExists ())"
 
@@ -999,6 +1026,7 @@ SInt16 GetOffscreenGWorld (
 	SInt16								numberPaletteEntries = 0,
 											resultCode = noErr;
 
+	/*
 	#if defined multispec_wxlin
 		numberColumns = (UInt32)longRectPtr->right - longRectPtr->left;
 	
@@ -1051,8 +1079,9 @@ SInt16 GetOffscreenGWorld (
 
 			}	// end "if (resultCode != noErr)"
 	#endif	// defined multispec_wxlin
-
-	#if defined multispec_wxmac
+	*/
+	#if defined multispec_lin
+	//#if defined multispec_wxmac
 		int								pixelSize;
 	
 		/*
@@ -1106,7 +1135,8 @@ SInt16 GetOffscreenGWorld (
 		else	// multispectral image type
 			numberPaletteEntries = 0;
 	
-				// 32 bits is used for MacOS bitmaps
+				// 32 bits is used for wxBitmaps
+	
 		pixelSize = 32;
 	
 		wxBitmap & scaledBitmap = gActiveImageViewCPtr->m_ScaledBitmap;
@@ -1117,9 +1147,16 @@ SInt16 GetOffscreenGWorld (
 					// This is for multispectral image windows. Colors will be copied to the
 					// bitmap directly.
 			
-			windowInfoPtr->imageBaseAddressH = scaledBitmap.GetRawAccess();
-			*pixRowBytesPtr = scaledBitmap.GetBitmapData()->GetBytesPerRow();
-			
+			#if defined multispec_wxmac
+				windowInfoPtr->imageBaseAddressH = scaledBitmap.GetRawAccess();
+				*pixRowBytesPtr = scaledBitmap.GetBitmapData()->GetBytesPerRow();
+			#endif
+			#if defined multispec_wxlin
+				wxAlphaPixelData pixeldata (scaledBitmap);
+				windowInfoPtr->imageBaseAddressH = (unsigned char*)pixeldata.GetPixels().m_ptr;
+				*pixRowBytesPtr = pixeldata.GetRowStride();
+			#endif
+
 					// This will indicate that the image base address is to a wxBitmap
 			
 			windowInfoPtr->offscreenMapSize = 0;
@@ -1133,11 +1170,8 @@ SInt16 GetOffscreenGWorld (
 			resultCode = 1;
 
 		if (resultCode != noErr)
-			{
 			windowInfoPtr->offscreenMapSize = 0;
-
-			}	// end "if (resultCode != noErr)"
-	#endif	// defined multispec_wxmac
+	#endif	// defined multispec_lin
 
 	return (resultCode);
 

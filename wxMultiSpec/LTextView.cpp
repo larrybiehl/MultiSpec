@@ -1,6 +1,6 @@
 // LTextView.cpp
 //
-// Revised by Larry Biehl on 11/02/2018
+// Revised by Larry Biehl on 01/24/2019
 // Revised by Wei-Kang Hsu on 07/25/2016
 //
 #include "LMultiSpec.h"
@@ -48,41 +48,27 @@ SInt16 CMTextView::GetWindowType(void)
 	
 	return (windowType);
 	
-}		// end "GetWindowType" 	
+}	// end "GetWindowType"
 
 
-void CMTextView::InitialUpdate(void)
+void CMTextView::InitialUpdate (void)
+
 {   
-   m_textsw->SetTabWidth(1);
-   m_textsw->SetMarginLeft(-12);
-   m_textsw->SetScrollWidthTracking(true);
-   m_textsw->SetFoldMarginColour(true, wxColor(0,0,0));
-   m_textsw->SetFoldMarginHiColour(true, wxColor(0,0,0));
-//   m_textsw->MarginSetStyleOffset(0);
-   
-   
-//   m_textsw->SetWrapMode(1);   
-//   m_textsw->SetUseHorizontalScrollBar(false);
-/*
-	int numberChars = sprintf ((char*)&gTextString3,
-												" CMTextView::OnCreate (textWindowXPosition, textWindowYPosition): %ld, %ld%s", 
-												s_textWindowXPosition,
-												s_textWindowYPosition,
-												gEndOfLine);
-	::ListString ((char*)&gTextString3, numberChars, gOutputTextH);
+   m_textsw->SetTabWidth (1);
+   m_textsw->SetMarginLeft (-12);
+   m_textsw->SetScrollWidthTracking (true);
+   m_textsw->SetFoldMarginColour (true, wxColor (0,0,0));
+   m_textsw->SetFoldMarginHiColour (true, wxColor (0,0,0));
+	//m_textsw->MarginSetStyleOffset (0);
+	//m_textsw->SetWrapMode (1);
+	//m_textsw->SetUseHorizontalScrollBar (false);
 
-	numberChars = sprintf ((char*)&gTextString3,
-												" CMTextView::OnCreate (clientWidth, clientHeight): %ld, %ld%s", 
-												s_clientWidth,
-												s_clientHeight,
-												gEndOfLine);
-	::ListString ((char*)&gTextString3, numberChars, gOutputTextH);				
-*/	
-}		// end "InitialUpdate" 
+}	// end "InitialUpdate"
 
 
 
-bool CMTextView::OnCreate(wxDocument *doc, long WXUNUSED(flags) )
+bool CMTextView::OnCreate (wxDocument *doc, long WXUNUSED(flags))
+
 {
 	int	clientWidth,
 			clientHeight,
@@ -132,7 +118,6 @@ bool CMTextView::OnCreate(wxDocument *doc, long WXUNUSED(flags) )
    m_frame->SetTitle (_T("Text Output"));
    
 	m_textsw = new TextWindow2 (this, m_frame, wxPoint(0, 0), wxSize (width, height), wxTE_MULTILINE); //wxHSCROLL|wxTE_READONLY|
-	//wxFont textwf (8, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
 	wxFont textwf (gFontSize, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
 	m_textsw->StyleSetFont (wxSTC_STYLE_DEFAULT, textwf);
    m_textsw->StyleClearAll ();
@@ -154,6 +139,8 @@ bool CMTextView::OnCreate(wxDocument *doc, long WXUNUSED(flags) )
 	return true;
 	
 }	// end "OnCreate"
+
+
 /*
 void CMTextView::UpdateCaretPosition(wxStyledTextEvent& event)
 {

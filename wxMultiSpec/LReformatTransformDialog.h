@@ -1,6 +1,6 @@
 // LReformatTransformDialog.h : header file
 //
-// Revised by Larry Biehl on 06/20/2017
+// Revised by Larry Biehl on 01/18/2019
 //
 #if !defined __LRTRADLG_H__
 #define	__LRTRADLG_H__  
@@ -69,9 +69,9 @@ protected:
             Boolean showFlag);
 
     void ShowHidePCTransformItems(
-            DialogPtr dialogPtr,
-            Boolean showFlag,
-            Boolean pcButtonFlag);
+            DialogPtr 										dialogPtr,
+            Boolean 											showFlag,
+				SInt16											eigenSource);
 
     void ShowHideFunctionChannelsItems(
             DialogPtr dialogPtr,

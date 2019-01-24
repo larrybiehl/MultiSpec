@@ -571,11 +571,11 @@ void CMReformatTransformDlg::OnAdjustSelectedChannels(wxCommandEvent& event)
 	DialogPtr dialogPtr = this;
 	
 	
-	ShowHideAdjustChannelItems(dialogPtr, kShow);
-	ShowHideAdjustSelectedChannelsByChannelItems(dialogPtr, kHide);
-	ShowHidePCTransformItems(dialogPtr, kHide, FALSE);
-	ShowHideAlgebraicTransformItems(dialogPtr, kHide);
-	ShowHideFunctionChannelsItems(dialogPtr, kHide, 0);
+	ShowHideAdjustChannelItems (dialogPtr, kShow);
+	ShowHideAdjustSelectedChannelsByChannelItems (dialogPtr, kHide);
+	ShowHidePCTransformItems(dialogPtr, kHide, m_eigenSource);
+	ShowHideAlgebraicTransformItems (dialogPtr, kHide);
+	ShowHideFunctionChannelsItems (dialogPtr, kHide, 0);
 	
 	// Set default text selection to first edit text item
 	
@@ -584,6 +584,7 @@ void CMReformatTransformDlg::OnAdjustSelectedChannels(wxCommandEvent& event)
 	//this->Layout();
 	//SetSizerAndFit(bSizer84);
 	//this->Fit();
+	
 } // end "OnAdjustSelectedChannels"
 
 
@@ -594,7 +595,7 @@ void CMReformatTransformDlg::OnAdjustSelectedChannelsByChannel(wxCommandEvent& e
 	
 	ShowHideAdjustChannelItems(dialogPtr, kHide);
 	ShowHideAdjustSelectedChannelsByChannelItems(dialogPtr, kShow);
-	ShowHidePCTransformItems(dialogPtr, kHide, TRUE);
+	ShowHidePCTransformItems(dialogPtr, kHide, m_eigenSource);
 	ShowHideAlgebraicTransformItems(dialogPtr, kHide);
 	ShowHideFunctionChannelsItems(dialogPtr, kHide, 0);
 	
@@ -650,7 +651,7 @@ void CMReformatTransformDlg::OnInitDialog(wxInitDialogEvent& event)
     m_adjustFactor = gReformatOptionsPtr->adjustFactor;
     m_adjustDivisor = gReformatOptionsPtr->adjustDivisor;
     
-    // Adjust Selected Channels by a Selected Channel
+    		// Adjust Selected Channels by a Selected Channel
 
     if (m_transformCode != kAdjustChannelsByChannel)
         ShowHideAdjustSelectedChannelsByChannelItems(dialogPtr, kHide);
@@ -661,23 +662,24 @@ void CMReformatTransformDlg::OnInitDialog(wxInitDialogEvent& event)
     m_adjustSelectedChannelsFactor = gReformatOptionsPtr->transformAdjustSelectedChannelsFactor;
     m_adjustSelectedChannel = gReformatOptionsPtr->transformAdjustSelectedChannel;
 
-    // Use transformation radio button.		
+    		// Use transformation radio button.
 
     EigenvectorInfoExists(kNoProject, &m_eigenSource, &m_numberEigenvectors);    
      
-    m_scaleFactor = gReformatOptionsPtr->pcScaleFactor;
-    if (m_numberEigenvectors > 0 && m_bandInterleaveSelection != kBSQ) {
-        if (m_eigenSource == 1)
-            MHideDialogItem(dialogPtr, IDC_RT_EV_FEEigenvectors);
+	m_scaleFactor = gReformatOptionsPtr->pcScaleFactor;
+	if (m_numberEigenvectors > 0 && m_bandInterleaveSelection != kBSQ)
+    	{
+		if (m_eigenSource == 1)
+			MHideDialogItem (dialogPtr, IDC_RT_EV_FEEigenvectors);
 
-        if (m_eigenSource == 2)
-            MHideDialogItem(dialogPtr, IDC_RT_EV_PCEigenvectors);
+		if (m_eigenSource == 2)
+			MHideDialogItem (dialogPtr, IDC_RT_EV_PCEigenvectors);
 
-        if (m_transformCode != kCreatePCImage)
-            ShowHidePCTransformItems(dialogPtr, kHide, FALSE);
+		if (m_transformCode != kCreatePCImage)
+			ShowHidePCTransformItems (dialogPtr, kHide, m_eigenSource);
 
-        else // m_transformCode == kCreatePCImage 
-            selectedItem = IDC_EV_ScaleFactor;
+		else // m_transformCode == kCreatePCImage
+			selectedItem = IDC_EV_ScaleFactor;
 
         //		if (m_eigenSource == 2)
         //			m_scaleFactor = 10;
@@ -688,10 +690,10 @@ void CMReformatTransformDlg::OnInitDialog(wxInitDialogEvent& event)
         m_minSelectedNumberBits = DeterminePCMinimumNumberBits(
                 m_scaleFactor, m_eigenSource, gReformatOptionsPtr->pcChannelPtr[0]);
 
-    }// end "if ( m_numberEigenvectors > 0 && ...)" 
+    	}	// end "if ( m_numberEigenvectors > 0 && ...)"
 
-    else // m_numberEigenvectors <= 0 || m_bandInterleaveSelection == kBSQ
-        ShowHidePCTransformItems(dialogPtr, kHide, TRUE);
+	else // m_numberEigenvectors <= 0 || m_bandInterleaveSelection == kBSQ
+		ShowHidePCTransformItems (dialogPtr, kHide, m_eigenSource);
 
     m_channelSelection = kAllMenuItem;
     m_localNumberFeatures = gReformatOptionsPtr->numberPCChannels;
@@ -747,28 +749,43 @@ void CMReformatTransformDlg::OnInitDialog(wxInitDialogEvent& event)
             m_transformCode == kFunctionOfChannels,
             gReformatOptionsPtr->functionCode);
 
-    if (m_transformCode == kFunctionOfChannels) {
+    if (m_transformCode == kFunctionOfChannels)
+    	{
         selectedItem = IDC_FunctionFactor;
         if (m_functionCode == kFunctionKthSmallestElement - 1)
             selectedItem = IDC_kthSmallestElement;
 
-    } // end "if (m_transformCode == kFunctionOfChannels)"
+    }	// end "if (m_transformCode == kFunctionOfChannels)"
 
-    // Make certain that all radio buttons are showing for now.
+    		// Make certain that all radio buttons are showing for now.
 
     MShowDialogItem(dialogPtr, IDC_AdjustSelectedChannelsbyChannel);
     MShowDialogItem(dialogPtr, IDC_RT_Eigenvectors);
     MShowDialogItem(dialogPtr, IDC_RT_AlgebraicTransformation);
     MShowDialogItem(dialogPtr, IDC_RT_FunctionOfChannels);
 
-    //if (UpdateData(FALSE))
     if (TransferDataToWindow())
         PositionDialogWindow();
 
-    // Update the radio buttons.
+			// Update the radio buttons.
 
-    if (m_numberEigenvectors <= 0 || m_bandInterleaveSelection == kBSQ)
-        MHideDialogItem(dialogPtr, IDC_RT_Eigenvectors);
+	if (m_numberEigenvectors <= 0 || m_bandInterleaveSelection == kBSQ)
+    	{
+		MHideDialogItem (dialogPtr, IDC_RT_Eigenvectors);
+		MHideDialogItem (dialogPtr, IDC_RT_EV_PCEigenvectors);
+		MHideDialogItem (dialogPtr, IDC_RT_EV_FEEigenvectors);
+		
+		}	// if (m_numberEigenvectors <= 0 || ...
+	
+	else	// if (m_numberEigenvectors > 0 || ...
+		{
+		if (m_eigenSource == 1)
+			MHideDialogItem (dialogPtr, IDC_RT_EV_FEEigenvectors);
+		
+		else if (m_eigenSource == 2)
+			MHideDialogItem (dialogPtr, IDC_RT_EV_PCEigenvectors);
+		
+		}	// end "else if (m_numberEigenvectors > 0 || ..."
 
     if (gImageFileInfoPtr->thematicType)
         MHideDialogItem(dialogPtr, IDC_RT_AlgebraicTransformation);
@@ -793,7 +810,7 @@ void CMReformatTransformDlg::OnRTAlgebraicTransformation(wxCommandEvent& event)
 
     ShowHideAdjustChannelItems(dialogPtr, kHide);
     ShowHideAdjustSelectedChannelsByChannelItems(dialogPtr, kHide);
-    ShowHidePCTransformItems(dialogPtr, kHide, FALSE);
+    ShowHidePCTransformItems(dialogPtr, kHide, m_eigenSource);
     ShowHideAlgebraicTransformItems(dialogPtr, kShow);
     ShowHideFunctionChannelsItems(dialogPtr, kHide, 0);
 
@@ -814,7 +831,7 @@ void CMReformatTransformDlg::OnRTEigenvectors(wxCommandEvent& event)
 
     ShowHideAdjustChannelItems(dialogPtr, kHide);
     ShowHideAdjustSelectedChannelsByChannelItems(dialogPtr, kHide);
-    ShowHidePCTransformItems(dialogPtr, kShow, TRUE);
+    ShowHidePCTransformItems(dialogPtr, kShow, m_eigenSource);
     ShowHideAlgebraicTransformItems(dialogPtr, kHide);
     ShowHideFunctionChannelsItems(dialogPtr, kHide, 0);
 
@@ -835,7 +852,7 @@ void CMReformatTransformDlg::OnRTNoTransformation(wxCommandEvent& event)
 
     ShowHideAdjustChannelItems(dialogPtr, kHide);
     ShowHideAdjustSelectedChannelsByChannelItems(dialogPtr, kHide);
-    ShowHidePCTransformItems(dialogPtr, kHide, FALSE);
+    ShowHidePCTransformItems(dialogPtr, kHide, m_eigenSource);
     ShowHideAlgebraicTransformItems(dialogPtr, kHide);
     ShowHideFunctionChannelsItems(dialogPtr, kHide, 0);
     m_transformCode = kNoTransform;
@@ -850,11 +867,11 @@ void CMReformatTransformDlg::OnRTFunctionOfChannels(wxCommandEvent& event)
     DialogPtr dialogPtr = this;
 
 
-    ShowHideAdjustChannelItems(dialogPtr, kHide);
-    ShowHideAdjustSelectedChannelsByChannelItems(dialogPtr, kHide);
-    ShowHidePCTransformItems(dialogPtr, kHide, TRUE);
-    ShowHideAlgebraicTransformItems(dialogPtr, kHide);
-    ShowHideFunctionChannelsItems(dialogPtr, kShow, m_functionCode + 1);
+    ShowHideAdjustChannelItems (dialogPtr, kHide);
+    ShowHideAdjustSelectedChannelsByChannelItems (dialogPtr, kHide);
+    ShowHidePCTransformItems (dialogPtr, kHide, m_eigenSource);
+    ShowHideAlgebraicTransformItems (dialogPtr, kHide);
+    ShowHideFunctionChannelsItems (dialogPtr, kShow, m_functionCode + 1);
 
     // Set default text selection to first edit text item 
 
@@ -960,34 +977,37 @@ void CMReformatTransformDlg::ShowHideFunctionChannelsItems(
 } // end "ShowHideFunctionChannelsItems"
 
 
-void CMReformatTransformDlg::ShowHidePCTransformItems(
-																		DialogPtr dialogPtr,
-																		Boolean showFlag,
-																		Boolean pcButtonFlag) {
-	/*
-   if (pcButtonFlag) {
-		//ShowHideDialogItem(dialogPtr, IDC_RT_Eigenvectors, showFlag);
-		ShowHideDialogItem(dialogPtr, IDC_RT_EV_FEEigenvectors, showFlag);
-		ShowHideDialogItem(dialogPtr, IDC_RT_EV_PCEigenvectors, showFlag);
-		
-	} // end "if (pcButtonFlag)"
-	*/
+void CMReformatTransformDlg::ShowHidePCTransformItems (
+				DialogPtr 										dialogPtr,
+				Boolean 											showFlag,
+				SInt16											eigenSource)
+
+{
 	ShowHideDialogItem(dialogPtr, IDC_EV_Eigenvectors, showFlag);
 	ShowHideDialogItem(dialogPtr, IDC_RT_EV_NumberBits, showFlag);
 	ShowHideDialogItem(dialogPtr, IDC_RT_EV_AllComponents, showFlag);
 	ShowHideDialogItem(dialogPtr, IDC_RT_EV_SelComponents, showFlag);
 	ShowHideDialogItem(dialogPtr, IDC_ScaleFactorPrompt, showFlag);
 	ShowHideDialogItem(dialogPtr, IDC_EV_ScaleFactor, showFlag);
-   bSizer103->Layout();
+	/*
+	if (eigenSource == 0 && !showFlag)
+		{
+		ShowHideDialogItem(dialogPtr, IDC_RT_EV_PCEigenvectors, showFlag);
+		ShowHideDialogItem(dialogPtr, IDC_RT_EV_FEEigenvectors, showFlag);
+		
+		}	// end "if (eigenSource == 0 && !showFlag)"
+	*/
+   bSizer103->Layout ();
 	
-} // end "ShowHidePCTransformItems"
+}	// end "ShowHidePCTransformItems"
 
 
-bool CMReformatTransformDlg::TransferDataFromWindow() {
+
+bool CMReformatTransformDlg::TransferDataFromWindow()
+	{
 	
 	SInt16 item, numberTerms;
 	UInt16 stringID;
-	Boolean algebraicItemFlag, eigenvectorItemFlag;
 	
 	wxTextCtrl* adjustDivisor = (wxTextCtrl*) FindWindow(IDC_RT_AC_Divisor);
 	wxTextCtrl* adjustFactor = (wxTextCtrl*) FindWindow(IDC_RT_AC_Factor);

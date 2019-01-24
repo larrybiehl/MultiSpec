@@ -1,6 +1,6 @@
 // LOpenFileDialog
 //
-// Modified by Larry Biehl on 11/17/2018
+// Modified by Larry Biehl on 01/17/2019
 //
 #include "LMultiSpec.h"
 #include "LOpenFileDialog.h"
@@ -456,7 +456,20 @@ bool CMOpenFileDialog::DoDialog (int stringIndex, long style)
 	else if (stringIndex == IDS_SelectNewBaseImage)
       promptString =  _T("Select New Base Image");
 	else
-		promptString =  _T("Select Image(s)");
+		{
+		if (gMultipleImageFileCode == 2)
+			{
+			Handle windowInfoHandle = GetActiveImageWindowInfoHandle();
+			WindowInfoPtr windowInfoPtr = (WindowInfoPtr)GetHandlePointer (
+																		windowInfoHandle);
+			promptString =  wxString::Format(_T("Select File %d to Link"), windowInfoPtr->numberImageFiles+1);
+			
+			}	// end "if (gMultipleImageFileCode == 2)"
+		
+		else	// gMultipleImageFileCode != 2
+			promptString =  _T("Select Image(s)");
+		
+		}	// end "else"
 	
    wxString wildcard (&gTextString[1], wxConvUTF8);
    
@@ -553,18 +566,22 @@ bool CMOpenFileDialog::DoDialog (int stringIndex, long style)
 						}	// end "if (wxYES == wxMessageBox (..."
 					
 					}	// end "if (link_option <= 0)"
-				
-				else if (link_option == 1)
+					
+				}	// end "if (filenames.size() > 1)"
+			
+			else	// filenames.size() == 1
+				{
+				if (link_option == 1)
 					{
 							// Adding this since 'SetImageLinkToTrue' is not being called
 							// in the multispec_wxmac version.
-							
-					extra_panel->m_linkOptionSelectionDataCode = 0;
+					
+					extra_panel->m_linkOptionSelectionDataCode = 2;
 					extra_panel->SetImageLinkToTrue ();
 					
-					}	// end "else if (link_option == 1)"
-					
-				}	// end "if (filenames.size() > 1)"
+					}	// end "if (link_option == 1)"
+				
+				}	// end "else filenames.size() == 1"
 
 			continueFlag = TRUE;
 			

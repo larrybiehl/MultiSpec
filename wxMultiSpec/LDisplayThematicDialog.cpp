@@ -640,26 +640,6 @@ void CMDisplayThematicDlg::OnBackgroundColor (
 
 
 
-		//Press keyboard "Enter"  -> wxID_OK
-/*
-void CMDisplayThematicDlg::OnCharHook (
-				wxKeyEvent& event)
-	{
-	if (event.GetKeyCode() == WXK_RETURN)
-		{
-		if (Validate() && TransferDataFromWindow ())
-			this->EndModal(wxID_OK);
-		}
-	
-	else
-		{
-		event.Skip();
-		}
-	
-}	// end "OnCharHook"
-*/
-
-
 void CMDisplayThematicDlg::OnDropdownPaletteCombo (
 				wxCommandEvent& event)
 

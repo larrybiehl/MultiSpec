@@ -64,13 +64,16 @@ public:
 protected:
 
 			// Generated message map functions
+
+    //virtual void OnCharHook ();
+	virtual void OnCharHook (wxKeyEvent& event);
+	
 	void OnUpdateEditCut(wxUpdateUIEvent& pCmdUI);
 	void OnUpdateEditPaste(wxUpdateUIEvent& pCmdUI);
 	void OnEditCut(wxCommandEvent& event);
 	void OnEditPaste(wxCommandEvent& event);
 	void OnUpdateEditUndo(wxUpdateUIEvent& pCmdUI);
 	void OnEditUndo(wxCommandEvent& event);
-	//	void OnChar(UINT nChar, UINT nRepCnt, UINT nFlags);
 	void OnUpdateEditClearSelectRectangle(wxUpdateUIEvent& pCmdUI);
 	void OnEditClearSelectRectangle(wxCommandEvent& event);
 	void OnUpdateEditSelectionRectangle(wxUpdateUIEvent& pCmdUI);

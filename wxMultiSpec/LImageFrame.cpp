@@ -12,7 +12,7 @@
 //
 //	Authors:					Larry L. Biehl, Wei-Kang Hsu, Tsung Tai Yeh
 //
-//	Revision date:			01/08/2019
+//	Revision date:			01/12/2019
 //
 //	Language:				C++
 //
@@ -101,10 +101,6 @@ CMImageFrame::CMImageFrame (
 			// Initialize variables
 	
 	#if defined multispec_wxmac
-		//wxBitmap overlayi = wxBITMAP_PNG(overlay_24);
-		//wxBitmap zoom1 = wxBITMAP_PNG(zoomx1_24);
-		//wxBitmap zoomout = wxBITMAP_PNG(zoom_out_24);
-		//wxBitmap zoomin = wxBITMAP_PNG(zoom_in_24);
 		wxBitmap overlayi = wxBITMAP_PNG(overlay);
 		wxBitmap zoom1 = wxBITMAP_PNG(zoomx1);
 		wxBitmap zoomout = wxBITMAP_PNG(zoom_out);
@@ -121,7 +117,7 @@ CMImageFrame::CMImageFrame (
 	m_forcePaletteBackgroundUpdateFlag = FALSE;
 	m_coordinatesBar = NULL;
 
-	SetMinSize (wxSize (150,150));
+	SetMinSize (wxSize (150, 150));
 
 			// CMCoordinatebar window
 	
@@ -917,11 +913,14 @@ void CMImageFrame::OnMaximizeWindow (
 		
 				// Set the window height to max(legend height, image size)
 		
-		if (m_imageViewCPtr->m_frame->m_imageLegendViewCPtr != NULL)
-			m_imageViewCPtr->m_frame->m_imageLegendViewCPtr->GetClientSize (&legendWidth, &legendHeight);
-		
-		if (legendWidth > 0)
+		//if (legendWidth > 0)
+		if (windowInfoPtr->windowType == kThematicWindowType)
 			{
+			//if (m_imageViewCPtr->m_frame->m_imageLegendViewCPtr != NULL)
+			//	m_imageViewCPtr->m_frame->m_imageLegendViewCPtr->GetClientSize (&legendWidth, &legendHeight);
+			
+			legendWidth = windowInfoPtr->legendWidth;
+			
 			if (GetCoordinateHeight (windowInfoHandle) > 0)
 				{
 						// Has coordinate bar
@@ -930,28 +929,34 @@ void CMImageFrame::OnMaximizeWindow (
 				coordinateBarHeight = tempArea.GetBottom ();
 				
 				}	// end "if (GetCoordinateHeight (windowInfoHandle) > 0)"
-		
-					// Get height for class and palette controls for thematic images
-		
-			int	hx, hy;
-			m_imageLegendViewCPtr->FindWindow (IDC_COMBO1)->GetSize (&hx, &hy);
-			otherLegendStuffHeight += hy;
 			
-			m_imageLegendViewCPtr->FindWindow (IDC_PaletteCombo)->GetSize (&hx, &hy);
-			otherLegendStuffHeight += hy;
+			if (legendWidth > 1)
+				{
+						// Get height for class and palette controls for thematic images
+						// Note that if the legend width is less than or equal to 1, the
+						// legend is not being displayed. Ignore it.
 			
-			legendHeight = m_imageViewCPtr->m_frame->m_imageLegendViewCPtr->m_legendListBox->
-																						m_ilist->GetImageCount() * 21;
+				int	hx, hy;
+				m_imageLegendViewCPtr->FindWindow (IDC_COMBO1)->GetSize (&hx, &hy);
+				otherLegendStuffHeight += hy;
+				
+				m_imageLegendViewCPtr->FindWindow (IDC_PaletteCombo)->GetSize (&hx, &hy);
+				otherLegendStuffHeight += hy;
+				
+				legendHeight = m_imageViewCPtr->m_frame->m_imageLegendViewCPtr->m_legendListBox->
+																							m_ilist->GetImageCount() * 21;
+				
+						// The 10 extra allows for space around the combo boxes
+				
+				legendHeight += otherLegendStuffHeight + coordinateBarHeight + 10;
+				#if defined multispec_wxlin
+					legendWidth = m_imageViewCPtr->m_frame->m_imageLegendViewCPtr->m_clientWidth;
+				#endif
+				m_TempLongPoint.v = MAX (m_TempLongPoint.v, legendHeight);
+				
+				}	// end "if (legendWidth > 1)"
 			
-					// The 10 extra allows for space around the combo boxes
-			
-			legendHeight += otherLegendStuffHeight + coordinateBarHeight + 10;
-			#if defined multispec_wxlin
-				legendWidth = m_imageViewCPtr->m_frame->m_imageLegendViewCPtr->m_clientWidth;
-			#endif
-			m_TempLongPoint.v = MAX (m_TempLongPoint.v, legendHeight);
-			
-			}	// end "if (windowInfoPtr->legendWidth > 0)"
+			}	// end "if (windowInfoPtr->windowType == kThematicWindowType)"
 		
 				// set the image frame height no larger than the client height
 		
@@ -986,6 +991,10 @@ void CMImageFrame::OnMaximizeWindow (
 			{
 			//m_TempLongPoint.h += (m_TempLongPoint.h - scrollRangeH) - windowInfoPtr->legendWidth + 11;
 			m_TempLongPoint.h += (m_TempLongPoint.h - scrollRangeH) - legendWidth + 11;
+			
+					// Minimum width is 150
+			
+			m_TempLongPoint.h = MAX (150, m_TempLongPoint.h);
 			//m_TempLongPoint.h += legendWidth - 170;
 			//m_TempLongPoint.h += (legendWidth -scrollRangeH)  + 11;
 			

@@ -1,6 +1,6 @@
 // LEditSelectionDialog.cpp
 //
-// Revised by Larry Biehl on 11/13/2018
+// Revised by Larry Biehl on 01/17/2019
 //
 // CMEditCoordinatesDlg dialog
 //
@@ -8,78 +8,19 @@
 #include "wx/valgen.h"
 #include "wx/valnum.h"
 #include "LEditSelectionDialog.h"
-//#include "SExternalGlobals.h" 
 
-
-extern SInt16 EditLineColumnDialogCheckCoordinates(
-        DialogPtr dialogPtr,
-        Handle inputWindowInfoHandle,
-        SInt16 selectionDisplayUnits,
-        LongRect* selectionRectanglePtr,
-        LongRect* minMaxSelectionRectanglePtr,
-        DoubleRect* coordinateRectanglePtr,
-        DoubleRect* minMaxCoordinateRectanglePtr,
-        double newColumnStart,
-        double newColumnEnd,
-        double newLineStart,
-        double newLineEnd);
-
-extern void EditLineColumnDialogInitialize(
-        DialogPtr dialogPtr,
-        WindowPtr windowPtr,
-        WindowInfoPtr windowInfoPtr,
-        SInt16 pointType,
-        SInt16 unitsDisplayCode,
-        LongRect* inputSelectionRectanglePtr,
-        LongRect* selectionRectanglePtr,
-        DoubleRect* coordinateRectanglePtr,
-        LongRect* minMaxSelectionRectanglePtr,
-        DoubleRect* minMaxCoordinateRectanglePtr,
-        DoubleRect* inputCoordinateRectanglePtr,
-        Boolean* applyToAllWindowsFlagPtr,
-        Boolean* useStartLineColumnFlagPtr,
-        SInt16* selectionDisplayUnitsPtr,
-        SInt16 stringID);
-
-extern void EditSelectionDialogShowSelection(
-        WindowPtr windowPtr,
-        Handle windowInfoHandle,
-        LongRect* selectionRectanglePtr,
-        DoubleRect* coordinateRectanglePtr,
-        Boolean applyToAllWindowsFlag,
-        Boolean useStartLineColumnFlag,
-        SInt16 unitsToUseCode,
-        double factor);
-
-extern void EditSelectionDialogSetCoordinates(
-        DialogPtr dialogPtr,
-        Handle windowInfoHandle,
-        LongRect* inputSelectionRectanglePtr,
-        LongRect* selectionRectanglePtr,
-        DoubleRect* inputCoordinateRectanglePtr,
-        DoubleRect* coordinateRectanglePtr,
-        LongRect* minMaxSelectionRectanglePtr,
-        DoubleRect* minMaxCoordinateRectanglePtr,
-        SInt16 requestedSelectionUnitsCode,
-        SInt16 currentSelectionUnitsCode);
-
-extern void EditLineColumnDialogOK(
+extern void EditLineColumnDialogOK (
         Handle windowInfoHandle,
         LongRect* inputSelectionRectanglePtr,
         LongRect* selectionRectanglePtr,
         DoubleRect* coordinateRectanglePtr,
         SInt16 unitsDisplayCode,
         Boolean* changedFlagPtr);
-
-extern void EditLineColumnDialogSetStartLC(
-        DialogPtr dialogPtr,
-        SInt16 unitsDisplayCode,
-        Boolean applyToAllWindowsFlag);
 		  
 
-CMEditCoordinatesDlg::CMEditCoordinatesDlg(wxWindow* pParent, wxWindowID id, const wxString& title /*=NULL*/)
-: CMDialog(CMEditCoordinatesDlg::IDD, pParent, title) {
-    //{{AFX_DATA_INIT(CMEditCoordinatesDlg)
+CMEditCoordinatesDlg::CMEditCoordinatesDlg (wxWindow* pParent, wxWindowID id, const wxString& title /*=NULL*/)
+		: CMDialog(CMEditCoordinatesDlg::IDD, pParent, title)
+{
     m_applyToAllWindowsFlag = FALSE;
     m_listSelectionUnits = -1;    
     m_newColumnStart = 0.0;
@@ -87,7 +28,6 @@ CMEditCoordinatesDlg::CMEditCoordinatesDlg(wxWindow* pParent, wxWindowID id, con
     m_newLineEnd = 0.0;
     m_newLineStart = 0.0;
     m_useStartLineColumnFlag = FALSE;
-    //}}AFX_DATA_INIT
 
     m_pointType = 0;
     m_windowInfoPtr = NULL;
@@ -97,7 +37,8 @@ CMEditCoordinatesDlg::CMEditCoordinatesDlg(wxWindow* pParent, wxWindowID id, con
     m_initializedFlag = CMDialog::m_initializedFlag;
 
     CreateControls();
-}
+	
+}	// end "CMEditCoordinatesDlg"
 
 
 BEGIN_EVENT_TABLE(CMEditCoordinatesDlg, CMDialog)
@@ -131,38 +72,46 @@ Boolean CMEditCoordinatesDlg::CheckLineColumnValues(
 	else if (m_LineEndString.empty())
 		valueItemHit = IDC_NewLineEnd;
 		
-	if (valueItemHit != 0) {
+	if (valueItemHit != 0)
+		{
 		if (m_selectionUnits == kLineColumnUnits)
 			maxValue = m_minMaxSelectionRectangle.bottom;
 			
-		else {
+		else	// m_selectionUnits != kLineColumnUnits
+			{
 			minDoubleValue = m_minMaxCoordinateRectangle.bottom;
 			maxDoubleValue = m_minMaxCoordinateRectangle.top;
-			}
 			
-		}
+			}	// else m_selectionUnits != kLineColumnUnits
+			
+		}	// end "if (valueItemHit != 0)"
 		
-	if (valueItemHit == 0) {
-		if (m_ColumnStartString.empty())
+	if (valueItemHit == 0)
+		{
+		if (m_ColumnStartString.empty ())
 			valueItemHit = IDC_NewColumnStart;
 		
-		else if (m_ColumnEndString.empty())
+		else if (m_ColumnEndString.empty ())
 			valueItemHit = IDC_NewColumnStart;
 			
-		if (valueItemHit != 0)	{
+		if (valueItemHit != 0)
+			{
 			if (m_selectionUnits == kLineColumnUnits)
 				maxValue = m_minMaxSelectionRectangle.right;
 			
-			else {
+			else
+				{
 				minDoubleValue = m_minMaxCoordinateRectangle.left;
 				maxDoubleValue = m_minMaxCoordinateRectangle.right;
+				
 				}
 				
 			}
 			
-		}		// end "if (valueItemHit == 0)"
+		}	// end "if (valueItemHit == 0)"
 		
-	if (valueItemHit != 0) {
+	if (valueItemHit != 0)
+		{
 		Boolean stringLoadedFlag = TRUE;
 		if (m_selectionUnits == kLineColumnUnits)
 			stringLoadedFlag = LoadSpecifiedStringNumberLongP ( 
@@ -174,7 +123,8 @@ Boolean CMEditCoordinatesDlg::CheckLineColumnValues(
 													1,
 													maxValue);
 			
-		else {	// m_selectionUnits != kLineColumnUnits
+		else	// m_selectionUnits != kLineColumnUnits
+			{
 			int numberDecimals = 4;
 			if (m_selectionUnits == kLatLongUnits)
             numberDecimals = 8;
@@ -186,27 +136,30 @@ Boolean CMEditCoordinatesDlg::CheckLineColumnValues(
 												maxDoubleValue);	
 													
 			gTextString[0] = numberChars;
+			
 			}
 		
 		if (stringLoadedFlag)
 			DisplayAlert (kErrorAlertID, kStopAlert, 0, 0, 0, gTextString);
 			
-		}		// end "if (valueItemHit != 0)"
+		}	// end "if (valueItemHit != 0)"
 
-	if (valueItemHit == 0)	{
-		if (m_valueChangedFlag) {
-			valueItemHit = EditLineColumnDialogCheckCoordinates(
-					 this,
-					 m_windowInfoPtr->windowInfoHandle,
-					 m_selectionUnits,
-					 m_selectionRectanglePtr,
-					 &m_minMaxSelectionRectangle,
-					 m_coordinateRectanglePtr,
-					 &m_minMaxCoordinateRectangle,
-					 m_coordinateRectanglePtr->left,
-					 m_coordinateRectanglePtr->right,
-					 m_coordinateRectanglePtr->bottom,
-					 m_coordinateRectanglePtr->top);
+	if (valueItemHit == 0)
+		{
+		if (m_valueChangedFlag)
+			{
+			valueItemHit = EditLineColumnDialogCheckCoordinates (
+																 this,
+																 m_windowInfoPtr->windowInfoHandle,
+																 m_selectionUnits,
+																 m_selectionRectanglePtr,
+																 &m_minMaxSelectionRectangle,
+																 m_coordinateRectanglePtr,
+																 &m_minMaxCoordinateRectangle,
+																 m_coordinateRectanglePtr->left,
+																 m_coordinateRectanglePtr->right,
+																 m_coordinateRectanglePtr->bottom,
+																 m_coordinateRectanglePtr->top);
 
 			if (valueItemHit == 0)
 				m_valueChangedFlag = FALSE;
@@ -218,7 +171,8 @@ Boolean CMEditCoordinatesDlg::CheckLineColumnValues(
 			
 		}	// end "if (valueItemHit == 0)"
 
-	if (valueItemHit != 0) {
+	if (valueItemHit != 0)
+		{
 		SelectDialogItemText(this, valueItemHit, 0, SInt16_MAX);
 		returnFlag = FALSE;
 
@@ -229,9 +183,11 @@ Boolean CMEditCoordinatesDlg::CheckLineColumnValues(
 } // end "CheckLineColumnValues"
 
 
-void CMEditCoordinatesDlg::CheckOKFlag() {
 
-    // Make certain the line-column values make sense.					
+void CMEditCoordinatesDlg::CheckOKFlag()
+
+{
+    		// Make certain the line-column values make sense.
 
     if ((m_newLineStart > m_newLineEnd) ||
             (m_newColumnStart > m_newColumnEnd))
@@ -241,7 +197,7 @@ void CMEditCoordinatesDlg::CheckOKFlag() {
         //				(m_newColumnStart <= m_newColumnEnd) 
         MHiliteControl((CMImageView*)this, (ControlHandle) wxID_OK, 0);
 
-} // end "CheckOKFlag" 
+}	// end "CheckOKFlag"
 
 
 void CMEditCoordinatesDlg::CreateControls ()
@@ -413,22 +369,10 @@ void CMEditCoordinatesDlg::CreateControls ()
 	
 	//bSizer204->Add (bSizer207, 1, wxALIGN_LEFT | wxALL | wxEXPAND, 5);
 	bSizer204->Add (bSizer207, wxSizerFlags(1).Left());
-	/*
-	wxBoxSizer* bSizer206;
-	bSizer206 = new wxBoxSizer(wxHORIZONTAL);
-	m_button30 = new wxButton(this, wxID_CANCEL, wxT("Cancel"), wxDefaultPosition, wxDefaultSize, 0);
-	
-	bSizer206->Add (m_button30, wxSizerFlags(0).Right().Border(wxRIGHT,6));
-	m_button31 = new wxButton(this, wxID_OK, wxT("OK"), wxDefaultPosition, wxDefaultSize, 0);
-	bSizer206->Add (m_button31, wxSizerFlags(0).Right());
 
-	bSizer204->Add (bSizer206, wxSizerFlags(0).Right());
-	*/
 	//bSizer200->Add (bSizer204, 0, wxALL | wxEXPAND, 5);
 	bSizer200->Add (bSizer204, wxSizerFlags(0).Expand().Border(wxLEFT|wxTOP|wxRIGHT, 12));
 	
-	//wxSizer* standardButtonSizer = CreateButtonSizer (wxOK | wxCANCEL);
-	//bSizer200->Add (standardButtonSizer, wxSizerFlags(0).Right());
 	CreateStandardButtons (bSizer200);
 
 	this->SetSizer (bSizer200);
@@ -1046,7 +990,9 @@ void CMEditCoordinatesDlg::OnSelendokCoordinateUnits(wxCommandEvent& event)
 } // end "OnSelendokCoordinateUnits"
 
 
-bool CMEditCoordinatesDlg::TransferDataFromWindow() {
+bool CMEditCoordinatesDlg::TransferDataFromWindow ()
+
+{
 	wxCheckBox* applyToAllWindowsFlag = (wxCheckBox*) FindWindow(IDC_ApplyToAllCheckbox);
 	wxCheckBox* useStartLineColumnFlag = (wxCheckBox*) FindWindow(IDC_StartLCCheckBox);
 	wxChoice* listSelectionUnits = (wxChoice*) FindWindow(IDC_CoordinateUnits);
@@ -1069,14 +1015,23 @@ bool CMEditCoordinatesDlg::TransferDataFromWindow() {
 	m_ColumnEndString.ToDouble(&m_newColumnEnd);
 	m_LineStartString.ToDouble(&m_newLineStart);
 	m_LineEndString.ToDouble(&m_newLineEnd);
+	
+	if (m_pointType == kPolygonType)
+		{
+		m_ColumnEndString = m_ColumnStartString;
+		m_LineEndString = m_LineStartString;
+		
+		m_newColumnEnd = m_newColumnStart;
+		m_newLineEnd = m_newLineStart;
+		
+		}	// end "if (m_pointType == kPolygonType)"
 
-	if (!CheckLineColumnValues(NULL)) {  //invalid input
+	if (!CheckLineColumnValues (NULL))
 		return false;
-		}
 
 	return true;
 	
-}		// end "TransferDataFromWindow"
+}	// end "TransferDataFromWindow"
 
 
 bool CMEditCoordinatesDlg::TransferDataToWindow() {
