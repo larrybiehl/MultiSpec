@@ -5,7 +5,7 @@
 # Warning: Strings should not contain chars like #[No.] in them and string maybe on multiple lines (limited to 255 chars)
 # If need arises for this, try to space them apart
 # string id should be in numerical order
-# Revised by Larry Biehl on 01/04/2019
+# Revised by Larry Biehl on 01/15/2019
 
 #include "resource.h"
 
@@ -33,14 +33,14 @@
     AFX_IDS_SCTASKLIST      "Activate Task List"
     AFX_IDS_MDICHILD        "</kml>"
 
-#51    "All Files (*.*) |*.*|Multispectral (*.lan;*.img;*.bil;*.bsq;*.tif;*.hdf;*.h5;*.nc) |*.lan;*.img;*.bil;*.bsq;*.tif;*.hdf;*.h5;*.nc|Thematic (*.gis;*.tif) |*.gis;*.tif|Shape (*.shp) |*.shp"
+#51    "All Files (*.*) |*.*|Multispectral (*.lan;*.img;*.bil;*.bsq;*.tif;*.hdf;*.h5;*.nc;*.ecw;*.jp2) |*.lan;*.img;*.bil;*.bsq;*.tif;*.hdf;*.h5;*.nc;*.ecw;*.jp2|Thematic (*.gis;*.tif) |*.gis;*.tif|Shape (*.shp) |*.shp"
 #52    "All Files (*.*) |*.*|Project (*.prj, *project) |*.prj;*project"
 #53    "All Files (*.*) |*.*|Transformation Matrix (*.tra) |*.tra"
 #54    "All Files (*.*) |*.*|TIFF (*.tif) |*.tif"
 #55    "All Files (*.*) |*.*|Image Statistics (*.sta) |*.sta"
 #56    "All Files (*.*) |*.*|Thematic (*.gis;*.tif) |*.gis;*.tif"
 #57    "All Files (*.*) |*.*|Trailer (*.trl) |*.trl"
-#58    "All Files (*.*) |*.*|Multispectral (*.lan;*.img;*.bil;*.bsq;*.tif;*.hdf;*.h5;*.nc) |*.lan;*.img;*.bil;*.bsq;*.tif;*.hdf;*.h5;*.nc"
+#58    "All Files (*.*) |*.*|Multispectral (*.lan;*.img;*.bil;*.bsq;*.tif;*.hdf;*.h5;*.nc;*.ecw;*.jp2) |*.lan;*.img;*.bil;*.bsq;*.tif;*.hdf;*.h5;*.nc;*.ecw;*.jp2"
 #59    "All Files (*.*) |*.*|Text (*.txt) |*.txt"
 
 #104 "Control display of overlays"

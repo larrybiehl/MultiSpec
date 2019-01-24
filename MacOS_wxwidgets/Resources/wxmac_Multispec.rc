@@ -1,5 +1,5 @@
 // String Defines for About Dialog Box 
-#define AboutStaticText "MultiSpec\n Version 2019.01.10\n(64-bit version)\n\n Laboratory for Applications of Remote Sensing\nPurdue University\nWest Lafayette, IN 47907\n\n Copyright © 1988-2019\nPurdue Research Foundation\nAll Rights Reserved \n\n Work leading to MultiSpec was funded in part by NASA Grants \n NAGW-925, NAGW-3924 and NAGW5-3975\n\n Supported by AmericaView (www.americaview.org)\n\n wxWidgets, GDAL, HDF5, Kakadu (jpeg2000), ERDAS/Earth Resource Mapping ECW, and HDF4 software libraries are used."
+#define AboutStaticText "MultiSpec\n Version 2019.01.18\n(64-bit version)\n\n Laboratory for Applications of Remote Sensing\nPurdue University\nWest Lafayette, IN 47907\n\n Copyright © 1988-2019\nPurdue Research Foundation\nAll Rights Reserved \n\n Work leading to MultiSpec was funded in part by NASA Grants \n NAGW-925, NAGW-3924 and NAGW5-3975\n\n Supported by AmericaView (www.americaview.org)\n\n wxWidgets, GDAL, HDF5, Kakadu (jpeg2000), ERDAS/Earth Resource Mapping ECW, and HDF4 software libraries are used."
 
 #define AboutImagePath "Resources/mspec.xpm"
 
