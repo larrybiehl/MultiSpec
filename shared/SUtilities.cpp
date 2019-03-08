@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl, Ravi Budruk
 //
-//	Revision date:			01/16/2019
+//	Revision date:			01/30/2019
 //
 //	Language:				C
 //
@@ -2575,7 +2575,7 @@ Boolean DetermineIfContinuousChannels (
 //							CopyPrintOffscreenImage in print.c
 //
 //	Coded By:			Larry L. Biehl			Date: ??/??/1991
-//	Revised By:			Larry L. Biehl			Date: 01/16/2019
+//	Revised By:			Larry L. Biehl			Date: 01/30/2019
 
 void	DrawSideBySideTitles (
 				Handle								windowInfoHandle, 
@@ -2889,6 +2889,10 @@ void	DrawSideBySideTitles (
 		gCDCPointer->SetMapMode (wxMM_TEXT);
 		gCDCPointer->SetFont (font);
 		gCDCPointer->SetUserScale (1, 1);
+	
+		#if defined multispec_wxlin
+			updateRectPtr->top += 2;
+		#endif
 	#endif
 	
 	for (index=gStartChannel; index<gSideBySideChannels; index++)

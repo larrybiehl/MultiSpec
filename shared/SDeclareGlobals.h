@@ -19,7 +19,7 @@
 //								MultiSpec.
 //
 //	Revised By:				Abdur Maud				Date: 01/24/2013
-//	Revised By:				Larry L. Biehl			Date: 01/04/2019
+//	Revised By:				Larry L. Biehl			Date: 01/26/2019
 //
 //------------------------------------------------------------------------------------
 
@@ -1187,7 +1187,8 @@ SInt32							gNumberOfOpenFilesLimit = 32000;
 #endif	// defined multispec_win	
 
 #if defined multispec_wxlin
-	UInt32							gControlOffset = CLOCKS_PER_SEC/4;
+	//UInt32							gControlOffset = CLOCKS_PER_SEC/4;
+	UInt32							gControlOffset = 250;
 #endif	// defined multispec_wxlin
 
 #if defined multispec_wxmac
@@ -1452,11 +1453,15 @@ SInt16							gDisplayIntervalTime = 120;
                    
 		// File filter index to use for opening
 		// image or shape files.
-#if defined multispec_win || defined multispec_lin			
-	SInt16							gImageFileFilterIndex = 2;
-#else
+#if defined multispec_lin
+	SInt16							gImageFileFilterIndex = 1;
+#endif
+#if defined multispec_mac
 	SInt16							gImageFileFilterIndex = 0;
-#endif	// defined multispec_win, else...
+#endif	// defined multispec_mac
+#if defined multispec_win
+	SInt16							gImageFileFilterIndex = 2;
+#endif
 
 		// Variable indicating the file name length limit.
 UInt16							gFileNameLengthLimit = 254;

@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			07/10/2018
+//	Revision date:			02/28/2019
 //
 //	Language:				C
 //
@@ -160,7 +160,7 @@ SInt16	WriteChannelValues (
 
                        
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -179,7 +179,7 @@ SInt16	WriteChannelValues (
 // Called By:			GetReformatOutputFile in reformat.c
 //
 //	Coded By:			Larry L. Biehl			Date: 12/06/1991
-//	Revised By:			Larry L. Biehl			Date: 11/27/2017
+//	Revised By:			Larry L. Biehl			Date: 02/28/2019
 
 SInt16 AppendFile (
 				FileInfoPtr 						fileInfoPtr, 
@@ -477,7 +477,7 @@ SInt16 AppendFile (
 				
 						// Get a blank string.																
 						
-				MGetString (blankString, kFileIOStrID, IDS_BlankString16);
+				MGetString (blankString, kFileIOStrID, IDS_BlankString16, 31);
 	
 				descriptionPtr = (ChannelDescriptionPtr)GetHandlePointer (
 																	fileInfoPtr->channelDescriptionH);
@@ -573,7 +573,7 @@ SInt16 AppendFile (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -918,7 +918,7 @@ void AppendFileDialogOK (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1022,7 +1022,7 @@ void ChangeErdasHeader (void)
 
                       
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1225,7 +1225,7 @@ Boolean ChangeErdasHeaderDialog (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1267,7 +1267,7 @@ pascal void DrawHeaderOptionsPopUp (
 
 #if defined multispec_mac 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1308,7 +1308,7 @@ pascal void DrawOutputFilePopUp (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1378,7 +1378,7 @@ void GetOutputBufferParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1551,7 +1551,7 @@ void GetOutputFileName (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1870,7 +1870,7 @@ Boolean GetReformatOutputFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2114,7 +2114,7 @@ Boolean InsertNewErdasHeader (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2553,7 +2553,7 @@ Boolean ListReformatResultsInformation (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2625,7 +2625,7 @@ void LoadCurrentHeaderParametersInDialog (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2675,7 +2675,7 @@ void LoadDescriptionIntoDItem (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2914,7 +2914,7 @@ void ModifyChannelDescriptions (
 
                       
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3198,7 +3198,7 @@ SInt16 ModifyChannelDescriptionsViaKeyboard (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3263,7 +3263,7 @@ Boolean ModifyChannelDescriptionsUpdate (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3307,7 +3307,7 @@ void ModifyChannelDescriptionsChangeChannel (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3465,7 +3465,7 @@ void UpdateOutputFileStructure (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3699,7 +3699,7 @@ SInt16 WriteChannelDescriptions (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3779,7 +3779,7 @@ void WriteChannelDescriptionsAndValues (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4050,7 +4050,7 @@ SInt16 WriteChannelValues (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //

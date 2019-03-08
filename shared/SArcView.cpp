@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//							 Copyright (1988-2018)
+//							 Copyright (1988-2019)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			01/17/2019
+//	Revision date:			02/28/2019
 //
 //	Language:				C
 //
@@ -290,7 +290,7 @@ Boolean 						WindowBoundingAreaAndRectIntersect (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -475,7 +475,7 @@ void AddCurrentVectorOverlaysToImageWindow (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -561,7 +561,7 @@ SInt16 AddToWindowOverlayList (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -827,7 +827,7 @@ SInt16 CheckIfOverlayFileLoaded (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -967,7 +967,7 @@ Boolean CheckIfVectorOverlaysIntersectImage (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1033,7 +1033,7 @@ Boolean CheckIfOverlayMayBeLatLong (
 
 #if include_gdal_capability
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1137,7 +1137,7 @@ SInt16 CheckIfprjFileDefinesLatLong (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1294,7 +1294,7 @@ SInt16 CheckIfOverlayNeedsReloaded (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1337,7 +1337,7 @@ void CloseAllVectorOverlayFiles (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1460,7 +1460,7 @@ void CloseOverlayFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1525,7 +1525,7 @@ void ClearVectorOverlay (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018
+//								 Copyright (1988-2019
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1571,7 +1571,7 @@ void ConvertLatLongPointToMapPoint (
 // This routine is now left out since code is now not being generated for pre-powerpc
 // processors
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1624,7 +1624,7 @@ Boolean ConvertLatLongRectToMapRect (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018
+//								 Copyright (1988-2019
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1810,7 +1810,7 @@ Boolean CreateCLRSupportFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1828,7 +1828,7 @@ Boolean CreateCLRSupportFile (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 02/10/2001
-//	Revised By:			Larry L. Biehl			Date: 02/10/2001
+//	Revised By:			Larry L. Biehl			Date: 02/28/2019
 
 void DisplayNoIntersectionAlert (
 				SInt16								stringNumber)
@@ -1841,7 +1841,9 @@ void DisplayNoIntersectionAlert (
 	MGetString (gTextString3, kAlertStrID, stringNumber);
 	stringLength = gTextString3[0];
 	
-	MGetString (&gTextString3[stringLength+1], kAlertStrID, IDS_Alert87);
+	MGetString (&gTextString3[stringLength+1],
+					kAlertStrID, IDS_Alert87,
+					254-stringLength);
 	stringLength += gTextString3[stringLength+1];
 	gTextString3[stringLength+1] = 0;
 	
@@ -1873,7 +1875,7 @@ void DisplayNoIntersectionAlert (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2096,7 +2098,7 @@ void DoShowOverlaySelection (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2695,7 +2697,7 @@ void DrawArcViewShapes (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2727,7 +2729,7 @@ void* GetFileNamePPointerFromShapeInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2770,7 +2772,7 @@ void* GetFileNamePPointerFromShapeInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2814,7 +2816,7 @@ CMFileStream* GetFileStreamPointer (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2872,7 +2874,7 @@ void GetLastVectorColorAndWidth (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3128,7 +3130,7 @@ Boolean GetArcViewMapInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3167,7 +3169,7 @@ Boolean GetMemoryForVectorData (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3236,7 +3238,7 @@ UInt32 GetShapeFileNumberRecordsAndType (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3281,7 +3283,7 @@ void InitializeOverlay (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3452,7 +3454,7 @@ void ListNonIntersectionMessage (
 
                        
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018
+//								 Copyright (1988-2019
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3471,7 +3473,7 @@ void ListNonIntersectionMessage (
 // Called By:			in controls.c
 //
 //	Coded By:			Larry L. Biehl			Date: 05/24/2001
-//	Revised By:			Larry L. Biehl			Date: 05/25/2001
+//	Revised By:			Larry L. Biehl			Date: 01/28/2019
 
 Boolean OverlayControlDialog (
 				Handle								windowInfoHandle,
@@ -3677,7 +3679,8 @@ Boolean OverlayControlDialog (
    #if defined multispec_lin                         
 		CMOverlayParameterDlg*		dialogPtr = NULL;
 		
-		dialogPtr = new CMOverlayParameterDlg (wxTheApp->GetTopWindow ()); 
+		//dialogPtr = new CMOverlayParameterDlg (wxTheApp->GetTopWindow ());
+		dialogPtr = new CMOverlayParameterDlg (NULL);
 			                                                                  
 		continueFlag = dialogPtr->DoDialog (windowInfoPtr,
 																overlayCode,
@@ -3695,7 +3698,7 @@ Boolean OverlayControlDialog (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3764,7 +3767,7 @@ void OverlayDialogInitialize (
 									
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018
+//								 Copyright (1988-2019
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3830,7 +3833,7 @@ void OverlayDialogOK (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018
+//								 Copyright (1988-2019
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4170,7 +4173,7 @@ Boolean ReadArcViewClassNames (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018
+//								 Copyright (1988-2019
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4391,7 +4394,7 @@ Boolean ReadArcViewColorPalette (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018
+//								 Copyright (1988-2019
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5021,7 +5024,7 @@ Boolean ReadArcViewGroups (
 			
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5638,7 +5641,7 @@ SInt16 ReadArcViewHeader (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5882,7 +5885,7 @@ Boolean ReadArcViewWorldFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6479,7 +6482,7 @@ SInt16 ReadArcViewShapeFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7173,7 +7176,7 @@ SInt16 ReadArcViewShapeHeader (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7561,7 +7564,7 @@ void ReadGTOPO30PrjFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7637,7 +7640,7 @@ void ReleaseShapeFileMemory (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7690,7 +7693,7 @@ Boolean WindowBoundingAreaAndRectIntersect (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7753,7 +7756,7 @@ Boolean WindowBoundingAreaAndRectIntersect (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7805,7 +7808,7 @@ void SetLastVectorColorAndWidth (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

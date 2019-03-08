@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			01/07/2019
+//	Revision date:			03/01/2019
 //
 //	Language:				C
 //
@@ -3831,7 +3831,7 @@ void LoadTransformationFile (void)
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 10/08/1997
-//	Revised By:			Larry L. Biehl			Date: 03/15/2017
+//	Revised By:			Larry L. Biehl			Date: 03/01/2019
 
 Boolean ReadOffsetGainFile (
 				CMFileStream*						fileStreamPtr,
@@ -3853,10 +3853,11 @@ Boolean ReadOffsetGainFile (
 											
 	UCharPtr								inputStringPtr;
 	
+	int									numberChannels;
+	
 	SInt32								versionNumber;
 	
 	UInt32								count,
-											numberChannels,
 											numberEndOfLineBytes;
 	
 	OSErr 								errCode;
@@ -3965,7 +3966,7 @@ Boolean ReadOffsetGainFile (
 					// Get the number of offsets-gains
 					
 			tReturnCode = sscanf ((char*)inputStringPtr, 
-											"%ld\r",
+											"%d\r",
 											&numberChannels);
 											
 			if (tReturnCode != 1)

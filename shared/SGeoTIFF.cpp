@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//							 Copyright (1988-2018)
+//							 Copyright (1988-2019)
 //						(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			06/28/2018
+//	Revision date:			03/01/2019
 //
 //	Language:				C
 //
@@ -160,7 +160,7 @@ SInt16 				SetPixelScaleParametersFromGeoTIFF (
 
 #if use_multispec_tiffcode
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -455,7 +455,7 @@ SInt16 CheckRowsPerStrip (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -545,7 +545,7 @@ SInt16 GetBlockSizesVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -589,7 +589,7 @@ SInt16 GetGeoASCIIStringFromGeoTIFF (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -650,7 +650,7 @@ SInt16 GetGeoASCIIStringFromGeoTIFF (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -692,7 +692,7 @@ SInt16 GetGTModelTypeGeoKey (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -815,7 +815,7 @@ SInt16 GetGTModelTypeGeoKeyFromGeoDirectory (
 
 #if use_multispec_tiffcode
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -871,7 +871,7 @@ SInt16 GetGeoDoubleParametersFromGeoTIFF (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1570,7 +1570,7 @@ SInt16 GetGeoKeyParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1697,7 +1697,7 @@ Boolean GetSpecifiedTIFFKeyDirectory (
   
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1760,7 +1760,7 @@ Boolean GetSwapBytesFlagForTiffFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1857,7 +1857,7 @@ SInt16 GetTiffEntry (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1933,7 +1933,7 @@ SInt16 GetTIFFASCIIParameters (
 
 #if use_multispec_tiffcode
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2016,7 +2016,7 @@ SInt16 GetTIFFDoubleParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2066,7 +2066,7 @@ void GetTIFFImageDescription (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2113,7 +2113,7 @@ UInt32 GetTIFFNumberHeaderBytes (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2318,7 +2318,7 @@ Boolean ListGeoTiffTextDescriptionParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2521,7 +2521,7 @@ Boolean ListTiffTextDescriptionParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2672,7 +2672,7 @@ SInt16 LoadHierarchalFileStructure (
 
 #if use_multispec_tiffcode
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3614,7 +3614,7 @@ SInt16 ReadTIFFHeader (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3636,7 +3636,7 @@ SInt16 ReadTIFFHeader (
 //							SetGeoProjectionFromGeoTIFF in SGeoTIFF.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 02/17/2012
-//	Revised By:			Larry L. Biehl			Date: 02/27/2018
+//	Revised By:			Larry L. Biehl			Date: 03/01/2019
 
 void SetProjectionInformationFromString (
 				MapProjectionInfoPtr				mapProjectionInfoPtr,
@@ -3648,9 +3648,8 @@ void SetProjectionInformationFromString (
 	
 	UCharPtr								stringPtr;
 	
-	int									gridZone;
-	
-	SInt32								fipsNumber;
+	int									fipsNumber,
+											gridZone;
 	
 	SInt16								returnCode;
 	
@@ -3777,7 +3776,7 @@ void SetProjectionInformationFromString (
 				
 				fipsNumber = 0;		
 				if ((stringPtr = (UCharPtr)strstr ((char*)inputStringPtr, "FIPS")) != NULL)
-					sscanf ((char*)stringPtr, "FIPS_%ld", &fipsNumber);
+					sscanf ((char*)stringPtr, "FIPS_%d", &fipsNumber);
 					
 				if (fipsNumber == 0)
 					{
@@ -3948,7 +3947,7 @@ void SetProjectionInformationFromString (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3989,7 +3988,7 @@ void SetProjectionInformationFromString2 (
 
 #if use_multispec_tiffcode
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4062,7 +4061,7 @@ SInt16 SetGeoProjectionFromGeoTIFF (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4135,7 +4134,7 @@ void SetGeoTiePointsForRasterPixelType (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4368,7 +4367,7 @@ SInt16 SetGeoTiePointsFromGeoTIFF (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4463,7 +4462,7 @@ SInt16 SetModelTransformationParametersFromGeoTIFF (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4541,7 +4540,7 @@ SInt16 SetPixelScaleParametersFromGeoTIFF (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							 (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			10/22/2018
+//	Revision date:			03/04/2019
 //
 //	Language:				C
 //
@@ -390,7 +390,7 @@ SInt16	gFunctionSelection = 0;
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -466,7 +466,7 @@ void AddWhiteGaussianNoise (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -521,7 +521,7 @@ void AdjustDataForChangeFormat (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1785,7 +1785,7 @@ Boolean ChangeFormatToBILorBISorBSQ (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2227,7 +2227,7 @@ void ChangeImageFileFormat ()
 
                        
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2875,9 +2875,9 @@ Boolean ChangeImageFormatDialog (
 
 		//dialogPtr = new CMChangeFormatDlg ((wxWindow*)GetMainFrame ());
 		//dialogPtr = new CMChangeFormatDlg ((wxWindow*)gActiveImageViewCPtr->m_frame);
-		dialogPtr = new CMChangeFormatDlg (NULL);
+		dialogPtr = new CMChangeFormatDlg (reformatOptionsPtr, NULL);
 
-		OKFlag = dialogPtr->DoDialog (outFileInfoPtr, reformatOptionsPtr);
+		OKFlag = dialogPtr->DoDialog (outFileInfoPtr);
 
 		delete dialogPtr;
 	#endif	// defined multispec_win
@@ -2889,7 +2889,7 @@ Boolean ChangeImageFormatDialog (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3125,11 +3125,12 @@ void ChangeImageFormatDialogInitialize (
 								(UCharPtr)inputDataValueTypeStringPtr);
 	#endif	// defined multispec_mac  
                        
-	#if defined multispec_win | defined multispec_lin
+	#if defined multispec_win || defined multispec_lin
 		MGetString ((UCharPtr)inputDataValueTypeStringPtr,
 							0,
-							IDS_DataType01+*dataValueTypeSelectionPtr-1);
-	#endif	// defined multispec_win | defined multispec_lin
+							IDS_DataType01+*dataValueTypeSelectionPtr-1,
+							63);
+	#endif	// defined multispec_win || defined multispec_lin
 	
 			// "Output file" popup box.
 												
@@ -3379,7 +3380,7 @@ void ChangeImageFormatDialogInitialize (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3759,7 +3760,7 @@ Boolean ChangeImageFormatDialogOK (
 
                        
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3994,7 +3995,7 @@ void ChangeImageFormatDialogUpdateHeaderMenu (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4244,7 +4245,7 @@ void ChangeImageFormatDialogUpdateHeaderOptions (
 
                        
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4330,7 +4331,7 @@ void ChangeImageFormatDialogUpdateSwapBytes (
 
                        
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4409,7 +4410,7 @@ void ChangeImageFormatDialogUpdateTIFFHeader (
 
                        
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4555,7 +4556,7 @@ void ChangeImageFormatDialogVerifyHeaderSetting (
 
                       
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4574,7 +4575,7 @@ void ChangeImageFormatDialogVerifyHeaderSetting (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 03/06/1992
-//	Revised By:			Larry L. Biehl			Date: 05/15/2015
+//	Revised By:			Larry L. Biehl			Date: 02/28/2019
 
 Boolean ChangeImageTransformDialog (
 				ReformatOptionsPtr				reformatOptionsPtr, 
@@ -4753,14 +4754,20 @@ Boolean ChangeImageTransformDialog (
 		
 	else	// reformatOptionsPtr->transformDataCode == kTransformChannels 
 		itemHit = 18;
-		
-	if (!GetDefaultBandRatio (
-								gImageWindowInfoPtr, gImageFileInfoPtr, reformatOptionsPtr))
+	
+	if (!reformatOptionsPtr->algebraicStringsLoadedFlag)
 		{
-		reformatOptionsPtr->transformFactor = 1.;
-		reformatOptionsPtr->transformOffset = 0.;
+		if (!GetDefaultBandRatio (
+								gImageWindowInfoPtr, gImageFileInfoPtr, reformatOptionsPtr))
+			{
+			reformatOptionsPtr->transformFactor = 1.;
+			reformatOptionsPtr->transformOffset = 0.;
 		
-		}	// end "if (!GetDefaultBandRatio (gImageWindowInfoPtr, ..."
+			}	// end "if (!GetDefaultBandRatio (gImageWindowInfoPtr, ..."
+		
+		reformatOptionsPtr->algebraicStringsLoadedFlag = TRUE;
+		
+		}	// end "if (!reformatOptionsPtr->algebraicStringSetFlag)"
 		
 	lastTransformOffset = reformatOptionsPtr->transformOffset;
 	LoadDItemRealValue (dialogPtr, 18, (SInt32)lastTransformOffset, 3);
@@ -5405,7 +5412,7 @@ Boolean ChangeImageTransformDialog (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5600,7 +5607,7 @@ void CheckForSaturation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5636,7 +5643,7 @@ void CleanUpChangeFormat (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5716,7 +5723,7 @@ void ConvertDataValueToBinValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5809,7 +5816,7 @@ void ConvertSymbolsToBinary (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5971,7 +5978,7 @@ UInt16* CreateNewToOldPaletteVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6100,7 +6107,7 @@ void CreatePCImage (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6268,7 +6275,7 @@ HUInt16Ptr CreateSymbolToBinaryTable (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6497,7 +6504,7 @@ HUInt16Ptr CreateClassToGroupTable (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6571,7 +6578,7 @@ HUInt16Ptr CreateDataValueToClassTable (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6705,7 +6712,7 @@ SInt16 DecodeAlgebraicFormula (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							 (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6779,7 +6786,7 @@ SInt16 DeterminePCMinimumNumberBits (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6821,7 +6828,7 @@ pascal void DrawChanDescriptionPopUp (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6863,7 +6870,7 @@ pascal void DrawFunctionPopUp (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6904,7 +6911,7 @@ pascal void DrawPCChannelsPopUp (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6992,7 +6999,7 @@ double Find_kth_SmallestElementInList (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7450,7 +7457,7 @@ void FunctionOfChannels (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7547,7 +7554,7 @@ SInt16 GetAdjustBufferData (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7822,7 +7829,7 @@ Boolean GetDefaultBandRatio (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7873,7 +7880,7 @@ SInt16 GetHeaderFormatFromPopUpSelection (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7940,7 +7947,7 @@ SInt32 GetNumberHeaderBytes (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8001,7 +8008,7 @@ SInt16 GetPCChannelList (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8082,7 +8089,7 @@ Boolean GetReformatAndFileInfoStructures (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8283,7 +8290,7 @@ Boolean GetReformatOutputBuffer (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8396,7 +8403,7 @@ SInt16 GetTransformChannelList (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8477,7 +8484,7 @@ void InitializeHeaderPopupMenu (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8600,7 +8607,7 @@ void InitializeOutputFileInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8618,7 +8625,7 @@ void InitializeOutputFileInformation (
 // Called By:			GetReformatAndFileInfoStructures
 //
 //	Coded By:			Larry L. Biehl			Date: 12/06/1991
-//	Revised By:			Larry L. Biehl			Date: 07/10/2018
+//	Revised By:			Larry L. Biehl			Date: 03/04/2019
 
 void InitializeReformatStructure (
 				ReformatOptionsPtr				reformatOptionsPtr)
@@ -8770,7 +8777,8 @@ void InitializeReformatStructure (
 		//				gProcessorCode == kRectifyImageProcessor ||
 		//							gProcessorCode == kRefMosaicImagesProcessor)
 		//	{
-		if (gImageWindowInfoPtr->channelsInWavelengthOrderCode == kNotInOrder)
+		if (gImageWindowInfoPtr != NULL &&
+					gImageWindowInfoPtr->channelsInWavelengthOrderCode == kNotInOrder)
 			{
 			reformatOptionsPtr->outputInWavelengthOrderFlag = FALSE;
 		
@@ -8805,7 +8813,7 @@ void InitializeReformatStructure (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8823,7 +8831,7 @@ void InitializeReformatStructure (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 01/31/2013
-//	Revised By:			Larry L. Biehl			Date: 07/02/2018
+//	Revised By:			Larry L. Biehl			Date: 02/28/2019
 
 Boolean LoadReformatOptionsSpecs (
 				WindowInfoPtr						windowInfoPtr)
@@ -9065,6 +9073,11 @@ Boolean LoadReformatOptionsSpecs (
 				}	// end "if (continueFlag)" 
 				
 			returnFlag = continueFlag;
+			
+					// Indicate that no default (last) algebraic transformations have
+					// been loaded.
+			
+			reformatOptionsPtr->algebraicStringsLoadedFlag = FALSE;
 				
 			}	// end "if (gProcessorCode == kRefChangeFileFormatProcessor)"
 			
@@ -9087,7 +9100,7 @@ Boolean LoadReformatOptionsSpecs (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9233,7 +9246,7 @@ void ReformatControl (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9302,7 +9315,7 @@ void ReleaseReformatOutputFileInfoAndBuffers (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9344,7 +9357,7 @@ void SaveAlgebraicTransformationFunction (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9424,7 +9437,7 @@ void TransformAdjustChannelsByChannel (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //

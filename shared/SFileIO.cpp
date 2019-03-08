@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			01/15/2019
+//	Revision date:			01/31/2019
 //
 //	Language:				C
 //
@@ -4021,7 +4021,7 @@ UInt32 GetDataConversionCode (
 //							LoadTransformationFile in saveWrite.c
 //
 //	Coded By:			Larry L. Biehl			Date: 05/28/1988
-//	Revised By:			Larry L. Biehl			Date: 09/05/2017
+//	Revised By:			Larry L. Biehl			Date: 01/31/2019
 
 SInt16 GetFile (
 				CMFileStream* 						fileStreamPtr, 
@@ -4262,19 +4262,18 @@ SInt16 GetFile (
 			gFileFilterIndex = 1;
 			if (filterStringIndex == IDS_FilterString)
 				gFileFilterIndex = gImageFileFilterIndex;
-		 
-			//CMOpenFileDialog *filedlgobj = new CMOpenFileDialog (GetMainFrame ());
-			//wxWindow* frame = NULL;
-			//if ((WindowPtr)gOutputViewCPtr == gTheActiveWindow)
-			//	frame = (wxWindow*)gOutputViewCPtr->m_frame;
-			//else if (gActiveImageViewCPtr != NULL)
-			//	frame = (wxWindow*)gActiveImageViewCPtr->m_frame;
-			
-			//wxFrame* frame = GetActiveFrame ();
+	
+		 			// Have tried several ways to center open file dialog on MultiSpec
+		 			// Online window. If one uses NULL, the dialog will be centered
+		 			// but will be behind the text and image windows. If one uses
+		 			// the text window frame then the dialog box will be on top but
+		 			// positioned over the text window. Not optimum but better that
+		 			// the other options.
+	
 			wxFrame* frame = gOutputViewCPtr->m_frame;
-			//wxFrame* mainFrame = GetMainFrame ();
 
 			CMOpenFileDialog *filedlgobj = new CMOpenFileDialog (frame);
+	
 			wxString 					filePathName;
 			wxWCharBuffer				wideCharBuffer;
 			FSRef*						localFileAsFSRefPtr;
@@ -4284,7 +4283,6 @@ SInt16 GetFile (
 			
 			if (fileAsFSRefPtr != NULL)
 				style = wxFD_MULTIPLE | wxFD_OPEN | wxFD_FILE_MUST_EXIST;	
-				//style = wxFD_MULTIPLE;	
 			else
 				style = wxFD_OPEN;
 				

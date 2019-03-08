@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			01/18/2019
+//	Revision date:			03/08/2019
 //
 //	Language:				C
 //
@@ -2424,8 +2424,7 @@ SInt32 GetSpecifiedString (
 				  
 			else	// stringPtr == NULL
 				{
-				Boolean continueFlag = MGetString (
-													(UCharPtr)*stringPtrPtr, NULL, stringID);
+				MGetString ((UCharPtr)*stringPtrPtr, NULL, stringID);
 			                     
 				stringLength = (*stringPtrPtr)[0];
 				
@@ -2729,14 +2728,14 @@ void GetGraphWindowTitle (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 03/09/2007
-//	Revised By:			Larry L. Biehl			Date: 01/18/2019
+//	Revised By:			Larry L. Biehl			Date: 03/08/2019
 
 void InitializeDateVersionStrings ()
 
 {
 		// Date version string
 		
-	sprintf (gDateVersionString, "2019.01.18");
+	sprintf (gDateVersionString, "2019.03.08");
 
 		// Application identifier string
 		
@@ -6144,7 +6143,7 @@ void* MemoryCopy (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 04/14/1995
-//	Revised By:			Larry L. Biehl			Date: 09/26/2017
+//	Revised By:			Larry L. Biehl			Date: 02/28/2019
 //
 // For Linux: The String Table must be defined in LStringTable.def
 // Format for linux string table is given in LStringTable.def
@@ -6152,8 +6151,8 @@ void* MemoryCopy (
 Boolean MGetString (
 				UCharPtr								outTextPtr, 
 				UInt16								stringListID, 
-				UInt16								stringID)
-//				Boolean								returnAsWideCharStringFlag)
+				UInt16								stringID,
+				UInt16								maxStringLength)
 
 {		       
 	outTextPtr[0] = 0;
@@ -6272,10 +6271,13 @@ Boolean MGetString (
 					if (str.Contains (wxT("\""))) 
 						{
 						strout = str.BeforeLast ('"');
-						strncpy ((char*) &outTextPtr[1], (const char*) strout.mb_str (wxConvUTF8), 255);
+						strncpy ((char*)&outTextPtr[1],
+									(const char*)strout.mb_str (wxConvUTF8),
+									maxStringLength);
 						outTextPtr[0] = (unsigned char) strout.Len ();
 						found = true;
-						}
+						
+						}	// end "if (str.Contains (wxT("\"")))"
 						 
 					else // read next line for search of second"
 						{
@@ -6289,11 +6291,15 @@ Boolean MGetString (
 								{
 								found = true;
 								strout << str.BeforeLast ('"');
-								strncpy ((char*) &outTextPtr[1], (const char*) strout.mb_str (wxConvUTF8), 255);
-								outTextPtr[0] = (unsigned char) strout.Len ();
-								} 
+								strncpy ((char*)&outTextPtr[1],
+											(const char*) strout.mb_str (wxConvUTF8),
+											maxStringLength);
+								outTextPtr[0] = (unsigned char)strout.Len ();
+								
+								}	// end "if (str.Contains (wxT("\"")))"
 							else
 								strout << str;
+							
 							}	// end "while (!file.Eof () && !found)"
 							
 						}	// end "else read next line for search of second"
@@ -6304,6 +6310,7 @@ Boolean MGetString (
 				
 			if (found)
 				break;
+			
 			}	// end "for (str = file.GetFirstLine ();..."
 			
 		file.Close ();

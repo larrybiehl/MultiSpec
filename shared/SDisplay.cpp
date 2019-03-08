@@ -4,14 +4,14 @@
 //									Purdue University
 //								West Lafayette, IN 47907
 //								 Copyright (1988-2019)
-//								(c) Purdue Research Foundation
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	File:						SDisplay.cpp
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			01/03/2019
+//	Revision date:			03/07/2019
 //
 //	Language:				C
 //
@@ -48,6 +48,12 @@
 //	Include files:			"MultiSpecHeaders"
 //								"multiSpec.h"
 //
+/* Template for debugging
+		int numberChars = sprintf ((char*)gTextString3,
+													" SDisplay.cpp: (): %s",
+													gEndOfLine);
+		ListString ((char*)gTextString3, numberChars, gOutputTextH);
+*/
 //------------------------------------------------------------------------------------
 
 #include "SMultiSpec.h"      
@@ -62,6 +68,10 @@
 	#include "CPalette.h" 
 	#include "LImageDoc.h" 
 	#include "LImageFrame.h"
+	#include "wx/display.h"
+	#if defined multispec_wxlin
+		#include "wx/rawbmp.h"
+	#endif
 #endif
 
 #if defined multispec_win
@@ -116,7 +126,7 @@ void SetWindowToImageSize (
 // Called By:	
 //
 //	Coded By:			Larry L. Biehl			Date: 02/02/1994
-//	Revised By:			Larry L. Biehl			Date: 03/14/2015	
+//	Revised By:			Larry L. Biehl			Date: 03/07/2019
 
 Boolean CheckSomeDisplayEvents (
 				WindowInfoPtr						windowInfoPtr,
@@ -132,19 +142,8 @@ Boolean CheckSomeDisplayEvents (
 
 	Boolean returnFlag = TRUE;
 
-	/*
-	#if defined multispec_mac 
-		if (!gOSXCoreGraphicsFlag) 
-			{
-			imageWindowPortPixMap = GetPortPixMap (GetWindowPort (gActiveImageWindow));
-			CopyHandleToHandle ((Handle)savedPortPixMapH,
-										(Handle)imageWindowPortPixMap);
-
-			}	// end "if (!gOSXCoreGraphicsFlag)"
-	#endif	// defined multispec_mac 
-	*/
 	if (displayBottomMax != -1)
-		InvalidateImageSegment (gImageWindowInfoPtr,
+		InvalidateImageSegment (windowInfoPtr,
 											displaySpecsPtr,
 											sourceRectPtr,
 											displayBottomMax);
@@ -157,20 +156,30 @@ Boolean CheckSomeDisplayEvents (
 		//gActiveImageWindow->OnUpdate (NULL, NULL);
 				// Force palette info to bitmap to be loaded again since since more of
 				// image may have been loaded.
+	
 		displaySpecsPtr->paletteObject->SetPaletteLoadedFlag (FALSE);
+	
+				// Need to indicate that image bitmap is not being modified
+	
+		if (windowInfoPtr->offscreenMapSize == 0)
+			EndBitMapRawDataAccess (&gActiveImageViewCPtr->m_ScaledBitmap);
 	
 		gActiveImageWindow->OnUpdate (gActiveImageWindow, NULL);
 		(gActiveImageWindow->m_Canvas)->Update ();
 	#endif
 
 	returnFlag = CheckSomeEvents (osMask + keyDownMask + mDownMask + updateMask + mUpMask);
-	/*
-	#if defined multispec_mac 
-		if (!gOSXCoreGraphicsFlag)
-			CopyHandleToHandle ((Handle)offScreenPixMapH,
-										(Handle)imageWindowPortPixMap);
-	#endif	// defined multispec_mac 
-	*/
+	
+	
+	#if defined multispec_lin
+				// Get pointer to the raw bitmap data and indicate that bitmap is
+				// ready to be modified.
+	if (windowInfoPtr->offscreenMapSize == 0)
+		windowInfoPtr->imageBaseAddressH = (HPtr)BeginBitMapRawDataAccess (
+														windowInfoPtr,
+														&gActiveImageViewCPtr->m_ScaledBitmap);
+	#endif
+
 	if (!returnFlag)
 		sourceRectPtr->bottom = -1;
 
@@ -437,8 +446,8 @@ SInt16 CheckNumberDisplayLines (
 // Called By:			DisplayImage
 //
 //	Coded By:			Larry L. Biehl			Date: 08/11/1988
-//	Revised By:			Larry L. Biehl			Date: 02/24/2013	
-//	Revised By:			Wei-Kang Hsu			Date: 10/14/2015	
+//	Revised By:			Wei-Kang Hsu			Date: 10/14/2015
+//	Revised By:			Larry L. Biehl			Date: 03/07/2019
 
 void DisplayColorImage (
 				DisplaySpecsPtr					displaySpecsPtr,
@@ -446,7 +455,7 @@ void DisplayColorImage (
 {
 	LongRect								sourceRect;
 
-	Rect rect;
+	Rect 									rect;
 
 	FileInfoPtr							fileInfoPtr;
 
@@ -572,8 +581,17 @@ void DisplayColorImage (
 	#endif	// defined multispec_win
 
 	#if defined multispec_lin
-		offScreenBufferPtr = (HPtr)GetHandlePointer (
-												gImageWindowInfoPtr->imageBaseAddressH);
+		if (gImageWindowInfoPtr->offscreenMapSize == 0)
+					// multispectral display window
+			offScreenBufferPtr = (HPtr)BeginBitMapRawDataAccess (
+															gImageWindowInfoPtr,
+															&gActiveImageViewCPtr->m_ScaledBitmap);
+	
+		else	// gImageWindowInfoPtr->offscreenMapSize > 0
+					// thematic display window
+			offScreenBufferPtr = (HPtr)GetHandlePointer (
+													gImageWindowInfoPtr->imageBaseAddressH);
+	
 		offScreenPixMapH = (PixMapHandle)gImageWindowInfoPtr->offScreenMapHandle;
 	#endif
 
@@ -612,8 +630,14 @@ void DisplayColorImage (
 
 					case kSideSideChannelDisplayType:
 						gImageWindowInfoPtr->titleHeight = gDefaultTitleHeight;
-						gImageWindowInfoPtr->imageTopOffset =
+						#if defined multispec_lin
+									// The image top offset is 0 for wx implementation since the
+									// coordinate bar is not a part of the image window.
+							gImageWindowInfoPtr->imageTopOffset = gDefaultTitleHeight;
+						#else
+							gImageWindowInfoPtr->imageTopOffset =
 								  gDefaultTitleHeight + gImageWindowInfoPtr->coordinateHeight;
+						#endif
 						displayCode = 7;
 						break;
 
@@ -732,6 +756,23 @@ void DisplayColorImage (
 
 		}	// end "if (offScreenBufferPtr != NULL)"
 
+	#if defined multispec_win || defined multispec_lin
+		if (sourceRect.bottom != -1)
+			CheckSomeDisplayEvents (gImageWindowInfoPtr,
+											 displaySpecsPtr,
+											 NULL,
+											 offScreenPixMapH,
+											 &sourceRect,
+											 displayBottomMax);
+	
+		CheckAndUnlockHandle (gImageWindowInfoPtr->imageBaseAddressH);
+	#endif // defined multispec_win || defined multispec_lin
+	
+	#if defined multispec_wxmac
+		if (gImageWindowInfoPtr->offscreenMapSize == 0)
+			EndBitMapRawDataAccess (&gActiveImageViewCPtr->m_ScaledBitmap);
+	#endif // defined multispec_wxmac
+
 	#if defined multispec_mac
 				// Indicate that the 'better' 8-bit palette has not been created.
 
@@ -739,25 +780,7 @@ void DisplayColorImage (
 
 		if (displaySpecsPtr->pixelSize >= 16)
 			gUpdatePaletteMenuItemsFlag = TRUE;
-
-				// Unlock handle to offscreen image storage.
-				// ... only if the size of the storage is less than
-				// 'gMaxMoveableBlockSize'.
-		/*
-		if (!gOSXCoreGraphicsFlag)
-			{
-			if (gImageWindowInfoPtr->offscreenMapSize < gMaxMoveableBlockSize)
-				UnlockPixels ((PixMapHandle)gImageWindowInfoPtr->offScreenMapHandle);
-
-			}	// end "if (!gOSXCoreGraphicsFlag)"
-		*/
-	#endif // defined multispec_mac
-
-	#if defined multispec_win || defined multispec_lin
-		CheckAndUnlockHandle (gImageWindowInfoPtr->imageBaseAddressH);
-	#endif // defined multispec_win || defined multispec_lin
-
-	#if defined multispec_mac
+	
 				// Set PortPix map back to original	which represents the window
 				// and then dispose of the memory for the saved pix map it.
 				// Do not use DisposePixMap.
@@ -846,7 +869,7 @@ void DisplayColorImage (
 //							SetUpThematicImageWindow in menus.c
 //
 //	Coded By:			Larry L. Biehl			Date: 12/18/1988
-//	Revised By:			Larry L. Biehl			Date: 01/02/2019
+//	Revised By:			Larry L. Biehl			Date: 02/04/2019
 
 void DisplayImage ()
 {
@@ -888,8 +911,12 @@ void DisplayImage ()
 
 				// Do not draw any vector overlays until after the entire image
 				// has been loaded.
+				// However, if the display dialog box is not to be called allow
+				// the vectors to be drawn. This could be from a next channel
+				// key event. Do not turn off or the image will flash
 
-		gImageWindowInfoPtr->drawVectorOverlaysFlag = FALSE;
+		if (gCallProcessorDialogFlag)
+			gImageWindowInfoPtr->drawVectorOverlaysFlag = FALSE;
 		
 				// Make sure gOperationCanceledFlag is set to false at the
 				// beginning.
@@ -927,17 +954,17 @@ void DisplayImage ()
 			CheckSomeEvents (osMask + updateMask);
 
 			}	// end "if (imageDisplayedFlag)"
-
-		//if (imageDisplayedFlag)
-		//	CheckSomeEvents (osMask+updateMask);
-
-				// Restore 'projectWindowFlag' and draw field boundaries if needed.											
-
-		//gImageWindowInfoPtr->projectWindowFlag = saveProjectWindowFlag;
-
-				// Now set flag so that any vector overlays will be drawn.
-
-		//gImageWindowInfoPtr->drawVectorOverlaysFlag = TRUE;
+		
+		#if defined multispec_lin
+			Handle displaySpecsHandle = GetActiveDisplaySpecsHandle ();
+      	DisplaySpecsPtr displaySpecsPtr = (DisplaySpecsPtr)GetHandlePointer (displaySpecsHandle);
+			if (displaySpecsPtr != NULL)
+				{
+				displaySpecsPtr->updateStartLine = -1;
+				displaySpecsPtr->updateEndLine = -1;
+				
+				}	// end "if (displaySpecsPtr != NULL)"
+		#endif
 
 		if (imageDisplayedFlag) 
 			{
@@ -1883,7 +1910,7 @@ SInt16 GetOffscreenGWorld (
 // Called By:	
 //
 //	Coded By:			Larry L. Biehl			Date: 12/06/1991
-//	Revised By:			Larry L. Biehl			Date: 07/09/2015	
+//	Revised By:			Larry L. Biehl			Date: 02/04/2019
 
 void InitializeDisplaySpecsStructure (
 				DisplaySpecsPtr					displaySpecsPtr)
@@ -1899,7 +1926,14 @@ void InitializeDisplaySpecsStructure (
 
 			#if defined multispec_win || defined multispec_lin
 				displaySpecsPtr->backgroundPaletteObject = NULL;
-			#endif	// defined multispec_win || defined multispec_lin 
+			#endif	// defined multispec_win || defined multispec_lin
+			
+			#if defined multispec_lin
+						// A value of -1 indicates to handle all during a
+						// thematic initial display update event
+				displaySpecsPtr->updateStartLine = -1;
+				displaySpecsPtr->updateEndLine = -1;
+			#endif	// defined multispec_lin
 
 			displaySpecsPtr->displayedLineStart = 0;
 			displaySpecsPtr->displayedLineEnd = 0;
@@ -2552,7 +2586,7 @@ Boolean SetUpColorImageMemory (
 //	Global Data:
 //
 //	Coded By:			Larry L. Biehl			Date: 09/29/2006
-//	Revised By:			Larry L. Biehl			Date: 07/24/2015	
+//	Revised By:			Larry L. Biehl			Date: 01/30/2019
 
 void SetUpImageWindowTypeParameters (
 				WindowPtr							windowPtr,
@@ -2649,7 +2683,6 @@ void SetUpImageWindowTypeParameters (
 						int			frameClientHeight,
 										frameClientWidth, 
 										mainWindowWidth,
-										mainWindowHeight,
 										newFrameClientWidth;
 
 						CMImageDoc* imageDocCPtr = 
@@ -2658,12 +2691,24 @@ void SetUpImageWindowTypeParameters (
 						
 						imageFrameCPtr->GetClientSize (
 															&frameClientWidth, &frameClientHeight);
-						imageFrameCPtr->m_mainWindow->GetClientSize (
+					
+						#if defined multispec_wxlin
+							int			mainWindowHeight;
+					
+							imageFrameCPtr->m_mainWindow->GetClientSize (
 																&mainWindowWidth, &mainWindowHeight);
+							mainWindowWidth -= 2;
+						#endif
+						#if defined multispec_wxmac
+							wxRect	displayRect;
+							displayRect = wxDisplay().GetClientArea ();
+					
+							mainWindowWidth = displayRect.GetWidth () - 2;
+						#endif
 						
 						newFrameClientWidth = 
-											mainWindowWidth + imageWindowInfoPtr->legendWidth;
-						newFrameClientWidth = MAX (frameClientWidth, newFrameClientWidth);
+											frameClientWidth + imageWindowInfoPtr->legendWidth;
+						newFrameClientWidth = MIN (mainWindowWidth, newFrameClientWidth);
 
 						imageFrameCPtr->SetClientSize (
 															newFrameClientWidth, frameClientHeight);

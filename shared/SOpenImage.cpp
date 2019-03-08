@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			01/17/2019
+//	Revision date:			03/01/2019
 //
 //	Language:				C
 //
@@ -4049,7 +4049,7 @@ double GetFileHeaderRealValue (
 //							ReadVICARHeader in SOpnImag.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/05/1991
-//	Revised By:			Larry L. Biehl			Date: 06/14/2002
+//	Revised By:			Larry L. Biehl			Date: 03/01/2019
 
 SInt32 GetFileHeaderValue (
 				SInt16								stringID,
@@ -4100,7 +4100,7 @@ SInt32 GetFileHeaderValue (
 
 				if (strPtr != NULL)
 						// Get the value for the string identifier.
-					returnCode = sscanf (strPtr, "%ld", &returnValue);
+					returnCode = sscanf (strPtr, "%d", &returnValue);
 
 				if (returnCode == 1)
 					*returnCodePtr = 0;
@@ -4148,7 +4148,7 @@ SInt32 GetFileHeaderValue (
 //							ReadVICARHeader in SOpnImag.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/28/2005
-//	Revised By:			Larry L. Biehl			Date: 01/28/2005
+//	Revised By:			Larry L. Biehl			Date: 03/01/2019
 
 SInt32 GetFileHeaderValues (
 				SInt16								stringID,
@@ -4210,7 +4210,7 @@ SInt32 GetFileHeaderValues (
 						// Note that this is set for 3 values for now. Only used for
 						//  reading PDS type formats.
 					returnCode = sscanf (strPtr,
-												"%ld,%ld,%ld",
+												"%d,%d,%d",
 												&valuesPtr[0],
 												&valuesPtr[1],
 												&valuesPtr[2]);
@@ -7504,7 +7504,7 @@ SInt16 ReadENVIHeaderBandNamesInfo (
 // Called By:			ReadENVIHeader in SOpnImag.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 07/14/2006
-//	Revised By:			Larry L. Biehl			Date: 01/17/2019
+//	Revised By:			Larry L. Biehl			Date: 03/01/2019
 
 SInt16 ReadENVIHeaderMapInfo (
 				FileInfoPtr							fileInfoPtr,
@@ -7531,9 +7531,10 @@ SInt16 ReadENVIHeaderMapInfo (
 											*strPtr;
 
 	MapProjectionInfoPtr				mapProjectionInfoPtr = NULL;
+	
+	int									gridZone;
 
-	SInt32								gridZone,
-											string;
+	SInt32								string;
 
 	SInt16								returnCode,
 											tReturnCode;
@@ -7635,7 +7636,7 @@ SInt16 ReadENVIHeaderMapInfo (
 					mapProjectionInfoPtr->geodetic.spheroidCode = kKrassovskyEllipsoidCode;
 
 					returnCode = sscanf ((char*)&mapInfoStrings[0][1],
-												 "GK Zone %ld",
+												 "GK Zone %d",
 												 &gridZone);
 
 					if (returnCode == 1)
@@ -7733,7 +7734,7 @@ SInt16 ReadENVIHeaderMapInfo (
 																						kUTMRSCode)
 					{
 					returnCode = sscanf ((char*)&mapInfoStrings[7][1],
-												 "%ld",
+												 "%d",
 												 &gridZone);
 
 					if (CompareStringsNoCase (
@@ -10345,7 +10346,7 @@ SInt16 ReadLASHeader (
 // Called By:			CheckImageHeader in SOpnImag.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/17/1999
-//	Revised By:			Larry L. Biehl			Date: 09/08/2006
+//	Revised By:			Larry L. Biehl			Date: 03/01/2019
 
 SInt16 ReadLGSOWGHeader (
 				FileInfoPtr							fileInfoPtr,
@@ -10357,13 +10358,14 @@ SInt16 ReadLGSOWGHeader (
 	CMFileStream*						fileStreamPtr;
 
 	unsigned char						charKeyCode[4];
+	
+	int									returnValue;
 
 	SInt32								numberLeftBorderPixels,
 											numberBytesPerRecord,
 											numberPostImageRecordBytes,
 											numberPrefixBytes,
-											numberPreImageRecordBytes,
-											returnValue;
+											numberPreImageRecordBytes;
 
 	SInt16								errCode,
 											fileType = 0,
@@ -10430,7 +10432,7 @@ SInt16 ReadLGSOWGHeader (
 		BlockMoveData (&headerRecordPtr[216], tempString, 4);
 		tempString[4] = ' ';
 		sscanfReturnCode = sscanf (tempString,
-											 "%ld",
+											 "%d",
 											 &returnValue);
 
 		if (sscanfReturnCode == 1)
@@ -10446,7 +10448,7 @@ SInt16 ReadLGSOWGHeader (
 			BlockMoveData (&headerRecordPtr[224], tempString, 4);
 			tempString[4] = ' ';
 			sscanfReturnCode = sscanf (tempString,
-												  "%ld",
+												  "%d",
 												  &returnValue);
 
 			if (sscanfReturnCode == 1)
@@ -10470,7 +10472,7 @@ SInt16 ReadLGSOWGHeader (
 			BlockMoveData (&headerRecordPtr[232], tempString, 4);
 			tempString[4] = ' ';
 			sscanfReturnCode = sscanf (tempString,
-												  "%ld",
+												  "%d",
 												  &returnValue);
 
 			if (sscanfReturnCode == 1)
@@ -10488,7 +10490,7 @@ SInt16 ReadLGSOWGHeader (
 			BlockMoveData (&headerRecordPtr[236], tempString, 8);
 			tempString[8] = ' ';
 			sscanfReturnCode = sscanf (tempString,
-												  "%ld",
+												  "%d",
 												  &returnValue);
 
 			if (sscanfReturnCode == 1)
@@ -10505,7 +10507,7 @@ SInt16 ReadLGSOWGHeader (
 				BlockMoveData (&headerRecordPtr[260], tempString, 4);
 				tempString[4] = ' ';
 				sscanfReturnCode = sscanf (tempString,
-													"%ld",
+													"%d",
 													&returnValue);
 
 				if (sscanfReturnCode == 1)
@@ -10523,7 +10525,7 @@ SInt16 ReadLGSOWGHeader (
 				BlockMoveData (&headerRecordPtr[264], tempString, 4);
 				tempString[4] = ' ';
 				sscanfReturnCode = sscanf (tempString,
-													"%ld",
+													"%d",
 													&returnValue);
 
 				if (sscanfReturnCode == 1)
@@ -10543,7 +10545,7 @@ SInt16 ReadLGSOWGHeader (
 			BlockMoveData (&headerRecordPtr[186], tempString, 6);
 			tempString[6] = ' ';
 			sscanfReturnCode = sscanf (tempString,
-												  "%ld",
+												  "%d",
 												  &returnValue);
 
 			if (sscanfReturnCode == 1)
@@ -10561,7 +10563,7 @@ SInt16 ReadLGSOWGHeader (
 			BlockMoveData (&headerRecordPtr[244], tempString, 4);
 			tempString[4] = ' ';
 			sscanfReturnCode = sscanf (tempString,
-												  "%ld",
+												  "%d",
 												  &returnValue);
 
 			if (sscanfReturnCode == 1)
@@ -10579,7 +10581,7 @@ SInt16 ReadLGSOWGHeader (
 			BlockMoveData (&headerRecordPtr[248], tempString, 8);
 			tempString[8] = ' ';
 			sscanfReturnCode = sscanf (tempString,
-												  "%ld",
+												  "%d",
 												  &returnValue);
 
 			if (sscanfReturnCode == 1)
@@ -10597,7 +10599,7 @@ SInt16 ReadLGSOWGHeader (
 			BlockMoveData (&headerRecordPtr[276], tempString, 4);
 			tempString[4] = ' ';
 			sscanfReturnCode = sscanf (tempString,
-												  "%ld",
+												  "%d",
 												  &returnValue);
 
 			if (sscanfReturnCode == 1)
@@ -10887,7 +10889,7 @@ SInt16 ReadMultiSpecClassificationHeader (
 
 	CMFileStream*						fileStreamPtr;
 
-	SInt32								columnInterval,
+	int									columnInterval,
 											firstColumn,
 											firstLine,
 											lastColumn,
@@ -11097,7 +11099,7 @@ SInt16 ReadMultiSpecClassificationHeader (
 
 						strPtr += stringLength;
 						sscanCode = sscanf (strPtr,
-													"%ld, %ld\r",
+													"%d, %d\r",
 													&fileInfoPtr->startLine,
 													&fileInfoPtr->startColumn);
 
@@ -11130,7 +11132,7 @@ SInt16 ReadMultiSpecClassificationHeader (
 								// Get the number of classes.
 
 						strPtr += stringLength;
-						sscanCode = sscanf (strPtr, "%ld\r", &fileInfoPtr->numberClasses);
+						sscanCode = sscanf (strPtr, "%d\r", &fileInfoPtr->numberClasses);
 
 						if (sscanCode == 1)
 							nextSet = 3;
@@ -11172,7 +11174,7 @@ SInt16 ReadMultiSpecClassificationHeader (
 
 							sscanCode = sscanf (
 										strPtr,
-										"  Lines %ld to %ld by %ld.  Columns %ld to %ld by %ld.\r",
+										"  Lines %d to %d by %d.  Columns %d to %d by %d.\r",
 										&firstLine, &lastLine, &lineInterval,
 										&firstColumn, &lastColumn, &columnInterval);
 

@@ -40,6 +40,7 @@
 
 #if defined multispec_lin
 	#include "SMultiSpec.h"
+	#include "errno.h"
 #endif	// defined multispec_lin
 	
 #if defined multispec_mac

@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			01/21/2019
+//	Revision date:			02/19/2019
 //
 //	Language:				C
 //
@@ -367,7 +367,7 @@ void UpdateThematicTypeMinMaxes (
 // Called By:			DisplayColorImage in SDisplay.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 06/26/1990
-//	Revised By:			Larry L. Biehl			Date: 01/21/2019
+//	Revised By:			Larry L. Biehl			Date: 02/01/2019
 
 void DisplayImagesSideBySide (
 				DisplaySpecsPtr					displaySpecsPtr,
@@ -418,6 +418,10 @@ void DisplayImagesSideBySide (
 											j,
 											maxValue,
 											numberSamples;
+	
+	#if defined multispec_wxlin
+		UInt32								lineBytesOffset = 0;
+	#endif
 
 	SInt16								channel,
 											channelNumber,
@@ -695,7 +699,7 @@ void DisplayImagesSideBySide (
 						{
 						dataToLevelPtr = dataDisplayPtr;
 
-						for (channel = 0; channel < imageFileNumberChannels; channel++)
+						for (channel=0; channel<imageFileNumberChannels; channel++)
 							{
 							if (BISFlag)
 								buffer1Ptr = (HUCharPtr)&ioBufferPtr[channel];
@@ -782,7 +786,7 @@ void DisplayImagesSideBySide (
 						{
 						dataToLevelPtr = dataDisplayPtr;
 
-						for (channel = 0; channel < imageFileNumberChannels; channel++)
+						for (channel=0; channel<imageFileNumberChannels; channel++)
 							{
 							if (BISFlag)
 								buffer2Ptr = (HUInt16Ptr)&ioBufferPtr[2*channel];
@@ -882,11 +886,28 @@ void DisplayImagesSideBySide (
 							break;
 
 							}	// end "if (!CheckSomeEvents (osMask..."
+						
+						#if defined multispec_wxlin
+									// Get the bitmap raw data pointer again. It may have changed.
+
+							offScreenLinePtr = (unsigned char*)gImageWindowInfoPtr->imageBaseAddressH;
+							offScreenLinePtr += (lineCount-1) * pixRowBytes;
+						#endif
 
 						}	// end "if (TickCount () >= gNextTime)"
 
 					if (line == lineStart)
+						{
+						#if defined multispec_wxlin
+									// Also get the number bytes offset in case needed for
+									// wxlin version
+						
+							lineBytesOffset += (offScreenPtr - savedOffScreenLinePtr);
+						#endif
+						
 						savedOffScreenLinePtr = offScreenPtr;
+						
+						}	// end "if (line == lineStart)"
 
 					#if defined multispec_mac || defined multispec_lin
 						offScreenLinePtr += pixRowBytes;
@@ -918,15 +939,23 @@ void DisplayImagesSideBySide (
 												  offScreenPixMapH,
 												  &longSourceRect,
 												  displayBottomMax))
-					{
-					stopFlag = TRUE;
-					break;
+				{
+				stopFlag = TRUE;
+				break;
 
-					}	// end "if (!CheckSomeEvents (osMask..."
+				}	// end "if (!CheckSomeEvents (osMask..."
+			
+			#if defined multispec_wxlin
+						// Get the bitmap raw data pointer again. It may have changed.
+						// Also need to adjust for the column offset.
 
-            dataDisplayPtr += bytesOffset*imageFileNumberChannels;
+				savedOffScreenLinePtr = lineBytesOffset +
+									(unsigned char*)gImageWindowInfoPtr->imageBaseAddressH;
+			#endif
 
-            CloseUpFileIOInstructions (fileIOInstructionsPtr, NULL);
+			dataDisplayPtr += bytesOffset*imageFileNumberChannels;
+
+			CloseUpFileIOInstructions (fileIOInstructionsPtr, NULL);
 
 			}	// end "if (imageFileNumberChannels > 0)"
 
@@ -971,7 +1000,7 @@ void DisplayImagesSideBySide (
 // Called By:			DisplayColorImage in display.c
 //
 //	Coded By:			Larry L. Biehl			Date: 01/04/2006
-//	Revised By:			Larry L. Biehl			Date: 02/14/2014	
+//	Revised By:			Larry L. Biehl			Date: 02/01/2019
 
 void Display4_8ByteImagesSideBySide (
 				DisplaySpecsPtr					displaySpecsPtr,
@@ -1028,6 +1057,10 @@ void Display4_8ByteImagesSideBySide (
 											j,
 											maxBin,
 											numberSamples;
+	
+	#if defined multispec_wxlin
+		UInt32								lineBytesOffset = 0;
+	#endif
 
 	SInt16								channel,
 											channelNumber,
@@ -1170,8 +1203,8 @@ void Display4_8ByteImagesSideBySide (
 
 			// Loop through the image files.
 
-	for (fileInfoIndex=0;
-            fileInfoIndex<gImageWindowInfoPtr->numberImageFiles;
+	for (fileInfoIndex = 0;
+            fileInfoIndex < gImageWindowInfoPtr->numberImageFiles;
             fileInfoIndex++)
 		{
 		longSourceRect.top = rectPtr->top;
@@ -1420,11 +1453,28 @@ void Display4_8ByteImagesSideBySide (
 							break;
 
 							}	// end "if (!CheckSomeEvents (osMask..."
+						
+						#if defined multispec_wxlin
+									// Get the bitmap raw data pointer again. It may have changed.
+
+							offScreenLinePtr = (unsigned char*)gImageWindowInfoPtr->imageBaseAddressH;
+							offScreenLinePtr += (lineCount-1) * pixRowBytes;
+						#endif
 
 						}	// end "if (TickCount () >= gNextTime)"
 
 					if (line == lineStart)
+						{
+						#if defined multispec_wxlin
+									// Also get the number bytes offset in case needed for
+									// wxlin version
+						
+							lineBytesOffset += (offScreenPtr - savedOffScreenLinePtr);
+						#endif
+						
 						savedOffScreenLinePtr = offScreenPtr;
+
+						}	// end "if (line == lineStart)"
 
 					#if defined multispec_mac || defined multispec_lin
 						offScreenLinePtr += pixRowBytes;
@@ -1461,6 +1511,13 @@ void Display4_8ByteImagesSideBySide (
 				break;
 
 				}	// end "if (!CheckSomeEvents (osMask..."
+			
+			#if defined multispec_wxlin
+						// Get the bitmap raw data pointer again. It may have changed.
+
+				savedOffScreenLinePtr = lineBytesOffset +
+									(unsigned char*)gImageWindowInfoPtr->imageBaseAddressH;
+			#endif
 
 			dataDisplayPtr += bytesOffset*imageFileNumberChannels;
 
@@ -1629,8 +1686,11 @@ Boolean DisplayMultispectralImage (void)
                 // Not calling the display processor implies that the arrow keys
                 // are being used to go to the previous or next channels. Do not
                 // need change the cursor to a wait status.
+				
 				MSetCursor (kWait);
 				UpdateOutputWScrolls (gOutputWindow, 1, kDisplayMessage);
+				
+				CheckSomeEvents (osMask + updateMask);
 				
 				}	// end "if (gCallProcessorDialogFlag)"
 
@@ -1805,7 +1865,7 @@ Boolean DisplayMultispectralImage (void)
 // Called By:			DisplayColorImage in display.c
 //
 //	Coded By:			Larry L. Biehl			Date: 07/12/1988
-//	Revised By:			Larry L. Biehl			Date: 06/16/2016
+//	Revised By:			Larry L. Biehl			Date: 02/04/2019
 
 void DisplayCImage (
 				DisplaySpecsPtr					displaySpecsPtr,
@@ -2500,7 +2560,7 @@ void DisplayCImage (
 						//	Draw the line of data
 
 				offScreenPtr = offScreenLinePtr;
-
+				
 				switch (displayCode)
 					{
 					case 1:
@@ -2763,13 +2823,17 @@ void DisplayCImage (
 						break;
 
 					}	// end "switch (displayCode)"
-
+				
 						// Copy a portion of the image and
 						// check if user wants to exit drawing
 
 				lineCount++;
 				if (TickCount () >= gNextTime)
 					{
+					#if defined multispec_lin
+						displaySpecsPtr->updateEndLine = lineCount;
+					#endif
+				
 					longSourceRect.bottom = lineCount;
 					if (!CheckSomeDisplayEvents (gImageWindowInfoPtr,
 															 displaySpecsPtr,
@@ -2778,6 +2842,22 @@ void DisplayCImage (
 															 &longSourceRect,
 															 displayBottomMax))
 						break;
+				
+					#if defined multispec_lin
+						displaySpecsPtr->updateStartLine = lineCount;
+					#endif
+					
+					#if defined multispec_lin
+						if (gImageWindowInfoPtr->offscreenMapSize == 0)
+							{
+									// Get the bitmap raw data pointer again. It may have changed.
+									// Only do this for multispectral images.
+
+							offScreenLinePtr = (unsigned char*)gImageWindowInfoPtr->imageBaseAddressH;
+							offScreenLinePtr += (lineCount-1) * pixRowBytes;
+							
+							}	// end "if (gImageWindowInfoPtr->offscreenMapSize == 0)"
+					#endif
 
 					}	// end "if (TickCount () >= gNextTime)"
 
@@ -2789,7 +2869,7 @@ void DisplayCImage (
 					offScreenLinePtr -= pixRowBytes;
 				#endif	// defined multispec_win
 
-				} // end "else errCode == noErr"
+				}	// end "else errCode == noErr"
 
 			if (gUseThreadedIOFlag)
 				{
@@ -2810,15 +2890,27 @@ void DisplayCImage (
 
 			}	// end "for (line=displaySpecsPtr->lineStart;..."
 
+				// Set up return for inSourceRect to indicate if last few lines need
+				// to be drawn
+
+		rectPtr->top = longSourceRect.top;
+		rectPtr->bottom = longSourceRect.bottom;
+		
+		#if defined multispec_lin
+			displaySpecsPtr->updateEndLine = lineCount;
+			/*
+			int numberChars = sprintf ((char*)gTextString3,
+					" SDisplayMultispectral.cpp:DisplayCImage (updateStartLine, updateEndLine): %d, %d%s",
+					displaySpecsPtr->updateStartLine,
+					displaySpecsPtr->updateEndLine,
+					gEndOfLine);
+			ListString ((char*)gTextString3, numberChars, gOutputTextH);
+			*/
+		#endif
+
 		}	// end "if (errCode == noErr)"
 
 	CloseUpFileIOInstructions (fileIOInstructionsPtr, NULL);
-
-			// Set up return for inSourceRect to indicate if last few lines need
-			// to be drawn
-
-	rectPtr->top = longSourceRect.top;
-	rectPtr->bottom = longSourceRect.bottom;
 
 	CheckSizeAndUnlockHandle (gToDisplayLevels.vectorHandle);
 

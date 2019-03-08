@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			01/16/2019
+//	Revision date:			01/25/2019
 //
 //	Language:				C
 //
@@ -459,7 +459,7 @@ SInt16 StatisticsDialogSetMaskItems (
 // Called By:						ClassListStatMode
 //
 //	Coded By:			Larry L. Biehl			Date: 09/30/1988
-//	Revised By:			Larry L. Biehl			Date: 09/25/1998	
+//	Revised By:			Larry L. Biehl			Date: 01/25/2019
 
 void ActivateStatControls (void) 
 {
@@ -823,7 +823,13 @@ void ActivateStatControls (void)
 				//SetStatControlTitle (gProjectInfoPtr->listControlH, (char*)gTextString);
 			#endif	// defined multispec_win
 		
-         ShowStatControl (gProjectInfoPtr->listControlH);
+					// Cannot list fields stats if only the class stats are being stored
+			
+			if (gProjectInfoPtr->keepClassStatsOnlyFlag)
+         	HideStatControl (gProjectInfoPtr->listControlH);
+			
+			else	// !gProjectInfoPtr->keepClassStatsOnlyFlag
+         	ShowStatControl (gProjectInfoPtr->listControlH);
 
 					// Set controls for histogram list.
 

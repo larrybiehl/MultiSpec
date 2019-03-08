@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			02/07/2018
+//	Revision date:			03/01/2019
 //
 //	Language:				C
 //
@@ -77,7 +77,7 @@ SInt16 GetGAIAHeaderParameters (
 
 																
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -206,7 +206,7 @@ SInt32 ConvertLineToGAIAFormat (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -629,7 +629,7 @@ Boolean CopyToNewGAIAHeader (
 
 /*
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -670,7 +670,7 @@ void ForceGAIACodeResourceLoad (void)
     
 #if defined multispec_mac || defined multispec_mac_swift
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -735,7 +735,7 @@ Boolean GetGAIAClassMeans (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -757,7 +757,7 @@ Boolean GetGAIAClassMeans (
 // Called By:			LoadClassNameDescriptions in fileIO.c
 //
 //	Coded By:			Larry L. Biehl			Date: 02/08/1994
-//	Revised By:			Larry L. Biehl			Date: 02/08/1994	
+//	Revised By:			Larry L. Biehl			Date: 03/01/2019
 
 SInt16 GetGAIAHeaderParameters (
 				FileInfoPtr							fileInfoPtr,
@@ -873,7 +873,7 @@ SInt16 GetGAIAHeaderParameters (
 		if (errCode == noErr)
 			{
 			errCode = sscanf (bufferPtr, 
-									"%ld", 
+									"%d",
 									numberStatClassesPtr);
 			
 			errCode -= 1;
@@ -884,7 +884,7 @@ SInt16 GetGAIAHeaderParameters (
 			{
 			bufferPtr += 22;
 			errCode = sscanf (bufferPtr, 
-									"%ld",
+									"%d",
 									numberStatChannelsPtr);
 			
 			errCode -= 1;
@@ -900,7 +900,7 @@ SInt16 GetGAIAHeaderParameters (
 																
 																
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -947,7 +947,7 @@ SInt32 GetNumberBytesInGAIALine (
 																
 																
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1022,7 +1022,7 @@ void InitializeGAIALineBytes (
 
 
 //-------------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1171,7 +1171,7 @@ Boolean ReadGAIAClassNames (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1519,7 +1519,7 @@ SInt16 ReadGAIAHeader (
 
 			             													
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //

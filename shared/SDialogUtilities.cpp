@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//							 Copyright (1988-2018)
+//							 Copyright (1988-2019)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl, Ravi Budruk
 //
-//	Revision date:			10/22/2018
+//	Revision date:			02/28/2019
 //
 //	Language:				C
 //
@@ -101,7 +101,7 @@ void LoadDItemString (
 
 /*                       
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -158,7 +158,7 @@ void ActivateDialogItem (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								 Purdue Research Foundation
 //									All rights reserved.
 //
@@ -552,7 +552,7 @@ SInt32 AddChannelsToDialogList (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -634,7 +634,7 @@ SInt16 CheckMaxValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -782,7 +782,7 @@ SInt16 CheckDialogRealValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -843,7 +843,7 @@ Boolean CheckFeatureTransformationDialog (
 
                        
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -897,7 +897,7 @@ void CloseStatusDialog (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -978,7 +978,7 @@ SInt16 CreateUnicodeStaticTextControl (
  
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1035,7 +1035,7 @@ void DeactivateDialogItem (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1081,7 +1081,7 @@ return (DisplayAlert (alertResourceId,
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1102,7 +1102,7 @@ return (DisplayAlert (alertResourceId,
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 06/25/1990
-//	Revised By:			Larry L. Biehl			Date: 07/31/2018
+//	Revised By:			Larry L. Biehl			Date: 02/28/2019
 
 SInt16 DisplayAlert (
 				SInt16								alertResourceId, 
@@ -1486,7 +1486,7 @@ SInt16 DisplayAlert (
 	#endif // defined multispec_win
 
 	#if defined multispec_lin
-		unsigned char	textptr[255];
+		unsigned char	textptr[256];
 		wxString			message;
 		long				style;
 		
@@ -1580,7 +1580,7 @@ SInt16 DisplayAlert (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1639,7 +1639,7 @@ void DupClassFieldNameAlert (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1826,7 +1826,7 @@ Boolean GetDialogLocalVectors (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1903,7 +1903,7 @@ SInt32 GetDItemValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1958,7 +1958,7 @@ void GetMultiSpecDialogItemText (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2004,7 +2004,7 @@ SInt64 GetNumberOfSelectedPixels (
 
                        
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2023,7 +2023,7 @@ SInt64 GetNumberOfSelectedPixels (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 03/27/1992
-//	Revised By:			Larry L. Biehl			Date: 10/22/2018
+//	Revised By:			Larry L. Biehl			Date: 01/30/2019
 
 DialogPtr GetStatusDialog (
 				SInt16								statusInfoID, 
@@ -2256,7 +2256,7 @@ DialogPtr GetStatusDialog (
 				gStatusIDNumber = kUpdateStatsInfoID;
 				gStatusTitleItemNumber = IDC_Status11;
 
-				MHideDialogItem (statusDialogPtr, wxID_CANCEL);
+				MHideDialogItem (statusDialogPtr, IDC_CancelOperation);
 				MHideDialogItem (statusDialogPtr, IDC_Status2);
 				MHideDialogItem (statusDialogPtr, IDC_Status3);
 				MHideDialogItem (statusDialogPtr, IDC_Status4);
@@ -2278,7 +2278,6 @@ DialogPtr GetStatusDialog (
 				MHideDialogItem (statusDialogPtr, IDC_Status21);
 				MHideDialogItem (statusDialogPtr, IDC_Status22);
 
-				MHideDialogItem (statusDialogPtr, IDC_EscapeMessage);
 					
 				}	// end "if (statusInfoID == kUpdateStatsInfoID)"
 
@@ -2304,7 +2303,7 @@ DialogPtr GetStatusDialog (
 
 					// Hide the cancel button until it has been implemented.
 
-			MHideDialogItem (statusDialogPtr, wxID_CANCEL);
+			//MHideDialogItem (statusDialogPtr, wxID_CANCEL);
 
 			if (statusInfoID == kShortStatusInfoID)
 				{
@@ -2344,7 +2343,7 @@ DialogPtr GetStatusDialog (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2362,7 +2361,7 @@ DialogPtr GetStatusDialog (
 // Called By:	
 //
 //	Coded By:			Larry L. Biehl			Date: 03/27/1992
-//	Revised By:			Larry L. Biehl			Date: 12/29/1995	
+//	Revised By:			Larry L. Biehl			Date: 01/30/2019
 
 void HideStatusDialogItemSet (
 				SInt16								setNumber)
@@ -2534,7 +2533,7 @@ void HideStatusDialogItemSet (
             break;
 
 			case kStatusCommand: // Command-.
-            gStatusDialogPtr->MHideDialogItem (gStatusDialogPtr, wxID_CANCEL);
+            gStatusDialogPtr->MHideDialogItem (gStatusDialogPtr, IDC_CancelOperation);
             break;
 
 			}	// end "switch (setNumber)"
@@ -2545,7 +2544,7 @@ void HideStatusDialogItemSet (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2605,7 +2604,7 @@ void InitializeDialogFeatureParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2658,7 +2657,7 @@ void InitializeDialogSelectArea (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2709,7 +2708,7 @@ void InvalDialogItemRect (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2822,7 +2821,7 @@ void LoadDialogLocalVectors (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2862,7 +2861,7 @@ void LoadDItemRealValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3000,7 +2999,7 @@ void LoadDItemRealValue (
 
                                            
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3038,7 +3037,7 @@ void LoadDItemString (
 
                                            
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3196,7 +3195,7 @@ void LoadDItemString (
 
                      
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3244,7 +3243,7 @@ void LoadDItemStringNumber (
 
                        
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3299,7 +3298,7 @@ void LoadDItemValue (
 
                        
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3362,7 +3361,7 @@ void LoadDItemValueWithCommas (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3603,7 +3602,7 @@ void LoadLineColumnItems (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3769,7 +3768,7 @@ void LoadProcessorVectorsFromDialogLocalVectors (
 
                        
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3873,7 +3872,7 @@ void LoadSubsetList (
 
                        
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3915,7 +3914,7 @@ void MHideDialogItem (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3955,7 +3954,7 @@ void NumberErrorAlert (
                                                 
 #if defined multispec_win
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4019,7 +4018,7 @@ void PositionDialogWindow (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4064,7 +4063,7 @@ void ReleaseDialogLocalVectors (
 
                        
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4156,7 +4155,7 @@ void SaveSubsetList (
 
                        
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4215,7 +4214,7 @@ void SetDialogItemToEditText (
 
                        
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4276,7 +4275,7 @@ void SetDialogItemToStaticText (
 
 
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4358,7 +4357,7 @@ void SetDLogControl (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4431,7 +4430,7 @@ void SetDLogControlHilite (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4505,7 +4504,7 @@ void SetDLogControlTitle (
 
                      
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4549,7 +4548,7 @@ void SetDLogControlTitleNumber (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4617,7 +4616,7 @@ void ShowHideDialogItem (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4635,7 +4634,7 @@ void ShowHideDialogItem (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 03/27/1992
-//	Revised By:			Larry L. Biehl			Date: 12/29/1995	
+//	Revised By:			Larry L. Biehl			Date: 01/30/2019
 
 void ShowStatusDialogItemSet (
 				SInt16								setNumber)
@@ -4774,9 +4773,13 @@ void ShowStatusDialogItemSet (
 	   		gStatusDialogPtr->MShowDialogItem (gStatusDialogPtr, IDC_Status14);
 				break;
 				
-			case kStatusCommand:	// Command-. 
-				//gStatusDialogPtr->MShowDialogItem (gStatusDialogPtr, IDCANCEL);
-	   		gStatusDialogPtr->MShowDialogItem (gStatusDialogPtr, IDC_EscapeMessage);
+			case kStatusCommand:	// Command-.
+				#if defined multispec_win
+					gStatusDialogPtr->MShowDialogItem (gStatusDialogPtr, IDCANCEL);
+				#endif
+				#if defined multispec_lin
+	   			gStatusDialogPtr->MShowDialogItem (gStatusDialogPtr, IDC_CancelOperation);
+				#endif
 				break;               
 				
 			}	// end "switch (setNumber)"
@@ -4794,7 +4797,7 @@ void ShowStatusDialogItemSet (
 
 
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4859,7 +4862,7 @@ SInt16 UpdateDialogFeatureParameters (
 
 
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

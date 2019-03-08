@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			11/29/2018
+//	Revision date:			03/01/2019
 //
 //	Language:				C
 //
@@ -26,6 +26,13 @@
 //
 //	Include files:			"MultiSpecHeaders"
 //								"multiSpec.h"
+/* Template for debugging
+				int numberChars = sprintf ((char*)gTextString3,
+											" SReadHDFHeader::GetHDFProjectionInformation (utmZoneCode: %d%s",
+											utmZoneCode,
+											gEndOfLine);
+				ListString ((char*)gTextString3, numberChars, gOutputTextH);
+*/
 //------------------------------------------------------------------------------------
 
 #include	"SMultiSpec.h"
@@ -1032,6 +1039,11 @@ intn GetHDFDataSetInformation (
 					
 				case COMP_CODE_SZIP:
 					*dataCompressionCodePtr = kSzipCompression;
+					break;
+					
+				case COMP_CODE_NONE:
+				case COMP_CODE_JPEG:
+				case COMP_CODE_INVALID:
 					break;
 
 				}	// end "switch (compressionType)"				
@@ -2171,7 +2183,7 @@ intn GetHDFProjectionInformation (
 				*gridZonePtr = (SInt16)utmZoneCode;
 				if (*yMapCoordinate11Ptr < 0)
 					*returnCodePtr = noErr;
-				
+
 				}	// end "if (returnCode == 1)"	
 			
 					// Get the pixel spacing units
@@ -4569,10 +4581,11 @@ SInt16 GetSpecificTextAttributeInformation (
    											attributeType;
 	#endif	// TARGET_RT_MAC_MACHO, else...
 	
+	int									objectNumberValues;
+	
    SInt32 								index,
    										length,
-   										lengthObjectString,
-   										objectNumberValues;
+   										lengthObjectString;
  
  	UInt32								bufferIndex;
  	
@@ -4671,7 +4684,7 @@ SInt16 GetSpecificTextAttributeInformation (
 						bufferIndex += length;
 						attributeSize -= length;
 				 		returnCode = sscanf ((char*)&bufferPtr[bufferIndex], 
-				 										"= %ld", 
+				 										"= %d",
 				 										&objectNumberValues);
 						continueFlag = (returnCode == 1);
 						
@@ -4841,7 +4854,7 @@ SInt16 GetSpecificTextAttributeInformation (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 02/28/2005
-//	Revised By:			Larry L. Biehl			Date: 03/15/2017
+//	Revised By:			Larry L. Biehl			Date: 03/01/2019
 
 SInt16 GetSpecificNumericAttributeInformation (
 				SInt32		 						id,
@@ -4868,9 +4881,10 @@ SInt16 GetSpecificNumericAttributeInformation (
    											attributeType;
 	#endif	// TARGET_RT_MAC_MACHO, else...
 	
+	int									objectNumberValues;
+	
    SInt32 								index,
-   										length,
-   										objectNumberValues;
+   										length;
  
  	UInt32								bufferIndex;
  	
@@ -4960,7 +4974,7 @@ SInt16 GetSpecificNumericAttributeInformation (
 								bufferIndex += length;
 								attributeSize -= length;
 						 		returnCode = sscanf ((char*)&bufferPtr[bufferIndex], 
-						 										"= %ld", 
+						 										"= %d",
 						 										&objectNumberValues);
 								continueFlag = (returnCode == 1);
 								
@@ -5019,12 +5033,12 @@ SInt16 GetSpecificNumericAttributeInformation (
 									
 									if (equalSignUsedFlag)	
 							 			returnCode = sscanf ((char*)&bufferPtr[bufferIndex], 
-							 										"= %lf", 
+							 										"= %lf",
 							 										&valuesPtr[0]);
 									
 									else	// !equalSignUsedFlag	
 							 			returnCode = sscanf ((char*)&bufferPtr[bufferIndex], 
-							 										"%lf", 
+							 										"%lf",
 							 										&valuesPtr[0]);
 									
 									}	// end "if (objectNumberValues == 1)"
@@ -5267,7 +5281,7 @@ SInt32 GetNumberOfValidDataSets (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 03/07/2002
-//	Revised By:			Larry L. Biehl			Date: 03/15/2017
+//	Revised By:			Larry L. Biehl			Date: 03/01/2019
 
 Boolean ListAttributeInformation (
 				SInt32		 						id,
@@ -5362,7 +5376,7 @@ Boolean ListAttributeInformation (
 			
 			if (attributeType != DFNT_CHAR8 && attributeSize > 1)
 				{
-				length = sprintf (&stringBuffer[totalLength-1], " (%ld):", attributeSize);
+				length = sprintf (&stringBuffer[totalLength-1], " (%d):", attributeSize);
 				totalLength += length - 1;
 				
 				}	// end "if (attributeType != DFNT_CHAR8 && ..."
@@ -5539,7 +5553,7 @@ Boolean ListAttributeInformation (
 						break;
 						
 					case DFNT_INT32:
-						length = sprintf (stringBuffer, " %ld", *int32Ptr);
+						length = sprintf (stringBuffer, " %ld", (int)*int32Ptr);
 						
 						for (valueIndex=1; valueIndex<attributeSize; valueIndex++)
 							{
@@ -5558,7 +5572,7 @@ Boolean ListAttributeInformation (
 						break;
 						
 					case DFNT_UINT32:
-						length = sprintf (stringBuffer, " %lu", *uint32Ptr);
+						length = sprintf (stringBuffer, " %lu", (unsigned int)*uint32Ptr);
 						
 						for (valueIndex=1; valueIndex<attributeSize; valueIndex++)
 							{
@@ -7253,8 +7267,7 @@ SInt16 LoadHDF4DataSetInformation (
 								checkUpperLeftOffsetFlag = TRUE;
 									
 								}	// end "else if (... == kCylindricalEqualAreaCode)"
-								
-												
+							
 							if (checkUpperLeftOffsetFlag)
 								{
 							 			// If the upper left pixel is define as -0.5, -0.5, then 

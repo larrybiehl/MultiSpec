@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			12/13/2018
+//	Revision date:			02/05/2019
 //
 //	Language:				C
 //
@@ -157,7 +157,7 @@ void UpdateLegendWidth (void);
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -323,7 +323,7 @@ Boolean ClassGroupDialog (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -341,7 +341,7 @@ Boolean ClassGroupDialog (
 // Called By:			DisplayColorImage
 //
 //	Coded By:			Larry L. Biehl			Date: 12/19/1989
-//	Revised By:			Larry L. Biehl			Date: 12/13/2018
+//	Revised By:			Larry L. Biehl			Date: 02/01/2019
 
 void DisplayColorThematicImage (
 				DisplaySpecsPtr					displaySpecsPtr, 
@@ -716,7 +716,38 @@ void DisplayColorThematicImage (
 						}	// end "for (ioBuffer1Ptr=(char*)ioBufferPtr;..." 
 					break;
 
-				}	// end "switch (offscreenProcedure)" 
+				}	// end "switch (offscreenProcedure)"
+			
+					// Check if user wants to exit drawing
+			
+			lineCount++;
+			if (TickCount () >= gNextTime)
+				{
+				#if defined multispec_lin
+					displaySpecsPtr->updateEndLine = lineCount;
+				#endif
+				
+				longSourceRect.bottom = lineCount;
+				if (!CheckSomeDisplayEvents (gImageWindowInfoPtr,
+															displaySpecsPtr,
+															savedPortPixMapH,
+															offScreenPixMapH,
+															&longSourceRect,
+															displayBottomMax))
+					break;
+				
+				#if defined multispec_lin
+					displaySpecsPtr->updateStartLine = lineCount;
+				#endif
+				/*
+				#if defined multispec_wxlin
+							// Get the bitmap raw data pointer again. It may have changed.
+
+					offScreenLinePtr = (unsigned char*)gImageWindowInfoPtr->imageBaseAddressH;
+					offScreenLinePtr += (lineCount-1) * pixRowBytes;
+				#endif
+				*/
+				}	// end "if (TickCount () >= gNextTime)"
 			
 					// Update the offscreen pointer for the next line and update	
 					// the pointer for the IO buffer if needed.
@@ -731,23 +762,7 @@ void DisplayColorThematicImage (
 					                           
 			if (updateIOBufferUpdateFlag)
 				ioBufferPtr = offScreenLinePtr;
-			
-					// Check if user wants to exit drawing									
-			
-			lineCount++;
-			if (TickCount () >= gNextTime)
-				{
-				longSourceRect.bottom = lineCount;
-				if (!CheckSomeDisplayEvents (gImageWindowInfoPtr,
-															displaySpecsPtr,
-															savedPortPixMapH, 
-															offScreenPixMapH, 
-															&longSourceRect, 
-															displayBottomMax))
-					break;
-					
-				}	// end "if (TickCount () >= gNextTime)"
-				
+
 			}	// end "if (errCode == noErr)" 
 			
 		}	// end "for (line=displaySpecsPtr->lineStart; ..." 
@@ -763,6 +778,10 @@ void DisplayColorThematicImage (
 		rectPtr->bottom = -1;
 	else	// longSourceRect.bottom != -1 
 		rectPtr->bottom = lineCount;
+	
+	#if defined multispec_lin
+		displaySpecsPtr->updateEndLine = lineCount;
+	#endif
 
 	CloseUpGeneralFileIOInstructions (fileIOInstructionsPtr);
 	
@@ -779,7 +798,7 @@ void DisplayColorThematicImage (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1338,7 +1357,7 @@ Boolean DisplayThematicDialog (
 									
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1561,7 +1580,7 @@ void DisplayThematicDialogInitialize (
 									
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1777,7 +1796,7 @@ void DisplayThematicDialogOK (
 									
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2046,7 +2065,7 @@ Boolean DisplayThematicImage (void)
 /*
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2129,7 +2148,7 @@ pascal void DrawBackgroundColorBox (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2172,7 +2191,7 @@ pascal void DrawDisplayAllSubsetClassesGroupsPopUp (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2214,7 +2233,7 @@ pascal void DrawDisplayClassesGroupsPopUp (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2431,7 +2450,7 @@ Boolean HistogramThematicVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2541,7 +2560,7 @@ void LoadClassGroupDisplayInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2631,7 +2650,7 @@ void LoadClassGroupVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2723,7 +2742,7 @@ void LoadLocalClassGroupDisplayInfo (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2816,7 +2835,7 @@ void LoadLocalClassGroupDisplayInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3052,7 +3071,7 @@ DisplaySpecsPtr LoadThematicDisplaySpecs (void)
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3152,7 +3171,7 @@ DisplaySpecsPtr LoadThematicDisplaySpecs (void)
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3197,7 +3216,7 @@ void RemoveListCells (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

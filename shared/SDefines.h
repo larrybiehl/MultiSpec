@@ -2084,7 +2084,13 @@ typedef struct DisplaySpecs
 	#if defined multispec_lin
 				// Handle for color palette for image window when in the background.
 				// This is required for the windows version.
-		 CMPaletteInfo backgroundPaletteObject;
+		CMPaletteInfo 			backgroundPaletteObject;
+	
+		 		// Begin and end lines to use when displaying portions of the image
+				// during update events for thematic images
+	
+		int						updateEndLine;
+		int						updateStartLine;
 	#endif	// defined multispec_lin
       
       
@@ -3422,6 +3428,9 @@ typedef struct ImageOverlayInfo
 	
 typedef struct ImageOverlaySpecs
 	{
+	#if defined multispec_lin
+		float						opacityLoaded;
+	#endif
 	float						opacity;
 	
 	char						index;
@@ -4375,6 +4384,7 @@ typedef struct ReformatOptions
 	UInt16							numberPCComponents;
 	UInt16							workingDataTypeCode;
 	UInt16							functionCode;
+	Boolean							algebraicStringsLoadedFlag;
 	Boolean							bottomToTop;
 	Boolean							channelDescriptions;
 	Boolean							checkForSaturationFlag;

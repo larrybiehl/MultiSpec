@@ -21,7 +21,7 @@
 //	Written By:				Larry L. Biehl			Date: 03/29/1988
 //	Revised By:				Abdur Maud				Date: 06/24/2013
 //	Revised By:				Tsung Tai Yeh			Date: 09/23/2015
-//	Revised By:				Larry L. Biehl			Date: 01/17/2019
+//	Revised By:				Larry L. Biehl			Date: 03/07/2019
 //	
 //------------------------------------------------------------------------------------
 
@@ -668,6 +668,10 @@
 
 
 			//	Routines in LUtilities.cpp
+
+	extern void* BeginBitMapRawDataAccess (
+					WindowInfoPtr						windowInfoPtr,
+					wxBitmap* 							bitMapPtr);
 			
 	extern void CopyOffScreenImage (
 					CMImageView*						imageViewCPtr,
@@ -679,6 +683,9 @@
 
 	extern void CreateClassNameComboBoxList (
 					wxComboBox*							comboBoxCPtr);
+
+	extern void EndBitMapRawDataAccess (
+					wxBitmap* 							bitMapPtr);
 
 	extern SInt16 GetComboListSelection (
 					wxWindow*							cWindowPtr,
@@ -5365,8 +5372,9 @@ extern HPtr GetImageOverlayOffscreenPointer (
 extern HPtr GetImageOverlayLineOffscreenPointer (
 				ImageOverlayInfoPtr				imageOverlayInfoPtr,
 				HPtr									offScreenBufferPtr,
-				UInt32								lineStart,
-				UInt32								columnStart);
+				UInt32								columnStart,
+				UInt32								line,
+				UInt32								lineStart);
 
 extern Boolean HideAllImageOverlays (
 				ImageOverlaySpecsPtr imageOverlayListPtr,
@@ -9337,7 +9345,8 @@ extern Boolean LoadSpecifiedStringNumberStringP (
 extern Boolean MGetString (
 				UCharPtr								outTextPtr,
 				UInt16								stringListID,
-				UInt16								stringID);
+				UInt16								stringID,
+				UInt16								maxStringLength=255);
 							
 #if defined multispec_win
 	extern void MSetWindowTitle (

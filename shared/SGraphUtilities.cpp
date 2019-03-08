@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -12,7 +12,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			11/20/2018
+//	Revision date:			02/20/2019
 //
 //	Language:				C
 //
@@ -140,7 +140,7 @@ void			UpdateSelectionGraphXAxisMinMax (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -162,7 +162,7 @@ void			UpdateSelectionGraphXAxisMinMax (
 //							ShowGraphWindowSelection in SSelectionGraph.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/09/1991
-//	Revised By:			Larry L. Biehl			Date: 06/29/2018
+//	Revised By:			Larry L. Biehl			Date: 06/29/2019
 
 Boolean CheckGraphVectorsSize (
 				GraphPtr								graphRecordPtr, 
@@ -350,7 +350,7 @@ Boolean CheckGraphVectorsSize (
 
                     
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -370,7 +370,7 @@ Boolean CheckGraphVectorsSize (
 // Called By:			ListFieldData in listData.c
 //
 //	Coded By:			Larry L. Biehl			Date: 10/04/1991
-//	Revised By:			Larry L. Biehl			Date: 04/06/2018
+//	Revised By:			Larry L. Biehl			Date: 04/06/2019
 
 Boolean CheckSomeGraphWindowEvents (
 				GraphPtr								graphRecPtr)
@@ -651,7 +651,7 @@ Boolean CheckSomeGraphWindowEvents (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -726,7 +726,7 @@ void CopyGraphYVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -748,7 +748,7 @@ void CopyGraphYVector (
 //							HistogramStatsControl in statHistogram.c
 //
 //	Coded By:			Larry L. Biehl			Date: 10/03/1991
-//	Revised By:			Larry L. Biehl			Date: 02/21/2018
+//	Revised By:			Larry L. Biehl			Date: 02/21/2019
 
 Boolean CreateGraph	(
 				CMGraphView*						graphViewCPtr,
@@ -827,7 +827,7 @@ Boolean CreateGraph	(
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -877,7 +877,7 @@ void DisposeOfGraphRecordMemory (
                             
                             
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -961,7 +961,7 @@ void DoNextOrPreviousChannel	(
                             
                             
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -980,7 +980,7 @@ void DoNextOrPreviousChannel	(
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 10/03/1991
-//	Revised By:			Larry L. Biehl			Date: 11/02/2018
+//	Revised By:			Larry L. Biehl			Date: 02/20/2019
 
 Boolean DrawGraph	(
 				GraphPtr								graphRecPtr,
@@ -1027,7 +1027,7 @@ Boolean DrawGraph	(
 				
 			#if defined multispec_lin 
 				#if defined multispec_wxmac
-					bottomInset = (SInt16)(graphRecPtr->textSize * 3.2 + 3*graphRecPtr->textScaling + 60);
+					bottomInset = (SInt16)(graphRecPtr->textSize * 3.2 + 3*graphRecPtr->textScaling + 10);	// 60
 				#else
 					bottomInset = (SInt16)(graphRecPtr->textSize * 3.2 + 3*graphRecPtr->textScaling + 19);
 				#endif
@@ -1232,7 +1232,7 @@ Boolean DrawGraph	(
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1250,7 +1250,7 @@ Boolean DrawGraph	(
 //							DrawGraph in SGraUtil.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/23/1999
-//	Revised By:			Larry L. Biehl			Date: 04/06/2018
+//	Revised By:			Larry L. Biehl			Date: 04/06/2019
 
 void DrawGraphControls (
 				WindowPtr							windowPtr)
@@ -1436,7 +1436,7 @@ void DrawGraphControls (
                            
                            
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1454,7 +1454,7 @@ void DrawGraphControls (
 // Called By:			CreateGraphWindow
 //
 //	Coded By:			Larry L. Biehl			Date: 10/09/1991
-//	Revised By:			Larry L. Biehl			Date: 04/04/2018
+//	Revised By:			Larry L. Biehl			Date: 04/04/2019
 
 void DrawGraphLabels (
 				GraphPtr								graphRecPtr)
@@ -1562,7 +1562,7 @@ void DrawGraphLabels (
                            
                            
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1707,7 +1707,7 @@ void DrawGraphLegend (
 
                             
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1948,7 +1948,7 @@ void DrawGraphTitle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1989,7 +1989,7 @@ void ForceGraphCodeResourceLoad (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2079,7 +2079,7 @@ Handle GetGraphRecordHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2134,7 +2134,7 @@ GraphPtr GetGraphRecordPtr (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2153,7 +2153,7 @@ GraphPtr GetGraphRecordPtr (
 // Called By:			CreateGraphWindow
 //
 //	Coded By:			Larry L. Biehl			Date: 10/09/1991
-//	Revised By:			Larry L. Biehl			Date: 04/19/2018
+//	Revised By:			Larry L. Biehl			Date: 04/19/2019
 
 void GetGraphLabels (
 				GraphPtr								graphRecordPtr)
@@ -2300,7 +2300,7 @@ void GetGraphLabels (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2390,7 +2390,7 @@ void GetGraphTitle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2471,7 +2471,7 @@ void GetGraphWindowLocation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2542,7 +2542,7 @@ double GetUserHistogramBinWidth (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2608,7 +2608,7 @@ void GetLikeWindowMinMax (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2653,7 +2653,7 @@ WindowPtr GetSelectionGraphImageWindow (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2697,7 +2697,7 @@ void InvalidateGraphWindow (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2815,7 +2815,7 @@ void ListBinWidthValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2836,7 +2836,7 @@ void ListBinWidthValue (
 // Called By:	
 //
 //	Coded By:			Larry L. Biehl			Date: 04/25/1994
-//	Revised By:			Larry L. Biehl			Date: 03/15/2018		
+//	Revised By:			Larry L. Biehl			Date: 03/15/2019		
 
 void LoadGraphSupportArrays (
 				GraphPtr								graphRecordPtr,
@@ -3115,7 +3115,7 @@ void LoadGraphSupportArrays (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3136,7 +3136,7 @@ void LoadGraphSupportArrays (
 //							ShowGraphWindowSelection in SSelectionGraph.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/09/1991
-//	Revised By:			Larry L. Biehl			Date: 07/11/2018
+//	Revised By:			Larry L. Biehl			Date: 07/11/2019
 
 Boolean LoadGraphXVector (
 				GraphPtr								graphRecordPtr,
@@ -3350,7 +3350,7 @@ Boolean LoadGraphXVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3469,7 +3469,7 @@ void LoadGraphYVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3714,7 +3714,7 @@ void LoadGraphYVector2 (
 
                            
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3758,7 +3758,7 @@ void MSetGraphWindowTitle (
 
                            
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3792,7 +3792,7 @@ void ReloadXAxis (
 
                            
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3974,7 +3974,7 @@ void SetGraphWindowTitle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4240,7 +4240,7 @@ void SetGraphMinMax (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4308,7 +4308,7 @@ void SetLikeWindowMinMax (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4391,7 +4391,7 @@ Boolean SetHistogramBinWidth (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4454,7 +4454,7 @@ void SetOverlayDisplayList (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4517,7 +4517,7 @@ void SetStatHistogramGraphTitle2 (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4672,7 +4672,7 @@ void SetUpBinWidthPopUpMenu (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4772,7 +4772,7 @@ void SetUpOverlayPopUpMenu (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4898,7 +4898,7 @@ void SetUpVectorPopUpMenu (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5224,7 +5224,7 @@ SInt16 SetUpXAxisPopUpMenu (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5330,7 +5330,7 @@ void SetVectorDisplayList (
 
                            
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5375,7 +5375,7 @@ void SetXAxisDescriptionInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5602,7 +5602,7 @@ void SetXGraphScale (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5818,7 +5818,7 @@ void SetYGraphScale (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5872,7 +5872,7 @@ void UpdateGraphScales (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6065,7 +6065,7 @@ void UpdateSelectionGraphXAxisMinMax (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

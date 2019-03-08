@@ -1711,7 +1711,7 @@ Boolean GetGDALTopToBottomFlag (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 04/09/2012
-//	Revised By:			Larry L. Biehl			Date: 03/15/2017
+//	Revised By:			Larry L. Biehl			Date: 02/28/2019
 
 void GetEPSGCodeName (
 				OGRSpatialReferenceH				ogrEPSGSRSPtr,
@@ -1747,7 +1747,7 @@ void GetEPSGCodeName (
 		{
 				// Invalid epsg number. List message indicating such.
 				
-		MGetString ((unsigned char*)epsgNamePtr, kDialogStrID, IDS_Dialog31);
+		MGetString ((unsigned char*)epsgNamePtr, kDialogStrID, IDS_Dialog31, 32);
 		
 		}	// end "else attributeStringPtr == NULL"
 
