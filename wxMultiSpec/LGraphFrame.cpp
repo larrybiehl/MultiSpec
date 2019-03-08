@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -12,7 +12,7 @@
 //	Authors:					Abdur Rahman Maud, Larry L. Biehl
 //
 //	Revision date:			02/20/2017 by Wei-Kang Hsu
-//								11/20/2018 by Larry L. Biehl
+//								02/23/2019 by Larry L. Biehl
 //
 //	Language:				C++
 //
@@ -37,11 +37,15 @@
 #include "LImage_dialog.cpp"
 #include "LGraphWindow_img.cpp"
 #include "wx/treelist.h"
+#include "wx/display.h"
+
+#define	kXAxis			1
+#define	kYAxis			2
+#define	kBothXYAxes		3
 
 IMPLEMENT_CLASS (CMGraphFrame, wxDocChildFrame)
 IMPLEMENT_CLASS (CMGraphCanvas, wxPanel)
-/////////////////////////////////////////////////////////////////////////////
-// CMGraphCanvas 
+
 // catch paint events
 BEGIN_EVENT_TABLE (CMGraphCanvas, wxPanel)
 	EVT_PAINT (CMGraphCanvas::paintEvent) 
@@ -147,7 +151,11 @@ CMGraphFrame::CMGraphFrame (
 													m_graphViewCPtr->m_graphRecordHandle);
    
    if (gProcessorCode == kHistogramStatsProcessor)
-      CreateButton ();
+   	{
+      CreateHistogramControls ();
+		SetMinSize (wxSize (340, 300));
+		
+      }	// end ""
 		
    else if (gProcessorCode == kListDataProcessor)
 		{
@@ -259,9 +267,9 @@ BEGIN_EVENT_TABLE (CMGraphFrame, wxDocChildFrame)
 	EVT_UPDATE_UI (ID_ZOOM_IN, CMGraphFrame::OnUpdateZoomIn)
 	EVT_UPDATE_UI (ID_ZOOM_OUT, CMGraphFrame::OnUpdateZoomOut)
 	EVT_UPDATE_UI (ID_OVERLAY, CMGraphFrame::OnUpdateOverlay)
-	EVT_TOOL (IDC_BinWidth, CMGraphFrame::OnShowBinWidth)
-	EVT_TOOL (IDC_GraphOverlay, CMGraphFrame::OnShowOverlay)
-	EVT_TOOL (IDC_SelectVectors, CMGraphFrame::OnShowSelectVector)
+	//EVT_TOOL (IDC_BinWidth, CMGraphFrame::OnShowBinWidth)
+	//EVT_TOOL (IDC_GraphOverlay, CMGraphFrame::OnShowOverlay)
+	//EVT_TOOL (IDC_SelectVectors, CMGraphFrame::OnShowSelectVector)
 	EVT_MENU_RANGE (ID_SELECTBINWIDTHMENUITEMSTART, 
 							ID_SELECTBINWIDTHMENUITEMSTART+10, 
 							CMGraphFrame::OnBinWidth)
@@ -285,7 +293,7 @@ END_EVENT_TABLE ()
 
 
 
-void CMGraphFrame::CreateBinWidth () 
+void CMGraphFrame::CreateBinWidthMenu ()
 
 {
 	m_optionBinWidthFlag = false;
@@ -346,73 +354,7 @@ void CMGraphFrame::CreateBinWidth ()
 	m_binWidthMenu->Check (ID_SELECTBINWIDTHMENUITEMSTART, 1);
 	//SetUpWindowOverlayPopUpMenu ((Handle) m_binWidthMenu, m_optionBinWidthFlag);
 	
-}	// end "CreateBinWidth"
-
-
-
-void CMGraphFrame::CreateButton ()
-
-{
-	wxBitmap overlay = wxBITMAP_PNG_FROM_DATA (overlay1);
-	wxBitmap binwidth = wxBITMAP_PNG_FROM_DATA (binwidth);
-	wxBitmap bin = wxBITMAP_PNG_FROM_DATA (bin);
-	wxBitmap arrowup = wxBITMAP_PNG_FROM_DATA (arrowup);
-	wxBitmap arrowdown = wxBITMAP_PNG_FROM_DATA (arrowdown);
-  
-	m_toolBar1 = CreateToolBar (wxTB_BOTTOM, wxID_ANY);
-  
-	wxFont font (gFontSize, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
-	wxStaticText *text = new wxStaticText (m_toolBar1, 
-														wxID_ANY, 
-														wxT("Change Channel:")); 
-	//wxStaticText *text1 = new wxStaticText (m_toolBar1, wxID_ANY, wxT("Bin width:1"));
-	text->SetFont (font);
-	m_toolBar1->AddControl (text, wxT("tool"));
-	m_toolBar1->AddTool (IDC_NextChannel, 
-								wxT("tool"), 
-								arrowup, 
-								wxNullBitmap, 
-								wxITEM_NORMAL, 
-								wxT(""), 
-								wxEmptyString);
-								
-	m_toolBar1->AddTool (IDC_PreviousChannel, 
-								wxT("tool"), arrowdown, 
-								wxNullBitmap, 
-								wxITEM_NORMAL, 
-								wxT(""), 
-								wxEmptyString);
-								
-	m_toolBar1->AddTool (IDC_SelectVectors, 
-								wxT("tool"), 
-								bin, 
-								wxNullBitmap, 
-								wxITEM_NORMAL, 
-								wxT(""), 
-								wxEmptyString);
-								
-	m_toolBar1->AddTool (IDC_GraphOverlay, 
-								wxT("tool"), 
-								overlay, 
-								wxNullBitmap, 
-								wxITEM_NORMAL, 
-								wxT(""), 
-								wxEmptyString);
-								
-	m_toolBar1->AddTool (IDC_BinWidth, 
-								wxT("tool"), 
-								binwidth, 
-								wxNullBitmap, 
-								wxITEM_NORMAL, 
-								wxT(""), 
-								wxEmptyString);
-  
-	m_toolBar1->Realize ();
-  
-	CreateBinWidth ();
-	CreateOverlay ();
-	
-}	// end "CreateButton"
+}	// end "CreateBinWidthMenu"
 
 
 /*
@@ -699,7 +641,131 @@ void CMGraphFrame::CreateControlsListData ()
 
 
 
-void CMGraphFrame::CreateOverlay () 
+void CMGraphFrame::CreateHistogramControls ()
+
+{
+	#if defined multispec_wxlin
+		wxBitmap density_histogram = wxBITMAP_PNG_FROM_DATA (density_histogram);
+		wxBitmap binwidth = wxBITMAP_PNG_FROM_DATA (binwidth);
+		wxBitmap classes = wxBITMAP_PNG_FROM_DATA (classes);
+		wxBitmap arrow_next = wxBITMAP_PNG_FROM_DATA (arrow_next);
+		wxBitmap arrow_previous = wxBITMAP_PNG_FROM_DATA (arrow_previous);
+		//wxBitmap arrow_next = wxBITMAP_PNG (arrow_next);
+		//wxBitmap arrow_previous = wxBITMAP_PNG (arrow_previous);
+	#endif
+
+	#if defined multispec_wxmac
+		wxBitmap density_histogram = wxBITMAP_PNG (density_histogram);
+		wxBitmap binwidth = wxBITMAP_PNG (binwidth);
+		wxBitmap classes = wxBITMAP_PNG (classes);
+		wxBitmap arrow_next = wxBITMAP_PNG (arrow_next);
+		wxBitmap arrow_previous = wxBITMAP_PNG (arrow_previous);
+	#endif
+	
+   m_panel2 = new CMGraphCanvas (this);
+	
+	wxBoxSizer* bVSizer100 = new wxBoxSizer (wxVERTICAL);
+	
+	wxBoxSizer* bHSizer110 = new wxBoxSizer (wxHORIZONTAL);
+	
+	wxFont font (gFontSize+1, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
+	wxStaticText *text = new wxStaticText (m_panel2,
+														IDC_ChangeChannelPrompt,
+														wxT("Change channel:"),
+														wxDefaultPosition,
+														wxDefaultSize);
+														//wxSize (60, 16));
+	bHSizer110->Add (text, wxSizerFlags(0).Align(wxALIGN_BOTTOM).Border(wxLEFT, 3));
+	
+	text->SetFont (font);
+	
+	m_buttonPrevious = new wxBitmapButton (m_panel2,
+														IDC_PreviousChannel,
+														arrow_previous,
+														wxDefaultPosition,
+														wxDefaultSize,
+														//wxSize (16, 16),
+														wxBORDER_NONE+wxBU_EXACTFIT);
+	m_buttonPrevious->SetToolTip (wxT("Go to previous channel"));
+	m_buttonPrevious->Bind (wxEVT_LEFT_DOWN, &CMGraphFrame::DoPreviousChannel, this);
+	m_buttonPrevious->Enable (false);
+	bHSizer110->Add (m_buttonPrevious,
+							wxSizerFlags(0).Align(wxALIGN_BOTTOM).Border(wxLEFT|wxRIGHT, 3));
+	
+	m_buttonNext = new wxBitmapButton (m_panel2,
+													IDC_NextChannel,
+													arrow_next,
+													wxDefaultPosition,
+													wxDefaultSize,
+													//wxSize (16, 16),
+													wxBORDER_NONE+wxBU_EXACTFIT);
+													//wxBU_EXACTFIT);
+	m_buttonNext->SetToolTip (wxT("Go to next channel"));
+	m_buttonNext->Bind (wxEVT_LEFT_DOWN, &CMGraphFrame::DoNextChannel, this);
+	bHSizer110->Add (m_buttonNext,
+							wxSizerFlags(0).Align(wxALIGN_BOTTOM).Border(wxRIGHT, 12));
+	
+	m_buttonVectors = new wxBitmapButton (m_panel2,
+													IDC_SelectVectors,
+													classes,
+													wxDefaultPosition,
+													wxDefaultSize,
+													//wxSize (16, 16),
+													wxBORDER_NONE+wxBU_EXACTFIT);
+													//wxBU_EXACTFIT);
+	m_buttonVectors->SetToolTip (wxT("Select classes to be displayed"));
+	m_buttonVectors->Bind (wxEVT_LEFT_DOWN, &CMGraphFrame::DoShowVectors, this);
+	bHSizer110->Add (m_buttonVectors,
+							wxSizerFlags(0).Align(wxALIGN_BOTTOM).Border(wxRIGHT, 3));
+	
+	m_buttonOverlay = new wxBitmapButton (m_panel2,
+														IDC_GraphOverlay,
+														density_histogram,
+														wxDefaultPosition,
+														wxDefaultSize,
+														//wxSize (16, 16),
+														wxBORDER_NONE+wxBU_EXACTFIT);
+														//wxBU_EXACTFIT);
+	m_buttonOverlay->SetToolTip (wxT("Display histogram and/or density function"));
+	m_buttonOverlay->Bind (wxEVT_LEFT_DOWN, &CMGraphFrame::DoShowOverlay, this);
+	bHSizer110->Add (m_buttonOverlay,
+							wxSizerFlags(0).Align(wxALIGN_BOTTOM).Border(wxRIGHT, 3));
+	
+	m_buttonBinWidth = new wxBitmapButton (m_panel2,
+														IDC_BinWidth,
+														binwidth,
+														wxDefaultPosition,
+														wxDefaultSize,
+														//wxSize (16, 16),
+														wxBORDER_NONE+wxBU_EXACTFIT);
+														//wxBU_EXACTFIT);
+	m_buttonBinWidth->SetToolTip (wxT("Set bin width"));
+	m_buttonBinWidth->Bind (wxEVT_LEFT_DOWN, &CMGraphFrame::DoShowBinWidth, this);
+	bHSizer110->Add (m_buttonBinWidth,
+							wxSizerFlags(0).Align(wxALIGN_BOTTOM).Border(wxRIGHT, 3));
+	
+	wxStaticText* binWidthText = new wxStaticText (m_panel2,
+																	IDC_BinWidthText,
+																	wxT("Bin width: 1"),
+																	wxDefaultPosition,
+																	wxDefaultSize);
+	bHSizer110->Add (binWidthText,
+							wxSizerFlags(0).Align(wxALIGN_BOTTOM));
+	binWidthText->SetFont (font);
+	
+	bVSizer100->Add (bHSizer110, wxSizerFlags(1).Expand().Border(wxLEFT, 3));
+	
+   m_panel2->SetSizer (bVSizer100);
+   m_panel2->Layout ();
+	
+	CreateBinWidthMenu ();
+	CreateHistogramDensityMenu ();
+	
+}	// end "CreateHistogramControls"
+
+
+
+void CMGraphFrame::CreateHistogramDensityMenu ()
 
 {
 	m_graphOverlayMenu = new wxMenu ();
@@ -708,21 +774,29 @@ void CMGraphFrame::CreateOverlay ()
 											wxString (wxT("&Draw histogram")), 
 											wxT(""), 
 											wxITEM_CHECK);
+	
+	if (gStatHistogramSpecsPtr->overlayDensityFunctionFlag)
+		{
+		m_graphOverlayMenu->Append (ID_GRAPHOVERLAYMENUITEMSTART+1,
+												wxString (wxT("&Draw density function")), 
+												wxT(""), 
+												wxITEM_CHECK);
 
-	m_graphOverlayMenu->Append (ID_GRAPHOVERLAYMENUITEMSTART+1, 
-											wxString (wxT("&Draw density function")), 
-											wxT(""), 
-											wxITEM_CHECK);
+		m_graphOverlayMenu->Append (ID_GRAPHOVERLAYMENUITEMSTART+2, 
+												wxString (wxT("&Draw histogram && density function")), 
+												wxT(""), 
+												wxITEM_CHECK);
 
-	m_graphOverlayMenu->Append (ID_GRAPHOVERLAYMENUITEMSTART+2, 
-											wxString (wxT("&Draw histogram && density function")), 
-											wxT(""), 
-											wxITEM_CHECK);
-
+   	m_overlayCheckID = ID_GRAPHOVERLAYMENUITEMSTART + 2;
+		
+		}
+	
+	else	// !gStatHistogramSpecsPtr->overlayDensityFunctionFlag
+   	m_overlayCheckID = ID_GRAPHOVERLAYMENUITEMSTART;
+	
 	m_graphOverlayMenu->Check (m_overlayCheckID, 1);
-	//SetUpWindowOverlayPopUpMenu ((Handle)m_graphOverlayMenu, 1);
       
-}	// end "CreateOverlay"
+}	// end "CreateHistogramDensityMenu"
 
 
 
@@ -790,6 +864,7 @@ void CMGraphFrame::CreateSelectVector (
 }	// end "CreateSelectVector"
 
 
+
 wxComboBox* CMGraphFrame::CreateXAxisComboControl (
 				wxWindow*							parent)
 
@@ -836,8 +911,8 @@ wxComboBox* CMGraphFrame::CreateXAxisComboControl (
 	return (comboXLabel);
     
 }	// end "CreateXAxisComboControl"
-    
-	 
+
+
 
 void CMGraphFrame::OnBinWidth (
 				wxCommandEvent&					event)
@@ -845,12 +920,12 @@ void CMGraphFrame::OnBinWidth (
 {
 	SInt32								menuID,
 											selection;
-											
-   
+	
+	
    menuID = event.GetId ();
-   
+	
    selection = menuID - ID_SELECTBINWIDTHMENUITEMSTART + 1;
-   
+	
    m_graphViewCPtr->OnBinWidth (selection);
 
    if (binWidthCheckID != menuID)
@@ -860,8 +935,119 @@ void CMGraphFrame::OnBinWidth (
       binWidthCheckID = menuID;
 		
 		}	// end "if (binWidthCheckID != menuID)"
-   
+	
 }	// end "OnBinWidth"
+
+
+
+void CMGraphFrame::DoNextChannel (
+				wxMouseEvent& 						event)
+
+{
+	DoNextOrPreviousChannelEvent (event, kNextGraphSetControl);
+	
+}	// end "DoNextChannel"
+
+
+
+void CMGraphFrame::DoNextOrPreviousChannelEvent (
+				wxMouseEvent& 						event,
+				SInt16								controlIdentifier)
+
+{
+	time_t				currentTickCount,
+							nextControlTime;
+	
+   Boolean				controlDelayFlag,
+   						leftMouseStillDownFlag = TRUE;
+	
+	
+	nextControlTime = GetTickCount ();
+	while (leftMouseStillDownFlag)
+		{
+		controlDelayFlag = !wxGetKeyState (WXK_CONTROL);
+		currentTickCount = GetTickCount ();
+		
+		if (currentTickCount >= nextControlTime || !controlDelayFlag)
+			{
+			nextControlTime = currentTickCount + gControlOffset;
+			
+			DoNextOrPreviousChannel	(m_graphViewCPtr, controlIdentifier);
+			if (!UpdateGraphChannels ())
+				break;
+	
+			#if defined multispec_wxlin
+				Update ();
+			#endif
+		
+			#if defined multispec_wxmac
+				((CMultiSpecApp*)wxTheApp)->SafeYieldFor (NULL, wxEVT_CATEGORY_UI);
+			#endif
+			
+			}	// end "if (!controlDelayFlag || (GetTickCount() > m_nextControlTime))
+		
+		leftMouseStillDownFlag = wxGetMouseState ().LeftIsDown ();
+		
+		}	// end "while (leftMouseStillDownFlag)"
+	
+}	// end "DoNextOrPreviousChannelEvent"
+
+
+/*
+void CMGraphFrame::DoOverlay (
+				wxMouseEvent& 						event)
+
+{
+   //GraphPtr								graphRecordPtr;
+	//Handle								graphRecordHandle;
+   SInt16								selection;
+	
+   selection = (SInt16)menuID;
+   //graphRecordHandle = this->GetGraphRecordHandle ();
+	//graphRecordPtr = (GraphPtr)GetHandlePointer (
+	//								graphRecordHandle,
+	//								kLock,
+	//								kNoMoveHi);
+	
+	SetOverlayDisplayList (this, selection);
+   m_frame->Refresh ();
+	
+}	// end "DoOverlay"
+*/
+
+
+void CMGraphFrame::DoPreviousChannel (
+				wxMouseEvent& 						event)
+
+{
+	DoNextOrPreviousChannelEvent (event, kPreviousGraphSetControl);
+	
+}	// end "DoPreviousChannel"
+
+
+
+void CMGraphFrame::DoSelectVectors (
+				wxMouseEvent& 						event)
+
+{
+   GraphPtr								graphRecordPtr;
+	Handle								graphRecordHandle;
+   SInt16								selection;
+	
+   //selection = (SInt16)menuID;
+   selection = (SInt16)0;
+   SetVectorDisplayList (m_graphViewCPtr, (SInt16)selection);
+
+   graphRecordHandle = m_graphViewCPtr->GetGraphRecordHandle ();
+	graphRecordPtr = (GraphPtr)GetHandlePointer (
+									graphRecordHandle,
+									kLock,
+									kNoMoveHi);
+	
+   SetGraphMinMax (graphRecordPtr, kBothXYAxes);
+   Refresh ();
+	
+}	// end "DoSelectVectors"
 
 
 
@@ -903,7 +1089,7 @@ void CMGraphFrame::OnChangeXAxis (
 		xAxisCode64 = (SInt64)((int*)m_comboXlabel->GetClientData (xAxisSelection));
 		xAxisCode = (int)xAxisCode64;
 		
-		GraphPtr graphRecordPtr = (GraphPtr)GetHandlePointer ( 
+		graphRecordPtr = (GraphPtr)GetHandlePointer (
 													m_graphViewCPtr->m_graphRecordHandle);
 													
 		currentSelection = graphRecordPtr->xAxisCode;
@@ -1167,28 +1353,28 @@ void CMGraphFrame::OnPaint (
 
 
 
-void CMGraphFrame::OnShowBinWidth (
-				wxCommandEvent&					event) 
+void CMGraphFrame::DoShowBinWidth (
+				wxMouseEvent& 						event)
 
 {
-   m_toolBar1->PopupMenu (m_binWidthMenu);
+   m_buttonBinWidth->PopupMenu (m_binWidthMenu);
       
-}	// end "OnShowBinWidth"
+}	// end "DoShowBinWidth"
 
 
 
-void CMGraphFrame::OnShowOverlay (
-				wxCommandEvent&					event) 
+void CMGraphFrame::DoShowOverlay (
+				wxMouseEvent& 						event)
 
 {
-   m_toolBar1->PopupMenu (m_graphOverlayMenu);
+   m_buttonOverlay->PopupMenu (m_graphOverlayMenu);
       
-}	// end "OnShowOverlay"
+}	// end "DoShowOverlay"
 
 
 
-void CMGraphFrame::OnShowSelectVector (
-				wxCommandEvent&					event)
+void CMGraphFrame::DoShowVectors (
+				wxMouseEvent& 								event)
  
 {
    int vectorSize;
@@ -1202,9 +1388,10 @@ void CMGraphFrame::OnShowSelectVector (
    if (m_selectVectorMenu->IsChecked (ID_SELECTVECTORMENUITEMSTART+vectorSize+2))
       m_selectVectorMenu->Check (ID_SELECTVECTORMENUITEMSTART+vectorSize+2, 0); 
    
-   m_toolBar1->PopupMenu (m_selectVectorMenu);
+   //m_toolBar1->PopupMenu (m_selectVectorMenu);
+   m_buttonVectors->PopupMenu (m_selectVectorMenu);
 
-}	// end "OnShowSelectVector"
+}	// end "DoShowVectors"
 
 
 
@@ -1415,23 +1602,6 @@ void CMGraphFrame::Render (
 
 	dc.SetPen (wxPen (gray));
 	dc.SetBrush (wxBrush (white));
-	/*  
-	CMGraphView::s_updateRect.top = 20;
-	CMGraphView::s_updateRect.left = 20;
-	CMGraphView::s_updateRect.bottom = y - 50;
-	CMGraphView::s_updateRect.right =  x - 50;
-
-	int numberChars = sprintf (
-					(char*)&gTextString3,
-					" LGraphFrame::Render (left, right, top, bottom): %d, %d, %d, %d%s", 
-					CMGraphView::s_updateRect.left,
-					CMGraphView::s_updateRect.right,
-					CMGraphView::s_updateRect.top,
-					CMGraphView::s_updateRect.bottom,
-					gEndOfLine);
-	ListString ((char*)&gTextString3, numberChars, gOutputTextH);
-	*/  
-	//dc.DrawRectangle (20, 20, x-50, y-50);
 
 }	// end "Render"
 
@@ -1682,12 +1852,80 @@ void CMGraphFrame::UpdateExpandFlag ()
 
 
 
+Boolean CMGraphFrame::UpdateGraphChannels (void)
+
+{
+   GraphPtr       graphRecordPtr;
+	
+	SInt16			numberSets,
+						numberVectors,
+						set;
+	
+	Boolean			returnFlag = TRUE;
+	
+	
+   graphRecordPtr = (GraphPtr)GetHandlePointer (m_graphViewCPtr->m_graphRecordHandle);
+	
+   numberSets = graphRecordPtr->numberSets;
+	set = graphRecordPtr->set;
+	numberVectors = graphRecordPtr->numberVectors;
+	
+   if (numberSets <= 1)
+   	{
+		m_buttonNext->Enable (false);
+		m_buttonPrevious->Enable (false);
+		
+   	}	// end "if (numberSets <= 1)"
+	
+   else	// numberSets > 1
+   	{
+      if (set < numberSets)
+			m_buttonNext->Enable (true);
+
+      else	// set >= numberSets
+      	{
+			m_buttonNext->Enable (false);
+			returnFlag = FALSE;
+			
+			}	// end "else set >= numberSets"
+		
+      if (set > 1)
+			m_buttonPrevious->Enable (true);
+			
+      else	// >set <= 1
+      	{
+			m_buttonPrevious->Enable (false);
+			returnFlag = FALSE;
+		
+			}	// end "else set >= numberSets"
+			
+   	}	// end "elseset <= 1"
+	/*
+   if (numberVectors <= 1)
+      //m_frame->m_toolBar1->EnableTool (IDC_SelectVectors, 0);
+		
+   else // numberVectors > 1
+      //m_frame->m_toolBar1->EnableTool (IDC_SelectVectors, 1);
+	
+   if (graphRecordPtr->graphCodesAvailable > 1)
+      //m_frame->m_toolBar1->EnableTool (IDC_GraphOverlay, 1);
+
+   else
+      //m_frame->m_toolBar1->EnableTool (IDC_GraphOverlay, 0);
+	*/
+   return (returnFlag);
+	
+}	// end "UpdateGraphChannels"
+
+
+
 void CMGraphFrame::UpdateSplitterWindowLayout ()
 
 {
-   bool featureListShowFlag = false;
-   bool dataListShowFlag = false;
-   wxSize windowSize, splitterWinSize;
+   bool 				featureListShowFlag = false;
+   bool 				dataListShowFlag = false;
+   wxSize 			windowSize,
+   					splitterWinSize;
 	
    
    if (gActiveImageViewCPtr != NULL)
@@ -1716,13 +1954,25 @@ void CMGraphFrame::UpdateSplitterWindowLayout ()
 		  
    if (dataListShowFlag == false && featureListShowFlag == false)
 		{
+		Boolean  splitter1SplitFlag,
+					splitter2SplitFlag,
+					splitter3SplitFlag;
+		
+		splitter1SplitFlag = m_splitter1->IsSplit ();
+		splitter2SplitFlag = m_splitter2->IsSplit ();
+		splitter3SplitFlag = m_splitter3->IsSplit ();
+		
       splitterWinSize = m_splitter2->GetSize ();
-		windowSize = GetSize();
+		windowSize = GetSize ();
       #ifdef NetBeansProject
 			windowSize = splitterWinSize + wxSize (4, 52);
       #else
       	#if defined multispec_wxmac
-				windowSize = splitterWinSize + wxSize (4, 20);
+				windowSize = splitterWinSize + wxSize (4, 50);
+				if (splitter1SplitFlag)
+							// Being unsplit; need to add 2 pixels back
+					windowSize.y += 2;
+		
 				windowSize.y = MAX (m_minFrameYSize, windowSize.y);
 			#else
 				windowSize = splitterWinSize + wxSize (0, 20);
@@ -1733,24 +1983,53 @@ void CMGraphFrame::UpdateSplitterWindowLayout ()
       SetSize (windowSize);
 		
       //splitterWinSize = m_splitter2->GetSize ();
-		//windowSize = GetSize();
+		//windowSize = GetSize ();
 		
 		}	// end "if (dataListShowFlag == false && featureListShowFlag == false)"
 		
    else	// dataListShowFlag || featureListShowFlag
 		{
       if (!m_splitter1->IsSplit ())
-			{ 
+			{
+			int maximumGraphHeight;
+			
 					// if not split,  expand the height and then split the window
 					
          windowSize = this->GetSize ();
          splitterWinSize = m_splitter2->GetSize ();
-        
+				
+         		// Get maximum height for the graph window.
+				
+			#if defined multispec_wxlin
+   			int		clientWidth,
+   						menuHeight,
+   						menuWidth,
+   						toolBarHeight,
+   						toolBarWidth;
+	
+				GetMainFrame()->m_menubar1->GetSize (&menuWidth, &menuHeight);
+				GetMainFrame()->m_toolBar1->GetSize (&toolBarWidth, &toolBarHeight);
+		
+				GetMainFrame()->GetClientSize (&clientWidth, &maximumGraphHeight);
+
+						// Need to allow for MultiSpec Title line in MyGeoHub Workspace
+		
+				maximumGraphHeight -= (27 + menuHeight + toolBarHeight);
+			#endif
+			
+			#if defined multispec_wxmac
+				wxRect	clientRect;
+		
+				clientRect = wxDisplay().GetClientArea ();
+				maximumGraphHeight = clientRect.GetHeight ();
+				maximumGraphHeight -= clientRect.GetTop ();
+			#endif
+				
          #ifdef NetBeansProject
 				windowSize.y = MIN ((int)(windowSize.y * 1.8), 600);
          #else // mygeohub
-            windowSize.y = MIN ((int)(windowSize.y *1.6), 600);
-         #endif
+				windowSize.y = MIN ((int)(windowSize.y * 1.6), maximumGraphHeight);
+			#endif
 
 			//m_splitter1->SetSashGravity (0.5);
          m_splitter1->SetSashGravity (0);

@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 // 								Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (2009-2018)
+//								 Copyright (2009-2019)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -12,7 +12,7 @@
 //
 //	Authors:					Abdur Rahman Maud, Larry L. Biehl
 //
-//	Revision date:			11/13/2018
+//	Revision date:			02/15/2019
 //
 //	Language:				C++
 //
@@ -158,7 +158,7 @@ CMDisplaySpecsDlg::~CMDisplaySpecsDlg ()
 
 
 BEGIN_EVENT_TABLE(CMDisplaySpecsDlg, CMDialog)
-	EVT_CHOICE(ID3C_BitsOfColor, CMDisplaySpecsDlg::OnSelendokBitsOfColor)
+	//EVT_CHOICE(ID3C_BitsOfColor, CMDisplaySpecsDlg::OnSelendokBitsOfColor)
 	EVT_INIT_DIALOG(CMDisplaySpecsDlg::OnInitDialog)
 	EVT_TEXT(ID3C_BlueChannel, CMDisplaySpecsDlg::OnChangeBlueChannel)
 	EVT_TEXT(ID3C_GreenChannel, CMDisplaySpecsDlg::OnChangeGreenChannel)
@@ -294,7 +294,7 @@ void CMDisplaySpecsDlg::CreateControls ()
 													ID3C_DisplayType,
 													/*wxT("3-Channel Color")*/wxEmptyString,
 													wxDefaultPosition,
-													wxSize (180, -1),
+													wxSize (190, -1),
 													0,
 													NULL,
 													wxCB_READONLY);
@@ -534,11 +534,16 @@ void CMDisplaySpecsDlg::CreateControls ()
 	wxGridSizer* gSizer2;
 	gSizer2 = new wxGridSizer(0, 2, 0, 0);
 
-	m_staticText67 = new wxStaticText(sbSizer10->GetStaticBox(), wxID_ANY, wxT("Bits of color:"), wxDefaultPosition, wxDefaultSize, 0);
-	m_staticText67->Wrap(-1);
-	SetUpToolTip(m_staticText67, IDS_ToolTip34);
-	gSizer2->Add(m_staticText67, 0, wxALIGN_CENTER_VERTICAL | wxALIGN_LEFT | wxALL, 5);
-
+	//m_staticText67 = new wxStaticText(sbSizer10->GetStaticBox(), wxID_ANY, wxT("Bits of color:"), wxDefaultPosition, wxDefaultSize, 0);
+	wxStaticText* staticText671 = new wxStaticText(sbSizer10->GetStaticBox(), wxID_ANY, wxT("Bits of color:"), wxDefaultPosition, wxDefaultSize, 0);
+	staticText671->Wrap (-1);
+	SetUpToolTip (staticText671, IDS_ToolTip34);
+	gSizer2->Add (staticText671, 0, wxALIGN_CENTER_VERTICAL | wxALIGN_LEFT | wxALL, 5);
+	
+	m_staticText67 = new wxStaticText (sbSizer10->GetStaticBox(), ID3C_BitsOfColor, wxT("24"), wxDefaultPosition, wxDefaultSize, 0);
+	m_staticText67->Wrap (-1);
+	gSizer2->Add (m_staticText67, 0, wxALIGN_CENTER_VERTICAL | wxALIGN_LEFT | wxALL, 5);
+	/*
 	wxString m_bitsofcolctrlChoices[] = {wxT("8"), wxT("24")};
 	int m_bitsofcolctrlNChoices = sizeof (m_bitsofcolctrlChoices) / sizeof (wxString);
 	m_bitsofcolctrl = new wxChoice (sbSizer10->GetStaticBox(),
@@ -551,9 +556,9 @@ void CMDisplaySpecsDlg::CreateControls ()
 	m_bitsofcolctrl->SetSelection (0);
    SetUpToolTip (m_bitsofcolctrl, IDS_ToolTip34);
 	m_bitsofcolctrl->SetValidator (wxGenericValidator(&m_BitsOfColor));
-
+	
 	gSizer2->Add(m_bitsofcolctrl, 0, wxALL, 5);
-
+	*/
 	m_staticText68 = new wxStaticText (sbSizer10->GetStaticBox (),
 													wxID_ANY,
 													wxT("Stretch:"),
@@ -761,7 +766,7 @@ void CMDisplaySpecsDlg::CheckChannel (
 											  m_BlueChannel,
 											  (SInt16*) & mColorLevelsMax[0][0],
 											  &mDuplicateChannelCode,
-											  (SInt16) m_BitsOfColor + 1,
+											  (SInt16)m_BitsOfColor + 1,
 											  &numberLevels);
 
 		m_NumberLevels = numberLevels;
@@ -1179,56 +1184,46 @@ void CMDisplaySpecsDlg::OnInitDialog (
     m_ColumnEnd = m_displaySpecsPtr->columnEnd;
     m_ColumnInterval = m_displaySpecsPtr->columnInterval;
     
-    /*This function changes the value of mLocalDisplayType*/
-    /*Handling OnDropDownBitsofcolor here*/
-    /////////////////////////////////////////////////////////////////
-    wxChoice* comboBoxPtr = (wxChoice*) FindWindow(ID3C_BitsOfColor);
-/*
-    if (mLocalDisplayType == 2 || mLocalDisplayType == 7) {
-        if (comboBoxPtr->GetCount() == 2)
-            // Remove the '24' item from the bits of color list.
+			// Change the value of mLocalDisplayType
+	
+	//wxChoice* comboBoxPtr = (wxChoice*)FindWindow (ID3C_BitsOfColor);
+   if (m_DisplayType > 1 && m_DisplayType < 6)
+   	{
+		m_staticText67->SetLabel (wxT("24"));
+		m_BitsOfColor = 2; // color image
+		
+         	// Remove the '8' item from the bits of color list.
+		
+      //if (comboBoxPtr->GetCount() == 2)
+		//	comboBoxPtr->Delete(0);
+		
+    	}	// end "if (mLocalDisplayType > 2 || mLocalDisplayType < 7)"
+	
+	else	// mLocalDisplayType <= 2 && mLocalDisplayType == 7
+		{
+		m_staticText67->SetLabel (wxT("8"));
+		m_BitsOfColor = 0; // grey  image
+		
+      //if (comboBoxPtr->GetCount() == 2)
+		//	comboBoxPtr->Delete(1);
+		
+    	}	// end "else mLocalDisplayType <= 2 && ..."
+	
+	//comboBoxPtr->SetSelection (0);
 
-            comboBoxPtr->Delete(1);
-
-    }// end "if (mLocalDisplayType == 2 || mLocalDisplayType == 7)"
-
-    else // mLocalDisplayType != 2 && mLocalDisplayType != 7
-    {
-        if (comboBoxPtr->GetCount() == 1)
-            comboBoxPtr->Append(wxT("24"));
-
-  } // end "else mLocalDisplayType != 2 && ..."
-  */
-
-   if (m_DisplayType > 1 && m_DisplayType < 6) {
-         // Remove the '8' item from the bits of color list.
-      if (comboBoxPtr->GetCount() == 2){
-            comboBoxPtr->Delete(0);
-      }
-    }// end "if (mLocalDisplayType > 2 || mLocalDisplayType < 7)"
-    else // mLocalDisplayType <= 2 && mLocalDisplayType == 7
-    {
-      if (comboBoxPtr->GetCount() == 2){
-            comboBoxPtr->Delete(1);
-      }            
-    } // end "else mLocalDisplayType <= 2 && ..."
-    int numb = comboBoxPtr->GetCount();
-    comboBoxPtr->SetSelection (0);
-
-    // Set limit values
+    		// Set limit values
 
     mMaxChannelNumber = gImageWindowInfoPtr->totalNumberChannels;
 
-    // Make sure that we have the bitmaps for the entire image buttons.
+    		// Make sure that we have the bitmaps for the entire image buttons.
 
-    SetEntireImageButtons(
-            NULL,
-            m_LineStart,
-            m_LineEnd,
-            m_ColumnStart,
-            m_ColumnEnd);
+    SetEntireImageButtons (NULL,
+									m_LineStart,
+									m_LineEnd,
+									m_ColumnStart,
+									m_ColumnEnd);
 
-    // Get pointer to file information.
+    		// Get pointer to file information.
 
     //	fileInfoPtr = gImageFileInfoPtr;
 
@@ -1294,17 +1289,20 @@ void CMDisplaySpecsDlg::OnInitDialog (
 }	// end "OnInitDialog"
 
 
+/*
 void CMDisplaySpecsDlg::OnSelendokBitsOfColor (
-				wxCommandEvent&									event) 
+				wxCommandEvent&									event)
+
 {
 	SInt16 numberLevels;
 
 
 			// Get current bits of color setting.
 			
-	m_BitsOfColor = ((wxChoice *) FindWindow(ID3C_BitsOfColor))->GetSelection(); 
-	if(m_DisplayType > 1 && m_DisplayType < 6)
+	m_BitsOfColor = ((wxChoice*)FindWindow (ID3C_BitsOfColor))->GetSelection ();
+	if (m_DisplayType > 1 && m_DisplayType < 6)
 		m_BitsOfColor = 2; // color image
+	
 	else
 		m_BitsOfColor = 0; // grey  image
     
@@ -1333,8 +1331,8 @@ void CMDisplaySpecsDlg::OnSelendokBitsOfColor (
 
     m_NumberLevels = numberLevels;
 
-} // end "OnSelendokBitsOfColor"
-
+}	// end "OnSelendokBitsOfColor"
+*/
 
 void CMDisplaySpecsDlg::OnSelendokChannels(wxCommandEvent& event) 
 {
@@ -1400,18 +1398,7 @@ void CMDisplaySpecsDlg::OnSelendokDisplayType(wxCommandEvent& event)
             &mDuplicateChannelCode,
             &checkMinMaxSettingFlag);
 
-//    m_BitsOfColor = bitsOfColor - 1;
-//    
-//    m_NumberLevels = numberDisplayLevels;
-//
-//    //DDX_CBIndex(m_dialogToPtr, ID3C_BitsOfColor, m_BitsOfColor);
-//    ((wxChoice *) FindWindow(ID3C_BitsOfColor))->SetSelection(m_BitsOfColor);
-//
-//    // Get index into 8, 16, 24 bits of color vector.
-//
-//    mBitsOfColorIndex = Update8_16_24BitsOfColorIndex(m_BitsOfColor);
-
-    // Check min-max menu settings.
+    		// Check min-max menu settings.
 
     minMaxPopupCode = m_MinMaxPopupCode + 1;
     DisplayMultispectralDialogCheckMinMaxSettings (m_DisplayType + 1,
@@ -1435,53 +1422,42 @@ void CMDisplaySpecsDlg::OnSelendokDisplayType(wxCommandEvent& event)
     /*This function changes the value of mLocalDisplayType*/
     /*Handling OnDropDownBitsofcolor here*/
 
-    wxChoice* comboBoxPtr = (wxChoice*) FindWindow(ID3C_BitsOfColor);
-/*
-    if (mLocalDisplayType == 2 || mLocalDisplayType == 7) {
-        if (comboBoxPtr->GetCount() == 2)
-            // Remove the '24' item from the bits of color list.
-
-            comboBoxPtr->Delete(1);
-
-    }// end "if (mLocalDisplayType == 2 || mLocalDisplayType == 7)"
-
-    else // mLocalDisplayType != 2 && mLocalDisplayType != 7
-    {
-        if (comboBoxPtr->GetCount() == 1)
-            comboBoxPtr->Append(wxT("24"));
-
-    } // end "else mLocalDisplayType != 2 && ..."
-    */
-    if (m_DisplayType > 1 && m_DisplayType < 6) { // m_DisplayType count from 0
-         // Remove the '8' item from the bits of color list.
-            comboBoxPtr->Delete(0);
-            comboBoxPtr->Append(wxT("24"));
+	//wxChoice* comboBoxPtr = (wxChoice*) FindWindow(ID3C_BitsOfColor);
+	if (m_DisplayType > 1 && m_DisplayType < 6)
+    	{ // m_DisplayType count from 0
+				// Remove the '8' item from the bits of color list.
+			
+		//comboBoxPtr->Delete(0);
+		//comboBoxPtr->Append(wxT("24"));
+		m_staticText67->SetLabel (wxT("24"));
+		m_BitsOfColor = 2; // color image
             
-    }else // m_DisplayType <= 1 && m_DisplayType == 6
-    {
-            comboBoxPtr->Delete(0);
-            comboBoxPtr->Append(wxT("8"));
-    } 
-    comboBoxPtr->SetSelection (0);
+    	}
+	
+	else // m_DisplayType <= 1 && m_DisplayType == 6
+		{
+		//comboBoxPtr->Delete(0);
+		//comboBoxPtr->Append(wxT("8"));
+		m_staticText67->SetLabel (wxT("8"));
+		m_BitsOfColor = 0; // grey  image
+		
+		}
+	
+	//comboBoxPtr->SetSelection (0);
     
-    if(m_DisplayType > 1 && m_DisplayType < 6)
-       m_BitsOfColor = 2; // color image
-    else
-       m_BitsOfColor = 0; // grey  image
+	//m_BitsOfColor = bitsOfColor - 1;
     
-//    m_BitsOfColor = bitsOfColor - 1;
-    
-    m_NumberLevels = numberDisplayLevels;
+	m_NumberLevels = numberDisplayLevels;
 
 	//((wxChoice*)FindWindow (ID3C_BitsOfColor))->SetSelection (m_BitsOfColor);
 
-    // Get index into 8, 16, 24 bits of color vector.
+			// Get index into 8, 16, 24 bits of color vector.
 
-    mBitsOfColorIndex = Update8_16_24BitsOfColorIndex(m_BitsOfColor);
+	mBitsOfColorIndex = Update8_16_24BitsOfColorIndex(m_BitsOfColor);
     
-    this->Layout();
+	this->Layout();
 
-} // end "OnSelendokDisplayType"
+}	// end "OnSelendokDisplayType"
 
 
 
@@ -1871,7 +1847,7 @@ bool CMDisplaySpecsDlg::TransferDataFromWindow()
 	
 	
 	wxComboBox* c_channels = (wxComboBox *) FindWindow(ID3C_Channels);
-	wxChoice* bitsofcol = (wxChoice *) FindWindow(ID3C_BitsOfColor);
+	//wxChoice* bitsofcol = (wxChoice *) FindWindow(ID3C_BitsOfColor);
    wxComboBox* enhance = (wxComboBox *) FindWindow(ID3C_Enhancement);
 	wxChoice* tzeroas = (wxChoice *) FindWindow(ID3C_TreatZeroAs);
 
@@ -1903,8 +1879,8 @@ bool CMDisplaySpecsDlg::TransferDataFromWindow()
 	m_vectorOverlaysFlag = voverlays->GetValue();
 	m_ComputeHistogramFlag = newhist->GetValue();
 
-	m_BitsOfColor = bitsofcol->GetSelection();
-   if(enhance->GetSelection() > -1)
+	//m_BitsOfColor = bitsofcol->GetSelection();
+   if (enhance->GetSelection() > -1)
       m_Enhancement = enhance->GetSelection();
 	m_TreatZeroAs = tzeroas->GetSelection();
 	m_MinMaxPopupCode = m_minmaxctrl->GetSelection();
@@ -2053,7 +2029,7 @@ bool CMDisplaySpecsDlg::TransferDataToWindow ()
 
 {
 	wxComboBox* c_channels = (wxComboBox *)FindWindow(ID3C_Channels);
-	wxChoice* bitsofcol = (wxChoice *) FindWindow(ID3C_BitsOfColor);
+	//wxChoice* bitsofcol = (wxChoice *) FindWindow(ID3C_BitsOfColor);
 	wxComboBox* enhance = (wxComboBox *) FindWindow(ID3C_Enhancement);
 	wxChoice* tzeroas = (wxChoice *) FindWindow(ID3C_TreatZeroAs);
 

@@ -2,7 +2,7 @@
  *	LMultiSpec.cpp
  *      
  * Copyright 2019 multispec
- *	Revised by Larry Biehl		on 01/10/2019
+ *	Revised by Larry Biehl		on 01/29/2019
  *	Revised by Tsung Tai Yeh	on 09/10/2015
  *      
  */
@@ -32,6 +32,7 @@
 #endif
 
 #if defined multispec_wxmac
+	#include "wx/splash.h"
 	#include "wx/sysopt.h"
 #endif
 
@@ -436,6 +437,7 @@ void CMultiSpecApp::OnCharHook (
 				// Note that the command (control) period is not caught here. One only gets
 				// the command key not the period. Because of this, the command period is caught
 				// using an accel entry in CMImageFrame class (1/2/2019; Larry Biehl)
+		
 		if (event.GetKeyCode () == WXK_ESCAPE) // ||
 				//(event.GetKeyCode() == wxKeyCode('.') && event.GetModifiers () == wxMOD_CONTROL))
 			{
@@ -447,6 +449,24 @@ void CMultiSpecApp::OnCharHook (
 		
 		}	// end "if (gProcesorCode == kDisplayProcessor)"
 	
+	else if (gProcessorCode == kClusterProcessor)
+		{
+				// Note that the command (control) period is not caught here. One only gets
+				// the command key not the period. Because of this, the command period is caught
+				// using an accel entry in CMImageFrame class (1/2/2019; Larry Biehl)
+		
+		if (event.GetKeyCode () == WXK_ESCAPE)
+			{
+			if (gStatusDialogPtr != NULL)
+				((CShortStatusDlg*)gStatusDialogPtr)->
+													m_canceledCommandInitiatedFlag = TRUE;
+			
+			}	// end "if (event.GetKeyCode () == WXK_ESCAPE || ..."
+		
+		event.Skip ();
+		
+		}	// end "if (gProcesorCode == kDisplayProcessor)"
+
 	else
 		event.Skip ();
 	
@@ -578,7 +598,25 @@ bool CMultiSpecApp::OnInit ()
 		pMainFrame->Show (TRUE);
 		//pMainFrame->ShowWithoutActivating();
 	#endif
+	/*
+	#if defined multispec_wxmac
+		wxBitmap splashScreenBitmap;
+		if (splashScreenBitmap.LoadFile ("MultiSpec_Splashscreen", wxBITMAP_TYPE_PNG))
+			{
+    		wxSplashScreen* splash = new wxSplashScreen (splashScreenBitmap,
+																		wxSPLASH_CENTRE_ON_SCREEN|wxSPLASH_TIMEOUT,
+																		6000,
+																		NULL,
+																		-1,
+																		wxDefaultPosition,
+																		wxDefaultSize,
+																		wxBORDER_SIMPLE|wxSTAY_ON_TOP);
+		
+			}	// end "if (bitmap.LoadFile ("MultiSpec_Splashscreen.png", wxBITMAP_TYPE_PNG))"
 	
+		wxYield ();
+	#endif
+	*/
 	SetTopWindow (pMainFrame);
 	SetAppName ("MultiSpec");
 	
@@ -914,7 +952,7 @@ wxString wxFileSelectorEx(const wxString& title,
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 08/11/1995
-//	Revised By:			Larry L. Biehl			Date: 01/02/2019
+//	Revised By:			Larry L. Biehl			Date: 01/29/2019
 
 Boolean CheckSomeEvents (
 				UInt16								code)
@@ -944,13 +982,15 @@ Boolean CheckSomeEvents (
 		{
 		while (count<3 && yieldForReturnFlag)
 			{
-			yieldForReturnFlag = eventLoopBasePtr->YieldFor (wxEVT_CATEGORY_UI);
+			//yieldForReturnFlag = eventLoopBasePtr->YieldFor (wxEVT_CATEGORY_UI);
+			yieldForReturnFlag = eventLoopBasePtr->YieldFor (wxEVT_CATEGORY_UI+wxEVT_CATEGORY_USER_INPUT);
+			
 			count++;
 				
 			}	// end "while (count<5 && returnFlag)"
 		/*
 		int numberChars = sprintf ((char*)&gTextString3,
-											" CStubs:CheckSomeEvents (count): %d%s",
+											" LMultiSpec:CheckSomeEvents (count): %d%s",
 											count,
 											gEndOfLine);
 		ListString ((char*)&gTextString3, numberChars, gOutputTextH);
@@ -961,7 +1001,7 @@ Boolean CheckSomeEvents (
 	if (statusDialogPtr != NULL)
 		{
 		returnFlag = !statusDialogPtr->m_canceledCommandInitiatedFlag;
-
+		
 		if (!returnFlag || gOperationCanceledFlag)
 			{
 			if (gAlertId != 0 && !gOperationCanceledFlag)

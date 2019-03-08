@@ -59,6 +59,15 @@ class CMainFrame : public wxDocParentFrame
 		bool							m_cancelOperationEventFlag;
 		bool							m_optionOverlayFlag;
 		bool							m_tooltipFlag;
+	
+		void 	DoZoomIn (
+					wxMouseEvent&							event);
+	
+		void 	DoZoomOut (
+					wxMouseEvent&							event);
+	
+		void 	DoZoomToOne (
+					wxMouseEvent&							event);
 #ifndef multispec_wxmac
     enum{
       ID_FILE_SAVE,

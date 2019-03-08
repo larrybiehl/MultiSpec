@@ -12,7 +12,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			11/13/2018
+//	Revision date:			02/13/2019
 //
 //	Language:				C++
 //
@@ -1906,8 +1906,10 @@ bool CMClassifyDialog::TransferDataToWindow ()
     imagewindowcb->SetValue (m_createImageOverlayFlag);
 
     classc->SetSelection (m_classSelection);
-    weightc->SetSelection (m_classWeightsSelection);
-    symbolc->SetSelection (m_symbolSelection);
+    if (m_classWeightsSelection >= 0)
+    	weightc->SetSelection (m_classWeightsSelection);
+    if (m_symbolSelection >= 0)
+    	symbolc->SetSelection (m_symbolSelection);
     classprocc->SetSelection (m_classifyListSelection);
     areasc->SetSelection (m_classAreaSelection);
 	

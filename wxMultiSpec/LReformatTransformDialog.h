@@ -1,6 +1,6 @@
 // LReformatTransformDialog.h : header file
 //
-// Revised by Larry Biehl on 01/18/2019
+// Revised by Larry Biehl on 02/28/2019
 //
 #if !defined __LRTRADLG_H__
 #define	__LRTRADLG_H__  
@@ -9,30 +9,33 @@
 #include "LOneColumnDialog.h"
 
 typedef bool BOOL;
-typedef wxString CString;
 typedef long unsigned int UINT;
 
 /////////////////////////////////////////////////////////////////////////////
 // CMReformatTransform dialog
 
-class CMReformatTransformDlg : public CMDialog {
+class CMReformatTransformDlg : public CMDialog
+
+{
     // Construction
 public:
-    //CMReformatTransformDlg(wxWindow* pParent = NULL); // standard constructor
-    CMReformatTransformDlg(wxWindow* pParent = NULL,  wxWindowID id = wxID_ANY, const wxString& title = wxT("Set Reformat Transform Parameters")); // standard constructor
+    		// standard constructor
+	CMReformatTransformDlg (ReformatOptionsPtr	reformatOptionsPtr,
+									wxWindow* 			pParent = NULL,
+									wxWindowID 			id = wxID_ANY,
+									const wxString& 	title = wxT("Set Reformat Transform Parameters"));
     
-    ~CMReformatTransformDlg();
+	~CMReformatTransformDlg ();
 
-    Boolean DoDialog(
-            UInt16* recommendNumberOfBitsPtr,
-            SInt16 bandInterleaveSelection);
+	Boolean DoDialog (
+            UInt16* 					recommendNumberOfBitsPtr,
+            SInt16 					bandInterleaveSelection);
 
-    // Dialog Data
-    //{{AFX_DATA(CMReformatTransformDlg)
-
-    enum {
-        IDD = IDD_ReformatTransform
-    };
+	enum
+	 	{
+		IDD = IDD_ReformatTransform
+    	};
+	
     double m_adjustDivisor;
     double m_adjustFactor;
     double m_adjustOffset;
@@ -40,8 +43,8 @@ public:
     double m_functionFactor;
     double m_transformFactor;
     double m_transformOffset;
-    CString m_denominatorString;
-    CString m_numeratorString;
+	 wxString m_denominatorString;
+    wxString m_numeratorString;
     double m_scaleFactor;
     //	int			m_channelSelection;
     UINT m_adjustSelectedChannel;
@@ -50,8 +53,7 @@ public:
     UINT m_minSelectedNumberBits;
     int m_transformCode;
     int m_functionCode;
-    //}}AFX_DATA
-
+	
     // Implementation
 protected:
     //virtual void DoDataExchange(CDataExchange* pDX); // DDX/DDV support 
@@ -95,16 +97,16 @@ protected:
     void OnRTNoTransformation(wxCommandEvent& event);
     void OnSelendokEVEigenvectors(wxCommandEvent& event);
     void OnSelendokReformatFunctions(wxCommandEvent& event);
-    //}}AFX_MSG
-    //DECLARE_MESSAGE_MAP()
+
     DECLARE_EVENT_TABLE();
 
     double m_maxValue;
     double m_minValue;
 
-    char* m_denominatorStringPtr;
-    char* m_numeratorStringPtr;
-    
+    char m_denominatorStringPtr [256];
+    char m_numeratorStringPtr [256];
+	
+	 ReformatOptionsPtr		m_reformatOptionsPtr;
     
     SInt16 m_bandInterleaveSelection;
     SInt16 m_eigenSource;

@@ -12,7 +12,7 @@
 //
 //	Authors:					Larry L. Biehl, Wei-Kang Hsu, Tsung Tai Yeh
 //
-//	Revision date:			01/12/2019
+//	Revision date:			01/25/2019
 //
 //	Language:				C++
 //
@@ -222,7 +222,7 @@ CMImageFrame::CMImageFrame (
 																				//wxDefaultSize,
 																				wxSize (16, 16),
 																				wxBORDER_NONE+wxBU_EXACTFIT);
-			//SetUpToolTip (bpButton, IDS_ToolTip40);
+		//SetUpToolTip (bpButton, IDS_ToolTip40);
    	bpButtonZoomOut->SetToolTip (wxT("Zoom out of image"));
 		bpButtonZoomOut->Bind (wxEVT_LEFT_DOWN, &CMImageFrame::DoZoomOut, this);
 		m_toolBar->AddControl (bpButtonZoomOut);
@@ -267,22 +267,25 @@ CMImageFrame::CMImageFrame (
 
 			// Set default location for image window.
 	
-	int							xLocation,
+	int							menuHeight,
+									xLocation,
 									yLocation,
+									xSize,
 									offsetCount;
 	 
+	GetMainFrame()->m_menubar1->GetSize (&xSize, &menuHeight);
 	offsetCount = div (gNumberOfIWindows-1, 5).rem;
 	xLocation = 3 + offsetCount * 10;
 	#if defined NetBeansProject
 		yLocation = 110;
 	#elif defined multispec_wxmac
- 		//yLocation = 25;
- 				// Added by Tsung Tai 12/10/2018
-  		int xSize = 0;
-   	GetMainFrame()->m_menubar1->GetSize (&xSize, &yLocation);
-		yLocation += 3;
+		yLocation = menuHeight + 3;
 	#else
-		yLocation = 80; 
+   	int		toolBarHeight, toolBarWidth;
+	
+		GetMainFrame()->m_toolBar1->GetSize (&toolBarWidth, &toolBarHeight);
+		yLocation = 20 + menuHeight + toolBarHeight + 2;	// Allow 2 pixel space below toolbar
+		//yLocation = 80;
 	#endif
 	yLocation += offsetCount * 10;
 	Move (xLocation, yLocation);
@@ -545,6 +548,7 @@ void CMImageFrame::DoZoomIn (
    //m_frameSizeSaved = GetSize ();
 	
 			// Prepare for case when user holds mouse button down.
+	
 	GetMainFrame()->SetNextControlTime (gControlOffset);
 	
 	event.Skip ();
@@ -564,6 +568,7 @@ void CMImageFrame::DoZoomOut (
    //m_frameSizeSaved = GetSize ();
 	
 			// Prepare for case when user holds mouse button down.
+	
 	GetMainFrame()->SetNextControlTime (gControlOffset);
 	
 	event.Skip ();
@@ -685,8 +690,10 @@ void CMImageFrame::GetMinimumDisplaySizeForImage (
 				amountToAllowForHStuff = 2 * 2 + wxFrameRect.width - wxFrameClientRect.width;
 				amountToAllowForVStuff = 2 * 2 + titleToolBarHeight;
 			#else
-				amountToAllowForHStuff = 6;
-				amountToAllowForVStuff = 6;	// Allows for border
+				titleToolBarHeight += coordinateBarHeight;
+		
+				amountToAllowForHStuff = 2 * 2 + wxFrameRect.width - wxFrameClientRect.width;
+				amountToAllowForVStuff = 2 * 2 + titleToolBarHeight;
 			#endif
 		#endif
 
@@ -838,7 +845,9 @@ void CMImageFrame::OnMaximizeWindow (
    wxRect 								tempArea;
 	
 	
-   Maximize (false);
+	#if defined multispec_wxlin
+   	Maximize (false);
+	#endif
 	
 	if (m_frameMaximized)
 		{
@@ -880,12 +889,30 @@ void CMImageFrame::OnMaximizeWindow (
 			otherLegendStuffHeight = 130;
 		#else	// mygeohub or multispec_wxmac
 			#if defined multispec_wxlin
+   			int		menuHeight,
+   						menuWidth,
+   						toolBarHeight,
+   						toolBarWidth;
+	
+				GetMainFrame()->m_menubar1->GetSize (&menuWidth, &menuHeight);
+				GetMainFrame()->m_toolBar1->GetSize (&toolBarWidth, &toolBarHeight);
+		
 				GetMainFrame()->GetClientSize (&clientWidth, &clientHeight);
 				GetMainFrame()->GetPosition (&mainOrig.x, &mainOrig.y);
 		
-				mainFrameBarHeight = 80;
-				otherLegendStuffHeight = 90;
-				clientHeight -= 30;
+						// Allow a some space for the window border
+		
+				mainOrig.x = 2;
+
+						// Need toallow for MultiSpec Title line in MyGeoHub Workspace
+		
+				mainFrameBarHeight = 27 + menuHeight + toolBarHeight;
+				otherLegendStuffHeight = titleToolBarHeight;
+				clientHeight -= 33;
+		
+						// Allow for space around right edge of image frame within the display area
+		
+				clientWidth -= 10;
 			#endif
 			#if defined multispec_wxmac
 				wxRect	clientRect;
@@ -943,16 +970,34 @@ void CMImageFrame::OnMaximizeWindow (
 				m_imageLegendViewCPtr->FindWindow (IDC_PaletteCombo)->GetSize (&hx, &hy);
 				otherLegendStuffHeight += hy;
 				
-				legendHeight = m_imageViewCPtr->m_frame->m_imageLegendViewCPtr->m_legendListBox->
-																							m_ilist->GetImageCount() * 21;
+						// Get the height of one row
 				
-						// The 10 extra allows for space around the combo boxes
-				
-				legendHeight += otherLegendStuffHeight + coordinateBarHeight + 10;
 				#if defined multispec_wxlin
-					legendWidth = m_imageViewCPtr->m_frame->m_imageLegendViewCPtr->m_clientWidth;
+					int legendItemHeight = 23;
 				#endif
+				#if defined multispec_wxmac
+					int legendItemHeight = 21;
+				#endif
+				
+				legendHeight = m_imageViewCPtr->m_frame->m_imageLegendViewCPtr->m_legendListBox->
+																	m_ilist->GetImageCount () * legendItemHeight;
+				
+						// Allow for extra space around the combo boxes
+				
+				#if defined multispec_wxlin
+					int extraSpace = 32;
+				#endif
+				#if defined multispec_wxmac
+					int extraSpace = 10;
+				#endif
+
+				legendHeight += otherLegendStuffHeight + coordinateBarHeight + extraSpace;
+				
 				m_TempLongPoint.v = MAX (m_TempLongPoint.v, legendHeight);
+				
+				//#if defined multispec_wxlin
+				//	m_TempLongPoint.h += legendWidth;
+				//#endif
 				
 				}	// end "if (legendWidth > 1)"
 			
@@ -978,7 +1023,10 @@ void CMImageFrame::OnMaximizeWindow (
 		
 				// Realize the modification, adjust scrollbar later
 		
-		Restore ();
+		#if defined multispec_wxlin
+			Restore ();
+		#endif
+		
 		SetSize (m_TempLongPoint.h, m_TempLongPoint.v);
 		SetPosition (imgNewOrig);
 		
@@ -989,8 +1037,13 @@ void CMImageFrame::OnMaximizeWindow (
 		
 		if (m_TempLongPoint.h < clientWidth && scrollRangeH > 1)
 			{
-			//m_TempLongPoint.h += (m_TempLongPoint.h - scrollRangeH) - windowInfoPtr->legendWidth + 11;
-			m_TempLongPoint.h += (m_TempLongPoint.h - scrollRangeH) - legendWidth + 11;
+			#if defined multispec_wxlin
+				int extraSpace = 15;
+			#endif
+			#if defined multispec_wxmac
+				int extraSpace = 11;
+			#endif
+			m_TempLongPoint.h += (m_TempLongPoint.h - scrollRangeH) - legendWidth + extraSpace;
 			
 					// Minimum width is 150
 			
@@ -1009,16 +1062,16 @@ void CMImageFrame::OnMaximizeWindow (
 		
 		SetSize (m_TempLongPoint.h, m_TempLongPoint.v);
 		
-		 		// Check if the right border has exceed the window limit
+		 		// Check if the right border has exceeded the window limit
 		
 		if (imgNewOrig.x + m_TempLongPoint.h > mainOrig.x + clientWidth)
 		 	{
-			imgNewOrig.x =  MAX (0, mainOrig.x+clientWidth-m_TempLongPoint.h);
+			imgNewOrig.x =  MAX (2, mainOrig.x+clientWidth-m_TempLongPoint.h);
 			SetPosition (imgNewOrig);
-			
+
 			}	// end "if (ImgNewOrig.x + m_TempLongPoint.h > MainOrig.x + clientWidth)"
 		
-		 		// Check if the lower border has exceed the window limit
+		 		// Check if the lower border has exceeded the window limit
 		
 		if (imgNewOrig.y + m_TempLongPoint.v > mainOrig.y + clientHeight)
 			{
@@ -1276,7 +1329,7 @@ void CMImageFrame::OnWindowShowCoordinateView (wxCommandEvent& event)
 
 }	// end "OnWindowShowCoordinateView"
 
-
+/*
 void CMImageFrame::OnZoom (wxCommandEvent& event)
 
 {
@@ -1292,7 +1345,7 @@ void CMImageFrame::OnZoom (wxCommandEvent& event)
    m_frameSizeSaved = GetSize ();
 	
 }	// end "OnZoom"
-
+*/
 
 
 void CMImageFrame::SetActiveWindowFlag (Boolean setting)
@@ -1607,17 +1660,13 @@ void CMImageFrame::UpdateCursorCoordinates (
         char* lineValueStringPtr,
         char* columnValueStringPtr) 
 {
-	if (this != NULL)
-		{
-		((wxStaticText*)m_coordinatesBar->FindWindow (IDC_CursorColumn))->Show(true);
-		((wxStaticText*)m_coordinatesBar->FindWindow (IDC_CursorLine))->Show(true);
-		
-		((wxStaticText *)(m_coordinatesBar->FindWindow (IDC_CursorLine)))->SetLabel(wxString::FromUTF8(lineValueStringPtr));
-		((wxStaticText *)(m_coordinatesBar->FindWindow (IDC_CursorColumn)))->SetLabel(wxString::FromUTF8(columnValueStringPtr));
-		
-		m_coordinatesBar->Layout();
-		
-		}	// end "if (this != NULL)"
+	((wxStaticText*)m_coordinatesBar->FindWindow (IDC_CursorColumn))->Show(true);
+	((wxStaticText*)m_coordinatesBar->FindWindow (IDC_CursorLine))->Show(true);
+	
+	((wxStaticText *)(m_coordinatesBar->FindWindow (IDC_CursorLine)))->SetLabel(wxString::FromUTF8(lineValueStringPtr));
+	((wxStaticText *)(m_coordinatesBar->FindWindow (IDC_CursorColumn)))->SetLabel(wxString::FromUTF8(columnValueStringPtr));
+	
+	m_coordinatesBar->Layout();
 
 }	// end "UpdateCursorCoordinates"
 
@@ -1656,23 +1705,19 @@ void CMImageFrame::UpdateCursorCoordinates (void)
 
 void CMImageFrame::UpdateScaleInformation(double scale, char* scaleStringPtr) 
 {		
-	if (this != NULL)
+	if (scale <= 0)
 		{
-		if (scale <= 0)
-			{
-			//m_coordinatesBar->FindWindow(IDC_ScalePrompt)->Show(false);
-			((wxStaticText*)(m_coordinatesBar->FindWindow(IDC_ScalePrompt)))->SetLabel(wxT(" "));
-			}
+		//m_coordinatesBar->FindWindow(IDC_ScalePrompt)->Show(false);
+		((wxStaticText*)(m_coordinatesBar->FindWindow(IDC_ScalePrompt)))->SetLabel(wxT(" "));
+		}
 
-		else { // scale > 0
-			//m_coordinatesBar->FindWindow(IDC_ScalePrompt)->Show(true);
-			((wxStaticText*)(m_coordinatesBar->FindWindow(IDC_ScalePrompt)))->SetLabel(wxT("Scale"));
-			//m_topWindow->Layout();
-			}	
-			  
-		((wxStaticText*)(m_coordinatesBar->FindWindow(IDC_Scale)))->SetLabel(wxString::FromUTF8(scaleStringPtr));
-		
-		}	// end "if (this != NULL)"
+	else { // scale > 0
+		//m_coordinatesBar->FindWindow(IDC_ScalePrompt)->Show(true);
+		((wxStaticText*)(m_coordinatesBar->FindWindow(IDC_ScalePrompt)))->SetLabel(wxT("Scale"));
+		//m_topWindow->Layout();
+		}
+	
+	((wxStaticText*)(m_coordinatesBar->FindWindow(IDC_Scale)))->SetLabel(wxString::FromUTF8(scaleStringPtr));
 
 }	// end "UpdateScaleInformation"
 
@@ -1683,13 +1728,9 @@ void CMImageFrame::UpdateSelectedAreaInformation (
         char* areaValueStringPtr) 
 		  
 {
-	if (this != NULL)
-		{
-		((wxStaticText *) (m_coordinatesBar->FindWindow(IDC_NumberPixelsPrompt)))->SetLabel(wxString::FromUTF8(areaDescriptionStringPtr));
+	((wxStaticText *) (m_coordinatesBar->FindWindow(IDC_NumberPixelsPrompt)))->SetLabel(wxString::FromUTF8(areaDescriptionStringPtr));
 
-		((wxStaticText *) (m_coordinatesBar->FindWindow(IDC_NumberPixels)))->SetLabel(wxString::FromUTF8(areaValueStringPtr));
-		
-		}	// end "if (this != NULL)"
+	((wxStaticText *) (m_coordinatesBar->FindWindow(IDC_NumberPixels)))->SetLabel(wxString::FromUTF8(areaValueStringPtr));
 		
 }	// end "UpdateSelectedAreaInformation"
 

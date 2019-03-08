@@ -19,7 +19,7 @@
 //
 //	Written By:				Abdur Rahman Maud		Date: ??/??/2009
 // Revised By:				Tsung Tai Yeh			Date: 07/28/2015
-//	Revised By:				Larry L. Biehl			Date: 01/02/2019
+//	Revised By:				Larry L. Biehl			Date: 02/21/2019
 //	
 //------------------------------------------------------------------------------------
 
@@ -737,6 +737,7 @@
 #define IDS_Alert92                     1204
 #define IDC_BinWidth                    1204
 #define IDC_AdjustSelectedChannels      1205
+#define IDC_BinWidthText                1205
 #define IDS_Alert95                     1205
 #define IDC_RT_AC_Equal                 1206
 #define IDS_Alert96                     1206
@@ -942,7 +943,7 @@
 #define IDC_STATIC7                     1358
 #define IDC_FileName                    1359
 #define IDC_BackgroundColorChip         1360
-#define IDC_EscapeMessage               1361
+#define IDC_CancelOperation             1361
 #define IDC_CellWidth                   1362
 #define IDC_HomogeneityThreshold        1363
 #define IDC_Percent                     1364
@@ -1441,6 +1442,7 @@
 #define IDC_ChannelsCombo               1737
 #define IDS_Cluster38                   1738
 #define IDC_HistogramStatsCombo         1738
+#define IDC_ChangeChannelPrompt         1738
 #define IDS_Cluster39                   1739
 #define IDC_NextChannel                 1739
 #define IDS_Cluster40                   1740

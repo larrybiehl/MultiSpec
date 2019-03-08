@@ -12,7 +12,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			01/08/2019
+//	Revision date:			02/15/2019
 //
 //	Language:				C++
 //
@@ -71,9 +71,27 @@ private:
       ID_FILE_SAVE_AS
     };
 #endif
-    bool m_frameMaximized;
-    wxSize m_frameSizeSaved;
-    wxPoint m_framePosSaved;    
+	bool 						m_frameMaximized;
+	wxSize 					m_frameSizeSaved;
+	wxPoint 					m_framePosSaved;
+	wxBitmapButton* 		m_buttonNext;
+	wxBitmapButton* 		m_buttonPrevious;
+	wxBitmapButton* 		m_buttonOverlay;
+	wxBitmapButton* 		m_buttonBinWidth;
+	wxBitmapButton* 		m_buttonVectors;
+
+	void CreateBinWidthMenu ();
+	void CreateHistogramDensityMenu ();
+	void DoNextChannel (wxMouseEvent& event);
+	void DoNextOrPreviousChannelEvent (
+					wxMouseEvent& 						event,
+					SInt16								controlIdentifier);
+	void DoPreviousChannel (wxMouseEvent& event);
+	void DoSelectVectors (wxMouseEvent& event);
+	void DoShowBinWidth (wxMouseEvent& event);
+	void DoShowOverlay (wxMouseEvent& event);
+	void DoShowVectors (wxMouseEvent& event);
+	Boolean UpdateGraphChannels ();
     
 public:
 	CMGraphFrame(); // protected constructor used by dynamic creation
@@ -84,7 +102,7 @@ public:
 
 	~CMGraphFrame();       
 	BOOL OnCreateClient(); 
-	void CreateButton();
+	void CreateHistogramControls ();
 	//void CreateButton2();
 	 
 	void OnNextListData(wxCommandEvent& event);
@@ -141,8 +159,6 @@ public:
 								m_overlayCheckID,
 								selectVectorCheckID;
 	
-	Handle					m_graphRecordHandle;
-	
 	SInt32 					selectionVector;
 	
 	wxToolBar*				m_toolBar1;
@@ -150,8 +166,6 @@ public:
 	bool                	m_optionBinWidthFlag;
 
 
-	void CreateBinWidth();
-	void CreateOverlay();
 	void CreateSelectVector (int vectorSize);
 	void OnUpdateFilePrint(wxUpdateUIEvent& pCmdUI);
 	void OnFilePrint();

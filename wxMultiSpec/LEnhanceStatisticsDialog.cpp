@@ -1,6 +1,6 @@
 // LEnhanceStatisticsDialog.cpp : implementation file
 //
-// Revised by Larry Biehl on 11/07/2019
+// Revised by Larry Biehl on 02/22/2019
 /*
 	Template for debug output to text window.
 	
@@ -617,11 +617,13 @@ void CMEnhanceStatisticsDialog::CreateControls()
 	
 	bSizer119->Add (fgSizer15, wxSizerFlags(1).Border(wxLEFT|wxTOP|wxBOTTOM|wxRIGHT,12));
 	
-	wxSizer* standardButtonSizer = CreateButtonSizer (wxOK | wxCANCEL);
-	bSizer119->Add (standardButtonSizer, wxSizerFlags(0).Right());
+	//wxSizer* standardButtonSizer = CreateButtonSizer (wxOK | wxCANCEL);
+	//bSizer119->Add (standardButtonSizer, wxSizerFlags(0).Right());
 	
-	this->SetSizer (bSizer119);
-	//this->Layout();
+	CreateStandardButtons (bSizer119);
+	
+	SetSizerAndFit (bSizer119);
+	//Layout();
 	
 }		// end "CreateControls"
 

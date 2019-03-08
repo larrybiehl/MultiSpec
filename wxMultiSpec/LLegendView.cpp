@@ -12,7 +12,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			01/08/2019
+//	Revision date:			02/20/2019
 //
 //	Language:				C++
 //
@@ -102,12 +102,7 @@ END_EVENT_TABLE()
 CMImageFrame* CMLegendView::GetImageFrameCPtr (void)
 
 {
-   CMImageFrame* imageFrameCPtr = NULL;
-
-   if (this != NULL)
-      imageFrameCPtr = GetDocument()->GetImageFrameCPtr ();
-
-   return (imageFrameCPtr);
+   return (GetDocument()->GetImageFrameCPtr ());
 
 }	// end "GetImageFrameCPtr"
 
@@ -116,12 +111,7 @@ CMImageFrame* CMLegendView::GetImageFrameCPtr (void)
 CMLegendList* CMLegendView::GetLegendListCPtr (void)
 
 {
-   CMLegendList* legendListCPtr = NULL;
-
-   if (this != NULL)
-      legendListCPtr = m_legendListBox;
-
-   return (legendListCPtr);
+   return (m_legendListBox);
 
 }	// end "GetLegendListCPtr"
 
@@ -154,7 +144,7 @@ void CMLegendView::OnDropdownClassGroupCombo ()
 
 			}	// end "if (m_imageViewCPtr->GetNumberGroups() > 0)"
 
-		}	// end "if( ((CComboBox*)GetDlgItem(IDC_COMBO1))->Count() < 3 )"
+		}	// end "if (((wxChoice*)GetDlgItem(IDC_COMBO1))->Count () < 3 )"
 
 }	// end "OnDropdownClassGroupCombo"
 
@@ -190,8 +180,9 @@ void CMLegendView::OnInitialUpdate (
 
 			// If the number of groups is 0, then do not allow the Groups option.
 
-   if (m_imageViewCPtr->GetNumberGroups() <= 0)
-      ((wxChoice*)FindWindow (IDC_COMBO1))->Delete (kGroupDisplay - 1);
+   if (m_imageViewCPtr->GetNumberGroups() <= 0 &&
+   						((wxChoice*)FindWindow (IDC_COMBO1))->GetCount () > 2)
+      ((wxChoice*)FindWindow(IDC_COMBO1))->Delete (kGroupDisplay - 1);
 
    ((wxChoice*)FindWindow (IDC_COMBO1))->SetSelection (m_classGroupCode);
 
@@ -374,7 +365,7 @@ void CMLegendView::SetupView ()
 	comboBoxPtr17->SetSelection (0);
    comboBoxPtr17->SetToolTip (wxT("Palette to use"));
 
-   bSizer133->Add (comboBoxPtr17, 0, wxALIGN_CENTER_HORIZONTAL | wxALL, 0);
+   bSizer133->Add (comboBoxPtr17, 0, wxALIGN_CENTER_HORIZONTAL | wxBOTTOM, 4);
 
    this->SetSizer (bSizer133);
    this->Layout ();
@@ -474,9 +465,6 @@ void CMLegendView::UpdateLegendComboBox (void)
 void CMLegendView::UpdateThematicLegendControls ()
 
 {
-   SInt16								itemsInList,
-											topIndex;
-
 			// Legend Control
 
    DisplaySpecsPtr displaySpecsPtr = (DisplaySpecsPtr)GetHandlePointer (
@@ -489,5 +477,5 @@ void CMLegendView::UpdateThematicLegendControls ()
    else // displaySpecsPtr->imageDimensions[kVertical] <= 0 
       m_legendPaletteCombo->Enable (FALSE);
 
-} // end "UpdateThematicLegendButtons"
+}	// end "UpdateThematicLegendButtons"
 

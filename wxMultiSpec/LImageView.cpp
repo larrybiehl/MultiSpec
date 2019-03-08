@@ -1,6 +1,14 @@
-// Revised 01/09/2019  by Larry L Biehl
+// Revised 01/25/2019  by Larry L Biehl
 // Revised 03/12/2016 by Wei-Kang Hsu
 // Revised 12/19/2018 by Tsung Tai Yeh
+//
+/* Template for debugging
+	int numberChars = sprintf ((char*)gTextString3,
+				" LImageView: (): %s",
+				gEndOfLine);
+	ListString ((char*)gTextString3, numberChars, gOutputTextH);
+*/
+//------------------------------------------------------------------------------------
 
 #include "SMultiSpec.h"
 
@@ -1016,109 +1024,85 @@ bool CMImageView::OnCreate (
 
 
 
-void CMImageView::OnDraw (CDC* pDC)
+void CMImageView::OnDraw (
+				CDC* 								pDC)
 
 {
+	//wxRect						updateRect;
+	Rect 							sourceRect;
+	SInt16 						copyType;
 
-	Boolean continueFlag = TRUE;
-	Rect sourceRect;
-	SInt16 copyType;
-
-	if (CheckIfOffscreenImageExists())
+	if (CheckIfOffscreenImageExists ())
 		{
 		pDC->SetMapMode (wxMM_TEXT);
 		#if defined multispec_wxmac
 			wxGraphicsContext* graphicsContext = pDC->GetGraphicsContext ();
 			graphicsContext->SetInterpolationQuality (wxINTERPOLATION_NONE);
 		#endif
+		
 		sourceRect.top = s_updateRect.top;
 		sourceRect.bottom = s_updateRect.bottom;
 		sourceRect.left = s_updateRect.left;
 		sourceRect.right = s_updateRect.right;
-
-		//wxRect sourcewxrect(sourceRect.left,sourceRect.top,sourceRect.right-sourceRect.left,sourceRect.bottom-sourceRect.top);
-				// Get area of window that is to be drawn.
-				// Assume for now the entire client window.
-
-		// Take any scroll offset into account
-
-		//wxPoint scrollOffset;
-		//m_Canvas->CalcUnscrolledPosition(0,0,&scrollOffset.x,&scrollOffset.y);
-
-		//sourceRect.top += scrollOffset.y;
-		//sourceRect.bottom += scrollOffset.y;
-		//sourceRect.left += scrollOffset.x;
-		//sourceRect.right += scrollOffset.x;
-
-		//SInt16 cxHorizontal = pDC->GetDeviceCaps(HORZSIZE);
-		//SInt16 cxHorzRes = pDC->GetDeviceCaps(HORZRES);
-
-		//m_xPixelsPerInch = (SInt16) ((double) cxHorzRes / cxHorizontal * 25.4);
+		
 		m_xPixelsPerInch = (SInt16)(pDC->GetPPI()).GetWidth();
-		//SInt16 cyHorizontal = pDC->GetDeviceCaps(VERTSIZE);
-		//SInt16 cyHorzRes = pDC->GetDeviceCaps(VERTRES);
-
-		//m_yPixelsPerInch = (SInt16) ((double) cyHorzRes / cyHorizontal * 25.4);
 		m_yPixelsPerInch = (SInt16)(pDC->GetPPI()).GetHeight();
-		// Verify that rect is in visible region.
-		/**************Temporary******************
-		* wxRect* clippingregion;
-		pDC->GetClippingBox(*clippingregion);
-		//continueFlag = pDC->RectVisible((RECT*) & sourceRect);
-		continueFlag = clippingregion->Intersects(sourcewxrect);*/
-		copyType = 4;
+
+		copyType = kDestinationCopy;
 
       wxPoint scrollOffset;
 		m_Canvas->CalcUnscrolledPosition (0, 0, &scrollOffset.x, &scrollOffset.y);
-      //Handle displaySpecsHandle = m_displayMultiCPtr->mDisplaySpecsHandle;
-      //DisplaySpecsPtr displaySpecsPtr =
-      //      (DisplaySpecsPtr) GetHandlePointer (displaySpecsHandle);
             
       Handle windowInfoHandle = GetWindowInfoHandle (this);
-      WindowInfoPtr windowInfoPtr = (WindowInfoPtr)GetHandlePointer(
-												windowInfoHandle, kLock, kNoMoveHi);
-		
+      WindowInfoPtr windowInfoPtr = (WindowInfoPtr)GetHandlePointer (windowInfoHandle, kLock);
+		/*
+				// Currently the following is not used in CopyOffScreenImage
       GetSelectedOffscreenRectangle (windowInfoPtr,
-												&sourceRect,
-												TRUE,
-												TRUE);
-//			sourceRect.top += scrollOffset.y;		  
-//			sourceRect.bottom += scrollOffset.y;
-//			sourceRect.left += scrollOffset.x;	
-//			sourceRect.right += scrollOffset.x;
-      
-		// } // end "else not printer DC"
+													&sourceRect,
+													TRUE,
+													TRUE);
+		*/
 
-		if (continueFlag)
-			{
-			gCDCPointer = pDC;
-			m_pDC = pDC;
-         
-//         printf("sourceRect top = %d \n", sourceRect.top);
-//         printf (" OnDraw: top, bottom, left, right: %ld, %ld, %ld, %ld \n",
-//												sourceRect.top, 
-//												sourceRect.bottom,
-//												sourceRect.left, 
-//												sourceRect.right);         
-            
-         wxPoint deviceOriginSaved  = gCDCPointer->GetDeviceOrigin();
-         wxPoint deviceOrigin =  deviceOriginSaved;
-//         printf("device origin = (%d, %d)\n", deviceOrigin.x, deviceOrigin.y);
-         if(scrollOffset.x < 0)  deviceOrigin.x += scrollOffset.x;
-         if(scrollOffset.y < 0)  deviceOrigin.y += scrollOffset.y;
-
-         
-         gCDCPointer->SetDeviceOrigin(deviceOrigin.x, deviceOrigin.y);             
-			CopyOffScreenImage(this, pDC, m_imageWindowCPtr, NULL, &sourceRect, copyType);
-         
-         gCDCPointer->SetDeviceOrigin(deviceOriginSaved.x, deviceOriginSaved.y);
-         
-			gCDCPointer = NULL;
-			m_pDC = NULL;
-
-			} // end "if (continueFlag)"
+		sourceRect.top += scrollOffset.y;
+		sourceRect.bottom += scrollOffset.y;
+		sourceRect.left += scrollOffset.x;
+		sourceRect.right += scrollOffset.x;
+		/*
+		int numberChars = sprintf ((char*)gTextString3,
+				" LImageView:OnDraw (updateRect left right top bottom): %d, %d, %d, %d%s",
+				sourceRect.left,
+				sourceRect.right,
+				sourceRect.top,
+				sourceRect.bottom,
+				gEndOfLine);
+		ListString ((char*)gTextString3, numberChars, gOutputTextH);
+		*/
+		gCDCPointer = pDC;
+		m_pDC = pDC;
 		
-		}	// end "if ( CheckIfOffscreenImageExists() )"
+		wxPoint deviceOriginSaved  = gCDCPointer->GetDeviceOrigin ();
+		wxPoint deviceOrigin = deviceOriginSaved;
+		
+		if (scrollOffset.x < 0)
+			deviceOrigin.x += scrollOffset.x;
+		
+		if (scrollOffset.y < 0)
+			deviceOrigin.y += scrollOffset.y;
+		
+				// Handle offset for any side by side windows.
+		
+		deviceOrigin.y += windowInfoPtr->titleHeight;
+
+		gCDCPointer->SetDeviceOrigin (deviceOrigin.x, deviceOrigin.y);
+		
+		CopyOffScreenImage (this, pDC, m_imageWindowCPtr, NULL, &sourceRect, copyType);
+		
+		gCDCPointer->SetDeviceOrigin (deviceOriginSaved.x, deviceOriginSaved.y);
+		
+		gCDCPointer = NULL;
+		m_pDC = NULL;
+
+		}	// end "if (CheckIfOffscreenImageExists ())"
 
 }	// end "OnDraw"
 
@@ -1749,7 +1733,7 @@ void CMImageView::ZoomIn (void)
 
 		step = 0.1;
 		#if defined multispec_wxlin
-			if (!wxGetKeyState (WXK_CONTROL))
+			if (!wxGetKeyState (WXK_ALT))
 		#endif
 		#if defined multispec_wxmac
 			if (!wxGetKeyState (WXK_ALT))
@@ -1763,7 +1747,7 @@ void CMImageView::ZoomIn (void)
 			if (inverse > 1)
 				 inverse = (double)((UInt16)(inverse + .5));
 
-			}	// end "if (!m_ctlKeyDownFlag)"
+			}	// end "if (!m_altKeyDownFlag)"
 
 		if (magnification >= 1.0)
 			magnification += step;
@@ -1777,7 +1761,7 @@ void CMImageView::ZoomIn (void)
 		m_Scale = magnification;
 		UpdateScrolls (magnification);
 		
-		this->OnUpdate (this, NULL);
+		OnUpdate (this, NULL);
 		UpdateScaleInformation (GetWindowInfoHandle (this));
 	  
 		}	// end "if (magnification < maxMagnification)"
@@ -1805,24 +1789,30 @@ void CMImageView::ZoomOut (void)
 		{
 		inverse = 1. / magnification;
 
-		step = 0.1;
-
+		step = 1.0;
 		#if defined multispec_wxlin
-			if (!wxGetKeyState (WXK_CONTROL))
+			if (wxGetKeyState (WXK_ALT))
 		#endif
 		#if defined multispec_wxmac
-			if (!wxGetKeyState (WXK_ALT))
+			if (wxGetKeyState (WXK_ALT))
 		#endif
-			{
-			step = 1.0;
+			step = 0.1;
 
+		//#if defined multispec_wxlin
+		//	if (!wxGetKeyState (WXK_ALT))
+		//#endif
+		//#if defined multispec_wxmac
+		//	if (!wxGetKeyState (WXK_ALT))
+		//#endif
+		if (step > 0.5)
+			{
 			if (magnification > 1)
 				 magnification = (double)((UInt16)(magnification + .5));
 
 			if (inverse > 1)
 				 inverse = (double)((UInt16)(inverse + .5));
 
-			}	// end "if (!m_ctlKeyDownFlag)"
+			}	// end "if (step > 0.5)"
 
 		if (magnification > 1.)
 			magnification -= step;

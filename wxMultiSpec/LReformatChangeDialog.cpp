@@ -12,7 +12,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			01/07/2019
+//	Revision date:			02/28/2019
 //
 //	Language:				C++
 //
@@ -133,16 +133,11 @@ extern SInt16 GetTransformChannelList (
 
 
 
-// === Static Member Variable === 
-
-ReformatOptionsPtr CMChangeFormatDlg::s_reformatOptionsPtr = NULL;
-
-
-
-IMPLEMENT_DYNAMIC_CLASS (CMChangeFormatDlg, CMDialog)
-
+//IMPLEMENT_DYNAMIC_CLASS (CMChangeFormatDlg, CMDialog)
+/*
 CMChangeFormatDlg::CMChangeFormatDlg () : CMDialog ()
 	{
+	m_reformatOptionsPtr = NULL;
    m_swapBytesFlag = FALSE;
    m_transformDataFlag = FALSE;
    m_channelSelection = -1;
@@ -164,13 +159,18 @@ CMChangeFormatDlg::CMChangeFormatDlg () : CMDialog ()
    m_initializedFlag = CMDialog::m_initializedFlag;
 	
 }	// end "CMChangeFormatDlg"
+*/
 
 
-
-CMChangeFormatDlg::CMChangeFormatDlg (wxWindow* pParent, wxWindowID id, const wxString& title)
-: CMDialog(CMChangeFormatDlg::IDD, pParent, title)
+CMChangeFormatDlg::CMChangeFormatDlg (
+				ReformatOptionsPtr				reformatOptionsPtr,
+				wxWindow* 							pParent,
+				wxWindowID 							id,
+				const wxString& 					title)
+		: CMDialog (CMChangeFormatDlg::IDD, pParent, title)
 
 {
+	m_reformatOptionsPtr = reformatOptionsPtr;
    m_swapBytesFlag = FALSE;
    m_transformDataFlag = FALSE;
    m_channelSelection = -1;
@@ -184,10 +184,6 @@ CMChangeFormatDlg::CMChangeFormatDlg (wxWindow* pParent, wxWindowID id, const wx
    m_invertLeftToRightFlag = FALSE;
    m_channelThematicDisplayFlag = FALSE;
    m_sessionUserSetDataValueTypeSelectionFlag = FALSE;
-	// The following was used for testing. Not needed now.
-	//bSizer124 = NULL;
-  
-   //}}AFX_DATA_INIT
 
    m_dataValueTypeSelectionFlag = FALSE;
 
@@ -195,7 +191,7 @@ CMChangeFormatDlg::CMChangeFormatDlg (wxWindow* pParent, wxWindowID id, const wx
    CreateControls();
    //GetSizer()->Fit(this);
    //GetSizer()->SetSizeHints(this);
-   Centre();
+   Centre ();
 	
 }	// end "CMChangeFormatDlg"
 
@@ -673,11 +669,10 @@ void CMChangeFormatDlg::CreateControls ()
 //	Called By:			Dialog in MDisMult.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: ??/??/2011
-//	Revised By:			Larry L. Biehl			Date: 07/18/2018
+//	Revised By:			Larry L. Biehl			Date: 02/28/2019
 
 Boolean CMChangeFormatDlg::DoDialog(
-				FileInfoPtr							outFileInfoPtr,
-				ReformatOptionsPtr				reformatOptionsPtr)
+				FileInfoPtr							outFileInfoPtr)
 
 {
    Boolean OKFlag = FALSE;
@@ -689,8 +684,6 @@ Boolean CMChangeFormatDlg::DoDialog(
 
    if (!m_initializedFlag)
 																		return (FALSE);
-
-   s_reformatOptionsPtr = reformatOptionsPtr;
 
    returnCode = ShowModal();
 
@@ -713,7 +706,7 @@ Boolean CMChangeFormatDlg::DoDialog(
 														  gImageLayerInfoPtr,
 														  gImageFileInfoPtr,
 														  outFileInfoPtr,
-														  s_reformatOptionsPtr,
+														  m_reformatOptionsPtr,
 														  &m_dialogSelectArea,
 														  m_outputFileSelection + 1,
 														  m_bandInterleaveSelection + 1,
@@ -774,7 +767,7 @@ void CMChangeFormatDlg::OnInitDialog (
    ChangeImageFormatDialogInitialize (dialogPtr,
 													gImageWindowInfoPtr,
 													gImageFileInfoPtr,
-													s_reformatOptionsPtr,
+													m_reformatOptionsPtr,
 													&m_dialogSelectArea,
 													m_inputBandInterleaveString,
 													m_inputDataValueTypeString,
@@ -817,7 +810,7 @@ void CMChangeFormatDlg::OnInitDialog (
    m_writeChanDescriptionFlag = m_savedChannelDescriptionFlag;
    m_headerOptionsSelection = headerOptionsSelection;
    
-   if (s_reformatOptionsPtr->transformDataCode != kNoTransform)
+   if (m_reformatOptionsPtr->transformDataCode != kNoTransform)
 		m_transformDataFlag = TRUE;
 
    
@@ -848,7 +841,7 @@ void CMChangeFormatDlg::OnInitDialog (
 		
     }
 
-   m_localActiveFeaturesPtr = (UInt16*)s_reformatOptionsPtr->channelPtr;
+   m_localActiveFeaturesPtr = (UInt16*)m_reformatOptionsPtr->channelPtr;
 
    comboBoxPtr = (wxComboBox*) (FindWindow(IDC_ChangeHeader));
    if (!m_GAIAFormatAllowedFlag)
@@ -967,7 +960,7 @@ void CMChangeFormatDlg::OnSelendokDataValueType (
 											&headerOptionsSelection,
 											gPopUpOutputFileMenu,
 											gPopUpHeaderOptionsMenu,
-											s_reformatOptionsPtr->transformDataCode,
+											m_reformatOptionsPtr->transformDataCode,
 											m_dataValueTypeSelection,
 											m_GAIAFormatAllowedFlag);
       
@@ -985,7 +978,7 @@ void CMChangeFormatDlg::OnSelendokDataValueType (
 
 		}	// end "if (dataValueTypeSelection != m_dataValueTypeSelection)"
 
-   if (s_reformatOptionsPtr->transformDataCode == kNoTransform)
+   if (m_reformatOptionsPtr->transformDataCode == kNoTransform)
       m_savedDataValueTypeSelection = m_dataValueTypeSelection;
 
    m_sessionUserSetDataValueTypeSelectionFlag = TRUE;
@@ -1082,7 +1075,7 @@ void CMChangeFormatDlg::OnSelendokHeader (
 				
 	if (setSwapByteFlag)
 		{
-		//SetDLogControl (dialogPtr, IDC_SwapBytes, (s_reformatOptionsPtr->swapBytes));
+		//SetDLogControl (dialogPtr, IDC_SwapBytes, (m_reformatOptionsPtr->swapBytes));
 
 		if (gImageWindowInfoPtr->numberBytes == 2 )
 			SetDLogControlHilite (dialogPtr, IDC_SwapBytes, 0);
@@ -1107,7 +1100,7 @@ void CMChangeFormatDlg::OnSelendokHeader (
 void CMChangeFormatDlg::OnSelendokOutChannels (wxCommandEvent& event)
 
 {
-   m_localActiveNumberFeatures = s_reformatOptionsPtr->numberChannels;
+   m_localActiveNumberFeatures = m_reformatOptionsPtr->numberChannels;
 
    HandleChannelsMenu (IDC_ChannelCombo,
 								kNoTransformation,
@@ -1115,7 +1108,7 @@ void CMChangeFormatDlg::OnSelendokOutChannels (wxCommandEvent& event)
 								kImageChannelType,
 								TRUE);
 
-	s_reformatOptionsPtr->numberChannels = m_localActiveNumberFeatures;
+	m_reformatOptionsPtr->numberChannels = m_localActiveNumberFeatures;
 
 }	// end "OnSelendokOutChannels"
 
@@ -1137,12 +1130,12 @@ void CMChangeFormatDlg::OnTransformData (wxCommandEvent& event)
 	Boolean					returnFlag = FALSE;
 
 
-   SetDLogControlHilite(NULL, wxID_OK, 255);
+   SetDLogControlHilite (NULL, wxID_OK, 255);
    CMReformatTransformDlg* transformDialogPtr = NULL;
    
-   transformDialogPtr = new CMReformatTransformDlg();
+   transformDialogPtr = new CMReformatTransformDlg (m_reformatOptionsPtr);
 
-   returnFlag = transformDialogPtr->DoDialog(
+   returnFlag = transformDialogPtr->DoDialog (
            &recommendNumberOfBits, m_bandInterleaveSelection);
    
    if (transformDialogPtr != NULL)
@@ -1152,7 +1145,7 @@ void CMChangeFormatDlg::OnTransformData (wxCommandEvent& event)
 		{
       SetChannelDescriptionFlag();
 
-      if (s_reformatOptionsPtr->transformDataCode == kNoTransform)
+      if (m_reformatOptionsPtr->transformDataCode == kNoTransform)
 			{
          m_transformDataFlag = FALSE;
 
@@ -1172,7 +1165,7 @@ void CMChangeFormatDlg::OnTransformData (wxCommandEvent& event)
 			
 			}	// end "if (...->transformDataCode == kNoTransform)"
 
-		else // s_reformatOptionsPtr->transformDataCode != kNoTransform
+		else // m_reformatOptionsPtr->transformDataCode != kNoTransform
 			{
          m_transformDataFlag = TRUE;
 
@@ -1203,7 +1196,7 @@ void CMChangeFormatDlg::OnTransformData (wxCommandEvent& event)
 					// data value type setting.
 									
 			if (!m_sessionUserSetDataValueTypeSelectionFlag &&
-					!s_reformatOptionsPtr->userSetDataValueTypeSelectionFlag &&
+					!m_reformatOptionsPtr->userSetDataValueTypeSelectionFlag &&
 						m_dataValueTypeSelection == m_savedDataValueTypeSelection &&
 								suggestedDataValueTypeSelection > m_dataValueTypeSelection)
 				{
@@ -1222,7 +1215,7 @@ void CMChangeFormatDlg::OnTransformData (wxCommandEvent& event)
 													&headerOptionsSelection,
 													gPopUpOutputFileMenu,
 													gPopUpHeaderOptionsMenu,
-													s_reformatOptionsPtr->transformDataCode,
+													m_reformatOptionsPtr->transformDataCode,
 													m_dataValueTypeSelection,
 													m_GAIAFormatAllowedFlag);
 													
@@ -1253,10 +1246,10 @@ void CMChangeFormatDlg::OnTransformData (wxCommandEvent& event)
 
 				// Input channels will be defined by the transformation.
 
-      if (gReformatOptionsPtr->transformDataCode == kNoTransform ||
-              gReformatOptionsPtr->transformDataCode == kAdjustChannel ||
-              gReformatOptionsPtr->transformDataCode == kAdjustChannelsByChannel ||
-              gReformatOptionsPtr->transformDataCode == kFunctionOfChannels) {
+      if (m_reformatOptionsPtr->transformDataCode == kNoTransform ||
+              m_reformatOptionsPtr->transformDataCode == kAdjustChannel ||
+              m_reformatOptionsPtr->transformDataCode == kAdjustChannelsByChannel ||
+              m_reformatOptionsPtr->transformDataCode == kFunctionOfChannels) {
          MShowDialogItem(dialogPtr, IDC_ChannelsLabel);
          MShowDialogItem(dialogPtr, IDC_ChannelCombo);
 
@@ -1268,9 +1261,9 @@ void CMChangeFormatDlg::OnTransformData (wxCommandEvent& event)
 			MHideDialogItem(dialogPtr, IDC_ChannelsLabel);
 			MHideDialogItem(dialogPtr, IDC_ChannelCombo);
 
-			} // end "else ...->transformDataCode == kTransformChannels || ..."
+			}	// end "else ...->transformDataCode == kTransformChannels || ..."
 
-		} // end "if (returnFlag)"
+		}	// end "if (returnFlag)"
 
 			// Make sure that the transform check box has the appropriate setting.
 
@@ -1299,8 +1292,8 @@ void CMChangeFormatDlg::SetChannelDescriptionFlag (void)
    DialogPtr dialogPtr = this;
    wxCheckBox* cbox;
 
-   if (s_reformatOptionsPtr->transformDataCode == kNoTransform ||
-           s_reformatOptionsPtr->transformDataCode == kAdjustChannel)
+   if (m_reformatOptionsPtr->transformDataCode == kNoTransform ||
+           m_reformatOptionsPtr->transformDataCode == kAdjustChannel)
 		{
       if (m_channelDescriptionAllowedFlag)
 			{

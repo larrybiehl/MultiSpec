@@ -1,6 +1,6 @@
 // LStatisticsDialog.cpp : implementation file
 //
-// Revised by Larry Biehl on 11/13/2018
+// Revised by Larry Biehl on 02/18/2019
 //               
 /* Template for debugging for MultiSpec Online on mygeohub.org.
 	int numberChars = sprintf ((char*)&gTextString3,
@@ -105,23 +105,24 @@ CMStatisticsDialog::CMStatisticsDialog(wxWindow* pParent, wxWindowID id, const w
 }
 
 
-BEGIN_EVENT_TABLE(CMStatisticsDialog, CMDialog)
-EVT_INIT_DIALOG(CMStatisticsDialog::OnInitDialog)
-EVT_COMBOBOX(IDC_Channels, CMStatisticsDialog::OnSelendokChannels)
-EVT_COMBOBOX(IDC_ProjectChanges, CMStatisticsDialog::OnSelendokProjectChanges)
-EVT_COMBOBOX_DROPDOWN(IDC_ProjectChanges, CMStatisticsDialog::OnDropdownProjectChanges)
-EVT_COMBOBOX_DROPDOWN(IDC_Channels, CMStatisticsDialog::OnDropdownChannels)
-EVT_BUTTON(IDC_StatisticsOptions, CMStatisticsDialog::OnStatisticsOptions)
-EVT_CHECKBOX(IDC_ShowClassNames, CMStatisticsDialog::OnShowClassNames)
-EVT_CHECKBOX(IDC_ShowFieldNames, CMStatisticsDialog::OnShowFieldNames)
-EVT_CHECKBOX(IDC_TestFields, CMStatisticsDialog::OnTestFields)
-EVT_CHECKBOX(IDC_TrainingFields, CMStatisticsDialog::OnTrainingFields)
-EVT_CHECKBOX(IDC_ShowTrainTestLabel, CMStatisticsDialog::OnShowTrainTestLabel)
-EVT_COMBOBOX_DROPDOWN(IDC_TestMaskPopUp, CMStatisticsDialog::OnDropdownTestMaskCOMBO)
-EVT_COMBOBOX(IDC_TestMaskPopUp, CMStatisticsDialog::OnSelendokTestMaskCOMBO)
-EVT_COMBOBOX_DROPDOWN(IDC_TrainMaskPopUp, CMStatisticsDialog::OnDropdownTrainMaskCOMBO)
-EVT_COMBOBOX(IDC_TrainMaskPopUp, CMStatisticsDialog::OnSelendokTrainMaskCOMBO)
-//EVT_BUTTON(wxID_OK, CMStatisticsDialog::OnOK)
+BEGIN_EVENT_TABLE (CMStatisticsDialog, CMDialog)
+	EVT_INIT_DIALOG (CMStatisticsDialog::OnInitDialog)
+	EVT_COMBOBOX (IDC_Channels, CMStatisticsDialog::OnSelendokChannels)
+	EVT_COMBOBOX (IDC_ProjectChanges, CMStatisticsDialog::OnSelendokProjectChanges)
+	EVT_COMBOBOX_DROPDOWN (IDC_ProjectChanges, CMStatisticsDialog::OnDropdownProjectChanges)
+	EVT_COMBOBOX_DROPDOWN (IDC_Channels, CMStatisticsDialog::OnSelendokChannelComboDropDown)
+	EVT_COMBOBOX_DROPDOWN (IDC_Channels, CMStatisticsDialog::OnDropdownChannels)
+	EVT_BUTTON (IDC_StatisticsOptions, CMStatisticsDialog::OnStatisticsOptions)
+	EVT_CHECKBOX (IDC_ShowClassNames, CMStatisticsDialog::OnShowClassNames)
+	EVT_CHECKBOX (IDC_ShowFieldNames, CMStatisticsDialog::OnShowFieldNames)
+	EVT_CHECKBOX (IDC_TestFields, CMStatisticsDialog::OnTestFields)
+	EVT_CHECKBOX (IDC_TrainingFields, CMStatisticsDialog::OnTrainingFields)
+	EVT_CHECKBOX (IDC_ShowTrainTestLabel, CMStatisticsDialog::OnShowTrainTestLabel)
+	EVT_COMBOBOX_DROPDOWN (IDC_TestMaskPopUp, CMStatisticsDialog::OnDropdownTestMaskCOMBO)
+	EVT_COMBOBOX (IDC_TestMaskPopUp, CMStatisticsDialog::OnSelendokTestMaskCOMBO)
+	EVT_COMBOBOX_DROPDOWN (IDC_TrainMaskPopUp, CMStatisticsDialog::OnDropdownTrainMaskCOMBO)
+	EVT_COMBOBOX (IDC_TrainMaskPopUp, CMStatisticsDialog::OnSelendokTrainMaskCOMBO)
+	//EVT_BUTTON(wxID_OK, CMStatisticsDialog::OnOK)
 END_EVENT_TABLE()
 
 

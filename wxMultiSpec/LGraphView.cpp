@@ -12,7 +12,7 @@
 //	Authors:					Abdur Rahman Maud, Larry L. Biehl
 //
 //	Revision date:			02/20/2017 by Wei-Kang Hsu
-//								01/17/2019 by Larry L. Biehl
+//								02/21/2019 by Larry L. Biehl
 //
 //	Language:				C++
 //
@@ -90,8 +90,7 @@ wxPen			CMGraphView::s_grayPen;
 wxPen			CMGraphView::s_greenPen;
 wxPen			CMGraphView::s_ltGrayPen;	
 wxPen			CMGraphView::s_redPen;
-wxPen			CMGraphView::s_whitePen;     
-//RECT        CMGraphView::s_updateRect;
+wxPen			CMGraphView::s_whitePen;
 
 // === Static Member Variable ===
 
@@ -199,9 +198,9 @@ CMGraphView::~CMGraphView ()
 
 
 BEGIN_EVENT_TABLE (CMGraphView, wxView)
-//EVT_INIT_DIALOG (CMGraphView::OnInitialUpdate)
-EVT_TOOL (IDC_PreviousChannel, CMGraphView::OnPreviousChannel)
-EVT_TOOL (IDC_NextChannel, CMGraphView::OnNextChannel)
+	//EVT_INIT_DIALOG (CMGraphView::OnInitialUpdate)
+	//EVT_TOOL (IDC_PreviousChannel, CMGraphView::OnPreviousChannel)
+	//EVT_TOOL (IDC_NextChannel, CMGraphView::OnNextChannel)
 EVT_CLOSE (CMGraphView::OnDestroy)
 
 END_EVENT_TABLE ()
@@ -274,7 +273,7 @@ void CMGraphView::HideFeatureList ()
 //       m_frame->m_checkBoxFeature->Enable (false);
 //       m_frame->m_listCtrl1->DeleteAllItems ();
        m_frame->m_listCtrl1->Hide ();
-       m_frame->m_splitter3->SetSashPosition (30,true);
+       m_frame->m_splitter3->SetSashPosition (30, true);
        m_frame->m_splitter3->Unsplit (m_frame->m_panel4); 
        
 //       if (gActiveImageViewCPtr!= NULL && gActiveImageViewCPtr->m_Canvas!= NULL)
@@ -485,7 +484,7 @@ bool CMGraphView::LoadChannelNumbersAndValues (
 void CMGraphView::MoveGraphControls (void)
 
 {
-   
+   /*
    SignedByte			handleStatus; 
    GraphPtr graphRecordPtr = (GraphPtr)GetHandleStatusAndPointer (m_graphRecordHandle,
 																						&handleStatus); 
@@ -495,10 +494,10 @@ void CMGraphView::MoveGraphControls (void)
    					wxFONTSTYLE_NORMAL,
    					wxFONTWEIGHT_NORMAL);
    text1 = new wxStaticText (m_frame->GetToolBar (), wxID_ANY, 
-      wxString::Format (wxT("Bin Width:%d"), (int)graphRecordPtr->histogramBinWidth));
+      wxString::Format (wxT("Bin width: %d"), (int)graphRecordPtr->histogramBinWidth));
    text1->SetFont (font);
    m_frame->GetToolBar ()->AddControl (text1, wxT("tool"));
-   
+   */
 }	// end "MoveGraphControls"
 
 
@@ -551,7 +550,7 @@ void CMGraphView::OnBinWidth (
       m_frame->Refresh ();
       
 		CheckAndUnlockHandle (graphRecordHandle);
-   
+		/*
 		m_frame->GetToolBar ()->DeleteToolByPos (6);
 		wxStaticText *text1;
 		wxFont font (gFontSize,
@@ -559,11 +558,15 @@ void CMGraphView::OnBinWidth (
 							wxFONTSTYLE_NORMAL,
 							wxFONTWEIGHT_NORMAL);
 		text1 = new wxStaticText (m_frame->GetToolBar (),
-											wxID_ANY,
-											wxString::Format (wxT("Bin Width:%d"),
+											IDC_BinWidthText,
+											wxString::Format (wxT("Bin width: %d"),
 											(int)graphRecordPtr->histogramBinWidth));
 		text1->SetFont (font);
 		m_frame->GetToolBar ()->AddControl (text1, wxT("tool"));
+		*/
+		wxStaticText* binWidthText = (wxStaticText*)m_frame->FindWindow (IDC_BinWidthText);
+		binWidthText->SetLabel (wxString::Format (wxT("Bin width: %d"),
+											(int)graphRecordPtr->histogramBinWidth));
 		
 		}	// end " if (SetHistogramBinWidth (this, (SInt16)selection))"
    
@@ -672,12 +675,15 @@ bool CMGraphView::OnCreate (wxDocument *doc, long WXUNUSED (flags))
 	gTheActiveWindow = (WindowPtr)this;
    
    		// For graph selection window initialization
-	
+	/*
    if (gProcessorCode == kSelectionGraphProcessor || 
 			gProcessorCode == kListDataProcessor|| gProcessorCode == kBiPlotDataProcessor)
    	{
       m_frame->m_panel2->m_graphViewCPtr = this;
    	}
+	*/
+	if (m_frame->m_panel2 != NULL)
+      m_frame->m_panel2->m_graphViewCPtr = this;
    
    m_frame->Show (true);
 	Activate (true);
@@ -772,7 +778,7 @@ void CMGraphView::OnDraw (
    
 			// 02/20/18
 			// WK: Another method to adjust the bottom margin of graph window is to set
-			// gprocessCode here, and adjust accordingly for "bottom inset" in SGraphUtilities.
+			// gProcessCode here, and adjust accordingly for "bottom inset" in SGraphUtilities.
 			// However, that tends to cause other problems since we are
 			// modifying gProcessorCode, which we will be used elsewhere.
 
@@ -780,7 +786,7 @@ void CMGraphView::OnDraw (
    if (((wxWindow*)this)->GetId () == GR_HISTOGRAM)
 		{
 		//gProcessorCode = kHistogramStatsProcessor;
-      graphRecordPtr->clientRect.bottom -= 45;
+      graphRecordPtr->clientRect.bottom -= 25;	// 45
 		
 		}	// end "if (((wxWindow*)this)->GetId () == GR_HISTOGRAM)"
   
@@ -799,13 +805,8 @@ void CMGraphView::OnDraw (
       graphRecordPtr->clientRect.bottom -= 0;
 		
 		}	// end "else if (((wxWindow*)this)->GetId () == GR_BIPLOT)"
-	/* 
-   graphRecordPtr->clientRect.top = s_updateRect.top;
-   graphRecordPtr->clientRect.left = s_updateRect.left;
-	graphRecordPtr->clientRect.bottom = s_updateRect.bottom;
-	graphRecordPtr->clientRect.right = s_updateRect.right;
-	*/      
-   if (continueFlag)
+
+  if (continueFlag)
 		{
 		gCDCPointer = pDC;
 		graphRecordPtr->pDC = pDC;
@@ -987,25 +988,10 @@ void CMGraphView::SetCheckIOMemoryFlag (
 }	// end "SetCheckIOMemoryFlag"
 */
 
-void CMGraphView::OnPreviousChannel (wxCommandEvent& event) 
-{              
 
- 	Boolean				returnFlag;
-	DoNextOrPreviousChannel	(this, kPreviousGraphSetControl);
-   returnFlag = UpdateGraphChannels ();
-	
-}	// end "OnPreviousChannel"
+void CMGraphView::OnSelectVector (int menuID)
 
-void CMGraphView::OnNextChannel (wxCommandEvent& event) 
 {
-   Boolean				returnFlag;
-   DoNextOrPreviousChannel	(this, kNextGraphSetControl);
-   returnFlag = UpdateGraphChannels ();
-   	
-   //returnFlag = UpdateGraphControls ();
-}
-
-void CMGraphView::OnSelectVector (int menuID){
    GraphPtr								graphRecordPtr;
 	Handle								graphRecordHandle;
    SInt16					selection;
@@ -1024,7 +1010,10 @@ void CMGraphView::OnSelectVector (int menuID){
   
 }
 
+
+
 void CMGraphView::OnOverlay (int menuID)
+
 {
    //GraphPtr								graphRecordPtr;
 	//Handle								graphRecordHandle;
@@ -1064,7 +1053,7 @@ void CMGraphView::ShowFeatureList ()
 		{
 		gActiveImageViewCPtr->m_Canvas->m_featureListShowFlag = true;
 		if (gActiveImageViewCPtr->m_Canvas->m_dataListShowFlag == true)
-			m_frame->m_splitter3->SetSashPosition (150,true);
+			m_frame->m_splitter3->SetSashPosition (150, true);
 
 		else
 			m_frame->m_splitter3->Unsplit (m_frame->m_panel3);
@@ -1078,7 +1067,7 @@ void CMGraphView::ShowFeatureList ()
 void CMGraphView::UpdateListData (void)
 
 {
-   m_frame->m_toolBar1->EnableTool (IDC_NEXT_CHANNEL, 1);
+   //m_frame->m_toolBar1->EnableTool (IDC_NEXT_CHANNEL, 1);
    
 }	// end "UpdateListData"
 
@@ -1586,118 +1575,62 @@ void CMGraphView::ResetListControls ()
 
 
 
-Boolean CMGraphView::UpdateGraphChannels (void)
-
-{
-   GraphPtr       graphRecordPtr;
-	
-	SInt16			numberSets,
-						numberVectors,
-						set;
-	
-	Boolean			returnFlag = TRUE;
-   
-   graphRecordPtr = (GraphPtr)GetHandlePointer (m_graphRecordHandle);
-   
-   numberSets = graphRecordPtr->numberSets;
-	set = graphRecordPtr->set;
-	numberVectors = graphRecordPtr->numberVectors;
-   
-   if (numberSets <= 1)
-   	{
-      m_frame->m_toolBar1->EnableTool (IDC_NextChannel, 0);
-      m_frame->m_toolBar1->EnableTool (IDC_PreviousChannel, 0);
-		
-   	}
-   else // numberSets > 1
-   { 
-      if (set < numberSets){
-         m_frame->m_toolBar1->EnableTool (IDC_NextChannel, 1);
-      }
-      else{ // set >= numberSets
-         m_frame->m_toolBar1->EnableTool (IDC_NextChannel, 0);
-      }
-      if (set > 1){
-         m_frame->m_toolBar1->EnableTool (IDC_PreviousChannel, 1);
-      }
-      else{ // >set <= 1
-         m_frame->m_toolBar1->EnableTool (IDC_PreviousChannel, 0);
-      }         
-   } // end "else numberSets > 1"
-   
-   if (numberVectors <= 1){
-      m_frame->m_toolBar1->EnableTool (IDC_SelectVectors, 0);
-   }
-   else{ // numberVectors > 1
-      m_frame->m_toolBar1->EnableTool (IDC_SelectVectors, 1);
-   }
-   
-   if (graphRecordPtr->graphCodesAvailable > 1){
-      m_frame->m_toolBar1->EnableTool (IDC_GraphOverlay, 1);
-
-   }else{
-      m_frame->m_toolBar1->EnableTool (IDC_GraphOverlay, 0);
-   }
-   
-   return (returnFlag);
-   
-}	// end "UpdateGraphChannels"
-
-
-
 Boolean CMGraphView::UpdateGraphControls (void)
 
 {
    GraphPtr       graphRecordPtr;
 	
-	SInt16      numberVectors;
+	SInt16      	numberVectors;
       
    Boolean			returnFlag = TRUE;
    
    
-   graphRecordPtr = (GraphPtr)GetHandlePointer (
-											m_graphRecordHandle, kNoLock, kNoMoveHi);
+   graphRecordPtr = (GraphPtr)GetHandlePointer (m_graphRecordHandle);
    
 	numberVectors = graphRecordPtr->numberVectors;
    
    m_frame->CreateSelectVector ((int)numberVectors);
-   
+   /*
    if (graphRecordPtr->graphCodesAvailable > 1)
-       m_frame->m_toolBar1->EnableTool (IDC_GraphOverlay, 1);
+		m_frame->m_toolBar1->EnableTool (IDC_GraphOverlay, 1);
 
-    else
+	else
       m_frame->m_toolBar1->EnableTool (IDC_GraphOverlay, 0);
+	*/
+	//#if defined multispec_wxlin
+		//m_frame->GetToolBar ()->DeleteToolByPos (0);
+		//wxStaticText *text1;
+		//wxFont font (gFontSize,
+		//					wxFONTFAMILY_DEFAULT,
+		//					wxFONTSTYLE_NORMAL,
+		//					wxFONTWEIGHT_NORMAL);
 	
-   m_frame->GetToolBar ()->DeleteToolByPos (0);
-   wxStaticText *text1;
-   wxFont font (gFontSize,
-						wxFONTFAMILY_DEFAULT,
-						wxFONTSTYLE_NORMAL,
-						wxFONTWEIGHT_NORMAL);
-   
-   if (graphRecordPtr->numberSets > 1)
-   	{
-				// Draw the graph set control prompt text.
-		if (graphRecordPtr->setCode == 1)
+		if (graphRecordPtr->numberSets > 1)
 			{
-         text1 = new wxStaticText (m_frame->GetToolBar (), wxID_ANY, 
-                              		wxT("Change Channels:"));
-         text1->SetFont (font);
+			wxStaticText* binWidthText = (wxStaticText*)m_frame->FindWindow (IDC_ChangeChannelPrompt);
 			
-			}
-		
-		else	// graphRecordPtr->setCode == 2
-			{
-			text1 = new wxStaticText (m_frame->GetToolBar (), wxID_ANY, 
-                              		wxT("Change Feature:"));
-         text1->SetFont (font);
+					// Draw the graph set control prompt text.
 			
-         }
-         
-      m_frame->GetToolBar ()->InsertControl (0, text1, wxEmptyString);
-      
-   	}
-
+			if (graphRecordPtr->setCode == 1)
+				binWidthText->SetLabel (wxString::Format (wxT("Change channel:"),
+												(int)graphRecordPtr->histogramBinWidth));
+				//text1 = new wxStaticText (m_frame->GetToolBar (),
+				//									wxID_ANY,
+				//									wxT("Change channel:"));
+			
+			else	// graphRecordPtr->setCode == 2
+				binWidthText->SetLabel (wxString::Format (wxT("Change feature:"),
+												(int)graphRecordPtr->histogramBinWidth));
+				//text1 = new wxStaticText (m_frame->GetToolBar (),
+				//									wxID_ANY,
+				//									wxT("Change feature:"));
+			
+			//text1->SetFont (font);
+			
+			//m_frame->GetToolBar()->InsertControl (0, text1, wxEmptyString);
+			
+			}	// end "if (graphRecordPtr->numberSets > 1)"
+	//#endif
    return (returnFlag);
    
 }	// end "UpdateGraphControls"
@@ -1761,8 +1694,7 @@ CMGraphViewButton::~CMGraphViewButton ()
 
 
 
-void 
-CMGraphViewButton::SetButtonID (
+void CMGraphViewButton::SetButtonID (
 				UInt16 			buttonID)
 
 {                                                      
@@ -1772,8 +1704,7 @@ CMGraphViewButton::SetButtonID (
 
 
 
-void 
-CMGraphViewButton::SetGraphViewCPtr (
+void CMGraphViewButton::SetGraphViewCPtr (
 				CMGraphView* 			graphViewCPtr)
 
 {                                                      

@@ -3,7 +3,7 @@
  * Author: multispec
  *
  * Created on June 22, 2011, 5:00 PM
- * Revised by Larry Biehl		01/09/2019
+ * Revised by Larry Biehl		02/03/2019
  */
 
 #ifndef LIMAGECANVAS_H
@@ -80,8 +80,6 @@ class CMImageCanvas : public wxScrolledWindow
 					bool 									ctrlDown);
 
 		void EraseBackground(bool);
-
-		bool updatedbmp;
 
 	private:
 		void OnCharHook (wxKeyEvent& event);

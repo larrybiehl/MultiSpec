@@ -54,7 +54,6 @@ LAbout::LAbout (
 	
 			// Temporarily adding handlers
 			
-	//wxImage::AddHandler(wxICOHandler);
 	m_bitmap1 = new wxStaticBitmap (
 							this, wxID_ANY, mspecbmp, wxDefaultPosition, wxDefaultSize, 0);
 	bSizer->Add (
@@ -68,14 +67,6 @@ LAbout::LAbout (
 													wxALIGN_CENTRE);
 	m_staticText1->Wrap (-1);
 	
-	//m_staticText1->SetFont (wxFont (8, 70, 90, 90, false, wxEmptyString));
-	/*
-	#if defined multispec_wxmac
-		int fontSize = 12;
-	#else
-		int fontSize = 9;
-	#endif
-	*/
 	m_staticText1->SetFont (wxFont (gFontSize,
 												wxFONTFAMILY_DEFAULT,
 												wxFONTSTYLE_NORMAL,
@@ -83,30 +74,21 @@ LAbout::LAbout (
 												false,
 												wxEmptyString));
 	
-	//bSizer->Add (m_staticText1, 0, wxALL, 5);
 	bSizer->Add (m_staticText1, wxSizerFlags(0).Border(wxALL, 5));
 	
 	m_staticline1 = new wxStaticLine (
 						this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL);
-	//bSizer->Add (m_staticline1, 0, wxEXPAND | wxALL, 5);
 	bSizer->Add (m_staticline1, wxSizerFlags(0).Expand().Border(wxALL, 5));
 	
 	m_staticText3 = new wxStaticText (
 						this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0);
 	m_staticText3->Wrap (-1);
-	//bSizer->Add (m_staticText3, 0, wxALL, 5);
 	bSizer->Add (m_staticText3, wxSizerFlags(0).Border(wxALL, 5));
-	/*
-	m_button = new wxButton (
-								this, wxID_OK, wxT("OK"), wxDefaultPosition, wxDefaultSize, 0);
-	bSizer->Add (m_button, 0, wxALL|wxALIGN_CENTER_HORIZONTAL, 5);
-	*/
+
 	wxSizer* standardButtonSizer = CreateButtonSizer (wxOK);
 	bSizer->Add (standardButtonSizer, 0, wxALL|wxALIGN_CENTER_HORIZONTAL, 5);
 	
-	this->SetSizer (bSizer);
-	this->Layout ();
-	bSizer->Fit (this);
+	SetSizerAndFit (bSizer);
 	
 	this->Centre (wxBOTH);
 	

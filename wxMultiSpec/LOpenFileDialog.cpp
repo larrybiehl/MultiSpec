@@ -1,10 +1,9 @@
 // LOpenFileDialog
 //
-// Modified by Larry Biehl on 01/17/2019
+// Modified by Larry Biehl on 03/01/2019
 //
 #include "LMultiSpec.h"
 #include "LOpenFileDialog.h"
-//#include "SExternalGlobals.h"
 
 #include "wx/dialog.h"
 #include "wx/process.h"
@@ -17,8 +16,10 @@ MyExtraPanel::MyExtraPanel (wxWindow *parent) : wxPanel(parent)
 
 {
    m_link = NULL;
+   m_list = NULL;
 	m_imageType = 0;
    m_linkOption = 0;
+   m_userSetImageType = 0;
    m_linkToActiveImageFlag = false;
    m_showLinkPopupMenuFlag = TRUE;
    m_initialLinkSelectedFilesFlag = false;
@@ -69,6 +70,7 @@ void MyExtraPanel::OnInitDialog (void)
 			}
 
 				// Set link comboBox to "Do not link"
+		
       if (!m_showLinkPopupMenuFlag)
 			m_link->SetSelection (0);
         
@@ -79,29 +81,25 @@ void MyExtraPanel::OnInitDialog (void)
   
 	if (m_showLinkPopupMenuFlag)
 		{
-		//m_link->Append (wxT("Do not link"));
+		//m_link->Append (wxT("Do not link")); // Already loaded
+		m_link->Append (wxT("Link selected file(s) to new image window"));
 		m_link->Append (wxT("Link selected file(s) to active image window"));
-		m_link->Append (wxT("Link selected file(s) to new image window"));
-		//m_staticText5->Hide();
 		
-		}
+		}	// end "	if (m_showLinkPopupMenuFlag)"
 	
-	else
-		{
-		//m_link->Append (wxT("Do not link"));
+	else	// !m_showLinkPopupMenuFlag
+		//m_link->Append (wxT("Do not link")); // Already loaded
 		m_link->Append (wxT("Link selected file(s) to new image window"));
-		
-		}
     
 	if (gMultipleImageFileCode == 2)
 		{
-		m_linkOption = 1;
-		m_linkOptionSelectionDataCode = 2;
+		m_linkOption = 2;
+		m_linkOptionSelectionDataCode = 3;
 
 		SetImageLinkToTrue();
 		                                        
 		if (gGetFileStatus == 2)
-			m_list->Hide();
+			m_list->Hide ();
 			
 		}		// end "if (gMultipleImageFileCode == 2)"
 
@@ -122,15 +120,7 @@ void MyExtraPanel::OnInitDialog (void)
 			// The event call of comboBox
 			// Note that the Connects (and Binds) do not work. The setting is obtain after
 			// the user selects OK.
-
-	//m_list->Connect (14, wxEVT_COMBOBOX,
-  	//           wxCommandEventHandler (MyExtraPanel::OnSelendokImageType), NULL, this);
-	m_list->Bind (wxEVT_COMMAND_COMBOBOX_SELECTED,
-                	&MyExtraPanel::OnSelendokImageType, this);
-    
-	//m_link->Connect (16, wxEVT_COMMAND_COMBOBOX_SELECTED,
-	m_link->Bind (wxEVT_COMMAND_COMBOBOX_SELECTED,
-                    &MyExtraPanel::OnSelendokLinkOption, this);
+	
 	#if defined multispec_wxlin
 		uploadbutton->Connect (wxID_ANY,
 										wxEVT_BUTTON,
@@ -138,7 +128,7 @@ void MyExtraPanel::OnInitDialog (void)
                 					NULL,
                 					this);
 	#endif
-   
+	
 }	// end "OnInitDialog"
 
 
@@ -162,6 +152,11 @@ bool MyExtraPanel::CreateControls (void)
 	m_list->Append (wxT("default"));
 	m_list->Append (wxT("Multispectral type"));
 	m_list->Append (wxT("Thematic type"));
+   m_list->SetSelection (0);
+
+	m_list->Bind (wxEVT_COMMAND_COMBOBOX_SELECTED,
+                	&MyExtraPanel::OnSelendokImageType,
+                	this);
 	  
 			// The image link comboBox
 	
@@ -174,6 +169,11 @@ bool MyExtraPanel::CreateControls (void)
 										NULL,
 										0);
 	m_link->Append (wxT("Do not link"));
+   m_link->SetSelection (0);
+	
+	m_link->Bind (wxEVT_COMMAND_COMBOBOX_SELECTED,
+                    &MyExtraPanel::OnSelendokLinkOption,
+                    this);
 
 			// The static text
 	
@@ -251,20 +251,26 @@ bool MyExtraPanel::CreateControls (void)
 void MyExtraPanel::OnUploadFile (wxCommandEvent& event)
 
 {
-	wxExecuteEnv workingenv;
-	wxString datadir = wxGetHomeDir();
+	wxExecuteEnv 		workingenv;
+	wxString 			datadir = wxGetHomeDir();
+	
+	
 	datadir.Append("/data");
 	workingenv.cwd = datadir;
 
-	FileUploadProcess * const process = new FileUploadProcess((CMainFrame*)this, wxT("importfile"));
-	long returnCode = wxExecute(wxT("importfile"), wxEXEC_ASYNC, process, &workingenv); // wxEXEC_SYNC
+	FileUploadProcess * const process = new FileUploadProcess ((CMainFrame*)this,
+																					wxT("importfile"));
+	long returnCode = wxExecute (wxT("importfile"),
+											wxEXEC_ASYNC,
+											process,
+											&workingenv); // wxEXEC_SYNC
 
 	if (returnCode)		// note use = 0 if wxEXEC_SYNC is used.
 		wxMessageBox (wxString::Format(_("Select your account name to the left and then the 'data' directory in box above to find your newly uploaded file after the upload process has completed.")),
-						wxTheApp->GetAppDisplayName(),
-						wxOK | wxCENTRE | wxSTAY_ON_TOP);
+							wxTheApp->GetAppDisplayName(),
+							wxOK | wxCENTRE | wxSTAY_ON_TOP);
 	
-	else		// returnCode == 0
+	else	// returnCode == 0
 		delete process;
 	
 }	// end "OnUploadFile"
@@ -274,36 +280,50 @@ void MyExtraPanel::OnUploadFile (wxCommandEvent& event)
 void MyExtraPanel::OnSelendokLinkOption (wxCommandEvent& event)
 
 {
-	m_linkOptionSelectionDataCode = m_link->GetSelection() + 1;
+	m_linkOptionSelectionDataCode = m_link->GetSelection () + 1;
     
 	if (m_linkOptionSelectionDataCode == 1)
 		SetImageLinkToFalse ();
+	
 	else if (m_linkOptionSelectionDataCode == 2)
 		SetImageLinkToTrue ();
+	
 	else if (m_linkOptionSelectionDataCode == 3)
 		SetImageLinkToTrue ();
     
-}
+}	// end "OnSelendokLinkOption"
 
 
-void MyExtraPanel::OnSelendokImageType(wxCommandEvent& event)
+void MyExtraPanel::OnSelendokImageType (wxCommandEvent& event)
+
 {
 	m_imageType = m_list->GetSelection ();
 	m_userSetImageType = m_imageType;
-}
+	
+}	// end "OnSelendokImageType"
 
 
 void MyExtraPanel::SetImageLinkToTrue (void)
+
 {
-	//wxStaticText *linkText = (wxStaticText*) FindWindow (15);
-    
-	if (m_showLinkPopupMenuFlag == 0 && m_linkOptionSelectionDataCode == 2)
-		{
-		m_linkOptionSelectionDataCode = 3;
-		}
-    
+	//if (m_showLinkPopupMenuFlag == 0 && m_linkOptionSelectionDataCode == 2)
+	//	m_linkOptionSelectionDataCode = 3;
+	
 	if (m_linkOptionSelectionDataCode == 2)
 		{
+				// Link to new image window
+		
+		gMultipleImageFileCode = 3;
+		//linkText->Hide();
+		//m_staticText4->Show();
+		//m_staticText4->SetLabel(wxString::Format(_T("Select Image(s)")));
+		
+		}	// end "if (m_linkOptionSelectionDataCode == 2)"
+    
+	else if (m_linkOptionSelectionDataCode == 3)
+		{
+				// Link to active image window
+		
 		gMultipleImageFileCode = 2;
         
 		Handle windowInfoHandle = GetActiveImageWindowInfoHandle();
@@ -323,16 +343,7 @@ void MyExtraPanel::SetImageLinkToTrue (void)
 		//linkText->Show ();
 		//m_staticText4->Hide ();
 
-		}
-		
-	else	// m_linkOptionSelectionDataCode == 3
-		{
-		gMultipleImageFileCode = 3;
-		//linkText->Hide();
-		//m_staticText4->Show();
-		//m_staticText4->SetLabel(wxString::Format(_T("Select Image(s)")));
-		
-		}
+		}	// end "else if (m_linkOptionSelectionDataCode == 3)"
 		
 			// Only allow multispectral type
 			
@@ -351,23 +362,35 @@ void MyExtraPanel::SetImageLinkToTrue (void)
 }	// end "SetImageLinkToTrue"
 
 
+
 void MyExtraPanel::SetImageLinkToFalse (void)
 
 {
    gMultipleImageFileCode = 0;
+	
+	m_imageType = m_list->GetSelection ();
+	
+	if (m_imageType == 0)
+		{
+				// This implies that the user has not specifically set the
+				// image type parameter. Make sure it is set to the default
+				// in case it was changed during an earlier multiple file
+				// setting.
+		
+		if (gGetFileImageType == 0)
+			m_imageType = 0;
 
-   if (gGetFileImageType == 0)
-      m_imageType = 0;
+		else if (gGetFileImageType == kMultispectralImageType)
+			m_imageType = 1;
 
-   else if (gGetFileImageType == kMultispectralImageType)
-      m_imageType = 1;
+		else // gGetFileImageType == kThematicImageType)
+			m_imageType = 2;
 
-   else // gGetFileImageType == kThematicImageType)
-      m_imageType = 2;
-
-   m_imageType = m_userSetImageType;
-   
-   gGetFileStatus = 0;
+		m_imageType = m_userSetImageType;
+		
+		gGetFileStatus = 0;
+		
+		}	// end "if (m_imageType == 0)"
    
    m_staticText2->Show ();
    m_staticText3->Hide ();
@@ -379,7 +402,7 @@ void MyExtraPanel::SetImageLinkToFalse (void)
    m_list->Enable (true);
    m_list->SetSelection (m_imageType);
 	
-	Layout();
+	Layout ();
 	Fit ();
 
 }	// end "SetImageLinkToFalse"
@@ -388,9 +411,19 @@ void MyExtraPanel::SetImageLinkToFalse (void)
 		// To create addition panel in the file dialog window
 
 static wxWindow* createMyExtraPanel (wxWindow *parent)
+
 {
 	return new MyExtraPanel (parent);
+	
 }
+
+
+/*
+BEGIN_EVENT_TABLE (CMOpenFileDialog, CMOpenFileDialog)
+	//EVT_UPDATE_UI(16, CMOpenFileDialog::OnUpdateLinkComboboxUI)
+	EVT_INIT_DIALOG (CMOpenFileDialog::OnInitDialog)
+END_EVENT_TABLE ()
+*/
 
 
 CMOpenFileDialog::CMOpenFileDialog (
@@ -400,12 +433,9 @@ CMOpenFileDialog::CMOpenFileDialog (
 
 }	// end "CMOpenFileDialog"
 
-/*
-BEGIN_EVENT_TABLE (CMOpenFileDialog, wxDialog)
-EVT_UPDATE_UI(16, CMOpenFileDialog::OnUpdateLinkComboboxUI)
-END_EVENT_TABLE ()
 
-void CMOpenFileDialog::OnUpdateLinkComboboxUI(wxUpdateUIEvent& pCmdUI)
+/*
+void CMOpenFileDialog::OnUpdateLinkComboboxUI (wxUpdateUIEvent& pCmdUI)
 {
    wxArrayString filenames;
    m_wxFileDialog->GetFilenames(filenames);
@@ -428,12 +458,20 @@ void CMOpenFileDialog::OnUpdateLinkComboboxUI(wxUpdateUIEvent& pCmdUI)
 }
 */
 
-bool CMOpenFileDialog::DoDialog (int stringIndex, long style)
+
+bool CMOpenFileDialog::DoDialog (
+				int 								stringIndex,
+				long 								style)
 
 {
-	wxString  promptString;
-   bool continueFlag = FALSE;
-   SInt16 returnCode;
+	wxString  				promptString;
+	
+	int						filterIndex = 1,
+								link_option;
+	
+   SInt16 					returnCode;
+	
+   bool 						continueFlag = FALSE;
 	
    //gGetFileS = 0;
    //SInt16 returnCode;	
@@ -485,14 +523,18 @@ bool CMOpenFileDialog::DoDialog (int stringIndex, long style)
 								//wxFD_MULTIPLE | wxFD_OPEN);
    
    m_wxFileDialog = &dialog;
+	
+   if (gProcessorCode == kOpenImageFileProcessor)
+		filterIndex = gImageFileFilterIndex;
     
-   dialog.Reparent (m_parent);
+   //dialog.Reparent (m_parent);
+   //dialog.Reparent (NULL);
 	
    dialog.SetMaxSize (wxSize (1000, 500));
    dialog.SetMinSize (wxSize (600, 300));
    //wxString wildcard (&gTextString[1], wxConvUTF8);
    dialog.SetWildcard (wildcard);
-   dialog.SetFilterIndex (1);
+   dialog.SetFilterIndex (filterIndex);
    
 			// Create additional panel in the file dialog window
 	
@@ -521,26 +563,57 @@ bool CMOpenFileDialog::DoDialog (int stringIndex, long style)
    #endif
 	*/
    dialog.SetDirectory (gDefaultDataDirectory);
+	/*
+			// Note:  This did not work
+	#if defined multispec_wxlin
+				// Move open file dialog box to center of main frame.
+				// Only need to do this for multispec online
 	
+		wxPoint	newOrig;
+	
+		int		dialogHeight,
+					dialogWidth,
+					mainFrameHeight,
+					mainFrameWidth;
+	
+		GetMainFrame()->GetClientSize (&mainFrameWidth, &mainFrameHeight);
+		dialog.GetSize (&dialogWidth, &dialogHeight);
+	
+		newOrig.x = (mainFrameWidth - dialogWidth) / 2;
+		//newOrig.x = MAX (0, newOrig.x);
+		newOrig.x = 0;
+		newOrig.y = (mainFrameHeight - dialogHeight) / 2;
+		newOrig.y = MAX (0, newOrig.y);
+	
+		dialog.SetPosition (newOrig);
+	
+		int numberChars = sprintf ((char*)gTextString3,
+				" LImageFrame:OnInitDialog (): %d, %d, %d, %d, %d, %d%s",
+				mainFrameWidth,
+				mainFrameHeight,
+				dialogWidth,
+				dialogHeight,
+				newOrig.x,
+				newOrig.y,
+				gEndOfLine);
+		ListString ((char*)gTextString3, numberChars, gOutputTextH);
+	#endif
+	*/
    returnCode = dialog.ShowModal();
       
    if (returnCode == wxID_OK) 
 		{
       wxWindow * const extra = dialog.GetExtraControl ();
       
-      if (wxDynamicCast(extra, MyExtraPanel) != NULL) 
+      if (wxDynamicCast (extra, MyExtraPanel) != NULL)
 			{
          MyExtraPanel* extra_panel = (MyExtraPanel*)extra;
 			
-			int listOption = extra_panel->m_list->GetSelection();
-			gGetFileImageType = 0;
-
-         if (listOption == 1)
-            gGetFileImageType = kMultispectralImageType;
-
-         else if (listOption == 2)
-            gGetFileImageType = kThematicImageType;
- 
+            	// Save the filter index that was used.
+			
+  			if (gProcessorCode == kOpenImageFileProcessor)
+   			gImageFileFilterIndex = dialog.GetFilterIndex ();
+			
  			if (style &= wxFD_MULTIPLE)
             dialog.GetPaths (m_paths);
          else 
@@ -549,9 +622,12 @@ bool CMOpenFileDialog::DoDialog (int stringIndex, long style)
          wxArrayString filenames;
          m_wxFileDialog->GetFilenames (filenames);
 			
-         int link_option = extra_panel->m_link->GetSelection ();
+         		// Check if message needs to be displayed to the user to verify
+         		// whether multiple files should be linked.
+			
          if (filenames.size() > 1)
          	{
+         	link_option = extra_panel->m_link->GetSelection ();
           	if (link_option <= 0)
 					{
 							// More than 1 files selected, ask if want to link them
@@ -560,15 +636,53 @@ bool CMOpenFileDialog::DoDialog (int stringIndex, long style)
 														wxT("Link Images"),
 														wxYES_NO | wxCENTRE | wxSTAY_ON_TOP))
 						{
-						extra_panel->m_linkOptionSelectionDataCode = 0;
-						extra_panel->SetImageLinkToTrue ();
+						extra_panel->m_link->SetSelection (1);
+						//extra_panel->m_linkOptionSelectionDataCode = 2;
+						//extra_panel->SetImageLinkToTrue ();
 						
 						}	// end "if (wxYES == wxMessageBox (..."
 					
 					}	// end "if (link_option <= 0)"
-					
+				
 				}	// end "if (filenames.size() > 1)"
 			
+					// Note that event is not used in OnSelectokLinkOption
+			
+			wxCommandEvent event;
+         extra_panel->OnSelendokLinkOption (event);
+			/*
+         link_option = extra_panel->m_linkOptionSelectionDataCode;
+         if (filenames.size() > 1)
+         	{
+          	if (link_option <= 1)
+					{
+							// More than 1 files selected, ask if want to link them
+					
+					if (wxYES == wxMessageBox (wxT("Multiple files selected. Link them together?"),
+														wxT("Link Images"),
+														wxYES_NO | wxCENTRE | wxSTAY_ON_TOP))
+						{
+						extra_panel->m_linkOptionSelectionDataCode = 2;
+						extra_panel->SetImageLinkToTrue ();
+						
+						}	// end "if (wxYES == wxMessageBox (..."
+					
+					}	// end "if (link_option <= 1)"
+			 
+				else if ((link_option == 1 && !m_showLinkPopupMenuFlag) ||
+							(link_option == 2 && m_showLinkPopupMenuFlag))
+					{
+							// Adding this since 'SetImageLinkToTrue' is not being called
+							// in the multispec_wxmac version.
+					
+					extra_panel->m_linkOptionSelectionDataCode = 2;
+					extra_panel->SetImageLinkToTrue ();
+					
+					}	// end "if (link_option == 1)"
+			 
+				}	// end "if (filenames.size() > 1)"
+			*/
+			/*
 			else	// filenames.size() == 1
 				{
 				if (link_option == 1)
@@ -582,7 +696,20 @@ bool CMOpenFileDialog::DoDialog (int stringIndex, long style)
 					}	// end "if (link_option == 1)"
 				
 				}	// end "else filenames.size() == 1"
+			*/
+					// Get the image type.
+			
+			m_imageType = extra_panel->m_list->GetSelection ();
+			
+			//int listOption = extra_panel->m_list->GetSelection();
+			gGetFileImageType = 0;
 
+         if (m_imageType == 1)
+            gGetFileImageType = kMultispectralImageType;
+
+         else if (m_imageType == 2)
+            gGetFileImageType = kThematicImageType;
+			
 			continueFlag = TRUE;
 			
 			}	// end " if (wxDynamicCast(extra, MyExtraPanel) != NULL)"
@@ -620,9 +747,10 @@ Boolean CMOpenFileDialog::DoModal ()
 
 /*
 void CMOpenFileDialog::OnInitDialog (wxInitDialogEvent& event)
+
 {
-    m_wxFileDialog->OnInitDialog(event);
-    m_wxFileDialog->CenterOnParent();
+    m_wxFileDialog->OnInitDialog (event);
+    m_wxFileDialog->CenterOnParent ();
     
 }
 */

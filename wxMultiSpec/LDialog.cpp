@@ -14,7 +14,7 @@
 //
 //	Authors:					Abdur Rahman Maud, Larry L. Biehl
 //
-//	Revision date:			11/16/2018
+//	Revision date:			01/30/2019
 //
 //	Language:				C++
 //
@@ -36,11 +36,18 @@
 #include "LDialog.h"
 #include "LClassesDialog.h"
 #include "LImage_dialog.cpp"
+#include "LStatusDialog.h"
 #include "wx/wx.h"
 #include "wx/textctrl.h"
 #include "wx/msgdlg.h"
 #include "wx/radiobut.h"
 #include "wx/checkbox.h"
+
+
+
+BEGIN_EVENT_TABLE (CMDialog, wxDialog)
+	EVT_CHAR_HOOK (CMDialog::OnCharHook)
+END_EVENT_TABLE ()
 
 
 CMDialog::CMDialog ()
@@ -157,12 +164,6 @@ CMDialog::~CMDialog ()
 	m_dialogPanel = NULL;
 	
 }	// end "~CMDialog"
-
-
-
-BEGIN_EVENT_TABLE (CMDialog, wxDialog)
-	EVT_CHAR_HOOK (CMDialog::OnCharHook)
-END_EVENT_TABLE ()
 
 
 
@@ -1134,12 +1135,24 @@ void CMDialog::OnCharHook (
 	if (event.GetKeyCode () == WXK_RETURN || event.GetKeyCode () == WXK_NUMPAD_ENTER)
 		{
 		if (Validate () && TransferDataFromWindow ())
-			this->EndModal (wxID_OK);
+			EndModal (wxID_OK);
 		
 		}	// end "if (event.GetKeyCode () == WXK_RETURN || ..."
 	
+	#if defined multispec_wxlin
+		else if (gProcessorCode == kClusterProcessor)
+			{
+			if (event.GetKeyCode () == WXK_ESCAPE && gStatusDialogPtr != NULL)
+				((CShortStatusDlg*)gStatusDialogPtr)->
+														m_canceledCommandInitiatedFlag = TRUE;
+			
+			event.Skip ();
+			
+			}	// end "else if (gProcessorCode == kClusterProcessor)"
+	#endif
+	
 	else
-		event.Skip();
+		event.Skip ();
 	
 }	// end "OnCharHook"	
 

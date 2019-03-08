@@ -173,16 +173,20 @@ CMTextFrame::~CMTextFrame() {
 }
 
 /*
-void CMTextFrame::OnFocus(wxFocusEvent& event) {
+void CMTextFrame::OnFocus (wxFocusEvent& event)
+
+{
 	CMainFrame * mainFrame = wxDynamicCast(wxTheApp->GetTopWindow(), CMainFrame);
 	if (mainFrame != NULL)
-		(mainFrame->m_closeWindowMenuItem)->Enable(false);
-	wxBell();
+		(mainFrame->m_closeWindowMenuItem)->Enable (false);
+	wxBell ();
          
 }
 */
 /*
-void CMTextFrame::OnUpdateFileSaveAs(wxUpdateUIEvent& event) {
+void CMTextFrame::OnUpdateFileSaveAs (wxUpdateUIEvent& event)
+
+{
 
 	UpdateFileOutputTextSaveAs (&event);
 	
@@ -193,23 +197,28 @@ void CMTextFrame::OnUpdateFileSaveAs(wxUpdateUIEvent& event) {
 }
 */
 
-void CMTextFrame::OnUpdateFilePrint(CCmdUI& pCmdUI) {
-    Boolean enableFlag = UpdateFileOutputTextPrint(&pCmdUI);
+void CMTextFrame::OnUpdateFilePrint (CCmdUI& pCmdUI)
+
+{
+    Boolean enableFlag = UpdateFileOutputTextPrint (&pCmdUI);
 
 			// disable until implemented.
-    pCmdUI.Enable(false);
+	
+    pCmdUI.Enable (false);
 
 }
 
 
-void CMTextFrame::OnUpdateFilePrintPreview(CCmdUI& pCmdUI) {
+void CMTextFrame::OnUpdateFilePrintPreview (CCmdUI& pCmdUI)
+
+{
 			// Disable until implemented
-    pCmdUI.Enable(false);
+    pCmdUI.Enable (false);
 
 }
 
 
-void CMTextFrame::OnUpdateFilePrintSetup(CCmdUI& pCmdUI) {
+void CMTextFrame::OnUpdateFilePrintSetup (CCmdUI& pCmdUI) {
 			// Set to false until set up.
     pCmdUI.Enable(false);
 

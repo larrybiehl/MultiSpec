@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//							 Copyright (1988-2018)
+//							 Copyright (1988-2019)
 //						(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -12,7 +12,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			10/19/2018
+//	Revision date:			02/03/2019
 //
 //	Language:				C++
 //
@@ -152,7 +152,6 @@ class CMGraphView : public wxView
     static wxPen 	s_redPen;   
     static wxPen 	s_whitePen;
     static wxFont 	s_font;
-    //static RECT       s_updateRect;
     
     
     wxMenu*		m_graphOverlayMenu;
@@ -179,7 +178,6 @@ class CMGraphView : public wxView
     void OnBinWidth(int menuID);
     void OnOverlay(int menuID);
     void OnSelectVector(int menuID);
-    Boolean UpdateGraphChannels();
     void ResetListControls();
     void UpdateListData ();
     void UpdateDataListCtrl();

@@ -1,6 +1,6 @@
 // LLegendList.cpp : implementation file
 //
-// Revised by Larry Biehl on 01/22/2019
+// Revised by Larry Biehl on 01/25/2019
 // Revised by Tsung Tai on 01/24/2019
 //
 /* Template for debugging
@@ -114,16 +114,14 @@ bool					CMLegendList::s_shiftKeyDownFlag = false;
 BEGIN_EVENT_TABLE(CMLegendList, wxListView)
  
 			// List Events
+
    EVT_LIST_ITEM_ACTIVATED (LEGEND_LIST, CMLegendList::OnLButtonDblClk)
 	EVT_LIST_BEGIN_DRAG (LEGEND_LIST, CMLegendList::OnBeginDrag)
-	//EVT_LIST_KEY_DOWN (LEGEND_LIST, CMLegendList::OnKeyDown)
    EVT_KEY_DOWN (CMLegendList::OnKeyDown)
 	EVT_KEY_UP (CMLegendList::OnKeyUp)
+  	EVT_KILL_FOCUS (CMLegendList::OnKillFocusEvent)
 	//EVT_CHAR_HOOK(CMLegendList::OnCharHook)
-			// Mouse Events
-	//EVT_MOTION(CMLegendList::OnMouseMove)
    EVT_LEFT_UP(CMLegendList::OnLButtonUp)
-	//EVT_LEFT_DOWN(CMLegendList::OnLButtonDown)
 END_EVENT_TABLE()
 
 
@@ -965,6 +963,23 @@ void CMLegendList::OnKeyUp (
 		event.Skip ();
 	
 }	// end "OnKeyUp"
+
+
+void CMLegendList::OnKillFocusEvent (wxFocusEvent& event)
+
+{
+	#if defined multispec_wxlin
+				// Only doing this for linux (gtk) since key ups for control and alt/control keys
+				// are not caught properly with wxWidgets.
+	
+		s_controlKeyDownFlag = false;
+		s_altKeyDownFlag = false;
+	#endif
+	
+	event.Skip();
+	
+}	// end "OnKillFocusEvent"
+
 
 
 /*

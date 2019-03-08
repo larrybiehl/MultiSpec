@@ -1,6 +1,6 @@
 // LLegendList.h : header file
 //
-// Revised by Larry Biehl on 01/24/2019
+// Revised by Larry Biehl on 01/25/2019
 //
 #if !defined __LLEGLIST_H__
 #	define __LLEGLIST_H__
@@ -71,6 +71,7 @@ protected:
 	void OnCharHook (wxKeyEvent& event);
 	void OnKeyDown (wxKeyEvent& event);
 	void OnKeyUp (wxKeyEvent& event);
+	void OnKillFocusEvent (wxFocusEvent& event);
 	void OnMouseMove (wxMouseEvent& event);
         /*Newly added paint functions*/
 	void paintEvent(wxPaintEvent & evt);

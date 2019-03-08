@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (2009-2018)
+//								 Copyright (2009-2019)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -20,7 +20,7 @@
 //	Brief description:	Header file for the CMChangeChannelDescriptionDlg class
 //
 //	Written By:				Abdur Rahman Maud		Date: ??/??/2013
-//	Revised By:				Larry L. Biehl			Date: 09/28/2018
+//	Revised By:				Larry L. Biehl			Date: 02/28/2019
 //	
 //------------------------------------------------------------------------------------
 
@@ -32,24 +32,21 @@
 #include "wx/wx.h"
 //#include "afxwin.h"
 
-/////////////////////////////////////////////////////////////////////////////
-// CMChangeFormatDlg dialog
-
 class CMChangeFormatDlg : public CMDialog
 
 {
-	// Construction
-	DECLARE_DYNAMIC_CLASS (CMChangeFormatDlg)
+			// Construction
+	//wxDECLARE_DYNAMIC_CLASS (CMChangeFormatDlg)
 	public:
-		CMChangeFormatDlg (); // standard constructor
-		CMChangeFormatDlg ( // standard constructor
-						wxWindow* pParent,
-						wxWindowID id = wxID_ANY,
-						const wxString& title = wxT("Set Image File Format Change Specifications"));
+				// standard constructor
+		CMChangeFormatDlg (
+						ReformatOptionsPtr		reformatOptionsPtr,
+						wxWindow* 					pParent,
+						wxWindowID 					id = wxID_ANY,
+						const wxString& 			title = wxT("Set Image File Format Change Specifications"));
 
 		Boolean DoDialog (
-					FileInfoPtr outFileInfoPtr,
-					ReformatOptionsPtr reformatOptionsPtr);
+					FileInfoPtr outFileInfoPtr);
 
 		enum
 			{
@@ -90,11 +87,11 @@ protected:
 	void OnTransformData (wxCommandEvent& event);
 	DECLARE_EVENT_TABLE()
 
-	UInt8				m_inputBandInterleaveString[64],
-						m_inputDataValueTypeString[64],
-						m_tiffMenuNameString[16];
+	UInt8				m_inputBandInterleaveString[256],
+						m_inputDataValueTypeString[256],
+						m_tiffMenuNameString[256];
 
-	static ReformatOptionsPtr s_reformatOptionsPtr;
+	ReformatOptionsPtr m_reformatOptionsPtr;
 
 	Boolean			m_channelDescriptionAllowedFlag,
 						m_channelThematicDisplayFlag,

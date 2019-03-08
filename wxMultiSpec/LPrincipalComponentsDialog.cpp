@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 // 								Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (2009-2018)
+//								 Copyright (2009-2019)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -12,7 +12,7 @@
 //
 //	Authors:					Abdur Rahman Maud, Larry L. Biehl
 //
-//	Revision date:			11/06/2018
+//	Revision date:			02/22/2019
 //
 //	Language:				C++
 //
@@ -128,51 +128,74 @@ BEGIN_EVENT_TABLE(CMPrincipalCompDialog, CMDialog)
 END_EVENT_TABLE()
  
 
-void CMPrincipalCompDialog::CreateControls()
+void CMPrincipalCompDialog::CreateControls ()
+
 {
-	/*
-   wxBitmap entireimi = wxBITMAP_PNG_FROM_DATA(entireim);
-   wxBitmap toentirei = wxBITMAP_PNG_FROM_DATA(toentire);
-   wxBitmap selectedi = wxBITMAP_PNG_FROM_DATA(selected);
-   wxBitmap bmp4i = wxBITMAP_PNG_FROM_DATA(bmp4);
-	*/
    wxBoxSizer* bSizer95;
-   bSizer95 = new wxBoxSizer(wxVERTICAL);
+   bSizer95 = new wxBoxSizer (wxVERTICAL);
 
    wxStaticBoxSizer* sbSizer14;
-   sbSizer14 = new wxStaticBoxSizer(new wxStaticBox(this, wxID_ANY, wxT("Area(s)")), wxVERTICAL);
+   sbSizer14 = new wxStaticBoxSizer (new wxStaticBox (this, wxID_ANY, wxT("Area(s)")),
+   												wxVERTICAL);
 
    wxBoxSizer* bSizer100;
-   bSizer100 = new wxBoxSizer(wxHORIZONTAL);
+   bSizer100 = new wxBoxSizer (wxHORIZONTAL);
 
-   m_radioBtn11 = new wxRadioButton(sbSizer14->GetStaticBox(), IDC_Classes, wxT("Classes:"), wxDefaultPosition, wxDefaultSize, wxRB_GROUP);
-   SetUpToolTip(m_radioBtn11, IDS_ToolTip103);  
-   bSizer100->Add(m_radioBtn11, 0, wxRESERVE_SPACE_EVEN_IF_HIDDEN | wxALIGN_CENTER | wxALL, 5);
+   m_radioBtn11 = new wxRadioButton (sbSizer14->GetStaticBox(),
+   												IDC_Classes,
+   												wxT("Classes:"),
+   												wxDefaultPosition,
+   												wxDefaultSize,
+   												wxRB_GROUP);
+   SetUpToolTip (m_radioBtn11, IDS_ToolTip103);
+   bSizer100->Add (m_radioBtn11, 0, wxRESERVE_SPACE_EVEN_IF_HIDDEN | wxALIGN_CENTER | wxALL, 5);
 
-   m_comboBox28 = new wxComboBox(sbSizer14->GetStaticBox(), IDC_ClassCombo, wxT("All"), wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_READONLY);
-   m_comboBox28->Append(wxT("All"));
-   m_comboBox28->Append(wxT("Subset..."));
-   SetUpToolTip(m_comboBox28, IDS_ToolTip103);  
-   bSizer100->Add(m_comboBox28, 0, wxRESERVE_SPACE_EVEN_IF_HIDDEN | wxALIGN_CENTER | wxALL, 5);
+   m_comboBox28 = new wxComboBox (sbSizer14->GetStaticBox(),
+   											IDC_ClassCombo,
+   											wxT("All"),
+   											wxDefaultPosition,
+   											wxDefaultSize,
+   											0,
+   											NULL,
+   											wxCB_READONLY);
+   m_comboBox28->Append (wxT("All"));
+   m_comboBox28->Append (wxT("Subset..."));
+   SetUpToolTip (m_comboBox28, IDS_ToolTip103);
+   bSizer100->Add (m_comboBox28, 0, wxRESERVE_SPACE_EVEN_IF_HIDDEN | wxALIGN_CENTER | wxALL, 5);
 
    wxBoxSizer* bSizer101;
-   bSizer101 = new wxBoxSizer(wxVERTICAL);
+   bSizer101 = new wxBoxSizer (wxVERTICAL);
 
-   m_checkBox29 = new wxCheckBox(sbSizer14->GetStaticBox(), IDC_Training, wxT("Training"), wxDefaultPosition, wxDefaultSize, 0);
-   SetUpToolTip(m_checkBox29, IDS_ToolTip217);  
-   bSizer101->Add(m_checkBox29, 0, wxRESERVE_SPACE_EVEN_IF_HIDDEN | wxALL, 5);
+   m_checkBox29 = new wxCheckBox (sbSizer14->GetStaticBox (),
+   											IDC_Training,
+   											wxT("Training"),
+   											wxDefaultPosition,
+   											wxDefaultSize,
+   											0);
+   SetUpToolTip (m_checkBox29, IDS_ToolTip217);
+   bSizer101->Add (m_checkBox29, 0, wxRESERVE_SPACE_EVEN_IF_HIDDEN | wxALL, 5);
 
-   m_checkBox30 = new wxCheckBox(sbSizer14->GetStaticBox(), IDC_Test, wxT("Test"), wxDefaultPosition, wxDefaultSize, 0);
-      SetUpToolTip(m_checkBox30, IDS_ToolTip218);  
-   bSizer101->Add(m_checkBox30, 0, wxRESERVE_SPACE_EVEN_IF_HIDDEN | wxALL, 5);
+   m_checkBox30 = new wxCheckBox (sbSizer14->GetStaticBox (),
+   											IDC_Test,
+   											wxT("Test"),
+   											wxDefaultPosition,
+   											wxDefaultSize,
+   											0);
+	SetUpToolTip (m_checkBox30, IDS_ToolTip218);
+   bSizer101->Add (m_checkBox30, 0, wxRESERVE_SPACE_EVEN_IF_HIDDEN | wxALL, 5);
 
-   bSizer100->Add(bSizer101, 0, wxRESERVE_SPACE_EVEN_IF_HIDDEN | wxEXPAND, 5);
+   bSizer100->Add (bSizer101, 0, wxRESERVE_SPACE_EVEN_IF_HIDDEN | wxEXPAND, 5);
 
-   sbSizer14->Add(bSizer100, 0, wxRESERVE_SPACE_EVEN_IF_HIDDEN | wxEXPAND, 5);
+   sbSizer14->Add (bSizer100, 0, wxRESERVE_SPACE_EVEN_IF_HIDDEN | wxEXPAND, 5);
 
-   m_radioBtn10 = new wxRadioButton(sbSizer14->GetStaticBox(), IDC_ImageArea, wxT("Image Area"), wxDefaultPosition, wxDefaultSize, 0);
-   SetUpToolTip(m_radioBtn10, IDS_ToolTip216);  
-   sbSizer14->Add(m_radioBtn10, 0, wxALL, 5);
+   m_radioBtn10 = new wxRadioButton (sbSizer14->GetStaticBox (),
+													IDC_ImageArea,
+													wxT("Image Area"),
+													wxDefaultPosition,
+													wxDefaultSize,
+													0);
+   SetUpToolTip (m_radioBtn10, IDS_ToolTip216);
+   sbSizer14->Add (m_radioBtn10, 0, wxALL, 5);
 
    wxStaticBoxSizer* sbSizer8;
    sbSizer8 = new wxStaticBoxSizer(new wxStaticBox(sbSizer14->GetStaticBox(), IDC_LineColFrame, wxT("Selected Area")), wxHORIZONTAL);
@@ -272,21 +295,22 @@ void CMPrincipalCompDialog::CreateControls()
 	
 	bSizer95->Add (gSizer13, wxSizerFlags(0).Expand().Border(wxLEFT|wxRIGHT, 12));
 	
-	wxSizer* standardButtonSizer = CreateButtonSizer (wxOK | wxCANCEL);
-	bSizer95->Add (standardButtonSizer, wxSizerFlags(0).Right());
+	//wxSizer* standardButtonSizer = CreateButtonSizer (wxOK | wxCANCEL);
+	//bSizer95->Add (standardButtonSizer, wxSizerFlags(0).Right());
+	CreateStandardButtons (bSizer95);
 
-   this->SetSizer (bSizer95);
-   this->Layout();
-   bSizer95->Fit(this);
+	SetSizerAndFit (bSizer95);
+   //Layout ();
+   //bSizer95->Fit (this);
 	
 }	// end "CreateControl"
 
 
 
 //-----------------------------------------------------------------------------
-//					 Copyright (1988-1998)
-//                                  c Purdue Research Foundation
-//					All rights reserved.
+//					 	Copyright (1988-2019)
+//            (c) Purdue Research Foundation
+//							All rights reserved.
 //
 //	Function name:		void DoDialog
 //

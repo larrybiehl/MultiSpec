@@ -1,6 +1,6 @@
 // LOpenFileDialog.h
 //
-// Revised by Larry Biehl on 01/07/2019
+// Revised by Larry Biehl on 02/05/2019
 //
 #ifndef __FILEDLG__
 #	define __FILEDLG__
@@ -99,7 +99,6 @@ public:
 	//CMOpenFileDialog(wxWindow* pParent = NULL);	// standard constructor 
 	CMOpenFileDialog (wxWindow* pParent);
 	bool DoDialog (int stringIndex, long style);
-	void OnInitDialog (wxInitDialogEvent& event);
 	//~CMOpenFileDialog();		// standard desctructor
 	wxString					GetPath() const{return m_path;}
 	wxArrayString			GetPaths();
@@ -114,8 +113,9 @@ public:
 protected:   
    void SetImageLinkToTrue (void);
    void SetImageLinkToFalse (void);
-//   void OnUpdateLinkComboboxUI(wxUpdateUIEvent& pCmdUI);
-//   DECLARE_EVENT_TABLE();
+	//void OnInitDialog (wxInitDialogEvent& event);
+	//void OnUpdateLinkComboboxUI (wxUpdateUIEvent& pCmdUI);
+   //DECLARE_EVENT_TABLE();
    wxString					m_fileName;
    wxWindow*				m_parent;
    wxFileDialog*			m_wxFileDialog;

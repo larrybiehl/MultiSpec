@@ -1,6 +1,6 @@
 // LStatisticsFrame.cpp : implementation file
 //
-// Revised by Larry Biehl on 01/16/2019
+// Revised by Larry Biehl on 02/12/2019
 //
 /*  Template for writing something to text window for debugging.             
 	int numberChars = sprintf ((char*)&gTextString3,
@@ -520,8 +520,9 @@ void CMStatisticsFrame::CreateControls2()
    fgSizer14->SetMinSize (fgSizer14->GetSize());
    fgSizer15->SetMinSize (fgSizer15->GetSize());
 	
-	this->SetSizer (bSizer233);
-	this->Layout ();
+	//SetSizer (bSizer233);
+	SetSizerAndFit (bSizer233);
+	Layout ();
 	//this->Centre( wxBOTH );
 	
 }	// end "CreateControls2"

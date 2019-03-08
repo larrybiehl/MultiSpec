@@ -1,6 +1,6 @@
 // LMainFrame.cpp
 //
-//	Revised By:			Larry L. Biehl			Date: 01/10/2019
+//	Revised By:			Larry L. Biehl			Date: 02/21/2019
 // Revised by:			Tsung Tai Yeh			Date: 10/05/2015
 
 #include "LMainFrame.h"
@@ -9,14 +9,14 @@
 
 // Toolbar icons//////
 #if defined multispec_wxlin
-	#include "res/open.xpm"
-	#include "res/save.xpm"
-	#include "res/cut.xpm"
 	#include "res/copy.xpm"
-	#include "res/paste.xpm"
-	#include "res/print.xpm"
+	#include "res/cut.xpm"
 	#include "res/help.xpm"
 	#include "res/mspec.xpm"
+	#include "res/open.xpm"
+	#include "res/paste.xpm"
+	#include "res/print.xpm"
+	#include "res/save.xpm"
 #endif
 
 #if defined multispec_wxmac
@@ -57,6 +57,10 @@ CMainFrame::CMainFrame (
 		wxDocParentFrame (manager, frame, wxID_ANY, title, pos, size, type, _T("MainFrame"))
 
 {
+	//#if defined multispec_wxlin
+	//	gControlOffset = 500;
+	//#endif
+	
    //this->SetSizeHints(wxDefaultSize, wxDefaultSize);
 	m_imageZoomCode = 0;
 	m_controlDelayFlag = TRUE;
@@ -77,9 +81,14 @@ CMainFrame::CMainFrame (
 		wxBitmap printbmp = wxBitmap(print_xpm);
 		wxBitmap helpbmp = wxBitmap(help_xpm);
 		wxBitmap overlayi = wxBITMAP_PNG_FROM_DATA(overlay);
+		/*
 		wxBitmap zoom1 = wxBITMAP_PNG_FROM_DATA(zoomx1);
 		wxBitmap zoomout = wxBITMAP_PNG_FROM_DATA(zoom_out);
 		wxBitmap zoomin = wxBITMAP_PNG_FROM_DATA(zoom_in);
+		*/
+		wxBitmap zoom1 = wxBITMAP_PNG(zoomx1);
+		wxBitmap zoomout = wxBITMAP_PNG(zoom_out);
+		wxBitmap zoomin = wxBITMAP_PNG(zoom_in);
 	#endif
 	//wxBitmap zoom1 = wxBitmap(wxT("res/zoomx1.png"), wxBITMAP_TYPE_BMP);
 	//wxBitmap zoomin = wxBitmap(wxT("res/zoom_in.bmp"), wxBITMAP_TYPE_BMP);
@@ -572,9 +581,46 @@ CMainFrame::CMainFrame (
 		m_toolBar1->AddTool (ID_FILE_PRINT, wxT("tool"), printbmp, wxNullBitmap, wxITEM_NORMAL, wxEmptyString, wxEmptyString);
 		m_toolBar1->AddTool (wxID_ABOUT, wxT("tool"), helpbmp, wxNullBitmap, wxITEM_NORMAL, wxT("Display MultiSpec Information"), wxEmptyString);
 		m_toolBar1->AddSeparator ();
+		/*
 		m_toolBar1->AddTool (ID_MAGNIFICATION, wxT("tool"), zoom1, wxNullBitmap, wxITEM_NORMAL, wxT("Zoom to X1.0 magnification"), wxEmptyString);
 		m_zoomInTool = m_toolBar1->AddTool (ID_ZOOM_IN, wxT("tool"), zoomin, wxNullBitmap, wxITEM_NORMAL, wxT("Zoom in for active image window"), wxEmptyString);
 		m_zoomOutTool = m_toolBar1->AddTool (ID_ZOOM_OUT, wxT("tool"), zoomout, wxNullBitmap, wxITEM_NORMAL, wxT("Zoom out for active image window"), wxEmptyString);
+		*/
+				// Trying buttons here now.
+	
+   	wxBitmapButton* bpButtonX1 = new wxBitmapButton (m_toolBar1,
+																				ID_MAGNIFICATION,
+																				zoom1,
+																				wxDefaultPosition,
+																				//wxDefaultSize,
+																				wxSize (32, 32),
+																				wxBORDER_NONE+wxBU_EXACTFIT);
+   	bpButtonX1->SetToolTip (wxT("Zoom image to X1.0 magnification"));
+		bpButtonX1->Bind (wxEVT_LEFT_DOWN, &CMainFrame::DoZoomToOne, this);
+		m_toolBar1->AddControl (bpButtonX1);
+	
+   	wxBitmapButton* bpButtonZoomIn = new wxBitmapButton (m_toolBar1,
+																				ID_ZOOM_IN,
+																				zoomin,
+																				wxDefaultPosition,
+																				//wxDefaultSize,
+																				wxSize (32, 32),
+																				wxBORDER_NONE+wxBU_EXACTFIT);
+   	bpButtonZoomIn->SetToolTip (wxT("Zoom into image"));
+		bpButtonZoomIn->Bind (wxEVT_LEFT_DOWN, &CMainFrame::DoZoomIn, this);
+		m_toolBar1->AddControl (bpButtonZoomIn);
+	
+   	wxBitmapButton* bpButtonZoomOut = new wxBitmapButton (m_toolBar1,
+																				ID_ZOOM_OUT,
+																				zoomout,
+																				wxDefaultPosition,
+																				//wxDefaultSize,
+																				wxSize (32, 32),
+																				wxBORDER_NONE+wxBU_EXACTFIT);
+		//SetUpToolTip (bpButton, IDS_ToolTip40);
+   	bpButtonZoomOut->SetToolTip (wxT("Zoom out of image"));
+		bpButtonZoomOut->Bind (wxEVT_LEFT_DOWN, &CMainFrame::DoZoomOut, this);
+		m_toolBar1->AddControl (bpButtonZoomOut);
 
 		m_zoomText = new wxStaticText (m_toolBar1, ID_ZOOMINFO, wxT(""), wxDefaultPosition, wxSize (50, -1));
 		m_toolBar1->AddControl (m_zoomText, wxT("add a fixed text"));
@@ -607,7 +653,7 @@ CMainFrame::CMainFrame (
 		m_toolBar1->Realize();
 		Maximize (true);
 	
-		m_toolBar1->Bind (wxEVT_LEFT_DOWN, &CMainFrame::OnZoomInMouseDown, this);
+		//m_toolBar1->Bind (wxEVT_LEFT_DOWN, &CMainFrame::OnZoomInMouseDown, this);
 	#endif	// defined multispec_wxlin
 	
 	SetFont (*wxSMALL_FONT);
@@ -820,12 +866,14 @@ BEGIN_EVENT_TABLE(CMainFrame, wxDocParentFrame)
 
 	//EVT_TOOL_RCLICKED_RANGE(ID_ZOOM_IN, ID_MAGNIFICATION, CMainFrame::OnZoomInMouseDown2)
 	#if defined multispec_wxlin
-		EVT_TOOL_RANGE (ID_ZOOM_IN, ID_MAGNIFICATION, CMainFrame::OnZoom)
+		//EVT_TOOL_RANGE (ID_ZOOM_IN, ID_MAGNIFICATION, CMainFrame::OnZoom)
 		EVT_TOOL (ID_OVERLAY, CMainFrame::OnShowOverlay)
 	#endif
+	/*
 	#if defined multispec_wxmac
 		EVT_TOOL_RANGE (ID_MAGNIFICATION, ID_MAGNIFICATION, CMainFrame::OnZoom)
 	#endif
+	*/
 	EVT_MENU_RANGE(ID_CLEAROVERLAYMENUITEMSTART, ID_CLEAROVERLAYMENUITEMEND, CMainFrame::OnEditClearSelectedOverlay)
 	EVT_MENU_RANGE(ID_SHOWOVERLAYMENUITEMSTART, ID_SHOWOVERLAYMENUITEMEND, CMainFrame::OnOverlaySelection)
 
@@ -860,6 +908,60 @@ void CMainFrame::ActiveViewUpdate (wxCommandEvent& event)
     event.Skip();
 }
 */
+
+
+void CMainFrame::DoZoomIn (
+				wxMouseEvent&							event)
+
+{
+	SetZoomCode (ID_ZOOM_IN);
+	gActiveImageViewCPtr->ZoomIn ();
+	
+	gActiveImageViewCPtr->m_frame->m_frameMaximized = false;
+	
+			// Prepare for case when user holds mouse button down.
+	
+	SetNextControlTime (gControlOffset);
+	
+	event.Skip ();
+
+}	// end "DoZoomIn"
+
+
+
+void CMainFrame::DoZoomOut (
+				wxMouseEvent&							event)
+
+{
+	SetZoomCode (ID_ZOOM_OUT);
+	gActiveImageViewCPtr->ZoomOut ();
+	
+	gActiveImageViewCPtr->m_frame->m_frameMaximized = false;
+	
+			// Prepare for case when user holds mouse button down.
+	
+	SetNextControlTime (gControlOffset);
+	
+	event.Skip ();
+
+}	// end "DoZoomIn"
+
+
+
+void CMainFrame::DoZoomToOne (
+				wxMouseEvent&							event)
+
+{
+	SetZoomCode (ID_MAGNIFICATION);
+	gActiveImageViewCPtr->ZoomSize ();
+	
+	gActiveImageViewCPtr->m_frame->m_frameMaximized = false;
+	
+	SetZoomCode (0);
+	
+	event.Skip ();
+
+}	// end "DoZoomToOne"
 
 
 Boolean CMainFrame::GetCancelOperationEventFlag ()
@@ -935,7 +1037,7 @@ void CMainFrame::OnChar (
 		if (event.GetKeyCode() == WXK_ESCAPE)
 			{
 			m_cancelOperationEventFlag = TRUE;
-			event.Skip();
+			event.Skip ();
 			
 			}	// end "if (event.GetKeyCode() == WXK_ESCAPE)"
 			
@@ -952,7 +1054,9 @@ void CMainFrame::OnChar (
 
 
 
-void CMainFrame::OnClose() {
+void CMainFrame::OnClose ()
+
+{
 	//    if (gProcessorCode != -1)
 	//            ((CMultiSpecApp*) AfxGetApp())->ExitApplication();
 	//
@@ -1357,17 +1461,18 @@ void CMainFrame::OnIdle (
 		ListString ((char*)&gTextString3, numberChars, gOutputTextH);
 		*/
 		wxMouseState currentMouseState = wxGetMouseState ();
-		if (currentMouseState.LeftIsDown())
+		if (currentMouseState.LeftIsDown ())
 			{
 			m_controlDelayFlag = !wxGetKeyState (WXK_CONTROL);
-			UInt32 currentTickCount = GetTickCount();
+			time_t currentTickCount = GetTickCount ();
 			/*
 			if (currentTickCount >= m_nextControlTime)
 				{
 				int numberChars3 = sprintf ((char*)&gTextString3,
-											" CMainFrame::OnIdle: (currentTickCount >= m_nextControlTime): %d, %d%s",
+											" CMainFrame::OnIdle: (currentTickCount >= m_nextControlTime): %d, %d, %d%s",
 											currentTickCount, 
 											m_nextControlTime,
+											gControlOffset,
 											gEndOfLine);
 				ListString ((char*)&gTextString3, numberChars3, gOutputTextH);
 				}
@@ -1375,9 +1480,10 @@ void CMainFrame::OnIdle (
 			else
 				{
 				int numberChars4 = sprintf ((char*)&gTextString3,
-											" CMainFrame::OnIdle: (currentTickCount < m_nextControlTime): %d, %d%s",
+											" CMainFrame::OnIdle: (currentTickCount < m_nextControlTime): %d, %d, %d%s",
 											currentTickCount, 
 											m_nextControlTime,
+											gControlOffset,
 											gEndOfLine);
 				ListString ((char*)&gTextString3, numberChars4, gOutputTextH);
 				}
@@ -1440,7 +1546,9 @@ void CMainFrame::OnIdle (
 }	// end "OnIdle"
 
 
-void CMainFrame::OnOpenProject(wxCommandEvent& event) {
+void CMainFrame::OnOpenProject(wxCommandEvent& event)
+
+{
     gProcessorCode = kOpenProjectFileProcessor;
 
     OpenProjectFile(NULL);
@@ -1450,20 +1558,28 @@ void CMainFrame::OnOpenProject(wxCommandEvent& event) {
 
     gProcessorCode = 0;
 
-} // end "OnOpenProject"
+}	// end "OnOpenProject"
 
 
-void CMainFrame::OnProjSaveProject(wxCommandEvent& event) {
+
+void CMainFrame::OnProjSaveProject(wxCommandEvent& event)
+
+{
 
     SaveProjectFile(0);
 
 } // end "OnProjSaveProject"
 
-void CMainFrame::OnProjSaveProjectAs(wxCommandEvent& event) {
+
+
+void CMainFrame::OnProjSaveProjectAs(wxCommandEvent& event)
+
+{
 
     SaveProjectFile(1);
 
 } // end "OnProjSaveProjectAs"
+
 
 
 void CMainFrame::OnProjClearStats(wxCommandEvent& event) {
@@ -3402,7 +3518,7 @@ void CMainFrame::OnWindowShowCoordinateView (wxCommandEvent& event)
 }	// end "OnWindowShowCoordinateView"
 
 
-
+/*
 void CMainFrame::OnZoom (
 				wxCommandEvent& 					event)
 
@@ -3416,9 +3532,9 @@ void CMainFrame::OnZoom (
 	      activechild->OnZoom(event);
 		}
 	*/
-	if (gActiveImageViewCPtr != NULL)
-		{
-		CMImageFrame* activechild = (CMImageFrame*) (gActiveImageViewCPtr->GetFrame());
+	//if (gActiveImageViewCPtr != NULL)
+	//	{
+	//	CMImageFrame* activechild = (CMImageFrame*) (gActiveImageViewCPtr->GetFrame());
 		/*
 		int numberChars = sprintf ((char*)&gTextString3,
 												" CMainFrame::OnZoom: (activechild): %d%s", 
@@ -3426,6 +3542,7 @@ void CMainFrame::OnZoom (
 												gEndOfLine);
 		ListString ((char*)&gTextString3, numberChars, gOutputTextH);	
 		*/
+		/*
 		if (activechild != NULL)
 			{
 			if (event.GetId() == ID_ZOOM_IN || event.GetId() == ID_ZOOM_OUT)
@@ -3438,7 +3555,7 @@ void CMainFrame::OnZoom (
 		}	// end "if (gActiveImageViewCPtr != NULL)"
 		
 }	// end "OnZoom"
-
+*/
 
 
 void CMainFrame::OnZoomInMouseDown (wxMouseEvent& event)
@@ -3459,17 +3576,11 @@ void CMainFrame::OnZoomInMouseDown (wxMouseEvent& event)
 
 }	// end "OnZoomInMouseDown"
 
-
+/*
 void CMainFrame::OnZoomInMouseDown2 (wxCommandEvent& event)
 
 {
 	//CMImageView* currentview = wxDynamicCast(GetDocumentManager()->GetCurrentView(), CMImageView);
-	/*
-	int numberChars = sprintf ((char*)&gTextString3,
-												" CMainFrame::OnZoomInMouseDown2: (enter EVT_TOOL_RCLICKED): %s", 
-												gEndOfLine);
-	ListString ((char*)&gTextString3, numberChars, gOutputTextH);	
-	*/
 	if (gActiveImageViewCPtr != NULL)
 		{
 		CMImageFrame* activechild = (CMImageFrame*) (gActiveImageViewCPtr->GetFrame());
@@ -3484,25 +3595,26 @@ void CMainFrame::OnZoomInMouseDown2 (wxCommandEvent& event)
 		}
 
 }		// end "OnZoomInMouseDown2"
-
+*/
 
 void CMainFrame::OnShowOverlay (wxCommandEvent& event)
 
 {
-	//wxKeyboardState	keyBoardState;
-	//m_optionOverlayFlag = (keyBoardState.GetModifiers() == wxMOD_SHIFT);
 	m_optionOverlayFlag = false; // Flag to see if option key is pressed
-	m_optionOverlayFlag = wxGetKeyState(WXK_SHIFT);
+	m_optionOverlayFlag = wxGetKeyState (WXK_SHIFT);
+	
 	wxMenu* tooloverlay;
-	tooloverlay = new wxMenu();
+	tooloverlay = new wxMenu ();
 	wxMenuItem* m_overlaymenu1;
-	m_overlaymenu1 = new wxMenuItem(tooloverlay, ID_SHOWOVERLAYMENUITEMSTART, wxString(wxT("No overlays")), wxT(""), wxITEM_NORMAL);
-	tooloverlay->Append(m_overlaymenu1);
+	m_overlaymenu1 = new wxMenuItem (tooloverlay, ID_SHOWOVERLAYMENUITEMSTART, wxString(wxT("No overlays")), wxT(""), wxITEM_NORMAL);
+	tooloverlay->Append (m_overlaymenu1);
 	wxMenuItem* m_overlaymenu2;
-	m_overlaymenu2 = new wxMenuItem(tooloverlay, ID_SHOWOVERLAYMENUITEMSTART + 1, wxString(wxT("All overlays")), wxT(""), wxITEM_NORMAL);
-	tooloverlay->Append(m_overlaymenu2);
-	tooloverlay->AppendSeparator();
+	m_overlaymenu2 = new wxMenuItem (tooloverlay, ID_SHOWOVERLAYMENUITEMSTART + 1, wxString(wxT("All overlays")), wxT(""), wxITEM_NORMAL);
+	tooloverlay->Append (m_overlaymenu2);
+	tooloverlay->AppendSeparator ();
+	
 			// Now go to Overlay routine to add menu items for overlays
+	
 	SetUpWindowOverlayPopUpMenu((Handle) tooloverlay, m_optionOverlayFlag);
 	#if defined multispec_wxmac
 		GetActiveFrame()->GetToolBar()->PopupMenu (tooloverlay);
@@ -3519,22 +3631,23 @@ void CMainFrame::OnOverlaySelection(wxCommandEvent& event) {
     bool continueFlag = TRUE,
             shiftKeyFlag;
 
-    selection = event.GetId() - ID_SHOWOVERLAYMENUITEMSTART + 1;
+	selection = event.GetId() - ID_SHOWOVERLAYMENUITEMSTART + 1;
 
-    shiftKeyFlag = false;
+	shiftKeyFlag = false;
 
-    if (m_optionOverlayFlag) {
-        continueFlag = OverlayControlDialog(gActiveImageWindowInfoH,
-                (SInt16) (selection - 4));
+	if (m_optionOverlayFlag)
+    	{
+		continueFlag = OverlayControlDialog (gActiveImageWindowInfoH,
+                										(SInt16)(selection - 4));
 
-    } // end "if (m_optionOverlayFlag)"
+		}	// end "if (m_optionOverlayFlag)"
 
-    if (continueFlag)
-        DoShowOverlaySelection(gActiveImageViewCPtr,
-            gActiveImageWindowInfoH,
-            (SInt16) selection,
-            m_optionOverlayFlag,
-            shiftKeyFlag);
+	if (continueFlag)
+		DoShowOverlaySelection (gActiveImageViewCPtr,
+										gActiveImageWindowInfoH,
+										(SInt16) selection,
+										m_optionOverlayFlag,
+										shiftKeyFlag);
 
     m_optionOverlayFlag = FALSE;
     gActiveImageViewCPtr->m_frame->Refresh();
@@ -3543,7 +3656,9 @@ void CMainFrame::OnOverlaySelection(wxCommandEvent& event) {
 }	// end "OnOverlaySelection"
 
 
-void CMainFrame::OnAbout (wxCommandEvent& event)
+
+void CMainFrame::OnAbout (
+				wxCommandEvent& 					event)
 
 {
 	#if defined multispec_wxlin
@@ -3552,10 +3667,16 @@ void CMainFrame::OnAbout (wxCommandEvent& event)
 	#if defined multispec_wxmac
 		LAbout dlg (NULL);
 	#endif
-    dlg.ShowModal();
-}
+	dlg.ShowModal ();
+	
+}	// end "OnAbout"
 
-void CMainFrame::OnShowToolTip(wxCommandEvent& event){
+
+
+void CMainFrame::OnShowToolTip (
+				wxCommandEvent& 					event)
+
+{
    wxToolTip* globalToolTip = new wxToolTip(wxT(""));
    if (m_tooltipFlag == TRUE){
       globalToolTip->Enable(false);

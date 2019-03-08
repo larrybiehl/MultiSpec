@@ -12,7 +12,7 @@
 //
 //	Authors:					Larry L. Biehl, Abdur Rachman Maud
 //
-//	Revision date:			01/18/2019
+//	Revision date:			03/01/2019
 //
 //	Language:				C++
 //
@@ -92,9 +92,7 @@ CMImageCanvas::CMImageCanvas (
    SetVirtualSize (initsize);
    size_h = initsize.GetHeight ();
    size_w = initsize.GetWidth ();
-   SetScrollRate (1, 1);	// 10, 10
-   updatedbmp = true;
-	m_displayImageFlag = true;
+   SetScrollRate (1, 1);	// 10, 10	m_displayImageFlag = true;
    m_featureListShowFlag = false;
    m_dataListShowFlag = false;
    m_LastSelectionPoint = wxPoint (0, 0);
@@ -522,7 +520,7 @@ void CMImageCanvas::OnLeaveImageWindow (
 				wxMouseEvent&						event)
 
 {
-   if (!HasCapture()) 
+   if (!HasCapture() && m_View != NULL)
 		m_View->UpdateCursorCoordinates ();
 		
 }	// end "OnLeaveImageWindow"
@@ -811,8 +809,11 @@ void CMImageCanvas::OnPaint (
    if (m_View == NULL)
 																								return;
 	
+	wxRect updateRect;
+	
 	int xx, yy;
 	double m_zoom = m_View->m_Scale;
+	
 	//wxSize mframesize = (this->GetParent())->GetClientSize ();
 	
 			// Shifts the device origin so we don't have to worry about the current
@@ -834,13 +835,15 @@ void CMImageCanvas::OnPaint (
 			// Sets the bg brush used in Clear(). Default:wxTRANSPARENT_BRUSH
 
 	dc.SetBackground (wxBrush (*wxWHITE));
+		
+	updateRect = GetUpdateClientRect ();
 	
-   if (updatedbmp)
-		m_View->OnDraw (&dc);
+	m_View->s_updateRect.left = updateRect.GetLeft ();
+	m_View->s_updateRect.right = updateRect.GetRight ();
+	m_View->s_updateRect.top = updateRect.GetTop ();
+	m_View->s_updateRect.bottom = updateRect.GetBottom ();
 	
-	else
-				// Next time call copy offscreenimage
-		updatedbmp = true;
+	m_View->OnDraw (&dc);
 	
 	wxBitmap my_image (m_View->m_ScaledBitmap);
 	//wxBitmap my_image (*m_View->m_ScaledBitmapPtr);
@@ -889,9 +892,9 @@ void CMImageCanvas::OnScrollChanged (
 	m_View->ScrollChanged ();
 	wxPoint scrollPos = GetScrollPosition ();
 	wxRect displayRect = m_View->m_Canvas->GetImageDisplayRect (scrollPos);
-	#if defined multispec_wxmac
+	//#if defined multispec_wxmac
 		m_View->m_Canvas->Scroll (scrollPos.x, scrollPos.y);
-	#endif
+	//#endif
 	
 	m_View->m_Canvas->Refresh (false, &displayRect);
 

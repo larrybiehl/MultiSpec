@@ -1,6 +1,6 @@
 // LReformatTransformDialog.cpp : implementation file
 //                   
-// Revised by Larry Biehl on 11/16/2018
+// Revised by Larry Biehl on 02/28/2019
 //
 #include "SMultiSpec.h" 
 #include "LReformatTransformDialog.h"
@@ -8,91 +8,108 @@
 
 //#include  "SExternalGlobals.h"
 
-extern Boolean GetDefaultBandRatio(
-        WindowInfoPtr windowInfoPtr,
-        FileInfoPtr fileInfoPtr,
-        ReformatOptionsPtr reformatOptionsPtr);
+extern Boolean GetDefaultBandRatio (
+        WindowInfoPtr 				windowInfoPtr,
+        FileInfoPtr 					fileInfoPtr,
+        ReformatOptionsPtr 		reformatOptionsPtr);
 
 
 
-CMReformatTransformDlg::CMReformatTransformDlg(wxWindow* pParent, wxWindowID id, const wxString& title /*=NULL*/)
-: CMDialog(CMReformatTransformDlg::IDD, pParent, title) {
-    //{{AFX_DATA_INIT(CMReformatTransform)
-    m_adjustDivisor = 0;
-    m_adjustFactor = 0;
-    m_adjustOffset = 0;
-    m_transformFactor = 0;
-    m_transformOffset = 0;
-    m_denominatorString = "";
-    m_numeratorString = "";
-    m_scaleFactor = 0;
-    m_channelSelection = -1;
-    m_minimumNumberBits = 1;
-    m_minSelectedNumberBits = 8;
-    m_transformCode = -1;
-    m_functionFactor = 1;
-    m_kthSmallestElement = 1;
-    m_functionCode = -1;
-    m_adjustSelectedChannelsFactor = -1.;
-    m_adjustSelectedChannel = 1;
-    //}}AFX_DATA_INIT 	
+BEGIN_EVENT_TABLE (CMReformatTransformDlg, CMDialog)
+	EVT_INIT_DIALOG(CMReformatTransformDlg::OnInitDialog)
+	EVT_RADIOBUTTON(IDC_AdjustSelectedChannels, CMReformatTransformDlg::OnAdjustSelectedChannels)
+	EVT_RADIOBUTTON(IDC_RT_AlgebraicTransformation, CMReformatTransformDlg::OnRTAlgebraicTransformation)
+	EVT_RADIOBUTTON(IDC_RT_Eigenvectors, CMReformatTransformDlg::OnRTEigenvectors)
+	EVT_RADIOBUTTON(IDC_RT_FunctionOfChannels, CMReformatTransformDlg::OnRTFunctionOfChannels)
+	EVT_RADIOBUTTON(IDC_RT_NoTransformation, CMReformatTransformDlg::OnRTNoTransformation)
+	EVT_COMBOBOX(IDC_EV_Eigenvectors, CMReformatTransformDlg::OnSelendokEVEigenvectors)
+	EVT_COMBOBOX(IDC_ReformatFunctions, CMReformatTransformDlg::OnSelendokReformatFunctions)
+	EVT_RADIOBUTTON(IDC_AdjustSelectedChannelsbyChannel, CMReformatTransformDlg::OnAdjustSelectedChannelsByChannel)
+END_EVENT_TABLE ()
 
-    m_maxAdjustOffset = SInt16_MAX;
-    m_maxAdjustFactor = SInt16_MAX;
-    m_maxAdjustDivisor = SInt16_MAX;
 
-    m_maxValue = SInt16_MAX;
-    m_minValue = SInt16_MAX;
 
-    m_denominatorStringPtr = NULL;
-    m_numeratorStringPtr = NULL;
+CMReformatTransformDlg::CMReformatTransformDlg (
+				ReformatOptionsPtr 		reformatOptionsPtr,
+				wxWindow* 					pParent,
+				wxWindowID 					id,
+				const wxString& 			title /*=NULL*/)
+		: CMDialog(CMReformatTransformDlg::IDD, pParent, title)
 
-    m_initializedFlag = CMDialog::m_initializedFlag;
+	{
+	m_reformatOptionsPtr = reformatOptionsPtr;
+	m_adjustDivisor = 0;
+	m_adjustFactor = 0;
+	m_adjustOffset = 0;
+	m_transformFactor = 0;
+	m_transformOffset = 0;
+	m_denominatorString = "";
+	m_numeratorString = "";
+	m_scaleFactor = 0;
+	m_channelSelection = -1;
+	m_minimumNumberBits = 1;
+	m_minSelectedNumberBits = 8;
+	m_transformCode = -1;
+	m_functionFactor = 1;
+	m_kthSmallestElement = 1;
+	m_functionCode = -1;
+	m_adjustSelectedChannelsFactor = -1.;
+	m_adjustSelectedChannel = 1;
 
-    if (m_initializedFlag) {
-        try {
-            //	Set the algebraic transform descriptions.	
-            wxString m_denomBufString(wxStringBuffer(m_denominatorString, 256));
-            wxString m_numermBufString(wxStringBuffer(m_numeratorString, 256));
-            m_denominatorStringPtr = strdup(m_denomBufString);
-            m_numeratorStringPtr = strdup(m_numermBufString);
+	m_maxAdjustOffset = SInt16_MAX;
+	m_maxAdjustFactor = SInt16_MAX;
+	m_maxAdjustDivisor = SInt16_MAX;
+
+	m_maxValue = SInt16_MAX;
+	m_minValue = SInt16_MAX;
+
+	//m_denominatorStringPtr = NULL;
+	//m_numeratorStringPtr = NULL;
+
+	m_initializedFlag = CMDialog::m_initializedFlag;
+	/*
+	if (m_initializedFlag)
+	 	{
+		try
+		  	{
+            	//	Set the algebraic transform descriptions.
+			
+			wxString denomBufString (wxStringBuffer (m_denominatorString, 256));
+			wxString numermBufString (wxStringBuffer (m_numeratorString, 256));
+			m_denominatorStringPtr = strdup (denomBufString);
+			m_numeratorStringPtr = strdup (numermBufString);
            
-        } catch (int e) {
-            m_initializedFlag = FALSE;
+        	}
+		catch (int e)
+			{
+			m_initializedFlag = FALSE;
 
-        }
-        //END_CATCH_ALL
-    } // end "if (m_initializedFlag)"
+        	}
+		
+    	}	// end "if (m_initializedFlag)"
+	*/
+	CreateControls ();
+	SetSizerAndFit (bSizer84);
+	
+}	// end "CMReformatTransformDlg"
 
-    CreateControls();
-    SetSizerAndFit(bSizer84);
-} // end "CMReformatTransformDlg"
 
-CMReformatTransformDlg::~CMReformatTransformDlg() {
-    //    if (m_denominatorStringPtr != NULL)
-    //        m_denominatorString.ReleaseBuffer();
-    //
-    //    if (m_denominatorStringPtr != NULL)
-    //        m_denominatorString.ReleaseBuffer();
 
+CMReformatTransformDlg::~CMReformatTransformDlg()
+
+{
+/*
+	if (m_numeratorStringPtr != NULL)
+		free (m_numeratorStringPtr);
+	
+	if (m_denominatorStringPtr != NULL)
+		free (m_denominatorStringPtr);
+*/
 } // end "~CMReformatTransformDlg"
 
 
-BEGIN_EVENT_TABLE(CMReformatTransformDlg, CMDialog)
-EVT_INIT_DIALOG(CMReformatTransformDlg::OnInitDialog)
-EVT_RADIOBUTTON(IDC_AdjustSelectedChannels, CMReformatTransformDlg::OnAdjustSelectedChannels)
-EVT_RADIOBUTTON(IDC_RT_AlgebraicTransformation, CMReformatTransformDlg::OnRTAlgebraicTransformation)
-EVT_RADIOBUTTON(IDC_RT_Eigenvectors, CMReformatTransformDlg::OnRTEigenvectors)
-EVT_RADIOBUTTON(IDC_RT_FunctionOfChannels, CMReformatTransformDlg::OnRTFunctionOfChannels)
-EVT_RADIOBUTTON(IDC_RT_NoTransformation, CMReformatTransformDlg::OnRTNoTransformation)
-EVT_COMBOBOX(IDC_EV_Eigenvectors, CMReformatTransformDlg::OnSelendokEVEigenvectors)
-EVT_COMBOBOX(IDC_ReformatFunctions, CMReformatTransformDlg::OnSelendokReformatFunctions)
-EVT_RADIOBUTTON(IDC_AdjustSelectedChannelsbyChannel, CMReformatTransformDlg::OnAdjustSelectedChannelsByChannel)
-//EVT_CHAR_HOOK(CMReformatTransformDlg::OnButtonPress)
-END_EVENT_TABLE()
+void CMReformatTransformDlg::CreateControls ()
 
-
-void CMReformatTransformDlg::CreateControls()
 {
 	this->SetSizeHints(wxDefaultSize, wxDefaultSize);
 	
@@ -429,84 +446,86 @@ void CMReformatTransformDlg::CreateControls()
 	*/
 	CreateStandardButtons (bSizer84);
 	
-	this->SetSizer(bSizer84);
-	this->Layout();
+	this->SetSizer (bSizer84);
+	this->Layout ();
 	
-	this->Centre(wxBOTH);
+	this->Centre (wxBOTH);
 }
 
 	
-Boolean CMReformatTransformDlg::DoDialog(
-        UInt16* recommendNumberOfBitsPtr,
-        SInt16 bandInterleaveSelection)
+Boolean CMReformatTransformDlg::DoDialog (
+        UInt16* 					recommendNumberOfBitsPtr,
+        SInt16 					bandInterleaveSelection)
 {
-    Boolean OKFlag = FALSE;
+	Boolean OKFlag = FALSE;
 
-    SInt16 returnCode;
+	SInt16 returnCode;
 
-    UInt16 item;
+	UInt16 item;
 
 
-    // Make sure intialization has been completed.
+			// Make sure intialization has been completed.
 
-    if (!m_initializedFlag)
-        return (FALSE);
+	if (!m_initializedFlag)
+		return (FALSE);
 
-    m_bandInterleaveSelection = bandInterleaveSelection;
+	m_bandInterleaveSelection = bandInterleaveSelection;
 
-    returnCode = ShowModal();
+	returnCode = ShowModal ();
 
-    if (returnCode == wxID_OK) {
+	if (returnCode == wxID_OK)
+		{
         // Get transform data code.									
 
-        gReformatOptionsPtr->transformDataCode = m_transformCode;
+        m_reformatOptionsPtr->transformDataCode = m_transformCode;
 
         // Number to offset data values by.						
 
-        gReformatOptionsPtr->adjustOffset = m_adjustOffset;
+        m_reformatOptionsPtr->adjustOffset = m_adjustOffset;
         
         // Number to multiply data values by.					
         
-        gReformatOptionsPtr->adjustFactor = m_adjustFactor;
+        m_reformatOptionsPtr->adjustFactor = m_adjustFactor;
         
         // Number to divide data values by.						
 
-        gReformatOptionsPtr->adjustDivisor = m_adjustDivisor;
+        m_reformatOptionsPtr->adjustDivisor = m_adjustDivisor;
 
         // Output data can be signed flag.									
         // Only valid for transform code of 1.								
 
-        //		if (gReformatOptionsPtr->transformDataCode == kAdjustChannel)		
-        //			gReformatOptionsPtr->signedOutputDataFlag = m_signedOutputDataFlag;
+        //		if (m_reformatOptionsPtr->transformDataCode == kAdjustChannel)
+        //			m_reformatOptionsPtr->signedOutputDataFlag = m_signedOutputDataFlag;
 
-        //		else		// gReformatOptionsPtr->transformDataCode != kAdjustChannel 	
-        //			gReformatOptionsPtr->signedOutputDataFlag = FALSE;
+        //		else		// m_reformatOptionsPtr->transformDataCode != kAdjustChannel
+        //			m_reformatOptionsPtr->signedOutputDataFlag = FALSE;
 
         // Get the list of principal component channels to create	
         // if transform code 'kCreatePCImage' has been selected.							
 
-        if (gReformatOptionsPtr->transformDataCode == kCreatePCImage) {
-            gReformatOptionsPtr->pcScaleFactor = m_scaleFactor;
-            gReformatOptionsPtr->numberPCChannels = m_localActiveNumberFeatures;
+        if (m_reformatOptionsPtr->transformDataCode == kCreatePCImage) {
+            m_reformatOptionsPtr->pcScaleFactor = m_scaleFactor;
+            m_reformatOptionsPtr->numberPCChannels = m_localActiveNumberFeatures;
 
-            if (m_channelSelection == kAllMenuItem) {
-                gReformatOptionsPtr->numberPCChannels = m_numberEigenvectors;
+            if (m_channelSelection == kAllMenuItem)
+					{
+                m_reformatOptionsPtr->numberPCChannels = m_numberEigenvectors;
                 for (item = 0; item < m_numberEigenvectors; item++)
-                    gReformatOptionsPtr->pcChannelPtr[item] = item;
+                    m_reformatOptionsPtr->pcChannelPtr[item] = item;
 
-            } // end "if (m_channelSelection == kAllMenuItem)" 
+            	} // end "if (m_channelSelection == kAllMenuItem)"
 
         } // end "if (...->transformDataCode == kCreatePCImage)" 
 
         // Decode the numerator and denominator if transform code	
         // 2 has been selected.													
 
-        if (gReformatOptionsPtr->transformDataCode == kTransformChannels) {
+        if (m_reformatOptionsPtr->transformDataCode == kTransformChannels) {
             item = 0;
 
             // Transform offset.										
 
-            gReformatOptionsPtr->transformOffset = m_transformOffset;
+            m_reformatOptionsPtr->transformOffset = m_transformOffset;
 
             // Decode the denominator.
             // Decode the numerator.
@@ -514,7 +533,7 @@ Boolean CMReformatTransformDlg::DoDialog(
 
             // Estimate recommendation for minimum number bits needed.
 
-            if (gReformatOptionsPtr->numberDenominatorTerms > 0) {
+            if (m_reformatOptionsPtr->numberDenominatorTerms > 0) {
                 if (m_transformFactor <= 10)
                     // This implies 32-bit real
                     m_minSelectedNumberBits = 32;
@@ -529,31 +548,31 @@ Boolean CMReformatTransformDlg::DoDialog(
 
             // Transform factor.										
 
-            gReformatOptionsPtr->transformFactor = m_transformFactor;
+            m_reformatOptionsPtr->transformFactor = m_transformFactor;
 
-            gReformatOptionsPtr->transformChannelPtrSetFlag = FALSE;
+            m_reformatOptionsPtr->transformChannelPtrSetFlag = FALSE;
 
         } // end "if (...->transformDataCode == kTransformChannels)"													
 
-        if (gReformatOptionsPtr->transformDataCode == kFunctionOfChannels) {
+        if (m_reformatOptionsPtr->transformDataCode == kFunctionOfChannels) {
             // Get info for function of channels.										
 
-            gReformatOptionsPtr->functionCode = m_functionCode + 1;
-            gReformatOptionsPtr->functionFactor = m_functionFactor;
-            gReformatOptionsPtr->kthSmallestValue = m_kthSmallestElement;
+            m_reformatOptionsPtr->functionCode = m_functionCode + 1;
+            m_reformatOptionsPtr->functionFactor = m_functionFactor;
+            m_reformatOptionsPtr->kthSmallestValue = m_kthSmallestElement;
             
             printf("factor:%lf, kthsmall:%d, functionCode:%d\n",m_functionFactor, m_kthSmallestElement, m_functionCode);
         } // end "if (...->transformDataCode == kFunctionOfChannels)" 												
 
-        if (gReformatOptionsPtr->transformDataCode == kAdjustChannelsByChannel) {
+        if (m_reformatOptionsPtr->transformDataCode == kAdjustChannelsByChannel) {
             // Get info for adjusting selected channels by a channel										
 
-            gReformatOptionsPtr->transformAdjustSelectedChannelsFactor = m_adjustSelectedChannelsFactor;
-            gReformatOptionsPtr->transformAdjustSelectedChannel = m_adjustSelectedChannel;
+            m_reformatOptionsPtr->transformAdjustSelectedChannelsFactor = m_adjustSelectedChannelsFactor;
+            m_reformatOptionsPtr->transformAdjustSelectedChannel = m_adjustSelectedChannel;
             
         } // end "if (...->transformDataCode == kFunctionOfChannels)" 
 
-        gReformatOptionsPtr->eigenSource = m_eigenSource;
+        m_reformatOptionsPtr->eigenSource = m_eigenSource;
         
         *recommendNumberOfBitsPtr = m_minSelectedNumberBits;
 
@@ -636,7 +655,7 @@ void CMReformatTransformDlg::OnInitDialog(wxInitDialogEvent& event)
 
     selectedItem = 0;
 
-    m_transformCode = gReformatOptionsPtr->transformDataCode;
+    m_transformCode = m_reformatOptionsPtr->transformDataCode;
 
     // Adjust Selected Channels
 
@@ -646,10 +665,10 @@ void CMReformatTransformDlg::OnInitDialog(wxInitDialogEvent& event)
     else // m_transformCode == kAdjustChannel 
         selectedItem = IDC_RT_AC_Offset;
 
-    m_adjustOffset = gReformatOptionsPtr->adjustOffset;
+    m_adjustOffset = m_reformatOptionsPtr->adjustOffset;
    
-    m_adjustFactor = gReformatOptionsPtr->adjustFactor;
-    m_adjustDivisor = gReformatOptionsPtr->adjustDivisor;
+    m_adjustFactor = m_reformatOptionsPtr->adjustFactor;
+    m_adjustDivisor = m_reformatOptionsPtr->adjustDivisor;
     
     		// Adjust Selected Channels by a Selected Channel
 
@@ -659,14 +678,14 @@ void CMReformatTransformDlg::OnInitDialog(wxInitDialogEvent& event)
     else // m_transformCode == kAdjustChannel 
         selectedItem = IDC_RT_ACbyC_Factor;
 
-    m_adjustSelectedChannelsFactor = gReformatOptionsPtr->transformAdjustSelectedChannelsFactor;
-    m_adjustSelectedChannel = gReformatOptionsPtr->transformAdjustSelectedChannel;
+    m_adjustSelectedChannelsFactor = m_reformatOptionsPtr->transformAdjustSelectedChannelsFactor;
+    m_adjustSelectedChannel = m_reformatOptionsPtr->transformAdjustSelectedChannel;
 
     		// Use transformation radio button.
 
     EigenvectorInfoExists(kNoProject, &m_eigenSource, &m_numberEigenvectors);    
      
-	m_scaleFactor = gReformatOptionsPtr->pcScaleFactor;
+	m_scaleFactor = m_reformatOptionsPtr->pcScaleFactor;
 	if (m_numberEigenvectors > 0 && m_bandInterleaveSelection != kBSQ)
     	{
 		if (m_eigenSource == 1)
@@ -688,84 +707,93 @@ void CMReformatTransformDlg::OnInitDialog(wxInitDialogEvent& event)
                 m_scaleFactor, m_eigenSource, 0);
 
         m_minSelectedNumberBits = DeterminePCMinimumNumberBits(
-                m_scaleFactor, m_eigenSource, gReformatOptionsPtr->pcChannelPtr[0]);
+                m_scaleFactor, m_eigenSource, m_reformatOptionsPtr->pcChannelPtr[0]);
 
     	}	// end "if ( m_numberEigenvectors > 0 && ...)"
 
 	else // m_numberEigenvectors <= 0 || m_bandInterleaveSelection == kBSQ
 		ShowHidePCTransformItems (dialogPtr, kHide, m_eigenSource);
 
-    m_channelSelection = kAllMenuItem;
-    m_localNumberFeatures = gReformatOptionsPtr->numberPCChannels;
+	m_channelSelection = kAllMenuItem;
+	m_localNumberFeatures = m_reformatOptionsPtr->numberPCChannels;
 
-    if (m_localNumberFeatures < m_numberEigenvectors)
-        m_channelSelection = kSubsetMenuItem;
+	if (m_localNumberFeatures < m_numberEigenvectors)
+	  m_channelSelection = kSubsetMenuItem;
 
-    m_localFeaturesPtr = (UInt16*) gReformatOptionsPtr->pcChannelPtr;
+	m_localFeaturesPtr = (UInt16*) m_reformatOptionsPtr->pcChannelPtr;
 
-    // Set feature parameters 
+			// Set feature parameters
 
-    m_localActiveNumberFeatures = m_localNumberFeatures;
-    m_localActiveFeaturesPtr = m_localFeaturesPtr;
+	m_localActiveNumberFeatures = m_localNumberFeatures;
+	m_localActiveFeaturesPtr = m_localFeaturesPtr;
 
-    // Use general algebraic transformation radio button.					
+			// Use general algebraic transformation radio button.
 
-    if (gImageFileInfoPtr->thematicType)
-        MHideDialogItem(dialogPtr, IDC_RT_AlgebraicTransformation);
+	if (gImageFileInfoPtr->thematicType)
+	  MHideDialogItem(dialogPtr, IDC_RT_AlgebraicTransformation);
 
-    if (m_transformCode != kTransformChannels)
-        ShowHideAlgebraicTransformItems(dialogPtr, kHide);
+	if (m_transformCode != kTransformChannels)
+	  ShowHideAlgebraicTransformItems(dialogPtr, kHide);
 
-    else // m_transformCode == kTransformChannels 
-        selectedItem = IDC_RT_AT_Offset;
+	else // m_transformCode == kTransformChannels 
+	  selectedItem = IDC_RT_AT_Offset;
 
-    if (!GetDefaultBandRatio(gImageWindowInfoPtr, gImageFileInfoPtr, gReformatOptionsPtr)) {
-        gReformatOptionsPtr->transformFactor = 1.;
-        gReformatOptionsPtr->transformOffset = 0.;
+	if (!m_reformatOptionsPtr->algebraicStringsLoadedFlag)
+		{
+		if (!GetDefaultBandRatio (gImageWindowInfoPtr,
+											gImageFileInfoPtr,
+											m_reformatOptionsPtr))
+			{
+			m_reformatOptionsPtr->transformFactor = 1.;
+			m_reformatOptionsPtr->transformOffset = 0.;
 
-    } // end "if (!GetDefaultBandRatio (gImageWindowInfoPtr, ..."
+			}	// end "if (!GetDefaultBandRatio (gImageWindowInfoPtr, ..."
+		
+		m_reformatOptionsPtr->algebraicStringsLoadedFlag = TRUE;
+		
+		}	// end "if (!m_reformatOptionsPtr->algebraicStringsLoadedFlag)"
 
-    m_transformOffset = gReformatOptionsPtr->transformOffset;
+	m_transformOffset = m_reformatOptionsPtr->transformOffset;
 
-    strncpy(m_numeratorStringPtr,
-            (CharPtr) & gReformatOptionsPtr->numeratorString[1],
-            gReformatOptionsPtr->numeratorString[0]);
-    m_numeratorStringPtr[gReformatOptionsPtr->numeratorString[0]] = 0;
+	strncpy (m_numeratorStringPtr,
+            (CharPtr)&m_reformatOptionsPtr->numeratorString[1],
+            m_reformatOptionsPtr->numeratorString[0]);
+	m_numeratorStringPtr[m_reformatOptionsPtr->numeratorString[0]] = 0;
 
-    strncpy(m_denominatorStringPtr,
-            (CharPtr) & gReformatOptionsPtr->denominatorString[1],
-            gReformatOptionsPtr->denominatorString[0]);
-    m_denominatorStringPtr[gReformatOptionsPtr->denominatorString[0]] = 0;
+	strncpy (m_denominatorStringPtr,
+            (CharPtr)&m_reformatOptionsPtr->denominatorString[1],
+            m_reformatOptionsPtr->denominatorString[0]);
+	m_denominatorStringPtr[m_reformatOptionsPtr->denominatorString[0]] = 0;
 
-    m_transformFactor = gReformatOptionsPtr->transformFactor;
+	m_transformFactor = m_reformatOptionsPtr->transformFactor;
 
-    // Function of channels items
+			// Function of channels items
 
-    m_functionCode = gReformatOptionsPtr->functionCode - 1;
-    m_functionFactor = gReformatOptionsPtr->functionFactor;
-    m_kthSmallestElement = gReformatOptionsPtr->kthSmallestValue;
+	m_functionCode = m_reformatOptionsPtr->functionCode - 1;
+	m_functionFactor = m_reformatOptionsPtr->functionFactor;
+	m_kthSmallestElement = m_reformatOptionsPtr->kthSmallestValue;
 
-    ShowHideFunctionChannelsItems(dialogPtr,
-            m_transformCode == kFunctionOfChannels,
-            gReformatOptionsPtr->functionCode);
+	ShowHideFunctionChannelsItems (dialogPtr,
+												m_transformCode == kFunctionOfChannels,
+												m_reformatOptionsPtr->functionCode);
 
-    if (m_transformCode == kFunctionOfChannels)
-    	{
-        selectedItem = IDC_FunctionFactor;
-        if (m_functionCode == kFunctionKthSmallestElement - 1)
-            selectedItem = IDC_kthSmallestElement;
+	if (m_transformCode == kFunctionOfChannels)
+		{
+		selectedItem = IDC_FunctionFactor;
+		if (m_functionCode == kFunctionKthSmallestElement - 1)
+			selectedItem = IDC_kthSmallestElement;
 
-    }	// end "if (m_transformCode == kFunctionOfChannels)"
+    	}	// end "if (m_transformCode == kFunctionOfChannels)"
 
     		// Make certain that all radio buttons are showing for now.
 
-    MShowDialogItem(dialogPtr, IDC_AdjustSelectedChannelsbyChannel);
-    MShowDialogItem(dialogPtr, IDC_RT_Eigenvectors);
-    MShowDialogItem(dialogPtr, IDC_RT_AlgebraicTransformation);
-    MShowDialogItem(dialogPtr, IDC_RT_FunctionOfChannels);
+	MShowDialogItem(dialogPtr, IDC_AdjustSelectedChannelsbyChannel);
+	MShowDialogItem(dialogPtr, IDC_RT_Eigenvectors);
+	MShowDialogItem(dialogPtr, IDC_RT_AlgebraicTransformation);
+	MShowDialogItem(dialogPtr, IDC_RT_FunctionOfChannels);
 
-    if (TransferDataToWindow())
-        PositionDialogWindow();
+	if (TransferDataToWindow())
+		PositionDialogWindow();
 
 			// Update the radio buttons.
 
@@ -790,20 +818,20 @@ void CMReformatTransformDlg::OnInitDialog(wxInitDialogEvent& event)
     if (gImageFileInfoPtr->thematicType)
         MHideDialogItem(dialogPtr, IDC_RT_AlgebraicTransformation);
 
-    // Set default text selection to first edit text item 
+    		// Set default text selection to first edit text item
 
     if (selectedItem > 0)
-        SelectDialogItemText(this, selectedItem, 0, SInt16_MAX);
+		SelectDialogItemText(this, selectedItem, 0, SInt16_MAX);
 
-    //return FALSE; // return TRUE  unless you set the focus to a control
-
-    //SetSizerAndFit(bSizer84);
-    this->Fit();
-    bSizer103->Layout();
+    //SetSizerAndFit (bSizer84);
+    Fit ();
+    bSizer103->Layout ();
+	
 } // end "OnInitDialog"
 
 
-void CMReformatTransformDlg::OnRTAlgebraicTransformation(wxCommandEvent& event)
+void CMReformatTransformDlg::OnRTAlgebraicTransformation (wxCommandEvent& event)
+
 {
     DialogPtr dialogPtr = this;
 
@@ -887,7 +915,7 @@ void CMReformatTransformDlg::OnSelendokEVEigenvectors(wxCommandEvent& event)
 {
 	HandleChannelsMenu(IDC_EV_Eigenvectors,
 							 kUseTransformation,
-							 (SInt16) gReformatOptionsPtr->numberPCChannels,
+							 (SInt16) m_reformatOptionsPtr->numberPCChannels,
 							 2,
 							 TRUE);
 	m_transformCode = kCreatePCImage;
@@ -1003,7 +1031,8 @@ void CMReformatTransformDlg::ShowHidePCTransformItems (
 
 
 
-bool CMReformatTransformDlg::TransferDataFromWindow()
+bool CMReformatTransformDlg::TransferDataFromWindow ()
+
 	{
 	
 	SInt16 item, numberTerms;
@@ -1049,48 +1078,58 @@ bool CMReformatTransformDlg::TransferDataFromWindow()
 	m_kthSmallestElement = wxAtoi(kthSmallestElement->GetValue());
 	m_adjustSelectedChannelsFactor = wxAtof(adjustSelectedChannelsFactor->GetValue());
 	
-	m_adjustSelectedChannel = wxAtoi(adjustSelectedChannel->GetValue());
-	m_channelSelection = channelSelection->GetSelection();
-	m_functionCode = functionCode->GetSelection();
+	m_adjustSelectedChannel = wxAtoi(adjustSelectedChannel->GetValue ());
+	m_channelSelection = channelSelection->GetSelection ();
+	m_functionCode = functionCode->GetSelection ();
 	
 	// the value of kFunctionOfChannels = 4
-	if(m_transformCode == kTransformChannels)
-	{
+	if (m_transformCode == kTransformChannels)
+		{
 		item = 0;
 		
+		strncpy (m_denominatorStringPtr, (const char*)m_denominatorString.mb_str(wxConvUTF8), 254);
 		CtoPstring ((UCharPtr)m_denominatorStringPtr,
-						(UCharPtr)gReformatOptionsPtr->denominatorString);
+						(UCharPtr)m_reformatOptionsPtr->denominatorString);
 		
 		numberTerms = DecodeAlgebraicFormula (
-														  (unsigned char*)gReformatOptionsPtr->denominatorString,
-														  gReformatOptionsPtr->coefficientsPtr,
-														  gReformatOptionsPtr->transformChannelPtr,
-														  gReformatOptionsPtr->transformOperatorPtr);
+														  (unsigned char*)m_reformatOptionsPtr->denominatorString,
+														  m_reformatOptionsPtr->coefficientsPtr,
+														  m_reformatOptionsPtr->transformChannelPtr,
+														  m_reformatOptionsPtr->transformOperatorPtr);
+		
 		if (numberTerms >= 0)
-			gReformatOptionsPtr->numberDenominatorTerms = numberTerms;
+			m_reformatOptionsPtr->numberDenominatorTerms = numberTerms;
+		
 		else		// numberTerms < 0)
 			item = IDC_RT_AT_Denominator;
-		// Decode the numerator
-		if(item == 0)
-		{
+		
+				// Decode the numerator
+		
+		if (item == 0)
+			{
+			strncpy (m_numeratorStringPtr, (const char*)m_numeratorString.mb_str(wxConvUTF8), 254);
+		
 			CtoPstring ((UCharPtr)m_numeratorStringPtr,
-							(UCharPtr)gReformatOptionsPtr->numeratorString);
+							(UCharPtr)m_reformatOptionsPtr->numeratorString);
 			numberTerms = DecodeAlgebraicFormula (
-															  (unsigned char*)gReformatOptionsPtr->numeratorString,
-															  &gReformatOptionsPtr->coefficientsPtr[
-																												 gReformatOptionsPtr->numberDenominatorTerms],
-															  &gReformatOptionsPtr->transformChannelPtr[
-																													  gReformatOptionsPtr->numberDenominatorTerms],
-															  &gReformatOptionsPtr->transformOperatorPtr[
-																														gReformatOptionsPtr->numberDenominatorTerms]);
+															  (unsigned char*)m_reformatOptionsPtr->numeratorString,
+															  &m_reformatOptionsPtr->coefficientsPtr[
+																												 m_reformatOptionsPtr->numberDenominatorTerms],
+															  &m_reformatOptionsPtr->transformChannelPtr[
+																													  m_reformatOptionsPtr->numberDenominatorTerms],
+															  &m_reformatOptionsPtr->transformOperatorPtr[
+																														m_reformatOptionsPtr->numberDenominatorTerms]);
 			
 			if (numberTerms >= 0)
-				gReformatOptionsPtr->numberNumeratorTerms = numberTerms;
-			else		// numberTerms < 0)
+				m_reformatOptionsPtr->numberNumeratorTerms = numberTerms;
+			
+			else	// numberTerms < 0)
 				item = IDC_RT_AT_Numerator;
-		}
-		if(item > 0)
-		{
+			
+			}	// end "if (item == 0)"
+		
+		if (item > 0)
+			{
 			stringID = IDS_Alert118 + abs(numberTerms) - 1;
 			
 			DisplayAlert (kErrorAlert2ID,
@@ -1100,82 +1139,96 @@ bool CMReformatTransformDlg::TransferDataFromWindow()
 							  0,
 							  NIL);
 			
-		}
-	}
+			}	// end "if (item > 0)"
+		
+		}	// end "if (m_transformCode == kTransformChannels)"
 	
 	return true;
-}
-
-bool CMReformatTransformDlg::TransferDataToWindow() {
-	wxTextCtrl* adjustDivisor = (wxTextCtrl*) FindWindow(IDC_RT_AC_Divisor);
-	wxTextCtrl* adjustFactor = (wxTextCtrl*) FindWindow(IDC_RT_AC_Factor);
-	wxTextCtrl* adjustOffset = (wxTextCtrl*) FindWindow(IDC_RT_AC_Offset);
-	wxTextCtrl* transformFactor = (wxTextCtrl*) FindWindow(IDC_RT_AT_Factor);
-	wxTextCtrl* transformOffset = (wxTextCtrl*) FindWindow(IDC_RT_AT_Offset);
-	wxTextCtrl* denominatorString = (wxTextCtrl*) FindWindow(IDC_RT_AT_Denominator);
-	wxTextCtrl* numeratorString = (wxTextCtrl*) FindWindow(IDC_RT_AT_Numerator);
-	wxTextCtrl* scaleFactor = (wxTextCtrl*) FindWindow(IDC_EV_ScaleFactor);
-	wxTextCtrl* functionFactor = (wxTextCtrl*) FindWindow(IDC_FunctionFactor);
-	wxTextCtrl* kthSmallestElement = (wxTextCtrl*) FindWindow(IDC_kthSmallestElement);
-	wxTextCtrl* adjustSelectedChannelsFactor = (wxTextCtrl*) FindWindow(IDC_RT_ACbyC_Factor);
-	wxTextCtrl* adjustSelectedChannel = (wxTextCtrl*) FindWindow(IDC_RT_ACbyC_ChannelNumber);
-	wxComboBox* channelSelection = (wxComboBox*) FindWindow(IDC_EV_Eigenvectors);
-	wxComboBox* functionCode = (wxComboBox*) FindWindow(IDC_ReformatFunctions);
-	wxStaticText* minimumNumberBits = (wxStaticText*) FindWindow(IDC_RT_EV_AllComponents);
-	wxStaticText* minSelectedNumberBits = (wxStaticText*) FindWindow(IDC_RT_EV_SelComponents);
 	
-	wxRadioButton* notransform = (wxRadioButton *) FindWindow(IDC_RT_NoTransformation);
-	wxRadioButton* adjustSelChan = (wxRadioButton *) FindWindow(IDC_AdjustSelectedChannels);
-	wxRadioButton* adjustSelChanBySelChan = (wxRadioButton *) FindWindow(IDC_AdjustSelectedChannelsbyChannel);
-	wxRadioButton* newChanFromEV = (wxRadioButton *) FindWindow(IDC_RT_Eigenvectors);
-	wxRadioButton* newChanFromFunc = (wxRadioButton *) FindWindow(IDC_RT_FunctionOfChannels);
-	wxRadioButton* NewChanFromGAlgebra = (wxRadioButton *) FindWindow(IDC_RT_AlgebraicTransformation);
+}	// end "TransferDataFromWindow"
+
+
+
+bool CMReformatTransformDlg::TransferDataToWindow ()
+
+{
+	wxTextCtrl* adjustDivisor = (wxTextCtrl*)FindWindow (IDC_RT_AC_Divisor);
+	wxTextCtrl* adjustFactor = (wxTextCtrl*)FindWindow (IDC_RT_AC_Factor);
+	wxTextCtrl* adjustOffset = (wxTextCtrl*)FindWindow (IDC_RT_AC_Offset);
+	wxTextCtrl* transformFactor = (wxTextCtrl*)FindWindow (IDC_RT_AT_Factor);
+	wxTextCtrl* transformOffset = (wxTextCtrl*)FindWindow (IDC_RT_AT_Offset);
+	wxTextCtrl* denominatorString = (wxTextCtrl*)FindWindow (IDC_RT_AT_Denominator);
+	wxTextCtrl* numeratorString = (wxTextCtrl*)FindWindow (IDC_RT_AT_Numerator);
+	wxTextCtrl* scaleFactor = (wxTextCtrl*)FindWindow (IDC_EV_ScaleFactor);
+	wxTextCtrl* functionFactor = (wxTextCtrl*)FindWindow (IDC_FunctionFactor);
+	wxTextCtrl* kthSmallestElement = (wxTextCtrl*)FindWindow (IDC_kthSmallestElement);
+	wxTextCtrl* adjustSelectedChannelsFactor = (wxTextCtrl*)FindWindow (IDC_RT_ACbyC_Factor);
+	wxTextCtrl* adjustSelectedChannel = (wxTextCtrl*)FindWindow (IDC_RT_ACbyC_ChannelNumber);
+	wxComboBox* channelSelection = (wxComboBox*)FindWindow (IDC_EV_Eigenvectors);
+	wxComboBox* functionCode = (wxComboBox*)FindWindow (IDC_ReformatFunctions);
+	wxStaticText* minimumNumberBits = (wxStaticText*)FindWindow (IDC_RT_EV_AllComponents);
+	wxStaticText* minSelectedNumberBits = (wxStaticText*)FindWindow (IDC_RT_EV_SelComponents);
+	
+	wxRadioButton* notransform = (wxRadioButton*)FindWindow (IDC_RT_NoTransformation);
+	wxRadioButton* adjustSelChan = (wxRadioButton*)FindWindow (IDC_AdjustSelectedChannels);
+	wxRadioButton* adjustSelChanBySelChan = (wxRadioButton*)FindWindow (IDC_AdjustSelectedChannelsbyChannel);
+	wxRadioButton* newChanFromEV = (wxRadioButton*)FindWindow (IDC_RT_Eigenvectors);
+	wxRadioButton* newChanFromFunc = (wxRadioButton*)FindWindow (IDC_RT_FunctionOfChannels);
+	wxRadioButton* NewChanFromGAlgebra = (wxRadioButton*)FindWindow (IDC_RT_AlgebraicTransformation);
  
 	
-	switch (m_transformCode) {
+	switch (m_transformCode)
+		{
 		case kNoTransform:
-			notransform->SetValue(true);
+			notransform->SetValue (true);
 			break;
-		case kAdjustChannel:
-			adjustSelChan->SetValue(true);
-			break;
-		case kCreatePCImage:
-			newChanFromEV->SetValue(true);
-			break;
-		case kTransformChannels:
-			NewChanFromGAlgebra->SetValue(true);
-			break;
-		case kFunctionOfChannels:
-			newChanFromFunc->SetValue(true);
-			break;
-		case kAdjustChannelsByChannel:
-			adjustSelChanBySelChan->SetValue(true);
-			break;
-		default:
-			notransform->SetValue(true);
 			
+		case kAdjustChannel:
+			adjustSelChan->SetValue (true);
 			break;
-	}
+			
+		case kCreatePCImage:
+			newChanFromEV->SetValue (true);
+			break;
+			
+		case kTransformChannels:
+			NewChanFromGAlgebra->SetValue (true);
+			break;
+			
+		case kFunctionOfChannels:
+			newChanFromFunc->SetValue (true);
+			break;
+			
+		case kAdjustChannelsByChannel:
+			adjustSelChanBySelChan->SetValue (true);
+			break;
+			
+		default:
+			notransform->SetValue (true);
+			break;
+			
+		}	// end "switch (m_transformCode)"
 	
-	adjustDivisor->ChangeValue(wxString::Format(wxT("%.1f"), m_adjustDivisor));
-	adjustFactor->ChangeValue(wxString::Format(wxT("%.1f"), m_adjustFactor));
-	adjustOffset->ChangeValue(wxString::Format(wxT("%.1f"), m_adjustOffset));
+	adjustDivisor->ChangeValue (wxString::Format (wxT("%.1f"), m_adjustDivisor));
+	adjustFactor->ChangeValue (wxString::Format (wxT("%.1f"), m_adjustFactor));
+	adjustOffset->ChangeValue (wxString::Format (wxT("%.1f"), m_adjustOffset));
 	
-	transformFactor->ChangeValue(wxString::Format(wxT("%.1f"), m_transformFactor));
-	transformOffset->ChangeValue(wxString::Format(wxT("%.1f"), m_transformOffset));
-	denominatorString->ChangeValue(wxString::Format(wxT("%s"), m_denominatorStringPtr));
-	numeratorString->ChangeValue(wxString::Format(wxT("%s"), m_numeratorStringPtr));
-	scaleFactor->ChangeValue(wxString::Format(wxT("%.1f"), m_scaleFactor));
-	functionFactor->ChangeValue(wxString::Format(wxT("%.1f"), m_functionFactor));
-	kthSmallestElement->ChangeValue(wxString::Format(wxT("%li"), m_kthSmallestElement));
-	adjustSelectedChannelsFactor->ChangeValue(wxString::Format(wxT("%.1f"), m_adjustSelectedChannelsFactor));
-	adjustSelectedChannel->ChangeValue(wxString::Format(wxT("%li"), m_adjustSelectedChannel));
+	transformFactor->ChangeValue (wxString::Format (wxT("%.1f"), m_transformFactor));
+	transformOffset->ChangeValue (wxString::Format (wxT("%.1f"), m_transformOffset));
+	denominatorString->ChangeValue (wxString::Format (wxT("%s"), m_denominatorStringPtr));
+	numeratorString->ChangeValue (wxString::Format (wxT("%s"), m_numeratorStringPtr));
+	scaleFactor->ChangeValue (wxString::Format (wxT("%.1f"), m_scaleFactor));
+	functionFactor->ChangeValue (wxString::Format (wxT("%.1f"), m_functionFactor));
+	kthSmallestElement->ChangeValue (wxString::Format (wxT("%li"), m_kthSmallestElement));
+	adjustSelectedChannelsFactor->ChangeValue (wxString::Format (wxT("%.1f"), m_adjustSelectedChannelsFactor));
+	adjustSelectedChannel->ChangeValue (wxString::Format (wxT("%li"), m_adjustSelectedChannel));
 	
-	channelSelection->SetSelection(m_channelSelection);
-	functionCode->SetSelection(m_functionCode);
+	channelSelection->SetSelection (m_channelSelection);
+	functionCode->SetSelection (m_functionCode);
 	
-	minimumNumberBits->SetLabel(wxString::Format(wxT("%li"), m_minimumNumberBits));
-	minSelectedNumberBits->SetLabel(wxString::Format(wxT("%li"), m_minSelectedNumberBits));
+	minimumNumberBits->SetLabel (wxString::Format (wxT("%li"), m_minimumNumberBits));
+	minSelectedNumberBits->SetLabel (wxString::Format (wxT("%li"), m_minSelectedNumberBits));
 	
 	return true;
-}
+	
+}	// end "TransferDataToWindow"
