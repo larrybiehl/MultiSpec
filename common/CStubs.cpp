@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl, Abdur Maud
 //
-//	Revision date:			01/09/2019
+//	Revision date:			02/21/2019
 //
 //	Language:				C
 //
@@ -397,7 +397,9 @@ void ClipRect (
 			clipRgn.width = clipRectanglePtr->right - clipRectanglePtr->left;
 			clipRgn.height = clipRectanglePtr->bottom - clipRectanglePtr->top;
 			*/
+			gCDCPointer->DestroyClippingRegion ();
 			gCDCPointer->SetDeviceClippingRegion (clipRgn);
+			//gCDCPointer->SetClippingRegion (clipRgn);
 			} 
 	#endif
 	
@@ -2143,12 +2145,16 @@ void ShowStatusDialogWindow (
 // 
 // Called By:
 //
-//	Coded By:			Larry L. Biehl			Date: 01/16/97
-//	Revised By:			Larry L. Biehl			Date: 12/12/2000		
+//	Coded By:			Larry L. Biehl			Date: 01/16/1997
+//	Revised By:			Larry L. Biehl			Date: 02/21/2019
 
 Boolean StillDown (void)
 
 {
+	#if defined multispec_lin
+		return (FALSE);
+	#endif
+	
 	#if defined multispec_win
 		MSG msgCur;
 
@@ -2163,12 +2169,12 @@ SInt16 StringWidth (
 				UCharPtr								stringPtr)
 				
 {
-	SInt16								characterCount,
-											firstCharacter = 1,
-											width = 30;
+	SInt16								width = 30;
 											
 											
 	#if defined multispec_win
+		SInt16								characterCount,
+												firstCharacter = 1;
 		if (stringPtr != NULL) 
 			{
 			characterCount = stringPtr[0];
