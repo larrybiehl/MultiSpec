@@ -70,7 +70,7 @@
 			  
 			  // Implementation
 		protected:
-			void OnInitDialog(wxInitDialogEvent& event);
+			void OnInitDialog (wxInitDialogEvent& event);
 			void OnSelendokClassCombo(wxCommandEvent& event);
 			void OnSelendokChannelCombo(wxCommandEvent& event);
 			void OnClickUserSettingRadio(wxCommandEvent& event);

@@ -780,10 +780,10 @@ void CMHistogramSpecsDlg::OnInitDialog(wxInitDialogEvent& event) {
 
    m_histogramMethod = m_histogramMethodCode - 1;
 
-   comboBoxPtr = (wxComboBox*) FindWindow(IDC_Method);
-   //comboBoxPtr->SetItemData(0, kStoredInMemory);
-   //comboBoxPtr->SetItemData(1, kComputeFromImage);
-   //comboBoxPtr->SetItemData(2, kReadFromSupportFile);
+   comboBoxPtr = (wxComboBox*)FindWindow (IDC_Method);
+   //comboBoxPtr->SetItemData (0, kStoredInMemory);
+   //comboBoxPtr->SetItemData (1, kComputeFromImage);
+   //comboBoxPtr->SetItemData (2, kReadFromSupportFile);
 
    // Only allow for computation for thematic type images.
 

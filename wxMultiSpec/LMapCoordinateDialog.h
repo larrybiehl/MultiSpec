@@ -104,6 +104,9 @@ protected:
 	wxBoxSizer* bSizer100;
 	wxBoxSizer* bSizer101;
 	wxBoxSizer* bSizer102;
+	wxBoxSizer* bSizer106;
+	wxBoxSizer* bSizer107;
+	
 	wxComboBox* m_comboBox8;
 	wxComboBox* m_comboBox9;
 	wxComboBox* m_comboBox10;
@@ -129,7 +132,7 @@ protected:
 	wxStaticText* m_staticText301;
 	wxStaticText* m_staticText302;
 	wxStaticText* m_staticText303;
-	wxStaticText* m_staticText304;
+	//wxStaticText* m_staticText304;
 	wxStaticText* m_staticText133;
 	wxStaticText* m_staticText136;
 	wxStaticText* m_staticText139;

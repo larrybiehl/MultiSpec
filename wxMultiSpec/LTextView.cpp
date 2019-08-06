@@ -210,12 +210,7 @@ bool CMTextView::DoEnumerateFamilies(wxFont textwf, bool fixedWidthOnly,
 	if (fontEnumerator.GotAny())
 		{
 		int nFacenames = fontEnumerator.GetFacenames().GetCount();
-		numberChars = sprintf ((char*)&gTextString3,
-								" LTextView::DoEnumerateFamilies: (count): %d%s", 
-								nFacenames,
-								gEndOfLine);
-		::ListString ((char*)&gTextString3, numberChars, gOutputTextH);
-   
+		
 		wxString facename;
    
 		int n;
@@ -224,12 +219,6 @@ bool CMTextView::DoEnumerateFamilies(wxFont textwf, bool fixedWidthOnly,
 			facename = fontEnumerator.GetFacenames().Item(n);
 			//textwf.SetFaceName(facename);
 			//m_textsw->SetFont(textwf);
-			numberChars = sprintf ((char*)&gTextString3,
-									" LTextView::DoEnumerateFamilies: (fontname): %d, %s%s", 
-									n,
-									(const char*)facename.mb_str(wxConvUTF8),
-									gEndOfLine);
-			::ListString ((char*)&gTextString3, numberChars, gOutputTextH);
 			}
   
 		return true;
@@ -237,10 +226,6 @@ bool CMTextView::DoEnumerateFamilies(wxFont textwf, bool fixedWidthOnly,
 	  
 	else 
 		{
-		numberChars = sprintf ((char*)&gTextString3,
-								" LTextView::DoEnumerateFamilies: (No fonts found.)%s", 
-								gEndOfLine);
-		::ListString ((char*)&gTextString3, numberChars, gOutputTextH);
 		}
  
 	return false;

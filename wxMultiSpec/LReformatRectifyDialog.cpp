@@ -3,33 +3,32 @@
 //               Laboratory for Applications of Remote Sensing
 //                         Purdue University
 //                        West Lafayette, IN 47907
-//                         Copyright (2009-2018)
+//                         Copyright (2009-2019)
 //                     (c) Purdue Research Foundation
 //                           All rights reserved.
 //
-//   File:                  LReformatRectifyDialog.cpp : class implementation file
-//   Class Definition:      LReformatRectifyDialog.h
+//   File:                 LReformatRectifyDialog.cpp : class implementation file
+//   Class Definition:     LReformatRectifyDialog.h
 //
-//   Authors:               Abdur Rahman Maud, Larry L. Biehl
+//   Authors:              Abdur Rahman Maud, Larry L. Biehl
 //
-//   Revision date:         11/16/2018
+//   Revision date:        04/09/2019
 //
-//   Language:            C++
+//   Language:					C++
 //
 //   System:               Linux Operating System
 //
-//   Brief description:   This file contains functions that relate to the
-//                        CMReformatRectifyDlg class.
+//   Brief description:  	This file contains functions that relate to the
+//                       	CMReformatRectifyDlg class.
 //
-//------------------------------------------------------------------------------------
 /*
- Template for debug code.
- int numberChars = sprintf ((char*)&gTextString3,
- " LReformatRectifyDlg:OnCbnSelendokTargetCombo (m_fileNamesSelection): %d%s",
- m_fileNamesSelection,
- gEndOfLine);
+  Template for debug code.
+ 	int numberChars = sprintf ((char*)&gTextString3,
+ 			" LReformatRectifyDlg: (): %s",
+ 			gEndOfLine);
  ListString ((char*)&gTextString3, numberChars, gOutputTextH);
  */
+//------------------------------------------------------------------------------------
 
 #include   "SMultiSpec.h"
 #include "LReformatRectifyDialog.h"
@@ -136,26 +135,24 @@ CMReformatRectifyDlg::~CMReformatRectifyDlg()
 }
 
 
-BEGIN_EVENT_TABLE(CMReformatRectifyDlg, CMDialog)
-
-EVT_INIT_DIALOG(CMReformatRectifyDlg::OnInitDialog)
-EVT_BUTTON(IDEntireImage, CMReformatRectifyDlg::ToEntireImage)
-EVT_BUTTON(IDSelectedImage, CMReformatRectifyDlg::ToSelectedImage)
-EVT_TEXT(IDC_LineStart, CMReformatRectifyDlg::CheckLineStart)
-EVT_TEXT(IDC_LineEnd, CMReformatRectifyDlg::CheckLineEnd)
-EVT_TEXT(IDC_ColumnStart, CMReformatRectifyDlg::CheckColumnStart)
-EVT_TEXT(IDC_ColumnEnd, CMReformatRectifyDlg::CheckColumnEnd)
-EVT_COMBOBOX(IDC_Channels, CMReformatRectifyDlg::OnSelendokOutChannels)
-EVT_COMBOBOX_DROPDOWN(IDC_Channels, CMReformatRectifyDlg::OnSelendokChannelComboDropDown)
-EVT_TEXT(IDC_RotationClockwise, CMReformatRectifyDlg::OnEnChangeRotationClockwise)
-EVT_CHECKBOX(IDC_UseMapOrientationAngle, CMReformatRectifyDlg::OnBnClickedUseMapOrientationAngle)
-EVT_RADIOBUTTON(IDC_TranslateScaleRotateRadio, CMReformatRectifyDlg::OnBnClickedTranslateScaleRotateRadio)
-EVT_RADIOBUTTON(IDC_ReprojectToRadio, CMReformatRectifyDlg::OnBnClickedReprojectToRadio)
-EVT_COMBOBOX(IDC_ReferenceFileList, CMReformatRectifyDlg::OnCbnSelendokTargetCombo)
-EVT_COMBOBOX(IDC_ResampleMethod, CMReformatRectifyDlg::OnCbnSelendokResampleMethod)
-//EVT_CHAR_HOOK(CMReformatRectifyDlg::OnButtonPress)
-
-END_EVENT_TABLE()
+BEGIN_EVENT_TABLE (CMReformatRectifyDlg, CMDialog)
+	EVT_INIT_DIALOG(CMReformatRectifyDlg::OnInitDialog)
+	EVT_BUTTON(IDEntireImage, CMReformatRectifyDlg::ToEntireImage)
+	EVT_BUTTON(IDSelectedImage, CMReformatRectifyDlg::ToSelectedImage)
+	EVT_TEXT(IDC_LineStart, CMReformatRectifyDlg::CheckLineStart)
+	EVT_TEXT(IDC_LineEnd, CMReformatRectifyDlg::CheckLineEnd)
+	EVT_TEXT(IDC_ColumnStart, CMReformatRectifyDlg::CheckColumnStart)
+	EVT_TEXT(IDC_ColumnEnd, CMReformatRectifyDlg::CheckColumnEnd)
+	EVT_COMBOBOX(IDC_Channels, CMReformatRectifyDlg::OnSelendokOutChannels)
+	EVT_COMBOBOX_DROPDOWN(IDC_Channels, CMReformatRectifyDlg::OnSelendokChannelComboDropDown)
+	EVT_TEXT(IDC_RotationClockwise, CMReformatRectifyDlg::OnEnChangeRotationClockwise)
+	EVT_CHECKBOX(IDC_UseMapOrientationAngle, CMReformatRectifyDlg::OnBnClickedUseMapOrientationAngle)
+	EVT_RADIOBUTTON(IDC_TranslateScaleRotateRadio, CMReformatRectifyDlg::OnBnClickedTranslateScaleRotateRadio)
+	EVT_RADIOBUTTON(IDC_ReprojectToRadio, CMReformatRectifyDlg::OnBnClickedReprojectToRadio)
+	EVT_COMBOBOX(IDC_ReferenceFileList, CMReformatRectifyDlg::OnCbnSelendokTargetCombo)
+	EVT_COMBOBOX(IDC_ResampleMethod, CMReformatRectifyDlg::OnCbnSelendokResampleMethod)
+	//EVT_CHAR_HOOK(CMReformatRectifyDlg::OnButtonPress)
+END_EVENT_TABLE ()
 
 
 void CMReformatRectifyDlg::CreateControls ()
@@ -171,11 +168,12 @@ void CMReformatRectifyDlg::CreateControls ()
    //wxBoxSizer* bSizer119;
    bSizer119 = new wxBoxSizer( wxVERTICAL );
    
-   wxGridSizer* gSizer16;
-   gSizer16 = new wxGridSizer( 0, 2, 0, 0 );
+   wxFlexGridSizer* gSizer16;
+   //gSizer16 = new wxGridSizer (0, 2, 0, 0 );
+   gSizer16 = new wxFlexGridSizer (0, 2, 0, 0 );
    
    wxBoxSizer* bSizer195;
-   bSizer195 = new wxBoxSizer( wxVERTICAL );
+   bSizer195 = new wxBoxSizer (wxVERTICAL);
    
    wxBoxSizer* bSizer198;
    bSizer198 = new wxBoxSizer( wxVERTICAL );
@@ -379,12 +377,12 @@ void CMReformatRectifyDlg::CreateControls ()
    wxBoxSizer* bSizer262;
    bSizer262 = new wxBoxSizer( wxHORIZONTAL );
    
-   m_staticText364 = new wxStaticText( rectifySettingsBox, IDC_LineTranslateScalePrompt, wxT("Lines: "), wxDefaultPosition, wxDefaultSize, 0);
-   m_staticText364->Wrap( -1 );
+   m_staticText364 = new wxStaticText( rectifySettingsBox, IDC_LineTranslateScalePrompt, wxT("Lines:"), wxDefaultPosition, wxDefaultSize, 0);
+   m_staticText364->Wrap (-1);
    bSizer262->Add( m_staticText364, 0, wxRESERVE_SPACE_EVEN_IF_HIDDEN | wxALIGN_CENTER_VERTICAL|wxALL, 5 );
    
    
-   bSizer262->Add( 20, 0, 0, wxRESERVE_SPACE_EVEN_IF_HIDDEN | wxEXPAND, 5 );
+   bSizer262->Add (20, 0, 0, wxRESERVE_SPACE_EVEN_IF_HIDDEN | wxEXPAND, 5 );
    
    m_textCtrl147 = new wxTextCtrl( rectifySettingsBox, IDC_LineOffset, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
    SetUpToolTip(m_textCtrl147, IDS_ToolTip208);
@@ -478,7 +476,7 @@ void CMReformatRectifyDlg::CreateControls ()
    SetUpToolTip(m_staticText381, IDS_ToolTip212);
    bSizer271->Add( m_staticText381, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
    //m_staticText381->Hide();
-   m_comboBox29 = new wxComboBox( rectifySettingsBox, IDC_ReferenceFileList, wxT("Combo!"), wxDefaultPosition, wxSize(200, -1), 0, NULL, 0 );
+   m_comboBox29 = new wxComboBox( rectifySettingsBox, IDC_ReferenceFileList, wxT("Combo!"), wxDefaultPosition, wxSize (300, -1), 0, NULL, 0 );
    SetUpToolTip(m_comboBox29, IDS_ToolTip212);
    m_comboBox29->SetClientSize(wxSize(260, -1));
    

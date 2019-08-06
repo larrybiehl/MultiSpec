@@ -1,6 +1,6 @@
 // LTextFrame.cpp
 //
-//	Revised By:			Larry L. Biehl			Date: 01/24/2019
+//	Revised By:			Larry L. Biehl			Date: 04/12/2019
 //
 /* Template for debugging
 	int numberChars = sprintf ((char*)gTextString3,
@@ -22,6 +22,47 @@
 
 IMPLEMENT_DYNAMIC_CLASS(CMTextFrame, wxDocChildFrame)
 
+
+
+BEGIN_EVENT_TABLE(CMTextFrame, wxDocChildFrame)
+	//EVT_SET_FOCUS(CMTextFrame::OnFocus)
+	//EVT_UPDATE_UI(ID_FILE_NEW_PROJECT, CMTextFrame::OnUpdateNewProject)
+	//EVT_UPDATE_UI(ID_FILE_LOAD_TRANS_MATRIX, CMTextFrame::OnUpdateLoadTransMatrix)
+	//EVT_UPDATE_UI(wxID_CLOSE, CMTextFrame::OnUpdateClose)
+	//EVT_UPDATE_UI(ID_FILE_CLOSE_WINDOW, CMTextFrame::OnUpdateFileCloseWindow)
+	//EVT_UPDATE_UI(ID_FILE_SAVE, CMTextFrame::OnUpdateSave)
+	//EVT_UPDATE_UI(ID_FILE_SAVE_AS, CMTextFrame::OnUpdateFileSaveAs)
+	EVT_UPDATE_UI(wxID_PRINT, CMTextFrame::OnUpdateFilePrint)
+	EVT_UPDATE_UI(wxID_PREVIEW, CMTextFrame::OnUpdateFilePrintPreview)
+	EVT_UPDATE_UI(wxID_PAGE_SETUP, CMTextFrame::OnUpdateFilePrintSetup)
+
+	EVT_UPDATE_UI(wxID_CUT, CMTextFrame::OnUpdateEditCut)
+	EVT_UPDATE_UI(wxID_COPY, CMTextFrame::OnUpdateEditCopy)
+	EVT_UPDATE_UI(wxID_PASTE, CMTextFrame::OnUpdateEditPaste)
+	EVT_UPDATE_UI(wxID_CLEAR, CMTextFrame::OnUpdateEditClear)
+	EVT_UPDATE_UI(ID_EDIT_UNDO, CMTextFrame::OnUpdateEditUndo)
+
+	//EVT_UPDATE_UI(wxID_COPY, CMTextFrame::OnUpdateEditCopy)
+	//EVT_UPDATE_UI(ID_EDIT_SELECT_ALL, CMTextFrame::OnUpdateSelectAll)
+	//EVT_UPDATE_UI(ID_EDIT_CLEAR_SELECT_RECTANGLE, CMTextFrame::OnUpdateEditClearSelectionRectangle)
+
+	EVT_UPDATE_UI(ID_WINDOW_NEW_SELECTION_GRAPH, CMTextFrame::OnUpdateWindowNewSelectionGraph)
+
+	EVT_UPDATE_UI(ID_MAGNIFICATION, CMTextFrame::OnUpdateMagnification)
+	EVT_UPDATE_UI(ID_ZOOM_IN, CMTextFrame::OnUpdateZoomIn)
+	EVT_UPDATE_UI(ID_ZOOM_OUT, CMTextFrame::OnUpdateZoomOut)
+	//EVT_UPDATE_UI(ID_INDICATOR_ZOOM, CMTextFrame::OnUpdateZoomIndicator)
+	EVT_UPDATE_UI(ID_OVERLAY, CMTextFrame::OnUpdateOverlay)
+
+	EVT_MENU (ID_EDIT_UNDO, CMTextFrame::OnEditUndo)
+	EVT_MENU (wxID_COPY, CMTextFrame::OnEditCopy)
+	EVT_MENU (wxID_CUT, CMTextFrame::OnEditCut)
+	EVT_MENU (wxID_PASTE, CMTextFrame::OnEditPaste)
+	//EVT_MENU(ID_FILE_SAVE_AS, CMTextFrame::OnTextSaveAs)
+END_EVENT_TABLE()
+
+
+
 CMTextFrame::CMTextFrame ()
 		: wxDocChildFrame (NULL,
 									NULL,
@@ -33,7 +74,9 @@ CMTextFrame::CMTextFrame ()
 									wxDEFAULT_FRAME_STYLE | wxFRAME_FLOAT_ON_PARENT)
 
 {
+
 }	// end "CMTextFrame"
+
 
 
 CMTextFrame::CMTextFrame (
@@ -106,7 +149,7 @@ CMTextFrame::CMTextFrame (
 	entries[4].Set(wxACCEL_CTRL, (int) 'P', ID_FILE_PRINT);
 	entries[5].Set(wxACCEL_CTRL, (int) 'Q', wxID_EXIT);
 	
-	entries[6].Set(wxACCEL_CTRL, (int) 'Z', wxID_UNDO);
+	entries[6].Set(wxACCEL_CTRL, (int) 'Z', ID_EDIT_UNDO);	// wxID_UNDO
 	entries[7].Set(wxACCEL_CTRL, (int) 'X', wxID_CUT);
 	entries[8].Set(wxACCEL_CTRL, (int) 'C', wxID_COPY);
 	entries[9].Set(wxACCEL_CTRL, (int) 'V', wxID_PASTE);
@@ -139,35 +182,6 @@ CMTextFrame::CMTextFrame (
 	
 }
 
-BEGIN_EVENT_TABLE(CMTextFrame, wxDocChildFrame)
-
-//EVT_SET_FOCUS(CMTextFrame::OnFocus)
-//EVT_UPDATE_UI(ID_FILE_NEW_PROJECT, CMTextFrame::OnUpdateNewProject)
-//EVT_UPDATE_UI(ID_FILE_LOAD_TRANS_MATRIX, CMTextFrame::OnUpdateLoadTransMatrix)
-//EVT_UPDATE_UI(wxID_CLOSE, CMTextFrame::OnUpdateClose)
-//EVT_UPDATE_UI(ID_FILE_CLOSE_WINDOW, CMTextFrame::OnUpdateFileCloseWindow)
-//EVT_UPDATE_UI(ID_FILE_SAVE, CMTextFrame::OnUpdateSave)
-//EVT_UPDATE_UI(ID_FILE_SAVE_AS, CMTextFrame::OnUpdateFileSaveAs)
-EVT_UPDATE_UI(wxID_PRINT, CMTextFrame::OnUpdateFilePrint)
-EVT_UPDATE_UI(wxID_PREVIEW, CMTextFrame::OnUpdateFilePrintPreview)
-EVT_UPDATE_UI(wxID_PAGE_SETUP, CMTextFrame::OnUpdateFilePrintSetup)
-
-//EVT_UPDATE_UI(wxID_COPY, CMTextFrame::OnUpdateEditCopy)
-//EVT_UPDATE_UI(ID_EDIT_SELECT_ALL, CMTextFrame::OnUpdateSelectAll)
-//EVT_UPDATE_UI(ID_EDIT_CLEAR_SELECT_RECTANGLE, CMTextFrame::OnUpdateEditClearSelectionRectangle)
-
-EVT_UPDATE_UI(ID_WINDOW_SHOW_COORDINATE_VIEW, CMTextFrame::OnUpdateWindowShowCoordinateView)
-EVT_UPDATE_UI(ID_WINDOW_NEW_SELECTION_GRAPH, CMTextFrame::OnUpdateWindowNewSelectionGraph)
-
-EVT_UPDATE_UI(ID_MAGNIFICATION, CMTextFrame::OnUpdateMagnification)
-EVT_UPDATE_UI(ID_ZOOM_IN, CMTextFrame::OnUpdateZoomIn)
-EVT_UPDATE_UI(ID_ZOOM_OUT, CMTextFrame::OnUpdateZoomOut)
-//EVT_UPDATE_UI(ID_INDICATOR_ZOOM, CMTextFrame::OnUpdateZoomIndicator)
-EVT_UPDATE_UI(ID_OVERLAY, CMTextFrame::OnUpdateOverlay)
-
-//EVT_MENU(ID_FILE_SAVE_AS, CMTextFrame::OnTextSaveAs)
-END_EVENT_TABLE()
-
 
 CMTextFrame::~CMTextFrame() {
 }
@@ -197,10 +211,102 @@ void CMTextFrame::OnUpdateFileSaveAs (wxUpdateUIEvent& event)
 }
 */
 
+
+
+void CMTextFrame::OnEditCopy (wxCommandEvent& event)
+
+{
+	gOutputViewCPtr->m_textsw->Copy ();
+	//event.Skip ();
+	
+}	// end "OnEditCopy"
+
+
+
+void CMTextFrame::OnEditCut (wxCommandEvent& event)
+
+{
+	gOutputViewCPtr->m_textsw->Cut ();
+	//event.Skip ();
+	
+}	// end "OnEditCut"
+
+
+
+void CMTextFrame::OnEditPaste(wxCommandEvent& event)
+
+{
+	gOutputViewCPtr->m_textsw->Paste ();
+	//event.Skip ();
+	
+}	// end "OnEditPaste"
+
+
+
+void CMTextFrame::OnEditUndo(wxCommandEvent& event)
+
+{
+	gOutputViewCPtr->m_textsw->Undo ();
+	//event.Skip ();
+	
+}	// end "OnEditUndo"
+
+
+
+void CMTextFrame::OnUpdateEditClear (
+				wxUpdateUIEvent&  								pCmdUI)
+
+{
+    pCmdUI.Enable (true);
+	
+}	// end "OnUpdateEditClear"
+
+
+
+void CMTextFrame::OnUpdateEditCopy (
+				wxUpdateUIEvent&  								pCmdUI)
+
+{
+    pCmdUI.Enable (true);
+	
+}	// end "OnUpdateEditCopy"
+
+
+
+void CMTextFrame::OnUpdateEditCut (
+				wxUpdateUIEvent&  								pCmdUI)
+
+{
+    pCmdUI.Enable (true);
+	
+}	// end "OnUpdateEditCut"
+
+
+
+void CMTextFrame::OnUpdateEditPaste (
+				wxUpdateUIEvent&  								pCmdUI)
+
+{
+    pCmdUI.Enable (true);
+	
+}	// end "OnUpdateEditPaste"
+
+
+
+void CMTextFrame::OnUpdateEditUndo (
+				wxUpdateUIEvent&  								pCmdUI)
+
+{
+    pCmdUI.Enable (true);
+	
+}	// end "OnUpdateEditUndo"
+
+
+
 void CMTextFrame::OnUpdateFilePrint (CCmdUI& pCmdUI)
 
 {
-    Boolean enableFlag = UpdateFileOutputTextPrint (&pCmdUI);
+    //Boolean enableFlag = UpdateFileOutputTextPrint (&pCmdUI);
 
 			// disable until implemented.
 	
@@ -229,12 +335,6 @@ void CMTextFrame::OnUpdateWindowNewSelectionGraph(wxUpdateUIEvent& pCmdUI) {
    pCmdUI.Enable(false);
 
 } // end "OnUpdateWindowNewSelectionGraph"
-
-
-void CMTextFrame::OnUpdateWindowShowCoordinateView(wxUpdateUIEvent& pCmdUI) {
-   pCmdUI.Enable(false);
-
-} // end "OnUpdateWindowShowCoordinateView"
 
 
 void CMTextFrame::OnUpdateMagnification (wxUpdateUIEvent& event)

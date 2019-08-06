@@ -1,6 +1,6 @@
-// Revised 01/25/2019  by Larry L Biehl
 // Revised 03/12/2016 by Wei-Kang Hsu
 // Revised 12/19/2018 by Tsung Tai Yeh
+// Revised 04/01/2019  by Larry L Biehl
 //
 /* Template for debugging
 	int numberChars = sprintf ((char*)gTextString3,
@@ -335,9 +335,8 @@ CMImageView::GetImageType(void)
 }		// end "GetImageType"  
 
 
-//TODO: For Linux
-SInt16		
-CMImageView::GetLegendFullHeight(void)
+//ToDo: For Linux
+SInt16 CMImageView::GetLegendFullHeight(void)
 
 {	   
 #ifndef multispec_lin
@@ -372,8 +371,7 @@ CMImageView::GetLegendFullHeight(void)
 
 
 
-SInt16		
-CMImageView::GetLegendWidth(void)
+SInt16 CMImageView::GetLegendWidth (void)
 
 {	
 	Handle windowInfoHandle = GetWindowInfoHandle (this);
@@ -389,9 +387,9 @@ CMImageView::GetLegendWidth(void)
 	else		// windowInfoPtr != NULL   
 		return (NULL);
 												   
-//	return (m_legendWidth); 
+	//return (m_legendWidth);
 	
-}		// end "GetLegendWidth" 
+}	// end "GetLegendWidth"
 
 
 
@@ -582,18 +580,26 @@ CMImageView::CMImageView()
 */
 
 
-void CMImageView::ClearView(bool flag)
-{
-	m_Canvas->EraseBackground(flag);
-}
+void CMImageView::ClearView (
+				bool 							flag)
 
-void CMImageView::ClientToDoc(wxPoint& point) {
+{
+	m_Canvas->EraseBackground (flag);
+	
+}	// end "ClearView"
+
+
+
+void CMImageView::ClientToDoc(wxPoint& point)
+
+{
     wxClientDC dc(m_Canvas);
     m_Canvas->DoPrepareDC(dc);
     point.x = dc.DeviceToLogicalX(point.x);
     point.y = dc.DeviceToLogicalY(point.y);
 
-} // end "ClientToDoc"
+}	// end "ClientToDoc"
+
 
 
 void CMImageView::CreateScaledBitmap()
@@ -614,9 +620,8 @@ void CMImageView::CreateScaledBitmap()
 
 
 /*
- * TODO: For Linux
-void
-CMImageView::DoFilePrint()
+ * ToDo: For Linux
+void CMImageView::DoFilePrint()
  {
     gProcessorCode = kPrintProcessor;
     CScrollView::OnFilePrint();
@@ -635,50 +640,18 @@ CMImageView::DoFilePrintPreview()
 */
 
 
-void CMImageView::DrawLegend() 
+void CMImageView::DrawLegend ()
+
 {
 	CMLegendView* legendViewCPtr =
-			GetDocument()->GetImageFrameCPtr()->GetLegendViewCPtr();
-	legendViewCPtr->UpdateThematicLegendControls();
-	CMLegendList* legendListPtr = (CMLegendList*) GetActiveLegendListHandle();
+						GetDocument()->GetImageFrameCPtr()->GetLegendViewCPtr();
+	legendViewCPtr->UpdateThematicLegendControls ();
+	CMLegendList* legendListPtr = (CMLegendList*)GetActiveLegendListHandle ();
 	if (legendListPtr != NULL) 
 		{
-		/*		
-		if (m_printCopyModeFlag)
-			{
-			CPoint		windowOrigin;
-			CRect			windowRect;
+		legendListPtr->DrawLegendList ();
 
-			windowOrigin = m_pDC->GetWindowOrg ();
-			GetWindowRect (windowRect);
-
-			if (!gMFC_Rgn.CreateRectRgn(
-										  0,
-										  0,
-										  580,
-										  windowRect.bottom) )
-																							return;
-
-			gMFC_Rgn.SetRectRgn(
-										  0,
-										  0,
-										  580,
-										  windowRect.bottom);
-
-			m_pDC->SelectClipRgn(&gMFC_Rgn);
-
-			gMFC_Rgn.DeleteObject();
-
-			}		// end "if (m_printCopyModeFlag)"
-		*/
-		legendListPtr->DrawLegendList();
-
-		} // end "if (legendListPtr != NULL)"
-	/*
-	CMComboBox* listBoxPtr = &(legendViewCPtr->m_legendTitleCombo);
-	if (listBoxPtr != NULL)
-		listBoxPtr->DrawLegendTitle();
-	*/
+		}	// end "if (legendListPtr != NULL)"
 
 }	// end "DrawLegend"
 
@@ -889,22 +862,34 @@ void CMImageView::InitialUpdate(void)
 }	// end "InitialUpdate"
 
 
-void CMImageView::InvalidateRect(Rect* rectp, bool erase)
+
+void CMImageView::InvalidateRect (
+				Rect* rectp, bool erase)
+
 {
     Rect rect = *rectp;
     
-    m_Canvas->RefreshRect(wxRect(rect.left, rect.top, (rect.right - rect.left), (rect.bottom - rect.top)),erase);
+    m_Canvas->RefreshRect (wxRect (rect.left,
+    											rect.top,
+    											(rect.right - rect.left),
+    											(rect.bottom - rect.top)),
+    											erase);
 
-}
+}	// end "InvalidateRect"
 
 
-void CMImageView::InvalidateRect(wxRect* rectp, bool erase)
+
+void CMImageView::InvalidateRect (
+				wxRect* 								rectp,
+				bool 									erase)
+
 {
     wxRect rect = *rectp;
 
-    m_Canvas->RefreshRect(rect,erase);
+    m_Canvas->RefreshRect (rect, erase);
 
-}
+}	// end "InvalidateRect"
+
 
 
 SInt32 CMImageView::NormalizeScrollOffset(
@@ -926,9 +911,10 @@ SInt32 CMImageView::NormalizeScrollOffset(
 } // end "NormalizeScrollOffset"
 
 
-// This function is called when we call wxView::Activate()
-// Inherited from wxView
-void CMImageView::OnActivateView(
+		// This function is called when we call wxView::Activate()
+		// Inherited from wxView
+
+void CMImageView::OnActivateView (
         bool bActivate,
         wxView* pActivateView,
         wxView* pDeactiveView)
@@ -965,15 +951,15 @@ bool CMImageView::OnClose(bool deleteWindow)
 
 	if (m_Canvas)
 		{
-		m_Canvas->ClearBackground();
-		m_Canvas->SetView(NULL);
+		//m_Canvas->ClearBackground ();
+		m_Canvas->SetView (NULL);
 		m_Canvas = NULL;
 		}
 
 	//wxFrame * frame = wxDynamicCast(GetFrame(), wxFrame);
 	if (m_frame)
 		{
-		m_frame->SetTitle(CMMainFrameTitle);
+		m_frame->SetTitle (CMMainFrameTitle);
 		
 		}
 
@@ -996,8 +982,28 @@ bool CMImageView::OnCreate (
 		{
 		m_frame = wxDynamicCast (wxGetApp().CreateChildFrame (GetDocument(), this), CMImageFrame);
 		CreateScaledBitmap ();
+		
 		m_Canvas = new CMImageCanvas (m_frame->m_mainWindow);
+		
 		m_frame->m_coordinatesBar = new CMCoordinateBar (m_frame->m_topWindow);
+		
+		//m_frame->m_titleBar = new wxPanel (m_frame->m_titleWindow);
+		m_frame->m_titleBar = new CMTitleBar (m_frame->m_titleWindow);
+		m_frame->m_titleBar->m_frame = m_frame;
+		m_frame->m_titleBar->m_view = this;
+		/*
+		#if defined multispec_wxmac
+			int fontSize = 12;
+		#else
+			int fontSize = 9;
+		#endif
+		m_frame->m_titleBar->SetFont (wxFont (fontSize,
+												wxFONTFAMILY_TELETYPE,
+												wxFONTSTYLE_NORMAL,
+												wxFONTWEIGHT_NORMAL,
+												false,
+												wxEmptyString));
+		*/
 		m_frame->m_imageLegendViewCPtr = new CMLegendView (m_frame->m_leftWindow,
 																			IDD_LegendWindow,
 																			doc,
@@ -1048,21 +1054,12 @@ void CMImageView::OnDraw (
 		m_xPixelsPerInch = (SInt16)(pDC->GetPPI()).GetWidth();
 		m_yPixelsPerInch = (SInt16)(pDC->GetPPI()).GetHeight();
 
-		copyType = kDestinationCopy;
+		//copyType = kDestinationCopy;
+		copyType = kSourceCopy;
 
       wxPoint scrollOffset;
 		m_Canvas->CalcUnscrolledPosition (0, 0, &scrollOffset.x, &scrollOffset.y);
             
-      Handle windowInfoHandle = GetWindowInfoHandle (this);
-      WindowInfoPtr windowInfoPtr = (WindowInfoPtr)GetHandlePointer (windowInfoHandle, kLock);
-		/*
-				// Currently the following is not used in CopyOffScreenImage
-      GetSelectedOffscreenRectangle (windowInfoPtr,
-													&sourceRect,
-													TRUE,
-													TRUE);
-		*/
-
 		sourceRect.top += scrollOffset.y;
 		sourceRect.bottom += scrollOffset.y;
 		sourceRect.left += scrollOffset.x;
@@ -1078,7 +1075,6 @@ void CMImageView::OnDraw (
 		ListString ((char*)gTextString3, numberChars, gOutputTextH);
 		*/
 		gCDCPointer = pDC;
-		m_pDC = pDC;
 		
 		wxPoint deviceOriginSaved  = gCDCPointer->GetDeviceOrigin ();
 		wxPoint deviceOrigin = deviceOriginSaved;
@@ -1088,10 +1084,6 @@ void CMImageView::OnDraw (
 		
 		if (scrollOffset.y < 0)
 			deviceOrigin.y += scrollOffset.y;
-		
-				// Handle offset for any side by side windows.
-		
-		deviceOrigin.y += windowInfoPtr->titleHeight;
 
 		gCDCPointer->SetDeviceOrigin (deviceOrigin.x, deviceOrigin.y);
 		
@@ -1100,7 +1092,6 @@ void CMImageView::OnDraw (
 		gCDCPointer->SetDeviceOrigin (deviceOriginSaved.x, deviceOriginSaved.y);
 		
 		gCDCPointer = NULL;
-		m_pDC = NULL;
 
 		}	// end "if (CheckIfOffscreenImageExists ())"
 
@@ -1118,13 +1109,13 @@ void CMImageView::OnFocus (
 
 
 
-void CMImageView::OnUpdate(wxView *sender, wxObject *hint)
+void CMImageView::OnUpdate (wxView *sender, wxObject *hint)
 
 {
-    wxView::OnUpdate(sender, hint); 
+    wxView::OnUpdate (sender, hint);
     	 
     //m_Scale = m_frame->m_zoom;
-    m_Canvas->Refresh();
+    m_Canvas->Refresh ();
 				 
 }	// end "OnUpdate"
 
@@ -1137,45 +1128,61 @@ void CMImageView::SetActiveWindowFlag (Boolean setting)
 } // end "SetActiveWindowFlag"
 
 
-
+/*
 void CMImageView::SetViewOffset(const wxSize & value)
 {
 	m_ViewOffset = value;
 	
 }
+*/
 
-
-void CMImageView::ScrollChanged()
+void CMImageView::ScrollChanged ()
 
 {
-	UpdateOffscreenMapOrigin();
+	UpdateOffscreenMapOrigin ();
+	
+			// If title bar is showing (side by side image display), the
+			// title bar may need to be updated.
+	
+	if (m_frame->m_titleBar->IsShown ())
+		{
+		wxRect titleBarRect = m_frame->m_titleBar->GetClientRect ();
+		(m_frame->m_titleBar)->RefreshRect (wxRect (titleBarRect.GetLeft (),
+																	titleBarRect.GetTop () + 1,
+																	titleBarRect.GetRight (),
+																	titleBarRect.GetBottom () - 1),
+														true);
+		
+		}	// end "if (m_frame->m_titleBar->IsShown ())"
 	
 }	// end "ScrollChanged"
 
 
 
-void CMImageView::SetControlKeyFlag( Boolean flag)
+void CMImageView::SetControlKeyFlag (
+				Boolean 					flag)
 
 {
-	if (this != NULL)
-		m_ctlKeyDownFlag = flag;
+	m_ctlKeyDownFlag = flag;
 
 }	// end "SetContolKeyFlag"
 
 
 
-void CMImageView::SetShiftKeyFlag( Boolean flag)
+void CMImageView::SetShiftKeyFlag (
+				Boolean 					flag)
 
 {
-    if (this != NULL)
-        m_shiftKeyDownFlag = flag;
+	m_shiftKeyDownFlag = flag;
 
 }	// end "SetContolKeyFlag"
 
 
 /**
- * TODO: For Linux
-void CMImageView::DoEditCopy() {
+ * ToDo: For Linux
+void CMImageView::DoEditCopy ()
+
+{
     CBitmap cBmp;
 
     CRect rect,
@@ -1324,7 +1331,7 @@ void CMImageView::DoEditCopy() {
 // Called By:			FixCursor in multiSpec.c
 //
 //	Coded By:			Larry L. Biehl			Date: 06/22/1992
-//	Revised By:			Larry L. Biehl			Date: 12/08/2000
+//	Revised By:			Larry L. Biehl			Date: 04/02/2019
 
 void CMImageView::UpdateCursorCoordinates (
 				LongPoint*							mousePtPtr)
@@ -1341,12 +1348,57 @@ void CMImageView::UpdateCursorCoordinates (
 		updateMapCoordinateFlag = GetCursorCoordinates (mousePtPtr);
 
 		if (updateMapCoordinateFlag)
-			//DrawCursorCoordinates (gActiveImageWindowInfoH);
 			DrawCursorCoordinates (GetWindowInfoHandle (this));
 
 		}	// end "if ( imageDocCPtr->GetDisplayCoordinatesFlag () && ...)"
 
 }	// end "UpdateCursorCoordinates"
+
+
+
+//-----------------------------------------------------------------------------
+//					 Copyright (1988-2019)
+//           (c) Purdue Research Foundation
+//					All rights reserved.
+//
+//	Function name:		void UpdateCursorCoordinatesNoDisplayOrigin
+//
+//	Software purpose:	The purpose of this routine is to update the cursor
+//				coordinates in the coordinate dialog window if it is
+//				showing.
+//
+//	Parameters in:		None
+//
+//	Parameters out:	None
+//
+// Value Returned:	None
+//
+//
+// Called By:
+//
+//	Coded By:			Larry L. Biehl			Date: 06/22/1992
+//	Revised By:			Larry L. Biehl			Date: 04/02/2019
+
+void CMImageView::UpdateCursorCoordinatesNoDisplayOrigin (
+				LongPoint*							mousePtPtr,
+				DisplaySpecsPtr					displaySpecsPtr)
+
+{
+	double 					savedOrigin[2];
+		
+
+	savedOrigin[kVertical] = displaySpecsPtr->origin[kVertical];
+	savedOrigin[kHorizontal] = displaySpecsPtr->origin[kHorizontal];
+
+	displaySpecsPtr->origin[kVertical] = 0;
+	displaySpecsPtr->origin[kHorizontal] = 0;
+	
+	UpdateCursorCoordinates (mousePtPtr);
+	
+	displaySpecsPtr->origin[kVertical] = savedOrigin[kVertical];
+	displaySpecsPtr->origin[kHorizontal] = savedOrigin[kHorizontal];
+
+}	// end "UpdateCursorCoordinatesNoDisplayOrigin"
 
 
 
@@ -1391,17 +1443,15 @@ void CMImageView::UpdateOffscreenMapOrigin (void)
     wxPoint scrollOffset;
 	 
 
-    scrollOffset = m_Canvas->GetScrollPosition();
+    scrollOffset = m_Canvas->GetScrollPosition ();
 
     Handle displaySpecsHandle = m_displayMultiCPtr->mDisplaySpecsHandle;
     DisplaySpecsPtr displaySpecsPtr =
             						(DisplaySpecsPtr) GetHandlePointer (displaySpecsHandle);
 
     displaySpecsPtr->origin[kVertical] =
-            //(SInt16)((double)scrollOffset.y / displaySpecsPtr->magnification);
             (double)scrollOffset.y / displaySpecsPtr->magnification;
     displaySpecsPtr->origin[kHorizontal] =
-            //(SInt16)((double)scrollOffset.x / displaySpecsPtr->magnification);
             (double)scrollOffset.x / displaySpecsPtr->magnification;
 				 
 }	// end "UpdateOffscreenMapOrigin"
@@ -1412,7 +1462,7 @@ void CMImageView::UpdateScrollRange (
 				double 									magnification)
 {
 	/*
-	TODO: For Linux
+	ToDo: For Linux
  
     // Force scroll range to be a multiple of the pixel size or
     // force to zero if no scroll present.
@@ -1481,7 +1531,7 @@ void CMImageView::UpdateScrollRange (
 }	// end "UpdateScrollRange"
 
 /**
- * TODO: For Linux
+ * ToDo: For Linux
 
 void CMImageView::SetScrollSizes(int nMapMode,
         SIZE sizeTotal,
@@ -1532,10 +1582,6 @@ void CMImageView::SetScrollSizes(int nMapMode,
 void CMImageView::UpdateScrolls (
 				double 								newMagnification)
 {
-	Boolean 								clearWindowFlag = FALSE,
-											xOffsetZeroFlag = FALSE,
-											yOffsetZeroFlag = FALSE;
-
 	double 								halfLogicalSize,
 											columnLogicalCenter,
 											lineLogicalCenter,
@@ -1545,12 +1591,6 @@ void CMImageView::UpdateScrolls (
 
 	Rect 									offScreenRectangle;
 
-	RECT 									selRect;
-											//windowRect;
-
-	//SIZE 								lineIncrement,
-	//            						pageIncrement;
-	
 	SInt32 								logicalOffset;
 
 	UInt32 								height,
@@ -1558,19 +1598,18 @@ void CMImageView::UpdateScrolls (
 											newRectWidth,
 											oldRectHeight,
 											oldRectWidth,
-											step,
 											width;
 
 	UInt16 								offscreenHeight,
 											offscreenWidth;
 
-	SInt16 								titleHeight;
+	//SInt16 								titleHeight;
 
 
     		// Get the current size of the client portion of the window.  I.E.
     		// without scroll bars.
 
-	titleHeight = GetTitleHeight();
+	//titleHeight = GetTitleHeight();
 
 	wxRect windowRect = m_Canvas->GetClientRect ();
 	//GetClientRect(&windowRect);
@@ -1693,7 +1732,8 @@ void CMImageView::UpdateScrolls (
 
 	m_displayMultiCPtr->SetMagnification (newMagnification);
 
-	UpdateOffscreenMapOrigin ();
+	//UpdateOffscreenMapOrigin ();
+	ScrollChanged ();
 	 
 	m_mainFrame->UpdateStatusBar (m_frame, newMagnification);
     
@@ -1722,7 +1762,7 @@ void CMImageView::ZoomIn (void)
 
 	if (m_mainFrame->GetZoomCode () == 0)
 																							return;
-
+	
 	magnification = m_displayMultiCPtr->GetMagnification ();
 
 	maxMagnification = m_displayMultiCPtr->GetMaxMagnification ();
@@ -1826,7 +1866,7 @@ void CMImageView::ZoomOut (void)
 
 		m_Scale = magnification;
 		UpdateScrolls (magnification);
-		this->OnUpdate (this, NULL);
+		OnUpdate (this, NULL);
 		
 		UpdateScaleInformation (GetWindowInfoHandle (this));
 
@@ -1847,7 +1887,7 @@ void CMImageView::ZoomSize (void)
 	
 			// Set new magnification
 	
-	this->OnUpdate (this, NULL);
+	OnUpdate (this, NULL);
 	UpdateScaleInformation (GetWindowInfoHandle (this));
 
 }	// end "ZoomSize"

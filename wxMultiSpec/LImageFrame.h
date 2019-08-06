@@ -12,7 +12,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			01/08/2019
+//	Revision date:			03/19/2019
 //
 //	Language:				C++
 //
@@ -32,6 +32,7 @@
 //#include "LImageSplitterWnd.h"
 #include "LImageView.h"
 #include "LLegendView.h"
+#include "LTitleBar.h"
 
 #include "wx/docview.h"
 #include "wx/wx.h"
@@ -139,9 +140,9 @@ public:
 	CMImageFrame();
 	CMImageFrame(wxDocument* doc, wxView* view, wxDocParentFrame *parent);
     ~CMImageFrame();
-    double m_zoom;
+    double 					m_zoom;
     CMCoordinateBar*		m_coordinatesBar;
-    CMLegendView*		m_imageLegendViewCPtr;
+    CMLegendView*			m_imageLegendViewCPtr;
     void ActivateImageWindowItems(
             Boolean activateFlag,
             Boolean changeWindowFlag);
@@ -167,6 +168,8 @@ public:
     CMImageDoc* GetDocument(void); // inline
 
     CMLegendView* GetLegendViewCPtr(void); // inline
+	
+    CMTitleBar*		m_titleBar;
 	 
     void DoKeyDownDownArrow(wxCommandEvent& event);
     void DoKeyDownLeftArrow(wxCommandEvent& event);
@@ -192,6 +195,9 @@ public:
             SInt16 windowType);
 									
 	void ShowCoordinateView(
+				SInt16								inputCode);
+	
+	void ShowTitleView (
 				SInt16								inputCode);
 
     void UpdateActiveImageWindowInfo(void);
@@ -222,18 +228,14 @@ public:
     void OnUpdateZoomIndicator(wxUpdateUIEvent& event);
     void OnZoom(wxCommandEvent& event);
     
-    wxSashLayoutWindow* m_mainWindow;// Window for displaying image
-    wxSashLayoutWindow* m_topWindow;// Window for displaying CMCoordinatebar
-    wxSashLayoutWindow* m_leftWindow;// Window for displaying CMLegendView
+    wxSashLayoutWindow* m_mainWindow;	// Window for displaying image
+    wxSashLayoutWindow* m_topWindow;	// Window for displaying CMCoordinatebar
+    wxSashLayoutWindow* m_leftWindow;	// Window for displaying CMLegendView
+    wxSashLayoutWindow* m_titleWindow;	// Window for side by side title images
     bool   								m_frameMaximized;
 	 wxStaticText* 					m_zoomText;
     
-    protected:
-//	CSplitterWnd			m_wndSplitter;
-//	CMImageSplitterWnd	m_wndSplitter;
-
-//	CMLegendView*		m_imageLegendViewCPtr;
-
+	protected:
 	CMImageView*		m_imageViewCPtr;
 
 	UInt16			m_displayPixelSize;
@@ -271,7 +273,8 @@ enum
 	MDI_CHANGE_SIZE,
 	ID_WINDOW_TOP,
 	ID_WINDOW_RIGHT,
-	ID_WINDOW_LEFT
+	ID_WINDOW_LEFT,
+	ID_WINDOW_TITLE
 };
 
 #endif

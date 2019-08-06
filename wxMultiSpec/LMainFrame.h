@@ -1,6 +1,6 @@
 // LMainFrame.h
 //
-// Revised by Larry L Biehl    01/24/2019
+// Revised by Larry L Biehl    04/12/2019
 
 #ifndef __LMainFrame__
 #	define __LMainFrame__
@@ -156,9 +156,10 @@ class CMainFrame : public wxDocParentFrame
 	
 	void OnDisplayImage(wxCommandEvent& event);
 
-	void OnEditCut(wxCommandEvent& event);
-	void OnEditPaste(wxCommandEvent& event);
-	void OnEditUndo(wxCommandEvent& event);
+	void OnEditCopy (wxCommandEvent& event);
+	void OnEditCut (wxCommandEvent& event);
+	void OnEditPaste (wxCommandEvent& event);
+	void OnEditUndo (wxCommandEvent& event);
 	void OnEditSelectAll (wxCommandEvent& event);
 	void OnEditSelectionRectangle(wxCommandEvent& event);
 	void OnEditClearSelectionRectangle(wxCommandEvent& event);

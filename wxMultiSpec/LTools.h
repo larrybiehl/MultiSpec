@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//							 Copyright (1988-2018)
+//							 Copyright (1988-2019)
 //						(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -12,7 +12,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			10/19/2018
+//	Revision date:			04/24/2019
 //
 //	Language:				C++
 //
@@ -30,7 +30,7 @@
 //#include "wx/kbdstate.h"
 #include "SDefines.h"
 //	#include "drawobj.h"
-typedef wxPoint CPoint;
+//typedef wxPoint CPoint;
 typedef wxRect CRect;
 //typedef unsigned int UINT;
 class CMImageView;
@@ -44,56 +44,46 @@ enum ToolType {
 };
 //WX_DECLARE_LIST(CMTool,CPtrList);
 
-class CMTool {
+class CMTool
+{
     // Constructors
 public:
-    CMTool(ToolType toolType);
+    CMTool (ToolType toolType);
+	
+	 ~CMTool ();
 
-    // Overridables
+    Boolean OnCharHook ();
 
-    virtual void OnCharHook ();
+    		// Overridables
 
-    virtual void OnLButtonDown(
-            CMImageView* pView,
-            UInt16 nFlags,
-            const CPoint point);
+    virtual void OnLButtonDown (
+            CMImageView* 		pView,
+            UInt16 				nFlags,
+            const wxPoint 		point);
 
-    virtual void OnLButtonDblClk(
-            CMImageView* pView,
-            UInt16 nFlags);
+    virtual void OnLButtonDblClk (
+            CMImageView* 		pView,
+            UInt16 				nFlags);
 
-    virtual void OnLButtonUp(
-            CMImageView* pView,
-            UInt16 nFlags,
-            const CPoint point,
-            Boolean newSelectedWindowFlag);
+    virtual void OnLButtonUp (
+            CMImageView* 		pView,
+            UInt16 				nFlags,
+            const wxPoint 		point,
+            Boolean 				newSelectedWindowFlag);
 
-    virtual Boolean OnMouseMove(
-            CMImageView* pView,
-            UInt16 nFlags,
-            const CPoint point);
-	/*
-	virtual void OnChar(
-            CMImageView* pView,
-            unsigned int nChar);
-	*/
-    /*UINT SetTimer(
-        HWND hWnd,	// handle of window for timer messages
-        UINT nIDEvent,	// timer identifier
-        UINT uElapse,	// time-out value
-        TIMERPROC lpTimerFunc 	// address of timer procedure
-       );	virtual void		SetTimer;
-     */ // Attributes
+    virtual Boolean OnMouseMove (
+            CMImageView* 		pView,
+            UInt16 				nFlags,
+            const wxPoint 		point,
+				Boolean				updateViewRectFlag);
 
     ToolType mToolType;
 
     static CMTool* FindTool(ToolType toolType);
     static CPtrList c_tools;
-    static CPoint c_down;
-    static CPoint c_last;
-    static CPoint c_lastMousePoint;
-    //	static UInt16 		c_nDownFlags;
-    static ToolType c_toolType;
+    static wxPoint c_down;
+    static wxPoint c_last;
+     static ToolType c_toolType;
     static Boolean c_nonClientAreaFlag;
 
     // Indicates whether the select type is rectangular or polygon.
@@ -112,32 +102,34 @@ enum SelectMode {
     size
 };
 
-class CMSelectTool : public CMTool {
+class CMSelectTool : public CMTool
+{
     // Constructors
 
 public:
 
-    CMSelectTool(void);
+    CMSelectTool (void);
 
-    virtual void OnLButtonDown(
-            CMImageView* pView,
-            UInt16 nFlags,
-            const CPoint point);
+    virtual void OnLButtonDown (
+            CMImageView* 		pView,
+            UInt16 				nFlags,
+            const wxPoint 		point);
 
-    virtual void OnLButtonUp(
-            CMImageView* pView,
-            UInt16 nFlags,
-            const CPoint point,
-            Boolean newSelectedWindowFlag);
+    virtual void OnLButtonUp (
+            CMImageView* 		pView,
+            UInt16 				nFlags,
+            const wxPoint 		point,
+            Boolean 				newSelectedWindowFlag);
 
-    virtual Boolean OnMouseMove(
-            CMImageView* pView,
-            UInt16 nFlags,
-            const CPoint point);
+    virtual Boolean OnMouseMove (
+            CMImageView* 		pView,
+            UInt16 				nFlags,
+            const wxPoint 		point,
+				Boolean				updateViewRectFlag);
 
     virtual void OnLButtonDblClk(
-            CMImageView* pView,
-            UInt16 nFlags);
+            CMImageView* 		pView,
+            UInt16 				nFlags);
 	/*
     virtual void OnChar(
             CMImageView* pView,
@@ -149,11 +141,6 @@ public:
 
     static LCToWindowUnitsVariables s_lcToWindowUnitsVariables;
 private:
-    /*		UInt16						GetSelectionRectangleLimits (
-                                                                                            Boolean					firstTimeFlag,
-                                                                                            UInt16					startChannel,
-                                                                                            LongPoint				startPt);
-     */
     void AddPolygonPoint(
             CMImageView* imageViewCPtr,
             //											Point						newOffscreenPoint,

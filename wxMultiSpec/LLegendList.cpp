@@ -1,6 +1,6 @@
 // LLegendList.cpp : implementation file
 //
-// Revised by Larry Biehl on 01/25/2019
+// Revised by Larry Biehl on 04/09/2019
 // Revised by Tsung Tai on 01/24/2019
 //
 /* Template for debugging
@@ -359,12 +359,13 @@ void CMLegendList::DrawItem (
 	
 }	// end "DrawItem"
 
- 
+
+
 void CMLegendList::DrawLegendList ()
 
 {	
 	
-	OnDrawItem();
+	DrawListItems ();
 
 }		// end "DrawLegendList"
 
@@ -715,24 +716,25 @@ void CMLegendList::OnLButtonUp (
 					// Remove the current gray rectangle and edit
 					// the group list. 
 			
-			//CClientDC dc(this);
-			//dc.DrawFocusRect(&s_dragRect);
 			s_grayRectDisplayedFlag = FALSE;
-         int pflags;
-         wxPoint pos = event.GetPosition();
-			int selectedCell = this->HitTest(pos, pflags);
-			EditGroups (this, event);  
+ 
+ 			EditGroups (this, event);  
          			
-         this->SetCursor(wxCursor(wxCURSOR_ARROW)); //change back to standard cursor
+         this->SetCursor (wxCursor (wxCURSOR_ARROW)); //change back to standard cursor
+			
+      	Handle displaySpecsHandle = gActiveImageViewCPtr->GetDisplaySpecsHandle ();
+      	DisplaySpecsPtr displaySpecsPtr =
+										(DisplaySpecsPtr)GetHandlePointer (displaySpecsHandle);
+		
+			displaySpecsPtr->paletteObject->SetPaletteLoadedFlag (FALSE);
 			
 			}	// end "if (s_grayRectDisplayedFlag)"
 			
 		s_draggingFlag = FALSE;
 		s_lastVerticalPoint = -1;
 		s_listBottom = 0; 
-		DrawLegendList();
-      (gActiveImageViewCPtr->m_Canvas)->Refresh();
-      //(gActiveImageViewCPtr->m_Canvas)->Update();
+		DrawLegendList ();
+      gActiveImageViewCPtr->m_Canvas->Refresh ();
 			
 		}		// end "if (s_draggingFlag)" 
 	
@@ -778,60 +780,44 @@ CMLegendList::SetLegendListActiveFlag (
 }		// end "SetLegendListActiveFlag" 
 
 
-void CMLegendList::OnDrawItem ()
+void CMLegendList::DrawListItems ()
 
 {
-	double							magnification;
 	wxRect								legendRect;
-   int itemData, itemID;
-   //int listcount = ((CMPalette *)m_paletteObject)->GetNumberPaletteEntries();
-   int listcount = GetItemCount();
-   if(!listready)
-      return;
-/*
-   lpDrawItemStruct = &m_drawItem;
+	
+   int 									itemData,
+											itemID;
+	
+	
+   int listcount = GetItemCount ();
+   if (!listready)
+      																					return;
 
-   HDC temp = lpDrawItemStruct->hDC;
-	                                                            
-	lpDrawItemStruct->hDC = gActiveImageViewCPtr->m_pDC->GetSafeHdc();
-	lpDrawItemStruct->itemAction = ODA_DRAWENTIRE;
+	m_ilist->RemoveAll ();
 
-	s_isPrintingFlag = gActiveImageViewCPtr->m_pDC->IsPrinting();
-	                               
-	magnification = 1.0;                   
-	if (s_isPrintingFlag)                              
-		magnification = gActiveImageViewCPtr->m_printerTextScaling;
-*/		
-//	lpDrawItemStruct->rcItem.left = 0;
-      m_ilist->RemoveAll();
-//   for (int count=0;count<GetItemCount();count++)
-      for (int count=0;count<listcount;count++)
+	for (int count=0; count<listcount; count++)
 		{
 		itemData = GetItemData(count);
 		itemID = count; 
-/*		
-		lpDrawItemStruct->rcItem.top = 
-			(int)(30 * magnification + GetItemHeight(count) * count * magnification);
-		lpDrawItemStruct->rcItem.bottom = 
-			(int)(30 * magnification + GetItemHeight(count) * (1 + count * magnification));*/
-		DrawItem(itemData, itemID);
 
-		}		// end "for (int count=0;count<GetCount();count++)"
+		DrawItem (itemData, itemID);
 
-//	lpDrawItemStruct->hDC = temp;
+		}	// end "for (int count=0; count<GetCount(); count++)"
+
    this->SetImageList (m_ilist, wxIMAGE_LIST_SMALL);
-   //this->SetColumnWidth (0, wxLIST_AUTOSIZE);
+	
    #if defined multispec_wxlin
    	this->SetColumnWidth (0, 35);
 	#endif
 	#if defined multispec_wxmac
    	this->SetColumnWidth (0, 30);
 	#endif
-   this->SetColumnWidth (1, wxLIST_AUTOSIZE );
-   this->Show();
-	s_isPrintingFlag = FALSE;
+	
+   this->SetColumnWidth (1, wxLIST_AUTOSIZE);
+   this->Show ();
 
-}	// end "OnDrawItem"
+}	// end "DrawListItems"
+
 
 
 void CMLegendList::OnKeyDown (

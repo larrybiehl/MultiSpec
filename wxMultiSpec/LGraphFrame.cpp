@@ -12,7 +12,7 @@
 //	Authors:					Abdur Rahman Maud, Larry L. Biehl
 //
 //	Revision date:			02/20/2017 by Wei-Kang Hsu
-//								02/23/2019 by Larry L. Biehl
+//								04/09/2019 by Larry L. Biehl
 //
 //	Language:				C++
 //
@@ -211,7 +211,7 @@ CMGraphFrame::CMGraphFrame (
 	entries[4].Set (wxACCEL_CTRL, (int) 'P', ID_FILE_PRINT);
 	entries[5].Set (wxACCEL_CTRL, (int) 'Q', wxID_EXIT);
 	
-	entries[6].Set (wxACCEL_CTRL, (int) 'Z', wxID_UNDO);
+	entries[6].Set (wxACCEL_CTRL, (int) 'Z', ID_EDIT_UNDO);	// wxID_UNDO
 	entries[7].Set (wxACCEL_CTRL, (int) 'X', wxID_CUT);
 	entries[8].Set (wxACCEL_CTRL, (int) 'C', wxID_COPY);
 	entries[9].Set (wxACCEL_CTRL, (int) 'V', wxID_PASTE);

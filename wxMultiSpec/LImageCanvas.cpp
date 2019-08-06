@@ -12,7 +12,7 @@
 //
 //	Authors:					Larry L. Biehl, Abdur Rachman Maud
 //
-//	Revision date:			03/01/2019
+//	Revision date:			03/27/2019
 //
 //	Language:				C++
 //
@@ -40,11 +40,11 @@
 
 extern void		DoNextDisplayChannelEvent (
 				WindowPtr		window,
-				char			theChar);
+				char				theChar);
 
 IMPLEMENT_DYNAMIC_CLASS (CMImageCanvas, wxScrolledWindow)
 
-wxSize CMImageCanvas::ScrollingIncrement = wxSize (10, 10);	// 10, 10
+wxSize CMImageCanvas::ScrollingIncrement = wxSize (1, 1);	// 10, 10
 
 BEGIN_EVENT_TABLE (CMImageCanvas, wxScrolledWindow)
 	EVT_CHAR_HOOK (CMImageCanvas::OnCharHook)
@@ -65,7 +65,7 @@ END_EVENT_TABLE ()
 CMImageCanvas::CMImageCanvas ()
 
 {
-   Init();
+   Init ();
 	
 }	// end "CMImageCanvas"
 
@@ -90,12 +90,17 @@ CMImageCanvas::CMImageCanvas (
 	
    wxSize initsize = parent->GetClientSize ();
    SetVirtualSize (initsize);
-   size_h = initsize.GetHeight ();
-   size_w = initsize.GetWidth ();
-   SetScrollRate (1, 1);	// 10, 10	m_displayImageFlag = true;
+   m_size_h = initsize.GetHeight ();
+   m_size_w = initsize.GetWidth ();
+   SetScrollRate (1, 1);	// 10, 10
+   m_displayImageFlag = true;
    m_featureListShowFlag = false;
    m_dataListShowFlag = false;
    m_LastSelectionPoint = wxPoint (0, 0);
+	
+			// This is not needed since both MacOS and gtk2 versions are doing
+			// double buffered by default.
+   //SetBackgroundStyle (wxBG_STYLE_PAINT);
 	
 	EnableScrolling (true, true);
 	
@@ -119,7 +124,7 @@ void CMImageCanvas::AdjustScrollBars (
    //SetScrollbar(wxVERTICAL, 0, GetClientSize().y, imageSize.y);
 	SetVirtualSize (imageSize);
 	if (callScrollFlag)
-		Scroll (pt.x, pt.y);
+		DoScroll (pt.x, pt.y);
 	
 }	// end "AdjustScrollBars"
 
@@ -130,15 +135,15 @@ bool CMImageCanvas::AutoScroll (
 				wxPoint								scrollPos)
 
 {
-   bool res = false;
+   bool scrolledFlag = false;
    if (HasCapture ())
 		{
 				// If mouse is captured set rect coords if inside the image and
 				// autoscroll if posible get image display rectangle
 		
-      wxRect displayRect = GetImageDisplayRect(scrollPos);
+      wxRect displayRect = GetImageDisplayRect (scrollPos);
 
-      wxSize oldSelection(m_TR.x - m_BL.x, m_TR.y - m_BL.y);
+      wxSize oldSelection (m_TR.x - m_BL.x, m_TR.y - m_BL.y);
 
 				// check if the current drag position is inside the image - do not allow
 				// to draw rectangle out of the image
@@ -152,45 +157,51 @@ bool CMImageCanvas::AutoScroll (
 		
       if (currentPos.x <= 0)
 			{
-         Scroll (wxMax(scrollPos.x - CMImageCanvas::ScrollingIncrement.GetWidth(), 0), -1);
+         DoScroll (wxMax(scrollPos.x - CMImageCanvas::ScrollingIncrement.GetWidth(), 0), -1);
          m_BL.x += (scrollPos.x - GetScrollPosition().x);
-         res = true;
+         scrolledFlag = true;
 			
 			}
 		
       if (currentPos.y <= 0)
 			{
-         Scroll (-1, wxMax(scrollPos.y - CMImageCanvas::ScrollingIncrement.GetHeight(), 0));
+         DoScroll (-1, wxMax(scrollPos.y - CMImageCanvas::ScrollingIncrement.GetHeight(), 0));
          m_BL.y += (scrollPos.y - GetScrollPosition().y);
-         res = true;
+         scrolledFlag = true;
 			
 			}
 		
       if (currentPos.x >= GetClientSize().GetWidth())
 			{
-         Scroll (scrollPos.x + CMImageCanvas::ScrollingIncrement.GetWidth(), -1);
+         DoScroll (scrollPos.x + CMImageCanvas::ScrollingIncrement.GetWidth(), -1);
          m_BL.x -= (GetScrollPosition().x - scrollPos.x);
-         res = true;
+         scrolledFlag = true;
 			
 			}
 		
       if (currentPos.y >= GetClientSize().y)
 			{
-         Scroll (-1, scrollPos.y + CMImageCanvas::ScrollingIncrement.GetHeight());
+         DoScroll (-1, scrollPos.y + CMImageCanvas::ScrollingIncrement.GetHeight());
          m_BL.y -= (GetScrollPosition().y - scrollPos.y);
-         res = true;
+         scrolledFlag = true;
 			
 			}
 		
-      m_Selection = wxRect (wxMin (m_TR.x, m_BL.x),
-												wxMin (m_TR.y, m_BL.y),
-												abs(m_TR.x - m_BL.x),
-												abs(m_TR.y - m_BL.y));
-      return res;
+		CMTool* pTool = CMTool::FindTool (CMTool::c_toolType);
+		if (pTool->s_selectType != kPolygonType)
+			m_Selection = wxRect (wxMin (m_TR.x, m_BL.x),
+											wxMin (m_TR.y, m_BL.y),
+											abs (m_TR.x - m_BL.x),
+											abs (m_TR.y - m_BL.y));
 		
-		}
+		if (scrolledFlag)
+			m_View->UpdateOffscreenMapOrigin ();
+		
+      return scrolledFlag;
+		
+		}	// end "if (HasCapture ())"
 	
-	else
+	else	// !HasCapture ()
 		return true;
 	
 }	// end "AutoScroll"
@@ -202,7 +213,7 @@ void CMImageCanvas::CanvasScroll (
 				int									y)
 
 {
-   Scroll (x, y);
+   DoScroll (x, y);
 	
 }	// end "CanvasScroll"
 
@@ -284,23 +295,27 @@ void CMImageCanvas::DoMouseWheel (
 
 		if (axis == wxMOUSE_WHEEL_HORIZONTAL)
 			{
-			scrollPos.x += rotation;
+			if (HasScrollbar (wxHORIZONTAL))
+				scrollPos.x += rotation;
 
 			}	// end "if (axis == wxMOUSE_WHEEL_HORIZONTAL)"
 		
 		else	// otherwise scroll the window vertically
 			{
-			scrollPos.y += rotation;
+			if (HasScrollbar (wxVERTICAL))
+				scrollPos.y -= rotation;
 			
 			}	// end "else otherwise just scroll the window"
 		
-		displayRect = m_View->m_Canvas->GetImageDisplayRect (scrollPos);
-		//#if defined multispec_wxmac
-			m_View->m_Canvas->Scroll (scrollPos.x, scrollPos.y);
-		//#endif
-		m_View->ScrollChanged ();
+		if (scrollPos.x != 0 || scrollPos.y != 0)
+			{
+			displayRect = m_View->m_Canvas->GetImageDisplayRect (scrollPos);
+			m_View->m_Canvas->DoScroll (scrollPos.x, scrollPos.y);
+			m_View->ScrollChanged ();
 		
-		m_View->m_Canvas->Refresh (false, &displayRect);
+			m_View->m_Canvas->Refresh (false, &displayRect);
+			
+			}	// end "if (scrollPos.x != 0 || scrollPos.y != 0)"
 		
 		}	// end "else !ctrlDown"
 	
@@ -309,15 +324,15 @@ void CMImageCanvas::DoMouseWheel (
 
 
 void CMImageCanvas::EraseBackground (
-				bool									erase)
+				bool									eraseFlag)
 {
-   m_displayImageFlag = !erase;
-   if (erase)
+   m_displayImageFlag = !eraseFlag;
+   if (eraseFlag)
 		{
       wxSize psize = GetParent ()->GetClientSize ();
       SetVirtualSize (psize);
-      size_h = psize.GetHeight ();
-      size_w = psize.GetWidth ();
+      m_size_h = psize.GetHeight ();
+      m_size_w = psize.GetWidth ();
 		
 		}
 	
@@ -326,7 +341,7 @@ void CMImageCanvas::EraseBackground (
 }	// end "EraseBackground"
 
 
-
+/*
 void CMImageCanvas::FixViewOffset ()
 
 {
@@ -340,7 +355,7 @@ void CMImageCanvas::FixViewOffset ()
 		}	// end "if (m_View)"
 	
 }	// end "FixViewOffset"
-
+*/
 
 
 CMImageView* CMImageCanvas::GetView ()
@@ -387,21 +402,21 @@ wxRect CMImageCanvas::GetImageDisplayRect (
            ((GetClientSize().GetHeight() - currentSize.GetHeight()) * 0.5f));*/
    wxPoint ptTest (0, 0);
 	
-		// calculate actual image diaply rectangle if centered
+		// calculate actual image display rectangle if centered
 	
 	return wxRect (ptTest, currentSize);
 	
 }	// end "GetImageDisplayRect"
 
 
-
+/*
 const wxRect & CMImageCanvas::GetSelection ()
 
 {
    return m_Selection;
 	
 }
-
+*/
 
 
 wxPoint CMImageCanvas::GetLastSelectionPoint ()
@@ -426,6 +441,7 @@ void CMImageCanvas::Init()
 
 {
    m_View = NULL;
+   m_scrolledFlag = FALSE;
 	
 }	// end "Init"
 
@@ -448,8 +464,8 @@ void CMImageCanvas::OnCharHook (
 			{
 			ClearSelectionArea (gActiveImageViewCPtr);
 			ShowGraphSelection ();
-			m_LastSelectionPoint = wxPoint (0,0);
-			gActiveImageViewCPtr->m_Canvas->Refresh ();
+			m_LastSelectionPoint = wxPoint (0, 0);
+			//gActiveImageViewCPtr->m_Canvas->Refresh ();
 			
 			if (gSelectionGraphViewCPtr != NULL)
 				gSelectionGraphViewCPtr->ResetListControls ();
@@ -496,19 +512,28 @@ void CMImageCanvas::OnIdle (
 {
    do
 		{
-      if (!HasCapture()) break;
+      if (!HasCapture())
+			break;
 
-      // get scroll position
+      		// Get scroll position
+		
       wxPoint scrollPos = GetScrollPosition ();
-      // get mouse in client coordinates
-      wxPoint currentPos = ScreenToClient(wxGetMousePosition ());
+		
+      		// Get mouse in client coordinates
+		
+      wxPoint currentPos = ScreenToClient (wxGetMousePosition ());
       
-      // auto scroll
-      // check current drag position and update scroll regularly
+      		// Auto scroll
+      		// Check current drag position and update scroll regularly
+		
       if (AutoScroll (currentPos, scrollPos))
+      	{
+   		m_scrolledFlag = TRUE;
          event.RequestMore ();
+			
+         }	// end "if (AutoScroll (currentPos, scrollPos))"
 	
-		FixViewOffset();
+		//FixViewOffset ();
 		
 		}	while (false);
 	
@@ -534,6 +559,9 @@ void CMImageCanvas::OnLeftDown (
 	wxPoint								cursorPosOnImage; // unit: window point
 	
 	
+	//if (m_View == NULL)
+	//																						return;
+	
 	if (gActiveImageViewCPtr != m_View)
 				// Force this image window to be active.
 		m_View->Activate (true);
@@ -543,14 +571,10 @@ void CMImageCanvas::OnLeftDown (
 
    do
 		{
-      if (!m_View) 
-			break;
-		
       cursorPosOnImage = ClientToImage (event.GetPosition ());
       if (!imageRect.Contains(event.GetPosition()))
 			break;
 		
-		Refresh ();
       m_TR = m_BL = event.GetPosition ();
       m_Selection.SetPosition (cursorPosOnImage);   // unit: window point
       m_Selection.SetSize (wxSize (0, 0));
@@ -563,9 +587,21 @@ void CMImageCanvas::OnLeftDown (
       CMTool* pTool = CMTool::FindTool(CMTool::c_toolType);
       if (pTool != NULL)
 			{
-			m_View->SetControlKeyFlag (wxGetKeyState (WXK_CONTROL));
-			m_View->SetShiftKeyFlag (wxGetKeyState(WXK_SHIFT));
-         pTool->OnLButtonDown (m_View, 0, event.GetPosition());
+			#if defined multispec_wxlin
+				m_View->SetControlKeyFlag (wxGetKeyState (WXK_CONTROL));
+			#endif
+			#if defined multispec_wxmac
+						// Note that WXK_CONTROL is the command key for Mac OS
+						// WXK_RAW_CONTROL is the control key, but it cannot be
+						// used for this. It does not seems to be available for
+						// this. Assuming this is because it is the key for
+						// contextual menus.
+				//m_View->SetControlKeyFlag (wxGetKeyState (WXK_RAW_CONTROL));
+				m_View->SetControlKeyFlag (wxGetKeyState (WXK_CONTROL));
+			#endif
+			
+			m_View->SetShiftKeyFlag (wxGetKeyState (WXK_SHIFT));
+         pTool->OnLButtonDown (m_View, 0, event.GetPosition ());
 			
 			}	// end "if (pTool != NULL)"
       
@@ -584,8 +620,6 @@ void CMImageCanvas::OnLeftUp (
 {
 	if (HasCapture ())
 		{
-      Refresh ();
-
       m_TR = m_BL = wxPoint (0, 0);
       m_Selection.SetPosition (m_TR);
       m_Selection.SetSize (wxSize (0, 0));
@@ -628,9 +662,9 @@ void CMImageCanvas::OnMotion (
 
 			// Returns true if this window has the current mouse capture.
 	
-	hasCaptureFlag = HasCapture();
+	hasCaptureFlag = HasCapture ();
 	
-   if (gProcessorCode == 0)
+   if (gProcessorCode == 0 || gProcessorCode == kPolygonSelectionProcessor)
 		{
 		GetWindowClipRectangle (m_View, kImageArea, &viewRect);
 				
@@ -665,30 +699,26 @@ void CMImageCanvas::OnMotion (
 
 		}	// end "if (gProcessorCode == 0)"
 	
-	//else if (gPresentCursor == kWait)
-		//SetCursor (wxCURSOR_WAIT);
-	//	MSetCursor (kWait);
-	
    if (hasCaptureFlag)
 		{
-				//Returns the built-in scrollbar position.
+		Boolean		scrolledFlag;
+		
+				// Returns the built-in scrollbar position.
 		
 		wxPoint		scrollPos = GetScrollPosition ();
-      m_Selection.SetSize (wxSize (currentPos.x, currentPos.y));
-      
-      AutoScroll (currentPos, scrollPos);
-      FixViewOffset ();
-      Refresh ();
+      scrolledFlag = AutoScroll (currentPos, scrollPos);
+      scrolledFlag = scrolledFlag | m_scrolledFlag;
 		
-				// The following code was in Image view class in windows
+		CMTool* pTool = CMTool::FindTool (CMTool::c_toolType);
+		
+				// The following code was in Image view class in Windows OS
 		
       if (m_View->CheckIfOffscreenImageExists ())
 			{
          Boolean handledFlag = FALSE;
-         CMTool* pTool = CMTool::FindTool(CMTool::c_toolType);
          
          if (pTool != NULL)
-            handledFlag = pTool->OnMouseMove (m_View, 0, currentPos);
+            handledFlag = pTool->OnMouseMove (m_View, 0, currentPos, scrolledFlag);
 
          if (!handledFlag)
 				{
@@ -725,7 +755,7 @@ void CMImageCanvas::OnMotion (
 			{
 			if (gPresentCursor == kCross)
 				{           
-            if (gProcessorCode == 5)
+            if (gProcessorCode == kPolygonSelectionProcessor)
 					{
 							// if is polygon mode. added on 01/08/16  by Wei
 					
@@ -735,7 +765,7 @@ void CMImageCanvas::OnMotion (
                   CMTool* pTool = CMTool::FindTool(CMTool::c_toolType);
 
                   if (pTool != NULL)            
-                     handledFlag = pTool->OnMouseMove (m_View, 0, currentPos);
+                     handledFlag = pTool->OnMouseMove (m_View, 0, currentPos, m_scrolledFlag);
 
                   if (!handledFlag)
 							{
@@ -766,12 +796,17 @@ void CMImageCanvas::OnMotion (
 			}	// end "if (m_View != NULL)"
 			
 		}	// end "else !hasCaptureFlag"
+	
+	m_scrolledFlag = FALSE;
+	
+	//event.Skip ();
 		
 }	// end "OnMotion"
 
 
 
-void CMImageCanvas::OnMouseWheel (wxMouseEvent& event)
+void CMImageCanvas::OnMouseWheel (
+				wxMouseEvent& 						event)
 
 {
 			// If the mouse wheel is not captured, test if the mouse
@@ -809,15 +844,22 @@ void CMImageCanvas::OnPaint (
    if (m_View == NULL)
 																								return;
 	
-	wxRect updateRect;
+	wxRect 		updateRect;
 	
-	int xx, yy;
-	double m_zoom = m_View->m_Scale;
+	double 		zoom = m_View->m_Scale;
 	
-	//wxSize mframesize = (this->GetParent())->GetClientSize ();
+	int 			xx,
+					yy;
 	
+	Boolean		bitMapOKFlag;
+	
+
 			// Shifts the device origin so we don't have to worry about the current
 			// scroll position ourselves
+			// Note: tried double buffered paint but found that both MacOS and gtk2 versions
+			// are doing it automatically. Do not need to do here.
+			// Boolean doubleBufferedFlag = IsDoubleBuffered ();
+			// wxAutoBufferedPaintDC dc (this);
 
 	wxPaintDC dc (this);
 	
@@ -830,55 +872,115 @@ void CMImageCanvas::OnPaint (
 			//	Sets the scale to be applied when converting from logical units to device
 			// units
 
-   dc.SetUserScale (m_zoom, m_zoom);
+   dc.SetUserScale (zoom, zoom);
 	
 			// Sets the bg brush used in Clear(). Default:wxTRANSPARENT_BRUSH
 
 	dc.SetBackground (wxBrush (*wxWHITE));
-		
-	updateRect = GetUpdateClientRect ();
 	
-	m_View->s_updateRect.left = updateRect.GetLeft ();
-	m_View->s_updateRect.right = updateRect.GetRight ();
-	m_View->s_updateRect.top = updateRect.GetTop ();
-	m_View->s_updateRect.bottom = updateRect.GetBottom ();
+	bitMapOKFlag = !m_View->m_ScaledBitmap.IsNull ();
 	
-	m_View->OnDraw (&dc);
+			// Get the update rect list
 	
-	wxBitmap my_image (m_View->m_ScaledBitmap);
-	//wxBitmap my_image (*m_View->m_ScaledBitmapPtr);
-	
-	if (m_displayImageFlag && my_image.IsOk())
+	int count = 1;
+	wxRegionIterator upd (GetUpdateRegion ()); // get the update rect list
+	while (upd)
 		{
-		size_h = my_image.GetHeight() * m_zoom;
-		size_w = my_image.GetWidth() * m_zoom;
+		m_View->s_updateRect.left = upd.GetX ();
+		m_View->s_updateRect.right = m_View->s_updateRect.left + upd.GetW ();
+		m_View->s_updateRect.top = upd.GetY ();
+		m_View->s_updateRect.bottom = m_View->s_updateRect.top + upd.GetH ();
+		/*
+		int numberChars = sprintf ((char*)gTextString3,
+					" CMImageCanvas::OnPaint (loop: left, width, top, height): %d: %d, %d, %d, %d%s",
+					count,
+					m_View->s_updateRect.left,
+					(m_View->s_updateRect.right - m_View->s_updateRect.left),
+					m_View->s_updateRect.top,
+					(m_View->s_updateRect.bottom - m_View->s_updateRect.top),
+					gEndOfLine);
+		ListString ((char*)gTextString3, numberChars, gOutputTextH);
+		*/
+		m_View->OnDraw (&dc);
+		
+		count++;
+		upd++;
+			
+		}	// end "while (upd)"
+	
+	if (m_displayImageFlag && bitMapOKFlag)
+		{
+   	UInt32								numberOverlays;
+	
+		Boolean								drawVectorOverlaysFlag,
+												projectWindowFlag;
+		
+		CMImageWindow* imageWindowCPtr = m_View->GetImageWindowCPtr ();
+		WindowInfoPtr windowInfoPtr = (WindowInfoPtr) GetHandlePointer (
+													imageWindowCPtr->GetWindowInfoHandle ());
+		
+		drawVectorOverlaysFlag = windowInfoPtr->drawVectorOverlaysFlag;
+		projectWindowFlag = windowInfoPtr->projectWindowFlag;
+		numberOverlays = windowInfoPtr->numberOverlays;
+		/*
+				// Draw the vector overlays if they exist.
+		
+		if (drawVectorOverlaysFlag && numberOverlays > 0)
+			DrawArcViewShapes (m_View,
+										imageWindowCPtr->GetWindowInfoHandle (),
+										&windowRect,
+										1,
+										NULL);
+		*/
+				// Outline training/test areas.
+		
+		if (windowInfoPtr->projectWindowFlag)
+			{
+			Rect windowRect;
+			
+			GetWindowClipRectangle (m_View, kImageArea, &windowRect);
+			ClipRect (&windowRect);
 
-		SetVirtualSize (size_w, size_h); //Sets the virtual size of the window in pixels.
+			gCDCPointer = &dc;
+			OutlineFieldsControl (gProjectInfoPtr->statsWindowMode,
+											  m_View,
+											  imageWindowCPtr->GetWindowInfoHandle (),
+											  1);
+			gCDCPointer = NULL;
+			
+			}	// end "if (windowInfoPtr->projectWindowFlag)"
+		
+				// Draw the selection area if it exists.
+		
+		m_size_h = m_View->m_ScaledBitmap.GetHeight () * zoom;
+		m_size_w = m_View->m_ScaledBitmap.GetWidth () * zoom;
+
+		SetVirtualSize (m_size_w, m_size_h); //Sets the virtual size of the window in pixels.
 		
 		dc.SetUserScale (1, 1);
 		
-		//m_View->OnDraw(&dc);
-      CMTool* pTool = CMTool::FindTool (CMTool::c_toolType);
-		if (!m_Selection.IsEmpty() && pTool->s_selectType != kPolygonType)
+		CMTool* pTool = CMTool::FindTool (CMTool::c_toolType);
+		if (!m_Selection.IsEmpty () && pTool->s_selectType != kPolygonType)
 			{
 			dc.SetBrush (*wxTRANSPARENT_BRUSH);
 			//dc.SetLogicalFunction (wxXOR);
 			dc.SetPen(wxPen (*wxWHITE, 1, wxPENSTYLE_DOT));
-			CalcUnscrolledPosition (m_Selection.GetX(), m_Selection.GetY(), &xx, &yy);
-			dc.DrawRectangle (wxPoint(xx, yy), m_Selection.GetSize());
+			CalcUnscrolledPosition (m_Selection.GetX (), m_Selection.GetY (), &xx, &yy);
+			wxSize selectionRecSize = m_Selection.GetSize ();
+			dc.DrawRectangle (wxPoint (xx, yy), selectionRecSize);
+		
 			dc.SetPen(wxPen (*wxBLACK, 1, wxPENSTYLE_DOT));
-			wxSize rectSpec = m_Selection.GetSize ();
-			rectSpec.x -= 2;
-			rectSpec.y -= 2;
-			dc.DrawRectangle (wxPoint(xx+1, yy+1), rectSpec);
+			selectionRecSize.x -= 2;
+			selectionRecSize.y -= 2;
+			dc.DrawRectangle (wxPoint (xx+1, yy+1), selectionRecSize);
 			
 			}	// end "if (!m_Selection.IsEmpty() && ...)"
 		
 		CMImageDoc* pDoc = m_View->GetDocument ();
 		pDoc->Draw (&dc, m_View);
 		
-		}	// end "if (m_displayImageFlag && my_image.IsOk())"
-
+		}	// end "if (m_displayImageFlag && ...)"
+	
    //wxLogTrace(wxTraceMask(), wxT("CMImageCanvas::OnPaint"));
 	
 }	// end "OnPaint"
@@ -889,14 +991,14 @@ void CMImageCanvas::OnScrollChanged (
 				wxScrollWinEvent& 						event)
 				
 {
-	m_View->ScrollChanged ();
 	wxPoint scrollPos = GetScrollPosition ();
-	wxRect displayRect = m_View->m_Canvas->GetImageDisplayRect (scrollPos);
 	//#if defined multispec_wxmac
-		m_View->m_Canvas->Scroll (scrollPos.x, scrollPos.y);
+		m_View->m_Canvas->DoScroll (scrollPos.x, scrollPos.y);
 	//#endif
+	m_View->ScrollChanged ();
 	
-	m_View->m_Canvas->Refresh (false, &displayRect);
+	//wxRect displayRect = m_View->m_Canvas->GetImageDisplayRect (scrollPos);
+	//m_View->m_Canvas->Refresh (false, &displayRect);
 
 	//printf("scrollchanged ... ");
 	/*
@@ -907,8 +1009,8 @@ void CMImageCanvas::OnScrollChanged (
 				displayRect.x + displayRect.width);
 	*/
 	//wxPoint scrollPos = GetScrollPosition();
-	//wxRect displayRect = m_View->m_Canvas->GetImageDisplayRect(scrollPos);
-	//m_View->InvalidateRect(&displayRect, FALSE);
+	//wxRect displayRect = m_View->m_Canvas->GetImageDisplayRect (scrollPos);
+	//m_View->InvalidateRect (&displayRect, FALSE);
 	
 }	// end "OnScrollChanged"
 
@@ -924,13 +1026,13 @@ void CMImageCanvas::OnCursorChange (
 	//							yPosition;
 	
 	
-			// Setting the global cursor variable to 0 will force it to be set
+			// Setting the global cursor variable to -1 will force it to be set
 			// to the correct value later.
 	
 	//cursor = event.GetCursor ();
 	//xPosition = event.GetX ();
 	//yPosition = event.GetY ();
-	gPresentCursor = 0;
+	gPresentCursor = -1;
 	
 	event.Skip ();
 	

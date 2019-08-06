@@ -12,7 +12,7 @@
 //
 //	Authors:					Abdur Rahman Maud, Larry L. Biehl
 //
-//	Revision date:			02/04/2019
+//	Revision date:			04/20/2019
 //
 //	Language:				C++
 //
@@ -287,7 +287,7 @@ void CShortStatusDlg::CreateControl ()
 
 	m_staticText42 = new wxStaticText (this,
 													IDC_Status3,
-													wxT("999999"),
+													wxT("      "),
 													wxDefaultPosition,
 													wxDefaultSize,
 													0);
@@ -305,7 +305,7 @@ void CShortStatusDlg::CreateControl ()
 
 	m_staticText44 = new wxStaticText (this,
 													IDC_Status5,
-													wxT("999999"),
+													wxT("      "),
 													wxDefaultPosition,
 													wxDefaultSize,
 													0);
@@ -347,7 +347,7 @@ void CShortStatusDlg::CreateControl ()
 
 	m_staticText48 = new wxStaticText (this,
 													IDC_Status8,
-													wxT("999999"),
+													wxT("      "),
 													wxDefaultPosition,
 													wxDefaultSize,
 													0);
@@ -365,7 +365,7 @@ void CShortStatusDlg::CreateControl ()
 
 	m_staticText50 = new wxStaticText (this,
 													IDC_Status10,
-													wxT("999999"),
+													wxT("      "),
 													wxDefaultPosition,
 													wxDefaultSize,
 													0);
@@ -388,7 +388,7 @@ void CShortStatusDlg::CreateControl ()
 
 	m_staticText52 = new wxStaticText (this,
 													IDC_Status16,
-													wxT("999999"),
+													wxT("      "),
 													wxDefaultPosition,
 													wxDefaultSize,
 													0);
@@ -414,7 +414,7 @@ void CShortStatusDlg::CreateControl ()
 
 	m_staticText57 = new wxStaticText (this,
 													IDC_Status18,
-													wxT("99999"),
+													wxT("      "),
 													wxDefaultPosition,
 													wxDefaultSize,
 													0);
@@ -432,7 +432,7 @@ void CShortStatusDlg::CreateControl ()
 
 	m_staticText59 = new wxStaticText (this,
 													IDC_Status20,
-													wxT("99999"),
+													wxT("      "),
 													wxDefaultPosition,
 													wxDefaultSize,
 													0);
@@ -605,19 +605,20 @@ void CShortStatusDlg::OnKeyDown (
 
 {
 	Boolean		escapeFlag = FALSE;
-	
+	/*
 	int numberChars = sprintf ((char*)&gTextString3,
 										" LStatusDialog:OnKeyDown (in routine): %s",
 										gEndOfLine);
 	ListString ((char*)&gTextString3, numberChars, gOutputTextH);
-
+	*/
 	if (event.GetKeyCode () == WXK_ESCAPE)
 		{
+		/*
 		int numberChars2 = sprintf ((char*)&gTextString3,
 										" LStatusDialog:OnKeyDown (Escape Key): %s",
 										gEndOfLine);
 		ListString ((char*)&gTextString3, numberChars2, gOutputTextH);
-
+		*/
 		escapeFlag = TRUE;
 		
 		}

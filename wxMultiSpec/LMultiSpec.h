@@ -104,23 +104,23 @@ private:
 DECLARE_APP(CMultiSpecApp)
 
 
-CMainFrame *GetMainFrame(void);
-wxFrame *GetActiveFrame(void);
+CMainFrame *GetMainFrame (void);
+wxFrame *GetActiveFrame (void);
 
 class FileUploadProcess : public wxProcess
 {
 public:
-	FileUploadProcess(CMainFrame *parent, const wxString& cmd)
-//	: wxProcess(parent), m_cmd(cmd)
+	FileUploadProcess (CMainFrame *parent, const wxString& cmd)
 	: wxProcess(parent), m_cmd(cmd)
-	{
+		{
 		m_parent = parent;
-	}
+		
+		}
 
-	// instead of overriding this virtual function we might as well process the
-	// event from it in the frame class - this might be more convenient in some
-	// cases
-	virtual void OnTerminate(int pid, int status);
+			// instead of overriding this virtual function we might as well process the
+			// event from it in the frame class - this might be more convenient in some
+			// cases
+	virtual void OnTerminate (int pid, int status);
 	
 protected:
 	CMainFrame *m_parent;

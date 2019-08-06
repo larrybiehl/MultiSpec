@@ -308,7 +308,7 @@ void CMChangeChannelDescriptionDlg::CreateControls ()
 //	Called By:			ModifyChannelDescriptionsViaKeyboard in SReformatUtilities.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/01/2016
-//	Revised By:			Larry L. Biehl			Date: 01/10/2017	
+//	Revised By:			Larry L. Biehl			Date: 05/04/2019
 
 SInt16 CMChangeChannelDescriptionDlg::DoDialog (
 				FileInfoPtr							fileInfoPtr, 
@@ -317,7 +317,7 @@ SInt16 CMChangeChannelDescriptionDlg::DoDialog (
 
 {     
 	SInt16								returnCode,
-											returnValue;
+											returnValue = 0;
 										
 
 	m_fileInfoPtr = fileInfoPtr;						

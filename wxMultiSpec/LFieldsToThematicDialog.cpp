@@ -1,6 +1,6 @@
 // LFieldsToThematicDialog.cpp : implementation file
 //                   
-// Revised by Larry Biehl on 10/24/2018
+// Revised by Larry Biehl on 05/05/2019
 //
 #include "SMultiSpec.h" 
 
@@ -29,18 +29,15 @@ extern void 		LoadAreasToThematicDialogOK (
 							UInt32								localNumberClasses,
 							SInt16								outputFormatCode);
 
-/////////////////////////////////////////////////////////////////////////////
-// CMFieldsToThematicDialog dialog
 
 
 CMFieldsToThematicDialog::CMFieldsToThematicDialog(wxWindow* pParent, wxWindowID id, const wxString& title)
 	: CMDialog(CMFieldsToThematicDialog::IDD, pParent, title)
+
 {
-	//{{AFX_DATA_INIT(CMFieldsToThematicDialog)
 	m_trainingAreasFlag = FALSE;
 	m_testingAreasFlag = FALSE;
 	m_outputFormatCode = 2;
-	//}}AFX_DATA_INIT 
 	
 	m_initializedFlag = CMDialog::m_initializedFlag;
 	                        
@@ -180,11 +177,10 @@ END_EVENT_TABLE()
 // 
 //	Called By:			
 //
-//	Coded By:			Larry L. Biehl			Date: 07/29/98
-//	Revised By:			Larry L. Biehl			Date: 07/29/98	
+//	Coded By:			Larry L. Biehl			Date: ??/??/2013
+//	Revised By:			Larry L. Biehl			Date: 05/04/2019
 
-Boolean 
-CMFieldsToThematicDialog::DoDialog(
+Boolean CMFieldsToThematicDialog::DoDialog(
 				ReformatOptionsPtr				reformatOptionsPtr)
 
 {  
@@ -231,10 +227,8 @@ CMFieldsToThematicDialog::DoDialog(
 }		// end "DoDialog"
 
 
-/////////////////////////////////////////////////////////////////////////////
-// CMFieldsToThematicDialog message handlers
 
-void CMFieldsToThematicDialog::OnInitDialog(wxInitDialogEvent& event)
+void CMFieldsToThematicDialog::OnInitDialog (wxInitDialogEvent& event)
 {                        
 	SInt16									classSelection,
 												outputFormatCode;
@@ -299,112 +293,39 @@ void CMFieldsToThematicDialog::OnInitDialog(wxInitDialogEvent& event)
 	return ;  // return TRUE  unless you set the focus to a control; IDC_OutputFormatCombo
 }
 
-void CMFieldsToThematicDialog::CreateControls(){
-         
-   wxBitmap entireimi = wxBITMAP_PNG_FROM_DATA(entireim);
-   wxBitmap toentirei = wxBITMAP_PNG_FROM_DATA(toentire);
-   wxBitmap selectedi = wxBITMAP_PNG_FROM_DATA(selected);
-   wxBitmap bmp4i = wxBITMAP_PNG_FROM_DATA(bmp4);
+void CMFieldsToThematicDialog::CreateControls ()
+
+{
+   //wxBitmap entireimi = wxBITMAP_PNG_FROM_DATA(entireim);
+   //wxBitmap toentirei = wxBITMAP_PNG_FROM_DATA(toentire);
+   //wxBitmap selectedi = wxBITMAP_PNG_FROM_DATA(selected);
+   //wxBitmap bmp4i = wxBITMAP_PNG_FROM_DATA(bmp4);
    
    this->SetSizeHints( wxDefaultSize, wxDefaultSize );
 	
 	wxBoxSizer* bSizer292;
-	bSizer292 = new wxBoxSizer( wxVERTICAL );
+	bSizer292 = new wxBoxSizer (wxVERTICAL);
 	
-	m_staticText282 = new wxStaticText( this, wxID_ANY, wxT("Set Specifications for Creating Thematic Image\r from Project Train/Test Areas"), wxDefaultPosition, wxDefaultSize, 0 );
-	m_staticText282->Wrap( -1 );
+	m_staticText282 = new wxStaticText (
+			this,
+			wxID_ANY,
+			wxT("Set Specifications for Creating Thematic Image from Project \rTrain/Test Areas"),
+			wxDefaultPosition,
+			//wxDefaultSize,
+			wxSize (400, -1),
+			0);
+	//m_staticText282->Wrap (-1);
 	bSizer292->Add( m_staticText282, 0, wxALIGN_CENTER_HORIZONTAL|wxALL, 5 );
 	
 	wxStaticBoxSizer* sbSizer8;
-//	sbSizer8 = new wxStaticBoxSizer( new wxStaticBox( this, IDC_LineColFrame, wxT("Thematic Image Area") ), wxHORIZONTAL );
 	
-   wxStaticBox* areaStaticBox = new wxStaticBox(this, IDC_LineColFrame, wxT("Thematic image area:"));
+   wxStaticBox* areaStaticBox = new wxStaticBox (this,
+   																IDC_LineColFrame,
+   																wxT("Thematic image area:"));
    sbSizer8 = new wxStaticBoxSizer(areaStaticBox, wxHORIZONTAL);
-   
-	wxBoxSizer* bSizer791;
-	bSizer791 = new wxBoxSizer( wxHORIZONTAL );
 	
-	m_bpButton4 = new wxBitmapButton(areaStaticBox, IDEntireImage, entireimi, wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW);
-   m_bpButton4->SetBitmapDisabled(toentirei);
-   //bSizer791->Add(m_bpButton4, 0, wxALIGN_CENTER_VERTICAL | wxALIGN_RIGHT | wxALL, 5);
-   //bSizer791->Add(m_bpButton4, 0, wxALIGN_CENTER | wxALL, 5);
-   bSizer791->Add(m_bpButton4, wxSizerFlags(0).Align(wxALIGN_CENTER).Border(wxALL, 5));
-   
-   m_bpButton5 = new wxBitmapButton(areaStaticBox, IDSelectedImage, selectedi, wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW);
-   m_bpButton5->SetBitmapDisabled(selectedi);
-   //bSizer791->Add(m_bpButton5, 0, wxALIGN_CENTER_VERTICAL | wxALIGN_RIGHT | wxALL, 5);
-	//bSizer791->Add(m_bpButton5, 0, wxALIGN_CENTER| wxALL, 5);
-   bSizer791->Add (m_bpButton5, wxSizerFlags(0).Align(wxALIGN_CENTER).Border(wxALL, 5));
-	
-	//sbSizer8->Add (bSizer791, 0, wxEXPAND, 5);
-   sbSizer8->Add (bSizer791, wxSizerFlags(0).Expand());
-	
-	CreateLineColumnControls (sbSizer8);
-	/*
-	wxBoxSizer* bSizer121;
-	bSizer121 = new wxBoxSizer( wxVERTICAL );
-	
-	m_staticText177 = new wxStaticText( sbSizer8->GetStaticBox(), IDC_StartEndInterval, wxT("                      Start       \tEnd          Interval"), wxDefaultPosition, wxDefaultSize, 0 );
-	m_staticText177->Wrap( -1 );
-	bSizer121->Add( m_staticText177, 0, wxALL, 5 );
-	
-	wxGridSizer* gSizer1;
-	gSizer1 = new wxGridSizer( 2, 4, 0, 0 );
-	
-	m_staticText60 = new wxStaticText( sbSizer8->GetStaticBox(), IDC_LinePrompt, wxT("Lines"), wxDefaultPosition, wxDefaultSize, 0 );
-	m_staticText60->Wrap( -1 );
-	gSizer1->Add( m_staticText60, 0, wxALIGN_CENTER|wxALL, 2 );
-	
-	m_linestartctrl = new wxTextCtrl( sbSizer8->GetStaticBox(), IDC_LineStart, wxEmptyString, wxDefaultPosition, wxSize( 70,-1 ), 0 );
-	m_linestartctrl->SetMaxLength( 0 ); 
-	m_linestartctrl->SetValidator( wxTextValidator( wxFILTER_NUMERIC, &m_LineStartString ) );
-	
-	gSizer1->Add( m_linestartctrl, 0, wxALIGN_CENTER|wxALL, 2 );
-	
-	m_lineendctrl = new wxTextCtrl( sbSizer8->GetStaticBox(), IDC_LineEnd, wxEmptyString, wxDefaultPosition, wxSize( 70,-1 ), 0 );
-	m_lineendctrl->SetMaxLength( 0 ); 
-	m_lineendctrl->SetValidator( wxTextValidator( wxFILTER_NUMERIC, &m_LineEndString ) );
-	
-	gSizer1->Add( m_lineendctrl, 0, wxALIGN_CENTER|wxALL, 2 );
-	
-	m_lineintctrl = new wxTextCtrl( sbSizer8->GetStaticBox(), IDC_LineInterval, wxEmptyString, wxDefaultPosition, wxSize( 70,-1 ), 0 );
-	m_lineintctrl->SetMaxLength( 0 ); 
-	m_lineintctrl->SetValidator( wxTextValidator( wxFILTER_NUMERIC, &m_LineIntervalString ) );
-	
-	gSizer1->Add( m_lineintctrl, 0, wxALIGN_CENTER|wxALL, 2 );
-	
-	m_staticText62 = new wxStaticText( sbSizer8->GetStaticBox(), IDC_ColumnPrompt, wxT("Columns"), wxDefaultPosition, wxDefaultSize, 0 );
-	m_staticText62->Wrap( -1 );
-	gSizer1->Add( m_staticText62, 0, wxALIGN_CENTER|wxALL, 2 );
-	
-	m_colstartctrl = new wxTextCtrl( sbSizer8->GetStaticBox(), IDC_ColumnStart, wxEmptyString, wxDefaultPosition, wxSize( 70,-1 ), 0 );
-	m_colstartctrl->SetMaxLength( 0 ); 
-	m_colstartctrl->SetValidator( wxTextValidator( wxFILTER_NUMERIC, &m_ColumnStartString ) );
-	
-	gSizer1->Add( m_colstartctrl, 0, wxALIGN_CENTER|wxALL, 2 );
-	
-	m_colendctrl = new wxTextCtrl( sbSizer8->GetStaticBox(), IDC_ColumnEnd, wxEmptyString, wxDefaultPosition, wxSize( 70,-1 ), 0 );
-	m_colendctrl->SetMaxLength( 0 ); 
-	m_colendctrl->SetValidator( wxTextValidator( wxFILTER_NUMERIC, &m_ColumnEndString ) );
-	
-	gSizer1->Add( m_colendctrl, 0, wxALIGN_CENTER|wxALL, 2 );
-	
-	m_colintctrl = new wxTextCtrl( sbSizer8->GetStaticBox(), IDC_ColumnInterval, wxEmptyString, wxDefaultPosition, wxSize( 70,-1 ), 0 );
-	m_colintctrl->SetMaxLength( 0 ); 
-	m_colintctrl->SetValidator( wxTextValidator( wxFILTER_NUMERIC, &m_ColumnIntervalString ) );
-	
-	gSizer1->Add( m_colintctrl, 0, wxALIGN_CENTER|wxALL, 2 );
-	bSizer121->Add( gSizer1, 0, wxEXPAND, 5 );	
-	sbSizer8->Add( bSizer121, 0, wxEXPAND, 5 );
-	
-   SetUpToolTip(m_bpButton4, IDS_ToolTip40);  
-   SetUpToolTip(m_linestartctrl, IDS_ToolTip19);
-   SetUpToolTip(m_lineendctrl, IDS_ToolTip20);
-   SetUpToolTip(m_lineintctrl, IDS_ToolTip21);
-   SetUpToolTip(m_colstartctrl, IDS_ToolTip22);
-   SetUpToolTip(m_colendctrl, IDS_ToolTip23);
-   SetUpToolTip(m_colintctrl, IDS_ToolTip24);
-   */
+ 	CreateLineColumnControls (sbSizer8);
+
 	//bSizer292->Add (sbSizer8, 0, wxALL|wxEXPAND, 12 );
    bSizer292->Add (sbSizer8, wxSizerFlags(0).Expand().Border(wxALL, 12));
 	
@@ -475,7 +396,7 @@ void CMFieldsToThematicDialog::CreateControls(){
 	
 	
 	bSizer294->Add( bSizer305, 1, wxEXPAND, 5 );
-	
+	/*
 	wxBoxSizer* bSizer306;
 	bSizer306 = new wxBoxSizer( wxHORIZONTAL );
 	
@@ -489,10 +410,10 @@ void CMFieldsToThematicDialog::CreateControls(){
 	//bSizer294->Add (bSizer306, 0, wxALIGN_BOTTOM|wxALIGN_RIGHT, 5 );
    //bSizer294->Add (bSizer306, 0, wxALIGN_BOTTOM, 5);
    bSizer294->Add (bSizer306, wxSizerFlags(0).Align(wxALIGN_BOTTOM));
-	
-	
+	*/
 	bSizer292->Add( bSizer294, 0, wxALL|wxEXPAND, 12 );
 	
+	CreateStandardButtons (bSizer292);
 	
 	this->SetSizerAndFit( bSizer292 );
 	this->Layout();

@@ -19,7 +19,7 @@
 //
 //	Written By:				Abdur Rahman Maud		Date: ??/??/2009
 // Revised By:				Tsung Tai Yeh			Date: 07/28/2015
-//	Revised By:				Larry L. Biehl			Date: 02/21/2019
+//	Revised By:				Larry L. Biehl			Date: 07/09/2019
 //	
 //------------------------------------------------------------------------------------
 
@@ -97,7 +97,9 @@
 #define IDD_ListData                    185
 #define IDD_AppendFile                  187
 #define IDD_CEMParameters               189
+#define IDD_SVMParameters               190
 #define IDD_SAMParameters               191
+#define IDD_KNNParameters               192
 #define IDD_ListStats                   193
 #define IDD_FeatureSelection            194
 #define IDD_FeatureSelectionListOptions 196
@@ -423,6 +425,7 @@
 #define IDS_Project87                   887
 #define IDS_Project88                   888
 #define IDS_Project89                   889
+#define IDS_Project90                   890
 #define IDS_ProjectVersion1             901
 #define IDS_ProjectVersion2             902
 #define IDS_ProjectVersion3             903
@@ -1104,11 +1107,16 @@
 #define IDC_StatsType                   1469
 #define IDS_Classify69                  1469
 #define IDS_Classify70                  1470
+#define IDS_Classify71                  1471
+#define IDS_Classify72                  1472
 #define IDC_ListStatsCombo              1470
+#define IDS_Classify72                  1472
+#define IDS_Classify73                  1473
 #define IDC_StatsCombo                  1473
+#define IDS_Classify74                  1474
 #define IDC_ProjectClassMeans           1474
 #define IDC_correlationPrompt           1475
-#define IDC_CorrelationCoefficient      1476
+#define IDC_CorrelationCoefficientThreshold      1476
 #define IDC_ShowClassNames              1477
 #define IDC_ShowTrainTestLabel          1478
 #define IDC_ColorPrompt                 1479
@@ -1117,9 +1125,11 @@
 #define IDC_TrainingLOO                 1482
 #define IDC_DegreeSymbol                1483
 #define IDC_CEMThreshold                1484
-#define IDC_CorrelationThresold         1485
+#define IDC_CorrelationAngleThreshold   1485
 #define IDC_UseClasses                  1486
+#define IDC_NearestNeighbor             1486
 #define IDC_UseSelectedArea             1487
+#define IDC_NearestNeighborThreshold	 1487
 #define IDC_Fields                      1488
 #define IDC_MeansStdDev                 1489
 #define IDC_CorrelationMatrix           1490
@@ -1132,6 +1142,7 @@
 #define IDC_CovariancePrompt            1496
 #define IDC_WeightsEqual                1498
 #define IDC_DistanceMeasureCombo        1499
+#define IDC_KValue							 1500
 #define IDS_ListResult1                 1501
 #define IDS_ListResult2                 1502
 #define IDC_NumberChannelsPrompt        1502
@@ -2899,6 +2910,8 @@
 #define IDS_ToolTip358                  8358
 #define IDS_ToolTip359                  8359
 #define IDS_ToolTip360                  8360
+#define IDS_ToolTip401                  8401
+
 
 #define IDS_DialogMsg0                  8500
 #define IDS_DialogMsg1                  8501
@@ -3029,6 +3042,7 @@
 #define ID_PROJ_CLOSE_WINDOW				 12916
 #define ID_FILE_CHANGE_IMAGE_DESC       12772
 #define ID_FILE_LOAD_TRANS_MATRIX       12773
+#define ID_EDIT_UNDO			             12774
 #define ID_EDIT_SELECT_ALL              12775
 #define ID_EDIT_CLEAR_SELECT_RECTANGLE  12776
 #define ID_EDIT_CLEAR_TRANS_MATRIX      12777

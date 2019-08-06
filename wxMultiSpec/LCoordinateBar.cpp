@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 // 								Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (2009-2018)
+//								 Copyright (2009-2019)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -12,7 +12,7 @@
 //
 //	Authors:					Abdur Rahman Maud, Larry L. Biehl
 //
-//	Revision date:			05/01/2018
+//	Revision date:			04/17/2019
 //
 //	Language:				C++
 //
@@ -35,6 +35,14 @@
 #include "LCoordinateBar.h"
 
 IMPLEMENT_DYNAMIC_CLASS (CMCoordinateBar, wxPanel)
+
+
+
+BEGIN_EVENT_TABLE (CMCoordinateBar, wxPanel)
+    EVT_COMBOBOX (IDC_AreaUnitsCombo, CMCoordinateBar::OnSelendokAreaUnits)
+    EVT_COMBOBOX (IDC_DisplayUnitsCombo, CMCoordinateBar::OnSelendokDisplayUnits)
+	 EVT_COMBOBOX_DROPDOWN (IDC_DisplayUnitsCombo, CMCoordinateBar::OnDropDownDisplayUnits)
+END_EVENT_TABLE ()
 
 
 
@@ -86,14 +94,6 @@ CMCoordinateBar::~CMCoordinateBar ()
 
 }	// end "~CMCoordinateBar()"
 
-
-
-
-BEGIN_EVENT_TABLE (CMCoordinateBar, wxPanel)
-    EVT_COMBOBOX (IDC_AreaUnitsCombo, CMCoordinateBar::OnSelendokAreaUnits)
-    EVT_COMBOBOX (IDC_DisplayUnitsCombo, CMCoordinateBar::OnSelendokDisplayUnits)
-	 EVT_COMBOBOX_DROPDOWN (IDC_DisplayUnitsCombo, CMCoordinateBar::OnDropDownDisplayUnits)
-END_EVENT_TABLE ()
 
 	
 void CMCoordinateBar::InitialUpdate ()
@@ -308,7 +308,7 @@ void CMCoordinateBar::SetupControls ()
 
 	wxGridSizer* gSizer8;
 	gSizer8 = new wxGridSizer (2, 1, 0, 0);
-
+	/*
 	m_staticText103 = new wxStaticText (this,
 													IDC_NumberPixelsPrompt,
 													wxT("Number pixels"),
@@ -317,7 +317,36 @@ void CMCoordinateBar::SetupControls ()
 													0);
 	m_staticText103->Wrap (-1);
 	gSizer8->Add (m_staticText103, 0, wxRESERVE_SPACE_EVEN_IF_HIDDEN|wxALL, 2);
-
+	*/
+	m_comboBox21 = new wxComboBox (this,
+												IDC_AreaUnitsCombo,
+												wxT("Number pixels"),
+												wxDefaultPosition,
+												#if defined multispec_wxlin
+													wxSize (-1, 19),
+												#endif
+												#if defined multispec_wxmac
+													wxDefaultSize,
+												#endif
+												0,
+												NULL,
+												wxCB_READONLY);
+	m_comboBox21->Append (wxT("Number pixels"));
+	m_comboBox21->SetClientData (0, (void*)kNumberPixelsUnitsMenuItem);
+	
+	m_comboBox21->Append (wxT("Unknown units"));
+	m_comboBox21->SetClientData (1, (void*)kAreaUnknownUnitsMenuItem);
+	gSizer8->Add (m_comboBox21,
+	#if defined multispec_wxlin
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Border(wxTOP|wxBOTTOM, 1));
+	#endif
+	#if defined multispec_wxmac
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Border(wxTOP|wxBOTTOM, 2));
+	#endif
+		//wxRESERVE_SPACE_EVEN_IF_HIDDEN|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL,
+		//wxRESERVE_SPACE_EVEN_IF_HIDDEN|wxTOP,
+		//2);
+	
 	m_staticText104 = new wxStaticText (this,
 													IDC_NumberPixels,
 													wxT(" "),
@@ -325,10 +354,15 @@ void CMCoordinateBar::SetupControls ()
 													wxDefaultSize,
 													0);
 	m_staticText104->Wrap (-1);
-	gSizer8->Add (m_staticText104, 0, wxRESERVE_SPACE_EVEN_IF_HIDDEN|wxALL, 2);
+	gSizer8->Add (m_staticText104,
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Border(wxTOP, 2));
+						//wxRESERVE_SPACE_EVEN_IF_HIDDEN|wxALIGN_CENTER_VERTICAL|wxALL,
+						//wxRESERVE_SPACE_EVEN_IF_HIDDEN|wxTOP,
+						//2);
 
-	bSizer94->Add (gSizer8, 0, wxEXPAND, 2);
-
+	//bSizer94->Add (gSizer8, 0, wxEXPAND);
+	bSizer94->Add (gSizer8, wxSizerFlags(0).Align(wxALIGN_CENTER_VERTICAL));
+	/*
 	m_comboBox21 = new wxComboBox (this,
 												IDC_AreaUnitsCombo,
 												wxT("Number pixels"),
@@ -338,23 +372,33 @@ void CMCoordinateBar::SetupControls ()
 												NULL,
 												wxCB_READONLY);
 	m_comboBox21->Append (wxT("Number pixels"));
-	m_comboBox21->Append (wxT("Sq. kilometers"));
-	m_comboBox21->Append (wxT("Hectares"));
-	m_comboBox21->Append (wxT("Sq. meters"));
-	m_comboBox21->Append (wxT("Sq. centimeters"));
-	m_comboBox21->Append (wxT("Sq. millimeters"));
-	m_comboBox21->Append (wxT("Sq. micrometers"));
-	m_comboBox21->Append (wxT("Sq. miles"));
-	m_comboBox21->Append (wxT("Acres"));
-	m_comboBox21->Append (wxT("Sq. yards"));
-	m_comboBox21->Append (wxT("Sq. feet"));
-	m_comboBox21->Append (wxT("Sq. inches"));
+	m_comboBox21->SetClientData (0, (void*)kNumberPixelsUnitsMenuItem);
+	
+	m_comboBox21->Append (wxT("Unknown units"));
+	m_comboBox21->SetClientData (1, (void*)kAreaUnknownUnitsMenuItem);
+	
+	
+	//		// IDC_AreaUnitsCombo will be updated later after more is known about
+	//		// the image
+	//
+	//m_comboBox21->Append (wxT("Sq. kilometers"));
+	//m_comboBox21->Append (wxT("Hectares"));
+	//m_comboBox21->Append (wxT("Sq. meters"));
+	//m_comboBox21->Append (wxT("Sq. centimeters"));
+	//m_comboBox21->Append (wxT("Sq. millimeters"));
+	//m_comboBox21->Append (wxT("Sq. micrometers"));
+	//m_comboBox21->Append (wxT("Sq. miles"));
+	//m_comboBox21->Append (wxT("Acres"));
+	//m_comboBox21->Append (wxT("Sq. yards"));
+	//m_comboBox21->Append (wxT("Sq. feet"));
+	//m_comboBox21->Append (wxT("Sq. inches"));
+	
 	bSizer94->Add (
 		m_comboBox21,
 		0,
 		wxRESERVE_SPACE_EVEN_IF_HIDDEN|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL,
 		2);
-
+	*/
 	m_staticline3 = new wxStaticLine (this,
 													wxID_ANY,
 													wxDefaultPosition,

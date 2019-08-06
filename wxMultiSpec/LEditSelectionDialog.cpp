@@ -1,6 +1,6 @@
 // LEditSelectionDialog.cpp
 //
-// Revised by Larry Biehl on 01/17/2019
+// Revised by Larry Biehl on 04/18/2019
 //
 // CMEditCoordinatesDlg dialog
 //
@@ -256,7 +256,8 @@ void CMEditCoordinatesDlg::CreateControls ()
 	//fgSizer20->Add (m_staticText318, 0, wxALIGN_CENTER_VERTICAL | wxALL, 5);
 	fgSizer20->Add (m_staticText318, wxSizerFlags(0).Align(wxALIGN_CENTER_VERTICAL).Border(wxTOP|wxRIGHT|wxBOTTOM, 5));
 
-	m_textCtrl182 = new wxTextCtrl(this, IDC_NewLineStart);//, wxT("1"), wxDefaultPosition, wxSize( 120,-1 ), 0);
+	//m_textCtrl182 = new wxTextCtrl(this, IDC_NewLineStart);//, wxT("1"), wxDefaultPosition, wxSize (120,-1 ), 0);
+	m_textCtrl182 = new wxTextCtrl(this, IDC_NewLineStart, wxEmptyString, wxDefaultPosition, wxSize (120, -1), 0);
 	m_textCtrl182->SetSize (wxSize(120,-1));
    SetUpToolTip(m_textCtrl182, IDS_ToolTip317);
    //m_textCtrl182->SetValidator(wxTextValidator(wxFILTER_NUMERIC, &m_stringCheck));
@@ -266,7 +267,7 @@ void CMEditCoordinatesDlg::CreateControls ()
 	m_staticText319->Wrap(-1);
 	fgSizer20->Add(m_staticText319, 0, wxALIGN_CENTER | wxALL, 5);
 
-	m_textCtrl183 = new wxTextCtrl(this, IDC_NewLineEnd, wxEmptyString, wxDefaultPosition, wxSize( 120,-1 ), 0);
+	m_textCtrl183 = new wxTextCtrl(this, IDC_NewLineEnd, wxEmptyString, wxDefaultPosition, wxSize (120, -1), 0);
    SetUpToolTip(m_textCtrl183, IDS_ToolTip318);
    //m_textCtrl183->SetValidator(wxTextValidator(wxFILTER_NUMERIC, &m_stringCheck));
 	fgSizer20->Add(m_textCtrl183, 0, wxALIGN_CENTER | wxALL, 5);
@@ -304,7 +305,8 @@ void CMEditCoordinatesDlg::CreateControls ()
 	//fgSizer201->Add (m_staticText3181, 0, wxALIGN_CENTER_VERTICAL | wxALL, 5);
 	fgSizer201->Add (m_staticText3181, wxSizerFlags(0).Align(wxALIGN_CENTER_VERTICAL).Border(wxTOP|wxRIGHT|wxBOTTOM, 5));
 
-	m_textCtrl1821 = new wxTextCtrl(this, IDC_NewColumnStart);//, wxT("1"), wxDefaultPosition, wxSize( 120,-1 ), 0);
+	//m_textCtrl1821 = new wxTextCtrl(this, IDC_NewColumnStart);//, wxT("1"), wxDefaultPosition, wxSize (120, -1), 0);
+	m_textCtrl1821 = new wxTextCtrl(this, IDC_NewColumnStart, wxEmptyString, wxDefaultPosition, wxSize (120, -1), 0);
 	m_textCtrl1821->SetSize (wxSize(120,-1));
    SetUpToolTip(m_textCtrl1821, IDS_ToolTip319);
    //m_textCtrl1821->SetValidator(wxTextValidator(wxFILTER_NUMERIC, &m_stringCheck));
@@ -425,7 +427,7 @@ Boolean CMEditCoordinatesDlg::DoDialog(
     SInt16 returnCode;
 
 
-    // Make sure intialization has been completed.
+    		// Make sure intialization has been completed.
 
     if (!m_initializedFlag)
         return (FALSE);
@@ -439,7 +441,7 @@ Boolean CMEditCoordinatesDlg::DoDialog(
     m_selectionUnits = *unitsDisplayCodePtr;
     m_stringID = stringID;
 
-    // Initialize new rectangle coordinates. 									
+    		// Initialize new rectangle coordinates.
 
     m_newLineStart = (double) inputSelectionRectanglePtr->top;
     m_newColumnStart = (double) inputSelectionRectanglePtr->left;
@@ -501,17 +503,11 @@ void CMEditCoordinatesDlg::OnChangeNewColumnStart(wxCommandEvent& event) {
 
 
     previousValue = m_newColumnStart;
-    //DDX_Text(m_dialogFromPtr, IDC_NewColumnStart, m_value);
     wxTextCtrl* newColumnStart = (wxTextCtrl*) FindWindow(IDC_NewColumnStart);
     m_value = newColumnStart->GetValue();
 
-    if (m_selectionUnits == kLineColumnUnits) {
-        //if (m_valuePtr[0] != 0) {
-//        if (!((wxDynamicCast(FindWindow(IDC_NewColumnStart), wxTextCtrl)))->IsEmpty()){           
-//            //DDX_Text(m_dialogFromPtr, IDC_NewColumnStart, m_newColumnStart);            
-//            m_value.ToDouble(&m_newColumnStart);
-//        } else // m_valuePtr[0] == 0
-//            m_newColumnStart = 0;
+    if (m_selectionUnits == kLineColumnUnits)
+    	{
         if(m_value.length() != 0)
             m_value.ToDouble(&m_newColumnStart);
         else
@@ -540,7 +536,6 @@ void CMEditCoordinatesDlg::OnChangeNewColumnStart(wxCommandEvent& event) {
         //if (m_valuePtr[0] != 0 && !(m_valuePtr[0] == '-' && m_valuePtr[1] == 0)) {
         //if (!(wxDynamicCast(FindWindow(IDC_NewColumnStart), wxTextCtrl))->IsEmpty()){           
         if(m_value.length()!= 0 && !(m_value == '-' && m_value.length()==1)){
-            //DDX_Text(m_dialogFromPtr, IDC_NewColumnStart, m_newColumnStart);            
             m_value.ToDouble(&m_newColumnStart);
         } else // m_valuePtr[0] == 0
             m_newColumnStart = 0;
@@ -553,7 +548,6 @@ void CMEditCoordinatesDlg::OnChangeNewColumnStart(wxCommandEvent& event) {
         m_valueChangedFlag = TRUE;
 
     if (updateValueFlag) {
-        //DDX_Text(m_dialogToPtr, IDC_NewColumnStart, m_newColumnStart);
         wxTextCtrl* newColumnStart = (wxTextCtrl*) FindWindow(IDC_NewColumnStart);
         //newColumnStart->ChangeValue(wxString::Format(wxT("%ld"), m_newColumnStart));
         if (m_selectionUnits == kLineColumnUnits)
@@ -578,17 +572,11 @@ void CMEditCoordinatesDlg::OnChangeNewColumnEnd(wxCommandEvent& event) {
 
 
     previousValue = m_newColumnEnd;
-    //DDX_Text(m_dialogFromPtr, IDC_NewColumnEnd, m_value);
     wxTextCtrl* newColumnEnd = (wxTextCtrl*) FindWindow(IDC_NewColumnEnd);
     m_value = newColumnEnd->GetValue();
 
-    if (m_selectionUnits == kLineColumnUnits) {
-//        if (m_valuePtr[0] != 0) {
-//        if (!((wxDynamicCast(FindWindow(IDC_NewColumnEnd), wxTextCtrl)))->IsEmpty()){           
-//            //DDX_Text(m_dialogFromPtr, IDC_NewColumnEnd, m_newColumnEnd);
-//            m_value.ToDouble(&m_newColumnEnd);
-//        } else // m_valuePtr[0] == 0
-//            m_newColumnEnd = 0;
+    if (m_selectionUnits == kLineColumnUnits)
+    	{
             
         if(m_value.length() != 0)
             m_value.ToDouble(&m_newColumnEnd);
@@ -614,11 +602,9 @@ void CMEditCoordinatesDlg::OnChangeNewColumnEnd(wxCommandEvent& event) {
     }// end "if (m_selectionUnits == kLineColumnUnits)"
 
     else // m_selectionUnits != kLineColumnUnits
-    {
-        // (m_valuePtr[0] != 0 && !(m_valuePtr[0] == '-' && m_valuePtr[1] == 0)) {
-        //if (!(wxDynamicCast(FindWindow(IDC_NewColumnEnd), wxTextCtrl))->IsEmpty()){           
-        if(m_value.length()!= 0 && !(m_value == '-' && m_value.length()==1)){
-            //DDX_Text(m_dialogFromPtr, IDC_NewColumnEnd, m_newColumnEnd);
+    	{
+		if (m_value.length()!= 0 && !(m_value == '-' && m_value.length()==1))
+        	{
             m_value.ToDouble(&m_newColumnEnd);
         } else // m_valuePtr[0] == 0
             m_newColumnEnd = 0;
@@ -630,9 +616,8 @@ void CMEditCoordinatesDlg::OnChangeNewColumnEnd(wxCommandEvent& event) {
     if (previousValue != m_newColumnEnd && !m_coordinateUnitsChangingFlag)
         m_valueChangedFlag = TRUE;
 
-    if (updateValueFlag) {
-        //DDX_Text(m_dialogToPtr, IDC_NewColumnEnd, m_newColumnEnd);
-        //newColumnEnd->ChangeValue(wxString::Format(wxT("%ld"), m_newColumnEnd));
+    if (updateValueFlag)
+    	{
         if (m_selectionUnits == kLineColumnUnits)
             newColumnEnd->ChangeValue(wxString::Format(wxT("%.0lf"), m_newColumnEnd));
         else
@@ -815,7 +800,9 @@ void CMEditCoordinatesDlg::OnChangeNewLineEnd(wxCommandEvent& event) {
 /////////////////////////////////////////////////////////////////////////////
 // CMEditCoordinatesDlg message handlers
 
-void CMEditCoordinatesDlg::OnInitDialog(wxInitDialogEvent& event) {
+void CMEditCoordinatesDlg::OnInitDialog(wxInitDialogEvent& event)
+
+{
     Boolean applyToAllWindowsFlag,
             useStartLineColumnFlag;
 
@@ -855,8 +842,33 @@ void CMEditCoordinatesDlg::OnInitDialog(wxInitDialogEvent& event) {
     
     if (m_listSelectionUnits < 0)
         m_listSelectionUnits = 0;
+	
+	if (m_selectionUnits == kLineColumnUnits)
+		{
+		wxFloatingPointValidator<double> doubleValue (0, &m_doubleValueCheck);
+		doubleValue.SetRange(1, kMaxNumberLines);
+		m_textCtrl182->SetValidator(doubleValue);
+		m_textCtrl183->SetValidator(doubleValue);
+		m_textCtrl1821->SetValidator(doubleValue);
+		m_textCtrl1831->SetValidator(doubleValue);
+		
+		}	// end "if (m_selectionUnits == kLineColumnUnits)"
+	
+	else	// m_selectionUnits != kLineColumnUnits
+		{
+		int numberDecimals = 4;
+		if (m_selectionUnits == kLatLongUnits)
+			numberDecimals = 8;
+		
+		wxFloatingPointValidator<double> doubleValue (numberDecimals, &m_doubleValueCheck);
+		m_textCtrl182->SetValidator(doubleValue);
+		m_textCtrl183->SetValidator(doubleValue);
+		m_textCtrl1821->SetValidator(doubleValue);
+		m_textCtrl1831->SetValidator(doubleValue);
+		
+		}	// end "if (m_selectionUnits != kLineColumnUnits)"
 
-    // Update the dialog box parameters and then center the dialog.
+    		// Update the dialog box parameters and then center the dialog.
 
     //if (UpdateData(FALSE))
     if (CMEditCoordinatesDlg::TransferDataToWindow())
@@ -932,7 +944,8 @@ void CMEditCoordinatesDlg::OnSelendokCoordinateUnits(wxCommandEvent& event)
 
 				// Change the validators.
 		
-		if (m_selectionUnits == kLineColumnUnits) {
+		if (m_selectionUnits == kLineColumnUnits)
+			{
 			//wxIntegerValidator<unsigned long int> uLongIntValue(&m_uInt32ValueCheck);
 			//uLongIntValue.SetRange(1, kMaxNumberLines);
 			//m_textCtrl182->SetValidator(uLongIntValue);

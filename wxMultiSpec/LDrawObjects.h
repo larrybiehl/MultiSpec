@@ -12,7 +12,9 @@ class CMImageDoc;
 
 // CMDrawObject - base class for all 'drawable objects'
 
-class CMDrawObject : public wxObject {
+class CMDrawObject : public wxObject
+
+{
 protected:
     CMDrawObject();
 

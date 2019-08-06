@@ -167,13 +167,8 @@ void CMSinglePassClusterDialog::CreateControls ()
 
 {
    this->SetSizeHints (wxDefaultSize, wxDefaultSize);
-   /*
-   wxBitmap entireimi = wxBITMAP_PNG_FROM_DATA (entireim);
-   wxBitmap toentirei = wxBITMAP_PNG_FROM_DATA (toentire);
-   wxBitmap selectedi = wxBITMAP_PNG_FROM_DATA (selected);
-   wxBitmap bmp4i = wxBITMAP_PNG_FROM_DATA (bmp4);
-	*/
-   bSizer150 = new wxBoxSizer (wxVERTICAL);
+ 
+	bSizer150 = new wxBoxSizer (wxVERTICAL);
 
    wxStaticBoxSizer* sbSizer30;
    sbSizer30 = new wxStaticBoxSizer (new wxStaticBox (this,

@@ -1,6 +1,6 @@
 // LFileFormatDialog.cpp : implementation file
 //
-//	Revised by Larry Biehl on 11/30/2018
+//	Revised by Larry Biehl on 03/12/2019
 /*		
 	int numberChars = sprintf ((char*)&gTextString3,
 												" LFormDlg:OnPaint (m_hdfDataSetSelection): %ld%s", 
@@ -10,10 +10,11 @@
 */	
 
 #include "SMultiSpec.h"
-#include "wx/valgen.h"
+#include "CImageWindow.h"
 #include "LFileFormatDialog.h"
 #include "LImageView.h"
-#include "CImageWindow.h"
+#include "LMultiSpec.h"
+#include "wx/valgen.h"
 #include "wx/window.h"
 
 extern void FileSpecificationDialogInitialize (
@@ -472,7 +473,7 @@ void CMFileFormatSpecsDlg::CreateControls ()
    SetUpToolTip(m_checkBox4, IDS_ToolTip273);
 	bSizer83->Add(m_checkBox4, 0, wxALIGN_CENTER | wxALL, 5);
 
-	m_textCtrl35 = new wxTextCtrl(this, IDC_FillDataValue, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0);
+	m_textCtrl35 = new wxTextCtrl(this, IDC_FillDataValue, wxEmptyString, wxDefaultPosition, wxSize (200, -1), 0);
    SetUpToolTip(m_textCtrl35, IDS_ToolTip273);
 	bSizer83->Add(m_textCtrl35, 0, wxALL, 5);
 
@@ -601,104 +602,123 @@ END_EVENT_TABLE()
 //	Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 05/23/1995
-//	Revised By:			Larry L. Biehl			Date: 02/22/2012	
+//	Revised By:			Larry L. Biehl			Date: 03/12/2019
 
-Boolean
-CMFileFormatSpecsDlg::DoDialog(
-        Handle fileInfoHandle,
-        Handle windowInfoHandle,
-        Handle* mapInformationHandlePtr,
-        Handle* hfaHandlePtr,
-        Handle* newChannelToHdfDataSetHandlePtr,
-        Boolean* parameterChangedFlagPtr) {
-    SInt16 returnCode;
+Boolean CMFileFormatSpecsDlg::DoDialog (
+				Handle 								fileInfoHandle,
+				Handle 								windowInfoHandle,
+				Handle* 								mapInformationHandlePtr,
+				Handle* 								hfaHandlePtr,
+				Handle* 								newChannelToHdfDataSetHandlePtr,
+				Boolean* 							parameterChangedFlagPtr)
 
-    Boolean continueFlag = FALSE,
-            changedFlag,
-            classesChanged = FALSE,
-            parameterChangedFlag = FALSE;
-
-
-    // Make sure intialization has been completed.
-
-    if (!m_initializedFlag)
-        return (FALSE);
-
-    m_fileInfoHandle = fileInfoHandle;
-    m_windowInfoHandle = windowInfoHandle;
-
-    m_mapInformationHandle = *mapInformationHandlePtr;
-    m_hfaHandle = *hfaHandlePtr;
-    m_newChannelToHdfDataSetHandle = *newChannelToHdfDataSetHandlePtr;
-
-    returnCode = ShowModal();
-
-    if (returnCode == wxID_OK) {
-        changedFlag = FALSE;
-        continueFlag = TRUE;
-
-        parameterChangedFlag = FileSpecificationDialogOK(
-                this,
-                m_fileInfoPtr,
-                fileInfoHandle,
-                &m_mapInformationHandle,
-                &m_hfaHandle,
-                &m_newChannelToHdfDataSetHandle,
-                m_windowInfoPtr,
-                windowInfoHandle,
-                m_numberLines,
-                m_numberColumns,
-                m_numberChannels,
-                m_startLineNumber,
-                m_startColumnNumber,
-                m_headerBytes,
-                m_trailerBytes,
-                m_preLineBytes,
-                m_postLineBytes,
-                m_preChannelBytes,
-                m_postChannelBytes,
-                m_blockHeight,
-                m_blockWidth,
-                m_forceGroupTableUpdateFlag,
-                m_bandInterleave + 1,
-                m_dataValueType,
-                m_swapBytesFlag,
-                FALSE,
-                m_linesBottomToTopFlag,
-                m_computeNumClasses,
-                m_fillDataValueExistsFlag,
-                m_fillDataValue,
-                m_hdfDataSetSelection + 1,
-                m_dataSetIndex,
-                m_collapseClassSelection + 1,
-                m_dataCompressionCode,
-                m_gdalDataTypeCode,
-                m_callGetHDFLineFlag);
-
-    } // end "if (returnCode == IDOK)"
-
-    if (parameterChangedFlagPtr != NULL)
-        *parameterChangedFlagPtr = parameterChangedFlag;
-
-    *mapInformationHandlePtr = m_mapInformationHandle;
-    *hfaHandlePtr = m_hfaHandle;
-    *newChannelToHdfDataSetHandlePtr = m_newChannelToHdfDataSetHandle;
-
-    return (continueFlag);
-
-} // end "DoDialog"
-
-
-void CMFileFormatSpecsDlg::OnBnClickedHdfdatasethelp(wxCommandEvent& event) 
 {
+	SInt16 								returnCode;
 
-    DisplayAlert(kErrorAlertID,
-            kNoteAlert,
-            kAlertStrID,
-            IDS_Alert103,
-            IDS_Alert104,
-            NULL);
-}
+	Boolean 								continueFlag = FALSE,
+											changedFlag,
+											//classesChanged = FALSE,
+											parameterChangedFlag = FALSE;
+
+
+			// Make sure intialization has been completed.
+
+	if (!m_initializedFlag)
+		return (FALSE);
+
+	m_fileInfoHandle = fileInfoHandle;
+	m_windowInfoHandle = windowInfoHandle;
+
+	m_mapInformationHandle = *mapInformationHandlePtr;
+	m_hfaHandle = *hfaHandlePtr;
+	m_newChannelToHdfDataSetHandle = *newChannelToHdfDataSetHandlePtr;
+
+	returnCode = ShowModal ();
+
+	if (returnCode == wxID_OK)
+    	{
+		changedFlag = FALSE;
+		continueFlag = TRUE;
+
+		parameterChangedFlag = FileSpecificationDialogOK (this,
+																			 m_fileInfoPtr,
+																			 fileInfoHandle,
+																			 &m_mapInformationHandle,
+																			 &m_hfaHandle,
+																			 &m_newChannelToHdfDataSetHandle,
+																			 m_windowInfoPtr,
+																			 windowInfoHandle,
+																			 m_numberLines,
+																			 m_numberColumns,
+																			 m_numberChannels,
+																			 m_startLineNumber,
+																			 m_startColumnNumber,
+																			 m_headerBytes,
+																			 m_trailerBytes,
+																			 m_preLineBytes,
+																			 m_postLineBytes,
+																			 m_preChannelBytes,
+																			 m_postChannelBytes,
+																			 m_blockHeight,
+																			 m_blockWidth,
+																			 m_forceGroupTableUpdateFlag,
+																			 m_bandInterleave + 1,
+																			 m_dataValueType,
+																			 m_swapBytesFlag,
+																			 FALSE,
+																			 m_linesBottomToTopFlag,
+																			 m_computeNumClasses,
+																			 m_fillDataValueExistsFlag,
+																			 m_fillDataValue,
+																			 m_hdfDataSetSelection + 1,
+																			 m_dataSetIndex,
+																			 m_collapseClassSelection + 1,
+																			 m_dataCompressionCode,
+																			 m_gdalDataTypeCode,
+																			 m_callGetHDFLineFlag);
+
+		}	// end "if (returnCode == IDOK)"
+
+	if (parameterChangedFlagPtr != NULL)
+		*parameterChangedFlagPtr = parameterChangedFlag;
+
+	*mapInformationHandlePtr = m_mapInformationHandle;
+	*hfaHandlePtr = m_hfaHandle;
+	*newChannelToHdfDataSetHandlePtr = m_newChannelToHdfDataSetHandle;
+
+	return (continueFlag);
+
+}	// end "DoDialog"
+
+
+/*
+void CMFileFormatSpecsDlg::OnActivate (
+				wxActivateEvent&								event)
+
+{
+	Boolean testFlag = TRUE;
+	
+}	// end "OnActivate"
+*/
+
+
+void CMFileFormatSpecsDlg::OnBnClickedHdfdatasethelp (
+				wxCommandEvent& 							event)
+
+{
+	DisplayAlert (kErrorAlertID,
+						kNoteAlert,
+						kAlertStrID,
+						IDS_Alert103,
+						IDS_Alert104,
+						NULL,
+						this,
+						kASCIICharString);
+	
+	//wxMessageDialog dialog (this, wxT("Select the hdf data set"), wxT("MultiSpec"), kErrorAlertID | wxSTAY_ON_TOP);
+	//dialog.ShowModal ();
+	
+}	// end "OnBnClickedHdfdatasethelp"
 
 
 void CMFileFormatSpecsDlg::OnBnClickedLinebottomtotop(wxCommandEvent& event) 
@@ -830,7 +850,7 @@ void CMFileFormatSpecsDlg::OnInitDialog (
 	SelectDialogItemText (this, IDC_NumberLines, 0, (SInt16)INT_MAX);
 	
 	if (m_onShowCalledFlag)
-		ShowMultipleDataSetMessage();
+		ShowMultipleDataSetMessage ();
 
 }	// end "OnInitDialog" 
  
@@ -933,10 +953,14 @@ void CMFileFormatSpecsDlg::OnSelendokHDFDataSet (wxCommandEvent& event)
 void CMFileFormatSpecsDlg::OnShow (wxShowEvent& event)
 
 {
-	m_onShowCalledFlag = TRUE;
+	if (event.IsShown ())
+		{
+		m_onShowCalledFlag = TRUE;
 	
-	if (m_windowInfoPtr != NULL)
-		ShowMultipleDataSetMessage();
+		if (m_windowInfoPtr != NULL)
+			ShowMultipleDataSetMessage ();
+		
+		}	// end "if (event.IsShown ())"
 		
 }	// end "OnShow"
 
@@ -954,9 +978,9 @@ void CMFileFormatSpecsDlg::ShowMultipleDataSetMessage (void)
 	if (gProcessorCode == kChangeImageDescriptionProcessor &&
 																m_windowInfoPtr->projectWindowFlag) 
 		{
-		DisplayAlert(kErrorAlertID, kCautionAlert, kAlertStrID, IDS_Alert25, 0, NULL);
+		DisplayAlert (kErrorAlertID, kCautionAlert, kAlertStrID, IDS_Alert25, 0, NULL);
 
-		} // end "if (gProcessorCode == kChangeImageDescriptionProcessor && ..."
+		}	// end "if (gProcessorCode == kChangeImageDescriptionProcessor && ..."
 	  
 		  // Display message about selecting a data set for the first pass through this section.
 	
@@ -968,17 +992,22 @@ void CMFileFormatSpecsDlg::ShowMultipleDataSetMessage (void)
 							m_fileInfoPtr->numberHdfDataSets > 1 &&
 								!gHDFDataSetSelectionAlertDisplayedFlag) 
 		{
+				// Need to be sure dialog box is shown
 		
-		DisplayAlert(kErrorAlertID,
-					  kNoteAlert,
-					  kAlertStrID,
-					  IDS_Alert103,
-					  IDS_Alert104,
-					  NULL);
+		CheckSomeEvents (updateMask+activMask);
+		
+		DisplayAlert (kErrorAlertID,
+							kNoteAlert,
+							kAlertStrID,
+							IDS_Alert103,
+							IDS_Alert104,
+							NULL,
+							this,
+							kASCIICharString);
 		
 		gHDFDataSetSelectionAlertDisplayedFlag = TRUE;
 
-		} // end "if (gProcessorCode == kOpenImageFileProcessor && fileInfoPtr->...)"
+		}	// end "if (gProcessorCode == kOpenImageFileProcessor && fileInfoPtr->...)"
 	
 			// Force any alert messages concerning the default hdf data set to
 			// be shown.
@@ -988,7 +1017,6 @@ void CMFileFormatSpecsDlg::ShowMultipleDataSetMessage (void)
 				m_fileInfoPtr->format == kHDF5Type || m_fileInfoPtr->format == kNETCDF2Type || 
 					m_fileInfoPtr->format == kHDF4Type2 || m_fileInfoPtr->format == kNITFType)) 
 		{
-	
 		FileSpecificationDialogSetHDFValues(this,
 					  m_fileInfoPtr,
 					  m_hdfDataSetSelection,

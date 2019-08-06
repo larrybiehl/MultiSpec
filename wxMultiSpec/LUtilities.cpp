@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl, Tsung Tai Yeh
 //
-//	Revision date:			03/07/2019
+//	Revision date:			04/10/2019
 //
 //	Language:				C
 //
@@ -38,6 +38,7 @@
 
 #include "wx/combobox.h"
 #include "wx/stdpaths.h"
+#include "LImageFrame.h"
 #include "LImageView.h"
 
 #if defined multispec_lin
@@ -238,13 +239,18 @@ void* BeginBitMapRawDataAccess (
 				// Get the bitmap raw data pointer again. It may have changed.
 				// Only do this for multispectral image windows
 
-		wxAlphaPixelData pixeldata (gActiveImageViewCPtr->m_ScaledBitmap);
+		#if defined multispec_wxlin_alpha
+			wxAlphaPixelData pixeldata (gActiveImageViewCPtr->m_ScaledBitmap);
+		#else
+			wxNativePixelData pixeldata (gActiveImageViewCPtr->m_ScaledBitmap);
+		#endif
 		//windowInfoPtr->imageBaseAddressH = (unsigned char*)pixeldata.GetPixels().m_ptr;
 		return (pixeldata.GetPixels().m_ptr);
 	#endif
 	
 	#if defined multispec_wxmac
 		return (bitMapPtr->GetBitmapData()->BeginRawAccess ());
+		//return ((Handle)gActiveImageViewCPtr->m_ScaledGraphicsBitmap.GetNativeBitmap ());
 	#endif
 	
 }	// end "BeginBitMapRawDataAccess"
@@ -270,7 +276,7 @@ void* BeginBitMapRawDataAccess (
 // Called By:			DoUpdateEvent
 //
 //	Coded By:			Larry L. Biehl			Date: 08/31/1988
-//	Revised By:			Larry L. Biehl			Date: 02/04/2019
+//	Revised By:			Larry L. Biehl			Date: 04/10/2019
 
 void CopyOffScreenImage (
 				CMImageView*						imageViewCPtr,
@@ -288,6 +294,9 @@ void CopyOffScreenImage (
 
    LongRect								lDestinationRect,
 											lSourceRect;
+	
+											//tDestinationRect,
+											//tSourceRect;
 
    Rect									destinationRect,
 											sourceRect,
@@ -307,13 +316,13 @@ void CopyOffScreenImage (
 	
 	int 									pixRowBytes;
 
-   SInt32								numberImageOverlays;
+   SInt32								numberImageOverlays,
+											xDimension,
+											yDimension;
 
    UInt32								numberOverlays;
 
-   SInt16								grafPortType,
-											xDimension,
-											yDimension;
+   SInt16								grafPortType;
 
    SInt16								legendWidth,
 											titleHeight,
@@ -322,15 +331,15 @@ void CopyOffScreenImage (
    Boolean								drawBaseImageFlag,
 											drawVectorOverlaysFlag,
 											projectWindowFlag;
+	
 
-
-   if (imageViewCPtr->CheckIfOffscreenImageExists ())
-		{
 				// Intialize some local variables.
 
-      windowInfoPtr = (WindowInfoPtr) GetHandlePointer (
+	windowInfoPtr = (WindowInfoPtr)GetHandlePointer (
 															imageWindowCPtr->GetWindowInfoHandle ());
-		
+	
+   if (windowInfoPtr->drawBitMapFlag)
+		{
       legendWidth = 0;
 
       titleHeight = windowInfoPtr->titleHeight;
@@ -350,9 +359,10 @@ void CopyOffScreenImage (
       		// Note that for the copy, any titleHeight for side by side images
       		// needs to be removed. The offset is being handled by offsetting the
       		// original where the image is being drawn.
+				// Note used now.
 		
-		windowRect.top -= titleHeight;
-		windowRect.bottom -= titleHeight;
+		//windowRect.top -= titleHeight;
+		//windowRect.bottom -= titleHeight;
 
 				// Get handle and pointer to display specification for window
 
@@ -362,8 +372,8 @@ void CopyOffScreenImage (
       magnification = displaySpecsPtr->magnification;
       vOrigin = displaySpecsPtr->origin[kVertical];
       hOrigin = displaySpecsPtr->origin[kHorizontal];
-      yDimension = (SInt16) displaySpecsPtr->imageDimensions[0];
-      xDimension = (SInt16) displaySpecsPtr->imageDimensions[1];
+      yDimension = (SInt32)displaySpecsPtr->imageDimensions[0];
+      xDimension = (SInt32)displaySpecsPtr->imageDimensions[1];
       
       paletteCPtr = displaySpecsPtr->paletteObject;
       if (((imageViewCPtr != gActiveImageViewCPtr) || gInBackground) &&
@@ -424,23 +434,77 @@ void CopyOffScreenImage (
             break;
 
          case kSourceCopy:
-						// This case is currently not implemented for wxWidgets base apps
 						// Map to wherever sourceRect * magnification indicates.  This
 						// allows one to draw parts of the window at a time.
+						// Note that the update rectangle that comes from wxWidgets seems
+						// to leave off the a pixel to the right and left.
 
             lSourceRect.top = inSourceRect->top;
             lSourceRect.left = inSourceRect->left;
-            lSourceRect.bottom = inSourceRect->bottom;
-            lSourceRect.right = inSourceRect->right;
+            lSourceRect.bottom = inSourceRect->bottom + 1;
+            lSourceRect.right = inSourceRect->right + 1;
+				
+				lDestinationRect.left =
+											(SInt32)(lSourceRect.left / magnification);
+				if (lSourceRect.right > windowRect.right)
+					{
+							// Map to where image is to go in the window.
+					
+					lDestinationRect.right =
+											(SInt32)(windowRect.right / magnification + .9999);
+					
+					}	// end "if (lSourceRect.right > windowRect.right)"
+				
+				else	//	lSourceRect.right <= windowRect.right
+					{
+             	lDestinationRect.right =
+											(SInt32)(lSourceRect.right / magnification + .9999);
+					
+					}	// end "else	lSourceRect.right <= windowRect.right"
+				
+				lDestinationRect.top =
+									(SInt32)(lSourceRect.top / magnification);
+				if (lSourceRect.bottom > windowRect.bottom)
+					{
+					lDestinationRect.bottom =
+											(SInt32)(windowRect.bottom / magnification + .9999);
+					
+					}	// end "if (lSourceRect.bottom > windowRect.bottom)"
+				
+				else	// lSourceRect.bottom <= windowRect.bottom
+					{
+             	lDestinationRect.bottom =
+									(SInt32)(lSourceRect.bottom / magnification + .9999);
+					
+					}	// end "else lSourceRect.bottom <= windowRect.bottom"
+					
+				lDestinationRect.left = MAX (0, lDestinationRect.left);
+				lDestinationRect.top = MAX (0, lDestinationRect.top);
+				/*
+						// for testing
 
-            lDestinationRect.top =
-									(SInt32)(lSourceRect.top * magnification + titleHeight);
-            lDestinationRect.left =
-									(SInt32)(lSourceRect.left * magnification + legendWidth);
-            lDestinationRect.bottom =
-									(SInt32)(lSourceRect.bottom * magnification + titleHeight);
-            lDestinationRect.right =
-									(SInt32)(lSourceRect.right * magnification + legendWidth);
+				tDestinationRect.top = (SInt32)(windowRect.top / magnification);
+				tDestinationRect.bottom =
+										(SInt32)(windowRect.bottom / magnification + .9999);
+				tDestinationRect.left = (SInt32)(windowRect.left / magnification);
+				tDestinationRect.right =
+										(SInt32)(windowRect.right / magnification + .9999);
+				
+				tDestinationRect.left = MAX (0, tDestinationRect.left);
+				tDestinationRect.top = MAX (0, tDestinationRect.top);
+				
+				tSourceRect.top = (SInt32)((windowRect.top) / magnification);
+				tSourceRect.left = (SInt32)((windowRect.left) / magnification);
+				tSourceRect.bottom =
+									(SInt32)((windowRect.bottom) / magnification + .9999);
+				tSourceRect.right =
+									(SInt32)((windowRect.right) / magnification + .9999);
+				
+				tSourceRect.bottom = MIN (tSourceRect.bottom, yDimension);
+				tSourceRect.right = MIN (tSourceRect.right, xDimension);
+				tSourceRect.left = MAX (0, tSourceRect.left);
+				tSourceRect.top = MAX (0, tSourceRect.top);
+				*/
             break;
 
          case kScrollCopy: // scroll copy
@@ -548,13 +612,16 @@ void CopyOffScreenImage (
 					wxBitmap& scaledBitmap = imageViewCPtr->m_ScaledBitmap;
 					unsigned char* imageDataPtr = (unsigned char*)imageBaseAddressH;
 					#if defined multispec_wxmac
-						//unsigned char* baseBitmapBufferPtr = (unsigned char*)scaledBitmap.GetRawAccess();
 						unsigned char* baseBitmapBufferPtr =
 												(UCharPtr)BeginBitMapRawDataAccess (windowInfoPtr, &scaledBitmap);
 						pixRowBytes = scaledBitmap.GetBitmapData()->GetBytesPerRow();
 					#endif
 					#if defined multispec_wxlin
-						wxAlphaPixelData pixeldata (scaledBitmap);
+						#if defined multispec_wxlin_alpha
+							wxAlphaPixelData pixeldata (scaledBitmap);
+						#else
+							wxNativePixelData pixeldata (scaledBitmap);
+						#endif
 						unsigned char* baseBitmapBufferPtr = (unsigned char*)pixeldata.GetPixels().m_ptr;
 						pixRowBytes = pixeldata.GetRowStride();
 					#endif
@@ -567,7 +634,7 @@ void CopyOffScreenImage (
 					if (updateEndLine == -1)
 						updateEndLine = numberLines;
 					
-					baseBitmapBufferPtr += updateStartLine * pixRowBytes;
+					baseBitmapBufferPtr += (SInt64)updateStartLine * pixRowBytes;
 					imageDataPtr += updateStartLine * numberColumns;
 				
 					for (line=updateStartLine; line<updateEndLine; line++)
@@ -575,7 +642,7 @@ void CopyOffScreenImage (
 						bitmapBufferPtr = baseBitmapBufferPtr;
 						for (column=0; column<numberColumns; column++)
 							{
-							#if defined multispec_wxmac
+							#if defined multispec_wxmac_alpha
 										// Skip first (Alpha) byte
 								bitmapBufferPtr++;
 							#endif
@@ -586,7 +653,7 @@ void CopyOffScreenImage (
 							bitmapBufferPtr++;
 							*bitmapBufferPtr = paletteCPtr->mPaletteObject[*imageDataPtr].blue;
 							
-							#if defined multispec_wxlin
+							#if defined multispec_wxlin_alpha
 										// Skip last (Alpha) byte
 								bitmapBufferPtr++;
 							#endif
@@ -599,7 +666,6 @@ void CopyOffScreenImage (
 						baseBitmapBufferPtr += pixRowBytes;
 						
 						}	// end "for (line=0; line<numberLines; line++)"
-					
 					
 					EndBitMapRawDataAccess (&scaledBitmap);
 					
@@ -651,10 +717,48 @@ void CopyOffScreenImage (
 		
 		wxMemoryDC displaydc;
 		displaydc.SelectObject (imageViewCPtr->m_ScaledBitmap);
+		//displaydc.SelectObject (imageViewCPtr->m_ScaledGraphicsBitmap);
 		
-		if (imageViewCPtr->m_ScaledBitmap.Ok ())
+		if (imageViewCPtr->m_ScaledBitmap.Ok () && drawBaseImageFlag)
 			{
+			/*
+			int numberChars = sprintf ((char*)gTextString3,
+													" LUtilities.cpp:CopyOffscreen (left, right, top, bottom): %d, %d, %d, %d%s",
+													destinationRect.left,
+													destinationRect.right,
+													destinationRect.top,
+													destinationRect.bottom,
+													gEndOfLine);
+			ListString ((char*)gTextString3, numberChars, gOutputTextH);
+			*/
+			/*
+			int numberChars4 = sprintf ((char*)gTextString3,
+					" LUtilities.cpp:CopyOffscreen (updateStartLine, updateEndLine): %d, %d%s%s",
+					displaySpecsPtr->updateStartLine,
+					displaySpecsPtr->updateEndLine,
+					gEndOfLine,
+					gEndOfLine);
+			ListString ((char*)gTextString3, numberChars4, gOutputTextH);
+			*/
+			/*
+			int numberChars2 = sprintf ((char*)gTextString3,
+													" LUtilities.cpp:CopyOffscreen (tdestination): %d, %d, %d, %d%s",
+													tDestinationRect.left,
+													tDestinationRect.right,
+													tDestinationRect.top,
+													tDestinationRect.bottom,
+													gEndOfLine);
+			ListString ((char*)gTextString3, numberChars2, gOutputTextH);
 			
+			int numberChars3 = sprintf ((char*)gTextString3,
+													" LUtilities.cpp:CopyOffscreen (tSourceRect): %d, %d, %d, %d%s",
+													tSourceRect.left,
+													tSourceRect.right,
+													tSourceRect.top,
+													tSourceRect.bottom,
+													gEndOfLine);
+			ListString ((char*)gTextString3, numberChars3, gOutputTextH);
+			*/
 			int destinationRectWidth =  destinationRect.right - destinationRect.left;
 			int destinationRectHeight = destinationRect.bottom - destinationRect.top;
 			
@@ -670,7 +774,7 @@ void CopyOffScreenImage (
 							wxDefaultCoord, // 
 							wxDefaultCoord); // 
 			
-			}	// end "if (my_image.Ok ())"
+			}	// end "if (my_image.Ok () && drawBaseImageFlag)"
 		
 		displaydc.SelectObject (wxNullBitmap);
 		
@@ -680,7 +784,11 @@ void CopyOffScreenImage (
 						// Get the bitmap raw data pointer again. It may have changed.
 						// imageBaseAddressH is the raw pointer to the bitmap data.
 
-				wxAlphaPixelData pixeldata (imageViewCPtr->m_ScaledBitmap);
+				#if defined multispec_wxlin_alpha
+					wxAlphaPixelData pixeldata (imageViewCPtr->m_ScaledBitmap);
+				#else
+					wxNativePixelData pixeldata (imageViewCPtr->m_ScaledBitmap);
+				#endif
 				windowInfoPtr->imageBaseAddressH = (unsigned char*)pixeldata.GetPixels().m_ptr;
 				
 				}	// end "if (windowInfoPtr->offscreenMapSize == 0)"
@@ -690,30 +798,39 @@ void CopyOffScreenImage (
 		
 		if (numberImageOverlays > 0)
 			DrawImageOverlays (imageViewCPtr,
-										  imageWindowCPtr->GetWindowInfoHandle (),
-										  pDC,
-										  NULL,
-										  NULL,
-										  &destinationRect,
-										  &sourceRect, // sourceRect changed inside
-										  windowCode);
+									  imageWindowCPtr->GetWindowInfoHandle (),
+									  pDC,
+									  NULL,
+									  NULL,
+									  &destinationRect,
+									  &sourceRect, // sourceRect changed inside
+									  windowCode);
 		  
 			// Draw the vector overlays if they exist.
 		
 		if (drawVectorOverlaysFlag && numberOverlays > 0)
 			DrawArcViewShapes (imageViewCPtr,
-											imageWindowCPtr->GetWindowInfoHandle (),
-											&windowRect,
-											windowCode,
-											NULL);
-			
+										imageWindowCPtr->GetWindowInfoHandle (),
+										&windowRect,
+										windowCode,
+										NULL);
+		/*
 				// If this window is the project window, outline the fields if requested.
+				// Set clipping area so that all of text will be printed on the image,
+				// not just the image segment clipped area.
+		
 		if (projectWindowFlag)
+			{
+      	GetWindowClipRectangle (imageViewCPtr, kImageArea, &windowRect);
+			ClipRect (&windowRect);
+			
 			OutlineFieldsControl (gProjectInfoPtr->statsWindowMode,
 											  imageViewCPtr,
 											  imageWindowCPtr->GetWindowInfoHandle (),
 											  windowCode);
-		
+			
+			}	// end "if (projectWindowFlag)"
+		*/
 		if (numberImageOverlays > 0 ||
 					numberOverlays > 0 ||
 							(projectWindowFlag && windowCode >= 2))
@@ -725,66 +842,14 @@ void CopyOffScreenImage (
 
 			}	// end "if (numberImageOverlays > 0 || numberOverlays > 0 || ... "
 		
-				// Draw the selection area, if it exists for this window.			
-      /*		
-		if (copyType != kClipboardCopy)
-			OutlineSelectionArea (theWindow);
-		*/
-				// Handle title line for side-by-side images.							
-
-      if (titleHeight > 0)
-			{
-         if (copyType == kClipboardCopy || copyType == kPrinterCopy)
-				{
-            destinationRect.top = 0;
-				destinationRect.left = 0;
-				destinationRect.bottom =
-							(SInt16)(titleHeight * imageViewCPtr->m_printerTextScaling + .5);
-
-            if (copyType == kClipboardCopy)
-					ClipRect (&destinationRect);
-
-            }	// end "if (copyType == kClipboardCopy || copyType == kPrinterCopy)" 
-
-         else	// copyType != kClipboardCopy && copyType != kPrinterCopy)
-				{
-						// Need to reset the device origin so that the title will be
-						// drawn correctly.
-				
-				wxPoint deviceOrigin = gCDCPointer->GetDeviceOrigin ();
-				deviceOrigin.y -= titleHeight;
-				gCDCPointer->SetDeviceOrigin (deviceOrigin.x, deviceOrigin.y);
-				
-						// Get the clip area for drawing the title.
-						// Adjust so that it starts from 0.
-				
-            destinationRect.left = 0;
-            destinationRect.right = windowRect.right - windowRect.left;
-				destinationRect.top = 0;
-				destinationRect.bottom = titleHeight;
-				
-				ClipRect (&destinationRect);
-
-				destinationRect.top += scrollOffset.y;
-				destinationRect.bottom += scrollOffset.y;
-
-				}	// end "else copyType != kClipboardCopy && copyType != kPrinterCopy" 
-			
-			pDC->SetBrush (wxBrush (*wxWHITE, wxBRUSHSTYLE_SOLID));
-
-         Handle windowInfoHandle = GetWindowInfoHandle (imageViewCPtr);
-			DrawSideBySideTitles (windowInfoHandle,
-										  imageViewCPtr,
-										  &destinationRect,
-										  windowCode);
-
-			ClipRect (&windowRect);
-         
-			}	// end "if (titleHeight > 0)" 
-			 
-		pDC->DestroyClippingRegion ();
+				// The titles for side by side images are handled by paint events in
+				// the TitleBar class
 		
-		}	// end "if (imageViewCPtr->CheckIfOffscreenImageExists ())"
+				// Not clear this is needed. Does not seem to work anyway.
+				
+		//pDC->DestroyClippingRegion ();
+		
+		}	// end "if (windowInfoPtr->drawBitMapFlag)"
 
 }	// end "CopyOffScreenImage"
 
@@ -951,7 +1016,7 @@ SInt16 GetComboListSelection (
       comboBoxPtr = (wxComboBox*)wptr;
       if (comboBoxPtr != NULL)
 			{
-         numberComboItems = (UInt32) comboBoxPtr->GetCount ();
+         numberComboItems = (UInt32)comboBoxPtr->GetCount ();
          
          for (index=0; index<numberComboItems; index++)
 				{
@@ -961,7 +1026,7 @@ SInt16 GetComboListSelection (
 											(SInt64)((int*)comboBoxPtr->GetClientData (index));
                SInt32 windowIndex = (SInt32)windowIndex64;
                if (windowIndex == selectedListItemData)
-						comboListSelection = (SInt16) index;
+						comboListSelection = (SInt16)index;
 					
                }	// end "if (comboBoxPtr->GetClientData (index))"
 				
@@ -986,7 +1051,7 @@ SInt16 GetComboListSelection (
                SInt64 windowIndex64= (SInt64)((int*)choiceptr->GetClientData (index));
                SInt32 windowIndex = (SInt32) windowIndex64;   
                if (windowIndex == selectedListItemData)
-						comboListSelection = (SInt16) index;
+						comboListSelection = (SInt16)index;
 
                }	// end "if (choiceptr->GetClientData (index))"
 				
@@ -1034,7 +1099,7 @@ void GetMenuItemText (
 // Called By:			DisplayColorImage
 //
 //	Coded By:			Larry L. Biehl			Date: 05/07/1991
-//	Revised By:			Larry L. Biehl			Date: 02/04/2019
+//	Revised By:			Larry L. Biehl			Date: 03/22/2019
 
 SInt16 GetOffscreenGWorld (
 				WindowInfoPtr						windowInfoPtr,
@@ -1103,48 +1168,79 @@ SInt16 GetOffscreenGWorld (
 			}	// end "if (resultCode != noErr)"
 	#endif	// defined multispec_wxlin
 	*/
-	#if defined multispec_lin
-		int								pixelSize;
-	
-				// Now get memory for the bit map and storage to be used for image.
+	int								pixelSize;
 
-		numberPaletteEntries = displaySpecsPtr->paletteObject->GetNumberPaletteEntries ();
-		pixelSize = displaySpecsPtr->pixelSize;
-	
-		if (windowInfoPtr->imageType == kThematicImageType ||
-						displaySpecsPtr->displayType == k1_ChannelThematicDisplayType)
-			{
-					// Get memory for storage for (indexed) thematic image
+			// Now get memory for the bit map and storage to be used for image.
 
-			//*pixRowBytesPtr = GetNumberPixRowBytes (
-			//							(UInt32)longRectPtr->right - longRectPtr->left,
-			//							displaySpecsPtr->pixelSize);
-			
-			*pixRowBytesPtr = (UInt32)longRectPtr->right - longRectPtr->left;
+	numberPaletteEntries = displaySpecsPtr->paletteObject->GetNumberPaletteEntries ();
+	pixelSize = displaySpecsPtr->pixelSize;
+	windowInfoPtr->rowBytes = 0;
 
-			bytesNeeded =
-					*pixRowBytesPtr * ((UInt32)longRectPtr->bottom - longRectPtr->top + 1);
-			
-			if (windowInfoPtr->offscreenMapSize > 0)
-				UnlockAndDispose (windowInfoPtr->imageBaseAddressH);
-			
-			windowInfoPtr->imageBaseAddressH = MNewHandle (bytesNeeded);
-			windowInfoPtr->offscreenMapSize = bytesNeeded;
-			
-			displaySpecsPtr->paletteObject->SetPaletteLoadedFlag (FALSE);
-			
-			}	// end "if (windowInfoPtr->imageType == kThematicImageType || ..."
+	if (windowInfoPtr->imageType == kThematicImageType ||
+					displaySpecsPtr->displayType == k1_ChannelThematicDisplayType)
+		{
+				// Get memory for storage for (indexed) thematic image
+
+		//*pixRowBytesPtr = GetNumberPixRowBytes (
+		//							(UInt32)longRectPtr->right - longRectPtr->left,
+		//							displaySpecsPtr->pixelSize);
+		
+		*pixRowBytesPtr = (UInt32)longRectPtr->right - longRectPtr->left;
+
+		bytesNeeded =
+				*pixRowBytesPtr * ((UInt32)longRectPtr->bottom - longRectPtr->top + 1);
+		
+		if (windowInfoPtr->offscreenMapSize > 0)
+			UnlockAndDispose (windowInfoPtr->imageBaseAddressH);
+		
+		windowInfoPtr->imageBaseAddressH = MNewHandle (bytesNeeded);
+		windowInfoPtr->offscreenMapSize = bytesNeeded;
+		
+		displaySpecsPtr->paletteObject->SetPaletteLoadedFlag (FALSE);
+
+		}	// end "if (windowInfoPtr->imageType == kThematicImageType || ..."
+
+	else	// multispectral image type
+		{
+		numberPaletteEntries = 0;
+		
+				// Dispose of memory allocated for a previous thematic image
+		
+		if (windowInfoPtr->offscreenMapSize > 0)
+			UnlockAndDispose (windowInfoPtr->imageBaseAddressH);
+		
+		windowInfoPtr->imageBaseAddressH = NULL;
+		windowInfoPtr->offscreenMapSize = 0;
+		
+		}	// else multispectral image type
+
+			// 24 bits is used for wxBitmaps for multispectral windows since transparency is
+			// not used
+
+	#if defined multispec_wxlin
+		#if defined multispec_wxlin_alpha
+			pixelSize = 32;
+		#else
+			pixelSize = 24;
+		#endif
+	#endif
+
+	#if defined multispec_wxmac
+				// Note Mac OS bitmaps seem to always be 32 bits
+		#if defined multispec_wxmac_alpha
+			pixelSize = 32;
+		#else
+			pixelSize = 32;
+		#endif
+	#endif
+
+	wxBitmap & scaledBitmap = gActiveImageViewCPtr->m_ScaledBitmap;
+	scaledBitmap.Create (longRectPtr->right, longRectPtr->bottom, pixelSize);
 	
-		else	// multispectral image type
-			numberPaletteEntries = 0;
-	
-				// 32 bits is used for wxBitmaps
-	
-		pixelSize = 32;
-	
-		wxBitmap & scaledBitmap = gActiveImageViewCPtr->m_ScaledBitmap;
-		scaledBitmap.Create (longRectPtr->right, longRectPtr->bottom, pixelSize);
-	
+	//wxGraphicsRenderer* graphicsRenderer = wxGraphicsRenderer::GetDefaultRenderer ();
+	//gActiveImageViewCPtr->m_ScaledGraphicsBitmap = graphicsRenderer->CreateBitmap (scaledBitmap);
+	if (scaledBitmap.IsOk ())
+		{
 		if (numberPaletteEntries == 0)
 			{
 					// This is for multispectral image windows. Colors will be copied to the
@@ -1155,39 +1251,155 @@ SInt16 GetOffscreenGWorld (
 				//windowInfoPtr->imageBaseAddressH = (Handle)scaledBitmap.GetRawData (data, 32);
 				//windowInfoPtr->imageBaseAddressH = (Handle)scaledBitmap.GetBitmapData()->BeginRawAccess ();
 				windowInfoPtr->imageBaseAddressH = (Handle)scaledBitmap.GetRawAccess ();
+				//windowInfoPtr->imageBaseAddressH = (Handle)gActiveImageViewCPtr->m_ScaledGraphicsBitmap.GetNativeBitmap ();
 				*pixRowBytesPtr = scaledBitmap.GetBitmapData()->GetBytesPerRow ();
 			#endif
+			
 			#if defined multispec_wxlin
-				wxAlphaPixelData pixeldata (scaledBitmap);
+				#if defined multispec_wxlin_alpha
+					wxAlphaPixelData pixeldata (scaledBitmap);
+				#else
+					wxNativePixelData pixeldata (scaledBitmap);
+				#endif
 				windowInfoPtr->imageBaseAddressH = (unsigned char*)pixeldata.GetPixels().m_ptr;
 				*pixRowBytesPtr = pixeldata.GetRowStride();
 			#endif
-
+			
 					// This will indicate that the image base address is to a wxBitmap
 			
 			windowInfoPtr->offscreenMapSize = 0;
-			
+			windowInfoPtr->rowBytes = *pixRowBytesPtr;
+			/*
+			int numberChars = sprintf ((char*)gTextString3,
+													" LUtilities.cpp: (imageBaseAddressH, IsOk, pixRowBytes): %ld, %d, %d%s",
+													windowInfoPtr->imageBaseAddressH,
+													scaledBitmap.IsOk (),
+													*pixRowBytesPtr,
+													gEndOfLine);
+			ListString ((char*)gTextString3, numberChars, gOutputTextH);
+			*/
 			}	// end "if (numberPaletteEntries == 0)"
-	
-				// Initialize variable for initial thematic image updates in case
-				// they are needed.
-	
-		displaySpecsPtr->updateStartLine = -1;
-		displaySpecsPtr->updateEndLine = -1;
-	
-		//if (displaySpecsPtr->paletteObject != NULL)
-		//	scaledBitmap.SetPalette (*displaySpecsPtr->paletteObject);
+		
+		}	// end "if (scaledBitmap.IsOk ()"
 
-		if (windowInfoPtr->imageBaseAddressH == NULL)
-			resultCode = 1;
+	if (windowInfoPtr->imageBaseAddressH == NULL)
+		{
+		unsigned char message[] = " Not able to create bitmap for the image. Try reducing the number of columns/lines or increasing the column/line interval.";
+		DisplayAlert (kErrorAlertID,
+							kStopAlert,
+							0,
+							0,
+							0,
+							message);
+		
+		}	// end "if (windowInfoPtr->imageBaseAddressH == NULL)"
 
-		if (resultCode != noErr)
-			windowInfoPtr->offscreenMapSize = 0;
-	#endif	// defined multispec_lin
+			// Initialize variable for initial thematic image updates in case
+			// they are needed.
+
+	displaySpecsPtr->updateStartLine = -1;
+	displaySpecsPtr->updateEndLine = -1;
+
+	//if (displaySpecsPtr->paletteObject != NULL)
+	//	scaledBitmap.SetPalette (*displaySpecsPtr->paletteObject);
+
+	if (windowInfoPtr->imageBaseAddressH == NULL)
+		resultCode = 1;
+
+	if (resultCode != noErr)
+		windowInfoPtr->offscreenMapSize = 0;
 
 	return (resultCode);
 
 }	// end "GetOffscreenGWorld"
+
+
+
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2019)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		wxRegion GetPolygonEnclosingRectangle
+//
+//	Software purpose:	The purpose of this routine is to obtain the smallest
+//							rectangle in window units that includes the boundary of the
+//							first and last polygon points plus the new point the user is
+//							deciding to select.
+//							This routine is used to define the area on the window to
+//							invalidate.
+//
+//	Parameters in:
+//
+//	Parameters out:
+//
+//	Value Returned:
+//
+// Called By:
+//
+//	Global Data:
+//
+//	Coded By:			Larry L. Biehl			Date: 04/02/2019
+//	Revised By:			Larry L. Biehl			Date: 04/05/2019
+
+Boolean GetPolygonEnclosingRectangle (
+				HPFieldPointsPtr 					selectionPointsPtr,
+				int									numberPoints,
+            LCToWindowUnitsVariables*		lcToWindowUnitsVariablesPtr,
+				wxPoint*								currentPointPtr,
+            wxRect*								rectPtr)
+
+{
+	LongPoint 							windowPoint;
+	wxPoint 								pointsPtr[3];
+	
+	int									maxX,
+											maxY;
+	
+	Boolean								returnFlag = true;
+	
+
+			// Get the first and last points
+	
+	ConvertLCToWinPoint ((LongPoint*)&selectionPointsPtr[0],
+												&windowPoint,
+												lcToWindowUnitsVariablesPtr);
+	pointsPtr[0].x = (int)windowPoint.h;
+	pointsPtr[0].y = (int)windowPoint.v;
+	
+	ConvertLCToWinPoint ((LongPoint*)&selectionPointsPtr[numberPoints-1],
+												&windowPoint,
+												lcToWindowUnitsVariablesPtr);
+	pointsPtr[1].x = (int)windowPoint.h;
+	pointsPtr[1].y = (int)windowPoint.v;
+	
+	pointsPtr[2].x = (int)currentPointPtr->x;
+	pointsPtr[2].y = (int)currentPointPtr->y;
+			
+	rectPtr->x = MIN (pointsPtr[0].x, pointsPtr[2].x);
+	rectPtr->x = MIN (rectPtr->x, pointsPtr[1].x);
+	
+	rectPtr->y = MIN (pointsPtr[0].y, pointsPtr[2].y);
+	rectPtr->y = MIN (rectPtr->y, pointsPtr[1].y);
+	
+	maxX = MAX (pointsPtr[0].x, pointsPtr[1].x);
+	maxX = MAX (maxX, pointsPtr[2].x);
+	rectPtr->width = maxX - rectPtr->x + 1;
+	
+	maxY = MAX (pointsPtr[0].y, pointsPtr[1].y);
+	maxY = MAX (maxY, pointsPtr[2].y);
+	rectPtr->height = maxY - rectPtr->y + 1;
+	
+			// Add some extra. 3 seemed to be the magic number.
+	
+	rectPtr->x -= 3;
+	rectPtr->y -= 3;
+	rectPtr->width += 6;
+	rectPtr->height += 6;
+	
+	return (returnFlag);
+
+}	// end "GetPolygonEnclosingRectangle"
 
 
 
@@ -1213,7 +1425,7 @@ SInt16 GetOffscreenGWorld (
 //
 //	Coded By:			Larry L. Biehl			Date: 06/29/1995
 //	Revised By:			Larry L. Biehl			Date: 06/29/1995	
-// TODO: For Linux
+// ToDo: For Linux
 
 void GetScreenRect (
 				Rect*									screenRectPtr)
@@ -1247,7 +1459,7 @@ void GetScreenRect (
 //
 //	Coded By:			Larry L. Biehl			Date: 05/23/1996
 //	Revised By:			Larry L. Biehl			Date: 07/21/1998	
-// TODO: For Linux
+// ToDo: For Linux
 
 void GetScrollOffset (
 				Handle								windowInfoHandle,

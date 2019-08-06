@@ -212,14 +212,10 @@ bool MyExtraPanel::CreateControls (void)
 												wxDefaultSize,
 												0);
 
-		//hbox1->Add (0, 0, 1, wxEXPAND);
 		hbox1->Add (200, 1, wxSizerFlags(0));
-		//hbox1->Add (uploadbutton, 1, wxRIGHT | wxALIGN_CENTER_VERTICAL);
-		//hbox1->Add (uploadbutton, wxSizerFlags(0).Align(wxALIGN_CENTER_VERTICAL).Right());
 		hbox1->Add (uploadbutton, wxSizerFlags(0).Align(wxALIGN_CENTER_VERTICAL));
 	#endif
 	
-	//vbox->Add (hbox1, 0, wxLEFT,5);
 	vbox->Add (hbox1, wxSizerFlags(0).Expand().Border(wxLEFT, 5)); 
 	vbox->Add (-1, 10);
 
@@ -248,7 +244,8 @@ bool MyExtraPanel::CreateControls (void)
 
 
 
-void MyExtraPanel::OnUploadFile (wxCommandEvent& event)
+void MyExtraPanel::OnUploadFile (
+				wxCommandEvent& 									event)
 
 {
 	wxExecuteEnv 		workingenv;

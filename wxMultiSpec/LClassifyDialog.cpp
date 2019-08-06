@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 // 								Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (2009-2018)
+//								 Copyright (2009-2019)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -12,7 +12,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			02/13/2019
+//	Revision date:			07/05/2019
 //
 //	Language:				C++
 //
@@ -27,6 +27,54 @@
 
 #include "LClassifyDialog.h" 
 #include "LImage_dialog.cpp"
+#include "wx/valnum.h"
+
+
+
+BEGIN_EVENT_TABLE(CMClassifyDialog, CMDialog)
+	EVT_BUTTON(IDC_ListOptions, CMClassifyDialog::OnListOptions)
+	EVT_BUTTON(IDEntireImage, CMClassifyDialog::ToEntireImage)
+	EVT_BUTTON(IDSelectedImage, CMClassifyDialog::ToSelectedImage)
+	//EVT_CHAR_HOOK(CMClassifyDialog::OnButtonPress)
+	EVT_CHECKBOX(IDC_DiskFile, CMClassifyDialog::OnDiskFile)
+	EVT_CHECKBOX(IDC_ThresholdResults, CMClassifyDialog::OnThresholdResults)
+	EVT_CHECKBOX(IDC_TextWindow, CMClassifyDialog::OnTextWindow)
+	EVT_CHECKBOX(IDC_Training, CMClassifyDialog::OnTraining)
+	EVT_CHECKBOX(IDC_TestAreas, CMClassifyDialog::OnTestAreas)
+	EVT_CHECKBOX(IDC_ImageArea, CMClassifyDialog::OnImageArea)
+	EVT_CHECKBOX(IDC_FeatureTransformation, CMClassifyDialog::OnFeatureTransformation)
+	EVT_CHECKBOX(IDC_CreateProbabilityFile, CMClassifyDialog::OnCreateProbabilityFile)
+	EVT_CHECKBOX(IDC_TrainingLOO, CMClassifyDialog::OnTrainingLOO)
+	EVT_CHECKBOX(IDC_ImageWindowOverlay, CMClassifyDialog::OnImageOverlay)
+	EVT_COMBOBOX(IDC_ChannelCombo, CMClassifyDialog::OnSelendokChannelCombo)
+	EVT_COMBOBOX_DROPDOWN(IDC_ChannelCombo, CMClassifyDialog::OnSelendokChannelComboDropDown)
+	EVT_COMBOBOX(IDC_ClassificationProcedure, CMClassifyDialog::OnSelendokClassificationProcedure)
+	EVT_COMBOBOX(IDC_DiskCombo, CMClassifyDialog::OnSelendokDiskCombo)
+	EVT_COMBOBOX(IDC_AreasCombo, CMClassifyDialog::OnSelendokAreasCombo)
+	EVT_COMBOBOX_DROPDOWN(IDC_AreasCombo, CMClassifyDialog::OnSelendokAreasComboDropDown)
+	EVT_COMBOBOX(IDC_PaletteCombo, CMClassifyDialog::OnSelendokPaletteCombo)
+	//EVT_COMBOBOX_DROPDOWN(IDC_PaletteCombo, CMClassifyDialog::OnDropdownPaletteCombo)
+	EVT_COMBOBOX_DROPDOWN(IDC_ClassificationProcedure, CMClassifyDialog::OnDropdownClassificationProcedure)
+	EVT_COMBOBOX(IDC_ClassCombo, CMClassifyDialog::OnSelendokClassCombo)
+	EVT_COMBOBOX_DROPDOWN(IDC_ClassCombo, CMClassifyDialog::OnSelendokClassComboDropDown)
+	EVT_COMBOBOX(IDC_TargetCombo, CMClassifyDialog::OnSelendokTargetCombo)
+	EVT_COMBOBOX(IDC_WeightCombo, CMClassifyDialog::OnSelendokClassWeightsCombo)
+	EVT_COMBOBOX_DROPDOWN(IDC_WeightCombo, CMClassifyDialog::OnSelendokClassWeightsComboDropDown)
+	EVT_COMBOBOX(IDC_ImageOverlayCombo, CMClassifyDialog::OnSelendokImageOverlayCombo)
+	//EVT_COMBOBOX_CLOSEUP(IDC_ClassificationProcedure, CMClassifyDialog::OnCloseupClassificationProcedure)
+	EVT_INIT_DIALOG(CMClassifyDialog::OnInitDialog)
+	EVT_TEXT(IDC_CEMThreshold, CMClassifyDialog::OnChangeCEMThreshold)
+	EVT_TEXT(IDC_CorrelationCoefficientThreshold, CMClassifyDialog::OnChangeCorrelationCoefficient)
+	EVT_TEXT(IDC_CorrelationAngleThreshold, CMClassifyDialog::OnChangeCorrelationThreshold)
+	EVT_TEXT(IDC_ColumnEnd, CMClassifyDialog::CheckColumnEnd)
+	EVT_TEXT(IDC_ColumnInterval, CMClassifyDialog::CheckColumnInterval)
+	EVT_TEXT(IDC_ColumnStart, CMClassifyDialog::CheckColumnStart)
+	EVT_TEXT(IDC_LineEnd, CMClassifyDialog::CheckLineEnd)
+	EVT_TEXT(IDC_LineInterval, CMClassifyDialog::CheckLineInterval)
+	EVT_TEXT(IDC_LineStart, CMClassifyDialog::CheckLineStart)
+	EVT_TEXT(IDC_NearestNeighborThreshold, CMClassifyDialog::OnChangeKNNThreshold)
+	EVT_TEXT(IDC_ThresholdValue, CMClassifyDialog::OnChangeThreshold)
+END_EVENT_TABLE()
 
 
 CMClassifyDialog::CMClassifyDialog (
@@ -41,6 +89,7 @@ CMClassifyDialog::CMClassifyDialog (
 	m_thresholdResultsFlag = FALSE;
 	m_classWeightsSelection = -1;
 	m_thresholdPercent = (float)0.;
+	m_knnThreshold = 1;
 	m_diskFileFlag = FALSE;
 	m_createImageOverlayFlag = FALSE;
 	m_classifyListSelection = -1;
@@ -65,6 +114,7 @@ CMClassifyDialog::CMClassifyDialog (
 	m_classAreaListPtr = NULL;
 	m_optionKeyFlag = FALSE;
 
+	m_nearestNeighborKValue = 0;
 	m_classifyProcedureEnteredCode = 0;
 
 	m_initializedFlag = CMDialog::m_initializedFlag;
@@ -101,59 +151,170 @@ CMClassifyDialog::~CMClassifyDialog (void)
 
 
 
-BEGIN_EVENT_TABLE(CMClassifyDialog, CMDialog)
-EVT_INIT_DIALOG(CMClassifyDialog::OnInitDialog)
-EVT_COMBOBOX(IDC_ChannelCombo, CMClassifyDialog::OnSelendokChannelCombo)
-EVT_COMBOBOX_DROPDOWN(IDC_ChannelCombo, CMClassifyDialog::OnSelendokChannelComboDropDown)
-EVT_COMBOBOX(IDC_ClassificationProcedure, CMClassifyDialog::OnSelendokClassificationProcedure)
-EVT_COMBOBOX(IDC_DiskCombo, CMClassifyDialog::OnSelendokDiskCombo)
-EVT_COMBOBOX(IDC_AreasCombo, CMClassifyDialog::OnSelendokAreasCombo)
-EVT_COMBOBOX_DROPDOWN(IDC_AreasCombo, CMClassifyDialog::OnSelendokAreasComboDropDown)
-EVT_COMBOBOX(IDC_PaletteCombo, CMClassifyDialog::OnSelendokPaletteCombo)
-//EVT_COMBOBOX_DROPDOWN(IDC_PaletteCombo, CMClassifyDialog::OnDropdownPaletteCombo)
-EVT_COMBOBOX_DROPDOWN(IDC_ClassificationProcedure, CMClassifyDialog::OnDropdownClassificationProcedure)
-EVT_COMBOBOX(IDC_ClassCombo, CMClassifyDialog::OnSelendokClassCombo)
-EVT_COMBOBOX_DROPDOWN(IDC_ClassCombo, CMClassifyDialog::OnSelendokClassComboDropDown)
-EVT_COMBOBOX(IDC_TargetCombo, CMClassifyDialog::OnSelendokTargetCombo)
-EVT_COMBOBOX(IDC_WeightCombo, CMClassifyDialog::OnSelendokClassWeightsCombo)
-EVT_COMBOBOX_DROPDOWN(IDC_WeightCombo, CMClassifyDialog::OnSelendokClassWeightsComboDropDown)
-EVT_COMBOBOX(IDC_ImageOverlayCombo, CMClassifyDialog::OnSelendokImageOverlayCombo)
-//EVT_COMBOBOX_CLOSEUP(IDC_ClassificationProcedure, CMClassifyDialog::OnCloseupClassificationProcedure)
-EVT_CHECKBOX(IDC_DiskFile, CMClassifyDialog::OnDiskFile)
-EVT_CHECKBOX(IDC_ThresholdResults, CMClassifyDialog::OnThresholdResults)
-EVT_CHECKBOX(IDC_TextWindow, CMClassifyDialog::OnTextWindow)
-EVT_CHECKBOX(IDC_Training, CMClassifyDialog::OnTraining)
-EVT_CHECKBOX(IDC_TestAreas, CMClassifyDialog::OnTestAreas)
-EVT_CHECKBOX(IDC_ImageArea, CMClassifyDialog::OnImageArea)
-EVT_CHECKBOX(IDC_FeatureTransformation, CMClassifyDialog::OnFeatureTransformation)
-EVT_CHECKBOX(IDC_CreateProbabilityFile, CMClassifyDialog::OnCreateProbabilityFile)
-EVT_BUTTON(IDC_ListOptions, CMClassifyDialog::OnListOptions)
-EVT_CHECKBOX(IDC_TrainingLOO, CMClassifyDialog::OnTrainingLOO)
-EVT_CHECKBOX(IDC_ImageWindowOverlay, CMClassifyDialog::OnImageOverlay)
-EVT_TEXT(IDC_CorrelationCoefficient, CMClassifyDialog::OnChangeCorrelationCoefficient)
-EVT_TEXT(IDC_CorrelationThresold, CMClassifyDialog::OnChangeCorrelationThresold)
-EVT_TEXT(IDC_ColumnEnd, CMClassifyDialog::CheckColumnEnd)
-EVT_TEXT(IDC_ColumnStart, CMClassifyDialog::CheckColumnStart)
-EVT_TEXT(IDC_LineEnd, CMClassifyDialog::CheckLineEnd)
-EVT_TEXT(IDC_LineStart, CMClassifyDialog::CheckLineStart)
-EVT_TEXT(IDC_LineInterval, CMClassifyDialog::CheckLineInterval)
-EVT_TEXT(IDC_ColumnInterval, CMClassifyDialog::CheckColumnInterval)
-EVT_BUTTON(IDEntireImage, CMClassifyDialog::ToEntireImage)
-EVT_BUTTON(IDSelectedImage, CMClassifyDialog::ToSelectedImage)
-//EVT_CHAR_HOOK(CMClassifyDialog::OnButtonPress)
-END_EVENT_TABLE()
+void CMClassifyDialog::AdjustDlgLayout ()
+
+{
+    bSizer122->Layout ();
+    bSizer123->Layout ();
+    bSizer125->Layout ();
+    bSizer126->Layout ();
+    bSizer127->Layout ();
+    bSizer128->Layout ();
+    bSizer129->Layout ();
+    bSizer114->Layout ();
+	
+}	// end "AdjustDlgLayout"
+
+
+
+void CMClassifyDialog::CheckColumnEnd (wxCommandEvent& event)
+	{
+    SignedByte handleStatus;
+
+
+    if (!m_settingSelectedEntireButton)
+		{
+        m_dialogSelectArea.imageWindowInfoPtr =
+                (WindowInfoPtr)GetHandleStatusAndPointer (m_targetWindowInfoHandle,
+                &handleStatus,
+                kNoMoveHi);
+
+        CMDialog::CheckColumnEnd (event);
+
+        MHSetState (m_targetWindowInfoHandle, handleStatus);
+
+        m_dialogSelectArea.imageWindowInfoPtr = NULL;
+
+	}	// end "if (!m_settingSelectedEntireButton)"
+
+}	// end "CheckColumnEnd"
+
+
+
+void CMClassifyDialog::CheckColumnStart (wxCommandEvent& event)
+
+{
+    SignedByte handleStatus;
+
+
+    if (!m_settingSelectedEntireButton){
+        m_dialogSelectArea.imageWindowInfoPtr =
+                (WindowInfoPtr)GetHandleStatusAndPointer (m_targetWindowInfoHandle,
+                &handleStatus,
+                kNoMoveHi);
+
+        CMDialog::CheckColumnStart (event);
+
+        MHSetState (m_targetWindowInfoHandle, handleStatus);
+
+        m_dialogSelectArea.imageWindowInfoPtr = NULL;
+
+    }	// end "if (!m_settingSelectedEntireButton)"
+
+}	// end "CheckColumnStart"
+
+
+
+void CMClassifyDialog::CheckLineEnd (wxCommandEvent& event)
+
+{
+    SignedByte handleStatus;
+
+
+    if (!m_settingSelectedEntireButton){
+        m_dialogSelectArea.imageWindowInfoPtr =
+                (WindowInfoPtr)GetHandleStatusAndPointer (m_targetWindowInfoHandle,
+                &handleStatus,
+                kNoMoveHi);
+
+        CMDialog::CheckLineEnd (event);
+
+        MHSetState (m_targetWindowInfoHandle, handleStatus);
+
+        m_dialogSelectArea.imageWindowInfoPtr = NULL;
+
+    }	// end "if (!m_settingSelectedEntireButton)"
+
+}	// end "CheckLineEnd"
+
+
+
+void CMClassifyDialog::CheckLineStart (wxCommandEvent& event)
+
+{
+    SignedByte handleStatus;
+
+
+    if (!m_settingSelectedEntireButton){
+        m_dialogSelectArea.imageWindowInfoPtr =
+                (WindowInfoPtr)GetHandleStatusAndPointer (m_targetWindowInfoHandle,
+                &handleStatus,
+                kNoMoveHi);
+
+        CMDialog::CheckLineStart (event);
+
+        MHSetState (m_targetWindowInfoHandle, handleStatus);
+
+        m_dialogSelectArea.imageWindowInfoPtr = NULL;
+
+    }	// end "if (!m_settingSelectedEntireButton)"
+
+}	// end "CheckLineStart"
+
+
+
+void CMClassifyDialog::CheckOutputFormatItems ()
+
+{
+			// Make certain that disk file output formats and thresholding
+			// are consistent with the requested classification
+			// specifications.
+
+	wxComboBox* diskc = (wxComboBox*)FindWindow (IDC_DiskCombo);
+	m_outputFormatCode = diskc->GetSelection ();
+
+	m_outputFormatCode++;
+
+	ClassifyDialogSetPaletteItems (this,
+												m_outputFormatCode,
+												m_createImageOverlayFlag);
+	/*
+            if (m_diskFileFlag && m_outputFormatCode == kClassifyERDAS74OutputFormat)
+                    {
+                    ShowDialogItem (this, IDC_PalettePrompt);
+                    ShowDialogItem (this, IDC_PaletteCombo);
+	 
+                    }		// end "if (m_outputFormatCode != 2)"
+	 
+            else		// !m_diskFileFlag || m_outputFormatCode != 2
+                    {
+                    HideDialogItem (this, IDC_PalettePrompt);
+                    HideDialogItem (this, IDC_PaletteCombo);
+	 
+                    }		// end "else !m_diskFileFlag || m_outputFormatCode != 2"
+     */
+    if (m_outputFormatCode != 1)
+        m_outputAsciiCode = (m_outputAsciiCode & 0xfffd);
+
+    else // m_outputFormatCode == 1
+        m_outputAsciiCode = (m_outputAsciiCode | 0x0002);
+
+    // Check threshold items.
+
+	ClassifyDialogSetThresholdItems (this,
+												m_classificationProcedure,
+												m_imageAreaFlag,
+												m_createProbabilityFileFlag,
+												m_thresholdResultsFlag,
+												m_thresholdAllowedFlag);
+
+}	// end "CheckOutputFormatItems"
 
 
 
 void CMClassifyDialog::CreateControls ()
 
 {
-	/*
-	wxBitmap entireimi = wxBITMAP_PNG_FROM_DATA(entireim);
-	wxBitmap toentirei = wxBITMAP_PNG_FROM_DATA(toentire);
-	wxBitmap selectedi = wxBITMAP_PNG_FROM_DATA(selected);
-	wxBitmap bmp4i = wxBITMAP_PNG_FROM_DATA(bmp4);
-	*/
 	this->SetSizeHints (wxDefaultSize, wxDefaultSize);
 
 	wxBoxSizer* bVSizerMain = new wxBoxSizer (wxVERTICAL);
@@ -182,11 +343,16 @@ void CMClassifyDialog::CreateControls ()
 												0, 
 												NULL, 
 												wxCB_READONLY);
-	m_comboBox15->Append (wxT("Maximum Likelihood"));
+	m_comboBox15->Append (wxT("Gaussian Maximum Likelihood"));
 	m_comboBox15->Append (wxT("Mahalanobis"));
 	m_comboBox15->Append (wxT("Fisher Linear Likelihood"));
-	m_comboBox15->Append (wxT("Minimum Euclidean Distance"));
 	m_comboBox15->Append (wxT("ECHO Spectral-spatial..."));
+  	// m_comboBox15->Append (wxT("Support Vector Machine (SVM)..."));
+	
+	if (!gProjectInfoPtr->includesStatisticsFromClusterOperationFlag)
+		m_comboBox15->Append (wxT("k Nearest Neighbor (KNN)"));
+	
+	m_comboBox15->Append (wxT("Minimum Euclidean Distance"));
 	m_comboBox15->Append (wxT("Correlation (SAM)"));
 	m_comboBox15->Append (wxT("Matched Filter (CEM)..."));
 	m_comboBox15->Append (wxT("Parallel Piped"));
@@ -244,12 +410,24 @@ void CMClassifyDialog::CreateControls ()
 	SetUpToolTip (m_staticText147, IDS_ToolTip177);
 	bSizer114->Add (m_staticText147, 0, wxALIGN_CENTER | wxALL, 5);
 
-	m_staticText175 = new wxStaticText (this, IDC_TargetBase, wxT("Base Image"), wxDefaultPosition, wxDefaultSize, 0);
+	m_staticText175 = new wxStaticText (this,
+													IDC_TargetBase,
+													wxT("Base Image"),
+													wxDefaultPosition,
+													wxDefaultSize,
+													0);
 	m_staticText175->Wrap (-1);
 	SetUpToolTip (m_staticText175, IDS_ToolTip177);
 	bSizer114->Add (m_staticText175, 0, wxALIGN_CENTER | wxALL, 5);
 
-	m_comboBox17 = new wxComboBox (this, IDC_TargetCombo, wxT("Combo!"), wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_READONLY);
+	m_comboBox17 = new wxComboBox (this,
+												IDC_TargetCombo,
+												wxT("Combo!"),
+												wxDefaultPosition,
+												wxDefaultSize,
+												0,
+												NULL,
+												wxCB_READONLY);
 	SetUpToolTip (m_comboBox17, IDS_ToolTip177);
 	bSizer114->Add (m_comboBox17, 0, wxALL, 5);
 
@@ -262,7 +440,12 @@ void CMClassifyDialog::CreateControls ()
 	wxBoxSizer* bSizer116;
 	bSizer116 = new wxBoxSizer (wxVERTICAL);
 
-	m_staticText148 = new wxStaticText (this, wxID_ANY, wxT("Classify:"), wxDefaultPosition, wxDefaultSize, 0);
+	m_staticText148 = new wxStaticText (this,
+													wxID_ANY,
+													wxT("Classify:"),
+													wxDefaultPosition,
+													wxDefaultSize,
+													0);
 	m_staticText148->Wrap (-1);
 	bSizer116->Add (m_staticText148, 0, wxALL, 5);
 
@@ -274,34 +457,65 @@ void CMClassifyDialog::CreateControls ()
 	SetUpToolTip (m_staticText149, IDS_ToolTip188);
 	bSizer132->Add (m_staticText149, 0, wxALIGN_CENTER | wxLEFT, 15);
 
-	m_comboBox24 = new wxComboBox (this, IDC_AreasCombo, wxT("Combo!"), wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_READONLY);
+	m_comboBox24 = new wxComboBox (this,
+												IDC_AreasCombo,
+												wxT("Combo!"),
+												wxDefaultPosition,
+												wxDefaultSize,
+												0,
+												NULL,
+												wxCB_READONLY);
 	m_comboBox24->Append (wxT("All"));
 	m_comboBox24->Append (wxT("Subset..."));
 	SetUpToolTip (m_comboBox24, IDS_ToolTip103);
 	bSizer132->Add (m_comboBox24, 0, wxLEFT, 5);
 
-
 	bSizer116->Add (bSizer132, 1, 0, 5);
 
-	m_checkBox9 = new wxCheckBox (this, IDC_Training, wxT("Training (resubstitution)"), wxDefaultPosition, wxDefaultSize, 0);
+	wxBoxSizer* bVSizerTrainTest = new wxBoxSizer (wxVERTICAL);
+	m_checkBox9 = new wxCheckBox (this,
+											IDC_Training,
+											wxT("Training (resubstitution)"),
+											wxDefaultPosition,
+											wxDefaultSize,
+											0);
 	SetUpToolTip (m_checkBox9, IDS_ToolTip189);
-	bSizer116->Add (m_checkBox9, 0, wxLEFT, 25);
+	//bSizer116->Add (m_checkBox9, 0, wxLEFT, 25);
+	bVSizerTrainTest->Add (m_checkBox9, 0, wxTOP, 3);
 
-	m_checkBox11 = new wxCheckBox (this, IDC_TrainingLOO, wxT("Training (leave-one-out)"), wxDefaultPosition, wxDefaultSize, 0);
+	m_checkBox11 = new wxCheckBox (this,
+												IDC_TrainingLOO,
+												wxT("Training (leave-one-out)"),
+												wxDefaultPosition,
+												wxDefaultSize,
+												0);
 	SetUpToolTip (m_checkBox11, IDS_ToolTip193);
-	bSizer116->Add (m_checkBox11, 0, wxLEFT, 25);
+	//bSizer116->Add (m_checkBox11, 0, wxLEFT, 25);
+	bVSizerTrainTest->Add (m_checkBox11, 0, wxTOP, 3);
 
-	m_checkBox10 = new wxCheckBox (this, IDC_TestAreas, wxT("Test areas (holdout)"), wxDefaultPosition, wxDefaultSize, 0);
+	m_checkBox10 = new wxCheckBox (this,
+												IDC_TestAreas,
+												wxT("Test areas (holdout)"),
+												wxDefaultPosition,
+												wxDefaultSize,
+												0);
 	SetUpToolTip (m_checkBox10, IDS_ToolTip168);
-	bSizer116->Add (m_checkBox10, 0, wxLEFT, 25);
+	//bSizer116->Add (m_checkBox10, 0, wxLEFT, 25);
+	bVSizerTrainTest->Add (m_checkBox10, 0, wxTOP|wxBOTTOM, 3);
+	
+	bSizer116->Add (bVSizerTrainTest, 0, wxLEFT, 25);
 
-
-	bSizer115->Add (bSizer116, 0, wxEXPAND, 5);
+	bSizer115->Add (bSizer116, 0, wxEXPAND);
 
 	wxBoxSizer* bSizer117;
 	bSizer117 = new wxBoxSizer (wxVERTICAL);
 
-	m_checkBox12 = new wxCheckBox (this, IDC_ImageArea, wxT("Image selection"), wxDefaultPosition, wxDefaultSize, 0);
+	m_checkBox12 = new wxCheckBox (this,
+												IDC_ImageArea,
+												wxT("Image selection"),
+												wxDefaultPosition,
+												wxDefaultSize,
+												0);
 	bSizer117->Add (m_checkBox12, 0, wxLEFT, 15);
 
 	wxStaticBoxSizer* sbSizer8;
@@ -312,92 +526,12 @@ void CMClassifyDialog::CreateControls ()
 																		wxDefaultPosition,
 																		wxDefaultSize,
 																		wxTAB_TRAVERSAL),
-													wxHORIZONTAL);
+																		wxHORIZONTAL);
 	
 	CreateLineColumnControls (sbSizer8);
-	/*
-	wxBoxSizer* bSizer791;
-	bSizer791 = new wxBoxSizer (wxHORIZONTAL);
 
-	m_bpButton4 = new wxBitmapButton (areaStaticBox, IDEntireImage, entireimi, wxDefaultPosition, wxSize (40,40), wxBU_AUTODRAW);
-
-	m_bpButton4->SetBitmapDisabled (toentirei);    
-	bSizer791->Add (m_bpButton4, 0, wxALIGN_CENTER_VERTICAL | wxALIGN_RIGHT | wxALL, 5);
-
-	m_bpButton5 = new wxBitmapButton (areaStaticBox, IDSelectedImage, selectedi, wxDefaultPosition, wxSize (40,40), wxBU_AUTODRAW);    
-	m_bpButton5->Hide ();
-	m_bpButton5->SetBitmapDisabled (selectedi);
-	bSizer791->Add (m_bpButton5, 0, wxALIGN_CENTER_VERTICAL | wxALIGN_RIGHT | wxALL, 5);
-
-
-	sbSizer8->Add (bSizer791, 0, wxEXPAND, 5);
-
-	wxBoxSizer* bSizer121;
-	bSizer121 = new wxBoxSizer (wxVERTICAL);
-
-	m_staticText177 = new wxStaticText (sbSizer8->GetStaticBox (), IDC_StartEndInterval, wxT("                      Start       \tEnd          Interval"), wxDefaultPosition, wxDefaultSize, 0);
-	m_staticText177->Wrap (-1);
-	bSizer121->Add (m_staticText177, 0, wxALL, 5);
-
-	wxGridSizer* gSizer1;
-	gSizer1 = new wxGridSizer (2, 4, 0, 0);
-
-	m_staticText60 = new wxStaticText (sbSizer8->GetStaticBox (), IDC_LinePrompt, wxT("Lines"), wxDefaultPosition, wxDefaultSize, 0);
-	m_staticText60->Wrap (-1);
-	gSizer1->Add (m_staticText60, 0, wxALIGN_CENTER | wxALL, 2);
-
-	m_linestartctrl = new wxTextCtrl (sbSizer8->GetStaticBox (), IDC_LineStart, wxEmptyString, wxDefaultPosition, wxSize (70, -1), 0);
-	m_linestartctrl->SetMaxLength (0);
-	m_linestartctrl->SetValidator (wxTextValidator (wxFILTER_DIGITS, &m_LineStartString));
-
-	gSizer1->Add (m_linestartctrl, 0, wxALIGN_CENTER | wxALL, 2);
-
-	m_lineendctrl = new wxTextCtrl (sbSizer8->GetStaticBox (), IDC_LineEnd, wxEmptyString, wxDefaultPosition, wxSize (70, -1), 0);
-	m_lineendctrl->SetMaxLength (0);
-	m_lineendctrl->SetValidator (wxTextValidator (wxFILTER_DIGITS, &m_LineEndString));
-
-	gSizer1->Add (m_lineendctrl, 0, wxALIGN_CENTER | wxALL, 2);
-
-	m_lineintctrl = new wxTextCtrl (sbSizer8->GetStaticBox (), IDC_LineInterval, wxEmptyString, wxDefaultPosition, wxSize (70, -1), 0);
-	m_lineintctrl->SetMaxLength (0);
-	m_lineintctrl->SetValidator (wxTextValidator (wxFILTER_DIGITS, &m_LineIntervalString));
-
-	gSizer1->Add (m_lineintctrl, 0, wxALIGN_CENTER | wxALL, 2);
-
-	m_staticText62 = new wxStaticText (sbSizer8->GetStaticBox (), IDC_ColumnPrompt, wxT("Columns"), wxDefaultPosition, wxDefaultSize, 0);
-	m_staticText62->Wrap (-1);
-	gSizer1->Add (m_staticText62, 0, wxALIGN_CENTER | wxALL, 2);
-
-	m_colstartctrl = new wxTextCtrl (sbSizer8->GetStaticBox (), IDC_ColumnStart, wxEmptyString, wxDefaultPosition, wxSize (70, -1), 0);
-	m_colstartctrl->SetMaxLength (0);
-	m_colstartctrl->SetValidator (wxTextValidator (wxFILTER_DIGITS, &m_ColumnStartString));
-
-	gSizer1->Add (m_colstartctrl, 0, wxALIGN_CENTER | wxALL, 2);
-
-	m_colendctrl = new wxTextCtrl (sbSizer8->GetStaticBox (), IDC_ColumnEnd, wxEmptyString, wxDefaultPosition, wxSize (70, -1), 0);
-	m_colendctrl->SetMaxLength (0);
-	m_colendctrl->SetValidator (wxTextValidator (wxFILTER_DIGITS, &m_ColumnEndString));
-
-	gSizer1->Add (m_colendctrl, 0, wxALIGN_CENTER | wxALL, 2);
-
-	m_colintctrl = new wxTextCtrl (sbSizer8->GetStaticBox (), IDC_ColumnInterval, wxEmptyString, wxDefaultPosition, wxSize (70, -1), 0);
-	m_colintctrl->SetMaxLength (0);
-	m_colintctrl->SetValidator (wxTextValidator (wxFILTER_DIGITS, &m_ColumnIntervalString));
-
-	SetUpToolTip (m_bpButton4, IDS_ToolTip40);  
-	SetUpToolTip (m_linestartctrl, IDS_ToolTip19);
-	SetUpToolTip (m_lineendctrl, IDS_ToolTip20);
-	SetUpToolTip (m_lineintctrl, IDS_ToolTip21);
-	SetUpToolTip (m_colstartctrl, IDS_ToolTip22);
-	SetUpToolTip (m_colendctrl, IDS_ToolTip23);
-	SetUpToolTip (m_colintctrl, IDS_ToolTip24);
-
-	gSizer1->Add (m_colintctrl, 0, wxALIGN_CENTER | wxALL, 2);
-
-	bSizer121->Add (gSizer1, 1, wxEXPAND, 5);
-	sbSizer8->Add (bSizer121, 1, wxEXPAND, 5);
-	*/
-	bSizer117->Add (sbSizer8, 1, wxEXPAND, 5);
+	//bSizer117->Add (sbSizer8, 1, wxEXPAND, 5);
+	bSizer117->Add (sbSizer8, 1, wxEXPAND|wxTOP, 3);
 	
 	bSizer115->Add (bSizer117, 0, 0, 5);
 	bSizer111->Add (bSizer115, 0, 0, 5);
@@ -481,7 +615,14 @@ void CMClassifyDialog::CreateControls ()
 	SetUpToolTip (m_checkBox13, IDS_ToolTip178);
 	bSizer125->Add (m_checkBox13, 0, wxALIGN_CENTER|wxLEFT, 15);
 
-	m_comboBox21 = new wxComboBox (this, IDC_DiskCombo, wxT("Combo!"), wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_READONLY);
+	m_comboBox21 = new wxComboBox (this,
+												IDC_DiskCombo,
+												wxT("Combo!"),
+												wxDefaultPosition,
+												wxDefaultSize,
+												0,
+												NULL,
+												wxCB_READONLY);
 	m_comboBox21->Append (wxT("ASCII"));
 	m_comboBox21->Append (wxT("ERDAS .GIS"));
 	m_comboBox21->Append (wxT("GAIA"));
@@ -495,11 +636,23 @@ void CMClassifyDialog::CreateControls ()
 	//	wxBoxSizer* bSizer126;
 	bSizer126 = new wxBoxSizer (wxVERTICAL);
 
-	m_checkBox14 = new wxCheckBox (this, IDC_ImageWindowOverlay, wxT("Image window overlay"), wxDefaultPosition, wxDefaultSize, 0);
+	m_checkBox14 = new wxCheckBox (this,
+												IDC_ImageWindowOverlay,
+												wxT("Image window overlay"),
+												wxDefaultPosition,
+												wxDefaultSize,
+												0);
 	SetUpToolTip (m_checkBox14, IDS_ToolTip179);
 	bSizer126->Add (m_checkBox14, 0, wxLEFT, 15);
 
-	m_comboBox22 = new wxComboBox (this, IDC_ImageOverlayCombo, wxT("Combo!"), wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_READONLY);
+	m_comboBox22 = new wxComboBox (this,
+												IDC_ImageOverlayCombo,
+												wxT("Combo!"),
+												wxDefaultPosition,
+												wxDefaultSize,
+												0,
+												NULL,
+												wxCB_READONLY);
 	m_comboBox22->Append (wxT("Add new overlay"));
 	SetUpToolTip (m_comboBox22, IDS_ToolTip180);
 	bSizer126->Add (m_comboBox22, 0, wxLEFT, 35);
@@ -510,11 +663,23 @@ void CMClassifyDialog::CreateControls ()
 	//	wxBoxSizer* bSizer127;
 	bSizer127 = new wxBoxSizer (wxHORIZONTAL);
 
-	m_staticText182 = new wxStaticText (this, IDC_PalettePrompt, wxT("Palette:"), wxDefaultPosition, wxDefaultSize, 0);
+	m_staticText182 = new wxStaticText (this,
+													IDC_PalettePrompt,
+													wxT("Palette:"),
+													wxDefaultPosition,
+													wxDefaultSize,
+													0);
 	m_staticText182->Wrap (-1);
 	bSizer127->Add (m_staticText182, 0, wxALIGN_CENTER|wxLEFT, 15);
 
-	m_comboBox23 = new wxComboBox (this, IDC_PaletteCombo, wxT("Default Colors"), wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_READONLY);
+	m_comboBox23 = new wxComboBox (this,
+												IDC_PaletteCombo,
+												wxT("Default Colors"),
+												wxDefaultPosition,
+												wxDefaultSize,
+												0,
+												NULL,
+												wxCB_READONLY);
 	m_comboBox23->Append (wxT("Default Colors"));
 	m_comboBox23->Append (wxT("Default Gray Levels"));
 	m_comboBox23->Append (wxT("Blue-Green-Red"));
@@ -532,46 +697,119 @@ void CMClassifyDialog::CreateControls ()
 	//	wxBoxSizer* bSizer128;
 	bSizer128 = new wxBoxSizer (wxHORIZONTAL);
 
-	m_checkBox15 = new wxCheckBox (this, IDC_ThresholdResults, wxT("Threshold results at"), wxDefaultPosition, wxDefaultSize, 0);
+	m_checkBox15 = new wxCheckBox (this,
+												IDC_ThresholdResults,
+												wxT("Threshold results at"),
+												wxDefaultPosition,
+												wxDefaultSize,
+												0);
 	SetUpToolTip (m_checkBox15, IDS_ToolTip182);
 	bSizer128->Add (m_checkBox15, 0, wxALIGN_CENTER|wxALL, 5);
 
-	m_textCtrl85 = new wxTextCtrl (this, IDC_ThresholdValue, wxEmptyString, wxDefaultPosition, wxSize (40,-1), 0);
-	m_textCtrl85->SetValidator (wxTextValidator (wxFILTER_NUMERIC, &m_ThresString));
+	m_textCtrl85 = new wxTextCtrl (this,
+												IDC_ThresholdValue,
+												wxEmptyString,
+												wxDefaultPosition,
+												wxSize (50, -1),
+												0);
+	m_textCtrl85->SetValidator (wxTextValidator (wxFILTER_NUMERIC, &m_ThresholdString));
+	wxFloatingPointValidator<double> _val (3, &m_thresholdPercent);
+	_val.SetRange (0.0, 100.);
+	m_textCtrl85->SetValidator (_val);
 	SetUpToolTip (m_textCtrl85, IDS_ToolTip183);
 	bSizer128->Add (m_textCtrl85, 0, wxALL, 5);
 
-	m_staticText183 = new wxStaticText (this, IDC_PercentSymbol, wxT("%"), wxDefaultPosition, wxDefaultSize, 0);
+	m_staticText183 = new wxStaticText (this,
+													IDC_PercentSymbol,
+													wxT("%"),
+													wxDefaultPosition,
+													wxDefaultSize,
+													0);
 	m_staticText183->Wrap (-1);
 	bSizer128->Add (m_staticText183, 0, wxALIGN_CENTER|wxALL, 5);
 
-	m_textCtrl87 = new wxTextCtrl (this, IDC_CEMThreshold, wxEmptyString, wxDefaultPosition, wxSize (40,-1), 0);
+	m_textCtrl87 = new wxTextCtrl (this,
+												IDC_CEMThreshold,
+												wxEmptyString,
+												wxDefaultPosition,
+												wxSize (40, -1),
+												0);
 	SetUpToolTip (m_textCtrl87, IDS_ToolTip184);
-	m_textCtrl87->SetValidator (wxTextValidator (wxFILTER_NUMERIC, &m_cemThresString));
+	m_textCtrl87->SetValidator (wxTextValidator (wxFILTER_NUMERIC, &m_cemThresholdString));
+	wxFloatingPointValidator<double> _val187 (3, &m_cemThreshold);
+	_val187.SetRange (0.0, 1.0);
+	m_textCtrl87->SetValidator (_val);
 
 	bSizer128->Add (m_textCtrl87, 0, wxALL, 5);
 
-	m_textCtrl88 = new wxTextCtrl (this, IDC_CorrelationThresold, wxEmptyString, wxDefaultPosition, wxSize (40,-1), 0);
-	m_textCtrl88->SetValidator (wxTextValidator (wxFILTER_NUMERIC, &m_corrThresString));
+	m_textCtrl88 = new wxTextCtrl (this,
+												IDC_CorrelationAngleThreshold,
+												wxEmptyString,
+												wxDefaultPosition,
+												wxSize (40, -1),
+												0);
+	m_textCtrl88->SetValidator (wxTextValidator (wxFILTER_NUMERIC, &m_corrThresholdString));
+	wxFloatingPointValidator<double> _val188 (3, &m_angleThreshold);
+	_val188.SetRange (0.0, 90.);
+	m_textCtrl88->SetValidator (_val188);
 	SetUpToolTip (m_textCtrl88, IDS_ToolTip148);
 	bSizer128->Add (m_textCtrl88, 0, wxALL, 5);
 
-	m_staticText185 = new wxStaticText (this, IDC_DegreeSymbol, wxT("o"), wxDefaultPosition, wxDefaultSize, 0);
+	m_staticText185 = new wxStaticText (this,
+													IDC_DegreeSymbol,
+													wxT("o"),
+													wxDefaultPosition,
+													wxDefaultSize,
+													0);
 	m_staticText185->Wrap (-1);
-	bSizer128->Add (m_staticText185, 0, 0, 5);
+	//bSizer128->Add (m_staticText185, 0, 0, 5);
+	bSizer128->Add (m_staticText185, 0, 0);
 
+	wxTextCtrl* m_textCtrl88 = new wxTextCtrl (this,
+																IDC_NearestNeighborThreshold,
+																wxEmptyString,
+																wxDefaultPosition,
+																wxSize (40, -1),
+																0);
+	m_textCtrl88->SetValidator (wxTextValidator (wxFILTER_DIGITS, &m_knnThresholdString));
+	SetUpToolTip (m_textCtrl88, IDS_ToolTip401);
+	bSizer128->Add (m_textCtrl88, 0, wxALL, 5);
 
-	bSizer124->Add (bSizer128, 0, wxEXPAND, 5);
+	wxStaticText* staticText1852 = new wxStaticText (this,
+																		IDC_NearestNeighbor,
+																		wxT("neighbors"),
+																		wxDefaultPosition,
+																		wxDefaultSize,
+																		0);
+	staticText1852->Wrap (-1);
+	bSizer128->Add (staticText1852, 0, wxALIGN_CENTER|wxALL, 5);
+
+	//bSizer124->Add (bSizer128, 0, wxEXPAND);
+	bSizer124->Add (bSizer128, 0);
 
 	//	wxBoxSizer* bSizer129;
 	bSizer129 = new wxBoxSizer (wxHORIZONTAL);
 
-	m_staticText184 = new wxStaticText (this, IDC_correlationPrompt, wxT("or correlation     \n coefficient of"), wxDefaultPosition, wxDefaultSize, 0);
+	m_staticText184 = new wxStaticText (this,
+													IDC_correlationPrompt,
+													wxT("or correlation     \n coefficient of"),
+													wxDefaultPosition,
+													wxDefaultSize,
+													0);
 	m_staticText184->Wrap (-1);
 	SetUpToolTip (m_staticText184, IDS_ToolTip148);
 	bSizer129->Add (m_staticText184, 0, wxALIGN_CENTER|wxLEFT, 25);
 
-	m_textCtrl86 = new wxTextCtrl (this, IDC_CorrelationCoefficient, wxEmptyString, wxDefaultPosition, wxSize (80,-1), 0);
+	m_textCtrl86 = new wxTextCtrl (this,
+												IDC_CorrelationCoefficientThreshold,
+												wxEmptyString,
+												wxDefaultPosition,
+												wxSize (80, -1),
+												0);
+	m_textCtrl86->SetValidator (wxTextValidator (wxFILTER_NUMERIC, &m_corrThresholdString));
+	wxFloatingPointValidator<double> _val186 (4, &m_correlationThreshold);
+	_val186.SetRange (0.0, 1.0);
+	m_textCtrl86->SetValidator (_val186);
 	SetUpToolTip (m_textCtrl86, IDS_ToolTip148);
 	bSizer129->Add (m_textCtrl86, 0, wxALL, 5);
 
@@ -581,14 +819,24 @@ void CMClassifyDialog::CreateControls ()
 	wxBoxSizer* bSizer130;
 	bSizer130 = new wxBoxSizer (wxHORIZONTAL);
 
-	m_checkBox16 = new wxCheckBox (this, IDC_CreateProbabilityFile, wxT("Create Probability Results File"), wxDefaultPosition, wxDefaultSize, 0);
+	m_checkBox16 = new wxCheckBox (this,
+												IDC_CreateProbabilityFile,
+												wxT("Create Probability Results File"),
+												wxDefaultPosition,
+												wxDefaultSize,
+												0);
 	SetUpToolTip (m_checkBox16, IDS_ToolTip186);
 	bSizer130->Add (m_checkBox16, 0, wxALL, 5);
 
 
-	bSizer124->Add (bSizer130, 0, wxEXPAND, 5);
+	bSizer124->Add (bSizer130, 0, wxEXPAND);
 
-	m_button23 = new wxButton (this, IDC_ListOptions, wxT("Results List Options..."), wxDefaultPosition, wxSize (200,-1), 0);
+	m_button23 = new wxButton (this,
+										IDC_ListOptions,
+										wxT("Results List Options..."),
+										wxDefaultPosition,
+										wxSize (200, -1),
+										0);
 	SetUpToolTip (m_button23, IDS_ToolTip187);
 	bSizer124->Add (m_button23, 0, wxALL, 5);
 	/*
@@ -645,10 +893,10 @@ void CMClassifyDialog::CreateControls ()
 //
 //	Value Returned:	None		
 // 
-//	Called By:			Dialog in MDisMult.cpp
+//	Called By:			Dialog in
 //
 //	Coded By:			Larry L. Biehl			Date: 02/27/1996
-//	Revised By:			Larry L. Biehl			Date: 04/10/1998	
+//	Revised By:			Larry L. Biehl			Date: 05/04/2019
 
 SInt16 CMClassifyDialog::DoDialog (void)
 
@@ -669,7 +917,7 @@ SInt16 CMClassifyDialog::DoDialog (void)
 		{
 		continueFlag = TRUE;
 
-		// Classification area													
+				// Classification area
 
 		m_dialogSelectArea.lineStart = m_LineStart;
 		m_dialogSelectArea.lineEnd = m_LineEnd;
@@ -712,11 +960,13 @@ SInt16 CMClassifyDialog::DoDialog (void)
 								m_angleThreshold,
 								m_cemThreshold,
 								m_thresholdPercent,
+								m_knnThreshold,
 								m_createProbabilityFileFlag,
 								m_paletteSelection + 1,
 								m_listResultsTestCode,
 								m_listResultsTrainingCode,
-								m_parallelPipedCode);
+								m_parallelPipedCode,
+								m_nearestNeighborKValue);
 
 		}	// end "if (returnCode == IDOK)"
     
@@ -727,7 +977,20 @@ SInt16 CMClassifyDialog::DoDialog (void)
 
 	return (continueFlag);
 
-}	// end "DoDialog" 
+}	// end "DoDialog"
+
+
+
+void CMClassifyDialog::HideShowClassAreasItem ()
+{
+	if (!m_trainingAreaFlag && !m_trainingAreaLOOFlag && !m_testAreaFlag)
+		MHideDialogItem (this, IDC_AreasCombo);
+
+	else	// m_trainingAreaFlag || m_trainingAreaLOOFlag ...
+		MShowDialogItem (this, IDC_AreasCombo);
+
+	
+}	// end "HideShowClassAreasItem"
 
 
 
@@ -738,17 +1001,17 @@ void CMClassifyDialog::OnDropdownClassificationProcedure (
 	wxMouseState			mousestate;
 	
 	
-   if (mousestate.RightIsDown () || wxGetKeyState (WXK_SHIFT) ||
-            m_covarianceEstimate != kNoCovarianceUsed)
+	m_optionKeyFlag = mousestate.RightIsDown () || wxGetKeyState (WXK_SHIFT);
+	
+   if (m_optionKeyFlag || m_covarianceEstimate != kNoCovarianceUsed)
 		{
-		SetComboItemText	(IDC_ClassificationProcedure,
+		SetComboItemText (IDC_ClassificationProcedure,
 								m_correlationComboListItem,
 								(char*)"Correlation (SAM)...");
 
-		m_optionKeyFlag = TRUE;
+		//m_optionKeyFlag = TRUE;
 
 		}	// end "if (GetKeyState (VK_RBUTTON) < 0 || ..."
-
 
 	else // no option requested
 		{
@@ -756,12 +1019,33 @@ void CMClassifyDialog::OnDropdownClassificationProcedure (
                 m_correlationComboListItem,
                 (char*)"Correlation (SAM)");
 
-			m_optionKeyFlag = FALSE;
+		//m_optionKeyFlag = FALSE;
+
+		}	// end "else no option requested"
+	
+   if (m_optionKeyFlag)
+		{
+		if (!gProjectInfoPtr->includesStatisticsFromClusterOperationFlag)
+			SetComboItemText	(IDC_ClassificationProcedure,
+									m_kNearestNeighborComboListItem,
+									(char*)"K Nearest Neighbor (KNN)...");
+
+		//m_optionKeyFlag = TRUE;
+
+		}	// end "if (GetKeyState (VK_RBUTTON) < 0 || ..."
+
+	else // no option requested
+		{
+		if (!gProjectInfoPtr->includesStatisticsFromClusterOperationFlag)
+			SetComboItemText (IDC_ClassificationProcedure,
+									 m_kNearestNeighborComboListItem,
+									 (char*)"K Nearest Neighbor (KNN)");
+
+		//m_optionKeyFlag = FALSE;
 
 		}	// end "else no option requested"
 
-	wxComboBox* comboBoxPtr = (wxComboBox*)FindWindow (IDC_ClassificationProcedure);    
-	//comboBoxPtr->SetItemData (m_correlationComboListItem, kCorrelationMode);    
+	wxComboBox* comboBoxPtr = (wxComboBox*)FindWindow (IDC_ClassificationProcedure);
 	comboBoxPtr->SetClientData (m_correlationComboListItem, (void*)kCorrelationMode);
     
 	//comboBoxPtr->SetSelection (m_classifyListSelection); // ?    
@@ -801,19 +1085,19 @@ void CMClassifyDialog::OnInitDialog (
 										&m_covarianceEstimate,
 										&m_numberEigenvectors,
 										&m_featureTransformAllowedFlag,
-										(Boolean*)& m_featureTransformationFlag,
+										(Boolean*)&m_featureTransformationFlag,
 										&channelSelection,
 										&m_localActiveNumberFeatures,
 										&fileNamesSelection,
 										&m_targetWindowInfoHandle,
 										&classAreaSelection,
 										&m_localNumberClassAreas,
-										(Boolean*)& m_trainingAreaFlag,
+										(Boolean*)&m_trainingAreaFlag,
 										&m_trainingFieldsExistFlag,
 										&m_savedLeaveOneOutFlag,
-										(Boolean*)& m_trainingAreaLOOFlag,
-										(Boolean*)& m_testAreaFlag,
-										(Boolean*)& m_imageAreaFlag,
+										(Boolean*)&m_trainingAreaLOOFlag,
+										(Boolean*)&m_testAreaFlag,
+										(Boolean*)&m_imageAreaFlag,
 										&m_dialogSelectArea,
 										&classSelection,
 										&m_localNumberClasses,
@@ -821,38 +1105,44 @@ void CMClassifyDialog::OnInitDialog (
 										&symbolSelection,
 										&m_outputAsciiCode,
 										//(Boolean*)&m_textWindowFlag,
-										(Boolean*)& m_createImageOverlayFlag,
+										(Boolean*)&m_createImageOverlayFlag,
 										&selectImageOverlaySelection,
 										&outputFormatCode,
-										(Boolean*)& m_diskFileFlag,
+										(Boolean*)&m_diskFileFlag,
 										&paletteSelection,
-										(Boolean*)& m_thresholdResultsFlag,
-										(Boolean*)& m_createProbabilityFileFlag,
+										(Boolean*)&m_thresholdResultsFlag,
+										(Boolean*)&m_createProbabilityFileFlag,
 										&m_saveThresholdPercent,
 										&m_saveAngleThreshold,
 										&m_saveCorrelationThreshold,
 										&m_saveCEMThreshold,
+										&m_saveKNNThreshold,
 										&m_listResultsTestCode,
 										&m_listResultsTrainingCode,
-										&m_parallelPipedCode);
+										&m_parallelPipedCode,
+										&m_nearestNeighborKValue);
 
 			// Set feature/transform feature parameters  
 
 	InitializeDialogFeatureParameters (m_featureTransformationFlag,
-            m_localActiveNumberFeatures,
-            gProjectInfoPtr->numberStatisticsChannels,
-            gTransformationMatrix.numberFeatures,
-            m_localFeaturesPtr,
-            m_localTransformFeaturesPtr,
-            &m_localNumberFeatures,
-            &m_localNumberTransformFeatures,
-            &m_localActiveFeaturesPtr);
+													m_localActiveNumberFeatures,
+													gProjectInfoPtr->numberStatisticsChannels,
+													gTransformationMatrix.numberFeatures,
+													m_localFeaturesPtr,
+													m_localTransformFeaturesPtr,
+													&m_localNumberFeatures,
+													&m_localNumberTransformFeatures,
+													&m_localActiveFeaturesPtr);
 
 			// Set up classification popup menu list
-
-	m_correlationComboListItem = kCorrelationMode - 1;
+	
+	m_kNearestNeighborComboListItem = kKNearestNeighborMode - 2;
 	if (gProjectInfoPtr->statisticsCode != kMeanCovariance)
 		m_correlationComboListItem = 1;
+
+	m_correlationComboListItem = kCorrelationMode - 2;
+	if (gProjectInfoPtr->statisticsCode != kMeanCovariance)
+		m_correlationComboListItem = 3;
 
 			// Get the classification list selection that matches the input
 			// classification procedure.
@@ -939,9 +1229,13 @@ void CMClassifyDialog::OnInitDialog (
 	m_angleThreshold = (float)m_saveAngleThreshold;
 	m_correlationThreshold = (float)m_saveCorrelationThreshold;
 
-			// Thresholds for CEM Classifier.
+			// Threshold for CEM Classifier.
 
 	m_cemThreshold = (float)m_saveCEMThreshold;
+
+			// Threshold for KNN Classifier.
+
+	m_knnThreshold = (int)m_saveKNNThreshold;
 
 	if (TransferDataToWindow ())
 		PositionDialogWindow ();
@@ -957,36 +1251,7 @@ void CMClassifyDialog::OnInitDialog (
 	//this->Layout ();
 	//this->Fit ();
 
-}	// end "OnInitDialog"  
-
-
-  
-void CMClassifyDialog::AdjustDlgLayout ()
-
-{
-    bSizer122->Layout ();
-    bSizer123->Layout ();
-    bSizer125->Layout ();
-    bSizer126->Layout ();
-    bSizer127->Layout ();
-    bSizer128->Layout ();
-    bSizer129->Layout ();
-    bSizer114->Layout ();
-	 
-}	// end "AdjustDlgLayout"
-
-
-
-void CMClassifyDialog::HideShowClassAreasItem ()
-{
-	if (!m_trainingAreaFlag && !m_trainingAreaLOOFlag && !m_testAreaFlag)
-		MHideDialogItem (this, IDC_AreasCombo);
-
-	else	// m_trainingAreaFlag || m_trainingAreaLOOFlag ...
-		MShowDialogItem (this, IDC_AreasCombo);
-
-    
-}	// end "ShowThresholdItems"
+}	// end "OnInitDialog"
 
 
 
@@ -1023,63 +1288,65 @@ void CMClassifyDialog::OnSelendokClassificationProcedure (
 				wxCommandEvent& event)
 
 {
-    wxComboBox* comboBoxPtr = (wxComboBox*)FindWindow (IDC_ClassificationProcedure);
+	SInt16 					classificationProcedure = 0,
+            				savedClassifyListSelection,
+            				weightsSelection;
+	
 
-    SInt16 classificationProcedure = 0,
-            savedClassifyListSelection,
-            weightsSelection;
+	wxComboBox* comboBoxPtr = (wxComboBox*)FindWindow (IDC_ClassificationProcedure);
 
-    Boolean returnFlag = TRUE;
+	//Boolean returnFlag = TRUE;
 
+	savedClassifyListSelection = m_classifyListSelection;
 
-    savedClassifyListSelection = m_classifyListSelection;
+	m_classifyListSelection= comboBoxPtr->GetSelection ();
 
-    m_classifyListSelection= comboBoxPtr->GetSelection ();
+	// Get the actual classification procedure code.
 
-    // Get the actual classification procedure code.
-
-   // comboBoxPtr = (CComboBox*)GetDlgItem (IDC_ClassificationProcedure);    
-    //comboBoxPtr->SetSelection (m_classifyListSelection);      
-     SInt64 classifyListSelection64 = (SInt64)((int*)comboBoxPtr->GetClientData (m_classifyListSelection));
-    	classificationProcedure = (SInt16)classifyListSelection64;	
+	//comboBoxPtr = (CComboBox*)GetDlgItem (IDC_ClassificationProcedure);
+	//comboBoxPtr->SetSelection (m_classifyListSelection);
+	SInt64 classifyListSelection64 =
+				(SInt64)((int*)comboBoxPtr->GetClientData (m_classifyListSelection));
+	classificationProcedure = (SInt16)classifyListSelection64;
 		    
-    // Get the current weights selection. Force to 1 base.
+    		// Get the current weights selection. Force to 1 base.
 
-    weightsSelection = m_classWeightsSelection + 1;
+	weightsSelection = m_classWeightsSelection + 1;
 
-    classificationProcedure = ClassifyDialogOnClassificationProcedure (
-            this,
-            wxID_OK,
-            &m_thresholdAllowedFlag,
-            &m_featureTransformAllowedFlag,
-            &weightsSelection,
-            &m_parallelPipedCode,
-            classificationProcedure,
-            &m_covarianceEstimate,
-            m_numberEigenvectors,
-				&m_classifyProcedureEnteredCode,
-            m_optionKeyFlag);
+	classificationProcedure = ClassifyDialogOnClassificationProcedure (
+													this,
+													wxID_OK,
+													&m_thresholdAllowedFlag,
+													&m_featureTransformAllowedFlag,
+													&weightsSelection,
+													&m_parallelPipedCode,
+													classificationProcedure,
+													&m_covarianceEstimate,
+													m_numberEigenvectors,
+													&m_nearestNeighborKValue,
+													&m_classifyProcedureEnteredCode,
+													m_optionKeyFlag);
 
-    m_classWeightsSelection = weightsSelection - 1;
+	m_classWeightsSelection = weightsSelection - 1;
 
-    if (classificationProcedure != 0)
+	if (classificationProcedure != 0)
 		{
-        m_classificationProcedure = classificationProcedure;
+		m_classificationProcedure = classificationProcedure;
 
-        ClassifyDialogSetLeaveOneOutItems (this,
+		ClassifyDialogSetLeaveOneOutItems (this,
                 m_classificationProcedure,
                 m_fileNamesSelection,
                 m_savedLeaveOneOutFlag,
                 m_trainingFieldsExistFlag,
                 (Boolean*)& m_trainingAreaLOOFlag);
 
-        CheckFeatureTransformationDialog (this,
+		CheckFeatureTransformationDialog (this,
                 m_featureTransformAllowedFlag,
                 IDC_FeatureTransformation,
                 IDC_ChannelPrompt,
                 (SInt16*)& m_featureTransformationFlag);
 
-        ClassifyDialogSetThresholdItems (this,
+		ClassifyDialogSetThresholdItems (this,
                 m_classificationProcedure,
                 m_imageAreaFlag,
                 m_createProbabilityFileFlag,
@@ -1088,11 +1355,11 @@ void CMClassifyDialog::OnSelendokClassificationProcedure (
 
 		if (weightsSelection > 0)
 			{
-            HideDialogItem (this, IDC_WeightsEqual);
-            ShowDialogItem (this, IDC_WeightCombo);
+			HideDialogItem (this, IDC_WeightsEqual);
+			ShowDialogItem (this, IDC_WeightCombo);
 
-            wxComboBox* weightc = (wxComboBox*)FindWindow (IDC_WeightCombo);
-            weightc->SetSelection (m_classWeightsSelection);
+			wxComboBox* weightc = (wxComboBox*)FindWindow (IDC_WeightCombo);
+			weightc->SetSelection (m_classWeightsSelection);
 
 			}	// end "if (weightsSelection > 0)"
 
@@ -1118,153 +1385,24 @@ void CMClassifyDialog::OnSelendokClassificationProcedure (
 	  
 	m_optionKeyFlag = FALSE;
    
-   switch (m_classifyListSelection){
+   switch (m_classifyListSelection)
+   	{
       case 5:
          SetUpToolTip (m_checkBox16, IDS_ToolTip232);
          break;
+			
       case 6:
          SetUpToolTip (m_checkBox16, IDS_ToolTip232);
          break;
+			
       default:
-          SetUpToolTip (m_checkBox16, IDS_ToolTip186);  
-   }
-   
-//	this->Layout ();
-//	this->Fit ();
-		AdjustDlgLayout ();
-}	// end "OnSelendokClassificationProcedure"   
-
-void CMClassifyDialog::CheckColumnEnd (wxCommandEvent& event)
-	{
-    SignedByte handleStatus;
-
-
-    if (!m_settingSelectedEntireButton)
-		{
-        m_dialogSelectArea.imageWindowInfoPtr =
-                (WindowInfoPtr)GetHandleStatusAndPointer (m_targetWindowInfoHandle,
-                &handleStatus,
-                kNoMoveHi);
-
-        CMDialog::CheckColumnEnd (event);
-
-        MHSetState (m_targetWindowInfoHandle, handleStatus);
-
-        m_dialogSelectArea.imageWindowInfoPtr = NULL;
-
-	}	// end "if (!m_settingSelectedEntireButton)" 
-
-}	// end "CheckColumnEnd" 
-
-void
-CMClassifyDialog::CheckColumnStart (wxCommandEvent& event){
-    SignedByte handleStatus;
-
-
-    if (!m_settingSelectedEntireButton){
-        m_dialogSelectArea.imageWindowInfoPtr =
-                (WindowInfoPtr)GetHandleStatusAndPointer (m_targetWindowInfoHandle,
-                &handleStatus,
-                kNoMoveHi);
-
-        CMDialog::CheckColumnStart (event);
-
-        MHSetState (m_targetWindowInfoHandle, handleStatus);
-
-        m_dialogSelectArea.imageWindowInfoPtr = NULL;
-
-    }	// end "if (!m_settingSelectedEntireButton)" 
-
-}	// end "CheckColumnStart"
-
-void CMClassifyDialog::CheckLineEnd (wxCommandEvent& event){
-    SignedByte handleStatus;
-
-
-    if (!m_settingSelectedEntireButton){
-        m_dialogSelectArea.imageWindowInfoPtr =
-                (WindowInfoPtr)GetHandleStatusAndPointer (m_targetWindowInfoHandle,
-                &handleStatus,
-                kNoMoveHi);
-
-        CMDialog::CheckLineEnd (event);
-
-        MHSetState (m_targetWindowInfoHandle, handleStatus);
-
-        m_dialogSelectArea.imageWindowInfoPtr = NULL;
-
-    }	// end "if (!m_settingSelectedEntireButton)" 
-
-}	// end "CheckLineEnd" 
-
-void CMClassifyDialog::CheckLineStart (wxCommandEvent& event){
-    SignedByte handleStatus;
-
-
-    if (!m_settingSelectedEntireButton){
-        m_dialogSelectArea.imageWindowInfoPtr =
-                (WindowInfoPtr)GetHandleStatusAndPointer (m_targetWindowInfoHandle,
-                &handleStatus,
-                kNoMoveHi);
-
-        CMDialog::CheckLineStart (event);
-
-        MHSetState (m_targetWindowInfoHandle, handleStatus);
-
-        m_dialogSelectArea.imageWindowInfoPtr = NULL;
-
-    }	// end "if (!m_settingSelectedEntireButton)" 
-
-}	// end "CheckLineStart" 
-
-
-
-void CMClassifyDialog::CheckOutputFormatItems ()
-
-	{
-			// Make certain that disk file output formats and thresholding 	
-			// are consistent with the requested classification 					
-			// specifications.  
-
-	wxComboBox* diskc = (wxComboBox*)FindWindow (IDC_DiskCombo);
-	m_outputFormatCode = diskc->GetSelection ();
-
-	m_outputFormatCode++;
-
-	ClassifyDialogSetPaletteItems (this,
-												m_outputFormatCode,
-												m_createImageOverlayFlag);
-	/*		
-            if (m_diskFileFlag && m_outputFormatCode == kClassifyERDAS74OutputFormat)
-                    {                 
-                    ShowDialogItem (this, IDC_PalettePrompt);
-                    ShowDialogItem (this, IDC_PaletteCombo);
-		
-                    }		// end "if (m_outputFormatCode != 2)"
-		
-            else		// !m_diskFileFlag || m_outputFormatCode != 2
-                    {                 
-                    HideDialogItem (this, IDC_PalettePrompt);
-                    HideDialogItem (this, IDC_PaletteCombo);
-		
-                    }		// end "else !m_diskFileFlag || m_outputFormatCode != 2"
-     */
-    if (m_outputFormatCode != 1)
-        m_outputAsciiCode = (m_outputAsciiCode & 0xfffd);
-
-    else // m_outputFormatCode == 1 
-        m_outputAsciiCode = (m_outputAsciiCode | 0x0002);
-
-    // Check threshold items.  
-
-    ClassifyDialogSetThresholdItems (this,
-            m_classificationProcedure,
-            m_imageAreaFlag,
-            m_createProbabilityFileFlag,
-            m_thresholdResultsFlag,
-            m_thresholdAllowedFlag);
-
-}	// end "CheckOutputFormatItems" 
+			SetUpToolTip (m_checkBox16, IDS_ToolTip186);
+			
+   	}
+	
+	AdjustDlgLayout ();
+	
+}	// end "OnSelendokClassificationProcedure"
 
 
 /*
@@ -1319,8 +1457,10 @@ void CMClassifyDialog::OnThresholdResults (wxCommandEvent& event)
 
 
 
-void CMClassifyDialog::OnSelendokDiskCombo (wxCommandEvent& event){
-    CheckOutputFormatItems ();
+void CMClassifyDialog::OnSelendokDiskCombo (wxCommandEvent& event)
+
+{
+	CheckOutputFormatItems ();
 
 }	// end "OnSelendokDiskCombo"
 
@@ -1366,7 +1506,9 @@ void CMClassifyDialog::OnTrainingLOO(wxCommandEvent& event)
 
 
 
-void CMClassifyDialog::OnTestAreas (wxCommandEvent& event){
+void CMClassifyDialog::OnTestAreas (wxCommandEvent& event)
+
+{
     wxCheckBox* testareacb = (wxCheckBox*)FindWindow (IDC_TestAreas);
     m_testAreaFlag = testareacb->GetValue ();
     HideShowClassAreasItem ();
@@ -1518,6 +1660,7 @@ void CMClassifyDialog::OnSelendokPaletteCombo (wxCommandEvent& event)
 }	// end "OnSelendokPaletteCombo"
 
 
+
 void CMClassifyDialog::OnDropdownPaletteCombo (wxCommandEvent& event){
     SetUpPalettePopUpMenu (this);
 
@@ -1529,66 +1672,172 @@ void CMClassifyDialog::OnDropdownPaletteCombo (wxCommandEvent& event){
 
 
 
-void CMClassifyDialog::OnListOptions (wxCommandEvent& event){
-    SetDLogControlHilite (this, wxID_OK, 255);
+void CMClassifyDialog::OnListOptions (wxCommandEvent& event)
 
-    ListResultsOptionsDialog (
-            &m_listResultsTrainingCode,
-            &m_listResultsTestCode);
+{
+	SetDLogControlHilite (this, wxID_OK, 255);
 
-    SetDLogControlHilite (this, wxID_OK, 0);
+	ListResultsOptionsDialog (&m_listResultsTrainingCode,
+            						&m_listResultsTestCode);
 
-}	// end "OnListOptions" 
+	SetDLogControlHilite (this, wxID_OK, 0);
+
+}	// end "OnListOptions"
+
+
+
+void CMClassifyDialog::OnChangeCEMThreshold (wxCommandEvent& event)
+
+{
+	/*
+	wxTextCtrl* cemThreshold = (wxTextCtrl*)FindWindow (IDC_CEMThreshold);
+	wxString cemThresholdString = cemThreshold->GetValue ();
+	cemThresholdString.ToDouble (&m_cemThreshold);
+	double	savedCEMThreshold = m_cemThreshold;
+
+	if (m_cemThreshold < 0)
+		m_cemThreshold = 0;
+	
+	else if (m_cemThreshold > 1)
+		m_cemThreshold = 1;
+	
+	if (m_cemThreshold != savedCEMThreshold)
+		{
+		cemThreshold->ChangeValue (wxString::Format (wxT("%.1f"), m_cemThreshold));
+		
+		}	// end "if (m_cemThreshold != savedCEMThreshold)"
+	*/
+}	// end "OnChangeCEMThreshold"
+
+
 
 void CMClassifyDialog::OnChangeCorrelationCoefficient (wxCommandEvent& event)
 
 {
-    wxTextCtrl* correlationcoeff = (wxTextCtrl*)FindWindow (IDC_CorrelationCoefficient);
-    wxString m_correlationThresholdString = correlationcoeff->GetValue ();
-    m_correlationThresholdString.ToDouble (&m_correlationThreshold);
-    
-    //	if (thresholdValue > 1)
-    //		RealNumberErrorAlert (saveCorrelationThreshold, dialogPtr, 46, 4);
+	wxTextCtrl* correlationcoeff = (wxTextCtrl*)FindWindow (IDC_CorrelationCoefficientThreshold);
+	wxString m_correlationThresholdString = correlationcoeff->GetValue ();
+	m_correlationThresholdString.ToDouble (&m_correlationThreshold);
+	//double	savedCorrelationThreshold = m_correlationThreshold;
+	/*
+	if (m_correlationThreshold < 0)
+		m_correlationThreshold = 0;
+	
+	else if (m_correlationThreshold > 1)
+		m_correlationThreshold = 1;
+	
+	if (m_correlationThreshold != savedCorrelationThreshold)
+		{
+		correlationcoeff->ChangeValue (wxString::Format (wxT("%.4f"), m_correlationThreshold));
+		
+		}	// end "if (m_correlationThreshold != savedCorrelationThreshold)"
+	*/
+	if (m_correlationThreshold >= 0 && m_correlationThreshold <= 1)
+		{
+		m_saveCorrelationThreshold = m_correlationThreshold;
+		m_angleThreshold = (float)(acos (m_saveCorrelationThreshold)*kRadiansToDegrees);
+		m_saveAngleThreshold = m_angleThreshold;
+		wxTextCtrl* correlationthres = (wxTextCtrl*)FindWindow (IDC_CorrelationAngleThreshold);
+		correlationthres->ChangeValue (wxString::Format (wxT("%.1f"), m_angleThreshold));
 
-    if (m_correlationThreshold >= 0 && m_correlationThreshold <= 1){
-        m_saveCorrelationThreshold = m_correlationThreshold;
-        m_angleThreshold = (float)(
-                acos (m_saveCorrelationThreshold)*kRadiansToDegrees);
-        m_saveAngleThreshold = m_angleThreshold;
-        //DDX_Text (m_dialogToPtr, IDC_CorrelationThresold, m_angleThreshold);
-        wxTextCtrl* correlationthres = (wxTextCtrl*)FindWindow (IDC_CorrelationThresold);
-        correlationthres->ChangeValue (wxString::Format (wxT("%f"), m_angleThreshold));
-
-    }	// end "if (m_correlationThreshold >= 0 && ..."
+		}	// end "if (m_correlationThreshold >= 0 && ..."
     
 }	// end "OnChangeCorrelationCoefficient"
 
 
 
-void CMClassifyDialog::OnChangeCorrelationThresold (wxCommandEvent& event)
+void CMClassifyDialog::OnChangeCorrelationThreshold (wxCommandEvent& event)
 
 {
-    wxTextCtrl* correlationthres = (wxTextCtrl*)FindWindow (IDC_CorrelationThresold);
-    wxString correlationthresString = correlationthres->GetValue ();
-    correlationthresString.ToDouble (&m_angleThreshold);
-    //	if (thresholdValue > 180)
-    //		RealNumberErrorAlert (saveAngleThreshold, dialogPtr, 47, 1); 
+	wxTextCtrl* correlationthres = (wxTextCtrl*)FindWindow (IDC_CorrelationAngleThreshold);
+	wxString correlationthresString = correlationthres->GetValue ();
+	correlationthresString.ToDouble (&m_angleThreshold);
+	//double	savedAngleThreshold = m_angleThreshold;
+	/*
+	if (m_angleThreshold < 0)
+		m_angleThreshold = 0;
+	
+	else if (m_angleThreshold > 90)
+		m_angleThreshold = 90;
+	
+	if (m_angleThreshold != savedAngleThreshold)
+		{
+		correlationthres->ChangeValue (wxString::Format (wxT("%.1f"), m_angleThreshold));
+		
+		}	// end "if (m_angleThreshold != savedAngleThreshold)"
+	*/
+	if (m_angleThreshold >= 0 && m_angleThreshold <= 90)
+		{
+		m_saveAngleThreshold = m_angleThreshold;
+		m_correlationThreshold = (float)cos (m_angleThreshold * kDegreesToRadians);
+		m_saveCorrelationThreshold = m_correlationThreshold;
+		wxTextCtrl* correlationcoef = (wxTextCtrl*)FindWindow (IDC_CorrelationCoefficientThreshold);
+		correlationcoef->ChangeValue (wxString::Format (wxT("%.4f"), m_correlationThreshold));
+		
+		}	// end "if (thresholdValue >= 0 && ..."
 
-    if (m_angleThreshold >= 0 && m_angleThreshold <= 180){
-        m_saveAngleThreshold = m_angleThreshold;
-        m_correlationThreshold = (float)cos (
-                m_angleThreshold * kDegreesToRadians);
-        m_saveCorrelationThreshold = m_correlationThreshold;
-        //DDX_Text (m_dialogToPtr, IDC_CorrelationCoefficient, m_correlationThreshold);
-        wxTextCtrl* correlationcoef = (wxTextCtrl*)FindWindow (IDC_CorrelationCoefficient);
-        correlationcoef->ChangeValue (wxString::Format (wxT("%f"), m_correlationThreshold));    
-    }	// end "if (thresholdValue >= 0 && ..."
-
-}	// end "OnChangeCorrelationThresold" 
+}	// end "OnChangeCorrelationThreshold"
 
 
 
-void CMClassifyDialog::OnSelendokTargetCombo (wxCommandEvent& event){
+void CMClassifyDialog::OnChangeKNNThreshold (wxCommandEvent& event)
+
+{
+	wxTextCtrl* knnThreshold = (wxTextCtrl*)FindWindow (IDC_NearestNeighborThreshold);
+	wxString knnThresholdString = knnThreshold->GetValue ();
+	knnThresholdString.ToLong (&m_knnThreshold);
+	int	savedKNNThresholdValue = m_knnThreshold;
+
+	if (m_knnThreshold < 1)
+		m_knnThreshold = 1;
+	
+	else if (m_knnThreshold > m_nearestNeighborKValue)
+		m_knnThreshold = m_nearestNeighborKValue;
+	
+	if (m_knnThreshold != savedKNNThresholdValue)
+		{
+		knnThreshold->ChangeValue (wxString::Format (wxT("%ld"), m_knnThreshold));
+		
+		}	// end "if (m_knnThreshold != savedKNNThresholdValue)"
+
+}	// end "OnChangeKNNThreshold"
+
+
+
+void CMClassifyDialog::OnChangeThreshold (wxCommandEvent& event)
+
+{
+	//double					savedThresholdPercent;
+	
+	
+	//savedThresholdPercent = m_thresholdPercent;
+	/*
+	wxTextCtrl* thresholdValue = (wxTextCtrl*)FindWindow (IDC_ThresholdValue);
+	wxString thresholdValueString = thresholdValue->GetValue ();
+	if (thresholdValueString.ToDouble (&m_thresholdPercent))
+		{
+		savedThresholdPercent = m_thresholdPercent;
+	
+	//else	// bad string number
+	//	savedThresholdPercent = -1;
+
+		if (m_thresholdPercent < 0)
+			m_thresholdPercent = 0;
+		
+		else if (m_thresholdPercent > 100)
+			m_thresholdPercent = 100;
+		
+		if (m_thresholdPercent != savedThresholdPercent)
+			thresholdValue->ChangeValue (wxString::Format (wxT("%.1f"), m_thresholdPercent));
+		
+		}	// end "if (thresholdValueString.ToDouble (&m_thresholdPercent))"
+	*/
+}	// end "OnChangeThreshold"
+
+
+
+void CMClassifyDialog::OnSelendokTargetCombo (wxCommandEvent& event)
+
+{
     int savedFileNamesSelection;
 
     Boolean checkOKFlag,
@@ -1666,26 +1915,26 @@ void CMClassifyDialog::OnSelendokImageOverlayCombo (wxCommandEvent& event)
 
 void CMClassifyDialog::OnCloseupClassificationProcedure (wxCommandEvent& event)
 {
-    /*	if (m_optionKeyFlag)
-                    {                                                       
-                    SetComboItemText (IDC_ClassificationProcedure, 
-                                                                            m_correlationComboListItem, 
-                                                                            (char*)"Correlation (SAM)");
-								          
-                    CComboBox* comboBoxPtr = (CComboBox*)GetDlgItem (IDC_ClassificationProcedure);
-                    comboBoxPtr->SetItemData (m_correlationComboListItem, kCorrelationMode);
+	/*
+	if (m_optionKeyFlag)
+		{
+		SetComboItemText (IDC_ClassificationProcedure, 
+								m_correlationComboListItem,
+								(char*)"Correlation (SAM)");
+						 
+		CComboBox* comboBoxPtr = (CComboBox*)GetDlgItem (IDC_ClassificationProcedure);
+		comboBoxPtr->SetItemData (m_correlationComboListItem, kCorrelationMode);
 
-                    m_optionKeyFlag = FALSE;
+		m_optionKeyFlag = FALSE;
 
-                    }		// end "if (m_optionKeyFlag)"
-     */
+		}	// end "if (m_optionKeyFlag)"
+	*/
 }	// end "OnCloseupClassificationProcedure"
 
 
 
 void CMClassifyDialog::OnStnClickedStartendinterval ()
 {
-    // TODO: Add your control notification handler code here
 	 
 }	// end "OnStnClickedStartendinterval"
 
@@ -1745,8 +1994,9 @@ bool CMClassifyDialog::TransferDataFromWindow ()
 	wxTextCtrl* l_start = (wxTextCtrl*)FindWindow (IDC_LineStart);
 
 	wxTextCtrl* clsfythresh = (wxTextCtrl*)FindWindow (IDC_ThresholdValue);
-	wxTextCtrl* clsfycorrcoef = (wxTextCtrl*)FindWindow (IDC_CorrelationThresold);
-	wxTextCtrl* clsfycorrthresh = (wxTextCtrl*)FindWindow (IDC_CorrelationCoefficient);
+	wxTextCtrl* classifyKnnThreshold = (wxTextCtrl*)FindWindow (IDC_NearestNeighborThreshold);
+	wxTextCtrl* clsfycorrcoef = (wxTextCtrl*)FindWindow (IDC_CorrelationAngleThreshold);
+	wxTextCtrl* clsfycorrthresh = (wxTextCtrl*)FindWindow (IDC_CorrelationCoefficientThreshold);
 	wxTextCtrl* clsfyCEMthresh = (wxTextCtrl*)FindWindow (IDC_CEMThreshold);
 	  
 	wxCheckBox* traincb = (wxCheckBox*)FindWindow (IDC_Training);
@@ -1805,19 +2055,37 @@ bool CMClassifyDialog::TransferDataFromWindow ()
       SInt64 classificationProcedure = (SInt64)((int*)comboBoxPtr->GetClientData (m_classifyListSelection));
       m_classificationProcedure = (SInt16)classificationProcedure;
 	
-      if (m_classificationProcedure == kCorrelationMode){
+      if (m_classificationProcedure == kCorrelationMode)
+      	{
          wxString clcorrthresh = clsfycorrthresh->GetValue ();
          clcorrthresh.ToDouble (&m_correlationThreshold);   
          wxString clcorrcoef = clsfycorrcoef->GetValue ();
          clcorrcoef.ToDouble (&m_angleThreshold);
-      }else if (m_classificationProcedure == kCEMMode){
+			
+      	}	// end "if (m_classificationProcedure == kCorrelationMode)"
+		
+		else if (m_classificationProcedure == kCEMMode)
+			{
          wxString clCEMthresh = clsfyCEMthresh->GetValue ();
          clCEMthresh.ToDouble (&m_cemThreshold);
-      }else{// m_classificationProcedure != kCEMMode || ...
+			
+      	}	// end "else if (m_classificationProcedure == kCEMMode)"
+		
+		else if (m_classificationProcedure == kKNearestNeighborMode)
+			{
+         wxString clKNNThreshold = classifyKnnThreshold->GetValue ();
+         clKNNThreshold.ToLong (&m_knnThreshold);
+			
+      	}	// end "else if (m_classificationProcedure == kKNearestNeighborMode)"
+		
+		else	// m_classificationProcedure != kCEMMode || ...
+			{
          wxString clthresh = clsfythresh->GetValue ();
          clthresh.ToDouble (&m_thresholdPercent);
-      }
-   }
+				
+      	}	// end "else m_classificationProcedure != kCEMMode || ..."
+		
+   	}	// end "if (m_thresholdResultsFlag)"
    
 //   if (m_imageAreaFlag){
 //            VerifyLineColumnStartEndValues ();       
@@ -1854,89 +2122,90 @@ bool CMClassifyDialog::TransferDataFromWindow ()
 bool CMClassifyDialog::TransferDataToWindow ()
 
 {
-    wxTextCtrl* c_end = (wxTextCtrl*)FindWindow (IDC_ColumnEnd);
-    wxTextCtrl* c_inter = (wxTextCtrl*)FindWindow (IDC_ColumnInterval);
-    wxTextCtrl* c_start = (wxTextCtrl*)FindWindow (IDC_ColumnStart);
-    wxTextCtrl* l_end = (wxTextCtrl*)FindWindow (IDC_LineEnd);
-    wxTextCtrl* l_inter = (wxTextCtrl*)FindWindow (IDC_LineInterval);
-    wxTextCtrl* l_start = (wxTextCtrl*)FindWindow (IDC_LineStart);
+	wxTextCtrl* c_end = (wxTextCtrl*)FindWindow (IDC_ColumnEnd);
+	wxTextCtrl* c_inter = (wxTextCtrl*)FindWindow (IDC_ColumnInterval);
+	wxTextCtrl* c_start = (wxTextCtrl*)FindWindow (IDC_ColumnStart);
+	wxTextCtrl* l_end = (wxTextCtrl*)FindWindow (IDC_LineEnd);
+	wxTextCtrl* l_inter = (wxTextCtrl*)FindWindow (IDC_LineInterval);
+	wxTextCtrl* l_start = (wxTextCtrl*)FindWindow (IDC_LineStart);
 
-    wxTextCtrl* clsfythresh = (wxTextCtrl*)FindWindow (IDC_ThresholdValue);
-    wxTextCtrl* clsfycorrcoef = (wxTextCtrl*)FindWindow (IDC_CorrelationThresold);
-    wxTextCtrl* clsfycorrthresh = (wxTextCtrl*)FindWindow (IDC_CorrelationCoefficient);
-    wxTextCtrl* clsfyCEMthresh = (wxTextCtrl*)FindWindow (IDC_CEMThreshold);
-    
-    wxCheckBox* traincb = (wxCheckBox*)FindWindow (IDC_Training);
-    wxCheckBox* imagecb = (wxCheckBox*)FindWindow (IDC_ImageArea);
-    wxCheckBox* diskfcb = (wxCheckBox*)FindWindow (IDC_DiskFile);
-    wxCheckBox* probfilecb = (wxCheckBox*)FindWindow (IDC_CreateProbabilityFile);
-    wxCheckBox* testareacb = (wxCheckBox*)FindWindow (IDC_TestAreas);
-    wxCheckBox* trainloocb = (wxCheckBox*)FindWindow (IDC_TrainingLOO);
-    wxCheckBox* featuretrancb = (wxCheckBox*)FindWindow (IDC_FeatureTransformation);
-    wxCheckBox* thresholdcb = (wxCheckBox*)FindWindow (IDC_ThresholdResults);
-    wxCheckBox* imagewindowcb = (wxCheckBox*)FindWindow (IDC_ImageWindowOverlay);
+	wxTextCtrl* clsfythresh = (wxTextCtrl*)FindWindow (IDC_ThresholdValue);
+	wxTextCtrl* classifyKnnThreshold = (wxTextCtrl*)FindWindow (IDC_NearestNeighborThreshold);
+	wxTextCtrl* clsfycorrcoef = (wxTextCtrl*)FindWindow (IDC_CorrelationAngleThreshold);
+	wxTextCtrl* clsfycorrthresh = (wxTextCtrl*)FindWindow (IDC_CorrelationCoefficientThreshold);
+	wxTextCtrl* clsfyCEMthresh = (wxTextCtrl*)FindWindow (IDC_CEMThreshold);
 
-    wxComboBox* classc = (wxComboBox*)FindWindow (IDC_ClassCombo);
-    wxComboBox* weightc = (wxComboBox*)FindWindow (IDC_WeightCombo);
-    wxComboBox* symbolc = (wxComboBox*)FindWindow (IDC_SymbolCombo);
-    wxComboBox* classprocc = (wxComboBox*)FindWindow (IDC_ClassificationProcedure);
-    wxComboBox* areasc = (wxComboBox*)FindWindow (IDC_AreasCombo);
-    wxComboBox* targetc = (wxComboBox*)FindWindow (IDC_TargetCombo);
-    wxComboBox* diskc = (wxComboBox*)FindWindow (IDC_DiskCombo);
-    wxComboBox* palettec = (wxComboBox*)FindWindow (IDC_PaletteCombo);
-    wxComboBox* channelc = (wxComboBox*)FindWindow (IDC_ChannelCombo);
-    wxComboBox* imageoverc = (wxComboBox*)FindWindow (IDC_ImageOverlayCombo);
-    
-    
+	wxCheckBox* traincb = (wxCheckBox*)FindWindow (IDC_Training);
+	wxCheckBox* imagecb = (wxCheckBox*)FindWindow (IDC_ImageArea);
+	wxCheckBox* diskfcb = (wxCheckBox*)FindWindow (IDC_DiskFile);
+	wxCheckBox* probfilecb = (wxCheckBox*)FindWindow (IDC_CreateProbabilityFile);
+	wxCheckBox* testareacb = (wxCheckBox*)FindWindow (IDC_TestAreas);
+	wxCheckBox* trainloocb = (wxCheckBox*)FindWindow (IDC_TrainingLOO);
+	wxCheckBox* featuretrancb = (wxCheckBox*)FindWindow (IDC_FeatureTransformation);
+	wxCheckBox* thresholdcb = (wxCheckBox*)FindWindow (IDC_ThresholdResults);
+	wxCheckBox* imagewindowcb = (wxCheckBox*)FindWindow (IDC_ImageWindowOverlay);
+
+	wxComboBox* classc = (wxComboBox*)FindWindow (IDC_ClassCombo);
+	wxComboBox* weightc = (wxComboBox*)FindWindow (IDC_WeightCombo);
+	wxComboBox* symbolc = (wxComboBox*)FindWindow (IDC_SymbolCombo);
+	wxComboBox* classprocc = (wxComboBox*)FindWindow (IDC_ClassificationProcedure);
+	wxComboBox* areasc = (wxComboBox*)FindWindow (IDC_AreasCombo);
+	wxComboBox* targetc = (wxComboBox*)FindWindow (IDC_TargetCombo);
+	wxComboBox* diskc = (wxComboBox*)FindWindow (IDC_DiskCombo);
+	wxComboBox* palettec = (wxComboBox*)FindWindow (IDC_PaletteCombo);
+	wxComboBox* channelc = (wxComboBox*)FindWindow (IDC_ChannelCombo);
+	wxComboBox* imageoverc = (wxComboBox*)FindWindow (IDC_ImageOverlayCombo);
+
 	if (m_covarianceEstimate != kNoCovarianceUsed)
 		{
 		SetComboItemText (IDC_ClassificationProcedure,
 								m_correlationComboListItem,
 								(char*)"Correlation (SAM)...");
 		}
-    
-    traincb->SetValue (m_trainingAreaFlag);
-    imagecb->SetValue (m_imageAreaFlag);
-    diskfcb->SetValue (m_diskFileFlag);
-    probfilecb->SetValue (m_createProbabilityFileFlag);
-    testareacb->SetValue (m_testAreaFlag);
-    trainloocb->SetValue (m_trainingAreaLOOFlag);
-    featuretrancb->SetValue (m_featureTransformationFlag);
-    thresholdcb->SetValue (m_thresholdResultsFlag);
-    imagewindowcb->SetValue (m_createImageOverlayFlag);
 
-    classc->SetSelection (m_classSelection);
-    if (m_classWeightsSelection >= 0)
-    	weightc->SetSelection (m_classWeightsSelection);
-    if (m_symbolSelection >= 0)
-    	symbolc->SetSelection (m_symbolSelection);
-    classprocc->SetSelection (m_classifyListSelection);
-    areasc->SetSelection (m_classAreaSelection);
-	
+	traincb->SetValue (m_trainingAreaFlag);
+	imagecb->SetValue (m_imageAreaFlag);
+	diskfcb->SetValue (m_diskFileFlag);
+	probfilecb->SetValue (m_createProbabilityFileFlag);
+	testareacb->SetValue (m_testAreaFlag);
+	trainloocb->SetValue (m_trainingAreaLOOFlag);
+	featuretrancb->SetValue (m_featureTransformationFlag);
+	thresholdcb->SetValue (m_thresholdResultsFlag);
+	imagewindowcb->SetValue (m_createImageOverlayFlag);
+
+	classc->SetSelection (m_classSelection);
+	if (m_classWeightsSelection >= 0)
+		weightc->SetSelection (m_classWeightsSelection);
+	if (m_symbolSelection >= 0)
+		symbolc->SetSelection (m_symbolSelection);
+	classprocc->SetSelection (m_classifyListSelection);
+	areasc->SetSelection (m_classAreaSelection);
+
 	int fileNamesSelection = 0;
 	if (m_fileNamesSelection > 0)
 		fileNamesSelection = m_fileNamesSelection;
 	targetc->SetSelection (fileNamesSelection);
-	
-    diskc->SetSelection (m_outputFormatCode);
-    palettec->SetSelection (m_paletteSelection);
-    channelc->SetSelection (m_channelSelection);
-    imageoverc->SetSelection (m_selectImageOverlaySelection);
-    
-    
-    c_end->ChangeValue (wxString::Format (wxT("%i"), m_ColumnEnd));
-    c_inter->ChangeValue (wxString::Format (wxT("%i"), m_ColumnInterval));
-    c_start->ChangeValue (wxString::Format (wxT("%i"), m_ColumnStart));
-    l_end->ChangeValue (wxString::Format (wxT("%i"), m_LineEnd));
-    l_inter->ChangeValue (wxString::Format (wxT("%i"), m_LineInterval));
-    l_start->ChangeValue (wxString::Format (wxT("%i"), m_LineStart));
 
-    
-    clsfythresh->ChangeValue (wxString::Format (wxT("%.1f"), m_thresholdPercent));
-    clsfycorrthresh->ChangeValue (wxString::Format (wxT("%.4f"), m_correlationThreshold));
-    clsfycorrcoef->ChangeValue (wxString::Format (wxT("%.1f"), m_angleThreshold));
-    clsfyCEMthresh->ChangeValue (wxString::Format (wxT("%.1f"), m_cemThreshold));
-          
-    return true;
+	diskc->SetSelection (m_outputFormatCode);
+	palettec->SetSelection (m_paletteSelection);
+	channelc->SetSelection (m_channelSelection);
+	imageoverc->SetSelection (m_selectImageOverlaySelection);
+
+
+	c_end->ChangeValue (wxString::Format (wxT("%i"), m_ColumnEnd));
+	c_inter->ChangeValue (wxString::Format (wxT("%i"), m_ColumnInterval));
+	c_start->ChangeValue (wxString::Format (wxT("%i"), m_ColumnStart));
+	l_end->ChangeValue (wxString::Format (wxT("%i"), m_LineEnd));
+	l_inter->ChangeValue (wxString::Format (wxT("%i"), m_LineInterval));
+	l_start->ChangeValue (wxString::Format (wxT("%i"), m_LineStart));
+
+
+	clsfythresh->ChangeValue (wxString::Format (wxT("%.1f"), m_thresholdPercent));
+	classifyKnnThreshold->ChangeValue (wxString::Format (wxT("%ld"), m_knnThreshold));
+	clsfycorrthresh->ChangeValue (wxString::Format (wxT("%.4f"), m_correlationThreshold));
+	clsfycorrcoef->ChangeValue (wxString::Format (wxT("%.1f"), m_angleThreshold));
+	clsfyCEMthresh->ChangeValue (wxString::Format (wxT("%.1f"), m_cemThreshold));
+	
+	return true;
 	 
 }	// end "TransferDataToWindow"

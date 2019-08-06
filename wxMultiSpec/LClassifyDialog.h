@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (2009-2018)
+//								 Copyright (2009-2019)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -19,7 +19,7 @@
 //	Brief description:	Header file for the CMClassifyDialog class
 //
 //	Written By:				Abdur Rahman Maud		Date: ??/??/2009
-//	Revised By:				Larry L. Biehl			Date: 11/06/2018
+//	Revised By:				Larry L. Biehl			Date: 07/01/2019
 //	
 //------------------------------------------------------------------------------------
 
@@ -68,6 +68,8 @@ class CMClassifyDialog : public CMDialog
 						m_outputFormatCode,
 						m_paletteSelection,
 						m_selectImageOverlaySelection;
+	
+		long			m_knnThreshold;
 		
 		UInt16		m_classifyProcedureEnteredCode;
 		
@@ -82,8 +84,11 @@ class CMClassifyDialog : public CMDialog
 
 		 // Implementation
 	protected:
+		void			OnChangeCEMThreshold (wxCommandEvent& event);
 		void			OnChangeCorrelationCoefficient (wxCommandEvent& event);
-		void			OnChangeCorrelationThresold (wxCommandEvent& event);
+		void			OnChangeCorrelationThreshold (wxCommandEvent& event);
+		void			OnChangeKNNThreshold (wxCommandEvent& event);
+		void			OnChangeThreshold (wxCommandEvent& event);
 		void			OnCloseupClassificationProcedure (wxCommandEvent& event);
 		void			OnCreateProbabilityFile (wxCommandEvent& event);
 		void			OnDiskFile (wxCommandEvent& event);
@@ -130,6 +135,7 @@ class CMClassifyDialog : public CMDialog
 						m_saveThresholdPercent;
 
 		float*		m_classWeightsPtr;
+	
 		UInt16*		m_classAreaListPtr;
 
 		Handle		m_targetWindowInfoHandle;
@@ -139,10 +145,13 @@ class CMClassifyDialog : public CMDialog
 		SInt16		m_classificationProcedure,
 						m_correlationComboListItem,
 						m_covarianceEstimate,
+						m_kNearestNeighborComboListItem,
 						m_listResultsTestCode,
 						m_listResultsTrainingCode,
+						m_nearestNeighborKValue,
 						m_outputAsciiCode,
-						m_parallelPipedCode;
+						m_parallelPipedCode,
+						m_saveKNNThreshold;
 
 		Boolean		m_initializedFlag,
 						m_optionKeyFlag,
@@ -212,9 +221,10 @@ class CMClassifyDialog : public CMDialog
 									*m_staticText187,
 									*m_staticText188;
 
-		wxString					m_cemThresString,
-									m_corrThresString,
-									m_ThresString;
+		wxString					m_cemThresholdString,
+									m_corrThresholdString,
+									m_knnThresholdString,
+									m_ThresholdString;
 									
 		wxTextCtrl				*m_colendctrl,
 									*m_colintctrl,

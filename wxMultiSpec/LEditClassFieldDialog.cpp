@@ -1,6 +1,6 @@
 // LEditClassFieldDialog.cpp : implementation file
 //
-// Revised by Larry Biehl on 11/13/2018
+// Revised by Larry Biehl on 05/02/2019
 //               
 /* Template for debugging for MultiSpec Online on mygeohub.org.
 	int numberChars = sprintf ((char*)&gTextString3,
@@ -192,7 +192,7 @@ void CMEditClassFieldDlg::CreateControls ()
 
 
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2019)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -211,7 +211,7 @@ void CMEditClassFieldDlg::CreateControls ()
 //	Called By:			Dialog in MDisMult.cpp
 //
 //	Coded By:			Abdur Rahman Maud		Date: ??/??/2015
-//	Revised By:			Larry L. Biehl			Date: 07/07/2017	
+//	Revised By:			Larry L. Biehl			Date: 05/02/2019
 
 Boolean CMEditClassFieldDlg::DoDialog(
 				SInt16								classFieldCode,
@@ -222,13 +222,13 @@ Boolean CMEditClassFieldDlg::DoDialog(
    Boolean OKFlag = FALSE;
 
    SInt16 returnCode;
-   UInt16 selectedItem;
+   //UInt16 selectedItem;
 
 
 			// Make sure intialization has been completed.
 
    if (!m_initializedFlag)
-																							return (FALSE);
+																						return (FALSE);
 
    m_classFieldCode = classFieldCode;
    m_currentField = currentField;
@@ -248,10 +248,12 @@ Boolean CMEditClassFieldDlg::DoDialog(
       if (classFieldCode == 2) 
 			{
 					// Class Name
+			
          CtoPstring ((UCharPtr)m_classNameCStringPtr,
-							gProjectInfoPtr->classNamesPtr[m_classStorage].name);
+							gProjectInfoPtr->classNamesPtr[m_classStorage].name, 30);
 			CtoPstring ((UCharPtr)m_classNameCStringPtr, gTextString);
-			returnCode = CheckForDuplicateClassName (m_classStorage, (Str255*) gTextString);
+			/*
+			returnCode = CheckForDuplicateClassName (m_classStorage, (Str255*)gTextString);
          if (returnCode > 0) 
 				{
             if (returnCode == 1)
@@ -262,16 +264,19 @@ Boolean CMEditClassFieldDlg::DoDialog(
 
             selectedItem = IDC_ClassName;
             OKFlag = FALSE;
+			 
 				}	// end "if ( returnCode > 0 )"
 				 
          else
 				{ // returnCode == 0
+			*/
 						// change name in class list
+			
             wxComboBox* classList = (wxComboBox*)gProjectWindow->GetFrame()->FindWindow(IDC_ClassList);
             wxString classname = wxString::FromUTF8 ((char*)m_classNameCStringPtr);
             classList->SetString (currentClass+1, classname);
 				
-				}
+				//}
 				
 			}	// end "if (classFieldCode == 2)" 
       
@@ -280,20 +285,24 @@ Boolean CMEditClassFieldDlg::DoDialog(
          HPFieldIdentifiersPtr fieldIdentPtr = gProjectInfoPtr->fieldIdentPtr;
 			
 					// Field Identifier
+			
          CtoPstring ((UCharPtr)m_fieldNameCStringPtr,
-							gProjectInfoPtr->fieldIdentPtr[m_currentField].name);
+							gProjectInfoPtr->fieldIdentPtr[m_currentField].name, 30);
          CtoPstring ((UCharPtr)m_fieldNameCStringPtr, gTextString);
 			
-					// Training field or test field						
+					// Training field or test field
+			
          SInt16 fieldType = kTrainingType;
          if (m_fieldType == 1)
             fieldType = kTestingType;
+			
          fieldIdentPtr[currentField].fieldType = fieldType;
+         /*
          returnCode = CheckForDuplicateFieldName (m_currentField, (Str255*) gTextString);
          if (returnCode > 0) 
 				{
             if (returnCode == 1)
-               DisplayAlert (kErrorAlertID, 3, kAlertStrID, IDS_Alert46, 0, NULL);
+               DisplayAlert (kErrorAlertID, 3, kAlertStrID, IDS_Alert44, 0, NULL);
 
             else // returnCode == 2
                DupClassFieldNameAlert (2, gTextString);
@@ -302,7 +311,7 @@ Boolean CMEditClassFieldDlg::DoDialog(
             OKFlag = FALSE;
 				
 				}	// end "if ( returnCode > 0 )"      
-				      
+			*/
 			}	// end "if (classFieldCode == 3)" 
 			
 		}	// end "if (returnCode == IDOK)"
@@ -367,7 +376,7 @@ void CMEditClassFieldDlg::OnInitDialog (wxInitDialogEvent& event)
 //   } // end "if (m_classFieldCode == 2)" 
 //
 //   if (OKFlag && m_classFieldCode == 3) {
-//      CtoPstring(m_fieldNameCStringPtr, (char*) gTextString);
+//      CtoPstring(m_fieldNameCStringPtr, (char*)gTextString);
 //
 //      // Check if proposed field name is a duplicate.	 If it  	
 //      // is, allow user to change it again.							
@@ -375,7 +384,7 @@ void CMEditClassFieldDlg::OnInitDialog (wxInitDialogEvent& event)
 //      returnCode = CheckForDuplicateFieldName(m_currentField, (Str255*) gTextString);
 //      if (returnCode > 0) {
 //         if (returnCode == 1)
-//            DisplayAlert(kErrorAlertID, 3, kAlertStrID, IDS_Alert46, 0, NULL);
+//            DisplayAlert(kErrorAlertID, 3, kAlertStrID, IDS_Alert44, 0, NULL);
 //
 //         else // returnCode == 2
 //            DupClassFieldNameAlert(2, (char*) gTextString);
@@ -396,8 +405,15 @@ void CMEditClassFieldDlg::OnInitDialog (wxInitDialogEvent& event)
 //} // end "OnOK"
 
 
-bool CMEditClassFieldDlg::TransferDataFromWindow()
+bool CMEditClassFieldDlg::TransferDataFromWindow ()
+
 {
+	SInt16				returnCode,
+							selectedItem;
+	
+	Boolean				OKFlag;
+	
+	
    wxTextCtrl* classname = (wxTextCtrl*)FindWindow(IDC_ClassName);
    wxTextCtrl* fieldname = (wxTextCtrl*)FindWindow(IDC_FieldName);
    wxRadioButton* training = (wxRadioButton*)FindWindow(IDC_Training);
@@ -409,18 +425,91 @@ bool CMEditClassFieldDlg::TransferDataFromWindow()
    strcpy( m_fieldNamebuf, (const char*)m_fieldName.mb_str(wxConvUTF8)); 
    m_classNameCStringPtr = m_classNamebuf;
    m_fieldNameCStringPtr = m_fieldNamebuf;
+
+			// Check for duplicate class or field name
+	
+	OKFlag = TRUE;
+	if (m_classFieldCode == 2)
+		{
+				// Class Name
+		
+		CtoPstring ((UCharPtr)m_classNameCStringPtr,
+						gProjectInfoPtr->classNamesPtr[m_classStorage].name, 30);
+		CtoPstring ((UCharPtr)m_classNameCStringPtr, gTextString);
+		returnCode = CheckForDuplicateClassName (m_classStorage, (Str255*)gTextString);
+		if (returnCode != 0)
+			{
+			if (returnCode < 0)
+				DisplayAlert(kErrorAlertID, 3, kAlertStrID, IDS_Alert46, 0, NULL);
+
+			else // returnCode > 0
+				DupClassFieldNameAlert (1, gTextString);
+
+			selectedItem = IDC_ClassName;
+			OKFlag = FALSE;
+			
+			}	// end "if ( returnCode > 0 )"
+		/*
+		else	// returnCode == 0
+			{
+					// Change name in class list
+			
+			wxComboBox* classList = (wxComboBox*)gProjectWindow->GetFrame()->FindWindow(IDC_ClassList);
+			wxString classname = wxString::FromUTF8 ((char*)m_classNameCStringPtr);
+			classList->SetString (currentClass+1, classname);
+			
+			}	// end "else returnCode == 0"
+		*/
+		}	// end "if (classFieldCode == 2)"
+
+	if (OKFlag && m_classFieldCode == 3)
+		{
+		HPFieldIdentifiersPtr fieldIdentPtr = gProjectInfoPtr->fieldIdentPtr;
+		
+				// Field Identifier
+		CtoPstring ((UCharPtr)m_fieldNameCStringPtr,
+						gProjectInfoPtr->fieldIdentPtr[m_currentField].name, 30);
+		CtoPstring ((UCharPtr)m_fieldNameCStringPtr, gTextString);
+		/*
+				// Training field or test field
+		
+		SInt16 fieldType = kTrainingType;
+		if (m_fieldType == 1)
+			fieldType = kTestingType;
+		
+		fieldIdentPtr[currentField].fieldType = fieldType;
+		*/
+		returnCode = CheckForDuplicateFieldName (m_currentField, (Str255*)gTextString);
+		if (returnCode > 0)
+			{
+			if (returnCode == 1)
+				DisplayAlert (kErrorAlertID, 3, kAlertStrID, IDS_Alert46, 0, NULL);
+
+			else // returnCode == 2
+				DupClassFieldNameAlert (2, gTextString);
+
+			selectedItem = IDC_FieldName;
+			OKFlag = FALSE;
+			
+			}	// end "if ( returnCode > 0 )"
+		
+		}	// end "if (classFieldCode == 3)"
    
-   if(training->GetValue() == true)
+   if (training->GetValue ())
       m_fieldType = 0;
+	
    else
       m_fieldType = 1;
    
-   return true;
+   return OKFlag;
 	
 }	// end "TransferDataFromWindow"
 
+
+
 // This actually not effective. Data transfer is done in OnInitDialog
-bool CMEditClassFieldDlg::TransferDataToWindow()
+bool CMEditClassFieldDlg::TransferDataToWindow ()
+
 {
    wxTextCtrl* classname = (wxTextCtrl*)FindWindow(IDC_ClassName);
    wxTextCtrl* fieldname = (wxTextCtrl*)FindWindow(IDC_FieldName);

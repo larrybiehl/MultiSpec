@@ -1,6 +1,6 @@
 // LStatisticsDialog.h : header file
 //     
-// Revised by Larry Biehl on 07/07/2017
+// Revised by Larry Biehl on 05/07/2019
 // 
 #if !defined __LSTATDLG_H__
 	#define	__LSTATDLG_H__  
@@ -46,6 +46,9 @@ protected:
 
 			// Generated message map functions
 
+	void OnActivate (wxActivateEvent& event);
+	void OnCloseupTrainMaskCOMBO (
+				wxCommandEvent&					event);
 	void OnInitDialog(wxInitDialogEvent& event);
 	void OnSelendokChannels(wxCommandEvent& event);
 	void OnSelendokProjectChanges(wxCommandEvent& event);

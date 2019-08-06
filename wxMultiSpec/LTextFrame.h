@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//							 Copyright (1988-2018)
+//							 Copyright (1988-2019)
 //						(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -12,7 +12,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			10/19/2018
+//	Revision date:			04/12/2019
 //
 //	Language:				C++
 //
@@ -76,7 +76,17 @@ private:
     	};
 	#endif
 protected:
-//    wxTextCtrl* textarea;
+	void OnUpdateEditUndo(wxUpdateUIEvent& pCmdUI);
+	void OnUpdateEditCut(wxUpdateUIEvent& pCmdUI);
+	void OnUpdateEditCopy(wxUpdateUIEvent& pCmdUI);
+	void OnUpdateEditPaste(wxUpdateUIEvent& pCmdUI);
+	void OnUpdateEditClear(wxUpdateUIEvent& pCmdUI);
+	
+	void OnEditCopy (wxCommandEvent& event);
+	void OnEditCut (wxCommandEvent& event);
+	void OnEditPaste (wxCommandEvent& event);
+	void OnEditUndo (wxCommandEvent& event);
+
     bool m_frameMaximized;
     wxSize m_frameSizeSaved;
     wxPoint m_framePosSaved;
@@ -87,7 +97,7 @@ protected:
 public:
 	CMTextFrame ();
 	CMTextFrame (wxDocument* doc, wxView* view, wxDocParentFrame* parent, wxWindowID id, const wxString& title, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = wxDEFAULT_FRAME_STYLE);
-        void OnMaximizeWindow(wxMaximizeEvent& event);
+	void OnMaximizeWindow(wxMaximizeEvent& event);
 	void OnFocus(wxFocusEvent& event);
 	void OnUpdateFileCloseWindow(wxUpdateUIEvent& pCmdUI);
 	void OnUpdateNewProject(wxUpdateUIEvent& event);
@@ -97,7 +107,7 @@ public:
 	void OnUpdateFilePrint(wxUpdateUIEvent& pCmdUI);
 	void OnUpdateFilePrintPreview(wxUpdateUIEvent& pCmdUI);
 	void OnUpdateFilePrintSetup(wxUpdateUIEvent& pCmdUI);
-	void OnUpdateEditCopy(wxUpdateUIEvent& pCmdUI);
+	
 	void OnUpdateSelectAll(wxUpdateUIEvent& pCmdUI);
 	void OnUpdateEditClearSelectionRectangle(wxUpdateUIEvent& pCmdUI);
 	void OnUpdateWindowNewSelectionGraph(wxUpdateUIEvent& pCmdUI);

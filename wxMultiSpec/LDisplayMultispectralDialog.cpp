@@ -12,7 +12,7 @@
 //
 //	Authors:					Abdur Rahman Maud, Larry L. Biehl
 //
-//	Revision date:			02/15/2019
+//	Revision date:			03/18/2019
 //
 //	Language:				C++
 //
@@ -191,12 +191,6 @@ END_EVENT_TABLE()
 void CMDisplaySpecsDlg::CreateControls ()
 
 {
-	/*
-	wxBitmap entireimi = wxBITMAP_PNG_FROM_DATA (entireim);
-	wxBitmap toentirei = wxBITMAP_PNG_FROM_DATA (toentire);
-	wxBitmap selectedi = wxBITMAP_PNG_FROM_DATA (selected);
-	wxBitmap bmp4i = wxBITMAP_PNG_FROM_DATA (bmp4);
-	*/
 	//m_dialogPanel = new wxPanel (this, wxID_ANY);
 	
 	wxWindow* parentWindow = this;
@@ -335,7 +329,9 @@ void CMDisplaySpecsDlg::CreateControls ()
 	m_comboBox29->Append (wxT("Subset..."));
 	m_comboBox29->Enable (true);
 	m_comboBox29->Hide ();
-   bSizer741->Add (m_comboBox29, 0, wxALIGN_CENTER_VERTICAL | wxALL, 5);
+  // bSizer741->Add (m_comboBox29, 0, wxALIGN_CENTER_VERTICAL | wxALL, 5);
+   bSizer741->Add (m_comboBox29,
+							wxSizerFlags(0).ReserveSpaceEvenIfHidden().CenterVertical().Border(wxALL, 5));
 
 	fgSizer3->Add (bSizer741, 1, wxEXPAND, 5);
 
@@ -672,35 +668,13 @@ void CMDisplaySpecsDlg::CreateControls ()
 	sbSizer10->Add (gSizer2, wxSizerFlags(1).Expand());
 
 	bSizer73->Add (sbSizer10, wxSizerFlags(1).Expand());
-	/*
-	wxBoxSizer* bSizer77;
-	bSizer77 = new wxBoxSizer (wxHORIZONTAL);
-
-	m_cancelbtn = new wxButton(this, wxID_CANCEL, wxT("Cancel"), wxDefaultPosition, wxDefaultSize, 0);   
-	bSizer77->Add (m_cancelbtn, wxSizerFlags(0).Border(wxRIGHT,6));
-
-	m_okbtn = new wxButton (this, wxID_OK, wxT("OK"), wxDefaultPosition, wxDefaultSize, 0);
-   m_okbtn->SetDefault ();
-	bSizer77->Add (m_okbtn, wxSizerFlags(0));
-    
-	bSizer73->Add (bSizer77, wxSizerFlags(0).Right().Border(wxTOP,6));
-   */
-	//bSizer73->Add (standardButtonSizer, wxSizerFlags(0).Right().Border(wxTOP,6));
 	
 	bSizer72->Add (bSizer73, wxSizerFlags(1).Expand());
 
 	bSizer79->Add (bSizer72, wxSizerFlags(0).Expand().Border(wxLEFT,6));
 
 	bSizer67->Add (bSizer79, wxSizerFlags(1).Expand().Border(wxLEFT|wxRIGHT,12));
-	/*
-	wxSizer* standardButtonSizer = CreateButtonSizer (wxOK | wxCANCEL);
-	//wxSizer* standardButtonSizer = CreateSeparatedButtonSizer (wxOK | wxCANCEL);
-	#if defined multispec_wxmac
-		bSizer67->Add (standardButtonSizer, wxSizerFlags(0).Right());
-	#else
-		bSizer67->Add (standardButtonSizer, wxSizerFlags(0).Right().Border(wxTOP|wxBOTTOM, 12));
-	#endif
-	*/
+
 	CreateStandardButtons (bSizer67);
 
 	//SetSizer (bSizer67);
@@ -2082,7 +2056,7 @@ bool CMDisplaySpecsDlg::TransferDataToWindow ()
 	*rchannel << (int) m_RedChannel;
 	*grchannel << (int) m_GrayChannel;
 
-	magnctrl->ChangeValue(wxString::Format(wxT("%.3f"), m_Magnification));
+	magnctrl->ChangeValue(wxString::Format(wxT("%.4f"), m_Magnification));
 
 	c_end->ChangeValue(wxString::Format(wxT("%i"), m_ColumnEnd));
 	c_inter->ChangeValue(wxString::Format(wxT("%i"), m_ColumnInterval));

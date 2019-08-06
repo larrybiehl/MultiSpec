@@ -266,14 +266,9 @@ void CMEnhanceStatisticsDialog::CheckStatLineStart(wxCommandEvent& event)
 }		// end "CheckLineStart"
 
 
-void CMEnhanceStatisticsDialog::CreateControls()
+void CMEnhanceStatisticsDialog::CreateControls ()
+
 {
-	/*
-	wxBitmap entireimi = wxBITMAP_PNG_FROM_DATA(entireim);
-	wxBitmap toentirei = wxBITMAP_PNG_FROM_DATA(toentire);
-	wxBitmap selectedi = wxBITMAP_PNG_FROM_DATA(selected);
-	wxBitmap bmp4i = wxBITMAP_PNG_FROM_DATA(bmp4);
-	*/
 	this->SetSizeHints( wxDefaultSize, wxDefaultSize );
 	
 	bSizer119 = new wxBoxSizer (wxVERTICAL);

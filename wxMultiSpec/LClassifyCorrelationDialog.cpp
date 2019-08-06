@@ -88,28 +88,7 @@ void CMCorrelationClassifyDialog::CreateControls ()
 	
 	
 	bSizer166->Add (bSizer167, 1, wxALL|wxEXPAND, 12);
-	/*
-	wxBoxSizer* bSizer169;
-	bSizer169 = new wxBoxSizer (wxHORIZONTAL);
 	
-	m_button37 = new wxButton (this, 
-										wxID_CANCEL, 
-										wxT("Cancel"), 
-										wxDefaultPosition, 
-										wxDefaultSize, 
-										0);
-	bSizer169->Add (m_button37, 0, wxALL, 5);
-	
-	m_button38 = new wxButton (this, 
-										wxID_OK, 
-										wxT("OK"), 
-										wxDefaultPosition, 
-										wxDefaultSize, 
-										0);
-	bSizer169->Add (m_button38, 0, wxALL, 5);
-	
-	bSizer166->Add (bSizer169, 0, wxALIGN_RIGHT|wxALL, 12);
-	*/
 	CreateStandardButtons (bSizer166);
 	
 	this->SetSizer (bSizer166);

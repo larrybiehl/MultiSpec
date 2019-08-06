@@ -1,10 +1,11 @@
 // LMapCoordinateDialog.cpp : implementation file
 //
-// Revised by Larry Biehl on 01/07/2019
+// Revised by Larry Biehl on 04/21/2019
 //
 // Note that m_adjustUpperLeftMapPointFlag has not been fully integrated in this code
-// yet. See Mac version for more info. Is not being used right now till a better
+// yet. See Mac version for more info. 3Is not being used right now till a better
 // method is made available for the user to control.
+//------------------------------------------------------------------------------------
 
 #include "SMultiSpec.h"
 
@@ -111,7 +112,8 @@ extern SInt16 CoordinateDialogSetDatumParameters (
 				DialogPtr							dialogPtr,
 				SInt16								datumCode,
 				SInt16								ellipsoidCode,
-				Boolean								initialFlag);
+				Boolean								initialFlag,
+				Boolean								datumDeactivatedFlag);
 
 extern void CoordinateDialogSetEllipsoidParameters (
 				DialogPtr							dialogPtr,
@@ -147,11 +149,29 @@ extern void CoordinateDialogSetParametersFromRS (
 				SInt16								ellipsoidCode,
 				SInt16*								gridZonePtr);
 
-/////////////////////////////////////////////////////////////////////////////
-// CMMapCoordinateDlg dialog
 
-CMMapCoordinateDlg::CMMapCoordinateDlg(wxWindow* pParent, wxWindowID id, const wxString& title /*=NULL*/)
-: CMDialog(CMMapCoordinateDlg::IDD, pParent, title) 
+
+BEGIN_EVENT_TABLE (CMMapCoordinateDlg, CMDialog)
+	EVT_INIT_DIALOG (CMMapCoordinateDlg::OnInitDialog)
+	EVT_COMBOBOX (IDC_MapUnitsCombo, CMMapCoordinateDlg::OnSelendokMapUnitsCombo)
+	EVT_COMBOBOX (IDC_ReferenceSystemCombo, CMMapCoordinateDlg::OnSelendokReferenceSystemCombo)
+	EVT_COMBOBOX (IDC_ProjectionCombo, CMMapCoordinateDlg::OnSelendokProjectionCombo)
+	EVT_COMBOBOX (IDC_DatumCombo, CMMapCoordinateDlg::OnSelendokDatumCombo)
+	EVT_COMBOBOX (IDC_EllipsoidCombo, CMMapCoordinateDlg::OnSelendokEllipsoidCombo)
+	EVT_TEXT (IDC_ZoneDirection, CMMapCoordinateDlg::OnChangeZoneDirection)
+	EVT_TEXT (IDC_Zone, CMMapCoordinateDlg::OnEnChangeZone)
+	EVT_TEXT (IDC_EPSGCode, CMMapCoordinateDlg::OnEnChangeEPSGCode)
+	//EVT_CHAR_HOOK(CMMapCoordinateDlg::OnButtonPress)
+END_EVENT_TABLE ()
+
+
+
+CMMapCoordinateDlg::CMMapCoordinateDlg (
+				wxWindow* pParent,
+				wxWindowID id,
+				const wxString& title /*=NULL*/)
+		: CMDialog(CMMapCoordinateDlg::IDD, pParent, title)
+
 {
 	m_referenceSystemSelection = 0;
 	m_ellipsoidSelection = 0;
@@ -195,234 +215,327 @@ CMMapCoordinateDlg::CMMapCoordinateDlg(wxWindow* pParent, wxWindowID id, const w
 }	// end "CMMapCoordinateDlg"
 
 
-void CMMapCoordinateDlg::CreateControls() 
+
+void CMMapCoordinateDlg::CreateControls ()
+
 {
 	this->SetSizeHints (wxDefaultSize, wxDefaultSize);
 	
-	//wxBoxSizer* bSizer96;
 	bSizer96 = new wxBoxSizer (wxVERTICAL);
 	
-//	wxBoxSizer* bSizer97;
 	bSizer97 = new wxBoxSizer (wxHORIZONTAL);
 	
-	m_staticText107 = new wxStaticText( this, wxID_ANY, wxT("Planar Coordinate Information"), wxDefaultPosition, wxDefaultSize, 0 );
-	m_staticText107->Wrap( -1 );   
-	//bSizer97->Add (m_staticText107, 0, wxALIGN_CENTER|wxALL, 5);
-	bSizer97->Add (m_staticText107, wxSizerFlags(0).Center().Border(wxBOTTOM,5));
+	m_staticText107 = new wxStaticText (this,
+													wxID_ANY,
+													wxT("Planar Coordinate Information"),
+													wxDefaultPosition,
+													wxDefaultSize,
+													0);
+	m_staticText107->Wrap (-1);
+	bSizer97->Add (m_staticText107, wxSizerFlags(0).Center().Border(wxBOTTOM, 5));
 	
-	
-	//bSizer97->Add (20, 0, 0, wxEXPAND, 5 );
 	bSizer97->Add (20, 0, 0, wxEXPAND);
 	
-	m_staticText108 = new wxStaticText( this, IDC_UnitsPrompt, wxT("Units:"), wxDefaultPosition, //wxDefaultSize, 0|wxVSCROLL );
-      wxDefaultSize, 0);
-	m_staticText108->Wrap( -1 );
-   SetUpToolTip(m_staticText108, IDS_ToolTip290);
+	m_staticText108 = new wxStaticText (this,
+													IDC_UnitsPrompt,
+													wxT("Units:"),
+													wxDefaultPosition,
+      											wxDefaultSize,
+      											0);
+	m_staticText108->Wrap (-1);
+   SetUpToolTip (m_staticText108, IDS_ToolTip290);
 	//bSizer97->Add( m_staticText108, 0, wxALIGN_CENTER|wxALL, 5 );
-	bSizer97->Add( m_staticText108, wxSizerFlags(0).Center().Border(wxRIGHT|wxBOTTOM,5));
+	bSizer97->Add (m_staticText108,
+						wxSizerFlags(0).Center().Border(wxRIGHT|wxBOTTOM, 5));
 	
-	m_comboBox8 = new wxComboBox( this, IDC_MapUnitsCombo, wxT("Meters"), wxDefaultPosition, //wxDefaultSize, 0, NULL, wxCB_READONLY|wxVSCROLL );
-   wxDefaultSize, 0, NULL, wxCB_READONLY );
-	m_comboBox8->Append( wxT("Unknown Units") );
-	m_comboBox8->Append( wxT("Decimal Degrees") );
-	m_comboBox8->Append( wxT("Kilometers") );
-	m_comboBox8->Append( wxT("Meters") );
-	m_comboBox8->Append( wxT("Centimeters") );
-	m_comboBox8->Append( wxT("Milimeters") );
-	m_comboBox8->Append( wxT("Micrometers") );
-	m_comboBox8->Append( wxT("Miles") );
-	m_comboBox8->Append( wxT("Yards") );
-	m_comboBox8->Append( wxT("US Survey Feet") );
-	m_comboBox8->Append( wxT("Feet") );
-	m_comboBox8->Append( wxT("Inches") );
-   SetUpToolTip(m_comboBox8, IDS_ToolTip290);
-	//bSizer97->Add (m_comboBox8, 0, wxALL, 5 );
-	bSizer97->Add (m_comboBox8, wxSizerFlags(0).Border(wxBOTTOM,5));
+	m_comboBox8 = new wxComboBox (this,
+											IDC_MapUnitsCombo,
+											wxT("Meters"),
+											wxDefaultPosition,
+   										wxDefaultSize,
+   										0,
+   										NULL,
+   										wxCB_READONLY);
+	m_comboBox8->Append (wxT("Unknown Units"));
+	m_comboBox8->Append (wxT("Decimal Degrees"));
+	m_comboBox8->Append (wxT("Kilometers"));
+	m_comboBox8->Append (wxT("Meters"));
+	m_comboBox8->Append (wxT("Centimeters"));
+	m_comboBox8->Append (wxT("Milimeters"));
+	m_comboBox8->Append (wxT("Micrometers"));
+	m_comboBox8->Append (wxT("Miles"));
+	m_comboBox8->Append (wxT("Yards"));
+	m_comboBox8->Append (wxT("US Survey Feet"));
+	m_comboBox8->Append (wxT("Feet"));
+	m_comboBox8->Append (wxT("Inches"));
+   SetUpToolTip (m_comboBox8, IDS_ToolTip290);
+	bSizer97->Add (m_comboBox8, wxSizerFlags(0).Border(wxBOTTOM, 5));
 	
-	m_staticText307 = new wxStaticText( this, IDC_MapUnitsName, wxT("MyLabel"), wxDefaultPosition, wxDefaultSize, 0 );
-	m_staticText307->Wrap( -1 );
-	//bSizer97->Add (m_staticText307, 0, wxALIGN_CENTER|wxALL, 5 );
+	m_staticText307 = new wxStaticText (this,
+													IDC_MapUnitsName,
+													wxT("MyLabel"),
+													wxDefaultPosition,
+													wxDefaultSize,
+													0);
+	m_staticText307->Wrap (-1);
 	bSizer97->Add (m_staticText307, wxSizerFlags(0).Center().Border(wxBOTTOM,5));
         
-	//bSizer96->Add (bSizer97, 0, wxALL|wxEXPAND, 5 );
-	bSizer96->Add (bSizer97, wxSizerFlags(0).Expand().Border(wxLEFT|wxTOP|wxRIGHT,12));
+	bSizer96->Add (bSizer97,
+						wxSizerFlags(0).Expand().Border(wxLEFT|wxTOP|wxRIGHT, 12));
         
 	wxFlexGridSizer* fgSizer4;
-	fgSizer4 = new wxFlexGridSizer( 5, 2, 0, 0 );
-	fgSizer4->SetFlexibleDirection( wxBOTH );
-	fgSizer4->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
+	fgSizer4 = new wxFlexGridSizer (5, 2, 0, 0);
+	fgSizer4->SetFlexibleDirection (wxBOTH);
+	fgSizer4->SetNonFlexibleGrowMode (wxFLEX_GROWMODE_SPECIFIED);
 	
-	wxFloatingPointValidator<double> doubleValue4Digits(4, &m_doubleValueCheck);
-	wxFloatingPointValidator<double> doubleValue8Digits(&m_doubleValueCheck, wxNUM_VAL_NO_TRAILING_ZEROES );
+	wxFloatingPointValidator<double> doubleValue2Digits (2, &m_double2DigitValueCheck);
+	wxFloatingPointValidator<double> doubleValue4Digits (4, &m_double4DigitValueCheck);
+	//wxFloatingPointValidator<double> doubleValue8Digits (6, &m_doubleValueCheck, wxNUM_VAL_NO_TRAILING_ZEROES);
+	wxFloatingPointValidator<double> doubleValue6Digits (6, &m_double6DigitValueCheck);
+	wxFloatingPointValidator<double> doubleValue10Digits (10, &m_double10DigitValueCheck);
 	
-	m_staticText109 = new wxStaticText( this, IDC_X11CoordinatePrompt, wxT("X map coordinate for center of upper-left pixel (1,1): . . . . ."), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText109 = new wxStaticText (
+				this,
+				IDC_X11CoordinatePrompt,
+				wxT("X map coordinate for center of upper-left pixel (1,1): . . . . ."),
+				wxDefaultPosition,
+				wxDefaultSize,
+				0);
 	m_staticText109->Wrap( -1 );
    SetUpToolTip(m_staticText109, IDS_ToolTip291);
-	//fgSizer4->Add (m_staticText109, 0, wxALIGN_CENTER, 5 );
-	fgSizer4->Add (m_staticText109, wxSizerFlags(0).Left().Align(wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL).Border(wxLEFT,12));
+	fgSizer4->Add (m_staticText109,
+						wxSizerFlags(0).Left().Align(wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL).Border(wxLEFT,12));
 	
-	m_textCtrl52 = new wxTextCtrl( this, IDC_X11Coordinate, wxEmptyString, wxDefaultPosition, wxSize(120,-1), 0);
-   //m_textCtrl52->SetValidator(wxTextValidator(wxFILTER_NUMERIC, &m_stringCheck));
-   m_textCtrl52->SetValidator(doubleValue8Digits);
+	m_textCtrl52 = new wxTextCtrl (this,
+												IDC_X11Coordinate,
+												wxEmptyString,
+												wxDefaultPosition,
+												wxSize (120, -1),
+												0);
+   m_textCtrl52->SetValidator (doubleValue6Digits);
 	m_textCtrl52->SetWindowStyle (wxTE_RIGHT);
-   SetUpToolTip(m_textCtrl52, IDS_ToolTip291);
+   SetUpToolTip (m_textCtrl52, IDS_ToolTip291);
 	//fgSizer4->Add (m_textCtrl52, 0, 0, 5);
-	fgSizer4->Add (m_textCtrl52, wxSizerFlags(0).Border(wxTOP|wxBOTTOM,2));	
-	/*
-	int width, height;
-	m_textCtrl52->GetSize (&width, &height);
-	int numberChars = sprintf ((char*)&gTextString3,
-												" LMapCDlg::CreateControls (default width, height): %d, %d%s",
-												width, 
-												height,
-												gEndOfLine);
-	ListString ((char*)&gTextString3, numberChars, gOutputTextH); 
-	*/	
-	m_staticText110 = new wxStaticText( this, IDC_Y11CoordinatePrompt, wxT("Y map coordinate for center of upper-left pixel (1,1): . . . . ."), wxDefaultPosition, wxDefaultSize, 0 );
-	m_staticText110->Wrap( -1 );
-   SetUpToolTip(m_staticText110, IDS_ToolTip292);
-	//fgSizer4->Add (m_staticText110, 0, wxALIGN_CENTER, 5 );
-	fgSizer4->Add (m_staticText110, wxSizerFlags(0).Left().Align(wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL).Border(wxLEFT,12));
+	fgSizer4->Add (m_textCtrl52, wxSizerFlags(0).Border(wxTOP|wxBOTTOM, 2));
+
+	m_staticText110 = new wxStaticText (
+				this,
+				IDC_Y11CoordinatePrompt,
+				wxT("Y map coordinate for center of upper-left pixel (1,1): . . . . ."),
+				wxDefaultPosition,
+				wxDefaultSize,
+				0);
+	m_staticText110->Wrap (-1);
+   SetUpToolTip (m_staticText110, IDS_ToolTip292);
+	fgSizer4->Add (m_staticText110,
+						wxSizerFlags(0).Left().Align(wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL).Border(wxLEFT,12));
 	
-	m_textCtrl53 = new wxTextCtrl( this, IDC_Y11Coordinate, wxEmptyString, wxDefaultPosition, wxSize(120,-1), 0 );
-   //m_textCtrl53->SetValidator(wxTextValidator(wxFILTER_NUMERIC, &m_stringCheck));
-   m_textCtrl53->SetValidator(doubleValue8Digits);
+	m_textCtrl53 = new wxTextCtrl (this,
+												IDC_Y11Coordinate,
+												wxEmptyString,
+												wxDefaultPosition,
+												wxSize (120, -1),
+												0);
+   m_textCtrl53->SetValidator (doubleValue6Digits);
 	m_textCtrl53->SetWindowStyle (wxTE_RIGHT);
-   SetUpToolTip(m_textCtrl53, IDS_ToolTip292);
-	//fgSizer4->Add( m_textCtrl53, 0, 0, 5 );
+   SetUpToolTip (m_textCtrl53, IDS_ToolTip292);
 	fgSizer4->Add (m_textCtrl53, wxSizerFlags(0).Border(wxTOP|wxBOTTOM,2));
 	
-	m_staticText111 = new wxStaticText( this, IDC_HorizontalSizePrompt, wxT("Horizontal pixel size: . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ."), wxDefaultPosition, wxDefaultSize, 0 );
-	m_staticText111->Wrap( -1 );
-   SetUpToolTip(m_staticText111, IDS_ToolTip293);
-	//fgSizer4->Add ( m_staticText111, 0, wxALIGN_CENTER, 5);
-	fgSizer4->Add (m_staticText111, wxSizerFlags(0).Left().Align(wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL).Border(wxLEFT,12));
+	m_staticText111 = new wxStaticText (
+				this,
+				IDC_HorizontalSizePrompt,
+				wxT("Horizontal pixel size: . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ."),
+				wxDefaultPosition,
+				wxDefaultSize,
+				0);
+	m_staticText111->Wrap (-1);
+   SetUpToolTip (m_staticText111, IDS_ToolTip293);
+	fgSizer4->Add (m_staticText111,
+						wxSizerFlags(0).Left().Align(wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL).Border(wxLEFT,12));
 	
-	m_textCtrl54 = new wxTextCtrl( this, IDC_HorizontalSize, wxEmptyString, wxDefaultPosition, wxSize(120,-1), 0 );
-   //m_textCtrl54->SetValidator(wxTextValidator(wxFILTER_NUMERIC, &m_stringCheck));
-   m_textCtrl54->SetValidator(doubleValue8Digits);
+	m_textCtrl54 = new wxTextCtrl (this,
+												IDC_HorizontalSize,
+												wxEmptyString,
+												wxDefaultPosition,
+												wxSize (120, -1),
+												0);
+   m_textCtrl54->SetValidator (doubleValue6Digits);
 	m_textCtrl54->SetWindowStyle (wxTE_RIGHT);
    SetUpToolTip(m_textCtrl54, IDS_ToolTip293);
-	//fgSizer4->Add( m_textCtrl54, 0, 0, 5 );
 	fgSizer4->Add (m_textCtrl54, wxSizerFlags(0).Border(wxTOP|wxBOTTOM,2));
 	
-	m_staticText112 = new wxStaticText( this, IDC_VerticalSizePrompt, wxT("Vertical pixel size: . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ."), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText112 = new wxStaticText (
+				this,
+				IDC_VerticalSizePrompt,
+				wxT("Vertical pixel size: . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ."),
+				wxDefaultPosition,
+				wxDefaultSize,
+				0);
 	m_staticText112->Wrap( -1 );
    SetUpToolTip(m_staticText112, IDS_ToolTip294);
-	//fgSizer4->Add (m_staticText112, 0, wxALIGN_CENTER, 5);
-	fgSizer4->Add (m_staticText112, wxSizerFlags(0).Left().Align(wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL).Border(wxLEFT,12));
+	fgSizer4->Add (m_staticText112,
+						wxSizerFlags(0).Left().Align(wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL).Border(wxLEFT,12));
 	
-	m_textCtrl55 = new wxTextCtrl( this, IDC_VerticalSize, wxEmptyString, wxDefaultPosition, wxSize(120,-1), 0 );
-   //m_textCtrl55->SetValidator(wxTextValidator(wxFILTER_NUMERIC, &m_stringCheck));
-   m_textCtrl55->SetValidator(doubleValue8Digits);
+	m_textCtrl55 = new wxTextCtrl (this,
+												IDC_VerticalSize,
+												wxEmptyString,
+												wxDefaultPosition,
+												wxSize (120,-1),
+												0);
+   m_textCtrl55->SetValidator (doubleValue6Digits);
 	m_textCtrl55->SetWindowStyle (wxTE_RIGHT);
-   SetUpToolTip(m_textCtrl55, IDS_ToolTip294);
-	//fgSizer4->Add( m_textCtrl55, 0, 0, 5 );
+   SetUpToolTip (m_textCtrl55, IDS_ToolTip294);
 	fgSizer4->Add (m_textCtrl55, wxSizerFlags(0).Border(wxTOP|wxBOTTOM,2));
 	
-	m_staticText113 = new wxStaticText( this, wxID_ANY, wxT("Map orientation angle: . . . . . . . . . . . . . . . . . . . . . . . . . . . ."), wxDefaultPosition, wxDefaultSize, 0 );
-	m_staticText113->Wrap( -1 );
+	m_staticText113 = new wxStaticText (
+				this,
+				wxID_ANY,
+				wxT("Map orientation angle: . . . . . . . . . . . . . . . . . . . . . . . . . . . ."),
+				wxDefaultPosition,
+				wxDefaultSize,
+				0);
+	m_staticText113->Wrap (-1);
    SetUpToolTip(m_staticText113, IDS_ToolTip295);
-	//fgSizer4->Add (m_staticText113, 0, wxALIGN_CENTER, 5);
-	fgSizer4->Add (m_staticText113, wxSizerFlags(0).Left().Align(wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL).Border(wxLEFT,12));
+	fgSizer4->Add (m_staticText113,
+						wxSizerFlags(0).Left().Align(wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL).Border(wxLEFT, 12));
 	
-	m_textCtrl56 = new wxTextCtrl( this, IDC_OrientationAngle, wxEmptyString, wxDefaultPosition, wxSize(120,-1), 0 );
-	wxFloatingPointValidator<double> doubleValueAngle(6, &m_doubleValueCheck);
-	doubleValueAngle.SetRange(-180, 180);
-	m_textCtrl56->SetValidator(doubleValueAngle);
+	m_textCtrl56 = new wxTextCtrl (this,
+												IDC_OrientationAngle,
+												wxEmptyString,
+												wxDefaultPosition,
+												wxSize (120, -1),
+												0);
+	wxFloatingPointValidator<double> doubleValueAngle (6, &m_doubleValueCheck);
+	doubleValueAngle.SetRange (-180, 180);
+	m_textCtrl56->SetValidator (doubleValueAngle);
 	m_textCtrl56->SetWindowStyle (wxTE_RIGHT);
-   SetUpToolTip(m_textCtrl56, IDS_ToolTip295);
-	//m_textCtrl56->SetValidator(wxTextValidator(wxFILTER_NUMERIC, &m_stringCheck));
-	//fgSizer4->Add( m_textCtrl56, 0, 0, 5 );
+   SetUpToolTip (m_textCtrl56, IDS_ToolTip295);
 	fgSizer4->Add (m_textCtrl56, wxSizerFlags(0).Border(wxTOP|wxBOTTOM,2));
 	
-        
-	//bSizer96->Add (fgSizer4, 0, wxEXPAND|wxLEFT|wxRIGHT, 15 );
-	bSizer96->Add (fgSizer4, wxSizerFlags(0).Expand().Border(wxLEFT|wxRIGHT,12));
+	bSizer96->Add (fgSizer4, wxSizerFlags(0).Expand().Border(wxLEFT|wxRIGHT, 12));
 	
 	wxBoxSizer* bSizer98;
 	bSizer98 = new wxBoxSizer( wxHORIZONTAL );
 	
-	m_staticText115 = new wxStaticText( this, IDC_ReferenceSystemPrompt, wxT("Grid Coordinate System:"), wxDefaultPosition, wxDefaultSize, 0 );
-	m_staticText115->Wrap( -1 );
+	m_staticText115 = new wxStaticText (this,
+													IDC_ReferenceSystemPrompt,
+													wxT("Grid Coordinate System:"),
+													wxDefaultPosition,
+													wxDefaultSize,
+													0);
+	m_staticText115->Wrap (-1);
    SetUpToolTip(m_staticText115, IDS_ToolTip296);
-	//bSizer98->Add (m_staticText115, 0, wxALIGN_CENTER|wxALL, 5);
-	bSizer98->Add (m_staticText115, wxSizerFlags(0).Center().Border(wxTOP|wxRIGHT|wxBOTTOM,5));
+	bSizer98->Add (m_staticText115,
+						wxSizerFlags(0).Center().Border(wxTOP|wxRIGHT|wxBOTTOM, 5));
 	
-	m_comboBox9 = new wxComboBox (this, IDC_ReferenceSystemCombo, wxT("User Defined"), wxDefaultPosition, wxDefaultSize, 0, NULL, 0 );
-	m_comboBox9->Append( wxT("none defined") );
-	m_comboBox9->Append( wxT("User Defined") );
-	m_comboBox9->Append( wxT("Geographic (lat-long)") );
-	m_comboBox9->Append( wxT("Gauss Kruger") );
-	m_comboBox9->Append( wxT("GDA94") );
-	m_comboBox9->Append( wxT("Greek Geographic Reference System 1987") );
-	m_comboBox9->Append( wxT("State Plane - NAD27") );
-	m_comboBox9->Append( wxT("State Plane - NDA83") );
-	m_comboBox9->Append( wxT("UTM - NAD27") );
-	m_comboBox9->Append( wxT("UTM - NAD83") );
-	m_comboBox9->Append( wxT("UTM - SAD69") );
-	m_comboBox9->Append( wxT("UTM - WGS72") );
-	m_comboBox9->Append( wxT("UTM - WGS84") );
-	m_comboBox9->Append( wxT("UTM") );
-	m_comboBox9->Append( wxT("Defined by EPSG Code:") );
-	m_comboBox9->SetSelection( 1 );
+	m_comboBox9 = new wxComboBox (this,
+											IDC_ReferenceSystemCombo,
+											wxT("User Defined"),
+											wxDefaultPosition,
+											wxSize (295, -1),
+											0,
+											NULL,
+											0);
+	m_comboBox9->Append (wxT("none defined"));
+	m_comboBox9->Append (wxT("User Defined"));
+	m_comboBox9->Append (wxT("Geographic (lat-long)"));
+	m_comboBox9->Append (wxT("Gauss Kruger"));
+	m_comboBox9->Append (wxT("GDA94"));
+	m_comboBox9->Append (wxT("Greek Geographic Reference System 1987"));
+	m_comboBox9->Append (wxT("State Plane - NAD27"));
+	m_comboBox9->Append (wxT("State Plane - NDA83"));
+	m_comboBox9->Append (wxT("UTM - NAD27"));
+	m_comboBox9->Append (wxT("UTM - NAD83"));
+	m_comboBox9->Append (wxT("UTM - SAD69"));
+	m_comboBox9->Append (wxT("UTM - WGS72"));
+	m_comboBox9->Append (wxT("UTM - WGS84"));
+	m_comboBox9->Append (wxT("UTM"));
+	m_comboBox9->Append (wxT("Defined by EPSG Code:"));
+	m_comboBox9->SetSelection (1);
    SetUpToolTip(m_comboBox9, IDS_ToolTip296);
-	//bSizer98->Add (m_comboBox9, 0, wxALL, 5 );
-	bSizer98->Add (m_comboBox9, wxSizerFlags(0).Border(wxLEFT|wxTOP|wxBOTTOM,5));
+	bSizer98->Add (m_comboBox9, wxSizerFlags(0).Border(wxLEFT|wxTOP|wxBOTTOM, 5));
 	
+	bSizer96->Add (bSizer98, wxSizerFlags(0).Expand().Border(wxLEFT|wxRIGHT, 12));
 	
-	//bSizer96->Add (bSizer98, 0, wxALL|wxEXPAND, 5);
-	bSizer96->Add (bSizer98, wxSizerFlags(0).Expand().Border(wxLEFT|wxRIGHT,12));
+	bSizer99 = new wxBoxSizer (wxHORIZONTAL);
 	
-//	wxBoxSizer* bSizer99;
-	bSizer99 = new wxBoxSizer( wxHORIZONTAL );
-	
-	m_staticText116 = new wxStaticText( this, IDC_ZonePrompt, wxT("FIPS Zone:"), wxDefaultPosition, wxDefaultSize, 0 );
-	m_staticText116->Wrap( -1 );
-   SetUpToolTip(m_staticText116, IDS_ToolTip297);
-	//bSizer99->Add (m_staticText116, 0, wxALIGN_CENTER|wxALL, 5);
+	m_staticText116 = new wxStaticText (this,
+													IDC_ZonePrompt,
+													wxT("FIPS Zone:"),
+													wxDefaultPosition,
+													wxDefaultSize,
+													0);
+	m_staticText116->Wrap (-1);
+   SetUpToolTip (m_staticText116, IDS_ToolTip297);
 	bSizer99->Add (m_staticText116, 0, wxALIGN_CENTER|wxTOP|wxRIGHT|wxBOTTOM, 5);
 	
-	m_textCtrl181 = new wxTextCtrl( this, IDC_EPSGCode, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
-   m_textCtrl181->SetValidator(wxTextValidator(wxFILTER_DIGITS, &m_stringCheck));
+	m_textCtrl181 = new wxTextCtrl (this,
+												IDC_EPSGCode,
+												wxEmptyString,
+												wxDefaultPosition,
+												wxDefaultSize,
+												0);
+   m_textCtrl181->SetValidator (wxTextValidator(wxFILTER_DIGITS, &m_stringCheck));
 	m_textCtrl181->SetWindowStyle (wxTE_RIGHT);
-   SetUpToolTip(m_textCtrl181, IDS_ToolTip300);
+   SetUpToolTip (m_textCtrl181, IDS_ToolTip300);
 	bSizer99->Add (m_textCtrl181, 0, wxALL, 5);
 	
-	m_textCtrl57 = new wxTextCtrl( this, IDC_Zone, wxEmptyString, wxDefaultPosition, wxSize( 40,-1 ), 0 );
-   m_textCtrl57->SetValidator(wxTextValidator(wxFILTER_DIGITS, &m_stringCheck));
+	m_textCtrl57 = new wxTextCtrl (this,
+												IDC_Zone,
+												wxEmptyString,
+												wxDefaultPosition,
+												wxSize( 40,-1 ),
+												0);
+   m_textCtrl57->SetValidator (wxTextValidator (wxFILTER_DIGITS, &m_stringCheck));
 	m_textCtrl57->SetWindowStyle (wxTE_RIGHT);
    SetUpToolTip(m_textCtrl57, IDS_ToolTip297);
 	bSizer99->Add (m_textCtrl57, 0, wxALL, 5);
 	
-	m_textCtrl67 = new wxTextCtrl( this, IDC_ZoneDirection, wxEmptyString, wxDefaultPosition, wxSize( 25,-1 ), 0 );
-        m_textCtrl67->SetMaxLength(1);
-        wxTextValidator valid_char = wxTextValidator(wxFILTER_ASCII|wxFILTER_INCLUDE_CHAR_LIST);
-//        wxArrayString valid_str = wxArrayString(2,"NS");
-//        valid_char.SetIncludes(valid_str);
-        wxString valid_str = "'N','S','n','s'";
-        valid_char.SetCharIncludes(valid_str);        
-        m_textCtrl67->SetValidator(valid_char);
+	m_textCtrl67 = new wxTextCtrl (this,
+												IDC_ZoneDirection,
+												wxEmptyString,
+												wxDefaultPosition,
+												wxSize (25, -1),
+												0);
+	m_textCtrl67->SetMaxLength(1);
+	wxTextValidator valid_char =
+								wxTextValidator (wxFILTER_ASCII|wxFILTER_INCLUDE_CHAR_LIST);
+	wxString valid_str = "'N','S','n','s'";
+	valid_char.SetCharIncludes (valid_str);
+	m_textCtrl67->SetValidator (valid_char);
 	bSizer99->Add (m_textCtrl67, 0, wxALL, 5);
-	
         
-	m_staticText306 = new wxStaticText( this, IDC_FIPSZoneName, wxT("MyLabel"), wxDefaultPosition, wxDefaultSize, 0 );
-	m_staticText306->Wrap( -1 );
+	m_staticText306 = new wxStaticText (this,
+													IDC_FIPSZoneName,
+													wxT("MyLabel"),
+													wxDefaultPosition,
+													wxDefaultSize,
+													0);
+	m_staticText306->Wrap (-1);
 	bSizer99->Add (m_staticText306, 0, wxALIGN_CENTER|wxALL, 5);
 	
-	
-	//bSizer96->Add (bSizer99, 0, wxEXPAND|wxLEFT, 15);
 	bSizer96->Add (bSizer99, wxSizerFlags(0).Expand().Border(wxLEFT,24));
 	
-//	wxBoxSizer* bSizer100;
 	bSizer100 = new wxBoxSizer( wxHORIZONTAL );
 	
-	m_staticText119 = new wxStaticText( this, IDC_ProjectionPrompt, wxT("Projection:"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText119 = new wxStaticText (this,
+													IDC_ProjectionPrompt,
+													wxT("Projection:"),
+													wxDefaultPosition,
+													wxDefaultSize,
+													0);
 	m_staticText119->Wrap( -1 );
-	//bSizer100->Add (m_staticText119, 0, wxALIGN_CENTER|wxALL|wxLEFT, 5);
-	bSizer100->Add (m_staticText119, wxSizerFlags(0).Center().Border(wxTOP|wxRIGHT|wxBOTTOM,5));
+	bSizer100->Add (m_staticText119,
+							wxSizerFlags(0).Center().Border(wxTOP|wxRIGHT|wxBOTTOM, 5));
 	
-	m_comboBox12 = new wxComboBox( this, IDC_ProjectionCombo, wxT("Transverse Mercator"), wxDefaultPosition, wxDefaultSize, 0, NULL, 0 );
+	m_comboBox12 = new wxComboBox (this,
+												IDC_ProjectionCombo,
+												wxT("Transverse Mercator"),
+												wxDefaultPosition,
+												wxSize (285, -1),
+												0,
+												NULL,
+												0);
 	m_comboBox12->Append( wxT("None defined") );
 	m_comboBox12->Append( wxT("Alaska Conformal") );
 	m_comboBox12->Append( wxT("Albers Conical Equal Area") );
@@ -430,7 +543,7 @@ void CMMapCoordinateDlg::CreateControls()
 	m_comboBox12->Append( wxT("Cylindrical Equal Area") );
 	m_comboBox12->Append( wxT("Equidistant Conic") );
 	m_comboBox12->Append( wxT("Equirectangular") );
-	m_comboBox12->Append( wxT("General Vertical Near-Side Perspective") );
+	m_comboBox12->Append (wxT("General Vertical Near-Side Perspective"));
 	m_comboBox12->Append( wxT("Gnomonic") );
 	m_comboBox12->Append( wxT("Hammer") );
 	m_comboBox12->Append( wxT("Integerized Sinusoidal") );
@@ -458,126 +571,192 @@ void CMMapCoordinateDlg::CreateControls()
 	m_comboBox12->Append( wxT("Van der Grinten I") );
 	m_comboBox12->Append( wxT("Wagner IV") );
 	m_comboBox12->Append( wxT("Wagner VII") );
-	//m_comboBox12->Append( wxT("Gnomonic") );
-	//bSizer100->Add (m_comboBox12, 0, wxALL, 5);
-	bSizer100->Add (m_comboBox12, wxSizerFlags(0).Border(wxLEFT|wxTOP|wxBOTTOM,5));
+	bSizer100->Add (m_comboBox12, wxSizerFlags(0).Border(wxLEFT|wxTOP|wxBOTTOM, 5));
 	
-	m_staticText301 = new wxStaticText( this, IDC_ProjectionName, wxT("MyLabel"), wxDefaultPosition, wxDefaultSize, 0 );
-	m_staticText301->Wrap( -1 );
-	//bSizer100->Add (m_staticText301, 0, wxALIGN_CENTER|wxALL, 5);
-	bSizer100->Add (m_staticText301, wxSizerFlags(0).Center().Border(wxLEFT|wxTOP|wxBOTTOM,5));
+	m_staticText301 = new wxStaticText (this,
+													IDC_ProjectionName,
+													wxEmptyString,
+													//wxT("MyLabel"),
+													wxDefaultPosition,
+													wxDefaultSize,
+													0);
+	m_staticText301->Wrap (-1);
+	bSizer100->Add (m_staticText301,
+							wxSizerFlags(0).Center().Border(wxLEFT|wxTOP|wxBOTTOM,5));
 	
-	
-	//bSizer96->Add (bSizer100, 0, wxEXPAND|wxLEFT, 15);
 	bSizer96->Add (bSizer100, wxSizerFlags(0).Expand().Border(wxLEFT,24));
 	
-
 	wxFlexGridSizer* fgSizer5;
-	fgSizer5 = new wxFlexGridSizer( 7, 2, 0, 0 );
-	fgSizer5->SetFlexibleDirection( wxBOTH );
-	fgSizer5->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
+	fgSizer5 = new wxFlexGridSizer (7, 2, 0, 0);
+	fgSizer5->SetFlexibleDirection (wxBOTH);
+	fgSizer5->SetNonFlexibleGrowMode (wxFLEX_GROWMODE_SPECIFIED);
 	
-	wxFloatingPointValidator<double> doubleValue2Digits(2, &m_doubleValueCheck);
-	wxFloatingPointValidator<double> doubleValue6Digits(6, &m_doubleValueCheck);
-	wxFloatingPointValidator<double> doubleValue10Digits(10, &m_doubleValueCheck);
+	m_staticText121 = new wxStaticText (
+				this,
+				IDC_LongitudePrompt,
+				wxT("Longitude of central meridian (decimal degrees): . . . . ."),
+				wxDefaultPosition,
+				wxDefaultSize,
+				0);
+	m_staticText121->Wrap (-1);
+	fgSizer5->Add (m_staticText121,
+						wxSizerFlags(0).Left().Align(wxALIGN_CENTER_VERTICAL));
 	
-	m_staticText121 = new wxStaticText( this, IDC_LongitudePrompt, wxT("Longitude of central meridian (decimal degrees): . . . . ."), wxDefaultPosition, wxDefaultSize, 0 );
-	m_staticText121->Wrap( -1 );
-	//fgSizer5->Add (m_staticText121, 0, wxALIGN_CENTER, 5);
-	fgSizer5->Add (m_staticText121, wxSizerFlags(0).Left().Align(wxALIGN_CENTER_VERTICAL));
-	
-	m_textCtrl58 = new wxTextCtrl( this, IDC_Longitude, wxEmptyString, wxDefaultPosition, wxSize(120,-1), 0 );
-   m_textCtrl58->SetValidator(doubleValue6Digits);
+	m_textCtrl58 = new wxTextCtrl (this,
+												IDC_Longitude,
+												wxEmptyString,
+												wxDefaultPosition,
+												wxSize (120, -1),
+												0);
+   m_textCtrl58->SetValidator (doubleValue6Digits);
 	m_textCtrl58->SetWindowStyle (wxTE_RIGHT);
-   //m_textCtrl58->SetValidator(wxTextValidator(wxFILTER_NUMERIC, &m_stringCheck));
-	//fgSizer5->Add( m_textCtrl58, 0, 0, 5 );
-	fgSizer5->Add (m_textCtrl58, wxSizerFlags(0).Border(wxTOP|wxBOTTOM,2));
+ 	fgSizer5->Add (m_textCtrl58, wxSizerFlags(0).Border(wxTOP|wxBOTTOM,2));
 	
-	m_staticText123 = new wxStaticText( this, IDC_LatitudePrompt, wxT("Latitude of origin (decimal degrees): . . . . . . . . . . . . . . ."), wxDefaultPosition, wxDefaultSize, 0 );
-	m_staticText123->Wrap( -1 );
-	//fgSizer5->Add (m_staticText123, 0, wxALIGN_CENTER, 5);
-	fgSizer5->Add (m_staticText123, wxSizerFlags(0).Left().Align(wxALIGN_CENTER_VERTICAL));
+	m_staticText123 = new wxStaticText (
+				this,
+				IDC_LatitudePrompt,
+				wxT("Latitude of origin (decimal degrees): . . . . . . . . . . . . . . ."),
+				wxDefaultPosition,
+				wxDefaultSize,
+				0);
+	m_staticText123->Wrap (-1);
+	fgSizer5->Add (m_staticText123,
+						wxSizerFlags(0).Left().Align(wxALIGN_CENTER_VERTICAL));
 	
-	m_textCtrl59 = new wxTextCtrl( this, IDC_Latitude, wxEmptyString, wxDefaultPosition, wxSize(120,-1), 0 );
-   m_textCtrl59->SetValidator(doubleValue6Digits);
+	m_textCtrl59 = new wxTextCtrl (this,
+												IDC_Latitude,
+												wxEmptyString,
+												wxDefaultPosition,
+												wxSize (120, -1),
+												0);
+   m_textCtrl59->SetValidator (doubleValue6Digits);
 	m_textCtrl59->SetWindowStyle (wxTE_RIGHT);
-   //m_textCtrl59->SetValidator(wxTextValidator(wxFILTER_NUMERIC, &m_stringCheck));
-	//fgSizer5->Add( m_textCtrl59, 0, 0, 5 );
-	fgSizer5->Add (m_textCtrl59, wxSizerFlags(0).Border(wxTOP|wxBOTTOM,2));
+ 	fgSizer5->Add (m_textCtrl59, wxSizerFlags(0).Border(wxTOP|wxBOTTOM,2));
 	
-	m_staticText125 = new wxStaticText( this, IDC_FalseEastingPrompt, wxT("False Easting: . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ."), wxDefaultPosition, wxDefaultSize, 0 );
-	m_staticText125->Wrap( -1 );
-	//fgSizer5->Add (m_staticText125, 0, wxALIGN_CENTER, 5);
-	fgSizer5->Add (m_staticText125, wxSizerFlags(0).Left().Align(wxALIGN_CENTER_VERTICAL));
+	m_staticText125 = new wxStaticText (
+				this,
+				IDC_FalseEastingPrompt,
+				wxT("False Easting: . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ."),
+				wxDefaultPosition,
+				wxDefaultSize,
+				0);
+	m_staticText125->Wrap (-1);
+	fgSizer5->Add (m_staticText125,
+						wxSizerFlags(0).Left().Align(wxALIGN_CENTER_VERTICAL));
 	
-	m_textCtrl60 = new wxTextCtrl( this, IDC_FalseEasting, wxEmptyString, wxDefaultPosition, wxSize(120,-1), 0 );
+	m_textCtrl60 = new wxTextCtrl (this,
+												IDC_FalseEasting,
+												wxEmptyString,
+												wxDefaultPosition,
+												wxSize (120, -1),
+												0);
    m_textCtrl60->SetValidator(doubleValue6Digits);
 	m_textCtrl60->SetWindowStyle (wxTE_RIGHT);
-   //m_textCtrl60->SetValidator(wxTextValidator(wxFILTER_NUMERIC, &m_stringCheck));
-	//fgSizer5->Add( m_textCtrl60, 0, 0, 5 );
-	fgSizer5->Add (m_textCtrl60, wxSizerFlags(0).Border(wxTOP|wxBOTTOM,2));
+ 	fgSizer5->Add (m_textCtrl60, wxSizerFlags(0).Border(wxTOP|wxBOTTOM, 2));
 	
-	m_staticText127 = new wxStaticText( this, IDC_FalseNorthingPrompt, wxT("False Northing: . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ."), wxDefaultPosition, wxDefaultSize, 0 );
-	m_staticText127->Wrap( -1 );
-	//fgSizer5->Add (m_staticText127, 0, wxALIGN_CENTER, 5);
-	fgSizer5->Add (m_staticText127, wxSizerFlags(0).Left().Align(wxALIGN_CENTER_VERTICAL));
+	m_staticText127 = new wxStaticText (this,
+													IDC_FalseNorthingPrompt,
+													wxT("False Northing: . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ."),
+													wxDefaultPosition,
+													wxDefaultSize,
+													0);
+	m_staticText127->Wrap (-1);
+	fgSizer5->Add (m_staticText127,
+						wxSizerFlags(0).Left().Align(wxALIGN_CENTER_VERTICAL));
 	
-	m_textCtrl61 = new wxTextCtrl( this, IDC_FalseNorthing, wxEmptyString, wxDefaultPosition, wxSize(120,-1), 0 );
-   m_textCtrl61->SetValidator(doubleValue6Digits);
+	m_textCtrl61 = new wxTextCtrl (this,
+												IDC_FalseNorthing,
+												wxEmptyString,
+												wxDefaultPosition,
+												wxSize (120, -1),
+												0);
+   m_textCtrl61->SetValidator (doubleValue6Digits);
 	m_textCtrl61->SetWindowStyle (wxTE_RIGHT);
-   //m_textCtrl61->SetValidator(wxTextValidator(wxFILTER_NUMERIC, &m_stringCheck));
-	//fgSizer5->Add( m_textCtrl61, 0, 0, 5 );
-	fgSizer5->Add (m_textCtrl61, wxSizerFlags(0).Border(wxTOP|wxBOTTOM,2));
+	fgSizer5->Add (m_textCtrl61, wxSizerFlags(0).Border(wxTOP|wxBOTTOM, 2));
 	
-	m_staticText129 = new wxStaticText( this, IDC_ScaleFactorPrompt, wxT("Scale factor of central meridian: . . . . . . . . . . . . . . . . . ."), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText129 = new wxStaticText (this,
+													IDC_ScaleFactorPrompt,
+													wxT("Scale factor of central meridian: . . . . . . . . . . . . . . . . . ."),
+													wxDefaultPosition,
+													wxDefaultSize,
+													0);
 	m_staticText129->Wrap( -1 );
-	//fgSizer5->Add (m_staticText129, 0, wxALIGN_CENTER, 5);
-	fgSizer5->Add (m_staticText129, wxSizerFlags(0).Left().Align(wxALIGN_CENTER_VERTICAL));
+	fgSizer5->Add (m_staticText129,
+						wxSizerFlags(0).Left().Align(wxALIGN_CENTER_VERTICAL));
 	
-	m_textCtrl62 = new wxTextCtrl( this, IDC_ScaleFactor, wxEmptyString, wxDefaultPosition, wxSize(120,-1), 0 );
-   m_textCtrl62->SetValidator(doubleValue10Digits);
+	m_textCtrl62 = new wxTextCtrl (this,
+												IDC_ScaleFactor,
+												wxEmptyString,
+												wxDefaultPosition,
+												wxSize (120, -1),
+												0);
+   m_textCtrl62->SetValidator (doubleValue10Digits);
 	m_textCtrl62->SetWindowStyle (wxTE_RIGHT);
-   //m_textCtrl62->SetValidator(wxTextValidator(wxFILTER_NUMERIC, &m_stringCheck));
-	//fgSizer5->Add( m_textCtrl62, 0, 0, 5 );
-	fgSizer5->Add (m_textCtrl62, wxSizerFlags(0).Border(wxTOP|wxBOTTOM,2));
+	fgSizer5->Add (m_textCtrl62, wxSizerFlags(0).Border(wxTOP|wxBOTTOM, 2));
 	
-	m_staticText142 = new wxStaticText( this, IDC_StandardParallel1Prompt, wxT("Standard parallel 1:  . . . . . . . . . . . . . . . . . . . . . . . . . . . . ."), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText142 = new wxStaticText (this,
+													IDC_StandardParallel1Prompt,
+													wxT("Standard parallel 1:  . . . . . . . . . . . . . . . . . . . . . . . . . . . . ."),
+													wxDefaultPosition,
+													wxDefaultSize,
+													0);
 	m_staticText142->Wrap( -1 );
-	//fgSizer5->Add (m_staticText142, 0, wxALIGN_CENTER, 5);
-	fgSizer5->Add (m_staticText142, wxSizerFlags(0).Left().Align(wxALIGN_CENTER_VERTICAL));
+	fgSizer5->Add (m_staticText142,
+						wxSizerFlags(0).Left().Align(wxALIGN_CENTER_VERTICAL));
 	
-	m_textCtrl65 = new wxTextCtrl( this, IDC_StandardParallel1, wxEmptyString, wxDefaultPosition, wxSize(120,-1), 0 );
-   m_textCtrl65->SetValidator(doubleValue6Digits);
+	m_textCtrl65 = new wxTextCtrl (this,
+												IDC_StandardParallel1,
+												wxEmptyString,
+												wxDefaultPosition,
+												wxSize (120, -1),
+												0);
+   m_textCtrl65->SetValidator (doubleValue6Digits);
 	m_textCtrl65->SetWindowStyle (wxTE_RIGHT);
-   //m_textCtrl65->SetValidator(wxTextValidator(wxFILTER_NUMERIC, &m_stringCheck));
-	//fgSizer5->Add( m_textCtrl65, 0, 0, 5 );
-	fgSizer5->Add (m_textCtrl65, wxSizerFlags(0).Border(wxTOP|wxBOTTOM,2));
+	fgSizer5->Add (m_textCtrl65, wxSizerFlags(0).Border(wxTOP|wxBOTTOM, 2));
 	
-	m_staticText143 = new wxStaticText( this, IDC_StandardParallel2Prompt, wxT("Standard parallel 2:  . . . . . . . . . . . . . . . . . . . . . . . . . . . . ."), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText143 = new wxStaticText (this,
+													IDC_StandardParallel2Prompt,
+													wxT("Standard parallel 2:  . . . . . . . . . . . . . . . . . . . . . . . . . . . . ."),
+													wxDefaultPosition,
+													wxDefaultSize,
+													0);
 	m_staticText143->Wrap( -1 );
-	//fgSizer5->Add (m_staticText143, 0, wxALIGN_CENTER, 5);
-	fgSizer5->Add (m_staticText143, wxSizerFlags(0).Left().Align(wxALIGN_CENTER_VERTICAL));
+	fgSizer5->Add (m_staticText143,
+						wxSizerFlags(0).Left().Align(wxALIGN_CENTER_VERTICAL));
 	
-	m_textCtrl66 = new wxTextCtrl( this, IDC_StandardParallel2, wxEmptyString, wxDefaultPosition, wxSize(120,-1), 0 );
-   m_textCtrl66->SetValidator(doubleValue6Digits);
+	m_textCtrl66 = new wxTextCtrl (this,
+												IDC_StandardParallel2,
+												wxEmptyString,
+												wxDefaultPosition,
+												wxSize (120,-1),
+												0);
+   m_textCtrl66->SetValidator (doubleValue6Digits);
 	m_textCtrl66->SetWindowStyle (wxTE_RIGHT);
-   //m_textCtrl66->SetValidator(wxTextValidator(wxFILTER_NUMERIC, &m_stringCheck));
-	//fgSizer5->Add( m_textCtrl66, 0, 0, 5 );
-	fgSizer5->Add (m_textCtrl66, wxSizerFlags(0).Border(wxTOP|wxBOTTOM,2));
+	fgSizer5->Add (m_textCtrl66, wxSizerFlags(0).Border(wxTOP|wxBOTTOM, 2));
         
-	//bSizer96->Add (fgSizer5, 0, wxEXPAND|wxLEFT, 25);
-	bSizer96->Add (fgSizer5, wxSizerFlags(0).Expand().Border(wxLEFT,36));
+	bSizer96->Add (fgSizer5, wxSizerFlags(0).Expand().Border(wxLEFT, 36));
 	
-//	wxBoxSizer* bSizer101;
 	bSizer101 = new wxBoxSizer( wxHORIZONTAL );
 	
-	m_staticText133 = new wxStaticText( this, IDC_DatumPrompt, wxT("Geodetic Model       Datum:"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText133 = new wxStaticText (this,
+													IDC_DatumPrompt,
+													wxT("Geodetic Model       Datum:"),
+													wxDefaultPosition,
+													wxDefaultSize,
+													0);
 	m_staticText133->Wrap( -1 );
    SetUpToolTip(m_staticText133, IDS_ToolTip298);
-	//bSizer101->Add (m_staticText133, 0, wxALIGN_CENTER|wxALL, 5);
-	bSizer101->Add (m_staticText133, wxSizerFlags(0).Center().Border(wxTOP|wxRIGHT|wxBOTTOM,5));
+	bSizer101->Add (m_staticText133,
+							wxSizerFlags(0).Center().Border(wxTOP|wxRIGHT|wxBOTTOM,5));
 	
-	m_comboBox10 = new wxComboBox( this, IDC_DatumCombo, wxT("NAD 27"), wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_DROPDOWN );
+	m_comboBox10 = new wxComboBox (this,
+												IDC_DatumCombo,
+												wxT("NAD 27"),
+												wxDefaultPosition,
+												wxSize (285, -1),
+												0,
+												NULL,
+												wxCB_DROPDOWN);
 	m_comboBox10->Append( wxT("None defined") );
 	m_comboBox10->Append( wxT("Beijing 1954") );
 	m_comboBox10->Append( wxT("Campo Inchauspe") );
@@ -594,35 +773,49 @@ void CMMapCoordinateDlg::CreateControls()
 	m_comboBox10->Append( wxT("South American 1969") );
 	m_comboBox10->Append( wxT("WGS 72") );
 	m_comboBox10->Append( wxT("WGS 84") );
-	m_comboBox10->Append( wxT("Sphere") );
-	m_comboBox10->SetSelection( 5 );
-   SetUpToolTip(m_comboBox10, IDS_ToolTip298);
-	//bSizer101->Add (m_comboBox10, 0, wxALL, 5 );
-	bSizer101->Add (m_comboBox10, wxSizerFlags(0).Border(wxLEFT|wxTOP|wxBOTTOM,5));
+	m_comboBox10->Append (wxT("Sphere") );
+	m_comboBox10->SetSelection (5);
+   SetUpToolTip (m_comboBox10, IDS_ToolTip298);
+	bSizer101->Add (m_comboBox10, wxSizerFlags(0).Border(wxLEFT|wxTOP|wxBOTTOM, 5));
 	
-	m_staticText302 = new wxStaticText( this, IDC_DatumName, wxT("MyLabel"), wxDefaultPosition, wxDefaultSize, 0 );
-	m_staticText302->Wrap( -1 );
+	m_staticText302 = new wxStaticText (this,
+													IDC_DatumName,
+													wxEmptyString,
+													//wxT("MyLabel"),
+													wxDefaultPosition,
+													wxDefaultSize,
+													//wxSize (240, -1),
+													0);
+	m_staticText302->Wrap (-1);
    SetUpToolTip(m_staticText302, IDS_ToolTip298);
-	//bSizer101->Add (m_staticText302, 0, wxALIGN_CENTER|wxALL, 5);
-	bSizer101->Add (m_staticText302, wxSizerFlags(0).Center().Border(wxLEFT|wxTOP|wxBOTTOM,5));
+	bSizer101->Add (m_staticText302,
+							wxSizerFlags(0).Center().Border(wxLEFT|wxTOP|wxBOTTOM, 5));
 	
+	bSizer96->Add (bSizer101, wxSizerFlags(0).Expand().Border(wxLEFT|wxRIGHT, 12));
 	
-	//bSizer96->Add (bSizer101, 0, wxALL|wxEXPAND, 5);
-	bSizer96->Add (bSizer101, wxSizerFlags(0).Expand().Border(wxLEFT|wxRIGHT,12));
+	bSizer102 = new wxBoxSizer (wxHORIZONTAL);
 	
-//	wxBoxSizer* bSizer102;
-	bSizer102 = new wxBoxSizer( wxHORIZONTAL );
-	
-	m_staticText136 = new wxStaticText( this, IDC_ProjectionEllipsoidPrompt, wxT("Projection Ellipsoid:"), wxDefaultPosition, wxDefaultSize, 0 );
-	m_staticText136->Wrap( -1 );
+	m_staticText136 = new wxStaticText (this,
+													IDC_ProjectionEllipsoidPrompt,
+													wxT("Projection Ellipsoid:"),
+													wxDefaultPosition,
+													wxDefaultSize,
+													0);
+	m_staticText136->Wrap (-1);
    SetUpToolTip(m_staticText136, IDS_ToolTip299);
-	//bSizer102->Add (m_staticText136, 0, wxALIGN_CENTER|wxALL, 5);
-	bSizer102->Add (m_staticText136, wxSizerFlags(0).Center().Border(wxTOP|wxRIGHT|wxBOTTOM,5));
+	bSizer102->Add (m_staticText136,
+							wxSizerFlags(0).Center().Border(wxTOP|wxRIGHT|wxBOTTOM, 5));
 	
-	m_comboBox11 = new wxComboBox( this, IDC_EllipsoidCombo, wxT("None defined"), wxDefaultPosition, //wxDefaultSize, 0, NULL, wxCB_DROPDOWN|wxVSCROLL );
-      wxDefaultSize, 0, NULL, wxCB_DROPDOWN );
-	m_comboBox11->Append( wxT("None defined") );
-	m_comboBox11->Append( wxT("User Defined") );
+	m_comboBox11 = new wxComboBox (this,
+												IDC_EllipsoidCombo,
+												wxT("None defined"),
+												wxDefaultPosition,
+      										wxDefaultSize,
+      										0,
+      										NULL,
+      										wxCB_DROPDOWN);
+	m_comboBox11->Append (wxT("None defined"));
+	m_comboBox11->Append (wxT("User Defined"));
 	m_comboBox11->Append( wxT("Airy") );
 	m_comboBox11->Append( wxT("Australian") );
 	m_comboBox11->Append( wxT("Bessel 1841") );
@@ -631,128 +824,108 @@ void CMMapCoordinateDlg::CreateControls()
 	m_comboBox11->Append( wxT("Clarke 1880") );
 	m_comboBox11->Append( wxT("Everest") );
 	m_comboBox11->Append( wxT("GRS 1967 Modified") );
-	m_comboBox11->Append( wxT("GRS 80") );
+	m_comboBox11->Append( wxT("GRS 1980") );
 	m_comboBox11->Append( wxT("International 1909") );
 	m_comboBox11->Append( wxT("Krassovsky") );
 	m_comboBox11->Append( wxT("Sphere") );
 	m_comboBox11->Append( wxT("WGS 72") );
 	m_comboBox11->Append( wxT("WGS 84") );
    SetUpToolTip(m_comboBox11, IDS_ToolTip299);
-	//bSizer102->Add (m_comboBox11, 0, wxALL, 5);
-	bSizer102->Add (m_comboBox11, wxSizerFlags(0).Border(wxLEFT|wxTOP|wxBOTTOM,5));
+	bSizer102->Add (m_comboBox11, wxSizerFlags(0).Border(wxLEFT|wxTOP|wxBOTTOM, 5));
 	
-	m_staticText303 = new wxStaticText( this, IDC_EllipsoidName, wxT("MyLabel"), wxDefaultPosition, wxDefaultSize, 0 );
-	m_staticText303->Wrap( -1 );
-   SetUpToolTip(m_staticText303, IDS_ToolTip299);
-	//bSizer102->Add (m_staticText303, 0, wxALIGN_CENTER|wxALL, 5);
-	bSizer102->Add (m_staticText303, wxSizerFlags(0).Center().Border(wxLEFT|wxTOP|wxBOTTOM,5));
+	m_staticText303 = new wxStaticText (this,
+													IDC_EllipsoidName,
+													wxEmptyString,
+													wxDefaultPosition,
+													wxDefaultSize,
+													0);
+	m_staticText303->Wrap (-1);
+   SetUpToolTip (m_staticText303, IDS_ToolTip299);
+	bSizer102->Add (m_staticText303,
+							wxSizerFlags(0).Center().Border(wxLEFT|wxTOP|wxBOTTOM, 5));
 	
-	
-	//bSizer96->Add (bSizer102, 0, wxEXPAND|wxLEFT, 15);
-	bSizer96->Add (bSizer102, wxSizerFlags(0).Expand().Border(wxLEFT|wxRIGHT,24));
+	bSizer96->Add (bSizer102, wxSizerFlags(0).Expand().Border(wxLEFT|wxRIGHT, 24));
 	
 	wxBoxSizer* bSizer103;
-	bSizer103 = new wxBoxSizer( wxHORIZONTAL );
+	bSizer103 = new wxBoxSizer (wxHORIZONTAL);
 	
 	wxBoxSizer* bSizer104;
-	bSizer104 = new wxBoxSizer( wxVERTICAL );
+	bSizer104 = new wxBoxSizer (wxVERTICAL);
 	
-	wxBoxSizer* bSizer106;
-	bSizer106 = new wxBoxSizer( wxHORIZONTAL );
+	bSizer106 = new wxBoxSizer (wxHORIZONTAL);
 	
-	m_staticText139 = new wxStaticText( this, IDC_RadiusPrompt, wxT("Radius of sphere (earth): "), wxDefaultPosition, wxDefaultSize, 0 );
-	m_staticText139->Wrap( -1 );
-	//bSizer106->Add (m_staticText139, 0, wxALIGN_CENTER|wxALL, 5);
-	bSizer106->Add (m_staticText139, wxSizerFlags(0).Center().Border(wxTOP|wxRIGHT|wxBOTTOM,2));
+	wxStaticText* m_staticText304 = new wxStaticText (this,
+																		IDC_MajorAxisPrompt,
+																		//wxT("Major axis: "),
+																		//wxT("blank: "),
+																		wxEmptyString,
+																		wxDefaultPosition,
+																		wxSize (165, -1),
+																		0);
+	m_staticText304->SetWindowStyle (wxTE_RIGHT);
+	bSizer106->Add (m_staticText304,
+							wxSizerFlags(0).CenterVertical().Border(wxTOP|wxRIGHT|wxBOTTOM, 2));
 	
-	m_staticText304 = new wxStaticText( this, IDC_MajorAxisPrompt, wxT("Major axis: "), wxDefaultPosition, wxDefaultSize, 0 );
-	m_staticText304->Wrap( -1 );
-	//bSizer106->Add (m_staticText304, 0, wxALIGN_CENTER|wxALL, 5);
-	bSizer106->Add (m_staticText304, wxSizerFlags(0).Center().Border(wxTOP|wxRIGHT|wxBOTTOM,2));
-	
-	m_textCtrl63 = new wxTextCtrl( this, IDC_Radius, wxEmptyString, wxDefaultPosition, wxSize(120,-1), 0 );
-   m_textCtrl63->SetValidator(doubleValue4Digits);
+	m_textCtrl63 = new wxTextCtrl (this,
+												IDC_Radius,
+												wxEmptyString,
+												wxDefaultPosition,
+												wxSize (120, -1),
+												0);
+   m_textCtrl63->SetValidator (doubleValue4Digits);
 	m_textCtrl63->SetWindowStyle (wxTE_RIGHT);
-   //m_textCtrl63->SetValidator(wxTextValidator(wxFILTER_NUMERIC, &m_stringCheck));
-	//bSizer106->Add (m_textCtrl63, 0, wxALL, 5);
 	bSizer106->Add (m_textCtrl63, wxSizerFlags(0).Border(wxTOP|wxRIGHT|wxBOTTOM,2));
 	
+	bSizer104->Add (bSizer106, wxSizerFlags(0));
 	
-	//bSizer104->Add( bSizer106, 0, wxALIGN_RIGHT|wxLEFT, 36);
-	bSizer104->Add( bSizer106, 0, wxALIGN_CENTER|wxLEFT, 36);
-	wxBoxSizer* bSizer107;
-	bSizer107 = new wxBoxSizer( wxHORIZONTAL );
+	bSizer107 = new wxBoxSizer (wxHORIZONTAL);
 	
-	m_staticText140 = new wxStaticText( this, IDC_MinorAxisPrompt, wxT("Minor axis: "), wxDefaultPosition, wxDefaultSize, 0 );
-	m_staticText140->Wrap( -1 );
-	//bSizer107->Add (m_staticText140, 0, wxALIGN_CENTER|wxALL, 5);
-	bSizer107->Add (m_staticText140, 0, wxRESERVE_SPACE_EVEN_IF_HIDDEN|wxALIGN_CENTER|wxTOP|wxRIGHT, 2 );
+	m_staticText140 = new wxStaticText (this,
+													IDC_MinorAxisPrompt,
+													wxEmptyString,
+													//wxT("Minor axis: "),
+													//wxT("blank: "),
+													wxDefaultPosition,
+													wxSize (165, -1),
+													0);
+	m_staticText140->SetWindowStyle (wxTE_RIGHT);
+	bSizer107->Add (m_staticText140,
+							wxSizerFlags(0).CenterVertical().Border(wxTOP|wxRIGHT, 2));
 	
-	m_textCtrl64 = new wxTextCtrl( this, IDC_MinorAxis, wxEmptyString, wxDefaultPosition, wxSize(120,-1), 0 );
-   m_textCtrl64->SetValidator(doubleValue4Digits);
+	m_textCtrl64 = new wxTextCtrl (this,
+												IDC_MinorAxis,
+												wxEmptyString,
+												wxDefaultPosition,
+												wxSize (120, -1),
+												0);
+   m_textCtrl64->SetValidator (doubleValue4Digits);
 	m_textCtrl64->SetWindowStyle (wxTE_RIGHT);
-   //m_textCtrl64->SetValidator(wxTextValidator(wxFILTER_NUMERIC, &m_stringCheck));
-	//bSizer107->Add (m_textCtrl64, 0, wxALL, 5);
-	bSizer107->Add (m_textCtrl64, 0, wxRESERVE_SPACE_EVEN_IF_HIDDEN|wxTOP|wxRIGHT, 2);
+	bSizer107->Add (m_textCtrl64, wxSizerFlags(0).Border(wxTOP|wxRIGHT, 2));
+	
+	bSizer104->Add (bSizer107, wxSizerFlags(0));
 	
 	
-	//bSizer104->Add (bSizer107, 0, wxALIGN_RIGHT|wxLEFT, 25);
-	bSizer104->Add (bSizer107, wxSizerFlags(0).Right().Border(wxLEFT,24));
+	bSizer103->Add (bSizer104,
+							wxSizerFlags(0).Bottom().ReserveSpaceEvenIfHidden().Border(wxLEFT, 50));
 	
-	
-	//bSizer103->Add( bSizer104, 1, wxALIGN_BOTTOM|wxALIGN_RIGHT, 5 );
-	bSizer103->Add( bSizer104, 1, wxALIGN_BOTTOM, 5 );
-	
-	bSizer103->Add( 40, 0, 0, wxEXPAND, 5 );
-	/*
-	wxBoxSizer* bSizer105;
-	bSizer105 = new wxBoxSizer( wxHORIZONTAL );
-	
-	m_button12 = new wxButton( this, wxID_CANCEL, wxT("Cancel"), wxDefaultPosition, wxDefaultSize, 0 );
-	//bSizer105->Add (m_button12, 0, wxALL, 5 );
-	bSizer105->Add (m_button12, wxSizerFlags(0).Border(wxRIGHT,6));
-	
-	m_button13 = new wxButton( this, wxID_OK, wxT("OK"), wxDefaultPosition, wxDefaultSize, 0 );
-	//bSizer105->Add (m_button13, 0, wxALL, 5 );
-	bSizer105->Add (m_button13, wxSizerFlags(0));
-	
-	//bSizer103->Add (bSizer105, 0, wxALIGN_BOTTOM | wxALIGN_RIGHT, 5);
-	//bSizer103->Add (bSizer105, wxSizerFlags(0).Right().Bottom());
-   bSizer103->Add (bSizer105, 0, wxALIGN_BOTTOM, 5);
-	*/
-	//bSizer96->Add (bSizer103, 0, wxALIGN_BOTTOM | wxALIGN_RIGHT, 5 );
-	//bSizer96->Add (bSizer103, wxSizerFlags(0).Expand().Right().Border(wxRIGHT|wxBOTTOM,12));
-	bSizer96->Add (bSizer103, wxSizerFlags(0).Expand().Border(wxRIGHT|wxBOTTOM,12));
+	bSizer96->Add (bSizer103, wxSizerFlags(0).Border(wxRIGHT|wxBOTTOM,12));
 	
 	CreateStandardButtons (bSizer96);
 	
-	this->SetSizerAndFit (bSizer96);
-//	this->Layout();
-	//this->Centre();
+			// Reset the text for the major & minor axis prompts so that they
+			// get right justified.
 	
-}		// end "CreateControls"
-
-
-
-BEGIN_EVENT_TABLE(CMMapCoordinateDlg, CMDialog)
-EVT_INIT_DIALOG(CMMapCoordinateDlg::OnInitDialog)
-EVT_COMBOBOX(IDC_MapUnitsCombo, CMMapCoordinateDlg::OnSelendokMapUnitsCombo)
-EVT_COMBOBOX(IDC_ReferenceSystemCombo, CMMapCoordinateDlg::OnSelendokReferenceSystemCombo)
-EVT_COMBOBOX(IDC_ProjectionCombo, CMMapCoordinateDlg::OnSelendokProjectionCombo)
-EVT_COMBOBOX(IDC_DatumCombo, CMMapCoordinateDlg::OnSelendokDatumCombo)
-EVT_COMBOBOX(IDC_EllipsoidCombo, CMMapCoordinateDlg::OnSelendokEllipsoidCombo)
-EVT_TEXT(IDC_ZoneDirection, CMMapCoordinateDlg::OnChangeZoneDirection)
-EVT_TEXT(IDC_Zone, CMMapCoordinateDlg::OnEnChangeZone)
-EVT_TEXT(IDC_EPSGCode, CMMapCoordinateDlg::OnEnChangeEPSGCode)
-//EVT_CHAR_HOOK(CMMapCoordinateDlg::OnButtonPress)
-END_EVENT_TABLE()
-/////////////////////////////////////////////////////////////////////////////
-// CMMapCoordinateDlg message handlers
+	LoadDItemString (IDC_MajorAxisPrompt, (CharPtr)"Major axis: ");
+	LoadDItemString (IDC_MinorAxisPrompt, (CharPtr)"Minor axis: ");
+	
+	SetSizerAndFit (bSizer96);
+	
+}	// end "CreateControls"
 
 
 
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2019)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -856,18 +1029,23 @@ void CMMapCoordinateDlg::OnButtonPress(wxKeyEvent& event)
 }
 */
 
-void CMMapCoordinateDlg::AdjustDlgLayout()
+
+void CMMapCoordinateDlg::AdjustDlgLayout ()
+
 {
-    bSizer97->Layout();
-    bSizer99->Layout();
-    bSizer100->Layout();
-    bSizer101->Layout();
-    bSizer102->Layout();
-}
+    bSizer97->Layout ();
+    bSizer99->Layout ();
+    bSizer100->Layout ();
+    bSizer101->Layout ();
+    bSizer102->Layout ();
+	
+}	// end "AdjustDlgLayout"
+
 
 
 void CMMapCoordinateDlg::OnInitDialog (
 				wxInitDialogEvent&				event)
+
 {
 	SInt16								datumSelection,
 											ellipsoidSelection,
@@ -877,7 +1055,7 @@ void CMMapCoordinateDlg::OnInitDialog (
 											referenceSystemSelection;
 
 
-	wxDialog::OnInitDialog(event);
+	//wxDialog::OnInitDialog(event);
 
 			// Initialize dialog variables.
 
@@ -914,17 +1092,16 @@ void CMMapCoordinateDlg::OnInitDialog (
 
 	m_mapUnitsSelection = mapUnitsSelection;
 	m_referenceSystemSelection = referenceSystemSelection;
-	m_projectionSelection = abs(projectionSelection);
-	m_datumSelection = abs(datumSelection);
-	m_ellipsoidSelection = abs(ellipsoidSelection);
+	m_projectionSelection = abs (projectionSelection);
+	m_datumSelection = abs (datumSelection);
+	m_ellipsoidSelection = abs (ellipsoidSelection);
 
-	m_referenceSystemCode = abs(referenceSystemSelection);
-	m_projectionCode = abs(m_projectionSelection);
-	m_datumCode = abs(m_datumSelection);
-	m_ellipsoidCode = abs(m_ellipsoidSelection);
+	m_referenceSystemCode = abs (referenceSystemSelection);
+	m_projectionCode = abs (m_projectionSelection);
+	m_datumCode = abs (m_datumSelection);
+	m_ellipsoidCode = abs (m_ellipsoidSelection);
 
 	m_gridZone = gridZone;
-
 	/*	
 	m_referenceSystemSelection = GetComboListSelection (IDC_ReferenceSystemCombo,
 																			m_referenceSystemCode);
@@ -938,35 +1115,39 @@ void CMMapCoordinateDlg::OnInitDialog (
 	m_ellipsoidSelection = GetComboListSelection (IDC_EllipsoidCombo,
 																	m_ellipsoidCode);
 	*/
-	m_gridZoneDirection = CString(&m_gridZoneDirectionString[1]);
+	m_gridZoneDirection = CString (&m_gridZoneDirectionString[1]);
 
 			// This is needed because m_radiusSpheroid is what is used for
 			// the major axis box.
 
-	if (abs(m_ellipsoidCode) != kSphereEllipsoidCode)
+	if (abs (m_ellipsoidCode) != kSphereEllipsoidCode)
 		m_radiusSpheroid = m_semiMajorAxis;
 
-	if (TransferDataToWindow())
-		PositionDialogWindow();
+	if (TransferDataToWindow ())
+		PositionDialogWindow ();
 
 			// Set default text selection to first edit text item	
 
 	SelectDialogItemText (this, IDC_X11Coordinate, 0, SInt16_MAX);
-	//SetSizerAndFit(bSizer96);
-	AdjustDlgLayout();
-	//this->Layout();
-	//this->Fit();
+	
+	AdjustDlgLayout ();
 
 }	// end "OnInitDialog"
 
 
-void CMMapCoordinateDlg::OnSelendokMapUnitsCombo(wxCommandEvent& event) 
+
+void CMMapCoordinateDlg::OnSelendokMapUnitsCombo (
+				wxCommandEvent& event)
+
 {
 
 }
 
 
-void CMMapCoordinateDlg::OnSelendokEllipsoidCombo(wxCommandEvent& event) 
+
+void CMMapCoordinateDlg::OnSelendokEllipsoidCombo (
+				wxCommandEvent& event)
+				
 {
 	int						lastEllipsoidSelection;
 
@@ -983,15 +1164,15 @@ void CMMapCoordinateDlg::OnSelendokEllipsoidCombo(wxCommandEvent& event)
 
 		}	// end "if (lastEllipsoidSelection != m_ellipsoidSelection)"
     
-	AdjustDlgLayout();
-    
-	//this->Layout();
-	//this->Fit();
+	AdjustDlgLayout ();
 	
 }	// end "OnSelendokEllipsoidCombo"
 
 
-void CMMapCoordinateDlg::OnSelendokReferenceSystemCombo(wxCommandEvent& event) 
+
+void CMMapCoordinateDlg::OnSelendokReferenceSystemCombo (
+				wxCommandEvent& event)
+
 {
 	int						lastReferenceSelection;
 
@@ -1055,9 +1236,9 @@ void CMMapCoordinateDlg::OnSelendokReferenceSystemCombo(wxCommandEvent& event)
 
 		if (m_mapUnitsSelection != abs(mapUnitsSelection)) 
 			{
-			m_mapUnitsSelection = abs(mapUnitsSelection);
-			wxComboBox* mapUnitsSelection = (wxComboBox *) FindWindow(IDC_MapUnitsCombo);
-			mapUnitsSelection->SetSelection(m_mapUnitsSelection);
+			m_mapUnitsSelection = abs (mapUnitsSelection);
+			wxComboBox* mapUnitsSelection = (wxComboBox*)FindWindow (IDC_MapUnitsCombo);
+			mapUnitsSelection->SetSelection (m_mapUnitsSelection);
 
 			}	// end "if (m_mapUnitsSelection != abs(mapUnitsSelection))"
 
@@ -1114,15 +1295,15 @@ void CMMapCoordinateDlg::OnSelendokReferenceSystemCombo(wxCommandEvent& event)
 			if (m_mapUnitsSelection != abs(mapUnitsSelection)) 
 				{
 				m_mapUnitsSelection = abs(mapUnitsSelection);
-				wxComboBox* mapUnitsSelection = (wxComboBox *) FindWindow(IDC_MapUnitsCombo);
-				mapUnitsSelection->SetSelection(m_mapUnitsSelection);
+				wxComboBox* mapUnitsSelection = (wxComboBox*)FindWindow (IDC_MapUnitsCombo);
+				mapUnitsSelection->SetSelection (m_mapUnitsSelection);
 
 				}	// end "if (m_mapUnitsSelection != abs(mapUnitsSelection)"
 			
 			SetUpToolTip(m_staticText116, IDS_ToolTip300);
 			SetUpToolTip(m_textCtrl57, IDS_ToolTip300);
 			
-			} // end "if (m_referenceSystemSelection == kByEPSGCodeCode)"
+			}	// end "if (m_referenceSystemSelection == kByEPSGCodeCode)"
 	  
 		else	// m_referenceSystemSelection != kByEPSGCodeCode
 			{
@@ -1135,9 +1316,7 @@ void CMMapCoordinateDlg::OnSelendokReferenceSystemCombo(wxCommandEvent& event)
 
 		}	// end "if (lastReferenceSelection != m_referenceSystemSelection)"
     
-	AdjustDlgLayout();
-	//this->Layout();
-	//this->Fit();
+	AdjustDlgLayout ();
 	
 }	// end "OnSelendokReferenceSystemCombo"
 
@@ -1212,7 +1391,8 @@ void CMMapCoordinateDlg::OnSelendokDatumCombo(wxCommandEvent& event)
 		m_ellipsoidSelection = CoordinateDialogSetDatumParameters (
 											 this,
 											 m_datumSelection,
-											 abs(m_ellipsoidSelection),
+											 abs (m_ellipsoidSelection),
+											 FALSE,
 											 FALSE);
 
 		m_ellipsoidSelection = abs(m_ellipsoidSelection);
@@ -1336,7 +1516,9 @@ void CMMapCoordinateDlg::OnEnChangeZone(wxCommandEvent& event)
 } // end "OnEnChangeZone"
 
 
-void CMMapCoordinateDlg::OnEnChangeEPSGCode(wxCommandEvent& event) 
+void CMMapCoordinateDlg::OnEnChangeEPSGCode (
+				wxCommandEvent& 												event)
+
 {
 	SInt16						mapUnitsSelection,
 									projectionSelection,
@@ -1344,7 +1526,7 @@ void CMMapCoordinateDlg::OnEnChangeEPSGCode(wxCommandEvent& event)
 
 
 	savedEPSGCode = m_epsgCode;
-	wxTextCtrl* epsgCode = (wxTextCtrl*)FindWindow(IDC_EPSGCode);
+	wxTextCtrl* epsgCode = (wxTextCtrl*)FindWindow (IDC_EPSGCode);
 	m_epsgCode = wxAtoi(epsgCode->GetValue());
 
 	if (m_epsgCode != savedEPSGCode) 
@@ -1370,28 +1552,30 @@ void CMMapCoordinateDlg::OnEnChangeEPSGCode(wxCommandEvent& event)
 			
 			}	// end "if (m_projectionSelection = projectionSelection)"
 
-		if (m_mapUnitsSelection != abs(mapUnitsSelection)) 
+		if (m_mapUnitsSelection != abs (mapUnitsSelection))
 			{
-			m_mapUnitsSelection = abs(mapUnitsSelection);
-			wxComboBox* mapUnitsSelection = (wxComboBox*)FindWindow(IDC_MapUnitsCombo);
-			mapUnitsSelection->SetSelection(m_mapUnitsSelection);
+			m_mapUnitsSelection = abs (mapUnitsSelection);
+			wxComboBox* mapUnitsSelection = (wxComboBox*)FindWindow (IDC_MapUnitsCombo);
+			mapUnitsSelection->SetSelection (m_mapUnitsSelection);
 			
-			}	// end "if (m_mapUnitsSelection != abs(mapUnitsSelection)"
+			}	// end "if (m_mapUnitsSelection != abs (mapUnitsSelection)"
 
 		}	// end "else grid zone is within the proper range
 	 
 	//this->Layout();
 	//this->Fit();
+	AdjustDlgLayout ();
 	
 }	// end "OnEnChangeEPSGCode"
 
 
-bool CMMapCoordinateDlg::TransferDataFromWindow() 
+bool CMMapCoordinateDlg::TransferDataFromWindow ()
+
 {
 	wxComboBox* referenceSystemcb = (wxComboBox *) FindWindow(IDC_ReferenceSystemCombo);
 	wxComboBox* ellipsoidcb = (wxComboBox *) FindWindow(IDC_EllipsoidCombo);
-	wxComboBox* projectioncb = (wxComboBox *) FindWindow(IDC_ProjectionCombo);
-	wxComboBox* mapunitscb = (wxComboBox *) FindWindow(IDC_MapUnitsCombo);
+	wxComboBox* projectioncb = (wxComboBox*)FindWindow(IDC_ProjectionCombo);
+	wxComboBox* mapunitscb = (wxComboBox*)FindWindow (IDC_MapUnitsCombo);
 	wxComboBox* datumSelection = (wxComboBox *) FindWindow(IDC_DatumCombo);
 
 	wxTextCtrl* gridZone = (wxTextCtrl*) FindWindow(IDC_Zone);
@@ -1448,12 +1632,16 @@ bool CMMapCoordinateDlg::TransferDataFromWindow()
 	falseNorthing_str.ToDouble(&m_falseNorthing);
 	latitudeOrigin_str.ToDouble(&m_latitudeOrigin);
 	longitudeCentralMeridian_str.ToDouble(&m_longitudeCentralMeridian);
-	semiMinorAxis_str.ToDouble(&m_semiMinorAxis);
-	radiusSpheroid_str.ToDouble(&m_radiusSpheroid);
+	semiMinorAxis_str.ToDouble (&m_semiMinorAxis);
+	radiusSpheroid_str.ToDouble (&m_radiusSpheroid);
 	scaleFactorOfCentralMeridian_str.ToDouble(&m_scaleFactorOfCentralMeridian);
 	standardParallel1_str.ToDouble(&m_standardParallel1);
 	standardParallel2_str.ToDouble(&m_standardParallel2);
 	mapOrientationAngle_str.ToDouble(&m_mapOrientationAngle);
+	
+			// This is needed for the "CoordinateDialogOK" call.
+	
+	m_semiMajorAxis = m_radiusSpheroid;
 
 	m_referenceSystemCode = abs(m_referenceSystemSelection);
 	m_projectionCode = abs(m_projectionSelection);
@@ -1476,55 +1664,56 @@ bool CMMapCoordinateDlg::TransferDataFromWindow()
 }	// end "TransferDataFromWindow"
 
 
+
 bool CMMapCoordinateDlg::TransferDataToWindow() 
 {
-	wxComboBox* referenceSystemcb = (wxComboBox *) FindWindow(IDC_ReferenceSystemCombo);
-	wxComboBox* ellipsoidcb = (wxComboBox *) FindWindow(IDC_EllipsoidCombo);
-	wxComboBox* projectioncb = (wxComboBox *) FindWindow(IDC_ProjectionCombo);
-	wxComboBox* mapunitscb = (wxComboBox *) FindWindow(IDC_MapUnitsCombo);
-	wxComboBox* datumSelection = (wxComboBox *) FindWindow(IDC_DatumCombo);
+	wxComboBox* referenceSystemcb = (wxComboBox*)FindWindow (IDC_ReferenceSystemCombo);
+	wxComboBox* ellipsoidcb = (wxComboBox*)FindWindow (IDC_EllipsoidCombo);
+	wxComboBox* projectioncb = (wxComboBox*)FindWindow (IDC_ProjectionCombo);
+	wxComboBox* mapunitscb = (wxComboBox*)FindWindow (IDC_MapUnitsCombo);
+	wxComboBox* datumSelection = (wxComboBox*)FindWindow (IDC_DatumCombo);
 
-	wxTextCtrl* gridZone = (wxTextCtrl*) FindWindow(IDC_Zone);
-	wxTextCtrl* epsgCode = (wxTextCtrl*) FindWindow(IDC_EPSGCode);
-	wxTextCtrl* horizontalPixelSize = (wxTextCtrl*) FindWindow(IDC_HorizontalSize);
-	wxTextCtrl* verticalPixelSize = (wxTextCtrl*) FindWindow(IDC_VerticalSize);
-	wxTextCtrl* xMapCoordinate11 = (wxTextCtrl*) FindWindow(IDC_X11Coordinate);
-	wxTextCtrl* yMapCoordinate11 = (wxTextCtrl*) FindWindow(IDC_Y11Coordinate);
-	wxTextCtrl* falseEasting = (wxTextCtrl*) FindWindow(IDC_FalseEasting);
-	wxTextCtrl* falseNorthing = (wxTextCtrl*) FindWindow(IDC_FalseNorthing);
-	wxTextCtrl* latitudeOrigin = (wxTextCtrl*) FindWindow(IDC_Latitude);
-	wxTextCtrl* longitudeCentralMeridian = (wxTextCtrl*) FindWindow(IDC_Longitude);
-	wxTextCtrl* semiMinorAxis = (wxTextCtrl*) FindWindow(IDC_MinorAxis);
-	wxTextCtrl* radiusSpheroid = (wxTextCtrl*) FindWindow(IDC_Radius);
-	wxTextCtrl* scaleFactorOfCentralMeridian = (wxTextCtrl*) FindWindow(IDC_ScaleFactor);
-	wxTextCtrl* standardParallel1 = (wxTextCtrl*) FindWindow(IDC_StandardParallel1);
-	wxTextCtrl* standardParallel2 = (wxTextCtrl*) FindWindow(IDC_StandardParallel2);
-	wxTextCtrl* gridZoneDirection = (wxTextCtrl*) FindWindow(IDC_ZoneDirection);
-	wxTextCtrl* mapOrientationAngle = (wxTextCtrl*) FindWindow(IDC_OrientationAngle);
+	wxTextCtrl* gridZone = (wxTextCtrl*)FindWindow(IDC_Zone);
+	wxTextCtrl* epsgCode = (wxTextCtrl*)FindWindow(IDC_EPSGCode);
+	wxTextCtrl* horizontalPixelSize = (wxTextCtrl*)FindWindow(IDC_HorizontalSize);
+	wxTextCtrl* verticalPixelSize = (wxTextCtrl*)FindWindow(IDC_VerticalSize);
+	wxTextCtrl* xMapCoordinate11 = (wxTextCtrl*)FindWindow(IDC_X11Coordinate);
+	wxTextCtrl* yMapCoordinate11 = (wxTextCtrl*)FindWindow(IDC_Y11Coordinate);
+	wxTextCtrl* falseEasting = (wxTextCtrl*)FindWindow(IDC_FalseEasting);
+	wxTextCtrl* falseNorthing = (wxTextCtrl*)FindWindow(IDC_FalseNorthing);
+	wxTextCtrl* latitudeOrigin = (wxTextCtrl*)FindWindow(IDC_Latitude);
+	wxTextCtrl* longitudeCentralMeridian = (wxTextCtrl*)FindWindow(IDC_Longitude);
+	wxTextCtrl* semiMinorAxis = (wxTextCtrl*)FindWindow(IDC_MinorAxis);
+	wxTextCtrl* radiusSpheroid = (wxTextCtrl*)FindWindow(IDC_Radius);
+	wxTextCtrl* scaleFactorOfCentralMeridian = (wxTextCtrl*)FindWindow(IDC_ScaleFactor);
+	wxTextCtrl* standardParallel1 = (wxTextCtrl*)FindWindow(IDC_StandardParallel1);
+	wxTextCtrl* standardParallel2 = (wxTextCtrl*)FindWindow(IDC_StandardParallel2);
+	wxTextCtrl* gridZoneDirection = (wxTextCtrl*)FindWindow(IDC_ZoneDirection);
+	wxTextCtrl* mapOrientationAngle = (wxTextCtrl*)FindWindow(IDC_OrientationAngle);
 
-	gridZone->ChangeValue(wxString::Format(wxT("%i"), m_gridZone));
-	epsgCode->ChangeValue(wxString::Format(wxT("%i"), m_epsgCode));
-	horizontalPixelSize->ChangeValue(wxString::Format(wxT("%.4f"), m_horizontalPixelSize));
-	verticalPixelSize->ChangeValue(wxString::Format(wxT("%.4f"), m_verticalPixelSize));
-	xMapCoordinate11->ChangeValue(wxString::Format(wxT("%.4f"), m_xMapCoordinate11));
-	yMapCoordinate11->ChangeValue(wxString::Format(wxT("%.4f"), m_yMapCoordinate11));
-	falseEasting->ChangeValue(wxString::Format(wxT("%.2f"), m_falseEasting));
-	falseNorthing->ChangeValue(wxString::Format(wxT("%.2f"), m_falseNorthing));
-	latitudeOrigin->ChangeValue(wxString::Format(wxT("%.6f"), m_latitudeOrigin));
-	longitudeCentralMeridian->ChangeValue(wxString::Format(wxT("%.6f"), m_longitudeCentralMeridian));
-	semiMinorAxis->ChangeValue(wxString::Format(wxT("%.4f"), m_semiMinorAxis));
-	radiusSpheroid->ChangeValue(wxString::Format(wxT("%.4f"), m_radiusSpheroid));
-	scaleFactorOfCentralMeridian->ChangeValue(wxString::Format(wxT("%.6f"), m_scaleFactorOfCentralMeridian));
-	standardParallel1->ChangeValue(wxString::Format(wxT("%.6f"), m_standardParallel1));
-	standardParallel2->ChangeValue(wxString::Format(wxT("%.6f"), m_standardParallel2));
-	gridZoneDirection->ChangeValue(m_gridZoneDirection);
-	mapOrientationAngle->ChangeValue(wxString::Format(wxT("%.6f"), m_mapOrientationAngle));
+	gridZone->ChangeValue (wxString::Format(wxT("%i"), m_gridZone));
+	epsgCode->ChangeValue (wxString::Format(wxT("%i"), m_epsgCode));
+	horizontalPixelSize->ChangeValue (wxString::Format (wxT("%.4f"), m_horizontalPixelSize));
+	verticalPixelSize->ChangeValue (wxString::Format (wxT("%.4f"), m_verticalPixelSize));
+	xMapCoordinate11->ChangeValue (wxString::Format (wxT("%.4f"), m_xMapCoordinate11));
+	yMapCoordinate11->ChangeValue (wxString::Format (wxT("%.4f"), m_yMapCoordinate11));
+	falseEasting->ChangeValue (wxString::Format (wxT("%.2f"), m_falseEasting));
+	falseNorthing->ChangeValue (wxString::Format (wxT("%.2f"), m_falseNorthing));
+	latitudeOrigin->ChangeValue (wxString::Format (wxT("%.6f"), m_latitudeOrigin));
+	longitudeCentralMeridian->ChangeValue (wxString::Format (wxT("%.6f"), m_longitudeCentralMeridian));
+	semiMinorAxis->ChangeValue (wxString::Format (wxT("%.4f"), m_semiMinorAxis));
+	radiusSpheroid->ChangeValue (wxString::Format (wxT("%.4f"), m_radiusSpheroid));
+	scaleFactorOfCentralMeridian->ChangeValue (wxString::Format(wxT("%.6f"), m_scaleFactorOfCentralMeridian));
+	standardParallel1->ChangeValue (wxString::Format(wxT("%.6f"), m_standardParallel1));
+	standardParallel2->ChangeValue (wxString::Format(wxT("%.6f"), m_standardParallel2));
+	gridZoneDirection->ChangeValue (m_gridZoneDirection);
+	mapOrientationAngle->ChangeValue (wxString::Format(wxT("%.6f"), m_mapOrientationAngle));
 
-	referenceSystemcb->SetSelection(m_referenceSystemSelection);
-	ellipsoidcb->SetSelection(m_ellipsoidSelection);
-	projectioncb->SetSelection(m_projectionSelection);
-	mapunitscb->SetSelection(m_mapUnitsSelection);
-	datumSelection->SetSelection(m_datumSelection);
+	referenceSystemcb->SetSelection (m_referenceSystemSelection);
+	ellipsoidcb->SetSelection (m_ellipsoidSelection);
+	projectioncb->SetSelection (m_projectionSelection);
+	mapunitscb->SetSelection (abs(m_mapUnitsSelection));
+	datumSelection->SetSelection (m_datumSelection);
 	
 	return true;
 	 

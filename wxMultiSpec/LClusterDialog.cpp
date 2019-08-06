@@ -455,14 +455,7 @@ void CMClusterDialog::CreateControls ()
 							wxSizerFlags(0).Expand().Border(wxTOP|wxRIGHT|wxBOTTOM, 12));
 	
 	bVSizer1->Add (bSizer137, wxSizerFlags(0));
-	/*
-	wxSizer* standardButtonSizer = CreateButtonSizer (wxOK | wxCANCEL);
-	#if defined multispec_wxmac
-		bVSizer1->Add (standardButtonSizer, wxSizerFlags(0).Right());
-	#else
-		bVSizer1->Add (standardButtonSizer, wxSizerFlags(0).Right().Border(wxTOP|wxBOTTOM, 12));
-	#endif
-	*/
+
 	CreateStandardButtons (bVSizer1);
 
    this->SetSizerAndFit (bVSizer1);
@@ -548,7 +541,7 @@ SInt16 CMClusterDialog::DoDialog (
 							  (double)m_probabilityThreshold,
 							  (SInt32)m_transparencyValue);
 
-   }	// end "if (returnCode == IDOK)"
+   	}	// end "if (returnCode == IDOK)"
 
 			// Set the variable containing the pointer to the overlay combo box to NULL.
 

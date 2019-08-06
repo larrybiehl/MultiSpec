@@ -1,6 +1,6 @@
 // LLegendList.h : header file
 //
-// Revised by Larry Biehl on 01/25/2019
+// Revised by Larry Biehl on 03/16/2019
 //
 #if !defined __LLEGLIST_H__
 #	define __LLEGLIST_H__
@@ -63,7 +63,9 @@ public:
    wxImageList             *m_ilist;
    bool                    listready;
 		    
-protected:								
+protected:		
+	void DrawListItems ();
+							
 	// Generated message map functions
 	void OnLButtonDblClk (wxListEvent& event);
 	void OnBeginDrag (wxListEvent& event);
@@ -77,7 +79,6 @@ protected:
 	void paintEvent(wxPaintEvent & evt);
 	//void render(wxDC&  dc);
 	//void paintNow();
-	void OnDrawItem();
 
 	DECLARE_EVENT_TABLE()
 	

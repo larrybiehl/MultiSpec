@@ -136,12 +136,12 @@ bool CMImageDoc::DoOpenDocument (const wxString& file)
 void CMImageDoc::Draw (CDC* pDC, CMImageView* pImageView)
 
 {
-	wxNode* pos = m_objects.First();
+	wxNode* pos = m_objects.First ();
 	while (pos)
     	{
-		CMDrawObject* object = (CMDrawObject*)pos->Data();
-		object->Draw(pDC, pImageView);
-		pos = pos->Next();
+		CMDrawObject* object = (CMDrawObject*)pos->Data ();
+		object->Draw (pDC, pImageView);
+		pos = pos->Next ();
 		
     	}	// end "while (pos != NULL)"
 

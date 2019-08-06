@@ -1,6 +1,6 @@
 // LStatisticsFrame.cpp : implementation file
 //
-// Revised by Larry Biehl on 02/12/2019
+// Revised by Larry Biehl on 04/26/2019
 //
 /*  Template for writing something to text window for debugging.             
 	int numberChars = sprintf ((char*)&gTextString3,
@@ -25,8 +25,44 @@ extern SInt16 GetCurrentField(
    SInt16 classFieldNumber);
 
 
-IMPLEMENT_DYNAMIC_CLASS(CMStatisticsFrame, wxDocChildFrame)
-//IMPLEMENT_DYNCREATE(CMStatisticsFrame, CFrameWnd)
+IMPLEMENT_DYNAMIC_CLASS (CMStatisticsFrame, wxDocChildFrame)
+
+
+
+BEGIN_EVENT_TABLE(CMStatisticsFrame, wxDocChildFrame)
+	//EVT_UPDATE_UI(wxID_CUT, CMStatisticsFrame::OnUpdateEditCut)
+	EVT_UPDATE_UI(ID_EDIT_CLEAR_SELECT_RECTANGLE, CMStatisticsFrame::OnUpdateEditClearSelectRectangle)
+   EVT_UPDATE_UI(ID_EDIT_SELECTION_RECTANGLE, CMStatisticsFrame::OnUpdateEditSelectionRectangle)
+   EVT_UPDATE_UI(ID_EDIT_SELECT_ALL, CMStatisticsFrame::OnUpdateEditSelectAll)
+
+	EVT_MENU (ID_EDIT_UNDO, CMStatisticsFrame::OnEditUndo)
+	EVT_MENU (wxID_CUT, CMStatisticsFrame::OnEditCut)
+	EVT_MENU (wxID_PASTE, CMStatisticsFrame::OnEditPaste)
+	EVT_MENU (ID_EDIT_CLEAR_SELECT_RECTANGLE, CMStatisticsFrame::OnEditClearSelectRectangle)
+	EVT_MENU (ID_EDIT_SELECTION_RECTANGLE, CMStatisticsFrame::OnEditSelectionRectangle)
+	EVT_MENU (ID_EDIT_SELECT_ALL, CMStatisticsFrame::OnEditSelectAll)
+
+   EVT_BUTTON(IDC_Project, CMStatisticsFrame::OnProject)
+   EVT_BUTTON(IDC_Class, CMStatisticsFrame::OnClass)
+   EVT_BUTTON(IDC_Field, CMStatisticsFrame::OnField)
+   EVT_BUTTON(IDC_Update, CMStatisticsFrame::OnUpdate)
+   EVT_CHECKBOX(IDC_Polygon, CMStatisticsFrame::OnPolygon)
+   EVT_BUTTON(IDC_Select, CMStatisticsFrame::OnSelect)
+   EVT_BUTTON(IDC_AddToList, CMStatisticsFrame::OnAddToList)
+   EVT_BUTTON(IDC_EditName, CMStatisticsFrame::OnEditName)
+	EVT_CHAR_HOOK (CMStatisticsFrame::OnCharHook)
+   EVT_COMBOBOX(IDC_ClassList, CMStatisticsFrame::OnSelendokClassList)
+   EVT_COMBOBOX(IDC_ListStatsCombo, CMStatisticsFrame::OnSelendokListStatsCombo)
+   EVT_COMBOBOX_DROPDOWN(IDC_ListStatsCombo, CMStatisticsFrame::OnListStatsComboDropDown)
+   EVT_COMBOBOX(IDC_HistogramStatsCombo, CMStatisticsFrame::OnSelendokHistogramStatsCombo)
+   EVT_COMBOBOX(IDC_StatsCombo, CMStatisticsFrame::OnSelendokStatsCombo)
+   EVT_COMBOBOX_DROPDOWN(IDC_HistogramStatsCombo, CMStatisticsFrame::OnHistogramStatsComboDropDown)
+   EVT_COMBOBOX_DROPDOWN(IDC_StatsCombo, CMStatisticsFrame::OnDropdownStatsTypeCombo)
+   EVT_LISTBOX(IDC_ListBox, CMStatisticsFrame::OnSelchangeListBox)
+   EVT_LISTBOX_DCLICK(IDC_ListBox, CMStatisticsFrame::OnDblclkListBox)
+END_EVENT_TABLE()
+
+
 
 CMStatisticsFrame::CMStatisticsFrame (void)
 
@@ -37,7 +73,7 @@ CMStatisticsFrame::CMStatisticsFrame (void)
 
 
 
-CMStatisticsFrame::CMStatisticsFrame(wxDocument* doc, wxView* view, wxDocParentFrame* parent, 
+CMStatisticsFrame::CMStatisticsFrame (wxDocument* doc, wxView* view, wxDocParentFrame* parent,
             wxWindowID id, const wxString& title, 
 				const wxPoint& pos, const wxSize& size, long style) : 
 		wxDocChildFrame (doc, view, parent, id, title, pos, size, style)
@@ -70,8 +106,6 @@ CMStatisticsFrame::CMStatisticsFrame(wxDocument* doc, wxView* view, wxDocParentF
    GetMainFrame()->m_menubar1->GetSize (&menuWidth, &menuHeight);
    yPosition = menuHeight + 3;
    Move (xPosition, yPosition);
-	
-			// Disable the polygon enter checkbox for now until implemented.
 			
 	wxAcceleratorEntry entries[32];
 	entries[0].Set(wxACCEL_CTRL, (int) 'O', ID_IMAGE_OPEN); 
@@ -81,7 +115,7 @@ CMStatisticsFrame::CMStatisticsFrame(wxDocument* doc, wxView* view, wxDocParentF
 	entries[4].Set(wxACCEL_CTRL, (int) 'P', ID_FILE_PRINT);
 	entries[5].Set(wxACCEL_CTRL, (int) 'Q', wxID_EXIT);
 	
-	entries[6].Set(wxACCEL_CTRL, (int) 'Z', wxID_UNDO);
+	entries[6].Set(wxACCEL_CTRL, (int) 'Z', ID_EDIT_UNDO);	// wxID_UNDO
 	entries[7].Set(wxACCEL_CTRL, (int) 'X', wxID_CUT);
 	entries[8].Set(wxACCEL_CTRL, (int) 'C', wxID_COPY);
 	entries[9].Set(wxACCEL_CTRL, (int) 'V', wxID_PASTE);
@@ -99,7 +133,7 @@ CMStatisticsFrame::CMStatisticsFrame(wxDocument* doc, wxView* view, wxDocParentF
 	entries[20].Set(wxACCEL_CTRL, (int) 'E', ID_PROC_ENHANCE_STATISTICS);	
 	entries[21].Set(wxACCEL_CTRL, (int) 'F', ID_PROC_FEATURE_EXTRACTION);	
 	entries[22].Set(wxACCEL_CTRL, (int) 'B', ID_PROC_FEATURE_SELECTION);	
-	entries[23].Set(wxACCEL_CTRL, (int) 'M', ID_PROC_CLASSIFY);	
+	entries[23].Set(wxACCEL_CTRL, (int) 'M', ID_PROC_CLASSIFY);
 	entries[24].Set(wxACCEL_CTRL, (int) 'Y', ID_PROC_LISTRESULTS);	
 	entries[25].Set(wxACCEL_CTRL, (int) 'E', ID_PROC_ENHANCE_STATISTICS);	
 	
@@ -112,44 +146,16 @@ CMStatisticsFrame::CMStatisticsFrame(wxDocument* doc, wxView* view, wxDocParentF
 	wxAcceleratorTable accel(32, entries);
 	SetAcceleratorTable (accel);
 
-}
+}	// end "CMStatisticsFrame"
+
 
 
 CMStatisticsFrame::~CMStatisticsFrame(void)
 {
 //   gProjectWindow = NULL;
 
-}		// end "~CMStatisticsFrame" 
+}	// end "~CMStatisticsFrame"
 
-
-BEGIN_EVENT_TABLE(CMStatisticsFrame, wxDocChildFrame)
-	EVT_UPDATE_UI(ID_EDIT_CLEAR_SELECT_RECTANGLE, CMStatisticsFrame::OnUpdateEditClearSelectRectangle)
-   EVT_UPDATE_UI(ID_EDIT_SELECTION_RECTANGLE, CMStatisticsFrame::OnUpdateEditSelectionRectangle)
-   EVT_UPDATE_UI(ID_EDIT_SELECT_ALL, CMStatisticsFrame::OnUpdateEditSelectAll)
-	
-	EVT_MENU(ID_EDIT_CLEAR_SELECT_RECTANGLE, CMStatisticsFrame::OnEditClearSelectRectangle)	
-	EVT_MENU(ID_EDIT_SELECTION_RECTANGLE, CMStatisticsFrame::OnEditSelectionRectangle)	
-	EVT_MENU(ID_EDIT_SELECT_ALL, CMStatisticsFrame::OnEditSelectAll)	
-
-   EVT_BUTTON(IDC_Project, CMStatisticsFrame::OnProject)
-   EVT_BUTTON(IDC_Class, CMStatisticsFrame::OnClass)
-   EVT_BUTTON(IDC_Field, CMStatisticsFrame::OnField)
-   EVT_BUTTON(IDC_Update, CMStatisticsFrame::OnUpdate)
-   EVT_CHECKBOX(IDC_Polygon, CMStatisticsFrame::OnPolygon)
-   EVT_BUTTON(IDC_Select, CMStatisticsFrame::OnSelect)
-   EVT_BUTTON(IDC_AddToList, CMStatisticsFrame::OnAddToList)
-   EVT_BUTTON(IDC_EditName, CMStatisticsFrame::OnEditName)
-	EVT_CHAR_HOOK (CMStatisticsFrame::OnCharHook)
-   EVT_COMBOBOX(IDC_ClassList, CMStatisticsFrame::OnSelendokClassList)
-   EVT_COMBOBOX(IDC_ListStatsCombo, CMStatisticsFrame::OnSelendokListStatsCombo)
-   EVT_COMBOBOX_DROPDOWN(IDC_ListStatsCombo, CMStatisticsFrame::OnListStatsComboDropDown)
-   EVT_COMBOBOX(IDC_HistogramStatsCombo, CMStatisticsFrame::OnSelendokHistogramStatsCombo)
-   EVT_COMBOBOX(IDC_StatsCombo, CMStatisticsFrame::OnSelendokStatsCombo)
-   EVT_COMBOBOX_DROPDOWN(IDC_HistogramStatsCombo, CMStatisticsFrame::OnHistogramStatsComboDropDown)
-   EVT_COMBOBOX_DROPDOWN(IDC_StatsCombo, CMStatisticsFrame::OnDropdownStatsTypeCombo)
-   EVT_LISTBOX(IDC_ListBox, CMStatisticsFrame::OnSelchangeListBox)
-   EVT_LISTBOX_DCLICK(IDC_ListBox, CMStatisticsFrame::OnDblclkListBox)
-END_EVENT_TABLE()
 
 
 void CMStatisticsFrame::ActivateStatisticsWindowItems (
@@ -551,15 +557,24 @@ void CMStatisticsFrame::OnCharHook (
 				wxKeyEvent& 									event)
 
 {
+	Boolean		eventHandledFlag = false;
+	
+	
    CMTool* pTool = CMTool::FindTool(CMTool::c_toolType);
 	if (pTool != NULL)
 		{
 		int keyCode = event.GetKeyCode ();
 	
 		if (keyCode == WXK_RETURN || keyCode == WXK_NUMPAD_ENTER)
-			pTool->OnCharHook();
+			{
+			eventHandledFlag = pTool->OnCharHook ();
+			
+			}	// end "if (keyCode == WXK_RETURN || ..."
 		
 		}	// end "if (pTool != NULL)"
+	
+	if (!eventHandledFlag)
+		event.Skip ();
 
 }	// end "OnCharHook"
 
@@ -672,10 +687,6 @@ void CMStatisticsFrame::OnDropdownStatsTypeCombo(wxCommandEvent& event)
 
    comboBoxPtr->SetClientData(1, (void*)kLeaveOneOutStats);
 
-   // Make sure that the drown down selection is drawn properly.
-
-//   DDX_CBIndex(m_dialogToPtr, IDC_StatsCombo, m_statsTypeCode); ??
-
 } // end "OnDropdownStatsTypeCombo"
 
 
@@ -693,6 +704,17 @@ void CMStatisticsFrame::OnEditClearSelectRectangle(wxCommandEvent& event)
 }		// end "OnEditClearSelectRectangle"
 
 
+
+void CMStatisticsFrame::OnEditCut (wxCommandEvent& event)
+
+{
+	if (gActiveWindowType == kProjectWindowType)
+		DoStatisticsWCut ();
+	
+}		// end "OnEditCut"
+
+
+
 void CMStatisticsFrame::OnEditName(wxCommandEvent& event) 
 {
    Point location;
@@ -707,7 +729,18 @@ void CMStatisticsFrame::OnEditName(wxCommandEvent& event)
       location,
       kEditNameControl);
    
-} // end "OnEditName"
+}	// end "OnEditName"
+
+
+
+void CMStatisticsFrame::OnEditPaste(wxCommandEvent& event)
+
+{
+	if (gActiveWindowType == kProjectWindowType)
+		DoStatisticsWPaste ();
+	
+}	// end "OnEditPaste"
+
 
 
 void CMStatisticsFrame::OnEditSelectionRectangle(wxCommandEvent& event)
@@ -723,6 +756,17 @@ void CMStatisticsFrame::OnEditSelectAll(wxCommandEvent& event)
 	DoEditSelectAllImage (gProjectSelectionWindow);
 	
 }		// end "OnEditSelectAll"
+
+
+
+void CMStatisticsFrame::OnEditUndo(wxCommandEvent& event)
+
+{
+	if (gActiveWindowType == kProjectWindowType)
+		DoStatisticsWUndo ();
+	
+}	// end "OnEditUndo"
+
 
 
 void CMStatisticsFrame::OnField(wxCommandEvent& event) 
@@ -814,10 +858,13 @@ void CMStatisticsFrame::OnPolygon(wxCommandEvent& event)
       location,
       kPolygonEnterControl);
    
-} // end "OnPolygon"
+}	// end "OnPolygon"
 
 
-void CMStatisticsFrame::OnProject(wxCommandEvent& event) 
+
+void CMStatisticsFrame::OnProject (
+				wxCommandEvent& 									event)
+
 {
    Point location;
 
@@ -832,12 +879,11 @@ void CMStatisticsFrame::OnProject(wxCommandEvent& event)
 		
 	ActivateStatisticsWindowItems (gProjectInfoPtr->statsWindowMode);
    
-   SetUpToolTip(m_button56, IDS_ToolTip3);
-   SetUpToolTip(m_button60, IDS_ToolTip18);
+   SetUpToolTip (m_button56, IDS_ToolTip3);
+   SetUpToolTip (m_button60, IDS_ToolTip18);
    
-//   m_tooltipEdit->SetTip(wxT("Edit the class name"));
-//   m_tooltipUpdate->SetTip(wxT("Update project statistics if training fields have been changed"));
-} // end "OnProject"
+}	// end "OnProject"
+
 
 
 void CMStatisticsFrame::OnSelchangeListBox(wxCommandEvent& event) 
@@ -846,13 +892,15 @@ void CMStatisticsFrame::OnSelchangeListBox(wxCommandEvent& event)
 
 
    cellIndex = gStatisticsListHandle->GetSelection();
-   if (cellIndex >= 0) {
-      if (gProjectInfoPtr->statsWindowMode == 2) {
+   if (cellIndex >= 0)
+   	{
+      if (gProjectInfoPtr->statsWindowMode == 2)
+      	{
          gProjectInfoPtr->currentClass = cellIndex;
          MHiliteControl(gProjectWindow, gProjectInfoPtr->toClassControlH, 0);
          MHiliteControl(gProjectWindow, gProjectInfoPtr->editNameControlH, 0);
 
-      } // end "if (gProjectInfoPtr->statsWindowMode == 2)" 
+      	} // end "if (gProjectInfoPtr->statsWindowMode == 2)"
 
       if (gProjectInfoPtr->statsWindowMode == 3) {
          gProjectInfoPtr->currentField =
@@ -905,7 +953,9 @@ void CMStatisticsFrame::OnSelchangeListBox(wxCommandEvent& event)
 } // end "OnSelchangeListBox"
 
 
-void CMStatisticsFrame::OnSelect(wxCommandEvent& event)
+void CMStatisticsFrame::OnSelect (
+				wxCommandEvent& 					event)
+
 {
    Point location;
 
@@ -919,9 +969,10 @@ void CMStatisticsFrame::OnSelect(wxCommandEvent& event)
 										kNewFieldControl);
 		
 	ActivateStatisticsWindowItems (gProjectInfoPtr->statsWindowMode);
-   SetUpToolTip(m_button56, IDS_ToolTip13);
-//   m_tooltipEdit->SetTip(wxT("Edit the line and column coordinates of the selected rectangular area"));
-} // end "OnSelect"
+   SetUpToolTip (m_button56, IDS_ToolTip13);
+
+}	// end "OnSelect"
+
 
 
 void CMStatisticsFrame::OnSelendokClassList(wxCommandEvent& event)
@@ -1045,6 +1096,7 @@ void CMStatisticsFrame::OnSelendokStatsCombo(wxCommandEvent& event)
 
 
 void CMStatisticsFrame::OnUpdate(wxCommandEvent& event) 
+
 {
    Point location;
 
@@ -1052,14 +1104,12 @@ void CMStatisticsFrame::OnUpdate(wxCommandEvent& event)
    location.h = 0;
    location.v = 0;
 
-   StatisticsWControlEvent (
-      gProjectInfoPtr->updateControlH,
-      FALSE,
-      location,
-      kUpdateStatsControl);
-   
-   
-} // end "OnUpdate"
+   StatisticsWControlEvent (gProjectInfoPtr->updateControlH,
+										FALSE,
+										location,
+										kUpdateStatsControl);
+	
+}	// end "OnUpdate"
 
 
 void CMStatisticsFrame::OnUpdateEditClearSelectRectangle(wxUpdateUIEvent&  pCmdUI)

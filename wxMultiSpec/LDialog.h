@@ -12,7 +12,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			11/13/2018
+//	Revision date:			03/19/2019
 //
 //	Language:				C++
 //
@@ -258,7 +258,12 @@ protected:
    
    //   WindowInfoPtr      m_imageWindowInfoPtr;
    
-   double m_doubleValueCheck;
+   double 			m_doubleValueCheck,
+   					m_double2DigitValueCheck,
+   					m_double4DigitValueCheck,
+   					m_double6DigitValueCheck,
+   					m_double8DigitValueCheck,
+   					m_double10DigitValueCheck;
    
    int m_channelSelection;
    int m_classSelection;

@@ -195,11 +195,6 @@ void CMListDataDialog::CreateControls ()
 {
 	this->SetSizeHints (wxDefaultSize, wxDefaultSize);
 	
-	wxBitmap entireimi = wxBITMAP_PNG_FROM_DATA (entireim);
-	wxBitmap toentirei = wxBITMAP_PNG_FROM_DATA (toentire);
-	wxBitmap selectedi = wxBITMAP_PNG_FROM_DATA (selected);
-	wxBitmap bmp4i = wxBITMAP_PNG_FROM_DATA (bmp4);
-	
 	//bSizer155 = new wxBoxSizer (wxHORIZONTAL);
 	bSizer155 = new wxBoxSizer (wxVERTICAL);
 	
@@ -288,35 +283,7 @@ void CMListDataDialog::CreateControls ()
    																IDC_LineColFrame,
    																wxT("Selected Area"));
 	sbSizer29 = new wxStaticBoxSizer (areaStaticBox, wxHORIZONTAL);
-	/*
-	wxBoxSizer* bSizer791;
-	bSizer791 = new wxBoxSizer (wxHORIZONTAL);
-	
-	m_bpButton4 = new wxBitmapButton (areaStaticBox,
-													IDEntireImage,
-													entireimi,
-													wxDefaultPosition,
-													wxDefaultSize,
-													wxBU_AUTODRAW);
-	m_bpButton4->SetBitmapDisabled (toentirei);
-   SetUpToolTip (m_bpButton4, IDS_ToolTip40);
-	bSizer791->Add (m_bpButton4,
-							wxSizerFlags(0).Align(wxALIGN_CENTER_VERTICAL).Border(wxALL, 5));
 
-	m_bpButton5 = new wxBitmapButton (areaStaticBox,
-													IDSelectedImage,
-													selectedi,
-													wxDefaultPosition,
-													wxDefaultSize,
-													wxBU_AUTODRAW);
-	m_bpButton5->SetBitmapDisabled (selectedi);
-	bSizer791->Add (m_bpButton5,
-							wxSizerFlags(0).Align(wxALIGN_CENTER_VERTICAL).Border(wxALL, 5));
-	m_bpButton5->Hide();
-	
-   //sbSizer29->Add (bSizer791, 0, wxEXPAND, 5);
-	sbSizer29->Add (bSizer791, wxSizerFlags(0).Expand());
-	*/
 	CreateLineColumnControls (sbSizer29);
 	
 	bSizer163->Add (sbSizer29,

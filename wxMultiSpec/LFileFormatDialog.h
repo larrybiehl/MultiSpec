@@ -1,6 +1,6 @@
 // LFileFormatDialog.h : header file
 //        
-//	Revised by Larry Biehl on 06/20/2017
+//	Revised by Larry Biehl on 03/12/2019
 //
 #if !defined __LFORMDLG_H__
 #define	__LFORMDLG_H__   
@@ -60,8 +60,7 @@ public:
     int m_bandInterleave;
     int m_hdfDataSetSelection;
     int m_collapseClassSelection;
-    //}}AFX_DATA
-
+	
     int m_eightBitsPerDataSelection;
     void* m_menuclientdata;
 	 
@@ -143,14 +142,15 @@ protected:
 	wxButton* m_button8;
 	wxButton* m_button9;
 	wxButton* m_button10;
-
+	
+	void OnActivate (wxActivateEvent& event);
 	void OnSelendokBandInterleave(wxCommandEvent& event);
 	void OnSelendokDataValueType(wxCommandEvent& event);
 	void OnDetermineNumClasses(wxCommandEvent& event);
 	void OnSelendokHDFDataSet(wxCommandEvent& event);
 	void OnPaint(wxPaintEvent& event);
 	void ShowMultipleDataSetMessage(void);
-	void OnShow(wxShowEvent& event); 
+	void OnShow(wxShowEvent& event);
 
 	DECLARE_EVENT_TABLE()
 

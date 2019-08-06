@@ -1,6 +1,6 @@
 // LStatisticsView.cpp : implementation file
 //      
-// Revised by Larry Biehl on 01/16/2019
+// Revised by Larry Biehl 04 01/12/2019
 //
 #include "SMultiSpec.h"
 
@@ -10,6 +10,7 @@
 #include "LStatisticsView.h"
 #include "LStatisticsDoc.h"
 #include "LStatisticsFrame.h"
+#include "LTools.h"
 	
 #include "wx/wx.h"
 #include "wx/docview.h"
@@ -160,37 +161,64 @@ bool CMStatisticsView::OnClose (bool deleteWindow)
 		}
 	*/
 	
-}		// end "OnClose"
+}	// end "OnClose"
 
 
 void CMStatisticsView::OnInitialUpdate (void)
 
 {
    CMStatisticsDoc* documentPtr = GetDocument();
-   documentPtr->SetStatisticsFrame((CMStatisticsFrame*)gProjectWindow);
+   documentPtr->SetStatisticsFrame ((CMStatisticsFrame*)gProjectWindow);
    
 	gProjectWindow = (CMImageView*)this;
-	gStatisticsListHandle = (wxListBox*)m_frame->FindWindow(IDC_ListBox);
+	gStatisticsListHandle = (wxListBox*)m_frame->FindWindow (IDC_ListBox);
 
 			// Add current list of classes to the combo box.
 
-   CreateClassNameComboBoxList((wxComboBox*) m_frame->FindWindow(IDC_ClassList));
+   CreateClassNameComboBoxList ((wxComboBox*)m_frame->FindWindow (IDC_ClassList));
 
-   MHiliteControl(gProjectWindow, gProjectInfoPtr->addToControlH, 1);
+   MHiliteControl (gProjectWindow, gProjectInfoPtr->addToControlH, 1);
 
 			// This control is no longer used.
 
-   wxComboBox* classList = (wxComboBox*) m_frame->FindWindow(IDC_ClassList);
-   classList->SetSelection(m_classList);
+   wxComboBox* classList = (wxComboBox*)m_frame->FindWindow (IDC_ClassList);
+   classList->SetSelection (m_classList);
 
-   wxComboBox* comboBoxPtr = (wxComboBox*) m_frame->FindWindow(IDC_StatsCombo);
+   wxComboBox* comboBoxPtr = (wxComboBox*)m_frame->FindWindow (IDC_StatsCombo);
 
    comboBoxPtr->SetClientData(0, (void*)kOriginalStats);
    comboBoxPtr->SetClientData(1, (void*)kLeaveOneOutStats);
    comboBoxPtr->SetClientData(2, (void*)kEnhancedStats);
    comboBoxPtr->SetClientData(3, (void*)kMixedStats);
 
-   WriteProjectName();
+   WriteProjectName ();
+	
+			// If a selected area exists in the project window indicate that it
+			// is available for adding to the list of statistics areas.
+	
+	Handle windowInfoHandle = GetWindowInfoHandle (gActiveImageViewCPtr);
+	if (OffscreenImageMapExists (windowInfoHandle))
+		{
+				// Get handle to the selection information for the window.
+
+		Handle selectionInfoHandle = GetSelectionInfoHandle (windowInfoHandle);
+		SelectionInfoPtr selectionInfoPtr =
+								(SelectionInfoPtr)GetHandlePointer (selectionInfoHandle);
+
+		if (selectionInfoPtr != NULL)
+			{
+			if (selectionInfoPtr->typeFlag == kRectangleType ||
+														selectionInfoPtr->typeFlag == kPolygonType)
+				{
+				CMTool* pTool = CMTool::FindTool(CMTool::c_toolType);
+				if (pTool != NULL)
+					pTool->c_flag_addtolist = TRUE;
+				
+				}	// end "if (selectionInfoPtr->typeFlag == kRectangleType ..."
+			
+			}	// end "if (selectionInfoPtr != NULL)"
+	
+		}	// end "if (OffscreenImageMapExists (windowInfoHandle))"
 	
 }		// end "OnInitialUpdate"
 

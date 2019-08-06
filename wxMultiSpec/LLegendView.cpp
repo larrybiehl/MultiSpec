@@ -12,7 +12,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			02/20/2019
+//	Revision date:			03/13/2019
 //
 //	Language:				C++
 //
@@ -177,15 +177,15 @@ void CMLegendView::OnInitialUpdate (
       windowInfoPtr->legendListHandle = m_legendListBox;
 
    UpdateLegendComboBox ();
-
+	/*
 			// If the number of groups is 0, then do not allow the Groups option.
 
    if (m_imageViewCPtr->GetNumberGroups() <= 0 &&
    						((wxChoice*)FindWindow (IDC_COMBO1))->GetCount () > 2)
       ((wxChoice*)FindWindow(IDC_COMBO1))->Delete (kGroupDisplay - 1);
-
+	
    ((wxChoice*)FindWindow (IDC_COMBO1))->SetSelection (m_classGroupCode);
-
+	*/
 }	// end "OnInitialUpdate"
 
 
@@ -325,8 +325,8 @@ void CMLegendView::SetupView ()
    bSizer133 = new wxBoxSizer (wxVERTICAL);
 
    wxString m_choice16Choices[] = {wxT("Classes"),
-												wxT("Groups"),
-												wxT("Groups/ Classes")};
+												//wxT("Groups"),
+												wxT("Groups / Classes")};
    int m_choice16NChoices = sizeof (m_choice16Choices) / sizeof (wxString);
    m_choice16 = new wxChoice (this,
 										IDC_COMBO1,

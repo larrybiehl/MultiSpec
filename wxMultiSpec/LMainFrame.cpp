@@ -1,7 +1,13 @@
 // LMainFrame.cpp
 //
-//	Revised By:			Larry L. Biehl			Date: 02/21/2019
 // Revised by:			Tsung Tai Yeh			Date: 10/05/2015
+//	Revised By:			Larry L. Biehl			Date: 04/19/2019
+/*  Template for writing something to text window for debugging.
+	int numberChars = sprintf ((char*)&gTextString3,
+										" CMainFrame: : (): %s",
+										gEndOfLine);
+	ListString ((char*)&gTextString3, numberChars, gOutputTextH);
+*/
 
 #include "LMainFrame.h"
 #include "LAbout.h"
@@ -150,10 +156,12 @@ CMainFrame::CMainFrame (
 	wxMenuItem* m_menuItem13;
 	m_menuItem13 = new wxMenuItem(filemenu, ID_FILE_SAVE_PROJECT_AS, wxString(wxT("Save Project As...")), wxEmptyString, wxITEM_NORMAL);
 	filemenu->Append(m_menuItem13);
-
-	wxMenuItem* m_menuItem13b;
-	m_menuItem13b = new wxMenuItem(filemenu, ID_EXPORT_FILE_AS, wxString(wxT("Export File...")), wxT("Upload file to your computer"), wxITEM_NORMAL);
-	filemenu->Append(m_menuItem13b);
+	
+	#if defined multispec_wxlin
+		wxMenuItem* m_menuItem13b;
+		m_menuItem13b = new wxMenuItem(filemenu, ID_EXPORT_FILE_AS, wxString(wxT("Export File...")), wxT("Upload file to your computer"), wxITEM_NORMAL);
+		filemenu->Append(m_menuItem13b);
+	#endif
 
 	filemenu->AppendSeparator();
 
@@ -184,7 +192,8 @@ CMainFrame::CMainFrame (
 
 	editmenu = new wxMenu();
 	wxMenuItem* m_menuItem18;
-	m_menuItem18 = new wxMenuItem(editmenu, wxID_UNDO, wxString(wxT("&Undo")) + wxT('\t') + wxT("Ctrl+Z"), wxEmptyString, wxITEM_NORMAL);
+			// Note that wxID_UNDO and wxID_REDO do not seem to be caught.
+	m_menuItem18 = new wxMenuItem(editmenu, ID_EDIT_UNDO, wxString(wxT("&Undo")) + wxT('\t') + wxT("Ctrl+Z"), wxEmptyString, wxITEM_NORMAL);
 	editmenu->Append(m_menuItem18);
 
 	editmenu->AppendSeparator();
@@ -254,6 +263,7 @@ CMainFrame::CMainFrame (
 
 	#if defined multispec_wxlin
 		viewmenu = new wxMenu();
+	
 		wxMenuItem* m_menuItem31;
 		m_menuItem31 = new wxMenuItem (viewmenu, ID_VIEW_TOOLBAR, wxString(wxT("Toolbar")), wxEmptyString, wxITEM_CHECK);
 		viewmenu->Append (m_menuItem31);
@@ -263,7 +273,26 @@ CMainFrame::CMainFrame (
 		viewmenu->Append (m_menuItem32);
 
 		wxMenuItem* m_menuItem33;
-		m_menuItem33 = new wxMenuItem (viewmenu, ID_VIEW_COORDINATES_BAR, wxString(wxT("Coordinate View")), wxT("Show/hide coordinate info above active image window"), wxITEM_CHECK);
+		m_menuItem33 = new wxMenuItem (viewmenu,
+													ID_VIEW_COORDINATES_BAR,
+													wxString(wxT("Coordinate View")) + wxT('\t') + wxT("Ctrl+1"),
+													wxT("Show/hide coordinate info above active image window"),
+													wxITEM_CHECK);
+		viewmenu->Append (m_menuItem33);
+		m_menuItem33->Enable (false);
+
+		m_menubar1->Append(viewmenu, wxT("&View"));
+	#endif
+
+	#if defined multispec_wxmac
+		viewmenu = new wxMenu();
+
+		wxMenuItem* m_menuItem33;
+		m_menuItem33 = new wxMenuItem (viewmenu,
+													ID_VIEW_COORDINATES_BAR,
+													wxString(wxT("Coordinate View")) + wxT('\t') + wxT("Ctrl+1"),
+													wxT("Show/hide coordinate info above active image window"),
+													wxITEM_CHECK);
 		viewmenu->Append (m_menuItem33);
 		m_menuItem33->Enable (false);
 
@@ -431,24 +460,6 @@ CMainFrame::CMainFrame (
 	m_menubar1->Append(processormenu, wxT("P&rocessor"));
 
 	optionsmenu = new wxMenu();
-	/*
-	m_menu4 = new wxMenu();
-	wxMenuItem* m_menuItem71;
-	m_menuItem71 = new wxMenuItem(m_menu4, ID_OPTIONS_PALETTE_SHOW_CLASSES, wxString(wxT("Show Classes")), wxEmptyString, wxITEM_NORMAL);
-	m_menu4->Append(m_menuItem71);
-
-	wxMenuItem* m_menuItem72;
-	m_menuItem72 = new wxMenuItem(m_menu4, ID_OPTIONS_PALETTE_SHOW_INFORMATION_GROUPS, wxString(wxT("Show Information Groups")), wxEmptyString, wxITEM_NORMAL);
-	m_menu4->Append(m_menuItem72);
-
-	m_menu4->AppendSeparator();
-
-	wxMenuItem* m_menuItem73;
-	m_menuItem73 = new wxMenuItem(m_menu4, ID_OPTIONS_PALETTE_INVERT_PALETTE, wxString(wxT("Invert Pallette")), wxEmptyString, wxITEM_NORMAL);
-	m_menu4->Append(m_menuItem73);
-
-	optionsmenu->Append(-1, wxT("Palette"), m_menu4);
-	*/
 	wxMenuItem* m_menuItem69;
 	m_menuItem69 = new wxMenuItem(optionsmenu, ID_OPT_MEMORY_STATUS, wxString(wxT("Memory Status...")) + wxT('\t') + wxT("Ctrl+\\"), wxEmptyString, wxITEM_NORMAL);
 	optionsmenu->Append(m_menuItem69);
@@ -532,39 +543,76 @@ CMainFrame::CMainFrame (
 
 	 windowmenu->AppendSeparator();
 	*/
-	wxMenuItem* m_menuItem90;
-	m_menuItem90 = new wxMenuItem (windowmenu,
-												ID_WINDOW_SHOW_COORDINATE_VIEW,
-												wxString (wxT("&Show Coordinate View")),
-												wxT("Show/hide coordinate info above active image window"),
-												wxITEM_NORMAL);
-	windowmenu->Append (m_menuItem90);
+	#if defined multispec_wxlin
+		/*
+		wxMenuItem* m_menuItem90;
+		m_menuItem90 = new wxMenuItem (windowmenu,
+													ID_WINDOW_SHOW_COORDINATE_VIEW,
+													wxString (wxT("&Show Coordinate View")) + wxT('\t') + wxT("Ctrl+1"),
+													wxT("Show/hide coordinate info above active image window"),
+													wxITEM_NORMAL);
+		windowmenu->Append (m_menuItem90);
 
-	windowmenu->AppendSeparator ();
+		windowmenu->AppendSeparator ();
+		*/
+		wxMenuItem* m_menuItem91;
+		m_menuItem91 = new wxMenuItem (windowmenu,
+													ID_WINDOW_NEW_SELECTION_GRAPH,
+													wxString(wxT("New Selection Window")) + wxT('\t') + wxT("Ctrl+2"),
+													wxEmptyString,
+													wxITEM_NORMAL);
+		windowmenu->Append(m_menuItem91);
+	 
+		windowmenu->AppendSeparator();
 
-	wxMenuItem* m_menuItem91;
-	m_menuItem91 = new wxMenuItem(windowmenu, ID_WINDOW_NEW_SELECTION_GRAPH, wxString(wxT("New Selection Window")), wxEmptyString, wxITEM_NORMAL);
-	windowmenu->Append(m_menuItem91);
- 
-	windowmenu->AppendSeparator();
+		wxMenuItem* m_menuItem92;
+		m_menuItem92 = new wxMenuItem(windowmenu, ID_WINDOW_TEXT_OUTPUT, wxString(wxT("Text Output")), wxEmptyString, wxITEM_CHECK);
+		windowmenu->Append(m_menuItem92);
 
-	wxMenuItem* m_menuItem92;
-	m_menuItem92 = new wxMenuItem(windowmenu, ID_WINDOW_TEXT_OUTPUT, wxString(wxT("Text Output")), wxEmptyString, wxITEM_CHECK);
-	windowmenu->Append(m_menuItem92);
-
-	wxMenuItem* m_menuItem93;
-	m_menuItem93 = new wxMenuItem(windowmenu, ID_WINDOW_PROJECT, wxString(wxT("Project")), wxEmptyString, wxITEM_CHECK);
-	windowmenu->Append(m_menuItem93);
+		wxMenuItem* m_menuItem93;
+		m_menuItem93 = new wxMenuItem(windowmenu, ID_WINDOW_PROJECT, wxString(wxT("Project")), wxEmptyString, wxITEM_CHECK);
+		windowmenu->Append(m_menuItem93);
+	#endif
 
 	m_menubar1->Append(windowmenu, wxT("&Window"));
 
-	helpmenu = new wxMenu();
-	wxMenuItem* m_menuItem2;
-	m_menuItem2 = new wxMenuItem(helpmenu, wxID_ABOUT, wxString(wxT("About MultiSpec...")), wxT("Display MultiSpec Information"), wxITEM_NORMAL);
-	helpmenu->Append(m_menuItem2);
+	//#if defined multispec_wxlin
+		helpmenu = new wxMenu ();
+		wxMenuItem* m_menuItem2;
+		m_menuItem2 = new wxMenuItem (helpmenu, wxID_ABOUT, wxString(wxT("About MultiSpec...")), wxT("Display MultiSpec Information"), wxITEM_NORMAL);
+		helpmenu->Append (m_menuItem2);
 
-	m_menubar1->Append(helpmenu, wxT("&Help"));
+		m_menubar1->Append(helpmenu, wxT("&Help"));
+	//#endif
+	
+	//m_menubar1->m_rootMenu->SetAllowRearrange (false);
+	
 	this->SetMenuBar (m_menubar1);
+	
+	#if defined multispec_wxmac
+		int menu = m_menubar1->FindMenu (wxT("Window"));
+		wxMenu* windowsMenu = m_menubar1->GetMenu (menu);
+		
+		windowsMenu->AppendSeparator ();
+		/*
+		wxMenuItem* m_menuItem90;
+		m_menuItem90 = new wxMenuItem (windowmenu,
+													ID_WINDOW_SHOW_COORDINATE_VIEW,
+													wxString (wxT("&Show Coordinate View")),
+													wxT("Show/hide coordinate info above active image window"),
+													wxITEM_NORMAL);
+		windowsMenu->Append (m_menuItem90);
+		*/
+		//windowmenu->AppendSeparator ();
+
+		wxMenuItem* m_menuItem91;
+		m_menuItem91 = new wxMenuItem (windowmenu,
+													ID_WINDOW_NEW_SELECTION_GRAPH,
+													wxString(wxT("New Selection Window")) + wxT('\t') + wxT("Ctrl+2"),
+													wxEmptyString,
+													wxITEM_NORMAL);
+		windowsMenu->Append (m_menuItem91);
+	#endif
 	
 	#if defined multispec_wxlin
 		//statusBar = this->CreateStatusBar(3, wxST_SIZEGRIP, wxID_ANY);
@@ -690,7 +738,7 @@ BEGIN_EVENT_TABLE(CMainFrame, wxDocParentFrame)
 	EVT_UPDATE_UI(wxID_COPY, CMainFrame::OnUpdateEditCopy)
 	EVT_UPDATE_UI(wxID_PASTE, CMainFrame::OnUpdateEditPaste)
 	EVT_UPDATE_UI(wxID_CLEAR, CMainFrame::OnUpdateEditClear)
-	EVT_UPDATE_UI(wxID_UNDO, CMainFrame::OnUpdateEditUndo)
+	EVT_UPDATE_UI(ID_EDIT_UNDO, CMainFrame::OnUpdateEditUndo)
 	EVT_UPDATE_UI(ID_EDIT_SELECT_ALL, CMainFrame::OnUpdateEditSelectAll)
 	EVT_UPDATE_UI(ID_EDIT_CLEAR_SELECT_RECTANGLE, CMainFrame::OnUpdateEditClearSelectionRectangle)
 	EVT_UPDATE_UI(ID_EDIT_SELECTION_RECTANGLE, CMainFrame::OnUpdateEditSelectionRectangle)
@@ -783,9 +831,10 @@ BEGIN_EVENT_TABLE(CMainFrame, wxDocParentFrame)
 	EVT_MENU(ID_FILE_SAVE_PROJECT_AS, CMainFrame::OnProjSaveProjectAs)
 	EVT_MENU(ID_EXPORT_FILE_AS, CMainFrame::OnExportFile)
 
+	EVT_MENU(wxID_COPY, CMainFrame::OnEditCopy)
 	EVT_MENU(wxID_CUT, CMainFrame::OnEditCut)
 	EVT_MENU(wxID_PASTE, CMainFrame::OnEditPaste)
-	EVT_MENU(wxID_UNDO, CMainFrame::OnEditUndo)
+	EVT_MENU(ID_EDIT_UNDO, CMainFrame::OnEditUndo)
 	EVT_MENU(ID_EDIT_CLEAR_TRANS_MATRIX, CMainFrame::OnEditClearTransMatrix)
 	EVT_MENU(ID_EDIT_SELECT_ALL, CMainFrame::OnEditSelectAll)
 	EVT_MENU(ID_EDIT_SELECTION_RECTANGLE, CMainFrame::OnEditSelectionRectangle)
@@ -1167,34 +1216,59 @@ void CMainFrame::OnProjectHistogramStatistics(wxCommandEvent& event)
 }// end "OnProjectHistogramStatistics"
 */
 
-void CMainFrame::OnEditClearTransMatrix(wxCommandEvent& event) 
+void CMainFrame::OnEditClearTransMatrix (wxCommandEvent& event)
+
 {
     ClearTransformationMatrix(TRUE);
 
 } // end "OnEditClearTransMatrix"
 
 
-void CMainFrame::OnEditCut(wxCommandEvent& event)
+void CMainFrame::OnEditCopy (wxCommandEvent& event)
+
 {
-	DoStatisticsWCut ();
+	if (gActiveWindowType == kOutputWindowType)
+		gOutputViewCPtr->m_textsw->Copy ();
 	
-}		// end "OnEditCut"
+}	// end "OnEditCopy"
 
 
-void CMainFrame::OnEditPaste(wxCommandEvent& event)
+void CMainFrame::OnEditCut (wxCommandEvent& event)
 
-{                                             
-	DoStatisticsWPaste ();
+{
+	if (gActiveWindowType == kProjectWindowType)
+		DoStatisticsWCut ();
 	
-}		// end "OnEditPaste"
+	else if (gActiveWindowType == kOutputWindowType)
+		gOutputViewCPtr->m_textsw->Cut ();
+	
+}	// end "OnEditCut"
+
+
+
+void CMainFrame::OnEditPaste (wxCommandEvent& event)
+
+{
+	if (gActiveWindowType == kProjectWindowType)
+		DoStatisticsWPaste ();
+	
+	else if (gActiveWindowType == kOutputWindowType)
+		gOutputViewCPtr->m_textsw->Paste ();
+	
+}	// end "OnEditPaste"
 
 
 void CMainFrame::OnEditUndo(wxCommandEvent& event)
 
-{                                                                  
-	DoStatisticsWUndo ();
+{
+	if (gActiveWindowType == kProjectWindowType)
+		DoStatisticsWUndo ();
 	
-}		// end "OnEditUndo"
+	else if (gActiveWindowType == kOutputWindowType)
+		gOutputViewCPtr->m_textsw->Undo ();
+	
+}	// end "OnEditUndo"
+
 
 
 void CMainFrame::OnEditImageDescription(wxCommandEvent& event) 
@@ -1248,7 +1322,10 @@ void CMainFrame::OnEditSelectionRectangle(wxCommandEvent& event)
 } // end "OnEditSelectionRectangle"
 
 
-void CMainFrame::OnExportFile(wxCommandEvent& event) 
+
+void CMainFrame::OnExportFile (
+				wxCommandEvent& 								event)
+
 {
 	wxFrame* frame = GetActiveFrame();
     wxFileDialog openFileDialog(frame, _("Select File to Export"), "", "", "All files (*.*)|*.*", wxFD_OPEN | wxFD_FILE_MUST_EXIST /*| wxSTAY_ON_TOP*/);
@@ -1262,16 +1339,9 @@ void CMainFrame::OnExportFile(wxCommandEvent& event)
 }	// end "OnExportFile"
 
 
+
 void CMainFrame::OnFileCloseWindow(wxCommandEvent& event) 
 {
-	/*
-	int numberChars = sprintf ((char*)&gTextString3,
-												" CMainFrame::OnFileCloseWindow(): (gActiveImageViewCPtr, gProcessorCode): %ld, %d%s", 
-												gActiveImageViewCPtr,
-												gProcessorCode,
-												gEndOfLine);
-	ListString ((char*)&gTextString3, numberChars, gOutputTextH);
-	*/
 	if (gActiveWindowType == kImageWindowType ||
 					gActiveWindowType == kThematicWindowType) {
 		if (gActiveImageViewCPtr != NULL)
@@ -1603,17 +1673,21 @@ void CMainFrame::OnProcReformat(wxCommandEvent& event)
     gMemoryTypeNeeded = 0;
     gProcessorCode = 0;
 
-} // end "OnProcReformat"
+}	// end "OnProcReformat"
 
 
 void CMainFrame::OnProcStatistics(wxCommandEvent& event) 
 {
-    gProcessorCode = kStatisticsProcessor;
-    StatisticsControl();
-    gProcessorCode = 0;
-    gTextMemoryShortCode = 0;
+	if (GetEnableFlagForStatisticsAndCluster ())
+		{
+		gProcessorCode = kStatisticsProcessor;
+		StatisticsControl();
+		gProcessorCode = 0;
+		gTextMemoryShortCode = 0;
+		
+		}	// end "if (GetEnableFlagForStatisticsAndCluster ())"
 
-} // end "OnProcStatistics"
+}	// end "OnProcStatistics"
 
 void CMainFrame::OnProcClassify(wxCommandEvent& event) 
 {
@@ -1644,52 +1718,52 @@ void CMainFrame::OnProcUtilCheckCovariances(wxCommandEvent& event)
 } // end "OnProcUtilCheckCovariances"
 
 
-void CMainFrame::OnProcUtilListImageDesc(wxCommandEvent& event) 
+void CMainFrame::OnProcUtilListImageDesc(wxCommandEvent& event)
+
 {
 	gProcessorCode = kListDescriptionProcessor;
 	ListDescriptionInformation();
 	gMemoryTypeNeeded = 0;
 	gProcessorCode = 0;
 
-} // end "OnProcUtilListImageDesc"
+}	// end "OnProcUtilListImageDesc"
 
 
-void CMainFrame::OnProcCluster(wxCommandEvent& event) 
+void CMainFrame::OnProcCluster (
+				wxCommandEvent& event)
+
 {
-//	if (GetEnableFlagForStatisticsAndCluster()) {
+   if (GetEnableFlagForStatisticsAndCluster ())
+		{
 		gProcessorCode = kClusterProcessor;
 
 		if (gProjectInfoPtr == NULL)
-		  OpenNewProject();
+			OpenNewProject();
 
 		else // gProjectInfoPtr != NULL
-		  gProjectInfoPtr->newProjectFlag = FALSE;
+			gProjectInfoPtr->newProjectFlag = FALSE;
 
 		if (gProjectInfoPtr != NULL)
-		  ClusterControl();
+			ClusterControl();
 
-		this->Refresh();
-		this->Update();
+		//this->Refresh();
+		//this->Update();
 		gProcessorCode = 0;
 		gTextMemoryShortCode = 0;
-		
-//		}		// end "if (GetEnableFlagForStatisticsAndCluster())"
-
-} // end "OnProcCluster"
+	
+		}	// end "if (GetEnableFlagForStatisticsAndCluster ())"
+	
+}	// end "OnProcCluster"
 
 
 void CMainFrame::OnProjNewProject(wxCommandEvent& event) 
+
 {
-    //	OpenNewProject();
-
-    //	Handle windowInfoHandle = GetActiveImageWindowInfoHandle ();
-    //	LoadProjectFileAndLayerInformation (windowInfoHandle);
-
 	gProcessorCode = kStatisticsProcessor;
 	StatisticsControl();
 	gProcessorCode = 0;
 
-} // end "OnProjNewProject"
+}	// end "OnProjNewProject"
 
 
 void CMainFrame::OnProcUtilPrinCompAnalysis(wxCommandEvent& event) 
@@ -1748,28 +1822,29 @@ void CMainFrame::OnUpdateEditCut (wxUpdateUIEvent& pCmdUI)
 {	
 	bool	enableFlag = false,
 			defaultTextFlag = true;
+	
 
 	if (gProjectInfoPtr != NULL && gActiveWindowType == kProjectWindowType)
-		{			
-		if (gProjectInfoPtr->statsWindowMode == 2)
+		{
+		if (gProjectInfoPtr->statsWindowMode == kClassListMode)
 			{                
 			pCmdUI.SetText (wxT("&Cut Class\tCtrl+X"));
 			defaultTextFlag = false;
 			if (gProjectInfoPtr->currentClass >= 0)
 				enableFlag = true;
 			
-			}		// end "if (gProjectInfoPtr->statsWindowMode == 2)"
+			}		// end "if (gProjectInfoPtr->statsWindowMode == kClassListMode)"
 			
-		else if (gProjectInfoPtr->statsWindowMode == 3)
+		else if (gProjectInfoPtr->statsWindowMode == kFieldListMode)
 			{                                
 			pCmdUI.SetText (wxT("&Cut Field\tCtrl+X"));
 			defaultTextFlag = false;
 			if (gProjectInfoPtr->currentField >= 0)
 				enableFlag = true;
 			
-			}		// end "if (gProjectInfoPtr->statsWindowMode == 3)"
+			}		// end "if (gProjectInfoPtr->statsWindowMode == kFieldListMode)"
 			
-		else if (gProjectInfoPtr->statsWindowMode == 4)
+		else if (gProjectInfoPtr->statsWindowMode == kCoordinateListMode)
 			{                                
 					// Determine if this is a polygon field and if so if the number	
 					// of points is greater than 3.												
@@ -1792,11 +1867,25 @@ void CMainFrame::OnUpdateEditCut (wxUpdateUIEvent& pCmdUI)
 				defaultTextFlag = false;
 				enableFlag = true;
 				
-				}		// end "if (cutPolygonPointFlag)" 
+				}	// end "if (cutPolygonPointFlag)"
 							
-			}		// end "if (gProjectInfoPtr->statsWindowMode == 3)"
+			}	// end "if (gProjectInfoPtr->statsWindowMode == kCoordinateListMode)"
 
-		}		// end "if (gActiveWindowType == kProjectWindowType)"
+		}	// end "if (gActiveWindowType == kProjectWindowType)"
+	
+	else if (gActiveWindowType == kOutputWindowType)
+		{
+		long 		from,
+					to;
+		
+		pCmdUI.SetText (wxT("&Cut Text\tCtrl+X"));
+		defaultTextFlag = false;
+		
+		gOutputViewCPtr->m_textsw->GetSelection (&from, &to);
+		if (from != to)
+			enableFlag = true;
+	
+		}	// end "else if (gActiveWindowType == kOutputWindowType)"
 			
 	if (defaultTextFlag)
 		pCmdUI.SetText (wxT("&Cut\tCtrl+X"));
@@ -1819,7 +1908,7 @@ void CMainFrame::OnUpdateEditPaste (
 
 	if (gProjectInfoPtr != NULL && gActiveWindowType == kProjectWindowType)
 		{			
-		if (gProjectInfoPtr->statsWindowMode == 1)
+		if (gProjectInfoPtr->statsWindowMode == kSelectFieldMode)
 			{ 	              
 			if (gProjectInfoPtr->editFieldNumber >= 0 &&
 											gProjectInfoPtr->currentClass == -1)
@@ -1830,11 +1919,11 @@ void CMainFrame::OnUpdateEditPaste (
 																	kMaxNumberStatClasses-1) 
 					enableFlag = true;
 				
-				}		// end "if (gProjectInfoPtr->editFieldNumber >= 0 && ..."
+				}	// end "if (gProjectInfoPtr->editFieldNumber >= 0 && ..."
 			
-			}		// end "if (gProjectInfoPtr->statsWindowMode == 1)"
+			}	// end "if (gProjectInfoPtr->statsWindowMode == kSelectFieldMode)"
 		
-		else if (gProjectInfoPtr->statsWindowMode == 2)
+		else if (gProjectInfoPtr->statsWindowMode == kClassListMode)
 			{                     
 			if (gProjectInfoPtr->editFieldNumber >= 0 && 
 														gProjectInfoPtr->currentClass >= 0)
@@ -1851,9 +1940,9 @@ void CMainFrame::OnUpdateEditPaste (
 					defaultTextFlag = false;
 					enableFlag = TRUE;
 					
-					}		// end "if (classNumber != gProjectInfoPtr->currentClass)" 
+					}	// end "if (classNumber != gProjectInfoPtr->currentClass)"
 					
-				}		// end "if (gProjectInfoPtr->editFieldNumber >= 0 && ..." 
+				}	// end "if (gProjectInfoPtr->editFieldNumber >= 0 && ..."
 				
 			if (gProjectInfoPtr->editClassStorageNumber >= 0 && 
 														gProjectInfoPtr->currentClass >= 0)
@@ -1862,11 +1951,11 @@ void CMainFrame::OnUpdateEditPaste (
 				defaultTextFlag = false;
 				enableFlag = TRUE;                                           
 					
-				}		// end "if (gProjectInfoPtr->editClassStorageNumber ..." 
+				}	// end "if (gProjectInfoPtr->editClassStorageNumber ..."
 			
-			}		// end "if (gProjectInfoPtr->statsWindowMode == 2)"
+			}	// end "if (gProjectInfoPtr->statsWindowMode == kClassListMode)"
 			
-		else if (gProjectInfoPtr->statsWindowMode == 3)
+		else if (gProjectInfoPtr->statsWindowMode == kFieldListMode)
 			{                                       
 			if (gProjectInfoPtr->editFieldNumber >= 0)
 				{                         
@@ -1882,7 +1971,7 @@ void CMainFrame::OnUpdateEditPaste (
 				if (classNumber != gProjectInfoPtr->currentClass)
 					enableFlag = TRUE;                              
 					
-				}		// end "if (gProjectInfoPtr->editFieldNumber >= 0 && ..." 
+				}	// end "if (gProjectInfoPtr->editFieldNumber >= 0 && ..."
 				
 			if (gProjectInfoPtr->editClassStorageNumber >= 0)
 				{                  
@@ -1890,11 +1979,21 @@ void CMainFrame::OnUpdateEditPaste (
 				defaultTextFlag = false;
 				enableFlag = TRUE;                                           
 					
-				}		// end "if (gProjectInfoPtr->editClassStorageNumber ..." 
+				}	// end "if (gProjectInfoPtr->editClassStorageNumber ..."
 			
-			}		// end "if (gProjectInfoPtr->statsWindowMode == 3)" 
+			}	// end "if (gProjectInfoPtr->statsWindowMode == kFieldListMode)"
 			
-		}		// end "if (gActiveWindowType == kProjectWindowType)"
+		}	// end "if (gActiveWindowType == kProjectWindowType)"
+	
+	else if (gActiveWindowType == kOutputWindowType)
+		{
+		pCmdUI.SetText (wxT("&Paste Text\tCtrl+X"));
+		defaultTextFlag = false;
+		
+		if (gOutputViewCPtr->m_textsw->CanPaste ())
+			enableFlag = true;
+	
+		}	// end "else if (gActiveWindowType == kOutputWindowType)"
 		                       
 	if (defaultTextFlag)      
 		pCmdUI.SetText(wxT("Paste\tCtrl+V"));
@@ -1904,15 +2003,16 @@ void CMainFrame::OnUpdateEditPaste (
 }		// end "OnUpdateEditPaste"
 
 
-void CMainFrame::OnUpdateEditUndo(wxUpdateUIEvent&  pCmdUI)
+void CMainFrame::OnUpdateEditUndo (
+				wxUpdateUIEvent&  								pCmdUI)
+
 {                               
 	bool				enableFlag = false,
 						defaultTextFlag = true;
 	
-	
 	if (gProjectInfoPtr != NULL && gActiveWindowType == kProjectWindowType)
 		{	
-				// The Undo/Redo Cut Class item will be allowed for only the 'Select	
+				// The Undo/Redo Cut Class item will be allowed for only the 'Select
 				// Field' and 'Project Class List' stat window modes.						
 				
 		if (gProjectInfoPtr->editClassStorageNumber >= 0 ||
@@ -1933,19 +2033,32 @@ void CMainFrame::OnUpdateEditUndo(wxUpdateUIEvent&  pCmdUI)
 			if (gProjectInfoPtr->numberStatisticsClasses < kMaxNumberStatClasses-1)
 				enableFlag = true;
 						
-			}		// end "if gProjectInfoPtr->editClassStorageNumber >= 0 || ..."
+			}	// end "if gProjectInfoPtr->editClassStorageNumber >= 0 || ..."
 			
-		}		// end "if (gActiveWindowType == kProjectWindowType)"
+		}	// end "if (gActiveWindowType == kProjectWindowType)"
+	
+	else if (gActiveWindowType == kOutputWindowType)
+		{
+		pCmdUI.SetText (wxT("&Undo\tCtrl+X"));
+		defaultTextFlag = false;
+		
+		if (gOutputViewCPtr->m_textsw->CanUndo ())
+			enableFlag = true;
+	
+		}	// end "else if (gActiveWindowType == kOutputWindowType)"
 		                       
 	if (defaultTextFlag)      
 		pCmdUI.SetText(wxT("Undo\tCtrl+Z"));
 		                                                                                                                                                                                
 	pCmdUI.Enable(enableFlag);                                                   
 	
-}		// end "OnUpdateEditUndo"
+}	// end "OnUpdateEditUndo"
 
 
-void CMainFrame::OnUpdateEditClearSelectionRectangle(wxUpdateUIEvent& event) {
+
+void CMainFrame::OnUpdateEditClearSelectionRectangle(wxUpdateUIEvent& event)
+
+{
 	SInt16 selectionTypeCode;
 	Boolean enableFlag = false;
     
@@ -1969,30 +2082,58 @@ void CMainFrame::OnUpdateEditClearSelectionRectangle(wxUpdateUIEvent& event) {
 } // end "OnUpdateEditClearSelectionRectangle"
 
 
-void CMainFrame::OnUpdateEditCopy(wxUpdateUIEvent& pCmdUI) {
 
-	//wxBell();
-	/* Do not change text until implemented
-	Handle windowInfoHandle = GetActiveImageWindowInfoHandle();
+void CMainFrame::OnUpdateEditCopy (wxUpdateUIEvent& pCmdUI)
 
-	WindowInfoPtr windowInfoPtr = (WindowInfoPtr) GetHandlePointer(
-            windowInfoHandle,
-            kLock,
-            kNoMoveHi);
+{
+	bool				enableFlag = false,
+						defaultTextFlag = true;
+	
+	
+	if (gActiveWindowType == kImageWindowType)
+		{
+		/* Do not change text until implemented
+		Handle windowInfoHandle = GetActiveImageWindowInfoHandle();
 
-	Boolean enableFlag = UpdateEditImageCopy(&pCmdUI, windowInfoPtr);
+		WindowInfoPtr windowInfoPtr = (WindowInfoPtr) GetHandlePointer(
+					windowInfoHandle,
+					kLock,
+					kNoMoveHi);
 
-	CheckAndUnlockHandle(windowInfoHandle);
-	*/
-			// Will set to false until implemented
-	pCmdUI.Enable(false);
+		Boolean enableFlag = UpdateEditImageCopy(&pCmdUI, windowInfoPtr);
+
+		CheckAndUnlockHandle(windowInfoHandle);
+		*/
+		
+		}	// end "if (gActiveWindowType == kImageWindowType)"
+	
+	else if (gActiveWindowType == kOutputWindowType)
+		{
+		long 		from,
+					to;
+		
+		
+		pCmdUI.SetText (wxT("&Copy Text\tCtrl+X"));
+		defaultTextFlag = false;
+		
+		gOutputViewCPtr->m_textsw->GetSelection (&from, &to);
+		if (from != to)
+			enableFlag = true;
+	
+		}	// end "else if (gActiveWindowType == kOutputWindowType)"
+	
+	if (defaultTextFlag)
+		pCmdUI.SetText(wxT("Copy\tCtrl+Z"));
+	
+	pCmdUI.Enable (enableFlag);
 	
 } // end "OnUpdateEditCopy"
 
 
 void CMainFrame::OnUpdateEditSelectAll (wxUpdateUIEvent& event) {
 	
-	if (gActiveWindowType == kImageWindowType || gActiveWindowType == kThematicWindowType) {
+	if (gActiveWindowType == kImageWindowType || gActiveWindowType == kThematicWindowType)
+		{
 		UpdateEditImageSelectAll (&event);
 
 		Boolean rectangularSelectionFlag = GetRectangularSelectionFlag();
@@ -2003,7 +2144,8 @@ void CMainFrame::OnUpdateEditSelectAll (wxUpdateUIEvent& event) {
 																		
 		}
 		
-	else {	// gActiveWindowType == kOutputWindowType
+	else
+		{	// gActiveWindowType == kOutputWindowType
 		UpdateEditTextSelectAll (&event);
 		event.Enable(false);
       if(gOutputViewCPtr->m_textsw->GetNumberOfLines()>0 && gOutputViewCPtr->m_textsw->GetLineLength(0)>0)
@@ -2176,13 +2318,15 @@ void CMainFrame::OnUpdateClassify(wxUpdateUIEvent& pCmdUI)
 }
 
 
-void CMainFrame::OnUpdateCluster(wxUpdateUIEvent& pCmdUI) 
+void CMainFrame::OnUpdateCluster (wxUpdateUIEvent& pCmdUI)
+
 {
-	pCmdUI.Enable(GetEnableFlagForStatisticsAndCluster());
+	pCmdUI.Enable (GetEnableFlagForStatisticsAndCluster ());
+	
 }
 
 
-void CMainFrame::OnUpdateDisplayImage(wxUpdateUIEvent& pCmdUI) 
+void CMainFrame::OnUpdateDisplayImage (wxUpdateUIEvent& pCmdUI)
 {
 	//CMImageView* currentview = wxDynamicCast(GetDocumentManager()->GetCurrentView(), CMImageView);
 	//pCmdUI.Enable(currentview != NULL);
@@ -2921,12 +3065,12 @@ void CMainFrame::OnEditImageMapParameters(wxCommandEvent& event)
 }	// end "OnEditImageMapParameters"
 
 
-void CMainFrame::OnEditClearAllImageOverlays(wxCommandEvent& event) 
+void CMainFrame::OnEditClearAllImageOverlays (wxCommandEvent& event)
 {
-	CloseAllImageOverlayFiles();
+	CloseAllImageOverlayFiles ();
 	//CMImageView* currentview = wxDynamicCast(GetDocumentManager()->GetCurrentView(), CMImageView);
-	gActiveImageViewCPtr->OnUpdate(NULL, NULL);
-	(gActiveImageViewCPtr->m_Canvas)->Update();
+	gActiveImageViewCPtr->OnUpdate (NULL, NULL);
+	(gActiveImageViewCPtr->m_Canvas)->Update ();
 
 	if (gNumberShapeFiles == 0 && gSelectionGraphViewCPtr != NULL)
 		{
@@ -3563,11 +3707,6 @@ void CMainFrame::OnZoomInMouseDown (wxMouseEvent& event)
 {
 	//CMImageView* currentview = wxDynamicCast(GetDocumentManager()->GetCurrentView(), CMImageView);
 	
-	int numberChars = sprintf ((char*)&gTextString3,
-												" CMainFrame::OnZoomInMouseDown: (enter): %s", 
-												gEndOfLine);
-	ListString ((char*)&gTextString3, numberChars, gOutputTextH);	
-	
 	//if (gActiveImageViewCPtr != NULL) {
 	//	CMImageFrame* activechild = (CMImageFrame*) (currentview->GetFrame());
 	//	if (activechild != NULL)
@@ -3625,13 +3764,17 @@ void CMainFrame::OnShowOverlay (wxCommandEvent& event)
 }
 
 
-void CMainFrame::OnOverlaySelection(wxCommandEvent& event) {
+
+void CMainFrame::OnOverlaySelection (
+				wxCommandEvent& 								event)
+
+{
 
     SInt32 selection;
     bool continueFlag = TRUE,
             shiftKeyFlag;
 
-	selection = event.GetId() - ID_SHOWOVERLAYMENUITEMSTART + 1;
+	selection = event.GetId () - ID_SHOWOVERLAYMENUITEMSTART + 1;
 
 	shiftKeyFlag = false;
 
@@ -3645,13 +3788,13 @@ void CMainFrame::OnOverlaySelection(wxCommandEvent& event) {
 	if (continueFlag)
 		DoShowOverlaySelection (gActiveImageViewCPtr,
 										gActiveImageWindowInfoH,
-										(SInt16) selection,
+										(SInt16)selection,
 										m_optionOverlayFlag,
 										shiftKeyFlag);
 
     m_optionOverlayFlag = FALSE;
-    gActiveImageViewCPtr->m_frame->Refresh();
-    gActiveImageViewCPtr->m_frame->Update();
+    gActiveImageViewCPtr->m_frame->Refresh ();
+    gActiveImageViewCPtr->m_frame->Update ();
 
 }	// end "OnOverlaySelection"
 

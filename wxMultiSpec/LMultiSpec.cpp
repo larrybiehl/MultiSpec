@@ -2,7 +2,7 @@
  *	LMultiSpec.cpp
  *      
  * Copyright 2019 multispec
- *	Revised by Larry Biehl		on 01/29/2019
+ *	Revised by Larry Biehl		on 04/18/2019
  *	Revised by Tsung Tai Yeh	on 09/10/2015
  *      
  */
@@ -152,8 +152,17 @@ CMultiSpecApp::CMultiSpecApp ()
 			// This overrides the settings in SDecGlob.h. Not sure what the correct values
 			// should be yet.
 
-	gMaxRowBytes = 32767;
-	gMaxRowBytesFor24Bits = 32767;
+	#if defined multispec_wxmac
+				// Not sure what the max is. I have had as many as 240,000 columns work okay
+		gMaxRowBytes = 1000000;
+		gMaxRowBytesFor24Bits = 1000000;
+	#endif
+	#if defined mulitispec_wxlin
+				// It appears that he limiting factor is really the numer of lines by columns
+				// by 4; This needs to be less than 2,147,483,648. (SInt32_Max).
+		gMaxRowBytes = 65535;
+		gMaxRowBytesFor24Bits = 66535;
+	#endif
 	
 	m_openImageFileInfoHandle = NULL;
 	//m_nextControlTime = 0;
@@ -425,7 +434,7 @@ void CMultiSpecApp::MacOpenFiles (const wxArrayString & fileNames)
 	
 	MInitCursor ();
 }
-#endif
+#endif	// defined multispec_wxmac
 
 
 void CMultiSpecApp::OnCharHook (

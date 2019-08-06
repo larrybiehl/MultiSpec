@@ -178,14 +178,6 @@ void CMISODATAClusterDialog::CreateControls ()
 
 {
    this->SetSizeHints (wxDefaultSize, wxDefaultSize);
-   /*
-   wxBitmap entireimi = wxBITMAP_PNG_FROM_DATA (entireim);
-   wxBitmap toentirei = wxBITMAP_PNG_FROM_DATA (toentire);
-   wxBitmap selectedi = wxBITMAP_PNG_FROM_DATA (selected);
-   wxBitmap bmp4i = wxBITMAP_PNG_FROM_DATA (bmp4);
-	*/
-   //wxBoxSizer* bVSizer1;
-   //bVSizer1 = new wxBoxSizer (wxVERTICAL);
 	/*
    m_dialogPanel = new wxPanel (this,
    										wxID_ANY,

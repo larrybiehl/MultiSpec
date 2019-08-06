@@ -306,7 +306,7 @@ void CMStatOptionsDlg::OnInitDialog(wxInitDialogEvent& event)
 
 			// Set default text selection to first edit text item 
 
-   SelectDialogItemText(this, selectedItem, 0, SInt16_MAX);
+   SelectDialogItemText (this, selectedItem, 0, SInt16_MAX);
 
 } // end "OnInitDialog"
 

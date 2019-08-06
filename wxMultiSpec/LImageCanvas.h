@@ -3,7 +3,7 @@
  * Author: multispec
  *
  * Created on June 22, 2011, 5:00 PM
- * Revised by Larry Biehl		02/03/2019
+ * Revised by Larry Biehl		04/02/2019
  */
 
 #ifndef LIMAGECANVAS_H
@@ -23,20 +23,26 @@ class CMImageCanvas : public wxScrolledWindow
 	{
 	DECLARE_DYNAMIC_CLASS(CMImageCanvas)
 
-	void Init();
+	void Init ();
+	
+	wxRect 			m_Selection;
+	
+	CMImageView* 	m_View;
 	
 	wxPoint			m_TR;
 	wxPoint 			m_BL;
 	wxPoint 			unscrolledpt;
-	int 				size_h, size_w;
-	CMImageView* 	m_View;
-	wxRect 			m_Selection;
-	static wxSize	ScrollingIncrement;
-	bool 				m_displayImageFlag;
-
-	bool 				m_featureListShowFlag;
-	bool 				m_dataListShowFlag;
 	wxPoint 			m_LastSelectionPoint;
+	
+	int 				m_size_h,
+						m_size_w;
+	
+	static wxSize	ScrollingIncrement;
+	
+	bool 				m_dataListShowFlag,
+		 				m_displayImageFlag,
+						m_featureListShowFlag,
+		 				m_scrolledFlag;
     
 	public:
 		CMImageCanvas();
@@ -65,7 +71,7 @@ class CMImageCanvas : public wxScrolledWindow
 		wxPoint GetScrollPosition();
 
 		//void Scroll(wxPoint pt);
-		void CanvasScroll(int x, int y);
+		void CanvasScroll (int x, int y);
 
 		void FixViewOffset();
 		void AdjustScrollBars(bool callScrollFlag);

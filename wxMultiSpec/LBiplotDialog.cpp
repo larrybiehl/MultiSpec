@@ -154,12 +154,6 @@ void CMBiPlotDialog::CheckOKButton (void)
 void CMBiPlotDialog::CreateControls () 
 
 {
-	/*
-   wxBitmap entireimi = wxBITMAP_PNG_FROM_DATA (entireim);
-   wxBitmap toentirei = wxBITMAP_PNG_FROM_DATA (toentire);
-   wxBitmap selectedi = wxBITMAP_PNG_FROM_DATA (selected);
-   wxBitmap bmp4i = wxBITMAP_PNG_FROM_DATA (bmp4);
-   */
 	this->SetSizeHints (wxDefaultSize, wxDefaultSize);
 	
 	wxBoxSizer* bVSizerMain = new wxBoxSizer (wxVERTICAL);
@@ -528,27 +522,7 @@ void CMBiPlotDialog::CreateControls ()
 												0);
 	m_checkBox65->SetValue (true); 
 	bSizer280->Add (m_checkBox65, 0, wxLEFT, 15);
-	/*
-	wxBoxSizer* bSizer293;
-	bSizer293 = new wxBoxSizer (wxHORIZONTAL);
-	
-	m_button69 = new wxButton (this, 
-										wxID_CANCEL, 
-										wxT("Cancel"), 
-										wxDefaultPosition, 
-										wxDefaultSize, 
-										0);
-	bSizer293->Add (m_button69, wxSizerFlags(0).Border(wxRIGHT, 6));
-	
-	m_button70 = new wxButton (
-							this, wxID_OK, wxT("OK"), wxDefaultPosition, wxDefaultSize, 0);
-	bSizer293->Add (m_button70, wxSizerFlags(0));
-	
-	//bSizer280->Add (bSizer293, wxSizerFlags(0).Bottom().Right().Border(wxTOP,60));
-   bSizer280->Add (bSizer293, wxSizerFlags(0).Right().Border(wxTOP, 60));
-	*/
-	//bSizer278->Add (bSizer280, 0, wxBOTTOM|wxEXPAND|wxRIGHT|wxTOP, 12);
-   //bSizer278->Add (bSizer280, 0, wxEXPAND|wxRIGHT|wxTOP, 12);
+
    bSizer278->Add (bSizer280,
 						wxSizerFlags(0).Border(wxRIGHT|wxTOP, 12));
 	

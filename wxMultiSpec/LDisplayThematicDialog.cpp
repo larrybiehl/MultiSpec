@@ -157,11 +157,6 @@ END_EVENT_TABLE()
 void CMDisplayThematicDlg::CreateControls ()
 
 {
-	wxBitmap entireimi = wxBITMAP_PNG_FROM_DATA (entireim);
-	wxBitmap toentirei = wxBITMAP_PNG_FROM_DATA (toentire);
-	wxBitmap selectedi = wxBITMAP_PNG_FROM_DATA (selected);
-	wxBitmap bmp4i = wxBITMAP_PNG_FROM_DATA (bmp4);
-
 	this->SetSizeHints (wxDefaultSize, wxDefaultSize);
 
 	//wxBoxSizer* bSizer18;
@@ -185,90 +180,7 @@ void CMDisplayThematicDlg::CreateControls ()
 												wxHORIZONTAL);
 	
 	CreateLineColumnControls (sbSizer8);
-	/*
-	wxBoxSizer* bSizer791;
-	bSizer791 = new wxBoxSizer(wxHORIZONTAL);
 
-	//m_bpButton4 = new wxBitmapButton(sbSizer8->GetStaticBox(), IDEntireImage, wxBitmap(wxT("../../NetBeansProjects/CWP/project/trunk/res/entireim.bmp"), wxBITMAP_TYPE_ANY), wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW);
-	m_bpButton4 = new wxBitmapButton(sbSizer8->GetStaticBox(), IDEntireImage, entireimi, wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW);
-	m_bpButton4->SetBitmapDisabled(toentirei);
-	//m_bpButton4->SetToolTip(wxT("Switch between the user selected area and the entire image area"));
-   SetUpToolTip(m_bpButton4, IDS_ToolTip40);
-	bSizer791->Add(m_bpButton4, 0, wxALIGN_CENTER_VERTICAL | wxLEFT|wxTOP|wxBOTTOM, 5);
-
-	// m_bpButton5 = new wxBitmapButton(sbSizer8->GetStaticBox(), IDSelectedImage, wxBitmap(wxT("../../NetBeansProjects/CWP/project/trunk/res/selected.bmp"), wxBITMAP_TYPE_ANY), wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW);
-	m_bpButton5 = new wxBitmapButton(sbSizer8->GetStaticBox(), IDSelectedImage, selectedi, wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW);
-	m_bpButton5->SetBitmapDisabled(bmp4i);
-	bSizer791->Add(m_bpButton5, 0, wxALIGN_CENTER_VERTICAL | wxLEFT|wxTOP|wxBOTTOM, 5);
-
-
-	sbSizer8->Add(bSizer791, 0, wxEXPAND, 5);
-
-	wxGridSizer* gSizer1;
-	gSizer1 = new wxGridSizer(3, 4, 0, 0);
-
-	m_staticText63 = new wxStaticText(sbSizer8->GetStaticBox(), wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0);
-	m_staticText63->Wrap(-1);
-	gSizer1->Add(m_staticText63, 0, wxTOP|wxRIGHT|wxBOTTOM, 5);
-
-	m_staticText64 = new wxStaticText(sbSizer8->GetStaticBox(), wxID_ANY, wxT("Start"), wxDefaultPosition, wxDefaultSize, 0);
-	m_staticText64->Wrap(-1);
-	gSizer1->Add(m_staticText64, 0, wxALIGN_CENTER | wxALL, 5);
-
-	m_staticText65 = new wxStaticText(sbSizer8->GetStaticBox(), wxID_ANY, wxT("End"), wxDefaultPosition, wxDefaultSize, 0);
-	m_staticText65->Wrap(-1);
-	gSizer1->Add(m_staticText65, 0, wxALIGN_CENTER | wxALL, 5);
-
-	m_staticText66 = new wxStaticText(sbSizer8->GetStaticBox(), wxID_ANY, wxT("Interval"), wxDefaultPosition, wxDefaultSize, 0);
-	m_staticText66->Wrap(-1);
-	gSizer1->Add(m_staticText66, 0, wxALIGN_CENTER | wxALL, 5);
-
-	m_staticText60 = new wxStaticText(sbSizer8->GetStaticBox(), wxID_ANY, wxT("Line"), wxDefaultPosition, wxDefaultSize, 0);
-	m_staticText60->Wrap(-1);
-	gSizer1->Add(m_staticText60, 0, wxALIGN_RIGHT|wxALIGN_CENTER_VERTICAL | wxTOP|wxRIGHT|wxBOTTOM, 5);
-
-	m_linestartctrl = new wxTextCtrl(sbSizer8->GetStaticBox(), ID3C_LineStart, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0);
-   SetUpToolTip(m_linestartctrl, IDS_ToolTip19);
-	m_linestartctrl->SetValidator(wxTextValidator(wxFILTER_NUMERIC, &m_LineStartString));
-
-	gSizer1->Add(m_linestartctrl, 0, wxALIGN_CENTER | wxALL, 5);
-
-	m_lineendctrl = new wxTextCtrl(sbSizer8->GetStaticBox(), ID3C_LineEnd, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0);
-   SetUpToolTip(m_lineendctrl, IDS_ToolTip20);
-	m_lineendctrl->SetValidator(wxTextValidator(wxFILTER_NUMERIC, &m_LineEndString));
-
-	gSizer1->Add(m_lineendctrl, 0, wxALIGN_CENTER | wxALL, 5);
-
-	m_lineintctrl = new wxTextCtrl(sbSizer8->GetStaticBox(), ID3C_LineInterval, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0);
-   SetUpToolTip(m_lineintctrl, IDS_ToolTip21);
-	m_lineintctrl->SetValidator(wxTextValidator(wxFILTER_NUMERIC, &m_LineIntervalString));
-
-	gSizer1->Add(m_lineintctrl, 0, wxALIGN_CENTER | wxALL, 5);
-
-	m_staticText62 = new wxStaticText(sbSizer8->GetStaticBox(), wxID_ANY, wxT("Column"), wxDefaultPosition, wxDefaultSize, 0);
-	m_staticText62->Wrap(-1);
-	gSizer1->Add(m_staticText62, 0, wxALIGN_RIGHT|wxALIGN_CENTER_VERTICAL | wxTOP|wxRIGHT|wxBOTTOM, 5);
-
-	m_colstartctrl = new wxTextCtrl(sbSizer8->GetStaticBox(), ID3C_ColumnStart, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0);
-   SetUpToolTip(m_colstartctrl, IDS_ToolTip22);
-	m_colstartctrl->SetValidator(wxTextValidator(wxFILTER_NUMERIC, &m_ColumnStartString));
-
-	gSizer1->Add(m_colstartctrl, 0, wxALIGN_CENTER | wxALL, 5);
-
-	m_colendctrl = new wxTextCtrl(sbSizer8->GetStaticBox(), ID3C_ColumnEnd, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0);
-   SetUpToolTip(m_colendctrl, IDS_ToolTip23);
-	m_colendctrl->SetValidator(wxTextValidator(wxFILTER_NUMERIC, &m_ColumnEndString));
-
-	gSizer1->Add(m_colendctrl, 0, wxALIGN_CENTER | wxALL, 5);
-
-	m_colintctrl = new wxTextCtrl(sbSizer8->GetStaticBox(), ID3C_ColumnInterval, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0);
-   SetUpToolTip(m_colintctrl, IDS_ToolTip24);
-	m_colintctrl->SetValidator(wxTextValidator(wxFILTER_NUMERIC, &m_ColumnIntervalString));
-
-	gSizer1->Add(m_colintctrl, 0, wxALIGN_CENTER | wxALL, 5);
-
-	sbSizer8->Add(gSizer1, 1, wxEXPAND, 5);
-	*/
 	bSizer25->Add (sbSizer8, wxSizerFlags(0).Expand().Border(wxTOP|wxRIGHT|wxBOTTOM,5));
 
 	bSizer19->Add (bSizer25, wxSizerFlags(1).Expand().Border(wxTOP|wxRIGHT|wxBOTTOM,5));
@@ -604,37 +516,37 @@ void CMDisplayThematicDlg::OnBackgroundColor (
 		m_oldRGB = newRGB;
 
 		//InvalidateRect(NULL, FALSE);
-		Refresh(FALSE, NULL);
+		Refresh (FALSE, NULL);
 
-		wxColour* wxicolor = new wxColour(*wxWHITE);
+		wxColour* wxicolor = new wxColour (*wxWHITE);
 		//unsigned redc = (UChar) (m_oldRGB.red >> 8);
 		//unsigned greenc = (UChar) (m_oldRGB.green >> 8);
 		//unsigned bluec = (UChar) (m_oldRGB.blue >> 8);
 		//wxicolor->Set((UChar) (m_oldRGB.red >> 8), (UChar) (m_oldRGB.green >> 8), (UChar) (m_oldRGB.blue >> 8));
 
-		unsigned redc = (UChar)m_oldRGB.red;
-		unsigned greenc = (UChar)m_oldRGB.green;
-		unsigned bluec = (UChar)m_oldRGB.blue;
-		wxicolor->Set((UChar)m_oldRGB.red, (UChar)m_oldRGB.green, (UChar)m_oldRGB.blue);
+		//unsigned redc = (UChar)m_oldRGB.red;
+		//unsigned greenc = (UChar)m_oldRGB.green;
+		//unsigned bluec = (UChar)m_oldRGB.blue;
+		wxicolor->Set ((UChar)m_oldRGB.red, (UChar)m_oldRGB.green, (UChar)m_oldRGB.blue);
 
 		m_displaySpecsPtr->backgroundColor = m_oldRGB;
 
 		wxMemoryDC imdc;
-		wxBrush cbrush(*wxicolor);
-		wxBitmap legrect(16, 16);
-		imdc.SelectObject(legrect);
-		imdc.SetBrush(cbrush);
-		imdc.SetBackground(cbrush);
+		wxBrush cbrush (*wxicolor);
+		wxBitmap legrect (16, 16);
+		imdc.SelectObject (legrect);
+		imdc.SetBrush (cbrush);
+		imdc.SetBackground (cbrush);
 		//imdc.Clear();
-		wxRect rectDraw(0, 0, 16, 16);
-		imdc.DrawRectangle(rectDraw);
-		m_bitmap1->SetBitmap(legrect);
+		wxRect rectDraw (0, 0, 16, 16);
+		imdc.DrawRectangle (rectDraw);
+		m_bitmap1->SetBitmap (legrect);
 
 				// To indicate the color has been changed.
 		
 		m_localPaletteUpToDateFlag = FALSE;
 		
-		}	// end "if ( SelectColor ( 3, ..."
+		}	// end "if (SelectColor (3, ..."
 
 }	// end "OnBackgroundColor"
 

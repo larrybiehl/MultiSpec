@@ -23,7 +23,7 @@
 //
 //	Authors:					Larry L. Biehl, A.R. Maud
 //
-//	Revision date:			01/18/2019
+//	Revision date:			04/24/2019
 //
 /* Template for debugging
 	int numberChars = sprintf ((char*)gTextString3,
@@ -45,7 +45,7 @@
 #include "SExternalGlobals.h"
 
 #include "wx/listimpl.cpp"
-WX_DEFINE_LIST(CPtrList);
+WX_DEFINE_LIST (CPtrList);
 
 
 //------------------------------------------------------------------------------------
@@ -59,11 +59,8 @@ static CMSelectTool selectTool;
 
 LCToWindowUnitsVariables CMSelectTool::s_lcToWindowUnitsVariables;
 
-CPoint CMTool::c_down;
-CPoint CMTool::c_last;
-
-// Used by the idle handler.  
-CPoint CMTool::c_lastMousePoint;
+wxPoint CMTool::c_down;
+wxPoint CMTool::c_last;
 
 ToolType CMTool::c_toolType = selection;
 Boolean CMTool::c_nonClientAreaFlag = FALSE;
@@ -71,20 +68,33 @@ bool CMTool::c_flag_addtolist = FALSE;
 
 SInt16 CMTool::s_selectType = kRectangleType;
 
+
+
 CMTool::CMTool (
-				ToolType								toolType)
+				ToolType									toolType)
 
 {
-
     mToolType = toolType;
-    c_tools.Append(this);
+    c_tools.Append (this);
 
 }	// end "CMTool::CMTool"
 
 
 
+CMTool::~CMTool ()
+
+{
+			// Not sure if something like this is needed.
+			
+	//WX_CLEAR_LIST (wxToolBarToolsList, m_tools);
+
+}	// end "CMTool::~CMTool"
+
+
+
 CMTool* CMTool::FindTool (
 				ToolType									toolType)
+
 {
 	//POSITION pos = c_tools.GetHeadPosition();
 	CPtrList::Node* pos = c_tools.GetFirst ();
@@ -118,15 +128,17 @@ void CMTool::OnLButtonDblClk (
 void CMTool::OnLButtonDown (
 				CMImageView*						imageView,
 				UInt16								nFlags,
-				const CPoint						point)
+				const wxPoint						point)
 
 {
    if (!((imageView->m_Canvas)->HasCapture ()))
       (imageView->m_Canvas)->CaptureMouse ();
+	
+	//wxPoint scrollOffset = (imageView->m_Canvas)->GetScrollPosition ();
+	//c_down = point + scrollOffset;
 
 	c_down = point;
-	c_last = point;
-	c_lastMousePoint = point;
+	c_last = c_down;
 	c_nonClientAreaFlag = FALSE;
 
 }	// end "CMTool::OnLButtonDown"
@@ -136,18 +148,24 @@ void CMTool::OnLButtonDown (
 void CMTool::OnLButtonUp (
 				CMImageView*						imageView,
 				UInt16								nFlags,
-				const CPoint						point,
+				const wxPoint						point,
 				Boolean								newSelectedWindowFlag)
 
 {
+	wxPoint		localPoint;
+	
+	
 	if (s_selectType == kRectangleType)
 		{
 		if ((imageView->m_Canvas)->HasCapture ())
 			(imageView->m_Canvas)->ReleaseMouse ();
 		
 		}	// end "if (s_selectType == kRectangleType)"
+	
+	wxPoint scrollOffset = (imageView->m_Canvas)->GetScrollPosition ();
+	localPoint = point + scrollOffset;
 
-	if (point == c_down)
+	if (localPoint == c_down)
 		c_toolType = selection;
 
 	//c_last = point;
@@ -160,47 +178,45 @@ void CMTool::OnLButtonUp (
 Boolean CMTool::OnMouseMove (
 				CMImageView*						pImageView,
 				UInt16								nFlags,
-				const									CPoint point)
+				const wxPoint 						point,
+				Boolean								updateViewRectFlag)
 
 {
+	c_last = point;
 
-    c_last = point;
-
-    return (TRUE);
+	return (TRUE);
 
 }	// end "CMTool::OnMouseMove"
 
 
-/*
-void CMTool::OnChar (
-				CMImageView*						pView,
-				unsigned int						nChar)
-{
 
-}	// end "OnChar"
-*/
-
-
-void CMTool::OnCharHook ()
+Boolean CMTool::OnCharHook ()
 
 {
+	Boolean				returnFlag = FALSE;
+	
+	
 	if (c_flag_addtolist == TRUE)
 		{
 		if (gProjectInfoPtr != NULL)
 			{
-			Boolean	returnFlag;
-			
 			Point location;
 			location.h = 0;
 			location.v = 0;
 		
-			returnFlag = StatisticsWControlEvent (
+			SInt64 windowid64 = (SInt64)((int*)(gProjectInfoPtr->addToControlH));
+			SInt16 windowid = (SInt16)windowid64;
+			if (gProjectWindow->GetFrame ()->FindWindow (windowid)->IsEnabled ())
+				{
+				returnFlag = StatisticsWControlEvent (
 												gProjectInfoPtr->addToControlH,
 												FALSE,
 												location,
 												kAddToListControl);
 		
-			c_flag_addtolist = !returnFlag;
+				c_flag_addtolist = !returnFlag;
+				
+				}	// end "if (...->FindWindow (windowid)->IsEnabled ())"
 			
 			}	// end "if (gProjectInfoPtr != NULL)"
 		
@@ -208,16 +224,17 @@ void CMTool::OnCharHook ()
 			c_flag_addtolist = FALSE;
 		
 		}	// end "if (c_flag_addtolist == TRUE)"
+	
+	return (returnFlag);
 
 }	// end "OnCharHook"
 
 
 
-////////////////////////////////////////////////////////////////////////////
-// CMSelectTool        
+// CMSelectTool
 
-// Use for polygon selections so that repeated points are not selected in
-// a row.               
+		// Use for polygon selections so that repeated points are not selected in
+		// a row.
 
 LongPoint CMSelectTool::s_lastLineColumnPoint;
 
@@ -308,7 +325,7 @@ void CMSelectTool::AddPolygonPoint (
 	UInt32 index;
 
 
-	if (s_selectionInfoPtr->numberPoints == (SInt32) s_memoryLimitNumber)
+	if (s_selectionInfoPtr->numberPoints == (SInt32)s_memoryLimitNumber)
 		{
 		CheckAndUnlockHandle(s_selectionInfoPtr->polygonCoordinatesHandle);
 
@@ -339,16 +356,6 @@ void CMSelectTool::AddPolygonPoint (
 }	// end AddPolygonPoint
 
 
-/*
-void CMSelectTool::OnChar (
-				CMImageView*						imageViewCPtr,
-				unsigned int						nChar)
-
-{
-
-}	// end "OnChar"
-*/
-
 
 void CMSelectTool::OnLButtonDblClk (
 				CMImageView*						imageViewCPtr,
@@ -369,6 +376,7 @@ void CMSelectTool::OnLButtonDblClk (
 							unitsToUseCode;
 
 		Boolean			useStartLineColumnFlag;
+		
 
 		s_selectMode = none;
 		s_initPolygonFlag = FALSE;
@@ -386,7 +394,7 @@ void CMSelectTool::OnLButtonDblClk (
 
 				// Now officially close the polygon.
 
-		ClosePolygonSelection(s_selectionInfoPtr);
+		ClosePolygonSelection (s_selectionInfoPtr);
 		s_selectionPointsPtr = NULL;
 
 				// Invalidate the rectangle which inludes the line segment from the last
@@ -398,13 +406,10 @@ void CMSelectTool::OnLButtonDblClk (
 					// Get the rectangle that the segment from the last point to the
 					// first point.
 
-			rect.SetLeft((int) longPoint.h);
-			rect.SetTop((int) longPoint.v);
-			rect.SetRight(c_last.x);
-			rect.SetBottom(c_last.y);
-			
-					// No auto-correction for the rectangle
-					// rect.NormalizeRect();
+			rect.SetLeft ((int) longPoint.h);
+			rect.SetTop ((int) longPoint.v);
+			rect.SetRight (c_last.x);
+			rect.SetBottom (c_last.y);
 
 					// Verify that all of the new line will be drawn.
 
@@ -412,7 +417,6 @@ void CMSelectTool::OnLButtonDblClk (
 			c_last.y++;
 			
 			imageViewCPtr->InvalidateRect (&rect, FALSE);
-			imageViewCPtr->m_Canvas->Update ();
 				
 			}	// end "if (s_selectionInfoPtr->numberPoints > 1)"
 
@@ -420,7 +424,7 @@ void CMSelectTool::OnLButtonDblClk (
 				// side by side image.
 
 		if (gSideBySideChannels > 1)
-           OutlineSelectionArea (imageViewCPtr);
+			OutlineSelectionArea (imageViewCPtr);
        
 				// Now get the bounding area in coordinate units.
 
@@ -445,7 +449,18 @@ void CMSelectTool::OnLButtonDblClk (
 		if (wxGetKeyState (WXK_SHIFT))
 			useStartLineColumnFlag = FALSE;
 
-		if (!wxGetKeyState (WXK_CONTROL))
+		#if defined multispec_wxlin
+			if (!wxGetKeyState (WXK_CONTROL))
+		#endif
+		#if defined multispec_wxmac
+					// Note that WXK_CONTROL is the command key for Mac OS
+					// WXK_RAW_CONTROL is the control key, but it cannot be
+					// used for this. It does not seems to be available for
+					// this. Assuming this is because it is the key for
+					// contextual menus.
+			//if (!wxGetKeyState (WXK_RAW_CONTROL))
+			if (!wxGetKeyState (WXK_CONTROL))
+		#endif
 			{
 			unitsToUseCode = kLineColumnUnits;
 
@@ -461,7 +476,7 @@ void CMSelectTool::OnLButtonDblClk (
 
             }	// end "if (GetCoordinateHeight (gActiveImageWindowInfoH) > 0)"
 
-			factor = GetCoordinateViewFactor(windowInfoHandle);
+			factor = GetCoordinateViewFactor (windowInfoHandle);
 
 			SetSelectionForAllWindows (windowInfoHandle,
 												  s_selectionInfoPtr,
@@ -472,7 +487,7 @@ void CMSelectTool::OnLButtonDblClk (
 
 			}	// end "if (GetKeyState(VK_CONTROL) < 0)"
 
-		CheckAndUnlockHandle(imageViewCPtr->GetDisplaySpecsHandle ());
+		CheckAndUnlockHandle (imageViewCPtr->GetDisplaySpecsHandle ());
 		s_displaySpecsPtr = NULL;
 
 		Handle selectionInfoHandle = GetSelectionInfoHandle (imageViewCPtr);
@@ -489,9 +504,12 @@ void CMSelectTool::OnLButtonDblClk (
 
 				// Show selection info in graph window if needed.
 
-		ShowGraphSelection();
+		ShowGraphSelection ();
         
 		c_flag_addtolist = TRUE;
+		
+		if ((imageViewCPtr->m_Canvas)->HasCapture ())
+			(imageViewCPtr->m_Canvas)->ReleaseMouse ();
 		
 		}	// end "s_selectType == kPolygonType"
 
@@ -500,7 +518,7 @@ void CMSelectTool::OnLButtonDblClk (
 
 
 //------------------------------------------------------------------------------------
-//							Copyright (1988-20018)
+//							Copyright (1988-2019)
 //						(c) Purdue Research Foundation
 //							All rights reserved.
 //
@@ -517,16 +535,16 @@ void CMSelectTool::OnLButtonDblClk (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 
-//	Revised By:			Larry L. Biehl			Date: 04/24/2018
+//	Revised By:			Larry L. Biehl			Date: 04/24/2019
 
 void CMSelectTool::OnLButtonDown (
 				CMImageView*						imageViewCPtr,
 				UInt16								nFlags,
-				const CPoint						point)
+				const wxPoint						point)
 
 {
-	CPoint								localPoint;
-	CRect									rect;
+	wxPoint								localPoint;
+	wxRect								rect;
 	DoubleRect							coordinateRect;
 	LongPoint							longLocalPoint;
 	LongRect								lineColumnRect;
@@ -536,256 +554,237 @@ void CMSelectTool::OnLButtonDown (
 											selectionInfoHandle,
 											windowInfoHandle;
 	
+	int									extraSpace;
+	
 
-	//if (!gNewSelectedWindowFlag)
-	//	{
-		c_flag_addtolist = FALSE;
+	c_flag_addtolist = FALSE;
 
-		localPoint = point;
-		windowInfoHandle = GetWindowInfoHandle (imageViewCPtr);
+	wxPoint scrollOffset = (imageViewCPtr->m_Canvas)->GetScrollPosition ();
 
-				// Make sure that the start point is not off the top or left of the image.
+	localPoint = point + scrollOffset;
+	windowInfoHandle = GetWindowInfoHandle (imageViewCPtr);
 
-		 //localPoint.x = MAX(localPoint.x, 0);
-		 //localPoint.y = MAX(localPoint.y, imageViewCPtr->GetTitleHeight ());
+	if (s_selectMode != netSelect)
+		{
+				// Get the type of selection to be done - rectangle or polygon.
 
-		 if (s_selectMode != netSelect)
+		s_selectType = kRectangleType;
+		if (GetProjectWindowFlag (GetWindowInfoHandle (imageViewCPtr)))
 			{
-					// Get the type of selection to be done - rectangle or polygon.
+			gProjectSelectionWindow = imageViewCPtr;
 
-			s_selectType = kRectangleType;
-			if (GetProjectWindowFlag (GetWindowInfoHandle (imageViewCPtr)))
+			if (gProjectInfoPtr->statsWindowMode == kSelectFieldMode &&
+															gProjectInfoPtr->selectionType == kPolygonType)
 				{
-				gProjectSelectionWindow = imageViewCPtr;
-
-				if (gStatisticsMode > 0 && gProjectInfoPtr->selectionType == kPolygonType)
+				if (gNewSelectedWindowFlag)
 					{
-					if (gNewSelectedWindowFlag)
-						{
-								// Assume that this is just a selection of this window to bring
-								// it to the top and not the beginning of a selection.
+							// Assume that this is just a selection of this window to bring
+							// it to the top and not the beginning of a selection.
 
-						gNewSelectedWindowFlag = FALSE;
+					gNewSelectedWindowFlag = FALSE;
 
-						}	// end "if (gNewSelectedWindowFlag)"
+					}	// end "if (gNewSelectedWindowFlag)"
 
-					s_selectType = kPolygonType;
-						  
-					}	// end "if (gStatisticsMode > 0 && ..."
+				s_selectType = kPolygonType;
+				
+				}	// end "if (...->statsWindowMode == kSelectFieldMode && ..."
 
-				}	// end "if (GetProjectWindowFlag (GetWindowInfoHandle (..."
+			}	// end "if (GetProjectWindowFlag (GetWindowInfoHandle (..."
 
-			selectionInfoHandle = GetSelectionInfoHandle (imageViewCPtr);
+		selectionInfoHandle = GetSelectionInfoHandle (imageViewCPtr);
 
-			s_selectionInfoPtr = (SelectionInfoPtr)GetHandlePointer (selectionInfoHandle,
-																							kLock);
-			
-					// Get Map Information Pointer
+		s_selectionInfoPtr = (SelectionInfoPtr)GetHandlePointer (selectionInfoHandle,
+																					kLock);
+		
+				// Get Map Information Pointer
 
-			Handle fileInfoHandle = GetFileInfoHandle(windowInfoHandle);
-			Handle mapProjectionHandle = GetFileMapProjectionHandle(fileInfoHandle);
+		Handle fileInfoHandle = GetFileInfoHandle (windowInfoHandle);
+		Handle mapProjectionHandle = GetFileMapProjectionHandle (fileInfoHandle);
 
-			s_mapProjectionInfoPtr = (MapProjectionInfoPtr)GetHandlePointer (
-																				mapProjectionHandle, kLock);
+		s_mapProjectionInfoPtr = (MapProjectionInfoPtr)GetHandlePointer (
+																			mapProjectionHandle, kLock);
 
-					// Get pointer to display specifications which will be needed later
+				// Get pointer to display specifications which will be needed later
 
-			displaySpecsHandle = imageViewCPtr->GetDisplaySpecsHandle();
-			s_displaySpecsPtr = (DisplaySpecsPtr) GetHandlePointer(
-						 displaySpecsHandle, kLock, kNoMoveHi);
+		displaySpecsHandle = imageViewCPtr->GetDisplaySpecsHandle ();
+		s_displaySpecsPtr = (DisplaySpecsPtr)GetHandlePointer (
+																			displaySpecsHandle, kLock);
 
-					// Get the magnification factors to use to convert from screen
-					// elements to lines and columns
+				// Get the magnification factors to use to convert from screen
+				// elements to lines and columns
 
-			s_vConversionFactor = s_displaySpecsPtr->displayedLineInterval /
-																	s_displaySpecsPtr->magnification;
+		s_vConversionFactor = s_displaySpecsPtr->displayedLineInterval /
+																s_displaySpecsPtr->magnification;
 
-			s_hConversionFactor = s_displaySpecsPtr->displayedColumnInterval /
-																	s_displaySpecsPtr->magnification;
+		s_hConversionFactor = s_displaySpecsPtr->displayedColumnInterval /
+																s_displaySpecsPtr->magnification;
 
-					//	Initialize some limit variables
+				//	Initialize some limit variables
 
-			GetWindowClipRectangle(imageViewCPtr, kImageArea, &s_viewRect);
-
-			longLocalPoint.h = localPoint.x;
-			longLocalPoint.v = localPoint.y;
-			s_startChannel = GetSelectionRectangleLimits (TRUE,
-																		 0,
-																		 &longLocalPoint,
-																		 s_displaySpecsPtr,
-																		 &s_viewRect,
-																		 &s_limitRectangle,
-																		 &s_startPoint);
-			imageViewCPtr->m_startchannel_sbs = s_startChannel;
-			
-					// Set the global variables needed to convert from line-column
-					// units to window units.
-
-			SetChannelWindowVariables (kToImageWindow, imageViewCPtr, kNotCoreGraphics);
-
-			SetLCToWindowUnitVariables (windowInfoHandle,
-													kWindowsUseOrigin,
-													FALSE,
-													&s_lcToWindowUnitsVariables);
-
-			s_selectMode = netSelect;
-
-			}	// end "if (s_selectMode != netSelect)"
+		GetWindowClipRectangle (imageViewCPtr, kImageArea, &s_viewRect);
+		s_viewRect.left += scrollOffset.x;
+		s_viewRect.right += scrollOffset.x;
+		s_viewRect.top += scrollOffset.y;
+		s_viewRect.bottom += scrollOffset.y;
 
 		longLocalPoint.h = localPoint.x;
 		longLocalPoint.v = localPoint.y;
-
-		if (s_selectType == kPolygonType)
-			{
-			LongPoint		newLineColPoint;
-			CRect				rect;
-
-			if (s_selectionInfoPtr->polygonCoordinatesHandle == NULL)
-				s_initPolygonFlag = FALSE;
-
-			if (!s_initPolygonFlag)
-				InitPolygon();
-					 
-					// Get the line and column for the input point.
-
-			ConvertWinPointToLC(&longLocalPoint, &newLineColPoint);
-
-			if (s_lastLineColumnPoint.h != newLineColPoint.h ||
-														s_lastLineColumnPoint.v != newLineColPoint.v)
-				
-				{
-				AddPolygonPoint (imageViewCPtr, newLineColPoint);
-
-				AddPolyPointStatNewFieldW(newLineColPoint);
-
-						// Remove the current 'moving' segment and force draw of the fixed
-						// line segment, if there is a 'moving' segment, i.e. this is not
-						// the first polygon point.
-
-				if (s_selectionInfoPtr->numberPoints > 1)
-					{
-							// Get the rectangle that contains the current 'moving' line segment.
-
-					//rect.SetRect(c_down.x, c_down.y, c_last.x, c_last.y);
-					//rect.NormalizeRect();
-					if (c_last.x > c_down.x)
-						{
-						rect.x = c_down.x;
-						rect.width = c_last.x - c_down.x;
-						
-						}	// end "if (c_last.x > c_down.x)"
-					
-					else	// c_last.x <= c_down.x
-						{
-						rect.x = c_last.x;
-						rect.width = c_down.x - c_last.x;
-						
-						}	// end "else c_last.x <= c_down.x"
-					
-					if (c_last.y > c_down.y)
-						{
-						rect.y = c_down.y;
-						rect.height = c_last.y - c_down.y;
-						
-						}	// end "if (c_last.y > c_down.y)"
-					
-					else	// c_last.y <= c_down.y
-						{
-						rect.y = c_last.y;
-						rect.height = c_down.y - c_last.y;
-						
-						}	// end "else c_last.y <= c_down.y"
-					 
-							// Verify that the new line will be drawn. The new window point may
-							// be moved to the upper left to be at the upper left of the pixel
-							// when the image is zoomed larger than 1.
-							// Also verify that bottom and right edges are cleared.
-
-					rect.x -= (int)s_displaySpecsPtr->magnification;
-					rect.y -= (int)s_displaySpecsPtr->magnification;
-					rect.width = rect.width++ + (int)s_displaySpecsPtr->magnification;
-					rect.height = rect.height++ + (int)s_displaySpecsPtr->magnification;
-
-					imageViewCPtr->InvalidateRect (&rect, FALSE);
-					imageViewCPtr->OnUpdate (NULL, NULL);
-
-					}	// end "if (s_selectionInfoPtr->numberPoints > 0)"
-
-						// Update the cursor coordinates if the coordinate view is displayed.
-						// The rectangle coordinates which includes the current polygon will
-						// not be displayed until the polygon is closed.
-
-				if (imageViewCPtr->GetDocument()->GetDisplayCoordinatesFlag ())
-					{
-					imageViewCPtr->UpdateCursorCoordinates (&longLocalPoint);
-
-					}	// end "if (pImageView->GetDocument ()->s_displayCoordinatesFlag)"
-
-						// Now convert the LC point back to window units to force it
-						// to be at the upper left corner of the pixel if the zoom factor
-						// is greater than 1.
-
-				ConvertLCToWinPoint(&newLineColPoint,
-							  &longLocalPoint,
-							  &s_lcToWindowUnitsVariables);
-
-				longLocalPoint.h +=
-								s_startChannel * gChannelWindowInterval - gChannelWindowOffset;
-
-				localPoint.x = (int) longLocalPoint.h;
-				localPoint.y = (int) longLocalPoint.v;
-
-				s_lastLineColumnPoint = newLineColPoint;
-
-				}	// end "if (s_lastLineColumnPoint != newLineColPoint)"
-
-			else	// s_lastLineColumnPoint = newLineColPoint
-				{
-						// Do not save this 'down' point.
-
-																											return;
-
-				}	// end "else s_lastLineColumnPoint = newLineColPoint"
-			  
-			}	// end "if (s_selectType == kPolygonType)"
-
-		else	// s_selectType == kRectangleType
-			{
-			rect.x = localPoint.x;
-			rect.width = localPoint.x - localPoint.x;
-
-			rect.y = localPoint.y;
-			rect.height = localPoint.y - localPoint.y;
-
-			displayRect.left = displayRect.right = localPoint.x;
-			displayRect.top = displayRect.bottom = localPoint.y;
-
-			ComputeSelectionLineColumns (s_displaySpecsPtr,
-													 s_mapProjectionInfoPtr,
-													 &lineColumnRect,
-													 &displayRect,
-													 &s_startPoint,
-													 &coordinateRect);
-
-			if (imageViewCPtr->GetDocument ()->GetDisplayCoordinatesFlag ())
-				{
-				s_prevLineStart = lineColumnRect.top;
-				s_prevColumnStart = lineColumnRect.left;
-				s_prevLineEnd = lineColumnRect.bottom;
-				s_prevColumnEnd = lineColumnRect.right;
-
-				DrawSelectionCoordinates (windowInfoHandle,
-												  &lineColumnRect,
-												  &coordinateRect,
-												  1);
-
-				imageViewCPtr->UpdateCursorCoordinates (&longLocalPoint);
-
-				}	// end "if (pImageView->GetDocument()->s_displayCoordinatesFlag)"
-
-			}	// end "else s_selectType == kRectangleType"
+		s_startChannel = GetSelectionRectangleLimits (TRUE,
+																	 0,
+																	 &longLocalPoint,
+																	 s_displaySpecsPtr,
+																	 &s_viewRect,
+																	 &s_limitRectangle,
+																	 &s_startPoint);
+		imageViewCPtr->m_startchannel_sbs = s_startChannel;
 		
-	//	}	// end "if (!gNewSelectedWindowFlag)"
+				// Set the global variables needed to convert from line-column
+				// units to window units.
+
+		SetChannelWindowVariables (kToImageWindow, imageViewCPtr, kNotCoreGraphics);
+
+		SetLCToWindowUnitVariables (windowInfoHandle,
+												kWindowsUseOrigin,
+												FALSE,
+												&s_lcToWindowUnitsVariables);
+
+		s_selectMode = netSelect;
+	
+		extraSpace = (int)ceil (s_displaySpecsPtr->magnification);
+
+		}	// end "if (s_selectMode != netSelect)"
+
+	longLocalPoint.h = localPoint.x;
+	longLocalPoint.v = localPoint.y;
+
+	if (s_selectType == kPolygonType)
+		{
+		LongPoint		newLineColPoint,
+							polygonLocalPoint;
+		CRect				rect;
+
+		if (s_selectionInfoPtr->polygonCoordinatesHandle == NULL)
+			s_initPolygonFlag = FALSE;
+
+		if (!s_initPolygonFlag)
+			InitPolygon ();
+		
+				// Get the line and column for the input point.
+				// Need to remove the scroll offset for the conversion.
+
+		polygonLocalPoint.h = longLocalPoint.h - scrollOffset.x;
+		polygonLocalPoint.v = longLocalPoint.v - scrollOffset.y;
+		ConvertWinPointToLC (&polygonLocalPoint, &newLineColPoint);
+
+		if (s_lastLineColumnPoint.h != newLineColPoint.h ||
+													s_lastLineColumnPoint.v != newLineColPoint.v)
+			
+			{
+			AddPolygonPoint (imageViewCPtr, newLineColPoint);
+
+			AddPolyPointStatNewFieldW (newLineColPoint);
+
+					// Remove the current 'moving' segment and force draw of the fixed
+					// line segment, if there is a 'moving' segment, i.e. this is not
+					// the first polygon point.
+
+			if (s_selectionInfoPtr->numberPoints > 1)
+				{
+						// Get the rectangle that contains the current 'moving' line segment.
+
+				rect.x = MIN (c_last.x, c_down.x);
+				rect.y = MIN (c_last.y, c_down.y);
+				rect.width = abs (c_down.x - c_last.x);
+				rect.height = abs (c_down.y - c_last.y);
+				
+						// Verify that the new line will be drawn. The new window point may
+						// be moved to the upper left to be at the upper left of the pixel
+						// when the image is zoomed larger than 1.
+						// Also verify that bottom and right edges are cleared.
+
+				//rect.x -= (int)s_displaySpecsPtr->magnification;
+				//rect.y -= (int)s_displaySpecsPtr->magnification;
+				//rect.width += (int)(2 * s_displaySpecsPtr->magnification);
+				//rect.height += (int)(2 * s_displaySpecsPtr->magnification);
+
+				rect.x -= (scrollOffset.x + extraSpace);
+				rect.y -= (scrollOffset.y + extraSpace);
+				rect.width += 2 * extraSpace;
+				rect.height += 2 * extraSpace;
+
+				imageViewCPtr->InvalidateRect (&rect, FALSE);
+
+				}	// end "if (s_selectionInfoPtr->numberPoints > 0)"
+
+					// Update the cursor coordinates if the coordinate view is displayed.
+					// The rectangle coordinates which includes the current polygon will
+					// not be displayed until the polygon is closed.
+
+			if (imageViewCPtr->GetDocument()->GetDisplayCoordinatesFlag ())
+				{
+				imageViewCPtr->UpdateCursorCoordinatesNoDisplayOrigin (&longLocalPoint,
+																							s_displaySpecsPtr);
+
+				}	// end "if (pImageView->GetDocument ()->s_displayCoordinatesFlag)"
+
+					// Now convert the LC point back to window units to force it
+					// to be at the upper left corner of the pixel if the zoom factor
+					// is greater than 1.
+
+			ConvertLCToWinPoint (&newLineColPoint,
+										&longLocalPoint,
+										&s_lcToWindowUnitsVariables);
+
+			longLocalPoint.h +=
+							s_startChannel * gChannelWindowInterval - gChannelWindowOffset;
+
+			localPoint.x = (int)longLocalPoint.h + scrollOffset.x;
+			localPoint.y = (int)longLocalPoint.v + scrollOffset.y;
+
+			s_lastLineColumnPoint = newLineColPoint;
+
+			}	// end "if (s_lastLineColumnPoint != newLineColPoint)"
+
+		else	// s_lastLineColumnPoint = newLineColPoint
+			{
+					// Do not save this 'down' point.
+
+																										return;
+
+			}	// end "else s_lastLineColumnPoint = newLineColPoint"
+		
+		}	// end "if (s_selectType == kPolygonType)"
+
+	else if (s_selectType == kRectangleType)
+		{
+		displayRect.left = displayRect.right = localPoint.x;
+		displayRect.top = displayRect.bottom = localPoint.y;
+
+		ComputeSelectionLineColumns (s_displaySpecsPtr,
+												 s_mapProjectionInfoPtr,
+												 &lineColumnRect,
+												 &displayRect,
+												 &s_startPoint,
+												 &coordinateRect);
+
+		if (imageViewCPtr->GetDocument ()->GetDisplayCoordinatesFlag ())
+			{
+			s_prevLineStart = lineColumnRect.top;
+			s_prevColumnStart = lineColumnRect.left;
+			s_prevLineEnd = lineColumnRect.bottom;
+			s_prevColumnEnd = lineColumnRect.right;
+
+			DrawSelectionCoordinates (windowInfoHandle,
+											  &lineColumnRect,
+											  &coordinateRect,
+											  1);
+
+			imageViewCPtr->UpdateCursorCoordinatesNoDisplayOrigin (&longLocalPoint,
+																						s_displaySpecsPtr);
+
+			}	// end "if (pImageView->GetDocument()->s_displayCoordinatesFlag)"
+
+		}	// end "else if (s_selectType == kRectangleType)"
 
 			// Do base class operations
 
@@ -798,7 +797,7 @@ void CMSelectTool::OnLButtonDown (
 void CMSelectTool::OnLButtonUp (
 				CMImageView*						imageViewCPtr,
 				UInt16								nFlags,
-				const CPoint						point,
+				const wxPoint						point,
 				Boolean								newSelectedWindowFlag)
 
 {
@@ -807,7 +806,9 @@ void CMSelectTool::OnLButtonUp (
 		if (s_selectType != kPolygonType)
 			imageViewCPtr->m_Canvas->ReleaseMouse ();
 		
-		c_last = point;
+		wxPoint scrollOffset = (imageViewCPtr->m_Canvas)->GetScrollPosition ();
+		c_last = point + scrollOffset;
+		
 		if (s_selectMode == netSelect)
 			{
 			CRect				rect;
@@ -831,50 +832,22 @@ void CMSelectTool::OnLButtonUp (
 				{
 				if (!newSelectedWindowFlag || c_down.x != c_last.x || c_down.y != c_last.y)
 					{
-					wxClientDC dc(imageViewCPtr->m_Canvas);
-					dc.SetBrush(*wxTRANSPARENT_BRUSH);
-					dc.SetPen(wxPen(*wxWHITE, 1, wxPENSTYLE_DOT));
-					
 							// Remove the current selection.
-
-					if (c_last.x > c_down.x)
-						{
-						rect.x = c_down.x;
-						rect.width = c_last.x - c_down.x;
-						
-						}	// end "if (c_last.x > c_down.x)"
 					
-					else	// c_last.x <= c_down.x
-						{
-						rect.x = c_last.x;
-						rect.width = c_down.x - c_last.x;
-						
-						}	// end "else c_last.x <= c_down.x"
-					
-					if (c_last.y > c_down.y)
-						{
-						rect.y = c_down.y;
-						rect.height = c_last.y - c_down.y;
-						
-						}	// end "if (c_last.y > c_down.y)"
-					
-					else	// c_last.y <= c_down.y
-						{
-						rect.y = c_last.y;
-						rect.height = c_down.y - c_last.y;
-						
-						}	// end "else c_last.y <= c_down.y"
-
-					dc.DrawRectangle(rect);
 					ClearSelectionArea (imageViewCPtr);
-
+					
 							// Create the final selection rectangle
+					
+					rect.x = MIN (c_last.x, c_down.x);
+					rect.y = MIN (c_last.y, c_down.y);
+					rect.width = abs (c_down.x - c_last.x);
+					rect.height = abs (c_down.y - c_last.y);
 
 					displayRect.left = rect.x;
 					displayRect.top = rect.y;
 					displayRect.right = rect.x + rect.width;
 					displayRect.bottom = rect.y + rect.height;
-
+					
 					ComputeSelectionLineColumns (s_displaySpecsPtr,
 															 s_mapProjectionInfoPtr,
 															 &lineColumnRect,
@@ -902,7 +875,7 @@ void CMSelectTool::OnLButtonUp (
 					if (windowInfoPtr->projectWindowFlag)
 						{
 						gProjectSelectionWindow = imageViewCPtr;
-						LoadNewFieldListBox();
+						LoadNewFieldListBox ();
 
 						}	// end "if (windowInfoPtr->projectWindowFlag)"
 	
@@ -986,25 +959,63 @@ void CMSelectTool::OnLButtonUp (
 Boolean CMSelectTool::OnMouseMove (
 				CMImageView*						pImageView,
 				UInt16								nFlags,
-				const CPoint						point)
+				const wxPoint						point,
+				Boolean								updateViewRectFlag)
 
 {
-	CPoint								localCPoint;
+	wxPoint								localCPoint,
+											scrollOffset;
+	
+	wxRect								rect;
 
 	DoubleRect							coordinateRect;
+	
+	LCToWindowUnitsVariables 		lcToWindowUnitsVariables;
 
 	LongRect								lineColumnRect;
-
+	
 	LongPoint							localPoint;
 
 	Rect									displayRect;
+	
+	HPFieldPointsPtr 					selectionPointsPtr;
+	SelectionInfoPtr 					selectionInfoPtr;
 
 	UInt32								numberPixels;
+	
+	int									extraSpace;
 
-	Boolean								continueFlag,
-											selectionClearedFlag;
+	Boolean								continueFlag;
+	
+	SignedByte 							handleStatus,
+											selectionPointsStatus;
 
 
+	
+			// If image was scrolled, the view rectangle needs to be updated.
+
+	scrollOffset = (pImageView->m_Canvas)->GetScrollPosition ();
+	if (updateViewRectFlag)
+		{
+		GetWindowClipRectangle (pImageView, kImageArea, &s_viewRect);
+		s_viewRect.left += scrollOffset.x;
+		s_viewRect.right += scrollOffset.x;
+		s_viewRect.top += scrollOffset.y;
+		s_viewRect.bottom += scrollOffset.y;
+
+		LongPoint tempLongPoint;
+		tempLongPoint.h = c_down.x;
+		tempLongPoint.v = c_down.y;
+		s_startChannel = GetSelectionRectangleLimits (TRUE,
+																	  0,
+																	  &tempLongPoint,
+																	  s_displaySpecsPtr,
+																	  &s_viewRect,
+																	  &s_limitRectangle,
+																	  &s_startPoint);
+		
+		}	// end "if (updateViewRectFlag)"
+	
 	continueFlag = TRUE;
 	if (s_selectMode != netSelect)
 		continueFlag = FALSE;
@@ -1015,313 +1026,180 @@ Boolean CMSelectTool::OnMouseMove (
 
 	if (continueFlag)
 		{
-				// First, save this mouse point in case it is needed by the idle handler
-				// when in selection mode.
+		localCPoint = point + scrollOffset;
 
-		c_lastMousePoint = point;
-
-		localCPoint = point;
-
-		localPoint.h = point.x;
-		localPoint.v = point.y;
+		localPoint.h = localCPoint.x;
+		localPoint.v = localCPoint.y;
       
-		if (point != c_last)
+		if (localCPoint != c_last)
 			{
-			Handle windowInfoHandle = GetWindowInfoHandle(pImageView);
-                  
-			CRect		rect;
-
-			wxClientDC dc(pImageView->m_Canvas);
-			dc.SetBrush(*wxTRANSPARENT_BRUSH);
-			dc.SetPen (wxPen(*wxWHITE, 1, wxPENSTYLE_DOT));
-         dc.SetPen (wxPen(*wxBLACK, 1, wxPENSTYLE_DOT));
-         
-			CPoint scrollOffset;
-
-			int		maxHRange,
-						maxVRange;
-
-
-			selectionClearedFlag = FALSE;
-
-					// Get the scroll info. It will be used in determining whether
-					// the image needs to be scrolled.
+			Handle windowInfoHandle = GetWindowInfoHandle (pImageView);
+	
+			extraSpace = (int)ceil (s_displaySpecsPtr->magnification);
 			
-			scrollOffset = (pImageView->m_Canvas)->GetScrollPosition();
-			maxHRange = (pImageView->m_Canvas)->GetScrollRange(wxHORIZONTAL);
-			maxVRange = (pImageView->m_Canvas)->GetScrollRange(wxVERTICAL);
-			
-					// Get the current selection rectangle.
-
-			if (c_last.x > c_down.x)
-				{
-				rect.x = c_down.x;
-				rect.width = c_last.x - c_down.x;
-				
-            }
-				
-			else
-				{
-				rect.x = c_last.x;
-				rect.width = c_down.x - c_last.x;
-				
-            }
-				
-			if (c_last.y > c_down.y)
-				{
-				rect.y = c_down.y;
-				rect.height = c_last.y - c_down.y;
-				
-            }
-				
-			else
-				{
-				rect.y = c_last.y;
-				rect.height = c_down.y - c_last.y;
-				
-            }
-			
-			if ((localPoint.h < s_viewRect.left && scrollOffset.x > 0) ||
-						(localPoint.h > s_viewRect.right && scrollOffset.x < maxHRange) ||
-						(localPoint.v < s_viewRect.top && scrollOffset.y > 0) ||
-						(localPoint.v > s_viewRect.bottom && scrollOffset.y < maxVRange))
-				{
-				SInt32		hOffset,
-								vOffset;
-
-						// Clear the current selection.
-
-				if (s_selectType == kPolygonType)
-					{
-							// Verify that bottom and right edges are cleared.
-					
-					rect.width++;
-					rect.height++;
-					pImageView->InvalidateRect(&rect, FALSE);
-					pImageView->OnUpdate(NULL,NULL);
-
-					}	// end "if (s_selectType == kPolygonType)"
-
-				else	// s_selectType == kRectangleType
-					{
-					dc.DrawRectangle (rect);
-					dc.SetPen (wxPen (*wxBLACK, 1, wxPENSTYLE_DOT));
-					rect.x += 1;
-					rect.y += 1;
-					rect.width -= 2;
-					rect.height -= 2;
-					dc.DrawRectangle (rect);
-					
-					}	// end "else s_selectType == kRectangleType"
-
-				selectionClearedFlag = TRUE;
-
-						// Something not right below.
-				hOffset = s_displaySpecsPtr->origin[kHorizontal];
-				vOffset = s_displaySpecsPtr->origin[kVertical];
-
-				hOffset -= s_displaySpecsPtr->origin[kHorizontal];
-				vOffset -= s_displaySpecsPtr->origin[kVertical];
-
-				hOffset = (SInt16)(hOffset * s_displaySpecsPtr->magnification);
-				vOffset = (SInt16)(vOffset * s_displaySpecsPtr->magnification);
-
-				c_down.x += (SInt16)hOffset;
-				c_down.y += (SInt16)vOffset;
-
-				c_last.x += (SInt16)hOffset;
-				c_last.y += (SInt16)vOffset;
-
-				if (hOffset != 0 || vOffset != 0)
-					{
-					LongPoint tempLongPoint;
-					tempLongPoint.h = c_down.x;
-					tempLongPoint.v = c_down.y;
-
-					s_startChannel = GetSelectionRectangleLimits (TRUE,
-																				  0,
-																				  &tempLongPoint,
-																				  s_displaySpecsPtr,
-																				  &s_viewRect,
-																				  &s_limitRectangle,
-																				  &s_startPoint);
-
-					}	// end "if (hOffset != 0 || vOffset != 0)"
-
-				}	// end "if ( (localPoint.h < s_viewRect.left && ..."
-
-					// Peg the selection to the edge of the image if needed.
-
-			localCPoint.y = MIN(localCPoint.y, s_limitRectangle.bottom - 1);
-			localCPoint.x = MIN(localCPoint.x, s_limitRectangle.right - 1);
-
-			localCPoint.y = MAX(localCPoint.y, s_limitRectangle.top);
-			localCPoint.x = MAX(localCPoint.x, s_limitRectangle.left);
-
 			if (s_selectType == kPolygonType)
 				{
-						// initialization to save selected polygon datapoints
-				
-            LongPoint windowPoint;
-            Handle selectionInfoH = GetSelectionInfoHandle (windowInfoHandle);
-            SignedByte handleStatus;
-            SignedByte selectionPointsStatus;
-            SelectionInfoPtr selectionInfoPtr =
-								(SelectionInfoPtr)GetHandleStatusAndPointer (selectionInfoH,
-																							&handleStatus,
-																							kNoMoveHi);
-            HPFieldPointsPtr selectionPointsPtr =
-								(HPFieldPointsPtr)GetHandleStatusAndPointer (
-															selectionInfoPtr->polygonCoordinatesHandle,
-															&selectionPointsStatus,
-															kNoMoveHi);
-				
-            LCToWindowUnitsVariables lcToWindowUnitsVariables; 
-            SetChannelWindowVariables (kToImageWindow, pImageView, kNotCoreGraphics);
-            SetLCToWindowUnitVariables (windowInfoHandle,
+				Handle selectionInfoH = GetSelectionInfoHandle (windowInfoHandle);
+				selectionInfoPtr =
+							(SelectionInfoPtr)GetHandleStatusAndPointer (selectionInfoH,
+																						&handleStatus);
+				selectionPointsPtr =
+							(HPFieldPointsPtr)GetHandleStatusAndPointer (
+														selectionInfoPtr->polygonCoordinatesHandle,
+														&selectionPointsStatus,
+														kNoMoveHi);
+			
+				SetChannelWindowVariables (kToImageWindow, pImageView, kNotCoreGraphics);
+				SetLCToWindowUnitVariables (windowInfoHandle,
 														kWindowsUseOrigin,
 														FALSE,
 														&lcToWindowUnitsVariables);
 				
-				if (localCPoint.x != c_last.x || localCPoint.y != c_last.y)
-					{
-							// Erase the old line if needed and draw the new line
-               
-					if (!selectionClearedFlag)
-						{
-								// Verify that bottom and right edges are cleared.
-
-						rect.width++;
-						rect.height++;
-
-								// Invalidate the rectangle that includes the current
-								// selection line segment. Do not erase the background
-								// before drawing over. This reduces flashing.
-                  
-						pImageView->InvalidateRect (&rect, FALSE);
-                  pImageView->m_Canvas->Refresh ();
-						
-						}	// end "if (!selectionClearedFlag)"
-
-					}	// end "if (localCPoint.x != c_last.x || ..."
-
-            if (!selectionClearedFlag)
-					{
-					wxPen pOldPen;               
-					pOldPen = dc.GetPen();
-					
-					int pointCount = selectionInfoPtr->numberPoints;
-               wxPoint* pointlist = new wxPoint[pointCount+1];
-               int sideBysideImage_offset =
-									s_startChannel * gChannelWindowInterval - gChannelWindowOffset;
-					int pointIndex = 0;
-					//wxPoint scrollOffset = pImageView->m_Canvas->GetScrollPosition();
-					for (pointIndex=0; pointIndex<pointCount; pointIndex++)
-						{
-						ConvertLCToWinPoint ((LongPoint*)&selectionPointsPtr[pointIndex],
-													&windowPoint,
-													&lcToWindowUnitsVariables);
-						pointlist[pointIndex].x = windowPoint.h + sideBysideImage_offset;
-						pointlist[pointIndex].y = windowPoint.v ;
-						
-						}	// end "for (pointIndex=0; pointIndex<pointCount; pointIndex++)"
-					
-					pointlist[pointIndex].x = localCPoint.x;
-					pointlist[pointIndex].y = localCPoint.y;
-					dc.SetBrush (*wxTRANSPARENT_BRUSH);
-					dc.SetPen (wxPen (*wxWHITE, 1, wxPENSTYLE_DOT));
-					dc.DrawPolygon (pointCount +1 , pointlist, 0, 0, wxODDEVEN_RULE);
-					dc.SetPen (wxPen (*wxBLACK, 1, wxPENSTYLE_DOT));
-					dc.DrawPolygon (pointCount +1 , pointlist, 1, 1, wxODDEVEN_RULE);
-					
-               delete pointlist;
-					dc.SetPen (pOldPen);
-					
-					}	// end "if (!selectionClearedFlag)"
-            
 				}	// end "if (s_selectType == kPolygonType)"
-
-			else	// s_selectType == kRectangleType
+			
+					// Get the current selection rectangle.
+			
+			if (s_selectType == kRectangleType)
 				{
-						// Outline the new selection
-            
-				if (localCPoint.x > c_down.x)
-					{
-					rect.x = c_down.x;
-					rect.width = localCPoint.x - c_down.x;
-					
-					}
-					
-				else
-					{
-					rect.x = localCPoint.x;
-					rect.width = c_down.x - localCPoint.x;
-					
-					}
-					 
-				if (localCPoint.y > c_down.y)
-					{
-					rect.y = c_down.y;
-					rect.height = localCPoint.y - c_down.y;
-					
-					}
-					
-				else
-					{
-					rect.y = localCPoint.y;
-					rect.height = c_down.y - localCPoint.y;
-					
-					}
-									
-				displayRect.left = rect.x;
-				displayRect.right = rect.x + rect.width;
-				displayRect.top = rect.y;
-				displayRect.bottom = rect.y + rect.height;
-				ComputeSelectionLineColumns (s_displaySpecsPtr,
-														s_mapProjectionInfoPtr,
-														&lineColumnRect,
-														&displayRect,
-														&s_startPoint,
-														&coordinateRect);
+				rect.x = MIN (c_last.x, c_down.x);
+				rect.y = MIN (c_last.y, c_down.y);
+				rect.width = abs (c_down.x - c_last.x);
+				rect.height = abs (c_down.y - c_last.y);
+				
+				rect.x -= (scrollOffset.x + extraSpace);
+				rect.y -= (scrollOffset.y + extraSpace);
+				rect.width += 2 * extraSpace;
+				rect.height += 2 * extraSpace;
+				
+				}	// end "if (s_selectType == kRectangleType)"
+			
+			else	// s_selectType == kPolygonType)
+				{
+				wxPoint lastPointLessScroll = c_last - scrollOffset;
+				GetPolygonEnclosingRectangle (selectionPointsPtr,
+														selectionInfoPtr->numberPoints,
+														&lcToWindowUnitsVariables,
+														&lastPointLessScroll,
+														&rect);
+				
+				}	// end "else s_selectType == kPolygonType)"
+			
+					// Clear the current selection area
+			
+			pImageView->InvalidateRect (&rect, FALSE);
+			/*
+			int numberChars = sprintf ((char*)gTextString3,
+				"LTools:OnMouseMove (previous: x, y, width, height): %d, %d, %d, %d%s",
+				rect.x,
+				rect.y,
+				rect.width,
+				rect.height,
+				gEndOfLine);
+			ListString ((char*)gTextString3, numberChars, gOutputTextH);
+			*/
+					// Peg the selection to the edge of the image if needed.
 
-				}	// end "else s_selectType == kRectangleType"
-         
-			if (pImageView->GetDocument()->GetDisplayCoordinatesFlag ())
+			localCPoint.y = MIN (localCPoint.y, s_limitRectangle.bottom - 1);
+			localCPoint.x = MIN (localCPoint.x, s_limitRectangle.right - 1);
+
+			localCPoint.y = MAX (localCPoint.y, s_limitRectangle.top);
+			localCPoint.x = MAX (localCPoint.x, s_limitRectangle.left);
+			
+					// Now force area to be refreshed where the new selection will be
+					// if not the same as the previous area
+			
+			if (localCPoint != c_last)
 				{
 				if (s_selectType == kRectangleType)
 					{
-					if (lineColumnRect.top != s_prevLineStart ||
-                            lineColumnRect.left != s_prevColumnStart ||
-                            lineColumnRect.bottom != s_prevLineEnd ||
-                            lineColumnRect.right != s_prevColumnEnd)
-						{
-						s_prevLineStart = lineColumnRect.top;
-						s_prevColumnStart = lineColumnRect.left;
-						s_prevLineEnd = lineColumnRect.bottom;
-						s_prevColumnEnd = lineColumnRect.right;
-
-						numberPixels = (s_prevLineEnd - s_prevLineStart + 1) *
-                                (s_prevColumnEnd - s_prevColumnStart + 1);
-
-						DrawSelectionCoordinates (GetWindowInfoHandle (pImageView),
+					rect.x = MIN (localCPoint.x, c_down.x);
+					rect.y = MIN (localCPoint.y, c_down.y);
+					rect.width = abs (c_down.x - localCPoint.x);
+					rect.height = abs (c_down.y - localCPoint.y);
+					
+					displayRect.left = rect.x;
+					displayRect.right = rect.x + rect.width;
+					displayRect.top = rect.y;
+					displayRect.bottom = rect.y + rect.height;
+					ComputeSelectionLineColumns (s_displaySpecsPtr,
+															s_mapProjectionInfoPtr,
 															&lineColumnRect,
-															&coordinateRect,
-															numberPixels);
-
-						}	// end "if (lineColumnRect.top != ..."
-
+															&displayRect,
+															&s_startPoint,
+															&coordinateRect);
+					
+					rect.x -= (scrollOffset.x + extraSpace);
+					rect.y -= (scrollOffset.y + extraSpace);
+					rect.width += 2 * extraSpace;
+					rect.height += 2 * extraSpace;
+					
 					}	// end "if (s_selectType == kRectangleType)"
+				
+				else	// s_selectType == kPolygonType
+					{
+					wxPoint currentPointLessScroll = localCPoint - scrollOffset;
+					GetPolygonEnclosingRectangle (selectionPointsPtr,
+															selectionInfoPtr->numberPoints,
+															&lcToWindowUnitsVariables,
+															&currentPointLessScroll,
+															&rect);
+			
+					}	// end "else s_selectType == kPolygonType)"
 
-				LongPoint longLocalPoint;
-				longLocalPoint.h = localCPoint.x;
-				longLocalPoint.v = localCPoint.y;
-				pImageView->UpdateCursorCoordinates (&longLocalPoint);
+						// Invalidate the rectangle that includes the current
+						// selection line segment. Do not erase the background
+						// before drawing over. This reduces flashing.
+				
+				pImageView->InvalidateRect (&rect, FALSE);
+			/*
+			int numberChars2 = sprintf ((char*)gTextString3,
+				"LTools:OnMouseMove (current: x, y, width, height): %d, %d, %d, %d%s",
+				rect.x,
+				rect.y,
+				rect.width,
+				rect.height,
+				gEndOfLine);
+			ListString ((char*)gTextString3, numberChars2, gOutputTextH);
+			*/
+				if (pImageView->GetDocument()->GetDisplayCoordinatesFlag ())
+					{
+					if (s_selectType == kRectangleType)
+						{
+						if (lineColumnRect.top != s_prevLineStart ||
+										 lineColumnRect.left != s_prevColumnStart ||
+										 lineColumnRect.bottom != s_prevLineEnd ||
+										 lineColumnRect.right != s_prevColumnEnd)
+							{
+							s_prevLineStart = lineColumnRect.top;
+							s_prevColumnStart = lineColumnRect.left;
+							s_prevLineEnd = lineColumnRect.bottom;
+							s_prevColumnEnd = lineColumnRect.right;
 
-            }	// end "if (pImageView->GetDocument ()->s_displayCoordinatesFlag)"
+							numberPixels = (s_prevLineEnd - s_prevLineStart + 1) *
+											  (s_prevColumnEnd - s_prevColumnStart + 1);
 
-			CMTool::OnMouseMove(pImageView, nFlags, localCPoint);
+							DrawSelectionCoordinates (GetWindowInfoHandle (pImageView),
+																&lineColumnRect,
+																&coordinateRect,
+																numberPixels);
 
-			}	// end "if (point != c_last)"
+							}	// end "if (lineColumnRect.top != ..."
+
+						}	// end "if (s_selectType == kRectangleType)"
+
+					LongPoint longLocalPoint;
+					longLocalPoint.h = localCPoint.x;
+					longLocalPoint.v = localCPoint.y;
+					pImageView->UpdateCursorCoordinatesNoDisplayOrigin (&longLocalPoint,
+																							s_displaySpecsPtr);
+
+					}	// end "if (pImageView->GetDocument ()->s_displayCoordinatesFlag)"
+				
+				}	// end "if (localCPoint != c_last"
+			
+			CMTool::OnMouseMove (pImageView, nFlags, localCPoint, updateViewRectFlag);
+
+			}	// end "if (localCPoint != c_last)"
 
 		return (TRUE);
 

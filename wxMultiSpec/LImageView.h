@@ -1,4 +1,4 @@
-//		Revised 01/03/2019 by Larry L. Biehl
+//		Revised 4/02/2019 by Larry L. Biehl
 
 
 #ifndef __VIEWIMAGEH__
@@ -97,7 +97,12 @@ class CMImageView : public wxView
 
 		void				UpdateCursorCoordinates (void);
 
-		void        	UpdateCursorCoordinates (LongPoint* mousePtPtr);
+		void        	UpdateCursorCoordinates (
+								LongPoint* 			mousePtPtr);
+
+		void        	UpdateCursorCoordinatesNoDisplayOrigin (
+								LongPoint* 			mousePtPtr,
+								DisplaySpecsPtr	displaySpecsPr);
 
 		void				UpdateSelectionCoordinates (void);
 
@@ -129,13 +134,14 @@ class CMImageView : public wxView
 		double 				m_printerTextScaling;
 	
 				// Pointer to CDC class
-		CDC* 					m_pDC;
+		//CDC* 					m_pDC;
 	
 				// Zooming factor
 		double 				m_Scale;
 
 				// Bitmap object to display
 		wxBitmap 			m_ScaledBitmap;
+		//wxGraphicsBitmap 	m_ScaledGraphicsBitmap;
 
 		bool 					m_hasWaveLength;
 

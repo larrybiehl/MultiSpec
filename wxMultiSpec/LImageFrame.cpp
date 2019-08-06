@@ -12,7 +12,7 @@
 //
 //	Authors:					Larry L. Biehl, Wei-Kang Hsu, Tsung Tai Yeh
 //
-//	Revision date:			01/25/2019
+//	Revision date:			04/16/2019
 //
 //	Language:				C++
 //
@@ -134,6 +134,22 @@ CMImageFrame::CMImageFrame (
 	
 	win->Show (false);
 	m_topWindow = win;
+
+			// CMTitle window to be above image and below coordinate bar
+	
+	win = new wxSashLayoutWindow (this,
+											ID_WINDOW_TITLE,
+											wxDefaultPosition,
+											wxDefaultSize,
+											wxNO_BORDER | wxSW_3D );
+	win->SetDefaultSize (wxSize (1000, 15));
+	win->SetOrientation (wxLAYOUT_HORIZONTAL);
+	win->SetAlignment (wxLAYOUT_TOP);
+	
+			// Hide it after creation
+	
+	win->Show (false);
+	m_titleWindow = win;
 
 			// A window to the left of the client window for CMLegendview
 	
@@ -324,7 +340,7 @@ CMImageFrame::CMImageFrame (
 	entries[4].Set(wxACCEL_CTRL, (int) 'P', ID_FILE_PRINT);
 	entries[5].Set(wxACCEL_CTRL, (int) 'Q', wxID_EXIT);
 	
-	entries[6].Set(wxACCEL_CTRL, (int) 'Z', wxID_UNDO);
+	entries[6].Set(wxACCEL_CTRL, (int) 'Z', ID_EDIT_UNDO);	// wxID_UNDO
 	entries[7].Set(wxACCEL_CTRL, (int) 'X', wxID_CUT);
 	entries[8].Set(wxACCEL_CTRL, (int) 'C', wxID_COPY);
 	entries[9].Set(wxACCEL_CTRL, (int) 'V', wxID_PASTE);
@@ -377,7 +393,8 @@ void CMImageFrame::ActivateImageWindowItems (
         Boolean activateFlag,
         Boolean changeWindowFlag) 
 {
-	double		magnification;	
+	double		magnification;
+	
    
 	gNewSelectedWindowFlag = FALSE;
 	
@@ -456,7 +473,8 @@ void CMImageFrame::ActivateImageWindowItems (
 		// is set to FALSE. It may be TRUE if a menu command was processed
 		// using quick keys.
 
-	m_imageViewCPtr->SetControlKeyFlag (FALSE);
+	if (m_imageViewCPtr != NULL)
+		m_imageViewCPtr->SetControlKeyFlag (FALSE);
 
 }	// end "ActivateImageWindowItems"
 
@@ -541,6 +559,14 @@ void CMImageFrame::DoZoomIn (
 				wxMouseEvent&							event)
 
 {
+			// Verify that the global variable for this image view are
+			// correct. It seems at times the activate is not called if the zoom
+			// buttons are selected for a zoom operation when the image window is
+			// not the active window.
+	
+	if (gActiveImageViewCPtr != m_imageViewCPtr)
+		UpdateActiveImageWindowInfo ();
+		
 	GetMainFrame()->SetZoomCode (ID_ZOOM_IN);
 	m_imageViewCPtr->ZoomIn ();
 	
@@ -561,6 +587,14 @@ void CMImageFrame::DoZoomOut (
 				wxMouseEvent&							event)
 
 {
+			// Verify that the global variable for this image view are
+			// correct. It seems at times the activate is not called if the zoom
+			// buttons are selected for a zoom operation when the image window is
+			// not the active window.
+	
+	if (gActiveImageViewCPtr != m_imageViewCPtr)
+		UpdateActiveImageWindowInfo ();
+	
 	GetMainFrame()->SetZoomCode (ID_ZOOM_OUT);
 	m_imageViewCPtr->ZoomOut ();
 	
@@ -603,19 +637,32 @@ Boolean CMImageFrame::GetActiveWindowFlag(void)
 }	// end "GetActiveWindowFlag"
 
 
+/*
+void CMImageFrame::GetCoordinateViewComboText (
+				char* 								comboItemStringPtr,
+				UInt16 								comboBoxSelectionCode)
 
-void CMImageFrame::GetCoordinateViewComboText(char* comboItemStringPtr, UInt16 itemNumber) 
 {
-	wxComboBox* comboBoxPtr = (wxComboBox*)m_coordinatesBar->FindWindow(itemNumber);
-	//wxString selvalue = comboBoxPtr->GetString(comboBoxPtr->GetSelection());
-	wxString selvalue = comboBoxPtr->GetString (0);
-	comboItemStringPtr[0] = (UInt8) selvalue.Len();
-	strncpy(&comboItemStringPtr[1], (const char*)selvalue.mb_str(wxConvUTF8), (int) selvalue.Len());
-	(&comboItemStringPtr[1])[(int) selvalue.Len()] = '\0';
-	//(UInt8) comboBoxPtr->GetLBText(comboBoxPtr->GetCurSel(), &comboItemStringPtr[1]);
+	int listSelection = 0;
+	
+	
+	if (comboBoxSelectionCode > 1)
+		{
+		listSelection = ::GetComboListSelection (m_coordinatesBar,
+																	IDC_AreaUnitsCombo,
+																	comboBoxSelectionCode);
+		listSelection = MAX (0, listSelection);
+		
+		}	// end "if (comboBoxSelectionCode > 1)"
+	
+	wxComboBox* comboBoxPtr = (wxComboBox*)m_coordinatesBar->FindWindow (IDC_AreaUnitsCombo);
+	wxString selvalue = comboBoxPtr->GetString (listSelection);
+	comboItemStringPtr[0] = (UInt8)selvalue.Len ();
+	strncpy (&comboItemStringPtr[1], (const char*)selvalue.mb_str (wxConvUTF8), (int)selvalue.Len ());
+	(&comboItemStringPtr[1])[(int)selvalue.Len ()] = '\0';
 	
 }	// end "GetCoordinateViewComboText"
-
+*/
 
 
 void CMImageFrame::GetMinimumDisplaySizeForImage (
@@ -660,6 +707,7 @@ void CMImageFrame::GetMinimumDisplaySizeForImage (
       		// one pixel extra.
 	
       int coordinateBarHeight = 0;
+      int titleBarHeight = 0;
       //wxRect tempArea;
       UInt16 amountToAllowForHStuff, amountToAllowForVStuff;
 	
@@ -672,6 +720,7 @@ void CMImageFrame::GetMinimumDisplaySizeForImage (
       		// Get coordinate window height
 		
       coordinateBarHeight = GetCoordinateHeight (windowInfoHandle);
+      titleBarHeight = GetTitleHeight (windowInfoHandle);
       /*
 		wxRect coordinateRect = m_coordinatesBar->GetRect ();
 		coordinateBarHeight = coordinateRect.GetHeight ();
@@ -683,14 +732,15 @@ void CMImageFrame::GetMinimumDisplaySizeForImage (
 			amountToAllowForVStuff = 33;
       #else	// mygeohub
 			#if defined multispec_wxmac
-						// Allow 2 pixels around edge for border
+						// Allow 2 pixels left/top and 4 pixels right/bottom around
+						// edge for border
 		
-				titleToolBarHeight += coordinateBarHeight;
+				titleToolBarHeight += coordinateBarHeight + titleBarHeight;
 		
-				amountToAllowForHStuff = 2 * 2 + wxFrameRect.width - wxFrameClientRect.width;
-				amountToAllowForVStuff = 2 * 2 + titleToolBarHeight;
+				amountToAllowForHStuff = 2 + 4 + wxFrameRect.width - wxFrameClientRect.width;
+				amountToAllowForVStuff = 2 + 4 + titleToolBarHeight;
 			#else
-				titleToolBarHeight += coordinateBarHeight;
+				titleToolBarHeight += coordinateBarHeight + titleBarHeight;
 		
 				amountToAllowForHStuff = 2 * 2 + wxFrameRect.width - wxFrameClientRect.width;
 				amountToAllowForVStuff = 2 * 2 + titleToolBarHeight;
@@ -931,10 +981,11 @@ void CMImageFrame::OnMaximizeWindow (
 		
 				otherLegendStuffHeight = titleToolBarHeight;
 		
-						// Allow for 2 pixel space around image frame within the display area
+						// Allow for 2 pixel space left/top and 4 pixels right/bottom around image
+						// frame within the display area
 		
-				clientHeight -= 4;
-				clientWidth -= 4;
+				clientHeight -= 6;
+				clientWidth -= 6;
 			#endif
 		#endif
 		
@@ -1599,6 +1650,31 @@ void CMImageFrame::ShowCoordinateView (
 
 
 
+void CMImageFrame::ShowTitleView (
+				SInt16								inputCode)
+
+{
+	if (inputCode == 0)
+		{
+		m_titleBar->Show (false);
+		m_titleWindow->Show (false);
+		
+		}	// end "if (inputCode == 0)"
+	
+	else	// inputCode != 0
+		{
+		m_titleBar->Show (true);
+		m_titleWindow->Show (true);
+		
+		}	// end "else inputCode != 0"
+
+	wxLayoutAlgorithm layout;
+	layout.LayoutFrame (this, m_mainWindow);
+
+}	// end "ShowTitleView"
+
+
+
 void CMImageFrame::UpdateActiveImageWindowInfo (void)
 {
 		// The active image window class pointer will only change when
@@ -1728,7 +1804,7 @@ void CMImageFrame::UpdateSelectedAreaInformation (
         char* areaValueStringPtr) 
 		  
 {
-	((wxStaticText *) (m_coordinatesBar->FindWindow(IDC_NumberPixelsPrompt)))->SetLabel(wxString::FromUTF8(areaDescriptionStringPtr));
+	//((wxStaticText *) (m_coordinatesBar->FindWindow(IDC_NumberPixelsPrompt)))->SetLabel(wxString::FromUTF8(areaDescriptionStringPtr));
 
 	((wxStaticText *) (m_coordinatesBar->FindWindow(IDC_NumberPixels)))->SetLabel(wxString::FromUTF8(areaValueStringPtr));
 		
@@ -1765,12 +1841,12 @@ void CMImageFrame::UpdateSelectionCoordinates (void)
 
 	else		// !GetSelectionCoordinates (&selectionRectangle)
 		{
-		((wxStaticText*)m_coordinatesBar->FindWindow(IDC_SelectionLine))->Show(false);
-		((wxStaticText*)m_coordinatesBar->FindWindow(IDC_SelectionColumn))->Show(false);
+		((wxStaticText*)m_coordinatesBar->FindWindow (IDC_SelectionLine))->Show(false);
+		((wxStaticText*)m_coordinatesBar->FindWindow (IDC_SelectionColumn))->Show(false);
 		
-		((wxStaticText*)m_coordinatesBar->FindWindow(IDC_NumberPixelsPrompt))->Show(false);
-		((wxStaticText*)m_coordinatesBar->FindWindow(IDC_NumberPixels))->Show(false);
-		((wxWindow*)m_coordinatesBar->FindWindow(IDC_AreaUnitsCombo))->Show(false);
+		//((wxStaticText*)m_coordinatesBar->FindWindow (IDC_NumberPixelsPrompt))->Show(false);
+		((wxStaticText*)m_coordinatesBar->FindWindow (IDC_NumberPixels))->Show(false);
+		((wxWindow*)m_coordinatesBar->FindWindow (IDC_AreaUnitsCombo))->Show(false);
 
 		}	// end "else !GetSelectionCoordinates (&selectionRectangle)"
 		

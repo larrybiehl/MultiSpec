@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 // 								Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (2009-2018)
+//								 Copyright (2009-2019)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -12,7 +12,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			10/19/2018
+//	Revision date:			05/04/2019
 //
 //	Language:				C++
 //
@@ -334,7 +334,7 @@ void CMCEMClassifyDialog::CreateControls ()
 
 
    bSizer156->Add (bSizer157, 0, wxEXPAND, 5);
-
+	/*
    wxBoxSizer* bSizer164;
    bSizer164 = new wxBoxSizer (wxHORIZONTAL);
 
@@ -356,7 +356,8 @@ void CMCEMClassifyDialog::CreateControls ()
 
 
    bSizer156->Add (bSizer164, 0, wxALIGN_RIGHT|wxALL, 12);
-
+	*/
+   CreateStandardButtons (bSizer156);
 
    this->SetSizer (bSizer156);
    this->Layout ();
