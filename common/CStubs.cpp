@@ -366,40 +366,62 @@ void ClipRect (
 	#endif	// defined multispec_win
 	
 	#if defined multispec_lin
-				// NOT FINISHED YET
+				// Note that DestroyClippingRegion () does not see to work for MacOS
+	
 		if (gCDCPointer != NULL) 
 			{
-			wxRect clipRect;
-			clipRect.x = clipRectanglePtr->left;
-			clipRect.y = clipRectanglePtr->top;
-			clipRect.width = clipRectanglePtr->right - clipRectanglePtr->left;
-			clipRect.height = clipRectanglePtr->bottom - clipRectanglePtr->top;
+			wxRect 		clipRect;
 			/*
 			int clipRect_x;
 			int clipRect_y;
 			int clipRect_width;
 			int clipRect_height;
-			gCDCPointer->GetClippingBox (&clipRect_x, 
-													&clipRect_y, 
-													&clipRect_width, 
+			
+			gCDCPointer->GetClippingBox (&clipRect_x,
+													&clipRect_y,
+													&clipRect_width,
 													&clipRect_height);
-					 
-			clipRect_x = clipRectanglePtr->left;
-			clipRect_y = clipRectanglePtr->top;
-			clipRect_width = clipRectanglePtr->right - clipRectanglePtr->left;
-			clipRect_height = clipRectanglePtr->bottom - clipRectanglePtr->top;
-			//gCDCPointer->SetClippingRegion (clipRect);   
 			*/
-			wxRegion clipRgn (clipRect);
 			/*
-			clipRgn.x = clipRectanglePtr->left;
-			clipRgn.y = clipRectanglePtr->top;
-			clipRgn.width = clipRectanglePtr->right - clipRectanglePtr->left;
-			clipRgn.height = clipRectanglePtr->bottom - clipRectanglePtr->top;
+			clipRect.x = 0;
+			clipRect.y = 0;
+			clipRect.width = 0;
+			clipRect.height = 0;
+			wxRegion clipRgn2 (clipRect);
+			gCDCPointer->SetDeviceClippingRegion (clipRgn2);
+			
+			gCDCPointer->GetClippingBox (&clipRect_x,
+													&clipRect_y,
+													&clipRect_width,
+													&clipRect_height);
 			*/
+			clipRect.x = clipRectanglePtr->left;
+			clipRect.y = clipRectanglePtr->top;
+			clipRect.width = clipRectanglePtr->right - clipRectanglePtr->left;
+			clipRect.height = clipRectanglePtr->bottom - clipRectanglePtr->top;
+					 
+			//clipRect_x = clipRectanglePtr->left;
+			//clipRect_y = clipRectanglePtr->top;
+			//clipRect_width = clipRectanglePtr->right - clipRectanglePtr->left;
+			//clipRect_height = clipRectanglePtr->bottom - clipRectanglePtr->top;
+			
+			wxRegion clipRgn (clipRect);
+			
 			gCDCPointer->DestroyClippingRegion ();
+			/*
+			gCDCPointer->GetClippingBox (&clipRect_x,
+													&clipRect_y,
+													&clipRect_width,
+													&clipRect_height);
+			*/
 			gCDCPointer->SetDeviceClippingRegion (clipRgn);
-			//gCDCPointer->SetClippingRegion (clipRgn);
+			/*
+			gCDCPointer->GetClippingBox (&clipRect_x,
+													&clipRect_y,
+													&clipRect_width,
+													&clipRect_height);
+			int clipRect_x_test = clipRect_x;
+			*/
 			} 
 	#endif
 	
@@ -1215,8 +1237,7 @@ void LDelRow (
 				#endif
 
 {
-	SInt16								index,
-											returnCode;
+	SInt16								index;
 
 
 	startRow += numberRows - 1;
@@ -1232,10 +1253,16 @@ void LDelRow (
 				if (startRow < 0)
 					break;
 
-				}	// end "for (index=0; index<numberRows; index++)"    
+				}	// end "for (index=0; index<numberRows; index++)"
+	
+				// Turn off any selections
+	
+		listBoxCPtr->SetSelection (wxNOT_FOUND);
 	#endif	// defined multispec_lin
 
 	#if defined multispec_win
+		SInt16			returnCode;
+	
 		for (index=0; index<numberRows; index++) 
 			{
 			returnCode = listBoxCPtr->DeleteString (startRow);
@@ -2287,6 +2314,27 @@ void UpdatePaletteWindow (
 }	// end "UpdatePaletteMenu"
 
 
+
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2019)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		void UpdateStatWEditMenu
+//
+//	Software purpose:	This routine updates the edit menu for the
+//							statistics window mode.
+//
+//	Parameters in:
+//
+//	Parameters out:
+//
+// Value Returned:	None
+//
+// Called By:
+//
+//	Coded By:			Larry L. Biehl			Date: 02/15/1989
+//	Revised By:			Larry L. Biehl			Date: 10/06/1998
 
 void UpdateStatWEditMenu (void)
 
