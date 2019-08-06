@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -12,7 +12,7 @@
 //	Authors:					Behzad M Shahshahani
 //								Larry L. Biehl
 //
-//	Revision date:			12/07/2018
+//	Revision date:			03/22/2019
 //
 //	Language:				C
 //
@@ -376,7 +376,7 @@ SInt16									gSoftThresholdSelection;
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1190,7 +1190,7 @@ SInt16 behzad_ModifyStatistics (
 		
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1359,7 +1359,7 @@ void CopyEnhancedStatsToProject (
 
 #if defined multispec_mac                                                              
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1400,7 +1400,7 @@ pascal void DrawHardThresholdPopUp (
 
 #if defined multispec_mac                                                              
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1440,7 +1440,7 @@ pascal void DrawSoftThresholdPopUp (
 		
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1536,7 +1536,7 @@ double Gaussian (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1656,7 +1656,7 @@ SInt16 GetLongestDistanceClass (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1912,7 +1912,7 @@ SInt16 GetLongestDistanceField (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2023,7 +2023,7 @@ Boolean GetLongestDistanceProject (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2104,7 +2104,7 @@ void GetMaximumClassDistances (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2123,7 +2123,7 @@ void GetMaximumClassDistances (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 01/03/1994
-//	Revised By:			Larry L. Biehl			Date: 08/18/2010
+//	Revised By:			Larry L. Biehl			Date: 03/22/2019
 
 UInt32 GetStatisticsEnhancePixelInterval (void)
 
@@ -2132,15 +2132,14 @@ UInt32 GetStatisticsEnhancePixelInterval (void)
 	
 	SInt16*								classPtr;
 	
-	SInt64								numberPixels;
+	SInt64								lContBlock,
+											numberPixels;
 											
 	UInt32								bytesNeeded,
 											interval,
-											lContBlock,
 											memoryLeft,
 											numberChannels,
 											numberClasses,
-//											numberLPixels,
 											numberULPixels;
 											
 			
@@ -2281,7 +2280,7 @@ UInt32 GetStatisticsEnhancePixelInterval (void)
 
 		
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2338,7 +2337,7 @@ SInt64 GetTotalNumberTrainPixels (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2524,7 +2523,7 @@ UInt32 GetUnlabeledLogLikes (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2659,7 +2658,7 @@ Boolean InitializeStatisticsVariables (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2926,7 +2925,7 @@ Boolean ListStatEnhanceSpecifications (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3103,7 +3102,7 @@ Boolean LoadStatEnhanceClassStatistics (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3347,7 +3346,7 @@ Boolean LoadStatisticsEnhanceSpecs (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3767,7 +3766,7 @@ Boolean StatisticsEnhance (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3855,6 +3854,7 @@ void StatisticsEnhanceControl (void)
 																&gStatEnhanceSpecsPtr->numberClasses,
 																(SInt16*)classPtr,
 																1,
+																gProjectInfoPtr->statisticsCode,
 																(SInt16)covarianceStatsToUse, 
 																kSetupGlobalInfoPointers,
 																NULL);	
@@ -3967,7 +3967,7 @@ void StatisticsEnhanceControl (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4640,7 +4640,7 @@ Boolean StatisticsEnhanceDialog (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4849,7 +4849,7 @@ void StatisticsEnhanceDialogInitialize (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4971,7 +4971,7 @@ void StatisticsEnhanceDialogOK (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5040,7 +5040,7 @@ void StatisticsEnhanceDialogUpdateThresholdItems (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5086,7 +5086,7 @@ void StatisticsEnhanceDialogUpdateChiSquaredValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5131,7 +5131,7 @@ void UpdateNumberUnlabeledSamples (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5178,7 +5178,7 @@ void UpdateNumberLabeledSamples (
 
                                                                                  
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

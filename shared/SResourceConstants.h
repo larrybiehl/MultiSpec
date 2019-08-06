@@ -3,15 +3,13 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
-//	File:						SRConsnt.h
+//	File:						SResourceConstants.h
 //
 //	Authors:					Larry L. Biehl
-//
-//	Revision number:		3.0
 //
 //	Language:				C
 //
@@ -22,7 +20,7 @@
 //
 //	Written By:				Larry L. Biehl			Date: 03/29/1988
 //	Revised By:				Abdur Maud				Date: 06/24/2013
-//	Revised By:				Larry L. Biehl			Date: 11/30/2018
+//	Revised By:				Larry L. Biehl			Date: 04/30/2019
 //	
 //------------------------------------------------------------------------------------
 
@@ -1260,7 +1258,7 @@
 	#define	kReformatStrID							0
 	#define	kProjectStrID							0
 	#define	kSymbolsStrID							0
-	#define	kClassifyStrID							0
+	#define	kClassifyStrID							156
 	#define	kDialogStrID							0
 	#define	kAlertStrID								0
 	#define	kListResultsStrID						0

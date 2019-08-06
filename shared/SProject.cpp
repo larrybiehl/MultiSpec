@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			02/27/2018
+//	Revision date:			06/04/2019
 //
 //	Language:				C
 //
@@ -261,7 +261,7 @@ SInt16	 				WriteStatistics (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -330,7 +330,7 @@ void AdjustFieldBoundaries (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -403,7 +403,7 @@ void AdjustLabelPoints (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -603,7 +603,7 @@ void ChangeProjectBaseImage (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -649,7 +649,7 @@ Boolean CheckIfProjectAssociatedImage (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -718,7 +718,7 @@ Boolean CheckIfProjectBaseImage (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -806,7 +806,7 @@ void CloseProjectImageFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -901,7 +901,7 @@ void CloseProjectStructure (
     
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -985,7 +985,7 @@ Boolean ClusterStatisticsVerification (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1123,7 +1123,7 @@ SInt16 CompareImageDimensionsWithProjectFields (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1218,7 +1218,7 @@ Boolean CompareImageProjectFileInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1308,7 +1308,7 @@ Boolean	CopyFileInfoFromProject (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1490,7 +1490,7 @@ SInt16 CopyFileInfoHandles (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1636,7 +1636,7 @@ Boolean CreateNewProject (
 
                   
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1735,7 +1735,7 @@ void DeactivateProject (void)
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1804,7 +1804,7 @@ Handle FindProjectBaseImageFileInfoHandle ()
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1877,7 +1877,7 @@ Handle FindProjectBaseImageWindowInfoHandle ()
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1915,7 +1915,7 @@ WindowPtr FindProjectBaseImageWindowPtr ()
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2044,7 +2044,7 @@ Boolean FindProjectImageWindows (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2085,7 +2085,7 @@ void ForceProjectCodeResourceLoad (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2132,7 +2132,7 @@ double GetDefaultZeroVarianceFactor (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2167,7 +2167,7 @@ void* GetFileNameCPointerFromProjectInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2213,7 +2213,7 @@ void* GetFileNameCPointerFromProjectInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2248,7 +2248,7 @@ void* GetFileNamePPointerFromProjectInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2294,7 +2294,7 @@ void* GetFileNamePPointerFromProjectInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2338,7 +2338,7 @@ CMFileStream* GetFileStreamPointer (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2525,7 +2525,7 @@ Boolean GetProjectImageFileInfo (
 
                       
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2617,7 +2617,7 @@ void GetProjectSelectionWindow (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2705,7 +2705,7 @@ void GetProjectStatisticsPointers (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2891,7 +2891,7 @@ Boolean GetProjectStructure (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3062,7 +3062,7 @@ Boolean GetSpecifiedImageFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3100,7 +3100,7 @@ SInt16 GetVolumeReferenceNumber (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3264,7 +3264,7 @@ void InitializeNewProject (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3282,7 +3282,7 @@ void InitializeNewProject (
 // Called By:	
 //
 //	Coded By:			Larry L. Biehl			Date: 12/29/1988
-//	Revised By:			Larry L. Biehl			Date: 03/23/2006	
+//	Revised By:			Larry L. Biehl			Date: 06/04/2019
 
 void InitializeProjectStructure (
 				Handle								projectInfoHandle,
@@ -3348,7 +3348,9 @@ void InitializeProjectStructure (
 		gProjectInfoPtr->currentClass = -1;
 		gProjectInfoPtr->currentField = -1;
 		gProjectInfoPtr->currentCoordinate = -1;
+		gProjectInfoPtr->includesStatisticsFromClusterOperationFlag = FALSE;
 		gProjectInfoPtr->newProjectFlag = TRUE;
+		gProjectInfoPtr->pixelDataLoadedFlag = FALSE;
 		gProjectInfoPtr->statsUpToDate = TRUE;
 		gProjectInfoPtr->statsLoaded = FALSE;
 		gProjectInfoPtr->changedFlag = FALSE;
@@ -3535,7 +3537,7 @@ void InitializeProjectStructure (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3775,7 +3777,7 @@ Boolean	LoadProjectFileAndLayerInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3816,7 +3818,7 @@ void OpenNewProject (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3835,7 +3837,7 @@ void OpenNewProject (void)
 //							main in multiSpec.c
 //
 //	Coded By:			Larry L. Biehl			Date: 12/29/1988
-//	Revised By:			Larry L. Biehl			Date: 09/01/2017	
+//	Revised By:			Larry L. Biehl			Date: 04/08/2019
 
 void OpenProjectFile (
 				LocalAppFile*						localAppFilePtr)
@@ -3959,6 +3961,7 @@ void OpenProjectFile (
 																0,
 																0,
 																gTextString,
+																NULL,
 																kUTF8CharString);
 						
 					if (returnCode == 2)		
@@ -4019,7 +4022,7 @@ void OpenProjectFile (
 															
 				// Outline field boundaries if requested.									
 				
-		OutlineFieldsInProjectWindows (gProjectInfoPtr->statsWindowMode);
+		OutlineFieldsInProjectWindows (gProjectInfoPtr->statsWindowMode, kDoClearArea);
 		
 				// Set the 'gProjectSelectionWindow' window to be the top-most		
 				// base image window.															
@@ -4033,7 +4036,7 @@ void OpenProjectFile (
 
                   
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4204,7 +4207,7 @@ void	OpenProjectImageWindow (void)
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4313,7 +4316,7 @@ void ReleaseProjectHandles (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4406,7 +4409,7 @@ void ReleaseStatisticsHandles (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4476,7 +4479,7 @@ void UnlockProjectWindowInfoHandles (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4529,7 +4532,7 @@ void UpdateProjectMapProjectionHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4745,7 +4748,7 @@ Boolean UserLocateProjectBaseImage (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4765,27 +4768,31 @@ Boolean UserLocateProjectBaseImage (
 //							ChangeProjectBaseImage in project.c
 //
 //	Coded By:			Larry L. Biehl			Date: 12/20/2001
-//	Revised By:			Larry L. Biehl			Date: 12/20/2001
+//	Revised By:			Larry L. Biehl			Date: 04/19/2019
 
 Boolean VerifyImageFileCanBeForProject (
 				Handle								imageWindowInfoH)
 
 {
-	Boolean								returnFlag;
+	Boolean								returnFlag = FALSE;
 	
 	
-	returnFlag = DetermineIfHDFProjectPossible (imageWindowInfoH);
-	
-	if (!returnFlag)
-				// Display an alert indicating that MultiSpec cannot use this HDF file
-				// as a base image for a project.
-				
-		DisplayAlert (kErrorAlertID, 
-							kStopAlert, 
-							kAlertStrID, 
-							IDS_Alert105,
-							IDS_Alert106, 
-							NULL);
+	if (imageWindowInfoH != NULL)
+		{
+		returnFlag = DetermineIfHDFProjectPossible (imageWindowInfoH);
+		
+		if (!returnFlag)
+					// Display an alert indicating that MultiSpec cannot use this HDF file
+					// as a base image for a project.
+			
+			DisplayAlert (kErrorAlertID,
+								kStopAlert,
+								kAlertStrID,
+								IDS_Alert105,
+								IDS_Alert106,
+								NULL);
+		
+		}	// end "if (imageWindowInfoH != NULL) "
 	
 	return (returnFlag);
 

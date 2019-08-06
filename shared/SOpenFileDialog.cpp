@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//							 Copyright (1988-2018)
+//							 Copyright (1988-2019)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			11/30/2018
+//	Revision date:			04/10/2019
 //
 //	Language:				C
 //
@@ -344,7 +344,7 @@ SInt16 gCollapseClassSelection = 1;
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -570,7 +570,7 @@ Boolean AddSelectedFilesToWindow (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -748,7 +748,7 @@ Boolean CheckForLandsatAnalysisReadyFileList (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -771,7 +771,7 @@ Boolean CheckForLandsatAnalysisReadyFileList (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 01/15/2013
-//	Revised By:			Larry L. Biehl			Date: 03/16/2017	
+//	Revised By:			Larry L. Biehl			Date: 04/10/2019
 
 Boolean CheckForLandsatETMFileList (
 				UInt32								itemCount,
@@ -812,7 +812,8 @@ Boolean CheckForLandsatETMFileList (
 				{
 				CopyPToP (savedFileName, fileName);
 				savedFileName[0] -= 3;
-				if (CompareStringsNoCase ((UCharPtr)"LE7", &savedFileName[1], 3))
+				if (CompareStringsNoCase ((UCharPtr)"LE7", &savedFileName[1], 3) &&
+							CompareStringsNoCase ((UCharPtr)"LE07", &savedFileName[1], 4))
 					break;
 
 						// Now need to verify that is first file is not one of the thermal
@@ -910,7 +911,7 @@ Boolean CheckForLandsatETMFileList (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1095,7 +1096,7 @@ Boolean CheckForInstrumentFileList (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1216,7 +1217,7 @@ Boolean CheckForLandsatMSSFileList (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1376,7 +1377,7 @@ Boolean CheckForLandsatSurfaceReflectanceFileList (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1538,7 +1539,7 @@ Boolean CheckForLandsatTMFileList (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1701,7 +1702,7 @@ Boolean CheckForLandsat8FileList (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1865,7 +1866,7 @@ Boolean CheckForSentinel2FileList (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1905,7 +1906,7 @@ pascal void DrawCollapseClassOptionPopUp (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1944,7 +1945,7 @@ pascal void DrawHDFDataSetPopUp (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2950,7 +2951,7 @@ Boolean FileSpecificationDialog (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3256,7 +3257,7 @@ void FileSpecificationDialogInitialize (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3275,7 +3276,7 @@ void FileSpecificationDialogInitialize (
 // Called By:			FileSpecificationDialog in SOpenFileDialog.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/27/1999
-//	Revised By:			Larry L. Biehl			Date: 09/30/2018
+//	Revised By:			Larry L. Biehl			Date: 04/10/2019
 
 Boolean FileSpecificationDialogOK (
 				DialogPtr							dialogPtr,
@@ -3744,6 +3745,14 @@ Boolean FileSpecificationDialogOK (
 
 				windowInfoPtr->numberImageOverlays = 0;
 				windowInfoPtr->numberOverlays = 0;
+				
+						// Indicate that the image base address for the bitmap will not be
+						// valid
+				
+				#if defined multispec_lin
+					if (windowInfoPtr->offscreenMapSize <= 0)
+						windowInfoPtr->imageBaseAddressH = NULL;
+				#endif
 
 				}	// end "if (windowInfoPtr != NULL)"
 
@@ -3945,7 +3954,7 @@ Boolean FileSpecificationDialogOK (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4200,7 +4209,7 @@ SInt16 FileSpecificationDialogSetHDFValues (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4355,7 +4364,7 @@ void FileSpecificationDialogSetInterleaveItems (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4414,7 +4423,7 @@ SInt16 FileSpecificationDialogGetNumberBytes (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4496,7 +4505,7 @@ SInt16 FileSpecificationDialogSetDataType (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4537,7 +4546,7 @@ SInt16 LinkFiles (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4730,7 +4739,7 @@ SInt16 LinkSelectedFilesToNewWindow (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4786,7 +4795,7 @@ void ListFileIgnoredMessage (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4853,7 +4862,7 @@ SInt16 LoadSelectedDataSetInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5177,7 +5186,7 @@ SInt32 OpenImageFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5364,7 +5373,7 @@ Boolean OpenSeparateImageWindows (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5488,7 +5497,7 @@ SInt16 OpenSpecifiedFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5544,7 +5553,7 @@ void ReorderLandsat8FileList (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5619,7 +5628,7 @@ void SetHDFDataSetFileInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5851,7 +5860,7 @@ void SetUpHDFDataSetPopupMenu (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6005,7 +6014,7 @@ SInt16 VerifyFileInfoDialogValues (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

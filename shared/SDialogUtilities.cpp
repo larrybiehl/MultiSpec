@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl, Ravi Budruk
 //
-//	Revision date:			02/28/2019
+//	Revision date:			03/12/2019
 //
 //	Language:				C
 //
@@ -1057,7 +1057,7 @@ void DeactivateDialogItem (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 09/04/2017
-//	Revised By:			Larry L. Biehl			Date: 09/04/2017
+//	Revised By:			Larry L. Biehl			Date: 03/12/2019
 
 SInt16 DisplayAlert (
 				SInt16								alertResourceId, 
@@ -1068,13 +1068,14 @@ SInt16 DisplayAlert (
 				UCharPtr								stringPtr)
 
 {
-return (DisplayAlert (alertResourceId,
-								alertType,
-								stringID,
-								stringNumber1,
-								stringNumber2,
-								stringPtr,
-								kASCIICharString));
+	return (DisplayAlert (alertResourceId,
+									alertType,
+									stringID,
+									stringNumber1,
+									stringNumber2,
+									stringPtr,
+									NULL,
+									kASCIICharString));
 
 }	// end "DisplayAlert"
 
@@ -1102,7 +1103,7 @@ return (DisplayAlert (alertResourceId,
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 06/25/1990
-//	Revised By:			Larry L. Biehl			Date: 02/28/2019
+//	Revised By:			Larry L. Biehl			Date: 03/12/2019
 
 SInt16 DisplayAlert (
 				SInt16								alertResourceId, 
@@ -1111,6 +1112,7 @@ SInt16 DisplayAlert (
 				SInt16								stringNumber1,
 				SInt16								stringNumber2,
 				UCharPtr								stringPtr,
+				DialogPtr							parentPtr,
 				UInt16								stringCharCode)
 
 {
@@ -1456,12 +1458,15 @@ SInt16 DisplayAlert (
 			{
 			if (stringCharCode == kASCIICharString)
 				itemHit = AfxMessageBox ((LPCTSTR)A2T((LPCSTR)&stringPtr[1]), alertResourceId, 0);
+			
 			else
 				{
 				TBYTE* unicodeStringPtr;
 				unicodeStringPtr = ConvertMultibyteStringToUnicodeString (&stringPtr[1]);
 				itemHit = AfxMessageBox (&unicodeStringPtr[1], alertResourceId, 0);
+				
 				}
+			
 			}
 			              
 		switch (itemHit)
@@ -1504,20 +1509,16 @@ SInt16 DisplayAlert (
 			if (MGetString (textptr, 0, stringNumber1))
 				{
 						// Now convert in wxstring
-				//wxString message (textptr,wxConvUTF8);
+				
 				unsigned char* textmsg = &textptr[1];
 				message << textmsg;
-				//wxMessageDialog dialog (NULL,wxT("Multispec"),message,style);
-				
+
 				}	// end "if (MGetString (textptr, 0, stringNumber1))"
 				
 			else	// !MGetString (textptr, 0, stringNumber1)
 				{
-				//message = wxT("Invalid String table ID");
 				message = wxString::Format (
 										wxT("%d: %s"), stringNumber1, "Invalid String table ID");
-				//wxMessageDialog dialog (
-				//						NULL, wxT("Multispec"), wxT("Invalid String table ID"));
 				
 				}	// end "else !MGetString (textptr, 0, stringNumber1)"
 
@@ -1525,32 +1526,18 @@ SInt16 DisplayAlert (
 			
 		else if (stringPtr != NULL) 
 			{
-			//wxString message (stringPtr,wxConvUTF8);
 			message << &stringPtr[1];
 			
 			}	// end "else if (stringPtr != NULL) "
-		/*
-		int answer = wxMessageBox (wxT("Quit?"), wxT("Multispec"), style, NULL);
-		switch (answer)
-			{
-			case wxYES:
-				itemHit = 1;
-				break;
-		
-			case wxNO:
-				itemHit = 3;
-				break;
-		
-			case wxCANCEL:
-				itemHit = 2;
-				break;
-		
-			}	// end "switch (itemHit)"
-		*/
-		wxMessageDialog dialog (GetMainFrame (), message, wxT("MultiSpec"), style);
-		//wxFrame* frame = GetActiveFrame ();
-		//wxMessageDialog dialog (frame, message, wxT("MultiSpec"), style);               
-               
+	
+				// Note that I tried using the positioning parameter for wxMessageDialg but
+				// find that it is not used.
+	
+		wxWindow* parentWindowPtr = parentPtr;
+		if (parentPtr == NULL)
+			parentWindowPtr = GetMainFrame ();
+		wxMessageDialog dialog (parentWindowPtr, message, wxT("MultiSpec"), style);
+	
 		int answer = dialog.ShowModal ();
 		switch (answer) 
 			{

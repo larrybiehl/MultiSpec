@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			02/19/2019
+//	Revision date:			07/19/2019
 //
 //	Language:				C
 //
@@ -367,7 +367,7 @@ void UpdateThematicTypeMinMaxes (
 // Called By:			DisplayColorImage in SDisplay.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 06/26/1990
-//	Revised By:			Larry L. Biehl			Date: 02/01/2019
+//	Revised By:			Larry L. Biehl			Date: 04/24/2019
 
 void DisplayImagesSideBySide (
 				DisplaySpecsPtr					displaySpecsPtr,
@@ -376,7 +376,8 @@ void DisplayImagesSideBySide (
 				UInt32								pixRowBytes,
 				PixMapHandle						savedPortPixMapH,
 				PixMapHandle						offScreenPixMapH,
-				LongRect*							rectPtr)
+				LongRect*							rectPtr,
+				LCToWindowUnitsVariables* 		lcToWindowUnitsVariablesPtr)
 {
 	LongRect								longSourceRect;
 
@@ -400,6 +401,9 @@ void DisplayImagesSideBySide (
 											//offScreen2BytePtr;
 
 	UInt16*								channelsPtr;
+	
+	int									nextStatusAtLeastLine,
+											nextStatusAtLeastLineIncrement;
 
 	SInt32								displayBottomMax;
 
@@ -419,8 +423,9 @@ void DisplayImagesSideBySide (
 											maxValue,
 											numberSamples;
 	
-	#if defined multispec_wxlin
+	#if defined multispec_lin
 		UInt32								lineBytesOffset = 0;
+		UInt32								savedLineBytesOffset = 0;
 	#endif
 
 	SInt16								channel,
@@ -473,6 +478,7 @@ void DisplayImagesSideBySide (
 
 		if (!CheckSomeDisplayEvents (gImageWindowInfoPtr,
 												displaySpecsPtr,
+												lcToWindowUnitsVariablesPtr,
 												savedPortPixMapH,
 												offScreenPixMapH,
 												&longSourceRect,
@@ -567,6 +573,14 @@ void DisplayImagesSideBySide (
 			// should occur for a command-.
 
 	gNextTime = TickCount () + kDisplayTimeOffset;
+		
+			// These variables are to make sure the display window is not being updated
+			// after a very few lines are loaded in. It will override the time interval
+			// which is currently every 1 second.
+	
+	nextStatusAtLeastLineIncrement = (10 * lineInterval) / displaySpecsPtr->magnification;
+	nextStatusAtLeastLineIncrement = MAX (nextStatusAtLeastLineIncrement, 10);
+	nextStatusAtLeastLine = displaySpecsPtr->lineStart + nextStatusAtLeastLineIncrement;
 
 			// Loop through the image files.
 
@@ -575,6 +589,8 @@ void DisplayImagesSideBySide (
 			fileInfoIndex++)
 		{
 		longSourceRect.top = rectPtr->top;
+		
+		displaySpecsPtr->drawSideBySideTitleFlag = TRUE;
 
 				// Get the number of channels used in this image file.
 
@@ -709,7 +725,7 @@ void DisplayImagesSideBySide (
 
 							for (j = 0; j < numberSamples; j += interval)
 								{
-								#if defined multispec_wxmac
+								#if defined multispec_wxmac_alpha
 											// Skip first (alpha) byte in wxBitmap
 									offScreenPtr++;
 								#endif
@@ -726,16 +742,16 @@ void DisplayImagesSideBySide (
 
 								  offScreenPtr++;
 								
-									#if defined multispec_wxlin
-												// Skip first (alpha) byte in wxBitmap
+									#if defined multispec_wxlin_alpha
+												// Skip last (alpha) byte in wxBitmap
 										offScreenPtr++;
 									#endif
-								#endif
+								#endif	// defined multispec_lin
 								buffer1Ptr += interval;
 
 								}	// end "for (j=0;..."
 							
-							#if defined multispec_wxmac
+							#if defined multispec_wxmac_alpha
 										// Skip first (alpha) byte in wxBitmap
 								offScreenPtr++;
 							#endif
@@ -748,12 +764,12 @@ void DisplayImagesSideBySide (
 								offScreenPtr++;
 								*offScreenPtr = separatorByte;
 								
-								#if defined multispec_wxlin
-											// Skip first (alpha) byte in wxBitmap
+								#if defined multispec_wxlin_alpha
+											// Skip last (alpha) byte in wxBitmap
 									offScreenPtr++;
 								#endif
 							
-								#if defined multispec_wxmac
+								#if defined multispec_wxmac_alpha
 											// Skip first (alpha) byte in wxBitmap
 									offScreenPtr++;
 								#endif
@@ -765,12 +781,13 @@ void DisplayImagesSideBySide (
 								*offScreenPtr = separatorByte;
 
 								offScreenPtr++;
-							#endif
+							#endif	// defined multispec_lin
+							
 							*offScreenPtr = separatorByte;
 							offScreenPtr++;
 								
-							#if defined multispec_wxlin
-										// Skip first (alpha) byte in wxBitmap
+							#if defined multispec_wxlin_alpha
+										// Skip last (alpha) byte in wxBitmap
 								offScreenPtr++;
 							#endif
 
@@ -797,7 +814,7 @@ void DisplayImagesSideBySide (
 
 							for (j=0; j<numberSamples; j+=interval)
 								{
-								#if defined multispec_wxmac
+								#if defined multispec_wxmac_alpha
 											// Skip first (alpha) byte in wxBitmap
 									offScreenPtr++;
 								#endif
@@ -814,52 +831,56 @@ void DisplayImagesSideBySide (
 									offScreenPtr++;
 									*offScreenPtr = (SInt8)(dataToLevelPtr[dataValue]);
 
-								  offScreenPtr++;
+								  	offScreenPtr++;
 								
-								  #if defined multispec_wxlin
-											// Skip first (alpha) byte in wxBitmap
-									offScreenPtr++;
+									#if defined multispec_wxlin_alpha
+												// Skip last (alpha) byte in wxBitmap
+										offScreenPtr++;
+									#endif
 								#endif
-
-								#endif
-								  buffer2Ptr += interval;
+								
+								buffer2Ptr += interval;
 
 								}	// end "for (j=0;..."
 							
-							#if defined multispec_wxmac
+							#if defined multispec_wxmac_alpha
 										// Skip first (alpha) byte in wxBitmap
 								offScreenPtr++;
 							#endif
 
 							*offScreenPtr = separatorByte;
 							offScreenPtr++;
-							*offScreenPtr = separatorByte;
-							offScreenPtr++;
 							#if defined multispec_lin
 								*offScreenPtr = separatorByte;
 							
-								//#if defined multispec_wxmac
-								#if defined multispec_lin
-											// Skip first (alpha) byte in wxBitmap
-									offScreenPtr++;
-								#endif
-
 								offScreenPtr++;
 								*offScreenPtr = separatorByte;
-
-								offScreenPtr++;
-								*offScreenPtr = separatorByte;
-
-								offScreenPtr++;
-								*offScreenPtr = separatorByte;
-
-								offScreenPtr++;
 							
-								#if defined multispec_wxlin
+								#if defined multispec_lin_alpha
+											// Skip last (alpha) byte in wxBitmap
+									offScreenPtr++;
+								#endif
+							
+								#if defined multispec_wxmac_alpha
 											// Skip first (alpha) byte in wxBitmap
 									offScreenPtr++;
 								#endif
 
+								offScreenPtr++;
+								*offScreenPtr = separatorByte;
+
+								offScreenPtr++;
+								*offScreenPtr = separatorByte;
+
+								offScreenPtr++;
+							#endif	// defined multispec_lin
+							
+							*offScreenPtr = separatorByte;
+							offScreenPtr++;
+							
+							#if defined multispec_wxlin_alpha
+										// Skip last (alpha) byte in wxBitmap
+								offScreenPtr++;
 							#endif
 
 							dataToLevelPtr += bytesOffset;
@@ -872,37 +893,49 @@ void DisplayImagesSideBySide (
 							// check if user wants to exit drawing								
 
 					lineCount++;
-					if (TickCount () >= gNextTime)
+					if (TickCount () >= gNextTime && lineCount >= nextStatusAtLeastLine)
 						{
+						#if defined multispec_lin
+							displaySpecsPtr->updateEndLine = lineCount;
+						#endif
+					
 						longSourceRect.bottom = lineCount;
 						if (!CheckSomeDisplayEvents (gImageWindowInfoPtr,
-															  displaySpecsPtr,
-															  savedPortPixMapH,
-															  offScreenPixMapH,
-															  &longSourceRect,
-															  displayBottomMax))
+																displaySpecsPtr,
+																lcToWindowUnitsVariablesPtr,
+																savedPortPixMapH,
+																offScreenPixMapH,
+																&longSourceRect,
+																displayBottomMax))
 							{
 							stopFlag = TRUE;
 							break;
 
 							}	// end "if (!CheckSomeEvents (osMask..."
 						
-						#if defined multispec_wxlin
+						#if defined multispec_lin
+							displaySpecsPtr->updateStartLine = lineCount;
+
 									// Get the bitmap raw data pointer again. It may have changed.
 
 							offScreenLinePtr = (unsigned char*)gImageWindowInfoPtr->imageBaseAddressH;
-							offScreenLinePtr += (lineCount-1) * pixRowBytes;
+							offScreenLinePtr += lineBytesOffset + (SInt64)(lineCount-1) * pixRowBytes;
 						#endif
+					
+						nextStatusAtLeastLine = lineCount + nextStatusAtLeastLineIncrement;
+						nextStatusAtLeastLine = MIN (nextStatusAtLeastLine, lineEnd);
+						
+						displaySpecsPtr->drawSideBySideTitleFlag = FALSE;
 
 						}	// end "if (TickCount () >= gNextTime)"
 
 					if (line == lineStart)
 						{
-						#if defined multispec_wxlin
+						#if defined multispec_lin
 									// Also get the number bytes offset in case needed for
-									// wxlin version
+									// wx version
 						
-							lineBytesOffset += (offScreenPtr - savedOffScreenLinePtr);
+							savedLineBytesOffset += (offScreenPtr - savedOffScreenLinePtr);
 						#endif
 						
 						savedOffScreenLinePtr = offScreenPtr;
@@ -928,29 +961,33 @@ void DisplayImagesSideBySide (
 
 					}	// end "if (gUseThreadedIOFlag)"
 
-				}	// end "for (line=lineStart;"
+				}	// end "for (line=lineStart; ..."
 
 					// Force last lines in image window for image file to be updated.
 
+			//if (longSourceRect.bottom != -1)
+			//	longSourceRect.bottom = lineCount;
 			longSourceRect.bottom = lineCount;
+			
+			#if defined multispec_lin
+				displaySpecsPtr->updateEndLine = lineCount;
+			#endif
+			
 			if (!CheckSomeDisplayEvents (gImageWindowInfoPtr,
-												  displaySpecsPtr,
-												  savedPortPixMapH,
-												  offScreenPixMapH,
-												  &longSourceRect,
-												  displayBottomMax))
+													displaySpecsPtr,
+													lcToWindowUnitsVariablesPtr,
+													savedPortPixMapH,
+													offScreenPixMapH,
+													&longSourceRect,
+													displayBottomMax))
 				{
 				stopFlag = TRUE;
 				break;
 
 				}	// end "if (!CheckSomeEvents (osMask..."
 			
-			#if defined multispec_wxlin
-						// Get the bitmap raw data pointer again. It may have changed.
-						// Also need to adjust for the column offset.
-
-				savedOffScreenLinePtr = lineBytesOffset +
-									(unsigned char*)gImageWindowInfoPtr->imageBaseAddressH;
+			#if defined multispec_lin
+				displaySpecsPtr->updateStartLine = lineCount;
 			#endif
 
 			dataDisplayPtr += bytesOffset*imageFileNumberChannels;
@@ -961,6 +998,20 @@ void DisplayImagesSideBySide (
 
 		if (stopFlag)
 			break;
+		
+		#if defined multispec_lin
+			lineBytesOffset = savedLineBytesOffset;
+
+			displaySpecsPtr->updateStartLine = lineCount;
+		
+					// Get the bitmap raw data pointer again. It may have changed.
+					// Also need to adjust for the column offset.
+
+			savedOffScreenLinePtr = lineBytesOffset +
+								(unsigned char*)gImageWindowInfoPtr->imageBaseAddressH;
+		#endif
+		
+		displaySpecsPtr->drawSideBySideTitleFlag = TRUE;
 
 		}	// end "for (imageFile=1; ..."
 
@@ -1000,7 +1051,7 @@ void DisplayImagesSideBySide (
 // Called By:			DisplayColorImage in display.c
 //
 //	Coded By:			Larry L. Biehl			Date: 01/04/2006
-//	Revised By:			Larry L. Biehl			Date: 02/01/2019
+//	Revised By:			Larry L. Biehl			Date: 04/15/2019
 
 void Display4_8ByteImagesSideBySide (
 				DisplaySpecsPtr					displaySpecsPtr,
@@ -1010,7 +1061,8 @@ void Display4_8ByteImagesSideBySide (
 				UInt32								pixRowBytes,
 				PixMapHandle						savedPortPixMapH,
 				PixMapHandle						offScreenPixMapH,
-				LongRect*							rectPtr)
+				LongRect*							rectPtr,
+				LCToWindowUnitsVariables* 		lcToWindowUnitsVariablesPtr)
 {
 	LongRect								longSourceRect;
 
@@ -1109,6 +1161,7 @@ void Display4_8ByteImagesSideBySide (
 
 		if (!CheckSomeDisplayEvents (gImageWindowInfoPtr,
 												displaySpecsPtr,
+												lcToWindowUnitsVariablesPtr,
 												savedPortPixMapH,
 												offScreenPixMapH,
 												&longSourceRect,
@@ -1366,7 +1419,7 @@ void Display4_8ByteImagesSideBySide (
 
 								}	// end "else doubleBinIndex >= 0 && ..."
 								
-							#if defined multispec_wxmac
+							#if defined multispec_wxmac_alpha
 										// Skip first (alpha) byte in wxBitmap
 								offScreenPtr++;
 							#endif
@@ -1380,7 +1433,7 @@ void Display4_8ByteImagesSideBySide (
 								offScreenPtr++;
 								*offScreenPtr = (SInt8)(dataToLevelPtr[binIndex]);
 								
-								#if defined multispec_wxlin
+								#if defined multispec_wxlin_alpha
 											// Skip last (alpha) byte in wxBitmap
 									offScreenPtr++;
 								#endif
@@ -1391,7 +1444,7 @@ void Display4_8ByteImagesSideBySide (
 
 							}	// end "for (j=0;..."
 								
-						#if defined multispec_wxmac
+						#if defined multispec_wxmac_alpha
 									// Skip first (alpha) byte in wxBitmap
 							offScreenPtr++;
 						#endif
@@ -1404,12 +1457,12 @@ void Display4_8ByteImagesSideBySide (
 							offScreenPtr++;
 							*offScreenPtr = separatorByte;
 								
-							#if defined multispec_wxlin
+							#if defined multispec_wxlin_alpha
 										// Skip last (alpha) byte in wxBitmap
 								offScreenPtr++;
 							#endif
 								
-							#if defined multispec_wxmac
+							#if defined multispec_wxmac_alpha
 										// Skip first (alpha) byte in wxBitmap
 								offScreenPtr++;
 							#endif
@@ -1424,7 +1477,7 @@ void Display4_8ByteImagesSideBySide (
 						offScreenPtr++;
 						*offScreenPtr = separatorByte;
 								
-						#if defined multispec_wxlin
+						#if defined multispec_wxlin_alpha
 									// Skip last (alpha) byte in wxBitmap
 							offScreenPtr++;
 						#endif
@@ -1443,22 +1496,23 @@ void Display4_8ByteImagesSideBySide (
 						{
 						longSourceRect.bottom = lineCount;
 						if (!CheckSomeDisplayEvents (gImageWindowInfoPtr,
-															  displaySpecsPtr,
-															  savedPortPixMapH,
-															  offScreenPixMapH,
-															  &longSourceRect,
-															  displayBottomMax))
+																displaySpecsPtr,
+																lcToWindowUnitsVariablesPtr,
+																savedPortPixMapH,
+																offScreenPixMapH,
+																&longSourceRect,
+																displayBottomMax))
 							{
 							stopFlag = TRUE;
 							break;
 
 							}	// end "if (!CheckSomeEvents (osMask..."
 						
-						#if defined multispec_wxlin
+						#if defined multispec_lin
 									// Get the bitmap raw data pointer again. It may have changed.
 
 							offScreenLinePtr = (unsigned char*)gImageWindowInfoPtr->imageBaseAddressH;
-							offScreenLinePtr += (lineCount-1) * pixRowBytes;
+							offScreenLinePtr += size_t((lineCount-1) * pixRowBytes);
 						#endif
 
 						}	// end "if (TickCount () >= gNextTime)"
@@ -1501,11 +1555,12 @@ void Display4_8ByteImagesSideBySide (
 
 			longSourceRect.bottom = lineCount;
 			if (!CheckSomeDisplayEvents (gImageWindowInfoPtr,
-												  displaySpecsPtr,
-												  savedPortPixMapH,
-												  offScreenPixMapH,
-												  &longSourceRect,
-												  displayBottomMax))
+													displaySpecsPtr,
+													lcToWindowUnitsVariablesPtr,
+													savedPortPixMapH,
+													offScreenPixMapH,
+													&longSourceRect,
+													displayBottomMax))
 				{
 				stopFlag = TRUE;
 				break;
@@ -1566,7 +1621,7 @@ void Display4_8ByteImagesSideBySide (
 //
 //	Coded By:			Larry L. Biehl			Date: 02/11/1988
 //	Revised By:			Ravi S. Budruk			Date: 06/17/1988	
-//	Revised By:			Larry L. Biehl			Date: 07/03/2017
+//	Revised By:			Larry L. Biehl			Date: 04/10/2019
 
 Boolean DisplayMultispectralImage (void)
 {
@@ -1680,7 +1735,7 @@ Boolean DisplayMultispectralImage (void)
 					// Set Window title to reflect channel(s) displayed
 
 			SetImageWTitle (gActiveImageWindow, displaySpecsPtr, fileInfoPtr);
-
+			
 			if (gCallProcessorDialogFlag)
 				{
                 // Not calling the display processor implies that the arrow keys
@@ -1690,10 +1745,17 @@ Boolean DisplayMultispectralImage (void)
 				MSetCursor (kWait);
 				UpdateOutputWScrolls (gOutputWindow, 1, kDisplayMessage);
 				
-				CheckSomeEvents (osMask + updateMask);
+				#if defined multispec_win
+							// For the wxWidgets versions, this causes the entire image
+							// window to be update even when only a few lines are to be
+							// displayed. Do not know why.
+							// It may also not be needed for the Windows version. Will
+							// have to test.
+					CheckSomeEvents (osMask + updateMask);
+				#endif
 				
 				}	// end "if (gCallProcessorDialogFlag)"
-
+			
 					// Set up the vector to convert image data values to display
 					// level values
 
@@ -1809,18 +1871,16 @@ Boolean DisplayMultispectralImage (void)
 
 			gUpdateEditMenuItemsFlag = TRUE;
 
-			} // end 'if (continueFlag)'
+			}	// end 'if (continueFlag)'
+
+		if (gCallProcessorDialogFlag)
+			MInitCursor ();
 
 				// Get the end time and print the time elapsed in the output window.
 
 		continueFlag = ListCPUTimeInformation (NULL, continueFlag, startTime);
 
 				// Scroll output window to the selection and adjust the scroll bar.
-
-		UpdateOutputWScrolls (gOutputWindow, 1, kDisplayMessage);
-
-		if (gCallProcessorDialogFlag)
-			MInitCursor ();
 		
 		UpdateOutputWScrolls (gOutputWindow, 1, kDisplayMessage);
 
@@ -1828,7 +1888,7 @@ Boolean DisplayMultispectralImage (void)
 
 		CheckAndUnlockHandle (displaySpecsPtr->channelsHandle);
 
-		}		// end 'if (continueFlag)'
+		}	// end 'if (continueFlag)'
 
 	Handle displaySpecsHandle = GetActiveDisplaySpecsHandle ();
 	CheckAndUnlockHandle (displaySpecsHandle);
@@ -1865,7 +1925,7 @@ Boolean DisplayMultispectralImage (void)
 // Called By:			DisplayColorImage in display.c
 //
 //	Coded By:			Larry L. Biehl			Date: 07/12/1988
-//	Revised By:			Larry L. Biehl			Date: 02/04/2019
+//	Revised By:			Larry L. Biehl			Date: 04/15/2019
 
 void DisplayCImage (
 				DisplaySpecsPtr					displaySpecsPtr,
@@ -1877,7 +1937,9 @@ void DisplayCImage (
 				PixMapHandle						offScreenPixMapH,
 				LongRect*							rectPtr,
 				SInt16								numberChannels,
-				SInt16								displayCode)
+				SInt16								displayCode,
+				LCToWindowUnitsVariables* 		lcToWindowUnitsVariablesPtr)
+
 {
 	double								binFactor1,
 											binFactor2,
@@ -1909,6 +1971,9 @@ void DisplayCImage (
 											offScreenPtr;
 
 	UInt16*								channelListPtr;
+	
+	int									nextStatusAtLeastLine,
+											nextStatusAtLeastLineIncrement;
 
 	SInt32								displayBottomMax;
 
@@ -1946,8 +2011,13 @@ void DisplayCImage (
 											bytesEqualOneFlag3,
 											forceBISflag,
 											packDataFlag;
-
-
+	
+	/*
+	#if defined multispec_lin
+				// This did not work.
+		wxBusyCursor wait;
+	#endif
+	*/
 			 // Set up display rectangle for copy bits, rect.bottom will be reset later
 
 	longSourceRect = *rectPtr;
@@ -2149,159 +2219,7 @@ void DisplayCImage (
 	channelListPtr = channelPtr;
 	if (BILSpecialFlag || localFileInfoPtr1->gdalDataSetH != NULL)
 		channelListPtr = sortedChannelPtr;
-	/*
-	if (localFileInfoPtr1->bandInterleave == kBIL)
-		{
-		if (BILSpecialFlag)
-			 {
-			 numberBytes = (displaySpecsPtr->columnStart - 1) *
-																	localFileInfoPtr1->numberBytes;
-								
-			 buffer1Offset = 
-						(SInt32)(channelPtr[0]-minChannel)*localFileInfoPtr1->numberBytes *
-											gImageWindowInfoPtr->maxNumberColumns + numberBytes;
-			
-			 buffer2Offset = 
-						(SInt32)(channelPtr[1]-minChannel)*localFileInfoPtr1->numberBytes *
-											gImageWindowInfoPtr->maxNumberColumns + numberBytes;
-			
-			 buffer3Offset = 
-						(SInt32)(channelPtr[2]-minChannel)*localFileInfoPtr1->numberBytes *
-											gImageWindowInfoPtr->maxNumberColumns + numberBytes;
 
-			 }	// end "if (BILSpecialFlag)"
-
-		else	// !BILSpecialFlag
-			{
-			buffer1Offset = 0;
-			if (forceOutputByteCode == kDoNotForceBytes)
-				{
-				buffer2Offset = numberSamples * localFileInfoPtr1->numberBytes;
-				buffer3Offset = 
-						  buffer2Offset + numberSamples * localFileInfoPtr2->numberBytes;
-
-				}	// end "if (forceOutputByteCode == kDoNotForceBytes)"
-
-			else	// forceOutputByteCode == kForceReal8Bytes
-				{
-				buffer2Offset = numberSamples * 8;
-				buffer3Offset = buffer2Offset + numberSamples * 8;
-
-				}	// end "else forceOutputByteCode == kForceReal8Bytes"
-
-			 }	// end "else !BILSpecialFlag"
-
-		interval = displaySpecsPtr->columnInterval;
-		if (packDataFlag)
-			interval = 1;
-
-		}	// end "else localFileInfoPtr1->bandInterleave == kBIL"
-
-	else if (localFileInfoPtr1->bandInterleave == kBIS)
-		{
-		if (forceOutputByteCode == kDoNotForceBytes)
-			{
-			buffer1Offset = (channelPtr[0])*localFileInfoPtr1->numberBytes;
-			buffer2Offset = (channelPtr[1])*localFileInfoPtr1->numberBytes;
-			buffer3Offset = (channelPtr[2])*localFileInfoPtr1->numberBytes;
-
-			}	// end "if (forceOutputByteCode == kDoNotForceBytes)"
-
-		else	// forceOutputByteCode == kForceReal8Bytes
-			{
-			buffer1Offset = 0;
-			buffer2Offset = 8;
-			buffer3Offset = 16;
-
-			}	// end "else forceOutputByteCode == kForceReal8Bytes"
-
-				// Set the interval to use to skip through the data for each sample.
-				// Adjust number of samples to reflect the number of samples that
-				// will be read in one line of data for all channels in the image
-				// that were read in.
-
-		if (packDataFlag)
-			{
-			interval = numberListChannels;
-			numberSamples *= numberListChannels;
-
-			}	// end "if (packDataFlag)"
-
-		else	// !packDataFlag
-			{
-			interval = displaySpecsPtr->columnInterval * localFileInfoPtr1->numberChannels;
-			numberSamples *= localFileInfoPtr1->numberChannels;
-
-			}	// end "else !packDataFlag"
-
-		}	// end "if (localFileInfoPtr1->bandInterleave == kBIS)"
-
-	else	// localFileInfoPtr1->bandInterleave != kBIL || ... != kBIS
-		{
-		if (localFileInfoPtr1->gdalDataSetH != NULL)
-			{
-			UInt32			channelToSortIndex;
-
-					// Get channel list to sorted list index
-
-			channelToSortIndex = 1;
-			if (channelPtr[0] == minChannel)
-					channelToSortIndex = 0;
-			else if (channelPtr[0] == maxChannel)
-					channelToSortIndex = numberChannels - 1;
-							
-			buffer1Offset = (SInt32)channelToSortIndex * 
-															numberSamples * localFileInfoPtr1->numberBytes;
-
-			channelToSortIndex = 1;
-			if (channelPtr[1] == minChannel)
-					channelToSortIndex = 0;
-			else if (channelPtr[1] == maxChannel)
-					channelToSortIndex = numberChannels - 1;
-							
-			buffer2Offset = (SInt32)channelToSortIndex * 
-															numberSamples * localFileInfoPtr2->numberBytes;
-
-			channelToSortIndex = 1;
-			if (channelPtr[2] == minChannel)
-					channelToSortIndex = 0;
-			else if (channelPtr[2] == maxChannel)
-					channelToSortIndex = numberChannels - 1;
-							
-			buffer3Offset = (SInt32)channelToSortIndex * 
-															numberSamples * localFileInfoPtr3->numberBytes;
-
-			}	// end "if (localFileInfoPtr1->gdalDataSetH != NULL)"
-
-		else	// localFileInfoPtr1->gdalDataSetH !== NULL
-			{
-			buffer1Offset = 0;
-			if (forceOutputByteCode == kDoNotForceBytes)
-				{
-				buffer2Offset = numberSamples * localFileInfoPtr1->numberBytes;
-				buffer3Offset =  buffer2Offset + numberSamples * localFileInfoPtr2->numberBytes;
-
-				}	// end "if (forceOutputByteCode == kDoNotForceBytes)"
-
-			else	// forceOutputByteCode == kForceReal8Bytes
-				{
-				buffer2Offset = numberSamples * 8;
-				buffer3Offset = buffer2Offset + numberSamples * 8;
-
-				}	// end "else forceOutputByteCode == kForceReal8Bytes"
-
-			}	// end "else localFileInfoPtr1->gdalDataSetH == NULL"
-
-		interval = displaySpecsPtr->columnInterval;
-		if (packDataFlag)
-			interval = 1;
-
-		}	// end "else localFileInfoPtr1->bandInterleave != kBIL || ... != kBIS"
-
-	ioBuffer1Ptr = (HFileIOBufferPtr)&outputBufferPtr->data.onebyte[buffer1Offset];
-	ioBuffer2Ptr = (HFileIOBufferPtr)&outputBufferPtr->data.onebyte[buffer2Offset];
-	ioBuffer3Ptr = (HFileIOBufferPtr)&outputBufferPtr->data.onebyte[buffer3Offset]; 
-	*/
 	bytesOffset = gToDisplayLevels.bytesOffset;
 
 	dataDisplay1Ptr = (HUCharPtr) GetHandlePointer (
@@ -2344,7 +2262,6 @@ void DisplayCImage (
 													numberListChannels,
 													channelListPtr,
 													kDetermineSpecialBILFlag);
-
 
 	if (errCode == noErr) 
 		{
@@ -2536,9 +2453,17 @@ void DisplayCImage (
 				// Intialize the nextTime variable to indicate when the next check
 				// should occur for a command-.													
 
-		gNextTime = TickCount () + kDisplayTimeOffset;
+		gNextTime = TickCount() + kDisplayTimeOffset;
+		
+				// These variables are to make sure the display window is not being updated
+				// after a very few lines are loaded in. It will override the time interval
+				// which is currently every 1 second.
+		
+		nextStatusAtLeastLineIncrement = (10 * lineInterval) / displaySpecsPtr->magnification;
+		nextStatusAtLeastLineIncrement = MAX (nextStatusAtLeastLineIncrement, 10);
+		nextStatusAtLeastLine = displaySpecsPtr->lineStart + nextStatusAtLeastLineIncrement;
 
-		for (line = displaySpecsPtr->lineStart; line <= lineEnd; line += lineInterval)
+		for (line=displaySpecsPtr->lineStart; line<=lineEnd; line+=lineInterval)
 			{
 					// Get the three channels for the line of image data.  Return
 					// if there is a file IO error.
@@ -2828,7 +2753,7 @@ void DisplayCImage (
 						// check if user wants to exit drawing
 
 				lineCount++;
-				if (TickCount () >= gNextTime)
+				if (TickCount() >= gNextTime && lineCount >= nextStatusAtLeastLine)
 					{
 					#if defined multispec_lin
 						displaySpecsPtr->updateEndLine = lineCount;
@@ -2837,6 +2762,7 @@ void DisplayCImage (
 					longSourceRect.bottom = lineCount;
 					if (!CheckSomeDisplayEvents (gImageWindowInfoPtr,
 															 displaySpecsPtr,
+															 lcToWindowUnitsVariablesPtr,
 															 savedPortPixMapH,
 															 offScreenPixMapH,
 															 &longSourceRect,
@@ -2845,21 +2771,22 @@ void DisplayCImage (
 				
 					#if defined multispec_lin
 						displaySpecsPtr->updateStartLine = lineCount;
-					#endif
-					
-					#if defined multispec_lin
+
 						if (gImageWindowInfoPtr->offscreenMapSize == 0)
 							{
 									// Get the bitmap raw data pointer again. It may have changed.
 									// Only do this for multispectral images.
 
 							offScreenLinePtr = (unsigned char*)gImageWindowInfoPtr->imageBaseAddressH;
-							offScreenLinePtr += (lineCount-1) * pixRowBytes;
+							offScreenLinePtr += (SInt64)(lineCount-1) * pixRowBytes;
 							
 							}	// end "if (gImageWindowInfoPtr->offscreenMapSize == 0)"
 					#endif
+					
+					nextStatusAtLeastLine = lineCount + nextStatusAtLeastLineIncrement;
+					nextStatusAtLeastLine = MIN (nextStatusAtLeastLine, lineEnd);
 
-					}	// end "if (TickCount () >= gNextTime)"
+					}	// end "if (TickCount() >= gNextTime && lineCount >= nextStatusAtLeastLine)"
 
 				#if defined multispec_mac || defined multispec_lin
 					offScreenLinePtr += pixRowBytes;
@@ -2894,18 +2821,13 @@ void DisplayCImage (
 				// to be drawn
 
 		rectPtr->top = longSourceRect.top;
+		
+		if (longSourceRect.bottom != -1)
+			longSourceRect.bottom = lineCount;
 		rectPtr->bottom = longSourceRect.bottom;
 		
 		#if defined multispec_lin
 			displaySpecsPtr->updateEndLine = lineCount;
-			/*
-			int numberChars = sprintf ((char*)gTextString3,
-					" SDisplayMultispectral.cpp:DisplayCImage (updateStartLine, updateEndLine): %d, %d%s",
-					displaySpecsPtr->updateStartLine,
-					displaySpecsPtr->updateEndLine,
-					gEndOfLine);
-			ListString ((char*)gTextString3, numberChars, gOutputTextH);
-			*/
 		#endif
 
 		}	// end "if (errCode == noErr)"
@@ -4194,7 +4116,7 @@ Boolean DisplayMultispectralDialogUpdateComputeHistogram (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 11/22/2006
-//	Revised By:			Larry L. Biehl			Date: 09/05/2017	
+//	Revised By:			Larry L. Biehl			Date: 04/02/2019
 
 void DisplayMultispectralDialogInitialize (
 				DialogPtr							dialogPtr,
@@ -4450,9 +4372,12 @@ void DisplayMultispectralDialogInitialize (
 	#if defined multispec_mac 
 		pixelSizeVectorPtr[2] = 32;
 	#endif	// defined multispec_mac 
-	#if defined multispec_win || defined multispec_lin
+	#if defined multispec_win || defined multispec_wxlin
 		pixelSizeVectorPtr[2] = 24;
-	#endif	// defined multispec_win || defined multispec_lin
+	#endif	// defined multispec_win || defined multispec_wxlin
+	#if defined multispec_wxmac
+		pixelSizeVectorPtr[2] = 32;
+	#endif	// defined multispec_wxmac
 
 			// Enhance stretch to be used.				
 
@@ -4805,36 +4730,7 @@ void DisplayMultispectralDialogOK (
 			// Magnification to use
 
 	displaySpecsPtr->magnification = saveMagnification;
-	/*
-	#if defined multispec_lin
-		gActiveImageViewCPtr->m_Scale = saveMagnification;
 
-		wxPoint scrolloffset = gActiveImageViewCPtr->m_Canvas->GetScrollPosition ();
-		gActiveImageViewCPtr->m_Canvas->SetScrollPos (wxHORIZONTAL,scrolloffset.x);
-		gActiveImageViewCPtr->m_Canvas->SetScrollPos (wxVERTICAL,scrolloffset.y);
-		
-				// Check max magnification. GTK has problems if too large. Checks
-				// indicate that when number of pixels in a direction times the
-				// magnification is larger than 26,000 or so, gtk errors occur.
-				
-		UInt32 maxMagnification = 99;
-		
-		SInt32 numberHorizontalPixels = (displaySpecsPtr->lineEnd -
-					displaySpecsPtr->lineStart + displaySpecsPtr->lineInterval) /
-																		displaySpecsPtr->lineInterval;
-		
-		SInt32 numberVerticalPixels = (displaySpecsPtr->columnEnd -
-					displaySpecsPtr->columnStart + displaySpecsPtr->columnInterval) /
-																		displaySpecsPtr->columnInterval;
-									
-		maxMagnification = MIN (maxMagnification, 26000/numberHorizontalPixels);
-									
-		maxMagnification = MIN (maxMagnification, 26000/numberVerticalPixels);
-							
-		displaySpecsPtr->maxMagnification = maxMagnification;	
-		 
-	#endif // defined multispec_lin
-	*/
 			// Compute Histogram Flag
 
 	if (userComputeFlag)
@@ -5428,7 +5324,7 @@ void Display1Channel8BitLine (
 				{
 				for (j = 0; j < numberSamples; j += interval)
 					{
-					#if defined multispec_wxmac
+					#if defined multispec_wxmac_alpha
 						offScreenPtr++;
 					#endif
 					
@@ -5446,7 +5342,7 @@ void Display1Channel8BitLine (
 					*offScreenPtr = (Byte)dataDisplayPtr[dataValue];
 					offScreenPtr++;
 					
-					#if defined multispec_wxlin
+					#if defined multispec_wxlin_alpha
 								// Skip first (alpha) byte in wxBitmap
 						offScreenPtr++;
 					#endif
@@ -5483,7 +5379,7 @@ void Display1Channel8BitLine (
 				{
 				for (j = 0; j < numberSamples; j += interval)
 					{
-					#if defined multispec_wxmac
+					#if defined multispec_wxmac_alpha
 						offScreenPtr++;
 					#endif
 					
@@ -5503,7 +5399,7 @@ void Display1Channel8BitLine (
 					*offScreenPtr = dataDisplayPtr[dataValue];
 					offScreenPtr++;
 					
-					#if defined multispec_wxlin
+					#if defined multispec_wxlin_alpha
 								// Skip first (alpha) byte in wxBitmap
 						offScreenPtr++;
 					#endif
@@ -5781,7 +5677,7 @@ void Display3Channel8BitLine (
 // Called By:			main
 //
 //	Coded By:			Larry L. Biehl			Date: 08/01/2013
-//	Revised By:			Larry L. Biehl			Date: 02/19/2015			
+//	Revised By:			Larry L. Biehl			Date: 07/19/2019
 
 void DoNextDisplayChannelEvent (
             WindowPtr                     window,
@@ -5799,7 +5695,10 @@ void DoNextDisplayChannelEvent (
                                  shiftKeyFlag;
 
 
-   if (window != NULL)
+			// Note. Do not do the next channel if the gProcessCode is not 0. This implies
+			// that a display event is already in process.
+	
+   if (window != NULL && gProcessorCode == 0)
       {
             // Get window handle and window type.
 
@@ -9073,7 +8972,7 @@ Boolean HistogramVector (
 //
 //	Coded By:			Larry L. Biehl			Date: 04/20/1988
 //	Revised By:			Ravi S. Budruk			Date: 08/09/1988	
-//	Revised By:			Larry L. Biehl			Date: 07/12/2018
+//	Revised By:			Larry L. Biehl			Date: 04/04/2019
 
 DisplaySpecsPtr LoadMultispectralDisplaySpecs (void)
 {
@@ -9678,6 +9577,36 @@ DisplaySpecsPtr LoadMultispectralDisplaySpecs (void)
                displaySpecsPtr->blueChannelNumber = 40;
 
             }	// end "if (windowInfoPtr->totalNumberChannels <= 128)"
+
+         else if (gImageWindowInfoPtr->totalNumberChannels == 136)
+            {
+                  // Assume Nano Imaging Spectrometer data.
+				
+				if (gCallProcessorDialogFlag)
+					{
+							// Color IR image
+					
+					displaySpecsPtr->blueChannelNumber = 64;
+					displaySpecsPtr->greenChannelNumber = 64;
+					displaySpecsPtr->redChannelNumber = 84;
+					if (displaySpecsPtr->pixelSize >= 16)
+						displaySpecsPtr->blueChannelNumber = 35;
+					
+					}	// end "if (gCallProcessorDialogFlag)"
+				
+				else	// !gCallProcessorDialogFlag
+					{
+							// Natural color image
+					
+					displaySpecsPtr->blueChannelNumber = 35;
+					displaySpecsPtr->greenChannelNumber = 35;
+					displaySpecsPtr->redChannelNumber = 64;
+					if (displaySpecsPtr->pixelSize >= 16)
+						displaySpecsPtr->blueChannelNumber = 14;
+					
+					}	// end "else !gCallProcessorDialogFlag"
+
+            }	// end "if (windowInfoPtr->totalNumberChannels == 136)"
 
          else // gImageWindowInfoPtr->totalNumberChannels > 128 
             {

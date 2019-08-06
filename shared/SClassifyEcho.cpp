@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -12,7 +12,7 @@
 //	Authors:					Byeungwoo Jeon
 //								Larry L. Biehl
 //
-//	Revision date:			12/21/2017
+//	Revision date:			03/22/2019
 //
 //	Language:				C
 //
@@ -41,8 +41,8 @@
 
 	#include	"SMultiSpec.h"
 
-	#define	kClassifyStrID 156
-	#define TickCount()  0 //(UInt32)GetTickCount() 
+	//#define	kClassifyStrID 156
+	//#define TickCount()  0 //(UInt32)GetTickCount()
 	#define PtInRgn(a,b) 1
 	#define DrawDialog(c) NULL
 	#define ShowStatusDialogItemSet(d) NULL
@@ -84,7 +84,7 @@ SInt16			Write_Homogeneous_Fields_File (
 					
 
 //------------------------------------------------------------------------------------
-//								 	Copyright (1989-2018)
+//								 	Copyright (1989-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -114,6 +114,7 @@ SInt16 EchoClassifier (
 				SInt16								classPointer,
 				AreaDescriptionPtr				areaDescriptionPtr,
 				FileIOInstructionsPtr			fileIOInstructionsPtr,
+				LCToWindowUnitsVariables* 		lcToWindowUnitsVariablesPtr,
 				ClassifierVarPtr					clsfyVariablePtr,
 				SInt64*								countVectorPtr)
 
@@ -297,7 +298,8 @@ SInt16 EchoClassifier (
 											ioBuffer1Ptr, 
 											gEchoClassifierVariablePtr,
 											clsfyVariablePtr, 
-											countVectorPtr);
+											countVectorPtr,
+											lcToWindowUnitsVariablesPtr);
 		
    	}	// "if (error_code == 0)..."
  
@@ -313,7 +315,7 @@ SInt16 EchoClassifier (
 
 
 //------------------------------------------------------------------------------------
-//								 	Copyright (1989-2018)
+//								 	Copyright (1989-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -368,7 +370,7 @@ UInt32 EstimateNumberOfHomogeneousFields (
 
 
 //------------------------------------------------------------------------------------
-//								 	Copyright (1989-2018)
+//								 	Copyright (1989-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -457,7 +459,7 @@ SInt64 GetMemoryNeededForEchoInfoParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 	Copyright (1989-2018)
+//								 	Copyright (1989-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -635,7 +637,7 @@ SInt16 SaveProbabilityInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 	Copyright (1989-2018)
+//								 	Copyright (1989-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -653,7 +655,7 @@ SInt16 SaveProbabilityInformation (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 08/12/2010
-//	Revised By:			Larry L. Biehl			Date: 09/01/2017
+//	Revised By:			Larry L. Biehl			Date: 03/22/2019
 
 Boolean SetUseTempDiskFileFlag (
 				EchoClassifierVarPtr				echoInfoPtr)
@@ -665,12 +667,12 @@ Boolean SetUseTempDiskFileFlag (
 	SInt64								bytesLeftForPixels,
 											bytesNeeded,
 											freeBytes,
+											longestContBlock,
 											memoryNeededForRest;
 	
 	SInt32								parID;
 	
-	UInt32 								current_max_field_number,
-											longestContBlock;
+	UInt32 								current_max_field_number;
 	
 	SInt16								errCode,
 											volRefNum;
@@ -813,7 +815,7 @@ Boolean SetUseTempDiskFileFlag (
 
 
 //------------------------------------------------------------------------------------
-//								 	Copyright (1989-2018)
+//								 	Copyright (1989-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1166,7 +1168,7 @@ SInt16 Write_Homogeneous_Fields_File (
 
 
 //------------------------------------------------------------------------------------
-//								 	Copyright (1989-2018)
+//								 	Copyright (1989-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

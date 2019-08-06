@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			02/28/2019
+//	Revision date:			04/23/2019
 //
 //	Language:				C
 //
@@ -33,13 +33,14 @@
 //
 /* Template for debugging
 		int numberChars = sprintf ((char*)gTextString3,
-												" SArcView::xxx (entered routine. %s", 
+												" SArcView:xxx (entered routine. %s",
 												gEndOfLine);
 		ListString ((char*)gTextString3, numberChars, gOutputTextH);	
 */
 //------------------------------------------------------------------------------------
 
 #include "SMultiSpec.h"
+#include "locale.h"
    
 #if defined multispec_lin
 	#include "CFileStream.h"  
@@ -1893,7 +1894,7 @@ void DisplayNoIntersectionAlert (
 // Called By:			OverlayControlEvent in controls.c
 //
 //	Coded By:			Larry L. Biehl			Date: 02/09/2001
-//	Revised By:			Larry L. Biehl			Date: 01/18/2003
+//	Revised By:			Larry L. Biehl			Date: 04/20/2019
 
 void DoShowOverlaySelection (
 				WindowPtr							windowPtr,
@@ -1951,6 +1952,8 @@ void DoShowOverlaySelection (
 					}	// end "if (overlayListPtr[index].index > 0)"
 					
 				}	// end "for (index=0; index<numberVectorOverlays; index++)"
+			
+			windowInfoPtr->drawBaseImageFlag = TRUE;
 				
 			invalidateFlag = TRUE;
 			
@@ -1971,6 +1974,8 @@ void DoShowOverlaySelection (
 					}	// end "if (overlayListPtr[index].index > 0)"
 					
 				}	// end "for (index=0; index<numberImageOverlays; index++)"
+			
+			windowInfoPtr->drawBaseImageFlag = TRUE;
 				
 					// Show all vector overlays
 					
@@ -2030,19 +2035,29 @@ void DoShowOverlaySelection (
 					callFlag = TRUE;
 					
 					}	// end "else !optionKeyFlag"
-					
-				if (imageOverlayListPtr[index].index > 0 && !shiftKeyFlag)
+				
+				if (imageOverlayListPtr[index].index > 0)
 					{
-						// Hide all of the other image overlays unless he shift key
-						// is down.
-						
-					HideAllImageOverlays (imageOverlayListPtr,
-													numberImageOverlays);
-													
-					imageOverlayListPtr[index].index =  
-															abs (imageOverlayListPtr[index].index);
-															
-					}	// end "if (imageOverlayListPtr[index].index > 0&& ..."
+					windowInfoPtr->drawBaseImageFlag = GetDrawBaseImageFlag (
+																imageOverlayListPtr[index].index - 1);
+					
+					if (!shiftKeyFlag)
+						{
+							// Hide all of the other image overlays unless he shift key
+							// is down.
+							
+						HideAllImageOverlays (imageOverlayListPtr,
+														numberImageOverlays);
+														
+						imageOverlayListPtr[index].index =  
+																abs (imageOverlayListPtr[index].index);
+																
+						}	// end "if (imageOverlayListPtr[index].index > 0&& ..."
+					
+					}	// end "if (!shiftKeyFlag)"
+				
+				else	// imageOverlayListPtr[index].index <= 0)
+					windowInfoPtr->drawBaseImageFlag = TRUE;
 					
 				}	// end "if (index < numberImageOverlays)"
 				
@@ -2050,7 +2065,7 @@ void DoShowOverlaySelection (
 				{
 				index -= numberImageOverlays;
 				
-						// Set hide/show for the requested image overlay.
+						// Set hide/show for the requested vector overlay.
 			
 				if (optionKeyFlag)
 					{
@@ -2116,7 +2131,7 @@ void DoShowOverlaySelection (
 // Called By:			CopyOffScreenImage in multiSpec.c
 //
 //	Coded By:			Larry L. Biehl			Date: 12/29/2000
-//	Revised By:			Larry L. Biehl			Date: 09/01/2017
+//	Revised By:			Larry L. Biehl			Date: 04/11/2019
 
 void DrawArcViewShapes (
 				WindowPtr							windowPtr,
@@ -2134,6 +2149,9 @@ void DrawArcViewShapes (
 	#if defined multispec_lin
 		wxPen									overlayPen;
 		wxPen*								overlayPenPtr = NULL;
+	
+		double								xScale,
+												yScale;
 	#endif	// defined multispec_win
 				
 	DoubleRect							boundingWindowBox;
@@ -2177,17 +2195,11 @@ void DrawArcViewShapes (
 											winUseOriginFlag;
 	
 	SignedByte							windowHandleStatus;
-	/*   
-	#if defined multispec_lin
-		UInt32                        savedVScroll;
-		UInt32                        savedHScroll;
-		DisplaySpecsPtr					displaySpecsPtr;
-		Handle                        displaySpecsH;
-	#endif
-	*/			
+
 	#if defined multispec_mac
 		PenState								penState; 
 	#endif	// defined multispec_mac
+
 
 	#if defined multispec_win
 		if (gCDCPointer == NULL)            
@@ -2195,11 +2207,6 @@ void DrawArcViewShapes (
 	#endif	// defined multispec_win
 	
 	#if defined multispec_lin
-		//wxMemoryDC displaydc;
-		//bool bitok = (windowPtr->m_ScaledBitmap).IsOk ();
-		//displaydc.SelectObject (windowPtr->m_ScaledBitmap);
-		//wxDC* oldgCDCpt = gCDCPointer; // Save the global DC pointer
-		//gCDCPointer = &displaydc;
 		if (gCDCPointer == NULL)
 																								return;
 	#endif	// defined multispec_lin
@@ -2294,31 +2301,19 @@ void DrawArcViewShapes (
          GetWindowClipRectangle (windowPtr, kImageArea, &gViewRect);
 			//inputBoundingRectPtr = &gViewRect;
 			overlayPenPtr = new wxPen (*wxWHITE);
+				
+			gCDCPointer->GetUserScale (&xScale, &yScale);
+			gCDCPointer->SetUserScale (1, 1);
 		#endif
 											
 				// Set some parameters for converting from map units to window units.
-		/*
-		#if defined multispec_lin
-			// Save the scrolling in displayspecsptr and set it to 1 for linux
-			displaySpecsH = GetDisplaySpecsHandle (windowInfoHandle);
-			displaySpecsPtr = (DisplaySpecsPtr)GetHandlePointer (displaySpecsH);		
-			savedVScroll = displaySpecsPtr->origin[kVertical];
-			savedHScroll = displaySpecsPtr->origin[kHorizontal];
-			displaySpecsPtr->origin[kHorizontal] = 0;
-			displaySpecsPtr->origin[kVertical] = 0;
-		#endif
-		*/
+
 		SetMapToWindowUnitsVariables (windowInfoHandle,
 												windowCode,
 												kVectorOverlay,
 												kNotCoreGraphics, 
 												&mapToWindowUnitsVariables);
-		/*
-		#if defined multispec_lin
-			displaySpecsPtr->origin[kVertical] = savedVScroll;
-			displaySpecsPtr->origin[kHorizontal] = savedHScroll;
-		#endif
-		*/
+	
 				// Get the rectangle in map units that is being updated in
 				// the current window.	
 
@@ -2394,7 +2389,6 @@ void DrawArcViewShapes (
 				
 					else	// context != NULL
 						{
-						//CGContextSetRGBStrokeColor (context,);
 						gCGContextSetLineWidthPtr (context, 
 														(float)windowInfoPtr->overlayList[overlayIndex].lineThickness);
 					
@@ -2419,18 +2413,16 @@ void DrawArcViewShapes (
 				#if defined multispec_lin
 					if (overlayPenPtr != NULL)
 						delete overlayPenPtr;
+					
 					RGBColor pcolor = windowInfoPtr->overlayList[overlayIndex].overlayColor;
 					wxColour pwxcolor ((unsigned char)pcolor.red, (unsigned char)pcolor.green, (unsigned char)pcolor.blue);
 
                int pthick = (int)windowInfoPtr->overlayList[overlayIndex].lineThickness;
+					
 							// Now make sure pthick is thick enough when zoomed out
-					/*
-               if (pthick*(mapToWindowUnitsVariables.magnification) < 1)
-                  pthick = ceil (1/mapToWindowUnitsVariables.magnification);
-					*/
-					overlayPenPtr = new wxPen (pwxcolor, pthick);               
-               //overlayPenPtr = new wxPen (pwxcolor);
-               gCDCPointer->SetUserScale (1, 1);
+
+					overlayPenPtr = new wxPen (pwxcolor, pthick);
+					
 					gCDCPointer->SetPen (*overlayPenPtr);
 
 					if (windowCode == kToPrintWindow || windowCode == kToClipboardWindow)
@@ -2637,16 +2629,8 @@ void DrawArcViewShapes (
 													&mapToWindowUnitsVariables);
 					
 		#if defined multispec_win
-			//GetWindowClipRectangle (windowPtr, 
-			//									kImageFrameArea, 
-			//									&gViewRect);
-
-			//ClipRect (&gViewRect);
-
 			gCDCPointer->SelectObject (pOldPen);
-			
-			gCDCPointer->SetBkMode (OPAQUE);  
-			
+			gCDCPointer->SetBkMode (OPAQUE);
 			gMFC_Rgn.DeleteObject ();
 
 			if (overlayPenPtr != NULL)
@@ -2659,7 +2643,6 @@ void DrawArcViewShapes (
 						// Reset the pen state back to the original settings.					
 			
 				SetPenState (&penState);
-				//PenNormal ();
 					
 				}	// end "if (context == NULL"
 			
@@ -2668,18 +2651,11 @@ void DrawArcViewShapes (
 		#endif	// defined multispec_mac
 					
 		#if defined multispec_lin
-			//gCDCPointer = oldgCDCpt;
-			//gCDCPointer->SelectObject (pOldPen);
-
-			//gCDCPointer->SetBkMode (OPAQUE);  
-
-			//gMFC_Rgn.DeleteObject ();
-         gCDCPointer->DestroyClippingRegion ();
+			gCDCPointer->SetUserScale (xScale, yScale);
+			gCDCPointer->DestroyClippingRegion ();
          
 			if (overlayPenPtr != NULL)
 				delete overlayPenPtr;
-			
-			//windowPtr->OnUpdate (NULL, NULL);       
 		#endif	// multispec_lin
 		
 		ForeColor (blackColor);
@@ -3683,8 +3659,8 @@ Boolean OverlayControlDialog (
 		dialogPtr = new CMOverlayParameterDlg (NULL);
 			                                                                  
 		continueFlag = dialogPtr->DoDialog (windowInfoPtr,
-																overlayCode,
-																overlayIndex); 
+														overlayCode,
+														overlayIndex); 
 			
 		delete dialogPtr;
 	#endif // defined multispec_lin 
@@ -3785,7 +3761,7 @@ void OverlayDialogInitialize (
 // Called By:			Menus
 //
 //	Coded By:			Larry L. Biehl			Date: 05/24/2001
-//	Revised By:			Larry L. Biehl			Date: 07/09/2015	
+//	Revised By:			Larry L. Biehl			Date: 04/23/2019
 
 void OverlayDialogOK (
 				WindowInfoPtr						windowInfoPtr,
@@ -3803,7 +3779,12 @@ void OverlayDialogOK (
 				// Set the image overlay transparency.
 																
 		windowInfoPtr->imageOverlayList[overlayIndex].opacity = 
-																			(float)(100-value)/100;
+																			((double)100-value)/100;
+		
+				// Make sure the drawBaseImageCode is correct for the image layer
+				// because of the change in opacity
+		
+		UpateDrawBaseImageCode (windowInfoPtr, overlayIndex);
 		
 		}	// end "if (overlayCode == kImageOverlay)"
 		
@@ -5661,7 +5642,7 @@ SInt16 ReadArcViewHeader (
 // Called By:			ReadArcViewHeader in SOpnImag.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/11/2000
-//	Revised By:			Larry L. Biehl			Date: 09/01/2017
+//	Revised By:			Larry L. Biehl			Date: 04/03/2019
 
 Boolean ReadArcViewWorldFile (
 				FileInfoPtr 						fileInfoPtr)
@@ -5683,7 +5664,7 @@ Boolean ReadArcViewWorldFile (
 	
 	UInt8									suffix[8];
 	
-	float									dataValue1,
+	double								dataValue1,
 											dataValue2,
 											dataValue3,
 											dataValue4,
@@ -5815,16 +5796,41 @@ Boolean ReadArcViewWorldFile (
 					
 			#if defined multispec_lin
             CharPtr savedcharptr = blwRecordPtr;
-			#endif			
-
+			#endif
+			
+					// Check if numbers in the file are in interenational numeric
+					// format. I.e. a comma exists.
+			
+			char*		commaPtr;
+			commaPtr = strchr (blwRecordPtr, ',');
+			if (commaPtr != NULL)
+				{
+						// Assume that the values in the file are in international
+						// numberic format. Change commas to periods.
+				
+				while ((commaPtr = strchr (blwRecordPtr, ',')) != NULL)
+					*commaPtr = '.';
+				
+				}	// end "if (commaPtr != NULL)"
+			
+			/*
+			char		*old_locale,
+						*saved_locale;
+			
+			old_locale = setlocale (LC_NUMERIC, NULL);
+			saved_locale = strdup (old_locale);
+			setlocale (LC_NUMERIC, "de-DE");
+			*/
 			returnCode = sscanf (blwRecordPtr, 
-									"%f %f %f %f %f %f", 
-									&dataValue1, 
-									&dataValue2, 
-									&dataValue3, 
-									&dataValue4, 
-									&dataValue5, 
-									&dataValue6);
+										"%lf %lf %lf %lf %lf %lf",
+										&dataValue1,
+										&dataValue2,
+										&dataValue3,
+										&dataValue4,
+										&dataValue5,
+										&dataValue6);
+			
+			//setlocale (LC_NUMERIC, saved_locale);
 									
 			#if defined multispec_lin
 				blwRecordPtr = savedcharptr;

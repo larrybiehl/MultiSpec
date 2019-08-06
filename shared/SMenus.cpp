@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			01/18/2019
+//	Revision date:			03/09/2019
 //
 //	Language:				C
 //
@@ -886,7 +886,7 @@ void MSetMenuItemText (
 // Called By:	
 //
 //	Coded By:			Larry L. Biehl			Date: 04/19/2013
-//	Revised By:			Larry L. Biehl			Date: 03/02/2017	
+//	Revised By:			Larry L. Biehl			Date: 03/09/2019
 
 Boolean SetTIFF_GeoTIFF_MenuItemString (
 				WindowInfoPtr						windowInfoPtr,
@@ -934,10 +934,10 @@ Boolean SetTIFF_GeoTIFF_MenuItemString (
 	#endif	// defined multispec_win  
 	
 	if (mapInfoExistsFlag)
-		CtoPstring ((UCharPtr)"GeoTIFF", tiffMenuNameString);
+		CtoPstring ((UCharPtr)"GeoTIFF", tiffMenuNameString, 14);
 		
 	else	// !mapInfoExistsFlag
-		CtoPstring ((UCharPtr)"TIFF", tiffMenuNameString);
+		CtoPstring ((UCharPtr)"TIFF", tiffMenuNameString, 14);
 
 	#if defined multispec_mac 
 		SetMenuItemText (menuResource, 

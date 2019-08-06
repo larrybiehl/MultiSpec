@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl, Ravi Budruk
 //
-//	Revision date:			01/30/2019
+//	Revision date:			06/25/2019
 //
 //	Language:				C
 //
@@ -69,9 +69,11 @@
 	#include "wx/wx.h"
 	#include "CFileStream.h"
 	#include "LDialog.h"
+	#include "LImageDoc.h"
 	#include "LImageFrame.h"
 	#include "LImageView.h"
 	#include "LMainFrame.h"
+	#include "LTitleBar.h"
 #endif
 
 #if defined multispec_mac
@@ -1046,7 +1048,7 @@ void ConvertOffScreenRectToWinRect (
 //							PolygonSelection in SSelectionArea.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/04/1988
-//	Revised By:			Larry L. Biehl			Date: 01/03/2019
+//	Revised By:			Larry L. Biehl			Date: 03/21/2019
 
 void ConvertWinPointToLC (
 				LongPoint*							selectedPointPtr, 
@@ -1087,7 +1089,20 @@ void ConvertWinPointToLC (
 			
 	magnificationFactor = displaySpecsPtr->magnification;
 																
-			// Get the title height and legend width for the window.					
+			// Get the title height and legend width for the window.
+	
+	#if defined multispec_lin
+		//ldiv_t 		value;
+		//imageTopOffset = gActiveImageViewCPtr->GetTitleHeight ();
+		imageTopOffset = 0;
+		legendWidth = 0;
+		//wxPoint scrollOffset = gActiveImageViewCPtr->m_Canvas->GetScrollPosition();
+		//value = ldiv (scrollOffset.x, displaySpecsPtr->magnification);
+		//originPixelXOffset = value.rem;
+		//value = ldiv (scrollOffset.y, displaySpecsPtr->magnification);
+		//originPixelYOffset = value.rem;
+		//imageTopOffset = -originPixelYOffset;
+	#endif	// defined multispec_lin
 			
 	#if defined multispec_mac
 		imageTopOffset = ((WindowInfoPtr)*gActiveImageWindowInfoH)->imageTopOffset;
@@ -1102,18 +1117,6 @@ void ConvertWinPointToLC (
 		//originPixelXOffset = 0;
 		//originPixelYOffset = 0;
 	#endif	// defined multispec_win
-	
-	#if defined multispec_lin
-		//ldiv_t 		value;
-		imageTopOffset = 0;
-		legendWidth = 0;
-		//wxPoint scrollOffset = gActiveImageViewCPtr->m_Canvas->GetScrollPosition();
-		//value = ldiv (scrollOffset.x, displaySpecsPtr->magnification);
-		//originPixelXOffset = value.rem;
-		//value = ldiv (scrollOffset.y, displaySpecsPtr->magnification);
-		//originPixelYOffset = value.rem;
-		//imageTopOffset = -originPixelYOffset;
-	#endif	// defined multispec_lin
 
 			// Get the coordinates of the origin of the window 						
 			
@@ -2575,9 +2578,10 @@ Boolean DetermineIfContinuousChannels (
 //							CopyPrintOffscreenImage in print.c
 //
 //	Coded By:			Larry L. Biehl			Date: ??/??/1991
-//	Revised By:			Larry L. Biehl			Date: 01/30/2019
+//	Revised By:			Larry L. Biehl			Date: 03/19/2019
 
 void	DrawSideBySideTitles (
+				wxDC*									titleBarDCPtr,
 				Handle								windowInfoHandle, 
 				WindowPtr							windowPtr, 
 				Rect*									updateRectPtr,
@@ -2634,16 +2638,16 @@ void	DrawSideBySideTitles (
 											handleStatus2,
 											handleStatus3; 
 											
-	#if defined multispec_win                               
-		CSize 								size;
-	#endif	// defined multispec_win	
-
-
-	#if defined multispec_win
-		USES_CONVERSION;
+	#if defined multispec_lin
+		if (updateRectPtr->top > 0)
+																									return;
 	#endif
 	
-	#if defined multispec_win 
+	#if defined multispec_win
+		CSize 								size;
+
+		USES_CONVERSION;
+
 		if (windowPtr == NULL)
 																									return;
 	#endif // defined multispec_win 
@@ -2791,17 +2795,6 @@ void	DrawSideBySideTitles (
 	#endif	// defined multispec_win 
 
 	#if defined multispec_lin            
-		wxFont font (gFontSize, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
-			   
-		/*
-		if (windowPtr->m_pDC->IsPrinting ())          
-			logfont.lfHeight = (SInt16)
-							(logfont.lfHeight * gActiveImageViewCPtr->m_printerTextScaling);   
-
-		windowPtr->m_pDC->SetBkMode (OPAQUE);
-		windowPtr->m_pDC->SetTextColor (RGB (0, 0, 0));
-		*/
-		//if (windowPtr->m_pDC->IsPrinting ())
 		if (windowPtr->m_printCopyModeFlag)
 			{
 					// Get the scaling for printing. The pixels
@@ -2811,8 +2804,7 @@ void	DrawSideBySideTitles (
 				                                                         
 			characterWidth *= windowPtr->m_printerTextScaling;
 			columnOrigin = 0;
-			//updateRectPtr->right = (SInt16)(drawInterval * numberChannels);
-			updateRectPtr->right = (SInt16)(drawInterval * 
+			updateRectPtr->right = (int)(drawInterval *
 															(gSideBySideChannels-gStartChannel));
 
 			}	// end "if (windowPtr->m_pDC->IsPrinting ())" 
@@ -2863,7 +2855,7 @@ void	DrawSideBySideTitles (
 			// Get the draw start location and the draw interval.						
 			
 	drawCenter = drawInterval/2 + columnOrigin;
-	#if defined multispec_win | defined multispec_lin
+	#if defined multispec_win || defined multispec_lin
 		drawCenter += gStartChannel*drawInterval;
 	#endif	// defined multispec_win || defined multispec_lin
 		
@@ -2872,6 +2864,7 @@ void	DrawSideBySideTitles (
 	
 			// Write channel numbers.															
 	#if defined multispec_lin
+	
 		/*
 		wxClientDC pdc (windowPtr->m_Canvas);
 		(windowPtr->m_Canvas)->DoPrepareDC (pdc);
@@ -2886,9 +2879,18 @@ void	DrawSideBySideTitles (
 																	&scrollOffset.x,
 																	&scrollOffset.y);
 		*/
-		gCDCPointer->SetMapMode (wxMM_TEXT);
-		gCDCPointer->SetFont (font);
-		gCDCPointer->SetUserScale (1, 1);
+		//CMImageDoc* imageDocCPtr =
+		//					(CMImageDoc*)windowPtr->GetDocument ();
+		//CMImageFrame* imageFrameCPtr = imageDocCPtr->GetImageFrameCPtr ();
+  		//wxClientDC dc (imageFrameCPtr->m_titleBar);
+  		//imageFrameCPtr->m_titleBar->PrepareDC (dc);
+	
+		//gCDCPointer->SetMapMode (wxMM_TEXT);
+		//gCDCPointer->SetFont (font);
+		//gCDCPointer->SetUserScale (1, 1);
+	
+		titleBarDCPtr->SetMapMode (wxMM_TEXT);
+		titleBarDCPtr->SetUserScale (1, 1);
 	
 		#if defined multispec_wxlin
 			updateRectPtr->top += 2;
@@ -2965,15 +2967,15 @@ void	DrawSideBySideTitles (
             wxString image_label ((char*)&gTextString[1], wxConvUTF8);
             wxSize label_size;
             //label_size = pdc.GetTextExtent (image_label);
-            label_size = gCDCPointer->GetTextExtent (image_label);
+            label_size = titleBarDCPtr->GetTextExtent (image_label);
 			
             width = (label_size.GetWidth ())/2;
             //pdc.DrawText (image_label,
-            gCDCPointer->DrawText (image_label,
-									(int)(drawCenter-width-columnOrigin),
-									//(int)(drawCenter-width),
-									//(int)(updateRectPtr->top),
-									updateRectPtr->top);
+            titleBarDCPtr->DrawText (image_label,
+												(int)(drawCenter-width-columnOrigin),
+												//(int)(drawCenter-width),
+												//(int)(updateRectPtr->top),
+												updateRectPtr->top);
          #endif
 			
 			}	// end "if (imageRight >= 0)" 
@@ -4529,7 +4531,7 @@ SInt64 GetLongInt64Value (
 //							CreatePaletteWindow in window.c
 //
 //	Coded By:			Larry L. Biehl			Date: 09/06/1989
-//	Revised By:			Larry L. Biehl			Date: 12/07/2018
+//	Revised By:			Larry L. Biehl			Date: 04/02/2019
 
 SInt16 GetMaxSystemPixelSize (void)
 
@@ -4591,9 +4593,9 @@ SInt16 GetMaxSystemPixelSize (void)
 				// advantageous to change these routines to the 32 bit max to better fit
 				// mac os in the future.
 	
-		#if defined multispec_wxmac
-			pixelSize = MIN (24, pixelSize);
-		#endif
+		//#if defined multispec_wxmac
+		//	pixelSize = MIN (24, pixelSize);
+		//#endif
 	#endif
 
 	return (pixelSize);
@@ -5544,7 +5546,7 @@ CMFileStream* GetResultsFileStreamPtr (
 //							ListResultsDialog in SLstRslt.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/13/1998
-//	Revised By:			Larry L. Biehl			Date: 05/08/1998
+//	Revised By:			Larry L. Biehl			Date: 06/25/2019
 
 SInt16 GetThresholdCode (
 				double								thresholdValue,
@@ -5553,9 +5555,17 @@ SInt16 GetThresholdCode (
 
 {
 	SInt32								thresholdCode;
+	
+	
+	if (thresholdTypeCode == kKNearestNeighborMode)
+		{
+				// Threshold for KNearestNeighbor type table.
+		
+		thresholdCode = thresholdValue - 1;
+		
+		}	// end "else gClassifySpecsPtr->mode == kKNearestNeighborMode"
 											
-											
-	if (thresholdTypeCode == kCorrelationMode)
+	else if (thresholdTypeCode == kCorrelationMode)
 		{
 				// Threshold for Correlation type table.
 				
@@ -5904,7 +5914,7 @@ SInt64 GetTotalNumberOfPixels (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 01/24/1996
-//	Revised By:			Larry L. Biehl			Date: 06/09/2015	
+//	Revised By:			Larry L. Biehl			Date: 04/03/2019
 
 void GetWindowClipRectangle (
 				WindowPtr							windowPtr, 
@@ -5918,14 +5928,15 @@ void GetWindowClipRectangle (
 	Handle								windowInfoHandle;
 	
 	SInt32								imageBottom,
-											imageRight,
-											legendWidth,
-											topOffset;
+											imageRight;
 											
 										
 	if (windowPtr != NULL)
 		{
 		#if defined multispec_mac
+			SInt32								legendWidth,
+													topOffset;
+		
 			GetWindowPortBounds (windowPtr, outRectanglePtr);
 		
 			windowInfoHandle = (Handle)GetWRefCon (windowPtr);
@@ -6025,6 +6036,8 @@ void GetWindowClipRectangle (
 		
 		#if defined multispec_win		
 			Rect									inRect;
+			SInt32								legendWidth,
+													topOffset;
 			
 			
 					// Get input view rectangle.
@@ -6138,9 +6151,9 @@ void GetWindowClipRectangle (
 					outRectanglePtr->bottom = frameArea.GetBottom ();
 					outRectanglePtr->right = frameArea.GetRight ();
 
-					topOffset = windowPtr->GetTitleHeight ();
+					//topOffset = windowPtr->GetTitleHeight ();
 						
-					outRectanglePtr->top += topOffset;
+					//outRectanglePtr->top += topOffset;
                
 					displaySpecsPtr = (DisplaySpecsPtr)GetHandlePointer (
 															GetDisplaySpecsHandle (windowInfoPtr));
@@ -6150,24 +6163,32 @@ void GetWindowClipRectangle (
 						imageRight = (SInt32)(displaySpecsPtr->magnification *
 													displaySpecsPtr->imageDimensions[kHorizontal]);
 											 
-						imageBottom = (SInt32)(topOffset + displaySpecsPtr->magnification *
+						//imageBottom = (SInt32)(topOffset + displaySpecsPtr->magnification *
+						imageBottom = (SInt32)(displaySpecsPtr->magnification *
 													displaySpecsPtr->imageDimensions[kVertical]);
 						
 						if (imageRight < (SInt32)outRectanglePtr->right)											
-							outRectanglePtr->right = (SInt16)imageRight;
+							outRectanglePtr->right = imageRight;
 							
 						if (imageBottom < (SInt32)outRectanglePtr->bottom)
-							outRectanglePtr->bottom = (SInt16)imageBottom;
+							outRectanglePtr->bottom = imageBottom;
 						
 						}	// end "if (displaySpecsPtr != NULL)"
 					break;
 							
 				case kImageFrameArea:
-					//		// Use for mdi parent/child version
-					//frameArea = (wxTheApp->GetTopWindow ())->GetClientRect (); 
-					//frameArea = (windowPtr->m_frame)->GetClientRect ();
+					if ((windowPtr->m_frame)->m_mainWindow->IsShown ())
+						frameArea = ((windowPtr->m_frame)->m_mainWindow)->GetClientRect ();
+					else
+						frameArea = wxRect (0,0,0,0);
+					
+					outRectanglePtr->top = frameArea.GetTop ();
+					outRectanglePtr->left = frameArea.GetLeft ();
+					outRectanglePtr->bottom = frameArea.GetBottom ();
+					outRectanglePtr->right = frameArea.GetRight ();
+					/*
 					int width, height;
-					//(windowPtr->m_frame)->GetSize (&width, &height);
+					
 					frameArea = imageFramePtr->GetRect ();
 					width = frameArea.GetRight () - frameArea.GetLeft () + 1;
 					height = frameArea.GetBottom () - frameArea.GetTop () + 1;
@@ -6191,6 +6212,7 @@ void GetWindowClipRectangle (
 					outRectanglePtr->left = frameArea.GetLeft () + legendWidth;
 					outRectanglePtr->bottom = frameArea.GetBottom ();
 					outRectanglePtr->right = frameArea.GetRight ();
+					*/
 					/*
 					outRectanglePtr->top = coordinateBarHeight;
 					outRectanglePtr->left = legendWidth;
@@ -6483,7 +6505,7 @@ void InitializeDoubleVariables (void)
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 12/10/1996
-//	Revised By:			Larry L. Biehl			Date: 03/18/2015	
+//	Revised By:			Larry L. Biehl			Date: 03/28/2019
 
 void InvalidateWindow (
 				WindowPtr							windowPtr, 
@@ -6513,7 +6535,10 @@ void InvalidateWindow (
 		#endif	// defined multispec_win      
 		
 		#if defined multispec_lin
-        ((CMImageView*)windowPtr)->m_Canvas->Refresh (eraseFlag);
+			if (areaCode == kCoordinateSelectionArea)
+				((CMImageView*)windowPtr)->m_frame->m_coordinatesBar->Refresh (eraseFlag);
+			else	//
+				((CMImageView*)windowPtr)->m_Canvas->Refresh (eraseFlag);
 		#endif
 		
 		}	// end "if (windowPtr != NULL)"
@@ -7240,7 +7265,7 @@ void PauseIfInBackground (void)
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 11/22/1999
-//	Revised By:			Larry L. Biehl			Date: 01/15/2019
+//	Revised By:			Larry L. Biehl			Date: 06/19/2019
 
 void RemoveSuffix (
 				FileStringPtr							fileNamePtr)
@@ -7291,6 +7316,7 @@ void RemoveSuffix (
 	RemoveCharsNoCase ((char*)"\0.ntf\0", fileNamePtr);
 	RemoveCharsNoCase ((char*)"\0.nsf\0", fileNamePtr);
 	RemoveCharsNoCase ((char*)"\0.pix\0", fileNamePtr);
+	RemoveCharsNoCase ((char*)"\0.vrt\0", fileNamePtr);
 		
 }	// end "RemoveSuffix"  
 
@@ -7805,8 +7831,8 @@ void SetLCToWindowUnitVariables (
 		#endif	// defined multispec_win 
 		*/
 				// Get the origin to be used.
-				// If the writing to the clipboard, then set the display offsets	
-				// correctly to allow for writing to output with origin at (0,0).
+				// If writing to the clipboard, then set the display offsets
+				// correctly to allow for writing to output with origin at (0, 0).
 				
 		xOrigin = displaySpecsPtr->origin[kHorizontal];
 		yOrigin = displaySpecsPtr->origin[kVertical];
@@ -8461,7 +8487,7 @@ void SetUpAreaUnitsPopUpMenu (
 
 
 		wxComboBox* comboBoxPtr =
-				(wxComboBox*) dialogPtr->FindWindow (IDC_AreaUnitsCombo);
+				(wxComboBox*)dialogPtr->FindWindow (IDC_AreaUnitsCombo);
 
 				// Remove all but the first item in the list.
 
@@ -8955,25 +8981,27 @@ void UnlockImageInformationHandles (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 11/15/1995
-//	Revised By:			Larry L. Biehl			Date: 11/15/1995			
+//	Revised By:			Larry L. Biehl			Date: 03/14/2019
 
 void UpdateActiveImageWScrolls (
 				double								magnification)
 													
 {
+	#if defined multispec_lin
+		gActiveImageViewCPtr->UpdateScrolls (magnification);
+		//gActiveImageViewCPtr->OnUpdate (gActiveImageViewCPtr, NULL);
+	#endif	// defined multispec_lin
+	
 	#if defined multispec_mac
 		UpdateImageWScrolls (gActiveImageWindow);
 	#endif	// defined multispec_mac
 	
-	#if defined multispec_win || defined multispec_lin
-		//double magnification = 
-		//						gActiveImageViewCPtr->m_displayMultiCPtr->GetMagnification ()    
-	
+	#if defined multispec_win
 		gActiveImageViewCPtr->UpdateScrolls (magnification);
-		gActiveImageViewCPtr->OnUpdate (gActiveImageViewCPtr, NULL);  
-	#endif	// defined multispec_win || ...
-		
-}	// end "UpdateActiveImageWScrolls"  
+		gActiveImageViewCPtr->OnUpdate (gActiveImageViewCPtr, NULL);
+	#endif	// defined multispec_win
+	
+}	// end "UpdateActiveImageWScrolls"
 
 
 

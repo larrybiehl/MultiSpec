@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//										Copyright (1988-2018)
+//										Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -154,7 +154,7 @@ char*			l_CharBufferPtr5 = NULL;
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -233,7 +233,7 @@ SInt16 GetMeanStdDevLength (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -312,7 +312,7 @@ SInt16 GetVarianceLength (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -395,6 +395,7 @@ Boolean ListClassInformation (
 		
 		returnFlag = DetermineIfSpecifiedStatisticsExist (
 																	&classNamesPtr[classStorage],
+																	gProjectInfoPtr->statisticsCode,
 																	covarianceStatsToUse,
 																	&computeCommonCovarianceFlag);
 		
@@ -570,7 +571,7 @@ Boolean ListClassInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -747,7 +748,7 @@ void ListClassStats (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -778,7 +779,7 @@ void ListClassStats (
 //							ClusterClassification in SCluster.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/10/1990
-//	Revised By:			Larry L. Biehl			Date: 02/27/2018
+//	Revised By:			Larry L. Biehl			Date: 07/08/2019
 
 Boolean ListFieldInformation (
 				SInt16								fieldNumber, 
@@ -857,13 +858,13 @@ Boolean ListFieldInformation (
 	if (fieldIdentPtr->pointType == kMaskType && listCode >= 3)
 		{
 		sprintf ((char*)gTextString,
-					"     Lines %ld to %ld by %ld.  Columns %ld to %ld by %ld.",
-					gAreaDescription.lineStart, 
-					gAreaDescription.lineEnd,
-					lineInterval, 
-					gAreaDescription.columnStart, 
-					gAreaDescription.columnEnd,
-					columnInterval);
+					"     Lines %d to %d by %d.  Columns %d to %d by %d.",
+					(int)gAreaDescription.lineStart,
+					(int)gAreaDescription.lineEnd,
+					(int)lineInterval,
+					(int)gAreaDescription.columnStart,
+					(int)gAreaDescription.columnEnd,
+					(int)columnInterval);
 		
 		continueFlag = OutputString ((CMFileStream*)NULL, 
 											(char*)gTextString, 
@@ -940,7 +941,15 @@ Boolean ListFieldInformation (
 			if (!continueFlag)
 				break;
 			
-			}	// end "for (i=0; i<fieldIdentPtr" 
+			}	// end "for (i=0; i<fieldIdentPtr"
+			
+		sprintf ((char*)gTextString, "      ");
+			
+		continueFlag = OutputString ((CMFileStream*)NULL,
+												(char*)gTextString,
+												0,
+												gOutputForce1Code,
+												continueFlag);
 		
 		}	// end "else if (fieldIdentPtr->pointType ..." 
 	
@@ -1065,14 +1074,14 @@ Boolean ListFieldInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void ListFieldStats
 //
-//	Software purpose:	The purpose of this routine is to list the
-//							statistics for the specified field.
+//	Software purpose:	The purpose of this routine is to list the statistics for the
+//							specified field.
 //
 //	Parameters in:		None
 //
@@ -1083,7 +1092,7 @@ Boolean ListFieldInformation (
 // Called By:	
 //
 //	Coded By:			Larry L. Biehl			Date: 11/20/1988
-//	Revised By:			Larry L. Biehl			Date: 03/24/2014	
+//	Revised By:			Larry L. Biehl			Date: 07/08/2019
 
 void ListFieldStats (
 				SInt16								numberChannels, 
@@ -1211,13 +1220,15 @@ void ListFieldStats (
 					// Get the minimum and maximum vectors if needed.	
 					
 			if (minimumVectorPtr != NULL)
-				ReduceMinimumVector (gTempChannelStatsPtr, 
+				ReduceMinimumVector (fieldChanPtr,
+											//gTempChannelStatsPtr,
 											minimumVectorPtr,
 											numberChannels,
 											NULL);
 					
 			if (maximumVectorPtr != NULL)
-				ReduceMaximumVector (gTempChannelStatsPtr, 
+				ReduceMaximumVector (fieldChanPtr,
+											//gTempChannelStatsPtr,
 											maximumVectorPtr,
 											numberChannels,
 											NULL);
@@ -1239,7 +1250,7 @@ void ListFieldStats (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1341,7 +1352,7 @@ Boolean ListLowerTriangularMatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1408,7 +1419,7 @@ void ListProjectStats (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1696,7 +1707,7 @@ void ListStatistics (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1717,7 +1728,7 @@ void ListStatistics (
 // Called By:			StatisticsWControlEvent
 //
 //	Coded By:			Larry L. Biehl			Date: 11/21/1988
-//	Revised By:			Larry L. Biehl			Date: 03/25/2014	
+//	Revised By:			Larry L. Biehl			Date: 04/26/2019
 
 void ListStatsControl (
 				SInt16								statsWindowMode,
@@ -2011,19 +2022,19 @@ void ListStatsControl (
 					{
 					case kUpdateProject:
 						if (!gProjectInfoPtr->statsUpToDate)
-							returnCode = UpdateStatsControl (kUpdateProject, TRUE);
+							returnCode = UpdateStatsControl (kUpdateProject, TRUE, FALSE);
 						break;
 						
 					case kUpdateClass:                            
 						if (!gProjectInfoPtr->classNamesPtr[classStorage].statsUpToDate)
-							returnCode = UpdateStatsControl (kUpdateClass, TRUE);
+							returnCode = UpdateStatsControl (kUpdateClass, TRUE, FALSE);
 						break;
 						
 					case kUpdateField:
 						if (!gProjectInfoPtr->keepClassStatsOnlyFlag &&
 										!gProjectInfoPtr->fieldIdentPtr[
 												gProjectInfoPtr->currentField].statsUpToDate)
-							returnCode = UpdateStatsControl (kUpdateField, TRUE);
+							returnCode = UpdateStatsControl (kUpdateField, TRUE, FALSE);
 						break;
 						
 					}	// end "switch (updateStatsWindowMode)" 
@@ -2137,7 +2148,7 @@ void ListStatsControl (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

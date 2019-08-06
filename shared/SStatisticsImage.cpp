@@ -1020,6 +1020,7 @@ void StatisticsImageControl (void)
 											//(SInt16*)gStatisticsImageSpecsPtr->classHandle,
 											classPtr,
 											1,
+											gProjectInfoPtr->statisticsCode,
 											gProjectInfoPtr->covarianceStatsToUse, 
 											kSetupGlobalInfoPointers,
 											NULL);

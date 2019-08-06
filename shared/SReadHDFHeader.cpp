@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//									Copyright (1988-2018)
+//									Copyright (1988-2019)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			03/01/2019
+//	Revision date:			04/09/2019
 //
 //	Language:				C
 //
@@ -306,7 +306,7 @@ SInt32 gNumberHDFFilesOpen	= 0;
 
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -356,7 +356,7 @@ void AppendGroupIndicater (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -433,7 +433,7 @@ void CloseHDF4File (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -473,7 +473,7 @@ void CloseHDFGlobals (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -534,7 +534,7 @@ double FindClosestValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -629,7 +629,7 @@ UCharPtr GetAttributeBuffer (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -790,7 +790,7 @@ Boolean GetBottomToTopFlag (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -895,7 +895,7 @@ Boolean GetFillDataValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -925,7 +925,7 @@ Boolean GetFillDataValue (
 //							LoadHDFDataSetInformation in SReadHDFHeader.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/27/2001
-//	Revised By:			Larry L. Biehl			Date: 11/29/2018
+//	Revised By:			Larry L. Biehl			Date: 04/09/2019
 
 intn GetHDFDataSetInformation (
 				SInt32		 						sdid,
@@ -1377,7 +1377,7 @@ intn GetHDFDataSetInformation (
 				*swapBytesFlagPtr = gBigEndianFlag;
 			
 			if (*dataCompressionCodePtr != kNoCompression)
-						// Byte swapping is done in the decompression algorithms.
+						// Byte swapping is done in the decompression algorithms
 				*swapBytesFlagPtr = FALSE;
 			
 			}	// end "if (setSwapBytesFlag && swapBytesFlagPtr != NULL)"
@@ -1421,7 +1421,7 @@ intn GetHDFDataSetInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1545,7 +1545,7 @@ SInt16 GetHDFDataSetSpecialInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1651,7 +1651,7 @@ SInt16 GetHDFInstrumentCode (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1780,7 +1780,7 @@ SInt16 GetHDF4Line (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2840,7 +2840,7 @@ intn GetHDFProjectionInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3183,7 +3183,7 @@ void GetMapInfoFromGridStructure (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3553,7 +3553,7 @@ void GetMapInfoFromNetCDF_HRLDAS_Structure (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3795,7 +3795,7 @@ void GetMapInfoFromNetCDF_LIS_Structure (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4393,7 +4393,7 @@ void GetMapInfoFromSeaSpaceStructure (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4491,7 +4491,7 @@ Boolean GetNewHDF4FileReferences (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4534,7 +4534,7 @@ SInt32 GetSdidValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4835,7 +4835,7 @@ SInt16 GetSpecificTextAttributeInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5194,7 +5194,7 @@ SInt16 GetSpecificNumericAttributeInformation (
 
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5263,7 +5263,7 @@ SInt32 GetNumberOfValidDataSets (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5683,7 +5683,7 @@ Boolean ListAttributeInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5870,7 +5870,7 @@ Boolean ListHDF4DataSetAttributes (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5956,7 +5956,7 @@ Boolean LoadNonBSQOffsetBytesInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6598,24 +6598,14 @@ SInt32 LoadHdfDataSetNames (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		SInt16 LoadHDF4DataSetInformation
 //
-//	Software purpose:	This routine reads the file specifications from
-//							a HDF formatted file.
-//
-//	Parameters in:					
-//
-//	Parameters out:				
-//
-//	Value Returned:	= 0, Image data set was found, No Error
-//							= 1, No image data set was found
-//							= 2, Image data set was found but it is compressed.
-//							= 3, Image data set was found but it is 4-byte integer.
-//							= 4, There are no more image data sets in the file.
+//	Software purpose:	This routine reads the file specifications from a HDF formatted
+//							file.
 //
 //							Parameter vector description. Not sure how consistant this now is
 //							across the several hdf data sets. This is what I have as of
@@ -6634,11 +6624,21 @@ SInt32 LoadHdfDataSetNames (
 //								parameter[11]: ....
 //								parameter[12]: ....
 //
+//	Parameters in:					
+//
+//	Parameters out:				
+//
+//	Value Returned:	= 0, Image data set was found, No Error
+//							= 1, No image data set was found
+//							= 2, Image data set was found but it is compressed.
+//							= 3, Image data set was found but it is 4-byte integer.
+//							= 4, There are no more image data sets in the file.
+//
 // Called By:			FileSpecificationDialogSetHDFValues in SOpenDlg.cpp
 //							LoadHDFInformation in SReadHDFHeader.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 07/26/1995
-//	Revised By:			Larry L. Biehl			Date: 07/30/2018
+//	Revised By:			Larry L. Biehl			Date: 04/04/2019
 
 SInt16 LoadHDF4DataSetInformation (
 				SInt32								file_id,
@@ -6804,12 +6804,14 @@ SInt16 LoadHDF4DataSetInformation (
 			fileInfoPtr->dataCompressionCode = dataCompressionCode;
 			
 			fileInfoPtr->callGetHDFLineFlag = FALSE;
-			if (fileInfoPtr->dataCompressionCode != kNoCompression || 
+			if (fileInfoPtr->dataCompressionCode != kNoCompression ||
 					(format == kNETCDFType && fileInfoPtr->numberChannels > 1 && 
 												groupNumber == 0 && !doNotUseHDFLineReadFlag))
 				{
 				fileInfoPtr->callGetHDFLineFlag = TRUE;
-				swapBytesFlag = FALSE;
+				
+				if (fileInfoPtr->dataCompressionCode != kGZIPCompression)
+					swapBytesFlag = FALSE;
 				
 				}	// end "if (fileInfoPtr->dataCompressionCode != kNoCompression || ..."
 			
@@ -7379,7 +7381,7 @@ SInt16 LoadHDF4DataSetInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7906,7 +7908,7 @@ SInt16 LoadHDF4Information (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7956,7 +7958,7 @@ void RemoveTrailingCharacters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7988,7 +7990,7 @@ void SetHDF4HasHFSPlusAPISetting (
 
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

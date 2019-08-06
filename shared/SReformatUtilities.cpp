@@ -3797,7 +3797,7 @@ void WriteChannelDescriptionsAndValues (
 // Called By:			WriteChannelDescriptionsAndValues
 //
 //	Coded By:			Larry L. Biehl			Date: 09/16/1992
-//	Revised By:			Larry L. Biehl			Date: 07/11/2018
+//	Revised By:			Larry L. Biehl			Date: 04/04/2019
 
 SInt16 WriteChannelValues (
 				FileInfoPtr							fileInfoPtr, 
@@ -3870,10 +3870,12 @@ SInt16 WriteChannelValues (
 				channel++)
 			{								
 			sprintf ((char*)gTextString, 
-							" %f", 
+							" %f",
 							channelValuePtr[channel]);
-						
-			count = (UInt32)strlen ((char*)gTextString);	
+				
+					// The length is forced to be 9
+			//count = (UInt32)strlen ((char*)gTextString);
+			count = 9;
 				
 			errCode = MWriteData (fileStreamPtr, 
 											&count, 
@@ -3916,7 +3918,7 @@ SInt16 WriteChannelValues (
 				{
 				fileChannel = gImageLayerInfoPtr[channel].fileChannelNumber;
 				sprintf ((char*)gTextString, 
-								" %f", 
+								" %f",
 								channelValuePtr[fileChannel-1]);
 								
 				}	// end "if (channelValuePtr != NULL)"
@@ -3924,7 +3926,7 @@ SInt16 WriteChannelValues (
 			else if (numberChannelsWritten > 0)
 				{
 				sprintf ((char*)gTextString, 
-								" %f", 
+								" %f",
 								noValue);
 				
 				}	// end "else if (numberChannelsWritten > 0)"
@@ -3943,8 +3945,11 @@ SInt16 WriteChannelValues (
 				
 				}	// end "else channelValuePtr == NULL && numberChannelsWritten == 0"
 			
-										
-			count = (UInt32)strlen ((char*)gTextString);
+					// The length is forced to be 9
+			
+			//count = (UInt32)strlen ((char*)gTextString);
+			count = 9;
+			
 			errCode = MWriteData (fileStreamPtr,
 											&count, 
 											(char*)gTextString,

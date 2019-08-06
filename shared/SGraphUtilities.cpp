@@ -12,7 +12,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			02/20/2019
+//	Revision date:			04/04/2019
 //
 //	Language:				C
 //
@@ -4916,7 +4916,7 @@ void SetUpVectorPopUpMenu (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 03/02/2018
-//	Revised By:			Larry L. Biehl			Date: 04/12/2018
+//	Revised By:			Larry L. Biehl			Date: 03/09/2019
 
 SInt16 SetUpXAxisPopUpMenu (
 				GraphPtr								graphRecordPtr,
@@ -4978,7 +4978,7 @@ SInt16 SetUpXAxisPopUpMenu (
 					
 			numberMenuItems = CountMenuItems	(popUpMenuHandle);
 			for (index=numberMenuItems; index>1; index--)
-				DeleteMenuItem (popUpMenuHandle, index);				
+				DeleteMenuItem (popUpMenuHandle, index);
 
 			#if defined multispec_lin
 				xLabelComboBoxPtr->SetClientData (0, (void*)kChannels);
@@ -5177,7 +5177,7 @@ SInt16 SetUpXAxisPopUpMenu (
 			if (xAxisCode != newSelection)
 				{
 				#if defined multispec_lin
-					xLabelComboBoxPtr->SetSelection (newSelection);
+					xLabelComboBoxPtr->SetSelection (newSelection-1);
 				#endif
 
 				#if defined multispec_win
@@ -5393,7 +5393,7 @@ void SetXAxisDescriptionInfo (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 04/26/2003
-//	Revised By:			Larry L. Biehl			Date: 03/08/2018
+//	Revised By:			Larry L. Biehl			Date: 04/04/2019
 
 void SetXGraphScale (
 				GraphPtr								graphRecordPtr)
@@ -5566,8 +5566,21 @@ void SetXGraphScale (
 		else	// !(graphRecordPtr->flag & NU_HISTOGRAM_PLOT)
 			{
 			graphRecordPtr->xScaleMin = floor (graphRecordPtr->xMin/interval)*interval;
+			
+					// Adjust for case when xMin is just a vary small value less than
+					// the tick more than xScaleMin
+			
+			if (graphRecordPtr->xScaleMin + interval - graphRecordPtr->xMin < .01 * interval)
+				graphRecordPtr->xScaleMin += interval;
 		
 			graphRecordPtr->xScaleMax = ceil (graphRecordPtr->xMax/interval)*interval;
+			
+					// Adjust for case when xMax is just a vary small value more than
+					// the tick less than xScaleMax
+			
+			if (graphRecordPtr->xScaleMax - interval > graphRecordPtr->xScaleMin &&
+			 		graphRecordPtr->xMax - (graphRecordPtr->xScaleMax - interval) < .01 * interval)
+				graphRecordPtr->xScaleMax -= interval;
 			
 			}	// end "else !(graphRecordPtr->flag & NU_HISTOGRAM_PLOT)"
 		

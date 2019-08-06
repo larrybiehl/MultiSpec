@@ -3,7 +3,7 @@
 //					Laboratory for Applications of (c)Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//							 Copyright (1988-2018)
+//							 Copyright (1988-2019)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			02/27/2018
+//	Revision date:			04/27/2019
 //
 //	Language:				C
 //
@@ -105,7 +105,7 @@ Boolean 				ListOffsetGainTransformationInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -249,7 +249,7 @@ void AddToClassStatistics (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -297,7 +297,7 @@ void AddVectors (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -394,7 +394,7 @@ void ClearTransformationMatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -516,7 +516,7 @@ void ComputeCorrelationMatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -708,7 +708,7 @@ void ComputeCorrelationCoefficientMatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -887,7 +887,7 @@ void ComputeCovarianceMatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1410,7 +1410,7 @@ Boolean ComputeEigenvectors (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1465,7 +1465,7 @@ void ComputeMeanStdDevVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1513,7 +1513,7 @@ void ComputeMeanVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1602,7 +1602,7 @@ void ComputeStdDevVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1654,7 +1654,7 @@ double ConvertToScientificFormat (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1729,7 +1729,7 @@ void CopyLowerToUpperSquareMatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1794,7 +1794,7 @@ void CopySquareToTriangleMatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1869,7 +1869,7 @@ void CopyTriangleToSquareMatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1914,7 +1914,7 @@ Boolean EigenvectorInfoExists (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2060,12 +2060,12 @@ void EigenvectorInfoExists (
 			
 		}	// end "if (*numberEigenvectorsPtr > 0)" 
 	
-}	// end "EigenvectorInfoExists" 
+}	// end "EigenvectorInfoExists"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2087,7 +2087,7 @@ void EigenvectorInfoExists (
 //							ShowGraphWindowSelection in selectionGraph.c
 //
 //	Coded By:			Larry L. Biehl			Date: 11/16/1988
-//	Revised By:			Larry L. Biehl			Date: 02/14/2014	
+//	Revised By:			Larry L. Biehl			Date: 05/26/2019
 
 SInt16 GetAreaStats (
 				FileIOInstructionsPtr			fileIOInstructionsPtr,
@@ -2101,12 +2101,16 @@ SInt16 GetAreaStats (
 				HDoublePtr							maxThresholdValuesPtr)
 
 {
+	knnType 								knnSamp;
+	
 	double								dValue,
 											maxDataValue,
 											minDataValue,
 											noDataValue;
 	
 	SInt64								numberPixels;
+	
+	double*								knnDataValuesPtr;
 													
 	HChannelStatisticsPtr			lAreaChanPtr;
 	
@@ -2271,6 +2275,13 @@ SInt16 GetAreaStats (
 		gNextStatusTime = TickCount ();
 		
 		}	// end "if (classNumber == 0)"
+	
+	if (statCode == kPixelValuesOnly)
+		{
+		knnDataValuesPtr = gProjectInfoPtr->knnDataValuesPtr.data ();
+		knnDataValuesPtr = &knnDataValuesPtr [numberChannels * gProjectInfoPtr->knnCounter];
+		
+		}	// end "if (statCode == kPixelValuesOnly)"
 			
 			// Load some of the File IO Instructions structure that pertain
 			// to the specific area being used.
@@ -2396,44 +2407,95 @@ SInt16 GetAreaStats (
 			   		{
 			   		bufferPtr = (HDoublePtr)tOutputBufferPtr;
 						
-						lAreaChanPtr = areaChanPtr;
-						lAreaSumSquaresPtr = areaSumSquaresPtr;
-						
-						for (channel=0; channel<numberChannels; channel++)
+						if (statCode == kPixelValuesOnly)
 							{
-							dValue = *bufferPtr;
-												
-									// Get the minimum and maximum value and sum.				
-									
-							lAreaChanPtr->minimum = MIN (lAreaChanPtr->minimum, dValue);
-							lAreaChanPtr->maximum = MAX (lAreaChanPtr->maximum, dValue);
-							lAreaChanPtr->sum += dValue;
+									// SVM training samples
 							
-							lAreaChanPtr++;
+							//sample_type samp;
+							//samp.set_size (gClassifySpecsPtr->numberChannels);
+							//int sampleCount = 0;
 							
-							if (statCode == kMeanCovariance)
-								{	
-										// Accumulate the channel covariance statistics
-					      	
-				      		bufferPtr2 = tOutputBufferPtr;
-					      		
-								for (covChan=0; covChan<channel; covChan++)
-									{
-									*lAreaSumSquaresPtr += dValue * (double)*bufferPtr2;
-					      		bufferPtr2++;
-					      		lAreaSumSquaresPtr++;
-									
-									}	// end "for (covChan=channel+1; ..."
-										
-								}	// end "if (statCode == kMeanCovariance)" 
-							
-							*lAreaSumSquaresPtr += dValue * dValue;
-				      	lAreaSumSquaresPtr++;
-							
-				      	bufferPtr++;
+									// KNN training samples
+
+							for (channel=0; channel<numberChannels; channel++)
+								{
+										// Move sample data of each channel to dlib variable for SVM training
 								
-							}	// end "for (channel=1; channel<numberChannels..." 
+								//samp(channel) = *bufferPtr;
+								
+										// KNN sample data in the training
+								
+								gProjectInfoPtr->knnDataValuesPtr.push_back (*bufferPtr);
+								//*knnDataValuesPtr = *bufferPtr;
+
+				      		bufferPtr++;
+				      		//knnDataValuesPtr++;
+								
+								}	// end "for (channel=1; channel<numberChannels..."
+						
+									// SVM labelling in the training phase
 							
+							//gProjectInfoPtr->svm_samples.push_back (samp);
+							//gProjectInfoPtr->svm_labels.push_back (classNumber);
+							
+									// KNN labelling in the training phase
+							
+							//knnSamp.label = classNumber;
+							//knnSamp.distance = 0;
+							//knnSamp.index = gProjectInfoPtr->knnCounter;
+							
+							knnSamp.distance = 0;
+							knnSamp.index = 0;
+							gProjectInfoPtr->knn_distances.push_back (knnSamp);
+							gProjectInfoPtr->knnLabelsPtr.push_back (classNumber);
+							//gProjectInfoPtr->knn_distances[gProjectInfoPtr->knnCounter] = knnSamp;
+							//gProjectInfoPtr->knnLabelsPtr[gProjectInfoPtr->knnCounter] = classNumber;
+							gProjectInfoPtr->knnCounter++;
+							
+							}	// end "if (statCode == kPixelValuesOnly)"
+						
+						else	// statCode != kPixelValuesOnly
+							{
+							lAreaChanPtr = areaChanPtr;
+							lAreaSumSquaresPtr = areaSumSquaresPtr;
+
+							for (channel=0; channel<numberChannels; channel++)
+								{
+								dValue = *bufferPtr;
+							
+										// Get the minimum and maximum value and sum.
+								
+								lAreaChanPtr->minimum = MIN (lAreaChanPtr->minimum, dValue);
+								lAreaChanPtr->maximum = MAX (lAreaChanPtr->maximum, dValue);
+								lAreaChanPtr->sum += dValue;
+								
+								lAreaChanPtr++;
+								
+								if (statCode == kMeanCovariance)
+									{
+											// Accumulate the channel covariance statistics
+									
+									bufferPtr2 = tOutputBufferPtr;
+									
+									for (covChan=0; covChan<channel; covChan++)
+										{
+										*lAreaSumSquaresPtr += dValue * *bufferPtr2;
+										bufferPtr2++;
+										lAreaSumSquaresPtr++;
+										
+										}	// end "for (covChan=channel+1; ..."
+										
+									}	// end "if (statCode == kMeanCovariance)"
+								
+								*lAreaSumSquaresPtr += dValue * dValue;
+								lAreaSumSquaresPtr++;
+
+				      		bufferPtr++;
+								
+								}	// end "for (channel=1; channel<numberChannels..."
+							
+							}	// end "else statCode != kPixelValuesOnly"
+						
 						numberPixels++;
 						
 						}	// end "if (dataOkayFlag)"
@@ -2480,6 +2542,9 @@ SInt16 GetAreaStats (
 		
 	gAreaDescription.numSamplesPerChan = numberPixels;
 	
+	if (returnCode > 0 && numberPixels > 0 && statCode == kPixelValuesOnly)
+		gProjectInfoPtr->pixelDataLoadedFlag = TRUE;
+	
 			// Indicate that routine completed normally.								
 			
 	return (returnCode);
@@ -2489,7 +2554,7 @@ SInt16 GetAreaStats (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2552,7 +2617,7 @@ void GetDiagonalVectorFromMatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2619,7 +2684,7 @@ Boolean GetMemoryForListTransformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2662,7 +2727,7 @@ UInt16* GetStatisticsFeatureVector (
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2801,7 +2866,7 @@ Boolean GetDataThresholdValues (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3242,7 +3307,7 @@ Boolean GetTotalSumSquares (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3323,7 +3388,7 @@ void GetTransformedCovarianceMatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3408,7 +3473,7 @@ void GetTransformedMeanVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3738,7 +3803,7 @@ Boolean ListEigenTransformationInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3848,7 +3913,7 @@ Boolean ListOffsetGainTransformationInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3923,7 +3988,7 @@ Boolean ListTransformationInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4057,7 +4122,7 @@ void MatrixMultiply (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4164,7 +4229,7 @@ void OrderEigenvaluesAndEigenvectors (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4284,7 +4349,7 @@ void ReduceInputMatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4346,7 +4411,7 @@ void ReduceMatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4432,7 +4497,7 @@ void ReduceMatrix1 (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4521,7 +4586,7 @@ void ReduceMatrix2 (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4576,7 +4641,7 @@ void ReduceMaximumVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4635,7 +4700,7 @@ void ReduceMeanVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4690,7 +4755,7 @@ void ReduceMinimumVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4734,7 +4799,7 @@ void ReleaseFeatureTransformationMemory (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4830,7 +4895,7 @@ Boolean SaveTransformationMatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4909,7 +4974,7 @@ void SetIdentityMatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5052,7 +5117,7 @@ Boolean SetupFeatureTransformationMemory (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5109,7 +5174,7 @@ void SquareToTriangularMatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5183,7 +5248,7 @@ void TransformDataVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5273,7 +5338,7 @@ double TransformDataVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5397,7 +5462,7 @@ void TransformSymmetricMatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5457,7 +5522,7 @@ void ZeroMatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

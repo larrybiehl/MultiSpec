@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University                                   
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			01/05/2018
+//	Revision date:			05/28/2019
 //
 //	Language:				C
 //
@@ -133,7 +133,7 @@ void UndoCutField (void);
 
                                   	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -295,7 +295,7 @@ void AddField (
 	
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -317,7 +317,7 @@ void AddField (
 //							ChangeFieldType in SEdtStat.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/17/1994
-//	Revised By:			Larry L. Biehl			Date: 05/13/1998			
+//	Revised By:			Larry L. Biehl			Date: 05/03/2019
 
 void AddFieldStatsToClassStats (
 					SInt16							storageClass,
@@ -353,6 +353,7 @@ void AddFieldStatsToClassStats (
 		classNamesPtr[storageClass].statsUpToDate = FALSE;
 		fieldIdentPtr[currentField].loadedIntoClassStats = FALSE;
 		gProjectInfoPtr->statsUpToDate = FALSE;
+		gProjectInfoPtr->pixelDataLoadedFlag = FALSE;
 	
 		if (gProjectInfoPtr->statsWindowMode <= 3 && 
 													gProjectInfoPtr->updateControlH)
@@ -363,8 +364,9 @@ void AddFieldStatsToClassStats (
 			// Update the count of the number of pixels in the class.
 	
 	classNamesPtr[storageClass].numberStatisticsPixels =  
-					GetNumberOfPixelsLoadedInClass (
-											&classNamesPtr[storageClass], fieldIdentPtr);
+					GetNumberOfPixelsLoadedInClass (&classNamesPtr[storageClass],
+																fieldIdentPtr,
+																kMeanCovariance);
 				
 	classNamesPtr[storageClass].numberTrainPixels =  
 					GetNumberOfTrainPixelsInClass (
@@ -383,7 +385,7 @@ void AddFieldStatsToClassStats (
 
                   
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -475,7 +477,7 @@ void ChangeFieldType (
 			
 			}		// end "if (fieldType == kTestingType)" 
 			
-		ForceFieldOutlineUpdate (FALSE);
+		ForceFieldOutlineUpdate (TRUE);
 			
 		gProjectInfoPtr->changedFlag = TRUE;
 		
@@ -491,7 +493,7 @@ void ChangeFieldType (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -573,7 +575,7 @@ Boolean ChangeProjectChannelsList (
 
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -644,7 +646,7 @@ void CheckEnhancedStatistics (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -667,7 +669,7 @@ void CheckEnhancedStatistics (void)
 //							StatisticsDialog in SStatist.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/05/1989
-//	Revised By:			Larry L. Biehl			Date: 09/01/2017
+//	Revised By:			Larry L. Biehl			Date: 04/27/2019
 
 void ClearProjectStatistics (
 				SInt16								clearCode)
@@ -727,7 +729,7 @@ void ClearProjectStatistics (
 			if (clearCode != 3)
 				{	
 				classNamesPtr[classStorage].numberStatisticsPixels = 0;
-//				classNamesPtr[classStorage].numberTrainPixels = 0;
+				//classNamesPtr[classStorage].numberTrainPixels = 0;
 				classNamesPtr[classStorage].modifiedStatsStorage = -1;
 				classNamesPtr[classStorage].modifiedStatsFlag = FALSE;
 				
@@ -858,8 +860,18 @@ void ClearProjectStatistics (
 	if (gProjectInfoPtr->numberStatisticsClasses == 0)
 		gProjectInfoPtr->statsUpToDate = TRUE;
 				
-	gProjectInfoPtr->statsLoaded = FALSE;
 	gProjectInfoPtr->changedFlag = TRUE;
+	gProjectInfoPtr->statsLoaded = FALSE;
+
+			// Clear knn training sample values
+	
+	//gProjectInfoPtr->knn_samples.clear();
+	//gProjectInfoPtr->knn_labels.clear ();
+	gProjectInfoPtr->knn_distances.clear ();
+	gProjectInfoPtr->knnLabelsPtr.clear ();
+	gProjectInfoPtr->knnDataValuesPtr.clear ();
+	gProjectInfoPtr->knnCounter = 0;
+	gProjectInfoPtr->pixelDataLoadedFlag = FALSE;
 	
 	if (clearCode != 3)
 		{
@@ -893,7 +905,7 @@ void ClearProjectStatistics (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -911,7 +923,7 @@ void ClearProjectStatistics (
 // Called By:			ReadProjectFile in SProject.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/08/1999
-//	Revised By:			Larry L. Biehl			Date: 09/01/2017
+//	Revised By:			Larry L. Biehl			Date: 05/03/2019
 
 void ClearProjectMaskStatistics (void)
 
@@ -990,7 +1002,8 @@ void ClearProjectMaskStatistics (void)
 					
 					classNamesPtr[classStorage].numberStatisticsPixels =  
 							GetNumberOfPixelsLoadedInClass (&classNamesPtr[classStorage], 
-																		gProjectInfoPtr->fieldIdentPtr);
+																		gProjectInfoPtr->fieldIdentPtr,
+																		kMeanCovariance);
 								
 					classNamesPtr[classStorage].numberTrainPixels =  
 							GetNumberOfTrainPixelsInClass (&classNamesPtr[classStorage], 
@@ -1008,6 +1021,7 @@ void ClearProjectMaskStatistics (void)
 					
 			gProjectInfoPtr->statsUpToDate = FALSE;
 			gProjectInfoPtr->changedFlag = TRUE;
+			gProjectInfoPtr->pixelDataLoadedFlag = FALSE;
 			
 					// Hilite the 'update statistics' control if needed.						
 			
@@ -1039,7 +1053,7 @@ void ClearProjectMaskStatistics (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1183,12 +1197,12 @@ void CutClass (
 									GetListViewBounds (gStatisticsListHandle, &gTempRect));
 				#endif	// defined multispec_mac 
 				
-				}		// end "if (gProjectInfoPtr->statsWindowMode == 2)" 
+				}	// end "if (gProjectInfoPtr->statsWindowMode == 2)"
 			
 					// Redo outlining the fields so that the fields for the 'cut'	
 					// class will be removed.													
 					
-			ForceFieldOutlineUpdate (FALSE);
+			ForceFieldOutlineUpdate (TRUE);
 			
 					// Save the pointer to the removed class so that it can be used
 					// later for 'undo cut class' or 'paste class fields'.			
@@ -1211,16 +1225,16 @@ void CutClass (
 				MHiliteControl (
 					gProjectWindow, gProjectInfoPtr->toClassControlH, 255);
 			
-			}		// end "if (gProjectWindow)" 
+			}	// end "if (gProjectWindow)"
 		
-		}		// end "if (removeClass >= 0 && ..." 
+		}	// end "if (removeClass >= 0 && ..."
 			
-}		// end "CutClass" 
+}	// end "CutClass"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1294,7 +1308,7 @@ void CutEmptyClassesFromProject ()
 	
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1394,7 +1408,7 @@ void CutField (
 		
 				// Remove field name from the field list.									
 				
-		if (gProjectInfoPtr->statsWindowMode == 3)
+		if (gProjectInfoPtr->statsWindowMode == kFieldListMode)
 			{ 
 			Cell cell; 
 			
@@ -1415,12 +1429,12 @@ void CutField (
 					
 				}		// end "if (LGetSelect (TRUE, &cell, gStatisticsListHandle))" 
 			
-			}		// end "if (gProjectInfoPtr->statsWindowMode == 3)" 
+			}		// end "if (gProjectInfoPtr->statsWindowMode == kFieldListMode)" 
 		
 				// Redo outlining the fields so that the 'cut' field will be 		
 				// removed.																			
 				
-		ForceFieldOutlineUpdate (FALSE);
+		ForceFieldOutlineUpdate (TRUE);
 		
 				// Save the pointer to the removed field so that it can be used	
 				// later for 'undo cut field'.												
@@ -1454,7 +1468,7 @@ void CutField (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1565,7 +1579,7 @@ void CutPolygonPoint (
 				// Redo outlining the fields so that the 'cut' field will be 		
 				// removed.																			
 				
-		ForceFieldOutlineUpdate (FALSE);
+		ForceFieldOutlineUpdate (TRUE);
 		
 				// Save the pointer to the removed point so that it can be used	
 				// later for 'undo cut polygon point'.										
@@ -1587,7 +1601,7 @@ void CutPolygonPoint (
 	
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1744,7 +1758,7 @@ void CutMaskClasses (
 	
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1900,12 +1914,74 @@ void CutMaskFields (
 	gUpdateProcessorMenuItemsFlag = TRUE;
 	gUpdateProjectMenuItemsFlag = TRUE;
 		
-}		// end "CutMaskFields" 
+}		// end "CutMaskFields"
+
+
+
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2019)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		Boolean DetermineIfStatisticsFromClustering
+//
+//	Software purpose:	The purpose of this routine is to determine if any of the
+//							statistics for the project are from the cluster operation.
+//							If so, then one does not know the actual pixels from which the
+//							statistics were computed.
+//
+//	Parameters in:		None
+//
+//	Parameters out:	None
+//
+// Value Returned:	None
+//
+// Called By:
+//
+//	Coded By:			Larry L. Biehl			Date: 06/04/2019
+//	Revised By:			Larry L. Biehl			Date: 06/04/2019
+
+Boolean DetermineIfStatisticsFromClustering ()
+
+{
+	SInt64								numberOfTrainPixelsInProject = 0;
+	
+	UInt32								classIndex,
+											classStorage,
+											numberClasses;
+	
+	
+			// Initialize local variables.
+	
+	numberClasses = gProjectInfoPtr->numberStatisticsClasses;
+	
+			// Continue only if number of classes is one or more and if project
+			//	statistics are not up-to-date
+	
+	if (numberClasses > 0)
+		{
+		for (classIndex=0; classIndex<numberClasses; classIndex++)
+			{
+					// Get the class storage number.
+			
+			classStorage = gProjectInfoPtr->storageClass[classIndex];
+			
+			numberOfTrainPixelsInProject += GetNumberOfTrainPixelsInClass (
+												&gProjectInfoPtr->classNamesPtr[classStorage],
+												gProjectInfoPtr->fieldIdentPtr);
+			
+			}	// end "for (classIndex=0; ...
+		
+		}	// end "if (numberClasses > 0)"
+	
+	return (numberOfTrainPixelsInProject);
+	
+}	// end "DetermineIfStatisticsFromClustering"
 
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1931,22 +2007,22 @@ void DoStatisticsWCut (void)
 	Boolean								tempFlag = FALSE;
 	
 	
-	if (gProjectInfoPtr->statsWindowMode == 2)
+	if (gProjectInfoPtr->statsWindowMode == kClassListMode)
 		{
 		CutClass (gProjectInfoPtr->currentClass);
 		tempFlag = (gProjectInfoPtr->currentClass < 0);
 			
-		}		// end "if (gProjectInfoPtr->statsWindowMode == 2)" 
+		}		// end "if (gProjectInfoPtr->statsWindowMode == kClassListMode)"
 									
-	if (gProjectInfoPtr->statsWindowMode == 3)
+	if (gProjectInfoPtr->statsWindowMode == kFieldListMode)
 		{
 		CutField (gProjectInfoPtr->currentField,
 														gProjectInfoPtr->currentClass);
 		tempFlag = (gProjectInfoPtr->currentField < 0);
 		
-		}		// end "if (gProjectInfoPtr->statsWindowMode == 3)" 
+		}		// end "if (gProjectInfoPtr->statsWindowMode == kFieldListMode)"
 									
-	if (gProjectInfoPtr->statsWindowMode == 4)
+	if (gProjectInfoPtr->statsWindowMode == kCoordinateListMode)
 		{
 		Cell				cell;
 		
@@ -1957,7 +2033,7 @@ void DoStatisticsWCut (void)
 									gProjectInfoPtr->currentField,
 									gProjectInfoPtr->currentClass);
 		
-		}		// end "if (gProjectInfoPtr->statsWindowMode == 4)" 
+		}	// end "if (gProjectInfoPtr->statsWindowMode == kCoordinateListMode)"
 		
 	if (tempFlag)
 		MHiliteControl (
@@ -1969,7 +2045,7 @@ void DoStatisticsWCut (void)
 	
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2027,7 +2103,7 @@ void DoStatisticsWEdit (
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2073,7 +2149,7 @@ void DoStatisticsWPaste (void)
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2111,7 +2187,7 @@ void DoStatisticsWUndo (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2132,7 +2208,7 @@ void DoStatisticsWUndo (void)
 // Called By:			StatisticsWControlEvent	in SStatist.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 02/13/1989
-//	Revised By:			Larry L. Biehl			Date: 03/15/2017	
+//	Revised By:			Larry L. Biehl			Date: 05/02/2019
 
 Boolean EditClassFieldDialog (
 				SInt16								classFieldFlag, 
@@ -2441,7 +2517,7 @@ Boolean EditClassFieldDialog (
 					// Force class/field name to be redrawn.
 								
 			if (gProjectInfoPtr->outlineFieldType > 0) 		
-				ForceFieldOutlineUpdate (FALSE);
+				ForceFieldOutlineUpdate (TRUE);
 			
 			}		// end "if (classFieldFlag == 2)"
 			     	
@@ -2478,7 +2554,7 @@ Boolean EditClassFieldDialog (
 				
 			if (gProjectInfoPtr->outlineFieldType &
 												fieldIdentPtr->fieldType) 		
-				ForceFieldOutlineUpdate (FALSE);
+				ForceFieldOutlineUpdate (TRUE);
 			
 			}		// end "if (classFieldFlag == 3)"
 					
@@ -2501,7 +2577,7 @@ Boolean EditClassFieldDialog (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2649,7 +2725,7 @@ void EditClassFieldDialogInitialize (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2855,7 +2931,7 @@ Boolean EditCoordinatesDialog (
 						
 			if (gProjectInfoPtr->outlineFieldType &
 										fieldIdentPtr[currentField].fieldType) 		
-				ForceFieldOutlineUpdate (FALSE);
+				ForceFieldOutlineUpdate (TRUE);
 			
 					// Force update of the project menu items.					
 								
@@ -2874,16 +2950,14 @@ Boolean EditCoordinatesDialog (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		SInt64 GetNumberOfTrainPixelsInClass
 //
-//	Software purpose:	The purpose of this routine is to get a pointer
-//							to the statistics feature vector.  The vector
-//							will depend upon whether a transformation matrix
-//							is being used.
+//	Software purpose:	The purpose of this routine is to determine the number of
+//							training pixels in the class
 //
 //	Parameters in:		None
 //
@@ -2921,12 +2995,12 @@ SInt64 GetNumberOfTrainPixelsInClass (
 	
 	return (numberOfTrainPixelsInClass); 
 			
-}		// end "GetNumberOfTrainPixelsInClass"  
+}	// end "GetNumberOfTrainPixelsInClass"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3034,7 +3108,7 @@ SInt64 GetTotalNumberPixelsInField (
 	
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3103,7 +3177,7 @@ void PasteClassFields (void)
 	
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3159,7 +3233,7 @@ void PasteField (void)
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3227,7 +3301,7 @@ void PasteFieldToNewClass (void)
 	
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3248,7 +3322,7 @@ void PasteFieldToNewClass (void)
 // Called By:	
 //
 //	Coded By:			Larry L. Biehl			Date: 01/13/1994
-//	Revised By:			Larry L. Biehl			Date: 05/13/1998			
+//	Revised By:			Larry L. Biehl			Date: 05/03/2019
 
 void RemoveFieldStatsFromClassStats (
 				SInt16								storageClass,
@@ -3298,8 +3372,9 @@ void RemoveFieldStatsFromClassStats (
 				// statistics that are loaded in the class.
 				
 		classNamesPtr[storageClass].numberStatisticsPixels =  
-						GetNumberOfPixelsLoadedInClass (
-												&classNamesPtr[storageClass], fieldIdentPtr);
+						GetNumberOfPixelsLoadedInClass (&classNamesPtr[storageClass],
+																	fieldIdentPtr,
+																	kMeanCovariance);
 				
 		classNamesPtr[storageClass].numberTrainPixels =  
 						GetNumberOfTrainPixelsInClass (
@@ -3313,6 +3388,7 @@ void RemoveFieldStatsFromClassStats (
 			fieldIdentPtr[currentField].statsUpToDate = FALSE;
 			classNamesPtr[storageClass].statsUpToDate = FALSE;
 			gProjectInfoPtr->statsUpToDate = FALSE;
+			gProjectInfoPtr->pixelDataLoadedFlag = FALSE;
 			
 			setUpdateControlFlag = TRUE;
 			
@@ -3337,7 +3413,7 @@ void RemoveFieldStatsFromClassStats (
 	
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3389,7 +3465,7 @@ void SetLoadedIntoClassStats (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3407,7 +3483,7 @@ void SetLoadedIntoClassStats (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 02/16/1989
-//	Revised By:			Larry L. Biehl			Date: 01/23/1998		
+//	Revised By:			Larry L. Biehl			Date: 04/08/2019
 
 void UndoCutClass (void)
 
@@ -3542,7 +3618,7 @@ void UndoCutClass (void)
 				// Redo outlining the fields so that the fields for the 'UnCut'	
 				// class will be outlined.														
 				
-		OutlineFieldsInProjectWindows (gProjectInfoPtr->statsWindowMode);
+		OutlineFieldsInProjectWindows (gProjectInfoPtr->statsWindowMode, kDoClearArea);
 		
 				// Indicate that there is now no cut class to be undone.				
 				// Also indicate that the class can not be pasted.						
@@ -3571,7 +3647,7 @@ void UndoCutClass (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3628,7 +3704,7 @@ void UndoCutField (void)
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

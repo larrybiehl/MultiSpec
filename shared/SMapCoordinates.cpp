@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			10/19/2018
+//	Revision date:			04/21/2019
 //
 //	Language:				C
 //
@@ -119,7 +119,12 @@
 #define EQUIT	2
 #define OBLIQ	3	
 
-#define	kMaxCoordinateValue		1.0e37	
+#define	kMaxCoordinateValue		1.0e37
+
+extern void 			LoadDItemString (
+								DialogPtr							dialogPtr,
+								SInt16								itemNumber,
+								CharPtr								theStringPtr);
 
 extern void				CoordinateDialogActivateProjectionParameters (
 								DialogPtr							dialogPtr);
@@ -228,7 +233,8 @@ extern SInt16			CoordinateDialogSetDatumParameters (
 								DialogPtr							dialogPtr,
 								SInt16								datumCode,
 								SInt16								ellipsoidCode,
-								Boolean								initialFlag);
+								Boolean								initialFlag,
+								Boolean								datumDeactivatedFlag);
 
 extern void				CoordinateDialogSetEllipsoidParameters (
 								DialogPtr							dialogPtr,
@@ -432,7 +438,7 @@ SInt16					gReferenceSystemSelection = 0;
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -470,7 +476,7 @@ Boolean AreasIntersect (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -523,7 +529,7 @@ Boolean CheckIfGeodeticModelInfoMatch (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -617,7 +623,7 @@ Boolean CheckIfGridCoordinateSystemInfoMatch (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -663,7 +669,7 @@ Boolean CheckIfMapInfoMatches (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -706,7 +712,7 @@ void CloseCoefficientsVectorPointers (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -767,7 +773,7 @@ void ComputeAndSetScaleInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -833,7 +839,7 @@ SInt16 ConvertDecimalDegreesToDMS (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -878,7 +884,7 @@ void ConvertFeetToMeters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -984,7 +990,7 @@ void ConvertLCPointToMapPoint (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1083,7 +1089,7 @@ void ConvertLCRectToMapRect (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1161,7 +1167,7 @@ void ConvertLCRectToMapRect_TransformCoordinate (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1274,7 +1280,7 @@ void ConvertMapPointToLC (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1371,7 +1377,7 @@ void ConvertMapPointToLC (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1391,7 +1397,7 @@ void ConvertMapPointToLC (
 //							EditSelectionDialogSetCoordinates in SSelectionUtility.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/23/2004
-//	Revised By:			Larry L. Biehl			Date: 05/15/2012		
+//	Revised By:			Larry L. Biehl			Date: 04/17/2019
 
 void ConvertMapRectToLCRect (
 				Handle								windowInfoHandle,
@@ -1481,17 +1487,41 @@ void ConvertMapRectToLCRect (
 				}	// end "if (planarCoordinateSystemInfoPtr->mapOrientationAngle != 0)"
 				
 					// Get line-column for the input top-left map units.
-					// Allow for a small roundoff error by adding a little more than 1.5.
-													
-			lineColumnRectPtr->left = (SInt32)((lMapRect.left - xMap11)/xPixelSize + 1.50001);	
+					// A column or line will be included if more than half of it is with the area
+					// to the right or lower of the map coordinate value. And to the left or above
+					// the lower right map coordinate value.
+					// 	- Add .5 pixel (line or column to take into account that xMap11 and yMap11
+					// 		represent the center of the upper left pixel.
+					// 	- Add 1 to convert resulting value from 0 based line / column to 1 based.
+					//		- Add .5 to allow for the above criterea for amount of area to be within
+					//			a pixel to be included for the upper-left pixel in the selection. One
+					//			does not need to add this for the lower-right pixel in the selection.
+				
+			lineColumnRectPtr->left = (SInt32)((lMapRect.left - xMap11)/xPixelSize + 2.0);
 			
-			lineColumnRectPtr->top = (SInt32)((lMapRect.top - yMap11)/yPixelSize + 1.501);		// 1.50001 caused 0 numbers
-			
+			lineColumnRectPtr->top = (SInt32)((lMapRect.top - yMap11)/yPixelSize + 2.0);
 					// Get line-column for the input bottom-right map units.	
 													
-			lineColumnRectPtr->right = (SInt32)((lMapRect.right - xMap11)/xPixelSize + 0.50001);
+			lineColumnRectPtr->right = (SInt32)((lMapRect.right - xMap11)/xPixelSize + 1.499);
 			
-			lineColumnRectPtr->bottom = (SInt32)((lMapRect.bottom - yMap11)/yPixelSize + 0.501);
+			lineColumnRectPtr->bottom = (SInt32)((lMapRect.bottom - yMap11)/yPixelSize + 1.499);
+			/*
+				int numberChars = sprintf ((char*)gTextString3,
+					" SMapCoordinates:ConvertMapRectToLCRect (right, bottom): %f, %f%s",
+					(lMapRect.right - xMap11)/xPixelSize + 1.499,
+					(lMapRect.bottom - yMap11)/yPixelSize + 1.499,
+					gEndOfLine);
+				ListString ((char*)gTextString3, numberChars, gOutputTextH);
+			*/
+					// Make sure the left value is <= the right value
+				
+			if (lineColumnRectPtr->left > lineColumnRectPtr->right)
+				lineColumnRectPtr->right = lineColumnRectPtr->left;
+			
+					// Make sure the top value is <= the bottom value
+				
+			if (lineColumnRectPtr->top > lineColumnRectPtr->bottom)
+				lineColumnRectPtr->bottom = lineColumnRectPtr->top;
 						
 			}	// end "mapProjectionInfoPtr->planarCoordinate.polynomialOrder <= 0"
 			
@@ -1508,8 +1538,8 @@ void ConvertMapRectToLCRect (
 							mapProjectionInfoPtr->planarCoordinate.northing2CoefficientsPtr,
 							mapProjectionInfoPtr->planarCoordinate.polynomialOrder);
 							
-			lineColumnRectPtr->left = (SInt32)(doubleColumnValue + 1.50001);
-			lineColumnRectPtr->top = (SInt32)(doubleLineValue + 1.50001);
+			lineColumnRectPtr->left = (SInt32)(doubleColumnValue + 2.0);	// 1.50001
+			lineColumnRectPtr->top = (SInt32)(doubleLineValue + 2.0);		// 1.50001
 							
 			TransformCoordinatePoint (
 							mapRectPtr->right,
@@ -1520,8 +1550,8 @@ void ConvertMapRectToLCRect (
 							mapProjectionInfoPtr->planarCoordinate.northing2CoefficientsPtr,
 							mapProjectionInfoPtr->planarCoordinate.polynomialOrder);
 							
-			lineColumnRectPtr->right = (SInt32)(doubleColumnValue + .50001);
-			lineColumnRectPtr->bottom = (SInt32)(doubleLineValue + .50001);
+			lineColumnRectPtr->right = (SInt32)(doubleColumnValue + 1.499);	// .50001
+			lineColumnRectPtr->bottom = (SInt32)(doubleLineValue + 1.499);	// .50001
 							
 			CloseCoefficientsVectorPointers (mapProjectionInfoPtr);
 				
@@ -1534,7 +1564,7 @@ void ConvertMapRectToLCRect (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1613,7 +1643,7 @@ void ConvertMapRectToOffscreenRect (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1665,7 +1695,7 @@ void ConvertMapPointToOrientationAngleMapPoint (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1813,7 +1843,7 @@ Boolean ConvertMapPointToWinPoint (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1873,7 +1903,7 @@ void ConvertMapRectToWinRect (
 
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1985,7 +2015,7 @@ void ConvertWinPointToMapPoint (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2030,7 +2060,7 @@ void ConvertMetersToFeet (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2353,7 +2383,7 @@ void ConvertWinRectToMapRect (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2399,7 +2429,7 @@ double ConvertPackedDegreesToDecimalDegrees (
 											
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2418,7 +2448,7 @@ double ConvertPackedDegreesToDecimalDegrees (
 // Called By:			Menus   in menu.c
 //
 //	Coded By:			Larry L. Biehl			Date: 07/16/1992
-//	Revised By:			Larry L. Biehl			Date: 12/16/2016	
+//	Revised By:			Larry L. Biehl			Date: 04/18/2019
 
 Boolean CoordinateDialog (void)
 
@@ -3022,6 +3052,7 @@ Boolean CoordinateDialog (void)
 																				dialogPtr,
 																				gDatumSelection-1,
 																				abs (gEllipsoidSelection)-1,
+																				FALSE,
 																				FALSE);
 							
 							adjustUpperLeftMapPointFlag = TRUE;
@@ -3208,6 +3239,21 @@ Boolean CoordinateDialog (void)
 	
 	if (returnFlag && fileInfoPtr->mapProjectionHandle != NULL)
 		{
+				// This will update the coordinate view popup menus if needed.
+		
+		#if defined multispec_win
+			CMImageView* imageViewCPtr = GetWindowPtr (gActiveImageWindowInfoH);
+			CMImageFrame* 	imageFrameCPtr = imageViewCPtr->GetImageFrameCPtr ();
+			imageFrameCPtr->OnViewCoordinatesBar (
+							(Boolean)GetCoordinateHeight (gActiveImageWindowInfoH));
+		#endif // defined multispec_win
+
+		#if defined multispec_lin
+			CMImageView* imageViewCPtr = GetWindowPtr (gActiveImageWindowInfoH);
+			CMImageFrame* imageFrameCPtr = imageViewCPtr->GetImageFrameCPtr ();
+			imageFrameCPtr->ShowCoordinateView (3);
+		#endif // defined multispec_lin
+		
 				// Update the coordinate parameters.
 		
 		newCoordinatesUnits = -1;
@@ -3247,12 +3293,14 @@ Boolean CoordinateDialog (void)
 		else if (fileMapUnitsCode >= kKilometersCode)
 			{
 			if (displayPlanarMapUnitsIndex == kUnknownUnitsMenuItem)
-				newCoordinatesUnits = fileMapUnitsCode + 2;
+				newCoordinatesUnits = kMetersUnitsMenuItem;
 				
-			else if (displayPlanarMapUnitsIndex == kDecimalLatLongUnitsMenuItem &&
+			else if ((displayPlanarMapUnitsIndex == kDecimalLatLongUnitsMenuItem ||
+							displayPlanarMapUnitsIndex == kDMSLatLongUnitsMenuItem) &&
 									!DetermineIfLatLongPossible (gActiveImageWindowInfoH))
 						// Cannot keep the lat-long display coordinate unit setting
-				newCoordinatesUnits = fileMapUnitsCode + 2;
+						// force to meters
+				newCoordinatesUnits = kMetersUnitsMenuItem;
 				
 			if (displayAreaUnitsIndex == kAreaUnknownUnitsMenuItem)
 				newAreaUnits = kSqKilometersUnitsMenuItem;
@@ -3263,7 +3311,19 @@ Boolean CoordinateDialog (void)
 			{
 			SetCoordinateViewUnits (gActiveImageWindowInfoH, newCoordinatesUnits);
 			
-			SetControlValue (GetCoordinateViewUnitsControl (gActiveImageWindowInfoH), 
+			#if defined multispec_lin
+				int coordinateUnitsSetting = newCoordinatesUnits;
+			
+				CMImageView* imageViewCPtr = GetWindowPtr (gActiveImageWindowInfoH);
+				CMImageFrame* imageFrameCPtr = imageViewCPtr->GetImageFrameCPtr ();
+				newCoordinatesUnits = GetComboListSelection (
+												imageFrameCPtr->m_coordinatesBar,
+												IDC_DisplayUnitsCombo,
+												coordinateUnitsSetting);
+			#endif
+			
+			if (newCoordinatesUnits >= 0)
+				SetControlValue (GetCoordinateViewUnitsControl (gActiveImageWindowInfoH),
 										newCoordinatesUnits);
 			
 			}	// and "if (newCoordinatesUnits >= 0)"
@@ -3272,7 +3332,19 @@ Boolean CoordinateDialog (void)
 			{
 			SetCoordinateViewAreaUnits (gActiveImageWindowInfoH, newAreaUnits);
 			
-			SetControlValue (GetCoordinateViewAreaUnitsControl (gActiveImageWindowInfoH), 
+			#if defined multispec_lin
+				int areaUnitsSetting = newAreaUnits;
+			
+				CMImageView* imageViewCPtr = GetWindowPtr (gActiveImageWindowInfoH);
+				CMImageFrame* imageFrameCPtr = imageViewCPtr->GetImageFrameCPtr ();
+				newAreaUnits = GetComboListSelection (
+															imageFrameCPtr->m_coordinatesBar,
+															IDC_AreaUnitsCombo,
+															areaUnitsSetting);
+			#endif
+			
+			if (newAreaUnits >= 0)
+				SetControlValue (GetCoordinateViewAreaUnitsControl (gActiveImageWindowInfoH),
 										newAreaUnits);
 			
 			}	// and "if (newAreaUnits >= 0)"
@@ -3280,19 +3352,6 @@ Boolean CoordinateDialog (void)
 				// Update the bounding map rectangle
 			
 		SetBoundingMapRectangle (gActiveImageWindowInfoH);
-
-		#if defined multispec_win 
-			CMImageView* imageViewCPtr = GetWindowPtr (gActiveImageWindowInfoH);
-			CMImageFrame* 	imageFrameCPtr = imageViewCPtr->GetImageFrameCPtr (); 
-			imageFrameCPtr->OnViewCoordinatesBar (
-							(Boolean)GetCoordinateHeight (gActiveImageWindowInfoH));
-		#endif // defined multispec_win 
-
-		#if defined multispec_lin 
-			CMImageView* imageViewCPtr = GetWindowPtr (gActiveImageWindowInfoH);
-			CMImageFrame* imageFrameCPtr = imageViewCPtr->GetImageFrameCPtr ();
-			imageFrameCPtr->ShowCoordinateView (3);
-		#endif // defined multispec_lin 
 						
 		SetCoordinateViewLocationParameters (gActiveImageWindowInfoH);
 		UpdateSelectionCoordinates (gActiveImageWindowInfoH);
@@ -3317,7 +3376,7 @@ Boolean CoordinateDialog (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3355,7 +3414,7 @@ void CoordinateDialogActivateProjectionParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3452,7 +3511,7 @@ SInt16 CoordinateDialogCheckIfZoneIsValid (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3490,7 +3549,7 @@ void CoordinateDialogDeactivateProjectionParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3535,7 +3594,7 @@ SInt16 CoordinateDialogGetCodeFromSelection (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3629,7 +3688,7 @@ void CoordinateDialogGetMinMaxZone (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3673,7 +3732,7 @@ SInt16 CoordinateDialogGetSelectionFromCode (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3691,7 +3750,7 @@ SInt16 CoordinateDialogGetSelectionFromCode (
 // Called By:			CoordinateDialog in SMapTran.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/14/2012
-//	Revised By:			Larry L. Biehl			Date: 05/01/2012	
+//	Revised By:			Larry L. Biehl			Date: 03/09/2019
 
 Boolean CoordinateDialogHandleInvalidValidEPSGCode (
 				DialogPtr							dialogPtr,
@@ -3718,7 +3777,6 @@ Boolean CoordinateDialogHandleInvalidValidEPSGCode (
 			ShowDialogItem (dialogPtr, IDC_DatumName);
 			ShowDialogItem (dialogPtr, IDC_ProjectionEllipsoidPrompt);
 			ShowDialogItem (dialogPtr, IDC_EllipsoidName);
-			
 			ShowDialogItem (dialogPtr, IDC_MajorAxisPrompt);
 			ShowDialogItem (dialogPtr, IDC_Radius);
 			ShowDialogItem (dialogPtr, IDC_MinorAxisPrompt);
@@ -3745,7 +3803,10 @@ Boolean CoordinateDialogHandleInvalidValidEPSGCode (
 			HideDialogItem (dialogPtr, IDC_DatumName);
 			HideDialogItem (dialogPtr, IDC_ProjectionEllipsoidPrompt);
 			HideDialogItem (dialogPtr, IDC_EllipsoidName);
-			HideDialogItem (dialogPtr, IDC_RadiusPrompt);
+			
+			#if !defined multispec_lin
+				HideDialogItem (dialogPtr, IDC_RadiusPrompt);
+			#endif
 			HideDialogItem (dialogPtr, IDC_MajorAxisPrompt);
 			HideDialogItem (dialogPtr, IDC_Radius);
 			HideDialogItem (dialogPtr, IDC_MinorAxisPrompt);
@@ -3780,7 +3841,7 @@ Boolean CoordinateDialogHandleInvalidValidEPSGCode (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3802,7 +3863,7 @@ Boolean CoordinateDialogHandleInvalidValidEPSGCode (
 // Called By:			CoordinateDialog in SMapTran.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/18/2000
-//	Revised By:			Larry L. Biehl			Date: 04/14/2012	
+//	Revised By:			Larry L. Biehl			Date: 03/15/2019
 
 void CoordinateDialogHideShowProjectionParameters (
 				DialogPtr							dialogPtr,
@@ -4047,7 +4108,8 @@ void CoordinateDialogHideShowProjectionParameters (
 																			dialogPtr,
 																			datumCode,
 																			ellipsoidCode,
-																			initialFlag);
+																			initialFlag,
+																			FALSE);
 																			
 			*datumSelectionPtr = -CoordinateDialogGetSelectionFromCode (datumCode);
 			
@@ -4070,7 +4132,7 @@ void CoordinateDialogHideShowProjectionParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4425,7 +4487,7 @@ void CoordinateDialogInitialize (
 					
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4471,7 +4533,7 @@ Boolean CoordinateDialogIsZoneDirectionEditable (
 					
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4523,7 +4585,7 @@ Boolean CoordinateDialogIsZoneDisplayed (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4734,7 +4796,7 @@ void CoordinateDialogOK (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4752,7 +4814,7 @@ void CoordinateDialogOK (
 // Called By:			CoordinateDialog in SMapTran.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/09/2012
-//	Revised By:			Larry L. Biehl			Date: 03/15/2017	
+//	Revised By:			Larry L. Biehl			Date: 04/21/2019
 
 Boolean CoordinateDialogSetParametersFromEPSGCode (
 				DialogPtr							dialogPtr,
@@ -4855,12 +4917,62 @@ Boolean CoordinateDialogSetParametersFromEPSGCode (
 																	IDC_ProjectionCombo, 
 																	IDC_ProjectionName,
 																	TRUE);
+			/*
+			dialogPtr->SetStaticTextOrDropDownList (abs (*datumSelectionPtr),
+																	IDC_DatumCombo,
+																	IDC_DatumName,
+																	TRUE);
+			*/
 		#endif	// defined multispec_win || defined multispec_lin
-																
-				// Set ellipsoid semi major and minor axis values.
+		
+				// Verify the correct major/minor axis or radius of sphere parameters
+				// are being displayed. Note that we only have ellipsoid name at this
+				// point, not the actual code. The name could be one that is not include
+				// in MultiSpec's list. So if the semiMajorAxis and semiMinorAxis are
+				// equal, only the sphere line will be displayed. Otherwise the
+				// parameters for major and minor axes will be displayed.
+		
+		if (semiMajorAxis == semiMinorAxis)
+			{
+			HideDialogItem (dialogPtr, IDC_MinorAxisPrompt);
+			HideDialogItem (dialogPtr, IDC_MinorAxis);
+			
+			#if defined multispec_lin
+				ShowDialogItem (dialogPtr, IDC_MajorAxisPrompt);
+				LoadDItemString (dialogPtr,
+										IDC_MajorAxisPrompt,
+										(CharPtr)"Radius of sphere (earth): ");
+			#else
+				HideDialogItem (dialogPtr, IDC_MajorAxisPrompt);
+				ShowDialogItem (dialogPtr, IDC_RadiusPrompt);
+			#endif
+			
+			SetDialogItemToStaticText (dialogPtr, IDC_Radius);
+			
+			LoadDItemRealValue (dialogPtr, IDC_Radius, semiMajorAxis, 4);
+			
+			}
+		
+		else	// semiMajorAxis != semiMinorAxis
+			{
+			ShowDialogItem (dialogPtr, IDC_MajorAxisPrompt);
+			ShowDialogItem (dialogPtr, IDC_Radius);
+			ShowDialogItem (dialogPtr, IDC_MinorAxisPrompt);
+			ShowDialogItem (dialogPtr, IDC_MinorAxis);
+		
+			#if defined multispec_lin
+				LoadDItemString (dialogPtr, IDC_MajorAxisPrompt, (CharPtr)"Major axis: ");
+			#else
+				HideDialogItem (dialogPtr, IDC_RadiusPrompt);
+			#endif
+			
+			SetDialogItemToStaticText (dialogPtr, IDC_Radius);
+			SetDialogItemToStaticText (dialogPtr, IDC_MinorAxis);
 				
-		LoadDItemRealValue (dialogPtr, IDC_Radius, semiMajorAxis, 4);
-		LoadDItemRealValue (dialogPtr, IDC_MinorAxis, semiMinorAxis, 4);
+			LoadDItemRealValue (dialogPtr, IDC_Radius, semiMajorAxis, 4);
+			LoadDItemRealValue (dialogPtr, IDC_MinorAxis, semiMinorAxis, 4);
+			
+			}	// end "else semiMajorAxis != semiMinorAxis"
 		
 		}	// end "if (parametersSetFlag)"
 		
@@ -4871,7 +4983,7 @@ Boolean CoordinateDialogSetParametersFromEPSGCode (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5100,7 +5212,7 @@ void CoordinateDialogSetParametersFromRS (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5118,13 +5230,14 @@ void CoordinateDialogSetParametersFromRS (
 // Called By:			CoordinateDialog in SMapTran.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 03/19/2012
-//	Revised By:			Larry L. Biehl			Date: 03/28/2012	
+//	Revised By:			Larry L. Biehl			Date: 03/15/2019
 
 SInt16 CoordinateDialogSetDatumParameters (
 				DialogPtr							dialogPtr,
 				SInt16								datumCode,
 				SInt16								ellipsoidCode,
-				Boolean								initialFlag)
+				Boolean								initialFlag,
+				Boolean								datumDeactivatedFlag)
 
 {	
 	SInt16								ellipsoidSelection;
@@ -5132,14 +5245,14 @@ SInt16 CoordinateDialogSetDatumParameters (
 	Boolean								ellipsoidDeactivatedFlag = FALSE;
 	
 		
-	if (datumCode > kNoDatumDefinedCode)
+	if (datumCode > kNoDatumDefinedCode || datumDeactivatedFlag)
 		{
 		ellipsoidDeactivatedFlag = TRUE;
 		
 		if (!initialFlag)
 			ellipsoidCode = GetEllipsoidCodeFromDatumCode (datumCode);
 		
-		}	// end "else if (datumCode > kUserDefinedDatumCode)"
+		}	// end "else if (datumCode > kUserDefinedDatumCode|| ..."
 		
 	CoordinateDialogSetEllipsoidParameters (dialogPtr, ellipsoidCode);
 	
@@ -5162,7 +5275,7 @@ SInt16 CoordinateDialogSetDatumParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5181,7 +5294,7 @@ SInt16 CoordinateDialogSetDatumParameters (
 //							CoordinateDialogHideShowProjectionTypeParameters2 in SMapTran.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/23/2009
-//	Revised By:			Larry L. Biehl			Date: 03/28/2012	
+//	Revised By:			Larry L. Biehl			Date: 03/09/2019
 
 void CoordinateDialogSetEllipsoidParameters (
 				DialogPtr							dialogPtr,
@@ -5202,7 +5315,9 @@ void CoordinateDialogSetEllipsoidParameters (
 	switch (ellipsoidCode)
 		{
 		case kNoEllipsoidDefinedCode:
-			HideDialogItem (dialogPtr, IDC_RadiusPrompt);
+			#if !defined multispec_lin
+				HideDialogItem (dialogPtr, IDC_RadiusPrompt);
+			#endif
 			HideDialogItem (dialogPtr, IDC_MajorAxisPrompt);
 			HideDialogItem (dialogPtr, IDC_Radius);
 			HideDialogItem (dialogPtr, IDC_MinorAxisPrompt);
@@ -5213,7 +5328,12 @@ void CoordinateDialogSetEllipsoidParameters (
 			SetDialogItemToEditText (dialogPtr, IDC_Radius);
 			SetDialogItemToEditText (dialogPtr, IDC_MinorAxis);
 		
-			HideDialogItem (dialogPtr, IDC_RadiusPrompt);
+			#if defined multispec_lin
+				LoadDItemString (dialogPtr, IDC_MajorAxisPrompt, (CharPtr)"Major axis: ");
+			#else
+				HideDialogItem (dialogPtr, IDC_RadiusPrompt);
+			#endif
+			
 			ShowDialogItem (dialogPtr, IDC_MajorAxisPrompt);
 			ShowDialogItem (dialogPtr, IDC_Radius);
 			ShowDialogItem (dialogPtr, IDC_MinorAxisPrompt);
@@ -5241,7 +5361,12 @@ void CoordinateDialogSetEllipsoidParameters (
 			SetDialogItemToStaticText (dialogPtr, IDC_Radius);
 			SetDialogItemToStaticText (dialogPtr, IDC_MinorAxis);
 			
-			HideDialogItem (dialogPtr, IDC_RadiusPrompt);
+			#if defined multispec_lin
+				LoadDItemString (dialogPtr, IDC_MajorAxisPrompt, (CharPtr)"Major axis: ");
+			#else
+				HideDialogItem (dialogPtr, IDC_RadiusPrompt);
+			#endif
+			
 			ShowDialogItem (dialogPtr, IDC_MajorAxisPrompt);
 			ShowDialogItem (dialogPtr, IDC_Radius);
 			ShowDialogItem (dialogPtr, IDC_MinorAxisPrompt);
@@ -5252,21 +5377,33 @@ void CoordinateDialogSetEllipsoidParameters (
 			LoadDItemRealValue (dialogPtr, IDC_Radius, radiusSpheroid, 4);			
 			SetDialogItemToEditText (dialogPtr, IDC_Radius);
 			
-			HideDialogItem (dialogPtr, IDC_MajorAxisPrompt);
+			#if defined multispec_lin
+				ShowDialogItem (dialogPtr, IDC_MajorAxisPrompt);
+				LoadDItemString (dialogPtr,
+										IDC_MajorAxisPrompt,
+										(CharPtr)"Radius of sphere (earth): ");
+			#else
+				HideDialogItem (dialogPtr, IDC_MajorAxisPrompt);
+				ShowDialogItem (dialogPtr, IDC_RadiusPrompt);
+			#endif
+			
 			HideDialogItem (dialogPtr, IDC_MinorAxisPrompt);
 			HideDialogItem (dialogPtr, IDC_MinorAxis);
-			ShowDialogItem (dialogPtr, IDC_RadiusPrompt);
 			ShowDialogItem (dialogPtr, IDC_Radius);
 			break;
 		
 		}	// end "switch (switch (ellipsoidCode))"
+	
+	#if defined multispec_lin
+		dialogPtr->Fit ();
+	#endif
 	
 }	// end "CoordinateDialogSetEllipsoidParameters" 
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5389,7 +5526,7 @@ void CoordinateDialogSetProjectionParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5408,7 +5545,7 @@ void CoordinateDialogSetProjectionParameters (
 //							CoordinateDialogInitialize in SMapTran.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/18/2000
-//	Revised By:			Larry L. Biehl			Date: 03/15/2017	
+//	Revised By:			Larry L. Biehl			Date: 03/15/2019
 
 void CoordinateDialogSetReferenceSystemParameters (
 				DialogPtr							dialogPtr,
@@ -5703,7 +5840,8 @@ void CoordinateDialogSetReferenceSystemParameters (
 	*ellipsoidSelectionPtr = CoordinateDialogSetDatumParameters (dialogPtr,
 																						datumCode,
 																						ellipsoidCode,
-																						initialFlag);
+																						initialFlag,
+																						datumDeactivatedFlag);
 	
 			// Handle the projection parameters
 			// Note that the datumSelectionPtr could be set to deactivated state in
@@ -5731,10 +5869,11 @@ void CoordinateDialogSetReferenceSystemParameters (
 		if (hideProjectionComboFlag)
 			HideDialogItem (dialogPtr, IDC_ProjectionCombo);
 	
-		dialogPtr->SetStaticTextOrDropDownList (abs (*datumSelectionPtr),
-																IDC_DatumCombo, 
-																IDC_DatumName,
-																*datumSelectionPtr<0);
+		dialogPtr->SetStaticTextOrDropDownList (
+										abs (*datumSelectionPtr),
+										IDC_DatumCombo,
+										IDC_DatumName,
+										(*datumSelectionPtr<0) | datumDeactivatedFlag);
 		if (hideDatumComboFlag)
 			HideDialogItem (dialogPtr, IDC_DatumCombo);
 
@@ -5749,7 +5888,7 @@ void CoordinateDialogSetReferenceSystemParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5823,7 +5962,7 @@ SInt16 CopyMapProjectionHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5864,7 +6003,7 @@ Handle DisposeMapProjectionHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5884,7 +6023,7 @@ Handle DisposeMapProjectionHandle (
 //							DoThematicWUpdateEvent in thematicWindow.c
 //
 //	Coded By:			Larry L. Biehl			Date: 10/26/2000
-//	Revised By:			Larry L. Biehl			Date: 06/01/2016			
+//	Revised By:			Larry L. Biehl			Date: 04/16/2019
 
 void DrawCursorCoordinates (
 				Handle								windowInfoHandle)
@@ -5908,7 +6047,6 @@ void DrawCursorCoordinates (
 		switch (viewUnits)
 			{
 			case kLineColumnUnitsMenuItem:
-			
 				numberYChars = sprintf ((char*)gTextString, 
 												"%*d",
 												numberCharacters,
@@ -6071,9 +6209,11 @@ void DrawCursorCoordinates (
 					
 				else	// viewUnits != kDMSLatLongUnitsMenuItem
 					{
-					decimalPlaces = 2;
-					if (viewUnits == kDecimalLatLongUnitsMenuItem)
-						decimalPlaces = 6;
+					//decimalPlaces = 2;
+					//if (viewUnits == kDecimalLatLongUnitsMenuItem)
+					//	decimalPlaces = 6;
+					
+					decimalPlaces = GetCoordinateViewUnitDecimalPlaces (windowInfoHandle);
 					
 					if (numberCharacters < 60)
 						{
@@ -6168,7 +6308,7 @@ void DrawCursorCoordinates (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6209,7 +6349,7 @@ pascal void DrawMapUnitsPopUp (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6250,7 +6390,7 @@ pascal void DrawDatumPopUp (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6292,7 +6432,7 @@ pascal void DrawEllipsoidPopUp (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6334,7 +6474,7 @@ pascal void DrawProjectionPopUp (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6376,7 +6516,7 @@ pascal void DrawReferenceSystemPopUp (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6496,7 +6636,7 @@ void DrawScaleInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6515,7 +6655,7 @@ void DrawScaleInformation (
 //							ShowSelection in selectionArea.c
 //
 //	Coded By:			Larry L. Biehl			Date: 11/22/2000
-//	Revised By:			Larry L. Biehl			Date: 08/23/2010			
+//	Revised By:			Larry L. Biehl			Date: 04/16/2019
 
 void DrawSelectedAreaInformation (
 				Handle								windowInfoHandle,
@@ -6556,9 +6696,8 @@ void DrawSelectedAreaInformation (
 		imageViewCPtr = GetWindowPtr (windowInfoHandle);
 		imageFrameCPtr = imageViewCPtr->GetImageFrameCPtr ();
 
-		imageFrameCPtr->GetCoordinateViewComboText ((char*)gTextString2,
-																	IDC_AreaUnitsCombo);
-																	
+		//imageFrameCPtr->GetCoordinateViewComboText ((char*)gTextString2,
+		//															areaUnitsCode);
 	#endif	// defined multispec_win || lin
 	
 	numberTitleChars = sprintf ((char*)gTextString, 
@@ -6614,7 +6753,7 @@ void DrawSelectedAreaInformation (
 		imageFrameCPtr = imageViewCPtr->GetImageFrameCPtr ();
 		#if defined multispec_lin
 			CMCoordinateBar* coordinatesBar = imageFrameCPtr->m_coordinatesBar;
-			((wxStaticText*)coordinatesBar->FindWindow (IDC_NumberPixelsPrompt))->Show (true);
+			//((wxStaticText*)coordinatesBar->FindWindow (IDC_NumberPixelsPrompt))->Show (true);
 			((wxStaticText*)coordinatesBar->FindWindow (IDC_NumberPixels))->Show (true);
 			((wxWindow*)coordinatesBar->FindWindow (IDC_AreaUnitsCombo))->Show (true);
 		#endif	// multispec_lin
@@ -6628,7 +6767,7 @@ void DrawSelectedAreaInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6647,7 +6786,7 @@ void DrawSelectedAreaInformation (
 //							ShowSelection in selectionArea.c
 //
 //	Coded By:			Larry L. Biehl			Date: 11/01/2000
-//	Revised By:			Larry L. Biehl			Date: 06/02/2016			
+//	Revised By:			Larry L. Biehl			Date: 04/16/2019
 
 void DrawSelectionCoordinates (
 				Handle								windowInfoHandle,
@@ -6757,9 +6896,11 @@ void DrawSelectionCoordinates (
 					
 		else	// coordinateViewUnits != kDMSLatLongUnitsMenuItem
 			{									
-			decimalPlaces = 2;		
-			if (coordinateViewUnits == kDecimalLatLongUnitsMenuItem)
-				decimalPlaces = 6;
+			//decimalPlaces = 2;
+			//if (coordinateViewUnits == kDecimalLatLongUnitsMenuItem)
+			//	decimalPlaces = 6;
+			
+			decimalPlaces = GetCoordinateViewUnitDecimalPlaces (windowInfoHandle);
 						
 					// Get the length of the end x and y strings	
 							
@@ -6961,7 +7102,7 @@ double e4fn (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7013,7 +7154,7 @@ Boolean FindIfMapInformationExists (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7074,7 +7215,7 @@ Boolean FindIfMapInformationExists (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7180,7 +7321,7 @@ void GetAreaNumberWidths (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7220,7 +7361,7 @@ SInt16 GetAreaUnits (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7287,7 +7428,7 @@ SInt16 GetAreaUnitString (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7330,7 +7471,7 @@ double GetConversionFromMetersToNativeMapUnits (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7367,7 +7508,6 @@ Boolean GetCursorCoordinates (
 	switch (GetCoordinateViewUnits (gActiveImageWindowInfoH))
 		{
 		case kLineColumnUnitsMenuItem:
-		
 			ConvertWinPointToLC (longMousePointPtr, &mouseLC);
 			
 			if (gCoordinateLineValue != mouseLC.v)
@@ -7397,8 +7537,7 @@ Boolean GetCursorCoordinates (
 		case kYardsUnitsMenuItem:
 		case kUSSurveyFeetUnitsMenuItem:
 		case kFeetUnitsMenuItem:
-		case kInchesUnitsMenuItem:	
-		
+		case kInchesUnitsMenuItem:
 			ConvertWinPointToDoubleLC (longMousePointPtr, &doubleMouseLC);
 			
 			if (gDoubleCoordinateLineValue != doubleMouseLC.v)
@@ -7425,7 +7564,7 @@ Boolean GetCursorCoordinates (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7497,7 +7636,7 @@ void GetBoundingMapRectangle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7604,7 +7743,7 @@ void GetBoundingOrientationAngleRect (
  
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7643,7 +7782,7 @@ Handle GetCoefficientsHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7695,7 +7834,7 @@ void GetCoefficientsVectorPointers (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7777,7 +7916,7 @@ SInt16 GetEllipsoidCodeFromDatumCode (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7894,7 +8033,7 @@ Boolean GetEllipsoidParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7930,7 +8069,7 @@ SInt16 GetFileProjectionCode (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7966,7 +8105,7 @@ SInt16 GetFileGridZone (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8003,7 +8142,7 @@ SInt16 GetFilePlanarMapUnitsCode (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8039,7 +8178,7 @@ SInt16 GetFileReferenceSystemCode (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8075,7 +8214,7 @@ SInt16 GetFileSpheroidCode (
  
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8114,7 +8253,7 @@ SInt16 GetProjectionCode (
  
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8153,7 +8292,7 @@ SInt16 GetGridZone (
  
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8192,7 +8331,7 @@ double GetMapOrientationAngle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8238,7 +8377,7 @@ Handle GetMapProjectionHandle (void)
  
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8290,7 +8429,7 @@ void GetPixelSize (
  
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8330,7 +8469,7 @@ SInt16 GetPlanarMapUnitsCode (
  
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8371,7 +8510,7 @@ SInt16 GetPolynomialOrder (
  
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8411,7 +8550,7 @@ SInt16 GetProjectedCSTypeGeoKey (
  
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8450,7 +8589,7 @@ SInt16 GetProjectionCode (
  
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8483,7 +8622,7 @@ SInt16 GetProjectionCodeFromProjectionMenuItem (
 	
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8548,7 +8687,7 @@ SInt16 GetProjectionCodeFromReferenceSystemCode (
  
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8587,7 +8726,7 @@ SInt16 GetReferenceSystemCode (
  
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8632,7 +8771,7 @@ SInt16 GetReferenceSystemCodeFromReferenceSystemMenuItem (
 											
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8718,7 +8857,7 @@ double GetScale (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8786,7 +8925,7 @@ SInt16 GetSpecificUTMRSFromDatumOrEllipsoid (
  
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8825,7 +8964,7 @@ SInt16 GetSpheroidCode (
  
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8918,7 +9057,7 @@ SInt16 GetSpheroidCodeFromMajorMinorAxes (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9005,7 +9144,7 @@ void GetWindowMapRect (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9048,7 +9187,7 @@ void InitializeGeodeticModelStructure (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9098,7 +9237,7 @@ void InitializeGridCoordinateSystemStructure (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9140,7 +9279,7 @@ void InitializeMapProjectionStructure (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9186,7 +9325,7 @@ void InitializePlanarCoordinateInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9279,7 +9418,7 @@ SInt16 LoadDMSLatLongStrings (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9346,7 +9485,7 @@ void LoadPlanarCoordinates (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9658,7 +9797,7 @@ void LoadSpheroidInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9696,7 +9835,7 @@ Boolean PointInRectangle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9742,7 +9881,7 @@ void SetAlbersEqualAreaParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9906,7 +10045,7 @@ void SetBoundingMapRectangle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -10010,7 +10149,7 @@ void SetBoundingMapRectangle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -10048,7 +10187,7 @@ void SetCoefficientsHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -10070,7 +10209,7 @@ void SetCoefficientsHandle (
 //							
 //
 //	Coded By:			Larry L. Biehl			Date: 11/08/2000
-//	Revised By:			Larry L. Biehl			Date: 05/31/2016
+//	Revised By:			Larry L. Biehl			Date: 04/16/2019
 
 void SetCoordinateViewLocationParameters (
 				Handle								windowInfoHandle)
@@ -10236,9 +10375,10 @@ void SetCoordinateViewLocationParameters (
 				
 			else	// viewUnits != kDMSLatLongUnitsMenuItem
 				{	
-				decimalDigits = 2;
-				if (viewUnits == kDecimalLatLongUnitsMenuItem)
-					decimalDigits = 6;
+				//decimalDigits = 2;
+				//if (viewUnits == kDecimalLatLongUnitsMenuItem)
+				//	decimalDigits = 6;
+				decimalDigits = GetCoordinateViewUnitDecimalPlaces (windowInfoHandle);
 				
 				if (fabs (coordinateRectangle.top) < kMaxCoordinateValue)
 					{
@@ -10502,9 +10642,8 @@ void SetCoordinateViewLocationParameters (
 			imageFrameCPtr = imageViewCPtr->GetImageFrameCPtr ();
 		#endif
 
-		if (imageFrameCPtr != NULL)
-			imageFrameCPtr->GetCoordinateViewComboText ((char*)gTextString,
-																		IDC_AreaUnitsCombo);
+		//if (imageFrameCPtr != NULL)
+		//	imageFrameCPtr->GetCoordinateViewComboText ((char*)gTextString, areaUnitsCode);
 	#endif	// defined multispec_win || lin
 
 	width = MAX (width, StringWidth (gTextString));
@@ -10532,7 +10671,7 @@ void SetCoordinateViewLocationParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -10550,7 +10689,7 @@ void SetCoordinateViewLocationParameters (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 07/11/2006
-//	Revised By:			Larry L. Biehl			Date: 04/07/2012		
+//	Revised By:			Larry L. Biehl			Date: 04/22/2019
 
 void SetCylindricalEqualAreaParameters (
 				MapProjectionInfoPtr				mapProjectionInfoPtr,
@@ -10562,10 +10701,14 @@ void SetCylindricalEqualAreaParameters (
 
 { 
 	if (mapProjectionInfoPtr != NULL)
-		{ 
-		mapProjectionInfoPtr->geodetic.radiusSpheroid = radiusSpheroid;
-		mapProjectionInfoPtr->geodetic.semiMajorAxis = radiusSpheroid;
-		mapProjectionInfoPtr->geodetic.semiMinorAxis = radiusSpheroid;
+		{
+		if (mapProjectionInfoPtr->geodetic.datumCode == kSphereDatumCode)
+			{
+			mapProjectionInfoPtr->geodetic.radiusSpheroid = radiusSpheroid;
+			mapProjectionInfoPtr->geodetic.semiMajorAxis = radiusSpheroid;
+			mapProjectionInfoPtr->geodetic.semiMinorAxis = radiusSpheroid;
+			
+			}	// end "if (mapProjectionInfoPtr->geodetic.datumCode == kSphereDatumCode)"
 		
 					// If the false easting and northing is in feet, convert
 					// to meters for use in calculations.
@@ -10587,7 +10730,7 @@ void SetCylindricalEqualAreaParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -10623,7 +10766,7 @@ void SetEllipsoidFromDatum (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -10665,7 +10808,7 @@ void SetEquirectangularParameters (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -10730,7 +10873,7 @@ Boolean SetGDA94ParametersFromZone (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -10770,7 +10913,7 @@ void SetKrovakParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -10819,7 +10962,7 @@ void SetLambertAzimuthalEqualAreaParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -10873,7 +11016,7 @@ void SetLambertConformalConicParameters (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -10934,7 +11077,7 @@ void SetMercatorParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -10977,7 +11120,7 @@ void SetOrthographicParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11032,7 +11175,7 @@ void SetPolarStereographicParameters (
 	
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11164,7 +11307,7 @@ void SetProjectionParameters (
 	
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11217,7 +11360,7 @@ Boolean SetProjectionParametersFromReferenceSystem (
 	
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11358,7 +11501,7 @@ Boolean SetProjectionParametersFromZone (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11442,7 +11585,7 @@ Boolean SetTMPulkovo1942ParametersFromZone (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11496,7 +11639,7 @@ void SetSinusoidalParameters (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11647,7 +11790,7 @@ Boolean SetStatePlaneParametersFromZone (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11710,7 +11853,7 @@ void SetTransverseMercatorParameters (
 
 /*                   
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11775,7 +11918,7 @@ void SetUpEllipsoidPopUpMenu (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11830,7 +11973,7 @@ void SetUpHorizontalDatumPopUpMenu (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11903,7 +12046,7 @@ void SetUpProjectionPopUpMenu (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11954,7 +12097,7 @@ void SetUpReferenceSystemPopUpMenu (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -12021,7 +12164,7 @@ Boolean SetUTMParametersFromZone (
 								
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -12132,7 +12275,7 @@ SInt16 TransformCoordinatePoint (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

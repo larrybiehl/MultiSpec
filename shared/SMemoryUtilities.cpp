@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//							 Copyright (1988-2018)
+//							 Copyright (1988-2019)
 //							c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			10/19/2018
+//	Revision date:			03/22/2019
 //
 //	Language:				C
 //
@@ -53,6 +53,13 @@
 	#include "wx/filefn.h"
 	#define memsize sizeof (void*)
 	typedef Byte onebyte;
+	#if defined multispec_wxmac
+		#include <sys/sysctl.h>
+		#include <mach/host_info.h>
+		#include <mach/mach_host.h>
+		#include <mach/task_info.h>
+		#include <mach/task.h>
+	#endif
 #endif
 
 #if defined multispec_mac
@@ -88,7 +95,7 @@ void				OSXMemoryMessage (
 						
 #if defined multispec_mac_swift
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -123,7 +130,7 @@ void BlockMoveData (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -159,7 +166,7 @@ Ptr CheckAndDisposePtr (
 		#endif	// defined multispec_win 
 		
 		#if defined multispec_lin
-			//delete [] pointer;
+			//delete[] pointer;
 			freememory ((void *)pointer);
 		#endif // defined multispec_lin
 
@@ -186,7 +193,7 @@ float* CheckAndDisposePtr (
 		#endif	// defined multispec_win 
 		
 		#if defined multispec_lin
-			//delete [] pointer;
+			//delete[] pointer;
 			freememory ((void *)pointer);
 		#endif // defined multispec_lin
 
@@ -213,7 +220,7 @@ double* CheckAndDisposePtr (
 		#endif	// defined multispec_win 
 		
 		#if defined multispec_lin
-			//delete [] pointer;
+			//delete[] pointer;
 			freememory ((void *)pointer);
 		#endif // defined multispec_lin
 
@@ -240,7 +247,7 @@ UInt8* CheckAndDisposePtr (
 		#endif	// defined multispec_win 
 		
 		#if defined multispec_lin
-			//delete [] pointer;
+			//delete[] pointer;
 			freememory ((void *)pointer);
 		#endif // defined multispec_lin
 
@@ -267,7 +274,7 @@ SInt16* CheckAndDisposePtr (
 		#endif	// defined multispec_win
 		
 		#if defined multispec_lin
-			//delete [] pointer;
+			//delete[] pointer;
 			freememory ((void *)pointer);
 		#endif // defined multispec_lin
 
@@ -294,7 +301,7 @@ UInt16* CheckAndDisposePtr (
 		#endif	// defined multispec_win
 		
 		#if defined multispec_lin
-			//delete [] pointer;
+			//delete[] pointer;
 			freememory ((void *)pointer);
 		#endif // defined multispec_lin
 
@@ -320,7 +327,7 @@ SInt32* CheckAndDisposePtr (
 		#endif	// defined multispec_win 
 		
 		#if defined multispec_lin
-			//delete [] pointer;
+			//delete[] pointer;
 			freememory ((void *)pointer);
 		#endif // defined multispec_lin
 
@@ -346,7 +353,7 @@ UInt32* CheckAndDisposePtr (
 		#endif	// defined multispec_win 
 		
 		#if defined multispec_lin
-			//delete [] pointer;
+			//delete[] pointer;
 			freememory ((void *)pointer);
 		#endif // defined multispec_lin
 
@@ -359,7 +366,7 @@ UInt32* CheckAndDisposePtr (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -413,15 +420,17 @@ void CheckAndUnlockHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		Boolean CheckHandleSize
 //
-//	Software purpose:	The purpose of this routine is to check the size
-//							of the handle against the bytes needed.  More 
-//							memory is obtained for the handle if needed.
+//	Software purpose:	The purpose of this routine is to check the size of the handle
+//							against the bytes needed.  More memory is obtained for the
+//							handle if needed.
+//							Note that this routine does not work well now with newer OS's;
+//							Do not know best way to get memory available.
 //
 //	Parameters in:		None
 //
@@ -545,7 +554,7 @@ Ptr CheckHandleSize (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -599,7 +608,7 @@ Boolean CheckIfBytesRequestedAreWithinLimit (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -657,7 +666,7 @@ Boolean CheckIfMemoryAvailable (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -734,7 +743,7 @@ Boolean CheckMemoryForColorPicker (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -839,7 +848,7 @@ Boolean CheckPointerSize (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -902,7 +911,7 @@ void CheckSizeAndUnlockHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -988,7 +997,7 @@ SInt16 CopyHandleToHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1070,7 +1079,7 @@ SInt16 CopyHandleToPointer (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1156,7 +1165,7 @@ SInt16 CopyPointerToHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1194,7 +1203,7 @@ void DisposeIOBufferPointers (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1294,7 +1303,7 @@ Handle GetCountVectorTableMemory (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1326,7 +1335,7 @@ Ptr GetHandlePointer (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1359,7 +1368,7 @@ Ptr GetHandlePointer (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1440,7 +1449,7 @@ Ptr GetHandlePointer (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1474,7 +1483,7 @@ Ptr GetHandleStatusAndPointer (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1524,7 +1533,7 @@ Ptr GetHandleStatusAndPointer (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1864,7 +1873,7 @@ Boolean GetIOBufferPointers (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1983,7 +1992,7 @@ UInt32 GetSetTiledIOBufferBytes (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2005,13 +2014,14 @@ UInt32 GetSetTiledIOBufferBytes (
 // Called By:			menus in menus.c
 //
 //	Coded By:			Larry L. Biehl			Date: 02/08/1989
-//	Revised By:			Larry L. Biehl			Date: 08/16/1995	
+//	Revised By:			Larry L. Biehl			Date: 03/22/2019
 
 void GetSpareMemory (void)
 
 {
-	UInt32								longestContBlock,
-											spareSize;
+	SInt64								longestContBlock;
+	
+	UInt32								spareSize;
 											
 	SInt16								returnCode;
 	
@@ -2071,7 +2081,7 @@ void GetSpareMemory (void)
 	      
 #if defined multispec_lin || defined multispec_win
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2203,7 +2213,7 @@ void MemoryMessage (
 
 		ReleaseSpareMemoryForWarningMessage ();
 
-		DisplayAlert (0,0,0,0,0,gTextString);
+		DisplayAlert (0, 0, 0, 0, 0, gTextString);
 		
 				// Get the spare memory back again if we can.
 
@@ -2216,11 +2226,11 @@ void MemoryMessage (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
-//	Function name:		UInt32 MGetFreeMemory
+//	Function name:		SInt64 MGetFreeMemory
 //
 //	Software purpose:	The purpose of this routine is to return the amount of
 //							free memory that is available in the system and the largest
@@ -2236,10 +2246,10 @@ void MemoryMessage (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 04/24/1995
-//	Revised By:			Larry L. Biehl			Date: 06/25/2018
+//	Revised By:			Larry L. Biehl			Date: 03/22/2019
 
-UInt32 MGetFreeMemory (
-				UInt32*								lContBlockPtr)
+SInt64 MGetFreeMemory (
+				SInt64*								lContBlockPtr)
 
 {         
 	#if defined multispec_mac
@@ -2317,9 +2327,9 @@ UInt32 MGetFreeMemory (
 			
 			}	// end "else errCode != noErr"
 			
-		*lContBlockPtr = (UInt32)freeMemory;
+		*lContBlockPtr = freeMemory;
 
-		return ((UInt32)freeMemory);
+		return (freeMemory);
 	#endif	// defined multispec_mac
 		
 	#if defined multispec_mac_swift
@@ -2327,28 +2337,122 @@ UInt32 MGetFreeMemory (
 	#endif	// defined multispec_mac
 				
 	#if defined multispec_win  
-		UInt32					freeMemory;                                                        
+		SInt64					freeMemory;
 		
 		MEMORYSTATUS			memoryStatus;
 
 		GlobalMemoryStatus (&memoryStatus);
-		*lContBlockPtr = (UInt32)memoryStatus.dwAvailPageFile;
+		*lContBlockPtr = (SInt64)memoryStatus.dwAvailPageFile;
 		*lContBlockPtr = MIN (*lContBlockPtr, (UInt32)(1.5*memoryStatus.dwAvailPhys));
-		freeMemory = (UInt32)memoryStatus.dwAvailPageFile;
+		freeMemory = (SInt64)memoryStatus.dwAvailPageFile;
 			
 		return (freeMemory);
 	#endif	// defined multispec_win 
 			
 	#if defined multispec_lin
-				// For now just returning same values returned as Mac
-				
-		UInt32 freeMemory;
-		wxString cpath = wxGetCwd ();
-		//wxGetDiskSpace (&cpath, NULL, &freememory);
-		freeMemory = 256000000;
-		*lContBlockPtr = 256000000;
+		wxMemorySize wx_freeMemory;
+	
+		wx_freeMemory = wxGetFreeMemory ();
+	
+		if (wx_freeMemory > 0)
+			{
+			*lContBlockPtr = (SInt64)wx_freeMemory.GetValue ();
+
+			return ((SInt64)wx_freeMemory.GetValue ());
+			
+			}	// end "if (freeMemory > 0)"
+	
+		else	// wxWidgets cannot get
+			{
+			SInt64						freeMemory = 0;
+			
+			#if defined multispec_wxlin
+						// Not sure what to use here.
+			
+				*lContBlockPtr = 2000000000;
+				freeMemory = 2000000000;
+			#endif
+			
+			#if defined multispec_wxmac
+				mach_msg_type_number_t 			count = HOST_VM_INFO_COUNT;
+				vm_statistics_data_t 			vmstat;
+				//SInt64								physicalMemoryAvailable;
+				Ptr									pointer;
+			
+				int 									i,
+														mib[6];
+			
+				SInt16								errCode = noErr;
+			
+			
+						// Information is from:
+						// https://stackoverflow.com/questions/6094444/how-can-i-programmatically-check-free-system-memory-on-mac-like-the-activity-mon
+						//
+						// If the sysctl approach is not available, the approach being used is to
+						// turn the memory flag off and just make requests
+						// 100 megabytes at a time less until an amount is found that works. I
+						// will start checking at 510 MB of RAM for now.
+			
+				mib[0] = CTL_HW;
+				mib[1] = HW_PAGESIZE;
+
+				int pagesize;
+				size_t length;
+				length = sizeof (pagesize);
+				errCode = sysctl (mib, 2, &pagesize, &length, NULL, 0);
+
+				if (errCode == noErr)
+					{
+					if (host_statistics (mach_host_self (),
+												HOST_VM_INFO,
+												(host_info_t)&vmstat,
+												&count) != KERN_SUCCESS)
+						errCode = -1;
+					
+					}	// end "if (errCode == noErr)"
+			
+				if (errCode == noErr)
+					{
+					freeMemory = pagesize * (vmstat.free_count + vmstat.inactive_count);
+					
+					//physicalMemoryAvailable = vmstat.wire_count + vmstat.active_count +
+					//													vmstat.inactive_count + vmstat.free_count;
+					//physicalMemoryAvailable *= pagesize;
+										
+					}	// end "if (errCode == noErr)"
+			
+				else	// errCode != noErr
+					{
+					gDisplayOSXMemoryMessageFlag = FALSE;
+			
+					pointer = NULL;
+					freeMemory = 2000000000;
+					for (i=15; i>0; i--)
+						{
+						pointer = ::MNewPointer ((UInt32)freeMemory);
+						if (pointer != NULL)
+							break;
+						
+						freeMemory -= 100000000;
+						
+						}	// end "for (i=11; i>0; i--)"
+					
+					freememory (pointer);
+					
+					gDisplayOSXMemoryMessageFlag = TRUE;
+					
+					}	// end "else errCode != noErr"
+			
+				*lContBlockPtr = freeMemory;
+			#endif
 		
-		return (freeMemory);
+			return (freeMemory);
+			
+			}	// end "else wxWidgets cannot get"
+	
+	//wxString cpath = wxGetCwd ();
+	//wxGetDiskSpace (&cpath, NULL, &freememory);
+	
 	#endif	// defined multispec_lin
 
 }	// end "MGetFreeMemory" 
@@ -2356,7 +2460,7 @@ UInt32 MGetFreeMemory (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2408,7 +2512,7 @@ SInt32 MGetHandleSize (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2464,7 +2568,7 @@ SInt32 MGetPointerSize (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2529,7 +2633,7 @@ SignedByte MHGetState (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2576,7 +2680,7 @@ void MHLock (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2623,7 +2727,7 @@ void MHSetState (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2682,7 +2786,7 @@ Handle MNewHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2753,7 +2857,7 @@ Handle MNewHandleClear (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2812,7 +2916,7 @@ Ptr MNewPointer (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2888,7 +2992,7 @@ Ptr MNewPointerClear (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2985,7 +3089,7 @@ Boolean MSetHandleSize (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3087,7 +3191,7 @@ Boolean MSetPointerSize (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3157,7 +3261,7 @@ void OSXMemoryMessage (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3209,7 +3313,7 @@ void ReleaseSpareMemoryForWarningMessage (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //

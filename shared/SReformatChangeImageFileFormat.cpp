@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			03/04/2019
+//	Revision date:			03/22/2019
 //
 //	Language:				C
 //
@@ -2906,7 +2906,7 @@ Boolean ChangeImageFormatDialog (
 // Called By:	
 //
 //	Coded By:			Larry L. Biehl			Date: 01/21/2006
-//	Revised By:			Larry L. Biehl			Date: 07/19/2018
+//	Revised By:			Larry L. Biehl			Date: 03/09/2019
 
 void ChangeImageFormatDialogInitialize (
 				DialogPtr							dialogPtr,
@@ -3340,10 +3340,10 @@ void ChangeImageFormatDialogInitialize (
    #endif
 	
 	if (mapInfoExistsFlag)
-		CtoPstring ((UCharPtr)"GeoTIFF format", tiffMenuNameStringPtr);
+		CtoPstring ((UCharPtr)"GeoTIFF format", tiffMenuNameStringPtr, 14);
 		
 	else	// !mapInfoExistsFlag
-		CtoPstring ((UCharPtr)"TIFF format", tiffMenuNameStringPtr);
+		CtoPstring ((UCharPtr)"TIFF format", tiffMenuNameStringPtr, 14);
 
 	#if defined multispec_mac  
 		SetMenuItemText (gPopUpHeaderOptionsMenu, 
@@ -8111,17 +8111,18 @@ Boolean GetReformatAndFileInfoStructures (
 //							AreasToThematicFileControl in fieldsToThematicFile.c
 //
 //	Coded By:			Larry L. Biehl			Date: 11/29/1990
-//	Revised By:			Larry L. Biehl			Date: 04/12/2013
+//	Revised By:			Larry L. Biehl			Date: 03/22/2019
 
 Boolean GetReformatOutputBuffer (
 				FileInfoPtr							outFileInfoPtr, 
 				ReformatOptionsPtr				reformatOptionsPtr)
 
 {
+	SInt64								lContBlock;
+	
 	SInt32								extraBufferBytesNeeded;
 	
 	UInt32								countOutBytes,
-											lContBlock,
 											numberBytes,
 											numberOutputBufferLines,
 											totalNumberBytes;

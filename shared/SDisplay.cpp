@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			03/07/2019
+//	Revision date:			04/24/2019
 //
 //	Language:				C
 //
@@ -68,6 +68,7 @@
 	#include "CPalette.h" 
 	#include "LImageDoc.h" 
 	#include "LImageFrame.h"
+	#include "LMultiSpec.h"
 	#include "wx/display.h"
 	#if defined multispec_wxlin
 		#include "wx/rawbmp.h"
@@ -126,11 +127,12 @@ void SetWindowToImageSize (
 // Called By:	
 //
 //	Coded By:			Larry L. Biehl			Date: 02/02/1994
-//	Revised By:			Larry L. Biehl			Date: 03/07/2019
+//	Revised By:			Larry L. Biehl			Date: 04/15/2019
 
 Boolean CheckSomeDisplayEvents (
 				WindowInfoPtr						windowInfoPtr,
 				DisplaySpecsPtr					displaySpecsPtr,
+				LCToWindowUnitsVariables* 		lcToWindowUnitsVariablesPtr,
 				PixMapHandle						savedPortPixMapH,
 				PixMapHandle						offScreenPixMapH,
 				LongRect*							sourceRectPtr,
@@ -141,18 +143,29 @@ Boolean CheckSomeDisplayEvents (
 	#endif	// defined multispec_mac 
 
 	Boolean returnFlag = TRUE;
-
+	/*
+	int numberChars = sprintf ((char*)gTextString3,
+													" SDisplay.cpp:CheckSomeDisplayEvents (TickCount): %ld%s",
+													TickCount (),
+													gEndOfLine);
+	ListString ((char*)gTextString3, numberChars, gOutputTextH);
+	*/
 	if (displayBottomMax != -1)
 		InvalidateImageSegment (windowInfoPtr,
-											displaySpecsPtr,
+											//displaySpecsPtr,
+											lcToWindowUnitsVariablesPtr,
 											sourceRectPtr,
 											displayBottomMax);
-
-	#if defined multispec_win  
-		gActiveImageWindow->UpdateWindow ();
-	#endif	// defined multispec_win    
-
+	
 	#if defined multispec_lin
+		if (displaySpecsPtr->drawSideBySideTitleFlag)
+			(gActiveImageWindow->m_frame->m_titleBar)->
+						RefreshRect (wxRect (0,
+													1,
+													sourceRectPtr->right-sourceRectPtr->left+1,
+													14),
+											true);
+	
 		//gActiveImageWindow->OnUpdate (NULL, NULL);
 				// Force palette info to bitmap to be loaded again since since more of
 				// image may have been loaded.
@@ -164,20 +177,23 @@ Boolean CheckSomeDisplayEvents (
 		if (windowInfoPtr->offscreenMapSize == 0)
 			EndBitMapRawDataAccess (&gActiveImageViewCPtr->m_ScaledBitmap);
 	
-		gActiveImageWindow->OnUpdate (gActiveImageWindow, NULL);
-		(gActiveImageWindow->m_Canvas)->Update ();
+		//gActiveImageWindow->OnUpdate (gActiveImageWindow, NULL);
+		//(gActiveImageWindow->m_Canvas)->Update ();
 	#endif
 
+	#if defined multispec_win  
+		gActiveImageWindow->UpdateWindow ();
+	#endif	// defined multispec_win    
+
 	returnFlag = CheckSomeEvents (osMask + keyDownMask + mDownMask + updateMask + mUpMask);
-	
 	
 	#if defined multispec_lin
 				// Get pointer to the raw bitmap data and indicate that bitmap is
 				// ready to be modified.
-	if (windowInfoPtr->offscreenMapSize == 0)
-		windowInfoPtr->imageBaseAddressH = (HPtr)BeginBitMapRawDataAccess (
-														windowInfoPtr,
-														&gActiveImageViewCPtr->m_ScaledBitmap);
+		if (windowInfoPtr->offscreenMapSize == 0)
+			windowInfoPtr->imageBaseAddressH = (HPtr)BeginBitMapRawDataAccess (
+															windowInfoPtr,
+															&gActiveImageViewCPtr->m_ScaledBitmap);
 	#endif
 
 	if (!returnFlag)
@@ -447,20 +463,29 @@ SInt16 CheckNumberDisplayLines (
 //
 //	Coded By:			Larry L. Biehl			Date: 08/11/1988
 //	Revised By:			Wei-Kang Hsu			Date: 10/14/2015
-//	Revised By:			Larry L. Biehl			Date: 03/07/2019
+//	Revised By:			Larry L. Biehl			Date: 04/24/2019
 
 void DisplayColorImage (
 				DisplaySpecsPtr					displaySpecsPtr,
 				HistogramSpecsPtr					histogramSpecsPtr)
+
 {
+	#if defined multispec_mac
+		Rect 									rect;
+		PixMapHandle						imageWindowPortPixMap = NULL;
+	#endif
+	#if defined multispec_win
+		Rect 									rect;
+	#endif
+	
 	LongRect								sourceRect;
 
-	Rect 									rect;
 
 	FileInfoPtr							fileInfoPtr;
+	
+	LCToWindowUnitsVariables 		lcToWindowUnitsVariables;
 
-	PixMapHandle						imageWindowPortPixMap = NULL,
-											offScreenPixMapH = NULL,
+	PixMapHandle						offScreenPixMapH = NULL,
 											savedImageWindowPortPixMap = NULL;
 
 	HPtr									offScreenBufferPtr = NULL;
@@ -487,7 +512,57 @@ void DisplayColorImage (
 
 	fileInfoPtr = gImageFileInfoPtr;
 
+	SetUpImageWindowTypeParameters (gActiveImageWindow,
+												gImageWindowInfoPtr,
+												fileInfoPtr,
+												displaySpecsPtr);
+
+			// Set up structures to hold the offscreen bit maps.
+
+	if (!SetUpColorImageMemory (displaySpecsPtr, &sourceRect, &pixRowBytes))
+																									return;
+	
+			// Update scrolls to be ready to write image to window.
+			// This call needs to be before the offscreenBufferPtr is set to access
+			// the bitmap. UpdateActiveImageScrolls may also access a pointer to
+			// the bitmap. There can be only one at a time for wxWidgets
+			// Note tried leaving this out for wxWidgets since for large images,
+			// CopyOffscreen was was called before loading anything in the bitmap.
+			// Cost time, but leaving out caused problems with initial image thinking
+			// there were scroll bars present.
+	
+	UpdateActiveImageWScrolls (displaySpecsPtr->magnification);
+	
+	gImageWindowInfoPtr->drawBitMapFlag = FALSE;
+
 			// Erase the image window before starting to draw
+
+	#if defined multispec_lin
+		gActiveImageViewCPtr->ClearView (false);
+		//gActiveImageViewCPtr->OnUpdate (NULL, NULL);
+				// Do not allow updates when arrow being used to go from channel
+				// to channel using arrows.
+				// We do want to allow for updates if the display is from the case when
+				// an image is being opened directly from a drag drop situation. We
+				// want this done hear so that the entire image window is not updated
+				// the first time for large images when only a few lines have been
+				// loaded into the bitmap
+				
+		if (gCallProcessorDialogFlag || gFromToolParameterFileFlag)
+			#if defined multispec_wxlin
+				gActiveImageViewCPtr->m_frame->Update ();
+			#endif
+			#if defined multispec_wxmac
+				gActiveImageViewCPtr->m_frame->Update ();
+				//((CMultiSpecApp*)wxTheApp)->SafeYieldFor (NULL, wxEVT_CATEGORY_UI);
+			#endif
+		/*
+		int numberChars = sprintf ((char*)gTextString3,
+													" SDisplay.cpp:DisplayColorImage (after update): %s",
+													gEndOfLine);
+		ListString ((char*)gTextString3, numberChars, gOutputTextH);
+		*/
+	#endif   //	defined multispec_lin
 
 	#if defined multispec_mac
 		GetWindowClipRectangle (gActiveImageWindow, kImageFrameArea, &rect);
@@ -521,41 +596,15 @@ void DisplayColorImage (
 		gActiveImageViewCPtr->UpdateWindow ();
 		gImageWindowInfoPtr->imageBaseAddressH = imageBaseAddressH;
 	#endif   //	defined multispec_win
-
-	#if defined multispec_lin
-				// Save previous image window before clear the statistics
-		/*
-		wxPoint scrolloffset = gActiveImageViewCPtr->m_Canvas->GetScrollPosition ();
-		int scrollRange_H = 
-							gActiveImageViewCPtr->m_Canvas->GetScrollRange (wxHORIZONTAL);
-		int scrollRange_V = gActiveImageViewCPtr->m_Canvas->GetScrollRange (wxVERTICAL);
-		int scrollthumb_H = 
-							gActiveImageViewCPtr->m_Canvas->GetScrollThumb (wxHORIZONTAL);
-		int scrollthumb_V = gActiveImageViewCPtr->m_Canvas->GetScrollThumb (wxVERTICAL);
-
-		gActiveImageViewCPtr->ClearView (true);
-		*/
-		gActiveImageViewCPtr->OnUpdate (NULL, NULL);
-		gActiveImageViewCPtr->ClearView (false);
-		/*
-		gActiveImageViewCPtr->m_Canvas->SetScrollbar (
-						wxHORIZONTAL, scrolloffset.x, scrollthumb_H,scrollRange_H, false);
-		gActiveImageViewCPtr->m_Canvas->SetScrollbar (
-						wxVERTICAL,   scrolloffset.y, scrollthumb_V,scrollRange_V, false);
-
-		gImageWindowInfoPtr->imageBaseAddressH = imageBaseAddressH;
-		*/
-	#endif   //	defined multispec_lin
-
-	SetUpImageWindowTypeParameters (gActiveImageWindow,
-												gImageWindowInfoPtr,
-												fileInfoPtr,
-												displaySpecsPtr);
-
-			// Set up structures to hold the offscreen bit maps.
-
-	if (!SetUpColorImageMemory (displaySpecsPtr, &sourceRect, &pixRowBytes))
-																									return;
+	
+			// Set some variables for use when updating the image window.
+	
+	SetLCToWindowUnitVariables (gImageWindowInfoPtr->windowInfoHandle,
+											kWindowsUseOrigin,
+											FALSE,
+											&lcToWindowUnitsVariables);
+	
+	gImageWindowInfoPtr->drawBitMapFlag = TRUE;
 
 	displayBottomMax = sourceRect.bottom;
 
@@ -633,7 +682,15 @@ void DisplayColorImage (
 						#if defined multispec_lin
 									// The image top offset is 0 for wx implementation since the
 									// coordinate bar is not a part of the image window.
-							gImageWindowInfoPtr->imageTopOffset = gDefaultTitleHeight;
+						
+							//gImageWindowInfoPtr->imageTopOffset = gDefaultTitleHeight;
+							gImageWindowInfoPtr->imageTopOffset = 0;
+							//gImageWindowInfoPtr->titleHeight = 0;
+						
+							CMImageDoc* imageDocCPtr =
+												(CMImageDoc*)gActiveImageViewCPtr->GetDocument ();
+							CMImageFrame* imageFrameCPtr = imageDocCPtr->GetImageFrameCPtr ();
+							imageFrameCPtr->ShowTitleView (1);
 						#else
 							gImageWindowInfoPtr->imageTopOffset =
 								  gDefaultTitleHeight + gImageWindowInfoPtr->coordinateHeight;
@@ -699,10 +756,6 @@ void DisplayColorImage (
 
 			if (displayCode != 0)
 				{
-						// Update scrolls to be ready to write image to window.
-               
-				UpdateActiveImageWScrolls (displaySpecsPtr->magnification);
-
 				if (displayCode == 7)
 					DisplayImagesSideBySide (displaySpecsPtr,
 														fileInfoPtr,
@@ -710,7 +763,8 @@ void DisplayColorImage (
 														pixRowBytes,
 														savedImageWindowPortPixMap,
 														offScreenPixMapH,
-														&sourceRect);
+														&sourceRect,
+														&lcToWindowUnitsVariables);
 
 				else if (displayCode == 107)
 					Display4_8ByteImagesSideBySide (displaySpecsPtr,
@@ -720,7 +774,8 @@ void DisplayColorImage (
 																pixRowBytes,
 																savedImageWindowPortPixMap,
 																offScreenPixMapH,
-																&sourceRect);
+																&sourceRect,
+																&lcToWindowUnitsVariables);
 
 				else // the rest of the display codes.
 					DisplayCImage (displaySpecsPtr,
@@ -732,7 +787,8 @@ void DisplayColorImage (
 										offScreenPixMapH,
 										&sourceRect,
 										numberChannels,
-										displayCode);
+										displayCode,
+										&lcToWindowUnitsVariables);
 
 				if (displayCode == 51 || displayCode == 151)
 					loadLegendListFlag = TRUE;
@@ -750,7 +806,8 @@ void DisplayColorImage (
 												  pixRowBytes,
 												  savedImageWindowPortPixMap,
 												  offScreenPixMapH,
-												  &sourceRect);
+												  &sourceRect,
+												  &lcToWindowUnitsVariables);
 
 			}	// end "else ...->imageType == kThematicImageType"
 
@@ -760,18 +817,19 @@ void DisplayColorImage (
 		if (sourceRect.bottom != -1)
 			CheckSomeDisplayEvents (gImageWindowInfoPtr,
 											 displaySpecsPtr,
+											 &lcToWindowUnitsVariables,
 											 NULL,
 											 offScreenPixMapH,
 											 &sourceRect,
 											 displayBottomMax);
 	
 		CheckAndUnlockHandle (gImageWindowInfoPtr->imageBaseAddressH);
-	#endif // defined multispec_win || defined multispec_lin
 	
-	#if defined multispec_wxmac
-		if (gImageWindowInfoPtr->offscreenMapSize == 0)
-			EndBitMapRawDataAccess (&gActiveImageViewCPtr->m_ScaledBitmap);
-	#endif // defined multispec_wxmac
+		#if defined multispec_wxmac
+			if (gImageWindowInfoPtr->offscreenMapSize == 0)
+				EndBitMapRawDataAccess (&gActiveImageViewCPtr->m_ScaledBitmap);
+		#endif // defined multispec_wxmac
+	#endif // defined multispec_win || defined multispec_lin
 
 	#if defined multispec_mac
 				// Indicate that the 'better' 8-bit palette has not been created.
@@ -797,7 +855,8 @@ void DisplayColorImage (
 				sourceRect.top = 0;
 			sourceRect.bottom = displayBottomMax;
 			InvalidateImageSegment (gImageWindowInfoPtr,
-											 displaySpecsPtr,
+											 //displaySpecsPtr,
+											 &lcToWindowUnitsVariables,
 											 &sourceRect,
 											 displayBottomMax);
 
@@ -1753,138 +1812,8 @@ SInt16 GetOffscreenGWorld (
 			windowInfoPtr->offscreenMapSize = 0;
 
 			}	// end "if (resultCode != noErr)"
-	#endif	// defined multispec_win 
-	/*
-	#if defined multispec_wxlin
-		UInt32							bytesNeeded,
-											maxNumberColumns,
-											numberColumns;
-
-		SInt16							numberEntries;
-		
-
-		numberColumns = (UInt32)longRectPtr->right - longRectPtr->left;
-		
-				// Since gray scale and color in wxWidgets are both represented by RGB, there is no difference in the max
-				// whether the pixel size is 8 or 24.
-
-		maxNumberColumns = gMaxRowBytes;
-
-		if (numberColumns > maxNumberColumns) 			
-			{
-			UnlockAndDispose (windowInfoPtr->imageBaseAddressH);
-			windowInfoPtr->imageBaseAddressH = NULL;
-			unsigned char message[] = " Cannot display more than 32,767 columns. Please reduce number of columns or number of channels.";
-			DisplayAlert (wxOK | wxICON_EXCLAMATION, 0, 0, 0, 0, message);
-
-			return (1);
-
-			}	// end "if (numberColumns > maxNumberColumns)"
-
-				// Make certain that the number of pixel row bytes is less than the
-				// maximum allowed.
-
-		*pixRowBytesPtr = GetNumberPixRowBytes (
-									(UInt32)longRectPtr->right - longRectPtr->left,
-									displaySpecsPtr->pixelSize);
-
-				// Now get memory for the offscreen bit map and header.
-
-		resultCode = noErr;
-		numberEntries = displaySpecsPtr->paletteObject->GetNumberPaletteEntries ();
-		if (displaySpecsPtr->pixelSize == 24)
-			numberEntries = 0;
-
-		bytesNeeded =
-				*pixRowBytesPtr * ((UInt32)longRectPtr->bottom - longRectPtr->top + 1);
-		//UnlockAndDispose (windowInfoPtr->imageBaseAddressH);
-		//windowInfoPtr->imageBaseAddressH = MNewHandle (bytesNeeded);
-		windowInfoPtr->offscreenMapSize = bytesNeeded;
-
-		wxBitmap scaledBitmap = wxBitmap (longRectPtr->right, longRectPtr->bottom, 32);
-		gActiveImageViewCPtr->m_ScaledBitmap = scaledBitmap;
-		windowInfoPtr->imageBaseAddressH = scaledBitmap.GetRawAccess();
-
-		if (windowInfoPtr->imageBaseAddressH == NULL)
-			resultCode = 1;
-
-		if (resultCode != noErr) 
-			{
-			//windowInfoPtr->imageBaseAddressH =
-			//		 UnlockAndDispose (windowInfoPtr->imageBaseAddressH);
-
-			windowInfoPtr->offscreenMapSize = 0;
-
-			}	// end "if (resultCode != noErr)"
-	#endif	// defined multispec_wxlin
-
-	#if defined multispec_wxmac
-		int								pixelSize;
+	#endif	// defined multispec_win
 	
-		UInt32							maxNumberColumns,
-											numberColumns;
-
-		SInt16							numberEntries;
-		
-
-		numberColumns = (UInt32)longRectPtr->right - longRectPtr->left;
-		
-				// Since gray scale and color in wxWidgets are both represented by RGB, there is no difference in the max
-				// whether the pixel size is 8 or 24.
-
-		maxNumberColumns = gMaxRowBytes;
-
-		if (numberColumns > maxNumberColumns) 			
-			{
-			UnlockAndDispose (windowInfoPtr->imageBaseAddressH);
-			windowInfoPtr->imageBaseAddressH = NULL;
-			unsigned char message[] = " Cannot display more than 32,767 columns. Please reduce number of columns or number of channels.";
-			DisplayAlert (wxOK | wxICON_EXCLAMATION, 0, 0, 0, 0, message);
-
-			return (1);
-
-			}	// end "if (numberColumns > maxNumberColumns)"
-
-				// Now get memory for the offscreen bit map and header.
-
-		resultCode = noErr;
-		numberEntries = displaySpecsPtr->paletteObject->GetNumberPaletteEntries ();
-		if (displaySpecsPtr->pixelSize == 24)
-			numberEntries = 0;
-	
-		pixelSize = displaySpecsPtr->pixelSize;
-		if (pixelSize == 24)
-			pixelSize = 32;
-	
-		wxBitmap & scaledBitmap = gActiveImageViewCPtr->m_ScaledBitmap;
-		//wxBitmap & scaledBitmap = gActiveImageViewCPtr->GetScaledBitmap();
-		scaledBitmap.Create (longRectPtr->right, longRectPtr->bottom, pixelSize);
-		//gActiveImageViewCPtr->GetScaledBitmap().
-		//								Create (longRectPtr->right, longRectPtr->bottom, 32);
-	 
-		//wxBitmap* scaledBitmapPtr = gActiveImageViewCPtr->GetScaledBitmapPtr ();
-		//if (scaledBitmapPtr != NULL)
-		//	delete scaledBitmapPtr;
-		//scaledBitmapPtr = new wxBitmap (longRectPtr->right, longRectPtr->bottom, 32);
-		
-		windowInfoPtr->imageBaseAddressH = scaledBitmap.GetRawAccess();
-		*pixRowBytesPtr = scaledBitmap.GetBitmapData()->GetBytesPerRow();
-	
-		windowInfoPtr->offscreenMapSize = *pixRowBytesPtr * longRectPtr->bottom;
-	
-		if (displaySpecsPtr->paletteObject != NULL)
-			scaledBitmap.SetPalette (*displaySpecsPtr->paletteObject);
-
-		if (windowInfoPtr->imageBaseAddressH == NULL)
-			resultCode = 1;
-
-		if (resultCode != noErr) 
-			{
-			windowInfoPtr->offscreenMapSize = 0;
-
-			}	// end "if (resultCode != noErr)"
-	#endif	// defined multispec_wxmac
-	*/
 	return (resultCode);
 
 }	// end "GetOffscreenGWorld" 
@@ -1910,7 +1839,7 @@ SInt16 GetOffscreenGWorld (
 // Called By:	
 //
 //	Coded By:			Larry L. Biehl			Date: 12/06/1991
-//	Revised By:			Larry L. Biehl			Date: 02/04/2019
+//	Revised By:			Larry L. Biehl			Date: 03/18/2019
 
 void InitializeDisplaySpecsStructure (
 				DisplaySpecsPtr					displaySpecsPtr)
@@ -1971,6 +1900,7 @@ void InitializeDisplaySpecsStructure (
 		displaySpecsPtr->minMaxCode = kPerChannelMinMax;
 		displaySpecsPtr->histogramCompute = 1;
 		displaySpecsPtr->defaultHistogramFileFlag = FALSE;
+		displaySpecsPtr->drawSideBySideTitleFlag = FALSE;
 		displaySpecsPtr->firstTime = TRUE;
 		displaySpecsPtr->dataToDisplayCompute = TRUE;
 		displaySpecsPtr->backgroundValueCode = 0;
@@ -2176,11 +2106,12 @@ SInt16 InitializeClassGroupsVector (
 //							DisplayColorImage in SDisplay.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 02/02/1994
-//	Revised By:			Larry L. Biehl			Date: 01/03/2019
+//	Revised By:			Larry L. Biehl			Date: 04/17/2019
 
 void InvalidateImageSegment (
 				WindowInfoPtr						windowInfoPtr,
-				DisplaySpecsPtr					displaySpecsPtr,
+				//DisplaySpecsPtr					displaySpecsPtr,
+				LCToWindowUnitsVariables* 		lcToWindowUnitsVariablesPtr,
 				LongRect*							sourceRectPtr,
 				SInt32								displayBottomMax)
 {
@@ -2189,23 +2120,35 @@ void InvalidateImageSegment (
 
 			// Get the destination rectangle for the input source.
 
-	double magnification = displaySpecsPtr->magnification;
-	double vOrigin = displaySpecsPtr->origin[kVertical];
-	double hOrigin = displaySpecsPtr->origin[kHorizontal];
-	SInt32 imageTopOffset = windowInfoPtr->imageTopOffset;
+	//double magnification = displaySpecsPtr->magnification;
+	//double vOrigin = displaySpecsPtr->origin[kVertical];
+	//double hOrigin = displaySpecsPtr->origin[kHorizontal];
+	double magnification = lcToWindowUnitsVariablesPtr->magnification;
+	double hOrigin = lcToWindowUnitsVariablesPtr->xOrigin;
+	double vOrigin = lcToWindowUnitsVariablesPtr->yOrigin;
 	SInt32 legendWidth = windowInfoPtr->legendWidth;
 
-	destinationRect.top = (SInt16)(imageTopOffset + magnification *
-															(sourceRectPtr->top - vOrigin));
-	destinationRect.bottom = (SInt16)(imageTopOffset + magnification *
-															(sourceRectPtr->bottom - vOrigin));
-
+	destinationRect.top = (int)(magnification *
+												(sourceRectPtr->top - vOrigin));
+	destinationRect.bottom = (int)(magnification *
+												(sourceRectPtr->bottom - vOrigin) + .9999);
+	
+	#if defined multispec_mac || defined multispec_win
+		destinationRect.top += windowInfoPtr->imageTopOffset;
+		destinationRect.bottom += windowInfoPtr->imageTopOffset;
+	#endif
+	
+	#if defined multispec_lin
+				// The legend is not part of the image window for the wx version
+		legendWidth = 0;
+	#endif
+	
 	if (destinationRect.bottom - destinationRect.top > 2) 
 		{
-		destinationRect.left = (SInt16)(legendWidth + magnification *
-																(sourceRectPtr->left - hOrigin));
-		destinationRect.right = (SInt16)(legendWidth + magnification *
-																(sourceRectPtr->right - hOrigin));
+		destinationRect.left = (int)(legendWidth + magnification *
+												(sourceRectPtr->left - hOrigin));
+		destinationRect.right = (int)(legendWidth + magnification *
+												(sourceRectPtr->right - hOrigin) + .9999);
 
 				// Now invalidate this area in the image window.
 
@@ -2223,8 +2166,15 @@ void InvalidateImageSegment (
 		#endif	// defined multispec_win 
 
 		#if defined multispec_lin
-			// TODO: For Linux
-			// Do Nothing for now
+					// Note that even though false is given for not erasing the background.
+					// In Mac OS version, it is ignored. The background is always erased.
+					
+			(gActiveImageWindow->m_Canvas)->
+					RefreshRect (wxRect (destinationRect.left,
+												destinationRect.top,
+												destinationRect.right-destinationRect.left+1,
+												destinationRect.bottom-destinationRect.top+1),
+										true);
 		#endif
 
 		SInt32 overlap = (SInt32)(1 / magnification);
@@ -2234,7 +2184,10 @@ void InvalidateImageSegment (
 			sourceRectPtr->bottom = -1;
 
 		}	// end "if (destinationRect.bottom - destinationRect.top > 2)"
-
+	
+	if (sourceRectPtr->bottom >= displayBottomMax)
+		sourceRectPtr->bottom = -1;
+	
 }	// end "InvalidateImageSegment" 
 
 
@@ -2265,7 +2218,7 @@ void InvalidateImageSegment (
 //	Global Data:
 //
 //	Coded By:			Larry L. Biehl			Date: 12/06/1991
-//	Revised By:			Larry L. Biehl			Date: 10/12/2017
+//	Revised By:			Larry L. Biehl			Date: 03/22/2019
 
 void SetDisplayImageWindowSizeVariables (
 				DisplaySpecsPtr					displaySpecsPtr)
@@ -2274,11 +2227,12 @@ void SetDisplayImageWindowSizeVariables (
 
 	double								cMagnification,
 											lMagnification;
+	
+	SInt64								freeMemory,
+											lContBlock;
 
 	UInt32								extraBytes,
-											freeMemory,
 											interval,
-											lContBlock,
 											numberBytes,
 											numberColumns;
 
@@ -2351,7 +2305,7 @@ void SetDisplayImageWindowSizeVariables (
 			
 		else	// freeMemory <= kMinFreeMemory || lContBlock <= kMinFreeMemory
 			interval = displaySpecsPtr->columnEnd;
-			
+
 				  // Now be sure that the number of columns to be displayed is not
 				  // more than the maximum number that can be.
 
@@ -2477,7 +2431,7 @@ void SetDisplayImageWindowSizeVariables (
 //	Global Data:
 //
 //	Coded By:			Larry L. Biehl			Date: 08/11/1988
-//	Revised By:			Larry L. Biehl			Date: 01/03/2019
+//	Revised By:			Larry L. Biehl			Date: 03/19/2019
 
 Boolean SetUpColorImageMemory (
 				DisplaySpecsPtr					displaySpecsPtr,
@@ -2493,7 +2447,7 @@ Boolean SetUpColorImageMemory (
 	if (gImageFileInfoPtr == NULL)
 																						return (FALSE);
 
-	// Set up off screen rectangle to draw picture into						
+			// Set up off screen rectangle to draw picture into
 
 	longRect.top = 0;
 	longRect.left = 0;
@@ -2537,6 +2491,17 @@ Boolean SetUpColorImageMemory (
 
 	gImageWindowInfoPtr->titleHeight = 0;
 
+	#if defined multispec_lin
+				// The image top offset is 0 for wx implementation since the
+				// coordinate bar is not a part of the image window.
+		gImageWindowInfoPtr->imageTopOffset = 0;
+	
+		CMImageDoc* imageDocCPtr =
+							(CMImageDoc*)gActiveImageViewCPtr->GetDocument ();
+		CMImageFrame* imageFrameCPtr = imageDocCPtr->GetImageFrameCPtr ();
+		imageFrameCPtr->ShowTitleView (0);
+	#endif
+
 	#if defined multispec_mac
 		ActivatePalette (gActiveImageWindow);
 		gImageWindowInfoPtr->imageTopOffset = gImageWindowInfoPtr->coordinateHeight;
@@ -2547,12 +2512,6 @@ Boolean SetUpColorImageMemory (
 								WM_DOREALIZE, (WPARAM)gActiveImageViewCPtr->m_hWnd, 1);
 		gImageWindowInfoPtr->imageTopOffset = gImageWindowInfoPtr->coordinateHeight;
 	#endif	// defined multispec_win
-
-	#if defined multispec_lin
-				// The image top offset is 0 for wx implementation since the
-				// coordinate bar is not a part of the image window.
-		gImageWindowInfoPtr->imageTopOffset = 0;
-	#endif
 
 	return (TRUE);
 

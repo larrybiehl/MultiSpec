@@ -387,7 +387,7 @@ Boolean Interface (
 //	Called by: 			ClassifyArea in SClassfy.cpp
 //
 // Coded by				Byeungwoo Jeon			Date: 01/01/1989
-// Revised by			Larry L. Biehl			Date: 02/14/2014
+// Revised by			Larry L. Biehl			Date: 04/23/2019
 
 SInt16 PostEchoClassifier (
 				SInt16								classPointer, 
@@ -397,7 +397,8 @@ SInt16 PostEchoClassifier (
 				HUCharPtr 							ioBuffer1Ptr, 
 				EchoClassifierVar*				echo_info, 
 				ClassifierVarPtr 					clsfyVariablePtr, 
-				SInt64*	 							countVectorPtr)
+				SInt64*	 							countVectorPtr,
+				LCToWindowUnitsVariables* 		lcToWindowUnitsVariablesPtr)
 
 {
 	SInt64								numberSamplesPerChan;
@@ -409,13 +410,22 @@ SInt16 PostEchoClassifier (
   	HUInt32Ptr							field_number_table;
 	ImageOverlayInfoPtr				imageOverlayInfoPtr;	
 	SInt16*		 						classPtr;
+	WindowInfoPtr 						imageWindowInfoPtr;
 	WindowPtr							windowPtr;
+	
+	LongRect								sourceRect;
   	
 	Point			 						point;
+	
+	time_t								lineLoopNextTime;
+	
+	int									nextStatusAtLeastLine,
+											nextStatusAtLeastLineIncrement;
   	
 	RgnHandle							rgnHandle;
 	
-	SInt32								ibuf;
+	SInt32								displayBottomMax,
+   										ibuf;
   	
 	UInt32								channelSampleSkip,
 											count,
@@ -424,9 +434,9 @@ SInt16 PostEchoClassifier (
 											lineCount,
 											lineEnd,
 											lineInterval,
-											lineLoopNextTime,
 											sample,
-											sampleInterval;
+											sampleInterval,
+											skipCount;
 	
 	SInt16								errCode,
 											returnCode;
@@ -451,7 +461,18 @@ SInt16 PostEchoClassifier (
 	sampleInterval 		= 1;
 	channelSampleSkip 	= 1;
 	numberSamplesPerChan = areaDescriptionPtr->numSamplesPerChan;
-	windowPtr = 	GetWindowPtr (gProjectInfoPtr->overlayImageWindowInfoHandle);	
+	windowPtr = GetWindowPtr (gProjectInfoPtr->overlayImageWindowInfoHandle);
+	imageWindowInfoPtr = (WindowInfoPtr)GetHandlePointer (
+												gProjectInfoPtr->overlayImageWindowInfoHandle);
+	
+			// Set up source rect. This will indicate the lines and columns to
+			// be updated when one does a copy to the image window.
+
+	sourceRect.left = areaDescriptionPtr->columnStart - 1;
+	sourceRect.right = areaDescriptionPtr->columnEnd;
+	sourceRect.top = areaDescriptionPtr->lineStart - 1;
+	sourceRect.bottom = lineEnd;
+	displayBottomMax = sourceRect.bottom;
 	
 	imageOverlayInfoPtr = GetImageOverlayInfoPtr (gClassifySpecsPtr->imageOverlayIndex,
 																 kLock,
@@ -510,6 +531,20 @@ SInt16 PostEchoClassifier (
 		
 		}	// end "if (useTempDiskFileFlag)"
 	
+			// These variables are to make sure the display window is not being updated
+			// after a very few lines are loaded in. It will override the time interval
+			// which is currently every 1 second.
+	
+	double magnification = lcToWindowUnitsVariablesPtr->magnification;
+	nextStatusAtLeastLineIncrement = (10 * lineInterval) / magnification;
+	nextStatusAtLeastLineIncrement = MAX (nextStatusAtLeastLineIncrement, 10);
+	nextStatusAtLeastLine = areaDescriptionPtr->lineStart + nextStatusAtLeastLineIncrement;
+		
+			// The purpose of skipCount is to only allow updates in drawing the
+			// image overlay every 2 cycles of gNextTime.
+	
+	skipCount = 0;
+	
 	for (line=areaDescriptionPtr->lineStart; line<=lineEnd; line+=lineInterval)
 		{
 				// Display line status information.											
@@ -526,14 +561,37 @@ SInt16 PostEchoClassifier (
 		
 		if (TickCount () >= lineLoopNextTime)
 			{
+			skipCount++;
+			
 			if (gOutputCode & kCreateImageOverlayCode && 
-				 line > (UInt32)areaDescriptionPtr->lineStart)
+				 			line > (UInt32)areaDescriptionPtr->lineStart &&
+											lineCount >= nextStatusAtLeastLine &&
+															skipCount >= 2)
 				{
-				InvalidateWindow (windowPtr, kImageArea, FALSE);
-				
+				sourceRect.bottom = lineCount;
+				/*
+				int numberChars = sprintf ((char*)gTextString3,
+												"%s SClassifyEchoControl.cpp:PostEchoClassifier (top, bottom): %d, %d%s",
+												gEndOfLine,
+												sourceRect.top,
+												sourceRect.bottom,
+												gEndOfLine);
+				ListString ((char*)gTextString3, numberChars, gOutputTextH);
+				*/
+				InvalidateImageSegment (gImageWindowInfoPtr,
+												//displaySpecsPtr,
+												lcToWindowUnitsVariablesPtr,
+												&sourceRect,
+												displayBottomMax);
+
 				#if defined multispec_win  
 					windowPtr->UpdateWindow ();
 				#endif	// defined multispec_win  
+			
+				nextStatusAtLeastLine = lineCount + nextStatusAtLeastLineIncrement;
+				nextStatusAtLeastLine = MIN (nextStatusAtLeastLine, lineEnd);
+					
+				skipCount = 0;
 				
 				}	// end "if (gOutputCode & kCreateImageOverlayCode && ..."
 			
@@ -543,6 +601,11 @@ SInt16 PostEchoClassifier (
 				break;
 				
 				}	// end "if (!CheckSomeEvents (..."
+			
+					// Make sure the base image is not drawn for the rest of the processing.
+		
+			if (gOutputCode & kCreateImageOverlayCode)
+				imageWindowInfoPtr->drawBaseImageFlag = FALSE;
 			
 			lineLoopNextTime = gNextTime;
 			
@@ -648,15 +711,28 @@ SInt16 PostEchoClassifier (
 	
 	if (gOutputCode & kCreateImageOverlayCode)
 		{
-		InvalidateWindow (windowPtr, kImageArea, FALSE);
-		
+		sourceRect.bottom = displayBottomMax;
+		/*
+		int numberChars = sprintf ((char*)gTextString3,
+										"%s SClassifyEchoControl.cpp:PostEchoClassifier (top, bottom): %d, %d%s",
+										gEndOfLine,
+										sourceRect.top,
+										sourceRect.bottom,
+										gEndOfLine);
+		ListString ((char*)gTextString3, numberChars, gOutputTextH);
+		*/
+		InvalidateImageSegment (gImageWindowInfoPtr,
+										lcToWindowUnitsVariablesPtr,
+										&sourceRect,
+										displayBottomMax);
+
 		if (!CheckSomeEvents (osMask+keyDownMask+updateMask+mDownMask+mUpMask))
 			returnCode = 3;
 		
 		}	// end "if (gOutputCode & kCreateImageOverlayCode)"
 	
   	UnlockImageOverlayOffscreenBuffer (imageOverlayInfoPtr);
-	
+	/*
 	if (!gOSXCoreGraphicsFlag)
 		{
 		WindowInfoPtr imageWindowInfoPtr = (WindowInfoPtr)GetHandlePointer (
@@ -665,7 +741,7 @@ SInt16 PostEchoClassifier (
 			imageWindowInfoPtr->drawBaseImageFlag = TRUE;
 		
 		}	// end "if (!gOSXCoreGraphicsFlag)"
-	
+	*/
 	LoadDItemValue (gStatusDialogPtr, IDC_Status18, (SInt32)lineCount);
 	
 	if (probFormatFlag)

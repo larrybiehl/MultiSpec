@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -12,7 +12,7 @@
 //	Authors:					Chulhee Lee
 //								Larry L. Biehl
 //
-//	Revision date:			12/07/2018
+//	Revision date:			05/03/2019
 //
 //	Language:				C
 //
@@ -199,7 +199,7 @@ Boolean	 			LoadFeatureExtractionSpecs (void);
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -241,7 +241,7 @@ PascalVoid DrawFEAlgorithmPopUp (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -282,7 +282,7 @@ PascalVoid DrawPreprocessingPopUp (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -893,7 +893,7 @@ Boolean FeatureExtraction (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -911,7 +911,7 @@ Boolean FeatureExtraction (void)
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 10/22/1992
-//	Revised By:			Larry L. Biehl			Date: 12/07/2018
+//	Revised By:			Larry L. Biehl			Date: 05/03/2019
 
 void FeatureExtractionControl (void)
 
@@ -1004,6 +1004,7 @@ void FeatureExtractionControl (void)
 									&gFeatureExtractionSpecsPtr->numberClasses,
 									classPtr,
 									2,
+									gProjectInfoPtr->statisticsCode,
 									gProjectInfoPtr->covarianceStatsToUse, 
 									kSetupGlobalInfoPointers,
 									NULL);
@@ -1193,7 +1194,7 @@ void FeatureExtractionControl (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1878,7 +1879,7 @@ void FeatureExtractionDialogAlgorithm (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2025,7 +2026,7 @@ void FeatureExtractionDialogInitialize (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2157,7 +2158,7 @@ void FeatureExtractionDialogOK (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2205,7 +2206,7 @@ void FeatureExtractionDialogOptimizeClass (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2300,7 +2301,7 @@ void FeatureExtractionDialogUpdateSpecialOptions (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2388,7 +2389,7 @@ void GetTranformationFeatureMeans (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2522,7 +2523,7 @@ Boolean ListFeatureExtractionOptions (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2819,7 +2820,7 @@ Boolean LoadFeatureExtractionSpecs (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3064,7 +3065,7 @@ Boolean ListPPOptions (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3401,7 +3402,7 @@ Boolean ProjectionPursuitDialog (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3496,7 +3497,7 @@ void ProjectionPursuitDialogInitialize (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

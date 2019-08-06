@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Eric E. Demaree, Larry L. Biehl
 //
-//	Revision date:			12/21/2017
+//	Revision date:			04/21/2019
 //
 //	Language:				C
 //
@@ -202,6 +202,7 @@ SInt16 OnePassCluster (
 
 Boolean OnePassClusterAreas (
 				FileIOInstructionsPtr			fileIOInstructionsPtr,
+				LCToWindowUnitsVariables* 		lcToWindowUnitsVariablesPtr,
 				HUInt16Ptr*							dataClassPtrPtr,
 				SInt16								firstLineCode);
 
@@ -216,7 +217,7 @@ ClusterType*	gClusterHead; // ptr to head of cluster list.
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -362,7 +363,7 @@ Boolean ClusterOnePassControl (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -382,10 +383,11 @@ Boolean ClusterOnePassControl (
 // Called By:			InitializeClusterCenters in clusterISODATA.c
 //
 //	Coded By:			Larry L. Biehl			Date: 01/14/1991
-//	Revised By:			Larry L. Biehl			Date: 10/25/1999	
+//	Revised By:			Larry L. Biehl			Date: 04/19/2019
 
 Boolean GetOnePassClusterCenters (
 				FileIOInstructionsPtr			fileIOInstructionsPtr)
+
 {
    ClusterType*						currentCluster;
    HDoublePtr							doubleVectorPtr;
@@ -418,12 +420,18 @@ Boolean GetOnePassClusterCenters (
 
 			// Create new clusters from first line of data in each cluster area.	
 
-   continueFlag = OnePassClusterAreas (fileIOInstructionsPtr, NULL, 1);
+   continueFlag = OnePassClusterAreas (fileIOInstructionsPtr,
+   												NULL,
+   												NULL,
+   												1);
 
 			// Continue clustering using only part 										
 
    if (continueFlag)
-      continueFlag = OnePassClusterAreas (fileIOInstructionsPtr, NULL, 2);
+      continueFlag = OnePassClusterAreas (fileIOInstructionsPtr,
+   													NULL,
+      												NULL,
+      												2);
 
 			// Store values in cluster specifications structure.
 
@@ -471,7 +479,7 @@ Boolean GetOnePassClusterCenters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -491,15 +499,19 @@ Boolean GetOnePassClusterCenters (
 // Called By:			ClusterOnePassControl in clusterSinglePass.c
 //
 //	Coded By:			Eric E. Demaree		Date: Spring 1989
-//	Revised By:			Larry L. Biehl			Date: 05/09/2000
+//	Revised By:			Larry L. Biehl			Date: 04/19/2019
 
 SInt16 OnePassCluster (
 				FileIOInstructionsPtr			fileIOInstructionsPtr)
 {
 			// Define local structures and variables.
+	
+	LCToWindowUnitsVariables 		lcToWindowUnitsVariables;
 
    CMFileStream*						clResultsFileStreamPtr;
    HUInt16Ptr							dataClassPtr;
+	
+   Handle								activeImageWindowInfoHandle;
 
    SInt16								minimumClusterSize,
 											numberChannels;
@@ -513,7 +525,16 @@ SInt16 OnePassCluster (
    numberChannels = gClusterSpecsPtr->numberChannels;
    minimumClusterSize = gClusterSpecsPtr->minClusterSize;
    clResultsFileStreamPtr = GetResultsFileStreamPtr (0);
-
+	
+	activeImageWindowInfoHandle = FindProjectBaseImageWindowInfoHandle ();
+	
+			// Set some variables for use when drawing image overlays.
+	
+	SetLCToWindowUnitVariables (activeImageWindowInfoHandle,
+											kToImageWindow,
+											FALSE,
+											&lcToWindowUnitsVariables);
+	
 			// Create new clusters from first line of data in each cluster area.	
 
 			// "Clustering First Line(s)."													
@@ -524,7 +545,10 @@ SInt16 OnePassCluster (
 								  IDC_Status11,
 								  (Str255*)gTextString);
    dataClassPtr = gClusterSpecsPtr->dataClassPtr;
-   if (!OnePassClusterAreas (fileIOInstructionsPtr, &dataClassPtr, 1))
+   if (!OnePassClusterAreas (fileIOInstructionsPtr,
+										&lcToWindowUnitsVariables,
+   									&dataClassPtr,
+   									1))
 																							return (-1);
 
 			// Continue clustering using only part 										
@@ -535,7 +559,11 @@ SInt16 OnePassCluster (
 								  gStatusDialogPtr,
 								  IDC_Status11,
 								  (Str255*)gTextString);
-   if (!OnePassClusterAreas (fileIOInstructionsPtr, &dataClassPtr, 2))
+	
+   if (!OnePassClusterAreas (fileIOInstructionsPtr,
+										&lcToWindowUnitsVariables,
+   									&dataClassPtr,
+   									2))
 																							return (-1);
 
 			// Delete those clusters with too few pixels. 								
@@ -635,7 +663,7 @@ SInt16 OnePassCluster (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -676,10 +704,11 @@ SInt16 OnePassCluster (
 //							GetOnePassClusterCenters in clusterSinglePass.c
 //
 //	Coded By:			Eric E. Demaree		Date: Spring 1989
-//	Revised By:			Larry L. Biehl			Date: 05/12/2017	
+//	Revised By:			Larry L. Biehl			Date: 04/21/2019
 
 Boolean OnePassClusterAreas (
 				FileIOInstructionsPtr			fileIOInstructionsPtr,
+				LCToWindowUnitsVariables* 		lcToWindowUnitsVariablesPtr,
 				HUInt16Ptr*							dataClassPtrPtr,
 				SInt16								firstLineCode) 
 {
@@ -695,6 +724,8 @@ Boolean OnePassClusterAreas (
 
    ClusterType							*closestCluster,	// cluster closest to current pixel.
 											*currentCluster; // Cluster currently working on.
+	
+	LongRect								sourceRect;
 
    HCMeanTypePtr						closestMeanPtr; // Vector holds mean of closest	cluster.
 
@@ -708,13 +739,20 @@ Boolean OnePassClusterAreas (
    ImageOverlayInfoPtr				imageOverlayInfoPtr;
    Ptr									stringPtr;
    UInt16*								channelsPtr;
+	WindowInfoPtr						imageWindowInfoPtr;
    WindowPtr							windowPtr;
+	
+   Handle								activeImageWindowInfoHandle;
+	
+	int									nextStatusAtLeastLine,
+											nextStatusAtLeastLineIncrement;
 
    //CMeanType2						closestDistance,	// Distance from pix to closest cluster.
    //										currentDistance;	// Distance from pix to current cluster.
    RgnHandle							rgnHandle;
 
-   SInt32								line,
+   SInt32								displayBottomMax,
+   										line,
 											lineCount,
 											linesDone,
 											lineEnd,
@@ -722,8 +760,7 @@ Boolean OnePassClusterAreas (
 											linesLeft,
 											lineStart,
 											numberColumns,
-											startTick,
-											linuxtick;
+											startTick;
 
    //UInt32				 				criticalDistance1Squared;	// Used for standard deviations only.
    UInt32								column,
@@ -734,6 +771,7 @@ Boolean OnePassClusterAreas (
 											firstColumn,
 											numberSamples,
 											sample,
+											skipCount,
 											startSample;
 
    SInt16								areaNumber,
@@ -766,6 +804,10 @@ Boolean OnePassClusterAreas (
    criticalDistance = gClusterSpecsPtr->criticalDistance1;
 
    windowPtr = FindProjectBaseImageWindowPtr ();
+	
+   activeImageWindowInfoHandle = FindProjectBaseImageWindowInfoHandle ();
+	imageWindowInfoPtr = (WindowInfoPtr)GetHandlePointer (
+																	activeImageWindowInfoHandle);
 
    imageOverlayInfoPtr = GetImageOverlayInfoPtr (gClusterSpecsPtr->imageOverlayIndex,
 																  kLock,
@@ -819,7 +861,21 @@ Boolean OnePassClusterAreas (
 			// should occur for a command-.													
 
    gNextTime = TickCount ();
-   linuxtick = 0;
+	
+	if (firstLineCode == 1 && gOutputCode & kCreateImageOverlayCode)
+		{
+				// Set the draw base image flag depending on whether the overlay
+				// will cover the entire base image.
+		
+		imageWindowInfoPtr->drawBaseImageFlag = FALSE;
+		if (imageOverlayInfoPtr->drawBaseImageCode != 15)
+			{
+			imageWindowInfoPtr->drawBaseImageFlag = TRUE;
+			InvalidateWindow (windowPtr, kImageFrameArea, FALSE);
+			
+			}	// end "if (imageOverlayInfoPtr->drawBaseImageCode != 15)"
+		
+		}	// if (firstPassFlag && ...
 
 			// Save the pointer to the cluster class assignments in case it is needed
 			// for the offscreen buffer assignments.
@@ -827,6 +883,19 @@ Boolean OnePassClusterAreas (
    savedDataClassPtr = localDataClassPtr;
 
    offScreenBufferPtr = GetImageOverlayOffscreenPointer (imageOverlayInfoPtr);
+	
+	nextStatusAtLeastLineIncrement = 10;
+	if (createImageOverlayFlag)
+		{
+				// These variables are to make sure the display window is not being updated
+				// after a very few lines are loaded in. It will override the time interval
+				// which is currently every 1 second.
+		
+		double magnification = lcToWindowUnitsVariablesPtr->magnification;
+		nextStatusAtLeastLineIncrement = (10 * lineInterval) / magnification;
+		nextStatusAtLeastLineIncrement = MAX (nextStatusAtLeastLineIncrement, 10);
+	
+		}	// end "if (createImageOverlayFlag)"
 
 			// Loop by number of cluster areas.												
 
@@ -836,6 +905,11 @@ Boolean OnePassClusterAreas (
 
       lineCount = 0;
       linesDone = 0;
+		
+				// The purpose of skipCount is to only allow updates in drawing the
+				// image overlay every 2 cycles of gNextTime.
+		
+		skipCount = 0;
 
 				// Get information for next cluster area.									
 
@@ -859,6 +933,15 @@ Boolean OnePassClusterAreas (
       polygonFieldFlag = gAreaDescription.polygonFieldFlag;
       rgnHandle = gAreaDescription.rgnHandle;
       pointType = gAreaDescription.pointType;
+	
+				// Set up source rect. This will indicate the lines and columns to
+				// be updated when one does a copy to the image window.
+		
+		sourceRect.left = columnStart - 1;
+		sourceRect.right = columnEnd;
+		sourceRect.top = lineStart - 1;
+		sourceRect.bottom = lineEnd;
+		displayBottomMax = sourceRect.bottom;
 
       if (firstLineCode == 1) 
 			{
@@ -916,6 +999,8 @@ Boolean OnePassClusterAreas (
 
       if (lineEnd == 0)
          lineStart = 1;
+		
+		nextStatusAtLeastLine = lineStart + nextStatusAtLeastLineIncrement;
 
 				// Loop by rest of lines for cluster area.								
 
@@ -936,37 +1021,57 @@ Boolean OnePassClusterAreas (
 
 				}	// end "if (TickCount () >= gNextStatusTime)"
 
-					// Exit routine if user has "command period" down					
-			#ifndef multispec_lin
-				if (TickCount () >= gNextTime) 
-			#else
-				if (TickCount () > gNextTime + linuxtick) 
-			#endif
-					{
-					if (gOutputCode & kCreateImageOverlayCode && line > lineStart) 
-						{
-						InvalidateWindow (windowPtr, kImageArea, FALSE);
-
-						#if defined multispec_win  
-							windowPtr->UpdateWindow ();
-						#endif	// defined multispec_win  
-
-						#if defined multispec_lin
-							linuxtick++;
-							gActiveImageWindow->OnUpdate (NULL, NULL);
-							(gActiveImageWindow->m_Canvas)->Update ();
-						#endif
-
-						}	// end "if (gOutputCode & kCreateImageOverlayCode && ..."
-
-			if (!CheckSomeEvents (osMask + keyDownMask + updateMask + mDownMask + mUpMask))
+				// Exit routine if user has "command period" down
+	
+			if (TickCount () >= gNextTime)
 				{
-				returnFlag = FALSE;
-				break;
+				skipCount++;
+				
+				if (createImageOverlayFlag &&
+								line > lineStart &&
+											lineCount >= nextStatusAtLeastLine &&
+															skipCount >= 2)
+					{
+					sourceRect.bottom = lineCount;
+					/*
+					int numberChars = sprintf ((char*)gTextString3,
+													"%s SClusterSinglePass.cpp:OnePassClusterAreas (top, bottom): %d, %d%s",
+													gEndOfLine,
+													sourceRect.top,
+													sourceRect.bottom,
+													gEndOfLine);
+					ListString ((char*)gTextString3, numberChars, gOutputTextH);
+					*/
+					InvalidateImageSegment (gImageWindowInfoPtr,
+													//displaySpecsPtr,
+													lcToWindowUnitsVariablesPtr,
+													&sourceRect,
+													displayBottomMax);
 
-				}	// end "if (!CheckSomeEvents (..."
+					#if defined multispec_win  
+						windowPtr->UpdateWindow ();
+					#endif	// defined multispec_win
+					
+					nextStatusAtLeastLine = lineCount + nextStatusAtLeastLineIncrement;
+					nextStatusAtLeastLine = MIN (nextStatusAtLeastLine, lineEnd);
+					
+					skipCount = 0;
 
-			}	// end "if (TickCount () >= nextTime)"
+					}	// end "if (gOutputCode & kCreateImageOverlayCode && ..."
+
+				if (!CheckSomeEvents (osMask + keyDownMask + updateMask + mDownMask + mUpMask))
+					{
+					returnFlag = FALSE;
+					break;
+
+					}	// end "if (!CheckSomeEvents (..."
+			
+						// Make sure the base image is not drawn for the rest of the processing.
+			
+				if (gOutputCode & kCreateImageOverlayCode)
+					imageWindowInfoPtr->drawBaseImageFlag = FALSE;
+
+				}	// end "if (TickCount () >= nextTime)"
 
 					// Set vertical (line) point in case it is needed for polygonal areas.	
 
@@ -1187,7 +1292,7 @@ Boolean OnePassClusterAreas (
                CopyToOffscreenBuffer (fileIOInstructionsPtr,
 													imageOverlayInfoPtr,
 													gClusterSpecsPtr->imageOverlayIndex,
-													FindProjectBaseImageWindowInfoHandle (),
+													activeImageWindowInfoHandle,
 													line,
 													firstColumn,
 													columnInterval,
@@ -1245,18 +1350,27 @@ Boolean OnePassClusterAreas (
 
    			// Force overlay to be drawn if it has not been already.
 
-      if (createImageOverlayFlag)
+      if (createImageOverlayFlag && firstLineCode != 1)
 			{
-         InvalidateWindow (windowPtr, kImageArea, FALSE);
+        	sourceRect.bottom = displayBottomMax;
+			
+			int numberChars2 = sprintf ((char*)gTextString3,
+											"%s SClusterSinglePass.cpp:OnePassClusterAreas (top, bottom): %d, %d%s",
+											gEndOfLine,
+											sourceRect.top,
+											sourceRect.bottom,
+											gEndOfLine);
+			ListString ((char*)gTextString3, numberChars2, gOutputTextH);
+			
+			InvalidateImageSegment (gImageWindowInfoPtr,
+											//displaySpecsPtr,
+											lcToWindowUnitsVariablesPtr,
+											&sourceRect,
+											displayBottomMax);
 
 			#if defined multispec_win
 				windowPtr->UpdateWindow ();
 			#endif	// defined multispec_win
-
-			#if defined multispec_lin
-				gActiveImageWindow->OnUpdate (NULL, NULL);
-				(gActiveImageWindow->m_Canvas)->Update ();
-			#endif
 
          if (!CheckSomeEvents (
 									osMask + keyDownMask + updateMask + mDownMask + mUpMask))
@@ -1265,8 +1379,13 @@ Boolean OnePassClusterAreas (
             break;
 
          	}	// end "if (!CheckSomeEvents (..."
+			
+					// Make sure the base image is not drawn for the rest of the processing.
+			
+			if (gOutputCode & kCreateImageOverlayCode)
+				imageWindowInfoPtr->drawBaseImageFlag = FALSE;
 
-      	}	// end "if (createImageOverlayFlag)"
+      	}	// end "if (createImageOverlayFlag && firstLineCode != 1)"
 
       if (returnFlag)
 			{
@@ -1292,17 +1411,17 @@ Boolean OnePassClusterAreas (
    	}	// end "for (areaNumber=1; areaNumber<=totolNumberAreas; ...)" 
 
    UnlockImageOverlayOffscreenBuffer (imageOverlayInfoPtr);
-
+	/*
    if (!gOSXCoreGraphicsFlag) 
 		{
-      Handle activeImageWindowInfoHandle = FindProjectBaseImageWindowInfoHandle ();
+      //Handle activeImageWindowInfoHandle = FindProjectBaseImageWindowInfoHandle ();
       WindowInfoPtr imageWindowInfoPtr = (WindowInfoPtr)GetHandlePointer (
 																		activeImageWindowInfoHandle);
       if (imageWindowInfoPtr != NULL)
          imageWindowInfoPtr->drawBaseImageFlag = TRUE;
 
    	}	// end "if (!gOSXCoreGraphicsFlag)"
-
+	*/
    if (dataClassPtrPtr != NULL)
       *dataClassPtrPtr = localDataClassPtr;
 
@@ -1313,7 +1432,7 @@ Boolean OnePassClusterAreas (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1682,7 +1801,7 @@ Boolean OnePassClusterDialog (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1855,7 +1974,7 @@ void OnePassClusterDialogInitialize (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1943,7 +2062,7 @@ void OnePassClusterDialogOK (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1991,7 +2110,7 @@ void OnePassClusterDialogOnImageArea (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

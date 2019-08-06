@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -19,7 +19,7 @@
 //
 //	Written By:				Larry L. Biehl			Date: 03/29/1988
 //	Revised By:				Abdur Maud				Date: 06/18/2013
-//	Revised By:				Larry L. Biehl			Date: 08/14/2018
+//	Revised By:				Larry L. Biehl			Date: 05/24/2019
 //	
 //------------------------------------------------------------------------------------
 
@@ -641,6 +641,7 @@
 #define	kGDALVRTType						41
 #define	kNITFType							42
 #define	kPCIDSKType							43
+#define	kSRTMHGTType						44
 
 #define	kArcViewDefaultSupportType		1024
 
@@ -948,16 +949,16 @@
 #define	kSelectPCList					4
 
 		// Classifier Processor Constants.											
-#define	kMaxLikeMode					1
-#define	kMahalanobisMode				2
-#define	kFisherMode						3
-#define	kEuclideanMode					4
-#define	kEchoMode						5
-#define	kCorrelationMode				6
-#define	kCEMMode							7
-#define	kParallelPipedMode			8
-#define	kDecisionTreeMode				9
-#define	kUserClassify1					10 
+#define	kMaxLikeMode						1
+#define	kMahalanobisMode					2
+#define	kFisherMode							3
+#define	kEchoMode							4
+#define	kSupportVectorMachineMode		5
+#define	kKNearestNeighborMode			6
+#define	kEuclideanMode						7
+#define	kCorrelationMode					8
+#define	kCEMMode								9
+#define	kParallelPipedMode				10
 
 		// Correlation Classifier Constants.
 #define	kNoCovarianceUsed				1
@@ -1324,6 +1325,8 @@
 		// Project Statistics types.														
 #define	kMeanStdDevOnly				1
 #define	kMeanCovariance				2
+#define	kPixelValuesOnly				3
+
 #define	kFieldStatsOnly				1
 #define	kClassStatsOnly				2
 
@@ -1636,6 +1639,7 @@
 #define  kComputedGrays					11
 #define  kPaletteHandle					12
 #define	kProbablilityColors2			13
+#define	kClassify_Info_Colors		14
 
 		// "TRL support file constants"
 #define	kPaletteOnly							1
@@ -1657,6 +1661,10 @@
 #define	kClassListMode							2
 #define	kFieldListMode							3
 #define	kCoordinateListMode					4
+
+		// Flag indicating whether to clear area for project area outlines
+#define	kDoNotClearArea						0
+#define	kDoClearArea							1
 
 		// Threaded IO constants
 #define	kDoNotAllowForThreadedIO			0
@@ -1756,7 +1764,17 @@
 #define	kMaxNumberChannels					16384
 #define	kMaxNumberColumns						300000
 #define	kMaxNumberOSXDisplayColumns		32767
-#define	kMaxNumberDisplayLines				32767
+
+#if defined multispec_lin
+	#define	kMaxNumberDisplayLines				65535
+#endif
+#if defined multispec_mac
+	#define	kMaxNumberDisplayLines				32767
+#endif
+#if defined multispec_win
+	#define	kMaxNumberDisplayLines				32767
+#endif
+
 #define	kMaxNumberLines						300000
 #define	kMaxNumberStatChannels				16384
 #define	kMaxNumberStatClasses				256

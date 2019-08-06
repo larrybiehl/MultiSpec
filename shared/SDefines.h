@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -21,7 +21,7 @@
 //	Written By:				Larry L. Biehl			Date: 03/29/1988
 //	Revised By:				Abdur Maud				Date: 06/24/2013
 //	Revised By:				Tsung Tai Yeh			Date: 09/25/2015
-//	Revised By:				Larry L. Biehl			Date: 12/19/2018
+//	Revised By:				Larry L. Biehl			Date: 07/01/2019
 //	
 //------------------------------------------------------------------------------------
 
@@ -82,6 +82,10 @@
 	#define LPTSTR		char*
 	#define LPCSTR		char*
 	#define LPCWSTR	wchar_t*
+	
+	//#include "dlib/svm_threaded.h"
+	//typedef dlib::matrix<double,0,1> column_vector;
+	//typedef dlib::matrix<double,0,1> sample_type;
 #endif
 
 #ifndef multispec_lin
@@ -1022,6 +1026,8 @@ typedef double				CMeanType2;
 
 	#define kPMPortrait	1
 
+	#include <vector>
+
 			// The forward definitions for Windows specific classes. 
                   
 	class CBitmapButton; 
@@ -1096,6 +1102,7 @@ typedef double				CMeanType2;
 	typedef Ptr					ModalFilterUPP;
 	typedef Handle				WSHandle;   
 	typedef Handle				WEReference;   
+	typedef Handle				wxDC;
 	/*
 	struct FSSpec 
 		{
@@ -1652,6 +1659,7 @@ typedef struct ClassifySpecs
 	SInt16*					classPtr;
 	SInt16*					thresholdProbabilityPtr;
 	unsigned char*			symbolsPtr;
+	
 	SInt32					imageLineStart;
 	SInt32					imageLineEnd;
 	SInt32					imageLineInterval;
@@ -1673,6 +1681,10 @@ typedef struct ClassifySpecs
 			// Index for active image overlay to be used for output
 			// of offscreen classification results
 	SInt16					imageOverlayIndex;
+	
+			// K value to be used for K Nearest Neighbor classifier
+	SInt16					nearestNeighborKValue;
+	SInt16					knnThreshold;
 	
 	SInt16					mode;
 	SInt16					parallelPipedCode;
@@ -2321,6 +2333,12 @@ typedef struct DisplaySpecs
 			// Flag indicating whether default histogram statistics disk file		
 			// exists.																				
 	Boolean					defaultHistogramFileFlag;
+	
+			// Flag indicating whether the title should be drawn for side by
+			// side image displays. This is used when one is drawing a portion
+			// of an image at a time, i.e. around every second or so for large
+			// images. The title should only be drawn once.
+	Boolean					drawSideBySideTitleFlag;
 	
 			// Flag indicating whether default file palette exists.					
 	Boolean					filePaletteFlag;
@@ -3023,13 +3041,13 @@ typedef struct GeodeticModelInfo
 typedef struct GridCoordinateSystemInfo
 	{
 			// EPSG Name
-	Str31						epsgName;
+	Str63						epsgName;
 	
 			// Datum Name
-	Str31						datumName;
+	Str63						datumName;
 	
 			// Ellipsoid Name
-	Str31						ellipsoidName;
+	Str63						ellipsoidName;
 	
 			// Variable For Map Projection
 			// False Easting (ProjFalseEastingGeoKey)									
@@ -3421,6 +3439,16 @@ typedef struct ImageOverlayInfo
 	UInt32								offscreenMapSize;
 	UInt32								rowBytes;
 	
+			// Code indicating whether to draw the base image when a image overalay
+			// is to be drawn over the base image. One does not need to draw the base
+			// image in general when:
+			//		- the overlay covers the entire base image (bit 1)
+			//		- the column and line interval for the image overlay is 1 (bit 2)
+			//		- the transparency of the overlay is 0  (bit 3)
+			//		- an overlay is selected to be drawn	(bit 4)
+			// A code value of 15 indicates the base image is not to be drawn
+	UInt16								drawBaseImageCode;
+	
 	Boolean								usePlanarCoordinateInfoFlag;
 	
 	} ImageOverlayInfo, *ImageOverlayInfoPtr;
@@ -3429,9 +3457,9 @@ typedef struct ImageOverlayInfo
 typedef struct ImageOverlaySpecs
 	{
 	#if defined multispec_lin
-		float						opacityLoaded;
+		double					opacityLoaded;
 	#endif
-	float						opacity;
+	double					opacity;
 	
 	char						index;
 	
@@ -3958,6 +3986,15 @@ typedef struct ProjectFieldPoints
 	} ProjectFieldPoints, *PFieldPointsPtr;
 
 
+typedef struct knnPoint
+	{
+   //int 		label;
+   int 		index;
+   double 	distance;
+	
+	} knnType;
+
+
 //#if PRAGMA_ALIGN_SUPPORTED
 #if PRAGMA_STRUCT_ALIGN
 	#pragma options align=mac68k
@@ -3974,8 +4011,26 @@ typedef struct ProjectInfo
 	#endif	// defined multispec_win
 	
 	#if defined multispec_lin
-    CMFileStream* fileStreamCPtr;
+		CMFileStream*					fileStreamCPtr;
 	#endif	// defined multispec_lin
+
+				// used in SVM classify training
+
+		//column_vector svm_weights;
+		//std::vector<sample_type> svm_samples;
+		//std::vector<int> svm_labels;
+		//float convergence_rate;
+
+				// used in KNN classify training
+
+		std::vector<knnType> knn_distances;
+		std::vector<int> knnLabelsPtr;
+		std::vector<double> knnDataValuesPtr;
+		//knnType*							knn_distancesPtr;
+		//int*								knnLabelsPtr;
+		//double*							knnDataValuesPtr;
+		int 									knnCounter;
+		//int topK;
 
 	UInt8								imageFileName[256];
 	
@@ -4220,6 +4275,8 @@ typedef struct ProjectInfo
 	Boolean							histogramClassFlag;
 	Boolean							histogramFieldFlag;
 	Boolean							newProjectFlag;
+	Boolean							pixelDataLoadedFlag;
+	Boolean							includesStatisticsFromClusterOperationFlag;
 	Boolean							statsUpToDate;
 	Boolean							statsLoaded;
 	Boolean							changedFlag;
@@ -5056,6 +5113,9 @@ typedef struct WindowInfo
 			//	1-22-93																				
 	UInt32					offscreenMapSize;
 	
+			// Number of bytes in each row in the offscreen bitmap
+	UInt32					rowBytes;
+	
 			// Code for print page orientation for the window.
 	PMOrientation			printPageOrientation;
 	
@@ -5080,6 +5140,9 @@ typedef struct WindowInfo
 			// and selection area.  The codes are defined by the coordinate units
 			// constants.							
 	SInt16					coordinateViewUnitsCode;
+	
+			// Number of decimal places to use for the coordinate view unit.
+	SInt16					coordinateViewUnitDecimalPlaces;
 	
 			// This variables is used to keep track of changes in the file			
 			// specification (such as number of lines, etc.  It is incremented	
@@ -5167,8 +5230,14 @@ typedef struct WindowInfo
 	
 			// This flag controls when the base image should be drawn in the 
 			// image window during an update event. This could off when one just
-			// wants to draw and overlay image on top of the base image.
+			// wants to draw an overlay image on top of the base image.
 	Boolean					drawBaseImageFlag;
+	
+			// This flag controls when the bitmap should be drawn. It may be turned
+			// off during the beginning of the display processor. CopyOffscreen may
+			// get called before any data is loaded into the bitmap. This saves
+			// time in drawing, particularly with large images.
+	Boolean					drawBitMapFlag;
 	
 			// This flag controls when the any vector overlays for the image window
 			// should be drawn.  In one case this flag is set to false when drawing

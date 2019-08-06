@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			02/07/2018
+//	Revision date:			07/09/2019
 //
 //	Language:				C
 //
@@ -111,7 +111,8 @@ void 		ClearClassStatisticsMemory (
 void 		ClearFieldStatisticsMemory (
 				UInt32								fieldNumber);
 							
-void 		ClearProjectStatisticsMemory (void);
+void 		ClearProjectStatisticsMemory (
+				Boolean								loadPixelDataFlag);
 			
 void 		CombineFieldChannelStatistics (
 				UInt16 								numberOutputChannels,
@@ -139,15 +140,19 @@ void 		ComputeVarianceVector (
 Boolean 	FinishClassStatsUpdate (
 				UInt32								classNumber);
 							
-void 		FinishProjectStatsUpdate (void);
+void 		FinishProjectStatsUpdate (
+				SInt16								statCode);
 							
 void 		FinishClassMaskStatsUpdate (
-				UInt32								classNumber);
+				UInt32								classNumber,
+				SInt16								statCode);
 							
 void 		FinishFieldMaskStatsUpdate (
 				UInt32								fieldNumber);
 							
 void 		FinishProjectMaskStatsUpdate (void);
+
+SInt64 	GetNumberOfTrainPixelsInProject ();
 
 void 		ReduceChanStatsVector (
 				HChannelStatisticsPtr 			inputMeansPtr,
@@ -163,14 +168,17 @@ void 		ReduceStdDevVector (
 
 SInt16	 UpdateClassAreaStats (
 				FileIOInstructionsPtr			fileIOInstructionsPtr,
-				UInt32								classNumber);
+				UInt32								classNumber,
+				Boolean								loadPixelDataFlag);
 
 SInt16	 UpdateFieldAreaStats (
 				FileIOInstructionsPtr			fileIOInstructionsPtr,
-				UInt16								fieldNumber);
+				UInt16								fieldNumber,
+				Boolean								loadPixelDataFlag);
 
 SInt16	 UpdateProjectAreaStats (
-				FileIOInstructionsPtr			fileIOInstructionsPtr);
+				FileIOInstructionsPtr			fileIOInstructionsPtr,
+				Boolean								loadPixelDataFlag);
 
 SInt16 	UpdateProjectMaskStats (
 				SInt16								statsUpdateCode,
@@ -183,7 +191,7 @@ SInt16 	UpdateProjectMaskStats (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -282,14 +290,14 @@ void AddToClassChannelStatistics (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		Boolean CheckIfClassMaskStatsUpToDate
 //
-//	Software purpose:	The purpose of this routine is to update the
-//							statistics for the given class.
+//	Software purpose:	The purpose of this routine is to determine if the
+//							field for the mask training class is up to date.
 //
 //	Parameters in:		None
 //
@@ -300,7 +308,7 @@ void AddToClassChannelStatistics (
 // Called By:	
 //
 //	Coded By:			Larry L. Biehl			Date: 12/17/1998
-//	Revised By:			Larry L. Biehl			Date: 12/17/1998	
+//	Revised By:			Larry L. Biehl			Date: 05/06/2019
 
 Boolean CheckIfClassMaskStatsUpToDate (
 				UInt32								classNumber)
@@ -337,7 +345,15 @@ Boolean CheckIfClassMaskStatsUpToDate (
 						// Check if field "fieldNumber" statistics are up to date
 						
 				if (!fieldIdentPtr->statsUpToDate)
+					{
+							// Make sure the numberPixelsUsedForStats in initialized
+							// to zero. It may have a count of the number of pixels
+							// with data values loaded.
+					
+					fieldIdentPtr->numberPixelsUsedForStats = 0;
 																							return (FALSE);
+					
+					}
 																						
 				}	// end "if (...->fieldType == kTrainingType && ..."
 				
@@ -356,7 +372,7 @@ Boolean CheckIfClassMaskStatsUpToDate (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -399,7 +415,6 @@ Boolean CheckIfMaskStatsUpToDate (
 			break;
 			
 		case kUpdateField:
-			
 			if (fieldNumber < (UInt32)gProjectInfoPtr->numberStorageFields)
 				{
 				fieldIdentPtr = &gProjectInfoPtr->fieldIdentPtr[fieldNumber];					
@@ -419,7 +434,7 @@ Boolean CheckIfMaskStatsUpToDate (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -438,13 +453,15 @@ Boolean CheckIfMaskStatsUpToDate (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 12/17/1998
-//	Revised By:			Larry L. Biehl			Date: 12/17/1998	
+//	Revised By:			Larry L. Biehl			Date: 05/06/2019
 
 Boolean CheckIfProjectMaskStatsUpToDate ()
 
 {
 	UInt32								classIndex,
 											numberClasses;
+	
+	Boolean								returnFlag = TRUE;
 	
 	
 			// Initialize local variables.													
@@ -460,7 +477,7 @@ Boolean CheckIfProjectMaskStatsUpToDate ()
 					// Check if class "class" statistics are up to date				
 						
 			if (!CheckIfClassMaskStatsUpToDate ((UInt32)classIndex)) 
-																							return (FALSE);
+				returnFlag = FALSE;
 			
 			}	// end "for (classIndex=0; ... 
 			
@@ -468,14 +485,14 @@ Boolean CheckIfProjectMaskStatsUpToDate ()
 	
 			// Indicate that project mask stats are up to date.								
 			
-	return (TRUE);
+	return (returnFlag);
 		
 }	// end "CheckIfProjectMaskStatsUpToDate" 
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -588,7 +605,7 @@ Boolean CheckMatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -606,7 +623,7 @@ Boolean CheckMatrix (
 // Called By:	
 //
 //	Coded By:			Larry L. Biehl			Date: 12/17/1998
-//	Revised By:			Larry L. Biehl			Date: 12/17/1998	
+//	Revised By:			Larry L. Biehl			Date: 05/03/2019
 
 void ClearClassStatisticsMemory (
 				UInt32								classNumber)
@@ -646,7 +663,8 @@ void ClearClassStatisticsMemory (
 		classNamesPtr[classStorage].numberStatisticsPixels =  
 						GetNumberOfPixelsLoadedInClass (
 															&classNamesPtr[classStorage], 
-															gProjectInfoPtr->fieldIdentPtr);
+															gProjectInfoPtr->fieldIdentPtr,
+															kMeanCovariance);
 				
 		if (gProjectInfoPtr->keepClassStatsOnlyFlag &&
 									classNamesPtr[classStorage].numberStatisticsPixels == 0)
@@ -691,7 +709,7 @@ void ClearClassStatisticsMemory (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -765,14 +783,15 @@ void ClearFieldStatisticsMemory (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void ClearProjectStatisticsMemory
 //
-//	Software purpose:	The purpose of this routine is to update the
-//							statistics for the project.
+//	Software purpose:	The purpose of this routine is to make sure memory is cleared
+//							for the statistics or for pixel value data to be ready to load
+//							new data.
 //
 //	Parameters in:		None
 //
@@ -783,34 +802,45 @@ void ClearFieldStatisticsMemory (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 12/17/1998
-//	Revised By:			Larry L. Biehl			Date: 12/17/1998	
+//	Revised By:			Larry L. Biehl			Date: 05/26/2019
 
-void ClearProjectStatisticsMemory ()
+void ClearProjectStatisticsMemory (
+				Boolean								loadPixelDataFlag)
 
 {
 	UInt32								classIndex,
 											numberClasses;
 	
-	
-			// Initialize local variables.													
-			
-	numberClasses = gProjectInfoPtr->numberStatisticsClasses;
-	
-			// Continue only if number of classes is one or more.													
-	
-	if (numberClasses > 0)
+	if (loadPixelDataFlag)
 		{
-		for (classIndex=0; classIndex<numberClasses; classIndex++)
-			ClearClassStatisticsMemory ((UInt32)classIndex);
+		gProjectInfoPtr->knn_distances.clear ();
+		gProjectInfoPtr->knnLabelsPtr.clear ();
+		gProjectInfoPtr->knnDataValuesPtr.clear ();
+		gProjectInfoPtr->knnCounter = 0;
+		
+		}	// end "if (loadPixelDataFlag)"
+	
+	else	// !loadPixelDataFlag
+		{
+		numberClasses = gProjectInfoPtr->numberStatisticsClasses;
+	
+				// Continue only if number of classes is one or more.
+		
+		if (numberClasses > 0)
+			{
+			for (classIndex=0; classIndex<numberClasses; classIndex++)
+				ClearClassStatisticsMemory ((UInt32)classIndex);
 			
-		}	// end "if (numberClasses > 0)" 
+			}	// end "if (numberClasses > 0)"
+		
+		}	// end "else !loadPixelDataFlag"
 		
 }	// end "ClearProjectStatisticsMemory" 
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -918,7 +948,7 @@ void CombineFieldChannelStatistics (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1025,7 +1055,7 @@ void CombineFieldStatistics (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1161,7 +1191,7 @@ void ComputeCorrelationFromCovMatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1248,14 +1278,16 @@ void ComputeVarianceVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		Boolean DetermineIfSpecifiedStatisticsExist
 //
 //	Software purpose:	The purpose of this routine is to determine if the specified
-//							statistics exist for the input class.
+//							statistics exist for the input class for case when statistics
+//							are being used or if the pixel data values have been loaded
+//							when only pixel data values are being used.
 //
 //	Parameters in:		None
 //
@@ -1267,10 +1299,11 @@ void ComputeVarianceVector (
 //							ListClassInformation in SStatLst.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 09/26/1997
-//	Revised By:			Larry L. Biehl			Date: 08/26/2010	
+//	Revised By:			Larry L. Biehl			Date: 05/03/2019
 
 Boolean DetermineIfSpecifiedStatisticsExist (
 				HPClassNamesPtr					classNamesPtr,
+				SInt16								statisticsType,
 				SInt16								covarianceStatsToUse,
 				Boolean*								computeCommonCovarianceFlagPtr)
 
@@ -1284,42 +1317,53 @@ Boolean DetermineIfSpecifiedStatisticsExist (
 	
 	numberOfPixelsLoadedInClass = GetNumberOfPixelsLoadedInClass (
 																	classNamesPtr,
-																	gProjectInfoPtr->fieldIdentPtr);
+																	gProjectInfoPtr->fieldIdentPtr,
+																	statisticsType);
 	
 	if (numberOfPixelsLoadedInClass > 0)
 		{
-		if (covarianceStatsToUse == kEnhancedStats)
+		if (statisticsType == kPixelValuesOnly)
 			{
-					// Note if enhanced statistics are not available then the orginal
-					// statistics are used.
-					
 			existFlag = TRUE;
-				
-			}	// end "if (covarianceStatsToUse == kEnhancedStats)"
 			
-		else if (covarianceStatsToUse == kLeaveOneOutStats)
+			}	// end "if (statisticsType == kPixelValuesOnly)"
+		
+		else	// statisticsType != kPixelValuesOnly
 			{
-			if (classNamesPtr->mixingParameterCode == kComputedOptimum)
+			if (covarianceStatsToUse == kEnhancedStats)
 				{
-				if (classNamesPtr->looCovarianceValue >= 0)
-					{
-					existFlag = TRUE;
-					
-					if (classNamesPtr->looCovarianceValue > 1 && 
-											gProjectInfoPtr->numberCommonCovarianceClasses == 0)
-						*computeCommonCovarianceFlagPtr = TRUE;
-					
-					}	// end "if (classNamesPtr->looCovarianceValue >= 0)"
-					
-				}	// end "if (...->mixingParameterCode == kComputedOptimum)"
+						// Note if enhanced statistics are not available then the orginal
+						// statistics are used.
 				
-			else	// ...->mixingParameterCode == kUserSet || kIdentityMatrix
 				existFlag = TRUE;
 				
-			}	// end "else if (covarianceStatsToUse == kLeaveOneOutStats)"
-		
-		else	// covarianceStatsToUse == kOriginalStats
-			existFlag = TRUE;
+				}	// end "if (covarianceStatsToUse == kEnhancedStats)"
+			
+			else if (covarianceStatsToUse == kLeaveOneOutStats)
+				{
+				if (classNamesPtr->mixingParameterCode == kComputedOptimum)
+					{
+					if (classNamesPtr->looCovarianceValue >= 0)
+						{
+						existFlag = TRUE;
+						
+						if (classNamesPtr->looCovarianceValue > 1 &&
+												gProjectInfoPtr->numberCommonCovarianceClasses == 0)
+							*computeCommonCovarianceFlagPtr = TRUE;
+						
+						}	// end "if (classNamesPtr->looCovarianceValue >= 0)"
+					
+					}	// end "if (...->mixingParameterCode == kComputedOptimum)"
+				
+				else	// ...->mixingParameterCode == kUserSet || kIdentityMatrix
+					existFlag = TRUE;
+				
+				}	// end "else if (covarianceStatsToUse == kLeaveOneOutStats)"
+			
+			else	// covarianceStatsToUse == kOriginalStats
+				existFlag = TRUE;
+			
+			}	// end "else statisticsType != kPixelValuesOnly"
 			
 		}	// end "if (numberOfPixelsLoadedInClass > 0)"
 		
@@ -1330,7 +1374,7 @@ Boolean DetermineIfSpecifiedStatisticsExist (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1348,7 +1392,7 @@ Boolean DetermineIfSpecifiedStatisticsExist (
 // Called By:	
 //
 //	Coded By:			Larry L. Biehl			Date: 12/17/1998
-//	Revised By:			Larry L. Biehl			Date: 02/07/2018
+//	Revised By:			Larry L. Biehl			Date: 04/24/2019
 
 Boolean FinishClassStatsUpdate (
 				UInt32								classNumber)
@@ -1381,54 +1425,61 @@ Boolean FinishClassStatsUpdate (
 			// and if the class statistics are not up-to-date							
 	
    upToDateFlag = FALSE;
-	if (classNamesPtr[classStorage].numberOfTrainFields > 0 && 
-													!classNamesPtr[classStorage].statsUpToDate)
-		{
-		upToDateFlag = TRUE;
-		fieldNumber = classNamesPtr[classStorage].firstFieldNumber;
-		
-		while (fieldNumber != -1)
-			{
-			fieldIdentPtr = &gProjectInfoPtr->fieldIdentPtr[fieldNumber];
+	if (classNamesPtr[classStorage].numberOfTrainFields > 0)
+	 	{
+	 	if (classNamesPtr[classStorage].statsUpToDate)
+			upToDateFlag = TRUE;
 			
-					// Verify that all of the training fields have been added to
-					// the class information before indicating that the class
-					// statistics are up to date.	
-					
-			if (fieldIdentPtr->fieldType == kTrainingType &&
-															!fieldIdentPtr->loadedIntoClassStats)
+	 	else	// !classNamesPtr[classStorage].statsUpToDate
+			{
+			upToDateFlag = TRUE;
+			fieldNumber = classNamesPtr[classStorage].firstFieldNumber;
+			
+			while (fieldNumber != -1)
 				{
-				upToDateFlag = FALSE;
-				break;
+				fieldIdentPtr = &gProjectInfoPtr->fieldIdentPtr[fieldNumber];
 				
-				}	// end "if (fieldIdentPtr->fieldType == kTrainingType && ..."
+						// Verify that all of the training fields have been added to
+						// the class information before indicating that the class
+						// statistics are up to date.
 				
-			fieldNumber = fieldIdentPtr->nextField;
+				if (fieldIdentPtr->fieldType == kTrainingType &&
+																!fieldIdentPtr->loadedIntoClassStats)
+					{
+					upToDateFlag = FALSE;
+					break;
+					
+					}	// end "if (fieldIdentPtr->fieldType == kTrainingType && ..."
+				
+				fieldNumber = fieldIdentPtr->nextField;
+				
+				}	// end "while (fieldNumber != -1)"
 			
-			}	// end "while (fieldNumber != -1)"
+					// Compute the first order statistics for the class stats only case.
 			
-				// Compute the first order statistics for the class stats only case.																		
+			if (gProjectInfoPtr->keepClassStatsOnlyFlag &&
+													gProjectInfoPtr->statisticsCode != kPixelValuesOnly)
+				{
+				GetProjectStatisticsPointers (kClassStatsOnly,
+														classStorage,
+														&classChanPtr,
+														&classSumSquaresPtr,
+														NULL,
+														NULL);
+				
+				ComputeMeanStdDevVector (
+										classChanPtr,
+										classSumSquaresPtr,
+										gProjectInfoPtr->numberStatisticsChannels,
+										(UInt32)classNamesPtr[classStorage].numberStatisticsPixels,
+										gProjectInfoPtr->statisticsCode,
+										kTriangleInputMatrix);
+				
+				}	// end "if (gProjectInfoPtr->keepClassStatsOnlyFlag && ..."
+			
+			}	// end "else !classNamesPtr[classStorage].statsUpToDate"
 		
-		if (gProjectInfoPtr->keepClassStatsOnlyFlag)
-			{
-			GetProjectStatisticsPointers (kClassStatsOnly, 
-													classStorage, 
-													&classChanPtr, 
-													&classSumSquaresPtr,
-													NULL,
-													NULL);
-													
-			ComputeMeanStdDevVector (
-									classChanPtr,
-									classSumSquaresPtr, 
-									gProjectInfoPtr->numberStatisticsChannels, 
-									(UInt32)classNamesPtr[classStorage].numberStatisticsPixels,
-									gProjectInfoPtr->statisticsCode,
-									kTriangleInputMatrix);
-				
-			}	// end "else !gProjectInfoPtr->keepClassStatsOnlyFlag"
-			
-		}	// end "if (classNamesPtr[classStorage].numberOfTrainFields > 0)"
+		}	// end "if (classNamesPtr[classStorage].numberOfTrainFields > 0 && ..."
 		
 	classNamesPtr[classStorage].statsUpToDate = upToDateFlag;
 	
@@ -1439,7 +1490,7 @@ Boolean FinishClassStatsUpdate (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1494,7 +1545,7 @@ void FinishProjectStatsUpdate ()
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1512,10 +1563,11 @@ void FinishProjectStatsUpdate ()
 // Called By:	
 //
 //	Coded By:			Larry L. Biehl			Date: 12/17/1998
-//	Revised By:			Larry L. Biehl			Date: 01/07/1999	
+//	Revised By:			Larry L. Biehl			Date: 05/06/2019
 
 void FinishClassMaskStatsUpdate (
-				UInt32								classNumber)
+				UInt32								classNumber,
+				SInt16								statCode)
 
 {
 	HPClassNamesPtr					classNamesPtr;
@@ -1559,8 +1611,9 @@ void FinishClassMaskStatsUpdate (
 				{							
 				classNamesPtr[classStorage].numberStatisticsPixels += 
 														fieldIdentPtr->numberPixelsUsedForStats;
-											
-				fieldIdentPtr->loadedIntoClassStats = TRUE;
+					
+				if (statCode != kPixelValuesOnly)
+					fieldIdentPtr->loadedIntoClassStats = TRUE;
 				
 				}	// end "if (fieldIdentPtr->pointType == kMaskType && ..." 
 				
@@ -1575,7 +1628,7 @@ void FinishClassMaskStatsUpdate (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1664,7 +1717,7 @@ void FinishFieldMaskStatsUpdate (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1682,9 +1735,10 @@ void FinishFieldMaskStatsUpdate (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 12/17/1998
-//	Revised By:			Larry L. Biehl			Date: 12/17/1998	
+//	Revised By:			Larry L. Biehl			Date: 05/06/2019
 
-void FinishProjectMaskStatsUpdate ()
+void FinishProjectMaskStatsUpdate (
+				SInt16								statCode)
 
 {
 	UInt32								classIndex,
@@ -1700,7 +1754,7 @@ void FinishProjectMaskStatsUpdate ()
 	if (numberClasses > 0)
 		{
 		for (classIndex=0; classIndex<numberClasses; classIndex++)
-			FinishClassMaskStatsUpdate ((UInt32)classIndex);
+			FinishClassMaskStatsUpdate ((UInt32)classIndex, statCode);
 			
 		}	// end "if (numberClasses > 0)" 
 		
@@ -1709,7 +1763,7 @@ void FinishProjectMaskStatsUpdate ()
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1813,7 +1867,7 @@ Boolean GetClassChannelStatistics (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2040,7 +2094,7 @@ void GetClassCovarianceMatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2087,7 +2141,7 @@ void GetClassMaximumVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2134,7 +2188,7 @@ void GetClassMeanVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2181,7 +2235,7 @@ void GetClassMinimumVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2228,7 +2282,7 @@ void GetClassStdDevVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2336,7 +2390,7 @@ Boolean GetClassSumsSquares (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2495,7 +2549,7 @@ Boolean GetCommonCovariance (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2600,16 +2654,16 @@ Boolean GetEigenStatisticsFeatures (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		UInt32 GetNumberOfPixelsLoadedInClass
 //
-//	Software purpose:	The purpose of this routine is to get a pointer
-//							to the statistics feature vector.  The vector
-//							will depend upon whether a transformation matrix
-//							is being used.
+//	Software purpose:	The purpose of this routine is to determne the number of pixels
+//                   whose statistics have been loaded into the input class for
+//							cases when statistics are being used or the number of pixel
+//							data values that have been loaded for future classifer use.
 //
 //	Parameters in:		None
 //
@@ -2621,11 +2675,12 @@ Boolean GetEigenStatisticsFeatures (
 //							UpdateClassStats in SStatCom.cpp
 //							
 //	Coded By:			Larry L. Biehl			Date: 03/05/1998
-//	Revised By:			Larry L. Biehl			Date: 04/24/2013	
+//	Revised By:			Larry L. Biehl			Date: 05/03/2019
 
 SInt64 GetNumberOfPixelsLoadedInClass (
 				HPClassNamesPtr					classNamesPtr,
-				HPFieldIdentifiersPtr			fieldIdentPtr)
+				HPFieldIdentifiersPtr			fieldIdentPtr,
+				SInt16								statisticsType)
 
 {									
 	SInt64								numberOfPixelsLoadedInClass = 0;
@@ -2640,7 +2695,8 @@ SInt64 GetNumberOfPixelsLoadedInClass (
 				
 		if (fieldIdentPtr[fieldNumber].fieldType == kTrainingType)
 			{
-			if (fieldIdentPtr[fieldNumber].loadedIntoClassStats)
+			if (fieldIdentPtr[fieldNumber].loadedIntoClassStats ||
+															statisticsType == kPixelValuesOnly)
 				numberOfPixelsLoadedInClass +=
 										fieldIdentPtr[fieldNumber].numberPixelsUsedForStats;
 											
@@ -2657,7 +2713,68 @@ SInt64 GetNumberOfPixelsLoadedInClass (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		SInt64 GetNumberOfTrainPixelsInProject
+//
+//	Software purpose:	The purpose of this routine is to determine the number of
+//							training pixels in the project
+//
+//	Parameters in:		None
+//
+//	Parameters out:	None
+//
+// Value Returned:	None
+//
+// Called By:			DetermineIfSpecifiedStatisticsExist in SStatCom.cpp
+//							UpdateClassStats in SStatCom.cpp
+//
+//	Coded By:			Larry L. Biehl			Date: 05/27/2019
+//	Revised By:			Larry L. Biehl			Date: 05/28/2019
+
+SInt64 GetNumberOfTrainPixelsInProject ()
+
+{
+	SInt64								numberOfTrainPixelsInProject = 0;
+	
+	UInt32								classIndex,
+											classStorage,
+											numberClasses;
+	
+	
+			// Initialize local variables.
+	
+	numberClasses = gProjectInfoPtr->numberStatisticsClasses;
+	
+			// Continue only if number of classes is one or more and if project
+			//	statistics are not up-to-date
+	
+	if (numberClasses > 0)
+		{
+		for (classIndex=0; classIndex<numberClasses; classIndex++)
+			{
+					// Get the class storage number.
+			
+			classStorage = gProjectInfoPtr->storageClass[classIndex];
+			
+			numberOfTrainPixelsInProject += GetNumberOfTrainPixelsInClass (
+												&gProjectInfoPtr->classNamesPtr[classStorage],
+												gProjectInfoPtr->fieldIdentPtr);
+			
+			}	// end "for (classIndex=0; ...
+		
+		}	// end "if (numberClasses > 0)"
+	
+	return (numberOfTrainPixelsInProject);
+	
+}	// end "GetNumberOfTrainPixelsInProject"
+
+
+
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2766,7 +2883,7 @@ Boolean GetProjectChannelMinMaxes (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2860,7 +2977,7 @@ void GetTransformedClassCovarianceMatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2937,7 +3054,7 @@ void GetStdDevVectorFromCovariance (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2984,7 +3101,7 @@ void InitializeChannelMaximums (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3031,7 +3148,7 @@ void InitializeChannelMinimums (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3082,7 +3199,7 @@ void ReduceChanStatsVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3137,7 +3254,7 @@ void ReduceStdDevVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3215,7 +3332,7 @@ Boolean ResetZeroVariances (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3344,7 +3461,7 @@ Boolean ResetForAllVariancesEqual (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3434,7 +3551,7 @@ void SetClassCovarianceStatsToUse (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3482,7 +3599,7 @@ void SetClassListMessageFlag (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3644,7 +3761,7 @@ void SetProjectCovarianceStatsToUse (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3731,12 +3848,127 @@ Boolean SetupModifiedStatsMemory (
 		
 	return (continueFlag);
 		
-}	// end "SetupModifiedStatsMemory" 
+}	// end "SetupModifiedStatsMemory"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		Boolean SetupPixelMemory
+//
+//	Software purpose:	The purpose of this routine is to update the memory allocated
+//							needed for classifiers using pixel values for training.
+//
+//	Parameters in:		None
+//
+//	Parameters out:	None
+//
+// Value Returned:	None
+//
+// Called By:			UpdateStatsControl in SProjectComputeStatistics.cpp
+//
+//	Coded By:			Larry L. Biehl			Date: 05/16/2019
+//	Revised By:			Larry L. Biehl			Date: 05/30/2019
+
+Boolean SetupPixelMemory (void)
+
+{
+	SInt64								numberOfTrainPixelsInProject;
+	
+	//double								doubleBytesNeeded;
+	
+	Ptr									spareMemoryPtr;
+	
+	UInt32								//longBytesNeeded,
+											numberChannels;
+											//numberStorageSets;
+	
+	Boolean								//changedFlag,
+											continueFlag,
+											tooLargeMemoryBlockFlag;
+	
+	
+			// Initialize local variables.
+	
+	continueFlag = TRUE;
+	tooLargeMemoryBlockFlag = FALSE;
+	numberChannels = gProjectInfoPtr->numberStatisticsChannels;
+	
+			// Unlock project statistics memory.
+	
+  	UnlockProjectMemory (&gProjectInfoPtr, 3, NULL);
+	
+			// First we will get a block of memory that we want to be sure is available
+			// after allocating memory for the statistics. The block requested is
+			// the same size as that needed for a full segment of code.
+	
+	spareMemoryPtr = (char*)MNewPointer ((SInt32)gSpareCodeSize);
+	continueFlag = (spareMemoryPtr != NULL);
+	
+	if (continueFlag)
+		{
+		numberOfTrainPixelsInProject = GetNumberOfTrainPixelsInProject ();
+		
+		gProjectInfoPtr->knn_distances.reserve (numberOfTrainPixelsInProject);
+		gProjectInfoPtr->knnLabelsPtr.reserve (numberOfTrainPixelsInProject);
+		gProjectInfoPtr->knnDataValuesPtr.reserve (numberOfTrainPixelsInProject*numberChannels);
+		/*
+	  	numberStorageSets = gProjectInfoPtr->numberStorageStatFields;
+	  	if (gProjectInfoPtr->keepClassStatsOnlyFlag)
+	  		numberStorageSets = 1;
+		
+				// Change size of handle for field first order training
+				// statistics (mean, std dev and sum) if needed.
+		
+		longBytesNeeded =
+						numberStorageSets * numberChannels * sizeof (ChannelStatistics);
+		
+		doubleBytesNeeded =(double)numberStorageSets *
+										(double)numberChannels * sizeof (ChannelStatistics);
+		
+		if (doubleBytesNeeded < LONG_MAX)
+			gProjectInfoPtr->fieldChanStatsPtr = (HChannelStatisticsPtr)CheckHandleSize (
+															&gProjectInfoPtr->fieldChanStatsHandle,
+															&continueFlag,
+															&changedFlag,
+															longBytesNeeded);
+		
+		else	// doubleBytesNeeded >= LONG_MAX
+			{
+			continueFlag = FALSE;
+			tooLargeMemoryBlockFlag = TRUE;
+			
+			}	// end "else doubleBytesNeeded >= LONG_MAX"
+		*/
+		}	// end "if (continueFlag)"
+	
+	CheckAndDisposePtr (spareMemoryPtr);
+	
+	gProjectInfoPtr->moveMemoryFlag = TRUE;
+	
+			// Lock project statistics memory.
+	
+	LockProjectMemory (NULL, 0, &gProjectInfoPtr);
+	/*
+	if (tooLargeMemoryBlockFlag)
+		DisplayAlert (kErrorAlertID,
+							kStopAlert,
+							kAlertStrID,
+							IDS_Alert124,
+							0,
+							NULL);
+	*/
+	return (continueFlag);
+	
+}	// end "SetupPixelMemory"
+
+
+
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3964,7 +4196,7 @@ Boolean SetupStatsMemory (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3983,11 +4215,12 @@ Boolean SetupStatsMemory (void)
 //							UpdateStatsControl in SStatCom.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/16/1988
-//	Revised By:			Larry L. Biehl			Date: 10/26/1999	
+//	Revised By:			Larry L. Biehl			Date: 07/08/2019
 
 SInt16 UpdateClassAreaStats (
 				FileIOInstructionsPtr			fileIOInstructionsPtr, 
-				UInt32								classNumber)
+				UInt32								classNumber,
+				Boolean								loadPixelDataFlag)
 
 {
 	HChannelStatisticsPtr			classChanPtr;
@@ -4016,7 +4249,8 @@ SInt16 UpdateClassAreaStats (
 			// and if the class statistics are not up-to-date							
 	
 	if (classNamesPtr[classStorage].numberOfTrainFields > 0 && 
-														!classNamesPtr[classStorage].statsUpToDate)
+								(!classNamesPtr[classStorage].statsUpToDate ||
+																			loadPixelDataFlag))
 		{
 				// Set up status dialog. Class name, and number of						
 				// training fields for the class.											
@@ -4053,16 +4287,22 @@ SInt16 UpdateClassAreaStats (
 				
 						// Check if field "fieldNumber" statistics are up to date	
 					
-				if (!fieldIdentPtr->statsUpToDate)
-					if (UpdateFieldAreaStats (fileIOInstructionsPtr, fieldNumber) <= 0) 
+				if (!fieldIdentPtr->statsUpToDate || loadPixelDataFlag)
+					if (UpdateFieldAreaStats (fileIOInstructionsPtr,
+														fieldNumber,
+														loadPixelDataFlag) <= 0)
 																								return (0);
 				
 						// Add the field statistics to the class statistics if it	
 						// hasn't been done.														
 						
 				if (!fieldIdentPtr->loadedIntoClassStats)
-					{			
-					if (gProjectInfoPtr->keepClassStatsOnlyFlag)
+					{
+					classNamesPtr[classStorage].numberStatisticsPixels +=
+															fieldIdentPtr->numberPixelsUsedForStats;
+					
+					if (gProjectInfoPtr->keepClassStatsOnlyFlag && !loadPixelDataFlag)
+						{
 						AddToClassStatistics (numberChannels,
 														classChanPtr, 
 														classSumSquaresPtr, 
@@ -4074,12 +4314,12 @@ SInt16 UpdateClassAreaStats (
 														gProjectInfoPtr->statisticsCode,
 														gProjectInfoPtr->statisticsCode);
 						
-					classNamesPtr[classStorage].numberStatisticsPixels += 
-															fieldIdentPtr->numberPixelsUsedForStats;
-												
-					fieldIdentPtr->loadedIntoClassStats = TRUE;
+						}	// end "if (gProjectInfoPtr->keepClassStatsOnlyFlag && ..."
 					
-					}	// end "if (!fieldIdentPtr->loadedIntoClassStats)" 
+					if (!loadPixelDataFlag)
+						fieldIdentPtr->loadedIntoClassStats = TRUE;
+					
+					}	// end "if (!fieldIdentPtr->loadedIntoClassStats)"
 				
 				fieldCount++;
 								
@@ -4106,7 +4346,7 @@ SInt16 UpdateClassAreaStats (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4125,11 +4365,12 @@ SInt16 UpdateClassAreaStats (
 //							UpdateStatsControl in SStatCom.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/16/1988
-//	Revised By:			Larry L. Biehl			Date: 04/30/2013	
+//	Revised By:			Larry L. Biehl			Date: 04/26/2019
 
 SInt16 UpdateFieldAreaStats (
 				FileIOInstructionsPtr			fileIOInstructionsPtr, 
-				UInt16								fieldNumber)
+				UInt16								fieldNumber,
+				Boolean								loadPixelDataFlag)
 
 {
 	HChannelStatisticsPtr			fieldChanPtr;
@@ -4180,8 +4421,9 @@ SInt16 UpdateFieldAreaStats (
 			// stats are being kept. For this case the same location in memory is
 			// being used for each field and then it is added into the class
 			// statistics.
+			// Do not initialize memory if the pixel data values are being loaded
 										
-	if (gProjectInfoPtr->keepClassStatsOnlyFlag)
+	if (gProjectInfoPtr->keepClassStatsOnlyFlag && !loadPixelDataFlag)
 		ZeroStatisticsMemory (fieldChanPtr, 
 										fieldSumSquaresPtr, 
 										numberChannels,
@@ -4208,31 +4450,35 @@ SInt16 UpdateFieldAreaStats (
 		{
 		fieldIdentPtr->numberPixelsUsedForStats = gAreaDescription.numSamplesPerChan;
 		
-				// Compute the first order statistics.																		
+		if (!loadPixelDataFlag)
+			{
+					// Compute the first order statistics.
+			
+			if (!gProjectInfoPtr->keepClassStatsOnlyFlag)
+				ComputeMeanStdDevVector (fieldChanPtr,
+													fieldSumSquaresPtr, 
+													numberChannels, 
+													fieldIdentPtr->numberPixelsUsedForStats,
+													gProjectInfoPtr->statisticsCode,
+													kTriangleInputMatrix);
+											
+			if (gProjectInfoPtr->keepClassStatsOnlyFlag)
+				fieldIdentPtr->statsUpToDate = FALSE;
+				
+			else	// !gProjectInfoPtr->keepClassStatsOnlyFlag
+				fieldIdentPtr->statsUpToDate = TRUE;
 		
-		if (!gProjectInfoPtr->keepClassStatsOnlyFlag)
-			ComputeMeanStdDevVector (fieldChanPtr,
-												fieldSumSquaresPtr, 
-												numberChannels, 
-												fieldIdentPtr->numberPixelsUsedForStats,
-												gProjectInfoPtr->statisticsCode,
-												kTriangleInputMatrix);
-										
-		if (gProjectInfoPtr->keepClassStatsOnlyFlag)
-			fieldIdentPtr->statsUpToDate = FALSE;
+					// Indicate that statistics have been loaded into the project.		
+				
+			gProjectInfoPtr->statsLoaded = TRUE;
+		
+					// Indicate that project information has changed.						
+		 
+			gProjectInfoPtr->changedFlag = TRUE;
 			
-		else	// !gProjectInfoPtr->keepClassStatsOnlyFlag
-			fieldIdentPtr->statsUpToDate = TRUE;
+			}	// end "if (!loadPixelDataFlag)"
 	
-				// Indicate that statistics have been loaded into the project.		
-			
-		gProjectInfoPtr->statsLoaded = TRUE;
-	
-				// Indicate that project information has changed.						
-	 
-		gProjectInfoPtr->changedFlag = TRUE;
-	
-		}	// end "if (returnCode	== 1)" 
+		}	// end "if (returnCode == 1)" 
 		
 			// Dispose of the region handle if needed.									
 	
@@ -4247,7 +4493,7 @@ SInt16 UpdateFieldAreaStats (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4266,10 +4512,11 @@ SInt16 UpdateFieldAreaStats (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 11/16/1988
-//	Revised By:			Larry L. Biehl			Date: 10/26/1999	
+//	Revised By:			Larry L. Biehl			Date: 04/26/2019
 
 SInt16 UpdateProjectAreaStats (
-				FileIOInstructionsPtr			fileIOInstructionsPtr)
+				FileIOInstructionsPtr			fileIOInstructionsPtr,
+				Boolean								loadPixelDataFlag)
 
 {
 	UInt32								classIndex,
@@ -4284,7 +4531,8 @@ SInt16 UpdateProjectAreaStats (
 			// Continue only if number of classes is one or more and if project		
 			//	statistics are not up-to-date													
 	
-	if (numberClasses > 0 && !gProjectInfoPtr->statsUpToDate)
+	if (numberClasses > 0 && (!gProjectInfoPtr->statsUpToDate ||
+																loadPixelDataFlag))
 		{
 				// Set up status dialog.  Load in number of classes.					
 				
@@ -4302,13 +4550,24 @@ SInt16 UpdateProjectAreaStats (
 			
 					// Check if class "class" statistics are up to date				
 						
-			if (!gProjectInfoPtr->classNamesPtr[classStorage].statsUpToDate)
-				if (UpdateClassAreaStats (fileIOInstructionsPtr, (UInt32)classIndex) <= 0) 
+			if (!gProjectInfoPtr->classNamesPtr[classStorage].statsUpToDate ||
+																				loadPixelDataFlag)
+				{
+				if (UpdateClassAreaStats (fileIOInstructionsPtr,
+													(UInt32)classIndex,
+													loadPixelDataFlag) <= 0)
 																								return (0);
+				
+				//if (!loadPixelDataFlag)
+							// Only change this flag if class means/covariances were
+							// computed.
+					//gProjectInfoPtr->classNamesPtr[classStorage].statsUpToDate = TRUE;
+				
+				}	// end "if (!...->classNamesPtr[classStorage].statsUpToDate)"
 			
 			}	// end "for (classIndex=0; ... 
 			
-		}	// end "if (numberClasses > 0 && !gProjectInfoPtr->..."
+		}	// end "if (numberClasses > 0 && (!gProjectInfoPtr->..."
 	
 			// Indicate that routine completed normally.								
 			
@@ -4319,7 +4578,7 @@ SInt16 UpdateProjectAreaStats (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4338,7 +4597,7 @@ SInt16 UpdateProjectAreaStats (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 10/28/1998
-//	Revised By:			Larry L. Biehl			Date: 02/16/2014	
+//	Revised By:			Larry L. Biehl			Date: 05/31/2019
 
 SInt16 UpdateProjectMaskStats (
 				SInt16								statsUpdateCode,
@@ -4349,10 +4608,14 @@ SInt16 UpdateProjectMaskStats (
 				SInt16								statCode)
 
 {
+	knnType 								knnSamp;
+	
 	double								dValue,
 											maxDataValue,
 											minDataValue,
 											noDataValue;
+	
+	double*								knnDataValuesPtr;
 	
 	HDoublePtr							bufferPtr,
 											bufferPtr2,
@@ -4421,7 +4684,7 @@ SInt16 UpdateProjectMaskStats (
 			//	statistics are not up-to-date													
 	
 	if (gProjectInfoPtr->numberStatisticsClasses <= 0 || 
-															gProjectInfoPtr->statsUpToDate)
+					(gProjectInfoPtr->statsUpToDate && statCode != kPixelValuesOnly))
 																								return (1);
 	
 			// Continue only if there are mask fields that need to be updated.											
@@ -4460,6 +4723,9 @@ SInt16 UpdateProjectMaskStats (
 	numberChannels = gProjectInfoPtr->numberStatisticsChannels;
 	maxDataValue = gImageWindowInfoPtr->maxUsableDataValue;
 	lastMaskValue = 0;
+	
+	knnSamp.distance = 0;
+	knnSamp.index = 0;
 	
 	fieldClassStatsCode = kFieldStatsOnly;
 	if (gProjectInfoPtr->keepClassStatsOnlyFlag)
@@ -4588,6 +4854,13 @@ SInt16 UpdateProjectMaskStats (
 			
 			}	// end "if (checkForBadDataFlag)"
 	
+		if (statCode == kPixelValuesOnly)
+			{
+			knnDataValuesPtr = gProjectInfoPtr->knnDataValuesPtr.data ();
+			knnDataValuesPtr = &knnDataValuesPtr [numberChannels * gProjectInfoPtr->knnCounter];
+			
+			}	// end "if (statCode == kPixelValuesOnly)"
+	
 				// Loop through the lines for the project image.										
 		
 		updateNumberLinesFlag = TRUE;
@@ -4674,7 +4947,8 @@ SInt16 UpdateProjectMaskStats (
 									// Verify that this field has not already been computed and
 									// loaded into the class statistics.
 																
-							if (fieldIdentPtr[fieldNumber].loadedIntoClassStats)
+							if (fieldIdentPtr[fieldNumber].loadedIntoClassStats &&
+																			statCode != kPixelValuesOnly)
 								usePixelFlag = FALSE;
 																
 							}	// end "if (lastMaskValue != maskBufferPtr[maskIndex])"
@@ -4730,44 +5004,93 @@ SInt16 UpdateProjectMaskStats (
 				   	if (dataOkayFlag)
 				   		{
 				   		bufferPtr = tOutputBufferPtr;
-							
-							lAreaChanPtr = areaChanPtr;
-							lAreaSumSquaresPtr = areaSumSquaresPtr;
-							
-							for (channel=0; channel<numberChannels; channel++)
+						
+							if (statCode == kPixelValuesOnly)
 								{
-								dValue = *bufferPtr;
-													
-										// Get the minimum and maximum value and sum.				
-										
-								lAreaChanPtr->minimum = MIN (lAreaChanPtr->minimum, dValue);
-								lAreaChanPtr->maximum = MAX (lAreaChanPtr->maximum, dValue);
-								lAreaChanPtr->sum += dValue;
+										// SVM training samples
 								
-								lAreaChanPtr++;
+								//sample_type samp;
+								//samp.set_size (gClassifySpecsPtr->numberChannels);
+								//int sampleCount = 0;
 								
-								if (statCode == kMeanCovariance)
-									{	
-											// Accumulate the channel covariance statistics
-						      	
-					      		bufferPtr2 = tOutputBufferPtr;
-						      		
-									for (covChan=0; covChan<channel; covChan++)
-										{
-										*lAreaSumSquaresPtr += dValue * *bufferPtr2;
-						      		bufferPtr2++;
-						      		lAreaSumSquaresPtr++;
-										
-										}	// end "for (covChan=channel+1; ..."
-											
-									}	// end "if (statCode == kMeanCovariance)" 
-								
-								*lAreaSumSquaresPtr += dValue * dValue;
-					      	lAreaSumSquaresPtr++;
-								
-					      	bufferPtr++;
+										// KNN training samples
+
+								for (channel=0; channel<numberChannels; channel++)
+									{
+											// Move sample data of each channel to dlib variable for SVM training
 									
-								}	// end "for (channel=1; channel<numberChannels..." 
+									//samp(channel) = *bufferPtr;
+									
+											// KNN sample data in the training
+									
+									gProjectInfoPtr->knnDataValuesPtr.push_back (*bufferPtr);
+									//*knnDataValuesPtr = *bufferPtr;
+
+									bufferPtr++;
+									//knnDataValuesPtr++;
+									
+									}	// end "for (channel=1; channel<numberChannels..."
+							
+										// SVM labelling in the training phase
+								
+								//gProjectInfoPtr->svm_samples.push_back (samp);
+								//gProjectInfoPtr->svm_labels.push_back (classNumber);
+								
+										// KNN labelling in the training phase
+								
+								//knnSamp.label = classNumber;
+								//knnSamp.distance = 0;
+								//knnSamp.index = gProjectInfoPtr->knnCounter;
+								
+								gProjectInfoPtr->knn_distances.push_back (knnSamp);
+								gProjectInfoPtr->knnLabelsPtr.push_back (classNumber+1);
+								//gProjectInfoPtr->knn_distances[gProjectInfoPtr->knnCounter] = knnSamp;
+								//gProjectInfoPtr->knnLabelsPtr[gProjectInfoPtr->knnCounter] = classNumber+1;
+								gProjectInfoPtr->knnCounter++;
+								
+								}	// end "if (statCode == kPixelValuesOnly)"
+							
+							else	// statCode != kPixelValuesOnly
+								{
+								lAreaChanPtr = areaChanPtr;
+								lAreaSumSquaresPtr = areaSumSquaresPtr;
+								
+								for (channel=0; channel<numberChannels; channel++)
+									{
+									dValue = *bufferPtr;
+									
+											// Get the minimum and maximum value and sum.
+									
+									lAreaChanPtr->minimum = MIN (lAreaChanPtr->minimum, dValue);
+									lAreaChanPtr->maximum = MAX (lAreaChanPtr->maximum, dValue);
+									lAreaChanPtr->sum += dValue;
+									
+									lAreaChanPtr++;
+									
+									if (statCode == kMeanCovariance)
+										{
+												// Accumulate the channel covariance statistics
+										
+										bufferPtr2 = tOutputBufferPtr;
+										
+										for (covChan=0; covChan<channel; covChan++)
+											{
+											*lAreaSumSquaresPtr += dValue * *bufferPtr2;
+											bufferPtr2++;
+											lAreaSumSquaresPtr++;
+											
+											}	// end "for (covChan=channel+1; ..."
+										
+										}	// end "if (statCode == kMeanCovariance)"
+									
+									*lAreaSumSquaresPtr += dValue * dValue;
+									lAreaSumSquaresPtr++;
+									
+									bufferPtr++;
+									
+									}	// end "for (channel=1; channel<numberChannels..."
+								
+								}	// end "else statCode != kPixelValuesOnly"
 								
 							fieldIdentPtr[fieldNumber].numberPixelsUsedForStats++;
 							
@@ -4807,6 +5130,12 @@ SInt16 UpdateProjectMaskStats (
 				// specific area used.
 				
 		CloseUpFileIOInstructions (fileIOInstructionsPtr, NULL);
+	
+		if (returnCode > 0 &&
+				statCode == kPixelValuesOnly &&
+						//gProjectInfoPtr->knnLabelsPtr.size () > 0)
+						gProjectInfoPtr->knnCounter > 0)
+			gProjectInfoPtr->pixelDataLoadedFlag = TRUE;
 			
 		}	// end "if (continueFlag)"
 		
@@ -4819,15 +5148,15 @@ SInt16 UpdateProjectMaskStats (
 		switch (statsUpdateCode)
 			{
 			case kUpdateProject:
-				FinishProjectMaskStatsUpdate ();
+				FinishProjectMaskStatsUpdate (statCode);
 				break;
 				
 			case kUpdateClass:
-				FinishClassMaskStatsUpdate (requestedClassNumber);
+				FinishClassMaskStatsUpdate (requestedClassNumber, statCode);
 				break;
 				
 			case kUpdateField:
-				FinishClassMaskStatsUpdate (requestedFieldNumber);
+				FinishFieldMaskStatsUpdate (requestedFieldNumber);
 				break;
 				
 			}	// end "switch (statsWindowMode)"
@@ -4850,7 +5179,7 @@ SInt16 UpdateProjectMaskStats (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4876,11 +5205,12 @@ SInt16 UpdateProjectMaskStats (
 //							ListStatsControl in statPrint.c
 //
 //	Coded By:			Larry L. Biehl			Date: 11/17/1988
-//	Revised By:			Larry L. Biehl			Date: 03/15/2017	
+//	Revised By:			Larry L. Biehl			Date: 07/09/2019
 
 SInt16 UpdateStatsControl (
 				SInt16								statsWindowMode, 
-				Boolean								requestFlag)
+				Boolean								requestFlag,
+				Boolean								loadPixelDataFlag)
 
 {
 	time_t								startTime;
@@ -4968,7 +5298,7 @@ SInt16 UpdateStatsControl (
 					// Make certain that memory for statistics information is 		
 					// sufficient.																	
 					 
-			if (continueFlag)
+			if (continueFlag && !loadPixelDataFlag)
 				{
 				continueFlag = SetupStatsMemory ();		
 
@@ -4980,7 +5310,24 @@ SInt16 UpdateStatsControl (
 														gOutputForce1Code,
 														TRUE);
 				
-				}	// end "if (continueFlag)"
+				}	// end "if (continueFlag && !loadPixelDataFlag)"
+			
+					// Make certain that memory for statistics information is
+					// sufficient.
+			
+			if (continueFlag && loadPixelDataFlag)
+				{
+				continueFlag = SetupPixelMemory ();
+
+				if (!continueFlag)
+					ListSpecifiedStringNumber (kAlertStrID,
+														IDS_Alert125,
+														(unsigned char*)gTextString,
+														NULL,
+														gOutputForce1Code,
+														TRUE);
+				
+				}	// end "if (continueFlag && !loadPixelDataFlag)"
 			
 					// Lock handle to file information and get pointer to it			
 			
@@ -5020,10 +5367,15 @@ SInt16 UpdateStatsControl (
 				
 				if (gStatusDialogPtr != NULL)
 					{
-							// Load "Updating Statistics For:" in the status dialog
+							// Load "Updating Statistics For:" or "Loading Pixel Values For"
+							// in the status dialog
+					
+					int stringNumber = IDS_Project40;
+					if (loadPixelDataFlag)
+						stringNumber = IDS_Project90;
 							
 					LoadDItemStringNumber (kProjectStrID, 
-													IDS_Project40,
+													stringNumber,
 													gStatusDialogPtr, 
 													IDC_Status11, 
 													(Str255*)gTextString);
@@ -5091,11 +5443,12 @@ SInt16 UpdateStatsControl (
 									// those classes or field which have not been initialized
 									// are cleared;
 						
-							ClearProjectStatisticsMemory ();
+							ClearProjectStatisticsMemory (loadPixelDataFlag);
 						
 									// Update project stats defined by rectangles/polygons.
 									
-							returnCode = UpdateProjectAreaStats (fileIOInstructionsPtr);
+							returnCode = UpdateProjectAreaStats (fileIOInstructionsPtr,
+																				loadPixelDataFlag);
 							
 									// Update project stats defined by mask file.
 							
@@ -5108,7 +5461,7 @@ SInt16 UpdateStatsControl (
 																	fileInfoPtr->noDataValueFlag, 
 																	gProjectInfoPtr->statisticsCode);
 											
-							if (returnCode == 1)						
+							if (returnCode == 1 && gProjectInfoPtr->statisticsCode != kPixelValuesOnly)
 								FinishProjectStatsUpdate ();
 							break;
 							
@@ -5119,7 +5472,8 @@ SInt16 UpdateStatsControl (
 									
 							returnCode = UpdateClassAreaStats (
 																	fileIOInstructionsPtr,
-																	gProjectInfoPtr->currentClass);
+																	gProjectInfoPtr->currentClass,
+																	loadPixelDataFlag);
 							
 									// Update class stats defined by mask file.
 							
@@ -5141,7 +5495,8 @@ SInt16 UpdateStatsControl (
 							
 							returnCode = UpdateFieldAreaStats (
 																	fileIOInstructionsPtr,
-																	gProjectInfoPtr->currentField);
+																	gProjectInfoPtr->currentField,
+																	loadPixelDataFlag);
 																
 							if (returnCode == 1)
 								returnCode = UpdateProjectMaskStats (
@@ -5240,8 +5595,27 @@ SInt16 UpdateStatsControl (
 			
 		MInitCursor ();
 			
-		}	// end "if (statsWindowMode >= 2 && statsWindowMode <= 4)" 
+		}	// end "if (statsWindowMode >= 2 && statsWindowMode <= 4)"
+	/*
+	if (gClassifySpecsPtr->mode == kSVMMode)
+      {
+         		// get SVM training weight
+	 
+		gProjectInfoPtr->svm_weights = train_three_class_classifier(
+																		  gProjectInfoPtr->svm_samples,
+																		  gProjectInfoPtr->svm_labels,
+																		  gProjectInfoPtr->convergence_rate);
+
+		//std::cout << "KNN SAMSIZE:" << gProjectInfoPtr->knn_samples.size();
+		std::cout << ",SVM WeigetSize:" << gProjectInfoPtr->svm_weights.size();
+		std::cout << ",SVM SampleSize:" << gProjectInfoPtr->svm_samples[0].size();
+		std::cout << ",SVM SampleNum:" <<gProjectInfoPtr->svm_samples.size()<< std::endl;
+
+		gProjectInfoPtr->svm_samples.clear ();
+		gProjectInfoPtr->svm_labels.clear ();
 		
+		}
+	*/
 	return (returnCode);
 
 }	// end "UpdateStatsControl"

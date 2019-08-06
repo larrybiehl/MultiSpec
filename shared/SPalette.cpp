@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			12/19/2018
+//	Revision date:			06/29/2019
 //
 //	Language:				C
 //
@@ -224,7 +224,7 @@ Boolean SetBackgroundPaletteEntries (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -301,7 +301,7 @@ void ActivateImageWindowPalette (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -373,7 +373,7 @@ Boolean CopyColorsFromClassTableToGroupTable (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -618,7 +618,7 @@ Boolean CreateFalseColorPalette (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -689,7 +689,7 @@ Boolean CreateGrayLevelPalette (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -880,7 +880,7 @@ Boolean CreatePalette (
 
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1091,7 +1091,7 @@ void CreatePPalette (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1299,7 +1299,7 @@ Boolean CreateThematicColorPalette (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1403,7 +1403,7 @@ void Create1CPalette (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1624,7 +1624,7 @@ void Create2CPalette (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1749,7 +1749,7 @@ void Create3CPalette (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1829,7 +1829,7 @@ Boolean DetermineIfFalseColorAvailable (
 /*
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1911,7 +1911,7 @@ void DrawCPalette (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1953,7 +1953,7 @@ pascal void DrawPalettePopUp (
 /*
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2031,7 +2031,7 @@ void DrawPPalette (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2372,7 +2372,7 @@ SInt16 FalseColorCheckColorChannel (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2417,7 +2417,7 @@ CMPaletteInfo GetActivePaletteHandle (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2470,7 +2470,7 @@ Boolean GetBackgroundIncludedFlag (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2625,7 +2625,7 @@ Boolean GetClassColorTable (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2719,7 +2719,7 @@ Boolean GetDefaultThematicFilePalette (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2763,7 +2763,7 @@ CMPaletteInfo GetPaletteHandle (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2781,7 +2781,7 @@ CMPaletteInfo GetPaletteHandle (void)
 // Called By:			ChangeFormatToBILorBIS in SReform1.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 06/14/1995
-//	Revised By:			Larry L. Biehl			Date: 11/19/1996	
+//	Revised By:			Larry L. Biehl			Date: 06/28/2019
 
 SInt16 GetPaletteID (
 				SInt16								thematicPaletteType)
@@ -2801,6 +2801,7 @@ SInt16 GetPaletteID (
 			break;				
 		
 		case kCorrelationMatrixColors:
+		case kClassify_Info_Colors:
 			paletteId = 1003;
 			break;					
 		
@@ -2832,7 +2833,7 @@ SInt16 GetPaletteID (
 
                     
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2876,7 +2877,7 @@ SInt16 GetPaletteOffset (void)
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2920,7 +2921,7 @@ SInt16 GetPaletteType (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2941,7 +2942,7 @@ SInt16 GetPaletteType (void)
 //							CreateThematicColorPalette in SPalette.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/18/1996
-//	Revised By:			Larry L. Biehl			Date: 05/19/2011	
+//	Revised By:			Larry L. Biehl			Date: 06/28/2019
 
 Boolean LoadColorSpecTable (
 				Handle								windowInfoHandle,
@@ -3129,6 +3130,7 @@ Boolean LoadColorSpecTable (
 				}	// end "switch (fileInfoPtr->ancillaryInfoformat)"
 			break;
 			
+		case kClassify_Info_Colors:
 		case kDefaultColors:
 		case kDefaultGrays:
 		case kCorrelationMatrixColors:
@@ -3136,7 +3138,7 @@ Boolean LoadColorSpecTable (
 		case kMODIS_NDVI_Colors:
 		case kProbablilityColors:
 		case kProbablilityColors2:
-		case kPaletteHandle:	
+		case kPaletteHandle:
 			continueFlag = ReadPaletteFromResource (fileInfoPtr,
 																	colorSpecPtr,
 																	displaySpecsPtr,
@@ -3198,7 +3200,7 @@ Boolean LoadColorSpecTable (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3282,7 +3284,7 @@ void LoadDefaultProjectFalseColorChannels (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3429,7 +3431,7 @@ void LoadTwoBytePalette (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3476,7 +3478,7 @@ void MDisposePalette (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3535,7 +3537,7 @@ void MGetEntryColor (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3579,7 +3581,7 @@ SInt16 MGetNumberPaletteEntries (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3686,7 +3688,7 @@ Boolean MNewPalette (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3814,7 +3816,7 @@ void MSetEntryColor (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3899,7 +3901,7 @@ Boolean MVerifyPaletteSize (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3957,7 +3959,7 @@ Boolean PaletteExists (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4235,7 +4237,7 @@ Boolean ReadOneBytePalette (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4253,7 +4255,7 @@ Boolean ReadOneBytePalette (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 01/10/1990
-//	Revised By:			Larry L. Biehl			Date: 05/03/2011
+//	Revised By:			Larry L. Biehl			Date: 06/29/2019
 
 Boolean ReadPaletteFromResource (
 				FileInfoPtr							fileInfoPtr, 
@@ -4357,8 +4359,9 @@ Boolean ReadPaletteFromResource (
 	useClassSymbolPtrFlag = FALSE;
 	paletteIndexSkip = 0;		
 	if (thematicPaletteType == kCorrelationMatrixColors ||
-						thematicPaletteType == kAVHRR_NDVI_Colors ||
-										thematicPaletteType == kMODIS_NDVI_Colors)
+				thematicPaletteType == kAVHRR_NDVI_Colors ||
+							thematicPaletteType == kMODIS_NDVI_Colors ||
+										thematicPaletteType == kClassify_Info_Colors)
 		{
 		classValueRange = numberColors;
 		if (classSymbolPtr != NULL)
@@ -4374,6 +4377,10 @@ Boolean ReadPaletteFromResource (
 					classValueRange > 2)
 			paletteIndexSkip = 
 							(double)(numberResourcePaletteEntries-2)/(classValueRange-2);
+		
+		else if (thematicPaletteType == kClassify_Info_Colors)
+			paletteIndexSkip =
+						(double)(numberResourcePaletteEntries-2)/(classValueRange - 1);
 			
 		}	// end "if (thematicPaletteType == kCorrelationMatrixColors || ..."
 			
@@ -4575,7 +4582,7 @@ Boolean ReadPaletteFromResource (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4718,7 +4725,7 @@ Boolean SetBackgroundPaletteEntries (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4809,7 +4816,7 @@ void SetPaletteSpecification (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5213,7 +5220,7 @@ SInt16 SetUpPalettePopUpMenu (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

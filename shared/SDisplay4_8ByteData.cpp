@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			01/22/2019
+//	Revision date:			03/11/2019
 //
 //	Language:				C
 //
@@ -64,7 +64,7 @@
 // Called By:			DisplayColorImage in SDisplay.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 07/25/2003
-//	Revised By:			Larry L. Biehl			Date: 01/22/2019
+//	Revised By:			Larry L. Biehl			Date: 03/11/2019
 
 void Display1Channel4Byte8BitLine (
 				SInt16								displayCode,
@@ -111,7 +111,7 @@ void Display1Channel4Byte8BitLine (
 		#if defined multispec_lin
 			if (displayCode == 101)
 				{
-				#if defined multispec_wxmac
+				#if defined multispec_wxmac_alpha
 							// Leave high order (alpha) byte blank.
 					offScreenPtr++;
 				#endif
@@ -122,7 +122,7 @@ void Display1Channel4Byte8BitLine (
 				offScreenPtr++;
 				*offScreenPtr = dataDisplayPtr[binIndex];
 				
-				#if defined multispec_wxlin
+				#if defined multispec_wxlin_alpha
 							// Leave low order (alpha) byte blank.
 					offScreenPtr++;
 				#endif
@@ -167,7 +167,7 @@ void Display1Channel4Byte8BitLine (
 // Called By:			DisplayColorImage in display.c
 //
 //	Coded By:			Larry L. Biehl			Date: 01/05/2006
-//	Revised By:			Larry L. Biehl			Date: 01/22/2019
+//	Revised By:			Larry L. Biehl			Date: 03/11/2019
 
 void Display2Channel4Byte8BitLine (
 				UInt32								numberSamples,
@@ -195,7 +195,7 @@ void Display2Channel4Byte8BitLine (
 							
 	for (j=0; j<numberSamples; j+=interval)
 		{
-		#if defined multispec_wxmac
+		#if defined multispec_wxmac_alpha
 					// Leave hight order (alpha) byte blank.
 			offScreenPtr++;
 		#endif
@@ -249,7 +249,7 @@ void Display2Channel4Byte8BitLine (
 
 		offScreenPtr++;
 		
-		#if defined multispec_wxlin
+		#if defined multispec_wxlin_alpha
 					// Leave low order (alpha) byte blank.
 			offScreenPtr++;
 		#endif
@@ -539,7 +539,7 @@ void Display2Channel4Byte16BitLine (
 // Called By:			DisplayColorImage in display.c
 //
 //	Coded By:			Larry L. Biehl			Date: 01/05/2006
-//	Revised By:			Larry L. Biehl			Date: 01/22/2019
+//	Revised By:			Larry L. Biehl			Date: 03/11/2019
 
 void Display2Channel4Byte24BitLine (
 				UInt32								numberSamples,
@@ -576,7 +576,7 @@ void Display2Channel4Byte24BitLine (
 			for (j=0; j<numberSamples; j+=interval)
 				{
 				#if defined multispec_mac || defined multispec_lin
-					#if defined multispec_mac || defined multispec_wxmac
+					#if defined multispec_mac || defined multispec_wxmac_alpha
 								// Leave high order byte blank.
 				
 						offScreenPtr++;
@@ -631,7 +631,7 @@ void Display2Channel4Byte24BitLine (
 					*offScreenPtr = dataDisplay1Ptr[binIndex];
 					offScreenPtr++;
 					
-					#if defined multispec_wxlin
+					#if defined multispec_wxlin_alpha
 								// Leave low order byte blank.
 						offScreenPtr++;
 					#endif
@@ -738,7 +738,7 @@ void Display2Channel4Byte24BitLine (
 			for (j=0; j<numberSamples; j+=interval)
 				{
 				#if defined multispec_mac || defined multispec_lin
-					#if defined multispec_mac || defined multispec_wxmac
+					#if defined multispec_mac || defined multispec_wxmac_alpha
 								// Leave high order byte blank.
 						offScreenPtr++;
 					#endif
@@ -791,7 +791,7 @@ void Display2Channel4Byte24BitLine (
 					*offScreenPtr = dataDisplay1Ptr[binIndex];
 					offScreenPtr++;
 					
-					#if defined multispec_wxlin
+					#if defined multispec_wxlin_alpha
 								// Leave low order byte blank.
 						offScreenPtr++;
 					#endif
@@ -898,7 +898,7 @@ void Display2Channel4Byte24BitLine (
 			for (j=0; j<numberSamples; j+=interval)
 				{
 				#if defined multispec_mac || defined multispec_lin
-					#if defined multispec_mac || defined multispec_wxmac
+					#if defined multispec_mac || defined multispec_wxmac_alpha
 								// Leave high order byte blank.
 						offScreenPtr++;
 					#endif
@@ -952,7 +952,7 @@ void Display2Channel4Byte24BitLine (
 					*offScreenPtr = 0;
 					offScreenPtr++;
 				
-					#if defined multispec_wxlin
+					#if defined multispec_wxlin_alpha
 								// Leave low order byte blank.
 						offScreenPtr++;
 					#endif
@@ -1081,7 +1081,7 @@ void Display2Channel4Byte24BitLine (
 // Called By:			DisplayColorImage in display.c
 //
 //	Coded By:			Larry L. Biehl			Date: 01/05/2006
-//	Revised By:			Larry L. Biehl			Date: 12/12/2018
+//	Revised By:			Larry L. Biehl			Date: 03/11/2019
 
 void Display3Channel4Byte8BitLine (
 				UInt32								numberSamples,
@@ -1191,7 +1191,7 @@ void Display3Channel4Byte8BitLine (
 			}	// end "if (backgroundValueCode && !backgroundValue)"
 			
 		#if defined multispec_lin
-			#if defined multispec_wxmac
+			#if defined multispec_wxmac_alpha
 						// Leave high order byte blank.	
 				offScreenPtr++;
 			#endif
@@ -1202,7 +1202,7 @@ void Display3Channel4Byte8BitLine (
 			offScreenPtr++;
 			*offScreenPtr += offScreenValue;
 		
-			#if defined multispec_wxlin
+			#if defined multispec_wxlin_alpha
 						// Leave low order (alpha) byte blank.
 				offScreenPtr++;
 			#endif
@@ -1377,7 +1377,7 @@ void Display3Channel4Byte16BitLine (
 // Called By:			DisplayColorImage in display.c
 //
 //	Coded By:			Larry L. Biehl			Date: 06/19/2003
-//	Revised By:			Larry L. Biehl			Date: 01/22/2019
+//	Revised By:			Larry L. Biehl			Date: 03/11/2019
 
 void Display3Channel4Byte24BitLine (
 				UInt32								numberSamples,
@@ -1415,7 +1415,7 @@ void Display3Channel4Byte24BitLine (
 	for (j=0; j<numberSamples; j+=interval)
 		{
 		#if defined multispec_mac || defined multispec_lin
-			#if defined multispec_mac || defined multispec_wxmac
+			#if defined multispec_mac || defined multispec_wxmac_alpha
 						// Leave high order byte blank.
 		
 				//*offScreenPtr = 0;
@@ -1487,7 +1487,7 @@ void Display3Channel4Byte24BitLine (
 			*offScreenPtr = dataDisplay1Ptr [binIndex];
 			offScreenPtr++;
 		
-			#if defined multispec_wxlin
+			#if defined multispec_wxlin_alpha
 						// Leave low order (alpha) byte blank.
 				offScreenPtr++;
 			#endif

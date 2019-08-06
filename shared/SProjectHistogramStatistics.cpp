@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 // 								Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			10/22/2018
+//	Revision date:			05/03/2019
 //
 //	Language:				C
 //
@@ -262,7 +262,7 @@ UInt32 	stc_d (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -335,7 +335,7 @@ Boolean CheckIfCanMatrixChannels (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -417,7 +417,7 @@ Boolean CheckSizeOfStatHistogramGraphVectors (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -458,7 +458,7 @@ void ForceStatHistogramCodeResourceLoad (void)
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -510,7 +510,7 @@ UInt32 GetBinIndexForStatDataValue (
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -574,7 +574,7 @@ double GetDataValueForStatBinIndex (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -649,7 +649,7 @@ void GetEstimatedTransformedChannelMinMaxes (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -738,7 +738,7 @@ void GetSumOfClassFieldColumns (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -850,7 +850,7 @@ void GetTransformedChannelMinMaxes (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1213,7 +1213,7 @@ SInt16 HistogramClassStats (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1759,7 +1759,7 @@ SInt16 HistogramFieldStats (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1972,7 +1972,7 @@ SInt16 HistogramProjectStats (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1991,7 +1991,7 @@ SInt16 HistogramProjectStats (
 // Called By:			StatisticsWControlEvent
 //
 //	Coded By:			Larry L. Biehl			Date: 04/02/1990
-//	Revised By:			Larry L. Biehl			Date: 04/06/2018
+//	Revised By:			Larry L. Biehl			Date: 05/03/2019
 
 SInt16 HistogramStatsControl (
 				SInt16								statsWindowMode, 
@@ -2148,6 +2148,7 @@ SInt16 HistogramStatsControl (
 											&numberClasses,
 											classListPtr,
 											numberClasses,
+											gProjectInfoPtr->statisticsCode,
 											kNoStatisticsUsed, 
 											kSetupGlobalInfoPointers,
 											NULL);
@@ -2745,7 +2746,7 @@ SInt16 HistogramStatsControl (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2954,7 +2955,7 @@ void InitializeStatHistogramBuffers (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3618,7 +3619,7 @@ Boolean ListStatHistogramValues (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3713,7 +3714,7 @@ Boolean ListChannelInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3962,7 +3963,7 @@ Boolean LoadClassMeanAndStdDevData (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4155,7 +4156,7 @@ Boolean LoadGraphData (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4200,7 +4201,7 @@ void LoadListOfClassFieldNames (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4272,7 +4273,7 @@ void LoadProjectClassFieldNames (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4349,7 +4350,7 @@ Str31* LoadClassClassFieldNames (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4587,7 +4588,7 @@ Boolean LoadStatHistogramSpecs (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4689,7 +4690,7 @@ void SetSomeStatHistogramGraphParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4791,7 +4792,7 @@ void SetStatHistogramGraphTitles (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4809,7 +4810,7 @@ void SetStatHistogramGraphTitles (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 04/02/1990
-//	Revised By:			Larry L. Biehl			Date: 02/14/2006	
+//	Revised By:			Larry L. Biehl			Date: 03/22/2019
 
 Boolean SetupStatHistogramMemory (
 				FileInfoPtr							fileInfoPtr, 
@@ -4818,11 +4819,12 @@ Boolean SetupStatHistogramMemory (
 {
 	Ptr									histogramBufferPtr;
 	
+	SInt64								freeBytesPossible,
+											longestContBlock;
+	
 	SInt32								numberVectors;
 
 	UInt32								bytesNeeded,
-											freeBytesPossible,
-											longestContBlock,
 											numberBins;
 	
 	SInt16								classStorage,
@@ -5089,7 +5091,7 @@ Boolean SetupStatHistogramMemory (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

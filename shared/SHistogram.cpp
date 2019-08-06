@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl, Ravi Budruk
 //
-//	Revision date:			11/29/2018
+//	Revision date:			03/22/2019
 //
 //	Language:				C
 //
@@ -409,7 +409,7 @@ ControlRef			sControlRef = NULL;
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -457,7 +457,7 @@ Boolean CheckHistogramTextWindowSpaceNeeded (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -538,7 +538,7 @@ void CloseUpHistogramArrayReadParameters (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1472,7 +1472,7 @@ Boolean ComputeHistogram (
 	
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1532,7 +1532,7 @@ UInt32 CountTotalNumberHistogramPixels (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2257,7 +2257,7 @@ Boolean CreateSTASupportFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2303,7 +2303,7 @@ UInt32 GetNumberOfMaximumDataValues (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2346,7 +2346,7 @@ UInt32 GetNumberOfMinimumDataValues (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2983,7 +2983,7 @@ Boolean DecodeSTASupportFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3076,7 +3076,7 @@ UInt32 DetermineBytesForHistogramText (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3381,7 +3381,7 @@ Boolean DetermineMinAndMaxValuesForEachChannel (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3450,7 +3450,7 @@ Boolean DetermineIfEFormatRequired (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3910,7 +3910,7 @@ Boolean DoHistogramRequests (
                
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3952,7 +3952,7 @@ pascal void DrawHistogramMethodPopUp (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3992,7 +3992,7 @@ void ForceHistogramCodeResourceLoad ()
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4066,7 +4066,7 @@ Boolean GetClippedMinMaxValues (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4303,7 +4303,7 @@ Boolean GetClippedMinMaxValueIndices (
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4347,7 +4347,7 @@ Boolean GetHistogramLoadedFlag (
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4394,7 +4394,7 @@ Handle* GetHistogramSpecsHandlePtr (
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4441,7 +4441,7 @@ Handle* GetHistogramSummaryHandlePtr (
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4499,7 +4499,7 @@ HUInt32Ptr GetHistogramValuesMemory (
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4591,7 +4591,7 @@ Boolean GetHistogramVectorForChannel (
 	
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4770,7 +4770,7 @@ Boolean GetSTASupportFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4793,7 +4793,7 @@ Boolean GetSTASupportFile (
 //							SetUpToReadHistogramArray in histogram.c
 //
 //	Coded By:			Larry L. Biehl			Date: 07/19/1990
-//	Revised By:			Larry L. Biehl			Date: 11/06/1995
+//	Revised By:			Larry L. Biehl			Date: 03/22/2019
 
 HCharPtr GetSTASupportFileBuffer (
 				UInt16*								channelListPtr, 
@@ -4802,8 +4802,9 @@ HCharPtr GetSTASupportFileBuffer (
 {
 	CharPtr								statBufferPtr;
 	
-	UInt32								lContBlock,
-											numberBytes;
+	SInt64								lContBlock;
+	
+	UInt32								numberBytes;
 											
 	Boolean								continuousFlag;
 	
@@ -4846,7 +4847,7 @@ HCharPtr GetSTASupportFileBuffer (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4904,7 +4905,7 @@ Boolean GetStatFileBuffer (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4968,7 +4969,7 @@ void GetDataFormatString (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5252,7 +5253,7 @@ Boolean HistogramControl (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5742,7 +5743,7 @@ Boolean HistogramDialog (
 
 
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5872,7 +5873,7 @@ SInt16 HistogramDialogHandleMethod (
 
 
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5924,7 +5925,7 @@ void HistogramDialogHideAreaItems (
 
 
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6332,7 +6333,7 @@ void HistogramDialogOK (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6431,7 +6432,7 @@ void HistogramDialogSetListAndEmptyBins (
 
 
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6486,7 +6487,7 @@ void HistogramDialogShowAreaItems (
 
 
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6526,7 +6527,7 @@ void  HistogramDialogShowListItems (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6660,7 +6661,7 @@ void HistogramDialogStatisticsFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6680,7 +6681,7 @@ void HistogramDialogStatisticsFile (
 // Called By:			HistogramDialog in histogram.c
 //
 //	Coded By:			Larry L. Biehl			Date:	11/02/1993
-//	Revised By:			Larry L. Biehl			Date: 11/22/2005
+//	Revised By:			Larry L. Biehl			Date: 03/22/2019
 
 Boolean HistogramDialogUpdateAllChannelsAtOnceFlag (
 				DialogPtr									dialogPtr, 
@@ -6688,8 +6689,9 @@ Boolean HistogramDialogUpdateAllChannelsAtOnceFlag (
 				Boolean*										lineFormatHistFlagPtr)
 
 {
-	UInt32								longestContBlock,
-											numberBytesNeeded;
+	SInt64								longestContBlock;
+	
+	UInt32								numberBytesNeeded;
 	
 	Boolean								returnFlag;
 
@@ -6746,7 +6748,7 @@ Boolean HistogramDialogUpdateAllChannelsAtOnceFlag (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6936,7 +6938,7 @@ Handle InitializeHistogramInfoStructure (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6990,7 +6992,7 @@ void InitializeHistogramSummaryStructure (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7411,7 +7413,7 @@ Boolean ListHistogramSummary (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7566,7 +7568,7 @@ Boolean ListHistogramTitle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8206,7 +8208,7 @@ Boolean ListHistogramValues (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8458,7 +8460,7 @@ Boolean ListHistogramValuesInColumns (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8621,7 +8623,7 @@ Boolean ListHistogramValuesInLines (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8726,7 +8728,7 @@ void LoadHistogramSpecs (
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8918,7 +8920,7 @@ Boolean LoadSTASupportFile (
 	
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8973,7 +8975,7 @@ Boolean LoadSupportFile (
 	
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9021,7 +9023,7 @@ CMFileStream* OpenSupportFile (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9111,7 +9113,7 @@ Boolean ReadSTASupportFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9166,7 +9168,7 @@ void ReleaseHistogramSpecsPtr (
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9231,7 +9233,7 @@ void SetHistogramLineColumnSpecs (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9285,7 +9287,7 @@ void SetNumberOfMaximumDataValuesInArray (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9339,7 +9341,7 @@ void SetNumberOfMinimumDataValuesInArray (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9431,7 +9433,7 @@ HistogramSpecsPtr SetUpHistogramSpecsPtr (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9501,7 +9503,7 @@ Boolean SetUpToReadHistogramArray (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -12,7 +12,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			12/21/2017
+//	Revision date:			04/21/2019
 //
 //	Language:				C
 //
@@ -40,7 +40,11 @@
 #endif	// defined multispec_mac   
                              
 #if defined multispec_win
-#endif	// defined multispec_win 
+#endif	// defined multispec_win
+
+#if include_gdal_capability
+	#include "ogr_spatialref.h"
+#endif
 
 //#include	"SExtGlob.h"	
 
@@ -209,7 +213,7 @@ double asinz (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									Allrights reserved.
 //
@@ -426,7 +430,7 @@ Boolean ConvertAlbersEqualAreaToLatLong (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -448,7 +452,7 @@ Boolean ConvertAlbersEqualAreaToLatLong (
 // Called By:			UpdateCursorCoordinates in multiSpec.c
 //
 //	Coded By:			Larry L. Biehl			Date: 07/11/2006
-//	Revised By:			Larry L. Biehl			Date: 02/22/2007			
+//	Revised By:			Larry L. Biehl			Date: 04/21/2019
 
 Boolean ConvertCylindricalEqualAreaToLatLong (
 				MapProjectionInfoPtr				mapProjectionInfoPtr, 
@@ -465,54 +469,96 @@ Boolean ConvertCylindricalEqualAreaToLatLong (
 
 	if (mapProjectionInfoPtr == NULL)
 																							return (FALSE);
-											
-	if (mapProjectionInfoPtr->geodetic.spheroidCode != kSphereEllipsoidCode)
-																							return (FALSE);
-		
-	standardLatitude = 
-					mapProjectionInfoPtr->gridCoordinate.standardParallel1 * kDegreesToRadians;
-	centerLongitude = mapProjectionInfoPtr->gridCoordinate.longitudeCentralMeridian * 
-																						kDegreesToRadians;
 	
-	if (mapProjectionInfoPtr->geodetic.radiusSpheroid > 0)
+	if (mapProjectionInfoPtr->geodetic.spheroidCode == kSphereEllipsoidCode)
 		{
-		xDistanceCoordinate = *xCoordinateValuePtr;
-		yDistanceCoordinate = *yCoordinateValuePtr;
-			
-		cosStandardLatitude = cos (standardLatitude);
+		standardLatitude =
+						mapProjectionInfoPtr->gridCoordinate.standardParallel1 * kDegreesToRadians;
+		centerLongitude = mapProjectionInfoPtr->gridCoordinate.longitudeCentralMeridian * 
+																							kDegreesToRadians;
 		
-		*xCoordinateValuePtr = xDistanceCoordinate/
-				(mapProjectionInfoPtr->geodetic.radiusSpheroid * cosStandardLatitude) + 
-																								centerLongitude;
+		if (mapProjectionInfoPtr->geodetic.radiusSpheroid > 0)
+			{
+			xDistanceCoordinate = *xCoordinateValuePtr;
+			yDistanceCoordinate = *yCoordinateValuePtr;
+				
+			cosStandardLatitude = cos (standardLatitude);
+			
+			*xCoordinateValuePtr = xDistanceCoordinate/
+					(mapProjectionInfoPtr->geodetic.radiusSpheroid * cosStandardLatitude) + 
+																									centerLongitude;
+												
+			*yCoordinateValuePtr = asin (yDistanceCoordinate/
+						mapProjectionInfoPtr->geodetic.radiusSpheroid * cosStandardLatitude);
+				
+			}		// end "if (mapProjectionInfoPtr->geodetic.radiusSpheroid > 0)"
 											
-		*yCoordinateValuePtr = asin (yDistanceCoordinate/
-					mapProjectionInfoPtr->geodetic.radiusSpheroid * cosStandardLatitude);
+		else		// mapProjectionInfoPtr->geodetic.radiusSpheroid < 0
+			{
+			*xCoordinateValuePtr = centerLongitude;
+			*yCoordinateValuePtr = 0;
 			
-		}		// end "if (mapProjectionInfoPtr->geodetic.radiusSpheroid > 0)"
-	     								
-	else		// mapProjectionInfoPtr->geodetic.radiusSpheroid < 0
-		{
-		*xCoordinateValuePtr = centerLongitude;
-		*yCoordinateValuePtr = 0;
+			}		// end "else mapProjectionInfoPtr->geodetic.radiusSpheroid < 0"
 		
-		}		// end "else mapProjectionInfoPtr->geodetic.radiusSpheroid < 0"
-   
-   *yCoordinateValuePtr *= kRadiansToDegrees;
-   *xCoordinateValuePtr *= kRadiansToDegrees;
-	   
-   if (*xCoordinateValuePtr < -180)
-   	*xCoordinateValuePtr += 360;
-   else if (*xCoordinateValuePtr > 180)
-   	*xCoordinateValuePtr -= 360;
-   
-   return (TRUE);
+		*yCoordinateValuePtr *= kRadiansToDegrees;
+		*xCoordinateValuePtr *= kRadiansToDegrees;
 			
-}		// end "ConvertCylindricalEqualAreaToLatLong" 
+		if (*xCoordinateValuePtr < -180)
+			*xCoordinateValuePtr += 360;
+		else if (*xCoordinateValuePtr > 180)
+			*xCoordinateValuePtr -= 360;
+		
+		return (TRUE);
+		
+		}	// end "if (...->geodetic.spheroidCode == kSphereEllipsoidCode)"
+	
+	else	// mapProjectionInfoPtr->geodetic.spheroidCode != kSphereEllipsoidCode
+		{
+		/*
+		double								padfPrjParams[15];
+		
+		OGRSpatialReferenceH				ogrEPSGSRSPtr,
+												ogrGeogRSPtr;
+		
+		OGRCoordinateTransformationH	coordinateTransformation;
+		
+		int									fromError,
+												toError;
+		
+		ogrEPSGSRSPtr = OSRNewSpatialReference (NULL);
+		ogrGeogRSPtr = OSRNewSpatialReference (NULL);
+		if (ogrEPSGSRSPtr != NULL && ogrGeogRSPtr != NULL)
+			{
+			fromError = OSRImportFromEPSG (ogrEPSGSRSPtr, 6933);
+			toError = OSRImportFromUSGS	(ogrGeogRSPtr,
+														0,
+														0,
+														padfPrjParams,
+														12);
+														
+			if (fromError == noErr && toError == noErr)
+				{
+				coordinateTransformation = OCTNewCoordinateTransformation (
+															ogrEPSGSRSPtr,
+                                					ogrGeogRSPtr);
+		 
+				return (OCTTransform (coordinateTransformation,
+                  				1, xCoordinateValuePtr, yCoordinateValuePtr, NULL));
+								
+				}	// end "if (OSRImportFromEPSG (ogrEPSGSRSPtr, 6933) == noErr)"
+			
+			}	// end "if (ogrEPSGSRSPtr != NULL && ..."
+		*/
+		return (FALSE);
+		
+		}	// end "else ...->geodetic.spheroidCode != kSphereEllipsoidCode"
+			
+}	// end "ConvertCylindricalEqualAreaToLatLong"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -575,7 +621,7 @@ Boolean ConvertEquirectangularToLatLong (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -724,7 +770,7 @@ Boolean ConvertKrovakToLatLong (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -963,7 +1009,7 @@ Boolean ConvertLambertAzimuthalEqualAreaToLatLong  (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1112,7 +1158,7 @@ y = rh - y + false_northing;
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1146,7 +1192,7 @@ Boolean ConvertLatLongPointToMapPoint (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1284,7 +1330,7 @@ Boolean ConvertLatLongPointToMapPoint (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1330,7 +1376,7 @@ Boolean ConvertLatLongRectToMapRect (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1592,7 +1638,7 @@ Boolean ConvertLatLongRectToMapRect (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1753,7 +1799,7 @@ Boolean ConvertLatLongToAlbersEqualArea (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1825,7 +1871,7 @@ Boolean ConvertLatLongToCylindricalEqualArea (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1894,7 +1940,7 @@ Boolean ConvertLatLongToEquirectangular (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2025,7 +2071,7 @@ Boolean ConvertLatLongToKrovak (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2230,7 +2276,7 @@ Boolean ConvertLatLongToLambertAzimuthalEqualArea (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2362,7 +2408,7 @@ return (OK);
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2428,7 +2474,7 @@ Boolean ConvertLatLongToMercator (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2527,7 +2573,7 @@ Boolean ConvertLatLongToOrthographic (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2629,7 +2675,7 @@ Boolean ConvertLatLongToPolarStereographic (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2721,7 +2767,7 @@ Boolean ConvertLatLongToSinusoidal (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2774,7 +2820,7 @@ Boolean ConvertLatLongToTransverseMercator (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3038,7 +3084,7 @@ Boolean ConvertLatLongToTransverseMercator (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3152,7 +3198,7 @@ Boolean ConvertMapPointToLatLongPoint (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3191,7 +3237,7 @@ void ConvertMapRectByGivenFactor (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3236,7 +3282,7 @@ void ConvertMapRectToLatLongRect (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3388,7 +3434,7 @@ void ConvertMapRectToLatLongRect (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3457,7 +3503,7 @@ Boolean ConvertMercatorToLatLong (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3579,7 +3625,7 @@ Boolean ConvertSinusoidalToLatLong (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3758,7 +3804,7 @@ Boolean ConvertTransverseMercatorToLatLong (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3886,7 +3932,7 @@ Boolean ConvertOrthographicToLatLong (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3997,7 +4043,7 @@ Boolean ConvertPolarStereographicToLatLong (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4017,7 +4063,7 @@ Boolean ConvertPolarStereographicToLatLong (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 03/17/2005
-//	Revised By:			Larry L. Biehl			Date: 04/26/2012			
+//	Revised By:			Larry L. Biehl			Date: 04/21/2019
 
 Boolean DetermineIfInverseLatLongPossible (
 				Handle								windowInfoHandle)
@@ -4130,7 +4176,7 @@ Boolean DetermineIfInverseLatLongPossible (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4195,7 +4241,6 @@ Boolean DetermineIfLatLongPossible (
 			enableLatLongUnitsMenuItemFlag = TRUE;  
 		 
 		else if (projectionCode == kEquirectangularCode && 
-//							spheroidCode == kSphereEllipsoidCode &&
 							spheroidCode != kNoEllipsoidDefinedCode &&
 														planarMapUnitsCode != kUnknownCode)
 			enableLatLongUnitsMenuItemFlag = TRUE; 
@@ -4262,7 +4307,7 @@ Boolean DetermineIfLatLongPossible (
 	
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

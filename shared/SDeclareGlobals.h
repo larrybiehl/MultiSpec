@@ -1223,7 +1223,7 @@ UInt32							gMaxRowBytes = kMaxRowBytes;
                       
 #if defined multispec_win || defined multispec_lin 
 			// Maximum number of row bytes possible for 24 bit offscreen maps.
-			// This variable is only used for the Windows system.  
+			// This variable is only used for the Windows and Linux systems.
 	UInt32							gMaxRowBytesFor24Bits = kMaxRowBytes * 3; 
 #endif	// defined multispec_win || multispec_lin									
 

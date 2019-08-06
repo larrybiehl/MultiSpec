@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			03/07/2019
+//	Revision date:			04/23/2019
 //
 //	Language:				C
 //
@@ -233,24 +233,34 @@ private :
 			// Prototypes for routines in this file that are only called by		
 			// other routines in this file.
 
-SInt16 							GetWindowImageOverlayIndex (
-										WindowInfoPtr						windowInfoPtr,
-										SInt16								imageOverlayIndex);
+SInt16 GetWindowImageOverlayIndex (
+			WindowInfoPtr						windowInfoPtr,
+			SInt16								imageOverlayIndex);
 
-Handle 							GetImageOverlayInfoMemory (
-										SInt16*								overlayIndexPtr);
+Handle GetImageOverlayInfoMemory (
+			SInt16*								overlayIndexPtr);
 
-SInt16 							GetOverlayOffscreenGWorld (
-										UInt32								numberClasses, 
-										UInt32								columnStart,
-										UInt32								columnEnd,
-										UInt32								lineStart,
-										UInt32								lineEnd,
-										SInt16								thematicPaletteType,
-										ImageOverlayInfoPtr				imageOverlayInfoPtr); 
+SInt16 GetOverlayOffscreenGWorld (
+				UInt32								numberClasses,
+				UInt32								columnStart,
+				UInt32								columnEnd,
+				UInt32								lineStart,
+				UInt32								lineEnd,
+				SInt16								thematicPaletteType,
+				ImageOverlayInfoPtr				imageOverlayInfoPtr,
+				SInt16								fieldTypeCode);
 
-void								ReleaseImageOverlayStructureMemory (
-										ImageOverlayInfoPtr				imageOverlayInfoPtr);
+void ReleaseImageOverlayStructureMemory (
+				ImageOverlayInfoPtr				imageOverlayInfoPtr);
+
+void SetDrawBaseImageCode (
+				ImageOverlayInfoPtr				imageOverlayInfoPtr,
+				WindowInfoPtr						windowInfoPtr,
+				float									opacity,
+				Boolean								drawImageOverlayFlag,
+				SInt16								fieldTypeCode,
+				SInt32								clusterColumnInterval,
+				SInt32								clusterLineInterval);
 
 typedef struct UInt8ColorTable
 	{
@@ -391,7 +401,7 @@ void CloseAllImageOverlayFiles (void)
 // Called By:			CheckImageHeader in SOpnImag.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/03/2003
-//	Revised By:			Larry L. Biehl			Date: 01/10/2003
+//	Revised By:			Larry L. Biehl			Date: 04/23/2019
 
 void CloseImageOverlayFile (
 				UInt32			 					imageOverlayIndex)
@@ -445,9 +455,21 @@ void CloseImageOverlayFile (
 																			(UInt8)(imageOverlayIndex + 1))
 							{
 							if (windowInfoPtr->imageOverlayList[overlayListIndex].index > 0)
+								{
 								InvalidateWindow (windowPtr, 
-															kImageFrameArea, 
-															FALSE);
+														kImageFrameArea,
+														FALSE);
+								
+										// Make sure the base image is drawn. This may not be needed
+										// if another overlay will take the place of the deleted one.
+										// But this will take more logic to determine. The proper setting
+										// for drawBaseImageFlag will be made when the user selects a
+										// different overlay. Want to be conservative now to be sure
+										// the base image is drawn.
+							
+								windowInfoPtr->drawBaseImageFlag = TRUE;
+								
+								}	// end ""
 								
 							moveFlag = TRUE;
 							
@@ -568,8 +590,8 @@ void CopyToOffscreenBuffer (
 		imageWindowInfoPtr = (WindowInfoPtr)GetHandlePointer (
 																	activeImageWindowInfoHandle);	
 								
-		if (!gOSXCoreGraphicsFlag)
-			imageWindowInfoPtr->drawBaseImageFlag = FALSE;
+		//if (!gOSXCoreGraphicsFlag)
+		//	imageWindowInfoPtr->drawBaseImageFlag = FALSE;
 								
 		windowOverlayIndex = GetWindowImageOverlayIndex (imageWindowInfoPtr,
 																			imageOverlayIndex);
@@ -603,7 +625,7 @@ void CopyToOffscreenBuffer (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 01/06/2003
-//	Revised By:			Larry L. Biehl			Date: 01/31/2019
+//	Revised By:			Larry L. Biehl			Date: 04/23/2019
 
 void DrawImageOverlays  (
 				WindowPtr							windowPtr,
@@ -615,7 +637,7 @@ void DrawImageOverlays  (
 				Rect*									sourceRectPtr,
 				SInt16								windowCode)
 				
-{ 										
+{
 	LongRect								overlayDestinationRect;
 											
 	LCToWindowUnitsVariables		lcToWindowUnitsVariables;
@@ -725,7 +747,8 @@ void DrawImageOverlays  (
 																
 				}	// end "if (shapeFileIndex > 0)"
 																
-			else	// shapeFileIndex < 0
+			else	// imageOverlayIndex <= 0
+						// This implies the image overlay is hidden
 				overlayInfoPtr = NULL;
 										
 			if (overlayInfoPtr != NULL)
@@ -806,7 +829,6 @@ void DrawImageOverlays  (
 					BITMAP								transparentBitMap;
 					SInt16								bSuccess=0;     		// Success/fail flag
 					HDC									hDC;
-					//SInt16								titleHeight;
 					BLENDFUNCTION						blendFunction;
 					Boolean								copyBitsFlag;
 					
@@ -847,7 +869,7 @@ void DrawImageOverlays  (
 							destinationRect.left = intersectWindowRectangle.left;
 							destinationRect.bottom = intersectWindowRectangle.bottom;
 							destinationRect.right = intersectWindowRectangle.right;
-
+							
 							ConvertWinRectToMapRect (windowInfoHandle,
 																&intersectWindowRectangle,
 																&boundingMapRectangle,
@@ -915,29 +937,6 @@ void DrawImageOverlays  (
 			
 					if (copyBitsFlag)
 						{
-						/*
-						bSuccess = ::StretchDIBits (
-											hDC,            						// hDC
-											destinationRect.left,        		// DestX
-											destinationRect.top,         		// DestY
-											destinationRectWidth,     			// nDestWidth
-											destinationRectHeight,    			// nDestHeight
-											sourceRectPtr->left,             // SrcX
-											sourceRectPtr->top,   				// SrcY
-											sourceRectWidth,         			// wSrcWidth
-											sourceRectHeight,        			// wSrcHeight
-											lpDIBBits,                      	// lpBits
-											lpDIBHdr,         					// lpBitsInfo
-											DIB_PAL_COLORS,                 	// wUsage
-											SRCCOPY);                       	// dwROP (SRCCOPY) (SRCINVERT is close)
-						*/
-						//sourceHDC = CreateCompatibleDC (hDC);
-						//transparentBitMap = CreateDIBSection (
-						//		sourceHDC, lpDIBHdr, DIB_RGB_COLORS, &overlayBitsPtr, NULL, 0x0);
-						//BlockMoveData (
-						//			lpDIBBits, overlayBitsPtr, lpDIBHdr->bmiHeader.biSizeImage);
-						//SelectObject (sourceHDC, transparentBitMap);
-
 						blendFunction.BlendOp = AC_SRC_OVER;
 						blendFunction.BlendFlags = 0;
 						blendFunction.SourceConstantAlpha =
@@ -957,40 +956,20 @@ void DrawImageOverlays  (
 											sourceRectHeight,        			// wSrcHeight
 											blendFunction);                  // blendFunction
 						
-						//DeleteObject (transparentBitMap);
-						//DeleteDC (sourceHDC);
-						
-						/*
-						sourceHDC = CreateCompatibleDC (hDC);
-						SelectObject (sourceHDC, lpDIBBits);
-
-						bSuccess = ::TransparentBlt (
-											hDC,            						// hDC
-											destinationRect.left,        		// DestX
-											destinationRect.top,         		// DestY
-											destinationRectWidth,     			// nDestWidth
-											destinationRectHeight,    			// nDestHeight
-											sourceHDC,								// source device context
-											sourceRectPtr->left,             // SrcX
-											sourceRectPtr->top,   				// SrcY
-											sourceRectWidth,         			// wSrcWidth
-											sourceRectHeight,        			// wSrcHeight
-											RGB (0, 0, 0));                    // color which is transparent
-						*/
 						}	// end "if (copyBitsFlag)"
-											
-			   	//::GlobalUnlock ((HGLOBAL)overlayInfoPtr->offScreenMapHandle);
-			   	//::GlobalUnlock ((HGLOBAL)overlayInfoPtr->offscreenStorageHandle);
 				#endif // defined multispec_win 
 
 				#if defined multispec_lin     
-					DoubleRect							boundingMapRectangle;
+					//DoubleRect							boundingMapRectangle;
 					Rect									destinationRect;
 					LongRect								intersectWindowRectangle;
 					
 					wxBitmap* 							overlayBitmapPtr;
 					
-					Boolean								copyBitsFlag;
+					double 								savedMagnification;
+					
+					Boolean								copyBitsFlag,
+															useMaskFlag = FALSE;
 					
 					
 					overlayBitmapPtr = overlayInfoPtr->overlayBitmapPtr;
@@ -1002,11 +981,15 @@ void DrawImageOverlays  (
 						{
 						unsigned char*		bitmapBufferPtr;
 						
+						UInt32*				fourByteBitmapBufferPtr;
+						
 						int					column,
 												line,
 												pixRowBytes;
 						 
 						UInt8					opacity;
+						
+						Boolean				doNotChangeSomePixelsFlag;
 						
 						
 						#if defined multispec_wxmac
@@ -1023,35 +1006,83 @@ void DrawImageOverlays  (
 						int numberLines = overlayBitmapPtr->GetHeight ();
 						
 						opacity = (UInt8)(overlayListPtr[overlayIndex].opacity*255);
-					
-						int numberChars = sprintf ((char*)gTextString3,
-												" SImageOverlays.cpp:DrawImageOverlays (opacity). %d%s",
-												opacity,
-												gEndOfLine);
-						ListString ((char*)gTextString3, numberChars, gOutputTextH);
+						
+						doNotChangeSomePixelsFlag = FALSE;
+						if (windowInfoPtr->drawBaseImageFlag)
+							doNotChangeSomePixelsFlag = TRUE;
 
 						bitmapBufferPtr = baseBitmapBufferPtr;
-						for (line=0; line<numberLines; line++)
-							{
-							for (column=0; column<numberColumns; column++)
-								{
-								#if defined multispec_wxmac
-									*bitmapBufferPtr = opacity;
-								#endif
-						 
-								bitmapBufferPtr += 3;
-						 
-								#if defined multispec_wxlin
-									*bitmapBufferPtr = opacity;
-								#endif
-						 
-								bitmapBufferPtr++;
 						
-								}	// end "for (column=0; column<numberColumns; column++)"
-						 
-							baseBitmapBufferPtr += pixRowBytes;
-						 
-							}	// end "for (line=0; line<numberLines; line++)"
+						if (doNotChangeSomePixelsFlag)
+							{
+									// If all 4 bytes are 0 and the base image is to be drawn, then
+									// this implies that the overlay is a portion of the image such
+									// as for training areas. Do not change the transparency of those
+									// pixels.
+							
+							fourByteBitmapBufferPtr = (UInt32*)baseBitmapBufferPtr;
+							for (line=0; line<numberLines; line++)
+								{
+								for (column=0; column<numberColumns; column++)
+									{
+											// If all 4 bytes are 0 and the base image is to be drawn, then
+											// this implies that the overlay is a portion of the image such
+											// as for training areas. Do not change the transparency of those
+											// pixels. This will not be perfect; black pixels in images
+											// with portions of the image covered with an overlay will not
+											// be changed.
+									
+									#if defined multispec_wxmac
+										if (*fourByteBitmapBufferPtr != 0)
+											*bitmapBufferPtr = opacity;
+									#endif
+							 
+									bitmapBufferPtr += 3;
+							 
+									#if defined multispec_wxlin
+										if (*fourByteBitmapBufferPtr != 0)
+											*bitmapBufferPtr = opacity;
+									#endif
+							 
+									bitmapBufferPtr++;
+									fourByteBitmapBufferPtr++;
+							
+									}	// end "for (column=0; column<numberColumns; column++)"
+								
+								baseBitmapBufferPtr += pixRowBytes;
+								bitmapBufferPtr = baseBitmapBufferPtr;
+								fourByteBitmapBufferPtr = (UInt32*)baseBitmapBufferPtr;
+								
+								}	// end "for (line=0; line<numberLines; line++)"
+							
+							}	// end "if (doNotChangeSomePixelsFlag)"
+						
+						else	// !doNotChangeSomePixelsFlag
+							{
+							for (line=0; line<numberLines; line++)
+								{
+								for (column=0; column<numberColumns; column++)
+									{
+									#if defined multispec_wxmac
+										*bitmapBufferPtr = opacity;
+									#endif
+							 
+									bitmapBufferPtr += 3;
+							 
+									#if defined multispec_wxlin
+										*bitmapBufferPtr = opacity;
+									#endif
+							 
+									bitmapBufferPtr++;
+							
+									}	// end "for (column=0; column<numberColumns; column++)"
+								
+								baseBitmapBufferPtr += pixRowBytes;
+								bitmapBufferPtr = baseBitmapBufferPtr;
+								
+								}	// end "for (line=0; line<numberLines; line++)"
+							
+							}	// end "else !doNotChangeSomePixelsFlag"
 						
 						overlayListPtr[overlayIndex].opacityLoaded =
 						 												overlayListPtr[overlayIndex].opacity;
@@ -1059,34 +1090,50 @@ void DrawImageOverlays  (
 						}	// end "if (overlayListPtr[overlayIndex].opacityLoaded != ...)
 					
 					copyBitsFlag = TRUE;
+					
+					#if defined multispec_wxlin
+						//if (windowInfoPtr->drawBaseImageFlag)
+							useMaskFlag = TRUE;
+					#endif
 
 					if (overlayInfoPtr->usePlanarCoordinateInfoFlag) 
 						{
 								// Define the rectangle to draw the image overlay within.
 								// In Linux, overlay is drawn on bitmap file so no magnification is required
-						double oldmagn = mapToWindowUnitsVariables.magnification;
+					
+						savedMagnification = mapToWindowUnitsVariables.magnification;
 						mapToWindowUnitsVariables.magnification = 1;
 						ConvertMapRectToWinRect (&overlayInfoPtr->boundingMapRectangle,
 														  &overlayDestinationRect,
 														  &mapToWindowUnitsVariables);
-						mapToWindowUnitsVariables.magnification = oldmagn;
-						
+						mapToWindowUnitsVariables.magnification = savedMagnification;
+
+						intersectWindowRectangle.left = MAX (inputWindowRectPtr->left,
+																		overlayDestinationRect.left);
+						intersectWindowRectangle.top = MAX (inputWindowRectPtr->top,
+																		overlayDestinationRect.top);
+						intersectWindowRectangle.right = MIN (inputWindowRectPtr->right,
+																		overlayDestinationRect.right);
+						intersectWindowRectangle.bottom = MIN (inputWindowRectPtr->bottom,
+																		overlayDestinationRect.bottom);
+						/*
 						intersectWindowRectangle.left = overlayDestinationRect.left;
 						intersectWindowRectangle.top = overlayDestinationRect.top;
 						intersectWindowRectangle.right = overlayDestinationRect.right;
 						intersectWindowRectangle.bottom = overlayDestinationRect.bottom;
-
+						*/
 						if (intersectWindowRectangle.left > intersectWindowRectangle.right ||
 								  intersectWindowRectangle.top > intersectWindowRectangle.bottom)
 							copyBitsFlag = FALSE;
 
 						if (copyBitsFlag) 
 							{
+							
 							destinationRect.top = intersectWindowRectangle.top;
 							destinationRect.left = intersectWindowRectangle.left;
 							destinationRect.bottom = intersectWindowRectangle.bottom;
 							destinationRect.right = intersectWindowRectangle.right;
-
+							/*
 							ConvertWinRectToMapRect (windowInfoHandle,
 															  &intersectWindowRectangle,
 															  &boundingMapRectangle,
@@ -1100,45 +1147,45 @@ void DrawImageOverlays  (
 															  &overlayDestinationRect,
 															  1);
 
-							sourceRectPtr->top = MAX (0, overlayDestinationRect.top -
+							destinationRect.top = MAX (0, overlayDestinationRect.top -
 															overlayInfoPtr->lineColumnRect.top);
-							sourceRectPtr->left = MAX (0, overlayDestinationRect.left -
+							destinationRect.left = MAX (0, overlayDestinationRect.left -
 																overlayInfoPtr->lineColumnRect.left);
-							sourceRectPtr->bottom = MIN (overlayDestinationRect.bottom -
+							destinationRect.bottom = MIN (overlayDestinationRect.bottom -
 																	overlayInfoPtr->lineColumnRect.top + 1,
 																overlayInfoPtr->lineColumnRect.bottom -
 																	overlayInfoPtr->lineColumnRect.top + 1);
-							sourceRectPtr->right = MIN (overlayDestinationRect.right -
+							destinationRect.right = MIN (overlayDestinationRect.right -
 																  overlayInfoPtr->lineColumnRect.left + 1,
 																overlayInfoPtr->lineColumnRect.right -
 																  overlayInfoPtr->lineColumnRect.left + 1);
-
+							*/
 							}	// end "if (copyBitsFlag)"
 
 						}	// end "if (overlayInfoPtr->usePlanarCoordinateInfoFlag)"
 
 					else // !overlayInfoPtr->usePlanarCoordinateInfoFlag
 						{
-						double oldmagn = lcToWindowUnitsVariables.magnification;
-						// Change magnification to 1 for linux
+								// One needs to use magnification of 1 for wxWidgets
+					
+						savedMagnification = lcToWindowUnitsVariables.magnification;
 						lcToWindowUnitsVariables.magnification = 1;
 						ConvertLCRectToWinRect (&overlayInfoPtr->lineColumnRect,
 														  &overlayDestinationRect,
 														  &lcToWindowUnitsVariables);
-						lcToWindowUnitsVariables.magnification = oldmagn;
+						lcToWindowUnitsVariables.magnification = savedMagnification;
+					
 						destinationRect.top = overlayDestinationRect.top;
 						destinationRect.left = overlayDestinationRect.left;
 						destinationRect.bottom = overlayDestinationRect.bottom;
 						destinationRect.right = overlayDestinationRect.right;
-
+						/*
 						sourceRectPtr->top = 0;
-						//sourceRectPtr->bottom = bitMapInfoHeadPtr->biHeight;
 						sourceRectPtr->bottom = overlayBitmapPtr->GetHeight ();
 						sourceRectPtr->left = 0;
-						//sourceRectPtr->right = bitMapInfoHeadPtr->biWidth;
 						sourceRectPtr->right = overlayBitmapPtr->GetWidth ();
-
-						}	// end "else !...->usePlanarCoordinateInfoFlag" 
+						*/
+						}	// end "else !...->usePlanarCoordinateInfoFlag"
 
 					int destinationRectWidth = MAX (
 												(destinationRect.right - destinationRect.left), 0);
@@ -1148,67 +1195,30 @@ void DrawImageOverlays  (
 					//							(sourceRectPtr->right - sourceRectPtr->left), 0);
 					//int sourceRectHeight = MAX (
 					//							(sourceRectPtr->bottom - sourceRectPtr->top), 0);
-
-							// Now take into account that the device independant bitmap is
-							// is stored in memory in reverse order last line to first line.
-					/*
-							// First define a new image buffer data to get rgb values from
-							// offscreenstoragehandle. The format of data in
-							// offscreenstoragehandle is rgb,alpha.
-
-					int tpixels = destinationRectWidth * destinationRectHeight;
-					int pind = 0;
-					Handle imagebuffer = malloc (tpixels * 3);
-					unsigned char* imagedata =
-										(unsigned char*)overlayInfoPtr->offscreenStorageHandle;
-					unsigned char* imgbufptr = (unsigned char*)imagebuffer;
-					for (pind = 0; pind < tpixels; pind++) 
-						{
-						unsigned char* imagedataptr = (imagedata + 4*pind);
-						*imgbufptr = *(imagedataptr+1);
-						*(imgbufptr+1) = *(imagedataptr+2);
-						*(imgbufptr+2) = *(imagedataptr + 3);
-						imgbufptr = imgbufptr + 3;
-						
-						}	// end "for (pind = 0; pind < tpixels; pind++)"
 					
-					wxImage overlayimage (destinationRectWidth,
-													destinationRectHeight,
-													(unsigned char*)imagebuffer);
-
-					wxBitmap ovbitmap (overlayimage);
-					wxMemoryDC overlaydc;
-					overlaydc.SelectObject (ovbitmap);
-
-					wxMemoryDC displaydc;
-					//bool bitok = (windowPtr->m_ScaledBitmap).IsOk ();
-					displaydc.SelectObject (windowPtr->m_ScaledBitmap);
-
-					if (copyBitsFlag) 
-						{
-						bSuccess = displaydc.Blit (destinationRect.left, // DestX
-															  destinationRect.top, // DestY
-															  destinationRectWidth, // nDestWidth
-															  destinationRectHeight, // nDestHeight)
-															  &overlaydc, // Src DC
-															  0,//sourceRectPtr->left, // SrcX
-															  0); //sourceRectPtr->top // SrcY
-													
-						}	// end "if (copyBitsFlag)"
-					*/
 					wxMemoryDC overlaydc;
 					overlaydc.SelectObject (*overlayBitmapPtr);
 					if (copyBitsFlag)
 						{
-						pDC->Blit (destinationRect.left, // DestX
-										destinationRect.top, // DestY
-										destinationRectWidth, // nDestWidth
-										destinationRectHeight, // nDestHeight
+						/*
+						int numberChars = sprintf ((char*)gTextString3,
+													" SImageOverlays.cpp:DrawImageOverlays (left, right, top, bottom): %d, %d, %d, %d%s",
+													destinationRect.left,
+													destinationRect.right,
+													destinationRect.top,
+													destinationRect.bottom,
+													gEndOfLine);
+						ListString ((char*)gTextString3, numberChars, gOutputTextH);
+						*/
+						pDC->Blit (destinationRect.left, 	// DestX
+										destinationRect.top, 	// DestY
+										destinationRectWidth, 	// nDestWidth
+										destinationRectHeight, 	// nDestHeight
 										&overlaydc,
-										0, // SrcX
-										0, // SrcY
+										destinationRect.left-overlayDestinationRect.left,   // 0,
+										destinationRect.top-overlayDestinationRect.top,		// 0,
 										wxCOPY, //
-										false, // useMask
+										useMaskFlag, // useMask
 										wxDefaultCoord, //
 										wxDefaultCoord); //
 						
@@ -1429,7 +1439,7 @@ void FillLineOfOffscreenBuffer (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 01/17/2003
-//	Revised By:			Larry L. Biehl			Date: 07/27/2018
+//	Revised By:			Larry L. Biehl			Date: 04/20/2019
 
 void GetDefaultImageOverlayName (
 				SInt16								imageOverlayIndex)
@@ -1445,11 +1455,12 @@ void GetDefaultImageOverlayName (
 	
 	Handle								fileInfoHandle;
 	
+	UInt16								namePtrIndex;
+	
 	SInt16								nameLength,
 											thresholdPrecision;
 	
 	SignedByte							fileHandleStatus,
-											namePtrIndex,
 											overlayHandleStatus;
 	
 	
@@ -1488,7 +1499,7 @@ void GetDefaultImageOverlayName (
 			}	// end "if (wideFileNameCPointer != NULL)"
 		
 		thresholdValue = 0.;
-		namePtrIndex = namePtr[0] + 1;
+		namePtrIndex = (UInt16)namePtr[0] + 1;
 		
 		if (gProcessorCode == kClusterProcessor && gClusterSpecsPtr != NULL)
 			{
@@ -1517,41 +1528,57 @@ void GetDefaultImageOverlayName (
 				{	
 				case kMaxLikeMode:		// Gaussian Maximum likelihood 
 					namePtr[0] += sprintf ((char*)&namePtr[namePtrIndex],
-													"_Clas_Quad_%ld",
-													gClassifySpecsPtr->numberClasses);
+													"_Clas_Quad_%u",
+													(unsigned int)gClassifySpecsPtr->numberClasses);
 					thresholdValue = gClassifySpecsPtr->probabilityThreshold;
 					break;
 					
 				case kFisherMode:			// Fisher discriminant
 					namePtr[0] += sprintf ((char*)&namePtr[namePtrIndex],
-													"_Clas_Fisher_%ld",
-													gClassifySpecsPtr->numberClasses);
+												  "_Clas_Fisher_%u",
+												  (unsigned int)gClassifySpecsPtr->numberClasses);
 					thresholdValue = gClassifySpecsPtr->probabilityThreshold;
-					break;
-					
-				case kEuclideanMode:		// Euclidean minimum distance 
-					namePtr[0] += sprintf ((char*)&namePtr[namePtrIndex],
-													"_Clas_Eucl_%ld",
-													gClassifySpecsPtr->numberClasses);
 					break;
 					
 				case kEchoMode:			// Echo
 					namePtr[0] += sprintf ((char*)&namePtr[namePtrIndex],
-													"_Clas_ECHO_%ld",
+													"_Clas_ECHO_%d",
 													gClassifySpecsPtr->numberClasses);
 					thresholdValue = gClassifySpecsPtr->probabilityThreshold;
 					break;
 					
+				case kSupportVectorMachineMode:	// SVM
+					namePtr[0] += sprintf ((char*)&namePtr[namePtrIndex],
+													"_Clas_SVM_%d",
+													gClassifySpecsPtr->numberClasses);
+					//thresholdValue = gClassifySpecsPtr->numberClasses;
+					break;
+					
+				case kKNearestNeighborMode:	// K Nearest Neighbor
+					namePtr[0] += sprintf ((char*)&namePtr[namePtrIndex],
+													"_Clas_KNN_%d",
+													gClassifySpecsPtr->numberClasses);
+					//thresholdValue = gClassifySpecsPtr->numberClasses;
+					break;
+					
+					
+					
+				case kEuclideanMode:		// Euclidean minimum distance 
+					namePtr[0] += sprintf ((char*)&namePtr[namePtrIndex],
+													"_Clas_Eucl_%d",
+													gClassifySpecsPtr->numberClasses);
+					break;
+					
 				case kCorrelationMode:	// Correlation classifier
 					namePtr[0] += sprintf ((char*)&namePtr[namePtrIndex],
-													"_Clas_Correlation_%ld",
+													"_Clas_Correlation_%d",
 													gClassifySpecsPtr->numberClasses);
 					thresholdValue = gClassifySpecsPtr->correlationAngleThreshold;
 					break;
 					
 				case kCEMMode:	// CEM classifier
 					namePtr[0] += sprintf ((char*)&namePtr[namePtrIndex],
-													"_Clas_CEM_%ld",
+													"_Clas_CEM_%d",
 													gClassifySpecsPtr->numberClasses);
 					thresholdValue = gClassifySpecsPtr->cemThreshold;
 					thresholdPrecision = 3;
@@ -1559,7 +1586,7 @@ void GetDefaultImageOverlayName (
 					
 				case kParallelPipedMode:		// Parallel piped classifer 
 					namePtr[0] += sprintf ((char*)&namePtr[namePtrIndex],
-													"_Clas_PP_%ld",
+													"_Clas_PP_%d",
 													gClassifySpecsPtr->numberClasses);
 					break;
 					
@@ -1589,6 +1616,56 @@ void GetDefaultImageOverlayName (
 		}	// end "if (imageOverlayInfoPtr != NULL)"
 		
 }	// end "GetDefaultImageOverlayName"	
+
+
+
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2019)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		void GetDrawBaseImageFlag
+//
+//	Software purpose:	This routine determines the drawBaseImageFlag setting based on
+//							the parameters for the image overlay to be drawn on the base
+//							image
+//
+//	Parameters in:				
+//
+//	Parameters out:				
+//
+//	Value Returned:	
+// 
+// Called By:
+//
+//	Coded By:			Larry L. Biehl			Date: 04/20/2019
+//	Revised By:			Larry L. Biehl			Date: 04/20/2019
+
+Boolean GetDrawBaseImageFlag (
+				SInt16								imageOverlayIndex)
+
+{  
+	ImageOverlayInfoPtr				imageOverlayInfoPtr;
+	
+	SignedByte							overlayHandleStatus;
+	
+	Boolean								drawBaseImageFlag = TRUE;
+	
+	
+	imageOverlayInfoPtr = GetImageOverlayInfoPtr (imageOverlayIndex,
+																	kNoLock,
+																	&overlayHandleStatus);
+	
+	if (imageOverlayInfoPtr != NULL)
+		{
+		if (imageOverlayInfoPtr->drawBaseImageCode == 15)
+			drawBaseImageFlag = FALSE;
+		
+		}	// end "if (imageOverlayInfoPtr != NULL)"
+	
+	return (drawBaseImageFlag);
+		
+}	// end "GetDrawBaseImageFlag"
 
 
 
@@ -2100,9 +2177,8 @@ HPtr GetImageOverlayLineOffscreenPointer (
 //
 //	Function name:		SInt16 GetOverlayOffscreenGWorld
 //
-//	Software purpose:	The purpose of this routine is to set up an offscreen
-//							pix map for those systems which have 32 bit
-//							QuickDraw available.
+//	Software purpose:	The purpose of this routine is to set up an offscreen bitmap
+//							for image overlays.
 //
 //	Parameters in:		None
 //
@@ -2110,10 +2186,10 @@ HPtr GetImageOverlayLineOffscreenPointer (
 //
 // Value Returned:	None			
 // 
-// Called By:			DisplayColorImage
+// Called By:			SetUpImageOverlayInformation
 //
 //	Coded By:			Larry L. Biehl			Date: 03/29/2002
-//	Revised By:			Larry L. Biehl			Date: 01/31/2019
+//	Revised By:			Larry L. Biehl			Date: 04/23/2019
 
 SInt16 GetOverlayOffscreenGWorld (
 				UInt32								numberClasses, 
@@ -2122,7 +2198,8 @@ SInt16 GetOverlayOffscreenGWorld (
 				UInt32								lineStart,
 				UInt32								lineEnd,
 				SInt16								thematicPaletteType,
-				ImageOverlayInfoPtr				imageOverlayInfoPtr)
+				ImageOverlayInfoPtr				imageOverlayInfoPtr,
+				SInt16								fieldTypeCode)
 
 {
 	LongRect								offscreenRect;
@@ -2662,6 +2739,31 @@ SInt16 GetOverlayOffscreenGWorld (
 					wxAlphaPixelData pixeldata (*overlayBitmapPtr);
 					imageOverlayInfoPtr->offscreenStorageHandle = (void*)pixeldata.GetPixels().m_ptr;
 					pixRowBytes = pixeldata.GetRowStride();
+				//#endif
+				
+					if (!(fieldTypeCode & kAreaType))
+						{
+								// The bitmap needs to be initialized to 0.
+						
+						int			column,
+										line,
+							 			numberLines = offscreenRect.bottom - offscreenRect.top,
+							 			numberColumns = pixRowBytes / 4;
+						
+						UInt32*		bufferPtr = (UInt32*)imageOverlayInfoPtr->offscreenStorageHandle;
+						
+						for (line=0; line<numberLines; line++)
+							{
+							for (column=0; column<numberColumns; column++)
+								{
+								*bufferPtr = 0;
+								bufferPtr++;
+								
+								}	// end "for (column=0; column<numberColumns; column++)"
+							
+							}	// end "for (line=0; line<numberLines; line++)"
+					
+						}	// end "if (fieldTypeCode != kAreaType)"
 				#endif
 
 				}	// end "if (resultCode == noErr)"
@@ -2749,7 +2851,7 @@ Boolean HideAllImageOverlays (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 01/03/2003
-//	Revised By:			Larry L. Biehl			Date: 12/18/2018
+//	Revised By:			Larry L. Biehl			Date: 04/20/2019
 
 void InitializeImageOverlayInfoStructure (
 				ImageOverlayInfoPtr				imageOverlayInfoPtr)
@@ -2790,6 +2892,8 @@ void InitializeImageOverlayInfoStructure (
 		imageOverlayInfoPtr->offscreenStorageHandle = NULL;
 		imageOverlayInfoPtr->offscreenMapSize = 0;
 		imageOverlayInfoPtr->rowBytes = 0;
+		
+		imageOverlayInfoPtr->drawBaseImageCode = 0;
 		
 		imageOverlayInfoPtr->usePlanarCoordinateInfoFlag = FALSE;
 		
@@ -2961,6 +3065,80 @@ void ReleaseImageOverlayStructureMemory (
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
+//	Function name:		void SetDrawBaseImageCode
+//
+//	Software purpose:	This routine unlocks the requested offscreen buffer handle.
+//
+//	Parameters in:				
+//
+//	Parameters out:				
+//
+//	Value Returned:	
+// 
+// Called By:
+//
+//	Coded By:			Larry L. Biehl			Date: 04/20/2019
+//	Revised By:			Larry L. Biehl			Date: 04/20/2019
+
+void SetDrawBaseImageCode (
+				ImageOverlayInfoPtr				imageOverlayInfoPtr,
+				WindowInfoPtr						windowInfoPtr,
+				float									opacity,
+				Boolean								drawImageOverlayFlag,
+				SInt16								fieldTypeCode,
+				SInt32								columnInterval,
+				SInt32								lineInterval)
+
+{
+	DisplaySpecsPtr					displaySpecsPtr;
+	LongRect*							lineColumnRectPtr;
+	
+	Handle								displaySpecsH;
+	
+	UInt16								drawBaseImageCode = 0;
+	
+
+	if (fieldTypeCode == kAreaType)
+		{
+		displaySpecsH = GetDisplaySpecsHandle (windowInfoPtr);
+		displaySpecsPtr = (DisplaySpecsPtr)GetHandlePointer (displaySpecsH);
+
+		if (displaySpecsPtr != NULL)
+			{
+			lineColumnRectPtr = &imageOverlayInfoPtr->lineColumnRect;
+			if (displaySpecsPtr->displayedColumnStart == lineColumnRectPtr->left &&
+					displaySpecsPtr->displayedColumnEnd == lineColumnRectPtr->right &&
+					displaySpecsPtr->displayedLineStart == lineColumnRectPtr->top &&
+					displaySpecsPtr->displayedLineEnd == lineColumnRectPtr->bottom)
+				drawBaseImageCode |= 0x0001;
+			
+			//if (displaySpecsPtr->displayedColumnInterval == clusterColumnInterval &&
+			//		displaySpecsPtr->displayedLineInterval == clusterLineInterval)
+			if (columnInterval == 1 &&
+					lineInterval == 1)
+				drawBaseImageCode |= 0x0002;
+			
+			}	// end "if (displaySpecsPtr != NULL)"
+		
+		if (opacity == 1)
+			drawBaseImageCode |= 0x0004;
+			
+		if (drawImageOverlayFlag)
+			drawBaseImageCode |= 0x0008;
+			
+		}	// end "if (fieldTypeCode == kAreaType)"
+	
+	imageOverlayInfoPtr->drawBaseImageCode = drawBaseImageCode;
+	
+}	// end "SetDrawBaseImageCode"
+
+
+
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2019)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
 //	Function name:		void SetUpImageOverlayInformation
 //
 //	Software purpose:	This routine unlocks the requested offscreen buffer handle.
@@ -2976,7 +3154,7 @@ void ReleaseImageOverlayStructureMemory (
 //							
 //
 //	Coded By:			Larry L. Biehl			Date: 01/14/2003
-//	Revised By:			Larry L. Biehl			Date: 01/31/2019
+//	Revised By:			Larry L. Biehl			Date: 04/20/2019
 
 SInt16 SetUpImageOverlayInformation (
 				Handle								imageWindowInfoHandle,
@@ -2984,7 +3162,10 @@ SInt16 SetUpImageOverlayInformation (
 				UInt32								numberClasses,
 				LongRect*							overlayBoundingAreaPtr,
 				SInt16								thematicPaletteType,
-				SInt16								defaultTransparency)
+				SInt16								defaultTransparency,
+				SInt16								fieldTypeCode,
+				SInt32								clusterColumnInterval,
+				SInt32								clusterLineInterval)
 
 {  
 	ImageOverlayInfoPtr				imageOverlayInfoPtr;
@@ -3058,7 +3239,8 @@ SInt16 SetUpImageOverlayInformation (
 																overlayBoundingAreaPtr->top,
 																overlayBoundingAreaPtr->bottom,
 																thematicPaletteType,
-																imageOverlayInfoPtr);
+																imageOverlayInfoPtr,
+																fieldTypeCode);
 			
 		if (returnCode == noErr)
 			{
@@ -3134,6 +3316,17 @@ SInt16 SetUpImageOverlayInformation (
 				imageOverlayInfoPtr->usePlanarCoordinateInfoFlag = FALSE;
 				
 			imageOverlayInfoPtr->lineColumnRect = *overlayBoundingAreaPtr;
+			
+					// Set drawBaseImageCode value relative to overlay being say area
+					// as the image it is over, the line/column interval and the transparency
+			
+			SetDrawBaseImageCode (imageOverlayInfoPtr,
+											imageWindowInfoPtr,
+											imageWindowInfoPtr->imageOverlayList[overlayListIndex].opacity,
+											TRUE,
+											fieldTypeCode,
+											clusterColumnInterval,
+											clusterLineInterval);
 			
 			}	// end "if (returnCode == noErr)"
 										
@@ -3263,4 +3456,64 @@ void UnlockImageOverlayOffscreenBuffer (
 		}	// end "if (overlayIndex >= 0 && ..."
 	
 }	// end "UnlockImageOverlayOffscreenBuffer"
+
+
+
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2019)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		void UpateDrawBaseImageCode
+//
+//	Software purpose:	This routine udpates the drawBaseImageCode to take into account
+//							the latest opacity (transparency) setting
+//
+//	Parameters in:				
+//
+//	Parameters out:				
+//
+//	Value Returned:	
+// 
+// Called By:
+//
+//	Coded By:			Larry L. Biehl			Date: 04/20/2019
+//	Revised By:			Larry L. Biehl			Date: 04/20/2019
+
+void UpateDrawBaseImageCode (
+				WindowInfoPtr						windowInfoPtr,
+				SInt16								overlayIndex)
+
+{  
+	ImageOverlayInfoPtr				imageOverlayInfoPtr;
+	
+	SInt16								imageOverlayIndex;
+	
+	SignedByte							overlayHandleStatus;
+	
+	
+	imageOverlayIndex = windowInfoPtr->imageOverlayList[overlayIndex].index - 1;
+	
+	imageOverlayInfoPtr = GetImageOverlayInfoPtr (imageOverlayIndex,
+																	kNoLock,
+																	&overlayHandleStatus);
+	
+	if (imageOverlayInfoPtr != NULL)
+		{
+		if (windowInfoPtr->imageOverlayList[overlayIndex].opacity == 1)
+			imageOverlayInfoPtr->drawBaseImageCode |= 0x0004;
+		
+		else	// ...->imageOverlayList[overlayIndex].opacity != 1
+			imageOverlayInfoPtr->drawBaseImageCode &= 0x000b;
+		
+		windowInfoPtr->drawBaseImageFlag = TRUE;
+		if (imageOverlayInfoPtr->drawBaseImageCode == 15)
+			windowInfoPtr->drawBaseImageFlag = FALSE;
+		
+		}	// end "if (imageOverlayInfoPtr != NULL)"
+	
+	return;
+		
+}	// end "UpateDrawBaseImageCode"
+
 

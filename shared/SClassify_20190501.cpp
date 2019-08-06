@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			07/08/2019
+//	Revision date:			12/07/2018
 //
 //	Language:				C
 //
@@ -244,29 +244,29 @@
 
 
 #define	kDoNotIncludeTab						0
-/*
+
 #include "dlib/svm_threaded.h"
 
 
 //typedef dlib::matrix<double,0,1> column_vector;
 //typedef dlib::matrix<double,0,1> sample_type;         // Can be anything you want.
-//vector.
+ //vector.
 
 int predict_label (
                    const column_vector& weights,
                    const sample_type& sample
                    )
-
-			// requires
-			// - weights.size() == 9
-			// - sample.size() == 3
-			// ensures
-			// - Given the 9-dimensional weight vector which defines a 3 class classifier, this
-			// function predicts the class of the given 3-dimensional sample vector.
-			// Therefore, the output of this function is either 0, 1, or 2 (i.e. one of the
-			// three possible labels).
-
-	{
+/*!
+ requires
+ - weights.size() == 9
+ - sample.size() == 3
+ ensures
+ - Given the 9-dimensional weight vector which defines a 3 class classifier, this
+ function predicts the class of the given 3-dimensional sample vector.
+ Therefore, the output of this function is either 0, 1, or 2 (i.e. one of the
+ three possible labels).
+ !*/
+{
    // Our 3-class classifier model can be thought of as containing 3 separate linear
    // classifiers.  So to predict the class of a sample vector we evaluate each of these
    // three classifiers and then whatever classifier has the largest output "wins" and
@@ -288,16 +288,17 @@ int predict_label (
    scores.set_size(labelSize);
   
    for(long i = 0; i < labelSize; i++)
-   	{
+   {
       int startIdx = i*sample.size();
       int endIdx = (i+1)*sample.size()-1;
       w0 = rowm(weights, dlib::range(startIdx,endIdx));
       scores(i) = dot(w0, sample);
-		}
+   }
    
    return index_of_max(scores);
 }
-*/
+
+
 
 			// Prototypes for routines in this file that are only called by		
 			// other routines in this file.	
@@ -322,7 +323,6 @@ SInt16 					ClassifyArea (
 								SInt16								classPointer, 
 								AreaDescriptionPtr				areaDescriptionPtr, 
 								FileIOInstructionsPtr			fileIOInstructionsPtr,
-								LCToWindowUnitsVariables* 		lcToWindowUnitsVariablesPtr,
 								ClassifierVarPtr					clsfyVariablePtr, 
 								HSInt64Ptr							countVectorPtr);
 		
@@ -330,14 +330,12 @@ SInt16 					ClassifyPerPointArea (
 								SInt16								classPointer, 
 								AreaDescriptionPtr				areaDescriptionPtr, 
 								FileIOInstructionsPtr			fileIOInstructionsPtr,
-								LCToWindowUnitsVariables* 		lcToWindowUnitsVariablesPtr,
 								ClassifierVarPtr					clsfyVariablePtr, 
 								HSInt64Ptr							countVectorPtr);
 
 SInt16 					ClassifyTrainTestFields (
 								AreaDescriptionPtr				areaDescriptionPtr, 
 								FileIOInstructionsPtr			fileIOInstructionsPtr,
-								LCToWindowUnitsVariables* 		lcToWindowUnitsVariablesPtr,
 								ClassifierVarPtr					clsfyVariablePtr, 
 								SInt16								fieldType);
 
@@ -449,29 +447,31 @@ SInt16 					EuclideanClassifier (
 								HUCharPtr							probabilityBufferPtr, 
 								HSInt64Ptr							countVectorPtr, 
 								Point									point);
+
+SInt16               SVMClassifier (
+                        AreaDescriptionPtr            areaDescriptionPtr,
+                        FileInfoPtr                   fileInfoPtr,
+                        ClassifierVarPtr              clsfyVariablePtr,
+                        HUCharPtr                     outputBuffer1Ptr,
+                        HUCharPtr                     probabilityBufferPtr,
+                        HSInt64Ptr                    countVectorPtr,
+                        Point                         point);
+
+SInt16               KNNClassifier (
+                                    AreaDescriptionPtr            areaDescriptionPtr,
+                                    FileInfoPtr                   fileInfoPtr,
+                                    ClassifierVarPtr              clsfyVariablePtr,
+                                    HUCharPtr                     outputBuffer1Ptr,
+                                    HUCharPtr                     probabilityBufferPtr,
+                                    HSInt64Ptr                    countVectorPtr,
+                                    Point                         point);
 																				
 void 						EuclideanClsfierControl (
 								FileInfoPtr							fileInfoPtr);
-
-void 						KNearestNeighborClassifierControl (
-								FileInfoPtr							fileInfoPtr);
-
-SInt16               KNNClassifier (
-								AreaDescriptionPtr            areaDescriptionPtr,
-								FileInfoPtr                   fileInfoPtr,
-								ClassifierVarPtr              clsfyVariablePtr,
-								HUCharPtr                     outputBuffer1Ptr,
-								HUCharPtr                     thresholdBufferPtr,
-								HSInt64Ptr                    countVectorPtr,
-								Point                         point);
-
+								
 Boolean 					ListClassifyInputParameters (
 								FileInfoPtr							fileInfoPtr,
 								CMFileStream*						resultsFileStreamPtr);
-
-Boolean 					ListNumberOfSameDistanceSamples (
-								CMFileStream*						resultsFileStreamPtr,
-								SInt64								totalSameDistanceSamples);
 
 void	 					MahalanobisClsfierControl (
 								FileInfoPtr							fileInfoPtr);
@@ -524,15 +524,6 @@ Boolean 					SetupClsfierMemory (
 								SInt16**								indexRowPtr, 
 								SInt16**								indexColPtr, 
 								SInt16**								ipvotPtr);
-
-SInt16               SVMClassifier (
-                        AreaDescriptionPtr            areaDescriptionPtr,
-                        FileInfoPtr                   fileInfoPtr,
-                        ClassifierVarPtr              clsfyVariablePtr,
-                        HUCharPtr                     outputBuffer1Ptr,
-                        HUCharPtr                     probabilityBufferPtr,
-                        HSInt64Ptr                    countVectorPtr,
-                        Point                         point);
 									
 void 						WriteProbabilityGrouping (
 								SInt16								classificationMode);
@@ -540,7 +531,7 @@ void 						WriteProbabilityGrouping (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -644,6 +635,7 @@ void CEMClsfierControl (
 									(Str255*)gTextString);
 		
 	InitializeClassifierVarStructure (&classifierVar);
+	classifierVar.totalSameDistanceSamples = 0;
 	
 			// Get pointer to the CEM parameter structure
 			
@@ -1104,7 +1096,7 @@ void CEMClsfierControl (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1308,7 +1300,7 @@ SInt16 CEMClassifier (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1343,7 +1335,7 @@ void CheckAndUnlockCEMParameterHandles (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1462,7 +1454,7 @@ Boolean CheckClassifyTextWindowSpaceNeeded (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1484,13 +1476,12 @@ Boolean CheckClassifyTextWindowSpaceNeeded (void)
 //
 //	Coded By:			Larry L. Biehl			Date: 12/15/1988
 //	Revised By:			Jeon						Date: ??/??/????
-//	Revised By:			Larry L. Biehl			Date: 04/24/2019
+//	Revised By:			Larry L. Biehl			Date: 01/16/2016
 
 SInt16 ClassifyArea (
 				SInt16								classPointer, 
 				AreaDescriptionPtr				areaDescriptionPtr, 
 				FileIOInstructionsPtr			fileIOInstructionsPtr,
-				LCToWindowUnitsVariables* 		lcToWindowUnitsVariablesPtr,
 				ClassifierVarPtr					clsfyVariablePtr, 
 				HSInt64Ptr							countVectorPtr)
 					
@@ -1508,16 +1499,15 @@ SInt16 ClassifyArea (
 		case kMaxLikeMode:
 		case kMahalanobisMode:	
 		case kFisherMode:
-      case kSupportVectorMachineMode:
-      case kKNearestNeighborMode:
 		case kEuclideanMode:
 		case kCorrelationMode:
 		case kCEMMode:
 		case kParallelPipedMode:
+      case kDecisionTreeMode:
+      case kUserClassify1:
 			returnCode = ClassifyPerPointArea (classPointer,
 															areaDescriptionPtr, 
-															fileIOInstructionsPtr,
-															lcToWindowUnitsVariablesPtr,
+															fileIOInstructionsPtr, 
 															clsfyVariablePtr, 
 															countVectorPtr);
 			break;
@@ -1526,8 +1516,7 @@ SInt16 ClassifyArea (
 			HideStatusDialogItemSet (kStatusMinutes);
 			returnCode = EchoClassifier (classPointer,
 													areaDescriptionPtr, 
-													fileIOInstructionsPtr,
-													lcToWindowUnitsVariablesPtr,
+													fileIOInstructionsPtr, 
 													clsfyVariablePtr,
 													countVectorPtr);
 			break;
@@ -1541,7 +1530,7 @@ SInt16 ClassifyArea (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1560,15 +1549,13 @@ SInt16 ClassifyArea (
 // Called By:			MaxLikeClsfierControl
 //
 //	Coded By:			Larry L. Biehl			Date: 12/15/1988
-//	Revised By:			Larry L. Biehl			Date: 07/08/2019
+//	Revised By:			Larry L. Biehl			Date: 02/28/2018
 
 void ClassifyAreasControl (
 				FileInfoPtr							fileInfoPtr, 
 				ClassifierVarPtr					clsfyVariablePtr)
 	
-{
-	LCToWindowUnitsVariables 		lcToWindowUnitsVariables;
-	
+{                  
 	double								percent;
 	
 	CEMParametersPtr					cemParametersPtr;
@@ -1577,8 +1564,7 @@ void ClassifyAreasControl (
 	FileIOInstructionsPtr			fileIOInstructionsPtr;
 	HUInt16Ptr							ioBuffer2Ptr;
 	
-	Handle								activeImageWindowInfoHandle,
-											countVectorHandle = NULL;
+	Handle								countVectorHandle = NULL;
 	
 	SInt64								ipixels,
 											number_of_homogeneous_cells;
@@ -1742,8 +1728,8 @@ void ClassifyAreasControl (
 								
 					else	// echoClassifierVarPtr->thresholds_phase1[index] == -DBL_MAX
 						sprintf ((char*)gTextString,
-										"      \tClass %d:\tno thresholding%s",
-										(int)statClassNumber,
+										"      \tClass %ld:\tno thresholding%s",
+										statClassNumber,
 										gEndOfLine);
 								
 					continueFlag = OutputString (resultsFileStreamPtr, 
@@ -1787,38 +1773,6 @@ void ClassifyAreasControl (
 				}	// end "if (gClassifySpecsPtr->trainingFldsResubstitutionFlag ||...)" 
 				
 			}	// end "if (continueFlag)"
-	
-		
-				// Set some variables for use when drawing image overlays.
-		
-		activeImageWindowInfoHandle = FindProjectBaseImageWindowInfoHandle ();
-		SetLCToWindowUnitVariables (activeImageWindowInfoHandle,
-												kToImageWindow,
-												FALSE,
-												&lcToWindowUnitsVariables);
-	
-		if (gOutputCode & kCreateImageOverlayCode)
-			{
-					// Set the draw base image flag depending on whether the overlay
-					// will cover the entire base image.
-	
-			ImageOverlayInfoPtr imageOverlayInfoPtr = GetImageOverlayInfoPtr (
-															gClassifySpecsPtr->imageOverlayIndex,
-															kNoLock,
-															NULL);
-			
-			WindowInfoPtr imageWindowInfoPtr =
-			(WindowInfoPtr)			GetHandlePointer (activeImageWindowInfoHandle);
-			imageWindowInfoPtr->drawBaseImageFlag = FALSE;
-			if (imageOverlayInfoPtr->drawBaseImageCode != 15)
-				{
-				WindowPtr windowPtr = GetWindowPtr (activeImageWindowInfoHandle);
-				imageWindowInfoPtr->drawBaseImageFlag = TRUE;
-				InvalidateWindow (windowPtr, kImageFrameArea, FALSE);
-				
-				}	// end "if (imageOverlayInfoPtr->drawBaseImageCode != 15)"
-			
-			}	// if (if (gOutputCode & kCreateImageOverlayCode)
 			
 				// Classify the training fields (resubstitution) if requested								
 			
@@ -1844,23 +1798,15 @@ void ClassifyAreasControl (
 				{
 				clsfyVariablePtr->summaryCode = (gProjectInfoPtr->
 								listResultsTrainingCode & (kFieldSummary+kClassSummary));
-				
-				clsfyVariablePtr->totalSameDistanceSamples = 0;
 	
 				returnCode = ClassifyTrainTestFields (&gAreaDescription, 
 																	fileIOInstructionsPtr,
-																	&lcToWindowUnitsVariables,
 																	clsfyVariablePtr, 
 																	kTrainingType);
 															
 				}	// end "if (continueFlag)"
 														
 			continueFlag = (returnCode != 1);
-			
-			if (continueFlag)
-				continueFlag = ListNumberOfSameDistanceSamples (
-															resultsFileStreamPtr,
-															clsfyVariablePtr->totalSameDistanceSamples);
 			
 			}	// end "if (gClassifySpecsPtr->trainingFldsResubstitutionFlag)" 
 			
@@ -1888,8 +1834,6 @@ void ClassifyAreasControl (
 				{
 				clsfyVariablePtr->summaryCode = (gProjectInfoPtr->
 								listResultsTrainingCode & (kFieldSummary+kClassSummary));
-				
-				clsfyVariablePtr->totalSameDistanceSamples = 0;
 								
 				clsfyVariablePtr->useLeaveOneOutMethodFlag = TRUE;
 				
@@ -1901,7 +1845,6 @@ void ClassifyAreasControl (
 	
 				returnCode = ClassifyTrainTestFields (&gAreaDescription, 
 																	fileIOInstructionsPtr,
-																	&lcToWindowUnitsVariables,
 																	clsfyVariablePtr, 
 																	kTrainingType);
 								
@@ -1910,11 +1853,6 @@ void ClassifyAreasControl (
 				}	// end "if (continueFlag)"
 														
 			continueFlag = (returnCode != 1);
-			
-			if (continueFlag)
-				continueFlag = ListNumberOfSameDistanceSamples (
-															resultsFileStreamPtr,
-															clsfyVariablePtr->totalSameDistanceSamples);
 			
 			}	// end "if (gClassifySpecsPtr->trainingFldsLOOFlag && ..." 
 					
@@ -1953,8 +1891,6 @@ void ClassifyAreasControl (
 				{
 				clsfyVariablePtr->summaryCode = (gProjectInfoPtr->
 								listResultsTestCode & (kFieldSummary+kClassSummary));
-				
-				clsfyVariablePtr->totalSameDistanceSamples = 0;
 								
 						// Intialize the nextTime variable to indicate when the next check	
 						// should occur for a command-.
@@ -1964,18 +1900,12 @@ void ClassifyAreasControl (
 								
 				returnCode = ClassifyTrainTestFields (&gAreaDescription, 
 																	fileIOInstructionsPtr,
-																	&lcToWindowUnitsVariables,
 																	clsfyVariablePtr, 
 																	kTestingType);
 															
 				}	// end "if (continueFlag)"
 			
 			continueFlag = (returnCode != 1);
-			
-			if (continueFlag)
-				continueFlag = ListNumberOfSameDistanceSamples (
-															resultsFileStreamPtr,
-															clsfyVariablePtr->totalSameDistanceSamples);
 			
 			}	// end "if (gClassifySpecsPtr->testingFlds && ...)" 
 		
@@ -2091,9 +2021,7 @@ void ClassifyAreasControl (
 				}	// end "if (continueFlag && (gOutputFormatCode..." 
 			
 			if (continueFlag)
-				{
-				clsfyVariablePtr->totalSameDistanceSamples = 0;
-				
+				{		
 						// Intialize the nextTime variable to indicate when the next check	
 						// should occur for a command-.
 					
@@ -2103,7 +2031,6 @@ void ClassifyAreasControl (
 				returnCode = ClassifyArea (-1, 
 													&gAreaDescription, 
 													fileIOInstructionsPtr,
-													&lcToWindowUnitsVariables,
 													clsfyVariablePtr, 
 													&clsfyVariablePtr->countVectorPtr[0]);
 				continueFlag = (returnCode != 1);
@@ -2252,11 +2179,6 @@ void ClassifyAreasControl (
 																gClassifySpecsPtr->classPtr,  
 																gClassifySpecsPtr->numberClasses);
 			
-			if (continueFlag)
-				continueFlag = ListNumberOfSameDistanceSamples (
-														resultsFileStreamPtr,
-														clsfyVariablePtr->totalSameDistanceSamples);
-			
 			if (gClassifySpecsPtr->mode == kEchoMode &&
 												echoClassifierVarPtr->tempDiskFileWasUsedFlag)
 				{
@@ -2289,7 +2211,25 @@ void ClassifyAreasControl (
 													gClassifySpecsPtr->classPtr,  
 													(SInt16)gClassifySpecsPtr->numberClasses);
 			
-			}	// end "if (gClassifySpecsPtr->imageArea && ...)"
+			}	// end "if (gClassifySpecsPtr->imageArea && ...)" 
+								
+		if (continueFlag && clsfyVariablePtr->totalSameDistanceSamples >= 0)
+			{	
+			strLength = ListCountValue ((char*)gTextString3,
+													clsfyVariablePtr->totalSameDistanceSamples,
+													-1,
+													0,
+													-1,
+													kDoNotIncludeTab);
+													
+			continueFlag = ListSpecifiedStringNumber (kClassifyStrID, 
+																	IDS_Classify67,
+																	resultsFileStreamPtr, 
+																	gOutputForce1Code, 
+																	(char*)gTextString3, 
+																	continueFlag);
+			
+			}	// end "if (continueFlag && ...->totalSameDistanceSamples >= 0)"
 															
 		}	// end "if (continueFlag)" 
 				
@@ -2311,7 +2251,7 @@ void ClassifyAreasControl (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2330,7 +2270,7 @@ void ClassifyAreasControl (
 // Called By:			Menus in menus.c
 //
 //	Coded By:			Larry L. Biehl			Date: 12/06/1988
-//	Revised By:			Larry L. Biehl			Date: 05/03/2019
+//	Revised By:			Larry L. Biehl			Date: 12/07/2018
 
 void ClassifyControl (void)
 
@@ -2383,43 +2323,15 @@ void ClassifyControl (void)
 				gOutputCode = gClassifySpecsPtr->outputStorageType;
 				gOutputForce1Code = (gOutputCode | 0x0001);
 				
-						// Note that statistics are not needed for the Support Vector Machine
-						// or the K-Nearest Neighbor classifiers. One the training data values
-						// are used.
-				
-				if (gClassifySpecsPtr->mode == kSupportVectorMachineMode ||
-												gClassifySpecsPtr->mode == kKNearestNeighborMode)
-					{
-							// Update statistics for project if needed
-					
-					SInt16 savedStatisticsCode = gProjectInfoPtr->statisticsCode;
-					gProjectInfoPtr->statisticsCode = kPixelValuesOnly;
+						// Update statistics for project if needed	
 						
-					continueFlag = VerifyProjectTrainingPixelsLoaded (
-															&gClassifySpecsPtr->numberClasses,
-															gClassifySpecsPtr->classPtr,
-															2, 
-															kSetupGlobalInfoPointers,
-															&minimumNumberTrainPixels);
-					gProjectInfoPtr->statisticsCode = savedStatisticsCode;
-					
-					}	// end "if (...->mode == kSupportVectorMachineMode || ..."
-					
-				else	// gClassifySpecsPtr->mode != kSupportVectorMachineMode && ...
-					{
-							// Statistics are needed for the classifier being used.
-							// Update statistics for project if needed
-						
-					continueFlag = VerifyProjectStatsUpToDate (
+				continueFlag = VerifyProjectStatsUpToDate (
 															&gClassifySpecsPtr->numberClasses,
 															gClassifySpecsPtr->classPtr,
 															1,
-															gProjectInfoPtr->statisticsCode,
 															gProjectInfoPtr->covarianceStatsToUse, 
 															kSetupGlobalInfoPointers,
 															&minimumNumberTrainPixels);
-					
-					}	// end "else gClassifySpecsPtr->mode != kKNearestNeighborMode && ..."
 				
 						// Update fileInfoPtr in case it was changed.
 					
@@ -2529,10 +2441,7 @@ void ClassifyControl (void)
 												gProjectInfoPtr->numberStatisticsClasses,
 												&boundingClassifyArea,
 												gProjectInfoPtr->imagePalettePopupMenuSelection,
-												0,
-												fieldType,
-												gClassifySpecsPtr->imageColumnInterval,
-												gClassifySpecsPtr->imageLineInterval);
+												0);
 					
 						if (!continueFlag || gClassifySpecsPtr->imageOverlayIndex == -1)
 									// Not possible to create an image overlay.
@@ -2674,20 +2583,13 @@ void ClassifyControl (void)
 								FisherClsfierControl (fileInfoPtr);
 								break;
 								
-							case kEchoMode:			// Echo
-	      					EchoClsfierControl (fileInfoPtr);
-								break;
-							/*
-							case kSupportVectorMachineMode:	// Decision Tree
-								DecisionTreeControl (fileInfoPtr);
-								break;
-							*/
-                     case kKNearestNeighborMode:
-                        KNearestNeighborClassifierControl (fileInfoPtr);
-                        break;
-								
 							case kEuclideanMode:		// Euclidean minimum distance 
 								EuclideanClsfierControl (fileInfoPtr);
+								break;
+								
+							case kEchoMode:			// Echo
+	      					gMemoryTypeNeeded = 1;	
+								EchoClsfierControl (fileInfoPtr);
 								break;
 								
 							case kCorrelationMode:	// Correlation classifier
@@ -2701,7 +2603,16 @@ void ClassifyControl (void)
 							case kParallelPipedMode:	// Parallel Piped classifier
 								ParallelPipedClsfierControl (fileInfoPtr);
 								break;
-								
+							
+							case kDecisionTreeMode:	// Decision Tree
+								//gMemoryTypeNeeded = 1;
+								//DecisionTreeControl (fileInfoPtr);
+                        EuclideanClsfierControl(fileInfoPtr);
+								break;
+                     case kUserClassify1:   // kUserClassify1
+                        EuclideanClsfierControl(fileInfoPtr);
+                        break;
+							
 							}	// end "switch (classifyMode)" 
 												
 								// Reset the cancel operation globals.	
@@ -2711,15 +2622,6 @@ void ClassifyControl (void)
 						if (gOutputCode & kCreateImageOverlayCode)
 							UpdateOverlayControl (
 								GetWindowPtr (gProjectInfoPtr->overlayImageWindowInfoHandle));
-							
-								// Set drawBaseImageFlag to proper setting for general updates.
-						
-						Handle activeImageWindowInfoHandle = FindProjectBaseImageWindowInfoHandle ();
-						WindowInfoPtr imageWindowInfoPtr = (WindowInfoPtr)GetHandlePointer (
-																	activeImageWindowInfoHandle);
-						if (imageWindowInfoPtr != NULL)
-							imageWindowInfoPtr->drawBaseImageFlag = GetDrawBaseImageFlag (
-																	gClassifySpecsPtr->imageOverlayIndex);
 	
 								// Make sure that any image overlay handle is unlocked.
 								
@@ -2834,7 +2736,7 @@ void ClassifyControl (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2860,21 +2762,18 @@ void ClassifyControl (void)
 // Called By:			ClassifyAreas
 //
 //	Coded By:			Larry L. Biehl			Date: 12/15/1988
+//	Revised By:			Larry L. Biehl			Date: 12/21/2016
 //	Revised By:			Jeon						Date: 03/23/2006
-//	Revised By:			Larry L. Biehl			Date: 04/24/2019
 
 SInt16 ClassifyPerPointArea (
 				SInt16								classPointer, 
 				AreaDescriptionPtr				areaDescriptionPtr, 
 				FileIOInstructionsPtr			fileIOInstructionsPtr,
-				LCToWindowUnitsVariables* 		lcToWindowUnitsVariablesPtr,
 				ClassifierVarPtr					clsfyVariablePtr, 
 				HSInt64Ptr							countVectorPtr)
 	
 {
 	double								minutesLeft;
-	
-	LongRect								sourceRect;
 								
 	Point									point;		
 	
@@ -2893,22 +2792,15 @@ SInt16 ClassifyPerPointArea (
 	Ptr									stringPtr;
 	SInt16								*classPtr;
 	UInt16								*channelsPtr;
-	WindowInfoPtr 						imageWindowInfoPtr;
 	WindowPtr							windowPtr;
 	
-	time_t								lineLoopNextTime;
-	
-	int									nextStatusAtLeastLine,
-											nextStatusAtLeastLineIncrement;
-	
-	SInt32								displayBottomMax,
-   										lineCount,
+	SInt32								lineCount,
 											line,
 											lineEnd,
 											lineInterval;
 	
 	UInt32								linesLeft,
-											skipCount,
+											lineLoopNextTime,
 											startTick;
 	
 	SInt16								classNumber,
@@ -2937,17 +2829,6 @@ SInt16 ClassifyPerPointArea (
 	classPtr = gClassifySpecsPtr->classPtr;
 	fileInfoPtr = fileIOInstructionsPtr->fileInfoPtr;
 	windowPtr = GetWindowPtr (gProjectInfoPtr->overlayImageWindowInfoHandle);
-	imageWindowInfoPtr = (WindowInfoPtr)GetHandlePointer (
-													gProjectInfoPtr->overlayImageWindowInfoHandle);
-	
-			// Set up source rect. This will indicate the lines and columns to
-			// be updated when one does a copy to the image window.
-
-	sourceRect.left = areaDescriptionPtr->columnStart - 1;
-	sourceRect.right = areaDescriptionPtr->columnEnd;
-	sourceRect.top = areaDescriptionPtr->lineStart - 1;
-	sourceRect.bottom = lineEnd;
-	displayBottomMax = sourceRect.bottom;
 	
 	imageOverlayInfoPtr = GetImageOverlayInfoPtr (gClassifySpecsPtr->imageOverlayIndex,
 																	kLock,
@@ -2992,24 +2873,9 @@ SInt16 ClassifyPerPointArea (
 	
 	offScreenBufferPtr = GetImageOverlayOffscreenPointer (imageOverlayInfoPtr);
 	
-			// These variables are to make sure the display window is not being updated
-			// after a very few lines are loaded in. It will override the time interval
-			// which is currently every 1 second.
-	
-	double magnification = lcToWindowUnitsVariablesPtr->magnification;
-	nextStatusAtLeastLineIncrement = (10 * lineInterval) / magnification;
-	nextStatusAtLeastLineIncrement = MAX (nextStatusAtLeastLineIncrement, 10);
-	nextStatusAtLeastLine = areaDescriptionPtr->lineStart + nextStatusAtLeastLineIncrement;
-		
-			// The purpose of skipCount is to only allow updates in drawing the
-			// image overlay every 2 cycles of gNextTime.
-	
-	skipCount = 0;
-	
 	updateNumberLinesFlag = TRUE;
-
-			// Loop through lines for area to be classified.							
-
+   printf("classNumber:%d, lineEnd:%d\n", classNumber, lineEnd);
+			// Loop through lines for area to be classified.
 	for (line=areaDescriptionPtr->lineStart; line<=lineEnd; line+=lineInterval)
 		{
 				// Display line status information.											
@@ -3034,37 +2900,14 @@ SInt16 ClassifyPerPointArea (
 			
 		if (TickCount () >= lineLoopNextTime)
 			{
-			skipCount++;
-			
 			if (gOutputCode & kCreateImageOverlayCode && 
-							line > areaDescriptionPtr->lineStart &&
-											lineCount >= nextStatusAtLeastLine &&
-														skipCount >= 2)
+																line > areaDescriptionPtr->lineStart)
 				{
-				sourceRect.bottom = lineCount;
-				/*
-				int numberChars = sprintf ((char*)gTextString3,
-												"%s SClassify.cpp:ClassifyPerPointArea (top, bottom): %d, %d%s",
-												gEndOfLine,
-												sourceRect.top,
-												sourceRect.bottom,
-												gEndOfLine);
-				ListString ((char*)gTextString3, numberChars, gOutputTextH);
-				*/
-				InvalidateImageSegment (gImageWindowInfoPtr,
-												//displaySpecsPtr,
-												lcToWindowUnitsVariablesPtr,
-												&sourceRect,
-												displayBottomMax);
+				InvalidateWindow (windowPtr, kImageArea, FALSE);
 
 				#if defined multispec_win  
 					windowPtr->UpdateWindow ();
 				#endif	// defined multispec_win  
-			
-				nextStatusAtLeastLine = lineCount + nextStatusAtLeastLineIncrement;
-				nextStatusAtLeastLine = MIN (nextStatusAtLeastLine, lineEnd);
-					
-				skipCount = 0;
 
 				}	// end "if (gOutputCode & kCreateImageOverlayCode && ..."
 				
@@ -3074,9 +2917,6 @@ SInt16 ClassifyPerPointArea (
 				break;
 				
 				}	// end "if (!CheckSomeEvents (..."
-			
-			if (gOutputCode & kCreateImageOverlayCode)
-				imageWindowInfoPtr->drawBaseImageFlag = FALSE;
 		
 			lineLoopNextTime = gNextTime;
 				
@@ -3107,6 +2947,7 @@ SInt16 ClassifyPerPointArea (
 			areaDescriptionPtr->line = line;
 			areaDescriptionPtr->numSamplesPerChan = 
 												fileIOInstructionsPtr->numberOutputBufferSamples;
+            
 			point.v = (SInt16)line;
 			point.h = (SInt16)areaDescriptionPtr->columnStart;									
 			switch (gClassifySpecsPtr->mode)
@@ -3131,38 +2972,17 @@ SInt16 ClassifyPerPointArea (
 																countVectorPtr,  
 																point);
 					break;
-            
-				case kSupportVectorMachineMode:
-					/*
-					returnCode = SVMClassifier (areaDescriptionPtr,
-														 fileInfoPtr,
-														 clsfyVariablePtr,
-														 outputBufferPtr,
-														 probabilityBufferPtr,
-														 countVectorPtr,
-														 point);
-					*/
-               break;
-					
-				case kKNearestNeighborMode:
-					returnCode = KNNClassifier (areaDescriptionPtr,
-                                              fileInfoPtr,
-                                              clsfyVariablePtr,
-                                              outputBufferPtr,
-                                              probabilityBufferPtr,
-                                              countVectorPtr,
-                                              point);
-					break;
-
 					
 				case kEuclideanMode:
 					returnCode = EuclideanClassifier (areaDescriptionPtr,
+                  //returnCode = KNNClassifier (areaDescriptionPtr,
 																	fileInfoPtr,
 																	clsfyVariablePtr,
 																	outputBufferPtr,
 																	probabilityBufferPtr,
 																	countVectorPtr,  
 																	point);
+                 
 					break;
 					
 				case kCorrelationMode:
@@ -3194,6 +3014,25 @@ SInt16 ClassifyPerPointArea (
 																		countVectorPtr,  
 																		point);
 					break;
+            
+               case kDecisionTreeMode:
+                  returnCode = SVMClassifier (areaDescriptionPtr,
+                                              fileInfoPtr,
+                                              clsfyVariablePtr,
+                                              outputBufferPtr,
+                                              probabilityBufferPtr,
+                                              countVectorPtr,
+                                              point);
+               break;
+               case kUserClassify1:
+                  returnCode = KNNClassifier (areaDescriptionPtr,
+                                              fileInfoPtr,
+                                              clsfyVariablePtr,
+                                              outputBufferPtr,
+                                              probabilityBufferPtr,
+                                              countVectorPtr,
+                                              point);
+                  break;
 					
 				}	// end "switch (gClassifySpecsPtr->mode)" 
 				
@@ -3281,31 +3120,15 @@ SInt16 ClassifyPerPointArea (
   				
 	if (gOutputCode & kCreateImageOverlayCode)
 		{
-		sourceRect.bottom = displayBottomMax;
-		/*
-		int numberChars2 = sprintf ((char*)gTextString3,
-										"%s SClassify.cpp:ClassifyPerPointArea (top, bottom): %d, %d%s",
-										gEndOfLine,
-										sourceRect.top,
-										sourceRect.bottom,
-										gEndOfLine);
-		ListString ((char*)gTextString3, numberChars2, gOutputTextH);
-		*/
-		InvalidateImageSegment (gImageWindowInfoPtr,
-										lcToWindowUnitsVariablesPtr,
-										&sourceRect,
-										displayBottomMax);
-
+		InvalidateWindow (windowPtr, kImageArea, FALSE);
+				
 		if (!CheckSomeEvents (osMask+keyDownMask+updateMask+mDownMask+mUpMask))
 			returnCode = 3;
-			
-		if (imageWindowInfoPtr != NULL)
-			imageWindowInfoPtr->drawBaseImageFlag = FALSE;
 			
 		}	// end "if (gOutputCode & kCreateImageOverlayCode)"
   		
   	UnlockImageOverlayOffscreenBuffer (imageOverlayInfoPtr);
-	/*
+							
 	if (!gOSXCoreGraphicsFlag)
 		{
 		Handle activeImageWindowInfoHandle =
@@ -3316,7 +3139,7 @@ SInt16 ClassifyPerPointArea (
 			imageWindowInfoPtr->drawBaseImageFlag = TRUE;
 		
 		}	// end "if (!gOSXCoreGraphicsFlag)"
-	*/
+	
 	if (gTestFlag)	
 		{	
 				// Unlock handle related to any mask area that was used.
@@ -3350,7 +3173,7 @@ SInt16 ClassifyPerPointArea (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3368,12 +3191,11 @@ SInt16 ClassifyPerPointArea (
 // Called By:			ClassifyAreasControl
 //
 //	Coded By:			Larry L. Biehl			Date: 12/15/1988
-//	Revised By:			Larry L. Biehl			Date: 05/04/2019
+//	Revised By:			Larry L. Biehl			Date: 02/28/2018
 
 SInt16 ClassifyTrainTestFields (
 				AreaDescriptionPtr				areaDescriptionPtr, 
 				FileIOInstructionsPtr			fileIOInstructionsPtr,
-				LCToWindowUnitsVariables* 		lcToWindowUnitsVariablesPtr,
 				ClassifierVarPtr					clsfyVariablePtr, 
 				SInt16								fieldType)
 				
@@ -3517,9 +3339,7 @@ SInt16 ClassifyTrainTestFields (
 						// for this field have not been included yet, then do not	
 						// include this field in the classification.						
 						
-				if (fieldType == kTrainingType && (!fieldIdentPtr->loadedIntoClassStats &&
-						gClassifySpecsPtr->mode != kSupportVectorMachineMode &&
-								gClassifySpecsPtr->mode != kKNearestNeighborMode))
+				if (fieldType == kTrainingType && !fieldIdentPtr->loadedIntoClassStats) 
 					break;
 				
 						// List the field name and number									
@@ -3564,7 +3384,6 @@ SInt16 ClassifyTrainTestFields (
 										classAreaPtr[classIndex],
 										areaDescriptionPtr, 
 										fileIOInstructionsPtr,
-										lcToWindowUnitsVariablesPtr,
 										clsfyVariablePtr,
 										&clsfyVariablePtr->countVectorPtr[countVectorIndex]);
 						
@@ -3653,7 +3472,7 @@ SInt16 ClassifyTrainTestFields (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3946,7 +3765,7 @@ SInt16 CorrelationClassifier (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4017,6 +3836,7 @@ void CorrelationClsfierControl (
 									(Str255*)gTextString);
 		
 	InitializeClassifierVarStructure (&classifierVar);
+	classifierVar.totalSameDistanceSamples = 0;
 	
 			// Get the memory for the mean vectors and covariance matrices			
 			// for the classes and channels to be used in the classification.		
@@ -4374,7 +4194,7 @@ void CorrelationClsfierControl (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4441,7 +4261,7 @@ UInt32 CorrelationThresholdClass (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4587,7 +4407,7 @@ Boolean CreateChiSquareThresholdTable (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4636,7 +4456,7 @@ Boolean CreateCorrelationThresholdTable (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4704,7 +4524,7 @@ Boolean CreateThresholdTables (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4723,7 +4543,7 @@ Boolean CreateThresholdTables (
 // Called By:			ClassifyAreasControl in classify.c
 //
 //	Coded By:			Larry L. Biehl			Date: 04/07/1992
-//	Revised By:			Larry L. Biehl			Date: 06/28/2019
+//	Revised By:			Larry L. Biehl			Date: 03/27/2017
 
 Boolean CreateTrailerFiles (
 				ClassifierVarPtr					clsfyVariablePtr, 
@@ -4783,8 +4603,6 @@ Boolean CreateTrailerFiles (
 		SInt16 probabilityColors = kProbablilityColors;
 		if (gClassifySpecsPtr->mode == kCEMMode)
 			probabilityColors = kProbablilityColors2;
-		else if (gClassifySpecsPtr->mode == kKNearestNeighborMode)
-			probabilityColors = kClassify_Info_Colors;
 			
 		continueFlag = CreateThematicSupportFile (
 										resultsFilePtr,
@@ -4879,7 +4697,7 @@ Boolean CreateTrailerFiles (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5050,10 +4868,284 @@ SInt16 EuclideanClassifier (
 
 }	// end "EuclideanClassifier" 
 
+SInt16 SVMClassifier (
+                            AreaDescriptionPtr            areaDescriptionPtr,
+                            FileInfoPtr                     fileInfoPtr,
+                            ClassifierVarPtr               clsfyVariablePtr,
+                            HUCharPtr                     outputBuffer1Ptr,
+                            HUCharPtr                     probabilityBufferPtr,
+                            HSInt64Ptr                     countVectorPtr,
+                            Point                           point)
 
+{
+   
+   RgnHandle                     rgnHandle;
+   
+   HDoublePtr                     ioBufferReal8Ptr,
+   savedChanMeanPtr,
+   savedBufferReal8Ptr;
+   
+   double                        *chanMeanPtr;
+   
+   SInt16                        *classPtr;
+   
+   UInt32                        feat,
+   maxClass,
+   numberChannels,
+   numberClasses,
+   numberSamplesPerChan,
+   sample;
+   
+   Boolean                        polygonField;
+   
+   
+   // Initialize local variables.
+   
+   numberChannels =          gClassifySpecsPtr->numberChannels;
+   numberClasses =          gClassifySpecsPtr->numberClasses;
+   numberSamplesPerChan =    (UInt32)areaDescriptionPtr->numSamplesPerChan;
+   rgnHandle =             areaDescriptionPtr->rgnHandle;
+   polygonField =            areaDescriptionPtr->polygonFieldFlag;
+   classPtr = gClassifySpecsPtr->classPtr;
+   chanMeanPtr = clsfyVariablePtr->chanMeanPtr;
+   savedChanMeanPtr = chanMeanPtr;
+   savedBufferReal8Ptr = (HDoublePtr)outputBuffer1Ptr;
+   
+   // Loop through the number of samples in the line of data
+   
+   maxClass = 0;
+
+   for (sample=0; sample<numberSamplesPerChan; sample++)
+   {
+      if (!polygonField || PtInRgn (point, rgnHandle))
+      {
+         // Loop through the classes and get the discriminant value for
+         // each class.
+         
+         //discriminantMax = -DBL_MAX;
+         //chanMeanPtr = savedChanMeanPtr;
+         sample_type svm_samp;
+         svm_samp.set_size(numberChannels);
+         ioBufferReal8Ptr = savedBufferReal8Ptr;
+         
+         for (feat=0; feat<numberChannels; feat++)
+         {
+            svm_samp(feat) = *ioBufferReal8Ptr;
+            ioBufferReal8Ptr++;
+         }
+         maxClass = predict_label(gProjectInfoPtr->svm_weights, svm_samp)-1;
+         countVectorPtr[classPtr[maxClass]]++;
+         *outputBuffer1Ptr = (UInt8)classPtr[maxClass];
+         //*outputBuffer1Ptr = predict_label(gProjectInfoPtr->weights, svm_samp);
+         //std::cout << "out:" << classPtr[maxClass];
+         //std::cout << ",svm:" <<predict_label(gProjectInfoPtr->weights, svm_samp);
+         //std::cout <<",class:"<< areaDescriptionPtr->classNumber << std::endl;
+         
+      }   // end "if (!polygonField || PtInRgn (point, rgnHandle))"
+      
+      else   // polygonField && !PtInRgn (point, rgnHandle)
+      {
+         *outputBuffer1Ptr = 0;
+         //sameDistanceCount = 0;
+         
+      }   // end "else polygonField && !PtInRgn (point, rgnHandle)"
+      
+      //std::cout << "out2:" << predict_label(gProjectInfoPtr->weights, svm_samp) << std::endl;
+      point.h++;
+      outputBuffer1Ptr++;
+      savedBufferReal8Ptr += numberChannels;
+      
+      //clsfyVariablePtr->totalSameDistanceSamples += sameDistanceCount;
+      
+      // Exit routine if user selects "cancel" or "command period".
+      
+      if (TickCount () >= gNextTime)
+      {
+         if (!CheckSomeEvents (osMask+keyDownMask+updateMask+mDownMask+mUpMask))
+            return (3);
+         
+      }   // end "if (TickCount () >= gNextTime)"
+      
+   }   // end "for (sample=0; sample<..."
+   
+   // Write carriage return and null character to classification record
+   
+   *outputBuffer1Ptr = kCarriageReturn;
+   outputBuffer1Ptr++;
+   
+#if defined multispec_win
+   *outputBuffer1Ptr = kLineFeed;
+   outputBuffer1Ptr++;
+#endif   // defined multispec_win
+   
+   *outputBuffer1Ptr = kNullTerminator;
+
+   return (0);
+   
+}   // end "SVMClassifier"
+
+// sorting operator for knn
+bool comparison(knnType a, knnType b)
+{
+   return (a.distance < b.distance);
+}
+
+SInt16 KNNClassifier (
+                      AreaDescriptionPtr            areaDescriptionPtr,
+                      FileInfoPtr                     fileInfoPtr,
+                      ClassifierVarPtr               clsfyVariablePtr,
+                      HUCharPtr                     outputBuffer1Ptr,
+                      HUCharPtr                     probabilityBufferPtr,
+                      HSInt64Ptr                     countVectorPtr,
+                      Point                           point)
+
+{
+   
+   RgnHandle                     rgnHandle;
+   
+   HDoublePtr                     ioBufferReal8Ptr,
+   savedChanMeanPtr,
+   savedBufferReal8Ptr;
+   
+   double                        *chanMeanPtr;
+   
+   SInt16                        *classPtr;
+   
+   UInt32                        feat,
+   maxClass,
+   numberChannels,
+   numberClasses,
+   numberSamplesPerChan,
+   sample;
+   
+   Boolean                        polygonField;
+   
+   // Initialize local variables.
+   
+   numberChannels =          gClassifySpecsPtr->numberChannels;
+   numberClasses =          gClassifySpecsPtr->numberClasses;
+   numberSamplesPerChan =    (UInt32)areaDescriptionPtr->numSamplesPerChan;
+   rgnHandle =             areaDescriptionPtr->rgnHandle;
+   polygonField =            areaDescriptionPtr->polygonFieldFlag;
+   classPtr = gClassifySpecsPtr->classPtr;
+   chanMeanPtr = clsfyVariablePtr->chanMeanPtr;
+   savedChanMeanPtr = chanMeanPtr;
+   savedBufferReal8Ptr = (HDoublePtr)outputBuffer1Ptr;
+   
+   // Loop through the number of samples in the line of data
+   
+   maxClass = 0;
+   
+   for (sample=0; sample<numberSamplesPerChan; sample++)
+   {
+      if (!polygonField || PtInRgn (point, rgnHandle))
+      {
+         int topK[numberClasses+1];
+         for(int i = 0; i <= numberClasses; i++)
+            topK[i] = 0;
+         int knnPixelSize = gProjectInfoPtr->knn_labels.size();
+         
+         for(int i = 0; i < knnPixelSize; i++)
+         {
+            gProjectInfoPtr->knn_labels[i].distance = 0;
+            ioBufferReal8Ptr = savedBufferReal8Ptr;
+            int index = gProjectInfoPtr->knn_labels[i].index;
+            // euclidean distance
+            for (feat=0; feat<numberChannels; feat++)
+            {
+               gProjectInfoPtr->knn_labels[i].distance +=
+               ( gProjectInfoPtr->knnVectorPtr[index * numberChannels + feat] - *ioBufferReal8Ptr) *
+               ( gProjectInfoPtr->knnVectorPtr[index * numberChannels + feat] - *ioBufferReal8Ptr);
+               ioBufferReal8Ptr++;
+            }
+         }
+         std::vector<knnType>::iterator it;
+         int topKTemp[gProjectInfoPtr->topK];
+         // find the topK points with min distance
+         for(int i = 0; i < gProjectInfoPtr->topK; i++)
+         {
+            double minTempDistance = (1 << 31);
+            int minTempLabel = 0;
+            int minTempIndex = 0;
+            for(it = gProjectInfoPtr->knn_labels.begin(); it != gProjectInfoPtr->knn_labels.end();
+                it++)
+            {
+               if(it->distance < minTempDistance)
+               {
+                  minTempDistance = it->distance;
+                  minTempLabel = it->label;
+                  minTempIndex = it->index;
+               }
+            }
+            topKTemp[i] = minTempLabel;
+            gProjectInfoPtr->knn_labels[minTempIndex].distance = (1 << 31);
+         }
+         //sort(gProjectInfoPtr->knn_labels.begin(), gProjectInfoPtr->knn_labels.end(),
+           //   comparison);
+         //frequency of topK label
+         for(int i = 0; i < gProjectInfoPtr->topK; i++)
+         {
+            //topK[gProjectInfoPtr->knn_labels[i].label] ++;
+            topK[topKTemp[i]] ++;
+         }
+         // pick out the label with max label count
+         int max = 0;
+         for(int i = 0; i <= numberClasses; i++)
+         {
+            if(topK[i] > max)
+            {
+               maxClass = i;
+               max = topK[i];
+            }
+            topK[i] = 0;
+         }
+         maxClass -= 1;
+         countVectorPtr[classPtr[maxClass]]++;
+         *outputBuffer1Ptr = (UInt8)classPtr[maxClass];
+         
+      }   // end "if (!polygonField || PtInRgn (point, rgnHandle))"
+      
+      else   // polygonField && !PtInRgn (point, rgnHandle)
+      {
+         *outputBuffer1Ptr = 0;
+         
+      }   // end "else polygonField && !PtInRgn (point, rgnHandle)"
+      
+      point.h++;
+      outputBuffer1Ptr++;
+      savedBufferReal8Ptr += numberChannels;
+      
+      //clsfyVariablePtr->totalSameDistanceSamples += sameDistanceCount;
+      
+      // Exit routine if user selects "cancel" or "command period".
+      
+      if (TickCount () >= gNextTime)
+      {
+         if (!CheckSomeEvents (osMask+keyDownMask+updateMask+mDownMask+mUpMask))
+            return (3);
+         
+      }   // end "if (TickCount () >= gNextTime)"
+      
+   }   // end "for (sample=0; sample<..."
+   
+   // Write carriage return and null character to classification record
+   
+   *outputBuffer1Ptr = kCarriageReturn;
+   outputBuffer1Ptr++;
+   
+#if defined multispec_win
+   *outputBuffer1Ptr = kLineFeed;
+   outputBuffer1Ptr++;
+#endif   // defined multispec_win
+   
+   *outputBuffer1Ptr = kNullTerminator;
+   
+   return (0);
+   
+}   // end "KNNClassifier"
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5098,6 +5190,7 @@ void EuclideanClsfierControl (
 	numberClsfyChannels = gClassifySpecsPtr->numberChannels;
 	
 	InitializeClassifierVarStructure (&classifierVar);
+	classifierVar.totalSameDistanceSamples = 0;
 	
 			// Get the memory for the mean vectors and covariance matrices			
 			// for the classes and channels to be used in the classification.		
@@ -5189,7 +5282,7 @@ void EuclideanClsfierControl (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5419,7 +5512,7 @@ SInt16 FisherClassifier (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5492,6 +5585,7 @@ void FisherClsfierControl (
 									(Str255*)gTextString);
 		
 	InitializeClassifierVarStructure (&classifierVar);
+	classifierVar.totalSameDistanceSamples = 0;
 	
 			// Get the memory for the mean vectors and covariance matrices			
 			// for the classes and channels to be used in the classification.		
@@ -5724,7 +5818,7 @@ void FisherClsfierControl (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5927,7 +6021,7 @@ Boolean GetClassifyDataBuffers (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5970,7 +6064,7 @@ Handle GetTargetOverlayImageWindowInfoHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6041,7 +6135,7 @@ UInt16 GetThresholdClass (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6103,7 +6197,7 @@ Boolean GetThresholdTableMemory (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6189,7 +6283,7 @@ Boolean GetTransformedCommonCovariance (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6299,7 +6393,7 @@ Boolean GetTtInvTransformedCommonCovarianceT (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6408,7 +6502,7 @@ Boolean GetTtInvTransformedCovarianceT (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6476,358 +6570,12 @@ void InitializeClassifierVarStructure (
 		
 		}	// end "if (classifierVarPtr != NULL)" 
 			
-}	// end "InitializeClassifierVarStructure"
+}	// end "InitializeClassifierVarStructure" 
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
-//
-//	Function name:		void KNNClassifier
-//
-//	Software purpose:	The purpose of this routine is to classify the input line
-//							of data using the K Nearest Neighbor Classifier.
-//
-//	Parameters in:					
-//
-//	Parameters out:	None
-//
-// Value Returned:	None	
-// 
-// Called By:
-//
-//	Coded By:			Tsung Tai				Date: 04/01/2019
-//	Revised By:			Larry L. Biehl			Date: 06/29/2019
-
-		// Sorting operator for knn
-
-bool comparison (knnType a, knnType b)
-
-{
-   return (a.distance < b.distance);
-	
-}	// end "comparison"
-
-
-
-SInt16 KNNClassifier (
-				AreaDescriptionPtr            areaDescriptionPtr,
-				FileInfoPtr                   fileInfoPtr,
-				ClassifierVarPtr              clsfyVariablePtr,
-				HUCharPtr                     outputBuffer1Ptr,
-				HUCharPtr							thresholdBufferPtr,
-				HSInt64Ptr							countVectorPtr,
-				Point									point)
-
-{
-	
-   RgnHandle                     rgnHandle;
-	
-   HDoublePtr                    ioBufferReal8Ptr,
-   										savedBufferReal8Ptr;
-	
-   SInt16                        *classPtr;
-	
-	double								dDistance,
-											dValue;
-
-	int									topK[257],
-											topKTemp[257];
-	
-	SInt16								kValue;
-	
-   UInt32                        equalClassCount,
-   										feat,
-											index,
-											maxClass,
-											numberChannels,
-											numberClasses,
-											numberSamplesPerChan,
-											//sameDistanceCount,
-											sample;
-	
-   Boolean                       createThresholdFlag,
-   										polygonField;
-	
-	
-   		// Initialize local variables.
-	
-   numberChannels =        gClassifySpecsPtr->numberChannels;
-   numberClasses =         gClassifySpecsPtr->numberClasses;
-   numberSamplesPerChan =  (UInt32)areaDescriptionPtr->numSamplesPerChan;
-   rgnHandle =					areaDescriptionPtr->rgnHandle;
-   polygonField =				areaDescriptionPtr->polygonFieldFlag;
-   classPtr = 					gClassifySpecsPtr->classPtr;
-	savedBufferReal8Ptr = 	(HDoublePtr)outputBuffer1Ptr;
-	kValue =						gClassifySpecsPtr->nearestNeighborKValue;
-	createThresholdFlag = 	gClassifySpecsPtr->createThresholdTableFlag;
-			
-	int knnPixelSize = gProjectInfoPtr->knn_distances.size ();
-	//int knnPixelSize = gProjectInfoPtr->knnCounter;
-	
-   		// Loop through the number of samples in the line of data
-	
-   for (sample=0; sample<numberSamplesPerChan; sample++)
-   	{
-      if (!polygonField || PtInRgn (point, rgnHandle))
-      	{
-   		maxClass = 0;
-			equalClassCount = 0;
-         //int topK[numberClasses+1];
-         for (int i=0; i<=numberClasses; i++)
-            topK[i] = 0;
-		
-			index = 0;
-         for (int i=0; i<knnPixelSize; i++)
-         	{
-            ioBufferReal8Ptr = savedBufferReal8Ptr;
-            //index = gProjectInfoPtr->knn_labels[i].index;
-				
-            		// Euclidean distance
-				
-				dDistance = 0;
-            for (feat=0; feat<numberChannels; feat++)
-            	{
-					dValue = gProjectInfoPtr->knnDataValuesPtr[index] - *ioBufferReal8Ptr;
-               dDistance += dValue * dValue;
-					
-					index++;
-               ioBufferReal8Ptr++;
-					
-            	}	// end "for (feat=0; feat<numberChannels; feat++)"
-				
-            gProjectInfoPtr->knn_distances[i].distance = dDistance;
-            gProjectInfoPtr->knn_distances[i].index = i;
-				
-         	}	// end " for (int i=0; i<knnPixelSize; i++)"
-			
-					// Find the topK points with min distance
-			
-         std::vector<knnType>::iterator it;
-         //int topKTemp[kValue];
-         for (int i=0; i<kValue; i++)
-         	{
-            double minTempDistance = DBL_MAX;
-            int minTempLabel = 0;
-            int minTempIndex = 0;
-            for (it = gProjectInfoPtr->knn_distances.begin ();
-            		it != gProjectInfoPtr->knn_distances.end ();
-                	it++)
-					{
-               if (it->distance < minTempDistance)
-               	{
-                  minTempDistance = it->distance;
-                  minTempIndex = it->index;
-                  minTempLabel = gProjectInfoPtr->knnLabelsPtr[minTempIndex];
-						
-               	}	// end "if (it->distance < minTempDistance)"
-					
-            	}	// end "for (it=gProjectInfoPtr->knn_labels.begin (); ..."
-				
-            topKTemp[i] = minTempLabel;
-            gProjectInfoPtr->knn_distances[minTempIndex].distance = DBL_MAX;
-				
-         	}	// end "for (int i=0; i<kValue; i++)"
-			/*
-         		// Sort the Points by distance from p
-			
-         sort (gProjectInfoPtr->knn_distances.begin (),
-					gProjectInfoPtr->knn_distances.end (),
-					comparison);
-			*/
-         		// Find the first class which has the topK closest distances to the
-					// pixel being classified.
-			
-			for (int i=0; i<kValue; i++)
-				{
-				//labelIndex = gProjectInfoPtr->knn_distances[i].index;
-            //topK[gProjectInfoPtr->knnLabelsPtr[labelIndex]]++;
-            topK[topKTemp[i]]++;
-				
-				}	// end "for (int i=0; i<kValue; i++)"
-			/*
-			for (int i=kValue; i<knnPixelSize; i++)
-				{
-						// Check if we have found the class with the topK closest pixels.
-				
-				for (int j=1; j<=numberClasses; j++)
-					{
-					if (topK[j] >= kValue)
-						{
-						maxClass = j;
-						break;
-						
-						}	// end "if (topK[i] >= kValue)"
-						
-					}	// end "for (j=1; j<=numberClasses; j++)"
-				
-				if (maxClass == 0)
-					topK[gProjectInfoPtr->knn_labels[i].label]++;
-				
-				else	// maxClass > 0
-					break;
-				
-				}	// end "for (int i=kValue; i<knnPixelSize; i++)"
-			*/
-					// Find the label with the maximum count
-			
-         int max = 0;
-         for (int i=0; i<=numberClasses; i++)
-         	{
-            if (topK[i] > max)
-            	{
-               maxClass = i;
-               max = topK[i];
-               equalClassCount = 0;
-					
-            	}	// end "if (topK[i] > max)"
-				
-				else if (topK[i] != 0 && topK[i] == max)
-               equalClassCount++;
-				
-            topK[i] = 0;
-				
-         	}	// end "for (int i=0; i<=numberClasses; i++)"
-			
-         maxClass -= 1;
-         countVectorPtr[classPtr[maxClass]]++;
-         *outputBuffer1Ptr = (UInt8)classPtr[maxClass];
-	
-      	clsfyVariablePtr->totalSameDistanceSamples += equalClassCount;
-			
-		   if (createThresholdFlag)
-		   	{
-		   			// Get the threshold table index.
-				
-				*thresholdBufferPtr = (UInt8)max;
-				thresholdBufferPtr++;
-				
-						// This is used to determine the average number of k nearest
-						// neighbor values
-				
-				gTempDoubleVariable1 += max;
-				
-		   	}	// end "if (createThresholdFlag)"
-		
-      	} 	// end "if (!polygonField || PtInRgn (point, rgnHandle))"
-	
-      else	// polygonField && !PtInRgn (point, rgnHandle)
-      	{
-         *outputBuffer1Ptr = 0;
-		
-      	}	// end "else polygonField && !PtInRgn (point, rgnHandle)"
-	
-      point.h++;
-      outputBuffer1Ptr++;
-      savedBufferReal8Ptr += numberChannels;
-	
-      		// Exit routine if user selects "cancel" or "command period".
-	
-      if (TickCount () >= gNextTime)
-      	{
-         if (!CheckSomeEvents (osMask+keyDownMask+updateMask+mDownMask+mUpMask))
-            return (3);
-		
-      	}	// end "if (TickCount () >= gNextTime)"
-	
-   	}	// end "for (sample=0; sample<..."
-	
-   		// Write carriage return and null character to classification record
-	
-   *outputBuffer1Ptr = kCarriageReturn;
-   outputBuffer1Ptr++;
-	
-	#if defined multispec_win
-		*outputBuffer1Ptr = kLineFeed;
-		outputBuffer1Ptr++;
-	#endif   // defined multispec_win
-	
-   *outputBuffer1Ptr = kNullTerminator;
-	
-   return (0);
-	
-}   // end "KNNClassifier"
-
-
-
-//------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
-//
-//	Function name:		void KNearestNeighborClassifierControl
-//
-//	Software purpose:	The purpose of this routine is to control the classification of
-//							the specified data using the point k Nearest Neighbor classifier.
-//
-//	Parameters in:
-//
-//	Parameters out:	None
-//
-// Value Returned:	None
-//
-// Called By:			ClassifyPerPointArea
-//
-//	Coded By:			Larry L. Biehl			Date: 04/25/2019
-//	Revised By:			Larry L. Biehl			Date: 06/04/2019
-
-void KNearestNeighborClassifierControl (
-				FileInfoPtr							fileInfoPtr)
-
-{
-	ClassifierVar						classifierVar;
-	
-	UInt32								numberClsfyChannels;
-	
-	Boolean								continueFlag;
-	
-	
-			// Initialize local variables
-	
-	numberClsfyChannels = gClassifySpecsPtr->numberChannels;
-	
-	InitializeClassifierVarStructure (&classifierVar);
-	
-			// Get the memory for the mean vectors and covariance matrices
-			// for the classes and channels to be used in the classification.
-	
-	continueFlag = SetupClsfierMemory (NULL,
-													NULL,
-													NULL,
-													NULL,
-													NULL,
-													NULL,
-													NULL,
-													NULL,
-													NULL,
-													NULL,
-													NULL,
-													NULL,
-													NULL,
-													NULL);
-	
-			// Continue with classification, if memory is not full.
-	
-	if (continueFlag)
-		{
-				// Classify the requested areas.	First load the maximum
-				// likelihood variable structure with need pointers
-		
-		classifierVar.chanMeanPtr = NULL;
-		classifierVar.classConstantLOO1Ptr = NULL;
-		
-		ClassifyAreasControl (fileInfoPtr, &classifierVar);
-		
-		}	// end "if (continueFlag)"
-
-}	// end "KNearestNeighborClassifierControl"
-
-
-
-//------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6847,7 +6595,7 @@ void KNearestNeighborClassifierControl (
 //							
 //
 //	Coded By:			Larry L. Biehl			Date: 09/03/1997
-//	Revised By:			Larry L. Biehl			Date: 06/29/2019
+//	Revised By:			Larry L. Biehl			Date: 08/16/2010	
 
 Boolean ListAverageDiscriminantValue (
 				CMFileStream*					resultsFileStreamPtr,
@@ -6867,9 +6615,6 @@ Boolean ListAverageDiscriminantValue (
 	
 	else if (gClassifySpecsPtr->mode == kCEMMode)
 		stringIndex = IDS_Classify53;
-	
-	else if (gClassifySpecsPtr->mode == kKNearestNeighborMode)
-		stringIndex = IDS_Classify73;
 		
 	else	// gClassifySpecsPtr->mode == kMaxLikeMode, kMahalanobisMode, kFisherMode,
 			// or kEchoMode
@@ -6902,7 +6647,7 @@ Boolean ListAverageDiscriminantValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6921,7 +6666,7 @@ Boolean ListAverageDiscriminantValue (
 //							
 //
 //	Coded By:			Larry L. Biehl			Date: 02/10/2000
-//	Revised By:			Larry L. Biehl			Date: 05/04/2019
+//	Revised By:			Larry L. Biehl			Date: 09/01/2017
 
 Boolean ListClassifyInputParameters (
 				FileInfoPtr							fileInfoPtr,
@@ -7061,21 +6806,7 @@ Boolean ListClassifyInputParameters (
 														echoClassifierVarPtr->annexationThreshold, 
 														continueFlag);
 		
-		}	// end "if (... && gClassifySpecsPtr->mode == kEchoMode)"
-
-	if (continueFlag && gClassifySpecsPtr->mode == kKNearestNeighborMode)
-		{
-				// List the k value used for the classification.
-		
-		continueFlag = ListSpecifiedStringNumber (
-														kClassifyStrID,
-														IDS_Classify71,
-														resultsFileStreamPtr,
-														gOutputForce1Code,
-														(SInt32)gClassifySpecsPtr->nearestNeighborKValue,
-														continueFlag);
-		
-		}	// end "if (... && gClassifySpecsPtr->mode == kKNearestNeighborMode)"
+		}	// end "if (... && gClassifySpecsPtr->mode == kEchoMode)" 
 
 	if (continueFlag && gClassifySpecsPtr->mode == kCorrelationMode) 
 		{	
@@ -7178,7 +6909,6 @@ Boolean ListClassifyInputParameters (
 		continueFlag = ListThresholdValue (gClassifySpecsPtr->probabilityThreshold,
 														gClassifySpecsPtr->correlationAngleThreshold,
 														gClassifySpecsPtr->cemThreshold,
-														gClassifySpecsPtr->knnThreshold,
 														resultsFileStreamPtr,
 														&gOutputForce1Code,
 														gClassifySpecsPtr->thresholdFlag,
@@ -7222,9 +6952,9 @@ Boolean ListClassifyInputParameters (
 		numberClasses++;
 	MGetString (gTextString2, kFileIOStrID, IDS_NumberClasses);
 	sprintf ((char*)gTextString, 
-					"    %s %d%s",
+					"    %s %ld%s", 
 					&gTextString2[1], 
-					(unsigned int)numberClasses,
+					numberClasses,
 					gEndOfLine);
 	continueFlag = OutputString (resultsFileStreamPtr, 
 											(char*)gTextString,
@@ -7236,7 +6966,7 @@ Boolean ListClassifyInputParameters (
 	
 	MGetString (gTextString2, kFileIOStrID, IDS_FileIO53);
 	sprintf ((char*)gTextString, 
-					"    %s %u%s",
+					"    %s %ld%s", 
 					&gTextString2[1], 
 					gClassifySpecsPtr->numberClasses,
 					gEndOfLine);
@@ -7292,74 +7022,12 @@ Boolean ListClassifyInputParameters (
 			
 	return (continueFlag);
 		
-}	// end "ListClassifyInputParameters"
+}	// end "ListClassifyInputParameters" 
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
-//
-//	Function name:		Boolean ListNumberOfSameDistanceSamples
-//
-//	Software purpose:	The purpose of this routine is to list the number of same
-//							distance samples or equal number of classes. In other words
-//							this is the number of samples for which there is no clear
-//                   class to assign the sample to.
-//
-//	Parameters in:
-//
-//	Parameters out:	None
-//
-// Value Returned:
-//
-// Called By:
-//
-//	Coded By:			Larry L. Biehl			Date: 07/08/2019
-//	Revised By:			Larry L. Biehl			Date: 07/08/2019
-
-Boolean ListNumberOfSameDistanceSamples (
-				CMFileStream*						resultsFileStreamPtr,
-				SInt64								totalSameDistanceSamples)
-
-{
-	SInt16								strLength;
-	
-	Boolean								continueFlag = TRUE;
-	
-	
-	if (totalSameDistanceSamples >= 0)
-		{
-		strLength = ListCountValue ((char*)gTextString3,
-												totalSameDistanceSamples,
-												-1,
-												0,
-												-1,
-												kDoNotIncludeTab);
-		
-		int	stringNumber = IDS_Classify67;
-		if (gProjectInfoPtr->includesStatisticsFromClusterOperationFlag ||
-									gClassifySpecsPtr->mode == kKNearestNeighborMode)
-			stringNumber = IDS_Classify72;
-		
-		continueFlag = ListSpecifiedStringNumber (kClassifyStrID,
-																stringNumber,
-																resultsFileStreamPtr,
-																gOutputForce1Code,
-																(char*)gTextString3,
-																continueFlag);
-		
-		}	// end "if (totalSameDistanceSamples >= 0)"
-	
-	return (continueFlag);
-
-}	// end "ListNumberOfSameDistanceSamples"
-
-
-
-//------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7467,7 +7135,7 @@ SInt16 ListTrainTestSummary (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7488,7 +7156,7 @@ SInt16 ListTrainTestSummary (
 // Called By:			ClassifyControl
 //
 //	Coded By:			Larry L. Biehl			Date: 12/07/1988
-//	Revised By:			Larry L. Biehl			Date: 07/01/2019
+//	Revised By:			Larry L. Biehl			Date: 01/20/2003
 
 Boolean LoadClassifySpecs (
 				FileInfoPtr							fileInfoPtr)
@@ -7587,9 +7255,6 @@ Boolean LoadClassifySpecs (
 				
 			gClassifySpecsPtr->outputStorageType = 0;
 			gClassifySpecsPtr->correlationCovarianceCode = kNoCovarianceUsed;
-			
-			gClassifySpecsPtr->nearestNeighborKValue = 5;
-			gClassifySpecsPtr->knnThreshold = 2;
 			
 			gClassifySpecsPtr->featureTransformationFlag = FALSE;
 			gClassifySpecsPtr->createThresholdTableFlag = FALSE;
@@ -7793,7 +7458,7 @@ Boolean LoadClassifySpecs (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7871,7 +7536,7 @@ Boolean LoadProbabilityTable (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7950,12 +7615,12 @@ Boolean LoadThresholdTable (
 		
 	return (continueFlag);
 			
-}	// end "LoadThresholdTable"
+}	// end "LoadThresholdTable" 
 
 
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8293,7 +7958,7 @@ SInt16 MahalanobisClassifier (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8377,6 +8042,7 @@ void MahalanobisClsfierControl (
 									(Str255*)gTextString);
 		
 	InitializeClassifierVarStructure (&classifierVar);
+	classifierVar.totalSameDistanceSamples = 0;
 	
 			// Get the memory for the mean vectors and covariance matrices			
 			// for the classes and channels to be used in the classification.		
@@ -8652,7 +8318,7 @@ void MahalanobisClsfierControl (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8919,7 +8585,7 @@ SInt16 MaximumLikelihoodClassifier (
 			classIndex = classPtr[maxClass];
 		   countVectorPtr[classIndex]++;
 		   *outputBuffer1Ptr = (UInt8)classIndex;
-		   
+         
 		   		// Get distance measure if requested.									
 		   		// dValue1 is the variable for the probability.						
 		   
@@ -8989,7 +8655,7 @@ SInt16 MaximumLikelihoodClassifier (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9073,6 +8739,7 @@ void MaxLikeClsfierControl (
 									(Str255*)gTextString);
 		
 	InitializeClassifierVarStructure (&classifierVar);
+	classifierVar.totalSameDistanceSamples = 0;
 	
 			// Get the memory for the mean vectors and covariance matrices			
 			// for the classes and channels to be used in the classification.		
@@ -9351,7 +9018,7 @@ void MaxLikeClsfierControl (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9520,7 +9187,7 @@ SInt16 ParallelPipedClassifier (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9570,6 +9237,7 @@ void ParallelPipedClsfierControl (
 	numberClsfyChannels = gClassifySpecsPtr->numberChannels;
 	
 	InitializeClassifierVarStructure (&classifierVar);
+	classifierVar.totalSameDistanceSamples = 0;
 	
 			// Get the memory for the mean vectors and covariance matrices			
 			// for the classes and channels to be used in the classification.		
@@ -9706,7 +9374,7 @@ void ParallelPipedClsfierControl (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9912,131 +9580,12 @@ Boolean SetupClsfierMemory (
 	
 	return (continueFlag);
 		
-}	// end "SetupClsfierMemory"
-
-
-/*
-SInt16 SVMClassifier (
-                            AreaDescriptionPtr            areaDescriptionPtr,
-                            FileInfoPtr                     fileInfoPtr,
-                            ClassifierVarPtr               clsfyVariablePtr,
-                            HUCharPtr                     outputBuffer1Ptr,
-                            HUCharPtr                     probabilityBufferPtr,
-                            HSInt64Ptr                     countVectorPtr,
-                            Point                           point)
-
-{
-   
-   RgnHandle                     rgnHandle;
-   
-   HDoublePtr                     ioBufferReal8Ptr,
-   savedChanMeanPtr,
-   savedBufferReal8Ptr;
-   
-   double                        *chanMeanPtr;
-   
-   SInt16                        *classPtr;
-   
-   UInt32                        feat,
-   maxClass,
-   numberChannels,
-   numberClasses,
-   numberSamplesPerChan,
-   sample;
-   
-   Boolean                        polygonField;
-   
-   
-   // Initialize local variables.
-   
-   numberChannels =          gClassifySpecsPtr->numberChannels;
-   numberClasses =          gClassifySpecsPtr->numberClasses;
-   numberSamplesPerChan =    (UInt32)areaDescriptionPtr->numSamplesPerChan;
-   rgnHandle =             areaDescriptionPtr->rgnHandle;
-   polygonField =            areaDescriptionPtr->polygonFieldFlag;
-   classPtr = gClassifySpecsPtr->classPtr;
-   chanMeanPtr = clsfyVariablePtr->chanMeanPtr;
-   savedChanMeanPtr = chanMeanPtr;
-   savedBufferReal8Ptr = (HDoublePtr)outputBuffer1Ptr;
-   
-   // Loop through the number of samples in the line of data
-   
-   maxClass = 0;
-
-   for (sample=0; sample<numberSamplesPerChan; sample++)
-   {
-      if (!polygonField || PtInRgn (point, rgnHandle))
-      {
-         // Loop through the classes and get the discriminant value for
-         // each class.
-         
-         //discriminantMax = -DBL_MAX;
-         //chanMeanPtr = savedChanMeanPtr;
-         sample_type svm_samp;
-         svm_samp.set_size(numberChannels);
-         ioBufferReal8Ptr = savedBufferReal8Ptr;
-         
-         for (feat=0; feat<numberChannels; feat++)
-         {
-            svm_samp(feat) = *ioBufferReal8Ptr;
-            ioBufferReal8Ptr++;
-         }
-         maxClass = predict_label(gProjectInfoPtr->svm_weights, svm_samp)-1;
-         countVectorPtr[classPtr[maxClass]]++;
-         *outputBuffer1Ptr = (UInt8)classPtr[maxClass];
-         //*outputBuffer1Ptr = predict_label(gProjectInfoPtr->weights, svm_samp);
-         //std::cout << "out:" << classPtr[maxClass];
-         //std::cout << ",svm:" <<predict_label(gProjectInfoPtr->weights, svm_samp);
-         //std::cout <<",class:"<< areaDescriptionPtr->classNumber << std::endl;
-         
-      }   // end "if (!polygonField || PtInRgn (point, rgnHandle))"
-      
-      else   // polygonField && !PtInRgn (point, rgnHandle)
-      {
-         *outputBuffer1Ptr = 0;
-         //sameDistanceCount = 0;
-         
-      }   // end "else polygonField && !PtInRgn (point, rgnHandle)"
-      
-      //std::cout << "out2:" << predict_label(gProjectInfoPtr->weights, svm_samp) << std::endl;
-      point.h++;
-      outputBuffer1Ptr++;
-      savedBufferReal8Ptr += numberChannels;
-      
-      //clsfyVariablePtr->totalSameDistanceSamples += sameDistanceCount;
-      
-      // Exit routine if user selects "cancel" or "command period".
-      
-      if (TickCount () >= gNextTime)
-      {
-         if (!CheckSomeEvents (osMask+keyDownMask+updateMask+mDownMask+mUpMask))
-            return (3);
-         
-      }   // end "if (TickCount () >= gNextTime)"
-      
-   }   // end "for (sample=0; sample<..."
-   
-   // Write carriage return and null character to classification record
-   
-   *outputBuffer1Ptr = kCarriageReturn;
-   outputBuffer1Ptr++;
-   
-	#if defined multispec_win
-		*outputBuffer1Ptr = kLineFeed;
-		outputBuffer1Ptr++;
-	#endif   // defined multispec_win
-   
-   *outputBuffer1Ptr = kNullTerminator;
-
-   return (0);
-   
-} 	// end "SVMClassifier"
-*/
+}	// end "SetupClsfierMemory"  
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -10203,7 +9752,7 @@ SInt16 WriteClassificationResults (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2018)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

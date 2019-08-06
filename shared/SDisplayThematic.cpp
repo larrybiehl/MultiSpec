@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			02/05/2019
+//	Revision date:			03/16/2019
 //
 //	Language:				C
 //
@@ -341,7 +341,7 @@ Boolean ClassGroupDialog (
 // Called By:			DisplayColorImage
 //
 //	Coded By:			Larry L. Biehl			Date: 12/19/1989
-//	Revised By:			Larry L. Biehl			Date: 02/01/2019
+//	Revised By:			Larry L. Biehl			Date: 04/15/2019
 
 void DisplayColorThematicImage (
 				DisplaySpecsPtr					displaySpecsPtr, 
@@ -350,7 +350,8 @@ void DisplayColorThematicImage (
 				UInt32								pixRowBytes, 
 				PixMapHandle						savedPortPixMapH, 
 				PixMapHandle						offScreenPixMapH, 
-				LongRect*							rectPtr)
+				LongRect*							rectPtr,
+				LCToWindowUnitsVariables* 		lcToWindowUnitsVariablesPtr)
 	
 {
 	LongRect								longSourceRect;
@@ -729,11 +730,12 @@ void DisplayColorThematicImage (
 				
 				longSourceRect.bottom = lineCount;
 				if (!CheckSomeDisplayEvents (gImageWindowInfoPtr,
-															displaySpecsPtr,
-															savedPortPixMapH,
-															offScreenPixMapH,
-															&longSourceRect,
-															displayBottomMax))
+														displaySpecsPtr,
+														lcToWindowUnitsVariablesPtr,
+														savedPortPixMapH,
+														offScreenPixMapH,
+														&longSourceRect,
+														displayBottomMax))
 					break;
 				
 				#if defined multispec_lin
@@ -1814,7 +1816,7 @@ void DisplayThematicDialogOK (
 // Called By:			Menus
 //
 //	Coded By:			Larry L. Biehl			Date: 12/18/1988
-//	Revised By:			Larry L. Biehl			Date: 09/08/2006	
+//	Revised By:			Larry L. Biehl			Date: 03/16/2019
 
 Boolean DisplayThematicImage (void)
 
@@ -1909,6 +1911,12 @@ Boolean DisplayThematicImage (void)
 				{
 				if (!displaySpecsPtr->imageWindowIsUpToDateFlag)
 					displayChangedFlag = TRUE;
+				
+				#if defined multispec_lin
+							// Be sure scale is set for ImageView. This is put here
+							// in case the dialog is not called.
+					gActiveImageViewCPtr->m_Scale = displaySpecsPtr->magnification;
+				#endif	// defined multispec_lin
 					
 						// Draw the image as requested. 										
 						// Remove the selection rectangle if it exists and the		
@@ -2023,11 +2031,6 @@ Boolean DisplayThematicImage (void)
 										gImageWindowInfoPtr->legendListHandle, FALSE);
 						
 					}	// end "if (...imageBaseAddressH || ..."
-				
-						// Update palette menu and redraw the palette if it exists.	
-						
-				//gUpdatePaletteMenuItemsFlag = TRUE;
-				//UpdatePaletteWindow (paletteChangedFlag, FALSE);
 													
 				}	// end "if (CreateThematicPalette (..." 
 			
@@ -2035,9 +2038,7 @@ Boolean DisplayThematicImage (void)
 		
 			SetPort (savedPort);
 			
-			}	// end "if (HistogramThematicVector (displaySpecsPtr...)" 
-			
-		MInitCursor ();
+			}	// end "if (HistogramThematicVector (displaySpecsPtr...)"
 		
 				// Dispose of the symbolToPalette table if needed.
 						
@@ -2050,7 +2051,9 @@ Boolean DisplayThematicImage (void)
 		gUpdateFileMenuItemsFlag = TRUE;
 		gUpdateEditMenuItemsFlag = TRUE;
 			
-		}	// end 'if (DisplayThematicDialog ())'
+		}	// end 'if (continueFlag)'
+	
+	MInitCursor ();
 			
 			// Unlock handle to display specifications.
 	

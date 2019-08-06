@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			02/07/2018
+//	Revision date:			07/01/2019
 //
 //	Language:				C
 //
@@ -306,7 +306,7 @@ void 						LoadSamplesString (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -523,7 +523,7 @@ double ComputeKappaStatistic (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -596,7 +596,7 @@ Boolean DetermineIfLastClassForGroup (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -637,7 +637,7 @@ pascal void DrawDialogClassAreaPopUp (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -677,7 +677,7 @@ void ForceListResultsCodeResourceLoad (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -990,7 +990,7 @@ SInt16 GetAreaResults (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1066,7 +1066,7 @@ UInt32 GetClassGroupNameMaxLength (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1144,7 +1144,7 @@ SInt64 GetClassOrGroupNumberOfSamples (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1217,7 +1217,7 @@ double GetDefaultAreaConversionFactor (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1278,7 +1278,7 @@ SInt32 GetCountVectorIndex (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1327,7 +1327,7 @@ SInt32 GetGroupIndex (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1508,7 +1508,7 @@ Handle GetProbabilityWindowInfoHandle (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1573,7 +1573,7 @@ Boolean GetListResultsStringBuffer (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1686,7 +1686,7 @@ HUInt16Ptr GetSymbolToClassVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1823,7 +1823,7 @@ void GetTableColumnWidths (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1878,7 +1878,7 @@ SInt16 ListAreaValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2334,7 +2334,7 @@ Boolean ListClassificationSummary (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2861,7 +2861,7 @@ Boolean ListFCGPerformanceTable (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3021,7 +3021,7 @@ Boolean ListLineOfResults (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3150,7 +3150,7 @@ Boolean ListOverallPerformanceValues (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3319,7 +3319,7 @@ Boolean ListPerformanceTables (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3391,7 +3391,7 @@ Boolean ListPerformanceTableTotals (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3550,7 +3550,7 @@ Boolean ListReliabilityAccuracyLine (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3720,6 +3720,7 @@ Boolean ListResultsAreasControl (
 		continueFlag = ListThresholdValue (gListResultsSpecsPtr->probabilityThreshold,
 														gListResultsSpecsPtr->probabilityThreshold,
 														gListResultsSpecsPtr->probabilityThreshold,
+														(SInt16)gListResultsSpecsPtr->probabilityThreshold,
 														listResultsFileStreamPtr,
 														&gOutputForce1Code,
 														gListResultsSpecsPtr->thresholdFlag,
@@ -3891,7 +3892,7 @@ Boolean ListResultsAreasControl (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4251,7 +4252,7 @@ void ListResultsControl (void)
 
                   
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5085,7 +5086,7 @@ void ListResultsDialogSetThresholdItems (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5326,7 +5327,7 @@ Boolean ListResultsThematicClasses (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5548,7 +5549,7 @@ SInt16 ListResultsTrainTestFields (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5604,7 +5605,7 @@ Boolean ListTableFootNotes (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5622,12 +5623,13 @@ Boolean ListTableFootNotes (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 01/14/1998
-//	Revised By:			Larry L. Biehl			Date: 01/14/1998
+//	Revised By:			Larry L. Biehl			Date: 07/01/2019
 
 Boolean ListThresholdValue (
 				double								probabilityThreshold, 
 				double								correlationAngleThreshold,
 				double								cemThreshold,
+				SInt16								knnThreshold,
 				CMFileStream*						outputFileStreamPtr,
 				SInt16*								outputCodePtr,
 				Boolean								thresholdFlag,
@@ -5659,6 +5661,13 @@ Boolean ListThresholdValue (
 			value = cemThreshold;
 			
 			}	// end "if (thresholdTypeCode == kCEMMode)"
+		
+		else if (thresholdTypeCode == kKNearestNeighborMode)
+			{
+			stringIndex = IDS_Classify74;
+			value = knnThreshold;
+			
+			}	// end "if (thresholdTypeCode == kKNearestNeighborMode)"
 				
 		continueFlag = ListSpecifiedStringNumber (kClassifyStrID,
 																stringIndex,
@@ -5676,7 +5685,7 @@ Boolean ListThresholdValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5761,7 +5770,7 @@ void LoadAreaString (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5854,7 +5863,7 @@ void LoadClassInGroupOrderVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5895,7 +5904,7 @@ void LoadClassAreaVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6203,7 +6212,7 @@ Boolean LoadListResultsSpecs (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6281,7 +6290,7 @@ void LoadListResultsString (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6852,7 +6861,7 @@ Boolean LoadListResultsTitle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6937,7 +6946,7 @@ void LoadPercentString (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

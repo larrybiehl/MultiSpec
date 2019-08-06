@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			10/22/2018
+//	Revision date:			07/10/2019
 //
 //	Language:				C
 //
@@ -46,6 +46,8 @@
 	#include "LClassifyCorrelationDialog.h"
 	#include "LClassifyDialog.h"
 	#include "LClassifyEchoDialog.h"
+   #include "LClassifyKNNDialog.h"
+   //#include "LClassifySVMDialog.h"
 	#include "LListResultsOptionsDialog.h"
 #endif	// defined multispec_lin 
 
@@ -129,9 +131,14 @@ PascalVoid	 			DrawDiskFilePopUp (
 								SInt16 								itemNumber);
 								
 Boolean 					DecisionTreeDialog (void);
+
+Boolean              KNNClassifyDialog (
+								SInt16*								nearestNeighborKValuePtr);
 								
 Boolean 					LoadCEMParameterSpecs (
 								UInt16								classifyProcedureEnteredCode);
+
+Boolean              SVMClassifyDialog ();
 								
 								
 		// Global variables for file.
@@ -141,7 +148,7 @@ SInt16					gfile_EntireIconItem;
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -564,7 +571,7 @@ void CEMClassifyDialogOK (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -583,14 +590,12 @@ void CEMClassifyDialogOK (
 // Called By:			ClassifyControl   in classify.c
 //
 //	Coded By:			Larry L. Biehl			Date: 12/06/1988
-//	Revised By:			Larry L. Biehl			Date: 03/25/2017	
+//	Revised By:			Larry L. Biehl			Date: 05/04/2019
 
 Boolean ClassifyDialog (
 				FileInfoPtr							fileInfoPtr)
 
 {  							
-	float*								localClassWeightsPtr = NULL;
-								   
 	Boolean								returnFlag = FALSE;
 	
 #if defined multispec_mac
@@ -608,6 +613,8 @@ Boolean ClassifyDialog (
 											weightsPopUpBox;
 	
 	DialogPtr							dialogPtr;
+	
+	float*								localClassWeightsPtr = NULL;
 	
 	UInt16								*localActiveFeaturesPtr = NULL,
 											*localClassPtr = NULL,
@@ -769,6 +776,7 @@ Boolean ClassifyDialog (
 										&saveAngleThreshold,
 										&saveCorrelationThreshold,
 										&saveCEMThreshold,
+										&saveKNNThreshold,
 										&listResultsTestCode,
 										&listResultsTrainingCode,
 										&parallelPipedCode);
@@ -894,8 +902,8 @@ Boolean ClassifyDialog (
 					if ((gEventRecord.modifiers & optionKey) > 0)
 						{
 	 					SetMenuItemText (gPopUpClassifyProcedureMenu, 
-	 								kCorrelationMode, 
-	 								"\pCorrelation (SAM)...");
+	 											kCorrelationMode,
+	 											"\pCorrelation (SAM)...");
 	 					optionKeyFlag = TRUE;
 	 								
 	 					}	// end "if ((gEventRecord.modifiers & optionKey) > 0 || ..."
@@ -1356,9 +1364,9 @@ Boolean ClassifyDialog (
 					
 				case 47:				// Angle threshold	
 					thresholdValue = GetDItemRealValue (dialogPtr, 47);
-					if (thresholdValue > 180)
+					if (thresholdValue > 90)
 						RealNumberErrorAlert (saveAngleThreshold, dialogPtr, 47, 1);
-					if (thresholdValue >= 0 && thresholdValue <= 180)
+					if (thresholdValue >= 0 && thresholdValue <= 90)
 						{
 						saveAngleThreshold = thresholdValue;
 						saveCorrelationThreshold = cos (
@@ -1672,9 +1680,11 @@ void ClassifyDialogInitialize (
 				double*								saveAngleThresholdPtr,
 				double*								saveCorrelationThresholdPtr,
 				double*								saveCEMThresholdPtr,
+				SInt16*								saveKNNThresholdPtr,
 				SInt16*								listResultsTestCodePtr,
 				SInt16*								listResultsTrainingCodePtr,
-				SInt16*								parallelPipedCodePtr)
+				SInt16*								parallelPipedCodePtr,
+				SInt16*								nearestNeighborKValuePtr)
 	
 {
 	SInt16								eigenSource,							
@@ -1690,7 +1700,14 @@ void ClassifyDialogInitialize (
 	
 	#if defined multispec_lin  
 		wxComboBox*							comboBoxPtr;
-	#endif	// defined multispec_lin  
+	#endif	// defined multispec_lin
+	
+   // init SVM convergence_rate
+   //gProjectInfoPtr->convergence_rate = 0.1;
+		// Load the dialog local vectors
+   // init KNN topK value
+   //gProjectInfoPtr->topK = 5;
+   //gProjectInfoPtr->knnCounter = 0;
 	
 		
 		// Load the dialog local vectors
@@ -1745,7 +1762,7 @@ void ClassifyDialogInitialize (
 	
 	#if defined multispec_win  
 		dialogPtr->SetComboItemText (IDC_ClassificationProcedure, 
-												kCorrelationMode - 1,
+												kCorrelationMode - 2,
 												&gTextString[1]); 
 	
 		comboBoxPtr = 
@@ -1754,24 +1771,50 @@ void ClassifyDialogInitialize (
 		comboBoxPtr->SetItemData (0, kMaxLikeMode);
 		comboBoxPtr->SetItemData (1, kMahalanobisMode);
 		comboBoxPtr->SetItemData (2, kFisherMode);
-		comboBoxPtr->SetItemData (3, kEuclideanMode);
-		comboBoxPtr->SetItemData (4, kEchoMode);
-		comboBoxPtr->SetItemData (5, kCorrelationMode);
-		comboBoxPtr->SetItemData (6, kCEMMode);
-		comboBoxPtr->SetItemData (7, kParallelPipedMode);
+		comboBoxPtr->SetItemData (3, kEchoMode);
+		comboBoxPtr->SetItemData (4, kKNearestNeighborMode);
+		comboBoxPtr->SetItemData (5, kEuclideanMode);
+		comboBoxPtr->SetItemData (6, kCorrelationMode);
+		comboBoxPtr->SetItemData (7, kCEMMode);
+		comboBoxPtr->SetItemData (8, kParallelPipedMode);
 	#endif	// defined multispec_win  		
 
 	#if defined multispec_lin
+		int index = 0;
 		comboBoxPtr = (wxComboBox*) dialogPtr->FindWindowById (IDC_ClassificationProcedure);
 
-		comboBoxPtr->SetClientData (0, (void*)kMaxLikeMode);
-		comboBoxPtr->SetClientData (1, (void*)kMahalanobisMode);
-		comboBoxPtr->SetClientData (2, (void*)kFisherMode);
-		comboBoxPtr->SetClientData (3, (void*)kEuclideanMode);
-		comboBoxPtr->SetClientData (4, (void*)kEchoMode);
-		comboBoxPtr->SetClientData (5, (void*)kCorrelationMode);
-		comboBoxPtr->SetClientData (6, (void*)kCEMMode);
-		comboBoxPtr->SetClientData (7, (void*)kParallelPipedMode);
+		comboBoxPtr->SetClientData (index, (void*)kMaxLikeMode);
+	
+		index++;
+		comboBoxPtr->SetClientData (index, (void*)kMahalanobisMode);
+	
+		index++;
+		comboBoxPtr->SetClientData (index, (void*)kFisherMode);
+	
+		index++;
+		comboBoxPtr->SetClientData (index, (void*)kEchoMode);
+	
+		//index++;
+      //comboBoxPtr->SetClientData (index, (void*)kSVMMode);
+	
+		if (!gProjectInfoPtr->includesStatisticsFromClusterOperationFlag)
+			{
+			index++;
+      	comboBoxPtr->SetClientData (index, (void*)kKNearestNeighborMode);
+			
+      	}	// end "if (!gProjectInfoPtr->includesStatisticsFromClusterOperationFlag)"
+	
+		index++;
+		comboBoxPtr->SetClientData (index, (void*)kEuclideanMode);
+	
+		index++;
+		comboBoxPtr->SetClientData (index, (void*)kCorrelationMode);
+	
+		index++;
+		comboBoxPtr->SetClientData (index, (void*)kCEMMode);
+	
+		index++;
+		comboBoxPtr->SetClientData (index, (void*)kParallelPipedMode);
 	#endif  		                 
 	
 	if (gProjectInfoPtr->statisticsCode != kMeanCovariance)
@@ -2188,14 +2231,20 @@ void ClassifyDialogInitialize (
 		
 	*saveThresholdPercentPtr = gClassifySpecsPtr->probabilityThreshold;
 	
+	*nearestNeighborKValuePtr = gClassifySpecsPtr->nearestNeighborKValue;
+	
 			// Thresholds for Correlation Classifier.
 			
 	*saveAngleThresholdPtr = gClassifySpecsPtr->correlationAngleThreshold; 
 	*saveCorrelationThresholdPtr = cos (*saveAngleThresholdPtr * kDegreesToRadians);
 	
-			// Thresholds for CEM Classifier.
+			// Threshold for CEM Classifier.
 			
 	*saveCEMThresholdPtr = gClassifySpecsPtr->cemThreshold;
+	
+			// Threshold for KNN Classifier.
+	
+	*saveKNNThresholdPtr = gClassifySpecsPtr->knnThreshold;
 	
 			// Codes for training and test listings.
 			 
@@ -2236,8 +2285,9 @@ Boolean ClassifyDialogGetThresholdAllowedFlag (
 										(classificationProcedure == kMaxLikeMode) ||
 										(classificationProcedure == kMahalanobisMode) ||
 										(classificationProcedure == kFisherMode) ||
-										//(classificationProcedure == kEuclideanMode) ||
 										(classificationProcedure == kEchoMode) ||
+										(classificationProcedure == kKNearestNeighborMode) ||
+										//(classificationProcedure == kEuclideanMode) ||
 										(classificationProcedure == kCorrelationMode) ||
 										(classificationProcedure == kCEMMode);
 										
@@ -2257,6 +2307,7 @@ SInt16 ClassifyDialogOnClassificationProcedure (
 				SInt16								classificationSelection,
 				SInt16*								covarianceEstimatePtr,
 				SInt16								numberEigenvectors,
+				SInt16*								nearestNeighborKValuePtr,
 				UInt16*								classifyProcedureEnteredCodePtr,
 				Boolean								optionKeyFlag)
 	
@@ -2280,7 +2331,27 @@ SInt16 ClassifyDialogOnClassificationProcedure (
 		returnFlag = EchoClassifyDialog ();        
 		SetDLogControlHilite (dialogPtr, okItem, 0); 
 								
-		}	// end "if (classificationSelection == kEcho)" 
+		}	// end "if (classificationSelection == kEcho)"
+   /*
+   else if (classificationSelection == kSVMMode && optionKeyFlag )
+   	{
+      		// SVM procedure to be used; get specifications.
+	 
+      SetDLogControlHilite (dialogPtr, okItem, 255);
+      returnFlag = SVMClassifyDialog ();
+      SetDLogControlHilite (dialogPtr, okItem, 0);
+	 
+   	}	// end "else if (classificationSelection == kCorrelationMode && ...)"
+   */
+   else if (classificationSelection == kKNearestNeighborMode && optionKeyFlag )
+   	{
+      		// KNN procedure to be used; get specifications.
+		
+      SetDLogControlHilite (dialogPtr, okItem, 255);
+      returnFlag = KNNClassifyDialog (nearestNeighborKValuePtr);
+      SetDLogControlHilite (dialogPtr, okItem, 0);
+		
+   	}	// end "else if (classificationSelection == kCorrelationMode && ...)"
 														
 	else if (classificationSelection == kCorrelationMode && 
 				(optionKeyFlag || *covarianceEstimatePtr != kNoCovarianceUsed))
@@ -2343,7 +2414,7 @@ SInt16 ClassifyDialogOnClassificationProcedure (
 		
 		#if defined multispec_win                                
 			dialogPtr->SetComboItemText (IDC_ClassificationProcedure, 
-													kCorrelationMode - 1,
+													kCorrelationMode - 2,
 													(UCharPtr)"Correlation (SAM)"); 
 			
 			comboBoxPtr = 
@@ -2354,11 +2425,11 @@ SInt16 ClassifyDialogOnClassificationProcedure (
 
 		#if defined multispec_lin
 			dialogPtr->SetComboItemText (IDC_ClassificationProcedure,
-													kCorrelationMode - 1,
+													kCorrelationMode - 2,
 													(char*) "Correlation (SAM)");
 			comboBoxPtr = (wxComboBox*)dialogPtr->FindWindow (IDC_ClassificationProcedure);
 
-			comboBoxPtr->SetClientData (kCorrelationMode-1, (void*)kCorrelationMode);
+			comboBoxPtr->SetClientData (kCorrelationMode-2, (void*)kCorrelationMode);
 		#endif		// defined multispec_lin
 		 								
 		}	// end "if (*covarianceEstimatePtr == kNoCovarianceUsed)"
@@ -2379,8 +2450,9 @@ SInt16 ClassifyDialogOnClassificationProcedure (
 				// Make certain that 'Weights' are set properly.		
 							
 		*weightsSelectionPtr = abs (*weightsSelectionPtr);
-		if (classificationSelection == kEuclideanMode ||
-				classificationSelection == kCorrelationMode ||
+		if (classificationSelection == kKNearestNeighborMode ||
+				classificationSelection == kEuclideanMode ||
+					classificationSelection == kCorrelationMode ||
 						classificationSelection == kCEMMode ||
 							classificationSelection == kParallelPipedMode)
 			*weightsSelectionPtr = -(*weightsSelectionPtr); 
@@ -2394,7 +2466,7 @@ SInt16 ClassifyDialogOnClassificationProcedure (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2450,7 +2522,7 @@ void ClassifyDialogOnOverlay (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2655,43 +2727,47 @@ Boolean ClassifyDialogSetThresholdItems (
 	                            
 	Boolean									correlationItemsFlag,
 												cemItemsFlag,
+				                        kKNNItemsFlag,
 				                        maxLikeItemsFlag;
 												
 												
+	cemItemsFlag = FALSE;
+	correlationItemsFlag = FALSE;
+	kKNNItemsFlag = FALSE;
+	maxLikeItemsFlag = FALSE;
+
 	if (thresholdAllowedFlag)
 		{	
 		SetDLogControl (dialogPtr, IDC_ThresholdResults, thresholdResultsFlag);
 		SetDLogControlHilite (dialogPtr, IDC_ThresholdResults, 0);
 		ShowDialogItem (dialogPtr, IDC_ThresholdResults);
-
+		
 		if (thresholdResultsFlag)
 			{
-			if (classificationProcedure == kCorrelationMode)
+			if (classificationProcedure == kKNearestNeighborMode)
 				{
-				cemItemsFlag = FALSE;
-				correlationItemsFlag = TRUE; 
-				maxLikeItemsFlag = FALSE;
+				kKNNItemsFlag = TRUE;
+				selectedItem = IDC_NearestNeighborThreshold;
 				
-				selectedItem = IDC_CorrelationCoefficient;                                
+				}	// end "if (classificationProcedure == kCorrelationMode)"
+			
+			else if (classificationProcedure == kCorrelationMode)
+				{
+				correlationItemsFlag = TRUE;
+				selectedItem = IDC_CorrelationAngleThreshold;
 				
 				}	// end "if (classificationProcedure == kCorrelationMode)"
 				
 			else if (classificationProcedure == kCEMMode)
 				{      
 				cemItemsFlag = TRUE;
-				correlationItemsFlag = FALSE; 
-				maxLikeItemsFlag = FALSE;
-				                       
 				selectedItem = IDC_CEMThreshold;                                
 				
 				}	// end "else  ...!= kCorrelationMode"
 				
 			else	//  ...!= kCorrelationMode && ...
-				{     
-				cemItemsFlag = FALSE;
-				correlationItemsFlag = FALSE; 
+				{
 				maxLikeItemsFlag = TRUE; 
-				                        
 				selectedItem = IDC_ThresholdValue;                                 
 				
 				}	// end "else  ...!= kCorrelationMode"
@@ -2700,11 +2776,7 @@ Boolean ClassifyDialogSetThresholdItems (
 			
 		else	// !thresholdResultsFlag 
 			{       
-			cemItemsFlag = FALSE;
-			correlationItemsFlag = FALSE; 
-			maxLikeItemsFlag = FALSE; 
-				                            
-			selectedItem = IDC_LineStart;                                
+			selectedItem = IDC_LineStart;
 			
 			}	// end "if (thresholdResultsFlag && ...)" 
 		
@@ -2715,10 +2787,6 @@ Boolean ClassifyDialogSetThresholdItems (
 		SetDLogControl (dialogPtr, IDC_ThresholdResults, 0);
 		SetDLogControlHilite (dialogPtr, IDC_ThresholdResults, 255); 
 		
-		cemItemsFlag = FALSE;
-		correlationItemsFlag = FALSE; 
-		maxLikeItemsFlag = FALSE;
-		
 		}	// end "else !thresholdAllowedFlag"
 	
 			// Set the dialog items as requested above.
@@ -2726,10 +2794,13 @@ Boolean ClassifyDialogSetThresholdItems (
 	ShowHideDialogItem (dialogPtr, IDC_CEMThreshold, cemItemsFlag);
 			
 	ShowHideDialogItem (dialogPtr, IDC_correlationPrompt, correlationItemsFlag); 
-	ShowHideDialogItem (dialogPtr, IDC_CorrelationCoefficient, correlationItemsFlag);
-	ShowHideDialogItem (dialogPtr, IDC_CorrelationThresold, correlationItemsFlag);
+	ShowHideDialogItem (dialogPtr, IDC_CorrelationCoefficientThreshold, correlationItemsFlag);
+	ShowHideDialogItem (dialogPtr, IDC_CorrelationAngleThreshold, correlationItemsFlag);
 	ShowHideDialogItem (dialogPtr, IDC_DegreeSymbol, correlationItemsFlag);
-				                             
+	
+	ShowHideDialogItem (dialogPtr, IDC_NearestNeighborThreshold, kKNNItemsFlag);
+	ShowHideDialogItem (dialogPtr, IDC_NearestNeighbor, kKNNItemsFlag);
+	
 	ShowHideDialogItem (dialogPtr, IDC_ThresholdValue, maxLikeItemsFlag);
 	ShowHideDialogItem (dialogPtr, IDC_PercentSymbol, maxLikeItemsFlag);
 	
@@ -2754,6 +2825,9 @@ Boolean ClassifyDialogSetThresholdItems (
 		
 	if (classificationProcedure == kCEMMode)
 		CtoPstring ((UCharPtr)"Create CEM Values File", gTextString);
+	
+	else if (classificationProcedure == kKNearestNeighborMode)
+		CtoPstring ((UCharPtr)"Create KNN Values File", gTextString);
 		
 	else if (classificationProcedure == kCorrelationMode) 
 		CtoPstring ((UCharPtr)"Create SAM Values File", gTextString);
@@ -2831,11 +2905,13 @@ void ClassifyDialogOK (
 				double								saveAngleThreshold,
 				double								saveCEMThreshold,
 				double								saveThresholdPercent,
+				SInt16								saveKNNThreshold,
 				Boolean								probabilityFileFlag,
 				SInt16								paletteSelection,
 				SInt16								listResultsTestCode,
 				SInt16								listResultsTrainingCode,
-				SInt16								parallelPipedCode)
+				SInt16								parallelPipedCode,
+				SInt16								nearestNeighborKValue)
 				
 {		
 	double								thresholdValue;
@@ -3030,6 +3106,13 @@ void ClassifyDialogOK (
 			thresholdValue = saveCEMThreshold;
 			
 			}	// end "else if (gClassifySpecsPtr->mode == kCEMMode)"
+		
+		else if (gClassifySpecsPtr->mode == kKNearestNeighborMode)
+			{
+			gClassifySpecsPtr->knnThreshold = saveKNNThreshold;
+			thresholdValue = saveKNNThreshold;
+			
+			}	// end "else if (gClassifySpecsPtr->mode == kKNearestNeighborMode)"
 			
 		else	// ...->mode != kCorrelationMode && ...
 			{
@@ -3073,6 +3156,9 @@ void ClassifyDialogOK (
 		else if (gClassifySpecsPtr->mode == kCorrelationMode)
 			gClassifySpecsPtr->numberProbabilityClasses = 91;
 		
+		else if (gClassifySpecsPtr->mode == kKNearestNeighborMode)
+			gClassifySpecsPtr->numberProbabilityClasses = nearestNeighborKValue;
+		
 		}	// end "if (gClassifySpecsPtr->createProbabilityFileFlag)"
 								
 	gProjectInfoPtr->imagePalettePopupMenuSelection = paletteSelection;
@@ -3083,13 +3169,15 @@ void ClassifyDialogOK (
 	gProjectInfoPtr->listResultsTrainingCode = listResultsTrainingCode;
 	
 	gClassifySpecsPtr->parallelPipedCode = parallelPipedCode;
+	
+	gClassifySpecsPtr->nearestNeighborKValue = nearestNeighborKValue;
 				
 }	// end "ClassifyDialogOK"
 
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3278,7 +3366,7 @@ Boolean CorrelationClassifyDialog (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3398,8 +3486,8 @@ Boolean DecisionTreeDialog (void)
 		EnableMenuItem (gPopUpClassifyProcedureMenu, kEuclideanMode);
 		EnableMenuItem (gPopUpClassifyProcedureMenu, kEchoMode);
 		EnableMenuItem (gPopUpClassifyProcedureMenu, kParallelPipedMode);
-		DisableMenuItem (gPopUpClassifyProcedureMenu, kDecisionTreeMode);
-		//DisableMenuItem (gPopUpClassifyProcedureMenu, kUserClassify1);
+		DisableMenuItem (gPopUpClassifyProcedureMenu, kSVMMode);
+		DisableMenuItem (gPopUpClassifyProcedureMenu, kKNNMode);
 		
 		}	// end "if (...->statisticsCode != kMeanCovariance)" 
 
@@ -3409,8 +3497,8 @@ Boolean DecisionTreeDialog (void)
 		DisableMenuItem (gPopUpClassifyProcedureMenu, kMahalanobisMode);
 		DisableMenuItem (gPopUpClassifyProcedureMenu, kEchoMode);
 		DisableMenuItem (gPopUpClassifyProcedureMenu, kFisherMode);
-		DisableMenuItem (gPopUpClassifyProcedureMenu, kDecisionTreeMode);
-		//DisableMenuItem (gPopUpClassifyProcedureMenu, kUserClassify1);
+		DisableMenuItem (gPopUpClassifyProcedureMenu, kSVMMode);
+		DisableMenuItem (gPopUpClassifyProcedureMenu, kKNNMode);
 		
 		}	// end "if (...->statisticsCode != kMeanCovariance)" 
 	
@@ -3595,7 +3683,7 @@ Boolean DecisionTreeDialog (void)
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3636,7 +3724,7 @@ pascal void DrawClassificationProcedurePopUp (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3678,7 +3766,7 @@ pascal void DrawCorrelationMatrixClassAreaPopUp (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3720,7 +3808,7 @@ pascal void DrawCovarianceEstimatePopUp (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3762,7 +3850,7 @@ pascal void DrawEchoAlgorithmPopUp (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3803,7 +3891,7 @@ pascal void DrawDiskFilePopUp (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4232,9 +4320,33 @@ Boolean EchoClassifyDialog (void)
 }	// end "EchoClassifyDialog" 
 
 
+
+Boolean KNNClassifyDialog (
+				SInt16*								nearestNeighborKValuePtr)
+
+{
+   Boolean                     returnFlag = FALSE;
+	
+	
+	#if defined multispec_lin
+		CMKNNClassifyDialog* dialogPtr = NULL;
+		dialogPtr = new CMKNNClassifyDialog ();
+		if (dialogPtr != NULL)
+			{
+			returnFlag = dialogPtr->DoDialog (nearestNeighborKValuePtr);
+			delete dialogPtr;
+			
+			}	// end "if (dialogPtr != NULL)"
+	#endif	// defined multispec_lin
+	
+   return (returnFlag);
+	
+}	// end "KNNClassifyDialog"
+
+
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4434,7 +4546,7 @@ void ListResultsOptionsDialog (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4558,7 +4670,7 @@ Boolean LoadCEMParameterSpecs (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4641,3 +4753,21 @@ void SetUpPalettePopUpMenu (
 	#endif	// defined multispec_lin
 			
 }	// end Routine "SetUpPalettePopUpMenu" 
+
+
+/*
+Boolean SVMClassifyDialog ()
+{
+   Boolean                     returnFlag = FALSE;
+#if defined multispec_lin
+   CMSVMClassifyDialog* dialogPtr = NULL;
+   dialogPtr = new CMSVMClassifyDialog ();
+   if (dialogPtr != NULL)
+   {
+      returnFlag = dialogPtr->DoDialog ();
+      delete dialogPtr;
+   }
+#endif   // defined multispec_lin
+   return (returnFlag);
+}
+*/

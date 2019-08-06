@@ -21,7 +21,7 @@
 //	Written By:				Larry L. Biehl			Date: 03/29/1988
 //	Revised By:				Abdur Maud				Date: 06/24/2013
 //	Revised By:				Tsung Tai Yeh			Date: 09/23/2015
-//	Revised By:				Larry L. Biehl			Date: 03/07/2019
+//	Revised By:				Larry L. Biehl			Date: 07/01/2019
 //	
 //------------------------------------------------------------------------------------
 
@@ -706,6 +706,13 @@
 					MenuHandle							menuHandle,
 					SInt16								menuItem,
 					UCharPtr								stringPtr);
+
+	extern Boolean GetPolygonEnclosingRectangle (
+					HPFieldPointsPtr 					selectionPointsPtr,
+					int									numberPoints,
+					LCToWindowUnitsVariables*		lcToWindowUnitsVariablesPtr,
+					wxPoint*								currentPointPtr,
+					wxRect*								rectPtr);
 
 	extern UInt16 GetPopUpMenuBitsPerDataValue (
 					UInt16								bitsPerDataValueSelection);
@@ -2434,9 +2441,11 @@ extern void ClassifyDialogInitialize (
 				double*								saveAngleThresholdPtr,
 				double*								saveCorrelationThresholdPtr,
 				double*								saveCEMThresholdPtr,
+				SInt16*								saveKNNThresholdPtr,
 				SInt16*								listResultsTestCodePtr,
 				SInt16*								listResultsTrainingCodePtr,
-				SInt16*								parallelPipedCodePtr);
+				SInt16*								parallelPipedCodePtr,
+				SInt16*								nearestNeighborKValuePtr);
 	
 extern void ClassifyDialogOK (
 				SInt16								classificationProcedure,
@@ -2472,11 +2481,13 @@ extern void ClassifyDialogOK (
 				double								saveAngleThreshold,
 				double								saveCEMThreshold,
 				double								saveThresholdPercent,
+				SInt16								saveKNNThreshold,
 				Boolean								probabilityFileFlag,
 				SInt16								paletteSelection,
 				SInt16								listResultsTestCode,
 				SInt16								listResultsTrainingCode,
-				SInt16								parallelPipedCode); 
+				SInt16								parallelPipedCode,
+				SInt16								nearestNeighborKValue); 
 	                
 extern SInt16 ClassifyDialogOnClassificationProcedure (
 				DialogPtr							dialogPtr, 
@@ -2488,6 +2499,7 @@ extern SInt16 ClassifyDialogOnClassificationProcedure (
 				SInt16								classificationSelection,
 				SInt16*								covarianceEstimatePtr,
 				SInt16								numberEigenvectors,
+				SInt16*								nearestNeighborKValuePtr,
 				UInt16*								classifyProcedureEnteredCodePtr,
 				Boolean								optionKeyFlag);
 	                
@@ -2544,6 +2556,7 @@ extern SInt16 EchoClassifier (
 				SInt16								classPointer,
 				AreaDescriptionPtr				areaDescriptionPtr,
 				FileIOInstructionsPtr			fileIOInstructionsPtr,
+				LCToWindowUnitsVariables* 		lcToWindowUnitsVariablesPtr,
 				ClassifierVarPtr					clsfyVariablePtr,
 				SInt64*								countVectorPtr);
 
@@ -2569,7 +2582,8 @@ extern SInt16 PostEchoClassifier (
 				HUCharPtr							ioBuffer1Ptr,
 				EchoClassifierVar*				echo_info,
 				ClassifierVarPtr					clsfyVariablePtr,
-				SInt64*								countVectorPtr);
+				SInt64*								countVectorPtr,
+				LCToWindowUnitsVariables* 		lcToWindowUnitsVariablesPtr);
 
 		//	end SClassifyEchoControl.cpp 
 
@@ -2869,6 +2883,7 @@ extern SInt16 DisplayAlert (
 				SInt16								stringNumber1,
 				SInt16								stringNumber2,
 				UCharPtr								stringPtr,
+				DialogPtr							parentPtr,
 				UInt16								stringCharCode);
 
 extern Boolean GetDialogLocalVectors (
@@ -3142,6 +3157,7 @@ extern SInt16 CheckNumberDisplayLines (
 extern Boolean CheckSomeDisplayEvents (
 				WindowInfoPtr						windowInfoPtr,
 				DisplaySpecsPtr					displaySpecsPtr,
+				LCToWindowUnitsVariables*		lcToWindowUnitsVariablesPtr,
 				PixMapHandle						savedPortPixMapH,
 				PixMapHandle						offScreenPixMapH,
 				LongRect*							sourceRectPtr,
@@ -3149,7 +3165,8 @@ extern Boolean CheckSomeDisplayEvents (
 
 extern void InvalidateImageSegment (
 				WindowInfoPtr						windowInfoPtr,
-				DisplaySpecsPtr					displaySpecsPtr,
+				//DisplaySpecsPtr					displaySpecsPtr,
+				LCToWindowUnitsVariables* 		lcToWindowUnitsVariablesPtr,
 				LongRect*							sourceRectPtr,
 				SInt32								displayBottomMax);
 
@@ -3227,7 +3244,8 @@ extern void DisplayImagesSideBySide (
 				UInt32								pixRowBytes,
 				PixMapHandle						savedPortPixMapH,
 				PixMapHandle						offScreenPixMapH,
-				LongRect*							rectPtr);
+				LongRect*							rectPtr,
+				LCToWindowUnitsVariables* 		lcToWindowUnitsVariablesPtr);
 
 extern void DisplayMultispectralDialogCheckDisplayLevels (
 				DisplaySpecsPtr					displaySpecsPtr,
@@ -3373,7 +3391,8 @@ extern void DisplayCImage (
 				PixMapHandle						offScreenPixMapH,
 				LongRect*							rectPtr,
 				SInt16								numberChannels,
-				SInt16								displayCode);
+				SInt16								displayCode,
+				LCToWindowUnitsVariables* 		lcToWindowUnitsVariablesPtr);
 
 extern void Display4_8ByteImagesSideBySide (
 				DisplaySpecsPtr					displaySpecsPtr,
@@ -3383,7 +3402,8 @@ extern void Display4_8ByteImagesSideBySide (
 				UInt32								pixRowBytes,
 				PixMapHandle						savedPortPixMapH,
 				PixMapHandle						offScreenPixMapH,
-				LongRect*							rectPtr);
+				LongRect*							rectPtr,
+				LCToWindowUnitsVariables* 		lcToWindowUnitsVariablesPtr);
 
 extern void DoNextDisplayChannelEvent (
 				WindowPtr							window,
@@ -3473,7 +3493,8 @@ extern void DisplayColorThematicImage (
 				UInt32								pixRowBytes,
 				PixMapHandle						savedPortPixMapH,
 				PixMapHandle						offScreenPixMapH,
-				LongRect*							rectPtr);
+				LongRect*							rectPtr,
+				LCToWindowUnitsVariables* 		lcToWindowUnitsVariablesPtr);
 
 extern void DisplayThematicDialogInitialize (
 				DialogPtr							dialogPtr,
@@ -5353,6 +5374,9 @@ extern void FillLineOfOffscreenBuffer (
 extern void GetDefaultImageOverlayName (
 				SInt16								imageOverlayIndex);
 
+extern Boolean GetDrawBaseImageFlag (
+				SInt16								imageOverlayIndex);
+
 extern SInt16 GetImageOverlayIndex (
 				Handle								windowInfoHandle,
 				SInt16								windowOverlayIndex);
@@ -5393,7 +5417,10 @@ extern SInt16 SetUpImageOverlayInformation (
 				UInt32								numberClasses,
 				LongRect*							overlayBoundingAreaPtr,
 				SInt16								thematicPaletteType,
-				SInt16								defaultTransparency);
+				SInt16								defaultTransparency,
+				SInt16								fieldTypeCode,
+				SInt32								clusterColumnInterval,
+				SInt32								clusterLineInterval);
 
 extern void UnlockImageOverlayInfoHandle (
 				SInt16								overlayIndex,
@@ -5401,6 +5428,10 @@ extern void UnlockImageOverlayInfoHandle (
 
 extern void UnlockImageOverlayOffscreenBuffer (
 				ImageOverlayInfoPtr				imageOverlayInfoPtr);
+
+void UpateDrawBaseImageCode (
+				WindowInfoPtr						windowInfoPtr,
+				SInt16								overlayIndex);
 
 		// end SImageOverlays.cpp 
 
@@ -5502,6 +5533,7 @@ extern Boolean ListThresholdValue (
 				double								probabilityThreshold,
 				double								correlationAngleThreshold,
 				double								cemThreshold,
+				SInt16								knnThreshold,
 				CMFileStream*						outputFileStreamPtr,
 				SInt16*								outputCodePtr,
 				Boolean								thresholdFlag,
@@ -6544,8 +6576,8 @@ extern UInt32 GetSetTiledIOBufferBytes (
 
 extern void GetSpareMemory (void);
 
-extern UInt32 MGetFreeMemory (
-				UInt32*								lContBlockPtr);
+extern SInt64 MGetFreeMemory (
+				SInt64*								lContBlockPtr);
 
 extern SInt32 MGetHandleSize (
 				Handle								handle);
@@ -7042,7 +7074,8 @@ extern void OutlineFieldsInProjectBaseWindows (
 				SInt16								statsWindowMode);
 
 extern void OutlineFieldsInProjectWindows (
-				SInt16								statsWindowMode);
+				SInt16								statsWindowMode,
+				Boolean								clearFieldAreaFlag);
 
 		// end SOutlineFields.cpp
 
@@ -7328,6 +7361,7 @@ extern void UpdateProjectMapProjectionHandle (
 
 extern Boolean DetermineIfSpecifiedStatisticsExist (
 				HPClassNamesPtr					classNamesPtr,
+				SInt16								statisticsType,
 				SInt16								covarianceStatsToUse,
 				Boolean*								computeCommonCovarianceFlagPtr);
 
@@ -7438,7 +7472,8 @@ extern Boolean GetProjectChannelMinMaxes (
 
 extern SInt64 GetNumberOfPixelsLoadedInClass (
 				HPClassNamesPtr					classNamesPtr,
-				HPFieldIdentifiersPtr			fieldIdentPtr);
+				HPFieldIdentifiersPtr			fieldIdentPtr,
+				SInt16								statisticsType);
 
 extern Boolean SetupModifiedStatsMemory (
 				UInt32								numberClasses);
@@ -7548,7 +7583,8 @@ extern Boolean SetupStatsMemory (void);
 
 extern SInt16 UpdateStatsControl (
 				SInt16								statsWindowMode,
-				Boolean								requestFlag);
+				Boolean								requestFlag,
+				Boolean								loadPixelDataFlag);
 
 extern void InitializeChannelMaximums (
 				HChannelStatisticsPtr			channelStatsPtr,
@@ -8201,7 +8237,15 @@ extern Boolean VerifyProjectStatsUpToDate (
 				UInt32*								numberClassesPtr,
 				SInt16*								classPtr,
 				UInt32								minimumNumberClasses,
+				SInt16								statisticsType,
 				SInt16								covarianceStatsToUse,
+				SInt16								setupGlobalInfoPointers,
+				SInt32*								minimumNumberTrainPixelsPtr);
+
+extern Boolean VerifyProjectTrainingPixelsLoaded (
+				UInt32*								numberClassesPtr,
+				SInt16*								classPtr,
+				UInt32								minimumNumberClasses,
 				SInt16								setupGlobalInfoPointers,
 				SInt32*								minimumNumberTrainPixelsPtr);
 
@@ -9035,11 +9079,13 @@ extern SInt16 CreateNumberWithCommasInString (
 
 extern UCharPtr CtoPstring (
 				UCharPtr								inCStringPtr,
-				UCharPtr								outPStringPtr);
+				UCharPtr								outPStringPtr,
+				int									maxStringLength=254);
 							               	   
 extern wchar_t* CtoPstring (
 				wchar_t*								inCStringPtr,
-				wchar_t*								outPStringPtr);
+				wchar_t*								outPStringPtr,
+				int									maxStringLength=254);
 
 extern void ForceTextToEnd (void);
 
@@ -9346,7 +9392,7 @@ extern Boolean MGetString (
 				UCharPtr								outTextPtr,
 				UInt16								stringListID,
 				UInt16								stringID,
-				UInt16								maxStringLength=255);
+				UInt16								maxStringLength=254);
 							
 #if defined multispec_win
 	extern void MSetWindowTitle (
@@ -9711,6 +9757,7 @@ extern Boolean DetermineIfContinuousChannels (
 				UInt32								numberChannels);
 
 extern void DrawSideBySideTitles (
+				wxDC*									titleBarDCPtr,
 				Handle								windowInfoHandle,
 				WindowPtr							windowPtr,
 				Rect*									updateRectPtr,
@@ -10181,7 +10228,10 @@ extern UInt32 GetCoordinateViewSelectionStart (
 extern SInt16 GetCoordinateViewUnits (
 				Handle								windowInfoHandle);
 
-ControlHandle GetCoordinateViewUnitsControl (
+extern SInt16 GetCoordinateViewUnitDecimalPlaces (
+				Handle								windowInfoHandle);
+
+extern ControlHandle GetCoordinateViewUnitsControl (
 				Handle								windowInfoHandle);
 
 extern SInt16 GetDisplayClassGroupCode (

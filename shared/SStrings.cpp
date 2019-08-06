@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			03/08/2019
+//	Revision date:			07/09/2019
 //
 //	Language:				C
 //
@@ -269,7 +269,7 @@ void CheckStringLength (
 // Called By:	
 //
 //	Coded By:			Larry L. Biehl			Date: 11/03/1993
-//	Revised By:			Larry L. Biehl			Date: 07/26/2005	
+//	Revised By:			Larry L. Biehl			Date: 03/22/2019
 // Linux: Just return True
 Boolean CheckTextWindowSpaceNeeded (
 				UInt32								numberBytesNeeded)
@@ -277,9 +277,10 @@ Boolean CheckTextWindowSpaceNeeded (
 {
 	#ifndef multispec_lin
 		double								floatTextSizeNeeded;
+	
+		SInt64								contiguousMemory;
 		
-		UInt32								contiguousMemory,
-												textSizeNeeded;
+		UInt32								textSizeNeeded;
 		
 		SInt16								returnCode;
 		
@@ -1333,18 +1334,19 @@ SInt16 CreateNumberWithCommasInString (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 04/24/1995
-//	Revised By:			Larry L. Biehl			Date: 01/12/1996	
+//	Revised By:			Larry L. Biehl			Date: 03/09/2019
 							               	   
 UCharPtr CtoPstring (
 				UCharPtr								inCStringPtr, 
-				UCharPtr								outPStringPtr)
+				UCharPtr								outPStringPtr,
+				int									maxStringLength)
 				
 {
 	if (inCStringPtr != NULL && outPStringPtr != NULL)
 		{
 		size_t bytesToMove = strlen ((CharPtr)inCStringPtr);
 		
-		bytesToMove = MIN (bytesToMove, 254);
+		bytesToMove = MIN (bytesToMove, maxStringLength);
 
 		if (bytesToMove > 0)
 			memmove (&outPStringPtr[1], inCStringPtr, bytesToMove);
@@ -1383,18 +1385,19 @@ UCharPtr CtoPstring (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 02/23/2017
-//	Revised By:			Larry L. Biehl			Date: 03/16/2017	
+//	Revised By:			Larry L. Biehl			Date: 03/09/2019
 							               	   
 wchar_t* CtoPstring (
 				wchar_t*								inCStringPtr,
-				wchar_t*								outPStringPtr)
+				wchar_t*								outPStringPtr,
+				int									maxStringLength)
 				
 {
 	if (inCStringPtr != NULL && outPStringPtr != NULL)
 		{
 		size_t bytesToMove = wcslen (inCStringPtr);
 		
-		bytesToMove = MIN (bytesToMove, 254);
+		bytesToMove = MIN (bytesToMove, maxStringLength);
 
 		if (bytesToMove > 0)
 			wmemmove (&outPStringPtr[1], inCStringPtr, bytesToMove);
@@ -2728,14 +2731,14 @@ void GetGraphWindowTitle (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 03/09/2007
-//	Revised By:			Larry L. Biehl			Date: 03/08/2019
+//	Revised By:			Larry L. Biehl			Date: 07/09/2019
 
 void InitializeDateVersionStrings ()
 
 {
 		// Date version string
 		
-	sprintf (gDateVersionString, "2019.03.08");
+	sprintf (gDateVersionString, "2019.07.09");
 
 		// Application identifier string
 		
@@ -5272,6 +5275,10 @@ Boolean ListString (
 //	Software purpose:	The purpose of this routine is to call the OS specific
 //							routine to list the string in the output test window.
 //
+//							Only verify available memory if the request is for more than
+//							10 MB; will assume 10 MB is relatively easily available. This
+//							is to save on calls to determine available memory.
+//
 //	Parameters in:		
 //
 //	Parameters out:	None.
@@ -5281,7 +5288,7 @@ Boolean ListString (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 03/30/1988
-//	Revised By:			Larry L. Biehl			Date: 03/25/2017
+//	Revised By:			Larry L. Biehl			Date: 03/22/2019
 
 Boolean ListString (
 				HPtr									stringPtr, 
@@ -5295,21 +5302,28 @@ Boolean ListString (
 				SInt16								charFormatCode)
 
 {   
-	UInt32								lContBlock;
+	SInt64								lContBlock;
 								
-	Boolean								returnFlag = FALSE;      															
+	Boolean								memoryOKFlag = TRUE,
+											returnFlag = FALSE;
 	
-								
-	MGetFreeMemory (&lContBlock);
+	
+	if (2*stringLength > 10000000)
+		{
+		MGetFreeMemory (&lContBlock);
+		
+		if (lContBlock < 2*stringLength)
+			memoryOKFlag = FALSE;
+		
+		}	// end "if (2*stringLength > 10000000)"
 	
 			// Continue if memory ok.															
 			
-	if (lContBlock > MAX (gTextMemoryMinimum, 2*stringLength))	
+	if (memoryOKFlag)
 		{		
 		#if defined multispec_mac
 					// Local Declarations 	
-					  
-//			Boolean		redisplayFlag;
+			
 			SInt16		savedMemoryError;
 			
 			if (gOutputWindow == NULL)
@@ -5520,9 +5534,9 @@ Boolean ListString (
 			returnFlag = gOutputViewCPtr->ListString (stringPtr, stringLength, charFormatCode);  
 		#endif	// defined multispec_win
 		
-		}	// end "if (lContBlock > MAX (gTextMemoryMinimum, ..."
+		}	// end "if (memoryOKFlag)"
 		
-	else	// lContBlock <= MAX (gTextMemoryMinimum, ... 
+	else	// !memoryOKFlag
 		{	
 		DisplayAlert (kTextWindowLowMemoryAlertID, 
 							kCautionAlert,
@@ -5533,7 +5547,7 @@ Boolean ListString (
 		
 		returnFlag = FALSE;
 		
-		}	// end "else lContBlock <= MAX (gTextMemoryMinimum, ..."
+		}	// end "else !memoryOKFlag"
 		
 	return (returnFlag);
 		
@@ -6143,7 +6157,7 @@ void* MemoryCopy (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 04/14/1995
-//	Revised By:			Larry L. Biehl			Date: 02/28/2019
+//	Revised By:			Larry L. Biehl			Date: 03/15/2019
 //
 // For Linux: The String Table must be defined in LStringTable.def
 // Format for linux string table is given in LStringTable.def
@@ -6257,7 +6271,7 @@ Boolean MGetString (
 																									return false;
    
 		bool found = false;
-		wxString str, strout;
+		wxString str, strout, strend;
 		wxString index (wxT("#"));
 		index << stringID; // Append string id
 		for (str = file.GetFirstLine (); !file.Eof (); str = file.GetNextLine ()) 
@@ -6267,10 +6281,17 @@ Boolean MGetString (
 						// Now extract string
 				if (str.Contains (wxT("\""))) 
 					{
+							// Verify that this is the last character in the string. If
+							// not, then the '"' is part of the string not the designator
+							// for the end of the string. Will need to go to the next line
+							// to get the end.
+					
 					str = str.AfterFirst ('"');
-					if (str.Contains (wxT("\""))) 
+					strend = str.AfterLast ('"');
+					if (str.Contains (wxT("\"")) && strend.IsEmpty ())
 						{
 						strout = str.BeforeLast ('"');
+						
 						strncpy ((char*)&outTextPtr[1],
 									(const char*)strout.mb_str (wxConvUTF8),
 									maxStringLength);

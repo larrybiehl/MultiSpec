@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			03/01/2019
+//	Revision date:			08/06/2019
 //
 //	Language:				C
 //
@@ -435,7 +435,7 @@ Boolean AddToImageWindowFile (
 //							SetUpThematicImageWindow in SOpnImag.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 08/11/1988
-//	Revised By:			Larry L. Biehl			Date: 01/03/2019
+//	Revised By:			Larry L. Biehl			Date: 03/14/2019
 
 void AdjustImageWSize (
 				Handle								windowInfoHandle)
@@ -653,6 +653,7 @@ void AdjustImageWSize (
 		wxRect wxFrameRect = imageFramePtr->GetRect ();
 		wxRect wxFrameClientRect = imageFramePtr->GetClientRect ();
 		int titleToolBarHeight = wxFrameRect.height - wxFrameClientRect.height;
+		int titleBarHeight = 15;
 
 				// Amount to allow for window border.
 		#ifdef NetBeansProject
@@ -664,8 +665,11 @@ void AdjustImageWSize (
 		#else	// mygeohub
 			#if defined multispec_wxmac
 				//wxSize toolBarSize = imageFramePtr->GetToolBar ()->GetToolBitmapSize ();
-				amountToAllowForHStuff = 2 * 2 + wxFrameRect.width - wxFrameClientRect.width;	// 9
-				amountToAllowForVStuff = 2 * 2 + titleToolBarHeight;		// 2 * 5 + 24
+						// Allow for 2 pixels top and bottom and 4 pixels top and bottom for
+						// border.
+						
+				amountToAllowForHStuff = 2 + 4 + wxFrameRect.width - wxFrameClientRect.width;	// 9
+				amountToAllowForVStuff = 2 + 4 + titleToolBarHeight;		// 2 * 5 + 24
 	
 				rect.right -= amountToAllowForHStuff;
 				rect.bottom -= amountToAllowForVStuff;		// 2 * 5 + 24
@@ -723,7 +727,7 @@ void AdjustImageWSize (
 				// the image
 	
 		magnification = (double)1/lineInterval;
-		magnification = roundf (magnification * 1000) / 1000;
+		magnification = roundf (magnification * 10000) / 10000;
 		
 		}	// end "if (lineInterval > 1)"
 	/*
@@ -1463,7 +1467,7 @@ SInt32 CheckIfProjectFile (
 // Called By:			LoadImageInformation	in SOpnImag.cpp	
 //
 //	Coded By:			Larry L. Biehl			Date: 08/23/1988
-//	Revised By:			Larry L. Biehl			Date: 06/22/2018
+//	Revised By:			Larry L. Biehl			Date: 08/06/2019
 
 SInt16 CheckImageHeader (
 				Handle								windowInfoHandle,
@@ -1633,10 +1637,12 @@ SInt16 CheckImageHeader (
 			returnCode = ReadLGSOWGHeader (fileInfoPtr, headerRecordPtr, formatOnlyCode);
 
 				// Check if this is an ENVI header file.
-		/*
-		if (fileInfoPtr->format == 0 && count >= 128)
-			returnCode = ReadENVIHeader (fileInfoPtr, headerRecordPtr, formatOnlyCode);
-		*/
+		
+		#if !include_gdal_capability
+			if (fileInfoPtr->format == 0 && count >= 128)
+				returnCode = ReadENVIHeader (fileInfoPtr, headerRecordPtr, formatOnlyCode);
+		#endif
+		
 				// Check if this is a Landsat 7 fast format file.
 
 		if (fileInfoPtr->format == 0 && count >= 128)
@@ -3212,7 +3218,7 @@ SInt16 GetDatumInfo (
 //							GetDefaultThematicFilePalette in SPalette.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/04/1988
-//	Revised By:			Larry L. Biehl			Date: 09/05/2017
+//	Revised By:			Larry L. Biehl			Date: 03/15/2019
 
 Boolean GetDefaultSupportFile (
 				Handle								windowInfoHandle,
@@ -3368,9 +3374,12 @@ Boolean GetDefaultSupportFile (
 							fileName.Assign (workingDirectory);
 							
 									// Remove the last 2 directories from the full file path
-									
-							fileName.RemoveLastDir ();
-							fileName.RemoveLastDir ();
+							
+							if (fileName.GetDirCount () > 0)
+								fileName.RemoveLastDir ();
+							
+							if (fileName.GetDirCount () > 0)
+								fileName.RemoveLastDir ();
 							
 							workingDirectory = fileName.GetFullPath ();
 							charWorkingDirectory = workingDirectory.ToAscii ();
@@ -10872,7 +10881,7 @@ SInt16 ReadMacSADIEHeader (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 01/17/1990
-//	Revised By:			Larry L. Biehl			Date: 05/29/2008
+//	Revised By:			Larry L. Biehl			Date: 03/22/2019
 
 SInt16 ReadMultiSpecClassificationHeader (
 				FileInfoPtr							fileInfoPtr,
@@ -10888,6 +10897,8 @@ SInt16 ReadMultiSpecClassificationHeader (
 											*strPtr2;
 
 	CMFileStream*						fileStreamPtr;
+	
+	SInt64								lContBlock;
 
 	int									columnInterval,
 											firstColumn,
@@ -10899,7 +10910,6 @@ SInt16 ReadMultiSpecClassificationHeader (
 
 	UInt32								bufferSize,
 											count,
-											lContBlock,
 											index,
 											maxBufferSize = 3000,
 											minBufferSize = 1000,
@@ -11995,7 +12005,7 @@ SInt16 ReadMultiSpecChannelValues (
 // Called By:			LoadClassNameDescriptions in fileIO.c
 //
 //	Coded By:			Larry L. Biehl			Date: 01/17/1990
-//	Revised By:			Larry L. Biehl			Date: 03/15/2017	
+//	Revised By:			Larry L. Biehl			Date: 03/22/2019
 
 Boolean ReadMultiSpecClassNames (
 				FileInfoPtr							fileInfoPtr,
@@ -12010,11 +12020,12 @@ Boolean ReadMultiSpecClassNames (
 											strPtr;
 
 	UInt16*								classSymbolPtr;
+	
+	SInt64								lContBlock;
 
 	UInt32								bufferSize,
 											classIndex,
 											count,
-											lContBlock,
 											maxBufferSize = 2000,
 											minBufferSize = 500,
 											filePosOffset,
@@ -13936,7 +13947,7 @@ Boolean ReadThematicGroupsFromImageFile (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 12/05/1991
-//	Revised By:			Larry L. Biehl			Date: 09/08/2006
+//	Revised By:			Larry L. Biehl			Date: 03/22/2019
 
 SInt16 ReadVICARHeader (
 				FileInfoPtr							fileInfoPtr,
@@ -13949,10 +13960,11 @@ SInt16 ReadVICARHeader (
 											//*stringPtr;
 
 	CMFileStream*						fileStreamPtr;
+	
+	SInt64								lContBlock;
 
 	UInt32								bufferSize,
 											count,
-											lContBlock,
 											maxBufferSize = 3000,
 											minBufferSize = 1000,
 											posOff;
@@ -14668,8 +14680,11 @@ Boolean SetUpImageWindow (
 
 					AdjustImageWSize (windowInfoHandle);
 
-							// Force the image window to be displayed before the dialog box is displayed.
-					CheckSomeEvents (0);
+							// If the display dialog box will be displayed, force the image
+							// window to be displayed before the dialog box is displayed.
+					
+					if (gCallProcessorDialogFlag)
+						CheckSomeEvents (0);
 
 					gMemoryTypeNeeded = 1;
 					DisplayImage ();

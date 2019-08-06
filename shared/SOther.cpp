@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			12/07/2018
+//	Revision date:			05/03/2019
 //
 //	Language:				C
 //
@@ -126,7 +126,7 @@ Boolean LoadEvaluateTransformationSpecs (void);
 
 
 //------------------------------------------------------------------------------------
-//										Copyright (1988-2018)
+//										Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -144,7 +144,7 @@ Boolean LoadEvaluateTransformationSpecs (void);
 // Called By:			Menus in menus.c
 //
 //	Coded By:			Larry L. Biehl			Date: 11/14/1988
-//	Revised By:			Larry L. Biehl			Date: 12/07/2018
+//	Revised By:			Larry L. Biehl			Date: 05/03/2019
 
 void EvaluateCovariancesControl (void)
 
@@ -262,6 +262,7 @@ void EvaluateCovariancesControl (void)
 									&evaluateCovarianceSpecsPtr->numberClasses,
 									evaluateCovarianceSpecsPtr->classPtr,
 									1,
+									gProjectInfoPtr->statisticsCode,
 									kNoStatisticsUsed, 
 									kSetupGlobalInfoPointersIfCan,
 									NULL);
@@ -1146,7 +1147,7 @@ void EvaluateCovariancesControl (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1455,7 +1456,7 @@ Boolean EvaluateCovariancesDialog (
 									
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1534,7 +1535,7 @@ void EvaluateCovariancesDialogOK (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1828,7 +1829,7 @@ void EvaluateTransformationControl (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2089,7 +2090,7 @@ void EvaluateTransformationOK (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2224,7 +2225,7 @@ void ListCovarianceMatrix (
 																
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2557,7 +2558,7 @@ void ListDescriptionInformation (void)
 																
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3051,7 +3052,7 @@ Boolean ListDescriptionInformationForFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3107,7 +3108,7 @@ void ListInstrumentName (
 																
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3375,7 +3376,7 @@ Boolean ListLARSYSMISTHeaderInformation (
 																
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4190,7 +4191,7 @@ Boolean ListMapParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4374,7 +4375,7 @@ Boolean LoadEvaluateCovariancesSpecs (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

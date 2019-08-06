@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			12/07/2018
+//	Revision date:			05/03/2019
 //
 //	Language:				C
 //
@@ -1082,7 +1082,7 @@ Boolean ClusterClassification (
 // Called By:			Menus in menus.c
 //
 //	Coded By:			Larry L. Biehl			Date: 09/12/1989
-//	Revised By:			Larry L. Biehl			Date: 12/07/2018
+//	Revised By:			Larry L. Biehl			Date: 05/03/2019
 
 void ClusterControl (void)
 
@@ -1194,7 +1194,10 @@ void ClusterControl (void)
 															numberClusters,
 															&boundingClusterArea,
 															kDefaultColors,
-															gClusterSpecsPtr->transparency);
+															gClusterSpecsPtr->transparency,
+															gClusterSpecsPtr->clustersFrom,
+															gClusterSpecsPtr->clusterColumnInterval,
+															gClusterSpecsPtr->clusterLineInterval);
 						
 					if (!continueFlag || gClusterSpecsPtr->imageOverlayIndex <= -1)
 								// Not possible to create an image overlay.
@@ -1219,6 +1222,7 @@ void ClusterControl (void)
 													&gClusterSpecsPtr->numberInitializationClasses,
 													initializationClassPtr,
 													1,
+													gProjectInfoPtr->statisticsCode,
 													gProjectInfoPtr->covarianceStatsToUse, 
 													kSetupGlobalInfoPointers,
 													NULL);
@@ -1353,6 +1357,15 @@ void ClusterControl (void)
 							UpdateOverlayControl (FindProjectBaseImageWindowPtr ());
 							
 							}	// end "if (gOutputCode & kCreateImageOverlayCode)"
+							
+								// Set drawBaseImageFlag to proper setting for general updates.
+						
+						Handle activeImageWindowInfoHandle = FindProjectBaseImageWindowInfoHandle ();
+						WindowInfoPtr imageWindowInfoPtr = (WindowInfoPtr)GetHandlePointer (
+																	activeImageWindowInfoHandle);
+						if (imageWindowInfoPtr != NULL)
+							imageWindowInfoPtr->drawBaseImageFlag = GetDrawBaseImageFlag (
+																	gClusterSpecsPtr->imageOverlayIndex);
 	
 								// Make sure that any image overlay handle is unlocked.
 								
@@ -1459,7 +1472,7 @@ void ClusterControl (void)
 			}	// end "else !gProjectInfoPtr->newProjectFlag"
 
 		}	// end "if (gProjectInfoPtr != NULL)"
-
+	
 }	// end "ClusterControl" 
 
 
@@ -6346,7 +6359,7 @@ Boolean LoadClusterSpecs (
 // Called By:	
 //
 //	Coded By:			Larry L. Biehl			Date: 09/26/1989
-//	Revised By:			Larry L. Biehl			Date: 10/01/2013
+//	Revised By:			Larry L. Biehl			Date: 06/04/2019
 
 Boolean SaveClusterStatistics (
 				FileIOInstructionsPtr			fileIOInstructionsPtr, 
@@ -6614,6 +6627,7 @@ Boolean SaveClusterStatistics (
 		gProjectInfoPtr->changedFlag = TRUE;
 		gProjectInfoPtr->statsLoaded = TRUE;
 		gProjectInfoPtr->statsUpToDate = projectStatsUpToDateFlag;
+		gProjectInfoPtr->includesStatisticsFromClusterOperationFlag = TRUE;
 		gUpdateProjectMenuItemsFlag = TRUE;
 		gUpdateProcessorMenuItemsFlag = TRUE;
 		

@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			01/25/2019
+//	Revision date:			04/08/2019
 //
 //	Language:				C
 //
@@ -1087,7 +1087,7 @@ Boolean AddClassToProject (
 //							StatisticsWControlEvent SStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 09/30/1988
-//	Revised By:			Larry L. Biehl			Date: 01/16/2019
+//	Revised By:			Larry L. Biehl			Date: 05/05/2019
 
 Boolean AddFieldToProject (
 				SInt16								currentClass,
@@ -1307,8 +1307,16 @@ Boolean AddFieldToProject (
          classNamesPtr[currentStorageClass].statsUpToDate = FALSE;
          classNamesPtr[currentStorageClass].looCovarianceValue = -1;
          classNamesPtr[currentStorageClass].numberTrainPixels +=
-            fieldIdentPtr[currentStorageField].numberPixels;
-
+            								fieldIdentPtr[currentStorageField].numberPixels;
+			/*
+      	if (pointType == kMaskType)
+      		{
+      		fieldIdentPtr[currentStorageField].loadedIntoClassStats = TRUE;
+      		fieldIdentPtr[currentStorageField].numberPixelsUsedForStats =
+      											fieldIdentPtr[currentStorageField].numberPixels;
+				
+      		}	// end "if (pointType == kMaskType)"
+			*/
          fieldIdentPtr[currentStorageField].trainingStatsNumber =
 										(SInt16)(gProjectInfoPtr->numberStorageStatFields - 1);
 
@@ -1362,7 +1370,7 @@ Boolean AddFieldToProject (
 
 					// Outline the field in the project image windows if requested.
 
-         OutlineFieldsInProjectWindows (4);
+         OutlineFieldsInProjectWindows (kUpdateField, kDoNotClearArea);
 
          SetPort (savedPort);
 
@@ -1990,7 +1998,7 @@ SInt16 CheckForDuplicateFieldName (
 // Called By:			StatisticsWControlEvent  in SStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 09/30/1988
-//	Revised By:			Larry L. Biehl			Date: 04/29/2016	
+//	Revised By:			Larry L. Biehl			Date: 04/08/2019
 
 void ClassListStatMode (void)
 
@@ -2148,7 +2156,7 @@ void ClassListStatMode (void)
 			// the field list or coordinate list outline all requested fields.
 
    if (previousStatsMode > kClassListMode)
-      OutlineFieldsInProjectWindows (gProjectInfoPtr->statsWindowMode);
+      OutlineFieldsInProjectWindows (gProjectInfoPtr->statsWindowMode, kDoClearArea);
 
 }	// end "ClassListStatMode"
 
@@ -2176,7 +2184,7 @@ void ClassListStatMode (void)
 //							StatisticsControl in SStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/20/1988
-//	Revised By:			Larry L. Biehl			Date: 03/24/2017
+//	Revised By:			Larry L. Biehl			Date: 04/08/2019
 
 void CloseProjectWindow (void)
 
@@ -2241,7 +2249,7 @@ void CloseProjectWindow (void)
    if (gProjectInfoPtr != NULL)
 		{
       if (gProjectInfoPtr->statsWindowMode > kClassListMode)
-         OutlineFieldsInProjectWindows (0);
+         OutlineFieldsInProjectWindows (0, kDoClearArea);
 
       gProjectInfoPtr->statsWindowMode = 0;
 
@@ -3535,7 +3543,7 @@ void DrawStatPrompt (
 // Called By:			MouseDnEvents  in multiSpec.c
 //
 //	Coded By:			Larry L. Biehl			Date: 09/29/1988
-//	Revised By:			Larry L. Biehl			Date: 05/04/2017
+//	Revised By:			Larry L. Biehl			Date: 04/08/2019
 
 void FieldListStatMode (
 				SInt16								classNumber)
@@ -3736,7 +3744,7 @@ void FieldListStatMode (
          ForceFieldOutlineUpdate (FALSE);
 
       else	// previousStatsMode > kClassListMode 
-         OutlineFieldsInProjectWindows (gProjectInfoPtr->statsWindowMode);
+         OutlineFieldsInProjectWindows (gProjectInfoPtr->statsWindowMode, kDoClearArea);
 
 		}	// end "if (classNumber<=gProjectInfoPtr->numberStatistics..." 
 		
@@ -6330,7 +6338,7 @@ void SetNumberClassTrainPixels (
 //							StatisticsWControlEvent in SStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 09/30/1988
-//	Revised By:			Larry L. Biehl			Date: 08/19/2011	
+//	Revised By:			Larry L. Biehl			Date: 04/08/2019
 
 void NewFieldStatMode (void)
 
@@ -6462,7 +6470,7 @@ void NewFieldStatMode (void)
 			// all requested fields will be outlined.										
 
    if (previousStatsMode > kClassListMode)
-      OutlineFieldsInProjectWindows (gProjectInfoPtr->statsWindowMode);
+      OutlineFieldsInProjectWindows (gProjectInfoPtr->statsWindowMode, kDoClearArea);
 
 }	// end "NewFieldStatMode" 
 
@@ -7279,7 +7287,7 @@ void StatisticsControl (void)
 // Called By:			StatisticsControl   in SStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 09/26/1988
-//	Revised By:			Larry L. Biehl			Date: 07/06/2017
+//	Revised By:			Larry L. Biehl			Date: 04/08/2019
 
 SInt16 StatisticsDialog (
 				SInt16*								featurePtr,
@@ -7792,7 +7800,7 @@ SInt16 StatisticsDialog (
          ForceFieldOutlineUpdate (TRUE);
 
       else	// Just draw in the changes to what is already there. 
-         OutlineFieldsInProjectWindows (gProjectInfoPtr->statsWindowMode);
+         OutlineFieldsInProjectWindows (gProjectInfoPtr->statsWindowMode, kDoClearArea);
 
 		}	// end "if (outlineFieldType != ..."
 
@@ -8864,7 +8872,7 @@ void StatisticsOptionsDialogOK (
 //
 //	Parameters out:				
 //
-// Value Returned:	None
+// Value Returned:	
 // 
 // Called By:			DoStatisticsMouseDnContent in multiSpec.cpp
 //
@@ -8969,8 +8977,9 @@ Boolean StatisticsWControlEvent (
          case kUpdateStatsControl:
             gProcessorCode = kComputeStatsProcessor;
             gOutputForce1Code = 0x0001;
-            returnCode =
-							UpdateStatsControl (gProjectInfoPtr->statsWindowMode, FALSE);
+            returnCode = UpdateStatsControl (gProjectInfoPtr->statsWindowMode,
+															FALSE,
+															FALSE);
             break;
 
          case kNewFieldControl:

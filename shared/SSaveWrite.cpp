@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			03/01/2019
+//	Revision date:			04/02/2019
 //
 //	Language:				C
 //
@@ -8461,7 +8461,7 @@ SInt16 WriteTIFFColorMap (
 // Called By:			WriteTIFFImageFile
 //
 //	Coded By:			Larry L. Biehl			Date: 12/21/1994
-//	Revised By:			Larry L. Biehl			Date: 12/02/2016
+//	Revised By:			Larry L. Biehl			Date: 04/02/2019
 
 SInt16 WriteTIFFImageData (
 				CMFileStream* 						fileStreamPtr,
@@ -8469,7 +8469,7 @@ SInt16 WriteTIFFImageData (
 				UInt16								paletteOffset)
 
 {     	
-	HUCharPtr	 						offScreenBufferPtr,
+	UCharPtr	 							offScreenBufferPtr,
 											savedBufferPtr,
 				 							tempBufferPtr,
 											tOffScreenBufferPtr;
@@ -8525,25 +8525,38 @@ SInt16 WriteTIFFImageData (
 	#endif	// defined multispec_win  
 
 	#if defined multispec_lin
-		UInt32		linuxIncrement = 1;
-		
-				// In linux the offscreenbuffer always has 3 bytes for multispectral 
-				// image windows and 1 byte for thematic image windows.
-				
-		if (!gImageFileInfoPtr->thematicType)
-			linuxIncrement = 3;
-
+		UInt32		linuxIncrement;
+	
 		DisplaySpecsPtr displaySpecsPtr = (DisplaySpecsPtr)GetHandlePointer (
 										gActiveImageViewCPtr->GetDisplaySpecsHandle (), kLock);
 		pixelSize = displaySpecsPtr->pixelSize;
-		int numberColumns = ((displaySpecsPtr->columnEnd - 
-												displaySpecsPtr->columnStart) / 
+		
+				// In linux the offscreenbuffer always has 1 byte for multispectral
+				// image windows. The number for multispectral images depends on when
+				// it is a linux app or a MacOS app.
+	
+		if (gImageFileInfoPtr->thematicType ||
+								displaySpecsPtr->displayType == k1_ChannelThematicDisplayType)
+			{
+			linuxIncrement = 1;
+			int numberColumns = ((displaySpecsPtr->columnEnd -
+												displaySpecsPtr->columnStart) /
 																displaySpecsPtr->columnInterval) + 1;
 		
-		rowBytes = numberColumns*linuxIncrement;
-	#endif
+			rowBytes = numberColumns * linuxIncrement;
+			
+			}	// end "if (!gImageFileInfoPtr->thematicType)"
+				
+		else // !gImageFileInfoPtr->thematicType
+			{
+			linuxIncrement = 3;
+			#if defined multispec_wxmac_alpha || defined multispec_wxlin_alpha
+				linuxIncrement = 4;
+			#endif
+			rowBytes = gImageWindowInfoPtr->rowBytes;
 	
-	//imageBaseAddressH = gImageWindowInfoPtr->imageBaseAddressH;
+			}	// end "if (!gImageFileInfoPtr->thematicType)"
+	#endif
 	
 	numberBytesPerLine = areaRectanglePtr->right - areaRectanglePtr->left;
 	numberBytes = 1;
@@ -8581,7 +8594,7 @@ SInt16 WriteTIFFImageData (
 	#ifndef multispec_lin		
 		if (numberBytes > 1 || paletteOffset >= 1)
 			{
-			savedBufferPtr = (HUCharPtr)MNewPointer (numberBytesPerLine);
+			savedBufferPtr = (UCharPtr)MNewPointer (numberBytesPerLine);
 			if (savedBufferPtr == NULL)
 																							return (-2);
 		
@@ -8589,7 +8602,7 @@ SInt16 WriteTIFFImageData (
 	#endif	// #ifndef multispec_lin
    
 	#if defined multispec_lin
-		savedBufferPtr = (HUCharPtr) MNewPointer (numberBytesPerLine);
+		savedBufferPtr = (UCharPtr)MNewPointer (numberBytesPerLine);
 		if (savedBufferPtr == NULL)
 																							return (-2);
 	#endif					
@@ -8598,12 +8611,12 @@ SInt16 WriteTIFFImageData (
 			
 	#if defined multispec_mac																			
 		if (gOSXCoreGraphicsFlag)
-			offScreenBufferPtr = (HUCharPtr)GetHandlePointer (
+			offScreenBufferPtr = (UCharPtr)GetHandlePointer (
 														gImageWindowInfoPtr->imageBaseAddressH);
 							
 		else	// !gOSXCoreGraphicsFlag
 			offScreenBufferPtr = 
-					(HUCharPtr)GetPixBaseAddr ((PixMapHandle)offScreenMapH);
+					(UCharPtr)GetPixBaseAddr ((PixMapHandle)offScreenMapH);
 					
 				// Get pointer to first line to be saved.											
 				
@@ -8612,7 +8625,7 @@ SInt16 WriteTIFFImageData (
 	
 	#if defined multispec_win                                            
 		offScreenBufferPtr = 
-					(HUCharPtr)GetHandlePointer (
+					(UCharPtr)GetHandlePointer (
 												gImageWindowInfoPtr->imageBaseAddressH, kLock);  
 		
 				// Get pointer to first line to be saved.
@@ -8623,7 +8636,16 @@ SInt16 WriteTIFFImageData (
 	#endif	// defined multispec_win 
 
 	#if defined multispec_lin
-		offScreenBufferPtr = (HUCharPtr) GetHandlePointer (
+	
+				// Get pointer to the raw bitmap data and indicate that bitmap is
+				// ready to be modified.
+	
+		if (gImageWindowInfoPtr->offscreenMapSize == 0)
+			offScreenBufferPtr = (UCharPtr)BeginBitMapRawDataAccess (
+														gImageWindowInfoPtr,
+														&gActiveImageViewCPtr->m_ScaledBitmap);
+		else	// gImageWindowInfoPtr->offscreenMapSize == 0)
+			offScreenBufferPtr = (UCharPtr) GetHandlePointer (
 														gImageWindowInfoPtr->imageBaseAddressH);
 
 				// Get pointer to first line to be saved.											
@@ -8634,7 +8656,8 @@ SInt16 WriteTIFFImageData (
 	count = numberBytesPerLine;	
 															
 	#ifdef multispec_lin	
-		offset = areaRectanglePtr->left * linuxIncrement;
+		//offset = areaRectanglePtr->left * linuxIncrement;
+		offset = areaRectanglePtr->left;
 	#endif	
 													
 	#ifndef multispec_lin		
@@ -8651,12 +8674,19 @@ SInt16 WriteTIFFImageData (
 				tempBufferPtr = savedBufferPtr;
 				tOffScreenBufferPtr = &offScreenBufferPtr[offset];
 			
+				#if defined multispec_wxmac_alpha
+							// Need to skip the alpha byte
+			
+					tOffScreenBufferPtr++;
+				#endif
+			
 				for (column = (UInt32) areaRectanglePtr->left;
 						  column < (UInt32) areaRectanglePtr->right;
 						  column++) 
 					{
 					*tempBufferPtr = *tOffScreenBufferPtr;		
 					tOffScreenBufferPtr += linuxIncrement;
+					//tOffScreenBufferPtr ++;
 					tempBufferPtr++;
 
 					}
@@ -8841,9 +8871,16 @@ SInt16 WriteTIFFImageData (
 			}	// end "if (!gOSXCoreGraphicsFlag)"
 	#endif	// defined multispec_mac 
 	*/
-	#if defined multispec_win || defined multispec_lin 
+	#if defined multispec_win
 		CheckAndUnlockHandle (gImageWindowInfoPtr->imageBaseAddressH);  
-	#endif	// defined multispec_win || defined multispec_lin 
+	#endif	// defined multispec_win
+	
+	#if defined multispec_lin
+		if (gImageWindowInfoPtr->offscreenMapSize == 0)
+			EndBitMapRawDataAccess (&gActiveImageViewCPtr->m_ScaledBitmap);
+		else
+			CheckAndUnlockHandle (gImageWindowInfoPtr->imageBaseAddressH);
+	#endif
 			
 	CheckAndDisposePtr (savedBufferPtr);
 				

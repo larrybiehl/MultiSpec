@@ -63,7 +63,7 @@
 // Called By:			DisplayColorImage in display.c
 //
 //	Coded By:			Larry L. Biehl			Date: 09/14/2001
-//	Revised By:			Larry L. Biehl			Date: 01/21/2019
+//	Revised By:			Larry L. Biehl			Date: 03/11/2019
 
 void Display1Channel16BitLine (
 				UInt32								numberSamples,
@@ -127,7 +127,7 @@ void Display1Channel16BitLine (
 						
             HUCharPtr imageptr;
             imageptr = (HUCharPtr)offScreen2BytePtr;
-				#if defined multispec_wxmac
+				#if defined multispec_wxmac_alpha
 							// Leave high order (alpha) byte blank.
 					imageptr++;
 				#endif
@@ -175,7 +175,7 @@ void Display1Channel16BitLine (
 
 					}	// else !zeroAsBackgroundFlag || backgroundValue
 					
-				#if defined multispec_wxlin
+				#if defined multispec_wxlin_alpha
 							// Leave lower order (alpha) byte blank.
 					imageptr++;
 				#endif
@@ -211,7 +211,7 @@ void Display1Channel16BitLine (
 // Called By:			DisplayColorImage in display.c
 //
 //	Coded By:			Larry L. Biehl			Date: 07/12/1988
-//	Revised By:			Larry L. Biehl			Date: 01/21/2019
+//	Revised By:			Larry L. Biehl			Date: 03/11/2019
 
 void Display2Channel16BitLine (
 				UInt32								numberSamples,
@@ -240,7 +240,7 @@ void Display2Channel16BitLine (
 		case kGBColor:	
 			for (j=0; j<numberSamples; j+=interval)
 				{
-				#if defined multispec_mac || defined multispec_wxmac
+				#if defined multispec_mac || defined multispec_wxmac_alpha
 							// Set high order bit and Red bits to 0).						
 						
 					*offScreen2BytePtr = 0;
@@ -328,7 +328,7 @@ void Display2Channel16BitLine (
 						imageptr++;
 						}
 					
-					#if defined multispec_wxlin
+					#if defined multispec_wxlin_alpha
 								// Leave lower order (alpha) byte blank.
 						imageptr++;
 					#endif
@@ -359,7 +359,7 @@ void Display2Channel16BitLine (
 		case kRBColor:	
 			for (j=0; j<numberSamples; j+=interval)
 				{
-				#if defined multispec_mac || defined multispec_wxmac
+				#if defined multispec_mac || defined multispec_wxmac_alpha
 							// Set high order bit and Green bits to 0).						
 						
 					*offScreen2BytePtr = 0;
@@ -443,7 +443,7 @@ void Display2Channel16BitLine (
 						imageptr++;
 						}
 					
-					#if defined multispec_wxlin
+					#if defined multispec_wxlin_alpha
 								// Leave lower order (alpha) byte blank.
 						imageptr++;
 					#endif
@@ -474,7 +474,7 @@ void Display2Channel16BitLine (
 		case kRGColor:	
 			for (j=0; j<numberSamples; j+=interval)
 				{
-				#if defined multispec_mac || defined mulispec_wxmac
+				#if defined multispec_mac || defined mulispec_wxmac_alpha
 							// Set high order bit and Blue bits to 0).						
 						
 					*offScreen2BytePtr = 0;
@@ -585,7 +585,7 @@ void Display2Channel16BitLine (
 						imageptr++;
 						}
 					
-					#if defined multispec_wxlin
+					#if defined multispec_wxlin_alpha
 								// Leave lower order (alpha) byte blank.
 						imageptr++;
 					#endif
@@ -621,7 +621,7 @@ void Display2Channel16BitLine (
 // Called By:			DisplayColorImage in display.c
 //
 //	Coded By:			Larry L. Biehl			Date: 07/12/1988
-//	Revised By:			Larry L. Biehl			Date: 01/21/2019
+//	Revised By:			Larry L. Biehl			Date: 03/11/2019
 
 void Display2Channel24BitLine (
 				UInt32								numberSamples,
@@ -759,7 +759,7 @@ void Display2Channel24BitLine (
 				#endif	// defined multispec_win
 
 				#if defined multispec_lin
-					#if defined multispec_wxmac
+					#if defined multispec_wxmac_alpha
 								// Leave high order (alpha) byte blank.
 						offScreenPtr++;
 					#endif
@@ -790,7 +790,7 @@ void Display2Channel24BitLine (
 					*offScreenPtr = dataDisplay1Ptr[dataValue];
 					offScreenPtr++;
 					
-					#if defined multispec_wxlin
+					#if defined multispec_wxlin_alpha
 								// Leave lower order (alpha) byte blank.
 						offScreenPtr++;
 					#endif
@@ -937,7 +937,7 @@ void Display2Channel24BitLine (
 					#endif	// defined multispec_win
 				
 					#if defined multispec_lin
-						#if defined multispec_wxmac
+						#if defined multispec_wxmac_alpha
 									// Leave high order (alpha) byte blank.
 							offScreenPtr++;
 						#endif
@@ -968,7 +968,7 @@ void Display2Channel24BitLine (
 					*offScreenPtr = dataDisplay1Ptr[dataValue];
 					offScreenPtr++;
 					
-					#if defined multispec_wxlin
+					#if defined multispec_wxlin_alpha
 								// Leave lower order (alpha) byte blank.
 						offScreenPtr++;
 					#endif
@@ -1114,7 +1114,7 @@ void Display2Channel24BitLine (
 				#endif	// defined multispec_win
 				
 				#if defined multispec_lin
-					#if defined multispec_wxmac
+					#if defined multispec_wxmac_alpha
 								// Leave high order (alpha) byte blank.
 						offScreenPtr++;
 					#endif
@@ -1145,7 +1145,7 @@ void Display2Channel24BitLine (
 					*offScreenPtr = 0;
 					offScreenPtr++;
 					
-					#if defined multispec_wxlin
+					#if defined multispec_wxlin_alpha
 								// Leave lower order (alpha) byte blank.
 						offScreenPtr++;
 					#endif
@@ -1209,7 +1209,7 @@ void Display2Channel24BitLine (
 // Called By:			DisplayColorImage in display.c
 //
 //	Coded By:			Larry L. Biehl			Date: 08/04/1989
-//	Revised By:			Larry L. Biehl			Date: 01/21/2019
+//	Revised By:			Larry L. Biehl			Date: 03/11/2019
 
 void Display3Channel16BitLine (
 				UInt32								numberSamples,
@@ -1291,7 +1291,7 @@ void Display3Channel16BitLine (
 		#endif	// defined multispec_mac || defined multispec_win
 		
 		#if defined multispec_lin
-			#if defined multispec_wxmac
+			#if defined multispec_wxmac_alpha
 						// Leave high order (alpha) byte blank.
 				offScreenPtr++;
 			#endif
@@ -1354,7 +1354,7 @@ void Display3Channel16BitLine (
 
 				}	// end "if (zeroAsBackgroundFlag && ...)"
 		
-			#if defined multispec_wxlin
+			#if defined multispec_wxlin_alpha
 						// Leave lower order (alpha) byte blank.
 				offScreenPtr++;
 			#endif
@@ -1388,7 +1388,7 @@ void Display3Channel16BitLine (
 // Called By:			DisplayColorImage in display.c
 //
 //	Coded By:			Larry L. Biehl			Date: 08/04/1989
-//	Revised By:			Larry L. Biehl			Date: 01/21/2019
+//	Revised By:			Larry L. Biehl			Date: 03/11/2019
 
 void Display3Channel24BitLine (
 				UInt32								numberSamples,
@@ -1536,7 +1536,7 @@ void Display3Channel24BitLine (
 		#endif	// defined multispec_win
 
 		#if defined multispec_lin
-			#if defined multispec_wxmac
+			#if defined multispec_wxmac_alpha
 						// Leave high order (alpha) byte blank.
 				offScreenPtr++;
 			#endif
@@ -1601,7 +1601,7 @@ void Display3Channel24BitLine (
 				
 				}	// end "if (backgroundValueCode && ...)"
 		
-			#if defined multispec_wxlin
+			#if defined multispec_wxlin_alpha
 						// Leave lower order (alpha) byte blank.
 				offScreenPtr++;
 			#endif

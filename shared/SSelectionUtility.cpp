@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl, Ravi Budruk
 //
-//	Revision date:			01/16/2019
+//	Revision date:			04/24/2019
 //
 //	Language:				C
 //
@@ -64,6 +64,7 @@
 	#include "LEditSelectionDialog.h"
 	#include "LGraphView.h"
 	#include "LImageView.h"
+	#include "LTools.h"
 #endif	// defined multispec_lin
 
 #if defined multispec_mac || defined multispec_mac_swift
@@ -288,7 +289,7 @@ void ClearNewFieldList (void)
 //							StatisticsWControlEvent in statistics.c
 //
 //	Coded By:			Larry L. Biehl			Date: 08/11/1989
-//	Revised By:			Larry L. Biehl			Date: 01/16/2019
+//	Revised By:			Larry L. Biehl			Date: 03/31/2019
 
 void ClearSelectionArea (
 				WindowPtr							windowPtr)
@@ -387,8 +388,13 @@ void ClearSelectionArea (
 
 					tempRect.x = (int)selectionRect.left - 3;
 					tempRect.y = (int)selectionRect.top - 3;
-					tempRect.width = (int)(selectionRect.right - selectionRect.left + 3);
-					tempRect.height = (int)(selectionRect.bottom - selectionRect.top + 3);
+					tempRect.width = (int)(selectionRect.right - selectionRect.left + 3 + 3);
+					tempRect.height = (int)(selectionRect.bottom - selectionRect.top + 3 + 3);
+				
+					wxPoint scrollOffset;
+					windowPtr->m_Canvas->CalcUnscrolledPosition (0, 0, &scrollOffset.x, &scrollOffset.y);
+					tempRect.x -= scrollOffset.x;
+					tempRect.y -= scrollOffset.y;
 				#endif	// defined multispec_lin     
 
 				#if defined multispec_mac || defined multispec_win
@@ -398,6 +404,7 @@ void ClearSelectionArea (
 				#if defined multispec_lin  
 							// Modify tempRect.x to tempRect.y in the first condition 
 							// 01.06.2016 Wei
+						
 					if (tempRect.y <= gViewRect.bottom &&
 													tempRect.y + tempRect.height >= gViewRect.top)
 				#endif	// defined multispec_lin 
@@ -1360,7 +1367,7 @@ Boolean ConvertLatLongRectToMapRectinNativeImageUnits (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 08/11/1989
-//	Revised By:			Larry L. Biehl			Date: 06/20/2016			
+//	Revised By:			Larry L. Biehl			Date: 03/31/2019
 
 void DrawSelectionArea (
 				WindowPtr							windowPtr)
@@ -1437,7 +1444,8 @@ void DrawSelectionArea (
 			viewRect.right = (SInt32)gViewRect.right + scrollOffset.h; 
 
 			#if defined multispec_lin
-				wxPoint deviceOrigin = gCDCPointer->GetDeviceOrigin ();
+				wxPoint savedDeviceOrigin = gCDCPointer->GetDeviceOrigin ();
+				wxPoint deviceOrigin = savedDeviceOrigin;
 				if (deviceOrigin.x > 0 || deviceOrigin.y > 0)
 					{ 
 							// the device origin should always > 0
@@ -1446,6 +1454,7 @@ void DrawSelectionArea (
 					deviceOrigin.x -=  scrollOffset.h;
 					deviceOrigin.y = 0;
 					deviceOrigin.y -=  scrollOffset.v;
+					
 					}
 					 
 				//printf ("deviceOrigin (drawSelctionArea) = %d, %d \n", 
@@ -1493,9 +1502,13 @@ void DrawSelectionArea (
 											#ifndef multispec_lin
 												&viewRect);
 											#else
-												&selectionRect);   
+												&viewRect);
 											#endif
 			}
+		
+		#ifdef multispec_lin
+			gCDCPointer->SetDeviceOrigin (savedDeviceOrigin.x, savedDeviceOrigin.y);
+		#endif
 
 		#if defined multispec_mac	
 					// Reset the clip area back to that upon routine entry.				
@@ -1532,7 +1545,7 @@ void DrawSelectionArea (
 // Called By:			
 //
 //	Revised By:			Larry L. Biehl			Date: 08/11/1989	
-//	Revised By:			Larry L. Biehl			Date: 12/23/2002	
+//	Revised By:			Larry L. Biehl			Date: 04/07/2019
 
 void DrawSelectionPolygon (
 				SelectionInfoPtr					selectionInfoPtr,
@@ -1636,19 +1649,17 @@ void DrawSelectionPolygon (
 			SetChannelWindowVariables (
 									kToImageWindow, gProjectSelectionWindow, kNotCoreGraphics);    
 			SetLCToWindowUnitVariables (windowInfoHandle,
-													 kWindowsUseOrigin,
-													 FALSE,
-													 lcToWindowUnitsVariablesPtr);
-			            
-					// Method 1 
-					       
+													kWindowsUseOrigin,
+													FALSE,
+													lcToWindowUnitsVariablesPtr);
+		
 			if (gProjectSelectionWindow != NULL)
 				{
 				pointCount = selectionInfoPtr->numberPoints;
 				int startchannel = gProjectSelectionWindow->m_startchannel_sbs;                
 				wxPoint* pointlist = new wxPoint[pointCount+1];   
 				int sideBysideImage_offset = startchannel * gChannelWindowInterval - gChannelWindowOffset;
-				for (pointIndex = 0; pointIndex<pointCount; pointIndex++)
+				for (pointIndex=0; pointIndex<pointCount; pointIndex++)
 					{
 					ConvertLCToWinPoint ((LongPoint*)&selectionPointsPtr[pointIndex],
 												&windowPoint,
@@ -1656,47 +1667,50 @@ void DrawSelectionPolygon (
 					pointlist[pointIndex].x = windowPoint.h;
 					pointlist[pointIndex].y = windowPoint.v;
 
-					}	// end "for (pointIndex = 0; pointIndex<pointCount; pointIndex++)"
+					}	// end "for (pointIndex=0; pointIndex<pointCount; pointIndex++)"
 						 
 				gCDCPointer->SetBrush (*wxTRANSPARENT_BRUSH);
-				gCDCPointer->SetPen (wxPen (*wxWHITE, 1, wxPENSTYLE_SHORT_DASH));            
 				wxPoint scrollOffset = 
 									gProjectSelectionWindow->m_Canvas->GetScrollPosition ();
 						 
 				if (gProcessorCode == kPolygonSelectionProcessor)
-					{ 
+					{
 							// During polygon selection mode
-							
-					wxPoint currloc_Win = wxGetMousePosition ();                  
-					wxPoint canvasOffset;
-					LongPoint currloc_WinCanvas;
-					canvasOffset.y = 
-									gProjectSelectionWindow->m_Canvas->GetScreenPosition ().y;
-					canvasOffset.x = 
-									gProjectSelectionWindow->m_Canvas->GetScreenPosition ().x;                  
-					currloc_WinCanvas.h = currloc_Win.x -canvasOffset.x;
-					currloc_WinCanvas.v = currloc_Win.y -canvasOffset.y;
-					pointlist[pointIndex].x = currloc_WinCanvas.h - sideBysideImage_offset;
-					pointlist[pointIndex].y = currloc_WinCanvas.v;     
+				
+					CMTool* pTool = CMTool::FindTool (CMTool::c_toolType);
+					wxPoint lastLocation = pTool->c_last - scrollOffset;
+					
+					pointlist[pointCount].x = lastLocation.x - sideBysideImage_offset;
+					pointlist[pointCount].y = lastLocation.y;
+					
+					gCDCPointer->SetPen (wxPen (*wxWHITE, 1, wxPENSTYLE_SHORT_DASH));
 					gCDCPointer->DrawPolygon (pointCount+1, 
 														pointlist, 
 														sideBysideImage_offset+scrollOffset.x,
 														scrollOffset.y,
-														wxODDEVEN_RULE);   
+														//wxODDEVEN_RULE);
+														wxWINDING_RULE);
 														
-					gCDCPointer->SetPen (wxPen (*wxBLACK, 1, wxPENSTYLE_SHORT_DASH)); 
-					  										  
+					gCDCPointer->SetPen (wxPen (*wxBLACK, 1, wxPENSTYLE_SHORT_DASH));
 					gCDCPointer->DrawPolygon (pointCount+1, 
 														pointlist, 
 														sideBysideImage_offset+scrollOffset.x+1,
 														scrollOffset.y+1,
-														wxODDEVEN_RULE);
+														//wxODDEVEN_RULE);
+														wxWINDING_RULE);
 														   
 					}	// end "if (gProcessorCode == kPolygonSelectionProcessor)"
 					
-				else 
+				else	// gProcessorCode != kPolygonSelectionProcessor
 					{ 
 							// After double clicking, draw on all channels
+						
+							// The x scroll offset needs to be relative to the first displayed
+							// channel
+						
+					int xScrollOffset;
+					ldiv_t lDivideStruct = ldiv (scrollOffset.x, gChannelWindowInterval);
+					xScrollOffset = lDivideStruct.rem;
 						
 					for (SInt32 channel=gStartChannel; 
 								channel<gSideBySideChannels; 
@@ -1704,47 +1718,48 @@ void DrawSelectionPolygon (
 						{
 						if (selectionRectPtr->left <= viewRectPtr->right &&
 													selectionRectPtr->right >= viewRectPtr->left)
-							{                      
-							//printf ("Offset = %d\n", 
-							//				lcToWindowUnitsVariablesPtr->channelWindowOffset + 
-							//																scrollOffset.x);                     							
+							{
+							gCDCPointer->SetPen (wxPen (*wxWHITE, 1, wxPENSTYLE_SHORT_DASH));
 							gCDCPointer->DrawPolygon (
 											pointCount, 
 											pointlist, 
-											lcToWindowUnitsVariablesPtr->channelWindowOffset + 
-											scrollOffset.x,
+											lcToWindowUnitsVariablesPtr->channelWindowOffset +
+																							xScrollOffset,
+											//lcToWindowUnitsVariablesPtr->channelWindowOffset ,
 											scrollOffset.y,
-											wxODDEVEN_RULE);
+											//wxODDEVEN_RULE);
+											wxWINDING_RULE);
 											
 							gCDCPointer->SetPen (wxPen (*wxBLACK, 1, wxPENSTYLE_SHORT_DASH));
-							   										  
 							gCDCPointer->DrawPolygon (
 											pointCount, 
 											pointlist, 
-											lcToWindowUnitsVariablesPtr->channelWindowOffset + 
-											scrollOffset.x+1,
-											scrollOffset.y+1,
-											wxODDEVEN_RULE); 
-											  
-							if (gSideBySideChannels > 1)
-								{
-								selectionRectPtr->left += gChannelWindowInterval;
-								selectionRectPtr->right += gChannelWindowInterval;
-								lcToWindowUnitsVariablesPtr->channelWindowOffset += 
-																					gChannelWindowInterval; 
-															
-								}	// end "if (gSideBySideChannels > 1)"
+											lcToWindowUnitsVariablesPtr->channelWindowOffset +
+																						xScrollOffset + 1,
+											//lcToWindowUnitsVariablesPtr->channelWindowOffset + 1,
+											scrollOffset.y + 1,
+											//wxODDEVEN_RULE);
+											wxWINDING_RULE);
 									
 							if (selectionRectPtr->left > viewRectPtr->right)
 								break;
 
-							}	// end "if (selectionRectPtr->left <= viewRectPtr->right ..." 
+							}	// end "if (selectionRectPtr->left <= viewRectPtr->right ..."
+						
+						if (gSideBySideChannels > 1)
+							{
+							selectionRectPtr->left += gChannelWindowInterval;
+							selectionRectPtr->right += gChannelWindowInterval;
+							lcToWindowUnitsVariablesPtr->channelWindowOffset +=
+																				gChannelWindowInterval;
+								
+							}	// end "if (gSideBySideChannels > 1)"
 						
 						}  // end "for (SInt32 channel=gStartChannel; channel<..."
 				
 					}	// end else "gProcessorCode != kPolygonSelectionProcessor
 
-				delete pointlist;
+				delete[] pointlist;
 				
 				}
 		#endif	// end "defined multispec_lin"
@@ -3973,20 +3988,13 @@ SInt64 GetNumberPixelsInSelection (
 			rgnHandle = new wxRegion ((int)(selectionInfoPtr->numberPoints), 
 												pointsPtr,
 												wxWINDING_RULE);
-			/*
-			if (!(rgnHandle)->CreatePolygonRgn ((tagPOINT*)pointsPtr,
-															  selectionInfoPtr->numberPoints,
-															  WINDING)) 
-				{
-			*/
+		
 			if (rgnHandle->IsEmpty ()) 
 				{
 				delete rgnHandle;
 				rgnHandle = NULL;
 				
 				}	// end "if (rgnHandle->IsEmpty ())"
-
-			// end "if (rgnHandle != NULL)"
 
 			CheckAndDisposePtr ((Ptr)pointsPtr);
 		#endif	// defined multispec_lin
@@ -4850,7 +4858,7 @@ Boolean GetSelectionRectangle (
 //							RectangleSelection in selectionArea.c
 //
 //	Revised By:			Larry L. Biehl			Date: 06/03/1993	
-//	Revised By:			Larry L. Biehl			Date: 04/19/2000			
+//	Revised By:			Larry L. Biehl			Date: 04/24/2019
 
 SInt16 GetSelectionRectangleLimits (
 				Boolean								firstTimeFlag,
@@ -4862,6 +4870,8 @@ SInt16 GetSelectionRectangleLimits (
 				LongPoint*							outputStartPointPtr) // gTempLongPoint
 
 {
+	double								displayOrigin[2];
+	
 	SInt32								displayHOrigin,
 											imageSize,
 											imageTopOffset,
@@ -4876,12 +4886,21 @@ SInt16 GetSelectionRectangleLimits (
 			// view. It is not the same as that used for the image. Therefore
 			// the legend width is always 0 within the image view.
 
+	#if defined multispec_lin
+		legendWidth = 0;
+		displayOrigin[kHorizontal] = 0;
+		displayOrigin[kVertical] = 0;
+	#endif	// defined multispec_lin
+
 	#if defined multispec_mac
 		legendWidth = gActiveLegendWidth;
+		displayOrigin = displaySpecsPtr->origin;
 	#endif	// defined multispec_mac          
 
-	#if defined multispec_win || defined multispec_lin
+	#if defined multispec_win
 		legendWidth = 0;
+		displayOrigin[0] = displaySpecsPtr->origin[0];
+		displayOrigin[1] = displaySpecsPtr->origin[1];
 	#endif	// defined multispec_win
 
 			//	Find the rectangle which defines the limits that the cursor can	
@@ -4893,17 +4912,17 @@ SInt16 GetSelectionRectangleLimits (
 	imageTopOffset = GetImageTopOffset (gActiveImageWindowInfoH);
 
 	topEdge = (SInt32)(imageTopOffset -
-					displaySpecsPtr->origin[kVertical] * displaySpecsPtr->magnification);
+					displayOrigin[kVertical] * displaySpecsPtr->magnification);
 	imageSize = (SInt32)(topEdge +
 			displaySpecsPtr->magnification * displaySpecsPtr->imageDimensions[kVertical]);
-	limitRectanglePtr->bottom = (SInt16)MIN (viewRectPtr->bottom, imageSize) + 1;
+	limitRectanglePtr->bottom = (SInt32)MIN (viewRectPtr->bottom, imageSize) + 1;
 
 			// Now define the width limit taking into account side by side images.																				
 
 			// First get the horizontal origin in window units.						
 
 	displayHOrigin = (SInt32)(
-					displaySpecsPtr->origin[kHorizontal] * displaySpecsPtr->magnification);
+					displayOrigin[kHorizontal] * displaySpecsPtr->magnification);
 
 			// Now get the left edge in window units that defines the start of the 
 			//	channel within which the selection is taking place.	
@@ -4936,11 +4955,20 @@ SInt16 GetSelectionRectangleLimits (
 	if (displaySpecsPtr->displayType == 7)
 		rightEdge -= 2;
 
-	limitRectanglePtr->left = (SInt16)MAX (leftEdge, 0);
-	limitRectanglePtr->right = (SInt16)MIN (viewRectPtr->right, rightEdge) + 1;
+	//limitRectanglePtr->left = (SInt16)MAX (leftEdge, 0);
+	//limitRectanglePtr->right = (SInt16)MIN (viewRectPtr->right, rightEdge) + 1;
+	limitRectanglePtr->left = (int)MAX (leftEdge, 0);
+	limitRectanglePtr->right = (int)MIN (viewRectPtr->right, rightEdge) + 1;
 
-	outputStartPointPtr->h = leftEdge;
-	outputStartPointPtr->v = topEdge;
+	#if defined multispec_mac || defined multispec_win
+		outputStartPointPtr->h = leftEdge;
+		outputStartPointPtr->v = topEdge;
+	#endif
+	#if defined multispec_lin
+		//outputStartPointPtr->h = 0;
+		outputStartPointPtr->h = limitRectanglePtr->left;
+		outputStartPointPtr->v = 0;
+	#endif
 
 	return (startChannel);
 
@@ -5104,7 +5132,7 @@ Boolean InitializePolygonSelection (
 //							RectangleSelection in selectionArea.c
 //
 //	Coded By:			Larry L. Biehl			Date: 08/11/1989
-//	Revised By:			Larry L. Biehl			Date: 03/23/1999			
+//	Revised By:			Larry L. Biehl			Date: 03/28/2019
 
 void OutlineSelectionArea (
 				WindowPtr							windowPtr)
@@ -5161,7 +5189,10 @@ void OutlineSelectionArea (
 		#endif	// defined multispec_win
 
 		#if defined multispec_lin
-			(windowPtr->m_Canvas)->Refresh ();
+			CMOutlineArea* selectionAreaCPtr =
+						((CMImageView*)windowPtr)->GetDocument()->GetSelectionAreaCPtr ();
+			selectionAreaCPtr->Invalidate (windowPtr);
+			//(windowPtr->m_Canvas)->Refresh ();
 		#endif
 		
 		}	// end "if (selectionInfoPtr->typeFlag != 0)" 

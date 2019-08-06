@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			01/31/2019
+//	Revision date:			06/28/2019
 //
 //	Language:				C
 //
@@ -1868,7 +1868,7 @@ SInt16 CreateNewFile (
 //							WriteThematicClassesAs in SSaveWrt.cpp
 //							
 //	Coded By:			Larry L. Biehl			Date: 02/21/1990
-//	Revised By:			Larry L. Biehl			Date: 05/18/2018
+//	Revised By:			Larry L. Biehl			Date: 05/28/2019
 
 Boolean CreateThematicSupportFile (
 				FileInfoPtr							gisFileInfoPtr, 
@@ -2236,6 +2236,22 @@ Boolean CreateThematicSupportFile (
 							}	// end "for (index=1; index<=..."
 						
 						}	// end "else if (numberClasses == 91)"
+					
+					else	// handle for general case; kNN for now.
+						{
+								// k nearest neighbor
+						
+						for (index=1; index<=numberClasses; index++)
+							{
+							nameLength = sprintf (tempClassNameTablePtr,
+															"%d NNs", index);
+							
+							tempClassNameTablePtr[nameLength] = 0;
+							tempClassNameTablePtr += 32;
+							
+							}	// end "for (index=1; index<=..."
+						
+						}	// end "else handle for general case; kNN for now"
 					
 					}	// end "if (classNameCode == kProbFormatCode)" 
 					

@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			01/04/2019
+//	Revision date:			04/22/2019
 //
 //	Language:				C
 //
@@ -1169,7 +1169,47 @@ SInt16 GetCoordinateViewUnits (
 		
 	return (coordinateViewUnitsCode);
 												
-}	// end "GetCoordinateViewUnits"     
+}	// end "GetCoordinateViewUnits"
+
+
+
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2019)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		void GetCoordinateViewUnitDecimalPlaces
+//
+//	Software purpose:	The purpose of this routine is to get the current coordinate
+//							units code for the input window information structure handle.
+//
+//	Parameters in:		Window information structure handle
+//
+//	Parameters out:	None
+//
+// Value Returned:  	None
+//
+// Called By:
+//
+//	Coded By:			Larry L. Biehl			Date:	04/16/2019
+//	Revised By:			Larry L. Biehl			Date: 04/16/2019
+
+SInt16 GetCoordinateViewUnitDecimalPlaces (
+				Handle								windowInfoHandle)
+
+{
+	SInt16 coordinateViewUnitDecimalPlaces = 0;
+	
+			// Get pointer to the support file information.
+	
+	WindowInfoPtr windowInfoPtr = (WindowInfoPtr)GetHandlePointer (windowInfoHandle);
+	
+	if (windowInfoPtr != NULL)
+		coordinateViewUnitDecimalPlaces = windowInfoPtr->coordinateViewUnitDecimalPlaces;
+	
+	return (coordinateViewUnitDecimalPlaces);
+	
+}	// end "GetCoordinateViewUnitDecimalPlaces"
 
 
 
@@ -3253,7 +3293,7 @@ SInt16 GetWindowType (
 //							GetWindowInfoStructures in window.c
 //
 //	Coded By:			Larry L. Biehl			Date: 03/07/1991
-//	Revised By:			Larry L. Biehl			Date: 07/10/2018
+//	Revised By:			Larry L. Biehl			Date: 04/22/2019
 
 Handle InitializeWindowInfoStructure (
 				Handle								windowInfoHandle,
@@ -3374,6 +3414,7 @@ Handle InitializeWindowInfoStructure (
 		windowInfoPtr->changed = 0;
 		windowInfoPtr->channelsInWavelengthOrderCode = kNotApplicable;
 		windowInfoPtr->coordinateViewUnitsCode = kLineColumnUnitsMenuItem;
+		windowInfoPtr->coordinateViewUnitDecimalPlaces = 0;
 		
 		windowInfoPtr->coordinateHeight = 0;
 		windowInfoPtr->coordinateViewAreaPopupStart = 0;
@@ -3416,6 +3457,7 @@ Handle InitializeWindowInfoStructure (
 		windowInfoPtr->totalNumberChannels = 0;
 		
 		windowInfoPtr->drawBaseImageFlag = TRUE;
+		windowInfoPtr->drawBitMapFlag = TRUE;
 		windowInfoPtr->drawVectorOverlaysFlag = TRUE;
 		//windowInfoPtr->hasWavelengthValuesFlag = FALSE;
 		windowInfoPtr->windowChangedFlag = FALSE;
@@ -4088,21 +4130,60 @@ void SetCoordinateViewSelectionStart (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date:	11/07/2000
-//	Revised By:			Larry L. Biehl			Date: 11/07/2000
+//	Revised By:			Larry L. Biehl			Date: 04/16/2019
 
 void SetCoordinateViewUnits (
 				Handle								windowInfoHandle,
 				SInt16								coordinateViewUnits)
 
-{	
+{
+	SInt16								numberDecimalPlaces;
+	
+	
 			// Get pointer to the support file information.
 												
 	WindowInfoPtr windowInfoPtr = (WindowInfoPtr)GetHandlePointer (windowInfoHandle);
 	
 	if (windowInfoPtr != NULL)
+		{
 		windowInfoPtr->coordinateViewUnitsCode = coordinateViewUnits;
+	
+				// Now set the number of decimal places to use.
+		
+		if (coordinateViewUnits == kLineColumnUnitsMenuItem)
+			numberDecimalPlaces = 0;
+		
+		else	// coordinateViewUnits != kLineColumnUnitsMenuItem
+			{
+			numberDecimalPlaces = 2;
+			if (coordinateViewUnits == kDecimalLatLongUnitsMenuItem)
+				numberDecimalPlaces = 6;
+			
+					// Now check more decimal places need to be used to take into
+					// account the pixel size.
+			
+			Handle mapProjectionHandle = GetFileMapProjectionHandle2 (windowInfoHandle);
+			MapProjectionInfoPtr mapProjectionInfoPtr =
+								(MapProjectionInfoPtr)GetHandlePointer (mapProjectionHandle);
+			
+			if (mapProjectionInfoPtr->planarCoordinate.mapUnitsCode == kMetersCode ||
+					mapProjectionInfoPtr->planarCoordinate.mapUnitsCode == kKilometersCode)
+				{
+				if (mapProjectionInfoPtr->planarCoordinate.horizontalPixelSize < .1)
+					numberDecimalPlaces += 2;
+				
+				else if (mapProjectionInfoPtr->planarCoordinate.horizontalPixelSize < 1)
+					numberDecimalPlaces++;
+				
+				}	// end "if (mapProjectionInfoPtr->planarCoordinate.mapUnitsCode == ..."
+			
+			}	// end "else coordinateViewUnits != kLineColumnUnitsMenuItem"
+		
+		windowInfoPtr->coordinateViewUnitDecimalPlaces = numberDecimalPlaces;
+		
+		}	// end "if (windowInfoPtr != NULL)"
 												
-}	// end "SetCoordinateViewUnits"  
+}	// end "SetCoordinateViewUnits"
 
 
 

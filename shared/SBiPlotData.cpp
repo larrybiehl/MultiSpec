@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//									Copyright (1988-2018)
+//									Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			12/07/2018
+//	Revision date:			05/03/2019
 //
 //	Language:				C
 //
@@ -154,7 +154,7 @@ void 					UpdateEllipseMinMax2 (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -256,7 +256,7 @@ SInt16 BiPlotClassData (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -275,8 +275,8 @@ SInt16 BiPlotClassData (
 // Called By:		
 //
 //	Coded By:			Larry L. Biehl			Date: 03/08/1994
-//	Revised By:			Larry L. Biehl			Date: 12/07/2018
 //	Revised By:			Wei-Kang Hsu			Date: 08/03/2016
+//	Revised By:			Larry L. Biehl			Date: 05/03/2019
 
 void BiPlotDataControl (void)
 
@@ -392,6 +392,7 @@ void BiPlotDataControl (void)
 										&gBiPlotDataSpecsPtr->numberClasses,
 										gBiPlotDataSpecsPtr->classPtr,
 										1,
+										gProjectInfoPtr->statisticsCode,
 										kNoStatisticsUsed, 
 										kSetupGlobalInfoPointers,
 										NULL);
@@ -841,7 +842,7 @@ void BiPlotDataControl (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1990,7 +1991,7 @@ Boolean BiPlotDataDialogCheckFeatureTransform (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2041,7 +2042,7 @@ void BiPlotDataDialogHideShowClassItems (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2427,7 +2428,7 @@ SInt16 BiPlotFieldData (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2576,7 +2577,7 @@ Boolean BiPlotProjectData ()
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2632,7 +2633,7 @@ Boolean CheckIfStatisticsChannel (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2689,7 +2690,7 @@ void FillVectorOffsets (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2743,7 +2744,7 @@ void GetBiPlotGraphTitle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2803,7 +2804,7 @@ SInt16 GetStatisticsChannelFeature (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3229,7 +3230,7 @@ Boolean LoadBiPlotClassStats (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3517,7 +3518,7 @@ Boolean LoadBiPlotDataSpecs (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3609,7 +3610,7 @@ Boolean SetupBiPlotStatMemory (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3690,7 +3691,7 @@ void UpdateEllipseMinMax (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

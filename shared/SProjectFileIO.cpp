@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			03/12/2018
+//	Revision date:			06/04/2019
 //
 //	Language:				C
 //
@@ -239,7 +239,7 @@ SInt16	 				WriteStatistics (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -278,7 +278,7 @@ void CloseFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -372,7 +372,7 @@ void ComputeSumSquaresMatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -428,7 +428,7 @@ void ComputeSumVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -504,7 +504,7 @@ UInt32 GetBufferForProjectReadWrites (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -538,7 +538,7 @@ void GetCopyOfPFileNameFromProjectInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -609,7 +609,7 @@ void GetCopyOfPFileNameFromProjectInfo (
 
                   
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -666,7 +666,7 @@ UInt16 GetLengthOfMaxSum (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -724,7 +724,7 @@ UInt16 GetLengthOfMaxSumOfSquares (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -852,7 +852,7 @@ Boolean GetProjectFile (
 
                   
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1072,7 +1072,7 @@ Boolean GetProjectFileName (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1231,7 +1231,7 @@ SInt32 GetSizeOfProjectFile (void)
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1403,7 +1403,7 @@ SInt16 ReadChannelInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1590,7 +1590,7 @@ SInt16 ReadCovarianceInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1653,7 +1653,7 @@ SInt16 ReadMaskInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1994,7 +1994,7 @@ SInt16 ReadModifiedStats (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2012,7 +2012,7 @@ SInt16 ReadModifiedStats (
 // Called By:			OpenProjectFile in SProject.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/21/1988
-//	Revised By:			Larry L. Biehl			Date: 02/07/2018
+//	Revised By:			Larry L. Biehl			Date: 06/04/2019
 
 SInt16 ReadProjectFile (void)
 
@@ -2647,7 +2647,7 @@ SInt16 ReadProjectFile (void)
 							"\t%hd\t%hd\t%hd\t%lld\t%hd\t%hd\t%f\t%f\t%f\t%lf\t%hd\r",
 						#endif
 						#if defined multispec_lin
-							"\t%hd\t%hd\t%hd\t%ld\t%hd\t%hd\t%f\t%f\t%f\t%f\t%hd\r",
+							"\t%hd\t%hd\t%hd\t%lld\t%hd\t%hd\t%f\t%f\t%f\t%lf\t%hd\r",
 						#endif
 						&classNamesPtr->numberOfFields,
 						&classNamesPtr->numberOfTrainFields,
@@ -2833,7 +2833,7 @@ SInt16 ReadProjectFile (void)
                            "\t%hd\t%hd\t%hd\t%hd\t%lld\t%hd\t%hd\t%hd\t%lld\r",
                         #endif
                         #if defined multispec_lin
-                           "\t%hd\t%hd\t%hd\t%hd\t%ld\t%hd\t%hd\t%hd\t%ld\r",
+                           "\t%hd\t%hd\t%hd\t%hd\t%lld\t%hd\t%hd\t%hd\t%lld\r",
                         #endif
 								&fieldIdentPtr->numberOfPolygonPoints,
 								&fieldIdentPtr->classStorage,
@@ -2863,6 +2863,9 @@ SInt16 ReadProjectFile (void)
 																					
 				if (gProjectInfoPtr->version < 20130424)
 					fieldIdentPtr->numberPixelsUsedForStats = fieldIdentPtr->numberPixels;
+				
+				if (fieldIdentPtr->pointType == kClusterType)
+					gProjectInfoPtr->includesStatisticsFromClusterOperationFlag = TRUE;
 				
 						// Load field statistics set number.								
 						
@@ -3238,7 +3241,7 @@ SInt16 ReadProjectFile (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3701,7 +3704,7 @@ SInt16 ReadStatistics (
 				// been read, the number of training pixels used for calculating the
 				// statistics will be "classNamesPtr->numberStatisticsPixels". At this
 				// point we must assume that the number is "classNamesPtr->numberTrainPixels".
-				// If this is not correct, the the situation will be corrected in the
+				// If this is not correct, the situation will be corrected in the
 				// "VerifyClassAndFieldParameters" routine which is called at the end
 				// of the "ReadProjectFile" routine.
 				
@@ -3754,7 +3757,7 @@ SInt16 ReadStatistics (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3895,7 +3898,7 @@ SInt16 SetupForStatisticsRead (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3959,7 +3962,7 @@ void FinishUpStatisticsRead (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4024,7 +4027,7 @@ UCharPtr ReadStringFromFile (
 
                   
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4175,7 +4178,7 @@ SInt16 SaveProjectFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4252,7 +4255,7 @@ Boolean SetupClassFieldPointMemory (void)
 
 
 //------------------------------------------------------------------------------------
-//								 	Copyright (1988-2018)
+//								 	Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4306,7 +4309,7 @@ UCharPtr SkipNTabs (
 
                   
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4365,7 +4368,7 @@ void UpdateGraphicStatusBox (
 	
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4384,7 +4387,7 @@ void UpdateGraphicStatusBox (
 // Called By:			ReadProjectFile in SProjFIO.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/08/1999
-//	Revised By:			Larry L. Biehl			Date: 08/23/2010
+//	Revised By:			Larry L. Biehl			Date: 05/03/2019
 
 void VerifyClassAndFieldParameters (
 				Boolean								differentFileSourceFlag)
@@ -4536,7 +4539,8 @@ void VerifyClassAndFieldParameters (
 			
 			classNamesPtr->numberStatisticsPixels =  
 					GetNumberOfPixelsLoadedInClass (classNamesPtr, 
-																gProjectInfoPtr->fieldIdentPtr);
+																gProjectInfoPtr->fieldIdentPtr,
+																kMeanCovariance);
 			
 			previousNumberTrainPixels = classNamesPtr->numberTrainPixels;		
 			classNamesPtr->numberTrainPixels =  
@@ -4553,7 +4557,11 @@ void VerifyClassAndFieldParameters (
 			
 			if (!classNamesPtr->statsUpToDate && 
 														classNamesPtr->numberOfTrainFields > 0)
+				{
 				gProjectInfoPtr->statsUpToDate = FALSE;
+				gProjectInfoPtr->pixelDataLoadedFlag = FALSE;
+				
+				}	// end "if (!classNamesPtr->statsUpToDate && ..."
 				
 			if (classNamesPtr->statsUpToDate == FALSE)
 				{
@@ -4617,7 +4625,7 @@ void VerifyClassAndFieldParameters (
 
                   
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4829,7 +4837,7 @@ Boolean WriteChannelInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5140,7 +5148,7 @@ Boolean WriteCovarianceInformation (
 
            
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5338,7 +5346,7 @@ Boolean WriteModifiedStats (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6097,7 +6105,7 @@ SInt16 WriteProjectFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

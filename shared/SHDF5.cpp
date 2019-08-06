@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//							 Copyright (1988-2018)
+//							 Copyright (1988-2019)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			07/29/2018
+//	Revision date:			04/22/2019
 //
 //	Language:				C
 //
@@ -55,12 +55,13 @@
 
 		// Data product codes
 		
-#define	kCAI_L1B						1
-#define	kCAI_L1BPlus				2
-#define	kL3_Global_Radiance		3
-#define	kL3_Global_Reflectance	4
-#define	kL3_Global_CO2				5
-#define	kL3_Global_NDVI			6
+#define	kCAI_L1B								1
+#define	kCAI_L1BPlus						2
+#define	kL3_Global_Radiance				3
+#define	kL3_Global_Reflectance			4
+#define	kL3_Global_CO2						5
+#define	kL3_Global_NDVI					6
+#define	EASE2_Global_Geophysical		7
 
 #define	kUseNoConversion						0
 #define	kUseUpperLeftCorner					1
@@ -235,9 +236,26 @@ Boolean	GetMapInfoFromHDF5_CAIL1BPlus (
 				SInt16*								convertFromLatLongToMapCodePtr,
 				Boolean*								adjustUpperLeftOffsetFlagPtr);
 
+Boolean GetMapInfoFromHDF5_EASE2_Global_Geophysical (
+				hid_t									file_id,
+				SInt16*								referenceSystemCodePtr,
+				SInt32*								epsgCodePtr,
+				SInt16*								mapUnitsCodePtr,
+				double*								xMapCoordinate11Ptr,
+				double*								yMapCoordinate11Ptr,
+				double*								horizontalPixelSizePtr,
+				double*								verticalPixelSizePtr,
+				SInt16*								projectionCodePtr,
+				SInt16*								mapProjectionDatumCodePtr,
+				SInt16*								mapProjectionEllipsoidCodePtr,
+				double*								projectionParametersPtr,
+				SInt16*								convertFromLatLongToMapCodePtr,
+				Boolean*								adjustUpperLeftOffsetFlagPtr);
+
 SInt16	GetDataSetValueAsNumericalValue (
 				hid_t									file_id,
 				char*									dataSetStringPtr,
+				int									numberValues,
 				double*								valuePtr);
 
 SInt32	group_check (
@@ -277,7 +295,7 @@ SInt16	ReadDataSetString2 (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -336,7 +354,7 @@ void CloseHDF5DataSetInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -555,7 +573,7 @@ herr_t file_info (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -623,7 +641,7 @@ SInt16 GetHDF5CompressionInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -634,6 +652,9 @@ SInt16 GetHDF5CompressionInformation (
 //							determine the satellite/instrument type and then call the routine
 //							specific for that "standard" group organization
 //
+//							See LoadHDF4DataSetInformation for description of
+//							projectionParameters.
+//
 //	Parameters in:					
 //
 //	Parameters out:	
@@ -643,13 +664,18 @@ SInt16 GetHDF5CompressionInformation (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 04/24/2012
-//	Revised By:			Larry L. Biehl			Date: 04/27/2012
+//	Revised By:			Larry L. Biehl			Date: 04/23/2019
 
 SInt16 GetHDF5ProjectionInformation (
 				FileInfoPtr							fileInfoPtr)
 				
-{	
-	double								projectionParameters[13];
+{
+	
+	UInt8									datumName[64],
+											ellipsoidName[64],
+											epsgName[64];
+	
+	double								projectionParameters[15];
 
 	MapProjectionInfoPtr				mapProjectionInfoPtr;
 	
@@ -665,6 +691,8 @@ SInt16 GetHDF5ProjectionInformation (
 											yUpperRightCoordinate;
 	
 	hid_t									file_id;
+	
+	SInt32								epsgCode;
  	
  	SInt16								convertFromLatLongToMapCode,
 											dataProductCode,
@@ -694,13 +722,14 @@ SInt16 GetHDF5ProjectionInformation (
 	horizontalPixelSize = 0;
 	verticalPixelSize = 0;
 	mapProjectionCode = 0;
+	epsgCode = 0;
 	mapProjectionDatumCode = 0;
 	mapProjectionEllipsoidCode = 0;
 	
 	convertFromLatLongToMapCode = 0;
 	adjustUpperLeftOffsetFlag = FALSE;
 	
-	for (index=0; index<13; index++)
+	for (index=0; index<15; index++)
 		projectionParameters[index] = 0;
 										
 	file_id = GetHDF5Pointer (fileInfoPtr->gdalDataSetH);
@@ -765,6 +794,48 @@ SInt16 GetHDF5ProjectionInformation (
 																	projectionParameters,
 																	&convertFromLatLongToMapCode,
 																	&adjustUpperLeftOffsetFlag);
+	
+	else if (dataProductCode == EASE2_Global_Geophysical)
+		mapInfoFlag = GetMapInfoFromHDF5_EASE2_Global_Geophysical (
+																	file_id,
+																	&referenceSystemCode,
+																	&epsgCode,
+																	&mapUnitsCode,
+																	&xMapCoordinate11,
+																	&yMapCoordinate11,
+																	&horizontalPixelSize,
+																	&verticalPixelSize,
+																	&mapProjectionCode,
+																	&mapProjectionDatumCode,
+																	&mapProjectionEllipsoidCode,
+																	projectionParameters,
+																	&convertFromLatLongToMapCode,
+																	&adjustUpperLeftOffsetFlag);
+	
+	if (mapInfoFlag && epsgCode > 0)
+		{
+				// Get the projection information for the specified epsg code.
+		
+		mapInfoFlag = GDALSetReferenceSystemFromEPSGCode (epsgCode,
+																			epsgName,
+																			datumName,
+																			ellipsoidName,
+																			&mapUnitsCode,
+																			&mapProjectionCode,
+																			&projectionParameters[4],	// longitude of central meridian
+																			&projectionParameters[5],	// latitude of origin
+																			&projectionParameters[2],	// scaleFactorOfCentralMeridian,
+																			&projectionParameters[6],	// false easting
+																			&projectionParameters[7],	// false northing
+																			&projectionParameters[8],	// standard parallel1
+																			&projectionParameters[9],	// standard parallel2
+																			&projectionParameters[10],	// falseOriginLongitude,
+																			&projectionParameters[11],	// falseOriginLatitude,
+																			&projectionParameters[12],	// falseOriginEasting,
+																			&projectionParameters[13],	// falseOriginNorthing,
+																			&projectionParameters[0],	// equatorial radius; semiMajorAxis
+																			&projectionParameters[1]);	// polar radius; semiMinorAxis
+		}
 																																
 	if (mapInfoFlag)
 		{
@@ -777,6 +848,7 @@ SInt16 GetHDF5ProjectionInformation (
 		InitializeMapProjectionStructure (mapProjectionInfoPtr);
 		
 		mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = referenceSystemCode;
+		mapProjectionInfoPtr->projectedCSTypeGeoKey = epsgCode;
 		mapProjectionInfoPtr->gridCoordinate.projectionCode = mapProjectionCode;
 		  
 		mapProjectionInfoPtr->planarCoordinate.xMapCoordinate11 =    
@@ -803,6 +875,23 @@ SInt16 GetHDF5ProjectionInformation (
 		
 		if (mapProjectionInfoPtr->geodetic.spheroidCode	== kNoEllipsoidDefinedCode)	
 			SetEllipsoidFromDatum (mapProjectionInfoPtr);
+		
+		if (epsgCode > 0)
+			{
+					// Copy the names
+					// EPSG Name
+			
+			CopyPToP (mapProjectionInfoPtr->gridCoordinate.epsgName, epsgName);
+			
+					// Datum Name
+			
+			CopyPToP (mapProjectionInfoPtr->gridCoordinate.datumName, datumName);
+			
+					// Ellipsoid Name
+			
+			CopyPToP (mapProjectionInfoPtr->gridCoordinate.ellipsoidName, ellipsoidName);
+			
+			}	// end "if (epsgCode > 0)"
 																		
 		if (mapProjectionCode == kPolarStereographicCode)
 			SetPolarStereographicParameters (mapProjectionInfoPtr,
@@ -827,6 +916,14 @@ SInt16 GetHDF5ProjectionInformation (
 															projectionParameters[0],	// radiusSpheroid
 															projectionParameters[4],	// longitudeCentralMeridian
 															projectionParameters[5]);	// standard parallel
+		
+		else if (mapProjectionCode == kCylindricalEqualAreaCode)
+			SetCylindricalEqualAreaParameters (mapProjectionInfoPtr,
+															projectionParameters[0],	// radiusSpheroid
+															projectionParameters[4],	// centralMeridian
+															projectionParameters[8],	// standardParallel1
+															projectionParameters[6],	// falseEasting
+															projectionParameters[7]);	// falseNorthing
 						
 		MHSetState (fileInfoPtr->mapProjectionHandle, handleStatus);
 			
@@ -945,7 +1042,7 @@ SInt16 GetHDF5ProjectionInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1001,7 +1098,7 @@ SInt16 GetInstumentCodeFromHDF5File (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1053,6 +1150,7 @@ Boolean GetMapInfoFromHDF5_CAIGlobalRadiance (
 	returnCode = GetDataSetValueAsNumericalValue (
 				file_id, 
 				(char*)"/Global/MD_Metadata/identificationInfo/MD_DataIdentification/extent/geographicElement/EX_GeographicBoundingBox/westBoundLongitude",
+				1,
 				&value);
 				
 	if (returnCode == 1)
@@ -1067,6 +1165,7 @@ Boolean GetMapInfoFromHDF5_CAIGlobalRadiance (
 	returnCode = GetDataSetValueAsNumericalValue (
 				file_id,
 				(char*)"/Global/MD_Metadata/identificationInfo/MD_DataIdentification/extent/geographicElement/EX_GeographicBoundingBox/northBoundLatitude",
+				1,
 				&value);
 				
 	if (returnCode == 1)
@@ -1081,6 +1180,7 @@ Boolean GetMapInfoFromHDF5_CAIGlobalRadiance (
 	returnCode = GetDataSetValueAsNumericalValue (
 				file_id,
 				(char*)"/Global/MD_Metadata/identificationInfo/MD_DataIdentification/extent/geographicElement/EX_GeographicBoundingBox/eastBoundLongitude",
+				1,
 				&value);
 				
 	if (returnCode == 1)
@@ -1091,6 +1191,7 @@ Boolean GetMapInfoFromHDF5_CAIGlobalRadiance (
 	returnCode = GetDataSetValueAsNumericalValue (
 				file_id, 
 				(char*)"/Global/MD_Metadata/identificationInfo/MD_DataIdentification/extent/geographicElement/EX_GeographicBoundingBox/southBoundLatitude",
+				1,
 				&value);
 				
 	if (returnCode == 1)
@@ -1101,6 +1202,7 @@ Boolean GetMapInfoFromHDF5_CAIGlobalRadiance (
 	returnCode = GetDataSetValueAsNumericalValue (
 				file_id, 
 				(char*)"/attribute/intervalLengthOfLongitude",
+				1,
 				&value);
 				
 	if (returnCode == 1)
@@ -1111,6 +1213,7 @@ Boolean GetMapInfoFromHDF5_CAIGlobalRadiance (
 	returnCode = GetDataSetValueAsNumericalValue (
 				file_id, 
 				(char*)"/attribute/intervalLengthOfLatitude",
+				1,
 				&value);
 				
 	if (returnCode == 1)
@@ -1215,7 +1318,7 @@ Boolean GetMapInfoFromHDF5_CAIGlobalRadiance (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1303,7 +1406,7 @@ Boolean GetMapInfoFromHDF5_CAIGlobalReflectance (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1585,7 +1688,112 @@ Boolean GetMapInfoFromHDF5_CAIL1BPlus (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		SInt16 GetMapInfoFromHDF5_EASE2_Global_Geophysical
+//
+//	Software purpose:	This routine reads through the objects to obtain information
+//							about the map projection information for a EASE2 Grid file.
+//							EASE2 is defined by EPSG code 6933
+//								- Cylindrical Equal Area projection
+//								- Stardard latitude 1: 30 degrees
+//								- WGS 84 Datum
+//							The location of the center of the upper left pixel and the width/height
+//							of each pixel is in the metadata.
+//
+//	Parameters in:
+//
+//	Parameters out:
+//
+//	Value Returned:
+//
+// Called By:
+//
+//	Coded By:			Larry L. Biehl			Date: 04/22/2019
+//	Revised By:			Larry L. Biehl			Date: 04/22/2019
+
+Boolean GetMapInfoFromHDF5_EASE2_Global_Geophysical (
+				hid_t									file_id,
+				SInt16*								referenceSystemCodePtr,
+				SInt32*								epsgCodePtr,
+				SInt16*								mapUnitsCodePtr,
+				double*								xMapCoordinate11Ptr,
+				double*								yMapCoordinate11Ptr,
+				double*								horizontalPixelSizePtr,
+				double*								verticalPixelSizePtr,
+				SInt16*								projectionCodePtr,
+				SInt16*								mapProjectionDatumCodePtr,
+				SInt16*								mapProjectionEllipsoidCodePtr,
+				double*								projectionParametersPtr,
+				SInt16*								convertFromLatLongToMapCodePtr,
+				Boolean*								adjustUpperLeftOffsetFlagPtr)
+
+{
+	double								values[2];
+	
+ 	SInt16								returnCode;
+	
+	Boolean								returnFlag = FALSE;
+	
+
+	*referenceSystemCodePtr = kByEPSGCodeCode;
+	*epsgCodePtr = 6933;
+	*mapUnitsCodePtr = kMetersCode;
+	
+			// Get the upper left longitude map locaton
+	
+	returnCode = GetDataSetValueAsNumericalValue (
+				file_id,
+				(char*)"x",
+				2,
+				values);
+	
+	if (returnCode > 0)
+		{
+		*xMapCoordinate11Ptr = values[0];
+		*horizontalPixelSizePtr = fabs (values[0] - values[1]);
+	
+				// Get the upper left longitude map locaton
+		
+		returnCode = GetDataSetValueAsNumericalValue (
+					file_id,
+					(char*)"y",
+					2,
+					values);
+		
+		if (returnCode > 0)
+			{
+			*yMapCoordinate11Ptr = values[0];
+			*verticalPixelSizePtr = fabs (values[0] - values[1]);
+			returnFlag = TRUE;
+			
+			}	// end "if (returnCode > 0)"
+		
+		}	// end "if (returnCode > 0)"
+	
+			// Note that the following will be reset when set with call to
+			// GDALSetReferenceSystemFromEPSGCode
+	
+	*projectionCodePtr = kCylindricalEqualAreaCode;
+	*mapProjectionDatumCodePtr = kWGS84Code;
+	*mapProjectionEllipsoidCodePtr = kWGS84EllipsoidCode;
+	
+	projectionParametersPtr[4] = 0;			// longitudeCentralMeridian
+	projectionParametersPtr[5] = 0;			// latitudeOrigin
+	projectionParametersPtr[6] = 0;			// falseEasting
+	projectionParametersPtr[7] = 0;			// falseNorthing
+	projectionParametersPtr[8] = 30;			// standard parallel 1
+	
+	return (returnFlag);
+	
+}	// end "GetMapInfoFromHDF5_EASE2_Global_Geophysical"
+
+
+
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1604,7 +1812,7 @@ Boolean GetMapInfoFromHDF5_CAIL1BPlus (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 04/25/2012
-//	Revised By:			Larry L. Biehl			Date: 04/26/2012
+//	Revised By:			Larry L. Biehl			Date: 04/22/2019
 
 SInt16 GetDataProductCodeFromHDF5File (
 				hid_t									file_id)
@@ -1655,6 +1863,21 @@ SInt16 GetDataProductCodeFromHDF5File (
 				dataProductCode = kL3_Global_NDVI;
 			
 			}	// end "if (returnCode > 0)"
+		
+		else	// returnCode == 0
+			{
+					// Check if EASE2 Grid type image file set
+			
+			returnCode = ReadDataSetString (
+										file_id,
+										(char*)"EASE2_global_projection",
+										string,
+										79);
+		
+			if (returnCode > 0)
+				dataProductCode = EASE2_Global_Geophysical;
+			
+			}	// end "else returnCode == 0"
 			
 		}	// end "if (file_id > 0)"
 		
@@ -1665,7 +1888,7 @@ SInt16 GetDataProductCodeFromHDF5File (
 
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1754,7 +1977,7 @@ Boolean ListHDF5DataSetAttributes (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1800,7 +2023,7 @@ SInt32 group_check (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1886,7 +2109,7 @@ Boolean ListHDF5FileInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2487,7 +2710,7 @@ SInt32 LoadHdf5DataSetNames (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2557,7 +2780,7 @@ SInt16 LoadHDF5HeaderInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2640,7 +2863,7 @@ SInt16 ReadDataSetNumerical (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2724,7 +2947,7 @@ UInt32 ReadDataSetNumerical (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2784,7 +3007,7 @@ SInt16 ReadDataSetString (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2959,7 +3182,14 @@ SInt16 ReadDataSetString2 (
 				free (stringPtr);
 				
 			}	// end "if (type_class == H5T_STRING && space_id >= 0"
+		/*
+		else if (type_class == H5T_FLOAT && space_id >= 0)
+			{
+			if (ReadDataSetNumerical (dataset_id, dataspace, 1, valuePtr, NULL))
+				returnCode = 1;
 			
+			}	// end "else if (type_class == H5T_FLOAT && space_id >= 0)"
+		*/
 		H5Tclose (type_id);
 		
 		if (space_id != H5S_ALL && space_id > 0)
@@ -2974,14 +3204,14 @@ SInt16 ReadDataSetString2 (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		SInt16 GetDataSetValueAsNumericalValue
 //
 //	Software purpose:	This routine reads the value for the input hdf5 data set whether
-//							string or numberical and returns the value as a double value.
+//							string or numerical and returns the value as a double value.
 //							if there are more than one value in the string, then nothing is
 //							returned.
 //
@@ -2994,11 +3224,12 @@ SInt16 ReadDataSetString2 (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 05/05/2012
-//	Revised By:			Larry L. Biehl			Date: 05/05/2012
+//	Revised By:			Larry L. Biehl			Date: 04/22/2019
 
 SInt16 GetDataSetValueAsNumericalValue (
 				hid_t									file_id,
 				char*									dataSetStringPtr,
+				int									numberValues,
 				double*								valuePtr)
 				
 {	
@@ -3043,8 +3274,12 @@ SInt16 GetDataSetValueAsNumericalValue (
 													
 		if (type_class == H5T_INTEGER || type_class == H5T_FLOAT)
 			{
-			if (ReadDataSetNumerical (dataset_id, dataspace, 1, valuePtr, NULL))
-				returnCode = 1;
+			if (ReadDataSetNumerical (dataset_id,
+												dataspace,
+												numberValues,
+												valuePtr,
+												NULL))
+				returnCode = numberValues;
 			
 			}	// end "if (type_class == H5T_INTEGER || type_class == H5T_FLOAT)"
 					
@@ -3061,7 +3296,7 @@ SInt16 GetDataSetValueAsNumericalValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3231,7 +3466,7 @@ SInt16 GetDataSetValueAsString (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

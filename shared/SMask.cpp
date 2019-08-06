@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//							 Copyright (1988-2018)
+//							 Copyright (1988-2019)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			12/21/2017
+//	Revision date:			04/27/2019
 //
 //	Language:				C
 //
@@ -43,7 +43,7 @@
 #include "SMultiSpec.h"   
 
 #if defined multispec_lin
-	#include "SMultiSpec.h"
+	#include "CFileStream.h"
 #endif
   
 #if defined multispec_win
@@ -90,7 +90,7 @@ Boolean 				UserLocateProjectMaskImage (
 	
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -235,7 +235,7 @@ SInt16 CheckCurrentMaskFields (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -321,7 +321,7 @@ Boolean CheckMaskFileInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -359,7 +359,7 @@ void CloseFile (
 
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -413,7 +413,7 @@ UInt32 ConvertFieldNumberToMaskValue (
 	
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -442,10 +442,10 @@ void CloseMaskStructure (
 		CloseFile (maskInfoPtr->fileStreamHandle);
 		UnlockAndDispose (maskInfoPtr->fileStreamHandle); 
 		
-#		if defined multispec_win || defined multispec_lin                        		
+		#if defined multispec_win || defined multispec_lin
 			if (maskInfoPtr->fileStreamPtr != NULL)
 				delete maskInfoPtr->fileStreamPtr;				
-#		endif	// defined multispec_win || lin 
+		#endif	// defined multispec_win || lin
 			
 		UnlockAndDispose (maskInfoPtr->maskHandle);
 		UnlockAndDispose (maskInfoPtr->maskValueToFieldHandle); 
@@ -458,7 +458,7 @@ void CloseMaskStructure (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -536,7 +536,7 @@ Boolean DetermineIfMaskDataInLine (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -593,7 +593,7 @@ Boolean DetermineIfClassesSameAsProjectClassNames (
 	
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -704,7 +704,7 @@ UInt32 GetFirstMaskLine (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -853,7 +853,7 @@ Boolean GetMaskArea (
 	
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -980,7 +980,7 @@ Handle GetMaskFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1018,7 +1018,7 @@ FileStringPtr GetMaskFileNamePPointer (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1051,16 +1051,16 @@ CMFileStream* GetMaskFileStreamPointer (
 												
 	if (maskInfoPtr != NULL)
 		{	            
-#		if defined multispec_mac  				
+		#if defined multispec_mac
 			maskFileStreamPtr = (CMFileStream*)GetHandleStatusAndPointer (
 								maskInfoPtr->fileStreamHandle, 
 								handleStatusPtr,
 								kNoMoveHi);	
-#		endif	// defined multispec_mac 	
+		#endif	// defined multispec_mac
 	              
-#		if defined multispec_win || defined multispec_lin		
+		#if defined multispec_win || defined multispec_lin
 			maskFileStreamPtr = maskInfoPtr->fileStreamPtr;	 
-#		endif	// defined multispec_win || lin
+		#endif	// defined multispec_win || lin
 														
 		}		// end "if (maskInfoPtr != NULL)"                    
 		
@@ -1071,7 +1071,7 @@ CMFileStream* GetMaskFileStreamPointer (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1135,7 +1135,7 @@ MaskInfoPtr GetMaskInfoPointer (
 	
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1279,7 +1279,7 @@ SInt64 GetNumberPixelsInMaskArea (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1431,7 +1431,7 @@ Boolean GetSpecifiedMaskFile (
 	
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1480,7 +1480,7 @@ void InitializeMaskStructure (
 	
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1949,7 +1949,7 @@ SInt16 LoadMask (
 	
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2028,7 +2028,7 @@ Handle LoadMaskFileInfo (
 	
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2253,9 +2253,15 @@ Boolean LoadNewMaskFields (
 						&gProjectInfoPtr->fieldIdentPtr[gProjectInfoPtr->currentField];
 				fieldIdentPtr->numberPixels = maskValueCountVector[j];
 				
-				if (maskSetCode == kTrainingMaskSet)									
+				if (maskSetCode == kTrainingMaskSet)
+					{
 					gProjectInfoPtr->classNamesPtr[gProjectInfoPtr->currentClass].
-									numberTrainPixels += fieldIdentPtr->numberPixels;
+											numberTrainPixels += fieldIdentPtr->numberPixels;
+      			//fieldIdentPtr->numberPixelsUsedForStats =
+      			//												fieldIdentPtr->numberPixels;
+      			//fieldIdentPtr->loadedIntoClassStats = TRUE;
+					
+					}	// end "if (maskSetCode == kTrainingMaskSet)"
 																			
 				fieldIdentPtr->maskValue = (UInt16)j;	
 																				
@@ -2298,7 +2304,7 @@ Boolean LoadNewMaskFields (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2399,7 +2405,7 @@ void SetUpMaskAreaDescriptionParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

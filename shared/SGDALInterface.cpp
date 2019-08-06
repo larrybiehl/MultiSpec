@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//							 Copyright (1988-2018)
+//							 Copyright (1988-2019)
 //						(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			07/27/2018
+//	Revision date:			04/23/2019
 //
 //	Language:				C
 //
@@ -286,7 +286,7 @@ void		VerifyEPSG_CSVFolderExits (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -326,7 +326,7 @@ void AdjustUpperLeftPixelLocationToCenter (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -464,7 +464,7 @@ Boolean CheckForGDALHandledHeaders (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -501,7 +501,7 @@ SInt16 CheckIfDefaultGDALPaletteExists (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -557,7 +557,7 @@ SInt16 CheckIfDefaultGDALPaletteExists (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -591,15 +591,16 @@ void CloseGDALInterface (void)
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void GDALSetReferenceSystemFromEPSGCode
 //
-//	Software purpose:	The purpose of this routine is to set up the projection
-//							parameters for State Plane based on the input zone using the
-//							GDAL code.
+//	Software purpose:	The purpose of this routine is to get the EPSG name, datum name,
+//							ellipsoid name, map units, projection parameters, and ellipsoid
+//							axes from the EPSG code.
+//
 //
 //	Parameters in:					
 //
@@ -646,7 +647,7 @@ Boolean GDALSetReferenceSystemFromEPSGCode (
 		SInt16								referenceSystemCode;
 		
 		
-				// This is state plane. Try to get the parameters
+				// This is an epsg code. Try to get the parameters
 				
 		ogrEPSGSRSPtr = OSRNewSpatialReference (NULL);
 		
@@ -718,7 +719,7 @@ Boolean GDALSetReferenceSystemFromEPSGCode (
       
 #if include_gdal_capability             
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -822,7 +823,7 @@ Boolean GDALSetStatePlaneParametersFromZone (
   
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -864,7 +865,7 @@ UInt32 GetDataSetGroupNumber (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -882,7 +883,7 @@ UInt32 GetDataSetGroupNumber (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 04/09/2012
-//	Revised By:			Larry L. Biehl			Date: 03/15/2017
+//	Revised By:			Larry L. Biehl			Date: 03/09/2019
 
 SInt16 GetDatumCodeFromOGRSpatialReference (
 				OGRSpatialReference*				ogrSpatialReferenceCPtr,
@@ -900,7 +901,7 @@ SInt16 GetDatumCodeFromOGRSpatialReference (
 	if (attributeStringPtr != NULL)
 		{						
 		if (datumNamePtr != NULL)
-			CtoPstring (attributeStringPtr, datumNamePtr);
+			CtoPstring (attributeStringPtr, datumNamePtr, 62);
 			
 		if (getCodeFlag)
 			{			
@@ -974,7 +975,13 @@ SInt16 GetDatumCodeFromOGRSpatialReference (
 										(UCharPtr)"South_American_Datum_1969", 
 										25) == 0)
 				datumCode = kSAD69DatumCode;
-				
+			/*
+			else if (CompareStringsNoCase (
+										attributeStringPtr,
+										(UCharPtr)"D_SWEREF99",
+										10) == 0)
+				datumCode = kSWEREF99DatumCode;
+			*/
 			else if (CompareStringsNoCase (
 										attributeStringPtr, (UCharPtr)"WGS_1972", 8) == 0)
 				datumCode = kWGS72DatumCode;
@@ -994,7 +1001,7 @@ SInt16 GetDatumCodeFromOGRSpatialReference (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1012,7 +1019,7 @@ SInt16 GetDatumCodeFromOGRSpatialReference (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 04/09/2012
-//	Revised By:			Larry L. Biehl			Date: 03/15/2017
+//	Revised By:			Larry L. Biehl			Date: 03/09/2019
 
 SInt16 GetEllipsoidCodeFromOGRSpatialReference (
 				OGRSpatialReference*				ogrSpatialReferenceCPtr,
@@ -1031,7 +1038,7 @@ SInt16 GetEllipsoidCodeFromOGRSpatialReference (
 	if (attributeStringPtr != NULL)
 		{		
 		if (ellipsoidNamePtr != NULL)
-			CtoPstring (attributeStringPtr, ellipsoidNamePtr);
+			CtoPstring (attributeStringPtr, ellipsoidNamePtr, 62);
 			
 		if (getCodeFlag)
 			{										
@@ -1120,7 +1127,7 @@ SInt16 GetEllipsoidCodeFromOGRSpatialReference (
   
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1203,7 +1210,7 @@ GDALDatasetH GetGDALFileReference (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1275,7 +1282,7 @@ SInt16 GetGDALSpecificNumericMetadataInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1343,7 +1350,7 @@ SInt16 GetGDALSpecificTextMetadataInformation (
   
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1597,7 +1604,7 @@ void GetGDALTiePoints (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1693,7 +1700,7 @@ Boolean GetGDALTopToBottomFlag (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1711,7 +1718,7 @@ Boolean GetGDALTopToBottomFlag (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 04/09/2012
-//	Revised By:			Larry L. Biehl			Date: 02/28/2019
+//	Revised By:			Larry L. Biehl			Date: 03/09/2019
 
 void GetEPSGCodeName (
 				OGRSpatialReferenceH				ogrEPSGSRSPtr,
@@ -1739,7 +1746,7 @@ void GetEPSGCodeName (
 			}	// end "if (CompareStringsNoCase (attributeStringPtr, "unnamed", 7) == 0)"
 		
 		else	// !CompareStringsNoCase
-			CtoPstring (attributeStringPtr, epsgNamePtr);
+			CtoPstring (attributeStringPtr, epsgNamePtr, 62);
 		
 		}	// end "if (attributeStringPtr != NULL)"
 		
@@ -1756,7 +1763,7 @@ void GetEPSGCodeName (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1837,7 +1844,7 @@ SInt16 GetMapUnitsCodeFromOGRSpatialReference (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1944,7 +1951,7 @@ Boolean GetNewGDALFileReference (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2091,7 +2098,7 @@ SInt16 GetProjectionCodeFromOGRSpatialReference (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2133,7 +2140,7 @@ SInt32 GetStatePlanePCSCode (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2151,7 +2158,7 @@ SInt32 GetStatePlanePCSCode (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 03/24/2012
-//	Revised By:			Larry L. Biehl			Date: 03/15/2017
+//	Revised By:			Larry L. Biehl			Date: 03/09/2019
 
 void GetStatePlaneZoneName (
 				OGRSpatialReferenceH				ogrStatePlaneSRSPtr,
@@ -2173,7 +2180,7 @@ void GetStatePlaneZoneName (
 		if (CompareStringsNoCase (attributeStringPtr, (UCharPtr)"unnamed", 7) == 0)
 			{
 			VerifyEPSG_CSVFolderExits (attributeStringPtr);
-			CtoPstring ((UCharPtr)"epsg_csv folder not found", fipsZoneNamePtr);
+			CtoPstring ((UCharPtr)"epsg_csv folder not found", fipsZoneNamePtr, 62);
 
 			}	// end "if (CompareStringsNoCase (attributeStringPtr, "unnamed", 7) == 0)"
 		
@@ -2181,7 +2188,7 @@ void GetStatePlaneZoneName (
 				// Get the FIPS Zone Name
 				// Could be dangerous by hard wiring to location 8. This could change 
 				// with gdal versions.
-			CtoPstring ((UCharPtr)&attributeStringPtr[8], fipsZoneNamePtr);
+			CtoPstring ((UCharPtr)&attributeStringPtr[8], fipsZoneNamePtr, 62);
 		
 		}	// end "if (attributeStringPtr != NULL)"
     
@@ -2190,7 +2197,7 @@ void GetStatePlaneZoneName (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2263,7 +2270,7 @@ void HandleGDALErrorMessage (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2281,7 +2288,7 @@ void HandleGDALErrorMessage (
 // Called By:			ListDescriptionInformation in SOther.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 06/13/2011
-//	Revised By:			Larry L. Biehl			Date: 07/27/2018
+//	Revised By:			Larry L. Biehl			Date: 04/23/2019
 
 Boolean ListGDALDataSetAttributes (
 				FileInfoPtr 						fileInfoPtr,
@@ -2291,7 +2298,9 @@ Boolean ListGDALDataSetAttributes (
 	const char							*descriptionStringPtr;
 	char									**metadataStringPtrPtr = NULL;
 	
-	GDALDatasetH						hDS;	
+	GDALDatasetH						hDS;
+	
+   SInt32								stringLength = 0;
 	
 	UInt32								bandIndex,											
 											dataSet,
@@ -2299,8 +2308,6 @@ Boolean ListGDALDataSetAttributes (
 											dataSetStart,
 											index,
 											numberChannels;
-   										
-   SInt16								stringLength = 0;
    										
    Boolean								continueFlag = TRUE;
    
@@ -2351,7 +2358,7 @@ Boolean ListGDALDataSetAttributes (
 			
 			if (continueFlag) 
 				{
-				stringLength = (SInt16)strlen (metadataStringPtrPtr[index]);
+				stringLength = strlen (metadataStringPtrPtr[index]);
 				stringLength = MIN (stringLength, 32000);
 				continueFlag = ListString (metadataStringPtrPtr[index],  
 													stringLength,  
@@ -2539,7 +2546,7 @@ Boolean ListGDALDataSetAttributes (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2703,7 +2710,7 @@ SInt16 LoadGDALHeaderInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2915,7 +2922,7 @@ SInt16 LoadGDALInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3040,7 +3047,7 @@ Boolean ReadGDALColorTable (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3160,7 +3167,7 @@ UInt16 ReadGDALCompressionInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3376,7 +3383,7 @@ SInt16 ReadGDALHeaderInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3396,7 +3403,7 @@ SInt16 ReadGDALHeaderInformation (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 04/19/2011
-//	Revised By:			Larry L. Biehl			Date: 03/15/2017
+//	Revised By:			Larry L. Biehl			Date: 03/15/2019
 
 SInt16 ReadGDALProjectionInformation (
 				FileInfoPtr 						fileInfoPtr,
@@ -3546,6 +3553,20 @@ SInt16 ReadGDALProjectionInformation (
 																		7) == 0)
 								mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = 
 																						kGaussKrugerRSCode;
+								
+							else if (CompareStringsNoCase (attributeStringPtr,
+																		(UCharPtr)"SWEREF99_TM",
+																		11) == 0)
+								{
+										// Set utmZone to 0. It is being incorrectly set to a value
+										// by gdal. Wrong assumption being made.
+								
+								utmZone = 0;
+								
+								//mapProjectionInfoPtr->gridCoordinate.referenceSystemCode =
+								//														;
+								
+								}	// end "else if (CompareStringsNoCase (attributeStringPtr, ..."
 							
 							}	// end "if (attributeStringPtr != NULL && utmZone > 0)"	
 
@@ -3914,7 +3935,7 @@ SInt16 ReadGDALProjectionInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4172,7 +4193,7 @@ void ReadGDALProjectionInformationFromMetadata (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4431,7 +4452,7 @@ SInt16 ReadGDALProjectionInformationFromMetadata_HRLDAS (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4619,6 +4640,10 @@ SInt16 ReadHeaderWithGDALLibrary (
 									fileFormatDescriptionPtr, (UCharPtr)"PCIDSK\0") == 0)
 			fileType = kPCIDSKType;
 		
+		else if (CompareStringsNoCase (
+									fileFormatDescriptionPtr, (UCharPtr)"SRTMHGT\0") == 0)
+			fileType = kSRTMHGTType;
+			
 		if (fileType != 0)
 			{
 			if (formatOnlyCode != kLoadHeader)
@@ -4714,7 +4739,7 @@ SInt16 ReadHeaderWithGDALLibrary (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4791,7 +4816,7 @@ Boolean ReadPRJFileInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4938,7 +4963,7 @@ void SetProjectionParametersFromGDALInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4985,7 +5010,7 @@ void VerifyEPSG_CSVFolderExits (
 
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5058,7 +5083,7 @@ void ReadXMLRPCs (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

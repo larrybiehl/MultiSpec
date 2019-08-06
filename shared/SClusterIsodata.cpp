@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			05/21/2018
+//	Revision date:			04/21/2019
 //
 //	Language:				C
 //
@@ -284,6 +284,7 @@ SInt16						ISODATACluster (
 
 SInt16	 					ISODATAClusterPass (
 									FileIOInstructionsPtr			fileIOInstructionsPtr,
+									LCToWindowUnitsVariables* 		lcToWindowUnitsVariablesPtr,
 									Ptr*									clusterAddressesPtr, 
 									SInt64*								numberClassChanges, 
 									Boolean								firstPassFlag);
@@ -295,7 +296,7 @@ Boolean		 				UpdateClusterMeans (
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -381,7 +382,7 @@ Boolean DetermineIfCheckToBeMadeForFillData (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -696,7 +697,7 @@ Boolean GetCentersFromEigenvectorVolume (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -893,7 +894,7 @@ Boolean GetClassMeanClusterCenters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1134,7 +1135,7 @@ Boolean GetEigenvectorClusterCenters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1257,7 +1258,7 @@ ClusterType* GetMemoryForClusters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1352,7 +1353,7 @@ Boolean InitializeClusterCenters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1370,13 +1371,15 @@ Boolean InitializeClusterCenters (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 08/06/1990
-//	Revised By:			Larry L. Biehl			Date: 05/18/2018
+//	Revised By:			Larry L. Biehl			Date: 04/14/2019
 
 SInt16 ISODATACluster (
 				FileIOInstructionsPtr			fileIOInstructionsPtr)
 
 {		
 			// Define local structures and variables.
+	
+	LCToWindowUnitsVariables 		lcToWindowUnitsVariables;
 	
 	char									percentNotChangedString[32],
 											savedPercentNotChangedString[32];
@@ -1397,6 +1400,8 @@ SInt16 ISODATACluster (
    CMFileStream*						clResultsFileStreamPtr;
    
 	Ptr									*clusterAddressesPtr;
+	
+	Handle								activeImageWindowInfoHandle;
 	
 	SInt32								numberActiveClusters,
 											passNumber;
@@ -1420,6 +1425,15 @@ SInt16 ISODATACluster (
 	minimumClusterSize = gClusterSpecsPtr->minClusterSize;
 	passNumber = 0;
 	returnCode = 1;
+	
+	activeImageWindowInfoHandle = FindProjectBaseImageWindowInfoHandle ();
+	
+			// Set some variables for use when drawing image overlays.
+	
+	SetLCToWindowUnitVariables (activeImageWindowInfoHandle,
+											kToImageWindow,
+											FALSE,
+											&lcToWindowUnitsVariables);
 										
 	changeThreshold = (SInt64)(((double)100 - gClusterSpecsPtr->convergence) * 
 						gClusterSpecsPtr->totalNumberClusterPixels / 100);
@@ -1489,14 +1503,17 @@ SInt16 ISODATACluster (
    	
    	passNumber++;	
    	gTextString[0] = (SInt8)sprintf ((char*)&gTextString[1], 
-   					"ISODATA Cluster - Pass %ld  with %ld active clusters.", 
-   					passNumber,
-   					numberActiveClusters);
+   					"ISODATA Cluster - Pass %d  with %d active clusters.",
+   					(int)passNumber,
+   					(int)numberActiveClusters);
 		LoadDItemString (gStatusDialogPtr, IDC_Status11, (Str255*)gTextString);
 		
 		numberChanges = 0;						
-   	returnCode = ISODATAClusterPass (
-   		fileIOInstructionsPtr, clusterAddressesPtr, &numberChanges, firstPassFlag);
+   	returnCode = ISODATAClusterPass (fileIOInstructionsPtr,
+   												&lcToWindowUnitsVariables,
+   												clusterAddressesPtr,
+   												&numberChanges,
+   												firstPassFlag);
    	
    	if (returnCode >= 0)			
    		if (!UpdateClusterMeans (gClusterSpecsPtr->clusterHead,
@@ -1573,7 +1590,7 @@ SInt16 ISODATACluster (
 												gClusterSpecsPtr->totalNumberClusterPixels);				
 			 
 	sprintf ((char*)gTextString,
-		"    Clustering completed after %ld passes and %s of %s pixels changed.%s",
+		"    Clustering completed after %d passes and %s of %s pixels changed.%s",
 			passNumber, 
 			numberChangesString, 
 			totalNumberClusterPixelsString,
@@ -1633,7 +1650,7 @@ SInt16 ISODATACluster (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1880,7 +1897,7 @@ Boolean ISODATAClusterControl (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2401,7 +2418,7 @@ Boolean ISODATAClusterDialog (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2629,7 +2646,7 @@ void ISODATAClusterDialogInitialize (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2684,7 +2701,7 @@ SInt16 ISODATAClusterDialogCheckNumberPixels (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2800,7 +2817,7 @@ void ISODATAClusterDialogOK (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2856,7 +2873,7 @@ void ISODATAClusterDialogOnImageArea (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2922,7 +2939,7 @@ void ISODATAClusterDialogOnTrainingAreas (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2941,10 +2958,11 @@ void ISODATAClusterDialogOnTrainingAreas (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 08/06/1990
-//	Revised By:			Larry L. Biehl			Date: 05/21/2018	
+//	Revised By:			Larry L. Biehl			Date: 04/21/2019
 
 SInt16 ISODATAClusterPass (
-				FileIOInstructionsPtr			fileIOInstructionsPtr, 
+				FileIOInstructionsPtr			fileIOInstructionsPtr,
+				LCToWindowUnitsVariables* 		lcToWindowUnitsVariablesPtr,
 				Ptr*									clusterAddressesPtr, 
 				SInt64*								numberClassChanges, 
 				Boolean								firstPassFlag)
@@ -2964,6 +2982,8 @@ SInt16 ISODATAClusterPass (
    																// pixel.
 											*clusterHead, 								
   											*currentCluster;	// Cluster currently working on.
+	
+	LongRect								sourceRect;
   											
    Point									point;
 									
@@ -2980,12 +3000,18 @@ SInt16 ISODATAClusterPass (
 	ImageOverlayInfoPtr				imageOverlayInfoPtr;
 	Ptr									stringPtr;
 	UInt16*								channelsPtr;
+	WindowInfoPtr 						imageWindowInfoPtr;
 	WindowPtr							windowPtr;
 	
 	Handle								activeImageWindowInfoHandle;
+	
+	int									nextStatusAtLeastLine,
+											nextStatusAtLeastLineIncrement;
+	
 	RgnHandle							rgnHandle;
 	
-   SInt32	        					line,
+   SInt32	        					displayBottomMax,
+   										line,
 											lineCount,
 											lineEnd,
 											lineInterval,
@@ -3001,7 +3027,8 @@ SInt16 ISODATAClusterPass (
 							 				columnWidth,
 											firstColumn,
 											numberSamples,
-											sample;
+											sample,
+											skipCount;
 	
    SInt16								areaNumber,
 											errCode,
@@ -3034,6 +3061,8 @@ SInt16 ISODATAClusterPass (
   	returnCode = 1;
 	activeImageWindowInfoHandle = FindProjectBaseImageWindowInfoHandle ();
 	windowPtr = GetWindowPtr (activeImageWindowInfoHandle);
+	imageWindowInfoPtr = (WindowInfoPtr)GetHandlePointer (
+																	activeImageWindowInfoHandle);
 	
 	imageOverlayInfoPtr = GetImageOverlayInfoPtr (
 										gClusterSpecsPtr->imageOverlayIndex,
@@ -3045,12 +3074,35 @@ SInt16 ISODATAClusterPass (
 			
 	gNextTime = TickCount ();
 	
+	if (firstPassFlag && gOutputCode & kCreateImageOverlayCode)
+		{
+				// Set the draw base image flag depending on whether the overlay
+				// will cover the entire base image.
+		
+		imageWindowInfoPtr->drawBaseImageFlag = FALSE;
+		if (imageOverlayInfoPtr->drawBaseImageCode != 15)
+			{
+			imageWindowInfoPtr->drawBaseImageFlag = TRUE;
+			InvalidateWindow (windowPtr, kImageFrameArea, FALSE);
+			
+			}	// end "if (imageOverlayInfoPtr->drawBaseImageCode != 15)"
+		
+		}	// if (firstPassFlag && ...
+	
 			// Save the pointer to the cluster class assignments in case it is needed
 			// for the offscreen buffer assignments.
 			
 	savedDataClassPtr = dataClassPtr;
 	
 	offScreenBufferPtr = GetImageOverlayOffscreenPointer (imageOverlayInfoPtr);
+		
+			// These variables are to make sure the display window is not being updated
+			// after a very few lines are loaded in. It will override the time interval
+			// which is currently every 1 second.
+	
+	double magnification = lcToWindowUnitsVariablesPtr->magnification;
+	nextStatusAtLeastLineIncrement = (10 * lineInterval) / magnification;
+	nextStatusAtLeastLineIncrement = MAX (nextStatusAtLeastLineIncrement, 10);
 		
 			// Loop by number of cluster areas.												
 			
@@ -3060,6 +3112,11 @@ SInt16 ISODATAClusterPass (
 				
 		lineCount = 0;
 		gNextStatusTime = TickCount ();
+		
+				// The purpose of skipCount is to only allow updates in drawing the
+				// image overlay every 2 cycles of gNextTime.
+		
+		skipCount = 0;
 		
 				// Get information for next cluster area.									
 				
@@ -3082,6 +3139,15 @@ SInt16 ISODATAClusterPass (
 		polygonFieldFlag = gAreaDescription.polygonFieldFlag;
 		rgnHandle = gAreaDescription.rgnHandle;
 		pointType =  gAreaDescription.pointType;
+	
+				// Set up source rect. This will indicate the lines and columns to
+				// be updated when one does a copy to the image window.
+		
+		sourceRect.left = columnStart - 1;
+		sourceRect.right = columnEnd;
+		sourceRect.top = lineStart - 1;
+		sourceRect.bottom = lineEnd;
+		displayBottomMax = sourceRect.bottom;
 			
 				// Get first sample.																
 	   	
@@ -3111,38 +3177,50 @@ SInt16 ISODATAClusterPass (
 				// skipped.
 				
 		if (lineEnd == 0)
-			lineStart = 1;				
+			lineStart = 1;
+		
+		nextStatusAtLeastLine = lineStart + nextStatusAtLeastLineIncrement;
 		
 				// Loop by rest of lines for cluster area.								
 		
 		for (line=lineStart; line<=lineEnd; line+=lineInterval)
 			{
-					// Update dialog status information.									
-				
-			lineCount++;
-			if (TickCount () >= gNextStatusTime)
-				{
-				LoadDItemValue (gStatusDialogPtr, IDC_Status8, lineCount);
-				gNextStatusTime = TickCount () + gNextStatusTimeOffset;
-				
-				}	// end "if (TickCount () >= gNextStatusTime)" 
-			
 					// Exit routine if user has "command period" down				
 			
 			if (TickCount () >= gNextTime)
 				{
-				if (gOutputCode & kCreateImageOverlayCode && line > lineStart)
+				skipCount++;
+				
+				if (gOutputCode & kCreateImageOverlayCode &&
+									line > lineStart &&
+												lineCount >= nextStatusAtLeastLine &&
+															skipCount >= 2)
 					{
-					InvalidateWindow (windowPtr, kImageArea, FALSE);
+					sourceRect.bottom = lineCount;
+					/*
+					int numberChars = sprintf ((char*)gTextString3,
+													"%s SClusterIsodata.cpp:ISODATAClusterPass (top, bottom): %d, %d, %d%s",
+													gEndOfLine,
+													skipCount,
+													sourceRect.top,
+													sourceRect.bottom,
+													gEndOfLine);
+					ListString ((char*)gTextString3, numberChars, gOutputTextH);
+					*/
+					InvalidateImageSegment (gImageWindowInfoPtr,
+													//displaySpecsPtr,
+													lcToWindowUnitsVariablesPtr,
+													&sourceRect,
+													displayBottomMax);
 
 					#if defined multispec_win  
 						windowPtr->UpdateWindow ();
-					#endif	// defined multispec_win  
-					 
-					#if defined multispec_lin
-						gActiveImageWindow->OnUpdate (NULL, NULL);
-						//(gActiveImageWindow->m_Canvas)->Update ();
-					#endif
+					#endif	// defined multispec_win
+				
+					nextStatusAtLeastLine = lineCount + nextStatusAtLeastLineIncrement;
+					nextStatusAtLeastLine = MIN (nextStatusAtLeastLine, lineEnd);
+					
+					skipCount = 0;
 
 					}	// end "if (gOutputCode & kCreateImageOverlayCode && ..."
 					
@@ -3152,8 +3230,23 @@ SInt16 ISODATAClusterPass (
 					break;
 					
 					}	// end "if (!CheckSomeEvents (..."
+			
+						// Make sure the base image is not drawn for the rest of the processing.
+			
+				if (gOutputCode & kCreateImageOverlayCode)
+					imageWindowInfoPtr->drawBaseImageFlag = FALSE;
 					
-				}	// end "if (TickCount () >= nextTime)" 
+				}	// end "if (TickCount () >= nextTime && ..."
+			
+					// Update dialog status information.
+			
+			lineCount++;
+			if (TickCount () >= gNextStatusTime)
+				{
+				LoadDItemValue (gStatusDialogPtr, IDC_Status8, lineCount);
+				gNextStatusTime = TickCount () + gNextStatusTimeOffset;
+				
+				}	// end "if (TickCount () >= gNextStatusTime)"
 				
 			column = firstColumn;
 									
@@ -3257,7 +3350,7 @@ SInt16 ISODATAClusterPass (
 					CopyToOffscreenBuffer (fileIOInstructionsPtr,
 													imageOverlayInfoPtr,
 													gClusterSpecsPtr->imageOverlayIndex,
-													FindProjectBaseImageWindowInfoHandle (),
+													activeImageWindowInfoHandle,
 													line,
 													firstColumn,
 													columnInterval,
@@ -3314,25 +3407,38 @@ SInt16 ISODATAClusterPass (
 	  	
 	  			// Force overlay to be drawn if it has not been already.
 	  				
-		if (gOutputCode & kCreateImageOverlayCode)
+		if ((gOutputCode & kCreateImageOverlayCode) && !polygonFieldFlag)
 			{
-			InvalidateWindow (windowPtr, kImageArea, FALSE);
+			sourceRect.bottom = displayBottomMax;
+			/*
+			int numberChars2 = sprintf ((char*)gTextString3,
+											"%s SClusterIsodata.cpp:ISODATAClusterPass (top, bottom): %d, %d%s",
+											gEndOfLine,
+											sourceRect.top,
+											sourceRect.bottom,
+											gEndOfLine);
+			ListString ((char*)gTextString3, numberChars2, gOutputTextH);
+			*/
+			InvalidateImageSegment (gImageWindowInfoPtr,
+											lcToWindowUnitsVariablesPtr,
+											&sourceRect,
+											displayBottomMax);
 
 			#if defined multispec_win  
 				windowPtr->UpdateWindow ();
 			#endif	// defined multispec_win  
 					 
-			#if defined multispec_lin
-				//gActiveImageWindow->OnUpdate (NULL, NULL);
-				//(gActiveImageWindow->m_Canvas)->Update ();
-			#endif
-					
 			if (!CheckSomeEvents (osMask+keyDownMask+updateMask+mDownMask+mUpMask))
 				{
 				returnCode = -1;
 				break;
 				
 				}	// end "if (!CheckSomeEvents (..."
+	
+					// The base image does not need to be drawn for the rest of the passes
+	
+			if (gOutputCode & kCreateImageOverlayCode)
+				imageWindowInfoPtr->drawBaseImageFlag = FALSE;
 				
 			}	// end "if (gOutputCode & kCreateImageOverlayCode)"
 	  	
@@ -3353,17 +3459,8 @@ SInt16 ISODATAClusterPass (
   			
   		}	// end "for (areaNumber=1; areaNumber<=totalNumberAreas; ...)" 
 
-	UnlockImageOverlayOffscreenBuffer (imageOverlayInfoPtr);	
-							
-	if (!gOSXCoreGraphicsFlag)
-		{
-		WindowInfoPtr imageWindowInfoPtr = (WindowInfoPtr)GetHandlePointer (
-																	activeImageWindowInfoHandle);
-		if (imageWindowInfoPtr != NULL)
-			imageWindowInfoPtr->drawBaseImageFlag = TRUE;
-		
-		}	// end "if (!gOSXCoreGraphicsFlag)"
-
+	UnlockImageOverlayOffscreenBuffer (imageOverlayInfoPtr);
+	
 			// Make sure the latest status dialog box changes have been displayed.
 	
 	if (returnCode != -1)
@@ -3379,7 +3476,7 @@ SInt16 ISODATAClusterPass (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

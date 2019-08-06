@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			01/22/2019
+//	Revision date:			04/24/2019
 //
 //	Language:				C
 //
@@ -60,6 +60,7 @@
 #endif	// defined multispec_lin
 
 #if defined multispec_win
+	#include "CPalette.h"
 	#include "WImageView.h" 
 	#include "WEditClassGroupDialog.h"
 	#include "WImageDoc.h"
@@ -119,7 +120,7 @@ void	 	UpdateUserDefinedGroupColorTable (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -374,7 +375,7 @@ void AddCellsToLegendList (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -468,7 +469,7 @@ void ChangeClassGroupPalette (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -712,7 +713,7 @@ void ChangeClassPalette (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1049,7 +1050,7 @@ void ChangeGroupPalette (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1140,7 +1141,7 @@ UInt16 CheckForDuplicateName (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1341,7 +1342,7 @@ void CreateDefaultGroupTable (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1509,7 +1510,7 @@ Boolean DoBlinkCursor1 (
 	#endif	// defined multispec_win    
 	
 	MSetCursor (kBlinkShutCursor);
-	#ifndef multispec_lin
+	#ifndef multispec_lin 
 		while (StillDown ())
 			{ }
 	#endif
@@ -1590,7 +1591,7 @@ Boolean DoBlinkCursor1 (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1692,7 +1693,7 @@ void DoThematicWColorsUpdate (void)
 
  
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1916,7 +1917,7 @@ UINT ColorDialogHookProcedure (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2183,7 +2184,7 @@ Boolean EditGroupClassDialog (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2367,7 +2368,7 @@ void EditGroupClassDialogOK (
 
 //#if defined multispec_mac 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2641,7 +2642,7 @@ void EditGroups (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2735,7 +2736,7 @@ Boolean GetGroupStructureMemory (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2791,7 +2792,7 @@ UInt16 GetPaletteEntry (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2812,7 +2813,7 @@ UInt16 GetPaletteEntry (
 //							PrintImageWindow in print.c
 //
 //	Coded By:			Larry L. Biehl			Date: 12/28/1989
-//	Revised By:			Larry L. Biehl			Date: 06/22/2015	
+//	Revised By:			Larry L. Biehl			Date: 03/16/2019
 
 void LoadThematicLegendList (
 				LegendListHandle					legendListHandle,
@@ -3327,18 +3328,18 @@ void LoadThematicLegendList (
 
 	#if defined multispec_lin 
 		displaySpecsPtr = (DisplaySpecsPtr) GetHandlePointer (displaySpecsHandle);
-		((CMLegendList*) legendListHandle)->m_paletteObject =
-														(wxPalette*)displaySpecsPtr->paletteObject;
-		((CMLegendList*) legendListHandle)->m_backgroundPaletteObject =
+	
+		CMLegendList* legendListCPtr = (CMLegendList*)legendListHandle;
+		legendListCPtr->m_paletteObject = (wxPalette*)displaySpecsPtr->paletteObject;
+		legendListCPtr->m_backgroundPaletteObject =
 										(wxPalette*) displaySpecsPtr->backgroundPaletteObject;
-		((CMLegendList*) legendListHandle)->m_imageFileInfoHandle =
-																				activeImageFileInfoHandle;
-		((CMLegendList*) legendListHandle)->m_listType = classGroupCode;
-		((CMLegendList*) legendListHandle)->m_paletteOffset =
-																		displaySpecsPtr->paletteOffset;
-		((CMLegendList*) legendListHandle)->m_classPaletteEntries =
-															displaySpecsPtr->numPaletteEntriesUsed;
-		((CMLegendList*) legendListHandle)->listready = true;
+		legendListCPtr->m_imageFileInfoHandle = activeImageFileInfoHandle;
+		legendListCPtr->m_listType = classGroupCode;
+		legendListCPtr->m_paletteOffset = displaySpecsPtr->paletteOffset;
+		legendListCPtr->m_classPaletteEntries = displaySpecsPtr->numPaletteEntriesUsed;
+		legendListCPtr->listready = true;
+	
+		legendListCPtr->DrawLegendList ();
 	#endif	// defined multispec_lin 
 
 }	// end "LoadThematicLegendList" 
@@ -3346,7 +3347,7 @@ void LoadThematicLegendList (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3472,7 +3473,7 @@ Boolean SelectColor (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3591,7 +3592,7 @@ void UpdateUserDefinedGroupColorTable (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3724,7 +3725,7 @@ Boolean UpdateGroupTables (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3820,7 +3821,7 @@ Boolean UpdateGroupTables (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
