@@ -22,9 +22,6 @@
 //
 //	Functions in file:
 //
-//	Include files:			"MultiSpecHeaders"
-//								"multiSpec.h"
-//
 //------------------------------------------------------------------------------------
 
 #include "SMultiSpec.h"   
@@ -45,34 +42,6 @@
 	#include "CImageWindow.h"
 	#include "WRecodeThematicImageDialog.h"
 #endif	// defined multispec_win 
-
-//#include "SExtGlob.h"
-
-extern void 		RecodeThematicImageDialogInitialize (
-							DialogPtr							dialogPtr, 
-							RecodeThematicImagePtr			recodeThematicImagePtr,
-							Handle*								thresholdFileInfoHandlePtr,
-							SInt32*								recodedValuePtr,
-							SInt32*								thresholdValuePtr,
-							SInt16*								compareParameterCodePtr,
-							SInt16*								thresholdImageSelectionPtr);
-
-extern void 		RecodeThematicImageDialogOK (
-							RecodeThematicImagePtr			recodeThematicImagePtr,
-							Handle								thresholdFileInfoHandle,
-							SInt32								recodedValue,
-							SInt32								thresholdValue,
-							SInt16								compareParameterCode,
-							SInt16								thresholdImageSelection);
-							
-extern SInt16 		RecodeThematicImageDialogSelectThresholdItem (
-							Handle*								thresholdFileInfoHandlePtr,
-							DialogPtr							dialogPtr,
-							MenuHandle							popUpSelectThresholdImageMenu,
-							SInt16								itemHit,
-							SInt16								thresholdImageSelection,
-							SInt16								selectStringNumber,
-							SInt16								thresholdPopupItemNumber);
 
 
 								// Global variables for this routine.

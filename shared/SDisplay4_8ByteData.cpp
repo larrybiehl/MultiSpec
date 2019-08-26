@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			03/11/2019
+//	Revision date:			08/19/2019
 //
 //	Language:				C
 //
@@ -64,7 +64,7 @@
 // Called By:			DisplayColorImage in SDisplay.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 07/25/2003
-//	Revised By:			Larry L. Biehl			Date: 03/11/2019
+//	Revised By:			Larry L. Biehl			Date: 08/19/2019
 
 void Display1Channel4Byte8BitLine (
 				SInt16								displayCode,
@@ -104,7 +104,7 @@ void Display1Channel4Byte8BitLine (
 			
 			}	// end "else doubleBinIndex >= 0 && doubleBinIndex <= maxBin1"
 			
-		#if defined multispec_mac || defined multispc_win
+		#if defined multispec_mac || defined multispec_win
 			*offScreenPtr = dataDisplayPtr[binIndex];
 		#endif
 		

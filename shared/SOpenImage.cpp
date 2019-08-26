@@ -435,7 +435,7 @@ Boolean AddToImageWindowFile (
 //							SetUpThematicImageWindow in SOpnImag.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 08/11/1988
-//	Revised By:			Larry L. Biehl			Date: 03/14/2019
+//	Revised By:			Larry L. Biehl			Date: 08/16/2019
 
 void AdjustImageWSize (
 				Handle								windowInfoHandle)
@@ -572,14 +572,16 @@ void AdjustImageWSize (
 
 				// Amount to allow for scroll bars in window sizing. Macintosh version
 				// needs to take the scroll bars into account. Windows version does not.
+				// Allow space for 1 extra horizontal pixel to allow for possible
+				// truncation.
 
-		amountToAllowForHStuff = 0;
-		amountToAllowForVStuff = 0;
+		amountToAllowForHStuff = 1;
+		amountToAllowForVStuff = 1;
 
 		if (latLongPossibleFlag)
 			{
 			rect.bottom -= 33;
-			amountToAllowForVStuff = 33;
+			amountToAllowForVStuff += 33;
 
 			} // end "if (latLongPossibleFlag)"
 	#endif	// defined multispec_win
@@ -733,7 +735,7 @@ void AdjustImageWSize (
 	/*
 	windowHeight = (UInt16)((numberLines - 1)/lineInterval + 1) +
 																		amountToAllowForVStuff;
-
+	
 	windowWidth = (UInt16)((numberColumns - 1)/columnInterval + 1) +
 														legendWidth + amountToAllowForHStuff;
 	*/

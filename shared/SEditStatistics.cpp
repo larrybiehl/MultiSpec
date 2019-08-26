@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			05/28/2019
+//	Revision date:			08/15/2019
 //
 //	Language:				C
 //
@@ -641,8 +641,52 @@ void CheckEnhancedStatistics (void)
 			
 	gUpdateProjectMenuItemsFlag = TRUE;
 		
-}		// end "CheckEnhancedStatistics" 
+}	// end "CheckEnhancedStatistics"
 */
+
+
+
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2019)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		void ClearPixelDataMemory
+//
+//	Software purpose:	The purpose of this routine is to clear the memory for the
+//							training pixel data.
+//
+//	Parameters in:
+//
+//	Parameters out:	None
+//
+// Value Returned:	None
+//
+// Called By:
+//
+//	Coded By:			Larry L. Biehl			Date: 08/15/2019
+//	Revised By:			Larry L. Biehl			Date: 08/15/2019
+
+void ClearPixelDataMemory (
+				Boolean								disposePointersFlag)
+
+{
+	if (disposePointersFlag)
+		{
+		gProjectInfoPtr->knnDistancesPtr =
+						(knnType*)CheckAndDisposePtr ((Ptr)gProjectInfoPtr->knnDistancesPtr);
+		gProjectInfoPtr->knnLabelsPtr =
+										CheckAndDisposePtr (gProjectInfoPtr->knnLabelsPtr);
+		gProjectInfoPtr->knnDataValuesPtr =
+										CheckAndDisposePtr (gProjectInfoPtr->knnDataValuesPtr);
+		
+		}	// end "if (disposePointersFlag)"
+	
+	gProjectInfoPtr->knnCounter = 0;
+	gProjectInfoPtr->pixelDataLoadedFlag = FALSE;
+
+}	// end "ClearPixelDataMemory"
+
 
 
 //------------------------------------------------------------------------------------
@@ -669,7 +713,7 @@ void CheckEnhancedStatistics (void)
 //							StatisticsDialog in SStatist.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/05/1989
-//	Revised By:			Larry L. Biehl			Date: 04/27/2019
+//	Revised By:			Larry L. Biehl			Date: 08/15/2019
 
 void ClearProjectStatistics (
 				SInt16								clearCode)
@@ -865,13 +909,11 @@ void ClearProjectStatistics (
 
 			// Clear knn training sample values
 	
-	//gProjectInfoPtr->knn_samples.clear();
-	//gProjectInfoPtr->knn_labels.clear ();
-	gProjectInfoPtr->knn_distances.clear ();
-	gProjectInfoPtr->knnLabelsPtr.clear ();
-	gProjectInfoPtr->knnDataValuesPtr.clear ();
-	gProjectInfoPtr->knnCounter = 0;
-	gProjectInfoPtr->pixelDataLoadedFlag = FALSE;
+	//gProjectInfoPtr->knn_distances.clear ();
+	//gProjectInfoPtr->knnLabelsPtr.clear ();
+	//gProjectInfoPtr->knnDataValuesPtr.clear ();
+	
+	ClearPixelDataMemory (kDisposePointers);
 	
 	if (clearCode != 3)
 		{

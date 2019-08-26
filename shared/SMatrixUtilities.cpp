@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			04/27/2019
+//	Revision date:			05/15/2019
 //
 //	Language:				C
 //
@@ -2087,7 +2087,7 @@ void EigenvectorInfoExists (
 //							ShowGraphWindowSelection in selectionGraph.c
 //
 //	Coded By:			Larry L. Biehl			Date: 11/16/1988
-//	Revised By:			Larry L. Biehl			Date: 05/26/2019
+//	Revised By:			Larry L. Biehl			Date: 08/15/2019
 
 SInt16 GetAreaStats (
 				FileIOInstructionsPtr			fileIOInstructionsPtr,
@@ -2278,8 +2278,9 @@ SInt16 GetAreaStats (
 	
 	if (statCode == kPixelValuesOnly)
 		{
-		knnDataValuesPtr = gProjectInfoPtr->knnDataValuesPtr.data ();
-		knnDataValuesPtr = &knnDataValuesPtr [numberChannels * gProjectInfoPtr->knnCounter];
+		//knnDataValuesPtr = gProjectInfoPtr->knnDataValuesPtr.data ();
+		knnDataValuesPtr =
+			&gProjectInfoPtr->knnDataValuesPtr [numberChannels * gProjectInfoPtr->knnCounter];
 		
 		}	// end "if (statCode == kPixelValuesOnly)"
 			
@@ -2425,11 +2426,11 @@ SInt16 GetAreaStats (
 								
 										// KNN sample data in the training
 								
-								gProjectInfoPtr->knnDataValuesPtr.push_back (*bufferPtr);
-								//*knnDataValuesPtr = *bufferPtr;
+								//gProjectInfoPtr->knnDataValuesPtr.push_back (*bufferPtr);
+								*knnDataValuesPtr = *bufferPtr;
 
 				      		bufferPtr++;
-				      		//knnDataValuesPtr++;
+				      		knnDataValuesPtr++;
 								
 								}	// end "for (channel=1; channel<numberChannels..."
 						
@@ -2446,10 +2447,10 @@ SInt16 GetAreaStats (
 							
 							knnSamp.distance = 0;
 							knnSamp.index = 0;
-							gProjectInfoPtr->knn_distances.push_back (knnSamp);
-							gProjectInfoPtr->knnLabelsPtr.push_back (classNumber);
-							//gProjectInfoPtr->knn_distances[gProjectInfoPtr->knnCounter] = knnSamp;
-							//gProjectInfoPtr->knnLabelsPtr[gProjectInfoPtr->knnCounter] = classNumber;
+							//gProjectInfoPtr->knn_distances.push_back (knnSamp);
+							//gProjectInfoPtr->knnLabelsPtr.push_back (classNumber);
+							gProjectInfoPtr->knnDistancesPtr[gProjectInfoPtr->knnCounter] = knnSamp;
+							gProjectInfoPtr->knnLabelsPtr[gProjectInfoPtr->knnCounter] = classNumber;
 							gProjectInfoPtr->knnCounter++;
 							
 							}	// end "if (statCode == kPixelValuesOnly)"

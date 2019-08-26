@@ -60,30 +60,6 @@
 	#include "WStatisticsListDialog.h"
 #endif	// defined multispec_win
 
-//#include "SExtGlob.h"
-
-extern void ListStatsDialogInitialize (
-				DialogPtr							dialogPtr,
-				SInt16								statsWindowMode,
-				Boolean*								listFieldFlagPtr,
-				Boolean*								listClassFlagPtr,
-				Boolean*								listMeansStdDevFlagPtr,
-				Boolean*								listCovarianceFlagPtr,
-				Boolean*								listCorrelationFlagPtr,
-				Boolean*								featureTransformationFlagPtr,
-				SInt16*								listMeanStdPrecisionPtr,
-				SInt16*								listCovCorPrecisionPtr);
-
-extern void ListStatsDialogOK (
-				Boolean								listFieldFlag,
-				Boolean								listClassFlag,
-				Boolean								listMeansStdDevFlag,
-				Boolean								listCovarianceFlag,
-				Boolean								listCorrelationFlag,
-				Boolean								featureTransformationFlag,
-				SInt16								listMeanStdPrecision,
-				SInt16								listCovCorPrecision);
-
 
 
 		// Prototypes for routines in this file that are only called by

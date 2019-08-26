@@ -21,7 +21,7 @@
 //	Written By:				Larry L. Biehl			Date: 03/29/1988
 //	Revised By:				Abdur Maud				Date: 06/24/2013
 //	Revised By:				Tsung Tai Yeh			Date: 09/23/2015
-//	Revised By:				Larry L. Biehl			Date: 07/01/2019
+//	Revised By:				Larry L. Biehl			Date: 08/22/2019
 //	
 //------------------------------------------------------------------------------------
 
@@ -30,8 +30,10 @@
 
 #include "SGraphic.h"
 
-#if defined multispec_lin
+#if defined multispec_wx
 	#include "wx/docview.h"
+
+	typedef wxString CString;
 #endif
 
 		// Function Prototypes for those routines that are called by routines
@@ -3773,6 +3775,9 @@ extern void UpdatePaletteFor16and24BImage (void);
 extern Boolean ChangeProjectChannelsList (
 				SInt16								numberChannels);
 
+extern void ClearPixelDataMemory (
+				Boolean								disposePointersFlag);
+
 extern void ClearProjectStatistics (
 				SInt16								clearCode);
 
@@ -5268,6 +5273,94 @@ extern char* GetSTASupportFileBuffer (
 extern Boolean HistogramControl (
 				SInt16								computeCode);
 
+extern SInt16 HistogramDialogHandleMethod (
+				DialogPtr							dialogPtr,
+				HistogramSpecsPtr					histogramSpecsPtr,
+				WindowInfoPtr						windowInfoPtr,
+				FileInfoPtr							fileInfoPtr,
+				CString*								supportFileNamePtr,
+				SInt16								itemHit,
+				SInt16								okItemNumber,
+				SInt16								previousMethodCode,
+				Boolean*								updateListHistogramItemsFlagPtr,
+				Boolean*								defaultStatFileChangedFlagPtr);
+
+extern void HistogramDialogHideAreaItems (
+				DialogPtr							dialogptr);
+
+extern void HistogramDialogHideListItems (
+				DialogPtr							dialogPtr);
+
+extern void HistogramDialogInitialize (
+				DialogPtr							dialogPtr,
+				HistogramSpecsPtr					histogramSpecsPtr,
+				WindowInfoPtr						windowInfoPtr,
+				FileInfoPtr							fileInfoPtr,
+				CString*								fileNamePtr,
+				CString*								supportFileNamePtr,
+				SInt16*								histogramMethodCodePtr,
+				Boolean*								histogramInMemoryAvailableFlagPtr,
+				DialogSelectArea*					dialogSelectAreaPtr,
+				UInt16*								localChannelsPtr,
+				UInt16*								localNumberChannelsPtr,
+				SInt16*								channelSelectionPtr,
+				Boolean*								minMaxetcOnlyFlagPtr,
+				Boolean*								listHistogramSummaryFlagPtr,
+				Boolean*								listHistogramFlagPtr,
+				Boolean*								lineFormatHistFlagPtr,
+				Boolean*								includeEmptyBinsFlagPtr,
+				Boolean*								textWindowFlagPtr,
+				Boolean*								diskFileFlagPtr,
+				Boolean*								defaultStatFileChangedFlagPtr,
+				Boolean*								updateListHistogramItemsFlagPtr,
+				Boolean*								allChannelsAtOnceFlagPtr);
+
+extern void HistogramDialogOK (
+				DialogPtr							dialogPtr,
+				HistogramSpecsPtr					histogramSpecsPtr,
+				WindowInfoPtr						windowInfoPtr,
+				SInt16								histogramMethodCode,
+				DialogSelectArea*					dialogSelectAreaPtr,
+				UInt16*								localChannelsPtr,
+				UInt16								localNumberChannels,
+				SInt16								channelSelection,
+				Boolean								minMaxetcOnlyFlag,
+				Boolean								listHistogramSummaryFlag,
+				Boolean								listHistogramFlag,
+				Boolean								lineFormatHistFlag,
+				Boolean								includeEmptyBinsFlag,
+				Boolean								textWindowFlag,
+				Boolean								diskFileFlag,
+				Boolean								defaultStatFileChangedFlag,
+				Boolean								allChannelsAtOnceFlag);
+
+extern void HistogramDialogSetListAndEmptyBins (
+				DialogPtr 							dialogPtr,
+				SInt16								histogramMethodCode,
+				Boolean 								minMaxetcOnlyFlag,
+				Boolean 								listHistogramFlag,
+				Boolean 								includeEmptyBinsFlag,
+				Boolean 								lineFormatHistFlag);
+
+extern void HistogramDialogShowAreaItems (
+				DialogPtr							dialogPtr);
+
+extern void HistogramDialogShowListItems (
+				DialogPtr							dialogPtr);
+
+extern void HistogramDialogStatisticsFile (
+				HistogramSpecsPtr					histogramSpecsPtr,
+				WindowInfoPtr						imageWindowInfoPtr,
+				FileInfoPtr							imageFileInfoPtr,
+				DialogPtr							dialogPtr,
+				SInt16								itemNumber,
+				CString*								supportFileNamePtr);
+
+extern Boolean HistogramDialogUpdateAllChannelsAtOnceFlag (
+				DialogPtr 							dialogPtr,
+				UInt16 								numberChannels,
+				Boolean* 							lineFormatHistFlagPtr);
+
 extern Handle InitializeHistogramInfoStructure (
 				Handle								histogramSpecsHandle,
 				Boolean								inputPtrFlag,
@@ -5487,6 +5580,28 @@ extern SInt16 ReadImagineHeader (
 
 extern void ListDataControl (void);
 
+void ListDataDialogOK (
+				ListDataSpecsPtr					listDataSpecsPtr,
+				Boolean								classFlag,
+				SInt16								classSelection,
+				UInt32								localNumberClasses,
+				UInt16*								localClassPtr,
+				Boolean								areaFlag,
+				DialogSelectArea*					dialogSelectAreaPtr,
+				SInt16								channelSelection,
+				UInt16								localNumberChannels,
+				UInt16*								localChannelPtr,
+				Boolean								includeLineColumnFlag,
+				Boolean								includeLatLongFlag,
+				Boolean								includeClassFieldFlag,
+				Boolean								textWindowFlag,
+				Boolean								diskFileFlag,
+				Boolean								trainingFlag,
+				Boolean								testFlag,
+				Boolean								graphDataFlag,
+				UInt16								numberFDecimalDigits,
+				SInt16								listDataFormatCode);
+
 		//	end SListData.cpp
 
 
@@ -5510,14 +5625,19 @@ extern Boolean GetListResultsStringBuffer (
 				SInt16*								classPtr,
 				UInt32								numberClasses);
 
-extern void ListResultsControl (void);
-
 extern Boolean ListClassificationSummary (
 				ClassifierVar*						clsfyVariablePtr,
 				CMFileStream*						outputFileStreamPtr,
 				SInt16*								outputCodePtr,
 				SInt16*								classPtr,
 				UInt32								numberClasses);
+
+extern void ListResultsControl (void);
+
+extern void ListResultsDialogSetThresholdItems (
+				DialogPtr							dialogPtr,
+				Boolean								thresholdResultsFlag,
+				SInt16								thresholdTypeCode);
 
 extern Boolean ListPerformanceTables (
 				ClassifierVar*						clsfyVariablePtr,
@@ -5695,6 +5815,155 @@ extern void ConvertWinRectToMapRect (
 				UInt16								boundingCode);
 
 extern Boolean CoordinateDialog (void);
+
+extern void CoordinateDialogActivateProjectionParameters (
+				DialogPtr							dialogPtr);
+
+extern SInt16 CoordinateDialogCheckIfZoneIsValid (
+				DialogPtr							dialogPtr,
+				SInt16								referenceSystemCode,
+				UCharPtr								gridZoneDirection);
+
+extern void CoordinateDialogDeactivateProjectionParameters (
+				DialogPtr							dialogPtr);
+
+extern SInt16 CoordinateDialogGetCodeFromSelection (
+				SInt16								selection);
+
+extern SInt16 CoordinateDialogGetSelectionFromCode (
+				SInt16								code);
+
+extern void CoordinateDialogInitialize (
+				DialogPtr							dialogPtr,
+				MapProjectionInfoPtr				mapProjectionInfoPtr,
+				SInt16*								mapUnitsSelectionPtr,
+				double*								xMapCoordinate11Ptr,
+				double*								yMapCoordinate11Ptr,
+				double*								horizontalPixelSizePtr,
+				double*								verticalPixelSizePtr,
+				double*								mapOrientationAnglePtr,
+				SInt16*								referenceSystemSelectionPtr,
+				SInt16*								epsgCodePtr,
+				SInt16*								projectionSelectionPtr,
+				SInt16*								datumSelectionPtr,
+				SInt16*								ellipsoidSelectionPtr,
+				double*								radiusSpheroidPtr,
+				double*								semiMajorAxisPtr,
+				double*								semiMinorAxisPtr,
+				SInt16*								gridZonePtr,
+				UCharPtr								gridZoneDirectionPtr,
+				SInt16*								gridZoneWithDirectionPtr,
+				UCharPtr								epsgNamePtr,
+				UCharPtr								datumNamePtr,
+				UCharPtr								ellipsoidNamePtr,
+				double*								longitudeCentralMeridianPtr,
+				double*								latitudeOriginPtr,
+				double*								falseEastingPtr,
+				double*								falseNorthingPtr,
+				double*								scaleFactorOfCentralMeridianPtr,
+				double*								standardParallel1Ptr,
+				double*								standardParallel2Ptr,
+				DoublePoint*						upperLeftLatitudeLongitudePointPtr);
+
+extern Boolean	CoordinateDialogIsZoneDirectionEditable (
+				SInt16								referenceSystemSelection);
+
+extern void CoordinateDialogOK (
+				DialogPtr							dialogPtr,
+				FileInfoPtr							fileInfoPtr,
+				MapProjectionInfoPtr				mapProjectionInfoPtr,
+				SInt16								mapUnitsSelection,
+				double								xMapCoordinate11,
+				double								yMapCoordinate11,
+				double								horizontalPixelSize,
+				double								verticalPixelSize,
+				double								mapOrientationAngle,
+				SInt16								referenceSystemSelection,
+				SInt16								epsgCode,
+				SInt16								projectionCodeSelection,
+				SInt16								datumCode,
+				SInt16								ellipsoidCode,
+				double								radiusSpheroid,
+				double								semiMajorAxis,
+				double								semiMinorAxis,
+				SInt16								gridZone,
+				UCharPtr								gridZoneDirectionPtr,
+				UCharPtr								epsgNamePtr,
+				UCharPtr								datumNamePtr,
+				UCharPtr								ellipsoidNamePtr,
+				double								longitudeCentralMeridian,
+				double								latitudeOrigin,
+				double								falseEasting,
+				double								falseNorthing,
+				double								scaleFactorOfCentralMeridian,
+				double								standardParallel1,
+				double								standardParallel2,
+				DoublePoint							upperLeftLatLongPoint,
+				Boolean								adjustUpperLeftMapPointFlag);
+
+extern void CoordinateDialogGetMinMaxZone (
+				SInt16								referenceSystemCode,
+				SInt16*								minZonePtr,
+				SInt16*								maxZonePtr,
+				UCharPtr								gridZoneDirectionPtr);
+
+extern void CoordinateDialogHideShowProjectionParameters (
+				DialogPtr							dialogPtr,
+				SInt16								referenceSystemSelection,
+				SInt16								projectionSelection,
+				Boolean								initialFlag,
+				SInt16*								datumSelectionPtr,
+				SInt16*								ellipsoidSelectionPtr,
+				Boolean								setDatumParametersFlag);
+
+extern Boolean CoordinateDialogIsZoneDisplayed (
+				SInt16								referenceSystemCode);
+
+extern SInt16 CoordinateDialogSetDatumParameters (
+				DialogPtr							dialogPtr,
+				SInt16								datumCode,
+				SInt16								ellipsoidCode,
+				Boolean								initialFlag,
+				Boolean								datumDeactivatedFlag);
+
+extern void CoordinateDialogSetEllipsoidParameters (
+				DialogPtr							dialogPtr,
+				SInt16								ellipsoidCode);
+
+extern Boolean CoordinateDialogSetParametersFromEPSGCode (
+				DialogPtr							dialogPtr,
+				SInt16								epsgCode,
+				Boolean								lastEPSGCodeValidFlag,
+				UCharPtr								epsgNamePtr,
+				UCharPtr								datumNamePtr,
+				UCharPtr								ellipsoidNamePtr,
+				SInt16*								mapUnitsSelectionPtr,
+				SInt16*								projectionSelectionPtr);
+
+extern void CoordinateDialogSetParametersFromRS (
+				DialogPtr							dialogPtr,
+				SInt16								referenceSystemCode,
+				SInt16*								projectionSelectionPtr,
+				UCharPtr								gridZoneDirectionPtr,
+				SInt16								gridZoneWithDirection,
+				SInt16								datumCode,
+				SInt16								ellipsoidCode,
+				SInt16*								gridZonePtr);
+
+extern void CoordinateDialogSetReferenceSystemParameters (
+				DialogPtr							dialogPtr,
+				SInt16								referenceSystemCode,
+				UCharPtr								gridZoneDirectionPtr,
+				Boolean								initialFlag,
+				SInt16*								projectionSelectionPtr,
+				SInt16*								datumSelectionPtr,
+				SInt16*								ellipsoidSelectionPtr,
+				SInt16*								mapUnitsSelectionPtr);
+
+extern void CoordinateDialogSetTextStaticEditItems (
+				DialogPtr							dialogPtr,
+				SInt16								ellipsoidSelection,
+				Boolean								editParametersFlag);
 
 extern SInt16 CopyMapProjectionHandle (
 				Handle								inputMapProjectionHandle,
@@ -6818,6 +7087,78 @@ extern Boolean UpdateWindowSelectionGraph (void);
 
 extern void MosaicTwoImagesControl (void);
 
+extern void MosaicTwoImagesDialogInitialize (
+				DialogPtr							dialogPtr,
+				ReformatOptionsPtr				reformatOptionsPtr,
+				FileInfoPtr							leftTopFileInfoPtr,
+				FileInfoPtr							outFileInfoPtr,
+				SInt16*								mosaicDirectionCodePtr,
+				DialogSelectArea*					leftTopDialogSelectAreaPtr,
+				DialogSelectArea*					rightBottomDialogSelectAreaPtr,
+				SInt16*								fileNamesSelectionPtr,
+				Handle*								rightOrBottomMosaicWindowInfoHandlePtr,
+				Boolean*								ignoreBackgroundFlagPtr,
+				SInt32*								maxDataValuePtr,
+				SInt32*								newBackgroundValuePtr,
+				SInt16*								headerOptionsSelectionPtr);
+
+extern void MosaicTwoImagesDialogOK (
+				ReformatOptionsPtr				reformatOptionsPtr,
+				FileInfoPtr							outFileInfoPtr,
+				SInt16								mosaicDirectionCode,
+				Handle								rightOrBottomMosaicWindowInfoHandle,
+				DialogSelectArea*					leftTopDialogSelectAreaPtr,
+				DialogSelectArea*					rightBottomDialogSelectAreaPtr,
+				Boolean								ignoreBackgroundFlag,
+				SInt32								newBackgroundValue,
+				Boolean								channelDescriptionsFlag,
+				SInt16								headerFormat);
+
+extern void MosaicTwoImagesDialogOnSelectRightBottomImage (
+				DialogPtr							dialogPtr,
+				DialogSelectArea*					leftTopDialogSelectAreaPtr,
+				DialogSelectArea*					rightBottomDialogSelectAreaPtr,
+				SInt16								fileNamesSelection,
+				Handle*								rightOrBottomMosaicWindowInfoHandlePtr,
+				SInt16								mosaicDirectionCode);
+
+extern void MosaicTwoImagesDialogUpdateBackGroundValuesItem (
+				DialogPtr							dialogPtr,
+				Boolean								ignoreBackgroundFlag);
+
+extern void MosaicTwoImagesDialogUpdateChannelDescriptionItem (
+				DialogPtr							dialogPtr,
+				SInt16								headerFormat,
+				Boolean								thematicTypeFlag);
+
+extern void MosaicTwoImagesDialogUpdateDirectionItems (
+				DialogPtr							dialogPtr,
+				DialogSelectArea*					leftTopDialogSelectAreaPtr,
+				DialogSelectArea*					rightBottomDialogSelectAreaPtr,
+				Handle								rightBottomWindowInfoHandle,
+				SInt16								mosaicDirectionCode,
+				Boolean								ignoreBackgroundFlag);
+
+extern void MosaicTwoImagesDialogUpdateLineColumnEnds (
+				DialogPtr							dialogPtr,
+				DialogSelectArea*					topLeftDialogSelectAreaPtr,
+				DialogSelectArea*					dialogSelectAreaPtr,
+				SInt16								mosaicDirectionCode,
+				Handle								rightOrBottomMosaicWindowInfoHandle,
+				UInt16								itemSelected);
+
+extern void MosaicTwoImagesDialogSetUpRightBottomSelectArea (
+				DialogPtr							dialogPtr,
+				DialogSelectArea*					leftTopDialogSelectAreaPtr,
+				DialogSelectArea*					rightBottomDialogSelectAreaPtr,
+				SInt16								mosaicDirectionCode,
+				Handle								rightBottomWindowInfoHandle);
+
+extern SInt16 MosaicTwoImagesDialogVerifyLineColumnSettings (
+				DialogSelectArea*					leftTopDialogSelectAreaPtr,
+				DialogSelectArea*					rightBottomDialogSelectAreaPtr,
+				SInt16								mosaicDirectionCode);
+
 		// end SMosaic.cpp
 
 
@@ -6842,10 +7183,102 @@ extern Boolean FileSpecificationDialog (
 				Handle								fileInfoHandle,
 				Handle								windowInfoHandle);
 
+extern void FileSpecificationDialogInitialize (
+				DialogPtr							dialogPtr,
+				Handle								fileInfoHandle,
+				Handle								windowInfoHandle,
+				FileInfoPtr*						fileInfoPtrPtr,
+				WindowInfoPtr*						windowInfoPtrPtr,
+				UInt32*								numberLinesPtr,
+				UInt32*								numberColumnsPtr,
+				UInt32*								numberChannelsPtr,
+				SInt32*								startLinePtr,
+				SInt32*								startColumnPtr,
+				UInt32*								numberHeaderBytesPtr,
+				UInt32*								numberTrailerBytesPtr,
+				UInt32*								numberPreLineBytesPtr,
+				UInt32*								numberPostLineBytesPtr,
+				UInt32*								numberPreChannelBytesPtr,
+				UInt32*								numberPostChannelBytesPtr,
+				UInt32*								blockHeightPtr,
+				UInt32*								blockWidthPtr,
+				SInt16*								bandInterleaveSelectionPtr,
+				SInt16*								dataValueTypeSelectionPtr,
+				SInt16*								eightBitsPerDataSelectionPtr,
+				Boolean*								swapBytesFlagPtr,
+				Boolean*								signedDataFlagPtr,
+				Boolean*								linesBottomToTopFlagPtr,
+				Boolean*								fillDataValueExistsFlagPtr,
+				double*								fillDataValuePtr,
+				SInt16*								hdfDataSetPtr,
+				SInt16*								collapseClassesSelectionPtr,
+				Boolean*								callGetHDFLineFlagPtr);
+
+extern SInt16 FileSpecificationDialogSetHDFValues (
+				DialogPtr							dialogPtr,
+				FileInfoPtr							fileInfoPtr,
+				SInt16								hdfDataSetSelection,
+				Handle								okHandle,
+				Boolean								shiftKeyDownFlag,
+				Handle*								mapInformationHandlePtr,
+				Handle*								hfaHandlePtr,
+				Handle*								channelToHdfDataSetHandlePtr,
+				SInt16*								bandInterleaveSelectionPtr,
+				SInt16*								dataValueTypeSelectionPtr,
+				UInt16*								dataCompressionCodePtr,
+				SInt16*								gdalDataTypeCodePtr,
+				Boolean*								callGetHDFLineFlagPtr);
+
+extern SInt16 FileSpecificationDialogGetNumberBytes (
+				SInt16								dataTypeSelection);
+
+extern Boolean FileSpecificationDialogOK (
+				DialogPtr							dialogPtr,
+				FileInfoPtr							fileInfoPtr,
+				Handle								fileInfoHandle,
+				Handle*								newMapInformationHandlePtr,
+				Handle*								newHfaHandlePtr,
+				Handle*								newChannelToHdfDataSetHandlePtr,
+				WindowInfoPtr						windowInfoPtr,
+				Handle								windowInfoHandle,
+				UInt32								numberLines,
+				UInt32								numberColumns,
+				UInt32								numberChannels,
+				SInt32								startLine,
+				SInt32								startColumn,
+				UInt32								numberHeaderBytes,
+				UInt32								numberTrailerBytes,
+				UInt32								numberPreLineBytes,
+				UInt32								numberPostLineBytes,
+				UInt32								numberPreChannelBytes,
+				UInt32								numberPostChannelBytes,
+				UInt32								blockHeight,
+				UInt32								blockWidth,
+				Boolean								forceGroupTableUpdateFlag,
+				SInt16								bandInterleaveSelection,
+				SInt16								dataValueTypeSelection,
+				Boolean								swapBytesFlag,
+				Boolean								signedDataFlag,
+				Boolean								linesBottomToTopFlag,
+				Boolean								computeNumberClassesFlag,
+				Boolean								fillDataValueExistsFlag,
+				double								fillDataValue,
+				SInt16								hdfDataSetSelection,
+				UInt32								hdfDataSetIndex,
+				SInt16								collapseClassesSelection,
+				UInt16								dataCompressionCode,
+				SInt16								gdalDataTypeCode,
+				Boolean								callGetHDFLineFlag);
+
 extern SInt16 FileSpecificationDialogSetDataType (
 				SInt16								dataType,
 				SInt16								numberBits,
 				Boolean								signedDataFlag);
+
+extern void FileSpecificationDialogSetInterleaveItems (
+				DialogPtr							dialogPtr,
+				SInt16								bandInterleaveSelection,
+				Boolean								blockedFlag);
 
 extern SInt16 LoadSelectedDataSetInformation (
 				FileInfoPtr							inputFileInfoPtr,
@@ -7209,6 +7642,24 @@ extern void UpdateActiveImageLegend (
 
 extern void PrincipalComponentControl (void);
 
+extern void PrincipalComponentDialogOK (
+				PrincipalCompSpecsPtr			principalCompSpecsPtr,
+				SInt16								dataCode,
+				SInt16								classSelection,
+				UInt32								localNumberClasses,
+				UInt16*								classListPtr,
+				Boolean								trainingFlag,
+				Boolean								testFlag,
+				DialogSelectArea*					dialogSelectAreaPtr,
+				SInt16								channelSelection,
+				UInt32								localNumberChannels,
+				UInt16*								localChannelsPtr,
+				Boolean								listEigenvectorFlag,
+				Boolean								equalVariancesFlag,
+				Boolean								saveEigenvectorFlag,
+				Boolean								textWindowFlag,
+				Boolean								diskFileFlag);
+
 		// end SPrincipalComponents.cpp  
 
 
@@ -7359,12 +7810,6 @@ extern void UpdateProjectMapProjectionHandle (
 
 		// Routines in SProjectComputeStatistics.cpp
 
-extern Boolean DetermineIfSpecifiedStatisticsExist (
-				HPClassNamesPtr					classNamesPtr,
-				SInt16								statisticsType,
-				SInt16								covarianceStatsToUse,
-				Boolean*								computeCommonCovarianceFlagPtr);
-
 extern Boolean CheckMatrix (
 				HDoublePtr							covariancePtr,
 				Boolean								squareOutputMatrixFlag,
@@ -7374,6 +7819,9 @@ extern Boolean CheckMatrix (
 				SInt16								zeroVarianceStringIndex,
 				SInt16								allCovariancesEqualIndex,
 				Boolean								useListOneMessagePerClassFlag);
+
+extern void ClearProjectStatisticsMemory (
+				Boolean								loadPixelDataFlag);
 
 extern void ComputeCorrelationFromCovMatrix (
 				UInt16								numberOutputChannels,
@@ -7389,6 +7837,12 @@ extern void CreateFieldRgn (
 				RgnHandle*							rgnHandlePtr,
 				SInt32								columnOffset,
 				SInt32								lineOffset);
+
+extern Boolean DetermineIfSpecifiedStatisticsExist (
+				HPClassNamesPtr					classNamesPtr,
+				SInt16								statisticsType,
+				SInt16								covarianceStatsToUse,
+				Boolean*								computeCommonCovarianceFlagPtr);
 
 extern Boolean GetClassChannelStatistics (
 				UInt16								numberOutputChannels,
@@ -7628,6 +8082,63 @@ extern SInt16 HistogramStatsControl (
 				SInt16								statsWindowMode,
 				SInt16								histogramRequest);
 
+extern void StatHistogramDialogInitialize (
+				DialogPtr							dialogPtr,
+				FileInfoPtr							fileInfoPtr,
+				SInt16								statsWindowMode,
+				UInt16*								localFeaturesPtr,
+				UInt16*								localTransformFeaturesPtr,
+				Boolean*								histogramClassFlagPtr,
+				SInt32*								lineIntervalPtr,
+				SInt32*								columnIntervalPtr,
+				Boolean*								featureTransformAllowedFlagPtr,
+				Boolean*								featureTransformationFlagPtr,
+				SInt16*								channelSelectionPtr,
+				UInt16*								localNumberChannelsPtr,
+				SInt16*								histogramOutputCodePtr,
+				Boolean*								includeEmptyBinsFlagPtr,
+				Boolean*								blankValuesFlagPtr,
+				SInt16*								groupCodePtr,
+				SInt16*								columnMatrixCodePtr,
+				Boolean*								overlayDFAllowedFlagPtr,
+				Boolean*								overlayDensityFunctionFlagPtr);
+
+extern void StatHistogramDialogOK (
+				Boolean								histogramClassFlag,
+				SInt32								lineInterval,
+				SInt32								columnInterval,
+				Boolean								featureTransformationFlag,
+				SInt16								channelSelection,
+				UInt16								localNumberFeatures,
+				UInt16*								localFeaturesPtr,
+				Boolean								listDataFlag,
+				Boolean								includeEmptyBinsFlag,
+				Boolean								blankValuesFlag,
+				Boolean								plotHistogramFlag,
+				Boolean								groupChannelsFlag,
+				Boolean								groupFieldsClassesFlag,
+				SInt16								columnMatrixCode,
+				Boolean								overlayDensityFunctionFlag);
+
+extern void StatHistogramDialogClassesParameters (
+				DialogPtr							dialogPtr,
+				Boolean								listFlag,
+				Boolean								overlayDFAllowedFlag,
+				Boolean								overlayDensityFunctionFlag);
+
+extern void StatHistogramDialogFieldsParameters (
+				DialogPtr							dialogPtr);
+
+extern void StatHistogramDialogListParameters (
+				DialogPtr							dialogPtr,
+				Boolean								histogramClassFlag,
+				SInt16								columnMatrixCode);
+
+extern void StatHistogramDialogPlotParameters (
+				DialogPtr							dialogPtr,
+				Boolean								histogramClassFlag,
+				Boolean								overlayDensityFunctionFlag);
+
 extern Boolean LoadClassMeanAndStdDevData (
 				GraphPtr								graphRecordPtr,
 				SInt16								statsWindowMode);
@@ -7660,6 +8171,28 @@ extern Boolean	ListFieldInformation (
 extern void	ListStatsControl (
 				SInt16								statsWindowMode,
 				SInt16								listMenuItem);
+
+extern void ListStatsDialogInitialize (
+				DialogPtr							dialogPtr,
+				SInt16								statsWindowMode,
+				Boolean*								listFieldFlagPtr,
+				Boolean*								listClassFlagPtr,
+				Boolean*								listMeansStdDevFlagPtr,
+				Boolean*								listCovarianceFlagPtr,
+				Boolean*								listCorrelationFlagPtr,
+				Boolean*								featureTransformationFlagPtr,
+				SInt16*								listMeanStdPrecisionPtr,
+				SInt16*								listCovCorPrecisionPtr);
+
+extern void ListStatsDialogOK (
+				Boolean								listFieldFlag,
+				Boolean								listClassFlag,
+				Boolean								listMeansStdDevFlag,
+				Boolean								listCovarianceFlag,
+				Boolean								listCorrelationFlag,
+				Boolean								featureTransformationFlag,
+				SInt16								listMeanStdPrecision,
+				SInt16								listCovCorPrecision);
 				
 		// end SProjectListStatistics.cpp
 
@@ -8330,6 +8863,32 @@ extern SInt16 SetUpHDF_FileInformation (
 
 extern void RecodeThematicImageControl (void);
 
+extern void RecodeThematicImageDialogInitialize (
+				DialogPtr							dialogPtr,
+				RecodeThematicImagePtr			recodeThematicImagePtr,
+				Handle*								thresholdFileInfoHandlePtr,
+				SInt32*								recodedValuePtr,
+				SInt32*								thresholdValuePtr,
+				SInt16*								compareParameterCodePtr,
+				SInt16*								thresholdImageSelectionPtr);
+
+extern void RecodeThematicImageDialogOK (
+				RecodeThematicImagePtr			recodeThematicImagePtr,
+				Handle								thresholdFileInfoHandle,
+				SInt32								recodedValue,
+				SInt32								thresholdValue,
+				SInt16								compareParameterCode,
+				SInt16								thresholdImageSelection);
+
+extern SInt16 RecodeThematicImageDialogSelectThresholdItem (
+				Handle*								thresholdFileInfoHandlePtr,
+				DialogPtr							dialogPtr,
+				MenuHandle							popUpSelectThresholdImageMenu,
+				SInt16								itemHit,
+				SInt16								thresholdImageSelection,
+				SInt16								selectStringNumber,
+				SInt16								thresholdPopupItemNumber);
+
 		// end SRecodeThematicImage.cpp
 
 
@@ -8337,18 +8896,156 @@ extern void RecodeThematicImageControl (void);
 
 extern void RectifyImageControl (void);
 
+extern void	RectifyImageDialogInitialize (
+				DialogPtr							dialogPtr,
+				FileInfoPtr							fileInfoPtr,
+				DialogSelectArea*					dialogSelectAreaPtr,
+				ReformatOptionsPtr				reformatOptionsPtr,
+				SInt16*								headerOptionsSelectionPtr,
+				SInt16*								channelSelectionPtr,
+				Boolean*								blankOutsideSelectedAreaFlagPtr,
+				double*								lastBackgroundValuePtr,
+				SInt16*								procedureCodePtr,
+				SInt16*								resampleCodePtr,
+				SInt16*								fileNamesSelectionPtr,
+				Handle*								referenceWindowInfoHandlePtr,
+				SInt32*								lastLineShiftPtr,
+				SInt32*								lastColumnShiftPtr,
+				double*								lastLineScaleFactorPtr,
+				double*								lastColumnScaleFactorPtr,
+				double*								lastRotationAnglePtr,
+				double*								mapOrientationAnglePtr);
+
+extern void RectifyImageDialogOK (
+				DialogPtr							dialogPtr,
+				FileInfoPtr							outFileInfoPtr,
+				FileInfoPtr							fileInfoPtr,
+				WindowInfoPtr						windowInfoPtr,
+				LayerInfoPtr						layerInfoPtr,
+				DialogSelectArea*					dialogSelectAreaPtr,
+				ReformatOptionsPtr				reformatOptionsPtr,
+				SInt16								headerOptionsSelection,
+				Boolean								blankOutsideSelectedAreaFlag,
+				SInt16								channelSelection,
+				double								lastBackgroundValue,
+				SInt16								procedureCode,
+				SInt16								resampleCode,
+				Handle								referenceWindowInfoHandle,
+				SInt32								lastLineShift,
+				SInt32								lastColumnShift,
+				double								lastLineScaleFactor,
+				double								lastColumnScaleFactor,
+				double								lastRotationAngle);
+
+extern void RectifyImageDialogOnRectifyCode (
+				DialogPtr							dialogPtr,
+				SInt16								rectifyCode,
+				Boolean								blankOutsideSelectedAreaFlag,
+				double								mapOrientationAngle);
+
+extern SInt16 	RectifyImageDialogOnReferenceFile (
+				DialogPtr							dialogPtr,
+				SInt16								procedureCode,
+				SInt16								fileNamesSelection,
+				Handle*								targetWindowInfoHandlePtr,
+				DialogSelectArea*					dialogSelectAreaPtr);
+
 		// end SRectifyImage.cpp
 
 
 		// Routines in SReformatChangeImageFileFormat.cpp
 
+extern void ChangeImageFormatDialogInitialize (
+				DialogPtr							dialogPtr,
+				WindowInfoPtr						windowInfoPtr,
+				FileInfoPtr							fileInfoPtr,
+				ReformatOptionsPtr				reformatOptionsPtr,
+				DialogSelectArea*					dialogSelectAreaPtr,
+				UCharPtr								inputBandInterleaveStringPtr,
+				UCharPtr								inputDataValueTypeStringPtr,
+				UCharPtr								tiffMenuNameStringPtr,
+				SInt16*								outputFileSelectionPtr,
+				SInt16*								bandInterleaveSelectionPtr,
+				SInt16*								dataValueTypeSelectionPtr,
+				SInt16*								savedDataValueTypeSelectionPtr,
+				SInt16*								channelSelectionPtr,
+				Boolean*								bottomToTopFlagPtr,
+				Boolean*								rightToLeftFlagPtr,
+				Boolean*								swapBytesFlagPtr,
+				Boolean*								channelDescriptionAllowedFlagPtr,
+				Boolean*								savedChannelDescriptionFlagPtr,
+				Boolean*								outputInWavelengthOrderAllowedFlagPtr,
+				Boolean*								outputInWavelengthOrderFlagPtr,
+				SInt16*								headerOptionsSelectionPtr,
+				Boolean*								GAIAFormatAllowedFlagPtr,
+				Boolean*								channelThematicDisplayFlagPtr);
+
+extern Boolean	ChangeImageFormatDialogOK (
+				DialogPtr							dialogPtr,
+				WindowInfoPtr						imageWindowInfoPtr,
+				LayerInfoPtr						imageLayerInfoPtr,
+				FileInfoPtr							imageFileInfoPtr,
+				FileInfoPtr							outFileInfoPtr,
+				ReformatOptionsPtr				reformatOptionsPtr,
+				DialogSelectArea*					dialogSelectAreaPtr,
+				SInt16								outputFileSelection,
+				SInt16								bandInterleaveSelection,
+				SInt16								dataValueTypeSelection,
+				Boolean								sessionUserSetDataValueTypeSelectionFlag,
+				SInt16								channelSelection,
+				Boolean								bottomToTopFlag,
+				Boolean								rightToLeftFlag,
+				Boolean								swapBytesFlag,
+				Boolean								channelDescriptionsFlag,
+				Boolean								outputInWavelengthOrderFlag,
+				SInt16								headerOptionsSelection,
+				Boolean								channelThematicDisplayFlag);
+
+extern void ChangeImageFormatDialogUpdateHeaderMenu (
+				DialogPtr							dialogPtr,
+				FileInfoPtr							fileInfoPtr,
+				UCharPtr								tiffMenuNameStringPtr,
+				SInt16*								outputFileSelectionPtr,
+				SInt16*								bandInterleaveSelectionPtr,
+				SInt16*								headerOptionsSelectionPtr,
+				MenuHandle							popUpOutputFileMenu,
+				MenuHandle							popUpHeaderOptionsMenu,
+				SInt16								transformDataCode,
+				SInt16								bytesPerDataValueSelection,
+				Boolean								GAIAFormatAllowedFlag);
+
+extern void ChangeImageFormatDialogUpdateHeaderOptions (
+				DialogPtr							dialogPtr,
+				FileInfoPtr							fileInfoPtr,
+				SInt16								headerOptionsSelection,
+				SInt16*								outputFileSelectionPtr,
+				SInt16*								bandInterleaveSelectionPtr,
+				SInt16*								dataValueTypeSelectionPtr,
+				Boolean*								setChannelDescriptionFlagPtr,
+				MenuHandle							popUpOutputFileMenu,
+				Boolean								channelDescriptionAllowedFlag,
+				Boolean								channelThematicDisplayFlag);
+
+extern void ChangeImageFormatDialogUpdateTIFFHeader (
+				DialogPtr							dialogPtr,
+				FileInfoPtr							fileInfoPtr,
+				SInt16*								outputFileSelectionPtr,
+				SInt16*								bandInterleaveSelectionPtr,
+				MenuHandle							popUpOutputFileMenu);
+
+extern void ChangeImageFormatDialogVerifyHeaderSetting (
+				DialogPtr							dialogPtr,
+				FileInfoPtr							fileInfoPtr,
+				SInt16								bandInterleaveSelection,
+				SInt16								dataValueTypeSelection,
+				MenuHandle							popUpOutputFileMenu,
+				MenuHandle							popUpHeaderOptionsMenu,
+				SInt16*								outputFileSelectionPtr,
+				SInt16*								headerOptionsSelectionPtr);
+
 extern Boolean ChangeImageTransformDialog (
 				ReformatOptionsPtr				reformatOptionsPtr,
 				SInt16*								recommendedNumberOfBitsPtr);
-
-extern void ReleaseReformatOutputFileInfoAndBuffers (
-				ReformatOptionsPtr				reformatOptionsPtr,
-				FileInfoPtr							inputFileInfoPtr);
 
 extern SInt16 DecodeAlgebraicFormula (
 				unsigned char*						stringPtr,
@@ -8361,9 +9058,6 @@ extern SInt16 DeterminePCMinimumNumberBits (
 				SInt16								eigenSource,
 				SInt16								pcNumber);
 
-extern SInt16 GetHeaderFormatFromPopUpSelection (
-				SInt16								headerOptionsSelection);
-
 extern PascalVoid DrawHeaderOptionsPopUp (
 				DialogPtr							dialogPtr,
 				SInt16								itemNumber);
@@ -8372,6 +9066,17 @@ extern PascalVoid DrawOutputFilePopUp (
 				DialogPtr							dialogPtr,
 				SInt16								itemNumber);
 
+extern Boolean	GetDefaultBandRatio (
+				WindowInfoPtr						windowInfoPtr,
+				FileInfoPtr							fileInfoPtr,
+				ReformatOptionsPtr				reformatOptionsPtr);
+
+extern SInt16 GetHeaderFormatFromPopUpSelection (
+				SInt16								headerOptionsSelection);
+
+extern SInt16 GetPCChannelList (
+				ReformatOptionsPtr 				reformatOptionsPtr);
+
 extern Boolean GetReformatAndFileInfoStructures (
 				Handle*								fileInfoHPtr,
 				Handle*								reformatOptionsHPtr);
@@ -8379,6 +9084,9 @@ extern Boolean GetReformatAndFileInfoStructures (
 extern Boolean GetReformatOutputBuffer (
 				FileInfoPtr							outFileInfoPtr,
 				ReformatOptionsPtr				reformatOptionsPtr);
+
+extern SInt16 GetTransformChannelList (
+				ReformatOptionsPtr 				reformatOptionsPtr);
 
 extern void InitializeHeaderPopupMenu (
 				DialogPtr							dialogPtr,
@@ -8396,6 +9104,10 @@ extern void InitializeReformatStructure (
 
 extern void ReformatControl (
 				SInt16								reformatRequest);
+
+extern void ReleaseReformatOutputFileInfoAndBuffers (
+				ReformatOptionsPtr				reformatOptionsPtr,
+				FileInfoPtr							inputFileInfoPtr);
 
 		// end SReformatChangeImageFileFormat.cpp
 
@@ -8866,9 +9578,19 @@ extern void DoStatWActivateEvent (void);
 extern void DoStatWUpdateEvent (
 				WindowPtr							window);
 
+extern void FieldListStatMode (
+				SInt16								classNumber);
+
 extern void ForceStatisticsCodeResourceLoad (void);
 
 extern SInt16 GetClassStatisticsTypeMenuItem (void);
+
+extern SInt16 GetCovarianceStatsFromMenuItem (
+				SInt16								menuItem);
+
+extern SInt16 GetCurrentField (
+				SInt16 								classNumber,
+				SInt16 								classFieldNumber);
 
 extern void GetDefaultClassName (
 				char*									stringPtr);
@@ -8938,12 +9660,29 @@ extern Boolean NewClassFieldDialog (
 				UCharPtr								fieldNamePtr,
 				SInt16*								fieldTypePtr);
 
+extern void NewClassFieldDialogChangeClass (
+				DialogPtr							dialogPtr,
+				SInt16								newCurrentClass,
+				SInt16								fieldType,
+				SInt64								numberSelectionPixels);
+
+extern void NewClassFieldDialogInitialize (
+				DialogPtr							dialogPtr,
+				Boolean								newClassOnlyFlag,
+				UInt16*								selectedItemPtr,
+				UCharPtr								fieldNamePtr,
+				SInt16								fieldType,
+				SInt64*								numberSelectionPixelsPtr);
+
 extern void NewFieldStatMode (void);
 
 extern void MSetControlValue (
 				WindowPtr							windowPtr,
 				ControlHandle						controlHandle,
 				SInt32								value);
+
+extern void PolygonListStatMode (
+				SInt16								classFieldNumber);
 
 extern void RemoveListCells (void);
 
@@ -8963,6 +9702,82 @@ extern void SetProjectWTitle (void);
 
 extern void StatisticsControl (void);
 
+extern void StatisticsDialogInitialize (
+				DialogPtr							dialogPtr,
+				SInt16								totalNumberChannels,
+				SInt16*								localStatCodePtr,
+				Boolean*								keepClassStatsFlagPtr,
+				Boolean*								useCommonCovarianceInLOOCFlagPtr,
+				double*								variancePtr,
+				double*								minLogDeterminantPtr,
+				SInt16*								channelSelectionPtr,
+				SInt16*								channelListTypePtr,
+				UInt16*								featurePtr,
+				UInt16*								localNumberChannelsPtr,
+				SInt16*								localOutlineFieldTypePtr,
+				SInt16*								localLabelFieldCodePtr,
+				SInt16*								outlineColorSelectionPtr,
+				SInt16*								maskTrainImageSelectionPtr,
+				SInt16*								maskTestImageSelectionPtr,
+				UInt16*								maxNumberTrainLayersPtr,
+				UInt16*								maxNumberTestLayersPtr);
+
+extern void StatisticsDialogOK (
+				SInt16								channelSelection,
+				SInt16								totalNumberChannels,
+				UInt16*								featurePtr,
+				UInt32								localNumberChannels,
+				Boolean								showTrainingFieldsFlag,
+				Boolean								showTestFieldsFlag,
+				Boolean								showClassNamesFlag,
+				Boolean								showFieldNamesFlag,
+				Boolean								showTrainTestTextFlag,
+				SInt16								outlineColorSelection,
+				SInt16								localStatCode,
+				Boolean								keepClassStatsFlag,
+				double								variance,
+				double								minLogDeterminant,
+				Boolean								useCommonCovarianceInLOOCFlag);
+
+extern SInt16 StatisticsDialogSelectMaskItem (
+				Handle*								maskFileInfoHandlePtr,
+				DialogPtr							dialogPtr,
+				MenuHandle							popUpSelectMaskImageMenu,
+				SInt16								itemHit,
+				SInt16								maskImageSelection,
+				SInt16								selectStringNumber,
+				SInt16								maskPopupItemNumber,
+				SInt16								layerItemNumber,
+				UInt16*								maxNumberLayersPtr);
+
+extern SInt16 StatisticsDialogMaskCheck (
+				Handle								trainMaskFileInfoHandle,
+				Handle								testMaskFileInfoHandle,
+				SInt16								maskTrainImageSelection,
+				SInt16								maskTestImageSelection,
+				UInt16								trainLayerNumber,
+				UInt16								testLayerNumber);
+
+extern Boolean StatisticsOptionsDialog (
+				SInt16*								statCodePtr,
+				Boolean*								keepClassStatsFlagPtr,
+				double*								variancePtr,
+				double*								minLogDeterminantPtr,
+				Boolean*								useModifiedStatsFlagPtr);
+
+extern void StatisticsOptionsDialogOK (
+				SInt16								localStatCode,
+				Boolean								localKeepStatsFlag,
+				Boolean								localZeroVarianceFlag,
+				double								localVariance,
+				double								localMinLogDeterminant,
+				Boolean								localCommonCovarianceInLOOCFlag,
+				SInt16*								statCodePtr,
+				Boolean*								keepClassStatsFlagPtr,
+				double*								variancePtr,
+				double*								minLogDeterminantPtr,
+				Boolean*								useCommonCovarianceInLOOCFlagPtr);
+
 extern Boolean StatisticsWControlEvent (
 				ControlHandle						theControl,
 				Boolean								waitOnMouseUpFlag,
@@ -8976,12 +9791,60 @@ extern void UpdateStatisticsWindow (void);
 
 extern void UpdateToClassControl (void);
 
+extern void WriteProjectName (void);
+
 		// end SStatistics.cpp
 
 
 		//	Routines in SStatisticsImage.cpp
 
 extern void StatisticsImageControl (void);
+
+extern void StatisticsImageDialogInitialize (
+				DialogPtr							dialogPtr,
+				StatisticsImageSpecsPtr			statisticsImageSpecsPtr,
+				DialogSelectArea*					dialogSelectAreaPtr,
+				WindowInfoPtr						imageWindowInfoPtr,
+				WindowPtr							activeImageWindow,
+				SInt16*								channelSelectionPtr,
+				UInt16*								localNumberChannelsPtr,
+				UInt16*								localFeaturesPtr,
+				UInt16*								localTransformFeaturesPtr,
+				Boolean*								channelsAllAvailableFlagPtr,
+				UInt16**								projectChannelsPtrPtr,
+				SInt16*								maxNumberChannelsPtr,
+				SInt16*								classSelectionPtr,
+				UInt32*								localNumberClassesPtr,
+				UInt16*								localClassPtr,
+				SInt16*								minMaxSettingCodePtr,
+				double*								userMinimumPtr,
+				double*								userMaximumPtr,
+				SInt16*								areaCodePtr,
+				SInt16*								selectItemPtr,
+				Boolean*								featureTransformationFlagPtr,
+				Boolean*								featureTransformAllowedFlagPtr);
+
+extern void StatisticsImageDialogOK (
+				DialogPtr							dialogPtr,
+				StatisticsImageSpecsPtr			statisticsImageSpecsPtr,
+				DialogSelectArea*					dialogSelectAreaPtr,
+				SInt16								classCode,
+				SInt16								areaCode,
+				SInt16								channelSelection,
+				Boolean								featureTransformationFlag,
+				SInt16*								featurePtr,
+				SInt16                        localNumberFeatures,
+				SInt16								maxNumberChannels,
+				SInt16								classSelection,
+				SInt32                        localNumberClasses,
+				SInt16*								classListPtr,
+				SInt16								perClassCode,
+				SInt16								perFieldCode,
+				SInt16								overallMinMaxCode,
+				SInt16								individualMinMaxCode,
+				SInt16								userMinMaxCode,
+				double								userMinimum,
+				double								userMaximum);
 
 		//	end SStatisticsImage.cpp
 		

@@ -84,62 +84,6 @@
 
 SInt16							gResampleSelection;
 
-
-
-extern void		 	RectifyImageDialogInitialize (
-							DialogPtr							dialogPtr,
-							FileInfoPtr							fileInfoPtr,
-							DialogSelectArea*					dialogSelectAreaPtr,
-							ReformatOptionsPtr				reformatOptionsPtr,
-							SInt16*								headerOptionsSelectionPtr,
-							SInt16*								channelSelectionPtr,
-							Boolean*								blankOutsideSelectedAreaFlagPtr,
-							double*								lastBackgroundValuePtr,
-							SInt16*								procedureCodePtr,
-							SInt16*								resampleCodePtr,
-							SInt16*								fileNamesSelectionPtr,
-							Handle*								referenceWindowInfoHandlePtr,
-							SInt32*								lastLineShiftPtr,
-							SInt32*								lastColumnShiftPtr,
-							double*								lastLineScaleFactorPtr,
-							double*								lastColumnScaleFactorPtr,
-							double*								lastRotationAnglePtr,
-							double*								mapOrientationAnglePtr);
-								
-extern void 		RectifyImageDialogOK (
-							DialogPtr							dialogPtr,
-							FileInfoPtr							outFileInfoPtr,
-							FileInfoPtr							fileInfoPtr,
-							WindowInfoPtr						windowInfoPtr,
-							LayerInfoPtr						layerInfoPtr,
-							DialogSelectArea*					dialogSelectAreaPtr,
-							ReformatOptionsPtr				reformatOptionsPtr,
-							SInt16								headerOptionsSelection,
-							Boolean								blankOutsideSelectedAreaFlag,
-							SInt16								channelSelection,
-							double								lastBackgroundValue,
-							SInt16								procedureCode,
-							SInt16								resampleCode,
-							Handle								referenceWindowInfoHandle,
-							SInt32								lastLineShift,
-							SInt32								lastColumnShift,
-							double								lastLineScaleFactor,
-							double								lastColumnScaleFactor,
-							double								lastRotationAngle);
-
-extern void 		RectifyImageDialogOnRectifyCode (
-							DialogPtr							dialogPtr,
-							SInt16								rectifyCode,
-							Boolean								blankOutsideSelectedAreaFlag,
-							double								mapOrientationAngle);
-
-extern SInt16 		RectifyImageDialogOnReferenceFile (
-							DialogPtr							dialogPtr,
-							SInt16								procedureCode,
-							SInt16								fileNamesSelection,
-							Handle*								targetWindowInfoHandlePtr,
-							DialogSelectArea*					dialogSelectAreaPtr);
-
 								
 
 			// Prototypes for routines in this file that are only called by		

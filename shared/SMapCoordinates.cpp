@@ -126,155 +126,6 @@ extern void 			LoadDItemString (
 								SInt16								itemNumber,
 								CharPtr								theStringPtr);
 
-extern void				CoordinateDialogActivateProjectionParameters (
-								DialogPtr							dialogPtr);
-
-extern SInt16			CoordinateDialogCheckIfZoneIsValid (
-								DialogPtr							dialogPtr,
-								SInt16								referenceSystemCode,
-								UCharPtr								gridZoneDirection);
-
-extern void				CoordinateDialogDeactivateProjectionParameters (
-								DialogPtr							dialogPtr);
-
-extern SInt16			CoordinateDialogGetCodeFromSelection (
-								SInt16								selection);
-										
-extern SInt16			CoordinateDialogGetSelectionFromCode (
-								SInt16								code);
-									
-extern void 			CoordinateDialogInitialize (
-								DialogPtr							dialogPtr,
-								MapProjectionInfoPtr				mapProjectionInfoPtr,
-								SInt16*								mapUnitsSelectionPtr,
-								double*								xMapCoordinate11Ptr,
-								double*								yMapCoordinate11Ptr,
-								double*								horizontalPixelSizePtr,
-								double*								verticalPixelSizePtr,
-								double*								mapOrientationAnglePtr,
-								SInt16*								referenceSystemSelectionPtr,
-								SInt16*								epsgCodePtr,
-								SInt16*								projectionSelectionPtr,
-								SInt16*								datumSelectionPtr,
-								SInt16*								ellipsoidSelectionPtr,
-								double*								radiusSpheroidPtr,
-								double*								semiMajorAxisPtr,
-								double*								semiMinorAxisPtr,
-								SInt16*								gridZonePtr,
-								UCharPtr								gridZoneDirectionPtr,
-								SInt16*								gridZoneWithDirectionPtr,
-								UCharPtr								epsgNamePtr,
-								UCharPtr								datumNamePtr,
-								UCharPtr								ellipsoidNamePtr,
-								double*								longitudeCentralMeridianPtr,
-								double*								latitudeOriginPtr,
-								double*								falseEastingPtr,
-								double*								falseNorthingPtr,
-								double*								scaleFactorOfCentralMeridianPtr,
-								double*								standardParallel1Ptr,
-								double*								standardParallel2Ptr,
-								DoublePoint*						upperLeftLatitudeLongitudePointPtr);	
-
-extern Boolean			CoordinateDialogIsZoneDirectionEditable (
-								SInt16								referenceSystemSelection);
-
-extern void 			CoordinateDialogOK (
-								DialogPtr							dialogPtr,
-								FileInfoPtr							fileInfoPtr,
-								MapProjectionInfoPtr				mapProjectionInfoPtr,
-								SInt16								mapUnitsSelection,
-								double								xMapCoordinate11,
-								double								yMapCoordinate11,
-								double								horizontalPixelSize,
-								double								verticalPixelSize,
-								double								mapOrientationAngle,
-								SInt16								referenceSystemSelection,
-								SInt16								epsgCode,
-								SInt16								projectionCodeSelection,
-								SInt16								datumCode,
-								SInt16								ellipsoidCode,
-								double								radiusSpheroid,
-								double								semiMajorAxis,
-								double								semiMinorAxis,
-								SInt16								gridZone,
-								UCharPtr								gridZoneDirectionPtr,
-								UCharPtr								epsgNamePtr,
-								UCharPtr								datumNamePtr,
-								UCharPtr								ellipsoidNamePtr,
-								double								longitudeCentralMeridian,
-								double								latitudeOrigin,
-								double								falseEasting,
-								double								falseNorthing,
-								double								scaleFactorOfCentralMeridian,
-								double								standardParallel1,
-								double								standardParallel2,
-								DoublePoint							upperLeftLatLongPoint,
-								Boolean								adjustUpperLeftMapPointFlag);
-
-extern void				CoordinateDialogGetMinMaxZone (
-								SInt16								referenceSystemCode,
-								SInt16*								minZonePtr,
-								SInt16*								maxZonePtr,
-								UCharPtr								gridZoneDirectionPtr);
-
-extern void 			CoordinateDialogHideShowProjectionParameters (
-								DialogPtr							dialogPtr,
-								SInt16								referenceSystemSelection,
-								SInt16								projectionSelection,
-								Boolean								initialFlag,
-								SInt16*								datumSelectionPtr,
-								SInt16*								ellipsoidSelectionPtr,
-								Boolean								setDatumParametersFlag);	
-
-extern Boolean			CoordinateDialogIsZoneDisplayed (
-								SInt16								referenceSystemCode);
-
-extern SInt16			CoordinateDialogSetDatumParameters (
-								DialogPtr							dialogPtr,
-								SInt16								datumCode,
-								SInt16								ellipsoidCode,
-								Boolean								initialFlag,
-								Boolean								datumDeactivatedFlag);
-
-extern void				CoordinateDialogSetEllipsoidParameters (
-								DialogPtr							dialogPtr,
-								SInt16								ellipsoidCode);
-
-extern Boolean			CoordinateDialogSetParametersFromEPSGCode (
-								DialogPtr							dialogPtr,
-								SInt16								epsgCode,
-								Boolean								lastEPSGCodeValidFlag,
-								UCharPtr								epsgNamePtr,
-								UCharPtr								datumNamePtr,
-								UCharPtr								ellipsoidNamePtr,
-								SInt16*								mapUnitsSelectionPtr,
-								SInt16*								projectionSelectionPtr);
-
-extern void 			CoordinateDialogSetParametersFromRS (
-								DialogPtr							dialogPtr,
-								SInt16								referenceSystemCode,
-								SInt16*								projectionSelectionPtr,
-								UCharPtr								gridZoneDirectionPtr,
-								SInt16								gridZoneWithDirection,
-								SInt16								datumCode,
-								SInt16								ellipsoidCode,
-								SInt16*								gridZonePtr);
-
-extern void 			CoordinateDialogSetReferenceSystemParameters (
-								DialogPtr							dialogPtr,
-								SInt16								referenceSystemCode,
-								UCharPtr								gridZoneDirectionPtr,
-								Boolean								initialFlag,
-								SInt16*								projectionSelectionPtr,
-								SInt16*								datumSelectionPtr,
-								SInt16*								ellipsoidSelectionPtr,
-								SInt16*								mapUnitsSelectionPtr);
-
-extern void				CoordinateDialogSetTextStaticEditItems (
-								DialogPtr							dialogPtr,
-								SInt16								ellipsoidSelection,
-								Boolean								editParametersFlag);	
-
 extern double			msfnz (
 								double								eccent,
 								double								sinphi,
@@ -6696,8 +6547,10 @@ void DrawSelectedAreaInformation (
 		imageViewCPtr = GetWindowPtr (windowInfoHandle);
 		imageFrameCPtr = imageViewCPtr->GetImageFrameCPtr ();
 
-		//imageFrameCPtr->GetCoordinateViewComboText ((char*)gTextString2,
-		//															areaUnitsCode);
+		#if defined multispec_win
+			imageFrameCPtr->GetCoordinateViewComboText ((char*)gTextString2,
+																		IDC_AreaUnitsCombo);
+		#endif	// defined multispec_win
 	#endif	// defined multispec_win || lin
 	
 	numberTitleChars = sprintf ((char*)gTextString, 
@@ -10209,7 +10062,7 @@ void SetCoefficientsHandle (
 //							
 //
 //	Coded By:			Larry L. Biehl			Date: 11/08/2000
-//	Revised By:			Larry L. Biehl			Date: 04/16/2019
+//	Revised By:			Larry L. Biehl			Date: 08/16/2019
 
 void SetCoordinateViewLocationParameters (
 				Handle								windowInfoHandle)
@@ -10636,15 +10489,13 @@ void SetCoordinateViewLocationParameters (
 											(char*)gTextString); 
 	#endif	// defined multispec_mac 
 	                             
-	#if defined multispec_win || defined multispec_lin
-		#if defined multispec_win
-			imageViewCPtr = GetWindowPtr (windowInfoHandle);
-			imageFrameCPtr = imageViewCPtr->GetImageFrameCPtr ();
-		#endif
+	#if defined multispec_win
+		imageViewCPtr = GetWindowPtr (windowInfoHandle);
+		imageFrameCPtr = imageViewCPtr->GetImageFrameCPtr ();
 
-		//if (imageFrameCPtr != NULL)
-		//	imageFrameCPtr->GetCoordinateViewComboText ((char*)gTextString, areaUnitsCode);
-	#endif	// defined multispec_win || lin
+		if (imageFrameCPtr != NULL)
+			imageFrameCPtr->GetCoordinateViewComboText ((char*)gTextString, IDC_AreaUnitsCombo);
+	#endif	// defined multispec_win
 
 	width = MAX (width, StringWidth (gTextString));
 	

@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			07/08/2019
+//	Revision date:			08/15/2019
 //
 //	Language:				C
 //
@@ -228,6 +228,8 @@
 #if defined multispec_lin
 	#include "SMultiSpec.h"
 	#include "LImageView.h"
+
+	#undef include_SVM_Classifier
 #endif
 
 #if defined multispec_mac || defined multispec_mac_swift
@@ -239,12 +241,13 @@
   
 #if defined multispec_win  
 	#include "WImageView.h"
-	//#include "SExternalGlobals.h"      
+
+	#undef include_SVM_Classifier
 #endif	// defined multispec_win  
 
-
 #define	kDoNotIncludeTab						0
-/*
+
+#if defined include_SVM_Classifier
 #include "dlib/svm_threaded.h"
 
 
@@ -297,7 +300,7 @@ int predict_label (
    
    return index_of_max(scores);
 }
-*/
+#endif	// include_SVM_Classifier
 
 			// Prototypes for routines in this file that are only called by		
 			// other routines in this file.	
@@ -2330,7 +2333,7 @@ void ClassifyAreasControl (
 // Called By:			Menus in menus.c
 //
 //	Coded By:			Larry L. Biehl			Date: 12/06/1988
-//	Revised By:			Larry L. Biehl			Date: 05/03/2019
+//	Revised By:			Larry L. Biehl			Date: 08/13/2019
 
 void ClassifyControl (void)
 
@@ -2384,7 +2387,7 @@ void ClassifyControl (void)
 				gOutputForce1Code = (gOutputCode | 0x0001);
 				
 						// Note that statistics are not needed for the Support Vector Machine
-						// or the K-Nearest Neighbor classifiers. One the training data values
+						// or the K-Nearest Neighbor classifiers. The training data values
 						// are used.
 				
 				if (gClassifySpecsPtr->mode == kSupportVectorMachineMode ||
@@ -2402,6 +2405,14 @@ void ClassifyControl (void)
 															kSetupGlobalInfoPointers,
 															&minimumNumberTrainPixels);
 					gProjectInfoPtr->statisticsCode = savedStatisticsCode;
+					
+							// Verify that the kNN value for k Nearest Neighbor Classifier
+							// is less than the total number of training pixels being used.
+					
+					if (continueFlag && gClassifySpecsPtr->nearestNeighborKValue >
+																			gProjectInfoPtr->knnCounter)
+						gClassifySpecsPtr->nearestNeighborKValue =
+																			gProjectInfoPtr->knnCounter;
 					
 					}	// end "if (...->mode == kSupportVectorMachineMode || ..."
 					
@@ -2802,6 +2813,7 @@ void ClassifyControl (void)
 			
 			CheckAndUnlockHandle (gClassifySpecsPtr->classHandle);
 			gClassifySpecsPtr->classPtr = NULL;
+			gClassifySpecsPtr->classVectorPtr = NULL;
 			
 			CheckAndUnlockHandle (gClassifySpecsPtr->symbolsHandle);
 			gClassifySpecsPtr->symbolsPtr = NULL;
@@ -2997,7 +3009,7 @@ SInt16 ClassifyPerPointArea (
 			// which is currently every 1 second.
 	
 	double magnification = lcToWindowUnitsVariablesPtr->magnification;
-	nextStatusAtLeastLineIncrement = (10 * lineInterval) / magnification;
+	nextStatusAtLeastLineIncrement = (int)((10 * lineInterval) / magnification);
 	nextStatusAtLeastLineIncrement = MAX (nextStatusAtLeastLineIncrement, 10);
 	nextStatusAtLeastLine = areaDescriptionPtr->lineStart + nextStatusAtLeastLineIncrement;
 		
@@ -3133,7 +3145,7 @@ SInt16 ClassifyPerPointArea (
 					break;
             
 				case kSupportVectorMachineMode:
-					/*
+					#if defined include_SVM_Classifier
 					returnCode = SVMClassifier (areaDescriptionPtr,
 														 fileInfoPtr,
 														 clsfyVariablePtr,
@@ -3141,7 +3153,7 @@ SInt16 ClassifyPerPointArea (
 														 probabilityBufferPtr,
 														 countVectorPtr,
 														 point);
-					*/
+					#endif
                break;
 					
 				case kKNearestNeighborMode:
@@ -6499,8 +6511,8 @@ void InitializeClassifierVarStructure (
 // Called By:
 //
 //	Coded By:			Tsung Tai				Date: 04/01/2019
-//	Revised By:			Larry L. Biehl			Date: 06/29/2019
-
+//	Revised By:			Larry L. Biehl			Date: 08/15/2019
+/*
 		// Sorting operator for knn
 
 bool comparison (knnType a, knnType b)
@@ -6509,7 +6521,7 @@ bool comparison (knnType a, knnType b)
    return (a.distance < b.distance);
 	
 }	// end "comparison"
-
+*/
 
 
 SInt16 KNNClassifier (
@@ -6528,7 +6540,8 @@ SInt16 KNNClassifier (
    HDoublePtr                    ioBufferReal8Ptr,
    										savedBufferReal8Ptr;
 	
-   SInt16                        *classPtr;
+   SInt16                        *channelsPtr,
+   										*classVectorPtr;
 	
 	double								dDistance,
 											dValue;
@@ -6538,12 +6551,14 @@ SInt16 KNNClassifier (
 	
 	SInt16								kValue;
 	
-   UInt32                        equalClassCount,
+   UInt32                        baseIndex,
+   										equalClassCount,
    										feat,
 											index,
 											maxClass,
 											numberChannels,
-											numberClasses,
+											numberProjectChannels,
+											numberProjectClasses,
 											numberSamplesPerChan,
 											//sameDistanceCount,
 											sample;
@@ -6555,16 +6570,19 @@ SInt16 KNNClassifier (
    		// Initialize local variables.
 	
    numberChannels =        gClassifySpecsPtr->numberChannels;
-   numberClasses =         gClassifySpecsPtr->numberClasses;
+	channelsPtr = (SInt16*)GetHandlePointer (gClassifySpecsPtr->featureHandle);
+   numberProjectClasses =	gProjectInfoPtr->numberStatisticsClasses;
+   numberProjectChannels = gProjectInfoPtr->numberStatisticsChannels;
    numberSamplesPerChan =  (UInt32)areaDescriptionPtr->numSamplesPerChan;
    rgnHandle =					areaDescriptionPtr->rgnHandle;
    polygonField =				areaDescriptionPtr->polygonFieldFlag;
-   classPtr = 					gClassifySpecsPtr->classPtr;
+   //classPtr = 					gClassifySpecsPtr->classPtr;
+   classVectorPtr = 			gClassifySpecsPtr->classVectorPtr;
 	savedBufferReal8Ptr = 	(HDoublePtr)outputBuffer1Ptr;
 	kValue =						gClassifySpecsPtr->nearestNeighborKValue;
 	createThresholdFlag = 	gClassifySpecsPtr->createThresholdTableFlag;
 			
-	int knnPixelSize = gProjectInfoPtr->knn_distances.size ();
+	int knnPixelSize = gProjectInfoPtr->knnCounter;
 	//int knnPixelSize = gProjectInfoPtr->knnCounter;
 	
    		// Loop through the number of samples in the line of data
@@ -6576,58 +6594,77 @@ SInt16 KNNClassifier (
    		maxClass = 0;
 			equalClassCount = 0;
          //int topK[numberClasses+1];
-         for (int i=0; i<=numberClasses; i++)
+         for (int i=0; i<=numberProjectClasses; i++)
             topK[i] = 0;
 		
-			index = 0;
+			baseIndex = 0;
          for (int i=0; i<knnPixelSize; i++)
          	{
-            ioBufferReal8Ptr = savedBufferReal8Ptr;
-            //index = gProjectInfoPtr->knn_labels[i].index;
+         			// Only use those pixels for classes which are being used
+         			// in the classification.
 				
-            		// Euclidean distance
-				
-				dDistance = 0;
-            for (feat=0; feat<numberChannels; feat++)
-            	{
-					dValue = gProjectInfoPtr->knnDataValuesPtr[index] - *ioBufferReal8Ptr;
-               dDistance += dValue * dValue;
+				if (classVectorPtr[gProjectInfoPtr->knnLabelsPtr[i]])
+					{
+					ioBufferReal8Ptr = savedBufferReal8Ptr;
 					
-					index++;
-               ioBufferReal8Ptr++;
+							// Euclidean distance
 					
-            	}	// end "for (feat=0; feat<numberChannels; feat++)"
+					dDistance = 0;
+					for (feat=0; feat<numberChannels; feat++)
+						{
+						index = baseIndex + channelsPtr[feat];
+						dValue = gProjectInfoPtr->knnDataValuesPtr[index] - *ioBufferReal8Ptr;
+						dDistance += dValue * dValue;
+						
+						//index++;
+						ioBufferReal8Ptr++;
+						
+						}	// end "for (feat=0; feat<numberChannels; feat++)"
+					
+					gProjectInfoPtr->knnDistancesPtr[i].distance = dDistance;
+					gProjectInfoPtr->knnDistancesPtr[i].index = i;
+					
+					}	// end "if (classVectorPtr[gProjectInfoPtr->knnLabelsPtr[i]])"
 				
-            gProjectInfoPtr->knn_distances[i].distance = dDistance;
-            gProjectInfoPtr->knn_distances[i].index = i;
+				baseIndex += numberProjectChannels;
 				
          	}	// end " for (int i=0; i<knnPixelSize; i++)"
 			
 					// Find the topK points with min distance
-			
-         std::vector<knnType>::iterator it;
-         //int topKTemp[kValue];
+					// Note that iterators do not work in Windows version. Suspect the
+					// reason is that the knn_distances vector was not loaded using push, etc.
+
+         //std::vector<knnType>::iterator it;
+         knnType it;
          for (int i=0; i<kValue; i++)
          	{
-            double minTempDistance = DBL_MAX;
-            int minTempLabel = 0;
-            int minTempIndex = 0;
-            for (it = gProjectInfoPtr->knn_distances.begin ();
-            		it != gProjectInfoPtr->knn_distances.end ();
-                	it++)
+				double minTempDistance = DBL_MAX;
+				int minTempLabel = 0;
+				int minTempIndex = 0;
+					//for (it = gProjectInfoPtr->knn_distances.begin ();
+					//		it != gProjectInfoPtr->knn_distances.end ();
+					//    it++)
+				for (int pixelIndex=0;
+						pixelIndex<knnPixelSize;
+						pixelIndex++)
 					{
-               if (it->distance < minTempDistance)
-               	{
-                  minTempDistance = it->distance;
-                  minTempIndex = it->index;
-                  minTempLabel = gProjectInfoPtr->knnLabelsPtr[minTempIndex];
+         		if (classVectorPtr[gProjectInfoPtr->knnLabelsPtr[pixelIndex]])
+         			{
+						it = gProjectInfoPtr->knnDistancesPtr[pixelIndex];
+						if (it.distance < minTempDistance)
+							{
+							minTempDistance = it.distance;
+							minTempIndex = it.index;
+							minTempLabel = gProjectInfoPtr->knnLabelsPtr[minTempIndex];
+							
+							}	// end "if (it->distance < minTempDistance)"
 						
-               	}	// end "if (it->distance < minTempDistance)"
-					
-            	}	// end "for (it=gProjectInfoPtr->knn_labels.begin (); ..."
+						}	// end "if (classVectorPtr[gProjectInfoPtr->knnLabelsPtr[i]])"
+						
+					}	// end "for (it=gProjectInfoPtr->knn_labels.begin (); ..."
 				
-            topKTemp[i] = minTempLabel;
-            gProjectInfoPtr->knn_distances[minTempIndex].distance = DBL_MAX;
+				topKTemp[i] = minTempLabel;
+				gProjectInfoPtr->knnDistancesPtr[minTempIndex].distance = DBL_MAX;
 				
          	}	// end "for (int i=0; i<kValue; i++)"
 			/*
@@ -6674,7 +6711,7 @@ SInt16 KNNClassifier (
 					// Find the label with the maximum count
 			
          int max = 0;
-         for (int i=0; i<=numberClasses; i++)
+         for (int i=0; i<=numberProjectClasses; i++)
          	{
             if (topK[i] > max)
             	{
@@ -6691,9 +6728,10 @@ SInt16 KNNClassifier (
 				
          	}	// end "for (int i=0; i<=numberClasses; i++)"
 			
-         maxClass -= 1;
-         countVectorPtr[classPtr[maxClass]]++;
-         *outputBuffer1Ptr = (UInt8)classPtr[maxClass];
+          //countVectorPtr[classPtr[maxClass]]++;
+         //*outputBuffer1Ptr = (UInt8)classPtr[maxClass];
+         countVectorPtr[maxClass]++;
+         *outputBuffer1Ptr = (UInt8)maxClass;
 	
       	clsfyVariablePtr->totalSameDistanceSamples += equalClassCount;
 			
@@ -7488,7 +7526,7 @@ SInt16 ListTrainTestSummary (
 // Called By:			ClassifyControl
 //
 //	Coded By:			Larry L. Biehl			Date: 12/07/1988
-//	Revised By:			Larry L. Biehl			Date: 07/01/2019
+//	Revised By:			Larry L. Biehl			Date: 08/13/2019
 
 Boolean LoadClassifySpecs (
 				FileInfoPtr							fileInfoPtr)
@@ -7541,6 +7579,7 @@ Boolean LoadClassifySpecs (
 			gClassifySpecsPtr->thresholdTableHandle = NULL;
 			gClassifySpecsPtr->thresholdTablePtr = NULL;
 			gClassifySpecsPtr->classPtr = NULL;
+			gClassifySpecsPtr->classVectorPtr = NULL;
 			gClassifySpecsPtr->thresholdProbabilityPtr = NULL;
 			gClassifySpecsPtr->symbolsPtr = NULL;
 			gClassifySpecsPtr->imageAreaFlag = TRUE;
@@ -7666,12 +7705,17 @@ Boolean LoadClassifySpecs (
 					
 				// Check memory for classification classes vector.						
 			
-		bytesNeeded = (SInt32)gProjectInfoPtr->numberStatisticsClasses * sizeof (SInt16);
+		bytesNeeded =
+				(SInt32)2 * gProjectInfoPtr->numberStatisticsClasses * sizeof (SInt16) + 1;
 		gClassifySpecsPtr->classPtr = (SInt16*)CheckHandleSize (
 																		&gClassifySpecsPtr->classHandle,
 																		&continueFlag, 
 																		&changedFlag, 
 																		bytesNeeded);
+		
+		if (gClassifySpecsPtr->classPtr != NULL)
+			gClassifySpecsPtr->classVectorPtr =
+							&gClassifySpecsPtr->classPtr[gProjectInfoPtr->numberStatisticsClasses];
 
 		if (changedFlag)
 			gClassifySpecsPtr->classSet = kAllMenuItem;
@@ -9915,7 +9959,7 @@ Boolean SetupClsfierMemory (
 }	// end "SetupClsfierMemory"
 
 
-/*
+#if defined include_SVM_Classifier
 SInt16 SVMClassifier (
                             AreaDescriptionPtr            areaDescriptionPtr,
                             FileInfoPtr                     fileInfoPtr,
@@ -9984,7 +10028,7 @@ SInt16 SVMClassifier (
          maxClass = predict_label(gProjectInfoPtr->svm_weights, svm_samp)-1;
          countVectorPtr[classPtr[maxClass]]++;
          *outputBuffer1Ptr = (UInt8)classPtr[maxClass];
-         //*outputBuffer1Ptr = predict_label(gProjectInfoPtr->weights, svm_samp);
+         // *outputBuffer1Ptr = predict_label(gProjectInfoPtr->weights, svm_samp);
          //std::cout << "out:" << classPtr[maxClass];
          //std::cout << ",svm:" <<predict_label(gProjectInfoPtr->weights, svm_samp);
          //std::cout <<",class:"<< areaDescriptionPtr->classNumber << std::endl;
@@ -10031,7 +10075,7 @@ SInt16 SVMClassifier (
    return (0);
    
 } 	// end "SVMClassifier"
-*/
+#endif
 
 
 

@@ -82,8 +82,6 @@ Template for debugging
 #define	kMacintoshIntel						2
 #define	kWindowsIntel							3
 
-extern void 		WriteProjectName (void);	
-
 
 
 			// Prototypes for routines in this file that are only called by		

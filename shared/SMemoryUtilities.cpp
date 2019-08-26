@@ -134,7 +134,7 @@ void BlockMoveData (
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
-//	Function name:		void CheckAndDisposePtr
+//	Function name:		Ptr CheckAndDisposePtr
 //
 //	Software purpose:	The purpose of this routine is to dispose of the
 //							memory for the input pointer if it is not NULL.  The

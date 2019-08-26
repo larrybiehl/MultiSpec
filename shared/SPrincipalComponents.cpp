@@ -75,24 +75,6 @@ Boolean PrincipalComponentAnalysis (
 Boolean PrincipalComponentDialog (
 				FileInfoPtr							fileInfoPtr);
 
-void PrincipalComponentDialogOK (
-				PrincipalCompSpecsPtr			principalCompSpecsPtr,
-				SInt16								dataCode,
-				SInt16								classSelection,
-				UInt32								localNumberClasses,
-				UInt16*								classListPtr,
-				Boolean								trainingFlag,
-				Boolean								testFlag,
-				DialogSelectArea*					dialogSelectAreaPtr,
-				SInt16								channelSelection,
-				UInt32								localNumberChannels,
-				UInt16*								localChannelsPtr,
-				Boolean								listEigenvectorFlag,
-				Boolean								equalVariancesFlag,
-				Boolean								saveEigenvectorFlag,
-				Boolean								textWindowFlag,
-				Boolean								diskFileFlag);
-
 
 
 //------------------------------------------------------------------------------------

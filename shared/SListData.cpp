@@ -118,28 +118,6 @@ SInt16	 			ListClassData (
 
 Boolean				ListDataDialog (
 							FileInfoPtr							fileInfoPtr);
-								
-void 					ListDataDialogOK (
-							ListDataSpecsPtr					listDataSpecsPtr,
-							Boolean								classFlag,
-							SInt16								classSelection,
-							UInt32								localNumberClasses,
-							UInt16*								localClassPtr,
-							Boolean								areaFlag,
-							DialogSelectArea*					dialogSelectAreaPtr,
-							SInt16								channelSelection,
-							UInt16								localNumberChannels,
-							UInt16*								localChannelPtr,
-							Boolean								includeLineColumnFlag,
-							Boolean								includeLatLongFlag,
-							Boolean								includeClassFieldFlag,
-							Boolean								textWindowFlag,
-							Boolean								diskFileFlag,
-							Boolean								trainingFlag,
-							Boolean								testFlag,
-							Boolean								graphDataFlag,
-							UInt16								numberFDecimalDigits,
-							SInt16								listDataFormatCode);
 
 Boolean				ListDataTitleLine (
 							SInt16								dataValueFieldSize);

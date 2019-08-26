@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			07/10/2019
+//	Revision date:			08/14/2019
 //
 //	Language:				C
 //
@@ -71,6 +71,7 @@
 	#include "WClassifyCEMDialog.h"
 	#include "WClassifyCorrelationDialog.h"
 	#include "WClassifyEchoDialog.h" 
+   #include "WClassifyKNNDialog.h"
 	#include "WListResultsOptionsDialog.h"   
 #endif	// defined multispec_win   
 	
@@ -102,7 +103,15 @@ SInt16			gEchoAlgorithmProcedure = 0;
                                  	
 								
 			// Prototypes for routines in this file that are only called by		
-			// other routines in this file.	
+			// other routines in this file.
+
+Boolean 					CheckIfClassesToUseForClassificationChanged (
+								SInt16								newClassSelection,
+								UInt32								newNumberClasses,
+								UInt16*								newClassPtr,
+								SInt16								previousClassSelection,
+								UInt32								previousNumberClasses,
+								Handle								previousClassHandle);
 
 Boolean  				ClassifyDialog (
 								FileInfoPtr							fileInfoPtr);
@@ -567,6 +576,72 @@ void CEMClassifyDialogOK (
 	*classifyProcedureEnteredCodePtr = 1;
 	
 }	// end "CEMClassifyDialogOK"
+
+
+
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2019)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		Boolean CheckIfClassesToUseForClassificationChanged
+//
+//	Software purpose:	The purpose of this routine is to Check if the classes to be used
+//							has changed.
+//
+//	Parameters in:
+//
+//	Parameters out:
+//
+// Value Returned:  	None
+//
+// Called By:
+//
+//	Coded By:			Larry L. Biehl			Date: 08/12/2019
+//	Revised By:			Larry L. Biehl			Date: 08/12/2019
+
+Boolean CheckIfClassesToUseForClassificationChanged (
+				SInt16								newClassSelection,
+				UInt32								newNumberClasses,
+				UInt16*								newClassPtr,
+				SInt16								previousClassSelection,
+				UInt32								previousNumberClasses,
+				Handle								previousClassHandle)
+
+{
+	UInt16* 							previousClassPtr;
+	
+	UInt32							index;
+	
+	Boolean							classListChangedFlag = FALSE;
+	
+	
+	if (newClassSelection != previousClassSelection ||
+			newNumberClasses != previousNumberClasses)
+		classListChangedFlag = TRUE;
+
+	else if (newClassSelection == kSubsetMenuItem)
+		{
+				// Verify that the class list is the same.
+		
+		previousClassPtr = (UInt16*)GetHandlePointer (previousClassHandle);
+		
+		for (index=0; index<newNumberClasses; index++)
+			{
+			if (previousClassPtr[index] != newClassPtr[index])
+				{
+				classListChangedFlag = TRUE;
+				break;
+				
+				}	// end "if (previousClassPtr[index] == newClassPtr[index])"
+			
+			}	// end "for (index=0; index<newNumberClasses; index++)"
+		
+		}	// end "else classSelection == kSubsetMenuItem"
+	
+	return (classListChangedFlag);
+
+}	// end "CheckIfClassesToUseForClassificationChanged"
 
 
 
@@ -2420,7 +2495,7 @@ SInt16 ClassifyDialogOnClassificationProcedure (
 			comboBoxPtr = 
 					(CComboBox*)dialogPtr->GetDlgItem (IDC_ClassificationProcedure);
 								
-			comboBoxPtr->SetItemData (kCorrelationMode-1, kCorrelationMode);
+			comboBoxPtr->SetItemData (kCorrelationMode-2, kCorrelationMode);
 		#endif	// defined multispec_win   
 
 		#if defined multispec_lin
@@ -2932,7 +3007,7 @@ void ClassifyDialogOK (
 			
 	gClassifySpecsPtr->featureTransformationFlag = 
 														featureTransformationFlag;
-														
+	
 			// Load some common processor parameters
 			// Channels
 			// Classes	
@@ -2962,6 +3037,14 @@ void ClassifyDialogOK (
 									0,
 									NULL,
 									NULL);
+	
+			// Load the classVectorPtr list.
+	
+	for (index=0; index<=gProjectInfoPtr->numberStatisticsClasses; index++)
+		gClassifySpecsPtr->classVectorPtr[index] = 0;
+	
+	for (index=0; index<gClassifySpecsPtr->numberClasses; index++)
+		gClassifySpecsPtr->classVectorPtr[gClassifySpecsPtr->classPtr[index]] = 1;
 									
 			// Target window information handle.								
 	
@@ -4338,6 +4421,28 @@ Boolean KNNClassifyDialog (
 			
 			}	// end "if (dialogPtr != NULL)"
 	#endif	// defined multispec_lin
+
+	#if defined multispec_win 
+		returnFlag = TRUE;  
+	
+		CMKNNClassifyDialog*		dialogPtr = NULL;
+		
+		TRY
+			{ 
+			dialogPtr = new CMKNNClassifyDialog ();
+			
+			returnFlag = dialogPtr->DoDialog (nearestNeighborKValuePtr); 
+		                       
+			delete dialogPtr;
+			}
+			
+		CATCH_ALL (e)
+			{
+			MemoryMessage (0, kObjectMessage);
+			returnFlag = FALSE;
+			}
+		END_CATCH_ALL  
+	#endif	// defined multispec_win 
 	
    return (returnFlag);
 	

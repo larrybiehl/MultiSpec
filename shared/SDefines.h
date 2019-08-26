@@ -21,7 +21,7 @@
 //	Written By:				Larry L. Biehl			Date: 03/29/1988
 //	Revised By:				Abdur Maud				Date: 06/24/2013
 //	Revised By:				Tsung Tai Yeh			Date: 09/25/2015
-//	Revised By:				Larry L. Biehl			Date: 07/01/2019
+//	Revised By:				Larry L. Biehl			Date: 08/15/2019
 //	
 //------------------------------------------------------------------------------------
 
@@ -1026,6 +1026,7 @@ typedef double				CMeanType2;
 
 	#define kPMPortrait	1
 
+	//#define _ITERATOR_DEBUG_LEVEL 1
 	#include <vector>
 
 			// The forward definitions for Windows specific classes. 
@@ -1656,7 +1657,15 @@ typedef struct ClassifySpecs
 	Handle 					thresholdProbabilityHandle;
 	Handle 					thresholdTableHandle;
 	double*					thresholdTablePtr;
+	
+			// This vector is a list of the class numbers being used in the
+			// classification
 	SInt16*					classPtr;
+	
+			// This vector contains a 1 for classes being used in the classification
+			// and 0 for classes which are not being used.
+	SInt16*					classVectorPtr;
+	
 	SInt16*					thresholdProbabilityPtr;
 	unsigned char*			symbolsPtr;
 	
@@ -4015,22 +4024,21 @@ typedef struct ProjectInfo
 	#endif	// defined multispec_lin
 
 				// used in SVM classify training
-
-		//column_vector svm_weights;
-		//std::vector<sample_type> svm_samples;
-		//std::vector<int> svm_labels;
-		//float convergence_rate;
+	
+	//column_vector 					svm_weights;
+	//std::vector<sample_type> 	svm_samples;
+	//std::vector<int> 				svm_labels;
+	//float 								convergence_rate;
 
 				// used in KNN classify training
 
-		std::vector<knnType> knn_distances;
-		std::vector<int> knnLabelsPtr;
-		std::vector<double> knnDataValuesPtr;
-		//knnType*							knn_distancesPtr;
-		//int*								knnLabelsPtr;
-		//double*							knnDataValuesPtr;
-		int 									knnCounter;
-		//int topK;
+	//std::vector<knnType> knn_distances;
+	//std::vector<int> knnLabelsPtr;
+	//std::vector<double> knnDataValuesPtr;
+	knnType*							knnDistancesPtr;
+	UInt16*							knnLabelsPtr;
+	double*							knnDataValuesPtr;
+	int 								knnCounter;
 
 	UInt8								imageFileName[256];
 	

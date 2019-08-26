@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			07/09/2019
+//	Revision date:			08/15/2019
 //
 //	Language:				C
 //
@@ -802,7 +802,7 @@ void ClearFieldStatisticsMemory (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 12/17/1998
-//	Revised By:			Larry L. Biehl			Date: 05/26/2019
+//	Revised By:			Larry L. Biehl			Date: 08/15/2019
 
 void ClearProjectStatisticsMemory (
 				Boolean								loadPixelDataFlag)
@@ -813,10 +813,7 @@ void ClearProjectStatisticsMemory (
 	
 	if (loadPixelDataFlag)
 		{
-		gProjectInfoPtr->knn_distances.clear ();
-		gProjectInfoPtr->knnLabelsPtr.clear ();
-		gProjectInfoPtr->knnDataValuesPtr.clear ();
-		gProjectInfoPtr->knnCounter = 0;
+		ClearPixelDataMemory (kDoNotDisposePointers);
 		
 		}	// end "if (loadPixelDataFlag)"
 	
@@ -3871,7 +3868,7 @@ Boolean SetupModifiedStatsMemory (
 // Called By:			UpdateStatsControl in SProjectComputeStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 05/16/2019
-//	Revised By:			Larry L. Biehl			Date: 05/30/2019
+//	Revised By:			Larry L. Biehl			Date: 08/15/2019
 
 Boolean SetupPixelMemory (void)
 
@@ -3910,11 +3907,28 @@ Boolean SetupPixelMemory (void)
 	
 	if (continueFlag)
 		{
+				// Need to first be sure the memory for the pixels has been removed before
+				// getting new memory.
+		
+		ClearPixelDataMemory (kDisposePointers);
+		
 		numberOfTrainPixelsInProject = GetNumberOfTrainPixelsInProject ();
 		
-		gProjectInfoPtr->knn_distances.reserve (numberOfTrainPixelsInProject);
-		gProjectInfoPtr->knnLabelsPtr.reserve (numberOfTrainPixelsInProject);
-		gProjectInfoPtr->knnDataValuesPtr.reserve (numberOfTrainPixelsInProject*numberChannels);
+		//gProjectInfoPtr->knn_distances.reserve (numberOfTrainPixelsInProject);
+		//gProjectInfoPtr->knnLabelsPtr.reserve (numberOfTrainPixelsInProject);
+		//gProjectInfoPtr->knnDataValuesPtr.reserve (numberOfTrainPixelsInProject*numberChannels);
+		
+		gProjectInfoPtr->knnDistancesPtr =
+						(knnType*)MNewPointer (numberOfTrainPixelsInProject*sizeof(knnType));
+		
+		if (gProjectInfoPtr->knnDistancesPtr != NULL)
+			gProjectInfoPtr->knnLabelsPtr = (UInt16*)MNewPointer (numberOfTrainPixelsInProject*sizeof(UInt16));
+		
+		if (gProjectInfoPtr->knnLabelsPtr != NULL)
+			gProjectInfoPtr->knnDataValuesPtr =
+						(double*)MNewPointer (numberOfTrainPixelsInProject*numberChannels*sizeof(double));
+		
+		continueFlag = (gProjectInfoPtr->knnDataValuesPtr != NULL);
 		/*
 	  	numberStorageSets = gProjectInfoPtr->numberStorageStatFields;
 	  	if (gProjectInfoPtr->keepClassStatsOnlyFlag)
@@ -4597,7 +4611,7 @@ SInt16 UpdateProjectAreaStats (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 10/28/1998
-//	Revised By:			Larry L. Biehl			Date: 05/31/2019
+//	Revised By:			Larry L. Biehl			Date: 08/15/2019
 
 SInt16 UpdateProjectMaskStats (
 				SInt16								statsUpdateCode,
@@ -4856,8 +4870,10 @@ SInt16 UpdateProjectMaskStats (
 	
 		if (statCode == kPixelValuesOnly)
 			{
-			knnDataValuesPtr = gProjectInfoPtr->knnDataValuesPtr.data ();
-			knnDataValuesPtr = &knnDataValuesPtr [numberChannels * gProjectInfoPtr->knnCounter];
+			//knnDataValuesPtr = gProjectInfoPtr->knnDataValuesPtr.data ();
+			//knnDataValuesPtr = &knnDataValuesPtr [numberChannels * gProjectInfoPtr->knnCounter];
+			knnDataValuesPtr =
+							&gProjectInfoPtr->knnDataValuesPtr [numberChannels * gProjectInfoPtr->knnCounter];
 			
 			}	// end "if (statCode == kPixelValuesOnly)"
 	
@@ -5023,11 +5039,11 @@ SInt16 UpdateProjectMaskStats (
 									
 											// KNN sample data in the training
 									
-									gProjectInfoPtr->knnDataValuesPtr.push_back (*bufferPtr);
-									//*knnDataValuesPtr = *bufferPtr;
+									//gProjectInfoPtr->knnDataValuesPtr.push_back (*bufferPtr);
+									*knnDataValuesPtr = *bufferPtr;
 
 									bufferPtr++;
-									//knnDataValuesPtr++;
+									knnDataValuesPtr++;
 									
 									}	// end "for (channel=1; channel<numberChannels..."
 							
@@ -5042,10 +5058,10 @@ SInt16 UpdateProjectMaskStats (
 								//knnSamp.distance = 0;
 								//knnSamp.index = gProjectInfoPtr->knnCounter;
 								
-								gProjectInfoPtr->knn_distances.push_back (knnSamp);
-								gProjectInfoPtr->knnLabelsPtr.push_back (classNumber+1);
-								//gProjectInfoPtr->knn_distances[gProjectInfoPtr->knnCounter] = knnSamp;
-								//gProjectInfoPtr->knnLabelsPtr[gProjectInfoPtr->knnCounter] = classNumber+1;
+								//gProjectInfoPtr->knn_distances.push_back (knnSamp);
+								//gProjectInfoPtr->knnLabelsPtr.push_back (classNumber+1);
+								gProjectInfoPtr->knnDistancesPtr[gProjectInfoPtr->knnCounter] = knnSamp;
+								gProjectInfoPtr->knnLabelsPtr[gProjectInfoPtr->knnCounter] = classNumber + 1;
 								gProjectInfoPtr->knnCounter++;
 								
 								}	// end "if (statCode == kPixelValuesOnly)"

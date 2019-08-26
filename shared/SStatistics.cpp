@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			04/08/2019
+//	Revision date:			08/15/2019
 //
 //	Language:				C
 //
@@ -221,8 +221,6 @@ extern SInt16 HistogramStatsControl (
 				SInt16								statsWindowMode,
 				SInt16								histogramRequest);
 
-extern void WriteProjectName (void);
-
 extern void SetProjectWindowBoxes (
 				SInt16*								borderPtr,
 				SInt16*								windowCenterPtr,
@@ -230,75 +228,9 @@ extern void SetProjectWindowBoxes (
 				SInt16*								topStartPtr,
 				SInt16								pushButtonSpacing);
 
-extern void NewClassFieldDialogChangeClass (
-				DialogPtr							dialogPtr,
-				SInt16								newCurrentClass,
-				SInt16								fieldType,
-				SInt64								numberSelectionPixels);
-
-extern void NewClassFieldDialogInitialize (
-				DialogPtr							dialogPtr,
-				Boolean								newClassOnlyFlag,
-				UInt16*								selectedItemPtr,
-				UCharPtr								fieldNamePtr,
-				SInt16								fieldType,
-				SInt64*								numberSelectionPixelsPtr);
-
-extern void StatisticsOptionsDialogOK (
-				SInt16								localStatCode,
-				Boolean								localKeepStatsFlag,
-				Boolean								localZeroVarianceFlag,
-				double								localVariance,
-				double								localMinLogDeterminant,
-				Boolean								localCommonCovarianceInLOOCFlag,
-				SInt16*								statCodePtr,
-				Boolean*								keepClassStatsFlagPtr,
-				double*								variancePtr,
-				double*								minLogDeterminantPtr,
-				Boolean*								useCommonCovarianceInLOOCFlagPtr);
-
 extern Boolean	CheckMaskFileInfo (
 				Handle								fileInfoHandle,
 				SInt16*								errCodePtr);
-
-extern void StatisticsDialogInitialize (
-				DialogPtr							dialogPtr,
-				SInt16								totalNumberChannels,
-				SInt16*								localStatCodePtr,
-				Boolean*								keepClassStatsFlagPtr,
-				Boolean*								useCommonCovarianceInLOOCFlagPtr,
-				double*								variancePtr,
-				double*								minLogDeterminantPtr,
-				SInt16*								channelSelectionPtr,
-				SInt16*								channelListTypePtr,
-				UInt16*								featurePtr,
-				UInt16*								localNumberChannelsPtr,
-				SInt16*								localOutlineFieldTypePtr,
-				SInt16*								localLabelFieldCodePtr,
-				SInt16*								outlineColorSelectionPtr,
-				SInt16*								maskTrainImageSelectionPtr,
-				SInt16*								maskTestImageSelectionPtr,
-				UInt16*								maxNumberTrainLayersPtr,
-				UInt16*								maxNumberTestLayersPtr);
-
-extern SInt16 StatisticsDialogSelectMaskItem (
-				Handle*								maskFileInfoHandlePtr,
-				DialogPtr							dialogPtr,
-				MenuHandle							popUpSelectMaskImageMenu,
-				SInt16								itemHit,
-				SInt16								maskImageSelection,
-				SInt16								selectStringNumber,
-				SInt16								maskPopupItemNumber,
-				SInt16								layerItemNumber,
-				UInt16*								maxNumberLayersPtr);
-
-extern SInt16 StatisticsDialogMaskCheck (
-				Handle								trainMaskFileInfoHandle,
-				Handle								testMaskFileInfoHandle,
-				SInt16								maskTrainImageSelection,
-				SInt16								maskTestImageSelection,
-				UInt16								trainLayerNumber,
-				UInt16								testLayerNumber);
 
 extern void ForceStatHistogramCodeResourceLoad (void);
 
@@ -352,9 +284,6 @@ void DrawStatPopUp (
 void DrawStatPrompt (
 				SInt16								menuItem);
 
-void FieldListStatMode (
-				SInt16								classNumber);
-
 SInt16 GetControlValue (
 				WindowPtr							windowPtr,
 				ControlHandle						controlHandle);
@@ -367,9 +296,6 @@ SInt16 GetCurrentField (
 				SInt16								classNumber,
 				SInt16								classFieldNumber);
 
-SInt16 GetCovarianceStatsFromMenuItem (
-				SInt16								menuItem);
-
 void HideStatControl (
 				ControlHandle						controlHandle);
 
@@ -380,9 +306,6 @@ void LoadRectStatNewFieldW (void);
 PascalVoid DrawOutlineColorPopUp (
 				DialogPtr							dialogPtr,
 				SInt16								itemNumber);
-
-void PolygonListStatMode (
-				SInt16								classFieldNumber);
 
 void SetOutlineAreaOptions (
 				DialogPtr							dialogPtr,
@@ -398,30 +321,6 @@ void ShowStatControl (
 SInt16 StatisticsDialog (
 				SInt16*								featurePtr,
 				SInt16								totalNumberChannels);
-
-void StatisticsDialogOK (
-				SInt16								channelSelection,
-				SInt16								totalNumberChannels,
-				UInt16*								featurePtr,
-				UInt32								localNumberChannels,
-				Boolean								showTrainingFieldsFlag,
-				Boolean								showTestFieldsFlag,
-				Boolean								showClassNamesFlag,
-				Boolean								showFieldNamesFlag,
-				Boolean								showTrainTestTextFlag,
-				SInt16								outlineColorSelection,
-				SInt16								localStatCode,
-				Boolean								keepClassStatsFlag,
-				double								variance,
-				double								minLogDeterminant,
-				Boolean								useCommonCovarianceInLOOCFlag);
-
-Boolean StatisticsOptionsDialog (
-				SInt16*								statCodePtr,
-				Boolean*								keepClassStatsFlagPtr,
-				double*								variancePtr,
-				double*								minLogDeterminantPtr,
-				Boolean*								useModifiedStatsFlagPtr);
 
 void StatisticsDialogSetMaskFileName (
 				UCharPtr								fileNamePPointer,
@@ -7855,14 +7754,14 @@ void StatisticsDialogInitialize (
       *channelSelectionPtr = kSubsetMenuItem;
 
    *channelListTypePtr = kSelectItemsList;
-   if (gProjectInfoPtr->statsLoaded)
+   if (gProjectInfoPtr->statsLoaded || gProjectInfoPtr->pixelDataLoadedFlag)
       *channelListTypePtr = kSelectedItemsListOnly;
 
 			// Load current feature pointer into a temporary vector and number
 			// channels into temporary variable.  This is so that information in	
 			// project structure will not be changed unless user click OK.			
 
-   for (index = 0; index < (UInt32)gProjectInfoPtr->numberStatisticsChannels; index++)
+   for (index=0; index<(UInt32)gProjectInfoPtr->numberStatisticsChannels; index++)
       featurePtr[index] = gProjectInfoPtr->channelsPtr[index];
 
    *localNumberChannelsPtr = (UInt16)gProjectInfoPtr->numberStatisticsChannels;
@@ -8358,7 +8257,7 @@ SInt16 StatisticsDialogSelectMaskItem (
 // Called By:			StatisticsDialog in SStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/02/1997
-//	Revised By:			Larry L. Biehl			Date: 06/11/1998
+//	Revised By:			Larry L. Biehl			Date: 08/14/2019
 
 void StatisticsDialogOK (
 				SInt16								channelSelection,
@@ -8421,6 +8320,12 @@ void StatisticsDialogOK (
 
    if (channelsChangedFlag)
       gProjectInfoPtr->falseColorPaletteRed = -1;
+
+			// If the channels to be used for statistics have changed, make sure
+			// that pixels are reloaded if needed for classifiers using pixel values.
+
+   if (channelsChangedFlag && gProjectInfoPtr->pixelDataLoadedFlag)
+		ClearProjectStatisticsMemory (TRUE);
 
 			// Outline training and/or test fields/areas.
 

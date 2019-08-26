@@ -78,63 +78,6 @@
 
 #define	kMatrixList					1
 
-extern void StatHistogramDialogInitialize (
-				DialogPtr							dialogPtr,
-				FileInfoPtr							fileInfoPtr,
-				SInt16								statsWindowMode,
-				UInt16*								localFeaturesPtr, 
-				UInt16*								localTransformFeaturesPtr,
-				Boolean*								histogramClassFlagPtr,
-				SInt32*								lineIntervalPtr,
-				SInt32*								columnIntervalPtr,
-				Boolean*								featureTransformAllowedFlagPtr,
-				Boolean*								featureTransformationFlagPtr,
-				SInt16*								channelSelectionPtr,
-				UInt16*								localNumberChannelsPtr,
-				SInt16*								histogramOutputCodePtr,
-				Boolean*								includeEmptyBinsFlagPtr,
-				Boolean*								blankValuesFlagPtr,
-				SInt16*								groupCodePtr,
-				SInt16*								columnMatrixCodePtr,
-				Boolean*								overlayDFAllowedFlagPtr,
-				Boolean*								overlayDensityFunctionFlagPtr);	
-												
-extern void StatHistogramDialogOK (
-				Boolean								histogramClassFlag,
-				SInt32								lineInterval,
-				SInt32								columnInterval,
-				Boolean								featureTransformationFlag,
-				SInt16								channelSelection,
-				UInt16								localNumberFeatures,
-				UInt16*								localFeaturesPtr,
-				Boolean								listDataFlag,
-				Boolean								includeEmptyBinsFlag,
-				Boolean								blankValuesFlag,
-				Boolean								plotHistogramFlag,
-				Boolean								groupChannelsFlag,
-				Boolean								groupFieldsClassesFlag,
-				SInt16								columnMatrixCode,
-				Boolean								overlayDensityFunctionFlag);
-
-extern void StatHistogramDialogClassesParameters (
-				DialogPtr							dialogPtr,
-				Boolean								listFlag,
-				Boolean								overlayDFAllowedFlag,
-				Boolean								overlayDensityFunctionFlag);
-							
-extern void StatHistogramDialogFieldsParameters (
-				DialogPtr							dialogPtr);
-							
-extern void StatHistogramDialogListParameters (
-				DialogPtr							dialogPtr,
-				Boolean								histogramClassFlag,
-				SInt16								columnMatrixCode);
-							
-extern void StatHistogramDialogPlotParameters (
-				DialogPtr							dialogPtr,
-				Boolean								histogramClassFlag,
-				Boolean								overlayDensityFunctionFlag);
-
 
 			// Prototypes for routines in this file that are only called by		
 			// other routines in this file.		

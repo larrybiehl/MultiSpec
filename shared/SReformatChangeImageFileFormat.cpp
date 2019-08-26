@@ -106,94 +106,6 @@ extern SInt16		CheckIfValueInList (
 extern SInt16		GetHeaderFormatFromPopUpSelection (
 							SInt16		 						headerOptionsSelection);
 
-extern void 		ChangeImageFormatDialogInitialize (
-							DialogPtr							dialogPtr,
-							WindowInfoPtr						windowInfoPtr,
-							FileInfoPtr							fileInfoPtr,
-							ReformatOptionsPtr				reformatOptionsPtr,
-							DialogSelectArea*					dialogSelectAreaPtr,
-							UCharPtr								inputBandInterleaveStringPtr,
-							UCharPtr								inputDataValueTypeStringPtr,
-							UCharPtr								tiffMenuNameStringPtr,
-							SInt16*								outputFileSelectionPtr,
-							SInt16*								bandInterleaveSelectionPtr,
-							SInt16*								dataValueTypeSelectionPtr,
-							SInt16*								savedDataValueTypeSelectionPtr,
-							SInt16*								channelSelectionPtr,
-							Boolean*								bottomToTopFlagPtr,
-							Boolean*								rightToLeftFlagPtr,
-							Boolean*								swapBytesFlagPtr,
-							Boolean*								channelDescriptionAllowedFlagPtr,
-							Boolean*								savedChannelDescriptionFlagPtr,
-							Boolean*								outputInWavelengthOrderAllowedFlagPtr,
-							Boolean*								outputInWavelengthOrderFlagPtr,
-							SInt16*								headerOptionsSelectionPtr,
-							Boolean*								GAIAFormatAllowedFlagPtr,
-							Boolean*								channelThematicDisplayFlagPtr);
-
-extern Boolean		ChangeImageFormatDialogOK (
-							DialogPtr							dialogPtr,
-							WindowInfoPtr						imageWindowInfoPtr,
-							LayerInfoPtr						imageLayerInfoPtr,
-							FileInfoPtr							imageFileInfoPtr,
-							FileInfoPtr							outFileInfoPtr,
-							ReformatOptionsPtr				reformatOptionsPtr,
-							DialogSelectArea*					dialogSelectAreaPtr,
-							SInt16								outputFileSelection,
-							SInt16								bandInterleaveSelection,
-							SInt16								dataValueTypeSelection,
-							Boolean								sessionUserSetDataValueTypeSelectionFlag,
-							SInt16								channelSelection,
-							Boolean								bottomToTopFlag,
-							Boolean								rightToLeftFlag,
-							Boolean								swapBytesFlag,
-							Boolean								channelDescriptionsFlag,
-							Boolean								outputInWavelengthOrderFlag,
-							SInt16								headerOptionsSelection,
-							Boolean								channelThematicDisplayFlag);
-
-extern void 		ChangeImageFormatDialogUpdateHeaderMenu (
-							DialogPtr							dialogPtr,
-							FileInfoPtr							fileInfoPtr,
-							UCharPtr								tiffMenuNameStringPtr,
-							SInt16*								outputFileSelectionPtr,
-							SInt16*								bandInterleaveSelectionPtr,
-							SInt16*								headerOptionsSelectionPtr,
-							MenuHandle							popUpOutputFileMenu,
-							MenuHandle							popUpHeaderOptionsMenu,
-							SInt16								transformDataCode,
-							SInt16								bytesPerDataValueSelection,
-							Boolean								GAIAFormatAllowedFlag);
-
-extern void 		ChangeImageFormatDialogUpdateHeaderOptions (
-							DialogPtr							dialogPtr,
-							FileInfoPtr							fileInfoPtr,
-							SInt16								headerOptionsSelection,
-							SInt16*								outputFileSelectionPtr,
-							SInt16*								bandInterleaveSelectionPtr,
-							SInt16*								dataValueTypeSelectionPtr,
-							Boolean*								setChannelDescriptionFlagPtr,
-							MenuHandle							popUpOutputFileMenu,
-							Boolean								channelDescriptionAllowedFlag,
-							Boolean								channelThematicDisplayFlag);
-
-extern void 		ChangeImageFormatDialogUpdateTIFFHeader (
-							DialogPtr							dialogPtr,
-							FileInfoPtr							fileInfoPtr,
-							SInt16*								outputFileSelectionPtr,
-							SInt16*								bandInterleaveSelectionPtr,
-							MenuHandle							popUpOutputFileMenu);
-
-extern void 		ChangeImageFormatDialogVerifyHeaderSetting (
-							DialogPtr							dialogPtr,
-							FileInfoPtr							fileInfoPtr,
-							SInt16								bandInterleaveSelection,
-							SInt16								dataValueTypeSelection,
-							MenuHandle							popUpOutputFileMenu,
-							MenuHandle							popUpHeaderOptionsMenu,
-							SInt16*								outputFileSelectionPtr,
-							SInt16*								headerOptionsSelectionPtr);
-
 extern SInt16 		FileSpecificationDialogGetNumberBytes (
 							SInt16								dataTypeSelection);
 
@@ -342,19 +254,8 @@ SInt16	GetAdjustBufferData (
 				UInt32								numberChannels,
 				Boolean								inputBISFlag);
 
-Boolean	GetDefaultBandRatio (
-				WindowInfoPtr						windowInfoPtr,
-				FileInfoPtr							fileInfoPtr,
-				ReformatOptionsPtr				reformatOptionsPtr);
-
 SInt32 	GetNumberHeaderBytes (
 				FileInfoPtr							fileInfoPtr);
-
-SInt16	 GetPCChannelList (
-				ReformatOptionsPtr 				reformatOptionsPtr);
-
-SInt16	 GetTransformChannelList (
-				ReformatOptionsPtr 				reformatOptionsPtr);
 							
 Boolean	LoadReformatOptionsSpecs (
 				WindowInfoPtr						windowInfoPtr);

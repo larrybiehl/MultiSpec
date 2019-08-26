@@ -75,53 +75,7 @@
 	#include "WStatisticsImageDialog.h"
 #endif	// defined multispec_win
 
-//#include	"SFS.h"
-
-extern void StatisticsImageDialogInitialize (
-				DialogPtr							dialogPtr,
-				StatisticsImageSpecsPtr			statisticsImageSpecsPtr,
-				DialogSelectArea*					dialogSelectAreaPtr,
-				WindowInfoPtr						imageWindowInfoPtr,
-				WindowPtr							activeImageWindow,
-				SInt16*								channelSelectionPtr,
-				UInt16*								localNumberChannelsPtr,
-				UInt16*								localFeaturesPtr, 
-				UInt16*								localTransformFeaturesPtr,
-				Boolean*								channelsAllAvailableFlagPtr,
-				UInt16**								projectChannelsPtrPtr,
-				SInt16*								maxNumberChannelsPtr,
-				SInt16*								classSelectionPtr,
-				UInt32*								localNumberClassesPtr,
-				UInt16*								localClassPtr,
-				SInt16*								minMaxSettingCodePtr,
-				double*								userMinimumPtr,
-				double*								userMaximumPtr,
-				SInt16*								areaCodePtr,
-				SInt16*								selectItemPtr,
-				Boolean*								featureTransformationFlagPtr,
-				Boolean*								featureTransformAllowedFlagPtr);
-
-extern void StatisticsImageDialogOK (
-				DialogPtr							dialogPtr,
-				StatisticsImageSpecsPtr			statisticsImageSpecsPtr,
-				DialogSelectArea*					dialogSelectAreaPtr,
-				SInt16								classCode,
-				SInt16								areaCode,
-				SInt16								channelSelection,
-				Boolean								featureTransformationFlag,
-				SInt16*								featurePtr,
-				SInt16                        localNumberFeatures,
-				SInt16								maxNumberChannels,
-				SInt16								classSelection,
-				SInt32                        localNumberClasses,
-				SInt16*								classListPtr,
-				SInt16								perClassCode,
-				SInt16								perFieldCode,
-				SInt16								overallMinMaxCode,
-				SInt16								individualMinMaxCode,
-				SInt16								userMinMaxCode,
-				double								userMinimum,
-				double								userMaximum);     
+//#include	"SFS.h"    
 
 
 	

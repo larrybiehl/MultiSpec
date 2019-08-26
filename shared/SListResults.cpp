@@ -93,11 +93,6 @@
 
 #define	kIncludeTab						1
 
-extern void 			ListResultsDialogSetThresholdItems (
-								DialogPtr							dialogPtr,
-								Boolean								thresholdResultsFlag,
-								SInt16								thresholdTypeCode);
-
 
 ListResultsSpecsPtr						gListResultsSpecsPtr;
 

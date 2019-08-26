@@ -64,10 +64,10 @@
 
 #if defined multispec_lin
 	#include "CDisplay.h"
-	#include "LImageView.h"
 	#include "CPalette.h" 
 	#include "LImageDoc.h" 
 	#include "LImageFrame.h"
+	#include "LImageView.h"
 	#include "LMultiSpec.h"
 	#include "wx/display.h"
 	#if defined multispec_wxlin

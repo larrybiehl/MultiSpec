@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			06/04/2019
+//	Revision date:			08/15/2019
 //
 //	Language:				C
 //
@@ -3307,6 +3307,13 @@ void InitializeProjectStructure (
 				
 		InitializeMaskStructure (&gProjectInfoPtr->testMask);
 		InitializeMaskStructure (&gProjectInfoPtr->trainingMask);
+
+				// used in KNN classify training
+
+		gProjectInfoPtr->knnDistancesPtr = NULL;
+		gProjectInfoPtr->knnLabelsPtr = NULL;
+		gProjectInfoPtr->knnDataValuesPtr = NULL;
+		gProjectInfoPtr->knnCounter = 0;
 			
 		gProjectInfoPtr->startLine = 1;
 		gProjectInfoPtr->startColumn = 1;
@@ -4226,7 +4233,7 @@ void	OpenProjectImageWindow (void)
 //							CreateNewProject in project.c
 //
 //	Coded By:			Larry L. Biehl			Date: 03/22/1991
-//	Revised By:			Larry L. Biehl			Date: 04/22/1999	
+//	Revised By:			Larry L. Biehl			Date: 08/15/2019
 
 void ReleaseProjectHandles (
 				ProjectInfoPtr						inputProjectInfoPtr)
@@ -4309,6 +4316,17 @@ void ReleaseProjectHandles (
 		ReleaseEvalCovarianceHandleMemory (
 											&inputProjectInfoPtr->evalCovarianceSpecsHandle);
 		
+				// Dispose of pointers.
+		
+		gProjectInfoPtr->knnDistancesPtr =
+						(knnType*)CheckAndDisposePtr ((Ptr)gProjectInfoPtr->knnDistancesPtr);
+		
+		gProjectInfoPtr->knnLabelsPtr =
+										CheckAndDisposePtr (gProjectInfoPtr->knnLabelsPtr);
+		
+		gProjectInfoPtr->knnDataValuesPtr =
+										CheckAndDisposePtr (gProjectInfoPtr->knnDataValuesPtr);
+
 		}	// end "if (inputProjectInfoPtr != NULL)" 
 		
 }	// end "ReleaseProjectHandles" 

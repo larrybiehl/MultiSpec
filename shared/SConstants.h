@@ -19,7 +19,7 @@
 //
 //	Written By:				Larry L. Biehl			Date: 03/29/1988
 //	Revised By:				Abdur Maud				Date: 06/18/2013
-//	Revised By:				Larry L. Biehl			Date: 05/24/2019
+//	Revised By:				Larry L. Biehl			Date: 08/15/2019
 //	
 //------------------------------------------------------------------------------------
 
@@ -1321,6 +1321,9 @@
 		// Project constants.																
 #define	kNoProject						0
 #define	kProject							1
+
+#define	kDoNotDisposePointers		0
+#define	kDisposePointers				1
 
 		// Project Statistics types.														
 #define	kMeanStdDevOnly				1
