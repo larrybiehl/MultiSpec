@@ -5,7 +5,7 @@
 # Warning: Strings should not contain chars like #[No.] in them and string maybe on multiple lines (limited to 255 chars)
 # If need arises for this, try to space them apart
 # string id should be in numerical order
-# Revised by Larry Biehl on 01/15/2019
+# Revised by Larry Biehl on 08/15/2019
 
 #include "resource.h"
 
@@ -449,6 +449,7 @@ Mask file(s) for project '%s' were loaded successfully.
 #888   "_mahalanobis_classify.txt"
 #889   "    All training areas are defined by clusters; listing and plotting histograms are not possible.
 "
+#890           "Loading Pixel Values For:"
 
 #901   "11"
 #902   "890105"
@@ -694,40 +695,46 @@ Save changes in project and/or output text window if they are important."
 #1418          "Creating Threshold Table"
 #1419          "Creating Threshold Table"
 #1420          "Computing Classifier Constants"
-#1421          "    Maximum likelihood classifier used.
+#1421          "    Gaussian maximum likelihood classifier used.
 "
 #1422          "    Mahalanobis classifier used.
 "
 #1423          "    Fisher linear discriminant classifier used.
 "
-#1424          "    Minimum Euclidean distance classifier used.
+#1424          "    ECHO classifier used.
 "
-#1425          "    ECHO classifier used.
+#1425          "    Support Vector Machine (SVM) classifier used.
 "
-#1426          "    Correlation (Spectral Angle Mapper) classifier used.
+#1426          "    k-Nearest Neighbor (kNN) classifier used.
 "
-#1427          "    CEM classifier used.
+#1427          "    Minimum Euclidean distance classifier used.
 "
-#1428          " "
-#1429          " "
-#1430          " "
-#1431          "  End maximum likelihood classification
+#1428          "    Correlation (Spectral Angle Mapper) classifier used.
+"
+#1429          "    CEM classifier used.
+"
+#1430          "    Parallel Piped classifier used.
+"
+#1431          "  End Gaussian maximum likelihood classification
 "
 #1432          "  End Malahanobis classification
 "
 #1433          "  End Fisher linear discriminant classification
 "
-#1434          "  End minimum Euclidean distance classification
+#1434          "  End ECHO classification
 "
-#1435          "  End ECHO classification
+#1435          "  End Support Vector Machine (SVM) classification
 "
-#1436          "  End correlation (Spectral Angle Mapper) classification
+#1436          "  End k-Nearest Neighbor (kNN) classification
 "
-#1437          "  End CEM classification
+#1437          "  End minimum Euclidean distance classification
 "
-#1438          " "
-#1439          " "
-#1440          " "
+#1438          "  End correlation (Spectral Angle Mapper) classification
+"
+#1439          "  End CEM classification
+"
+#1440          "  End Parallel Piped classification
+"
 #1441          "     Average likelihood probability is %5.1f%%.
 "
 #1442          "Creating Homogeneous Fields:"
@@ -739,7 +746,7 @@ Save changes in project and/or output text window if they are important."
 #1448          "
     Classification of Training Fields (Leave-One-Out Method)
 "
-#1449          "      Algorithm used is Maximum Likelihood.
+#1449          "      Algorithm used is Gaussian Maximum Likelihood.
 "
 #1450          "      Algorithm used is Fisher Linear Discriminant.
 "
@@ -791,6 +798,15 @@ Save changes in project and/or output text window if they are important."
 "
 #1470          "      Algorithm used is Mahalanobis.
 "
+#1471          "      Nearest Neighbor K Value: %d
+"
+#1472          "    Total number of equal class counts: %s.
+
+"
+#1473          "     Average k nearest neighbors is %5.1f.
+"
+#1474          "
+       kNN threshold value:  %.0f"
 
 #1501         "
     TRAINING FIELD PERFORMANCE (Resubstitution Method)
@@ -1461,10 +1477,10 @@ Transformation matrix was loaded from '%s'.
 #2539   "0.562 0.075 0.525- 0.600 um"
 #2540   "0.655 0.050 0.630- 0.680 um"
 #2541   "0.865 0.040 0.845- 0.885 um"
-#2542   "1.610 0.100 1.560-1.660 um"
-#2543   "2.220 0.200 2.100-2.300 um"
-#2544   "0.590 0.180 0.500-0.680 um"
-#2545   "1.375 0.030 1.360-1.390 um"
+#2542   "1.610 0.100 1.560- 1.660 um"
+#2543   "2.220 0.200 2.100- 2.300 um"
+#2544   "0.590 0.180 0.500- 0.680 um"
+#2545   "1.375 0.030 1.360- 1.390 um"
 #2546   "10.80 1.000 10.30-11.30 um"
 #2547   "12.00 1.000 11.50-12.50 um"
 #2548   "0.55 0.100 0.50- 0.60 um"
@@ -1715,6 +1731,7 @@ Transformation matrix was loaded from '%s'.
 #6742               "VRT (from GDAL)"
 #6743               "NITF (from GDAL)"
 #6744               "PCIDSK (from GDAL)"
+#6745               "Shuttle Radar Topography Mission Height (from GDAL)"
 
 #6801           "Simple RLE"
 #6802           "N-bit"
@@ -1911,7 +1928,7 @@ Transformation matrix was loaded from '%s'.
 #8103           "Select a subset of the classes"
 #8104           ""
 
-//LProjDlg
+//LStatisticsDialog
 #8105           "Clear the project statistics or establish a new project"
 #8106           "Show another dialog box to control other project statistics options"
 #8107           "Select an image file that contains a mask that will be used to define the areas in the project base image for training statistics"
@@ -1922,7 +1939,7 @@ Transformation matrix was loaded from '%s'.
 #8112           "Show field names with each outlined area in the project image window"
 #8113           "Show train/test labels (n/t) with each outlined area in the project image window"
 #8114           "Set the color of the text and field borders specified"
-#8115           "Select when memory is short. One will then unable to access Feature Selection, Statistics Image, and the Maximum Likelihood and ECHO Classifiers"
+#8115           "Select when memory is short. One will then unable to access Feature Selection, Statistics Image, and the Gaussian Maximum Likelihood and ECHO Classifiers"
 #8116           "Compute all statistics"
 #8117           "Save the class statistics in memory instead of the field statistics"
 #8118           "Treat zero variance in algorithms that require the second order statistics as ... (a small value)"
@@ -2013,6 +2030,7 @@ Transformation matrix was loaded from '%s'.
 #8215           "Output format; If the map information is available for the output classification from the base image file, the choice will be GeoTIFF instead of TIFF"
 #8232           "The SAM or CEM value is stored for each pixel in a disk file. This file can then be displayed in color coded thematic form"
 #8148           "The SAM threshold may be in degrees or a correlation coefficient value"
+#8401           "The KNN threshold represents number of like classes required for a class assignment."
 
 //LFToThemDlg Convert project file to thematic image file
 #8190           "Include the training fields in the output thematic image file"
@@ -2158,7 +2176,7 @@ Transformation matrix was loaded from '%s'.
 #8306           "Define the field as being a training or test field for the class"
 
 //LEchodlg  Echo 
-#8307           "Specify to use quadratic (Maximum Likelihood), linear (Fisher Linear Discriminant) or Mahalanobis algorithm"
+#8307           "Specify to use quadratic (Gaussian Maximum Likelihood), linear (Fisher Linear Discriminant) or Mahalanobis algorithm"
 #8308           "The size of the spatial cell per side (in pixels). The cell size range is 1 to 100"
 #8309           "The threshold value to determine if a cell is homogenous and can therefore be treated as one unit"
 #8310           "The threshold value in units of percent probability (portion of the tail of the Gaussian density function to thresholded), 0 to 100"
@@ -2234,5 +2252,8 @@ Transformation matrix was loaded from '%s'.
 
 // Feature classification
 #8502    "This processor allows one to classify selected portions of the target image file using the project statistics"
+
+// More LStatisticsDialog
+#8601			"Allows one to select the channels to be used for the statistics; note that the statistics need to be cleared (not calculated) for one to use this option."
 
 ID_OPTIONS_SWITCHCROSSCURSOR "Switch cross cursor"
