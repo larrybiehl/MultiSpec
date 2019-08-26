@@ -19,14 +19,12 @@
 //
 //	Written By:				Abdur Rahman Maud		Date: ??/??/2009
 // Revised By:				Tsung Tai Yeh			Date: 07/28/2015
-//	Revised By:				Larry L. Biehl			Date: 07/09/2019
+//	Revised By:				Larry L. Biehl			Date: 08/15/2019
 //	
 //------------------------------------------------------------------------------------
-
+//
 #ifndef RESOURCE
-#define RESOURCE
-
-//#define multispec_lin                   __LINUX__
+	#define RESOURCE
 
 #define IDR_MAINFRAME                   2
 #define IDR_MSPECTYPE                   3
@@ -2911,7 +2909,7 @@
 #define IDS_ToolTip359                  8359
 #define IDS_ToolTip360                  8360
 #define IDS_ToolTip401                  8401
-
+#define IDS_ToolTip8601						 8601
 
 #define IDS_DialogMsg0                  8500
 #define IDS_DialogMsg1                  8501

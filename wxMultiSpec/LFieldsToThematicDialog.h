@@ -1,23 +1,46 @@
-// LFieldsToThematicDialog.h : header file
+//	 									MultiSpec
 //
-// Revised by Larry Biehl on 06/21/2017
-//                  
+//					Laboratory for Applications of Remote Sensing
+//									Purdue University
+//								West Lafayette, IN 47907
+//								 Copyright (2009-2019)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	File:						LFieldsToThematicDialog.h
+//	Implementation:		LFieldsToThematicDialog.cpp
+//
+//	Authors:					Larry L. Biehl, Abdur Rahman Maud
+//
+//	Language:				C++
+//
+//	System:					Linux and MacOS Operating Systems
+//
+//	Brief description:	Header file for the CMFieldsToThematicDialog class
+//
+//	Written By:				Abdur Rahman Maud		Date: ??/??/2009
+//	Revised By:				Larry L. Biehl			Date: 06/21/2017
+//
+//------------------------------------------------------------------------------------
+//
 #if !defined __LFTOTDLG_H__
 	#define	__LFTOTDLG_H__    
 	
 	#include "LDialog.h"
 
-	/////////////////////////////////////////////////////////////////////////////
-	// CMFieldsToThematicDialog dialog
 
 	class CMFieldsToThematicDialog : public CMDialog
 		{
 				// Construction
 		public:
-			CMFieldsToThematicDialog(wxWindow* pParent = NULL, wxWindowID id = IDD_FeatureExtraction, const wxString& title = wxT("Project Areas to Thematic Image"));	// standard constructor   
+					// standard constructor
+			CMFieldsToThematicDialog (
+					wxWindow* pParent = NULL,
+					wxWindowID id = IDD_FeatureExtraction,
+					const wxString& title = wxT("Project Areas to Thematic Image"));
 			
-			Boolean			DoDialog(
-									ReformatOptionsPtr				reformatOptionsPtr);
+			Boolean DoDialog (
+					ReformatOptionsPtr				reformatOptionsPtr);
 
 					// Dialog Data
 			enum {IDD = IDD_AreasToThematicImage};
@@ -33,7 +56,7 @@
 				  
 					// Generated message map functions
 
-			void OnInitDialog(wxInitDialogEvent& event);    
+			void OnInitDialog (wxInitDialogEvent& event);    
 			DECLARE_EVENT_TABLE()
 			
 			ReformatOptionsPtr		m_reformatOptionsPtr;

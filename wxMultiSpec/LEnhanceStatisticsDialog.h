@@ -1,42 +1,58 @@
-// LEnhanceStatisticsDialog.h
+//	 									MultiSpec
 //
-// Revised by Larry Biehl on 11/07/2018
+//					Laboratory for Applications of Remote Sensing
+//									Purdue University
+//								West Lafayette, IN 47907
+//								 Copyright (2009-2019)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
 //
-
+//	File:						LEnhanceStatisticsDialog.h
+//	Implementation:		LEnhanceStatisticsDialog.cpp
+//
+//	Authors:					Larry L. Biehl, Abdur Rahman Maud
+//
+//	Language:				C++
+//
+//	System:					Linux and MacOS Operating Systems
+//
+//	Brief description:	Header file for the CMEnhanceStatisticsDialog class
+//
+//	Written By:				Abdur Rahman Maud		Date: ??/??/2009
+//	Revised By:				Larry L. Biehl			Date: 11/07/2018
+//
+//------------------------------------------------------------------------------------
+//
 #if !defined __LESTADLG_H__
 	#define	__LESTADLG_H__
 
-	#include "SMultiSpec.h"
+#include "SMultiSpec.h"
 
-	#include "LDialog.h"
+#include "LDialog.h"
 
-	#include "wx/wx.h"
-	#include "wx/bmpcbox.h"
+#include "wx/wx.h"
+#include "wx/bmpcbox.h"
 
-	//typedef bool BOOL;
 
-	/////////////////////////////////////////////////////////////////////////////
-	// CMEnhanceStatisticsDialog dialog
-
-	class CMEnhanceStatisticsDialog : public CMDialog
+class CMEnhanceStatisticsDialog : public CMDialog
 	{
 			// Construction
 	public:
-		CMEnhanceStatisticsDialog(wxWindow* parent, wxWindowID id = wxID_ANY, 
-								const wxString& title = wxT("Set Statistics Enhancement Specifications"), 
-								const wxPoint& pos = wxDefaultPosition, 
-								const wxSize& size = /*wxDefaultSize*/wxSize( 200,200 ), 
-								long style = wxDEFAULT_DIALOG_STYLE);   // standard constructor
+				// standard constructor
+		CMEnhanceStatisticsDialog (
+				wxWindow* parent, wxWindowID id = wxID_ANY,
+				const wxString& title = wxT("Set Statistics Enhancement Specifications"),
+				const wxPoint& pos = wxDefaultPosition,
+				const wxSize& size = /*wxDefaultSize*/wxSize( 200,200 ),
+				long style = wxDEFAULT_DIALOG_STYLE);
 
 		~CMEnhanceStatisticsDialog(void);
 
-		  
-
 		SInt16  DoDialog( StatEnhanceSpecsPtr   statEnhanceSpecsPtr);
 
-		void CreateControls();
-		  
-		enum { IDD = IDD_EnhanceStatistics };
+		void CreateControls ();
+	
+		enum {IDD = IDD_EnhanceStatistics};
 		double	m_logLikeStopPercent;
 		SInt32	m_iterationStopLength;
 		SInt32	m_iterationMax;
@@ -44,7 +60,7 @@
 		bool	m_useEnhancedStatisticsFlag;
 		bool	m_weightLabeledFlag;
 		int         m_weightsSelection;
-		double	m_softChiChiThreshold;  
+		double	m_softChiChiThreshold;
 		double	m_hardChiChiThreshold;
 		double	m_softPercentThreshold;
 		double	m_hardPercentThreshold;
@@ -54,8 +70,8 @@
 
 			// Implementation
 	protected:
-	 
-		void             OnInitDialog(wxInitDialogEvent& event); 
+	
+		void             OnInitDialog(wxInitDialogEvent& event);
 		void             OnWeightLabeledSamples(wxCommandEvent& event);
 		void             OnUseEnhancedStats(wxCommandEvent& event);
 		void             CheckStatColumnEnd(wxCommandEvent& event);
@@ -74,15 +90,15 @@
 		void             OnChangeHardChiChiThreshold(wxCommandEvent& event);
 		void             OnChangeSoftChiChiThreshold(wxCommandEvent& event);
 		void             OnSelendokClassWeightsCombo(wxCommandEvent& event);
-	 
+	
 		bool            TransferDataFromWindow();
 		bool            TransferDataToWindow();
 
 		DECLARE_EVENT_TABLE();
-							
+	
 		float*                      m_classWeightsPtr;
 		StatEnhanceSpecsPtr         m_statEnhanceSpecsPtr;
-		SInt16                      m_classWeightSet;							
+		SInt16                      m_classWeightSet;
 		Boolean                     m_initializedFlag,
 											m_updatingThresholdItemsFlag;
 
@@ -147,7 +163,7 @@
 		wxString m_hardpercentThresString;
 		wxString m_weightString;
 		wxString m_maxNumberString;
-		wxString m_iterlengthString;        
+		wxString m_iterlengthString;
 		wxString m_loglikeString;
 	};
 #endif

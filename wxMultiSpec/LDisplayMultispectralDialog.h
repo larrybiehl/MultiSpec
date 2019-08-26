@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (2009-2018)
+//								 Copyright (2009-2019)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -14,7 +14,7 @@
 //
 //	Language:				C++
 //
-//	System:					Linux Operating System
+//	System:					Linux and MacOS Operating Systems
 //
 //	Brief description:	Header file for the CMDisplaySpecsDlg class
 //
@@ -22,7 +22,7 @@
 //	Revised By:				Larry L. Biehl			Date: 11/15/2018
 //	
 //------------------------------------------------------------------------------------
-
+//
 #if !defined __LDISPDLG_H__
 #define	__LDISPDLG_H__       
 
@@ -32,12 +32,11 @@
 #include "wx/wx.h"
 
 typedef long unsigned int UINT;
-/////////////////////////////////////////////////////////////////////////////
-// CMDisplaySpecsDlg dialog
+
 
 class CMDisplaySpecsDlg : public CMDialog
 	{
-    DECLARE_DYNAMIC_CLASS( CMDisplaySpecsDlg )
+    DECLARE_DYNAMIC_CLASS (CMDisplaySpecsDlg)
 			// Construction
 	public:
 		CMDisplaySpecsDlg ();
@@ -49,9 +48,9 @@ class CMDisplaySpecsDlg : public CMDialog
 				const wxSize&				size = /*wxDefaultSize*/wxSize (200, 200),
 				long							style = wxDEFAULT_DIALOG_STYLE | wxSTAY_ON_TOP);
 
-		~CMDisplaySpecsDlg(); // standard desctructor
+		~CMDisplaySpecsDlg (); // standard desctructor
 
-		Boolean DoDialog(
+		Boolean DoDialog (
             DisplaySpecsPtr displaySpecsPtr);
 
     enum {
@@ -123,13 +122,12 @@ protected:
 	SInt16 Update8_16_24BitsOfColorIndex(
             SInt16 menuBitsOfColorIndex);
 
-    void CreateControls();
-    // Generated message map functions
-    //{{AFX_MSG(CMDisplaySpecsDlg)
-    void OnInitDialog(wxInitDialogEvent& event);
+    void CreateControls ();
+	
     bool TransferDataFromWindow();
     bool TransferDataToWindow();
 	
+    void OnInitDialog(wxInitDialogEvent& event);
     void OnChangeBlueChannel(wxCommandEvent& event);
     void OnChangeGreenChannel(wxCommandEvent& event);
     void OnChangeRedChannel(wxCommandEvent& event);
@@ -146,7 +144,7 @@ protected:
     void OnSelendokChannelsDropDown(wxCommandEvent& event);    
     //void OnButtonPress(wxKeyEvent& event); 
     void OnSelendokMinMaxValuesDropDown(wxCommandEvent& event);
-    DECLARE_EVENT_TABLE()
+    DECLARE_EVENT_TABLE ()
 
     DisplaySpecsPtr m_displaySpecsPtr;
 

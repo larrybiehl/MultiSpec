@@ -1,8 +1,30 @@
-//		Revised 4/02/2019 by Larry L. Biehl
-
-
+//	 									MultiSpec
+//
+//					Laboratory for Applications of Remote Sensing
+//									Purdue University
+//								West Lafayette, IN 47907
+//								 Copyright (2009-2019)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	File:						LDisplayMultispectralDialog.h
+//	Implementation:		LDisplayMultispectralDialog.cpp
+//
+//	Authors:					Larry L. Biehl, Abdur Rahman Maud
+//
+//	Language:				C++
+//
+//	System:					Linux and MacOS Operating Systems
+//
+//	Brief description:	Header file for the CMImageView class
+//
+//	Written By:				Abdur Rahman Maud		Date: ??/??/2009
+//	Revised By:				Larry L. Biehl			Date: 04/02/2019
+//
+//------------------------------------------------------------------------------------
+//
 #ifndef __VIEWIMAGEH__
-#define __VIEWIMAGEH__
+	#define __VIEWIMAGEH__
 
 #include "SMultiSpec.h"
 
@@ -185,48 +207,48 @@ class CMImageView : public wxView
                                      SInt32	scrollIncrement,
                                      SInt32	scrollOffset);
 
-    void	UpdateScrollRange (double	magnification);
+		 void	UpdateScrollRange (double	magnification);
 
-    void        InitialUpdate(void);
-    // Flag indicated whether this view is active
+		 void        InitialUpdate(void);
+		 // Flag indicated whether this view is active
 
-    Boolean m_activeFlag;
+		 Boolean m_activeFlag;
 
-    // Flag indicated whether already within 'OnSize' routine.
+		 // Flag indicated whether already within 'OnSize' routine.
 
-    Boolean m_withinOnSizeFlag;
+		 Boolean m_withinOnSizeFlag;
 
-    // Flag indicating whether UpdateScrollRange should be called.
+		 // Flag indicating whether UpdateScrollRange should be called.
 
-    Boolean m_callUpdateScrollRangeFlag;
+		 Boolean m_callUpdateScrollRangeFlag;
 
-    // Flag indicating whether the control key is down. The contexts indicates
-	 // what it will be used for.
-    Boolean m_ctlKeyDownFlag;
+		 // Flag indicating whether the control key is down. The contexts indicates
+		 // what it will be used for.
+		 Boolean m_ctlKeyDownFlag;
 
-    // Flag indicating whether the shift key is down. The context indicates
-	 // what it will be used for.
-    Boolean m_shiftKeyDownFlag;
+		 // Flag indicating whether the shift key is down. The context indicates
+		 // what it will be used for.
+		 Boolean m_shiftKeyDownFlag;
 
-    Boolean m_thumbScrollFlag;
+		 Boolean m_thumbScrollFlag;
 
-    // Pointer to the image window class for the image view.
+		 // Pointer to the image window class for the image view.
 
-    CMImageWindow* m_imageWindowCPtr;
+		 CMImageWindow* m_imageWindowCPtr;
 
-    // Saved cursor line and column value
+		 // Saved cursor line and column value
 
-    SInt32 m_cursorColumnValue;
+		 SInt32 m_cursorColumnValue;
 
-    SInt32 m_cursorLineValue;
+		 SInt32 m_cursorLineValue;
 
-    static SInt16 s_currentCursor;
+		 static SInt16 s_currentCursor;
 
-private:
-	DECLARE_DYNAMIC_CLASS (CMImageView)
-	DECLARE_EVENT_TABLE()
+	private:
+		DECLARE_DYNAMIC_CLASS (CMImageView)
+		DECLARE_EVENT_TABLE ()
 	
-};
+	};
 
 
 inline CMImageDoc* CMImageView::GetDocument()
@@ -235,12 +257,14 @@ inline CMImageDoc* CMImageView::GetDocument()
 	}
 
 
-inline CMImageWindow* CMImageView::GetImageWindowCPtr() {
+inline CMImageWindow* CMImageView::GetImageWindowCPtr ()
+	{
 	if (this == NULL)
 		return (NULL);
 
 	else
 		return (CMImageWindow*) m_imageWindowCPtr;
-}
+
+	}
 
 #endif // !defined __VIEWIMAGEH__

@@ -1,32 +1,53 @@
-// LFeatureSelectionDialog.h : header file
-//   
-// Revised by Larry Biehl on 06/21/2017
+//	 									MultiSpec
+//
+//					Laboratory for Applications of Remote Sensing
+//									Purdue University
+//								West Lafayette, IN 47907
+//								 Copyright (2009-2019)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	File:						LFeatureSelectionDialog.h
+//	Implementation:		LFeatureSelectionDialog.cpp
+//
+//	Authors:					Larry L. Biehl, Abdur Rahman Maud
+//
+//	Language:				C++
+//
+//	System:					Linux and MacOS Operating Systems
+//
+//	Brief description:	Header file for the CMFeatureSelectionDialog and
+//								CMFeatureSelectionListDialog classes
+//
+//	Written By:				Abdur Rahman Maud		Date: ??/??/2009
+//	Revised By:				Larry L. Biehl			Date: 06/21/2017
+//
+//------------------------------------------------------------------------------------
 //
 #if !defined __LFSELDLG_H__
-#	define	__LFSELDLG_H__             
+	#define	__LFSELDLG_H__
 
-	#include "LDialog.h"
-	//typedef bool BOOL;
-	/////////////////////////////////////////////////////////////////////////////
-	// CMFeatureSelectionDialog dialog
+#include "LDialog.h"
 
-	class CMFeatureSelectionDialog : public CMDialog 
+class CMFeatureSelectionDialog : public CMDialog
 	{
 		 // Construction
 	public:
-		CMFeatureSelectionDialog(wxWindow* pParent = NULL, wxWindowID id = IDD_FeatureSelection , const wxString& title = wxT("Set Feature Selection Specifications")); // standard constructor     
+				// standard constructor
+		CMFeatureSelectionDialog (
+				wxWindow* 			pParent = NULL,
+				wxWindowID 			id = IDD_FeatureSelection,
+				const wxString& 	title = wxT("Set Feature Selection Specifications"));
 
-		~CMFeatureSelectionDialog(); // standard desctructor 
+		~CMFeatureSelectionDialog(); // standard destructor
 
-		Boolean DoDialog(
-				SeparabilitySpecsPtr separabilitySpecsPtr,
-				UInt16* allChanCombinationsPtr);
+		Boolean DoDialog (
+				SeparabilitySpecsPtr 	separabilitySpecsPtr,
+				UInt16* 						allChanCombinationsPtr);
 
-		// Dialog Data
+				// Dialog Data
 
-		enum {
-			IDD = IDD_FeatureSelection
-			};
+		enum { IDD = IDD_FeatureSelection };
 			
 		int m_separabilityListSelection;
 		int m_channelCombinationSelection;
@@ -46,7 +67,7 @@
 		bool TransferDataFromWindow();
 		bool TransferDataToWindow();
 		void HandleChannelCombinationsMenu (
-					UInt16 channelCombinationsMenuItemNumber);
+		UInt16 channelCombinationsMenuItemNumber);
 
 				// Generated message map functions
 		void OnInitDialog(wxInitDialogEvent& event);
@@ -117,25 +138,26 @@
 
 	};
 
-	/////////////////////////////////////////////////////////////////////////////
-	// CMFeatureSelectionListDialog dialog
-
-	class CMFeatureSelectionListDialog : public CMDialog 
+//------------------------------------------------------------------------------------
+//
+class CMFeatureSelectionListDialog : public CMDialog
 	{
 		 // Construction
 	public:
-		 CMFeatureSelectionListDialog(wxWindow* pParent = NULL, wxWindowID id = IDD_ClassifyDialog, const wxString& title = wxT("Set Feature Selection List Options")); // standard constructor
+				// standard constructor
+		CMFeatureSelectionListDialog (
+		 		wxWindow* 			pParent = NULL,
+		 		wxWindowID 			id = IDD_ClassifyDialog,
+		 		const wxString& 	title = wxT("Set Feature Selection List Options"));
 
-		 Boolean DoDialog(
-					SeparabilitySpecsPtr separabilitySpecsPtr,
-					SInt32* combinationsToListPtr);
+		Boolean DoDialog(
+				SeparabilitySpecsPtr separabilitySpecsPtr,
+				SInt32* combinationsToListPtr);
 
-		 // Dialog Data
+				// Dialog Data
 
-		 enum {
-			  IDD = IDD_FeatureSelectionListOptions
-		 };
-		 int m_sortChannelCombinations;
+		enum { IDD = IDD_FeatureSelectionListOptions };
+		int m_sortChannelCombinations;
 		 bool m_thresholdedGroupTableFlag;
 		 bool m_thresholdedClassPairTableFlag;
 		 double m_localDistancesLessThanToGroup;

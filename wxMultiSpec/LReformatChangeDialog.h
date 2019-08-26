@@ -7,8 +7,7 @@
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
-//	File:						LReformatChange.h :
-//															CMChangeFormatDlg Definition
+//	File:						LReformatChange.h
 //	Implementation:		LReformatChange.cpp
 //
 //	Authors:					Abdur Rahman Maud, Larry L. Biehl
@@ -23,7 +22,7 @@
 //	Revised By:				Larry L. Biehl			Date: 02/28/2019
 //	
 //------------------------------------------------------------------------------------
-
+//
 #if !defined __LRCHANGE_H__
 	#define	__LRCHANGE_H__
 

@@ -1,9 +1,30 @@
-// LMainFrame.h
+//	 									MultiSpec
 //
-// Revised by Larry L Biehl    04/12/2019
-
+//					Laboratory for Applications of Remote Sensing
+//									Purdue University
+//								West Lafayette, IN 47907
+//								 Copyright (2009-2019)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	File:						LMainFrame.h
+//	Implementation:		LMainFrame.cpp
+//
+//	Authors:					Larry L. Biehl, Abdur Rahman Maud
+//
+//	Language:				C++
+//
+//	System:					Linux and MacOS Operating Systems
+//
+//	Brief description:	Header file for the CMDisplaySpecsDlg class
+//
+//	Written By:				Abdur Rahman Maud		Date: ??/??/2009
+//	Revised By:				Larry L. Biehl			Date: 04/12/2019
+//
+//------------------------------------------------------------------------------------
+//
 #ifndef __LMainFrame__
-#	define __LMainFrame__
+	#define __LMainFrame__
 
 #include "LOpenFileDialog.h"
 
@@ -23,15 +44,12 @@
 
 class FileUploadProcess;
 
-///////////////////////////////////////////////////////////////////////////////
-/// Class CMainFrame
-///////////////////////////////////////////////////////////////////////////////
 #define CMMainFrameTitle _("MultiSpec")
 
-class CMainFrame : public wxDocParentFrame
 
-{
-	DECLARE_CLASS(CMainFrame)
+class CMainFrame : public wxDocParentFrame
+	{
+	DECLARE_CLASS (CMainFrame)
 	protected:
 		wxMenu*						filemenu;
 		wxMenu*						editmenu;
@@ -46,7 +64,6 @@ class CMainFrame : public wxDocParentFrame
 		wxMenu*						m_menu5;
 		wxMenu*						windowmenu;
 		wxMenu*						helpmenu;
-		//wxStatusBar*				statusBar;
 		wxStaticText*           m_zoomText;
 		wxToolBarToolBase*		m_zoomInTool;
 		wxToolBarToolBase*		m_zoomOutTool;
@@ -68,14 +85,14 @@ class CMainFrame : public wxDocParentFrame
 	
 		void 	DoZoomToOne (
 					wxMouseEvent&							event);
-#ifndef multispec_wxmac
-    enum{
-      ID_FILE_SAVE,
-      ID_FILE_SAVE_AS
-    };
-#endif
-   
-
+	
+	#ifndef multispec_wxmac
+		 enum {
+			ID_FILE_SAVE,
+			ID_FILE_SAVE_AS
+		 	};
+	#endif
+	
 	Boolean 	GetEnableFlagForStatisticsAndCluster (void);
 	
 	void OnActivate(wxActivateEvent& event);
@@ -204,26 +221,19 @@ class CMainFrame : public wxDocParentFrame
 	void OnFileSave(wxCommandEvent& event);
 	void OnFileSaveAs(wxCommandEvent& event);
    void OnExportFile(wxCommandEvent& event);
-	//void OnActivateApp(bool bActive, DWORD hTask);
 	void OnProcUtilCheckTransMatrix(wxCommandEvent& event);
 	bool OnQueryNewPalette();
 	void OnMagnification(void);
 	void OnFileLoadTransMatrix(wxCommandEvent& event);
 	void OnProcListResults(wxCommandEvent& event);
-	//void OnSysCommand(unsigned int nID, LPARAM lParam);
-	void OnProjUseOriginalStats(wxCommandEvent& event);        
+	void OnProjUseOriginalStats(wxCommandEvent& event);
 	void OnProjUseEnhancedStats(wxCommandEvent& event);
 	void OnProjectUseleave1outstatistics(wxCommandEvent& event);
 	void OnUpdateEditSelectionRectangle(wxUpdateUIEvent& pCmdUI);
 	void OnProcFeatureExtraction(wxCommandEvent& event);
 	void OnProcEnhanceStatistics(wxCommandEvent& event);
 	void OnProjChangeBaseImageFile(wxCommandEvent& event);   
-   /*     
-	void OnUpdateProjectListStatistics(wxUpdateUIEvent& pCmdUI); //temporary
-	void OnUpdateProjectHistogramStatistics(wxUpdateUIEvent& pCmdUI); //temporary
-	void OnProjectListStatistics(wxCommandEvent& event); //temporary
-	void OnProjectHistogramStatistics(wxCommandEvent& event); //temporary
-	*/	       
+
 	void OnClose();
 	void OnUpdateWindowNew(wxUpdateUIEvent& pCmdUI);
 	void OnEditImageMapParameters(wxCommandEvent& event);
@@ -232,14 +242,10 @@ class CMainFrame : public wxDocParentFrame
 	void OnEditClearAllImageOverlays(wxCommandEvent& event);
 	void OnEditClearAllVectorOverlays(wxCommandEvent& event);
 	void OnEditClearSelectedOverlay(wxCommandEvent& event);
-//	void OnProcReformatChangeHeader(wxCommandEvent& event);
-//	void OnUpdateProcReformatChangeHeader(wxUpdateUIEvent& pCmdUI);
 	void OnProcReformatChangeImage(wxCommandEvent& event);
 	void OnUpdateProcReformatChangeImage(wxUpdateUIEvent& pCmdUI);
 	void OnProcReformatConvertEnvi(wxCommandEvent& event);
 	void OnUpdateProcReformatConvertEnvi(wxUpdateUIEvent& pCmdUI);
-//	void OnProcReformatConvertMultispectral(wxCommandEvent& event);
-//	void OnUpdateProcReformatConvertMultispectral(wxUpdateUIEvent& pCmdUI);
 	void OnProcReformatConvertProject(wxCommandEvent& event);
 	void OnUpdateProcReformatConvertProject(wxUpdateUIEvent& pCmdUI);
 	void OnProcReformatModifyChannel(wxCommandEvent& event);
@@ -264,7 +270,7 @@ class CMainFrame : public wxDocParentFrame
 	void OnUpdateAreaUnitsSqYards(wxUpdateUIEvent& pCmdUI);
 	void OnUpdateAreaUnitsSqFeet(wxUpdateUIEvent& pCmdUI);
 	void OnUpdateAreaUnitsSqInches(wxUpdateUIEvent& pCmdUI);
-        void OnUpdateShowToolTip(wxUpdateUIEvent& pCmdUI);
+	void OnUpdateShowToolTip(wxUpdateUIEvent& pCmdUI);
 	void OnUpdateOptionsSwitchcrosscursor(wxUpdateUIEvent& pCmdUI);
 
 	void OnOptionsAreaUnitsSqKilometers(wxCommandEvent& event);
@@ -296,13 +302,7 @@ class CMainFrame : public wxDocParentFrame
 									UInt16 hdfDataSetSelection);
 	
 	void UpdateWindowMenuList ();
-	/*
-	enum{
-		//ID_IMAGE_OPEN
-               // ID_PROC_UTIL_LIST_IMAGE_DESC
-          //ID_SHOWOVERLAYMENUITEMSTART
 
-	}; */
 	public:
 		CMainFrame (wxDocManager *manager,
 						wxDocParentFrame *frame,
@@ -323,20 +323,16 @@ class CMainFrame : public wxDocParentFrame
 		void SetZoomCode(SInt16 zoomCode);
 		void SetToolParametersFlag(Boolean TOOL_PARAMETER_file_flag);
 		void UpdateStatusBar (CMImageFrame* imageFrame, double magnification);
-		//void OnImageOpen(wxCommandEvent& event);
-		~CMainFrame();
+
+		~CMainFrame ();
 	
 		wxMenuBar*					m_menubar1;
 		wxToolBar*					m_toolBar1;
 		wxMenuItem* 				m_closeWindowMenuItem;
 	private:
-		DECLARE_EVENT_TABLE()
-                void SetUpdateAreaUnits(wxUpdateUIEvent& pCmdUI, SInt16 unitsCode);
-                //void OnUpdateMagnification(wxUpdateUIEvent& event);
-                //void OnUpdateZoomIn(wxUpdateUIEvent& event);
-                //void OnUpdateZoomOut(wxUpdateUIEvent& event);
-                //void OnUpdateZoomIndicator(wxUpdateUIEvent& event);
-
-};
-
+		DECLARE_EVENT_TABLE ()
+	
+		void SetUpdateAreaUnits(wxUpdateUIEvent& pCmdUI, SInt16 unitsCode);
+	
+	};
 #endif

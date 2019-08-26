@@ -3,11 +3,11 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (2009-2018)
+//								 Copyright (2009-2019)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
-//	File:						CMLOOMixingDialog.h : CMLOOMixingDialog Definition
+//	File:						CMLOOMixingDialog.h
 //	Implementation:		CMLOOMixingDialog.cpp
 //
 //	Authors:					Larry L. Biehl
@@ -16,21 +16,17 @@
 //
 //	System:					Linux Operating System
 //
-//	Brief description:	Header file for the CMClassesDlg class
+//	Brief description:	Header file for the CMLOOMixingDialog class
 //
 //	Written By:				Wei-Kang Hsu			Date: 01/26/2018
 //	Revised By:				Larry L. Biehl			Date: 01/29/2018
 //	
 //------------------------------------------------------------------------------------
-
+//
 #if !defined(AFX_WLOOMDLG_H__337E2183_F42A_11D3_8D9B_00105AA88EE3__INCLUDED_)
-#define AFX_WLOOMDLG_H__337E2183_F42A_11D3_8D9B_00105AA88EE3__INCLUDED_
+	#define AFX_WLOOMDLG_H__337E2183_F42A_11D3_8D9B_00105AA88EE3__INCLUDED_
 
-#if _MSC_VER > 1000
-	#pragma once
-#endif // _MSC_VER > 1000
-
-#include "LDialog.h" 
+#include "LDialog.h"
 
 class CMLOOMixingDialog : public CMDialog
 	{

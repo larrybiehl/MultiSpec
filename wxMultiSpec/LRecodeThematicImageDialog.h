@@ -1,21 +1,41 @@
-// LRecodeThematicImageDialog.h : header file
-// CMRecodeThematicDialog dialog
+//	 									MultiSpec
 //
-// Revised by Larry Biehl on 06/21/2017
+//					Laboratory for Applications of Remote Sensing
+//									Purdue University
+//								West Lafayette, IN 47907
+//								 Copyright (2009-2019)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	File:						LRecodeThematicImageDialog.h
+//	Implementation:		LRecodeThematicImageDialog.cpp
+//
+//	Authors:					Larry L. Biehl, Abdur Rahman Maud
+//
+//	Language:				C++
+//
+//	System:					Linux and MacOS Operating Systems
+//
+//	Brief description:	Header file for the CMRecodeThematicDialog class
+//
+//	Written By:				Abdur Rahman Maud		Date: ??/??/2009
+//	Revised By:				Larry L. Biehl			Date: 06/21/2017
+//
+//------------------------------------------------------------------------------------
 //
 #if !defined __LRECTDLG_H__
-#	define __LRECTDLG_H__             
+	#define __LRECTDLG_H__
 
 	#include "LDialog.h"
-
-	//typedef bool BOOL;
 
 	class CMRecodeThematicDialog : public CMDialog
 		{
 				// Construction
 		public:
-			CMRecodeThematicDialog(wxWindow* pParent = NULL, wxWindowID id = wxID_ANY, 
-			const wxString& title = wxT("Set Thematic Recode Parameters"));
+			CMRecodeThematicDialog (
+					wxWindow* 			pParent = NULL,
+					wxWindowID 			id = wxID_ANY,
+					const wxString& 	title = wxT("Set Thematic Recode Parameters"));
 
 			~CMRecodeThematicDialog(); // standard desctructor  
 

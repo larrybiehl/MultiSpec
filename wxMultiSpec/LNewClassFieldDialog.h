@@ -1,32 +1,54 @@
-// LNewClassFieldDialog.h : header file
-//       
+//	 									MultiSpec
+//
+//					Laboratory for Applications of Remote Sensing
+//									Purdue University
+//								West Lafayette, IN 47907
+//								 Copyright (2009-2019)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	File:						LNewClassFieldDialog.h
+//	Implementation:		LNewClassFieldDialog.cpp
+//
+//	Authors:					Larry L. Biehl, Abdur Rahman Maud
+//
+//	Language:				C++
+//
+//	System:					Linux and MacOS Operating Systems
+//
+//	Brief description:	Header file for the CMNewClassFieldDlg class
+//
+//	Written By:				Abdur Rahman Maud		Date: ??/??/2009
+//	Revised By:				Larry L. Biehl			Date: 12/31/2018
+//
+//------------------------------------------------------------------------------------
+//
 #if !defined __LNEWCLS_H__
-#	define __LNEWCLS_H__  
+	#define __LNEWCLS_H__
 
-	#include "LDialog.h"
+#include "LDialog.h"
 
-	typedef wxString CString;
-	//typedef bool BOOL;
-	/////////////////////////////////////////////////////////////////////////////
-	// WEditClassFieldDlg dialog
+typedef wxString CString;
 
-	class CMNewClassFieldDlg : public CMDialog 
+class CMNewClassFieldDlg : public CMDialog
 	{
 			// Construction
 	public:
-		CMNewClassFieldDlg(wxWindow* pParent = NULL, wxWindowID id = IDD_ClassField, const wxString& title = wxT("Define Class and/or Field Description")); // standard constructor
+				// standard constructor
+		CMNewClassFieldDlg (
+				wxWindow* 			pParent = NULL,
+				wxWindowID 			id = IDD_ClassField,
+				const wxString& 	title = wxT("Define Class and/or Field Description"));
 
 			// Dialog Data
-	enum {
-		IDD = IDD_ClassField
-		};
+	enum { IDD = IDD_ClassField };
 		
 	int m_classList;
 	CString m_className;
 	CString m_fieldName;
 	int m_fieldType;
 
-	Boolean DoDialog(
+	Boolean DoDialog (
 			Boolean newClassOnlyFlag,
 			char* classNamePtr,
 			char* fieldNamePtr,
@@ -37,14 +59,14 @@
 		bool TransferDataToWindow();
 		bool TransferDataFromWindow();
 
-		// Generated message map functions
 		void OnInitDialog(wxInitDialogEvent& event);
 		void OnSelendokClassList(wxCommandEvent& event);
 		void OnFieldType(wxCommandEvent& event);
 		void CheckLength(wxCommandEvent& event);
 		void OnCharHook (wxKeyEvent& event);
 		void CreateControls();
-		DECLARE_EVENT_TABLE()
+	
+		DECLARE_EVENT_TABLE ()
 
 		char* m_classNameCStringPtr;
 		char* m_fieldNameCStringPtr;

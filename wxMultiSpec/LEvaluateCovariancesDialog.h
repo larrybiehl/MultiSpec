@@ -1,22 +1,42 @@
-// LEvaluateCovariancesDialog.h : header file
-//  
-// Revised by Larry Biehl on 06/21/2017
-//    
+//	 									MultiSpec
+//
+//					Laboratory for Applications of Remote Sensing
+//									Purdue University
+//								West Lafayette, IN 47907
+//								 Copyright (2009-2019)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	File:						LEvaluateCovariancesDialog.h
+//	Implementation:		LEvaluateCovariancesDialog.cpp
+//
+//	Authors:					Larry L. Biehl, Abdur Rahman Maud
+//
+//	Language:				C++
+//
+//	System:					Linux and MacOS Operating Systems
+//
+//	Brief description:	Header file for the CMEvalCovarianceDialog class
+//
+//	Written By:				Abdur Rahman Maud		Date: ??/??/2009
+//	Revised By:				Larry L. Biehl			Date: 06/21/2017
+//
+//------------------------------------------------------------------------------------
+//
 #if !defined __LCOVEDLG_H__
 	#define	__LCOVEDLG_H__             
 	     
-	#include "LDialog.h"
+#include "LDialog.h"
 
-	//typedef bool BOOL;
 
-	/////////////////////////////////////////////////////////////////////////////
-	// CMEvalCovarianceDialog dialog
-
-	class CMEvalCovarianceDialog : public CMDialog
+class CMEvalCovarianceDialog : public CMDialog
 	{
 	public:
-		CMEvalCovarianceDialog(wxWindow* pParent = NULL, wxWindowID id = wxID_ANY, 
-		const wxString& title = wxT("Check Covariances"));   // standard constructor
+				 // standard constructor
+		CMEvalCovarianceDialog (
+				wxWindow* 		pParent = NULL,
+				wxWindowID 		id = wxID_ANY,
+				const 			wxString& title = wxT("Check Covariances"));
 
 		~CMEvalCovarianceDialog();		// standard desctructor
 		Boolean DoDialog(
@@ -26,7 +46,7 @@
 		bool TransferDataFromWindow();
 
 		// Dialog Data    
-		enum { IDD = IDD_EvalCovariances };
+		enum {IDD = IDD_EvalCovariances};
 		bool	m_listOriginalMatrixFlag;
 		bool	m_listInvertedMatrixFlag;
 		bool	m_listInvertedInvertedMatrixFlag;

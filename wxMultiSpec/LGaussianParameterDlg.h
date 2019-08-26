@@ -1,68 +1,65 @@
-// CMGaussianParameterDlg.h : header file
-//       
-#if !defined(AFX_WGAUSSIANPARAMETERDLG_H__12DCBA43_80E8_11D7_8F8E_00105AA88EE3__INCLUDED_)
-#define AFX_WGAUSSIANPARAMETERDLG_H__12DCBA43_80E8_11D7_8F8E_00105AA88EE3__INCLUDED_
-
-#if _MSC_VER > 1000
-#pragma once
-#endif // _MSC_VER > 1000
-// WGaussianParameterDlg.h : header file
-//      
+//	 									MultiSpec
+//
+//					Laboratory for Applications of Remote Sensing
+//									Purdue University
+//								West Lafayette, IN 47907
+//								 Copyright (2009-2019)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	File:						LGaussianParameterDlg.h
+//	Implementation:		LGaussianParameterDlg.cpp
+//
+//	Authors:					Larry L. Biehl, Abdur Rahman Maud
+//
+//	Language:				C++
+//
+//	System:					Linux and MacOS Operating Systems
+//
+//	Brief description:	Header file for the CMGaussianParameterDlg class
+//
+//	Written By:				Abdur Rahman Maud		Date: ??/??/2009
+//	Revised By:				Larry L. Biehl			Date: 08/23/2019
+//
+//------------------------------------------------------------------------------------
+//
+#if !defined __LGaussianParameterDlg_H_
+	#define __LGaussianParameterDlg_H_
 
 #include "LDialog.h"
 
-/////////////////////////////////////////////////////////////////////////////
-// CMGaussianParameterDlg dialog
 
-class CMGaussianParameterDlg : public CMDialog {
-    // Construction
-public:
-    CMGaussianParameterDlg(wxWindow* pParent = NULL,  wxWindowID id = wxID_ANY, const wxString& title = wxT("Set Gaussian Stretch Parameter")); // standard constructor
+class CMGaussianParameterDlg : public CMDialog
+	{
+		 // Construction
+	public:
+				// standard constructor
+		CMGaussianParameterDlg (
+				wxWindow* 			pParent = NULL,
+				wxWindowID 			id = wxID_ANY,
+				const wxString& 	title = wxT("Set Gaussian Stretch Parameter"));
 
-    Boolean DoDialog(
-            double* gaussianStretchPtr);
+		Boolean DoDialog (
+					double* gaussianStretchPtr);
 
-    // Dialog Data
-    //{{AFX_DATA(CMGaussianParameterDlg)
+				// Dialog Data
 
-    enum {
-        IDD = IDD_GaussianParameter
-    };
-    double m_gaussianStretch;
-    //}}AFX_DATA
+		enum { IDD = IDD_GaussianParameter };
+		double m_gaussianStretch;
 
+	protected:
+		void CreateControls ();
+		void OnInitDialog (wxInitDialogEvent& event);
+		bool TransferDataFromWindow ();
+		bool TransferDataToWindow ();
 
-    // Overrides
-    // ClassWizard generated virtual function overrides
-    //{{AFX_VIRTUAL(CMGaussianParameterDlg)
-protected:
-    void CreateControls();
-    void OnInitDialog(wxInitDialogEvent& event);
-    bool TransferDataFromWindow();
-    bool TransferDataToWindow();
-    
-    wxBoxSizer* bSizer308;
-    wxStaticText* m_staticText289;
-    wxStaticText* m_staticText290;
-    wxTextCtrl* m_textCtrl130;
-    wxButton* m_button75;
-    wxButton* m_button76;
-    
-    DECLARE_EVENT_TABLE()
-    //    virtual void DoDataExchange(CDataExchange* pDX); // DDX/DDV support
-    //}}AFX_VIRTUAL
+		wxBoxSizer* bSizer308;
+		wxStaticText* m_staticText289;
+		wxStaticText* m_staticText290;
+		wxTextCtrl* m_textCtrl130;
+		wxButton* m_button75;
+		wxButton* m_button76;
 
-    // Implementation
-    //protected:
-
-    // Generated message map functions
-    //{{AFX_MSG(CMGaussianParameterDlg)
-    //    virtual BOOL OnInitDialog();
-    //}}AFX_MSG
-    //    DECLARE_MESSAGE_MAP()
-};
-
-//{{AFX_INSERT_LOCATION}}
-// Microsoft Visual C++ will insert additional declarations immediately before the previous line.
-
-#endif // !defined(AFX_WGAUSSIANPARAMETERDLG_H__12DCBA43_80E8_11D7_8F8E_00105AA88EE3__INCLUDED_)
+		DECLARE_EVENT_TABLE()
+	};
+#endif

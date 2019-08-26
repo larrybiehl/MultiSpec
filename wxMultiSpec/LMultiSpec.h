@@ -1,9 +1,30 @@
-// LMultiSpec.h : main header file for the MultSpec application
-// Only for linux
+//	 									MultiSpec
 //
-// Revised by Larry Biehl		on 01/10/2019
-// Revised by Tsung Tai Yeh	on 08/03/2015
-
+//					Laboratory for Applications of Remote Sensing
+//									Purdue University
+//								West Lafayette, IN 47907
+//								 Copyright (2009-2019)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	File:						LMultiSpec.h
+//	Implementation:		LMultiSpec.cpp
+//
+//	Authors:					Larry L. Biehl, Abdur Rahman Maud
+//
+//	Language:				C++
+//
+//	System:					Linux and MacOS Operating Systems
+//
+//	Brief description:	Header file for the CMultiSpecApp and FileUploadProcess
+//								classes
+//
+//	Written By:				Abdur Rahman Maud		Date: ??/??/2009
+// Revised By:				Tsung Tai Yeh			Date: 08/03/2015
+//	Revised By:				Larry L. Biehl			Date: 01/10/2019
+//
+//------------------------------------------------------------------------------------
+//
 #include "wx/wx.h"
 #include "wx/docview.h"
 
@@ -37,94 +58,83 @@
 #undef _win_
 #undef multispec_win
 
-//class wxDocManager;
-
-/////////////////////////////////////////////////////////////////////////////
-// CMultiSpecApp:
-// See multspec_lin.cpp for the implementation of this class
-//
 
 class CMultiSpecApp: public wxApp
-{
-public:
-	CMultiSpecApp();
-	wxDocument* ActivateGraphView();
-        wxDocument* ActivateListDataView();
-        void ActivateProjectView();
-        
-	bool OnInit();
-#ifndef NetBeansProject
-	int OnExit();
-#endif
-	void OnFileOpen(wxCommandEvent& event);
-	SInt32 OpenImageFileLin (LocalAppFile*		localAppFilePtr,
-									Boolean				fromOpenProjectImageWindowFlag,
-									UInt16				hdfDataSetSelection);
-	Handle GetOpenImageFileInfoHandle(void);
-	Handle SetUpNewImageDocument(
-									Handle				fileInfoHandle,
-									SInt16				fileImageType,
-									SInt16				windowType);
-	wxFrame* CreateChildFrame(wxDocument *doc, wxView *view);
+	{
+	public:
+		CMultiSpecApp();
+		wxDocument* ActivateGraphView();
+			  wxDocument* ActivateListDataView();
+			  void ActivateProjectView();
 	
-	#if defined multispec_wxlin
-		void GetUserInputFilePath (wxString toolParameterFilePath);
+		bool OnInit();
+	#ifndef NetBeansProject
+		int OnExit();
 	#endif
+		void OnFileOpen(wxCommandEvent& event);
+		SInt32 OpenImageFileLin (LocalAppFile*		localAppFilePtr,
+										Boolean				fromOpenProjectImageWindowFlag,
+										UInt16				hdfDataSetSelection);
+		Handle GetOpenImageFileInfoHandle(void);
+		Handle SetUpNewImageDocument(
+										Handle				fileInfoHandle,
+										SInt16				fileImageType,
+										SInt16				windowType);
+		wxFrame* CreateChildFrame(wxDocument *doc, wxView *view);
 	
-	#if defined multispec_wxmac
-		void MacOpenFiles (const wxArrayString& 		fileNames);
-	#endif
+		#if defined multispec_wxlin
+			void GetUserInputFilePath (wxString toolParameterFilePath);
+		#endif
 	
-	//SInt16		GetZoomCode(void);
-	//void		SetZoomCode(SInt16	zoomCode);
-	//void		SetControlDelayFlag(Boolean delayFlag);
-	//UInt32 	m_nextControlTime;
-protected:
-	wxDocManager* m_docManager;
-	wxDocument* init_graph_doc;
-	wxDocument* init_stat_doc;
-        
-private:
-	Handle			m_openImageFileInfoHandle;
-	//SInt16			m_imageZoomCode;
-	//Boolean		m_controlDelayFlag;
-	wxDocTemplate* pimageDocTemplate;
-	wxDocTemplate* pOutputDocTemplate;
-	wxDocTemplate* pGraphDocTemplate;
-	wxDocTemplate* pStatisticsDocTemplate;
-	wxDocTemplate* pListDataDocTemplate;
+		#if defined multispec_wxmac
+			void MacOpenFiles (const wxArrayString& 		fileNames);
+		#endif
 	
-	void OnCharHook (wxKeyEvent& event);
+	protected:
+		wxDocManager* m_docManager;
+		wxDocument* init_graph_doc;
+		wxDocument* init_stat_doc;
 	
-	void OnQueryEndSession (wxCloseEvent& event);
+	private:
+		Handle			m_openImageFileInfoHandle;
+		wxDocTemplate* pimageDocTemplate;
+		wxDocTemplate* pOutputDocTemplate;
+		wxDocTemplate* pGraphDocTemplate;
+		wxDocTemplate* pStatisticsDocTemplate;
+		wxDocTemplate* pListDataDocTemplate;
 	
-	DECLARE_EVENT_TABLE()
-};
+		void OnCharHook (wxKeyEvent& event);
+	
+		void OnQueryEndSession (wxCloseEvent& event);
+	
+		DECLARE_EVENT_TABLE ()
+	};
 
-DECLARE_APP(CMultiSpecApp)
 
+DECLARE_APP (CMultiSpecApp)
 
 CMainFrame *GetMainFrame (void);
 wxFrame *GetActiveFrame (void);
 
+
 class FileUploadProcess : public wxProcess
-{
-public:
-	FileUploadProcess (CMainFrame *parent, const wxString& cmd)
-	: wxProcess(parent), m_cmd(cmd)
-		{
-		m_parent = parent;
-		
-		}
+	{
+	public:
+		FileUploadProcess (CMainFrame *parent, const wxString& cmd)
+		: wxProcess(parent), m_cmd(cmd)
+			{
+			m_parent = parent;
+			
+			}
 
-			// instead of overriding this virtual function we might as well process the
-			// event from it in the frame class - this might be more convenient in some
-			// cases
-	virtual void OnTerminate (int pid, int status);
+				// instead of overriding this virtual function we might as well process the
+				// event from it in the frame class - this might be more convenient in some
+				// cases
+		virtual void OnTerminate (int pid, int status);
 	
-protected:
-	CMainFrame *m_parent;
-	wxString m_cmd;
+	protected:
+		CMainFrame *m_parent;
+		wxString m_cmd;
 
-};
+	};
 #endif

@@ -1,31 +1,48 @@
-// LListResultsDialog.h : header file
-//      
-// Revised by Larry Biehl on 06/21/2017
+//	 									MultiSpec
 //
-
+//					Laboratory for Applications of Remote Sensing
+//									Purdue University
+//								West Lafayette, IN 47907
+//								 Copyright (2009-2019)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	File:						LListResultsDialog.h
+//	Implementation:		LListResultsDialog.cpp
+//
+//	Authors:					Larry L. Biehl, Abdur Rahman Maud
+//
+//	Language:				C++
+//
+//	System:					Linux and MacOS Operating Systems
+//
+//	Brief description:	Header file for the CMDisplaySpecsDlg class
+//
+//	Written By:				Abdur Rahman Maud		Date: ??/??/2009
+//	Revised By:				Larry L. Biehl			Date: 06/21/2017
+//
+//------------------------------------------------------------------------------------
+//
 #if !defined __WLSTRDLG_H__
-#	define	__WLSTRDLG_H__             
+	#define	__WLSTRDLG_H__
 
-#	include "LDialog.h"
-	//typedef bool BOOL;
-	/////////////////////////////////////////////////////////////////////////////
-	// CMListResultsDialog dialog
+#include "LDialog.h"
 
-	class CMListResultsDialog : public CMDialog 
+
+class CMListResultsDialog : public CMDialog
 	{
 				// Construction
 	public:
-		CMListResultsDialog(wxWindow* pParent = NULL, wxWindowID id = IDD_ClassifyDialog, const wxString& title = wxT("Set List Results Specifications")); // standard constructor      
+		CMListResultsDialog (wxWindow* pParent = NULL, wxWindowID id = IDD_ClassifyDialog, const wxString& title = wxT("Set List Results Specifications")); // standard constructor      
 
-		~CMListResultsDialog(); // standard desctructor  
+		~CMListResultsDialog (); // standard desctructor
 
-		Boolean DoDialog(void);
+		Boolean DoDialog (void);
 
-		// Dialog Data
+				// Dialog Data
 
-		enum {
-			IDD = IDD_ListResults
-			};
+		enum { IDD = IDD_ListResults };
+	
 		bool m_trainingFlag;
 		bool m_testFlag;
 		bool m_imageFlag;

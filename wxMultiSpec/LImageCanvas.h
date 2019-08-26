@@ -1,27 +1,41 @@
-/* 
- * File:   LImageCanvas.h
- * Author: multispec
- *
- * Created on June 22, 2011, 5:00 PM
- * Revised by Larry Biehl		04/02/2019
- */
-
+//	 									MultiSpec
+//
+//					Laboratory for Applications of Remote Sensing
+//									Purdue University
+//								West Lafayette, IN 47907
+//								 Copyright (2009-2019)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	File:						LImageCanvas.h
+//	Implementation:		LImageCanvas.cpp
+//
+//	Authors:					Larry L. Biehl, Abdur Rahman Maud
+//
+//	Language:				C++
+//
+//	System:					Linux and MacOS Operating Systems
+//
+//	Brief description:	Header file for the CMImageCanvas class
+//
+//	Written By:				Abdur Rahman Maud		Date: 06/22/2011
+//	Revised By:				Larry L. Biehl			Date: 04/02/2019
+//
+//------------------------------------------------------------------------------------
+//
 #ifndef LIMAGECANVAS_H
-#define	LIMAGECANVAS_H
+	#define	LIMAGECANVAS_H
+
 #include "SMultiSpec.h"
 #include "LImageView.h"
-//#include "LImageFrame.h"
 #include "wx/wx.h"
 
-
-//#define DocViewTestCanvasStyle wxNO_BORDER|wxHSCROLL|wxVSCROLL|wxTAB_TRAVERSAL
 #define LImageCanvasName wxT("ImageCanvas")
 
-//class CMImageView;
 
 class CMImageCanvas : public wxScrolledWindow
 	{
-	DECLARE_DYNAMIC_CLASS(CMImageCanvas)
+	DECLARE_DYNAMIC_CLASS (CMImageCanvas)
 
 	void Init ();
 	
@@ -70,7 +84,6 @@ class CMImageCanvas : public wxScrolledWindow
 		wxSize GetCurrentSize();
 		wxPoint GetScrollPosition();
 
-		//void Scroll(wxPoint pt);
 		void CanvasScroll (int x, int y);
 
 		void FixViewOffset();
@@ -103,6 +116,5 @@ class CMImageCanvas : public wxScrolledWindow
 		DECLARE_EVENT_TABLE ()
 		
 	};
-
-#endif	/* LIMAGECANVAS_H */
+#endif	// LIMAGECANVAS_H
 
