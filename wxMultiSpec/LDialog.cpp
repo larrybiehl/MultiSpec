@@ -1,11 +1,9 @@
-
-
 //	 									MultiSpec
 //
 //					Laboratory for Applications of Remote Sensing
 // 								Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (2009-2018)
+//								 Copyright (2009-2019)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -18,7 +16,7 @@
 //
 //	Language:				C++
 //
-//	System:					Linux Operating System
+//	System:					Linux and MacOS Operating Systems
 //
 //	Brief description:	This file contains functions that relate to the 
 //								CMDialog class.
@@ -1999,8 +1997,7 @@ SInt16 CMDialog::VerifyLineColumnValues (
 {
 	SInt32								maxValue;
 
-   SInt16								code,
-											returnCode = 0;
+   SInt16								returnCode = 0;
 
 
 			// Verify that none of the entries are blank.

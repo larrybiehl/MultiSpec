@@ -16,7 +16,7 @@
 //
 //	Language:				C++
 //
-//	System:					Linux Operating System
+//	System:					Linux and MacOS Operating Systems
 //
 //	Brief description:	This file contains functions that relate to the 
 //								CMImageFrame class.
@@ -28,7 +28,7 @@
 	ListString ((char*)gTextString3, numberChars, gOutputTextH);
 */
 //------------------------------------------------------------------------------------
-
+//
 #include "LMultiSpec.h"
 #include "LImageFrame.h"
 #include "LImageDoc.h"

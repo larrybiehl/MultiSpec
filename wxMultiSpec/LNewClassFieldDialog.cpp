@@ -16,36 +16,41 @@
 //
 //	Language:				C++
 //
-//	System:					Linux Operating System
+//	System:					Linux and MacOS Operating Systems
 //
 //	Brief description:	This file contains functions that relate to the
 //								CMNewClassFieldDlg class.
 //
 //------------------------------------------------------------------------------------
-
+//
 #include "SMultiSpec.h"
 
-#include	"LNewClassFieldDialog.h"   
-
-
-extern void 		NewClassFieldDialogChangeClass (
-							DialogPtr							dialogPtr, 
-							SInt16								newCurrentClass,
-							SInt16								fieldType,
-							SInt64								numberSelectionPixels);
-
-extern void 		NewClassFieldDialogInitialize (
-							DialogPtr							dialogPtr, 
-							Boolean								newClassOnlyFlag,
-							UInt16*								selectedItemPtr,
-							UCharPtr								fieldNamePtr,
-							SInt16								fieldType,
-							SInt64*								numberSelectionPixelsPtr);
+#include	"LNewClassFieldDialog.h"
 
 
 
-CMNewClassFieldDlg::CMNewClassFieldDlg(wxWindow* parent, wxWindowID id, const wxString& title)
-	: CMDialog(CMNewClassFieldDlg::IDD, parent, title)
+BEGIN_EVENT_TABLE(CMNewClassFieldDlg, CMDialog)
+	EVT_CHAR_HOOK (CMNewClassFieldDlg::OnCharHook)
+
+	EVT_COMBOBOX (IDC_ClassList, CMNewClassFieldDlg::OnSelendokClassList)
+
+	EVT_INIT_DIALOG (CMNewClassFieldDlg::OnInitDialog)
+
+	EVT_RADIOBUTTON (IDC_TestField, CMNewClassFieldDlg::OnFieldType)
+	EVT_RADIOBUTTON (IDC_Training, CMNewClassFieldDlg::OnFieldType)
+
+	EVT_TEXT_MAXLEN (IDC_ClassName, CMNewClassFieldDlg::CheckLength)
+	EVT_TEXT_MAXLEN (IDC_FieldName, CMNewClassFieldDlg::CheckLength)
+END_EVENT_TABLE ()
+
+
+
+CMNewClassFieldDlg::CMNewClassFieldDlg (
+				wxWindow* 							parent,
+				wxWindowID 							id,
+				const wxString& 					title)
+	: CMDialog (CMNewClassFieldDlg::IDD, parent, title)
+
 {
 	m_classList = 0;
 	m_className = wxT("Class 1");
@@ -60,38 +65,24 @@ CMNewClassFieldDlg::CMNewClassFieldDlg(wxWindow* parent, wxWindowID id, const wx
 		m_classNameCStringPtr = m_classNamebuf;
 		m_fieldNameCStringPtr = m_fieldNamebuf;			
 		}
-	catch(int e){
+	catch(int e)
+		{
 		m_initializedFlag = FALSE;			
-	}	
+		}
 	
 	m_initializedFlag = TRUE;
    CreateControls();
    SetSizerAndFit(bSizer285);
    
-}
+}	// end "CMNewClassFieldDlg"
 
 
 
-BEGIN_EVENT_TABLE(CMNewClassFieldDlg, CMDialog)
-EVT_INIT_DIALOG(CMNewClassFieldDlg::OnInitDialog)
-EVT_COMBOBOX(IDC_ClassList, CMNewClassFieldDlg::OnSelendokClassList)
-EVT_RADIOBUTTON(IDC_TestField, CMNewClassFieldDlg::OnFieldType)
-EVT_RADIOBUTTON(IDC_Training, CMNewClassFieldDlg::OnFieldType)
-//EVT_TEXT(IDC_ClassName, CMNewClassFieldDlg::OnEditClassName)
-//EVT_TEXT(IDC_FieldName, CMNewClassFieldDlg::OnEditFieldName)
-EVT_TEXT_MAXLEN(IDC_ClassName, CMNewClassFieldDlg::CheckLength)
-EVT_TEXT_MAXLEN(IDC_FieldName, CMNewClassFieldDlg::CheckLength)
-EVT_CHAR_HOOK(CMNewClassFieldDlg::OnCharHook)
-END_EVENT_TABLE()
-
-
-
-void CMNewClassFieldDlg::CreateControls ()
+void CMNewClassFieldDlg::CreateControls (void)
 
 {
-   this->SetSizeHints (wxDefaultSize, wxDefaultSize);
+   SetSizeHints (wxDefaultSize, wxDefaultSize);
 	
-//	wxBoxSizer* bSizer285;
 	bSizer285 = new wxBoxSizer (wxVERTICAL);
 	
 	wxBoxSizer* bSizer286;
@@ -168,30 +159,15 @@ void CMNewClassFieldDlg::CreateControls ()
 	bSizer292->Add( m_radioBtn28, 0, wxALL, 5 );
 	
 	bSizer289->Add( bSizer292, 0, wxEXPAND, 5 );
-	/*
-	wxBoxSizer* bSizer293 = new wxBoxSizer (wxHORIZONTAL);
-	
-	m_button84 = new wxButton (this, wxID_CANCEL, wxT("Cancel"), wxDefaultPosition, wxDefaultSize, 0);
-	//bSizer293->Add (m_button84, 0, wxALIGN_BOTTOM|wxALL, 5);
-	bSizer293->Add (m_button84, wxSizerFlags(0).Border(wxALL, 5));
-	
-	m_button85 = new wxButton (this, wxID_OK, wxT("OK"), wxDefaultPosition, wxDefaultSize, 0);
-	//bSizer293->Add (m_button85, 0, wxALIGN_BOTTOM|wxALL, 5);
-	bSizer293->Add (m_button85, wxSizerFlags(0).Border(wxALL, 5));
-	
-	//bSizer289->Add (bSizer293, 0, wxALIGN_BOTTOM|wxEXPAND, 5 );
-   bSizer289->Add (bSizer293, wxSizerFlags(0).Align(wxALIGN_BOTTOM));
-	*/
+
 	bSizer285->Add (bSizer289, 0, wxLEFT|wxTOP|wxRIGHT, 12);
 	
-	//wxSizer* standardButtonSizer = CreateButtonSizer (wxOK | wxCANCEL);
-	//bSizer285->Add (standardButtonSizer, wxSizerFlags(0).Right());
 	CreateStandardButtons (bSizer285);
 	
-	this->SetSizer (bSizer285);
-	this->Layout ();
+	SetSizer (bSizer285);
+	Layout ();
 	
-	this->Centre (wxBOTH);
+	Centre (wxBOTH);
 	
 }	// end "CreateControls"
 
@@ -217,7 +193,7 @@ void CMNewClassFieldDlg::OnCharHook (wxKeyEvent& event)
 
 
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-1998)
+//								 Copyright (2009-2019)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //

@@ -1,6 +1,27 @@
-// LOpenFileDialog
+//	 									MultiSpec
 //
-// Modified by Larry Biehl on 03/01/2019
+//					Laboratory for Applications of Remote Sensing
+// 								Purdue University
+//								West Lafayette, IN 47907
+//								 Copyright (2009-2019)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	File:						LOpenFileDialog.cpp : class implementation file
+//	Class Definition:		LOpenFileDialog.h
+//
+//	Authors:					Abdur Rahman Maud, Larry L. Biehl
+//
+//	Revision date:			03/01/2019
+//
+//	Language:				C++
+//
+//	System:					Linux and MacOS Operating Systems
+//
+//	Brief description:	This file contains functions that relate to the
+//								CMOpenFileDialog and MyExtraPanel classes.
+//
+//------------------------------------------------------------------------------------
 //
 #include "LMultiSpec.h"
 #include "LOpenFileDialog.h"

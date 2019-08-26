@@ -16,7 +16,7 @@
 //
 //	Language:				C++
 //
-//	System:					Linux Operating System
+//	System:					Linux and MacOS Operating Systems
 //
 //	Brief description:	The routines in this file control the frame class for 
 //								graph windows.
@@ -31,7 +31,6 @@
 
 #include "SMultiSpec.h"
 
-//#include "SGraphView.h"
 #include "LGraphDoc.h"
 #include "LGraphView.h"
 #include "LGraphFrame.h"
@@ -92,11 +91,13 @@ wxPen			CMGraphView::s_ltGrayPen;
 wxPen			CMGraphView::s_redPen;
 wxPen			CMGraphView::s_whitePen;
 
-// === Static Member Variable ===
 
-//Handle			CMGraphView::s_selectionIOInfoHandle = NULL;	
-//UInt16			CMGraphView::s_graphicsWindowCount = 0;
-//UInt16			CMGraphView::s_numberOfGWindows = 0;
+
+BEGIN_EVENT_TABLE (CMGraphView, wxView)
+	EVT_CLOSE (CMGraphView::OnDestroy)
+END_EVENT_TABLE ()
+
+
 
 CMGraphView::CMGraphView ()
 
@@ -195,15 +196,6 @@ CMGraphView::~CMGraphView ()
    RemoveWindowFromList ((WindowPtr)this, 0);
 			
 }	// end "~CMGraphView"
-
-
-BEGIN_EVENT_TABLE (CMGraphView, wxView)
-	//EVT_INIT_DIALOG (CMGraphView::OnInitialUpdate)
-	//EVT_TOOL (IDC_PreviousChannel, CMGraphView::OnPreviousChannel)
-	//EVT_TOOL (IDC_NextChannel, CMGraphView::OnNextChannel)
-EVT_CLOSE (CMGraphView::OnDestroy)
-
-END_EVENT_TABLE ()
 
 
 void CMGraphView::DoFilePrint ()
@@ -1207,7 +1199,7 @@ ShapeInfoPtr CMGraphView::GetShapeInfoFromHandle (Handle ShapeInfoHandle, Handle
    int                           numberOverlays;
          
    windowInfoPtr = (WindowInfoPtr)GetHandleStatusAndPointer (
-												ActiveImageWindowHandle, &windowHandleStatus, kNoMoveHi);
+									ActiveImageWindowHandle, &windowHandleStatus, kNoMoveHi);
    
    if (windowInfoPtr == NULL)
       return NULL;
@@ -1218,14 +1210,15 @@ ShapeInfoPtr CMGraphView::GetShapeInfoFromHandle (Handle ShapeInfoHandle, Handle
    shapeHandlePtr = (Handle*)GetHandlePointer (ShapeInfoHandle);
    
    if (shapeHandlePtr == NULL)
-		return NULL;
+																								return NULL;
    
    shapeFileIndex = abs (windowInfoPtr->overlayList[0].index) - 1;
      
    // Verify that the shape file index makes sense.			
    if (shapeFileIndex < 0 || shapeFileIndex >= (SInt16) gShapeHandleListLength)
       return NULL;
-   
+	
+   shapeInfoPtr = NULL;
    if (shapeHandlePtr != NULL) 
 		{
       shapeInfoHandle = shapeHandlePtr[shapeFileIndex];

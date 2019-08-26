@@ -16,13 +16,13 @@
 //
 //	Language:				C++
 //
-//	System:					Linux Operating System
+//	System:					Linux and MacOS Operating Systems
 //
 //	Brief description:	This file contains functions that relate to the 
 //								CShortStatusDlg class.
 //
 //------------------------------------------------------------------------------------
-
+//
 #include "SMultiSpec.h"
 #include "LStatusDialog.h"
 
@@ -475,15 +475,7 @@ void CShortStatusDlg::CreateControl ()
 										wxDefaultSize,
 										0);
 	bSizer35->Add (m_button6, wxSizerFlags(0).Right().Border(wxRIGHT|wxBOTTOM, 12));
-	/*
-	wxSizer* standardButtonSizer = CreateButtonSizer (wxCANCEL);
-	#if defined multispec_wxmac
-		bSizer35->Add (standardButtonSizer, wxSizerFlags(0).Right());
-	#else
-		bSizer35->Add (standardButtonSizer,
-							wxSizerFlags(0).Right().Border(wxTOP|wxBOTTOM, 12));
-	#endif
-	*/
+
 	Layout ();
 	Centre (wxBOTH);
 	
@@ -579,22 +571,18 @@ void CShortStatusDlg::OnInitDialog (
 				wxInitDialogEvent& 							event)
 
 {
-    wxDialog::OnInitDialog(event);
+	wxDialog::OnInitDialog (event);
 
-    PositionDialogWindow();
+	PositionDialogWindow ();
 
-    if (m_identifier == kShortStatusInfoID)
-        SetSizerAndFit (bSizer93);
-	
-    else if (m_identifier == kUpdateStatsInfoID)
-        SetSizerAndFit (bSizer35);
-	
-    else // kGraphicStatusDialogID
-        SetSizerAndFit(bSizer195);
+	if (m_identifier == kShortStatusInfoID)
+		SetSizerAndFit (bSizer93);
 
-//    this->Layout();
-//    this->Fit();
-    //return TRUE; // return TRUE  unless you set the focus to a control
+	else if (m_identifier == kUpdateStatsInfoID)
+		SetSizerAndFit (bSizer35);
+
+	else // kGraphicStatusDialogID
+		SetSizerAndFit (bSizer195);
 	
 }	// end "OnInitDialog"
 
@@ -604,23 +592,13 @@ void CShortStatusDlg::OnKeyDown (
 				wxKeyEvent& 									event)
 
 {
-	Boolean		escapeFlag = FALSE;
-	/*
-	int numberChars = sprintf ((char*)&gTextString3,
-										" LStatusDialog:OnKeyDown (in routine): %s",
-										gEndOfLine);
-	ListString ((char*)&gTextString3, numberChars, gOutputTextH);
-	*/
+	Boolean											escapeFlag = FALSE;
+
+
 	if (event.GetKeyCode () == WXK_ESCAPE)
 		{
-		/*
-		int numberChars2 = sprintf ((char*)&gTextString3,
-										" LStatusDialog:OnKeyDown (Escape Key): %s",
-										gEndOfLine);
-		ListString ((char*)&gTextString3, numberChars2, gOutputTextH);
-		*/
 		escapeFlag = TRUE;
 		
-		}
+		}	// end "if (event.GetKeyCode () == WXK_ESCAPE)"
 	
 }	// end "OnKeyDown"

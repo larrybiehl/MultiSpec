@@ -1,9 +1,29 @@
-// LOverlayParametersDialog.cpp : implementation file
+//	 									MultiSpec
 //
-//	Revised by Larry Biehl on 01/28/2019
-//  
-
-#include	"SMultiSpec.h" 
+//					Laboratory for Applications of Remote Sensing
+// 								Purdue University
+//								West Lafayette, IN 47907
+//								 Copyright (2009-2019)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	File:						LOverlayParametersDialog.cpp : class implementation file
+//	Class Definition:		LOverlayParametersDialog.h
+//
+//	Authors:					Abdur Rahman Maud, Larry L. Biehl
+//
+//	Revision date:			01/28/2019
+//
+//	Language:				C++
+//
+//	System:					Linux and MacOS Operating Systems
+//
+//	Brief description:	This file contains functions that relate to the
+//								CMOverlayParameterDlg class.
+//
+//------------------------------------------------------------------------------------
+//
+#include "SMultiSpec.h"
 
 #include "LOverlayParametersDialog.h"
 #include "wx/valgen.h"
@@ -11,14 +31,17 @@
 
 
 
-BEGIN_EVENT_TABLE(CMOverlayParameterDlg, CMDialog)
-	EVT_INIT_DIALOG(CMOverlayParameterDlg::OnInitDialog)
-	EVT_BUTTON(IDC_LineColorPrompt, CMOverlayParameterDlg::OnOverlayColor)
-END_EVENT_TABLE()
+BEGIN_EVENT_TABLE (CMOverlayParameterDlg, CMDialog)
+	EVT_BUTTON (IDC_LineColorPrompt, CMOverlayParameterDlg::OnOverlayColor)
+	EVT_INIT_DIALOG (CMOverlayParameterDlg::OnInitDialog)
+END_EVENT_TABLE ()
 
 
 
-CMOverlayParameterDlg::CMOverlayParameterDlg (wxWindow* pParent, wxWindowID id, const wxString& title)
+CMOverlayParameterDlg::CMOverlayParameterDlg (
+				wxWindow* 							pParent,
+				wxWindowID 							id,
+				const wxString& 					title)
 		: CMDialog(CMOverlayParameterDlg::IDD, pParent, title)
 
 {
@@ -100,8 +123,8 @@ void CMOverlayParameterDlg::CreateControls ()
 
 
 
-//-----------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//------------------------------------------------------------------------------------
+//								 Copyright (2009-2019)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //

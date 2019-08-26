@@ -16,10 +16,10 @@
 //
 //	Language:				C++
 //
-//	System:					Linux Operating System
+//	System:					Linux and MacOS Operating Systems
 //
 //	Brief description:	The routines in this file control the frame class for 
-//								graph windows.
+//								CMGraphCanvas class (graph windows).
 //	
 /*	Template for debugging.
 	int numberChars = sprintf ((char*)&gTextString3,
@@ -28,7 +28,7 @@
 	ListString ((char*)&gTextString3, numberChars, gOutputTextH);	
 */				
 //------------------------------------------------------------------------------------
-
+//
 #include "SMultiSpec.h"
 
 #include "LGraphView.h" 
@@ -46,15 +46,21 @@
 IMPLEMENT_CLASS (CMGraphFrame, wxDocChildFrame)
 IMPLEMENT_CLASS (CMGraphCanvas, wxPanel)
 
-// catch paint events
+
+
 BEGIN_EVENT_TABLE (CMGraphCanvas, wxPanel)
 	EVT_PAINT (CMGraphCanvas::paintEvent) 
 END_EVENT_TABLE ()
 
-CMGraphCanvas::CMGraphCanvas (wxWindow* parent) : wxPanel (parent)
+
+
+CMGraphCanvas::CMGraphCanvas (
+				wxWindow* 							parent)
+		: wxPanel (parent)
 
 {
-}
+
+}	// end "CMGraphCanvas"
 
 /*
  * Called by the system of by wxWidgets when the panel needs
@@ -2053,63 +2059,3 @@ void CMGraphFrame::UpdateSplitterWindowLayout ()
 		
 }	// end "UpdateSplitterWindowLayout"
 
-
-/*
-void CMGraphFrame::UpdateWavelengthComboUnit ()
-
-{
-   SignedByte							handleStatus,
-											windowHandleStatus;
-	
-	
-   if (m_comboXlabel == NULL) 
-																										return;
-   
-   WindowInfoPtr	windowInfoPtr = (WindowInfoPtr)GetHandleStatusAndPointer (
-													gActiveImageWindowInfoH, &windowHandleStatus);
-   if (windowInfoPtr == NULL) 
-																										return;
-      
-   FileInfoPtr fileInfoPtr = (FileInfoPtr)GetHandleStatusAndPointer (
-													windowInfoPtr->fileInfoHandle, &handleStatus);
-													   
-	//if (gSelectionGraphViewCPtr == NULL)  
-	if (m_graphViewCPtr == NULL)
-																										return;
-   
-	GraphPtr graphRecordPtr = (GraphPtr)GetHandleStatusAndPointer (
-													//gSelectionGraphViewCPtr->m_graphRecordHandle, 
-													m_graphViewCPtr->m_graphRecordHandle,                                         
-													&handleStatus);
-	
-	int numberChars = sprintf ((char*)&gTextString3,
-											" LGraphFrame:UpdateWavelengthComboUnit (): %d, %s%s",
-											m_comboXlabel->GetCount (),
-											&fileInfoPtr->channelDescriptionUnitString[1],
-											gEndOfLine);
-	ListString ((char*)&gTextString3, numberChars, gOutputTextH);	
-
-
-   if (fileInfoPtr != NULL && 
-			graphRecordPtr != NULL && 
-					m_comboXlabel->GetCount () > 1)
-		{
-		if (fileInfoPtr->channelDescriptionUnitString[0] != 0)
-			{
-			wxString wavelenunit (fileInfoPtr->channelDescriptionUnitString, wxConvUTF8);
-			wxString wavelength = wxT("Wavelength (");
-			wavelength.append (wavelenunit);
-			wavelength.append (wxT(")")); 
-			//graphRecordPtr->graphViewCPtr->m_frame->m_comboXlabel->SetString (
-			m_comboXlabel->SetString (1, wavelength);
-			
-			}	// end "if (fileInfoPtr->channelDescriptionUnitString[0] != 0)"
-			
-		else
-			//graphRecordPtr->graphViewCPtr->m_frame->m_comboXlabel->SetString (
-			m_comboXlabel->SetString (1, wxT("Wavelength (um)"));
-		
-		}	// end " if (fileInfoPtr != NULL && ..."
-		  
-}	// end "UpdateWavelengthComboUnit"
-*/

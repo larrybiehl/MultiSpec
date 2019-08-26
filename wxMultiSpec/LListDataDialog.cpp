@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 // 								Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (2009-2018)
+//								 Copyright (2009-2019)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -17,7 +17,7 @@
 //
 //	Language:				C++
 //
-//	System:					Linux Operating System
+//	System:					Linux and MacOS Operating Systems
 //
 //	Brief description:	This file contains functions that relate to the 
 //								CMListDataDialog class.
@@ -29,7 +29,7 @@
 		ListString ((char*)&gTextString3, numberChars, gOutputTextH);
 */
 //------------------------------------------------------------------------------------
-
+//
 #include "SMultiSpec.h"
 
 #include "CImageWindow.h"
@@ -43,35 +43,40 @@
 
 extern ListDataSpecsPtr gListDataSpecsPtr;
 
-extern void ListDataDialogOK (
-				ListDataSpecsPtr listDataSpecsPtr,
-				Boolean classFlag,
-				SInt16 classSelection,
-				UInt32 localNumberClasses,
-				UInt16* localClassPtr,
-				Boolean areaFlag,
-				DialogSelectArea* dialogSelectAreaPtr,
-				SInt16 channelSelection,
-				UInt16 localNumberChannels,
-				UInt16* localChannelPtr,
-				Boolean includeLineColumnFlag,
-				Boolean includeLatLongFlag,
-				Boolean includeClassFieldFlag,
-				Boolean textWindowFlag,
-				Boolean diskFileFlag,
-				Boolean trainingFlag,
-				Boolean testFlag,
-				Boolean graphDataFlag,
-				UInt16 numberFDecimalDigits,
-				SInt16 listDataFormatCode);
 
-/////////////////////////////////////////////////////////////////////////////
-// CMListDataDialog dialog
+
+BEGIN_EVENT_TABLE (CMListDataDialog, CMDialog)
+	EVT_BUTTON (IDEntireImage, CMListDataDialog::ToEntireImage)
+	EVT_BUTTON (IDSelectedImage, CMListDataDialog::ToSelectedImage)
+
+	EVT_CHECKBOX (IDC_Area, CMListDataDialog::OnArea)
+	EVT_CHECKBOX (IDC_Classes, CMListDataDialog::OnClasses)
+	EVT_CHECKBOX (IDC_GraphData, CMListDataDialog::OnGraphData)
+
+	EVT_COMBOBOX (IDC_ChannelCombo, CMListDataDialog::OnSelendokChannelCombo)
+	EVT_COMBOBOX (IDC_ClassCombo, CMListDataDialog::OnSelendokClassCombo)
+	EVT_COMBOBOX (IDC_ListChannelsFormatCombo, CMListDataDialog::OnCbnSelendokListchannelsformatcombo)
+
+	EVT_COMBOBOX_DROPDOWN (IDC_ChannelCombo,CMListDataDialog::OnSelendokChannelComboDropDown)
+	EVT_COMBOBOX_DROPDOWN (IDC_ClassCombo,CMListDataDialog::OnSelendokClassComboDropDown)
+
+	EVT_INIT_DIALOG (CMListDataDialog::OnInitDialog)
+
+	EVT_TEXT (IDC_ColumnEnd, CMListDataDialog::CheckColumnEnd)
+	EVT_TEXT (IDC_ColumnStart, CMListDataDialog::CheckColumnStart)
+	EVT_TEXT (IDC_ColumnInterval, CMListDataDialog::CheckColumnInterval)
+	EVT_TEXT (IDC_LineEnd, CMListDataDialog::CheckLineEnd)
+	EVT_TEXT (IDC_LineStart, CMListDataDialog::CheckLineStart)
+	EVT_TEXT (IDC_LineInterval, CMListDataDialog::CheckLineInterval)
+	EVT_TEXT (IDC_NumberDecimalPlaces, CMListDataDialog::OnChangeDecimalPlaces)
+END_EVENT_TABLE()
+
+
 
 CMListDataDialog::CMListDataDialog (
-				wxWindow* pParent,
-				wxWindowID id,
-				const wxString& title /*=NULL*/)
+				wxWindow* 							pParent,
+				wxWindowID 							id,
+				const wxString& 					title /*=NULL*/)
 		: CMDialog (CMListDataDialog::IDD, pParent, title)
 
 {
@@ -89,7 +94,7 @@ CMListDataDialog::CMListDataDialog (
 	m_listDataFormatCode = -1;
 	m_numberDecimalPlaces = 2;
 
-	CreateControls();
+	CreateControls ();
 
 	m_initializedFlag = CMDialog::m_initializedFlag;
 
@@ -126,29 +131,6 @@ CMListDataDialog::~CMListDataDialog (void)
     m_localFeaturesPtr = CheckAndDisposePtr(m_localFeaturesPtr);
 
 }	// end "~CMListDataDialog"
-
-
-
-BEGIN_EVENT_TABLE (CMListDataDialog, CMDialog)
-	EVT_INIT_DIALOG (CMListDataDialog::OnInitDialog)
-	EVT_COMBOBOX (IDC_ChannelCombo, CMListDataDialog::OnSelendokChannelCombo)
-	EVT_COMBOBOX (IDC_ClassCombo, CMListDataDialog::OnSelendokClassCombo)
-	EVT_TEXT (IDC_ColumnEnd, CMListDataDialog::CheckColumnEnd)
-	EVT_TEXT (IDC_ColumnStart, CMListDataDialog::CheckColumnStart)
-	EVT_TEXT (IDC_LineEnd, CMListDataDialog::CheckLineEnd)
-	EVT_TEXT (IDC_LineStart, CMListDataDialog::CheckLineStart)
-	EVT_TEXT (IDC_LineInterval, CMListDataDialog::CheckLineInterval)
-	EVT_TEXT (IDC_ColumnInterval, CMListDataDialog::CheckColumnInterval)
-	EVT_TEXT (IDC_NumberDecimalPlaces, CMListDataDialog::OnChangeDecimalPlaces)
-	EVT_BUTTON (IDEntireImage, CMListDataDialog::ToEntireImage)
-	EVT_BUTTON (IDSelectedImage, CMListDataDialog::ToSelectedImage)
-	EVT_CHECKBOX (IDC_Classes, CMListDataDialog::OnClasses)
-	EVT_CHECKBOX (IDC_Area, CMListDataDialog::OnArea)
-	EVT_CHECKBOX (IDC_GraphData, CMListDataDialog::OnGraphData)
-	EVT_COMBOBOX (IDC_ListChannelsFormatCombo, CMListDataDialog::OnCbnSelendokListchannelsformatcombo)
-	EVT_COMBOBOX_DROPDOWN (IDC_ChannelCombo,CMListDataDialog::OnSelendokChannelComboDropDown)
-	EVT_COMBOBOX_DROPDOWN (IDC_ClassCombo,CMListDataDialog::OnSelendokClassComboDropDown)
-END_EVENT_TABLE()
 
 
 
@@ -190,16 +172,12 @@ void CMListDataDialog::CheckOKButton (void)
 
 
 
-void CMListDataDialog::CreateControls ()
+void CMListDataDialog::CreateControls (void)
 
 {
 	this->SetSizeHints (wxDefaultSize, wxDefaultSize);
 	
-	//bSizer155 = new wxBoxSizer (wxHORIZONTAL);
 	bSizer155 = new wxBoxSizer (wxVERTICAL);
-	
-	//wxBoxSizer* bSizer157;
-	//bSizer157 = new wxBoxSizer (wxVERTICAL);
 	
  	wxStaticBoxSizer* sbSizer26;
    m_staticBoxArea = new wxStaticBox (this, wxID_ANY, wxT("Area(s)"));
@@ -215,10 +193,8 @@ void CMListDataDialog::CreateControls ()
 												0);
    SetUpToolTip (m_checkBox50, IDS_ToolTip47);
 
-   //bSizer161->Add (m_checkBox50, 0, wxRESERVE_SPACE_EVEN_IF_HIDDEN|wxALL, 5);
    bSizer161->Add (m_checkBox50,
 							wxSizerFlags(0).ReserveSpaceEvenIfHidden().Border(wxALL, 5));
-	//bSizer161->Add (m_checkBox50, wxSizerFlags(0).Align(wxALIGN_CENTER_VERTICAL).Border(wxALL,5));
 	m_comboBox27 = new wxComboBox (sbSizer26->GetStaticBox(),
 												IDC_ClassCombo,
 												wxT("Combo!"),
@@ -230,7 +206,6 @@ void CMListDataDialog::CreateControls ()
 	m_comboBox27->Append (wxT("All"));
 	m_comboBox27->Append (wxT("Subset..."));
    SetUpToolTip (m_comboBox27, IDS_ToolTip48);
-	//bSizer161->Add (m_comboBox27, 0, wxRESERVE_SPACE_EVEN_IF_HIDDEN|wxALL, 5);
 	bSizer161->Add (m_comboBox27,
 							wxSizerFlags(0).ReserveSpaceEvenIfHidden().Border(wxALL, 5));
 
@@ -244,7 +219,6 @@ void CMListDataDialog::CreateControls ()
 												wxDefaultSize,
 												0);
    SetUpToolTip (m_checkBox51, IDS_ToolTip49);
-	//bSizer162->Add (m_checkBox51, 0, wxRESERVE_SPACE_EVEN_IF_HIDDEN|wxALL, 5);
 	bSizer162->Add (m_checkBox51,
 							wxSizerFlags(0).ReserveSpaceEvenIfHidden().Border(wxALL, 5));
 
@@ -255,7 +229,6 @@ void CMListDataDialog::CreateControls ()
 												wxDefaultSize,
 												0);
    SetUpToolTip (m_checkBox52, IDS_ToolTip50);
-	//bSizer162->Add (m_checkBox52, 0, wxRESERVE_SPACE_EVEN_IF_HIDDEN|wxALL, 5);
 	bSizer162->Add (m_checkBox52,
 							wxSizerFlags(0).ReserveSpaceEvenIfHidden().Border(wxALL, 5));
 
@@ -275,7 +248,6 @@ void CMListDataDialog::CreateControls ()
 												wxDefaultSize,
 												0);
    SetUpToolTip (m_checkBox54, IDS_ToolTip51);
-	//bSizer163->Add (m_checkBox54, 0, wxALL, 5);
 	bSizer163->Add (m_checkBox54, wxSizerFlags(0).Border(wxALL, 5));
 	
 	wxStaticBoxSizer* sbSizer29;
@@ -316,7 +288,6 @@ void CMListDataDialog::CreateControls ()
 	m_comboBox29->Append (wxT("Subset..."));
    SetUpToolTip (m_comboBox29, IDS_ToolTip52);
 	bSizer160->Add (m_comboBox29, wxSizerFlags(0).Border(wxLEFT|wxBOTTOM, 5));
-	//bSizer157->Add (bSizer160, 0, wxEXPAND, 5);
 	bSizer155->Add (bSizer160, wxSizerFlags(0).Expand().Border(wxLEFT|wxRIGHT, 12));
 	
 	wxFlexGridSizer* gSizer13;
@@ -350,10 +321,8 @@ void CMListDataDialog::CreateControls ()
 												wxCB_READONLY);
 	m_comboBox30->Append ("Rows");
 	m_comboBox30->Append ("Columns");
-	//bSizer164->Add (m_comboBox30, 0, wxALL, 5);
 	bSizer164->Add (m_comboBox30, wxSizerFlags(0).Border(wxALL, 5));
 	
-	//sbSizer27->Add (bSizer164, 0, wxEXPAND, 5);
 	sbSizer27->Add (bSizer164, wxSizerFlags(0).Expand());
 	
 	m_checkBox55 = new wxCheckBox (sbSizer27->GetStaticBox(),
@@ -362,7 +331,6 @@ void CMListDataDialog::CreateControls ()
 												wxDefaultPosition,
 												wxDefaultSize,
 												0);
-	//sbSizer27->Add (m_checkBox55, 0, wxALL, 5);
 	sbSizer27->Add (m_checkBox55, wxSizerFlags(0).Border(wxALL, 5));
 	
 	m_checkBox56 = new wxCheckBox (sbSizer27->GetStaticBox(),
@@ -371,7 +339,6 @@ void CMListDataDialog::CreateControls ()
 												wxDefaultPosition,
 												wxDefaultSize,
 												0);
-	//sbSizer27->Add (m_checkBox56, 0, wxRESERVE_SPACE_EVEN_IF_HIDDEN|wxALL, 5);
 	sbSizer27->Add (m_checkBox56,
 							wxSizerFlags(0).ReserveSpaceEvenIfHidden().Border(wxALL, 5));
 
@@ -381,7 +348,6 @@ void CMListDataDialog::CreateControls ()
 												wxDefaultPosition,
 												wxDefaultSize,
 												0);
-	//sbSizer27->Add (m_checkBox57, 0, wxRESERVE_SPACE_EVEN_IF_HIDDEN|wxALL, 5);
 	sbSizer27->Add (m_checkBox57,
 							wxSizerFlags(0).ReserveSpaceEvenIfHidden().Border(wxALL, 5));
 	
@@ -424,7 +390,6 @@ void CMListDataDialog::CreateControls ()
 	bSizer180->Add (m_numberdec,
 							wxSizerFlags(0).ReserveSpaceEvenIfHidden().Align(wxALIGN_CENTER_VERTICAL).Border(wxALL,5));
 	
-	//sbSizer27->Add (bSizer180, 0, wxALL, 5);
 	sbSizer27->Add (bSizer180, wxSizerFlags(0).Border(wxALL, 5));
 	
 	//gSizer13->Add (sbSizer27, 0, wxALL|wxEXPAND, 5);
@@ -456,43 +421,13 @@ void CMListDataDialog::CreateControls ()
 												wxDefaultSize,
 												0);
    SetUpToolTip (m_checkBox60, IDS_ToolTip58);
-	//sbSizer281->Add (m_checkBox60, 0, wxALL, 5);
 	sbSizer281->Add (m_checkBox60, wxSizerFlags(0).Border(wxALL, 5));
 	
-	//gSizer13->Add (sbSizer281, 0, wxALL|wxEXPAND, 5);
 	gSizer13->Add (sbSizer281,
 						wxSizerFlags(0).Expand().Border(wxLEFT|wxTOP|wxBOTTOM, 6));
 	
-	//bSizer157->Add (gSizer13, 0, wxALL|wxEXPAND, 5);
 	bSizer155->Add (gSizer13, wxSizerFlags(0).Expand().Border(wxLEFT|wxRIGHT, 12));
 	
-	//bSizer157->Add(sbSizer27, 0, wxALL|wxEXPAND, 5);
-	/*
-	wxBoxSizer* bSizer168;
-	bSizer168 = new wxBoxSizer (wxHORIZONTAL);
-	
-	m_button46 = new wxButton (this,
-										wxID_CANCEL,
-										wxT("Cancel"),
-										wxDefaultPosition,
-										wxDefaultSize,
-										0);
-	//bSizer168->Add(m_button46, 0, wxALL, 5);
-	bSizer168->Add (m_button46, wxSizerFlags(0).Border(wxRIGHT, 6));
-	
-	m_button47 = new wxButton (this,
-										wxID_OK,
-										wxT("OK"),
-										wxDefaultPosition,
-										wxDefaultSize,
-										0);
-	//bSizer168->Add (m_button47, 0, wxALL, 5);
-	bSizer168->Add (m_button47, wxSizerFlags(0));
-	
-	//bSizer157->Add (bSizer168, wxSizerFlags(0).Right());
-	bSizer155->Add (bSizer168,
-							wxSizerFlags(0).Right().Border(wxLEFT|wxBOTTOM|wxRIGHT, 12));
-	*/
 	CreateStandardButtons (bSizer155);
 	
 	this->SetSizer (bSizer155);
@@ -506,7 +441,7 @@ void CMListDataDialog::CreateControls ()
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (2009-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

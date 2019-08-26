@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 // 								Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (2009-2018)
+//								 Copyright (2009-2019)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -16,13 +16,13 @@
 //
 //	Language:				C++
 //
-//	System:					Linux Operating System
+//	System:					Linux and MacOS Operating Systems
 //
 //	Brief description:	This file contains functions that relate to the 
 //								CMCorrelationClassifyDialog class.
 //
 //------------------------------------------------------------------------------------
-
+//
 #include "SMultiSpec.h" 
                     
 #include "LMultiSpec.h"  

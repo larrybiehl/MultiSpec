@@ -1,77 +1,74 @@
-// LRecodeThematicImageDialog.cpp : implementation file
+//	 									MultiSpec
 //
-// Revised by Larry Biehl on 11/16/2018
+//					Laboratory for Applications of Remote Sensing
+// 								Purdue University
+//								West Lafayette, IN 47907
+//								 Copyright (2009-2019)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	File:						LRecodeThematicImageDialog.cpp : class implementation file
+//	Class Definition:		LRecodeThematicImageDialog.h
+//
+//	Authors:					Abdur Rahman Maud, Larry L. Biehl
+//
+//	Revision date:			11/16/2018
+//
+//	Language:				C++
+//
+//	System:					Linux and MacOS Operating Systems
+//
+//	Brief description:	This file contains functions that relate to the
+//								CMRecodeThematicDialog class.
 //
 /* Template for debugging
-		int numberChars = sprintf ((char*)&gTextString3,
-												" LRecTDlg::xxx (entered routine. %s", 
-												gEndOfLine);
-		ListString ((char*)&gTextString3, numberChars, gOutputTextH);	
+		int numberChars = sprintf (
+				(char*)&gTextString3,
+				" LRecodeThematicImageDialog::xxx (entered routine. %s",
+				gEndOfLine);
+		ListString ((char*)&gTextString3, numberChars, gOutputTextH);
 */
-#include	"SMultiSpec.h"           
-#include "LRecodeThematicImageDialog.h"    
-//#include "SExternalGlobals.h" 
-
-extern void 		RecodeThematicImageDialogInitialize (
-							DialogPtr							dialogPtr, 
-							RecodeThematicImagePtr			recodeThematicImagePtr,
-							Handle*								thresholdFileInfoHandlePtr,
-							SInt32*								recodedValuePtr,
-							SInt32*								thresholdValuePtr,
-							SInt16*								compareParameterCodePtr,
-							SInt16*								thresholdImageSelectionPtr);
-
-extern void 		RecodeThematicImageDialogOK ( 
-							RecodeThematicImagePtr			recodeThematicImagePtr,
-							Handle								thresholdFileInfoHandle,
-							SInt32								recodedValue,
-							SInt32								thresholdValue,
-							SInt16								compareParameterCode,
-							SInt16								thresholdImageSelection);
-							
-extern SInt16 		RecodeThematicImageDialogSelectThresholdItem (
-							Handle*								thresholdFileInfoHandlePtr,
-							DialogPtr							dialogPtr,
-							MenuHandle							popUpSelectThresholdImageMenu,
-							SInt16								itemHit,
-							SInt16								thresholdImageSelection,
-							SInt16								selectStringNumber,
-							SInt16								thresholdPopupItemNumber);
-
-/////////////////////////////////////////////////////////////////////////////
-// CMRecodeThematicDialog dialog
+//------------------------------------------------------------------------------------
+//
+#include	"SMultiSpec.h"
+#include "LRecodeThematicImageDialog.h"
 
 
 
+BEGIN_EVENT_TABLE (CMRecodeThematicDialog, CMDialog)
+	EVT_COMBOBOX (IDC_ThresholdFileCombo, CMRecodeThematicDialog::OnSelendokThresholdFileCombo)
+	EVT_INIT_DIALOG (CMRecodeThematicDialog::OnInitDialog)
+END_EVENT_TABLE ()
 
-CMRecodeThematicDialog::CMRecodeThematicDialog(wxWindow* pParent,
-   wxWindowID id, const wxString& title/*=NULL*/)
+
+
+CMRecodeThematicDialog::CMRecodeThematicDialog (
+				wxWindow* 							pParent,
+   			wxWindowID 							id,
+   			const wxString& 					title/*=NULL*/)
 	: CMDialog(CMRecodeThematicDialog::IDD, pParent, title)
+
 {
-	//{{AFX_DATA_INIT(CMRecodeThematicDialog)
 	m_recodedValue = 0;
 	m_thresholdValue = 0;
 	m_compareParameterCode = -1;
 	m_thresholdImageSelection = -1;
-	//}}AFX_DATA_INIT
 	
 	m_initializedFlag = CMDialog::m_initializedFlag;
    
-   CreateControls();
+   CreateControls ();
 	
-}		// end "CMRecodeThematicDialog"
+}	// end "CMRecodeThematicDialog"
 
-CMRecodeThematicDialog::~CMRecodeThematicDialog(void)
+
+
+CMRecodeThematicDialog::~CMRecodeThematicDialog (void)
 {  
 }
 
-BEGIN_EVENT_TABLE(CMRecodeThematicDialog, CMDialog)
-EVT_INIT_DIALOG(CMRecodeThematicDialog::OnInitDialog)
-EVT_COMBOBOX(IDC_ThresholdFileCombo, CMRecodeThematicDialog::OnSelendokThresholdFileCombo)
-END_EVENT_TABLE()
 
 
-void CMRecodeThematicDialog::CreateControls()
+void CMRecodeThematicDialog::CreateControls ()
 {
    this->SetSizeHints( wxDefaultSize, wxDefaultSize );
 	
@@ -134,35 +131,13 @@ void CMRecodeThematicDialog::CreateControls()
 	bSizer292->Add( bSizer377, 0, wxEXPAND|wxLEFT, 12 );
 	
 			// Add Cancel and OK buttons
-	/*		
-	m_sdbSizer6 = new wxStdDialogButtonSizer();
-	m_sdbSizer6OK = new wxButton( this, wxID_OK );
-	m_sdbSizer6->AddButton( m_sdbSizer6OK );
-	m_sdbSizer6Cancel = new wxButton( this, wxID_CANCEL );
-	m_sdbSizer6->AddButton( m_sdbSizer6Cancel );
-	m_sdbSizer6->Realize();	
-	
-	bSizer292->Add (m_sdbSizer6, 0, wxEXPAND | wxLEFT|wxTOP|wxBOTTOM, 12);
-	*/
-	/*
-	wxBoxSizer* bSizer378;
-	bSizer378 = new wxBoxSizer( wxHORIZONTAL );
-	
-	m_button88 = new wxButton( this, wxID_CANCEL, wxT("Cancel"), wxDefaultPosition, wxDefaultSize, 0);
-	bSizer378->Add (m_button88, wxSizerFlags(0).Border(wxRIGHT,6));
-	
-	m_button89 = new wxButton( this, wxID_OK, wxT("OK"), wxDefaultPosition, wxDefaultSize, 0);
-	bSizer378->Add (m_button89, wxSizerFlags(0));
-	
-	bSizer292->Add (bSizer378, 0, wxALIGN_RIGHT | wxTOP|wxLEFT|wxBOTTOM|wxRIGHT, 12);
-	*/
+
 	CreateStandardButtons (bSizer292);
 	
-	//this->SetSizer( bSizer292 );
    SetSizerAndFit (bSizer292);
 	this->Layout ();
 	
-	this->Centre( wxBOTH );
+	this->Centre (wxBOTH);
 	
 }	// end "CreateControls"
 

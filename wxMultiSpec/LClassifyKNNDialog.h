@@ -15,12 +15,12 @@
 //
 //	Language:            C++
 //
-//	System:              Linux Operating System
+//	System:              Linux and MacOS Operating Systems
 //
 //	Brief description:   Header file for the CMKNNClassifyDialog class
 //
 //	Written By:         	Tsung Tai Yeh         Date: 04/??/2019
-// Revised By:          Larry L. Biehl        Date: 01/24/2018
+// Revised By:          Larry L. Biehl        Date: 08/09/2019
 //
 //------------------------------------------------------------------------------------
 
@@ -41,6 +41,7 @@ public:
 				SInt16*								nearestNeighborKValuePtr);
    
    SInt16			m_nearestNeighborKValue;
+	wxString 		m_kValueString;
    
 		// Implementation
 protected:

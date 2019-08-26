@@ -1,7 +1,28 @@
-// LTextView.cpp
+//	 									MultiSpec
 //
-// Revised by Larry Biehl on 01/24/2019
-// Revised by Wei-Kang Hsu on 07/25/2016
+//					Laboratory for Applications of Remote Sensing
+// 								Purdue University
+//								West Lafayette, IN 47907
+//								 Copyright (2009-2019)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	File:						LTextView.cpp : class implementation file
+//	Class Definition:		LTextView.h
+//
+//	Authors:					Abdur Rahman Maud, Larry L. Biehl
+//
+//	Revision date:			07/25/2016 by Wei-Kang Hsu
+//								01/24/2019 by Larry L. Biehl
+//
+//	Language:				C++
+//
+//	System:					Linux and MacOS Operating Systems
+//
+//	Brief description:	This file contains functions that relate to the
+//								CMTextDoc class.
+//
+//------------------------------------------------------------------------------------
 //
 #include "LMultiSpec.h"
 #include "LTextFrame.h"
@@ -13,9 +34,11 @@ IMPLEMENT_DYNAMIC_CLASS(CMTextView, wxView)
 
 int s_textWindowXPosition, s_textWindowYPosition, s_clientWidth, s_clientHeight;
 
+
+
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2010)
-//								c Purdue Research Foundation
+//								 Copyright (2009-2019)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		SInt16 GetWindowType
@@ -203,7 +226,6 @@ bool CMTextView::DoEnumerateFamilies(wxFont textwf, bool fixedWidthOnly,
 												wxFontEncoding encoding)
 {
 	MyFontEnumerator	fontEnumerator;
-	int					numberChars;
    
 	fontEnumerator.EnumerateFacenames(encoding, fixedWidthOnly);
    

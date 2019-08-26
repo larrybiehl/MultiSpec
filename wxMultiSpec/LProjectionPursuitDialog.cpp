@@ -1,67 +1,63 @@
-// LProjectionPursuitDialog.cpp : implementation file
+//	 									MultiSpec
 //
-// Revised by Larry Biehl on 11/16/2018
+//					Laboratory for Applications of Remote Sensing
+// 								Purdue University
+//								West Lafayette, IN 47907
+//								 Copyright (2009-2019)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
 //
-#include	"SMultiSpec.h" 
-#include "LProjectionPursuitDialog.h" 
-//#include "SExternalGlobals.h"
+//	File:						LProjectionPursuitDialog.cpp : class implementation file
+//	Class Definition:		LProjectionPursuitDialog.h
+//
+//	Authors:					Abdur Rahman Maud, Larry L. Biehl
+//
+//	Revision date:			11/16/2018
+//
+//	Language:				C++
+//
+//	System:					Linux and MacOS Operating Systems
+//
+//	Brief description:	This file contains functions that relate to the
+//								CMProjectionPursuitDialog class.
+//
+//------------------------------------------------------------------------------------
+//
+#include	"SMultiSpec.h"
+#include "LProjectionPursuitDialog.h"
 
-extern void 		ProjectionPursuitDialogInitialize (
-							DialogPtr							dialogPtr,
-							ProjectionPursuitSpecsPtr 		projectionPursuitSpecsPtr,
-							Boolean*								numericalOptimizationFlagPtr,
-							SInt16*								algorithmCodePtr,
-							SInt16*								initialGroupingCodePtr,
-							SInt16*								initialNumberFeaturesPtr,
-							SInt16*								finalNumberFeaturesPtr,
-							SInt16*								firstStageMethodPtr,
-							double*								optimizeThresholdPtr,
-							double*								topDownThresholdPtr,
-							double*								bottomUpThresholdPtr,
-							SInt32*								numberFeaturesPtr,
-							SInt32*								bothOddChoicesNumberFeaturesPtr);
-	
-extern void 		ProjectionPursuitDialogOK (
-							ProjectionPursuitSpecsPtr 		projectionPursuitSpecsPtr,
-							Boolean								numericalOptimizationFlag,
-							SInt16								algorithmCode,
-							SInt16								initialGroupingCode,
-							SInt16								initialNumberFeatures,
-							SInt16								firstStageMethod,
-							double								optimizeThreshold,
-							double								topDownThreshold,
-							double								bottomUpThreshold,
-							SInt32								maximumNumberFeatures,
-							SInt32								bothOddChoicesNumberFeatures);
 
-extern void 		ProjectionPursuitDialogAlgorithm (
-							DialogPtr							dialogPtr, 
-							SInt16								algorithmCode,
-							Boolean								numericalOptimizationFlag);
-			
-extern void 		ProjectionPursuitDialogFSMethod (
-							DialogPtr							dialogPtr, 
-							SInt16								firstStageMethod);
-							
-extern void 		ProjectionPursuitDialogFSOptions (
-							DialogPtr							dialogPtr,
-							SInt16								algorithmCode, 
-							SInt16								firstStageMethod);
-							
-extern void			ProjectionPursuitDialogInitialGrouping (
-							DialogPtr							dialogPtr, 
-							SInt16								initialGroupingCode);
-							
-extern void 		ProjectionPursuitDialogOptimizeFlag (
-							DialogPtr							dialogPtr,
-							Boolean								numericalOptimizationFlag);
 
-// CMProjectionPursuitDialog dialog
+BEGIN_EVENT_TABLE (CMProjectionPursuitDialog, CMDialog)
+	EVT_CHECKBOX (IDC_NumericalOptimization, CMProjectionPursuitDialog::OnBnClickedNumericaloptimization)
 
-CMProjectionPursuitDialog::CMProjectionPursuitDialog(wxWindow* pParent, wxWindowID id, const wxString& title)
-	: CMDialog(CMProjectionPursuitDialog::IDD, pParent, title)
+   EVT_INIT_DIALOG (CMProjectionPursuitDialog::OnInitDialog)
+
+	EVT_RADIOBUTTON (IDC_FS_Algorithm, CMProjectionPursuitDialog::OnBnClickedAlgorithm)
+	EVT_RADIOBUTTON (IDC_PP_Algorithm, CMProjectionPursuitDialog::OnBnClickedAlgorithm)
+	EVT_RADIOBUTTON (IDC_LastFinalGrouping, CMProjectionPursuitDialog::OnBnClickedInitialBandGrouping)
+	EVT_RADIOBUTTON (IDC_TopDownBottomUpMethod, CMProjectionPursuitDialog::OnBnClickedBandGroupingMethod)
+	EVT_RADIOBUTTON (IDC_TopDownMethod, CMProjectionPursuitDialog::OnBnClickedBandGroupingMethod)
+	EVT_RADIOBUTTON (IDC_Uniform, CMProjectionPursuitDialog::OnBnClickedBandGroupingMethod)
+	EVT_RADIOBUTTON (IDC_UniformGrouping, CMProjectionPursuitDialog::OnBnClickedInitialBandGrouping)
+
+   EVT_TEXT (IDC_BothChoicesUpToValue, CMProjectionPursuitDialog::OnCheckValues)
+   EVT_TEXT (IDC_BottomUpThreshold, CMProjectionPursuitDialog::OnCheckValues)
+   EVT_TEXT (IDC_EditNumberFeatures, CMProjectionPursuitDialog::OnCheckValues)
+   EVT_TEXT (IDC_MaxNumberOutputFeatures, CMProjectionPursuitDialog::OnCheckValues)
+   EVT_TEXT (IDC_OptimizationThreshold, CMProjectionPursuitDialog::OnCheckValues)
+   EVT_TEXT (IDC_TopDownThreshold, CMProjectionPursuitDialog::OnCheckValues)
+END_EVENT_TABLE ()
+
+
+
+CMProjectionPursuitDialog::CMProjectionPursuitDialog (
+				wxWindow* 							pParent,
+				wxWindowID 							id,
+				const wxString& 					title)
+	: CMDialog (CMProjectionPursuitDialog::IDD, pParent, title)
+
 {
-	//{{AFX_DATA_INIT(CMProjectionPursuitDialog)
 	m_algorithmCode = 0;
 	m_numericalOptimizationFlag = FALSE;
 	m_optimizeThreshold =  0;
@@ -72,413 +68,26 @@ CMProjectionPursuitDialog::CMProjectionPursuitDialog(wxWindow* pParent, wxWindow
 	m_bothOddChoicesNumberFeatures = 0;
 	m_maximumNumberFeatures = 0;
 	m_initialNumberFeatures = 0;
-	//}}AFX_DATA_INIT
 	
 	m_initializedFlag = TRUE;
-   CreateControls();
-   //this->SetSizerAndFit(bSizer267);
-   
-}
-
-CMProjectionPursuitDialog::~CMProjectionPursuitDialog()
-{
-}
-
-
-BEGIN_EVENT_TABLE(CMProjectionPursuitDialog, CMDialog)
-   EVT_INIT_DIALOG(CMProjectionPursuitDialog::OnInitDialog)
-	EVT_RADIOBUTTON(IDC_PP_Algorithm, CMProjectionPursuitDialog::OnBnClickedAlgorithm)
-	EVT_RADIOBUTTON(IDC_FS_Algorithm, CMProjectionPursuitDialog::OnBnClickedAlgorithm)
-	EVT_CHECKBOX(IDC_NumericalOptimization, CMProjectionPursuitDialog::OnBnClickedNumericaloptimization)
-	EVT_RADIOBUTTON(IDC_UniformGrouping, CMProjectionPursuitDialog::OnBnClickedInitialBandGrouping)
-	EVT_RADIOBUTTON(IDC_LastFinalGrouping, CMProjectionPursuitDialog::OnBnClickedInitialBandGrouping)
-	EVT_RADIOBUTTON(IDC_Uniform, CMProjectionPursuitDialog::OnBnClickedBandGroupingMethod)
-	EVT_RADIOBUTTON(IDC_TopDownMethod, CMProjectionPursuitDialog::OnBnClickedBandGroupingMethod)
-	EVT_RADIOBUTTON(IDC_TopDownBottomUpMethod, CMProjectionPursuitDialog::OnBnClickedBandGroupingMethod)
-   EVT_TEXT(IDC_OptimizationThreshold, CMProjectionPursuitDialog::OnCheckValues)
-   EVT_TEXT(IDC_TopDownThreshold, CMProjectionPursuitDialog::OnCheckValues)
-   EVT_TEXT(IDC_BottomUpThreshold, CMProjectionPursuitDialog::OnCheckValues)
-   EVT_TEXT(IDC_BothChoicesUpToValue, CMProjectionPursuitDialog::OnCheckValues)
-   EVT_TEXT(IDC_MaxNumberOutputFeatures, CMProjectionPursuitDialog::OnCheckValues)
-   EVT_TEXT(IDC_EditNumberFeatures, CMProjectionPursuitDialog::OnCheckValues)
-
-END_EVENT_TABLE()
-
-//void CMProjectionPursuitDialog::DoDataExchange(CDataExchange* pDX)
-//{
-//	CDialog::DoDataExchange(pDX);
-	//{{AFX_DATA_MAP(CMProjectionPursuitDialog)
-//	DDX_Radio(pDX, IDC_PP_Algorithm, m_algorithmCode);
-//	DDX_Check(pDX, IDC_NumericalOptimization, m_numericalOptimizationFlag);
-//	DDX_Text(pDX, IDC_OptimizationThreshold, m_optimizeThreshold);
-//	DDV_MinMaxDouble(pDX, m_optimizeThreshold, 0, 100);
-//	DDX_Radio(pDX, IDC_UniformGrouping, m_initialGroupingCode);
-//	DDX_Radio(pDX, IDC_Uniform, m_firstStageMethod);
-//	DDX_Text(pDX, IDC_TopDownThreshold, m_topDownThreshold);
-//	DDV_MinMaxDouble(pDX, m_topDownThreshold, 0, 100);
-//	DDX_Text(pDX, IDC_BottomUpThreshold, m_bottomUpThreshold);
-//	DDV_MinMaxDouble(pDX, m_bottomUpThreshold, 0, 100);
-//	DDX_Text(pDX, IDC_BothChoicesUpToValue, m_bothOddChoicesNumberFeatures);
-//	DDV_MinMaxLong(pDX, m_bothOddChoicesNumberFeatures, 0, gProjectInfoPtr->numberStatisticsChannels);
-//	DDX_Text(pDX, IDC_MaxNumberOutputFeatures, m_maximumNumberFeatures);
-//	DDV_MinMaxLong(pDX, m_maximumNumberFeatures, 1, gProjectInfoPtr->numberStatisticsChannels);
-//	DDX_Text(pDX, IDC_EditNumberFeatures, m_initialNumberFeatures);
-//	DDV_MinMaxLong(pDX, m_initialNumberFeatures, 1, gProjectInfoPtr->numberStatisticsChannels);
-	//}}AFX_DATA_MAP
-
-//}		// end "DoDataExchange"
-
-bool CMProjectionPursuitDialog::TransferDataFromWindow() {
-   wxRadioButton*  projpursuit = (wxRadioButton*)FindWindow(IDC_PP_Algorithm);
-//   wxRadioButton*  featuresel = (wxRadioButton*)FindWindow(IDC_FS_Algorithm);
-   wxRadioButton*  uniformgroup = (wxRadioButton*)FindWindow(IDC_UniformGrouping);
-   wxRadioButton*  lastfinalgroup = (wxRadioButton*)FindWindow(IDC_LastFinalGrouping);
-   wxRadioButton*  uniform = (wxRadioButton*)FindWindow(IDC_Uniform);
-   wxRadioButton*  topdown = (wxRadioButton*)FindWindow(IDC_TopDownMethod);
-//   wxRadioButton*  topdownbottomup = (wxRadioButton*)FindWindow(IDC_TopDownBottomUpMethod);
-   
-   wxCheckBox*  numopt= (wxCheckBox*)FindWindow(IDC_NumericalOptimization);
-   wxTextCtrl* optimizeThres = (wxTextCtrl*)FindWindow(IDC_OptimizationThreshold);
-   wxTextCtrl* topdownThres = (wxTextCtrl*)FindWindow(IDC_TopDownThreshold);
-   wxTextCtrl* bottomupThres = (wxTextCtrl*)FindWindow(IDC_BottomUpThreshold);
-   wxTextCtrl* bothchoice = (wxTextCtrl*)FindWindow(IDC_BothChoicesUpToValue);
-   wxTextCtrl* editNumFeature = (wxTextCtrl*)FindWindow(IDC_EditNumberFeatures);
-   wxTextCtrl* maxOutputFeature = (wxTextCtrl*)FindWindow(IDC_MaxNumberOutputFeatures);   
-   
-   // for radio button selection values
-   if(projpursuit->GetValue() == true)
-      m_algorithmCode = 0;
-   else
-      m_algorithmCode = 1;
-   
-   if(uniformgroup->GetValue() == true)
-      m_initialGroupingCode = 0;
-   else
-      m_initialGroupingCode = 1;
-      
-   if(uniform->GetValue() == true)
-      m_firstStageMethod = 0;
-   else if(topdown->GetValue() == true)
-      m_firstStageMethod = 1;
-   else
-      m_firstStageMethod = 2;
-   
-   m_numericalOptimizationFlag = numopt->GetValue();
-   
-   // for textCtrl values
-   wxString optimizeThresDouble = optimizeThres->GetValue();
-   optimizeThresDouble.ToDouble(&m_optimizeThreshold);   
-   wxString topdownThresDouble = topdownThres->GetValue();
-   topdownThresDouble.ToDouble(&m_topDownThreshold);   
-   wxString bottomupThresDouble = bottomupThres->GetValue();
-   bottomupThresDouble.ToDouble(&m_bottomUpThreshold); 
-   wxString bothchoiceString = bothchoice->GetValue();   
-   m_bothOddChoicesNumberFeatures = wxAtoi(bothchoiceString);   
-   wxString editNumFeatureString = editNumFeature->GetValue();
-   m_initialNumberFeatures = wxAtoi(editNumFeatureString);   
-   wxString maxOutputFeatureString = maxOutputFeature->GetValue();
-   m_maximumNumberFeatures = wxAtoi(maxOutputFeatureString);  
-    
-      
-   return true;
-}
-
-
-bool CMProjectionPursuitDialog::TransferDataToWindow() {
-   wxRadioButton*  projpursuit = (wxRadioButton*)FindWindow(IDC_PP_Algorithm);
-   wxRadioButton*  featuresel = (wxRadioButton*)FindWindow(IDC_FS_Algorithm);
-   wxRadioButton*  uniformgroup = (wxRadioButton*)FindWindow(IDC_UniformGrouping);
-   wxRadioButton*  lastfinalgroup = (wxRadioButton*)FindWindow(IDC_LastFinalGrouping);
-   wxRadioButton*  uniform = (wxRadioButton*)FindWindow(IDC_Uniform);
-   wxRadioButton*  topdown = (wxRadioButton*)FindWindow(IDC_TopDownMethod);
-   wxRadioButton*  topdownbottomup = (wxRadioButton*)FindWindow(IDC_TopDownBottomUpMethod);
-   
-   wxCheckBox*  numopt= (wxCheckBox*)FindWindow(IDC_NumericalOptimization);
-   wxTextCtrl* optimizeThres = (wxTextCtrl*)FindWindow(IDC_OptimizationThreshold);
-   wxTextCtrl* topdownThres = (wxTextCtrl*)FindWindow(IDC_TopDownThreshold);
-   wxTextCtrl* bottomupThres = (wxTextCtrl*)FindWindow(IDC_BottomUpThreshold);
-   wxTextCtrl* bothchoice = (wxTextCtrl*)FindWindow(IDC_BothChoicesUpToValue);
-   wxTextCtrl* editNumFeature = (wxTextCtrl*)FindWindow(IDC_EditNumberFeatures);
-   wxTextCtrl* maxOutputFeature = (wxTextCtrl*)FindWindow(IDC_MaxNumberOutputFeatures);
-   wxStaticText* lastNumFeature = (wxStaticText*)FindWindow(IDC_SetFeatures);
-   
-   if (m_algorithmCode == 0){
-      projpursuit->SetValue(true);
-      featuresel->SetValue(false);
-   }else{
-      projpursuit->SetValue(false);
-      featuresel->SetValue(true);}
-      
-   if(m_initialGroupingCode == 0){
-      uniformgroup->SetValue(true);
-      lastfinalgroup->SetValue(false);
-   }else{
-      uniformgroup->SetValue(false);
-      lastfinalgroup->SetValue(true);
-   }
-   
-   if(m_firstStageMethod == 0){
-      uniform->SetValue(true);
-      topdown->SetValue(false);
-      topdownbottomup->SetValue(false);
-   }else if(m_firstStageMethod == 1){
-      uniform->SetValue(false);
-      topdown->SetValue(true);
-      topdownbottomup->SetValue(false); 
-   }
-   else{
-      uniform->SetValue(false);
-      topdown->SetValue(false);
-      topdownbottomup->SetValue(true);
-   }
-   
-   numopt->SetValue(m_numericalOptimizationFlag);
-   
-   optimizeThres->ChangeValue(wxString::Format(wxT("%.2f"), m_optimizeThreshold));
-   topdownThres->ChangeValue(wxString::Format(wxT("%.2f"), m_topDownThreshold));
-   bottomupThres->ChangeValue(wxString::Format(wxT("%.2f"), m_bottomUpThreshold));
-   bothchoice->ChangeValue(wxString::Format(wxT("%i"), m_bothOddChoicesNumberFeatures));
-   editNumFeature->ChangeValue(wxString::Format(wxT("%i"), m_initialNumberFeatures));
-   lastNumFeature->SetLabel(wxString::Format(wxT("%i"), m_initialNumberFeatures));
-   maxOutputFeature->ChangeValue(wxString::Format(wxT("%i"), m_maximumNumberFeatures));
-   
-   return true;
-}
-
-// CMProjectionPursuitDialog message handlers
-
-
-//------------------------------------------------------------------------------------
-//								 Copyright (1988-2007)
-//								c Purdue Research Foundation
-//									All rights reserved.
-//
-//	Function name:		void DoDialog
-//
-//	Software purpose:	The purpose of this routine is to present the reformat rectify
-//							image specification dialog box to the user and copy the
-//							revised information back to the reformat rectify specification 
-//							structure if the user selected OK.
-//
-//	Parameters in:		None
-//
-//	Parameters out:	None
-//
-//	Value Returned:	None		
-// 
-//	Called By:			
-//
-//	Coded By:			Larry L. Biehl			Date: 03/23/2007
-//	Revised By:			Larry L. Biehl			Date: 03/23/2007	
-
-Boolean 
-CMProjectionPursuitDialog::DoDialog(
-				ProjectionPursuitSpecsPtr	projectionPursuitSpecsPtr)
-
-{  
-	SInt16						returnCode;
-	Boolean						continueFlag = FALSE;  								
-
-	                          
-			// Make sure intialization has been completed.
-							                         
-	if (!m_initializedFlag)
-																			return(FALSE);
-																																								
-	m_projectionPursuitSpecsPtr = projectionPursuitSpecsPtr;
-
-	returnCode = ShowModal ();
+   CreateControls ();
 	
-	if (returnCode == wxID_OK)
-		{
-		continueFlag = TRUE; 
-			ProjectionPursuitDialogOK (m_projectionPursuitSpecsPtr,
-													m_numericalOptimizationFlag,
-													m_algorithmCode+1,
-													m_initialGroupingCode+1,
-													m_initialNumberFeatures,
-													m_firstStageMethod+1,
-													m_optimizeThreshold,
-													m_topDownThreshold,
-													m_bottomUpThreshold,
-													m_maximumNumberFeatures,
-													m_bothOddChoicesNumberFeatures);
+}	// end "CMProjectionPursuitDialog"
 
-		}		// end "if (returnCode == IDOK)"
-			
-	return (continueFlag);
-		
-}		// end "DoDialog" 
 
-void CMProjectionPursuitDialog::OnInitDialog(wxInitDialogEvent& event) 
+
+CMProjectionPursuitDialog::~CMProjectionPursuitDialog ()
+
 {
-	SInt16					algorithmCode,
-								firstStageMethod,
-								initialGroupingCode;
 
-	Boolean					numericalOptimizationFlag;
-
-
-//	CDialog::OnInitDialog();
-	
-	// TODO: Add extra initialization here
-							
-	ProjectionPursuitDialogInitialize (this,
-											 		m_projectionPursuitSpecsPtr,
-													&numericalOptimizationFlag,
-													&algorithmCode,
-													&initialGroupingCode,
-													&m_initialNumberFeatures,
-													&m_finalNumberFeatures,
-													&firstStageMethod,
-													&m_optimizeThreshold,
-													&m_topDownThreshold,
-													&m_bottomUpThreshold,
-													&m_maximumNumberFeatures,
-													&m_bothOddChoicesNumberFeatures);
-													
-	m_numericalOptimizationFlag = numericalOptimizationFlag;
-	m_algorithmCode = algorithmCode - 1;
-	m_initialGroupingCode = initialGroupingCode - 1;
-	m_firstStageMethod = firstStageMethod - 1;
-
-	if (TransferDataToWindow())
-		PositionDialogWindow (); 
-	
-			// Set default text selection to first edit text item	
-		                                                     
-	SelectDialogItemText (this, IDC_MaxNumberOutputFeatures, 0, SInt16_MAX);
-	
-//	return FALSE;  // return TRUE unless you set the focus to a control
-	              // EXCEPTION: OCX Property Pages should return FALSE
-
-
-}		// end "OnInitDialog"
+}	// end "~CMProjectionPursuitDialog"
 
 
 
-void CMProjectionPursuitDialog::OnBnClickedAlgorithm(wxCommandEvent& event)
+void CMProjectionPursuitDialog::CreateControls ()
+
 {
-//	DDX_Radio(m_dialogFromPtr, IDC_PP_Algorithm, m_algorithmCode);
-   wxRadioButton*  projpursuit = (wxRadioButton*)FindWindow(IDC_PP_Algorithm);
-   wxRadioButton*  featuresel = (wxRadioButton*)FindWindow(IDC_FS_Algorithm);
-   if(projpursuit->GetValue() == true){
-      m_algorithmCode = 0;
-      featuresel->SetValue(false);
-   }
-   if(featuresel->GetValue() == true){
-      projpursuit->SetValue(false);
-      m_algorithmCode = 1;
-   }
-   
-	ProjectionPursuitDialogAlgorithm (
-				this, m_algorithmCode+1, m_numericalOptimizationFlag);
-
-	ProjectionPursuitDialogFSOptions (
-				this, m_algorithmCode+1, m_firstStageMethod+1);
-
-}		// end "OnBnClickedAlgorithm"
-
-
-
-void CMProjectionPursuitDialog::OnBnClickedNumericaloptimization(wxCommandEvent& event)
-{
-//	DDX_Check(m_dialogFromPtr, IDC_NumericalOptimization, m_numericalOptimizationFlag);
-
-   wxCheckBox*  numopt= (wxCheckBox*)FindWindow(IDC_NumericalOptimization);
-   m_numericalOptimizationFlag = numopt->GetValue();
-   
-	ProjectionPursuitDialogOptimizeFlag (this, m_numericalOptimizationFlag);
-
-}		// end "OnBnClickedNumericaloptimization"
-
-
-
-void CMProjectionPursuitDialog::OnBnClickedInitialBandGrouping(wxCommandEvent& event)
-{
-//	DDX_Radio(m_dialogFromPtr, IDC_UniformGrouping, m_initialGroupingCode);
-   wxRadioButton*  uniformgroup = (wxRadioButton*)FindWindow(IDC_UniformGrouping);
-   wxRadioButton*  lastfinalgroup = (wxRadioButton*)FindWindow(IDC_LastFinalGrouping);
-   if(uniformgroup->GetValue() == true){
-      m_initialGroupingCode = 0;
-   }
-   if(lastfinalgroup->GetValue() == true){
-      m_initialGroupingCode = 1;
-   }
-   
-	ProjectionPursuitDialogInitialGrouping (this, m_initialGroupingCode+1);
-   bSizer271->Layout();
-}		// end "OnBnClickedInitialBandGrouping"
-
-
-void CMProjectionPursuitDialog::OnCheckValues(wxCommandEvent& event){
-   CheckValues(IDC_OptimizationThreshold, 0 , 100, 1);
-   CheckValues(IDC_TopDownThreshold, 0 , 100, 1);
-   CheckValues(IDC_BottomUpThreshold, 0 , 100, 1);
-   CheckValues(IDC_BothChoicesUpToValue, 0, gProjectInfoPtr->numberStatisticsChannels, 0);
-   CheckValues(IDC_MaxNumberOutputFeatures, 1, gProjectInfoPtr->numberStatisticsChannels, 0);
-   CheckValues(IDC_EditNumberFeatures, 1, gProjectInfoPtr->numberStatisticsChannels, 0);
-
-}
-
-void CMProjectionPursuitDialog::CheckValues(int controlID, SInt16 minValue, SInt16 maxValue, SInt16 flag){
-   // flag : 0 = int , flag : 1 = double
-   wxTextCtrl* textControlPtr = wxDynamicCast(FindWindow(controlID), wxTextCtrl);
-        
-   if (textControlPtr != NULL) {
-      wxString value = textControlPtr->GetValue();
-
-      if (value.Length() > 0) {
-         double outputValue;
-         value.ToDouble(&outputValue);
-         if(outputValue > maxValue || outputValue < minValue){
-            if(outputValue < minValue){  
-               outputValue = minValue;
-            } else{ 
-               outputValue = maxValue;
-            }
-            
-            if(flag == 0) // input is int               
-               textControlPtr->ChangeValue(wxString::Format(wxT("%.0f"), outputValue));
-            else
-               textControlPtr->ChangeValue(wxString::Format(wxT("%.2f"), outputValue));            
-          } // end "valueDouble > maxValue || valueDouble < minValue"
-
-      } // end "if (m_value.Length() > 0)"
-
-   } // end "if (textControlPtr != NULL)"
-
-}
-
-void CMProjectionPursuitDialog::OnBnClickedBandGroupingMethod(wxCommandEvent& event)
-{
-//	DDX_Radio(m_dialogFromPtr, IDC_Uniform, m_firstStageMethod);
-   wxRadioButton*  uniform = (wxRadioButton*)FindWindow(IDC_Uniform);
-   wxRadioButton*  topdown = (wxRadioButton*)FindWindow(IDC_TopDownMethod);
-   wxRadioButton*  topdownbottomup = (wxRadioButton*)FindWindow(IDC_TopDownBottomUpMethod);
-   
-   if(uniform->GetValue() == true){
-      m_firstStageMethod = 0;
-      topdown->SetValue(false);
-      topdownbottomup->SetValue(false);
-   }
-   if(topdown->GetValue() == true){
-      m_firstStageMethod = 1;
-      uniform->SetValue(false);
-      topdownbottomup->SetValue(false);
-   }
-   if(topdownbottomup->GetValue() == true){
-      m_firstStageMethod = 2;
-      topdown->SetValue(false);
-      uniform->SetValue(false);
-   }
-   
-	ProjectionPursuitDialogFSMethod (this, m_firstStageMethod+1);
-
-}		// end "OnBnClickedBandGroupingMethod"
-
-void CMProjectionPursuitDialog::CreateControls(){
-   this->SetSizeHints( wxDefaultSize, wxDefaultSize );
+   this->SetSizeHints (wxDefaultSize, wxDefaultSize);
 	
 	wxBoxSizer* bVSizerMain = new wxBoxSizer (wxVERTICAL);
 	
@@ -675,5 +284,352 @@ void CMProjectionPursuitDialog::CreateControls(){
 	this->Centre (wxBOTH);
 	
    this->SetSizerAndFit(bVSizerMain);
+	
+}
+
+
+//------------------------------------------------------------------------------------
+//								 Copyright (2009-2019)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		void DoDialog
+//
+//	Software purpose:	The purpose of this routine is to present the reformat rectify
+//							image specification dialog box to the user and copy the
+//							revised information back to the reformat rectify specification 
+//							structure if the user selected OK.
+//
+//	Parameters in:		None
+//
+//	Parameters out:	None
+//
+//	Value Returned:	None		
+// 
+//	Called By:			
+//
+//	Coded By:			Larry L. Biehl			Date: 03/23/2007
+//	Revised By:			Larry L. Biehl			Date: 03/23/2007	
+
+Boolean CMProjectionPursuitDialog::DoDialog(
+				ProjectionPursuitSpecsPtr	projectionPursuitSpecsPtr)
+
+{  
+	SInt16						returnCode;
+	Boolean						continueFlag = FALSE;  								
+
+	                          
+			// Make sure intialization has been completed.
+							                         
+	if (!m_initializedFlag)
+																			return(FALSE);
+																																								
+	m_projectionPursuitSpecsPtr = projectionPursuitSpecsPtr;
+
+	returnCode = ShowModal ();
+	
+	if (returnCode == wxID_OK)
+		{
+		continueFlag = TRUE; 
+			ProjectionPursuitDialogOK (m_projectionPursuitSpecsPtr,
+													m_numericalOptimizationFlag,
+													m_algorithmCode+1,
+													m_initialGroupingCode+1,
+													m_initialNumberFeatures,
+													m_firstStageMethod+1,
+													m_optimizeThreshold,
+													m_topDownThreshold,
+													m_bottomUpThreshold,
+													m_maximumNumberFeatures,
+													m_bothOddChoicesNumberFeatures);
+
+		}		// end "if (returnCode == IDOK)"
+			
+	return (continueFlag);
+		
+}		// end "DoDialog" 
+
+
+
+void CMProjectionPursuitDialog::OnInitDialog(wxInitDialogEvent& event)
+
+{
+	SInt16					algorithmCode,
+								firstStageMethod,
+								initialGroupingCode;
+
+	Boolean					numericalOptimizationFlag;
+
+	
+	ProjectionPursuitDialogInitialize (this,
+											 		m_projectionPursuitSpecsPtr,
+													&numericalOptimizationFlag,
+													&algorithmCode,
+													&initialGroupingCode,
+													&m_initialNumberFeatures,
+													&m_finalNumberFeatures,
+													&firstStageMethod,
+													&m_optimizeThreshold,
+													&m_topDownThreshold,
+													&m_bottomUpThreshold,
+													&m_maximumNumberFeatures,
+													&m_bothOddChoicesNumberFeatures);
+													
+	m_numericalOptimizationFlag = numericalOptimizationFlag;
+	m_algorithmCode = algorithmCode - 1;
+	m_initialGroupingCode = initialGroupingCode - 1;
+	m_firstStageMethod = firstStageMethod - 1;
+
+	if (TransferDataToWindow())
+		PositionDialogWindow (); 
+	
+			// Set default text selection to first edit text item	
+		                                                     
+	SelectDialogItemText (this, IDC_MaxNumberOutputFeatures, 0, SInt16_MAX);
+
+}	// end "OnInitDialog"
+
+
+
+void CMProjectionPursuitDialog::OnBnClickedAlgorithm(wxCommandEvent& event)
+{
+//	DDX_Radio(m_dialogFromPtr, IDC_PP_Algorithm, m_algorithmCode);
+   wxRadioButton*  projpursuit = (wxRadioButton*)FindWindow(IDC_PP_Algorithm);
+   wxRadioButton*  featuresel = (wxRadioButton*)FindWindow(IDC_FS_Algorithm);
+   if(projpursuit->GetValue() == true){
+      m_algorithmCode = 0;
+      featuresel->SetValue(false);
+   }
+   if(featuresel->GetValue() == true){
+      projpursuit->SetValue(false);
+      m_algorithmCode = 1;
+   }
    
+	ProjectionPursuitDialogAlgorithm (
+				this, m_algorithmCode+1, m_numericalOptimizationFlag);
+
+	ProjectionPursuitDialogFSOptions (
+				this, m_algorithmCode+1, m_firstStageMethod+1);
+
+}		// end "OnBnClickedAlgorithm"
+
+
+
+void CMProjectionPursuitDialog::OnBnClickedNumericaloptimization(wxCommandEvent& event)
+{
+//	DDX_Check(m_dialogFromPtr, IDC_NumericalOptimization, m_numericalOptimizationFlag);
+
+   wxCheckBox*  numopt= (wxCheckBox*)FindWindow(IDC_NumericalOptimization);
+   m_numericalOptimizationFlag = numopt->GetValue();
+   
+	ProjectionPursuitDialogOptimizeFlag (this, m_numericalOptimizationFlag);
+
+}		// end "OnBnClickedNumericaloptimization"
+
+
+
+void CMProjectionPursuitDialog::OnBnClickedInitialBandGrouping(wxCommandEvent& event)
+{
+//	DDX_Radio(m_dialogFromPtr, IDC_UniformGrouping, m_initialGroupingCode);
+   wxRadioButton*  uniformgroup = (wxRadioButton*)FindWindow(IDC_UniformGrouping);
+   wxRadioButton*  lastfinalgroup = (wxRadioButton*)FindWindow(IDC_LastFinalGrouping);
+   if(uniformgroup->GetValue() == true){
+      m_initialGroupingCode = 0;
+   }
+   if(lastfinalgroup->GetValue() == true){
+      m_initialGroupingCode = 1;
+   }
+   
+	ProjectionPursuitDialogInitialGrouping (this, m_initialGroupingCode+1);
+   bSizer271->Layout();
+}		// end "OnBnClickedInitialBandGrouping"
+
+
+void CMProjectionPursuitDialog::OnCheckValues(wxCommandEvent& event){
+   CheckValues(IDC_OptimizationThreshold, 0 , 100, 1);
+   CheckValues(IDC_TopDownThreshold, 0 , 100, 1);
+   CheckValues(IDC_BottomUpThreshold, 0 , 100, 1);
+   CheckValues(IDC_BothChoicesUpToValue, 0, gProjectInfoPtr->numberStatisticsChannels, 0);
+   CheckValues(IDC_MaxNumberOutputFeatures, 1, gProjectInfoPtr->numberStatisticsChannels, 0);
+   CheckValues(IDC_EditNumberFeatures, 1, gProjectInfoPtr->numberStatisticsChannels, 0);
+
+}
+
+void CMProjectionPursuitDialog::CheckValues(int controlID, SInt16 minValue, SInt16 maxValue, SInt16 flag){
+   // flag : 0 = int , flag : 1 = double
+   wxTextCtrl* textControlPtr = wxDynamicCast(FindWindow(controlID), wxTextCtrl);
+        
+   if (textControlPtr != NULL) {
+      wxString value = textControlPtr->GetValue();
+
+      if (value.Length() > 0) {
+         double outputValue;
+         value.ToDouble(&outputValue);
+         if(outputValue > maxValue || outputValue < minValue){
+            if(outputValue < minValue){  
+               outputValue = minValue;
+            } else{ 
+               outputValue = maxValue;
+            }
+            
+            if(flag == 0) // input is int               
+               textControlPtr->ChangeValue(wxString::Format(wxT("%.0f"), outputValue));
+            else
+               textControlPtr->ChangeValue(wxString::Format(wxT("%.2f"), outputValue));            
+          } // end "valueDouble > maxValue || valueDouble < minValue"
+
+      } // end "if (m_value.Length() > 0)"
+
+   } // end "if (textControlPtr != NULL)"
+
+}
+
+void CMProjectionPursuitDialog::OnBnClickedBandGroupingMethod(wxCommandEvent& event)
+{
+//	DDX_Radio(m_dialogFromPtr, IDC_Uniform, m_firstStageMethod);
+   wxRadioButton*  uniform = (wxRadioButton*)FindWindow(IDC_Uniform);
+   wxRadioButton*  topdown = (wxRadioButton*)FindWindow(IDC_TopDownMethod);
+   wxRadioButton*  topdownbottomup = (wxRadioButton*)FindWindow(IDC_TopDownBottomUpMethod);
+   
+   if(uniform->GetValue() == true){
+      m_firstStageMethod = 0;
+      topdown->SetValue(false);
+      topdownbottomup->SetValue(false);
+   }
+   if(topdown->GetValue() == true){
+      m_firstStageMethod = 1;
+      uniform->SetValue(false);
+      topdownbottomup->SetValue(false);
+   }
+   if(topdownbottomup->GetValue() == true){
+      m_firstStageMethod = 2;
+      topdown->SetValue(false);
+      uniform->SetValue(false);
+   }
+   
+	ProjectionPursuitDialogFSMethod (this, m_firstStageMethod+1);
+
+}		// end "OnBnClickedBandGroupingMethod"
+
+
+
+bool CMProjectionPursuitDialog::TransferDataFromWindow ()
+
+{
+   wxRadioButton*  projpursuit = (wxRadioButton*)FindWindow(IDC_PP_Algorithm);
+//   wxRadioButton*  featuresel = (wxRadioButton*)FindWindow(IDC_FS_Algorithm);
+   wxRadioButton*  uniformgroup = (wxRadioButton*)FindWindow(IDC_UniformGrouping);
+   wxRadioButton*  lastfinalgroup = (wxRadioButton*)FindWindow(IDC_LastFinalGrouping);
+   wxRadioButton*  uniform = (wxRadioButton*)FindWindow(IDC_Uniform);
+   wxRadioButton*  topdown = (wxRadioButton*)FindWindow(IDC_TopDownMethod);
+//   wxRadioButton*  topdownbottomup = (wxRadioButton*)FindWindow(IDC_TopDownBottomUpMethod);
+	
+   wxCheckBox*  numopt= (wxCheckBox*)FindWindow(IDC_NumericalOptimization);
+   wxTextCtrl* optimizeThres = (wxTextCtrl*)FindWindow(IDC_OptimizationThreshold);
+   wxTextCtrl* topdownThres = (wxTextCtrl*)FindWindow(IDC_TopDownThreshold);
+   wxTextCtrl* bottomupThres = (wxTextCtrl*)FindWindow(IDC_BottomUpThreshold);
+   wxTextCtrl* bothchoice = (wxTextCtrl*)FindWindow(IDC_BothChoicesUpToValue);
+   wxTextCtrl* editNumFeature = (wxTextCtrl*)FindWindow(IDC_EditNumberFeatures);
+   wxTextCtrl* maxOutputFeature = (wxTextCtrl*)FindWindow(IDC_MaxNumberOutputFeatures);
+	
+   // for radio button selection values
+   if(projpursuit->GetValue() == true)
+      m_algorithmCode = 0;
+   else
+      m_algorithmCode = 1;
+	
+   if(uniformgroup->GetValue() == true)
+      m_initialGroupingCode = 0;
+   else
+      m_initialGroupingCode = 1;
+	
+   if(uniform->GetValue() == true)
+      m_firstStageMethod = 0;
+   else if(topdown->GetValue() == true)
+      m_firstStageMethod = 1;
+   else
+      m_firstStageMethod = 2;
+	
+   m_numericalOptimizationFlag = numopt->GetValue();
+	
+   // for textCtrl values
+   wxString optimizeThresDouble = optimizeThres->GetValue();
+   optimizeThresDouble.ToDouble(&m_optimizeThreshold);
+   wxString topdownThresDouble = topdownThres->GetValue();
+   topdownThresDouble.ToDouble(&m_topDownThreshold);
+   wxString bottomupThresDouble = bottomupThres->GetValue();
+   bottomupThresDouble.ToDouble(&m_bottomUpThreshold);
+   wxString bothchoiceString = bothchoice->GetValue();
+   m_bothOddChoicesNumberFeatures = wxAtoi(bothchoiceString);
+   wxString editNumFeatureString = editNumFeature->GetValue();
+   m_initialNumberFeatures = wxAtoi(editNumFeatureString);
+   wxString maxOutputFeatureString = maxOutputFeature->GetValue();
+   m_maximumNumberFeatures = wxAtoi(maxOutputFeatureString);
+	
+   return true;
+	
+}
+
+
+bool CMProjectionPursuitDialog::TransferDataToWindow()
+
+{
+   wxRadioButton*  projpursuit = (wxRadioButton*)FindWindow(IDC_PP_Algorithm);
+   wxRadioButton*  featuresel = (wxRadioButton*)FindWindow(IDC_FS_Algorithm);
+   wxRadioButton*  uniformgroup = (wxRadioButton*)FindWindow(IDC_UniformGrouping);
+   wxRadioButton*  lastfinalgroup = (wxRadioButton*)FindWindow(IDC_LastFinalGrouping);
+   wxRadioButton*  uniform = (wxRadioButton*)FindWindow(IDC_Uniform);
+   wxRadioButton*  topdown = (wxRadioButton*)FindWindow(IDC_TopDownMethod);
+   wxRadioButton*  topdownbottomup = (wxRadioButton*)FindWindow(IDC_TopDownBottomUpMethod);
+	
+   wxCheckBox*  numopt= (wxCheckBox*)FindWindow(IDC_NumericalOptimization);
+   wxTextCtrl* optimizeThres = (wxTextCtrl*)FindWindow(IDC_OptimizationThreshold);
+   wxTextCtrl* topdownThres = (wxTextCtrl*)FindWindow(IDC_TopDownThreshold);
+   wxTextCtrl* bottomupThres = (wxTextCtrl*)FindWindow(IDC_BottomUpThreshold);
+   wxTextCtrl* bothchoice = (wxTextCtrl*)FindWindow(IDC_BothChoicesUpToValue);
+   wxTextCtrl* editNumFeature = (wxTextCtrl*)FindWindow(IDC_EditNumberFeatures);
+   wxTextCtrl* maxOutputFeature = (wxTextCtrl*)FindWindow(IDC_MaxNumberOutputFeatures);
+   wxStaticText* lastNumFeature = (wxStaticText*)FindWindow(IDC_SetFeatures);
+	
+   if (m_algorithmCode == 0){
+      projpursuit->SetValue(true);
+      featuresel->SetValue(false);
+   }else{
+      projpursuit->SetValue(false);
+      featuresel->SetValue(true);}
+	
+   if(m_initialGroupingCode == 0){
+      uniformgroup->SetValue(true);
+      lastfinalgroup->SetValue(false);
+   }else{
+      uniformgroup->SetValue(false);
+      lastfinalgroup->SetValue(true);
+   }
+	
+   if(m_firstStageMethod == 0){
+      uniform->SetValue(true);
+      topdown->SetValue(false);
+      topdownbottomup->SetValue(false);
+   }else if(m_firstStageMethod == 1){
+      uniform->SetValue(false);
+      topdown->SetValue(true);
+      topdownbottomup->SetValue(false);
+   }
+   else{
+      uniform->SetValue(false);
+      topdown->SetValue(false);
+      topdownbottomup->SetValue(true);
+   }
+	
+   numopt->SetValue(m_numericalOptimizationFlag);
+	
+   optimizeThres->ChangeValue(wxString::Format(wxT("%.2f"), m_optimizeThreshold));
+   topdownThres->ChangeValue(wxString::Format(wxT("%.2f"), m_topDownThreshold));
+   bottomupThres->ChangeValue(wxString::Format(wxT("%.2f"), m_bottomUpThreshold));
+   bothchoice->ChangeValue(wxString::Format(wxT("%i"), m_bothOddChoicesNumberFeatures));
+   editNumFeature->ChangeValue(wxString::Format(wxT("%i"), m_initialNumberFeatures));
+   lastNumFeature->SetLabel(wxString::Format(wxT("%i"), m_initialNumberFeatures));
+   maxOutputFeature->ChangeValue(wxString::Format(wxT("%i"), m_maximumNumberFeatures));
+	
+   return true;
 }

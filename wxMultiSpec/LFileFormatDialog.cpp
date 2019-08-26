@@ -1,14 +1,35 @@
-// LFileFormatDialog.cpp : implementation file
+//	 									MultiSpec
 //
-//	Revised by Larry Biehl on 03/12/2019
-/*		
-	int numberChars = sprintf ((char*)&gTextString3,
-												" LFormDlg:OnPaint (m_hdfDataSetSelection): %ld%s", 
-												m_hdfDataSetSelection,
-												gEndOfLine);
-	ListString ((char*)&gTextString3, numberChars, gOutputTextH);	
-*/	
-
+//					Laboratory for Applications of Remote Sensing
+// 								Purdue University
+//								West Lafayette, IN 47907
+//								 Copyright (2009-2019)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	File:						LFileFormatDialog.cpp : class implementation file
+//	Class Definition:		LFileFormatDialog.h
+//
+//	Authors:					Larry L. Biehl
+//
+//	Revision date:			03/12/2019
+//
+//	Language:				C++
+//
+//	System:					Linux & MacOS Operating Systems
+//
+//	Brief description:	This file contains functions related to the
+//								CMFieldsToThematicDialog class.
+//
+// Following is template for debugging
+/*
+	int numberChars = sprintf ((char*)gTextString3,
+									 " LFileFormatDialog:: (): %s",
+									 gEndOfLine);
+	ListString ((char*)gTextString3, numberChars, gOutputTextH);
+*/
+//------------------------------------------------------------------------------------
+//
 #include "SMultiSpec.h"
 #include "CImageWindow.h"
 #include "LFileFormatDialog.h"
@@ -17,167 +38,93 @@
 #include "wx/valgen.h"
 #include "wx/window.h"
 
-extern void FileSpecificationDialogInitialize (
-        DialogPtr dialogPtr,
-        Handle fileInfoHandle,
-        Handle windowInfoHandle,
-        FileInfoPtr* fileInfoPtrPtr,
-        WindowInfoPtr* windowInfoPtrPtr,
-        UInt32* numberLinesPtr,
-        UInt32* numberColumnsPtr,
-        UInt32* numberChannelsPtr,
-        SInt32* startLinePtr,
-        SInt32* startColumnPtr,
-        UInt32* numberHeaderBytesPtr,
-        UInt32* numberTrailerBytesPtr,
-        UInt32* numberPreLineBytesPtr,
-        UInt32* numberPostLineBytesPtr,
-        UInt32* numberPreChannelBytesPtr,
-        UInt32* numberPostChannelBytesPtr,
-        UInt32* blockHeightPtr,
-        UInt32* blockWidthPtr,
-        SInt16* bandInterleaveSelectionPtr,
-        SInt16* dataValueTypeSelectionPtr,
-        SInt16* eightBitsPerDataSelectionPtr,
-        Boolean* swapBytesFlagPtr,
-        Boolean* signedDataFlagPtr,
-        Boolean* linesBottomToTopFlagPtr,
-        Boolean* fillDataValueExistsFlagPtr,
-        double* fillDataValuePtr,
-        SInt16* hdfDataSetPtr,
-        SInt16* collapseClassesSelecctionPtr,
-        Boolean* callGetHDFLineFlagPtr);
 
-extern Boolean FileSpecificationDialogOK(
-        DialogPtr dialogPtr,
-        FileInfoPtr fileInfoPtr,
-        Handle fileInfoHandle,
-        Handle* newMapInformationHandlePtr,
-        Handle* newHfaHandlePtr,
-        Handle* newChannelToHdfDataSetHandlePtr,
-        WindowInfoPtr windowInfoPtr,
-        Handle windowInfoHandle,
-        UInt32 numberLines,
-        UInt32 numberColumns,
-        UInt32 numberChannels,
-        SInt32 startLine,
-        SInt32 startColumn,
-        UInt32 numberHeaderBytes,
-        UInt32 numberTrailerBytes,
-        UInt32 numberPreLineBytes,
-        UInt32 numberPostLineBytes,
-        UInt32 numberPreChannelBytes,
-        UInt32 numberPostChannelBytes,
-        UInt32 blockHeight,
-        UInt32 blockWidth,
-        Boolean forceGroupTableUpdateFlag,
-        SInt16 bandInterleaveSelection,
-        SInt16 dataValueTypeSelection,
-        Boolean swapBytesFlag,
-        Boolean signedDataFlag,
-        Boolean computeNumberClassesFlag,
-        Boolean linesBottomToTopFlag,
-        Boolean fillDataValueExistsFlag,
-        double fillDataValue,
-        SInt16 hdfDataSetSelection,
-        UInt32 hdfDataSetIndex,
-        SInt16 collapseClassesSelecction,
-        UInt16 dataCompressionCode,
-        SInt16 gdalDataTypeCode,
-        Boolean callGetHDFLineFlag);
 
-extern void FileSpecificationDialogSetInterleaveItems(
-        DialogPtr dialogPtr,
-        SInt16 bandInterleaveSelection,
-        Boolean blockedFlag);
+BEGIN_EVENT_TABLE (CMFileFormatSpecsDlg, CMDialog)
+	EVT_BUTTON(IDC_HDFDataSetHelp, CMFileFormatSpecsDlg::OnBnClickedHdfdatasethelp)
+	EVT_BUTTON(IDC_LinesBottomToTop, CMFileFormatSpecsDlg::OnBnClickedLinebottomtotop)
 
-extern SInt16 FileSpecificationDialogSetHDFValues(
-        DialogPtr dialogPtr,
-        FileInfoPtr fileInfoPtr,
-        SInt16 hdfDataSetSelection,
-        Handle okHandle,
-        Boolean shiftKeyDownFlag,
-        Handle* mapInformationHandlePtr,
-        Handle* hfaHandlePtr,
-        Handle* newChannelToHdfDataSetHandlePtr,
-        SInt16* bandInterleaveSelectionPtr,
-        SInt16* dataValueTypeSelectionPtr,
-        UInt16* dataCompressionCodePtr,
-        SInt16* gdalDataTypeCodePtr,
-        Boolean* callGetHDFLineFlagPtr);
+	EVT_CHECKBOX(IDC_FillDataValueExists, CMFileFormatSpecsDlg::OnBnClickedFillDataValueExists)
 
-extern SInt16 FileSpecificationDialogGetNumberBytes(
-        SInt16 dataTypeSelection);
+	EVT_COMBOBOX(IDC_BandInterleavePopUp, CMFileFormatSpecsDlg::OnSelendokBandInterleave)
+	EVT_COMBOBOX(IDC_DataValueTypePopUp, CMFileFormatSpecsDlg::OnSelendokDataValueType)
+	EVT_COMBOBOX(IDC_HDFDataSet, CMFileFormatSpecsDlg::OnSelendokHDFDataSet)
 
-// === Static Member Variable ===                      
+	EVT_INIT_DIALOG(CMFileFormatSpecsDlg::OnInitDialog)
 
-// CMImageWindow*		CMFileFormatSpecsDlg::sImageWindowCPtr = NULL;							
-// FileInfoPtr			CMFileFormatSpecsDlg::sFileInfoPtr = NULL;
-// WindowInfoPtr		CMFileFormatSpecsDlg::sWindowInfoPtr = NULL;
+	EVT_SHOW(CMFileFormatSpecsDlg::OnShow)
+END_EVENT_TABLE()
 
-/////////////////////////////////////////////////////////////////////////////
-// CMFileFormatSpecsDlg dialog
 
-//CMFileFormatSpecsDlg::CMFileFormatSpecsDlg(){    
-//}
 
-CMFileFormatSpecsDlg::~CMFileFormatSpecsDlg() {
-	free(m_menuclientdata);
-}
+CMFileFormatSpecsDlg::CMFileFormatSpecsDlg (
+				wxWindow* 							pParent,
+				wxWindowID 							id,
+				const wxString& 					title /*=NULL*/)
+		: CMDialog (CMFileFormatSpecsDlg::IDD, pParent, title)
 
-CMFileFormatSpecsDlg::CMFileFormatSpecsDlg(wxWindow* pParent, wxWindowID id, const wxString& title /*=NULL*/)
-: CMDialog(CMFileFormatSpecsDlg::IDD, pParent, title) {
-    //{{AFX_DATA_INIT(CMFileFormatSpecsDlg)
-    m_numberLines = 512;
-    m_numberColumns = 614;
-    m_postChannelBytes = 0;
-    m_headerBytes = 128;
-    m_postLineBytes = 0;
-    m_preChannelBytes = 0;
-    m_preLineBytes = 0;
-    m_numberChannels = 0;
-    m_startColumnNumber = 1;
-    m_startLineNumber = 1;
-    m_swapBytesFlag = FALSE;
-    m_linesBottomToTopFlag = FALSE;
-    m_trailerBytes = 0;
-    m_imageName = "";
-    m_computeNumClasses = FALSE;
-    m_dataValueType = 0;
-    m_bandInterleave = 0;
-    m_hdfDataSetSelection = -1;
-    m_collapseClassSelection = -1;
-    //}}AFX_DATA_INIT
+{
+	m_numberLines = 512;
+	m_numberColumns = 614;
+	m_postChannelBytes = 0;
+	m_headerBytes = 128;
+	m_postLineBytes = 0;
+	m_preChannelBytes = 0;
+	m_preLineBytes = 0;
+	m_numberChannels = 0;
+	m_startColumnNumber = 1;
+	m_startLineNumber = 1;
+	m_swapBytesFlag = FALSE;
+	m_linesBottomToTopFlag = FALSE;
+	m_trailerBytes = 0;
+	m_imageName = "";
+	m_computeNumClasses = FALSE;
+	m_dataValueType = 0;
+	m_bandInterleave = 0;
+	m_hdfDataSetSelection = -1;
+	m_collapseClassSelection = -1;
 
-    m_blockHeight = 0;
-    m_blockWidth = 0;
+	m_blockHeight = 0;
+	m_blockWidth = 0;
 
-    m_fileInfoHandle = NULL;
-    m_windowInfoHandle = NULL;
-    m_newChannelToHdfDataSetHandle = NULL;
+	m_fileInfoHandle = NULL;
+	m_windowInfoHandle = NULL;
+	m_newChannelToHdfDataSetHandle = NULL;
 
-    m_fileInfoPtr = NULL;
-    m_windowInfoPtr = NULL;
-    m_menuclientdata = NULL;
+	m_fileInfoPtr = NULL;
+	m_windowInfoPtr = NULL;
+	m_menuclientdata = NULL;
 
-    m_dataCompressionCode = 0;
+	m_dataCompressionCode = 0;
 
-    m_maxNumberChannelsClasses = 0;
+	m_maxNumberChannelsClasses = 0;
 
-    m_dataSetIndex = 1;
+	m_dataSetIndex = 1;
 
-    m_eightBitsPerDataSelection = 0;
-    m_forceGroupTableUpdateFlag = FALSE;
-    m_initializedFlag = CMDialog::m_initializedFlag;
-	 
-			// m_onShowCalledFlag is used to account for differences on wxWidgets message passing on mygeohub (debian)
-			// and mdw linux box (redhat). OnShow message is called after OnInitDialog on debian but vice versa
-			// on redhat. The reason may not be the operating system, but hopefully this accounts for differences
-			// in where the code is run.
-	 m_onShowCalledFlag = FALSE;
+	m_eightBitsPerDataSelection = 0;
+	m_forceGroupTableUpdateFlag = FALSE;
+	m_initializedFlag = CMDialog::m_initializedFlag;
 
-    CreateControls();
-}
+		// m_onShowCalledFlag is used to account for differences on wxWidgets message passing on mygeohub (debian)
+		// and mdw linux box (redhat). OnShow message is called after OnInitDialog on debian but vice versa
+		// on redhat. The reason may not be the operating system, but hopefully this accounts for differences
+		// in where the code is run.
+
+	m_onShowCalledFlag = FALSE;
+
+	CreateControls ();
+	
+}	// end "CMFileFormatSpecsDlg"
+
+
+
+CMFileFormatSpecsDlg::~CMFileFormatSpecsDlg ()
+
+{
+	free (m_menuclientdata);
+	
+}	// end "~CMFileFormatSpecsDlg"
+
 
 
 void CMFileFormatSpecsDlg::CreateControls ()
@@ -561,24 +508,6 @@ void CMFileFormatSpecsDlg::CreateControls ()
 	
 }		// end "CreateControls"
 
-
-BEGIN_EVENT_TABLE(CMFileFormatSpecsDlg, CMDialog)
-
-EVT_INIT_DIALOG(CMFileFormatSpecsDlg::OnInitDialog)
-EVT_COMBOBOX(IDC_BandInterleavePopUp, CMFileFormatSpecsDlg::OnSelendokBandInterleave)
-EVT_COMBOBOX(IDC_DataValueTypePopUp, CMFileFormatSpecsDlg::OnSelendokDataValueType)
-//EVT_CHECKBOX(IDC_DetermineNumClasses, CMFileFormatSpecsDlg::OnDetermineNumClasses)
-EVT_COMBOBOX(IDC_HDFDataSet, CMFileFormatSpecsDlg::OnSelendokHDFDataSet)
-//EVT_PAINT(CMFileFormatSpecsDlg::OnPaint)
-//EVT_ACTIVATE(CMFileFormatSpecsDlg::OnActivate)
-EVT_BUTTON(IDC_HDFDataSetHelp, CMFileFormatSpecsDlg::OnBnClickedHdfdatasethelp)
-EVT_BUTTON(IDC_LinesBottomToTop, CMFileFormatSpecsDlg::OnBnClickedLinebottomtotop)
-EVT_CHECKBOX(IDC_FillDataValueExists, CMFileFormatSpecsDlg::OnBnClickedFillDataValueExists)
-//EVT_CHAR_HOOK(CMFileFormatSpecsDlg::OnButtonPress)
-
-EVT_SHOW(CMFileFormatSpecsDlg::OnShow)
-
-END_EVENT_TABLE()
 
 
 //-----------------------------------------------------------------------------

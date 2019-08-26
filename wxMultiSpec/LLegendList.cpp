@@ -1,7 +1,26 @@
-// LLegendList.cpp : implementation file
+//	 									MultiSpec
 //
-// Revised by Larry Biehl on 04/09/2019
-// Revised by Tsung Tai on 01/24/2019
+//					Laboratory for Applications of Remote Sensing
+// 								Purdue University
+//								West Lafayette, IN 47907
+//								 Copyright (2009-2019)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	File:						LLegendList.cpp : class implementation file
+//	Class Definition:		LLegendList.h
+//
+//	Authors:					Wei-Kang Hsu, Larry L. Biehl
+//
+//	Revision date:			01/24/2019 by Tsung Tai
+//								04/09/2019 by Larry L. Biehl
+//
+//	Language:				C++
+//
+//	System:					Linux and MacOS Operating Systems
+//
+//	Brief description:	This file contains functions that relate to the
+//								CMLOOMixingDialog class.
 //
 /* Template for debugging
 	int numberChars = sprintf ((char*)gTextString3,
@@ -10,7 +29,7 @@
 	ListString ((char*)gTextString3, numberChars, gOutputTextH);
 */
 //------------------------------------------------------------------------------------
-
+//
 #include "CPalette.h"
 
 #include "LImageDoc.h"  
@@ -109,39 +128,41 @@ bool					CMLegendList::s_altKeyDownFlag = false;
 bool					CMLegendList::s_shiftKeyDownFlag = false;
 
 
-/////////////////////////////////////////////////////////////////////////////
-// CMLegendList 
-BEGIN_EVENT_TABLE(CMLegendList, wxListView)
- 
-			// List Events
 
-   EVT_LIST_ITEM_ACTIVATED (LEGEND_LIST, CMLegendList::OnLButtonDblClk)
-	EVT_LIST_BEGIN_DRAG (LEGEND_LIST, CMLegendList::OnBeginDrag)
+BEGIN_EVENT_TABLE (CMLegendList, wxListView)
    EVT_KEY_DOWN (CMLegendList::OnKeyDown)
 	EVT_KEY_UP (CMLegendList::OnKeyUp)
   	EVT_KILL_FOCUS (CMLegendList::OnKillFocusEvent)
-	//EVT_CHAR_HOOK(CMLegendList::OnCharHook)
-   EVT_LEFT_UP(CMLegendList::OnLButtonUp)
-END_EVENT_TABLE()
+   EVT_LEFT_UP (CMLegendList::OnLButtonUp)
+	EVT_LIST_BEGIN_DRAG (LEGEND_LIST, CMLegendList::OnBeginDrag)
+   EVT_LIST_ITEM_ACTIVATED (LEGEND_LIST, CMLegendList::OnLButtonDblClk)
+END_EVENT_TABLE ()
 
 
-IMPLEMENT_DYNAMIC_CLASS(CMLegendList, wxListView)
+
+IMPLEMENT_DYNAMIC_CLASS (CMLegendList, wxListView)
+
 
 
 CMLegendList::CMLegendList ()
 
 {
+
 }	// end "CMLegendList"
 
 
 
 CMLegendList::CMLegendList (
-				wxWindow *parent,
-				wxWindowID id)
-		:wxListView (parent, id, wxDefaultPosition, wxDefaultSize, wxLC_REPORT | wxLC_SINGLE_SEL | wxLC_NO_HEADER)
+				wxWindow*							parent,
+				wxWindowID 							id)
+		: wxListView (parent,
+							id,
+							wxDefaultPosition,
+							wxDefaultSize,
+							wxLC_REPORT | wxLC_SINGLE_SEL | wxLC_NO_HEADER)
 
 {                    
-			// These are initialize in LoadThematicLegendList in SThemWin.cpp.
+			// These are initialized in LoadThematicLegendList in SThematicWindow.cpp.
 			
 	m_paletteObject = NULL;
 	m_backgroundPaletteObject = NULL;
@@ -175,6 +196,7 @@ CMLegendList::CMLegendList (
 
 
 CMLegendList::~CMLegendList ()
+
 {
 
 }	// end "~CMLegendList"

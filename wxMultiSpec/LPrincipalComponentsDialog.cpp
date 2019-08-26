@@ -16,13 +16,13 @@
 //
 //	Language:				C++
 //
-//	System:					Linux Operating System
+//	System:					Linux and MacOS Operating Systems
 //
 //	Brief description:	This file contains functions that relate to the 
 //								CMPrincipalCompDialog class.
 //
 //------------------------------------------------------------------------------------
-
+//
 #include "SMultiSpec.h"
 
 #include "LMultiSpec.h"
@@ -33,33 +33,42 @@
 
 extern PrincipalCompSpecsPtr gPrincipalCompSpecsPtr;
 
-extern void PrincipalComponentDialogOK (
-        PrincipalCompSpecsPtr principalCompSpecsPtr,
-        SInt16 dataCode,
-        SInt16 classSelection,
-        UInt32 localNumberClasses,
-        UInt16* classListPtr,
-        Boolean trainingFlag,
-        Boolean testFlag,
-        DialogSelectArea* dialogSelectAreaPtr,
-        SInt16 channelSelection,
-        UInt32 localNumberChannels,
-        UInt16* localChannelsPtr,
-        Boolean listEigenvectorFlag,
-        Boolean equalVariancesFlag,
-        Boolean saveEigenvectorFlag,
-        Boolean textWindowFlag,
-        Boolean diskFileFlag);
-
 
 
 IMPLEMENT_DYNAMIC_CLASS(CMPrincipalCompDialog, CMDialog)
+
+
+BEGIN_EVENT_TABLE (CMPrincipalCompDialog, CMDialog)
+	EVT_BUTTON (IDEntireImage, CMPrincipalCompDialog::ToEntireImage)
+	EVT_BUTTON (IDSelectedImage, CMPrincipalCompDialog::ToSelectedImage)
+
+	EVT_COMBOBOX (IDC_ClassCombo, CMPrincipalCompDialog::OnSelendokClassCombo)
+	EVT_COMBOBOX (IDC_ChannelCombo, CMPrincipalCompDialog::OnSelendokChannelCombo)
+
+	EVT_COMBOBOX_DROPDOWN (IDC_ChannelCombo, CMPrincipalCompDialog::OnSelendokChannelComboDropDown)
+	EVT_COMBOBOX_DROPDOWN (IDC_ClassCombo, CMPrincipalCompDialog::OnSelendokClassComboDropDown)
+
+	EVT_INIT_DIALOG (CMPrincipalCompDialog::OnInitDialog)
+
+	EVT_RADIOBUTTON (IDC_Classes, CMPrincipalCompDialog::OnClasses)
+	EVT_RADIOBUTTON (IDC_ImageArea, CMPrincipalCompDialog::OnImageArea)
+
+	EVT_TEXT (IDC_ColumnEnd, CMPrincipalCompDialog::CheckColumnEnd)
+	EVT_TEXT (IDC_ColumnInterval, CMPrincipalCompDialog::CheckColumnInterval)
+	EVT_TEXT (IDC_ColumnStart, CMPrincipalCompDialog::CheckColumnStart)
+	EVT_TEXT (IDC_LineEnd, CMPrincipalCompDialog::CheckLineEnd)
+	EVT_TEXT (IDC_LineInterval, CMPrincipalCompDialog::CheckLineInterval)
+	EVT_TEXT (IDC_LineStart, CMPrincipalCompDialog::CheckLineStart)
+END_EVENT_TABLE()
+
+
 
 CMPrincipalCompDialog::CMPrincipalCompDialog (
 				wxWindow*							pParent,
 				const wxString&					title)
 		: CMDialog (CMPrincipalCompDialog::IDD, pParent, title)
-	{
+
+{
    m_dataCode = -1;
    m_trainingFlag = FALSE;
    m_testFlag = FALSE;
@@ -100,32 +109,12 @@ CMPrincipalCompDialog::CMPrincipalCompDialog (
 
 
 CMPrincipalCompDialog::~CMPrincipalCompDialog (void)
+
 {
    m_classListPtr = CheckAndDisposePtr(m_classListPtr);
    m_localFeaturesPtr = CheckAndDisposePtr(m_localFeaturesPtr);
 
 }	// end "~CMPrincipalCompDialog"
-
-
-BEGIN_EVENT_TABLE(CMPrincipalCompDialog, CMDialog)
-	EVT_INIT_DIALOG(CMPrincipalCompDialog::OnInitDialog)
-	EVT_TEXT(IDC_ColumnEnd, CMPrincipalCompDialog::CheckColumnEnd)
-	EVT_TEXT(IDC_ColumnInterval, CMPrincipalCompDialog::CheckColumnInterval)
-	EVT_TEXT(IDC_ColumnStart, CMPrincipalCompDialog::CheckColumnStart)
-	EVT_TEXT(IDC_LineEnd, CMPrincipalCompDialog::CheckLineEnd)
-	EVT_TEXT(IDC_LineInterval, CMPrincipalCompDialog::CheckLineInterval)
-	EVT_TEXT(IDC_LineStart, CMPrincipalCompDialog::CheckLineStart)
-	EVT_TEXT(IDC_LineInterval, CMPrincipalCompDialog::CheckLineInterval)
-	EVT_TEXT(IDC_ColumnInterval, CMPrincipalCompDialog::CheckColumnInterval)
-	EVT_RADIOBUTTON(IDC_Classes, CMPrincipalCompDialog::OnClasses)
-	EVT_RADIOBUTTON(IDC_ImageArea, CMPrincipalCompDialog::OnImageArea)
-	EVT_COMBOBOX(IDC_ClassCombo, CMPrincipalCompDialog::OnSelendokClassCombo)
-	EVT_COMBOBOX_DROPDOWN(IDC_ClassCombo, CMPrincipalCompDialog::OnSelendokClassComboDropDown)
-	EVT_COMBOBOX(IDC_ChannelCombo, CMPrincipalCompDialog::OnSelendokChannelCombo)
-	EVT_COMBOBOX_DROPDOWN(IDC_ChannelCombo, CMPrincipalCompDialog::OnSelendokChannelComboDropDown)
-	EVT_BUTTON(IDEntireImage, CMPrincipalCompDialog::ToEntireImage)
-	EVT_BUTTON(IDSelectedImage, CMPrincipalCompDialog::ToSelectedImage)
-END_EVENT_TABLE()
  
 
 void CMPrincipalCompDialog::CreateControls ()

@@ -1,15 +1,34 @@
-// LStatisticsDialog.cpp : implementation file
+//                               MultiSpec
 //
-// Revised by Larry Biehl on 05/07/2019
-//               
+//               Laboratory for Applications of Remote Sensing
+//                         Purdue University
+//                        West Lafayette, IN 47907
+//                         Copyright (2009-2019)
+//                     (c) Purdue Research Foundation
+//                           All rights reserved.
+//
+//   File:                 LStatisticsDialog.cpp : class implementation file
+//   Class Definition:     LStatisticsDialog.h
+//
+//   Authors:              Abdur Rahman Maud, Larry L. Biehl
+//
+//   Revision date:        08/14/2019
+//
+//   Language:					C++
+//
+//   System:               Linux and MacOS Operating Systems
+//
+//   Brief description:  	This file contains functions that relate to the
+//                       	CMReformatTransformDlg class.
+//
 /* Template for debugging for MultiSpec Online on mygeohub.org.
 	int numberChars = sprintf ((char*)&gTextString3,
-								" LStatisticsDialog::xxx (countBytes, errCode) %d, %d%s", 
-								countBytes,
-								errCode,
+								" LStatisticsDialog::xxx () %s",
 								gEndOfLine);
-	ListString ((char*)&gTextString3, numberChars, gOutputTextH);	
+	ListString ((char*)&gTextString3, numberChars, gOutputTextH);
 */
+//------------------------------------------------------------------------------------
+//
 #include "SMultiSpec.h"
 
 #include	"LChannelsDialog.h"
@@ -18,74 +37,36 @@
 #include "LStatisticsOptionsDialog.h"
 
 
-extern void StatisticsDialogInitialize (
-				DialogPtr							dialogPtr,
-				SInt16								totalNumberChannels,
-				SInt16*								localStatCodePtr,
-				Boolean*								keepClassStatsFlagPtr,
-				Boolean*								useCommonCovarianceInLOOCFlagPtr,
-				double*								variancePtr,
-				double*								minLogDeterminantPtr,
-				SInt16*								channelSelectionPtr,
-				SInt16*								channelListTypePtr,
-				UInt16*								featurePtr,
-				UInt16*								localNumberChannelsPtr,
-				SInt16*								localOutlineFieldTypePtr,
-				SInt16*								localLabelFieldCodePtr,
-				SInt16*								outlineColorSelectionPtr,
-				SInt16*								maskTrainImageSelectionPtr,
-				SInt16*								maskTestImageSelectionPtr,
-				UInt16*								maxNumberTrainLayersPtr,
-				UInt16*								maxNumberTestLayersPtr);
 
-extern void StatisticsDialogOK (
-				SInt16								channelSelection,
-				SInt16								totalNumberChannels,
-				UInt16*								featurePtr,
-				UInt32								localNumberChannels,
-				Boolean								showTrainingFieldsFlag,
-				Boolean								showTestFieldsFlag,
-				Boolean								showClassNamesFlag,
-				Boolean								showFieldNamesFlag,
-				Boolean								showTrainTestTextFlag,
-				SInt16								outlineColorSelection,
-				SInt16								localStatCode,
-				Boolean								keepClassStatsFlag,
-				double								variance,
-				double								minLogDeterminant,
-				Boolean								useCommonCovarianceInLOOCFlag);
+BEGIN_EVENT_TABLE (CMStatisticsDialog, CMDialog)
+	EVT_BUTTON (IDC_StatisticsOptions, CMStatisticsDialog::OnStatisticsOptions)
 
-extern SInt16 StatisticsDialogSelectMaskItem (
-				Handle*								maskFileInfoHandlePtr,
-				DialogPtr							dialogPtr,
-				MenuHandle							popUpSelectMaskImageMenu,
-				SInt16								itemHit,
-				SInt16								maskImageSelection,
-				SInt16								selectStringNumber,
-				SInt16								maskPopupItemNumber,
-				SInt16								layerItemNumber,
-				UInt16*								maxNumberLayersPtr);
+	EVT_CHECKBOX (IDC_ShowClassNames, CMStatisticsDialog::OnShowClassNames)
+	EVT_CHECKBOX (IDC_ShowFieldNames, CMStatisticsDialog::OnShowFieldNames)
+	EVT_CHECKBOX (IDC_ShowTrainTestLabel, CMStatisticsDialog::OnShowTrainTestLabel)
+	EVT_CHECKBOX (IDC_TestFields, CMStatisticsDialog::OnTestFields)
+	EVT_CHECKBOX (IDC_TrainingFields, CMStatisticsDialog::OnTrainingFields)
 
-extern SInt16 StatisticsDialogMaskCheck (
-				Handle								trainMaskFileInfoHandle,
-				Handle								testMaskFileInfoHandle,
-				SInt16								maskTrainImageSelection,
-				SInt16								maskTestImageSelection,
-				UInt16								trainLayerNumber,
-				UInt16								testLayerNumber);
+	EVT_COMBOBOX (IDC_Channels, CMStatisticsDialog::OnSelendokChannels)
+	EVT_COMBOBOX (IDC_ProjectChanges, CMStatisticsDialog::OnSelendokProjectChanges)
+	EVT_COMBOBOX (IDC_TestMaskPopUp, CMStatisticsDialog::OnSelendokTestMaskCOMBO)
+	EVT_COMBOBOX (IDC_TrainMaskPopUp, CMStatisticsDialog::OnSelendokTrainMaskCOMBO)
 
-extern Boolean StatisticsOptionsDialog (
-				SInt16*								statCodePtr,
-				Boolean*								keepClassStatsFlagPtr,
-				double*								variancePtr,
-				double*								minLogDeterminantPtr,
-				Boolean*								useModifiedStatsFlagPtr);
+	EVT_COMBOBOX_DROPDOWN (IDC_Channels, CMStatisticsDialog::OnDropdownChannels)
+	EVT_COMBOBOX_DROPDOWN (IDC_ProjectChanges, CMStatisticsDialog::OnDropdownProjectChanges)
+
+	EVT_INIT_DIALOG (CMStatisticsDialog::OnInitDialog)
+END_EVENT_TABLE()
 
 
-CMStatisticsDialog::CMStatisticsDialog(wxWindow* pParent, wxWindowID id, const wxString& title)
-: CMDialog(CMStatisticsDialog::IDD, pParent, title) 
+
+CMStatisticsDialog::CMStatisticsDialog (
+				wxWindow* 							pParent,
+				wxWindowID 							id,
+				const wxString& 					title)
+		: CMDialog (CMStatisticsDialog::IDD, pParent, title)
+
 {
-
    m_showFieldNames = FALSE;
    m_showTestFields = FALSE;
    m_showTrainingFields = FALSE;
@@ -102,32 +83,12 @@ CMStatisticsDialog::CMStatisticsDialog(wxWindow* pParent, wxWindowID id, const w
    CreateControls();
    SetSizerAndFit (bSizer_v1);
 
-}
+}	// end "CMStatisticsDialog"
 
 
-BEGIN_EVENT_TABLE (CMStatisticsDialog, CMDialog)
-	EVT_INIT_DIALOG (CMStatisticsDialog::OnInitDialog)
-	EVT_COMBOBOX (IDC_Channels, CMStatisticsDialog::OnSelendokChannels)
-	EVT_COMBOBOX (IDC_ProjectChanges, CMStatisticsDialog::OnSelendokProjectChanges)
-	EVT_COMBOBOX_DROPDOWN (IDC_ProjectChanges, CMStatisticsDialog::OnDropdownProjectChanges)
-	EVT_COMBOBOX_DROPDOWN (IDC_Channels, CMStatisticsDialog::OnSelendokChannelComboDropDown)
-	EVT_COMBOBOX_DROPDOWN (IDC_Channels, CMStatisticsDialog::OnDropdownChannels)
-	EVT_BUTTON (IDC_StatisticsOptions, CMStatisticsDialog::OnStatisticsOptions)
-	EVT_CHECKBOX (IDC_ShowClassNames, CMStatisticsDialog::OnShowClassNames)
-	EVT_CHECKBOX (IDC_ShowFieldNames, CMStatisticsDialog::OnShowFieldNames)
-	EVT_CHECKBOX (IDC_TestFields, CMStatisticsDialog::OnTestFields)
-	EVT_CHECKBOX (IDC_TrainingFields, CMStatisticsDialog::OnTrainingFields)
-	EVT_CHECKBOX (IDC_ShowTrainTestLabel, CMStatisticsDialog::OnShowTrainTestLabel)
-	//EVT_COMBOBOX_DROPDOWN (IDC_TestMaskPopUp, CMStatisticsDialog::OnDropdownTestMaskCOMBO)
-	EVT_COMBOBOX (IDC_TestMaskPopUp, CMStatisticsDialog::OnSelendokTestMaskCOMBO)
-	//EVT_COMBOBOX_DROPDOWN (IDC_TrainMaskPopUp, CMStatisticsDialog::OnDropdownTrainMaskCOMBO)
-	//EVT_COMBOBOX_CLOSEUP (IDC_TrainMaskPopUp, CMStatisticsDialog::OnCloseupTrainMaskCOMBO)
-	EVT_COMBOBOX (IDC_TrainMaskPopUp, CMStatisticsDialog::OnSelendokTrainMaskCOMBO)
-	//EVT_BUTTON(wxID_OK, CMStatisticsDialog::OnOK)
-END_EVENT_TABLE()
 
+void CMStatisticsDialog::CreateControls (void)
 
-void CMStatisticsDialog::CreateControls() 
 {
 	wxBoxSizer*							bSizer_v1h1;
 	wxBoxSizer*							bSizer_v1h1v1;
@@ -189,13 +150,13 @@ void CMStatisticsDialog::CreateControls()
 
    m_staticText_v1h1v1h2_1 = new wxStaticText(this, wxID_ANY, wxT("Channels to Use:"), wxDefaultPosition, wxDefaultSize, 0);
    m_staticText_v1h1v1h2_1->Wrap(-1);
-   SetUpToolTip (m_staticText_v1h1v1h2_1, IDS_ToolTip50);
+   SetUpToolTip (m_staticText_v1h1v1h2_1, IDS_ToolTip8601);
    bSizer_v1h1v1h2->Add (m_staticText_v1h1v1h2_1, wxSizerFlags(0).Center().Border(wxTOP|wxRIGHT|wxBOTTOM,5));
 
    m_comboBox_v1h1v1h2_2 = new wxComboBox (this, IDC_Channels, wxT("Combo!"), wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_READONLY);
    m_comboBox_v1h1v1h2_2->Append (wxT("All"));
    m_comboBox_v1h1v1h2_2->Append (wxT("Subset..."));
-   SetUpToolTip (m_comboBox_v1h1v1h2_2, IDS_ToolTip50);
+   SetUpToolTip (m_comboBox_v1h1v1h2_2, IDS_ToolTip8601);
    bSizer_v1h1v1h2->Add (m_comboBox_v1h1v1h2_2, wxSizerFlags(0).Border(wxTOP|wxRIGHT|wxBOTTOM,5));
 	
    bSizer_v1h1v1->Add (bSizer_v1h1v1h2, wxSizerFlags(0).Expand().Border(wxTOP|wxBOTTOM,5));
@@ -322,6 +283,7 @@ void CMStatisticsDialog::CreateControls()
 }	// end "CreateControls"
 
 
+
 //-----------------------------------------------------------------------------
 //								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
@@ -422,6 +384,7 @@ void CMStatisticsDialog::OnCloseupTrainMaskCOMBO (
 }	// end "OnCloseupTrainMaskCOMBO"
 */
 
+
 void CMStatisticsDialog::OnDropdownChannels (
 				wxCommandEvent&					event) 
 {
@@ -430,31 +393,33 @@ void CMStatisticsDialog::OnDropdownChannels (
 }	// end "OnDropdownChannels" 
 
 
+
 void CMStatisticsDialog::OnDropdownProjectChanges (
 				wxCommandEvent&					event) 
 {
-   if (gProjectInfoPtr->statsLoaded) 
+   if (gProjectInfoPtr->statsLoaded || gProjectInfoPtr->pixelDataLoadedFlag)
 		{
 				// Make sure that the clear statistics command is in the list.
 
-      wxComboBox* projchange = (wxComboBox*) FindWindow(IDC_ProjectChanges);
+      wxComboBox* projchange = (wxComboBox*)FindWindow (IDC_ProjectChanges);
       if (projchange->GetCount() == 1)
          projchange->Append(wxT("Clear Statistics..."));
 
-		}	// end "if (gProjectInfoPtr->statsLoaded)" 
+		}	// end "if (gProjectInfoPtr->statsLoaded || ..."
 
-   else // !gProjectInfoPtr->statsLoaded
+   else // !gProjectInfoPtr->statsLoaded && ...
 		{
 				// Make sure that the clear statistics command is not in the list.
 
-      wxComboBox* projchange = (wxComboBox*) FindWindow(IDC_ProjectChanges);
+      wxComboBox* projchange = (wxComboBox*)FindWindow (IDC_ProjectChanges);
       if (projchange->GetCount() == 2)
          projchange->Delete(1);
 
-		}	// end "else !gProjectInfoPtr->statsLoaded"
+		}	// end "else !gProjectInfoPtr->statsLoaded && ..."
 
 }	// end "OnDropdownProjectChanges"
- 
+
+
 /*
 void CMStatisticsDialog::OnDropdownTestMaskCOMBO (
 				wxCommandEvent&					event) 
@@ -566,9 +531,10 @@ void CMStatisticsDialog::OnSelendokChannels (
 
 
 void CMStatisticsDialog::OnSelendokProjectChanges (
-				wxCommandEvent&					event) 
+				wxCommandEvent&					event)
+
 {
-   wxComboBox* projchange = (wxComboBox*) FindWindow(IDC_ProjectChanges);
+   wxComboBox* projchange = (wxComboBox*)FindWindow (IDC_ProjectChanges);
    m_projectCommands = projchange->GetSelection();
 
    if (m_projectCommands == 1) 
@@ -586,19 +552,19 @@ void CMStatisticsDialog::OnSelendokProjectChanges (
 
          m_channelListType = 1;
          m_channelSelection = kAllMenuItem;
-         for (index = 0; index < gProjectInfoPtr->numberStatisticsChannels; index++)
+         for (index=0; index<gProjectInfoPtr->numberStatisticsChannels; index++)
             m_localFeaturesPtr[index] = index;
          m_localActiveNumberFeatures = gProjectInfoPtr->numberStatisticsChannels;
 
-         UpdateAllSubsetList(IDC_Channels);
+         UpdateAllSubsetList (IDC_Channels);
 
-			wxComboBox* channsel = (wxComboBox*) FindWindow(IDC_Channels);
-         channsel->SetSelection(m_projectCommands);
+			wxComboBox* channsel = (wxComboBox*)FindWindow(IDC_Channels);
+         channsel->SetSelection (m_channelSelection);
 			
 			}	// end "if (m_channelListType == ..."
 
       m_projectCommands = 0;
-      projchange->SetSelection(m_projectCommands);
+      projchange->SetSelection (m_projectCommands);
 		
 		}	// end "if (m_projectCommands == 1)"
 

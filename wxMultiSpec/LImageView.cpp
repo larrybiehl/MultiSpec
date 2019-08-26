@@ -1,15 +1,36 @@
-// Revised 03/12/2016 by Wei-Kang Hsu
-// Revised 12/19/2018 by Tsung Tai Yeh
-// Revised 04/01/2019  by Larry L Biehl
+//	 									MultiSpec
+//
+//					Laboratory for Applications of Remote Sensing
+// 								Purdue University
+//								West Lafayette, IN 47907
+//								 Copyright (2009-2019)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	File:						LImageView.cpp : class implementation file
+//	Class Definition:		LImageFrame.h
+//
+//	Authors:					Larry L. Biehl, Wei-Kang Hsu, Tsung Tai Yeh
+//
+// Revision date:			03/12/2016 by Wei-Kang Hsu
+// Revision date:			12/19/2018 by Tsung Tai Yeh
+// Revision date:			04/01/2019  by Larry L Biehl
+//
+//	Language:				C++
+//
+//	System:					Linux and MacOS Operating Systems
+//
+//	Brief description:	This file contains functions that relate to the
+//								CMImageView class.
 //
 /* Template for debugging
 	int numberChars = sprintf ((char*)gTextString3,
-				" LImageView: (): %s",
+				" LImageView:: (): %s",
 				gEndOfLine);
 	ListString ((char*)gTextString3, numberChars, gOutputTextH);
 */
 //------------------------------------------------------------------------------------
-
+//
 #include "SMultiSpec.h"
 
 #include "CDisplay.h"
@@ -22,10 +43,6 @@
 #include "LMainFrame.h"
 #include "LMultiSpec.h"
 #include "LTools.h"
-
-extern void		DoNextDisplayChannelEvent (
-						WindowPtr		window,
-						char			theChar);
 
 
 BEGIN_EVENT_TABLE (CMImageView, wxView)
@@ -114,7 +131,8 @@ CMImageView::CMImageView ()
 
 
 
-CMImageView::~CMImageView()
+CMImageView::~CMImageView (void)
+
 {  
 	if (m_displayMultiCPtr != NULL)
 		delete m_displayMultiCPtr;
@@ -128,7 +146,7 @@ CMImageView::~CMImageView()
 		
 		ClearNewFieldList();
 		
-		}		// end "if (this == gProjectSelectionWindow)"
+		}	// end "if (this == gProjectSelectionWindow)"
 	
 			// Delete image window class  
 	
@@ -148,9 +166,8 @@ CMImageView::~CMImageView()
 		
 		gActiveLegendWidth = 0;
 				
-		}		// end "if (gActiveImageViewCPtr == this)"
-		
-	//CMImageFrame* imageFrameCPtr = m_frame;
+		}	// end "if (gActiveImageViewCPtr == this)"
+	
 	m_frame->SetImageViewCPtr (NULL);
 		
 	RemoveWindowFromList (this, 0);
@@ -161,7 +178,7 @@ CMImageView::~CMImageView()
 
 //-----------------------------------------------------------------------------
 //								 Copyright (1988-2019)
-//								c Purdue Research Foundation
+//								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void DisposeImageWindowSupportMemory
@@ -746,7 +763,9 @@ CMOutlineArea* CMImageView::GetSelectionAreaCPtr(void) {
 #endif
 
 
-Boolean CMImageView::GetShiftKeyFlag(void) {
+Boolean CMImageView::GetShiftKeyFlag (void)
+
+{
     if (this != NULL)
         return (m_shiftKeyDownFlag);
 
@@ -756,10 +775,13 @@ Boolean CMImageView::GetShiftKeyFlag(void) {
 } // end "GetShiftKeyFlag"
 
 
-const wxSize & CMImageView::GetViewOffset()
+const wxSize & CMImageView::GetViewOffset ()
+
 {
 	return m_ViewOffset;
-}
+	
+}	// end "GetViewOffset"
+
 
 
 void CMImageView::InitialUpdate(void)

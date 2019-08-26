@@ -16,13 +16,13 @@
 //
 //	Language:				C++
 //
-//	System:					Linux Operating System
+//	System:					Linux and MacOS Operating Systems
 //
 //	Brief description:	This file contains functions that relate to the 
 //								CMChangeFormatDlg class.
 //
 //------------------------------------------------------------------------------------
-
+//
 #include "SMultiSpec.h"
 
 #include "CImageWindow.h"
@@ -34,132 +34,32 @@
 
 #include "wx/gbsizer.h"
 
-extern void ChangeImageFormatDialogInitialize (
-				DialogPtr							dialogPtr,
-				WindowInfoPtr						windowInfoPtr,
-				FileInfoPtr							fileInfoPtr,
-				ReformatOptionsPtr				reformatOptionsPtr,
-				DialogSelectArea*					dialogSelectAreaPtr,
-				UCharPtr								inputBandInterleaveStringPtr,
-				UCharPtr								inputDataValueTypeStringPtr,
-				UCharPtr								tiffMenuNameStringPtr,
-				SInt16*								outputFileSelectionPtr,
-				SInt16*								bandInterleaveSelectionPtr,
-				SInt16*								dataValueTypeSelectionPtr,
-				SInt16*								savedDataValueTypeSelectionPtr,
-				SInt16*								channelSelectionPtr,
-				Boolean*								bottomToTopFlagPtr,
-				Boolean*								rightToLeftFlagPtr,
-				Boolean*								swapBytesFlagPtr,
-				Boolean*								channelDescriptionAllowedFlagPtr,
-				Boolean*								savedChannelDescriptionFlagPtr,
-				Boolean*								outputInWavelengthOrderAllowedFlagPtr,
-				Boolean*								outputInWavelengthOrderFlagPtr,
-				SInt16*								headerOptionsSelectionPtr,
-				Boolean*								GAIAFormatAllowedFlagPtr,
-				Boolean*								channelThematicDisplayFlagPtr);
-
-extern Boolean ChangeImageFormatDialogOK (
-				DialogPtr							dialogPtr,
-				WindowInfoPtr						imageWindowInfoPtr,
-				LayerInfoPtr						imageLayerInfoPtr,
-				FileInfoPtr							imageFileInfoPtr,
-				FileInfoPtr							outFileInfoPtr,
-				ReformatOptionsPtr				reformatOptionsPtr,
-				DialogSelectArea*					dialogSelectAreaPtr,
-				SInt16								outputFileSelection,
-				SInt16								bandInterleaveSelection,
-				SInt16								dataValueTypeSelection,
-				Boolean								sessionUserSetDataValueTypeSelectionFlag,
-				SInt16								channelSelection,
-				Boolean								bottomToTopFlag,
-				Boolean								rightToLeftFlag,
-				Boolean								swapBytesFlag,
-				Boolean								channelDescriptionsFlag,
-				Boolean								outputInWavelengthOrderFlag,
-				SInt16								headerOptionsSelection,
-				Boolean								channelThematicDisplayFlag);
-
-extern void ChangeImageFormatDialogUpdateHeaderMenu (
-				DialogPtr							dialogPtr,
-				FileInfoPtr							fileInfoPtr,
-				UCharPtr								tiffMenuNameStringPtr,
-				SInt16*								outputFileSelectionPtr,
-				SInt16*								bandInterleaveSelectionPtr,
-				SInt16*								headerOptionsSelectionPtr,
-				MenuHandle							popUpOutputFileMenu,
-				MenuHandle							popUpHeaderOptionsMenu,
-				SInt16								transformDataCode,
-				SInt16								dataValueTypeSelection,
-				Boolean								GAIAFormatAllowedFlag);
-
-extern void ChangeImageFormatDialogUpdateHeaderOptions (
-				DialogPtr							dialogPtr,
-				FileInfoPtr							fileInfoPtr,
-				SInt16								headerOptionsSelection,
-				SInt16*								outputFileSelectionPtr,
-				SInt16*								bandInterleaveSelectionPtr,
-				SInt16*								dataValueTypeSelectionPtr,
-				Boolean*								setChannelDescriptionFlagPtr,
-				MenuHandle							popUpOutputFileMenu,
-				Boolean								channelDescriptionAllowedFlag,
-				Boolean								channelThematicDisplayFlag);
 
 
-extern void ChangeImageFormatDialogUpdateTIFFHeader (
-				DialogPtr							dialogPtr,
-				FileInfoPtr							fileInfoPtr,
-				SInt16*								outputFileSelectionPtr,
-				SInt16*								bandInterleaveSelectionPtr,
-				MenuHandle							popUpOutputFileMenu);
+BEGIN_EVENT_TABLE (CMChangeFormatDlg, CMDialog)
+	EVT_BUTTON (IDEntireImage, CMChangeFormatDlg::ToEntireImage)
+	EVT_BUTTON (IDSelectedImage, CMChangeFormatDlg::ToSelectedImage)
 
-extern void ChangeImageFormatDialogVerifyHeaderSetting (
-				DialogPtr							dialogPtr,
-				FileInfoPtr							fileInfoPtr,
-				SInt16								bandInterleaveSelection,
-				SInt16								dataValueTypeSelection,
-				MenuHandle							popUpOutputFileMenu,
-				MenuHandle							popUpHeaderOptionsMenu,
-				SInt16*								outputFileSelectionPtr,
-				SInt16*								headerOptionsSelectionPtr);
+	EVT_COMBOBOX (IDC_BandInterleave, CMChangeFormatDlg::OnSelendokBandInterleave)
+	EVT_COMBOBOX (IDC_ChangeHeader, CMChangeFormatDlg::OnSelendokHeader)
+	EVT_COMBOBOX (IDC_ChannelCombo, CMChangeFormatDlg::OnSelendokOutChannels)
+	EVT_COMBOBOX (IDC_DataValueType, CMChangeFormatDlg::OnSelendokDataValueType)
+	EVT_CHECKBOX (IDC_OutputInWavelengthOrder, CMChangeFormatDlg::OnOutputInWavelengthOrder)
+	EVT_CHECKBOX (IDC_TransformData, CMChangeFormatDlg::OnTransformData)
+	EVT_CHECKBOX (IDC_WriteChanDescriptions, CMChangeFormatDlg::OnWriteChanDescriptions)
 
+	EVT_COMBOBOX_DROPDOWN (IDC_ChannelCombo, CMChangeFormatDlg::OnSelendokChannelComboDropDown)
 
+	EVT_INIT_DIALOG (CMChangeFormatDlg::OnInitDialog)
 
-extern SInt16 GetPCChannelList (
-				ReformatOptionsPtr				reformatOptionsPtr);
+	EVT_TEXT (IDC_ColumnEnd, CMChangeFormatDlg::CheckColumnEnd)
+	EVT_TEXT (IDC_ColumnStart, CMChangeFormatDlg::CheckColumnStart)
+	EVT_TEXT (IDC_ColumnInterval, CMChangeFormatDlg::CheckColumnInterval)
+	EVT_TEXT (IDC_LineEnd, CMChangeFormatDlg::CheckLineEnd)
+	EVT_TEXT (IDC_LineStart, CMChangeFormatDlg::CheckLineStart)
+	EVT_TEXT (IDC_LineInterval, CMChangeFormatDlg::CheckLineInterval)
+END_EVENT_TABLE ()
 
-extern SInt16 GetTransformChannelList (
-				ReformatOptionsPtr				reformatOptionsPtr);
-
-
-
-//IMPLEMENT_DYNAMIC_CLASS (CMChangeFormatDlg, CMDialog)
-/*
-CMChangeFormatDlg::CMChangeFormatDlg () : CMDialog ()
-	{
-	m_reformatOptionsPtr = NULL;
-   m_swapBytesFlag = FALSE;
-   m_transformDataFlag = FALSE;
-   m_channelSelection = -1;
-   m_headerListSelection = -1;
-   m_headerOptionsSelection = -1;
-   m_dataValueListSelection = -1;
-   m_outputFileSelection = -1;
-   m_bandInterleaveSelection = -1;
-   m_invertBottomToTopFlag = FALSE;
-   m_writeChanDescriptionFlag = FALSE;
-   m_invertLeftToRightFlag = FALSE;
-   m_channelThematicDisplayFlag = FALSE;
-   m_sessionUserSetDataValueTypeSelectionFlag = FALSE;
-	// The following was used for testing. Not needed now.
-	//bSizer124 = NULL;
-	
-   m_dataValueTypeSelectionFlag = FALSE;
-
-   m_initializedFlag = CMDialog::m_initializedFlag;
-	
-}	// end "CMChangeFormatDlg"
-*/
 
 
 CMChangeFormatDlg::CMChangeFormatDlg (
@@ -194,31 +94,6 @@ CMChangeFormatDlg::CMChangeFormatDlg (
    Centre ();
 	
 }	// end "CMChangeFormatDlg"
-
-
-BEGIN_EVENT_TABLE(CMChangeFormatDlg, CMDialog)
-	EVT_INIT_DIALOG(CMChangeFormatDlg::OnInitDialog)
-	EVT_BUTTON(IDEntireImage, CMChangeFormatDlg::ToEntireImage)
-	EVT_BUTTON(IDSelectedImage, CMChangeFormatDlg::ToSelectedImage)
-	EVT_CHECKBOX(IDC_TransformData, CMChangeFormatDlg::OnTransformData)
-	EVT_COMBOBOX(IDC_BandInterleave, CMChangeFormatDlg::OnSelendokBandInterleave)
-	EVT_COMBOBOX(IDC_ChannelCombo, CMChangeFormatDlg::OnSelendokOutChannels)
-	EVT_COMBOBOX_DROPDOWN(IDC_ChannelCombo, CMChangeFormatDlg::OnSelendokChannelComboDropDown)
-	EVT_COMBOBOX(IDC_DataValueType, CMChangeFormatDlg::OnSelendokDataValueType)
-	EVT_COMBOBOX(IDC_ChangeHeader, CMChangeFormatDlg::OnSelendokHeader)
-	EVT_TEXT(IDC_ColumnEnd, CMChangeFormatDlg::CheckColumnEnd)
-	EVT_TEXT(IDC_ColumnStart, CMChangeFormatDlg::CheckColumnStart)
-	EVT_TEXT(IDC_LineEnd, CMChangeFormatDlg::CheckLineEnd)
-	EVT_TEXT(IDC_LineStart, CMChangeFormatDlg::CheckLineStart)
-	EVT_TEXT(IDC_LineInterval, CMChangeFormatDlg::CheckLineInterval)
-	EVT_TEXT(IDC_ColumnInterval, CMChangeFormatDlg::CheckColumnInterval)
-	//EVT_CHAR_HOOK(CMChangeFormatDlg::OnButtonPress)
-	EVT_CHECKBOX (IDC_WriteChanDescriptions, CMChangeFormatDlg::OnWriteChanDescriptions)
-	EVT_CHECKBOX (IDC_OutputInWavelengthOrder, CMChangeFormatDlg::OnOutputInWavelengthOrder)
-	//EVT_CHECKBOX(IDC_InvertBottomToTop, OnWriteChanDescriptions)
-	//EVT_CHECKBOX(IDC_InvertRightToLeft, OnWriteChanDescriptions)
-	//EVT_CHECKBOX(IDC_SwapBytes, OnWriteChanDescriptions)
-END_EVENT_TABLE()
 
 
 

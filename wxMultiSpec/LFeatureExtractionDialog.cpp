@@ -1,14 +1,40 @@
-// LFeatureExtractionDialog.cpp : implementation file
-//     
-// Revised by Larry Biehl on 11/13/2018
-						//
+//	 									MultiSpec
+//
+//					Laboratory for Applications of Remote Sensing
+// 								Purdue University
+//								West Lafayette, IN 47907
+//								 Copyright (2009-2019)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	File:						LFeatureExtractionDialog.cpp : class implementation file
+//	Class Definition:		LFeatureExtractionDialog.h
+//
+//	Authors:					Larry L. Biehl
+//
+//	Revision date:			11/13/2018
+//
+//	Language:				C++
+//
+//	System:					Linux & MacOS Operating Systems
+//
+//	Brief description:	This file contains functions related to the
+//								CMFeatureExtractionDialog class.
+//
+// Following is template for debugging
+/*
+	int numberChars = sprintf ((char*)gTextString3,
+									 " LFeatureExtractionDialog:: (): %s",
+									 gEndOfLine);
+	ListString ((char*)gTextString3, numberChars, gOutputTextH);
+*/
+//------------------------------------------------------------------------------------
+//
 #include "SMultiSpec.h"
                     
 #include "LChannelsDialog.h"  
 #include "LFeatureExtractionDialog.h"
 #include "LProjectionPursuitDialog.h"
-
-//#include	"SExternalGlobals.h" 
 
 extern void 		FeatureExtractionDialogAlgorithm (
 							DialogPtr							dialogPtr, 
@@ -395,24 +421,11 @@ void CMFeatureExtractionDialog::CreateControls ()
 	bSizer265->Add( m_textCtrl108, 0, wxALIGN_CENTER|wxALL, 5 );
 	
 	bSizer252->Add( bSizer265, 0, wxALIGN_RIGHT|wxLEFT, 15 );
-	/*
-	wxBoxSizer* bSizer266;
-	bSizer266 = new wxBoxSizer( wxHORIZONTAL );
-	
-	m_button65 = new wxButton( this, wxID_CANCEL, wxT("Cancel"), wxDefaultPosition, wxDefaultSize, 0 );
-	bSizer266->Add (m_button65, wxSizerFlags(0).Border(wxALL, 5));
-	
-	m_button66 = new wxButton( this, wxID_OK, wxT("OK"), wxDefaultPosition, wxDefaultSize, 0 );
-	bSizer266->Add (m_button66, wxSizerFlags(0).Border(wxALL, 5));
-	
-	bSizer252->Add (bSizer266, wxSizerFlags(1).Align(wxALIGN_RIGHT));
-	*/
+
 	bSizer250->Add (bSizer252, wxSizerFlags(1).Expand().Border(wxRIGHT|wxTOP, 12));
 	
 	bVSizerMain->Add (bSizer250, wxSizerFlags(0));
 	
-	//wxSizer* standardButtonSizer = CreateButtonSizer (wxOK | wxCANCEL);
-	//bVSizerMain->Add (standardButtonSizer, wxSizerFlags(0).Right());
 	CreateStandardButtons (bVSizerMain);
 	
 	//this->SetSizer (bVSizerMain);

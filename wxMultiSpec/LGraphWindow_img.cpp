@@ -1,4 +1,27 @@
-
+//	 									MultiSpec
+//
+//					Laboratory for Applications of Remote Sensing
+//									Purdue University
+//								West Lafayette, IN 47907
+//								 Copyright (2009-2019)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Implementation file:	LGraphWindow_img.cpp
+//
+//	Authors:					Abdur Rahman Maud, Larry L. Biehl
+//
+//	Revision date:			02/23/2019 by Larry L. Biehl
+//
+//	Language:				C++
+//
+//	System:					Linux Operating System
+//
+//	Brief description:	This file describes icons used for buttons in histogram graph
+//								windows.
+//
+//------------------------------------------------------------------------------------
+//
 #if defined multispec_wxlin
 static const unsigned char density_histogram_png[] = {
  0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0x00, 0x00, 0x00, 0x0D, 0x49, 0x48, 0x44, 0x52, 

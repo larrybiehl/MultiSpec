@@ -1,8 +1,35 @@
-// LDrawObjects.cpp - implementation for drawing objects 
-// 
-// Revised by Larry Biehl on 11/29/2017
-// 
-
+///	 									MultiSpec
+//
+//					Laboratory for Applications of Remote Sensing
+// 								Purdue University
+//								West Lafayette, IN 47907
+//								 Copyright (2009-2019)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	File:						LDrawObjects.cpp : class implementation file
+//	Class Definition:		LDrawObjects.h
+//
+//	Authors:					Larry L. Biehl
+//
+//	Revision date:			11/29/2017
+//
+//	Language:				C++
+//
+//	System:					Linux and MacOS Operating Systems
+//
+//	Brief description:	This file contains functions that relate to the
+//								CMDrawObject class.
+//
+// Following is template for debugging
+/*
+	int numberChars = sprintf ((char*)gTextString3,
+								 " LDrawObjects:: (): %s",
+								 gEndOfLine);
+	ListString ((char*)gTextString3, numberChars, gOutputTextH);
+*/
+//------------------------------------------------------------------------------------
+//
 #include "SMultiSpec.h"
 
 #include "LDrawObjects.h"
@@ -10,10 +37,6 @@
 #include "CImageWindow.h"
 #include "CDisplay.h"
 #include "LTools.h"
-
-//#include "SExternalGlobals.h"
-
-// IMPLEMENT_SERIAL(CDrawObj, CObject, 0)  
 
 Rect CMDrawObject::s_viewRect;
 
@@ -39,15 +62,16 @@ CMDrawObject::CMDrawObject ()
 
 
 
-CMDrawObject::~CMDrawObject()
+CMDrawObject::~CMDrawObject ()
 
 {
 
-} // end "~CMDrawObject"
+}	// end "~CMDrawObject"
 
 
 
-CMDrawObject::CMDrawObject (const wxRect& position)
+CMDrawObject::CMDrawObject (
+				const wxRect& 						position)
 
 {
     m_position = position;
@@ -93,9 +117,10 @@ void CMDrawObject::Invalidate ()
 
     //	m_document->UpdateAllViews(NULL, HINT_UPDATE_DRAWOBJ, this);
 
-}	// end "CMDrawObject::Invalidate"
+}	// end "Invalidate"
 
-void CMDrawObject::OnOpen(CMImageView*)
+void CMDrawObject::OnOpen (
+				CMImageView*						imageViewCPtr)
 
 {
     //ASSERT_VALID(this);
@@ -104,29 +129,8 @@ void CMDrawObject::OnOpen(CMImageView*)
 
 
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------------
 // CMOutlineArea   
-// Variables used when converting between line-column units 
-// and window units.
-//SInt32				s_channelWindowInterval;
-
-//SInt32				s_channelWindowOffset;
-
-//SInt32				s_sideBySideChannels;
-
-//SInt32				s_startChannel;
-
-//SInt32				s_startChannelWindow;
-
-
-
-// Variable containing the threshold value for which any rectangle
-// selection in an image must be larger than to be considered a
-// selected ares.  This will allow a user to click in an image window
-// to select the window or to zoom in at that point and not consider
-// it a rectangle selection.											
-
-// SInt32		CMOutlineArea::s_ThresholdSize = 2; // gThresholdSize is used instead.
 
 CMOutlineArea::CMOutlineArea ()
 
@@ -137,23 +141,26 @@ CMOutlineArea::CMOutlineArea ()
 
     //	m_selectInfoHandle = NULL;
 
-} // end "CMOutlineArea"
+}	// end "CMOutlineArea"
 
-CMOutlineArea::CMOutlineArea (const wxRect& position)
+
+
+CMOutlineArea::CMOutlineArea (
+				const wxRect& 						position)
 		: CMDrawObject (position)
 
 {
-    //	m_selectInfoHandle = NULL;
-    /*
-            m_style = selection;
+	//m_selectInfoHandle = NULL;
+	/*
+	m_style = selection;
 
-            if (gStatisticsMode==kStatNewFieldPolyMode)
-                    m_type = polygon;
-            else
-                    m_type = rectangle;
+	if (gStatisticsMode==kStatNewFieldPolyMode)
+		m_type = polygon;
+	else
+		m_type = rectangle;
 
-            m_drawFlag = FALSE;
-     */
+	m_drawFlag = FALSE;
+	*/
 }	// end "CMOutlineArea"
 
 
@@ -166,17 +173,17 @@ CMOutlineArea::~CMOutlineArea ()
 
 
 
-//-----------------------------------------------------------------------------
-//					 Copyright (1988-1998)
-//                                  c Purdue Research Foundation
-//					All rights reserved.
+//------------------------------------------------------------------------------------
+//					 Copyright (1988-2019)
+//           (c) Purdue Research Foundation
+//						All rights reserved.
 //
 //	Function name:		void CMOutlineArea::Clear
 //
 //	Software purpose:	This routine clears the selection area.  The
-//				selection area type flag is cleared and the
-//				outlined selected area is invalidated in the
-//				image window.
+//							selection area type flag is cleared and the
+//							outlined selected area is invalidated in the
+//							image window.
 //
 //	Parameters in
 //
@@ -195,72 +202,71 @@ CMOutlineArea::~CMOutlineArea ()
 //							AddFieldToProject in statistics.
 //							StatisticsWControlEvent in statistics.c
 //
-//	Coded By:			Larry L. Biehl			Date: 08/11/89
-//	Revised By:			Larry L. Biehl			Date: 09/25/95			
+//	Coded By:			Larry L. Biehl			Date: 08/11/1989
+//	Revised By:			Larry L. Biehl			Date: 09/25/1995
 
-void
-CMOutlineArea::Clear (
-        CMImageView* imageViewCPtr)
+void CMOutlineArea::Clear (
+				CMImageView* 						imageViewCPtr)
 {
-    //ClearSelectionArea(imageViewCPtr->GetImageWindowCPtr());
     ClearSelectionArea (imageViewCPtr);
 	
 }	// end "CMOutlineArea::Clear"
 
 
 
-void CMOutlineArea::Draw (CDC* pDC, CMImageView* imageViewCPtr)
+void CMOutlineArea::Draw (
+				CDC* 									pDC,
+				CMImageView* 						imageViewCPtr)
 
 {
-     if (GetSelectionTypeCode (imageViewCPtr) == 0)
-																												return;
+	if (GetSelectionTypeCode (imageViewCPtr) == 0)
+																									return;
 
-    wxBrush pOldBrush;
-    wxPen pOldPen;
-    pOldBrush = pDC->GetBrush ();
-    pOldPen = pDC->GetPen ();
-    //pDC->SetPen(pen);
-    //pDC->SetBrush(brush);
-    //pDC->SetBrush (*wxTRANSPARENT_BRUSH);
-    //pDC->SetPen (wxPen (*wxBLACK, 1, wxDOT));
-    gCDCPointer = pDC;
+	wxBrush pOldBrush;
+	wxPen pOldPen;
+	pOldBrush = pDC->GetBrush ();
+	pOldPen = pDC->GetPen ();
+	//pDC->SetPen(pen);
+	//pDC->SetBrush(brush);
+	//pDC->SetBrush (*wxTRANSPARENT_BRUSH);
+	//pDC->SetPen (wxPen (*wxBLACK, 1, wxDOT));
+	gCDCPointer = pDC;
 
-    DrawSelectionArea (imageViewCPtr);
-    /*
-                            // Set the member variables needed to convert from line-column
-                            // units to window units.
+	DrawSelectionArea (imageViewCPtr);
+	/*
+			// Set the member variables needed to convert from line-column
+			// units to window units.
 
-            ::GetWindowClipRectangle (imageViewCPtr, kImageArea, &s_viewRect);
+	::GetWindowClipRectangle (imageViewCPtr, kImageArea, &s_viewRect);
 
-            SetChannelWindowVariables (imageViewCPtr);
+	SetChannelWindowVariables (imageViewCPtr);
 
-            switch (m_type)
-                    {
-                    case rectangle:
-                            DrawRectangle(pDC, imageViewCPtr);
-                            break;
+	switch (m_type)
+		{
+		case rectangle:
+			DrawRectangle(pDC, imageViewCPtr);
+			break;
 
-                    case polygon:
-    //			DrawPolygon(pDC, imageViewCPtr);
-                            DrawSelectionPolygon (imageViewCPtr, selectionInfoPtr);
-                            gCDCPointer = NULL;
-                            break;
+		case polygon:
+			//DrawPolygon(pDC, imageViewCPtr);
+			DrawSelectionPolygon (imageViewCPtr, selectionInfoPtr);
+			gCDCPointer = NULL;
+			break;
 
-                    }		// end "switch (m_Style)"
-     */
+		}	// end "switch (m_Style)"
+	*/
+	gCDCPointer = NULL;
 
-    gCDCPointer = NULL;
+	pDC->SetBrush (pOldBrush);
+	pDC->SetPen (pOldPen);
 
-    pDC->SetBrush (pOldBrush);
-    pDC->SetPen (pOldPen);
-
-} // end "CMOutlineArea::Draw"
-
+}	// end "CMOutlineArea::Draw"
 
 
-//-----------------------------------------------------------------------------   
-//								 Copyright (1988-1998) 
-//								� Purdue Research Foundation    
+
+//------------------------------------------------------------------------------------   
+//								 Copyright (1988-2019)
+//							(c) Purdue Research Foundation
 //									All rights reserved. 
 //  
 //	Function name:		void CMOutlineArea::Invalidate  
@@ -282,22 +288,19 @@ void CMOutlineArea::Invalidate (
         CMImageView* 							imageViewCPtr)
 
  {
-    LCToWindowUnitsVariables 		lcToWindowUnitsVariables;
-    DoubleRect 						coordinateRectangle;
+	LCToWindowUnitsVariables 		lcToWindowUnitsVariables;
+	DoubleRect 							coordinateRectangle;
 
-    LongRect 							lineColumnRectangle,
+	LongRect 							lineColumnRectangle,
             							selectionRect;
 
-    Rect 								tempRect;
+	Rect 									tempRect;
 
-    SInt32 								channel;
+	SInt32 								channel;
 
-    SInt64 								numberPixels;
+	SInt64 								numberPixels;
  
-
-    if (this == NULL)
-        return;
-
+ 
 	if (GetSelectionTypeCode (imageViewCPtr) != 0)
     	{
 		::GetWindowClipRectangle (imageViewCPtr, kImageArea, &s_viewRect);

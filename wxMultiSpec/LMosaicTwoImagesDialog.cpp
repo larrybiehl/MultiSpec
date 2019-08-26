@@ -3,27 +3,27 @@
 //               Laboratory for Applications of Remote Sensing
 //                         Purdue University
 //                        West Lafayette, IN 47907
-//                         Copyright (2009-2018)
+//                         Copyright (2009-2019)
 //                     (c) Purdue Research Foundation
 //                           All rights reserved.
 //
-//   File:                  LMosaicTwoImagesDialog.cpp : class implementation file
-//   Class Definition:      LMosaicTwoImagesDialog.h
+// File:                LMosaicTwoImagesDialog.cpp : class implementation file
+// Class Definition:		LMosaicTwoImagesDialog.h
 //
-//   Authors:               Abdur Rahman Maud, Larry L. Biehl
+// Authors:					Abdur Rahman Maud, Larry L. Biehl
 //
-//   Revision date:         11/16/2018
+// Revision date:			11/16/2018
 //
-//   Language:            C++
+// Language:				C++
 //
-//   System:               Linux Operating System
+// System:              Linux and MacOS Operating Systems
 //
-//   Brief description:   This file contains functions that relate to the
-//                        CMMosaicTwoImagesDialog class.
+// Brief description:   This file contains functions that relate to the
+//                  		CMMosaicTwoImagesDialog class.
 //
 //------------------------------------------------------------------------------------
-
-#include   "SMultiSpec.h"
+//
+#include "SMultiSpec.h"
 
 #include "CImageWindow.h"
 
@@ -32,72 +32,8 @@
 #include "LImage_dialog.cpp"
 #include "LMosaicTwoImagesDialog.h"
 
-extern void         MosaicTwoImagesDialogInitialize (
-                                                     DialogPtr                     dialogPtr,
-                                                     ReformatOptionsPtr            reformatOptionsPtr,
-                                                     FileInfoPtr                     leftTopFileInfoPtr,
-                                                     FileInfoPtr                     outFileInfoPtr,
-                                                     SInt16*                        mosaicDirectionCodePtr,
-                                                     DialogSelectArea*               leftTopDialogSelectAreaPtr,
-                                                     DialogSelectArea*               rightBottomDialogSelectAreaPtr,
-                                                     SInt16*                        fileNamesSelectionPtr,
-                                                     Handle*                        rightBottomWindowInfoHandlePtr,
-                                                     Boolean*                        ignoreBackgroundFlagPtr,
-                                                     SInt32*                        maxDataValuePtr,
-                                                     SInt32*                        newBackgroundValuePtr,
-                                                     SInt16*                        headerOptionsSelectionPtr);
 
-extern void         MosaicTwoImagesDialogOK (
-                                             ReformatOptionsPtr            reformatOptionsPtr,
-                                             FileInfoPtr                     outFileInfoPtr,
-                                             SInt16                        mosaicDirectionCode,
-                                             Handle                        rightBottomWindowInfoHandle,
-                                             DialogSelectArea*               leftTopDialogSelectAreaPtr,
-                                             DialogSelectArea*               rightBottomDialogSelectAreaPtr,
-                                             Boolean                        ignoreBackgroundFlag,
-                                             SInt32                        newBackgroundValue,
-                                             Boolean                        channelDescriptionsFlag,
-                                             SInt16                        headerFormat);
 
-extern void         MosaicTwoImagesDialogOnSelectRightBottomImage (
-                                                                   DialogPtr                     dialogPtr,
-                                                                   DialogSelectArea*               leftTopDialogSelectAreaPtr,
-                                                                   DialogSelectArea*               rightBottomDialogSelectAreaPtr,
-                                                                   SInt16                        fileNamesSelection,
-                                                                   Handle*                        rightOrBottomMosaicWindowInfoHandlePtr,
-                                                                   SInt16                        mosaicDirectionCode);
-
-extern void         MosaicTwoImagesDialogUpdateBackGroundValuesItem (
-                                                                     DialogPtr                     dialogPtr,
-                                                                     Boolean                        ignoreBackgroundFlag);
-
-extern void         MosaicTwoImagesDialogUpdateChannelDescriptionItem (
-                                                                       DialogPtr                     dialogPtr,
-                                                                       SInt16                        headerFormat,
-                                                                       Boolean                        thematicTypeFlag);
-
-extern void         MosaicTwoImagesDialogUpdateDirectionItems (
-                                                               DialogPtr                     dialogPtr,
-                                                               DialogSelectArea*               leftTopDialogSelectAreaPtr,
-                                                               DialogSelectArea*               rightBottomDialogSelectAreaPtr,
-                                                               Handle                        rightBottomWindowInfoHandle,
-                                                               SInt16                        mosaicDirectionCode,
-                                                               Boolean                        ignoreBackgroundFlag);
-
-extern void         MosaicTwoImagesDialogUpdateLineColumnEnds (
-                                                               DialogPtr                     dialogPtr,
-                                                               DialogSelectArea*               topLeftDialogSelectAreaPtr,
-                                                               DialogSelectArea*               dialogSelectAreaPtr,
-                                                               SInt16                        mosaicDirectionCode,
-                                                               Handle                        rightOrBottomMosaicWindowInfoHandle,
-                                                               UInt16                        itemSelected);
-
-extern SInt16      MosaicTwoImagesDialogVerifyLineColumnSettings (
-                                                                  DialogSelectArea*               leftTopDialogSelectAreaPtr,
-                                                                  DialogSelectArea*               rightBottomDialogSelectAreaPtr,
-                                                                  SInt16                        mosaicDirectionCode);
-
-// CMMosaicTwoImagesDialog dialog
 CMMosaicTwoImagesDialog::CMMosaicTwoImagesDialog(wxWindow* pParent,
                                                  wxWindowID id, const wxString& title/*=NULL*/)
 :CMDialog(CMMosaicTwoImagesDialog::IDD, pParent, title)

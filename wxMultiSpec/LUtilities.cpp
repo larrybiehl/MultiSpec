@@ -15,7 +15,7 @@
 //
 //	Language:				C
 //
-//	System:					Linux Operating Systems
+//	System:					Linux and MacOS Operating Systems
 //
 //	Brief description:	The purpose of the routines in this file is to provide
 //								utility type functions in MultiSpec for Linux OS.
@@ -29,7 +29,7 @@
 		ListString ((char*)gTextString3, numberChars, gOutputTextH);	
 */
 //------------------------------------------------------------------------------------
-
+//
 #include "SMultiSpec.h"
 #include	<ctype.h>  
 
@@ -1676,4 +1676,5 @@ void SetUpToolTip (
    GetSpecifiedStringNumber (kFileIOStrID, stringnumber, (UCharPtr)gTextString, TRUE);
 	wxString wdcard ((char*)&gTextString[1], wxConvUTF8);
    control->SetToolTip (wdcard);
-}
+	
+}	// end "SetUpToolTip"

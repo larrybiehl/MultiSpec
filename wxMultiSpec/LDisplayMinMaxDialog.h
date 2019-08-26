@@ -1,6 +1,27 @@
-// LDisplayMinMaxDialog.h : header file
-// 
-// Revised by Larry Biehl on 06/20/2017
+//	 									MultiSpec
+//
+//					Laboratory for Applications of Remote Sensing
+//									Purdue University
+//								West Lafayette, IN 47907
+//								 Copyright (2009-2019)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	File:						LDisplayMinMaxDialog.h : CMDisplayMinMaxDialog Definition
+//	Implementation:		LDisplayMinMaxDialog.cpp
+//
+//	Authors:					Larry L. Biehl
+//
+//	Language:				C++
+//
+//	System:					Linux and MacOS Operating Systems
+//
+//	Brief description:	Header file for the CMDisplayMinMaxDialog class
+//
+//	Written By:				Abdur Rahman Maud		Date: ??/??/2013
+//	Revised By:				Larry L. Biehl			Date: 06/20/2017
+//
+//------------------------------------------------------------------------------------
 //
 #if !defined __LDMINDLG_H__
 #define	__LDMINDLG_H__ 
@@ -9,10 +30,11 @@
 #include "wx/wx.h"
 #include "LDialog.h"
 
-/////////////////////////////////////////////////////////////////////////////
-// CMDisplayMinMaxDialog dialog
 
-class CMDisplayMinMaxDialog : public CMDialog {
+
+class CMDisplayMinMaxDialog : public CMDialog
+
+{
     // Construction
 public:
 	CMDisplayMinMaxDialog();
@@ -111,16 +133,15 @@ protected:
 				int					minID);
 
 			// Generated message map functions
-	//virtual BOOL OnInitDialog();
+			
 	void OnInitDialog (wxInitDialogEvent& event);
 	void OnChannelMinMax (wxCommandEvent& event);
 	void OnChangePercentClipped (wxCommandEvent& event);
 	void OnChangeMinMaxBlue (wxCommandEvent& event);
 	void OnChangeMinMaxGreen (wxCommandEvent& event);
 	void OnChangeMinMaxRed (wxCommandEvent& event);
-	//void OnButtonPress (wxKeyEvent& event);
 
-	DECLARE_EVENT_TABLE()
+	DECLARE_EVENT_TABLE ()
 
 	HistogramSpecsPtr m_histogramSpecsPtr;
 	HistogramSummaryPtr m_histogramSummaryPtr;
@@ -140,7 +161,6 @@ protected:
 	m_updatingMinMaxFlag;
 
 public:
-	void OnStnClickedRedchannelmin(wxCommandEvent& event);
+	void OnStnClickedRedchannelmin (wxCommandEvent& event);
 };
-
 #endif // !defined __LDISPDLG_H__

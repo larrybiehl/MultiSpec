@@ -1,6 +1,27 @@
-// LStatisticsView.cpp : implementation file
-//      
-// Revised by Larry Biehl 04 01/12/2019
+//	 									MultiSpec
+//
+//					Laboratory for Applications of Remote Sensing
+// 								Purdue University
+//								West Lafayette, IN 47907
+//								 Copyright (2009-2019)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	File:						LStatisticsView.cpp : class implementation file
+//	Class Definition:		LStatisticsView.h
+//
+//	Authors:					Larry L. Biehl
+//
+//	Revision date:			01/12/2019
+//
+//	Language:				C++
+//
+//	System:					Linux and MacOS Operating Systems
+//
+//	Brief description:	This file contains functions that relate to the
+//								CMStatisticsView class.
+//
+//------------------------------------------------------------------------------------
 //
 #include "SMultiSpec.h"
 
@@ -17,42 +38,18 @@
 
 typedef wxString CString;
 
-extern void WriteProjectName(void);
 
-extern SInt16 GetCovarianceStatsFromMenuItem(
-   SInt16 menuItem);
-
-extern SInt16 GetProjectStatisticsTypeMenuItem(void);
-
-extern void GetProjectStatisticsTypeText(
-   char* textStringPtr,
-   SInt16 menuItem);
-
-extern void FieldListStatMode(
-   SInt16 classNumber);
-
-extern SInt16 GetCurrentField(
-   SInt16 classNumber,
-   SInt16 classFieldNumber);
-
-extern void PolygonListStatMode(
-   SInt16 classFieldNumber);
-
-/////////////////////////////////////////////////////////////////////////////
-// CMStatisticsView
 
 IMPLEMENT_DYNAMIC_CLASS(CMStatisticsView, wxView)
 
-CMStatisticsView::CMStatisticsView()//: wxView(CMStatisticsView::IDD) 
+BEGIN_EVENT_TABLE (CMStatisticsView, wxView)
+END_EVENT_TABLE ()
+
+CMStatisticsView::CMStatisticsView ()
+
 {
    m_classList = 0;
-   //m_histogramStatsCode = 0;
-   //m_listStatsCode = 0;
-   //m_statsTypeCode = 0;
-   //m_polygonFlag = FALSE;
-
    m_initializedFlag = FALSE;
-   //m_optionKeyFlag = FALSE;
 	m_initializedFlag = TRUE;
 
 }	// end "CMStatisticsView"
@@ -64,30 +61,27 @@ CMStatisticsView::~CMStatisticsView ()
 {
    gProjectWindow = NULL;
 
-}
+}	// end "~CMStatisticsView"
 
 
-BEGIN_EVENT_TABLE(CMStatisticsView, wxView)
-END_EVENT_TABLE()
-/////////////////////////////////////////////////////////////////////////////
-// CMStatisticsView message handlers  
 
+bool CMStatisticsView::OnCreate (
+				wxDocument*							doc,
+				long 									WXUNUSED(flags) )
 
-bool CMStatisticsView::OnCreate (wxDocument *doc, long WXUNUSED(flags) )
 {
-   int	clientWidth,
-			clientHeight,
-			width = 225,
-			height = 505,
-			textWindowXPosition,
-			textWindowYPosition;
+   int									clientWidth,
+											clientHeight,
+											width = 225,
+											height = 505,
+											textWindowXPosition,
+											textWindowYPosition;
 			
 	
 	GetMainFrame()->GetClientSize (&clientWidth, &clientHeight);
 	width = MIN (width, clientWidth);
 	height = MIN (height, clientHeight);
 
-	
 	textWindowXPosition = clientWidth - width - 12;
 	
 	#ifdef NetBeansProject
@@ -97,18 +91,18 @@ bool CMStatisticsView::OnCreate (wxDocument *doc, long WXUNUSED(flags) )
 	#endif
    
    m_frame = new CMStatisticsFrame (
-   							doc,
-								this,
-								GetMainFrame (),
-								wxID_ANY,
-								wxT("Project"),
-								wxPoint (textWindowXPosition, textWindowYPosition),
-								wxSize (width, height),
-								#if defined multispec_wxmac
-									(wxDEFAULT_FRAME_STYLE | wxFRAME_FLOAT_ON_PARENT) & ~(wxRESIZE_BORDER | wxMAXIMIZE_BOX));
-								#else
-									(wxDEFAULT_FRAME_STYLE | wxSTAY_ON_TOP) & ~(wxRESIZE_BORDER | wxMAXIMIZE_BOX));
-								#endif
+			doc,
+			this,
+			GetMainFrame (),
+			wxID_ANY,
+			wxT("Project"),
+			wxPoint (textWindowXPosition, textWindowYPosition),
+			wxSize (width, height),
+			#if defined multispec_wxmac
+				(wxDEFAULT_FRAME_STYLE | wxFRAME_FLOAT_ON_PARENT) & ~(wxRESIZE_BORDER | wxMAXIMIZE_BOX));
+			#else
+				(wxDEFAULT_FRAME_STYLE | wxSTAY_ON_TOP) & ~(wxRESIZE_BORDER | wxMAXIMIZE_BOX));
+			#endif
 	
    SetFrame (m_frame);
 	
@@ -116,12 +110,12 @@ bool CMStatisticsView::OnCreate (wxDocument *doc, long WXUNUSED(flags) )
    m_frame->SetClientSize (width, height);
    m_frame->SetTitle (wxT("Project"));
    m_frame->SetSize (width, height);
-   m_frame->SetSizeConstraint (-1,-1,width,height);
+   m_frame->SetSizeConstraint (-1, -1, width,height);
    
    ((CMStatisticsDoc*)doc)->SetStatisticsFrame ((CMStatisticsFrame*)m_frame);
 	gTheActiveWindow = (WindowPtr)this;   
    m_frame->Show (true);
-	Activate(true);
+	Activate (true);
    
    OnInitialUpdate ();
    
@@ -131,12 +125,12 @@ bool CMStatisticsView::OnCreate (wxDocument *doc, long WXUNUSED(flags) )
 
 
 
-bool CMStatisticsView::OnClose (bool deleteWindow)
+bool CMStatisticsView::OnClose (
+				bool 									deleteWindow)
+
 {
 	if (!GetDocument()->Close())
-		{
- 		return false;
-		}
+ 																							return false;
 	
 	if ((CMStatisticsView*)gTheActiveWindow == this)
 		gTheActiveWindow = NULL;
@@ -145,23 +139,12 @@ bool CMStatisticsView::OnClose (bool deleteWindow)
 		gActiveWindowType = -1;
 		
 	gProjectWindow = NULL;
-	Activate(false);
-	SetFrame(NULL);
+	Activate (false);
+	SetFrame (NULL);
 	return true;
 	
-	/*
-   Boolean returnFlag = CloseTheProject();
-	if(returnFlag == TRUE){
-      m_frame->Destroy();
-      return;
-		}      
-   else{
-      event.Veto();
-      return;
-		}
-	*/
-	
 }	// end "OnClose"
+
 
 
 void CMStatisticsView::OnInitialUpdate (void)
@@ -220,41 +203,31 @@ void CMStatisticsView::OnInitialUpdate (void)
 	
 		}	// end "if (OffscreenImageMapExists (windowInfoHandle))"
 	
-}		// end "OnInitialUpdate"
+}	// end "OnInitialUpdate"
+
 
 
 void CMStatisticsView::OnDraw (
-				CDC* pDC)
+				CDC* 									pDC)
 {
-   CString tempCString;
+   CString 								tempCString;
 
-   SInt16 classStorage;
+   SInt16 								classStorage;
 
-
-//   wxView::OnDraw(pDC);
 
    if (gProjectInfoPtr == NULL)
-      return;
+      																							return;
 
    switch (gProjectInfoPtr->statsWindowMode) 
 		{
       case 2:
-         //			menuItem = GetProjectStatisticsTypeMenuItem (); 
-         //			GetProjectStatisticsTypeText( (char*)gTextString, menuItem ); 
-         //			tempCString = CString((char*)&gTextString[1]); 
-
-         //			DDX_Text(m_dialogToPtr, 
-         //						IDC_StatsType, 
-         //						tempCString); 
-
-         m_frame->UpdateStatsTypeCombo(gProjectInfoPtr->statsWindowMode);
+			m_frame->UpdateStatsTypeCombo (gProjectInfoPtr->statsWindowMode);
          break;
 
       case 3: // "Field List" mode 
-         m_frame->UpdateStatsTypeCombo(gProjectInfoPtr->statsWindowMode);
+         m_frame->UpdateStatsTypeCombo (gProjectInfoPtr->statsWindowMode);
 
       case 4: // "Polygon Point List" mode
-
          classStorage = gProjectInfoPtr->storageClass[gProjectInfoPtr->currentClass];
 
          tempCString =
@@ -271,48 +244,34 @@ void CMStatisticsView::OnDraw (
 				wxStaticText* fieldname = (wxStaticText*)projWin->FindWindow(IDC_FieldName);
 				fieldname->SetLabel(tempCString);
 
-				} // end "if (gProjectInfoPtr->statsWindowMode == 4)"
-
+				}	// end "if (gProjectInfoPtr->statsWindowMode == 4)"
          break;
 
-   } // end "switch (gProjectInfoPtr->statsWindowMode)"  
+   	}	// end "switch (gProjectInfoPtr->statsWindowMode)"
  
-} // end "OnDraw"
+}	// end "OnDraw"
 
 
 
-//void CMStatisticsView::OnDestroy() 
-//{
-//   CloseTheProject();
+CMStatisticsDoc* CMStatisticsView::GetDocument ()
 
-//}
-
-
-CMStatisticsDoc* CMStatisticsView::GetDocument() 
 {
    return (CMStatisticsDoc*) m_viewDocument;
-}
+	
+}	// end "GetDocument"
 
 
-// This function is called when we call wxView::Activate()
-// Inherited from wxView
+
+// 		This function is called when we call wxView::Activate()
+// 		Inherited from wxView
 void CMStatisticsView::OnActivateView(
-        bool				bActivate,
-        wxView*			pActivateView,
-        wxView*			pDeactiveView)
+				bool									bActivate,
+				wxView*								pActivateView,
+				wxView*								pDeactiveView)
+
 {
 	if (m_frame != NULL)
 		{
-		/*
-		int numberChars = sprintf ((char*)&gTextString3,
-												" LStatView::OnActivateView: (gActiveImageWindowInfoH, bActivate, pActivateView, pDeactiveView): %ld, %ld, %ld, %ld%s", 
-												gActiveImageWindowInfoH,
-												bActivate,
-												pActivateView,
-												pDeactiveView,
-												gEndOfLine);
-		ListString ((char*)&gTextString3, numberChars, gOutputTextH);
-		*/
 		if (bActivate)
 			wxASSERT(pActivateView == (wxView*)this);
 		  
@@ -327,8 +286,8 @@ void CMStatisticsView::OnActivateView(
          if(gProjectInfoPtr != NULL)
             m_frame->ActivateStatisticsWindowItems (gProjectInfoPtr->statsWindowMode);
 			
-			}		// end "if (gProcessorCode == 0 && bActivate)"	
+			}	// end "if (gProcessorCode == 0 && bActivate)"
 		
-		}		// end "if (m_frame != NULL)"
+		}	// end "if (m_frame != NULL)"
 
-} // end "OnActivateView"
+}	// end "OnActivateView"

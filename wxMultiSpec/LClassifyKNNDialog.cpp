@@ -16,7 +16,7 @@
 //
 // Language:				C++
 //
-// System:              Linux Operating System
+// System:              Linux and MacOS Operating Systems
 //
 // Brief description:   This file contains functions that relate to the
 //                      CMClassifyKNNDialog class.
@@ -78,7 +78,8 @@ void CMKNNClassifyDialog::CreateControls ()
 										  wxSize (50, -1),
 										  0);
    
-   bSizer167->Add (m_kValueControl, 0, wxALIGN_CENTER|wxALL, 5);
+   m_kValueControl->SetValidator (wxTextValidator (wxFILTER_DIGITS, &m_kValueString));
+	bSizer167->Add (m_kValueControl, 0, wxALIGN_CENTER|wxALL, 5);
    
    m_staticText184 = new wxStaticText (this,
                                        wxID_ANY,
@@ -173,9 +174,21 @@ void CMKNNClassifyDialog::OnInitDialog (
 bool CMKNNClassifyDialog::TransferDataFromWindow ()
 
 {
-   m_nearestNeighborKValue = wxAtof (m_kValueControl->GetValue ());
+	SInt16						continueCode,
+									returnCode = 0;
 	
-   return true;
+	
+   m_nearestNeighborKValue = wxAtoi (m_kValueControl->GetValue ());
+	
+	continueCode = CheckMaxValue (this,
+											IDC_KValue,
+											1,
+											100,
+											kDisplayRangeAlert);
+	if (continueCode != 1)
+		returnCode = IDC_KValue;
+	
+   return (returnCode == 0);
    
 }	// end "TransferDataFromWindow"
 

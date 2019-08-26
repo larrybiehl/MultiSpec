@@ -1,27 +1,37 @@
-/*
- *	LMultiSpec.cpp
- *      
- * Copyright 2019 multispec
- *	Revised by Larry Biehl		on 04/18/2019
- *	Revised by Tsung Tai Yeh	on 09/10/2015
- *      
- */
-
-// multspec_lin.cpp : Defines the class behaviors for the application.
-// Modified for Linux
+//                               MultiSpec
+//
+//               Laboratory for Applications of Remote Sensing
+//                         Purdue University
+//                        West Lafayette, IN 47907
+//                         Copyright (2009-2019)
+//                     (c) Purdue Research Foundation
+//                           All rights reserved.
+//
+// File:                LMultiSpec.cpp : class implementation file
+// Class Definition:		LMultiSpec.h
+//
+// Authors:					Abdur Rahman Maud, Larry L. Biehl
+//
+// Revision date:			09/10/2015 by Tsung Tai Yeh
+//								04/18/2019 by Larry Biehl
+//
+// Language:				C++
+//
+// System:              Linux and MacOS Operating Systems
+//
+// Brief description:   This file contains functions that relate to the
+//                  		CMultiSpecApp class.
+//
 /* Template for debugging for MultiSpec Online on mygeohub.org.
 	int numberChars = sprintf ((char*)&gTextString3,
-								" LMultiSpec::GetUserInputFilePath (countBytes, errCode) %d, %d%s", 
+								" LMultiSpec::GetUserInputFilePath (countBytes, errCode) %d, %d%s",
 								countBytes,
 								errCode,
 								gEndOfLine);
-	ListString ((char*)&gTextString3, numberChars, gOutputTextH);	
+	ListString ((char*)&gTextString3, numberChars, gOutputTextH);
 */
-
-
-//#include "SMultiSpec.h"
-
-//#include "wx/filedlg.h"
+//------------------------------------------------------------------------------------
+//
 #include "wx/cshelp.h"
 #include "CFileStream.h"
 #include "LMultiSpec.h"
@@ -36,10 +46,11 @@
 	#include "wx/sysopt.h"
 #endif
 
-CMainFrame *pMainFrame = (CMainFrame *) NULL;
-void DisplayDescriptionInformation(FileInfoPtr localFileInfoPtr);
+CMainFrame *pMainFrame = (CMainFrame*)NULL;
 
-time_t				LinGetTime (void);
+void DisplayDescriptionInformation (FileInfoPtr localFileInfoPtr);
+
+time_t LinGetTime (void);
 
 
 CMultiSpecApp::CMultiSpecApp ()
@@ -214,7 +225,8 @@ wxDocument* CMultiSpecApp::ActivateGraphView ()
 }	// end "ActivateGraphView"
 
 
-void CMultiSpecApp::ActivateProjectView ()
+
+void CMultiSpecApp::ActivateProjectView (void)
 
 {
    pStatisticsDocTemplate->CreateDocument(wxEmptyString, wxDOC_NEW | wxDOC_SILENT);
@@ -223,7 +235,7 @@ void CMultiSpecApp::ActivateProjectView ()
 
 
 
-wxDocument* CMultiSpecApp::ActivateListDataView ()
+wxDocument* CMultiSpecApp::ActivateListDataView (void)
 
 {
 	wxDocument* init_doc = pListDataDocTemplate->CreateDocument (
@@ -235,7 +247,7 @@ wxDocument* CMultiSpecApp::ActivateListDataView ()
 
 
 //------------------------------------------------------------------------------------
-//											Copyright (1988-2016)
+//											Copyright (2009-2019)
 //                          (c) Purdue Research Foundation
 //											All rights reserved.
 //
@@ -255,7 +267,9 @@ wxDocument* CMultiSpecApp::ActivateListDataView ()
 //	Coded By:			Larry L. Biehl			Date: 03/01/1993
 //	Revised By:			Larry L. Biehl			Date: 11/26/2008
 
-wxFrame *CMultiSpecApp::CreateChildFrame(wxDocument *doc, wxView *view)
+wxFrame *CMultiSpecApp::CreateChildFrame (
+				wxDocument*							doc,
+				wxView*								view)
 
 {
 			// create a child frame of image display frame
@@ -267,7 +281,6 @@ wxFrame *CMultiSpecApp::CreateChildFrame(wxDocument *doc, wxView *view)
 	return subframe;
 	
 }	// end "CreateChildFrame"
-
 
 
 #if defined multispec_wxlin
@@ -396,7 +409,8 @@ void CMultiSpecApp::GetUserInputFilePath (
 #endif	// defined multispec_wxlin
 
 #if defined multispec_wxmac
-void CMultiSpecApp::MacOpenFiles (const wxArrayString & fileNames)
+void CMultiSpecApp::MacOpenFiles (
+				const wxArrayString& 			fileNames)
 
 {
 	wxWCharBuffer						wideCharBuffer;
@@ -484,6 +498,7 @@ void CMultiSpecApp::OnCharHook (
 
 #if !defined NetBeansProject
 int CMultiSpecApp::OnExit (void)
+
 {
 	#ifndef multispec_wxmac
 		//wxDELETE(m_docManager);
@@ -518,6 +533,7 @@ void CMultiSpecApp::OnFileOpen (wxCommandEvent& event)
 
 
 		// CMultiSpecApp initialization
+
 bool CMultiSpecApp::OnInit ()
 
 {
@@ -657,24 +673,19 @@ bool CMultiSpecApp::OnInit ()
 }	// end "OnInit"
 
 
-void CMultiSpecApp::OnQueryEndSession (wxCloseEvent& event) 
+
+void CMultiSpecApp::OnQueryEndSession (
+				wxCloseEvent& 						event)
 { 
-	//wxLogMessage("Query end session"); 
-	/*
-	int numberChars = sprintf ((char*)&gTextString3,
-												" CMultiSpecApp:OnQueryEndSession (gProjectInfoPtr): %ld%s", 
-												gProjectInfoPtr,
-												gEndOfLine);
-	ListString ((char*)&gTextString3, numberChars, gOutputTextH);	
-	*/
-	if (!CloseTheProject())
-		event.Veto();
+	if (!CloseTheProject ())
+		event.Veto ();
  
 }	// end "OnQueryEndSession"
 
 
+
 //-----------------------------------------------------------------------------
-//				                    Copyright (1988-2019)
+//				                    Copyright (2009-2019)
 //                          (c) Purdue Research Foundation
 //                             	All rights reserved.
 //
@@ -718,62 +729,14 @@ SInt32 CMultiSpecApp::OpenImageFileLin (
 }	// end "OpenImageFileLin"
 
 
-/*
-SInt16 CMultiSpecApp::GetZoomCode (void)
 
-{
-    return (m_imageZoomCode);
-
-}	// end "GetZoomCode"
-
-
-void CMultiSpecApp::SetZoomCode (
-				SInt16 zoomCode)
-
-{
-	m_imageZoomCode = zoomCode;
-
-	if (m_imageZoomCode == 0)
-		m_nextControlTime = 0;
-
-	else // m_imageZoomCode != 0
-		{
-		m_controlDelayFlag = TRUE;
-		
-				// Currently for linux, if user holds the ctrl key down and holds the zoom button
-				// down, zoom will continue for 1/10 increments. Have not found a way to handle
-				// for left clicking on the button. Only event returned is when mouse button goes up
-				// after a mouse down.
-		
-		if (wxGetKeyState(WXK_SHIFT))
-			m_controlDelayFlag = FALSE;
-	  
-		else		// !wxGetKeyState(WXK_SHIFT)
-			m_controlDelayFlag = TRUE;
-		
-	} // end "else m_imageZoomCode != 0"
-
-} // end "SetZoomCode"
-*/
-/*
-void CMultiSpecApp::SetControlDelayFlag (Boolean delayFlag)
-
-{
-    m_controlDelayFlag = delayFlag;
-
-    if (m_imageZoomCode == 0)
-        m_controlDelayFlag = TRUE;
-
-} // end "SetControlDelayFlag"
-*/
-
-
-Handle CMultiSpecApp::GetOpenImageFileInfoHandle ()
+Handle CMultiSpecApp::GetOpenImageFileInfoHandle (void)
 
 {
     return m_openImageFileInfoHandle;
 	
 }	// end "GetOpenImageFileInfoHandle
+
 
 
 Handle CMultiSpecApp::SetUpNewImageDocument (
@@ -820,8 +783,8 @@ Handle CMultiSpecApp::SetUpNewImageDocument (
 	if (continueFlag)
 		{															
 		CMImageWindow*	imageWindowCPtr = 
-						((CMImageDoc*)documentPtr)->GetDocImageWindowCPtr();
-		windowInfoHandle = imageWindowCPtr->GetWindowInfoHandle();
+						((CMImageDoc*)documentPtr)->GetDocImageWindowCPtr ();
+		windowInfoHandle = imageWindowCPtr->GetWindowInfoHandle ();
 		continueFlag = (windowInfoHandle != NULL);
 		
 		}		// end "if (continueFlag)"
@@ -944,7 +907,7 @@ wxString wxFileSelectorEx(const wxString& title,
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1062,9 +1025,9 @@ Boolean CheckSomeEvents (
 wxFrame* GetActiveFrame (void)
 
 { 
-	wxFrame* frame = NULL;
-	int		height,
-				width;
+	wxFrame* 							frame = NULL;
+	int									height,
+											width;
 	
 	
 	if (gOutputViewCPtr != NULL && (WindowPtr)gOutputViewCPtr == gTheActiveWindow)
@@ -1100,7 +1063,8 @@ CMainFrame* GetMainFrame (void)
 }	// end "GetMainFrame"
 
 
-time_t LinGetTime ()
+
+time_t LinGetTime (void)
 
 {
 	time_t		returnValue = 1;
@@ -1117,9 +1081,10 @@ time_t LinGetTime ()
 }	// end "LinGetTime"
 
 
+
 void FileUploadProcess::OnTerminate (
-				int pid,
-				int status)
+				int 									pid,
+				int 									status)
 
 {
 	int numberChars;

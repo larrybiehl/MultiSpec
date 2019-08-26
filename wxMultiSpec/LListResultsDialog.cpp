@@ -1,29 +1,80 @@
-// LListResultsDialog.cpp : implementation file
-//                
-// Revised by Larry Biehl on 10/19/2018
+//	 									MultiSpec
 //
-#include "SMultiSpec.h"  
+//					Laboratory for Applications of Remote Sensing
+// 								Purdue University
+//								West Lafayette, IN 47907
+//								 Copyright (2009-2019)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	File:						LListResultsDialog.cpp : class implementation file
+//	Class Definition:		LListResultsDialog.h
+//
+//	Authors:					Larry L. Biehl
+//
+//	Revision date:			10/19/2018
+//
+//	Language:				C++
+//
+//	System:					Linux and MacOS Operating Systems
+//
+//	Brief description:	This file contains functions that relate to the
+//								CMListResultsDialog class.
+//
+// Following is template for debugging
+/*
+		int numberChars = sprintf ((char*)gTextString3,
+									 " LListResultsDialog:: (): %s",
+									 gEndOfLine);
+		ListString ((char*)gTextString3, numberChars, gOutputTextH);
+*/
+//------------------------------------------------------------------------------------
+//
+#include "SMultiSpec.h"
                    
 #include "LImage_dialog.cpp"
 #include "LListResultsDialog.h"
 #include "LMultiSpec.h"
 
-//#include	"SExternalGlobals.h" 
-
 extern ListResultsSpecsPtr gListResultsSpecsPtr;
 
-extern void ListResultsDialogSetThresholdItems(
-   DialogPtr dialogPtr,
-   Boolean thresholdResultsFlag,
-   SInt16 thresholdTypeCode);
 
-/////////////////////////////////////////////////////////////////////////////
-// CMListResultsDialog dialog
 
-CMListResultsDialog::CMListResultsDialog(wxWindow* pParent, wxWindowID id, const wxString& title)
-: CMDialog(CMListResultsDialog::IDD, pParent, title)
+BEGIN_EVENT_TABLE (CMListResultsDialog, CMDialog)
+	EVT_BUTTON (IDEntireImage, CMListResultsDialog::ToEntireImage)
+	EVT_BUTTON (IDSelectedImage, CMListResultsDialog::ToSelectedImage)
+
+	EVT_CHECKBOX (IDC_Class, CMListResultsDialog::OnClassSummary)
+	EVT_CHECKBOX (IDC_Field, CMListResultsDialog::OnFieldSummary)
+	EVT_CHECKBOX (IDC_Group, CMListResultsDialog::OnGroupSummary)
+	EVT_CHECKBOX (IDC_Image, CMListResultsDialog::OnImage)
+	EVT_CHECKBOX (IDC_Test, CMListResultsDialog::OnTest)
+	EVT_CHECKBOX (IDC_ThresholdResults, CMListResultsDialog::OnThresholdResults)
+	EVT_CHECKBOX (IDC_Training, CMListResultsDialog::OnTraining)
+
+	EVT_COMBOBOX (IDC_ClassCombo, CMListResultsDialog::OnSelendokClassCombo)
+
+	EVT_INIT_DIALOG (CMListResultsDialog::OnInitDialog)
+
+	EVT_RADIOBUTTON (IDC_Area, CMListResultsDialog::OnAreaUnits)
+	EVT_RADIOBUTTON (IDC_Percent, CMListResultsDialog::OnPercentUnits)
+	EVT_RADIOBUTTON (IDC_Samples, CMListResultsDialog::OnSampleUnits)
+
+	EVT_TEXT (IDC_ColumnEnd, CMListResultsDialog::CheckColumnEnd)
+	EVT_TEXT (IDC_ColumnStart, CMListResultsDialog::CheckColumnStart)
+	EVT_TEXT (IDC_LineEnd, CMListResultsDialog::CheckLineEnd)
+	EVT_TEXT (IDC_LineStart, CMListResultsDialog::CheckLineStart)
+END_EVENT_TABLE ()
+
+
+
+CMListResultsDialog::CMListResultsDialog (
+				wxWindow* 							pParent,
+				wxWindowID 							id,
+				const wxString& 					title)
+		: CMDialog (CMListResultsDialog::IDD, pParent, title)
+
 {
-   //{{AFX_DATA_INIT(CMListResultsDialog)
    m_trainingFlag = FALSE;
    m_testFlag = FALSE;
    m_imageFlag = FALSE;
@@ -37,38 +88,41 @@ CMListResultsDialog::CMListResultsDialog(wxWindow* pParent, wxWindowID id, const
    m_diskFileFlag = FALSE;
    m_tableType = -1;
    m_tableUnits = -1;
-   //}}AFX_DATA_INIT
 
    m_projectWindowFlag = (gProjectInfoPtr != NULL);
    m_initializedFlag = CMDialog::m_initializedFlag;
 
-   if (m_initializedFlag) {
-      // Get memory for the local class list vector.	
+   if (m_initializedFlag)
+   	{
+      		// Get memory for the local class list vector.
 
       m_classListPtr = NULL;
       if (m_projectWindowFlag) {
-         m_classListPtr = (UInt16*) MNewPointer(
-            (UInt32) gProjectInfoPtr->numberStatisticsClasses * sizeof (UInt16));
+         m_classListPtr = (UInt16*)MNewPointer (
+            		(UInt32)gProjectInfoPtr->numberStatisticsClasses * sizeof (UInt16));
 
          m_initializedFlag = (m_classListPtr != NULL);
 
-      } // end "if (m_projectWindowFlag)"
+      }	// end "if (m_projectWindowFlag)"
 
-   } // end "if (m_initializedFlag)"
+   }	// end "if (m_initializedFlag)"
 
    CreateControls();
    SetSizerAndFit(bSizer188);
-} // end "CMListResultsDialog"
+	
+}	// end "CMListResultsDialog"
 
 
-CMListResultsDialog::~CMListResultsDialog(void)
+
+CMListResultsDialog::~CMListResultsDialog (void)
 {
-	m_classListPtr = CheckAndDisposePtr(m_classListPtr);
+	m_classListPtr = CheckAndDisposePtr (m_classListPtr);
 
 } // end "~CMListResultsDialog"
 
 
-void CMListResultsDialog::CheckListAreaItems()
+
+void CMListResultsDialog::CheckListAreaItems ()
 {
    m_localAreaCode = 0;
 
@@ -83,10 +137,12 @@ void CMListResultsDialog::CheckListAreaItems()
 
    SetSummarizeByItems();
 
-} // end "CheckListAreaItems" 
+}	// end "CheckListAreaItems"
 
 
-void CMListResultsDialog::CheckSummaryItems()
+
+void CMListResultsDialog::CheckSummaryItems ()
+
 {
    m_localSummaryCode = 0;
 
@@ -101,10 +157,12 @@ void CMListResultsDialog::CheckSummaryItems()
 
    SetSummarizeByItems();
 
-} // end "CheckSummaryItems"
+}	// end "CheckSummaryItems"
 
 
-void CMListResultsDialog::CreateControls()
+
+void CMListResultsDialog::CreateControls ()
+
 {
    wxBitmap entireimi = wxBITMAP_PNG_FROM_DATA(entireim);
    wxBitmap toentirei = wxBITMAP_PNG_FROM_DATA(toentire);
@@ -393,31 +451,9 @@ void CMListResultsDialog::CreateControls()
 }
 
 
-BEGIN_EVENT_TABLE(CMListResultsDialog, CMDialog)
-EVT_INIT_DIALOG(CMListResultsDialog::OnInitDialog)
-EVT_CHECKBOX(IDC_Image, CMListResultsDialog::OnImage)
-EVT_CHECKBOX(IDC_Training, CMListResultsDialog::OnTraining)
-EVT_CHECKBOX(IDC_Test, CMListResultsDialog::OnTest)
-EVT_CHECKBOX(IDC_Field, CMListResultsDialog::OnFieldSummary)
-EVT_CHECKBOX(IDC_Class, CMListResultsDialog::OnClassSummary)
-EVT_CHECKBOX(IDC_Group, CMListResultsDialog::OnGroupSummary)
-EVT_CHECKBOX(IDC_ThresholdResults, CMListResultsDialog::OnThresholdResults)
-EVT_COMBOBOX(IDC_ClassCombo, CMListResultsDialog::OnSelendokClassCombo)
-EVT_TEXT(IDC_ColumnEnd, CMListResultsDialog::CheckColumnEnd)
-EVT_TEXT(IDC_ColumnStart, CMListResultsDialog::CheckColumnStart)
-EVT_TEXT(IDC_LineEnd, CMListResultsDialog::CheckLineEnd)
-EVT_TEXT(IDC_LineStart, CMListResultsDialog::CheckLineStart)
-EVT_BUTTON(IDEntireImage, CMListResultsDialog::ToEntireImage)
-EVT_BUTTON(IDSelectedImage, CMListResultsDialog::ToSelectedImage)
-EVT_RADIOBUTTON(IDC_Samples, CMListResultsDialog::OnSampleUnits)
-EVT_RADIOBUTTON(IDC_Percent, CMListResultsDialog::OnPercentUnits)
-EVT_RADIOBUTTON(IDC_Area, CMListResultsDialog::OnAreaUnits)
-//EVT_CHAR_HOOK(CMListResultsDialog::OnButtonPress)
-END_EVENT_TABLE()
-
 
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-1998)
+//								 Copyright (2009-2019)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -436,11 +472,11 @@ END_EVENT_TABLE()
 // 
 //	Called By:			Dialog in MDisMult.cpp
 //
-//	Coded By:			Larry L. Biehl			Date: 05/20/97
-//	Revised By:			Larry L. Biehl			Date: 05/20/97	
+//	Coded By:			Larry L. Biehl			Date: 05/20/1997
+//	Revised By:			Larry L. Biehl			Date: 05/20/1997
 
-Boolean
-CMListResultsDialog::DoDialog(void) {
+Boolean CMListResultsDialog::DoDialog (void)
+{
    Boolean continueFlag = FALSE;
 
    SInt16 returnCode;
@@ -1126,7 +1162,9 @@ bool CMListResultsDialog::TransferDataFromWindow()
 }
 
 
-bool CMListResultsDialog::TransferDataToWindow()
+
+bool CMListResultsDialog::TransferDataToWindow ()
+
 {
    wxTextCtrl* c_end = (wxTextCtrl*) FindWindow(IDC_ColumnEnd);
    wxTextCtrl* c_inter = (wxTextCtrl*) FindWindow(IDC_ColumnInterval);
@@ -1199,4 +1237,5 @@ bool CMListResultsDialog::TransferDataToWindow()
    l_inter->ChangeValue(wxString::Format(wxT("%i"), m_LineInterval));
    l_start->ChangeValue(wxString::Format(wxT("%i"), m_LineStart));
    return true;
+	
 }

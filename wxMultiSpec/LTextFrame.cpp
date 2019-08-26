@@ -1,6 +1,25 @@
-// LTextFrame.cpp
+//	 									MultiSpec
 //
-//	Revised By:			Larry L. Biehl			Date: 04/12/2019
+//					Laboratory for Applications of Remote Sensing
+// 								Purdue University
+//								West Lafayette, IN 47907
+//								 Copyright (2009-2019)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	File:						LTextFrame.cpp : class implementation file
+//	Class Definition:		LTextFrame.h
+//
+//	Authors:					Abdur Rahman Maud, Larry L. Biehl
+//
+//	Revision date:			04/12/2019
+//
+//	Language:				C++
+//
+//	System:					Linux and MacOS Operating Systems
+//
+//	Brief description:	This file contains functions that relate to the
+//								CMTextDoc class.
 //
 /* Template for debugging
 	int numberChars = sprintf ((char*)gTextString3,
@@ -9,7 +28,7 @@
 	ListString ((char*)gTextString3, numberChars, gOutputTextH);
 */
 //------------------------------------------------------------------------------------
-
+//
 #include "LMainFrame.h"
 #include "LMultiSpec.h"
 #include "LOpenFileDialog.h"
@@ -23,47 +42,33 @@
 IMPLEMENT_DYNAMIC_CLASS(CMTextFrame, wxDocChildFrame)
 
 
+BEGIN_EVENT_TABLE (CMTextFrame, wxDocChildFrame)
+	EVT_UPDATE_UI (wxID_PAGE_SETUP, CMTextFrame::OnUpdateFilePrintSetup)
+	EVT_UPDATE_UI (wxID_PREVIEW, CMTextFrame::OnUpdateFilePrintPreview)
+	EVT_UPDATE_UI (wxID_PRINT, CMTextFrame::OnUpdateFilePrint)
 
-BEGIN_EVENT_TABLE(CMTextFrame, wxDocChildFrame)
-	//EVT_SET_FOCUS(CMTextFrame::OnFocus)
-	//EVT_UPDATE_UI(ID_FILE_NEW_PROJECT, CMTextFrame::OnUpdateNewProject)
-	//EVT_UPDATE_UI(ID_FILE_LOAD_TRANS_MATRIX, CMTextFrame::OnUpdateLoadTransMatrix)
-	//EVT_UPDATE_UI(wxID_CLOSE, CMTextFrame::OnUpdateClose)
-	//EVT_UPDATE_UI(ID_FILE_CLOSE_WINDOW, CMTextFrame::OnUpdateFileCloseWindow)
-	//EVT_UPDATE_UI(ID_FILE_SAVE, CMTextFrame::OnUpdateSave)
-	//EVT_UPDATE_UI(ID_FILE_SAVE_AS, CMTextFrame::OnUpdateFileSaveAs)
-	EVT_UPDATE_UI(wxID_PRINT, CMTextFrame::OnUpdateFilePrint)
-	EVT_UPDATE_UI(wxID_PREVIEW, CMTextFrame::OnUpdateFilePrintPreview)
-	EVT_UPDATE_UI(wxID_PAGE_SETUP, CMTextFrame::OnUpdateFilePrintSetup)
+	EVT_UPDATE_UI (ID_EDIT_UNDO, CMTextFrame::OnUpdateEditUndo)
+	EVT_UPDATE_UI (wxID_CUT, CMTextFrame::OnUpdateEditCut)
+	EVT_UPDATE_UI (wxID_COPY, CMTextFrame::OnUpdateEditCopy)
+	EVT_UPDATE_UI (wxID_PASTE, CMTextFrame::OnUpdateEditPaste)
+	EVT_UPDATE_UI (wxID_CLEAR, CMTextFrame::OnUpdateEditClear)
 
-	EVT_UPDATE_UI(wxID_CUT, CMTextFrame::OnUpdateEditCut)
-	EVT_UPDATE_UI(wxID_COPY, CMTextFrame::OnUpdateEditCopy)
-	EVT_UPDATE_UI(wxID_PASTE, CMTextFrame::OnUpdateEditPaste)
-	EVT_UPDATE_UI(wxID_CLEAR, CMTextFrame::OnUpdateEditClear)
-	EVT_UPDATE_UI(ID_EDIT_UNDO, CMTextFrame::OnUpdateEditUndo)
+	EVT_UPDATE_UI (ID_WINDOW_NEW_SELECTION_GRAPH, CMTextFrame::OnUpdateWindowNewSelectionGraph)
 
-	//EVT_UPDATE_UI(wxID_COPY, CMTextFrame::OnUpdateEditCopy)
-	//EVT_UPDATE_UI(ID_EDIT_SELECT_ALL, CMTextFrame::OnUpdateSelectAll)
-	//EVT_UPDATE_UI(ID_EDIT_CLEAR_SELECT_RECTANGLE, CMTextFrame::OnUpdateEditClearSelectionRectangle)
-
-	EVT_UPDATE_UI(ID_WINDOW_NEW_SELECTION_GRAPH, CMTextFrame::OnUpdateWindowNewSelectionGraph)
-
-	EVT_UPDATE_UI(ID_MAGNIFICATION, CMTextFrame::OnUpdateMagnification)
-	EVT_UPDATE_UI(ID_ZOOM_IN, CMTextFrame::OnUpdateZoomIn)
-	EVT_UPDATE_UI(ID_ZOOM_OUT, CMTextFrame::OnUpdateZoomOut)
-	//EVT_UPDATE_UI(ID_INDICATOR_ZOOM, CMTextFrame::OnUpdateZoomIndicator)
-	EVT_UPDATE_UI(ID_OVERLAY, CMTextFrame::OnUpdateOverlay)
+	EVT_UPDATE_UI (ID_MAGNIFICATION, CMTextFrame::OnUpdateMagnification)
+	EVT_UPDATE_UI (ID_OVERLAY, CMTextFrame::OnUpdateOverlay)
+	EVT_UPDATE_UI (ID_ZOOM_IN, CMTextFrame::OnUpdateZoomIn)
+	EVT_UPDATE_UI (ID_ZOOM_OUT, CMTextFrame::OnUpdateZoomOut)
 
 	EVT_MENU (ID_EDIT_UNDO, CMTextFrame::OnEditUndo)
 	EVT_MENU (wxID_COPY, CMTextFrame::OnEditCopy)
 	EVT_MENU (wxID_CUT, CMTextFrame::OnEditCut)
 	EVT_MENU (wxID_PASTE, CMTextFrame::OnEditPaste)
-	//EVT_MENU(ID_FILE_SAVE_AS, CMTextFrame::OnTextSaveAs)
-END_EVENT_TABLE()
+END_EVENT_TABLE ()
 
 
 
-CMTextFrame::CMTextFrame ()
+CMTextFrame::CMTextFrame (void)
 		: wxDocChildFrame (NULL,
 									NULL,
 									NULL,
@@ -80,18 +85,17 @@ CMTextFrame::CMTextFrame ()
 
 
 CMTextFrame::CMTextFrame (
-				wxDocument* doc,
-				wxView* view,
-				wxDocParentFrame* parent,
-				wxWindowID id,
-				const wxString& title,
-				const wxPoint& pos,
-				const wxSize& size,
-				long style)
+				wxDocument* 						doc,
+				wxView* 								view,
+				wxDocParentFrame* 				parent,
+				wxWindowID 							id,
+				const wxString& 					title,
+				const wxPoint& 					pos,
+				const wxSize& 						size,
+				long 									style)
 		: wxDocChildFrame (doc, view, parent, id, title, pos, size, style)
 
 {
-	//this->SetSizeHints(wxDefaultSize, wxDefaultSize);
 	EnableCloseButton (false);
 	SetMinSize (wxSize (150,150));
 
@@ -180,36 +184,15 @@ CMTextFrame::CMTextFrame (
 	wxAcceleratorTable accel(32, entries);
 	SetAcceleratorTable (accel);
 	
-}
+}	// end "CMTextFrame"
 
 
-CMTextFrame::~CMTextFrame() {
-}
 
-/*
-void CMTextFrame::OnFocus (wxFocusEvent& event)
-
-{
-	CMainFrame * mainFrame = wxDynamicCast(wxTheApp->GetTopWindow(), CMainFrame);
-	if (mainFrame != NULL)
-		(mainFrame->m_closeWindowMenuItem)->Enable (false);
-	wxBell ();
-         
-}
-*/
-/*
-void CMTextFrame::OnUpdateFileSaveAs (wxUpdateUIEvent& event)
+CMTextFrame::~CMTextFrame (void)
 
 {
 
-	UpdateFileOutputTextSaveAs (&event);
-	
-	if(((CMTextDoc *)GetDocument())->IsModified())
-	  event.Enable(true);
-	else
-	  event.Enable(false);
-}
-*/
+}	// end "~CMTextFrame"
 
 
 
@@ -308,11 +291,12 @@ void CMTextFrame::OnUpdateFilePrint (CCmdUI& pCmdUI)
 {
     //Boolean enableFlag = UpdateFileOutputTextPrint (&pCmdUI);
 
-			// disable until implemented.
+			// Disable until implemented.
 	
     pCmdUI.Enable (false);
 
-}
+}	// end "OnUpdateFilePrint"
+
 
 
 void CMTextFrame::OnUpdateFilePrintPreview (CCmdUI& pCmdUI)
@@ -324,40 +308,59 @@ void CMTextFrame::OnUpdateFilePrintPreview (CCmdUI& pCmdUI)
 }
 
 
-void CMTextFrame::OnUpdateFilePrintSetup (CCmdUI& pCmdUI) {
+
+void CMTextFrame::OnUpdateFilePrintSetup (CCmdUI& pCmdUI)
+
+{
 			// Set to false until set up.
+	
     pCmdUI.Enable(false);
 
 }
 
 
-void CMTextFrame::OnUpdateWindowNewSelectionGraph(wxUpdateUIEvent& pCmdUI) {
-   pCmdUI.Enable(false);
+void CMTextFrame::OnUpdateWindowNewSelectionGraph (wxUpdateUIEvent& pCmdUI)
+
+{
+   pCmdUI.Enable (false);
 
 } // end "OnUpdateWindowNewSelectionGraph"
 
 
-void CMTextFrame::OnUpdateMagnification (wxUpdateUIEvent& event)
+
+void CMTextFrame::OnUpdateMagnification (
+				wxUpdateUIEvent& event)
+
 {
-	event.Enable(false);
+	event.Enable (false);
 		
 	CMainFrame* pMainFrame = (CMainFrame*)wxGetApp().GetTopWindow();
 	if (pMainFrame != NULL)
 		pMainFrame->UpdateStatusBar (NULL, -1);
+	
 }
 
 
-void CMTextFrame::OnUpdateZoomIn(wxUpdateUIEvent& event) {
+
+void CMTextFrame::OnUpdateZoomIn (wxUpdateUIEvent& event)
+
+{
+      event.Enable (false);
+
+}
+
+
+
+void CMTextFrame::OnUpdateZoomOut (wxUpdateUIEvent& event)
+
+{
       event.Enable(false);
-
-}
-
-void CMTextFrame::OnUpdateZoomOut(wxUpdateUIEvent& event) {
-      event.Enable(false);
 }
 
 
-void CMTextFrame::OnUpdateOverlay(wxUpdateUIEvent& event) {
+void CMTextFrame::OnUpdateOverlay(wxUpdateUIEvent& event)
+
+{
    event.Enable(false);
 
 }

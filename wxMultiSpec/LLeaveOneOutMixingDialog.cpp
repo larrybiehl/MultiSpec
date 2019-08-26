@@ -1,13 +1,14 @@
 //	 									MultiSpec
 //
 //					Laboratory for Applications of Remote Sensing
-//									Purdue University
+// 								Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2018)
-//								(c) Purdue Research Foundation
+//								 Copyright (2009-2019)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
-//	Implementation file:	LLeaveOneOutMixingDialog.cpp
+//	File:						LLeaveOneOutMixingDialog.cpp : class implementation file
+//	Class Definition:		LLeaveOneOutMixingDialog.h
 //
 //	Authors:					Wei-Kang Hsu, Larry L. Biehl
 //
@@ -16,17 +17,30 @@
 //
 //	Language:				C++
 //
-//	System:					Linux Operating System
+//	System:					Linux and MacOS Operating Systems
 //
-//	Brief description:	This file contains functions that relate to the 
+//	Brief description:	This file contains functions that relate to the
 //								CMLOOMixingDialog class.
-//	
+//
+/* Template for debugging
+	int numberChars = sprintf ((char*)gTextString3,
+				" LLeaveOneOutMixingDialog:: (): %s",
+				gEndOfLine);
+	ListString ((char*)gTextString3, numberChars, gOutputTextH);
+*/
 //------------------------------------------------------------------------------------
-                     
+//
 #include "SMultiSpec.h"
 #include "LLeaveOneOutMixingDialog.h"
 
-//#include	"SExternalGlobals.h"
+
+
+BEGIN_EVENT_TABLE (CMLOOMixingDialog, CMDialog)
+	EVT_INIT_DIALOG (CMLOOMixingDialog::OnInitDialog)
+	EVT_RADIOBUTTON (IDC_UserMixing, CMLOOMixingDialog::OnUserMixing)
+	EVT_RADIOBUTTON (IDC_OptimumMixing, CMLOOMixingDialog::OnOptimumMixing)
+	EVT_RADIOBUTTON (IDC_IdentityMatrix, CMLOOMixingDialog::OnIdentityMatrix)
+END_EVENT_TABLE ()
 
 
 
@@ -47,15 +61,6 @@ CMLOOMixingDialog::CMLOOMixingDialog (
    CreateControls ();
    
 }	// end "CMLOOMixingDialog"
-
- 
-
-BEGIN_EVENT_TABLE (CMLOOMixingDialog, CMDialog)
-	EVT_INIT_DIALOG (CMLOOMixingDialog::OnInitDialog)
-	EVT_RADIOBUTTON (IDC_UserMixing, CMLOOMixingDialog::OnUserMixing)
-	EVT_RADIOBUTTON (IDC_OptimumMixing, CMLOOMixingDialog::OnOptimumMixing)
-	EVT_RADIOBUTTON (IDC_IdentityMatrix, CMLOOMixingDialog::OnIdentityMatrix)
-END_EVENT_TABLE ()
 
 
 
@@ -182,7 +187,7 @@ void CMLOOMixingDialog::CreateControls ()
 
 
 //-----------------------------------------------------------------------------
-//								 Copyright (2009-2018)
+//								 Copyright (2009-2019)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -297,7 +302,7 @@ void CMLOOMixingDialog::OnIdentityMatrix (
 
 
 
-bool CMLOOMixingDialog::TransferDataFromWindow ()
+bool CMLOOMixingDialog::TransferDataFromWindow (void)
 
 {
 	wxTextCtrl* mix_param = (wxTextCtrl*)FindWindow (IDC_UserValue);

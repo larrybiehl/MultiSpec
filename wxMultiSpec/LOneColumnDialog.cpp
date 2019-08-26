@@ -1,8 +1,28 @@
-// LOneColumnDialog.cpp
+//	 									MultiSpec
 //
-// Revised by Larry Biehl on 12/04/2018
+//					Laboratory for Applications of Remote Sensing
+// 								Purdue University
+//								West Lafayette, IN 47907
+//								 Copyright (2009-2019)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	File:						LOneColumnDialog.cpp : class implementation file
+//	Class Definition:		LOneColumnDialog.h
+//
+//	Authors:					Abdur Rahman Maud, Larry L. Biehl
+//
+//	Revision date:			12/04/2018
+//
+//	Language:				C++
+//
+//	System:					Linux and MacOS Operating Systems
+//
+//	Brief description:	This file contains functions that relate to the
+//								CMOneColDlg class.
 //
 //------------------------------------------------------------------------------------
+//
 #include "LOneColumnDialog.h"
 #include "wx/valnum.h"
 
@@ -27,7 +47,8 @@ CMOneColDlg::CMOneColDlg (
 				const wxPoint& 					pos,
 				const wxSize& 						size,
 				long 									style) :
-		CMDialog (id, parent, title)//: wxDialog( parent, id, title, pos, size, style )
+		CMDialog (id, parent, title)
+
 {
     // Initialization of variables
     m_listStart = 1;
@@ -59,10 +80,11 @@ CMOneColDlg::CMOneColDlg (
 
 
 
-CMOneColDlg::~CMOneColDlg()
+CMOneColDlg::~CMOneColDlg (void)
 
 {
-}
+
+}	// end "~CMOneColDlg"
 
 
 
@@ -99,7 +121,7 @@ void CMOneColDlg::CheckValue (
 void CMOneColDlg::CreateControls ()
 
 {
-	this->SetSizeHints (wxDefaultSize, wxDefaultSize);
+	SetSizeHints (wxDefaultSize, wxDefaultSize);
 
 	wxBoxSizer* bVSizerMain = new wxBoxSizer (wxVERTICAL);
 

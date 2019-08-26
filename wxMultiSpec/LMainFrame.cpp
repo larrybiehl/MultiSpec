@@ -1,17 +1,38 @@
-// LMainFrame.cpp
+//	 									MultiSpec
 //
-// Revised by:			Tsung Tai Yeh			Date: 10/05/2015
-//	Revised By:			Larry L. Biehl			Date: 04/19/2019
-/*  Template for writing something to text window for debugging.
-	int numberChars = sprintf ((char*)&gTextString3,
-										" CMainFrame: : (): %s",
-										gEndOfLine);
-	ListString ((char*)&gTextString3, numberChars, gOutputTextH);
+//					Laboratory for Applications of Remote Sensing
+// 								Purdue University
+//								West Lafayette, IN 47907
+//								 Copyright (2009-2019)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	File:						LMainFrame.cpp : class implementation file
+//	Class Definition:		LMainFrame.h
+//
+//	Authors:					Larry L. Biehl
+//
+//	Revision date:			10/05/2015 by Tsung Tai Yeh
+//								04/19/2019 by Larry L. Biehl
+//
+//	Language:				C++
+//
+//	System:					Linux and MacOS Operating Systems
+//
+//	Brief description:	This file contains functions that relate to the
+//								CMListResultsOptionsDlg class.
+//
+// Following is template for debugging
+/*
+		int numberChars = sprintf ((char*)gTextString3,
+									 " LMainFrame:: (): %s",
+									 gEndOfLine);
+		ListString ((char*)gTextString3, numberChars, gOutputTextH);
 */
-
+//------------------------------------------------------------------------------------
+//
 #include "LMainFrame.h"
 #include "LAbout.h"
-//#include <wx/toolbar.h>
 
 // Toolbar icons//////
 #if defined multispec_wxlin
@@ -44,15 +65,12 @@
 #include "LTextFrame.h"
 #include "LTextView.h"
 
-extern void		GetWindowTitle (
-						WindowPtr							windowPtr,
-						UCharPtr								titleStringPtr);
-						
-extern void		GetGraphWindowTitle (
-						WindowPtr							windowPtr,
-						UCharPtr								titleStringPtr);
+
 
 IMPLEMENT_CLASS (CMainFrame, wxDocParentFrame)
+
+
+
 CMainFrame::CMainFrame (
 				wxDocManager*						manager,
 				wxDocParentFrame*					frame,

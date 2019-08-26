@@ -1,8 +1,34 @@
-// LImageDoc.cpp : implementation of the CMImageDoc class
+//	 									MultiSpec
 //
-//	Revised by Larry Biehl on 07/28/2017
+//					Laboratory for Applications of Remote Sensing
+// 								Purdue University
+//								West Lafayette, IN 47907
+//								 Copyright (2009-2019)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
 //
-
+//	File:						LImageDoc.cpp : class implementation file
+//	Class Definition:		LImageDoc.cpp
+//
+//	Authors:					Larry L. Biehl, Abdur Rachman Maud
+//
+//	Revision date:			07/28/2017
+//
+//	Language:				C++
+//
+//	System:					Linux and MacOS Operating Systems
+//
+//	Brief description:	This file contains functions that relate to the
+//								CMImageDoc class.
+//
+/* Template for debugging
+	int numberChars = sprintf ((char*)gTextString3,
+				" LImageDoc:: (): %s",
+				gEndOfLine);
+	ListString ((char*)gTextString3, numberChars, gOutputTextH);
+*/
+//------------------------------------------------------------------------------------
+//
 #include "SMultiSpec.h"
 
 #include "CImageWindow.h"
@@ -11,8 +37,6 @@
 #include "LImageDoc.h"
 #include "LImageFrame.h"
 #include "LImageView.h"
-
-//#include "SExternalGlobals.h"
 
 // extern Handle 	GetActiveWindowInfoHandle (void);
 

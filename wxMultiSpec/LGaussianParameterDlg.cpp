@@ -1,32 +1,61 @@
-// LGaussianParameterDlg.cpp : implementation file
+//	 									MultiSpec
 //
-// Revised by Larry Biehl on 11/13/2018
+//					Laboratory for Applications of Remote Sensing
+// 								Purdue University
+//								West Lafayette, IN 47907
+//								 Copyright (2009-2019)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
 //
-
-#include "SMultiSpec.h"                   
+//	File:						LGaussianParameterDlg.cpp : class implementation file
+//	Class Definition:		LGaussianParameterDlg.h
+//
+//	Authors:					Larry L. Biehl
+//
+//	Revision date:			11/13/2018
+//
+//	Language:				C++
+//
+//	System:					Linux & MacOS Operating Systems
+//
+//	Brief description:	This file contains functions related to the
+//								CMGaussianParameterDlg class.
+//
+// Following is template for debugging
+/*
+	int numberChars = sprintf ((char*)gTextString3,
+									 " LGaussianParameterDlg:: (): %s",
+									 gEndOfLine);
+	ListString ((char*)gTextString3, numberChars, gOutputTextH);
+*/
+//------------------------------------------------------------------------------------
+//
+#include "SMultiSpec.h"
 #include "LGaussianParameterDlg.h"
-#include	"SExternalGlobals.h" 
-
-
-
-CMGaussianParameterDlg::CMGaussianParameterDlg(wxWindow* pParent, wxWindowID id, const wxString& title /*=NULL*/ )
-: CMDialog(CMGaussianParameterDlg::IDD, pParent, title)
-{
-	//{{AFX_DATA_INIT(CMGaussianParameterDlg)
-	m_gaussianStretch = 0.0;
-	//}}AFX_DATA_INIT
-
-	m_initializedFlag = CMDialog::m_initializedFlag;
-   
-   CreateControls ();
-	
-}	// end "CMGaussianParameterDlg"
+#include	"SExternalGlobals.h"
 
 
 
 BEGIN_EVENT_TABLE (CMGaussianParameterDlg, CMDialog)
 	EVT_INIT_DIALOG (CMGaussianParameterDlg::OnInitDialog)
 END_EVENT_TABLE ()
+
+
+
+CMGaussianParameterDlg::CMGaussianParameterDlg (
+				wxWindow* 							pParent,
+				wxWindowID 							id,
+				const wxString& 					title /*=NULL*/ )
+		: CMDialog (CMGaussianParameterDlg::IDD, pParent, title)
+		
+{
+	m_gaussianStretch = 0.0;
+
+	m_initializedFlag = CMDialog::m_initializedFlag;
+   
+   CreateControls ();
+	
+}	// end "CMGaussianParameterDlg"
 
 
 
@@ -75,40 +104,19 @@ void CMGaussianParameterDlg::CreateControls ()
 	bSizer310->Add (m_staticText290, 0, wxLEFT, 25);
 	
 	bSizer308->Add (bSizer310, 0, wxLEFT|wxTOP|wxRIGHT, 12);
-	/*
-	wxBoxSizer* bSizer311;
-	bSizer311 = new wxBoxSizer( wxHORIZONTAL );
-	
-	m_button75 = new wxButton( this, wxID_CANCEL, wxT("Cancel"), wxDefaultPosition, wxDefaultSize, 0 );
-	bSizer311->Add( m_button75, 0, wxALIGN_RIGHT|wxALL, 5 );
-	
-	m_button76 = new wxButton( this, wxID_OK, wxT("OK"), wxDefaultPosition, wxDefaultSize, 0 );
-	bSizer311->Add( m_button76, 0, wxALIGN_RIGHT|wxALL, 5 );
-	
-	bSizer308->Add( bSizer311, 0, wxALIGN_RIGHT|wxALL, 5 );
-	*/
-	/*
-	wxSizer* standardButtonSizer = CreateButtonSizer (wxOK | wxCANCEL);
-	#if defined multispec_wxmac
-		bSizer308->Add (standardButtonSizer, wxSizerFlags(0).Right());
-	#else
-		bSizer308->Add (standardButtonSizer, wxSizerFlags(0).Right().Border(wxTOP|wxBOTTOM, 12));
-	#endif
-	*/
+
 	CreateStandardButtons (bSizer308);
 	
    SetSizerAndFit (bSizer308);
-	//this->SetSizer (bSizer308);
-	//this->Layout ();
 	
-	this->Centre (wxBOTH);
+	Centre (wxBOTH);
 	
 }	// end "CreateControls"
 
 
 
-//-----------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -127,11 +135,12 @@ void CMGaussianParameterDlg::CreateControls ()
 // 
 //	Called By:			Dialog in MDisMult.cpp
 //
-//	Coded By:			Larry L. Biehl			Date: 05/07/2003
+//	Coded By:			Abdur Rahman Maud		Date: ??/??/2009
 //	Revised By:			Larry L. Biehl			Date: 11/07/2018
 
 Boolean CMGaussianParameterDlg::DoDialog(
 				double*								gaussianStretchPtr)
+
 {  
 	SInt16			returnCode;
 
@@ -140,8 +149,8 @@ Boolean CMGaussianParameterDlg::DoDialog(
 	                          
 			// Make sure intialization has been completed.
 							                         
-	if ( !m_initializedFlag )
-																			return(FALSE);
+	if (!m_initializedFlag)
+																							return (FALSE);
 																			
 	m_gaussianStretch = *gaussianStretchPtr;																		 
 																					
@@ -161,12 +170,12 @@ Boolean CMGaussianParameterDlg::DoDialog(
 
 
 
-void CMGaussianParameterDlg::OnInitDialog (wxInitDialogEvent& event)
+void CMGaussianParameterDlg::OnInitDialog (
+				wxInitDialogEvent& 				event)
 
 {
-	
    if (TransferDataToWindow ())
-        PositionDialogWindow ();
+		PositionDialogWindow ();
 	
 			// Set default text selection to first edit text item
 	

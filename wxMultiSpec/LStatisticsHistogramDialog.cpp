@@ -22,81 +22,38 @@
 //								CMStatHistogramSpecsDlg class.
 //
 //------------------------------------------------------------------------------------
-
-
+//
 #include "SMultiSpec.h"
 #include "LStatisticsHistogramDialog.h"
 
 
-extern void 		StatHistogramDialogInitialize (
-							DialogPtr							dialogPtr,
-							FileInfoPtr							fileInfoPtr,
-							SInt16								statsWindowMode,
-							UInt16*								localFeaturesPtr, 
-							UInt16*								localTransformFeaturesPtr,
-							Boolean*								histogramClassFlagPtr,
-							SInt32*								lineIntervalPtr,
-							SInt32*								columnIntervalPtr,
-							Boolean*								featureTransformAllowedFlagPtr,
-							Boolean*								featureTransformationFlagPtr,
-							SInt16*								channelSelectionPtr,
-							UInt16*								localNumberChannelsPtr,
-							SInt16*								histogramOutputCodePtr,
-							Boolean*								includeEmptyBinsFlagPtr,
-							Boolean*								blankValuesFlagPtr,
-							SInt16*								groupCodePtr,
-							SInt16*								columnMatrixCodePtr,
-							Boolean*								overlayDFAllowedFlagPtr,
-							Boolean*								overlayDensityFunctionFlagPtr);
 
-extern void 		StatHistogramDialogOK (
-							Boolean								histogramClassFlag,
-							SInt32								lineInterval,
-							SInt32								columnInterval,
-							Boolean								featureTransformationFlag,
-							SInt16								channelSelection,
-							UInt16								localNumberFeatures,
-							UInt16*								localFeaturesPtr,
-							Boolean								listDataFlag,
-							Boolean								includeEmptyBinsFlag,
-							Boolean								blankValuesFlag,
-							Boolean								plotHistogramFlag,
-							Boolean								groupChannelsFlag,
-							Boolean								groupFieldsClassesFlag,
-							SInt16								columnMatrixCode,
-							Boolean								overlayDensityFunctionFlag);
+BEGIN_EVENT_TABLE (CMStatHistogramSpecsDlg, CMDialog)
+	EVT_CHECKBOX (IDC_UseFeatureTransformation, CMStatHistogramSpecsDlg::OnFeatureTransformation)
 
-extern void 		StatHistogramDialogClassesParameters (
-							DialogPtr							dialogPtr,
-							Boolean								listFlag,
-							Boolean								overlayDFAllowedFlag,
-							Boolean								overlayDensityFunctionFlag);
-							
-extern void 		StatHistogramDialogFieldsParameters (
-							DialogPtr							dialogPtr);
-							
-extern void 		StatHistogramDialogListParameters (
-							DialogPtr							dialogPtr,
-							Boolean								histogramClassFlag,
-							SInt16								columnMatrixCode);
-							
-extern void 		StatHistogramDialogPlotParameters (
-							DialogPtr							dialogPtr,
-							Boolean								histogramClassFlag,
-							Boolean								overlayDensityFunctionFlag);
+	EVT_COMBOBOX (IDC_ChannelCombo, CMStatHistogramSpecsDlg::OnSelendokChannelCombo)
+	EVT_COMBOBOX_DROPDOWN (IDC_ChannelCombo, CMStatHistogramSpecsDlg::OnSelendokChannelComboDropDown)
 
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#undef THIS_FILE
-static char THIS_FILE[] = __FILE__;
-#endif
+	EVT_INIT_DIALOG (CMStatHistogramSpecsDlg::OnInitDialog)
 
-/////////////////////////////////////////////////////////////////////////////
-// CMStatHistogramSpecsDlg dialog
+	EVT_RADIOBUTTON (IDC_ClassesRadio, CMStatHistogramSpecsDlg::OnClassesRadio)
+	EVT_RADIOBUTTON (IDC_FieldsRadio, CMStatHistogramSpecsDlg::OnFieldsRadio)
+	EVT_RADIOBUTTON (IDC_ListRadio, CMStatHistogramSpecsDlg::OnListRadio)
+	EVT_RADIOBUTTON (IDC_PlotRadio, CMStatHistogramSpecsDlg::OnPlotRadio)
 
-CMStatHistogramSpecsDlg::CMStatHistogramSpecsDlg(wxWindow* pParent,
-   wxWindowID id, const wxString& title/*=NULL*/)
-:CMDialog(CMStatHistogramSpecsDlg::IDD, pParent, title){
+	EVT_TEXT (IDC_ColumnInterval, CMStatHistogramSpecsDlg::CheckColumnInterval)
+	EVT_TEXT (IDC_LineInterval, CMStatHistogramSpecsDlg::CheckLineInterval)
+END_EVENT_TABLE ()
+
+
+
+CMStatHistogramSpecsDlg::CMStatHistogramSpecsDlg (
+				wxWindow* 							pParent,
+				wxWindowID 							id,
+				const wxString& 					title/*=NULL*/)
+	: CMDialog (CMStatHistogramSpecsDlg::IDD, pParent, title)
+
+{
    m_featureTransformationFlag = FALSE;
 	m_includeEmptyBinsFlag = FALSE;
 	m_blankValuesFlag = FALSE;
@@ -135,10 +92,14 @@ CMStatHistogramSpecsDlg::CMStatHistogramSpecsDlg(wxWindow* pParent,
 														NULL,
 														NULL);
    
-   CreateControls();
-}
+   CreateControls ();
+	
+}	// end "CMStatHistogramSpecsDlg"
 
-CMStatHistogramSpecsDlg::~CMStatHistogramSpecsDlg(void)
+
+
+CMStatHistogramSpecsDlg::~CMStatHistogramSpecsDlg (void)
+
 {
    ReleaseDialogLocalVectors (m_localFeaturesPtr,
 											m_localTransformFeaturesPtr,        
@@ -147,27 +108,16 @@ CMStatHistogramSpecsDlg::~CMStatHistogramSpecsDlg(void)
 											NULL,
 											NULL,
 											NULL,
-											NULL); 
-} // end "~CMStatHistogramSpecsDlg"
-
-BEGIN_EVENT_TABLE(CMStatHistogramSpecsDlg, CMDialog)
-EVT_INIT_DIALOG(CMStatHistogramSpecsDlg::OnInitDialog)
-EVT_TEXT(IDC_LineInterval, CMStatHistogramSpecsDlg::CheckLineInterval)
-EVT_TEXT(IDC_ColumnInterval, CMStatHistogramSpecsDlg::CheckColumnInterval)
-EVT_RADIOBUTTON(IDC_ClassesRadio, CMStatHistogramSpecsDlg::OnClassesRadio)
-EVT_RADIOBUTTON(IDC_FieldsRadio, CMStatHistogramSpecsDlg::OnFieldsRadio)
-EVT_RADIOBUTTON(IDC_ListRadio, CMStatHistogramSpecsDlg::OnListRadio)
-EVT_RADIOBUTTON(IDC_PlotRadio, CMStatHistogramSpecsDlg::OnPlotRadio)
-EVT_COMBOBOX(IDC_ChannelCombo, CMStatHistogramSpecsDlg::OnSelendokChannelCombo)
-EVT_CHECKBOX(IDC_UseFeatureTransformation, CMStatHistogramSpecsDlg::OnFeatureTransformation)
-EVT_COMBOBOX_DROPDOWN(IDC_ChannelCombo, CMStatHistogramSpecsDlg::OnSelendokChannelComboDropDown)
-END_EVENT_TABLE()
+											NULL);
+	
+}	// end "~CMStatHistogramSpecsDlg"
 
 
 
-void CMStatHistogramSpecsDlg::CreateControls(){
-   
-   this->SetSizeHints( wxDefaultSize, wxDefaultSize );
+void CMStatHistogramSpecsDlg::CreateControls ()
+
+{
+   this->SetSizeHints (wxDefaultSize, wxDefaultSize);
 	
 	wxBoxSizer* bSizer107;
 	bSizer107 = new wxBoxSizer (wxVERTICAL);
@@ -329,126 +279,6 @@ void CMStatHistogramSpecsDlg::CreateControls(){
 }	// end "CreateControls"
 
 
-
-bool CMStatHistogramSpecsDlg::TransferDataToWindow()
-
-{
-   wxCheckBox* featureTransformationFlag = (wxCheckBox*) FindWindow(IDC_UseFeatureTransformation);
-   wxCheckBox* includeEmptyBinsFlag = (wxCheckBox*) FindWindow(IDC_IncludeEmptyCheck);
-   wxCheckBox* blankValuesFlag = (wxCheckBox*) FindWindow(IDC_BlankCheck);
-   wxCheckBox* overlayDensityFunctionFlag = (wxCheckBox*) FindWindow(IDC_OverlayCheck);
-  
-   wxTextCtrl* lineInterval = (wxTextCtrl*) FindWindow(IDC_LineInterval);
-   wxTextCtrl* columnInterval = (wxTextCtrl*) FindWindow(IDC_ColumnInterval);
-   
-   wxRadioButton *histogramClassCode = (wxRadioButton*)FindWindow(IDC_ClassesRadio);
-   wxRadioButton *histogramFieldCode = (wxRadioButton*)FindWindow(IDC_FieldsRadio);
-   wxRadioButton *listCode = (wxRadioButton*)FindWindow(IDC_ListRadio);
-   wxRadioButton *plotCode = (wxRadioButton*)FindWindow(IDC_PlotRadio);
-   wxRadioButton *channelsCode = (wxRadioButton*)FindWindow(IDC_ChannelsRadio);
-   wxRadioButton *classesCode = (wxRadioButton*)FindWindow(IDC_Classes);
-   wxRadioButton *matrixCode  = (wxRadioButton*)FindWindow(IDC_MatrixRadio);
-   wxRadioButton *columnCode  = (wxRadioButton*)FindWindow(IDC_ColumnRadio);
-   
-   wxComboBox* channelSelection = (wxComboBox*) FindWindow(IDC_ChannelCombo);
-   
-   
-   
-   featureTransformationFlag->SetValue(m_featureTransformationFlag);
-   includeEmptyBinsFlag->SetValue(m_includeEmptyBinsFlag);
-   blankValuesFlag->SetValue(m_blankValuesFlag);
-   overlayDensityFunctionFlag->SetValue(m_overlayDensityFunctionFlag);
-   
-    
-   lineInterval->SetValue(wxString::Format(wxT("%d"), (int) m_lineInterval));
-   columnInterval->SetValue(wxString::Format(wxT("%d"), (int) m_columnInterval));
-   
-   histogramClassCode->SetValue(m_histogramClassCode); 
-   histogramFieldCode->SetValue(m_histogramFieldCode); 
-
-   listCode->SetValue(m_listCode);
-
-   plotCode->SetValue(m_plotCode);
-	//plotCode->Enable(false);
-   
-   matrixCode->SetValue(m_matrixCode);
-   columnCode->SetValue(m_columnCode);
-   
-   channelsCode->SetValue(m_channelsCode);
-   classesCode->SetValue(m_classesCode);
-   
-   
-   channelSelection->SetSelection(m_channelSelection);
-	
-   return TRUE; 
-}
-
-
-
-bool CMStatHistogramSpecsDlg::TransferDataFromWindow() {
-   
-   wxCheckBox* featureTransformationFlag = (wxCheckBox*) FindWindow(IDC_UseFeatureTransformation);
-   wxCheckBox* includeEmptyBinsFlag = (wxCheckBox*) FindWindow(IDC_IncludeEmptyCheck);
-   wxCheckBox* blankValuesFlag = (wxCheckBox*) FindWindow(IDC_BlankCheck);
-   wxCheckBox* overlayDensityFunctionFlag = (wxCheckBox*) FindWindow(IDC_OverlayCheck);
-   
-   wxTextCtrl* lineInterval = (wxTextCtrl*) FindWindow(IDC_LineInterval);
-   wxTextCtrl* columnInterval = (wxTextCtrl*) FindWindow(IDC_ColumnInterval);
-   
-   wxRadioButton *histogramClassCode = (wxRadioButton*)FindWindow(IDC_ClassesRadio);
-   wxRadioButton *histogramFieldCode = (wxRadioButton*)FindWindow(IDC_FieldsRadio);
-   wxRadioButton *listCode = (wxRadioButton*)FindWindow(IDC_ListRadio);
-   wxRadioButton *plotCode = (wxRadioButton*)FindWindow(IDC_PlotRadio);
-   wxRadioButton *channelsCode = (wxRadioButton*)FindWindow(IDC_ChannelsRadio);
-   wxRadioButton *classesCode = (wxRadioButton*)FindWindow(IDC_Classes);
-   wxRadioButton *matrixCode  = (wxRadioButton*)FindWindow(IDC_MatrixRadio);
-   wxRadioButton *columnCode  = (wxRadioButton*)FindWindow(IDC_ColumnRadio);
-   
-   wxComboBox* channelSelection = (wxComboBox*) FindWindow(IDC_ChannelCombo);
-    
-   m_featureTransformationFlag = featureTransformationFlag->GetValue();
-   m_includeEmptyBinsFlag = includeEmptyBinsFlag->GetValue();
-   m_blankValuesFlag = blankValuesFlag->GetValue();
-   m_overlayDensityFunctionFlag = overlayDensityFunctionFlag->GetValue();
-   
-   m_lineInterval = wxAtoi(lineInterval->GetValue());
-   m_columnInterval = wxAtoi(columnInterval->GetValue());
-   
-   m_histogramClassCode = histogramClassCode->GetValue();
-   m_histogramFieldCode = histogramFieldCode->GetValue();
-   m_listCode = listCode->GetValue();
-   m_plotCode = plotCode->GetValue();
-   m_channelsCode = channelsCode->GetValue();
-   m_classesCode = classesCode->GetValue();
-   m_matrixCode = matrixCode->GetValue();
-   m_columnCode = columnCode->GetValue();
-   
-   m_channelSelection = channelSelection->GetSelection();
-   
-   if(m_histogramClassCode == 0) m_histogramClassFieldCode = 1;
-   else m_histogramClassFieldCode = 0;
-   
-   if(m_plotCode == 1) m_listPlotCode = 1;
-   else m_listPlotCode = 0;
-   
-   if(m_classesCode == 1) m_channelsClassesCode = 1;
-   else m_channelsClassesCode = 0;
-   
-   if(m_matrixCode == 1) m_matrixColumnCode = 0;
-   else m_matrixColumnCode = 1;
-   
-
-   if(m_channelSelection < 0)
-      m_channelSelection = m_channelSelection_Saved;
-
-   //m_channelSelection = wxAtoi(channelSelection->GetValue());
-   
-   
-   return TRUE;
-   
-}
-
-
 //-----------------------------------------------------------------------------
 //								 Copyright (1988-1998)
 //								c Purdue Research Foundation
@@ -598,13 +428,18 @@ void CMStatHistogramSpecsDlg::OnInitDialog (
 	m_savedMatrixColumnCode = matrixColumnCode - 1;
 	m_matrixColumnCode = m_savedMatrixColumnCode;
    
-   if(m_channelsClassesCode == 0){
+   if (m_channelsClassesCode == 0)
+   	{
       m_classesCode = 0;
       m_channelsCode = 1;
-   }else{
+   	}
+	
+	else
+		{
       m_classesCode = 1;
       m_channelsCode = 0;
-   }
+		
+   	}
    
    if (m_matrixColumnCode == 0)
    	{
@@ -648,9 +483,9 @@ void CMStatHistogramSpecsDlg::OnInitDialog (
 
 
 
-void CMStatHistogramSpecsDlg::OnClassesRadio(wxCommandEvent& event) 
+void CMStatHistogramSpecsDlg::OnClassesRadio (wxCommandEvent& event)
+
 {
-	//DDX_Radio(m_dialogFromPtr, IDC_ListRadio, m_listPlotCode);
    wxRadioButton* listPlotCode = (wxRadioButton *) FindWindow(IDC_ListRadio);
    m_listPlotCode = listPlotCode->GetValue();
    
@@ -659,18 +494,23 @@ void CMStatHistogramSpecsDlg::OnClassesRadio(wxCommandEvent& event)
 														m_overlayDFAllowedFlag,
 														m_overlayDensityFunctionFlag);
 	
-}		// end "OnClassesRadio"
+}	// end "OnClassesRadio"
+
+
 
 void CMStatHistogramSpecsDlg::OnFieldsRadio(wxCommandEvent& event) 
+
 {
    
 	StatHistogramDialogFieldsParameters (this);
 	
-}		// end "OnFieldsRadio"
+}	// end "OnFieldsRadio"
+
+
 
 void CMStatHistogramSpecsDlg::OnListRadio(wxCommandEvent& event) 
+
 {
-	//DDX_Radio(m_dialogFromPtr, IDC_ClassesRadio, m_histogramClassFieldCode);
    wxRadioButton* histogramClassFieldCode = (wxRadioButton *) FindWindow(IDC_ClassesRadio);
    m_histogramClassFieldCode = histogramClassFieldCode->GetValue();
 	StatHistogramDialogListParameters (this,
@@ -679,7 +519,10 @@ void CMStatHistogramSpecsDlg::OnListRadio(wxCommandEvent& event)
 	
 }		// end "OnListRadio"
 
+
+
 void CMStatHistogramSpecsDlg::OnPlotRadio(wxCommandEvent& event) 
+
 {
 	//DDX_Radio(m_dialogFromPtr, IDC_ClassesRadio, m_histogramClassFieldCode);
    wxRadioButton* histogramClassFieldCode = (wxRadioButton *) FindWindow(IDC_ClassesRadio);
@@ -698,14 +541,12 @@ void CMStatHistogramSpecsDlg::OnPlotRadio(wxCommandEvent& event)
 													(m_histogramClassFieldCode==0),
 													m_overlayDensityFunctionFlag);
 	
-}		// end "OnPlotRadio"
+}	// end "OnPlotRadio"
+
+
 
 void CMStatHistogramSpecsDlg::OnFeatureTransformation(wxCommandEvent& event)
 {                                
-	//DDX_Check(m_dialogFromPtr, 
-	//				IDC_UseFeatureTransformation, 
-	//				m_featureTransformationFlag);
-   
    wxCheckBox* featureTransformationFlag = (wxCheckBox *) FindWindow(IDC_UseFeatureTransformation);
    m_featureTransformationFlag = featureTransformationFlag->GetValue();
 	
@@ -728,7 +569,10 @@ void CMStatHistogramSpecsDlg::OnFeatureTransformation(wxCommandEvent& event)
 	
 }		// end "OnFeatureTransformation"
 
+
+
 void CMStatHistogramSpecsDlg::OnSelendokChannelCombo(wxCommandEvent& event)
+
 {
    
    HandleChannelsMenu(IDC_ChannelCombo, 
@@ -739,3 +583,124 @@ void CMStatHistogramSpecsDlg::OnSelendokChannelCombo(wxCommandEvent& event)
    
 	
 }		// end "OnSelendokChannelCombo"
+
+
+
+bool CMStatHistogramSpecsDlg::TransferDataFromWindow()
+
+{
+   wxCheckBox* featureTransformationFlag = (wxCheckBox*) FindWindow(IDC_UseFeatureTransformation);
+   wxCheckBox* includeEmptyBinsFlag = (wxCheckBox*) FindWindow(IDC_IncludeEmptyCheck);
+   wxCheckBox* blankValuesFlag = (wxCheckBox*) FindWindow(IDC_BlankCheck);
+   wxCheckBox* overlayDensityFunctionFlag = (wxCheckBox*) FindWindow(IDC_OverlayCheck);
+	
+   wxTextCtrl* lineInterval = (wxTextCtrl*) FindWindow(IDC_LineInterval);
+   wxTextCtrl* columnInterval = (wxTextCtrl*) FindWindow(IDC_ColumnInterval);
+	
+   wxRadioButton *histogramClassCode = (wxRadioButton*)FindWindow(IDC_ClassesRadio);
+   wxRadioButton *histogramFieldCode = (wxRadioButton*)FindWindow(IDC_FieldsRadio);
+   wxRadioButton *listCode = (wxRadioButton*)FindWindow(IDC_ListRadio);
+   wxRadioButton *plotCode = (wxRadioButton*)FindWindow(IDC_PlotRadio);
+   wxRadioButton *channelsCode = (wxRadioButton*)FindWindow(IDC_ChannelsRadio);
+   wxRadioButton *classesCode = (wxRadioButton*)FindWindow(IDC_Classes);
+   wxRadioButton *matrixCode  = (wxRadioButton*)FindWindow(IDC_MatrixRadio);
+   wxRadioButton *columnCode  = (wxRadioButton*)FindWindow(IDC_ColumnRadio);
+	
+   wxComboBox* channelSelection = (wxComboBox*) FindWindow(IDC_ChannelCombo);
+	
+   m_featureTransformationFlag = featureTransformationFlag->GetValue();
+   m_includeEmptyBinsFlag = includeEmptyBinsFlag->GetValue();
+   m_blankValuesFlag = blankValuesFlag->GetValue();
+   m_overlayDensityFunctionFlag = overlayDensityFunctionFlag->GetValue();
+	
+   m_lineInterval = wxAtoi(lineInterval->GetValue());
+   m_columnInterval = wxAtoi(columnInterval->GetValue());
+	
+   m_histogramClassCode = histogramClassCode->GetValue();
+   m_histogramFieldCode = histogramFieldCode->GetValue();
+   m_listCode = listCode->GetValue();
+   m_plotCode = plotCode->GetValue();
+   m_channelsCode = channelsCode->GetValue();
+   m_classesCode = classesCode->GetValue();
+   m_matrixCode = matrixCode->GetValue();
+   m_columnCode = columnCode->GetValue();
+	
+   m_channelSelection = channelSelection->GetSelection();
+	
+   if(m_histogramClassCode == 0) m_histogramClassFieldCode = 1;
+   else m_histogramClassFieldCode = 0;
+	
+   if(m_plotCode == 1) m_listPlotCode = 1;
+   else m_listPlotCode = 0;
+	
+   if(m_classesCode == 1) m_channelsClassesCode = 1;
+   else m_channelsClassesCode = 0;
+	
+   if(m_matrixCode == 1) m_matrixColumnCode = 0;
+   else m_matrixColumnCode = 1;
+	
+
+   if(m_channelSelection < 0)
+      m_channelSelection = m_channelSelection_Saved;
+
+   //m_channelSelection = wxAtoi(channelSelection->GetValue());
+	
+	
+   return TRUE;
+	
+}
+
+
+
+bool CMStatHistogramSpecsDlg::TransferDataToWindow ()
+
+{
+   wxCheckBox* featureTransformationFlag = (wxCheckBox*) FindWindow(IDC_UseFeatureTransformation);
+   wxCheckBox* includeEmptyBinsFlag = (wxCheckBox*) FindWindow(IDC_IncludeEmptyCheck);
+   wxCheckBox* blankValuesFlag = (wxCheckBox*) FindWindow(IDC_BlankCheck);
+   wxCheckBox* overlayDensityFunctionFlag = (wxCheckBox*) FindWindow(IDC_OverlayCheck);
+	
+   wxTextCtrl* lineInterval = (wxTextCtrl*) FindWindow(IDC_LineInterval);
+   wxTextCtrl* columnInterval = (wxTextCtrl*) FindWindow(IDC_ColumnInterval);
+	
+   wxRadioButton *histogramClassCode = (wxRadioButton*)FindWindow(IDC_ClassesRadio);
+   wxRadioButton *histogramFieldCode = (wxRadioButton*)FindWindow(IDC_FieldsRadio);
+   wxRadioButton *listCode = (wxRadioButton*)FindWindow(IDC_ListRadio);
+   wxRadioButton *plotCode = (wxRadioButton*)FindWindow(IDC_PlotRadio);
+   wxRadioButton *channelsCode = (wxRadioButton*)FindWindow(IDC_ChannelsRadio);
+   wxRadioButton *classesCode = (wxRadioButton*)FindWindow(IDC_Classes);
+   wxRadioButton *matrixCode  = (wxRadioButton*)FindWindow(IDC_MatrixRadio);
+   wxRadioButton *columnCode  = (wxRadioButton*)FindWindow(IDC_ColumnRadio);
+	
+   wxComboBox* channelSelection = (wxComboBox*) FindWindow(IDC_ChannelCombo);
+	
+	
+	
+   featureTransformationFlag->SetValue(m_featureTransformationFlag);
+   includeEmptyBinsFlag->SetValue(m_includeEmptyBinsFlag);
+   blankValuesFlag->SetValue(m_blankValuesFlag);
+   overlayDensityFunctionFlag->SetValue(m_overlayDensityFunctionFlag);
+	
+	
+   lineInterval->SetValue(wxString::Format(wxT("%d"), (int) m_lineInterval));
+   columnInterval->SetValue(wxString::Format(wxT("%d"), (int) m_columnInterval));
+	
+   histogramClassCode->SetValue(m_histogramClassCode);
+   histogramFieldCode->SetValue(m_histogramFieldCode);
+
+   listCode->SetValue(m_listCode);
+
+   plotCode->SetValue(m_plotCode);
+	//plotCode->Enable(false);
+	
+   matrixCode->SetValue(m_matrixCode);
+   columnCode->SetValue(m_columnCode);
+	
+   channelsCode->SetValue(m_channelsCode);
+   classesCode->SetValue(m_classesCode);
+	
+	
+   channelSelection->SetSelection(m_channelSelection);
+	
+   return TRUE;
+}

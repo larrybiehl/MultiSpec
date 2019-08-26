@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (2009-2018)
+//								 Copyright (2009-2019)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -14,7 +14,7 @@
 //
 //	Language:				C++
 //
-//	System:					Linux Operating System
+//	System:					Linux and MacOS Operating Systems
 //
 //	Brief description:	Header file for the LAbout class
 //
@@ -22,7 +22,7 @@
 //	Revised By:				Larry L. Biehl			Date: 10/19/2018
 //	
 //------------------------------------------------------------------------------------
-
+//
 #ifndef __labout__
 	#define __labout__
 	

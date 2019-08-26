@@ -1,6 +1,34 @@
-// LEvaluateCovariancesDialog.cpp : implementation file
-//             
-// Revised by Larry Biehl on 02/04/2019
+//	 									MultiSpec
+//
+//					Laboratory for Applications of Remote Sensing
+// 								Purdue University
+//								West Lafayette, IN 47907
+//								 Copyright (2009-2019)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	File:						LEvaluateCovariancesDialog.cpp : class implementation file
+//	Class Definition:		LEvaluateCovariancesDialog.h
+//
+//	Authors:					Larry L. Biehl
+//
+//	Revision date:			02/04/2019
+//
+//	Language:				C++
+//
+//	System:					Linux & MacOS Operating Systems
+//
+//	Brief description:	This file contains functions related to the
+//								CMEvalCovarianceDialog class.
+//
+// Following is template for debugging
+/*
+	int numberChars = sprintf ((char*)gTextString3,
+									 " LEvaluateCovariancesDialog:: (): %s",
+									 gEndOfLine);
+	ListString ((char*)gTextString3, numberChars, gOutputTextH);
+*/
+//------------------------------------------------------------------------------------
 //
 #include "SMultiSpec.h"
                       

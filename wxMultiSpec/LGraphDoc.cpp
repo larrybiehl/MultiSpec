@@ -1,30 +1,48 @@
-// LGrafDoc.cpp : implementation file
-//                 
-#include "SMultiSpec.h"                   
+//	 									MultiSpec
+//
+//					Laboratory for Applications of Remote Sensing
+// 								Purdue University
+//								West Lafayette, IN 47907
+//								 Copyright (2009-2019)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	File:						LGraphDoc.cpp : class implementation file
+//	Class Definition:		LGraphDoc.h
+//
+//	Authors:					Larry L. Biehl
+//
+//	Revision date:			11/13/2018
+//
+//	Language:				C++
+//
+//	System:					Linux & MacOS Operating Systems
+//
+//	Brief description:	This file contains functions related to the
+//								CMGraphDoc class.
+//
+// Following is template for debugging
+/*
+	int numberChars = sprintf ((char*)gTextString3,
+									 " LGraphDoc:: (): %s",
+									 gEndOfLine);
+	ListString ((char*)gTextString3, numberChars, gOutputTextH);
+*/
+//------------------------------------------------------------------------------------
+//
+#include "SMultiSpec.h"
 #include "LGraphDoc.h"
 
 
-
-/////////////////////////////////////////////////////////////////////////////
-// CMGraphDoc
-
 IMPLEMENT_DYNAMIC_CLASS(CMGraphDoc, wxDocument)
    
-CMGraphDoc::CMGraphDoc()
+CMGraphDoc::CMGraphDoc ()
 
 {
-	//SInt16		xSize = 280,
-   //ySize = 180;
-
-
-	//GetGraphWindowLocation (&xSize, &ySize);
-
-	//m_sizeDoc =CSize(xSize, ySize);
-
 	m_graphViewCPtr = NULL;
 	m_graphFrameCPtr = NULL;
 	
-}
+}	// end "CMGraphDoc"
 
 
 
@@ -39,8 +57,8 @@ CMGraphDoc::~CMGraphDoc()
 BOOL CMGraphDoc::OnNewDocument ()
 
 {
-	if (!wxDocument::OnNewDocument())
-		return FALSE;
+	if (!wxDocument::OnNewDocument ())
+																								return FALSE;
 
 	SetTitle ("Graph Window");
 
@@ -53,10 +71,10 @@ BOOL CMGraphDoc::OnNewDocument ()
 CMGraphView* CMGraphDoc::GetGraphViewCPtr (void)
 
 {  
-	CMGraphView*		graphViewCPtr = NULL;
+	CMGraphView*						graphViewCPtr = NULL;
 	
-	if (this != NULL)
-		graphViewCPtr = m_graphViewCPtr;
+
+	graphViewCPtr = m_graphViewCPtr;
 		
 	return (graphViewCPtr);
 	
@@ -64,29 +82,24 @@ CMGraphView* CMGraphDoc::GetGraphViewCPtr (void)
 
 
 void CMGraphDoc::SetGraphFrameCPtr (
-				CMGraphFrame*			graphFrameCPtr)
+				CMGraphFrame*						graphFrameCPtr)
 				
 {                                   
 	m_graphFrameCPtr = graphFrameCPtr; 
 	 
-}
+}	// end "SetGraphFrameCPtr"
 
 
 
 void CMGraphDoc::SetGraphViewCPtr (
-				CMGraphView*		graphViewCPtr)
+				CMGraphView*						graphViewCPtr)
 				
 {
-  
-	if (this != NULL)
-		{
-		m_graphViewCPtr = graphViewCPtr;
+	m_graphViewCPtr = graphViewCPtr;
 
 		
-      if (m_graphFrameCPtr != NULL)
-			m_graphFrameCPtr->SetGraphViewCPtr (m_graphViewCPtr);
-
-		}		// end "if (this != NULL)"
+	if (m_graphFrameCPtr != NULL)
+		m_graphFrameCPtr->SetGraphViewCPtr (m_graphViewCPtr);
 
 }	// end "SetGraphViewCPtr" 
 

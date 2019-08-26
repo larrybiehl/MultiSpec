@@ -1,15 +1,35 @@
-// LStatisticsFrame.cpp : implementation file
+//                               MultiSpec
 //
-// Revised by Larry Biehl on 04/26/2019
+//               Laboratory for Applications of Remote Sensing
+//                         Purdue University
+//                        West Lafayette, IN 47907
+//                         Copyright (2009-2019)
+//                     (c) Purdue Research Foundation
+//                           All rights reserved.
 //
-/*  Template for writing something to text window for debugging.             
-	int numberChars = sprintf ((char*)&gTextString3,
-												" LStatFrm::UpdateStatsTypeCombo 1: (count): %d%s", 
-												statsTypeComboBoxPtr->GetCount(),
-												gEndOfLine);
-	ListString ((char*)&gTextString3, numberChars, gOutputTextH);	
-*/   
-                       
+//   File:                 LStatisticsFrame.cpp : class implementation file
+//   Class Definition:     LStatisticsFrame.h
+//
+//   Authors:              Abdur Rahman Maud, Larry L. Biehl
+//
+//   Revision date:        04/26/2019
+//
+//   Language:					C++
+//
+//   System:               Linux and MacOS Operating Systems
+//
+//   Brief description:  	This file contains functions that relate to the
+//                       	CMStatisticsFrame class.
+//
+/*  Template for writing something to text window for debugging.
+	int numberChars = sprintf (
+				(char*)&gTextString3,
+				" LStatisticsFrame::UpdateStatsTypeCombo 1: (): %s",
+				gEndOfLine);
+	ListString ((char*)&gTextString3, numberChars, gOutputTextH);
+*/
+//------------------------------------------------------------------------------------
+//
 #include "SMultiSpec.h"
                       
 #include "LImageView.h"
@@ -19,21 +39,34 @@
 #include "LTools.h"
 
 #include "wx/display.h"
-	
-extern SInt16 GetCurrentField(
-   SInt16 classNumber,
-   SInt16 classFieldNumber);
 
 
 IMPLEMENT_DYNAMIC_CLASS (CMStatisticsFrame, wxDocChildFrame)
 
+BEGIN_EVENT_TABLE (CMStatisticsFrame, wxDocChildFrame)
+   EVT_BUTTON (IDC_AddToList, CMStatisticsFrame::OnAddToList)
+   EVT_BUTTON (IDC_Class, CMStatisticsFrame::OnClass)
+   EVT_BUTTON (IDC_EditName, CMStatisticsFrame::OnEditName)
+   EVT_BUTTON (IDC_Field, CMStatisticsFrame::OnField)
+   EVT_BUTTON (IDC_Project, CMStatisticsFrame::OnProject)
+   EVT_BUTTON (IDC_Select, CMStatisticsFrame::OnSelect)
+   EVT_BUTTON (IDC_Update, CMStatisticsFrame::OnUpdate)
 
+	EVT_CHAR_HOOK (CMStatisticsFrame::OnCharHook)
 
-BEGIN_EVENT_TABLE(CMStatisticsFrame, wxDocChildFrame)
-	//EVT_UPDATE_UI(wxID_CUT, CMStatisticsFrame::OnUpdateEditCut)
-	EVT_UPDATE_UI(ID_EDIT_CLEAR_SELECT_RECTANGLE, CMStatisticsFrame::OnUpdateEditClearSelectRectangle)
-   EVT_UPDATE_UI(ID_EDIT_SELECTION_RECTANGLE, CMStatisticsFrame::OnUpdateEditSelectionRectangle)
-   EVT_UPDATE_UI(ID_EDIT_SELECT_ALL, CMStatisticsFrame::OnUpdateEditSelectAll)
+   EVT_CHECKBOX (IDC_Polygon, CMStatisticsFrame::OnPolygon)
+
+   EVT_COMBOBOX (IDC_ClassList, CMStatisticsFrame::OnSelendokClassList)
+   EVT_COMBOBOX (IDC_ListStatsCombo, CMStatisticsFrame::OnSelendokListStatsCombo)
+   EVT_COMBOBOX (IDC_HistogramStatsCombo, CMStatisticsFrame::OnSelendokHistogramStatsCombo)
+   EVT_COMBOBOX (IDC_StatsCombo, CMStatisticsFrame::OnSelendokStatsCombo)
+
+   EVT_COMBOBOX_DROPDOWN (IDC_HistogramStatsCombo, CMStatisticsFrame::OnHistogramStatsComboDropDown)
+   EVT_COMBOBOX_DROPDOWN (IDC_ListStatsCombo, CMStatisticsFrame::OnListStatsComboDropDown)
+   EVT_COMBOBOX_DROPDOWN (IDC_StatsCombo, CMStatisticsFrame::OnDropdownStatsTypeCombo)
+
+   EVT_LISTBOX (IDC_ListBox, CMStatisticsFrame::OnSelchangeListBox)
+   EVT_LISTBOX_DCLICK (IDC_ListBox, CMStatisticsFrame::OnDblclkListBox)
 
 	EVT_MENU (ID_EDIT_UNDO, CMStatisticsFrame::OnEditUndo)
 	EVT_MENU (wxID_CUT, CMStatisticsFrame::OnEditCut)
@@ -42,24 +75,9 @@ BEGIN_EVENT_TABLE(CMStatisticsFrame, wxDocChildFrame)
 	EVT_MENU (ID_EDIT_SELECTION_RECTANGLE, CMStatisticsFrame::OnEditSelectionRectangle)
 	EVT_MENU (ID_EDIT_SELECT_ALL, CMStatisticsFrame::OnEditSelectAll)
 
-   EVT_BUTTON(IDC_Project, CMStatisticsFrame::OnProject)
-   EVT_BUTTON(IDC_Class, CMStatisticsFrame::OnClass)
-   EVT_BUTTON(IDC_Field, CMStatisticsFrame::OnField)
-   EVT_BUTTON(IDC_Update, CMStatisticsFrame::OnUpdate)
-   EVT_CHECKBOX(IDC_Polygon, CMStatisticsFrame::OnPolygon)
-   EVT_BUTTON(IDC_Select, CMStatisticsFrame::OnSelect)
-   EVT_BUTTON(IDC_AddToList, CMStatisticsFrame::OnAddToList)
-   EVT_BUTTON(IDC_EditName, CMStatisticsFrame::OnEditName)
-	EVT_CHAR_HOOK (CMStatisticsFrame::OnCharHook)
-   EVT_COMBOBOX(IDC_ClassList, CMStatisticsFrame::OnSelendokClassList)
-   EVT_COMBOBOX(IDC_ListStatsCombo, CMStatisticsFrame::OnSelendokListStatsCombo)
-   EVT_COMBOBOX_DROPDOWN(IDC_ListStatsCombo, CMStatisticsFrame::OnListStatsComboDropDown)
-   EVT_COMBOBOX(IDC_HistogramStatsCombo, CMStatisticsFrame::OnSelendokHistogramStatsCombo)
-   EVT_COMBOBOX(IDC_StatsCombo, CMStatisticsFrame::OnSelendokStatsCombo)
-   EVT_COMBOBOX_DROPDOWN(IDC_HistogramStatsCombo, CMStatisticsFrame::OnHistogramStatsComboDropDown)
-   EVT_COMBOBOX_DROPDOWN(IDC_StatsCombo, CMStatisticsFrame::OnDropdownStatsTypeCombo)
-   EVT_LISTBOX(IDC_ListBox, CMStatisticsFrame::OnSelchangeListBox)
-   EVT_LISTBOX_DCLICK(IDC_ListBox, CMStatisticsFrame::OnDblclkListBox)
+	EVT_UPDATE_UI (ID_EDIT_CLEAR_SELECT_RECTANGLE, CMStatisticsFrame::OnUpdateEditClearSelectRectangle)
+   EVT_UPDATE_UI (ID_EDIT_SELECT_ALL, CMStatisticsFrame::OnUpdateEditSelectAll)
+   EVT_UPDATE_UI (ID_EDIT_SELECTION_RECTANGLE, CMStatisticsFrame::OnUpdateEditSelectionRectangle)
 END_EVENT_TABLE()
 
 
@@ -67,19 +85,23 @@ END_EVENT_TABLE()
 CMStatisticsFrame::CMStatisticsFrame (void)
 
 {
-	//gProjectWindow = (CMImageView*)this;
 
 }	// end "CMStatisticsFrame"
 
 
 
-CMStatisticsFrame::CMStatisticsFrame (wxDocument* doc, wxView* view, wxDocParentFrame* parent,
-            wxWindowID id, const wxString& title, 
-				const wxPoint& pos, const wxSize& size, long style) : 
-		wxDocChildFrame (doc, view, parent, id, title, pos, size, style)
+CMStatisticsFrame::CMStatisticsFrame (
+				wxDocument* 						doc,
+				wxView* 								view,
+				wxDocParentFrame* 				parent,
+            wxWindowID 							id,
+            const wxString& 					title,
+				const wxPoint& 					pos,
+				const wxSize& 						size,
+				long 									style)
+		: wxDocChildFrame (doc, view, parent, id, title, pos, size, style)
 
 {
-	//gProjectWindow = (CMImageView*)this;
    m_classList = 0;
    m_histogramStatsCode = 0;
    m_listStatsCode = 0;
@@ -89,7 +111,7 @@ CMStatisticsFrame::CMStatisticsFrame (wxDocument* doc, wxView* view, wxDocParent
    m_initializedFlag = FALSE;
    m_optionKeyFlag = FALSE;
    
-   CreateControls2();
+   CreateControls2 ();
 	
    		// Change statistic dialog window to the top-right screen -- Tsung Tai 12/10/18
 	
@@ -150,16 +172,16 @@ CMStatisticsFrame::CMStatisticsFrame (wxDocument* doc, wxView* view, wxDocParent
 
 
 
-CMStatisticsFrame::~CMStatisticsFrame(void)
+CMStatisticsFrame::~CMStatisticsFrame (void)
+
 {
-//   gProjectWindow = NULL;
 
 }	// end "~CMStatisticsFrame"
 
 
 
 void CMStatisticsFrame::ActivateStatisticsWindowItems (
-				SInt16										statsWindowMode)
+				SInt16								statsWindowMode)
 {			
 	switch (statsWindowMode)
 		{
@@ -181,10 +203,11 @@ void CMStatisticsFrame::ActivateStatisticsWindowItems (
 			
 		}		// end "switch (statsWindowMode)"
 
-}		// end "ActivateStatisticsWindowItems"
+}	// end "ActivateStatisticsWindowItems"
 
 
-void CMStatisticsFrame::CreateControls2()
+
+void CMStatisticsFrame::CreateControls2 ()
 
 {
 	int	buttonWidth = 210;
@@ -796,11 +819,11 @@ void CMStatisticsFrame::OnField(wxCommandEvent& event)
 } // end "OnField"  
 
 
-void CMStatisticsFrame::OnHistogram(wxCommandEvent& event) 
-{
-   // TODO: Add your control notification handler code here
+void CMStatisticsFrame::OnHistogram (wxCommandEvent& event)
 
-} // end "OnHistogram"
+{
+
+}	// end "OnHistogram"
 
 
 void CMStatisticsFrame::OnHistogramStatsComboDropDown(wxCommandEvent& event) 
@@ -1070,8 +1093,6 @@ void CMStatisticsFrame::OnSelendokStatsCombo(wxCommandEvent& event)
     
    if (covarianceStatsToUse > 0) 
 		{
-      //		covarianceStatsToUse = GetCovarianceStatsFromMenuItem ((SInt16)menuItemCode);
-
       if (gProjectInfoPtr->statsWindowMode == kClassListMode)
          SetProjectCovarianceStatsToUse(covarianceStatsToUse);
 
@@ -1235,42 +1256,48 @@ void CMStatisticsFrame::UpdateListStatsCombo()
 
             break;
 
-      } // end "switch (gProjectInfoPtr->statsWindowMode)" 
+      	}	// end "switch (gProjectInfoPtr->statsWindowMode)"
 
       m_listStatsCode = 0;
       listStatsComboBoxPtr->SetSelection(m_listStatsCode);
 		
-		} // end "if (gProjectInfoPtr->statsWindowMode > 1)"
+		}	// end "if (gProjectInfoPtr->statsWindowMode > 1)"
 
-} // end "UpdateListStatsCombo"  
+}	// end "UpdateListStatsCombo"
+
+
 
 void CMStatisticsFrame::UpdateStatsTypeCombo(
-   SInt16 statsWindowMode)
+				SInt16 								statsWindowMode)
+
  {
-   wxComboBox*		statsTypeComboBoxPtr;
+   wxComboBox*							statsTypeComboBoxPtr;
 
-   SInt16			numberItems,
-						classStorage;
+   SInt16								numberItems,
+											classStorage;
 
 
-   // Draw the prompt string and current covariance stats to be used.
-	 //wxWindow* projWin = this->GetFrame();
+   		// Draw the prompt string and current covariance stats to be used.
+ 
+	//wxWindow* projWin = this->GetFrame();
    statsTypeComboBoxPtr = (wxComboBox*) this->FindWindow(IDC_StatsCombo);		
 	   
-   if(statsTypeComboBoxPtr->GetCount() > 3)
-      statsTypeComboBoxPtr->Delete(3);	
-	if(statsTypeComboBoxPtr->GetCount() > 2)
-			statsTypeComboBoxPtr->Delete(2);	
+   if (statsTypeComboBoxPtr->GetCount() > 3)
+      statsTypeComboBoxPtr->Delete(3);
+ 
+	if (statsTypeComboBoxPtr->GetCount() > 2)
+		statsTypeComboBoxPtr->Delete(2);
 	
-   if (statsWindowMode == kClassListMode) {
-      m_statsTypeCode = GetProjectStatisticsTypeMenuItem() - 1;
+   if (statsWindowMode == kClassListMode)
+   	{
+      m_statsTypeCode = GetProjectStatisticsTypeMenuItem () - 1;
 
       if (gProjectInfoPtr->enhancedStatsExistFlag)
 			{
          statsTypeComboBoxPtr->Append("Enhanced");
          statsTypeComboBoxPtr->SetClientData(2, (void*)kEnhancedStats);
 
-			} // end "if (gProjectInfoPtr->enhancedStatsExistFlag)"
+			}	// end "if (gProjectInfoPtr->enhancedStatsExistFlag)"
 
       if (m_statsTypeCode == 3)
 			{
@@ -1279,9 +1306,9 @@ void CMStatisticsFrame::UpdateStatsTypeCombo(
          statsTypeComboBoxPtr->SetClientData(numberItems - 1, (void*)kMixedStats);
          m_statsTypeCode = numberItems - 1;
 
-			} // end "if (gProjectInfoPtr->enhancedStatsExistFlag)"
+			}	// end "if (gProjectInfoPtr->enhancedStatsExistFlag)"
 
-		}// end "if (statsWindowMode == kClassListMode)"
+		}	// end "if (statsWindowMode == kClassListMode)"
 
    else // statsWindowMode == kFieldListMode
 		{
@@ -1299,4 +1326,4 @@ void CMStatisticsFrame::UpdateStatsTypeCombo(
 
    statsTypeComboBoxPtr->SetSelection(m_statsTypeCode);
 	
-} // end "UpdateStatsTypeCombo"
+}	// end "UpdateStatsTypeCombo"

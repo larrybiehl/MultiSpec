@@ -1,12 +1,31 @@
-// LMapCoordinateDialog.cpp : implementation file
+//	 									MultiSpec
 //
-// Revised by Larry Biehl on 04/21/2019
+//					Laboratory for Applications of Remote Sensing
+// 								Purdue University
+//								West Lafayette, IN 47907
+//								 Copyright (2009-2019)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	File:						LMapCoordinateDialog.cpp : class implementation file
+//	Class Definition:		LMapCoordinateDialog.h
+//
+//	Authors:					Larry L. Biehl
+//
+//	Revision date:			04/21/2019
+//
+//	Language:				C++
+//
+//	System:					Linux and MacOS Operating Systems
+//
+//	Brief description:	This file contains functions that relate to the
+//								CMMapCoordinateDlg class.
 //
 // Note that m_adjustUpperLeftMapPointFlag has not been fully integrated in this code
 // yet. See Mac version for more info. 3Is not being used right now till a better
 // method is made available for the user to control.
 //------------------------------------------------------------------------------------
-
+//
 #include "SMultiSpec.h"
 
 #include "LMapCoordinateDialog.h"	
@@ -17,160 +36,29 @@
 #include "wx/string.h"
 #include "wx/window.h"
 
-extern SInt16 CoordinateDialogCheckIfZoneIsValid (
-				DialogPtr							dialogPtr,
-				SInt16								referenceSystemCode,
-				UCharPtr								gridZoneDirection);
-
-extern void CoordinateDialogGetMinMaxZone (
-				SInt16								referenceSystemCode,
-				SInt16*								minZonePtr,
-				SInt16*								maxZonePtr,
-				UCharPtr								gridZoneDirectionPtr);
-
-extern void CoordinateDialogHideShowProjectionParameters (
-				DialogPtr							dialogPtr,
-				SInt16								referenceSystemCode,
-				SInt16								projectionCode,
-				Boolean								initialFlag,
-				SInt16*								datumSelectionPtr,
-				SInt16*								ellipsoidSelectionPtr,
-				Boolean								setDatumParametersFlag);
-
-extern void CoordinateDialogInitialize (
-				DialogPtr							dialogPtr,
-				MapProjectionInfoPtr				mapProjectionInfoPtr,
-				SInt16*								mapUnitsSelectionPtr,
-				double*								xMapCoordinate11Ptr,
-				double*								yMapCoordinate11Ptr,
-				double*								horizontalPixelSizePtr,
-				double*								verticalPixelSizePtr,
-				double*								mapOrientationAnglePtr,
-				SInt16*								referenceSystemSelectionPtr,
-				SInt16*								epsgCodePtr,
-				SInt16*								projectionSelectionPtr,
-				SInt16*								datumSelectionPtr,
-				SInt16*								ellipsoidSelectionPtr,
-				double*								radiusSpheroidPtr,
-				double*								semiMajorAxisPtr,
-				double*								semiMinorAxisPtr,
-				SInt16*								gridZonePtr,
-				UCharPtr								gridZoneDirectionPtr,
-				SInt16*								gridZoneWithDirectionPtr,
-				UCharPtr								epsgNamePtr,
-				UCharPtr								datumNamePtr,
-				UCharPtr								ellipsoidNamePtr,
-				double*								longitudeCentralMeridianPtr,
-				double*								latitudeOriginPtr,
-				double*								falseEastingPtr,
-				double*								falseNorthingPtr,
-				double*								scaleFactorOfCentralMeridianPtr,
-				double*								standardParallel1Ptr,
-				double*								standardParallel2Ptr,
-				DoublePoint*						upperLeftLatLongPointPtr);
-
-extern Boolean CoordinateDialogIsZoneDirectionEditable (
-				SInt16								referenceSystemSelection);
-
-extern Boolean CoordinateDialogIsZoneDisplayed (
-				SInt16								referenceSystemSelection);
-
-extern void CoordinateDialogOK (
-				DialogPtr							dialogPtr,
-				FileInfoPtr							fileInfoPtr,
-				MapProjectionInfoPtr				mapProjectionInfoPtr,
-				SInt16								mapUnitsCode,
-				double								xMapCoordinate11,
-				double								yMapCoordinate11,
-				double								horizontalPixelSize,
-				double								verticalPixelSize,
-				double								mapOrientationAngle,
-				SInt16								referenceSystemCode,
-				SInt16								epsgCode,
-				SInt16								projectionCode,
-				SInt16								datumCode,
-				SInt16								ellipsoidCode,
-				double								radiusSpheroid,
-				double								semiMajorAxis,
-				double								semiMinorAxis,
-				SInt16								gridZone,
-				UCharPtr								gridZoneDirectionPtr,
-				UCharPtr								epsgNamePtr,
-				UCharPtr								datumNamePtr,
-				UCharPtr								ellipsoidNamePtr,
-				double								longitudeCentralMeridian,
-				double								latitudeOrigin,
-				double								falseEasting,
-				double								falseNorthing,
-				double								scaleFactorOfCentralMeridian,
-				double								standardParallel1,
-				double								standardParallel2,
-				DoublePoint							upperLeftLatLongPoint,
-				Boolean								adjustUpperLeftMapPointFlag);
-
-extern SInt16 CoordinateDialogSetDatumParameters (
-				DialogPtr							dialogPtr,
-				SInt16								datumCode,
-				SInt16								ellipsoidCode,
-				Boolean								initialFlag,
-				Boolean								datumDeactivatedFlag);
-
-extern void CoordinateDialogSetEllipsoidParameters (
-				DialogPtr							dialogPtr,
-				SInt16								ellipsoidCode);
-
-extern Boolean CoordinateDialogSetParametersFromEPSGCode (
-				DialogPtr							dialogPtr,
-				SInt16								epsgCode,
-				Boolean								lastEPSGCodeValidFlag,
-				UCharPtr								epsgNamePtr,
-				UCharPtr								datumNamePtr,
-				UCharPtr								ellipsoidNamePtr,
-				SInt16*								mapUnitsSelectionPtr,
-				SInt16*								projectionSelectionPtr);
-
-extern void CoordinateDialogSetReferenceSystemParameters (
-				DialogPtr							dialogPtr,
-				SInt16								referenceSystemCode,
-				UCharPtr								gridZoneDirectionPtr,
-				Boolean								initialFlag,
-				SInt16*								projectionSelectionPtr,
-				SInt16*								datumSelectionPtr,
-				SInt16*								ellipsoidSelectionPtr,
-				SInt16*								mapUnitsSelectionPtr);
-
-extern void CoordinateDialogSetParametersFromRS (
-				DialogPtr							dialogPtr,
-				SInt16								referenceSystemCode,
-				SInt16*								projectionSelectionPtr,
-				UCharPtr								gridZoneDirectionPtr,
-				SInt16								gridZoneWithDirection,
-				SInt16								datumCode,
-				SInt16								ellipsoidCode,
-				SInt16*								gridZonePtr);
-
 
 
 BEGIN_EVENT_TABLE (CMMapCoordinateDlg, CMDialog)
-	EVT_INIT_DIALOG (CMMapCoordinateDlg::OnInitDialog)
-	EVT_COMBOBOX (IDC_MapUnitsCombo, CMMapCoordinateDlg::OnSelendokMapUnitsCombo)
-	EVT_COMBOBOX (IDC_ReferenceSystemCombo, CMMapCoordinateDlg::OnSelendokReferenceSystemCombo)
-	EVT_COMBOBOX (IDC_ProjectionCombo, CMMapCoordinateDlg::OnSelendokProjectionCombo)
 	EVT_COMBOBOX (IDC_DatumCombo, CMMapCoordinateDlg::OnSelendokDatumCombo)
 	EVT_COMBOBOX (IDC_EllipsoidCombo, CMMapCoordinateDlg::OnSelendokEllipsoidCombo)
-	EVT_TEXT (IDC_ZoneDirection, CMMapCoordinateDlg::OnChangeZoneDirection)
-	EVT_TEXT (IDC_Zone, CMMapCoordinateDlg::OnEnChangeZone)
+	EVT_COMBOBOX (IDC_MapUnitsCombo, CMMapCoordinateDlg::OnSelendokMapUnitsCombo)
+	EVT_COMBOBOX (IDC_ProjectionCombo, CMMapCoordinateDlg::OnSelendokProjectionCombo)
+	EVT_COMBOBOX (IDC_ReferenceSystemCombo, CMMapCoordinateDlg::OnSelendokReferenceSystemCombo)
+
+	EVT_INIT_DIALOG (CMMapCoordinateDlg::OnInitDialog)
+
 	EVT_TEXT (IDC_EPSGCode, CMMapCoordinateDlg::OnEnChangeEPSGCode)
-	//EVT_CHAR_HOOK(CMMapCoordinateDlg::OnButtonPress)
+	EVT_TEXT (IDC_Zone, CMMapCoordinateDlg::OnEnChangeZone)
+	EVT_TEXT (IDC_ZoneDirection, CMMapCoordinateDlg::OnChangeZoneDirection)
 END_EVENT_TABLE ()
 
 
 
 CMMapCoordinateDlg::CMMapCoordinateDlg (
-				wxWindow* pParent,
-				wxWindowID id,
-				const wxString& title /*=NULL*/)
-		: CMDialog(CMMapCoordinateDlg::IDD, pParent, title)
+				wxWindow* 							pParent,
+				wxWindowID 							id,
+				const wxString& 					title /*=NULL*/)
+		: CMDialog (CMMapCoordinateDlg::IDD, pParent, title)
 
 {
 	m_referenceSystemSelection = 0;
@@ -210,7 +98,8 @@ CMMapCoordinateDlg::CMMapCoordinateDlg (
 	m_validEPSGCodeFlag = TRUE;
 
 	m_initializedFlag = CMDialog::m_initializedFlag;
-	CreateControls();
+	
+	CreateControls ();
 
 }	// end "CMMapCoordinateDlg"
 

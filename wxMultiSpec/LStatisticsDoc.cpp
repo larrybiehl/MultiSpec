@@ -1,97 +1,101 @@
-// LStatisticsDoc.cpp : implementation file
-//              
-// Revised by Larry Biehl on 06/20/2017   
+//                               MultiSpec
+//
+//               Laboratory for Applications of Remote Sensing
+//                         Purdue University
+//                        West Lafayette, IN 47907
+//                         Copyright (2009-2019)
+//                     (c) Purdue Research Foundation
+//                           All rights reserved.
+//
+//   File:                 LStatisticsDoc.cpp : class implementation file
+//   Class Definition:     LStatisticsDoc.h
+//
+//   Authors:              Abdur Rahman Maud, Larry L. Biehl
+//
+//   Revision date:        06/20/2017
+//
+//   Language:					C++
+//
+//   System:               Linux and MacOS Operating Systems
+//
+//   Brief description:  	This file contains functions that relate to the
+//                       	CMStatisticsDoc class.
+//
+//------------------------------------------------------------------------------------
 //
 #include "SMultiSpec.h"
                      
 #include "LStatisticsDoc.h"
 #include "LStatisticsFrame.h"
 
-/////////////////////////////////////////////////////////////////////////////
-// CMStatisticsDoc
 
-//IMPLEMENT_SERIAL(CMStatisticsDoc, CDocument, 0 /* schema number*/ )
-IMPLEMENT_DYNAMIC_CLASS(CMStatisticsDoc, wxDocument)
+IMPLEMENT_DYNAMIC_CLASS (CMStatisticsDoc, wxDocument)
 
-CMStatisticsDoc::CMStatisticsDoc()
+BEGIN_EVENT_TABLE (CMStatisticsDoc, wxDocument)
+END_EVENT_TABLE ()
+
+
+
+CMStatisticsDoc::CMStatisticsDoc (void)
+
 {                           
 	gProjectWindow = NULL;
 	m_statisticsFrameCPtr = NULL;
 
-}		// end "CMStatisticsDoc"
+}	// end "CMStatisticsDoc"
 
 
-bool CMStatisticsDoc::Close()
+
+CMStatisticsDoc::~CMStatisticsDoc (void)
+
+{
+
+}	// end "~CMStatisticsDoc"
+
+
+
+bool CMStatisticsDoc::Close (void)
+
 {	
 			// The user was allowed a chance to save the project before the text
 			// window was closed. Allow closing of project window to continue.
-	if (CloseTheProject())
+	
+	if (CloseTheProject ())
 		return true;
 		
 	else
 		return false;
-		
-	//return (true);
 	
-}		// end "Close"
+}	// end "Close"
 
 
-BOOL CMStatisticsDoc::OnNewDocument(void)
+
+BOOL CMStatisticsDoc::OnNewDocument (void)
+
 {
-	if (!wxDocument::OnNewDocument())
-		return FALSE;  
+	if (!wxDocument::OnNewDocument ())
+																							return FALSE;
 	
 	SetTitle("Select Field");
 		
 	return TRUE;
 	
-}		// end "OnNewDocument"
-
-
-CMStatisticsDoc::~CMStatisticsDoc(void)
-{
-
-}		// end "~CMStatisticsDoc"   
+}	// end "OnNewDocument"
 
 
 
-CMStatisticsFrame* CMStatisticsDoc::GetStatisticsFrame(void)
+CMStatisticsFrame* CMStatisticsDoc::GetStatisticsFrame (void)
 {
 	return (m_statisticsFrameCPtr);
 
-}		// end "GetStatisticsFrame"
+}	// end "GetStatisticsFrame"
+
 
 
 void CMStatisticsDoc::SetStatisticsFrame(
-					CMStatisticsFrame*			statisticsFrameCPtr)
+				CMStatisticsFrame*				statisticsFrameCPtr)
+
 {
 	m_statisticsFrameCPtr = statisticsFrameCPtr;
 
-}		// end "SetStatisticsFrame"
-
-
-
-BEGIN_EVENT_TABLE(CMStatisticsDoc, wxDocument)
-	//{{AFX_MSG_MAP(CMStatisticsDoc)
-		// NOTE - the ClassWizard will add and remove mapping macros here.
-	//}}AFX_MSG_MAP
-END_EVENT_TABLE()
-
-
-/////////////////////////////////////////////////////////////////////////////
-// CMStatisticsDoc serialization
-/*
-void CMStatisticsDoc::Serialize(CArchive& ar)
-{
-	if (ar.IsStoring())
-	{
-		// TODO: add storing code here
-	}
-	else
-	{
-		// TODO: add loading code here
-	}
-}
-*/
-/////////////////////////////////////////////////////////////////////////////
-// CMStatisticsDoc commands
+}	// end "SetStatisticsFrame"

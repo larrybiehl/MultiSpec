@@ -1,38 +1,49 @@
-// LStatisticsListDialog.cpp : implementation file
-// CMListStatsDialog dialog
+//	 									MultiSpec
 //
-// Revised by Larry Biehl on 11/16/2018
+//					Laboratory for Applications of Remote Sensing
+// 								Purdue University
+//								West Lafayette, IN 47907
+//								 Copyright (2009-2019)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	File:						LStatisticsListDialog.cpp : class implementation file
+//	Class Definition:		LStatisticsListDialog.h
+//
+//	Authors:					Abdur Rahman Maud, Larry L. Biehl
+//
+//	Revision date:			11/16/2018
+//
+//	Language:				C++
+//
+//	System:					Linux and MacOS Operating Systems
+//
+//	Brief description:	This file contains functions that relate to the
+//								CMListStatsDialog class.
+//
+//------------------------------------------------------------------------------------
 //
 #include "SMultiSpec.h"
 #include "LStatisticsListDialog.h"
 
-extern void ListStatsDialogInitialize(
-        DialogPtr dialogPtr,
-        SInt16 statsWindowMode,
-        Boolean* listFieldFlagPtr,
-        Boolean* listClassFlagPtr,
-        Boolean* listMeansStdDevFlagPtr,
-        Boolean* listCovarianceFlagPtr,
-        Boolean* listCorrelationFlagPtr,
-        Boolean* featureTransformationFlagPtr,
-        SInt16* listMeanStdPrecisionPtr,
-        SInt16* listCovCorPrecisionPtr);
-
-extern void ListStatsDialogOK(
-        Boolean listFieldFlag,
-        Boolean listClassFlag,
-        Boolean listMeansStdDevFlag,
-        Boolean listCovarianceFlag,
-        Boolean listCorrelationFlag,
-        Boolean featureTransformationFlag,
-        SInt16 listMeanStdPrecision,
-        SInt16 listCovCorPrecision);
 
 
-CMListStatsDialog::CMListStatsDialog(wxWindow* pParent,
-   wxWindowID id, const wxString& title/*=NULL*/)
-:CMDialog(CMListStatsDialog::IDD, pParent, title){
+BEGIN_EVENT_TABLE (CMListStatsDialog, CMDialog)
+	EVT_COMBOBOX (IDC_Classes, CMListStatsDialog::OnClasses)
+	EVT_COMBOBOX (IDC_Fields, CMListStatsDialog::OnFields)
 
+	EVT_INIT_DIALOG (CMListStatsDialog::OnInitDialog)
+END_EVENT_TABLE ()
+
+
+
+CMListStatsDialog::CMListStatsDialog (
+				wxWindow* 							pParent,
+   			wxWindowID 							id,
+   			const 								wxString& title/*=NULL*/)
+		: CMDialog (CMListStatsDialog::IDD, pParent, title)
+
+{
     m_listClassFlag = FALSE;
     m_listFieldFlag = FALSE;
     m_listMeansStdDevFlag = FALSE;
@@ -42,40 +53,36 @@ CMListStatsDialog::CMListStatsDialog(wxWindow* pParent,
     m_listMeanStdPrecision = 1;
     m_listCovCorPrecision = 2;
     
-    CreateControls();
+    CreateControls ();
 
-}
-
-BEGIN_EVENT_TABLE(CMListStatsDialog, CMDialog)
-EVT_INIT_DIALOG(CMListStatsDialog::OnInitDialog)
-EVT_COMBOBOX(IDC_Classes, CMListStatsDialog::OnClasses)
-EVT_COMBOBOX(IDC_Classes, CMListStatsDialog::OnFields)
-END_EVENT_TABLE()
+}	// end "CMListStatsDialog"
 
 
-Boolean
-CMListStatsDialog::DoDialog(
-        SInt16 statsWindowMode) {
-    SInt16 returnCode;
 
-    Boolean continueFlag = FALSE;
+Boolean CMListStatsDialog::DoDialog (
+				SInt16 								statsWindowMode)
+
+{
+	SInt16 								returnCode = wxID_CANCEL;
+
+	Boolean 								continueFlag = FALSE;
 
 
-    // Make sure intialization has been completed.
+    		// Make sure intialization has been completed.
 
-    if (!m_initializedFlag)
-        return (FALSE);
+	if (!m_initializedFlag)
+																							return (FALSE);
 
     m_statsWindowMode = statsWindowMode;
 
-    if(TransferDataFromWindow()){																			
-	  returnCode = ShowModal();
-	}
+	if (TransferDataFromWindow ())
+		returnCode = ShowModal();
+	
+	if (returnCode == wxID_OK)
+    	{
+		continueFlag = TRUE;
 
-    if (returnCode == wxID_OK) {
-        continueFlag = TRUE;
-
-        ListStatsDialogOK(m_listFieldFlag,
+		ListStatsDialogOK(m_listFieldFlag,
                 m_listClassFlag,
                 m_listMeansStdDevFlag,
                 m_listCovarianceFlag,
@@ -84,11 +91,11 @@ CMListStatsDialog::DoDialog(
                 m_listMeanStdPrecision,
                 m_listCovCorPrecision);
 
-    } // end "if (returnCode == IDOK)"
+    	}	// end "if (returnCode == IDOK)"
 
-    return (continueFlag);
+	return (continueFlag);
 
-} // end "DoDialog"
+}	// end "DoDialog"
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -141,8 +148,11 @@ CMListStatsDialog::CheckListFieldClassSettings(void) {
     //GetDlgItem(IDOK)->EnableWindow(enableFlag);
 
 } // end "CheckListFieldClassSettings"
-//#endif
-void CMListStatsDialog::OnClasses(wxCommandEvent& event) {
+
+
+void CMListStatsDialog::OnClasses(wxCommandEvent& event)
+
+{
    wxComboBox* listClassFlag = (wxComboBox *) FindWindow(IDC_Classes);
    m_listClassFlag = listClassFlag->GetSelection();
 
@@ -150,15 +160,17 @@ void CMListStatsDialog::OnClasses(wxCommandEvent& event) {
 
 } // end "OnClasses"
 
-void CMListStatsDialog::OnFields(wxCommandEvent& event) {
-   wxComboBox* listFieldFlag = (wxComboBox *) FindWindow(IDC_Fields);
+void CMListStatsDialog::OnFields (wxCommandEvent& event)
+
+{
+   wxComboBox* listFieldFlag = (wxComboBox *) FindWindow (IDC_Fields);
    m_listFieldFlag = listFieldFlag->GetSelection();
 
     CheckListFieldClassSettings();
 
-} // end "OnFields"
+}	// end "OnFields"
 
-//#endif
+
 
 bool CMListStatsDialog::TransferDataToWindow() {
    wxCheckBox* listClassFlag = (wxCheckBox*) FindWindow(IDC_Classes);

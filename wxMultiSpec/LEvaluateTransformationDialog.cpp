@@ -1,12 +1,38 @@
-// LEvaluateTransformationDialog.cpp : implementation file
-//                  
-// Revised by Larry Biehl on 06/21/2017
+//	 									MultiSpec
+//
+//					Laboratory for Applications of Remote Sensing
+// 								Purdue University
+//								West Lafayette, IN 47907
+//								 Copyright (2009-2019)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	File:						LEvaluateTransformationDialog.cpp : class implementation file
+//	Class Definition:		LEvaluateTransformationDialog.h
+//
+//	Authors:					Larry L. Biehl
+//
+//	Revision date:			06/21/2017
+//
+//	Language:				C++
+//
+//	System:					Linux & MacOS Operating Systems
+//
+//	Brief description:	This file contains functions related to the
+//								CMEvalTransformDialog class.
+//
+// Following is template for debugging
+/*
+	int numberChars = sprintf ((char*)gTextString3,
+									 " LEvaluateTransformationDialog:: (): %s",
+									 gEndOfLine);
+	ListString ((char*)gTextString3, numberChars, gOutputTextH);
+*/
+//------------------------------------------------------------------------------------
 //
 #include "SMultiSpec.h"
                       
 #include "LEvaluateTransformationDialog.h"
-
-//#include	"SExternalGlobals.h"  
 
 extern void 		EvaluateTransformationInitialize (
 							DialogPtr							dialogPtr,
@@ -23,8 +49,7 @@ extern void 		EvaluateTransformationOK (
 							Boolean								checkTransformationFlag,
 							Boolean								listOriginalXInvertedMatrixFlag);
 
-/////////////////////////////////////////////////////////////////////////////
-// CMEvalTransformDialog dialog
+
 
 CMEvalTransformDialog::CMEvalTransformDialog(wxWindow* pParent,
    wxWindowID id, const wxString& title/*=NULL*/)

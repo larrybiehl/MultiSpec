@@ -32,7 +32,7 @@
 	ListString ((char*)gTextString3, numberChars, gOutputTextH);
 */
 //------------------------------------------------------------------------------------
-
+//
 #include "SMultiSpec.h"
 
 #include "LMultiSpec.h"
@@ -40,7 +40,6 @@
 #include "CDisplay.h"
 #include "LImageView.h"
 #include "CImageWindow.h"
-#include "CDisplay.h"
 #include "LImageDoc.h"
 #include "SExternalGlobals.h"
 

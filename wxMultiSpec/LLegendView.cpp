@@ -16,7 +16,7 @@
 //
 //	Language:				C++
 //
-//	System:					Linux Operating System
+//	System:					Linux and MacOS Operating Systems
 //
 //	Brief description:	This file contains functions that relate to the 
 //								CMLegendView class.
@@ -30,7 +30,6 @@
 */
 //------------------------------------------------------------------------------------
 //
-
 #include "SMultiSpec.h"
 
 #include "CPalette.h" 
@@ -45,13 +44,23 @@
 bool CMLegendView::s_inSetLegendWidthFlag = FALSE;
 
 
-
-// CMLegendView
-
 IMPLEMENT_DYNAMIC_CLASS (CMLegendView, wxPanel)
 
+
+
+BEGIN_EVENT_TABLE (CMLegendView, wxPanel)
+	EVT_CHOICE (IDC_COMBO1, CMLegendView::OnSelendokClassGroup)
+	EVT_COMBOBOX (IDC_PaletteCombo, CMLegendView::OnSelendokPalette)
+	EVT_COMBOBOX_DROPDOWN (IDC_PaletteCombo, CMLegendView::OnDropdownLegendCombo)
+	EVT_INIT_DIALOG (CMLegendView::OnInitialUpdate)
+END_EVENT_TABLE()
+
+
+
 CMLegendView::CMLegendView ()
+
 {
+
 }
 
 
@@ -87,15 +96,6 @@ CMLegendView::~CMLegendView ()
 {
 
 }	// end "~CMLegendView"
-
-
-
-BEGIN_EVENT_TABLE (CMLegendView, wxPanel)
-	EVT_CHOICE (IDC_COMBO1, CMLegendView::OnSelendokClassGroup)
-	EVT_COMBOBOX (IDC_PaletteCombo, CMLegendView::OnSelendokPalette)
-	EVT_COMBOBOX_DROPDOWN (IDC_PaletteCombo, CMLegendView::OnDropdownLegendCombo)
-	EVT_INIT_DIALOG (CMLegendView::OnInitialUpdate)
-END_EVENT_TABLE()
 
 
 

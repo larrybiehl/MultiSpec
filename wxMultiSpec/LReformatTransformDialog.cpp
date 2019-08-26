@@ -1,30 +1,46 @@
-// LReformatTransformDialog.cpp : implementation file
-//                   
-// Revised by Larry Biehl on 02/28/2019
+//                               MultiSpec
+//
+//               Laboratory for Applications of Remote Sensing
+//                         Purdue University
+//                        West Lafayette, IN 47907
+//                         Copyright (2009-2019)
+//                     (c) Purdue Research Foundation
+//                           All rights reserved.
+//
+//   File:                 LReformatTransformDialog.cpp : class implementation file
+//   Class Definition:     LReformatTransformDialog.h
+//
+//   Authors:              Abdur Rahman Maud, Larry L. Biehl
+//
+//   Revision date:        02/28/2019
+//
+//   Language:					C++
+//
+//   System:               Linux and MacOS Operating Systems
+//
+//   Brief description:  	This file contains functions that relate to the
+//                       	CMReformatTransformDlg class.
+//
+//------------------------------------------------------------------------------------
 //
 #include "SMultiSpec.h" 
 #include "LReformatTransformDialog.h"
-#include "LChannelsDialog.h"   
-
-//#include  "SExternalGlobals.h"
-
-extern Boolean GetDefaultBandRatio (
-        WindowInfoPtr 				windowInfoPtr,
-        FileInfoPtr 					fileInfoPtr,
-        ReformatOptionsPtr 		reformatOptionsPtr);
+#include "LChannelsDialog.h"
 
 
 
 BEGIN_EVENT_TABLE (CMReformatTransformDlg, CMDialog)
-	EVT_INIT_DIALOG(CMReformatTransformDlg::OnInitDialog)
-	EVT_RADIOBUTTON(IDC_AdjustSelectedChannels, CMReformatTransformDlg::OnAdjustSelectedChannels)
-	EVT_RADIOBUTTON(IDC_RT_AlgebraicTransformation, CMReformatTransformDlg::OnRTAlgebraicTransformation)
-	EVT_RADIOBUTTON(IDC_RT_Eigenvectors, CMReformatTransformDlg::OnRTEigenvectors)
-	EVT_RADIOBUTTON(IDC_RT_FunctionOfChannels, CMReformatTransformDlg::OnRTFunctionOfChannels)
-	EVT_RADIOBUTTON(IDC_RT_NoTransformation, CMReformatTransformDlg::OnRTNoTransformation)
-	EVT_COMBOBOX(IDC_EV_Eigenvectors, CMReformatTransformDlg::OnSelendokEVEigenvectors)
-	EVT_COMBOBOX(IDC_ReformatFunctions, CMReformatTransformDlg::OnSelendokReformatFunctions)
-	EVT_RADIOBUTTON(IDC_AdjustSelectedChannelsbyChannel, CMReformatTransformDlg::OnAdjustSelectedChannelsByChannel)
+	EVT_COMBOBOX (IDC_EV_Eigenvectors, CMReformatTransformDlg::OnSelendokEVEigenvectors)
+	EVT_COMBOBOX (IDC_ReformatFunctions, CMReformatTransformDlg::OnSelendokReformatFunctions)
+
+	EVT_INIT_DIALOG (CMReformatTransformDlg::OnInitDialog)
+
+	EVT_RADIOBUTTON (IDC_AdjustSelectedChannels, CMReformatTransformDlg::OnAdjustSelectedChannels)
+	EVT_RADIOBUTTON (IDC_AdjustSelectedChannelsbyChannel, CMReformatTransformDlg::OnAdjustSelectedChannelsByChannel)
+	EVT_RADIOBUTTON (IDC_RT_AlgebraicTransformation, CMReformatTransformDlg::OnRTAlgebraicTransformation)
+	EVT_RADIOBUTTON (IDC_RT_Eigenvectors, CMReformatTransformDlg::OnRTEigenvectors)
+	EVT_RADIOBUTTON (IDC_RT_FunctionOfChannels, CMReformatTransformDlg::OnRTFunctionOfChannels)
+	EVT_RADIOBUTTON (IDC_RT_NoTransformation, CMReformatTransformDlg::OnRTNoTransformation)
 END_EVENT_TABLE ()
 
 
@@ -105,7 +121,7 @@ CMReformatTransformDlg::~CMReformatTransformDlg()
 	if (m_denominatorStringPtr != NULL)
 		free (m_denominatorStringPtr);
 */
-} // end "~CMReformatTransformDlg"
+}	// end "~CMReformatTransformDlg"
 
 
 void CMReformatTransformDlg::CreateControls ()
@@ -452,22 +468,23 @@ void CMReformatTransformDlg::CreateControls ()
 	this->Centre (wxBOTH);
 }
 
-	
+
+
 Boolean CMReformatTransformDlg::DoDialog (
-        UInt16* 					recommendNumberOfBitsPtr,
-        SInt16 					bandInterleaveSelection)
+				UInt16* 								recommendNumberOfBitsPtr,
+				SInt16 								bandInterleaveSelection)
 {
-	Boolean OKFlag = FALSE;
+	SInt16 								returnCode;
 
-	SInt16 returnCode;
+	UInt16 								item;
 
-	UInt16 item;
+	Boolean 								OKFlag = FALSE;
 
 
 			// Make sure intialization has been completed.
 
 	if (!m_initializedFlag)
-		return (FALSE);
+																							return (FALSE);
 
 	m_bandInterleaveSelection = bandInterleaveSelection;
 
@@ -475,17 +492,17 @@ Boolean CMReformatTransformDlg::DoDialog (
 
 	if (returnCode == wxID_OK)
 		{
-        // Get transform data code.									
+				// Get transform data code.
 
-        m_reformatOptionsPtr->transformDataCode = m_transformCode;
+		m_reformatOptionsPtr->transformDataCode = m_transformCode;
 
-        // Number to offset data values by.						
+				// Number to offset data values by.
 
-        m_reformatOptionsPtr->adjustOffset = m_adjustOffset;
+		m_reformatOptionsPtr->adjustOffset = m_adjustOffset;
         
-        // Number to multiply data values by.					
+				// Number to multiply data values by.
         
-        m_reformatOptionsPtr->adjustFactor = m_adjustFactor;
+		m_reformatOptionsPtr->adjustFactor = m_adjustFactor;
         
         // Number to divide data values by.						
 
@@ -582,10 +599,13 @@ Boolean CMReformatTransformDlg::DoDialog (
 
     return (OKFlag);
 
-} // end "DoDialog"
+}	// end "DoDialog"
 
 
-void CMReformatTransformDlg::OnAdjustSelectedChannels(wxCommandEvent& event)
+
+void CMReformatTransformDlg::OnAdjustSelectedChannels (
+				wxCommandEvent& 					event)
+
 {
 	DialogPtr dialogPtr = this;
 	

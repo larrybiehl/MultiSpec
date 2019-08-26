@@ -7,8 +7,8 @@
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
-//	File:						CMImageCanvas.cpp : class implementation file
-//	Class Definition:		CMImageCanvas.h
+//	File:						LImageCanvas.cpp : class implementation file
+//	Class Definition:		LImageCanvas.h
 //
 //	Authors:					Larry L. Biehl, Abdur Rachman Maud
 //
@@ -16,20 +16,19 @@
 //
 //	Language:				C++
 //
-//	System:					Linux Operating System
+//	System:					Linux and MacOS Operating Systems
 //
 //	Brief description:	This file contains functions that relate to the 
-//								CMImageFrame class.
+//								CMImageCanvas class.
 //
 /* Template for debugging
 	int numberChars = sprintf ((char*)gTextString3,
-				" CMImageCanvas:: (): %s",
+				" LImageCanvas:: (): %s",
 				gEndOfLine);
 	ListString ((char*)gTextString3, numberChars, gOutputTextH);
 */
 //------------------------------------------------------------------------------------
 //
-
 #include "LImageCanvas.h"
 #include "LImageDoc.h"
 #include "wx/dcbuffer.h"
@@ -38,9 +37,7 @@
 #include "LTools.h"
 #include "LGraphView.h"
 
-extern void		DoNextDisplayChannelEvent (
-				WindowPtr		window,
-				char				theChar);
+
 
 IMPLEMENT_DYNAMIC_CLASS (CMImageCanvas, wxScrolledWindow)
 

@@ -16,7 +16,7 @@
 //
 //	Language:				C++
 //
-//	System:					Linux Operating Systems
+//	System:					Linux and MacOS Operating Systems
 //
 //	Brief description:	This file is the definition for the CMDialog class
 //

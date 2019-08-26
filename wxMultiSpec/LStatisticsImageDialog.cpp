@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 // 								Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (2009-2018)
+//								 Copyright (2009-2019)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -16,65 +16,50 @@
 //
 //	Language:				C++
 //
-//	System:					Linux Operating System
+//	System:					Linux and MacOS Operating Systems
 //
 //	Brief description:	This file contains functions that relate to the 
 //								CMStatImageDialog class.
 //
 //------------------------------------------------------------------------------------
-
+//
 #include "LStatisticsImageDialog.h"
 #include "LImage_dialog.cpp"
 
-extern void			StatisticsImageDialogInitialize (
-							DialogPtr							dialogPtr,
-							StatisticsImageSpecsPtr			statisticsImageSpecsPtr,
-							DialogSelectArea*					dialogSelectAreaPtr,
-							WindowInfoPtr						imageWindowInfoPtr,
-							WindowPtr							activeImageWindow,
-							SInt16*								channelSelectionPtr,
-							UInt16*								localNumberChannelsPtr,
-							UInt16*								localFeaturesPtr, 
-							UInt16*								localTransformFeaturesPtr,
-							Boolean*								channelsAllAvailableFlagPtr,
-							UInt16**								projectChannelsPtrPtr,
-							SInt16*								maxNumberChannelsPtr,
-							SInt16*								classSelectionPtr,
-							UInt32*								localNumberClassesPtr,
-							UInt16*								localClassPtr,
-							SInt16*								minMaxSettingCodePtr,
-							double*								userMinimumPtr,
-							double*								userMaximumPtr,
-							SInt16*								areaCodePtr,
-							SInt16*								selectItemPtr,
-							Boolean*								featureTransformationFlagPtr,
-							Boolean*								featureTransformAllowedFlagPtr);
-
-extern void			StatisticsImageDialogOK (
-							DialogPtr							dialogPtr,
-                     StatisticsImageSpecsPtr			statisticsImageSpecsPtr,
-                     DialogSelectArea*					dialogSelectAreaPtr,
-                     SInt16								classCode,
-                     SInt16								areaCode,
-                     SInt16								channelSelection,
-                     Boolean								featureTransformationFlag,
-                     SInt16*								featurePtr,
-                     SInt16                        localNumberFeatures,
-							SInt16								maxNumberChannels,
-                     SInt16								classSelection,
-                     SInt32                        localNumberClasses,
-                     SInt16*								classListPtr,
-                     SInt16								perClassCode,
-                     SInt16								perFieldCode,
-                     SInt16								overallMinMaxCode,
-                     SInt16								individualMinMaxCode,
-                     SInt16								userMinMaxCode,
-                     double								userMinimum,
-                     double								userMaximum);
 
 
-CMStatImageDialog::CMStatImageDialog(wxWindow* parent, wxWindowID id, const wxString& title)
-: CMDialog(CMStatImageDialog::IDD, parent, title) 
+BEGIN_EVENT_TABLE (CMStatImageDialog, CMDialog)
+	EVT_BUTTON(IDEntireImage, CMStatImageDialog::ToEntireImage)
+	EVT_BUTTON(IDSelectedImage, CMStatImageDialog::ToSelectedImage)
+
+	EVT_COMBOBOX (IDC_ChannelCombo, CMStatImageDialog::OnSelendokChannelCombo)
+	EVT_COMBOBOX (IDC_ClassCombo, CMStatImageDialog::OnSelendokClassCombo)
+
+	EVT_COMBOBOX_DROPDOWN (IDC_ChannelCombo, CMStatImageDialog::OnSelendokChannelComboDropDown)
+	EVT_COMBOBOX_DROPDOWN (IDC_ClassCombo, CMStatImageDialog::OnSelendokClassComboDropDown)
+
+	EVT_INIT_DIALOG(CMStatImageDialog::OnInitDialog)
+
+	EVT_RADIOBUTTON (IDC_IndividualRadio, CMStatImageDialog::OnClickIndividualRadio)
+	EVT_RADIOBUTTON (IDC_OverallRadio, CMStatImageDialog::OnClickOverallRadio)
+	EVT_RADIOBUTTON (IDC_UserSettingRadio, CMStatImageDialog::OnClickUserSettingRadio)
+
+	EVT_TEXT (IDC_ColumnEnd, CMStatImageDialog::CheckColumnEnd)
+	EVT_TEXT (IDC_ColumnStart, CMStatImageDialog::CheckColumnStart)
+	EVT_TEXT (IDC_ColumnInterval, CMStatImageDialog::CheckColumnInterval)
+	EVT_TEXT (IDC_LineEnd, CMStatImageDialog::CheckLineEnd)
+	EVT_TEXT (IDC_LineStart, CMStatImageDialog::CheckLineStart)
+	EVT_TEXT (IDC_LineInterval, CMStatImageDialog::CheckLineInterval)
+END_EVENT_TABLE ()
+
+
+
+CMStatImageDialog::CMStatImageDialog (
+				wxWindow* 							parent,
+				wxWindowID 							id,
+				const wxString& 					title)
+		: CMDialog (CMStatImageDialog::IDD, parent, title)
+
 {
    UInt16**					classPtrPtr;
    
@@ -117,14 +102,15 @@ CMStatImageDialog::CMStatImageDialog(wxWindow* parent, wxWindowID id, const wxSt
    
    
    CreateControls();
-   this->SetSizerAndFit(bSizer292);
-}
+   this->SetSizerAndFit (bSizer292);
+	
+}	// end "CMStatImageDialog"
 
 
-CMStatImageDialog::~CMStatImageDialog()
+CMStatImageDialog::~CMStatImageDialog ()
+
 {
    if (m_classListPtr != NULL)
-		{
       ReleaseDialogLocalVectors (m_localFeaturesPtr,
 											m_localTransformFeaturesPtr,
 											m_classListPtr,
@@ -133,105 +119,10 @@ CMStatImageDialog::~CMStatImageDialog()
 											NULL,
 											NULL,
 											NULL);
-		}
-}
-
-
-BEGIN_EVENT_TABLE(CMStatImageDialog, CMDialog)
-EVT_INIT_DIALOG(CMStatImageDialog::OnInitDialog)
-EVT_COMBOBOX(IDC_ClassCombo, CMStatImageDialog::OnSelendokClassCombo)
-EVT_COMBOBOX_DROPDOWN(IDC_ClassCombo, CMStatImageDialog::OnSelendokClassComboDropDown)
-EVT_COMBOBOX(IDC_ChannelCombo, CMStatImageDialog::OnSelendokChannelCombo)
-EVT_COMBOBOX_DROPDOWN(IDC_ChannelCombo, CMStatImageDialog::OnSelendokChannelComboDropDown)
-EVT_RADIOBUTTON(IDC_UserSettingRadio, CMStatImageDialog::OnClickUserSettingRadio)
-EVT_RADIOBUTTON(IDC_IndividualRadio, CMStatImageDialog::OnClickIndividualRadio)
-EVT_RADIOBUTTON(IDC_OverallRadio, CMStatImageDialog::OnClickOverallRadio)
-EVT_BUTTON(IDEntireImage, CMStatImageDialog::ToEntireImage)
-EVT_BUTTON(IDSelectedImage, CMStatImageDialog::ToSelectedImage)
-EVT_TEXT(IDC_ColumnEnd, CMStatImageDialog::CheckColumnEnd)
-EVT_TEXT(IDC_ColumnStart, CMStatImageDialog::CheckColumnStart)
-EVT_TEXT(IDC_LineEnd, CMStatImageDialog::CheckLineEnd)
-EVT_TEXT(IDC_LineStart, CMStatImageDialog::CheckLineStart)
-EVT_TEXT(IDC_LineInterval, CMStatImageDialog::CheckLineInterval)
-EVT_TEXT(IDC_ColumnInterval, CMStatImageDialog::CheckColumnInterval)
-END_EVENT_TABLE()
-
-/*
-void  CMStatImageDialog::CheckStatColumnEnd(wxCommandEvent& event)
-{
-	if (!m_settingSelectedEntireButton)
-	{
-		CMDialog::CheckColumnEnd(event);
-		
-		m_dialogSelectArea.columnEnd = m_ColumnEnd;
-		//UpdateNumberUnlabeledSamples (&m_dialogSelectArea, this);
-		
-	}		// end "if (!m_settingSelectedEntireButton)"
 	
-}		// end "CheckColumnEnd"
+}	// end "~CMStatImageDialog"
 
 
-void CMStatImageDialog::CheckStatColumnInterval(wxCommandEvent& event)
-{
-	CMDialog::CheckColumnInterval(event);
-	
-	m_dialogSelectArea.columnInterval = m_ColumnInterval;
-	//UpdateNumberUnlabeledSamples (&m_dialogSelectArea, this);
-	
-}		// end "CheckStatColumnInterval"
-
-
-void  CMStatImageDialog::CheckStatColumnStart(wxCommandEvent& event)
-{
-	if (!m_settingSelectedEntireButton)
-	{
-		CMDialog::CheckColumnStart(event);
-		
-		m_dialogSelectArea.columnStart = m_ColumnStart;
-		//UpdateNumberUnlabeledSamples (&m_dialogSelectArea, this);
-		
-	}		// end "if (!m_settingSelectedEntireButton)"
-	
-}		// end "CheckStatColumnStart"
-
-
-void CMStatImageDialog::CheckStatLineEnd(wxCommandEvent& event)
-{
-	if (!m_settingSelectedEntireButton)
-	{
-		CMDialog::CheckLineEnd(event);
-		
-		m_dialogSelectArea.lineEnd = m_LineEnd;
-		//UpdateNumberUnlabeledSamples (&m_dialogSelectArea, this);
-		
-	}		// end "if (!m_settingSelectedEntireButton)"
-	
-}		// end "CheckStatLineEnd"
-
-
-void CMStatImageDialog::CheckStatLineInterval(wxCommandEvent& event)
-{
-	CMDialog::CheckLineInterval(event);
-	
-	m_dialogSelectArea.lineInterval = m_LineInterval;
-	//UpdateNumberUnlabeledSamples (&m_dialogSelectArea, this);
-	
-}		// end "CheckStatLineInterval"
-
-
-void CMStatImageDialog::CheckStatLineStart(wxCommandEvent& event)
-{
-	if (!m_settingSelectedEntireButton)
-	{
-		CMDialog::CheckLineStart(event);
-		
-		m_dialogSelectArea.lineStart = m_LineStart;
-		//UpdateNumberUnlabeledSamples (&m_dialogSelectArea, this);
-		
-	}		// end "if (!m_settingSelectedEntireButton)"
-	
-}		// end "CheckLineStart"
-*/
 
 void CMStatImageDialog::CreateControls ()
 
@@ -354,114 +245,9 @@ void CMStatImageDialog::CreateControls ()
 	wxStaticBoxSizer* sbSizer8;
 	wxStaticBox* areaForImageStatistics = new wxStaticBox (this, IDC_LineColFrame, wxT("Area for Image Statistics"));
 	sbSizer8 = new wxStaticBoxSizer (areaForImageStatistics, wxHORIZONTAL);
-	/*
-	wxBoxSizer* bSizer791;
-	bSizer791 = new wxBoxSizer(wxHORIZONTAL);
-	
-	m_bpButton4 = new wxBitmapButton (areaForImageStatistics, IDEntireImage, entireimi, wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW);
-   m_bpButton4->SetBitmapDisabled(toentirei);
-	//bSizer791->Add (m_bpButton4, 0, wxALIGN_CENTER_VERTICAL|wxALIGN_RIGHT|wxALL, 5);
-   //bSizer791->Add (m_bpButton4, 0, wxALL, 5);
-   bSizer791->Add (m_bpButton4,
-   						wxSizerFlags(0).Align(wxALIGN_CENTER_VERTICAL).Border(wxALL, 5));
-	
-	m_bpButton5 = new wxBitmapButton (areaForImageStatistics, IDSelectedImage, selectedi, wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW );
-	m_bpButton5->SetBitmapDisabled(bmp4i);
-	m_bpButton5->Hide();
-	//bSizer791->Add( m_bpButton5, 0, wxALIGN_CENTER_VERTICAL|wxALIGN_RIGHT|wxALL, 5 );
-   //bSizer791->Add( m_bpButton5, 0, wxALL, 5 );
- 	bSizer791->Add (m_bpButton5,
-   						wxSizerFlags(0).Align(wxALIGN_CENTER_VERTICAL).Border(wxALL, 5));
-	
-	sbSizer8->Add( bSizer791, 0, wxEXPAND|wxALL, 5 );
-   //bSizer339->Add( bSizer791, 0, wxEXPAND, 12 );
-	*/
-	//wxBoxSizer* bSizer121;
-	//bSizer121 = new wxBoxSizer( wxVERTICAL );
-	
-	//m_staticText177 = new wxStaticText( this, IDC_StartEndInterval, wxT("                      Start       \tEnd          Interval"), wxDefaultPosition, wxDefaultSize, 0 );
-	//m_staticText177->Wrap( -1 );
-	//bSizer121->Add( m_staticText177, 0, wxALL, 12 );
 	
 	CreateLineColumnControls (sbSizer8);
-	/*
-	wxGridSizer* gSizer1;
-	gSizer1 = new wxGridSizer (3, 4, 0, 0);
-	
-	wxStaticText* m_staticText63 = new wxStaticText(areaForImageStatistics, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0);
-   m_staticText63->Wrap(-1);
-   gSizer1->Add(m_staticText63, 0, wxALL, 5);
 
-   wxStaticText* m_staticText64 = new wxStaticText(areaForImageStatistics, IDC_StartPrompt, wxT("Start"), wxDefaultPosition, wxDefaultSize, 0);
-   m_staticText64->Wrap(-1);
-   gSizer1->Add(m_staticText64, 0, wxALIGN_CENTER | wxALL, 5);
-
-   wxStaticText* m_staticText65 = new wxStaticText(areaForImageStatistics, IDC_EndPrompt, wxT("End"), wxDefaultPosition, wxDefaultSize, 0);
-   m_staticText65->Wrap(-1);
-   gSizer1->Add(m_staticText65, 0, wxALIGN_CENTER | wxALL, 5);
-
-   wxStaticText* m_staticText66 = new wxStaticText(areaForImageStatistics, IDC_IntervalPrompt, wxT("Interval"), wxDefaultPosition, wxDefaultSize, 0);
-   m_staticText66->Wrap(-1);
-   gSizer1->Add(m_staticText66, 0, wxALIGN_CENTER | wxALL, 5);
-
-	m_staticText60 = new wxStaticText (areaForImageStatistics, IDC_LinePrompt, wxT("Lines"), wxDefaultPosition, wxDefaultSize, 0 );
-	m_staticText60->Wrap( -1 );
-	gSizer1->Add( m_staticText60, 0, wxALIGN_CENTER|wxALL, 2 );
-	
-	m_linestartctrl = new wxTextCtrl (areaForImageStatistics, IDC_LineStart, wxEmptyString, wxDefaultPosition, wxSize( 70,-1 ), 0 );
-	m_linestartctrl->SetMaxLength( 0 ); 
-	m_linestartctrl->SetValidator( wxTextValidator( wxFILTER_NUMERIC, &m_LineStartString ) );
-	
-	gSizer1->Add( m_linestartctrl, 0, wxALIGN_CENTER|wxALL, 2 );
-	
-	m_lineendctrl = new wxTextCtrl (areaForImageStatistics, IDC_LineEnd, wxEmptyString, wxDefaultPosition, wxSize( 70,-1 ), 0 );
-	m_lineendctrl->SetMaxLength( 0 ); 
-	m_lineendctrl->SetValidator( wxTextValidator( wxFILTER_NUMERIC, &m_LineEndString ) );
-	
-	gSizer1->Add( m_lineendctrl, 0, wxALIGN_CENTER|wxALL, 2 );
-	
-	m_lineintctrl = new wxTextCtrl (areaForImageStatistics, IDC_LineInterval, wxEmptyString, wxDefaultPosition, wxSize( 70,-1 ), 0 );
-	m_lineintctrl->SetMaxLength( 0 ); 
-	m_lineintctrl->SetValidator( wxTextValidator( wxFILTER_NUMERIC, &m_LineIntervalString ) );
-	
-	gSizer1->Add( m_lineintctrl, 0, wxALIGN_CENTER|wxALL, 2 );
-	
-	m_staticText62 = new wxStaticText (areaForImageStatistics, IDC_ColumnPrompt, wxT("Columns"), wxDefaultPosition, wxDefaultSize, 0 );
-	m_staticText62->Wrap( -1 );
-	gSizer1->Add( m_staticText62, 0, wxALIGN_CENTER|wxALL, 2 );
-	
-	m_colstartctrl = new wxTextCtrl (areaForImageStatistics, IDC_ColumnStart, wxEmptyString, wxDefaultPosition, wxSize( 70,-1 ), 0 );
-	m_colstartctrl->SetMaxLength( 0 ); 
-	m_colstartctrl->SetValidator( wxTextValidator( wxFILTER_NUMERIC, &m_ColumnStartString ) );
-	
-	gSizer1->Add( m_colstartctrl, 0, wxALIGN_CENTER|wxALL, 2 );
-	
-	m_colendctrl = new wxTextCtrl (areaForImageStatistics, IDC_ColumnEnd, wxEmptyString, wxDefaultPosition, wxSize( 70,-1 ), 0 );
-	m_colendctrl->SetMaxLength( 0 ); 
-	m_colendctrl->SetValidator( wxTextValidator( wxFILTER_NUMERIC, &m_ColumnEndString ) );
-	
-	gSizer1->Add( m_colendctrl, 0, wxALIGN_CENTER|wxALL, 2 );
-	
-	m_colintctrl = new wxTextCtrl (areaForImageStatistics, IDC_ColumnInterval, wxEmptyString, wxDefaultPosition, wxSize( 70,-1 ), 0 );
-	m_colintctrl->SetMaxLength( 0 ); 
-	m_colintctrl->SetValidator( wxTextValidator( wxFILTER_NUMERIC, &m_ColumnIntervalString ) );
-	
-   SetUpToolTip(m_bpButton4, IDS_ToolTip40);  
-   SetUpToolTip(m_linestartctrl, IDS_ToolTip19);
-   SetUpToolTip(m_lineendctrl, IDS_ToolTip20);
-   SetUpToolTip(m_lineintctrl, IDS_ToolTip21);
-   SetUpToolTip(m_colstartctrl, IDS_ToolTip22);
-   SetUpToolTip(m_colendctrl, IDS_ToolTip23);
-   SetUpToolTip(m_colintctrl, IDS_ToolTip24);
-   
-	gSizer1->Add( m_colintctrl, 0, wxALIGN_CENTER|wxALL, 2 );
-	
-	//bSizer121->Add( gSizer1, 0, wxEXPAND, 12 );
-	
-	//bSizer339->Add( bSizer121, 0, wxEXPAND, 12 );
-   
-	sbSizer8->Add (gSizer1, 0, wxEXPAND, 5 );
-	*/
 	bSizer339->Add( sbSizer8, 0, wxALL|wxEXPAND, 12 );
    
    //sbSizer8->GetStaticBox()->Hide();
@@ -534,28 +320,9 @@ void CMStatImageDialog::CreateControls ()
 	bSizer337->Add( m_textCtrl155, 0, wxALIGN_CENTER, 5 );
 	
 	bSizer307->Add( bSizer337, 0, 0, 1 );
-	/*
-	wxBoxSizer* bSizer338;
-	bSizer338 = new wxBoxSizer( wxHORIZONTAL );
-	//bSizer338->Add( 0, 0, 1, wxEXPAND, 5 );
-	
-	m_button81 = new wxButton( this, wxID_CANCEL, wxT("Cancel"), wxDefaultPosition, wxDefaultSize, 0 );
-	//bSizer338->Add (m_button81, 0, wxALIGN_BOTTOM|wxALIGN_RIGHT, 5 );
-	bSizer338->Add (m_button81, wxSizerFlags(0).Border(wxRIGHT,6));
-	
-	m_button82 = new wxButton( this, wxID_OK, wxT("OK"), wxDefaultPosition, wxDefaultSize, 0 );
-	//bSizer338->Add( m_button82, 0, wxALIGN_BOTTOM|wxALIGN_RIGHT, 5 );
-	bSizer338->Add (m_button82, wxSizerFlags(0));
-	
-	
-	//bSizer307->Add( bSizer338, 0, wxEXPAND|wxTOP, 12 );
-	//bSizer307->Add (bSizer338, wxSizerFlags(0).Bottom().Right().Border(wxTOP,1));
-   bSizer307->Add (bSizer338, wxSizerFlags(0).Right().Border(wxTOP, 1));
-	*/
+
 	bSizer293->Add (bSizer307, 0, wxEXPAND, 5);
 		
-	//bSizer292->Add (bSizer293, 0, wxEXPAND|wxLEFT|wxRIGHT|wxBOTTOM, 12);
-   //bSizer292->Add (bSizer293, 0, wxEXPAND|wxRIGHT, 12);
    bSizer292->Add (bSizer293, wxSizerFlags(0).Expand().Border(wxLEFT|wxRIGHT, 12));
 	
 	CreateStandardButtons (bSizer292);
@@ -564,7 +331,7 @@ void CMStatImageDialog::CreateControls ()
 	this->Layout ();
 	this->Centre (wxBOTH);
 	
-}		// end "CreateControls"
+}	// end "CreateControls"
 
 
 

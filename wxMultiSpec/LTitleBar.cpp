@@ -28,15 +28,13 @@
 		ListString ((char*)&gTextString3, numberChars, gOutputTextH);
 */
 //------------------------------------------------------------------------------------
-
+//
 #include "SMultiSpec.h"
 
 #include "LImageView.h"
 #include "LTitleBar.h"
 
 IMPLEMENT_DYNAMIC_CLASS (CMTitleBar, wxPanel)
-
-
 
 BEGIN_EVENT_TABLE (CMTitleBar, wxPanel)
 	EVT_PAINT (CMTitleBar::OnPaint)

@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 // 								Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (2009-2018)
+//								 Copyright (2009-2019)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -16,13 +16,13 @@
 //
 //	Language:				C++
 //
-//	System:					Linux Operating System
+//	System:					Linux and MacOS Operating Systems
 //
 //	Brief description:	This file contains functions that relate to the 
 //								CMHistogramSpecsDlg class.
 //
 //------------------------------------------------------------------------------------
-
+//
 #include "SMultiSpec.h"
 
 #include "CHistogram.h"
@@ -34,91 +34,11 @@
 
 typedef wxString CString;
 
-extern SInt16 HistogramDialogHandleMethod (
-				DialogPtr							dialogPtr,
-				HistogramSpecsPtr					histogramSpecsPtr,
-				WindowInfoPtr						windowInfoPtr,
-				FileInfoPtr							fileInfoPtr,
-				CString*								supportFileNamePtr,
-				SInt16								itemHit,
-				SInt16								okItemNumber,
-				SInt16								previousMethodCode,
-				Boolean*								updateListHistogramItemsFlagPtr,
-				Boolean*								defaultStatFileChangedFlagPtr);
-
-extern void HistogramDialogHideAreaItems (
-				DialogPtr							dialogPtr);
-
-extern void HistogramDialogHideListItems (
-				DialogPtr							dialogPtr);
-
-extern void HistogramDialogInitialize (
-				DialogPtr							dialogPtr,
-				HistogramSpecsPtr					histogramSpecsPtr,
-				WindowInfoPtr windowInfoPtr,
-				FileInfoPtr fileInfoPtr,
-				CString* imageFileNamePtr,
-				CString* supportFileNamePtr,
-				SInt16* histogramMethodCodePtr,
-				Boolean* histogramInMemoryAvailableFlagPtr,
-				DialogSelectArea* dialogSelectAreaPtr,
-				UInt16* localChannelsPtr,
-				UInt16* localNumberChannelsPtr,
-				SInt16* channelSelectionPtr,
-				Boolean* minMaxetcOnlyFlagPtr,
-				Boolean* listHistogramSummaryFlagPtr,
-				Boolean* listHistogramFlagPtr,
-				Boolean* lineFormatHistFlagPtr,
-				Boolean* includeEmptyBinsFlagPtr,
-				Boolean* textWindowFlagPtr,
-				Boolean* diskFileFlagPtr,
-				Boolean* defaultStatFileChangedFlagPtr,
-				Boolean* updateListHistogramItemsFlagPtr,
-				Boolean* allChannelsAtOnceFlagPtr);
-
-extern void HistogramDialogOK (
-        DialogPtr dialogPtr,
-        HistogramSpecsPtr histogramSpecsPtr,
-        WindowInfoPtr windowInfoPtr,
-        SInt16 histogramMethodCode,
-        DialogSelectArea* dialogSelectAreaPtr,
-        UInt16* localChannelsPtr,
-        UInt16 localNumberChannels,
-        SInt16 channelSelection,
-        Boolean minMaxetcOnlyFlag,
-        Boolean listHistogramSummaryFlag,
-        Boolean listHistogramFlag,
-        Boolean lineFormatHistFlag,
-        Boolean includeEmptyBinsFlag,
-        Boolean textWindowFlag,
-        Boolean diskFileFlag,
-        Boolean defaultStatFileChangedFlag,
-        Boolean allChannelsAtOnceFlag);
-
-extern void HistogramDialogSetListAndEmptyBins(
-        DialogPtr dialogPtr,
-        SInt16 histogramMethodCode,
-        Boolean minMaxetcOnlyFlag,
-        Boolean listHistogramFlag,
-        Boolean includeEmptyBinsFlag,
-        Boolean lineFormatHistFlag);
-
-extern void HistogramDialogShowAreaItems(
-        DialogPtr dialogPtr);
-
-extern void HistogramDialogShowListItems(
-        DialogPtr dialogPtr);
-
-extern Boolean HistogramDialogUpdateAllChannelsAtOnceFlag(
-        DialogPtr dialogPtr,
-        UInt16 numberChannels,
-        Boolean* lineFormatHistFlagPtr);
 
 
+IMPLEMENT_DYNAMIC_CLASS (CMHistogramSpecsDlg, CMDialog)
 
-IMPLEMENT_DYNAMIC_CLASS(CMHistogramSpecsDlg, CMDialog)
-
-CMHistogramSpecsDlg::CMHistogramSpecsDlg()
+CMHistogramSpecsDlg::CMHistogramSpecsDlg ()
 
 {
 
@@ -126,8 +46,11 @@ CMHistogramSpecsDlg::CMHistogramSpecsDlg()
 
 
 
-CMHistogramSpecsDlg::CMHistogramSpecsDlg(wxWindow* pParent, wxWindowID id, const wxString& title)
-: CMDialog(CMHistogramSpecsDlg::IDD, pParent, title)
+CMHistogramSpecsDlg::CMHistogramSpecsDlg (
+				wxWindow* 							pParent,
+				wxWindowID 							id,
+				const wxString& 					title)
+	: CMDialog (CMHistogramSpecsDlg::IDD, pParent, title)
 
 {
    m_computeOnlyMinMaxFlag = TRUE;
@@ -180,27 +103,30 @@ CMHistogramSpecsDlg::~CMHistogramSpecsDlg (void)
 
 
 
-BEGIN_EVENT_TABLE(CMHistogramSpecsDlg, CMDialog)
-EVT_INIT_DIALOG(CMHistogramSpecsDlg::OnInitDialog)
-EVT_CHECKBOX(IDC_ListHistogram, CMHistogramSpecsDlg::OnListHistogram)
-EVT_CHECKBOX(IDC_ComputeOnly, CMHistogramSpecsDlg::OnComputeOnly)
-EVT_COMBOBOX(IDC_ColumnLineFormat, CMHistogramSpecsDlg::OnSelendokColumnLineFormat)
-EVT_CHECKBOX(IDC_EmptyBins, CMHistogramSpecsDlg::OnEmptyBins)
-EVT_CHECKBOX(IDC_DiskFile, CMHistogramSpecsDlg::OnDiskFile)
-EVT_CHECKBOX(IDC_TextWindow, CMHistogramSpecsDlg::OnTextWindow)
-EVT_COMBOBOX(IDC_Method, CMHistogramSpecsDlg::OnSelendokMethod)
-EVT_BUTTON(IDEntireImage, CMHistogramSpecsDlg::ToEntireImage)
-EVT_BUTTON(IDSelectedImage, CMHistogramSpecsDlg::ToSelectedImage)
-EVT_TEXT(IDC_ColumnEnd, CMHistogramSpecsDlg::CheckColumnEnd)
-EVT_TEXT(IDC_ColumnStart, CMHistogramSpecsDlg::CheckColumnStart)
-EVT_TEXT(IDC_LineEnd, CMHistogramSpecsDlg::CheckLineEnd)
-EVT_TEXT(IDC_LineStart, CMHistogramSpecsDlg::CheckLineStart)
-EVT_TEXT(IDC_LineInterval, CMHistogramSpecsDlg::CheckLineInterval)
-EVT_TEXT(IDC_ColumnInterval, CMHistogramSpecsDlg::CheckColumnInterval)
-EVT_COMBOBOX (IDC_ChannelCombo, CMHistogramSpecsDlg::OnSelendokChannels)
-EVT_COMBOBOX_DROPDOWN (IDC_ChannelCombo,CMHistogramSpecsDlg::OnSelendokChannelComboDropDown)
-//EVT_CHAR_HOOK(CMHistogramSpecsDlg::OnButtonPress)
-END_EVENT_TABLE()
+BEGIN_EVENT_TABLE (CMHistogramSpecsDlg, CMDialog)
+	EVT_BUTTON (IDEntireImage, CMHistogramSpecsDlg::ToEntireImage)
+	EVT_BUTTON (IDSelectedImage, CMHistogramSpecsDlg::ToSelectedImage)
+
+	EVT_COMBOBOX (IDC_ChannelCombo, CMHistogramSpecsDlg::OnSelendokChannels)
+	EVT_COMBOBOX (IDC_ColumnLineFormat, CMHistogramSpecsDlg::OnSelendokColumnLineFormat)
+	EVT_CHECKBOX (IDC_DiskFile, CMHistogramSpecsDlg::OnDiskFile)
+	EVT_CHECKBOX (IDC_EmptyBins, CMHistogramSpecsDlg::OnEmptyBins)
+	EVT_CHECKBOX (IDC_ComputeOnly, CMHistogramSpecsDlg::OnComputeOnly)
+	EVT_CHECKBOX (IDC_ListHistogram, CMHistogramSpecsDlg::OnListHistogram)
+	EVT_COMBOBOX (IDC_Method, CMHistogramSpecsDlg::OnSelendokMethod)
+	EVT_CHECKBOX (IDC_TextWindow, CMHistogramSpecsDlg::OnTextWindow)
+
+	EVT_COMBOBOX_DROPDOWN (IDC_ChannelCombo,CMHistogramSpecsDlg::OnSelendokChannelComboDropDown)
+
+	EVT_INIT_DIALOG(CMHistogramSpecsDlg::OnInitDialog)
+
+	EVT_TEXT (IDC_ColumnEnd, CMHistogramSpecsDlg::CheckColumnEnd)
+	EVT_TEXT (IDC_ColumnStart, CMHistogramSpecsDlg::CheckColumnStart)
+	EVT_TEXT (IDC_LineEnd, CMHistogramSpecsDlg::CheckLineEnd)
+	EVT_TEXT (IDC_LineStart, CMHistogramSpecsDlg::CheckLineStart)
+	EVT_TEXT (IDC_LineInterval, CMHistogramSpecsDlg::CheckLineInterval)
+	EVT_TEXT (IDC_ColumnInterval, CMHistogramSpecsDlg::CheckColumnInterval)
+END_EVENT_TABLE ()
 
 
 
@@ -488,33 +414,9 @@ void CMHistogramSpecsDlg::CreateControls ()
 							wxSizerFlags(0).ReserveSpaceEvenIfHidden().Border(wxALL, 5));
 
 	bSizer89->Add (sbSizer15, wxSizerFlags(0).Expand().ReserveSpaceEvenIfHidden());
-	/*
-   wxBoxSizer* bSizer90;
-   bSizer90 = new wxBoxSizer (wxHORIZONTAL);
-
-   m_button26 = new wxButton (this,
-										wxID_CANCEL,
-										wxT("Cancel"),
-										wxDefaultPosition,
-										wxDefaultSize,
-										0);
-	bSizer90->Add(m_button26, wxSizerFlags(0).Border(wxRIGHT, 6));
-
-   m_button27 = new wxButton (this,
-										wxID_OK,
-										wxT("OK"),
-										wxDefaultPosition,
-										wxDefaultSize,
-										0);
-	bSizer90->Add (m_button27, wxSizerFlags(0));
-
-	bSizer89->Add (bSizer90, wxSizerFlags(1).Right().Border(wxTOP, 46));
-	*/
-	//bSizer89->Add (standardButtonSizer, wxSizerFlags(1).Right().Border(wxTOP, 46));
 
 	bSizer87->Add (bSizer89, wxSizerFlags(1).Expand().Border(wxLEFT, 6));
 
-	//bSizer80->Add (bSizer87, wxSizerFlags(1).Expand().Border(wxALL, 12));
 	bSizer80->Add (bSizer87, wxSizerFlags(1).Expand().Border(wxLEFT|wxTOP|wxRIGHT, 12));
 	
 	wxSizer* standardButtonSizer = CreateButtonSizer (wxOK | wxCANCEL);
@@ -524,10 +426,9 @@ void CMHistogramSpecsDlg::CreateControls ()
 		bSizer80->Add (standardButtonSizer, wxSizerFlags(0).Right().Border(wxTOP|wxBOTTOM, 12));
 	#endif
 
-   this->SetSizer(bSizer80);
-   this->Layout();
-   bSizer80->Fit(this);
-   //this->Centre();
+   SetSizer (bSizer80);
+   Layout ();
+   bSizer80->Fit (this);
 	
 }	// end "CreateControls"
 

@@ -14,7 +14,7 @@
 //
 //	Language:				C++
 //
-//	System:					Linux Operating System
+//	System:					Linux and MacOS Operating Systems
 //
 //	Brief description:	Header file for the CMChannelsDlg and CMChannelCombinationsDlg
 //								classes

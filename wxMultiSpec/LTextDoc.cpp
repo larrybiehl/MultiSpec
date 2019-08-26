@@ -1,5 +1,28 @@
-// Revised by Larry Biehl on 01/06/2019
-
+//	 									MultiSpec
+//
+//					Laboratory for Applications of Remote Sensing
+// 								Purdue University
+//								West Lafayette, IN 47907
+//								 Copyright (2009-2019)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	File:						LTextDoc.cpp : class implementation file
+//	Class Definition:		LTextDoc.h
+//
+//	Authors:					Abdur Rahman Maud, Larry L. Biehl
+//
+//	Revision date:			01/06/2019
+//
+//	Language:				C++
+//
+//	System:					Linux and MacOS Operating Systems
+//
+//	Brief description:	This file contains functions that relate to the
+//								CMTextDoc class.
+//
+//------------------------------------------------------------------------------------
+//
 #include "wx/wxprec.h"
 
 #ifdef __BORLANDC__
@@ -23,6 +46,8 @@
 #include "LTextDoc.h"
 #include "LTextView.h"
 #include "SMultiSpec.h"
+
+
 IMPLEMENT_DYNAMIC_CLASS(CMTextDoc, wxDocument)
 
 

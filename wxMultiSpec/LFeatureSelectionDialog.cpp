@@ -1,6 +1,34 @@
-// LFeatureSelectionDialog.cpp : implementation file
-//   
-// Revised by Larry Biehl on 11/15/2018
+//	 									MultiSpec
+//
+//					Laboratory for Applications of Remote Sensing
+// 								Purdue University
+//								West Lafayette, IN 47907
+//								 Copyright (2009-2019)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	File:						LFeatureSelectionDialog.cpp : class implementation file
+//	Class Definition:		LFeatureSelectionDialog.h
+//
+//	Authors:					Larry L. Biehl
+//
+//	Revision date:			11/15/2018
+//
+//	Language:				C++
+//
+//	System:					Linux & MacOS Operating Systems
+//
+//	Brief description:	This file contains functions related to the
+//								CMFeatureSelectionDialog class.
+//
+// Following is template for debugging
+/*
+	int numberChars = sprintf ((char*)gTextString3,
+									 " LEnhanceStatisticsDialog:: (): %s",
+									 gEndOfLine);
+	ListString ((char*)gTextString3, numberChars, gOutputTextH);
+*/
+//------------------------------------------------------------------------------------
 //
 #include "wx/cshelp.h"
 #include "wx/aboutdlg.h"
@@ -12,157 +40,33 @@
 #include "LFeatureSelectionDialog.h"
 #include "LMultiSpec.h"
 
-extern void InitializeDialogFeatureParameters(
-   Boolean featureTransformationFlag,
-   UInt16 localActiveNumberFeatures,
-   UInt16 numberFeatures,
-   UInt16 numberTransformFeatures,
-   UInt16* localFeaturesPtr,
-   UInt16* localTransformFeaturesPtr,
-   UInt16* localNumberFeaturesPtr,
-   UInt16* localNumberTransformFeaturesPtr,
-   UInt16** localActiveFeaturesPtrPtr);
 
-extern void SeparabilityDialogCheckFeatureTransformation(
-   DialogPtr dialogPtr,
-   Boolean* featureTransformationFlagPtr,
-   UInt16* localActiveNumberFeaturesPtr,
-   UInt16** localActiveFeaturePtrPtr,
-   Boolean featureTransformAllowedFlag,
-   SInt16 featureTransformItem,
-   SInt16 channelFeatureItem,
-   SInt16* channelSelectionPtr,
-   SInt16 localNumberFeatures,
-   UInt16* localFeaturesPtr,
-   SInt16 localNumberTransformedFeatures,
-   UInt16* localTransformFeaturesPtr);
 
-extern Boolean SeparabilityDialogGetFeatureTransformAllowedFlag(
-   SInt16 separabilityDistance,
-   UInt16 numberEigenvectors);
+BEGIN_EVENT_TABLE (CMFeatureSelectionDialog, CMDialog)
+	EVT_BUTTON (IDS_HelpButton , CMFeatureSelectionDialog::OnHelpButton)
+	EVT_BUTTON (IDC_ListOptions, CMFeatureSelectionDialog::OnListOptions)
 
-extern void SeparabilityDialogInitialize(
-   DialogPtr dialogPtr,
-   SeparabilitySpecsPtr separabilitySpecsPtr,
-   UInt16* localFeaturesPtr,
-   UInt16* transformFeaturesPtr,
-   UInt16* localClassPtr,
-   unsigned char* localSymbolPtr,
-   UInt16* localChannelCombinationsPtr,
-   SInt16** localClassPairWeightsListPtr,
-   SInt16* separabilityDistancePtr,
-   UInt16* numberEigenvectorsPtr,
-   Boolean* featureTransformAllowedFlagPtr,
-   Boolean* featureTransformationFlagPtr,
-   SInt16* channelSelectionPtr,
-   UInt16* localNumberFeaturesPtr,
-   SInt16* channelCombinationSelectionPtr,
-   UInt16* numberChannelGroupCombinationsPtr,
-   UInt16* savedNumberChannelGroupCombinationsPtr,
-   SInt32* savedContiguousChannelsPerGroupPtr,
-   Boolean* savedSearchFlagPtr,
-   SInt32* maxContiguousChannelsPerGroupPtr,
-   SInt32* localCombinationsToListPtr,
-   SInt16* classSelectionPtr,
-   UInt32* localNumberClassesPtr,
-   SInt32* numberClassCombinationsPtr,
-   SInt16* interClassWeightsSelectionPtr,
-   SInt16* defaultClassPairWeightPtr,
-   SInt16* symbolSelectionPtr,
-   Boolean* textWindowFlagPtr,
-   Boolean* diskFileFlagPtr);
+	EVT_CHECKBOX (IDC_StepProcedure, CMFeatureSelectionDialog::OnStepProcedure)
 
-extern void SeparabilityDialogOK(
-   SeparabilitySpecsPtr separabilitySpecsPtr,
-   SInt16 separabilityDistance,
-   Boolean featureTransformationFlag,
-   SInt16 channelSelection,
-   UInt16 localNumberFeatures,
-   UInt16* localFeaturesPtr,
-   SInt16 channelCombinationSelection,
-   UInt16 localNumberChannelGroupCombinations,
-   UInt16* localChannelCombinationsPtr,
-   SInt32 contiguousChannelsPerGroup,
-   Boolean searchFlag,
-   SInt32 numberCombinationsToList,
-   SInt16 classSelection,
-   UInt32 localNumberClasses,
-   UInt16* localClassPtr,
-   SInt16 interClassWeightsSelection,
-   SInt16* localClassPairWeightsListPtr,
-   SInt16 localDefaultClassPairWeight,
-   SInt16 symbolSelection,
-   unsigned char* localSymbolsPtr,
-   Boolean outputTextWindowFlag,
-   Boolean diskFileFlag);
+	EVT_COMBOBOX (IDC_ChannelCombo, CMFeatureSelectionDialog::OnSelendokChannelCombo)
+	EVT_COMBOBOX (IDC_DistanceMeasureCombo, CMFeatureSelectionDialog::OnSelendokDistanceMeasureCombo)
+	EVT_COMBOBOX (IDC_NumberChannelsCombo, CMFeatureSelectionDialog::OnSelendokNumberChannelsCombo)
+	EVT_COMBOBOX (IDC_ClassCombo, CMFeatureSelectionDialog::OnSelendokClassCombo)
+	EVT_CHECKBOX (IDC_FeatureTransformation, CMFeatureSelectionDialog::OnFeatureTransformation)
+	EVT_COMBOBOX (IDC_ClassPairWeightsCombo, CMFeatureSelectionDialog::OnSelendokClassPairWeightsCombo)
 
-extern void SeparabilityDialogUpdateChannelCombinationItems(
-   DialogPtr dialogPtr,
-   SeparabilitySpecsPtr separabilitySpecsPtr,
-   Boolean updateChannelCombinationVectorFlag,
-   UInt16 numberFeatures,
-   UInt16* allChanCombinationsPtr,
-   SInt32 contiguousChannelsPerGroup,
-   Boolean searchFlag,
-   SInt16 channelCombinationSelection,
-   UInt16* channelCombinationsPtr,
-   UInt16* numberChannelGroupCombinationsPtr,
-   UInt16* savedNumberChannelGroupCombinationsPtr,
-   SInt32* combinationsToListPtr,
-   SInt32* maxContiguousChannelsPerGroupPtr);
+	EVT_COMBOBOX_DROPDOWN (IDC_ChannelCombo, CMFeatureSelectionDialog::OnSelendokChannelComboDropDown)
+	EVT_COMBOBOX_DROPDOWN (IDC_ClassCombo, CMFeatureSelectionDialog::OnSelendokClassComboDropDown)
+	EVT_COMBOBOX_DROPDOWN (IDC_ClassPairWeightsCombo, CMFeatureSelectionDialog::OnSelendokClassPairWeightsComboDropDown)
+	EVT_COMBOBOX_DROPDOWN (IDC_NumberChannelsCombo, CMFeatureSelectionDialog::OnSelendokNumberChannelsComboDropDown)
 
-extern void SeparabilityDialogUpdateChannelFeatureGroupText(
-   DialogPtr dialogPtr,
-   SInt16 contiguousChannelsPerGroup,
-   Boolean featureTransformationFlag);
+	EVT_INIT_DIALOG (CMFeatureSelectionDialog::OnInitDialog)
 
-extern void SeparabilityDialogUpdateNumberClassCombintations(
-   DialogPtr dialogPtr,
-   SInt16 classSelection,
-   UInt32* numberClassesPtr,
-   UInt16* classPtr);
+	EVT_TEXT (IDC_ChannelsPerGroup, CMFeatureSelectionDialog::OnChangeChannelsPerGroup)
+	EVT_TEXT (IDC_NumberBestToList, CMFeatureSelectionDialog::OnChangeNumberBestToList)
+END_EVENT_TABLE()
 
-extern void SeparabilityListDialog(
-   SInt32* localCombinationsToListPtr);
 
-extern void SeparabilityListDialogInitialize(
-   DialogPtr dialogPtr,
-   SeparabilitySpecsPtr separabilitySpecsPtr,
-   SInt32 combinationsToList,
-   Boolean* separabilityTableFlagPtr,
-   SInt32* localCombinationsToListPtr,
-   double* localMinDistanceRangeToListPtr,
-   double* localMaxDistanceRangeToListPtr,
-   SInt16* sortChannelCombinationsPtr,
-   Boolean* thresholdedClassPairTableFlagPtr,
-   double* localDistancesLessThanToListPtr,
-   Boolean* thresholdedGroupTableFlagPtr,
-   double* localDistancesLessThanToGroupPtr,
-   Boolean* listClassPairDistancesFlagPtr);
-
-extern void SeparabilityListDialogOK(
-   SeparabilitySpecsPtr separabilitySpecsPtr,
-   SInt32* combinationsToListPtr,
-   Boolean separabilityTableFlag,
-   SInt32 localCombinationsToList,
-   double localMinDistanceRangeToList,
-   double localMaxDistanceRangeToList,
-   Boolean sortByAverageDistanceFlag,
-   Boolean sortByMinimumDistanceFlag,
-   Boolean sortByOrderComputedFlag,
-   Boolean thresholdedClassPairTableFlag,
-   double localDistancesLessThanToList,
-   Boolean thresholdedGroupTableFlag,
-   double localDistancesLessThanToGroup,
-   Boolean listClassPairDistancesFlag);
-
-#ifdef _DEBUG
-#undef THIS_FILE
-static char BASED_CODE THIS_FILE[] = __FILE__;
-#endif
-
-/////////////////////////////////////////////////////////////////////////////
-// CMFeatureSelectionDialog dialog
 
 CMFeatureSelectionDialog::CMFeatureSelectionDialog(wxWindow* parent, wxWindowID id, const wxString& title)
 : CMDialog(CMFeatureSelectionDialog::IDD, parent, title) {
@@ -212,25 +116,7 @@ CMFeatureSelectionDialog::~CMFeatureSelectionDialog(void) {
 
 } // end "~CMFeatureSelectionDialog"
 
-//void CMFeatureSelectionDialog::DoDataExchange(CDataExchange* pDX) {
-//   CDialog::DoDataExchange(pDX);
-//{{AFX_DATA_MAP(CMFeatureSelectionDialog) 
-//   DDX_CBIndex(pDX, IDC_DistanceMeasureCombo, m_separabilityListSelection);
-//   DDX_CBIndex(pDX, IDC_NumberChannelsCombo, m_channelCombinationSelection);
-//   DDX_Text(pDX, IDC_ChannelsPerGroup, m_savedContiguousChannelsPerGroup);
-//   DDV_MinMaxLong(pDX, m_savedContiguousChannelsPerGroup, 1, m_maxContiguousChannelsPerGroup);
-//   DDX_Text(pDX, IDC_NumberBestToList, m_localCombinationsToList);
-//   DDV_MinMaxLong(pDX, m_localCombinationsToList, 1, SInt16_MAX);
-//   DDX_CBIndex(pDX, IDC_ClassPairWeightsCombo, m_interClassWeightsSelection);
-//   DDX_Check(pDX, IDC_TextWindow, m_textWindowFlag);
-//   DDX_Check(pDX, IDC_DiskFile, m_diskFileFlag);
-//   DDX_Check(pDX, IDC_StepProcedure, m_searchFlag);
-//   DDX_Check(pDX, IDC_FeatureTransformation, m_featureTransformationFlag);
-//   DDX_CBIndex(pDX, IDC_ChannelCombo, m_channelSelection);
-//   DDX_CBIndex(pDX, IDC_ClassCombo, m_classSelection);
-//   DDX_CBIndex(pDX, IDC_SymbolCombo, m_symbolSelection);
-//}}AFX_DATA_MAP
-//}
+
 
 bool CMFeatureSelectionDialog::TransferDataToWindow() {
    wxComboBox* distancemeas = (wxComboBox*) FindWindow(IDC_DistanceMeasureCombo);
@@ -334,40 +220,6 @@ bool CMFeatureSelectionDialog::TransferDataFromWindow() {
 													kDisplayRangeAlert);      
    return (returnCode == 0);
 }
-
-//BEGIN_MESSAGE_MAP(CMFeatureSelectionDialog, CMDialog)
-////{{AFX_MSG_MAP(CMFeatureSelectionDialog)
-//ON_CBN_SELENDOK(IDC_ChannelCombo, OnSelendokChannelCombo)
-//ON_CBN_SELENDOK(IDC_DistanceMeasureCombo, OnSelendokDistanceMeasureCombo)
-//ON_CBN_SELENDOK(IDC_NumberChannelsCombo, OnSelendokNumberChannelsCombo)
-//ON_EN_CHANGE(IDC_ChannelsPerGroup, OnChangeChannelsPerGroup)
-//ON_BN_CLICKED(IDC_StepProcedure, OnStepProcedure)
-//ON_EN_CHANGE(IDC_NumberBestToList, OnChangeNumberBestToList)
-//ON_CBN_SELENDOK(IDC_ClassCombo, OnSelendokClassCombo)
-//ON_BN_CLICKED(IDC_FeatureTransformation, OnFeatureTransformation)
-//ON_BN_CLICKED(IDC_ListOptions, OnListOptions)
-//ON_CBN_SELENDOK(IDC_ClassPairWeightsCombo, OnSelendokClassPairWeightsCombo)
-////}}AFX_MSG_MAP
-//END_MESSAGE_MAP()
-
-BEGIN_EVENT_TABLE(CMFeatureSelectionDialog, CMDialog)
-EVT_INIT_DIALOG(CMFeatureSelectionDialog::OnInitDialog)
-EVT_COMBOBOX(IDC_ChannelCombo, CMFeatureSelectionDialog::OnSelendokChannelCombo)
-EVT_COMBOBOX_DROPDOWN(IDC_ChannelCombo, CMFeatureSelectionDialog::OnSelendokChannelComboDropDown)
-EVT_COMBOBOX(IDC_DistanceMeasureCombo, CMFeatureSelectionDialog::OnSelendokDistanceMeasureCombo)
-EVT_COMBOBOX(IDC_NumberChannelsCombo, CMFeatureSelectionDialog::OnSelendokNumberChannelsCombo)
-EVT_COMBOBOX_DROPDOWN(IDC_NumberChannelsCombo, CMFeatureSelectionDialog::OnSelendokNumberChannelsComboDropDown)
-EVT_TEXT(IDC_ChannelsPerGroup, CMFeatureSelectionDialog::OnChangeChannelsPerGroup)
-EVT_CHECKBOX(IDC_StepProcedure, CMFeatureSelectionDialog::OnStepProcedure)
-EVT_TEXT(IDC_NumberBestToList, CMFeatureSelectionDialog::OnChangeNumberBestToList)
-EVT_COMBOBOX(IDC_ClassCombo, CMFeatureSelectionDialog::OnSelendokClassCombo)
-EVT_COMBOBOX_DROPDOWN(IDC_ClassCombo, CMFeatureSelectionDialog::OnSelendokClassComboDropDown)
-EVT_CHECKBOX(IDC_FeatureTransformation, CMFeatureSelectionDialog::OnFeatureTransformation)
-EVT_BUTTON(IDC_ListOptions, CMFeatureSelectionDialog::OnListOptions)
-EVT_COMBOBOX(IDC_ClassPairWeightsCombo, CMFeatureSelectionDialog::OnSelendokClassPairWeightsCombo)
-EVT_COMBOBOX_DROPDOWN(IDC_ClassPairWeightsCombo, CMFeatureSelectionDialog::OnSelendokClassPairWeightsComboDropDown)
-EVT_BUTTON(IDS_HelpButton , CMFeatureSelectionDialog::OnHelpButton)
-END_EVENT_TABLE()
 //-----------------------------------------------------------------------------
 //								 Copyright (1988-1998)
 //								c Purdue Research Foundation
@@ -1310,6 +1162,13 @@ void CMFeatureSelectionDialog::CreateControls()
 /////////////////////////////////////////////////////////////////////////////
 // CMFeatureSelectionListDialog dialog
 
+BEGIN_EVENT_TABLE(CMFeatureSelectionListDialog, CMDialog)
+	EVT_BUTTON(IDS_HelpButton , CMFeatureSelectionListDialog::OnHelpButton)
+	EVT_INIT_DIALOG(CMFeatureSelectionListDialog::OnInitDialog)
+END_EVENT_TABLE()
+
+
+
 CMFeatureSelectionListDialog::CMFeatureSelectionListDialog(wxWindow* parent, wxWindowID id, const wxString& title)
 : CMDialog(CMFeatureSelectionListDialog::IDD, parent, title) {
    //{{AFX_DATA_INIT(CMFeatureSelectionListDialog)
@@ -1476,15 +1335,7 @@ bool CMFeatureSelectionListDialog::TransferDataFromWindow() {
 
 }
 
-//BEGIN_MESSAGE_MAP(CMFeatureSelectionListDialog, CMDialog)
-////{{AFX_MSG_MAP(CMFeatureSelectionListDialog)
-////}}AFX_MSG_MAP
-//END_MESSAGE_MAP()
 
-BEGIN_EVENT_TABLE(CMFeatureSelectionListDialog, CMDialog)
-EVT_INIT_DIALOG(CMFeatureSelectionListDialog::OnInitDialog)
-EVT_BUTTON(IDS_HelpButton , CMFeatureSelectionListDialog::OnHelpButton)
-END_EVENT_TABLE()
 //-----------------------------------------------------------------------------
 //								 Copyright (1988-1998)
 //								c Purdue Research Foundation
