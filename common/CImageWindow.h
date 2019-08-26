@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//							 Copyright (1988-2017)
+//							 Copyright (1988-2019)
 //						(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -12,11 +12,11 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			11/19/2018
+//	Revision date:			08/20/2019
 //
 //	Language:				C++
 //
-//	System:					Linux and Windows Operating Systems
+//	System:					Linux, MacOS and Windows Operating Systems
 //
 //	Brief description:	This file is the definition for the CMImageWindow class
 //

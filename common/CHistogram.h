@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//							 Copyright (1988-2017)
+//							 Copyright (1988-2019)
 //						(c) Purdue Research Foundation
 //								All rights reserved.
 //
@@ -11,8 +11,6 @@
 //	Implementation:		CHistogram.cpp
 //
 //	Authors:					Larry L. Biehl
-//
-//	Revision number:		2.7
 //
 //	Revision date:			11/28/2017
 //

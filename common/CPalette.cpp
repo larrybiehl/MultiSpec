@@ -4,7 +4,7 @@
 //									Purdue University
 //								West Lafayette, IN 47907
 //								 Copyright (1988-2019)
-//								(c) Purdue Research Foundation
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	File:						CPalette.cpp
@@ -20,9 +20,9 @@
 //
 //	Brief description:	This file contains routines for the CMPalette class.
 //
-//	Functions in file:						CMPalette             
-//													~CMPalette
-//													Create 
+//	Functions in file:	CMPalette
+//								~CMPalette
+//								Create
 //
 //	Include files:			"SMultiSpec.h"
 //
@@ -1324,46 +1324,6 @@ CMPalette::~CMPalette ()
 
 }	// end "~CMPalette"
                                                      
-/*
-#ifdef multispec_lin
-//------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
-//								c Purdue Research Foundation
-//									All rights reserved.
-//
-//	Function name:		void Create
-//
-//	Software purpose:	The purpose of this routine is to create the palette using the
-//							input color vectors.
-//
-//	Parameters in:		None
-//
-//	Parameters out:	None
-//
-// Value Returned:	True if creation was successfull
-//							Fale if creation was not successfull
-// 
-// Called By:
-//
-//	Coded By:			Abdur Maud				Date: ??/??/2015
-//	Revised By:			Larry L. Biehl			Date: 1/19/2018
-
-bool CMPalette::Create (
-				SInt16								numberEntries,
-				UInt8*								redpalette,
-				UInt8*								greenpalette,
-				UInt8*								bluepalette)
-				
-{
-   SetNumberPaletteEntries (numberEntries);
-	m_loadedFlag = FALSE;
-	
-	
-	
-   //return (wxPalette::Create (numberEntries, redpalette, greenpalette, bluepalette));
-}
-#endif
-*/
 
 #if defined multispec_win
 //------------------------------------------------------------------------------------

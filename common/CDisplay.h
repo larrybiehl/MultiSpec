@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//							 Copyright (1988-2017)
+//							 Copyright (1988-2019)
 //						(c) Purdue Research Foundation
 //								All rights reserved.
 //
@@ -12,9 +12,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision number:		2.7
-//
-//	Revision date:			11/28/2017
+//	Revision date:			08/20/2019
 //
 //	Language:				C++
 //
@@ -29,7 +27,6 @@
 
    #include "SMultiSpec.h"                        
 	#include "CPalette.h"
-	//#include "CProcessor.h"
 
 class	CMDisplay //: public CMProcessor
 	{

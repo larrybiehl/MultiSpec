@@ -196,8 +196,6 @@ Boolean CMImageWindow::CreateImageWindow (
 	
 	CMFileStream						*fileStreamCPtr;
 	
-	Handle								windowRecordHandle = NULL;
-	
 	LWindow								*theWindow = NULL; 
 	                                      
 	FileInfoPtr							fileInfoPtr;

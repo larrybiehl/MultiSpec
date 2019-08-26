@@ -3,8 +3,8 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2018)
-//								(c) Purdue Research Foundation
+//								 Copyright (1988-2019)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	File:						CWindowInfo.cpp
@@ -12,7 +12,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			01/09/2018
+//	Revision date:			08/20/2019
 //
 //	Language:				C++
 //
@@ -39,7 +39,7 @@ extern void ReleaseOffscreenSupportMemory (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -79,7 +79,7 @@ CMWindowInfo::CMWindowInfo ()
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -119,7 +119,7 @@ CMWindowInfo::CMWindowInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -144,9 +144,6 @@ CMWindowInfo::~CMWindowInfo ()
 	WindowInfoPtr						windowInfoPtr;
 	SignedByte							handleStatus;
 	
-	
-	if (this == NULL)
-																									return;
 	
 	windowInfoPtr = (WindowInfoPtr)GetHandleStatusAndPointer (m_windowInfoHandle,
 																					&handleStatus);
@@ -193,8 +190,8 @@ Handle CMWindowInfo::GetWindowInfoHandle ()
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
-//								c Purdue Research Foundation
+//								 Copyright (1988-2019)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void ReleaseOffscreenSupportMemory
@@ -232,8 +229,8 @@ void CMWindowInfo::ReleaseOffscreenSupportMemory (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
-//								c Purdue Research Foundation
+//								 Copyright (1988-2019)
+//								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void SetImageWindowCPtrInWindowInfo

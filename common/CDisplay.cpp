@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								Copyright (1988-2017)
+//								Copyright (1988-2019)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -12,13 +12,11 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision number:		2.7
-//
-//	Revision date:			11/28/2017
+//	Revision date:			08/20/2019
 //
 //	Language:				C++
 //
-//	System:					Linux and Windows Operating Systems
+//	System:					Linux, MacOS and Windows Operating Systems
 //
 //	Brief description:	This file contains routines for the CMImageWindow class
 //
@@ -118,47 +116,7 @@ CMDisplay::~CMDisplay ()
 											UnlockAndDispose (gToDisplayLevels.vectorHandle);
 
 }	// end "~CMDisplay"
-											
 
-/*
-//------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
-//							(c) Purdue Research Foundation
-//									All rights reserved.
-//
-//	Function name:		void ActivatePalette
-//
-//	Software purpose:	The purpose of this routine is to activate the palette
-//							for the specified window. 
-//
-//	Parameters in:		None
-//
-//	Parameters out:	None
-//
-// Value Returned:	None  				
-// 
-// Called By:	
-//
-//	Coded By:			Larry L. Biehl			Date: 06/05/1995
-//	Revised By:			Larry L. Biehl			Date: 02/26/1997	
-
-void CMDisplay::ActivatePalette (
-				CMImageView							*imageViewCPtr)
- 
-{
-		// oul: added the condition of _AMD64_ to be compatible with x64
-		// _AMD64_ is the predefined macro for x64 machines according to MSDN
-		
-	#if !defined _X86_ && !defined _AMD64_
-		//	::ActivatePalette (imageViewCPtr);  
-	#endif	// !defined _X86_ && !defined _AMD64_
-			      
-	#if defined _X86_ || defined _X86_
-		imageViewCPtr->SendMessage (WM_DOREALIZE, (WPARAM)imageViewCPtr->m_hWnd, 1); 
-	#endif	// defined _X86_ || defined _X86_                            
-
-}	// end "ActivatePalette" 
-*/
 
 
 //------------------------------------------------------------------------------------
