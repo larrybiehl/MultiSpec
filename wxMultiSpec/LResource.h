@@ -15,11 +15,11 @@
 //
 //	System:					Linux Operating System
 //
-//	Brief description:	Header file for the CMClassifyDialog class
+//	Brief description:	Defininition of string and control constants
 //
 //	Written By:				Abdur Rahman Maud		Date: ??/??/2009
 // Revised By:				Tsung Tai Yeh			Date: 07/28/2015
-//	Revised By:				Larry L. Biehl			Date: 08/15/2019
+//	Revised By:				Larry L. Biehl			Date: 10/13/2019
 //	
 //------------------------------------------------------------------------------------
 //
@@ -424,6 +424,7 @@
 #define IDS_Project88                   888
 #define IDS_Project89                   889
 #define IDS_Project90                   890
+#define IDS_Project91                   891
 #define IDS_ProjectVersion1             901
 #define IDS_ProjectVersion2             902
 #define IDS_ProjectVersion3             903
@@ -1105,38 +1106,58 @@
 #define IDC_StatsType                   1469
 #define IDS_Classify69                  1469
 #define IDS_Classify70                  1470
-#define IDS_Classify71                  1471
-#define IDS_Classify72                  1472
 #define IDC_ListStatsCombo              1470
+#define IDS_Classify71                  1471
 #define IDS_Classify72                  1472
 #define IDS_Classify73                  1473
 #define IDC_StatsCombo                  1473
 #define IDS_Classify74                  1474
 #define IDC_ProjectClassMeans           1474
 #define IDC_correlationPrompt           1475
+#define IDS_Classify75                  1475
 #define IDC_CorrelationCoefficientThreshold      1476
+#define IDS_Classify76                  1476
 #define IDC_ShowClassNames              1477
+#define IDS_Classify77                  1477
 #define IDC_ShowTrainTestLabel          1478
+#define IDS_Classify78                  1478
 #define IDC_ColorPrompt                 1479
+#define IDS_Classify79                  1479
 #define IDC_ColorCombo                  1480
+#define IDS_Classify80                  1480
 #define IDC_EchoAlgorithm               1481
+#define IDS_Classify81                  1481
 #define IDC_TrainingLOO                 1482
+#define IDS_Classify82                  1482
 #define IDC_DegreeSymbol                1483
+#define IDS_Classify83                  1483
 #define IDC_CEMThreshold                1484
+#define IDS_Classify84                  1484
 #define IDC_CorrelationAngleThreshold   1485
+#define IDS_Classify85                  1485
 #define IDC_UseClasses                  1486
 #define IDC_NearestNeighbor             1486
+#define IDS_Classify86                  1486
 #define IDC_UseSelectedArea             1487
 #define IDC_NearestNeighborThreshold	 1487
+#define IDS_Classify87                  1487
 #define IDC_Fields                      1488
+#define IDS_Classify88                  1488
 #define IDC_MeansStdDev                 1489
+#define IDS_Classify89                  1489
 #define IDC_CorrelationMatrix           1490
+#define IDS_Classify90                  1490
 #define IDC_CovarianceMatrix            1491
+#define IDS_Classify91                  1491
 #define IDC_MeanPrecision               1492
 #define IDC_MeansStdDevPrecision        1492
+#define IDS_Classify92                  1492
 #define IDC_CovariancePrecision         1493
+#define IDS_Classify93                  1493
 #define IDC_UseTransformation           1494
+#define IDS_Classify94                  1494
 #define IDC_CovarianceCombo             1495
+#define IDS_Classify95                  1495
 #define IDC_CovariancePrompt            1496
 #define IDC_WeightsEqual                1498
 #define IDC_DistanceMeasureCombo        1499
@@ -1615,12 +1636,14 @@
 #define IDS_PrincipalComponent12        1912
 #define IDS_PrincipalComponent13        1913
 
-#define IDS_BiPlot1        1914
-#define IDS_BiPlot2        1915
-#define IDS_BiPlot3        1916
+#define IDS_BiPlot1        				1914
+#define IDS_BiPlot2        				1915
+#define IDS_BiPlot3        				1916
 
-#define IDC_FEATURE_LIST    1917
-#define IDC_DATA_LIST       1918
+#define IDC_FEATURE_LIST    				1917
+#define IDC_DATA_LIST       				1918
+
+#define IDC_ChannelsSubset					1921
         
 #define IDS_ListData1                   2001
 #define IDS_ListData2                   2002
@@ -2909,12 +2932,51 @@
 #define IDS_ToolTip359                  8359
 #define IDS_ToolTip360                  8360
 #define IDS_ToolTip401                  8401
+#define IDS_ToolTip8402              	 8402
+#define IDS_ToolTip8403              	 8403
+#define IDS_ToolTip8404              	 8404
+#define IDS_ToolTip8405              	 8405
+#define IDS_ToolTip8406              	 8406
+#define IDS_ToolTip8407              	 8407
+#define IDS_ToolTip8408              	 8408
+#define IDS_ToolTip8409              	 8409
+#define IDS_ToolTip8410              	 8410
+#define IDS_ToolTip8411              	 8411
+#define IDS_ToolTip8412              	 8412
+#define IDS_ToolTip8413              	 8413
+#define IDS_ToolTip8414              	 8414
 #define IDS_ToolTip8601						 8601
 
 #define IDS_DialogMsg0                  8500
 #define IDS_DialogMsg1                  8501
 #define IDS_DialogMsg2                  8502
 #define IDS_DialogMsg3                  8503
+
+#define IDC_SVM_TYPE                    8511
+#define IDC_SVM_KERNEL_TYPE             8512
+#define IDC_SVM_DEGREE_PROMPT           8513
+#define IDC_SVM_DEGREE                  8514
+#define IDC_SVM_DEGREE_INFO             8515
+#define IDC_SVM_GAMMA_PROMPT            8516
+#define IDC_SVM_GAMMA                   8517
+#define IDC_SVM_GAMMA_INFO              8518
+#define IDC_SVM_COEF0_PROMPT            8519
+#define IDC_SVM_COEF0                   8520
+#define IDC_SVM_COEF0_INFO              8521
+#define IDC_SVM_CACHE_SIZE              8522
+#define IDC_SVM_EPS	                   8523
+#define IDC_SVM_COST_PROMPT             8524
+#define IDC_SVM_COST                    8525
+#define IDC_SVM_COST_INFO               8526
+#define IDC_SVM_NU_PROMPT	             8527
+#define IDC_SVM_NU	                   8528
+#define IDC_SVM_NU_INFO	                8529
+#define IDC_SVM_P_PROMPT		          8530
+#define IDC_SVM_P		                   8531
+#define IDC_SVM_P_INFO		             8532
+#define IDC_SVM_SHRINKING               8533
+#define IDC_SVM_PROBABILITY             8534
+#define IDC_SVM_PROBABILITY_INFO        8535
 
 #endif  
 
@@ -3174,8 +3236,8 @@
 #define ID_EDIT_REPEAT          30308 
 #define ID_EDIT_REPLACE         30309 
 
-#define ID_EDIT_UNDO            30311 
-#define ID_EDIT_REDO            30312 
+//#define ID_EDIT_UNDO            30311
+//#define ID_EDIT_REDO            30312
 /*LReformatRectifyDlg.cpp*/
 #define IDC_TranslateScaleTitle2          30401
 #define IDC_TranslateScaleTitle3				30402

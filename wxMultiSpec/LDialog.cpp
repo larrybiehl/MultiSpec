@@ -1,3 +1,4 @@
+		
 //	 									MultiSpec
 //
 //					Laboratory for Applications of Remote Sensing
@@ -12,7 +13,7 @@
 //
 //	Authors:					Abdur Rahman Maud, Larry L. Biehl
 //
-//	Revision date:			01/30/2019
+//	Revision date:			10/08/2019
 //
 //	Language:				C++
 //
@@ -45,6 +46,7 @@
 
 BEGIN_EVENT_TABLE (CMDialog, wxDialog)
 	EVT_CHAR_HOOK (CMDialog::OnCharHook)
+	//EVT_LEFT_DOWN (CMDialog::OnLButtonDown)
 END_EVENT_TABLE ()
 
 
@@ -88,11 +90,11 @@ CMDialog::CMDialog (
    m_featureTransformationFlag = FALSE;
    m_symbolSelection = 0;
 
-   m_classSelection_Saved = 0;
-   m_channelSelection_Saved = 0;
-   m_weightSelection_Saved = 0;
-   m_areaSelection_Saved = 0;
-   m_interClassWeightsSelection_Saved = 0;
+   //m_classSelection_Saved = 0;
+   //m_channelSelection_Saved = 0;
+   //m_weightSelection_Saved = 0;
+   //m_areaSelection_Saved = 0;
+   //m_interClassWeightsSelection_Saved = 0;
     
    m_valuePtr = NULL;
 
@@ -657,6 +659,7 @@ void CMDialog::HandleChannelsMenu (
 
 {
 	int									channelSelection;
+	
 
    channelSelection = (wxDynamicCast (FindWindow (channelsMenuItemNumber),
 													wxComboBox))->GetCurrentSelection ();
@@ -666,6 +669,15 @@ void CMDialog::HandleChannelsMenu (
 							m_channelListType == kSelectedItemsListOnly))
 		
 		{
+				// Following line commented out were included to try to fix issue where
+				// one has to click mouse button or use key twice to get action after
+				// the channels dialog box is display for OSX.
+		
+		//CheckSomeEvents (updateMask+activMask);
+		
+		//wxCommandEvent *evt = new wxCommandEvent (wxEVT_BUTTON, IDC_ChannelsSubset);
+		//wxQueueEvent (m_hiddenChannelSubset, evt);
+		
 				// Subset of channels to be used.
 
       SetDLogControlHilite (NULL, wxID_OK, 255);
@@ -725,6 +737,52 @@ void CMDialog::HandleChannelsMenu (
 
 }	// end "HandleChannelsMenu"
 
+
+/*
+void CMDialog::OnChannelsSubset (
+				wxCommandEvent&					event)
+
+{
+	int									channelSelection;
+	Boolean								transformationFlag = kNoTransformation;
+	SInt16								totalNumberChannels = 7;
+	SInt16								channelMenuType = kImageChannelType;
+	Boolean								okFlagSetting = true;
+	
+	
+				// Subset of channels to be used.
+
+      SetDLogControlHilite (NULL, wxID_OK, 255);
+
+      CMChannelsDlg* channelsDialogPtr = NULL;
+
+      channelsDialogPtr = new CMChannelsDlg (this);
+
+      channelsDialogPtr->DoDialog ((SInt16*)&m_localActiveNumberFeatures,
+												(SInt16*)m_localActiveFeaturesPtr,
+												gImageLayerInfoPtr,
+												gImageFileInfoPtr,
+												m_channelListType,
+												transformationFlag,
+												(SInt16*)m_availableFeaturePtr,
+												totalNumberChannels,
+												m_channelSelection);
+
+      if (channelsDialogPtr != NULL)
+         delete channelsDialogPtr;
+
+      if (channelMenuType == kImageChannelType)
+			{
+         if (m_localActiveNumberFeatures == (UInt16)totalNumberChannels)
+            channelSelection = kAllMenuItem;
+
+			}	// end "if (channelMenuType == kImageChannelType)"
+
+      if (okFlagSetting)
+         SetDLogControlHilite (NULL, wxID_OK, 0);
+
+}	// end "OnChannelsSubset"
+*/
 
 
 void CMDialog::HandleClassesMenu (
@@ -1152,7 +1210,151 @@ void CMDialog::OnCharHook (
 	else
 		event.Skip ();
 	
-}	// end "OnCharHook"	
+}	// end "OnCharHook"
+
+
+
+void CMDialog::OnChannelComboCloseUp (
+				wxCommandEvent& 					event)
+
+{
+	wxComboBox* channelComboPtr = (wxComboBox*)FindWindow (IDC_ChannelCombo);
+	int channelSelection = channelComboPtr->GetSelection ();
+	
+	if (channelSelection == -1)
+		channelComboPtr->SetSelection (m_channelSelection);
+	
+	event.Skip (false);		// default is true
+	
+}	// end "OnChannelComboCloseUp"
+
+
+
+void CMDialog::OnChannelComboDropDown (
+				wxCommandEvent&					event)
+
+{
+	/*
+   wxComboBox* combo = wxDynamicCast (FindWindow (IDC_ChannelCombo), wxComboBox);
+   if (combo != NULL)
+		ResetComboBox (IDC_ChannelCombo);
+	
+   else	// combo == NULL
+		ResetComboBox (IDC_Channels);
+	*/
+   wxComboBox* channelComboPtr = (wxComboBox*)event.GetEventObject ();
+   if (channelComboPtr != NULL)
+		channelComboPtr->SetSelection (-1);
+	
+}	// end "OnChannelComboDropDown"
+
+
+
+void CMDialog::OnClassComboCloseUp (
+				wxCommandEvent& 					event)
+
+{
+	wxComboBox* classComboPtr = (wxComboBox*)FindWindow (IDC_ClassCombo);
+	int classSelection = classComboPtr->GetSelection ();
+	
+	if (classSelection == -1)
+		classComboPtr->SetSelection (m_classSelection);
+	
+	event.Skip ();
+	
+}	// end "OnClassComboCloseUp"
+
+
+
+void CMDialog::OnClassComboDropDown (
+				wxCommandEvent&					event)
+
+{
+   //wxComboBox* classComboPtr = wxDynamicCast (FindWindow (IDC_ClassCombo), wxComboBox);
+   wxComboBox* classComboPtr = (wxComboBox*)event.GetEventObject ();
+   if (classComboPtr != NULL)
+		classComboPtr->SetSelection (-1);
+	
+}	// end "OnClassComboDropDown"
+
+
+void CMDialog::OnClassComboSelendok (
+				wxCommandEvent&					event)
+
+{
+   HandleClassesMenu (&m_localNumberClasses,
+								(SInt16*)m_classListPtr,
+								1,
+								(SInt16)gProjectInfoPtr->numberStatisticsClasses,
+								IDC_ClassCombo,
+								&m_classSelection);
+
+}	// end "OnSelendokClassCombo"
+
+
+
+void CMDialog::OnClassPairWeightsComboCloseUp (
+				wxCommandEvent& 					event)
+
+{
+	wxComboBox* classPairWeightsComboPtr =
+							(wxComboBox*)FindWindow (IDC_ClassPairWeightsCombo);
+	int classPairWeightsSelection = classPairWeightsComboPtr->GetSelection ();
+	
+	if (classPairWeightsSelection == -1)
+		classPairWeightsComboPtr->SetSelection (m_classPairWeightsSelection);
+	
+	event.Skip ();
+	
+}	// end "OnClassPairWeightsComboCloseUp"
+
+
+
+void CMDialog::OnClassPairWeightsComboDropDown (
+				wxCommandEvent&					event)
+
+{
+   //ResetComboBox (IDC_ClassPairWeightsCombo);
+   wxComboBox* classPairWeightsComboPtr = (wxComboBox*)event.GetEventObject ();
+   if (classPairWeightsComboPtr != NULL)
+		classPairWeightsComboPtr->SetSelection (-1);
+	
+}	// end "OnClassPairWeightsComboDropDown"
+
+
+
+void CMDialog::OnClassWeightComboDropDown (
+				wxCommandEvent&					event)
+
+{
+	/*
+   wxComboBox* combo = wxDynamicCast (FindWindow (IDC_WeightCombo), wxComboBox);
+   if (combo != NULL)
+      ResetComboBox (IDC_WeightCombo);
+	
+   else	// combo == NULL
+      ResetComboBox (IDC_WeightsCombo);
+	*/
+   wxComboBox* weightsComboPtr = (wxComboBox*)event.GetEventObject ();
+   if (weightsComboPtr != NULL)
+		weightsComboPtr->SetSelection (-1);
+	
+}	// end "OnClassWeightComboDropDown"
+
+
+/*
+void CMDialog::OnCloseUpComboBox (
+				int									controlID,
+				int									currentSelection)
+
+{
+   wxComboBox* comboPtr = wxDynamicCast (FindWindow (controlID), wxComboBox);
+	int selection = comboPtr->GetSelection ();
+	
+	if (selection == -1)
+		comboPtr->SetSelection (currentSelection);
+	
+}	// end "OnCloseUpComboBox"
 
 
 
@@ -1233,79 +1435,41 @@ void wxWidgetsDialog::OnKey(wxKeyEvent &event)
 }
 */
 
-
-void CMDialog::OnSelendokClassCombo (
-				wxCommandEvent&					event)
-
-{
-   HandleClassesMenu (&m_localNumberClasses,
-								(SInt16*)m_classListPtr,
-								1,
-								(SInt16)gProjectInfoPtr->numberStatisticsClasses,
-								IDC_ClassCombo,
-								&m_classSelection);
-
-}	// end "OnSelendokClassCombo"
-
-
-
-void CMDialog::OnSelendokClassComboDropDown (
-				wxCommandEvent&					event)
+/*
+void CMDialog::OnLButtonDown (
+				wxMouseEvent&						event)
 
 {
-   ResetComboBox (IDC_ClassCombo);
+			// This did not work either to be able to focus the window
+			// after another is displayed on top of it.
 	
-}	// end "OnSelendokClassComboDropDown"
+		int numberChars = sprintf (
+			(char*)&gTextString3,
+			" LDialog:OnLButtonDown (): %s",
+			gEndOfLine);
+		ListString ((char*)&gTextString3, numberChars, gOutputTextH);
+
+	
+	event.Skip ();
+	
+}	// end "OnLButtonDown"
+*/
 
 
 
-void CMDialog::OnSelendokAreasComboDropDown (
-				wxCommandEvent&					event)
+void CMDialog::OnClassWeightComboCloseUp (
+				wxCommandEvent& 					event)
 
 {
-   ResetComboBox (IDC_AreasCombo);
+	wxComboBox* weightsComboPtr = (wxComboBox*)FindWindow (IDC_WeightCombo);
+	int weightsSelection = weightsComboPtr->GetSelection ();
 	
-}	// end "OnSelendokAreasCombo"
-
-
-
-void CMDialog::OnSelendokClassWeightsComboDropDown (
-				wxCommandEvent&					event)
-
-{
-   wxComboBox* combo = wxDynamicCast (FindWindow (IDC_WeightCombo), wxComboBox);
-   if (combo != NULL)
-      ResetComboBox (IDC_WeightCombo);
+	if (weightsSelection == -1)
+		weightsComboPtr->SetSelection (m_classWeightsSelection);
 	
-   else	// combo == NULL
-      ResetComboBox (IDC_WeightsCombo);
+	event.Skip ();
 	
-}		// end "OnSelendokClassWeightsComboDropDown"
-
-
-
-void CMDialog::OnSelendokChannelComboDropDown (
-				wxCommandEvent&					event)
-
-{
-   wxComboBox* combo = wxDynamicCast (FindWindow (IDC_ChannelCombo), wxComboBox);
-   if (combo != NULL)
-		ResetComboBox (IDC_ChannelCombo);
-	
-   else	// combo == NULL
-		ResetComboBox (IDC_Channels);
-	
-}		// end "OnSelendokChannelComboDropDown"
-
-
-
-void CMDialog::OnSelendokClassPairWeightsComboDropDown (
-				wxCommandEvent&					event)
-
-{
-   ResetComboBox (IDC_ClassPairWeightsCombo);
-	
-}	// end "OnSelendokClassPairWeightsComboDropDown"
+}	// end "OnClassWeightComboCloseUp"
 
 
 
@@ -1339,7 +1503,7 @@ void CMDialog::PositionDialogWindow (void)
 }	// end "PositionDialogWindow"
 
 
-
+/*
 void CMDialog::ResetComboBox (
 				int									controlID)
 
@@ -1400,7 +1564,7 @@ void CMDialog::ResetComboBox (
 		combo->SetSelection (-1);
 	
 }	// end "ResetComboBox"
-
+*/
 
 
 void CMDialog::SetComboItemText (
@@ -1920,15 +2084,19 @@ void CMDialog::UpdateAllSubsetList (
 				UInt16								channelsMenuItemNumber)
 
 {
+	wxComboBox*							channelComboPtr;
+	
+	
+	channelComboPtr = (wxComboBox*)FindWindow (channelsMenuItemNumber);
    if (m_channelListType == kSelectedItemsListOnly)
 		{
-      if (((wxComboBox*)FindWindow (channelsMenuItemNumber))->GetCount () == 2)
+      if (channelComboPtr->GetCount () == 2)
 			{
          if (m_channelSelection == kAllMenuItem)
-            ((wxComboBox*)FindWindow (channelsMenuItemNumber))->Delete (1);
+            channelComboPtr->Delete (1);
 
          else	// m_channelSelection == kSubsetMenuItem
-            ((wxComboBox*)FindWindow (channelsMenuItemNumber))->Delete (0);
+            channelComboPtr->Delete (0);
 
 			}	// end "if (...->GetCount () == 2 )"
 
@@ -1936,14 +2104,16 @@ void CMDialog::UpdateAllSubsetList (
 
    else	// m_channelListType != kSelectedChannelsListOnly
 		{
-      if (((wxComboBox*)FindWindow (channelsMenuItemNumber))->GetCount () == 1)
+      if (channelComboPtr->GetCount () == 1)
 			{
-         ((wxComboBox*)FindWindow (channelsMenuItemNumber))->Delete (0);
+         channelComboPtr->Delete (0);
 
-         ((wxComboBox*)FindWindow (channelsMenuItemNumber))->Append (wxT("All"));
-         ((wxComboBox*)FindWindow (channelsMenuItemNumber))->Append (wxT("Subset..."));
+         channelComboPtr->Append (wxT("All"));
+         channelComboPtr->Append (wxT("Subset..."));
 
 			}	// end "if (...->GetCount () == 1 )"
+		
+		channelComboPtr->SetSelection (-1);
 
    }	// end "else m_channelListType != kSelectedChannelsListOnly"
 

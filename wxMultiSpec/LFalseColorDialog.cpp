@@ -12,7 +12,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			11/16/2018
+//	Revision date:			11/03/2019
 //
 //	Language:				C++
 //
@@ -60,19 +60,21 @@ CMFalseColorDlg::CMFalseColorDlg (
 	
 	m_maxChannelFeatureNum = 1; 
 	
-   CreateControls();
-   SetSizerAndFit(bSizer322);
+   CreateControls ();
+   SetSizerAndFit (bVSizerMain);
 	
 }	// end "CMFalseColorDlg"
+
+
 
 void CMFalseColorDlg::CreateControls ()
 
 {
    this->SetSizeHints(wxDefaultSize, wxDefaultSize);
 	
-	wxBoxSizer* bVSizerMain = new wxBoxSizer (wxVERTICAL);
+	bVSizerMain = new wxBoxSizer (wxVERTICAL);
 	
-//	wxBoxSizer* bSizer322;
+	wxBoxSizer* bSizer322;
 	bSizer322 = new wxBoxSizer( wxHORIZONTAL );
 	
 	wxBoxSizer* bSizer323;
@@ -81,11 +83,11 @@ void CMFalseColorDlg::CreateControls ()
 	wxBoxSizer* bSizer325;
 	bSizer325 = new wxBoxSizer( wxHORIZONTAL );
 	
-	m_staticText293 = new wxStaticText( this, wxID_ANY, wxT("Red:"), wxDefaultPosition, wxDefaultSize, 0 );
-	m_staticText293->Wrap( -1 );
-	bSizer325->Add( m_staticText293, 0, wxALIGN_CENTER|wxALL, 5 );
+	m_staticText293 = new wxStaticText( this, wxID_ANY, wxT("Red:"), wxDefaultPosition, wxSize (45, -1), 0 );
+	m_staticText293->Wrap (-1);
+	bSizer325->Add (m_staticText293, 0, wxALL, 5);
 	
-	m_textCtrl132 = new wxTextCtrl( this, IDC_EDITRed, wxEmptyString, wxDefaultPosition, wxSize( 60,-1 ), 0 );
+	m_textCtrl132 = new wxTextCtrl( this, IDC_EDITRed, wxEmptyString, wxDefaultPosition, wxSize (60, -1), 0 );
 	bSizer325->Add( m_textCtrl132, 0, wxALL, 5 );
 	
 	
@@ -95,11 +97,11 @@ void CMFalseColorDlg::CreateControls ()
 	wxBoxSizer* bSizer326;
 	bSizer326 = new wxBoxSizer( wxHORIZONTAL );
 	
-	m_staticText294 = new wxStaticText( this, wxID_ANY, wxT("Green:"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText294 = new wxStaticText( this, wxID_ANY, wxT("Green:"), wxDefaultPosition, wxSize (45, -1), 0 );
 	m_staticText294->Wrap( -1 );
-	bSizer326->Add( m_staticText294, 0, wxALIGN_CENTER|wxALL, 5 );
+	bSizer326->Add( m_staticText294, 0, wxALL, 5 );
 	
-	m_textCtrl133 = new wxTextCtrl( this, IDC_EDITGreen, wxEmptyString, wxDefaultPosition, wxSize( 60,-1 ), 0 );
+	m_textCtrl133 = new wxTextCtrl( this, IDC_EDITGreen, wxEmptyString, wxDefaultPosition, wxSize (60, -1), 0 );
 	bSizer326->Add( m_textCtrl133, 0, wxALL, 5 );
 	
 	
@@ -109,11 +111,11 @@ void CMFalseColorDlg::CreateControls ()
 	wxBoxSizer* bSizer327;
 	bSizer327 = new wxBoxSizer( wxHORIZONTAL );
 	
-	m_staticText295 = new wxStaticText( this, wxID_ANY, wxT("Blue:"), wxDefaultPosition, wxDefaultSize, 0 );
-	m_staticText295->Wrap( -1 );
-	bSizer327->Add( m_staticText295, 0, wxALIGN_CENTER|wxALL, 5 );
+	m_staticText295 = new wxStaticText( this, wxID_ANY, wxT("Blue:"), wxDefaultPosition, wxSize (45, -1), 0 );
+	m_staticText295->Wrap (-1);
+	bSizer327->Add( m_staticText295, 0, wxALL, 5);
 	
-	m_textCtrl134 = new wxTextCtrl( this, IDC_EDITBlue, wxEmptyString, wxDefaultPosition, wxSize( 60,-1 ), 0 );
+	m_textCtrl134 = new wxTextCtrl( this, IDC_EDITBlue, wxEmptyString, wxDefaultPosition, wxSize (60, -1), 0 );
 	bSizer327->Add( m_textCtrl134, 0, wxALL, 5 );
 	
 	

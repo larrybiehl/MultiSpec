@@ -19,7 +19,7 @@
 //	Brief description:	Header file for the CMClassifyDialog class
 //
 //	Written By:				Abdur Rahman Maud		Date: ??/??/2009
-//	Revised By:				Larry L. Biehl			Date: 07/01/2019
+//	Revised By:				Larry L. Biehl			Date: 10/10/2019
 //	
 //------------------------------------------------------------------------------------
 
@@ -63,7 +63,6 @@ class CMClassifyDialog : public CMDialog
 		
 		int			m_classAreaSelection,
 						m_classifyListSelection,
-						m_classWeightsSelection,
 						m_fileNamesSelection,
 						m_outputFormatCode,
 						m_paletteSelection,
@@ -84,30 +83,34 @@ class CMClassifyDialog : public CMDialog
 
 		 // Implementation
 	protected:
+		void			OnActivate (wxActivateEvent& event);
+		void 			OnAreasComboCloseUp (wxCommandEvent& event);
+   	void 			OnAreasComboDropDown (wxCommandEvent& event);
+		void			OnAreasComboSelendok (wxCommandEvent& event);
 		void			OnChangeCEMThreshold (wxCommandEvent& event);
 		void			OnChangeCorrelationCoefficient (wxCommandEvent& event);
 		void			OnChangeCorrelationThreshold (wxCommandEvent& event);
 		void			OnChangeKNNThreshold (wxCommandEvent& event);
 		void			OnChangeThreshold (wxCommandEvent& event);
-		void			OnCloseupClassificationProcedure (wxCommandEvent& event);
+		void			OnChannelComboSelendok (wxCommandEvent& event);
+		void			OnClassificationProcedureCloseUp (wxCommandEvent& event);
+		void			OnClassificationProcedureDropDown (wxCommandEvent& event);
+		void			OnClassificationProcedureSelendok (wxCommandEvent& event);
+		void			OnClassWeightsComboSelendok (wxCommandEvent& event);
 		void			OnCreateProbabilityFile (wxCommandEvent& event);
+		void			OnDiskComboSelendok (wxCommandEvent& event);
 		void			OnDiskFile (wxCommandEvent& event);
-		void			OnDropdownPaletteCombo (wxCommandEvent& event);
-		void			OnDropdownClassificationProcedure (wxCommandEvent& event);
 		void			OnFeatureTransformation (wxCommandEvent& event);
 		void			OnImageArea (wxCommandEvent& event);
 		void			OnImageOverlay (wxCommandEvent& event);
+		void			OnImageOverlayComboSelendok (wxCommandEvent& event);
 		void			OnInitDialog (wxInitDialogEvent& event);
+		void 			OnLButtonDown (wxMouseEvent& event);
 		void			OnListOptions (wxCommandEvent& event);
-		void			OnSelendokAreasCombo (wxCommandEvent& event);
-		void			OnSelendokChannelCombo (wxCommandEvent& event);
-		void			OnSelendokClassWeightsCombo (wxCommandEvent& event);
-		void			OnSelendokClassificationProcedure (wxCommandEvent& event);
-		void			OnSelendokClassificationProcedureDropDown (wxCommandEvent& event);
-		void			OnSelendokDiskCombo (wxCommandEvent& event);
-		void			OnSelendokImageOverlayCombo (wxCommandEvent& event);
-		void			OnSelendokPaletteCombo (wxCommandEvent& event);
-		void			OnSelendokTargetCombo (wxCommandEvent& event);
+		void 			OnPaletteComboCloseUp (wxCommandEvent& event);
+		void			OnPaletteComboDropDown (wxCommandEvent& event);
+		void			OnPaletteComboSelendok (wxCommandEvent& event);
+		void			OnTargetComboSelendok (wxCommandEvent& event);
 		void			OnTestAreas (wxCommandEvent& event);
 		void			OnTextWindow (wxCommandEvent& event);
 		void			OnThresholdResults (wxCommandEvent& event);
@@ -151,7 +154,8 @@ class CMClassifyDialog : public CMDialog
 						m_nearestNeighborKValue,
 						m_outputAsciiCode,
 						m_parallelPipedCode,
-						m_saveKNNThreshold;
+						m_saveKNNThreshold,
+						m_supportVectorMachineComboListItem;
 
 		Boolean		m_initializedFlag,
 						m_optionKeyFlag,

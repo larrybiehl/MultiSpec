@@ -19,7 +19,7 @@
 //	Brief description:	Header file for the CMFalseColorDlg class
 //
 //	Written By:				Abdur Rahman Maud		Date: ??/??/2009
-//	Revised By:				Larry L. Biehl			Date: 08/23/2019
+//	Revised By:				Larry L. Biehl			Date: 10/03/2019
 //
 //------------------------------------------------------------------------------------
 //
@@ -53,32 +53,33 @@ class CMFalseColorDlg : public CMDialog
 		bool TransferDataFromWindow();
 		bool TransferDataToWindow();
 		// Generated message map functions
-			  void OnInitDialog(wxInitDialogEvent& event);
+		void OnInitDialog(wxInitDialogEvent& event);
+
+		DECLARE_EVENT_TABLE()
+		void CreateControls();
+
+		LayerInfoPtr 	m_layerInfoPtr;
+		FileInfoPtr 	m_fileInfoPtr;
+
+		Boolean 			m_initializedFlag;
+
+		SInt16 			m_blueChannelIndex;
+		SInt16 			m_greenChannelIndex;
+		SInt16 			m_redChannelIndex;
+
+		SInt32 			m_maxChannelFeatureNum;
+
+		wxBoxSizer* 	bVSizerMain;
+		wxButton* 		m_button78;
+		wxButton* 		m_button79;
+		wxListBox* 		m_listBox5;
+		wxStaticText* 	m_staticText293;
+		wxStaticText* 	m_staticText294;
+		wxStaticText* 	m_staticText295;
+		wxStaticText* 	m_staticText296;
+		wxTextCtrl* 	m_textCtrl132;
+		wxTextCtrl* 	m_textCtrl133;
+		wxTextCtrl* 	m_textCtrl134;
 	
-			  DECLARE_EVENT_TABLE()
-			  void CreateControls();
-
-			  LayerInfoPtr m_layerInfoPtr;
-			  FileInfoPtr m_fileInfoPtr;
-
-			  Boolean m_initializedFlag;
-
-			  SInt16 m_blueChannelIndex;
-			  SInt16 m_greenChannelIndex;
-			  SInt16 m_redChannelIndex;
-
-			  SInt32 m_maxChannelFeatureNum;
-	
-			  wxBoxSizer* bSizer322;
-			  wxStaticText* m_staticText293;
-			  wxStaticText* m_staticText294;
-			  wxStaticText* m_staticText295;
-			  wxStaticText* m_staticText296;
-			  wxListBox* m_listBox5;
-			  wxTextCtrl* m_textCtrl132;
-			  wxTextCtrl* m_textCtrl133;
-			  wxTextCtrl* m_textCtrl134;
-			  wxButton* m_button78;
-			  wxButton* m_button79;
 	};
 #endif // !defined __WFCOLDLG_H__

@@ -13,7 +13,7 @@
 //	Authors:					Abdur Rahman Maud, Larry L. Biehl
 //
 // Created:					??/??/2009
-//	Revision date:			11/16/2018
+//	Revision date:			11/07/2019
 //
 //	Language:				C++
 //
@@ -53,12 +53,15 @@ BEGIN_EVENT_TABLE (CMListDataDialog, CMDialog)
 	EVT_CHECKBOX (IDC_Classes, CMListDataDialog::OnClasses)
 	EVT_CHECKBOX (IDC_GraphData, CMListDataDialog::OnGraphData)
 
-	EVT_COMBOBOX (IDC_ChannelCombo, CMListDataDialog::OnSelendokChannelCombo)
-	EVT_COMBOBOX (IDC_ClassCombo, CMListDataDialog::OnSelendokClassCombo)
+	EVT_COMBOBOX (IDC_ChannelCombo, CMListDataDialog::OnChannelComboSelendok)
+	EVT_COMBOBOX (IDC_ClassCombo, CMListDataDialog::OnClassComboSelendok)
 	EVT_COMBOBOX (IDC_ListChannelsFormatCombo, CMListDataDialog::OnCbnSelendokListchannelsformatcombo)
 
-	EVT_COMBOBOX_DROPDOWN (IDC_ChannelCombo,CMListDataDialog::OnSelendokChannelComboDropDown)
-	EVT_COMBOBOX_DROPDOWN (IDC_ClassCombo,CMListDataDialog::OnSelendokClassComboDropDown)
+	EVT_COMBOBOX_CLOSEUP (IDC_ChannelCombo, CMListDataDialog::OnChannelComboCloseUp)
+	EVT_COMBOBOX_CLOSEUP (IDC_ClassCombo, CMListDataDialog::OnClassComboCloseUp)
+
+	EVT_COMBOBOX_DROPDOWN (IDC_ChannelCombo, CMListDataDialog::OnChannelComboDropDown)
+	EVT_COMBOBOX_DROPDOWN (IDC_ClassCombo, CMListDataDialog::OnClassComboDropDown)
 
 	EVT_INIT_DIALOG (CMListDataDialog::OnInitDialog)
 
@@ -785,7 +788,7 @@ void CMListDataDialog::OnInitDialog (
 
 
 
-void CMListDataDialog::OnSelendokChannelCombo (
+void CMListDataDialog::OnChannelComboSelendok (
 				wxCommandEvent& 					event)
 
 {
@@ -816,11 +819,11 @@ void CMListDataDialog::OnSelendokChannelCombo (
 
 		}	// end "else gNumberOfGWindows >= kMaxNumberGWindows || ..."
 	
-}	// end "OnSelendokChannelCombo"
+}	// end "OnChannelComboSelendok"
 
 
 
-void CMListDataDialog::OnSelendokClassCombo (
+void CMListDataDialog::OnClassComboSelendok (
 				wxCommandEvent&					event)
 
 {
@@ -831,7 +834,7 @@ void CMListDataDialog::OnSelendokClassCombo (
             				IDC_ClassCombo,
             				&m_classSelection);
     
-} // end "OnSelendokClassCombo"
+} // end "OnClassComboSelendok"
 
 
 
@@ -909,11 +912,11 @@ bool CMListDataDialog::TransferDataFromWindow ()
 	m_includeLineColumnFlag = inlinecb->GetValue();
 	m_includeLatLongFlag = inlaticb->GetValue();
 
-   if (m_classSelection < 0)
-      m_classSelection = m_classSelection_Saved;
+   //if (m_classSelection < 0)
+    //  m_classSelection = m_classSelection_Saved;
 	
-   if (m_channelSelection < 0)
-      m_channelSelection = m_channelSelection_Saved;
+   //if (m_channelSelection < 0)
+   //   m_channelSelection = m_channelSelection_Saved;
    
 	if (m_areaFlag)
 		returnCode = VerifyLineColumnValues (IDC_LineStart,

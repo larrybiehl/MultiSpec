@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//							 Copyright (1988-2017)
+//							 Copyright (1988-2019)
 //						(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -12,7 +12,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			03/19/2019
+//	Revision date:			10/14/2019
 //
 //	Language:				C++
 //
@@ -28,8 +28,6 @@
 #include "wx/dialog.h"
 #include "wx/combobox.h"
 
-/////////////////////////////////////////////////////////////////////////////
-// CMDialog dialog
 
 class CMDialog : public wxDialog
 	{
@@ -106,7 +104,11 @@ class CMDialog : public wxDialog
 protected:
    
    void OnCharHook (wxKeyEvent& event);
-   void ResetComboBox (int controlID);
+   //void OnCloseUpComboBox (
+	//			int									controlID,
+	//			int									currentSelection);
+   //void ResetComboBox (int controlID);
+   void OnLButtonDown (wxMouseEvent& event);
    //void ResetClassComboBox(int controlID);
    DECLARE_EVENT_TABLE();
    
@@ -116,10 +118,10 @@ protected:
    
    void CheckColumnStart(wxCommandEvent& event);
    
-   SInt32 CheckValue(
-                     int                  controlID,
-                     SInt32               minValue,
-                     SInt32               maxValue);
+   SInt32 CheckValue (
+				int                  controlID,
+				SInt32               minValue,
+				SInt32               maxValue);
    
    void CheckLineEnd(wxCommandEvent& event);
    
@@ -167,13 +169,17 @@ protected:
    //   void               LoadLineColumnItems (
    //                        DialogSelectAreaPtr   dialogSelectAreaPtr,
    //                        DialogPtr            dialogPtr);
-   
-   void OnSelendokClassCombo(wxCommandEvent& event);
-   void OnSelendokClassComboDropDown(wxCommandEvent& event);
-   void OnSelendokAreasComboDropDown(wxCommandEvent& event);
-   void OnSelendokClassWeightsComboDropDown(wxCommandEvent& event);
-   void OnSelendokChannelComboDropDown(wxCommandEvent& event);
-   void OnSelendokClassPairWeightsComboDropDown(wxCommandEvent& event);
+	
+	void OnChannelComboCloseUp (wxCommandEvent& event);
+	void OnChannelsSubset (wxCommandEvent& event);
+   void OnClassComboCloseUp (wxCommandEvent& event);
+	void OnClassPairWeightsComboCloseUp (wxCommandEvent& event);
+   void OnClassComboSelendok (wxCommandEvent& event);
+   void OnClassComboDropDown (wxCommandEvent& event);
+   void OnClassWeightComboCloseUp (wxCommandEvent& event);
+   void OnClassWeightComboDropDown (wxCommandEvent& event);
+   void OnChannelComboDropDown (wxCommandEvent& event);
+   void OnClassPairWeightsComboDropDown (wxCommandEvent& event);
    
    void OnFeatureTransformation(void);
    
@@ -245,9 +251,6 @@ protected:
    m_featureTransformAllowedFlag,
    m_initializedFlag;
    
-   /*CDataExchange      *m_dialogFromPtr,
-    *m_dialogToPtr;*/
-   
    unsigned char *m_localSymbolsPtr;
    
    UInt16 *m_availableFeaturePtr,
@@ -268,12 +271,14 @@ protected:
    int m_channelSelection;
    int m_classSelection;
    int m_symbolSelection;
+	int m_classWeightsSelection;
+	int m_classPairWeightsSelection;
    
-   int m_classSelection_Saved;
-   int m_channelSelection_Saved;
-   int m_weightSelection_Saved;
-   int m_areaSelection_Saved;
-   int m_interClassWeightsSelection_Saved;
+   //int m_classSelection_Saved;
+   //int m_channelSelection_Saved;
+   //int m_weightSelection_Saved;
+   //int m_areaSelection_Saved;
+   //int m_interClassWeightsSelection_Saved;
    
    SInt32 m_ColumnEnd;
    SInt32 m_ColumnInterval;
@@ -297,6 +302,8 @@ protected:
    UInt16 m_numberEigenvectors;
    
    bool m_settingSelectedEntireButton;
+	
+	wxButton*							m_hiddenChannelSubset;
 	
 	wxTextCtrl							*m_colendctrl,
 											*m_colintctrl,

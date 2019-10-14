@@ -13,7 +13,7 @@
 //	Authors:					Wei-Kang Hsu, Larry L. Biehl
 //
 //	Revision date:			01/24/2019 by Tsung Tai
-//								04/09/2019 by Larry L. Biehl
+//								10/01/2019 by Larry L. Biehl
 //
 //	Language:				C++
 //
@@ -99,6 +99,7 @@ static const unsigned char rectCur_png[] = {
 0x7F, 0x63, 0xDF, 0x01, 0xE8, 0x51, 0xCC, 0xF5, 0xF7, 0xEB, 0x14, 0x3D, 0x00, 0x00, 0x00, 0x00, 
 0x49, 0x45, 0x4E, 0x44, 0xAE, 0x42, 0x60, 0x82};
 */
+
 // 16 x 32 rectangle
 static const unsigned char rectCur_png[] = {
 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0x00, 0x00, 0x00, 0x0D, 0x49, 0x48, 0x44, 0x52, 
@@ -115,6 +116,7 @@ static const unsigned char rectCur_png[] = {
 0x08, 0x88, 0x61, 0x4C, 0xB4, 0xC0, 0x00, 0x00, 0x00, 0x00, 0x49, 0x45, 0x4E, 0x44, 0xAE, 0x42, 
 0x60, 0x82, };
 
+
 CPoint				CMLegendList::s_lastMouseDnPoint;
 RECT					CMLegendList::s_dragRect;
 Handle				CMLegendList::s_legendBitMapInfo = NULL; 
@@ -123,19 +125,18 @@ int					CMLegendList::s_listBottom = 0;
 bool					CMLegendList::s_draggingFlag = FALSE; 
 bool					CMLegendList::s_grayRectDisplayedFlag = FALSE; 
 bool					CMLegendList::s_isPrintingFlag = FALSE;
-bool					CMLegendList::s_controlKeyDownFlag = false;
-bool					CMLegendList::s_altKeyDownFlag = false;
-bool					CMLegendList::s_shiftKeyDownFlag = false;
 
 
 
 BEGIN_EVENT_TABLE (CMLegendList, wxListView)
    EVT_KEY_DOWN (CMLegendList::OnKeyDown)
 	EVT_KEY_UP (CMLegendList::OnKeyUp)
-  	EVT_KILL_FOCUS (CMLegendList::OnKillFocusEvent)
+  	//EVT_KILL_FOCUS (CMLegendList::OnKillFocusEvent)
+	EVT_LEFT_DOWN (CMLegendList::OnLButtonDown)
    EVT_LEFT_UP (CMLegendList::OnLButtonUp)
 	EVT_LIST_BEGIN_DRAG (LEGEND_LIST, CMLegendList::OnBeginDrag)
    EVT_LIST_ITEM_ACTIVATED (LEGEND_LIST, CMLegendList::OnLButtonDblClk)
+	EVT_MOTION (CMLegendList::OnMouseMove)
 END_EVENT_TABLE ()
 
 
@@ -171,16 +172,15 @@ CMLegendList::CMLegendList (
 	m_listType = 0;
 	m_paletteOffset = 0;           
 	m_classPaletteEntries = 0;
-	m_activeFlag = FALSE; 
-	m_shiftKeyDownFlag = FALSE;
-	s_controlKeyDownFlag = false;
-	s_altKeyDownFlag = false;
+	m_activeFlag = FALSE;
 	s_lastMouseDnPoint.x = 0; 
 	s_lastMouseDnPoint.y = 0;  
    listready = false;
-   m_LegendView = (wxPanel*)parent;
+   //m_LegendView = (wxPanel*)parent;
+   m_LegendView = (CMLegendView*)parent;
 	   
-   // Make 2 columns
+   		// Make 2 columns
+	
    wxListItem itemcol;
    itemcol.SetText(wxT("Column 1"));
    itemcol.SetImage(-1);
@@ -391,415 +391,6 @@ void CMLegendList::DrawLegendList ()
 
 }		// end "DrawLegendList"
 
-  
-/*
-void CMLegendList::MeasureItem(
-				LPMEASUREITEMSTRUCT 			lpMeasureItemStruct)
-{
-			// all items are of fixed size
-			// must use LBS_OWNERDRAWVARIABLE for this to work 
-			
-	lpMeasureItemStruct->itemHeight = 20;
-	
-}		// end "MeasureItem" 
-*/
-     
-
-void CMLegendList::OnLButtonDblClk (wxListEvent& event)
-							
-{                                 
-	int						//keyCode,
-								selection;
-	
-	
-			// If event was caused by a key press, ignore
-			//		This did not work. More study needs to be done.
-	
-	//keyCode = event.GetKeyCode ();
-	
-	//if (keyCode == -1 && !wxGetKeyState (WXK_SHIFT))
-	//																						return;
-	
-	selection = event.GetIndex();					
-						                       
-   wxPoint scrnpt = wxGetMousePosition ();
-	s_lastMouseDnPoint = ScreenToClient (scrnpt);
-		                           
-	CPoint		lastClickPoint;
-	
-	
-	lastClickPoint = LastClickPoint ();
-	//lastClickPoint = (event.GetPoint());
-
-	if (lastClickPoint.x > 25 && lastClickPoint.x < GetViewRect ().GetWidth ())
-		{
-		SInt16						cellLine;
-
-
-				// Edit class or group name.
-		
-		cellLine = (SInt16)event.GetData();
-		SInt16 classGroupChangeCode = kEditClass;
-		if (cellLine & 0x8000)
-			classGroupChangeCode = kEditGroup;
-		
-		else		// !(cellLine & 0x8000)
-			{
-			if ((m_listType == kGroupClassDisplay) && s_controlKeyDownFlag)
-				classGroupChangeCode = kNewGroup;
-			
-			}	// end "	else !(cellLine & 0x8000)"
-		
-		s_controlKeyDownFlag = false;
-		cellLine &= 0x7fff;
-	
-		EditGroupClassDialog (this,
-										selection,
-										classGroupChangeCode,
-										cellLine);
-
-		}	// end "if (lastClickPoint.x > 15)"
-	
-	else if (lastClickPoint.x <= 25)
-		{
-		Handle						displaySpecsHandle;
-
-		displaySpecsHandle = GetActiveDisplaySpecsHandle ();
-
-		EditClassGroupPalette(this,
-								 displaySpecsHandle,
-								 selection,
-								 (SInt16)m_listType);
-		gActiveImageViewCPtr->m_frame->Refresh();
-	
-		}		// end "else if (lastClickPoint.x <= 25)"
-	
-	else
-		return;
-
-	this->DrawLegendList();
-	/*
-			// Now check for blinking operation
-	
-   if (wxGetKeyState(WXK_SHIFT))
-		{             
-		Point							lCell;
-			
-		lCell.h = 0;
-		lCell.v = selection;
-		
-		DoBlinkCursor1 (this, lCell, (SInt16)m_listType, 1);
-		
-		}		// end "else if (gPresentCursor == kBlinkOpenCursor1)"
-	//CListBox::OnLButtonDblClk(nFlags, point);
-	*/
-	
-}		// end "OnLButtonDblClk"
-
-
-
-void CMLegendList::OnBeginDrag (wxListEvent& event)
-				
-{  
-	Point							lCell;
-	
-	                                                                
-	s_lastMouseDnPoint = event.GetPoint(); 
-	
-   CMLegendView* legendptr = (CMLegendView*)m_LegendView;
-	
-   		// Update Global active image view pointer
-   		// It is not correctly updated automatically in some cases.
-   		// Now update all active image window info
-	
-   ((legendptr->GetImageView())->GetImageFrameCPtr())->UpdateActiveImageWindowInfo();
-
-	lCell.h = 0;
-   lCell.v = event.GetIndex();
-	
-			// Get the bottom of the list box.
-			
-   if ( m_listType == kGroupClassDisplay)
-		{
-				// Determine if this is a group cell. If so then do not allow to be moved. 
-				// Note: In Linux, the way this is done is different from windows and mac.
-            //       The list has two columns with first column containing image and 
-            //       second column containing label. So first column is checked to see
-            //       if there is an image there.
-         	// Check if the item data is non-negative (class item).
-         	// Otherwise, it's group item (Wei-Kang 03/19/2018))
-		
-      if ((int)GetItemData(lCell.v) >= 0)
-			{
-					// This is a class cell. Go ahead and outline it.
-					
-			gVerticalCellOffset = 0;
-			gSelectedCell = lCell.v;   
-
-					// For now, do nothing because it is automatically highlighted
-         
-         wxBitmap rectCur = wxBITMAP_PNG_FROM_DATA(rectCur);         
-         wxImage down_image = rectCur.ConvertToImage();
-         down_image.SetOption(wxIMAGE_OPTION_CUR_HOTSPOT_X, 16);
-         down_image.SetOption(wxIMAGE_OPTION_CUR_HOTSPOT_Y, 10);
-         wxCursor cursor = wxCursor(down_image); // change cursor to indicate dragging
-        
-         this->SetCursor(cursor);
-			        
-			s_grayRectDisplayedFlag = TRUE; 
-			
-					// Save the dragging rectangle size and the offset between the top
-					// of the rectangle and the pointer.
-					             
-			s_lastVerticalPoint = lCell.v;  
-
-			s_draggingFlag = TRUE;             
-			
-			}	// end "if ((int)GetItemData(lCell.v) >= 0)"
-		
-		}	// end "if ( m_listType == kGroupClassDisplay)"
-	/*
-	if (gPresentCursor == kBlinkOpenCursor1)
-		{
-		
-		DoBlinkCursor1 (this, lCell, (SInt16)m_listType);
-		
-		}		// end "if (gPresentCursor == kBlinkOpenCursor1)"
-	*/
-	/*
-   		// Check for blinking operation
-   if (wxGetKeyState(WXK_SHIFT))
-		DoBlinkCursor1 (this, lCell, (SInt16)m_listType, 1);
-   */
-}	// end "OnBeginDrag"
-
-// this function is not used now. Handle mouse cursor change in OnLButtonUp and OnLButtonDown
-/*
-void CMLegendList::OnMouseMove(wxMouseEvent& event)
-
-{ 	
-      if (event.Dragging())
-   {
-     wxClientDC dc(m_LegendView);
-//      wxScreenDC dc;
-     wxPen pen(*wxRED, 3);
-     dc.SetPen(pen);     
-//     dc.DrawPoint(event.GetPosition());
-     wxRect drawRect(event.GetPosition().x, event.GetPosition().y, 120, 30);
-     dc.DrawRectangle (drawRect);
-      dc.SetPen(wxNullPen);     
-      DoPrepareDC(dc);//shifts the device origin so we don't have to worry about the current scroll position ourselves
-//      dc.Clear();//Fills the dc with the current bg brush // Find Out where the window is scrolled to
-      printf("Dragging mouse down\n");
-      
-
-//      paintNow();
-      
-   }
-   if (event.LeftUp()){
-      if (s_grayRectDisplayedFlag)
-			{
-					// Remove the current gray rectangle and edit
-					// the group list. 
-					
-			//CClientDC dc(this);
-			//dc.DrawFocusRect(&s_dragRect);
-			s_grayRectDisplayedFlag = FALSE;
-         int pflags;
-         wxPoint pos = event.GetPosition();
-			int selectedCell = this->HitTest(pos, pflags);
-			EditGroups (this, event);  
-         			
-         this->SetCursor(wxCursor(wxCURSOR_ARROW)); //change back to standard cursor
-			}		// end "if (s_grayRectDisplayedFlag)"
-			
-		s_draggingFlag = FALSE;
-		s_lastVerticalPoint = -1;
-		s_listBottom = 0; 
-		DrawLegendList();
-      (gActiveImageViewCPtr->m_Canvas)->Refresh();
-      UpdateThematicLegendControls(gActiveImageViewCPtr);
-   }
-  
-//   if(event.LeftIsDown() && m_listType == kGroupClassDisplay){
-//         wxPoint currentP = event.GetPosition();         
-//         wxClientDC dc(this);
-//         wxRect drawRect(currentP.x, currentP.y, 120, 30);
-//         dc.DrawRectangle (drawRect);
-//         printf("Draw rectangle at (%d, %d) with (%d, %d)\n", currentP.x, currentP.y, m_rectFocus.width, m_rectFocus.height);
-//         this->SetCursor(wxCursor(wxCURSOR_HAND));
-//   }
-//   else{
-//      this->SetCursor(wxCursor(wxCURSOR_ARROW));
-//   }
-   
-	int				bottom;
-	
-   wxKeyboardState keystate;
-	//int state = GetKeyState(VK_SHIFT);    // GetAsyncKeyState(VK_SHIFT) 
-   bool state = keystate.ShiftDown();
-	
-	                                                                 
-	if (s_draggingFlag)
-		{                             
-		CClientDC dc(this); 
-	
-				// Get the bottom of the list box.
-				
-		bottom = GetCount() * GetItemHeight(0);
-		
-				// Determine if the pointer is still within the allowed dragging
-				// region of the list.
-				
-		if (point.x < 0 || point.x > s_dragRect.right || 
-				point.y < 0 || point.y > s_listBottom) 
-			{
-					// The pointer is outside of the allow list region, be
-					// sure that the drag rectangle is not displayed.
-							
-			if (s_grayRectDisplayedFlag)
-				{        
-				dc.DrawFocusRect (&s_dragRect);
-				s_grayRectDisplayedFlag = FALSE;
-				
-				}		// end "if (s_grayRectDisplayedFlag)"   
-			
-			}		// end "if (point.x < 0 || point.x > s_dragRect.right || ..."
-			
-		else		// point is within the drag rectangle for the list.
-      	{
-      			// Check if the point has moved since the last draw.
-      			
-      	if (point.y != s_lastVerticalPoint)
-      		{ 
-	      	if (s_grayRectDisplayedFlag)
-	      		{
-	      				// Gray rectangle is displayed; remove it 
-	      				
-					dc.DrawFocusRect (&s_dragRect);
-					s_grayRectDisplayedFlag = FALSE;
-					
-					}		// end "if (s_grayRectDisplayedFlag)"
-				                        
-						// Now draw the new drag rectangle 
-		
-				s_dragRect.top += point.y - s_lastVerticalPoint;
-				s_dragRect.bottom += point.y - s_lastVerticalPoint; 
-		
-				dc.DrawFocusRect(&s_dragRect);
-				s_grayRectDisplayedFlag = TRUE; 
-				
-				s_lastVerticalPoint = point.y;
-				
-				}		// end "if (point.y != s_lastVerticalPoint)"
-				
-			}		// end "else point is within the drag rectangle for the list."
-			
-		}		// end "if (s_draggingFlag)"
-
-	if ( point.x <= 14 && (state) && m_activeFlag)
-		{
-		if (gPresentCursor != kBlinkOpenCursor1) 
-			MSetCursor (kBlinkOpenCursor1); 
-		
-		}		// end "if (point.x <= 14 && ...)"
-		
-	else		// point.x > 14 || !GetKeyState(VK_SHIFT || !m_activeFlag 
-		{	   
-		if (gPresentCursor != kArrow)   
-			MSetCursor (kArrow);  
-		
-		}		// end "else point.x > 14 || ..." 
-	
-	//CListBox::OnMouseMove(nFlags, point);
-	
-}		// end "OnMouseMove"     
-*/
-
-void CMLegendList::OnLButtonUp (
-				wxMouseEvent& 									event)
-
-{
-			// Turn static flags for control and alt/option key off. We are not doing blinking
-			// operation, only selecting the class/group for the focus.
-	
-	#if defined multispec_wxlin
-				// Only doing this for linux (gtk) since key ups for control and alt/control keys
-				// are not caught properly with wxWidgets.
-	
-		s_controlKeyDownFlag = false;
-		s_altKeyDownFlag = false;
-	#endif
-	
-	if (s_draggingFlag)
-		{  
-		if (s_grayRectDisplayedFlag)
-			{
-					// Remove the current gray rectangle and edit
-					// the group list. 
-			
-			s_grayRectDisplayedFlag = FALSE;
- 
- 			EditGroups (this, event);  
-         			
-         this->SetCursor (wxCursor (wxCURSOR_ARROW)); //change back to standard cursor
-			
-      	Handle displaySpecsHandle = gActiveImageViewCPtr->GetDisplaySpecsHandle ();
-      	DisplaySpecsPtr displaySpecsPtr =
-										(DisplaySpecsPtr)GetHandlePointer (displaySpecsHandle);
-		
-			displaySpecsPtr->paletteObject->SetPaletteLoadedFlag (FALSE);
-			
-			}	// end "if (s_grayRectDisplayedFlag)"
-			
-		s_draggingFlag = FALSE;
-		s_lastVerticalPoint = -1;
-		s_listBottom = 0; 
-		DrawLegendList ();
-      gActiveImageViewCPtr->m_Canvas->Refresh ();
-			
-		}		// end "if (s_draggingFlag)" 
-	
-	UpdateThematicLegendControls (gActiveImageViewCPtr);
-	
-}	// end "OnLButtonUp"
-
-
-
-CPoint CMLegendList::LastClickPoint(void)
-
-{                                                                  
-	return (s_lastMouseDnPoint);  
-	
-}	// end "LastClickPoint"
-
-
-
-void CMLegendList::SetBitMapInfoHeaderHandle(
-				Handle			bitMapInfoHeaderHandle)
-
-{                                                                  
-	m_bitMapInfoHeaderHandle = bitMapInfoHeaderHandle;  
-	
-}		// end "SetBitMapInfoHeader"
-
-
-Handle
-CMLegendList::GetBitMapInfoHeaderHandle()
-{                                                                  
-	return m_bitMapInfoHeaderHandle;  
-	
-}		// end "GetBitMapInfoHeaderHandle"
-
-void 
-CMLegendList::SetLegendListActiveFlag (
-				Boolean				settingFlag)
-
-{  
-	if (this != NULL)                 
-		m_activeFlag = settingFlag;
-	
-}		// end "SetLegendListActiveFlag" 
 
 
 void CMLegendList::DrawListItems ()
@@ -820,7 +411,7 @@ void CMLegendList::DrawListItems ()
 	for (int count=0; count<listcount; count++)
 		{
 		itemData = GetItemData(count);
-		itemID = count; 
+		itemID = count;
 
 		DrawItem (itemData, itemID);
 
@@ -840,88 +431,142 @@ void CMLegendList::DrawListItems ()
 
 }	// end "DrawListItems"
 
+  
+/*
+void CMLegendList::MeasureItem(
+				LPMEASUREITEMSTRUCT 			lpMeasureItemStruct)
+{
+			// all items are of fixed size
+			// must use LBS_OWNERDRAWVARIABLE for this to work 
+			
+	lpMeasureItemStruct->itemHeight = 20;
+	
+}		// end "MeasureItem" 
+*/
+
+Handle CMLegendList::GetBitMapInfoHeaderHandle (void)
+
+{
+	return m_bitMapInfoHeaderHandle;
+	
+}	// end "GetBitMapInfoHeaderHandle"
+
+
+/*
+CPoint CMLegendList::LastClickPoint (void)
+
+{
+	return (s_lastMouseDnPoint);
+ 
+}	// end "LastClickPoint"
+*/
+
+
+void CMLegendList::OnBeginDrag (wxListEvent& event)
+				
+{  
+	Point							lCell;
+	
+	                                                                
+	s_lastMouseDnPoint = event.GetPoint(); 
+	
+   //CMLegendView* legendptr = (CMLegendView*)m_LegendView;
+	
+   		// Update Global active image view pointer
+   		// It is not correctly updated automatically in some cases.
+   		// Now update all active image window info
+	
+   //((legendptr->GetImageView())->GetImageFrameCPtr())->UpdateActiveImageWindowInfo ();
+   ((m_LegendView->GetImageView())->GetImageFrameCPtr())->UpdateActiveImageWindowInfo ();
+
+	lCell.h = 0;
+   lCell.v = event.GetIndex();
+	
+			// Get the bottom of the list box.
+			
+   if (m_listType == kGroupClassDisplay)
+		{
+				// Determine if this is a group cell. If so then do not allow to be moved. 
+				// Note: In Linux, the way this is done is different from windows and mac.
+            //       The list has two columns with first column containing image and 
+            //       second column containing label. So first column is checked to see
+            //       if there is an image there.
+         	// Check if the item data is non-negative (class item).
+         	// Otherwise, it's group item (Wei-Kang 03/19/2018))
+		
+      if ((int)GetItemData (lCell.v) >= 0)
+			{
+					// This is a class cell. Go ahead and outline it.
+					
+			gVerticalCellOffset = 0;
+			gSelectedCell = lCell.v;   
+
+					// For now, do nothing because it is automatically highlighted
+         
+         wxBitmap rectCur = wxBITMAP_PNG_FROM_DATA (rectCur);
+         wxImage down_image = rectCur.ConvertToImage ();
+         down_image.SetOption (wxIMAGE_OPTION_CUR_HOTSPOT_X, 16);
+         down_image.SetOption (wxIMAGE_OPTION_CUR_HOTSPOT_Y, 10);
+         wxCursor cursor = wxCursor (down_image); // change cursor to indicate dragging
+        
+         this->SetCursor (cursor);
+			        
+			s_grayRectDisplayedFlag = TRUE; 
+			
+					// Save the dragging rectangle size and the offset between the top
+					// of the rectangle and the pointer.
+					             
+			s_lastVerticalPoint = lCell.v;  
+
+			s_draggingFlag = TRUE;             
+			
+			}	// end "if ((int)GetItemData(lCell.v) >= 0)"
+		
+		}	// end "if ( m_listType == kGroupClassDisplay)"
+
+}	// end "OnBeginDrag"
+
 
 
 void CMLegendList::OnKeyDown (
 				wxKeyEvent& 					event)
 
 {
-	Point							lCell;
+	//int									keyCode;
+
+	Boolean								hasCaptureFlag;
 	
-	int							keyCode;
-
-	SInt16						code;
 	
-
-	keyCode = event.GetKeyCode ();
-
-	if (keyCode == WXK_SHIFT)
+			// Only handle if this window is not captured and a processor is not
+			// in operation.
+	
+	hasCaptureFlag = HasCapture ();
+	
+   if (!hasCaptureFlag && gProcessorCode == 0)
 		{
-		s_shiftKeyDownFlag = true;
+				// Also only handle if cursor is over color chip portion of legend list.
 		
-		#if defined multispec_wxlin
-					// This does not work for gtk version. The modifiers for
-					// control and alt/option keys get turned off even if the keys
-					// are still down when the shift key goes up. Even checking
-					// wxGetKeyState does not work.
-			//s_controlKeyDownFlag = wxGetKeyState (WXK_CONTROL);
-			//s_altKeyDownFlag = wxGetKeyState (WXK_ALT);
-		#endif
-		#if defined multispec_wxmac
-			int modifiers = event.GetModifiers ();
-			s_controlKeyDownFlag = (modifiers & wxMOD_RAW_CONTROL);
-			s_altKeyDownFlag = (modifiers & wxMOD_ALT);
-		#endif
-
-		code = 1;
-		if (s_controlKeyDownFlag)
-			code = 2;
+		bool	cursorOverColorChipFlag = false;
+   	wxPoint scrnpt = wxGetMousePosition ();
+		s_lastMouseDnPoint = ScreenToClient (scrnpt);
+		CPoint lastClickPoint = s_lastMouseDnPoint;
+		if (lastClickPoint.x < 25)
+			cursorOverColorChipFlag = true;
 		
-		if (s_altKeyDownFlag)
-			code = 4;
-		
-		lCell.h = 0;
-		lCell.v = GetFocusedItem();
-		
-		DoBlinkCursor1 (this, lCell, (SInt16)m_listType, code);
-		
-		UpdateThematicLegendControls (gActiveImageViewCPtr);
-		
-		//event.Skip();
-		
-		}	// end "if (keyCode == WXK_SHIFT)"
-	
-	#if defined multispec_wxlin
-		else if (keyCode == WXK_CONTROL)
+		if (cursorOverColorChipFlag && event.GetKeyCode () == WXK_SHIFT)
 			{
-			s_controlKeyDownFlag = true;
-			s_altKeyDownFlag = false;
+			SetCursor (wxCursor (m_LegendView->GetImageView()->m_frame->blinkOpenCursor));
+			gPresentCursor = kBlinkOpenCursor1;
 
-			}	// end "else if (event.GetKeyCode() == WXK_CONTROL)"
+			}	// end "if (kcursorOverColorChipFlag && ..."
+		
+		else	// if (!cursorOverColorChipFlag || ...
+			event.Skip ();
+		
+		}	// end "if (!hasCaptureFlag && gProcessorCode == 0)"
 	
-		else if (keyCode == WXK_ALT)
-			{
-			s_controlKeyDownFlag = false;
-			s_altKeyDownFlag = true;
-
-			}	// end "else if (event.GetKeyCode() == WXK_ALT)"
-	#endif
-	
-	else
-		{
-		#if defined multispec_wxlin
-					// Only doing this for linux (gtk) since key ups for control and alt/control keys
-					// are not caught properly with wxWidgets.
-		
-			s_controlKeyDownFlag = false;
-			s_altKeyDownFlag = false;
-		#endif
-		if (keyCode == WXK_SPACE)
-																								return;
-		
-		event.Skip();
-		
-		}	// end "else"
+	else	// hasCaptureFlag || gProcessorCode != 0
+		event.Skip ();
 
 }	// end "OnKeyDown"
 
@@ -931,63 +576,306 @@ void CMLegendList::OnKeyUp (
 				wxKeyEvent& 						event)
 
 {
-	int keyCode = event.GetKeyCode ();
-	int modifiers = event.GetModifiers ();
-	
-	s_shiftKeyDownFlag = (modifiers & wxMOD_SHIFT);
-	
-	#if defined multispec_wxlin
-				// This does not work for gtk version. The modifiers for
-				// control and alt/option keys get turned off even if the keys
-				// are still down when the shift key goes up.
-		//s_controlKeyDownFlag = (modifiers & wxMOD_CONTROL);
-	#endif
-	#if defined multispec_wxmac
-		s_controlKeyDownFlag = (modifiers & wxMOD_RAW_CONTROL);
-		s_altKeyDownFlag = (modifiers & wxMOD_ALT);
-	#endif
-	
-	if (keyCode == WXK_SHIFT)
-		s_shiftKeyDownFlag = false;
-	
-	#if defined multispec_wxlin
-		else if (keyCode == WXK_CONTROL)
+	if (event.GetKeyCode () == WXK_SHIFT)
+		{
+		if (gPresentCursor == kBlinkOpenCursor1 || gPresentCursor == kBlinkShutCursor1)
 			{
-			//s_controlKeyDownFlag = false;
-			if (!wxGetKeyState (WXK_CONTROL) && !s_shiftKeyDownFlag)
-				s_controlKeyDownFlag = false;
+			SetCursor (wxCURSOR_ARROW);
+			gPresentCursor = kArrow;
 			
-			}	// end "else if (keyCode == WXK_CONTROL)"
-	
-		else if (keyCode == WXK_ALT)
-			{
-			if (!wxGetKeyState (WXK_ALT) && !s_shiftKeyDownFlag)
-				s_altKeyDownFlag = false;
-			
-			}	// end "else if (keyCode == WXK_ALT)"
-	#endif
-	
-	else
+			}	// end "if (gPresentCursor == kBlinkOpenCursor1 || ..."
+		
+		}	// end "if (event.GetKeyCode () == WXK_SHIFT)"
+
+	else	// event.GetKeyCode () != WXK_SHIFT
 		event.Skip ();
-	
+
 }	// end "OnKeyUp"
 
 
-void CMLegendList::OnKillFocusEvent (wxFocusEvent& event)
+/*
+void CMLegendList::OnKillFocusEvent (
+				wxFocusEvent& 									event)
 
 {
 	#if defined multispec_wxlin
 				// Only doing this for linux (gtk) since key ups for control and alt/control keys
 				// are not caught properly with wxWidgets.
 	
-		s_controlKeyDownFlag = false;
-		s_altKeyDownFlag = false;
+		//s_controlKeyDownFlag = false;
+		//s_altKeyDownFlag = false;
 	#endif
 	
-	event.Skip();
+	event.Skip ();
 	
 }	// end "OnKillFocusEvent"
+*/
 
+
+void CMLegendList::OnLButtonDblClk (
+				wxListEvent& 									event)
+
+{
+	int						selection;
+	
+	
+	if (gPresentCursor != kBlinkOpenCursor1 && gPresentCursor != kBlinkShutCursor1)
+		{
+		selection = event.GetIndex ();
+		
+		wxPoint scrnpt = wxGetMousePosition ();
+		s_lastMouseDnPoint = ScreenToClient (scrnpt);
+		
+		CPoint lastClickPoint = s_lastMouseDnPoint;
+
+		if (lastClickPoint.x > 25 && lastClickPoint.x < GetViewRect ().GetWidth ())
+			{
+			SInt16						cellLine;
+
+
+					// Edit class or group name.
+			
+			cellLine = (SInt16)event.GetData();
+			SInt16 classGroupChangeCode = kEditClass;
+			if (cellLine & 0x8000)
+				classGroupChangeCode = kEditGroup;
+			
+			else		// !(cellLine & 0x8000)
+				{
+				#if defined multispec_wxlin
+					if ((m_listType == kGroupClassDisplay) && wxGetKeyState (WXK_CONTROL))
+				#endif
+				#if defined multispec_wxmac
+					if ((m_listType == kGroupClassDisplay) && wxGetKeyState (WXK_RAW_CONTROL))
+				#endif
+				//if ((m_listType == kGroupClassDisplay) && s_controlKeyDownFlag)
+					classGroupChangeCode = kNewGroup;
+				
+				}	// end "	else !(cellLine & 0x8000)"
+			
+			cellLine &= 0x7fff;
+		
+			EditGroupClassDialog (this,
+											selection,
+											classGroupChangeCode,
+											cellLine);
+
+			}	// end "if (lastClickPoint.x > 15)"
+		
+		else if (lastClickPoint.x <= 25)
+			{
+			Handle						displaySpecsHandle;
+
+			displaySpecsHandle = GetActiveDisplaySpecsHandle ();
+
+			EditClassGroupPalette (this,
+											 displaySpecsHandle,
+											 selection,
+											 (SInt16)m_listType);
+			gActiveImageViewCPtr->m_frame->Refresh ();
+		
+			}	// end "else if (lastClickPoint.x <= 25)"
+		
+		else
+			event.Skip ();
+
+		DrawLegendList ();
+		
+		}	// end "if (gPresentCursor != kBlinkOpenCursor1 && ..."
+	
+	else	// gPresentCursor == kBlinkOpenCursor1 || == kBlinkShutCursor1
+		{
+		wxMouseState currentMouseState = wxGetMouseState ();
+		if (currentMouseState.LeftIsDown ())
+			{
+			if (gPresentCursor != kBlinkShutCursor1)
+				{
+				Point									lCell;
+			
+				SetCursor (wxCursor (gActiveImageViewCPtr->m_frame->blinkShutCursor));
+				gPresentCursor = kBlinkShutCursor1;
+
+				SInt16 code = 1;
+				if (wxGetKeyState (WXK_CONTROL))
+					code = 2;
+				
+				if (wxGetKeyState (WXK_ALT))
+					code = 4;
+			
+				lCell.h = 0;
+				lCell.v = event.GetIndex ();
+				
+				DoBlinkCursor1 (this, lCell, (SInt16)m_listType, code);
+				
+				}	// end "if (gPresentCursor != kBlinkShutCursor1)"
+			
+			}	// end "if (currentMouseState.LeftIsDown ())"
+		
+		else	// left is up
+			{
+			if (gPresentCursor != kBlinkOpenCursor1)
+				{
+				SetCursor (wxCursor (gActiveImageViewCPtr->m_frame->blinkOpenCursor));
+				gPresentCursor = kBlinkOpenCursor1;
+				
+				}	// end "if (gPresentCursor != kBlinkOpenCursor1)"
+			
+			}	// end "else left is up"
+		
+		//event.Skip ();
+		}	// else gPresentCursor == kBlinkOpenCursor1 || == kBlinkShutCursor1
+
+}	// end "OnLButtonDblClk"
+
+
+
+void CMLegendList::OnLButtonDown (
+				wxMouseEvent&						event)
+
+{
+	Point									lCell;
+	
+	wxPoint								cursorPosInList; // unit: window point
+	
+	
+	if (gPresentCursor == kBlinkOpenCursor1)
+		{
+		cursorPosInList = event.GetPosition ();
+
+		SInt16 code = 1;
+		if (wxGetKeyState (WXK_CONTROL))
+			code = 2;
+		
+		if (wxGetKeyState (WXK_ALT))
+			code = 4;
+	
+		lCell.h = 0;
+		lCell.v = FindItem (-1, cursorPosInList, 0);
+		
+		DoBlinkCursor1 (this, lCell, (SInt16)m_listType, code);
+		
+		}	// end "if (gPresentCursor == kBlinkOpenCursor1)"
+	
+	else	// PresentCursor != kBlinkOpenCursor1
+		event.Skip ();
+	
+}	// end "OnLButtonDown"
+
+
+
+void CMLegendList::OnLButtonUp (
+				wxMouseEvent& 									event)
+
+{
+	if (s_draggingFlag)
+		{
+		if (s_grayRectDisplayedFlag)
+			{
+					// Remove the current gray rectangle and edit
+					// the group list.
+			
+			s_grayRectDisplayedFlag = FALSE;
+ 
+ 			EditGroups (this, event);
+			
+         SetCursor (wxCursor (wxCURSOR_ARROW)); //change back to standard cursor
+			
+      	Handle displaySpecsHandle = gActiveImageViewCPtr->GetDisplaySpecsHandle ();
+      	DisplaySpecsPtr displaySpecsPtr =
+										(DisplaySpecsPtr)GetHandlePointer (displaySpecsHandle);
+		
+			displaySpecsPtr->paletteObject->SetPaletteLoadedFlag (FALSE);
+			
+			}	// end "if (s_grayRectDisplayedFlag)"
+		
+		s_draggingFlag = FALSE;
+		s_lastVerticalPoint = -1;
+		s_listBottom = 0;
+		DrawLegendList ();
+      gActiveImageViewCPtr->m_Canvas->Refresh ();
+	
+		UpdateThematicLegendControls (gActiveImageViewCPtr);
+		
+		}	// end "if (s_draggingFlag)"
+	
+	else if (gPresentCursor == kBlinkShutCursor1)
+		{
+		if (wxGetKeyState (WXK_SHIFT))
+			{
+			SetCursor (wxCursor (m_LegendView->GetImageView()->m_frame->blinkOpenCursor));
+			gPresentCursor = kBlinkOpenCursor1;
+			
+			}	// end "if (wxGetKeyState (WXK_SHIFT))"
+		
+		else	// shift key is up
+			{
+			SetCursor (wxCURSOR_ARROW);
+			gPresentCursor = kArrow;
+			
+			}	// end "else shift key is up"
+		
+		}	// end "else if (gPresentCursor == kBlinkShutCursor1)"
+	
+	else	// !s_draggingFlag && gPresentCursor != kBlinkShutCursor1
+		event.Skip ();
+	
+}	// end "OnLButtonUp"
+
+
+
+void CMLegendList::OnMouseMove (
+				wxMouseEvent& 										event)
+
+{ 	
+	//if (event.Dragging())
+   //{
+	bool	cursorOverColorChipFlag = false;
+	wxPoint cursorPosInList = event.GetPosition ();
+	long item = FindItem (-1, cursorPosInList, 0);
+	if (cursorPosInList.x < 25 && item != -1)
+		cursorOverColorChipFlag = true;
+
+	if (cursorOverColorChipFlag && wxGetKeyState (WXK_SHIFT))
+		{
+		wxMouseState currentMouseState = wxGetMouseState ();
+		if (currentMouseState.LeftIsDown ())
+			{
+			if (gPresentCursor != kBlinkShutCursor1)
+				{
+				SetCursor (wxCursor (gActiveImageViewCPtr->m_frame->blinkShutCursor));
+				gPresentCursor = kBlinkShutCursor1;
+				
+				}	// end "if (gPresentCursor != kBlinkShutCursor1)"
+			
+			}	// end "if (currentMouseState.LeftIsDown ())"
+		
+		else	// left is up
+			{
+			if (gPresentCursor != kBlinkOpenCursor1)
+				{
+				SetCursor (wxCursor (gActiveImageViewCPtr->m_frame->blinkOpenCursor));
+				gPresentCursor = kBlinkOpenCursor1;
+				
+				}	// end "if (gPresentCursor != kBlinkOpenCursor1)"
+			
+			}	// end "else left is up"
+		
+		}	// end "if (cursorOverColorChipFlag && ...)"
+		
+	else	// !cursorOverColorChipFlag || wxGetKeyState (WXK_SHIFT)
+		{	   
+		if (gPresentCursor != kArrow)
+			{
+			SetCursor (wxCURSOR_ARROW);
+			gPresentCursor = kArrow;
+			
+			}	// end "if (gPresentCursor != kArrow)"
+			
+		event.Skip ();
+		
+		}	// end "else !cursorOverColorChipFlag || ..."
+	
+}	// end "OnMouseMove"
 
 
 /*
@@ -1005,44 +893,22 @@ BOOL CMLegendList::OnSetCursor(wxWindow* pWnd, UINT nHitTest, UINT message)
 } 		// end "OnSetCursor"
 */
 
-/*
-void CMLegendList::OnCharHook (wxKeyEvent& event)
+
+void CMLegendList::SetBitMapInfoHeaderHandle (
+				Handle			bitMapInfoHeaderHandle)
+
 {
-	Point							lCell;
+	m_bitMapInfoHeaderHandle = bitMapInfoHeaderHandle;
 	
-	SInt16						code = 0;
-	
-	
-	if (event.GetKeyCode() == WXK_SHIFT)
-		{
-		code = 1;
-		
-		if (wxGetKeyState(WXK_CONTROL))
-			code = 2;
-		
-		else if (wxGetKeyState(WXK_ALT))
-			code = 4;
-		
-		}
+}		// end "SetBitMapInfoHeader"
 
-	else if (event.GetKeyCode() == WXK_CONTROL)
-		code = 2;
-	
-	else if (event.GetKeyCode() == WXK_ALT)
-		code = 4;
 
-	if (code > 0)
-		{
-		lCell.h = 0;
-		lCell.v = GetFocusedItem();
-				
-		DoBlinkCursor1 (this, lCell, (SInt16)m_listType, code);
-		
-		UpdateThematicLegendControls (gActiveImageViewCPtr);
-		
-		event.Skip();
-		
-		}		// end "if (code > 0)"
+
+void CMLegendList::SetLegendListActiveFlag (
+				Boolean				settingFlag)
+
+{
+	if (this != NULL)
+		m_activeFlag = settingFlag;
 	
-}		// end "OnCharHook"
-*/
+}	// end "SetLegendListActiveFlag"

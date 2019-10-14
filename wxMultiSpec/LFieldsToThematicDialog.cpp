@@ -12,7 +12,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			05/05/2019
+//	Revision date:			10/07/2019
 //
 //	Language:				C++
 //
@@ -41,9 +41,9 @@ BEGIN_EVENT_TABLE (CMFieldsToThematicDialog, CMDialog)
 	EVT_BUTTON (IDEntireImage, CMFieldsToThematicDialog::ToEntireImage)
 	EVT_BUTTON (IDSelectedImage, CMFieldsToThematicDialog::ToSelectedImage)
 
-	EVT_COMBOBOX (IDC_ClassCombo, CMFieldsToThematicDialog::OnSelendokClassCombo)
-
-	EVT_COMBOBOX_DROPDOWN (IDC_ClassCombo, CMFieldsToThematicDialog::OnSelendokClassComboDropDown)
+	EVT_COMBOBOX (IDC_ClassCombo, CMFieldsToThematicDialog::OnClassComboSelendok)
+	EVT_COMBOBOX_CLOSEUP (IDC_ClassCombo, CMFieldsToThematicDialog::OnClassComboCloseUp)
+	EVT_COMBOBOX_DROPDOWN (IDC_ClassCombo, CMFieldsToThematicDialog::OnClassComboDropDown)
 
 	EVT_INIT_DIALOG (CMFieldsToThematicDialog::OnInitDialog)
 
@@ -53,7 +53,7 @@ BEGIN_EVENT_TABLE (CMFieldsToThematicDialog, CMDialog)
 	EVT_TEXT (IDC_LineEnd, CMFieldsToThematicDialog::CheckLineEnd)
 	EVT_TEXT (IDC_LineStart, CMFieldsToThematicDialog::CheckLineStart)
 	EVT_TEXT (IDC_LineInterval, CMFieldsToThematicDialog::CheckLineInterval)
-END_EVENT_TABLE()
+END_EVENT_TABLE ()
 
 
 
@@ -361,8 +361,8 @@ bool CMFieldsToThematicDialog::TransferDataFromWindow ()
 	m_ColumnInterval = wxAtoi (m_ColumnIntervalString);
    
    m_classSelection = classcb->GetSelection();
-   if (m_classSelection < 0)
-		m_classSelection = m_classSelection_Saved;
+   //if (m_classSelection < 0)
+	//	m_classSelection = m_classSelection_Saved;
    
    m_trainingAreasFlag = train->GetValue ();
    m_testingAreasFlag = test->GetValue ();

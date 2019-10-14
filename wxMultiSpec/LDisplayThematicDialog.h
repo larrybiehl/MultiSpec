@@ -72,10 +72,10 @@ class CMDisplayThematicDlg : public CMDialog
 		 bool TransferDataToWindow ();
 	
 		 void OnInitDialog (wxInitDialogEvent& event);
-		 void OnSelendokPaletteCombo (wxCommandEvent& event);
-		 void OnDropdownPaletteCombo (wxCommandEvent& event);
-		 void OnSelendokClassesGroupsCombo (wxCommandEvent& event);
-		 void OnSelendokChannelComboDropDown (wxCommandEvent& event);
+		 void OnPaletteComboSelendok (wxCommandEvent& event);
+		 void OnPaletteComboDropDown (wxCommandEvent& event);
+		 void OnClassesGroupsComboSelendok (wxCommandEvent& event);
+		 void OnClassesGroupsComboDropDown (wxCommandEvent& event);
 		 void OnBackgroundColor (wxCommandEvent& event);
 		 void OnPaint ();
 		 DECLARE_EVENT_TABLE ()

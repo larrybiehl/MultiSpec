@@ -304,7 +304,7 @@ void CMListStatsDialog::CreateControls ()
 	m_staticText266->Wrap( -1 );
 	fgSizer11->Add( m_staticText266, 0, wxALIGN_CENTER_VERTICAL, 5 );
 	
-	m_textCtrl126 = new wxTextCtrl( this, IDC_CovariancePrecision, wxEmptyString, wxDefaultPosition, wxSize(50,-1), 0 );
+	m_textCtrl126 = new wxTextCtrl( this, IDC_CovariancePrecision, wxEmptyString, wxDefaultPosition, wxSize(50, -1), 0 );
    m_textCtrl126->SetValidator(wxTextValidator(wxFILTER_DIGITS, &m_covPrecisionString));
 	fgSizer11->Add( m_textCtrl126, 0, wxALIGN_CENTER_VERTICAL, 5 );
 	

@@ -1,42 +1,58 @@
-// LStatisticsDoc.h : header file
-//         
-// Revised by Larry Biehl on 06/20/2017
+//	 									MultiSpec
+//
+//					Laboratory for Applications of Remote Sensing
+//									Purdue University
+//								West Lafayette, IN 47907
+//								 Copyright (2009-2019)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	File:						LStatisticsDoc.h
+//	Implementation:		LStatisticsDoc.cpp
+//
+//	Authors:					Larry L. Biehl, Abdur Rahman Maud
+//
+//	Language:				C++
+//
+//	System:					Linux and MacOS Operating Systems
+//
+//	Brief description:	Header file for the CMDisplaySpecsDlg class
+//
+//	Written By:				Abdur Rahman Maud		Date: ??/??/2009
+//	Revised By:				Larry L. Biehl			Date: 06/20/2017
+//
+//------------------------------------------------------------------------------------
 //
 #if !defined __LSTATDOC_H__
-#define __LSTATDOC_H__    
+	#define __LSTATDOC_H__
 
 #include "LStatisticsFrame.h"
 #include "wx/docview.h"
 
 typedef bool BOOL;
-/////////////////////////////////////////////////////////////////////////////
-// CMStatisticsDoc document
-
-class CMStatisticsDoc : public wxDocument {
-    //	DECLARE_SERIAL(CMStatisticsDoc)
-    DECLARE_DYNAMIC_CLASS(CMStatisticsDoc)
 
 
-public:
-	CMStatisticsDoc(); // protected constructor used by dynamic creation
-	~CMStatisticsDoc(); 
-    
-	CMStatisticsFrame* GetStatisticsFrame(void);
-	void SetStatisticsFrame( CMStatisticsFrame* statisticsFrameCPtr);
-	virtual bool Close();
+class CMStatisticsDoc : public wxDocument
+	{
+	DECLARE_DYNAMIC_CLASS (CMStatisticsDoc)
 
-    // Implementation
-protected:
-    //	virtual void Serialize(CArchive& ar);	// overridden for document i/o
-    BOOL OnNewDocument();
+	public:
+		CMStatisticsDoc (); // protected constructor used by dynamic creation
+		~CMStatisticsDoc ();
+	
+		CMStatisticsFrame* GetStatisticsFrame (void);
+		void SetStatisticsFrame (CMStatisticsFrame* statisticsFrameCPtr);
+		virtual bool Close ();
 
-    // Generated message map functions
+		// Implementation
+	protected:
+		BOOL OnNewDocument ();
 
-//protected: 
-    DECLARE_EVENT_TABLE()
+				// Generated message map functions
 
-    CMStatisticsFrame* m_statisticsFrameCPtr;
-};
+		DECLARE_EVENT_TABLE ()
 
+		CMStatisticsFrame* m_statisticsFrameCPtr;
+	
+	};
 #endif	// !defined __LSTATDOC_H__
-

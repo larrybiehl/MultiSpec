@@ -12,7 +12,7 @@
 //
 //	Authors:					Abdur Rahman Maud, Larry L. Biehl
 //
-//	Revision date:			11/06/2018
+//	Revision date:			10/07/2019
 //
 //	Language:				C++
 //
@@ -31,6 +31,31 @@
 
 
 IMPLEMENT_DYNAMIC_CLASS (CMSinglePassClusterDialog, CMDialog)
+
+
+
+BEGIN_EVENT_TABLE (CMSinglePassClusterDialog, CMDialog)
+	EVT_BUTTON (IDEntireImage, CMSinglePassClusterDialog::ToEntireImage)
+	EVT_BUTTON (IDSelectedImage, CMSinglePassClusterDialog::ToSelectedImage)
+
+	EVT_COMBOBOX (IDC_ClassCombo, CMSinglePassClusterDialog::OnClassComboSelendok)
+	EVT_COMBOBOX_CLOSEUP (IDC_ClassCombo, CMSinglePassClusterDialog::OnClassComboCloseUp)
+	EVT_COMBOBOX_DROPDOWN (IDC_ClassCombo, CMSinglePassClusterDialog::OnClassComboDropDown)
+
+	EVT_INIT_DIALOG (CMSinglePassClusterDialog::OnInitDialog)
+
+	EVT_RADIOBUTTON (IDC_ClusterTrainingAreas, CMSinglePassClusterDialog::OnClusterTrainingAreas)
+	EVT_RADIOBUTTON (IDC_ClusterImageArea, CMSinglePassClusterDialog::OnClusterImageArea)
+
+	EVT_TEXT (IDC_ColumnEnd, CMSinglePassClusterDialog::CheckColumnEnd)
+	EVT_TEXT (IDC_ColumnStart, CMSinglePassClusterDialog::CheckColumnStart)
+	EVT_TEXT (IDC_LineEnd, CMSinglePassClusterDialog::CheckLineEnd)
+	EVT_TEXT (IDC_LineStart, CMSinglePassClusterDialog::CheckLineStart)
+	EVT_TEXT (IDC_LineInterval, CMSinglePassClusterDialog::CheckLineInterval)
+	EVT_TEXT (IDC_ColumnInterval, CMSinglePassClusterDialog::CheckColumnInterval)
+END_EVENT_TABLE ()
+
+
 
 CMSinglePassClusterDialog::CMSinglePassClusterDialog ()
 {
@@ -82,25 +107,6 @@ CMSinglePassClusterDialog::~CMSinglePassClusterDialog (void)
    m_classListPtr = CheckAndDisposePtr (m_classListPtr);
 
 }	// end "~CMSinglePassClusterDialog"
-
-
-
-BEGIN_EVENT_TABLE (CMSinglePassClusterDialog, CMDialog)
-	EVT_INIT_DIALOG (CMSinglePassClusterDialog::OnInitDialog)
-	EVT_COMBOBOX (IDC_ClassCombo, CMSinglePassClusterDialog::OnSelendokClassCombo)
-	EVT_COMBOBOX_DROPDOWN (IDC_ClassCombo, CMSinglePassClusterDialog::OnSelendokClassComboDropDown)
-	EVT_RADIOBUTTON (IDC_ClusterTrainingAreas, CMSinglePassClusterDialog::OnClusterTrainingAreas)
-	EVT_RADIOBUTTON (IDC_ClusterImageArea, CMSinglePassClusterDialog::OnClusterImageArea)
-	EVT_BUTTON (IDEntireImage, CMSinglePassClusterDialog::ToEntireImage)
-	EVT_BUTTON (IDSelectedImage, CMSinglePassClusterDialog::ToSelectedImage)
-	EVT_TEXT (IDC_ColumnEnd, CMSinglePassClusterDialog::CheckColumnEnd)
-	EVT_TEXT (IDC_ColumnStart, CMSinglePassClusterDialog::CheckColumnStart)
-	EVT_TEXT (IDC_LineEnd, CMSinglePassClusterDialog::CheckLineEnd)
-	EVT_TEXT (IDC_LineStart, CMSinglePassClusterDialog::CheckLineStart)
-	EVT_TEXT (IDC_LineInterval, CMSinglePassClusterDialog::CheckLineInterval)
-	EVT_TEXT (IDC_ColumnInterval, CMSinglePassClusterDialog::CheckColumnInterval)
-	//EVT_CHAR_HOOK (CMSinglePassClusterDialog::OnButtonPress)
-END_EVENT_TABLE ()
 
 
 
@@ -587,7 +593,7 @@ void CMSinglePassClusterDialog::OnInitDialog (
 
 
 
-void CMSinglePassClusterDialog::OnSelendokClassCombo (
+void CMSinglePassClusterDialog::OnClassComboSelendok (
 				wxCommandEvent&					event)
 
 {
@@ -598,7 +604,7 @@ void CMSinglePassClusterDialog::OnSelendokClassCombo (
 							  IDC_ClassCombo,
 							  &m_classSelection);
 
-}	// end "OnSelendokClassCombo"
+}	// end "OnClassComboSelendok"
 
 
 

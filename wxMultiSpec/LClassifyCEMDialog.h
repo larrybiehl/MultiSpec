@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (2009-2018)
+//								 Copyright (2009-2019)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -19,7 +19,7 @@
 //	Brief description:	Header file for the CMCEMClassifyDialog class
 //
 //	Written By:				Wei-Kang Hsu			Date: 04/09/2015
-//	Revised By:				Larry L. Biehl			Date: 01/12/2018
+//	Revised By:				Larry L. Biehl			Date: 10/07/2019
 //	
 //------------------------------------------------------------------------------------
 
@@ -50,7 +50,7 @@
 
 			void CreateControls ();
 			void OnInitDialog (wxInitDialogEvent& event);
-			void OnSelendokClassCombo (wxCommandEvent& event);
+			void OnClassComboSelendok (wxCommandEvent& event);
 			void OnUseClasses (wxCommandEvent& event);
 			void OnUseSelectedArea (wxCommandEvent& event);
 			bool TransferDataToWindow ();

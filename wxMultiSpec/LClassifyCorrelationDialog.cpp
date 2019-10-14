@@ -12,7 +12,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			11/16/2018
+//	Revision date:			10/08/2019
 //
 //	Language:				C++
 //
@@ -30,7 +30,7 @@
 
 BEGIN_EVENT_TABLE (CMCorrelationClassifyDialog, CMDialog)
    EVT_INIT_DIALOG (CMCorrelationClassifyDialog::OnInitDialog)
-	EVT_COMBOBOX (IDC_CovarianceCombo, CMCorrelationClassifyDialog::OnSelendokCovarianceCombo)
+	EVT_COMBOBOX (IDC_CovarianceCombo, CMCorrelationClassifyDialog::OnCovarianceComboSelendok)
 END_EVENT_TABLE ()
 
 
@@ -166,13 +166,13 @@ void CMCorrelationClassifyDialog::OnInitDialog (
 
 
 
-void CMCorrelationClassifyDialog::OnSelendokCovarianceCombo (
+void CMCorrelationClassifyDialog::OnCovarianceComboSelendok (
 				wxCommandEvent&					event)
 				
 {
 			// Add your control notification handler code here
 	
-}	// end "OnSelendokCovarianceCombo"
+}	// end "OnCovarianceComboSelendok"
 
 
 

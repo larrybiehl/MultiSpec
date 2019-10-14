@@ -12,7 +12,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			05/04/2019
+//	Revision date:			10/08/2019
 //
 //	Language:				C++
 //
@@ -28,6 +28,27 @@
 #include "LMultiSpec.h"  
 #include "LClassifyCEMDialog.h"
 #include "LImage_dialog.cpp"
+
+
+
+BEGIN_EVENT_TABLE (CMCEMClassifyDialog, CMDialog)
+	EVT_BUTTON (IDEntireImage, CMCEMClassifyDialog::ToEntireImage)
+	EVT_BUTTON (IDSelectedImage, CMCEMClassifyDialog::ToSelectedImage)
+
+	EVT_COMBOBOX (IDC_ClassCombo, CMCEMClassifyDialog::OnClassComboSelendok)
+	EVT_COMBOBOX_CLOSEUP (IDC_ClassCombo, CMCEMClassifyDialog::OnClassComboCloseUp)
+	EVT_COMBOBOX_DROPDOWN (IDC_ClassCombo, CMCEMClassifyDialog::OnClassComboDropDown)
+
+	EVT_INIT_DIALOG (CMCEMClassifyDialog::OnInitDialog)
+
+	EVT_RADIOBUTTON (IDC_UseSelectedArea, CMCEMClassifyDialog::OnUseSelectedArea)
+	EVT_RADIOBUTTON (IDC_UseClasses, CMCEMClassifyDialog::OnUseClasses)
+
+	EVT_TEXT (IDC_ColumnEnd, CMCEMClassifyDialog::CheckColumnEnd)
+	EVT_TEXT (IDC_ColumnStart, CMCEMClassifyDialog::CheckColumnStart)
+	EVT_TEXT (IDC_LineEnd, CMCEMClassifyDialog::CheckLineEnd)
+	EVT_TEXT (IDC_LineStart, CMCEMClassifyDialog::CheckLineStart)
+END_EVENT_TABLE ()
 
 
 
@@ -64,21 +85,6 @@ CMCEMClassifyDialog::CMCEMClassifyDialog (
    SetSizerAndFit (bSizer156);
 
 }	// end "CMCEMClassifyDialog"
-
-
-
-BEGIN_EVENT_TABLE (CMCEMClassifyDialog, CMDialog)
-	EVT_INIT_DIALOG (CMCEMClassifyDialog::OnInitDialog)
-	EVT_RADIOBUTTON (IDC_UseSelectedArea, CMCEMClassifyDialog::OnUseSelectedArea)
-	EVT_RADIOBUTTON (IDC_UseClasses, CMCEMClassifyDialog::OnUseClasses)
-	EVT_COMBOBOX (IDC_ClassCombo, CMCEMClassifyDialog::OnSelendokClassCombo)
-	EVT_TEXT (IDC_ColumnEnd, CMCEMClassifyDialog::CheckColumnEnd)
-	EVT_TEXT (IDC_ColumnStart, CMCEMClassifyDialog::CheckColumnStart)
-	EVT_TEXT (IDC_LineEnd, CMCEMClassifyDialog::CheckLineEnd)
-	EVT_TEXT (IDC_LineStart, CMCEMClassifyDialog::CheckLineStart)
-	EVT_BUTTON (IDEntireImage, CMCEMClassifyDialog::ToEntireImage)
-	EVT_BUTTON (IDSelectedImage, CMCEMClassifyDialog::ToSelectedImage)
-END_EVENT_TABLE ()
 
 
 
@@ -509,7 +515,7 @@ void CMCEMClassifyDialog::OnInitDialog (
 
 
 
-void CMCEMClassifyDialog::OnSelendokClassCombo (
+void CMCEMClassifyDialog::OnClassComboSelendok (
 				wxCommandEvent&					event)
 
 {
@@ -520,7 +526,7 @@ void CMCEMClassifyDialog::OnSelendokClassCombo (
                         IDC_ClassCombo,
                         &m_classSelection);
 
-}	// end "OnSelendokClassCombo"
+}	// end "OnClassComboSelendok"
 
 
 

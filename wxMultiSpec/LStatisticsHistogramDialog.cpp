@@ -31,8 +31,9 @@
 BEGIN_EVENT_TABLE (CMStatHistogramSpecsDlg, CMDialog)
 	EVT_CHECKBOX (IDC_UseFeatureTransformation, CMStatHistogramSpecsDlg::OnFeatureTransformation)
 
-	EVT_COMBOBOX (IDC_ChannelCombo, CMStatHistogramSpecsDlg::OnSelendokChannelCombo)
-	EVT_COMBOBOX_DROPDOWN (IDC_ChannelCombo, CMStatHistogramSpecsDlg::OnSelendokChannelComboDropDown)
+	EVT_COMBOBOX (IDC_ChannelCombo, CMStatHistogramSpecsDlg::OnChannelComboSelendok)
+	EVT_COMBOBOX_CLOSEUP (IDC_ChannelCombo, CMStatHistogramSpecsDlg::OnChannelComboCloseUp)
+	EVT_COMBOBOX_DROPDOWN (IDC_ChannelCombo, CMStatHistogramSpecsDlg::OnChannelComboDropDown)
 
 	EVT_INIT_DIALOG (CMStatHistogramSpecsDlg::OnInitDialog)
 
@@ -571,7 +572,7 @@ void CMStatHistogramSpecsDlg::OnFeatureTransformation(wxCommandEvent& event)
 
 
 
-void CMStatHistogramSpecsDlg::OnSelendokChannelCombo(wxCommandEvent& event)
+void CMStatHistogramSpecsDlg::OnChannelComboSelendok (wxCommandEvent& event)
 
 {
    
@@ -582,7 +583,7 @@ void CMStatHistogramSpecsDlg::OnSelendokChannelCombo(wxCommandEvent& event)
 							TRUE);
    
 	
-}		// end "OnSelendokChannelCombo"
+}		// end "OnChannelComboSelendok"
 
 
 
@@ -613,8 +614,8 @@ bool CMStatHistogramSpecsDlg::TransferDataFromWindow()
    m_blankValuesFlag = blankValuesFlag->GetValue();
    m_overlayDensityFunctionFlag = overlayDensityFunctionFlag->GetValue();
 	
-   m_lineInterval = wxAtoi(lineInterval->GetValue());
-   m_columnInterval = wxAtoi(columnInterval->GetValue());
+   m_lineInterval = wxAtoi (lineInterval->GetValue());
+   m_columnInterval = wxAtoi (columnInterval->GetValue());
 	
    m_histogramClassCode = histogramClassCode->GetValue();
    m_histogramFieldCode = histogramFieldCode->GetValue();
@@ -639,12 +640,10 @@ bool CMStatHistogramSpecsDlg::TransferDataFromWindow()
    if(m_matrixCode == 1) m_matrixColumnCode = 0;
    else m_matrixColumnCode = 1;
 	
-
-   if(m_channelSelection < 0)
-      m_channelSelection = m_channelSelection_Saved;
+   //if(m_channelSelection < 0)
+   //   m_channelSelection = m_channelSelection_Saved;
 
    //m_channelSelection = wxAtoi(channelSelection->GetValue());
-	
 	
    return TRUE;
 	

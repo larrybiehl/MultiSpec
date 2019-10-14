@@ -12,7 +12,7 @@
 //
 //	Authors:					Abdur Rahman Maud, Larry L. Biehl
 //
-//	Revision date:			02/22/2019
+//	Revision date:			10/07/2019
 //
 //	Language:				C++
 //
@@ -42,11 +42,14 @@ BEGIN_EVENT_TABLE (CMPrincipalCompDialog, CMDialog)
 	EVT_BUTTON (IDEntireImage, CMPrincipalCompDialog::ToEntireImage)
 	EVT_BUTTON (IDSelectedImage, CMPrincipalCompDialog::ToSelectedImage)
 
-	EVT_COMBOBOX (IDC_ClassCombo, CMPrincipalCompDialog::OnSelendokClassCombo)
-	EVT_COMBOBOX (IDC_ChannelCombo, CMPrincipalCompDialog::OnSelendokChannelCombo)
+	EVT_COMBOBOX (IDC_ClassCombo, CMPrincipalCompDialog::OnClassComboSelendok)
+	EVT_COMBOBOX (IDC_ChannelCombo, CMPrincipalCompDialog::OnChannelComboSelendok)
 
-	EVT_COMBOBOX_DROPDOWN (IDC_ChannelCombo, CMPrincipalCompDialog::OnSelendokChannelComboDropDown)
-	EVT_COMBOBOX_DROPDOWN (IDC_ClassCombo, CMPrincipalCompDialog::OnSelendokClassComboDropDown)
+	EVT_COMBOBOX_CLOSEUP (IDC_ChannelCombo, CMPrincipalCompDialog::OnChannelComboCloseUp)
+	EVT_COMBOBOX_CLOSEUP (IDC_ClassCombo, CMPrincipalCompDialog::OnClassComboCloseUp)
+
+	EVT_COMBOBOX_DROPDOWN (IDC_ChannelCombo, CMPrincipalCompDialog::OnChannelComboDropDown)
+	EVT_COMBOBOX_DROPDOWN (IDC_ClassCombo, CMPrincipalCompDialog::OnClassComboDropDown)
 
 	EVT_INIT_DIALOG (CMPrincipalCompDialog::OnInitDialog)
 
@@ -578,7 +581,7 @@ void CMPrincipalCompDialog::OnInitDialog(wxInitDialogEvent& event) {
 } // end "OnInitDialog"
 
 
-void CMPrincipalCompDialog::OnSelendokChannelCombo(wxCommandEvent& event)
+void CMPrincipalCompDialog::OnChannelComboSelendok (wxCommandEvent& event)
 {
 	HandleChannelsMenu(IDC_ChannelCombo,
 							 kNoTransformation,
@@ -586,14 +589,11 @@ void CMPrincipalCompDialog::OnSelendokChannelCombo(wxCommandEvent& event)
 							 1,
 							 TRUE);
 	
-} // end "OnSelendokChannelCombo"
+} // end "OnChannelComboSelendok"
 
-//void CMPrincipalCompDialog::OnSelendokChannelComboDropDown(wxCommandEvent& event)
-//{
-//    ResetComboBox(IDC_ChannelCombo);
-//} // end "OnSelendokClassComboDropDown"
 
-void CMPrincipalCompDialog::OnSelendokClassCombo(wxCommandEvent& event)
+
+void CMPrincipalCompDialog::OnClassComboSelendok(wxCommandEvent& event)
 {
    HandleClassesMenu(&m_localNumberClasses,
            (SInt16*) m_classListPtr,
@@ -602,12 +602,9 @@ void CMPrincipalCompDialog::OnSelendokClassCombo(wxCommandEvent& event)
            IDC_ClassCombo,
            &m_classSelection);
 
-} // end "OnSelendokClassCombo"
+} // end "OnClassComboSelendok"
 
-//void CMPrincipalCompDialog::OnSelendokClassComboDropDown(wxCommandEvent& event)
-//{
-//   ResetComboBox(IDC_ClassCombo);
-//} // end "OnSelendokClassComboDropDown"
+
 
 void CMPrincipalCompDialog::ShowFieldTypeItems()
 {
@@ -715,10 +712,10 @@ bool CMPrincipalCompDialog::TransferDataFromWindow()
 	m_channelSelection = channelc->GetSelection();
 	m_classSelection = classc->GetSelection();
 	
-   if(m_channelSelection < 0)
-      m_channelSelection = m_channelSelection_Saved;
-   if(m_classSelection < 0)
-      m_classSelection = m_classSelection_Saved;
+   //if(m_channelSelection < 0)
+   //   m_channelSelection = m_channelSelection_Saved;
+   //if(m_classSelection < 0)
+   //   m_classSelection = m_classSelection_Saved;
    
 	if (m_dataCode == 1)
 		returnCode = VerifyLineColumnValues(

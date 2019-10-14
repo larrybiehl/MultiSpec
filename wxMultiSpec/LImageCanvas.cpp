@@ -12,7 +12,7 @@
 //
 //	Authors:					Larry L. Biehl, Abdur Rachman Maud
 //
-//	Revision date:			03/27/2019
+//	Revision date:			10/01/2019
 //
 //	Language:				C++
 //
@@ -47,11 +47,13 @@ BEGIN_EVENT_TABLE (CMImageCanvas, wxScrolledWindow)
 	EVT_CHAR_HOOK (CMImageCanvas::OnCharHook)
 	EVT_ERASE_BACKGROUND (CMImageCanvas::OnEraseBackground)
 	EVT_IDLE (CMImageCanvas::OnIdle)
+   EVT_KEY_DOWN (CMImageCanvas::OnKeyDown)
+   EVT_KEY_UP (CMImageCanvas::OnKeyUp)
 	EVT_LEAVE_WINDOW (CMImageCanvas::OnLeaveImageWindow)
    EVT_LEFT_DCLICK (CMImageCanvas::OnDlbClk)
 	EVT_LEFT_DOWN (CMImageCanvas::OnLeftDown)
 	EVT_LEFT_UP (CMImageCanvas::OnLeftUp)
-	EVT_MOTION (CMImageCanvas::OnMotion)
+	EVT_MOTION (CMImageCanvas::OnMouseMove)
 	EVT_MOUSEWHEEL (CMImageCanvas::OnMouseWheel)
 	EVT_PAINT (CMImageCanvas::OnPaint)
 	EVT_SCROLLWIN (CMImageCanvas::OnScrollChanged)
@@ -83,7 +85,7 @@ CMImageCanvas::CMImageCanvas (
 			// The initial cursor for the window will be an arrow until an image
 			// is loaded in the window.
 	
-   SetCursor (wxCURSOR_ARROW);
+	SetCursor (wxCursor (wxCURSOR_ARROW));
 	
    wxSize initsize = parent->GetClientSize ();
    SetVirtualSize (initsize);
@@ -102,6 +104,15 @@ CMImageCanvas::CMImageCanvas (
 	EnableScrolling (true, true);
 	
 }	// end "CMImageCanvas"
+
+
+
+CMImageCanvas::~CMImageCanvas (void)
+
+{
+	gPresentCursor = -1;
+
+}	// end "~CMImageCanvas"
 
 
 
@@ -421,7 +432,7 @@ wxPoint CMImageCanvas::GetLastSelectionPoint ()
 {
    return m_LastSelectionPoint;
 	
-}
+}	// end "GetLastSelectionPoint"
 
 
 
@@ -430,15 +441,17 @@ wxPoint CMImageCanvas::GetScrollPosition ()
 {
    return wxPoint (GetScrollPos (wxHORIZONTAL), GetScrollPos (wxVERTICAL));
 	
-}
+}	// end "GetScrollPosition"
 
 
 
-void CMImageCanvas::Init()
+void CMImageCanvas::Init (void)
 
 {
    m_View = NULL;
    m_scrolledFlag = FALSE;
+	
+	gPresentCursor = -1;
 	
 }	// end "Init"
 
@@ -478,15 +491,90 @@ void CMImageCanvas::OnCharHook (
 
 
 
+void CMImageCanvas::OnCursorChange (
+				wxSetCursorEvent& 						event)
+
+{
+			// This seems to need to be called on linux (gtk) system to get the cursor to
+			// change.
+	
+	if (gPresentCursor == kBlinkOpenCursor2)
+		{
+		SetCursor (wxCursor (m_View->m_frame->blinkOpenCursor));
+		
+		}	// end "if (gPresentCursor == kBlinkOpenCursor2)"
+	
+	else if (gPresentCursor == kBlinkShutCursor2)
+		{
+		SetCursor (wxCursor (m_View->m_frame->blinkShutCursor));
+		
+		}	// end "if (gPresentCursor == kBlinkOpenCursor2)"
+	
+	else	// gPresentCursor != kBlinkOpenCursor1, kBlinkOpenCursor2, || kBlinkShutCursor
+		event.Skip ();
+	
+}	// end "OnCursorChange"
+
+
+
 void CMImageCanvas::OnDlbClk (
 				wxMouseEvent&						event)
 
 {
    if (m_View->CheckIfOffscreenImageExists ())
 		{
-      CMTool* pTool = CMTool::FindTool (CMTool::c_toolType);
-      if (pTool != NULL)
-         pTool->OnLButtonDblClk (m_View, 0);
+		if (gPresentCursor == kBlinkOpenCursor2 || gPresentCursor == kBlinkShutCursor2)
+			{
+			if (event.LeftIsDown ())
+				{
+				if (gPresentCursor != kBlinkShutCursor2)
+					{
+					Point 								cursorPoint;
+					wxPoint								cursorPosOnImage;
+				
+					SetCursor (wxCursor (gActiveImageViewCPtr->m_frame->blinkShutCursor));
+					gPresentCursor = kBlinkShutCursor2;
+					
+      			cursorPosOnImage = ClientToImage (event.GetPosition ());
+					cursorPoint.h = (SInt16)cursorPosOnImage.x;
+					cursorPoint.v = (SInt16)cursorPosOnImage.y;
+
+					SInt16 code = 1;
+					if (wxGetKeyState (WXK_CONTROL))
+						code = 2;
+					
+					else if (wxGetKeyState (WXK_ALT))
+						code = 4;
+				
+					ThematicImageWBlink (cursorPoint, code);
+					
+					}	// end "if (gPresentCursor != kBlinkShutCursor1)"
+				
+				}	// end "if (currentMouseState.LeftIsDown ())"
+			
+			else	// left is up
+				{
+				if (gPresentCursor != kBlinkOpenCursor2)
+					{
+					SetCursor (wxCursor (gActiveImageViewCPtr->m_frame->blinkOpenCursor));
+					gPresentCursor = kBlinkOpenCursor2;
+					
+					}	// end "if (gPresentCursor != kBlinkOpenCursor2)"
+				
+				}	// end "else left is up"
+			
+			}	// end "else if (gPresentCursor == kBlinkOpenCursor2 || ..."
+		
+		else	// gPresentCursor != kBlinkOpenCursor2 && gPresentCursor != kBlinkShutCursor2
+			{
+      	CMTool* pTool = CMTool::FindTool (CMTool::c_toolType);
+      	if (pTool != NULL)
+         	pTool->OnLButtonDblClk (m_View, 0);
+			
+			else
+				event.Skip ();
+			
+			}	// end "else gPresentCursor != kBlinkOpenCursor2 && ..."
 		
 		}	// end "if (m_View->CheckIfOffscreenImageExists ())"
 	
@@ -538,6 +626,105 @@ void CMImageCanvas::OnIdle (
 
 
 
+void CMImageCanvas::OnKeyDown (
+				wxKeyEvent& 						event)
+
+{
+	Rect									viewRect;		// used to store the image portion
+																// of the window
+	wxPoint								currentPos = event.GetPosition ();
+	
+	int									keyCode;
+
+	SInt16								//code,
+											windowType;
+	
+	Boolean								hasCaptureFlag;
+	
+	
+			// Only handle if this window is not captured and a processor is not
+			// in operation.
+	
+	hasCaptureFlag = HasCapture ();
+	
+   if (!hasCaptureFlag && gProcessorCode == 0)
+		{
+				// Also only handle if cursor is over image portion of a thematic image
+				// window.
+		
+		windowType = m_View->GetWindowType ();
+		
+		bool	cursorOverImageFlag = false;
+		GetWindowClipRectangle (m_View, kImageArea, &viewRect);
+		if (currentPos.x >= viewRect.left && currentPos.x <= viewRect.right &&
+							currentPos.y >= viewRect.top && currentPos.y <= viewRect.bottom)
+			cursorOverImageFlag = true;
+		
+		if (windowType == kThematicImageType && cursorOverImageFlag)
+			{
+			keyCode = event.GetKeyCode ();
+
+			if (keyCode == WXK_SHIFT)
+				{
+				//SetCursor (wxCursor (wxCURSOR_BULLSEYE));
+				SetCursor (wxCursor (m_View->m_frame->blinkOpenCursor));
+				
+				gPresentCursor = kBlinkOpenCursor2;
+				
+						// Do this to force the window cursor to be used, not the overall cursor.
+				
+				wxSetCursor (wxNullCursor);
+				
+				event.Skip ();
+
+				}	// end "if (keyCode == WXK_SHIFT)"
+
+			else	// keyCode != WXK_SHIFT
+				{
+				if (keyCode == WXK_SPACE)
+																										return;
+				
+				event.Skip ();
+				
+				}	// end "else keyCode != WXK_SHIFT"
+			
+			}	// end "if (windowType == kThematicImageType && cursorOverImageFlag)"
+		
+		}	// end "if (!hasCaptureFlag && gProcessorCode == 0)"
+	
+	else	// hasCaptureFlag || gProcessorCode != 0
+		event.Skip ();
+
+}	// end "OnKeyDown"
+
+
+
+void CMImageCanvas::OnKeyUp (
+				wxKeyEvent& 						event)
+
+{
+	int keyCode = event.GetKeyCode ();
+	
+	if (keyCode == WXK_SHIFT)
+		{
+		if (gPresentCursor == kBlinkOpenCursor2)
+			{
+			SetCursor (wxCursor (wxCURSOR_CROSS));
+			gPresentCursor = kCross;
+			
+			event.Skip ();
+			
+			}	// end "if (gPresentCursor == kBlinkOpenCursor2)"
+		
+		}	// end "if (keyCode == WXK_SHIFT)"
+	
+	else	// keyCode != WXK_SHIFT
+		event.Skip ();
+	
+}	// end "OnKeyUp"
+
+
+
 void CMImageCanvas::OnLeaveImageWindow (
 				wxMouseEvent&						event)
 
@@ -556,9 +743,6 @@ void CMImageCanvas::OnLeftDown (
 	wxPoint								cursorPosOnImage; // unit: window point
 	
 	
-	//if (m_View == NULL)
-	//																						return;
-	
 	if (gActiveImageViewCPtr != m_View)
 				// Force this image window to be active.
 		m_View->Activate (true);
@@ -569,7 +753,7 @@ void CMImageCanvas::OnLeftDown (
    do
 		{
       cursorPosOnImage = ClientToImage (event.GetPosition ());
-      if (!imageRect.Contains(event.GetPosition()))
+      if (!imageRect.Contains (event.GetPosition()))
 			break;
 		
       m_TR = m_BL = event.GetPosition ();
@@ -578,11 +762,11 @@ void CMImageCanvas::OnLeftDown (
 		m_LastSelectionPoint = cursorPosOnImage;
 		
 		}	while (false);
-		
+	
    if (m_View->CheckIfOffscreenImageExists ())
 		{
       CMTool* pTool = CMTool::FindTool(CMTool::c_toolType);
-      if (pTool != NULL)
+      if (pTool != NULL && gPresentCursor != kBlinkOpenCursor2)
 			{
 			#if defined multispec_wxlin
 				m_View->SetControlKeyFlag (wxGetKeyState (WXK_CONTROL));
@@ -600,10 +784,27 @@ void CMImageCanvas::OnLeftDown (
 			m_View->SetShiftKeyFlag (wxGetKeyState (WXK_SHIFT));
          pTool->OnLButtonDown (m_View, 0, event.GetPosition ());
 			
-			}	// end "if (pTool != NULL)"
-      
+			}	// end "if (pTool != NULL && ..."
+	
 		if (gSelectionGraphViewCPtr != NULL)
 			gSelectionGraphViewCPtr->UpdateShowOrHideFeatureList ();
+		
+		if (gPresentCursor == kBlinkOpenCursor2)
+			{
+			Point cursorPoint;
+			cursorPoint.h = (SInt16)cursorPosOnImage.x;
+			cursorPoint.v = (SInt16)cursorPosOnImage.y;
+
+			SInt16 code = 1;
+			if (wxGetKeyState (WXK_CONTROL))
+				code = 2;
+			
+			else if (wxGetKeyState (WXK_ALT))
+				code = 4;
+		
+			ThematicImageWBlink (cursorPoint, code);
+			
+			}	// end "if (gPresentCursor == kBlinkOpenCursor2)"
 
 		}	// end "if (m_View->CheckIfOffscreenImageExists())"
 	
@@ -643,17 +844,26 @@ void CMImageCanvas::OnLeftUp (
 		
 		}	// end "if (HasCapture ())"
 	
+	else if (gPresentCursor == kBlinkOpenCursor2 && !wxGetKeyState (WXK_SHIFT))
+		{
+		SetCursor (wxCursor (wxCURSOR_CROSS));
+		gPresentCursor = kCross;
+		
+		}	// end "if (gPresentCursor == kBlinkOpenCursor2 && ..."
+	
 }	// end "OnLeftUp"
 
 
 
-void CMImageCanvas::OnMotion (
+void CMImageCanvas::OnMouseMove (
 				wxMouseEvent&						event)
 
 {
 	Rect									viewRect;		// used to store the image portion
 																// of the window
 	wxPoint								currentPos = event.GetPosition ();
+	
+	SInt16								windowType;
 	bool									hasCaptureFlag;
 
 
@@ -672,13 +882,35 @@ void CMImageCanvas::OnMotion (
 			
 		if (cursorOverImageFlag || hasCaptureFlag)
 			{
-			if (gPresentCursor != kCross)
+			
+			windowType = m_View->GetWindowType();
+			if (!hasCaptureFlag && windowType == kThematicImageType)
 				{
-				//MSetCursor (kCross);
-				SetCursor (wxCURSOR_CROSS);
+				if (wxGetKeyState (WXK_SHIFT))
+					{
+					//SetCursor (wxCursor (wxCURSOR_BULLSEYE));
+					SetCursor (wxCursor (m_View->m_frame->blinkOpenCursor));
+					gPresentCursor = kBlinkOpenCursor2;
+					
+					}	// end "if (wxGetKeyState (WXK_SHIFT))"
+				
+				else	// !wxGetKeyState (WXK_SHIFT)
+					{
+					SetCursor (wxCursor (wxCURSOR_CROSS));
+					gPresentCursor = kCross;
+					
+					}	// end "if (wxGetKeyState (WXK_SHIFT))"
+
+				}	// end "if (!hasCaptureFlag && ..."
+			
+			if (gPresentCursor != kCross &&
+						gPresentCursor != kBlinkOpenCursor2 &&
+								gPresentCursor != kBlinkShutCursor2)
+				{
+				SetCursor (wxCursor (wxCURSOR_CROSS));
 				gPresentCursor = kCross;
 				
-				}	// end "if (gPresentCursor != kCross)"
+				}	// end "else if (gPresentCursor != kCross)"
 				
 			}	// end "if (cursorOverImageFlag || hasCaptureFlag)"
 			
@@ -686,8 +918,7 @@ void CMImageCanvas::OnMotion (
 			{
 			if (gPresentCursor != kArrow)
 				{
-				//MSetCursor (kArrow);
-				SetCursor (wxCURSOR_ARROW);
+				SetCursor (wxCursor (wxCURSOR_ARROW));
 				gPresentCursor = kArrow;
 				
 				}	// end "if (gPresentCursor != kArrow)"
@@ -735,12 +966,10 @@ void CMImageCanvas::OnMotion (
 
 			}	// end "else !GetActiveWindowFlag() || ..."
 			
-		}	// end "if (HasCapture())"
+		}	// end "if (hasCaptureFlag)"
 		
 	else	// !hasCaptureFlag
 		{
-      LongPoint longLocalPoint;
-		
 				// Make sure that flag indicating that a mouse down occurred to
 				// activate the window is set to false. It may not get turned off
 				// if one selects the title bar of the window. So far have not found
@@ -750,44 +979,41 @@ void CMImageCanvas::OnMotion (
 		
       if (m_View != NULL)
 			{
-			if (gPresentCursor == kCross)
-				{           
-            if (gProcessorCode == kPolygonSelectionProcessor)
+			if (gPresentCursor == kCross || gPresentCursor == kBlinkOpenCursor2)
+				{
+				Boolean 			handledFlag = FALSE;
+				
+            if (gPresentCursor == kCross &&
+            								gProcessorCode == kPolygonSelectionProcessor)
 					{
-							// if is polygon mode. added on 01/08/16  by Wei
+							// If is polygon mode. added on 01/08/16  by Wei
 					
                if (m_View->CheckIfOffscreenImageExists())
 						{
-                  Boolean handledFlag = FALSE;
                   CMTool* pTool = CMTool::FindTool(CMTool::c_toolType);
 
                   if (pTool != NULL)            
-                     handledFlag = pTool->OnMouseMove (m_View, 0, currentPos, m_scrolledFlag);
-
-                  if (!handledFlag)
-							{
-                     LongPoint longLocalPoint;
-                     longLocalPoint.h = currentPos.x;
-                     longLocalPoint.v = currentPos.y;
-                     m_View->UpdateCursorCoordinates (&longLocalPoint);
-							
-							}	// end "if (!handledFlag)"
+                     handledFlag = pTool->OnMouseMove (m_View,
+                     												0,
+                     												currentPos,
+                     												m_scrolledFlag);
 						
 						}	// end "if (m_View->CheckIfOffscreenImageExists ())"
 					
-					}	// end "if (gProcessorCode == 5)"
-				
-            else	// gProcessorCode != 5
+					}	// end "if (... && gProcessorCode == kPolygonSelectionProcessor"
+
+				if (!handledFlag)
 					{
-               longLocalPoint.h = currentPos.x;
-               longLocalPoint.v = currentPos.y;
-               m_View->UpdateCursorCoordinates (&longLocalPoint);
+      			LongPoint		longLocalPoint;
+					longLocalPoint.h = currentPos.x;
+					longLocalPoint.v = currentPos.y;
+					m_View->UpdateCursorCoordinates (&longLocalPoint);
 					
-					}	// end "else gProcessorCode != 5"
+					}	// end "if (!handledFlag)"
 				
-				}	// end "if (gPresentCursor == kCross)"
+				}	// end "if (gPresentCursor == kCross || kBlinkOpenCursor2"
 				
-			else
+			else	// gPresentCursor != kCross && != kBlinkOpenCursor2
 				m_View->UpdateCursorCoordinates ();
 				
 			}	// end "if (m_View != NULL)"
@@ -795,10 +1021,9 @@ void CMImageCanvas::OnMotion (
 		}	// end "else !hasCaptureFlag"
 	
 	m_scrolledFlag = FALSE;
-	
 	//event.Skip ();
 		
-}	// end "OnMotion"
+}	// end "OnMouseMove"
 
 
 
@@ -887,17 +1112,7 @@ void CMImageCanvas::OnPaint (
 		m_View->s_updateRect.right = m_View->s_updateRect.left + upd.GetW ();
 		m_View->s_updateRect.top = upd.GetY ();
 		m_View->s_updateRect.bottom = m_View->s_updateRect.top + upd.GetH ();
-		/*
-		int numberChars = sprintf ((char*)gTextString3,
-					" CMImageCanvas::OnPaint (loop: left, width, top, height): %d: %d, %d, %d, %d%s",
-					count,
-					m_View->s_updateRect.left,
-					(m_View->s_updateRect.right - m_View->s_updateRect.left),
-					m_View->s_updateRect.top,
-					(m_View->s_updateRect.bottom - m_View->s_updateRect.top),
-					gEndOfLine);
-		ListString ((char*)gTextString3, numberChars, gOutputTextH);
-		*/
+
 		m_View->OnDraw (&dc);
 		
 		count++;
@@ -1013,33 +1228,10 @@ void CMImageCanvas::OnScrollChanged (
 
 
 
-void CMImageCanvas::OnCursorChange (
-				wxSetCursorEvent& 						event)
-				
-{
-	
-	//wxCursor				cursor;
-	//wxCoord				xPosition,
-	//							yPosition;
-	
-	
-			// Setting the global cursor variable to -1 will force it to be set
-			// to the correct value later.
-	
-	//cursor = event.GetCursor ();
-	//xPosition = event.GetX ();
-	//yPosition = event.GetY ();
-	gPresentCursor = -1;
-	
-	event.Skip ();
-	
-}	// end "OnCursorChange"
-
-
-
-void CMImageCanvas::SetView (CMImageView* value)
+void CMImageCanvas::SetView (
+				CMImageView* 									viewPtr)
 
 {
-   m_View = value;
+   m_View = viewPtr;
 	
-}
+}	// end "SetView"

@@ -19,7 +19,7 @@
 //	Brief description:	Header file for the CMEvalCovarianceDialog class
 //
 //	Written By:				Abdur Rahman Maud		Date: ??/??/2009
-//	Revised By:				Larry L. Biehl			Date: 06/21/2017
+//	Revised By:				Larry L. Biehl			Date: 10/07/2019
 //
 //------------------------------------------------------------------------------------
 //
@@ -56,11 +56,11 @@ class CMEvalCovarianceDialog : public CMDialog
 			// Implementation
 	protected:
 		void CreateControls();
-		virtual void  OnInitDialog(wxInitDialogEvent& event);
+		virtual void  OnInitDialog (wxInitDialogEvent& event);
 
-		void OnTransformation(wxCommandEvent& event);
-		void OnSelendokChannelCombo(wxCommandEvent& event);
-		void OnSelendokClassCombo(wxCommandEvent& event);
+		void OnTransformation (wxCommandEvent& event);
+		void OnChannelComboSelendok (wxCommandEvent& event);
+		void OnClassComboSelendok (wxCommandEvent& event);
 
 		EvaluateCovarianceSpecsPtr  m_evaluateCovarianceSpecsPtr;
 		Boolean		  	m_featureTransformAllowedFlag,

@@ -19,7 +19,7 @@
 //	Brief description:	Header file for the CMImageCanvas class
 //
 //	Written By:				Abdur Rahman Maud		Date: 06/22/2011
-//	Revised By:				Larry L. Biehl			Date: 04/02/2019
+//	Revised By:				Larry L. Biehl			Date: 09/12/2019
 //
 //------------------------------------------------------------------------------------
 //
@@ -59,14 +59,16 @@ class CMImageCanvas : public wxScrolledWindow
 		 				m_scrolledFlag;
     
 	public:
-		CMImageCanvas();
+		CMImageCanvas ();
 
-		CMImageCanvas(wxWindow * parent,
+		CMImageCanvas (wxWindow * parent,
 				wxWindowID id = wxID_ANY,
 				const wxPoint & pos = wxDefaultPosition,
 				const wxSize & size = wxDefaultSize,
 				long style = wxSUNKEN_BORDER,
 				const wxString & name = LImageCanvasName);
+	
+		~CMImageCanvas ();
 
 		bool Create(wxWindow * parent,
 				wxWindowID id = wxID_ANY,
@@ -106,15 +108,17 @@ class CMImageCanvas : public wxScrolledWindow
 		void OnDlbClk (wxMouseEvent& event);
 		void OnEraseBackground (wxEraseEvent& event);
 		void OnIdle (wxIdleEvent& event);
+		void OnKeyDown (wxKeyEvent& event);
+		void OnKeyUp (wxKeyEvent& event);
 		void OnLeaveImageWindow (wxMouseEvent& event);
 		void OnLeftDown (wxMouseEvent& event);
 		void OnLeftUp (wxMouseEvent& event);
-		void OnMotion (wxMouseEvent& event);
+		void OnMouseMove (wxMouseEvent& event);
 		void OnMouseWheel (wxMouseEvent& event);
 		void OnPaint (wxPaintEvent& event);
 		void OnScrollChanged (wxScrollWinEvent& event);
 		DECLARE_EVENT_TABLE ()
-		
+			
 	};
 #endif	// LIMAGECANVAS_H
 

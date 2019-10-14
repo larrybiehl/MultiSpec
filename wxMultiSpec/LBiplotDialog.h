@@ -14,7 +14,7 @@
 //
 //	Language:				C++
 //
-//	System:					Linux and MacOS Operating Systems
+//	System:					Linux Operating System
 //
 //	Brief description:	Header file for the CMBiPlotDialog class
 //
@@ -47,8 +47,6 @@
 
 			double		m_thresholdPercent,
 							m_saveThresholdPercent;
-							
-			int			m_classWeightsSelection;
 
 			SInt32		m_maxChannelFeatureNum;
 		
@@ -81,7 +79,7 @@
 			void OnImageArea (wxCommandEvent& event);
 			void OnInitDialog (wxInitDialogEvent& event); 
 			void OnOutlineClassAsEllipse (wxCommandEvent& event);
-			void OnSelendokClassWeightsCombo (wxCommandEvent& event);
+			void OnClassWeightsComboSelendok (wxCommandEvent& event);
 			void OnTestArea (wxCommandEvent& event);
 			void OnThresholdPixelFlag (wxCommandEvent& event);
 			void OnTrainArea (wxCommandEvent& event);

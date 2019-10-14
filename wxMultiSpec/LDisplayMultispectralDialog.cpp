@@ -12,7 +12,7 @@
 //
 //	Authors:					Abdur Rahman Maud, Larry L. Biehl
 //
-//	Revision date:			03/18/2019
+//	Revision date:			10/07/2019
 //
 //	Language:				C++
 //
@@ -55,6 +55,40 @@ extern void UpdateDialogChannelItems (
 
 
 IMPLEMENT_DYNAMIC_CLASS (CMDisplaySpecsDlg, CMDialog)
+
+
+
+BEGIN_EVENT_TABLE (CMDisplaySpecsDlg, CMDialog)
+	EVT_BUTTON (ID3C_ChannelDescriptions, CMDisplaySpecsDlg::OnChannelDescriptions)
+	EVT_BUTTON (IDEntireImage, CMDisplaySpecsDlg::ToEntireImage)
+	EVT_BUTTON (IDSelectedImage, CMDisplaySpecsDlg::ToSelectedImage)
+
+	EVT_INIT_DIALOG (CMDisplaySpecsDlg::OnInitDialog)
+
+	EVT_COMBOBOX (ID3C_Channels, CMDisplaySpecsDlg::OnSelendokChannels)
+	EVT_COMBOBOX (ID3C_DisplayType, CMDisplaySpecsDlg::OnSelendokDisplayType)
+	EVT_COMBOBOX (ID3C_Enhancement, CMDisplaySpecsDlg::OnEnhancementComboSelendok)
+	EVT_COMBOBOX (ID3C_MinMaxValues, CMDisplaySpecsDlg::OnSelendokMinMaxValues)
+
+	EVT_COMBOBOX_CLOSEUP (ID3C_Channels, CMDisplaySpecsDlg::OnChannelsComboCloseUp)
+	EVT_COMBOBOX_CLOSEUP (ID3C_Enhancement,CMDisplaySpecsDlg::OnEnhancementComboCloseUp)
+	EVT_COMBOBOX_CLOSEUP (ID3C_MinMaxValues, CMDisplaySpecsDlg::OnSelendokMinMaxValuesCloseUp)
+
+	EVT_COMBOBOX_DROPDOWN (ID3C_Channels, CMDisplaySpecsDlg::OnChannelsComboDropDown)
+	EVT_COMBOBOX_DROPDOWN (ID3C_Enhancement, CMDisplaySpecsDlg::OnEnhancementComboDropDown)
+	EVT_COMBOBOX_DROPDOWN (ID3C_MinMaxValues, CMDisplaySpecsDlg::OnSelendokMinMaxValuesDropDown)
+
+	EVT_TEXT (ID3C_BlueChannel, CMDisplaySpecsDlg::OnChangeBlueChannel)
+	EVT_TEXT (ID3C_GreenChannel, CMDisplaySpecsDlg::OnChangeGreenChannel)
+	EVT_TEXT (ID3C_RedChannel, CMDisplaySpecsDlg::OnChangeRedChannel)
+	EVT_TEXT (ID3C_GrayChannel, CMDisplaySpecsDlg::OnChangeGrayChannel)
+	EVT_TEXT (IDC_ColumnEnd, CMDisplaySpecsDlg::CheckColumnEnd)
+	EVT_TEXT (IDC_ColumnStart, CMDisplaySpecsDlg::CheckColumnStart)
+	EVT_TEXT (IDC_LineEnd, CMDisplaySpecsDlg::CheckLineEnd)
+	EVT_TEXT (IDC_LineStart, CMDisplaySpecsDlg::CheckLineStart)
+	EVT_TEXT (IDC_LineInterval, CMDisplaySpecsDlg::CheckLineInterval)
+	EVT_TEXT (IDC_ColumnInterval, CMDisplaySpecsDlg::CheckColumnInterval)
+END_EVENT_TABLE()
 
 CMDisplaySpecsDlg::CMDisplaySpecsDlg ()
 
@@ -154,37 +188,6 @@ CMDisplaySpecsDlg::~CMDisplaySpecsDlg ()
 	m_localFeaturesPtr = CheckAndDisposePtr(m_localFeaturesPtr);
  
 }	// end "~CMDisplaySpecsDlg"
-
-
-
-BEGIN_EVENT_TABLE(CMDisplaySpecsDlg, CMDialog)
-	//EVT_CHOICE(ID3C_BitsOfColor, CMDisplaySpecsDlg::OnSelendokBitsOfColor)
-	EVT_INIT_DIALOG(CMDisplaySpecsDlg::OnInitDialog)
-	EVT_TEXT(ID3C_BlueChannel, CMDisplaySpecsDlg::OnChangeBlueChannel)
-	EVT_TEXT(ID3C_GreenChannel, CMDisplaySpecsDlg::OnChangeGreenChannel)
-	EVT_TEXT(ID3C_RedChannel, CMDisplaySpecsDlg::OnChangeRedChannel)
-	EVT_TEXT(ID3C_GrayChannel, CMDisplaySpecsDlg::OnChangeGrayChannel)
-	EVT_TEXT(IDC_ColumnEnd, CMDisplaySpecsDlg::CheckColumnEnd)
-	EVT_TEXT(IDC_ColumnStart, CMDisplaySpecsDlg::CheckColumnStart)
-	EVT_TEXT(IDC_LineEnd, CMDisplaySpecsDlg::CheckLineEnd)
-	EVT_TEXT(IDC_LineStart, CMDisplaySpecsDlg::CheckLineStart)
-	EVT_TEXT(IDC_LineInterval, CMDisplaySpecsDlg::CheckLineInterval)
-	EVT_TEXT(IDC_ColumnInterval, CMDisplaySpecsDlg::CheckColumnInterval)
-	EVT_BUTTON(ID3C_ChannelDescriptions, CMDisplaySpecsDlg::OnChannelDescriptions)
-	EVT_COMBOBOX(ID3C_DisplayType, CMDisplaySpecsDlg::OnSelendokDisplayType)
-	EVT_COMBOBOX(ID3C_MinMaxValues, CMDisplaySpecsDlg::OnSelendokMinMaxValues)
-	EVT_COMBOBOX(ID3C_Channels, CMDisplaySpecsDlg::OnSelendokChannels)
-	EVT_COMBOBOX_DROPDOWN(ID3C_Channels, CMDisplaySpecsDlg::OnSelendokChannelsDropDown)
-	EVT_COMBOBOX(ID3C_Enhancement, CMDisplaySpecsDlg::OnSelendokEnhancement)
-	EVT_COMBOBOX_CLOSEUP (ID3C_Enhancement,CMDisplaySpecsDlg::OnSelendokEnhancementCloseUp)
-	EVT_COMBOBOX_DROPDOWN (ID3C_Enhancement, CMDisplaySpecsDlg::OnSelendokEnhancementDropDown)
-	EVT_BUTTON (IDEntireImage, CMDisplaySpecsDlg::ToEntireImage)
-	EVT_BUTTON (IDSelectedImage, CMDisplaySpecsDlg::ToSelectedImage)
-	//EVT_CHAR_HOOK(CMDisplaySpecsDlg::OnButtonPress)
-	EVT_COMBOBOX_CLOSEUP (ID3C_MinMaxValues, CMDisplaySpecsDlg::OnSelendokMinMaxValuesCloseUp)
-	EVT_COMBOBOX_DROPDOWN (ID3C_MinMaxValues, CMDisplaySpecsDlg::OnSelendokMinMaxValuesDropDown)
-	//EVT_PAINT(CMDisplaySpecsDlg::OnPaint)
-END_EVENT_TABLE()
 
 
 
@@ -989,6 +992,23 @@ void CMDisplaySpecsDlg::OnChangeRedChannel(wxCommandEvent& event) {
 } // end "OnChangeRedChannel"
 
 
+
+void CMDisplaySpecsDlg::OnChannelsComboCloseUp (
+				wxCommandEvent& 					event)
+
+{
+	wxComboBox* channelsComboPtr = (wxComboBox*)FindWindow (ID3C_Channels);
+	int channelSelection = channelsComboPtr->GetSelection ();
+	
+	if (channelSelection == -1)
+		channelsComboPtr->SetSelection (m_channelSelection);
+	
+	event.Skip ();
+	
+}	// end "OnChannelsComboCloseUp"
+
+
+
 void CMDisplaySpecsDlg::OnChannelDescriptions(wxCommandEvent& event) {
 
     // Show channel list.
@@ -1019,21 +1039,7 @@ void CMDisplaySpecsDlg::OnChannelDescriptions(wxCommandEvent& event) {
 
 } // end "OnChannelDescriptions"
 
-/* Moving this inside OnSelendokEnhancement
-void CMDisplaySpecsDlg::OnCloseupEnhancement() {
-    if (m_optionKeyFlag) {
-        SetComboItemText(ID3C_Enhancement,
-                2,
-                (char*) "Gaussian");
 
-        DDX_CBIndex(m_dialogToPtr, ID3C_Enhancement, m_Enhancement);
-
-        m_optionKeyFlag = FALSE;
-
-    } // end "if (m_optionKeyFlag)"
-
-} // end "OnCloseupEnhancement"
- */
 
 // Dont think this is needed now as this has been added to OnSelndDisplayType
 /*
@@ -1308,7 +1314,9 @@ void CMDisplaySpecsDlg::OnSelendokBitsOfColor (
 }	// end "OnSelendokBitsOfColor"
 */
 
-void CMDisplaySpecsDlg::OnSelendokChannels(wxCommandEvent& event) 
+
+void CMDisplaySpecsDlg::OnSelendokChannels (wxCommandEvent& event)
+
 {
 	HandleChannelsMenu (ID3C_Channels,
 								kNoTransformation,
@@ -1319,12 +1327,15 @@ void CMDisplaySpecsDlg::OnSelendokChannels(wxCommandEvent& event)
 }	// end "OnSelendokChannels"
 
 
-void CMDisplaySpecsDlg::OnSelendokChannelsDropDown(wxCommandEvent& event) 
-{
-	wxComboBox* classcombo = (wxComboBox*)FindWindow (ID3C_Channels);
-	classcombo->SetSelection (0);
 
-}	// end "OnSelendokChannels"
+void CMDisplaySpecsDlg::OnChannelsComboDropDown (wxCommandEvent& event)
+
+{
+	wxComboBox* channelsComboPtr = (wxComboBox*)FindWindow (ID3C_Channels);
+	channelsComboPtr->SetSelection (-1);
+
+}	// end "OnChannelsComboDropDown"
+
 
 
 void CMDisplaySpecsDlg::OnSelendokDisplayType(wxCommandEvent& event)
@@ -1435,7 +1446,7 @@ void CMDisplaySpecsDlg::OnSelendokDisplayType(wxCommandEvent& event)
 
 
 
-void CMDisplaySpecsDlg::OnSelendokEnhancement (
+void CMDisplaySpecsDlg::OnEnhancementComboSelendok (
 				wxCommandEvent& event)
 
 {
@@ -1459,15 +1470,15 @@ void CMDisplaySpecsDlg::OnSelendokEnhancement (
 																		this,
 																		ID3C_NewHistogram);
 	
-}	// end "OnSelendokEnhancement"
+}	// end "OnEnhancementComboSelendok"
 
 
 
-void CMDisplaySpecsDlg::OnSelendokEnhancementCloseUp (
+void CMDisplaySpecsDlg::OnEnhancementComboCloseUp (
 				wxCommandEvent& event)
 
 {
-   int enhancement = event.GetSelection ();
+   //int enhancement = event.GetSelection ();
 
 
 			// set to -1 so that it can be active again when user selects it second time directly
@@ -1475,11 +1486,11 @@ void CMDisplaySpecsDlg::OnSelendokEnhancementCloseUp (
 	//m_enhancementctrl->SetSelection (m_Enhancement);
 	//m_enhancementctrl->SetSelection (-1);
 	
-}	// end "OnSelendokEnhancementDropDown"
+}	// end "OnEnhancementComboCloseUp"
 
 
 
-void CMDisplaySpecsDlg::OnSelendokEnhancementDropDown (
+void CMDisplaySpecsDlg::OnEnhancementComboDropDown (
 				wxCommandEvent& event)
 
 {
@@ -1514,7 +1525,7 @@ void CMDisplaySpecsDlg::OnSelendokEnhancementDropDown (
 	else	// enhancement != 2
 		m_enhancementctrl->SetSelection (m_Enhancement);
 	
-}	// end "OnSelendokEnhancementDropDown"
+}	// end "OnEnhancementComboDropDown"
 
 
 
@@ -1589,7 +1600,7 @@ void CMDisplaySpecsDlg::OnSelendokMinMaxValuesCloseUp (
 				wxCommandEvent& event)
 
 {
-   int minMaxPopupCode = event.GetSelection ();
+   //int minMaxPopupCode = event.GetSelection ();
 	
 	event.Skip ();
 

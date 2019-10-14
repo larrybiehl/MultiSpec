@@ -12,7 +12,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			10/19/2018
+//	Revision date:			10/08/2019
 //
 //	Language:				C++
 //
@@ -52,7 +52,9 @@ BEGIN_EVENT_TABLE (CMListResultsDialog, CMDialog)
 	EVT_CHECKBOX (IDC_ThresholdResults, CMListResultsDialog::OnThresholdResults)
 	EVT_CHECKBOX (IDC_Training, CMListResultsDialog::OnTraining)
 
-	EVT_COMBOBOX (IDC_ClassCombo, CMListResultsDialog::OnSelendokClassCombo)
+	EVT_COMBOBOX (IDC_ClassCombo, CMListResultsDialog::OnClassComboSelendok)
+	EVT_COMBOBOX_CLOSEUP (IDC_ClassCombo, CMListResultsDialog::OnClassComboCloseUp)
+	EVT_COMBOBOX_DROPDOWN (IDC_ClassCombo, CMListResultsDialog::OnClassComboDropDown)
 
 	EVT_INIT_DIALOG (CMListResultsDialog::OnInitDialog)
 
@@ -723,7 +725,6 @@ void CMListResultsDialog::OnGroupSummary(wxCommandEvent& event)
 
 void CMListResultsDialog::OnImage(wxCommandEvent& event)
 {
-   //   DDX_Check(m_dialogFromPtr, IDC_Image, m_imageFlag);
    wxCheckBox* image = (wxCheckBox*) FindWindow(IDC_Image);
    m_imageFlag = image->GetValue();
    CheckListAreaItems();
@@ -762,7 +763,8 @@ void CMListResultsDialog::OnInitDialog(wxInitDialogEvent& event)
 
    m_localAreaCode = gListResultsSpecsPtr->areaCode;
 
-   if (m_projectWindowFlag) {
+   if (m_projectWindowFlag)
+   	{
       // List results for training areas. Unhilite this control if there 	
       // are no training areas for the project. 									
 
@@ -784,10 +786,10 @@ void CMListResultsDialog::OnInitDialog(wxInitDialogEvent& event)
       if (!m_trainingFlag && !m_testFlag)
          MHideDialogItem(this, IDC_ClassCombo);
 
-   }// end "if (m_projectWindowFlag)" 
+   	}	// end "if (m_projectWindowFlag)"
 
    else // !m_projectWindowFlag
-   {
+   	{
       SetDLogControlHilite(this, IDC_Training, 255);
       SetDLogControlHilite(this, IDC_Test, 255);
 //      MHideDialogItem(this, IDC_Training);
@@ -821,26 +823,25 @@ void CMListResultsDialog::OnInitDialog(wxInitDialogEvent& event)
       MHideDialogItem(this, IDC_ClassCombo);
    //		m_classSelection = -1; 
 
-   // List results for selected area.												
+   		// List results for selected area.
 
-   m_imageFlag = (m_localAreaCode & kAreaType) ||
-      (m_nonClusterFieldTypeCode == 0);
+   m_imageFlag = (m_localAreaCode & kAreaType) || (m_nonClusterFieldTypeCode == 0);
 
-   //	Selected area for list results
-   // 	Initialize selected area structure.		
+   		//	Selected area for list results
+   		// 	Initialize selected area structure.
 
-   InitializeDialogSelectArea(&m_dialogSelectArea,
-      gImageWindowInfoPtr,
-      gActiveImageWindow,
-      gListResultsSpecsPtr->columnStart,
-      gListResultsSpecsPtr->columnEnd,
-      gListResultsSpecsPtr->columnInterval,
-      gListResultsSpecsPtr->lineStart,
-      gListResultsSpecsPtr->lineEnd,
-      gListResultsSpecsPtr->lineInterval,
-      12,
-      10,
-      kAdjustToBaseImage);
+   InitializeDialogSelectArea (&m_dialogSelectArea,
+											gImageWindowInfoPtr,
+											gActiveImageWindow,
+											gListResultsSpecsPtr->columnStart,
+											gListResultsSpecsPtr->columnEnd,
+											gListResultsSpecsPtr->columnInterval,
+											gListResultsSpecsPtr->lineStart,
+											gListResultsSpecsPtr->lineEnd,
+											gListResultsSpecsPtr->lineInterval,
+											12,
+											10,
+											kAdjustToBaseImage);
 
    m_LineStart = gListResultsSpecsPtr->lineStart;
    m_LineEnd = gListResultsSpecsPtr->lineEnd;
@@ -849,7 +850,7 @@ void CMListResultsDialog::OnInitDialog(wxInitDialogEvent& event)
    m_ColumnEnd = gListResultsSpecsPtr->columnEnd;
    m_ColumnInterval = gListResultsSpecsPtr->columnInterval;
 
-   HideShowAreaItems(m_imageFlag);
+   HideShowAreaItems (m_imageFlag);
 
    if (m_imageFlag)
       SetEntireImageButtons(
@@ -943,7 +944,7 @@ void CMListResultsDialog::OnInitDialog(wxInitDialogEvent& event)
    m_saveThresholdPercent = gListResultsSpecsPtr->probabilityThreshold;
    m_thresholdPercent = m_saveThresholdPercent;
 
-   ListResultsDialogSetThresholdItems(this,
+   ListResultsDialogSetThresholdItems (this,
       m_thresholdResultsFlag,
       gListResultsSpecsPtr->thresholdTypeCode);
 
@@ -956,13 +957,10 @@ void CMListResultsDialog::OnInitDialog(wxInitDialogEvent& event)
    if (TransferDataToWindow())
       PositionDialogWindow();
 
-   // Set default text selection to first edit text item	
-
-   //	GetDlgItem(IDC_LineStart)->SetFocus();
-   //	SendDlgItemMessage( IDC_LineStart, EM_SETSEL, 0, MAKELPARAM(0, -1) );
-   SelectDialogItemText(this, IDC_LineStart, 0, SInt16_MAX);
-
-   //return FALSE; // return TRUE  unless you set the focus to a control 
+   		// Set default text selection to first edit text item
+	
+ 	if (m_imageFlag)
+   	SelectDialogItemText (this, IDC_LineStart, 0, SInt16_MAX);
 
 } // end "OnInitDialog"
 
@@ -981,7 +979,7 @@ void CMListResultsDialog::OnSampleUnits(wxCommandEvent& event)
 } // end "OnSampleUnits"
 
 
-void CMListResultsDialog::OnSelendokClassCombo(wxCommandEvent& event)
+void CMListResultsDialog::OnClassComboSelendok(wxCommandEvent& event)
 {
    HandleClassesMenu(&m_localNumberClasses,
       (SInt16*) m_classListPtr,
@@ -990,7 +988,7 @@ void CMListResultsDialog::OnSelendokClassCombo(wxCommandEvent& event)
       IDC_ClassCombo,
       &m_classSelection);
 
-} // end "OnSelendokClassCombo"
+} // end "OnClassComboSelendok"
 
 
 void CMListResultsDialog::OnTest(wxCommandEvent& event)

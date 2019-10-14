@@ -12,7 +12,7 @@
 //
 //   Authors:              Abdur Rahman Maud, Larry L. Biehl
 //
-//   Revision date:        08/14/2019
+//   Revision date:        10/14/2019
 //
 //   Language:					C++
 //
@@ -28,7 +28,7 @@
 	ListString ((char*)&gTextString3, numberChars, gOutputTextH);
 */
 //------------------------------------------------------------------------------------
-//
+
 #include "SMultiSpec.h"
 
 #include	"LChannelsDialog.h"
@@ -40,6 +40,7 @@
 
 BEGIN_EVENT_TABLE (CMStatisticsDialog, CMDialog)
 	EVT_BUTTON (IDC_StatisticsOptions, CMStatisticsDialog::OnStatisticsOptions)
+	//EVT_BUTTON (IDC_ChannelsSubset, CMStatisticsDialog::OnChannelsSubset)
 
 	EVT_CHECKBOX (IDC_ShowClassNames, CMStatisticsDialog::OnShowClassNames)
 	EVT_CHECKBOX (IDC_ShowFieldNames, CMStatisticsDialog::OnShowFieldNames)
@@ -47,13 +48,15 @@ BEGIN_EVENT_TABLE (CMStatisticsDialog, CMDialog)
 	EVT_CHECKBOX (IDC_TestFields, CMStatisticsDialog::OnTestFields)
 	EVT_CHECKBOX (IDC_TrainingFields, CMStatisticsDialog::OnTrainingFields)
 
-	EVT_COMBOBOX (IDC_Channels, CMStatisticsDialog::OnSelendokChannels)
-	EVT_COMBOBOX (IDC_ProjectChanges, CMStatisticsDialog::OnSelendokProjectChanges)
-	EVT_COMBOBOX (IDC_TestMaskPopUp, CMStatisticsDialog::OnSelendokTestMaskCOMBO)
-	EVT_COMBOBOX (IDC_TrainMaskPopUp, CMStatisticsDialog::OnSelendokTrainMaskCOMBO)
+	EVT_COMBOBOX (IDC_ChannelCombo, CMStatisticsDialog::OnChannelComboSelendok)
+	EVT_COMBOBOX (IDC_ProjectChanges, CMStatisticsDialog::OnProjectChangesSelendok)
+	EVT_COMBOBOX (IDC_TestMaskPopUp, CMStatisticsDialog::OnTestMaskComboSelendok)
+	EVT_COMBOBOX (IDC_TrainMaskPopUp, CMStatisticsDialog::OnTrainMaskComboSelendok)
 
-	EVT_COMBOBOX_DROPDOWN (IDC_Channels, CMStatisticsDialog::OnDropdownChannels)
-	EVT_COMBOBOX_DROPDOWN (IDC_ProjectChanges, CMStatisticsDialog::OnDropdownProjectChanges)
+	EVT_COMBOBOX_CLOSEUP (IDC_ChannelCombo, CMStatisticsDialog::OnChannelComboCloseUp)
+
+	EVT_COMBOBOX_DROPDOWN (IDC_ChannelCombo, CMStatisticsDialog::OnChannelComboDropDown)
+	EVT_COMBOBOX_DROPDOWN (IDC_ProjectChanges, CMStatisticsDialog::OnProjectChangesDropDown)
 
 	EVT_INIT_DIALOG (CMStatisticsDialog::OnInitDialog)
 END_EVENT_TABLE()
@@ -102,8 +105,6 @@ void CMStatisticsDialog::CreateControls (void)
    //wxBoxSizer*							bSizer_v1h3h1;
 	
 	wxButton*							m_button_v1h1v1_3;
-	//wxButton*							m_CancelButton;
-	//wxButton*							m_OKButton;
 
 	wxCheckBox*							m_checkBox_v1h1v2_1;
 	wxCheckBox*							m_checkBox_v1h1v2_2;
@@ -133,101 +134,203 @@ void CMStatisticsDialog::CreateControls (void)
 
    this->SetSizeHints(wxDefaultSize, wxDefaultSize);
 
-   bSizer_v1 = new wxBoxSizer(wxVERTICAL);
+   bSizer_v1 = new wxBoxSizer (wxVERTICAL);
 
-   bSizer_v1h1 = new wxBoxSizer(wxHORIZONTAL);
+   bSizer_v1h1 = new wxBoxSizer (wxHORIZONTAL);
 
-   bSizer_v1h1v1 = new wxBoxSizer(wxVERTICAL);
+   bSizer_v1h1v1 = new wxBoxSizer (wxVERTICAL);
 
-   m_comboBox_v1h1v1_1 = new wxComboBox (this, IDC_ProjectChanges, wxT("Combo!"), wxDefaultPosition, wxSize(160, -1), 0, NULL, wxCB_READONLY);
+   m_comboBox_v1h1v1_1 = new wxComboBox (this,
+   													IDC_ProjectChanges,
+   													wxT("Combo!"),
+   													wxDefaultPosition,
+   													wxSize (160, -1),
+   													0,
+   													NULL,
+   													wxCB_READONLY);
    m_comboBox_v1h1v1_1->Append (wxT("Project Changes"));
    m_comboBox_v1h1v1_1->Append (wxT("Clear Statistics..."));
-   SetUpToolTip (m_comboBox_v1h1v1_1, IDS_ToolTip105);  
-   //bSizer_v1h1v1->Add (m_comboBox_v1h1v1_1, 0, wxALL, 5);
-   bSizer_v1h1v1->Add (m_comboBox_v1h1v1_1, wxSizerFlags(0).Border(wxTOP|wxBOTTOM,10));
+   SetUpToolTip (m_comboBox_v1h1v1_1, IDS_ToolTip105);
+   bSizer_v1h1v1->Add (m_comboBox_v1h1v1_1,
+   							wxSizerFlags(0).Border(wxTOP|wxBOTTOM, 10));
 
-   bSizer_v1h1v1h2 = new wxBoxSizer(wxHORIZONTAL);
+   bSizer_v1h1v1h2 = new wxBoxSizer (wxHORIZONTAL);
 
-   m_staticText_v1h1v1h2_1 = new wxStaticText(this, wxID_ANY, wxT("Channels to Use:"), wxDefaultPosition, wxDefaultSize, 0);
-   m_staticText_v1h1v1h2_1->Wrap(-1);
+   m_staticText_v1h1v1h2_1 = new wxStaticText (this,
+   															wxID_ANY,
+   															wxT("Channels to Use:"),
+   															wxDefaultPosition,
+   															wxDefaultSize,
+   															0);
+   m_staticText_v1h1v1h2_1->Wrap (-1);
    SetUpToolTip (m_staticText_v1h1v1h2_1, IDS_ToolTip8601);
-   bSizer_v1h1v1h2->Add (m_staticText_v1h1v1h2_1, wxSizerFlags(0).Center().Border(wxTOP|wxRIGHT|wxBOTTOM,5));
+   bSizer_v1h1v1h2->Add (m_staticText_v1h1v1h2_1,
+   								wxSizerFlags(0).Center().Border(wxTOP|wxRIGHT|wxBOTTOM,5));
 
-   m_comboBox_v1h1v1h2_2 = new wxComboBox (this, IDC_Channels, wxT("Combo!"), wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_READONLY);
+   m_comboBox_v1h1v1h2_2 = new wxComboBox (this,
+   														IDC_ChannelCombo,
+   														wxT("Combo!"),
+   														wxDefaultPosition,
+   														wxDefaultSize,
+   														0,
+   														NULL,
+   														wxCB_READONLY);
    m_comboBox_v1h1v1h2_2->Append (wxT("All"));
    m_comboBox_v1h1v1h2_2->Append (wxT("Subset..."));
    SetUpToolTip (m_comboBox_v1h1v1h2_2, IDS_ToolTip8601);
-   bSizer_v1h1v1h2->Add (m_comboBox_v1h1v1h2_2, wxSizerFlags(0).Border(wxTOP|wxRIGHT|wxBOTTOM,5));
-	
-   bSizer_v1h1v1->Add (bSizer_v1h1v1h2, wxSizerFlags(0).Expand().Border(wxTOP|wxBOTTOM,5));
+   bSizer_v1h1v1h2->Add (m_comboBox_v1h1v1h2_2,
+   								wxSizerFlags(0).Border(wxTOP|wxRIGHT|wxBOTTOM, 5));
+	/*
+	m_hiddenChannelSubset = new wxButton (this,
+												IDC_ChannelsSubset,
+												wxT("For Channel Subset Event"),
+												wxDefaultPosition,
+												wxDefaultSize,
+												0);
+   bSizer_v1h1v1h2->Add (m_hiddenChannelSubset, wxSizerFlags(0).Border(wxTOP|wxRIGHT|wxBOTTOM,5));
+   m_hiddenChannelSubset->Show (false);
+	*/
+   bSizer_v1h1v1->Add (bSizer_v1h1v1h2,
+   							wxSizerFlags(0).Expand().Border(wxTOP|wxBOTTOM,5));
 
-   m_button_v1h1v1_3 = new wxButton (this, IDC_StatisticsOptions, wxT("Project Statistics Options..."), wxDefaultPosition, wxDefaultSize, 0);
+   m_button_v1h1v1_3 = new wxButton (this,
+   												IDC_StatisticsOptions,
+   												wxT("Project Statistics Options..."),
+   												wxDefaultPosition,
+   												wxDefaultSize,
+   												0);
    SetUpToolTip (m_button_v1h1v1_3, IDS_ToolTip106);
-   bSizer_v1h1v1->Add (m_button_v1h1v1_3, wxSizerFlags(0).Left().Border(wxTOP|wxRIGHT|wxBOTTOM,10));
+   bSizer_v1h1v1->Add (m_button_v1h1v1_3,
+   							wxSizerFlags(0).Left().Border(wxTOP|wxRIGHT|wxBOTTOM, 10));
 
    bSizer_v1h1->Add (bSizer_v1h1v1, wxSizerFlags(0).Expand());
 
-   sbSizer_v1h1v2 = new wxStaticBoxSizer(new wxStaticBox(this, wxID_ANY, wxT("Outline selected areas:")), wxVERTICAL);
+   sbSizer_v1h1v2 = new wxStaticBoxSizer (new wxStaticBox (
+																		this,
+																		wxID_ANY,
+																		wxT("Outline selected areas:")),
+															wxVERTICAL);
 
-   m_checkBox_v1h1v2_1 = new wxCheckBox(sbSizer_v1h1v2->GetStaticBox(), IDC_TrainingFields, wxT("Training fields"), wxDefaultPosition, wxDefaultSize, 0);
+   m_checkBox_v1h1v2_1 = new wxCheckBox (sbSizer_v1h1v2->GetStaticBox (),
+   													IDC_TrainingFields,
+   													wxT("Training fields"),
+   													wxDefaultPosition,
+   													wxDefaultSize,
+   													0);
    SetUpToolTip (m_checkBox_v1h1v2_1, IDS_ToolTip109);
-   sbSizer_v1h1v2->Add (m_checkBox_v1h1v2_1, wxSizerFlags(0).Border(wxLEFT,15));
+   sbSizer_v1h1v2->Add (m_checkBox_v1h1v2_1, wxSizerFlags(0).Border(wxLEFT, 15));
 
-   m_checkBox_v1h1v2_2 = new wxCheckBox (sbSizer_v1h1v2->GetStaticBox(), IDC_TestFields, wxT("Test Fields"), wxDefaultPosition, wxDefaultSize, 0);
+   m_checkBox_v1h1v2_2 = new wxCheckBox (sbSizer_v1h1v2->GetStaticBox(),
+   													IDC_TestFields,
+   													wxT("Test Fields"),
+   													wxDefaultPosition,
+   													wxDefaultSize,
+   													0);
    SetUpToolTip (m_checkBox_v1h1v2_2, IDS_ToolTip110);
-   sbSizer_v1h1v2->Add (m_checkBox_v1h1v2_2, wxSizerFlags(0).Border(wxLEFT,15));
+   sbSizer_v1h1v2->Add (m_checkBox_v1h1v2_2, wxSizerFlags(0).Border(wxLEFT, 15));
 
-   m_checkBox_v1h1v2_3 = new wxCheckBox (sbSizer_v1h1v2->GetStaticBox(), IDC_ShowClassNames, wxT("Show class names"), wxDefaultPosition, wxDefaultSize, 0);
+   m_checkBox_v1h1v2_3 = new wxCheckBox (sbSizer_v1h1v2->GetStaticBox(),
+   													IDC_ShowClassNames,
+   													wxT("Show class names"),
+   													wxDefaultPosition,
+   													wxDefaultSize,
+   													0);
    SetUpToolTip (m_checkBox_v1h1v2_3, IDS_ToolTip111);
-   sbSizer_v1h1v2->Add (m_checkBox_v1h1v2_3, wxSizerFlags(0).Border(wxLEFT|wxTOP,15));
+   sbSizer_v1h1v2->Add (m_checkBox_v1h1v2_3, wxSizerFlags(0).Border(wxLEFT|wxTOP, 15));
 
-   m_checkBox_v1h1v2_4 = new wxCheckBox (sbSizer_v1h1v2->GetStaticBox(), IDC_ShowFieldNames, wxT("Show field names"), wxDefaultPosition, wxDefaultSize, 0);
+   m_checkBox_v1h1v2_4 = new wxCheckBox (sbSizer_v1h1v2->GetStaticBox(),
+   													IDC_ShowFieldNames,
+   													wxT("Show field names"),
+   													wxDefaultPosition,
+   													wxDefaultSize,
+   													0);
    SetUpToolTip (m_checkBox_v1h1v2_4, IDS_ToolTip112);
-   sbSizer_v1h1v2->Add (m_checkBox_v1h1v2_4, wxSizerFlags(0).Border(wxLEFT,15));
+   sbSizer_v1h1v2->Add (m_checkBox_v1h1v2_4, wxSizerFlags(0).Border(wxLEFT, 15));
 
-   m_checkBox_v1h1v2_5 = new wxCheckBox (sbSizer_v1h1v2->GetStaticBox(), IDC_ShowTrainTestLabel, wxT("Show Train/Test Label"), wxDefaultPosition, wxDefaultSize, 0);
+   m_checkBox_v1h1v2_5 = new wxCheckBox (sbSizer_v1h1v2->GetStaticBox(),
+   													IDC_ShowTrainTestLabel,
+   													wxT("Show Train/Test Label"),
+   													wxDefaultPosition,
+   													wxDefaultSize,
+   													0);
    SetUpToolTip (m_checkBox_v1h1v2_5, IDS_ToolTip113);
-   sbSizer_v1h1v2->Add (m_checkBox_v1h1v2_5, wxSizerFlags(0).Border(wxLEFT|wxRIGHT,15));
+   sbSizer_v1h1v2->Add (m_checkBox_v1h1v2_5,
+									wxSizerFlags(0).Border(wxLEFT|wxRIGHT,15));
 
-   bSizer_v1h1v2h6 = new wxBoxSizer(wxHORIZONTAL);
+   bSizer_v1h1v2h6 = new wxBoxSizer (wxHORIZONTAL);
 
-   m_staticText_v1h1v2h6_1 = new wxStaticText (sbSizer_v1h1v2->GetStaticBox(), IDC_ColorPrompt, wxT("Color:"), wxDefaultPosition, wxDefaultSize, 0);
-   m_staticText_v1h1v2h6_1->Wrap(-1);
-   bSizer_v1h1v2h6->Add (m_staticText_v1h1v2h6_1, wxSizerFlags(0).Center().Border(wxLEFT,20));
+   m_staticText_v1h1v2h6_1 = new wxStaticText (sbSizer_v1h1v2->GetStaticBox(),
+   															IDC_ColorPrompt,
+   															wxT("Color:"),
+   															wxDefaultPosition,
+   															wxDefaultSize,
+   															0);
+   m_staticText_v1h1v2h6_1->Wrap (-1);
+   bSizer_v1h1v2h6->Add (m_staticText_v1h1v2h6_1,
+   								wxSizerFlags(0).Center().Border(wxLEFT, 20));
 
-   m_comboBox_v1h1v2h6_2 = new wxComboBox (sbSizer_v1h1v2->GetStaticBox(), IDC_ColorCombo, wxT("Combo!"), wxDefaultPosition, wxSize(100, -1), 0, NULL, wxCB_READONLY);
+   m_comboBox_v1h1v2h6_2 = new wxComboBox (sbSizer_v1h1v2->GetStaticBox(),
+   														IDC_ColorCombo,
+   														wxT("Combo!"),
+   														wxDefaultPosition,
+   														wxSize (100, -1),
+   														0,
+   														NULL,
+   														wxCB_READONLY);
    m_comboBox_v1h1v2h6_2->Append (wxT("Black"));
    m_comboBox_v1h1v2h6_2->Append (wxT("White"));
    SetUpToolTip (m_comboBox_v1h1v2h6_2, IDS_ToolTip114);
-   bSizer_v1h1v2h6->Add (m_comboBox_v1h1v2h6_2, wxSizerFlags(0).Border(wxALL,5));
+   bSizer_v1h1v2h6->Add (m_comboBox_v1h1v2h6_2, wxSizerFlags(0).Border(wxALL, 5));
 
-   sbSizer_v1h1v2->Add (bSizer_v1h1v2h6, wxSizerFlags(0).Expand().Border(wxTOP|wxRIGHT|wxBOTTOM,10));
+   sbSizer_v1h1v2->Add (bSizer_v1h1v2h6,
+								wxSizerFlags(0).Expand().Border(wxTOP|wxRIGHT|wxBOTTOM, 10));
 	
-   bSizer_v1h1->Add (sbSizer_v1h1v2, wxSizerFlags(0).Expand().Border(wxLEFT,25));
-	bSizer_v1->Add (bSizer_v1h1, wxSizerFlags(0).Expand().Border(wxLEFT|wxTOP|wxRIGHT,12));
+   bSizer_v1h1->Add (sbSizer_v1h1v2, wxSizerFlags(0).Expand().Border(wxLEFT, 25));
+	bSizer_v1->Add (bSizer_v1h1,
+							wxSizerFlags(0).Expand().Border(wxLEFT|wxTOP|wxRIGHT, 12));
 	
 
    bSizer_v1h2 = new wxBoxSizer (wxHORIZONTAL);
    bSizer_v1h2v1 = new wxBoxSizer (wxVERTICAL);
 
-   m_staticText_v1h2v1_1 = new wxStaticText(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(-1,20), 0);
+   m_staticText_v1h2v1_1 = new wxStaticText (this,
+   														wxID_ANY,
+   														wxEmptyString,
+   														wxDefaultPosition,
+   														wxSize(-1, 20),
+   														0);
    bSizer_v1h2v1->Add (m_staticText_v1h2v1_1, wxSizerFlags(0).Left());
 
-   m_staticText_v1h2v1_2 = new wxStaticText (this, IDC_TrainMaskPrompt, wxT("Training mask file: "), wxDefaultPosition, wxSize(-1,28), 0);
-   m_staticText_v1h2v1_2->Wrap(-1);
+   m_staticText_v1h2v1_2 = new wxStaticText (this,
+   														IDC_TrainMaskPrompt,
+   														wxT("Training mask file: "),
+   														wxDefaultPosition,
+   														wxSize(-1, 28),
+   														0);
+   m_staticText_v1h2v1_2->Wrap (-1);
    SetUpToolTip (m_staticText_v1h2v1_2, IDS_ToolTip107);
-   bSizer_v1h2v1->Add (m_staticText_v1h2v1_2, wxSizerFlags(0).Border(wxTOP,12));
+   bSizer_v1h2v1->Add (m_staticText_v1h2v1_2, wxSizerFlags(0).Border(wxTOP, 12));
   
-   m_staticText_v1h2v1_3 = new wxStaticText (this, IDC_TestMaskPrompt, wxT("Test mask file:"), wxDefaultPosition, wxSize(-1,28), 0);
-   m_staticText_v1h2v1_3->Wrap(-1);
+   m_staticText_v1h2v1_3 = new wxStaticText (this,
+   														IDC_TestMaskPrompt,
+   														wxT("Test mask file:"),
+   														wxDefaultPosition,
+   														wxSize (-1, 28),
+   														0);
+   m_staticText_v1h2v1_3->Wrap (-1);
    SetUpToolTip (m_staticText_v1h2v1_3, IDS_ToolTip108);
-   bSizer_v1h2v1->Add (m_staticText_v1h2v1_3, wxSizerFlags(0).Border(wxTOP,10));
+   bSizer_v1h2v1->Add (m_staticText_v1h2v1_3, wxSizerFlags(0).Border(wxTOP, 10));
 	
    bSizer_v1h2->Add (bSizer_v1h2v1, wxSizerFlags(0).Expand().Left());
 
    bSizer_v1h2v2 = new wxBoxSizer (wxVERTICAL);
 	
-   m_staticText_v1h2v2_1 = new wxStaticText (this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(-1,20), 0);
+   m_staticText_v1h2v2_1 = new wxStaticText (this,
+   														wxID_ANY,
+   														wxEmptyString,
+   														wxDefaultPosition,
+   														wxSize (-1, 20),
+   														0);
    bSizer_v1h2v2->Add (m_staticText_v1h2v2_1, wxSizerFlags(0).Left());
 
    m_comboBox_v1h2v2_2 = new wxComboBox (this,
@@ -238,10 +341,10 @@ void CMStatisticsDialog::CreateControls (void)
    													0,
    													NULL,
    													0);
-   m_comboBox_v1h2v2_2->Append(wxT("None"));
-   m_comboBox_v1h2v2_2->Append(wxT("Select mask image..."));
+   m_comboBox_v1h2v2_2->Append (wxT("None"));
+   m_comboBox_v1h2v2_2->Append (wxT("Select mask image..."));
    SetUpToolTip (m_comboBox_v1h2v2_2, IDS_ToolTip107);
-   bSizer_v1h2v2->Add (m_comboBox_v1h2v2_2, wxSizerFlags(0).Border(wxALL,5));
+   bSizer_v1h2v2->Add (m_comboBox_v1h2v2_2, wxSizerFlags(0).Border(wxALL, 5));
 
    m_comboBox_v1h2v2_3 = new wxComboBox (this,
    													IDC_TestMaskPopUp,
@@ -251,32 +354,52 @@ void CMStatisticsDialog::CreateControls (void)
    													0,
    													NULL,
    													0);
-   m_comboBox_v1h2v2_3->Append(wxT("None"));
-   m_comboBox_v1h2v2_3->Append(wxT("Select mask image..."));
+   m_comboBox_v1h2v2_3->Append (wxT("None"));
+   m_comboBox_v1h2v2_3->Append (wxT("Select mask image..."));
    SetUpToolTip (m_comboBox_v1h2v2_3, IDS_ToolTip108);
-   bSizer_v1h2v2->Add (m_comboBox_v1h2v2_3, wxSizerFlags(0).Border(wxALL,5));
+   bSizer_v1h2v2->Add (m_comboBox_v1h2v2_3, wxSizerFlags(0).Border(wxALL, 5));
 	
    bSizer_v1h2->Add (bSizer_v1h2v2, wxSizerFlags(0).Expand().Left());
 
    bSizer_v1h2v3 = new wxBoxSizer (wxVERTICAL);
 	
-   m_staticText_v1h2v3_1 = new wxStaticText (this, IDC_LayerPrompt, wxT("Layer"), wxDefaultPosition, wxSize(60, 20), 0);
-   bSizer_v1h2v3->Add (m_staticText_v1h2v3_1, wxSizerFlags(0).Left().Border(wxLEFT,5));
+   m_staticText_v1h2v3_1 = new wxStaticText (this,
+   														IDC_LayerPrompt,
+   														wxT("Layer"),
+   														wxDefaultPosition,
+   														wxSize(60, 20),
+   														0);
+   bSizer_v1h2v3->Add (m_staticText_v1h2v3_1, wxSizerFlags(0).Left().Border(wxLEFT, 5));
 
-   m_textCtrl_v1h2v3_2 = new wxTextCtrl (this, IDC_TrainMaskLayer, wxEmptyString, wxDefaultPosition, wxSize(60, 28), 0);
-   //bSizer_v1h2v3->Add (m_textCtrl_v1h2v3_2, 0, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL | wxALL, 5);
-   bSizer_v1h2v3->Add (m_textCtrl_v1h2v3_2, 0, wxALIGN_LEFT|wxALIGN_CENTER | wxLEFT|wxTOP|wxBOTTOM, 5);
-   m_textCtrl_v1h2v3_3 = new wxTextCtrl(this, IDC_TestMaskLayer, wxEmptyString, wxDefaultPosition, wxSize(60, 28), 0);
-   //bSizer_v1h2v3->Add (m_textCtrl_v1h2v3_3, 0, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL | wxALL, 5);
-	bSizer_v1h2v3->Add (m_textCtrl_v1h2v3_3, 0, wxALIGN_LEFT|wxALIGN_CENTER | wxLEFT|wxTOP|wxBOTTOM, 5);
+   m_textCtrl_v1h2v3_2 = new wxTextCtrl (this,
+   													IDC_TrainMaskLayer,
+   													wxEmptyString,
+   													wxDefaultPosition,
+   													wxSize (60, 28),
+   													0);
+   bSizer_v1h2v3->Add (m_textCtrl_v1h2v3_2,
+								0,
+								wxALIGN_LEFT|wxALIGN_CENTER | wxLEFT|wxTOP|wxBOTTOM,
+								5);
+   m_textCtrl_v1h2v3_3 = new wxTextCtrl (this,
+   													IDC_TestMaskLayer,
+   													wxEmptyString,
+   													wxDefaultPosition,
+   													wxSize (60, 28),
+   													0);
+	bSizer_v1h2v3->Add (m_textCtrl_v1h2v3_3,
+								0,
+								wxALIGN_LEFT|wxALIGN_CENTER | wxLEFT|wxTOP|wxBOTTOM,
+								5);
    bSizer_v1h2->Add (bSizer_v1h2v3, 0, wxEXPAND | wxLEFT, 0);
 	
-   bSizer_v1->Add (bSizer_v1h2, wxSizerFlags(0).Expand().Border(wxLEFT|wxTOP|wxRIGHT, 12));
+   bSizer_v1->Add (bSizer_v1h2,
+   						wxSizerFlags(0).Expand().Border(wxLEFT|wxTOP|wxRIGHT, 12));
 
 	CreateStandardButtons (bSizer_v1);
 
    this->SetSizer (bSizer_v1);
-   this->Layout();
+   this->Layout ();
 
    this->Centre (wxBOTH);
 
@@ -284,7 +407,7 @@ void CMStatisticsDialog::CreateControls (void)
 
 
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------------
 //								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
@@ -311,7 +434,8 @@ SInt16 CMStatisticsDialog::DoDialog (
 				SInt16*								featurePtr,
 				SInt16								totalNumberChannels,
 				Handle*								trainMaskFileInfoHandlePtr,
-				Handle*								testMaskFileInfoHandlePtr) 
+				Handle*								testMaskFileInfoHandlePtr)
+
 {
 	Boolean								continueFlag = FALSE;
 
@@ -375,70 +499,33 @@ void CMStatisticsDialog::OnActivate (
 }	// end "OnActivate"
 
 
-/*
-void CMStatisticsDialog::OnCloseupTrainMaskCOMBO (
+
+void CMStatisticsDialog::OnChannelComboDropDown (
+				wxCommandEvent&					event) 
+{
+   UpdateAllSubsetList (IDC_ChannelCombo);
+
+}	// end "OnChannelComboDropDown"
+
+
+
+void CMStatisticsDialog::OnChannelComboSelendok (
 				wxCommandEvent&					event)
 {
-	SetFocus ();
+   HandleChannelsMenu (IDC_ChannelCombo,
+								kNoTransformation,
+								m_totalNumberChannels,
+								kImageChannelType,
+								TRUE);
+	
+	//event.Skip (true);
 
-}	// end "OnCloseupTrainMaskCOMBO"
-*/
+}	// end "OnChannelComboSelendok"
 
-
-void CMStatisticsDialog::OnDropdownChannels (
-				wxCommandEvent&					event) 
-{
-   UpdateAllSubsetList (IDC_Channels);
-
-}	// end "OnDropdownChannels" 
-
-
-
-void CMStatisticsDialog::OnDropdownProjectChanges (
-				wxCommandEvent&					event) 
-{
-   if (gProjectInfoPtr->statsLoaded || gProjectInfoPtr->pixelDataLoadedFlag)
-		{
-				// Make sure that the clear statistics command is in the list.
-
-      wxComboBox* projchange = (wxComboBox*)FindWindow (IDC_ProjectChanges);
-      if (projchange->GetCount() == 1)
-         projchange->Append(wxT("Clear Statistics..."));
-
-		}	// end "if (gProjectInfoPtr->statsLoaded || ..."
-
-   else // !gProjectInfoPtr->statsLoaded && ...
-		{
-				// Make sure that the clear statistics command is not in the list.
-
-      wxComboBox* projchange = (wxComboBox*)FindWindow (IDC_ProjectChanges);
-      if (projchange->GetCount() == 2)
-         projchange->Delete(1);
-
-		}	// end "else !gProjectInfoPtr->statsLoaded && ..."
-
-}	// end "OnDropdownProjectChanges"
-
-
-/*
-void CMStatisticsDialog::OnDropdownTestMaskCOMBO (
-				wxCommandEvent&					event) 
-{
-
-}	// end "OnDropdownTestMaskCOMBO" 
-*/
-
-/*
-void CMStatisticsDialog::OnDropdownTrainMaskCOMBO (
-				wxCommandEvent&					event) 
-{
-
-}	// end "OnDropdownTrainMaskCOMBO"
-*/
 
 
 void CMStatisticsDialog::OnInitDialog (
-				wxInitDialogEvent&				event) 
+				wxInitDialogEvent&				event)
 {
 	SInt16								localChannelSelection,
 											localLabelFieldCode,
@@ -471,21 +558,21 @@ void CMStatisticsDialog::OnInitDialog (
 											&m_maxNumberTrainLayers,
 											&m_maxNumberTestLayers);
 
-			// Set feature parameters 
+			// Set feature parameters
 
    m_localActiveNumberFeatures = m_localNumberFeatures;
    m_localActiveFeaturesPtr = m_localFeaturesPtr;
    m_channelSelection = localChannelSelection;
 
-			// Outline training areas.															
+			// Outline training areas.
 
    m_showTrainingFields = (localOutlineFieldType & 0x0001);
 
-			// Outline test areas.																
+			// Outline test areas.
 
    m_showTestFields = (localOutlineFieldType & 0x0002);
 
-			// Put labels with the area outlines.              
+			// Put labels with the area outlines.
 
    m_showClassNames = (localLabelFieldCode & 0x0001);
 
@@ -515,22 +602,37 @@ void CMStatisticsDialog::OnInitDialog (
 
    SetOutlineAreaOptions ();
 
-}	// end "OnInitDialog" 
+}	// end "OnInitDialog"
 
 
-void CMStatisticsDialog::OnSelendokChannels (
+
+void CMStatisticsDialog::OnProjectChangesDropDown (
 				wxCommandEvent&					event) 
 {
-   HandleChannelsMenu (IDC_Channels,
-								kNoTransformation,
-								m_totalNumberChannels,
-								kImageChannelType,
-								TRUE);
+   if (gProjectInfoPtr->statsLoaded || gProjectInfoPtr->pixelDataLoadedFlag)
+		{
+				// Make sure that the clear statistics command is in the list.
 
-}	// end "OnSelendokChannels"
+      wxComboBox* projchange = (wxComboBox*)FindWindow (IDC_ProjectChanges);
+      if (projchange->GetCount() == 1)
+         projchange->Append(wxT("Clear Statistics..."));
+
+		}	// end "if (gProjectInfoPtr->statsLoaded || ..."
+
+   else // !gProjectInfoPtr->statsLoaded && ...
+		{
+				// Make sure that the clear statistics command is not in the list.
+
+      wxComboBox* projchange = (wxComboBox*)FindWindow (IDC_ProjectChanges);
+      if (projchange->GetCount() == 2)
+         projchange->Delete(1);
+
+		}	// end "else !gProjectInfoPtr->statsLoaded && ..."
+
+}	// end "OnProjectChangesDropDown"
 
 
-void CMStatisticsDialog::OnSelendokProjectChanges (
+void CMStatisticsDialog::OnProjectChangesSelendok (
 				wxCommandEvent&					event)
 
 {
@@ -556,9 +658,9 @@ void CMStatisticsDialog::OnSelendokProjectChanges (
             m_localFeaturesPtr[index] = index;
          m_localActiveNumberFeatures = gProjectInfoPtr->numberStatisticsChannels;
 
-         UpdateAllSubsetList (IDC_Channels);
+         UpdateAllSubsetList (IDC_ChannelCombo);
 
-			wxComboBox* channsel = (wxComboBox*)FindWindow(IDC_Channels);
+			wxComboBox* channsel = (wxComboBox*)FindWindow(IDC_ChannelCombo);
          channsel->SetSelection (m_channelSelection);
 			
 			}	// end "if (m_channelListType == ..."
@@ -568,12 +670,70 @@ void CMStatisticsDialog::OnSelendokProjectChanges (
 		
 		}	// end "if (m_projectCommands == 1)"
 
-}	// end "OnSelendokProjectChanges"
+}	// end "OnProjectChangesSelendok"
 
 
 
-void CMStatisticsDialog::OnSelendokTestMaskCOMBO (
+void CMStatisticsDialog::OnShowClassNames (
 				wxCommandEvent&					event) 
+{
+   wxCheckBox* classname = (wxCheckBox*) FindWindow(IDC_ShowClassNames);
+   m_showClassNames = classname->GetValue();
+
+}	// end "OnShowClassNames"
+
+
+
+void CMStatisticsDialog::OnShowFieldNames (
+				wxCommandEvent&					event) 
+{
+   wxCheckBox* fieldname = (wxCheckBox*) FindWindow(IDC_ShowFieldNames);
+   m_showFieldNames = fieldname->GetValue();
+
+}	// end "OnShowFieldNames" 
+
+
+
+void CMStatisticsDialog::OnShowTrainTestLabel (
+				wxCommandEvent&					event) 
+{
+   wxCheckBox* traintest = (wxCheckBox*) FindWindow(IDC_ShowTrainTestLabel);
+   m_showTrainTestText = traintest->GetValue();
+	
+}	// end "OnShowTrainTestLabel" 
+
+
+
+void CMStatisticsDialog::OnStatisticsOptions (
+				wxCommandEvent&					event) 
+{
+   SetDLogControlHilite (NULL, wxID_OK, 255);
+
+   StatisticsOptionsDialog (&m_localStatCode,
+										&m_keepClassStatsFlag,
+										&m_variance,
+										&m_minLogDeterminant,
+										&m_useCommonCovarianceInLOOCFlag);
+
+   SetDLogControlHilite (NULL, wxID_OK, 0);
+
+}	// end "OnStatisticsOptions" 
+
+
+
+void CMStatisticsDialog::OnTestFields (
+				wxCommandEvent&					event) 
+{
+   wxCheckBox* testfield = (wxCheckBox*) FindWindow(IDC_TestFields);
+   m_showTestFields = testfield->GetValue();
+   SetOutlineAreaOptions();
+
+}	// end "OnTestFields"
+
+
+
+void CMStatisticsDialog::OnTestMaskComboSelendok (
+				wxCommandEvent&					event)
 {
 	SInt16								itemHit,
 											savedTestMaskCombo;
@@ -584,7 +744,7 @@ void CMStatisticsDialog::OnSelendokTestMaskCOMBO (
    wxComboBox* testmask = (wxComboBox*)FindWindow (IDC_TestMaskPopUp);
    m_testMaskCombo = testmask->GetSelection();
 
-   if (m_testMaskCombo >= 0) 
+   if (m_testMaskCombo >= 0)
 		{
       itemHit = StatisticsDialogSelectMaskItem (
 								&m_testMaskFileInfoHandle,
@@ -608,12 +768,24 @@ void CMStatisticsDialog::OnSelendokTestMaskCOMBO (
 
 		}	// end "if (m_testMaskCombo >= 0)"
 
-}	// end "OnSelendokTestMaskCOMBO"
+}	// end "OnTestMaskComboSelendok"
+   
+
+
+void CMStatisticsDialog::OnTrainingFields (
+				wxCommandEvent&					event) 
+{
+   wxCheckBox* trainfield = (wxCheckBox*) FindWindow(IDC_TrainingFields);
+   m_showTrainingFields = trainfield->GetValue();
+
+   SetOutlineAreaOptions();
+
+}	// end "OnTrainingFields"
 
 
 
-void CMStatisticsDialog::OnSelendokTrainMaskCOMBO (
-				wxCommandEvent&					event)  
+void CMStatisticsDialog::OnTrainMaskComboSelendok (
+				wxCommandEvent&					event)
 {
 	SInt16								itemHit,
 											savedTrainMaskCombo;
@@ -624,7 +796,7 @@ void CMStatisticsDialog::OnSelendokTrainMaskCOMBO (
    wxComboBox* trainmask = (wxComboBox*)FindWindow (IDC_TrainMaskPopUp);
    m_trainMaskCombo = trainmask->GetSelection();
 
-   if (m_trainMaskCombo >= 0) 
+   if (m_trainMaskCombo >= 0)
 		{
       itemHit = StatisticsDialogSelectMaskItem (&m_trainMaskFileInfoHandle,
 																this,
@@ -654,74 +826,11 @@ void CMStatisticsDialog::OnSelendokTrainMaskCOMBO (
 		*/
 		}	// end "if (m_trainMaskCombo >= 0)"
 
-}	// end "OnSelendokTrainMaskCOMBO" 
+}	// end "OnTrainMaskComboSelendok"
 
 
-void CMStatisticsDialog::OnShowClassNames (
-				wxCommandEvent&					event) 
-{
-   wxCheckBox* classname = (wxCheckBox*) FindWindow(IDC_ShowClassNames);
-   m_showClassNames = classname->GetValue();
 
-}	// end "OnShowClassNames"
-
-
-void CMStatisticsDialog::OnShowFieldNames (
-				wxCommandEvent&					event) 
-{
-   wxCheckBox* fieldname = (wxCheckBox*) FindWindow(IDC_ShowFieldNames);
-   m_showFieldNames = fieldname->GetValue();
-
-}	// end "OnShowFieldNames" 
-
-
-void CMStatisticsDialog::OnShowTrainTestLabel (
-				wxCommandEvent&					event) 
-{
-   wxCheckBox* traintest = (wxCheckBox*) FindWindow(IDC_ShowTrainTestLabel);
-   m_showTrainTestText = traintest->GetValue();
-	
-}	// end "OnShowTrainTestLabel" 
-
-
-void CMStatisticsDialog::OnStatisticsOptions (
-				wxCommandEvent&					event) 
-{
-   SetDLogControlHilite (NULL, wxID_OK, 255);
-
-   StatisticsOptionsDialog (&m_localStatCode,
-										&m_keepClassStatsFlag,
-										&m_variance,
-										&m_minLogDeterminant,
-										&m_useCommonCovarianceInLOOCFlag);
-
-   SetDLogControlHilite (NULL, wxID_OK, 0);
-
-}	// end "OnStatisticsOptions" 
-
-
-void CMStatisticsDialog::OnTestFields (
-				wxCommandEvent&					event) 
-{
-   wxCheckBox* testfield = (wxCheckBox*) FindWindow(IDC_TestFields);
-   m_showTestFields = testfield->GetValue();
-   SetOutlineAreaOptions();
-
-}	// end "OnTestFields"   
-   
-
-void CMStatisticsDialog::OnTrainingFields (
-				wxCommandEvent&					event) 
-{
-   wxCheckBox* trainfield = (wxCheckBox*) FindWindow(IDC_TrainingFields);
-   m_showTrainingFields = trainfield->GetValue();
-
-   SetOutlineAreaOptions();
-
-} // end "OnTrainingFields"  
-
-
-void CMStatisticsDialog::SetOutlineAreaOptions(void) 
+void CMStatisticsDialog::SetOutlineAreaOptions (void)
 {
    if (m_showTrainingFields || m_showTestFields) 
 		{
@@ -762,7 +871,8 @@ void CMStatisticsDialog::SetOutlineAreaOptions(void)
 }	// end "SetOutlineAreaOptions"
 
 
-bool CMStatisticsDialog::TransferDataFromWindow() 
+
+bool CMStatisticsDialog::TransferDataFromWindow ()
 {
 	SInt16								itemHit = 1;
 	
@@ -778,7 +888,7 @@ bool CMStatisticsDialog::TransferDataFromWindow()
 
    wxComboBox* projchange = (wxComboBox*)FindWindow(IDC_ProjectChanges);
    wxComboBox* colorcombo = (wxComboBox*)FindWindow(IDC_ColorCombo);
-   wxComboBox* channelcb = (wxComboBox*)FindWindow(IDC_Channels);
+   wxComboBox* channelcb = (wxComboBox*)FindWindow(IDC_ChannelCombo);
    wxComboBox* testmask = (wxComboBox*)FindWindow(IDC_TestMaskPopUp);
    wxComboBox* trainmask = (wxComboBox*)FindWindow(IDC_TrainMaskPopUp);
 
@@ -839,7 +949,8 @@ bool CMStatisticsDialog::TransferDataFromWindow()
 }	// end "TransferDataFromWindow"
 
 
-bool CMStatisticsDialog::TransferDataToWindow() 
+
+bool CMStatisticsDialog::TransferDataToWindow ()
 {
    wxCheckBox* testfield = (wxCheckBox*) FindWindow(IDC_TestFields);
    wxCheckBox* trainfield = (wxCheckBox*) FindWindow(IDC_TrainingFields);
@@ -849,7 +960,7 @@ bool CMStatisticsDialog::TransferDataToWindow()
 
    wxComboBox* projchange = (wxComboBox*) FindWindow(IDC_ProjectChanges);
    wxComboBox* colorcombo = (wxComboBox*) FindWindow(IDC_ColorCombo);
-   wxComboBox* channelcb = (wxComboBox*) FindWindow(IDC_Channels);
+   wxComboBox* channelcb = (wxComboBox*) FindWindow(IDC_ChannelCombo);
    wxComboBox* testmask = (wxComboBox*) FindWindow(IDC_TestMaskPopUp);
    wxComboBox* trainmask = (wxComboBox*) FindWindow(IDC_TrainMaskPopUp);
 

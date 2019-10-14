@@ -20,7 +20,7 @@
 //								CMFeatureSelectionListDialog classes
 //
 //	Written By:				Abdur Rahman Maud		Date: ??/??/2009
-//	Revised By:				Larry L. Biehl			Date: 06/21/2017
+//	Revised By:				Larry L. Biehl			Date: 10/08/2019
 //
 //------------------------------------------------------------------------------------
 //
@@ -53,11 +53,11 @@ class CMFeatureSelectionDialog : public CMDialog
 		int m_channelCombinationSelection;
 		int m_savedContiguousChannelsPerGroup; // changed from long
 		int m_localCombinationsToList;// changed from long
-		int m_interClassWeightsSelection;
-		int m_channelCombinationSelection_Saved;
-		int m_interClassWeightsSelection_Saved;
-		int m_classSelection_Saved;
-		int m_channelSelection_Saved;
+		int m_classPairWeightsSelection;
+		//int m_channelCombinationSelection_Saved;
+		//int m_interClassWeightsSelection_Saved;
+		//int m_classSelection_Saved;
+		//int m_channelSelection_Saved;
 		bool m_textWindowFlag;
 		bool m_diskFileFlag;
 		bool m_searchFlag;
@@ -67,24 +67,25 @@ class CMFeatureSelectionDialog : public CMDialog
 		bool TransferDataFromWindow();
 		bool TransferDataToWindow();
 		void HandleChannelCombinationsMenu (
-		UInt16 channelCombinationsMenuItemNumber);
+						UInt16 channelCombinationsMenuItemNumber);
 
 				// Generated message map functions
-		void OnInitDialog(wxInitDialogEvent& event);
-		void OnSelendokChannelCombo(wxCommandEvent& event);
-		void OnSelendokDistanceMeasureCombo(wxCommandEvent& event);
-		void OnSelendokNumberChannelsCombo(wxCommandEvent& event);
-		void OnSelendokNumberChannelsComboDropDown(wxCommandEvent& event);
-		void OnChangeChannelsPerGroup(wxCommandEvent& event);
-		SInt16 CheckValues(int controlID, SInt16 minValue, SInt16 maxValue, SInt32* newValue);
-		void OnStepProcedure(wxCommandEvent& event);
-		void OnChangeNumberBestToList(wxCommandEvent& event);
-		void OnSelendokClassCombo(wxCommandEvent& event);
-		void OnFeatureTransformation(wxCommandEvent& event);
-		void OnListOptions(wxCommandEvent& event);
-		void OnSelendokClassPairWeightsCombo(wxCommandEvent& event);
-		void CreateControls();  
-		void OnHelpButton(wxCommandEvent& event);
+		SInt16 CheckValues (int controlID, SInt16 minValue, SInt16 maxValue, SInt32* newValue);
+		void CreateControls ();
+		void OnHelpButton (wxCommandEvent& event);
+		void OnInitDialog (wxInitDialogEvent& event);
+		void OnChangeNumberBestToList (wxCommandEvent& event);
+		void OnChannelComboSelendok (wxCommandEvent& event);
+		void OnDistanceMeasureComboSelendok (wxCommandEvent& event);
+		void OnNumberChannelsComboSelendok (wxCommandEvent& event);
+		void OnNumberChannelsComboDropDown (wxCommandEvent& event);
+		void OnChangeChannelsPerGroup (wxCommandEvent& event);
+		void OnStepProcedure (wxCommandEvent& event);
+		void OnClassComboSelendok (wxCommandEvent& event);
+		void OnFeatureTransformation (wxCommandEvent& event);
+		void OnListOptions (wxCommandEvent& event);
+		void OnClassPairWeightsComboSelendok (wxCommandEvent& event);
+		void OnNumberChannelsComboCloseUp (wxCommandEvent& event);
 		DECLARE_EVENT_TABLE()
 					  
 		SeparabilitySpecsPtr		m_separabilitySpecsPtr;

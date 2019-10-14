@@ -12,7 +12,7 @@
 //
 //	Authors:					Larry L. Biehl, Wei-Kang Hsu, Tsung Tai Yeh
 //
-//	Revision date:			04/16/2019
+//	Revision date:			10/11/2019
 //
 //	Language:				C++
 //
@@ -37,11 +37,43 @@
 
 #ifdef multispec_wxlin
 	#include "LToolbar_img.cpp"
+
+	static const unsigned char blink_open_png[] = {
+0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0x00, 0x00, 0x00, 0x0D, 0x49, 0x48, 0x44, 0x52,
+0x00, 0x00, 0x00, 0x20, 0x00, 0x00, 0x00, 0x20, 0x08, 0x06, 0x00, 0x00, 0x00, 0x73, 0x7A, 0x7A,
+0xF4, 0x00, 0x00, 0x00, 0x5E, 0x49, 0x44, 0x41, 0x54, 0x78, 0x9C, 0xEC, 0xD3, 0x41, 0x0A, 0x00,
+0x20, 0x08, 0x44, 0xD1, 0xEE, 0x7F, 0xE9, 0xA9, 0xA5, 0x48, 0x41, 0x49, 0x26, 0xC1, 0x17, 0x66,
+0x27, 0xCC, 0x23, 0xAC, 0x49, 0x6A, 0x95, 0x29, 0x2D, 0x07, 0x00, 0x00, 0x00, 0x80, 0x7F, 0x01,
+0x63, 0x34, 0x4B, 0x3A, 0xC0, 0x95, 0xD9, 0xC2, 0x30, 0xE4, 0xB8, 0xDC, 0x8C, 0xDF, 0x91, 0x85,
+0x5C, 0x05, 0x6C, 0x94, 0x87, 0x11, 0x7F, 0xBC, 0x80, 0x47, 0x94, 0xDC, 0xC0, 0x0A, 0xF2, 0xF4,
+0x17, 0x64, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x28, 0x07, 0x74, 0x00, 0x00, 0x00, 0xFF,
+0xFF, 0x03, 0x00, 0x69, 0xDA, 0xBC, 0xDE, 0x7B, 0x42, 0x8D, 0x8E, 0x00, 0x00, 0x00, 0x00, 0x49,
+0x45, 0x4E, 0x44, 0xAE, 0x42, 0x60, 0x82 };
+
+	static const unsigned char blink_shut_png[] = {
+0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0x00, 0x00, 0x00, 0x0D, 0x49, 0x48, 0x44, 0x52,
+0x00, 0x00, 0x00, 0x20, 0x00, 0x00, 0x00, 0x20, 0x08, 0x06, 0x00, 0x00, 0x00, 0x73, 0x7A, 0x7A,
+0xF4, 0x00, 0x00, 0x00, 0x5C, 0x49, 0x44, 0x41, 0x54, 0x78, 0x9C, 0xEC, 0xD2, 0x41, 0x0A, 0x00,
+0x20, 0x08, 0x44, 0x51, 0xEF, 0x7F, 0x69, 0x6B, 0x59, 0x11, 0xA4, 0xA2, 0x48, 0xF0, 0x07, 0x86,
+0x96, 0xF3, 0x90, 0x44, 0x55, 0xA5, 0xB3, 0xAD, 0xE3, 0x00, 0x00, 0x00, 0x00, 0xF0, 0x2F, 0x60,
+0x46, 0x6F, 0x2D, 0x07, 0x1C, 0x63, 0x5B, 0xA2, 0x10, 0xF7, 0xF8, 0x2B, 0x5E, 0x44, 0xEA, 0x78,
+0x04, 0x61, 0x06, 0x78, 0x93, 0x0E, 0x68, 0xBD, 0xC0, 0x7A, 0x05, 0xCB, 0x9B, 0xFE, 0x07, 0x2A,
+0x0B, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xB4, 0x03, 0x06, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0x03,
+0x00, 0x72, 0x9B, 0xE3, 0xB7, 0x68, 0x02, 0x2C, 0xFE, 0x00, 0x00, 0x00, 0x00, 0x49, 0x45, 0x4E,
+0x44, 0xAE, 0x42, 0x60, 0x82 };
 #endif
 
 #define kDefaultMaxLegendWidth 170
 
+Boolean CMImageFrame::s_forcePaletteBackgroundFlag = FALSE;
+
+
+IMPLEMENT_DYNAMIC_CLASS(CMImageFrame, wxDocChildFrame)
+
+
 BEGIN_EVENT_TABLE (CMImageFrame, wxDocChildFrame)
+	EVT_CHAR_HOOK (CMImageFrame::OnCharHook)
+   EVT_KEY_DOWN (CMImageFrame::OnKeyDown)
 	EVT_MAXIMIZE (CMImageFrame::OnMaximizeWindow)
 
 	EVT_MENU (ID_DOWN_ARROW, CMImageFrame::DoKeyDownDownArrow)
@@ -67,12 +99,6 @@ BEGIN_EVENT_TABLE (CMImageFrame, wxDocChildFrame)
 	EVT_UPDATE_UI (wxID_PAGE_SETUP, CMImageFrame::OnUpdateFilePrintSetup)
 	EVT_UPDATE_UI (ID_OVERLAY, CMImageFrame::OnUpdateOverlay)
 END_EVENT_TABLE ()
-
-Boolean CMImageFrame::s_forcePaletteBackgroundFlag = FALSE;
-
-
-IMPLEMENT_DYNAMIC_CLASS(CMImageFrame, wxDocChildFrame)
-
 
 
 CMImageFrame::CMImageFrame ()
@@ -111,6 +137,26 @@ CMImageFrame::CMImageFrame (
 		wxBitmap zoomout = wxBITMAP_PNG_FROM_DATA(zoom_out);
 		wxBitmap zoomin = wxBITMAP_PNG_FROM_DATA(zoom_in);
 	#endif
+	
+			// Get blink open and shut cursors for thematic images
+	
+	#if defined multispec_wxmac
+		wxBitmap blinkOpen = wxBITMAP_PNG (blink_open);
+		wxBitmap blinkShut = wxBITMAP_PNG (blink_shut);
+	#else
+		wxBitmap blinkOpen = wxBITMAP_PNG_FROM_DATA (blink_open);
+		wxBitmap blinkShut = wxBITMAP_PNG_FROM_DATA (blink_shut);
+	#endif
+	
+	wxImage blink_open_image = blinkOpen.ConvertToImage ();
+	blink_open_image.SetOption (wxIMAGE_OPTION_CUR_HOTSPOT_X, 16);
+	blink_open_image.SetOption (wxIMAGE_OPTION_CUR_HOTSPOT_Y, 14);
+	blinkOpenCursor = wxCursor (blink_open_image);
+	
+	wxImage blink_shut_image = blinkShut.ConvertToImage ();
+	blink_shut_image.SetOption (wxIMAGE_OPTION_CUR_HOTSPOT_X, 16);
+	blink_shut_image.SetOption (wxIMAGE_OPTION_CUR_HOTSPOT_Y, 14);
+	blinkShutCursor = wxCursor (blink_shut_image);
 	
 	m_imageViewCPtr = (CMImageView*)view;
 	m_imageFrameActiveFlag = FALSE;
@@ -221,6 +267,7 @@ CMImageFrame::CMImageFrame (
 																				wxBORDER_NONE+wxBU_EXACTFIT);
    	bpButtonZoomIn->SetToolTip (wxT("Zoom into image"));
 		bpButtonZoomIn->Bind (wxEVT_LEFT_DOWN, &CMImageFrame::DoZoomIn, this);
+		bpButtonZoomIn->Bind (wxEVT_LEFT_DCLICK, &CMImageFrame::DoZoomIn, this);
 		m_toolBar->AddControl (bpButtonZoomIn);
 		/*
 		m_toolBar->AddTool (ID_ZOOM_OUT,
@@ -241,6 +288,7 @@ CMImageFrame::CMImageFrame (
 		//SetUpToolTip (bpButton, IDS_ToolTip40);
    	bpButtonZoomOut->SetToolTip (wxT("Zoom out of image"));
 		bpButtonZoomOut->Bind (wxEVT_LEFT_DOWN, &CMImageFrame::DoZoomOut, this);
+		bpButtonZoomOut->Bind (wxEVT_LEFT_DCLICK, &CMImageFrame::DoZoomOut, this);
 		m_toolBar->AddControl (bpButtonZoomOut);
 	
 		m_zoomText = new wxStaticText (m_toolBar,
@@ -409,14 +457,18 @@ void CMImageFrame::ActivateImageWindowItems (
 			  // and the colors do not change.
 
 		if (!activateFlag)
-            s_forcePaletteBackgroundFlag = TRUE;
+			s_forcePaletteBackgroundFlag = TRUE;
 
 		}	// end "if ( (activateFlag != m_imageFrameActiveFlag) && ..."
 
 	if (activateFlag && changeWindowFlag) 
 		{
 		m_imageFrameActiveFlag = TRUE;
-		m_imageLegendViewCPtr->GetLegendListCPtr()->SetLegendListActiveFlag(TRUE);
+		m_imageLegendViewCPtr->GetLegendListCPtr()->SetLegendListActiveFlag (TRUE);
+		
+				// Force the cursor to be reselected
+		
+		gPresentCursor = -1;
 	  
 			// Make this the highest child frame in the list. Not used with wxSTAY_ON_TOP
 			
@@ -424,6 +476,7 @@ void CMImageFrame::ActivateImageWindowItems (
 		//	Raise();
 		
 			// Update the zoom value in the status bar to reflect this active image window
+		
 		magnification = -1;
 		if (m_imageViewCPtr->CheckIfOffscreenImageExists()) 
 			{
@@ -860,6 +913,79 @@ void CMImageFrame::OnCancelDraw (wxCommandEvent& event)
 
 
 
+void CMImageFrame::OnChar (
+				wxKeyEvent& 					event)
+
+{
+	if (event.GetEventType() == wxEVT_KEY_DOWN && gProcessorCode != 0)
+		{
+		
+		}	// end "if (event.GetEventType() == wxEVT_KEY_DOWN)"
+	
+	event.Skip();
+	
+}	// end "OnChar"
+
+
+
+void CMImageFrame::OnCharHook (
+				wxKeyEvent&							event)
+
+{
+	/*
+	Rect									viewRect;		// used to store the image portion
+																// of the window
+	wxRect								coordinateArea,
+											imageArea,
+											legendArea;
+	
+	wxPoint								currentPos = event.GetPosition ();
+	
+	wxWindow								focusedWindow;
+	
+	SInt16								windowType;
+	bool									hasCaptureFlag;
+
+
+			// Returns true if this window has the current mouse capture.
+	
+	hasCaptureFlag = HasCapture ();
+	
+				// Also only handle if cursor is over image portion of a thematic image
+				// window.
+		
+	windowType = m_imageViewCPtr->GetWindowType ();
+	
+   if (windowType == kThematicImageType &&
+   			gProcessorCode == 0 &&
+   					event.GetKeyCode () == WXK_SHIFT &&
+   							!hasCaptureFlag)
+		{
+		GetWindowClipRectangle (m_imageViewCPtr, kImageArea, &viewRect);
+		
+		bool	cursorOverImageFlag = false;
+		if (currentPos.x >= viewRect.left && currentPos.x <= viewRect.right &&
+							currentPos.y >= viewRect.top && currentPos.y <= viewRect.bottom)
+			cursorOverImageFlag = true;
+		
+		legendArea = m_leftWindow->GetClientRect ();
+		imageArea = m_mainWindow->GetClientRect ();
+		coordinateArea = m_topWindow->GetClientRect ();
+		
+		if (cursorOverImageFlag)
+			{
+			m_imageViewCPtr->m_Canvas->SetFocus ();
+			
+			}
+		
+		}	// end "if (windowType == kThematicImageType && ..."
+	*/
+	event.Skip ();
+	
+}	// end "OnCharHook"
+
+
+
 void CMImageFrame::OnFileSave(wxCommandEvent& event) 
 {
 	gProcessorCode = kSaveProcessor;
@@ -875,6 +1001,34 @@ void CMImageFrame::OnFileSaveAs(wxCommandEvent& event)
 	gProcessorCode = 0;
 
 }	// end "OnFileSaveAs"
+
+
+
+void CMImageFrame::OnKeyDown (
+				wxKeyEvent& 						event)
+
+{
+
+	SInt16								windowType;
+	
+	Boolean								hasCaptureFlag;
+	
+	
+			// Only handle if this window is not captured and a processor is not
+			// in operation.
+	
+	hasCaptureFlag = HasCapture ();
+	
+   if (!hasCaptureFlag && gProcessorCode == 0)
+		{
+				// Also only handle if cursor is over image portion of a thematic image
+				// window.
+		
+		windowType = m_imageViewCPtr->GetWindowType ();
+		
+		}	// end "if (!hasCaptureFlag && gProcessorCode == 0)"
+
+}	// end "OnKeyDown"
 
 
 
@@ -1733,14 +1887,16 @@ void CMImageFrame::UpdateActiveImageWindowInfo (void)
 //
 
 void CMImageFrame::UpdateCursorCoordinates (
-        char* lineValueStringPtr,
-        char* columnValueStringPtr) 
+        char* 										lineValueStringPtr,
+        char* 										columnValueStringPtr)
 {
-	((wxStaticText*)m_coordinatesBar->FindWindow (IDC_CursorColumn))->Show(true);
-	((wxStaticText*)m_coordinatesBar->FindWindow (IDC_CursorLine))->Show(true);
+	((wxStaticText*)m_coordinatesBar->FindWindow (IDC_CursorColumn))->Show (true);
+	((wxStaticText*)m_coordinatesBar->FindWindow (IDC_CursorLine))->Show (true);
 	
-	((wxStaticText *)(m_coordinatesBar->FindWindow (IDC_CursorLine)))->SetLabel(wxString::FromUTF8(lineValueStringPtr));
-	((wxStaticText *)(m_coordinatesBar->FindWindow (IDC_CursorColumn)))->SetLabel(wxString::FromUTF8(columnValueStringPtr));
+	((wxStaticText *)(m_coordinatesBar->FindWindow (IDC_CursorLine)))->
+												SetLabel(wxString::FromUTF8(lineValueStringPtr));
+	((wxStaticText *)(m_coordinatesBar->FindWindow (IDC_CursorColumn)))->
+												SetLabel(wxString::FromUTF8(columnValueStringPtr));
 	
 	m_coordinatesBar->Layout();
 
@@ -1777,6 +1933,7 @@ void CMImageFrame::UpdateCursorCoordinates (void)
 	((wxStaticText*)m_coordinatesBar->FindWindow(IDC_CursorLine))->Show(false);
 	
 }	// end "UpdateCursorCoordinates"
+
 
 
 void CMImageFrame::UpdateScaleInformation(double scale, char* scaleStringPtr) 

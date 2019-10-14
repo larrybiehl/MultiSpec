@@ -13,7 +13,7 @@
 //	Authors:					Abdur Rahman Maud, Larry L. Biehl
 //
 //	Revision date:			07/25/2016 by Wei-Kang Hsu
-//								01/24/2019 by Larry L. Biehl
+//								09/01/2019 by Larry L. Biehl
 //
 //	Language:				C++
 //
@@ -30,7 +30,7 @@
 
 #include "wx/fontenum.h"
 
-IMPLEMENT_DYNAMIC_CLASS(CMTextView, wxView)
+IMPLEMENT_DYNAMIC_CLASS (CMTextView, wxView)
 
 int s_textWindowXPosition, s_textWindowYPosition, s_clientWidth, s_clientHeight;
 
@@ -58,7 +58,7 @@ int s_textWindowXPosition, s_textWindowYPosition, s_clientWidth, s_clientHeight;
 //	Coded By:			Larry L. Biehl			Date: 06/06/2015
 //	Revised By:			Larry L. Biehl			Date: 06/06/2015	
 
-SInt16 CMTextView::GetWindowType(void)
+SInt16 CMTextView::GetWindowType (void)
 
 {  
 	SInt16		windowType = 0;
@@ -251,12 +251,13 @@ bool CMTextView::DoEnumerateFamilies(wxFont textwf, bool fixedWidthOnly,
 		}
  
 	return false;
-}
+	
+}	// end "DoEnumerateFamilies"
 
 
 
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+//								 Copyright (1988-2019)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -297,79 +298,134 @@ bool CMTextView::ListString (
 		m_frame->SetTitle(wxT("Text Output"));
 	return (true);
 
-}			// end "ListString"// This function is called when we call wxView::Activate()
+}	// end "ListString"
 
 
+// This function is called when we call wxView::Activate()
 // Inherited from wxView
-void CMTextView::OnActivateView(
-        bool bActivate,
-        wxView* pActivateView,
-        wxView* pDeactiveView)
+void CMTextView::OnActivateView (
+				bool 								bActivate,
+				wxView* 							pActivateView,
+				wxView* 							pDeactiveView)
 {
 	if (m_frame != NULL)
 		{
 		if (bActivate)
+			{
 			wxASSERT(pActivateView == (wxView*)this);
+			
+			}	// end "if (bActivate)"
 		  
 				// If the window is being activated, outside of a processing operating, make sure the global
 				// active image information is up to date.
-		if (gProcessorCode == 0 && bActivate) {
+				
+		if (gProcessorCode == 0 && bActivate)
+			{
 			gActiveWindowType = kOutputWindowType;
 			gTheActiveWindow = (WindowPtr)gOutputViewCPtr;
 			
-			}		// end "if (gProcessorCode == 0 && bActivate)"
+			}	// end "if (gProcessorCode == 0 && bActivate)"
 		
-		}		// end "if (m_frame != NULL)"
+		m_frame->EnableCloseButton (false);
+		
+		}	// end "if (m_frame != NULL)"
 
-} // end "OnActivateView"
+}	// end "OnActivateView"
 
 
 
 // Handled by wxTextWindow
-void CMTextView::OnDraw(wxDC *WXUNUSED(dc) )
+void CMTextView::OnDraw (
+				wxDC*									WXUNUSED(dc))
+
 {
-}
 
-void CMTextView::OnUpdate(wxView *WXUNUSED(sender), wxObject *WXUNUSED(hint) )
+}	// end "OnDraw"
+
+
+
+void CMTextView::OnUpdate (
+				wxView*								WXUNUSED(sender),
+				wxObject*							WXUNUSED(hint))
+
 {
-}
 
-bool CMTextView::OnClose(bool deleteWindow)
+}	// end "OnUpdate"
+
+
+
+bool CMTextView::OnClose (
+				bool 									deleteWindow)
+
 {
-	if (!GetDocument()->Close())
-		return false;
-
-	Activate(false);
-
-	if (deleteWindow)
+			// Need to check the m_applicationExitFlag to verify that this call
+			// is actually coming from an application quit event instead of a
+			// close text window event which is not allowed. The close button
+			// in the text window is sometimes activated for MacOS when
+			// MultiSpec is brought to the front.
+	
+	if (((CMTextDoc*)GetDocument())->m_applicationExitFlag)
 		{
-		delete m_frame;
-		m_frame = NULL;
-		return true;
-		}
+		//if (!GetDocument()->Close())
+		//	return false;
+
+		Activate (false);
+
+		if (deleteWindow)
+			{
+			delete m_frame;
+			m_frame = NULL;
+			return true;
+			
+			}	// end "if (deleteWindow)"
 		
-	return true;
-}
+		return true;
+		
+		}	// end "if (((CMTextDoc*)GetDocument())->m_applicationExitFlag)"
+	
+	return false;
+	
+}	// end "OnClose"
+
+
 
 // currently not used 
-void CMTextView::OnTextChange(wxCommandEvent& event)
+void CMTextView::OnTextChange (
+				wxCommandEvent& 					event)
+
 {
-	((CMTextDoc *)GetDocument())->Modify(true);
+	((CMTextDoc*)GetDocument())->Modify (true);
 
 	event.Skip();
-}
+	
+}	// end "OnTextChange"
 
 
-TextWindow::TextWindow(wxView *v, wxDocChildFrame *frame, const wxPoint& pos, const wxSize& size, long style):
-		wxTextCtrl(frame, wxID_ANY, _T(""), pos, size, style)
+
+TextWindow::TextWindow (
+				wxView*								v,
+				wxDocChildFrame*					frame,
+				const wxPoint& 					pos,
+				const wxSize& 						size,
+				long 									style)
+		: wxTextCtrl (frame, wxID_ANY, _T(""), pos, size, style)
 
 {
   m_view = v;
-}
+	
+}	// end "TextWindow"
 
 
-TextWindow2::TextWindow2(wxView *v, wxDocChildFrame *frame, const wxPoint& pos, const wxSize& size, long style):
-		wxStyledTextCtrl(frame, ID_TextWindowStyled, pos, size, style)
+
+TextWindow2::TextWindow2 (
+				wxView*								v,
+				wxDocChildFrame*					frame,
+				const wxPoint& 					pos,
+				const wxSize& 						size,
+				long 									style)
+		: wxStyledTextCtrl (frame, ID_TextWindowStyled, pos, size, style)
+
 {
-  m_view = v;  
- }
+  m_view = v;
+	
+}	// end "TextWindow2"

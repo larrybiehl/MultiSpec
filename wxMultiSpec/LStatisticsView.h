@@ -1,6 +1,27 @@
-// LStatisticsView.h : header file
-//       
-// Revised by Larry Biehl on 06/20/2017                
+//	 									MultiSpec
+//
+//					Laboratory for Applications of Remote Sensing
+//									Purdue University
+//								West Lafayette, IN 47907
+//								 Copyright (2009-2019)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	File:						LStatisticsView.h
+//	Implementation:		LStatisticsView.cpp
+//
+//	Authors:					Larry L. Biehl, Abdur Rahman Maud
+//
+//	Language:				C++
+//
+//	System:					Linux and MacOS Operating Systems
+//
+//	Brief description:	Header file for the CMStatisticsView class
+//
+//	Written By:				Abdur Rahman Maud		Date: ??/??/2009
+//	Revised By:				Larry L. Biehl			Date: 06/20/2017
+//
+//------------------------------------------------------------------------------------
 //
 #ifndef __LSTATVEW_H__
 	#define __LSTATVEW_H__   
@@ -10,68 +31,43 @@
 typedef bool BOOL;
 typedef long unsigned int UINT;
 
-class CMStatisticsView : public wxView {
-   DECLARE_DYNAMIC_CLASS(CMStatisticsView);
-//protected:
-//    C
-//    // Form Data
-public:
-    CMStatisticsView(); // protected constructor used by dynamic creation  
-    ~CMStatisticsView();
-    virtual void OnInitialUpdate(); // first time after construct 
 
-    bool TransferDataToWindow();
-    bool TransferDataFromWindow();
-    //{{AFX_DATA(CMStatisticsView)
-    CMStatisticsFrame *m_frame;
-    
-    enum {
-        IDD = IDD_StatisticsWindow
-    };
+class CMStatisticsView : public wxView
+	{
+   DECLARE_DYNAMIC_CLASS (CMStatisticsView);
+
+	public:
+		CMStatisticsView (); // protected constructor used by dynamic creation
+		~CMStatisticsView ();
+		virtual void OnInitialUpdate (); // first time after construct
+
+		bool TransferDataToWindow();
+		bool TransferDataFromWindow();
+		CMStatisticsFrame *m_frame;
+
+		enum { IDD = IDD_StatisticsWindow };
+
+		int m_classList;
+
+		BOOL m_polygonFlag;
+
+		virtual  void OnDraw(CDC* pDC); // overridden to draw this view
+
+		CMStatisticsDoc* GetDocument(void);
+
+	protected:
+		bool OnClose (bool deleteWindow = true);
+		void virtual OnActivateView (
+				bool				bActivate,
+				wxView*			pActivateView,
+				wxView*			pDeactiveView);
 	
-	 /*
-    wxBoxSizer* bSizer233;
-    wxBoxSizer* bSizer234;
-    wxBoxSizer* bSizer235;
-    wxBoxSizer* bSizer236;
-    wxBoxSizer* bSizer237;
-    wxBoxSizer* bSizer238;
-    wxBoxSizer* bSizer239;
-    wxBoxSizer* bSizer240;
-    wxBoxSizer* bSizer241;
-    wxBoxSizer* bSizer242;
-    wxBoxSizer* bSizer243;
-    wxBoxSizer* bSizer244;
-    
-    wxListBox* m_listBox;
-	 */
-    int m_classList;
-	 /*
-    int m_histogramStatsCode;
-    int m_listStatsCode;
-    int m_statsTypeCode;
-	 */
-    BOOL m_polygonFlag;
-
-    virtual  void OnDraw(CDC* pDC); // overridden to draw this view 
-
-    CMStatisticsDoc* GetDocument(void);
-
-protected:
-	bool OnClose(bool deleteWindow = true);
-	 void virtual OnActivateView(
-						  bool				bActivate,
-						  wxView*			pActivateView,
-						  wxView*			pDeactiveView);
-    bool OnCreate(wxDocument *doc, long WXUNUSED(flags));
+		bool OnCreate (wxDocument *doc, long WXUNUSED(flags));
 
 		Boolean m_initializedFlag;
 	
-private:
-    DECLARE_EVENT_TABLE()
-	 
-};
-
-///////////////////////////////////////////////////////////////////////////// 
-
+	private:
+		 DECLARE_EVENT_TABLE ()
+	
+	};
 #endif	// !defined __LSTATVEW_H__

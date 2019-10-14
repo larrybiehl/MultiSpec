@@ -19,7 +19,7 @@
 //	Brief description:	Header file for the CMLegendList class
 //
 //	Written By:				Abdur Rahman Maud		Date: ??/??/2009
-//	Revised By:				Larry L. Biehl			Date: 03/16/2019
+//	Revised By:				Larry L. Biehl			Date: 09/30/2019
 //
 //------------------------------------------------------------------------------------
 //
@@ -48,7 +48,7 @@ class CMLegendList : public wxListView
 		
 		virtual ~CMLegendList();
 		
-		CPoint				LastClickPoint(void);
+		//CPoint				LastClickPoint (void);
 		
 		void					DrawLegendList ();
 
@@ -59,7 +59,8 @@ class CMLegendList : public wxListView
 	
 		void					SetLegendListActiveFlag (
 									Boolean				settingFlag);
-		void              DrawItem(int itemData, int itemID);
+	
+		void              DrawItem (int itemData, int itemID);
 	
 		wxPalette* 					m_paletteObject;
 		wxPalette* 					m_backgroundPaletteObject;
@@ -75,21 +76,20 @@ class CMLegendList : public wxListView
 		
 				// Generated message map functions
 	
-		void OnLButtonDblClk (wxListEvent& event);
 		void OnBeginDrag (wxListEvent& event);
-		void OnLButtonUp (wxMouseEvent& event);
-		void OnCharHook (wxKeyEvent& event);
+		//void OnCharHook (wxKeyEvent& event);
 		void OnKeyDown (wxKeyEvent& event);
 		void OnKeyUp (wxKeyEvent& event);
-		void OnKillFocusEvent (wxFocusEvent& event);
+		//void OnKillFocusEvent (wxFocusEvent& event);
+		void OnLButtonDblClk (wxListEvent& event);
+		void OnLButtonDown (wxMouseEvent& event);
+		void OnLButtonUp (wxMouseEvent& event);
 		void OnMouseMove (wxMouseEvent& event);
-		void paintEvent(wxPaintEvent & evt);
 
 		DECLARE_EVENT_TABLE()
 	
 		Handle						m_bitMapInfoHeaderHandle;
-		Boolean						m_activeFlag,
-										m_shiftKeyDownFlag;
+		Boolean						m_activeFlag;
 		
 		static CPoint				s_lastMouseDnPoint;
 		
@@ -102,13 +102,11 @@ class CMLegendList : public wxListView
 		
 		static bool					s_draggingFlag,
 										s_grayRectDisplayedFlag,
-										s_isPrintingFlag,
-										s_controlKeyDownFlag,
-										s_altKeyDownFlag,
-										s_shiftKeyDownFlag;
+										s_isPrintingFlag;
 		
-		wxPanel*        m_LegendView;
-		wxRect m_rectFocus;
+		//wxPanel*        		m_LegendView;
+		CMLegendView*        	m_LegendView;
+		wxRect 						m_rectFocus;
 		
 	};
 #endif	// !defined __LLEGLIST_H__  

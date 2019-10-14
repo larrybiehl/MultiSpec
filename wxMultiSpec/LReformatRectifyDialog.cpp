@@ -50,7 +50,7 @@ BEGIN_EVENT_TABLE (CMReformatRectifyDlg, CMDialog)
 	EVT_COMBOBOX (IDC_ReferenceFileList, CMReformatRectifyDlg::OnCbnSelendokTargetCombo)
 	EVT_COMBOBOX (IDC_ResampleMethod, CMReformatRectifyDlg::OnCbnSelendokResampleMethod)
 
-	EVT_COMBOBOX_DROPDOWN (IDC_Channels, CMReformatRectifyDlg::OnSelendokChannelComboDropDown)
+	EVT_COMBOBOX_DROPDOWN (IDC_Channels, CMReformatRectifyDlg::OnChannelComboDropDown)
 
 	EVT_INIT_DIALOG (CMReformatRectifyDlg::OnInitDialog)
 
@@ -875,8 +875,8 @@ bool CMReformatRectifyDlg::TransferDataFromWindow ()
    m_headerOptionsSelection = (SInt16)headerList;
    
    m_channelSelection = outChannels->GetSelection();
-   if(m_channelSelection < 0)
-      m_channelSelection = m_channelSelection_Saved;
+   //if(m_channelSelection < 0)
+   //   m_channelSelection = m_channelSelection_Saved;
    
    returnCode = CheckDialogRealValue (this,
                                       IDC_BackgroundValue,

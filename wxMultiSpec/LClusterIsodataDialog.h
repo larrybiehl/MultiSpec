@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (2009-2018)
+//								 Copyright (2009-2019)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -19,7 +19,7 @@
 //	Brief description:	Header file for the CMClassifyDialog class
 //
 //	Written By:				Abdur Rahman Maud		Date: ??/??/2009
-//	Revised By:				Larry L. Biehl			Date: 11/06/2018
+//	Revised By:				Larry L. Biehl			Date: 10/07/2019
 //	
 //------------------------------------------------------------------------------------
 
@@ -76,7 +76,7 @@
 			void	OnEigenvectorVolume (wxCommandEvent& event);
 			void	OnOnePassCluster (wxCommandEvent& event);
 			void	OnProjectClassMeans (wxCommandEvent& event);
-			void	OnSelendokClassCombo (wxCommandEvent& event);
+			void	OnClassComboSelendok (wxCommandEvent& event);
 			void	On1stCovEigenvector (wxCommandEvent& event);
 			DECLARE_EVENT_TABLE ()
 

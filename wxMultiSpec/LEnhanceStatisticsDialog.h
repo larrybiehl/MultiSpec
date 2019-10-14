@@ -59,7 +59,7 @@ class CMEnhanceStatisticsDialog : public CMDialog
 		double	m_labelWeight;
 		bool	m_useEnhancedStatisticsFlag;
 		bool	m_weightLabeledFlag;
-		int         m_weightsSelection;
+		//int         m_weightsSelection;
 		double	m_softChiChiThreshold;
 		double	m_hardChiChiThreshold;
 		double	m_softPercentThreshold;
@@ -89,7 +89,7 @@ class CMEnhanceStatisticsDialog : public CMDialog
 		void             OnChangeSoftPercentThreshold(wxCommandEvent& event);
 		void             OnChangeHardChiChiThreshold(wxCommandEvent& event);
 		void             OnChangeSoftChiChiThreshold(wxCommandEvent& event);
-		void             OnSelendokClassWeightsCombo(wxCommandEvent& event);
+		void             OnClassWeightsComboSelendok (wxCommandEvent& event);
 	
 		bool            TransferDataFromWindow();
 		bool            TransferDataToWindow();

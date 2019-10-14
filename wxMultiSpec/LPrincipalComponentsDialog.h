@@ -19,7 +19,7 @@
 //	Brief description:	Header file for the CMPrincipalCompDialog class
 //
 //	Written By:				Abdur Rahman Maud		Date: ??/??/2009
-//	Revised By:				Larry L. Biehl			Date: 10/04/2018
+//	Revised By:				Larry L. Biehl			Date: 10/07/2019
 //	
 //------------------------------------------------------------------------------------
 //
@@ -70,8 +70,8 @@ class CMPrincipalCompDialog : public CMDialog
 		void OnInitDialog(wxInitDialogEvent& event);
 		void OnClasses(wxCommandEvent& event);
 		void OnImageArea(wxCommandEvent& event);
-		void OnSelendokClassCombo(wxCommandEvent& event);
-		void OnSelendokChannelCombo(wxCommandEvent& event);
+		void OnClassComboSelendok(wxCommandEvent& event);
+		void OnChannelComboSelendok (wxCommandEvent& event);
 
 		DECLARE_EVENT_TABLE()
 	

@@ -12,7 +12,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			02/04/2019
+//	Revision date:			10/08/2019
 //
 //	Language:				C++
 //
@@ -45,12 +45,17 @@ extern void 		EvaluateCovariancesDialogOK (
 
 
 BEGIN_EVENT_TABLE (CMEvalCovarianceDialog, CMDialog)
-	EVT_INIT_DIALOG(CMEvalCovarianceDialog::OnInitDialog)
-	EVT_COMBOBOX(IDC_ChannelCombo, CMEvalCovarianceDialog::OnSelendokChannelCombo)
-	EVT_COMBOBOX(IDC_ClassCombo, CMEvalCovarianceDialog::OnSelendokClassCombo)
-	EVT_CHECKBOX(IDC_Transformation, CMEvalCovarianceDialog::OnTransformation)
-	EVT_COMBOBOX_DROPDOWN(IDC_ClassCombo, CMEvalCovarianceDialog::OnSelendokClassComboDropDown)
-	EVT_COMBOBOX_DROPDOWN(IDC_ChannelCombo, CMEvalCovarianceDialog::OnSelendokChannelComboDropDown)
+	EVT_COMBOBOX (IDC_ChannelCombo, CMEvalCovarianceDialog::OnChannelComboSelendok)
+	EVT_COMBOBOX (IDC_ClassCombo, CMEvalCovarianceDialog::OnClassComboSelendok)
+	EVT_CHECKBOX (IDC_Transformation, CMEvalCovarianceDialog::OnTransformation)
+
+	EVT_COMBOBOX_CLOSEUP (IDC_ClassCombo, CMEvalCovarianceDialog::OnClassComboCloseUp)
+	EVT_COMBOBOX_CLOSEUP (IDC_ChannelCombo, CMEvalCovarianceDialog::OnChannelComboCloseUp)
+
+	EVT_COMBOBOX_DROPDOWN (IDC_ClassCombo, CMEvalCovarianceDialog::OnClassComboDropDown)
+	EVT_COMBOBOX_DROPDOWN (IDC_ChannelCombo, CMEvalCovarianceDialog::OnChannelComboDropDown)
+	
+	EVT_INIT_DIALOG (CMEvalCovarianceDialog::OnInitDialog)
 END_EVENT_TABLE()
 
 
@@ -231,27 +236,27 @@ void CMEvalCovarianceDialog::CreateControls ()
 // 
 //	Called By:			Dialog in MDisMult.cpp
 //
-//	Coded By:			Larry L. Biehl			Date: 04/26/96
-//	Revised By:			Larry L. Biehl			Date: 05/13/98	
+//	Coded By:			Larry L. Biehl			Date: 04/26/1996
+//	Revised By:			Larry L. Biehl			Date: 10/08/2019
 
 Boolean 
 CMEvalCovarianceDialog::DoDialog(
 				EvaluateCovarianceSpecsPtr		evaluateCovarianceSpecsPtr){
    
    Boolean  continueFlag = FALSE; 
-	SInt16   returnCode;	 
+	SInt16   returnCode = -1;
 	UInt16	index;
    
    // Make sure intialization has been completed.
 							                         
-	if ( !m_initializedFlag )
+	if (!m_initializedFlag)
 																			return(FALSE);
 																			
 	m_evaluateCovarianceSpecsPtr = evaluateCovarianceSpecsPtr;
    
-	if(TransferDataFromWindow()){																			
+	if (TransferDataFromWindow ())
 	  returnCode = ShowModal();
-	}
+	
 	if (returnCode == wxID_OK)
 		{
 		continueFlag = TRUE;
@@ -377,7 +382,7 @@ void CMEvalCovarianceDialog::OnTransformation(wxCommandEvent& event)
 
   
 
-void CMEvalCovarianceDialog::OnSelendokChannelCombo(wxCommandEvent& event)
+void CMEvalCovarianceDialog::OnChannelComboSelendok (wxCommandEvent& event)
 {  
   
 	HandleChannelsMenu(IDC_ChannelCombo, 
@@ -386,11 +391,11 @@ void CMEvalCovarianceDialog::OnSelendokChannelCombo(wxCommandEvent& event)
 								2,
 								TRUE);
 	
-}		// end "OnSelendokChannelCombo"  
+}		// end "OnChannelComboSelendok"  
 
 
 
-void CMEvalCovarianceDialog::OnSelendokClassCombo(wxCommandEvent& event)
+void CMEvalCovarianceDialog::OnClassComboSelendok(wxCommandEvent& event)
 {                                                                                
 	HandleClassesMenu( &m_localNumberClasses,
 								(SInt16*)m_classListPtr,
@@ -399,23 +404,7 @@ void CMEvalCovarianceDialog::OnSelendokClassCombo(wxCommandEvent& event)
 								IDC_ClassCombo,
 								&m_classSelection);
 	
-}		// end "OnSelendokClassCombo" 
-
-//void
-//CMEvalCovarianceDialog::OnSelendokClassComboDropDown(wxCommandEvent& event) {
-////   wxComboBox* classcombo = (wxComboBox *) FindWindow(IDC_ClassCombo);
-////   m_classSelection_Saved = classcombo->GetSelection();
-////   classcombo->SetSelection(-1);
-//   ResetComboBox(IDC_ClassCombo);
-//}
-
-//void
-//CMEvalCovarianceDialog::OnSelendokChannelComboDropDown(wxCommandEvent& event) {
-////   wxComboBox* channelcombo = (wxComboBox *) FindWindow(IDC_ChannelCombo);
-////   m_channelSelection_Saved = channelcombo->GetSelection();
-////   channelcombo->SetSelection(-1);
-//   ResetComboBox(IDC_ChannelCombo);
-//}
+}		// end "OnClassComboSelendok" 
 
 
 
@@ -439,12 +428,12 @@ bool CMEvalCovarianceDialog::TransferDataFromWindow ()
    m_featureTransformationFlag = featureTransformationFlag->GetValue ();
 	
    m_channelSelection = channelSelection->GetSelection ();
-   if(m_channelSelection < 0)
-      m_channelSelection = m_channelSelection_Saved;
+   //if(m_channelSelection < 0)
+   //   m_channelSelection = m_channelSelection_Saved;
 	
    m_classSelection = classSelection->GetSelection ();
-   if (m_classSelection < 0)
-      m_classSelection = m_classSelection_Saved;
+   //if (m_classSelection < 0)
+   //   m_classSelection = m_classSelection_Saved;
 	
    return TRUE;
 	

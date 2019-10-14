@@ -19,7 +19,7 @@
 //	Brief description:	Header file for the CMImageView class
 //
 //	Written By:				Abdur Rahman Maud		Date: ??/??/2009
-//	Revised By:				Larry L. Biehl			Date: 04/02/2019
+//	Revised By:				Larry L. Biehl			Date: 09/03/2019
 //
 //------------------------------------------------------------------------------------
 //
@@ -112,6 +112,8 @@ class CMImageView : public wxView
 		virtual void 	OnDraw (wxDC* dc);
 
 		void 				OnFocus (wxFocusEvent& event);
+	
+		void 				OnKeyDown (wxKeyEvent& event);
 
 		virtual void 	OnUpdate (wxView *sender, wxObject *hint = (wxObject*)NULL);
 

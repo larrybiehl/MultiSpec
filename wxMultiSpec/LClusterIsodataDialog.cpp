@@ -12,7 +12,7 @@
 //
 //	Authors:					Abdur Rahman Maud, Larry L. Biehl
 //
-//	Revision date:			10/19/2018
+//	Revision date:			10/07/2019
 //
 //	Language:				C++
 //
@@ -34,6 +34,34 @@
 
 
 IMPLEMENT_DYNAMIC_CLASS (CMISODATAClusterDialog, CMDialog)
+
+
+
+BEGIN_EVENT_TABLE (CMISODATAClusterDialog, CMDialog)
+	EVT_BUTTON (IDEntireImage, CMISODATAClusterDialog::ToEntireImage)
+	EVT_BUTTON (IDSelectedImage, CMISODATAClusterDialog::ToSelectedImage)
+	EVT_CHECKBOX (IDC_ProjectClassMeans, CMISODATAClusterDialog::OnProjectClassMeans)
+
+	EVT_COMBOBOX (IDC_ClassCombo, CMISODATAClusterDialog::OnClassComboSelendok)
+	EVT_COMBOBOX_CLOSEUP (IDC_ClassCombo, CMISODATAClusterDialog::OnClassComboCloseUp)
+	EVT_COMBOBOX_DROPDOWN (IDC_ClassCombo, CMISODATAClusterDialog::OnClassComboDropDown)
+
+	EVT_INIT_DIALOG (CMISODATAClusterDialog::OnInitDialog)
+
+	EVT_RADIOBUTTON (IDC_ClusterTrainingAreas, CMISODATAClusterDialog::OnClusterTrainingAreas)
+	EVT_RADIOBUTTON (IDC_ClusterImageArea, CMISODATAClusterDialog::OnClusterImageArea)
+	EVT_RADIOBUTTON (IDC_1stCovEigenvector, CMISODATAClusterDialog::On1stCovEigenvector)
+	EVT_RADIOBUTTON (IDC_EigenvectorVolume, CMISODATAClusterDialog::OnEigenvectorVolume)
+	EVT_RADIOBUTTON (IDC_OnePassCluster, CMISODATAClusterDialog::OnOnePassCluster)
+
+	EVT_TEXT (IDC_ColumnEnd, CMISODATAClusterDialog::CheckColumnEnd)
+	EVT_TEXT (IDC_ColumnStart, CMISODATAClusterDialog::CheckColumnStart)
+	EVT_TEXT (IDC_LineEnd, CMISODATAClusterDialog::CheckLineEnd)
+	EVT_TEXT (IDC_LineStart, CMISODATAClusterDialog::CheckLineStart)
+	EVT_TEXT (IDC_LineInterval, CMISODATAClusterDialog::CheckLineInterval)
+	EVT_TEXT (IDC_ColumnInterval, CMISODATAClusterDialog::CheckColumnInterval)
+END_EVENT_TABLE ()
+
 
 
 CMISODATAClusterDialog::CMISODATAClusterDialog ()
@@ -89,29 +117,6 @@ CMISODATAClusterDialog::~CMISODATAClusterDialog ()
    m_classListPtr = CheckAndDisposePtr (m_classListPtr);
 
 }	// end "~CMISODATAClusterDialog"
-
-
-
-BEGIN_EVENT_TABLE (CMISODATAClusterDialog, CMDialog)
-
-EVT_INIT_DIALOG (CMISODATAClusterDialog::OnInitDialog)
-	EVT_COMBOBOX (IDC_ClassCombo, CMISODATAClusterDialog::OnSelendokClassCombo)
-	EVT_COMBOBOX_DROPDOWN (IDC_ClassCombo, CMISODATAClusterDialog::OnSelendokClassComboDropDown)
-	EVT_RADIOBUTTON (IDC_ClusterTrainingAreas, CMISODATAClusterDialog::OnClusterTrainingAreas)
-	EVT_RADIOBUTTON (IDC_ClusterImageArea, CMISODATAClusterDialog::OnClusterImageArea)
-	EVT_RADIOBUTTON (IDC_1stCovEigenvector, CMISODATAClusterDialog::On1stCovEigenvector)
-	EVT_RADIOBUTTON (IDC_EigenvectorVolume, CMISODATAClusterDialog::OnEigenvectorVolume)
-	EVT_RADIOBUTTON (IDC_OnePassCluster, CMISODATAClusterDialog::OnOnePassCluster)
-	EVT_BUTTON (IDEntireImage, CMISODATAClusterDialog::ToEntireImage)
-	EVT_BUTTON (IDSelectedImage, CMISODATAClusterDialog::ToSelectedImage)
-	EVT_CHECKBOX (IDC_ProjectClassMeans, CMISODATAClusterDialog::OnProjectClassMeans)
-	EVT_TEXT (IDC_ColumnEnd, CMISODATAClusterDialog::CheckColumnEnd)
-	EVT_TEXT (IDC_ColumnStart, CMISODATAClusterDialog::CheckColumnStart)
-	EVT_TEXT (IDC_LineEnd, CMISODATAClusterDialog::CheckLineEnd)
-	EVT_TEXT (IDC_LineStart, CMISODATAClusterDialog::CheckLineStart)
-	EVT_TEXT (IDC_LineInterval, CMISODATAClusterDialog::CheckLineInterval)
-	EVT_TEXT (IDC_ColumnInterval, CMISODATAClusterDialog::CheckColumnInterval)
-END_EVENT_TABLE ()
  
 
 
@@ -819,7 +824,7 @@ void CMISODATAClusterDialog::OnProjectClassMeans (
 
 
 
-void CMISODATAClusterDialog::OnSelendokClassCombo (
+void CMISODATAClusterDialog::OnClassComboSelendok (
 				wxCommandEvent&					event)
 
 {

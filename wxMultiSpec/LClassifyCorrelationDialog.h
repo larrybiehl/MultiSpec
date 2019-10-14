@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (2009-2018)
+//								 Copyright (2009-2019)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -19,7 +19,7 @@
 //	Brief description:	Header file for the CMCorrelationClassifyDialog class
 //
 //	Written By:				Wei-Kang Hsu			Date: 04/09/2015
-//	Revised By:				Larry L. Biehl			Date: 01/24/2018
+//	Revised By:				Larry L. Biehl			Date: 10/08/2019
 //	
 //------------------------------------------------------------------------------------
 
@@ -46,10 +46,8 @@
 				// Implementation
 		protected:
 			 void CreateControls ();
-			 void OnInitDialog (
-					wxInitDialogEvent&					event);
-			 void OnSelendokCovarianceCombo (
-					wxCommandEvent&						event);
+			 void OnCovarianceComboSelendok (wxCommandEvent& event);
+			 void OnInitDialog (wxInitDialogEvent&	event);
 			 bool TransferDataFromWindow ();
 			 bool TransferDataToWindow ();
 

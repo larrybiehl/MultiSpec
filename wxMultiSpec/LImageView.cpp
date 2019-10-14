@@ -14,7 +14,7 @@
 //
 // Revision date:			03/12/2016 by Wei-Kang Hsu
 // Revision date:			12/19/2018 by Tsung Tai Yeh
-// Revision date:			04/01/2019  by Larry L Biehl
+// Revision date:			09/03/2019  by Larry L Biehl
 //
 //	Language:				C++
 //
@@ -46,6 +46,7 @@
 
 
 BEGIN_EVENT_TABLE (CMImageView, wxView)
+   EVT_KEY_DOWN (CMImageView::OnKeyDown)
 	EVT_SET_FOCUS (CMImageView::OnFocus)
 END_EVENT_TABLE ()
 						
@@ -1128,6 +1129,34 @@ void CMImageView::OnFocus (
 	event.Skip (true);
 	
 }	// end "OnFocus"
+
+
+
+void CMImageView::OnKeyDown (
+				wxKeyEvent& 						event)
+
+{
+
+	SInt16								windowType;
+	
+	Boolean								hasCaptureFlag;
+	
+	
+			// Only handle if this window is not captured and a processor is not
+			// in operation.
+	
+	hasCaptureFlag = m_Canvas->HasCapture ();
+	
+   if (!hasCaptureFlag && gProcessorCode == 0)
+		{
+				// Also only handle if cursor is over image portion of a thematic image
+				// window.
+		
+		windowType = GetWindowType ();
+		
+		}	// end "if (!hasCaptureFlag && gProcessorCode == 0)"
+
+}	// end "OnKeyDown"
 
 
 

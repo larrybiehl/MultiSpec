@@ -12,7 +12,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			07/05/2019
+//	Revision date:			10/10/2019
 //
 //	Language:				C++
 //
@@ -21,6 +21,12 @@
 //	Brief description:	This file contains functions that relate to the 
 //								CMClassifyDialog class.
 //
+/* Template for debugging
+	int numberChars = sprintf ((char*)gTextString3,
+				" LClassifyDialog:: (): %s",
+				gEndOfLine);
+	ListString ((char*)gTextString3, numberChars, gOutputTextH);
+*/
 //------------------------------------------------------------------------------------
 
 #include "SMultiSpec.h"
@@ -31,49 +37,61 @@
 
 
 
-BEGIN_EVENT_TABLE(CMClassifyDialog, CMDialog)
-	EVT_BUTTON(IDC_ListOptions, CMClassifyDialog::OnListOptions)
-	EVT_BUTTON(IDEntireImage, CMClassifyDialog::ToEntireImage)
-	EVT_BUTTON(IDSelectedImage, CMClassifyDialog::ToSelectedImage)
-	//EVT_CHAR_HOOK(CMClassifyDialog::OnButtonPress)
-	EVT_CHECKBOX(IDC_DiskFile, CMClassifyDialog::OnDiskFile)
-	EVT_CHECKBOX(IDC_ThresholdResults, CMClassifyDialog::OnThresholdResults)
-	EVT_CHECKBOX(IDC_TextWindow, CMClassifyDialog::OnTextWindow)
-	EVT_CHECKBOX(IDC_Training, CMClassifyDialog::OnTraining)
-	EVT_CHECKBOX(IDC_TestAreas, CMClassifyDialog::OnTestAreas)
-	EVT_CHECKBOX(IDC_ImageArea, CMClassifyDialog::OnImageArea)
-	EVT_CHECKBOX(IDC_FeatureTransformation, CMClassifyDialog::OnFeatureTransformation)
-	EVT_CHECKBOX(IDC_CreateProbabilityFile, CMClassifyDialog::OnCreateProbabilityFile)
-	EVT_CHECKBOX(IDC_TrainingLOO, CMClassifyDialog::OnTrainingLOO)
-	EVT_CHECKBOX(IDC_ImageWindowOverlay, CMClassifyDialog::OnImageOverlay)
-	EVT_COMBOBOX(IDC_ChannelCombo, CMClassifyDialog::OnSelendokChannelCombo)
-	EVT_COMBOBOX_DROPDOWN(IDC_ChannelCombo, CMClassifyDialog::OnSelendokChannelComboDropDown)
-	EVT_COMBOBOX(IDC_ClassificationProcedure, CMClassifyDialog::OnSelendokClassificationProcedure)
-	EVT_COMBOBOX(IDC_DiskCombo, CMClassifyDialog::OnSelendokDiskCombo)
-	EVT_COMBOBOX(IDC_AreasCombo, CMClassifyDialog::OnSelendokAreasCombo)
-	EVT_COMBOBOX_DROPDOWN(IDC_AreasCombo, CMClassifyDialog::OnSelendokAreasComboDropDown)
-	EVT_COMBOBOX(IDC_PaletteCombo, CMClassifyDialog::OnSelendokPaletteCombo)
-	//EVT_COMBOBOX_DROPDOWN(IDC_PaletteCombo, CMClassifyDialog::OnDropdownPaletteCombo)
-	EVT_COMBOBOX_DROPDOWN(IDC_ClassificationProcedure, CMClassifyDialog::OnDropdownClassificationProcedure)
-	EVT_COMBOBOX(IDC_ClassCombo, CMClassifyDialog::OnSelendokClassCombo)
-	EVT_COMBOBOX_DROPDOWN(IDC_ClassCombo, CMClassifyDialog::OnSelendokClassComboDropDown)
-	EVT_COMBOBOX(IDC_TargetCombo, CMClassifyDialog::OnSelendokTargetCombo)
-	EVT_COMBOBOX(IDC_WeightCombo, CMClassifyDialog::OnSelendokClassWeightsCombo)
-	EVT_COMBOBOX_DROPDOWN(IDC_WeightCombo, CMClassifyDialog::OnSelendokClassWeightsComboDropDown)
-	EVT_COMBOBOX(IDC_ImageOverlayCombo, CMClassifyDialog::OnSelendokImageOverlayCombo)
-	//EVT_COMBOBOX_CLOSEUP(IDC_ClassificationProcedure, CMClassifyDialog::OnCloseupClassificationProcedure)
-	EVT_INIT_DIALOG(CMClassifyDialog::OnInitDialog)
-	EVT_TEXT(IDC_CEMThreshold, CMClassifyDialog::OnChangeCEMThreshold)
-	EVT_TEXT(IDC_CorrelationCoefficientThreshold, CMClassifyDialog::OnChangeCorrelationCoefficient)
-	EVT_TEXT(IDC_CorrelationAngleThreshold, CMClassifyDialog::OnChangeCorrelationThreshold)
-	EVT_TEXT(IDC_ColumnEnd, CMClassifyDialog::CheckColumnEnd)
-	EVT_TEXT(IDC_ColumnInterval, CMClassifyDialog::CheckColumnInterval)
-	EVT_TEXT(IDC_ColumnStart, CMClassifyDialog::CheckColumnStart)
-	EVT_TEXT(IDC_LineEnd, CMClassifyDialog::CheckLineEnd)
-	EVT_TEXT(IDC_LineInterval, CMClassifyDialog::CheckLineInterval)
-	EVT_TEXT(IDC_LineStart, CMClassifyDialog::CheckLineStart)
-	EVT_TEXT(IDC_NearestNeighborThreshold, CMClassifyDialog::OnChangeKNNThreshold)
-	EVT_TEXT(IDC_ThresholdValue, CMClassifyDialog::OnChangeThreshold)
+BEGIN_EVENT_TABLE (CMClassifyDialog, CMDialog)
+	EVT_ACTIVATE (CMClassifyDialog::OnActivate)
+
+	EVT_BUTTON (IDC_ListOptions, CMClassifyDialog::OnListOptions)
+	EVT_BUTTON (IDEntireImage, CMClassifyDialog::ToEntireImage)
+	EVT_BUTTON (IDSelectedImage, CMClassifyDialog::ToSelectedImage)
+	//EVT_CHAR_HOOK (CMClassifyDialog::OnButtonPress)
+
+	EVT_CHECKBOX (IDC_DiskFile, CMClassifyDialog::OnDiskFile)
+	EVT_CHECKBOX (IDC_ThresholdResults, CMClassifyDialog::OnThresholdResults)
+	EVT_CHECKBOX (IDC_TextWindow, CMClassifyDialog::OnTextWindow)
+	EVT_CHECKBOX (IDC_Training, CMClassifyDialog::OnTraining)
+	EVT_CHECKBOX (IDC_TestAreas, CMClassifyDialog::OnTestAreas)
+	EVT_CHECKBOX (IDC_ImageArea, CMClassifyDialog::OnImageArea)
+	EVT_CHECKBOX (IDC_FeatureTransformation, CMClassifyDialog::OnFeatureTransformation)
+	EVT_CHECKBOX (IDC_CreateProbabilityFile, CMClassifyDialog::OnCreateProbabilityFile)
+	EVT_CHECKBOX (IDC_TrainingLOO, CMClassifyDialog::OnTrainingLOO)
+	EVT_CHECKBOX (IDC_ImageWindowOverlay, CMClassifyDialog::OnImageOverlay)
+	EVT_COMBOBOX (IDC_ChannelCombo, CMClassifyDialog::OnChannelComboSelendok)
+	EVT_COMBOBOX (IDC_ClassificationProcedure, CMClassifyDialog::OnClassificationProcedureSelendok)
+	EVT_COMBOBOX (IDC_DiskCombo, CMClassifyDialog::OnDiskComboSelendok)
+	EVT_COMBOBOX (IDC_AreasCombo, CMClassifyDialog::OnAreasComboSelendok)
+	EVT_COMBOBOX (IDC_PaletteCombo, CMClassifyDialog::OnPaletteComboSelendok)
+	EVT_COMBOBOX (IDC_ClassCombo, CMClassifyDialog::OnClassComboSelendok)
+	EVT_COMBOBOX (IDC_TargetCombo, CMClassifyDialog::OnTargetComboSelendok)
+	EVT_COMBOBOX (IDC_WeightCombo, CMClassifyDialog::OnClassWeightsComboSelendok)
+	EVT_COMBOBOX (IDC_ImageOverlayCombo, CMClassifyDialog::OnImageOverlayComboSelendok)
+
+	EVT_COMBOBOX_CLOSEUP (IDC_AreasCombo, CMClassifyDialog::OnAreasComboCloseUp)
+	EVT_COMBOBOX_CLOSEUP (IDC_ChannelCombo, CMClassifyDialog::OnChannelComboCloseUp)
+	EVT_COMBOBOX_CLOSEUP (IDC_ClassCombo, CMClassifyDialog::OnClassComboCloseUp)
+	EVT_COMBOBOX_CLOSEUP (IDC_ClassificationProcedure, CMClassifyDialog::OnClassificationProcedureCloseUp)
+	EVT_COMBOBOX_CLOSEUP (IDC_PaletteCombo, CMClassifyDialog::OnPaletteComboCloseUp)
+	EVT_COMBOBOX_CLOSEUP (IDC_WeightCombo, CMClassifyDialog::OnClassWeightComboCloseUp)
+
+	EVT_COMBOBOX_DROPDOWN (IDC_AreasCombo, CMClassifyDialog::OnAreasComboDropDown)
+	EVT_COMBOBOX_DROPDOWN (IDC_ChannelCombo, CMClassifyDialog::OnChannelComboDropDown)
+	EVT_COMBOBOX_DROPDOWN (IDC_ClassCombo, CMClassifyDialog::OnClassComboDropDown)
+	EVT_COMBOBOX_DROPDOWN (IDC_ClassificationProcedure, CMClassifyDialog::OnClassificationProcedureDropDown)
+	EVT_COMBOBOX_DROPDOWN (IDC_PaletteCombo, CMClassifyDialog::OnPaletteComboDropDown)
+	EVT_COMBOBOX_DROPDOWN (IDC_WeightCombo, CMClassifyDialog::OnClassWeightComboDropDown)
+
+	EVT_INIT_DIALOG (CMClassifyDialog::OnInitDialog)
+
+	EVT_TEXT (IDC_CEMThreshold, CMClassifyDialog::OnChangeCEMThreshold)
+	EVT_TEXT (IDC_CorrelationCoefficientThreshold, CMClassifyDialog::OnChangeCorrelationCoefficient)
+	EVT_TEXT (IDC_CorrelationAngleThreshold, CMClassifyDialog::OnChangeCorrelationThreshold)
+	EVT_TEXT (IDC_ColumnEnd, CMClassifyDialog::CheckColumnEnd)
+	EVT_TEXT (IDC_ColumnInterval, CMClassifyDialog::CheckColumnInterval)
+	EVT_TEXT (IDC_ColumnStart, CMClassifyDialog::CheckColumnStart)
+	EVT_TEXT (IDC_LineEnd, CMClassifyDialog::CheckLineEnd)
+	EVT_TEXT (IDC_LineInterval, CMClassifyDialog::CheckLineInterval)
+	EVT_TEXT (IDC_LineStart, CMClassifyDialog::CheckLineStart)
+	EVT_TEXT (IDC_NearestNeighborThreshold, CMClassifyDialog::OnChangeKNNThreshold)
+	EVT_TEXT (IDC_ThresholdValue, CMClassifyDialog::OnChangeThreshold)
 END_EVENT_TABLE()
 
 
@@ -355,7 +373,7 @@ void CMClassifyDialog::CreateControls ()
 
 	m_comboBox15 = new wxComboBox (this, 
 												IDC_ClassificationProcedure, 
-												wxT("Quadratic Likelihood"), 
+												wxT("Gaussian Maximum Likelihood"),
 												wxDefaultPosition, 
 												wxSize (250, -1), 
 												0, 
@@ -365,10 +383,12 @@ void CMClassifyDialog::CreateControls ()
 	m_comboBox15->Append (wxT("Mahalanobis"));
 	m_comboBox15->Append (wxT("Fisher Linear Likelihood"));
 	m_comboBox15->Append (wxT("ECHO Spectral-spatial..."));
-  	// m_comboBox15->Append (wxT("Support Vector Machine (SVM)..."));
-	
 	if (!gProjectInfoPtr->includesStatisticsFromClusterOperationFlag)
+		{
+  		m_comboBox15->Append (wxT("Support Vector Machine (SVM)"));
 		m_comboBox15->Append (wxT("k Nearest Neighbor (KNN)"));
+		
+		}	// end "if (!...->includesStatisticsFromClusterOperationFlag)"
 	
 	m_comboBox15->Append (wxT("Minimum Euclidean Distance"));
 	m_comboBox15->Append (wxT("Correlation (SAM)"));
@@ -412,9 +432,7 @@ void CMClassifyDialog::CreateControls ()
 	SetUpToolTip (m_comboBox16, IDS_ToolTip52);
 	bSizer113->Add (m_comboBox16, 0, wxRESERVE_SPACE_EVEN_IF_HIDDEN|wxALL, 5);
 
-
 	bSizer111->Add (bSizer113, 0, 0, 5);
-
 
 	bSizer114 = new wxBoxSizer (wxHORIZONTAL);
 
@@ -857,35 +875,20 @@ void CMClassifyDialog::CreateControls ()
 										0);
 	SetUpToolTip (m_button23, IDS_ToolTip187);
 	bSizer124->Add (m_button23, 0, wxALL, 5);
-	/*
-	wxBoxSizer* bSizer1311;
-	bSizer1311 = new wxBoxSizer (wxHORIZONTAL);
-
-	m_button24 = new wxButton (this, wxID_CANCEL, wxT("Cancel"), wxDefaultPosition, wxDefaultSize, 0);
-	bSizer1311->Add (m_button24, 0, wxALIGN_RIGHT|wxALL, 5);
-
-	m_button25 = new wxButton (this, wxID_OK, wxT("OK"), wxDefaultPosition, wxDefaultSize, 0);
-	bSizer1311->Add (m_button25, 0, wxALIGN_RIGHT|wxALL, 5);
-
-	bSizer124->Add (bSizer1311, 0, wxALIGN_RIGHT, 5);
-	*/
+	
 	bSizer112->Add (bSizer124, 0, wxEXPAND, 5);
 
 	bFlexGrid110->Add (bSizer112, 1, wxLEFT|wxTOP|wxRIGHT, 12);
 	
 	bVSizerMain->Add (bFlexGrid110, 1, wxLEFT|wxTOP|wxRIGHT, 12);
 	
-	//wxSizer* standardButtonSizer = CreateButtonSizer (wxOK | wxCANCEL);
-	//bVSizerMain->Add (standardButtonSizer, wxSizerFlags(0).Right());
 	CreateStandardButtons (bVSizerMain);
 
 	m_textCtrl87->Hide ();
 	m_textCtrl88->Hide ();
 	m_staticText185->Hide ();
-	//this->SetSizer (bSizer110);
 	this->SetSizerAndFit (bVSizerMain);
 	this->Layout ();
-	//bSizer110->Fit (this);
 	bVSizerMain->Fit (this);
 	this->Centre (wxBOTH);
 
@@ -894,7 +897,7 @@ void CMClassifyDialog::CreateControls ()
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2019)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1009,6 +1012,84 @@ void CMClassifyDialog::HideShowClassAreasItem ()
 
 	
 }	// end "HideShowClassAreasItem"
+
+
+
+void CMClassifyDialog::OnActivate (
+				wxActivateEvent&								event)
+
+{
+			// Have tried many things to be able to use the first mouse click
+			// after a dialog box is display on top of the Classify Dialog when
+			// called from a combo box event. Seems to be related only to XCode
+	
+	if (event.GetActive ())
+		{
+		if (!IsThisEnabled ())
+			Enable ();
+		
+		if (!IsEnabled ())
+			Enable ();
+
+		Lower ();
+		Raise ();
+		SetFocus ();
+		FindWindow (wxID_OK)->SetFocus ();
+
+		}
+	
+	else
+		{
+
+		}
+	
+	event.Skip ();
+	
+}	// end "OnActivate"
+
+
+
+void CMClassifyDialog::OnAreasComboCloseUp (
+				wxCommandEvent& 					event)
+
+{
+	wxComboBox* areasComboPtr = (wxComboBox*)FindWindow (IDC_AreasCombo);
+	int areasSelection = areasComboPtr->GetSelection ();
+	
+	if (areasSelection == -1)
+		areasComboPtr->SetSelection (m_classAreaSelection);
+	
+	event.Skip ();
+	
+}	// end "OnAreasComboCloseUp"
+
+
+
+void CMClassifyDialog::OnAreasComboDropDown (
+				wxCommandEvent&					event)
+
+{
+   //ResetComboBox (IDC_AreasCombo);
+   wxComboBox* areasComboPtr = (wxComboBox*)event.GetEventObject ();
+   if (areasComboPtr != NULL)
+		areasComboPtr->SetSelection (-1);
+	
+}	// end "OnAreasComboDropDown"
+
+
+
+void CMClassifyDialog::OnAreasComboSelendok (
+				wxCommandEvent& 					event)
+
+{
+    HandleClassesMenu (&m_localNumberClassAreas,
+            (SInt16*)m_classAreaListPtr,
+            1,
+            (SInt16)gProjectInfoPtr->numberStatisticsClasses,
+            IDC_AreasCombo,
+            &m_classAreaSelection);
+
+}	// end "OnAreasComboSelendok"
 
 
 
@@ -1161,66 +1242,71 @@ void CMClassifyDialog::OnChangeThreshold (wxCommandEvent& event)
 
 
 
-void CMClassifyDialog::OnCloseupClassificationProcedure (wxCommandEvent& event)
+void CMClassifyDialog::OnChannelComboSelendok (
+				wxCommandEvent& 					event)
 
 {
-	/*
-	if (m_optionKeyFlag)
-		{
-		SetComboItemText (IDC_ClassificationProcedure,
-								m_correlationComboListItem,
-								(char*)"Correlation (SAM)");
-	 
-		CComboBox* comboBoxPtr = (CComboBox*)GetDlgItem (IDC_ClassificationProcedure);
-		comboBoxPtr->SetItemData (m_correlationComboListItem, kCorrelationMode);
+	HandleChannelsMenu (IDC_ChannelCombo,
+								m_featureTransformationFlag,
+								(SInt16)gProjectInfoPtr->numberStatisticsChannels,
+								2,
+								TRUE);
 
-		m_optionKeyFlag = FALSE;
-
-		}	// end "if (m_optionKeyFlag)"
-	*/
-}	// end "OnCloseupClassificationProcedure"
+}	// end "OnChannelComboSelendok"
 
 
-
-void CMClassifyDialog::OnCreateProbabilityFile (wxCommandEvent& event)
+void CMClassifyDialog::OnClassificationProcedureCloseUp (
+				wxCommandEvent& 					event)
 
 {
-    wxCheckBox* probfilecb = (wxCheckBox*)FindWindow (IDC_CreateProbabilityFile);
-    m_createProbabilityFileFlag = probfilecb->GetValue ();
-
-}	// end "OnCreateProbabilityFile"
-
-
-
-void CMClassifyDialog::OnDiskFile (wxCommandEvent& event)
-
-{
-	wxCheckBox* diskfcb = (wxCheckBox*)FindWindow (IDC_DiskFile);
-	m_diskFileFlag = diskfcb->GetValue ();
-
-	if (!m_diskFileFlag)
-		HideDialogItem (this, IDC_DiskCombo);
-
-	else	// !m_diskFileFlag)
-		ShowDialogItem (this, IDC_DiskCombo);
-
-	CheckOutputFormatItems ();
-	//this->Layout ();
-	//this->Fit ();
-	AdjustDlgLayout ();
+	wxComboBox* classificationComboPtr = (wxComboBox*)FindWindow (IDC_ClassificationProcedure);
+	int classificationSelection = classificationComboPtr->GetSelection ();
 	
-}	// end "OnDiskFile"
+	if (classificationSelection == -1)
+		classificationComboPtr->SetSelection (m_classifyListSelection);
+	
+	event.Skip ();
+	
+}	// end "OnClassificationProcedureCloseUp"
 
 
 
-void CMClassifyDialog::OnDropdownClassificationProcedure (
+void CMClassifyDialog::OnClassificationProcedureDropDown (
 				wxCommandEvent&										event)
-				 
+
 {
 	wxMouseState			mousestate;
 	
 	
 	m_optionKeyFlag = mousestate.RightIsDown () || wxGetKeyState (WXK_SHIFT);
+	
+	if (!gProjectInfoPtr->includesStatisticsFromClusterOperationFlag)
+		{
+   	if (m_optionKeyFlag)
+			{
+			SetComboItemText	(IDC_ClassificationProcedure,
+									m_supportVectorMachineComboListItem,
+									(char*)"Support Vector Machine (SVM)...");
+			
+			SetComboItemText	(IDC_ClassificationProcedure,
+									m_kNearestNeighborComboListItem,
+									(char*)"k Nearest Neighbor (KNN)...");
+
+			}	// end "if (GetKeyState (VK_RBUTTON) < 0 || ..."
+
+		else	// no option requested
+			{
+			SetComboItemText (IDC_ClassificationProcedure,
+									 m_supportVectorMachineComboListItem,
+									 (char*)"Support Vector Machine (SVM)");
+			
+			SetComboItemText (IDC_ClassificationProcedure,
+									 m_kNearestNeighborComboListItem,
+									 (char*)"k Nearest Neighbor (KNN)");
+
+			}	// end "else no option requested"
+		
+		}	// end "if (!...->includesStatisticsFromClusterOperationFlag)"
 	
    if (m_optionKeyFlag || m_covarianceEstimate != kNoCovarianceUsed)
 		{
@@ -1241,46 +1327,203 @@ void CMClassifyDialog::OnDropdownClassificationProcedure (
 		//m_optionKeyFlag = FALSE;
 
 		}	// end "else no option requested"
-	
-	if (!gProjectInfoPtr->includesStatisticsFromClusterOperationFlag)
-		{
-   	if (m_optionKeyFlag)
-			{
-			SetComboItemText	(IDC_ClassificationProcedure,
-									m_kNearestNeighborComboListItem,
-									(char*)"K Nearest Neighbor (KNN)...");
-
-			}	// end "if (GetKeyState (VK_RBUTTON) < 0 || ..."
-
-		else	// no option requested
-			{
-			SetComboItemText (IDC_ClassificationProcedure,
-									 m_kNearestNeighborComboListItem,
-									 (char*)"K Nearest Neighbor (KNN)");
-
-			}	// end "else no option requested"
-		
-		}	// end "if (!...->includesStatisticsFromClusterOperationFlag)"
 
 	wxComboBox* comboBoxPtr = (wxComboBox*)FindWindow (IDC_ClassificationProcedure);
 	comboBoxPtr->SetClientData (m_correlationComboListItem, (void*)kCorrelationMode);
-    
-	//comboBoxPtr->SetSelection (m_classifyListSelection); // ?    
-     
-	comboBoxPtr->SetSelection (-1); 
-    
-}	// end "OnDropdownClassificationProcedure"
+	
+	//comboBoxPtr->SetSelection (m_classifyListSelection); // ?
+	
+	comboBoxPtr->SetSelection (-1);
+	
+}	// end "OnClassificationProcedureDropDown"
 
 
 
-void CMClassifyDialog::OnDropdownPaletteCombo (wxCommandEvent& event){
-    SetUpPalettePopUpMenu (this);
+void CMClassifyDialog::OnClassificationProcedureSelendok (
+				wxCommandEvent& 					event)
 
-    m_paletteSelection = gProjectInfoPtr->imagePalettePopupMenuSelection - 1;
-    //DDX_CBIndex (m_dialogToPtr, IDC_PaletteCombo, m_paletteSelection);
-    wxComboBox* palettec = (wxComboBox*)FindWindow (IDC_PaletteCombo);
-    palettec->SetSelection (m_paletteSelection);
-}	// end "OnDropdownPaletteCombo"
+{
+	SInt16 								classificationProcedure = 0,
+            							savedClassifyListSelection,
+            							weightsSelection;
+	
+
+	wxComboBox* comboBoxPtr = (wxComboBox*)FindWindow (IDC_ClassificationProcedure);
+
+	savedClassifyListSelection = m_classifyListSelection;
+
+	m_classifyListSelection= comboBoxPtr->GetSelection ();
+
+			// Get the actual classification procedure code.
+
+	SInt64 classifyListSelection64 =
+				(SInt64)((int*)comboBoxPtr->GetClientData (m_classifyListSelection));
+	classificationProcedure = (SInt16)classifyListSelection64;
+	
+    		// Get the current weights selection. Force to 1 base.
+
+	weightsSelection = m_classWeightsSelection + 1;
+
+	classificationProcedure = ClassifyDialogOnClassificationProcedure (
+													this,
+													wxID_OK,
+													&m_thresholdAllowedFlag,
+													&m_featureTransformAllowedFlag,
+													&weightsSelection,
+													&m_parallelPipedCode,
+													classificationProcedure,
+													&m_covarianceEstimate,
+													m_numberEigenvectors,
+													&m_nearestNeighborKValue,
+													&m_classifyProcedureEnteredCode,
+													m_correlationComboListItem,
+													m_optionKeyFlag);
+
+	m_classWeightsSelection = weightsSelection - 1;
+
+	if (classificationProcedure != 0)
+		{
+		m_classificationProcedure = classificationProcedure;
+
+		ClassifyDialogSetLeaveOneOutItems (this,
+														 m_classificationProcedure,
+														 m_fileNamesSelection,
+														 m_savedLeaveOneOutFlag,
+														 m_trainingFieldsExistFlag,
+														 (Boolean*)& m_trainingAreaLOOFlag);
+
+		CheckFeatureTransformationDialog (this,
+													 m_featureTransformAllowedFlag,
+													 IDC_FeatureTransformation,
+													 IDC_ChannelPrompt,
+													 (SInt16*)& m_featureTransformationFlag);
+
+		ClassifyDialogSetThresholdItems (this,
+													 m_classificationProcedure,
+													 m_imageAreaFlag,
+													 m_createProbabilityFileFlag,
+													 m_thresholdResultsFlag,
+													 m_thresholdAllowedFlag);
+
+		if (weightsSelection > 0)
+			{
+			HideDialogItem (this, IDC_WeightsEqual);
+			ShowDialogItem (this, IDC_WeightCombo);
+
+			wxComboBox* weightc = (wxComboBox*)FindWindow (IDC_WeightCombo);
+			weightc->SetSelection (m_classWeightsSelection);
+
+			}	// end "if (weightsSelection > 0)"
+
+		else // weightsSelection <= 0
+			{
+			ShowDialogItem (this, IDC_WeightsEqual);
+			HideDialogItem (this, IDC_WeightCombo);
+
+			}	// end "else weightsSelection <= 0"
+
+		}	// end "if (classificationProcedure != 0)"
+
+	else // classificationProcedure == 0
+		{
+		m_classifyListSelection = savedClassifyListSelection;
+		
+		}	// end "else m_classificationProcedure == 0"
+
+	comboBoxPtr->SetSelection (m_classifyListSelection);
+	
+	SInt64 classificationProcedure64 =(SInt64)((int*)comboBoxPtr->GetClientData (m_classifyListSelection));
+	m_classificationProcedure = (SInt16)classificationProcedure64;
+	
+	m_optionKeyFlag = FALSE;
+	
+   switch (m_classifyListSelection)
+   	{
+      case 5:
+         SetUpToolTip (m_checkBox16, IDS_ToolTip232);
+         break;
+			
+      case 6:
+         SetUpToolTip (m_checkBox16, IDS_ToolTip232);
+         break;
+			
+      default:
+			SetUpToolTip (m_checkBox16, IDS_ToolTip186);
+			
+   	}	// end "switch (m_classifyListSelection)"
+	
+	AdjustDlgLayout ();
+	
+			// Make sure this dialog box has the focus. It may not if another dialog box
+			// was displayed for classifier specific parameters.
+			// 10/1/2019: none of these work.
+	
+	//if (!IsActive ())
+	//	Enable (true);
+	//Activate (true); // not available.
+	//FindWindow (wxID_OK)->SetFocus ();
+	//SelectDialogItemText (this, IDC_LineStart, 0, SInt16_MAX);
+	//Enable (true);
+	//Raise ();
+	//if (IsFrozen ())
+	//	Thaw ();
+	//Thaw ();
+
+	event.Skip ();
+	
+}	// end "OnClassificationProcedureSelendok"
+
+
+
+void CMClassifyDialog::OnClassWeightsComboSelendok (
+				wxCommandEvent& event)
+
+{
+	HandleClassWeightsMenu ((SInt16)m_localNumberClasses,
+									(SInt16*)m_classListPtr,
+									m_classWeightsPtr,
+									gProjectInfoPtr->covarianceStatsToUse == kEnhancedStats,
+									IDC_WeightCombo,
+									&m_classWeightsSelection);
+
+}	// end "OnClassWeightsComboSelendok"
+
+
+
+void CMClassifyDialog::OnCreateProbabilityFile (wxCommandEvent& event)
+
+{
+    wxCheckBox* probfilecb = (wxCheckBox*)FindWindow (IDC_CreateProbabilityFile);
+    m_createProbabilityFileFlag = probfilecb->GetValue ();
+
+}	// end "OnCreateProbabilityFile"
+
+
+void CMClassifyDialog::OnDiskComboSelendok (wxCommandEvent& event)
+
+{
+	CheckOutputFormatItems ();
+
+}	// end "OnDiskComboSelendok"
+
+
+
+void CMClassifyDialog::OnDiskFile (wxCommandEvent& event)
+
+{
+	wxCheckBox* diskfcb = (wxCheckBox*)FindWindow (IDC_DiskFile);
+	m_diskFileFlag = diskfcb->GetValue ();
+
+	if (!m_diskFileFlag)
+		HideDialogItem (this, IDC_DiskCombo);
+
+	else	// !m_diskFileFlag)
+		ShowDialogItem (this, IDC_DiskCombo);
+
+	CheckOutputFormatItems ();
+	AdjustDlgLayout ();
+	
+}	// end "OnDiskFile"
 
 
 
@@ -1458,13 +1701,16 @@ void CMClassifyDialog::OnInitDialog (
 
 			// Set up classification popup menu list
 	
-	m_kNearestNeighborComboListItem = kKNearestNeighborMode - 2;
+	m_supportVectorMachineComboListItem = kSupportVectorMachineMode - 1;
+	m_kNearestNeighborComboListItem = kKNearestNeighborMode - 1;
+	m_correlationComboListItem = kCorrelationMode - 1;
 	if (gProjectInfoPtr->statisticsCode != kMeanCovariance)
-		m_correlationComboListItem = 1;
-
-	m_correlationComboListItem = kCorrelationMode - 2;
-	if (gProjectInfoPtr->statisticsCode != kMeanCovariance)
+		{
+		m_supportVectorMachineComboListItem = 0;
+		m_kNearestNeighborComboListItem = 1;
 		m_correlationComboListItem = 3;
+		
+		}	// end "if (gProjectInfoPtr->statisticsCode != kMeanCovariance)"
 
 			// Get the classification list selection that matches the input
 			// classification procedure.
@@ -1577,7 +1823,8 @@ void CMClassifyDialog::OnInitDialog (
 
 
 
-void CMClassifyDialog::OnListOptions (wxCommandEvent& event)
+void CMClassifyDialog::OnListOptions (
+				wxCommandEvent& 					event)
 
 {
 	SetDLogControlHilite (this, wxID_OK, 255);
@@ -1588,171 +1835,6 @@ void CMClassifyDialog::OnListOptions (wxCommandEvent& event)
 	SetDLogControlHilite (this, wxID_OK, 0);
 
 }	// end "OnListOptions"
-
-
-
-void CMClassifyDialog::OnSelendokAreasCombo (wxCommandEvent& event)
-
-{
-    HandleClassesMenu (&m_localNumberClassAreas,
-            (SInt16*)m_classAreaListPtr,
-            1,
-            (SInt16)gProjectInfoPtr->numberStatisticsClasses,
-            IDC_AreasCombo,
-            &m_classAreaSelection);
-
-}	// end "OnSelendokAreasCombo"
-
-
-
-void CMClassifyDialog::OnSelendokChannelCombo (
-				wxCommandEvent& event)
-
-{
-	HandleChannelsMenu (IDC_ChannelCombo,
-								m_featureTransformationFlag,
-								(SInt16)gProjectInfoPtr->numberStatisticsChannels,
-								2,
-								TRUE);
-
-}	// end "OnSelendokChannelCombo"
-
-
-
-void CMClassifyDialog::OnSelendokClassificationProcedure (
-				wxCommandEvent& event)
-
-{
-	SInt16 					classificationProcedure = 0,
-            				savedClassifyListSelection,
-            				weightsSelection;
-	
-
-	wxComboBox* comboBoxPtr = (wxComboBox*)FindWindow (IDC_ClassificationProcedure);
-
-	//Boolean returnFlag = TRUE;
-
-	savedClassifyListSelection = m_classifyListSelection;
-
-	m_classifyListSelection= comboBoxPtr->GetSelection ();
-
-	// Get the actual classification procedure code.
-
-	//comboBoxPtr = (CComboBox*)GetDlgItem (IDC_ClassificationProcedure);
-	//comboBoxPtr->SetSelection (m_classifyListSelection);
-	SInt64 classifyListSelection64 =
-				(SInt64)((int*)comboBoxPtr->GetClientData (m_classifyListSelection));
-	classificationProcedure = (SInt16)classifyListSelection64;
-		    
-    		// Get the current weights selection. Force to 1 base.
-
-	weightsSelection = m_classWeightsSelection + 1;
-
-	classificationProcedure = ClassifyDialogOnClassificationProcedure (
-													this,
-													wxID_OK,
-													&m_thresholdAllowedFlag,
-													&m_featureTransformAllowedFlag,
-													&weightsSelection,
-													&m_parallelPipedCode,
-													classificationProcedure,
-													&m_covarianceEstimate,
-													m_numberEigenvectors,
-													&m_nearestNeighborKValue,
-													&m_classifyProcedureEnteredCode,
-													m_optionKeyFlag);
-
-	m_classWeightsSelection = weightsSelection - 1;
-
-	if (classificationProcedure != 0)
-		{
-		m_classificationProcedure = classificationProcedure;
-
-		ClassifyDialogSetLeaveOneOutItems (this,
-                m_classificationProcedure,
-                m_fileNamesSelection,
-                m_savedLeaveOneOutFlag,
-                m_trainingFieldsExistFlag,
-                (Boolean*)& m_trainingAreaLOOFlag);
-
-		CheckFeatureTransformationDialog (this,
-                m_featureTransformAllowedFlag,
-                IDC_FeatureTransformation,
-                IDC_ChannelPrompt,
-                (SInt16*)& m_featureTransformationFlag);
-
-		ClassifyDialogSetThresholdItems (this,
-                m_classificationProcedure,
-                m_imageAreaFlag,
-                m_createProbabilityFileFlag,
-                m_thresholdResultsFlag,
-                m_thresholdAllowedFlag);
-
-		if (weightsSelection > 0)
-			{
-			HideDialogItem (this, IDC_WeightsEqual);
-			ShowDialogItem (this, IDC_WeightCombo);
-
-			wxComboBox* weightc = (wxComboBox*)FindWindow (IDC_WeightCombo);
-			weightc->SetSelection (m_classWeightsSelection);
-
-			}	// end "if (weightsSelection > 0)"
-
-		else // weightsSelection <= 0
-			{
-			ShowDialogItem (this, IDC_WeightsEqual);
-			HideDialogItem (this, IDC_WeightCombo);
-
-			}	// end "else weightsSelection <= 0"
-
-		}	// end "if (classificationProcedure != 0)"
-
-	else // classificationProcedure == 0
-		{
-		m_classifyListSelection = savedClassifyListSelection;
-        
-		}	// end "else m_classificationProcedure == 0" 
-
-	comboBoxPtr->SetSelection (m_classifyListSelection);
-    
-	SInt64 classificationProcedure64 =(SInt64)((int*)comboBoxPtr->GetClientData (m_classifyListSelection));
-	m_classificationProcedure = (SInt16)classificationProcedure64;
-	  
-	m_optionKeyFlag = FALSE;
-   
-   switch (m_classifyListSelection)
-   	{
-      case 5:
-         SetUpToolTip (m_checkBox16, IDS_ToolTip232);
-         break;
-			
-      case 6:
-         SetUpToolTip (m_checkBox16, IDS_ToolTip232);
-         break;
-			
-      default:
-			SetUpToolTip (m_checkBox16, IDS_ToolTip186);
-			
-   	}
-	
-	AdjustDlgLayout ();
-	
-}	// end "OnSelendokClassificationProcedure"
-
-
-
-void CMClassifyDialog::OnSelendokClassWeightsCombo (
-				wxCommandEvent& event)
-
-{
-	HandleClassWeightsMenu ((SInt16)m_localNumberClasses,
-									(SInt16*)m_classListPtr,
-									m_classWeightsPtr,
-									gProjectInfoPtr->covarianceStatsToUse == kEnhancedStats,
-									IDC_WeightCombo,
-									&m_classWeightsSelection);
-
-}	// end "OnSelendokClassWeightsCombo"
 
 
 /*
@@ -1772,54 +1854,87 @@ void CMClassifyDialog::OnButtonPress (wxKeyEvent& event)
 */
 
 
-void CMClassifyDialog::OnSelendokDiskCombo (wxCommandEvent& event)
 
-{
-	CheckOutputFormatItems ();
-
-}	// end "OnSelendokDiskCombo"
-
-
-
-void CMClassifyDialog::OnSelendokImageOverlayCombo (wxCommandEvent& event)
+void CMClassifyDialog::OnImageOverlayComboSelendok (wxCommandEvent& event)
 
 {
     wxComboBox* imageoverc = (wxComboBox*)FindWindow (IDC_ImageOverlayCombo);
     m_selectImageOverlaySelection = imageoverc->GetSelection ();
 	
-}	// end "OnSelendokImageOverlayCombo"
+}	// end "OnImageOverlayComboSelendok"
 
 
 
-void CMClassifyDialog::OnSelendokPaletteCombo (wxCommandEvent& event)
+void CMClassifyDialog::OnPaletteComboCloseUp (
+				wxCommandEvent& 					event)
 
 {
-    int lastPaletteSelection;
-
-    lastPaletteSelection = m_paletteSelection;
-    wxComboBox* palettec = (wxComboBox*)FindWindow (IDC_PaletteCombo);
-    m_paletteSelection = palettec->GetSelection ();
+	wxComboBox* paletteComboPtr = (wxComboBox*)FindWindow (IDC_PaletteCombo);
+	int paletteSelection = paletteComboPtr->GetSelection ();
 	
-    if (m_paletteSelection + 1 == kFalseColors){
-        if (!FalseColorPaletteDialog ()){
-            if (lastPaletteSelection != m_paletteSelection){
-                m_paletteSelection = lastPaletteSelection;
-                //DDX_CBIndex (m_dialogToPtr, IDC_PaletteCombo, m_paletteSelection);
-                palettec->SetSelection (m_paletteSelection);
-
-            }	// end "if (lastPaletteSelection != m_paletteSelection)"
-
-            m_paletteSelection = lastPaletteSelection;
-
-        }	// end "else !FalseColorPaletteDialog ()"
-
-    }	// end "if (m_paletteSelection+1 == kFalseColors)"
-
-}	// end "OnSelendokPaletteCombo"
+	if (paletteSelection == -1)
+		paletteComboPtr->SetSelection (m_paletteSelection);
+	
+	event.Skip ();
+	
+}	// end "OnPaletteComboCloseUp"
 
 
 
-void CMClassifyDialog::OnSelendokTargetCombo (wxCommandEvent& event)
+void CMClassifyDialog::OnPaletteComboDropDown (
+				wxCommandEvent& 							event)
+
+{
+			// The drop down is forced to be -1 setting with each combo
+			// box selection so that the 'user selection' box will be opened if
+			// it is the last selection. Otherwise it will not open the dialog window.
+	
+	wxComboBox* paletteComboPtr = (wxComboBox*)FindWindow (IDC_PaletteCombo);
+	paletteComboPtr->SetSelection (-1);
+	
+}	// end "OnPaletteComboDropDown"
+
+
+
+void CMClassifyDialog::OnPaletteComboSelendok (
+				wxCommandEvent& 						event)
+
+{
+	int 			lastPaletteSelection;
+
+	lastPaletteSelection = m_paletteSelection;
+	wxComboBox* palettec = (wxComboBox*)FindWindow (IDC_PaletteCombo);
+	m_paletteSelection = palettec->GetSelection ();
+
+	if (m_paletteSelection + 1 == kFalseColors)
+		{
+		if (!FalseColorPaletteDialog ())
+			{
+			if (lastPaletteSelection != m_paletteSelection)
+				{
+				m_paletteSelection = lastPaletteSelection;
+				palettec->SetSelection (m_paletteSelection);
+
+				}	// end "if (lastPaletteSelection != m_paletteSelection)"
+
+			m_paletteSelection = lastPaletteSelection;
+
+	  		}	// end "else !FalseColorPaletteDialog ()"
+
+		}	// end "if (m_paletteSelection+1 == kFalseColors)"
+
+}	// end "OnPaletteComboSelendok"
+
+
+
+void CMClassifyDialog::OnStnClickedStartendinterval ()
+{
+	
+}	// end "OnStnClickedStartendinterval"
+
+
+
+void CMClassifyDialog::OnTargetComboSelendok (wxCommandEvent& event)
 
 {
     int savedFileNamesSelection;
@@ -1865,14 +1980,7 @@ void CMClassifyDialog::OnSelendokTargetCombo (wxCommandEvent& event)
 
     }	// end "if (m_fileNamesSelection != savedFileNamesSelection)"
 
-}	// end "OnSelendokTargetCombo"
-
-
-
-void CMClassifyDialog::OnStnClickedStartendinterval ()
-{
-	
-}	// end "OnStnClickedStartendinterval"
+}	// end "OnTargetComboSelendok"
 
 
 
@@ -2099,14 +2207,14 @@ bool CMClassifyDialog::TransferDataFromWindow ()
    if (m_classifyListSelection < 0)
       m_classifyListSelection = 0;
    
-   if (m_classSelection < 0)
-      m_classSelection = m_classSelection_Saved;
-   if (m_classWeightsSelection < 0)
-      m_classWeightsSelection = m_weightSelection_Saved;
-   if (m_channelSelection < 0)
-      m_channelSelection = m_channelSelection_Saved;
-   if (m_classAreaSelection < 0)
-      m_classAreaSelection = m_areaSelection_Saved;
+   //if (m_classSelection < 0)
+   //   m_classSelection = m_classSelection_Saved;
+   //if (m_classWeightsSelection < 0)
+   //   m_classWeightsSelection = m_weightSelection_Saved;
+   //if (m_channelSelection < 0)
+   //   m_channelSelection = m_channelSelection_Saved;
+   //if (m_classAreaSelection < 0)
+   //   m_classAreaSelection = m_areaSelection_Saved;
    
    SInt64 classificationProcedure = (SInt64)((int*)comboBoxPtr->GetClientData (m_classifyListSelection));
    m_classificationProcedure = (SInt16)classificationProcedure;

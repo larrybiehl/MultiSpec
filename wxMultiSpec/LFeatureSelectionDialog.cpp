@@ -12,7 +12,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			11/15/2018
+//	Revision date:			10/08/2019
 //
 //	Language:				C++
 //
@@ -29,7 +29,7 @@
 	ListString ((char*)gTextString3, numberChars, gOutputTextH);
 */
 //------------------------------------------------------------------------------------
-//
+
 #include "wx/cshelp.h"
 #include "wx/aboutdlg.h"
 
@@ -46,19 +46,24 @@ BEGIN_EVENT_TABLE (CMFeatureSelectionDialog, CMDialog)
 	EVT_BUTTON (IDS_HelpButton , CMFeatureSelectionDialog::OnHelpButton)
 	EVT_BUTTON (IDC_ListOptions, CMFeatureSelectionDialog::OnListOptions)
 
+	EVT_CHECKBOX (IDC_FeatureTransformation, CMFeatureSelectionDialog::OnFeatureTransformation)
 	EVT_CHECKBOX (IDC_StepProcedure, CMFeatureSelectionDialog::OnStepProcedure)
 
-	EVT_COMBOBOX (IDC_ChannelCombo, CMFeatureSelectionDialog::OnSelendokChannelCombo)
-	EVT_COMBOBOX (IDC_DistanceMeasureCombo, CMFeatureSelectionDialog::OnSelendokDistanceMeasureCombo)
-	EVT_COMBOBOX (IDC_NumberChannelsCombo, CMFeatureSelectionDialog::OnSelendokNumberChannelsCombo)
-	EVT_COMBOBOX (IDC_ClassCombo, CMFeatureSelectionDialog::OnSelendokClassCombo)
-	EVT_CHECKBOX (IDC_FeatureTransformation, CMFeatureSelectionDialog::OnFeatureTransformation)
-	EVT_COMBOBOX (IDC_ClassPairWeightsCombo, CMFeatureSelectionDialog::OnSelendokClassPairWeightsCombo)
+	EVT_COMBOBOX (IDC_ChannelCombo, CMFeatureSelectionDialog::OnChannelComboSelendok)
+	EVT_COMBOBOX (IDC_ClassCombo, CMFeatureSelectionDialog::OnClassComboSelendok)
+	EVT_COMBOBOX (IDC_ClassPairWeightsCombo, CMFeatureSelectionDialog::OnClassPairWeightsComboSelendok)
+	EVT_COMBOBOX (IDC_DistanceMeasureCombo, CMFeatureSelectionDialog::OnDistanceMeasureComboSelendok)
+	EVT_COMBOBOX (IDC_NumberChannelsCombo, CMFeatureSelectionDialog::OnNumberChannelsComboSelendok)
 
-	EVT_COMBOBOX_DROPDOWN (IDC_ChannelCombo, CMFeatureSelectionDialog::OnSelendokChannelComboDropDown)
-	EVT_COMBOBOX_DROPDOWN (IDC_ClassCombo, CMFeatureSelectionDialog::OnSelendokClassComboDropDown)
-	EVT_COMBOBOX_DROPDOWN (IDC_ClassPairWeightsCombo, CMFeatureSelectionDialog::OnSelendokClassPairWeightsComboDropDown)
-	EVT_COMBOBOX_DROPDOWN (IDC_NumberChannelsCombo, CMFeatureSelectionDialog::OnSelendokNumberChannelsComboDropDown)
+	EVT_COMBOBOX_CLOSEUP (IDC_ChannelCombo, CMFeatureSelectionDialog::OnChannelComboCloseUp)
+	EVT_COMBOBOX_CLOSEUP (IDC_ClassCombo, CMFeatureSelectionDialog::OnClassComboCloseUp)
+	EVT_COMBOBOX_CLOSEUP (IDC_ClassPairWeightsCombo, CMFeatureSelectionDialog::OnClassPairWeightsComboCloseUp)
+	EVT_COMBOBOX_CLOSEUP (IDC_NumberChannelsCombo, CMFeatureSelectionDialog::OnNumberChannelsComboCloseUp)
+
+	EVT_COMBOBOX_DROPDOWN (IDC_ChannelCombo, CMFeatureSelectionDialog::OnChannelComboDropDown)
+	EVT_COMBOBOX_DROPDOWN (IDC_ClassCombo, CMFeatureSelectionDialog::OnClassComboDropDown)
+	EVT_COMBOBOX_DROPDOWN (IDC_ClassPairWeightsCombo, CMFeatureSelectionDialog::OnClassPairWeightsComboDropDown)
+	EVT_COMBOBOX_DROPDOWN (IDC_NumberChannelsCombo, CMFeatureSelectionDialog::OnNumberChannelsComboDropDown)
 
 	EVT_INIT_DIALOG (CMFeatureSelectionDialog::OnInitDialog)
 
@@ -68,18 +73,21 @@ END_EVENT_TABLE()
 
 
 
-CMFeatureSelectionDialog::CMFeatureSelectionDialog(wxWindow* parent, wxWindowID id, const wxString& title)
-: CMDialog(CMFeatureSelectionDialog::IDD, parent, title) {
-   //{{AFX_DATA_INIT(CMFeatureSelectionDialog) 
+CMFeatureSelectionDialog::CMFeatureSelectionDialog (
+				wxWindow* parent,
+				wxWindowID id,
+				const wxString& title)
+		: CMDialog (CMFeatureSelectionDialog::IDD, parent, title)
+
+{
    m_separabilityDistance = -1;
    m_savedContiguousChannelsPerGroup = 1;
    m_localCombinationsToList = 1;
    m_textWindowFlag = FALSE;
    m_diskFileFlag = FALSE;
    m_channelCombinationSelection = -1;
-   m_interClassWeightsSelection = -1;
+   m_classPairWeightsSelection = -1;
    m_searchFlag = FALSE;
-   //}}AFX_DATA_INIT 
 
    m_separabilitySpecsPtr = NULL;
    m_localChannelCombinationsPtr = NULL;
@@ -90,21 +98,24 @@ CMFeatureSelectionDialog::CMFeatureSelectionDialog(wxWindow* parent, wxWindowID 
    m_initializedFlag = CMDialog::m_initializedFlag;
 
    if (m_initializedFlag)
-      m_initializedFlag = GetDialogLocalVectors(
-      &m_localFeaturesPtr,
-      &m_localTransformFeaturesPtr,
-      &m_classListPtr,
-      NULL,
-      NULL,
-      &m_localSymbolsPtr,
-      &m_localChannelCombinationsPtr,
-      &m_localClassPairWeightsListPtr);
+      m_initializedFlag = GetDialogLocalVectors (&m_localFeaturesPtr,
+																	&m_localTransformFeaturesPtr,
+																	&m_classListPtr,
+																	NULL,
+																	NULL,
+																	&m_localSymbolsPtr,
+																	&m_localChannelCombinationsPtr,
+																	&m_localClassPairWeightsListPtr);
+	
    CreateControls();
-   //SetSizerAndFit(bSizer211);
 
-}
+}	// end "CMFeatureSelectionDialog"
 
-CMFeatureSelectionDialog::~CMFeatureSelectionDialog(void) {
+
+
+CMFeatureSelectionDialog::~CMFeatureSelectionDialog (void)
+
+{
    ReleaseDialogLocalVectors(m_localFeaturesPtr,
       m_localTransformFeaturesPtr,
       m_classListPtr,
@@ -114,11 +125,398 @@ CMFeatureSelectionDialog::~CMFeatureSelectionDialog(void) {
       m_localChannelCombinationsPtr,
       m_localClassPairWeightsListPtr);
 
-} // end "~CMFeatureSelectionDialog"
+} 	// end "~CMFeatureSelectionDialog"
 
 
 
-bool CMFeatureSelectionDialog::TransferDataToWindow() {
+void CMFeatureSelectionDialog::CreateControls ()
+
+{
+   this->SetSizeHints (wxDefaultSize, wxDefaultSize);
+
+   wxBoxSizer* bVSizerMain = new wxBoxSizer (wxVERTICAL);
+	
+   //wxBoxSizer* bSizer211;
+   bSizer211 = new wxBoxSizer (wxHORIZONTAL);
+
+   wxBoxSizer* bSizer212;
+   bSizer212 = new wxBoxSizer (wxVERTICAL);
+
+   wxBoxSizer* bSizer214;
+   bSizer214 = new wxBoxSizer (wxVERTICAL);
+
+   m_staticText213 = new wxStaticText (this,
+   												wxID_ANY,
+   												wxT("Distance measure:"),
+   												wxDefaultPosition,
+   												wxDefaultSize,
+   												0);
+   m_staticText213->Wrap (-1);
+   bSizer214->Add (m_staticText213, 0, wxALL, 5);
+
+   m_comboBox34 = new wxComboBox (this,
+   											IDC_DistanceMeasureCombo,
+   											wxT("Combo!"),
+   											wxDefaultPosition,
+   											wxSize (230, -1),
+   											0,
+   											NULL,
+   											wxCB_READONLY);
+   m_comboBox34->Append (wxT("Bhattacharyya"));
+   m_comboBox34->Append (wxT("Error function Bhattacharyya"));
+   m_comboBox34->Append (wxT("'Mean' Bhattacharyya"));
+   m_comboBox34->Append (wxT("'Covariance' Bhattacharyya"));
+   m_comboBox34->Append (wxT("'Noncovariance' Bhattacharyya"));
+   m_comboBox34->Append (wxT("Transformed divergence"));
+   m_comboBox34->Append (wxT("Divergence"));
+   SetUpToolTip (m_comboBox34, IDS_ToolTip149);
+   bSizer214->Add (m_comboBox34, 0, wxLEFT, 25);
+
+   m_checkBox50 = new wxCheckBox (this,
+   											IDC_FeatureTransformation,
+   											wxT("Use feature transformation"),
+   											wxDefaultPosition,
+   											wxDefaultSize,
+   											0);
+   SetUpToolTip (m_checkBox50, IDS_ToolTip150);
+   bSizer214->Add (m_checkBox50, 0, wxLEFT | wxTOP, 15);
+
+
+   bSizer212->Add (bSizer214, 0, wxEXPAND, 5);
+
+   wxBoxSizer* bSizer215;
+   bSizer215 = new wxBoxSizer (wxHORIZONTAL);
+
+   m_staticText214 = new wxStaticText (this,
+   												IDC_ChannelPrompt,
+   												wxT("Channels:"),
+   												wxDefaultPosition,
+   												wxDefaultSize,
+   												0);
+   m_staticText214->Wrap (-1);
+   SetUpToolTip (m_staticText214, IDS_ToolTip52);
+   bSizer215->Add (m_staticText214, 0, wxALIGN_CENTER | wxALL, 5);
+
+   m_comboBox35 = new wxComboBox (this,
+   											IDC_ChannelCombo,
+   											wxT("Combo!"),
+   											wxDefaultPosition,
+   											wxDefaultSize,
+   											0,
+   											NULL,
+   											wxCB_READONLY);
+   m_comboBox35->Append (wxT("All"));
+   m_comboBox35->Append (wxT("Subset..."));
+   SetUpToolTip (m_comboBox35, IDS_ToolTip52);
+   bSizer215->Add (m_comboBox35, 0, wxALIGN_CENTER | wxALL, 5);
+
+   bSizer212->Add (bSizer215, 0, wxEXPAND, 5);
+
+   wxStaticBoxSizer* sbSizer19;
+   sbSizer19 = new wxStaticBoxSizer (new wxStaticBox (this,
+																		wxID_ANY,
+																		wxT("Channel Combinations")),
+													wxVERTICAL);
+
+   wxBoxSizer* bSizer216;
+   bSizer216 = new wxBoxSizer(wxHORIZONTAL);
+
+   m_staticText215 = new wxStaticText (sbSizer19->GetStaticBox (),
+   												IDC_NumberChannelsPrompt,
+   												wxT("Number of channels:"),
+   												wxDefaultPosition,
+   												wxDefaultSize,
+   												0);
+   m_staticText215->Wrap (-1);
+   SetUpToolTip (m_staticText215, IDS_ToolTip151);
+   bSizer216->Add (m_staticText215, 0, wxALIGN_CENTER | wxALL, 5);
+
+   m_comboBox36 = new wxComboBox (sbSizer19->GetStaticBox (),
+   											IDC_NumberChannelsCombo,
+   											wxT("Combo!"),
+   											wxDefaultPosition,
+   											wxDefaultSize, 0,
+   											NULL,
+   											wxCB_READONLY);
+   m_comboBox36->Append (wxT("All possible"));
+   m_comboBox36->Append (wxT("Subset..."));
+   SetUpToolTip (m_comboBox36, IDS_ToolTip151);
+   bSizer216->Add (m_comboBox36, 0, wxALIGN_CENTER | wxALL, 5);
+
+
+   sbSizer19->Add (bSizer216, 0, wxEXPAND | wxLEFT, 15);
+
+   wxBoxSizer* bSizer217;
+   bSizer217 = new wxBoxSizer (wxHORIZONTAL);
+
+   m_staticText216 = new wxStaticText (sbSizer19->GetStaticBox (),
+   												IDC_ChannelsPerGroupPrompt,
+   												wxT("Contiguous channels per group:"),
+   												wxDefaultPosition,
+   												wxDefaultSize,
+   												0);
+   m_staticText216->Wrap (-1);
+	SetUpToolTip (m_staticText216, IDS_ToolTip152);
+   bSizer217->Add (m_staticText216, 0, wxALIGN_CENTER | wxALL, 5);
+
+   m_textCtrl120 = new wxTextCtrl (sbSizer19->GetStaticBox (),
+   											IDC_ChannelsPerGroup,
+   											wxEmptyString,
+   											wxDefaultPosition,
+   											wxSize (50, -1),
+   											0);
+   m_textCtrl120->SetValidator (wxTextValidator (wxFILTER_DIGITS, &m_channelgroupString));
+   SetUpToolTip (m_textCtrl120, IDS_ToolTip152);
+   bSizer217->Add (m_textCtrl120, 0, wxALL, 5);
+
+   sbSizer19->Add(bSizer217, 1, wxEXPAND | wxLEFT, 15);
+
+   m_checkBox47 = new wxCheckBox (sbSizer19->GetStaticBox(),
+   											IDC_StepProcedure,
+   											wxT("Use step procedure"),
+   											wxDefaultPosition,
+   											wxDefaultSize,
+   											0);
+   SetUpToolTip (m_checkBox47, IDS_ToolTip153);
+   sbSizer19->Add (m_checkBox47, 0, wxLEFT, 20);
+
+   wxBoxSizer* bSizer218;
+   bSizer218 = new wxBoxSizer (wxHORIZONTAL);
+
+   m_staticText217 = new wxStaticText (sbSizer19->GetStaticBox (),
+													wxID_ANY,
+													wxT("Max search combinations:"),
+													wxDefaultPosition,
+													wxDefaultSize,
+													0);
+   m_staticText217->Wrap (-1);
+   SetUpToolTip (m_staticText217, IDS_ToolTip154);
+   bSizer218->Add (m_staticText217, 0, wxALIGN_CENTER | wxALL, 5);
+
+   m_staticText218 = new wxStaticText (sbSizer19->GetStaticBox (),
+   												IDC_MaxSearchCombinations,
+   												wxT("MyLabel"),
+   												wxDefaultPosition,
+   												wxDefaultSize,
+   												0);
+   m_staticText218->Wrap (-1);
+   SetUpToolTip (m_staticText218, IDS_ToolTip154);
+   bSizer218->Add (m_staticText218, 0, wxALIGN_CENTER | wxALL, 5);
+
+   sbSizer19->Add (bSizer218, 0, wxEXPAND | wxLEFT, 15);
+
+   wxBoxSizer* bSizer219;
+   bSizer219 = new wxBoxSizer (wxHORIZONTAL);
+
+   m_staticText219 = new wxStaticText (sbSizer19->GetStaticBox (),
+   												wxID_ANY,
+   												wxT("Max number combinations to list:"),
+   												wxDefaultPosition,
+   												wxDefaultSize,
+   												0);
+   m_staticText219->Wrap (-1);
+   SetUpToolTip (m_staticText219, IDS_ToolTip155);
+   bSizer219->Add (m_staticText219, 0, wxALIGN_CENTER | wxALL, 5);
+
+   m_textCtrl121 = new wxTextCtrl (sbSizer19->GetStaticBox (),
+   											IDC_NumberBestToList,
+   											wxEmptyString,
+   											wxDefaultPosition,
+   											wxSize (50, -1),
+   											0);
+   SetUpToolTip (m_textCtrl121, IDS_ToolTip155);
+   m_textCtrl121->SetValidator (wxTextValidator (wxFILTER_DIGITS, &m_numBestString));
+   bSizer219->Add (m_textCtrl121, 0, wxALL, 5);
+
+   sbSizer19->Add (bSizer219, 0, wxEXPAND | wxLEFT, 15);
+
+   bSizer212->Add (sbSizer19, 0, wxEXPAND, 5);
+
+   bSizer211->Add (bSizer212, 0, wxALL | wxEXPAND, 12);
+
+   wxBoxSizer* bSizer213;
+   bSizer213 = new wxBoxSizer (wxVERTICAL);
+
+   wxBoxSizer* bSizer220;
+   bSizer220 = new wxBoxSizer (wxHORIZONTAL);
+
+   m_staticText221 = new wxStaticText (this,
+   												IDC_ClassPrompt,
+   												wxT("Classes:"),
+   												wxDefaultPosition,
+   												wxDefaultSize,
+   												0);
+   m_staticText221->Wrap (-1);
+   SetUpToolTip (m_staticText221, IDS_ToolTip103);
+   bSizer220->Add (m_staticText221, 0, wxALIGN_CENTER | wxALL, 5);
+
+   m_comboBox38 = new wxComboBox (this,
+   											IDC_ClassCombo,
+   											wxT("Combo!"),
+   											wxDefaultPosition,
+   											wxDefaultSize,
+   											0,
+   											NULL,
+   											wxCB_READONLY);
+   m_comboBox38->Append (wxT("All"));
+   m_comboBox38->Append (wxT("Subset..."));
+   SetUpToolTip (m_comboBox38, IDS_ToolTip103);
+   bSizer220->Add (m_comboBox38, 0, wxALIGN_CENTER | wxALL, 5);
+
+   bSizer213->Add (bSizer220, 0, wxEXPAND, 5);
+
+   wxBoxSizer* bSizer221;
+   bSizer221 = new wxBoxSizer (wxHORIZONTAL);
+
+   m_staticText222 = new wxStaticText (this,
+   												IDC_NumberClassCombinations,
+   												wxT("MyLabel"),
+   												wxDefaultPosition,
+   												wxDefaultSize,
+   												0);
+   m_staticText222->Wrap (-1);
+   bSizer221->Add (m_staticText222, 0, wxALIGN_CENTER | wxALL, 5);
+   m_staticText223 = new wxStaticText (this,
+   												wxID_ANY,
+   												wxT("combinations"),
+   												wxDefaultPosition,
+   												wxDefaultSize,
+   												0);
+   m_staticText223->Wrap (-1);
+   bSizer221->Add (m_staticText223, 0, wxALL, 5);
+
+   bSizer213->Add(bSizer221, 0, wxEXPAND | wxLEFT, 25);
+
+   wxBoxSizer* bSizer222 = new wxBoxSizer (wxHORIZONTAL);
+
+   m_staticText224 = new wxStaticText (this,
+   												IDC_ClassPairWeightsPrompt,
+   												wxT("Weights:"),
+   												wxDefaultPosition,
+   												wxDefaultSize,
+   												0);
+   m_staticText224->Wrap (-1);
+   SetUpToolTip (m_staticText224, IDS_ToolTip156);
+   bSizer222->Add (m_staticText224, 0, wxALIGN_CENTER | wxALL, 5);
+
+   m_comboBox39 = new wxComboBox (this,
+   											IDC_ClassPairWeightsCombo,
+   											wxT("Combo!"),
+   											wxDefaultPosition,
+   											wxDefaultSize,
+   											0,
+   											NULL,
+   											wxCB_READONLY);
+   m_comboBox39->Append (wxT("Equal"));
+   m_comboBox39->Append (wxT("Unequal..."));
+   SetUpToolTip (m_comboBox39, IDS_ToolTip156);
+   bSizer222->Add (m_comboBox39, 0, wxALIGN_CENTER | wxALL, 5);
+
+   m_staticText229 = new wxStaticText (this,
+   												IDC_WeightsEqual,
+   												wxT("Equal"),
+   												wxDefaultPosition,
+   												wxDefaultSize,
+   												0);
+   m_staticText229->Wrap (-1);
+   bSizer222->Add (m_staticText229, 0, wxALIGN_CENTER | wxALL, 5);
+
+   bSizer213->Add (bSizer222, 0, wxEXPAND, 5);
+
+   wxBoxSizer* bSizer223 = new wxBoxSizer (wxHORIZONTAL);
+
+   m_staticText225 = new wxStaticText (this,
+   												IDC_SymbolPrompt,
+   												wxT("Symbols:"),
+   												wxDefaultPosition,
+   												wxDefaultSize,
+   												0);
+   m_staticText225->Wrap (-1);
+   bSizer223->Add (m_staticText225, 0, wxALIGN_CENTER | wxALL, 5);
+
+   m_comboBox40 = new wxComboBox (this,
+   											IDC_SymbolCombo,
+   											wxT("Combo!"),
+   											wxDefaultPosition,
+   											wxDefaultSize,
+   											0,
+   											NULL,
+   											wxCB_READONLY);
+   m_comboBox40->Append (wxT("Default set"));
+   m_comboBox40->Append (wxT("User defined..."));
+   SetUpToolTip (m_comboBox40, IDS_ToolTip157);
+   bSizer223->Add (m_comboBox40, 0, wxALIGN_CENTER | wxALL, 5);
+
+   m_staticText228 = new wxStaticText (this,
+   												IDC_SymbolsDefaultSet,
+   												wxT("Default set"),
+   												wxDefaultPosition,
+   												wxDefaultSize,
+   												0);
+   m_staticText228->Wrap (-1);
+   bSizer223->Add (m_staticText228, 0, wxALIGN_CENTER | wxALL, 5);
+
+   bSizer213->Add(bSizer223, 0, wxEXPAND, 5);
+
+   m_button46 = new wxButton (this,
+   									IDC_ListOptions,
+   									wxT("List Options..."),
+   									wxDefaultPosition,
+   									wxSize(180, -1),
+   									0);
+   SetUpToolTip (m_button46, IDS_ToolTip158);
+   bSizer213->Add (m_button46, 0, wxALL, 5);
+
+   wxBoxSizer* bSizer224;
+   bSizer224 = new wxBoxSizer (wxVERTICAL);
+
+   m_staticText226 = new wxStaticText (this,
+   												wxID_ANY,
+   												wxT("Write results to:"),
+   												wxDefaultPosition,
+   												wxDefaultSize,
+   												0);
+   m_staticText226->Wrap (-1);
+   bSizer224->Add (m_staticText226, 0, wxALL, 5);
+
+   m_checkBox48 = new wxCheckBox (this,
+   											IDC_TextWindow,
+   											wxT("project text window"),
+   											wxDefaultPosition,
+   											wxDefaultSize,
+   											0);
+   SetUpToolTip (m_checkBox48, IDS_ToolTip159);
+   bSizer224->Add (m_checkBox48, 0, wxLEFT, 15);
+
+   m_checkBox49 = new wxCheckBox (this,
+   											IDC_DiskFile,
+   											wxT("disk file"),
+   											wxDefaultPosition,
+   											wxDefaultSize,
+   											0);
+   SetUpToolTip (m_checkBox49, IDS_ToolTip160);
+   bSizer224->Add (m_checkBox49, 0, wxLEFT, 15);
+
+   bSizer213->Add (bSizer224, 0, wxEXPAND);
+
+   bSizer211->Add (bSizer213, 0, wxEXPAND | wxLEFT|wxTOP|wxRIGHT, 12);
+	
+   bVSizerMain->Add (bSizer211, 0);
+	
+	CreateStandardButtons (bVSizerMain);
+
+   this->SetSizer (bVSizerMain);
+   this->Layout ();
+
+   this->Centre (wxBOTH);
+	
+}	// end "CreateControls"
+
+
+
+bool CMFeatureSelectionDialog::TransferDataToWindow ()
+
+{
    wxComboBox* distancemeas = (wxComboBox*) FindWindow(IDC_DistanceMeasureCombo);
    wxComboBox* numchannel = (wxComboBox*) FindWindow(IDC_NumberChannelsCombo);
    wxComboBox* classpairweight = (wxComboBox*) FindWindow(IDC_ClassPairWeightsCombo);
@@ -136,7 +534,7 @@ bool CMFeatureSelectionDialog::TransferDataToWindow() {
 
    distancemeas->SetSelection(m_separabilityListSelection);
    numchannel->SetSelection(m_channelCombinationSelection);
-   classpairweight->SetSelection(m_interClassWeightsSelection);
+   classpairweight->SetSelection (m_classPairWeightsSelection);
    channel->SetSelection(m_channelSelection);
    classcombo->SetSelection(m_classSelection);
    symbolcombo->SetSelection(m_symbolSelection);
@@ -172,20 +570,20 @@ bool CMFeatureSelectionDialog::TransferDataFromWindow() {
 
    m_separabilityListSelection = distancemeas->GetSelection();
    m_channelCombinationSelection = numchannel->GetSelection();
-   if (m_channelCombinationSelection < 0)
-      m_channelCombinationSelection = m_channelCombinationSelection_Saved;
+   //if (m_channelCombinationSelection < 0)
+   //   m_channelCombinationSelection = m_channelCombinationSelection_Saved;
 
-   m_interClassWeightsSelection = classpairweight->GetSelection();
-   if (m_interClassWeightsSelection < 0)
-      m_interClassWeightsSelection = m_interClassWeightsSelection_Saved;
+   m_classPairWeightsSelection = classpairweight->GetSelection();
+   //if (m_classPairWeightsSelection < 0)
+   //   m_classPairWeightsSelection = m_interClassWeightsSelection_Saved;
    
    m_channelSelection = channel->GetSelection();
-   if (m_channelSelection < 0)
-      m_channelSelection = m_channelSelection_Saved;
+   //if (m_channelSelection < 0)
+   //   m_channelSelection = m_channelSelection_Saved;
    
    m_classSelection = classcombo->GetSelection();
-   if (m_classSelection < 0)
-      m_classSelection = m_classSelection_Saved;
+   //if (m_classSelection < 0)
+   //   m_classSelection = m_classSelection_Saved;
    
    m_symbolSelection = symbolcombo->GetSelection();
 
@@ -296,7 +694,7 @@ CMFeatureSelectionDialog::DoDialog(
          m_classSelection,
          m_localNumberClasses,
          m_classListPtr,
-         m_interClassWeightsSelection + 1,
+         m_classPairWeightsSelection + 1,
          m_localClassPairWeightsListPtr,
          m_localDefaultClassPairWeight,
          m_symbolSelection,
@@ -359,8 +757,6 @@ CMFeatureSelectionDialog::HandleChannelCombinationsMenu(
 } // end "HandleChannelCombinationsMenu"  
 
 
-/////////////////////////////////////////////////////////////////////////////
-// CMFeatureSelectionDialog message handlers
 
 void CMFeatureSelectionDialog::OnInitDialog(wxInitDialogEvent& event) {
    SInt16 channelCombinationSelection,
@@ -452,7 +848,7 @@ void CMFeatureSelectionDialog::OnInitDialog(wxInitDialogEvent& event) {
    // Adjust for 0 base index.
    // Unequal interclass weights are not available yet.																	
 
-   m_interClassWeightsSelection = interClassWeightsSelection - 1;
+   m_classPairWeightsSelection = interClassWeightsSelection - 1;
    HideDialogItem(this, IDC_WeightsEqual);
    //	((CComboBox*)GetDlgItem(IDC_ClassPairWeightsCombo))->DeleteString(1); 
 
@@ -466,42 +862,45 @@ void CMFeatureSelectionDialog::OnInitDialog(wxInitDialogEvent& event) {
       symbolcombo->Delete(1);
    
    HideDialogItem(this, IDC_SymbolCombo);
-   //   ((CComboBox*) GetDlgItem(IDC_SymbolCombo))->DeleteString(1);
+   //((CComboBox*) GetDlgItem(IDC_SymbolCombo))->DeleteString(1);
 
 
    if (TransferDataToWindow())
       PositionDialogWindow();
 
-   // Set default text selection to first edit text item	
+   		// Set default text selection to first edit text item
 
-   //	GetDlgItem(IDC_ChannelsPerGroup)->SetFocus();
-   //	SendDlgItemMessage( IDC_ChannelsPerGroup, EM_SETSEL, 0, MAKELPARAM(0, -1) );
+   //GetDlgItem(IDC_ChannelsPerGroup)->SetFocus();
+   //SendDlgItemMessage( IDC_ChannelsPerGroup, EM_SETSEL, 0, MAKELPARAM(0, -1) );
    SelectDialogItemText(this, IDC_ChannelsPerGroup, 0, SInt16_MAX);
 
-   //return FALSE; // return TRUE  unless you set the focus to a control
-   this->Layout();
-   this->Fit();
-} // end "OnInitDialog" 
+   this->Layout ();
+   this->Fit ();
+	
+} // end "OnInitDialog"
 
-void
-CMFeatureSelectionDialog::OnSelendokDistanceMeasureCombo(wxCommandEvent& event) {
+
+
+void CMFeatureSelectionDialog::OnDistanceMeasureComboSelendok (
+				wxCommandEvent& event)
+
+	{
    wxComboBox* comboBoxPtr;
 
    SInt16 channelSelection,
       separabilityDistance,
       savedSeparabilityListSelection;
 
-   Boolean returnFlag = TRUE;
+   //Boolean returnFlag = TRUE;
 
 
    savedSeparabilityListSelection = m_separabilityListSelection;
 
    comboBoxPtr = (wxComboBox*) FindWindow(IDC_DistanceMeasureCombo);
 
-   //DDX_CBIndex(m_dialogFromPtr,IDC_DistanceMeasureCombo, m_separabilityListSelection);
    m_separabilityListSelection = comboBoxPtr->GetSelection();
-   // Get the actual classification procedure code.
-
+	
+   		// Get the actual classification procedure code.
 
    //separabilityDistance = (SInt16) comboBoxPtr->GetItemData(m_separabilityListSelection);
 
@@ -576,11 +975,13 @@ CMFeatureSelectionDialog::OnSelendokDistanceMeasureCombo(wxCommandEvent& event) 
    separabilityDistance64 = (SInt64) ((int*) comboBoxPtr->GetClientData(m_separabilityListSelection));
    m_separabilityDistance = (SInt16) separabilityDistance;
 
+} // end "OnDistanceMeasureComboSelendok"
 
-} // end "OnSelendokDistanceMeasureCombo" 
 
-void
-CMFeatureSelectionDialog::OnFeatureTransformation(wxCommandEvent& event) {
+
+void CMFeatureSelectionDialog::OnFeatureTransformation(wxCommandEvent& event)
+
+{
    SInt16 channelSelection;
 
 
@@ -631,8 +1032,11 @@ CMFeatureSelectionDialog::OnFeatureTransformation(wxCommandEvent& event) {
 
 } // end "OnFeatureTransformation"
 
-void
-CMFeatureSelectionDialog::OnSelendokChannelCombo(wxCommandEvent& event) {
+
+
+void CMFeatureSelectionDialog::OnChannelComboSelendok (wxCommandEvent& event)
+
+{
    HandleChannelsMenu(IDC_ChannelCombo,
       m_featureTransformationFlag,
       (SInt16) gProjectInfoPtr->numberStatisticsChannels,
@@ -654,45 +1058,52 @@ CMFeatureSelectionDialog::OnSelendokChannelCombo(wxCommandEvent& event) {
       &m_localCombinationsToList,
       &m_maxContiguousChannelsPerGroup);
 
-} // end "OnSelendokChannelCombo"
+}	// end "OnChannelComboSelendok"
 
-//void
-//CMFeatureSelectionDialog::OnSelendokChannelComboDropDown(wxCommandEvent& event) {
-//   wxComboBox* channelcombo = (wxComboBox *) FindWindow(IDC_ChannelCombo);
-//   m_channelSelection_Saved = channelcombo->GetSelection();
-//   channelcombo->SetSelection(-1);
-//}
 
-void
-CMFeatureSelectionDialog::OnSelendokNumberChannelsCombo(wxCommandEvent& event) {
-   HandleChannelCombinationsMenu(IDC_NumberChannelsCombo);
 
-   SeparabilityDialogUpdateChannelCombinationItems(
-      this,
-      m_separabilitySpecsPtr,
-      FALSE,
-      m_localActiveNumberFeatures,
-      m_allChanCombinationsPtr,
-      m_savedContiguousChannelsPerGroup,
-      m_searchFlag,
-      m_channelCombinationSelection,
-      m_localChannelCombinationsPtr,
-      &m_localNumberChannelGroupCombinations,
-      &m_savedNumberChannelGroupCombinations,
-      &m_localCombinationsToList,
-      &m_maxContiguousChannelsPerGroup);
+void CMFeatureSelectionDialog::OnNumberChannelsComboSelendok (wxCommandEvent& event)
 
-} // end "OnSelendokNumberChannelsCombo"
+{
+   HandleChannelCombinationsMenu (IDC_NumberChannelsCombo);
 
-void
-CMFeatureSelectionDialog::OnSelendokNumberChannelsComboDropDown(wxCommandEvent& event) {
-   wxComboBox* numberchannelcombo = (wxComboBox *) FindWindow(IDC_NumberChannelsCombo);
-   m_channelCombinationSelection_Saved = numberchannelcombo->GetSelection();
-   numberchannelcombo->SetSelection(-1);
-}
+   SeparabilityDialogUpdateChannelCombinationItems (this,
+																		m_separabilitySpecsPtr,
+																		FALSE,
+																		m_localActiveNumberFeatures,
+																		m_allChanCombinationsPtr,
+																		m_savedContiguousChannelsPerGroup,
+																		m_searchFlag,
+																		m_channelCombinationSelection,
+																		m_localChannelCombinationsPtr,
+																		&m_localNumberChannelGroupCombinations,
+																		&m_savedNumberChannelGroupCombinations,
+																		&m_localCombinationsToList,
+																		&m_maxContiguousChannelsPerGroup);
 
-void
-CMFeatureSelectionDialog::OnChangeChannelsPerGroup(wxCommandEvent& event) {
+}	// end "OnNumberChannelsComboSelendok"
+
+
+
+void CMFeatureSelectionDialog::OnNumberChannelsComboDropDown (
+				wxCommandEvent& event)
+
+{
+   //wxComboBox* numberChannelComboPtr = (wxComboBox*)FindWindow (IDC_NumberChannelsCombo);
+   //m_channelCombinationSelection_Saved = numberChannelComboPtr->GetSelection ();
+   //numberChannelComboPtr->SetSelection (-1);
+	
+   wxComboBox* numberChannelComboPtr = (wxComboBox*)event.GetEventObject ();
+   if (numberChannelComboPtr != NULL)
+		numberChannelComboPtr->SetSelection (-1);
+	
+}	// end "OnSelendokNumberChannelsComboDropDown"
+
+
+
+void CMFeatureSelectionDialog::OnChangeChannelsPerGroup(wxCommandEvent& event)
+
+{
    SInt32 newContiguousChannelsPerGroup;
    SInt16 returncode = 0;
    
@@ -816,7 +1227,7 @@ CMFeatureSelectionDialog::OnChangeNumberBestToList(wxCommandEvent& event) {
 } // end "OnChangeNumberBestToList"
 
 void
-CMFeatureSelectionDialog::OnSelendokClassCombo(wxCommandEvent& event) {
+CMFeatureSelectionDialog::OnClassComboSelendok(wxCommandEvent& event) {
    HandleClassesMenu(&m_localNumberClasses,
       (SInt16*) m_classListPtr,
       2,
@@ -830,37 +1241,11 @@ CMFeatureSelectionDialog::OnSelendokClassCombo(wxCommandEvent& event) {
       &m_localNumberClasses,
       m_classListPtr);
 
-} // end "OnSelendokClassCombo"
+} // end "OnClassComboSelendok"
 
-//void
-//CMFeatureSelectionDialog::OnSelendokClassComboDropDown(wxCommandEvent& event) {
-//   wxComboBox* classcombo = (wxComboBox *) FindWindow(IDC_ClassCombo);
-//   m_classSelection_Saved = classcombo->GetSelection();
-//   classcombo->SetSelection(-1);
-//}
-//void CMFeatureSelectionDialog::OnOK() {
-//   SInt16 index;
-//
-//   if (m_separabilitySpecsPtr->maxNumberFeatureCombinations <= 0) {
-//      index = IDS_FeatureSelection11;
-//      if (m_featureTransformationFlag)
-//         index = IDS_FeatureSelection12;
-//
-//      if (m_savedContiguousChannelsPerGroup > 1)
-//         index = IDS_FeatureSelection13;
-//
-//      SetDLogControlHilite(NULL, wxID_OK, 255);
-//      DisplayAlert(kErrorAlertID, 1, kFeatureSelectionStrID, index, 0, NULL);
-//      SetDLogControlHilite(NULL, wxID_OK, 0);
-//   }// end "if (m_separabilitySpecsPtr->maxNumberFeatureCombinations <= 0)" 
-//
-//   else // everything is 'okay'
-//      CMDialog::OnOK();
-//
-//} // end "OnOK" 
 
-void
-CMFeatureSelectionDialog::OnListOptions(wxCommandEvent& event) {
+
+void CMFeatureSelectionDialog::OnListOptions(wxCommandEvent& event) {
 
    SetDLogControlHilite(NULL, wxID_OK, 255);
    SeparabilityListDialog(&m_localCombinationsToList);
@@ -872,17 +1257,34 @@ CMFeatureSelectionDialog::OnListOptions(wxCommandEvent& event) {
 
 } // end "OnListOptions"
 
-void CMFeatureSelectionDialog::OnSelendokClassPairWeightsCombo(wxCommandEvent& event) {
-   HandleClassPairWeightsMenu(
-      &m_localClassPairWeightsListPtr,
-      IDC_ClassPairWeightsCombo,
-      &m_interClassWeightsSelection,
-      &m_localDefaultClassPairWeight);
 
-} // end "OnSelendokClassPairWeightsCombo"
+
+void CMFeatureSelectionDialog::OnNumberChannelsComboCloseUp (
+				wxCommandEvent& 					event)
+
+{
+	wxComboBox* numberChannelsComboPtr = (wxComboBox*)FindWindow (IDC_NumberChannelsCombo);
+	if (numberChannelsComboPtr->GetSelection () == -1)
+		numberChannelsComboPtr->SetSelection (m_channelCombinationSelection);
+	
+	event.Skip ();
+	
+}	// end "OnNumberChannelsComboCloseUp"
+
+
+
+void CMFeatureSelectionDialog::OnClassPairWeightsComboSelendok (wxCommandEvent& event)
+
+{
+   HandleClassPairWeightsMenu (&m_localClassPairWeightsListPtr,
+											IDC_ClassPairWeightsCombo,
+											&m_classPairWeightsSelection,
+											&m_localDefaultClassPairWeight);
+
+} // end "OnClassPairWeightsComboSelendok"
 
 //void
-//CMFeatureSelectionDialog::OnSelendokClassPairWeightsComboDropDown(wxCommandEvent& event) {
+//CMFeatureSelectionDialog::OnClassPairWeightsComboDropDown(wxCommandEvent& event) {
 //   wxComboBox* classweightcombo = (wxComboBox *) FindWindow(IDC_ClassPairWeightsCombo);
 //   m_interClassWeightsSelection_Saved = classweightcombo->GetSelection();
 //   classweightcombo->SetSelection(-1);
@@ -897,264 +1299,6 @@ void CMFeatureSelectionDialog::OnHelpButton(wxCommandEvent& event)
 //   wxAboutBox(info);
    
    
-}
-
-void CMFeatureSelectionDialog::CreateControls()
-
-{
-   this->SetSizeHints (wxDefaultSize, wxDefaultSize);
-
-   wxBoxSizer* bVSizerMain = new wxBoxSizer (wxVERTICAL);
-	
-   //wxBoxSizer* bSizer211;
-   bSizer211 = new wxBoxSizer(wxHORIZONTAL);
-
-   wxBoxSizer* bSizer212;
-   bSizer212 = new wxBoxSizer(wxVERTICAL);
-
-   wxBoxSizer* bSizer214;
-   bSizer214 = new wxBoxSizer(wxVERTICAL);
-
-   m_staticText213 = new wxStaticText(this, wxID_ANY, wxT("Distance measure:"), wxDefaultPosition, wxDefaultSize, 0);
-   m_staticText213->Wrap(-1);
-   bSizer214->Add(m_staticText213, 0, wxALL, 5);
-
-   m_comboBox34 = new wxComboBox(this, IDC_DistanceMeasureCombo, wxT("Combo!"), wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_READONLY);
-   m_comboBox34->Append(wxT("Bhattacharyya"));
-   m_comboBox34->Append(wxT("Error function Bhattacharyya"));
-   m_comboBox34->Append(wxT("'Mean' Bhattacharyya"));
-   m_comboBox34->Append(wxT("'Covariance' Bhattacharyya"));
-   m_comboBox34->Append(wxT("'Noncovariance' Bhattacharyya"));
-   m_comboBox34->Append(wxT("Transformed divergence"));
-   m_comboBox34->Append(wxT("Divergence"));
-   SetUpToolTip(m_comboBox34, IDS_ToolTip149);
-   bSizer214->Add(m_comboBox34, 0, wxLEFT, 25);
-
-   m_checkBox50 = new wxCheckBox(this, IDC_FeatureTransformation, wxT("Use feature transformation"), wxDefaultPosition, wxDefaultSize, 0);
-   SetUpToolTip(m_checkBox50, IDS_ToolTip150);
-   bSizer214->Add(m_checkBox50, 0, wxLEFT | wxTOP, 15);
-
-
-   bSizer212->Add(bSizer214, 0, wxEXPAND, 5);
-
-   wxBoxSizer* bSizer215;
-   bSizer215 = new wxBoxSizer(wxHORIZONTAL);
-
-   m_staticText214 = new wxStaticText(this, IDC_ChannelPrompt, wxT("Channels:"), wxDefaultPosition, wxDefaultSize, 0);
-   m_staticText214->Wrap(-1);
-   SetUpToolTip(m_staticText214, IDS_ToolTip52);
-   bSizer215->Add(m_staticText214, 0, wxALIGN_CENTER | wxALL, 5);
-
-   m_comboBox35 = new wxComboBox(this, IDC_ChannelCombo, wxT("Combo!"), wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_READONLY);
-   m_comboBox35->Append(wxT("All"));
-   m_comboBox35->Append(wxT("Subset..."));
-   SetUpToolTip(m_comboBox35, IDS_ToolTip52);
-   bSizer215->Add(m_comboBox35, 0, wxALIGN_CENTER | wxALL, 5);
-
-
-   bSizer212->Add(bSizer215, 0, wxEXPAND, 5);
-
-   wxStaticBoxSizer* sbSizer19;
-   sbSizer19 = new wxStaticBoxSizer(new wxStaticBox(this, wxID_ANY, wxT("Channel Combinations")), wxVERTICAL);
-
-   wxBoxSizer* bSizer216;
-   bSizer216 = new wxBoxSizer(wxHORIZONTAL);
-
-   m_staticText215 = new wxStaticText(sbSizer19->GetStaticBox(), IDC_NumberChannelsPrompt, wxT("Number of channels:"), wxDefaultPosition, wxDefaultSize, 0);
-   m_staticText215->Wrap(-1);
-   SetUpToolTip(m_staticText215, IDS_ToolTip151);
-   bSizer216->Add(m_staticText215, 0, wxALIGN_CENTER | wxALL, 5);
-
-   m_comboBox36 = new wxComboBox(sbSizer19->GetStaticBox(), IDC_NumberChannelsCombo, wxT("Combo!"), wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_READONLY);
-   m_comboBox36->Append(wxT("All possible"));
-   m_comboBox36->Append(wxT("Subset..."));
-   SetUpToolTip(m_comboBox36, IDS_ToolTip151);
-   bSizer216->Add(m_comboBox36, 0, wxALIGN_CENTER | wxALL, 5);
-
-
-   sbSizer19->Add(bSizer216, 0, wxEXPAND | wxLEFT, 15);
-
-   wxBoxSizer* bSizer217;
-   bSizer217 = new wxBoxSizer(wxHORIZONTAL);
-
-   m_staticText216 = new wxStaticText(sbSizer19->GetStaticBox(), IDC_ChannelsPerGroupPrompt, wxT("Contiguous channels per group:"), wxDefaultPosition, wxDefaultSize, 0);
-   m_staticText216->Wrap(-1);
-    SetUpToolTip(m_staticText216, IDS_ToolTip152);
-   bSizer217->Add(m_staticText216, 0, wxALIGN_CENTER | wxALL, 5);
-
-   m_textCtrl120 = new wxTextCtrl(sbSizer19->GetStaticBox(), IDC_ChannelsPerGroup, wxEmptyString, wxDefaultPosition, wxSize(50, -1), 0);
-   m_textCtrl120->SetValidator(wxTextValidator(wxFILTER_DIGITS, &m_channelgroupString));
-   SetUpToolTip(m_textCtrl120, IDS_ToolTip152);
-   bSizer217->Add(m_textCtrl120, 0, wxALL, 5);
-
-
-   sbSizer19->Add(bSizer217, 1, wxEXPAND | wxLEFT, 15);
-
-   m_checkBox47 = new wxCheckBox(sbSizer19->GetStaticBox(), IDC_StepProcedure, wxT("Use step procedure"), wxDefaultPosition, wxDefaultSize, 0);
-   SetUpToolTip(m_checkBox47, IDS_ToolTip153);
-   sbSizer19->Add(m_checkBox47, 0, wxLEFT, 20);
-
-   wxBoxSizer* bSizer218;
-   bSizer218 = new wxBoxSizer(wxHORIZONTAL);
-
-   m_staticText217 = new wxStaticText(sbSizer19->GetStaticBox(), wxID_ANY, wxT("Max search combinations:"), wxDefaultPosition, wxDefaultSize, 0);
-   m_staticText217->Wrap(-1);
-   SetUpToolTip(m_staticText217, IDS_ToolTip154);
-   bSizer218->Add(m_staticText217, 0, wxALIGN_CENTER | wxALL, 5);
-
-   m_staticText218 = new wxStaticText(sbSizer19->GetStaticBox(), IDC_MaxSearchCombinations, wxT("MyLabel"), wxDefaultPosition, wxDefaultSize, 0);
-   m_staticText218->Wrap(-1);
-   SetUpToolTip(m_staticText218, IDS_ToolTip154);
-   bSizer218->Add(m_staticText218, 0, wxALIGN_CENTER | wxALL, 5);
-
-
-   sbSizer19->Add(bSizer218, 0, wxEXPAND | wxLEFT, 15);
-
-   wxBoxSizer* bSizer219;
-   bSizer219 = new wxBoxSizer(wxHORIZONTAL);
-
-   m_staticText219 = new wxStaticText(sbSizer19->GetStaticBox(), wxID_ANY, wxT("Max number combinations to list:"), wxDefaultPosition, wxDefaultSize, 0);
-   m_staticText219->Wrap(-1);
-   SetUpToolTip(m_staticText219, IDS_ToolTip155);
-   bSizer219->Add(m_staticText219, 0, wxALIGN_CENTER | wxALL, 5);
-
-   m_textCtrl121 = new wxTextCtrl(sbSizer19->GetStaticBox(), IDC_NumberBestToList, wxEmptyString, wxDefaultPosition, wxSize(50, -1), 0);
-   SetUpToolTip(m_textCtrl121, IDS_ToolTip155);
-   m_textCtrl121->SetValidator(wxTextValidator(wxFILTER_DIGITS, &m_numBestString));
-   bSizer219->Add(m_textCtrl121, 0, wxALL, 5);
-
-
-   sbSizer19->Add(bSizer219, 0, wxEXPAND | wxLEFT, 15);
-
-
-   bSizer212->Add(sbSizer19, 0, wxEXPAND, 5);
-
-
-   bSizer211->Add(bSizer212, 0, wxALL | wxEXPAND, 12);
-
-   wxBoxSizer* bSizer213;
-   bSizer213 = new wxBoxSizer(wxVERTICAL);
-
-   wxBoxSizer* bSizer220;
-   bSizer220 = new wxBoxSizer(wxHORIZONTAL);
-
-   m_staticText221 = new wxStaticText(this, IDC_ClassPrompt, wxT("Classes:"), wxDefaultPosition, wxDefaultSize, 0);
-   m_staticText221->Wrap(-1);
-   SetUpToolTip(m_staticText221, IDS_ToolTip103);
-   bSizer220->Add(m_staticText221, 0, wxALIGN_CENTER | wxALL, 5);
-
-   m_comboBox38 = new wxComboBox(this, IDC_ClassCombo, wxT("Combo!"), wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_READONLY);
-   m_comboBox38->Append(wxT("All"));
-   m_comboBox38->Append(wxT("Subset..."));
-   SetUpToolTip(m_comboBox38, IDS_ToolTip103);
-   bSizer220->Add(m_comboBox38, 0, wxALIGN_CENTER | wxALL, 5);
-
-
-   bSizer213->Add(bSizer220, 0, wxEXPAND, 5);
-
-   wxBoxSizer* bSizer221;
-   bSizer221 = new wxBoxSizer(wxHORIZONTAL);
-
-   m_staticText222 = new wxStaticText(this, IDC_NumberClassCombinations, wxT("MyLabel"), wxDefaultPosition, wxDefaultSize, 0);
-   m_staticText222->Wrap(-1);
-   //bSizer221->Add(m_staticText222, 0, wxALIGN_RIGHT | wxALL, 5);
-   bSizer221->Add(m_staticText222, 0, wxALIGN_CENTER | wxALL, 5);
-   m_staticText223 = new wxStaticText(this, wxID_ANY, wxT("combinations"), wxDefaultPosition, wxDefaultSize, 0);
-   m_staticText223->Wrap(-1);
-   bSizer221->Add(m_staticText223, 0, wxALL, 5);
-
-
-   bSizer213->Add(bSizer221, 0, wxEXPAND | wxLEFT, 25);
-
-   wxBoxSizer* bSizer222;
-   bSizer222 = new wxBoxSizer(wxHORIZONTAL);
-
-   m_staticText224 = new wxStaticText(this, IDC_ClassPairWeightsPrompt, wxT("Weights:"), wxDefaultPosition, wxDefaultSize, 0);
-   m_staticText224->Wrap(-1);
-   SetUpToolTip(m_staticText224, IDS_ToolTip156);
-   bSizer222->Add(m_staticText224, 0, wxALIGN_CENTER | wxALL, 5);
-
-   m_comboBox39 = new wxComboBox(this, IDC_ClassPairWeightsCombo, wxT("Combo!"), wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_READONLY);
-   m_comboBox39->Append(wxT("Equal"));
-   m_comboBox39->Append(wxT("Unequal..."));
-   SetUpToolTip(m_comboBox39, IDS_ToolTip156);
-   bSizer222->Add(m_comboBox39, 0, wxALIGN_CENTER | wxALL, 5);
-
-   m_staticText229 = new wxStaticText(this, IDC_WeightsEqual, wxT("Equal"), wxDefaultPosition, wxDefaultSize, 0);
-   m_staticText229->Wrap(-1);
-   bSizer222->Add(m_staticText229, 0, wxALIGN_CENTER | wxALL, 5);
-
-
-   bSizer213->Add(bSizer222, 0, wxEXPAND, 5);
-
-   wxBoxSizer* bSizer223;
-   bSizer223 = new wxBoxSizer(wxHORIZONTAL);
-
-   m_staticText225 = new wxStaticText(this, IDC_SymbolPrompt, wxT("Symbols:"), wxDefaultPosition, wxDefaultSize, 0);
-   m_staticText225->Wrap(-1);
-   bSizer223->Add(m_staticText225, 0, wxALIGN_CENTER | wxALL, 5);
-
-   m_comboBox40 = new wxComboBox(this, IDC_SymbolCombo, wxT("Combo!"), wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_READONLY);
-   m_comboBox40->Append(wxT("Default set"));
-   m_comboBox40->Append(wxT("User defined..."));
-   SetUpToolTip(m_comboBox40, IDS_ToolTip157);
-   bSizer223->Add(m_comboBox40, 0, wxALIGN_CENTER | wxALL, 5);
-
-   m_staticText228 = new wxStaticText(this, IDC_SymbolsDefaultSet, wxT("Default set"), wxDefaultPosition, wxDefaultSize, 0);
-   m_staticText228->Wrap(-1);
-   bSizer223->Add(m_staticText228, 0, wxALIGN_CENTER | wxALL, 5);
-
-
-   bSizer213->Add(bSizer223, 0, wxEXPAND, 5);
-
-   m_button46 = new wxButton(this, IDC_ListOptions, wxT("List Options..."), wxDefaultPosition, wxSize(180, -1), 0);
-   SetUpToolTip(m_button46, IDS_ToolTip158);
-   bSizer213->Add(m_button46, 0, wxALL, 5);
-
-   wxBoxSizer* bSizer224;
-   bSizer224 = new wxBoxSizer(wxVERTICAL);
-
-   m_staticText226 = new wxStaticText(this, wxID_ANY, wxT("Write results to:"), wxDefaultPosition, wxDefaultSize, 0);
-   m_staticText226->Wrap(-1);
-   bSizer224->Add(m_staticText226, 0, wxALL, 5);
-
-   m_checkBox48 = new wxCheckBox(this, IDC_TextWindow, wxT("project text window"), wxDefaultPosition, wxDefaultSize, 0);
-   SetUpToolTip(m_checkBox48, IDS_ToolTip159);
-   bSizer224->Add(m_checkBox48, 0, wxLEFT, 15);
-
-   m_checkBox49 = new wxCheckBox(this, IDC_DiskFile, wxT("disk file"), wxDefaultPosition, wxDefaultSize, 0);
-   SetUpToolTip(m_checkBox49, IDS_ToolTip160);
-   bSizer224->Add(m_checkBox49, 0, wxLEFT, 15);
-
-
-   bSizer213->Add(bSizer224, 0, wxEXPAND, 5);
-	/*
-   wxBoxSizer* bSizer225;
-   bSizer225 = new wxBoxSizer(wxHORIZONTAL);
-   
-   wxContextHelpButton* helpButton = new wxContextHelpButton(this, IDS_HelpButton , wxDefaultPosition, wxDefaultSize, 0);
-   SetUpToolTip(helpButton, IDS_DialogMsg1);
-      
-   bSizer225->Add(helpButton, 0, wxALIGN_CENTER|wxALL, 5);
-   
-   m_button47 = new wxButton(this, wxID_CANCEL, wxT("Cancel"), wxDefaultPosition, wxDefaultSize, 0);
-   bSizer225->Add(m_button47, 0, wxALL, 5);
-
-   m_button48 = new wxButton(this, wxID_OK, wxT("OK"), wxDefaultPosition, wxDefaultSize, 0);
-   bSizer225->Add(m_button48, 0, wxALL, 5);
-
-   bSizer213->Add(bSizer225, 0, wxALIGN_RIGHT, 5);
-	*/
-   bSizer211->Add (bSizer213, 0, wxEXPAND | wxLEFT|wxTOP|wxRIGHT, 12);
-	
-   bVSizerMain->Add (bSizer211, 0);
-	
-	CreateStandardButtons (bVSizerMain);
-
-   this->SetSizer(bVSizerMain);
-   this->Layout();
-
-   this->Centre(wxBOTH);
 }
 
 
@@ -1450,35 +1594,56 @@ void CMFeatureSelectionListDialog::OnInitDialog(wxInitDialogEvent& event) {
 
 } // end "OnInitDialog"
 
+
+
 void CMFeatureSelectionListDialog::OnHelpButton(wxCommandEvent& event)
 {
 //   wxMessageBox(wxT("Information... "), wxT("Help"), wxOK| wxSTAY_ON_TOP, this);
 //   DisplayAlert (kErrorAlertID, 3, kAlertStrID, IDS_DialogMsg0, 0, NULL);
 }
 
-void CMFeatureSelectionListDialog::CreateControls() {
-   this->SetSizeHints(wxDefaultSize, wxDefaultSize);
+
+
+void CMFeatureSelectionListDialog::CreateControls ()
+
+{
+   this->SetSizeHints (wxDefaultSize, wxDefaultSize);
    //wxBoxSizer* bSizer226;
-   bSizer226 = new wxBoxSizer(wxVERTICAL);
+   bSizer226 = new wxBoxSizer (wxVERTICAL);
 
    wxBoxSizer* bSizer227;
-   bSizer227 = new wxBoxSizer(wxVERTICAL);
+   bSizer227 = new wxBoxSizer (wxVERTICAL);
 
-   m_checkBox53 = new wxCheckBox(this, IDC_SeparabilityTable, wxT("Separability table with:"), wxDefaultPosition, wxDefaultSize, 0);
-//   SetUpToolTip(m_checkBox53, IDS_ToolTip161);
-   bSizer227->Add(m_checkBox53, 0, wxALL, 5);
+   m_checkBox53 = new wxCheckBox (this,
+												IDC_SeparabilityTable,
+												wxT("Separability table with:"),
+												wxDefaultPosition,
+												wxDefaultSize,
+												0);
+	//SetUpToolTip (m_checkBox53, IDS_ToolTip161);
+   bSizer227->Add (m_checkBox53, 0, wxALL, 5);
 
    wxBoxSizer* bSizer231;
-   bSizer231 = new wxBoxSizer(wxHORIZONTAL);
+   bSizer231 = new wxBoxSizer (wxHORIZONTAL);
 
-   m_staticText230 = new wxStaticText(this, wxID_ANY, wxT("Best"), wxDefaultPosition, wxDefaultSize, 0);
-   m_staticText230->Wrap(-1);
-   bSizer231->Add(m_staticText230, 0, wxALIGN_CENTER | wxALL, 5);
+   m_staticText230 = new wxStaticText (this,
+													wxID_ANY,
+													wxT("Best"),
+													wxDefaultPosition,
+													wxDefaultSize,
+													0);
+   m_staticText230->Wrap (-1);
+   bSizer231->Add (m_staticText230, 0, wxALIGN_CENTER | wxALL, 5);
 
-   m_textCtrl124 = new wxTextCtrl(this, IDC_NumberBestCombinations, wxEmptyString, wxDefaultPosition, wxSize(50, -1), 0);
-   m_textCtrl124->SetValidator(wxTextValidator(wxFILTER_DIGITS, &m_numberbestString));
-   SetUpToolTip(m_textCtrl124, IDS_ToolTip161);
-   bSizer231->Add(m_textCtrl124, 0, wxALL, 5);
+   m_textCtrl124 = new wxTextCtrl (this,
+												IDC_NumberBestCombinations,
+												wxEmptyString,
+												wxDefaultPosition,
+												wxSize (50, -1),
+												0);
+   m_textCtrl124->SetValidator (wxTextValidator (wxFILTER_DIGITS, &m_numberbestString));
+   SetUpToolTip (m_textCtrl124, IDS_ToolTip161);
+   bSizer231->Add (m_textCtrl124, 0, wxALL, 5);
 
    m_staticText231 = new wxStaticText(this, IDC_PossibleCombinations, wxT("out of 9999999999 possible combinations"), wxDefaultPosition, wxDefaultSize, 0);
    m_staticText231->Wrap(-1);
@@ -1523,18 +1688,18 @@ void CMFeatureSelectionListDialog::CreateControls() {
 
    m_radioBtn24 = new wxRadioButton(this, IDC_AverageClassDistance, wxT("Average class distance"), wxDefaultPosition, wxDefaultSize, 0);
    SetUpToolTip(m_radioBtn24, IDS_ToolTip171);
-   bSizer239->Add(m_radioBtn24, 0, wxLEFT | wxTOP, 5);
+   bSizer239->Add(m_radioBtn24, 0, wxLEFT | wxTOP | wxRIGHT, 5);
 
    m_radioBtn25 = new wxRadioButton(this, IDC_MinimumClassDistance, wxT("Minimum class distance"), wxDefaultPosition, wxDefaultSize, 0);
    SetUpToolTip(m_radioBtn25, IDS_ToolTip172);
-   bSizer239->Add(m_radioBtn25, 0, wxLEFT | wxTOP, 5);
+   bSizer239->Add(m_radioBtn25, 0, wxLEFT | wxTOP | wxRIGHT, 5);
 
    m_radioBtn26 = new wxRadioButton(this, IDC_OrderComputed, wxT("Order computed"), wxDefaultPosition, wxDefaultSize, 0);
    SetUpToolTip(m_radioBtn26, IDS_ToolTip173);
-   bSizer239->Add(m_radioBtn26, 0, wxLEFT | wxTOP, 5);
+   bSizer239->Add(m_radioBtn26, 0, wxLEFT | wxTOP | wxRIGHT, 5);
 
 
-   bSizer233->Add(bSizer239, 0, wxEXPAND, 5);
+   bSizer233->Add (bSizer239, 0, wxEXPAND);
 
 
    bSizer227->Add(bSizer233, 0, wxEXPAND | wxLEFT, 30);
@@ -1611,26 +1776,35 @@ void CMFeatureSelectionListDialog::CreateControls() {
 
 
    //bSizer226->Add(bSizer229, 0, wxEXPAND | wxLEFT | wxRIGHT, 12);
-   bSizer226->Add(bSizer229, 0, wxEXPAND | wxLEFT, 12);
+   bSizer226->Add (bSizer229, 0, wxEXPAND | wxLEFT | wxRIGHT, 12);
+	
+	/*
    wxBoxSizer* bSizer230;
    bSizer230 = new wxBoxSizer(wxHORIZONTAL);
 
-//   wxContextHelpButton* helpButton = new wxContextHelpButton(this, IDS_HelpButton , wxDefaultPosition, wxDefaultSize, 0);
+	//wxContextHelpButton* helpButton = new wxContextHelpButton (this, 
+																						IDS_HelpButton , 
+																						wxDefaultPosition, 
+																						wxDefaultSize, 
+																						0);
 
-//   bSizer230->Add(helpButton, 0, wxALIGN_CENTER|wxALL, 5);
+	//bSizer230->Add(helpButton, 0, wxALIGN_CENTER|wxALL, 5);
       
    m_button49 = new wxButton(this, wxID_CANCEL, wxT("Cancel"), wxDefaultPosition, wxDefaultSize, 0);
    bSizer230->Add(m_button49, 0, wxALL, 5);
 
    m_button50 = new wxButton(this, wxID_OK, wxT("OK"), wxDefaultPosition, wxDefaultSize, 0);
    bSizer230->Add(m_button50, 0, wxALL, 5);
-
+	*/
 
    //bSizer226->Add(bSizer230, 0, wxALIGN_RIGHT | wxBOTTOM | wxLEFT | wxRIGHT, 12);
-   bSizer226->Add(bSizer230, 0, wxALIGN_CENTER | wxBOTTOM | wxLEFT, 12);
+   //bSizer226->Add(bSizer230, 0, wxALIGN_CENTER | wxBOTTOM | wxLEFT, 12);
+	
+	CreateStandardButtons (bSizer226);
 
    this->SetSizer(bSizer226);
    this->Layout();
 
-   this->Centre(wxBOTH);
-}
+   this->Centre (wxBOTH);
+	
+}	// end "CMFeatureSelectionListDialog::CreateControls"

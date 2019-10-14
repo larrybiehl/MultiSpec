@@ -14,7 +14,7 @@
 //
 //	Language:				C++
 //
-//	System:					Linux and MacOS Operating Systems
+//	System:					Linux Operating System
 //
 //	Brief description:	Header file for the CMClassifyDialog class
 //
@@ -86,13 +86,12 @@
 
 			// Generated message map functions
 			void OnInitDialog (wxInitDialogEvent& event);
-			void OnSelendokChannelCombo (wxCommandEvent& event);
-			//void OnSelendokChannelComboDropDown (wxCommandEvent& event);
+			void OnChannelComboSelendok (wxCommandEvent& event);
 			void OnClassifySelectedArea (wxCommandEvent& event);
 			void OnSinglePassAlgorithm (wxCommandEvent& event);
 			void OnISODATAAlgorithm (wxCommandEvent& event);
 			void OnImageOverlay (wxCommandEvent& event);
-			void OnSelendokImageOverlayCombo (wxCommandEvent& event);
+			void OnImageOverlayComboSelendok (wxCommandEvent& event);
 			void OnAlgorithmSel (wxCommandEvent& event);
 			void OnCreateMaskFile (wxCommandEvent& event);
 			void OnSelendokMaskFileDiskCombo (wxCommandEvent& event);

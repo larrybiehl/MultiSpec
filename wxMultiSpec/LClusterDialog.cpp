@@ -12,7 +12,7 @@
 //
 //	Authors:					Abdur Rahman Maud, Larry L. Biehl
 //
-//	Revision date:			11/13/2018
+//	Revision date:			10/07/2019
 //
 //	Language:				C++
 //
@@ -97,23 +97,30 @@ CMClusterDialog::~CMClusterDialog (void)
 
 
 BEGIN_EVENT_TABLE (CMClusterDialog, CMDialog)
+	EVT_BUTTON (IDEntireImage, CMClusterDialog::ToEntireImage)
+	EVT_BUTTON (IDSelectedImage, CMClusterDialog::ToSelectedImage)
+
+	EVT_CHECKBOX (IDC_CreateClusterMaskCheckBox, CMClusterDialog::OnCreateMaskFile)
+	EVT_CHECKBOX (IDC_ImageOverlay, CMClusterDialog::OnImageOverlay)
+	
+	EVT_CHOICE (IDC_ImageOverlayCombo, CMClusterDialog::OnImageOverlayComboSelendok)
+	EVT_CHOICE (IDC_DiskCombo, CMClusterDialog::OnSelendokMaskFileDiskCombo)
+
+	EVT_COMBOBOX (IDC_ChannelCombo, CMClusterDialog::OnChannelComboSelendok)
+	EVT_COMBOBOX_CLOSEUP (IDC_ChannelCombo, CMClusterDialog::OnChannelComboCloseUp)
+	EVT_COMBOBOX_DROPDOWN (IDC_ChannelCombo, CMClusterDialog::OnChannelComboDropDown)
+
 	EVT_INIT_DIALOG (CMClusterDialog::OnInitDialog)
-	EVT_COMBOBOX (IDC_ChannelCombo, CMClusterDialog::OnSelendokChannelCombo)
-	EVT_COMBOBOX_DROPDOWN (IDC_ChannelCombo, CMClusterDialog::OnSelendokChannelComboDropDown)
+
 	EVT_RADIOBOX (IDC_Algorithm, CMClusterDialog::OnAlgorithmSel)
 	EVT_RADIOBOX (IDC_ClassificationMap, CMClusterDialog::OnClassifySelectedArea)
+
 	EVT_TEXT (IDC_ColumnEnd, CMClusterDialog::CheckColumnEnd)
 	EVT_TEXT (IDC_ColumnStart, CMClusterDialog::CheckColumnStart)
 	EVT_TEXT (IDC_LineEnd, CMClusterDialog::CheckLineEnd)
 	EVT_TEXT (IDC_LineStart, CMClusterDialog::CheckLineStart)
 	EVT_TEXT (IDC_LineInterval, CMClusterDialog::CheckLineInterval)
 	EVT_TEXT (IDC_ColumnInterval, CMClusterDialog::CheckColumnInterval)
-	EVT_BUTTON (IDEntireImage, CMClusterDialog::ToEntireImage)
-	EVT_BUTTON (IDSelectedImage, CMClusterDialog::ToSelectedImage)
-	EVT_CHECKBOX (IDC_ImageOverlay, CMClusterDialog::OnImageOverlay)
-	EVT_CHOICE (IDC_ImageOverlayCombo, CMClusterDialog::OnSelendokImageOverlayCombo)
-	EVT_CHECKBOX (IDC_CreateClusterMaskCheckBox, CMClusterDialog::OnCreateMaskFile)
-	EVT_CHOICE (IDC_DiskCombo, CMClusterDialog::OnSelendokMaskFileDiskCombo)
 END_EVENT_TABLE ()
 
 
@@ -837,7 +844,7 @@ void CMClusterDialog::OnOK (
 
 
 
-void CMClusterDialog::OnSelendokChannelCombo (
+void CMClusterDialog::OnChannelComboSelendok (
 				wxCommandEvent&					event)
 				
 {
@@ -847,29 +854,17 @@ void CMClusterDialog::OnSelendokChannelCombo (
 								2,
 								m_clusterProcedureSetFlag);
 
-}	// end "OnSelendokChannelCombo"
+}	// end "OnChannelComboSelendok"
 
 
-/*
-void CMClusterDialog::OnSelendokChannelComboDropDown (
-				wxCommandEvent&					event)
- 
-{
-    wxComboBox* classcombo = (wxComboBox *)FindWindow (IDC_ChannelCombo);
-    classcombo->SetSelection (0);
- 
-}	// end "OnSelendokChannelComboDropDown"
-*/
-
-
-void CMClusterDialog::OnSelendokImageOverlayCombo (
+void CMClusterDialog::OnImageOverlayComboSelendok (
 				wxCommandEvent&					event)
 				
 {
 	m_selectImageOverlaySelection =
 							((wxChoice*)FindWindow (IDC_ImageOverlayCombo))->GetSelection ();
 
-}	// end "OnSelendokImageOverlayCombo"
+}	// end "OnImageOverlayComboSelendok"
 
 
 
@@ -944,8 +939,8 @@ bool CMClusterDialog::TransferDataFromWindow ()
 
    ClassifyAreaSetting (true, IDC_NoClassificationMap, m_classificationArea);
 	
-   if (m_channelSelection < 0)
-      m_channelSelection = m_channelSelection_Saved;
+   //if (m_channelSelection < 0)
+   //   m_channelSelection = m_channelSelection_Saved;
    
 	//if (m_classificationArea == 2)
    if (m_classificationArea != 0)

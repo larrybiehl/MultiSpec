@@ -12,7 +12,7 @@
 //	Authors:					Abdur Rahman Maud, Larry L. Biehl
 //
 //	Revision date:			02/20/2017 by Wei-Kang Hsu
-//								04/09/2019 by Larry L. Biehl
+//								10/14/2019 by Larry L. Biehl
 //
 //	Language:				C++
 //
@@ -694,6 +694,7 @@ void CMGraphFrame::CreateHistogramControls ()
 														wxBORDER_NONE+wxBU_EXACTFIT);
 	m_buttonPrevious->SetToolTip (wxT("Go to previous channel"));
 	m_buttonPrevious->Bind (wxEVT_LEFT_DOWN, &CMGraphFrame::DoPreviousChannel, this);
+	m_buttonPrevious->Bind (wxEVT_LEFT_DCLICK, &CMGraphFrame::DoPreviousChannel, this);
 	m_buttonPrevious->Enable (false);
 	bHSizer110->Add (m_buttonPrevious,
 							wxSizerFlags(0).Align(wxALIGN_BOTTOM).Border(wxLEFT|wxRIGHT, 3));
@@ -708,6 +709,7 @@ void CMGraphFrame::CreateHistogramControls ()
 													//wxBU_EXACTFIT);
 	m_buttonNext->SetToolTip (wxT("Go to next channel"));
 	m_buttonNext->Bind (wxEVT_LEFT_DOWN, &CMGraphFrame::DoNextChannel, this);
+	m_buttonNext->Bind (wxEVT_LEFT_DCLICK, &CMGraphFrame::DoNextChannel, this);
 	bHSizer110->Add (m_buttonNext,
 							wxSizerFlags(0).Align(wxALIGN_BOTTOM).Border(wxRIGHT, 12));
 	

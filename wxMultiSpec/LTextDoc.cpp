@@ -12,7 +12,7 @@
 //
 //	Authors:					Abdur Rahman Maud, Larry L. Biehl
 //
-//	Revision date:			01/06/2019
+//	Revision date:			09/01/2019
 //
 //	Language:				C++
 //
@@ -51,11 +51,11 @@
 IMPLEMENT_DYNAMIC_CLASS(CMTextDoc, wxDocument)
 
 
-bool CMTextDoc::Close ()
+bool CMTextDoc::Close (void)
 
 {
-			// The application is closing. First determine whether any project needs to be
-			// saved and give the user a chance to cancel the shutdown.
+			// The application is closing. First determine whether any project needs to
+			// be saved and give the user a chance to cancel the shutdown.
 		
 	if (CloseTheProject ())
 		{
@@ -77,20 +77,20 @@ bool CMTextDoc::Close ()
 			if (itemHit == 2)
 				closeFlag = false;
 			*/
-			//printf("before saving text window\n");
 			
 			switch (wxMessageBox (
-								wxString::Format(_("Do you want to save changes to %s?"),
-								GetUserReadableName ()),
+							wxString::Format(_("Do you want to save changes to %s?"),
+							GetUserReadableName ()),
 							wxTheApp->GetAppDisplayName (),
-							wxYES_NO | wxCANCEL | wxICON_QUESTION | wxCENTRE | wxSTAY_ON_TOP ))
+							wxYES_NO | wxCANCEL | wxICON_QUESTION | wxCENTRE | wxSTAY_ON_TOP))
 				{
 				case wxNO:
 					Modify (false);
 					break;
 
 				case wxYES:
-					return Save();
+					m_applicationExitFlag = Save ();
+					return m_applicationExitFlag;
 
 				case wxCANCEL:
 					return false;
@@ -103,52 +103,63 @@ bool CMTextDoc::Close ()
 		
 	else	// !CloseTheProject ()
 		return false;
-		
+	
+	m_applicationExitFlag = TRUE;
    return true;
 	
 }	// end "Close"
 
 
-bool CMTextDoc::IsModified(void) const
+bool CMTextDoc::IsModified (void) const
+
 {
-  CMTextView *view = (CMTextView *)GetFirstView();
-  if (view)
-  {
-    return (wxDocument::IsModified() || view->m_textsw->IsModified());
-  }
-  else
+	CMTextView *view = (CMTextView *)GetFirstView();
+	if (view != NULL)
+     	return (wxDocument::IsModified() || view->m_textsw->IsModified());
+	
+  else	// view == NULL
     return wxDocument::IsModified();
-}
+	
+}	// end "IsModified"
 
 
-void CMTextDoc::Modify(bool mod)
+
+void CMTextDoc::Modify (
+				bool 								mod)
+
 {
-  CMTextView *view = (CMTextView *)GetFirstView();
+  CMTextView* view = (CMTextView*)GetFirstView();
 
-  wxDocument::Modify(mod);
+  wxDocument::Modify (mod);
 
   if (!mod && view && view->m_textsw)
     view->m_textsw->DiscardEdits();
-}
+	
+}	// end "Modify"
 
 
-bool CMTextDoc::OnOpenDocument(const wxString& filename)
+
+bool CMTextDoc::OnOpenDocument (
+				const wxString& 					filename)
+
 {
-    CMTextView *view = (CMTextView *)GetFirstView();
+    CMTextView* view = (CMTextView*)GetFirstView();
     if (!view->m_textsw->LoadFile(filename))
         return false;
 
-    SetFilename(filename, true);
-    Modify(false);
+    SetFilename (filename, true);
+    Modify (false);
     UpdateAllViews();
     return true;
-}
+	
+}	// end "OnOpenDocument"
 
 
 		// Since text windows have their own method for saving to/loading from files,
 		// we override OnSave/OpenDocument instead of Save/LoadObject
 
-bool CMTextDoc::OnSaveDocument (const wxString& filename)
+bool CMTextDoc::OnSaveDocument (
+				const wxString& 					filename)
 
 {
 	CMTextView *view = (CMTextView*)GetFirstView ();

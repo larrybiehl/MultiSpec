@@ -12,7 +12,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			01/18/2019
+//	Revision date:			10/08/2019
 //
 //	Language:				C++
 //
@@ -28,8 +28,43 @@
 
 
 
-CMBiPlotDialog::CMBiPlotDialog (wxWindow* parent, wxWindowID id, const wxString& title)
-: CMDialog (CMBiPlotDialog::IDD, parent, title) 
+BEGIN_EVENT_TABLE (CMBiPlotDialog, CMDialog)
+	EVT_BUTTON (IDEntireImage, CMBiPlotDialog::ToEntireImage)
+	EVT_BUTTON (IDSelectedImage, CMBiPlotDialog::ToSelectedImage)
+
+	EVT_CHECKBOX (IDC_FeatureTransformation, CMBiPlotDialog::OnFeatureTranformation)
+	EVT_CHECKBOX (IDC_TestAreas, CMBiPlotDialog::OnTestArea)
+	EVT_CHECKBOX (IDC_Training, CMBiPlotDialog::OnTrainArea)
+	EVT_CHECKBOX (IDC_ImageArea, CMBiPlotDialog::OnImageArea)
+	EVT_CHECKBOX (IDC_ThresholdPixelCheck, CMBiPlotDialog::OnThresholdPixelFlag)
+	EVT_CHECKBOX (IDC_CreateNewGraphWindow, CMBiPlotDialog::OnCreateNewWindowFlag)
+	EVT_CHECKBOX (IDC_DisplayPixels, CMBiPlotDialog::OnDisplayPixelAsSymbol)
+	EVT_CHECKBOX (IDC_OutlineClassAsEllipse, CMBiPlotDialog::OnOutlineClassAsEllipse)
+
+	//EVT_COMBOBOX (IDC_ClassWeightsCombo, CMBiPlotDialog::OnClassWeightsCombo)
+	EVT_COMBOBOX (IDC_ClassCombo, CMBiPlotDialog::OnClassComboSelendok)
+	EVT_COMBOBOX_CLOSEUP (IDC_ClassCombo, CMBiPlotDialog::OnClassComboCloseUp)
+	EVT_COMBOBOX_DROPDOWN (IDC_ClassCombo, CMBiPlotDialog::OnClassComboDropDown)
+
+	EVT_INIT_DIALOG (CMBiPlotDialog::OnInitDialog)
+	EVT_TEXT (IDC_HorizontalAxis, CMBiPlotDialog::OnChangeHorizontalAxis)
+	EVT_TEXT (IDC_VerticalAxis, CMBiPlotDialog::OnChangeVerticalAxis)
+	EVT_TEXT (IDC_ColumnEnd, CMBiPlotDialog::CheckColumnEnd)
+	EVT_TEXT (IDC_ColumnStart, CMBiPlotDialog::CheckColumnStart)
+	EVT_TEXT (IDC_LineEnd, CMBiPlotDialog::CheckLineEnd)
+	EVT_TEXT (IDC_LineStart, CMBiPlotDialog::CheckLineStart)
+	EVT_TEXT (IDC_LineInterval, CMBiPlotDialog::CheckLineInterval)
+	EVT_TEXT (IDC_ColumnInterval, CMBiPlotDialog::CheckColumnInterval)
+END_EVENT_TABLE ()
+
+
+
+CMBiPlotDialog::CMBiPlotDialog (
+				wxWindow* 							parent,
+				wxWindowID 							id,
+				const wxString& 					title)
+		: CMDialog (CMBiPlotDialog::IDD, parent, title)
+
 {
    m_classWeightsPtr = NULL;
 	m_checkChannelStatisticsFlag = FALSE;
@@ -106,33 +141,6 @@ CMBiPlotDialog::~CMBiPlotDialog ()
    //m_classListPtr = CheckAndDisposePtr (m_classListPtr);
 	
 }	// end "~CMBiPlotDialog"
-
-
-
-BEGIN_EVENT_TABLE (CMBiPlotDialog, CMDialog)
-EVT_INIT_DIALOG (CMBiPlotDialog::OnInitDialog)
-EVT_TEXT (IDC_HorizontalAxis, CMBiPlotDialog::OnChangeHorizontalAxis)
-EVT_TEXT (IDC_VerticalAxis, CMBiPlotDialog::OnChangeVerticalAxis)
-EVT_TEXT (IDC_ColumnEnd, CMBiPlotDialog::CheckColumnEnd)
-EVT_TEXT (IDC_ColumnStart, CMBiPlotDialog::CheckColumnStart)
-EVT_TEXT (IDC_LineEnd, CMBiPlotDialog::CheckLineEnd)
-EVT_TEXT (IDC_LineStart, CMBiPlotDialog::CheckLineStart)
-EVT_TEXT (IDC_LineInterval, CMBiPlotDialog::CheckLineInterval)
-EVT_TEXT (IDC_ColumnInterval, CMBiPlotDialog::CheckColumnInterval)
-EVT_CHECKBOX (IDC_FeatureTransformation, CMBiPlotDialog::OnFeatureTranformation)
-EVT_CHECKBOX (IDC_TestAreas, CMBiPlotDialog::OnTestArea)
-EVT_CHECKBOX (IDC_Training, CMBiPlotDialog::OnTrainArea)
-EVT_CHECKBOX (IDC_ImageArea, CMBiPlotDialog::OnImageArea)
-EVT_CHECKBOX (IDC_ThresholdPixelCheck, CMBiPlotDialog::OnThresholdPixelFlag)
-EVT_CHECKBOX (IDC_CreateNewGraphWindow, CMBiPlotDialog::OnCreateNewWindowFlag)
-EVT_CHECKBOX (IDC_DisplayPixels, CMBiPlotDialog::OnDisplayPixelAsSymbol)
-EVT_CHECKBOX (IDC_OutlineClassAsEllipse, CMBiPlotDialog::OnOutlineClassAsEllipse)
-EVT_COMBOBOX (IDC_ClassPairWeightsCombo, CMBiPlotDialog::OnSelendokClassWeightsCombo)
-EVT_COMBOBOX (IDC_ClassCombo, CMBiPlotDialog::OnSelendokClassCombo)
-EVT_COMBOBOX_DROPDOWN (IDC_ClassCombo, CMBiPlotDialog::OnSelendokClassComboDropDown)
-EVT_BUTTON (IDEntireImage, CMBiPlotDialog::ToEntireImage)
-EVT_BUTTON (IDSelectedImage, CMBiPlotDialog::ToSelectedImage)
-END_EVENT_TABLE ()
 
 
 /*
@@ -803,8 +811,8 @@ void CMBiPlotDialog::OnOutlineClassAsEllipse (
 }	// end "OnOutlineClassAsEllipse"
 
 
-
-void CMBiPlotDialog::OnSelendokClassWeightsCombo (
+/*
+void CMBiPlotDialog::OnClassWeightsCombo (
 				wxCommandEvent&					event)
 				
 {                                                           
@@ -815,8 +823,8 @@ void CMBiPlotDialog::OnSelendokClassWeightsCombo (
 									IDC_WeightsCombo,
 									&m_classWeightsSelection);
 	
-}	// end "OnSelendokClassPairWeightsCombo"
-
+}	// end "OnClassWeightsCombo"
+*/
 
 // TO DO
 void CMBiPlotDialog::OnTestArea (
@@ -936,8 +944,8 @@ bool CMBiPlotDialog::TransferDataFromWindow ()
    m_classSelection = classcb->GetSelection ();
    m_classWeightsSelection= weightsCombo->GetSelection ();
      
-   if (m_classSelection < 0)
-      m_classSelection = m_classSelection_Saved;
+   //if (m_classSelection < 0)
+   //   m_classSelection = m_classSelection_Saved;
    
    if (m_imageAreaFlag)
 		returnCode = VerifyLineColumnValues (

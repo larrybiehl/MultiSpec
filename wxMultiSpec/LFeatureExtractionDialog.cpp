@@ -12,7 +12,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			11/13/2018
+//	Revision date:			10/07/2019
 //
 //	Language:				C++
 //
@@ -101,13 +101,32 @@ extern void 		FeatureExtractionDialogUpdateSpecialOptions (
 
 extern Boolean 	ProjectionPursuitDialog (void);
 
-#ifdef _DEBUG
-#undef THIS_FILE
-static char BASED_CODE THIS_FILE[] = __FILE__;
-#endif
 
-/////////////////////////////////////////////////////////////////////////////
-// CMFeatureExtractionDialog dialog
+
+BEGIN_EVENT_TABLE (CMFeatureExtractionDialog, CMDialog)
+   EVT_INIT_DIALOG (CMFeatureExtractionDialog::OnInitDialog)
+	EVT_CHECKBOX (IDC_OptimizeClasses, CMFeatureExtractionDialog::OnOptimizeClasses)
+	EVT_CHECKBOX (IDC_SpecialOptions, CMFeatureExtractionDialog::OnSpecialOptions)
+
+	EVT_COMBOBOX (IDC_ChannelCombo, CMFeatureExtractionDialog::OnChannelComboSelendok)
+	EVT_COMBOBOX (IDC_ClassCombo, CMFeatureExtractionDialog::OnClassComboSelendok)
+	EVT_COMBOBOX (IDC_WeightCombo, CMFeatureExtractionDialog::OnClassWeightsComboSelendok)
+	EVT_COMBOBOX (IDC_ClassPairWeightsCombo, CMFeatureExtractionDialog::OnClassPairWeightsComboSelendok)
+	EVT_COMBOBOX (IDC_FEAlgorithmCombo, CMFeatureExtractionDialog::OnDecisionBoundary)
+	EVT_COMBOBOX (IDC_PreprocessingCombo, CMFeatureExtractionDialog::OnCbnSelendokPreprocessingcombo)
+
+	EVT_COMBOBOX_CLOSEUP (IDC_ChannelCombo, CMFeatureExtractionDialog::OnChannelComboCloseUp)
+	EVT_COMBOBOX_CLOSEUP (IDC_ClassCombo, CMFeatureExtractionDialog::OnClassComboCloseUp)
+	EVT_COMBOBOX_CLOSEUP (IDC_WeightCombo, CMFeatureExtractionDialog::OnClassWeightComboCloseUp)
+	EVT_COMBOBOX_CLOSEUP (IDC_ClassPairWeightsCombo, CMFeatureExtractionDialog::OnClassPairWeightsComboCloseUp)
+
+   EVT_COMBOBOX_DROPDOWN(IDC_ChannelCombo, CMFeatureExtractionDialog::OnChannelComboDropDown)
+   EVT_COMBOBOX_DROPDOWN(IDC_PreprocessingCombo, CMFeatureExtractionDialog::OnPreprocessingDropDown)
+	EVT_COMBOBOX_DROPDOWN(IDC_ClassCombo, CMFeatureExtractionDialog::OnClassComboDropDown)      
+	EVT_COMBOBOX_DROPDOWN(IDC_WeightCombo, CMFeatureExtractionDialog::OnClassWeightComboDropDown)
+	EVT_COMBOBOX_DROPDOWN(IDC_ClassPairWeightsCombo, CMFeatureExtractionDialog::OnClassPairWeightsComboDropDown)
+END_EVENT_TABLE ()
+
 
 
 CMFeatureExtractionDialog::CMFeatureExtractionDialog(wxWindow* pParent, wxWindowID id, const wxString& title)
@@ -121,7 +140,7 @@ CMFeatureExtractionDialog::CMFeatureExtractionDialog(wxWindow* pParent, wxWindow
 	m_maxPixelsPerClass = 0;
 	m_specialOptionsFlag = FALSE;
 	m_listTransformationFlag = FALSE;
-	m_interClassWeightsSelection = -1;
+	m_classPairWeightsSelection = -1;
 	m_preprocessSelection = -1;
 	m_algorithmCode = -1;
 	m_optimizeThreshold = (float)0.;
@@ -162,25 +181,6 @@ CMFeatureExtractionDialog::~CMFeatureExtractionDialog(void)
 											m_localClassPairWeightsListPtr);
 	
 }		// end "CMFeatureExtractionDialog"
-
-
- 
-BEGIN_EVENT_TABLE(CMFeatureExtractionDialog, CMDialog)
-   EVT_INIT_DIALOG(CMFeatureExtractionDialog::OnInitDialog)
-	EVT_CHECKBOX(IDC_OptimizeClasses, CMFeatureExtractionDialog::OnOptimizeClasses)
-	EVT_CHECKBOX(IDC_SpecialOptions, CMFeatureExtractionDialog::OnSpecialOptions)
-	EVT_COMBOBOX(IDC_ChannelCombo, CMFeatureExtractionDialog::OnSelendokChannelCombo)
-	EVT_COMBOBOX(IDC_ClassCombo, CMFeatureExtractionDialog::OnSelendokClassCombo)      
-	EVT_COMBOBOX(IDC_WeightsCombo, CMFeatureExtractionDialog::OnSelendokClassWeightsCombo)
-	EVT_COMBOBOX(IDC_ClassPairWeightsCombo, CMFeatureExtractionDialog::OnSelendokClassPairWeightsCombo)
-	EVT_COMBOBOX(IDC_FEAlgorithmCombo, CMFeatureExtractionDialog::OnDecisionBoundary)
-   EVT_COMBOBOX_DROPDOWN(IDC_PreprocessingCombo, CMFeatureExtractionDialog::OnCbnSelendokPreprocessingDropDown)
-	EVT_COMBOBOX(IDC_PreprocessingCombo, CMFeatureExtractionDialog::OnCbnSelendokPreprocessingcombo)
-   EVT_COMBOBOX_DROPDOWN(IDC_ChannelCombo, CMFeatureExtractionDialog::OnSelendokChannelComboDropDown)
-	EVT_COMBOBOX_DROPDOWN(IDC_ClassCombo, CMFeatureExtractionDialog::OnSelendokClassComboDropDown)      
-	EVT_COMBOBOX_DROPDOWN(IDC_WeightsCombo, CMFeatureExtractionDialog::OnSelendokClassWeightsComboDropDown)
-	EVT_COMBOBOX_DROPDOWN(IDC_ClassPairWeightsCombo, CMFeatureExtractionDialog::OnSelendokClassPairWeightsComboDropDown)
-END_EVENT_TABLE()
 
 
 
@@ -276,7 +276,7 @@ void CMFeatureExtractionDialog::CreateControls ()
    SetUpToolTip(m_staticText248, IDS_ToolTip130);
 	bSizer257->Add( m_staticText248, 0, wxALIGN_CENTER|wxALL, 5 );
 	
-	m_comboBox47 = new wxComboBox( this, IDC_WeightsCombo, wxT("Unequal..."), wxDefaultPosition, wxSize( 90,-1 ), 0, NULL, wxCB_READONLY );
+	m_comboBox47 = new wxComboBox( this, IDC_WeightCombo, wxT("Unequal..."), wxDefaultPosition, wxSize( 90,-1 ), 0, NULL, wxCB_READONLY );
 	m_comboBox47->Append( wxT("Equal") );
 	m_comboBox47->Append( wxT("Unequal...") );
 	m_comboBox47->SetSelection( 1 );
@@ -459,7 +459,7 @@ void CMFeatureExtractionDialog::CreateControls ()
 //	Called By:			Dialog in MDisMult.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 03/02/1999
-//	Revised By:			Larry L. Biehl			Date: 03/03/1999
+//	Revised By:			Larry L. Biehl			Date: 10/07/2019
 
 Boolean CMFeatureExtractionDialog::DoDialog(
 				FeatureExtractionSpecsPtr		featureExtractionSpecsPtr)
@@ -485,9 +485,9 @@ Boolean CMFeatureExtractionDialog::DoDialog(
 		
 		FeatureExtractionDialogOK (featureExtractionSpecsPtr,
 												m_algorithmCode+1,
-												m_weightsSelection+1,
+												m_classWeightsSelection+1,
 												m_classWeightsPtr,
-												m_interClassWeightsSelection+1,
+												m_classPairWeightsSelection+1,
 												m_localClassPairWeightsListPtr,
 												m_localDefaultClassPairWeight,
 												m_specialOptionsFlag,
@@ -614,14 +614,14 @@ void CMFeatureExtractionDialog::OnInitDialog (wxInitDialogEvent& event)
 			// Class weights.
 			// Adjust for 0 base index.
 	
-	m_weightsSelection = weightsSelection - 1; 
-//	HideDialogItem (this, IDC_WeightsCombo);   
+	m_classWeightsSelection = weightsSelection - 1;
+//	HideDialogItem (this, IDC_WeightCombo);
 	HideDialogItem (this, IDC_WeightsEqual);   
 	
 			// Inter class weights.
 			// Adjust for 0 base index.
 	
-	m_interClassWeightsSelection = interClassWeightsSelection - 1;  
+	m_classPairWeightsSelection = interClassWeightsSelection - 1;
 //	HideDialogItem (this, IDC_ClassPairWeightsCombo);
 	HideDialogItem (this, IDC_InterClassWeightsEqual);
 	
@@ -672,7 +672,8 @@ void CMFeatureExtractionDialog::OnSpecialOptions(wxCommandEvent& event)
 }		// end "OnSpecialOptions"
 
 
-void CMFeatureExtractionDialog::OnSelendokChannelCombo(wxCommandEvent& event)
+
+void CMFeatureExtractionDialog::OnChannelComboSelendok(wxCommandEvent& event)
 {                                                                                                       
 	HandleChannelsMenu(IDC_ChannelCombo, 
 								kNoTransformation,
@@ -680,15 +681,17 @@ void CMFeatureExtractionDialog::OnSelendokChannelCombo(wxCommandEvent& event)
 								m_channelListType,
 								TRUE);   
 	
-}		// end "OnSelendokChannelCombo"
+}		// end "OnChannelComboSelendok"
 
-void CMFeatureExtractionDialog::OnCbnSelendokPreprocessingDropDown(wxCommandEvent& event)
+
+
+void CMFeatureExtractionDialog::OnPreprocessingDropDown (wxCommandEvent& event)
 {                                                                                                       
 	wxComboBox* preprocessingCombo = (wxComboBox*) FindWindow(IDC_PreprocessingCombo);
    m_preprocess_Saved = preprocessingCombo->GetSelection();
 	preprocessingCombo->SetSelection(-1);
 	
-}		// end "OnSelendokChannelComboDN"
+}		// end "OnPreprocessingDropDown"
 
 //void CMFeatureExtractionDialog::OnSelendokChannelComboDN(wxCommandEvent& event)
 //{                                                                                                       
@@ -698,38 +701,49 @@ void CMFeatureExtractionDialog::OnCbnSelendokPreprocessingDropDown(wxCommandEven
 //}		// end "OnSelendokChannelComboDN"
   
 
-void CMFeatureExtractionDialog::OnSelendokClassWeightsCombo(wxCommandEvent& event)
+
+void CMFeatureExtractionDialog::OnClassWeightsComboSelendok (wxCommandEvent& event)
 {                                                           
 	HandleClassWeightsMenu ((SInt16)m_localNumberClasses, 
 									(SInt16*)m_classListPtr,
 									m_classWeightsPtr,
 									gProjectInfoPtr->covarianceStatsToUse == kEnhancedStats,
-									IDC_WeightsCombo,
-									&m_weightsSelection);
+									IDC_WeightCombo,
+									&m_classWeightsSelection);
 	
-}		// end "OnSelendokClassWeightsCombo"
+}		// end "OnClassWeightsComboSelendok"
 
-void CMFeatureExtractionDialog::OnSelendokClassWeightsComboDN(wxCommandEvent& event)
+
+/*
+void CMFeatureExtractionDialog::OnClassWeightsComboSelendok(wxCommandEvent& event)
 {                                                                                                       
-	wxComboBox* weights = (wxComboBox*)FindWindow(IDC_WeightsCombo);
-	weights->SetSelection(0);	
-}		// end "OnSelendokClassWeightsComboDN"
+	wxComboBox* weights = (wxComboBox*)FindWindow(IDC_WeightCombo);
+	weights->SetSelection (0);
+	
+}	// end "OnClassWeightsComboSelendok"
+*/
 
-void CMFeatureExtractionDialog::OnSelendokClassPairWeightsCombo(wxCommandEvent& event)
+
+void CMFeatureExtractionDialog::OnClassPairWeightsComboSelendok (wxCommandEvent& event)
 {                                                           
 	HandleClassPairWeightsMenu (
 						&m_localClassPairWeightsListPtr,
 						IDC_ClassPairWeightsCombo,
-						&m_interClassWeightsSelection,
+						&m_classPairWeightsSelection,
 						&m_localDefaultClassPairWeight);
 	
-}		// end "OnSelendokClassPairWeightsCombo"
+}	// end "OnClassPairWeightsComboSelendok"
 
-void CMFeatureExtractionDialog::OnSelendokClassPairWeightsComboDN(wxCommandEvent& event)
+
+/*
+void CMFeatureExtractionDialog::OnClassPairWeightsComboDropDown (wxCommandEvent& event)
 {                                                                                                       
 	wxComboBox* classweights = (wxComboBox*)FindWindow(IDC_ClassPairWeightsCombo);
-	classweights->SetSelection(0);	
-}		// end "OnSelendokClassPairWeightsComboDN"
+	classweights->SetSelection (-1);
+	
+}		// end "OnClassPairWeightsComboDropDown"
+*/
+
 
 void CMFeatureExtractionDialog::OnCbnSelendokPreprocessingcombo(wxCommandEvent& event)
 {   
@@ -768,7 +782,7 @@ bool CMFeatureExtractionDialog::TransferDataFromWindow ()
    wxComboBox* fEAlgorithmCombo = (wxComboBox*) FindWindow(IDC_FEAlgorithmCombo);
    wxComboBox* channelCombo = (wxComboBox*) FindWindow(IDC_ChannelCombo);
    wxComboBox* classCombo = (wxComboBox*) FindWindow(IDC_ClassCombo);
-   wxComboBox* weightsCombo = (wxComboBox*) FindWindow(IDC_WeightsCombo);
+   wxComboBox* weightsCombo = (wxComboBox*) FindWindow(IDC_WeightCombo);
 	
    wxCheckBox* specialOptions = (wxCheckBox*) FindWindow(IDC_SpecialOptions);
    wxCheckBox* optimizeClasses = (wxCheckBox*) FindWindow(IDC_OptimizeClasses);
@@ -791,25 +805,25 @@ bool CMFeatureExtractionDialog::TransferDataFromWindow ()
       percentAccuracystring.ToDouble(&percentAccuracyD);
    m_optimizeThreshold = (float)percentAccuracyD;
 	
-   m_interClassWeightsSelection = classPairWeightsCombo->GetSelection();
+   m_classPairWeightsSelection = classPairWeightsCombo->GetSelection();
    m_preprocessSelection = preprocessingCombo->GetSelection();
    m_algorithmCode = fEAlgorithmCombo->GetSelection();
    m_channelSelection = channelCombo->GetSelection();
    m_classSelection = classCombo->GetSelection();
-   m_weightsSelection = weightsCombo->GetSelection();
+   m_classWeightsSelection = weightsCombo->GetSelection();
 	
    m_specialOptionsFlag = specialOptions->GetValue();
    m_optimizeClassesFlag = optimizeClasses->GetValue();
    m_listTransformationFlag = listTransformationMatrix->GetValue();
 	
-   if (m_channelSelection < 0)
-      m_channelSelection = m_channelSelection_Saved;
-   if (m_classSelection < 0)
-      m_classSelection = m_classSelection_Saved;
-   if (m_interClassWeightsSelection < 0)
-      m_interClassWeightsSelection = m_interClassWeightsSelection_Saved;
-   if (m_weightsSelection < 0)
-      m_weightsSelection = m_weightSelection_Saved;
+   //if (m_channelSelection < 0)
+   //   m_channelSelection = m_channelSelection_Saved;
+   //if (m_classSelection < 0)
+   //   m_classSelection = m_classSelection_Saved;
+   //if (m_classPairWeightsSelection < 0)
+   //   m_classPairWeightsSelection = m_interClassWeightsSelection_Saved;
+   //if (m_classWeightsSelection < 0)
+   //   m_classWeightsSelection = m_weightSelection_Saved;
    if(m_preprocessSelection < 0)
       m_preprocessSelection = m_preprocess_Saved;
 	
@@ -877,7 +891,7 @@ bool CMFeatureExtractionDialog::TransferDataToWindow ()
    wxComboBox* fEAlgorithmCombo = (wxComboBox*) FindWindow(IDC_FEAlgorithmCombo);
    wxComboBox* channelCombo = (wxComboBox*) FindWindow(IDC_ChannelCombo);
    wxComboBox* classCombo = (wxComboBox*) FindWindow(IDC_ClassCombo);
-   wxComboBox* weightsCombo = (wxComboBox*) FindWindow(IDC_WeightsCombo);
+   wxComboBox* weightsCombo = (wxComboBox*) FindWindow(IDC_WeightCombo);
 	
    wxCheckBox* specialOptions = (wxCheckBox*) FindWindow(IDC_SpecialOptions);
    wxCheckBox* optimizeClasses = (wxCheckBox*) FindWindow(IDC_OptimizeClasses);
@@ -889,12 +903,12 @@ bool CMFeatureExtractionDialog::TransferDataToWindow ()
    minThresholdNumber->ChangeValue(wxString::Format(wxT("%i"), m_minThresholdNumber));
    maxPixels->ChangeValue(wxString::Format(wxT("%i"), m_maxPixelsPerClass));
 	
-   classPairWeightsCombo->SetSelection(m_interClassWeightsSelection);
+   classPairWeightsCombo->SetSelection (m_classPairWeightsSelection);
    preprocessingCombo->SetSelection(m_preprocessSelection);
    fEAlgorithmCombo->SetSelection(m_algorithmCode);
    channelCombo->SetSelection(m_channelSelection);
    classCombo->SetSelection(m_classSelection);
-   weightsCombo->SetSelection(m_weightsSelection);
+   weightsCombo->SetSelection(m_classWeightsSelection);
 	
    specialOptions->SetValue(m_specialOptionsFlag);
    optimizeClasses->SetValue(m_optimizeClassesFlag);

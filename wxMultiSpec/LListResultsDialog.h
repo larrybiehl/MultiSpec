@@ -19,7 +19,7 @@
 //	Brief description:	Header file for the CMDisplaySpecsDlg class
 //
 //	Written By:				Abdur Rahman Maud		Date: ??/??/2009
-//	Revised By:				Larry L. Biehl			Date: 06/21/2017
+//	Revised By:				Larry L. Biehl			Date: 07/07/2019
 //
 //------------------------------------------------------------------------------------
 //
@@ -71,7 +71,7 @@ class CMListResultsDialog : public CMDialog
 				// Generated message map functions
 		void OnInitDialog(wxInitDialogEvent& event);
 		void OnImage(wxCommandEvent& event);
-		void OnSelendokClassCombo(wxCommandEvent& event);
+		void OnClassComboSelendok (wxCommandEvent& event);
 		void OnTraining(wxCommandEvent& event);
 		void OnTest(wxCommandEvent& event);
 		void OnFieldSummary(wxCommandEvent& event);

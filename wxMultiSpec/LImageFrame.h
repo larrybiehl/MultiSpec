@@ -19,7 +19,7 @@
 //	Brief description:	This file is the definition for the CMImageFrame class
 //
 //	Written By:				Abdur Rahman Maud		Date: ??/??/2009
-//	Revised By:				Larry L. Biehl			Date: 03/19/2019
+//	Revised By:				Larry L. Biehl			Date: 09/30/2019
 //
 //------------------------------------------------------------------------------------
 //
@@ -74,14 +74,17 @@ class CMImageFrame : public wxDocChildFrame
 		void OnActivate(wxActivateEvent& event);
 		void OnCancelDraw (wxCommandEvent& event);
 	
-		void OnClose(wxCommandEvent& event);
+		void OnChar (wxKeyEvent& event);
+		void OnCharHook (wxKeyEvent& event);
+		void OnClose (wxCommandEvent& event);
 	
-		void OnEditSelectAll(wxCommandEvent& event);
-		void OnEditClearSelectionRectangle(wxCommandEvent& event);
+		void OnEditSelectAll (wxCommandEvent& event);
+		void OnEditClearSelectionRectangle (wxCommandEvent& event);
 	
-		void OnFileSave(wxCommandEvent& event);
-		void OnFileSaveAs(wxCommandEvent& event);
+		void OnFileSave (wxCommandEvent& event);
+		void OnFileSaveAs (wxCommandEvent& event);
 		void OnFocus(wxFocusEvent& event);
+		void OnKeyDown (wxKeyEvent& event);
 		void OnRefresh(wxCommandEvent& event);
 		void OnSize(wxSizeEvent& event);
 	
@@ -137,25 +140,24 @@ class CMImageFrame : public wxDocChildFrame
 	#endif
 		//void OnClose(void);
 	public:
-		CMImageFrame();
-		CMImageFrame(wxDocument* doc, wxView* view, wxDocParentFrame *parent);
-		 ~CMImageFrame();
-		 double 					m_zoom;
-		 CMCoordinateBar*		m_coordinatesBar;
-		 CMLegendView*			m_imageLegendViewCPtr;
-		 void ActivateImageWindowItems(
-					Boolean activateFlag,
-					Boolean changeWindowFlag);
-		 void UpdateSelectionWindowList();
-		 void ChangeClassGroupDisplay(
-					SInt16 newClassGroupCode);
-					//Boolean updateClassGroupListFlag);
-
-	 /*   LRESULT DoRealize(
-					Boolean backgroundFlag,
-					wxWindow* hWnd);
-	*/
-		 Boolean GetActiveWindowFlag(void);
+		CMImageFrame ();
+		CMImageFrame (wxDocument* doc, wxView* view, wxDocParentFrame *parent);
+		~CMImageFrame ();
+		double 					m_zoom;
+		CMCoordinateBar*		m_coordinatesBar;
+		CMLegendView*			m_imageLegendViewCPtr;
+	
+		wxCursor 				blinkOpenCursor,
+									blinkShutCursor;
+	
+		void ActivateImageWindowItems(
+				Boolean activateFlag,
+				Boolean changeWindowFlag);
+		void UpdateSelectionWindowList();
+		void ChangeClassGroupDisplay(
+				SInt16 newClassGroupCode);
+	
+		Boolean GetActiveWindowFlag(void);
 
 		 void GetCoordinateViewComboText(
 					char* comboItemStringPtr,

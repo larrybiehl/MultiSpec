@@ -12,7 +12,7 @@
 //
 //   Authors:              Abdur Rahman Maud, Larry L. Biehl
 //
-//   Revision date:        02/28/2019
+//   Revision date:        09/19/2019
 //
 //   Language:					C++
 //
@@ -417,11 +417,21 @@ void CMReformatTransformDlg::CreateControls ()
 	
 	bSizer102->Add(60, 0, 0, wxEXPAND, 5);
 	
-	m_staticText133 = new wxStaticText(this, IDC_kthSmallestElementPrompt, wxT("kth smallest value:"), wxDefaultPosition, wxDefaultSize, 0);
-	m_staticText133->Wrap(-1);
-	bSizer102->Add(m_staticText133, 0, wxALIGN_CENTER | wxALL, 5);
+	m_staticText133 = new wxStaticText (this,
+													IDC_kthSmallestElementPrompt,
+													wxT("kth smallest value:"),
+													wxDefaultPosition,
+													wxDefaultSize,
+													0);
+	m_staticText133->Wrap (-1);
+	bSizer102->Add (m_staticText133, 0, wxALIGN_CENTER | wxALL, 5);
 	
-	m_textCtrl54 = new wxTextCtrl(this, IDC_kthSmallestElement, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0);
+	m_textCtrl54 = new wxTextCtrl (this,
+												IDC_kthSmallestElement,
+												wxEmptyString,
+												wxDefaultPosition,
+												wxDefaultSize,
+												0);
 	bSizer102->Add(m_textCtrl54, 0, wxALL, 5);
 	
 	
@@ -444,22 +454,8 @@ void CMReformatTransformDlg::CreateControls ()
 	
 	bSizer90->Add(bSizer100, 1, wxALL | wxEXPAND, 5);
 	
-	
-	//bSizer84->Add(bSizer90, 0, wxEXPAND, 5);
 	bSizer84->Add(bSizer90, wxSizerFlags(0).Expand().Border(wxLEFT|wxRIGHT, 12));
-	/*
-	wxBoxSizer* bSizer95;
-	bSizer95 = new wxBoxSizer(wxHORIZONTAL);
-	m_button18 = new wxButton(this, wxID_CANCEL, wxT("Cancel"), wxDefaultPosition, wxDefaultSize, 0);
-	//bSizer95->Add (m_button18, 0, wxALL, 5);
-	bSizer95->Add (m_button18, wxSizerFlags(0).Border(wxRIGHT,6));
-	m_button19 = new wxButton(this, wxID_OK, wxT("OK"), wxDefaultPosition, wxDefaultSize, 0);
-	//bSizer95->Add(m_button19, 0, wxALL, 5);
-	bSizer95->Add (m_button19, wxSizerFlags(0));
-	
-	//bSizer84->Add (bSizer95, 0, wxALIGN_RIGHT, 5);
-	bSizer84->Add (bSizer95, wxSizerFlags(0).Right().Border(wxLEFT|wxBOTTOM|wxRIGHT, 12));
-	*/
+
 	CreateStandardButtons (bSizer84);
 	
 	this->SetSizer (bSizer84);
@@ -627,6 +623,7 @@ void CMReformatTransformDlg::OnAdjustSelectedChannels (
 } // end "OnAdjustSelectedChannels"
 
 
+
 void CMReformatTransformDlg::OnAdjustSelectedChannelsByChannel(wxCommandEvent& event)
 {
 	DialogPtr dialogPtr = this;
@@ -659,6 +656,8 @@ void CMReformatTransformDlg::OnButtonPress(wxKeyEvent& event)
 	}
 }
 */
+
+
 
 void CMReformatTransformDlg::OnInitDialog(wxInitDialogEvent& event)
 {
@@ -750,10 +749,10 @@ void CMReformatTransformDlg::OnInitDialog(wxInitDialogEvent& event)
 			// Use general algebraic transformation radio button.
 
 	if (gImageFileInfoPtr->thematicType)
-	  MHideDialogItem(dialogPtr, IDC_RT_AlgebraicTransformation);
+		MHideDialogItem(dialogPtr, IDC_RT_AlgebraicTransformation);
 
 	if (m_transformCode != kTransformChannels)
-	  ShowHideAlgebraicTransformItems(dialogPtr, kHide);
+		ShowHideAlgebraicTransformItems(dialogPtr, kHide);
 
 	else // m_transformCode == kTransformChannels 
 	  selectedItem = IDC_RT_AT_Offset;
@@ -1073,6 +1072,7 @@ bool CMReformatTransformDlg::TransferDataFromWindow ()
 	
 	wxComboBox* channelSelection = (wxComboBox *) FindWindow(IDC_EV_Eigenvectors);
 	wxComboBox* functionCode = (wxComboBox *) FindWindow(IDC_ReformatFunctions);
+	/*
 	wxStaticText* minimumNumberBits = (wxStaticText *) FindWindow(IDC_RT_EV_AllComponents);
 	wxStaticText* minSelectedNumberBits = (wxStaticText *) FindWindow(IDC_RT_EV_SelComponents);
 	
@@ -1082,7 +1082,7 @@ bool CMReformatTransformDlg::TransferDataFromWindow ()
 	wxRadioButton* newChanFromEV = (wxRadioButton *) FindWindow(IDC_RT_Eigenvectors);
 	wxRadioButton* newChanFromFunc = (wxRadioButton *) FindWindow(IDC_RT_FunctionOfChannels);
 	wxRadioButton* NewChanFromGAlgebra = (wxRadioButton *) FindWindow(IDC_RT_AlgebraicTransformation);
-	
+	*/
 	/*To gain renew values from users' inputs*/
 	m_adjustDivisor = wxAtof(adjustDivisor->GetValue());
 	m_adjustFactor = wxAtof(adjustFactor->GetValue());

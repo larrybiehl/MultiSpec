@@ -12,7 +12,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			11/16/2018
+//	Revision date:			11/07/2019
 //
 //	Language:				C++
 //
@@ -37,6 +37,35 @@ typedef wxString CString;
 
 
 IMPLEMENT_DYNAMIC_CLASS (CMHistogramSpecsDlg, CMDialog)
+
+
+
+BEGIN_EVENT_TABLE (CMHistogramSpecsDlg, CMDialog)
+	EVT_BUTTON (IDEntireImage, CMHistogramSpecsDlg::ToEntireImage)
+	EVT_BUTTON (IDSelectedImage, CMHistogramSpecsDlg::ToSelectedImage)
+
+	EVT_COMBOBOX (IDC_ChannelCombo, CMHistogramSpecsDlg::OnSelendokChannels)
+	EVT_COMBOBOX (IDC_ColumnLineFormat, CMHistogramSpecsDlg::OnSelendokColumnLineFormat)
+	EVT_CHECKBOX (IDC_DiskFile, CMHistogramSpecsDlg::OnDiskFile)
+	EVT_CHECKBOX (IDC_EmptyBins, CMHistogramSpecsDlg::OnEmptyBins)
+	EVT_CHECKBOX (IDC_ComputeOnly, CMHistogramSpecsDlg::OnComputeOnly)
+	EVT_CHECKBOX (IDC_ListHistogram, CMHistogramSpecsDlg::OnListHistogram)
+	EVT_COMBOBOX (IDC_Method, CMHistogramSpecsDlg::OnSelendokMethod)
+	EVT_CHECKBOX (IDC_TextWindow, CMHistogramSpecsDlg::OnTextWindow)
+
+	EVT_COMBOBOX_CLOSEUP (IDC_ChannelCombo, CMHistogramSpecsDlg::OnChannelComboCloseUp)
+
+	EVT_COMBOBOX_DROPDOWN (IDC_ChannelCombo, CMHistogramSpecsDlg::OnChannelComboDropDown)
+
+	EVT_INIT_DIALOG(CMHistogramSpecsDlg::OnInitDialog)
+
+	EVT_TEXT (IDC_ColumnEnd, CMHistogramSpecsDlg::CheckColumnEnd)
+	EVT_TEXT (IDC_ColumnStart, CMHistogramSpecsDlg::CheckColumnStart)
+	EVT_TEXT (IDC_LineEnd, CMHistogramSpecsDlg::CheckLineEnd)
+	EVT_TEXT (IDC_LineStart, CMHistogramSpecsDlg::CheckLineStart)
+	EVT_TEXT (IDC_LineInterval, CMHistogramSpecsDlg::CheckLineInterval)
+	EVT_TEXT (IDC_ColumnInterval, CMHistogramSpecsDlg::CheckColumnInterval)
+END_EVENT_TABLE ()
 
 CMHistogramSpecsDlg::CMHistogramSpecsDlg ()
 
@@ -100,33 +129,6 @@ CMHistogramSpecsDlg::~CMHistogramSpecsDlg (void)
    m_localFeaturesPtr = CheckAndDisposePtr(m_localFeaturesPtr);
 
 }	// end "~CMHistogramSpecsDlg"
-
-
-
-BEGIN_EVENT_TABLE (CMHistogramSpecsDlg, CMDialog)
-	EVT_BUTTON (IDEntireImage, CMHistogramSpecsDlg::ToEntireImage)
-	EVT_BUTTON (IDSelectedImage, CMHistogramSpecsDlg::ToSelectedImage)
-
-	EVT_COMBOBOX (IDC_ChannelCombo, CMHistogramSpecsDlg::OnSelendokChannels)
-	EVT_COMBOBOX (IDC_ColumnLineFormat, CMHistogramSpecsDlg::OnSelendokColumnLineFormat)
-	EVT_CHECKBOX (IDC_DiskFile, CMHistogramSpecsDlg::OnDiskFile)
-	EVT_CHECKBOX (IDC_EmptyBins, CMHistogramSpecsDlg::OnEmptyBins)
-	EVT_CHECKBOX (IDC_ComputeOnly, CMHistogramSpecsDlg::OnComputeOnly)
-	EVT_CHECKBOX (IDC_ListHistogram, CMHistogramSpecsDlg::OnListHistogram)
-	EVT_COMBOBOX (IDC_Method, CMHistogramSpecsDlg::OnSelendokMethod)
-	EVT_CHECKBOX (IDC_TextWindow, CMHistogramSpecsDlg::OnTextWindow)
-
-	EVT_COMBOBOX_DROPDOWN (IDC_ChannelCombo,CMHistogramSpecsDlg::OnSelendokChannelComboDropDown)
-
-	EVT_INIT_DIALOG(CMHistogramSpecsDlg::OnInitDialog)
-
-	EVT_TEXT (IDC_ColumnEnd, CMHistogramSpecsDlg::CheckColumnEnd)
-	EVT_TEXT (IDC_ColumnStart, CMHistogramSpecsDlg::CheckColumnStart)
-	EVT_TEXT (IDC_LineEnd, CMHistogramSpecsDlg::CheckLineEnd)
-	EVT_TEXT (IDC_LineStart, CMHistogramSpecsDlg::CheckLineStart)
-	EVT_TEXT (IDC_LineInterval, CMHistogramSpecsDlg::CheckLineInterval)
-	EVT_TEXT (IDC_ColumnInterval, CMHistogramSpecsDlg::CheckColumnInterval)
-END_EVENT_TABLE ()
 
 
 
@@ -511,8 +513,7 @@ CMHistogramSpecsDlg::DoDialog(
         FileInfoPtr fileInfoPtr) {
    SInt16 returnCode;
 
-   Boolean continueFlag = FALSE,
-           defaultStatFileChangedFlag = FALSE;
+   Boolean continueFlag = FALSE;
 
 
    // Make sure intialization has been completed.
@@ -772,11 +773,6 @@ void CMHistogramSpecsDlg::OnSelendokChannels(wxCommandEvent& event) {
 } // end "OnSelendokChannels"
 
 
-//void CMHistogramSpecsDlg::OnSelendokChannelComboDropDown(wxCommandEvent& event){
-//    wxComboBox* classcombo = (wxComboBox *) FindWindow(IDC_ChannelCombo);
-//    classcombo->SetSelection(0);    
-//}
-
 
 void CMHistogramSpecsDlg::OnTextWindow(wxCommandEvent& event) {
    CheckWriteResultsToSettings();
@@ -932,8 +928,8 @@ bool CMHistogramSpecsDlg::TransferDataFromWindow()
    m_textWindowFlag = textw->GetValue();
    m_diskFileFlag = diskf->GetValue();
 
-   if(m_channelSelection < 0)
-      m_channelSelection = m_channelSelection_Saved;
+   //if(m_channelSelection < 0)
+   //   m_channelSelection = m_channelSelection_Saved;
    
 	if (m_histogramMethodCode == kComputeFromImage)
 		returnCode = VerifyLineColumnValues(

@@ -183,6 +183,7 @@ CMultiSpecApp::CMultiSpecApp ()
 	gBlackPen.SetColour (*wxBLACK);
 	gBluePen.SetColour (*wxBLUE);
 	gCyanPen.SetColour (*wxCYAN);
+	//gCyanPen.SetColour (*wxGREEN);
 	gGreenPen.SetColour (*wxGREEN);
 	gRedPen.SetColour (*wxRED);
 	gWhitePen.SetColour (*wxWHITE);

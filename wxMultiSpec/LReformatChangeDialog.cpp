@@ -12,7 +12,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			02/28/2019
+//	Revision date:			10/08/2019
 //
 //	Language:				C++
 //
@@ -48,7 +48,9 @@ BEGIN_EVENT_TABLE (CMChangeFormatDlg, CMDialog)
 	EVT_CHECKBOX (IDC_TransformData, CMChangeFormatDlg::OnTransformData)
 	EVT_CHECKBOX (IDC_WriteChanDescriptions, CMChangeFormatDlg::OnWriteChanDescriptions)
 
-	EVT_COMBOBOX_DROPDOWN (IDC_ChannelCombo, CMChangeFormatDlg::OnSelendokChannelComboDropDown)
+	EVT_COMBOBOX_CLOSEUP (IDC_ChannelCombo, CMChangeFormatDlg::OnChannelComboCloseUp)
+
+	EVT_COMBOBOX_DROPDOWN (IDC_ChannelCombo, CMChangeFormatDlg::OnChannelComboDropDown)
 
 	EVT_INIT_DIALOG (CMChangeFormatDlg::OnInitDialog)
 
@@ -1247,8 +1249,8 @@ bool CMChangeFormatDlg::TransferDataFromWindow()
    m_ColumnEnd = wxAtoi(m_ColumnEndString);
    m_ColumnInterval = wxAtoi(m_ColumnIntervalString);
 
-   if(m_channelSelection < 0)
-      m_channelSelection = m_channelSelection_Saved;
+   //if(m_channelSelection < 0)
+   //   m_channelSelection = m_channelSelection_Saved;
    
 	returnCode = VerifyLineColumnValues(
 								IDC_LineStart,

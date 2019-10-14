@@ -12,7 +12,7 @@
 //
 //	Authors:					Abdur Rahman Maud, Larry L. Biehl
 //
-//	Revision date:			04/20/2019
+//	Revision date:			10/07/2019
 //
 //	Language:				C++
 //
@@ -287,7 +287,7 @@ void CShortStatusDlg::CreateControl ()
 
 	m_staticText42 = new wxStaticText (this,
 													IDC_Status3,
-													wxT("      "),
+													wxT("         "),
 													wxDefaultPosition,
 													wxDefaultSize,
 													0);
@@ -305,7 +305,7 @@ void CShortStatusDlg::CreateControl ()
 
 	m_staticText44 = new wxStaticText (this,
 													IDC_Status5,
-													wxT("      "),
+													wxT("         "),
 													wxDefaultPosition,
 													wxDefaultSize,
 													0);

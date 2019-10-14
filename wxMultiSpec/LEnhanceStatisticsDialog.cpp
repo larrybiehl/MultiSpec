@@ -12,7 +12,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			02/22/2019
+//	Revision date:			10/07/2019
 //
 //	Language:				C++
 //
@@ -121,10 +121,13 @@ BEGIN_EVENT_TABLE (CMEnhanceStatisticsDialog, CMDialog)
 	EVT_COMBOBOX (IDC_HardThresholdCombo, CMEnhanceStatisticsDialog::OnSelchangeHardThresholdCombo)
 	EVT_COMBOBOX (IDC_SoftThresholdCombo, CMEnhanceStatisticsDialog::OnSelchangeSoftThresholdCombo)
 	EVT_COMBOBOX (IDC_ClassCombo, CMEnhanceStatisticsDialog::OnSelendokStatClassCombo)
-	EVT_COMBOBOX (IDC_WeightCombo, CMEnhanceStatisticsDialog::OnSelendokClassWeightsCombo)
+	EVT_COMBOBOX (IDC_WeightCombo, CMEnhanceStatisticsDialog::OnClassWeightsComboSelendok)
 
-	EVT_COMBOBOX_DROPDOWN (IDC_ClassCombo, CMEnhanceStatisticsDialog::OnSelendokClassComboDropDown)
-	EVT_COMBOBOX_DROPDOWN (IDC_WeightCombo, CMEnhanceStatisticsDialog::OnSelendokClassWeightsComboDropDown)
+	EVT_COMBOBOX_CLOSEUP (IDC_ClassCombo, CMEnhanceStatisticsDialog::OnClassComboCloseUp)
+	EVT_COMBOBOX_CLOSEUP (IDC_WeightCombo, CMEnhanceStatisticsDialog::OnClassWeightComboCloseUp)
+
+	EVT_COMBOBOX_DROPDOWN (IDC_ClassCombo, CMEnhanceStatisticsDialog::OnClassComboDropDown)
+	EVT_COMBOBOX_DROPDOWN (IDC_WeightCombo, CMEnhanceStatisticsDialog::OnClassWeightComboDropDown)
 
 	EVT_TEXT (IDC_ColumnEnd, CMEnhanceStatisticsDialog::CheckStatColumnEnd)
 	EVT_TEXT (IDC_ColumnStart, CMEnhanceStatisticsDialog::CheckStatColumnStart)
@@ -158,7 +161,7 @@ CMEnhanceStatisticsDialog::CMEnhanceStatisticsDialog (
 	m_labelWeight = 1;
 	m_useEnhancedStatisticsFlag = FALSE;
 	m_weightLabeledFlag = FALSE;
-	m_weightsSelection = 0;
+	m_classWeightsSelection = 0;
 	m_softChiChiThreshold = 0.0;
 	m_hardChiChiThreshold = 0.0;
 	m_softPercentThreshold = 0.0;
@@ -901,7 +904,7 @@ SInt16 CMEnhanceStatisticsDialog::DoDialog (
 											m_classSelection,
 											(SInt16)m_localNumberClasses,
 											m_useEnhancedStatisticsFlag,
-											m_weightsSelection+1,
+											m_classWeightsSelection+1,
 											m_classWeightsPtr,
 											m_softThresholdCode+1,
 											m_softChiChiThreshold,
@@ -974,7 +977,7 @@ void CMEnhanceStatisticsDialog::OnInitDialog (
 	
 			// Class weights. Allow for 0 base, not 1 base as for Mac version				 
 	
-	m_weightsSelection = weightsSelection - 1;
+	m_classWeightsSelection = weightsSelection - 1;
 
 			// Threshold codes.
    
@@ -1050,7 +1053,7 @@ void  CMEnhanceStatisticsDialog::OnSelchangeSoftThresholdCombo (
 
 
 
-void CMEnhanceStatisticsDialog::OnSelendokClassWeightsCombo (
+void CMEnhanceStatisticsDialog::OnClassWeightsComboSelendok (
 				wxCommandEvent& 					event)
 
 {                                                           
@@ -1059,9 +1062,9 @@ void CMEnhanceStatisticsDialog::OnSelendokClassWeightsCombo (
 									m_classWeightsPtr,
 									gProjectInfoPtr->covarianceStatsToUse == kEnhancedStats,
 									IDC_WeightCombo,
-									&m_weightsSelection);
+									&m_classWeightsSelection);
 	
-}	// end "OnSelendokClassWeightsCombo"
+}	// end "OnClassWeightsComboSelendok"
 
 
 
@@ -1071,7 +1074,7 @@ void CMEnhanceStatisticsDialog::OnSelendokStatClassCombo (
 {
 	SInt16			classSelection;
 	
-	CMDialog::OnSelendokClassCombo (event);
+	CMDialog::OnClassComboSelendok (event);
 	
 	if (m_classSelection == kAllMenuItem)
 		{
@@ -1106,16 +1109,17 @@ void CMEnhanceStatisticsDialog::OnUseEnhancedStats (
 	
 	m_useEnhancedStatisticsFlag = useEnhancedStatisticsFlag->GetValue();
 	
-	m_weightsSelection = UpdateDialogClassWeightsInfo (
-																		(SInt16)m_weightsSelection,
+	m_classWeightsSelection = UpdateDialogClassWeightsInfo (
+																		(SInt16)m_classWeightsSelection,
 																		m_useEnhancedStatisticsFlag,
 																		&m_classWeightSet,
 																		FALSE);
 	
 	wxComboBox* weightsSelection = (wxComboBox *) FindWindow (IDC_WeightCombo);
-	m_weightsSelection = weightsSelection->GetSelection();
+	m_classWeightsSelection = weightsSelection->GetSelection();
 		
 }		// end "OnUseEnhancedStats"
+
 
 
 void CMEnhanceStatisticsDialog::OnWeightLabeledSamples (
@@ -1236,12 +1240,12 @@ bool CMEnhanceStatisticsDialog::TransferDataFromWindow ()
 	m_hardPercentThreshold = wxAtof (m_hardPercentThresholdString);
 	
 	m_classSelection = classSelection->GetSelection();
-	m_weightsSelection = weightSelection->GetSelection();
+	m_classWeightsSelection = weightSelection->GetSelection();
 	
-   if (m_classSelection < 0)
-		m_classSelection = m_classSelection_Saved;
-   if (m_weightsSelection < 0)
-      m_weightsSelection = m_weightSelection_Saved;
+   //if (m_classSelection < 0)
+	//	m_classSelection = m_classSelection_Saved;
+   //if (m_classWeightsSelection < 0)
+   //   m_classWeightsSelection = m_weightSelection_Saved;
    
 	m_weightLabeledFlag = weightLabeledFlag->GetValue();
 	m_labelWeightString = labelWeight->GetValue();
@@ -1358,7 +1362,7 @@ bool CMEnhanceStatisticsDialog::TransferDataToWindow ()
 	logLikeStopPercent->SetValue (wxString::Format (wxT("%.g"), m_logLikeStopPercent));
 	
 	classSelection->SetSelection (m_classSelection);
-	weightSelection->SetSelection (m_weightsSelection);
+	weightSelection->SetSelection (m_classWeightsSelection);
 	softThresholdCode->SetSelection (m_softThresholdCode);
 	hardThresholdCode->SetSelection (m_hardThresholdCode);
 	

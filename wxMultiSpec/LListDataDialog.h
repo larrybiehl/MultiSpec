@@ -19,7 +19,7 @@
 //	Brief description:	Header file for the CMListDataDialog class
 //
 //	Written By:				Abdur Rahman Maud		Date: ??/??/2009
-//	Revised By:				Larry L. Biehl			Date: 09/28/2018
+//	Revised By:				Larry L. Biehl			Date: 10/07/2019
 //
 //------------------------------------------------------------------------------------
 //
@@ -115,8 +115,8 @@
 					// Generated message map functions
 		
 			void OnInitDialog (wxInitDialogEvent& event);
-			void OnSelendokChannelCombo (wxCommandEvent& event);
-			void OnSelendokClassCombo (wxCommandEvent& event);
+			void OnChannelComboSelendok (wxCommandEvent& event);
+			void OnClassComboSelendok (wxCommandEvent& event);
 			void OnArea (wxCommandEvent& event);
 			void OnClasses (wxCommandEvent& event);
 			void OnGraphData (wxCommandEvent& event);

@@ -19,7 +19,7 @@
 //	Brief description:	Header file for the CMFeatureExtractionDialog class
 //
 //	Written By:				Abdur Rahman Maud		Date: ??/??/2009
-//	Revised By:				Larry L. Biehl			Date: 11/15/2018
+//	Revised By:				Larry L. Biehl			Date: 10/07/2019
 //
 //------------------------------------------------------------------------------------
 //
@@ -55,40 +55,37 @@ class CMFeatureExtractionDialog : public CMDialog
 		int	m_maxPixelsPerClass;
 		bool	m_specialOptionsFlag;
 		bool	m_listTransformationFlag;
-		int		m_interClassWeightsSelection;
-		int		m_weightsSelection;
+		//int		m_interClassWeightsSelection;
+		//int		m_weightsSelection;
 		int		m_preprocessSelection;
 		int		m_algorithmCode;
 			  int m_preprocess_Saved;
 	
 	// Implementation
 	protected:
-		 bool TransferDataFromWindow();
-		 bool TransferDataToWindow();
-			  void CreateControls();
-		// Generated message map functions
-		 void OnInitDialog(wxInitDialogEvent& event);
+		bool TransferDataFromWindow ();
+		bool TransferDataToWindow ();
+		void CreateControls ();
+	
+		void OnInitDialog(wxInitDialogEvent& event);
 		void OnOptimizeClasses(wxCommandEvent& event);
 		void OnSpecialOptions(wxCommandEvent& event);
 		void OnDecisionBoundary(wxCommandEvent& event);
-		void OnSelendokChannelCombo(wxCommandEvent& event);
-		void OnSelendokClassWeightsCombo(wxCommandEvent& event);
-		void OnSelendokClassPairWeightsCombo(wxCommandEvent& event);
-			  void OnSelendokChannelComboDN(wxCommandEvent& event);
-			  void OnCbnSelendokPreprocessingDropDown(wxCommandEvent& event);
-		void OnSelendokClassWeightsComboDN(wxCommandEvent& event);
-		void OnSelendokClassPairWeightsComboDN(wxCommandEvent& event);
-		//}}AFX_MSG
+		void OnChannelComboSelendok (wxCommandEvent& event);
+		void OnClassWeightsComboSelendok (wxCommandEvent& event);
+		void OnClassPairWeightsComboSelendok(wxCommandEvent& event);
+		//void OnSelendokChannelComboDN(wxCommandEvent& event);
+		void OnPreprocessingDropDown (wxCommandEvent& event);
+		//void OnClassPairWeightsComboDropDown(wxCommandEvent& event);
 
-			  DECLARE_EVENT_TABLE()
-	
-	
+		DECLARE_EVENT_TABLE()
+
 		FeatureExtractionSpecsPtr		m_featureExtractionSpecsPtr;
-	
+
 		float*								m_classWeightsPtr;
-	
+
 		SInt16*								m_localClassPairWeightsListPtr;
-	
+
 		SInt16								m_localDefaultClassPairWeight;
 	
 		wxBoxSizer* bSizer250;

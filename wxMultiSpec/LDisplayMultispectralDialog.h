@@ -19,7 +19,7 @@
 //	Brief description:	Header file for the CMDisplaySpecsDlg class
 //
 //	Written By:				Abdur Rahman Maud		Date: ??/??/2009
-//	Revised By:				Larry L. Biehl			Date: 11/15/2018
+//	Revised By:				Larry L. Biehl			Date: 11/07/2019
 //	
 //------------------------------------------------------------------------------------
 //
@@ -127,23 +127,24 @@ protected:
     bool TransferDataFromWindow();
     bool TransferDataToWindow();
 	
-    void OnInitDialog(wxInitDialogEvent& event);
-    void OnChangeBlueChannel(wxCommandEvent& event);
-    void OnChangeGreenChannel(wxCommandEvent& event);
-    void OnChangeRedChannel(wxCommandEvent& event);
-    void OnChangeGrayChannel(wxCommandEvent& event);
-    void OnSelendokEnhancement(wxCommandEvent& event);
-    void OnSelendokEnhancementCloseUp(wxCommandEvent& event);
-    void OnSelendokEnhancementDropDown(wxCommandEvent& event);
-    void OnSelendokBitsOfColor(wxCommandEvent& event);
-    void OnChannelDescriptions(wxCommandEvent& event);
-    void OnSelendokDisplayType(wxCommandEvent& event);
-    void OnSelendokMinMaxValues(wxCommandEvent& event);
-    void OnSelendokChannels(wxCommandEvent& event);
+    void OnInitDialog (wxInitDialogEvent& event);
+    void OnChangeBlueChannel (wxCommandEvent& event);
+    void OnChangeGreenChannel (wxCommandEvent& event);
+    void OnChangeRedChannel (wxCommandEvent& event);
+    void OnChangeGrayChannel (wxCommandEvent& event);
+    void OnChannelsComboCloseUp (wxCommandEvent& event);
+    void OnEnhancementComboSelendok (wxCommandEvent& event);
+    void OnEnhancementComboCloseUp (wxCommandEvent& event);
+    void OnEnhancementComboDropDown (wxCommandEvent& event);
+    void OnSelendokBitsOfColor (wxCommandEvent& event);
+    void OnChannelDescriptions (wxCommandEvent& event);
+    void OnSelendokDisplayType (wxCommandEvent& event);
+    void OnSelendokMinMaxValues (wxCommandEvent& event);
+    void OnSelendokChannels (wxCommandEvent& event);
     void OnSelendokMinMaxValuesCloseUp (wxCommandEvent& event);
-    void OnSelendokChannelsDropDown(wxCommandEvent& event);    
+    void OnChannelsComboDropDown (wxCommandEvent& event);
     //void OnButtonPress(wxKeyEvent& event); 
-    void OnSelendokMinMaxValuesDropDown(wxCommandEvent& event);
+    void OnSelendokMinMaxValuesDropDown (wxCommandEvent& event);
     DECLARE_EVENT_TABLE ()
 
     DisplaySpecsPtr m_displaySpecsPtr;

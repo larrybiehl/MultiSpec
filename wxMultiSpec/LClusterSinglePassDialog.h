@@ -19,7 +19,7 @@
 //	Brief description:	Header file for the CMClassifyDialog class
 //
 //	Written By:				Abdur Rahman Maud		Date: ??/??/2009
-//	Revised By:				Larry L. Biehl			Date: 11/06/2018
+//	Revised By:				Larry L. Biehl			Date: 10/07/2019
 //	
 //------------------------------------------------------------------------------------
 
@@ -69,7 +69,7 @@
 			void OnClusterImageArea (wxCommandEvent& event);
 			void OnClusterTrainingAreas (wxCommandEvent& event);
 			void OnInitDialog (wxInitDialogEvent& event);
-			void OnSelendokClassCombo (wxCommandEvent& event);
+			void OnClassComboSelendok (wxCommandEvent& event);
 			bool TransferDataFromWindow ();
 			bool TransferDataToWindow ();
 			DECLARE_EVENT_TABLE ()
