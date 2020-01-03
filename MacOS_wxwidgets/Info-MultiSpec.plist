@@ -182,7 +182,7 @@
 	<key>LSRequiresNativeExecution</key>
 	<true/>
 	<key>NSHumanReadableCopyright</key>
-	<string>© 1988-2019, Purdue Research Foundation</string>
+	<string>© 1988-2020, Purdue Research Foundation</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
 </dict>
