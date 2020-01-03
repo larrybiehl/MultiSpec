@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -20,51 +20,18 @@
 //	Brief description:	The routines in this file handle retrieving information from
 //								the window information structure.
 //
-//	Functions in file:	Boolean 				CheckIfEntireImage
-//								Handle 				GetActiveDisplaySpecsHandle
-//								Handle 				GetActiveImageFileInfoHandle
-//								Handle 				GetActiveImageWindowInfoHandle
-//								ListHandle 			GetActiveLegendListHandle
-//								CMFileStream* 		GetActiveSupportFileStreamPointer
-//								Handle 				GetDisplaySpecsHandle
-//								SInt16 				GetDisplayClassGroupCode
-//								Handle 				GetFileInfoHandle
-//								CMFileStream* 		GetFileStreamPointer
-//								Handle 				GetHistogramSpecsHandle
-//								SInt16 				GetLegendWidth
-//								Boolean 				GetProjectBaseImageFlag
-//								Boolean 				GetProjectWindowFlag
-//								Boolean 				GetShowLegendFlag
-//								CMFileStream* 		GetSupportFileStreamPointer
-//								SInt16 				GetTitleHeight
-//								Handle 				GetWindowInfoHandle
-//								Handle 				GetWindowInfoStructures
-//								WindowPtr 			GetWindowPtr
-//								SInt16 				GetWindowType
-//								Handle 				InitializeWindowInfoStructure
-//								void 					ReleaseOffscreenSupportMemory
-//								void 					SetImageWindowIsUpToDateFlag
-//								void 					UnlockActiveSupportFileStream
-//								void 					UnlockFileStream
-//								void 					UnlockSupportFileStream
-//
-//	Include files:			"MultiSpecHeaders"
-//								"SMultiSpec.h"
-//
 //------------------------------------------------------------------------------------
 
 #include "SMultiSpec.h"
 
-#if defined multispec_lin
-	#include "SMultiSpec.h"
-
+#if defined multispec_wx
 	#include "wx/wx.h"
-	#include "LImageView.h"
-	#include "LImageDoc.h"
-	#include "LImageFrame.h"
-	#include "CImageWindow.h"
-	#include "LTextView.h"
-	#include "CDisplay.h"
+	#include "xImageView.h"
+	#include "xImageDoc.h"
+	#include "xImageFrame.h"
+	#include "SImageWindow_class.h"
+	#include "xTextView.h"
+	#include "SDisplay_class.h"
 #endif
 	
 #if defined multispec_mac
@@ -72,25 +39,17 @@
 
 #if defined multispec_win
 	#include "WImageView.h"
-	#include "CImageWindow.h"
-	#include "CDisplay.h"
-	#include "CHistogram.h"
+	#include "SImageWindow_class.h"
+	#include "SDisplay_class.h"
+	#include "SHistogram_class.h"
 	#include "WImageDoc.h"
 	#include "WTextView.h"
 #endif	// defined multispec_win
 
-//#include "SExtGlob.h" 
-
-
-
-extern void SetFileMapProjectionHandle2 (
-				Handle								windowInfoHandle,
-				Handle								mapProjectionHandle);
-
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -107,7 +66,7 @@ extern void SetFileMapProjectionHandle2 (
 // Value Returned:  	True if histogram information does exist.
 //							False - otherwise.
 //
-// Called By:			DisplayDialog in display.c
+// Called By:			DisplayDialog in SDisplay.cpp
 //
 //	Coded By:			Larry L. Biehl			Date:	10/20/1999
 //	Revised By:			Larry L. Biehl			Date: 10/20/1999
@@ -149,7 +108,7 @@ Boolean CheckIfDefaultHistogramInfoExists (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -168,7 +127,7 @@ Boolean CheckIfDefaultHistogramInfoExists (
 //							lines and columns in the file.
 //							False - otherwise.
 //
-// Called By:			DisplayDialog in display.c
+// Called By:			DisplayDialog in SDisplay.cpp
 //
 //	Coded By:			Larry L. Biehl			Date:	10/12/1989
 //	Revised By:			Larry L. Biehl			Date: 10/20/1999
@@ -210,7 +169,7 @@ Boolean CheckIfEntireImage (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -227,8 +186,7 @@ Boolean CheckIfEntireImage (
 //
 // Value Returned:	None				
 // 
-// Called By:			ModalFileSpecification in fileIO.c
-//							CloseImageWindow in window.c
+// Called By:			ModalFileSpecification in SFileIO.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/24/1991
 //	Revised By:			Larry L. Biehl			Date: 11/02/1999	
@@ -272,7 +230,7 @@ void DisposeOfImageWindowSupportMemory (
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -300,10 +258,10 @@ Handle GetActiveDisplaySpecsHandle (void)
 			return (((WindowInfoPtr)*gActiveImageWindowInfoH)->displaySpecsHandle);
 	#endif	// defined multispec_mac 	
 	              
-	#if defined multispec_win || defined multispec_lin		
+	#if defined multispec_win || defined multispec_wx		
 		if (gActiveImageViewCPtr != NULL)
 			return (gActiveImageViewCPtr->m_displayMultiCPtr->mDisplaySpecsHandle);
-	#endif	// defined multispec_win || defined multispec_lin
+	#endif	// defined multispec_win || defined multispec_wx
 		
 	return (NULL);
 		
@@ -312,7 +270,7 @@ Handle GetActiveDisplaySpecsHandle (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -339,7 +297,7 @@ Handle GetActiveImageFileInfoHandle (void)
 		return (gActiveImageFileInfoH);                       	
 	#endif	// defined multispec_mac || defined multispec_mac_swift
 		
-	#if defined multispec_win || defined multispec_lin
+	#if defined multispec_win || defined multispec_wx
 		Handle		activeImageFileInfoHandle = NULL;
 	
 		Handle activeWindowInfoHandle = GetActiveImageWindowInfoHandle ();
@@ -350,14 +308,14 @@ Handle GetActiveImageFileInfoHandle (void)
 			activeImageFileInfoHandle = activeWindowInfoPtr->fileInfoHandle;
 			
 		return (activeImageFileInfoHandle); 	
-	#endif	// defined multispec_win | multispec_lin
+	#endif	// defined multispec_win | multispec_wx
 	
 }	// end "GetActiveImageFileInfoHandle"       
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -384,7 +342,7 @@ Handle GetActiveImageLayerInfoHandle (void)
 		return (gActiveImageLayerInfoH);
 	#endif	// defined multispec_mac || defined multispec_mac_swift
 	
-	#if defined multispec_win || defined multispec_lin	
+	#if defined multispec_win || defined multispec_wx	
 		Handle			activeImageLayerInfoHandle = NULL;
 	
 		Handle activeWindowInfoHandle = GetActiveImageWindowInfoHandle ();
@@ -402,7 +360,7 @@ Handle GetActiveImageLayerInfoHandle (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -429,7 +387,7 @@ Handle GetActiveImageWindowInfoHandle (void)
   		return (gActiveImageWindowInfoH);	
 	#endif // defined multispec_mac || defined multispec_mac_swift
 
-	#if defined multispec_win || defined multispec_lin      
+	#if defined multispec_win || defined multispec_wx      
       Handle activeImageWindowInfoHandle = NULL;
       
    	if (gActiveImageViewCPtr != NULL)
@@ -440,14 +398,14 @@ Handle GetActiveImageWindowInfoHandle (void)
 			}	// end "if (gActiveImageViewCPtr != NULL)"
 								
 		return (activeImageWindowInfoHandle);	
-	#endif // defined multispec_win || multispec_lin
+	#endif // defined multispec_win || multispec_wx
 	
 }	// end "GetActiveImageWindowInfoHandle" 
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -487,7 +445,7 @@ LegendListHandle GetActiveLegendListHandle (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -519,7 +477,7 @@ Handle GetActiveSelectionInfoHandle (void)
 							((WindowInfoPtr)*gActiveImageWindowInfoH)->selectionInfoHandle;                      
 	#endif	// defined multispec_mac
 	
-	#if defined multispec_win || defined multispec_lin
+	#if defined multispec_win || defined multispec_wx
 		if (gActiveImageViewCPtr != NULL)
 			activeSelectionInfoH = GetSelectionInfoHandle (gActiveImageViewCPtr);
 	#endif	// defined multispec_win
@@ -531,7 +489,7 @@ Handle GetActiveSelectionInfoHandle (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -570,7 +528,7 @@ CMFileStream* GetActiveSupportFileStreamPointer (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -616,7 +574,7 @@ Handle GetActiveWindowInfoHandle (void)
 		return (activeWindowInfoHandle);
 	#endif // defined multispec_win
 
-	#if defined multispec_lin
+	#if defined multispec_wx
       Handle activeWindowInfoHandle = NULL;
       
    	if (gActiveImageViewCPtr != NULL)
@@ -630,14 +588,14 @@ Handle GetActiveWindowInfoHandle (void)
 			}	// end "if (gActiveImageViewCPtr != NULL)"
 								
 		return (activeWindowInfoHandle);
-	#endif // defined multispec_lin
+	#endif // defined multispec_wx
 	
 }	// end "GetActiveWindowInfoHandle"  
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -675,17 +633,13 @@ UInt32 GetCoordinateHeight (
 			coordinateHeight = windowInfoPtr->coordinateHeight;			
 	#endif	// defined multispec_mac   
 	
-	#if defined multispec_lin
-		//CMImageView* imageViewCPtr = GetWindowPtr (windowInfoHandle);
-		//CMImageDoc* imageDocCPtr = imageViewCPtr->GetDocument ();
-		//if (imageDocCPtr->GetDisplayCoordinatesFlag ())
-		//	coordinateHeight = 1;
+	#if defined multispec_wx
 		WindowInfoPtr windowInfoPtr = (WindowInfoPtr)GetHandlePointer (
 																						windowInfoHandle);
 	
 		if (windowInfoPtr != NULL)
 			coordinateHeight = windowInfoPtr->coordinateHeight;	
-	#endif	// defined multispec_lin
+	#endif	// defined multispec_wx
 	
 	#if defined multispec_win
 		CMImageView* imageViewCPtr = GetWindowPtr (windowInfoHandle);
@@ -701,7 +655,7 @@ UInt32 GetCoordinateHeight (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -741,7 +695,7 @@ double GetCoordinateViewAreaFactor (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -779,7 +733,7 @@ SInt16 GetCoordinateViewAreaUnits (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -817,7 +771,7 @@ ControlHandle GetCoordinateViewAreaUnitsControl (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -857,7 +811,7 @@ UInt32 GetCoordinateViewCursorStart (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -897,7 +851,7 @@ double GetCoordinateViewFactor (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -936,7 +890,7 @@ UInt32 GetCoordinateViewAreaPopupStart (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -976,7 +930,7 @@ UInt32 GetCoordinateViewNumberChars (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1016,7 +970,7 @@ UInt32 GetCoordinateViewNumberPixelsChars (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1055,7 +1009,7 @@ UInt32 GetCoordinateViewNumberPixelsStart (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1094,7 +1048,7 @@ UInt32 GetCoordinateViewScaleStart (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1134,7 +1088,7 @@ UInt32 GetCoordinateViewSelectionStart (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1174,7 +1128,7 @@ SInt16 GetCoordinateViewUnits (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1214,7 +1168,7 @@ SInt16 GetCoordinateViewUnitDecimalPlaces (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1252,7 +1206,7 @@ ControlHandle GetCoordinateViewUnitsControl (
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1292,7 +1246,7 @@ SInt16 GetDisplayClassGroupCode (
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1339,7 +1293,7 @@ UInt32 GetDisplayedLineStart (
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1394,7 +1348,7 @@ Handle GetDisplaySpecsHandle (
 			return (windowInfoPtr->displaySpecsHandle);
 		#endif	// defined multispec_mac 
 				              
-		#if defined multispec_win || defined multispec_lin
+		#if defined multispec_win || defined multispec_wx
 			CMImageWindow* imageWindowCPtr = windowInfoPtr->cImageWindowPtr;
 			
 	   	if (imageWindowCPtr != NULL)
@@ -1405,7 +1359,7 @@ Handle GetDisplaySpecsHandle (
 					return (imageViewCPtr->m_displayMultiCPtr->mDisplaySpecsHandle);
 								
 				}	// end "if (imageWindowCPtr != NULL)"
-		#endif	// defined multispec_win | multispec_lin 
+		#endif	// defined multispec_win | multispec_wx 
 		
 		}	// end "if (windowInfoPtr != NULL)"
 		
@@ -1416,7 +1370,7 @@ Handle GetDisplaySpecsHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1468,7 +1422,7 @@ Handle GetFileInfoHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1506,7 +1460,7 @@ SInt16 GetFileInfoVersion (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1539,7 +1493,7 @@ Handle GetFileMapProjectionHandle2 (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1584,95 +1538,18 @@ CMFileStream* GetFileStreamPointer (
 			}	// end "if (windowInfoPtr != NULL)"                    
 	#endif	// defined multispec_mac 
               
-	#if defined multispec_win || defined multispec_lin	
+	#if defined multispec_win || defined multispec_wx	
 		return (windowInfoPtr->cImageWindowPtr->GetImageFileStreamPointer ());
 	#endif	// defined multispec_win 
 		
 	return (NULL);
 												
-}	// end "GetFileStreamPointer"  
+}	// end "GetFileStreamPointer"
 
-
-/*
-//------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
-//
-//	Function name:		void GetHasWavelengthValuesFlag
-//
-//	Software purpose:	The purpose of this routine is to get the hasWavelengthValueFlag
-//							variable for this window object.
-//
-//	Parameters in:		window pointer
-//
-//	Parameters out:	None			
-//
-//	Value Returned:	value of the hasWavelengthValuesFlag
-//							
-// 
-// Called By:						
-//
-//	Coded By:			Larry L. Biehl			Date: 03/02/2018
-//	Revised By:			Larry L. Biehl			Date: 03/02/2018
-
-Boolean GetHasWavelengthValuesFlag (
-				WindowPtr 							windowPtr)
-
-{
-	Handle								windowInfoHandle;
-	
-	
-	windowInfoHandle = GetWindowInfoHandle (windowPtr);
-	
-	return (GetHasWavelengthValuesFlag (windowInfoHandle));
-	
-}	// end "GetHasWavelengthValuesFlag"
-
-
-
-//------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
-//
-//	Function name:		void GetHasWavelengthValuesFlag
-//
-//	Software purpose:	The purpose of this routine is to get the hasWavelengthValueFlag
-//							variable for this window object.
-//
-//	Parameters in:		window info structure handle
-//
-//	Parameters out:	None			
-//
-//	Value Returned:	value of the hasWavelengthValuesFlag
-//							
-// 
-// Called By:						
-//
-//	Coded By:			Larry L. Biehl			Date: 03/01/2018
-//	Revised By:			Larry L. Biehl			Date: 03/01/2018
-
-Boolean GetHasWavelengthValuesFlag (
-				Handle 								windowInfoHandle)
-
-{
-	Boolean								hasWavelengthValuesFlag = FALSE;
-	
-	
-	WindowInfoPtr windowInfoPtr = (WindowInfoPtr)GetHandlePointer (windowInfoHandle);
-	
-	if (windowInfoPtr != NULL)                                                   
-		hasWavelengthValuesFlag = windowInfoPtr->hasWavelengthValuesFlag;
-	
-	return (hasWavelengthValuesFlag);
-	
-}	// end "GetHasWavelengthValuesFlag"
-*/
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1706,7 +1583,7 @@ Handle GetHistogramSpecsHandle (
 			histogramSpecsHandle = windowInfoPtr->histogramSpecsHandle;		
 		#endif	// defined multispec_mac 
 				              
-		#if defined multispec_win || defined multispec_lin
+		#if defined multispec_win || defined multispec_wx
 			CMImageWindow* imageWindowCPtr = windowInfoPtr->cImageWindowPtr;
 			
 	   	if (imageWindowCPtr != NULL)
@@ -1718,7 +1595,7 @@ Handle GetHistogramSpecsHandle (
 										imageViewCPtr->m_histogramCPtr->mHistogramSpecsHandle;
 								
 				}	// end "if (imageWindowCPtr != NULL)"
-		#endif	// defined multispec_win | multispec_lin 
+		#endif	// defined multispec_win | multispec_wx 
 		
 		}	// end "if (windowInfoPtr != NULL)"
 		
@@ -1742,7 +1619,7 @@ Handle GetHistogramSpecsHandle (
 			histogramSpecsHandle = windowInfoPtr->histogramSpecsHandle;
 		#endif	// defined multispec_mac 
 		              
-		#if defined multispec_win || defined multispec_lin
+		#if defined multispec_win || defined multispec_wx
 			CMImageWindow* imageWindowCPtr = windowInfoPtr->cImageWindowPtr;
 			
 	   	if (imageWindowCPtr != NULL)
@@ -1754,7 +1631,7 @@ Handle GetHistogramSpecsHandle (
 										imageViewCPtr->m_histogramCPtr->mHistogramSpecsHandle;
 								
 				}	// end "if (imageWindowCPtr != NULL)"
-		#endif	// defined multispec_win | multispec_lin
+		#endif	// defined multispec_win | multispec_wx
 		
 		}	// end "if (windowInfoPtr != NULL)"
 		
@@ -1765,7 +1642,7 @@ Handle GetHistogramSpecsHandle (
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1799,7 +1676,7 @@ Handle GetHistogramSummaryHandle (
 			histogramSummaryHandle = windowInfoPtr->histogramSummaryHandle;		
 		#endif	// defined multispec_mac 
 				              
-		#if defined multispec_win | defined multispec_lin			
+		#if defined multispec_win | defined multispec_wx			
 			CMImageWindow* imageWindowCPtr = windowInfoPtr->cImageWindowPtr;
 			
 	   	if (imageWindowCPtr != NULL)
@@ -1811,7 +1688,7 @@ Handle GetHistogramSummaryHandle (
 									imageViewCPtr->m_histogramCPtr->mHistogramSummaryHandle;
 								
 				}	// end "if (imageWindowCPtr != NULL)"		 
-		#endif	// defined multispec_win | multispec_lin
+		#endif	// defined multispec_win | multispec_wx
 		
 		}	// end "if (windowInfoPtr != NULL)"
 		
@@ -1835,7 +1712,7 @@ Handle GetHistogramSummaryHandle (
 			histogramSummaryHandle = windowInfoPtr->histogramSummaryHandle;		
 		#endif	// defined multispec_mac 
 				              
-		#if defined multispec_win | defined multispec_lin
+		#if defined multispec_win | defined multispec_wx
 			CMImageWindow* imageWindowCPtr = windowInfoPtr->cImageWindowPtr;
 			
 	   	if (imageWindowCPtr != NULL)
@@ -1847,7 +1724,7 @@ Handle GetHistogramSummaryHandle (
 									imageViewCPtr->m_histogramCPtr->mHistogramSummaryHandle;
 								
 				}	// end "if (imageWindowCPtr != NULL)"
-		#endif	// defined multispec_win | multispec_lin
+		#endif	// defined multispec_win | multispec_wx
 		
 		}	// end "if (windowInfoPtr != NULL)"
 		
@@ -1858,7 +1735,7 @@ Handle GetHistogramSummaryHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1895,7 +1772,7 @@ SInt16 GetHistogramSupportFileFormat (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1941,7 +1818,7 @@ SInt16 GetHistogramSupportFileFormat (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1977,7 +1854,7 @@ UInt32 GetImageTopOffset (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2014,7 +1891,7 @@ SInt16 GetImageType (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2071,7 +1948,7 @@ Handle GetLayerInfoHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2110,7 +1987,7 @@ SInt16 GetActiveLegendListType ()
 			legendListType = (((ListPtr)*legendListHandle)->refCon & 0x00000006)/2; 
 		#endif	// defined multispec_mac 
 
-		#if defined multispec_win || multispec_lin
+		#if defined multispec_win || multispec_wx
 			legendListType = (SInt16)((CMLegendList*)legendListHandle)->m_listType;
 		#endif	// defined multispec_win 
 		
@@ -2123,7 +2000,7 @@ SInt16 GetActiveLegendListType ()
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2170,7 +2047,7 @@ SInt16 GetLegendWidth (
 			*/
 		#endif // defined multispec_win 
 		
-		#if defined multispec_lin
+		#if defined multispec_wx
 			wxRect				legendArea;
 			CMImageFrame*		imageFrameCPtr;
 			CMImageView*		imageViewCPtr;
@@ -2183,19 +2060,15 @@ SInt16 GetLegendWidth (
 	   							
 	   		if (imageFrameCPtr != NULL)
 					{
-					//if (imageFrameCPtr->m_leftWindow->IsShown ())
-					//	{
-						legendArea = (imageFrameCPtr->m_leftWindow)->GetClientRect ();
-						legendWidth = (SInt16)legendArea.GetRight ();
-					
-					//	}	// end "if (imageFrameCPtr->m_leftWindow->IsShown ())"
+					legendArea = (imageFrameCPtr->m_leftWindow)->GetClientRect ();
+					legendWidth = (SInt16)legendArea.GetRight ();
 					
 					}	// end "if (imageFrameCPtr != NULL)"
 							
 				}	// end "if (windowInfoPtr->cImageWindowPtr != NULL)"
 				
 			return (legendWidth);
-		#endif // defined multispec_lin  
+		#endif // defined multispec_wx  
 				
 		}	// end "if (windowInfoPtr != NULL)"    
 	     
@@ -2206,7 +2079,7 @@ SInt16 GetLegendWidth (
 
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2244,7 +2117,7 @@ Handle GetMapProjectionHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2282,7 +2155,7 @@ UInt32 GetMaxNumberColumns (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2320,7 +2193,7 @@ UInt32 GetMaxNumberLines (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2335,7 +2208,7 @@ UInt32 GetMaxNumberLines (
 //
 //	Value Returned:	
 // 
-// Called By:			GetDefaultSupportFile in SOpnImag.cpp
+// Called By:			GetDefaultSupportFile in SOpenImage.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/18/1999
 //	Revised By:			Larry L. Biehl			Date: 10/18/1999			
@@ -2356,7 +2229,7 @@ UInt32 GetNumberImageFiles (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2392,7 +2265,7 @@ UInt32 GetNumberImageWindowOverlays (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2428,7 +2301,7 @@ UInt32 GetNumberWindowOverlays (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2464,12 +2337,14 @@ PMOrientation GetPrintPageOrientation (
 		return (DMORIENT_PORTRAIT);
 	#endif	// defined multispec_win
 	
+	return (0);
+	
 }	// end "GetPrintPageOrientation"  
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2505,7 +2380,7 @@ double GetPrintPageScale (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2541,7 +2416,7 @@ Boolean GetProjectBaseImageFlag (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2577,7 +2452,7 @@ Boolean GetProjectWindowFlag (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2604,10 +2479,10 @@ Boolean GetOutputWindowChangedFlag (void)
 	Boolean								windowChangedFlag = FALSE;
 	
 	
-	#if defined multispec_lin 
+	#if defined multispec_wx 
 		if (gOutputViewCPtr != NULL)
 			windowChangedFlag = gOutputViewCPtr->m_textsw->IsModified ();
-	#endif	// defined multispec_lin 
+	#endif	// defined multispec_wx 
 	
 	#if defined multispec_mac 
 		Handle windowInfoHandle = (Handle)GetWRefCon (gOutputWindow); 
@@ -2631,7 +2506,7 @@ Boolean GetOutputWindowChangedFlag (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2720,7 +2595,7 @@ SInt16 GetSelectionInfoDisplayUnits (
 
 
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2756,7 +2631,7 @@ Boolean GetShowLegendFlag (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2797,10 +2672,10 @@ CMFileStream* GetSupportFileStreamPointer (
 															handleStatusPtr);
 		#endif	// defined multispec_mac
 	
-		#if defined multispec_win | defined multispec_lin
+		#if defined multispec_win | defined multispec_wx
 			supportFileStreamPtr = 
 							windowInfoPtr->cImageWindowPtr->GetSupportFileStreamPointer ();
-		#endif	// defined multispec_win | multispec_lin
+		#endif	// defined multispec_win | multispec_wx
 														
 		}	// end "if (windowInfoPtr != NULL)"                    
 		
@@ -2810,7 +2685,7 @@ CMFileStream* GetSupportFileStreamPointer (
 
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2858,7 +2733,7 @@ CMFileStream* GetSupportFileStreamPointer (
 
 
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2894,7 +2769,7 @@ SInt16 GetTitleHeight (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2929,9 +2804,9 @@ UInt32 GetTotalNumberOfChannels (
 
 
 
-#if defined multispec_win || defined multispec_lin
+#if defined multispec_win || defined multispec_wx
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2963,12 +2838,12 @@ CMImageWindow* GetWindowClassPointer (
 	return (NULL);
 												
 }	// end "GetWindowClassPointer"
-#endif	// defined multispec_win || multispec_lin
+#endif	// defined multispec_win || multispec_wx
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2998,11 +2873,11 @@ Handle GetWindowInfoHandle (
 			return ((Handle)GetWRefCon (windowPtr));            	
 		#endif	// defined multispec_mac 		
 		
-		#if defined multispec_win | defined multispec_lin
+		#if defined multispec_win | defined multispec_wx
 			CMImageWindow* imageWindowCPtr = windowPtr->GetImageWindowCPtr ();
 			if (imageWindowCPtr != NULL)
 				return (imageWindowCPtr->GetWindowInfoHandle ());	 
-		#endif	// defined multispec_win | multispec_lin
+		#endif	// defined multispec_win | multispec_wx
 		
 		}	// end "if (windowPtr != NULL)"
 		
@@ -3011,7 +2886,7 @@ Handle GetWindowInfoHandle (
 }	// end "GetWindowInfoHandle"
 
 
-#if defined multispec_lin
+#if defined multispec_wx
 Handle GetWindowInfoHandle (wxView* windowPtr)
 	{
 	if (windowPtr != NULL) 
@@ -3021,16 +2896,16 @@ Handle GetWindowInfoHandle (wxView* windowPtr)
 		if (imageWindowCPtr != NULL)
 			return (imageWindowCPtr->GetWindowInfoHandle ());
 
-		} // end "if (windowPtr != NULL)"
+		}	// end "if (windowPtr != NULL)"
 
 	 return (NULL);
 
-} // end "GetWindowInfoHandle"
-#endif	//  defined multispec_lin
+}	// end "GetWindowInfoHandle"
+#endif	//  defined multispec_wx
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3067,7 +2942,7 @@ Handle GetWindowInfoHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3087,7 +2962,7 @@ Handle GetWindowInfoHandle (
 // Called By:			LoadMask in SMask.cpp
 //							ChangeProjectBaseImage in SProject.cpp
 //							OpenProjectImageWindow in pSProject.cpp
-//							OpenImageFile in openImageRoutines.c
+//							OpenImageFile in SOpenFileDialog.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 09/18/1991
 //	Revised By:			Larry L. Biehl			Date: 09/08/2006	
@@ -3098,9 +2973,9 @@ Handle GetWindowInfoStructures (
 				SInt16								windowType)
 				
 {
-	#if defined multispec_win | defined multispec_lin
+	#if defined multispec_win | defined multispec_wx
 		CMImageWindow* 					imageWindowCPtr = NULL;
-	#endif	// defined multispec_win | multispec_lin
+	#endif	// defined multispec_win | multispec_wx
 	
 	WindowInfoPtr						windowInfoPtr;
 	
@@ -3122,7 +2997,7 @@ Handle GetWindowInfoStructures (
 								NULL, kNotPointer, fileInfoHandle, fileImageType, windowType);
 		#endif	// defined multispec_mac
 	                  
-		#if defined multispec_win | defined multispec_lin
+		#if defined multispec_win | defined multispec_wx
 			imageWindowCPtr = new CMImageWindow (fileInfoHandle);
 			if (imageWindowCPtr != NULL)
 				{
@@ -3130,7 +3005,7 @@ Handle GetWindowInfoStructures (
 				windowInfoHandle = imageWindowCPtr->GetWindowInfoHandle ();
 				
 				}	// end "if (maskWindowCPtr != NULL)" 
-		#endif	// defined multispec_win | multispec_lin
+		#endif	// defined multispec_win | multispec_wx
 		
 		windowInfoPtr = (WindowInfoPtr)GetHandlePointer (
 												windowInfoHandle, kLock, kMoveHi);
@@ -3153,9 +3028,9 @@ Handle GetWindowInfoStructures (
 					UnlockAndDispose (windowInfoHandle);
 				#endif	// defined multispec_mac
 	                  
-				#if defined multispec_win || defined multispec_lin
+				#if defined multispec_win || defined multispec_wx
 					delete imageWindowCPtr;
-				#endif	// defined multispec_win || multispec_lin
+				#endif	// defined multispec_win || multispec_wx
 				
 				windowInfoHandle = NULL;
 				
@@ -3172,7 +3047,7 @@ Handle GetWindowInfoStructures (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3220,9 +3095,9 @@ WindowPtr GetWindowPtr (
 			return (windowInfoPtr->windowPtr);
 		#endif	// defined multispec_mac
                
-		#if defined multispec_win | defined multispec_lin
+		#if defined multispec_win | defined multispec_wx
 			return (windowInfoPtr->cImageWindowPtr->mImageViewCPtr);
-		#endif	// defined multispec_win | multispec_lin
+		#endif	// defined multispec_win | multispec_wx
 			
 		}	// end "if (windowInfoPtr != NULL)"
 
@@ -3233,7 +3108,7 @@ WindowPtr GetWindowPtr (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3271,7 +3146,7 @@ SInt16 GetWindowType (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3286,11 +3161,10 @@ SInt16 GetWindowType (
 //
 // Value Returned:	None
 // 
-// Called By:			CreateGraphicsWindow in graphicsUtilities.c
-//							CreateOutputWindow in initialize.c
-//							CreateProjectWindow in statistics.c
-//							CreatePaletteWindow in window.c
-//							GetWindowInfoStructures in window.c
+// Called By:			CreateGraphicsWindow in SGraphiUtilities.cpp
+//							CreateOutputWindow in MInitialize.c
+//							CreateProjectWindow in SStatistics.cpp
+//							GetWindowInfoStructures in MWindow.c
 //
 //	Coded By:			Larry L. Biehl			Date: 03/07/1991
 //	Revised By:			Larry L. Biehl			Date: 04/22/2019
@@ -3459,7 +3333,6 @@ Handle InitializeWindowInfoStructure (
 		windowInfoPtr->drawBaseImageFlag = TRUE;
 		windowInfoPtr->drawBitMapFlag = TRUE;
 		windowInfoPtr->drawVectorOverlaysFlag = TRUE;
-		//windowInfoPtr->hasWavelengthValuesFlag = FALSE;
 		windowInfoPtr->windowChangedFlag = FALSE;
 		windowInfoPtr->localBytesDifferFlag = FALSE;
 		windowInfoPtr->projectWindowFlag = FALSE;
@@ -3479,7 +3352,7 @@ Handle InitializeWindowInfoStructure (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3513,16 +3386,16 @@ Boolean OffscreenImageMapExists (
 	
 	if (windowInfoPtr != NULL) 
 		{   
-		#ifndef multispec_lin
+		#ifndef multispec_wx
 			if (windowInfoPtr->offScreenMapHandle != NULL)
 				offscreenImageMapExistsFlag = TRUE;
-		#endif	// not multispec_lin
+		#endif	// not multispec_wx
 		
-		#if defined multispec_lin
+		#if defined multispec_wx
 			WindowPtr windowPtr = GetWindowPtr (windowInfoPtr);
 			if (windowPtr != NULL)
 				offscreenImageMapExistsFlag = windowPtr->CheckIfOffscreenImageExists ();
-		#endif	// defined multispec_lin
+		#endif	// defined multispec_wx
 
 		}	// end "if (windowInfoPtr != NULL) "
 	     
@@ -3533,7 +3406,7 @@ Boolean OffscreenImageMapExists (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3615,7 +3488,7 @@ void ReleaseOffscreenSupportMemory (
 		imageViewCPtr->SetLegendBitMapInfoHeaderHandle (NULL);
 	#endif // defined multispec_win
 	
-	#if defined multispec_lin
+	#if defined multispec_wx
 		//windowInfoPtr->offScreenMapHandle =
 		//								UnlockAndDispose (windowInfoPtr->offScreenMapHandle);
 	
@@ -3623,14 +3496,14 @@ void ReleaseOffscreenSupportMemory (
 	
 		CMImageView* imageViewCPtr = GetWindowPtr (windowInfoPtr);
 		imageViewCPtr->SetLegendBitMapInfoHeaderHandle (NULL);
-	#endif // defined multispec_lin
+	#endif // defined multispec_wx
 	
 }	// end "ReleaseOffscreenSupportMemory" 
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3681,7 +3554,7 @@ void SetCoordinateHeight (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3720,7 +3593,7 @@ void SetCoordinateViewAreaFactor (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3759,7 +3632,7 @@ void SetCoordinateViewAreaPopupStart (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3797,7 +3670,7 @@ void SetCoordinateViewAreaUnits (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3836,7 +3709,7 @@ void SetCoordinateViewAreaUnitsControl (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3875,7 +3748,7 @@ void SetCoordinateViewCursorStart (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3913,7 +3786,7 @@ void SetCoordinateViewFactor (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3952,7 +3825,7 @@ void SetCoordinateViewNumberChars (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3993,7 +3866,7 @@ void SetCoordinateViewNumberPixelsChars (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4033,7 +3906,7 @@ void SetCoordinateViewNumberPixelsStart (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4072,7 +3945,7 @@ void SetCoordinateViewScaleStart (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4111,7 +3984,7 @@ void SetCoordinateViewSelectionStart (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4188,7 +4061,7 @@ void SetCoordinateViewUnits (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4226,7 +4099,7 @@ void SetCoordinateViewUnitsControl (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4255,49 +4128,12 @@ void SetFileMapProjectionHandle2 (
 	
 	SetFileMapProjectionHandle (fileInfoHandle, mapProjectionHandle);
 	
-}	// end "SetFileMapProjectionHandle2" 
+}	// end "SetFileMapProjectionHandle2"
 
-
-/*
-//------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
-//
-//	Function name:		void SetHasWavelengthValuesFlag
-//
-//	Software purpose:	The purpose of this routine is to set the hasWavelengthValueFlag
-//							variable for this window object.
-//
-//	Parameters in:		window info structure handle	
-//							value to set the hasWavelengthValuesFlag to
-//
-//	Parameters out:	None			
-//
-//	Value Returned:	None
-//							
-// 
-// Called By:						
-//
-//	Coded By:			Larry L. Biehl			Date: 03/01/2018
-//	Revised By:			Larry L. Biehl			Date: 03/01/2018
-
-void SetHasWavelengthValuesFlag (
-				Handle 								windowInfoHandle,
-				Boolean								hasWavelengthValuesFlag)
-
-{  															
-	WindowInfoPtr windowInfoPtr = (WindowInfoPtr)GetHandlePointer (windowInfoHandle);
-	
-	if (windowInfoPtr != NULL)                                                   
-		windowInfoPtr->hasWavelengthValuesFlag = hasWavelengthValuesFlag;
-	
-}	// end "SetHasWavelengthValuesFlag"
-*/
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4328,7 +4164,7 @@ void SetHistogramSpecsHandle (
 			 windowInfoPtr->histogramSpecsHandle = histogramSpecsHandle;
 		#endif	// defined multispec_mac 
 		              
-		#if defined multispec_win | defined multispec_lin			
+		#if defined multispec_win | defined multispec_wx			
 			CMImageWindow* imageWindowCPtr = windowInfoPtr->cImageWindowPtr;
 			
 	   	if (imageWindowCPtr != NULL)
@@ -4340,7 +4176,7 @@ void SetHistogramSpecsHandle (
 					 																histogramSpecsHandle;
 								
 				}	// end "if (imageWindowCPtr != NULL)"
-		#endif	// defined multispec_win | multispec_lin
+		#endif	// defined multispec_win | multispec_wx
 		
 		}	// end "if (windowInfoPtr != NULL)"
 	
@@ -4349,7 +4185,7 @@ void SetHistogramSpecsHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4380,7 +4216,7 @@ void SetHistogramSummaryHandle (
 			 windowInfoPtr->histogramSummaryHandle = histogramSummaryHandle;
 		#endif	// defined multispec_mac 
 		
-		#if defined multispec_win || defined multispec_lin			
+		#if defined multispec_win || defined multispec_wx			
 			CMImageWindow* imageWindowCPtr = windowInfoPtr->cImageWindowPtr;
 			
 	   	if (imageWindowCPtr != NULL)
@@ -4392,7 +4228,7 @@ void SetHistogramSummaryHandle (
 																				histogramSummaryHandle;
 								
 				}	// end "if (imageWindowCPtr != NULL)"
-		#endif	// defined multispec_win || defined multispec_lin
+		#endif	// defined multispec_win || defined multispec_wx
 		
 		}	// end "if (windowInfoPtr != NULL)"
 	
@@ -4401,7 +4237,7 @@ void SetHistogramSummaryHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4444,7 +4280,7 @@ void SetHistogramSupportFileFormat (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4480,7 +4316,7 @@ void SetImageType (
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4519,7 +4355,7 @@ void SetImageWindowIsUpToDateFlag (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4552,7 +4388,7 @@ void SetLayerInfoHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4586,13 +4422,13 @@ void SetOutputWindowChangedFlag (
 	#endif	// defined multispec_mac 
 	
 	
-	#if defined multispec_win || defined multispec_lin
+	#if defined multispec_win || defined multispec_wx
 		//CMImageWindow* imageWindowCPtr = windowPtr->GetImageWindowCPtr ();
 		//if (imageWindowCPtr != NULL)
 		//	windowInfoHandle = imageWindowCPtr->GetWindowInfoHandle ();
 
 		windowInfoHandle = NULL;
-	#endif	// defined multispec_win || multispec_lin
+	#endif	// defined multispec_win || multispec_wx
 																
 	WindowInfoPtr windowInfoPtr = (WindowInfoPtr)GetHandlePointer (windowInfoHandle);
 	
@@ -4604,7 +4440,7 @@ void SetOutputWindowChangedFlag (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4639,7 +4475,7 @@ void SetPrintPageOrientation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4697,7 +4533,7 @@ void SetSelectionInfoDisplayUnits (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4746,7 +4582,7 @@ void SetSupportFileStreamHandle (
 				}	// end "if (windowInfoPtr->supportFileStreamHandle == NULL)"
 		#endif	// defined multispec_mac 
 	              
-		#if defined multispec_win || multispec_lin
+		#if defined multispec_win || multispec_wx
 			windowInfoPtr->cImageWindowPtr->SetSupportFileStreamPointer ();
 		#endif	// defined multispec_win
 				
@@ -4761,7 +4597,7 @@ void SetSupportFileStreamHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4799,7 +4635,7 @@ void SetWindowType (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4842,7 +4678,7 @@ void UnlockActiveSupportFileStream (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4896,7 +4732,7 @@ void UnlockAndDisposeSupportFileStream (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4940,7 +4776,7 @@ void UnlockFileStream (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

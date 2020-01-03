@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//							 Copyright (1988-2019)
+//							 Copyright (1988-2020)
 //						(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl, Ravi Budruk
 //
-//	Revision date:			06/25/2019
+//	Revision date:			12/12/2019
 //
 //	Language:				C
 //
@@ -21,36 +21,6 @@
 //								provide utility type functions in MultiSpec that are 
 //								shared in the Linux, Mac and Windows versions.
 //
-//	Functions in file:	Boolean 						CheckIfOffscreenImageExists
-//								void 							CloseResultsFiles
-//								void 							ConvertLCToOffscreenPoint
-//								void							ConvertWinPointToLC
-//								Boolean 						CreateBackgroundImageFile
-//								pascal void 				CreateOneColumnList
-//								Boolean 						CreateResultsDiskFile
-//								Boolean 						CreateResultsDiskFiles
-//								Boolean 						DetermineIfChannelsInOrder
-//								Boolean 						DetermineIfContinuousChannels
-//								void							DrawSideBySideTitles
-//								Boolean 						GetImageInformationPointers
-//								SInt16			 			GetImageList
-//								SInt16						GetMaxSystemPixelSize
-//								SInt64						GetNumberPixelsInArea
-//								SInt16	 					GetProbabilityThresholdCode
-//								FileInfoPtr 				GetResultsFilePtr
-//								SInt16	 					GetSpecifiedString
-//								Boolean 						GetSpecifiedStringNumber
-//								SInt32	 					GetTotalNumberOfPixels
-//								time_t 						GetTotalTime
-//								void 							InvalidateWindow
-//								void							LoadChannelsVector
-//								SInt16	 					LoadClassName
-//								void							LoadFeatureVector
-//								void 							PauseIfInBackground
-//								void 							SetChannelWindowVariables
-//								Boolean						SetUpActiveImageInformationGlobals
-//								void							UnlockActiveImageInformationGlobals
-//								void 							UnlockImageInformationHandles
 /* Template for debugging
 		int numberChars = sprintf ((char*)gTextString3,
 												" SUtility.cpp::xxx (entered routine. %s", 
@@ -61,19 +31,22 @@
 //------------------------------------------------------------------------------------
 
 #include "SMultiSpec.h"
+#include	"SImageWindow_class.h"
 #include	<ctype.h>  
 
-#if defined multispec_lin
+#if defined multispec_wx
 	#include "wx/dcmemory.h"
 	#include "wx/gdicmn.h"
 	#include "wx/wx.h"
-	#include "CFileStream.h"
-	#include "LDialog.h"
-	#include "LImageDoc.h"
-	#include "LImageFrame.h"
-	#include "LImageView.h"
-	#include "LMainFrame.h"
-	#include "LTitleBar.h"
+	#include "SFileStream_class.h"
+	#include "xDialog.h"
+	#include "xImageDoc.h"
+	#include "xImageFrame.h"
+	#include "xImageView.h" 
+	#include "xLegendList.h" 
+	#include "xLegendView.h"
+	#include "xMainFrame.h"
+	#include "xTitleBar.h"
 #endif
 
 #if defined multispec_mac
@@ -81,10 +54,9 @@
 #endif	// defined multispec_mac    
                             
 #if defined multispec_win
-	#include	"CDisplay.h"
-	#include "CHistogram.h"
-	#include	"CImageWindow.h"
-	#include "CProcessor.h"
+	#include	"SDisplay_class.h"
+	#include "SHistogram_class.h"
+	//#include "CProcessor.h"
 
 	#include "WDialog.h"
 	#include	"WGraphView.h"
@@ -102,12 +74,6 @@
 					Boolean								adjustToBaseImageFlag);
 #endif	// defined multispec_win
 
-//#include	"SExtGlob.h"
-
-extern SInt16 CheckIfValueInList (
-				SInt16*								listPtr,
-				SInt16								numberValuesInList,
-				SInt16								value);
 
 
 			// Prototypes for routines in this file that are only called by		
@@ -133,7 +99,7 @@ Boolean 	GetNumberNonZeroLeadingDigits (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -168,9 +134,9 @@ Boolean CheckIfOffscreenImageExists (
 														windowInfoPtr->offscreenGWorld != NULL);
 		#endif	// defined multispec_mac
 		            
-		#if defined multispec_win || defined multispec_lin
+		#if defined multispec_win || defined multispec_wx
 			returnFlag = (windowInfoPtr->imageBaseAddressH != NULL);
-		#endif	// defined multispec_win || defined multispec_lin
+		#endif	// defined multispec_win || defined multispec_wx
 		
 		}	// end "if (windowInfoPtr != NULL)"
 
@@ -181,7 +147,7 @@ Boolean CheckIfOffscreenImageExists (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -234,7 +200,7 @@ SInt16 CheckIfValueInList (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -272,7 +238,7 @@ void ClearAreaDescriptionOffsetVariables (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -334,7 +300,7 @@ void CloseResultsFiles (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -354,8 +320,8 @@ void CloseResultsFiles (void)
 //							False: User cancelled closing the project (and session if this
 //										is from a application exit event.
 // 
-// Called By:			Menus in menus.c
-//							ExitMultiSpec in multiSpec.c
+// Called By:			Menus in MMenus.c
+//							ExitMultiSpec in MMultiSpec.c
 //
 //	Coded By:			Larry L. Biehl			Date: 01/05/1989
 //	Revised By:			Larry L. Biehl			Date: 11/27/2017	
@@ -393,7 +359,7 @@ Boolean CloseTheProject (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -437,7 +403,7 @@ void CloseUpAreaDescription (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -453,8 +419,7 @@ void CloseUpAreaDescription (
 //
 // Value Returned:	None
 // 
-// Called By:			RectangleSelection in selectionArea.c
-//							PolygonSelection in selectionArea.c
+// Called By:			ComputeSelectionOffscreenRectangle in SSelectionUtility.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 08/30/1989
 //	Revised By:			Larry L. Biehl			Date: 10/09/1998			
@@ -476,12 +441,12 @@ void ConvertLCToOffscreenPoint (
 		((selectedlineColPtr->h - displaySpecsPtr->displayedColumnStart)/
 														displaySpecsPtr->displayedColumnInterval);
 
-}	// end "ConvertLCToOffscreenPoint" 				
+}	// end "ConvertLCToOffscreenPoint"
 
 
-/*
+
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -496,133 +461,9 @@ void ConvertLCToOffscreenPoint (
 //
 // Value Returned:	None
 // 
-// Called By:			OutlineField in outlineFields.c	
-//							OutlineSelectionArea in selectionArea.c
-//							PolygonSelection in selectionArea.c
-//
-//	Coded By:			Larry L. Biehl			Date: 10/04/1988
-//	Revised By:			Larry L. Biehl			Date: 06/23/1999		
-
-void ConvertLCToWinPoint (
-				Handle								windowInfoH, 
-				LongPoint*							lineColumnPointPtr, 
-				LongPoint*							windowPointPtr, 
-				Boolean								associatedImageFlag,
-				Boolean								winUseOriginFlag)
-
-{
-	double								magnification;
-	
-	DisplaySpecsPtr					displaySpecsPtr;
-	FileInfoPtr							fileInfoPtr;
-	
-	Handle								displaySpecsH,
-											fileInfoHandle;
-	
-	SInt32								columnOffset,
-											lineOffset;
-	
-	
-	if (windowInfoH != NULL)
-		{
-				// Get pointer to display specification.  We do not need to lock it	
-				// here since no other routines are called							
-			
-		displaySpecsH = GetDisplaySpecsHandle (windowInfoH);
-		displaySpecsPtr = (DisplaySpecsPtr)GetHandlePointer (displaySpecsH);
-		
-				// Get pointer to file specification.  We do not need to lock it		
-				// here since no other routines are called								
-					
-		fileInfoHandle = GetFileInfoHandle (windowInfoH);
-		
-		if (displaySpecsH != NULL && fileInfoHandle != NULL)
-			{
-					// Get the magnification factors to use to convert from lines and		
-					// columns to window screen elements.											
-					// Note that for now the vertical and horizontal magnifications		
-					// are the same.																		
-					                                                                    
-			magnification = displaySpecsPtr->magnification;
-			
-			columnOffset = -(SInt32)displaySpecsPtr->displayedColumnStart;
-			lineOffset = -(SInt32)displaySpecsPtr->displayedLineStart;
-						
-			if (associatedImageFlag)
-				{
-						// Adjust for any difference between start line and column in		
-						// base image file and start line and column in associated image	
-						// file.															
-									
-				fileInfoPtr = (FileInfoPtr)GetHandlePointer (fileInfoHandle);
-						                                                                  
-				lineOffset += gProjectInfoPtr->startLine - fileInfoPtr->startLine;
-				columnOffset += gProjectInfoPtr->startColumn - fileInfoPtr->startColumn;
-				
-				}	// end "if (associatedImageFlag)");  
-				
-			windowPointPtr->v = 
-						(SInt32)((lineColumnPointPtr->v + lineOffset)/
-															displaySpecsPtr->displayedLineInterval);
-													                                 
-			windowPointPtr->h = 
-						(SInt32)((lineColumnPointPtr->h + columnOffset)/
-														displaySpecsPtr->displayedColumnInterval);
-				
-					// Now convert the offscreen coordinates to window coordinates.
-		
-			#if defined multispec_mac                                          
-				windowPointPtr->v -= displaySpecsPtr->origin[kVertical];
-				windowPointPtr->h -= displaySpecsPtr->origin[kHorizontal];
-			#endif	// defined multispec_mac                
-		
-			#if defined multispec_win 
-				if (winUseOriginFlag)
-					{                                         
-					windowPointPtr->v -= displaySpecsPtr->origin[kVertical];
-					windowPointPtr->h -= displaySpecsPtr->origin[kHorizontal];
-					
-					}	// end "if (winUseOriginFlag)"
-			#endif	// defined multispec_win    
-							
-			windowPointPtr->v = (SInt32)(windowPointPtr->v * magnification);
-			windowPointPtr->h = (SInt32)(windowPointPtr->h * magnification);    
-					                                           
-			windowPointPtr->v += GetImageTopOffset (windowInfoH);
-			windowPointPtr->h += GetLegendWidthForWindow (windowInfoH);
-					
-					// This takes into account the possibility of a side by side			
-					// channel display.																	
-					
-			windowPointPtr->h += gChannelWindowOffset; 
-			
-			}	// end "if (displaySpecsH != NULL && fileInfoHandle != NULL)"
-		
-		}	// end "if (windowInfoH != NULL)"
-
-}	// end "ConvertLCToWinPoint" 				
-*/
-
-
-//------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
-//
-//	Function name:		void ConvertLCToWinPoint
-//
-//	Software purpose:	This routine converts the input image line and
-//							column to window point in local pixel coordinates.
-//
-//	Parameters in:				
-//
-//	Parameters out:				
-//
-// Value Returned:	None
-// 
-// Called By:			OutlineField in outlineFields.c	
-//							OutlineSelectionArea in selectionArea.c
-//							PolygonSelection in selectionArea.c
+// Called By:			OutlineField in SOutlineFields.cpp	
+//							OutlineSelectionArea in SSelectionUtility.cpp
+//							PolygonSelection in SSelectionUtility.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/04/1988
 //	Revised By:			Larry L. Biehl			Date: 09/22/2015		
@@ -659,12 +500,12 @@ void ConvertLCToWinPoint (
 			
 	windowPointPtr->h += lcToWindowUnitsVariablesPtr->channelWindowOffset;
 	
-}	// end "ConvertLCToWinPoint" 
+}	// end "ConvertLCToWinPoint"
 
 
-/*
+
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -680,169 +521,9 @@ void ConvertLCToWinPoint (
 //
 // Value Returned:	None
 // 
-// Called By:			OutlineField in outlineFields.c
-//							ClearSelectionArea in selectionArea.c
-//							OutlineSelectionArea in selectionArea.c
-//
-//	Coded By:			Larry L. Biehl			Date: 09/20/1990
-//	Revised By:			Larry L. Biehl			Date: 09/21/2000		
-
-void ConvertLCRectToWinRect (
-				Handle								windowInfoH, 
-				LongRect*							lineColumnRect, 
-				LongRect*							windowRectPtr, 
-				Boolean								associatedImageFlag,
-				Boolean								winUseOriginFlag)
-
-{
-	double								magnification;
-	
-	DisplaySpecsPtr					displaySpecsPtr;
-	FileInfoPtr							fileInfoPtr;
-	
-	Handle								displaySpecsH,
-											fileInfoHandle;
-	
-	SInt32								columnOffset,
-											lineOffset; 
-	
-	SInt16								imageTopOffset,
-											legendWidth;
-											
-	
-			// Check input handle.																
-			
-	if (windowInfoH != NULL)
-		{
-				// Get pointer to display specification.  We do not need to lock 	
-				//	it here since no other routines are called							
-		
-		displaySpecsH = GetDisplaySpecsHandle (windowInfoH);
-	
-				// Get pointer to file specification.  We do not need to lock it	
-				// here since no other routines are called								
-				
-		fileInfoHandle = GetFileInfoHandle (windowInfoH);
-	
-		if (displaySpecsH != NULL && fileInfoHandle != NULL)
-			{
-			displaySpecsPtr = (DisplaySpecsPtr)GetHandlePointer (displaySpecsH);
-			magnification = displaySpecsPtr->magnification;
-			
-			columnOffset = -(SInt32)displaySpecsPtr->displayedColumnStart;
-			lineOffset = -(SInt32)displaySpecsPtr->displayedLineStart;
-			
-			if (associatedImageFlag)
-				{
-						// Adjust for any difference between start line and column 	
-						// in	 base image file and start line and column in 			
-						// associated image file.			
-							
-				fileInfoPtr = (FileInfoPtr)GetHandlePointer (fileInfoHandle);
-						
-				columnOffset += gProjectInfoPtr->startColumn - fileInfoPtr->startColumn;
-				lineOffset += gProjectInfoPtr->startLine - fileInfoPtr->startLine;
-				
-				}	// end "if (associatedImageFlag)" 
-			
-					// Get the line/column rectangle relative to the offscreen		
-					// bit/pix map																	
-			
-			windowRectPtr->top = (SInt32)((lineColumnRect->top + lineOffset) /
-														displaySpecsPtr->displayedLineInterval);
-													
-			windowRectPtr->left =  (SInt32)((lineColumnRect->left + columnOffset) /
-														displaySpecsPtr->displayedColumnInterval);
-			
-			windowRectPtr->bottom = (SInt32)((lineColumnRect->bottom  + lineOffset) /
-															displaySpecsPtr->displayedLineInterval);
-													
-			windowRectPtr->right = (SInt32)((lineColumnRect->right + columnOffset) /
-														displaySpecsPtr->displayedColumnInterval);
-				
-					// Now convert the offscreen coordinates to window coordinates.
-		
-			#if defined multispec_mac
-				windowRectPtr->top -= displaySpecsPtr->origin[kVertical];
-				windowRectPtr->left -= displaySpecsPtr->origin[kHorizontal];
-				windowRectPtr->bottom -= displaySpecsPtr->origin[kVertical];
-				windowRectPtr->right -= displaySpecsPtr->origin[kHorizontal];
-			#endif	// defined multispec_mac                
-		
-			#if defined multispec_win 
-				if (winUseOriginFlag)
-					{                                                       
-					windowRectPtr->top -= displaySpecsPtr->origin[kVertical];
-					windowRectPtr->left -= displaySpecsPtr->origin[kHorizontal];
-					windowRectPtr->bottom -= displaySpecsPtr->origin[kVertical];
-					windowRectPtr->right -= displaySpecsPtr->origin[kHorizontal];
-					
-					}	// end "if (winUseOriginFlag)"
-			#endif	// defined multispec_win    
-			
-			windowRectPtr->bottom++;
-			windowRectPtr->right++;
-							
-			windowRectPtr->top = (SInt32)(windowRectPtr->top * magnification);
-			windowRectPtr->left = (SInt32)(windowRectPtr->left * magnification);
-			windowRectPtr->bottom = (SInt32)(windowRectPtr->bottom * magnification);
-			windowRectPtr->right = (SInt32)(windowRectPtr->right * magnification);
-			                         
-			#if defined multispec_mac
-				legendWidth = GetLegendWidth (windowInfoH);
-			#endif	// defined multispec_mac          
-			                         
-			#if defined multispec_win  
-						// Note that the legend in the Windows version is in its on
-						// view. It is not the same as that used for the image. Therefore
-						// the legend width is always 0 within the image view. However
-						// if the legend width is being called for use in a edit copy
-						// or print window, then the actual legend width needs to be
-						// returned.
-				legendWidth = GetLegendWidthForWindow (windowInfoH);
-			#endif	// defined multispec_win
-			
-			imageTopOffset = (SInt16)GetImageTopOffset (windowInfoH);
-			
-			windowRectPtr->top += imageTopOffset;
-			windowRectPtr->bottom += imageTopOffset;
-			windowRectPtr->left += legendWidth;
-			windowRectPtr->right += legendWidth;
-			
-					// This takes into account the possibility of a side by side	
-					// channel display.															
-					
-			windowRectPtr->left += gChannelWindowOffset;
-			windowRectPtr->right += gChannelWindowOffset;
-			
-			}	// end "if (displaySpecsH != NULL && ...)" 
-		
-		}	// end "if (windowInfoH != NULL)" 
-
-}	// end "ConvertLCRectToWinRect" 
-*/
-
-
-//------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
-//
-//	Function name:		void ConvertLCRectToWinRect
-//
-//	Software purpose:	This routine converts the input line/column
-//							rectangle coordinates to the current window 
-//							rectangle coordinates.
-//
-//	Parameters in:				
-//
-//	Parameters out:				
-//
-// Value Returned:	None
-// 
-// Called By:			OutlineField in outlineFields.c
-//							ClearSelectionArea in selectionArea.c
-//							OutlineSelectionArea in selectionArea.c
+// Called By:			OutlineField in SOutlineFields.cpp
+//							ClearSelectionArea in SSelectionUtility.cpp
+//							OutlineSelectionArea in SSelectionUtility.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 09/20/1990
 //	Revised By:			Larry L. Biehl			Date: 10/09/2015		
@@ -907,7 +588,7 @@ void ConvertLCRectToWinRect (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -923,8 +604,8 @@ void ConvertLCRectToWinRect (
 //
 // Value Returned:	None	
 // 
-// Called By:			DoImageZoom in controls.c
-//							DoWindowZoomInOutEvent in multiSpec.c	
+// Called By:			DoImageZoom in MControls.c
+//							DoWindowZoomInOutEvent in MMultiSpec.c	
 //
 //	Coded By:			Larry L. Biehl			Date: 08/30/1989
 //	Revised By:			Larry L. Biehl			Date: 01/03/2019
@@ -982,7 +663,7 @@ void ConvertOffScreenPointToWinPoint (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1029,7 +710,7 @@ void ConvertOffScreenRectToWinRect (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1048,7 +729,7 @@ void ConvertOffScreenRectToWinRect (
 //							PolygonSelection in SSelectionArea.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/04/1988
-//	Revised By:			Larry L. Biehl			Date: 03/21/2019
+//	Revised By:			Larry L. Biehl			Date: 11/13/2019
 
 void ConvertWinPointToLC (
 				LongPoint*							selectedPointPtr, 
@@ -1084,49 +765,34 @@ void ConvertWinPointToLC (
 			// elements to lines and columns. Vertical and horizontal are 			
 			// currently the same number of pixels per image pixel.					
 			
-	//magnificationFactor = displaySpecsPtr->displayVPixelsPerImagePixel *
-	//																displaySpecsPtr->magnification;
-			
 	magnificationFactor = displaySpecsPtr->magnification;
 																
 			// Get the title height and legend width for the window.
 	
-	#if defined multispec_lin
-		//ldiv_t 		value;
-		//imageTopOffset = gActiveImageViewCPtr->GetTitleHeight ();
+	#if defined multispec_wx
 		imageTopOffset = 0;
 		legendWidth = 0;
-		//wxPoint scrollOffset = gActiveImageViewCPtr->m_Canvas->GetScrollPosition();
-		//value = ldiv (scrollOffset.x, displaySpecsPtr->magnification);
-		//originPixelXOffset = value.rem;
-		//value = ldiv (scrollOffset.y, displaySpecsPtr->magnification);
-		//originPixelYOffset = value.rem;
-		//imageTopOffset = -originPixelYOffset;
-	#endif	// defined multispec_lin
+	#endif	// defined multispec_wx
 			
 	#if defined multispec_mac
 		imageTopOffset = ((WindowInfoPtr)*gActiveImageWindowInfoH)->imageTopOffset;
 		legendWidth = ((WindowInfoPtr)*gActiveImageWindowInfoH)->legendWidth;
-		//originPixelXOffset = 0;
-		//originPixelYOffset = 0;
-	#endif	// defined multispec_mac
+		#endif	// defined multispec_mac
 	
 	#if defined multispec_win                 
 		imageTopOffset = gActiveImageViewCPtr->GetTitleHeight ();                
 		legendWidth = 0;
-		//originPixelXOffset = 0;
-		//originPixelYOffset = 0;
 	#endif	// defined multispec_win
 
 			// Get the coordinates of the origin of the window 						
 			
-	columnOrigin = displaySpecsPtr->displayedColumnStart +
+	columnOrigin = (SInt32)(displaySpecsPtr->displayedColumnStart +
 							displaySpecsPtr->origin[kHorizontal] *
-										displaySpecsPtr->displayedColumnInterval;
+										displaySpecsPtr->displayedColumnInterval);
 					
-	lineOrigin = displaySpecsPtr->displayedLineStart +
+	lineOrigin = (SInt32)(displaySpecsPtr->displayedLineStart +
 								displaySpecsPtr->origin[kVertical] *
-											displaySpecsPtr->displayedLineInterval;
+											displaySpecsPtr->displayedLineInterval);
 	
 	selectedPointPtr->h -= legendWidth;
 	
@@ -1138,7 +804,8 @@ void ConvertWinPointToLC (
 																displaySpecsPtr->magnification);
 																
 	numberChannelWidths = 0;
-	if (displaySpecsPtr->displayType == 7 && channelWindowInterval > 0)
+	if (displaySpecsPtr->displayType == kSideSideChannelDisplayType &&
+								channelWindowInterval > 0)
 		numberChannelWidths = selectedPointPtr->h/channelWindowInterval;
 	
 	selectedPointPtr->h -= numberChannelWidths * channelWindowInterval;
@@ -1166,7 +833,7 @@ void ConvertWinPointToLC (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1181,11 +848,11 @@ void ConvertWinPointToLC (
 //
 // Value Returned:	None
 // 
-// Called By:			UpdateCursorCoordinates in multiSpec.c
-//							PolygonSelection in selectionArea.c
+// Called By:			UpdateCursorCoordinates in MMultiSpec.c
+//							PolygonSelection in SSelectionUtility.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/08/2000
-//	Revised By:			Larry L. Biehl			Date: 11/08/2000		
+//	Revised By:			Larry L. Biehl			Date: 11/13/2019
 
 void ConvertWinPointToDoubleLC (
 				LongPoint*							selectedPointPtr, 
@@ -1219,9 +886,6 @@ void ConvertWinPointToDoubleLC (
 			// elements to lines and columns. Vertical and horizontal are 			
 			// currently the same number of pixels per image pixel.					
 			
-	//magnificationFactor = displaySpecsPtr->displayVPixelsPerImagePixel *
-	//																displaySpecsPtr->magnification;
-			
 	magnificationFactor = displaySpecsPtr->magnification;
 																
 			// Get the title height and legend width for the window.					
@@ -1236,10 +900,10 @@ void ConvertWinPointToDoubleLC (
 		legendWidth = 0;
 	#endif	// defined multispec_win
 	
-	#if defined multispec_lin
+	#if defined multispec_wx
 		imageTopOffset = 0;
 		legendWidth = 0;
-	#endif	// defined multispec_lin
+	#endif	// defined multispec_wx
 
 			// Get the coordinates of the origin of the window 						
 			
@@ -1261,7 +925,8 @@ void ConvertWinPointToDoubleLC (
 																	displaySpecsPtr->magnification);
 																
 	numberChannelWidths = 0;
-	if (displaySpecsPtr->displayType == 7 && channelWindowInterval > 0)
+	if (displaySpecsPtr->displayType == kSideSideChannelDisplayType &&
+																	channelWindowInterval > 0)
 		numberChannelWidths = selectedPointPtr->h/channelWindowInterval;
 	
 	selectedPointPtr->h -= numberChannelWidths * channelWindowInterval;
@@ -1287,7 +952,7 @@ void ConvertWinPointToDoubleLC (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1304,7 +969,7 @@ void ConvertWinPointToDoubleLC (
 // Value Returned:	None				
 // 
 // Called By:			CreateClusterMaskFile in SCluster.cpp
-//							AreasToThematicFileControl in SFieldT.cpp
+//							AreasToThematicFileControl in SFieldsToThematicFile.cpp
 //							ShapeToThematicFileControl in SShapeToThematic.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/29/1990
@@ -1433,7 +1098,7 @@ Boolean CreateBackgroundImageFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1455,7 +1120,7 @@ Boolean CreateBackgroundImageFile (
 // Called By:			CreateResultsDiskFiles in SUtility.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 09/18/1989
-//	Revised By:			Larry L. Biehl			Date: 01/15/2019
+//	Revised By:			Larry L. Biehl			Date: 12/20/2019
 
 Boolean CreateResultsDiskFile (
 				SInt32								numberLines, 
@@ -1473,7 +1138,8 @@ Boolean CreateResultsDiskFile (
 {
 	SInt64								numberHeaderBytes;
 	
-	FileStringPtr 						resultsFileNamePtr; 
+	FileStringPtr 						filePathPointer,
+											resultsFilePathPtr;
 	
 	CMFileStream						*fileStreamPtr,
 											*resultsFileStreamPtr;
@@ -1489,6 +1155,7 @@ Boolean CreateResultsDiskFile (
 											stringIndex;  
 	
 	Boolean								abortedFlag,
+											checkIfDirectoryIsWritableFlag,
 											writeHeaderFlag;
 
 	
@@ -1504,6 +1171,7 @@ Boolean CreateResultsDiskFile (
 	abortedFlag = FALSE;
 	writeHeaderFlag = TRUE;
 	promptStringIndex = IDS_SaveClassificationAs;	// kFileIOStr13;
+	checkIfDirectoryIsWritableFlag = FALSE;
 	
 			// Get a handle to a block of memory to be used for file information	
 			// for the classificaton output file. Lock the memory until the 		
@@ -1523,8 +1191,8 @@ Boolean CreateResultsDiskFile (
 
 	resultsFileStreamPtr = GetFileStreamPointer (resultsFileInfoPtr);
 
-	resultsFileNamePtr =
-					(FileStringPtr)GetFileNamePPointerFromFileInfo (resultsFileInfoPtr);
+	resultsFilePathPtr =
+					(FileStringPtr)GetFilePathPPointerFromFileStream (resultsFileStreamPtr);
 		
 	diskFileListPtr->refCon = lOutputStorageType;
 			
@@ -1540,34 +1208,44 @@ Boolean CreateResultsDiskFile (
 			// Get the output file name and volume to write file to.	Make  		
 			// the default name the same as the output window name minus 			
 			// ".Project" if it is there and add code name for processor at the 	
-			// end for ascii version and .gis for ERDAS version.						
+			// end for ascii version, .gis for ERDAS version, .tif for TIFF, etc.
 
 	if (lOutputStorageType & (kProbFormatCode+kEchoFieldsCode+kEchoClassesCode))
 		{
 		fileZeroInfoPtr = GetResultsFilePtr (0);
 		if (fileZeroInfoPtr != NULL)
-			{                            
-			GetCopyOfPFileNameFromFileInfo (fileZeroInfoPtr, resultsFileNamePtr);
+			filePathPointer =
+					(FileStringPtr)GetFilePathPPointerFromFileInfo (fileZeroInfoPtr);
+		
+		else	// fileZeroInfoPtr == NULL
+			{
+					// Try using the file info from the project
+			filePathPointer =
+					(FileStringPtr)GetFilePathPPointerFromProjectInfo (gProjectInfoPtr);
 			
-			if (fileZeroInfoPtr->format == kGAIAType)			
-				RemoveCharsAddVersion ((UCharPtr)"\0.gaia\0", resultsFileNamePtr);
-				
-			else	// fileZeroInfoPtr->format != kGAIAType 
-				{
-				RemoveCharsAddVersion ((UCharPtr)"\0.gis\0", resultsFileNamePtr);
-				RemoveCharsAddVersion ((UCharPtr)"\0.tif\0", resultsFileNamePtr);
-				
-				}	// end "else fileZeroInfoPtr->format != kGAIAType"
-				
+			checkIfDirectoryIsWritableFlag = TRUE;
+			
+			}	// end "else fileZeroInfoPtr == NULL"
+		
+		if (filePathPointer != NULL)
+			{
+			CopyPToP (resultsFilePathPtr,  filePathPointer);
+			
+			RemoveCharsAddVersion ((UCharPtr)"\0.project\0", resultsFilePathPtr);
+			RemoveCharsAddVersion ((UCharPtr)"\0.prj\0", resultsFilePathPtr);
+			RemoveCharsAddVersion ((UCharPtr)"\0.gaia\0", resultsFilePathPtr);
+			RemoveCharsAddVersion ((UCharPtr)"\0.gis\0", resultsFilePathPtr);
+			RemoveCharsAddVersion ((UCharPtr)"\0.tif\0", resultsFilePathPtr);
+			
 			stringIndex = IDS_Project14;
 	      if (gProcessorCode == kClassifyProcessor && 
 	      												gClassifySpecsPtr->mode == kEchoMode)
 				stringIndex = IDS_Project24;
 			
 			if (MGetString (gTextString, kProjectStrID, stringIndex))
-				RemoveCharsAddVersion (gTextString, resultsFileNamePtr);
+				RemoveCharsAddVersion (gTextString, resultsFilePathPtr);
 				
-			}	// end "if (fileZeroInfoPtr != NULL)" 
+			}	// end "if (inputFileInfoPtr != NULL)"
 		
 		}	// lOutputStorageType & (kProbFormatCode+... 
 		
@@ -1575,63 +1253,72 @@ Boolean CreateResultsDiskFile (
 		{
 		if (gProjectInfoPtr != NULL)
 			{
-			resultsFileNamePtr[0] = 0;
+			resultsFilePathPtr[0] = 0;
 			fileZeroInfoPtr = GetResultsFilePtr (0);
-			GetCopyOfPFileNameFromFileInfo (fileZeroInfoPtr, resultsFileNamePtr);
+			filePathPointer =
+					(FileStringPtr)GetFilePathPPointerFromFileInfo (fileZeroInfoPtr);
 			
-			if (resultsFileNamePtr[0] == 0)
+			if (filePathPointer == NULL || filePathPointer[0] == 0)
 						// No cluster disk file is being written. Use the project
 						// image file name as the base.
-				ConcatPStrings (resultsFileNamePtr, 
+				/*
+				ConcatPStrings (resultsFilePathPtr,
 										gProjectInfoPtr->imageFileName, 
 										255);
+				*/
+				filePathPointer =
+					(FileStringPtr)GetFilePathPPointerFromProjectInfo (gProjectInfoPtr);
+			
+			CopyPToP (resultsFilePathPtr,  filePathPointer);
 													
-			RemoveCharsAddVersion ((UCharPtr)"\0_cluster.txt\0", resultsFileNamePtr);
-			RemoveCharsAddVersion ((UCharPtr)"\0.cluster\0", resultsFileNamePtr);
-			RemoveCharsAddVersion ((UCharPtr)"\0.tiff\0", resultsFileNamePtr);
-			RemoveCharsAddVersion ((UCharPtr)"\0.bil\0", resultsFileNamePtr);
-			RemoveCharsAddVersion ((UCharPtr)"\0.bip\0", resultsFileNamePtr);
-			RemoveCharsAddVersion ((UCharPtr)"\0.bsq\0", resultsFileNamePtr);
-			RemoveCharsAddVersion ((UCharPtr)"\0.clu\0", resultsFileNamePtr);
-			RemoveCharsAddVersion ((UCharPtr)"\0.dat\0", resultsFileNamePtr);
-			RemoveCharsAddVersion ((UCharPtr)"\0.ecw\0", resultsFileNamePtr);
-			RemoveCharsAddVersion ((UCharPtr)"\0.fst\0", resultsFileNamePtr);
-			RemoveCharsAddVersion ((UCharPtr)"\0.hdf\0", resultsFileNamePtr);
-			RemoveCharsAddVersion ((UCharPtr)"\0.img\0", resultsFileNamePtr);
-			RemoveCharsAddVersion ((UCharPtr)"\0.lan\0", resultsFileNamePtr);
-			RemoveCharsAddVersion ((UCharPtr)"\0.raw\0", resultsFileNamePtr);
-			RemoveCharsAddVersion ((UCharPtr)"\0.tif\0", resultsFileNamePtr);
-			RemoveCharsAddVersion ((UCharPtr)"\0.jp2\0", resultsFileNamePtr);
-			RemoveCharsAddVersion ((UCharPtr)"\0.png\0", resultsFileNamePtr);
-			RemoveCharsAddVersion ((UCharPtr)"\0.nc\0", resultsFileNamePtr);
+			RemoveCharsAddVersion ((UCharPtr)"\0_cluster.txt\0", resultsFilePathPtr);
+			RemoveCharsAddVersion ((UCharPtr)"\0.cluster\0", resultsFilePathPtr);
+			RemoveCharsAddVersion ((UCharPtr)"\0.tiff\0", resultsFilePathPtr);
+			RemoveCharsAddVersion ((UCharPtr)"\0.bil\0", resultsFilePathPtr);
+			RemoveCharsAddVersion ((UCharPtr)"\0.bip\0", resultsFilePathPtr);
+			RemoveCharsAddVersion ((UCharPtr)"\0.bsq\0", resultsFilePathPtr);
+			RemoveCharsAddVersion ((UCharPtr)"\0.clu\0", resultsFilePathPtr);
+			RemoveCharsAddVersion ((UCharPtr)"\0.dat\0", resultsFilePathPtr);
+			RemoveCharsAddVersion ((UCharPtr)"\0.ecw\0", resultsFilePathPtr);
+			RemoveCharsAddVersion ((UCharPtr)"\0.fst\0", resultsFilePathPtr);
+			RemoveCharsAddVersion ((UCharPtr)"\0.hdf\0", resultsFilePathPtr);
+			RemoveCharsAddVersion ((UCharPtr)"\0.img\0", resultsFilePathPtr);
+			RemoveCharsAddVersion ((UCharPtr)"\0.lan\0", resultsFilePathPtr);
+			RemoveCharsAddVersion ((UCharPtr)"\0.raw\0", resultsFilePathPtr);
+			RemoveCharsAddVersion ((UCharPtr)"\0.tif\0", resultsFilePathPtr);
+			RemoveCharsAddVersion ((UCharPtr)"\0.jp2\0", resultsFilePathPtr);
+			RemoveCharsAddVersion ((UCharPtr)"\0.png\0", resultsFilePathPtr);
+			RemoveCharsAddVersion ((UCharPtr)"\0.nc\0", resultsFilePathPtr);
 				
 			}	// end "if (gProjectInfoPtr != NULL)"
 		
 		}	// end "if (lOutputStorageType & kClusterMaskCode)"
 		
-	if (resultsFileNamePtr[0] == 0)
+	if (resultsFilePathPtr[0] == 0)
 		{
 		if (gProjectInfoPtr != NULL)
 			{
-			FileStringPtr fileNamePointer =
-					(FileStringPtr)GetFileNamePPointerFromProjectInfo (gProjectInfoPtr);
-			CopyPToP (resultsFileNamePtr,  fileNamePointer);
+			filePathPointer =
+					(FileStringPtr)GetFilePathPPointerFromProjectInfo (gProjectInfoPtr);
+			CopyPToP (resultsFilePathPtr,  filePathPointer);
 			
-			RemoveCharsAddVersion ((UCharPtr)"\0.Project\0", resultsFileNamePtr);
-			RemoveCharsAddVersion ((UCharPtr)"\0.Prj\0", resultsFileNamePtr);
+			RemoveCharsAddVersion ((UCharPtr)"\0.Project\0", resultsFilePathPtr);
+			RemoveCharsAddVersion ((UCharPtr)"\0.Prj\0", resultsFilePathPtr);
+			
+			checkIfDirectoryIsWritableFlag = TRUE;
 				
 			}	// end "if (gProjectInfoPtr != NULL)"
 		
-		}	// end "if (resultsFileNamePtr[0] == 0)" 
+		}	// end "if (resultsFilePathPtr[0] == 0)"
 		
-	if (resultsFileNamePtr[0] == 0)
+	if (resultsFilePathPtr[0] == 0)
 		{
-		FileStringPtr fileNamePointer =
-					(FileStringPtr)GetFileNamePPointerFromFileInfo (gImageFileInfoPtr);
-		CopyPToP (resultsFileNamePtr, fileNamePointer);
-		RemoveSuffix (resultsFileNamePtr);
+		filePathPointer =
+					(FileStringPtr)GetFilePathPPointerFromFileInfo (gImageFileInfoPtr);
+		CopyPToP (resultsFilePathPtr, filePathPointer);
+		RemoveSuffix (resultsFilePathPtr);
 		
-		}	// end "if (resultsFileNamePtr[0] == 0)" 
+		}	// end "if (resultsFilePathPtr[0] == 0)"
 	
 	formatVersion = 0;
 	if (gAreaDescription.diskFileFormat == kErdas74Type)
@@ -1639,11 +1326,11 @@ Boolean CreateResultsDiskFile (
 		formatVersion = kErdas74Type;
 		
 		if (lOutputStorageType & kClassifyFileCode)           
-			ConcatFilenameSuffix (resultsFileNamePtr, (StringPtr)"\0_cl.gis\0");
+			ConcatFilenameSuffix (resultsFilePathPtr, (StringPtr)"\0_cl.gis\0");
 		
 		else if (lOutputStorageType & kProbFormatCode)
 			{                                                                
-			ConcatFilenameSuffix (resultsFileNamePtr, (StringPtr)"\0Prob.gis\0");
+			ConcatFilenameSuffix (resultsFilePathPtr, (StringPtr)"\0Prob.gis\0");
 			
 			promptStringIndex = IDS_SaveProbabilityAs;	// kFileIOStr34;
 			
@@ -1651,19 +1338,19 @@ Boolean CreateResultsDiskFile (
 			
 		else if (lOutputStorageType & kEchoFieldsCode)
 			{                                               
-			ConcatFilenameSuffix (resultsFileNamePtr, (StringPtr)"\0_echoFields.gis\0");
+			ConcatFilenameSuffix (resultsFilePathPtr, (StringPtr)"\0_Fields.gis\0");
 			
 			}	// end "else if (lOutputStorageType & kEchoFieldsCode)"
 			
 		else if (lOutputStorageType & kEchoClassesCode)
 			{                                               
-			ConcatFilenameSuffix (resultsFileNamePtr, (StringPtr)"\0_echoClasses.gis\0");
+			ConcatFilenameSuffix (resultsFilePathPtr, (StringPtr)"\0_Classes.gis\0");
 			
 			}	// end "else if (lOutputStorageType & kEchoClassesCode)"
 			
 		else if (lOutputStorageType & kClusterMaskCode)
 			{
-			ConcatFilenameSuffix (resultsFileNamePtr, (StringPtr)"\0_clMask.gis\0");
+			ConcatFilenameSuffix (resultsFilePathPtr, (StringPtr)"\0_clMask.gis\0");
 			
 			promptStringIndex = IDS_FileIO97;	// Save Cluster Mask As
 			
@@ -1677,12 +1364,12 @@ Boolean CreateResultsDiskFile (
 		
 		if (lOutputStorageType & kClassifyFileCode)                             
 			#if defined multispec_mac             
-				ConcatFilenameSuffix (resultsFileNamePtr, (StringPtr)"\0.gaia\0"); 
+				ConcatFilenameSuffix (resultsFilePathPtr, (StringPtr)"\0.gaia\0");
 			#endif	// defined multispec_mac   
 			                                              
-			#if defined multispec_win || defined multispec_lin
-				ConcatFilenameSuffix (resultsFileNamePtr, (StringPtr)"\0.gai\0");
-			#endif	// defined multispec_win || defined multispec_lin
+			#if defined multispec_win || defined multispec_wx
+				ConcatFilenameSuffix (resultsFilePathPtr, (StringPtr)"\0.gai\0");
+			#endif	// defined multispec_win || defined multispec_wx
 		
 		fileStreamPtr = GetFileStreamPointer (resultsFileInfoPtr);
 		SetType (fileStreamPtr, kGAIAFileType);
@@ -1694,12 +1381,61 @@ Boolean CreateResultsDiskFile (
 		{
 		formatVersion = kTIFFType;
 		
-		if (lOutputStorageType & kClassifyFileCode)           
-			ConcatFilenameSuffix (resultsFileNamePtr, (StringPtr)"\0_cl.tif\0");
+		if (lOutputStorageType & kClassifyFileCode)
+			{
+			switch (gClassifySpecsPtr->mode)
+				{
+				case kMaxLikeMode:
+					ConcatFilenameSuffix (resultsFilePathPtr, (StringPtr)"\0_mxcl.tif\0");
+					break;
+					
+				case kMahalanobisMode:
+					ConcatFilenameSuffix (resultsFilePathPtr, (StringPtr)"\0_macl.tif\0");
+					break;
+
+				case kFisherMode:
+					ConcatFilenameSuffix (resultsFilePathPtr, (StringPtr)"\0_ficl.tif\0");
+					break;
+
+				case kEchoMode:
+					ConcatFilenameSuffix (resultsFilePathPtr, (StringPtr)"\0_echocl.tif\0");
+					break;
+					
+				case kSupportVectorMachineMode:
+					ConcatFilenameSuffix (resultsFilePathPtr, (StringPtr)"\0_svmcl.tif\0");
+               break;
+					
+				case kKNearestNeighborMode:
+					ConcatFilenameSuffix (resultsFilePathPtr, (StringPtr)"\0_knncl.tif\0");
+					break;
+
+					
+				case kEuclideanMode:
+					ConcatFilenameSuffix (resultsFilePathPtr, (StringPtr)"\0_eucl.tif\0");
+					break;
+					
+				case kCorrelationMode:
+					ConcatFilenameSuffix (resultsFilePathPtr, (StringPtr)"\0_cocl.tif\0");
+					break;
+					
+				case kCEMMode:
+					ConcatFilenameSuffix (resultsFilePathPtr, (StringPtr)"\0_cemcl.tif\0");
+					break;
+					
+				case kParallelPipedMode:
+					ConcatFilenameSuffix (resultsFilePathPtr, (StringPtr)"\0_ppcl.tif\0");
+					break;
+					
+				default:
+					ConcatFilenameSuffix (resultsFilePathPtr, (StringPtr)"\0_cl.tif\0");
+				
+				}	// end "switch (gClassifySpecsPtr->mode)"
+			
+			}	// end "if (lOutputStorageType & kClassifyFileCode)"
 		
 		else if (lOutputStorageType & kProbFormatCode)
 			{                                                                
-			ConcatFilenameSuffix (resultsFileNamePtr, (StringPtr)"\0Prob.tif\0");
+			ConcatFilenameSuffix (resultsFilePathPtr, (StringPtr)"\0Prob.tif\0");
 			
 			promptStringIndex = IDS_SaveProbabilityAs;	// kFileIOStr34;
 			
@@ -1707,19 +1443,19 @@ Boolean CreateResultsDiskFile (
 		
 		else if (lOutputStorageType & kEchoFieldsCode)
 			{                                               
-			ConcatFilenameSuffix (resultsFileNamePtr, (StringPtr)"\0_echoFields.tif\0");
+			ConcatFilenameSuffix (resultsFilePathPtr, (StringPtr)"\0_Fields.tif\0");
 
 			}	// end "else if (lOutputStorageType & kEchoFieldsCode)"
 		
 		else if (lOutputStorageType & kEchoClassesCode)
 			{                                               
-			ConcatFilenameSuffix (resultsFileNamePtr, (StringPtr)"\0_echoClasses.tif\0");
+			ConcatFilenameSuffix (resultsFilePathPtr, (StringPtr)"\0_Classes.tif\0");
 			
 			}	// end "else if (lOutputStorageType & kEchoClassesCode)"
 		
 		else if (lOutputStorageType & kClusterMaskCode)
 			{
-			ConcatFilenameSuffix (resultsFileNamePtr, (StringPtr)"\0_clMask.tif\0");
+			ConcatFilenameSuffix (resultsFilePathPtr, (StringPtr)"\0_clMask.tif\0");
                
 			promptStringIndex = IDS_FileIO97;	// Save Cluster Mask As
 			
@@ -1787,19 +1523,21 @@ Boolean CreateResultsDiskFile (
 				}	// end "switch (gProcessorCode)" 
 				
 			if (MGetString (gTextString, kProjectStrID, stringIndex))
-				ConcatFilenameSuffix (resultsFileNamePtr, (StringPtr)gTextString);
+				ConcatFilenameSuffix (resultsFilePathPtr, (StringPtr)gTextString);
 								
 			}	// end "if (lOutputStorageType & kAsciiFormatCode)" 
 			
-		}	// end "if (formatVersion == 0)" 
+		}	// end "if (formatVersion == 0)"
+	
+	if (checkIfDirectoryIsWritableFlag)
+					// Verify that the project file is in a writeable directory. If not,
+					// change to the working directory.
+			CheckIfDirectoryIsWriteable (resultsFileStreamPtr);
 
-	VerifyFileStreamForOpen (resultsFileStreamPtr, resultsFileNamePtr);
+	VerifyFileStreamForOpen (resultsFileStreamPtr, NULL);
 
 	if (formatVersion == kErdas74Type || formatVersion == kTIFFType)
-		SetType (resultsFileStreamPtr, 'BINA');  
-	
-	resultsFileNamePtr =
-				(FileStringPtr)GetFilePathPPointerFromFileStream (resultsFileStreamPtr);
+		SetType (resultsFileStreamPtr, 'BINA');
 	
 	if (promptFlag)
 		{
@@ -1827,7 +1565,7 @@ Boolean CreateResultsDiskFile (
 			resultsFileStreamPtr->parentFSRef = fileStreamPtr->parentFSRef;
 		#endif	// defined multispec_mac
 		
-		#if defined multispec_lin
+		#if defined multispec_wx
 			if (errCode == noErr)
 				{
 		#endif
@@ -1842,19 +1580,23 @@ Boolean CreateResultsDiskFile (
 				else	// Echo homogeneous fields file not created here
 					writeHeaderFlag = FALSE;
       
-		#if defined multispec_lin
-				} // if (errCode == noErr)
+		#if defined multispec_wx
+				}	// if (errCode == noErr)
 		#endif
 											
 		}	// end "else !promptFlag"
 	
+			// Make sure the output directory variable is set to empty.
+
+	ResetOutputDirectory ();
+	
 			// Now check if a file name was entered.
 
-	resultsFileNamePtr =
+	resultsFilePathPtr =
 				(FileStringPtr)GetFilePathPPointerFromFileStream (resultsFileStreamPtr);
 		
-	abortedFlag = (errCode != noErr) | (resultsFileNamePtr[0] == 0);											
-											
+	abortedFlag = (errCode != noErr) | (resultsFilePathPtr[0] == 0);
+	
 	if (!abortedFlag && (formatVersion != 0))
 		{		
 		resultsFileInfoPtr->numberBits = 8;
@@ -1964,7 +1706,7 @@ Boolean CreateResultsDiskFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1986,14 +1728,14 @@ Boolean CreateResultsDiskFile (
 // Value Returned:	True: if result disk files were setup and opened okay.
 //							False: if the result disk files could not be set up.
 //
-// Called By:			ClassifyControl in SClassfy.cpp
+// Called By:			ClassifyControl in SClassify.cpp
 //							ClusterControl in SCluster.cpp
-//							SeparabilityControl in SFeatSel.cpp
-//							HistogramControl in SHistgrm.cpp
-//							ListDataControl in SLstData.cpp
-//							ListResultsControl in SLstRslt.cpp
-//							PrincipalComponentControl in SPrinCom.cpp
-//							HistogramStatsControl in statHistogram.c
+//							SeparabilityControl in SFeatureSelection.cpp
+//							HistogramControl in SHistogram.cpp
+//							ListDataControl in SListData.cpp
+//							ListResultsControl in SListResults.cpp
+//							PrincipalComponentControl in SPrincipalComponents.cpp
+//							HistogramStatsControl in SProjectHistogramStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 02/19/1991
 //	Revised By:			Larry L. Biehl			Date: 03/27/2017	
@@ -2085,6 +1827,7 @@ Boolean CreateResultsDiskFiles (
 			
 	numberColumns = (gAreaDescription.columnEnd - gAreaDescription.columnStart + 
 						gAreaDescription.columnInterval)/gAreaDescription.columnInterval;
+	
 	numberLines = (gAreaDescription.lineEnd - gAreaDescription.lineStart + 
 						gAreaDescription.lineInterval)/gAreaDescription.lineInterval;
 		
@@ -2105,12 +1848,12 @@ Boolean CreateResultsDiskFiles (
 			{
 			count = gClassifySpecsPtr->numberChannels;
 			numberBytes += 1709 + 102*count;
-			numberBytes += 198*numberClasses;
-			numberBytes += 90*((numberClasses+6)/7);
-			numberBytes += 90*numberClasses*((count+4)/5);
-			numberBytes += 90*numberClasses*((count*(count+1)/2 + 4)/5);
-			numberBytes += 4*numberClasses*(count*(count+1)/2);
-			numberBytes += 200*numberClasses;
+			numberBytes += 198 * numberClasses;
+			numberBytes += 90 * ((numberClasses+6)/7);
+			numberBytes += 90 * numberClasses*((count+4)/5);
+			numberBytes += 90 * numberClasses*((count*(count+1)/2 + 4)/5);
+			numberBytes += 4 * numberClasses*(count*(count+1)/2);
+			numberBytes += 200 * numberClasses;
 			
 			}	// end "if (gClassifySpecsPtr != NULL)" 
 		
@@ -2129,6 +1872,7 @@ Boolean CreateResultsDiskFiles (
 		
 		if (lOutputStorageType & kClassifyFileCode)
 			numberBytes += ((numberClasses+4)/4) * 128;
+		
 		if (lOutputStorageType & kProbFormatCode)
 			numberBytes += ((numberProbabilityClasses+4)/4) * 128;
 			
@@ -2183,7 +1927,7 @@ Boolean CreateResultsDiskFiles (
 			
 		gAreaDescription.diskFileFormat = savedDiskFileFormat;
 					
-		if (diskFileListPtr->fileInfoH != NULL)
+		if (continueFlag && diskFileListPtr->fileInfoH != NULL)
 			{
 			gResultsFileSummary.numberFiles = 1;
 			
@@ -2196,7 +1940,7 @@ Boolean CreateResultsDiskFiles (
 			parID = GetParID (diskFileListPtr->fileInfoH);
 			fSSpecFlag = GetFSSpecFlag (diskFileListPtr->fileInfoH);
 			
-			}	// end "if (diskFileListPtr->fileInfoH != NULL)" 
+			}	// end "if (continueFlag && diskFileListPtr->fileInfoH != NULL)"
 		
 		}	// end "if (lOutputStorageType & 0x0006)" 
 		
@@ -2244,207 +1988,110 @@ Boolean CreateResultsDiskFiles (
 			
 			}	// end "if (diskFileListPtr->fileInfoH != NULL)"
 		
-		}	// end "if (... & kProbFormatCode))" 
-		
-			// Now create the results file for the ECHO homogeous field				
-			// file.																					
-			
-	diskFileListPtr++;	
-	if (lOutputStorageType & kEchoFieldsCode)
+		}	// end "if (... & kProbFormatCode))"
+	
+	if (continueFlag)
 		{
-				// For now this must be ERDAS gis type to be able to handle possibility
-				// for more than 255 classes. This is not true any more?? (03/27/2017)
+				// Now create the results file for the ECHO homogeous field file.
 		
-		savedDiskFileFormat = gAreaDescription.diskFileFormat;
-		if (gAreaDescription.diskFileFormat != kErdas74Type && 
-													gAreaDescription.diskFileFormat != kTIFFType)
-			gAreaDescription.diskFileFormat = kTIFFType;
+		diskFileListPtr++;
+		if (lOutputStorageType & kEchoFieldsCode)
+			{
+					// For now this must be ERDAS gis type to be able to handle possibility
+					// for more than 255 classes. This is not true any more?? (03/27/2017)
 			
-		continueFlag = CreateResultsDiskFile (numberLines,
-															numberColumns,
-															numberBytes,  
-															kEchoFieldsCode, 
-															255,
-															kDefaultColors,
-															diskFileListPtr,
-															FALSE,
-															echoVRefNum,
-															parID,
-															fSSpecFlag);
-		
-		if (diskFileListPtr->fileInfoH)
-			gResultsFileSummary.numberFiles = 3;
-		
-		gAreaDescription.diskFileFormat = savedDiskFileFormat;
-		
-		}	// end "if (lOutputStorageType & kEchoFieldsCode)" 
-		
-			// Now create the results file for the ECHO classified homogeous 		
-			// field file.																			
+			savedDiskFileFormat = gAreaDescription.diskFileFormat;
+			if (gAreaDescription.diskFileFormat != kErdas74Type &&
+														gAreaDescription.diskFileFormat != kTIFFType)
+				gAreaDescription.diskFileFormat = kTIFFType;
 			
-	diskFileListPtr++;	
-	if (lOutputStorageType & kEchoClassesCode)
+			continueFlag = CreateResultsDiskFile (numberLines,
+																numberColumns,
+																numberBytes,
+																kEchoFieldsCode,
+																255,
+																kDefaultColors,
+																diskFileListPtr,
+																FALSE,
+																echoVRefNum,
+																parID,
+																fSSpecFlag);
+			
+			if (diskFileListPtr->fileInfoH)
+				gResultsFileSummary.numberFiles = 3;
+			
+			gAreaDescription.diskFileFormat = savedDiskFileFormat;
+			
+			}	// end "if (lOutputStorageType & kEchoFieldsCode)"
+		
+		}	// end "if (continueFlag)"
+	
+	if (continueFlag)
 		{
-		if (gAreaDescription.diskFileFormat != kErdas74Type && 
-													gAreaDescription.diskFileFormat != kTIFFType)
-			gAreaDescription.diskFileFormat = kTIFFType;
+				// Now create the results file for the ECHO classified homogeous
+				// field file.
 		
-		continueFlag = CreateResultsDiskFile (
-												numberLines, 
-												numberColumns,
-												numberBytes,  
-												kEchoClassesCode, 
-												numberClasses,
-												gProjectInfoPtr->imagePalettePopupMenuSelection,
-												diskFileListPtr,
-												FALSE,
-												echoVRefNum,
-												parID,
-												fSSpecFlag);
-					
-		if (diskFileListPtr->fileInfoH != NULL)
-			gResultsFileSummary.numberFiles = 4;
-		
-		}	// end "if (lOutputStorageType & kEchoClassesCode)" 
-		
-			// Now create the results file for the cluster mask image file.																			
+		diskFileListPtr++;
+		if (lOutputStorageType & kEchoClassesCode)
+			{
+			if (gAreaDescription.diskFileFormat != kErdas74Type &&
+														gAreaDescription.diskFileFormat != kTIFFType)
+				gAreaDescription.diskFileFormat = kTIFFType;
 			
-	diskFileListPtr++;	
-	if (lOutputStorageType & kClusterMaskCode)
+			continueFlag = CreateResultsDiskFile (
+													numberLines,
+													numberColumns,
+													numberBytes,
+													kEchoClassesCode,
+													numberClasses,
+													gProjectInfoPtr->imagePalettePopupMenuSelection,
+													diskFileListPtr,
+													FALSE,
+													echoVRefNum,
+													parID,
+													fSSpecFlag);
+			
+			if (diskFileListPtr->fileInfoH != NULL)
+				gResultsFileSummary.numberFiles = 4;
+			
+			}	// end "if (lOutputStorageType & kEchoClassesCode)"
+		
+		}	// end "if (continueFlag)"
+	
+	if (continueFlag)
 		{
-		continueFlag = CreateResultsDiskFile (numberLines,
-															numberColumns,
-															numberBytes,  
-															kClusterMaskCode, 
-															numberClasses,
-															kDefaultColors,
-															diskFileListPtr,
-															TRUE,
-															0,
-															0,
-															FALSE);
+				// Now create the results file for the cluster mask image file.
 		
-		if (diskFileListPtr->fileInfoH != NULL)
-			gResultsFileSummary.numberFiles = 5;
+		diskFileListPtr++;
+		if (lOutputStorageType & kClusterMaskCode)
+			{
+			continueFlag = CreateResultsDiskFile (numberLines,
+																numberColumns,
+																numberBytes,
+																kClusterMaskCode,
+																numberClasses,
+																kDefaultColors,
+																diskFileListPtr,
+																TRUE,
+																0,
+																0,
+																FALSE);
+			
+			if (diskFileListPtr->fileInfoH != NULL)
+				gResultsFileSummary.numberFiles = 5;
+			
+			}	// end "if (lOutputStorageType & kClusterMaskCode)"
 		
-		}	// end "if (lOutputStorageType & kEchoClassesCode)" 
+		}	// end "if (continueFlag)"
 	                                          
 	return (continueFlag);
 																					
 }	// end "CreateResultsDiskFiles"
 
 
-/*
-//------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
-//
-//	Function name:		UInt16 DefaultBitsPerDataValueSelection
-//
-//	Software purpose:	The purpose of this routine is to determine the default
-//							bits per data value selection.
-//
-//	Parameters in:		The number of bits to compare menu item with.
-//
-//	Parameters out:	The menu item representing eight bits per data value.
-//
-// Value Returned:	The menu item which compares to the number of input bits. 		
-// 
-// Called By:
-//
-//	Coded By:			Larry L. Biehl			Date: 05/20/1992
-//	Revised By:			Larry L. Biehl			Date: 09/06/2017
-
-UInt16 DefaultBitsPerDataValueSelection (
-				UInt16								numberBits, 
-				SInt16*								eightBitsPerDataSelectionPtr)
-				
-{   
-	UInt16								bitsPerDataValueSelection;
-		
-	#if defined multispec_mac
-		SInt32								theNum;
-		
-		SInt16								menuItem,
-												numberMenuItems;
-	
-		
-		numberMenuItems = CountMenuItems (gPopUpBitsPerDataValueMenu);
-		bitsPerDataValueSelection = 0;
-
-		if (eightBitsPerDataSelectionPtr != NULL)
-			*eightBitsPerDataSelectionPtr = 1;
-
-		menuItem = 1;
-		do
-			{
-			GetMenuItemText (gPopUpBitsPerDataValueMenu, menuItem, gMenuItemString);
-			StringToNum (gMenuItemString, &theNum);
-			
-			if (numberBits == theNum && bitsPerDataValueSelection == 0)
-				bitsPerDataValueSelection = menuItem;
-				
-			if (theNum <= 8 && eightBitsPerDataSelectionPtr != NULL)
-				*eightBitsPerDataSelectionPtr = menuItem;
-				
-			menuItem++;
-			
-			}		while (menuItem <= numberMenuItems);
-		
-		if (bitsPerDataValueSelection == 0 && eightBitsPerDataSelectionPtr != NULL)
-			bitsPerDataValueSelection = *eightBitsPerDataSelectionPtr;
-	#endif	// defined multispec_mac
-	
-	#if defined multispec_mac_swift
-		bitsPerDataValueSelection = 0;
-	#endif
-		
-	#if defined multispec_win
-				// 'Hardwire for now. It would be nice to go through the resource
-				// list so that the code would not have to be updated when changes
-				// are made.
-				             
-		bitsPerDataValueSelection = 1;
-		if (eightBitsPerDataSelectionPtr != NULL)
-			*eightBitsPerDataSelectionPtr = 1;
-		
-		if (numberBits == 4)
-			bitsPerDataValueSelection = 0;
-			
-		else if (numberBits == 8) 
-			bitsPerDataValueSelection = 1; 
-			
-		else if (numberBits == 10) 
-			bitsPerDataValueSelection = 2;
-			
-		else if (numberBits == 12) 
-			bitsPerDataValueSelection = 3;
-			
-		else if (numberBits == 13) 
-			bitsPerDataValueSelection = 4;
-			
-		else if (numberBits == 14) 
-			bitsPerDataValueSelection = 5;
-			
-		else if (numberBits == 15) 
-			bitsPerDataValueSelection = 6;
-			
-		else if (numberBits == 16) 
-			bitsPerDataValueSelection = 7;
-			
-		else if (numberBits == 32) 
-			bitsPerDataValueSelection = 8;
-	#endif	// defined multispec_win 
-		
-	return (bitsPerDataValueSelection);
-	
-}	// end "DefaultBitsPerDataValueSelection" 
-*/
-
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2501,7 +2148,7 @@ Boolean DetermineIfChannelsInOrder (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2558,7 +2205,7 @@ Boolean DetermineIfContinuousChannels (
 	
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2573,9 +2220,9 @@ Boolean DetermineIfContinuousChannels (
 //
 // Value Returned:	None			
 // 
-// Called By:			CopyOffScreenImage in multispec.c
-//							DoImageWUpdateEvent in multispec.c
-//							CopyPrintOffscreenImage in print.c
+// Called By:			CopyOffScreenImage in MMultiSpec.c
+//							DoImageWUpdateEvent in MMultiSpec.c
+//							CopyPrintOffscreenImage in MPrint.c
 //
 //	Coded By:			Larry L. Biehl			Date: ??/??/1991
 //	Revised By:			Larry L. Biehl			Date: 03/19/2019
@@ -2638,7 +2285,7 @@ void	DrawSideBySideTitles (
 											handleStatus2,
 											handleStatus3; 
 											
-	#if defined multispec_lin
+	#if defined multispec_wx
 		if (updateRectPtr->top > 0)
 																									return;
 	#endif
@@ -2776,8 +2423,7 @@ void	DrawSideBySideTitles (
 				
 		windowPtr->m_pDC->SetBkMode (OPAQUE);
 		windowPtr->m_pDC->SetTextColor (RGB (0, 0, 0));
-		                      	                                                   
-		//if (windowPtr->m_pDC->IsPrinting ())
+	
 		if (windowPtr->m_printCopyModeFlag)
 			{
 					// Get the scaling for printing. The pixels
@@ -2787,14 +2433,13 @@ void	DrawSideBySideTitles (
 				                                                         
 			characterWidth *= windowPtr->m_printerTextScaling;
 			columnOrigin = 0;
-			//updateRectPtr->right = (SInt16)(drawInterval * numberChannels);
 			updateRectPtr->right = (SInt16)(drawInterval * 
 															(gSideBySideChannels-gStartChannel));
 
 			}	// end "if (windowPtr->m_pDC->IsPrinting ())" 
 	#endif	// defined multispec_win 
 
-	#if defined multispec_lin            
+	#if defined multispec_wx            
 		if (windowPtr->m_printCopyModeFlag)
 			{
 					// Get the scaling for printing. The pixels
@@ -2808,7 +2453,7 @@ void	DrawSideBySideTitles (
 															(gSideBySideChannels-gStartChannel));
 
 			}	// end "if (windowPtr->m_pDC->IsPrinting ())" 
-	#endif	// defined multispec_lin
+	#endif	// defined multispec_wx
 	
 			// Estimate width of longest string.											
 			//  Get the width of the largest channel number.
@@ -2855,40 +2500,15 @@ void	DrawSideBySideTitles (
 			// Get the draw start location and the draw interval.						
 			
 	drawCenter = drawInterval/2 + columnOrigin;
-	#if defined multispec_win || defined multispec_lin
+	#if defined multispec_win || defined multispec_wx
 		drawCenter += gStartChannel*drawInterval;
-	#endif	// defined multispec_win || defined multispec_lin
+	#endif	// defined multispec_win || defined multispec_wx
 		
 	imageRight = columnOrigin + drawInterval;
 	textWidth /= 2;
 	
 			// Write channel numbers.															
-	#if defined multispec_lin
-	
-		/*
-		wxClientDC pdc (windowPtr->m_Canvas);
-		(windowPtr->m_Canvas)->DoPrepareDC (pdc);
-		pdc.SetMapMode (wxMM_TEXT);
-		pdc.SetFont (font);
-		pdc.SetUserScale (1/magnification, 1/magnification);
-		*/
-		/*
-		wxPoint	scrollOffset;
-		windowPtr->m_Canvas->CalcUnscrolledPosition (0,
-																	0,
-																	&scrollOffset.x,
-																	&scrollOffset.y);
-		*/
-		//CMImageDoc* imageDocCPtr =
-		//					(CMImageDoc*)windowPtr->GetDocument ();
-		//CMImageFrame* imageFrameCPtr = imageDocCPtr->GetImageFrameCPtr ();
-  		//wxClientDC dc (imageFrameCPtr->m_titleBar);
-  		//imageFrameCPtr->m_titleBar->PrepareDC (dc);
-	
-		//gCDCPointer->SetMapMode (wxMM_TEXT);
-		//gCDCPointer->SetFont (font);
-		//gCDCPointer->SetUserScale (1, 1);
-	
+	#if defined multispec_wx
 		titleBarDCPtr->SetMapMode (wxMM_TEXT);
 		titleBarDCPtr->SetUserScale (1, 1);
 	
@@ -2963,25 +2583,20 @@ void	DrawSideBySideTitles (
 													(SInt16)gTextString[0]);
 			#endif // defined multispec_win
          
-         #if defined multispec_lin
+         #if defined multispec_wx
             wxString image_label ((char*)&gTextString[1], wxConvUTF8);
             wxSize label_size;
-            //label_size = pdc.GetTextExtent (image_label);
             label_size = titleBarDCPtr->GetTextExtent (image_label);
 			
             width = (label_size.GetWidth ())/2;
-            //pdc.DrawText (image_label,
             titleBarDCPtr->DrawText (image_label,
 												(int)(drawCenter-width-columnOrigin),
-												//(int)(drawCenter-width),
-												//(int)(updateRectPtr->top),
 												updateRectPtr->top);
          #endif
 			
 			}	// end "if (imageRight >= 0)" 
-			
-		//drawStart += drawInterval;
-		#ifndef multispec_lin
+		
+		#ifndef multispec_wx
 			if (imageRight > updateRectPtr->right)
 				break;
 		#endif
@@ -3001,7 +2616,7 @@ void	DrawSideBySideTitles (
 		windowPtr->m_pDC->SetBkMode (OPAQUE);       
 	#endif	// defined multispec_win     
 	/*
-   #if defined multispec_lin
+   #if defined multispec_wx
       wxRect refreshRect (0, 0, imageRight, updateRectPtr->bottom);
       windowPtr->m_Canvas->RefreshRect (refreshRect, true);
    #endif
@@ -3018,7 +2633,7 @@ void	DrawSideBySideTitles (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3080,7 +2695,7 @@ SInt16 FormatHistogramSummaryString (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3118,19 +2733,19 @@ void GetActiveImageClipRectangle (
 											outRectPtr);
 	#endif // defined multispec_win
 	
-   #if defined multispec_lin
+   #if defined multispec_wx
 		if (gActiveImageViewCPtr != NULL)
 			GetWindowClipRectangle (gActiveImageViewCPtr,
 											areaCode,
 											outRectPtr);
-   #endif // defined multispec_lin
+   #endif // defined multispec_wx
 
 }	// end "GetActiveImageClipRectangle" 
 
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3216,7 +2831,7 @@ double DetermineHistogramBinWidth (
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3231,13 +2846,13 @@ double DetermineHistogramBinWidth (
 //
 // Value Returned:	Data value	
 //
-// Called By:			GetThematicTypeMinMaxIndices in SDisMulc.cpp
-//							UpdateMinMaxValueIndices in SDisMulc.cpp
-//							GetClippedMinMaxValueIndices in SHistgrm.cpp
-//							ListHistogramValues in SHistgrm.cpp
-//							ListHistogramValuesInLines in SHistgrm.cpp
-//							ListHistogramValuesInColumns in SHistgrm.cpp
-//							ConvertDataValueToBinValue in SHistgrm.cpp
+// Called By:			GetThematicTypeMinMaxIndices in SDisplayMultispectral.cpp
+//							UpdateMinMaxValueIndices in SDisplayMultispectral.cpp
+//							GetClippedMinMaxValueIndices in SHistogram.cpp
+//							ListHistogramValues in SHistogram.cpp
+//							ListHistogramValuesInLines in SHistogram.cpp
+//							ListHistogramValuesInColumns in SHistogram.cpp
+//							ConvertDataValueToBinValue in SHistogram.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/22/2005
 //	Revised By:			Larry L. Biehl			Date: 12/08/2011
@@ -3274,7 +2889,7 @@ UInt32 GetBinIndexForDataValue (
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3303,7 +2918,6 @@ void GetClipRectangle (
 		if (clipRegion != NULL)
 			{
 			GetClip (clipRegion);
-			//*clipRectanglePtr = (*clipRegion)->rgnBBox;
 			GetRegionBounds (clipRegion, clipRectanglePtr);
 		
 			DisposeRgn (clipRegion);
@@ -3320,7 +2934,7 @@ void GetClipRectangle (
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3456,7 +3070,7 @@ Boolean GetCommonArea (
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3521,7 +3135,7 @@ double GetDataValueForBinIndex (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3568,7 +3182,7 @@ double GetDoubleValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3628,7 +3242,7 @@ SDouble GetShortDoubleValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3646,10 +3260,10 @@ SDouble GetShortDoubleValue (
 //
 //	Value Returned:	None	
 // 
-// Called By:			MosaicImagesSideBySideDialog in mosaic.c
-//							RectifyImageDialog in rectification.c
-//							GetIOBufferPointers in SMemUtil.cpp
-//							ChangeImageFormatDialog in SReform1.cpp
+// Called By:			MosaicImagesSideBySideDialog in SMosaic.cpp
+//							RectifyImageDialog in SRectifyImage.cpp
+//							GetIOBufferPointers in SMemoryUtilities.cpp
+//							ChangeImageFormatDialog in SReformatChangeImageFileFormat.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 08/28/1991
 //	Revised By:			Larry L. Biehl			Date: 10/26/1999	
@@ -3736,7 +3350,7 @@ Boolean GetFileInformationForChannelList (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3762,11 +3376,11 @@ Boolean GetFileInformationForChannelList (
 // Value Returned:	True: valid pointers are available.
 //							False: the pointers were not set.
 // 
-// Called By:			MosaicImagesSideBySide in mosaic.c
-//							ClassifyControl in SClassfy.cpp
-//							PrincipalComponentControl in SPrinCom.cpp
+// Called By:			MosaicImagesSideBySide in SMosaic.cpp
+//							ClassifyControl in SClassify.cpp
+//							PrincipalComponentControl in SPrincipalComponents.cpp
 //							GetProjectImageFileInfo in SProject.cpp
-//							StatisticsImageControl in statisticsImage.c
+//							StatisticsImageControl in SStatisticsImage.cpp
 //							SetUpActiveImageInformationGlobals in SUtility.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/07/1993
@@ -3782,7 +3396,7 @@ Boolean GetImageInformationPointers (
 {
 	*handleStatusPtr = 0;
 	                         
-	#if defined multispec_win || defined multispec_lin
+	#if defined multispec_win || defined multispec_wx
 			// Until I can figure out how to get 'GlobalFlags' to work. 
 		
 		if (*windowInfoPtrPtr == NULL) 
@@ -3793,7 +3407,7 @@ Boolean GetImageInformationPointers (
 		
 		if (*fileInfoPtrPtr == NULL) 
 			*handleStatusPtr |= 0x0004;
-	#endif	// defined multispec_win || defined multispec_lin
+	#endif	// defined multispec_win || defined multispec_wx
 	
 	*fileInfoPtrPtr = NULL;
 	*layerInfoPtrPtr = NULL;
@@ -3850,7 +3464,7 @@ Boolean GetImageInformationPointers (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3867,12 +3481,11 @@ Boolean GetImageInformationPointers (
 //
 // Value Returned:	None
 // 
-// Called By:			MosaicImagesSideBySideDialog in mosaic.c
-//							ClassifyDialogInitialize in SClasfy2.cpp
-//							ReformatDialog in SReform1.cpp
+// Called By:			MosaicImagesSideBySideDialog in SMosaic.cpp
+//							ClassifyDialogInitialize in SClassifyDialogs.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/06/1993
-//	Revised By:			Larry L. Biehl			Date: 09/05/2017
+//	Revised By:			Larry L. Biehl			Date: 11/09/2019
 
 SInt16 GetImageList (
 				DialogPtr							dialogPtr, 
@@ -3886,8 +3499,9 @@ SInt16 GetImageList (
 		CComboBox* 							comboBoxPtr;
 	#endif	// defined multispec_win
 
-   #if defined multispec_lin
-      wxComboBox*    comboBoxPtr;
+   #if defined multispec_wx
+      wxChoice*    						listCtrl;          
+		//wxComboBox* 						comboBoxPtr;
    #endif
 	
 	FileInfoPtr							fileInfoPtr;
@@ -3936,7 +3550,8 @@ SInt16 GetImageList (
       
 		#if defined multispec_mac  
 			AppendMenu (gPopUpTemporaryMenu, "\pNewFile");         
-			MSetMenuItemText (gPopUpTemporaryMenu, imageListLength, gTextString, kUTF8CharString);
+			MSetMenuItemText (
+					gPopUpTemporaryMenu, imageListLength, gTextString, kUTF8CharString);
 		#endif	// defined multispec_mac   
 
 		#if defined multispec_win       
@@ -3948,14 +3563,11 @@ SInt16 GetImageList (
 													kUTF8CharString);
 		#endif	// defined multispec_win
 
-      #if defined multispec_lin
-			comboBoxPtr = (wxComboBox*) wxWindow::FindWindowById (comboListItem);
-         comboBoxPtr->SetValue ("\0NewFile\0");
-			//comboBoxPtr->AddString ("\0NewFile\0");                                           
-			dialogPtr->SetComboItemText (comboListItem, 
+      #if defined multispec_wx
+			dialogPtr->SetChoiceItemText (comboListItem,
 													imageListLength-1, 
-													_T((char*)&gTextString[1]));
-		#endif	// defined multispec_lin
+													(char*)&gTextString[1]);
+		#endif	// defined multispec_wx
 				
 		(*listCountPtr)++;
 		firstEnabledMenuItem = imageListLength;
@@ -4063,42 +3675,32 @@ SInt16 GetImageList (
 							}	// end "if (includeFlag)"
 					#endif	// defined multispec_win
 						
-					#if defined multispec_lin  
+					#if defined multispec_wx  
 						if (includeFlag) 
 							{
 							imageListLength++;
+							
+                     listCtrl = (wxChoice*)wxWindow::FindWindowById (comboListItem);
                      
-                     comboBoxPtr = (wxComboBox*) wxWindow::FindWindowById (
-																							comboListItem);
-                     
-							//comboBoxPtr = (CComboBox*)dialogPtr->GetDlgItem (comboListItem);                     
-							//comboBoxPtr->AddString ("\0NewFile");                            
-							dialogPtr->SetComboItemText (comboListItem, 
+							dialogPtr->SetChoiceItemText (comboListItem,
 																	imageListLength-1, 
 																	(char*)&fileNamePtr[1]);
                     
-							//comboBoxPtr->SetItemData (imageListLength-1, windowIndex);
-                     if (imageListLength == 1)
-                        comboBoxPtr->SetValue ((char*)&fileNamePtr[1]);
-                     //comboBoxPtr->SetClientData (imageListLength - 1, (void *)&fileNamePtr[1]);
                      SInt64 windowIndex_64 = windowIndex;
-                     comboBoxPtr->SetClientData (imageListLength - 1, (void *)windowIndex_64);
+                     listCtrl->SetClientData (
+													imageListLength - 1, (void*)windowIndex_64);
                      
-                     //int windowIndex1 = *(int*)comboBoxPtr->GetClientData (imageListLength - 1);
-                     //printf ("windowIndex1:%d\n", windowIndex1);
-                     comboBoxPtr->SetString (imageListLength - 1, (char*)&fileNamePtr[1]);
+                     listCtrl->SetString (imageListLength - 1, (char*)&fileNamePtr[1]);
                     
-                     //printf ("imageListLength:%d, %s\n", imageListLength, (char*)&fileNamePtr[1]);
-																	
-							}	// end "if (includeFlag)"
-					#endif	// defined multispec_lin
+ 							}	// end "if (includeFlag)"
+					#endif	// defined multispec_wx
 					
 					if (includeFlag)
 						{
 						if (gProcessorCode == kRefMosaicImagesProcessor)
 							{
 							if (firstEnabledMenuItem == SHRT_MAX || 
-													savedCompareWindowInfoHandle == windowInfoHandle)
+												savedCompareWindowInfoHandle == windowInfoHandle)
 								{
 								firstEnabledMenuItem = imageListLength;
 								savedCompareWindowInfoHandle = compareWindowInfoHandle;
@@ -4148,7 +3750,7 @@ SInt16 GetImageList (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4252,7 +3854,7 @@ Boolean GetInformationPointers (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4319,7 +3921,7 @@ SInt16 GetLegendWidthForWindow (
 		return (legendWidth);
 	#endif // defined multispec_win
 	
-	#if defined multispec_lin
+	#if defined multispec_wx
 		return 0;
 	#endif
 	
@@ -4328,7 +3930,7 @@ SInt16 GetLegendWidthForWindow (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4347,7 +3949,7 @@ SInt16 GetLegendWidthForWindow (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 04/02/1998
-//	Revised By:			Larry L. Biehl			Date: 09/06/2017
+//	Revised By:			Larry L. Biehl			Date: 11/06/2019
 
 SInt16 GetListBottom (
 				ListHandle							listHandle)
@@ -4391,12 +3993,14 @@ SInt16 GetListBottom (
 			return (0);
 	#endif	// defined multispec_win
 	
+	return (0);
+	
 }	// end "GetListBottom"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4441,7 +4045,7 @@ SInt32 GetLongIntValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4509,7 +4113,7 @@ SInt64 GetLongInt64Value (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4524,11 +4128,11 @@ SInt64 GetLongInt64Value (
 //
 //	Value Returned:	None
 // 
-// Called By:			GetDefaultPaletteSpecs in displayMultispectral.c
-//							CreateGraphicsWindow in graphicsUtilities.c
-//							AdjustImageWSize in window.c
-//							CreateImageWindow in window.c
-//							CreatePaletteWindow in window.c
+// Called By:			GetDefaultPaletteSpecs in SDisplayMultispectral.cpp
+//							CreateGraphicsWindow in SGraphiUtilities.cpp
+//							AdjustImageWSize in MWindow.c
+//							CreateImageWindow in SImageWindow_class.cpp
+//							CreatePaletteWindow in MWindow.c
 //
 //	Coded By:			Larry L. Biehl			Date: 09/06/1989
 //	Revised By:			Larry L. Biehl			Date: 04/02/2019
@@ -4585,7 +4189,7 @@ SInt16 GetMaxSystemPixelSize (void)
 			pixelSize = 24;
 	#endif	// defined multispec_win 
 			
-	#if defined multispec_lin
+	#if defined multispec_wx
 		pixelSize = wxDisplayDepth ();
 	
 				// Note that for now this needs to be 24 bits for wx macos. The
@@ -4605,7 +4209,7 @@ SInt16 GetMaxSystemPixelSize (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4671,10 +4275,10 @@ SInt16 GetMinSystemPixelSize (void)
 				// the info for the main monitor.
 	#endif	// defined multispec_win 
 			
-	#if defined multispec_lin
+	#if defined multispec_wx
 			// Do not know how to check for multiple monitors, so will just return
 			// the info for the main monitor.
-	#endif	// defined multispec_lin
+	#endif	// defined multispec_wx
 
 	return (pixelSize);
 			
@@ -4683,7 +4287,7 @@ SInt16 GetMinSystemPixelSize (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4927,7 +4531,7 @@ void GetNumberDecimalDigits (
 	
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4963,9 +4567,9 @@ void GetNumberDecimalDigitsForDataVector (
 	UInt16								numberEDecimalDigits,
 											numberFDecimalDigits)
 
-			histogramSpecsPtr->maxNumberBins = gImageWindowInfoPtr->numberBins;
-			if (gImageWindowInfoPtr->numberBytes > 2)
-				histogramSpecsPtr->maxNumberBins = 2048;
+	histogramSpecsPtr->maxNumberBins = gImageWindowInfoPtr->numberBins;
+	if (gImageWindowInfoPtr->numberBytes > 2)
+		histogramSpecsPtr->maxNumberBins = 2048;
 	
 	for (index==0; index<numberElements; index++)
 		{
@@ -4983,7 +4587,7 @@ void GetNumberDecimalDigitsForDataVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5024,7 +4628,7 @@ SInt16 GetNumberFileTypes (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5096,7 +4700,7 @@ Boolean GetNumberNonZeroLeadingDigits (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5182,7 +4786,7 @@ SInt64 GetNumberPixelsInArea (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5200,9 +4804,8 @@ SInt64 GetNumberPixelsInArea (
 //
 // Value Returned:	None			
 // 
-// Called By:			Menus in menus.c
-//							UpdatePaletteMenu in menus.c
-//							DrawPalette in paletteProc.c
+// Called By:			UpdatePaletteFor16and24BImage in SDisplay16_24Bits.cpp
+//							UpdateActiveImageLegend in SPalette.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 08/09/1989
 //	Revised By:			Larry L. Biehl			Date: 06/04/1996	
@@ -5253,7 +4856,7 @@ DisplaySpecsPtr GetActiveDisplaySpecsPtr (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5281,6 +4884,7 @@ void GetOneChannelThematicDisplayConversionValues (
 				double*								binFactorPtr,
 				double*								minValuePtr,
 				UInt32*								maxBinPtr)
+				
 {				
 								
 	*binFactorPtr = histogramSummaryPtr->binFactor;
@@ -5318,7 +4922,7 @@ void GetOneChannelThematicDisplayConversionValues (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5338,10 +4942,10 @@ void GetOneChannelThematicDisplayConversionValues (
 //
 // Value Returned:	None			
 // 
-// Called By:			BiPlotDataDialog in biPlotData.c
-//							ClassifyDialog in SClassfy.cpp
+// Called By:			BiPlotDataDialog in SBiPlotData.cpp
+//							ClassifyDialog in SClassify.cpp
 //							ClusterDialog in SCluster.cpp
-//							ListResultsDialog in SLstRslt.cpp
+//							ListResultsDialog in SListResults.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 03/04/1994
 //	Revised By:			Larry L. Biehl			Date: 01/16/1998
@@ -5427,7 +5031,7 @@ SInt16 GetProbabilityThresholdCode (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5476,7 +5080,7 @@ FileInfoPtr GetResultsFilePtr (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5526,7 +5130,7 @@ CMFileStream* GetResultsFileStreamPtr (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5542,11 +5146,11 @@ CMFileStream* GetResultsFileStreamPtr (
 //
 // Value Returned:	None			
 // 
-// Called By:			ClassifyDialog in SClassfy.cpp
-//							ListResultsDialog in SLstRslt.cpp
+// Called By:			ClassifyDialog in SClassify.cpp
+//							ListResultsDialog in SListResults.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/13/1998
-//	Revised By:			Larry L. Biehl			Date: 06/25/2019
+//	Revised By:			Larry L. Biehl			Date: 11/02/2019
 
 SInt16 GetThresholdCode (
 				double								thresholdValue,
@@ -5561,7 +5165,7 @@ SInt16 GetThresholdCode (
 		{
 				// Threshold for KNearestNeighbor type table.
 		
-		thresholdCode = thresholdValue - 1;
+		thresholdCode = (SInt32)(thresholdValue - 1);
 		
 		}	// end "else gClassifySpecsPtr->mode == kKNearestNeighborMode"
 											
@@ -5597,7 +5201,7 @@ SInt16 GetThresholdCode (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5646,7 +5250,7 @@ UInt32 GetTotalTime (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5666,8 +5270,8 @@ UInt32 GetTotalTime (
 //
 // Value Returned:	Number of cluster pixels
 // 
-// Called By:			BiPlotDataControl in biPlotData.c
-//							InitializeClusterMemory in cluster.c
+// Called By:			BiPlotDataControl in SBiPlotData.cpp
+//							InitializeClusterMemory in SCluster.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 08/06/1990
 //	Revised By:			Larry L. Biehl			Date: 12/31/2003
@@ -5878,7 +5482,7 @@ SInt64 GetTotalNumberOfPixels (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6007,7 +5611,6 @@ void GetWindowClipRectangle (
 				case kGraphBinWidth:
 					outRectanglePtr->top = outRectanglePtr->bottom - kSBarWidth + 2;
 					outRectanglePtr->left += 95 + 6*kLegendScrollWidth+25 + 60;
-					//outRectanglePtr->right = outRectanglePtr->left + 30;
 					break;
 					
 				case kImageFrameArea:
@@ -6070,10 +5673,12 @@ void GetWindowClipRectangle (
 					
 					if (displaySpecsPtr != NULL)
 						{ 										
-						imageRight = (SInt32)(legendWidth + displaySpecsPtr->magnification *
+						imageRight = (SInt32)(legendWidth +
+												displaySpecsPtr->magnification *
 													displaySpecsPtr->imageDimensions[kHorizontal]);
 											 
-						imageBottom = (SInt32)(topOffset + displaySpecsPtr->magnification *
+						imageBottom = (SInt32)(topOffset +
+												displaySpecsPtr->magnification *
 													displaySpecsPtr->imageDimensions[kVertical]);
 						
 						if (imageRight < (SInt32)outRectanglePtr->right)											
@@ -6116,16 +5721,13 @@ void GetWindowClipRectangle (
 			*/		
 		#endif	// defined multispec_win
 					
-		#if defined multispec_lin
-			//Rect									inRect;
+		#if defined multispec_wx
 			CMImageFrame*						imageFramePtr;
 			wxRect								frameArea;
 			wxRect								tempArea;
-			int									coordinateBarHeight = 0,
-													legendWidth = 0;
 
 			windowInfoHandle = GetWindowInfoHandle (windowPtr);
-			windowInfoPtr = (WindowInfoPtr) GetHandlePointer (windowInfoHandle);
+			windowInfoPtr = (WindowInfoPtr)GetHandlePointer (windowInfoHandle);
 			if (windowInfoPtr == NULL)
 				areaCode = kImageFrameArea;
 			/*
@@ -6150,10 +5752,6 @@ void GetWindowClipRectangle (
 					outRectanglePtr->left = frameArea.GetLeft ();
 					outRectanglePtr->bottom = frameArea.GetBottom ();
 					outRectanglePtr->right = frameArea.GetRight ();
-
-					//topOffset = windowPtr->GetTitleHeight ();
-						
-					//outRectanglePtr->top += topOffset;
                
 					displaySpecsPtr = (DisplaySpecsPtr)GetHandlePointer (
 															GetDisplaySpecsHandle (windowInfoPtr));
@@ -6163,7 +5761,6 @@ void GetWindowClipRectangle (
 						imageRight = (SInt32)(displaySpecsPtr->magnification *
 													displaySpecsPtr->imageDimensions[kHorizontal]);
 											 
-						//imageBottom = (SInt32)(topOffset + displaySpecsPtr->magnification *
 						imageBottom = (SInt32)(displaySpecsPtr->magnification *
 													displaySpecsPtr->imageDimensions[kVertical]);
 						
@@ -6186,48 +5783,10 @@ void GetWindowClipRectangle (
 					outRectanglePtr->left = frameArea.GetLeft ();
 					outRectanglePtr->bottom = frameArea.GetBottom ();
 					outRectanglePtr->right = frameArea.GetRight ();
-					/*
-					int width, height;
-					
-					frameArea = imageFramePtr->GetRect ();
-					width = frameArea.GetRight () - frameArea.GetLeft () + 1;
-					height = frameArea.GetBottom () - frameArea.GetTop () + 1;
-
-					legendWidth = 0;
-					if ((windowPtr->m_frame)->m_leftWindow->IsShown ())
-						{
-						tempArea = ((windowPtr->m_frame)->m_leftWindow)->GetClientRect ();
-						legendWidth = tempArea.GetRight ();
-						
-						}	// end "if ((windowPtr->m_frame)->m_leftWindow->IsShown ())"
-
-					if ((windowPtr->m_frame)->m_topWindow->IsShown ())
-						{
-						tempArea = ((windowPtr->m_frame)->m_topWindow)->GetClientRect ();
-						coordinateBarHeight = tempArea.GetBottom ();
-						
-						}	// end "if ((windowPtr->m_frame)->m_topWindow->IsShown ())"
-
-					outRectanglePtr->top = frameArea.GetTop () + coordinateBarHeight;
-					outRectanglePtr->left = frameArea.GetLeft () + legendWidth;
-					outRectanglePtr->bottom = frameArea.GetBottom ();
-					outRectanglePtr->right = frameArea.GetRight ();
-					*/
-					/*
-					outRectanglePtr->top = coordinateBarHeight;
-					outRectanglePtr->left = legendWidth;
-					outRectanglePtr->bottom = height;
-					outRectanglePtr->right = width;
-				
-					outRectanglePtr->top = imageareacb.GetBottom ();
-					outRectanglePtr->left = imageareal.GetRight ();
-					outRectanglePtr->bottom = height;
-					outRectanglePtr->right = width;
-					*/
 					break;
 				
 				}	// end "switch (areaCode)"				
-		#endif	// defined multispec_lin
+		#endif	// defined multispec_wx
 
 		}	// end "if (windowPtr != NULL)"
 	
@@ -6236,7 +5795,7 @@ void GetWindowClipRectangle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6280,7 +5839,7 @@ double GetWindowImageMagnification (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6320,7 +5879,7 @@ void InitializeAreaDescription (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6415,7 +5974,7 @@ void InitializeAreaDescription (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6487,7 +6046,7 @@ void InitializeDoubleVariables (void)
 
                        
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6534,7 +6093,7 @@ void InvalidateWindow (
 			windowPtr->Invalidate (eraseFlag);
 		#endif	// defined multispec_win      
 		
-		#if defined multispec_lin
+		#if defined multispec_wx
 			if (areaCode == kCoordinateSelectionArea)
 				((CMImageView*)windowPtr)->m_frame->m_coordinatesBar->Refresh (eraseFlag);
 			else	//
@@ -6548,17 +6107,16 @@ void InvalidateWindow (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void LoadChannelsVector
 //
-//	Software purpose:	The purpose of this routine is to load the channels
-//							vector with a list of channels that will need to be
-//							access from the image file.  Use the transformation
-//							feature list (if available) or the  feature list
-//							to determine the channels to be used.
+//	Software purpose:	The purpose of this routine is to load the channels vector with
+//							a list of channels that will need to be accessed from the image
+//							file.  Use the transformation feature list (if available) or the
+//							feature list to determine the channels to be used.
 //		
 //	Parameters in:				
 //
@@ -6566,20 +6124,20 @@ void InvalidateWindow (
 //
 // Value Returned: 		
 //
-// Called By:			BiPlotDataDialog in biPlotData.c
-//							ClassifyDialog in classify.c
-//							ClusterDialog in cluster.c
-//							LoadClusterSpecs in cluster.c
-//							FeatureExtractionDialog in featureExtraction.c
-//							LoadListDataSpecs in listData.c
-//							ListDataDialog in listData.c
-//							EvaluateCovariancesDialog in other.c
-//							LoadPrincipalComponentSpecs in principalComponents.c
-//							PrincipalComponentDialog in principalComponents.c
-//							SeparabilityDialog in separability.c
-//							LoadStatHistogramSpecs in statHistogram.c
-//							StatHistogramDialog in statHistogram.c
-//							StatisticsImageDialog in statisticsImage.c
+// Called By:			BiPlotDataDialog in SBiPlotData.cpp
+//							ClassifyDialog in SClassifyDialogs.cpp
+//							ClusterDialog in SCluster.cpp
+//							LoadClusterSpecs in SCluster.cpp
+//							FeatureExtractionDialog in SFeatureExtraction.cpp
+//							LoadListDataSpecs in SListData.cpp
+//							ListDataDialog in SListData.cpp
+//							EvaluateCovariancesDialog in SOther.cpp
+//							LoadPrincipalComponentSpecs in SPrincipalComponents.cpp
+//							PrincipalComponentDialog in SPrincipalComponents.cpp
+//							SeparabilityDialog in SFeatureSelection.cpp
+//							LoadStatHistogramSpecs in SProjectHistogramStatistics.cpp
+//							StatHistogramDialog in SProjectHistogramStatistics.cpp
+//							StatisticsImageDialog in SStatisticsImage.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/05/1989
 //	Revised By:			Larry L. Biehl			Date: 10/13/1997
@@ -6637,7 +6195,7 @@ void LoadChannelsVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6655,7 +6213,7 @@ void LoadChannelsVector (
 // Value Returned:	Length of the class name in characters
 // 
 // Called By:			CreateThematicSupportFile in SFileIO.cpp
-//							WriteGAIAHeader in SGaiaUtl.cpp
+//							WriteGAIAHeader in SGAIARoutines.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 09/30/1992
 //	Revised By:			Larry L. Biehl			Date: 01/16/1998	
@@ -6726,7 +6284,7 @@ SInt16 LoadClassName (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6771,7 +6329,7 @@ void LoadFeatureVector (
 
                        
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6790,7 +6348,7 @@ void LoadFeatureVector (
 //	Coded By:			Larry L. Biehl			Date: 08/31/1995
 //	Revised By:			Larry L. Biehl			Date: 09/06/2017	
 // Revised By:			Tsung Tai Yeh			Date: 09/10/2015
-#ifndef multispec_lin
+#ifndef multispec_wx
 	void* MForeColor (
 					CDC*									pDC,
 					SInt32								color)
@@ -6859,7 +6417,7 @@ void LoadFeatureVector (
 	return ((void*)oldPenPtr); 
 #endif	// defined multispec_win 
    
-#if defined multispec_lin
+#if defined multispec_wx
    wxPen									*newPenPtr = NULL,
 											*oldPenPtr = NULL;
 	                 
@@ -6911,57 +6469,12 @@ void LoadFeatureVector (
 	return ((void*)oldPenPtr);
 #endif
 
-}	// end "MForeColor" 
+}	// end "MForeColor"
 
-
-/*                       
-//------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
-//
-//	Function name:		void MGetSelectionRectangle
-//
-//	Software purpose:	The purpose of this routine is get the line and column
-//							value for the selected area and determine whether the
-//							entire area is to be used or a subset. 
-//
-//	Parameters in:		None
-//
-//	Parameters out:	None
-//
-//	Value Returned:	None 				
-// 
-// Called By:
-//
-//	Coded By:			Larry L. Biehl			Date: 02/07/1996
-//	Revised By:			Larry L. Biehl			Date: 10/02/1998	
-
-Boolean MGetSelectionRectangle (
-				WindowPtr							imageWindowPtr,
-				LongRect*							selectionRectanglePtr,
-				Boolean								clearSelectionAreaFlag,
-				Boolean								useThresholdFlag,
-				Boolean								adjustToBaseImageFlag)
-
-{  
-	Boolean				returnFlag;
-							
-
-	returnFlag = GetSelectionRectangle (imageWindowPtr,
-													selectionRectanglePtr,
-													clearSelectionAreaFlag,
-													useThresholdFlag,
-													adjustToBaseImageFlag);
-												
-	return (returnFlag);
-		
-}	// end "MGetSelectionRectangle"               
-*/							
 
                                                            
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6976,7 +6489,7 @@ Boolean MGetSelectionRectangle (
 //
 // Value Returned:	None		
 // 
-// Called By:						ClassListStatMode
+// Called By:			many routines
 //
 //	Coded By:			Larry L. Biehl			Date: 02/01/1996
 //	Revised By:			Larry L. Biehl			Date: 02/01/1996	
@@ -6994,21 +6507,23 @@ void MHiliteControl (
 	#endif	// defined multispec_mac 
 	
 	#if defined multispec_win   
-	   windowPtr->GetDlgItem ((int)controlHandle)->EnableWindow (hiliteValue==0);
-	#endif	// defined multispec_win
-   
-   #if defined multispec_lin   
 		SInt64 windowid64 = (SInt64)((int*)(controlHandle));
 		SInt16 windowid = (SInt16)windowid64;
-		windowPtr->GetFrame ()->FindWindow (windowid)->Enable (hiliteValue==0);
-	#endif	// defined multispec_lin
+	   windowPtr->GetDlgItem (windowid)->EnableWindow (hiliteValue==0);
+	#endif	// defined multispec_win
+   
+   #if defined multispec_wx   
+		SInt64 windowid64 = (SInt64)((int*)(controlHandle));
+		SInt16 windowid = (SInt16)windowid64;
+		windowPtr->GetFrame()->FindWindow (windowid)->Enable (hiliteValue==0);
+	#endif	// defined multispec_wx
 	 
 }	// end "MHiliteControl"      
 
 
                        
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7036,14 +6551,14 @@ void MInitCursor (void)
 	#endif	// defined multispec_mac	
 				
 	#if defined multispec_win
-		AfxGetApp ()->DoWaitCursor (0);
+		AfxGetApp()->DoWaitCursor (0);
 	#endif	// defined multispec_win 
 		
-	#if defined multispec_lin
+	#if defined multispec_wx
 		//(wxTheApp->GetTopWindow ())->SetCursor (wxCursor (wxCURSOR_ARROW));
 		CMainFrame* mframeptr = (CMainFrame*)(wxTheApp->GetTopWindow ());
 		CMImageView* currentview = wxDynamicCast (
-						mframeptr->GetDocumentManager ()->GetCurrentView (), CMImageView);
+						mframeptr->GetDocumentManager()->GetCurrentView (), CMImageView);
 		if (currentview != NULL)
 			{
 			CMImageCanvas* canvasptr = currentview->m_Canvas;
@@ -7061,7 +6576,7 @@ void MInitCursor (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7079,10 +6594,10 @@ void MInitCursor (void)
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 08/29/1995
-//	Revised By:			Larry L. Biehl			Date: 08/30/2018
+//	Revised By:			Larry L. Biehl			Date: 10/17/2019
  
 void MSetCursor (
-				SInt16			cursorIndex)
+				SInt16								cursorIndex)
 
 {     
 	#if defined multispec_mac 
@@ -7097,40 +6612,50 @@ void MSetCursor (
 		switch (cursorIndex)
 			{
 			case kArrow:
-				AfxGetApp ()->DoWaitCursor (-1);                   
-				::SetCursor (AfxGetApp ()->LoadStandardCursor (IDC_ARROW));
+				AfxGetApp()->DoWaitCursor (-1);                   
+				::SetCursor (AfxGetApp()->LoadStandardCursor (IDC_ARROW));
 				break;
 	  
 			case kWait:
-				AfxGetApp ()->DoWaitCursor (1);
+				AfxGetApp()->DoWaitCursor (1);
 				break;
 				
 			case kCross:
-				AfxGetApp ()->DoWaitCursor (-1); 
-				//::SetCursor (AfxGetApp ()->LoadCursor (IDC_CROSS_CURSOR));
-				::SetCursor (AfxGetApp ()->LoadCursor (gCrossCursorID));
+				AfxGetApp()->DoWaitCursor (-1); 
+				//::SetCursor (AfxGetApp()->LoadCursor (IDC_CROSS_CURSOR));
+				::SetCursor (AfxGetApp()->LoadCursor (gCrossCursorID));
 				break;
 			
 			case kBlinkOpenCursor1:
-				AfxGetApp ()->DoWaitCursor (-1); 
-				::SetCursor (AfxGetApp ()->LoadCursor (IDC_BLINK_OPEN));
+				AfxGetApp()->DoWaitCursor (-1); 
+				::SetCursor (AfxGetApp()->LoadCursor (IDC_BLINK_OPEN));
+				break;
+			
+			case kBlinkOpenCursor2:
+				AfxGetApp()->DoWaitCursor (-1); 
+				::SetCursor (AfxGetApp()->LoadCursor (IDC_BLINK_OPEN));
 				break;
 				
-			case kBlinkShutCursor:
-				AfxGetApp ()->DoWaitCursor (-1); 
-				::SetCursor (AfxGetApp ()->LoadCursor (IDC_BLINK_SHUT));
+			case kBlinkShutCursor1:
+				AfxGetApp()->DoWaitCursor (-1); 
+				::SetCursor (AfxGetApp()->LoadCursor (IDC_BLINK_SHUT));
+				break;
+				
+			case kBlinkShutCursor2:
+				AfxGetApp()->DoWaitCursor (-1); 
+				::SetCursor (AfxGetApp()->LoadCursor (IDC_BLINK_SHUT));
 				break;
 				
 			default:
-				AfxGetApp ()->DoWaitCursor (-1);                   
-				::SetCursor (AfxGetApp ()->LoadStandardCursor (IDC_ARROW));
+				AfxGetApp()->DoWaitCursor (-1);                   
+				::SetCursor (AfxGetApp()->LoadStandardCursor (IDC_ARROW));
 				cursorIndex = kArrow;
 				break;
 				
 			}	// end "switch (cursorIndex)"
 	#endif	// defined multispec_win   
 
-	#if defined multispec_lin 
+	#if defined multispec_wx 
 				// Based on what I understand now:
 				//		canvasptr->SetCursor sets the cursor for the respective window
 				//			that the cursor is over.
@@ -7139,66 +6664,116 @@ void MSetCursor (
 				//			overall cursor to the 'default' such that the window cursor
 				//			setting takes over.
 	
-		CMainFrame* mframeptr = (CMainFrame*) (wxTheApp->GetTopWindow ());
-		CMImageView* currentview = wxDynamicCast (
-						mframeptr->GetDocumentManager ()->GetCurrentView (), CMImageView);
-		if (currentview != NULL)
+		CMainFrame* mframeptr = (CMainFrame*)(wxTheApp->GetTopWindow ());
+		CMImageView* currentView = wxDynamicCast (
+							mframeptr->GetDocumentManager()->GetCurrentView (), CMImageView);
+	
+		if (currentView == NULL && gImageWindowInfoPtr != NULL)
+					// This may be in middle of an activation event for a window. Use
+					// the view from the active image window if it is available.
+					// The technique above will not work in this situation until the
+					// end of the activation process
+			currentView = gImageWindowInfoPtr->cImageWindowPtr->mImageViewCPtr;
+
+		if (currentView != NULL)
 			{
-			CMImageCanvas* canvasptr = currentview->m_Canvas;
-			
-			switch (cursorIndex)
+			if (cursorIndex == kBlinkOpenCursor1 || cursorIndex == kBlinkShutCursor1)
 				{
-				case kArrow:
-					canvasptr->SetCursor (wxCURSOR_ARROW);
-					break;
-
-				case kWait:
-					canvasptr->SetCursor (wxCURSOR_WAIT);
-					break;
-
-				case kCross:
-					canvasptr->SetCursor (wxCURSOR_CROSS);
-					break;
-
-				case kBlinkOpenCursor1:
-							// This has not been implemented.
-					//canvasptr->SetCursor (wxCursor (wxCURSOR_eyeOpen));
-					break;
-
-				case kBlinkShutCursor:
-							// This has not been implemented.
-					//canvasptr->SetCursor (wxCursor (wxCURSOR_eyeClosed));
-					break;
+				CMLegendView* legendViewCPtr =
+					currentView->GetDocument()->GetImageFrameCPtr()->GetLegendViewCPtr ();
 				
-				default:
-					canvasptr->SetCursor (wxCURSOR_ARROW);
-					cursorIndex = kArrow;
-					break;
+				CMLegendList* legendListCPtr = legendViewCPtr->GetLegendListCPtr ();
 				
-				}	// end "switch (cursorIndex)"
+				if (legendListCPtr != NULL)
+					{
+					switch (cursorIndex)
+						{
+						case kBlinkOpenCursor1:
+							legendListCPtr->SetCursor (
+															currentView->m_frame->m_blinkOpenCursor);
+							wxSetCursor (currentView->m_frame->m_blinkOpenCursor);
+							break;
+
+						case kBlinkShutCursor1:
+							legendListCPtr->SetCursor (
+															currentView->m_frame->m_blinkShutCursor);
+							wxSetCursor (currentView->m_frame->m_blinkShutCursor);
+							break;
+							
+						default:
+							legendListCPtr->SetCursor (wxCURSOR_ARROW);
+							wxSetCursor (wxNullCursor);
+							cursorIndex = kArrow;
+							break;
+						
+						}	// end "switch (cursorIndex)"
+					
+					}	// end "if (legendListCPtr != NULL)"
 				
-			}	// end "if (currentview != NULL)"
+				}	// end "if (cursorIndex == kBlinkOpenCursor1 || cursorIndex == ..."
+	
+			else	// cursorIndex != kBlinkOpenCursor1 && != kBlinkShutCursor1
+				{
+				CMImageCanvas* canvasptr = currentView->m_Canvas;
+				
+				switch (cursorIndex)
+					{
+					case kArrow:
+						canvasptr->SetCursor (wxCURSOR_ARROW);
+						wxSetCursor (wxNullCursor);
+						break;
+
+					case kWait:
+						canvasptr->SetCursor (wxCURSOR_WAIT);
+						wxSetCursor (wxCURSOR_WAIT);
+						break;
+
+					case kCross:
+						canvasptr->SetCursor (wxCURSOR_CROSS);
+						wxSetCursor (wxNullCursor);
+						break;
+
+					case kBlinkOpenCursor2:
+						canvasptr->SetCursor (currentView->m_frame->m_blinkOpenCursor);
+						wxSetCursor (currentView->m_frame->m_blinkOpenCursor);
+						break;
+
+					case kBlinkShutCursor2:
+						canvasptr->SetCursor (currentView->m_frame->m_blinkShutCursor);
+						wxSetCursor (currentView->m_frame->m_blinkShutCursor);
+						break;
+					
+					default:
+						canvasptr->SetCursor (wxCURSOR_ARROW);
+						wxSetCursor (wxNullCursor);
+						cursorIndex = kArrow;
+						break;
+					
+					}	// end "switch (cursorIndex)"
+			
+				}	// end "else cursorIndex != kBlinkOpenCursor1 && != kBlinkShutCursor1"
+					
+			}	// end "if (currentView != NULL)"
 	
 					// If wait cursor is being requested make this the overall cursor.
 			
-		if (cursorIndex == kWait)
-			wxSetCursor (wxCURSOR_WAIT);
+		//if (cursorIndex == kWait)
 	
-		//else if (gPresentCursor == kWait || gPresentCursor == kSpin)
-		else	// cursorIndex != kWait
+		//#if defined multispec_wxmac
+		//else if (cursorIndex != kBlinkOpenCursor2 && cursorIndex != kBlinkShutCursor2)
 					// Set overall cursor setting to default so that cursor setting for
 					// window take precidence
-			wxSetCursor (wxNullCursor);
-	#endif	// defined multispec_lin
+		//#endif
+	#endif	// defined multispec_wx
 	
-   gPresentCursor = cursorIndex;                               
-		
+   gPresentCursor = cursorIndex;  
+
 }	// end "MSetCursor"  
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7247,7 +6822,7 @@ void PauseIfInBackground (void)
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7323,7 +6898,7 @@ void RemoveSuffix (
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7386,7 +6961,7 @@ void ResetDestinationWindowParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7405,7 +6980,7 @@ void ResetDestinationWindowParameters (
 // Value Returned:	None
 // 
 // Called By:			DrawArcViewShapes in SArcView.cpp
-//							OutlineFieldsControl in SOutFlds.cpp
+//							OutlineFieldsControl in SOutlineFields.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 02/26/2007
 //	Revised By:			Larry L. Biehl			Date: 02/26/2007	
@@ -7435,7 +7010,7 @@ void ResetMapToWindowUnitsVariables (
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7465,18 +7040,18 @@ void SetActiveDisplaySpecsHandle (
 																						displaySpecsHandle;
 	#endif	// defined multispec_mac 
 	
-	#if defined multispec_win || defined multispec_lin
+	#if defined multispec_win || defined multispec_wx
 		if (gActiveImageViewCPtr != NULL)
 			gActiveImageViewCPtr->m_displayMultiCPtr->mDisplaySpecsHandle =
 																						displaySpecsHandle;
-	#endif	// defined multispec_win || defined multispec_lin
+	#endif	// defined multispec_win || defined multispec_wx
 		
 }	// end "SetActiveDisplaySpecsHandle" 
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7495,8 +7070,8 @@ void SetActiveDisplaySpecsHandle (
 //
 // Value Returned:	None
 // 
-// Called By:			ListProjectData in SLstData.cpp
-//							ListResultsTrainTestFields in SLstRslt.cpp
+// Called By:			ListProjectData in SListData.cpp
+//							ListResultsTrainTestFields in SListResults.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 03/19/1999
 //	Revised By:			Larry L. Biehl			Date: 08/31/2011		
@@ -7544,7 +7119,7 @@ void SetAreaDescriptionOffsetVariables (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7560,13 +7135,13 @@ void SetAreaDescriptionOffsetVariables (
 // Value Returned:	None
 // 
 // Called By:			DrawShapeFiles in ArcView.cpp
-//							PolygonSelection in selectionArea.c
-//							OutlineFieldsControl in SOutFlds.cpp
-//							ClearSelectionArea in SSelUtil.cpp
-//							DrawSelectionArea in SSelUtil.cpp
+//							PolygonSelection in SSelectionUtility.cpp
+//							OutlineFieldsControl in SOutlineFields.cpp
+//							ClearSelectionArea in SSelectionUtility.cpp
+//							DrawSelectionArea in SSelectionUtility.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 08/24/1992
-//	Revised By:			Larry L. Biehl			Date: 01/09/2012		
+//	Revised By:			Larry L. Biehl			Date: 11/13/2019
 
 void SetChannelWindowVariables (
 				SInt16								windowCode,
@@ -7623,16 +7198,16 @@ void SetChannelWindowVariables (
 					// Determine the number of side by side channels.					
 					
 			gSideBySideChannels = displaySpecsPtr->numberChannels;
-			if (displaySpecsPtr->displayType != 7)
+			if (displaySpecsPtr->displayType != kSideSideChannelDisplayType)
 				gSideBySideChannels = 1;
 			
 					// Determine first channel that has at least part of it			
 					// being displayed in the window.										
 						
-			gStartChannel = displaySpecsPtr->origin[kHorizontal]/
-															displaySpecsPtr->offscreenChannelWidth;
+			gStartChannel = (SInt32)(displaySpecsPtr->origin[kHorizontal]/
+															displaySpecsPtr->offscreenChannelWidth);
 			
-			if (displaySpecsPtr->displayType == 7)
+			if (displaySpecsPtr->displayType == kSideSideChannelDisplayType)
 				{
 				/*   
 				if (windowCode == kToPrintWindow && 
@@ -7666,7 +7241,7 @@ void SetChannelWindowVariables (
 
 					}	// end "else if (windowCode == kToClipboardWindow || ..." 
 				
-				}	// end "if (displaySpecsPtr->displayType == 7)"
+				}	// end "if (displaySpecsPtr->displayType == ..."
 													
 					// Determine the draw interval between channels for the 			
 					// current magnification.													
@@ -7677,7 +7252,7 @@ void SetChannelWindowVariables (
 					// Determine the width of the image for one channel.
 																
 			gChannelWindowWidth = gChannelWindowInterval;
-			if (displaySpecsPtr->displayType == 7)
+			if (displaySpecsPtr->displayType == kSideSideChannelDisplayType)
 				gChannelWindowWidth = 
 							(SInt32)((displaySpecsPtr->offscreenChannelWidth - 2) * 
 																							magnification);
@@ -7709,7 +7284,7 @@ void SetChannelWindowVariables (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7728,7 +7303,7 @@ void SetChannelWindowVariables (
 // Value Returned:	None
 // 
 // Called By:			DrawArcViewShapes in SArcView.cpp
-//							OutlineFieldsControl in SOutFlds.cpp
+//							OutlineFieldsControl in SOutlineFields.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/27/2001
 //	Revised By:			Larry L. Biehl			Date: 06/19/2002	
@@ -7754,7 +7329,7 @@ void SetDestinationWindowParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7776,7 +7351,7 @@ void SetDestinationWindowParameters (
 // Called By:			OutlineFieldsControl in SOutlineFields.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 06/19/2002
-//	Revised By:			Larry L. Biehl			Date: 11/05/2015	
+//	Revised By:			Larry L. Biehl			Date: 11/19/2019
 
 void SetLCToWindowUnitVariables (
 				Handle								windowInfoHandle,
@@ -7825,7 +7400,8 @@ void SetLCToWindowUnitVariables (
 			if (windowCode == kToPrintWindow)
 				{
 				WindowPtr windowPtr = GetWindowPtr (windowInfoHandle);
-				lcToWindowUnitsVariablesPtr->magnification = windowPtr->m_printerTextScaling;
+				lcToWindowUnitsVariablesPtr->magnification = 
+																	windowPtr->m_printerTextScaling;
 
 				}	// end "if (windowCode == kToPrintWindow)"
 		#endif	// defined multispec_win 
@@ -7834,8 +7410,8 @@ void SetLCToWindowUnitVariables (
 				// If writing to the clipboard, then set the display offsets
 				// correctly to allow for writing to output with origin at (0, 0).
 				
-		xOrigin = displaySpecsPtr->origin[kHorizontal];
-		yOrigin = displaySpecsPtr->origin[kVertical];
+		xOrigin = (SInt32)displaySpecsPtr->origin[kHorizontal];
+		yOrigin = (SInt32)displaySpecsPtr->origin[kVertical];
 
 		if (windowCode == kToClipboardWindow)
 			{
@@ -7856,14 +7432,14 @@ void SetLCToWindowUnitVariables (
 
 			}	// end "else if (windowCode == kToClipboardWindow)"              
 	
-		#if defined multispec_win || defined multispec_lin
+		#if defined multispec_win || defined multispec_wx
 			if (windowCode == kToImageWindow)
 				{               
 				xOrigin = 0;
 				yOrigin = 0;
 				
 				}	// end "if (windowCode == kToImageWindow)"
-		#endif	// defined multispec_win || defined multispec_lin
+		#endif	// defined multispec_win || defined multispec_wx
 		 
 		lcToWindowUnitsVariablesPtr->xOrigin = xOrigin;
 		lcToWindowUnitsVariablesPtr->yOrigin = yOrigin;
@@ -7903,10 +7479,24 @@ void SetLCToWindowUnitVariables (
 		
 				// Get the line and column intervals
 		
-		lcToWindowUnitsVariablesPtr->columnInterval =  
+		if (displaySpecsPtr->displayedColumnInterval > 0 &&
+												displaySpecsPtr->displayedLineInterval > 0)
+			{
+			lcToWindowUnitsVariablesPtr->columnInterval =
 														displaySpecsPtr->displayedColumnInterval;
-		lcToWindowUnitsVariablesPtr->lineInterval =  
+			lcToWindowUnitsVariablesPtr->lineInterval =
 														displaySpecsPtr->displayedLineInterval;
+			
+			}	// end "if (displaySpecsPtr->displayedColumnInterval > 0 && ..."
+		
+		else	// ...displayedColumnInterval == 0 || displayedLineInterval == 0
+			{
+					// This implies that the image is in the process of being drawn.
+			
+			lcToWindowUnitsVariablesPtr->columnInterval = 1;
+			lcToWindowUnitsVariablesPtr->lineInterval = 1;
+			
+			}	// end "else	// ...displayedColumnInterval == 0 || ..."
 						
 				// Get the image left offset.  
 				// Note that the legend in the Windows version is in its own
@@ -7949,7 +7539,7 @@ void SetLCToWindowUnitVariables (
 					
 		lcToWindowUnitsVariablesPtr->channelWindowOffset = gChannelWindowOffset;
 			            
-		#if defined multispec_win || defined multispec_lin
+		#if defined multispec_win || defined multispec_wx
 			LongPoint 	scrollOffset;
 			if (windowCode == kToPrintWindow || windowCode == kToClipboardWindow)
 				{
@@ -7963,7 +7553,7 @@ void SetLCToWindowUnitVariables (
 				
 			lcToWindowUnitsVariablesPtr->columnScrollOffset = scrollOffset.h;
 			lcToWindowUnitsVariablesPtr->lineScrollOffset = scrollOffset.v;
-		#endif	// defined multispec_win || defined multispec_lin
+		#endif	// defined multispec_win || defined multispec_wx
 		
 		}	// end "if (windowInfoHandle != NULL && ..." 
 		
@@ -7995,7 +7585,7 @@ void SetLCToWindowUnitVariables (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8018,10 +7608,10 @@ void SetLCToWindowUnitVariables (
 // Value Returned:	None
 // 
 // Called By:			DrawArcViewShapes in SArcView.cpp
-//							OutlineFieldsControl in SOutFlds.cpp
+//							OutlineFieldsControl in SOutlineFields.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 06/17/2002
-//	Revised By:			Larry L. Biehl			Date: 04/09/2015	
+//	Revised By:			Larry L. Biehl			Date: 11/02/2019	
 
 void SetMapToWindowUnitsVariables (
 				Handle								windowInfoHandle,
@@ -8078,8 +7668,8 @@ void SetMapToWindowUnitsVariables (
 				// If the writing to the clipboard, then set the display offsets	
 				// correctly to allow for writing to output with origin at (0,0).
 				
-		xOrigin = displaySpecsPtr->origin[kHorizontal];
-		yOrigin = displaySpecsPtr->origin[kVertical];
+		xOrigin = (UInt32)displaySpecsPtr->origin[kHorizontal];
+		yOrigin = (UInt32)displaySpecsPtr->origin[kVertical];
 
 		if (windowCode == kToClipboardWindow)
 			{
@@ -8099,14 +7689,14 @@ void SetMapToWindowUnitsVariables (
 
 			}	// end "else if (windowCode == kToClipboardWindow)"              
 	
-		#if defined multispec_win || defined multispec_lin
+		#if defined multispec_win || defined multispec_wx
 			if (windowCode == kToImageWindow)
 				{               
 				xOrigin = 0;
 				yOrigin = 0;
 				
 				}	// end "if (windowCode == kToImageWindow)"
-		#endif	// defined multispec_win || defined multispec_lin
+		#endif	// defined multispec_win || defined multispec_wx
 		
 		if (coreGraphicsFlag)
 			{
@@ -8266,7 +7856,7 @@ void SetMapToWindowUnitsVariables (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8326,7 +7916,7 @@ Boolean SetUpActiveImageInformationGlobals (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8341,14 +7931,14 @@ Boolean SetUpActiveImageInformationGlobals (
 //
 // Value Returned:
 //
-// Called By:			CoordinateUnitsControlEvent in controls.c
+// Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 11/22/2000
 //	Revised By:			Larry L. Biehl			Date: 07/28/2017
 void SetUpAreaUnitsPopUpMenu (
 				MenuHandle							menuHandle,
 				Handle								windowInfoHandle,
-				#ifndef multispec_lin
+				#ifndef multispec_wx
 					DialogPtr							dialogPtr)
 				#else
 					wxPanel*								dialogPtr)
@@ -8481,90 +8071,96 @@ void SetUpAreaUnitsPopUpMenu (
 			}	// end "if (planarMapUnitsCode >= kKilometersCode)"
 	#endif	// defined multispec_win
 			
-	#if defined multispec_lin
+	#if defined multispec_wx
 		SInt16	index = 0,
 					numberComboItems;
 
 
-		wxComboBox* comboBoxPtr =
-				(wxComboBox*)dialogPtr->FindWindow (IDC_AreaUnitsCombo);
+		#if defined multispec_wxlin
+			wxComboBox* areaUnitsCtrl =
+							(wxComboBox*)dialogPtr->FindWindow (IDC_AreaUnitsCombo);
+		#endif
+		#if defined multispec_wxmac
+			wxChoice* areaUnitsCtrl =
+							(wxChoice*)dialogPtr->FindWindow (IDC_AreaUnitsCombo);
+		#endif
 
 				// Remove all but the first item in the list.
 
-		numberComboItems = comboBoxPtr->GetCount ();
+		numberComboItems = areaUnitsCtrl->GetCount ();
 		while (numberComboItems > 1) 
 			{
-			comboBoxPtr->Delete (numberComboItems-1);
+			areaUnitsCtrl->Delete (numberComboItems-1);
 			numberComboItems--;
 
 			}	// end "while (numberComboItems > 1)"
 
-		comboBoxPtr->SetClientData (index, (void*)gNumberPixelsUnitsMenuItem);
+		areaUnitsCtrl->SetClientData (index, (void*)(SInt64)gNumberPixelsUnitsMenuItem);
 		index++;
 
 		if (planarMapUnitsCode == kUnknownCode) 
 			{
-			comboBoxPtr->Append (wxT("Unknown units"));
-			comboBoxPtr->SetClientData (index, (void *)gAreaUnknownUnitsMenuItem);
+			areaUnitsCtrl->Append (wxT("Unknown units"));
+			areaUnitsCtrl->SetClientData (index, (void*)(SInt64)gAreaUnknownUnitsMenuItem);
 			index++;
 
 			}	// end "if (planarMapUnitsCode == kUnknownCode)"
 
 		if (planarMapUnitsCode >= kKilometersCode) 
 			{
-			comboBoxPtr->Append (wxT("Sq. kilometers"));
-			comboBoxPtr->SetClientData (index, (void *)gSqKilometersUnitsMenuItem);
+			areaUnitsCtrl->Append (wxT("Sq. kilometers"));
+			areaUnitsCtrl->SetClientData (index, (void*)(SInt64)gSqKilometersUnitsMenuItem);
 			index++;
 
-			comboBoxPtr->Append (wxT("Hectares"));
-			comboBoxPtr->SetClientData (index, (void *)gHectareUnitsMenuItem);
+			areaUnitsCtrl->Append (wxT("Hectares"));
+			areaUnitsCtrl->SetClientData (index, (void*)(SInt64)gHectareUnitsMenuItem);
 			index++;
 
-			comboBoxPtr->Append (wxT("Sq. meters"));
-			comboBoxPtr->SetClientData (index, (void *)gSqMetersUnitsMenuItem);
+			areaUnitsCtrl->Append (wxT("Sq. meters"));
+			areaUnitsCtrl->SetClientData (index, (void*)(SInt64)gSqMetersUnitsMenuItem);
 			index++;
 
-			comboBoxPtr->Append (wxT("Sq. centimeters"));
-			comboBoxPtr->SetClientData (index, (void *)gSqCentimetersUnitsMenuItem);
+			areaUnitsCtrl->Append (wxT("Sq. centimeters"));
+			areaUnitsCtrl->SetClientData (index, (void*)(SInt64)gSqCentimetersUnitsMenuItem);
 			index++;
 
-			comboBoxPtr->Append (wxT("Sq. millimeters"));
-			comboBoxPtr->SetClientData (index, (void *)gSqMillimetersUnitsMenuItem);
+			areaUnitsCtrl->Append (wxT("Sq. millimeters"));
+			areaUnitsCtrl->SetClientData (index, (void*)(SInt64)gSqMillimetersUnitsMenuItem);
 			index++;
 
-			comboBoxPtr->Append (wxT("Sq. micrometers"));
-			comboBoxPtr->SetClientData (index, (void *)gSqMicrometersUnitsMenuItem);
+			areaUnitsCtrl->Append (wxT("Sq. micrometers"));
+			areaUnitsCtrl->SetClientData (index, (void*)(SInt64)gSqMicrometersUnitsMenuItem);
 			index++;
 
-			comboBoxPtr->Append (wxT("Sq. miles"));
-			comboBoxPtr->SetClientData (index, (void *)gSqMilesUnitsMenuItem);
+			areaUnitsCtrl->Append (wxT("Sq. miles"));
+			areaUnitsCtrl->SetClientData (index, (void*)(SInt64)gSqMilesUnitsMenuItem);
 			index++;
 
-			comboBoxPtr->Append (wxT("Acres"));
-			comboBoxPtr->SetClientData (index, (void *)gAcresUnitsMenuItem);
+			areaUnitsCtrl->Append (wxT("Acres"));
+			areaUnitsCtrl->SetClientData (index, (void*)(SInt64)gAcresUnitsMenuItem);
 			index++;
 
-			comboBoxPtr->Append (wxT("Sq. yards"));
-			comboBoxPtr->SetClientData (index, (void *)gSqYardsUnitsMenuItem);
+			areaUnitsCtrl->Append (wxT("Sq. yards"));
+			areaUnitsCtrl->SetClientData (index, (void*)(SInt64)gSqYardsUnitsMenuItem);
 			index++;
 
-			comboBoxPtr->Append (wxT("Sq. feet"));
-			comboBoxPtr->SetClientData (index, (void *)gSqFeetUnitsMenuItem);
+			areaUnitsCtrl->Append (wxT("Sq. feet"));
+			areaUnitsCtrl->SetClientData (index, (void*)(SInt64)gSqFeetUnitsMenuItem);
 			index++;
 
-			comboBoxPtr->Append (wxT("Sq. inches"));
-			comboBoxPtr->SetClientData (index, (void *)gSqInchesUnitsMenuItem);
+			areaUnitsCtrl->Append (wxT("Sq. inches"));
+			areaUnitsCtrl->SetClientData (index, (void*)(SInt64)gSqInchesUnitsMenuItem);
 			index++;
 
-			} // end "if (planarMapUnitsCode >= kKilometersCode)"
-	#endif	// defined multispec_lin
+			}	// end "if (planarMapUnitsCode >= kKilometersCode)"
+	#endif	// defined multispec_wx
 
 }	// end "SetUpAreaUnitsPopUpMenu"  
 
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8579,7 +8175,7 @@ void SetUpAreaUnitsPopUpMenu (
 //
 // Value Returned:
 //
-// Called By:			CoordinateUnitsControlEvent in controls.c
+// Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 11/06/2000
 //	Revised By:			Larry L. Biehl			Date: 07/28/2017
@@ -8587,7 +8183,7 @@ void SetUpAreaUnitsPopUpMenu (
 void SetUpCoordinateUnitsPopUpMenu (
 				MenuHandle							menuHandle,
 				Handle								windowInfoHandle,
-				#ifndef multispec_lin
+				#ifndef multispec_wx
 					DialogPtr							dialogPtr)
 				#else
 					wxPanel*								dialogPtr)
@@ -8602,88 +8198,96 @@ void SetUpCoordinateUnitsPopUpMenu (
 
 	enableLatLongUnitsMenuItemFlag = DetermineIfLatLongPossible (windowInfoHandle);
 			
-	#if defined multispec_lin
+	#if defined multispec_wx
 		SInt16								index = 0,
 												numberComboItems;
 
 
-		wxComboBox* comboBoxPtr =
-								(wxComboBox*)dialogPtr->FindWindow (IDC_DisplayUnitsCombo);
+		wxChoice* displayUnitsCtrl =
+								(wxChoice*)dialogPtr->FindWindow (IDC_DisplayUnitsCombo);
 
 				// Remove all but the first item in the list.
 
-		numberComboItems = comboBoxPtr->GetCount ();		
+		numberComboItems = displayUnitsCtrl->GetCount ();
 		
 		while (numberComboItems > 1) 
 			{
-			comboBoxPtr->Delete (numberComboItems - 1);
+			displayUnitsCtrl->Delete (numberComboItems - 1);
 			numberComboItems--;
 
 			}	// end "while (numberComboItems > 1)"
 
-		comboBoxPtr->SetClientData (index, (void*)gLineColumnUnitsMenuItem);
+		displayUnitsCtrl->SetClientData (
+												index, (void*)(SInt64)gLineColumnUnitsMenuItem);
 		index++;
 
 		if (planarMapUnitsCode == kUnknownCode) 
 			{
-			comboBoxPtr->Append (wxT("Unknown units"));
-			comboBoxPtr->SetClientData (index, (void *)gUnknownUnitsMenuItem);
+			displayUnitsCtrl->Append (wxT("Unknown units"));
+			displayUnitsCtrl->SetClientData (
+												index, (void*)(SInt64)gUnknownUnitsMenuItem);
 			index++;
 
 			}	// end "if (planarMapUnitsCode == kUnknownCode)"
 
 		if (enableLatLongUnitsMenuItemFlag) 
 			{
-			comboBoxPtr->Append (wxT("Lat-Long (Decimal)"));
-			comboBoxPtr->SetClientData (index, (void *)gDecimalLatLongUnitsMenuItem);
+			displayUnitsCtrl->Append (wxT("Lat-Long (Decimal)"));
+			displayUnitsCtrl->SetClientData (
+											index, (void*)(SInt64)gDecimalLatLongUnitsMenuItem);
 			index++;
 
-			comboBoxPtr->Append (wxT("Lat-Long (DMS)"));
-			comboBoxPtr->SetClientData (index, (void *)gDMSLatLongUnitsMenuItem);
+			displayUnitsCtrl->Append (wxT("Lat-Long (DMS)"));
+			displayUnitsCtrl->SetClientData (
+												index, (void*)(SInt64)gDMSLatLongUnitsMenuItem);
 			index++;
 
 			}	// end "if (enableLatLongUnitsMenuItemFlag)"
 
 		if (planarMapUnitsCode >= kKilometersCode) 
 			{
-			comboBoxPtr->Append (wxT("Kilometers"));
-			comboBoxPtr->SetClientData (index, (void*)gKilometersUnitsMenuItem);
+			displayUnitsCtrl->Append (wxT("Kilometers"));
+			displayUnitsCtrl->SetClientData (
+												index, (void*)(SInt64)gKilometersUnitsMenuItem);
 			index++;
 
-			comboBoxPtr->Append (wxT("Meters"));
-			comboBoxPtr->SetClientData (index, (void*)gMetersUnitsMenuItem);
+			displayUnitsCtrl->Append (wxT("Meters"));
+			displayUnitsCtrl->SetClientData (index, (void*)(SInt64)gMetersUnitsMenuItem);
 			index++;
 
-			comboBoxPtr->Append (wxT("Centimeters"));
-			comboBoxPtr->SetClientData (index, (void*)gCentimetersUnitsMenuItem);
+			displayUnitsCtrl->Append (wxT("Centimeters"));
+			displayUnitsCtrl->SetClientData (
+												index, (void*)(SInt64)gCentimetersUnitsMenuItem);
 			index++;
 
-			comboBoxPtr->Append (wxT("Millimeters"));
-			comboBoxPtr->SetClientData (index, (void*)gMillimetersUnitsMenuItem);
+			displayUnitsCtrl->Append (wxT("Millimeters"));
+			displayUnitsCtrl->SetClientData (
+												index, (void*)(SInt64)gMillimetersUnitsMenuItem);
 			index++;
 
-			comboBoxPtr->Append (wxT("Micrometers"));
-			comboBoxPtr->SetClientData (index, (void*)gMicrometersUnitsMenuItem);
+			displayUnitsCtrl->Append (wxT("Micrometers"));
+			displayUnitsCtrl->SetClientData (
+												index, (void*)(SInt64)gMicrometersUnitsMenuItem);
 			index++;
 
-			comboBoxPtr->Append (wxT("Miles"));
-			comboBoxPtr->SetClientData (index, (void*)gMilesUnitsMenuItem);
+			displayUnitsCtrl->Append (wxT("Miles"));
+			displayUnitsCtrl->SetClientData (index, (void*)(SInt64)gMilesUnitsMenuItem);
 			index++;
 
-			comboBoxPtr->Append (wxT("Yards"));
-			comboBoxPtr->SetClientData (index, (void*)gYardsUnitsMenuItem);
+			displayUnitsCtrl->Append (wxT("Yards"));
+			displayUnitsCtrl->SetClientData (index, (void*)(SInt64)gYardsUnitsMenuItem);
 			index++;
 
-			comboBoxPtr->Append (wxT("Feet"));
-			comboBoxPtr->SetClientData (index, (void*)gFeetUnitsMenuItem);
+			displayUnitsCtrl->Append (wxT("Feet"));
+			displayUnitsCtrl->SetClientData (index, (void*)(SInt64)gFeetUnitsMenuItem);
 			index++;
 
-			comboBoxPtr->Append (wxT("Inches"));
-			comboBoxPtr->SetClientData (index, (void*)gInchesUnitsMenuItem);
+			displayUnitsCtrl->Append (wxT("Inches"));
+			displayUnitsCtrl->SetClientData (index, (void*)(SInt64)gInchesUnitsMenuItem);
 			index++;
 
-			} // end "if (planarMapUnitsCode >= kKilometersCode)"
-	#endif	// defined multispec_lin
+			}	// end "if (planarMapUnitsCode >= kKilometersCode)"
+	#endif	// defined multispec_wx
 
 	#if defined multispec_mac
 		EnableMenuItem (menuHandle, kLineColumnUnitsMenuItem);
@@ -8830,7 +8434,7 @@ void SetUpCoordinateUnitsPopUpMenu (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8860,7 +8464,7 @@ SInt16 Swap2Bytes (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8905,7 +8509,7 @@ void UnlockActiveImageInformationGlobals (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8960,7 +8564,7 @@ void UnlockImageInformationHandles (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8987,10 +8591,10 @@ void UpdateActiveImageWScrolls (
 				double								magnification)
 													
 {
-	#if defined multispec_lin
+	#if defined multispec_wx
 		gActiveImageViewCPtr->UpdateScrolls (magnification);
 		//gActiveImageViewCPtr->OnUpdate (gActiveImageViewCPtr, NULL);
-	#endif	// defined multispec_lin
+	#endif	// defined multispec_wx
 	
 	#if defined multispec_mac
 		UpdateImageWScrolls (gActiveImageWindow);
@@ -9006,7 +8610,7 @@ void UpdateActiveImageWScrolls (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9021,7 +8625,7 @@ void UpdateActiveImageWScrolls (
 //
 // Value Returned:	None
 //
-// Called By:			UpdateOutputFileStructure in SReform2.cpp
+// Called By:			UpdateOutputFileStructure in SReformatUtilities.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/17/2000
 //	Revised By:			Larry L. Biehl			Date: 02/24/2007
@@ -9097,7 +8701,7 @@ void UpdateMapProjectionStructure (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9221,7 +8825,3 @@ void UpdatePlanarCoordinateInfo (
 		}	// end "if (inputMapProjectionHandle != NULL && planarCoordinatePtr != NULL)"
 				 										
 }	// end "UpdatePlanarCoordinateInfo" 
-
-
-
-

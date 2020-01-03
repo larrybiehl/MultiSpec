@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,30 +11,13 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			04/24/2019
+//	Revision date:			11/27/2019
 //
 //	Language:				C
 //
 //	System:					Linux, Macintosh, and Windows Operating Systems
 //
 //	Brief description:	This file contains routines to hand thematic type windows.
-//
-//	Functions in file:	void 						AddCellsToLegendList
-//								void 						ChangeClassGroupPalette
-//								void 						ChangeClassPalette
-//								void 						ChangeGroupPalette
-//								Boolean 					DoBlinkCursor1
-//								void 						DoThematicWColorsUpdate
-//								void 						EditClassGroupPalette
-//								Boolean					EditGroupClassDialog
-//								void						EditGroups
-//								Boolean 					GetGroupStructureMemory
-//								void 						LoadThematicLegendList
-//								void	 					UpdateUserDefinedGroupColorTable
-//								void 						UpdateThematicLegendControls
-//
-//	Include files:			"MultiSpecHeaders"
-//								"multiSpec.h"
 //
 /*  Following is template used for testing/debugging
 	int numberChars = sprintf ((char*)gTextString3,
@@ -47,20 +30,20 @@
 
 #include "SMultiSpec.h" 
 
-#if defined multispec_lin
-	#include "LEditClassGroupDialog.h"
-	#include "LImageDoc.h"
-	#include "LImageFrame.h" 
-	#include "LImageView.h" 
-	#include "LLegendList.h" 
-	#include "LLegendView.h" 
-	#include "LMainFrame.h"
-	#include "LMultiSpec.h"
+#if defined multispec_wx
+	#include "xEditClassGroupDialog.h"
+	#include "xImageDoc.h"
+	#include "xImageFrame.h" 
+	#include "xImageView.h" 
+	#include "xLegendList.h" 
+	#include "xLegendView.h" 
+	#include "xMainFrame.h"
+	#include "xMultiSpec.h"
 	#include "wx/colordlg.h"
-#endif	// defined multispec_lin
+#endif	// defined multispec_wx
 
 #if defined multispec_win
-	#include "CPalette.h"
+	#include "SPalette_class.h"
 	#include "WImageView.h" 
 	#include "WEditClassGroupDialog.h"
 	#include "WImageDoc.h"
@@ -82,17 +65,16 @@
 	extern UInt16			gDisplayBitsPerPixel;
 #endif	// defined multispec_win
 
-//#include "SExtGlob.h"
+#if defined multispec_wxmac
+	#include "xBitmapRefData.h"
+#endif	// defined multispec_wxmac
 
-extern void CreateDefaultGroupTable (
-				FileInfoPtr							fileInfoPtr,
-				DisplaySpecsPtr					displaySpecsPtr);	
 
 
 		// Prototypes for routines in this file that are only called by
 		// other routines in this file.														
 
-void 		ChangeClassPalette (
+void ChangeClassPalette (
 				CMPaletteInfo 						paletteHandle,
 				CTabHandle 							cTabHandle,
 				UInt16	 							paletteIndex, 
@@ -100,7 +82,7 @@ void 		ChangeClassPalette (
 				Boolean 								changeColorTableFlag,
 				SInt16								code);
 
-void 		ChangeGroupPalette (
+void ChangeGroupPalette (
 				CMPaletteInfo 						paletteHandle,
 				CTabHandle 							cTableHandle, 
 				UInt16	 							groupNumber, 
@@ -109,10 +91,12 @@ void 		ChangeGroupPalette (
 				Boolean 								changeColorTableFlag,
 				SInt16								code);
 
-UInt16	GetPaletteEntry (
-				UInt16								paletteIndex);
+void ConverWinPointToOffScreenPoint (
+				Handle								windowInfoH,
+				LongPoint							windowPoint,
+				LongPoint*							offscreenPoint);
 
-void	 	UpdateUserDefinedGroupColorTable (
+void UpdateUserDefinedGroupColorTable (
 				SInt16								groupNumber,
 				SInt16								paletteIndex,
 				Boolean								newGroupFlag);
@@ -120,7 +104,7 @@ void	 	UpdateUserDefinedGroupColorTable (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -211,7 +195,7 @@ void AddCellsToLegendList (
 		SInt16 listType = (((ListPtr)*legendListHandle)->refCon & 0x00000006)/2; 
 	#endif	// defined multispec_mac || defined multispec_mac_swift
 
-	#if defined multispec_win || defined multispec_lin
+	#if defined multispec_win || defined multispec_wx
 		SInt16 listType = (SInt16)((CMLegendList*)legendListHandle)->m_listType;
 	#endif	// defined multispec_win || ...
 	
@@ -225,7 +209,7 @@ void AddCellsToLegendList (
 		UInt16 numberInOldList = legendListHandle->GetCount (); 
 	#endif	// defined multispec_win 
 	
-   #if defined multispec_lin 
+   #if defined multispec_wx 
 		UInt16 numberInOldList = legendListHandle->GetItemCount ();
    #endif
 	
@@ -262,7 +246,7 @@ void AddCellsToLegendList (
 			legendListHandle->SetTopIndex (0);
 		#endif	// defined multispec_win 
 
-		#if defined multispec_lin
+		#if defined multispec_wx
 			legendListHandle->Scroll (0, 0);
 		#endif
 		
@@ -308,7 +292,7 @@ void AddCellsToLegendList (
 				legendListHandle->InsertString (cell.v, longCellValue);                  
 			#endif	// defined multispec_win 
 
-			#if defined multispec_lin
+			#if defined multispec_wx
 				legendListHandle->SetItemData (cell.v, cellValue);
 			#endif		
 				
@@ -342,7 +326,7 @@ void AddCellsToLegendList (
 						legendListHandle->InsertString (cell.v, (LPCTSTR)longCellValue);                  
 					#endif	// defined multispec_win 
 
-					#if defined multispec_lin
+					#if defined multispec_wx
 						legendListHandle->SetItemData (cell.v, cellValue);
 					#endif
 
@@ -375,7 +359,7 @@ void AddCellsToLegendList (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -393,9 +377,9 @@ void AddCellsToLegendList (
 //
 // Value Returned:	None		
 // 
-// Called By:			DoBlinkCursor1 in SThemWin.cpp
-//							EditClassGroupPalette in SThemWin.cpp
-//							ThematicImageWBlink in thematicWindow.c
+// Called By:			DoBlinkCursor1 in SThematicWindow.cpp
+//							EditClassGroupPalette in SThematicWindow.cpp
+//							ThematicImageWBlink in SThematicWindow.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/23/1991
 //	Revised By:			Larry L. Biehl			Date: 04/26/2016
@@ -469,7 +453,7 @@ void ChangeClassGroupPalette (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -486,7 +470,7 @@ void ChangeClassGroupPalette (
 //
 // Value Returned:	None		
 // 
-// Called By:			ChangeClassGroupPalette  in multiSpec.c
+// Called By:			ChangeClassGroupPalette  in MMultiSpec.c
 //
 //	Coded By:			Larry L. Biehl			Date: 09/14/1992
 //	Revised By:			Larry L. Biehl			Date: 12/21/2017
@@ -517,23 +501,7 @@ void ChangeClassPalette (
 		colorSpecPtr = colorTablePtr->ctTable;
 		
 		}	// end "if (newRGBColorPtr == NULL || changeColorTableFlag)" 
-   /*
-	#if defined multispec_lin
-			// Get the original palette back before making changes
-		if (cTableHandle != NULL)
-			{
-			CTabPtr colorTablePtr = (CTabPtr)GetHandlePointer (
-																		(Handle)cTableHandle, kLock);
-			colorSpecPtr = colorTablePtr->ctTable;
-			UInt16 numberClasses = (UInt16)GetActiveNumberClasses ();
-			endIndex = MIN (numberClasses, (UInt16)256);
-			for (index=0; index<endIndex; index++)
-				MSetEntryColor (paletteHandle, 
-										index, 
-										&colorSpecPtr[index].rgb);
-		}
-	#endif
-	*/
+
 	#if defined multispec_mac || defined multispec_mac_swift
 		//if ((gEventRecord.modifiers & cmdKey) && !changeColorTableFlag)
 		if ((gEventRecord.modifiers & controlKey) && !changeColorTableFlag)
@@ -543,13 +511,9 @@ void ChangeClassPalette (
 		if (GetKeyState (VK_CONTROL) < 0 && !changeColorTableFlag)
 	#endif	// defined multispec_win 
 	
-	#if defined multispec_lin
+	#if defined multispec_wx
 		if (code == 2 && !changeColorTableFlag)
-   #endif	// defined multispec_lin
-	
-	//#if defined multispec_wxmac
-	//	if (wxGetKeyState (WXK_CONTROL) && !changeColorTableFlag)
-   //#endif	// defined multispec_wxmac
+   #endif	// defined multispec_wx
 		{
 				// This turns all classes except the selected class to the
 				// background color.
@@ -631,7 +595,7 @@ void ChangeClassPalette (
 	else	// !(gEventRecord.modifiers & commandKey) || ...
 		{
 		startIndex = paletteIndex; 
-		#ifndef multispec_lin		
+		#ifndef multispec_wx		
 			#if defined multispec_mac                                                 
 				if ((gEventRecord.modifiers & optionKey) && !changeColorTableFlag)
 			#endif	// defined multispec_mac 
@@ -642,9 +606,7 @@ void ChangeClassPalette (
                startIndex = 0;
 		#endif 
 		  
-		#if defined multispec_lin
-			//if (wxGetMouseState ().RightIsDown ())
-			//if (wxGetKeyState (WXK_ALT))
+		#if defined multispec_wx
 			if (code == 4)
 				startIndex = 0;
 		#endif
@@ -713,7 +675,7 @@ void ChangeClassPalette (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -730,7 +692,7 @@ void ChangeClassPalette (
 //
 // Value Returned:	None		
 // 
-// Called By:			ChangeClassGroupPalette  in multiSpec.c
+// Called By:			ChangeClassGroupPalette  in MMultiSpec.c
 //
 //	Coded By:			Larry L. Biehl			Date: 09/14/1992
 //	Revised By:			Larry L. Biehl			Date: 12/06/2018
@@ -767,31 +729,7 @@ void ChangeGroupPalette (
 		colorSpecPtr = colorTablePtr->ctTable;
 		
 		}	// end "if (newRGBColorPtr == NULL || changeColorTableFlag)"
-	/*
-   #if defined multispec_lin
-				// Get the original palette back before making changes
-	
-		if (cTableHandle != NULL)
-			{
-			CTabPtr colorTablePtr = (CTabPtr)GetHandlePointer (
-												(Handle)cTableHandle, kLock); 
-			colorSpecPtr = colorTablePtr->ctTable;
-			UInt16 numberClasses = (UInt16)GetActiveNumberClasses ();
-			endIndex = MIN (numberClasses, (UInt16)256);
-			for (index=0; index<endIndex; index++)
-				{
-				paletteIndex = index + gPaletteOffset;
-				MSetEntryColor (paletteHandle,
-										paletteIndex,
-										&colorSpecPtr[paletteIndex].rgb);
-				
-				}	// end "for (index=0; index<endIndex; index++)"
-			
-			}	// end "if (cTableHandle != NULL)"
-	#endif
-	*/
-	//numberGroups = ((FileInfoPtr)*gActiveImageFileInfoH)->numberGroups;
-	//groupTablesHandle = ((FileInfoPtr)*gActiveImageFileInfoH)->groupTablesHandle;
+
 	classToGroupPtr = (UInt16*)GetClassToGroupPointer (gActiveImageFileInfoH);
 	groupToPalettePtr = (UInt16*)GetGroupToPalettePointer (gActiveImageFileInfoH); 
 		
@@ -810,8 +748,7 @@ void ChangeGroupPalette (
 		#if defined multispec_win                        
 			if (GetKeyState (VK_CONTROL) < 0 && !changeColorTableFlag)
 		#endif	// defined multispec_win 
-      #if defined multispec_lin                        
-			//if (wxGetKeyState (WXK_CONTROL) && !changeColorTableFlag)
+      #if defined multispec_wx
 			if (code == 2 && !changeColorTableFlag)
       #endif
 			{
@@ -930,7 +867,7 @@ void ChangeGroupPalette (
 				if (GetKeyState (VK_RBUTTON) < 0)
 			#endif	// defined multispec_win
 			 
-         #if defined multispec_lin
+         #if defined multispec_wx
             //if (wxGetMouseState ().RightIsDown ())
 				//if (wxGetKeyState (WXK_ALT))
 				if (code == 4)
@@ -971,7 +908,7 @@ void ChangeGroupPalette (
 							paletteIndex = GetPaletteEntry (index);
 							//paletteIndex = groupToPalettePtr [classToGroupPtr[index]];
 							#if defined multispec_mac
-								AnimateEntry (	gActiveImageWindow, 
+								AnimateEntry (gActiveImageWindow, 
 													paletteIndex, 
 													&colorSpecPtr[paletteIndex].rgb);  
 							#endif	// defined multispec_mac 
@@ -1050,7 +987,7 @@ void ChangeGroupPalette (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1141,7 +1078,7 @@ UInt16 CheckForDuplicateName (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1157,9 +1094,9 @@ UInt16 CheckForDuplicateName (
 //
 // Value Returned:	None			
 // 
-//	Called By:			DisplayThematicImage in displayThematic.c
+//	Called By:			DisplayThematicImage in SDisplayThematic.cpp
 //							UpdateActiveImageLegend in SPalette.c
-//							PrintImageWindow in print.c
+//							PrintImageWindow in MPrint.c
 //
 //	Coded By:			Larry L. Biehl			Date: 04/23/2011
 //	Revised By:			Larry L. Biehl			Date: 06/22/2015	
@@ -1216,7 +1153,6 @@ void CreateDefaultGroupTable (
 			// Determine if there are identical colors in a row in the color table. 
 			// This will be used as the key to create a default group table.
 	
-	//numberClassesLessOne = numberClasses - 1;	
 	for (index=1; index<numberClasses; index++)
 		{
 		if (classColorSpecPtr[index].rgb.red == classColorSpecPtr[index-1].rgb.red &&
@@ -1230,7 +1166,7 @@ void CreateDefaultGroupTable (
 			
 			}	// end "if (colorSpecPtr[index].rgb.red == ..."
 			
-		}	// end "for (index=0; index<numberClassesLessOne; index++)"
+		}	// end "for (index=0; index<numberClasses; index++)"
 		
 	if (sameColorFlag)
 		{
@@ -1272,7 +1208,9 @@ void CreateDefaultGroupTable (
 					
 							// Load default group name.
 							
-					stringLength = sprintf (&groupNamePtr[1], "Group %d", (unsigned int)groupCount);
+					stringLength = sprintf (&groupNamePtr[1],
+													"Group %d",
+													(unsigned int)groupCount);
 					groupNamePtr[0] = (UInt8)stringLength;
 					groupNamePtr += 32;
 					
@@ -1287,10 +1225,10 @@ void CreateDefaultGroupTable (
 			fileInfoPtr->numberGroups = (UInt16)groupCount;
 			fileInfoPtr->groupChangedFlag = TRUE;
 			
-			#if defined multispec_lin
+			#if defined multispec_wx
 						// Make sure that wxWidgets knows the document has changed.
-				gActiveImageViewCPtr->GetDocument ()->Modify (TRUE);
-			#endif // defined multispec_lin
+				gActiveImageViewCPtr->GetDocument()->Modify (TRUE);
+			#endif // defined multispec_wx
 			
 					// Get the memory for and then load the group color table. It will
 					// be identical to the class color table to start with.										
@@ -1342,7 +1280,77 @@ void CreateDefaultGroupTable (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		void ConverWinPointToOffScreenPoint
+//
+//	Software purpose:	This routine converts the input window point coordinates to the
+//							corresponding image offscreen point coordinates.
+//
+//	Parameters in:
+//
+//	Parameters out:
+//
+// Value Returned:	None
+//
+// Called By:			ThematicImageWBlink in MMultiSpec.c
+//
+//	Coded By:			Larry L. Biehl			Date: 01/31/1991
+//	Revised By:			Larry L. Biehl			Date: 11/02/2019
+
+void ConverWinPointToOffScreenPoint (
+				Handle								windowInfoH,
+				LongPoint							windowPoint,
+				LongPoint*							offscreenPoint)
+
+{
+	double								magnification;
+
+	DisplaySpecsPtr					displaySpecsPtr;
+	WindowInfoPtr						windowInfoPtr;
+	
+	Handle								displaySpecsH;
+	
+	
+			// Initialize output offscreen point.
+	
+	*offscreenPoint = windowPoint;
+	
+	if (windowInfoH != NULL)
+		{
+				// Get pointer to display specification.  We do not need to lock
+				//	it here since no other routines are called
+		
+		displaySpecsH = GetDisplaySpecsHandle (windowInfoH);
+		if (displaySpecsH != NULL)
+			{
+			windowInfoPtr = (WindowInfoPtr)GetHandlePointer (windowInfoH);
+			
+			displaySpecsPtr = (DisplaySpecsPtr)GetHandlePointer (displaySpecsH);
+			magnification = displaySpecsPtr->magnification;
+			#if defined multispec_win
+				offscreenPoint->v -= windowInfoPtr->imageTopOffset;
+			#endif
+			//offscreenPoint->h -= windowInfoPtr->legendWidth;
+			
+			offscreenPoint->v = (SInt32)(offscreenPoint->v / magnification);
+			offscreenPoint->h = (SInt32)(offscreenPoint->h / magnification);
+			
+			offscreenPoint->v += (SInt32)displaySpecsPtr->origin[kVertical];
+			offscreenPoint->h += (SInt32)displaySpecsPtr->origin[kHorizontal];
+		
+			}	// end "if (displaySpecsH != NULL)"
+		
+		}	// end "if (windowInfoH != NULL)"
+
+}	// end "ConverWinPointToOffScreenPoint"
+
+
+
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1357,10 +1365,10 @@ void CreateDefaultGroupTable (
 //
 // Value Returned:	None		
 // 
-// Called By:			LegendCClickLoop  in thematicWindow.c
+// Called By:			LegendCClickLoop  in SThematicWindow.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/16/1997
-//	Revised By:			Larry L. Biehl			Date: 12/19/2018
+//	Revised By:			Larry L. Biehl			Date: 09/30/2019
 
 Boolean DoBlinkCursor1 (
 				LegendListHandle					legendListHandle,
@@ -1379,15 +1387,7 @@ Boolean DoBlinkCursor1 (
 	CMPaletteInfo						paletteHandle;
 	SInt16								cellLine,
 											paletteIndex;
-											
-	#if defined multispec_lin
-		//bool                          ctrlflag = FALSE,
-		//										altflag = FALSE,
-		//										pctrlflag = FALSE,
-		//										paltflag = FALSE,
-		//										changeflag = FALSE;
-	#endif	// defined multispec_lin
-									
+	
 									
 			// Set up for changes in color.												
 			
@@ -1431,7 +1431,7 @@ Boolean DoBlinkCursor1 (
 				BlockMoveData (&((*cellData)[lCell.v*2]), &cellLine, 2);
 			#endif	// defined multispec_mac 
 			
-			#if defined multispec_win || defined multispec_lin
+			#if defined multispec_win || defined multispec_wx
 				cellLine = (SInt16)legendListHandle->GetItemData (lCell.v); 
 			#endif	// defined multispec_win 
 		
@@ -1455,7 +1455,7 @@ Boolean DoBlinkCursor1 (
 				Handle fileInfoHandle = (*legendListHandle)->userHandle;
 			#endif	// defined multispec_mac || defined multispec_mac_swift
 			
-			#if defined multispec_win || defined multispec_lin
+			#if defined multispec_win || defined multispec_wx
 				Handle fileInfoHandle = 
 									((CMLegendList*)legendListHandle)->m_imageFileInfoHandle;
 			#endif	// defined multispec_win 
@@ -1480,11 +1480,8 @@ Boolean DoBlinkCursor1 (
 			gBlinkProcedure = kBlink1;
 	#endif	// define multispec_win
 	
-	#if defined multispec_lin
+	#if defined multispec_wx
 		gBlinkProcedure = kBlink1;
-		//pctrlflag = wxGetKeyState (WXK_CONTROL);
-		//prclickflag = wxGetMouseState ().RightIsDown ();
-		//paltflag = wxGetKeyState (WXK_ALT);
 	#endif
 	
 	ChangeClassGroupPalette (paletteHandle, 
@@ -1499,61 +1496,28 @@ Boolean DoBlinkCursor1 (
 			DoThematicWColorsUpdate (); 
 	#endif	// defined multispec_win
 	
-	#if defined multispec_lin
-		//((CMLegendList*)legendListHandle)->m_paletteObject =
-		//																	(wxPalette*)paletteHandle;
-	#endif
-								
-	#if defined multispec_win || defined multispec_lin
+	#if defined multispec_win || defined multispec_wx
 		displaySpecsPtr->paletteObject->SetPaletteLoadedFlag (FALSE);
 		DoThematicWColorsUpdate ();
-	#endif	// defined multispec_win    
+	#endif	// defined multispec_win
 	
-	MSetCursor (kBlinkShutCursor);
-	#ifndef multispec_lin 
+	MSetCursor (kBlinkShutCursor1);
+	
+	#ifndef multispec_wx
 		while (StillDown ())
 			{ }
 	#endif
 
-	#if defined multispec_lin
-		//if (code == 1)
-		while (wxGetKeyState (WXK_SHIFT))
+	#if defined multispec_wx
+		Boolean leftIsDownFlag = TRUE;
+		while (leftIsDownFlag)
 			{
-			//ctrlflag = wxGetKeyState (WXK_CONTROL);
-			//rclickflag = wxGetMouseState ().RightIsDown ();
-			//altflag = wxGetKeyState (WXK_ALT);
-			/*
-			if (ctrlflag != pctrlflag || altflag != paltflag)
-				{
-				pctrlflag = ctrlflag;
-				paltflag = altflag;
-				
-				ChangeClassGroupPalette (paletteHandle, 
-											cellLine, 
-											paletteIndex, 
-											&displaySpecsPtr->backgroundColor,
-											2,
-											code);
-				//((CMLegendList*)legendListHandle)->m_paletteObject =
-																			(wxPalette*)paletteHandle;
-				DoThematicWColorsUpdate ();
+			wxMouseState currentMouseState = wxGetMouseState ();
+			leftIsDownFlag = currentMouseState.LeftIsDown ();
 			
-				}	// end "if (ctrlflag != pctrlflag || altflag != paltflag)"
-			*/
-			}	// end "while (wxGetKeyState (WXK_SHIFT))"
-		/*
-		else if (code == 2)
-			while (wxGetKeyState (WXK_CONTROL))
-				{
-				}
-	
-		else if (code == 4)
-			while (wxGetKeyState (WXK_ALT))
-				{
-				}
-		*/
-	#endif	// defined multispec_lin
-											  
+			}	// end "while (leftIsDownFlag)"
+	#endif	// defined multispec_wx
+
 	ChangeClassGroupPalette (paletteHandle,
 										cellLine, 
 										paletteIndex,  
@@ -1561,26 +1525,17 @@ Boolean DoBlinkCursor1 (
 										2,
 										code);
 	
-	#if defined multispec_lin
-		//((CMLegendList*)legendListHandle)->m_paletteObject =
-		//																	(wxPalette*)paletteHandle;
-		//((CMLegendList*)legendListHandle)->m_paletteObject =
-		//																	GetActivePaletteHandle ();
-	#endif
-	
 	#if defined multispec_mac 
 		if (gBlinkProcedure == kBlink1)
 			DoThematicWColorsUpdate (); 
 	#endif	// defined multispec_win 
 								
-	#if defined multispec_win || defined multispec_lin
+	#if defined multispec_win || defined multispec_wx
 		displaySpecsPtr->paletteObject->SetPaletteLoadedFlag (FALSE);
 		DoThematicWColorsUpdate ();
 	#endif	// defined multispec_win    
 	
-	#ifndef multispec_lin
-		MSetCursor (kBlinkOpenCursor1);
-	#endif
+	MSetCursor (kBlinkOpenCursor1);
 	
 	MHSetState (displaySpecsHandle, handleStatus);
 		
@@ -1591,7 +1546,7 @@ Boolean DoBlinkCursor1 (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1606,8 +1561,8 @@ Boolean DoBlinkCursor1 (
 //
 // Value Returned:	None
 // 
-// Called By:			LegendCClickLoop in thematicWindow.c
-//							ThematicImageWBlink in thematicWindow.c
+// Called By:			LegendCClickLoop in MThematicWindow.c
+//							ThematicImageWBlink in SThematicWindow.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/28/1991
 //	Revised By:			Larry L. Biehl			Date: 01/22/2019
@@ -1661,7 +1616,7 @@ void DoThematicWColorsUpdate (void)
 	#endif	// defined multispec_mac
 		
 	#if defined multispec_win 
-		CMainFrame* pAppFrame = (CMainFrame*)AfxGetApp ()->m_pMainWnd;
+		CMainFrame* pAppFrame = (CMainFrame*)AfxGetApp()->m_pMainWnd;
 		pAppFrame->SendMessage (WM_QUERYNEWPALETTE, NULL, NULL);
 					                                      
 		CMImageDoc* imageDocCPtr = gActiveImageViewCPtr->GetDocument ();
@@ -1669,7 +1624,7 @@ void DoThematicWColorsUpdate (void)
 		imageFrameCPtr->UpdateWindow ();
 	#endif	// defined multispec_win 
 
-	#if defined multispec_lin
+	#if defined multispec_wx
       CMImageCanvas* canvasptr = gActiveImageViewCPtr->m_Canvas;
       canvasptr->Refresh ();
       CMImageFrame* frameptr = gActiveImageViewCPtr->m_frame;
@@ -1693,7 +1648,7 @@ void DoThematicWColorsUpdate (void)
 
  
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1752,7 +1707,7 @@ void EditClassGroupPalette (
 		if (cellLine < 0 || cellLine > (legendListHandle->GetCount ()))
 	#endif
          
-	#if defined multispec_lin
+	#if defined multispec_wx
       if (cellLine < 0 || cellLine > (legendListHandle->GetItemCount ()))
 	#endif
 																									return;
@@ -1801,7 +1756,7 @@ void EditClassGroupPalette (
 				cellLine = (SInt16)legendListHandle->GetItemData (lCell.v); 
 			#endif	// defined multispec_win 
 
-			#if defined multispec_lin 
+			#if defined multispec_wx 
 				cellLine = (SInt16)legendListHandle->GetItemData (lCell.v);
 			#endif	// defined multispec_win 
 
@@ -1820,7 +1775,7 @@ void EditClassGroupPalette (
 			Handle fileInfoHandle = (*legendListHandle)->userHandle;
 		#endif	// defined multispec_mac || defined multispec_mac_swift
 				
-		#if defined multispec_win || defined multispec_lin
+		#if defined multispec_win || defined multispec_wx
 			Handle fileInfoHandle = 
 									((CMLegendList*)legendListHandle)->m_imageFileInfoHandle;
 		#endif	// defined multispec_win
@@ -1866,22 +1821,21 @@ void EditClassGroupPalette (
 		else	// displayClassGroupCode != kClassDisplay
 			fileInfoPtr->groupChangedFlag = TRUE;	
 			
-		#if defined multispec_lin
+		#if defined multispec_wx
 				// Make sure that wxWidgets knows the document has changed.
-			gActiveImageViewCPtr->GetDocument ()->Modify (TRUE);
-		#endif // defined multispec_lin
+			gActiveImageViewCPtr->GetDocument()->Modify (TRUE);
+		#endif // defined multispec_wx
 								
 		#if defined multispec_mac										
-			gUpdateFileMenuItemsFlag = TRUE; 
-			//UpdatePaletteWindow (TRUE, FALSE);
+			gUpdateFileMenuItemsFlag = TRUE;
 			ActivateImageWindowPalette (paletteHandle);
 		#endif
 
-		#if defined multispec_win || defined multispec_lin
+		#if defined multispec_win || defined multispec_wx
 			displaySpecsPtr = (DisplaySpecsPtr)GetHandlePointer (displaySpecsH);
 			displaySpecsPtr->paletteUpToDateFlag = FALSE;
 			UpdateActiveImageLegend (listType, kCallCreatePalette);
-			#if defined multispec_lin
+			#if defined multispec_wx
 				displaySpecsPtr->paletteObject->SetPaletteLoadedFlag (FALSE);
 			#endif
 		#endif
@@ -1917,7 +1871,7 @@ UINT ColorDialogHookProcedure (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1932,7 +1886,7 @@ UINT ColorDialogHookProcedure (
 //
 // Value Returned:	None
 //
-// Called By:			ModalGroupsDialog   in displayThematic.c
+// Called By:			ModalGroupsDialog   in SDisplayThematic.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/16/1991
 //	Revised By:			Larry L. Biehl			Date: 10/22/2018
@@ -2159,10 +2113,9 @@ Boolean EditGroupClassDialog (
 		END_CATCH_ALL  
 	#endif	// defined multispec_win  
 
-	#if defined multispec_lin   
+	#if defined multispec_wx   
 		CMEditClassGroupDlg* dialogPtr = NULL;
 
-		//dialogPtr = new CMEditClassGroupDlg ((wxWindow*)gActiveImageViewCPtr->m_frame);
 		dialogPtr = new CMEditClassGroupDlg (NULL);
 
 		OKFlag = dialogPtr->DoDialog ((CMLegendList*)legendListHandle,
@@ -2173,7 +2126,7 @@ Boolean EditGroupClassDialog (
 												  nameHandle);
 
 		delete dialogPtr;
-	#endif	// defined multispec_lin 
+	#endif	// defined multispec_wx 
 		
 	CheckAndUnlockHandle (nameHandle);
 	
@@ -2184,7 +2137,7 @@ Boolean EditGroupClassDialog (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2246,7 +2199,7 @@ void EditGroupClassDialogOK (
 		cell.v = selectedCell;
 		gSelectedCell = selectedCell;
 			
-		#if defined multispec_lin
+		#if defined multispec_wx
 			classValue = legendListHandle->GetItemData (gSelectedCell);
 		#endif 
 		
@@ -2353,10 +2306,10 @@ void EditGroupClassDialogOK (
 		else	// newEditCode != kNewClass
 			fileInfoPtr->groupChangedFlag = TRUE;
 			
-		#if defined multispec_lin
+		#if defined multispec_wx
 				// Make sure that wxWidgets knows the document has changed.
-			gActiveImageViewCPtr->GetDocument ()->Modify (TRUE);
-		#endif // defined multispec_lin
+			gActiveImageViewCPtr->GetDocument()->Modify (TRUE);
+		#endif // defined multispec_wx
 																		
 		gUpdateFileMenuItemsFlag = TRUE; 
 		
@@ -2368,7 +2321,7 @@ void EditGroupClassDialogOK (
 
 //#if defined multispec_mac 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2389,10 +2342,10 @@ void EditGroupClassDialogOK (
 //	Revised By:			Larry L. Biehl			Date: 03/02/2017
 
 void EditGroups (
-				#ifndef multispec_lin
+				#ifndef multispec_wx
 					LegendListHandle					legendListHandle)
 				#endif
-				#ifdef multispec_lin
+				#ifdef multispec_wx
 					LegendListHandle					legendListHandle,
 					wxMouseEvent&						event)
 				#endif
@@ -2437,12 +2390,12 @@ void EditGroups (
 		{
 		selectedCell = lCell.v;
       
-		#if defined multispec_lin
+		#if defined multispec_wx
 			int pflags;
 			selectedCell = legendListHandle->HitTest (event.GetPosition (), pflags);
 		#endif
 
-		#if defined multispec_win || defined multispec_lin
+		#if defined multispec_win || defined multispec_wx
 			gVerticalCellOffset = selectedCell - gSelectedCell;
 		#endif 
 
@@ -2477,7 +2430,7 @@ void EditGroups (
 					
 			stringLength = 2;
          
-			#if defined multispec_lin
+			#if defined multispec_wx
 				//LGetCell (&classMoved, &stringLength, lCell, legendListHandle);
 				classMoved = legendListHandle->GetItemData (gSelectedCell);
 			#endif
@@ -2499,7 +2452,7 @@ void EditGroups (
 					
 			stringLength = 2;
 
-			#if defined multispec_win || defined multispec_lin
+			#if defined multispec_win || defined multispec_wx
 				newSelectedCell = gSelectedCell + gVerticalCellOffset;
 			#endif
 			
@@ -2523,7 +2476,7 @@ void EditGroups (
 					LGetCell (&cellValue, &stringLength, lCell, legendListHandle);
 				#endif  
             
-				#if defined multispec_lin
+				#if defined multispec_wx
 					cellValue = legendListHandle->GetItemData (newSelectedCell);
 				#endif 
 	
@@ -2581,10 +2534,10 @@ void EditGroups (
 						// Put selected cell class info into the new cell.														
 						 
 				lCell.v = newSelectedCell;
-				#ifndef multispec_lin
+				#ifndef multispec_wx
 					LSetCell ((char*)&classMoved, stringLength, lCell, legendListHandle);
 				#endif
-				#ifdef multispec_lin
+				#ifdef multispec_wx
 					LSetCell (selectedCell, newSelectedCell, legendListHandle);
 				#endif
 					
@@ -2594,7 +2547,7 @@ void EditGroups (
 				
 						// Remove the previously selected cell.			
 						
-				#if defined multispec_win || defined multispec_lin
+				#if defined multispec_win || defined multispec_wx
 					LDelRow (1, gSelectedCell, legendListHandle);
 				#endif
 				
@@ -2642,7 +2595,7 @@ void EditGroups (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2736,7 +2689,7 @@ Boolean GetGroupStructureMemory (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2752,9 +2705,9 @@ Boolean GetGroupStructureMemory (
 //
 // Value Returned:	None			
 // 
-//	Called By:			DisplayThematicImage in displayThematic.c
+//	Called By:			DisplayThematicImage in SDisplayThematic.cpp
 //							UpdateActiveImageLegend in SPalette.c
-//							PrintImageWindow in print.c
+//							PrintImageWindow in MPrint.c
 //
 //	Coded By:			Larry L. Biehl			Date: 04/27/2016
 //	Revised By:			Larry L. Biehl			Date: 04/30/2016
@@ -2776,7 +2729,7 @@ UInt16 GetPaletteEntry (
 			}	// end "if (paletteIndex >= gClassPaletteEntries)" 
 	#endif
 
-	#if defined multispec_win || defined multispec_lin
+	#if defined multispec_win || defined multispec_wx
 		if (paletteIndex >= gClassPaletteEntries)
 			{                        
 			paletteEntries = (UInt16)MIN (gClassPaletteEntries, 254);
@@ -2792,7 +2745,7 @@ UInt16 GetPaletteEntry (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2808,12 +2761,12 @@ UInt16 GetPaletteEntry (
 //
 // Value Returned:	None			
 // 
-//	Called By:			DisplayThematicImage in displayThematic.c
+//	Called By:			DisplayThematicImage in SDisplayThematic.cpp
 //							UpdateActiveImageLegend in SPalette.c
-//							PrintImageWindow in print.c
+//							PrintImageWindow in MPrint.c
 //
 //	Coded By:			Larry L. Biehl			Date: 12/28/1989
-//	Revised By:			Larry L. Biehl			Date: 03/16/2019
+//	Revised By:			Larry L. Biehl			Date: 11/20/2019
 
 void LoadThematicLegendList (
 				LegendListHandle					legendListHandle,
@@ -2872,7 +2825,6 @@ void LoadThematicLegendList (
 											includeLessThanSymbolFlag,
 											singleValueFlag,
 											singleValue2Flag;
-//											invertValuesFlag;
 	
 	
 	activeImageWindowInfoHandle = GetActiveImageWindowInfoHandle ();
@@ -2951,14 +2903,7 @@ void LoadThematicLegendList (
 			
 			minIndex = displaySpecsPtr->thematicTypeMinMaxIndices[0];
 			maxIndex = displaySpecsPtr->thematicTypeMinMaxIndices[1];
-			/*
-			minIndex = GetBinIndexForDataValue (
-				displaySpecsPtr->thematicTypeMinMaxValues[0]+fileInfoPtr->signedValueOffset,
-				&histogramSummaryPtr[channelIndex]);
-			maxIndex = GetBinIndexForDataValue (
-				displaySpecsPtr->thematicTypeMinMaxValues[1]+fileInfoPtr->signedValueOffset,
-				&histogramSummaryPtr[channelIndex]);
-			*/
+
 			dataValueIndex = minIndex;
 			
 					// The first time through the loop the offset will be 0.  After that
@@ -2968,17 +2913,7 @@ void LoadThematicLegendList (
 			dataValueIndexOffset = 0;
 			
 					// Get the width of the number to be used in the legend list
-			/*
-			start = GetDataValueForBinIndex (minIndex,
-														&histogramSummaryPtr[channelIndex],
-														fileInfoPtr->signedValueOffset);
-			start *= displaySpecsPtr->thematicValueFactor;
-					
-			end = GetDataValueForBinIndex (maxIndex,
-														&histogramSummaryPtr[channelIndex],
-														fileInfoPtr->signedValueOffset);
-			end *= displaySpecsPtr->thematicValueFactor;
-			*/
+
 			wholeDigits = fabs (start);
 			logWholeDigits = 1;
 			if (wholeDigits >= 1)
@@ -3231,7 +3166,6 @@ void LoadThematicLegendList (
 			{										
 			classToGroupPtr = GetClassToGroupPointer (fileInfoPtr);
 			
-			//if (groupTableChangedFlag || groupNameChangedFlag)
 			if (fileInfoPtr->numberGroups == 0)
 				{							
 						// Load default list.														
@@ -3259,11 +3193,11 @@ void LoadThematicLegendList (
 													displaySpecsHandle);
 				displaySpecsPtr->classToGroupChangeFlag = TRUE;
 			
-				#if defined multispec_lin
+				#if defined multispec_wx
 						// Make sure that wxWidgets knows the document has changed.
 					
-					gActiveImageViewCPtr->GetDocument ()->Modify (TRUE);
-				#endif // defined multispec_lin
+					gActiveImageViewCPtr->GetDocument()->Modify (TRUE);
+				#endif // defined multispec_wx
 				
 				}	// end "if (fileInfoPtr->numberGroups == 0)"
 				
@@ -3326,7 +3260,7 @@ void LoadThematicLegendList (
 						(SInt16)((CMLegendList*)legendListHandle)->m_classPaletteEntries;
 	#endif	// defined multispec_win 
 
-	#if defined multispec_lin 
+	#if defined multispec_wx 
 		displaySpecsPtr = (DisplaySpecsPtr) GetHandlePointer (displaySpecsHandle);
 	
 		CMLegendList* legendListCPtr = (CMLegendList*)legendListHandle;
@@ -3337,17 +3271,17 @@ void LoadThematicLegendList (
 		legendListCPtr->m_listType = classGroupCode;
 		legendListCPtr->m_paletteOffset = displaySpecsPtr->paletteOffset;
 		legendListCPtr->m_classPaletteEntries = displaySpecsPtr->numPaletteEntriesUsed;
-		legendListCPtr->listready = true;
+		legendListCPtr->m_listReadyFlag = true;
 	
 		legendListCPtr->DrawLegendList ();
-	#endif	// defined multispec_lin 
+	#endif	// defined multispec_wx 
 
 }	// end "LoadThematicLegendList" 
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3362,7 +3296,7 @@ void LoadThematicLegendList (
 //
 // Value Returned:	None				
 // 
-// Called By:			EditClassGroupPalette in SThemWin.cpp
+// Called By:			EditClassGroupPalette in SThematicWindow.cpp
 //
 //	Coded By:			Junaida Halan			Date: 07/10/1998
 //	Revised By:			Larry L. Biehl			Date: 07/09/2015	
@@ -3411,9 +3345,9 @@ Boolean SelectColor (
             
 				colorDialog.m_cc.lStructSize = sizeof (CHOOSECOLOR);
 				colorDialog.m_cc.Flags = CC_FULLOPEN | CC_RGBINIT | CC_ENABLEHOOK; 
-				colorDialog.m_cc.rgbResult = RGB((BYTE)(oldRGBPtr->red>>8),
-													(BYTE)(oldRGBPtr->green>>8),
-													(BYTE)(oldRGBPtr->blue>>8)); 
+				colorDialog.m_cc.rgbResult = RGB ((BYTE)(oldRGBPtr->red>>8),
+																(BYTE)(oldRGBPtr->green>>8),
+																(BYTE)(oldRGBPtr->blue>>8)); 
                                        
 				returnCode = (SInt16)colorDialog.DoModal ();
 
@@ -3436,12 +3370,9 @@ Boolean SelectColor (
 			END_CATCH_ALL
 		#endif	// defined multispec_win
       
-		#if defined multispec_lin
+		#if defined multispec_wx
 			wxColourData cdata;
 			cdata.SetChooseFull (true);
-			//wxColour defcolor ((BYTE)(oldRGBPtr->red >> 8),
-			//							(BYTE)(oldRGBPtr->green >> 8),
-			//							(BYTE)(oldRGBPtr->blue >> 8));
          wxColour defcolor ((BYTE)(oldRGBPtr->red),
 										(BYTE)(oldRGBPtr->green),
 										(BYTE)(oldRGBPtr->blue));
@@ -3451,9 +3382,7 @@ Boolean SelectColor (
 				{
 				wxColourData retData = colorDialog.GetColourData ();
 				wxColour retcolor = retData.GetColour ();
-				//newRGBPtr->red = (UInt16)(retcolor.Red ()<<8);
-				//newRGBPtr->green = (UInt16)(retcolor.Green ()<<8);
-				//newRGBPtr->blue = (UInt16)(retcolor.Blue ()<<8);
+
 						// Note that for linux version, the colors are being kept as
 						// 8-bit values.
 				newRGBPtr->red = (UInt16)retcolor.Red ();
@@ -3462,18 +3391,234 @@ Boolean SelectColor (
 				colorChangedFlag = TRUE;
 				
 				}	// end "if (colorDialog.ShowModal () == wxID_OK)"
-		#endif	// defined multispec_lin
+		#endif	// defined multispec_wx
 
 		}	// end "if (CheckMemoryForColorPicker (gTextString, 4))"
 
 	return (colorChangedFlag);
 
-}	// end "SelectColor" 
+}	// end "SelectColor"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		void ThematicImageWBlink
+//
+//	Software purpose:	The purpose of this routine is to handle mouse
+//							down events in the thematic image window when
+//							the cursor is a 'blink' cursor.
+//
+//	Parameters in:		None
+//
+//	Parameters out:	None
+//
+// Value Returned:	None
+//
+// Called By:			DoThematicMouseDnContent  in MThematicWindow.c
+//
+//	Coded By:			Larry L. Biehl			Date: 01/31/1991
+//	Revised By:			Larry L. Biehl			Date: 11/04/2019
+
+void ThematicImageWBlink (
+				LongPoint							mousePt,
+				SInt16								code)
+
+{
+	LongPoint							offscreenPoint;
+	
+	CTabHandle							cTableHandle;
+	DisplaySpecsPtr					displaySpecsPtr;
+	FileInfoPtr							fileInfoPtr;
+	SInt16*								classToGroupPtr;
+	WindowInfoPtr						windowInfoPtr;
+	
+	Handle								displaySpecsH;
+	
+	CMPaletteInfo						paletteHandle;
+	
+	UInt32								boundsBottom,
+											boundsRight,
+											numberClasses;
+	
+	UInt16								colorIndex,
+											group;
+	
+	SignedByte							handleStatus;
+	
+	
+			// Initialize local variables.
+	
+	windowInfoPtr = (WindowInfoPtr)GetHandlePointer (gActiveImageWindowInfoH);
+	
+	displaySpecsH = GetDisplaySpecsHandle (gActiveImageWindowInfoH);
+	displaySpecsPtr = (DisplaySpecsPtr)GetHandlePointer (displaySpecsH);
+
+	#if defined multispec_win
+		unsigned char* imageDataPtr =
+				(unsigned char*)::GlobalLock ((HGLOBAL)windowInfoPtr->imageBaseAddressH);
+	#else
+		unsigned char* imageDataPtr = (unsigned char*)windowInfoPtr->imageBaseAddressH;
+	#endif
+
+	boundsBottom = displaySpecsPtr->imageDimensions[kVertical];
+	boundsRight = displaySpecsPtr->imageDimensions[kHorizontal];
+
+			// Get the window point to the offscreen location.
+
+	ConverWinPointToOffScreenPoint (
+								gActiveImageWindowInfoH, mousePt, &offscreenPoint);
+
+	if (offscreenPoint.h >= boundsRight)
+																							return;
+
+	if (offscreenPoint.v >= boundsBottom)
+																							return;
+
+	#if defined multispec_win
+				// Need to take into account the fact that the offscreen image is stored 
+				// bottom to top
+
+	   BITMAPINFOHEADER* bitMapInfoHeadPtr = (BITMAPINFOHEADER*)GetHandlePointer (
+																	windowInfoPtr->offScreenMapHandle);
+	   												                              
+	   SInt16 pixelSize = bitMapInfoHeadPtr->biBitCount;
+	   UInt32 rowBytes = GetNumberPixRowBytes (bitMapInfoHeadPtr->biWidth, pixelSize);
+					
+		UInt32 storageRow = (UInt32)bitMapInfoHeadPtr->biHeight - offscreenPoint.v - 1;
+		colorIndex = (unsigned short int)imageDataPtr[rowBytes*storageRow + offscreenPoint.h];
+	#else
+		colorIndex = (unsigned short int)
+					imageDataPtr[boundsRight*offscreenPoint.v + offscreenPoint.h];
+	#endif
+	
+	#if defined multispec_win
+		::GlobalUnlock ((HGLOBAL)windowInfoPtr->imageBaseAddressH);
+	#endif
+	
+			// Get the current color table.
+	
+	handleStatus = MHGetState (displaySpecsH);
+	MHLock (displaySpecsH);
+	displaySpecsPtr = (DisplaySpecsPtr)GetHandlePointer (displaySpecsH);
+	
+			// Exit if the color to be changed is white, black or background.
+			// These colors are not to be changed.
+	
+	numberClasses = displaySpecsPtr->numberLevels;
+	if (colorIndex >= numberClasses + displaySpecsPtr->paletteOffset)
+		{
+		MHSetState (displaySpecsH, handleStatus);
+																									return;
+		
+		}	// end "if (colorIndex <= 0 || ..."
+	
+			// Get color table and group if needed.  Also check if this class
+			// is being displayed.
+	
+	group = -1;
+ 	if (displaySpecsPtr->classGroupCode == kClassDisplay)
+ 		{
+		cTableHandle = displaySpecsPtr->savedClassCTableHandle;
+		
+		}	// end "if (displaySpecsPtr->classGroupCode == kClassDisplay)"
+	
+	else	// displaySpecsPtr->classGroupCode == kGroupDisplay
+		{
+		fileInfoPtr = (FileInfoPtr)GetHandlePointer (gActiveImageFileInfoH);
+		cTableHandle = displaySpecsPtr->savedGroupCTableHandle;
+
+		classToGroupPtr = GetClassToGroupPointer (fileInfoPtr);
+		group = classToGroupPtr[colorIndex - displaySpecsPtr->paletteOffset];
+		
+		}	// end "else displaySpecsPtr->classGroupCode == kGroupDisplay"
+	
+	#if defined multispec_wx
+		int						selectedListItem;
+	
+		selectedListItem = colorIndex;
+		if (displaySpecsPtr->classGroupCode == kGroupDisplay)
+			selectedListItem = group;
+	
+		LegendListHandle legendListHandle = windowInfoPtr->legendListHandle;
+		legendListHandle->Select (selectedListItem);
+	#endif	// multispec_wx
+	
+	paletteHandle = (CMPaletteInfo)displaySpecsPtr->paletteObject;
+	gPaletteOffset = displaySpecsPtr->paletteOffset;
+	gClassPaletteEntries = displaySpecsPtr->numPaletteEntriesUsed;
+	
+	#if defined multispec_wx
+		gBlinkProcedure = kBlink1;
+	#endif
+
+	ChangeClassGroupPalette (paletteHandle,
+										group,
+										colorIndex,
+										&displaySpecsPtr->backgroundColor,
+										2,
+										code);
+	
+	#if defined multispec_win || defined multispec_wx
+		displaySpecsPtr->paletteObject->SetPaletteLoadedFlag (FALSE);
+		DoThematicWColorsUpdate ();
+	#endif	// defined multispec_win
+	
+	MSetCursor (kBlinkShutCursor2);
+	#if defined multispec_wxlin
+		CheckSomeEvents (0);
+	#endif
+	
+	#ifndef multispec_wx
+		while (StillDown ())
+			{ }
+	#endif
+
+	#if defined multispec_wx
+		Boolean leftIsDownFlag = TRUE;
+		while (leftIsDownFlag)
+			{
+			wxMouseState currentMouseState = wxGetMouseState ();
+			leftIsDownFlag = currentMouseState.LeftIsDown ();
+			
+			}	// end "while (leftIsDownFlag)"
+	#endif	// defined multispec_wx
+	
+			// Reset the color for the pixel.
+	
+	ChangeClassGroupPalette (paletteHandle,
+										group,
+										colorIndex,
+										NULL,
+										2,
+										code);
+	
+	#if defined multispec_win || defined multispec_wx
+		displaySpecsPtr->paletteObject->SetPaletteLoadedFlag (FALSE);
+		DoThematicWColorsUpdate ();
+	#endif	// defined multispec_win || defined multispec_wx
+
+	#ifdef multispec_wx
+		MSetCursor (kBlinkOpenCursor2);
+		#if defined multispec_wxlin
+			CheckSomeEvents (0);
+		#endif
+	#endif
+	#ifndef multispec_wx
+		MSetCursor (kBlinkOpenCursor2);
+	#endif
+
+	MHSetState (displaySpecsH, handleStatus);
+	
+}	// end "ThematicImageWBlink"
+
+
+
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3488,8 +3633,8 @@ Boolean SelectColor (
 //
 // Value Returned:	None				
 // 
-// Called By:			EditGroupClassDialogOK in SThemWin.cpp
-//							EditGroups in SThemWin.cpp
+// Called By:			EditGroupClassDialogOK in SThematicWindow.cpp
+//							EditGroups in SThematicWindow.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 02/12/1999
 //	Revised By:			Larry L. Biehl			Date: 06/08/2011	
@@ -3541,15 +3686,7 @@ void UpdateUserDefinedGroupColorTable (
 			// input group.
 						
 	paletteIndex = GetPaletteEntry (paletteIndex);
-	/*
-	if (paletteIndex >= gClassPaletteEntries)
-		{
-		UInt16 paletteEntries = MIN (gClassPaletteEntries, 256);
-		paletteIndex -= paletteEntries;
-		paletteIndex = paletteIndex % (paletteEntries-1) + 1;
-		
-		}	// end "if (paletteIndex >= gClassPaletteEntries)"
-	*/		
+
 			// Get the color for the modified group and make sure that this color is
 			// used for all of the classes in the group.
 	
@@ -3573,10 +3710,6 @@ void UpdateUserDefinedGroupColorTable (
 								TRUE,
 								0);
 	/*
-	#if defined multispec_mac
-		UpdatePaletteWindow (TRUE, FALSE);
-	#endif
-
 	#if defined multispec_win
 		displaySpecsPtr = (DisplaySpecsPtr)GetHandlePointer (displaySpecsH);
 		displaySpecsPtr->paletteUpToDateFlag = FALSE;
@@ -3592,7 +3725,7 @@ void UpdateUserDefinedGroupColorTable (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3607,8 +3740,8 @@ void UpdateUserDefinedGroupColorTable (
 //
 // Value Returned:	None				
 // 
-// Called By:			EditGroupClassDialogOK in SThemWin.cpp
-//							EditGroups in SThemWin.cpp
+// Called By:			EditGroupClassDialogOK in SThematicWindow.cpp
+//							EditGroups in SThematicWindow.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/06/1996
 //	Revised By:			Larry L. Biehl			Date: 06/22/2015	
@@ -3652,63 +3785,15 @@ Boolean UpdateGroupTables (
 														(SInt16)numberClasses,
 														&numberGroups,
 														fileInfoPtr->groupNameHandle);
-	/*
-	groupToPalettePtr[oldGroup] = -1;
-	for (classIndex=0; classIndex<numberClasses; classIndex++)
-		{
-		if (classToGroupPtr[classIndex] == oldGroup)
-			{
-			groupToPalettePtr[oldGroup] = (UInt16)classIndex;
-			break;
-			
-			}	// end "if (classToGroupPtr[classIndex] == ..." 
-		
-		}	// end "for (classIndex=0; classIndex<..."
-		
-	if (groupToPalettePtr[oldGroup] == -1)
-		{
-		groupRemovedFlag = TRUE;
-	
-				// Update group numbers in class to group vector taking
-				// into account the group that is being deleted.
-				
-		for (classIndex=0; classIndex<numberClasses; classIndex++)
-			{
-			if (classToGroupPtr[classIndex] >= oldGroup)
-				classToGroupPtr[classIndex]--;
-			
-			}	// end "for (classIndex=0; classIndex<..."
-		
-				// Now update the group to palette vector and the group
-				// names taking into account the group that is being deleted.
 
-		nameHandle = fileInfoPtr->groupNameHandle;
-		namePtr = (char*)GetHandlePointer (nameHandle);
-		namePtr = &namePtr[oldGroup*32];
-		oldNamePtr = &namePtr[32];
-
-		numberGroups--;
-		for (groupIndex=oldGroup; groupIndex<numberGroups; groupIndex++)
-			{
-			groupToPalettePtr[groupIndex] = groupToPalettePtr[groupIndex+1];
-			
-			BlockMoveData (oldNamePtr, namePtr, oldNamePtr[0]+1); 
-			
-			oldNamePtr += 32;
-			namePtr += 32;
-			
-			}	// end "for (groupIndex=oldGroup; groupIndex<..."
-							
-		}	// end "if (groupToPalettePtr[oldGroup] == -1)"
-	*/
 	fileInfoPtr->numberGroups = (UInt16)numberGroups;
 	fileInfoPtr->groupChangedFlag = TRUE;
 			
-	#if defined multispec_lin
+	#if defined multispec_wx
 			// Make sure that wxWidgets knows the document has changed.
 	
-		gActiveImageViewCPtr->GetDocument ()->Modify (TRUE);
-	#endif // defined multispec_lin
+		gActiveImageViewCPtr->GetDocument()->Modify (TRUE);
+	#endif // defined multispec_wx
 						
 			// Update some display specification structures and update
 			// the palette.
@@ -3725,7 +3810,7 @@ Boolean UpdateGroupTables (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3740,7 +3825,9 @@ Boolean UpdateGroupTables (
 //
 // Value Returned:	None				
 // 
-// Called By:			UpdateGroupTables
+// Called By:			ReadArcViewGroups in SArcView.cpp
+//							EditGroupClassDialogOK
+//							EditGroups
 //
 //	Coded By:			Larry L. Biehl			Date: 05/11/2011
 //	Revised By:			Larry L. Biehl			Date: 06/03/2011	
@@ -3821,7 +3908,7 @@ Boolean UpdateGroupTables (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3837,10 +3924,10 @@ Boolean UpdateGroupTables (
 //
 // Value Returned:	None	
 // 
-// Called By:			ImageWControlEvent in controls.c
-//							UpdateScrolls in controls.c
-//							AddCellsToList in thematicWindow.c
-//							ThematicLegendWMouseDn in thematicWindow.c
+// Called By:			ImageWControlEvent in MControls.c
+//							UpdateScrolls in MControls.c
+//							AddCellsToList in MThematicWindow.c
+//							ThematicLegendWMouseDn in MThematicWindow.c
 //
 //	Coded By:			Larry L. Biehl			Date: 11/07/1996
 //	Revised By:			Larry L. Biehl			Date: 11/07/1996		
@@ -3924,7 +4011,7 @@ void UpdateThematicLegendControls (
 			}	// end "if (theWindow != NULL)"
 	#endif	// defined multispec_win 	       	       
 		
-	#if defined multispec_lin   
+	#if defined multispec_wx   
 		if (theWindow != NULL) 
 			{
 			CMImageDoc* imageDocCPtr = theWindow->GetDocument ();
@@ -3933,8 +4020,8 @@ void UpdateThematicLegendControls (
 
 			legendViewCPtr->UpdateThematicLegendControls ();
 
-			} // end "if (theWindow != NULL)"
-	#endif	// defined multispec_lin          
+			}	// end "if (theWindow != NULL)"
+	#endif	// defined multispec_wx          
 	
 }	// end "UpdateThematicLegendControls" 
 

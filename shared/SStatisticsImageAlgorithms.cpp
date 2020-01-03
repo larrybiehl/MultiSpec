@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -12,7 +12,7 @@
 //	Authors:					Chulhee Lee
 //								Larry L. Biehl
 //
-//	Revision date:			12/21/2017
+//	Revision date:			12/12/2019
 //
 //	Language:				C
 //
@@ -22,13 +22,6 @@
 //								statistics images of the field, class or selected area mean
 //								and covariance statistics.  Chulhee Lee developed the idea and
 //								the code.
-//
-//	Functions in file:	FS_gen_make_stat_image_same_scale (USER SPECIFY)
-//								FS_make_stat_image_same_scale (DEFAULT)
-//								FS_make_cor_mean_std
-//
-//	Include files:			"MultiSpecHeaders"
-//								"multiSpec.h"
 //
 /*
 	Template for debugging
@@ -41,8 +34,8 @@
 
 #include "SMultiSpec.h" 
 
-#ifdef multispec_lin
-	#include "LMultiSpec.h"
+#ifdef multispec_wx
+	#include "xMultiSpec.h"
 #endif
 
 
@@ -81,17 +74,6 @@ long	L_band_no_location;
 
 unsigned char  G_white_char=(unsigned char)iw;
 unsigned char  G_black_char=(unsigned char)ib;
-
-short int zero[5][3] 	= { 1,1,1,1,0,1,1,0,1,1,0,1,1,1,1};
-short int one[5][3] 	= { 0,1,0,0,1,0,0,1,0,0,1,0,0,1,0};
-short int two[5][3] 	= { 1,1,1,0,0,1,1,1,1,1,0,0,1,1,1};
-short int three[5][3] 	= { 1,1,1,0,0,1,1,1,1,0,0,1,1,1,1};
-short int four[5][3] 	= { 1,0,1,1,0,1,1,1,1,0,0,1,0,0,1};
-short int five[5][3] 	= { 1,1,1,1,0,0,1,1,1,0,0,1,1,1,1};
-short int six[5][3] 	= { 1,1,1,1,0,0,1,1,1,1,0,1,1,1,1};
-short int seven[5][3] 	= { 1,1,1,0,0,1,0,0,1,0,0,1,0,0,1};
-short int eight[5][3] 	= { 1,1,1,1,0,1,1,1,1,1,0,1,1,1,1};
-short int nine[5][3] 	= { 1,1,1,1,0,1,1,1,1,0,0,1,1,1,1};
 
 short int n0[15] 	= { 1,1,1,1,0,1,1,0,1,1,0,1,1,1,1};
 short int n1[15] 	= { 0,1,0,0,1,0,0,1,0,0,1,0,0,1,0};
@@ -218,6 +200,7 @@ void		FS_gen_make_stat_image_same_scale (
 				SInt32								numberFeatures,
 				STI_INFO_STR 						STI_info,
 				FileInfoPtr							newFileInfoPtr,
+				SInt16								areaCode,
 				SInt32*								ERROR_FLAG);
 
 void		FS_make_cor_mean_std (
@@ -226,7 +209,6 @@ void		FS_make_cor_mean_std (
 				CLASS_INFO_STR* 					class_info,
 				SInt16*								classPtr,
 				SInt32								no_class,
-				FileInfoPtr							newFileInfoPtr,
 				double 								max_mean_std_height,
 				double 								min_mean_std_height,
 				STI_INFO_STR 						STI_info,
@@ -289,7 +271,7 @@ void		put_real (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -356,7 +338,7 @@ void enlarge_cor (
 
  
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -489,7 +471,7 @@ void FS_find_STI_size (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -511,7 +493,7 @@ void FS_find_STI_size (
 // Called By:	
 //
 //	Coded By:			Chulhee Lee				Date: ??/??/19??
-//	Revised By:			Larry L. Biehl			Date: 12/21/2017
+//	Revised By:			Larry L. Biehl			Date: 12/12/2019
 
 void FS_gen_make_stat_image_same_scale (
 				CLASS_INFO_STR* 					class_info,
@@ -521,13 +503,15 @@ void FS_gen_make_stat_image_same_scale (
 				SInt32								numberFeatures,
 				STI_INFO_STR 						STI_info,
 				FileInfoPtr							newFileInfoPtr,
+				SInt16								areaCode,
 				SInt32*								ERROR_FLAG)
 								
 {
 	CMFileStream*						fileStreamPtr;
 	
 	FileStringPtr						filePathPtr,
-											newFileNamePtr;
+											//newFileNamePtr,
+											newFilePathPtr;
 											
 	unsigned char						*cor, *final_cor, erdas_header[128];
 	
@@ -621,7 +605,7 @@ void FS_gen_make_stat_image_same_scale (
 										class_info,
 										classPtr, 
 										(SInt32)no_class,
-										newFileInfoPtr,
+										//newFileInfoPtr,
 										max_mean_std_height,
 										min_mean_std_height,
 										STI_info,
@@ -643,10 +627,10 @@ void FS_gen_make_stat_image_same_scale (
      
       CMFileStream* newFileStreamPtr = GetFileStreamPointer (newFileInfoPtr);
   
-      FileStringPtr newFilePathPtr =
+      newFilePathPtr =
 						(FileStringPtr)GetFilePathPPointerFromFileStream (newFileStreamPtr);
       
-      if (gProjectInfoPtr != NULL)
+      if (areaCode == kTrainingType)
 			{
          fileStreamPtr = GetFileStreamPointer (gProjectInfoPtr);
          filePathPtr =
@@ -699,66 +683,26 @@ void FS_gen_make_stat_image_same_scale (
 
 		SetFileDoesNotExist (newFileStreamPtr, kKeepUTF8CharName);
 		UpdateFileNameInformation (newFileStreamPtr, NULL);
-      
-      newFileNamePtr =
-					(FileStringPtr)GetFileNamePPointerFromFileStream (newFileStreamPtr);
 
-		#if defined multispec_lin
-					// For mygeohub version, we need to make sure that we are not trying
-					// to write to the default input image file directory since it is read
-					// only.
-					// For MultiSpec on mygeohub, need to change the working directory for
-					// saving files if the current working directory is the read only data
-					// directory.
-					// Use wxSetWorkingDirectory (wxString) or wxFileDialog::SetDirectory
-					// to do this. Use wxGetCwd or wxFileDialog::GetDirectory to determine
-					// if the default one is the standard directory.
-			#ifndef NetBeansProject
-				FileStringPtr			fileNamePtr;
-				
-				filePathPtr = (FileStringPtr)newFileStreamPtr->GetFilePathPPtr ();
-				wxString wxFilePathName (&filePathPtr[1], wxConvUTF8);
-				wxFileName fileName;
-				fileName.Assign (wxFilePathName);
+				// The following will verify that the direcctory specified is
+				// writable and if not change it to the working directory. Only
+				// done for wxWidgets interface versions.
 
-				if (!fileName.IsDirWritable ())
-					{
-							// Need to change the directory to the working output directory
-							
-					fileNamePtr = (FileStringPtr)newFileStreamPtr->GetFileNameCPtr ();
-					
-					wxString workingDirectory = wxGetCwd ();
-					workingDirectory.Append ("/");
-					workingDirectory.Append (fileNamePtr);
-					wxCharBuffer charWorkingDirectory = workingDirectory.ToAscii ();
-		
-					newFileStreamPtr->SetFilePathFromCharString (
-															(StringPtr)charWorkingDirectory.data (),
-															TRUE);
-									
-					//SetFileDoesNotExist (resultsFileStreamPtr, kKeepUTF8CharName);
-
-					}	// end "if (!fileName.IsDirWritable ())"
-					
-				else 
-					{
-							// Directory is writable
-					/*
-					SInt16 numberChars9 = sprintf ((char*)gTextString3,
-															" Directory is writable: %s", 
-															gEndOfLine);
-					ListString ((char*)gTextString3, numberChars9, gOutputTextH);
-					*/
-					}
-			#endif	// end "#ifndef NetBeansProject"
-		#endif	// end "#if defined multispec_lin"
+		CheckIfDirectoryIsWriteable (newFileStreamPtr);
+	
+      //newFileNamePtr =
+		//			(FileStringPtr)GetFileNamePPointerFromFileStream (newFileStreamPtr);
 									
       errCode = CreateNewFile (newFileStreamPtr,
 											GetVolumeReferenceNumber (newFileStreamPtr),
 											gCreator,
 											kErrorMessages,
 											kReplaceFlag);
-      
+		
+				// Make sure the output directory variable is set to empty.
+	
+		ResetOutputDirectory ();
+		
 		if (errCode != noErr)
 			*ERROR_FLAG = 200;
 
@@ -784,7 +728,7 @@ void FS_gen_make_stat_image_same_scale (
 											&count,
 											final_cor, 
 											kNoErrorMessages);
-		
+			
 			if (errCode != noErr)
 				*ERROR_FLAG = 202;
 		
@@ -793,13 +737,13 @@ void FS_gen_make_stat_image_same_scale (
 		if (*ERROR_FLAG != 200)
 			IOCheck (errCode, newFileStreamPtr);
 	
-				// " Image statistics file, '%s', written to disk.\r", 
-				
+				// " Image statistics saved to disk as '%s'.\r",
+		
       ListSpecifiedStringNumber (kStatisticsImageStrID,
 											IDS_StatisticsImage19,
 											(CMFileStream*)NULL, 
 											gOutputForce1Code, 
-											newFileNamePtr, 
+											newFilePathPtr,
 											*ERROR_FLAG == noErr);
 
       CloseFile (newFileInfoPtr);
@@ -814,7 +758,7 @@ void FS_gen_make_stat_image_same_scale (
 		 	FS_make_cor_mean_std (n, 
 											class_info,
 											i,
-											newFileInfoPtr,
+											//newFileInfoPtr,
 											max_mean_std_height,
 											min_mean_std_height,
 											STI_info,
@@ -832,7 +776,7 @@ void FS_gen_make_stat_image_same_scale (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -857,7 +801,7 @@ void FS_make_cor_mean_std (
 				CLASS_INFO_STR* 					class_info,
 				SInt16*								classPtr,
 				SInt32								no_class,
-				FileInfoPtr							newFileInfoPtr,
+				//FileInfoPtr							newFileInfoPtr,
 				double 								max_mean_std_height,
 				double 								min_mean_std_height,
 				STI_INFO_STR 						STI_info,
@@ -911,14 +855,6 @@ void FS_make_cor_mean_std (
    
 	FS_find_STI_size (numberFeatures, &final_cor_size);
 	
-			// Initialize; initialization now done in calling routine.
-	/*		
-   for (i=0; i< (final_cor_size*index); i++)
-		final_cor[i] = G_white_char;
-   
-   for (i=0; i<(L_size_row * L_size_col * index); i++)
-		cor[i] = G_white_char;
-	*/
 	if (STI_info.mean_min_max_flag == 1)
 		{
 				// The user did not specify the min and max for the plot.
@@ -976,8 +912,8 @@ void FS_make_cor_mean_std (
          for (i=L_color_start_location; 
 						i<WIDTH_COLOR_CODE+L_color_start_location;
 							i++)
-            final_cor[i*L_final_size_col*no_class+j+(class_index * L_final_size_col)] =
-																							(unsigned char)x;
+            final_cor[i*L_final_size_col*no_class+j+
+										(class_index * L_final_size_col)] = (unsigned char)x;
 			
 			}	// end "for (j=0; j<n*L_enlargement; j++)"
 			
@@ -1477,7 +1413,7 @@ void FS_make_cor_mean_std (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1548,7 +1484,7 @@ void FS_make_half_STI (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1570,7 +1506,7 @@ void FS_make_half_STI (
 // Called By:	
 //
 //	Coded By:			Chulhee Lee				Date: ??/??/19??
-//	Revised By:			Larry L. Biehl			Date: 08/24/2017
+//	Revised By:			Larry L. Biehl			Date: 11/12/2019
 
 void FS_make_stat_image_same_scale (
 				CLASS_INFO_STR* 					class_info,
@@ -1580,6 +1516,7 @@ void FS_make_stat_image_same_scale (
 				SInt32								numberFeatures,
 				FileInfoPtr							newFileInfoPtr,
 				SInt32*								ERROR_FLAG,
+				SInt16								areaCode,
 				SInt16								minMaxSettingCode,
 				double								user_mean_minimum,
 				double								user_mean_maximum)
@@ -1722,7 +1659,7 @@ void FS_make_stat_image_same_scale (
 				// easy to have the number of channels that match the 12 and 210
 				// criterea and not actually have AVIRIS or FLC1 data.
 		/*				
-				// Default wave length for AVIRIS data
+				// Default wavelength for AVIRIS data
 				
 		if ((class_info+0)->wave_length_default == (WAVE_LENGTH_DEFAULT_FLAG+210))
 			{
@@ -1843,7 +1780,8 @@ void FS_make_stat_image_same_scale (
 														featurePtr,
 		 												numberFeatures,
 		 												STI_info,
-		 												newFileInfoPtr, 
+		 												newFileInfoPtr,
+		 												areaCode,
 		 												ERROR_FLAG);
 	 												
 		}	// end "if (*ERROR_FLAG == 0)"
@@ -1874,7 +1812,7 @@ void FS_make_stat_image_same_scale (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2246,7 +2184,7 @@ void gen_put_number (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2277,7 +2215,7 @@ void make_even (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2405,7 +2343,7 @@ void put_integer (
 
 		
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

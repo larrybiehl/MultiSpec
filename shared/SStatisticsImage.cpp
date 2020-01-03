@@ -3,16 +3,16 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
-//	File:						SStatisticsImage.cpp (statisticsImage.c)
+//	File:						SStatisticsImage.cpp
 //
 //	Authors:					Chulhee Lee
 //								Larry L. Biehl
 //
-//	Revision date:			01/05/2018
+//	Revision date:			11/11/2019
 //
 //	Language:				C
 //
@@ -23,21 +23,13 @@
 //								and covariance statistics.  Chulhee Lee developed the idea and
 //								the code.
 //
-//	Functions in file:	Boolean	 			CreateStatisticsImages
-//								Boolean	 			LoadStatisticsImageSpecs
-//								void		 			StatisticsImageControl
-//								Boolean				StatisticsImageDialog
-//
-//	Include files:			"MultiSpecHeaders"
-//								"multiSpec.h"
-//
 //------------------------------------------------------------------------------------
   
 #include "SMultiSpec.h"  
 	
-#ifdef multispec_lin 
-   #include "LMultiSpec.h"
-   #include "LStatisticsImageDialog.h"
+#ifdef multispec_wx 
+   #include "xMultiSpec.h"
+   #include "xStatisticsImageDialog.h"
 #endif
 
 #if defined multispec_mac || defined multispec_mac_swift
@@ -75,8 +67,6 @@
 	#include "WStatisticsImageDialog.h"
 #endif	// defined multispec_win
 
-//#include	"SFS.h"    
-
 
 	
 		// Prototypes for routines in this file that are only called by
@@ -98,7 +88,7 @@ void 		LoadStatImageInformationStructure (
 				SInt64								numberPixels, 
 				HDoublePtr							outputMeansPtr,
 				HDoublePtr							outputVarianceVectorPtr,
-				HUCharPtr							outputHalf_imagePtr);	
+				HUCharPtr							outputHalf_imagePtr);
 
 Boolean	LoadStatisticsImageSpecs (
 				Handle								windowInfoHandle);
@@ -109,7 +99,7 @@ Boolean	StatisticsImageDialog (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -235,7 +225,6 @@ Boolean CreateStatisticsImages (void)
 	LoadDItemValue (gStatusDialogPtr, IDC_Status5, (SInt32)totalNumberAreas);
 		
 	numberImagesToStore = 1;
-	//if (gStatisticsImageSpecsPtr->minMaxSettingCode == 1)
    if (gStatisticsImageSpecsPtr->minMaxSettingCode >= 1)
 		numberImagesToStore = totalNumberAreas;
    
@@ -323,7 +312,6 @@ Boolean CreateStatisticsImages (void)
 				// project file. Otherwise, write to same folder as the image file.					
 				
 		SignedByte handleStatus = -1;
-		//CMFileStream* baseFileStreamPtr = NULL;
 		SInt16 vRefNum = 0;
 		
       
@@ -359,7 +347,6 @@ Boolean CreateStatisticsImages (void)
 		InitializeFileInfoStructure ((Handle)&newFileInfo, kPointer);
 		CMFileStream* newFileStreamPtr = GetFileStreamPointer (&newFileInfo);
 		SetVolumeReference (baseFileStreamPtr, newFileStreamPtr);
-		//printf ("filepath:%s\n", baseFileStreamPtr->GetFileNamePPtr ());
       
 		UnlockFileStream (gStatisticsImageSpecsPtr->windowInfoHandle, handleStatus);
 			
@@ -424,7 +411,6 @@ Boolean CreateStatisticsImages (void)
 							// Get the statistics image index.									
 							
 					statImageIndex = 0;
-					//if (gStatisticsImageSpecsPtr->minMaxSettingCode == 1)
                if (gStatisticsImageSpecsPtr->minMaxSettingCode >= 1)
 						statImageIndex = index;
 					
@@ -476,6 +462,8 @@ Boolean CreateStatisticsImages (void)
 							
 						}	// end "if (continueFlag)" 
 					/*
+							// This was used when a separate image file was created for
+							// each class
 					if (continueFlag && gStatisticsImageSpecsPtr->minMaxSettingCode >= 2)
 						{		
 								// "\pCreating image for class statistics."
@@ -491,13 +479,7 @@ Boolean CreateStatisticsImages (void)
 						tempCovarianceStatisticsPtr = CheckAndDisposePtr (
 																		tempCovarianceStatisticsPtr);
 						
-                  //newFileInfo.fileStreamCPtr = baseFileStreamPtr;
-                  
-						#ifdef NetBeansProject
-							newFileInfo.fileStreamCPtr = baseFileStreamPtr;
-						#endif // end "#ifdef NetBeansProject"
-
-						FS_make_stat_image_same_scale (
+ 						FS_make_stat_image_same_scale (
 												statImageInformationPtr,
 												(SInt32)1, 
 												(SInt32)numberFeatures,
@@ -585,6 +567,9 @@ Boolean CreateStatisticsImages (void)
 
 								}	// end "if (continueFlag)" 
 							/*
+									// This was used when a separate image file was created for
+									// each class
+
 							if (continueFlag && 
 												gStatisticsImageSpecsPtr->minMaxSettingCode >= 2)
 								{						
@@ -783,10 +768,6 @@ Boolean CreateStatisticsImages (void)
 								
 		tempCovarianceStatisticsPtr = CheckAndDisposePtr (tempCovarianceStatisticsPtr);
       
-		//#ifdef NetBeansProject
-			//newFileInfo.fileStreamCPtr = baseFileStreamPtr;
-		//#endif // end "#ifdef NetBeansProject"
-      
 		FS_make_stat_image_same_scale (statImageInformationPtr,
 													classPtr,
 													(SInt32)numberImagesToStore,
@@ -795,6 +776,7 @@ Boolean CreateStatisticsImages (void)
 													(SInt32)numberFeatures,
 													&newFileInfo,  
 													&returnCode,
+													gStatisticsImageSpecsPtr->areaCode,
 													gStatisticsImageSpecsPtr->minMaxSettingCode,
 													gStatisticsImageSpecsPtr->userMinimum,
 													gStatisticsImageSpecsPtr->userMaximum);
@@ -851,7 +833,7 @@ Boolean CreateStatisticsImages (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1225,7 +1207,7 @@ void StatisticsImageControl (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1303,7 +1285,7 @@ void LoadStatImageInformationStructure (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1615,7 +1597,7 @@ Boolean LoadStatisticsImageSpecs (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2107,12 +2089,11 @@ Boolean StatisticsImageDialog (
 		END_CATCH_ALL
 	#endif	// defined multispec_win  
    
-	#if defined multispec_lin
+	#if defined multispec_wx
 		try
 			{
 			CMStatImageDialog*   dialogPtr = NULL;
 		
-			//dialogPtr = new CMStatImageDialog ((wxWindow *)GetMainFrame ());
 			dialogPtr = new CMStatImageDialog (NULL);
 		
 			returnFlag = dialogPtr->DoDialog (); 
@@ -2134,7 +2115,7 @@ Boolean StatisticsImageDialog (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2153,7 +2134,7 @@ Boolean StatisticsImageDialog (
 // Called By:			StatisticsImageDialog 
 //
 //	Coded By:			Larry L. Biehl			Date: 03/30/2014
-//	Revised By:			Larry L. Biehl			Date: 09/05/2017
+//	Revised By:			Larry L. Biehl			Date: 11/11/2019
 
 void StatisticsImageDialogInitialize (
 				DialogPtr							dialogPtr,
@@ -2175,6 +2156,7 @@ void StatisticsImageDialogInitialize (
 				double*								userMinimumPtr,
 				double*								userMaximumPtr,
 				SInt16*								areaCodePtr,
+				SInt16*								perFieldClassCodePtr,
 				SInt16*								selectItemPtr,
 				Boolean*								featureTransformationFlagPtr,
 				Boolean*								featureTransformAllowedFlagPtr)
@@ -2233,16 +2215,13 @@ void StatisticsImageDialogInitialize (
 	
 	*channelSelectionPtr = statisticsImageSpecsPtr->channelSet;
 	*localNumberChannelsPtr = statisticsImageSpecsPtr->numberFeatures;
-   
-   //if (gProjectInfoPtr != NULL &&
-	//			gProjectInfoPtr->numberStatTrainClasses > 0 &&
-	//				gProjectInfoPtr->statisticsCode == kMeanCovariance)
-	if (statisticsImageSpecsPtr->areaCode == kTrainingType)
+	
+	*areaCodePtr = statisticsImageSpecsPtr->areaCode;
+	*perFieldClassCodePtr = statisticsImageSpecsPtr->perFieldClassCode;
+	
+	if (statisticsImageSpecsPtr->projectFlag)
 		{
 		*channelsAllAvailableFlagPtr = TRUE;
-		//SetDialogItemDrawRoutine (dialogPtr, 4, drawChannelsPopUp2Ptr);
-		//channelsPopUpMenu = gPopUpAllAvailableSubsetMenu;
-		//channelsPopUpMenuID = kPopUpAllAvailableSubsetMenuID;
 	
 				//	Classes to use. Make all classes the default													
 					
@@ -2251,7 +2230,6 @@ void StatisticsImageDialogInitialize (
 								(statisticsImageSpecsPtr->areaCode == kTrainingType));
          
 		if (gProjectInfoPtr->keepClassStatsOnlyFlag)
-			//MDisableDialogItem (this, IDC_SelectedFieldRadio);
 			SetDLogControlHilite (dialogPtr, IDC_SelectedFieldRadio, 255);
 								
 		*classSelectionPtr = statisticsImageSpecsPtr->classSet;
@@ -2289,14 +2267,11 @@ void StatisticsImageDialogInitialize (
 		*projectChannelsPtrPtr = (UInt16*)gProjectInfoPtr->channelsPtr;
 		*maxNumberChannelsPtr = gProjectInfoPtr->numberStatisticsChannels;
 									
-		}	// end "if (gProjectInfoPtr != NULL && ..."
+		}	// end "if (statisticsImageSpecsPtr->areaCode == kTrainingType)"
 		
-	else	// gProjectInfoPtr == NULL || ...
+	else	// statisticsImageSpecsPtr->areaCode != kTrainingType
 		{
 		*channelsAllAvailableFlagPtr = FALSE;
-		//SetDialogItemDrawRoutine (dialogPtr, 4, gDrawChannelsPopUpPtr);
-		//channelsPopUpMenu = gPopUpAllSubsetMenu;
-		//channelsPopUpMenuID = kPopUpAllSubsetMenuID;
 		
 		HideDialogItem (dialogPtr, IDC_ClassesRadio);
 		HideDialogItem (dialogPtr, IDC_ClassCombo);
@@ -2370,12 +2345,9 @@ void StatisticsImageDialogInitialize (
 							IDC_SelectedAreaRadio,
 							(statisticsImageSpecsPtr->areaCode == kAreaType));
 	
-	if (statisticsImageSpecsPtr->areaCode != kAreaType)
-		HideDialogItem (dialogPtr, IDC_SelectedAreaRadio);
-		
-	if (statisticsImageSpecsPtr->areaCode == kAreaType)
+	if (gImageFileInfoPtr != NULL)
 		{
-		#if defined multispec_lin
+		#if defined multispec_wx
 			ShowDialogItem (dialogPtr, IDC_LineColFrame);
 			ShowDialogItem (dialogPtr, IDC_StartPrompt);
 			ShowDialogItem (dialogPtr, IDC_EndPrompt);
@@ -2406,7 +2378,9 @@ void StatisticsImageDialogInitialize (
 					
 	else	// statisticsImageSpecsPtr->areaCode != kAreaType 
 		{
-		#if defined multispec_lin
+		HideDialogItem (dialogPtr, IDC_SelectedAreaRadio);
+		
+		#if defined multispec_wx
 			HideDialogItem (dialogPtr, IDC_LineColFrame);
 			HideDialogItem (dialogPtr, IDC_StartPrompt);
 			HideDialogItem (dialogPtr, IDC_EndPrompt);
@@ -2461,7 +2435,7 @@ void StatisticsImageDialogInitialize (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2481,14 +2455,12 @@ void StatisticsImageDialogInitialize (
 // Called By:			StatisticsImageDialog 
 //
 //	Coded By:			Larry L. Biehl			Date: 03/30/2014
-//	Revised By:			Larry L. Biehl			Date: 07/01/2016
+//	Revised By:			Larry L. Biehl			Date: 10/09/2019
 
 void StatisticsImageDialogOK (
 				DialogPtr							dialogPtr,
 				StatisticsImageSpecsPtr			statisticsImageSpecsPtr,
 				DialogSelectArea*					dialogSelectAreaPtr,
-				SInt16								classCode,
-				SInt16								areaCode,
 				SInt16								channelSelection,
 				Boolean								featureTransformationFlag,
 				SInt16*								featurePtr,
@@ -2497,8 +2469,8 @@ void StatisticsImageDialogOK (
 				SInt16								classSelection,
             SInt32                        localNumberClasses,
 				SInt16*								classListPtr,
-				SInt16								perClassCode,
-				SInt16								perFieldCode,
+				SInt16								areaCode,
+				SInt16								perFieldClassCode,
 				SInt16								overallMinMaxCode,
 				SInt16								individualMinMaxCode,
 				SInt16								userMinMaxCode,
@@ -2531,24 +2503,22 @@ void StatisticsImageDialogOK (
 											NULL,
 											NULL);
 	
+	statisticsImageSpecsPtr->areaCode = areaCode;
+	
 			// Image for class or field statistics.		
-		
-	if (perClassCode != 0)
-		gStatisticsImageSpecsPtr->perFieldClassCode = 1;
-		
-	if (perFieldCode != 0)
-		gStatisticsImageSpecsPtr->perFieldClassCode = 2;
+	
+	statisticsImageSpecsPtr->perFieldClassCode = perFieldClassCode;
 										
 			// Minimum/Maximum settings to use.				
 	
 	if (overallMinMaxCode != 0)
-		gStatisticsImageSpecsPtr->minMaxSettingCode = 1;
+		statisticsImageSpecsPtr->minMaxSettingCode = 1;
 	
 	if (individualMinMaxCode != 0)
-		gStatisticsImageSpecsPtr->minMaxSettingCode = 2;
+		statisticsImageSpecsPtr->minMaxSettingCode = 2;
 	
 	if (userMinMaxCode != 0)
-		gStatisticsImageSpecsPtr->minMaxSettingCode = 3;
+		statisticsImageSpecsPtr->minMaxSettingCode = 3;
 
 			// User specified minimum and maximum.						
 			

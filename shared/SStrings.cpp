@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								Copyright (1988-2019)
+//								Copyright (1988-2020)
 //						(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			08/19/2019
+//	Revision date:			01/03/2020
 //
 //	Language:				C
 //
@@ -21,58 +21,25 @@
 //								provide utility type functions in MultiSpec that are 
 //								shared in the Mac and Windows versions.
 //
-//	Functions in file:	void							CheckStringLength
-//								Boolean 						CheckTextWindowSpaceNeeded
-//								Boolean 						CompareSuffixNoCase
-//								StringPtr 					ConcatPStrings
-//								void 							CopyPToP
-//								CharPtr 						CtoPstring
-//								void 							ForceTextToEnd
-//								void 							GetActiveImageWindowTitle
-//								void 							GetOutputWindowTitle
-//								SInt32 						GetSpecifiedString
-//								Boolean 						GetSpecifiedStringNumber
-//								Boolean 						ListChannelsUsed
-//								void 							ListCPUTimeInformation
-//								Boolean 						ListHeaderInfo
-//								Boolean						ListLineColumnIntervalString
-//								Boolean 						ListProcessorTitleLine
-//								Boolean 						ListProjectAndImageName
-//								Boolean 						ListSpecifiedStringNumber
-//								Boolean 						ListString
-//								Boolean 						LoadSpecifiedStringNumberLong
-//								Boolean 						LoadSpecifiedStringNumberLongP
-//								Boolean 						LoadSpecifiedStringNumberString
-//								Boolean 						LoadSpecifiedStringNumberStringP
-//								Boolean 						MGetString
-//								void 							MSetWindowTitle
-//								Boolean						OutputString
-//								void 							pstr
-//								CharPtr 						PtoCstring
-//								void 							RemoveCharsAddVersion
-//								void 							RemoveCharsNoCase
-//								void 							SetActiveImageWindowTitle
-//								void 							SetOutputWTitle
-//
 //------------------------------------------------------------------------------------
 
 #include "SMultiSpec.h"
 #include	<ctype.h>  
 
-#if defined multispec_lin
+#if defined multispec_wx
 	#include	"SMultiSpec.h"
 	
 	#include "wx/string.h"
 	#include "wx/textfile.h"
-   #include "LGraphDoc.h"
-   #include "LGraphFrame.h"
-   #include "LGraphView.h"
-	#include "LImageView.h"
-	#include "LImageFrame.h"
-	#include "LImageDoc.h"
-	#include "LTextView.h"
+   #include "xGraphDoc.h"
+   #include "xGraphFrame.h"
+   #include "xGraphView.h"
+	#include "xImageView.h"
+	#include "xImageFrame.h"
+	#include "xImageDoc.h"
+	#include "xTextView.h"
 	#include "wx/stdpaths.h"
-#endif   // defined multispec_lin
+#endif   // defined multispec_wx
 
 #if defined multispec_mac || defined multispec_mac_swift
 	#include	"MGraphView.h"
@@ -87,9 +54,8 @@
 #endif	// defined multispec_mac || defined multispec_mac_swift  
                             
 #if defined multispec_win
-	#include	"CDisplay.h"
-	#include	"CImageWindow.h"
-	#include "CProcessor.h"
+	#include	"SDisplay_class.h"
+	#include	"SImageWindow_class.h"
 
 	#include	"WGraphView.h"
 	#include	"WImageView.h"
@@ -99,24 +65,19 @@
 	#include "WTextView.h"
 
 	Boolean MGetString (
-				TBYTE*								outTextPtr, 
-				UInt16								stringListID, 
-				UInt16								stringID,
-				UInt16								maxStringLength=255);
-	/*
-	Boolean GetSpecifiedStringNumber (
-				SInt16								strListID, 
-				SInt16								index,
-				TBYTE*								textStringPtr, 
-				Boolean								continueFlag,
-				UInt16								maxStringLength=255);
-	*/
+					TBYTE*								outTextPtr,
+					UInt16								stringListID, 
+					UInt16								stringID,
+					UInt16								maxStringLength=255);
 #endif	// defined multispec_win
 
 
+extern void	ListString (
+				const char*							textBuffer);
+
 extern Boolean	ListString (
 				char*									textBuffer,
-				unsigned int						textLength);
+				unsigned int						textLength=0);
 
 
 		// Prototypes for routines in this file that are only called by
@@ -152,7 +113,7 @@ Boolean 	LoadSpecifiedStringNumberString (
 				Boolean								continueFlag,
 				FileStringPtr						inputStringPtr);
 
-#if defined multispec_lin
+#if defined multispec_wx
 	void		MSetWindowTitle (
 					wxDocument*							documentCPtr,
 					UCharPtr								titleStringPtr);
@@ -162,7 +123,7 @@ Boolean 	LoadSpecifiedStringNumberString (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -246,7 +207,7 @@ void CheckStringLength (
 				
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -259,6 +220,8 @@ void CheckStringLength (
 //							I will just use the same. The TextBlock structure under 
 //							Windows is really just filler.
 //
+//							For wxWidgets interface (Linux & MacOS), just return true.
+//
 //	Parameters in:		Estimated number of characters to go into the text output
 //								window.
 //
@@ -270,12 +233,12 @@ void CheckStringLength (
 //
 //	Coded By:			Larry L. Biehl			Date: 11/03/1993
 //	Revised By:			Larry L. Biehl			Date: 03/22/2019
-// Linux: Just return True
+
 Boolean CheckTextWindowSpaceNeeded (
 				UInt32								numberBytesNeeded)
 
 {
-	#ifndef multispec_lin
+	#ifndef multispec_wx
 		double								floatTextSizeNeeded;
 	
 		SInt64								contiguousMemory;
@@ -321,7 +284,7 @@ Boolean CheckTextWindowSpaceNeeded (
 			}	// end "if (floatTextSizeNeeded > contiguousMemory)" 
 			
 		return (TRUE);
-   #else // if it is linux
+   #else	// if it is wxwidgets interface
 		return true;
 	#endif
 
@@ -330,7 +293,7 @@ Boolean CheckTextWindowSpaceNeeded (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -386,7 +349,7 @@ SInt16 CompareStringsNoCase (
    
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -448,7 +411,7 @@ SInt16 CompareStringsNoCase (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -537,7 +500,7 @@ Boolean CompareSuffixNoCase (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -628,7 +591,7 @@ Boolean CompareSuffixNoCase (
 
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -703,7 +666,7 @@ void ConcatFilenameSuffix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -756,7 +719,7 @@ void ConcatFilenameSuffix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -825,7 +788,7 @@ void ConcatPStrings (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -853,7 +816,7 @@ wchar_t* ConvertMultibyteStringToUnicodeString (
 
 {
 
-	#if defined multispec_lin
+	#if defined multispec_wx
 		wxWCharBuffer						unicodeString;
 		size_t								numberUnicodeChars;
 		
@@ -864,7 +827,7 @@ wchar_t* ConvertMultibyteStringToUnicodeString (
 																			
 		wcsncpy (&gWideTextString[1], unicodeString, numberUnicodeChars);
 		gWideTextString[0] = numberUnicodeChars;
-	#endif // end "multispec_lin"
+	#endif // end "multispec_wx"
 
 	#if defined multispec_win
 		if (inputMultibyteStringPtr != NULL)
@@ -901,7 +864,7 @@ wchar_t* ConvertMultibyteStringToUnicodeString (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -960,7 +923,7 @@ void ConvertUnicodeStringToMultibyteString (
 			}	// end "if (cfStringRef != NULL)"
 	#endif
 
-	#if defined multispec_lin
+	#if defined multispec_wx
 		wxCharBuffer						multiByteString;
 		UInt16								numberChars;
 		size_t								numberMultiByteChars;
@@ -980,7 +943,7 @@ void ConvertUnicodeStringToMultibyteString (
 																			
 		strncpy ((char*)outputUTF8StringPtr, multiByteString, numberMultiByteChars);
 		*outputStringLengthPtr = numberMultiByteChars;
-	#endif // end "multispec_lin"
+	#endif // end "multispec_wx"
 
 	#if defined multispec_win
 		UInt16								numberChars;
@@ -1015,9 +978,10 @@ void ConvertUnicodeStringToMultibyteString (
 	
 }	// end "ConvertUnicodeStringToMultibyteString"
 
+
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1086,7 +1050,7 @@ void ConcatPStrings (
 
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1155,7 +1119,7 @@ void ConcatPStringsUnicode (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1193,7 +1157,7 @@ void CopyPToP (
 
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1233,7 +1197,7 @@ void CopyPToP (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1260,7 +1224,7 @@ SInt16 CreateNumberWithCommasInString (
 	SInt16								numberChars;
 	
 		
-	numberChars = sprintf (inputStringPtr, "%ld", dataValue);
+	numberChars = sprintf (inputStringPtr, "%d", (int)dataValue);
 			
 	numberChars = InsertCommasInNumberString (inputStringPtr, 
 															numberChars,
@@ -1274,7 +1238,7 @@ SInt16 CreateNumberWithCommasInString (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1315,7 +1279,7 @@ SInt16 CreateNumberWithCommasInString (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1366,7 +1330,7 @@ UCharPtr CtoPstring (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1417,7 +1381,7 @@ wchar_t* CtoPstring (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1433,7 +1397,7 @@ wchar_t* CtoPstring (
 //
 // Value Returned:	None		
 // 
-//	Called By:			ClassifyControl in classify.c
+//	Called By:			ClassifyControl in SClassify.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/14/1990
 //	Revised By:			Larry L. Biehl			Date: 03/27/2017	
@@ -1469,18 +1433,25 @@ void ForceTextToEnd (void)
 
 	#if defined multispec_win   
 		if (gOutputViewCPtr != NULL)
-			gOutputViewCPtr->GetEditCtrl ().SetSel (2147483646, 2147483646, TRUE);
+			gOutputViewCPtr->GetEditCtrl().SetSel (2147483646, 2147483646, TRUE);
 	#endif	// defined multispec_win 
 	 
-	#if defined multispec_lin
-		 //      TODO: For linux when developing gui
+	#if defined multispec_wx
+		wxStyledTextCtrl*			textCtrl;
+	
+		if (gOutputViewCPtr != NULL)
+			{
+			textCtrl = gOutputViewCPtr->m_textsw;
+			textCtrl->ShowPosition (textCtrl->GetLastPosition ());
+			
+			}	// end "if (gOutputViewCPtr != NULL)"
 	#endif
 }	// end "ForceTextToEnd"   	  
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1549,7 +1520,7 @@ void GetActiveImageWindowTitle (
 			}	// end "if (gActiveImageViewCPtr != NULL)"
 	#endif	// defined multispec_win 
 	
-	#if defined multispec_lin
+	#if defined multispec_wx
       wxString titleString = (gActiveImageViewCPtr->m_frame)->GetTitle ();
       UInt16 titleLength = MIN ((UInt16)titleString.Length (), 254);
 			
@@ -1566,7 +1537,7 @@ void GetActiveImageWindowTitle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1581,13 +1552,13 @@ void GetActiveImageWindowTitle (
 //
 // Value Returned:	None				
 // 
-//	Called By:			SetImageWTitle in SDisMulc.cpp
-//							FileSpecificationDialogOK in SOpenDlg.cpp
-//							SaveImageWindowAs in SSaveWrt.cpp
-//							CreateImageWindow in window.c
+//	Called By:			SetImageWTitle in SDisplayMultispectral.cpp
+//							FileSpecificationDialogOK in SOpenFileDialog.cpp
+//							SaveImageWindowAs in SSaveWrite.cpp
+//							CreateImageWindow in SImageWindow_class.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/23/2000
-//	Revised By:			Larry L. Biehl			Date: 02/27/2018
+//	Revised By:			Larry L. Biehl			Date: 11/13/2019
 
 void GetImageWindowName (
 				DisplaySpecsPtr					displaySpecsPtr, 
@@ -1602,11 +1573,11 @@ void GetImageWindowName (
 	
 		
 	if (namePtr == NULL)
-																											return;
+																									return;
 	if (fileInfoPtr == NULL) 
 		{
 		namePtr[1] = 0;
-																											return;
+																									return;
 		}
 																											
 			// Initialize local variables.																
@@ -1626,12 +1597,7 @@ void GetImageWindowName (
 	length = 0;		
 	if (fileInfoPtr->hdfHandle != NULL)
 		{
-//		GetHdfDataSetName (fileInfoPtr, 
-//									fileInfoPtr->hdfDataSetSelection,
-//									(StringPtr)gTextString2,
-//									NULL);
-									
-		CreateFullDataSetIdentifierName (fileInfoPtr, 
+		CreateFullDataSetIdentifierName (fileInfoPtr,
 														fileInfoPtr->hdfDataSetSelection,
 														(StringPtr)gTextString2,
 														60);
@@ -1778,10 +1744,10 @@ void GetImageWindowName (
 								displaySpecsPtr->channelNumber);
 			#endif	// !MONTH_DAY_DESCRIPTION
 			
-			}	// end "if (displaySpecsPtr->displayType == k1_ChannelThematicDisplayType || ..." 
+			}	// end "if (displaySpecsPtr->displayType == ..."
 			
-		else if (displaySpecsPtr->displayType == k3_ChannelDisplayType || 
-											displaySpecsPtr->displayType == k3_2_ChannelDisplayType)
+		else if (displaySpecsPtr->displayType == k3_ChannelDisplayType ||
+										displaySpecsPtr->displayType == k3_2_ChannelDisplayType)
 			{
 			sprintf ((char*)&namePtr[totalLength], 
 						"(chs_%hd,%hd,%hd)",
@@ -1789,10 +1755,11 @@ void GetImageWindowName (
 						displaySpecsPtr->greenChannelNumber,
 						displaySpecsPtr->blueChannelNumber);
 			
-			}	// end "else if (displaySpecsPtr->displayType == k3_ChannelDisplayType || ..." 
-			
+			}	// end "else if (displaySpecsPtr->displayType == k3_ChannelDisplayType ..."
+		/*
 		else if (displaySpecsPtr->displayType == k2_ChannelDisplayType)
 			{
+					// This feature was removed in 11/2019
 			SInt16		channel1 = 1,
 							channel2 = 1;
 						
@@ -1823,13 +1790,13 @@ void GetImageWindowName (
 						channel2); 
 				
 			}	// end "else if (displaySpecsPtr->displayType == k2_ChannelDisplayType)" 
-			
+		*/
 		else if (displaySpecsPtr->displayType == kSideSideChannelDisplayType)
 			{
 			sprintf ((char*)&namePtr[totalLength], 
 						"(multichannels)");
 			
-			}	// end "else if (displaySpecsPtr->displayType == 7)"
+			}	// end "else if (displaySpecsPtr->displayType == ..."
 			
 		}	// end "if (displaySpecsPtr != NULL)"
 		
@@ -1855,7 +1822,7 @@ void GetImageWindowName (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1887,48 +1854,13 @@ void GetImageWindowTitle (
 	windowPtr = GetWindowPtr (windowInfoHandle);
 	
 	GetWindowTitle (windowPtr, titleStringPtr);
-/*	         
-	#if defined multispec_mac  
-	   
-	   if (windowPtr != NULL)
-	   	{                                                
-			GetWTitle (windowPtr, titleStringPtr);
-			titleStringPtr[titleStringPtr[0]+1] = 0;
-			
-			}	// end "if (windowPtr != NULL)"
-		
-	#endif	// defined multispec_mac 
-	
-	
-	#if defined multispec_win
-	   
-	   if (windowPtr != NULL)
-	   	{  
-			CMImageDoc* documentCPtr = windowPtr->GetDocument ();
-			CString titleString = documentCPtr->GetTitle ();
-			     
-			UInt16 titleLength = titleString.GetLength ();
-			char* titleBufferPtr = titleString.GetBuffer (titleLength);
 
-			memcpy (	&titleStringPtr[1], 
-						titleBufferPtr, 
-						titleLength);
-							
-			titleString.ReleaseBuffer ();
-				
-			titleStringPtr[0] = (UInt8)titleLength;
-			titleStringPtr[titleLength+1] = 0; 
-			
-			}	// end "if (windowPtr != NULL)"
-		
-	#endif	// defined multispec_win 
-*/		
 }	// end "GetImageWindowTitle"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1976,7 +1908,7 @@ UInt16 GetNumberLeadingDecimalZeros (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2020,14 +1952,15 @@ UInt16 GetNumberWholeDigits (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void GetOutputWindowTitle
 //
-//	Software purpose:	The purpose of this routine is to get the
-//							title for the output window.
+//	Software purpose:	The purpose of this routine is to get the title for the
+//							output window.
+//							This routine is currently not being used.
 //
 //	Parameters in:		
 //
@@ -2086,8 +2019,8 @@ void GetOutputWindowTitle (
 			}	// end "if (gOutputViewCPtr != NULL)"
 	#endif	// defined multispec_win  
 	
-	#if defined multispec_lin
-		// TODO: After Basic GUI setup
+	#if defined multispec_wx
+		// Implement if needed.
 	#endif
 	
 }	// end "GetOutputWindowTitle" 
@@ -2095,7 +2028,7 @@ void GetOutputWindowTitle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2138,7 +2071,7 @@ SInt32 GetSpecifiedString (
 			}	// end "if (*stringHandlePtr)"
 	#endif	// defined multispec_mac  
 	
-	#if defined multispec_win || defined multispec_lin	
+	#if defined multispec_win || defined multispec_wx	
 		unsigned char*		stringPtr = NULL;  
 
 		unsigned char		string128[256] = {  
@@ -2434,7 +2367,7 @@ SInt32 GetSpecifiedString (
 				}	// end "else stringPtr == NULL" 
 			
 			}	// end "if (*stringPtrPtr != NULL)"
-	#endif	// defined multispec_win || defined multispec_lin
+	#endif	// defined multispec_win || defined multispec_wx
 		
 	return (stringLength);
 
@@ -2443,7 +2376,7 @@ SInt32 GetSpecifiedString (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2485,7 +2418,7 @@ Boolean GetSpecifiedStringNumber (
 
 #if defined multispec_win
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2529,7 +2462,7 @@ Boolean GetSpecifiedStringNumber (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2544,7 +2477,7 @@ Boolean GetSpecifiedStringNumber (
 //
 //	Value Returned:	
 //
-// Called By:			ReadENVIHeaderMapInfo in SOpnImag.cpp
+// Called By:			ReadENVIHeaderMapInfo in SOpenImage.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 07/14/2006
 //	Revised By:			Larry L. Biehl			Date: 08/25/2006
@@ -2618,7 +2551,7 @@ char* GetStringToComma (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2669,7 +2602,7 @@ void GetWindowTitle (
 			titleStringPtr[titleLength+1] = 0; 
 		#endif	// defined multispec_win 
 	
-		#if defined multispec_lin
+		#if defined multispec_wx
          wxString titleString;
 			titleString = windowPtr->m_frame->GetTitle ();
 			     
@@ -2679,17 +2612,18 @@ void GetWindowTitle (
 							
 			titleStringPtr[0] = (UInt8)titleLength;
 			titleStringPtr[titleLength+1] = 0; 
-		#endif	// defined multispec_lin 
+		#endif	// defined multispec_wx 
 			
 		}	// end "if (windowPtr != NULL)"
 		
 }	// end "GetWindowTitle"
 
 
-#if defined multispec_lin
+#if defined multispec_wx
 void GetGraphWindowTitle (
 				WindowPtr							windowPtr,
 				UCharPtr								titleStringPtr)
+
 {
    
    titleStringPtr[0] = 0;
@@ -2701,18 +2635,20 @@ void GetGraphWindowTitle (
       wxString titleString = ((CMGraphView*)windowPtr)->m_frame->GetTitle ();
       UInt16 titleLength = MIN ((UInt16)titleString.Length (), 254);
 			
-		strncpy ((char*)&titleStringPtr[1], (const char*)titleString.mb_str (wxConvUTF8), 254);
+		strncpy ((char*)&titleStringPtr[1],
+					(const char*)titleString.mb_str (wxConvUTF8),
+					254);
 							
 		titleStringPtr[0] = (UInt8)titleLength;
 		titleStringPtr[titleLength+1] = 0; 
 		}
 	
 }	// end "GetGraphWindowTitle"
-#endif	// defined multispec_lin
+#endif	// defined multispec_wx
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2731,51 +2667,64 @@ void GetGraphWindowTitle (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 03/09/2007
-//	Revised By:			Larry L. Biehl			Date: 08/19/2019
+//	Revised By:			Larry L. Biehl			Date: 01/03/2020
 
 void InitializeDateVersionStrings ()
 
 {
 		// Date version string
 		
-	sprintf (gDateVersionString, "2019.08.19");
+	sprintf (gDateVersionString, "2020.01.03");
 
 		// Application identifier string
 		
 	#if defined multispec_mac
 		#ifndef __XCODE__
 			#ifdef TARGET_CPU_PPC
-				sprintf (gApplicationIdentifierString, "MultiSpecPPC_%s", gDateVersionString);
+				sprintf (
+					gApplicationIdentifierString, "MultiSpecPPC_%s", gDateVersionString);
 			#endif		// TARGET_CPU_PPC
 			
-			sprintf (gApplicationIdentifierString, "MultiSpecCarb_%s", gDateVersionString);
+			sprintf (
+					gApplicationIdentifierString, "MultiSpecCarb_%s", gDateVersionString);
 		#endif		// !__XCODE__
 			
 		#ifdef __XCODE__		
 			if (gSystemArchitectureCode == kIntel)
-				sprintf (gApplicationIdentifierString, "MultiSpecIntel_%s", gDateVersionString);
+				sprintf (
+					gApplicationIdentifierString, "MultiSpecIntel_%s", gDateVersionString);
 				
 			if (gSystemArchitectureCode == kPPC)
-				sprintf (gApplicationIdentifierString, "MultiSpecUniversalPPC_%s", gDateVersionString);
+				sprintf (gApplicationIdentifierString,
+							"MultiSpecUniversalPPC_%s",
+							gDateVersionString);
 		#endif		// __XCODE__
 	#endif 	// defined multispec_mac
 		
 	#if defined multispec_win
 		#if defined _WIN64
-			sprintf (gApplicationIdentifierString, "MultiSpecWin64_%s", gDateVersionString);
+			sprintf (
+				gApplicationIdentifierString, "MultiSpecWin64_%s", gDateVersionString);
 		#else
-			sprintf (gApplicationIdentifierString, "MultiSpecWin32_%s", gDateVersionString);
+			sprintf (
+				gApplicationIdentifierString, "MultiSpecWin32_%s", gDateVersionString);
 		#endif
 	#endif 	// defined multispec_win
 	
-   #if defined multispec_lin
+   #if defined multispec_wx
 		#ifdef NetBeansProject
-			sprintf ((char*)gApplicationIdentifierString, "MultiSpecLinux_%s", gDateVersionString);
+			sprintf ((char*)gApplicationIdentifierString,
+						"MultiSpecLinux_%s",
+						gDateVersionString);
 		#else
 			#if defined multispec_wxmac
-				sprintf ((char*)gApplicationIdentifierString, "MultiSpec64_%s", gDateVersionString);
+				sprintf ((char*)gApplicationIdentifierString,
+							"MultiSpec64_%s",
+							gDateVersionString);
 			#else
-				sprintf ((char*)gApplicationIdentifierString, "MultiSpec_on_MyGeohub_%s", gDateVersionString);
+				sprintf ((char*)gApplicationIdentifierString,
+							"MultiSpec_on_MyGeohub_%s",
+							gDateVersionString);
 			#endif
 		#endif
    #endif
@@ -2785,7 +2734,7 @@ void InitializeDateVersionStrings ()
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2969,7 +2918,7 @@ SInt16 InsertCommasInNumberString (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2989,7 +2938,7 @@ SInt16 InsertCommasInNumberString (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 10/04/1989
-//	Revised By:			Larry L. Biehl			Date: 08/28/2017	
+//	Revised By:			Larry L. Biehl			Date: 11/25/2019
 
 Boolean ListChannelsUsed (
 				FileInfoPtr							fileInfoPtr, 
@@ -3143,9 +3092,9 @@ Boolean ListChannelsUsed (
 						channelNum = lChannelsPtr[index] + 1;
 						
 					stringLength += sprintf ((char*)&gTextString[stringLength], 
-														"%ld-%ld,", 
-														startChannel+1,
-														(UInt32)channelNum);
+														"%u-%u,", 
+														(unsigned int)(startChannel+1),
+														(unsigned int)channelNum);
 						
 					dashFlag = FALSE;
 						
@@ -3156,7 +3105,7 @@ Boolean ListChannelsUsed (
 							// List channel number separated by comma
 							
 					stringLength += sprintf ((char*)&gTextString[stringLength], 
-						"%ld,", 
+						"%u,", 
 						startChannel+1);
 						
 					}	// end "else !dashFlag"
@@ -3279,10 +3228,10 @@ Boolean ListChannelsUsed (
 			
 			if (channelDescriptionPtr == NULL)
 				sprintf ((char*)gTextString, 
-								"     %*ld%s", 
-								channelNumberLength,
-								channelNum,
-								gEndOfLine);
+							"     %*u%s", 
+							channelNumberLength,
+							(unsigned int)channelNum,
+							gEndOfLine);
 											
 			else	// channelDescriptionPtr != NULL
 				{
@@ -3292,11 +3241,11 @@ Boolean ListChannelsUsed (
 					
 				BlockMoveData (&channelDescriptionPtr[fileChanNum-1], gTextString2, 16);
 				sprintf ((char*)gTextString, 
-								"     %*ld: %s%s", 
-								channelNumberLength,
-								channelNum, 
-								gTextString2,
-								gEndOfLine);
+							"     %*u: %s%s", 
+							channelNumberLength,
+							(unsigned int)channelNum,
+							gTextString2,
+							gEndOfLine);
 				
 				}	// end "else channelDescriptionPtr" 
 			
@@ -3333,7 +3282,7 @@ Boolean ListChannelsUsed (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3348,7 +3297,7 @@ Boolean ListChannelsUsed (
 //
 // Value Returned:	None				
 // 
-// Called By:			ListClassificationSummary in listResults.c
+// Called By:			ListClassificationSummary in SListResults.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 03/26/2004
 //	Revised By:			Larry L. Biehl			Date: 08/14/2010
@@ -3400,7 +3349,7 @@ SInt16 ListCountValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3436,7 +3385,7 @@ Boolean ListCPUTimeInformation (
 	
 	
 	if (gOutputForce1Code == 0)
-																			return (continueFlag);
+																				return (continueFlag);
 																				
 	localContinueFlag = continueFlag;
 	if (gOperationCanceledFlag)
@@ -3571,9 +3520,9 @@ Boolean ListCPUTimeInformation (
 	
 	if (totalTime < 60)
 		sprintf ((char*)gTextString,
-					"%s  %lu CPU seconds for %s.%s%s",
+					"%s  %u CPU seconds for %s.%s%s",
 					gEndOfLine,
-					totalTime, 
+					(unsigned int)totalTime,
 					gTextString2,
 					gTextString3,
 					gEndOfLine);
@@ -3588,10 +3537,10 @@ Boolean ListCPUTimeInformation (
 		if (minutes < 60)
 			{
 			sprintf ((char*)gTextString,
-						"%s  %lu minutes and %lu seconds CPU time for %s.%s%s",
+						"%s  %u minutes and %u seconds CPU time for %s.%s%s",
 						gEndOfLine,
-						minutes,
-						totalTime, 
+						(unsigned int)minutes,
+						(unsigned int)totalTime,
 						gTextString2,
 						gTextString3,
 						gEndOfLine);
@@ -3606,11 +3555,11 @@ Boolean ListCPUTimeInformation (
 			minutes -= hours*60;
 			
 			sprintf ((char*)gTextString,
-						"%s  %lu hours, %lu minutes and %lu seconds CPU time for %s.%s%s",
+						"%s  %u hours, %u minutes and %u seconds CPU time for %s.%s%s",
 						gEndOfLine,
-						hours,
-						minutes,
-						totalTime, 
+						(unsigned int)hours,
+						(unsigned int)minutes,
+						(unsigned int)totalTime,
 						gTextString2,
 						gTextString3,
 						gEndOfLine);
@@ -3651,7 +3600,7 @@ Boolean ListCPUTimeInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3666,10 +3615,10 @@ Boolean ListCPUTimeInformation (
 //
 // Value Returned:	None				
 // 
-// Called By:			ListDataControl in listData.c
-//							PrincipalComponentControl in principalComponents.c
-//							ListClassificationHeaderInfo in projectUtilities.c
-//							SeparabilityControl in separability.c
+// Called By:			ListDataControl in SListData.cpp
+//							PrincipalComponentControl in SPrincipalComponents.cpp
+//							ListClassificationHeaderInfo in SProjectUtilities.cpp
+//							SeparabilityControl in SFeatureSelection.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/03/1994
 //	Revised By:			Larry L. Biehl			Date: 08/02/2013	
@@ -3728,7 +3677,7 @@ Boolean ListHeaderInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3789,7 +3738,7 @@ Boolean ListLineColumnIntervalString (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3823,8 +3772,8 @@ Boolean ListMapProjectionString (
 		projectionCode = GetProjectionCode (mapProjectionHandle);
 		
 				// Allow for MultiSpec Geographic code which is -1;
-				
-/*		if (projectionCode > 0)
+		/*
+		if (projectionCode > 0)
 			projectionCode++;
 			
 		else if (projectionCode < 0)
@@ -3842,7 +3791,7 @@ Boolean ListMapProjectionString (
 					(char*)gTextString,  strlen ((char*)gTextString), gOutputTextH);
 			
 			}	// end "if (projectionCode <= 0)"
-*/			
+		*/
 		if	(projectionCode > 0)
 			{
 			#if defined multispec_mac 
@@ -3852,7 +3801,7 @@ Boolean ListMapProjectionString (
 				gTextString2[gTextString2[0]+1] = 0;
 			#endif	// defined multispec_mac   
                              
-         #if defined multispec_win || defined multispec_lin
+         #if defined multispec_win || defined multispec_wx
 				MGetString (gTextString2,
 						0,
 						IDS_ProjectionType01+projectionCode);
@@ -3879,7 +3828,7 @@ Boolean ListMapProjectionString (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3934,7 +3883,7 @@ Boolean ListMapReferenceSystemString (
 				gTextString2[gTextString2[0]+1] = 0;
 			#endif	// defined multispec_mac   
                              
-         #if defined multispec_win | defined multispec_lin
+         #if defined multispec_win | defined multispec_wx
 				MGetString (gTextString2,
 						0,
 						IDS_ReferenceSystem01+referenceSystemCode);
@@ -3961,7 +3910,7 @@ Boolean ListMapReferenceSystemString (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4014,7 +3963,7 @@ Boolean ListMemoryMessage (
 																		gOutputForce1Code, 
 																		continueFlag);
 
-      #if defined multispec_win | defined multispec_lin
+      #if defined multispec_win | defined multispec_wx
 			gMemoryError = 0;
 		#endif	// defined multispec_win
 		
@@ -4027,7 +3976,7 @@ Boolean ListMemoryMessage (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4042,7 +3991,7 @@ Boolean ListMemoryMessage (
 //
 // Value Returned:	None		
 // 
-// Called By:			ListHeaderInfo in multiSpecUtilities.c
+// Called By:			ListHeaderInfo in SStrings.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/09/1991
 //	Revised By:			Larry L. Biehl			Date: 09/01/2017
@@ -4054,8 +4003,6 @@ Boolean ListProcessorTitleLine (
 
 {
 	char									textString[512];
-	
-	//int									count;
 
 	SInt16								indexStart,
 											stringIndex;
@@ -4080,7 +4027,6 @@ Boolean ListProcessorTitleLine (
 			
 		case kHistogramProcessor:
 			stringIndex = IDS_ProcessorHistogram;
-//			indexStart = gNumberOfEndOfLineCharacters;
 			break;
 			
 		case kReformatProcessor:
@@ -4125,7 +4071,6 @@ Boolean ListProcessorTitleLine (
 		case kClusterProcessor:
 			stringIndex = IDS_ProcessorCluster;
 			listClassificationIdentifierFlag = TRUE;
-//			indexStart = gNumberOfEndOfLineCharacters;
 			break;
 		
 		case kComputeStatsProcessor:
@@ -4155,7 +4100,6 @@ Boolean ListProcessorTitleLine (
 		case kClassifyProcessor:
 			stringIndex = IDS_ProcessorClassify;
 			listClassificationIdentifierFlag = TRUE;
-//			indexStart = gNumberOfEndOfLineCharacters;
 			break;
 						
 		case kListResultsProcessor:
@@ -4259,7 +4203,7 @@ Boolean ListProcessorTitleLine (
 											&hdfDataSetName[1],
 											gEndOfLine);
 					
-				continueFlag = OutputString (	resultsFileStreamPtr, 
+				continueFlag = OutputString (resultsFileStreamPtr, 
 														(char*)gTextString, 
 														0, 
 														*outputCodePtr, 
@@ -4278,7 +4222,7 @@ Boolean ListProcessorTitleLine (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4295,10 +4239,10 @@ Boolean ListProcessorTitleLine (
 //
 // Value Returned:	None. 	
 // 
-// Called By:			ListHeaderInfo in multiSpecUtilities.c
+// Called By:			ListHeaderInfo in SStrings.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 05/20/1992
-//	Revised By:			Larry L. Biehl			Date: 09/01/2017
+//	Revised By:			Larry L. Biehl			Date: 11/25/2019
 
 Boolean ListProjectAndImageName (
 				CMFileStream* 						resultsFileStreamPtr, 
@@ -4317,15 +4261,15 @@ Boolean ListProjectAndImageName (
 			{
 					// List the project name.													
 	
-			char* projectFileNamePtr = (char*)GetFileNameCPointerFromProjectInfo (gProjectInfoPtr);
+			char* projectFileNamePtr =
+								(char*)GetFileNameCPointerFromProjectInfo (gProjectInfoPtr);
 
 			if (strlen (projectFileNamePtr) == 0)
 				sprintf ((char*)gTextString2,
 								(char*)"Untitled Project");
 				
 			else	// projectFileNamePtr[0] != 0
-				sprintf ((char*)gTextString2,
-									projectFileNamePtr);
+				sprintf ((char*)gTextString2, "%s", projectFileNamePtr);
 			
 			sprintf ((char*)gTextString, 
 							(char*)"    Project = '%s'%s",
@@ -4440,7 +4384,7 @@ Boolean ListProjectAndImageName (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4495,7 +4439,7 @@ Boolean ListSpecifiedStringNumber (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4539,7 +4483,7 @@ Boolean ListSpecifiedStringNumber (
 		{
 		stringPtr2 = (char*)&gTextString2;
 			
-		sprintf (	(char*)gTextString,
+		sprintf ((char*)gTextString,
 					&stringPtr2[1],
 					dValue);
 							
@@ -4558,7 +4502,7 @@ Boolean ListSpecifiedStringNumber (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4602,7 +4546,7 @@ Boolean ListSpecifiedStringNumber (
 		{
 		stringPtr2 = (char*)&gTextString2;
 		
-		sprintf (	(char*)gTextString,
+		sprintf ((char*)gTextString,
 					&stringPtr2[1],
 					lValue);
 							
@@ -4621,7 +4565,7 @@ Boolean ListSpecifiedStringNumber (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4666,7 +4610,7 @@ Boolean ListSpecifiedStringNumber (
 		{
 		stringPtr2 = (char*)&gTextString2;
 		
-		sprintf (	(char*)gTextString,
+		sprintf ((char*)gTextString,
 					&stringPtr2[1],
 					lValue,
 					lValue2);
@@ -4686,7 +4630,7 @@ Boolean ListSpecifiedStringNumber (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4732,7 +4676,7 @@ Boolean ListSpecifiedStringNumber (
 		{
 		stringPtr2 = (char*)&gTextString2;
 		
-		sprintf (	(char*)gTextString,
+		sprintf ((char*)gTextString,
 					&stringPtr2[1],
 					lValue,
 					lValue2,
@@ -4753,7 +4697,7 @@ Boolean ListSpecifiedStringNumber (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4816,7 +4760,7 @@ Boolean ListSpecifiedStringNumber (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4861,7 +4805,7 @@ Boolean ListSpecifiedStringNumber (
 		{
 		stringPtr2 = (char*)&gTextString2;
 		
-		sprintf (	(char*)gTextString,
+		sprintf ((char*)gTextString,
 				  &stringPtr2[1],
 				  llValue,
 				  lValue2);
@@ -4880,7 +4824,7 @@ Boolean ListSpecifiedStringNumber (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4937,7 +4881,7 @@ Boolean ListSpecifiedStringNumber (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4985,7 +4929,7 @@ Boolean ListSpecifiedStringNumber (
 		{
 		stringPtr2 = (char*)&gTextString2;
 			
-		sprintf (	(char*)gTextString,
+		sprintf ((char*)gTextString,
 					&stringPtr2[1],
 					inputStringPtr);
 							
@@ -5005,7 +4949,7 @@ Boolean ListSpecifiedStringNumber (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5053,7 +4997,7 @@ Boolean ListSpecifiedStringNumber (
 		{
 		stringPtr2 = (char*)&gTextString2;
 			
-		sprintf (	(char*)gTextString,
+		sprintf ((char*)gTextString,
 					&stringPtr2[1],
 					inputStringPtr);
 							
@@ -5073,7 +5017,7 @@ Boolean ListSpecifiedStringNumber (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5122,7 +5066,7 @@ Boolean ListSpecifiedStringNumber (
 		{
 		stringPtr2 = (char*)&gTextString2;
 			
-		sprintf (	(char*)gTextString,
+		sprintf ((char*)gTextString,
 					&stringPtr2[1],
 					inputStringPtr, 
 					inputString2Ptr);
@@ -5143,7 +5087,7 @@ Boolean ListSpecifiedStringNumber (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5192,7 +5136,7 @@ Boolean ListSpecifiedStringNumber (
 		{
 		stringPtr2 = (char*)&gTextString2;
 			
-		sprintf (	(char*)gTextString,
+		sprintf ((char*)gTextString,
 					&stringPtr2[1],
 					inputStringPtr, 
 					inputString2Ptr);
@@ -5212,21 +5156,41 @@ Boolean ListSpecifiedStringNumber (
 
 
 
+void ListString (
+				const char*							textBuffer)
+
+{
+	unsigned int						textLength;
+	
+	
+	textLength = (unsigned int)strlen (textBuffer);
+	
+	ListString ((HPtr)textBuffer,
+					(UInt32)textLength,
+					gOutputTextH,
+					kASCIICharString);
+	
+}	// end "ListString"
+
+
+
 Boolean ListString (
 				char*									textBuffer,
 				unsigned int						textLength)
-{	  
+
+{
+	
 	return (ListString ((HPtr)textBuffer, 
 								(UInt32)textLength, 
 								gOutputTextH, 
 								kASCIICharString));
 					
-}
+}	// end "ListString"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5266,7 +5230,7 @@ Boolean ListString (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5375,8 +5339,7 @@ Boolean ListString (
 																	
 								if (cfStringRef != NULL)
 									{
-//									CFIndex CFStringGetBytes (CFStringRef theString, CFRange range, CFStringEncoding encoding, UInt8 lossByte, Boolean isExternalRepresentation, UInt8 *buffer, CFIndex maxBufLen, CFIndex *usedBufLen);
-									CFStringGetBytes (cfStringRef, 
+									CFStringGetBytes (cfStringRef,
 																CFRangeMake (0, stringLength),
 																kCFStringEncodingUnicode, 
 																'?', 
@@ -5442,20 +5405,7 @@ Boolean ListString (
 					#endif	// use_mlte_for_text_window
 				
 					#if !use_mlte_for_text_window
-						//redisplayFlag = WSInsert (textH, stringPtr, stringLength);
 						WEInsert (stringPtr, stringLength, NULL, NULL, textH);
-						/*
-						WEPut (0,
-									0,
-									stringPtr, 
-									stringLength, 
-									kTextEncodingMacRoman,
-									0,
-									0,
-									NULL,
-									NULL,
-									textH);
-						*/
 					#endif	// !use_mlte_for_text_window
 					
 				gMaxCharsInLine = MAX (gMaxCharsInLine, stringLength);
@@ -5498,18 +5448,7 @@ Boolean ListString (
 								
 							//redisplayFlag = WSInsert (textH, gEndOfLine, 1);
 							WEInsert (gEndOfLine, 1, NULL, NULL, textH);
-							/*
-							WEPut (0,
-										0, 
-										gEndOfLine, 
-										1, 
-										kTextEncodingMacRoman,
-										0,
-										0,
-										NULL,
-										NULL,
-										textH);
-							*/
+
 							}	// end "if (lTextLength > 0)"
 					
 						}	// end "while (stringLength > 0)"
@@ -5527,11 +5466,12 @@ Boolean ListString (
 			SetOutputWindowChangedFlag (TRUE);
 		#endif	// defined multispec_mac
 	
-		#if defined multispec_win || defined multispec_lin
+		#if defined multispec_win || defined multispec_wx
 			if (gOutputViewCPtr == NULL)
 																				return (returnFlag);
 																								
-			returnFlag = gOutputViewCPtr->ListString (stringPtr, stringLength, charFormatCode);  
+			returnFlag = gOutputViewCPtr->ListString (
+														stringPtr, stringLength, charFormatCode);
 		#endif	// defined multispec_win
 		
 		}	// end "if (memoryOKFlag)"
@@ -5556,7 +5496,7 @@ Boolean ListString (
 
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5642,7 +5582,7 @@ Boolean ListZoneMapProjectionString (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5680,7 +5620,8 @@ SInt16 LoadRealValueString (
 	
 	absValue = fabs (dataValue);
 	if (absValue == 0. ||
-				(absValue >= (double)kMinValueToListWith_f && absValue <= (double)kMaxValueToListWith_f))
+				(absValue >= (double)kMinValueToListWith_f &&
+														absValue <= (double)kMaxValueToListWith_f))
 		{
 		if (numberFDecimalDigits >= 0)
 			numberChars = sprintf (stringPtr, 
@@ -5717,7 +5658,7 @@ SInt16 LoadRealValueString (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5773,7 +5714,7 @@ Boolean LoadSpecifiedStringNumberDouble (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5809,7 +5750,7 @@ Boolean LoadSpecifiedStringNumberLong (
 	
 	if (continueFlag)
 		{
-		sprintf (	(char*)stringPtr1,
+		sprintf ((char*)stringPtr1,
 					&stringPtr2[1],
 					lValue1,
 					lValue2);
@@ -5823,7 +5764,7 @@ Boolean LoadSpecifiedStringNumberLong (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5881,7 +5822,7 @@ Boolean LoadSpecifiedStringNumberLongP (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5916,7 +5857,7 @@ Boolean LoadSpecifiedStringNumberString (
 	
 	if (continueFlag)
 		{
-		sprintf (	(char*)stringPtr1,
+		sprintf ((char*)stringPtr1,
 					&stringPtr2[1],
 					inputStringPtr);
 					
@@ -5932,7 +5873,7 @@ Boolean LoadSpecifiedStringNumberString (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5983,7 +5924,7 @@ Boolean LoadSpecifiedStringNumberString (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6041,7 +5982,7 @@ Boolean LoadSpecifiedStringNumberStringP (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6099,7 +6040,7 @@ Boolean LoadSpecifiedStringNumberStringP (
    
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6109,6 +6050,8 @@ Boolean LoadSpecifiedStringNumberStringP (
 //							code from character base to unicode base. The routine will use
 //							memcpy when character string is being used and wmemcpy when 
 //							unicode strings are being used.
+//
+//							Not used now.
 //
 //	Parameters in:		Pointer to title string.
 //
@@ -6131,7 +6074,7 @@ void* MemoryCopy (
 	if (wideCharacterStringFlag)
 		return (void*)wmemcpy ((wchar_t*)str1, (wchar_t*)str2, numberCharacters);
 		
-	else // !wideCharacterStringFlag
+	else	// !wideCharacterStringFlag
 		return (void*)memcpy ((char*)str1, (char*)str2, numberCharacters);
 	
 }	// end "MemoryCopy"
@@ -6139,7 +6082,7 @@ void* MemoryCopy (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6157,11 +6100,11 @@ void* MemoryCopy (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 04/14/1995
-//	Revised By:			Larry L. Biehl			Date: 03/15/2019
+//	Revised By:			Larry L. Biehl			Date: 12/12/2019
 //
-// For Linux: The String Table must be defined in LStringTable.def
-// Format for linux string table is given in LStringTable.def
-//
+// For wxWidgets interface: The String Table must be defined in xStringTable.def
+// The format for string table is given in xStringTable.def
+
 Boolean MGetString (
 				UCharPtr								outTextPtr, 
 				UInt16								stringListID, 
@@ -6177,47 +6120,21 @@ Boolean MGetString (
 		
 		
 		tempStringPtr = outTextPtr;
-		//if (returnAsWideCharStringFlag)
-		//	tempStringPtr = (UCharPtr)tempString;
 		
 		::GetIndString (tempStringPtr, (SInt16)stringListID, (SInt16)stringID);
-		//CFBundleCopyLocalizedString (CFBundleGetBundleWithIdentifier (CFSTR("com.my.bundle.id")), CFSTR("my_key"), CFSTR("my_key"), NULL);
-		//CFStringRef string = ::CFBundleCopyLocalizedString (gApplicationServicesBundle, (SInt16)stringListID, (SInt16)stringID);
-		
+	
 				// Force a c-string terminator. Do not allow strings over 254
 				// characters in length.
 				
 		SInt16 stringLength = tempStringPtr[0];
 		stringLength = MIN (stringLength, 254);		
 		outTextPtr[stringLength+1] = kNullTerminator;
-		/*
-		if (returnAsWideCharStringFlag)
-			{
-			wchar_t*		wideOutputTextPtr = (wchar_t*)outTextPtr;
-			mbstowcs (&wideOutputTextPtr[1], (const char*)&tempStringPtr[1], stringLength);
-			wideOutputTextPtr[0] = stringLength;
-			
-			//CFStringRef temp = CFStringCreateWithPascalString (NULL, 
-			//																	outTextPtr, 
-			//																	kCFStringEncodingMacRoman); // kCFStringEncodingUTF32
-			
-			//wideOutputTextPtr[0] = CFStringGetLength (temp);
-			//CFStringGetCharacters (temp, 
-			//								CFRangeMake (0, wideOutputTextPtr[0]), 
-			//								(UniChar*)&wideOutputTextPtr[1]);
-			//CFStringGetCString (temp,  
-			//								&wideOutputTextPtr[1],
-			//								wideOutputTextPtr[0],
-			//								kCFStringEncodingUTF32);
-			//CFRelease (temp);
-			
-			}	// end "if (returnAsWideCharStringFlag)"
-		*/
-		return (stringLength != 0);
+
+																	return (stringLength != 0);
 	#endif	// defined multispec_mac
 
 	#if defined multispec_mac_swift
-		return (FALSE);
+																					return (FALSE);
 	#endif	//  || defined multispec_mac_swift
 
 		
@@ -6234,18 +6151,19 @@ Boolean MGetString (
 														510);
 		strcpy ((char*)&outTextPtr[1], T2A(string));
 	
-				// Note that the incorrect count of characters could cause a problem. The only current case
-				// with the number of characters are more than 255 is one of the filter strings used for
-				// GetFile and PutFile. In that case the number of characters is not used ... only the c terminator.
+				// Note that the incorrect count of characters could cause a problem. The
+				// only current case with the number of characters are more than 255 is
+				// one of the filter strings used for GetFile and PutFile. In that case
+				// the number of characters is not used ... only the c terminator.
 	
 		outTextPtr[0] = (Byte)MIN (numberCharacters, 255);
 													
 		return (numberCharacters > 0);
 	#endif	// defined multispec_win
    
-	#if defined multispec_lin
+	#if defined multispec_wx
 		#ifdef NetBeansProject
-			wxTextFile file (wxT("LStringTable.def"));
+			wxTextFile file (wxT("xStringTable.def"));
 		#else
 					// First get the path to this executable file
 	
@@ -6253,22 +6171,22 @@ Boolean MGetString (
 			wxString exePath = std.GetExecutablePath ();
 			#ifdef multispec_wxmac
 				wxString exeDir = exePath.BeforeLast (wxUniChar('M'));
-				exeDir = exeDir.BeforeLast (wxUniChar('M'));
-				exeDir.Append ("Resources/LStringTable.def");
+				exeDir = exeDir.BeforeLast (wxUniChar ('M'));
+				exeDir.Append ("Resources/xStringTable.def");
 			#else
 						// This will be for MultiSpec on mygeohub
 				wxString exeDir = exePath.BeforeLast ('/');
-				exeDir.Append ("/LStringTable.def");
+				exeDir.Append ("/xStringTable.def");
 			#endif
 	
 			wxTextFile file (exeDir);
 		#endif
 		if (!file.Exists ())
 
-																									return false;
+																							return false;
 		
 		if (!file.Open ())
-																									return false;
+																							return false;
    
 		bool found = false;
 		wxString str, strout, strend;
@@ -6300,7 +6218,7 @@ Boolean MGetString (
 						
 						}	// end "if (str.Contains (wxT("\"")))"
 						 
-					else // read next line for search of second"
+					else	// read next line for search of second"
 						{
 						strout = str;
 						while (!file.Eof () && !found) 
@@ -6335,8 +6253,21 @@ Boolean MGetString (
 			}	// end "for (str = file.GetFirstLine ();..."
 			
 		file.Close ();
+	
+		if (!found)
+			{
+			char		tempString[256];
+			
+			int numberChars = sprintf (tempString,
+												" *String number %d was not found.%s",
+												stringID,
+												gEndOfLine);
+			ListString (tempString, numberChars, gOutputTextH);
+
+			}	// end "if (!found)"
+	
 		return (outTextPtr[1] != 0 && found);
-	#endif // defined multispec_lin
+	#endif // defined multispec_wx
 
 }	// end "MGetString"  
 
@@ -6344,7 +6275,7 @@ Boolean MGetString (
 #if defined multispec_win 
 #if defined _UNICODE
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6389,7 +6320,7 @@ Boolean MGetString (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6421,7 +6352,6 @@ void MSetWindowTitle (
 			
 		#if defined multispec_mac      
 			CFStringRef				cfStringRef;
-			//SetWTitle (windowPtr, titleStringPtr); 	
 			cfStringRef = CFStringCreateWithBytes (kCFAllocatorDefault,
 																	(UInt8*)&titleStringPtr[1],
 																	titleStringPtr[0],
@@ -6444,13 +6374,10 @@ void MSetWindowTitle (
 			MSetWindowTitle (documentCPtr, titleStringPtr);
 		#endif	// defined multispec_win  
 		
-		#if defined multispec_lin 	             
-			//wxString ntitle =  wxString::FromUTF8 ((char*)&titleStringPtr[1]);
-			//(windowPtr->m_frame)->SetTitle (ntitle);          
+		#if defined multispec_wx 	             
          wxDocument* documentCPtr = windowPtr->GetDocument ();
-//         MSetWindowTitle (documentCPtr, titleStringPtr);
          documentCPtr->SetTitle (titleStringPtr);
-		#endif	// defined multispec_lin 
+		#endif	// defined multispec_wx 
 		
 		}	// end "if (windowPtr != NULL)"
 
@@ -6506,7 +6433,7 @@ void MSetWindowTitle (
 }	// end "MSetWindowTitle"
 #endif	// defined multispec_win  
 
-#if defined multispec_lin
+#if defined multispec_wx
 void MSetWindowTitle (
 				wxDocument*		documentCPtr,
 				UCharPtr			titleStringPtr)
@@ -6519,7 +6446,6 @@ void MSetWindowTitle (
                                                   		
 		titleStringPtr[titleStringPtr[0]+1] = 0;
       wxString ntitle =  wxString::FromUTF8 ((char*)&titleStringPtr[1]);
-		//documentCPtr->SetTitle ((CharPtr)&titleStringPtr[1]);
       documentCPtr->SetTitle (ntitle);
 		
 		}	// end "if (documentCPtr != NULL)"
@@ -6529,7 +6455,7 @@ void MSetWindowTitle (
 
 
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6555,8 +6481,8 @@ void	NumToString (
 				
 {                            		
 	sprintf ((CharPtr)&stringPtr[1], 
-					"%lu",
-					numberValue);
+				"%u",
+				(unsigned int)numberValue);
 					
 	stringPtr[0] = (UInt8)strlen ((CharPtr)&stringPtr[1]);
 
@@ -6565,7 +6491,7 @@ void	NumToString (
 
 
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6601,7 +6527,7 @@ void	NumToString (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6647,7 +6573,7 @@ Boolean OutputString (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6693,7 +6619,7 @@ Boolean OutputString (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6786,7 +6712,7 @@ Boolean OutputString2 (
 
 		
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6833,7 +6759,7 @@ void pstr (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6879,7 +6805,7 @@ CharPtr 	PtoCstring (
 
 		
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6944,11 +6870,7 @@ void RemoveCharsAddVersion (
 	tempString[1] = 0;
 	for (index=lengthString; index>0; index--)
 		{
-		//tempString[0] = stringPtr[index];
-		//asciiCharacter = (char)T2A((LPCWSTR)tempString);
-
 		if (stringPtr[index] < 0x30 || stringPtr[index] > 0x39)
-		//if (stringPtr[index] < 0x0030 || stringPtr[index] > 0x0039)
 			break;
 			
 		numberCharacters++;
@@ -6996,7 +6918,7 @@ void RemoveCharsAddVersion (
 		
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7007,6 +6929,8 @@ void RemoveCharsAddVersion (
 //							This routine was developed specifically to remove
 //							.lan (ERDAS convention) from the end of filenames to
 //							be ready to add .sta for image statistics file names
+//
+//							This routine is not currently needed.
 //
 //	Parameters in:					
 //
@@ -7058,7 +6982,7 @@ void RemoveCharsNoCase (
 		
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7104,7 +7028,7 @@ void RemoveCharsNoCase (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7143,7 +7067,7 @@ void SetActiveImageWindowTitle (
 			}	// end " if (gActiveImageViewCPtr != NULL)" 		
 	#endif	// defined multispec_win  
 
-	#if defined multispec_lin
+	#if defined multispec_wx
 		if (gActiveImageViewCPtr != NULL) 
 			{
 			titleStringPtr[titleStringPtr[0] + 1] = 0;
@@ -7153,7 +7077,7 @@ void SetActiveImageWindowTitle (
 			CMImageDoc* documentCPtr = (CMImageDoc *)(gActiveImageViewCPtr->GetDocument ());
 			documentCPtr->SetTitle (frametitle);
 			
-			} // end " if (gActiveImageViewCPtr != NULL)"
+			}	// end " if (gActiveImageViewCPtr != NULL)"
    #endif
 
 }	// end "SetActiveImageWindowTitle"
@@ -7161,7 +7085,7 @@ void SetActiveImageWindowTitle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7201,14 +7125,13 @@ void SetImageWindowTitle (
 			//if (windowPtr != NULL)
 				//{                      
 				titleStringPtr[titleStringPtr[0]+1] = 0;
-				CMImageDoc* documentCPtr = gActiveImageViewCPtr->GetDocument ();                   
-				//documentCPtr->SetTitle ((LPCTSTR)&titleStringPtr[1]);
+				CMImageDoc* documentCPtr = gActiveImageViewCPtr->GetDocument (); 
 				MSetWindowTitle (documentCPtr, titleStringPtr);
 				
 				//}	// end " if (windowPtr != NULL)" 
 		#endif	// defined multispec_win  	
 			 
-		#if defined multispec_lin
+		#if defined multispec_wx
 			titleStringPtr[titleStringPtr[0]+1] = 0;
 			wxString ntitle =  wxString::FromUTF8 ((char*)&titleStringPtr[1]);
 			(windowPtr->m_frame)->SetTitle (ntitle);
@@ -7220,7 +7143,7 @@ void SetImageWindowTitle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7258,7 +7181,7 @@ void SetOutputWTitle (
    
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7293,7 +7216,7 @@ void SetPascalStringLengthCharacter (
 		
 		}	// end "if (charWidthCode == kReturnASCII)"
 	
-	else // charWidthCode != ReturnASCII
+	else	// charWidthCode != ReturnASCII
 		{
 				// Do according to the use_wide_character directive
 		wchar_t*	wideStringPtr = (wchar_t*)stringPtr;
@@ -7306,7 +7229,7 @@ void SetPascalStringLengthCharacter (
    
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7340,7 +7263,7 @@ SInt16 StringCompare (
    
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7398,7 +7321,7 @@ void* StringCopy (
    
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7428,7 +7351,7 @@ int StringLength (
 	if (asciiCharStringFlag)
 		return ((int)strlen ((char*)stringPtr));
 	
-	else // !asciiCharStringFlag
+	else	// !asciiCharStringFlag
 		{
 				// Do according to the use_wide_character directive
 		return ((int)wcslen ((wchar_t*)stringPtr));
@@ -7440,7 +7363,7 @@ int StringLength (
 				
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7481,7 +7404,7 @@ void StringToNumber (
 		// To be done
 #endif	// defined multispec_mac_swift
 
-#if defined multispec_win | defined multispec_lin
+#if defined multispec_win | defined multispec_wx
 	*theNumPtr = atol (stringPtr);
 #endif	// defined multispec_win
 
@@ -7490,7 +7413,7 @@ void StringToNumber (
 				
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7566,7 +7489,7 @@ char* StrStrNoCase (
 				
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7649,7 +7572,7 @@ char* StrStrNoCase (
 
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7746,7 +7669,7 @@ void VerifyDOSFileName (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7803,7 +7726,7 @@ Boolean WriteSpecifiedStringNumber (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7867,7 +7790,7 @@ Boolean WriteSpecifiedStringNumber (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -22,24 +22,15 @@
 //								implemented. More work is needed for this. And what is here
 //								now is very out of date.
 //
-//	Functions in file:	
-//
-//	Include files:			"MultiSpecHeaders"
-//								"SMultiSpec.h"
-//
 //------------------------------------------------------------------------------------
 
 #include "SMultiSpec.h"
 
-#if defined multispec_lin
-	#include "SMultiSpec.h"
+#if defined multispec_wx
 #endif
 
 #if defined multispec_win
-	#include "SMultiSpec.h"
 #endif
-
-//#include "SExtGlob.h"
 
 
 
@@ -101,7 +92,7 @@ pascal void	WakeUpThread (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -138,16 +129,16 @@ OSErr CreateFileIOThreadPool (void)
 		return (TRUE);
 	#endif	// defined multispec_mac_swift
 
-	#if defined multispec_win | defined multispec_lin
+	#if defined multispec_win | defined multispec_wx
 		return (TRUE);
-	#endif	// defined multispec_win | defined multispec_lin
+	#endif	// defined multispec_win | defined multispec_wx
 	
 }	// end "CreateFileIOThreadPool"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -211,7 +202,7 @@ void EndFileIOThread (
    
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -306,7 +297,7 @@ void EndFileIOThread (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -453,7 +444,7 @@ pascal void FileIOThread (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -601,7 +592,7 @@ SInt16 GetLineFileIOThread (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -655,7 +646,7 @@ SInt16 StartFileIOThread (
 
                     
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -736,7 +727,7 @@ SInt16 SetupFileIOThread (
            
 #if defined multispec_mac 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

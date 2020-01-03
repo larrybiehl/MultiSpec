@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -16,9 +16,6 @@
 //	Language:				C
 //
 //	System:					Linux, Macintosh, and Windows Operating Systems
-//
-//	Functions in file:	void 			RemoveWindowFromList
-//								void			UpdateWindowList
 //
 //	Brief description:	This file contains functions that operate on image and
 //								output windows.
@@ -34,9 +31,7 @@
 #if defined multispec_win
 	#include	"WGraphView.h"
 	extern SInt16 StringWidth (UCharPtr     	stringPtr);
-#endif	// defined multispec_win    
-
-//#include "SExtGlob.h"
+#endif	// defined multispec_win  
 
 
 		// Prototype descriptions for routines in this file that are only		
@@ -46,7 +41,7 @@
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -64,8 +59,7 @@
 // Value Returned:	TRUE if operation is cancelled
 //							FALSE if operation was not cancelled			
 // 
-// Called By:			ExitMultiSpec in multispec.c
-//							CloseImageWindow in window.c
+// Called By:			ExitMultiSpec in MMultiSpec.c
 //
 //	Coded By:			Larry L. Biehl			Date: 11/13/1996
 //	Revised By:			Larry L. Biehl			Date: 09/01/2017
@@ -165,7 +159,7 @@ Boolean SaveIfWindowChanged (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -181,8 +175,7 @@ Boolean SaveIfWindowChanged (
 //
 // Value Returned:	None
 // 
-// Called By:			CloseImageWindow in window.c
-//							CloseGraphicsWindow in window.c
+// Called By:			CloseGraphicsWindow in MWindow.c
 //
 //	Coded By:			Larry L. Biehl			Date: 07/20/92
 //	Revised By:			Larry L. Biehl			Date: 06/29/2001	
@@ -200,7 +193,7 @@ void RemoveWindowFromList (
 	            
 	#if defined multispec_mac                         
 		if (windowMenuItem <= 0)  
-																										return;
+																									return;
 	#endif	// defined multispec_mac
 	
 	if (window != NULL)
@@ -263,7 +256,7 @@ void RemoveWindowFromList (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -278,8 +271,8 @@ void RemoveWindowFromList (
 //
 // Value Returned:	None				
 // 
-// Called By:			ChangeLegendWidth in window.c
-//							DisplayThematicDialogOK in SDisThem.cpp
+// Called By:			ChangeLegendWidth in MWindow.c
+//							DisplayThematicDialogOK in SDisplayThematic.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/27/1996
 //	Revised By:			Larry L. Biehl			Date: 04/27/2016	
@@ -297,7 +290,7 @@ void UpdateLegendParameters (
 		unsigned char*					legendTitle1Ptr = NULL; 
 	#endif		// defined multispec_win   
 		
-	#if defined multispec_lin  
+	#if defined multispec_wx  
 		 unsigned char*				legendTitle1Ptr = NULL;
 	#endif		
 	
@@ -305,7 +298,7 @@ void UpdateLegendParameters (
 			
 	windowInfoPtr->legendTitleWidth = MAX (103, StringWidth (legendTitle1Ptr));
 	SInt16 legendStart = MAX (4, legendWidth - windowInfoPtr->legendTitleWidth - 13);
-	//windowInfoPtr->legendTopStart = 1;
+	
 	windowInfoPtr->legendTopStart = (SInt16)windowInfoPtr->coordinateHeight + 1;
 	windowInfoPtr->legendLeftStart = 0 + legendStart/2 - 4;
 	windowInfoPtr->legendWidth = legendWidth;	
@@ -315,7 +308,7 @@ void UpdateLegendParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
