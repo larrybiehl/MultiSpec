@@ -1,25 +1,51 @@
-// WClassesDialog.cpp : implementation file
-//       
-// Revised by Larry Biehl on 01/04/2018
+//	 									MultiSpec
 //
+//					Laboratory for Applications of Remote Sensing
+// 								Purdue University
+//								West Lafayette, IN 47907
+//								 	Copyright (1995-2020)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	File:						WClassesDialog.cpp : implementation file
+//
+//	Authors:					Larry L. Biehl
+//
+//	Revision date:			01/04/2018
+//
+//	Language:				C++
+//
+//	System:					Windows Operating System
+//
+//	Brief description:	This file contains functions that relate to the
+//								CMClassesDlg class.
+//
+//------------------------------------------------------------------------------------
                    
-#include "SMultiSpec.h" 
+#include "SMultiSpec.h"
+#include "SImageWindow_class.h"
+
 #include "WClassesDialog.h"  
 #include "WOneColumnDialog.h"
-#include "CImageWindow.h"
-//#include	"SExtGlob.h"
 
 #ifdef _DEBUG
-#undef THIS_FILE
-static char BASED_CODE THIS_FILE[] = __FILE__;
+	#undef THIS_FILE
+	static char BASED_CODE THIS_FILE[] = __FILE__;
 #endif
 
-/////////////////////////////////////////////////////////////////////////////
-// CMClassesDlg dialog
 
 
-CMClassesDlg::CMClassesDlg(CWnd* pParent /*=NULL*/)
-	: CMOneColDlg(pParent)
+BEGIN_MESSAGE_MAP (CMClassesDlg, CMOneColDlg)
+	//{{AFX_MSG_MAP (CMClassesDlg)
+	//}}AFX_MSG_MAP
+END_MESSAGE_MAP ()
+
+
+
+CMClassesDlg::CMClassesDlg (
+				CWnd* 								pParent /*=NULL*/)
+		: CMOneColDlg (pParent)
+		
 {
 	//{{AFX_DATA_INIT(CMClassesDlg)
 	//}}AFX_DATA_INIT  
@@ -28,60 +54,39 @@ CMClassesDlg::CMClassesDlg(CWnd* pParent /*=NULL*/)
 	                        
 	m_initializedFlag = CMOneColDlg::m_initializedFlag;
 	
-}
+}	// end "CMClassesDlg"
 
-void CMClassesDlg::DoDataExchange(CDataExchange* pDX)
+
+
+void CMClassesDlg::DoDataExchange (
+				CDataExchange* 					pDX)
+
 {
-	CMOneColDlg::DoDataExchange(pDX);
-	//{{AFX_DATA_MAP(CMClassesDlg) 
+	CMOneColDlg::DoDataExchange (pDX);
+	//{{AFX_DATA_MAP (CMClassesDlg) 
 	//}}AFX_DATA_MAP
-}
-
-BEGIN_MESSAGE_MAP(CMClassesDlg, CMOneColDlg)
-	//{{AFX_MSG_MAP(CMClassesDlg)
-	//}}AFX_MSG_MAP
-END_MESSAGE_MAP() 
+	
+}	// end "DoDataExchange"
 
 
-//-----------------------------------------------------------------------------
-//								 Copyright (1988-1998)
-//								c Purdue Research Foundation
-//									All rights reserved.
-//
-//	Function name:		void DoDialog
-//
-//	Software purpose:	The purpose of this routine is to present the display
-//							specification dialog box to the user and copy the
-//							revised back to the display specification structure if
-//							the user selected OK.
-//
-//	Parameters in:		None
-//
-//	Parameters out:	None
-//
-//	Value Returned:	None		
-// 
-//	Called By:			Dialog in MDisMult.cpp
-//
-//	Coded By:			Larry L. Biehl			Date: 03/07/1996
-//	Revised By:			Larry L. Biehl			Date: 05/26/2017	
 
-Boolean CMClassesDlg::DoDialog(
-				UInt32*						numberOutputClassesPtr, 
-				SInt16* 						classListPtr, 
-				SInt16						minimumNumberClasses,
-				SInt16						numberInputClasses)
+Boolean CMClassesDlg::DoDialog (
+				UInt32*								numberOutputClassesPtr,
+				SInt16* 								classListPtr,
+				SInt16								minimumNumberClasses,
+				SInt16								numberInputClasses)
 
 {  
-	Boolean			OKFlag = FALSE; 
+	INT_PTR								returnCode;
 	
-	INT_PTR			returnCode;
-	 
+	Boolean								OKFlag = FALSE;
+	
+	
 	
 			// Make sure intialization has been completed.
 							                         
-	if ( !m_initializedFlag )
-																			return(FALSE); 
+	if (!m_initializedFlag)
+																					return (FALSE);
 	
 			// This is a 1 base list.
 			
@@ -102,20 +107,17 @@ Boolean CMClassesDlg::DoDialog(
 			
 		OKFlag = TRUE; 
 		
-		}		// end "if (returnCode == IDOK)"
+		}	// end "if (returnCode == IDOK)"
 		
 	return (OKFlag);
 		
-}		// end "DoDialog" 
+}	// end "DoDialog"
 
-
-/////////////////////////////////////////////////////////////////////////////
-// CMClassesDlg message handlers 
 
 
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-1998)
-//								c Purdue Research Foundation
+//								 Copyright (1988-2020)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		BOOL CMClassesDlg::OnInitDialog
@@ -132,19 +134,19 @@ Boolean CMClassesDlg::DoDialog(
 // 
 //	Called By:			
 //
-//	Coded By:			Larry L. Biehl			Date: ??/??/??
-//	Revised By:			Larry L. Biehl			Date: 04/30/98	
+//	Coded By:			Larry L. Biehl			Date: ??/??/1995?
+//	Revised By:			Larry L. Biehl			Date: 04/30/1998
 
-BOOL CMClassesDlg::OnInitDialog()
+BOOL CMClassesDlg::OnInitDialog ()
 
 {   								
-	CMOneColDlg::OnInitDialog();  
+	CMOneColDlg::OnInitDialog ();  
 	
-	SetWindowText((LPCTSTR)_T("Select Classes"));
+	SetWindowText ((LPCTSTR)_T("Select Classes"));
 	
 	LoadDItemString (IDC_ListTitle, (Str255*)"\0Class List:");  
 
-	if (UpdateData(FALSE) )
+	if (UpdateData (FALSE))
 		{ 
 		PositionDialogWindow (); 
 		
@@ -152,11 +154,12 @@ BOOL CMClassesDlg::OnInitDialog()
 		
 									
 									
-		listBoxPtr = (CListBox*)GetDlgItem(IDC_List1);
+		listBoxPtr = (CListBox*)GetDlgItem (IDC_List1);
 		
 		LoadClassNamesIntoList (listBoxPtr);  
 
-		m_numberSelections = (UInt16)SetClassListSelections (listBoxPtr,
+		m_numberSelections = (UInt16)SetClassListSelections (
+																		listBoxPtr,
 																		(SInt32)m_numberInputVecItems,
 																		(SInt32)m_numberOutputItems,
 																		(UInt16*)m_selectedItemsPtr); 
@@ -171,8 +174,8 @@ BOOL CMClassesDlg::OnInitDialog()
 		
 		return FALSE;  // return TRUE  unless you set the focus to a control
 		
-		}		// end "if (UpdateData(FALSE) )"
+		}	// end "if (UpdateData (FALSE))"
 	
 	return TRUE;  // return TRUE  unless you set the focus to a control
 	
-}		// end "OnInitDialog"
+}	// end "OnInitDialog"

@@ -1,20 +1,52 @@
-// WStatusDialog.cpp : implementation file
+//	 									MultiSpec
 //
-                   
+//					Laboratory for Applications of Remote Sensing
+// 								Purdue University
+//								West Lafayette, IN 47907
+//								 Copyright (1995-2020)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	File:						WStatusDialog.cpp : implementation file
+//
+//	Authors:					Larry L. Biehl
+//
+//	Revision date:			08/30/2018
+//
+//	Language:				C++
+//
+//	System:					Windows Operating System
+//
+//	Brief description:	This file contains functions that relate to the
+//								CShortStatusDlg class.
+//
+//------------------------------------------------------------------------------------
+
 #include "SMultiSpec.h"
+
 #include "WStatusDialog.h"
 
 #ifdef _DEBUG
-#undef THIS_FILE
-static char BASED_CODE THIS_FILE[] = __FILE__;
+	#undef THIS_FILE
+	static char BASED_CODE THIS_FILE[] = __FILE__;
 #endif
 
-/////////////////////////////////////////////////////////////////////////////
-// CStatDlg dialog
 
 
-CShortStatusDlg::CShortStatusDlg(UInt16 identifier, CWnd* pParent /*=NULL*/)
-	: CMDialog(identifier, pParent)
+BEGIN_MESSAGE_MAP (CShortStatusDlg, CMDialog)
+	//{{AFX_MSG_MAP (CShortStatusDlg)
+	ON_WM_MOUSEMOVE ()
+	ON_WM_NCMOUSEMOVE ()
+	//}}AFX_MSG_MAP
+END_MESSAGE_MAP ()
+
+
+
+CShortStatusDlg::CShortStatusDlg (
+				UInt16 								identifier,
+				CWnd* 								pParent /*=NULL*/)
+		: CMDialog (identifier, pParent)
+
 {
 	//{{AFX_DATA_INIT(CShortStatusDlg)
 		// NOTE: the ClassWizard will add member initialization here
@@ -27,53 +59,40 @@ CShortStatusDlg::CShortStatusDlg(UInt16 identifier, CWnd* pParent /*=NULL*/)
 	m_initializedFlag = CMDialog::m_initializedFlag; 
 	
 	if (m_initializedFlag)		
-		m_initializedFlag = Create(identifier, pParent);
-} 
+		m_initializedFlag = Create (identifier, pParent);
+	
+}	// end "CShortStatusDlg"
 
 
 
-void CShortStatusDlg::DoDataExchange(CDataExchange* pDX)
+void CShortStatusDlg::DoDataExchange (
+				CDataExchange* 					pDX)
+
 {
-	CDialog::DoDataExchange(pDX);
-	//{{AFX_DATA_MAP(CStatDlg)
+	CDialog::DoDataExchange (pDX);
+	//{{AFX_DATA_MAP (CStatDlg)
 		// NOTE: the ClassWizard will add DDX and DDV calls here
 	//}}AFX_DATA_MAP
-}
-
-BEGIN_MESSAGE_MAP(CShortStatusDlg, CMDialog)
-	//{{AFX_MSG_MAP(CShortStatusDlg)
-	ON_WM_MOUSEMOVE ()
-	ON_WM_NCMOUSEMOVE ()
-	//}}AFX_MSG_MAP
-END_MESSAGE_MAP() 
-
-
-/////////////////////////////////////////////////////////////////////////////
-// CShortStatusDlg message handlers
-
-
-// Over-ride of the virtual function PostNCDestroy() so that 
-// the 'CDlgModeless' C++ object can be deleted.
-// This ensures that when the window is destroyed, the C++ object
-// is also deleted.
-// The addition of the 'delete this' effectively adds auto-cleanup
-// to the 'CShortStatusDlg' class.
-
-void 
-CShortStatusDlg::PostNcDestroy()
-{
-	// Delete the 'CDlgModeless' object.
-	delete this ;
 	
-	// Perform the other necessary destroy functions.
-	CWnd::PostNcDestroy() ;
-}  
+}	// end "DoDataExchange"
 
+                       
 
+void CShortStatusDlg::OnCancel ()
 
-BOOL CShortStatusDlg::OnInitDialog()
 {
-	CDialog::OnInitDialog(); 
+			// Add extra cleanup here
+	
+	CMDialog::OnCancel ();
+	
+}	// end "OnCancel"
+
+
+
+BOOL CShortStatusDlg::OnInitDialog ()
+
+{
+	CDialog::OnInitDialog ();
 	
 	PositionDialogWindow (); 
 	
@@ -83,9 +102,9 @@ BOOL CShortStatusDlg::OnInitDialog()
 
 
 
-void CShortStatusDlg::OnMouseMove(
-				UINT 			nFlags, 
-				CPoint 		point)
+void CShortStatusDlg::OnMouseMove (
+				UINT 									nFlags,
+				CPoint 								point)
 
 {  	
 	if (gPresentCursor == kWait || gPresentCursor == kSpin)
@@ -93,11 +112,11 @@ void CShortStatusDlg::OnMouseMove(
 				// Make sure the cursor is the wait cursor. It may have 
 				// gotten changed to the arrow cursor if over the status
 				// dialog
-		AfxGetApp ()->DoWaitCursor (0);
-
-																				return;
+			
+		AfxGetApp()->DoWaitCursor (0);
+																							return;
 			            
-		}		// end "if (gPresentCursor != kWait || ..."              
+		}	// end "if (gPresentCursor != kWait || ..."
 	
 	CMDialog::OnMouseMove (nFlags, point); 
 	
@@ -105,9 +124,9 @@ void CShortStatusDlg::OnMouseMove(
 
 
 
-void CShortStatusDlg::OnNcMouseMove(
-				UINT 			nFlags, 
-				CPoint 		point)
+void CShortStatusDlg::OnNcMouseMove (
+				UINT 									nFlags,
+				CPoint 								point)
 
 {  	
 	if (gPresentCursor == kWait || gPresentCursor == kSpin)
@@ -115,11 +134,11 @@ void CShortStatusDlg::OnNcMouseMove(
 				// Make sure the cursor is the wait cursor. It may have 
 				// gotten changed to the arrow cursor if over the status
 				// dialog
-		AfxGetApp ()->DoWaitCursor (0);
-
-																				return;
+			
+		AfxGetApp()->DoWaitCursor (0);
+																							return;
 			            
-		}		// end "if (gPresentCursor != kWait || ..."              
+		}	// end "if (gPresentCursor != kWait || ..."
 	
 	CMDialog::OnNcMouseMove (nFlags, point); 
 	
@@ -128,9 +147,9 @@ void CShortStatusDlg::OnNcMouseMove(
 
 
 BOOL CShortStatusDlg::OnSetCursor (
-			CWnd* 		pWnd, 
-			UINT 			nHitTest, 
-			UINT 			message)
+				CWnd* 								pWnd,
+				UINT 									nHitTest,
+				UINT 									message)
 			
 {                                                                                              
 	if (gPresentCursor == kWait || gPresentCursor == kSpin)
@@ -138,8 +157,8 @@ BOOL CShortStatusDlg::OnSetCursor (
 				// Make sure the wait cursor is on. The cursor may have just
 				// move over the legend from being outside the window.
 		
-		AfxGetApp ()->DoWaitCursor (0);
-																		return (TRUE);
+		AfxGetApp()->DoWaitCursor (0);
+																					return (TRUE);
 
 		}	// end "if (gPresentCursor != kArrow && ..."
 
@@ -149,11 +168,24 @@ BOOL CShortStatusDlg::OnSetCursor (
 	
 }	// end "OnSetCursor"
 
-                       
 
-void CShortStatusDlg::OnCancel()
+
+//------------------------------------------------------------------------------------
+// Over-ride of the virtual function PostNCDestroy () so that the
+// 	'CDlgModeless' C++ object can be deleted.
+// This ensures that when the window is destroyed, the C++ object is also deleted.
+// The addition of the 'delete this' effectively adds auto-cleanup to the
+// 	'CShortStatusDlg' class.
+
+void CShortStatusDlg::PostNcDestroy ()
+
 {
-	// TODO: Add extra cleanup here
+			// Delete the 'CDlgModeless' object.
 	
-	CMDialog::OnCancel();
-}
+	delete this;
+	
+			// Perform the other necessary destroy functions.
+	
+	CWnd::PostNcDestroy ();
+	
+}	// end "PostNcDestroy"

@@ -1,46 +1,54 @@
-// WChangeChannelDescriptionDialog.cpp : implementation file
+//	 									MultiSpec
 //
-// Revised by Larry Biehl on 01/04/2018
+//					Laboratory for Applications of Remote Sensing
+// 								Purdue University
+//								West Lafayette, IN 47907
+//								 	Copyright (1995-2020)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
 //
+//	File:						WChangeChannelDescriptionDialog.cpp : implementation file
+//
+//	Authors:					Larry L. Biehl
+//
+//	Revision date:			01/04/2018
+//
+//	Language:				C++
+//
+//	System:					Windows Operating System
+//
+//	Brief description:	This file contains functions that relate to the
+//								CMChangeChannelDescriptionDlg class.
+//
+//------------------------------------------------------------------------------------
                    
 #include "SMultiSpec.h"
+
 #include "WChangeChannelDescriptionDialog.h"
-//#include	"SExtGlob.h"
-
-extern void 		LoadDescriptionIntoDItem (
-							DialogPtr 							dialogPtr, 
-							SInt16	 							itemNumber, 
-							ChannelDescriptionPtr 			channelDescriptionPtr);
-
-extern void 		ModifyChannelDescriptionsChangeChannel (
-							DialogPtr							dialogPtr, 
-							ChannelDescriptionPtr			channelDescriptionPtr, 
-							float*								channelValuesPtr,
-							SInt16								channelIndex,
-							SInt16								lastSelectedTextItem);
-
-extern Boolean 	ModifyChannelDescriptionsUpdate (
-							DialogPtr							dialogPtr, 
-							ChannelDescriptionPtr			channelDescriptionPtr, 
-							float*								channelValuesPtr,
-							SInt16								channelIndex,
-							char*									stringPtr,
-							float									realValue,
-							Boolean								changeFlag);
-
 
 #ifdef _DEBUG
-#define new DEBUG_NEW
-#undef THIS_FILE
-static char THIS_FILE[] = __FILE__;
+	#define new DEBUG_NEW
+	#undef THIS_FILE
+	static char THIS_FILE[] = __FILE__;
 #endif
 
-/////////////////////////////////////////////////////////////////////////////
-// CMChangeChannelDescriptionDlg dialog
 
 
-CMChangeChannelDescriptionDlg::CMChangeChannelDescriptionDlg(CWnd* pParent /*=NULL*/)
-	: CMDialog(CMChangeChannelDescriptionDlg::IDD, pParent)
+BEGIN_MESSAGE_MAP (CMChangeChannelDescriptionDlg, CMDialog)
+	//{{AFX_MSG_MAP (CMChangeChannelDescriptionDlg)
+	ON_BN_CLICKED (IDC_NextChannelButton, OnNextChannelButton)
+	ON_BN_CLICKED (IDC_PreviousChannelButton, OnPreviousChannelButton)
+	ON_EN_SETFOCUS (IDC_Description, OnSetfocusDescription)
+	ON_EN_SETFOCUS (IDC_Value, OnSetfocusValue)
+	//}}AFX_MSG_MAP
+END_MESSAGE_MAP ()
+
+
+
+CMChangeChannelDescriptionDlg::CMChangeChannelDescriptionDlg (
+				CWnd* 								pParent /*=NULL*/)
+		: CMDialog (CMChangeChannelDescriptionDlg::IDD, pParent)
+
 {
 	//{{AFX_DATA_INIT(CMChangeChannelDescriptionDlg)
 	m_description = _T("");
@@ -56,68 +64,39 @@ CMChangeChannelDescriptionDlg::CMChangeChannelDescriptionDlg(CWnd* pParent /*=NU
 	
 	m_initializedFlag = CMDialog::m_initializedFlag; 
 
-}		// end "CMChangeChannelDescriptionDlg"
+}	// end "CMChangeChannelDescriptionDlg"
 
 
-void CMChangeChannelDescriptionDlg::DoDataExchange(CDataExchange* pDX)
+
+void CMChangeChannelDescriptionDlg::DoDataExchange (
+				CDataExchange* 					pDX)
+
 {
-	CDialog::DoDataExchange(pDX);
-	//{{AFX_DATA_MAP(CMChangeChannelDescriptionDlg)
-	DDX_Text(pDX, IDC_Description, m_description);
-	DDV_MaxChars(pDX, m_description, 16);
-	DDX_Text2(pDX, IDC_Value, m_value);
+	CDialog::DoDataExchange (pDX);
+	//{{AFX_DATA_MAP (CMChangeChannelDescriptionDlg)
+	DDX_Text (pDX, IDC_Description, m_description);
+	DDV_MaxChars (pDX, m_description, 16);
+	DDX_Text2 (pDX, IDC_Value, m_value);
 	//}}AFX_DATA_MAP
-}
+	
+}	// end "DoDataExchange"
 
 
-BEGIN_MESSAGE_MAP(CMChangeChannelDescriptionDlg, CMDialog)
-	//{{AFX_MSG_MAP(CMChangeChannelDescriptionDlg)
-	ON_BN_CLICKED(IDC_NextChannelButton, OnNextChannelButton)
-	ON_BN_CLICKED(IDC_PreviousChannelButton, OnPreviousChannelButton)
-	ON_EN_SETFOCUS(IDC_Description, OnSetfocusDescription)
-	ON_EN_SETFOCUS(IDC_Value, OnSetfocusValue)
-	//}}AFX_MSG_MAP
-END_MESSAGE_MAP()   
 
-
-//-----------------------------------------------------------------------------
-//								 Copyright (1988-1998)
-//								c Purdue Research Foundation
-//									All rights reserved.
-//
-//	Function name:		void DoDialog
-//
-//	Software purpose:	The purpose of this routine is to present the CEM
-//							specification dialog box to the user and copy the
-//							revised back to the classify specification structure if
-//							the user selected OK.
-//
-//	Parameters in:		None
-//
-//	Parameters out:	None
-//
-//	Value Returned:	None		
-// 
-//	Called By:			Dialog in MDisMult.cpp
-//
-//	Coded By:			Larry L. Biehl			Date: 12/29/99
-//	Revised By:			Larry L. Biehl			Date: 12/29/99	
-
-SInt16 
-CMChangeChannelDescriptionDlg::DoDialog(
+SInt16 CMChangeChannelDescriptionDlg::DoDialog (
 				FileInfoPtr							fileInfoPtr, 
 				ChannelDescriptionPtr			channelDescriptionPtr, 
 				float*								channelValuesPtr)
 
 {  
-	INT_PTR							returnCode;
-	SInt16							returnValue;
+	INT_PTR								returnCode;
+	SInt16								returnValue;
 
 
 			// Make sure intialization has been completed.
 							                         
-	if ( !m_initializedFlag )
-																			return(FALSE);
+	if (!m_initializedFlag)
+																						return (FALSE);
 													
 	m_fileInfoPtr = fileInfoPtr;						
 	m_channelDescriptionPtr = channelDescriptionPtr; 
@@ -132,52 +111,48 @@ CMChangeChannelDescriptionDlg::DoDialog(
 		m_changeFlag = FALSE;
 		returnValue = 0;
 		
-		}		// end "if (returnCode != IDOK)"
+		}	// end "if (returnCode != IDOK)"
 		
 	return (returnValue);
 		
-}		// end "DoDialog" 
+}	// end "DoDialog" 
 
 
 
-/////////////////////////////////////////////////////////////////////////////
-// CMChangeChannelDescriptionDlg message handlers
+BOOL CMChangeChannelDescriptionDlg::OnInitDialog ()
 
-BOOL CMChangeChannelDescriptionDlg::OnInitDialog() 
 {
-	CDialog::OnInitDialog();
+	CDialog::OnInitDialog ();
 	
 	m_channelIndex = 0;
 	::LoadDItemValue (this, IDC_ChannelNumber, m_channelIndex+1);
 
-//	m_description = ;
-
 	m_value = *m_channelValuesPtr;
 	m_lastSelectedTextItem = IDC_Description;
 		
-	if ( UpdateData(FALSE) )
+	if (UpdateData (FALSE))
 		{ 
 		PositionDialogWindow (); 
 		
 				// Set default text selection to first edit text item 
 	
 		LoadDescriptionIntoDItem (
-					this, IDC_Description, &m_channelDescriptionPtr[m_channelIndex]);
+						this, IDC_Description, &m_channelDescriptionPtr[m_channelIndex]);
 			                                       
 		SelectDialogItemText (this, IDC_Description, 0, SInt16_MAX);      
 		
 		return FALSE;  // return TRUE  unless you set the focus to a control
 		
-		}		// end "if (UpdateData(FALSE) )"
+		}	// end "if (UpdateData (FALSE))"
 	
 	return TRUE;  // return TRUE unless you set the focus to a control
 	              // EXCEPTION: OCX Property Pages should return FALSE
-}
+	
+}	// end "OnInitDialog"
 
 
 
-void 
-CMChangeChannelDescriptionDlg::OnNextChannelButton()
+void CMChangeChannelDescriptionDlg::OnNextChannelButton ()
  
 {		
 	Update ();
@@ -192,12 +167,22 @@ CMChangeChannelDescriptionDlg::OnNextChannelButton()
 															m_channelIndex,
 															m_lastSelectedTextItem);
 	
-}		// end "OnNextChannelButton"
+}	// end "OnNextChannelButton"
 
 
 
-void 
-CMChangeChannelDescriptionDlg::OnPreviousChannelButton()
+void CMChangeChannelDescriptionDlg::OnOK ()
+
+{
+	Update ();
+	
+	CMDialog::OnOK ();
+
+}	// end "OnOK"
+
+
+
+void CMChangeChannelDescriptionDlg::OnPreviousChannelButton ()
  
 {	
 	Update ();
@@ -212,23 +197,30 @@ CMChangeChannelDescriptionDlg::OnPreviousChannelButton()
 															m_channelIndex,
 															m_lastSelectedTextItem);
 	
-}		// end "OnPreviousChannelButton"
+}	// end "OnPreviousChannelButton"
 
 
 
-void CMChangeChannelDescriptionDlg::OnOK()
- 
+void CMChangeChannelDescriptionDlg::OnSetfocusDescription ()
+
 {
-	Update ();
+	m_lastSelectedTextItem = IDC_Description;
 	
-	CMDialog::OnOK();
-
-}		// end "OnOK"
+}	// end "OnSetfocusDescription"
 
 
 
-void CMChangeChannelDescriptionDlg::Update(void)
- 
+void CMChangeChannelDescriptionDlg::OnSetfocusValue ()
+
+{
+	m_lastSelectedTextItem = IDC_Value;
+	
+}	// end "OnSetfocusValue"
+
+
+
+void CMChangeChannelDescriptionDlg::Update (void)
+
 {
 	Str255						descriptionString;
 
@@ -236,38 +228,22 @@ void CMChangeChannelDescriptionDlg::Update(void)
 	
 			// Get the latest description for the current channel
 
-	DDX_Text(m_dialogFromPtr, IDC_Description, m_description);
+	DDX_Text (m_dialogFromPtr, IDC_Description, m_description);
 	
 	MGetString (descriptionString, kFileIOStrID, IDS_BlankString16);
-	stringLength = m_description.GetLength();		
+	stringLength = m_description.GetLength ();
 	BlockMoveData (m_description, &descriptionString[1], stringLength);
 	
 			// Get the new value
 
-	DDX_Text2(m_dialogFromPtr, IDC_Value, m_value);
+	DDX_Text2 (m_dialogFromPtr, IDC_Value, m_value);
 
-	m_changeFlag = ModifyChannelDescriptionsUpdate (this, 
-																	m_channelDescriptionPtr, 
+	m_changeFlag = ModifyChannelDescriptionsUpdate (this,
+																	m_channelDescriptionPtr,
 																	m_channelValuesPtr,
 																	m_channelIndex,
 																	(char*)&descriptionString,
 																	m_value,
 																	m_changeFlag);
 
-}		// end "OnOK"
-
-
-
-void CMChangeChannelDescriptionDlg::OnSetfocusDescription() 
-{
-	m_lastSelectedTextItem = IDC_Description;
-	
-}
-
-
-
-void CMChangeChannelDescriptionDlg::OnSetfocusValue() 
-{
-	m_lastSelectedTextItem = IDC_Value;
-	
-}
+}	// end "Update"

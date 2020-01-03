@@ -1,61 +1,84 @@
-// WClassifyCorrelationDialog.cpp : implementation file
-//    
-// Revised by Larry Biehl on 01/04/2018
+//	 									MultiSpec
 //
-                   
-#include "SMultiSpec.h"
-                     
-#include "WMultiSpec.h"  
-#include "WClassifyCorrelationDialog.h"
+//					Laboratory for Applications of Remote Sensing
+// 								Purdue University
+//								West Lafayette, IN 47907
+//								 	Copyright (1995-2020)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	File:						WClassifyCorrelationDialog.cpp : implementation file
+//
+//	Authors:					Larry L. Biehl
+//
+//	Revision date:			01/04/2018
+//
+//	Language:				C++
+//
+//	System:					Windows Operating System
+//
+//	Brief description:	This file contains functions that relate to the
+//								CMCorrelationClassifyDialog class.
+//
+//------------------------------------------------------------------------------------
 
-//#include	"SExtGlob.h"
+#include "SMultiSpec.h"
+
+#include "WClassifyCorrelationDialog.h"
+#include "WMultiSpec.h" 
 
 #ifdef _DEBUG
-#undef THIS_FILE
-static char BASED_CODE THIS_FILE[] = __FILE__;
+	#undef THIS_FILE
+	static char BASED_CODE THIS_FILE[] = __FILE__;
 #endif
 
-/////////////////////////////////////////////////////////////////////////////
-// CMCorrelationClassifyDialog dialog
 
-CMCorrelationClassifyDialog::CMCorrelationClassifyDialog(CWnd* pParent /*=NULL*/)
-	: CMDialog(CMCorrelationClassifyDialog::IDD, pParent)
+
+BEGIN_MESSAGE_MAP (CMCorrelationClassifyDialog, CMDialog)
+	//{{AFX_MSG_MAP (CMCorrelationClassifyDialog)
+	ON_CBN_SELENDOK (IDC_CovarianceCombo, OnSelendokCovarianceCombo)
+	//}}AFX_MSG_MAP
+END_MESSAGE_MAP ()
+
+
+
+CMCorrelationClassifyDialog::CMCorrelationClassifyDialog (
+				CWnd* 								pParent /*=NULL*/)
+		: CMDialog (CMCorrelationClassifyDialog::IDD, pParent)
+
 {
 	//{{AFX_DATA_INIT(CMCorrelationClassifyDialog)
 	m_covarianceEstimate = -1;
 	//}}AFX_DATA_INIT
 	
 	m_initializedFlag = CMDialog::m_initializedFlag;
-}
+	
+}	// end "CMCorrelationClassifyDialog"
 
 
 
-void CMCorrelationClassifyDialog::DoDataExchange(CDataExchange* pDX)
+void CMCorrelationClassifyDialog::DoDataExchange (
+				CDataExchange* 					pDX)
+				
 {
-	CDialog::DoDataExchange(pDX);
-	//{{AFX_DATA_MAP(CMCorrelationClassifyDialog)
-	DDX_CBIndex(pDX, IDC_CovarianceCombo, m_covarianceEstimate);
+	CDialog::DoDataExchange (pDX);
+	//{{AFX_DATA_MAP (CMCorrelationClassifyDialog)
+	DDX_CBIndex (pDX, IDC_CovarianceCombo, m_covarianceEstimate);
 	//}}AFX_DATA_MAP
-}
-  
-  
-  
-BEGIN_MESSAGE_MAP(CMCorrelationClassifyDialog, CMDialog)
-	//{{AFX_MSG_MAP(CMCorrelationClassifyDialog)
-	ON_CBN_SELENDOK(IDC_CovarianceCombo, OnSelendokCovarianceCombo)
-	//}}AFX_MSG_MAP
-END_MESSAGE_MAP()  
+	
+}	// end "DoDataExchange"
 
 
-//-----------------------------------------------------------------------------
-//								 Copyright (1988-1998)
-//								c Purdue Research Foundation
+
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2020)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void DoDialog
 //
-//	Software purpose:	The purpose of this routine is to present the CEM
-//							specification dialog box to the user and copy the
+//	Software purpose:	The purpose of this routine is to present the Correlation
+//							Classifier specification dialog box to the user and copy the
 //							revised back to the classify specification structure if
 //							the user selected OK.
 //
@@ -65,13 +88,12 @@ END_MESSAGE_MAP()
 //
 //	Value Returned:	None		
 // 
-//	Called By:			Dialog in MDisMult.cpp
+//	Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 04/09/1998
 //	Revised By:			Larry L. Biehl			Date: 05/26/2017	
 
-Boolean 
-CMCorrelationClassifyDialog::DoDialog(
+Boolean CMCorrelationClassifyDialog::DoDialog (
 				SInt16*								covarianceEstimatePtr)
 
 {  
@@ -80,11 +102,10 @@ CMCorrelationClassifyDialog::DoDialog(
 	Boolean								continueFlag = FALSE;
 								
 
-	                          
 			// Make sure intialization has been completed.
 							                         
-	if ( !m_initializedFlag )
-																			return(FALSE);
+	if (!m_initializedFlag)
+																						return (FALSE);
 																			
 	m_covarianceEstimate = *covarianceEstimatePtr - 1;
 																					
@@ -96,27 +117,28 @@ CMCorrelationClassifyDialog::DoDialog(
 		
 		*covarianceEstimatePtr = m_covarianceEstimate + 1; 
 		
-		}		// end "if (returnCode == IDOK)"
+		}	// end "if (returnCode == IDOK)"
 		
 	return (continueFlag);
 		
-}		// end "DoDialog"
+}	// end "DoDialog"
 
 
-/////////////////////////////////////////////////////////////////////////////
-// CMCorrelationClassifyDialog message handlers 
 
-BOOL CMCorrelationClassifyDialog::OnInitDialog()
+BOOL CMCorrelationClassifyDialog::OnInitDialog ()
+
 {
-	CMDialog::OnInitDialog();
-	
-	// TODO: Add extra initialization here
+	CMDialog::OnInitDialog ();
 	
 	return TRUE;  // return TRUE  unless you set the focus to a control
-}
-
-void CMCorrelationClassifyDialog::OnSelendokCovarianceCombo()
-{
-	// TODO: Add your control notification handler code here
 	
-}  
+}	// end "OnInitDialog"
+
+
+
+void CMCorrelationClassifyDialog::OnSelendokCovarianceCombo ()
+
+{
+		// Add your control notification handler code here
+	
+}	// end "OnSelendokCovarianceCombo"

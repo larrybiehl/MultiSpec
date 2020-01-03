@@ -1,85 +1,111 @@
-// WReformatChangeDialog.h : header file
-//   
-// Revised by Larry Biehl on 07/03/2018
+//	 									MultiSpec
 //
-#if !defined __WRCHANGE_H__
-	#define	__WRCHANGE_H__  
+//					Laboratory for Applications of Remote Sensing
+//									Purdue University
+//								West Lafayette, IN 47907
+//								 Copyright (1995-2020)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	File:						WReformatChangeDialog.h
+//	Implementation:		WReformatChangeDialog.cpp
+//
+//	Authors:					Larry L. Biehl
+//
+//	Language:				C++
+//
+//	System:					Windows Operating System
+//
+//	Brief description:	Header file for the CMChangeFormatDlg class
+//
+//	Written By:				Larry L. Biehl			Date: ??/??/1995?
+//	Revised By:				Larry L. Biehl			Date: 07/03/2018
+//
+//------------------------------------------------------------------------------------
+
+#pragma once
 	
-	#include "WDialog.h"
+#include "WDialog.h"
 #include "afxwin.h"
 
-/////////////////////////////////////////////////////////////////////////////
-// CMChangeFormatDlg dialog
 
 class CMChangeFormatDlg : public CMDialog
 {
-// Construction
-public:
-						CMChangeFormatDlg(CWnd* pParent = NULL);	// standard constructor
+	// Construction
+	public:
+		CMChangeFormatDlg (	// standard constructor
+				CWnd* 								pParent = NULL);
 	
-	Boolean			DoDialog( 
-							FileInfoPtr							outFileInfoPtr, 
-							ReformatOptionsPtr				reformatOptionsPtr);
+		Boolean DoDialog (
+				FileInfoPtr							outFileInfoPtr,
+				ReformatOptionsPtr				reformatOptionsPtr);
 
-// Dialog Data
-	//{{AFX_DATA(CMChangeFormatDlg)
-	enum { IDD = IDD_FileFormatChange };
-	BOOL		m_swapBytesFlag;
-	BOOL		m_transformDataFlag;
-	int		m_channelSelection;
-	int		m_headerListSelection;
-	int		m_dataValueListSelection;
-	int		m_outputFileSelection;
-	int		m_bandInterleaveSelection;
-	BOOL		m_invertBottomToTopFlag;
-	BOOL		m_invertLeftToRightFlag;
-	BOOL		m_outputInWavelengthOrderFlag;
-	BOOL		m_writeChanDescriptionFlag;
-	//}}AFX_DATA
-
-// Implementation
-protected:
-	virtual void 	DoDataExchange(CDataExchange* pDX);	// DDX/DDV support
-							
-//	Boolean			Initialize(void);
+		// Dialog Data
+		//{{AFX_DATA (CMChangeFormatDlg)
+		enum { IDD = IDD_FileFormatChange };
+		int									m_bandInterleaveSelection,
+												m_channelSelection,
+												m_dataValueListSelection,
+												m_headerListSelection,
+												m_outputFileSelection;
 	
-	void				SetChannelDescriptionFlag(void);
+		BOOL									m_invertBottomToTopFlag,
+												m_invertLeftToRightFlag,
+												m_outputInWavelengthOrderFlag,
+												m_swapBytesFlag,
+												m_transformDataFlag,
+												m_writeChanDescriptionFlag;
+		//}}AFX_DATA
 
-	// Generated message map functions
-	//{{AFX_MSG(CMChangeFormatDlg)
-	virtual BOOL OnInitDialog ();
-	afx_msg void OnOutputInWavelengthOrder ();
-	afx_msg void OnTransformData ();
-	afx_msg void OnSelendokBandInterleave ();
-	afx_msg void OnSelendokOutChannels ();
-	afx_msg void OnSelendokHeader ();
-	afx_msg void OnWriteChanDescriptions ();
-	afx_msg void OnSelendokDataValueType ();
-	//}}AFX_MSG
-	DECLARE_MESSAGE_MAP()
 
-	UInt8									m_inputBandInterleaveString[64],
-											m_inputDataValueTypeString[64],
-											m_tiffMenuNameString[16];
-	 
-	static ReformatOptionsPtr		s_reformatOptionsPtr;
+	// Implementation
+	protected:
+		virtual void DoDataExchange (
+				CDataExchange* 					pDX);	// DDX/DDV support
 	
-	Boolean								m_channelDescriptionAllowedFlag,
-											m_channelThematicDisplayFlag,
-											m_dataValueTypeSelectionFlag,
-											m_GAIAFormatAllowedFlag,
-											m_initializedFlag,
-											m_outputInWavelengthOrderAllowedFlag,
-											m_savedChannelDescriptionFlag,
-											m_sessionUserSetDataValueTypeSelectionFlag;
+		void SetChannelDescriptionFlag (void);
+	
 
-	int									m_headerOptionsSelection;
+		// Generated message map functions
+		//{{AFX_MSG (CMChangeFormatDlg)
+		virtual BOOL OnInitDialog ();
 	
-	SInt16								m_dataValueTypeSelection,
-											m_eightBitsPerDataSelection,
-											m_noTransformDataValueTypeSelection,
-											m_savedDataValueTypeSelection;
+		afx_msg void OnOutputInWavelengthOrder ();
 	
-};
-   
-#endif	// !defined __WRCHANGE_H__
+		afx_msg void OnSelendokBandInterleave ();
+	
+		afx_msg void OnSelendokDataValueType ();
+	
+		afx_msg void OnSelendokHeader ();
+	
+		afx_msg void OnSelendokOutChannels ();
+	
+		afx_msg void OnTransformData ();
+	
+		afx_msg void OnWriteChanDescriptions ();
+		//}}AFX_MSG
+		DECLARE_MESSAGE_MAP ()
+
+		UInt8									m_inputBandInterleaveString[64],
+												m_inputDataValueTypeString[64],
+												m_tiffMenuNameString[16];
+	
+		static ReformatOptionsPtr		s_reformatOptionsPtr;
+
+		int									m_headerOptionsSelection;
+	
+		SInt16								m_dataValueTypeSelection,
+												m_eightBitsPerDataSelection,
+												m_noTransformDataValueTypeSelection,
+												m_savedDataValueTypeSelection;
+	
+		Boolean								m_channelDescriptionAllowedFlag,
+												m_channelThematicDisplayFlag,
+												m_dataValueTypeSelectionFlag,
+												m_GAIAFormatAllowedFlag,
+												m_initializedFlag,
+												m_outputInWavelengthOrderAllowedFlag,
+												m_savedChannelDescriptionFlag,
+												m_sessionUserSetDataValueTypeSelectionFlag;
+	
+};	// end class CMChangeFormatDlg

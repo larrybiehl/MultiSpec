@@ -1,42 +1,52 @@
-// WOverlayParametersDialog.cpp : implementation file
-//  
+//	 									MultiSpec
+//
+//					Laboratory for Applications of Remote Sensing
+// 								Purdue University
+//								West Lafayette, IN 47907
+//								 Copyright (1995-2020)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	File:						WOverlayParametersDialog.cpp : implementation file
+//
+//	Authors:					Larry L. Biehl
+//
+//	Revision date:			01/04/2018
+//
+//	Language:				C++
+//
+//	System:					Windows Operating System
+//
+//	Brief description:	This file contains functions that relate to the
+//								CMOverlayParameterDlg class.
+//
+//------------------------------------------------------------------------------------
 
 #include	"SMultiSpec.h" 
                       
-#include "WOverlayParametersDialog.h"     
-
-//#include "SExtGlob.h"
-
-extern void 			OverlayDialogInitialize (
-								DialogPtr							dialogPtr,
-								WindowInfoPtr						windowInfoPtr,
-								SInt16								overlayCode,
-								SInt16								overlayIndex,
-								RGBColor*							overlayColorPtr,
-								UInt16*								lineThicknessPtr,
-								UInt16*								transparencyPtr);
-
-extern void 			OverlayDialogOK (
-								WindowInfoPtr						windowInfoPtr,
-								SInt16								overlayCode,
-								SInt16								overlayIndex,
-								RGBColor*							overlayColorPtr,
-								UInt16								value);
-
-
+#include "WOverlayParametersDialog.h"
 
 #ifdef _DEBUG
-#define new DEBUG_NEW
-#undef THIS_FILE
-static char THIS_FILE[] = __FILE__;
+	#define new DEBUG_NEW
+	#undef THIS_FILE
+	static char THIS_FILE[] = __FILE__;
 #endif
 
-/////////////////////////////////////////////////////////////////////////////
-// CMOverlayParameterDlg dialog
 
 
-CMOverlayParameterDlg::CMOverlayParameterDlg(CWnd* pParent /*=NULL*/)
-	: CMDialog(CMOverlayParameterDlg::IDD, pParent)
+BEGIN_MESSAGE_MAP (CMOverlayParameterDlg, CMDialog)
+	//{{AFX_MSG_MAP (CMOverlayParameterDlg)
+	ON_BN_CLICKED (IDC_LineColorPrompt, OnOverlayColor)
+	ON_WM_PAINT ()
+	//}}AFX_MSG_MAP
+END_MESSAGE_MAP ()
+
+
+
+CMOverlayParameterDlg::CMOverlayParameterDlg (
+				CWnd* 								pParent /*=NULL*/)
+		: CMDialog (CMOverlayParameterDlg::IDD, pParent)
+
 {
 	//{{AFX_DATA_INIT(CMOverlayParameterDlg)
 	m_overlayValue = 1;
@@ -48,31 +58,29 @@ CMOverlayParameterDlg::CMOverlayParameterDlg(CWnd* pParent /*=NULL*/)
 	m_maxValue = 20;
 	
 	m_initializedFlag = CMDialog::m_initializedFlag;
-}
+	
+}	// end "CMOverlayParameterDlg"
 
 
-void CMOverlayParameterDlg::DoDataExchange(CDataExchange* pDX)
+
+void CMOverlayParameterDlg::DoDataExchange (
+				CDataExchange* 					pDX)
+
 {
-	CDialog::DoDataExchange(pDX);
-	//{{AFX_DATA_MAP(CMOverlayParameterDlg)
-	DDX_Text(pDX, IDC_LineThickness, m_overlayValue);
-	DDV_MinMaxInt(pDX, m_overlayValue, m_minValue, m_maxValue);
+	CDialog::DoDataExchange (pDX);
+	
+	//{{AFX_DATA_MAP (CMOverlayParameterDlg)
+	DDX_Text (pDX, IDC_LineThickness, m_overlayValue);
+	DDV_MinMaxInt (pDX, m_overlayValue, m_minValue, m_maxValue);
 	//}}AFX_DATA_MAP
-}
-
-
-BEGIN_MESSAGE_MAP(CMOverlayParameterDlg, CMDialog)
-	//{{AFX_MSG_MAP(CMOverlayParameterDlg)
-	ON_BN_CLICKED(IDC_LineColorPrompt, OnOverlayColor)
-	ON_WM_PAINT()
-	//}}AFX_MSG_MAP
-END_MESSAGE_MAP()
+	
+}	// end "DoDataExchange"
 
 
 
-//-----------------------------------------------------------------------------
-//								 Copyright (1988-1998)
-//								c Purdue Research Foundation
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2020)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void DoDialog
@@ -93,22 +101,21 @@ END_MESSAGE_MAP()
 //	Coded By:			Larry L. Biehl			Date: 05/25/2001
 //	Revised By:			Larry L. Biehl			Date: 01/27/2003	
 
-Boolean 
-CMOverlayParameterDlg::DoDialog(
-				WindowInfoPtr			windowInfoPtr,
-				SInt16					overlayCode,
-				SInt16					overlayIndex)
+Boolean CMOverlayParameterDlg::DoDialog (
+				WindowInfoPtr						windowInfoPtr,
+				SInt16								overlayCode,
+				SInt16								overlayIndex)
 
 {  
-	Boolean			continueFlag = FALSE;
-	
-	INT_PTR			returnCode;
+	INT_PTR								returnCode;
 
-	                          
+	Boolean								continueFlag = FALSE;
+	
+
 			// Make sure intialization has been completed.
 							                         
 	if (!m_initializedFlag)
-																			return(FALSE);
+																							return (FALSE);
 																			
 	m_windowInfoPtr = windowInfoPtr;
 	m_overlayCode = overlayCode;
@@ -126,25 +133,22 @@ CMOverlayParameterDlg::DoDialog(
 		 
 		continueFlag = TRUE;
 		
-		}		// end "if (returnCode == IDOK)"
+		}	// end "if (returnCode == IDOK)"
 		
 	return (continueFlag);
 		
-}		// end "DoDialog"
+}	// end "DoDialog"
 
 
 
-/////////////////////////////////////////////////////////////////////////////
-// CMDisplayThematicDlg message handlers
+BOOL CMOverlayParameterDlg::OnInitDialog ()
 
-BOOL CMOverlayParameterDlg::OnInitDialog()
 {  
-	UInt16				lineThickness;
+	UInt16								lineThickness,
+											transparency;
 
-	UInt16				transparency;
 
-
-	CMDialog::OnInitDialog();
+	CMDialog::OnInitDialog ();
 
 	OverlayDialogInitialize (this,
 										m_windowInfoPtr,
@@ -156,8 +160,6 @@ BOOL CMOverlayParameterDlg::OnInitDialog()
 
 			// Overlay color
 	
-//	MHideDialogItem (this, IDC_LineColor);
-
 	m_lineThickness = lineThickness;
 	m_transparency = transparency;
 
@@ -167,65 +169,61 @@ BOOL CMOverlayParameterDlg::OnInitDialog()
 		m_minValue = 0;
 		m_maxValue = 100;
 
-		}		// end "if (m_overlayCode == kImageOverlay)"
+		}	// end "if (m_overlayCode == kImageOverlay)"
 
-	else		// m_overlayCode != kImageOverlay
+	else	// m_overlayCode != kImageOverlay
 		{
 		m_overlayValue = m_lineThickness;
 		m_minValue = 1;
 		m_maxValue = 20;
 
-		}		// end "else m_overlayCode != kImageOverlay"
+		}	// end "else m_overlayCode != kImageOverlay"
 						                 
-	if (UpdateData(FALSE) )                   
+	if (UpdateData (FALSE))
 		PositionDialogWindow ();
 		                                       
 	SelectDialogItemText (this, IDC_LineThickness, 0, SInt16_MAX);  										
 	
 	return FALSE;  // return TRUE  unless you set the focus to a control
 	
-}		// end "OnInitDialog" 
+}	// end "OnInitDialog"
 
 
 
-/////////////////////////////////////////////////////////////////////////////
-// CMOverlayParameterDlg message handlers
+void CMOverlayParameterDlg::OnOverlayColor ()
 
-void CMOverlayParameterDlg::OnOverlayColor() 
 {
-	RGBColor				newRGB;
+	RGBColor								newRGB;
 
 
-	if ( SelectColor ( 3, 
-								&gCurrentSelectedColor, 
-								&newRGB) )
+	if (SelectColor (3, &gCurrentSelectedColor, &newRGB))
 		{
 		gCurrentSelectedColor = newRGB;
 
 		InvalidateRect (NULL, FALSE);
 
-		}		// end "if ( SelectColor ( 3, ..."
+		}	// end "if (SelectColor (3, ..."
 		                                       
 	SelectDialogItemText (this, IDC_LineThickness, 0, SInt16_MAX); 
 	
-}		// end "OnOverlayColor"
+}	// end "OnOverlayColor"
 
 
 
-void CMOverlayParameterDlg::OnPaint() 
+void CMOverlayParameterDlg::OnPaint ()
+
 {
 	if (m_overlayCode == kVectorOverlay)
 		{
-		CPaintDC dc(this); // device context for painting
+		CPaintDC 		dc (this); // device context for painting
 	
-				// TODO: Add your message handler code here
-		COLORREF		newColor;
+		COLORREF			newColor;
 
-		RECT			colorChipRect;
+		RECT				colorChipRect;
 
-		CWnd			*cWndPtr;
+		CWnd*				cWndPtr;
 
-		SInt32		eightBitColor;
+		SInt32			eightBitColor;
 
 		eightBitColor = gCurrentSelectedColor.blue/256;
 		newColor = eightBitColor<<16;
@@ -236,8 +234,8 @@ void CMOverlayParameterDlg::OnPaint()
 		eightBitColor = gCurrentSelectedColor.red/256;
 		newColor += eightBitColor;
 
-		cWndPtr = (CWnd*)GetDlgItem(IDC_LineColor);
-		cWndPtr->GetClientRect(&colorChipRect);
+		cWndPtr = (CWnd*)GetDlgItem (IDC_LineColor);
+		cWndPtr->GetClientRect (&colorChipRect);
 		cWndPtr->MapWindowPoints (this, &colorChipRect);
 
 		dc.Rectangle (&colorChipRect);
@@ -248,8 +246,8 @@ void CMOverlayParameterDlg::OnPaint()
 		colorChipRect.right--;
 		dc.FillSolidRect (&colorChipRect, newColor);
 	
-				// Do not call CMDialog::OnPaint() for painting messages
+				// Do not call CMDialog::OnPaint () for painting messages
 
-		}		// end "if (m_overlayCode == kVectorOverlay)"
+		}	// end "if (m_overlayCode == kVectorOverlay)"
 
-}		// end "OnPaint"
+}	// end "OnPaint"

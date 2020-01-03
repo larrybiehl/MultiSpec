@@ -1,49 +1,51 @@
-// WEditClassFieldDialog.cpp : implementation file
-//      
-// Revised by Larry Biehl on 12/21/2017
+//	 									MultiSpec
 //
-                   
+//					Laboratory for Applications of Remote Sensing
+// 								Purdue University
+//								West Lafayette, IN 47907
+//								 Copyright (1995-2020)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	File:						WEditClassFieldDialog.cpp : implementation file
+//
+//	Authors:					Larry L. Biehl
+//
+//	Revision date:			07/13/2018
+//
+//	Language:				C++
+//
+//	System:					Windows Operating System
+//
+//	Brief description:	This file contains functions that relate to the
+//								CMEditClassFieldDlg class.
+//
+//------------------------------------------------------------------------------------
+
 #include "SMultiSpec.h"
  
 #include "WEditClassFieldDialog.h"
 #include "WImageView.h"   
-#include "WStatisticsView.h"     
-
-//#include	"SExtGlob.h" 
-
-extern void			ChangeFieldType (
-							SInt16								classStorage, 
-							SInt16								currentField, 
-							SInt16								fieldType); 		
-                         
-extern void 		ComputeMapCoordinates (
-							Handle								windowInfoHandle,
-							SInt16								viewUnits,
-							LongRect*							lineColumnRectPtr,
-							DoubleRect*							coordinateRectPtr);
-
-extern void 		EditClassFieldDialogInitialize (
-							DialogPtr							dialogPtr, 
-							SInt16								classFieldFlag,
-							SInt16								classStorage,
-							SInt16								currentField,
-							UInt16*								selectedItemPtr);
-
-extern SInt16 		GetFileGridCoordinateCode (
-							Handle								windowInfoHandle);
-							
+#include "WStatisticsView.h"
 
 #ifdef _DEBUG
-#undef THIS_FILE
-static char BASED_CODE THIS_FILE[] = __FILE__;
-#endif     
-
-/////////////////////////////////////////////////////////////////////////////
-// CMEditClassFieldDlg dialog
+	#undef THIS_FILE
+	static char BASED_CODE THIS_FILE[] = __FILE__;
+#endif
 
 
-CMEditClassFieldDlg::CMEditClassFieldDlg(CWnd* pParent /*=NULL*/)
-	: CMDialog(CMEditClassFieldDlg::IDD, pParent)
+
+BEGIN_MESSAGE_MAP (CMEditClassFieldDlg, CMDialog)
+	//{{AFX_MSG_MAP (CMEditClassFieldDlg)
+	//}}AFX_MSG_MAP
+END_MESSAGE_MAP ()
+
+
+
+CMEditClassFieldDlg::CMEditClassFieldDlg (
+				CWnd* 								pParent /*=NULL*/)
+		: CMDialog	(CMEditClassFieldDlg::IDD, pParent)
+
 {
 	//{{AFX_DATA_INIT(CMEditClassFieldDlg)
 	m_className = "Class 1";
@@ -58,50 +60,51 @@ CMEditClassFieldDlg::CMEditClassFieldDlg(CWnd* pParent /*=NULL*/)
 		{																			
 				//	Get pointers to the string buffers.	
 			
-		m_classNameCStringPtr = (TBYTE*)m_className.GetBufferSetLength(64);
-		m_fieldNameCStringPtr = (TBYTE*)m_fieldName.GetBufferSetLength(64);
+		m_classNameCStringPtr = (TBYTE*)m_className.GetBufferSetLength (64);
+		m_fieldNameCStringPtr = (TBYTE*)m_fieldName.GetBufferSetLength (64);
 				
 		}
 			
-	CATCH_ALL(e)
+	CATCH_ALL (e)
 		{
 		m_initializedFlag = FALSE;
-			
 		}
+	
 	END_CATCH_ALL
 	
 	m_initializedFlag = TRUE;
-}
+	
+}	// end "CMEditClassFieldDlg"
 
-void CMEditClassFieldDlg::DoDataExchange(CDataExchange* pDX)
+
+
+void CMEditClassFieldDlg::DoDataExchange (
+				CDataExchange* 					pDX)
+
 {
-	CMDialog::DoDataExchange(pDX);
-	//{{AFX_DATA_MAP(CMEditClassFieldDlg)        
-	DDX_Text(pDX, IDC_ClassName, m_className);
-	DDV_MaxChars(pDX, m_className, 31);
-	DDX_Text(pDX, IDC_FieldName, m_fieldName);
-	DDV_MaxChars(pDX, m_fieldName, 31);
-	DDX_Radio(pDX, IDC_Training, m_fieldType);
+	CMDialog::DoDataExchange (pDX);
+	//{{AFX_DATA_MAP (CMEditClassFieldDlg)        
+	DDX_Text (pDX, IDC_ClassName, m_className);
+	DDV_MaxChars (pDX, m_className, 31);
+	DDX_Text (pDX, IDC_FieldName, m_fieldName);
+	DDV_MaxChars (pDX, m_fieldName, 31);
+	DDX_Radio (pDX, IDC_Training, m_fieldType);
 	//}}AFX_DATA_MAP
-}
-
-BEGIN_MESSAGE_MAP(CMEditClassFieldDlg, CMDialog)
-	//{{AFX_MSG_MAP(CMEditClassFieldDlg)               
-	//}}AFX_MSG_MAP
-END_MESSAGE_MAP()
+	
+}	// end "DoDataExchange"
 
 
 
-//-----------------------------------------------------------------------------
-//								 Copyright (1988-1998)
-//								c Purdue Research Foundation
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2020)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void DoDialog
 //
-//	Software purpose:	The purpose of this routine is to present the reformat
-//							options dialog box to the user so that the user can
-//							selection which reformat function is to be run.
+//	Software purpose:	The purpose of this routine is to present the edit class/fields
+//							dialog box to the user so that the user make changes in the
+//							class or field name and/or train/test field designation.
 //
 //	Parameters in:		None
 //
@@ -109,34 +112,31 @@ END_MESSAGE_MAP()
 //
 //	Value Returned:	None		
 // 
-//	Called By:			Dialog in MDisMult.cpp
+//	Called By:			
 //
-//	Coded By:			Larry L. Biehl			Date: 02/19/96
-//	Revised By:			Larry L. Biehl			Date: 02/19/96	
+//	Coded By:			Larry L. Biehl			Date: 02/19/1996
+//	Revised By:			Larry L. Biehl			Date: 02/19/1996
 
-Boolean 
-CMEditClassFieldDlg::DoDialog(
+Boolean CMEditClassFieldDlg::DoDialog (
 				SInt16								classFieldCode, 
 				SInt16								currentClass,
 				SInt16								currentField,
 				char*									titleStringPtr)
 
 {    
-	#if defined _UNICODE
-		USES_CONVERSION;
-	#endif              
+	USES_CONVERSION;
 
-	UInt8						string[256];
-
-	Boolean					OKFlag = FALSE;
+	UInt8									string[256];
 	
-	INT_PTR					returnCode;
+	INT_PTR								returnCode;
+
+	Boolean								OKFlag = FALSE;
 	
 	
 			// Make sure intialization has been completed.
 							                         
-	if ( !m_initializedFlag )
-																			return(FALSE);
+	if (!m_initializedFlag)
+																						return (FALSE);
 																			
 	m_classFieldCode = classFieldCode;
 	m_currentField = currentField;
@@ -155,17 +155,17 @@ CMEditClassFieldDlg::DoDialog(
 			{ 
 					// Class Name
 					                  
-			strcpy ((char*)string, T2A(m_classNameCStringPtr)); 
+			strcpy ((char*)string, T2A (m_classNameCStringPtr)); 
 			CtoPstring (string, 
 							gProjectInfoPtr->classNamesPtr[m_classStorage].name);
 			
 			CComboBox*	classListComboBoxPtr = 
-						(CComboBox*)gProjectWindow->GetDlgItem (IDC_ClassList);	
+										(CComboBox*)gProjectWindow->GetDlgItem (IDC_ClassList);
 			classListComboBoxPtr->DeleteString (currentClass+1);
 			classListComboBoxPtr->InsertString (currentClass+1,
 															m_classNameCStringPtr);
 						
-			}		// end "if (classFieldCode == 2)" 
+			}	// end "if (classFieldCode == 2)"
 					             
 		if (classFieldCode == 3)
 			{                      
@@ -173,9 +173,8 @@ CMEditClassFieldDlg::DoDialog(
 			
 					// Field Identifier
 					  
-			strcpy ((char*)string, T2A(m_fieldNameCStringPtr)); 
-			CtoPstring (string, 
-								gProjectInfoPtr->fieldIdentPtr[m_currentField].name);
+			strcpy ((char*)string, T2A (m_fieldNameCStringPtr)); 
+			CtoPstring (string, gProjectInfoPtr->fieldIdentPtr[m_currentField].name);
 					
 					// Training field or test field						
 					                
@@ -185,28 +184,25 @@ CMEditClassFieldDlg::DoDialog(
 				
 			fieldIdentPtr[currentField].fieldType = fieldType;
 				
-			}		// end "if (classFieldCode == 3)"  
+			}	// end "if (classFieldCode == 3)"
 		
-		}		// end "if (returnCode == IDOK)"
+		}	// end "if (returnCode == IDOK)"
 		
 	return (OKFlag);
 		
-}		// end "DoDialog"
+}	// end "DoDialog"
 
 
-/////////////////////////////////////////////////////////////////////////////
-// CMEditClassFieldDlg message handlers
 
-BOOL 
-CMEditClassFieldDlg::OnInitDialog(void)
+BOOL CMEditClassFieldDlg::OnInitDialog (void)
 
 {                                         
-	UInt16					selectedItem;
-	
 	USES_CONVERSION;
 
+	UInt16								selectedItem;
 	
-	CDialog::OnInitDialog();
+	
+	CDialog::OnInitDialog ();
 
 	EditClassFieldDialogInitialize (this, 
 												m_classFieldCode,
@@ -224,88 +220,77 @@ CMEditClassFieldDlg::OnInitDialog(void)
 	
 	return FALSE;  // return TRUE  unless you set the focus to a control 
 	
-}		// end "OnInitDialog"
+}	// end "OnInitDialog"
 
 
 
-void 
-CMEditClassFieldDlg::OnOK(void)
+void CMEditClassFieldDlg::OnOK (void)
 
 {  
-	#if defined _UNICODE
-		USES_CONVERSION;
-	#endif              
+	USES_CONVERSION;
 
-	UInt8			string[256];
-	Boolean 		OKFlag = TRUE;
-	SInt16		returnCode; 
-	UInt16		selectedItem;
+	UInt8									string[256];
+	
+	SInt16								returnCode;
+	UInt16								selectedItem;
+	
+	Boolean 								OKFlag = TRUE;
 
 
-	UpdateData(TRUE); 
+	UpdateData (TRUE);
 	
 	if (m_classFieldCode == 2)
 		{              
-		#if defined _UNICODE
-			strcpy ((char*)string, T2A(m_classNameCStringPtr)); 
-		#endif                                 
-		#if !defined _UNICODE
-			strcpy ((char*)string, (const char*)m_classNameCStringPtr); 
-		#endif                                 
+		strcpy ((char*)string, T2A (m_classNameCStringPtr));
 		CtoPstring (string, gTextString);
 						
 				// Check if proposed class name is a duplicate.	 If it is, 	
 				// allow user to change it again.									
 							                                                         
 		returnCode = CheckForDuplicateClassName (m_classStorage, (Str255*)gTextString);
-		if ( returnCode > 0 )
+		if (returnCode > 0)
 			{ 			 
-			if ( returnCode == 1 )
+			if (returnCode == 1)
 				DisplayAlert (kErrorAlertID, 3, kAlertStrID, IDS_Alert46, 0, NULL);
 						
-			else		// returnCode == 2
+			else	// returnCode == 2
 				DupClassFieldNameAlert (1, (UCharPtr)gTextString);
 							                                   
 			selectedItem = IDC_ClassName;
 			OKFlag = FALSE;
 			
-			}		// end "if ( returnCode > 0 )"                                     
+			}	// end "if (returnCode > 0)"
 			
-		}		// end "if (m_classFieldCode == 2)" 
+		}	// end "if (m_classFieldCode == 2)"
 	
 	if (OKFlag && m_classFieldCode == 3)
 		{	    
-		#if defined _UNICODE
-			strcpy ((char*)string, T2A(m_fieldNameCStringPtr)); 
-		#endif                                 
-		#if !defined _UNICODE
-			strcpy ((char*)string, (const char*)m_fieldNameCStringPtr); 
-		#endif   
+		strcpy ((char*)string, T2A (m_fieldNameCStringPtr));
 		CtoPstring (string, gTextString);
 								                              
 				// Check if proposed field name is a duplicate.	 If it  	
 				// is, allow user to change it again.							
 								                                
 		returnCode = CheckForDuplicateFieldName (m_currentField, (Str255*)gTextString);
-		if ( returnCode > 0 )
+		if (returnCode > 0)
 			{                                        
-			if ( returnCode == 1 )
+			if (returnCode == 1)
 				DisplayAlert (kErrorAlertID, 3, kAlertStrID, IDS_Alert46, 0, NULL);
 						
-			else		// returnCode == 2
+			else    // returnCode == 2
 				DupClassFieldNameAlert (2, gTextString);
 				     
 			selectedItem = IDC_FieldName;
 			OKFlag = FALSE;
 			
-			}		// end "if ( returnCode > 0 )"                                        
+			}	// end "if (returnCode > 0)"
 			
-		}		// end "if (OKFlag && ...)"
+		}	// end "if (OKFlag && ...)"
 	
 	if (OKFlag)
-		CMDialog::OnOK();
+		CMDialog::OnOK ();
 		
-	else		// !OKFlag                      
+	else	// !OKFlag
 		SelectDialogItemText (this, selectedItem, 0, SInt16_MAX); 
 		
-}		// end "OnOK"
+}	// end "OnOK"

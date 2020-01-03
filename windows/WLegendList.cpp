@@ -1,27 +1,38 @@
-// WLegendList.cpp : implementation file
+//	 									MultiSpec
 //
-// Revised by Larry Biehl on 12/21/2017
-//                    
-                    
+//					Laboratory for Applications of Remote Sensing
+// 								Purdue University
+//								West Lafayette, IN 47907
+//								 Copyright (1995-2020)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	File:						WLegendList.cpp : implementation file
+//
+//	Authors:					Larry L. Biehl
+//
+//	Revision date:			07/13/2018
+//
+//	Language:				C++
+//
+//	System:					Windows Operating System
+//
+//	Brief description:	This file contains functions that relate to the
+//								CMLegendList class.
+//
+//------------------------------------------------------------------------------------
+
 #include "SMultiSpec.h"       
 
 #include "WImageView.h"
 #include "WImageDoc.h"  
 #include "WImageFrame.h" 
 #include "WLegendList.h" 
-#include "CPalette.h" 
-
-//#include	"SExtGlob.h" 
-
-extern Boolean 	DoBlinkCursor1 (
-							ListHandle				legendListHandle, 
-							Point						lCell, 
-							SInt16					listType,
-							SInt16					code);
+#include "SPalette_class.h" 
 
 #ifdef _DEBUG
-#undef THIS_FILE
-static char BASED_CODE THIS_FILE[] = __FILE__;
+	#undef THIS_FILE
+	static char BASED_CODE THIS_FILE[] = __FILE__;
 #endif 
           
 									
@@ -35,33 +46,29 @@ Boolean				CMLegendList::s_grayRectDisplayedFlag = FALSE;
 Boolean				CMLegendList::s_isPrintingFlag = FALSE;
 
 
-/////////////////////////////////////////////////////////////////////////////
-// CMLegendList 
 
-BEGIN_MESSAGE_MAP(CMLegendList, CListBox)
-	//{{AFX_MSG_MAP(CMLegendList) 
-	ON_WM_LBUTTONDBLCLK()
-	ON_WM_LBUTTONDOWN()
-	ON_WM_LBUTTONUP()
-	ON_WM_KEYDOWN()
-	ON_WM_KEYUP()
-	ON_WM_MOUSEMOVE()
-	ON_WM_SETCURSOR()
-	ON_WM_DRAWITEM()
+BEGIN_MESSAGE_MAP (CMLegendList, CListBox)
+	//{{AFX_MSG_MAP (CMLegendList)
+	ON_WM_DRAWITEM ()
+	ON_WM_KEYDOWN ()
+	ON_WM_KEYUP ()
+	ON_WM_LBUTTONDBLCLK ()
+	ON_WM_LBUTTONDOWN ()
+	ON_WM_LBUTTONUP ()
+	ON_WM_MOUSEMOVE ()
+	ON_WM_SETCURSOR ()
 	//}}AFX_MSG_MAP
-END_MESSAGE_MAP()
+END_MESSAGE_MAP ()
 
-/////////////////////////////////////////////////////////////////////////////
-// CMListBox message handlers
 
- 
 
-CMLegendList::CMLegendList()
+CMLegendList::CMLegendList ()
 
 {                    
 	//{{AFX_DATA_INIT(CMLegendList)     
-	//}}AFX_DATA_INIT 
-			// These are initialize in LoadThematicLegendList in SThemWin.cpp.
+	//}}AFX_DATA_INIT
+	
+			// These are initialize in LoadThematicLegendList in SThematicWindow.cpp
 			
 	m_paletteObject = NULL;
 	m_backgroundPaletteObject = NULL;
@@ -77,14 +84,13 @@ CMLegendList::CMLegendList()
 	
 	if (s_legendBitMapInfo == NULL)
 		{
-		UInt32 bytesNeeded = sizeof(BITMAPINFO) + sizeof(UInt8);
+		UInt32 bytesNeeded = sizeof (BITMAPINFO) + sizeof (UInt8);
 		s_legendBitMapInfo = MNewHandle (bytesNeeded);
 		
 		if (s_legendBitMapInfo != NULL)
 			{
 			LegendBitMapInfo* legendBitMapInfoPtr = 
-									(LegendBitMapInfo*)GetHandlePointer(
-													s_legendBitMapInfo, kNoLock, kNoMoveHi);
+									(LegendBitMapInfo*)GetHandlePointer (s_legendBitMapInfo);
 			legendBitMapInfoPtr->bmiHeader.biSize = 40;
 			legendBitMapInfoPtr->bmiHeader.biWidth = 1;
 			legendBitMapInfoPtr->bmiHeader.biHeight = 1;
@@ -101,24 +107,28 @@ CMLegendList::CMLegendList()
 			
 			legendBitMapInfoPtr->paletteIndex = 0;
 			
-			}		// end "if (s_legendBitMapInfo != NULL)"   
+			}	// end "if (s_legendBitMapInfo != NULL)"   
 		
-		}		// end "if (s_legendBitMapInfo != NULL)"		
+		}	// end "if (s_legendBitMapInfo != NULL)"		
 	
-}		// end "CMLegendList" 
+}	// end "CMLegendList" 
 
 
-CMLegendList::~CMLegendList()
+
+CMLegendList::~CMLegendList ()
+
 {
 
-}
+}	// end "~CMLegendList"
+
 
 
 void CMLegendList::CheckShiftKeyDown (void)
 
 {   
-	POINT		position;
-	RECT		rectangle;
+	POINT									position;
+	RECT									rectangle;
+	
 		
 	m_shiftKeyDownFlag = TRUE;
 	GetCursorPos (&position);
@@ -126,11 +136,12 @@ void CMLegendList::CheckShiftKeyDown (void)
 	GetClientRect (&rectangle);
 	if (m_activeFlag &&
 			position.x <= 14 && position.x > 0 && 
-			position.y <= rectangle.bottom && position.y >= 0 &&
-			gPresentCursor != kBlinkOpenCursor1)
+				position.y <= rectangle.bottom && position.y >= 0 &&
+					gPresentCursor != kBlinkOpenCursor1)
 		MSetCursor (kBlinkOpenCursor1);
 	
-}		// end "CheckShiftKeyDown"
+}	// end "CheckShiftKeyDown"
+
 
 
 void CMLegendList::CheckShiftKeyUp (void)
@@ -140,26 +151,30 @@ void CMLegendList::CheckShiftKeyUp (void)
 	if (gPresentCursor == kBlinkOpenCursor1)
 		MSetCursor (kArrow); 
 	
-}		// end "CheckShiftKeyUp"
+}	// end "CheckShiftKeyUp"
+
 
 
 void CMLegendList::DrawItem (
-				LPDRAWITEMSTRUCT 			lpDrawItemStruct)
+				LPDRAWITEMSTRUCT 					lpDrawItemStruct)
+
 {  
 	USES_CONVERSION;
+	
 
 	if (m_classPaletteEntries <= 0 || m_bitMapInfoHeaderHandle == NULL)
-																					return;
+																								return;
 																					
-	GetDrawItemStruct(lpDrawItemStruct);
+	GetDrawItemStruct (lpDrawItemStruct);
 
-	CDC* pDC = CDC::FromHandle(lpDrawItemStruct->hDC);  
+	CDC* pDC = CDC::FromHandle (lpDrawItemStruct->hDC);  
 
 	if (lpDrawItemStruct->itemAction & ODA_DRAWENTIRE)
 		{
 		RECT				colorRect;
 		
-		char*				namePtr; 
+		char*				namePtr;
+		
 		Handle			nameHandle;
 		
 		SInt32			paletteIndex;
@@ -171,17 +186,10 @@ void CMLegendList::DrawItem (
 		
 		
 		if (lpDrawItemStruct->itemData > 0x0000ffff)
-																		return;
+																								return;
 		
-//		DisplaySpecsPtr				displaySpecsPtr; 
-		double 							magnification; 
+		double 			magnification;
 		
-
-//		Handle displaySpecsHandle = gActiveImageViewCPtr->GetDisplaySpecsHandle ();
-
-//		displaySpecsPtr = (DisplaySpecsPtr)GetHandlePointer(
-//												displaySpecsHandle, kNoLock, kNoMoveHi);
-		                     
 		magnification = 1.0;                   
 		if (s_isPrintingFlag)                              
 			magnification = gActiveImageViewCPtr->m_printerTextScaling;
@@ -201,16 +209,15 @@ void CMLegendList::DrawItem (
 		
 				// Now get the correct handle to the list names to be used.
 				
-		FileInfoPtr fileInfoPtr = (FileInfoPtr)GetHandlePointer (
-												m_imageFileInfoHandle, kNoLock, kNoMoveHi);
+		FileInfoPtr fileInfoPtr = (FileInfoPtr)GetHandlePointer (m_imageFileInfoHandle);
 												
 		if (classGroupCode == 0)
 			nameHandle =  fileInfoPtr->classDescriptionH;
 			
-		else		// classGroupCode != 0    
+		else	// classGroupCode != 0    
 			nameHandle = fileInfoPtr->groupNameHandle;
 			
-		if ( m_listType != kGroupClassDisplay || classGroupCode != 0)
+		if (m_listType != kGroupClassDisplay || classGroupCode != 0)
 			{                
 					// Get the index to the correct palette entry.
 					
@@ -218,29 +225,29 @@ void CMLegendList::DrawItem (
 						// Class name
 				paletteIndex = lpDrawItemStruct->itemID;
 				
-			else		// classGroupCode != 0
+			else	// classGroupCode != 0
 				{
 						// Group name
-				SInt16* classGroupToPalettePtr = (SInt16*)GetHandlePointer(
-								fileInfoPtr->groupTablesHandle, kNoLock, kNoMoveHi);
+				SInt16* classGroupToPalettePtr = (SInt16*)GetHandlePointer (
+																		fileInfoPtr->groupTablesHandle);
 				paletteIndex = classGroupToPalettePtr[index];
 				
-				}		// end "else classGroupCode != 0"
+				}	// end "else classGroupCode != 0"
 				               
 			UInt16 paletteOffset = m_paletteOffset;                                      
 			if (paletteIndex >= m_classPaletteEntries)
 				{                        
-				UInt16 paletteEntries = (UInt16)MIN(m_classPaletteEntries, 254);
+				UInt16 paletteEntries = (UInt16)MIN (m_classPaletteEntries, 254);
 				paletteIndex = (paletteIndex - (1-paletteOffset)) % paletteEntries;
 				paletteOffset = 1;
 				
-				}		// end "if (paletteIndex >= m_classPaletteEntries)" 
+				}	// end "if (paletteIndex >= m_classPaletteEntries)" 
 
 			bytePaletteIndex = (UInt8)(paletteIndex+paletteOffset);
 			LPSTR legendChipDIBBitsPtr = (LPSTR)&bytePaletteIndex;
 		 
 			BITMAPINFOHEADER* legendBitMapInfoPtr  = 
-									(BITMAPINFOHEADER*)::GlobalLock(m_bitMapInfoHeaderHandle);
+									(BITMAPINFOHEADER*)::GlobalLock (m_bitMapInfoHeaderHandle);
 									
 					// Save image offscreen bit map and set legend chip bit map to 
 					// represent 1 pixel.
@@ -252,42 +259,39 @@ void CMLegendList::DrawItem (
                               
 			CPalette* newPalette = m_paletteObject;
 			if (!m_activeFlag)
-				newPalette = m_backgroundPaletteObject;	   
-//			hPal = (HPALETTE)m_paletteObject->m_hObject; 
-//			hOldPal = ::SelectPalette(pDC->m_hDC, hPal, TRUE); 
+				newPalette = m_backgroundPaletteObject;
 
-			CPalette* oldPalette = pDC->SelectPalette(newPalette, TRUE);   
+			CPalette* oldPalette = pDC->SelectPalette (newPalette, TRUE);   
 			
-		  	::StretchDIBits(
-		  				pDC->GetSafeHdc(),             		// hDC
-					   colorRect.left,           				// DestX
-					   colorRect.top,            				// DestY
-					   (int)(RECTWIDTH(&colorRect)*magnification),  // nDestWidth
-					   (int)(RECTHEIGHT(&colorRect)*magnification), // nDestHeight 
-					   0,                						// SrcX
-					   0,   											// SrcY
-					   1,         									// wSrcWidth
-					   1,        									// wSrcHeight
-					   legendChipDIBBitsPtr,            	// lpBits
-					   (LPBITMAPINFO)legendBitMapInfoPtr,  // lpBitsInfo
-					   DIB_PAL_COLORS,                 		// wUsage
-					   SRCCOPY);       							// dwROP
+		  	::StretchDIBits (pDC->GetSafeHdc (),             		// hDC
+									colorRect.left,           				// DestX
+									colorRect.top,            				// DestY
+									(int)(RECTWIDTH (&colorRect)*magnification),  // nDestWidth
+									(int)(RECTHEIGHT(&colorRect)*magnification), // nDestHeight 
+									0,                						// SrcX
+									0,   											// SrcY
+									1,         									// wSrcWidth
+									1,        									// wSrcHeight
+									legendChipDIBBitsPtr,            	// lpBits
+									(LPBITMAPINFO)legendBitMapInfoPtr,  // lpBitsInfo
+									DIB_PAL_COLORS,                 		// wUsage
+									SRCCOPY);       							// dwROP
 			
 					// Restore width and height for image offscreen bit map.
 										   
 			legendBitMapInfoPtr->biWidth = savedBiWidth;		  
 			legendBitMapInfoPtr->biHeight = savedBiHeight;
 								   
-	   	::GlobalUnlock( (HGLOBAL)m_bitMapInfoHeaderHandle ); 
+	   	::GlobalUnlock ((HGLOBAL)m_bitMapInfoHeaderHandle);
 	   	                          
 			if (oldPalette != NULL)
-				pDC->SelectPalette(oldPalette, TRUE);
+				pDC->SelectPalette (oldPalette, TRUE);
 			
-			}		// end "if ( m_listType != kGroupClassDisplay || ..."
+			}	// end "if (m_listType != kGroupClassDisplay || ..."
 			
 				// Now draw the text.
 				
-		namePtr = (char*)GetHandlePointer (nameHandle, kLock, kNoMoveHi);
+		namePtr = (char*)GetHandlePointer (nameHandle, kLock);
 		namePtr = &namePtr[index*32];
 				
 		if (m_listType == kGroupClassDisplay && classGroupCode == 0)
@@ -296,17 +300,17 @@ void CMLegendList::DrawItem (
 					
 					// Add class number of class name in group-class display
 					
-			sprintf( (char*)&gTextString[1],
+			sprintf ((char*)&gTextString[1],
 							"%3d-",
 							index+1);
-			pstr( (char*)&gTextString[5],
+			pstr ((char*)&gTextString[5],
 							namePtr,
 							&stringLength);
 							
 			namePtr = (char*)gTextString;
 			namePtr[0] = stringLength + 4;
 			
-			}		// end "if (m_listType == kGroupClassDisplay && ..."
+			}	// end "if (m_listType == kGroupClassDisplay && ..."
 		                                           
 		pDC->SetTextColor (0x00000000);
 		pDC->TextOut ((int)(colorRect.right + 15 * magnification), 
@@ -316,34 +320,41 @@ void CMLegendList::DrawItem (
 			
 		CheckAndUnlockHandle (nameHandle);
 		
-		}		// end "if (lpDrawItemStruct->itemAction & ODA_DRAWENTIRE)"
+		}	// end "if (lpDrawItemStruct->itemAction & ODA_DRAWENTIRE)"
 
-}		// end "DrawItem"
- 
+}	// end "DrawItem"
+
+
 
 void CMLegendList::DrawLegendList ()
+
 {	
 	DRAWITEMSTRUCT 			drawItemStruct; 
 	                             
 
-	OnDrawItem(1, &drawItemStruct);
+	OnDrawItem (1, &drawItemStruct);
 
-}		// end "DrawLegendList"
+}	// end "DrawLegendList"
 
 
-Handle CMLegendList::GetBitMapInfoHeaderHandle()
+
+Handle CMLegendList::GetBitMapInfoHeaderHandle ()
+
 {                                                                  
 	return m_bitMapInfoHeaderHandle;  
 	
-}		// end "GetBitMapInfoHeaderHandle"
- 
+}	// end "GetBitMapInfoHeaderHandle"
 
-void CMLegendList::GetDrawItemStruct (LPDRAWITEMSTRUCT lpDrawItemStruct)
+
+
+void CMLegendList::GetDrawItemStruct (
+				LPDRAWITEMSTRUCT 					lpDrawItemStruct)
 
 {
 	m_drawItem = *lpDrawItemStruct;
 	
-}		// end "GetDrawItemStruct"
+}	// end "GetDrawItemStruct"
+
 
 
 void CMLegendList::GetTextValue (
@@ -352,63 +363,65 @@ void CMLegendList::GetTextValue (
 
 {
 	char*									returnStringPtr;
+	
 	SInt32								stringLength;
 	UInt32								longClassValue;
 	
 
-//#	if defined multispec_win_unicode
-		returnStringPtr = (char*)gWideTextString;
-//#	else
-//		returnStringPtr = (char*)gTextString;
-//#	endif
+	returnStringPtr = (char*)gWideTextString;
 
  	stringLength = GetText (selectedCell, (LPTSTR)returnStringPtr);
 	
-//#	if defined multispec_win_unicode
-		wcstombs ((char*)gTextString, (TBYTE*)returnStringPtr, 254);
-		returnStringPtr = (char*)gTextString;
-//#	endif
+	wcstombs ((char*)gTextString, (TBYTE*)returnStringPtr, 254);
+	returnStringPtr = (char*)gTextString;
 
 	BlockMoveData (&gTextString, &longClassValue, 4);
 	*valuePtr = (UInt16)longClassValue;
 	
-}		// end "GetTextValue"
+}	// end "GetTextValue"
 
 
-CPoint CMLegendList::LastClickPoint(void)
+
+CPoint CMLegendList::LastClickPoint (void)
 
 {                                                                  
 	return (s_lastMouseDnPoint);  
 	
-}		// end "LastClickPoint"
+}	// end "LastClickPoint"
 
   
 
-void CMLegendList::MeasureItem(
-				LPMEASUREITEMSTRUCT 			lpMeasureItemStruct)
+void CMLegendList::MeasureItem (
+				LPMEASUREITEMSTRUCT 				lpMeasureItemStruct)
+
 {
 			// all items are of fixed size
 			// must use LBS_OWNERDRAWVARIABLE for this to work 
 			
 	lpMeasureItemStruct->itemHeight = 20;
 	
-}		// end "MeasureItem" 
+}	// end "MeasureItem" 
 
 
-void CMLegendList::OnDrawItem(int nIDCtl, LPDRAWITEMSTRUCT lpDrawItemStruct)
+
+void CMLegendList::OnDrawItem (
+				int 									nIDCtl,
+				LPDRAWITEMSTRUCT 					lpDrawItemStruct)
+
 {
-	double							magnification;
-	CRect								legendRect;
+	CRect									legendRect;
+	
+	double								magnification;
 
 
    lpDrawItemStruct = &m_drawItem;
 
    HDC temp = lpDrawItemStruct->hDC;
 	                                                            
-	lpDrawItemStruct->hDC = gActiveImageViewCPtr->m_pDC->GetSafeHdc();
+	lpDrawItemStruct->hDC = gActiveImageViewCPtr->m_pDC->GetSafeHdc ();
 	lpDrawItemStruct->itemAction = ODA_DRAWENTIRE;
 
-	s_isPrintingFlag = gActiveImageViewCPtr->m_pDC->IsPrinting();
+	s_isPrintingFlag = gActiveImageViewCPtr->m_pDC->IsPrinting ();
 	                               
 	magnification = 1.0;                   
 	if (s_isPrintingFlag)                              
@@ -416,27 +429,32 @@ void CMLegendList::OnDrawItem(int nIDCtl, LPDRAWITEMSTRUCT lpDrawItemStruct)
 		
 	lpDrawItemStruct->rcItem.left = 0;
 
-   for (int count=0;count<GetCount();count++)
+   for (int count=0; count<GetCount (); count++)
 		{
-		lpDrawItemStruct->itemData = GetItemData(count);
+		lpDrawItemStruct->itemData = GetItemData (count);
 		lpDrawItemStruct->itemID = count; 
 		
 		lpDrawItemStruct->rcItem.top = 
-			(int)(30 * magnification + GetItemHeight(count) * count * magnification);
+			(int)(30 * magnification + GetItemHeight (count) * count * magnification);
 		lpDrawItemStruct->rcItem.bottom = 
-			(int)(30 * magnification + GetItemHeight(count) * (1 + count * magnification));
-		DrawItem(lpDrawItemStruct);
+			(int)(30 * magnification + GetItemHeight (count) * (1 + count * magnification));
+		DrawItem (lpDrawItemStruct);
 
-		}		// end "for (int count=0;count<GetCount();count++)"
+		}	// end "for (int count=0; count<GetCount (); count++)"
 
 	lpDrawItemStruct->hDC = temp;
 
 	s_isPrintingFlag = FALSE;
 
-}		// end "OnDrawItem"
+}	// end "OnDrawItem"
 
 
-void CMLegendList::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
+
+void CMLegendList::OnKeyDown (
+				UINT 									nChar,
+				UINT 									nRepCnt,
+				UINT 									nFlags)
+
 {                                                                                                                                                                       
 	if (nChar == 0x11)           
 		gActiveImageViewCPtr->SetControlKeyFlag (TRUE);
@@ -447,41 +465,47 @@ void CMLegendList::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 	else if (nChar == 0x25 || nChar == 0x26 || nChar == 0x27 || nChar == 0x28)
 		DoNextDisplayChannelEvent (gActiveImageViewCPtr, nChar);
 	
-	CListBox::OnKeyDown(nChar, nRepCnt, nFlags);
+	CListBox::OnKeyDown (nChar, nRepCnt, nFlags);
 	
-}		// end "OnKeyDown"
+}	// end "OnKeyDown"
 
 
-void CMLegendList::OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags)
+
+void CMLegendList::OnKeyUp (
+				UINT 									nChar,
+				UINT 									nRepCnt,
+				UINT 									nFlags)
+
 {                                                                                                                                                                                               
 	if (nChar == 0x11)
-		gActiveImageViewCPtr->SetControlKeyFlag(FALSE);
+		gActiveImageViewCPtr->SetControlKeyFlag (FALSE);
 		
 	else if (nChar == 0x10) 
 		CheckShiftKeyUp ();                    
 	
-	CListBox::OnKeyUp(nChar, nRepCnt, nFlags);
+	CListBox::OnKeyUp (nChar, nRepCnt, nFlags);
 	
-}		// end "OnKeyUp"
+}	// end "OnKeyUp"
 
 
-void CMLegendList::OnLButtonDblClk(
-				UINT 							nFlags, 
-				CPoint 						point)
+
+void CMLegendList::OnLButtonDblClk (
+				UINT 									nFlags,
+				CPoint 								point)
 				
 {                                 
-	SInt16						selection;
+	SInt16								selection;
 						
 						                                                                                        
 	s_lastMouseDnPoint = point; 
-	selection = GetCurSel();  
+	selection = GetCurSel ();
 	                           
 	if (gPresentCursor == kArrow)
 		{               
 		CPoint		lastClickPoint; 
 						   
 						            
-		lastClickPoint = LastClickPoint();
+		lastClickPoint = LastClickPoint ();
 	
 		if (lastClickPoint.x > 15)
 			{                   
@@ -490,19 +514,19 @@ void CMLegendList::OnLButtonDblClk(
 	
 					// Edit class or group name.
 				
-			cellLine = (SInt16)GetItemData(selection);
+			cellLine = (SInt16)GetItemData (selection);
 			SInt16 classGroupChangeCode = kEditClass;
 			if (cellLine & 0x8000) 
 				classGroupChangeCode = kEditGroup;
 			
-			else		// !(cellLine & 0x8000)
+			else	// !(cellLine & 0x8000)
 				{
-				if ( (m_listType == kGroupClassDisplay) &&
-//										(m_shiftKeyDownFlag) ) 
-									gActiveImageViewCPtr->GetControlKeyFlag() )
+				if ((m_listType == kGroupClassDisplay) &&
+							//(m_shiftKeyDownFlag))
+									gActiveImageViewCPtr->GetControlKeyFlag ())
 					classGroupChangeCode = kNewGroup;
 			
-				}		// end "	else !(cellLine & 0x8000)"
+				}	// end "	else !(cellLine & 0x8000)"
 			
 			cellLine &= 0x7fff;
 		
@@ -510,28 +534,23 @@ void CMLegendList::OnLButtonDblClk(
 											selection, 
 											classGroupChangeCode, 
 											cellLine);
-				//{
-				//if (classGroupChangeCode == kNewGroup)
-				//	UpdatePaletteWindow (TRUE, FALSE);
-				
-				//}		// end "if ( EditGroupClassDialog (..."
 		
-			}		// end "if (lastClickPoint.x > 15)"
+			}	// end "if (lastClickPoint.x > 15)"
 		
-		else		// lastClickPoint.x <= 15
+		else	// lastClickPoint.x <= 15
 			{  
 			Handle						displaySpecsHandle;
 
 			displaySpecsHandle = GetActiveDisplaySpecsHandle ();
 
-			EditClassGroupPalette(this,
-					 				 displaySpecsHandle,
-									 selection,
-									 (SInt16)m_listType);
+			EditClassGroupPalette (this,
+											 displaySpecsHandle,
+											 selection,
+											 (SInt16)m_listType);
 		
-			}		// end "else lastClickPoint.x <= 15" 
+			}	// end "else lastClickPoint.x <= 15" 
 		
-		}		// end "if (gPresentCursor == gPresentCursor == kArrow)"
+		}	// end "if (gPresentCursor == gPresentCursor == kArrow)"
 		
 	else if (gPresentCursor == kBlinkOpenCursor1)
 		{             
@@ -543,70 +562,68 @@ void CMLegendList::OnLButtonDblClk(
 		
 		DoBlinkCursor1 (this, lCell, (SInt16)m_listType, 0);
 		
-		}		// end "else if (gPresentCursor == kBlinkOpenCursor1)"
+		}	// end "else if (gPresentCursor == kBlinkOpenCursor1)"
 
-	CListBox::OnLButtonDblClk(nFlags, point);
+	CListBox::OnLButtonDblClk (nFlags, point);
 	
-}		// end "OnLButtonDblClk"
+}	// end "OnLButtonDblClk"
 
 
-void CMLegendList::OnLButtonDown(
-				UINT 							nFlags, 
-				CPoint 						point)
+
+void CMLegendList::OnLButtonDown (
+				UINT 									nFlags,
+				CPoint 								point)
 				
 {  
-	Point							lCell;
-	RECT							rect; 
+	Point									lCell;
+	RECT									rect;
 	
-	UInt32						longCellValue;
+	UInt32								longCellValue;
 	
-	UInt16						cellValue;
+	UInt16								cellValue;
 	
 	                                                                
 	s_lastMouseDnPoint = point; 
 	
-	CMImageDoc* imageDocCPtr = 
-		gActiveImageViewCPtr->GetDocument();
-	CMImageFrame* imageFrameCPtr = 
-		imageDocCPtr->GetImageFrameCPtr();
-	CMLegendView* legendViewCPtr = 
-		imageFrameCPtr->GetLegendViewCPtr();
+	CMImageDoc* imageDocCPtr = gActiveImageViewCPtr->GetDocument ();
+	CMImageFrame* imageFrameCPtr = imageDocCPtr->GetImageFrameCPtr ();
+	CMLegendView* legendViewCPtr = imageFrameCPtr->GetLegendViewCPtr ();
 
-	legendViewCPtr->GetDlgItem(IDC_List1)->UpdateWindow();
+	legendViewCPtr->GetDlgItem (IDC_List1)->UpdateWindow ();
 
-	CListBox::OnLButtonDown(nFlags, point);
+	CListBox::OnLButtonDown (nFlags, point);
 
 	lCell.h = 0;
-	lCell.v = GetCurSel();
+	lCell.v = GetCurSel ();
 	
 			// Get the bottom of the list box.
 			
-	s_listBottom = GetCount() * GetItemHeight(0);
+	s_listBottom = GetCount () * GetItemHeight (0);
 	GetClientRect (&rect);
-	s_listBottom = MIN(s_listBottom, rect.bottom);
+	s_listBottom = MIN (s_listBottom, rect.bottom);
 
 	if (point.x >= 15 && point.y <= s_listBottom && 
-			gPresentCursor == kArrow && m_listType == kGroupClassDisplay)
+						gPresentCursor == kArrow && m_listType == kGroupClassDisplay)
 		{
 				// Determine if this is a group cell. If so then do not allow to be moved. 
 				   
-		GetText(lCell.v, (LPTSTR)&gTextString);
-		BlockMoveData(&gTextString, &longCellValue, 4);
+		GetText (lCell.v, (LPTSTR)&gTextString);
+		BlockMoveData (&gTextString, &longCellValue, 4);
 		cellValue = (UInt16)longCellValue;
 		            
-		if ( !(cellValue & 0x8000) )
+		if (!(cellValue & 0x8000))
 			{
 					// This is a class cell. Go ahead and outline it.
 					
 			gVerticalCellOffset = 0;
 			gSelectedCell = lCell.v;   
 
-			GetItemRect( gSelectedCell, &s_dragRect); 
+			GetItemRect (gSelectedCell, &s_dragRect);
                            
 			s_dragRect.left += 15;
                                        
-			CClientDC dc(this);
-			dc.DrawFocusRect(&s_dragRect);
+			CClientDC 		dc (this);
+			dc.DrawFocusRect (&s_dragRect);
 			s_grayRectDisplayedFlag = TRUE; 
 			
 					// Save the dragging rectangle size and the offset between the top
@@ -616,21 +633,21 @@ void CMLegendList::OnLButtonDown(
 
 			s_draggingFlag = TRUE;             
 			
-			}		// end "if ( !(cellValue & 0x8000) )" 
+			}	// end "if (!(cellValue & 0x8000))"
 		
-		}		// end "if (point.x >= 15 && gPresentCursor == kArrow && m_listType == ..."
+		}	// end "if (point.x >= 15 && gPresentCursor == kArrow && m_listType == ..."
 
 	if (gPresentCursor == kBlinkOpenCursor1)
-		{
-		
 		DoBlinkCursor1 (this, lCell, (SInt16)m_listType, 0);
-		
-		}		// end "if (gPresentCursor == kBlinkOpenCursor1)"
 	
-}		// end "OnLButtonDown" 
+}	// end "OnLButtonDown" 
 
 
-void CMLegendList::OnLButtonUp(UINT nFlags, CPoint point)
+
+void CMLegendList::OnLButtonUp (
+				UINT 									nFlags,
+				CPoint 								point)
+
 {                  
 	if (s_draggingFlag)
 		{  
@@ -639,42 +656,45 @@ void CMLegendList::OnLButtonUp(UINT nFlags, CPoint point)
 					// Remove the current gray rectangle and edit
 					// the group list. 
 					
-			CClientDC dc(this);
-			dc.DrawFocusRect(&s_dragRect);
+			CClientDC 		dc (this);
+			dc.DrawFocusRect (&s_dragRect);
 			s_grayRectDisplayedFlag = FALSE;   
 			
 			EditGroups (this);  
 			
-			}		// end "if (s_grayRectDisplayedFlag)"
+			}	// end "if (s_grayRectDisplayedFlag)"
 			
 		s_draggingFlag = FALSE;
 		s_lastVerticalPoint = 0;
 		s_listBottom = 0; 
 		
-		}		// end "if (s_draggingFlag)" 
+		}	// end "if (s_draggingFlag)" 
 	
-	UpdateThematicLegendControls(gActiveImageViewCPtr);
+	UpdateThematicLegendControls (gActiveImageViewCPtr);
 	
-	CListBox::OnLButtonUp(nFlags, point);
+	CListBox::OnLButtonUp (nFlags, point);
 	
-}		// end "OnLButtonUp"
+}	// end "OnLButtonUp"
 
 
-void CMLegendList::OnMouseMove(UINT nFlags, CPoint point)
+
+void CMLegendList::OnMouseMove (
+				UINT 									nFlags,
+				CPoint 								point)
 
 { 	
-	int				bottom;
+	int									bottom;
 		                      
-	int state = GetKeyState(VK_SHIFT);    // GetAsyncKeyState(VK_SHIFT) 
+	int 									state = GetKeyState (VK_SHIFT);
 	
 	                                                                 
 	if (s_draggingFlag)
 		{                             
-		CClientDC dc(this); 
+		CClientDC 		dc (this);
 	
 				// Get the bottom of the list box.
 				
-		bottom = GetCount() * GetItemHeight(0);
+		bottom = GetCount () * GetItemHeight (0);
 		
 				// Determine if the pointer is still within the allowed dragging
 				// region of the list.
@@ -690,11 +710,11 @@ void CMLegendList::OnMouseMove(UINT nFlags, CPoint point)
 				dc.DrawFocusRect (&s_dragRect);
 				s_grayRectDisplayedFlag = FALSE;
 				
-				}		// end "if (s_grayRectDisplayedFlag)"   
+				}	// end "if (s_grayRectDisplayedFlag)"   
 			
-			}		// end "if (point.x < 0 || point.x > s_dragRect.right || ..."
+			}	// end "if (point.x < 0 || point.x > s_dragRect.right || ..."
 			
-		else		// point is within the drag rectangle for the list.
+		else	// point is within the drag rectangle for the list.
       	{
       			// Check if the point has moved since the last draw.
       			
@@ -707,71 +727,78 @@ void CMLegendList::OnMouseMove(UINT nFlags, CPoint point)
 					dc.DrawFocusRect (&s_dragRect);
 					s_grayRectDisplayedFlag = FALSE;
 					
-					}		// end "if (s_grayRectDisplayedFlag)"
+					}	// end "if (s_grayRectDisplayedFlag)"
 				                        
 						// Now draw the new drag rectangle 
 		
 				s_dragRect.top += point.y - s_lastVerticalPoint;
 				s_dragRect.bottom += point.y - s_lastVerticalPoint; 
 		
-				dc.DrawFocusRect(&s_dragRect);
+				dc.DrawFocusRect (&s_dragRect);
 				s_grayRectDisplayedFlag = TRUE; 
 				
 				s_lastVerticalPoint = point.y;
 				
-				}		// end "if (point.y != s_lastVerticalPoint)"
+				}	// end "if (point.y != s_lastVerticalPoint)"
 				
-			}		// end "else point is within the drag rectangle for the list."
+			}	// end "else point is within the drag rectangle for the list."
 			
-		}		// end "if (s_draggingFlag)"
+		}	// end "if (s_draggingFlag)"
 
-	if ( point.x <= 14 && (state & 0x8000) && m_activeFlag)
+	if (point.x <= 14 && (state & 0x8000) && m_activeFlag)
 		{
 		if (gPresentCursor != kBlinkOpenCursor1) 
 			MSetCursor (kBlinkOpenCursor1); 
 		
-		}		// end "if (point.x <= 14 && ...)"
+		}	// end "if (point.x <= 14 && ...)"
 		
-	else		// point.x > 14 || !GetKeyState(VK_SHIFT || !m_activeFlag 
+	else	// point.x > 14 || !GetKeyState (VK_SHIFT || !m_activeFlag 
 		{	   
 		if (gPresentCursor != kArrow)   
 			MSetCursor (kArrow);  
 		
-		}		// end "else point.x > 14 || ..." 
+		}	// end "else point.x > 14 || ..." 
 	
-	CListBox::OnMouseMove(nFlags, point);
+	CListBox::OnMouseMove (nFlags, point);
 	
-}		// end "OnMouseMove"
+}	// end "OnMouseMove"
 
 
-BOOL CMLegendList::OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message)
+
+BOOL CMLegendList::OnSetCursor (
+				CWnd* 								pWnd,
+				UINT 									nHitTest,
+				UINT 									message)
+
 {                                                                  
 			// This is done so that the 'OnSetCursor' routine in CMImageFrame
 			// does not get called.
 	
 	if (gPresentCursor != kBlinkOpenCursor1)
-		return CListBox::OnSetCursor(pWnd, nHitTest, message);
+		return CListBox::OnSetCursor (pWnd, nHitTest, message);
 
-	else		// gPresentCursor == kBlinkOpenCursor1                                                   
+	else	// gPresentCursor == kBlinkOpenCursor1                                                   
 		return (TRUE);
 		                                     
-} 		// end "OnSetCursor"
+}	// end "OnSetCursor"
 
 
-void CMLegendList::SetBitMapInfoHeaderHandle(
-				Handle			bitMapInfoHeaderHandle)
+
+void CMLegendList::SetBitMapInfoHeaderHandle (
+				Handle								bitMapInfoHeaderHandle)
 
 {                                                                  
 	m_bitMapInfoHeaderHandle = bitMapInfoHeaderHandle;  
 	
-}		// end "SetBitMapInfoHeader"
+}	// end "SetBitMapInfoHeader"
+
 
 
 void CMLegendList::SetLegendListActiveFlag (
-				Boolean				settingFlag)
+				Boolean								settingFlag)
 
 {  
 	if (this != NULL)                 
 		m_activeFlag = settingFlag;
 	
-}		// end "SetLegendListActiveFlag"
+}	// end "SetLegendListActiveFlag"

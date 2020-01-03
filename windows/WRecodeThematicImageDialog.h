@@ -1,64 +1,74 @@
-#if !defined(AFX_WRECTDLG_H__D64668B3_8D4C_11D3_8D48_00105AA88EE3__INCLUDED_)
-#define AFX_WRECTDLG_H__D64668B3_8D4C_11D3_8D48_00105AA88EE3__INCLUDED_
+//	 									MultiSpec
+//
+//					Laboratory for Applications of Remote Sensing
+//									Purdue University
+//								West Lafayette, IN 47907
+//								 Copyright (1995-2020)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	File:						WRecodeThematicImageDialog.h
+//	Implementation:		WRecodeThematicImageDialog.cpp
+//
+//	Authors:					Larry L. Biehl
+//
+//	Language:				C++
+//
+//	System:					Windows Operating System
+//
+//	Brief description:	Header file for the CMRecodeThematicDialog class
+//
+//	Written By:				Larry L. Biehl			Date: ??/??/1995?
+//	Revised By:				Larry L. Biehl			Date: 12/12/2019
+//
+//------------------------------------------------------------------------------------
 
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
-// WRecodeThematicImageDialog.h : header file
-//     
-	     
-	#include "WDialog.h"
 
-/////////////////////////////////////////////////////////////////////////////
-// CMRecodeThematicDialog dialog
+#include "WDialog.h"
+
 
 class CMRecodeThematicDialog : public CMDialog
 {
-// Construction
-public:
-	CMRecodeThematicDialog(CWnd* pParent = NULL);   // standard constructor
-
-	Boolean DoDialog( 
-				RecodeThematicImagePtr			recodeThematicImagePtr);
-
-// Dialog Data
-	//{{AFX_DATA(CMRecodeThematicDialog)
-	enum { IDD = IDD_ThematicRecode };
-	long		m_thresholdValue;
-	long		m_recodedValue;
-	int		m_compareParameterCode;
-	int		m_thresholdImageSelection;
-	//}}AFX_DATA
-
-
-// Overrides
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CMRecodeThematicDialog)
+	// Construction
 	public:
-				
+		CMRecodeThematicDialog (	// standard constructor
+				CWnd* 								pParent = NULL);
+
+		Boolean DoDialog (
+				RecodeThematicImagePtr			recodeThematicImagePtr);
+	
+
+	// Dialog Data
+		//{{AFX_DATA (CMRecodeThematicDialog)
+		enum { IDD = IDD_ThematicRecode };
+	
+		int									m_compareParameterCode,
+												m_thresholdImageSelection;
+	
+		long									m_recodedValue,
+												m_thresholdValue;
+		//}}AFX_DATA
+
+
+	// Implementation
 	protected:
-	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-	//}}AFX_VIRTUAL
+		virtual void DoDataExchange (
+				CDataExchange* 					pDX);    // DDX/DDV support
 
-// Implementation
-protected:
-
-	// Generated message map functions
-	//{{AFX_MSG(CMRecodeThematicDialog)
-	virtual BOOL OnInitDialog();
-	afx_msg void OnSelendokThresholdFileCombo();
-	//}}AFX_MSG
-	DECLARE_MESSAGE_MAP() 
+		// Generated message map functions
+		//{{AFX_MSG (CMRecodeThematicDialog)
+		virtual BOOL OnInitDialog ();
 	
-	RecodeThematicImagePtr			m_recodeThematicImagePtr;
+		afx_msg void OnSelendokThresholdFileCombo ();
+		//}}AFX_MSG
+		DECLARE_MESSAGE_MAP ()
 	
-	Handle								m_thresholdFileInfoHandle;
 	
-	Boolean								m_initializedFlag;
+		RecodeThematicImagePtr			m_recodeThematicImagePtr;
 	
-};
-
-//{{AFX_INSERT_LOCATION}}
-// Microsoft Visual C++ will insert additional declarations immediately before the previous line.
-
-#endif // !defined(AFX_WRECTDLG_H__D64668B3_8D4C_11D3_8D48_00105AA88EE3__INCLUDED_)
+		Handle								m_thresholdFileInfoHandle;
+	
+		Boolean								m_initializedFlag;
+	
+};	// end class CMRecodeThematicDialog

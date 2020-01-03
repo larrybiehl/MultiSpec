@@ -1,48 +1,66 @@
-// WListDataDialog.cpp : implementation file
-//                   
-                   
+//	 									MultiSpec
+//
+//					Laboratory for Applications of Remote Sensing
+// 								Purdue University
+//								West Lafayette, IN 47907
+//								 Copyright (1995-2020)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	File:						WListDataDialog.cpp : implementation file
+//
+//	Authors:					Larry L. Biehl
+//
+//	Revision date:			08/08/2019
+//
+//	Language:				C++
+//
+//	System:					Windows Operating System
+//
+//	Brief description:	This file contains functions that relate to the
+//								CMListDataDialog class.
+//
+//------------------------------------------------------------------------------------
+
 #include "SMultiSpec.h"
-                     
+
 #include "WMultiSpec.h"
 #include "WListDataDialog.h"
 
-//#include	"SExtGlob.h"
-
 extern ListDataSpecsPtr						gListDataSpecsPtr;
-								
-extern void 		ListDataDialogOK (
-							ListDataSpecsPtr			listDataSpecsPtr,
-							Boolean						classFlag,
-							SInt16						classSelection,
-							UInt32						localNumberClasses,
-							UInt16*						localClassPtr,
-							Boolean						areaFlag,
-							DialogSelectArea*			dialogSelectAreaPtr,
-							SInt16						channelSelection,
-							UInt16						localNumberChannels,
-							UInt16*						localChannelPtr,
-							Boolean						includeLineColumnFlag,
-							Boolean						includeLatLongFlag,
-							Boolean						includeClassFieldFlag,
-							Boolean						textWindowFlag,
-							Boolean						diskFileFlag,
-							Boolean						trainingFlag,
-							Boolean						testFlag,
-							Boolean						graphDataFlag,
-							UInt16						numberFDecimalDigits,
-							SInt16						listDataFormatCode);
 
 #ifdef _DEBUG
-#undef THIS_FILE
-static char BASED_CODE THIS_FILE[] = __FILE__;
+	#undef THIS_FILE
+	static char BASED_CODE THIS_FILE[] = __FILE__;
 #endif
 
-/////////////////////////////////////////////////////////////////////////////
-// CMListDataDialog dialog
 
 
-CMListDataDialog::CMListDataDialog(CWnd* pParent /*=NULL*/)
-	: CMDialog(CMListDataDialog::IDD, pParent)
+BEGIN_MESSAGE_MAP (CMListDataDialog, CMDialog)
+	//{{AFX_MSG_MAP (CMListDataDialog)
+	ON_BN_CLICKED (IDC_Area, OnArea)
+	ON_BN_CLICKED (IDC_Classes, OnClasses)
+	ON_BN_CLICKED (IDC_GraphData, OnGraphData)
+	ON_BN_CLICKED (IDEntireImage, ToEntireImage)
+	ON_BN_CLICKED (IDSelectedImage, ToSelectedImage)
+
+	ON_CBN_SELENDOK (IDC_ChannelCombo, OnSelendokChannelCombo)
+	ON_CBN_SELENDOK (IDC_ClassCombo, OnSelendokClassCombo)
+	ON_CBN_SELENDOK (IDC_ListChannelsFormatCombo, OnCbnSelendokListchannelsformatcombo)
+
+	ON_EN_CHANGE(IDC_ColumnEnd, CheckColumnEnd)
+	ON_EN_CHANGE(IDC_ColumnStart, CheckColumnStart)
+	ON_EN_CHANGE(IDC_LineEnd, CheckLineEnd)
+	ON_EN_CHANGE(IDC_LineStart, CheckLineStart)
+	//}}AFX_MSG_MAP
+END_MESSAGE_MAP ()
+
+
+
+CMListDataDialog::CMListDataDialog (
+				CWnd* 								pParent /*=NULL*/)
+		: CMDialog (CMListDataDialog::IDD, pParent)
+
 {
 	//{{AFX_DATA_INIT(CMListDataDialog)
 	m_areaFlag = FALSE;
@@ -65,43 +83,86 @@ CMListDataDialog::CMListDataDialog(CWnd* pParent /*=NULL*/)
 		{                          
 				// Get pointer to memory for temporary storage of channel list. 
 			                                                                       
-		m_localFeaturesPtr = (UInt16*)MNewPointer ( 
-				(UInt32)gImageWindowInfoPtr->totalNumberChannels * sizeof(UInt16) ); 
+		m_localFeaturesPtr = (UInt16*)MNewPointer (
+					(UInt32)gImageWindowInfoPtr->totalNumberChannels * sizeof (UInt16));
 	                                                       
 		m_initializedFlag = (m_localFeaturesPtr != NULL);
 		
-		}		// end "if (m_initializedFlag)" 
+		}	// end "if (m_initializedFlag)" 
 	
 	if (m_initializedFlag && gListDataSpecsPtr->projectFlag)
 		{
 				// Get memory for the local class list vector.	
 				
-		m_classListPtr = (UInt16*)MNewPointer ( 
-				(UInt32)gProjectInfoPtr->numberStatisticsClasses * sizeof(UInt16) );
+		m_classListPtr = (UInt16*)MNewPointer (
+				(UInt32)gProjectInfoPtr->numberStatisticsClasses * sizeof (UInt16));
 	                                                       
 		m_initializedFlag = (m_classListPtr != NULL);
 		
-		}		// end "if (m_initializedFlag && ...->projectFlag)" 
+		}	// end "if (m_initializedFlag && ...->projectFlag)" 
 
 	m_latLongPossibleFlag = FALSE;
 	
-}		// end "CMListDataDialog"  
+}	// end "CMListDataDialog"  
 
 
 
-CMListDataDialog::~CMListDataDialog(void)
+CMListDataDialog::~CMListDataDialog (void)
+
 {                                                              
 	m_classListPtr = CheckAndDisposePtr (m_classListPtr);
 	m_localFeaturesPtr = CheckAndDisposePtr (m_localFeaturesPtr); 
 	
-}		// end "~CMListDataDialog"
+}	// end "~CMListDataDialog"
 
 
 
-void CMListDataDialog::DoDataExchange(CDataExchange* pDX)
+void CMListDataDialog::CheckClassItems (
+				Boolean								listClassDataFlag)
+
 {
-	CDialog::DoDataExchange(pDX);
-	//{{AFX_DATA_MAP(CMListDataDialog)
+	if (listClassDataFlag)
+		{
+		MShowDialogItem (this, IDC_ClassCombo);
+		MShowDialogItem (this, IDC_IncludeClassField);
+		MShowDialogItem (this, IDC_Training);
+		MShowDialogItem (this, IDC_Test);
+		
+		}	// end "if (listClassDataFlag)"
+	
+	else    // !listClassDataFlag
+		{
+		MHideDialogItem (this, IDC_ClassCombo);
+		MHideDialogItem (this, IDC_IncludeClassField);
+		MHideDialogItem (this, IDC_Training);
+		MHideDialogItem (this, IDC_Test);
+		
+		}	// end "else !listClassDataFlag"
+	
+}	// end "CheckClassItems"
+
+
+
+void CMListDataDialog::CheckOKButton (void)
+
+{
+	if (m_areaFlag || m_classFlag)
+		SetDLogControlHilite (this, IDOK, 0);
+	
+	else    // !m_areaFlag && !m_classFlag
+		SetDLogControlHilite (this, IDOK, 255);
+	
+}	// end "CheckOKButton"
+
+
+
+void CMListDataDialog::DoDataExchange (
+				CDataExchange* 					pDX)
+
+{
+	CDialog::DoDataExchange (pDX);
+	
+	//{{AFX_DATA_MAP (CMListDataDialog)
 	DDX_Check (pDX, IDC_Area, m_areaFlag);
 	DDX_Check (pDX, IDC_Classes, m_classFlag);
 	DDX_Check (pDX, IDC_DiskFile, m_diskFileFlag);
@@ -135,30 +196,13 @@ void CMListDataDialog::DoDataExchange(CDataExchange* pDX)
 		
 	VerifyLineColumnStartEndValues (pDX);
 
-}
+}	// end "DoDataExchange"
 
-BEGIN_MESSAGE_MAP(CMListDataDialog, CMDialog)
-	//{{AFX_MSG_MAP(CMListDataDialog)
-	ON_CBN_SELENDOK(IDC_ChannelCombo, OnSelendokChannelCombo)
-	ON_CBN_SELENDOK(IDC_ClassCombo, OnSelendokClassCombo)
-	ON_EN_CHANGE(IDC_ColumnEnd, CheckColumnEnd)
-	ON_EN_CHANGE(IDC_ColumnStart, CheckColumnStart)
-	ON_EN_CHANGE(IDC_LineEnd, CheckLineEnd)
-	ON_EN_CHANGE(IDC_LineStart, CheckLineStart)
-	ON_BN_CLICKED(IDEntireImage, ToEntireImage)
-	ON_BN_CLICKED(IDSelectedImage, ToSelectedImage)
-	ON_BN_CLICKED(IDC_Classes, OnClasses)
-	ON_BN_CLICKED(IDC_Area, OnArea)
-	ON_BN_CLICKED (IDC_GraphData, OnGraphData)
-//	ON_EN_CHANGE(IDC_NumberDecimalPlaces, CheckNumberDecimalPlaces)
-	//}}AFX_MSG_MAP
-	ON_CBN_SELENDOK(IDC_ListChannelsFormatCombo, OnCbnSelendokListchannelsformatcombo)
-END_MESSAGE_MAP()   
 
 
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-1998)
-//								c Purdue Research Foundation
+//								 Copyright (1988-2020)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void DoDialog
@@ -179,26 +223,24 @@ END_MESSAGE_MAP()
 //	Coded By:			Larry L. Biehl			Date: 05/28/97
 //	Revised By:			Larry L. Biehl			Date: 05/28/97	
 
-SInt16 
-CMListDataDialog::DoDialog(void)
+SInt16 CMListDataDialog::DoDialog (void)
 
 {                                 
-	Boolean						continueFlag = FALSE;
-	
-	INT_PTR						returnCode;								
+	INT_PTR								returnCode;
 
-	                          
+	Boolean								continueFlag = FALSE;
+	
+	
 			// Make sure intialization has been completed.
 							                         
-	if ( !m_initializedFlag )
-																			return(FALSE); 
+	if (!m_initializedFlag)
+																					return (FALSE);
 																					
 	returnCode = DoModal ();
 	
 	if (returnCode == IDOK)
 		{ 						                    
 		DialogSelectArea		dialogSelectArea;
-	
 	
 		continueFlag = TRUE;						
 				
@@ -230,31 +272,97 @@ CMListDataDialog::DoDialog(void)
 								(UInt16)m_numberDecimalPlaces,
 								m_listDataFormatCode + 1);
 									
-		}		// end "if (returnCode == IDOK)"
+		}	// end "if (returnCode == IDOK)"
 		
 	return (continueFlag);
 		
-}		// end "DoDialog"
+}	// end "DoDialog"
 
 
 
-/////////////////////////////////////////////////////////////////////////////
-// CMListDataDialog message handlers
+void CMListDataDialog::OnArea ()
 
-BOOL CMListDataDialog::OnInitDialog()
+{
+	UInt16								selectItem;
+	
+	
+	DDX_Check (m_dialogFromPtr, IDC_Area, m_areaFlag);
+	
+	if (m_areaFlag)
+		{
+		ShowSomeAreaSelectionItems ();
+		
+		selectItem = IDC_LineStart;
+		
+		}	// end "if (m_areaFlag)"
+	
+	else    // !m_areaFlag
+		{
+		HideSomeAreaSelectionItems ();
+		
+		selectItem = IDC_LineInterval;
+		
+		}	// end "else !m_areaFlag"
+	
+	SelectDialogItemText (this, selectItem, 0, SInt16_MAX);
+	
+	CheckOKButton ();
+	
+}	// end "OnArea"
+
+
+
+void CMListDataDialog::OnCbnSelendokListchannelsformatcombo ()
+
+{
+	DDX_CBIndex (m_dialogFromPtr, IDC_ListChannelsFormatCombo, m_listDataFormatCode);
+	
+	if (m_listDataFormatCode == 0 && m_latLongPossibleFlag)
+		MShowDialogItem (this, IDC_IncludeLatitudeLongitude);
+	
+	else    // m_listDataFormatCode == 1 || ...
+		MHideDialogItem (this, IDC_IncludeLatitudeLongitude);
+	
+}	// end "OnCbnSelendokListchannelsformatcombo"
+
+
+
+void CMListDataDialog::OnClasses ()
+
+{
+	DDX_Check (m_dialogFromPtr, IDC_Classes, m_classFlag);
+	
+	CheckClassItems (m_classFlag);
+	
+	CheckOKButton ();
+	
+}	// end "OnClasses"
+
+
+
+void CMListDataDialog::OnGraphData ()
+
+{
+	DDX_Check (m_dialogFromPtr, IDC_GraphData, m_localGraphDataFlag);
+	
+}	// end "OnGraphData"
+
+
+
+BOOL CMListDataDialog::OnInitDialog ()
 
 {   
-	UInt32		index;                    
+	UInt32								index;
 	
-	UInt16		selectItem;
+	UInt16								selectItem;
 	
 	
-	CDialog::OnInitDialog();
+	CDialog::OnInitDialog ();
 	
 			// Make sure that we have the bitmaps for the entire image buttons.
 		
-	VERIFY(toEntireButton.AutoLoad(IDEntireImage, this));
-	VERIFY(toSelectedButton.AutoLoad(IDSelectedImage, this)); 
+	VERIFY (toEntireButton.AutoLoad (IDEntireImage, this));
+	VERIFY (toSelectedButton.AutoLoad (IDSelectedImage, this)); 
 		
 			// Update the modal dialog with the default settings						
 			// Set check box for "Classes".												
@@ -267,17 +375,14 @@ BOOL CMListDataDialog::OnInitDialog()
 	m_classSelection = gListDataSpecsPtr->classSet;
 	m_localNumberClasses = gListDataSpecsPtr->numberClasses;         
 	
-	UInt16* classPtr = (UInt16*)GetHandlePointer(
-									gListDataSpecsPtr->classHandle,
-									kNoLock,
-									kNoMoveHi);
+	UInt16* classPtr = (UInt16*)GetHandlePointer (gListDataSpecsPtr->classHandle);
 	
 	if (gListDataSpecsPtr->projectFlag)
 		{								 
 		for (index=0; index<m_localNumberClasses; index++)
 			m_classListPtr[index] = classPtr[index]; 
 			
-		}		// end "if (gListDataSpecsPtr->projectFlag)" 
+		}	// end "if (gListDataSpecsPtr->projectFlag)" 
 	                                                    	
 	CheckClassItems (gListDataSpecsPtr->listClassesDataFlag); 
                                  															
@@ -295,7 +400,7 @@ BOOL CMListDataDialog::OnInitDialog()
 											gListDataSpecsPtr->lineInterval,
 											13,
 											11,
-											kDontAdjustToBaseImage );	
+											kDontAdjustToBaseImage);	
                   
 	m_LineStart = gListDataSpecsPtr->lineStart;
 	m_LineEnd = gListDataSpecsPtr->lineEnd;
@@ -313,7 +418,7 @@ BOOL CMListDataDialog::OnInitDialog()
 		
 		selectItem = IDC_LineStart; 
 		
-		}		// end "if (gListDataSpecsPtr->listSelectedAreaDataFlag)" 
+		}	// end "if (gListDataSpecsPtr->listSelectedAreaDataFlag)" 
 					
 	else	// !gListDataSpecsPtr->listSelectedAreaDataFlag 
 		{                                   
@@ -321,15 +426,14 @@ BOOL CMListDataDialog::OnInitDialog()
 		
 		selectItem = IDC_LineInterval;  
 		
-		}		// end "else !gListDataSpecsPtr->listSelectedAreaDataFlag" 
+		}	// end "else !gListDataSpecsPtr->listSelectedAreaDataFlag" 
 	                                                                   			
 			//	Set the All/Subset channels list item													
 			                                                              
 	m_channelSelection = gListDataSpecsPtr->channelSet;
 	m_localNumberFeatures = gListDataSpecsPtr->numberChannels;
 	
-	SInt16* channelsPtr = (SInt16*)GetHandlePointer (
-							gListDataSpecsPtr->featureHandle, kNoLock, kNoMoveHi);
+	SInt16* channelsPtr = (SInt16*)GetHandlePointer (gListDataSpecsPtr->featureHandle);
 	for (index=0; index<m_localNumberFeatures; index++)
 		m_localFeaturesPtr[index] = channelsPtr[index];
 	
@@ -364,14 +468,14 @@ BOOL CMListDataDialog::OnInitDialog()
 		m_includeLatLongFlag = gListDataSpecsPtr->includeLatLongValuesFlag;
 		ShowDialogItem (this, IDC_IncludeLatitudeLongitude);
 		
-		}		// end "if (DetermineIfLatLongPossible (...->windowInfoHandle))"
+		}	// end "if (DetermineIfLatLongPossible (...->windowInfoHandle))"
 		
-	else		// !DetermineIfLatLongPossible (...->windowInfoHandle)
+	else    // !DetermineIfLatLongPossible (...->windowInfoHandle)
 		{
 		m_latLongPossibleFlag = FALSE;
 		HideDialogItem (this, IDC_IncludeLatitudeLongitude);
 		
-		}		// end "else !DetermineIfLatLongPossible (...->windowInfoHandle))"
+		}	// end "else !DetermineIfLatLongPossible (...->windowInfoHandle))"
 	
 			// Set check box for "Inlude class and field codes".			
 			                                                          
@@ -402,7 +506,7 @@ BOOL CMListDataDialog::OnInitDialog()
 		SetDLogControlHilite (this, IDC_Test, 255);
 		m_testFlag = FALSE;
 		
-		}		// end "if (gProjectInfoPtr != NULL && ..."
+		}	// end "if (gProjectInfoPtr != NULL && ..."
 	
 			// Set check box for "Graph data values".	
 			
@@ -425,31 +529,30 @@ BOOL CMListDataDialog::OnInitDialog()
 		HideDialogItem (this, IDC_NumberDecimalPlacesPrompt);
 		HideDialogItem (this, IDC_NumberDecimalPlaces);
 
-		}		// end "if (gImageFileInfoPtr->dataTypeCode == kIntegerType)"
+		}	// end "if (gImageFileInfoPtr->dataTypeCode == kIntegerType)"
 
-	else		// gImageFileInfoPtr->dataTypeCode == kRealType
+	else    // gImageFileInfoPtr->dataTypeCode == kRealType
 		{
 		ShowDialogItem (this, IDC_NumberDecimalPlacesPrompt);
 		ShowDialogItem (this, IDC_NumberDecimalPlaces);
 
-		}		// end "if (gImageFileInfoPtr->dataTypeCode == kIntegerType)"
+		}	// end "if (gImageFileInfoPtr->dataTypeCode == kIntegerType)"
 	                 
-	if (UpdateData(FALSE) )                   
+	if (UpdateData (FALSE))                   
 		PositionDialogWindow ();
 	
 			// Set default text selection to first edit text item	
 		                                       
-//	GetDlgItem(selectItem)->SetFocus();
-//	SendDlgItemMessage( selectItem, EM_SETSEL, 0, MAKELPARAM(0, -1) ); 
-	SelectDialogItemText (this, selectItem, 0, SInt16_MAX);  			 
+	SelectDialogItemText (this, selectItem, 0, SInt16_MAX);
 	
 	return FALSE;  // return TRUE  unless you set the focus to a control  
 	
-}		// end "OnInitDialog"
+}	// end "OnInitDialog"
 
 
 
-void CMListDataDialog::OnSelendokChannelCombo()
+void CMListDataDialog::OnSelendokChannelCombo ()
+
 {                                                                                                                      
 	HandleChannelsMenu (IDC_ChannelCombo, 
 								kNoTransformation,
@@ -475,124 +578,18 @@ void CMListDataDialog::OnSelendokChannelCombo()
 						
 		}	// end "else m_channelSelection == kSubsetMenuItem"
 
-}		// end "OnSelendokChannelCombo" 
+}	// end "OnSelendokChannelCombo" 
 
 
 
-void CMListDataDialog::OnSelendokClassCombo()
+void CMListDataDialog::OnSelendokClassCombo ()
+
 {                                                                                                                    
-	HandleClassesMenu( &m_localNumberClasses,
+	HandleClassesMenu (&m_localNumberClasses,
 								(SInt16*)m_classListPtr,
 								1,      
 								(SInt16)gProjectInfoPtr->numberStatisticsClasses, 
 								IDC_ClassCombo,
 								&m_classSelection);
 	
-}		// end "OnSelendokClassCombo"
-
-
-
-void CMListDataDialog::OnClasses()
-{                                                                                  
-	DDX_Check(m_dialogFromPtr, IDC_Classes, m_classFlag);
-	
-	CheckClassItems (m_classFlag); 
-	
-	CheckOKButton();
-	
-}		// end "OnClasses"
-
-
-
-void CMListDataDialog::OnArea()
-{  
-	UInt16			selectItem;
-	
-	                                                                                      
-	DDX_Check (m_dialogFromPtr, IDC_Area, m_areaFlag); 
-	
-	if (m_areaFlag)
-		{                                
-		ShowSomeAreaSelectionItems ();
-		
-		selectItem = IDC_LineStart; 
-		
-		}		// end "if (m_areaFlag)" 
-					
-	else		// !m_areaFlag 
-		{                                   
-		HideSomeAreaSelectionItems ();
-		
-		selectItem = IDC_LineInterval;  
-		
-		}		// end "else !m_areaFlag"
-		                                       
-//	GetDlgItem(selectItem)->SetFocus();
-//	SendDlgItemMessage( selectItem, EM_SETSEL, 0, MAKELPARAM(0, -1) );
-	SelectDialogItemText (this, selectItem, 0, SInt16_MAX);  			 
-	
-	CheckOKButton ();
-	
-}		// end "OnArea"  
-
-
-
-void CMListDataDialog::OnGraphData ()
-{  
-	DDX_Check (m_dialogFromPtr, IDC_GraphData, m_localGraphDataFlag); 
-		
-}		// end "OnGraphData"  
-
-
-
-void 
-CMListDataDialog::CheckClassItems(
-				Boolean			listClassDataFlag)
-{                                                    	
-	if (listClassDataFlag)
-		{                             
-		MShowDialogItem (this, IDC_ClassCombo);
-		MShowDialogItem (this, IDC_IncludeClassField);
-		MShowDialogItem (this, IDC_Training);        
-		MShowDialogItem (this, IDC_Test);
-		
-		}		// end "if (listClassDataFlag)" 
-		
-	else		// !listClassDataFlag 
-		{                                 
-		MHideDialogItem (this, IDC_ClassCombo);
-		MHideDialogItem (this, IDC_IncludeClassField);
-		MHideDialogItem (this, IDC_Training);        
-		MHideDialogItem (this, IDC_Test);
-		
-		}		// end "else !listClassDataFlag" 
-	
-}		// end "CheckClassItems"  
-
-
-
-void 
-CMListDataDialog::CheckOKButton(void)
-
-{	
-	if (m_areaFlag || m_classFlag)
-		SetDLogControlHilite (this, IDOK, 0);
-		
-	else		// !m_areaFlag && !m_classFlag
-		SetDLogControlHilite (this, IDOK, 255);
-	
-}		// end "CheckOKButton" 
-
-
-
-void CMListDataDialog::OnCbnSelendokListchannelsformatcombo()
-{                            
-	DDX_CBIndex(m_dialogFromPtr, IDC_ListChannelsFormatCombo, m_listDataFormatCode); 
-	
-	if (m_listDataFormatCode == 0 && m_latLongPossibleFlag)
-		MShowDialogItem (this, IDC_IncludeLatitudeLongitude); 
-					
-	else		// m_listDataFormatCode == 1 || ...
-		MHideDialogItem (this, IDC_IncludeLatitudeLongitude); 
-	
-}		// end "OnCbnSelendokListchannelsformatcombo"
+}	// end "OnSelendokClassCombo"

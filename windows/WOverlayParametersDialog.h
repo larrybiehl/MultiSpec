@@ -1,69 +1,78 @@
-#if !defined(AFX_WOVERLAYPARAMETERDLG_H__EB172C63_5127_11D5_8E6D_00105AA88EE3__INCLUDED_)
-#define AFX_WOVERLAYPARAMETERDLG_H__EB172C63_5127_11D5_8E6D_00105AA88EE3__INCLUDED_
+//	 									MultiSpec
+//
+//					Laboratory for Applications of Remote Sensing
+//									Purdue University
+//								West Lafayette, IN 47907
+//								 Copyright (1995-2020)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	File:						WOverlayParameterDlg.h
+//	Implementation:		WOverlayParameterDlg.cpp
+//
+//	Authors:					Larry L. Biehl
+//
+//	Language:				C++
+//
+//	System:					Windows Operating System
+//
+//	Brief description:	Header file for the CMOverlayParameterDlg class
+//
+//	Written By:				Larry L. Biehl			Date: ??/??/1995?
+//	Revised By:				Larry L. Biehl			Date: 12/12/2019
+//
+//------------------------------------------------------------------------------------
 
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
-// WOverlayParameterDlg.h : header file
-//     
-	     
-	#include "WDialog.h"
 
-/////////////////////////////////////////////////////////////////////////////
-// CMOverlayParameterDlg dialog
+#include "WDialog.h"
+
 
 class CMOverlayParameterDlg : public CMDialog
 {
-// Construction
-public:
-	CMOverlayParameterDlg(CWnd* pParent = NULL);   // standard constructor
-  
+	// Construction
+	public:
+		CMOverlayParameterDlg (	// standard constructor
+				CWnd* 								pParent = NULL);
 	
-	Boolean			DoDialog(
-							WindowInfoPtr			windowInfoPtr,
-							SInt16					overlayCode,
-							SInt16					selection); 
+	
+		Boolean DoDialog (
+				WindowInfoPtr						windowInfoPtr,
+				SInt16								overlayCode,
+				SInt16								selection);
 
-// Dialog Data
-	//{{AFX_DATA(CMOverlayParameterDlg)
-	enum { IDD = IDD_OverlayParameters };
-	int		m_overlayValue;
-	//}}AFX_DATA
+		// Dialog Data
+		//{{AFX_DATA (CMOverlayParameterDlg)
+		enum { IDD = IDD_OverlayParameters };
+	
+		int									m_overlayValue;
+		//}}AFX_DATA
 
-
-// Overrides
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CMOverlayParameterDlg)
+	// Implementation
 	protected:
-	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-	//}}AFX_VIRTUAL
+		virtual void DoDataExchange (
+				CDataExchange* 					pDX);    // DDX/DDV support
 
-// Implementation
-protected:
-
-	// Generated message map functions
-	//{{AFX_MSG(CMOverlayParameterDlg)
-	virtual BOOL OnInitDialog();
-	afx_msg void OnOverlayColor();
-	afx_msg void OnPaint();
-	//}}AFX_MSG
-	DECLARE_MESSAGE_MAP()
-
-	WindowInfoPtr		m_windowInfoPtr;
+		// Generated message map functions
+		//{{AFX_MSG (CMOverlayParameterDlg)
+		virtual BOOL OnInitDialog ();
 	
-	Boolean				m_initializedFlag;
-
-	SInt16				m_overlayCode,
-							m_overlayIndex;
-
-	int					m_lineThickness,
-							m_maxValue,
-							m_minValue,
-							m_transparency;
+		afx_msg void OnOverlayColor ();
 	
-};
+		afx_msg void OnPaint ();
+		//}}AFX_MSG
+		DECLARE_MESSAGE_MAP ()
 
-//{{AFX_INSERT_LOCATION}}
-// Microsoft Visual C++ will insert additional declarations immediately before the previous line.
+		WindowInfoPtr						m_windowInfoPtr;
 
-#endif // !defined(AFX_WOVERLAYPARAMETERDLG_H__EB172C63_5127_11D5_8E6D_00105AA88EE3__INCLUDED_)
+		int									m_lineThickness,
+												m_maxValue,
+												m_minValue,
+												m_transparency;
+
+		SInt16								m_overlayCode,
+												m_overlayIndex;
+	
+		Boolean								m_initializedFlag;
+	
+};	// end class CMOverlayParameterDlg

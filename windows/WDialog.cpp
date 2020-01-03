@@ -1,11 +1,29 @@
-// WDialog.cpp : implementation file
+//	 									MultiSpec
 //
-// Revised by Larry Biehl on 12/21/2017
-                    
-#include "SMultiSpec.h"
+//					Laboratory for Applications of Remote Sensing
+// 								Purdue University
+//								West Lafayette, IN 47907
+//								 Copyright (1995-2020)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	File:						WDialog.cpp : implementation file
+//
+//	Authors:					Larry L. Biehl
+//
+//	Revision date:			01/04/2018
+//
+//	Language:				C++
+//
+//	System:					Windows Operating System
+//
+//	Brief description:	This file contains functions that relate to the
+//								CMDialog class.
+//
+//------------------------------------------------------------------------------------
 
-#include "CImageWindow.h"
-#include "CProcessor.h"
+#include "SMultiSpec.h"
+#include "SImageWindow_class.h"
 
 #include "WChannelsDialog.h"
 #include "WClassesDialog.h" 
@@ -13,31 +31,17 @@
 #include "WDialog.h"
 #include "WImageView.h"
 
-//#include	"SExtGlob.h"	
-
-extern Boolean 		GetSelectionRectangle (
-								WindowPtr							windowPtr,
-								LongRect*							selectionRectanglePtr, 
-								Boolean								clearSelectionFlag, 
-								Boolean								useThresholdFlag, 
-								Boolean								adjustToBaseImageFlag);
-
-extern SInt16			GetComboListSelection(
-								CWnd*									cWindowPtr,
-								UInt16								dialogItemNumber,
-								SInt32								selectedListItemData);  
-
 #ifdef _DEBUG
-#undef THIS_FILE
-static char BASED_CODE THIS_FILE[] = __FILE__;
+	#undef THIS_FILE
+	static char BASED_CODE THIS_FILE[] = __FILE__;
 #endif
 
-/////////////////////////////////////////////////////////////////////////////
-// CMDialog dialog
 
 
-CMDialog::CMDialog(UINT IDD, CWnd* pParent)
-	: CDialog(IDD, pParent)
+CMDialog::CMDialog (
+				UINT 									IDD,
+				CWnd* 								pParent)
+		: CDialog (IDD, pParent)
 
 {
 	m_ColumnEnd = 1;
@@ -80,13 +84,11 @@ CMDialog::CMDialog(UINT IDD, CWnd* pParent)
 	
 	m_outputStorageType = 0;
 
-			// m_settingSelectedEntireButton is used to indicate when the selected/
+			// m_settingSelectedEntireButton is used to indicate when the selected
 			// entire button is being set so that no checks are made of the line
 			// and column values being used.
 
 	m_settingSelectedEntireButton = FALSE;
-	
-	//m_imageViewCPtr = gActiveImageViewCPtr;
 	
 	m_initializedFlag = FALSE; 
 	
@@ -97,47 +99,43 @@ CMDialog::CMDialog(UINT IDD, CWnd* pParent)
 		m_maxNumberLines = m_dialogSelectArea.imageWindowInfoPtr->maxNumberLines;
 		m_maxNumberColumns = m_dialogSelectArea.imageWindowInfoPtr->maxNumberColumns;
 		
-		}		// end "m_dialogSelectArea.imageWindowInfoPtr != NULL"
+		}	// end "m_dialogSelectArea.imageWindowInfoPtr != NULL"
 		
-	else		// m_dialogSelectArea.imageWindowInfoPtr == NULL
+	else	// m_dialogSelectArea.imageWindowInfoPtr == NULL
 		{
 		m_maxNumberLines = 1;
 		m_maxNumberColumns = 1;
 		
-		}		// end "else m_dialogSelectArea.imageWindowInfoPtr == NULL"
+		}	// end "else m_dialogSelectArea.imageWindowInfoPtr == NULL"
 		
 			// Get memory for needed objects.
 			
 	TRY
 		{                          
-		m_dialogFromPtr = new CDataExchange(this, TRUE);
+		m_dialogFromPtr = new CDataExchange (this, TRUE);
 	
-		m_dialogToPtr = new CDataExchange(this, FALSE);
+		m_dialogToPtr = new CDataExchange (this, FALSE);
 	                         
-		m_valuePtr = (TBYTE*)m_value.GetBuffer(255); 
+		m_valuePtr = (TBYTE*)m_value.GetBuffer (255); 
 		
 		m_initializedFlag = TRUE;
 		
 		}
 		
-	CATCH_ALL(e)
+	CATCH_ALL (e)
 		{                         
-		MemoryMessage(0, kObjectMessage);
+		MemoryMessage (0, kObjectMessage);
 		
 		}
 		
 	END_CATCH_ALL   
 
-}		// end "CMDialog"
+}	// end "CMDialog"
 
 
-// ---------------------------------------------------------------------------
-//		~CMDialog
-// ---------------------------------------------------------------------------
-//	Destructor
-//
 
-CMDialog::~CMDialog()
+CMDialog::~CMDialog ()
+
 {                          
 	if (m_dialogFromPtr != NULL)
 		delete m_dialogFromPtr; 
@@ -145,53 +143,54 @@ CMDialog::~CMDialog()
 	if (m_dialogToPtr != NULL)
 		delete m_dialogToPtr;
 			
-	m_value.Empty();                 
+	m_value.Empty ();                 
 
-}		// end "~CMDialog"   
+}	// end "~CMDialog"   
  
+
 
 void CMDialog::CheckColumnEnd (void)
 
 {                   
 	if (!m_settingSelectedEntireButton)
 		{                                        
-		DDX_Text(m_dialogFromPtr, IDC_ColumnEnd, m_value);
+		DDX_Text (m_dialogFromPtr, IDC_ColumnEnd, m_value);
 															
 		if (m_valuePtr[0] != 0)                      
-			DDX_Text(m_dialogFromPtr, IDC_ColumnEnd, m_ColumnEnd);
+			DDX_Text (m_dialogFromPtr, IDC_ColumnEnd, m_ColumnEnd);
 				
-		else		// m_valuePtr[0] == 0
+		else	// m_valuePtr[0] == 0
 			m_ColumnEnd = 0;
 			
 		if ((UInt32)m_ColumnEnd > (UInt32)m_maxNumberColumns)
 			{
 			m_ColumnEnd = m_maxNumberColumns;
 															
-			DDX_Text(m_dialogToPtr, IDC_ColumnEnd, m_ColumnEnd);
+			DDX_Text (m_dialogToPtr, IDC_ColumnEnd, m_ColumnEnd);
 								
-			}		// end "if (m_ColumnEnd > m_maxNumberColumns)"
+			}	// end "if (m_ColumnEnd > m_maxNumberColumns)"
 			
-		SetEntireImageButtons (
-							NULL, 
-							m_LineStart, 
-							m_LineEnd, 
-							m_ColumnStart, 
-							m_ColumnEnd); 
+		SetEntireImageButtons (NULL,
+										m_LineStart,
+										m_LineEnd,
+										m_ColumnStart,
+										m_ColumnEnd);
 
-		}		// end "if (!m_settingSelectedEntireButton)"
+		}	// end "if (!m_settingSelectedEntireButton)"
 	
-}		// end "CheckColumnEnd"   
+}	// end "CheckColumnEnd"   
+
 
 
 void CMDialog::CheckColumnInterval (void)
 
 {                   
-	DDX_Text(m_dialogFromPtr, IDC_ColumnInterval, m_value);
+	DDX_Text (m_dialogFromPtr, IDC_ColumnInterval, m_value);
 														
 	if (m_valuePtr[0] != 0)                      
 		DDX_Text (m_dialogFromPtr, IDC_ColumnInterval, m_ColumnInterval);
 			
-	else		// m_valuePtr[0] == 0
+	else	// m_valuePtr[0] == 0
 		m_ColumnInterval = 0;
 		
 	if ((UInt32)m_ColumnInterval > (UInt32)m_maxNumberColumns)
@@ -200,12 +199,13 @@ void CMDialog::CheckColumnInterval (void)
 														
 		DDX_Text (m_dialogToPtr, IDC_ColumnInterval, m_ColumnInterval);
 							
-		}		// end "if (m_ColumnEnd > m_maxNumberColumns)"
+		}	// end "if (m_ColumnEnd > m_maxNumberColumns)"
 	
-}		// end "CheckColumnInterval" 
-  
+}	// end "CheckColumnInterval" 
 
-void CMDialog::CheckColumnStart()
+
+
+void CMDialog::CheckColumnStart ()
 
 {        
 	if (!m_settingSelectedEntireButton)
@@ -215,22 +215,23 @@ void CMDialog::CheckColumnStart()
 		if (m_valuePtr[0] != 0)                      
 			DDX_Text (m_dialogFromPtr, IDC_ColumnStart, m_ColumnStart);
 				
-		else		// m_valuePtr[0] == 0
+		else	// m_valuePtr[0] == 0
 			m_ColumnStart = 0;  
 		
-		SetEntireImageButtons (
-							NULL, 
-							m_LineStart, 
-							m_LineEnd, 
-							m_ColumnStart, 
-							m_ColumnEnd);
+		SetEntireImageButtons (NULL,
+										m_LineStart,
+										m_LineEnd,
+										m_ColumnStart,
+										m_ColumnEnd);
 
-		}		// end "if (!m_settingSelectedEntireButton)"
+		}	// end "if (!m_settingSelectedEntireButton)"
 	
-}		// end "CheckColumnStart"
+}	// end "CheckColumnStart"
  
 
-void CMDialog::CheckLineEnd()
+
+void CMDialog::CheckLineEnd ()
+
 {  
 	if (!m_settingSelectedEntireButton)
 		{                                                        
@@ -239,7 +240,7 @@ void CMDialog::CheckLineEnd()
 		if (m_valuePtr[0] != 0)                      
 			DDX_Text (m_dialogFromPtr, IDC_LineEnd, m_LineEnd);
 				
-		else		// m_valuePtr[0] == 0
+		else	// m_valuePtr[0] == 0
 			m_LineEnd = 0; 
 		
 		if ((UInt32)m_LineEnd > (UInt32)m_maxNumberLines)
@@ -248,21 +249,21 @@ void CMDialog::CheckLineEnd()
 														
 			DDX_Text (m_dialogToPtr, IDC_LineEnd, m_LineEnd);
 							
-			}		// end "if (m_LineEnd > m_maxNumberLines)"
+			}	// end "if (m_LineEnd > m_maxNumberLines)"
 		
-		SetEntireImageButtons (
-							NULL, 
-							m_LineStart, 
-							m_LineEnd, 
-							m_ColumnStart, 
-							m_ColumnEnd);
+		SetEntireImageButtons (NULL,
+										m_LineStart,
+										m_LineEnd,
+										m_ColumnStart,
+										m_ColumnEnd);
 
-	}		// end "if (!m_settingSelectedEntireButton)"
+		}	// end "if (!m_settingSelectedEntireButton)"
 	
-}		// end "CheckLineEnd"
+}	// end "CheckLineEnd"
   
 
-void CMDialog::CheckLineInterval(void)
+
+void CMDialog::CheckLineInterval (void)
 
 {                   
 	DDX_Text (m_dialogFromPtr, IDC_LineInterval, m_value);
@@ -270,7 +271,7 @@ void CMDialog::CheckLineInterval(void)
 	if (m_valuePtr[0] != 0)                      
 		DDX_Text (m_dialogFromPtr, IDC_LineInterval, m_LineInterval);
 			
-	else		// m_valuePtr[0] == 0
+	else	// m_valuePtr[0] == 0
 		m_LineInterval = 0;
 		
 	if ((UInt32)m_LineInterval > (UInt32)m_maxNumberLines)
@@ -279,12 +280,14 @@ void CMDialog::CheckLineInterval(void)
 														
 		DDX_Text (m_dialogToPtr, IDC_LineInterval, m_LineInterval);
 							
-		}		// end "if (m_ColumnEnd > m_maxNumberColumns)"
+		}	// end "if (m_ColumnEnd > m_maxNumberColumns)"
 	
-}		// end "CheckLineInterval" 
+}	// end "CheckLineInterval" 
   
 
-void CMDialog::CheckLineStart()
+
+void CMDialog::CheckLineStart ()
+
 {  
 	if (!m_settingSelectedEntireButton)
 		{
@@ -293,68 +296,54 @@ void CMDialog::CheckLineStart()
 		if (m_valuePtr[0] != 0)                      
 			DDX_Text (m_dialogFromPtr, IDC_LineStart, m_LineStart);
 				
-		else		// m_valuePtr[0] == 0
+		else	// m_valuePtr[0] == 0
 			m_LineStart = 0;
 		
-		SetEntireImageButtons (
-							NULL, 
-							m_LineStart, 
-							m_LineEnd, 
-							m_ColumnStart, 
-							m_ColumnEnd);
+		SetEntireImageButtons (NULL,
+										m_LineStart,
+										m_LineEnd,
+										m_ColumnStart,
+										m_ColumnEnd);
 
-		}		// end "if (!m_settingSelectedEntireButton)"
+		}	// end "if (!m_settingSelectedEntireButton)"
 	
-}		// end "CheckLineStart" 
-  
-/*
-void 
-CMDialog::CheckLocalValue(
-				SInt16		itemNumber,
-				UINT*			numberValuePtr)
+}	// end "CheckLineStart"
 
-{                                                               
-	DDX_Text(m_dialogFromPtr, itemNumber, m_value);
-		                                    
-	if (m_valuePtr[0] != 0)                      
-		DDX_Text(m_dialogFromPtr, itemNumber, *numberValuePtr);
-			
-	else		// m_valuePtr[0] == 0
-		*numberValuePtr = 0;
-	
-}		// end "CheckLocalValue" 
-*/  
 
-Boolean CMDialog::CheckLocalValue(
-				SInt16			itemNumber,
-				UINT*				numberValuePtr)
+
+Boolean CMDialog::CheckLocalValue (
+				SInt16								itemNumber,
+				UINT*									numberValuePtr)
 
 {  
-	Boolean		returnFlag;
+	Boolean								returnFlag;
 	
 	                                                             
 	DDX_Text (m_dialogFromPtr, itemNumber, m_value);
 		                                    
 	if (m_valuePtr[0] != 0)
 		{                      
-		DDX_Text(m_dialogFromPtr, itemNumber, *numberValuePtr);
+		DDX_Text (m_dialogFromPtr, itemNumber, *numberValuePtr);
 		returnFlag = TRUE;
 		
-		}		// end "if (m_valuePtr[0] != 0)"
+		}	// end "if (m_valuePtr[0] != 0)"
 			
-	else		// m_valuePtr[0] == 0
+	else	// m_valuePtr[0] == 0
 		returnFlag = FALSE;
 		
 	return (returnFlag);
 	
-}		// end "CheckLocalValue"  
+}	// end "CheckLocalValue"  
 
 
-SInt32 CMDialog::GetDialogItemValue(
-				SInt16						itemNumber)
+
+SInt32 CMDialog::GetDialogItemValue (
+				SInt16								itemNumber)
+
 {  
-	SInt32							value = 0;
-	                                                           
+	SInt32								value = 0;
+	
+	
 	DDX_Text (m_dialogFromPtr, itemNumber, m_value);
 		                                    
 	if (m_valuePtr[0] != 0)
@@ -362,50 +351,24 @@ SInt32 CMDialog::GetDialogItemValue(
 		
 	return (value);															
 	
-}		// end "GetDialogItemValue"   
+}	// end "GetDialogItemValue"   
 
 
-SInt16 CMDialog::GetComboListSelection(
+
+SInt16 CMDialog::GetComboListSelection (
 				UInt16								dialogItemNumber,
 				SInt32								selectedListItemData)
 
 {     
-	return (::GetComboListSelection(this,                     
-										dialogItemNumber,
-										selectedListItemData) );
-				
-/*
-	CComboBox* 						comboBoxPtr;
-	
-	UInt32							index,
-										numberComboItems;
-										
-	SInt16							comboListSelection;
-	 
-	                                
-	comboListSelection = -1;
-			
-	comboBoxPtr = (CComboBox*)GetDlgItem(dialogItemNumber);
-	
-	if (comboBoxPtr != NULL)
-		{                         		
-		numberComboItems = (UInt32)comboBoxPtr->GetCount();
-		for (index=0; index<numberComboItems; index++)
-			{
-			if ( (SInt32)comboBoxPtr->GetItemData( (SInt16)index ) == selectedListItemData )
-				comboListSelection = (SInt16)index;
-			
-			}		// end "for (index=0; index<numberComboItems; index++)" 
-			
-		}		// end "if (comboBoxPtr != NULL)"
-		
-	return (comboListSelection); 
-*/	
-}		// end "GetComboListSelection"     
+	return (::GetComboListSelection (this,                     
+												dialogItemNumber,
+												selectedListItemData));
+
+}	// end "GetComboListSelection"
 
 
 
-void CMDialog::HandleChannelsMenu(
+void CMDialog::HandleChannelsMenu (
 				UInt16								channelsMenuItemNumber,
 				Boolean								transformationFlag,
 				SInt16								totalNumberChannels,
@@ -416,10 +379,10 @@ void CMDialog::HandleChannelsMenu(
 	int									channelSelection;
 	
 	                                                   
-	DDX_CBIndex(m_dialogFromPtr, channelsMenuItemNumber, channelSelection);
+	DDX_CBIndex (m_dialogFromPtr, channelsMenuItemNumber, channelSelection);
 	                                           
 	if (channelSelection == kSubsetMenuItem || 
-			(channelSelection == kAllMenuItem && 
+				(channelSelection == kAllMenuItem &&
 							m_channelListType == kSelectedItemsListOnly))
 		{
 				// Subset of channels to be used.							
@@ -430,27 +393,28 @@ void CMDialog::HandleChannelsMenu(
 		
 		TRY
 			{                                
-			channelsDialogPtr = new CMChannelsDlg();
+			channelsDialogPtr = new CMChannelsDlg ();
 			                                                                     
-			channelsDialogPtr->DoDialog (
-								(SInt16*)&m_localActiveNumberFeatures,
-								(SInt16*)m_localActiveFeaturesPtr,
-								gImageLayerInfoPtr,
-								gImageFileInfoPtr,
-								m_channelListType,
-								transformationFlag,
-								(SInt16*)m_availableFeaturePtr,
-								totalNumberChannels,
-								m_channelSelection); 
+			channelsDialogPtr->DoDialog ((SInt16*)&m_localActiveNumberFeatures,
+													(SInt16*)m_localActiveFeaturesPtr,
+													gImageLayerInfoPtr,
+													gImageFileInfoPtr,
+													m_channelListType,
+													transformationFlag,
+													(SInt16*)m_availableFeaturePtr,
+													totalNumberChannels,
+													m_channelSelection);
 				
 		   if (channelsDialogPtr != NULL)                           
 				delete channelsDialogPtr;
-			}
+				
+			}	// end "TRY"
 			
-		CATCH_ALL(e)
+		CATCH_ALL (e)
 			{
-			MemoryMessage(0, kObjectMessage);
+			MemoryMessage (0, kObjectMessage);
 			}
+		
 		END_CATCH_ALL 
 		
 		if (channelMenuType == kImageChannelType)
@@ -458,19 +422,19 @@ void CMDialog::HandleChannelsMenu(
 			if (m_localActiveNumberFeatures == (UInt16)totalNumberChannels)
 				channelSelection = kAllMenuItem;          
 				
-			}		// end "if (channelMenuType == kImageChannelType)"  
+			}	// end "if (channelMenuType == kImageChannelType)"  
 			
 		if (okFlagSetting)						                                
 			SetDLogControlHilite (NULL, IDOK, 0);
 						
-		}		// end "if (m_channelSelection == kSubsetMenuItem)"
+		}	// end "if (m_channelSelection == kSubsetMenuItem)"
 		
-	else		// channelSelection == kAllMenuItem
+	else	// channelSelection == kAllMenuItem
 		{                                
 		if (channelMenuType == kImageChannelType)			
 			m_localActiveNumberFeatures = totalNumberChannels; 
 			
-		}		// end "else channelSelection == kAllMenuItem" 
+		}	// end "else channelSelection == kAllMenuItem" 
 		               
 	if (channelMenuType == kProjectChannelType)
 		{     
@@ -483,21 +447,22 @@ void CMDialog::HandleChannelsMenu(
 															gTransformationMatrix.numberFeatures,
 															channelSelection);
 															
-		}		// end "if (channelMenuType == kProjectChannelType)"
+		}	// end "if (channelMenuType == kProjectChannelType)"
 		 
 	m_channelSelection = channelSelection;		                                  
 	DDX_CBIndex (m_dialogToPtr, channelsMenuItemNumber, m_channelSelection);
 	
-}		// end "HandleChannelsMenu"      
+}	// end "HandleChannelsMenu"      
 
 
-void CMDialog::HandleClassesMenu(
-				UInt32*									numberOutputClassesPtr,
-				SInt16*									classListPtr,
-				SInt16									minimumNumberClasses,
-				SInt16									numberInputClasses,
-				UInt16									classesMenuItemNumber,
-				int*										classMenuSelectionPtr)
+
+void CMDialog::HandleClassesMenu (
+				UInt32*								numberOutputClassesPtr,
+				SInt16*								classListPtr,
+				SInt16								minimumNumberClasses,
+				SInt16								numberInputClasses,
+				UInt16								classesMenuItemNumber,
+				int*									classMenuSelectionPtr)
 
 {  
 	int									classMenuSelection;
@@ -505,7 +470,7 @@ void CMDialog::HandleClassesMenu(
 	Boolean								returnFlag;
 	
 	                                                                                                 
-	DDX_CBIndex(m_dialogFromPtr, classesMenuItemNumber, classMenuSelection);
+	DDX_CBIndex (m_dialogFromPtr, classesMenuItemNumber, classMenuSelection);
 	                                           
 	if (classMenuSelection == kSubsetMenuItem)
 		{
@@ -522,13 +487,13 @@ void CMDialog::HandleClassesMenu(
 			*numberOutputClassesPtr = 1;
 			classListPtr[0] = gProjectInfoPtr->currentClass + 1;
 			
-			}		// end "if (currentSelection = kAllMenuItem && ..."
+			}	// end "if (currentSelection = kAllMenuItem && ..."
 		
 		CMClassesDlg*		classesDialogPtr = NULL;
 		
 		TRY
 			{                                
-			classesDialogPtr = new CMClassesDlg();
+			classesDialogPtr = new CMClassesDlg ();
 			                                                                     
 			returnFlag = classesDialogPtr->DoDialog (numberOutputClassesPtr,
 																	classListPtr,
@@ -537,47 +502,50 @@ void CMDialog::HandleClassesMenu(
 		   
 		   if (classesDialogPtr != NULL)                           
 				delete classesDialogPtr;
-			}
+				
+			}	// end "TRY"
 			
-		CATCH_ALL(e)
+		CATCH_ALL (e)
 			{
-			MemoryMessage(0, kObjectMessage);
+			MemoryMessage (0, kObjectMessage);
 			}
+		
 		END_CATCH_ALL 
 									
-		if ( !returnFlag && *classMenuSelectionPtr == kAllMenuItem )  
+		if (!returnFlag && *classMenuSelectionPtr == kAllMenuItem)
 			*numberOutputClassesPtr = gProjectInfoPtr->numberStatisticsClasses;
 									
-		if ( *numberOutputClassesPtr == gProjectInfoPtr->numberStatisticsClasses )
+		if (*numberOutputClassesPtr == gProjectInfoPtr->numberStatisticsClasses)
 			{                                     
 			classMenuSelection = kAllMenuItem;
-			DDX_CBIndex(m_dialogToPtr, classesMenuItemNumber, classMenuSelection);
+			DDX_CBIndex (m_dialogToPtr, classesMenuItemNumber, classMenuSelection);
 							
-			}		// end "if (*numberOutputClassesPtr == ..." 
+			}	// end "if (*numberOutputClassesPtr == ..." 
 									                                
 		SetDLogControlHilite (NULL, IDOK, 0);
 						
-		}		// end "if (classMenuSelection == kSubsetMenuItem)"
+		}	// end "if (classMenuSelection == kSubsetMenuItem)"
 		
-	else		// classMenuSelection == kAllMenuItem
+	else	// classMenuSelection == kAllMenuItem
 		{                                
 		*numberOutputClassesPtr = gProjectInfoPtr->numberStatisticsClasses;
 		
-		}		// end "else classMenuSelection == kAllMenuItem"
+		}	// end "else classMenuSelection == kAllMenuItem"
 		
 	*classMenuSelectionPtr = classMenuSelection;             
 	
-}		// end "HandleClassesMenu"         
+}	// end "HandleClassesMenu"         
 
 
-void CMDialog::HandleClassPairWeightsMenu(
-				SInt16**									weightsListPtrPtr,
-				UInt16									classPairWeightsMenuItemNumber,
-				int*										classPairWeightsMenuSelectionPtr,
-				SInt16*									defaultClassPairWeightPtr)
+
+void CMDialog::HandleClassPairWeightsMenu (
+				SInt16**								weightsListPtrPtr,
+				UInt16								classPairWeightsMenuItemNumber,
+				int*									classPairWeightsMenuSelectionPtr,
+				SInt16*								defaultClassPairWeightPtr)
 
 {  
-	int						classPairWeightsMenuSelection;
+	int									classPairWeightsMenuSelection;
 	
 	                                                                                                 
 	DDX_CBIndex (m_dialogFromPtr,
@@ -603,23 +571,24 @@ void CMDialog::HandleClassPairWeightsMenu(
 								classPairWeightsMenuItemNumber, 
 								classPairWeightsMenuSelection); 
 						
-		}		// end "if (classWeightsMenuSelection == kUnequalWeightMenuItem)"
+		}	// end "if (classWeightsMenuSelection == kUnequalWeightMenuItem)"
 		
 	*classPairWeightsMenuSelectionPtr = classPairWeightsMenuSelection;             
 	
-}		// end "HandleClassPairWeightsMenu"            
+}	// end "HandleClassPairWeightsMenu"            
 
 
-void CMDialog::HandleClassWeightsMenu(
-								UInt16					numberOutputClassesToUse,
-								SInt16*					classListPtr,
-								float*					weightsListPtr, 
-								Boolean					useEnhancedStatFlag,
-								UInt16					classWeightsMenuItemNumber,
-								int*						classWeightsMenuSelectionPtr)
+
+void CMDialog::HandleClassWeightsMenu (
+				UInt16								numberOutputClassesToUse,
+				SInt16*								classListPtr,
+				float*								weightsListPtr,
+				Boolean								useEnhancedStatFlag,
+				UInt16								classWeightsMenuItemNumber,
+				int*									classWeightsMenuSelectionPtr)
 
 {  
-	int						classWeightsMenuSelection;
+	int									classWeightsMenuSelection;
 	
 	                                                                                                 
 	DDX_CBIndex (m_dialogFromPtr,
@@ -632,12 +601,11 @@ void CMDialog::HandleClassWeightsMenu(
 								                             
 		SetDLogControlHilite (NULL, IDOK, 255); 
 		
-		classWeightsMenuSelection = ClassWeightsDialog (
-														numberOutputClassesToUse, 
-							 							classListPtr,
-														weightsListPtr,
-														*classWeightsMenuSelectionPtr, 
-														useEnhancedStatFlag);
+		classWeightsMenuSelection = ClassWeightsDialog (numberOutputClassesToUse,
+																		classListPtr,
+																		weightsListPtr,
+																		*classWeightsMenuSelectionPtr,
+																		useEnhancedStatFlag);
 
 		SetDLogControlHilite (NULL, IDOK, 0);
 	   
@@ -646,24 +614,21 @@ void CMDialog::HandleClassWeightsMenu(
 								classWeightsMenuItemNumber, 
 								classWeightsMenuSelection); 
 						
-		}		// end "if (classWeightsMenuSelection == kUnequalWeightMenuItem)"
+		}	// end "if (classWeightsMenuSelection == kUnequalWeightMenuItem)"
 		
 	*classWeightsMenuSelectionPtr = classWeightsMenuSelection;             
 	
-}		// end "HandleClassWeightsMenu"    
+}	// end "HandleClassWeightsMenu"    
 
 
-void CMDialog::HideShowAreaItems(
-				Boolean									imageAreaFlag)
+
+void CMDialog::HideShowAreaItems (
+				Boolean								imageAreaFlag)
 				
 {  
 	if (imageAreaFlag)
 		{ 
 		MShowDialogItem (this, IDC_LineColFrame);
-		 
-//		MShowDialogItem (this, IDEntireImage); 
-//		MShowDialogItem (this, IDSelectedImage);
-		
 		MShowDialogItem (this, IDC_StartEndInterval);
 		MShowDialogItem (this, IDC_LinePrompt);
 		MShowDialogItem (this, IDC_ColumnPrompt);
@@ -674,9 +639,9 @@ void CMDialog::HideShowAreaItems(
 		MShowDialogItem (this, IDC_ColumnEnd);  
 		MShowDialogItem (this, IDC_ColumnInterval);
 	
-		}		// end "if (imageAreaFlag)"
+		}	// end "if (imageAreaFlag)"
 	
-	else		// !imageAreaFlag
+	else	// !imageAreaFlag
 		{	                           
 		MHideDialogItem (this, IDC_LineColFrame); 
 		MHideDialogItem (this, IDEntireImage);
@@ -691,33 +656,13 @@ void CMDialog::HideShowAreaItems(
 		MHideDialogItem (this, IDC_ColumnEnd);  
 		MHideDialogItem (this, IDC_ColumnInterval); 
 		
-		}		// end "else		// !imageAreaFlag"
+		}	// end "else !imageAreaFlag"
 	
-}		// end "HideShowAreaItems"                           
+}	// end "HideShowAreaItems"
 
 
-//-----------------------------------------------------------------------------
-//								 Copyright (1988-2017)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
-//
-//	Function name:		void LoadDItemString
-//
-//	Software purpose:	The purpose of this routine is to hide the set of
-//							area selection items such as line start, etc
-//
-//	Parameters in:		None
-//
-//	Parameters out:	None
-//
-// Value Returned:	None 				
-// 
-// Called By:
-//
-//	Coded By:			Larry L. Biehl			Date: 06/01/1995
-//	Revised By:			Larry L. Biehl			Date: 06/01/1995
 
-void CMDialog::HideSomeAreaSelectionItems()
+void CMDialog::HideSomeAreaSelectionItems ()
 
 {                                                          
 	MHideDialogItem (this, IDEntireImage);
@@ -727,12 +672,13 @@ void CMDialog::HideSomeAreaSelectionItems()
 	MHideDialogItem (this, IDC_ColumnStart);          
 	MHideDialogItem (this, IDC_ColumnEnd);   
 	
-}		// end "HideSomeAreaSelectionItems"  
+}	// end "HideSomeAreaSelectionItems"  
 
 
-//-----------------------------------------------------------------------------
-//								 Copyright (1988-2017)
-//								(c) Purdue Research Foundation
+
+//-----------------------------------------------------------------------------------
+//								 Copyright (1988-2020)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void LoadDItemString
@@ -764,7 +710,8 @@ void CMDialog::LoadDItemString (
 	
 	LoadDItemString (itemNumber, stringPtr, wideCharInputStringFlag);
 						  
-}		// end "LoadDItemString"  
+}	// end "LoadDItemString"  
+
 
 
 void CMDialog::LoadDItemString (
@@ -773,39 +720,34 @@ void CMDialog::LoadDItemString (
 				Boolean								wideCharInputStringFlag)
 
 {
-	CString				string;
-
-
 	USES_CONVERSION;
+
+	CString								string;
+
 
 	if (wideCharInputStringFlag)
 		string = CString ((wchar_t*)theStringPtr);
 
-	else		// !wideCharInputStringFlag
-		{			
-		//TBYTE		wideFileName[256];
+	else	// !wideCharInputStringFlag
+		{
 		TBYTE*					tempUnicodeCharacterStringPtr;
 
 		tempUnicodeCharacterStringPtr = 
 							ConvertMultibyteStringToUnicodeString ((UCharPtr)theStringPtr);
-		/*
-		int sizeNeeded = MultiByteToWideChar (
-									CP_UTF8, 0, (LPCSTR)theStringPtr, -1, NULL, 0);
-		sizeNeeded = MIN(sizeNeeded, 255);
-		MultiByteToWideChar (CP_UTF8, 0, (LPCSTR)theStringPtr, -1, (LPWSTR)wideFileName, sizeNeeded);
-		*/
+
 		string = CString (&tempUnicodeCharacterStringPtr[1]);
 
-		}		// else !wideCharInputStringFlag
+		}	// else !wideCharInputStringFlag
 	                      
 	DDX_Text (m_dialogToPtr, itemNumber, string);
 						  
-}		// end "LoadDItemString"  
+}	// end "LoadDItemString"  
 
 
-//-----------------------------------------------------------------------------
-//								 Copyright (1988-2017)
-//								(c) Purdue Research Foundation
+
+//-----------------------------------------------------------------------------------
+//								 Copyright (1988-2020)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void LoadDItemValue
@@ -831,13 +773,13 @@ void CMDialog::LoadDItemValue (
 {                        
 	DDX_Text (m_dialogToPtr, itemNumber, value);
 						  
-}		// end "LoadDItemValue" 
+}	// end "LoadDItemValue" 
 
 
 
-//-----------------------------------------------------------------------------
-//								 Copyright (1988-2017)
-//								(c) Purdue Research Foundation
+//-----------------------------------------------------------------------------------
+//								 Copyright (1988-2020)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void MHideDialogItem
@@ -861,26 +803,25 @@ void CMDialog::MHideDialogItem (
 				SInt16								itemNumber)
 				
 {
-// oul: added the condition of _AMD64_ to be compatible with x64
-// _AMD64_ is the predefined macro for x64 machines according to MSDN
-
-#	if !defined _X86_ && !defined _AMD64_
+	/*
+	#if !defined _X86_ && !defined _AMD64_
 		::HideDialogItem (dialogPtr, itemNumber);
-#	endif // !defined _X86_ && !defined _AMD64_
+	#endif // !defined _X86_ && !defined _AMD64_
+	*/
+	//#if defined _X86_ || defined _AMD64_
+	CWnd* dialogItemWindowPtr = GetDlgItem (itemNumber);
 
-#	if defined _X86_ || defined _AMD64_
-		CWnd* dialogItemWindowPtr = GetDlgItem(itemNumber);
-   
-		if (dialogItemWindowPtr != NULL)
-			dialogItemWindowPtr->ShowWindow(SW_HIDE);
-#	endif // defined _X86_ || defined _AMD64_
+	if (dialogItemWindowPtr != NULL)
+		dialogItemWindowPtr->ShowWindow (SW_HIDE);
+	//#endif // defined _X86_ || defined _AMD64_
 	
-}		// end "MHideDialogItem"  
+}	// end "MHideDialogItem"
+
 
 
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2017)
-//								(c) Purdue Research Foundation
+//								 Copyright (1988-2020)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void MShowDialogItem
@@ -903,28 +844,57 @@ void CMDialog::MShowDialogItem (
 				DialogPtr			dialogPtr, 
 				SInt16				itemNumber)
 				
-{    
-// oul: added the condition of _AMD64_ to be compatible with x64
-// _AMD64_ is the predefined macro for x64 machines according to MSDN
-#	if !defined _X86_ && !defined _AMD64_
+{
+	/*
+	#if !defined _X86_ && !defined _AMD64_
 		ShowDItem (dialogPtr, itemNumber);
-#	endif // !defined _X86_ && !defined _AMD64_
-
-// oul: added the condition of _AMD64_ to be compatible with x64
-// _AMD64_ is the predefined macro for x64 machines according to MSDN
-#	if defined _X86_ || defined _AMD64_
-		CWnd* dialogItemWindowPtr = GetDlgItem(itemNumber);
+	#endif // !defined _X86_ && !defined _AMD64_
+	*/
+	//#if defined _X86_ || defined _AMD64_
+		CWnd* dialogItemWindowPtr = GetDlgItem (itemNumber);
    
 		if (dialogItemWindowPtr != NULL)
-			dialogItemWindowPtr->ShowWindow(SW_SHOW);
-#	endif // defined _X86_ || defined _AMD64_
+			dialogItemWindowPtr->ShowWindow (SW_SHOW);
+	//#endif // defined _X86_ || defined _AMD64_
 	
-}		// end "MShowDialogItem"
+}	// end "MShowDialogItem"
 
 
-//-----------------------------------------------------------------------------
-//								 Copyright (1988-2017)
-//								(c) Purdue Research Foundation
+
+void CMDialog::OnFeatureTransformation ()
+
+{
+	DDX_Check (m_dialogFromPtr,
+					IDC_FeatureTransformation,
+					m_featureTransformationFlag);
+	
+	CheckFeatureTransformationDialog (this,
+													m_featureTransformAllowedFlag,
+													IDC_FeatureTransformation,
+													IDC_ChannelPrompt,
+													(SInt16*)&m_featureTransformationFlag);
+	
+}	// end "OnFeatureTransformation"
+
+
+
+void CMDialog::OnSelendokClassCombo ()
+
+{
+	HandleClassesMenu (&m_localNumberClasses,
+								(SInt16*)m_classListPtr,
+								1,
+								(SInt16)gProjectInfoPtr->numberStatisticsClasses,
+								IDC_ClassCombo,
+								&m_classSelection);
+	
+}	// end "OnSelendokClassCombo"  
+
+
+
+//-----------------------------------------------------------------------------------
+//								 Copyright (1988-2020)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void PositionDialogWindow
@@ -946,53 +916,12 @@ void CMDialog::MShowDialogItem (
 void CMDialog::PositionDialogWindow (void)
 
 {  
-// oul: added the condition of _AMD64_ to be compatible with x64
-// _AMD64_ is the predefined macro for x64 machines according to MSDN
-#	if !defined _X86_ && !defined _AMD64_
-
-#	endif	// !defined _X86_
-
-#	if defined _X86_ || defined _AMD64_
+	//#if defined _X86_ || defined _AMD64_
 		::PositionDialogWindow ((CDialog*)this);
-/*   
-	Rect			dialogRect,
-					screenRect; 
+	//#endif	// defined _X86_ || defined _AMD64_
 
-	SInt16		newLeft,
-					newTop;
-				
+}	// end "PositionDialogWindow"  
 
-			// Get rectangle for dialog box
-		
-	GetWindowRect( (tagRECT*)&dialogRect );
-	
-			// Get rectangle for screen
-			
-	GetScreenRect(&screenRect);
-	
-			// Calculate upper left corner that will leave the box centered.
-			
-	newLeft = dialogRect.left + (screenRect.right + screenRect.left)/2 -
-					(dialogRect.right + dialogRect.left)/2;
-			
-	newTop = dialogRect.top + (screenRect.top + screenRect.bottom)/2 -
-					(dialogRect.top + dialogRect.bottom)/2;
-					
-			// Adjust so that 1/5 of space is above and 4/5's of space is below
-			
-	newTop -= (newTop - screenRect.top) * 6/10;
-	
-	Boolean returnFlag = SetWindowPos (
-										NULL, 
-										newLeft, 
-										newTop, 
-										0, 
-										0, 
-										SWP_NOSIZE | SWP_NOZORDER);
-*/
-#	endif	// defined _X86_ || defined _AMD64_
-
-}		// end "PositionDialogWindow"  
 
 
 void CMDialog::SetComboItemText (
@@ -1001,33 +930,26 @@ void CMDialog::SetComboItemText (
 				UCharPtr								stringPtr,
 				UInt16								stringCharCode)
 
-{                           
-	//TBYTE								tempWideCharacterString[256];
-	TBYTE*							tempWideCharacterStringPtr;
-	CComboBox* 						comboBoxPtr;
-	UInt32							numberComboItems;
+{
+	USES_CONVERSION;
+	
+	TBYTE*								tempWideCharacterStringPtr;
+	CComboBox* 							comboBoxPtr;
+	
+	UInt32								numberComboItems;
 	
 	
-#	if defined multispec_win
-		USES_CONVERSION;
-#	endif
-	                                
 	comboBoxPtr = (CComboBox*)GetDlgItem (dialogItemNumber);
 	
 	if (comboBoxPtr != NULL)
 		{ 
-		numberComboItems = comboBoxPtr->GetCount();
+		numberComboItems = comboBoxPtr->GetCount ();
 
 		if (stringCharCode == kUTF8CharString)
 			{
-			tempWideCharacterStringPtr = ConvertMultibyteStringToUnicodeString (stringPtr);
-			/*
-			int sizeNeeded = MultiByteToWideChar (
-									CP_UTF8, 0, (LPCSTR)stringPtr, -1, NULL, 0);
+			tempWideCharacterStringPtr =
+											ConvertMultibyteStringToUnicodeString (stringPtr);
 
-			sizeNeeded = MIN(sizeNeeded, 254);
-			MultiByteToWideChar (CP_UTF8, 0, (LPCSTR)stringPtr, -1, (LPWSTR)tempWideCharacterString, sizeNeeded);
-			*/
 			}	// end "if (stringCharCode == kUTF8CharString)"
 			
 		if (numberComboItems > (UInt32)comboItem)
@@ -1035,15 +957,15 @@ void CMDialog::SetComboItemText (
 			comboBoxPtr->DeleteString (comboItem);
 
 			if (stringCharCode == kUTF8CharString)
-				comboBoxPtr->InsertString (comboItem, (LPCTSTR)&tempWideCharacterStringPtr[1]);
+				comboBoxPtr->InsertString (
+											comboItem, (LPCTSTR)&tempWideCharacterStringPtr[1]);
 
 			else	// stringCharCode != kUTF8CharString
 				comboBoxPtr->InsertString (comboItem, (LPCTSTR)A2T((LPSTR)stringPtr));
-				//comboBoxPtr->InsertString (comboItem, stringPtr);
 			
-			}		// end "if (numberComboItems > 0 && ..." 
+			}	// end "if (numberComboItems > 0 && ..." 
 			
-		else		// numberComboItems == 0 || ... < (UInt32)comboItem  
+		else	// numberComboItems == 0 || ... < (UInt32)comboItem  
 			{
  			if (stringCharCode == kUTF8CharString)
 				comboBoxPtr->AddString ((LPCTSTR)&tempWideCharacterStringPtr[1]);
@@ -1053,14 +975,15 @@ void CMDialog::SetComboItemText (
 				//comboBoxPtr->AddString (stringPtr);
 			}	// end "else numberComboItems == 0 || ... < (UInt32)comboItem"
 			
-		}		// end "if (comboBoxPtr != NULL)"
+		}	// end "if (comboBoxPtr != NULL)"
 	
-}		// end "SetComboItemText" 
+}	// end "SetComboItemText" 
 
 
-//-----------------------------------------------------------------------------
-//								 Copyright (1988-2017)
-//								(c) Purdue Research Foundation
+
+//-----------------------------------------------------------------------------------
+//								 Copyright (1988-2020)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void SetDLogControl
@@ -1080,14 +1003,13 @@ void CMDialog::SetComboItemText (
 //	Revised By:			Larry L. Biehl			Date: 06/02/1995
 
 void CMDialog::SetDLogControl (
-				DialogPtr			dialogPtr, 
-				SInt16				itemNumber, 
-				SInt16				setting)
+				DialogPtr							dialogPtr,
+				SInt16								itemNumber,
+				SInt16								setting)
 
-{      
-	// oul: added the condition of _AMD64_ to be compatible with x64
-	// _AMD64_ is the predefined macro for x64 machines according to MSDN
-#	if !defined _X86_ && !defined _AMD64_
+{
+	/*
+	#if !defined _X86_ && !defined _AMD64_
 		Handle				theHandle;
 		Rect					theBox;
 		
@@ -1099,25 +1021,22 @@ void CMDialog::SetDLogControl (
 			GetDItem (dialogPtr, itemNumber,  &theType, &theHandle, &theBox);
 			SetCtlValue ((ControlHandle)theHandle, setting);
 			
-			}		// end "if (dialogPtr != NULL)"
-#	endif // !defined _X86_ && !defined _AMD64_
-			
-	// oul: added the condition of _AMD64_ to be compatible with x64
-	// _AMD64_ is the predefined macro for x64 machines according to MSDN
-#	if defined _X86_ || defined _AMD64_
-		CButton* buttonPtr = (CButton*)GetDlgItem(itemNumber);
+			}	// end "if (dialogPtr != NULL)"
+	#endif // !defined _X86_ && !defined _AMD64_
+	*/
+	//#if defined _X86_ || defined _AMD64_
+		CButton* buttonPtr = (CButton*)GetDlgItem (itemNumber);
 		
 		if (buttonPtr != NULL)
-			buttonPtr->SetCheck(setting);
-		
-		//CheckDlgButton	(itemNumber, setting);
-#	endif	// defined _X86_ || _AMD64_
+			buttonPtr->SetCheck (setting);
+	//#endif	// defined _X86_ || _AMD64_
 				
-}		// end "SetDLogControl" 
+}	// end "SetDLogControl" 
 
 
-//-----------------------------------------------------------------------------
-//								 Copyright (1988-2017)
+
+//-----------------------------------------------------------------------------------
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1142,10 +1061,9 @@ void CMDialog::SetDLogControlHilite (
 				SInt16								itemNumber,
 				SInt16								setting)
 
-{  
-	// oul: added the condition of _AMD64_ to be compatible with x64
-	// _AMD64_ is the predefined macro for x64 machines according to MSDN
-#	if !defined _X86_ && !defined _AMD64_
+{
+	/*
+	#if !defined _X86_ && !defined _AMD64_
 		Handle				theHandle;
 		Rect					theBox;
 		
@@ -1154,31 +1072,29 @@ void CMDialog::SetDLogControlHilite (
 				
 		GetDItem (dialogPtr, itemNumber,  &theType, &theHandle, &theBox);
 		HiliteControl ((ControlHandle)theHandle, setting);
-#	endif // !defined _X86_ && !defined _AMD64_
-	
-	// oul: added the condition of _AMD64_ to be compatible with x64
-	// _AMD64_ is the predefined macro for x64 machines according to MSDN
-#	if defined _X86_ || defined _AMD64_
-	   CWnd* dialogItemWindowPtr = GetDlgItem(itemNumber);
+	#endif // !defined _X86_ && !defined _AMD64_
+	*/
+	//#if defined _X86_ || defined _AMD64_
+	   CWnd* dialogItemWindowPtr = GetDlgItem (itemNumber);
 	   
 	   if (dialogItemWindowPtr != NULL)
 	   	{ 
 	   	if (setting == 0)
-				dialogItemWindowPtr->EnableWindow(TRUE);
+				dialogItemWindowPtr->EnableWindow (TRUE);
 		
 			else if (setting == 255)
-				dialogItemWindowPtr->EnableWindow(FALSE);
+				dialogItemWindowPtr->EnableWindow (FALSE);
 				
-			}		// end "if (dialogItemWindowPtr != NULL)"
-#	endif	// defined _X86_ || defined _AMD64_
+			}	// end "if (dialogItemWindowPtr != NULL)"
+	//#endif	// defined _X86_ || defined _AMD64_
 			
-}		// end "SetDLogControlHilite"
+}	// end "SetDLogControlHilite"
 
 
 
-//-----------------------------------------------------------------------------
-//								 Copyright (1988-2017)
-//								(c) Purdue Research Foundation
+//-----------------------------------------------------------------------------------
+//								 Copyright (1988-2020)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void SetEntireImageButtons
@@ -1198,11 +1114,11 @@ void CMDialog::SetDLogControlHilite (
 //	Revised By:			Larry L. Biehl			Date: 03/08/1996
 
 void CMDialog::SetEntireImageButtons (
-				DialogPtr			dialogPtr,
-				SInt32				lineStart,
-				SInt32				lineEnd,
-				SInt32				columnStart,
-				SInt32				columnEnd)
+				DialogPtr							dialogPtr,
+				SInt32								lineStart,
+				SInt32								lineEnd,
+				SInt32								columnStart,
+				SInt32								columnEnd)
 
 {  	
 			// Determine if this is the entire area.
@@ -1227,33 +1143,22 @@ void CMDialog::SetEntireImageButtons (
 		else  
 			SetDLogControlHilite (dialogPtr, IDEntireImage, 0);
 		
-		}		// end "if (!m_entireImageFlag || !gSelectionRectangleFlag)"
+		}	// end "if (!m_entireImageFlag || !gSelectionRectangleFlag)"
 		
-	else		// m_entireImageFlag && gSelectionRectangleFlag
+	else	// m_entireImageFlag && gSelectionRectangleFlag
 		{
 		MHideDialogItem (dialogPtr, IDEntireImage);
 		MShowDialogItem (dialogPtr, IDSelectedImage);
 		
-		}		// end "else m_entireImageFlag && gSelectionRectangleFlag"
-/*	
-	if ( !gSelectionRectangleFlag )
-		{
-		if (m_entireImageFlag) 
-				// Unhilite the button until the option is needed.
-				
-			SetDLogControlHilite (dialogPtr, IDEntireImage, 255);
-			
-		else  
-			SetDLogControlHilite (dialogPtr, IDEntireImage, 0);
-			
-		}		// end "if ( !gSelectionRectangleFlag )"
-*/				
-}		// end "SetEntireImageButtons" 
+		}	// end "else m_entireImageFlag && gSelectionRectangleFlag"
+
+}	// end "SetEntireImageButtons"
 
 
-//-----------------------------------------------------------------------------
-//								 Copyright (1988-2017)
-//								(c) Purdue Research Foundation
+
+//-----------------------------------------------------------------------------------
+//								 Copyright (1988-2020)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void SetMaxNumberLinesAndColumns
@@ -1280,13 +1185,13 @@ void CMDialog::SetMaxNumberLinesAndColumns (
 	m_maxNumberLines = maxNumberLines;
 	m_maxNumberColumns = maxNumberColumns;
 			
-}		// end "SetMaxNumberLinesAndColumns"
+}	// end "SetMaxNumberLinesAndColumns"
 
 
 
-//-----------------------------------------------------------------------------
-//								 Copyright (1988-2017)
-//								(c) Purdue Research Foundation
+//-----------------------------------------------------------------------------------
+//								 Copyright (1988-2020)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void SetStaticTextOrDropDownList
@@ -1306,46 +1211,51 @@ void CMDialog::SetMaxNumberLinesAndColumns (
 //	Coded By:			Larry L. Biehl			Date: 03/26/2012
 //	Revised By:			Larry L. Biehl			Date: 03/01/2017	
 
-void  CMDialog::SetStaticTextOrDropDownList ( 
+void  CMDialog::SetStaticTextOrDropDownList (
 				SInt16								dropDownListSelection, 
 				SInt16								dropDownListID, 
 				SInt16								staticTextID,
 				Boolean								deactivatedFlag)
+				
 {
+	USES_CONVERSION;
+
 	TBYTE									listString[64];
 	char									charString[64];
+	
 	CComboBox*							comboBoxPtr;
+	
 	int									stringLength;
 
-
-	USES_CONVERSION;
 
 	if (deactivatedFlag)
 		{
 		HideDialogItem (this, dropDownListID);
 		ShowDialogItem (this, staticTextID);
 
-		comboBoxPtr = (CComboBox*)GetDlgItem(dropDownListID);
-		stringLength = comboBoxPtr->GetLBText (dropDownListSelection, (LPTSTR)listString);
-		strncpy (charString, T2A((LPTSTR)listString), stringLength+1);
+		comboBoxPtr = (CComboBox*)GetDlgItem (dropDownListID);
+		stringLength = comboBoxPtr->GetLBText (dropDownListSelection,
+															(LPTSTR)listString);
+		strncpy (charString, T2A ((LPTSTR)listString), stringLength+1);
 			
 		LoadDItemString (staticTextID, charString); 
 
-		}		// end "if (projectionDeactivatedFlag)"
+		}	// end "if (projectionDeactivatedFlag)"
 
-	else		// "!deactivatedFlag"
+	else	// "!deactivatedFlag"
 		{
 		ShowDialogItem (this, dropDownListID);
 		HideDialogItem (this, staticTextID);
 
-		}		// end "if (deactivatedFlag)"
+		}	// end "if (deactivatedFlag)"
 
-}		// end "SetStaticTextOrDropDownList"
+}	// end "SetStaticTextOrDropDownList"
 
 
-//-----------------------------------------------------------------------------
-//								 Copyright (1988-2017)
-//								(c) Purdue Research Foundation
+
+//-----------------------------------------------------------------------------------
+//								 Copyright (1988-2020)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void ShowHideDialogItem
@@ -1366,28 +1276,28 @@ void  CMDialog::SetStaticTextOrDropDownList (
 //	Revised By:			Larry L. Biehl			Date: 06/01/1995
 
 void CMDialog::ShowHideDialogItem (
-				DialogPtr			dialogPtr, 
-				SInt16				itemNumber, 
-				Boolean				showFlag)
+				DialogPtr							dialogPtr,
+				SInt16								itemNumber,
+				Boolean								showFlag)
 				
 {                      
 	if (showFlag)	
 		MShowDialogItem (dialogPtr, itemNumber);
 		
-	else		// !showFlag 		
+	else	// !showFlag 		
 		MHideDialogItem (dialogPtr, itemNumber);
 	
-}		// end "ShowHideDialogItem" 
+}	// end "ShowHideDialogItem" 
 
 
-void CMDialog::ShowSomeAreaSelectionItems()
+
+void CMDialog::ShowSomeAreaSelectionItems ()
 
 {                                
 	MShowDialogItem (this, IDEntireImage);
 	MShowDialogItem (this, IDSelectedImage);
 	
-		// Determine if this is the entire area and set the 
-		// to entire image icon.
+		// Determine if this is the entire area and set the to entire image icon.
 							
 	SetEntireImageButtons (NULL,
 									m_LineStart, 
@@ -1400,10 +1310,11 @@ void CMDialog::ShowSomeAreaSelectionItems()
 	MShowDialogItem (this, IDC_ColumnStart);          
 	MShowDialogItem (this, IDC_ColumnEnd);
 	
-}		// end "ShowSomeAreaSelectionItems"
+}	// end "ShowSomeAreaSelectionItems"
 
 
-void CMDialog::ToEntireImage(void)
+
+void CMDialog::ToEntireImage (void)
 
 {                                    
 			//	Change to entire image
@@ -1415,42 +1326,40 @@ void CMDialog::ToEntireImage(void)
 	
 	m_settingSelectedEntireButton = TRUE;
 	
-	DDX_Text(m_dialogToPtr, IDC_LineStart, m_LineStart);   
-	DDX_Text(m_dialogToPtr, IDC_LineEnd, m_LineEnd); 
-	DDX_Text(m_dialogToPtr, IDC_ColumnStart, m_ColumnStart); 
-	DDX_Text(m_dialogToPtr, IDC_ColumnEnd, m_ColumnEnd);
+	DDX_Text (m_dialogToPtr, IDC_LineStart, m_LineStart);   
+	DDX_Text (m_dialogToPtr, IDC_LineEnd, m_LineEnd); 
+	DDX_Text (m_dialogToPtr, IDC_ColumnStart, m_ColumnStart); 
+	DDX_Text (m_dialogToPtr, IDC_ColumnEnd, m_ColumnEnd);
 	
 	m_settingSelectedEntireButton = FALSE; 
 
-	GetDlgItem(IDC_LineStart)->SetFocus();
+	GetDlgItem (IDC_LineStart)->SetFocus ();
 	
-	SetEntireImageButtons (
-							NULL,
-							m_LineStart,
-							m_LineEnd,
-							m_ColumnStart,
-							m_ColumnEnd); 
+	SetEntireImageButtons (NULL,
+									m_LineStart,
+									m_LineEnd,
+									m_ColumnStart,
+									m_ColumnEnd);
 		                                   
 	SelectDialogItemText (this, IDC_LineStart, 0, SInt16_MAX);
 	
-}		// end "ToEntireImage"
+}	// end "ToEntireImage"
 
 
-void CMDialog::ToSelectedImage()
+
+void CMDialog::ToSelectedImage ()
 
 {                                    
-	LongRect			selectionRect;
+	LongRect								selectionRect;
 	
 				 
 			//	Change to selected area
 			
-	if (GetSelectionRectangle (
-//					gActiveImageViewCPtr, 
-					m_dialogSelectArea.windowPtr, 
-					&selectionRect, 
-					kDontClearSelectionArea, 
-					kUseThreshold, 
-					kDontAdjustToBaseImage) )
+	if (GetSelectionRectangle (m_dialogSelectArea.windowPtr,
+										&selectionRect,
+										kDontClearSelectionArea,
+										kUseThreshold,
+										kDontAdjustToBaseImage))
 		{           
 		m_LineStart = selectionRect.top;
 		m_LineEnd = selectionRect.bottom;
@@ -1466,7 +1375,7 @@ void CMDialog::ToSelectedImage()
 	
 		m_settingSelectedEntireButton = FALSE; 
 
-		GetDlgItem(IDC_LineStart)->SetFocus();
+		GetDlgItem (IDC_LineStart)->SetFocus ();
 	
 		SetEntireImageButtons (
 							NULL,
@@ -1477,14 +1386,52 @@ void CMDialog::ToSelectedImage()
 		                                      
 		SelectDialogItemText (this, IDC_LineStart, 0, SInt16_MAX);
 		
-		}		// end "if (GetLineColumnSelection(..."
+		}	// end "if (GetLineColumnSelection (..."
 	
-}		// end "ToSelectedImage" 
+}	// end "ToSelectedImage"
 
 
-//-----------------------------------------------------------------------------
-//								 Copyright (1988-2017)
-//								Ä Purdue Research Foundation
+
+void CMDialog::UpdateAllSubsetList (
+				UInt16								channelsMenuItemNumber)
+
+{
+	if (m_channelListType == kSelectedItemsListOnly)
+		{
+		if (((CComboBox*)GetDlgItem (channelsMenuItemNumber))->GetCount () == 2)
+			{
+			if (m_channelSelection == kAllMenuItem)
+				((CComboBox*)GetDlgItem (channelsMenuItemNumber))->DeleteString (1);
+			
+			else	// m_channelSelection == kSubsetMenuItem
+				((CComboBox*)GetDlgItem (channelsMenuItemNumber))->DeleteString (0);
+			
+			}	// end "if (...->GetCount () == 2)"
+		
+		}	// end "if (m_channelListType == kSelectedChannelsListOnly)"
+	
+	else	// m_channelListType != kSelectedChannelsListOnly
+		{
+		if (((CComboBox*)GetDlgItem (channelsMenuItemNumber))->GetCount () == 1)
+			{
+			((CComboBox*)GetDlgItem (channelsMenuItemNumber))->ResetContent ();
+				
+			((CComboBox*)GetDlgItem (channelsMenuItemNumber))->
+																AddString ((LPCTSTR)_T("All"));
+			((CComboBox*)GetDlgItem (channelsMenuItemNumber))->
+																AddString ((LPCTSTR)_T("Subset..."));
+			
+			}	// end "if (...->GetCount () == 1)"
+			
+		}	// end "else m_channelListType != kSelectedChannelsListOnly"
+	
+}	// end "UpdateAllSubsetList"
+
+
+
+//-----------------------------------------------------------------------------------
+//								 Copyright (1988-2020)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		short int UpdateOneColListSelections
@@ -1514,22 +1461,22 @@ UInt16 CMDialog::UpdateOneColListSelections (
 				UInt16								listInterval)
 
 {
-	Boolean					selectionFlag;
-	
-	UInt16					index,
-								item,
-								nextTrueSelection,
-								numberSelections;
+	UInt16								index,
+											item,
+											nextTrueSelection,
+											numberSelections;
 								
+	Boolean								selectionFlag;
 	
+
 	index = 0;
 	
 	for (item=1; item<listStart; item++)
 		{
-		((CListBox*)GetDlgItem(IDC_List1))->SetSel(index, FALSE);
+		((CListBox*)GetDlgItem (IDC_List1))->SetSel (index, FALSE);
 		index++;
 		
-		}		// end "for ( item=1; item<..." 
+		}	// end "for (item=1; item<..." 
 	
 	nextTrueSelection = listStart;
 	for (item=listStart; item<=listEnd; item++)
@@ -1539,62 +1486,28 @@ UInt16 CMDialog::UpdateOneColListSelections (
 		if (selectionFlag)
 			nextTrueSelection += listInterval;
 			
-		((CListBox*)GetDlgItem(IDC_List1))->SetSel(index, selectionFlag);
+		((CListBox*)GetDlgItem (IDC_List1))->SetSel (index, selectionFlag);
 			
 		index++;
 		
-		}		// end "for ( item=listStart; item..." 
+		}	// end "for (item=listStart; item..." 
 	
 	for (item=listEnd+1; item<=numberInputVecItems; item++)
 		{
-		((CListBox*)GetDlgItem(IDC_List1))->SetSel(index, FALSE);
+		((CListBox*)GetDlgItem (IDC_List1))->SetSel (index, FALSE);
 		index++;
 		
-		}		// end "for ( item=listEnd+1; item<..." 
+		}	// end "for (item=listEnd+1; item<..." 
 			
 	numberSelections = (listEnd - listStart + listInterval)/listInterval; 
 	
 	return (numberSelections);
 						
-}		// end "UpdateOneColListSelections"               
-
-
-void CMDialog::UpdateAllSubsetList(
-				UInt16						channelsMenuItemNumber)
-				
-{                                                           
-	if (m_channelListType == kSelectedItemsListOnly)
-		{  	
-		if ( ((CComboBox*)GetDlgItem(channelsMenuItemNumber))->GetCount() == 2 )
-			{
-			if (m_channelSelection == kAllMenuItem)
-				((CComboBox*)GetDlgItem(channelsMenuItemNumber))->DeleteString(1);
-				
-			else		// m_channelSelection == kSubsetMenuItem
-				((CComboBox*)GetDlgItem(channelsMenuItemNumber))->DeleteString(0);
-				
-			}		// end "if (...->GetCount() == 2 )"
-		
-		}		// end "if (m_channelListType == kSelectedChannelsListOnly)"
-		
-	else		// m_channelListType != kSelectedChannelsListOnly
-		{ 
-		if ( ((CComboBox*)GetDlgItem(channelsMenuItemNumber))->GetCount() == 1 )
-			{                            
-			((CComboBox*)GetDlgItem(channelsMenuItemNumber))->ResetContent();
-				                                 
-			((CComboBox*)GetDlgItem(channelsMenuItemNumber))->AddString((LPCTSTR)_T("All"));
-			((CComboBox*)GetDlgItem(channelsMenuItemNumber))->AddString((LPCTSTR)_T("Subset..."));
-				
-			}		// end "if (...->GetCount() == 1 )"
-			
-		}		// end "else m_channelListType != kSelectedChannelsListOnly"
-	
-}		// end "UpdateAllSubsetList"  
+}	// end "UpdateOneColListSelections"
 
 
 
-void CMDialog::VerifyLineColumnStartEndValues(
+void CMDialog::VerifyLineColumnStartEndValues (
 				CDataExchange* 					pDX)
 				
 {  
@@ -1604,24 +1517,25 @@ void CMDialog::VerifyLineColumnStartEndValues(
 					
 		if (m_LineStart > m_LineEnd)
 			{
-			DDX_Text(pDX, IDC_LineStart, m_LineStart);              
-			DDV_MinMaxLong(pDX, m_LineStart, 1, m_LineEnd);
+			DDX_Text (pDX, IDC_LineStart, m_LineStart);              
+			DDV_MinMaxLong (pDX, m_LineStart, 1, m_LineEnd);
 				
-			}		// end "m_LineStart > m_LineEnd"
+			}	// end "m_LineStart > m_LineEnd"
 					
 		if (m_ColumnStart > m_ColumnEnd)
 			{ 
-			DDX_Text(pDX, IDC_ColumnStart, m_ColumnStart);
-			DDV_MinMaxLong(pDX, m_ColumnStart, 1, m_ColumnEnd);
+			DDX_Text (pDX, IDC_ColumnStart, m_ColumnStart);
+			DDV_MinMaxLong (pDX, m_ColumnStart, 1, m_ColumnEnd);
 				
-			}		// end "if (m_ColumnStart > m_ColumnEnd)"
+			}	// end "if (m_ColumnStart > m_ColumnEnd)"
 
-		}		// end "if (pDX->m_bSaveAndValidate)"
+		}	// end "if (pDX->m_bSaveAndValidate)"
 	
-}		// end "VerifyLineColumnStartEndValues" 
+}	// end "VerifyLineColumnStartEndValues" 
 
 
-SInt16 CMDialog::VerifyLineColumnValues(
+
+SInt16 CMDialog::VerifyLineColumnValues (
 				CDataExchange* 					pDX, 
 				SInt16								startLineItem,
 				SInt16								startColumnItem,
@@ -1635,88 +1549,43 @@ SInt16 CMDialog::VerifyLineColumnValues(
 			// Verify that the line and column values make sense
 	
 	VerifyLineColumnStartEndValues (pDX);
-	/*
-	if (m_LineStart > m_LineEnd)
-		{
-		DDX_Text(pDX, IDC_LineStart, m_LineStart);              
-		DDV_MinMaxLong(pDX, m_LineStart, 1, m_LineEnd);
-			
-		}		// end "m_LineStart > m_LineEnd"
-				
-	if (m_ColumnStart > m_ColumnEnd)
-		{ 
-		DDX_Text(pDX, IDC_ColumnStart, m_ColumnStart);
-		DDV_MinMaxLong(pDX, m_ColumnStart, 1, m_ColumnEnd);
-			
-		}		// end "if (m_ColumnStart > m_ColumnEnd)"
-	*/
+
 			// Verify that the number of lines to be displayed is less than
 			// the maximum possible. 
 										
-	returnCode = CheckNumberDisplayLines (
-									m_LineStart, 
-									m_LineEnd, 
-									m_LineInterval,
-									NULL, 
-									startLineItem);
+	returnCode = CheckNumberDisplayLines (m_LineStart,
+														m_LineEnd,
+														m_LineInterval,
+														NULL,
+														startLineItem);
 										
 	if (returnCode == 0)
 		{
-		pDX->PrepareEditCtrl(IDC_LineEnd);
-		pDX->Fail();
+		pDX->PrepareEditCtrl (IDC_LineEnd);
+		pDX->Fail ();
 			
-		}		// end "if (returnCode == 0)"	
+		}	// end "if (returnCode == 0)"	
 			
 			// Verify that the number of columns to be displayed is less than
 			// the maximum possible.
 			// This part needs to be updated. 
 										
-	returnCode = CheckNumberDisplayColumns (
-									m_ColumnStart, 
-									m_ColumnEnd, 
-									m_ColumnInterval,
-									pixelSize,
-									displayType,
-									numberChannels, 
-									NULL, 
-									startColumnItem);
+	returnCode = CheckNumberDisplayColumns (m_ColumnStart,
+															m_ColumnEnd,
+															m_ColumnInterval,
+															pixelSize,
+															displayType,
+															numberChannels,
+															NULL,
+															startColumnItem);
 										
 	if (returnCode == 0)
 		{
-		pDX->PrepareEditCtrl(IDC_ColumnEnd);
-		pDX->Fail();
+		pDX->PrepareEditCtrl (IDC_ColumnEnd);
+		pDX->Fail ();
 			
-		}		// end "if (returnCode == 0)"
+		}	// end "if (returnCode == 0)"
 		
 	return (returnCode);  
 	
-}		// end "VerifyLineColumnValues"  
-
-
-void CMDialog::OnFeatureTransformation()
-
-{                                
-	DDX_Check (m_dialogFromPtr,
-					IDC_FeatureTransformation, 
-					m_featureTransformationFlag);
-	
-	CheckFeatureTransformationDialog (this,
-													m_featureTransformAllowedFlag, 
-													IDC_FeatureTransformation, 
-													IDC_ChannelPrompt, 
-													(SInt16*)&m_featureTransformationFlag);  
-	
-}		// end "OnFeatureTransformation" 
-
-
-
-void CMDialog::OnSelendokClassCombo()
-{                                                                                
-	HandleClassesMenu (&m_localNumberClasses,
-								(SInt16*)m_classListPtr,
-								1,      
-								(SInt16)gProjectInfoPtr->numberStatisticsClasses, 
-								IDC_ClassCombo,
-								&m_classSelection);
-	
-}		// end "OnSelendokClassCombo"  
+}	// end "VerifyLineColumnValues"

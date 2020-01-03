@@ -1,59 +1,61 @@
-// WClassPairWeightsDialog.cpp : implementation file
+//	 									MultiSpec
 //
-// Revised by Larry Biehl on 12/21/2017
+//					Laboratory for Applications of Remote Sensing
+// 								Purdue University
+//								West Lafayette, IN 47907
+//								 Copyright (1995-2020)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
 //
+//	File:						WClassPairWeightsDialog.cpp : implementation file
+//
+//	Authors:					Larry L. Biehl
+//
+//	Revision date:			01/04/2018
+//
+//	Language:				C++
+//
+//	System:					Windows Operating System
+//
+//	Brief description:	This file contains functions that relate to the
+//								CMClassPairWeightDlg class.
+//
+//------------------------------------------------------------------------------------
 
 #include "SMultiSpec.h"
+
 #include "WClassPairWeightsDialog.h" 
-//#include	"SExtGlob.h" 
-
-extern void 			ClassPairWeightsDialogChangeWeight (
-								DialogPtr							dialogPtr,
-								ListHandle							classListHandle,
-								ListHandle							weightListHandle,
-								SInt16	 							newWeight);
-
-extern SInt16 			ClassPairWeightsDialogClassSelectionChange (
-								DialogPtr							dialogPtr,
-								ListHandle							listHandle,
-								SInt16	 							newWeight);
-
-extern SInt16 			ClassPairWeightsDialogWeightSelectionChange (
-								DialogPtr							dialogPtr,
-								ListHandle							listHandle);
-
-extern void				ClassPairWeightsDialogInitialize (
-								DialogPtr							dialogPtr,
-								SInt16								defaultClassPairWeight,
-								SInt16*								localDefaultClassPairWeightPtr);
-
-extern void		 		ClassPairWeightsDialogOK (
-								DialogPtr							dialogPtr,
-								ListHandle							listHandle,
-								SInt16**								weightsListPtrPtr,
-								SInt16*								interClassWeightsSelectionPtr,
-								SInt16								localDefaultClassPairWeight,
-								SInt16*								defaultClassPairWeightPtr);
-
-extern SInt16 			ClassPairWeightsDialogRemoveWeightSelection (
-								DialogPtr							dialogPtr,
-								ListHandle							listHandle,
-								SInt16								selectedWeightGroupCell);
 
 #ifdef _DEBUG
-#define new DEBUG_NEW
-#undef THIS_FILE
-static char THIS_FILE[] = __FILE__;
+	#define new DEBUG_NEW
+	#undef THIS_FILE
+	static char THIS_FILE[] = __FILE__;
 #endif
 
-/////////////////////////////////////////////////////////////////////////////
-// CMClassPairWeightDlg dialog
 
 
-CMClassPairWeightDlg::CMClassPairWeightDlg(CWnd* pParent /*=NULL*/)
-	: CMDialog(CMClassPairWeightDlg::IDD, pParent)
+BEGIN_MESSAGE_MAP (CMClassPairWeightDlg, CMDialog)
+	//{{AFX_MSG_MAP (CMClassPairWeightDlg)
+	ON_BN_CLICKED (IDC_AddButton, OnAddButton)
+	ON_BN_CLICKED (IDC_HelpButton, OnHelpButton)
+	ON_BN_CLICKED (IDC_RemoveButton, OnRemoveButton)
+
+	ON_EN_CHANGE (IDC_DefaultWeight, OnChangeDefaultWeight)
+	ON_EN_CHANGE (IDC_NewWeight, OnChangeNewWeight)
+
+	ON_LBN_SELCHANGE (IDC_ClassList, OnSelchangeClassList)
+	ON_LBN_SELCHANGE (IDC_ClassPairWeightList, OnSelchangeClassPairWeightList)
+	//}}AFX_MSG_MAP
+END_MESSAGE_MAP ()
+
+
+
+CMClassPairWeightDlg::CMClassPairWeightDlg (
+				CWnd* 								pParent /*=NULL*/)
+		: CMDialog (CMClassPairWeightDlg::IDD, pParent)
+
 {
-	//{{AFX_DATA_INIT(CMClassPairWeightDlg)
+	//{{AFX_DATA_INIT (CMClassPairWeightDlg)
 	m_newClassPairWeight = 0;
 	m_localDefaultClassPairWeight = 0;
 	//}}AFX_DATA_INIT
@@ -67,44 +69,36 @@ CMClassPairWeightDlg::CMClassPairWeightDlg(CWnd* pParent /*=NULL*/)
 	                        
 	m_initializedFlag = CMDialog::m_initializedFlag;
 
-}		// end "CMClassPairWeightDlg"
+}	// end "CMClassPairWeightDlg"
 
 
 
-void CMClassPairWeightDlg::DoDataExchange(CDataExchange* pDX)
+void CMClassPairWeightDlg::DoDataExchange (
+				CDataExchange* 					pDX)
+
 {
-	CDialog::DoDataExchange(pDX);
-	//{{AFX_DATA_MAP(CMClassPairWeightDlg)
-	DDX_Text(pDX, IDC_NewWeight, m_newClassPairWeight);
-	DDV_MinMaxLong(pDX, m_newClassPairWeight, 0, 99);
-	DDX_Text(pDX, IDC_DefaultWeight, m_localDefaultClassPairWeight);
-	DDV_MinMaxLong(pDX, m_localDefaultClassPairWeight, 0, 99);
+	CDialog::DoDataExchange (pDX);
+	
+	//{{AFX_DATA_MAP (CMClassPairWeightDlg)
+	DDX_Text (pDX, IDC_NewWeight, m_newClassPairWeight);
+	DDV_MinMaxLong (pDX, m_newClassPairWeight, 0, 99);
+	DDX_Text (pDX, IDC_DefaultWeight, m_localDefaultClassPairWeight);
+	DDV_MinMaxLong (pDX, m_localDefaultClassPairWeight, 0, 99);
 	//}}AFX_DATA_MAP
-}
+	
+}	// end "DoDataExchange"
 
-
-BEGIN_MESSAGE_MAP(CMClassPairWeightDlg, CMDialog)
-	//{{AFX_MSG_MAP(CMClassPairWeightDlg)
-	ON_BN_CLICKED(IDC_HelpButton, OnHelpButton)
-	ON_LBN_SELCHANGE(IDC_ClassList, OnSelchangeClassList)
-	ON_BN_CLICKED(IDC_AddButton, OnAddButton)
-	ON_EN_CHANGE(IDC_NewWeight, OnChangeNewWeight)
-	ON_BN_CLICKED(IDC_RemoveButton, OnRemoveButton)
-	ON_LBN_SELCHANGE(IDC_ClassPairWeightList, OnSelchangeClassPairWeightList)
-	ON_EN_CHANGE(IDC_DefaultWeight, OnChangeDefaultWeight)
-	//}}AFX_MSG_MAP
-END_MESSAGE_MAP()
 
 
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-1998)
-//								c Purdue Research Foundation
+//								 Copyright (1999-2020)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void DoDialog
 //
-//	Software purpose:	The purpose of this routine is to present the display
-//							specification dialog box to the user and copy the
+//	Software purpose:	The purpose of this routine is to present the class pair
+//							weights specification dialog box to the user and copy the
 //							revised back to the display specification structure if
 //							the user selected OK.
 //
@@ -114,21 +108,18 @@ END_MESSAGE_MAP()
 //
 //	Value Returned:	None		
 // 
-//	Called By:			Dialog in MDisMult.cpp
+//	Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 12/21/1999
 //	Revised By:			Larry L. Biehl			Date: 05/26/2017	
 
-SInt16 
-CMClassPairWeightDlg::DoDialog(
+SInt16 CMClassPairWeightDlg::DoDialog (
 				UInt16								numberOfClassesToUse, 
 				SInt16**	 							classPairWeightsListPtrPtr,
 				SInt16								interClassWeightsSelection,
 				SInt16*								defaultClassPairWeightPtr)
 
 {  
-//	CListBox* 							listBoxPtr;
-	
 	INT_PTR								returnCode;
 	
 	Boolean								OKFlag = FALSE; 
@@ -152,34 +143,128 @@ CMClassPairWeightDlg::DoDialog(
 
 		interClassWeightsSelection = m_classPairWeightsSelection;
 		
-		}		// end "if (returnCode == IDOK)"
+		}	// end "if (returnCode == IDOK)"
 		
 	return (interClassWeightsSelection);
 		
-}		// end "DoDialog" 
+}	// end "DoDialog" 
 
-/////////////////////////////////////////////////////////////////////////////
-// CMClassPairWeightDlg message handlers
 
-BOOL 
-CMClassPairWeightDlg::OnInitDialog() 
+
+void CMClassPairWeightDlg::OnAddButton ()
 
 {
-	#if defined _UNICODE
-		USES_CONVERSION;
-	#endif              
-
-	char								string[25];
-
-	LOGFONT							logFont;
-
-	CListBox 						*classListBoxPtr,
-										*weightsListBoxPtr;
-
-	SInt16							localDefaultClassPairWeight;
+	CListBox*							classListBoxCPtr;
+	CListBox*							weightListBoxCPtr;
 
 
-	CMDialog::OnInitDialog();
+	classListBoxCPtr = (CListBox*)GetDlgItem (IDC_ClassList);
+	weightListBoxCPtr = (CListBox*)GetDlgItem (IDC_ClassPairWeightList);
+					
+	ClassPairWeightsDialogChangeWeight (this,
+													classListBoxCPtr,
+													weightListBoxCPtr,
+													(SInt16)m_newClassPairWeight);	
+	
+}	// end "OnAddButton"
+
+
+
+void CMClassPairWeightDlg::OnChangeDefaultWeight ()
+
+{
+			// If this is a RICHEDIT control, the control will not
+			// send this notification unless you override the CDialog::OnInitDialog ()
+			// function and call CRichEditCtrl ().SetEventMask ()
+			// with the ENM_CHANGE flag ORed into the mask.
+
+	CString								tempString;
+
+
+	DDX_Text (m_dialogFromPtr, IDC_DefaultWeight, tempString);
+
+	if (tempString.GetLength () > 0)
+			{
+			DDX_Text (m_dialogFromPtr,
+							IDC_DefaultWeight, 
+							m_localDefaultClassPairWeight);
+			DDV_MinMaxLong (m_dialogFromPtr, m_localDefaultClassPairWeight, 0, 99);
+
+			}	// end "if (tempString.GetLength () > 0)"
+
+	else	// tempString.GetLength () == 0
+		{
+		m_localDefaultClassPairWeight = -1;
+
+		}	// end "else tempString.GetLength () == 0"
+	
+}	// end "OnChangeDefaultWeight"
+
+
+
+void CMClassPairWeightDlg::OnChangeNewWeight ()
+
+{
+			// If this is a RICHEDIT control, the control will not
+			// send this notification unless you override the CDialog::OnInitDialog ()
+			// function and call CRichEditCtrl ().SetEventMask ()
+			// with the ENM_CHANGE flag ORed into the mask.
+
+	CString								tempString;
+
+
+	DDX_Text (m_dialogFromPtr, IDC_NewWeight, tempString);
+
+	if (tempString.GetLength () > 0)
+			{
+			DDX_Text (m_dialogFromPtr, IDC_NewWeight, m_newClassPairWeight);
+			DDV_MinMaxLong (m_dialogFromPtr, m_newClassPairWeight, 0, 99);
+
+			if (m_selectedClassCell >= 0)
+				SetDLogControlHilite (this, IDC_AddButton, 0);
+
+			}	// end "if (tempString.GetLength () > 0)"
+
+	else	// tempString.GetLength () == 0
+		{
+		m_newClassPairWeight = -1;
+		SetDLogControlHilite (this, IDC_AddButton, 255);
+
+		}	// end "else tempString.GetLength () == 0"
+	
+}	// end "OnChangeNewWeight"
+
+
+
+void CMClassPairWeightDlg::OnHelpButton ()
+ 
+{
+	SetDLogControlHilite (this, IDOK, 255);
+
+	DisplayAlert (1152, 0, kAlertStrID, IDS_Alert9, 0, NULL);
+	
+	SetDLogControlHilite (this, IDOK, 0);
+	
+}	// end "OnHelpButton"
+
+
+
+BOOL CMClassPairWeightDlg::OnInitDialog ()
+
+{
+	USES_CONVERSION;
+
+	char									string[25];
+
+	LOGFONT								logFont;
+
+	CListBox 							*classListBoxPtr,
+											*weightsListBoxPtr;
+
+	SInt16								localDefaultClassPairWeight;
+
+
+	CMDialog::OnInitDialog ();
 		
 			// Initialize some dialog parameters.
 			
@@ -189,40 +274,35 @@ CMClassPairWeightDlg::OnInitDialog()
 
 	m_localDefaultClassPairWeight = localDefaultClassPairWeight;
 		
-	if (UpdateData(FALSE))
+	if (UpdateData (FALSE))
 		{ 
 		PositionDialogWindow (); 
 									
 
 				// Set font for the class list box.
 
-		memset(&logFont, 0, sizeof(LOGFONT));  // Clear out structure.
+		memset (&logFont, 0, sizeof (LOGFONT));  // Clear out structure.
 		logFont.lfHeight = -10;                 
-		strcpy(string, "Courier");	    
-		#if defined _UNICODE
-			_tcscpy (logFont.lfFaceName, A2T(string)); 
-		#endif	    
-		#if !defined _UNICODE
-			strcpy (logFont.lfFaceName, string); 
-		#endif
-		m_weightsListFont.CreateFontIndirect(&logFont);
+		strcpy (string, "Courier");
+		_tcscpy (logFont.lfFaceName, A2T(string));
+		m_weightsListFont.CreateFontIndirect (&logFont);
 
-		classListBoxPtr = (CListBox*)GetDlgItem(IDC_ClassList); 
-		classListBoxPtr->SetFont(&m_weightsListFont);
+		classListBoxPtr = (CListBox*)GetDlgItem (IDC_ClassList);
+		classListBoxPtr->SetFont (&m_weightsListFont);
 
 				// Set font for the class pair list box
  
-		weightsListBoxPtr = (CListBox*)GetDlgItem(IDC_ClassPairWeightList);
-		weightsListBoxPtr->SetFont(&m_weightsListFont);
+		weightsListBoxPtr = (CListBox*)GetDlgItem (IDC_ClassPairWeightList);
+		weightsListBoxPtr->SetFont (&m_weightsListFont);
 		
 				// Load the class list.															
 				
 		LoadClassList (this, 
-								classListBoxPtr, 
-								m_numberOfClassesToUse, 
-								NULL, 
-								NULL, 
-								FALSE);
+							classListBoxPtr,
+							m_numberOfClassesToUse, 
+							NULL, 
+							NULL, 
+							FALSE);
 				
 				// Load the class weight group list if any exist.						
 					
@@ -230,28 +310,30 @@ CMClassPairWeightDlg::OnInitDialog()
 										weightsListBoxPtr, 
 										*m_weightsListPtrPtr);
 
-		// Set default text selection to first edit text item 
+				// Set default text selection to first edit text item
 			                                       
 		SelectDialogItemText (this, IDC_NewWeight, 0, SInt16_MAX);      
 		
 		return FALSE;  // return TRUE  unless you set the focus to a control
 		
-		}		// end "if (UpdateData(FALSE) )"
+		}	// end "if (UpdateData (FALSE))"
 	
 	return TRUE;  // return TRUE unless you set the focus to a control
 	              // EXCEPTION: OCX Property Pages should return FALSE
-}
+	
+}	// end "OnInitDialog"
 
 
 
-void CMClassPairWeightDlg::OnOK() 
+void CMClassPairWeightDlg::OnOK ()
+
 {
 	CListBox* 							listBoxPtr;
 	
 	SInt16								classPairWeightsSelection;
 	
 		
-	listBoxPtr = (CListBox*)GetDlgItem(IDC_ClassPairWeightList);
+	listBoxPtr = (CListBox*)GetDlgItem (IDC_ClassPairWeightList);
 	classPairWeightsSelection = m_classPairWeightsSelection;
 	
 	ClassPairWeightsDialogOK (this,
@@ -263,150 +345,56 @@ void CMClassPairWeightDlg::OnOK()
 										
 	m_classPairWeightsSelection = classPairWeightsSelection;
 	
-	CDialog::OnOK();
+	CDialog::OnOK ();
 	
-}		// end "OnOK"
+}	// end "OnOK"
 
 
 
-void 
-CMClassPairWeightDlg::OnHelpButton()
- 
-{
-	SetDLogControlHilite (this, IDOK, 255);
+void CMClassPairWeightDlg::OnRemoveButton ()
 
-	DisplayAlert (1152, 0, kAlertStrID, IDS_Alert9, 0, NULL);
-	
-	SetDLogControlHilite (this, IDOK, 0);
-	
-}		// end "OnHelpButton"
-
-
-
-void CMClassPairWeightDlg::OnSelchangeClassList() 
-{
-	CListBox*						classListBoxCPtr;
-
-
-	classListBoxCPtr = (CListBox*)GetDlgItem(IDC_ClassList);
-	
-
-	m_selectedClassCell = ClassPairWeightsDialogClassSelectionChange (
-												this,
-												classListBoxCPtr,
-												(SInt16)m_newClassPairWeight);
-	
-}		// end "OnSelchangeClassList"
-
-
-
-void CMClassPairWeightDlg::OnAddButton() 
-{
-	CListBox*						classListBoxCPtr;
-	CListBox*						weightListBoxCPtr;
-
-
-	classListBoxCPtr = (CListBox*)GetDlgItem(IDC_ClassList);
-	weightListBoxCPtr = (CListBox*)GetDlgItem(IDC_ClassPairWeightList);
-					
-	ClassPairWeightsDialogChangeWeight (this,
-													classListBoxCPtr,
-													weightListBoxCPtr,
-													(SInt16)m_newClassPairWeight);	
-	
-}
-
-void CMClassPairWeightDlg::OnChangeNewWeight() 
-{
-	// TODO: If this is a RICHEDIT control, the control will not
-	// send this notification unless you override the CDialog::OnInitDialog()
-	// function and call CRichEditCtrl().SetEventMask()
-	// with the ENM_CHANGE flag ORed into the mask.
-
-	CString					tempString;
-
-
-	DDX_Text(m_dialogFromPtr, IDC_NewWeight, tempString);
-
-	if (tempString.GetLength() > 0)
-			{
-			DDX_Text(m_dialogFromPtr, IDC_NewWeight, m_newClassPairWeight);
-			DDV_MinMaxLong(m_dialogFromPtr, m_newClassPairWeight, 0, 99);
-
-			if (m_selectedClassCell >= 0)
-				SetDLogControlHilite (this, IDC_AddButton, 0);
-
-			}		// end "if (tempString.GetLength() > 0)"
-
-	else		// tempString.GetLength() == 0
-		{
-		m_newClassPairWeight = -1;
-		SetDLogControlHilite (this, IDC_AddButton, 255);
-
-		}		// end "else tempString.GetLength() == 0"
-	
-}		// end "OnChangeNewWeight"
-
-
-
-void CMClassPairWeightDlg::OnRemoveButton() 
 { 
-	CListBox*						weightListBoxCPtr;
+	CListBox*							weightListBoxCPtr;
 	
 
-	weightListBoxCPtr = (CListBox*)GetDlgItem(IDC_ClassPairWeightList);
+	weightListBoxCPtr = (CListBox*)GetDlgItem (IDC_ClassPairWeightList);
 	
 	m_selectedWeightGroupCell = 
-				ClassPairWeightsDialogRemoveWeightSelection (
-													this,
-													weightListBoxCPtr,
-													m_selectedWeightGroupCell);
+				ClassPairWeightsDialogRemoveWeightSelection (this,
+																			weightListBoxCPtr,
+																			m_selectedWeightGroupCell);
 	
-}		// end "OnRemoveButton"
+}	// end "OnRemoveButton"
 
 
 
-void CMClassPairWeightDlg::OnSelchangeClassPairWeightList() 
+void CMClassPairWeightDlg::OnSelchangeClassList ()
+
 {
-	CListBox*						weightListBoxCPtr;
+	CListBox*							classListBoxCPtr;
+
+
+	classListBoxCPtr = (CListBox*)GetDlgItem (IDC_ClassList);
+	
+	m_selectedClassCell = ClassPairWeightsDialogClassSelectionChange (
+																	this,
+																	classListBoxCPtr,
+																	(SInt16)m_newClassPairWeight);
+	
+}	// end "OnSelchangeClassList"
+
+
+
+void CMClassPairWeightDlg::OnSelchangeClassPairWeightList ()
+
+{
+	CListBox*							weightListBoxCPtr;
 	
 
-	weightListBoxCPtr = (CListBox*)GetDlgItem(IDC_ClassPairWeightList);
+	weightListBoxCPtr = (CListBox*)GetDlgItem (IDC_ClassPairWeightList);
 					
 	m_selectedWeightGroupCell = 
-						ClassPairWeightsDialogWeightSelectionChange (
-													this,
-													weightListBoxCPtr);
+						ClassPairWeightsDialogWeightSelectionChange (this,
+																					weightListBoxCPtr);
 	
-}		// end "OnSelchangeClassPairWeightList"
-
-
-
-void CMClassPairWeightDlg::OnChangeDefaultWeight() 
-{
-	// TODO: If this is a RICHEDIT control, the control will not
-	// send this notification unless you override the CDialog::OnInitDialog()
-	// function and call CRichEditCtrl().SetEventMask()
-	// with the ENM_CHANGE flag ORed into the mask.
-
-	CString					tempString;
-
-
-	DDX_Text(m_dialogFromPtr, IDC_DefaultWeight, tempString);
-
-	if (tempString.GetLength() > 0)
-			{
-			DDX_Text(m_dialogFromPtr, 
-							IDC_DefaultWeight, 
-							m_localDefaultClassPairWeight);
-			DDV_MinMaxLong(m_dialogFromPtr, m_localDefaultClassPairWeight, 0, 99);
-
-			}		// end "if (tempString.GetLength() > 0)"
-
-	else		// tempString.GetLength() == 0
-		{
-		m_localDefaultClassPairWeight = -1;
-
-		}		// end "else tempString.GetLength() == 0"
-	
-}		// end "OnChangeDefaultWeight"
+}	// end "OnSelchangeClassPairWeightList"

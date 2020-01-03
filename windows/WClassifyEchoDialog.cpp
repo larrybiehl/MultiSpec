@@ -1,27 +1,53 @@
-// WClassifyEchoDialog.cpp : implementation file
-//           
-// Revised by Larry Biehl on 12/21/2017
+//	 									MultiSpec
 //
-                   
+//					Laboratory for Applications of Remote Sensing
+// 								Purdue University
+//								West Lafayette, IN 47907
+//								 Copyright (1995-2020)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	File:						WClassifyEchoDialog.cpp : implementation file
+//
+//	Authors:					Larry L. Biehl
+//
+//	Revision date:			01/04/2018
+//
+//	Language:				C++
+//
+//	System:					Windows Operating System
+//
+//	Brief description:	This file contains functions that relate to the
+//								CMEchoClassifyDialog class.
+//
+//------------------------------------------------------------------------------------
+
 #include "SMultiSpec.h"
                       
 #include "WClassifyEchoDialog.h"
 
-//#include	"SExtGlob.h"
-
 #ifdef _DEBUG
-#undef THIS_FILE
-static char BASED_CODE THIS_FILE[] = __FILE__;
+	#undef THIS_FILE
+	static char BASED_CODE THIS_FILE[] = __FILE__;
 #endif
 
-/////////////////////////////////////////////////////////////////////////////
-// CMEchoClassifyDialog dialog
 
 
-CMEchoClassifyDialog::CMEchoClassifyDialog(CWnd* pParent /*=NULL*/)
-	: CMDialog(CMEchoClassifyDialog::IDD, pParent)
+BEGIN_MESSAGE_MAP (CMEchoClassifyDialog, CMDialog)
+	//{{AFX_MSG_MAP (CMEchoClassifyDialog)
+	ON_BN_CLICKED (IDC_LogLike, OnLogLike)
+	ON_BN_CLICKED (IDC_Percent, OnPercent)
+	//}}AFX_MSG_MAP
+END_MESSAGE_MAP ()
+
+
+
+CMEchoClassifyDialog::CMEchoClassifyDialog (
+				CWnd* 								pParent /*=NULL*/)
+		: CMDialog (CMEchoClassifyDialog::IDD, pParent)
+
 {
-	//{{AFX_DATA_INIT(CMEchoClassifyDialog)
+	//{{AFX_DATA_INIT (CMEchoClassifyDialog)
 	m_cellWidth = 2;
 	m_annexationThreshold = 0;
 	m_homogeneityThreshold = 0;
@@ -37,52 +63,51 @@ CMEchoClassifyDialog::CMEchoClassifyDialog(CWnd* pParent /*=NULL*/)
 	
 	m_initializedFlag = CMDialog::m_initializedFlag; 
 	
-}		// end "CMEchoClassifyDialog"
+}	// end "CMEchoClassifyDialog"
 
 
 
-CMEchoClassifyDialog::~CMEchoClassifyDialog(void)
+CMEchoClassifyDialog::~CMEchoClassifyDialog (void)
+
 {              
 	
-}		// end "~CMEchoClassifyDialog"
+}	// end "~CMEchoClassifyDialog"
 
 
 
-void CMEchoClassifyDialog::DoDataExchange(CDataExchange* pDX)
+void CMEchoClassifyDialog::DoDataExchange (
+				CDataExchange* 					pDX)
+
 {
-	CDialog::DoDataExchange(pDX);
-	//{{AFX_DATA_MAP(CMEchoClassifyDialog)
-	DDX_Text(pDX, IDC_CellWidth, m_cellWidth);
-	DDV_MinMaxLong(pDX, m_cellWidth, 1, 100);
-	DDX_Text2(pDX, IDC_AnnexationThreshold, m_annexationThreshold);
-	DDV_MinMaxDouble(pDX, m_annexationThreshold, 0., 100.);
-	DDX_Text2(pDX, IDC_HomogeneityThreshold, m_homogeneityThreshold);
-	DDV_MinMaxDouble(pDX, m_homogeneityThreshold, m_minPhase1, m_maxPhase1);
-	DDX_Check(pDX, IDC_CombineLikeFields, m_combineLikeFieldsFlag);
-	DDX_Check(pDX, IDC_CreateHomogeneousFiles, m_createHomogeneousFilesFlag);
-	DDX_Check(pDX, IDC_MixCells, m_mixCellsFlag);
-	DDX_Radio(pDX, IDC_Percent, m_homogeneousThresholdType);
-	DDX_CBIndex(pDX, IDC_EchoAlgorithm, m_echoAlgorithmProcedure);
+	CDialog::DoDataExchange (pDX);
+	
+	//{{AFX_DATA_MAP (CMEchoClassifyDialog)
+	DDX_Text (pDX, IDC_CellWidth, m_cellWidth);
+	DDV_MinMaxLong (pDX, m_cellWidth, 1, 100);
+	DDX_Text2 (pDX, IDC_AnnexationThreshold, m_annexationThreshold);
+	DDV_MinMaxDouble (pDX, m_annexationThreshold, 0., 100.);
+	DDX_Text2 (pDX, IDC_HomogeneityThreshold, m_homogeneityThreshold);
+	DDV_MinMaxDouble (pDX, m_homogeneityThreshold, m_minPhase1, m_maxPhase1);
+	DDX_Check (pDX, IDC_CombineLikeFields, m_combineLikeFieldsFlag);
+	DDX_Check (pDX, IDC_CreateHomogeneousFiles, m_createHomogeneousFilesFlag);
+	DDX_Check (pDX, IDC_MixCells, m_mixCellsFlag);
+	DDX_Radio (pDX, IDC_Percent, m_homogeneousThresholdType);
+	DDX_CBIndex (pDX, IDC_EchoAlgorithm, m_echoAlgorithmProcedure);
 	//}}AFX_DATA_MAP
-}
-
-BEGIN_MESSAGE_MAP(CMEchoClassifyDialog, CMDialog)
-	//{{AFX_MSG_MAP(CMEchoClassifyDialog)
-	ON_BN_CLICKED(IDC_Percent, OnPercent)
-	ON_BN_CLICKED(IDC_LogLike, OnLogLike)
-	//}}AFX_MSG_MAP
-END_MESSAGE_MAP()   
+	
+}	// end "DoDataExchange"
 
 
-//-----------------------------------------------------------------------------
-//								 Copyright (1988-1998)
-//								c Purdue Research Foundation
+
+//------------------------------------------------------------------------------------
+//								 Copyright (1996-2020)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void DoDialog
 //
-//	Software purpose:	The purpose of this routine is to present the display
-//							specification dialog box to the user and copy the
+//	Software purpose:	The purpose of this routine is to present the echo
+//							classification specification dialog box to the user and copy the
 //							revised back to the display specification structure if
 //							the user selected OK.
 //
@@ -92,25 +117,23 @@ END_MESSAGE_MAP()
 //
 //	Value Returned:	None		
 // 
-//	Called By:			Dialog in MDisMult.cpp
+//	Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 04/18/1996
 //	Revised By:			Larry L. Biehl			Date: 05/26/2017	
 
-SInt16 
-CMEchoClassifyDialog::DoDialog(
+SInt16 CMEchoClassifyDialog::DoDialog (
 				EchoClassifierVarPtr				echoClassifierVarPtr)
 
 {  
-	Boolean						continueFlag = FALSE; 
+	INT_PTR								returnCode;
+	Boolean								continueFlag = FALSE;
 	
-	INT_PTR						returnCode;
 
-	                          
 			// Make sure intialization has been completed.
 							                         
-	if ( !m_initializedFlag )
-																			return(FALSE);
+	if (!m_initializedFlag)
+																					return (FALSE);
 																			
 	m_echoClassifierVarPtr = echoClassifierVarPtr;
 																					
@@ -125,7 +148,7 @@ CMEchoClassifyDialog::DoDialog(
 		m_echoClassifierVarPtr->cell_width = (SInt16)m_cellWidth;
 												
 		m_echoClassifierVarPtr->cell_size = 
-			m_echoClassifierVarPtr->cell_width * m_echoClassifierVarPtr->cell_width;
+				m_echoClassifierVarPtr->cell_width * m_echoClassifierVarPtr->cell_width;
 					
 				// Homogeneity (phase 1) threshold.						
 						
@@ -135,7 +158,7 @@ CMEchoClassifyDialog::DoDialog(
 				// percent probability correct.										
 				
 		m_echoClassifierVarPtr->fixed_homogeneityThreshold_option = 
-																	m_homogeneousThresholdType;
+																		m_homogeneousThresholdType;
 					
 				// Annexation threshold.									
 						
@@ -150,7 +173,7 @@ CMEchoClassifyDialog::DoDialog(
 				// homogeneous fields and classes.									
 																
 		m_echoClassifierVarPtr->createHomogeneousFilesFlag =  
-														m_createHomogeneousFilesFlag; 
+																	m_createHomogeneousFilesFlag;
 	
 				// Flag indicating whether to allow merging of 					
 				// cells and fields which are of different classes.			
@@ -161,19 +184,18 @@ CMEchoClassifyDialog::DoDialog(
 		
 		m_echoClassifierVarPtr->algorithmCode = m_echoAlgorithmProcedure + 1;
 		
-		}		// end "if (returnCode == IDOK)"
+		}	// end "if (returnCode == IDOK)"
 		
 	return (continueFlag);
 		
-}		// end "DoDialog"
+}	// end "DoDialog"
 
 
-/////////////////////////////////////////////////////////////////////////////
-// CMEchoClassifyDialog message handlers
 
-BOOL CMEchoClassifyDialog::OnInitDialog()
+BOOL CMEchoClassifyDialog::OnInitDialog ()
+
 {
-	CMDialog::OnInitDialog();
+	CMDialog::OnInitDialog ();
 	
 			// Cell Width.							
 	
@@ -199,14 +221,14 @@ BOOL CMEchoClassifyDialog::OnInitDialog()
 		m_maxPhase1 = 1000000.;
 		m_savedPhase1LogLikelihoodThreshold = m_homogeneityThreshold;
 											
-		}		// end "if (m_homogeneousThresholdType == 1)" 
+		}	// end "if (m_homogeneousThresholdType == 1)"
 		
-	else		// m_homogeneousThresholdType == 0
+	else	// m_homogeneousThresholdType == 0
 		{
 		m_maxPhase1 = 100.;
 		m_savedPhase1PercentThreshold = m_homogeneityThreshold;
 											
-		}		// end "else m_homogeneousThresholdType == 0"
+		}	// end "else m_homogeneousThresholdType == 0"
 	
 			// Annexation Threshold. (>= 0.0 && < 10.0)						
 		
@@ -232,55 +254,53 @@ BOOL CMEchoClassifyDialog::OnInitDialog()
 			
 	m_echoAlgorithmProcedure = m_echoClassifierVarPtr->algorithmCode - 1;
 	                  
-	if (UpdateData(FALSE) )                   
+	if (UpdateData (FALSE))
 		PositionDialogWindow ();
 		                                       
-//	GetDlgItem(IDC_CellWidth)->SetFocus();
-//	SendDlgItemMessage( IDC_CellWidth, EM_SETSEL, 0, MAKELPARAM(0, -1) );
-	SelectDialogItemText (this, IDC_CellWidth, 0, SInt16_MAX);  			 
+	SelectDialogItemText (this, IDC_CellWidth, 0, SInt16_MAX);
 	
 	return FALSE;  // return TRUE  unless you set the focus to a control
 	
-}		// end "OnInitDialog"
+}	// end "OnInitDialog"
 
 
 
-void CMEchoClassifyDialog::OnPercent()
+void CMEchoClassifyDialog::OnLogLike ()
+
+{
+	if (m_homogeneousThresholdType == 0)
+		{
+		DDX_Radio (m_dialogFromPtr, IDC_Percent, m_homogeneousThresholdType);
+			
+		DDX_Text2 (m_dialogFromPtr, IDC_HomogeneityThreshold, m_homogeneityThreshold);
+			
+		m_maxPhase1 = 1000000.;
+		m_savedPhase1PercentThreshold = m_homogeneityThreshold;
+		m_homogeneityThreshold = m_savedPhase1LogLikelihoodThreshold;
+			
+		DDX_Text2 (m_dialogToPtr, IDC_HomogeneityThreshold, m_homogeneityThreshold);
+			
+		}	// end "if (m_homogeneousThresholdType == 0)"
+	
+}	// end "OnLogLike"
+
+
+
+void CMEchoClassifyDialog::OnPercent ()
 
 { 			
 	if (m_homogeneousThresholdType == 1)
 		{                
-		DDX_Radio(m_dialogFromPtr, IDC_Percent, m_homogeneousThresholdType); 
+		DDX_Radio (m_dialogFromPtr, IDC_Percent, m_homogeneousThresholdType);
 		                                                          
-		DDX_Text2(m_dialogFromPtr, IDC_HomogeneityThreshold, m_homogeneityThreshold);
+		DDX_Text2 (m_dialogFromPtr, IDC_HomogeneityThreshold, m_homogeneityThreshold);
 		                                
 		m_maxPhase1 = 100.;
 		m_savedPhase1LogLikelihoodThreshold = m_homogeneityThreshold;
 		m_homogeneityThreshold = m_savedPhase1PercentThreshold;  
 		                                                          
-		DDX_Text2(m_dialogToPtr, IDC_HomogeneityThreshold, m_homogeneityThreshold);
+		DDX_Text2 (m_dialogToPtr, IDC_HomogeneityThreshold, m_homogeneityThreshold);
 										
-		}		// end "if (m_homogeneousThresholdType == 1)"                                                         
+		}	// end "if (m_homogeneousThresholdType == 1)"
 	
-}		// end "OnPercent"
-
-
-
-void CMEchoClassifyDialog::OnLogLike()
-
-{  			
-	if (m_homogeneousThresholdType == 0)
-		{                                             
-		DDX_Radio(m_dialogFromPtr, IDC_Percent, m_homogeneousThresholdType); 
-		                                                          
-		DDX_Text2(m_dialogFromPtr, IDC_HomogeneityThreshold, m_homogeneityThreshold);
-		                                
-		m_maxPhase1 = 1000000.;
-		m_savedPhase1PercentThreshold = m_homogeneityThreshold;
-		m_homogeneityThreshold = m_savedPhase1LogLikelihoodThreshold;
-		                                                          
-		DDX_Text2(m_dialogToPtr, IDC_HomogeneityThreshold, m_homogeneityThreshold);
-									
-		}		// end "if (m_homogeneousThresholdType == 0)"                                                         
-	
-}		// end "OnLogLike"
+}	// end "OnPercent"

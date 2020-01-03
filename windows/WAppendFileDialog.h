@@ -3,76 +3,78 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1995-2017)
-//								(c) Purdue Research Foundation
+//								 Copyright (1995-2020)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	File:						WAppendFileDialog.h
+//	Implementation:		WAppendFileDialog.cpp
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision number:		3.0
+//	Language:				C++
 //
-//	Language:				C
-//
-//	System:					Windows Operating Systems
+//	System:					Windows Operating System
 //
 //	Brief description:	Header file for the CMAppendFileDialog class
 //
-//	Written By:				Larry L. Biehl			Date: 05/23/1995
+//	Written By:				Larry L. Biehl			Date: ??/??/1990's
 //	Revised By:				Larry L. Biehl			Date: 12/31/2017
 //	
 //------------------------------------------------------------------------------------
 
-#if !defined __WAPDFDLG_H__
-	#define	__WAPDFDLG_H__             
+#pragma once
 	     
 #include "WDialog.h"
 
 class CMAppendFileDialog : public CMDialog
-	{
-	// Construction
+{
 	public:
-		CMAppendFileDialog (CWnd* pParent = NULL);	// standard constructor
+		CMAppendFileDialog (	// standard constructor
+				CWnd* 								pParent = NULL);
 		
 		SInt16 DoDialog (
-						FileInfoPtr					appendFileInfoPtr,
-						FileInfoPtr					newFileInfoPtr, 
-						Boolean						modifyFlag,
-						SInt64*						bytesToSkipPtr,
-						Boolean						lineFlag,
-						SInt32						newAfterLineChannel);
+				FileInfoPtr							appendFileInfoPtr,
+				FileInfoPtr							newFileInfoPtr,
+				Boolean								modifyFlag,
+				SInt64*								bytesToSkipPtr,
+				Boolean								lineFlag,
+				SInt32								newAfterLineChannel);
 
-			// Dialog Data
-		//{{AFX_DATA(CMAppendFileDialog)
+		// Dialog Data
+		//{{AFX_DATA (CMAppendFileDialog)
 		enum { IDD = IDD_AppendFile };
-		CString	m_appendFileName;
-		int		m_lineChannel;
-		long	m_lineChannelNumber;
+	
+		CString								m_appendFileName;
+	
+		int									m_lineChannel;
+		
+		long									m_lineChannelNumber;
 		//}}AFX_DATA
 
-			// Implementation
+	// Implementation
 	protected:
-		virtual void DoDataExchange (CDataExchange* pDX);	// DDX/DDV support
+		virtual void DoDataExchange (
+				CDataExchange* 					pDX);	// DDX/DDV support
 
 		// Generated message map functions
-		//{{AFX_MSG(CMAppendFileDialog)
+		//{{AFX_MSG (CMAppendFileDialog)
 		virtual BOOL OnInitDialog ();
+	
 		afx_msg void OnLineChannel ();
+	
 		afx_msg void OnLastLineChannel ();
 		//}}AFX_MSG
 		DECLARE_MESSAGE_MAP () 
 		
-		FileInfoPtr			m_appendFileInfoPtr; 
+		FileInfoPtr							m_appendFileInfoPtr;
 								
-		SInt64*				m_bytesToSkipPtr;
+		SInt64*								m_bytesToSkipPtr;
 															  
-		SInt32				m_maximumValue;
+		SInt32								m_maximumValue;
 		 
-		Boolean				m_initializedFlag,
-								m_lineFlag,
-								m_modifyFlag;
+		Boolean								m_initializedFlag,
+												m_lineFlag,
+												m_modifyFlag;
 		
-	};  
-  
-#endif // !defined __WAPDFDLG_H__
+}; // end class CMAppendFileDialog

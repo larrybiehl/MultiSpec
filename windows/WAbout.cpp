@@ -3,8 +3,8 @@
 //					Laboratory for Applications of Remote Sensing
 // 								Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1995-2018)
-//								(c) Purdue Research Foundation
+//								 Copyright (1995-2020)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	File:						WAbout.cpp : implementation file
@@ -13,50 +13,41 @@
 //
 //	Revision date:			01/03/2018
 //
-//	Language:				C
+//	Language:				C++
 //
-//	System:					Windows Operating Systems
+//	System:					Windows Operating System
 //
-//	Brief description:	This file contains functions that relate to the CAboutDlg
-//								class.
-//
-//	Functions in file:	
-//
-//	Include files:			"SMultiSpec.h"
+//	Brief description:	This file contains functions that relate to the
+//								CAboutDlg class.
 //
 //------------------------------------------------------------------------------------
 
 #include "SMultiSpec.h"
 
 #include "WAbout.h"
-#include <direct.h> 
-	                                                               
-//#if !defined _WIN32
-//	#include <dos.h>
-//#endif	// if !defined _WIN32
 
-//#include "SExtGlob.h"   
-#include "wabout.h"
-
-extern UInt16							gDisplayBitsPerPixel;
-
+#include <direct.h>
 
 #ifdef _DEBUG
 	#undef THIS_FILE
 	static char BASED_CODE THIS_FILE[] = __FILE__;
-#endif 
+#endif
+
+extern UInt16							gDisplayBitsPerPixel;
+
 
 
 BEGIN_MESSAGE_MAP (CAboutDlg, CMDialog)
 	//{{AFX_MSG_MAP (CAboutDlg)
-	//}}AFX_MSG_MAP
 	ON_BN_CLICKED (IDC_SimplerVersion, &CAboutDlg::OnBnClickedSimplerversion)
+	//}}AFX_MSG_MAP
 END_MESSAGE_MAP ()
 
 
 
-CAboutDlg::CAboutDlg (CWnd* pParent /*=NULL*/)
-	: CMDialog (CAboutDlg::IDD, pParent)
+CAboutDlg::CAboutDlg (
+				CWnd* 								pParent /*=NULL*/)
+		: CMDialog (CAboutDlg::IDD, pParent)
 
 {
 	//{{AFX_DATA_INIT(CAboutDlg)
@@ -73,7 +64,7 @@ CAboutDlg::CAboutDlg (CWnd* pParent /*=NULL*/)
   
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -93,13 +84,13 @@ CAboutDlg::CAboutDlg (CWnd* pParent /*=NULL*/)
 //	Revised By:			Larry L. Biehl			Date: 10/18/1995	
 
 BOOL CAboutDlg::Create (
-				CWnd*				pParent)
+				CWnd*									pParent)
 
 { 
 	m_fromStartUpFlag = TRUE;
 
-	if ( !CDialog::Create (CAboutDlg::IDD, pParent))
-																					return FALSE;
+	if (!CDialog::Create (CAboutDlg::IDD, pParent))
+																						return FALSE;
 																			
 	return TRUE;
 	
@@ -108,7 +99,7 @@ BOOL CAboutDlg::Create (
  
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -142,16 +133,14 @@ void CAboutDlg::DoDataExchange (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void DoDialog
 //
-//	Software purpose:	The purpose of this routine is to present the file
-//							specification dialog box to the user and copy the
-//							revised back to the file information structure if
-//							the user selected OK.
+//	Software purpose:	The purpose of this routine is to present the about
+//							dialog box to the user.
 //
 //	Parameters in:		None
 //
@@ -167,13 +156,13 @@ void CAboutDlg::DoDataExchange (
 Boolean CAboutDlg::DoDialog (void)
 
 {        
-	SInt16			returnCode; 
+	SInt16								returnCode;
 
 
 			// Make sure intialization has been completed.
 							                         
 	if (!m_initializedFlag)
-																				return (FALSE);
+																					return (FALSE);
 																					
 	returnCode = (SInt16)DoModal ();
 	if (returnCode == IDOK)
@@ -190,7 +179,7 @@ Boolean CAboutDlg::DoDialog (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -222,7 +211,7 @@ void CAboutDlg::OnBnClickedSimplerversion ()
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -245,18 +234,18 @@ void CAboutDlg::OnBnClickedSimplerversion ()
 BOOL CAboutDlg::OnInitDialog ()
 
 {    
+	USES_CONVERSION;
+	
+	char									string[256];
+
 	CString								str,
 											strFmt;
-
-	char									string[256];
 
 	MEMORYSTATUSEX						memoryStatusEx;
 
 	int									numberChars;
 
-	USES_CONVERSION;
 	
-	  
 	CDialog::OnInitDialog ();
 	
 	if (m_fromStartUpFlag)
@@ -280,7 +269,6 @@ BOOL CAboutDlg::OnInitDialog ()
 	                                             		               
 	strFmt.LoadString (IDS_AboutMemory);
 	#if defined _WIN64
-		//wsprintf (str.GetBuffer (80), strFmt, GetFreeSpace (0) / 1024L);
 		numberChars = sprintf (string, "%lld", memoryStatusEx.ullAvailPageFile / 1024L);
 		InsertCommasInNumberString (string, numberChars, -1, numberChars);
 		wsprintf (str.GetBuffer (80), strFmt, A2T(string));
@@ -297,7 +285,6 @@ BOOL CAboutDlg::OnInitDialog ()
 			               
 	strFmt.LoadString (IDS_AboutContiguousMemory);
 	#if defined _WIN64
-		//wsprintf (str.GetBuffer (80), strFmt, memoryStatusEx.ullAvailPhys / 1024L);
 		numberChars = sprintf (string, "%lld", memoryStatusEx.ullAvailPhys / 1024L);
 		InsertCommasInNumberString (string, numberChars, -1, numberChars);
 		wsprintf (str.GetBuffer (80), strFmt, A2T(string));
@@ -307,16 +294,6 @@ BOOL CAboutDlg::OnInitDialog ()
 	str.ReleaseBuffer ();
 	SetDlgItemText (IDC_AboutContiguousMemory, str);
 
-			// fill math coprocessor information
-	/*
-	#if !defined WIN32           
-		if (GetWinFlags () & WF_80x87)
-			str.LoadString (IDS_AboutCoprocessor);
-		else
-			str.LoadString (IDS_AboutNoCoprocessor);
-		SetDlgItemText (IDC_AboutCoprocessor, str);
-	#endif	// !defined WIN32
-	*/
 			// fill disk free information
 			
 	struct _diskfree_t diskfree;                                      
@@ -347,25 +324,6 @@ BOOL CAboutDlg::OnInitDialog ()
 		
 	SetDlgItemText (IDC_AboutDisk, str);              
 	
-			// Set color information about the display 
-	/*
-	CDC				pDC;                                             
-	
-	if ( pDC.CreateIC ("DISPLAY", NULL, NULL, NULL))
-		{                        
-		
-		SInt16 bitsPerPixel = pDC.GetDeviceCaps (BITSPIXEL);
-		SetDlgItemInt (IDC_AboutBitsColor, bitsPerPixel);
-		gDisplayBitsPerPixel = bitsPerPixel;     
-		
-		SInt16 colorPlanes = pDC.GetDeviceCaps (PLANES);
-		SetDlgItemInt (IDC_AboutColorPlanes, colorPlanes);     
-		
-		SInt16 rasterCaps = pDC.GetDeviceCaps (RASTERCAPS);
-		gStretchDIBitsFlag = rasterCaps & RC_STRETCHDIB;
-		
-		}	// end "if ( pDC->CreateIC ("Display", NULL, NULL, NULL) )"
-	*/
 	PositionDialogWindow (); 
 	
 	return TRUE;  // return TRUE  unless you set the focus to a control

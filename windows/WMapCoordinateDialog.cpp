@@ -1,174 +1,63 @@
-// WMapCoordinateDialog.cpp : implementation file
+//	 									MultiSpec
 //
-// Revised by Larry Biehl on 12/21/2017
+//					Laboratory for Applications of Remote Sensing
+// 								Purdue University
+//								West Lafayette, IN 47907
+//								 Copyright (1995-2020)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	File:						WMapCoordinateDialog.cpp : implementation file
+//
+//	Authors:					Larry L. Biehl
+//
+//	Revision date:			04/24/2019
+//
+//	Language:				C++
+//
+//	System:					Windows Operating System
+//
+//	Brief description:	This file contains functions that relate to the
+//								CMMapCoordinateDlg class.
 //
 // Note that m_adjustUpperLeftMapPointFlag has not been fully integrated in this code
 // yet. See Mac version for more info. Is not being used right now till a better
 // method is made available for the user to control.
+//
+//------------------------------------------------------------------------------------
 
 #include "SMultiSpec.h"
-#include "WMapCoordinateDialog.h" 
-//#include	"SExtGlob.h"
 
-									
-extern void 					CoordinateDialogInitialize (
-										DialogPtr							dialogPtr,
-										MapProjectionInfoPtr				mapProjectionInfoPtr,
-										SInt16*								mapUnitsSelectionPtr,
-										double*								xMapCoordinate11Ptr,
-										double*								yMapCoordinate11Ptr,
-										double*								horizontalPixelSizePtr,
-										double*								verticalPixelSizePtr,
-										double*								mapOrientationAnglePtr,
-										SInt16*								referenceSystemSelectionPtr,
-										SInt16*								epsgCodePtr,
-										SInt16*								projectionSelectionPtr,
-										SInt16*								datumSelectionPtr,
-										SInt16*								ellipsoidSelectionPtr,
-										double*								radiusSpheroidPtr,
-										double*								semiMajorAxisPtr,
-										double*								semiMinorAxisPtr,
-										SInt16*								gridZonePtr,
-										UCharPtr								gridZoneDirectionPtr,
-										SInt16*								gridZoneWithDirectionPtr,
-										UCharPtr								epsgNamePtr,
-										UCharPtr								datumNamePtr,
-										UCharPtr								ellipsoidNamePtr,
-										double*								longitudeCentralMeridianPtr,
-										double*								latitudeOriginPtr,
-										double*								falseEastingPtr,
-										double*								falseNorthingPtr,
-										double*								scaleFactorOfCentralMeridianPtr,
-										double*								standardParallel1Ptr,
-										double*								standardParallel2Ptr,
-										DoublePoint*						upperLeftLatitudeLongitudePointPtr);	
-
-extern SInt16					CoordinateDialogCheckIfZoneIsValid (
-										DialogPtr							dialogPtr,
-										SInt16								referenceSystemCode,
-										UCharPtr								gridZoneDirection);
-
-extern Boolean					CoordinateDialogIsZoneDirectionEditable (
-										SInt16								referenceSystemSelection);
-
-extern void 					CoordinateDialogOK (
-										DialogPtr							dialogPtr,
-										FileInfoPtr							fileInfoPtr,
-										MapProjectionInfoPtr				mapProjectionInfoPtr,
-										SInt16								mapUnitsSelection,
-										double								xMapCoordinate11,
-										double								yMapCoordinate11,
-										double								horizontalPixelSize,
-										double								verticalPixelSize,
-										double								mapOrientationAngle,
-										SInt16								referenceSystemSelection,
-										SInt16								epsgCode,
-										SInt16								projectionCodeSelection,
-										SInt16								datumCode,
-										SInt16								ellipsoidCode,
-										double								radiusSpheroid,
-										double								semiMajorAxis,
-										double								semiMinorAxis,
-										SInt16								gridZone,
-										UCharPtr								gridZoneDirectionPtr,
-										UCharPtr								epsgNamePtr,
-										UCharPtr								datumNamePtr,
-										UCharPtr								ellipsoidNamePtr,
-										double								longitudeCentralMeridian,
-										double								latitudeOrigin,
-										double								falseEasting,
-										double								falseNorthing,
-										double								scaleFactorOfCentralMeridian,
-										double								standardParallel1,
-										double								standardParallel2,
-										DoublePoint							upperLeftLatLongPoint,
-										Boolean								adjustUpperLeftMapPointFlag);
-										
-extern void						CoordinateDialogGetMinMaxZone (
-										SInt16								referenceSystemSelection,
-										SInt16*								minZonePtr,
-										SInt16*								maxZonePtr,
-										UCharPtr								gridZoneDirectionPtr);
-
-extern void 					CoordinateDialogHideShowProjectionParameters (
-										DialogPtr							dialogPtr,
-										SInt16								referenceSystemSelection,
-										SInt16								projectionSelection,
-										Boolean								initialFlag,
-										SInt16*								datumSelectionPtr,
-										SInt16*								ellipsoidSelectionPtr,
-										Boolean								setDatumParametersFlag);
-/*
-extern void 					CoordinateDialogSetProjectionParameters (
-										DialogPtr							dialogPtr,
-										SInt16								projectionCode,
-										double								longitudeCentralMeridian,
-										double								latitudeOrigin,
-										double								scaleFactorOfCentralMeridian,
-										double								falseEasting,
-										double								falseNorthing,
-										double								standardParallel1,
-										double								standardParallel2,
-										double								falseOriginLongitude,
-										double								falseOriginLatitude,
-										double								falseOriginEasting,
-										double								falseOriginNorthing);	
-*/
-extern Boolean					CoordinateDialogIsZoneDisplayed (
-										SInt16								referenceSystemSelection);		
-
-extern SInt16					CoordinateDialogSetDatumParameters (
-										DialogPtr							dialogPtr,
-										SInt16								datumCode,
-										SInt16								ellipsoidCode,
-										Boolean								initialFlag);
-
-extern void						CoordinateDialogSetEllipsoidParameters (
-										DialogPtr							dialogPtr,
-										SInt16								ellipsoidCode);
-
-extern Boolean					CoordinateDialogSetParametersFromEPSGCode (
-										DialogPtr							dialogPtr,
-										SInt16								epsgCode,
-										Boolean								lastEPSGCodeValidFlag,
-										UCharPtr								epsgNamePtr,
-										UCharPtr								datumNamePtr,
-										UCharPtr								ellipsoidNamePtr,
-										SInt16*								mapUnitsSelectionPtr,
-										SInt16*								projectionSelectionPtr);
-
-extern void 					CoordinateDialogSetReferenceSystemParameters (
-										DialogPtr							dialogPtr,
-										SInt16								referenceSystemCode,
-										UCharPtr								gridZoneDirectionPtr,
-										Boolean								initialFlag,
-										SInt16*								projectionSelectionPtr,
-										SInt16*								datumSelectionPtr,
-										SInt16*								ellipsoidSelectionPtr,
-										SInt16*								mapUnitsSelectionPtr);
-
-extern void 					CoordinateDialogSetParametersFromRS (
-										DialogPtr							dialogPtr,
-										SInt16								referenceSystemSelection,
-										SInt16*								projectionSelectionPtr,
-										UCharPtr								gridZoneDirectionPtr,
-										SInt16								gridZoneWithDirection,
-										SInt16								datumCode,
-										SInt16								ellipsoidCode,
-										SInt16*								gridZonePtr);
+#include "WMapCoordinateDialog.h"
 
 #ifdef _DEBUG
-#define new DEBUG_NEW
-#undef THIS_FILE
-static char THIS_FILE[] = __FILE__;
+	#define new DEBUG_NEW
+	#undef THIS_FILE
+	static char THIS_FILE[] = __FILE__;
 #endif
 
-/////////////////////////////////////////////////////////////////////////////
-// CMMapCoordinateDlg dialog
 
 
-CMMapCoordinateDlg::CMMapCoordinateDlg(CWnd* pParent /*=NULL*/)
-	: CMDialog(CMMapCoordinateDlg::IDD, pParent)
+BEGIN_MESSAGE_MAP (CMMapCoordinateDlg, CMDialog)
+	//{{AFX_MSG_MAP (CMMapCoordinateDlg)
+	ON_CBN_SELENDOK (IDC_DatumCombo, OnSelendokDatumCombo)
+	ON_CBN_SELENDOK (IDC_EllipsoidCombo, OnSelendokEllipsoidCombo)
+	ON_CBN_SELENDOK (IDC_MapUnitsCombo, OnSelendokMapUnitsCombo)
+	ON_CBN_SELENDOK (IDC_ProjectionCombo, OnSelendokProjectionCombo)
+	ON_CBN_SELENDOK (IDC_ReferenceSystemCombo, OnSelendokReferenceSystemCombo)
+
+	ON_EN_CHANGE (IDC_EPSGCode, OnEnChangeEPSGCode)
+	ON_EN_CHANGE (IDC_Zone, OnEnChangeZone)
+	ON_EN_CHANGE (IDC_ZoneDirection, OnChangeZoneDirection)
+	//}}AFX_MSG_MAP
+END_MESSAGE_MAP ()
+
+
+
+CMMapCoordinateDlg::CMMapCoordinateDlg (
+				CWnd* 								pParent /*=NULL*/)
+		: CMDialog (CMMapCoordinateDlg::IDD, pParent)
+
 {
 	//{{AFX_DATA_INIT(CMMapCoordinateDlg)
 	m_referenceSystemSelection = 0;
@@ -209,110 +98,96 @@ CMMapCoordinateDlg::CMMapCoordinateDlg(CWnd* pParent /*=NULL*/)
 	
 	m_initializedFlag = CMDialog::m_initializedFlag;
 	
-}		// end "CMMapCoordinateDlg"
+}	// end "CMMapCoordinateDlg"
 
 
-void CMMapCoordinateDlg::DoDataExchange(CDataExchange* pDX)
+
+void CMMapCoordinateDlg::DoDataExchange (
+				CDataExchange* 					pDX)
+
 {
 	USES_CONVERSION;
+	
 
-	CMDialog::DoDataExchange(pDX);
-	//{{AFX_DATA_MAP(CMMapCoordinateDlg)
-	DDX_CBIndex(pDX, IDC_ReferenceSystemCombo, m_referenceSystemSelection);
-	DDX_CBIndex(pDX, IDC_EllipsoidCombo, m_ellipsoidSelection);
-	DDX_CBIndex(pDX, IDC_ProjectionCombo, m_projectionSelection);
-	DDX_CBIndex(pDX, IDC_MapUnitsCombo, m_mapUnitsSelection);
-	DDX_Text(pDX, IDC_Zone, m_gridZone);
-	DDX_Text(pDX, IDC_EPSGCode, m_epsgCode);
-	DDX_Text2(pDX, IDC_HorizontalSize, m_horizontalPixelSize);
-	DDX_Text2(pDX, IDC_VerticalSize, m_verticalPixelSize);
-	DDX_Text2(pDX, IDC_X11Coordinate, m_xMapCoordinate11);
-	DDX_Text2(pDX, IDC_Y11Coordinate, m_yMapCoordinate11);
-	DDX_Text2(pDX, IDC_FalseEasting, m_falseEasting);
-	DDX_Text2(pDX, IDC_FalseNorthing, m_falseNorthing);
-	DDX_Text2(pDX, IDC_Latitude, m_latitudeOrigin);
-	DDX_Text2(pDX, IDC_Longitude, m_longitudeCentralMeridian);
-	DDX_Text2(pDX, IDC_MinorAxis, m_semiMinorAxis);
-	DDX_Text2(pDX, IDC_Radius, m_radiusSpheroid);
-	DDX_Text2(pDX, IDC_ScaleFactor, m_scaleFactorOfCentralMeridian);
-	DDX_Text2(pDX, IDC_StandardParallel1, m_standardParallel1);
-	DDX_Text2(pDX, IDC_StandardParallel2, m_standardParallel2);
-	DDX_Text(pDX, IDC_ZoneDirection, m_gridZoneDirection);
-	DDV_MaxChars(pDX, m_gridZoneDirection, 1);
-	DDX_CBIndex(pDX, IDC_DatumCombo, m_datumSelection);
-	DDX_Text2(pDX, IDC_OrientationAngle, m_mapOrientationAngle);
-	DDV_MinMaxDouble(pDX, m_mapOrientationAngle, -180., 180.);
+	CMDialog::DoDataExchange (pDX);
+	
+	//{{AFX_DATA_MAP (CMMapCoordinateDlg)
+	DDX_CBIndex (pDX, IDC_ReferenceSystemCombo, m_referenceSystemSelection);
+	DDX_CBIndex (pDX, IDC_EllipsoidCombo, m_ellipsoidSelection);
+	DDX_CBIndex (pDX, IDC_ProjectionCombo, m_projectionSelection);
+	DDX_CBIndex (pDX, IDC_MapUnitsCombo, m_mapUnitsSelection);
+	DDX_Text (pDX, IDC_Zone, m_gridZone);
+	DDX_Text (pDX, IDC_EPSGCode, m_epsgCode);
+	DDX_Text2 (pDX, IDC_HorizontalSize, m_horizontalPixelSize);
+	DDX_Text2 (pDX, IDC_VerticalSize, m_verticalPixelSize);
+	DDX_Text2 (pDX, IDC_X11Coordinate, m_xMapCoordinate11);
+	DDX_Text2 (pDX, IDC_Y11Coordinate, m_yMapCoordinate11);
+	DDX_Text2 (pDX, IDC_FalseEasting, m_falseEasting);
+	DDX_Text2 (pDX, IDC_FalseNorthing, m_falseNorthing);
+	DDX_Text2 (pDX, IDC_Latitude, m_latitudeOrigin);
+	DDX_Text2 (pDX, IDC_Longitude, m_longitudeCentralMeridian);
+	DDX_Text2 (pDX, IDC_MinorAxis, m_semiMinorAxis);
+	DDX_Text2 (pDX, IDC_Radius, m_radiusSpheroid);
+	DDX_Text2 (pDX, IDC_ScaleFactor, m_scaleFactorOfCentralMeridian);
+	DDX_Text2 (pDX, IDC_StandardParallel1, m_standardParallel1);
+	DDX_Text2 (pDX, IDC_StandardParallel2, m_standardParallel2);
+	DDX_Text (pDX, IDC_ZoneDirection, m_gridZoneDirection);
+	DDV_MaxChars (pDX, m_gridZoneDirection, 1);
+	DDX_CBIndex (pDX, IDC_DatumCombo, m_datumSelection);
+	DDX_Text2 (pDX, IDC_OrientationAngle, m_mapOrientationAngle);
+	DDV_MinMaxDouble (pDX, m_mapOrientationAngle, -180., 180.);
 	//}}AFX_DATA_MAP
 
 	if (pDX->m_bSaveAndValidate)
 		{
-/*		CComboBox*				comboBoxPtr;
+		/*
+		CComboBox*				comboBoxPtr;
 
-		comboBoxPtr = (CComboBox*)GetDlgItem(IDC_ReferenceSystemCombo);
-		m_referenceSystemCode = (SInt16)comboBoxPtr->GetItemData(m_referenceSystemSelection);
+		comboBoxPtr = (CComboBox*)GetDlgItem (IDC_ReferenceSystemCombo);
+		m_referenceSystemCode =
+							(SInt16)comboBoxPtr->GetItemData (m_referenceSystemSelection);
 
-		comboBoxPtr = (CComboBox*)GetDlgItem(IDC_ProjectionCombo);
-		m_projectionCode = (SInt16)comboBoxPtr->GetItemData(m_projectionSelection);
+		comboBoxPtr = (CComboBox*)GetDlgItem (IDC_ProjectionCombo);
+		m_projectionCode = (SInt16)comboBoxPtr->GetItemData (m_projectionSelection);
 
-		comboBoxPtr = (CComboBox*)GetDlgItem(IDC_DatumCombo);
-		m_datumCode = (SInt16)comboBoxPtr->GetItemData(m_datumSelection);
+		comboBoxPtr = (CComboBox*)GetDlgItem (IDC_DatumCombo);
+		m_datumCode = (SInt16)comboBoxPtr->GetItemData (m_datumSelection);
 
-		comboBoxPtr = (CComboBox*)GetDlgItem(IDC_EllipsoidCombo);
-		m_ellipsoidCode = 
-			(SInt16)comboBoxPtr->GetItemData(m_ellipsoidSelection);
-*/			
-		m_referenceSystemCode = abs(m_referenceSystemSelection);
-		m_projectionCode = abs(m_projectionSelection);
-		m_datumCode = abs(m_datumSelection);
-		m_ellipsoidCode = abs(m_ellipsoidSelection);
+		comboBoxPtr = (CComboBox*)GetDlgItem (IDC_EllipsoidCombo);
+		m_ellipsoidCode = (SInt16)comboBoxPtr->GetItemData (m_ellipsoidSelection);
+		*/
+		m_referenceSystemCode = abs (m_referenceSystemSelection);
+		m_projectionCode = abs (m_projectionSelection);
+		m_datumCode = abs (m_datumSelection);
+		m_ellipsoidCode = abs (m_ellipsoidSelection);
 
 				// Verify that the grid zone parameter is within range if it is being
 				// used.
 				
 		if (!CoordinateDialogCheckIfZoneIsValid (this,
 																m_referenceSystemCode,
-//																(UCharPtr)T2A((LPCWSTR)m_gridZoneDirectionString)))
 																m_gridZoneDirectionString))
 			{			
-			pDX->PrepareEditCtrl(IDC_Zone);
-			pDX->Fail();
+			pDX->PrepareEditCtrl (IDC_Zone);
+			pDX->Fail ();
 
-			}		// end "if (!CoordinateDialogCheckIfZoneIsValid (dialogPtr, ..."
+			}	// end "if (!CoordinateDialogCheckIfZoneIsValid (dialogPtr, ..."
 
-		}		// end "if (pDX->m_bSaveAndValidate)"
+		}	// end "if (pDX->m_bSaveAndValidate)"
 
-}		// end "DoDataExchange"
-
-
-BEGIN_MESSAGE_MAP(CMMapCoordinateDlg, CMDialog)
-	//{{AFX_MSG_MAP(CMMapCoordinateDlg)
-	ON_CBN_SELENDOK(IDC_MapUnitsCombo, OnSelendokMapUnitsCombo)
-	ON_CBN_SELENDOK(IDC_ReferenceSystemCombo, OnSelendokReferenceSystemCombo)
-	ON_EN_CHANGE(IDC_ZoneDirection, OnChangeZoneDirection)
-	ON_CBN_SELENDOK(IDC_ProjectionCombo, OnSelendokProjectionCombo)
-	ON_CBN_SELENDOK(IDC_DatumCombo, OnSelendokDatumCombo)
-	ON_CBN_SELENDOK(IDC_EllipsoidCombo, OnSelendokEllipsoidCombo)
-	//}}AFX_MSG_MAP
-	ON_EN_CHANGE(IDC_Zone, OnEnChangeZone)
-	ON_EN_CHANGE(IDC_EPSGCode, OnEnChangeEPSGCode)
-END_MESSAGE_MAP()
-
-
-/////////////////////////////////////////////////////////////////////////////
-// CMMapCoordinateDlg message handlers
+}	// end "DoDataExchange"
 
 
 
-//-----------------------------------------------------------------------------
-//								 Copyright (1988-1998)
-//								c Purdue Research Foundation
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2020)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void DoDialog
 //
-//	Software purpose:	The purpose of this routine is to present the reformat
-//							options dialog box to the user so that the user can
-//							selection which reformat function is to be run.
+//	Software purpose:	The purpose of this routine is to present the map coordinates
+//							dialog box to the user so that the user can change map settings.
 //
 //	Parameters in:		None
 //
@@ -320,28 +195,27 @@ END_MESSAGE_MAP()
 //
 //	Value Returned:	None		
 // 
-//	Called By:			Dialog in MDisMult.cpp
+//	Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 12/12/2000
 //	Revised By:			Larry L. Biehl			Date: 04/05/2004	
 
-Boolean 
-CMMapCoordinateDlg::DoDialog(
-			FileInfoPtr							fileInfoPtr,
-			MapProjectionInfoPtr				mapProjectionInfoPtr)
+Boolean CMMapCoordinateDlg::DoDialog (
+				FileInfoPtr							fileInfoPtr,
+				MapProjectionInfoPtr				mapProjectionInfoPtr)
 
 {                              
-	Boolean					OKFlag = FALSE;
-	
-	INT_PTR					returnCode;
-	
-
 	USES_CONVERSION;
 	
+	INT_PTR								returnCode;
+	
+	Boolean								OKFlag = FALSE;
+	
+
 			// Make sure intialization has been completed.
 							                         
 	if (!m_initializedFlag)
-																			return(FALSE);
+																						return (FALSE);
 	
 	m_fileInfoPtr = fileInfoPtr;
 	m_mapProjectionInfoPtr = mapProjectionInfoPtr;
@@ -354,9 +228,9 @@ CMMapCoordinateDlg::DoDialog(
 		
 		m_gridZoneDirectionString[0] = 1;
 
-		if (m_gridZoneDirection.GetLength() > 0)
+		if (m_gridZoneDirection.GetLength () > 0)
 			m_gridZoneDirectionString[1] = (UInt8)m_gridZoneDirection[0];
-		else		//
+		else    // m_gridZoneDirection.GetLength () <= 0
 			m_gridZoneDirectionString[1] = 0;
 
 		m_gridZoneDirectionString[2] = 0;
@@ -364,7 +238,7 @@ CMMapCoordinateDlg::DoDialog(
 		CoordinateDialogOK (this,
 									m_fileInfoPtr,
 									m_mapProjectionInfoPtr,
-									abs(m_mapUnitsSelection),
+									abs (m_mapUnitsSelection),
 									m_xMapCoordinate11,
 									m_yMapCoordinate11,
 									m_horizontalPixelSize,
@@ -393,25 +267,196 @@ CMMapCoordinateDlg::DoDialog(
 									m_upperLeftLatitudeLongitudePoint,
 									m_adjustUpperLeftMapPointFlag);
 		
-		}		// end "if (returnCode == IDOK)"
+		}	// end "if (returnCode == IDOK)"
 		
 	return (OKFlag);
 		
-}		// end "DoDialog"
+}	// end "DoDialog"
 
 
 
-BOOL CMMapCoordinateDlg::OnInitDialog() 
+void CMMapCoordinateDlg::OnChangeZoneDirection ()
+
 {
-	SInt16						datumSelection,
-									ellipsoidSelection,
-									gridZone,
-									mapUnitsSelection,
-									projectionSelection,
-									referenceSystemSelection;
+			// If this is a RICHEDIT control, the control will not
+			// send this notification unless you override the CMDialog::OnInitDialog ()
+			// function and call CRichEditCtrl ().SetEventMask ()
+			// with the ENM_CHANGE flag ORed into the mask.
+
+	USES_CONVERSION;
+	
+	SInt16								projectionSelection;
+
+	
+	TBYTE lastGridZoneDirection = m_gridZoneDirection[0];
+	
+	DDX_Text (m_dialogFromPtr, IDC_ZoneDirection, m_gridZoneDirection);
+
+	if (m_gridZoneDirection != 'N' && m_gridZoneDirection != 'S' &&
+			m_gridZoneDirection != 'n' && m_gridZoneDirection != 's')
+		{
+		m_gridZoneDirection = lastGridZoneDirection;
+		DDX_Text (m_dialogToPtr, IDC_ZoneDirection, m_gridZoneDirection);
+
+		}	// end "if (m_gridZoneDirection != 'N' && m_gridZoneDirection != 'S')"
+
+	else	// okay
+		{
+		SInt16					gridZone;
+
+		m_datumCode = abs (m_datumSelection);
+		
+				// Set up gridZoneDirectionString to be used in the shared routines.
+
+		m_gridZoneDirectionString[1] = (UInt8)m_gridZoneDirection[0];
+
+		m_gridZoneWithDirection = m_gridZone;
+		if (m_gridZoneDirection == 'S')
+			m_gridZoneWithDirection = -m_gridZone;
+
+		projectionSelection = m_projectionSelection;
+		CoordinateDialogSetParametersFromRS (this,
+															m_referenceSystemCode,
+															&projectionSelection,
+															m_gridZoneDirectionString,
+															m_gridZoneWithDirection,
+															m_datumCode,
+															m_ellipsoidCode,
+															&gridZone);
+	
+		if (m_projectionSelection != abs (projectionSelection))
+			{
+			m_projectionSelection = abs (projectionSelection);
+			DDX_CBIndex (m_dialogToPtr, IDC_ProjectionCombo, m_projectionSelection);
+
+			}	// end "if (m_projectionSelection = projectionSelection)"
+
+		}	// end "else okay"
+	
+}	// end "OnChangeZoneDirection"
 
 
-	CDialog::OnInitDialog();
+
+void CMMapCoordinateDlg::OnEnChangeZone ()
+
+{
+			// If this is a RICHEDIT control, the control will not
+			// send this notification unless you override the CMDialog::OnInitDialog ()
+			// function and call CRichEditCtrl ().SetEventMask ()
+			// with the ENM_CHANGE flag ORed into the mask.
+
+	USES_CONVERSION;
+
+	SInt16								gridZone,
+											maxZone,
+											minZone,
+											projectionSelection,
+											savedGridZone;
+
+
+	savedGridZone = m_gridZone;
+	DDX_Text (m_dialogFromPtr, IDC_Zone, m_gridZone);
+	
+	CoordinateDialogGetMinMaxZone (m_referenceSystemCode,
+												&minZone,
+												&maxZone,
+												m_gridZoneDirectionString);
+		
+	if (m_gridZone >= minZone && m_gridZone <= maxZone)
+		{
+		m_gridZoneWithDirection = m_gridZone;
+		if (m_gridZoneDirection == 'S')
+			m_gridZoneWithDirection = -m_gridZone;
+		gridZone = m_gridZone;
+	
+		projectionSelection = m_projectionSelection;
+		CoordinateDialogSetParametersFromRS (this,
+															m_referenceSystemCode,
+															&projectionSelection,
+															m_gridZoneDirectionString,
+															m_gridZoneWithDirection,
+															m_datumCode,
+															m_ellipsoidCode,
+															&gridZone);
+	
+		if (m_projectionSelection != abs (projectionSelection))
+			{
+			m_projectionSelection = abs (projectionSelection);
+			DDX_CBIndex (m_dialogToPtr, IDC_ProjectionCombo, m_projectionSelection);
+
+			}	// end "if (m_projectionSelection = projectionSelection)"
+																
+		}	// end "else grid zone is within the proper range
+
+}	// end "OnEnChangeZone"
+
+
+
+void CMMapCoordinateDlg::OnEnChangeEPSGCode ()
+
+{
+			// If this is a RICHEDIT control, the control will not
+			// send this notification unless you override the CMDialog::OnInitDialog ()
+			// function and call CRichEditCtrl ().SetEventMask ()
+			// with the ENM_CHANGE flag ORed into the mask.
+
+	USES_CONVERSION;
+	
+	SInt16								mapUnitsSelection,
+											projectionSelection,
+											savedEPSGCode;
+
+	
+	savedEPSGCode = m_epsgCode;
+	DDX_Text (m_dialogFromPtr, IDC_EPSGCode, m_epsgCode);
+	
+	if (m_epsgCode != savedEPSGCode)
+		{
+		projectionSelection = m_projectionSelection;
+		mapUnitsSelection = m_mapUnitsSelection;
+																			
+		m_validEPSGCodeFlag = CoordinateDialogSetParametersFromEPSGCode (
+																				this,
+																				m_epsgCode,
+																				m_validEPSGCodeFlag,
+																				m_epsgName,
+																				m_datumName,
+																				m_ellipsoidName,
+																				&mapUnitsSelection,
+																				&projectionSelection);
+	
+		if (m_projectionSelection != abs (projectionSelection))
+			{
+			m_projectionSelection = abs (projectionSelection);
+			DDX_CBIndex (m_dialogToPtr, IDC_ProjectionCombo, m_projectionSelection);
+
+			}	// end "if (m_projectionSelection = projectionSelection)"
+	
+		if (m_mapUnitsSelection != abs (mapUnitsSelection))
+			{
+			m_mapUnitsSelection = abs (mapUnitsSelection);
+			DDX_CBIndex (m_dialogToPtr, IDC_MapUnitsCombo, m_mapUnitsSelection);
+
+			}	// end "if (m_mapUnitsSelection != abs (mapUnitsSelection)"
+																
+		}	// end "else grid zone is within the proper range
+
+}	// end "OnEnChangeEPSGCode"
+
+
+
+BOOL CMMapCoordinateDlg::OnInitDialog ()
+
+{
+	SInt16								datumSelection,
+											ellipsoidSelection,
+											gridZone,
+											mapUnitsSelection,
+											projectionSelection,
+											referenceSystemSelection;
+
+
+	CDialog::OnInitDialog ();
 	
 			// Initialize dialog variables.
 	
@@ -448,42 +493,26 @@ BOOL CMMapCoordinateDlg::OnInitDialog()
 
 	m_mapUnitsSelection = mapUnitsSelection;
 	m_referenceSystemSelection = referenceSystemSelection;
-	m_projectionSelection = abs(projectionSelection);
-	m_datumSelection = abs(datumSelection);
-	m_ellipsoidSelection = abs(ellipsoidSelection);
+	m_projectionSelection = abs (projectionSelection);
+	m_datumSelection = abs (datumSelection);
+	m_ellipsoidSelection = abs (ellipsoidSelection);
 
-	m_referenceSystemCode = abs(referenceSystemSelection);
-	m_projectionCode = abs(m_projectionSelection);
-	m_datumCode = abs(m_datumSelection);
-	m_ellipsoidCode = abs(m_ellipsoidSelection);
+	m_referenceSystemCode = abs (referenceSystemSelection);
+	m_projectionCode = abs (m_projectionSelection);
+	m_datumCode = abs (m_datumSelection);
+	m_ellipsoidCode = abs (m_ellipsoidSelection);
 
 	m_gridZone = gridZone;
 
-/*	m_referenceSystemSelection = GetComboListSelection(
-													IDC_ReferenceSystemCombo,
-													m_referenceSystemCode);
-
-	m_projectionSelection = GetComboListSelection(
-													IDC_ProjectionCombo,
-													m_projectionCode);
-
-	m_datumSelection = GetComboListSelection(
-													IDC_DatumCombo,
-													m_datumCode);
-
-	m_ellipsoidSelection = GetComboListSelection(
-													IDC_EllipsoidCombo,
-													m_ellipsoidCode);
-*/
-	m_gridZoneDirection = CString(&m_gridZoneDirectionString[1]);
+	m_gridZoneDirection = CString (&m_gridZoneDirectionString[1]);
 
 			// This is needed because m_radiusSpheroid is what is used for
 			// the major axis box.
 
-	if (abs(m_ellipsoidCode) != kSphereEllipsoidCode)
+	if (abs (m_ellipsoidCode) != kSphereEllipsoidCode)
 		m_radiusSpheroid = m_semiMajorAxis;
 	                 
-	if (UpdateData(FALSE) )                   
+	if (UpdateData (FALSE))                   
 		PositionDialogWindow ();
 	
 			// Set default text selection to first edit text item	
@@ -492,109 +521,107 @@ BOOL CMMapCoordinateDlg::OnInitDialog()
 	
 	return FALSE;  // return TRUE  unless you set the focus to a control
 	              
-}		// end "OnInitDialog"
+}	// end "OnInitDialog"
 
 
 
-void CMMapCoordinateDlg::OnSelendokMapUnitsCombo() 
+void CMMapCoordinateDlg::OnSelendokMapUnitsCombo ()
+
 {
-	// TODO: Add your control notification handler code here
+			// Add your control notification handler code here
 	
 }
 
-void CMMapCoordinateDlg::OnSelendokEllipsoidCombo() 
-{
-//	CComboBox*				comboBoxPtr;
 
+
+void CMMapCoordinateDlg::OnSelendokEllipsoidCombo ()
+
+{
 	int						lastEllipsoidSelection;
 
 
 	lastEllipsoidSelection = m_ellipsoidSelection;
-	DDX_CBIndex(m_dialogFromPtr, IDC_EllipsoidCombo, m_ellipsoidSelection);
+	DDX_CBIndex (m_dialogFromPtr, IDC_EllipsoidCombo, m_ellipsoidSelection);
 
 	if (lastEllipsoidSelection != m_ellipsoidSelection)
 		{
-		CoordinateDialogSetEllipsoidParameters (
-											this,
-											m_ellipsoidSelection);
+		CoordinateDialogSetEllipsoidParameters (this,
+																m_ellipsoidSelection);
 
-		}		// end "if (lastEllipsoidSelection != m_ellipsoidSelection)"
+		}	// end "if (lastEllipsoidSelection != m_ellipsoidSelection)"
 	
-}		// end "OnSelendokEllipsoidCombo"
+}	// end "OnSelendokEllipsoidCombo"
 
 
 
-void CMMapCoordinateDlg::OnSelendokReferenceSystemCombo() 
+void CMMapCoordinateDlg::OnSelendokReferenceSystemCombo ()
+
 {
-//	CComboBox*				comboBoxPtr;
-
-	int						lastReferenceSelection;
-
-	SInt16					datumSelection,
-								ellipsoidSelection,
-								gridZone,
-								mapUnitsSelection,
-								projectionSelection;
-
 	USES_CONVERSION;
 	
+	int									lastReferenceSelection;
+
+	SInt16								datumSelection,
+											ellipsoidSelection,
+											gridZone,
+											mapUnitsSelection,
+											projectionSelection;
+
+	
 	lastReferenceSelection = m_referenceSystemSelection;
-	DDX_CBIndex(m_dialogFromPtr, IDC_ReferenceSystemCombo, m_referenceSystemSelection);
+	DDX_CBIndex (m_dialogFromPtr, IDC_ReferenceSystemCombo, m_referenceSystemSelection);
 
 	if (lastReferenceSelection != m_referenceSystemSelection)
 		{
-//		comboBoxPtr = (CComboBox*)GetDlgItem(IDC_ReferenceSystemCombo);
-//		m_referenceSystemCode = (SInt16)comboBoxPtr->GetItemData(m_referenceSystemSelection);
-		m_referenceSystemCode = abs(m_referenceSystemSelection);
+		m_referenceSystemCode = abs (m_referenceSystemSelection);
 
 		projectionSelection = m_projectionSelection;
 		datumSelection = m_datumSelection;
 		ellipsoidSelection = m_ellipsoidSelection;
 		mapUnitsSelection = m_mapUnitsSelection;
 
-		CoordinateDialogSetReferenceSystemParameters (
-														this, 
-														m_referenceSystemCode,
-														m_gridZoneDirectionString,
-														FALSE,
-														&projectionSelection,
-														&datumSelection,
-														&ellipsoidSelection,
-														&mapUnitsSelection);
+		CoordinateDialogSetReferenceSystemParameters (this,
+																		m_referenceSystemCode,
+																		m_gridZoneDirectionString,
+																		FALSE,
+																		&projectionSelection,
+																		&datumSelection,
+																		&ellipsoidSelection,
+																		&mapUnitsSelection);
 
-		if (m_projectionSelection != abs(projectionSelection))
+		if (m_projectionSelection != abs (projectionSelection))
 			{
-			m_projectionSelection = abs(projectionSelection);
-			DDX_CBIndex(m_dialogToPtr, IDC_ProjectionCombo, m_projectionSelection);
+			m_projectionSelection = abs (projectionSelection);
+			DDX_CBIndex (m_dialogToPtr, IDC_ProjectionCombo, m_projectionSelection);
 
 			m_projectionCode = m_projectionSelection;
 
-			}		// end "if (m_projectionSelection != projectionSelection)"
+			}	// end "if (m_projectionSelection != projectionSelection)"
 		
-		if (m_datumSelection != abs(datumSelection))
+		if (m_datumSelection != abs (datumSelection))
 			{
-			m_datumSelection = abs(datumSelection);
-			DDX_CBIndex(m_dialogToPtr, IDC_DatumCombo, m_datumSelection);
+			m_datumSelection = abs (datumSelection);
+			DDX_CBIndex (m_dialogToPtr, IDC_DatumCombo, m_datumSelection);
 
 			m_datumCode = m_datumSelection;
 
-			}		// end "if (m_datumSelection != datumSelection)"
+			}	// end "if (m_datumSelection != datumSelection)"
 
-		if (m_ellipsoidSelection != abs(ellipsoidSelection))
+		if (m_ellipsoidSelection != abs (ellipsoidSelection))
 			{
-			m_ellipsoidSelection = abs(ellipsoidSelection);
-			DDX_CBIndex(m_dialogToPtr, IDC_EllipsoidCombo, m_ellipsoidSelection);
+			m_ellipsoidSelection = abs (ellipsoidSelection);
+			DDX_CBIndex (m_dialogToPtr, IDC_EllipsoidCombo, m_ellipsoidSelection);
 
 			m_ellipsoidCode = m_ellipsoidSelection;
 
-			}		// end "if (m_ellipsoidSelection != abs(ellipsoidSelection))"
+			}	// end "if (m_ellipsoidSelection != abs (ellipsoidSelection))"
 
-		if (m_mapUnitsSelection != abs(mapUnitsSelection))
+		if (m_mapUnitsSelection != abs (mapUnitsSelection))
 			{
-			m_mapUnitsSelection = abs(mapUnitsSelection);
-			DDX_CBIndex(m_dialogToPtr, IDC_MapUnitsCombo, m_mapUnitsSelection);
+			m_mapUnitsSelection = abs (mapUnitsSelection);
+			DDX_CBIndex (m_dialogToPtr, IDC_MapUnitsCombo, m_mapUnitsSelection);
 
-			}		// end "if (m_mapUnitsSelection != abs(mapUnitsSelection))"
+			}	// end "if (m_mapUnitsSelection != abs (mapUnitsSelection))"
 
 				// Set the projection parameters based on the selected reference system
 				
@@ -608,313 +635,138 @@ void CMMapCoordinateDlg::OnSelendokReferenceSystemCombo()
 															m_ellipsoidCode,
 															&gridZone);
 	
-		if (m_projectionSelection != abs(projectionSelection))
+		if (m_projectionSelection != abs (projectionSelection))
 			{
-			m_projectionSelection = abs(projectionSelection);
-			DDX_CBIndex(m_dialogToPtr, IDC_ProjectionCombo, m_projectionSelection);
+			m_projectionSelection = abs (projectionSelection);
+			DDX_CBIndex (m_dialogToPtr, IDC_ProjectionCombo, m_projectionSelection);
 
 			m_projectionCode = m_projectionSelection;
 
-			}		// end "if (m_projectionSelection != abs(projectionSelection))"
+			}	// end "if (m_projectionSelection != abs (projectionSelection))"
 		
 		if (m_gridZone != gridZone)
-			DDX_Text(m_dialogToPtr, IDC_Zone, m_gridZone);
+			DDX_Text (m_dialogToPtr, IDC_Zone, m_gridZone);
 																			
 		if (m_referenceSystemSelection == kByEPSGCodeCode)	
 			{
 			m_validEPSGCodeFlag = CoordinateDialogSetParametersFromEPSGCode (
-																		this,
-																		m_epsgCode,
-																		m_validEPSGCodeFlag,
-																		m_epsgName,
-																		m_datumName,
-																		m_ellipsoidName,
-																		&mapUnitsSelection,
-																		&projectionSelection);
+																				this,
+																				m_epsgCode,
+																				m_validEPSGCodeFlag,
+																				m_epsgName,
+																				m_datumName,
+																				m_ellipsoidName,
+																				&mapUnitsSelection,
+																				&projectionSelection);
 	
-			if (m_projectionSelection != abs(projectionSelection))
+			if (m_projectionSelection != abs (projectionSelection))
 				{
-				m_projectionSelection = abs(projectionSelection);
-				DDX_CBIndex(m_dialogToPtr, IDC_ProjectionCombo, m_projectionSelection);
+				m_projectionSelection = abs (projectionSelection);
+				DDX_CBIndex (m_dialogToPtr, IDC_ProjectionCombo, m_projectionSelection);
 
 				m_projectionCode = m_projectionSelection;
 
-				}		// end "if (m_projectionSelection = projectionSelection)"
+				}	// end "if (m_projectionSelection = projectionSelection)"
 	
-			if (m_mapUnitsSelection != abs(mapUnitsSelection))
+			if (m_mapUnitsSelection != abs (mapUnitsSelection))
 				{
-				m_mapUnitsSelection = abs(mapUnitsSelection);
-				DDX_CBIndex(m_dialogToPtr, IDC_MapUnitsCombo, m_mapUnitsSelection);
+				m_mapUnitsSelection = abs (mapUnitsSelection);
+				DDX_CBIndex (m_dialogToPtr, IDC_MapUnitsCombo, m_mapUnitsSelection);
 
-				}		// end "if (m_mapUnitsSelection != abs(mapUnitsSelection)"
+				}	// end "if (m_mapUnitsSelection != abs (mapUnitsSelection)"
 
-			}		// end "if (m_referenceSystemSelection == kByEPSGCodeCode)"
+			}	// end "if (m_referenceSystemSelection == kByEPSGCodeCode)"
 
 		m_adjustUpperLeftMapPointFlag = TRUE;
 
-		}		// end "if (lastReferenceSelection != m_referenceSystemSelection)"
+		}	// end "if (lastReferenceSelection != m_referenceSystemSelection)"
 	
-}		// end "OnSelendokReferenceSystemCombo"
+}	// end "OnSelendokReferenceSystemCombo"
 
 
 
-void CMMapCoordinateDlg::OnSelendokProjectionCombo() 
+void CMMapCoordinateDlg::OnSelendokProjectionCombo ()
+
 {
-//	CComboBox*				comboBoxPtr;
+	int									lastProjectionSelection;
 
-	int						lastProjectionSelection;
-
-	SInt16					datumSelection,
-								ellipsoidSelection;
+	SInt16								datumSelection,
+											ellipsoidSelection;
 
 
 	lastProjectionSelection = m_projectionSelection;
-	DDX_CBIndex(m_dialogFromPtr, IDC_ProjectionCombo, m_projectionSelection);
+	DDX_CBIndex (m_dialogFromPtr, IDC_ProjectionCombo, m_projectionSelection);
 
 	if (lastProjectionSelection != m_projectionSelection)
 		{
-//		comboBoxPtr = (CComboBox*)GetDlgItem(IDC_ProjectionCombo);
-//		m_projectionCode = (SInt16)comboBoxPtr->GetItemData(m_projectionSelection);
-		m_projectionCode = abs(m_projectionSelection);
+		m_projectionCode = abs (m_projectionSelection);
 
 		datumSelection = m_datumSelection;
 		ellipsoidSelection = m_ellipsoidSelection;
 
-		CoordinateDialogHideShowProjectionParameters (
-									this, 
-									m_referenceSystemCode,
-									m_projectionCode,
-									FALSE,
-									&datumSelection,
-									&ellipsoidSelection,
-									FALSE);
+		CoordinateDialogHideShowProjectionParameters (this,
+																		m_referenceSystemCode,
+																		m_projectionCode,
+																		FALSE,
+																		&datumSelection,
+																		&ellipsoidSelection,
+																		FALSE);
 		
-		if (m_datumSelection != abs(datumSelection))
+		if (m_datumSelection != abs (datumSelection))
 			{
-			m_datumSelection = abs(datumSelection);
-			DDX_CBIndex(m_dialogToPtr, IDC_DatumCombo, m_datumSelection);
+			m_datumSelection = abs (datumSelection);
+			DDX_CBIndex (m_dialogToPtr, IDC_DatumCombo, m_datumSelection);
 
 			m_datumCode = m_datumSelection;
 
-			}		// end "if (m_datumSelection != datumSelection)"
+			}	// end "if (m_datumSelection != datumSelection)"
 
 		if (m_ellipsoidSelection != ellipsoidSelection)
 			{
-			m_ellipsoidSelection = abs(ellipsoidSelection);
-			DDX_CBIndex(m_dialogToPtr, IDC_EllipsoidCombo, m_ellipsoidSelection);
+			m_ellipsoidSelection = abs (ellipsoidSelection);
+			DDX_CBIndex (m_dialogToPtr, IDC_EllipsoidCombo, m_ellipsoidSelection);
 
 			m_ellipsoidCode = m_ellipsoidSelection;
 
-			}		// end "if (m_ellipsoidSelection != ellipsoidSelection)"
+			}	// end "if (m_ellipsoidSelection != ellipsoidSelection)"
 
 		m_adjustUpperLeftMapPointFlag = TRUE;
 
-		}		// end "if (lastGridSystemCode != m_gridSystemCode)"
+		}	// end "if (lastGridSystemCode != m_gridSystemCode)"
 	
-}		// end "OnSelendokProjectionCombo"
+}	// end "OnSelendokProjectionCombo"
 
 
 
-void CMMapCoordinateDlg::OnSelendokDatumCombo() 
+void CMMapCoordinateDlg::OnSelendokDatumCombo ()
+
 {
-//	CComboBox*				comboBoxPtr;
-
-	int						lastDatumSelection;
+	int									lastDatumSelection;
 
 
 	lastDatumSelection = m_datumSelection;
-	DDX_CBIndex(m_dialogFromPtr, IDC_DatumCombo, m_datumSelection);
+	DDX_CBIndex (m_dialogFromPtr, IDC_DatumCombo, m_datumSelection);
 
 	if (lastDatumSelection != m_datumSelection)
 		{
 		m_ellipsoidSelection = CoordinateDialogSetDatumParameters (
-											this,
-											m_datumSelection,
-											abs (m_ellipsoidSelection),
-											FALSE);
+																			this,
+																			m_datumSelection,
+																			abs (m_ellipsoidSelection),
+																			FALSE,
+																			FALSE);
 		
-		m_ellipsoidSelection = abs(m_ellipsoidSelection);
+		m_ellipsoidSelection = abs (m_ellipsoidSelection);
 		m_ellipsoidCode = m_ellipsoidSelection;
 
-		DDX_CBIndex(m_dialogToPtr, 
+		DDX_CBIndex (m_dialogToPtr, 
 							IDC_EllipsoidCombo, 
 							m_ellipsoidSelection);
 
-//		comboBoxPtr = (CComboBox*)GetDlgItem(IDC_DatumCombo);
-//		m_datumCode = (SInt16)comboBoxPtr->GetItemData(m_datumSelection);
-		m_datumCode = abs(m_datumSelection);
+		m_datumCode = abs (m_datumSelection);
 		
 		m_adjustUpperLeftMapPointFlag = TRUE;
 
-		}		// end "if (lastDatumSelection != m_datumSelection)"
+		}	// end "if (lastDatumSelection != m_datumSelection)"
 	
-}		// end "OnSelendokDatumCombo"
-
-void CMMapCoordinateDlg::OnChangeZoneDirection() 
-{
-	// TODO: If this is a RICHEDIT control, the control will not
-	// send this notification unless you override the CMDialog::OnInitDialog()
-	// function and call CRichEditCtrl().SetEventMask()
-	// with the ENM_CHANGE flag ORed into the mask.
-
-	SInt16				projectionSelection;
-
-
-	USES_CONVERSION;
-	
-	TBYTE lastGridZoneDirection = m_gridZoneDirection[0];
-	
-	DDX_Text(m_dialogFromPtr, IDC_ZoneDirection, m_gridZoneDirection);
-
-	if (m_gridZoneDirection != 'N' && m_gridZoneDirection != 'S' &&
-			m_gridZoneDirection != 'n' && m_gridZoneDirection != 's')
-		{
-		m_gridZoneDirection = lastGridZoneDirection;
-		DDX_Text(m_dialogToPtr, IDC_ZoneDirection, m_gridZoneDirection);
-
-		}		// end "if (m_gridZoneDirection != 'N' && m_gridZoneDirection != 'S')"
-
-	else	// okay
-		{
-//		CComboBox*				comboBoxPtr;
-		SInt16					gridZone;
-
-//		comboBoxPtr = (CComboBox*)GetDlgItem(IDC_DatumCombo);
-//		m_datumCode = (SInt16)comboBoxPtr->GetItemData(m_datumSelection);
-		m_datumCode = abs(m_datumSelection);
-		
-				// Set up gridZoneDirectionString to be used in the shared routines.
-
-		//m_gridZoneDirectionString[1] = (UInt8)T2A((LPTSTR)m_gridZoneDirection[0]);
-		m_gridZoneDirectionString[1] = (UInt8)m_gridZoneDirection[0];
-
-		m_gridZoneWithDirection = m_gridZone;
-		if (m_gridZoneDirection == 'S')
-			m_gridZoneWithDirection = -m_gridZone;
-
-		projectionSelection = m_projectionSelection;
-		CoordinateDialogSetParametersFromRS (this,
-															m_referenceSystemCode,
-															&projectionSelection,
-															m_gridZoneDirectionString,
-															m_gridZoneWithDirection,
-															m_datumCode,
-															m_ellipsoidCode,
-															&gridZone);
-	
-		if (m_projectionSelection != abs(projectionSelection))
-			{
-			m_projectionSelection = abs(projectionSelection);
-			DDX_CBIndex(m_dialogToPtr, IDC_ProjectionCombo, m_projectionSelection);
-
-			}		// end "if (m_projectionSelection = projectionSelection)"
-
-		}		// end "else okay"
-	
-}		// end "OnChangeZoneDirection"
-
-
-
-void CMMapCoordinateDlg::OnEnChangeZone()
-{
-	// TODO:  If this is a RICHEDIT control, the control will not
-	// send this notification unless you override the CMDialog::OnInitDialog()
-	// function and call CRichEditCtrl().SetEventMask()
-	// with the ENM_CHANGE flag ORed into the mask.
-
-	SInt16							gridZone,
-										maxZone,
-										minZone,
-										projectionSelection,
-										savedGridZone;
-
-
-	USES_CONVERSION;
-
-	savedGridZone = m_gridZone;
-	DDX_Text(m_dialogFromPtr, IDC_Zone, m_gridZone);
-	
-	CoordinateDialogGetMinMaxZone (m_referenceSystemCode,
-												&minZone,
-												&maxZone,
-												m_gridZoneDirectionString);
-		
-	if (m_gridZone >= minZone && m_gridZone <= maxZone)
-		{
-		m_gridZoneWithDirection = m_gridZone;
-		if (m_gridZoneDirection == 'S')
-			m_gridZoneWithDirection = -m_gridZone;
-		gridZone = m_gridZone;
-	
-		projectionSelection = m_projectionSelection;
-		CoordinateDialogSetParametersFromRS (this,
-															m_referenceSystemCode,
-															&projectionSelection,
-															m_gridZoneDirectionString,
-															m_gridZoneWithDirection,
-															m_datumCode,
-															m_ellipsoidCode,
-															&gridZone);
-	
-		if (m_projectionSelection != abs(projectionSelection))
-			{
-			m_projectionSelection = abs(projectionSelection);
-			DDX_CBIndex(m_dialogToPtr, IDC_ProjectionCombo, m_projectionSelection);
-
-			}		// end "if (m_projectionSelection = projectionSelection)"
-																
-		}		// end "else grid zone is within the proper range
-
-}		// end "OnEnChangeZone"
-
-
-
-void CMMapCoordinateDlg::OnEnChangeEPSGCode()
-{
-	// TODO:  If this is a RICHEDIT control, the control will not
-	// send this notification unless you override the CMDialog::OnInitDialog()
-	// function and call CRichEditCtrl().SetEventMask()
-	// with the ENM_CHANGE flag ORed into the mask.
-
-	SInt16							mapUnitsSelection,
-										projectionSelection,
-										savedEPSGCode;
-
-
-	USES_CONVERSION;
-	
-	savedEPSGCode = m_epsgCode;
-	DDX_Text(m_dialogFromPtr, IDC_EPSGCode, m_epsgCode);
-	
-	if (m_epsgCode != savedEPSGCode)
-		{
-		projectionSelection = m_projectionSelection;
-		mapUnitsSelection = m_mapUnitsSelection;
-																			
-		m_validEPSGCodeFlag = CoordinateDialogSetParametersFromEPSGCode (
-																	this,
-																	m_epsgCode,
-																	m_validEPSGCodeFlag,
-																	m_epsgName,
-																	m_datumName,
-																	m_ellipsoidName,
-																	&mapUnitsSelection,
-																	&projectionSelection);
-	
-		if (m_projectionSelection != abs(projectionSelection))
-			{
-			m_projectionSelection = abs(projectionSelection);
-			DDX_CBIndex(m_dialogToPtr, IDC_ProjectionCombo, m_projectionSelection);
-
-			}		// end "if (m_projectionSelection = projectionSelection)"
-	
-		if (m_mapUnitsSelection != abs(mapUnitsSelection))
-			{
-			m_mapUnitsSelection = abs(mapUnitsSelection);
-			DDX_CBIndex(m_dialogToPtr, IDC_MapUnitsCombo, m_mapUnitsSelection);
-
-			}		// end "if (m_mapUnitsSelection != abs(mapUnitsSelection)"
-																
-		}		// end "else grid zone is within the proper range
-
-}		// end "OnEnChangeEPSGCode"
+}	// end "OnSelendokDatumCombo"

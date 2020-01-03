@@ -1,93 +1,137 @@
-// WTextView.cpp : implementation file
+//	 									MultiSpec
 //
-//	Revised by Larry Biehl on 08/30/2018
-                   
+//					Laboratory for Applications of Remote Sensing
+// 								Purdue University
+//								West Lafayette, IN 47907
+//								 Copyright (1995-2020)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	File:						WTextView.cpp : implementation file
+//
+//	Authors:					Larry L. Biehl
+//
+//	Revision date:			08/30/2018
+//
+//	Language:				C++
+//
+//	System:					Windows Operating System
+//
+//	Brief description:	This file contains functions that relate to the
+//								CMTextView class.
+//
+//------------------------------------------------------------------------------------
+
 #include "SMultiSpec.h"
                    
 #include "WImageView.h"
 #include "WTextDoc.h"
 #include "WTextView.h"
 
-//#include	"SExternalGlobals.h"  
-								
-extern void 					UpdateEditTextClear (
-										CCmdUI*					pCmdUI);
-								
-extern void 					UpdateEditTextCopy (
-										CCmdUI*					pCmdUI); 
-								
-extern void 					UpdateEditTextCut (
-										CCmdUI*					pCmdUI); 
-								
-extern void 					UpdateEditTextPaste (
-										CCmdUI*					pCmdUI);
-								
-extern void 					UpdateEditTextSelectAll (
-										CCmdUI*					pCmdUI);
-
-extern Boolean 				UpdateFileOutputTextSaveAs (
-										CCmdUI*					pCmdUI);
-							
-extern Boolean 				UpdateFileOutputTextPrint (
-										CCmdUI*					pCmdUI);
-
-#ifdef _DEBUG
-#undef THIS_FILE
-static char BASED_CODE THIS_FILE[] = __FILE__;
-#endif
-
-/////////////////////////////////////////////////////////////////////////////
-// CMTextView
-
-IMPLEMENT_DYNCREATE(CMTextView, CEditView);
-
-
-BEGIN_MESSAGE_MAP(CMTextView, CEditView)
-	//{{AFX_MSG_MAP(CMTextView)
-	ON_UPDATE_COMMAND_UI(ID_FILE_PRINT, OnUpdateFilePrint)
-	ON_UPDATE_COMMAND_UI(ID_FILE_PRINT_PREVIEW, OnUpdateFilePrintPreview)
-	ON_UPDATE_COMMAND_UI(ID_FILE_PRINT_SETUP, OnUpdateFilePrintSetup)
-	ON_UPDATE_COMMAND_UI(ID_FILE_SAVE, OnUpdateFileSave)
-	ON_UPDATE_COMMAND_UI(ID_FILE_SAVE_AS, OnUpdateFileSaveAs)
-	ON_UPDATE_COMMAND_UI(ID_FILE_CLOSE, OnUpdateFileClose)
-	ON_WM_CREATE()
-	ON_WM_CHAR()
-	ON_WM_MOUSEMOVE()
-	ON_WM_SETCURSOR()
-	ON_COMMAND(ID_FILE_PRINT_PREVIEW, OnFilePrintPreview)
-	ON_UPDATE_COMMAND_UI(ID_EDIT_CLEAR, OnUpdateEditClear)
-	ON_UPDATE_COMMAND_UI(ID_EDIT_COPY, OnUpdateEditCopy)
-	ON_UPDATE_COMMAND_UI(ID_EDIT_CUT, OnUpdateEditCut)
-	ON_UPDATE_COMMAND_UI(ID_EDIT_SELECT_ALL, OnUpdateEditSelectAll)
-	//}}AFX_MSG_MAP
-END_MESSAGE_MAP()  
-
-
 LOGFONT NEAR CMTextView::m_lfDefFont;
 
+#ifdef _DEBUG
+		#undef THIS_FILE
+		static char BASED_CODE THIS_FILE[] = __FILE__;
+#endif
 
-CMTextView::CMTextView()
+
+
+IMPLEMENT_DYNCREATE (CMTextView, CEditView);
+
+BEGIN_MESSAGE_MAP (CMTextView, CEditView)
+	//{{AFX_MSG_MAP (CMTextView)
+	ON_COMMAND (ID_FILE_PRINT_PREVIEW, OnFilePrintPreview)
+
+	ON_UPDATE_COMMAND_UI (ID_EDIT_CLEAR, OnUpdateEditClear)
+	ON_UPDATE_COMMAND_UI (ID_EDIT_COPY, OnUpdateEditCopy)
+	ON_UPDATE_COMMAND_UI (ID_EDIT_CUT, OnUpdateEditCut)
+	ON_UPDATE_COMMAND_UI (ID_EDIT_SELECT_ALL, OnUpdateEditSelectAll)
+	ON_UPDATE_COMMAND_UI (ID_FILE_CLOSE, OnUpdateFileClose)
+	ON_UPDATE_COMMAND_UI (ID_FILE_PRINT, OnUpdateFilePrint)
+	ON_UPDATE_COMMAND_UI (ID_FILE_PRINT_PREVIEW, OnUpdateFilePrintPreview)
+	ON_UPDATE_COMMAND_UI (ID_FILE_PRINT_SETUP, OnUpdateFilePrintSetup)
+	ON_UPDATE_COMMAND_UI (ID_FILE_SAVE, OnUpdateFileSave)
+	ON_UPDATE_COMMAND_UI (ID_FILE_SAVE_AS, OnUpdateFileSaveAs)
+
+	ON_WM_CHAR ()
+	ON_WM_CREATE ()
+	ON_WM_MOUSEMOVE ()
+	ON_WM_SETCURSOR ()
+	//}}AFX_MSG_MAP
+END_MESSAGE_MAP ()
+
+
+
+CMTextView::CMTextView ()
+
 {                 
 	gOutputViewCPtr = this;
 
-}		// end "CMTextView"
+}	// end "CMTextView"
 
 
 
-CMTextView::~CMTextView()
+CMTextView::~CMTextView ()
+
 {              
 	gOutputViewCPtr = NULL;
     
-	m_font.DeleteObject();
+	m_font.DeleteObject ();
 	
-}		// end "~CMTextView"          
+}	// end "~CMTextView"
+
+
+#ifdef _DEBUG
+void CMTextView::AssertValid () const
+
+{
+	CEditView::AssertValid ();
+	
+}	// end "AssertValid"
+
+
+
+void CMTextView::Dump (CDumpContext& dc) const
+
+{
+	CEditView::Dump (dc);
+	
+}	// end "Dump"
+
+
+
+CMTextDoc* CMTextView::GetDocument () // non-debug version is inline
+
+{
+	ASSERT(m_pDocument->IsKindOf (RUNTIME_CLASS (CMTextDoc)));
+	return (CMTextDoc*)m_pDocument;
+	
+}	// end "GetDocument"
+#endif    //_DEBUG
+
+
+
+SInt32 CMTextView::GetTextBufferLength (void)
+
+{
+	Boolean modifiedFlag = GetEditCtrl ().GetModify ();
+	SInt32 bufferLength = GetBufferLength ();
+
+			// Reset the modified flag. Under Windows 95, it
+			// get set to false during the call to GetBufferLength.
+	
+	GetEditCtrl ().SetModify (modifiedFlag);
+
+	return (bufferLength);
+	
+}	// end "GetTextBufferLength"
 
 									
 
-
-//-----------------------------------------------------------------------------
-//								 Copyright (1988-1998)
-//								c Purdue Research Foundation
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2020)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		Boolean ListString
@@ -109,16 +153,16 @@ CMTextView::~CMTextView()
 //	Coded By:			Larry L. Biehl			Date: 03/30/1988
 //	Revised By:			Larry L. Biehl			Date: 03/03/2017			
 
-Boolean CMTextView::ListString ( 
+Boolean CMTextView::ListString (
 				HPtr									textPtr, 
 				UInt32								textLength,
 				SInt16								charFormatCode)
 
 {      
-	TBYTE								tempWideCharacterString[1000];
-
-
 	USES_CONVERSION;
+
+	TBYTE									tempWideCharacterString[1000];
+
 
 			// Make certain that there is a 'c' terminator at the end of the string.
 	
@@ -127,68 +171,130 @@ Boolean CMTextView::ListString (
    
 			//
 	if (charFormatCode == kUnicodeCharString)
-		GetEditCtrl().ReplaceSel((LPCTSTR)textPtr);
+		GetEditCtrl ().ReplaceSel ((LPCTSTR)textPtr);
 		
 	else if (charFormatCode == kUTF8CharString)
 		{
-		//std::string utf8 = UTF8FromUTF16 (filePathCPtr);  requires visualc++ 2010
-		int sizeNeeded = MultiByteToWideChar (
-									CP_UTF8, 0, textPtr, -1, NULL, 0);
+		int sizeNeeded = MultiByteToWideChar (CP_UTF8, 0, textPtr, -1, NULL, 0);
 
-		sizeNeeded = MIN(sizeNeeded, 1000);
-		MultiByteToWideChar (CP_UTF8, 0, textPtr, -1, (LPWSTR)tempWideCharacterString, sizeNeeded);
+		sizeNeeded = MIN (sizeNeeded, 1000);
+		MultiByteToWideChar (CP_UTF8,
+									0,
+									textPtr,
+									-1,
+									(LPWSTR)tempWideCharacterString,
+									sizeNeeded);
 
-		GetEditCtrl().ReplaceSel((LPCTSTR)tempWideCharacterString);
-		}
+		GetEditCtrl ().ReplaceSel ((LPCTSTR)tempWideCharacterString);
+		
+		}	// end "else if (charFormatCode == kUTF8CharString)"
 
 	else	// is kASCIICharString
-		{
-		GetEditCtrl().ReplaceSel((LPCTSTR)A2T(textPtr));
-		}
+		GetEditCtrl ().ReplaceSel ((LPCTSTR)A2T(textPtr));
 	                                 
-	GetEditCtrl().SetModify(TRUE);
+	GetEditCtrl ().SetModify (TRUE);
 	
 	return (TRUE);    
 	
-}			// end "ListString" 
+}	// end "ListString"
 
+ 
 
-
-/////////////////////////////////////////////////////////////////////////////
-// CMTextView drawing
-/*
-void CMTextView::OnDraw(CDC* pDC)
+void CMTextView::OnActivateView (
+				BOOL 									bActivate,
+				CView* 								pActivateView,
+				CView* 								pDeactiveView)
+				
 {
-	CDocument* pDoc = GetDocument();
-	ASSERT_VALID(pDoc);
+	CEditView::OnActivateView (bActivate, pActivateView, pDeactiveView);
 	
-		// Add draw code here
-}
-*/
+	m_activeFlag = bActivate;
+	
+}	// end "OnActivateView"
 
 
-void 
-CMTextView::OnInitialUpdate()
+
+void CMTextView::OnChar (
+				UINT 									nChar,
+				UINT 									nRepCnt,
+				UINT 									nFlags)
 
 {
-//	CScrollView::OnInitialUpdate();
-//
-//	CSize sizeTotal;
-	// TODO: calculate the total size of this view
-//	sizeTotal.cx = sizeTotal.cy = 100;
-//	SetScrollSizes(MM_TEXT, sizeTotal);
+			// Only process the delete key for now
 	
-//	SetScrollSizes(MM_TEXT, GetDocument()->GetDocSize());
+ 	if (nChar == 8 && nRepCnt == 0)
+		CWnd::OnChar (nChar, nRepCnt, nFlags);
 	
+}	// end "OnChar"
+
+
+
+int CMTextView::OnCreate (
+				LPCREATESTRUCT 					lpCreateStruct)
+
+{
+	LOGFONT								lf;
+	
+	
+	if (CEditView::OnCreate (lpCreateStruct) == -1)
+																							return -1;
+
+			// Set font to be used.
+	
+	::GetObject (GetStockObject (SYSTEM_FIXED_FONT), sizeof (LOGFONT), &lf);
+	
+			// Change to Courier font.
+	
+	lf.lfHeight = 10;
+	lf.lfWidth = 0;
+	lf.lfQuality = DEFAULT_QUALITY;
+
+	lf.lfFaceName[0] = 'C';
+	lf.lfFaceName[1] = 'o';
+	lf.lfFaceName[2] = 'u';
+	lf.lfFaceName[3] = 'r';
+	lf.lfFaceName[4] = 'i';
+	lf.lfFaceName[5] = 'e';
+	lf.lfFaceName[6] = 'r';
+	lf.lfFaceName[7] = 0x00;
+	
+	if (m_font.CreateFontIndirect (&lf))
+		{
+		SetFont (&m_font);
+		m_lfDefFont = lf;
+		
+		}	// end "if (m_font.CreateFontIndirect (&lf))"
+	
+   SetTabStops (4);
+	
+	return 0;
+	
+}	// end "OnCreate"
+
+
+
+void CMTextView::OnFilePrintPreview ()
+
+{
+	CEditView::OnFilePrintPreview ();
+	
+}	// end "OnFilePrintPreview"
+
+
+
+void CMTextView::OnInitialUpdate ()
+
+{
 			// Move the text window to the right portion of the client area
 			// of the main frame rect.
-	                            
-	CRect		mainFrameRect,
-				textWindowRect;
-	SInt16	xLocation,
-				xSize,
-				yLocation,
-				ySize;		
+	
+	CRect									mainFrameRect,
+											textWindowRect;
+	SInt16								xLocation,
+											xSize,
+											yLocation,
+											ySize;
+	
 	
 	CFrameWnd* pMainFrame = (CFrameWnd*)AfxGetApp()->m_pMainWnd;
 	pMainFrame->GetClientRect (&mainFrameRect);
@@ -200,9 +306,9 @@ CMTextView::OnInitialUpdate()
 	xLocation = MAX (0, xLocation);
 	yLocation = (SInt16)(mainFrameRect.top + 3);
 	yLocation = MAX (0,yLocation);
-	GetParentFrame()->MoveWindow (xLocation, yLocation, xSize, ySize, TRUE); 
+	GetParentFrame()->MoveWindow (xLocation, yLocation, xSize, ySize, TRUE);
 	
-	CEditView::OnInitialUpdate();
+	CEditView::OnInitialUpdate ();
 
 			// This should set the limit to 0x0fffffff for when running
 			// under Windows NT and 0xffff when running Windows 95/98.
@@ -210,226 +316,52 @@ CMTextView::OnInitialUpdate()
 	CEdit& editControlPtr = GetEditCtrl ();
 	editControlPtr.SetLimitText (0x0FFFFFFF);
 
-	SInt32 limit = editControlPtr.GetLimitText();
-}     
+	SInt32 limit = editControlPtr.GetLimitText ();
+	
+}	// end "OnInitialUpdate"
 
- 
 
-void 
-CMTextView::OnActivateView(
-				BOOL 			bActivate, 
-				CView* 		pActivateView,
-				CView* 		pDeactiveView)
-				
+
+void CMTextView::OnMouseMove (
+				UINT 									nFlags,
+				CPoint 								point)
+
 {
-	CEditView::OnActivateView(bActivate, pActivateView, pDeactiveView);
-	
-	m_activeFlag = bActivate;
-	
-}		// end "OnActivateView"
-
-
-/////////////////////////////////////////////////////////////////////////////
-// CMTextView printing 
-
- 
-
-BOOL CMTextView::PreCreateWindow(
-				CREATESTRUCT&			cs)
-
-{      
-	return CEditView::PreCreateWindow(cs);
-                                  
-//	cs.style |= WS_MINIMIZE; 
-	
-//	CEditView::PreCreateWindow(cs); 
-	
-//	return (TRUE);
-
-}	// end "PreCreateWindow"
-
- 
- 
-/////////////////////////////////////////////////////////////////////////////
-// CMTextView diagnostics
-
-#ifdef _DEBUG
-void CMTextView::AssertValid() const
-{
-	CEditView::AssertValid();
-}
-
-void CMTextView::Dump(CDumpContext& dc) const
-{
-	CEditView::Dump(dc);
-}
-
-CMTextDoc* CMTextView::GetDocument() // non-debug version is inline
-{
-	ASSERT(m_pDocument->IsKindOf(RUNTIME_CLASS(CMTextDoc)));
-	return (CMTextDoc*)m_pDocument;
-}
-#endif //_DEBUG
-
-/////////////////////////////////////////////////////////////////////////////
-// CMTextView message handlers 
-
-void CMTextView::OnUpdateFilePrint(CCmdUI* pCmdUI)
-{                                     
-	Boolean enableFlag = UpdateFileOutputTextPrint (pCmdUI);
-	
-	enableFlag = (enableFlag && GetTextBufferLength() != 0); 
-	                                                                               
-	pCmdUI->Enable(enableFlag);        
-	
-}
-
-
-
-void CMTextView::OnUpdateFilePrintPreview(CCmdUI* pCmdUI)
-{                                                                                                                                                  
-	pCmdUI->Enable(GetTextBufferLength() != 0); 
-	                      
-}
-
-
-
-void CMTextView::OnUpdateFilePrintSetup(CCmdUI* pCmdUI)
-{                                                                                                                     
-	pCmdUI->Enable(TRUE);
-	
-}
-
-
-
-void CMTextView::OnUpdateFileSave(CCmdUI* pCmdUI)
-{                                                                                                                     
-	pCmdUI->Enable( UpdateFileSave(pCmdUI) );
-	
-}
-
-
-
-void CMTextView::OnUpdateFileSaveAs(CCmdUI* pCmdUI)
-{                       
-	Boolean enableFlag = UpdateFileOutputTextSaveAs (pCmdUI);
-	
-	enableFlag = (enableFlag && GetTextBufferLength() != 0); 
-	                                                                                             
-	pCmdUI->Enable(enableFlag);            
-	
-}		// end "OnUpdateFileSaveAs"
-
-
-
-void CMTextView::OnUpdateFileClose(CCmdUI* pCmdUI)
-{                                                                                                                                                   
-	pCmdUI->Enable(FALSE);
-	
-}
-
-
-
-int CMTextView::OnCreate(LPCREATESTRUCT lpCreateStruct)
-{              
-	LOGFONT		lf;
-	
-	
-	if (CEditView::OnCreate(lpCreateStruct) == -1)
-		return -1; 
-
-			// Set font to be used. 
-   
-	::GetObject(GetStockObject(SYSTEM_FIXED_FONT), sizeof(LOGFONT), &lf);
-	
-			// Change to Courier font. 
-                           
-/*	lf.lfHeight = 0xfff3;   
-	lf.lfWidth = 0x0000;    
-	lf.lfQuality = 0x01;
-*/
-//new
-	lf.lfHeight = 10;   
-	lf.lfWidth = 0;    
-	lf.lfQuality = DEFAULT_QUALITY;
-//
-
-	lf.lfFaceName[0] = 'C';
-	lf.lfFaceName[1] = 'o'; 
-	lf.lfFaceName[2] = 'u';
-	lf.lfFaceName[3] = 'r';
-	lf.lfFaceName[4] = 'i';
-	lf.lfFaceName[5] = 'e';
-	lf.lfFaceName[6] = 'r';
-	lf.lfFaceName[7] = 0x00;
-                                                               
-	if (m_font.CreateFontIndirect(&lf))
-		{                   
-		SetFont(&m_font);
-		m_lfDefFont = lf;
-		
-		}		// end "if (m_font.CreateFontIndirect(&lf))"
-			
-   SetTabStops (4);
-	
-	return 0;
-	
-}		// end "OnCreate"
-
-
-
-void CMTextView::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags)
-{
-		// Only process the delete key for now
-	
- 	if (nChar == 8 && nRepCnt == 0)
-		CWnd::OnChar(nChar, nRepCnt, nFlags);
-		
-} 
-
-
-
-void CMTextView::OnMouseMove(
-				UINT 			nFlags, 
-				CPoint 		point)
-				
-{                                    
-	
-	CEditView::OnMouseMove(nFlags, point);
+	CEditView::OnMouseMove (nFlags, point);
 	
 } 	// end "OnMouseMove"
 
 
 
 BOOL CMTextView::OnSetCursor (
-				CWnd* 		pWnd, 
-				UINT 			nHitTest, 
-				UINT 			message)
-				
-{  
+				CWnd* 								pWnd,
+				UINT 									nHitTest,
+				UINT 									message)
+
+{
 	if (gPresentCursor == kWait || gPresentCursor == kSpin)
 		{
 				// Wait cursor in affect. Processing underway.
 				// Restart the wait cursor in case in was changed to pointer
 				// before entering the image frame.
 		
-		AfxGetApp ()->DoWaitCursor (0);
-																					return (TRUE);
+		AfxGetApp()->DoWaitCursor (0);
+																						return (TRUE);
 		
 		}	// end "if (gPresentCursor == kWait || gPresentCursor == kSpin)"
 
 	if (!m_activeFlag)
 		{
 		if (gPresentCursor != kArrow && gActiveImageViewCPtr != NULL)
-			gActiveImageViewCPtr->UpdateCursorCoordinates();
+			gActiveImageViewCPtr->UpdateCursorCoordinates ();
 
 		SetCursor (AfxGetApp()->LoadStandardCursor (IDC_ARROW));
 		gPresentCursor = kArrow;		// Non-image window cursors.
 		
-																					return TRUE;
+																						return TRUE;
 		
 		}	// end "if (!m_activeFlag)"
-		
+	
 	gPresentCursor = kIBeam;
 	
 	return CEditView::OnSetCursor (pWnd, nHitTest, message);
@@ -438,92 +370,146 @@ BOOL CMTextView::OnSetCursor (
 
 
 
-void CMTextView::OnFilePrintPreview ()
+void CMTextView::OnUpdateEditClear (
+				CCmdUI* 								pCmdUI)
 
-{                                                       
-	CEditView::OnFilePrintPreview ();
-	
-}
-
-
-
-void CMTextView::OnUpdateEditClear (CCmdUI* pCmdUI)
-
-{  
-	int		startSel, endSel;
+{
+	int									startSel,
+											endSel;
 	
 	
 	UpdateEditTextClear (pCmdUI);
 	
 	CEdit& editControlPtr = GetEditCtrl ();
-	editControlPtr.GetSel (startSel, endSel);                                                                 
-	pCmdUI->Enable(endSel > startSel);            
+	editControlPtr.GetSel (startSel, endSel);
+	pCmdUI->Enable (endSel > startSel);
 	
-} 
+}	// end "OnUpdateEditClear"
 
 
 
-void CMTextView::OnUpdateEditCopy(CCmdUI* pCmdUI)
-{                          
-	int		startSel, endSel;
+void CMTextView::OnUpdateEditCopy (
+				CCmdUI* 								pCmdUI)
+
+{
+	int									startSel,
+											endSel;
 	
-	                              
+	
 	UpdateEditTextCopy (pCmdUI);
 	
 	CEdit& editControlPtr = GetEditCtrl ();
-	editControlPtr.GetSel (startSel, endSel);                                                                 
-	pCmdUI->Enable(endSel > startSel);
+	editControlPtr.GetSel (startSel, endSel);
+	pCmdUI->Enable (endSel > startSel);
 	
-} 
+}	// end "OnUpdateEditCopy"
 
 
 
-void CMTextView::OnUpdateEditCut(CCmdUI* pCmdUI)
-{                    
-	int		startSel, endSel;
+void CMTextView::OnUpdateEditCut (
+				CCmdUI* 								pCmdUI)
+
+{
+	int									startSel,
+											endSel;
 	
-	                                    
+	
 	UpdateEditTextCut (pCmdUI);
 	
 	CEdit& editControlPtr = GetEditCtrl ();
-	editControlPtr.GetSel (startSel, endSel);                                                                
-	pCmdUI->Enable(endSel != startSel);
+	editControlPtr.GetSel (startSel, endSel);
+	pCmdUI->Enable (endSel != startSel);
 	
-}
+}	// end "OnUpdateEditCut"
 
 
 
-void CMTextView::OnUpdateEditSelectAll(CCmdUI* pCmdUI)
-{                                                       
+void CMTextView::OnUpdateEditSelectAll (
+				CCmdUI* 								pCmdUI)
+
+{
 	UpdateEditTextSelectAll (pCmdUI);
-	                                                           
-	pCmdUI->Enable(GetTextBufferLength() != 0);
 	
-}  
-
-
-
-SInt32 
-CMTextView::GetTextBufferLength(void)
-
-{  
-	Boolean modifiedFlag = GetEditCtrl().GetModify();
-	SInt32 bufferLength = GetBufferLength();
-
-			// Reset the modified flag. Under Windows 95, it
-			// get set to false during the call to GetBufferLength.
+	pCmdUI->Enable (GetTextBufferLength () != 0);
 	
-	GetEditCtrl().SetModify(modifiedFlag);
+}	// end "OnUpdateEditSelectAll"
 
-	return (bufferLength);
+
+
+void CMTextView::OnUpdateFileClose (
+				CCmdUI* 								pCmdUI)
+
+{
+			// Do not allow text window to be closed.
 	
-}		// end "GetTextBufferLength" 
-
-
-/*
-void CMTextView::OnUpdateEditPaste(CCmdUI* pCmdUI)
-{                                                       
-	UpdateEditTextPaste (pCmdUI);
+	pCmdUI->Enable (FALSE);
 	
-}
-*/
+}	// end "OnUpdateFileClose"
+
+
+
+void CMTextView::OnUpdateFilePrint (
+				CCmdUI* 								pCmdUI)
+
+{                                     
+	Boolean enableFlag = UpdateFileOutputTextPrint (pCmdUI);
+	
+	enableFlag = (enableFlag && GetTextBufferLength () != 0); 
+	                                                                               
+	pCmdUI->Enable (enableFlag);        
+	
+}	// end "OnUpdateFilePrint"
+
+
+
+void CMTextView::OnUpdateFilePrintPreview (
+				CCmdUI* 								pCmdUI)
+
+{                                                                                                                                                  
+	pCmdUI->Enable (GetTextBufferLength () != 0); 
+	                      
+}	// end "OnUpdateFilePrintPreview"
+
+
+
+void CMTextView::OnUpdateFilePrintSetup (
+				CCmdUI* 								pCmdUI)
+
+{                                                                                                                     
+	pCmdUI->Enable (TRUE);
+	
+}	// end "OnUpdateFilePrintSetup"
+
+
+
+void CMTextView::OnUpdateFileSave (
+				CCmdUI* 								pCmdUI)
+
+{                                                                                                                     
+	pCmdUI->Enable (UpdateFileSave (pCmdUI));
+	
+}	// end "OnUpdateFileSave"
+
+
+
+void CMTextView::OnUpdateFileSaveAs (
+				CCmdUI* 								pCmdUI)
+
+{                       
+	Boolean enableFlag = UpdateFileOutputTextSaveAs (pCmdUI);
+	
+	enableFlag = (enableFlag && GetTextBufferLength () != 0); 
+	                                                                                             
+	pCmdUI->Enable (enableFlag);            
+	
+}	// end "OnUpdateFileSaveAs"
+
+
+
+BOOL CMTextView::PreCreateWindow (
+				CREATESTRUCT&						cs)
+
+{
+	return CEditView::PreCreateWindow (cs);
+
+}	// end "PreCreateWindow"

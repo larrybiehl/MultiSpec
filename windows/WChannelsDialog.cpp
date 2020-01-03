@@ -1,47 +1,50 @@
-// WChannelsDialog.cpp : implementation file
-//     
-// Revised by Larry Biehl on 01/04/2018
+//	 									MultiSpec
 //
-                   
-#include "SMultiSpec.h" 
+//					Laboratory for Applications of Remote Sensing
+// 								Purdue University
+//								West Lafayette, IN 47907
+//								 	Copyright (1995-2020)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	File:						WChannelsDialog.cpp : implementation file
+//
+//	Authors:					Larry L. Biehl
+//
+//	Revision date:			01/04/2018
+//
+//	Language:				C++
+//
+//	System:					Windows Operating System
+//
+//	Brief description:	This file contains functions that relate to the
+//								CMChannelsDlg class.
+//
+//------------------------------------------------------------------------------------
+
+#include "SMultiSpec.h"
+#include "SImageWindow_class.h"
 
 #include "WChannelsDialog.h"
-#include "CImageWindow.h" 
-
-//#include	"SExtGlob.h" 
-
-extern void 			ChannelCombinationsDialogOK (
-								UInt16								numberOutputChannelCombinations,                                   
-								UInt16*								numberOutputChannelCombinationsPtr,           
-								UInt16*								channelCombinationsPtr,         
-								UInt16*								allChanCombinationsPtr);
-
-extern void 			ChannelCombinationsDialogInitialize (
-								DialogPtr							dialogPtr,
-								SInt16								contiguousChannelsPerGroup,
-								Boolean								featureTransformationFlag,
-								UInt32								numberInputChannelCombinations);
-								
-extern Boolean 		ChannelCombinationsDialogLoadList (
-								DialogPtr							dialogPtr,
-								ListHandle							dialogListHandle,
-								UInt16								numberOutputChannelCombinations, 
-								UInt16* 								channelCombinationsPtr, 
-								UInt32								numberInputChannelCombinations, 
-								UInt16*								allChanCombinationsPtr,
-								SInt16								channelCombinationSelection );
 
 #ifdef _DEBUG
-#undef THIS_FILE
-static char BASED_CODE THIS_FILE[] = __FILE__;
+	#undef THIS_FILE
+	static char BASED_CODE THIS_FILE[] = __FILE__;
 #endif
 
-/////////////////////////////////////////////////////////////////////////////
-// CMChannelsDlg dialog
 
 
-CMChannelsDlg::CMChannelsDlg(CWnd* pParent /*=NULL*/)
-	: CMOneColDlg(pParent)
+BEGIN_MESSAGE_MAP (CMChannelsDlg, CMOneColDlg)
+	//{{AFX_MSG_MAP (CMChannelsDlg)
+	//}}AFX_MSG_MAP
+END_MESSAGE_MAP ()
+
+
+
+CMChannelsDlg::CMChannelsDlg (
+				CWnd* 								pParent /*=NULL*/)
+		: CMOneColDlg (pParent)
+
 {  
 	m_layerInfoPtr = NULL;
 	m_fileInfoPtr = NULL; 
@@ -49,46 +52,24 @@ CMChannelsDlg::CMChannelsDlg(CWnd* pParent /*=NULL*/)
 	m_availableFeaturePtr = NULL;
 	                        
 	m_initializedFlag = CMOneColDlg::m_initializedFlag;
-}
+	
+}	// end "CMChannelsDlg"
 
-void CMChannelsDlg::DoDataExchange(CDataExchange* pDX)
+
+
+void CMChannelsDlg::DoDataExchange (
+				CDataExchange* 					pDX)
+
 {
-	CMOneColDlg::DoDataExchange(pDX);
-	//{{AFX_DATA_MAP(CMChannelsDlg)
+	CMOneColDlg::DoDataExchange (pDX);
+	//{{AFX_DATA_MAP (CMChannelsDlg)
 	//}}AFX_DATA_MAP
-}
-
-BEGIN_MESSAGE_MAP(CMChannelsDlg, CMOneColDlg)
-	//{{AFX_MSG_MAP(CMChannelsDlg)                
-	//}}AFX_MSG_MAP
-END_MESSAGE_MAP()  
+	
+}	// end "DoDataExchange"
 
 
-//-----------------------------------------------------------------------------
-//								 Copyright (1988-1998)
-//								c Purdue Research Foundation
-//									All rights reserved.
-//
-//	Function name:		void DoDialog
-//
-//	Software purpose:	The purpose of this routine is to present the display
-//							specification dialog box to the user and copy the
-//							revised back to the display specification structure if
-//							the user selected OK.
-//
-//	Parameters in:		None
-//
-//	Parameters out:	None
-//
-//	Value Returned:	None		
-// 
-//	Called By:			Dialog in MDisMult.cpp
-//
-//	Coded By:			Larry L. Biehl			Date: 10/10/1995
-//	Revised By:			Larry L. Biehl			Date: 05/26/2017	
 
-Boolean 
-CMChannelsDlg::DoDialog(
+Boolean CMChannelsDlg::DoDialog (
 				SInt16*								numberOutputFeaturesPtr, 
 				SInt16* 								selectedFeaturePtr, 
 				LayerInfoPtr						layerInfoPtr,
@@ -99,15 +80,16 @@ CMChannelsDlg::DoDialog(
 				SInt16								numberInputVecItems,
 				SInt16								currentSelection)
 
-{  
-	Boolean			OKFlag = FALSE; 
+{
+	INT_PTR								returnCode;
 	
-	INT_PTR			returnCode;
+	Boolean								OKFlag = FALSE;
+
 	
 			// Make sure intialization has been completed.
 							                         
-	if ( !m_initializedFlag )
-																			return(FALSE);
+	if (!m_initializedFlag)
+																						return (FALSE);
 	
 			// This is a 0 base list.
 			
@@ -129,7 +111,7 @@ CMChannelsDlg::DoDialog(
 		{                                                  
 				// Get items to use.	    
 				
-		if ( m_listType == kSelectItemsList || m_listType == kSelectPCList)
+		if (m_listType == kSelectItemsList || m_listType == kSelectPCList)
 			{                             
 			*numberOutputFeaturesPtr = m_numberSelections;
 
@@ -138,40 +120,36 @@ CMChannelsDlg::DoDialog(
 									m_availableFeaturePtr, 
 									(SInt16)m_numberInputVecItems);
 			
-			}		// end "if ( m_listType == kSelectChannelsList || ..."
+			}	// end "if (m_listType == kSelectChannelsList || ..."
 			
 		OKFlag = TRUE; 
 		
-		}		// end "if (returnCode == IDOK)"
+		}	// end "if (returnCode == IDOK)"
 		
 	CheckAndUnlockHandle (gTransformationMatrix.eigenFeatureHandle);
 		
 	return (OKFlag);
 		
-}		// end "DoDialog" 
+}	// end "DoDialog" 
 
 
 
-/////////////////////////////////////////////////////////////////////////////
-// CMChannelsDlg message handlers
+BOOL CMChannelsDlg::OnInitDialog (void)
 
-BOOL 
-CMChannelsDlg::OnInitDialog(void)
-
-{		
-	ChannelDescriptionPtr	channelDescriptionPtr;
-	CListBox* 					listBoxPtr = NULL;
-	DialogPtr					dialogPtr = this;
-	FileInfoPtr					localFileInfoPtr;
+{
+	ChannelDescriptionPtr			channelDescriptionPtr;
+	CListBox* 							listBoxPtr = NULL;
+	DialogPtr							dialogPtr = this;
+	FileInfoPtr							localFileInfoPtr;
 	
-	char							*spacer = ": ";
+	char									*spacer = ": ";
 	
-	SInt32						estimatedLengthListDescription;
+	SInt32								estimatedLengthListDescription;
 	
-	SInt16						fileInfoIndex;
+	SInt16								fileInfoIndex;
 									
 									
-	CMOneColDlg::OnInitDialog();
+	CMOneColDlg::OnInitDialog ();
 
 
 			// Initialize local variables.														
@@ -189,7 +167,7 @@ CMChannelsDlg::OnInitDialog(void)
 		
 		m_listEnd = (UInt16)m_numberInputVecItems; 
 		
-		}		// end "if (m_useTransformFlag)"
+		}	// end "if (m_useTransformFlag)"
 		
 	LoadSubsetList (&m_numberOutputItems,
 							m_selectedItemsPtr,
@@ -203,7 +181,7 @@ CMChannelsDlg::OnInitDialog(void)
 		
 	estimatedLengthListDescription = (SInt32)m_numberInputVecItems * 22; 
                                                               
-	SetWindowText((LPCTSTR)_T("Select Channels"));
+	SetWindowText ((LPCTSTR)_T("Select Channels"));
 	LoadDItemString (IDC_ListTitle, (Str255*)"\0Channel List:");
 	
 			// If this is just a display list, hide all but OK button and list.	
@@ -228,98 +206,102 @@ CMChannelsDlg::OnInitDialog(void)
 		MHideDialogItem (dialogPtr, IDC_RangeOutline); 
 		
 		if (m_listType == kItemsListOnly)                                     
-			SetWindowText((LPCTSTR)_T("Channel Descriptions"));
+			SetWindowText ((LPCTSTR)_T("Channel Descriptions"));
 			
 		if (m_listType == kSelectedItemsListOnly)                         
-			SetWindowText((LPCTSTR)_T("Selected Channels"));
+			SetWindowText ((LPCTSTR)_T("Selected Channels"));
 		
-		}		// end "if (listType == kItemsListOnly || ...)" 
+		}	// end "if (listType == kItemsListOnly || ...)" 
 		
 	if (m_listType == kItemsListOnly)
 		{
 		MHideDialogItem (dialogPtr, IDC_SelectionCountLabel);
 		MHideDialogItem (dialogPtr, IDC_SelectionCount);
 		
-		}		// end "if (m_listType == kItemsListOnly)"
+		}	// end "if (m_listType == kItemsListOnly)"
 			
 	if (m_useTransformFlag)
 		{                                                                            
-		SetWindowText((LPCTSTR)_T("Select Transformation Features"));
+		SetWindowText ((LPCTSTR)_T("Select Transformation Features"));
 		LoadDItemString (IDC_ListTitle, (Str255*)"\0Feature List:");
 		
-		}		// end "if (m_useTransformFlag)" 
+		}	// end "if (m_useTransformFlag)" 
 
-	if (UpdateData(FALSE) )
+	if (UpdateData (FALSE))
 		{ 
 		PositionDialogWindow (); 
 		
-		listBoxPtr = (CListBox*)GetDlgItem(IDC_List1);
+		listBoxPtr = (CListBox*)GetDlgItem (IDC_List1);
 		
-		}		// end "if (UpdateData(FALSE) )" 
+		}	// end "if (UpdateData (FALSE))" 
 
 	if (listBoxPtr != NULL)
 		{  
 		SInt32 numberSelectedItems = AddChannelsToDialogList (
-																listBoxPtr,
-																&m_numberOutputItems, 
-																m_selectedItemsPtr, 
-																m_layerInfoPtr,
-																m_fileInfoPtr,
-																m_listType, 
-																m_availableFeaturePtr, 
-																(SInt32)m_numberInputVecItems,
-																m_currentSelection);
+																	listBoxPtr,
+																	&m_numberOutputItems,
+																	m_selectedItemsPtr,
+																	m_layerInfoPtr,
+																	m_fileInfoPtr,
+																	m_listType,
+																	m_availableFeaturePtr,
+																	(SInt32)m_numberInputVecItems,
+																	m_currentSelection);
 																
 				// Set the number of selected items.									
 				
 		::LoadDItemValue (dialogPtr, IDC_SelectionCount, numberSelectedItems);
 			
-		}		// end "if (listBoxPtr != NULL)"
+		}	// end "if (listBoxPtr != NULL)"
 	
 			// Set default text selection to first edit text item 
 		                                       
-//	GetDlgItem(IDC_First)->SetFocus();
-//	SendDlgItemMessage( IDC_First, EM_SETSEL, 0, MAKELPARAM(0, -1) ); 
-	SelectDialogItemText (this, IDC_First, 0, SInt16_MAX);     
+	SelectDialogItemText (this, IDC_First, 0, SInt16_MAX);
 	
 	return FALSE;  // return TRUE  unless you set the focus to a control
 	
-}		// end "OnInitDialog"  
+}	// end "OnInitDialog"
+
+
+
+//------------------------------------------------------------------------------------
+
+BEGIN_MESSAGE_MAP (CMChannelCombinationsDlg, CMOneColDlg)
+	//{{AFX_MSG_MAP (CMChannelCombinationsDlg)
+	//}}AFX_MSG_MAP
+END_MESSAGE_MAP ()
 
  
 
-/////////////////////////////////////////////////////////////////////////////
-// CMChannelCombinationsDlg dialog
-
-
-CMChannelCombinationsDlg::CMChannelCombinationsDlg(CWnd* pParent /*=NULL*/)
-	: CMOneColDlg(pParent)
+CMChannelCombinationsDlg::CMChannelCombinationsDlg (
+				CWnd* 								pParent /*=NULL*/)
+		: CMOneColDlg (pParent)
+		
 {  
 	m_useTransformFlag = FALSE; 
 	m_availableFeaturePtr = NULL;
 	                        
 	m_initializedFlag = CMOneColDlg::m_initializedFlag;
 	
-}
+}	// end "CMChannelCombinationsDlg"
 
 
 
-void CMChannelCombinationsDlg::DoDataExchange(CDataExchange* pDX)
+void CMChannelCombinationsDlg::DoDataExchange (
+				CDataExchange* 					pDX)
+
 {
-	CMOneColDlg::DoDataExchange(pDX);
-	//{{AFX_DATA_MAP(CMChannelCombinationsDlg)
+	CMOneColDlg::DoDataExchange (pDX);
+	//{{AFX_DATA_MAP (CMChannelCombinationsDlg)
 	//}}AFX_DATA_MAP
-}
+	
+}	// end "DoDataExchange"
 
-BEGIN_MESSAGE_MAP(CMChannelCombinationsDlg, CMOneColDlg)
-	//{{AFX_MSG_MAP(CMChannelCombinationsDlg)                
-	//}}AFX_MSG_MAP
-END_MESSAGE_MAP()  
 
 
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-1998)
-//								c Purdue Research Foundation
+//								 Copyright (1988-2020)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void DoDialog
@@ -340,8 +322,7 @@ END_MESSAGE_MAP()
 //	Coded By:			Larry L. Biehl			Date: 04/30/1998
 //	Revised By:			Larry L. Biehl			Date: 05/26/2017	
 
-Boolean 
-CMChannelCombinationsDlg::DoDialog(
+Boolean CMChannelCombinationsDlg::DoDialog (
 				SInt16								channelCombinationSelection,
 				UInt16*								numberOutputChannelCombinationsPtr, 
 				UInt16* 								channelCombinationsPtr, 
@@ -351,15 +332,15 @@ CMChannelCombinationsDlg::DoDialog(
 				Boolean								useTransformFlag)
 
 {  
-	Boolean			OKFlag = FALSE; 
+	INT_PTR								returnCode;
 	
-	INT_PTR			returnCode;
-	 
+	Boolean								OKFlag = FALSE;
+	
 	
 			// Make sure intialization has been completed.
 							                         
-	if ( !m_initializedFlag )
-																			return(FALSE);
+	if (!m_initializedFlag)
+																					return (FALSE);
 	
 			// This is a 1 base list.
 			
@@ -387,56 +368,50 @@ CMChannelCombinationsDlg::DoDialog(
 			
 		OKFlag = TRUE; 
 		
-		}		// end "if (returnCode == IDOK)"
+		}	// end "if (returnCode == IDOK)"
 		
 	return (OKFlag);
 		
-}		// end "DoDialog" 
+}	// end "DoDialog" 
 
 
 
-/////////////////////////////////////////////////////////////////////////////
-// CMChannelCombinationsDlg message handlers
-
-BOOL 
-CMChannelCombinationsDlg::OnInitDialog(void)
+BOOL CMChannelCombinationsDlg::OnInitDialog (void)
 
 {		
-	CListBox* 					listBoxPtr = NULL;
+	CListBox* 							listBoxPtr = NULL;
 									
 									
-	CMOneColDlg::OnInitDialog();
+	CMOneColDlg::OnInitDialog ();
 
 
 			// Initialize local variables.
 	
-	ChannelCombinationsDialogInitialize ( this,
+	ChannelCombinationsDialogInitialize (this,
 														m_contiguousChannelsPerGroup,
 														m_useTransformFlag,
 														m_numberInputVecItems);
 
-	if (UpdateData(FALSE) )
+	if (UpdateData (FALSE))
 		{ 
 		PositionDialogWindow (); 
 		
-		listBoxPtr = (CListBox*)GetDlgItem(IDC_List1);
+		listBoxPtr = (CListBox*)GetDlgItem (IDC_List1);
 		
-		}		// end "if (UpdateData(FALSE) )" 
+		}	// end "if (UpdateData (FALSE))" 
 		
-	ChannelCombinationsDialogLoadList ( this,
-															listBoxPtr,
-															m_numberOutputItems, 
-															(UInt16*)m_selectedItemsPtr, 
-															m_numberInputVecItems, 
-															(UInt16*)m_availableFeaturePtr,
-															m_channelCombinationSelection );	
-	
+	ChannelCombinationsDialogLoadList (this,
+													listBoxPtr,
+													m_numberOutputItems,
+													(UInt16*)m_selectedItemsPtr,
+													m_numberInputVecItems,
+													(UInt16*)m_availableFeaturePtr,
+													m_channelCombinationSelection);
+
 			// Set default text selection to first edit text item 
 		                                       
-//	GetDlgItem(IDC_First)->SetFocus();
-//	SendDlgItemMessage( IDC_First, EM_SETSEL, 0, MAKELPARAM(0, -1) );
 	SelectDialogItemText (this, IDC_First, 0, SInt16_MAX);     
 	
 	return FALSE;  // return TRUE  unless you set the focus to a control
 	
-}		// end "OnInitDialog"   
+}	// end "OnInitDialog"   

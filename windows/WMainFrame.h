@@ -1,214 +1,476 @@
-// WMainFrame.h : interface of the CMainFrame class
+//	 									MultiSpec
 //
-/////////////////////////////////////////////////////////////////////////////
-                
-#if !defined __MAINFRM_H__
-	#define __MAINFRM_H__    
+//					Laboratory for Applications of Remote Sensing
+//									Purdue University
+//								West Lafayette, IN 47907
+//								 Copyright (1995-2020)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	File:						WMainFrame.h
+//	Implementation:		WMainFrame.cpp
+//
+//	Authors:					Larry L. Biehl
+//
+//	Language:				C++
+//
+//	System:					Windows Operating System
+//
+//	Brief description:	Header file for the CMainFrame class
+//
+//	Written By:				Larry L. Biehl			Date: ??/??/1995?
+//	Revised By:				Larry L. Biehl			Date: 01/03/2020
+//
+//------------------------------------------------------------------------------------
+
+#pragma once
 	                     
-	#include "WStatisticsView.h"
-	#include "WToolBar.h" 
+#include "WStatisticsView.h"
+#include "WToolBar.h"
 	
 class CMainFrame : public CMDIFrameWnd
 {
-	DECLARE_DYNAMIC(CMainFrame)
-public:
-	CMainFrame();
-                 
-	virtual ~CMainFrame();
+	DECLARE_DYNAMIC (CMainFrame)
+	public:
+		CMainFrame ();
 	
-	void		DoPaletteChanged(
-					CWnd*				cWndPtr);
-				
-#ifdef _DEBUG
-	virtual void AssertValid() const;
-	virtual void Dump(CDumpContext& dc) const;
-#endif                                     
-        
-protected:
-	Boolean GetEnableFlagForStatisticsAndCluster(void);
+		virtual ~CMainFrame ();
 	
-	void OnDynamicMenuItem (
-				UINT							menuID);
+		void DoPaletteChanged (
+				CWnd*									cWndPtr);
 	
-	void SetUpdateAreaUnits(
-				CCmdUI* 				pCmdUI,
-				SInt16				unitsCode);
-//	void OnMenuSelect(UINT nItemID, UINT nFlags, HMENU hMenu);
+	#ifdef _DEBUG
+		virtual void AssertValid () const;
+		
+		virtual void Dump (
+				CDumpContext& 							dc) const;
+	#endif
+	
+	protected:
+		Boolean GetEnableFlagForStatisticsAndCluster (void);
+	
+		void OnDynamicMenuItem (
+				UINT									menuID);
+	
+		void SetUpdateAreaUnits (
+				CCmdUI* 								pCmdUI,
+				SInt16								unitsCode);
 
-//	void OnExitMenuLoop(
-//				Boolean				isPopupMenuFlag);
+		// Generated message map functions
+		//{{AFX_MSG (CMainFrame)
+		afx_msg void OnActivateApp (
+				BOOL 									bActive,
+				DWORD 								hTask);
+	
+		afx_msg void OnChar (
+				UINT 									nChar,
+				UINT 									nRepCnt,
+				UINT 									nFlags);
+	
+		afx_msg void OnClose ();
+	
+		afx_msg int OnCreate (
+				LPCREATESTRUCT 					lpCreateStruct);
+	
+		afx_msg void OnPaletteChanged (
+				CWnd* 								pFocusWnd);
+	
+		afx_msg BOOL OnQueryNewPalette ();
+	
+		afx_msg void OnSysCommand (
+				UINT 									nID,
+				LPARAM 								lParam);
+	
+		afx_msg BOOL OnSetCursor (
+				CWnd* 								pWnd,
+				UINT 									nHitTest,
+				UINT 									message);
+	
+		// In order of location on the main menu
+				// File Menu
+		afx_msg void OnFileNewProject ();
+	
+		afx_msg void OnFileOpen ();
+	
+		afx_msg void OnFileOpenProject ();
+	
+		afx_msg void OnFileOpenProjectImage ();
+	
+		afx_msg void OnFileOpenThematic ();
+	
+		afx_msg void OnFileLoadTransMatrix ();
+	
+		afx_msg void OnFileCloseProject ();
+	
+		afx_msg void OnFileSaveAs ();
+	
+		afx_msg void OnFileSaveProject ();
+	
+		afx_msg void OnFileSaveProjectAs ();
+	
+				// Edit Menu
+		afx_msg void OnEditClearTransMatrix ();
+	
+		afx_msg void OnEditImageDescription ();
+	
+		afx_msg void OnEditImageMapParameters ();
+	
+		afx_msg void OnEditClearAllImageOverlays ();
+	
+		afx_msg void OnEditClearAllVectorOverlays ();
+	
+				// View Menu Items
+		afx_msg void OnWindowShowCoordinateView ();
+	
+				// Project Menu Items
+		afx_msg void OnProjUseOriginalStats ();
+	
+		afx_msg void OnProjUseleave1outstatistics ();
+	
+		afx_msg void OnProjUseEnhancedStats ();
+	
+		afx_msg void OnProjClearStats ();
+	
+		afx_msg void OnProjChangeBaseImageFile ();
+	
+		afx_msg void OnProjAddAsAssociatedImage ();
+	
+				// Processor Menu Items
+		afx_msg void OnProcDisplayImage ();
+	
+		afx_msg void OnProcHistogramImage ();
+	
+		afx_msg void OnProcListData ();
+	
+		afx_msg void OnProcReformat ();
+	
+		afx_msg void OnProcCluster ();
+	
+		afx_msg void OnProcStatistics ();
+	
+		afx_msg void OnProcEnhanceStatistics ();
+	
+		afx_msg void OnProcFeatureExtraction ();
+	
+		afx_msg void OnProcFeatureSelection ();
+	
+		afx_msg void OnProcClassify ();
+	
+		afx_msg void OnProcListResults ();
+	
+				// Processor->Reformat Menu Items
+		afx_msg void OnProcReformatChangeHeader ();
+	
+		afx_msg void OnProcReformatChangeImage ();
+	
+		afx_msg void OnProcReformatConvertMultispectral ();
+	
+		afx_msg void OnProcReformatConvertProject ();
+	
+		afx_msg void OnProcReformatConvertShape ();
+	
+		afx_msg void OnProcReformatModifyChannel ();
+	
+		afx_msg void OnProcReformatMosaicImages ();
+	
+		afx_msg void OnProcReformatRecodeThematic ();
+	
+		afx_msg void OnProcReformatRectifyImage ();
+	
+		afx_msg void OnProcReformatConvertEnvi ();
+	
+				// Processor->Utility Menu Items
+		afx_msg void OnProcUtilPrinCompAnalysis ();
+	
+		afx_msg void OnProcUtilCreateStatImage ();
+	
+		afx_msg void OnProcUtilBiplotsOfData ();
+	
+		afx_msg void OnProcUtilListImageDesc ();
+	
+		afx_msg void OnProcUtilCheckCovariances ();
+	
+		afx_msg void OnProcUtilCheckTransMatrix ();
+	
+		afx_msg void OnNewSelectGraph ();
+	
+				// Options Menu Items
+		afx_msg void OnOptionsAreaUnitsSqKilometers ();
+	
+		afx_msg void OnOptionsAreaUnitsHectares ();
+	
+		afx_msg void OnOptionsAreaUnitsSqMeters ();
+	
+		afx_msg void OnOptionsAreaUnitsSqCentimeters ();
+	
+		afx_msg void OnOptionsAreaUnitsSqMillimeters ();
 
-protected:  // control bar embedded members
-	CStatusBar  			m_wndStatusBar;
-	CMToolBar    			m_wndToolBar;       
-
-// Generated message map functions
-protected:
-	//{{AFX_MSG(CMainFrame)          
-	afx_msg void OnUpdateFileOpen(CCmdUI* pCmdUI);
-	afx_msg void OnUpdateFileOpenProjectImage(CCmdUI* pCmdUI);
-	afx_msg void OnUpdateFileOpenThematic(CCmdUI* pCmdUI);
-	afx_msg void OnUpdateEditImageDescription(CCmdUI* pCmdUI);
-	afx_msg void OnUpdateLoadTransMatrix(CCmdUI* pCmdUI);
-	afx_msg void OnUpdateClassify(CCmdUI* pCmdUI);
-	afx_msg void OnUpdateCluster(CCmdUI* pCmdUI);
-	afx_msg void OnUpdateDisplayImage(CCmdUI* pCmdUI);
-	afx_msg void OnUpdateEnhanceStatistics(CCmdUI* pCmdUI);
-	afx_msg void OnUpdateFeatureExtraction(CCmdUI* pCmdUI);
-	afx_msg void OnUpdateFeatureSelection(CCmdUI* pCmdUI);
-	afx_msg void OnUpdateHistogramImage(CCmdUI* pCmdUI);
-	afx_msg void OnUpdateListdata(CCmdUI* pCmdUI);
-	afx_msg void OnUpdateListResults(CCmdUI* pCmdUI);
-	afx_msg void OnUpdateReformat(CCmdUI* pCmdUI);
-	afx_msg void OnUpdateStatistics(CCmdUI* pCmdUI);
-	afx_msg void OnUpdateBiplotsOfData(CCmdUI* pCmdUI);
-	afx_msg void OnUpdateCheckCovariances(CCmdUI* pCmdUI);
-	afx_msg void OnUpdateCheckTransMatrix(CCmdUI* pCmdUI);
-	afx_msg void OnUpdateCreateStatImage(CCmdUI* pCmdUI);
-	afx_msg void OnUpdateListImageDesc(CCmdUI* pCmdUI);
-	afx_msg void OnUpdatePrincipalComponentAnalysis(CCmdUI* pCmdUI);
-	afx_msg void OnDisplayImage();
-	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
-	afx_msg void OnPaletteChanged(CWnd* pFocusWnd);          
-	afx_msg void OnUpdateClearSelectionRectangle(CCmdUI* pCmdUI);
-	afx_msg void OnUpdateClearTransMatrix(CCmdUI* pCmdUI);
-	afx_msg void OnUpdateSelectAll(CCmdUI* pCmdUI);
-	afx_msg void OnUpdateMemoryStatus(CCmdUI* pCmdUI);
-	afx_msg void OnUpdateNewSelectGraph(CCmdUI* pCmdUI);
-	afx_msg void OnUpdateSelectGraphOptions(CCmdUI* pCmdUI);
-	afx_msg void OnUpdateInvertPalette(CCmdUI* pCmdUI);
-	afx_msg void OnUpdateShowClasses(CCmdUI* pCmdUI);
-	afx_msg void OnUpdateShowInformationGroups(CCmdUI* pCmdUI);
-	afx_msg void OnUpdateAddAsAssociatedImage(CCmdUI* pCmdUI);
-	afx_msg void OnUpdateChangeBaseImageFile(CCmdUI* pCmdUI);
-	afx_msg void OnUpdateClearStats(CCmdUI* pCmdUI);
-	afx_msg void OnUpdateCloseProject(CCmdUI* pCmdUI);
-	afx_msg void OnUpdateNewProject(CCmdUI* pCmdUI);
-	afx_msg void OnUpdateOpenProject(CCmdUI* pCmdUI);
-	afx_msg void OnUpdateSaveProject(CCmdUI* pCmdUI);
-	afx_msg void OnUpdateSaveProjectAs(CCmdUI* pCmdUI);
-	afx_msg void OnUpdateUseEnhancedStats(CCmdUI* pCmdUI);
-	afx_msg void OnUpdateUseOriginalStats(CCmdUI* pCmdUI);
-	afx_msg void OnUpdateEditCut(CCmdUI* pCmdUI);
-	afx_msg void OnUpdateEditCopy(CCmdUI* pCmdUI);
-	afx_msg void OnUpdateEditPaste(CCmdUI* pCmdUI); 
-	afx_msg void OnUpdateMagnification(CCmdUI* pCmdUI);
-	afx_msg void OnUpdateZoomIn(CCmdUI* pCmdUI);
-	afx_msg void OnUpdateZoomOut(CCmdUI* pCmdUI);
-	afx_msg void OnUpdateFileSave(CCmdUI* pCmdUI);
-	afx_msg void OnEditImageDescription();
-	afx_msg void OnHistogramImage();
-	afx_msg void OnUpdateZoomIndicator(CCmdUI* pCmdUI);
-	afx_msg void OnUpdateEditImageMapParameters(CCmdUI* pCmdUI);
-	afx_msg BOOL OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message);
-	afx_msg void OnNewSelectGraph();
-	afx_msg void OnUpdateEditClear(CCmdUI* pCmdUI);
-	afx_msg void OnUpdateEditUndo(CCmdUI* pCmdUI);
-	afx_msg void OnUpdateFilePrintPreview(CCmdUI* pCmdUI);
-	afx_msg void OnProcReformat();
-	afx_msg void OnFileOpen();
-	afx_msg void OnOpenProject();
-	afx_msg void OnProcUtilListImageDesc();
-	afx_msg void OnProcUtilCheckCovariances();
-	afx_msg void OnProjCloseProject();
-	afx_msg void OnProjClearStats();
-	afx_msg void OnProcStatistics();
-	afx_msg void OnProcClassify();
-	afx_msg void OnProcUtilCreateStatImage();
-	afx_msg void OnUpdateViewCoordinatesBar(CCmdUI* pCmdUI);
-	afx_msg void OnFileOpenProjectImage();
-	afx_msg void OnProjAddAsAssociatedImage();
-	afx_msg void OnProjSaveProject();
-	afx_msg void OnProjSaveProjectAs();
-	afx_msg void OnChar(UINT nChar, UINT nRepCnt, UINT nFlags);
-	afx_msg void OnPalShowClasses();
-	afx_msg void OnPalShowInformationGroups();
-	afx_msg void OnProcCluster();
-	afx_msg void OnProjNewProject();
-	afx_msg void OnProcUtilPrinCompAnalysis();
-	afx_msg void OnProcListdata();
-	afx_msg void OnProcFeatureSelection();
-	afx_msg void OnProcUtilBiplotsOfData();               
-	afx_msg void OnFileOpenThematic();
-	afx_msg void OnFileSaveAs();                  
-	afx_msg void OnActivateApp(BOOL bActive, DWORD hTask);
-	afx_msg void OnProcUtilCheckTransMatrix();
-	afx_msg void OnEditClearTransMatrix();                    
-	afx_msg BOOL OnQueryNewPalette(); 
-	afx_msg void OnMagnification(void);
-	afx_msg void OnFileLoadTransMatrix();
-	afx_msg void OnProcListResults();
-	afx_msg void OnSysCommand(UINT nID, LPARAM lParam);
-	afx_msg void OnUpdateProjectUseleave1outstatistics(CCmdUI* pCmdUI);
-	afx_msg void OnUpdateProjectMixofstatisticsused(CCmdUI* pCmdUI);
-	afx_msg void OnProjUseOriginalStats();
-	afx_msg void OnProjUseEnhancedStats();
-	afx_msg void OnProjectUseleave1outstatistics();
-	afx_msg void OnUpdateEditSelectionRectangle(CCmdUI* pCmdUI);
-	afx_msg void OnProcFeatureExtraction();
-	afx_msg void OnProcEnhanceStatistics();
-	afx_msg void OnProjChangeBaseImageFile();
-	afx_msg void OnClose();
-	afx_msg void OnUpdateWindowNew(CCmdUI* pCmdUI);
-	afx_msg void OnEditImageMapParameters();
-	afx_msg void OnWindowNewSelectionGraph();
-	afx_msg void OnUpdateWindowNewSelectionGraph(CCmdUI* pCmdUI);
-	afx_msg void OnUpdateWindowShowCoordinateView(CCmdUI* pCmdUI);
-	afx_msg void OnWindowShowCoordinateView();
-	afx_msg void OnUpdateEditClearOverlays(CCmdUI* pCmdUI);
-	afx_msg void OnUpdateEditClearAllVectorOverlays(CCmdUI* pCmdUI);
-	afx_msg void OnEditClearAllImageOverlays();
-	afx_msg void OnEditClearAllVectorOverlays();
-	afx_msg void OnProcReformatChangeHeader();
-	afx_msg void OnUpdateProcReformatChangeHeader(CCmdUI* pCmdUI);
-	afx_msg void OnProcReformatChangeImage();
-	afx_msg void OnUpdateProcReformatChangeImage(CCmdUI* pCmdUI);
-	afx_msg void OnProcReformatConvertEnvi();
-	afx_msg void OnUpdateProcReformatConvertEnvi(CCmdUI* pCmdUI);
-	afx_msg void OnProcReformatConvertMultispectral();
-	afx_msg void OnUpdateProcReformatConvertMultispectral(CCmdUI* pCmdUI);
-	afx_msg void OnProcReformatConvertProject();
-	afx_msg void OnUpdateProcReformatConvertProject(CCmdUI* pCmdUI);
-	afx_msg void OnProcReformatModifyChannel();
-	afx_msg void OnUpdateProcReformatModifyChannel(CCmdUI* pCmdUI);
-	afx_msg void OnProcReformatMosaicImages();
-	afx_msg void OnUpdateProcReformatMosaicImages(CCmdUI* pCmdUI);
-	afx_msg void OnProcReformatRecodeThematic();
-	afx_msg void OnUpdateProcReformatRecodeThematic(CCmdUI* pCmdUI);
-	afx_msg void OnProcReformatRectifyImage();
-	afx_msg void OnUpdateProcReformatRectifyImage(CCmdUI* pCmdUI);
-	afx_msg void OnProcReformatConvertShape();
-	afx_msg void OnUpdateProcReformatConvertShape(CCmdUI* pCmdUI);
-
-	afx_msg void OnUpdateAreaUnitsSqKilometers(CCmdUI* pCmdUI);
-	afx_msg void OnUpdateAreaUnitsHectares(CCmdUI* pCmdUI);
-	afx_msg void OnUpdateAreaUnitsSqMeters(CCmdUI* pCmdUI);
-	afx_msg void OnUpdateAreaUnitsSqCentimeters(CCmdUI* pCmdUI);
-	afx_msg void OnUpdateAreaUnitsSqMillimeters(CCmdUI* pCmdUI);
-	afx_msg void OnUpdateAreaUnitsSqMicrometers(CCmdUI* pCmdUI);
-	afx_msg void OnUpdateAreaUnitsSqMiles(CCmdUI* pCmdUI);
-	afx_msg void OnUpdateAreaUnitsAcres(CCmdUI* pCmdUI);
-	afx_msg void OnUpdateAreaUnitsSqYards(CCmdUI* pCmdUI);
-	afx_msg void OnUpdateAreaUnitsSqFeet(CCmdUI* pCmdUI);
-	afx_msg void OnUpdateAreaUnitsSqInches(CCmdUI* pCmdUI);
-
-	afx_msg void OnOptionsAreaUnitsSqKilometers();
-	afx_msg void OnOptionsAreaUnitsHectares();
-	afx_msg void OnOptionsAreaUnitsSqMeters();
-	afx_msg void OnOptionsAreaUnitsSqCentimeters();
-	afx_msg void OnOptionsAreaUnitsSqMillimeters();
-	afx_msg void OnOptionsAreaUnitsSqMicrometers();
-	afx_msg void OnOptionsAreaUnitsSqMiles();
-	afx_msg void OnOptionsAreaUnitsAcres();
-	afx_msg void OnOptionsAreaUnitsSqYards();
-	afx_msg void OnOptionsAreaUnitsSqFeet();
-	afx_msg void OnOptionsAreaUnitsSqInches();
-	//}}AFX_MSG
-	DECLARE_MESSAGE_MAP()
-public:
-	afx_msg void OnOptionsSwitchcrosscursor();
-};
-
-/////////////////////////////////////////////////////////////////////////////
-                     
-#endif	// !defined __MAINFRM_H__
+		afx_msg void OnOptionsAreaUnitsSqMicrometers ();
+	
+		afx_msg void OnOptionsAreaUnitsSqMiles ();
+	
+		afx_msg void OnOptionsAreaUnitsAcres ();
+	
+		afx_msg void OnOptionsAreaUnitsSqYards ();
+	
+		afx_msg void OnOptionsAreaUnitsSqFeet ();
+	
+		afx_msg void OnOptionsAreaUnitsSqInches ();
+	
+		afx_msg void OnOptionsSwitchcrosscursor ();
+	
+				// Window Menu Items
+		afx_msg void OnWindowNewSelectionGraph ();
+	
+	
+		// In order of location on the main menu
+				// File Menu Items
+		afx_msg void OnUpdateFileNewProject (
+				CCmdUI* 								pCmdUI);
+	
+		afx_msg void OnUpdateFileOpen (
+				CCmdUI* 								pCmdUI);
+	
+		afx_msg void OnUpdateFileOpenProject (
+				CCmdUI* 								pCmdUI);
+	
+		afx_msg void OnUpdateFileOpenProjectImage (
+				CCmdUI* 								pCmdUI);
+	
+		afx_msg void OnUpdateFileOpenThematic (
+				CCmdUI* 								pCmdUI);
+	
+		afx_msg void OnUpdateFileCloseProject (
+				CCmdUI* 								pCmdUI);
+	
+		afx_msg void OnUpdateFileLoadTransMatrix (
+				CCmdUI* 								pCmdUI);
+	
+		afx_msg void OnUpdateFileSave (
+				CCmdUI* 								pCmdUI);
+	
+		afx_msg void OnUpdateFileSaveProject (
+				CCmdUI* 								pCmdUI);
+	
+		afx_msg void OnUpdateFileSaveProjectAs (
+				CCmdUI* 								pCmdUI);
+	
+		afx_msg void OnUpdateFilePrintPreview (
+				CCmdUI* 								pCmdUI);
+	
+				// Edit Menu Items
+		afx_msg void OnUpdateEditUndo (
+				CCmdUI* 								pCmdUI);
+	
+		afx_msg void OnUpdateEditCut (
+				CCmdUI* 								pCmdUI);
+	
+		afx_msg void OnUpdateEditCopy (
+				CCmdUI* 								pCmdUI);
+	
+		afx_msg void OnUpdateEditPaste (
+				CCmdUI* 								pCmdUI);
+	
+		afx_msg void OnUpdateEditClear (
+				CCmdUI* 								pCmdUI);
+	
+		afx_msg void OnUpdateEditSelectAll (
+				CCmdUI* 								pCmdUI);
+	
+		afx_msg void OnUpdateEditSelectionRectangle (
+				CCmdUI* 								pCmdUI);
+	
+		afx_msg void OnUpdateEditClearSelectionRectangle (
+				CCmdUI* 								pCmdUI);
+	
+		afx_msg void OnUpdateEditClearTransMatrix (
+				CCmdUI* 								pCmdUI);
+	
+		afx_msg void OnUpdateEditImageDescription (
+				CCmdUI* 								pCmdUI);
+	
+		afx_msg void OnUpdateEditImageMapParameters (
+				CCmdUI* 								pCmdUI);
+	
+		afx_msg void OnUpdateEditClearOverlays (
+				CCmdUI* 								pCmdUI);
+	
+		afx_msg void OnUpdateEditClearAllVectorOverlays (
+				CCmdUI* 								pCmdUI);
+	
+				// View Menu Items
+		afx_msg void OnUpdateViewCoordinatesBar (
+				CCmdUI* 								pCmdUI);
+	
+		afx_msg void OnUpdateWindowShowCoordinateView (
+				CCmdUI* 								pCmdUI);
+	
+				// Project Menu Items
+		afx_msg void OnUpdateProjUseOriginalStats (
+				CCmdUI* 								pCmdUI);
+	
+		afx_msg void OnUpdateProjUseleave1outstatistics (
+				CCmdUI* 								pCmdUI);
+	
+		afx_msg void OnUpdateProjUseEnhancedStats (
+				CCmdUI* 								pCmdUI);
+	
+		afx_msg void OnUpdateProjMixofstatisticsused (
+				CCmdUI* 								pCmdUI);
+	
+		afx_msg void OnUpdateProjClearStats (
+				CCmdUI* 								pCmdUI);
+	
+		afx_msg void OnUpdateProjChangeBaseImageFile (
+				CCmdUI* 								pCmdUI);
+	
+		afx_msg void OnUpdateProjAddAsAssociatedImage (
+				CCmdUI* 								pCmdUI);
+	
+				// Processor Menu Items
+		afx_msg void OnUpdateProcDisplayImage (
+				CCmdUI* 								pCmdUI);
+	
+		afx_msg void OnUpdateProcHistogramImage (
+				CCmdUI* 								pCmdUI);
+	
+		afx_msg void OnUpdateProcListData (
+				CCmdUI* 								pCmdUI);
+	
+		afx_msg void OnUpdateProcReformat (
+				CCmdUI* 								pCmdUI);
+	
+		afx_msg void OnUpdateProcCluster (
+				CCmdUI* 								pCmdUI);
+	
+		afx_msg void OnUpdateProcStatistics (
+				CCmdUI* 								pCmdUI);
+	
+		afx_msg void OnUpdateProcEnhanceStatistics (
+				CCmdUI* 								pCmdUI);
+	
+		afx_msg void OnUpdateProcFeatureExtraction (
+				CCmdUI* 								pCmdUI);
+	
+		afx_msg void OnUpdateProcFeatureSelection (
+				CCmdUI* 								pCmdUI);
+	
+		afx_msg void OnUpdateProcClassify (
+				CCmdUI* 								pCmdUI);
+	
+		afx_msg void OnUpdateProcListResults (
+				CCmdUI* 								pCmdUI);
+	
+				// Processor->Reformat Menu Items
+		afx_msg void OnUpdateProcReformatChangeHeader (
+				CCmdUI* 								pCmdUI);
+	
+		afx_msg void OnUpdateProcReformatChangeImage (
+				CCmdUI* 								pCmdUI);
+	
+		afx_msg void OnUpdateProcReformatConvertMultispectral (
+				CCmdUI* 								pCmdUI);
+	
+		afx_msg void OnUpdateProcReformatConvertProject (
+				CCmdUI* 								pCmdUI);
+	
+		afx_msg void OnUpdateProcReformatConvertShape (
+				CCmdUI* 								pCmdUI);
+	
+		afx_msg void OnUpdateProcReformatModifyChannel (
+				CCmdUI* 								pCmdUI);
+	
+		afx_msg void OnUpdateProcReformatMosaicImages (
+				CCmdUI* 								pCmdUI);
+	
+		afx_msg void OnUpdateProcReformatRecodeThematic (
+				CCmdUI* 								pCmdUI);
+	
+		afx_msg void OnUpdateProcReformatRectifyImage (
+				CCmdUI* 								pCmdUI);
+	
+		afx_msg void OnUpdateProcReformatConvertEnvi (
+				CCmdUI* 								pCmdUI);
+	
+				// Processor->Utility Menu Items
+		afx_msg void OnUpdateProcUtilPrincipalComponentAnalysis (
+				CCmdUI* 								pCmdUI);
+	
+		afx_msg void OnUpdateProcUtilCreateStatImage (
+				CCmdUI* 								pCmdUI);
+	
+		afx_msg void OnUpdateProcUtilBiplotsOfData (
+				CCmdUI* 								pCmdUI);
+	
+		afx_msg void OnUpdateProcUtilListImageDesc (
+				CCmdUI* 								pCmdUI);
+	
+		afx_msg void OnUpdateProcUtilCheckCovariances (
+				CCmdUI* 								pCmdUI);
+	
+		afx_msg void OnUpdateProcUtilCheckTransMatrix (
+				CCmdUI* 								pCmdUI);
+	
+				// Options Menu Items
+		afx_msg void OnUpdateOptionsMemoryStatus (
+				CCmdUI* 								pCmdUI);
+	
+		afx_msg void OnUpdateOptionsAreaUnitsAcres (
+				CCmdUI* 								pCmdUI);
+	
+		afx_msg void OnUpdateOptionsAreaUnitsHectares (
+				CCmdUI* 								pCmdUI);
+	
+		afx_msg void OnUpdateOptionsAreaUnitsSqCentimeters (
+				CCmdUI* 								pCmdUI);
+	
+		afx_msg void OnUpdateOptionsAreaUnitsSqFeet (
+				CCmdUI* 								pCmdUI);
+	
+		afx_msg void OnUpdateOptionsAreaUnitsSqInches (
+				CCmdUI* 								pCmdUI);
+	
+		afx_msg void OnUpdateOptionsAreaUnitsSqKilometers (
+				CCmdUI* 								pCmdUI);
+	
+		afx_msg void OnUpdateOptionsAreaUnitsSqMeters (
+				CCmdUI* 								pCmdUI);
+	
+		afx_msg void OnUpdateOptionsAreaUnitsSqMicrometers (
+				CCmdUI* 								pCmdUI);
+	
+		afx_msg void OnUpdateOptionsAreaUnitsSqMiles (
+				CCmdUI* 								pCmdUI);
+	
+		afx_msg void OnUpdateOptionsAreaUnitsSqMillimeters (
+				CCmdUI* 								pCmdUI);
+	
+		afx_msg void OnUpdateOptionsAreaUnitsSqYards (
+				CCmdUI* 								pCmdUI);
+	
+				// Windows Menu Items
+		afx_msg void OnUpdateWindowNew (
+				CCmdUI* 								pCmdUI);
+	
+		afx_msg void OnUpdateWindowNewSelectionGraph (
+				CCmdUI* 								pCmdUI);
+	
+			// Tool Bar Control Items
+		afx_msg void OnUpdateToolBarMagnification (
+				CCmdUI* 								pCmdUI);
+	
+		afx_msg void OnUpdateToolBarZoomIn (
+				CCmdUI* 								pCmdUI);
+	
+		afx_msg void OnUpdateToolBarZoomIndicator (
+				CCmdUI* 								pCmdUI);
+	
+		afx_msg void OnUpdateToolBarZoomOut (
+				CCmdUI* 								pCmdUI);
+		//}}AFX_MSG
+		DECLARE_MESSAGE_MAP ()
+	
+		CMToolBar    						m_wndToolBar;
+		CStatusBar  						m_wndStatusBar;
+	
+};	// end class CMainFrame

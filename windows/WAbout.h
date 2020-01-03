@@ -3,19 +3,18 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1995-2017)
-//								(c) Purdue Research Foundation
+//								 Copyright (1995-2020)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	File:						WAbout.h
+//	Implementation:		WAbout.cpp
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision number:		3.0
+//	Language:				C++
 //
-//	Language:				C
-//
-//	System:					Windows Operating Systems
+//	System:					Windows Operating System
 //
 //	Brief description:	Header file for the CAboutDlg class
 //
@@ -24,54 +23,47 @@
 //	
 //------------------------------------------------------------------------------------
 
-#if !defined __MABOUT_H__
-	#define __MABOUT_H__ 
-	
-		// oul: added the condition of _AMD64_ to be compatible with x64
-		// _AMD64_ is the predefined macro for x64 machines according to MSDN
-#if defined _X86_ || defined _AMD64_     
-	  
+#pragma once
+
 #include "WDialog.h"
 #include "afxwin.h"
 
-
-
 class CAboutDlg : public CMDialog
-	{
+{
 	public:
-						CAboutDlg (CWnd* pParent = NULL);
+		CAboutDlg (
+				CWnd* 								pParent = NULL);
 		
-		BOOL 			Create (CWnd* pParent);
+		BOOL Create (
+				CWnd* 								pParent);
 		
-		Boolean 		DoDialog (void);
+		Boolean DoDialog (void);
 	
-			// Dialog Data
-		//{{AFX_DATA(CAboutDlg)
+		afx_msg void OnStnClickedStatic11 ();
+	
+		afx_msg void OnBnClickedCheck1 ();
+	
+		afx_msg void OnBnClickedSimplerversion ();
+	
+		// Dialog Data
+		//{{AFX_DATA (CAboutDlg)
 		enum { IDD = IDD_ABOUTBOX };
 		//}}AFX_DATA
+	
+		BOOL 									m_simplerVersionFlag;
 			
-		// Implementation
+	// Implementation
 	protected:
-		virtual void	DoDataExchange (CDataExchange* pDX);    // DDX/DDV support
+		virtual void DoDataExchange (
+				CDataExchange* 					pDX);    // DDX/DDV support
 		
-		Boolean			m_fromStartUpFlag; 
-		Boolean			m_initializedFlag;
-		Boolean			m_FullVersionSettingFlag;
+		Boolean								m_fromStartUpFlag,
+												m_FullVersionSettingFlag,
+												m_initializedFlag;
 		
-	//{{AFX_MSG(CAboutDlg)
-	virtual BOOL OnInitDialog();
+	//{{AFX_MSG (CAboutDlg)
+	virtual BOOL OnInitDialog ();
 	//}}AFX_MSG
-			
 	DECLARE_MESSAGE_MAP ()
 	
-	public:
-		afx_msg void OnStnClickedStatic11();
-		afx_msg void OnBnClickedCheck1();
-		afx_msg void OnBnClickedSimplerversion();
-		BOOL m_simplerVersionFlag;
-	
-	};                   
-
-#endif	// defined _X86_ || defined _AMD64_
-
-#endif	// !defined __MABOUT_H__
+};	// end class CAboutDlg

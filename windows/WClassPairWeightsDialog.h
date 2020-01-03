@@ -1,78 +1,97 @@
-#if !defined(AFX_WCPWTDLG_H__E331A594_B32A_11D3_8D68_00105AA88EE3__INCLUDED_)
-#define AFX_WCPWTDLG_H__E331A594_B32A_11D3_8D68_00105AA88EE3__INCLUDED_
+//	 									MultiSpec
+//
+//					Laboratory for Applications of Remote Sensing
+//									Purdue University
+//								West Lafayette, IN 47907
+//								 Copyright (1995-2020)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	File:						WClassPairWeightsDialog.h
+//	Implementation:		WClassPairWeightsDialog.cpp
+//
+//	Authors:					Larry L. Biehl
+//
+//	Language:				C++
+//
+//	System:					Windows Operating System
+//
+//	Brief description:	Header file for the CMClassPairWeightDlg class
+//
+//	Written By:				Larry L. Biehl			Date: ??/??/2019
+//	Revised By:				Larry L. Biehl			Date: 12/05/2019
+//
+//------------------------------------------------------------------------------------
 
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
-// WClassPairWeightsDialog.h : header file
-//   
-	
-	#include "WDialog.h"
 
-/////////////////////////////////////////////////////////////////////////////
-// CMClassPairWeightDlg dialog
+#include "WDialog.h"
+
 
 class CMClassPairWeightDlg : public CMDialog
 {
-// Construction
-public:
-	CMClassPairWeightDlg(CWnd* pParent = NULL);   // standard constructor
+	// Construction
+	public:
+		CMClassPairWeightDlg (	// standard constructor
+				CWnd* 								pParent = NULL);
 
-	SInt16 DoDialog(
-				UInt16								numberOfClassesToUse, 
+		SInt16 DoDialog (
+				UInt16								numberOfClassesToUse,
 				SInt16**	 							weightsListPtrPtr,
 				SInt16								interClassWeightsSelection,
 				SInt16*								defaultClassPairWeightPtr);
 
-// Dialog Data
-	//{{AFX_DATA(CMClassPairWeightDlg)
-	enum { IDD = IDD_ClassPairWeights };
-	long	m_newClassPairWeight;
-	long	m_localDefaultClassPairWeight;
-	//}}AFX_DATA
+		// Dialog Data
+		//{{AFX_DATA (CMClassPairWeightDlg)
+		enum { IDD = IDD_ClassPairWeights };
+	
+		long									m_localDefaultClassPairWeight,
+												m_newClassPairWeight;
+		//}}AFX_DATA
 
-
-// Overrides
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CMClassPairWeightDlg)
+	// Implementation
 	protected:
-	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-	//}}AFX_VIRTUAL
+		// ClassWizard generated virtual function overrides
+		//{{AFX_VIRTUAL (CMClassPairWeightDlg)
+		virtual void DoDataExchange (
+				CDataExchange* 					pDX);    // DDX/DDV support
+		//}}AFX_VIRTUAL
 
-// Implementation
-protected:
-
-	// Generated message map functions
-	//{{AFX_MSG(CMClassPairWeightDlg)
-	virtual BOOL OnInitDialog();
-	virtual void OnOK();
-	afx_msg void OnHelpButton();
-	afx_msg void OnSelchangeClassList();
-	afx_msg void OnAddButton();
-	afx_msg void OnChangeNewWeight();
-	afx_msg void OnRemoveButton();
-	afx_msg void OnSelchangeClassPairWeightList();
-	afx_msg void OnChangeDefaultWeight();
-	//}}AFX_MSG
-	DECLARE_MESSAGE_MAP()
-
-	CFont									m_weightsListFont;
-
-	SInt16**	 							m_weightsListPtrPtr;
+		// Generated message map functions
+		//{{AFX_MSG (CMClassPairWeightDlg)
+		afx_msg void OnAddButton ();
 	
-	SInt16				 				*m_defaultClassPairWeightPtr;
-
-	SInt16								m_selectedClassCell,
-											m_classPairWeightsSelection,
-											m_selectedWeightGroupCell;
-
-	UInt16								m_numberOfClassesToUse;
+		afx_msg void OnChangeDefaultWeight ();
 	
-	Boolean								m_initializedFlag; 
+		afx_msg void OnChangeNewWeight ();
+	
+		afx_msg void OnHelpButton ();
+	
+		virtual BOOL OnInitDialog ();
+	
+		virtual void OnOK ();
+	
+		afx_msg void OnRemoveButton ();
+	
+		afx_msg void OnSelchangeClassList ();
+	
+		afx_msg void OnSelchangeClassPairWeightList ();
+		//}}AFX_MSG
+		DECLARE_MESSAGE_MAP ()
 
-};
 
-//{{AFX_INSERT_LOCATION}}
-// Microsoft Visual C++ will insert additional declarations immediately before the previous line.
+		CFont									m_weightsListFont;
 
-#endif // !defined(AFX_WCPWTDLG_H__E331A594_B32A_11D3_8D68_00105AA88EE3__INCLUDED_)
+		SInt16**	 							m_weightsListPtrPtr;
+	
+		SInt16*				 				m_defaultClassPairWeightPtr;
+
+		SInt16								m_classPairWeightsSelection,
+												m_selectedClassCell,
+												m_selectedWeightGroupCell;
+
+		UInt16								m_numberOfClassesToUse;
+	
+		Boolean								m_initializedFlag;
+
+};	// end "CMClassPairWeightDlg"

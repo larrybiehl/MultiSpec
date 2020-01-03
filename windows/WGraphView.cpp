@@ -3,58 +3,42 @@
 //					Laboratory for Applications of Remote Sensing
 // 								Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2018)
-//								(c) Purdue Research Foundation
+//								 Copyright (1988-2020)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	File:						WGraphView.cpp : implementation file
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			04/09/2018
+//	Revision date:			04/17/2018
 //
-//	Language:				C
+//	Language:				C++
 //
-//	System:					Windows Operating Systems
+//	System:					Windows Operating System
 //
-//	Brief description:	This file contains functions that relate to the graph view 
-//								class.
-//
-//	Functions in file:	
+//	Brief description:	This file contains functions that relate to the
+//								CMGraphView, CMGraphViewButton, and CMGraphViewCombo classes.
 //
 //------------------------------------------------------------------------------------
 
 #include "SMultiSpec.h"                
 
-#include "WMultiSpec.h"
-#include "WMainFrame.h" 
-#include "WGraphView.h"
 #include "WGraphDoc.h"
+#include "WGraphView.h"
+#include "WMainFrame.h"
+#include "WMultiSpec.h"
 
 #define	kXAxis			1
 #define	kYAxis			2
 #define	kBothXYAxes		3		
 
-//extern void GetGraphLabels (
-//				GraphPtr								graphRecPtr);
-
-extern void	ReloadXAxis (
-				GraphPtr								graphRecordPtr,
-				int									xAxisSelection);		
-
-extern void SetGraphMinMax (
-				GraphPtr								graphRecordPtr,
-				SInt16								axisCode);	
-
-extern void UpdateGraphScales (
-				Handle								graphRecordHandle);	
-
-
-
 #if defined _DEBUG
 	#undef THIS_FILE
 	static char BASED_CODE THIS_FILE[] = __FILE__;
 #endif
+
+
 
 IMPLEMENT_DYNCREATE (CMGraphView, CFormView)
 
@@ -62,39 +46,48 @@ CBrush		CMGraphView::s_grayBrush;
 		
 CFont			CMGraphView::s_font;  
 
-CPen			CMGraphView::s_bluePen;
-
-CPen			CMGraphView::s_grayPen;
-
-CPen			CMGraphView::s_greenPen;
-
-CPen			CMGraphView::s_ltGrayPen;
-
-CPen			CMGraphView::s_redPen;
-
-CPen			CMGraphView::s_whitePen;     
+CPen			CMGraphView::s_bluePen,
+				CMGraphView::s_grayPen,
+				CMGraphView::s_greenPen,
+				CMGraphView::s_ltGrayPen,
+				CMGraphView::s_redPen,
+				CMGraphView::s_whitePen;
 
 RECT			CMGraphView::s_updateRect;
 
-/*
-// === Static Member Variable ===
 
-Handle			CMGraphView::s_selectionIOInfoHandle = NULL;
-		
-UInt16			CMGraphView::s_graphicsWindowCount = 0;
 
-UInt16			CMGraphView::s_numberOfGWindows = 0;
-*/
+BEGIN_MESSAGE_MAP (CMGraphView, CFormView)
+	//{{AFX_MSG_MAP (CMGraphView)
+	ON_BN_CLICKED (IDC_NextChannel, OnNextChannel)
+	ON_BN_CLICKED (IDC_PreviousChannel, OnPreviousChannel)
+	ON_BN_CLICKED (IDC_SelectVectors, OnLines)
 
-/////////////////////////////////////////////////////////////////////////////
-// CMGraphView
+	ON_CBN_DROPDOWN (IDC_xAxis, OnDropdownXAxisDropList)
+
+	ON_CBN_SELENDOK (IDC_xAxis, OnSelendokXAxisDropList)
+
+	ON_COMMAND (ID_EDIT_COPY, OnEditCopy)
+
+	ON_UPDATE_COMMAND_UI (ID_EDIT_COPY, OnUpdateEditCopy)
+	ON_UPDATE_COMMAND_UI (ID_FILE_SAVE_AS, OnUpdateFileSaveAs)
+
+	ON_WM_CREATE ()
+
+	ON_WM_DESTROY ()
+
+	ON_WM_SIZE ()
+	//}}AFX_MSG_MAP
+END_MESSAGE_MAP ()
+
+
 
 CMGraphView::CMGraphView ()
 		: CFormView (CMGraphView::IDD)
 
 {
-	Boolean					continueFlag = TRUE;
-	SelectionIOInfoPtr 	selectionIOPtr;
+	Boolean								continueFlag = TRUE;
+	SelectionIOInfoPtr 				selectionIOPtr;
 	
 	
 	m_graphRecordHandle = NULL;
@@ -114,7 +107,8 @@ CMGraphView::CMGraphView ()
 					
 		if (s_selectionIOInfoHandle != NULL)
 			{ 																			
-			selectionIOPtr = (SelectionIOInfoPtr)GetHandlePointer (s_selectionIOInfoHandle);
+			selectionIOPtr =
+							(SelectionIOInfoPtr)GetHandlePointer (s_selectionIOInfoHandle);
 								                                                          
 			selectionIOPtr->channelStatsHandle = NULL;
 			selectionIOPtr->sumSquaresHandle = NULL;
@@ -219,40 +213,36 @@ CMGraphView::CMGraphView ()
 		
 		m_binWidthMenu->CreatePopupMenu ();
 		m_binWidthMenu->AppendMenu (MF_STRING,
-													ID_SELECTBINWIDTHMENUITEMSTART, 
-													(LPCTSTR)_T("Auto"));
+												ID_SELECTBINWIDTHMENUITEMSTART,
+												(LPCTSTR)_T("Auto"));
 		m_binWidthMenu->AppendMenu (MF_STRING,
-													ID_SELECTBINWIDTHMENUITEMSTART+1, 
-													(LPCTSTR)_T("1"));
+												ID_SELECTBINWIDTHMENUITEMSTART+1,
+												(LPCTSTR)_T("1"));
 		m_binWidthMenu->AppendMenu (MF_STRING,
-													ID_SELECTBINWIDTHMENUITEMSTART+2, 
-													(LPCTSTR)_T("2"));
+												ID_SELECTBINWIDTHMENUITEMSTART+2,
+												(LPCTSTR)_T("2"));
 		m_binWidthMenu->AppendMenu (MF_STRING,
-													ID_SELECTBINWIDTHMENUITEMSTART+3, 
-													(LPCTSTR)_T("3"));
+												ID_SELECTBINWIDTHMENUITEMSTART+3,
+												(LPCTSTR)_T("3"));
 		m_binWidthMenu->AppendMenu (MF_STRING,
-													ID_SELECTBINWIDTHMENUITEMSTART+4, 
-													(LPCTSTR)_T("4"));
+												ID_SELECTBINWIDTHMENUITEMSTART+4,
+												(LPCTSTR)_T("4"));
 		m_binWidthMenu->AppendMenu (MF_STRING,
-													ID_SELECTBINWIDTHMENUITEMSTART+5, 
-													(LPCTSTR)_T("5"));
+												ID_SELECTBINWIDTHMENUITEMSTART+5,
+												(LPCTSTR)_T("5"));
 		m_binWidthMenu->AppendMenu (MF_STRING,
-													ID_SELECTBINWIDTHMENUITEMSTART+6, 
-													(LPCTSTR)_T("10"));
+												ID_SELECTBINWIDTHMENUITEMSTART+6,
+												(LPCTSTR)_T("10"));
 		m_binWidthMenu->AppendMenu (MF_STRING,
-													ID_SELECTBINWIDTHMENUITEMSTART+7, 
-													(LPCTSTR)_T("20"));
+												ID_SELECTBINWIDTHMENUITEMSTART+7,
+												(LPCTSTR)_T("20"));
 		m_binWidthMenu->AppendMenu (MF_STRING,
-													ID_SELECTBINWIDTHMENUITEMSTART+8, 
-													(LPCTSTR)_T("30"));
+												ID_SELECTBINWIDTHMENUITEMSTART+8,
+												(LPCTSTR)_T("30"));
 		m_binWidthMenu->AppendMenu (MF_STRING,
-													ID_SELECTBINWIDTHMENUITEMSTART+9, 
-													(LPCTSTR)_T("50"));
+												ID_SELECTBINWIDTHMENUITEMSTART+9,
+												(LPCTSTR)_T("50"));
 		
-		//m_xAxisPopupMenu = new CMenu ();
-		//m_xAxisPopupMenu->CreatePopupMenu ();
-		//CComboBox* comboBoxPtr = (CComboBox*)GetDlgItem(IDC_xAxis);
-									  
 		m_dialogFromPtr = new CDataExchange (this, TRUE);
 
 		m_dialogToPtr = new CDataExchange (this, FALSE);
@@ -265,13 +255,12 @@ CMGraphView::CMGraphView ()
 		continueFlag = FALSE;
 
 		}
+	
 	END_CATCH_ALL
 			
 	if (continueFlag)
 		{
 		UpdateWindowList ((CMImageView*)this, kGraphicsWindowType);
-		//int xAxisSelection = 1;
-		//DDX_CBIndex (m_dialogToPtr, IDC_xAxis, xAxisSelection);
 
 		}	// end "if (continueFlag)"
 	
@@ -283,10 +272,12 @@ CMGraphView::CMGraphView ()
 
 
 CMGraphView::~CMGraphView ()
+
 {           
 	if (m_graphRecordHandle != NULL)
 		{                    							                               
-		GraphPtr graphRecordPtr = (GraphPtr)GetHandlePointer (m_graphRecordHandle, kLock);
+		GraphPtr graphRecordPtr =
+									(GraphPtr)GetHandlePointer (m_graphRecordHandle, kLock);
 		
 		DisposeOfGraphRecordMemory (graphRecordPtr); 
 		
@@ -297,7 +288,7 @@ CMGraphView::~CMGraphView ()
 	if (gSelectionGraphViewCPtr == this && s_selectionIOInfoHandle != NULL)
 		{                    							
 		SelectionIOInfoPtr selectionIOPtr = (SelectionIOInfoPtr)GetHandlePointer (
-																			s_selectionIOInfoHandle, kLock);
+																		s_selectionIOInfoHandle, kLock);
 							                                                          
 		UnlockAndDispose (selectionIOPtr->channelStatsHandle); 
 		UnlockAndDispose (selectionIOPtr->sumSquaresHandle);
@@ -322,7 +313,6 @@ CMGraphView::~CMGraphView ()
 	if (m_graphOverlayMenu != NULL)
 		{
 		m_graphOverlayMenu->DestroyMenu ();
-
 		delete m_graphOverlayMenu;
 
 		}	// end "if (m_graphOverlayMenu != NULL)"
@@ -330,7 +320,6 @@ CMGraphView::~CMGraphView ()
 	if (m_selectVectorMenu != NULL)
 		{
 		m_selectVectorMenu->DestroyMenu ();
-
 		delete m_selectVectorMenu;
 
 		}	// end "if (m_selectVectorMenu != NULL)"
@@ -338,7 +327,6 @@ CMGraphView::~CMGraphView ()
 	if (m_binWidthMenu != NULL)
 		{
 		m_binWidthMenu->DestroyMenu ();
-
 		delete m_binWidthMenu;
 
 		}	// end "if (m_binWidthMenu != NULL)"
@@ -349,11 +337,36 @@ CMGraphView::~CMGraphView ()
 
 
 
-void CMGraphView::DoDataExchange (CDataExchange* pDX)
+void CMGraphView::DoDataExchange (
+				CDataExchange* 					pDX)
+
 {
 	CFormView::DoDataExchange (pDX);
 	DDX_CBIndex (pDX, IDC_xAxis, m_xAxisSelection);
-}
+	
+}	// end "DoDataExchange"
+
+
+
+void CMGraphView::DoFilePrint ()
+
+{
+	gProcessorCode = kPrintProcessor;
+	CFormView::OnFilePrint ();
+	gProcessorCode = 0;
+	
+}	// end "DoFilePrint"
+
+
+
+void CMGraphView::DoFilePrintPreview ()
+
+{
+	gProcessorCode = kPrintProcessor;
+	CFormView::OnFilePrintPreview ();
+	gProcessorCode = 0;
+	
+}	// end "DoFilePrintPreview"
 
 
 
@@ -397,11 +410,11 @@ void CMGraphView::MoveGraphControls (void)
 		
 			if (pushButton != NULL)
 				pushButton->SetWindowPos (NULL, 
-										left, 
-										top,
-										17,
-										17,
-										SWP_NOZORDER+SWP_NOACTIVATE); 
+													left,
+													top,
+													17,
+													17,
+													SWP_NOZORDER+SWP_NOACTIVATE);
 
 			}	// end "if (pushButton != NULL)"
 			
@@ -413,11 +426,11 @@ void CMGraphView::MoveGraphControls (void)
 
 		if (pushButton != NULL)
 			pushButton->SetWindowPos (NULL, 
-									left, 
-									top,
-									17,
-									17,
-									SWP_NOZORDER+SWP_NOACTIVATE);       
+												left,
+												top,
+												17,
+												17,
+												SWP_NOZORDER+SWP_NOACTIVATE);
 			
 				// Adjust the "select vector control button to the proper position.
 	                                  																											
@@ -427,11 +440,11 @@ void CMGraphView::MoveGraphControls (void)
 
 		if (pushButton != NULL)
 			pushButton->SetWindowPos (NULL, 
-									left, 
-									top,
-									17,
-									17,
-									SWP_NOZORDER+SWP_NOACTIVATE);       
+												left,
+												top,
+												17,
+												17,
+												SWP_NOZORDER+SWP_NOACTIVATE);
 			
 				// Adjust the "overlay options" control button to the proper position.
 	                                  																											
@@ -441,11 +454,11 @@ void CMGraphView::MoveGraphControls (void)
 
 		if (pushButton != NULL)
 			pushButton->SetWindowPos (NULL, 
-									left, 
-									top,
-									17,
-									17,
-									SWP_NOZORDER+SWP_NOACTIVATE);       
+												left,
+												top,
+												17,
+												17,
+												SWP_NOZORDER+SWP_NOACTIVATE);
 			
 				// Adjust the "bin width" control button to the proper position.
 	                                  																											
@@ -455,11 +468,11 @@ void CMGraphView::MoveGraphControls (void)
 
 		if (pushButton != NULL)
 			pushButton->SetWindowPos (NULL, 
-									left, 
-									top,
-									17,
-									17,
-									SWP_NOZORDER+SWP_NOACTIVATE); 
+												left,
+												top,
+												17,
+												17,
+												SWP_NOZORDER+SWP_NOACTIVATE);
 
 		}	// end "if (...processorCode == kHistogramStatsProcessor)"
 		
@@ -491,32 +504,12 @@ void CMGraphView::MoveGraphControls (void)
 
 
 
-BEGIN_MESSAGE_MAP (CMGraphView, CFormView)
-	//{{AFX_MSG_MAP (CMGraphView)
-	ON_WM_CREATE ()
-	ON_UPDATE_COMMAND_UI (ID_FILE_SAVE_AS, OnUpdateFileSaveAs)
-	ON_WM_DESTROY ()
-	ON_UPDATE_COMMAND_UI (ID_EDIT_COPY, OnUpdateEditCopy)
-	ON_COMMAND (ID_EDIT_COPY, OnEditCopy)
-	ON_BN_CLICKED (IDC_NextChannel, OnNextChannel)
-	ON_BN_CLICKED (IDC_PreviousChannel, OnPreviousChannel)
-	ON_BN_CLICKED (IDC_SelectVectors, OnLines)
-	ON_CBN_DROPDOWN (IDC_xAxis, OnDropdownXAxisDropList) 
-	ON_CBN_SELENDOK (IDC_xAxis, OnSelendokXAxisDropList)
-	ON_WM_SIZE ()
-	//}}AFX_MSG_MAP
-//	ON_COMMAND_RANGE (IDC_NextChannel, IDC_NextChannel, OnNextChannel)
-//	ON_COMMAND_RANGE (IDC_PreviousChannel, IDC_PreviousChannel, OnPreviousChannel)
-END_MESSAGE_MAP ()
-
-
-
 int CMGraphView::OnCreate (
-				LPCREATESTRUCT					lpCreateStruct)
+				LPCREATESTRUCT						lpCreateStruct)
 
 {                  
 	if (CFormView::OnCreate (lpCreateStruct) == -1)
-		return -1; 
+																								return -1;
 
 	SetFont (&s_font);
 	
@@ -537,27 +530,27 @@ void CMGraphView::OnDestroy ()
 
 
 void CMGraphView::OnDraw (
-				CDC*								pDC)
+				CDC*									pDC)
 
 {
-	SignedByte							handleStatus;
-	 									
-	LOGFONT								logfont;
-	
 	CFont									font;
+	
+	LOGFONT								logfont;
 	
 	CFont*								pOldFont;
 
 	UINT									savedTextAlign;
 
+	SignedByte							handleStatus;
+	
 	Boolean								continueFlag;
 	
 	
 	continueFlag = TRUE;
 	                                                   
 	GraphPtr graphRecordPtr = (GraphPtr)GetHandleStatusAndPointer (
-																	m_graphRecordHandle,
-																	&handleStatus);
+																				m_graphRecordHandle,
+																				&handleStatus);
 
 	graphRecordPtr->textScaling = m_printerTextScaling; 
 	
@@ -592,7 +585,7 @@ void CMGraphView::OnDraw (
 
 		GetClientRect ((RECT*)&graphRecordPtr->clientRect);
 	
-			// Save the display pixels per inch.
+				// Save the display pixels per inch.
 		
 		m_xPixelsPerInch = pDC->GetDeviceCaps (LOGPIXELSX);
 		m_yPixelsPerInch = pDC->GetDeviceCaps (LOGPIXELSY);
@@ -633,17 +626,89 @@ void CMGraphView::OnDraw (
 }	// end "OnDraw"  
 
 
+
 void CMGraphView::OnDropdownXAxisDropList ()
 
 {
-	CComboBox*				xAxisComboBoxPtr;
-	GraphPtr					graphRecordPtr;
+	CComboBox*							xAxisComboBoxPtr;
+	GraphPtr								graphRecordPtr;
+	
 
 	graphRecordPtr = (GraphPtr)GetHandlePointer (m_graphRecordHandle);
 	xAxisComboBoxPtr = (CComboBox*)GetDlgItem (IDC_xAxis);
 	SetUpXAxisPopUpMenu (graphRecordPtr, (MenuHandle)xAxisComboBoxPtr);
 	                               
-}	// end "OnDropdownXAxisDropList" 
+}	// end "OnDropdownXAxisDropList"
+
+
+
+void CMGraphView::OnEditCopy ()
+
+{
+	CBitmap								cBmp;
+
+   CRect									destinationRect;	// For storing the size of the image to be copied.
+
+   CDC									hDC;
+
+
+			// Get the size of the window
+	
+	GetClientRect (destinationRect);
+	
+	s_updateRect.bottom = (int)destinationRect.bottom;
+	s_updateRect.top = (int)destinationRect.top;
+	s_updateRect.right = (int)destinationRect.right;
+	s_updateRect.left = (int)destinationRect.left;
+
+	CClientDC   cWndDC (this);					// View is an hWnd, so we can use "this"
+   hDC.CreateCompatibleDC (&cWndDC);			// Create the memory DC.
+
+   cBmp.CreateCompatibleBitmap (&cWndDC,
+   										destinationRect.Width (),
+   										destinationRect.Height ());
+	
+			// Keep the old bitmap
+	
+   CBitmap* pOldBitmap = hDC.SelectObject (&cBmp);
+
+			//prepare the DC
+	
+	hDC.BitBlt (0,
+					0,
+					destinationRect.Width (),
+					destinationRect.Height (),
+					&cWndDC,
+					0,
+					0,
+					WHITENESS);
+
+			//copy the image to the DC
+	
+	gCDCPointer = &hDC;
+	m_printCopyModeFlag = TRUE;
+	
+	OnDraw (&hDC);
+	
+	gCDCPointer = NULL;
+	m_printCopyModeFlag = FALSE;
+	
+			// here are the actual clipboard functions.
+
+   AfxGetApp()->m_pMainWnd->OpenClipboard ();
+   EmptyClipboard ();
+   SetClipboardData (CF_BITMAP, cBmp.GetSafeHandle ());
+   CloseClipboard ();
+
+        // next we select the old bitmap back into the memory DC
+        // so that our bitmap is not deleted when cMemDC is destroyed.
+        // Then we detach the bitmap handle from the cBmp object so that
+        // the bitmap is not deleted when cBmp is destroyed.
+
+	hDC.SelectObject (pOldBitmap);
+   cBmp.Detach ();
+	
+}	// end "OnEditCopy"
 
 
 
@@ -657,14 +722,13 @@ void CMGraphView::OnInitialUpdate (void)
 	Boolean								continueFlag = TRUE,
 											newWindowFlag = FALSE;
 	                                 
-		                       
-	                                  
+
 	CMGraphDoc* graphDocCPtr = GetDocument ();
 	graphDocCPtr->SetGraphViewCPtr (this); 
 	
 			// Force the window frame to be the same size as the graphics view.
 	
-	GetParentFrame ()->RecalcLayout ();
+	GetParentFrame()->RecalcLayout ();
 	CSize docSize = CSize (1,1);
 	SetScrollSizes (MM_TEXT, docSize);
 
@@ -714,7 +778,7 @@ void CMGraphView::OnInitialUpdate (void)
 	//GetGraphLabels (graphRecordPtr);
 	                                 
 	if (gProcessorCode == kSelectionGraphProcessor ||
-				gProcessorCode == kListDataProcessor)
+							gProcessorCode == kListDataProcessor)
 		{
 		newWindowFlag = TRUE;
 		
@@ -806,51 +870,78 @@ void CMGraphView::OnInitialUpdate (void)
 
 
 
-void CMGraphView::OnUpdateFileSaveAs (
-				CCmdUI*								pCmdUI)
-				
-{                                                                                                                     
-	pCmdUI->Enable (FALSE);
+void CMGraphView::OnLines ()
+
+{
+			// Add your control notification handler code here
 	
-}	// end "OnUpdateFileSaveAs"
+}	// end "OnLines"
 
 
 
-void CMGraphView::DoFilePrint ()
+void CMGraphView::OnNextChannel ()
 
-{                                              
-	gProcessorCode = kPrintProcessor;
-	CFormView::OnFilePrint ();
-	gProcessorCode = 0;
+{
+	Boolean								returnFlag;
+
+
+	if (((CMultiSpecApp*)AfxGetApp())->GetZoomCode () == IDC_NextChannel)
+		{
+		DoNextOrPreviousChannel	(this, kNextGraphSetControl);
+		
+		returnFlag = UpdateGraphControls ();
+
+		if (!returnFlag)
+			{
+			ReleaseCapture ();
+			((CMultiSpecApp*)AfxGetApp())->SetZoomCode (0);
+			((CMultiSpecApp*)AfxGetApp())->SetControlDelayFlag (TRUE);
+
+			}	// "if (!returnFlag)"
+
+		}	// end "if (((CMultiSpecApp*)AfxGetApp())->GetZoomCode () == .."
 	
-}	// end "DoFilePrint"
+}	// end "OnNextChannel"
 
 
-
-void CMGraphView::DoFilePrintPreview ()
-
-{                                             
-	gProcessorCode = kPrintProcessor;
-	CFormView::OnFilePrintPreview ();
-	gProcessorCode = 0;
-	
-}	// end "DoFilePrintPreview" 
-
-
-/////////////////////////////////////////////////////////////////////////////
-// CMGraphView printing
 
 BOOL CMGraphView::OnPreparePrinting (
 				CPrintInfo							*pInfo)
 
 {
-	// default preparation
+			// default preparation
+	
 	return DoPreparePrinting (pInfo);
-}
+	
+}	// end "OnPreparePrinting"
+
+
+
+void CMGraphView::OnPreviousChannel ()
+
+{
+	Boolean								returnFlag;
+	
+
+	if (((CMultiSpecApp*)AfxGetApp())->GetZoomCode () == IDC_PreviousChannel)
+		DoNextOrPreviousChannel	(this, kPreviousGraphSetControl);
+	
+	returnFlag = UpdateGraphControls ();
+	if (!returnFlag)
+		{
+		ReleaseCapture ();
+		((CMultiSpecApp*)AfxGetApp())->SetZoomCode (0);
+		((CMultiSpecApp*)AfxGetApp())->SetControlDelayFlag (TRUE);
+
+		}	// end "if (!returnFlag)"
+	
+}	// end "OnPreviousChannel"
                                                                          
 
                                                                              
-void CMGraphView::OnPrint (CDC* pDC, CPrintInfo* pInfo)
+void CMGraphView::OnPrint (
+				CDC* 									pDC,
+				CPrintInfo* 						pInfo)
 
 {	
 	RECT									sourceRect;
@@ -861,7 +952,7 @@ void CMGraphView::OnPrint (CDC* pDC, CPrintInfo* pInfo)
  			            
 	int returnValue = pDC->GetDeviceCaps (RASTERCAPS);
 	if (!(returnValue & RC_STRETCHDIB))
-																						return; 													
+																									return;
 	
 			// Get the source rectangle.
 			
@@ -884,11 +975,9 @@ void CMGraphView::OnPrint (CDC* pDC, CPrintInfo* pInfo)
 	
 			// Get the magnification for the selected image scaled to one page.
 			
-	double magWidth = (double)pageWidth/
-												(sourceRect.right - sourceRect.left + 1);
+	double magWidth = (double)pageWidth / (sourceRect.right - sourceRect.left + 1);
 			
-	double magHeight = (double)pageHeight/
-												(sourceRect.bottom - sourceRect.top + 1);
+	double magHeight = (double)pageHeight / (sourceRect.bottom - sourceRect.top + 1);
 												
 	double onePageScaleMagnification = MIN (magHeight, magWidth);
 	
@@ -905,15 +994,15 @@ void CMGraphView::OnPrint (CDC* pDC, CPrintInfo* pInfo)
  			// Set the origin so that the image is centered on the page. 
 			                                             
 	SInt16 centerAdjustWidth = (SInt16)(magnification *
-												(sourceRect.right - sourceRect.left + 1));
+														(sourceRect.right - sourceRect.left + 1));
 	centerAdjustWidth = MAX ((pageWidth - centerAdjustWidth)/2, 0);
 	
 	SInt16 centerAdjustHeight = (SInt16)(magnification *
-												(sourceRect.bottom - sourceRect.top + 1));
+														(sourceRect.bottom - sourceRect.top + 1));
 	centerAdjustHeight = MAX ((pageHeight - centerAdjustHeight)/2, 0);
 
 	pDC->SetWindowOrg (pInfo->m_rectDraw.left-centerAdjustWidth,
-							pInfo->m_rectDraw.top-centerAdjustHeight);
+								pInfo->m_rectDraw.top-centerAdjustHeight);
 
 			// Save the size of the graph window to be printed into.
 
@@ -933,154 +1022,18 @@ void CMGraphView::OnPrint (CDC* pDC, CPrintInfo* pInfo)
 
 
 
-void CMGraphView::OnUpdateEditCopy (CCmdUI* pCmdUI)
-{
-	UpdateEditGraphicsCopy (pCmdUI);
-	
-	pCmdUI->Enable (TRUE);
-	
-}	// end "OnUpdateEditCopy"
-
-
-
-void CMGraphView::OnEditCopy ()
-{
-	CBitmap								cBmp;
-
-   CRect									destinationRect;	// For storing the size of the image to be copied.
-
-   CDC									hDC;
-
-
-			// Get the size of the window
-	
-	GetClientRect (destinationRect);
-	
-	s_updateRect.bottom = (int)destinationRect.bottom;
-	s_updateRect.top = (int)destinationRect.top;
-	s_updateRect.right = (int)destinationRect.right;
-	s_updateRect.left = (int)destinationRect.left;
-
-	CClientDC   cWndDC (this);					// View is an hWnd, so we can use "this"
-   hDC.CreateCompatibleDC (&cWndDC);			// Create the memory DC.
-
-   cBmp.CreateCompatibleBitmap (&cWndDC,
-   										destinationRect.Width (),
-   										destinationRect.Height ());
-	
-			// Keep the old bitmap
-                                                       
-   CBitmap* pOldBitmap = hDC.SelectObject (&cBmp);
-
-			//prepare the DC
-                      
-	hDC.BitBlt (0,
-					0, 
-					destinationRect.Width (),
-					destinationRect.Height (),
-					&cWndDC, 
-					0, 
-					0, 
-					WHITENESS); 
-
-			//copy the image to the DC  
-			
-	gCDCPointer = &hDC;
-	m_printCopyModeFlag = TRUE;
-			
-	OnDraw (&hDC);
-		      
-	gCDCPointer = NULL;
-	m_printCopyModeFlag = FALSE;
-	
-			// here are the actual clipboard functions.
-
-   AfxGetApp ()->m_pMainWnd->OpenClipboard ();
-   EmptyClipboard ();
-   SetClipboardData (CF_BITMAP, cBmp.GetSafeHandle ());
-   CloseClipboard ();
-
-        // next we select the old bitmap back into the memory DC
-        // so that our bitmap is not deleted when cMemDC is destroyed.
-        // Then we detach the bitmap handle from the cBmp object so that
-        // the bitmap is not deleted when cBmp is destroyed.
-
-	hDC.SelectObject (pOldBitmap);
-   cBmp.Detach ();
-	
-}	// end "OnEditCopy"
-
-
-
-void CMGraphView::OnLines () 
-
-{
-			// Add your control notification handler code here
-	
-}	// end "OnLines"
-
-
-
-void CMGraphView::OnNextChannel ()
-
-{
-	Boolean				returnFlag;
-
-
-	if (((CMultiSpecApp*)AfxGetApp ())->GetZoomCode () == IDC_NextChannel)
-		{
-		DoNextOrPreviousChannel	(this, kNextGraphSetControl);
-		
-		returnFlag = UpdateGraphControls ();
-
-		if (!returnFlag)
-			{
-			ReleaseCapture ();                                                                
-			((CMultiSpecApp*)AfxGetApp ())->SetZoomCode (0);      
-			((CMultiSpecApp*)AfxGetApp ())->SetControlDelayFlag (TRUE);
-
-			}	// "if (!returnFlag)"
-
-		}	// end "if (((CMultiSpecApp*)AfxGetApp ())->GetZoomCode () == .."
-	
-}	// end "OnNextChannel"
-
-
-
-void CMGraphView::OnPreviousChannel ()
-
-{              
-	Boolean				returnFlag;
-	
-
-	if (((CMultiSpecApp*)AfxGetApp ())->GetZoomCode () == IDC_PreviousChannel)
-		DoNextOrPreviousChannel	(this, kPreviousGraphSetControl);
-		
-	returnFlag = UpdateGraphControls ();
-	if (!returnFlag)
-		{
-		ReleaseCapture ();                                                                
-		((CMultiSpecApp*)AfxGetApp ())->SetZoomCode (0);      
-		((CMultiSpecApp*)AfxGetApp ())->SetControlDelayFlag (TRUE);
-
-		}	// end "if (!returnFlag)"
-	
-}	// end "OnPreviousChannel"
-
-
-
 void CMGraphView::OnSelendokXAxisDropList ()
 
-{  
-	CComboBox* 			comboBoxPtr;
-	GraphPtr				graphRecordPtr;
+{
+	CComboBox* 							comboBoxPtr;
+	GraphPtr								graphRecordPtr;
 
-	Handle				graphRecordHandle;
+	Handle								graphRecordHandle;
 	
-	int					currentSelection,
-							xAxisSelection;
+	int									currentSelection,
+											xAxisSelection;
 	                  
-	Boolean				returnFlag = TRUE;
+	Boolean								returnFlag = TRUE;
 	
 	
 	comboBoxPtr = (CComboBox*)(GetDlgItem (IDC_xAxis));
@@ -1088,7 +1041,6 @@ void CMGraphView::OnSelendokXAxisDropList ()
 		{                               
 		DDX_CBIndex (m_dialogFromPtr, IDC_xAxis, m_xAxisSelection); 
 		xAxisSelection = comboBoxPtr->GetItemData (m_xAxisSelection);
-		//xAxisSelection = m_xAxisSelection + 1;
 
 		graphRecordHandle = GetGraphRecordHandle ();
 		graphRecordPtr = (GraphPtr)GetHandlePointer (graphRecordHandle);
@@ -1107,16 +1059,14 @@ void CMGraphView::OnSelendokXAxisDropList ()
 
 			ReloadXAxis (graphRecordPtr, xAxisSelection);
 
-			#if defined multispec_win
-				if (graphRecordPtr->processorCode == kListDataProcessor)
-					graphRecordPtr->graphViewCPtr->Invalidate ();	 
-			#endif	// defined multispec_win
+			if (graphRecordPtr->processorCode == kListDataProcessor)
+				graphRecordPtr->graphViewCPtr->Invalidate ();
 
 			}	// end "if (errCode == noErr && ..."
 
 		}	// end "if (comboBoxPtr != NULL)"
 	
-}		// end "OnSelendokXAxisDropList"
+}	// end "OnSelendokXAxisDropList"
 
 
 
@@ -1136,9 +1086,31 @@ void CMGraphView::OnSize (
 
 
 
+void CMGraphView::OnUpdateEditCopy (
+				CCmdUI* 								pCmdUI)
+
+{
+	UpdateEditGraphicsCopy (pCmdUI);
+	
+	pCmdUI->Enable (TRUE);
+	
+}	// end "OnUpdateEditCopy"
+
+
+
+void CMGraphView::OnUpdateFileSaveAs (
+				CCmdUI*								pCmdUI)
+
+{
+	pCmdUI->Enable (FALSE);
+	
+}	// end "OnUpdateFileSaveAs"
+
+
+
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
-//								(c) Purdue Research Foundation
+//								 Copyright (1988-2020)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		Boolean UpdateGraphControls
@@ -1217,27 +1189,26 @@ Boolean CMGraphView::UpdateGraphControls (void)
 
 
 
-/////////////////////////////////////////////////////////////////////////////
+//------------------------------------------------------------------------------------
 // CMGraghViewButton                                                        
 
 BEGIN_MESSAGE_MAP (CMGraphViewButton, CButton)
 	//{{AFX_MSG_MAP (CMGraphViewButton)
-	ON_WM_LBUTTONDOWN ()
-	ON_WM_MOUSEMOVE ()
-	ON_WM_LBUTTONUP ()
 	ON_WM_KEYDOWN ()
 	ON_WM_KEYUP ()
+	ON_WM_LBUTTONDOWN ()
+	ON_WM_LBUTTONUP ()
+	ON_WM_MOUSEMOVE ()
 	ON_WM_RBUTTONDOWN ()
 	ON_WM_RBUTTONUP ()   
 	//}}AFX_MSG_MAP
+
 	ON_COMMAND_RANGE (ID_GRAPHOVERLAYMENUITEMSTART, ID_GRAPHOVERLAYMENUITEMEND, OnLines2)
-	ON_COMMAND_RANGE (ID_SELECTVECTORMENUITEMSTART, ID_SELECTVECTORMENUITEMEND, OnSelectVector)
 	ON_COMMAND_RANGE (ID_SELECTBINWIDTHMENUITEMSTART, ID_SELECTBINWIDTHMENUITEMEND, OnBinWidth)
-END_MESSAGE_MAP () 
+	ON_COMMAND_RANGE (ID_SELECTVECTORMENUITEMSTART, ID_SELECTVECTORMENUITEMEND, OnSelectVector)
+END_MESSAGE_MAP ()
                  
-                 
-/////////////////////////////////////////////////////////////////////////////
-// CMGraghViewButton construction/destruction 
+
 
 CMGraphViewButton::CMGraphViewButton ()
 
@@ -1250,40 +1221,92 @@ CMGraphViewButton::CMGraphViewButton ()
 
 
 CMGraphViewButton::~CMGraphViewButton ()
+
 {                                   
 	
 }	// end "~CMButton"
 
 
 
-void CMGraphViewButton::SetButtonID (
-				UInt16								buttonID)
+void CMGraphViewButton::OnBinWidth (
+				UINT									menuID)
+{
+	GraphPtr								graphRecordPtr;
 
-{                                                      
-	m_buttonID = buttonID;
-
-}	// end "SetButtonID"
+	Handle								graphRecordHandle;
+	SInt32								selection;
 
 
+	ReleaseCapture ();
 
-void CMGraphViewButton::SetGraphViewCPtr (
-				CMGraphView*						graphViewCPtr)
+	selection = menuID - ID_SELECTBINWIDTHMENUITEMSTART + 1;
+	if (SetHistogramBinWidth (m_graphViewCPtr, (SInt16)selection))
+		{
+		graphRecordHandle = m_graphViewCPtr->GetGraphRecordHandle ();
+		graphRecordPtr = (GraphPtr)GetHandlePointer (graphRecordHandle, kLock);
 
-{                                                      
-	m_graphViewCPtr = graphViewCPtr;
+		SetGraphMinMax (graphRecordPtr, kBothXYAxes);
 
-}	// end "SetGraphViewCPtr"
+		CheckAndUnlockHandle (graphRecordHandle);
+		
+		m_graphViewCPtr->Invalidate ();
 
- 
+		}	// end "if (SetHistogramBinWidth (m_graphViewCPtr, selection))"
+	
+}	// end "OnBinWidth"
 
-/////////////////////////////////////////////////////////////////////////////
-// CMButton message handlers 
+                                 
+
+void CMGraphViewButton::OnKeyDown (
+				UINT									nChar,
+				UINT									nRepCnt,
+				UINT									nFlags)
+				
+{     
+	//if (nChar == 0x10)
+	//	{
+		//CMLegendView* legendViewCPtr = (CMLegendView*)GetParent ();
+		//legendViewCPtr->GetLegendListCPtr()->CheckShiftKeyDown ();
+		
+	//	}	// end "if (nChar == 0x10)"
+	                                                                                                                                                                                        
+	//else if (nChar == 0x11)
+		//gActiveImageViewCPtr->SetControlKeyFlag (TRUE);
+	
+	CButton::OnKeyDown (nChar, nRepCnt, nFlags);
+	
+}	// end "OnKeyDown"
+
+
+
+void CMGraphViewButton::OnKeyUp (
+				UINT									nChar,
+				UINT									nRepCnt,
+				UINT									nFlags)
+
+{
+	/*
+	if (nChar == 0x10)
+		{                
+		//CMLegendView* legendViewCPtr = (CMLegendView*)GetParent ();
+		//legendViewCPtr->GetLegendListCPtr()->CheckShiftKeyUp ();
+		
+		}	// end "if (nChar == 0x10)"  
+	                                                                                                                                                                                        
+	else if (nChar == 0x11)           
+		//gActiveImageViewCPtr->SetControlKeyFlag (FALSE);
+	*/
+	CButton::OnKeyUp (nChar, nRepCnt, nFlags);
+	
+}	// end "OnKeyUp"
+
+
 
 void CMGraphViewButton::OnLButtonDown (
 				UINT									nFlags,
 				CPoint								point)
 
-{                                                      
+{
 	CWnd*									captured;
 
 
@@ -1297,8 +1320,8 @@ void CMGraphViewButton::OnLButtonDown (
 		{
 		if (GetState () & 0x0004)
 			{
-			((CMultiSpecApp*)AfxGetApp ())->SetZoomCode (m_buttonID);
-			((CMultiSpecApp*)AfxGetApp ())->SetControlDelayFlag (TRUE); 
+			((CMultiSpecApp*)AfxGetApp())->SetZoomCode (m_buttonID);
+			((CMultiSpecApp*)AfxGetApp())->SetControlDelayFlag (TRUE);
 			captured = GetCapture ();
 			
 			}	// end "if (GetState () & 0x0004)"
@@ -1317,26 +1340,26 @@ void CMGraphViewButton::OnLButtonDown (
 
 		SetUpOverlayPopUpMenu (m_graphViewCPtr, (MenuHandle)graphOverlayMenu);
 
-		((CMultiSpecApp*)AfxGetApp ())->SetZoomCode (m_buttonID);
+		((CMultiSpecApp*)AfxGetApp())->SetZoomCode (m_buttonID);
 		
 		captured = GetCapture ();
 
-		if (graphOverlayMenu->TrackPopupMenu (TPM_LEFTALIGN, 
-															buttonRectangle.right, 
-															buttonRectangle.top, 
-															this, 
+		if (graphOverlayMenu->TrackPopupMenu (TPM_LEFTALIGN,
+															buttonRectangle.right,
+															buttonRectangle.top,
+															this,
 															NULL))
 			{
 			captured = GetCapture ();
 			OnLButtonUp (nFlags, point);
 
-			}
+			}	// end "graphOverlayMenu->TrackPopupMenu ..."
 
 		captured = GetCapture ();
 
 		ReleaseCapture ();
-		((CMultiSpecApp*)AfxGetApp ())->SetZoomCode (0);
-		((CMultiSpecApp*)AfxGetApp ())->SetControlDelayFlag (TRUE);
+		((CMultiSpecApp*)AfxGetApp())->SetZoomCode (0);
+		((CMultiSpecApp*)AfxGetApp())->SetControlDelayFlag (TRUE);
 
 		}	// end "else if (m_buttonID == IDC_GraphOverlay)"
 
@@ -1352,27 +1375,27 @@ void CMGraphViewButton::OnLButtonDown (
 
 		SetUpVectorPopUpMenu (m_graphViewCPtr, (MenuHandle)selectVectorMenu);
 
-		((CMultiSpecApp*)AfxGetApp ())->SetZoomCode (m_buttonID);
+		((CMultiSpecApp*)AfxGetApp())->SetZoomCode (m_buttonID);
 		
 		captured = GetCapture ();
 
-		if (selectVectorMenu->TrackPopupMenu (TPM_LEFTALIGN, 
-															buttonRectangle.right, 
-															buttonRectangle.top, 
-															this, 
+		if (selectVectorMenu->TrackPopupMenu (TPM_LEFTALIGN,
+															buttonRectangle.right,
+															buttonRectangle.top,
+															this,
 															NULL))
 			{
 			captured = GetCapture ();
 			OnLButtonUp (nFlags, point);
 
-			}
+			}	// end "selectVectorMenu->TrackPopupMenu (..."
 
 		captured = GetCapture ();
 
 		ReleaseCapture ();
-		((CMultiSpecApp*)AfxGetApp ())->SetZoomCode (0);
-		((CMultiSpecApp*)AfxGetApp ())->SetControlDelayFlag (TRUE);
-			
+		((CMultiSpecApp*)AfxGetApp())->SetZoomCode (0);
+		((CMultiSpecApp*)AfxGetApp())->SetControlDelayFlag (TRUE);
+		
 
 		}	// end "else if (m_buttonID == IDC_SelectVectors)"
 
@@ -1388,59 +1411,30 @@ void CMGraphViewButton::OnLButtonDown (
 
 		SetUpBinWidthPopUpMenu (m_graphViewCPtr, (MenuHandle)binWidthMenu);
 
-		((CMultiSpecApp*)AfxGetApp ())->SetZoomCode (m_buttonID);
+		((CMultiSpecApp*)AfxGetApp())->SetZoomCode (m_buttonID);
 		
 		captured = GetCapture ();
 
-		if (binWidthMenu->TrackPopupMenu (TPM_LEFTALIGN, 
-														buttonRectangle.right, 
-														buttonRectangle.top, 
-														this, 
+		if (binWidthMenu->TrackPopupMenu (TPM_LEFTALIGN,
+														buttonRectangle.right,
+														buttonRectangle.top,
+														this,
 														NULL))
 			{
 			captured = GetCapture ();
 			OnLButtonUp (nFlags, point);
 
-			}
+			}	// end "binWidthMenu->TrackPopupMenu (..."
 
 		captured = GetCapture ();
 
 		ReleaseCapture ();
-		((CMultiSpecApp*)AfxGetApp ())->SetZoomCode (0);
-		((CMultiSpecApp*)AfxGetApp ())->SetControlDelayFlag (TRUE);
-			
+		((CMultiSpecApp*)AfxGetApp())->SetZoomCode (0);
+		((CMultiSpecApp*)AfxGetApp())->SetControlDelayFlag (TRUE);
+		
 		}	// end "else if (m_buttonID == IDC_BinWidth)"
 
 }	// end "OnLButtonDown"
-
-
-
-void CMGraphViewButton::OnMouseMove (
-				UINT									nFlags,
-				CPoint								point)
-
-{                                                                  
-	UINT									itemID;
-	
-
-	CButton::OnMouseMove (nFlags, point);
-	
-	if (GetCapture () != this)
-		itemID = 0; 
-		
-	else	// GetCapture () == this
-		{
-		if (GetState () & 0x0004)
-			itemID = m_buttonID; 
-			
-		else	// !(state & 0x0008) 
-			itemID = 0;
-			
-		}	// end "else GetCapture () == this"
-			                                            
-	//((CMultiSpecApp*)AfxGetApp ())->SetZoomCode (itemID);
-	
-}	// end "OnMouseMove" 
 
 
 
@@ -1450,98 +1444,25 @@ void CMGraphViewButton::OnLButtonUp (
 {
 	CWnd*									captured;
 
-	//if (m_buttonID == IDC_GraphOverlay)
-	//	{
-	//
-	//	}	// end "if (m_buttonID == IDC_GraphOverlay)"
-		
+
 	captured = GetCapture ();
 	if (GetCapture () == this)
 		{
-		ReleaseCapture ();                                                                
-		((CMultiSpecApp*)AfxGetApp ())->SetZoomCode (0);
-		((CMultiSpecApp*)AfxGetApp ())->SetControlDelayFlag (TRUE);
+		ReleaseCapture ();
+		((CMultiSpecApp*)AfxGetApp())->SetZoomCode (0);
+		((CMultiSpecApp*)AfxGetApp())->SetControlDelayFlag (TRUE);
 		
 		}	// end "if (GetCapture () == this)"
-		
+	
 	CButton::OnLButtonUp (nFlags, point);
 	
-}	// end "OnLButtonUp" 
-
-                                 
-
-void CMGraphViewButton::OnKeyDown (
-				UINT									nChar,
-				UINT									nRepCnt,
-				UINT									nFlags)
-{     
-	if (nChar == 0x10)
-		{                
-		//CMLegendView* legendViewCPtr = (CMLegendView*)GetParent ();
-		//legendViewCPtr->GetLegendListCPtr ()->CheckShiftKeyDown ();
-		
-		}	// end "if (nChar == 0x10)"
-	                                                                                                                                                                                        
-	else if (nChar == 0x11)           
-		//gActiveImageViewCPtr->SetControlKeyFlag (TRUE);
-	
-	CButton::OnKeyDown (nChar, nRepCnt, nFlags);
-	
-}	// end "OnKeyDown"
+}	// end "OnLButtonUp"
 
 
-
-void CMGraphViewButton::OnKeyUp (
-				UINT									nChar,
-				UINT									nRepCnt,
-				UINT									nFlags)
-{    
-	if (nChar == 0x10)
-		{                
-		//CMLegendView* legendViewCPtr = (CMLegendView*)GetParent ();
-		//legendViewCPtr->GetLegendListCPtr ()->CheckShiftKeyUp ();
-		
-		}	// end "if (nChar == 0x10)"  
-	                                                                                                                                                                                        
-	else if (nChar == 0x11)           
-		//gActiveImageViewCPtr->SetControlKeyFlag (FALSE);
-	
-	CButton::OnKeyUp (nChar, nRepCnt, nFlags);
-	
-}	// end "OnKeyUp" 
-
-
-
-void CMGraphViewButton::OnRButtonDown (
-				UINT									nFlags,
-				CPoint								point)
-
-{                                                      
-	
-	CButton::OnRButtonDown (nFlags, point);
-	                           
-	if (GetCapture () == this)
-		((CMultiSpecApp*)AfxGetApp ())->SetControlDelayFlag (FALSE);
-
-}	// end "OnRButtonDown" 
-
-
-
-void CMGraphViewButton::OnRButtonUp (
-				UINT									nFlags,
-				CPoint								point)
-{  
-	if (GetCapture () == this)                                                            
-		((CMultiSpecApp*)AfxGetApp ())->SetControlDelayFlag (TRUE);
-		
-	CButton::OnRButtonUp (nFlags, point);
-	
-}	// end "OnRButtonUp"
-
- 
 
 void CMGraphViewButton::OnLines2 (
 				UINT									menuID)
+
 {
 	SInt32								selection;
 
@@ -1555,10 +1476,67 @@ void CMGraphViewButton::OnLines2 (
 	
 }	// end "OnLines2"
 
+
+
+void CMGraphViewButton::OnMouseMove (
+				UINT									nFlags,
+				CPoint								point)
+
+{
+	UINT									itemID;
+	
+
+	CButton::OnMouseMove (nFlags, point);
+	
+	if (GetCapture () != this)
+		itemID = 0;
+	
+	else	// GetCapture () == this
+		{
+		if (GetState () & 0x0004)
+			itemID = m_buttonID;
+		
+		else	// !(state & 0x0008)
+			itemID = 0;
+		
+		}	// end "else GetCapture () == this"
+	
+}	// end "OnMouseMove"
+
+
+
+void CMGraphViewButton::OnRButtonDown (
+				UINT									nFlags,
+				CPoint								point)
+
+{                                                      
+	
+	CButton::OnRButtonDown (nFlags, point);
+	                           
+	if (GetCapture () == this)
+		((CMultiSpecApp*)AfxGetApp())->SetControlDelayFlag (FALSE);
+
+}	// end "OnRButtonDown" 
+
+
+
+void CMGraphViewButton::OnRButtonUp (
+				UINT									nFlags,
+				CPoint								point)
+				
+{  
+	if (GetCapture () == this)                                                            
+		((CMultiSpecApp*)AfxGetApp())->SetControlDelayFlag (TRUE);
+		
+	CButton::OnRButtonUp (nFlags, point);
+	
+}	// end "OnRButtonUp"
+
  
 
 void CMGraphViewButton::OnSelectVector (
 				UINT									menuID)
+
 {
 	GraphPtr								graphRecordPtr;
 
@@ -1581,39 +1559,29 @@ void CMGraphViewButton::OnSelectVector (
 	
 }	// end "OnSelectVector"
 
- 
-
-void CMGraphViewButton::OnBinWidth (
-				UINT									menuID)
-{	
-	GraphPtr								graphRecordPtr;
-
-	Handle								graphRecordHandle;
-	SInt32								selection;
 
 
-	ReleaseCapture ();
+void CMGraphViewButton::SetButtonID (
+				UInt16								buttonID)
 
-	selection = menuID - ID_SELECTBINWIDTHMENUITEMSTART + 1;
-	if (SetHistogramBinWidth (m_graphViewCPtr, (SInt16)selection))
-		{
-		graphRecordHandle = m_graphViewCPtr->GetGraphRecordHandle ();
-		graphRecordPtr = (GraphPtr)GetHandlePointer (graphRecordHandle, kLock);
+{
+	m_buttonID = buttonID;
 
-		SetGraphMinMax (graphRecordPtr, kBothXYAxes);
-
-		CheckAndUnlockHandle (graphRecordHandle);
-		//InvalidateGraphWindow (windowPtr, kGraphArea);
-		//InvalidateGraphWindow (windowPtr, kGraphBinWidth);
-		m_graphViewCPtr->Invalidate ();
-
-		}	// end "if (SetHistogramBinWidth (m_graphViewCPtr, selection))"
-	
-}	// end "OnBinWidth"
+}	// end "SetButtonID"
 
 
 
-/////////////////////////////////////////////////////////////////////////////
+void CMGraphViewButton::SetGraphViewCPtr (
+				CMGraphView*						graphViewCPtr)
+
+{
+	m_graphViewCPtr = graphViewCPtr;
+
+}	// end "SetGraphViewCPtr"
+
+
+
+//------------------------------------------------------------------------------------
 // CMGraphViewCombo                                                        
 
 BEGIN_MESSAGE_MAP (CMGraphViewCombo, CComboBox)
@@ -1623,8 +1591,6 @@ BEGIN_MESSAGE_MAP (CMGraphViewCombo, CComboBox)
 END_MESSAGE_MAP () 
                  
                  
-/////////////////////////////////////////////////////////////////////////////
-// CMGraghViewButton construction/destruction 
 
 CMGraphViewCombo::CMGraphViewCombo ()
 
@@ -1636,13 +1602,18 @@ CMGraphViewCombo::CMGraphViewCombo ()
 
 
 CMGraphViewCombo::~CMGraphViewCombo ()
+
 {                                   
 	
 }	// end "~CMGraphViewCombo"
 
  
 
-void CMGraphViewCombo::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
+void CMGraphViewCombo::OnKeyDown (
+				UINT 									nChar,
+				UINT 									nRepCnt,
+				UINT 									nFlags)
+
 {
 			// Add your message handler code here and/or call default
 
@@ -1655,7 +1626,7 @@ void CMGraphViewCombo::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
  			break;  
 
 		default:
-			CComboBox::OnKeyDown(nChar, nRepCnt, nFlags);
+			CComboBox::OnKeyDown (nChar, nRepCnt, nFlags);
 
 		}	// end "switch (nChar)"
 
@@ -1670,4 +1641,3 @@ void CMGraphViewCombo::SetGraphViewCPtr (
 	m_graphViewCPtr = graphViewCPtr;
 
 }	// end "SetGraphViewCPtr"
-

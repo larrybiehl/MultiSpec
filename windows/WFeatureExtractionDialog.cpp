@@ -1,92 +1,60 @@
-// WFeatureExtractionDialog.cpp : implementation file
-//  
-// Revised by Larry Biehl on 12/21/2017
+//	 									MultiSpec
 //
-                   
+//					Laboratory for Applications of Remote Sensing
+// 								Purdue University
+//								West Lafayette, IN 47907
+//								 Copyright (1995-2020)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	File:						WFeatureExtractionDialog.cpp : implementation file
+//
+//	Authors:					Larry L. Biehl
+//
+//	Revision date:			01/04/2018
+//
+//	Language:				C++
+//
+//	System:					Windows Operating System
+//
+//	Brief description:	This file contains functions that relate to the
+//								CMFeatureExtractionDialog class.
+//
+//------------------------------------------------------------------------------------
+
 #include "SMultiSpec.h"
 
 #include "WChannelsDialog.h" 
 #include "WFeatureExtractionDialog.h"
 #include "WProjectionPursuitDialog.h"
 
-//#include	"SExtGlob.h"  
-
-extern void 		FeatureExtractionDialogAlgorithm (
-							DialogPtr							dialogPtr, 
-							SInt16								algorithmCode);
-
-extern void 		FeatureExtractionDialogInitialize (
-							DialogPtr							dialogPtr,
-							FeatureExtractionSpecsPtr		featureExtractionSpecsPtr,
-							UInt16*								localFeaturesPtr,
-							UInt16*								localClassPtr,
-							SInt16**								localClassPairWeightsListPtr,
-							SInt16*								algorithmCodePtr,
-							SInt16*								weightsSelectionPtr,
-							SInt16*								interClassWeightsSelectionPtr,
-							SInt16*								defaultClassPairWeightPtr,
-							Boolean*								specialOptionsFlagPtr,
-							double*								outlierThreshold1Ptr,
-							double*								outlierThreshold2Ptr,
-							UInt32*								minimumThresholdNumberPtr,
-							Boolean*								optimizeClassFlagPtr,
-							double*								optimizeThresholdPtr,
-							UInt32*								maxPixelsPerClassPtr,
-							SInt16*								channelSelectionPtr,
-							UInt16*								localNumberChannelsPtr,
-							SInt16*								channelListTypePtr,
-							SInt16*								classSelectionPtr,
-							UInt32*								localNumberClassesPtr,
-							SInt16*								preprocessSelectionPtr,
-							Boolean*								listTransformationFlagPtr );
-	
-extern void 		FeatureExtractionDialogOK (
-							FeatureExtractionSpecsPtr		featureExtractionSpecsPtr,
-							SInt16								algorithmCode,
-							SInt16								weightsSelection,
-							float*								localClassWeightsPtr,
-							SInt16								interClassWeightsSelection,
-							SInt16*								localClassPairWeightsListPtr,
-							SInt16								localDefaultClassPairWeight,
-							Boolean								specialOptionsFlag,
-							double								outlierThreshold1,
-							double								outlierThreshold2,
-							UInt32								minThresholdNumber,
-							double								optimizeThreshold,
-							Boolean								optimizeClassFlag,
-							UInt32								maxPixelsPerClass,
-							SInt16								channelSelection,
-							UInt16								localNumberFeatures,
-							UInt16*								localFeaturesPtr,
-							SInt16								classSelection,
-							UInt32								localNumberClasses,
-							UInt16*								localClassPtr,
-							Boolean								listTransformationFlag,
-							SInt16								preprocessSelection );
-	
-extern void 		FeatureExtractionDialogOptimizeClass (
-							DialogPtr							dialogPtr,
-							Boolean								optimizeClassFlag);
-	
-extern void 		FeatureExtractionDialogUpdateSpecialOptions (
-							DialogPtr							dialogPtr,
-							SInt16								algorithmCode,
-							Boolean								specialOptionsFlag,
-							Boolean								optimizeClassFlag );
-
-extern Boolean 	ProjectionPursuitDialog (void);
-
 #ifdef _DEBUG
-#undef THIS_FILE
-static char BASED_CODE THIS_FILE[] = __FILE__;
+	#undef THIS_FILE
+	static char BASED_CODE THIS_FILE[] = __FILE__;
 #endif
 
-/////////////////////////////////////////////////////////////////////////////
-// CMFeatureExtractionDialog dialog
 
 
-CMFeatureExtractionDialog::CMFeatureExtractionDialog(CWnd* pParent /*=NULL*/)
-	: CMDialog(CMFeatureExtractionDialog::IDD, pParent)
+BEGIN_MESSAGE_MAP (CMFeatureExtractionDialog, CMDialog)
+	//{{AFX_MSG_MAP (CMFeatureExtractionDialog)
+	ON_BN_CLICKED (IDC_OptimizeClasses, OnOptimizeClasses)
+	ON_BN_CLICKED (IDC_SpecialOptions, OnSpecialOptions)
+
+	ON_CBN_SELENDOK (IDC_ChannelCombo, OnSelendokChannelCombo)
+	ON_CBN_SELENDOK (IDC_ClassCombo, OnSelendokClassCombo)
+	ON_CBN_SELENDOK (IDC_ClassPairWeightsCombo, OnSelendokClassPairWeightsCombo)
+	ON_CBN_SELENDOK (IDC_FEAlgorithmCombo, OnDecisionBoundary)
+	ON_CBN_SELENDOK (IDC_PreprocessingCombo, OnCbnSelendokPreprocessingcombo)
+	ON_CBN_SELENDOK (IDC_WeightsCombo, OnSelendokClassWeightsCombo)
+	//}}AFX_MSG_MAP
+END_MESSAGE_MAP ()
+
+
+
+CMFeatureExtractionDialog::CMFeatureExtractionDialog (
+				CWnd* 								pParent /*=NULL*/)
+		: CMDialog (CMFeatureExtractionDialog::IDD, pParent)
+
 {
 	//{{AFX_DATA_INIT(CMFeatureExtractionDialog)
 	m_interclassThrehold = (float)0.;
@@ -108,21 +76,20 @@ CMFeatureExtractionDialog::CMFeatureExtractionDialog(CWnd* pParent /*=NULL*/)
 	m_initializedFlag = CMDialog::m_initializedFlag; 
 	
 	if (m_initializedFlag)
-		m_initializedFlag = GetDialogLocalVectors (
-														&m_localActiveFeaturesPtr,
-														NULL,     
-														&m_classListPtr,
-														NULL, 
-														&m_classWeightsPtr,
-														NULL,
-														NULL,
-														&m_localClassPairWeightsListPtr);
+		m_initializedFlag = GetDialogLocalVectors (&m_localActiveFeaturesPtr,
+																	NULL,
+																	&m_classListPtr,
+																	NULL,
+																	&m_classWeightsPtr,
+																	NULL,
+																	NULL,
+																	&m_localClassPairWeightsListPtr);
 														
-}		// end "CMFeatureExtractionDialog"    
+}	// end "CMFeatureExtractionDialog"
 
 
 
-CMFeatureExtractionDialog::~CMFeatureExtractionDialog(void)
+CMFeatureExtractionDialog::~CMFeatureExtractionDialog (void)
 
 {  
 	ReleaseDialogLocalVectors (m_localActiveFeaturesPtr,  
@@ -134,60 +101,50 @@ CMFeatureExtractionDialog::~CMFeatureExtractionDialog(void)
 											NULL,
 											m_localClassPairWeightsListPtr);
 	
-}		// end "CMFeatureExtractionDialog"
+}	// end "CMFeatureExtractionDialog"
 
 
 
-void CMFeatureExtractionDialog::DoDataExchange(CDataExchange* pDX)
+void CMFeatureExtractionDialog::DoDataExchange (
+				CDataExchange* 					pDX)
+
 {
-	CDialog::DoDataExchange(pDX);
-	//{{AFX_DATA_MAP(CMFeatureExtractionDialog)
-	DDX_Text2(pDX, IDC_InterclassThreshold, m_interclassThrehold);
-	//DDX_Text(pDX, IDC_MinThresholdNumber, m_minThresholdNumber);	// This added to work around Microsoft bug (8/18/2017)
-	DDX_Text2(pDX, IDC_WithinClassThreshold, m_withinClassThreshold);
-	DDX_Check(pDX, IDC_OptimizeClasses, m_optimizeClassesFlag);
-	DDX_Text(pDX, IDC_MinThresholdNumber, m_minThresholdNumber);
-	DDX_Text(pDX, IDC_MaxPixels, m_maxPixelsPerClass);
-	DDV_MinMaxLong(pDX, m_maxPixelsPerClass, 0, 32000);
-	DDX_Check(pDX, IDC_SpecialOptions, m_specialOptionsFlag);
-	DDX_Check(pDX, IDC_ListTransformationMatrix, m_listTransformationFlag);
-	DDX_CBIndex(pDX, IDC_ClassPairWeightsCombo, m_interClassWeightsSelection);
-	DDX_CBIndex(pDX, IDC_PreprocessingCombo, m_preprocessSelection);
-	DDX_CBIndex(pDX, IDC_FEAlgorithmCombo, m_algorithmCode);
-	DDX_CBIndex(pDX, IDC_ChannelCombo, m_channelSelection);
-	DDX_CBIndex(pDX, IDC_ClassCombo, m_classSelection);      
-	DDX_CBIndex(pDX, IDC_WeightsCombo, m_weightsSelection);
-	DDX_Text2(pDX, IDC_PercentAccuracy, m_optimizeThreshold);
-	DDV_MinMaxDouble(pDX, m_optimizeThreshold, 0., 100.);
+	CDialog::DoDataExchange (pDX);
+	
+	//{{AFX_DATA_MAP (CMFeatureExtractionDialog)
+	DDX_Text2 (pDX, IDC_InterclassThreshold, m_interclassThrehold);
+	DDX_Text2 (pDX, IDC_WithinClassThreshold, m_withinClassThreshold);
+	DDX_Check (pDX, IDC_OptimizeClasses, m_optimizeClassesFlag);
+	DDX_Text (pDX, IDC_MinThresholdNumber, m_minThresholdNumber);
+	DDX_Text (pDX, IDC_MaxPixels, m_maxPixelsPerClass);
+	DDV_MinMaxLong (pDX, m_maxPixelsPerClass, 0, 32000);
+	DDX_Check (pDX, IDC_SpecialOptions, m_specialOptionsFlag);
+	DDX_Check (pDX, IDC_ListTransformationMatrix, m_listTransformationFlag);
+	DDX_CBIndex (pDX, IDC_ClassPairWeightsCombo, m_interClassWeightsSelection);
+	DDX_CBIndex (pDX, IDC_PreprocessingCombo, m_preprocessSelection);
+	DDX_CBIndex (pDX, IDC_FEAlgorithmCombo, m_algorithmCode);
+	DDX_CBIndex (pDX, IDC_ChannelCombo, m_channelSelection);
+	DDX_CBIndex (pDX, IDC_ClassCombo, m_classSelection);
+	DDX_CBIndex (pDX, IDC_WeightsCombo, m_weightsSelection);
+	DDX_Text2 (pDX, IDC_PercentAccuracy, m_optimizeThreshold);
+	DDV_MinMaxDouble (pDX, m_optimizeThreshold, 0., 100.);
 	//}}AFX_DATA_MAP
-}
-
-BEGIN_MESSAGE_MAP(CMFeatureExtractionDialog, CMDialog)
-	//{{AFX_MSG_MAP(CMFeatureExtractionDialog)           
-	ON_BN_CLICKED(IDC_OptimizeClasses, OnOptimizeClasses)
-	ON_BN_CLICKED(IDC_SpecialOptions, OnSpecialOptions)
-	ON_CBN_SELENDOK(IDC_ChannelCombo, OnSelendokChannelCombo)
-	ON_CBN_SELENDOK(IDC_ClassCombo, OnSelendokClassCombo)      
-	ON_CBN_SELENDOK(IDC_WeightsCombo, OnSelendokClassWeightsCombo)
-	ON_CBN_SELENDOK(IDC_ClassPairWeightsCombo, OnSelendokClassPairWeightsCombo)
-	ON_CBN_SELENDOK(IDC_FEAlgorithmCombo, OnDecisionBoundary)
-	//}}AFX_MSG_MAP
-	ON_CBN_SELENDOK(IDC_PreprocessingCombo, OnCbnSelendokPreprocessingcombo)
-END_MESSAGE_MAP() 
+	
+}	// end "DoDataExchange"
  
 
 
-//-----------------------------------------------------------------------------
-//								 Copyright (1988-1998)
-//								c Purdue Research Foundation
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2020)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void DoDialog
 //
-//	Software purpose:	The purpose of this routine is to present the classification
-//							specification dialog box to the user and copy the
-//							revised back to the classify specification structure if
-//							the user selected OK.
+//	Software purpose:	The purpose of this routine is to present the feature
+//							extraction specification dialog box to the user and copy the
+//							revised back to the feature extraction specification structure
+//							if the user selected OK.
 //
 //	Parameters in:		None
 //
@@ -195,13 +152,12 @@ END_MESSAGE_MAP()
 //
 //	Value Returned:	None		
 // 
-//	Called By:			Dialog in MDisMult.cpp
+//	Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 03/02/1999
 //	Revised By:			Larry L. Biehl			Date: 05/26/2017	
 
-Boolean 
-CMFeatureExtractionDialog::DoDialog(
+Boolean CMFeatureExtractionDialog::DoDialog (
 				FeatureExtractionSpecsPtr		featureExtractionSpecsPtr)
 
 {                                                  
@@ -212,8 +168,8 @@ CMFeatureExtractionDialog::DoDialog(
 	                          
 			// Make sure intialization has been completed.
 							                         
-	if ( !m_initializedFlag )
-																			return(FALSE);
+	if (!m_initializedFlag)
+																							return (FALSE);
 	
 	m_featureExtractionSpecsPtr = featureExtractionSpecsPtr;  
 	
@@ -244,20 +200,19 @@ CMFeatureExtractionDialog::DoDialog(
 												m_localNumberClasses,
 												m_classListPtr,
 												m_listTransformationFlag,
-												m_preprocessSelection+1 );
+												m_preprocessSelection+1);
 														
-		}		// end "if (returnCode == IDOK)"
+		}	// end "if (returnCode == IDOK)"
 		
 	return (continueFlag);
 		
-}		// end "DoDialog" 
+}	// end "DoDialog"
 
 
-/////////////////////////////////////////////////////////////////////////////
-// CMFeatureExtractionDialog message handlers
 
-BOOL CMFeatureExtractionDialog::OnInitDialog()
-{  
+BOOL CMFeatureExtractionDialog::OnInitDialog ()
+
+{
 	double								interclassThrehold,
 											optimizeThreshold,
 											withinClassThreshold;
@@ -272,33 +227,33 @@ BOOL CMFeatureExtractionDialog::OnInitDialog()
 											weightsSelection;
 	
 	
-	CDialog::OnInitDialog();
+	CDialog::OnInitDialog ();
 	
 			// Initialize dialog variables.
 
 	FeatureExtractionDialogInitialize (this,
-														m_featureExtractionSpecsPtr,
-														m_localActiveFeaturesPtr,
-														m_classListPtr,
-														&m_localClassPairWeightsListPtr,
-														&algorithmCode,
-														&weightsSelection,
-														&interClassWeightsSelection,
-														&m_localDefaultClassPairWeight,
-														(Boolean*)&m_specialOptionsFlag, 
-														&withinClassThreshold,
-														&interclassThrehold,
-														(UInt32*)&m_minThresholdNumber,
-														(Boolean*)&m_optimizeClassesFlag,
-														&optimizeThreshold,
-														(UInt32*)&m_maxPixelsPerClass,
-														&channelSelection,
-														&m_localNumberFeatures,
-														&m_channelListType,
-														&classSelection,
-														&m_localNumberClasses,
-														&preprocessSelection,
-														(Boolean*)&m_listTransformationFlag ); 
+													m_featureExtractionSpecsPtr,
+													m_localActiveFeaturesPtr,
+													m_classListPtr,
+													&m_localClassPairWeightsListPtr,
+													&algorithmCode,
+													&weightsSelection,
+													&interClassWeightsSelection,
+													&m_localDefaultClassPairWeight,
+													(Boolean*)&m_specialOptionsFlag,
+													&withinClassThreshold,
+													&interclassThrehold,
+													(UInt32*)&m_minThresholdNumber,
+													(Boolean*)&m_optimizeClassesFlag,
+													&optimizeThreshold,
+													(UInt32*)&m_maxPixelsPerClass,
+													&channelSelection,
+													&m_localNumberFeatures,
+													&m_channelListType,
+													&classSelection,
+													&m_localNumberClasses,
+													&preprocessSelection,
+													(Boolean*)&m_listTransformationFlag);
 	                                                                   			
 			//	Set the channels/features list item				
 			                                             
@@ -322,25 +277,20 @@ BOOL CMFeatureExtractionDialog::OnInitDialog()
 			// Adjust for 0 base index.
 	
 	m_preprocessSelection = preprocessSelection - 1;                            													
-//	HideDialogItem (this, IDC_PreprocessingCombo);	
-	projectionPursuitSpecsPtr = 
-							&m_featureExtractionSpecsPtr->projectionPursuitParams;
+	projectionPursuitSpecsPtr = &m_featureExtractionSpecsPtr->projectionPursuitParams;
 	if (projectionPursuitSpecsPtr->finalNumberFeatures <= 0)                           
-		((CComboBox*)GetDlgItem(IDC_PreprocessingCombo))->DeleteString(2);
-		
+		((CComboBox*)GetDlgItem (IDC_PreprocessingCombo))->DeleteString (2);
 	
 			// Class weights.
 			// Adjust for 0 base index.
 	
-	m_weightsSelection = weightsSelection - 1; 
-//	HideDialogItem (this, IDC_WeightsCombo);   
+	m_weightsSelection = weightsSelection - 1;
 	HideDialogItem (this, IDC_WeightsEqual);   
 	
 			// Inter class weights.
 			// Adjust for 0 base index.
 	
-	m_interClassWeightsSelection = interClassWeightsSelection - 1;  
-//	HideDialogItem (this, IDC_ClassPairWeightsCombo);
+	m_interClassWeightsSelection = interClassWeightsSelection - 1;
 	HideDialogItem (this, IDC_InterClassWeightsEqual);
 	
 	
@@ -349,47 +299,46 @@ BOOL CMFeatureExtractionDialog::OnInitDialog()
 	m_optimizeThreshold = (float)optimizeThreshold;
 	m_withinClassThreshold = (float)withinClassThreshold;
 	                 
-	if (UpdateData(FALSE) )                   
+	if (UpdateData (FALSE))                   
 		PositionDialogWindow ();
 	
 	return FALSE;  // return TRUE  unless you set the focus to a control
 	
-}		// end "OnInitDialog"
+}	// end "OnInitDialog"
 
 
 
-void CMFeatureExtractionDialog::OnOptimizeClasses()
+void CMFeatureExtractionDialog::OnOptimizeClasses ()
+
 {         
-	DDX_Check(m_dialogFromPtr, 
+	DDX_Check (m_dialogFromPtr,
 					IDC_OptimizeClasses, 
 					m_optimizeClassesFlag);  
 					
 	FeatureExtractionDialogOptimizeClass (this, m_optimizeClassesFlag);                                                     
 	
-}		// end "OnOptimizeClasses" 
+}	// end "OnOptimizeClasses"
 
 
 
-void CMFeatureExtractionDialog::OnSpecialOptions() 
+void CMFeatureExtractionDialog::OnSpecialOptions ()
 
 {                                       
-	DDX_Check(m_dialogFromPtr, 
-					IDC_SpecialOptions, 
-					m_specialOptionsFlag);                                                       
+	DDX_Check (m_dialogFromPtr, IDC_SpecialOptions, m_specialOptionsFlag);
 	
-	FeatureExtractionDialogUpdateSpecialOptions (
-														this,
-														m_algorithmCode+1,
-														m_specialOptionsFlag,
-														m_optimizeClassesFlag);
+	FeatureExtractionDialogUpdateSpecialOptions (this,
+																m_algorithmCode+1,
+																m_specialOptionsFlag,
+																m_optimizeClassesFlag);
 	
-}		// end "OnSpecialOptions"
+}	// end "OnSpecialOptions"
 
-void CMFeatureExtractionDialog::OnDecisionBoundary()
+
+
+void CMFeatureExtractionDialog::OnDecisionBoundary ()
+
 {                                                 
-	DDX_CBIndex(m_dialogFromPtr, 
-					IDC_FEAlgorithmCombo, 
-					m_algorithmCode); 
+	DDX_CBIndex (m_dialogFromPtr, IDC_FEAlgorithmCombo, m_algorithmCode);
 					                     
 	FeatureExtractionDialogAlgorithm (this, m_algorithmCode+1);                                                        
 	
@@ -398,22 +347,25 @@ void CMFeatureExtractionDialog::OnDecisionBoundary()
 																m_specialOptionsFlag,
 																m_optimizeClassesFlag);
 														 
-}		// end "OnDecisionBoundary"
+}	// end "OnDecisionBoundary"
 
 
-void CMFeatureExtractionDialog::OnSelendokChannelCombo()
+
+void CMFeatureExtractionDialog::OnSelendokChannelCombo ()
+
 {                                                                                                       
-	HandleChannelsMenu(IDC_ChannelCombo, 
+	HandleChannelsMenu (IDC_ChannelCombo,
 								kNoTransformation,
 								(SInt16)gProjectInfoPtr->numberStatisticsChannels,
 								m_channelListType,
 								TRUE);   
 	
-}		// end "OnSelendokChannelCombo"
+}	// end "OnSelendokChannelCombo"
 
   
 
-void CMFeatureExtractionDialog::OnSelendokClassWeightsCombo()
+void CMFeatureExtractionDialog::OnSelendokClassWeightsCombo ()
+
 {                                                           
 	HandleClassWeightsMenu ((SInt16)m_localNumberClasses, 
 									(SInt16*)m_classListPtr,
@@ -422,35 +374,31 @@ void CMFeatureExtractionDialog::OnSelendokClassWeightsCombo()
 									IDC_WeightsCombo,
 									&m_weightsSelection);
 	
-}		// end "OnSelendokClassWeightsCombo"
+}	// end "OnSelendokClassWeightsCombo"
 
   
 
-void CMFeatureExtractionDialog::OnSelendokClassPairWeightsCombo()
+void CMFeatureExtractionDialog::OnSelendokClassPairWeightsCombo ()
+
 {                                                           
-	HandleClassPairWeightsMenu (
-						&m_localClassPairWeightsListPtr,
-						IDC_ClassPairWeightsCombo,
-						&m_interClassWeightsSelection,
-						&m_localDefaultClassPairWeight);
+	HandleClassPairWeightsMenu (&m_localClassPairWeightsListPtr,
+											IDC_ClassPairWeightsCombo,
+											&m_interClassWeightsSelection,
+											&m_localDefaultClassPairWeight);
 	
-}		// end "OnSelendokClassPairWeightsCombo"
+}	// end "OnSelendokClassPairWeightsCombo"
 
-void CMFeatureExtractionDialog::OnCbnSelendokPreprocessingcombo()
+
+
+void CMFeatureExtractionDialog::OnCbnSelendokPreprocessingcombo ()
+
 {   
-	Boolean					okFlag;
+	Boolean								okFlag;
 
 
-	DDX_CBIndex(m_dialogFromPtr, 
-					IDC_PreprocessingCombo, 
-					m_preprocessSelection);
+	DDX_CBIndex (m_dialogFromPtr, IDC_PreprocessingCombo, m_preprocessSelection);
 
 	if (m_preprocessSelection == 1)
-		okFlag = ProjectionPursuitDialog();
+		okFlag = ProjectionPursuitDialog ();
 
-	if (okFlag)
-	{
-
-	}		// end "if (okFlag)"
-
-}		// end "OnCbnSelendokPreprocessingcombo"
+}	// end "OnCbnSelendokPreprocessingcombo"

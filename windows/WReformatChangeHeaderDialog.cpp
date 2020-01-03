@@ -1,75 +1,89 @@
-// WReformatChangeHeaderDialog.cpp : implementation file
+//	 									MultiSpec
 //
+//					Laboratory for Applications of Remote Sensing
+// 								Purdue University
+//								West Lafayette, IN 47907
+//								 Copyright (1995-2020)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	File:						WReformatChangeHeaderDialog.cpp : implementation file
+//
+//	Authors:					Larry L. Biehl
+//
+//	Revision date:			01/04/2018
+//
+//	Language:				C++
+//
+//	System:					Windows Operating System
+//
+//	Brief description:	This file contains functions that relate to the
+//								CMChangeHeaderDlg class.
+//
+//------------------------------------------------------------------------------------
 
-//#include "stdafx.h"
 #include "SMultiSpec.h"
 
-#include "CWindowInfo.h" 
-
+#include "WFileFormatDialog.h"
+#include "WImageView.h"
 #include "WReformatChangeHeaderDialog.h"
-#include "WImageView.h" 
-#include "WFileFormatDialog.h"   
-
-//#include	"SExtGlob.h" 
-
-extern Boolean 	FileSpecificationDialog (
-							Handle								fileInfoHandle, 
-							Handle								windowInfoHandle,
-							Boolean*								parameterChangeFlagPtr);
 
 #ifdef _DEBUG
-#undef THIS_FILE
-static char BASED_CODE THIS_FILE[] = __FILE__;
+	#undef THIS_FILE
+	static char BASED_CODE THIS_FILE[] = __FILE__;
 #endif
 
-/////////////////////////////////////////////////////////////////////////////
-// CMChangeHeaderDlg dialog
 
 
-CMChangeHeaderDlg::CMChangeHeaderDlg(CWnd* pParent /*=NULL*/)
-	: CMDialog(CMChangeHeaderDlg::IDD, pParent)
+BEGIN_MESSAGE_MAP (CMChangeHeaderDlg, CMDialog)
+	//{{AFX_MSG_MAP (CMChangeHeaderDlg)
+	ON_BN_CLICKED (IDC_ChangeMapParameters, OnChangeMapParameters)
+	ON_BN_CLICKED (IDC_ChangeParameters, OnChangeParameters)
+	//}}AFX_MSG_MAP
+END_MESSAGE_MAP ()
+
+
+
+CMChangeHeaderDlg::CMChangeHeaderDlg (
+				CWnd* 								pParent /*=NULL*/)
+		: CMDialog (CMChangeHeaderDlg::IDD, pParent)
+		
 {
 	//{{AFX_DATA_INIT(CMChangeHeaderDlg)
 	m_headerOptionsSelection = -1;
 	//}}AFX_DATA_INIT     
 	
 	m_headerOptionsSelection = 0;
-//	if (gImageFileInfoPtr->format == kErdas73Type)
-//		m_headerOptionsSelection = 0; 
 	
 	m_initializedFlag = CMDialog::m_initializedFlag;
 		
-}		// end "CMChangeHeaderDlg"
+}	// end "CMChangeHeaderDlg"
 
 
 
-void CMChangeHeaderDlg::DoDataExchange(CDataExchange* pDX)
+void CMChangeHeaderDlg::DoDataExchange (
+				CDataExchange* 					pDX)
+
 {
-	CDialog::DoDataExchange(pDX);
-	//{{AFX_DATA_MAP(CMChangeHeaderDlg)
-	DDX_CBIndex(pDX, IDC_COMBO1, m_headerOptionsSelection);
+	CDialog::DoDataExchange (pDX);
+	//{{AFX_DATA_MAP (CMChangeHeaderDlg)
+	DDX_CBIndex (pDX, IDC_COMBO1, m_headerOptionsSelection);
 	//}}AFX_DATA_MAP
-}
-
-BEGIN_MESSAGE_MAP(CMChangeHeaderDlg, CMDialog)
-	//{{AFX_MSG_MAP(CMChangeHeaderDlg)
-	ON_BN_CLICKED(IDC_ChangeParameters, OnChangeParameters)
-	ON_BN_CLICKED(IDC_ChangeMapParameters, OnChangeMapParameters)
-	//}}AFX_MSG_MAP
-END_MESSAGE_MAP() 
+	
+}	// end "DoDataExchange"
 
 
 
-//-----------------------------------------------------------------------------
-//								 Copyright (1988-1998)
-//								c Purdue Research Foundation
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2020)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void DoDialog
 //
 //	Software purpose:	The purpose of this routine is to present the reformat
-//							options dialog box to the user so that the user can
-//							selection which reformat function is to be run.
+//							change header dialog box to the user so that the user can
+//							make changes.
 //
 //	Parameters in:		None
 //
@@ -77,28 +91,26 @@ END_MESSAGE_MAP()
 //
 //	Value Returned:	None		
 // 
-//	Called By:			Dialog in MDisMult.cpp
+//	Called By:
 //
-//	Coded By:			Larry L. Biehl			Date: 09/19/95
-//	Revised By:			Larry L. Biehl			Date: 09/19/95	
+//	Coded By:			Larry L. Biehl			Date: 09/19/1995
+//	Revised By:			Larry L. Biehl			Date: 09/19/1995
 
-SInt16 
-CMChangeHeaderDlg::DoDialog(
-				SInt16*					requestedFormatPtr)
+SInt16 CMChangeHeaderDlg::DoDialog (
+				SInt16*								requestedFormatPtr)
 
 {                                       
-	SInt16				requestedFormat = 0;
+	INT_PTR								returnCode;
+	
+	SInt16								requestedFormat = 0;
 
-	// oul: changed from SInt16 to SInt64
-	INT_PTR				returnCode; 
-	                   
 	
 	*requestedFormatPtr = 0;
 	
 			// Make sure intialization has been completed.
 							                         
-	if ( !m_initializedFlag )
-																		return(FALSE); 
+	if (!m_initializedFlag)
+																						return (FALSE);
 																					
 	returnCode = DoModal (); 
 	
@@ -106,44 +118,76 @@ CMChangeHeaderDlg::DoDialog(
 		{       
 		m_headerOptionsSelection += 2;
 		
-//		if (m_headerOptionsSelection == 2)
-//			*requestedFormatPtr = kErdas73Type;	 
-		
 		if (m_headerOptionsSelection == 2)
 			*requestedFormatPtr = kErdas74Type;	                                
 		
-		}		// end "if (returnCode == IDOK)" 
+		}	// end "if (returnCode == IDOK)" 
 		
 	return (returnCode == IDOK);
 		
-}		// end "DoDialog"
+}	// end "DoDialog"
 
 
 
-/////////////////////////////////////////////////////////////////////////////
-// CMChangeHeaderDlg message handlers
+void CMChangeHeaderDlg::OnChangeMapParameters ()
 
-BOOL 
-CMChangeHeaderDlg::OnInitDialog(void)
+{
+	SetDLogControlHilite (NULL, IDOK, 255);
+
+	if (CoordinateDialog ())
+		gUpdateWindowsMenuItemsFlag = TRUE;
+	
+	SetDLogControlHilite (NULL, IDOK, 0);
+	
+}	// end "OnChangeMapParameters"
+
+
+
+void CMChangeHeaderDlg::OnChangeParameters (void)
+
+{
+	CDataExchange 						dxTo (this, FALSE);
+	
+	
+	SetDLogControlHilite (NULL, IDOK, 255);
+	
+	FileSpecificationDialog (gActiveImageFileInfoH,
+										gActiveImageWindowInfoH,
+										NULL);
+	
+	LoadCurrentHeaderParametersInDialog (&dxTo);
+	
+	if (gImageFileInfoPtr->bandInterleave == kBIL)
+		GetDlgItem (IDOK)->EnableWindow (TRUE);
+	
+	else    // gImageFileInfoPtr->bandInterleave != kBIL
+		GetDlgItem (IDOK)->EnableWindow (FALSE);
+	
+	SetDLogControlHilite (NULL, IDOK, 0);
+	
+}	// end "OnChangeParameters"
+
+
+
+BOOL CMChangeHeaderDlg::OnInitDialog (void)
 
 {                                  
-	CDataExchange 	dxTo(this, FALSE);
+	CDataExchange 						dxTo (this, FALSE);
 	
-	SInt16			stringNumber; 
+	SInt16								stringNumber;
 	
 	
-	CDialog::OnInitDialog();
+	CDialog::OnInitDialog ();
 	
 	stringNumber = IDS_DialogNumberChannels;
 	if (gImageFileInfoPtr->thematicType)
 		stringNumber = IDS_DialogNumberClasses;
 		
-	LoadDItemStringNumber(
-							NULL,
-							stringNumber,
-							this,
-							IDC_HeadDlgChannelsText,
-							(Str255*)&gTextString);
+	LoadDItemStringNumber (NULL,
+									stringNumber,
+									this,
+									IDC_HeadDlgChannelsText,
+									(Str255*)&gTextString);
 	
 	LoadCurrentHeaderParametersInDialog (&dxTo);   
 	
@@ -151,40 +195,13 @@ CMChangeHeaderDlg::OnInitDialog(void)
 	
 	return TRUE;  // return TRUE  unless you set the focus to a control
 	
-}		// end "OnInitDialog"
-
-
-
-void 
-CMChangeHeaderDlg::OnChangeParameters(void)
-
-{     
-	CDataExchange 	dxTo(this, FALSE);
-	
-	             
-	SetDLogControlHilite (NULL, IDOK, 255);
-	
-	FileSpecificationDialog (gActiveImageFileInfoH, 
-											gActiveImageWindowInfoH,
-											NULL);
-										
-	LoadCurrentHeaderParametersInDialog (&dxTo);
-	
-	if (gImageFileInfoPtr->bandInterleave == kBIL)
-		GetDlgItem(IDOK)->EnableWindow(TRUE);
-	
-	else		// gImageFileInfoPtr->bandInterleave != kBIL
-		GetDlgItem(IDOK)->EnableWindow(FALSE);
-	             
-	SetDLogControlHilite (NULL, IDOK, 0);
-	
-}		// end "OnChangeParameters"  
+}	// end "OnInitDialog"
 
 
                       
-//-----------------------------------------------------------------------------
-//								 Copyright (1988-1998)
-//							  c Purdue Research Foundation
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2020)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void LoadCurrentHeaderParametersInDialog
@@ -203,22 +220,21 @@ CMChangeHeaderDlg::OnChangeParameters(void)
 //	Coded By:			Larry L. Biehl			Date: 11/20/91
 //	Revised By:			Larry L. Biehl			Date: 09/19/95
 
-void 
-CMChangeHeaderDlg::LoadCurrentHeaderParametersInDialog (
-				CDataExchange* 	dxToPtr)
+void CMChangeHeaderDlg::LoadCurrentHeaderParametersInDialog (
+				CDataExchange* 					dxToPtr)
 
 {                                            
-	SInt32			numberBits, 
-						numberChannelsClasses;
+	SInt32								numberBits,
+											numberChannelsClasses;
 		
 		
 			// Number of image lines															
 				                                                                  
-	DDX_Text(dxToPtr, IDC_HeadDlgLines, gImageWindowInfoPtr->maxNumberLines);
+	DDX_Text (dxToPtr, IDC_HeadDlgLines, gImageWindowInfoPtr->maxNumberLines);
 		
 			// Number of image columns															
 				                                                                     
-	DDX_Text(dxToPtr, IDC_HeadDlgColumns, gImageWindowInfoPtr->maxNumberColumns);
+	DDX_Text (dxToPtr, IDC_HeadDlgColumns, gImageWindowInfoPtr->maxNumberColumns);
 		
 			// Number of image channels														
 		
@@ -227,10 +243,10 @@ CMChangeHeaderDlg::LoadCurrentHeaderParametersInDialog (
 		
 			// Number of image classes.														
 				
-	else		// gImageFileInfoPtr->thematicType 
+	else    // gImageFileInfoPtr->thematicType 
 		numberChannelsClasses = gImageFileInfoPtr->numberClasses;
 						                                     
-	DDX_Text(dxToPtr, IDC_HeadDlgChannels, numberChannelsClasses);
+	DDX_Text (dxToPtr, IDC_HeadDlgChannels, numberChannelsClasses);
 		
 			//	Set one byte data value radio button										
 				
@@ -241,27 +257,14 @@ CMChangeHeaderDlg::LoadCurrentHeaderParametersInDialog (
 		numberBits = 8;
 	if (gImageFileInfoPtr->numberBits <= 4) 
 		numberBits = 4;                                 
-	DDX_Text(dxToPtr, IDC_HeadDlgBits, numberBits);
+	DDX_Text (dxToPtr, IDC_HeadDlgBits, numberBits);
 		
 			// Start line of image																
 				                                                      
-	DDX_Text(dxToPtr, IDC_HeadDlgStartLine, gImageFileInfoPtr->startLine);
+	DDX_Text (dxToPtr, IDC_HeadDlgStartLine, gImageFileInfoPtr->startLine);
 		
 			// Start column of image															
 				                                                        
-	DDX_Text(dxToPtr, IDC_HeadDlgStartColumn, gImageFileInfoPtr->startColumn);
+	DDX_Text (dxToPtr, IDC_HeadDlgStartColumn, gImageFileInfoPtr->startColumn);
 	
-}		// end "LoadCurrentHeaderParametersInDialog"
-
-
-
-void CMChangeHeaderDlg::OnChangeMapParameters() 
-{             
-	SetDLogControlHilite (NULL, IDOK, 255);
-
-	if ( CoordinateDialog () )
-		gUpdateWindowsMenuItemsFlag = TRUE;  
-	
-	SetDLogControlHilite (NULL, IDOK, 0);
-	
-}		// end "OnChangeMapParameters"
+}	// end "LoadCurrentHeaderParametersInDialog"

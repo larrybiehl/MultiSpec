@@ -505,26 +505,27 @@ END
 // Dialog
 //
 
-IDD_ABOUTBOX DIALOGEX 34, 22, 222, 224
+IDD_ABOUTBOX DIALOGEX 34, 22, 337, 246
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    ICON            IDR_MAINFRAME,IDC_STATIC,11,17,20,20
-    CTEXT           "MultiSpec Application\nVersion 2018.08.30",IDC_STATIC,37,6,119,17
-    CTEXT           "Copyright © 1995-2018\nPurdue Research Foundation\nAll Rights Reserved",IDC_STATIC,40,38,121,27
-    DEFPUSHBUTTON   "OK",IDOK,176,194,42,14,WS_GROUP
-    LTEXT           "Available Memory:",IDC_STATIC,13,144,63,8
-    CONTROL         "",IDC_STATIC,"Static",SS_BLACKRECT,3,138,201,1
-    LTEXT           "(Avail. memory)",IDC_AboutMemory,79,144,116,8
-    CTEXT           "Work leading to MultiSpec was funded in part by NASA Grants NAGW-925, NAGW-3924 and NAGW5-3975",IDC_STATIC,5,69,206,20
-    LTEXT           "(64-bit version)",IDC_BitVersion,75,26,49,10
-    CTEXT           "GDAL, Kakadu (jpeg2000) and ERDAS/Earth Resource Mapping ECW software libraries are used.",IDC_STATIC,12,112,192,20
-    LTEXT           "Physical Memory:",IDC_STATIC,13,154,63,8
-    LTEXT           "(Physical memory)",IDC_AboutContiguousMemory,79,154,122,8
-    CTEXT           "Supported by AmericaView (www.americaview.org)",IDC_STATIC,19,95,177,8
-    CONTROL         "Simpler Version of MultiSpec",IDC_SimplerVersion,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,43,179,113,10
-    LTEXT           "Disk Space:",IDC_STATIC,13,164,63,8
-    LTEXT           "(Disk space)",IDC_AboutDisk,79,164,116,8
+    ICON            IDR_MAINFRAME,IDC_STATIC,29,18,20,20
+    CTEXT           "MultiSpec Application\nVersion 2020.01.02",IDC_STATIC,103,6,119,17
+    CTEXT           "Copyright © 1995-2020\nPurdue Research Foundation\nAll Rights Reserved",IDC_STATIC,8,40,317,26
+    DEFPUSHBUTTON   "OK",IDOK,283,222,42,14,WS_GROUP
+    LTEXT           "Available Memory:",IDC_STATIC,103,176,63,8
+    CONTROL         "",IDC_STATIC,"Static",SS_BLACKRECT,66,168,201,1
+    LTEXT           "(Avail. memory)",IDC_AboutMemory,169,176,116,8
+    CTEXT           "Work leading to MultiSpec was funded in part by NASA Grants\r\n NAGW-925, NAGW-3924 and NAGW5-3975",IDC_STATIC,8,70,317,20
+    LTEXT           "(64-bit version)",IDC_BitVersion,139,27,49,10
+    CTEXT           "GDAL, HDF5, Kakadu (jpeg2000),\r\n  ERDAS/Earth Resource Mapping ECW, and HDF4 software libraries are used.",IDC_STATIC,14,112,311,18
+    LTEXT           "Physical Memory:",IDC_STATIC,103,186,63,8
+    LTEXT           "(Physical memory)",IDC_AboutContiguousMemory,169,186,122,8
+    CTEXT           "Supported by AmericaView (www.americaview.org)",IDC_STATIC,8,95,317,8
+    CONTROL         "Simpler Version of MultiSpec",IDC_SimplerVersion,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,109,211,113,10
+    LTEXT           "Disk Space:",IDC_STATIC,103,196,63,8
+    LTEXT           "(Disk space)",IDC_AboutDisk,169,196,116,8
+    CTEXT           "Chih-Chung Chang and Chih-Jen Lin LIBSVM: a library for support vector machines is also used.\r\n ACM Transactions on Intelligent Systems and Technology, 2:17:1--23:27, 2011.\r\n Software and information available at www.csie.ntu.edu.tw/~cjlin/libsvm/.",IDC_STATIC,9,134,311,29
 END
 
 IDD_FileFormatSpecs DIALOGEX 40, 40, 306, 319
@@ -1100,13 +1101,13 @@ BEGIN
     CONTROL         "Use start line/column",IDC_StartLCCheckBox,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,52,153,106,10
 END
 
-IDD_ClassifyDialog DIALOGEX 0, 0, 321, 245
+IDD_ClassifyDialog DIALOGEX 0, 0, 333, 245
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_VISIBLE | WS_CAPTION
 CAPTION "Set Classification Specifications"
 FONT 8, "MS Shell Dlg", 0, 0, 0x0
 BEGIN
-    DEFPUSHBUTTON   "OK",IDOK,258,220,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,200,220,50,14
+    DEFPUSHBUTTON   "OK",IDOK,274,220,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,218,220,50,14
     LTEXT           "Procedure:",IDC_STATIC,5,10,38,8
     COMBOBOX        IDC_ClassificationProcedure,9,20,124,87,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     CONTROL         "Use feature transformation",IDC_FeatureTransformation,
@@ -1145,22 +1146,24 @@ BEGIN
     CONTROL         "Threshold results at",IDC_ThresholdResults,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,179,145,76,10
     CONTROL         "Create Probability Results File",IDC_CreateProbabilityFile,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,179,179,112,10
-    EDITTEXT        IDC_ThresholdValue,255,144,27,13,ES_AUTOHSCROLL
+    EDITTEXT        IDC_ThresholdValue,256,144,26,13,ES_AUTOHSCROLL
     LTEXT           "%",IDC_PercentSymbol,287,146,13,8
     CONTROL         "ToSelectedImage",IDSelectedImage,"Button",BS_OWNERDRAW | WS_TABSTOP,15,198,15,15
     COMBOBOX        IDC_PaletteCombo,227,123,72,100,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     LTEXT           "Palette:",IDC_PalettePrompt,199,125,26,8
     PUSHBUTTON      "Results List Options...",IDC_ListOptions,179,196,89,14
     LTEXT           "or correlation      coefficient of",IDC_correlationPrompt,201,159,50,18
-    EDITTEXT        IDC_CorrelationCoefficient,255,163,45,13,ES_AUTOHSCROLL
+    EDITTEXT        IDC_CorrelationCoefficientThreshold,255,163,45,13,ES_AUTOHSCROLL
     CONTROL         "Training (leave-one-out)",IDC_TrainingLOO,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,19,131,97,10
     LTEXT           "Class areas:",IDC_STATIC,9,107,43,8
     LTEXT           "o",IDC_DegreeSymbol,285,141,8,8
-    EDITTEXT        IDC_CEMThreshold,255,144,26,13,ES_AUTOHSCROLL
-    EDITTEXT        IDC_CorrelationThresold,255,144,27,13,ES_AUTOHSCROLL
+    EDITTEXT        IDC_CEMThreshold,256,144,26,13,ES_AUTOHSCROLL
+    EDITTEXT        IDC_CorrelationAngleThreshold,256,144,27,13,ES_AUTOHSCROLL
     LTEXT           "Default set",IDC_SymbolsDefaultSet,209,49,50,8
     LTEXT           "Equal",IDC_WeightsEqual,225,30,49,9
     COMBOBOX        IDC_ImageOverlayCombo,195,105,110,49,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    EDITTEXT        IDC_NearestNeighborThreshold,256,144,27,13,ES_AUTOHSCROLL
+    LTEXT           "neighbors",IDC_NearestNeighbor,285,146,36,8
 END
 
 IDD_DisplayThematic DIALOGEX 0, 0, 300, 230
@@ -1621,10 +1624,10 @@ BEGIN
     CONTROL         "ToSelectedImage",IDSelectedImage,"Button",BS_OWNERDRAW | WS_TABSTOP,34,90,15,15
 END
 
-IDD_SAMParameters DIALOG 0, 0, 187, 91
+IDD_SAMParameters DIALOGEX 0, 0, 179, 84
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
-CAPTION "Specify Correlation Classifier Parameters"
-FONT 8, "MS Sans Serif"
+CAPTION " "
+FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,128,70,50,14
     PUSHBUTTON      "Cancel",IDCANCEL,70,70,50,14
@@ -2386,6 +2389,59 @@ BEGIN
     LTEXT           "Start        End    Interval",IDC_StartEndInterval,81,102,84,8
 END
 
+IDD_ClassifyKNNParameters DIALOGEX 0, 0, 201, 87
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Specify KNN Classifier Parameter"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,144,66,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,86,66,50,14
+    LTEXT           "Nearest Neighbor K value:",IDC_STATIC,20,29,87,8
+    EDITTEXT        IDC_KValue,106,27,40,14,ES_AUTOHSCROLL
+    LTEXT           "e.g. (3-10)",IDC_STATIC,149,29,36,8
+END
+
+IDD_ClassifySVMParameters DIALOGEX 0, 0, 333, 298
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Specify SVM Classifier Parameters"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,276,277,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,217,277,50,14
+    COMBOBOX        IDC_SVM_TYPE,71,16,108,30,CBS_DROPDOWN | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "SVM Type:",IDC_STATIC,21,19,35,8
+    LTEXT           "Kernel Type:",IDC_STATIC,21,38,42,8
+    COMBOBOX        IDC_SVM_KERNEL_TYPE,71,36,108,30,CBS_DROPDOWN | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "eps:",IDC_STATIC,21,61,15,8
+    EDITTEXT        IDC_SVM_EPS,71,59,55,14,ES_AUTOHSCROLL
+    CONTROL         "Use the shrinking heuristics",IDC_SVM_SHRINKING,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,21,84,105,10
+    LTEXT           "Cache Size:",IDC_STATIC,21,106,38,8
+    EDITTEXT        IDC_SVM_CACHE_SIZE,71,103,53,14,ES_AUTOHSCROLL
+    LTEXT           "(in MB)",IDC_STATIC,137,104,23,8
+    LTEXT           "Degree Value:",IDC_SVM_DEGREE_PROMPT,21,128,46,8
+    EDITTEXT        IDC_SVM_DEGREE,71,125,53,14,ES_AUTOHSCROLL
+    LTEXT           "(used for Polynomial Kernels)",IDC_SVM_DEGREE_INFO,137,126,127,8
+    LTEXT           "Gamma Value:",IDC_SVM_GAMMA_PROMPT,21,150,49,8
+    EDITTEXT        IDC_SVM_GAMMA,71,148,54,14,ES_AUTOHSCROLL
+    LTEXT           "(used for Polynomial, RBF, and Sigmoid Kernels)",IDC_SVM_GAMMA_INFO,137,148,154,8
+    LTEXT           "Coef0",IDC_SVM_COEF0_PROMPT,21,173,20,8
+    EDITTEXT        IDC_SVM_COEF0,71,171,54,14,ES_AUTOHSCROLL
+    LTEXT           "(used for Polynomial and Sigmoid Kernels)",IDC_SVM_COEF0_INFO,137,173,140,8
+    LTEXT           "Cost Value:",IDC_SVM_COST_PROMPT,21,195,49,8
+    EDITTEXT        IDC_SVM_COST,71,193,53,14,ES_AUTOHSCROLL
+    LTEXT           "(used for C-SVC, epsilon-SVR, and nu-SVR SVM types)",IDC_SVM_COST_INFO,137,197,178,8
+    LTEXT           "nu:",IDC_SVM_NU_PROMPT,21,217,47,8
+    EDITTEXT        IDC_SVM_NU,71,214,53,14,ES_AUTOHSCROLL
+    LTEXT           "(used for nu-SVC, one-class, and nu-SVR SVM types)",IDC_SVM_NU_INFO,137,217,127,8
+    LTEXT           "p:",IDC_SVM_P_PROMPT,21,239,43,8
+    EDITTEXT        IDC_SVM_P,71,236,53,14,ES_AUTOHSCROLL
+    LTEXT           " (used for epsilon-SVR SVM type)",IDC_SVM_P_INFO,137,238,144,8
+    CONTROL         "Train for probability estimates",IDC_SVM_PROBABILITY,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,21,260,120,10
+    LTEXT           "(used for SVC and SVR SVM types)",IDC_SVM_PROBABILITY_INFO,137,260,119,8
+    LTEXT           "(stopping criteria)",IDC_STATIC,136,62,58,8
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -2454,15 +2510,6 @@ BEGIN
     ID3C_DisplayType, 0x403, 20, 0
 0x2d31, 0x6843, 0x6e61, 0x656e, 0x206c, 0x7247, 0x7961, 0x6373, 0x6c61, 
 0x0065, 
-    ID3C_DisplayType, 0x403, 22, 0
-0x2d32, 0x6843, 0x6e61, 0x656e, 0x206c, 0x6f43, 0x6f6c, 0x2072, 0x5228, 
-0x472d, 0x0029, 
-    ID3C_DisplayType, 0x403, 22, 0
-0x2d32, 0x6843, 0x6e61, 0x656e, 0x206c, 0x6f43, 0x6f6c, 0x2072, 0x4728, 
-0x422d, 0x0029, 
-    ID3C_DisplayType, 0x403, 22, 0
-0x2d32, 0x6843, 0x6e61, 0x656e, 0x206c, 0x6f43, 0x6f6c, 0x2072, 0x5228, 
-0x422d, 0x0029, 
     ID3C_DisplayType, 0x403, 16, 0
 0x2d33, 0x6843, 0x6e61, 0x656e, 0x206c, 0x6f43, 0x6f6c, 0x0072, 
     ID3C_DisplayType, 0x403, 22, 0
@@ -2706,20 +2753,26 @@ END
 
 IDD_ClassifyDialog DLGINIT
 BEGIN
-    IDC_ClassificationProcedure, 0x403, 19, 0
-0x614d, 0x6978, 0x756d, 0x206d, 0x694c, 0x656b, 0x696c, 0x6f68, 0x646f, 
-"\000" 
+    IDC_ClassificationProcedure, 0x403, 28, 0
+0x6147, 0x7375, 0x6973, 0x6e61, 0x4d20, 0x7861, 0x6d69, 0x6d75, 0x4c20, 
+0x6b69, 0x6c65, 0x6869, 0x6f6f, 0x0064, 
     IDC_ClassificationProcedure, 0x403, 12, 0
 0x614d, 0x6168, 0x616c, 0x6f6e, 0x6962, 0x0073, 
     IDC_ClassificationProcedure, 0x403, 25, 0
 0x6946, 0x6873, 0x7265, 0x4c20, 0x6e69, 0x6165, 0x2072, 0x694c, 0x656b, 
 0x696c, 0x6f68, 0x646f, "\000" 
-    IDC_ClassificationProcedure, 0x403, 27, 0
-0x694d, 0x696e, 0x756d, 0x206d, 0x7545, 0x6c63, 0x6469, 0x6165, 0x206e, 
-0x6944, 0x7473, 0x6e61, 0x6563, "\000" 
     IDC_ClassificationProcedure, 0x403, 25, 0
 0x4345, 0x4f48, 0x5320, 0x6570, 0x7463, 0x6172, 0x2d6c, 0x7073, 0x7461, 
 0x6169, 0x2e6c, 0x2e2e, "\000" 
+    IDC_ClassificationProcedure, 0x403, 29, 0
+0x7553, 0x7070, 0x726f, 0x2074, 0x6556, 0x7463, 0x726f, 0x4d20, 0x6361, 
+0x6968, 0x656e, 0x2820, 0x5653, 0x294d, "\000" 
+    IDC_ClassificationProcedure, 0x403, 25, 0
+0x204b, 0x654e, 0x7261, 0x7365, 0x2074, 0x654e, 0x6769, 0x6268, 0x726f, 
+0x2820, 0x4e4b, 0x294e, "\000" 
+    IDC_ClassificationProcedure, 0x403, 27, 0
+0x694d, 0x696e, 0x756d, 0x206d, 0x7545, 0x6c63, 0x6469, 0x6165, 0x206e, 
+0x6944, 0x7473, 0x6e61, 0x6563, "\000" 
     IDC_ClassificationProcedure, 0x403, 18, 0
 0x6f43, 0x7272, 0x6c65, 0x7461, 0x6f69, 0x206e, 0x5328, 0x4d41, 0x0029, 
 
@@ -3467,6 +3520,30 @@ BEGIN
     0
 END
 
+IDD_ClassifySVMParameters DLGINIT
+BEGIN
+    IDC_SVM_TYPE, 0x403, 6, 0
+0x2d43, 0x5653, 0x0043, 
+    IDC_SVM_TYPE, 0x403, 7, 0
+0x756e, 0x532d, 0x4356, "\000" 
+    IDC_SVM_TYPE, 0x403, 10, 0
+0x6e6f, 0x2d65, 0x6c63, 0x7361, 0x0073, 
+    IDC_SVM_TYPE, 0x403, 12, 0
+0x7065, 0x6973, 0x6f6c, 0x2d6e, 0x5653, 0x0052, 
+    IDC_SVM_TYPE, 0x403, 7, 0
+0x756e, 0x532d, 0x5256, "\000" 
+    IDC_SVM_KERNEL_TYPE, 0x403, 7, 0
+0x694c, 0x656e, 0x7261, "\000" 
+    IDC_SVM_KERNEL_TYPE, 0x403, 11, 0
+0x6f50, 0x796c, 0x6f6e, 0x696d, 0x6c61, "\000" 
+    IDC_SVM_KERNEL_TYPE, 0x403, 28, 0
+0x6152, 0x6964, 0x6c61, 0x4220, 0x7361, 0x7369, 0x4620, 0x6e75, 0x7463, 
+0x6f69, 0x206e, 0x5228, 0x4642, 0x0029, 
+    IDC_SVM_KERNEL_TYPE, 0x403, 8, 0
+0x6953, 0x6d67, 0x696f, 0x0064, 
+    0
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -3492,8 +3569,9 @@ GUIDELINES DESIGNINFO
 BEGIN
     IDD_ABOUTBOX, DIALOG
     BEGIN
-        RIGHTMARGIN, 218
-        BOTTOMMARGIN, 208
+        LEFTMARGIN, 8
+        RIGHTMARGIN, 325
+        BOTTOMMARGIN, 236
     END
 
     IDD_FileFormatSpecs, DIALOG
@@ -3549,7 +3627,7 @@ BEGIN
 
     IDD_ClassifyDialog, DIALOG
     BEGIN
-        RIGHTMARGIN, 309
+        RIGHTMARGIN, 324
         BOTTOMMARGIN, 235
     END
 
@@ -3582,6 +3660,10 @@ BEGIN
     END
 
     IDD_AppendFile, DIALOG
+    BEGIN
+    END
+
+    IDD_SAMParameters, DIALOG
     BEGIN
     END
 
@@ -3729,6 +3811,22 @@ BEGIN
     IDD_ProcessorCreateImageStat, DIALOG
     BEGIN
     END
+
+    IDD_ClassifyKNNParameters, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 194
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 80
+    END
+
+    IDD_ClassifySVMParameters, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 326
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 291
+    END
 END
 #endif    // APSTUDIO_INVOKED
 
@@ -3814,6 +3912,21 @@ BEGIN
 END
 
 IDD_FileFormatChange AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_SAMParameters AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_ClassifyKNNParameters AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_ClassifySVMParameters AFX_DIALOG_LAYOUT
 BEGIN
     0
 END
@@ -4187,7 +4300,7 @@ BEGIN
     IDS_Alert11             "The saved statistics channels will match those used in the current project."
     IDS_Alert12             "The image file specifications do not match those expected for the base image of the project file. Use the 'Project->Change Base Image File...' menu item if you wish to use this image file."
     IDS_Alert15             "A BIS-interleaved image file can not be used in a logically linked set of image files."
-    IDS_Alert16             "Threre are too many classes to be displayed. The maximum number of classes that can be displayed is 32,767."
+    IDS_Alert16             "Threre are too many classes to be displayed. The maximum number of classes that can be displayed is 65,535."
     IDS_Alert17             "The append file and new file parameters (such as number of columns, band interleave, etc.) do not match."
     IDS_Alert18             "The histogram information is not in the statistics file for equal area stretch image enhancement."
 END
@@ -4205,7 +4318,7 @@ END
 
 STRINGTABLE
 BEGIN
-    IDS_WritingTrailerFile  "Writing ERDAS Trailer (.TRL) Disk File"
+    IDS_Support_clr         "Writing ArcView (.clr) Support File"
     IDS_Alert90             "MultiSpec cannot handle tiled TIFF images."
     IDS_Alert91             "Enter value between %ld and %ld."
     IDS_Alert92             "The path name is too long. The limit is 254 characters."
@@ -4373,10 +4486,10 @@ END
 
 STRINGTABLE
 BEGIN
-    IDS_DisplayColumnLimit  "There are too many columns to be displayed. The limits for this system are:\r\n   8,188 columns for 8-bit color\r\n   21,844 columns for 24-bit color"
+    IDS_DisplayColumnLimit  "There are too many columns to be displayed. The limit for MultiSpec is set at  1,000,000 columns."
     IDS_32BitDisplayColumnLimit 
-                            "There are too many columns to be displayed. The limits for this system are:\r\n   32,767 columns for 8-bit color\r\n   32,767 columns for 24-bit color"
-    IDS_DisplayLineLimit    "There are too many lines to be displayed. The limit is 32,767 lines."
+                            "There are too many columns to be displayed. The limit for MultiSpec is set at  1,000,000 columns."
+    IDS_DisplayLineLimit    "There are too many lines to be displayed. The limit is 100,000 lines."
 END
 
 STRINGTABLE
@@ -4396,7 +4509,7 @@ END
 
 STRINGTABLE
 BEGIN
-    IDS_Classify1           "Writing Support (.clr or .trl) Disk File"
+    IDS_Support_trl         "Writing ERDAS Trailer (.trl) Support File"
     IDS_Classify2           "Classification results for training and/or test fields can not be written to an ERDAS or (Geo)TIFF disk file."
     IDS_Classify3           "    This is a cluster type field. It can not be classified.\r\n"
     IDS_Classify4           "    Classification cancelled because covariance matrix could not be inverted for one or more classes.\r\n"
@@ -4427,27 +4540,27 @@ END
 
 STRINGTABLE
 BEGIN
-    IDS_Classify24          "    Minimum Euclidean distance classifier used.\r\n"
-    IDS_Classify25          "    ECHO classifier used.\r\n"
-    IDS_Classify26          "    Correlation (Spectral Angle Mapper) classifier used.\r\n"
-    IDS_Classify27          "    CEM classifier used.\r\n"
-    IDS_Classify28          "     Parallel Piped classifier used.\r\n "
-    IDS_Classify29          " "
-    IDS_Classify30          " "
+    IDS_Classify24          "    ECHO classifier used.\r\n"
+    IDS_Classify25          "    Support Vector Machine (SVM) classifier used.\r\n"
+    IDS_Classify26          "    k-Nearest Neighbor (kNN) classifier used.\r\n"
+    IDS_Classify27          "    Minimum Euclidean distance classifier used.\r\n"
+    IDS_Classify28          "    Correlation (Spectral Angle Mapper) classifier used.\r\n "
+    IDS_Classify29          "    CEM classifier used.\r\n"
+    IDS_Classify30          "    Parallel Piped classifier used.\r\n"
     IDS_Classify31          "  End maximum likelihood classification\r\n"
     IDS_Classify32          "  End Mahalanobis classification\r\n"
     IDS_Classify33          "  End Fisher linear discriminant classification\r\n"
-    IDS_Classify34          "  End minimum Euclidean distance classification\r\n"
-    IDS_Classify35          "  End ECHO classification\r\n"
-    IDS_Classify36          "  End correlation (Spectral Angle Mapper) classification\r\n"
-    IDS_Classify37          "  End CEM classification\r\n"
-    IDS_Classify38          "  End Parallel Piped classification\r\n "
-    IDS_Classify39          " "
+    IDS_Classify34          "  End ECHO classification\r\n"
+    IDS_Classify35          "  End Support Vector Machine (SVM) classification\r\n"
+    IDS_Classify36          "  End k-Nearest Neighbor (kNN) classification\r\n"
+    IDS_Classify37          "  End minimum Euclidean distance classification\r\n"
+    IDS_Classify38          "  End correlation (Spectral Angle Mapper) classification\r\n "
+    IDS_Classify39          "  End CEM classification\r\n"
 END
 
 STRINGTABLE
 BEGIN
-    IDS_Classify40          " "
+    IDS_Classify40          "  End Parallel Piped classification\r\n"
     IDS_Classify41          "     Average likelihood probability is %5.1f%%.\r\n"
     IDS_Classify42          "Creating Homogeneous Fields:"
     IDS_Classify43          "Writing Classification Results"
@@ -4467,6 +4580,17 @@ END
 
 STRINGTABLE
 BEGIN
+    IDS_Classify88          "      eps: %f\r\n"
+    IDS_Classify89          "      cost: %f\r\n"
+    IDS_Classify90          "      nu: %f\r\n"
+    IDS_Classify91          "      nu: %f\r\n"
+    IDS_Classify92          "      p: %f\r\n"
+    IDS_Classify93          "      shrinking: %d\r\n"
+    IDS_Classify94          "      probability: %d\r\n"
+    IDS_Classify95          " Support Vector Machine Model creation information\r\n"
+    IDS_Classify96          "    Homogeneous fields image saved to disk as '%s'.\r\n"
+    IDS_Classify97          "    Classified homogeneous fields image saved to disk as '%s'.\r\n"
+    IDS_Classify98          "    Area Probability map saved to disk as '%s'.\r\n"
     IDS_ListResult1         "\r\n    TRAINING FIELD PERFORMANCE (Resubstitution Method)\r\n\r\n"
     IDS_ListResult2         "\r\n    TRAINING CLASS PERFORMANCE (Resubstitution Method)\r\n\r\n"
     IDS_ListResult3         "\r\n    TRAINING GROUP PERFORMANCE (Resubstitution Method)\r\n\r\n"
@@ -4726,6 +4850,7 @@ BEGIN
     IDS_Classify68          "      Minimum and maximum values used to define limits for class assignments.\r\n"
     IDS_Classify69          "      Plus/minus 2 standard deviations used to define limits for class assignments.\r\n"
     IDS_Classify70          "      Algorithm used is Mahalanobis.\r\n"
+    IDS_Classify71          "      Nearest Neighbor K Value: %d\r\n"
 END
 
 STRINGTABLE
@@ -5039,7 +5164,7 @@ BEGIN
     IDS_ChanDescription4    "0.840 0.120 0.78- 0.90 um"
     IDS_ChanDescription5    "1.650 0.200 1.55- 1.75 um"
     IDS_ChanDescription6    "11.45 2.100 10.4 -12.5  um"
-    IDS_ChanDescription7    "2.220 0.260  2.09- 2.35 um"
+    IDS_ChanDescription7    "2.220 0.260 2.09- 2.35 um"
     IDS_ChanDescription8    "0.710 0.380 0.52- 0.90 um"
     IDS_ChanDescription9    "0.545 0.090 0.50- 0.59 um"
     IDS_ChanDescription10   "0.645 0.070 0.61- 0.68 um"
@@ -5193,9 +5318,6 @@ BEGIN
     ID_EDIT_CLEAROVERLAYS_ALL "Clear all overlays from memory."
     ID_EDIT_CLEAR_OVERLAYS_ALL "Clear all image overlays from memory."
     ID_OVERLAY              "Allows one to control the image overlays"
-    ID_OPTIONS_PALETTE_SHOW_CLASSES "Show the thematic image classes."
-    ID_OPTIONS_PALETTE_SHOW_INFORMATION_GROUPS 
-                            "Show the thematic image information groups."
 END
 
 STRINGTABLE
@@ -5210,8 +5332,6 @@ END
 
 STRINGTABLE
 BEGIN
-    ID_OPTIONS_PALETTE_INVERT_PALETTE 
-                            "Invert palette for the active image window. Will need to redisplay the image."
     ID_PROC_REFORMAT_CHANGE_HEADER "Insert or change an ERDAS header."
     ID_PROC_REFORMAT_CHANGE_IMAGE 
                             "Create a new image file in the requested format."
@@ -5389,6 +5509,8 @@ BEGIN
     IDS_Project87           "_parallel_piped_classify.txt"
     IDS_Project88           "_mahalanobis_classify.txt"
     IDS_Project89           "    All training areas are defined by clusters; listing and plotting histograms are not possible.\r\n"
+    IDS_Project90           "Loading Pixel Values For:"
+    IDS_Project91           "Creating SVM Model"
 END
 
 STRINGTABLE
@@ -5405,7 +5527,7 @@ BEGIN
     IDS_Alert131            "The coordinate is more than the maximum horizontal value, %lf, for the image."
     IDS_Alert132            "The coordinate is less than the minimum vertical value, %lf, for the image."
     IDS_Alert133            "The coordinate is more than the maximum vertical value, %lf, for the image."
-    IDS_Alert134            "The image overlay could not be created. There were either too many columns to be displayed or not enough memory."
+    IDS_Alert134            "The image overlay could not be created. There were either too many columns to be displayed or not enough memory. The limits are 8192 columns and 64,000,000 pixels."
     IDS_Alert135            "MultiSpec can only handle 4-bit, 8-bit and 16-bit integer data values for Thematic Images."
     IDS_Alert136            "    Memory was not available to complete the requested process.\r\n"
     IDS_Alert137            "A fatal situation occured in the GDAL data access routines."
@@ -5779,6 +5901,27 @@ END
 STRINGTABLE
 BEGIN
     IDS_FileType44          "PCIDSK (from GDAL)"
+    IDS_FileType45          "Shuttle Radar Topography Missiion Height (from GDAL)"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_Classify72          "    Total number of equal class counts: %s.\r\n\r\n"
+    IDS_Classify73          "     Average k nearest neighbors is %5.1f.\r\n"
+    IDS_Classify74          "\r\n       kNN threshold value:  %.0f"
+    IDS_Classify75          "      type: C-SVC\r\n"
+    IDS_Classify76          "      type: nu-SVC\r\n"
+    IDS_Classify77          "      type: one-class SVM\r\n"
+    IDS_Classify78          "      type: epsilon-SVR\r\n"
+    IDS_Classify79          "      type: nu-SVR\r\n"
+    IDS_Classify80          "      kernel type: Linear\r\n"
+    IDS_Classify81          "      kernel type: Polynomial\r\n"
+    IDS_Classify82          "      kernel type: Radial Basis Function (RBF)\r\n"
+    IDS_Classify83          "      kernel type: Sigmoid\r\n"
+    IDS_Classify84          "      degree: %d\r\n"
+    IDS_Classify85          "      gamma: %f\r\n"
+    IDS_Classify86          "      coef0: %f\r\n"
+    IDS_Classify87          "      cache size: %.0f\r\n"
 END
 
 #endif    // English (United States) resources

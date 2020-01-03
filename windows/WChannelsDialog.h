@@ -1,95 +1,121 @@
-// WChannelsDialog.h : header file
+//	 									MultiSpec
 //
+//					Laboratory for Applications of Remote Sensing
+//									Purdue University
+//								West Lafayette, IN 47907
+//								 Copyright (1995-2020)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	File:						WChannelsDialog.h
+//	Implementation:		WChannelsDialog.cpp
+//
+//	Authors:					Larry L. Biehl
+//
+//	Language:				C++
+//
+//	System:					Windows Operating System
+//
+//	Brief description:	Header file for the CMChannelsDlg and CMChannelCombinationsDlg
+//								classes
+//
+//	Written By:				Larry L. Biehl			Date: ??/??/1990's
+//	Revised By:				Larry L. Biehl			Date: 12/05/2019
+//
+//------------------------------------------------------------------------------------
 
-/////////////////////////////////////////////////////////////////////////////
-// CMChannelsDlg dialog   
-
-#if !defined __WCHANDLG_H__
-	#define	__WCHANDLG_H__ 
+#pragma once
 	
-	#include "WOneColumnDialog.h"
+#include "WOneColumnDialog.h"
+
+
+//------------------------------------------------------------------------------------
+// CMChannelsDlg dialog
 
 class CMChannelsDlg : public CMOneColDlg
 {
-// Construction
-public:
-							CMChannelsDlg(CWnd* pParent = NULL);	// standard constructor
+	// Construction
+	public:
+		CMChannelsDlg ( 	// standard constructor
+				CWnd* 								pParent = NULL);
 	
-	Boolean				DoDialog(
-								SInt16*								numberOutputFeaturesPtr, 
-								SInt16* 								selectedFeaturePtr, 
-								LayerInfoPtr						layerInfoPtr,
-								FileInfoPtr							fileInfoPtr, 
-								SInt16								listType, 
-								Boolean								useTransformFlag, 
-								SInt16* 								availableFeaturePtr, 
-								SInt16								numberInputChannels,
-								SInt16								currentSelection);
+		Boolean DoDialog (
+				SInt16*								numberOutputFeaturesPtr,
+				SInt16* 								selectedFeaturePtr,
+				LayerInfoPtr						layerInfoPtr,
+				FileInfoPtr							fileInfoPtr,
+				SInt16								listType,
+				Boolean								useTransformFlag,
+				SInt16* 								availableFeaturePtr,
+				SInt16								numberInputChannels,
+				SInt16								currentSelection);
 
-// Dialog Data
-	//{{AFX_DATA(CMChannelsDlg)
-	//}}AFX_DATA
+		// Dialog Data
+		//{{AFX_DATA (CMChannelsDlg)
+		//}}AFX_DATA
 
-// Implementation
-protected:                                               
-				
-	virtual void 		DoDataExchange(CDataExchange* pDX);	// DDX/DDV support 
+	// Implementation
+	protected:
+		virtual void DoDataExchange (
+				CDataExchange* 					pDX);	// DDX/DDV support
 
-	// Generated message map functions
-	//{{AFX_MSG(CMChannelsDlg)
-	virtual BOOL OnInitDialog(); 
-	//}}AFX_MSG
-	DECLARE_MESSAGE_MAP()
-	                                       
-	LayerInfoPtr		m_layerInfoPtr;
-	FileInfoPtr			m_fileInfoPtr; 
-	Boolean				m_useTransformFlag; 
-	SInt16* 				m_availableFeaturePtr; 
+		// Generated message map functions
+		//{{AFX_MSG (CMChannelsDlg)
+		virtual BOOL OnInitDialog ();
+		//}}AFX_MSG
+		DECLARE_MESSAGE_MAP ()
 	
-	Boolean				m_initializedFlag; 
+		FileInfoPtr							m_fileInfoPtr;
+		LayerInfoPtr						m_layerInfoPtr;
+		SInt16* 								m_availableFeaturePtr;
 	
-};		// end "CMChannelsDlg" 
+		Boolean								m_initializedFlag,
+												m_useTransformFlag;
+	
+};	// end "CMChannelsDlg" 
+
 
                      
+//------------------------------------------------------------------------------------
+// CMChannelCombinationsDlg dialog
 
 class CMChannelCombinationsDlg : public CMOneColDlg
 {
-// Construction
-public:
-							CMChannelCombinationsDlg(CWnd* pParent = NULL);	// standard constructor
+	// Construction
+	public:
+		CMChannelCombinationsDlg (	// standard constructor
+				CWnd* 								pParent = NULL);
 	
-	Boolean				DoDialog(
-								SInt16								channelCombinationSelection,
-								UInt16*								numberOutputChannelCombinationsPtr, 
-								UInt16* 								channelCombinationsPtr, 
-								UInt32								numberInputChannelCombinations, 
-								UInt16*								allChanCombinationsPtr,
-								UInt32								contiguousChannelsPerGroup,
-								Boolean								useTransformFlag);
+		Boolean DoDialog (
+				SInt16								channelCombinationSelection,
+				UInt16*								numberOutputChannelCombinationsPtr,
+				UInt16* 								channelCombinationsPtr,
+				UInt32								numberInputChannelCombinations,
+				UInt16*								allChanCombinationsPtr,
+				UInt32								contiguousChannelsPerGroup,
+				Boolean								useTransformFlag);
 
-// Dialog Data
-	//{{AFX_DATA(CMChannelCombinationsDlg)
-	//}}AFX_DATA
+		// Dialog Data
+		//{{AFX_DATA (CMChannelCombinationsDlg)
+		//}}AFX_DATA
 
-// Implementation
-protected:                                               
-				
-	virtual void 		DoDataExchange(CDataExchange* pDX);	// DDX/DDV support 
+	// Implementation
+	protected:
+		virtual void DoDataExchange (
+				CDataExchange* 					pDX);	// DDX/DDV support
 
-	// Generated message map functions
-	//{{AFX_MSG(CMChannelCombinationsDlg)
-	virtual BOOL OnInitDialog(); 
-	//}}AFX_MSG
-	DECLARE_MESSAGE_MAP()
-	                                      
-	SInt16* 					m_availableFeaturePtr;
+		// Generated message map functions
+		//{{AFX_MSG (CMChannelCombinationsDlg)
+		virtual BOOL OnInitDialog ();
+		//}}AFX_MSG
+		DECLARE_MESSAGE_MAP ()
 	
-	SInt16					m_channelCombinationSelection,
-								m_contiguousChannelsPerGroup; 
+		SInt16* 								m_availableFeaturePtr;
 	
-	Boolean					m_initializedFlag, 
-								m_useTransformFlag; 
+		SInt16								m_channelCombinationSelection,
+												m_contiguousChannelsPerGroup;
 	
-};		// end "CMChannelCombinationsDlg"                     
-   
-#endif	// !defined __WCHANDLG_H__
+		Boolean								m_initializedFlag,
+												m_useTransformFlag;
+	
+};	// end "CMChannelCombinationsDlg"                     

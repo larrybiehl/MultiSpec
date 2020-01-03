@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//							 Copyright (1988-2018)
+//							 		Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,32 +11,25 @@
 //
 //	Authors:					Larry L. Biehl, Tsung Tai Yeh
 //
-//	Revision number:		3.0
-//
-//	Revision date:			01/03/2018
+//	Revision date:			12/17/2019
 //
 //	Language:				C
 //
-//	System:					Linux and Windows Operating Systems
+//	System:					Windows Operating System
 //
 //	Brief description:	The purpose of the routines in this file is to provide
-//								utility type functions in MultiSpec that are common for
-//								Linux and Windows.
-//
-//	Functions in file:	
+//								utility type functions in MultiSpec for Windows version
 //
 //------------------------------------------------------------------------------------
 
 #include "SMultiSpec.h"
-#include	<ctype.h>  
+#include "SDisplay_class.h"
+#include "SImageWindow_class.h"
 
-#include "CImageWindow.h"
-#include "CDisplay.h"
-
-#include "WTextView.h"
 #include "WImageView.h"
+#include "WTextView.h"
 
-//#include "SExternalGlobals.h"
+#include	<ctype.h>
 
 extern void GetApplicationStartupPath (
 				char*									startupPathPtr,
@@ -44,14 +37,9 @@ extern void GetApplicationStartupPath (
 
 
 
-		// Prototypes for routines in this file that are only called by other
-		// routines in this file.
-
-
-
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
-//								(c) Purdue Research Foundation
+//								 Copyright (1988-2020)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		CopyOffScreenImage
@@ -69,8 +57,7 @@ extern void GetApplicationStartupPath (
 // Called By:			DoUpdateEvent
 //
 //	Coded By:			Larry L. Biehl			Date: 08/31/1988
-//	Revised By:			Larry L. Biehl			Date: 06/01/2017		
-// TODO: For Linux
+//	Revised By:			Larry L. Biehl			Date: 12/17/2019		
 
 void CopyOffScreenImage (
 				CMImageView*						imageViewCPtr,
@@ -107,13 +94,13 @@ void CopyOffScreenImage (
 
    SInt32								hOrigin,
 											numberImageOverlays,
-											vOrigin;
+											vOrigin,
+											xDimension,
+											yDimension;
 
    UInt32								numberOverlays;
 
-   SInt16								grafPortType,
-											xDimension,
-											yDimension;
+   SInt16								grafPortType;
 
    SInt16								legendWidth,
 											titleHeight,
@@ -153,10 +140,10 @@ void CopyOffScreenImage (
       displaySpecsPtr = (DisplaySpecsPtr)GetHandlePointer (displaySpecsHandle);
 
       magnification = displaySpecsPtr->magnification;
-      vOrigin = displaySpecsPtr->origin[0];
-      hOrigin = displaySpecsPtr->origin[1];
-      yDimension = (SInt16) displaySpecsPtr->imageDimensions[0];
-      xDimension = (SInt16) displaySpecsPtr->imageDimensions[1];
+      vOrigin = (SInt32)displaySpecsPtr->origin[kVertical];
+      hOrigin = (SInt32)displaySpecsPtr->origin[kHorizontal];
+      yDimension = (SInt32) displaySpecsPtr->imageDimensions[kVertical];
+      xDimension = (SInt32) displaySpecsPtr->imageDimensions[kHorizontal];
       
       paletteCPtr = displaySpecsPtr->paletteObject;
       if (((imageViewCPtr != gActiveImageViewCPtr) || gInBackground) &&
@@ -172,7 +159,7 @@ void CopyOffScreenImage (
 			
 			}	// end "if (copyType != kClipboardCopy && copyType != kPrinterCopy)" 
 
-      else // copyType == kClipboardCopy || copyType == kPrinterCopy)
+      else	// copyType == kClipboardCopy || copyType == kPrinterCopy)
 			{
          scrollOffset.x = 0;
          scrollOffset.y = 0;
@@ -315,7 +302,7 @@ void CopyOffScreenImage (
 				// buffer
 
 		lpDIBHdr = (LPBITMAPINFO)::GlobalLock ((HGLOBAL) offScreenMapHandle);
-					lpDIBBits = (LPSTR)::GlobalLock ((HGLOBAL) imageBaseAddressH);
+		lpDIBBits = (LPSTR)::GlobalLock ((HGLOBAL) imageBaseAddressH);
 
 					// Get the DIB's palette, then select it into DC
 
@@ -383,6 +370,7 @@ void CopyOffScreenImage (
 			hDC = pDC->GetSafeHdc ();
 
 					// Determine whether to call StretchDIBits () or SetDIBitsToDevice ()
+					// Decided to always use StretchDIBits
 			/*		
 			if ((RECTWIDTH (&destinationRect) == RECTWIDTH (&sourceRect)) &&
 								(RECTHEIGHT (&destinationRect) == RECTHEIGHT (&sourceRect)))
@@ -456,6 +444,7 @@ void CopyOffScreenImage (
 											imageWindowCPtr->GetWindowInfoHandle (),
 											NULL,
 											NULL,
+											NULL,
 											&destinationRect,
 											&sourceRect,
 											windowCode);
@@ -521,7 +510,7 @@ void CopyOffScreenImage (
 
             }	// end "if (copyType == kClipboardCopy || copyType == kPrinterCopy)" 
 
-         else // copyType != kClipboardCopy && copyType != kPrinterCopy)
+         else	// copyType != kClipboardCopy && copyType != kPrinterCopy)
 				{
             destinationRect = windowRect;
 				destinationRect.top = 0;
@@ -542,10 +531,11 @@ void CopyOffScreenImage (
 				}	// end "else copyType != kClipboardCopy && copyType != kPrinterCopy" 
 			
          Handle windowInfoHandle = GetWindowInfoHandle (imageViewCPtr);
-			DrawSideBySideTitles (windowInfoHandle,
-										  imageViewCPtr,
-										  &destinationRect,
-										  windowCode);
+			DrawSideBySideTitles (NULL,
+											windowInfoHandle,
+											imageViewCPtr,
+											&destinationRect,
+											windowCode);
 
 			ClipRect (&windowRect);
          
@@ -563,8 +553,8 @@ void CopyOffScreenImage (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
-//								(c) Purdue Research Foundation
+//								 Copyright (1988-2020)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void CreateClassNameComboBoxList
@@ -587,12 +577,12 @@ void CreateClassNameComboBoxList (
 				CComboBox*							comboBoxCPtr)
 
 {
+	USES_CONVERSION;
+	
 	SignedByte							handleStatus;
 	UInt16								classIndex,
 											classStorage;
 
-	USES_CONVERSION;
-	
 
 	comboBoxCPtr->ResetContent ();
 
@@ -649,7 +639,7 @@ void GetApplicationStartupPath (
       if (executableFilePathPtr[0] == '"')
 			stringStartIndex = 1;
 
-		strcpy (startupPathPtr, T2A(&executableFilePathPtr[stringStartIndex]));
+		strcpy (startupPathPtr, T2A (&executableFilePathPtr[stringStartIndex]));
 
 				// Now remove the executable name. Go backward from
 				// end of string to find the first '\'.
@@ -726,79 +716,13 @@ void GetMenuItemText (
 {
    //SInt16 stringLength = GetMenuString (menuItem, stringPtr, 255, MF_BYPOSITION);
 
-}	// end "GetMenuItemText" 
+}	// end "GetMenuItemText"
 
-
-/*
-//------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
-//
-//	Function name:		UInt GetPopUpMenuBitsPerDataValue
-//
-//	Software purpose:	The purpose of this routine is to determine the requested
-//							bits per data value from the menu selection.
-//
-//	Parameters in:		None.
-//
-//	Parameters out:	None.
-//
-//	Value Returned:	The requested number of bits. 	
-// 
-// Called By:
-//
-//	Coded By:			Larry L. Biehl			Date: 05/20/1992
-//	Revised By:			Larry L. Biehl			Date: 05/24/1995
-
-UInt16 GetPopUpMenuBitsPerDataValue (
-				UInt16								bitsPerDataValueSelection)
-
-{                           
-	UInt16								bitsPerDataValue;
-
-
-			// 'Hardwire for now. It would be nice to go through the resource list so 
-			// that the code would not have to be updated when changes are made.
- 
-	bitsPerDataValue = 0;              
-
-	if (bitsPerDataValueSelection == 0)
-			 bitsPerDataValue = 4;
-
-	else if (bitsPerDataValueSelection == 1) 
-			 bitsPerDataValue = 8; 
-
-	else if (bitsPerDataValueSelection == 2) 
-			 bitsPerDataValue = 10;
-
-	else if (bitsPerDataValueSelection == 3) 
-			 bitsPerDataValue = 12;
-
-	else if (bitsPerDataValueSelection == 4) 
-			 bitsPerDataValue = 13;
-
-	else if (bitsPerDataValueSelection == 5) 
-			 bitsPerDataValue = 14;
-
-	else if (bitsPerDataValueSelection == 6) 
-			 bitsPerDataValue = 15;
-
-	else if (bitsPerDataValueSelection == 7) 
-			 bitsPerDataValue = 16;
-
-	if (bitsPerDataValue == 0)
-			 bitsPerDataValue = 8;
-
-	return (bitsPerDataValue);
-	
-}	// end "GetPopUpMenuBitsPerDataValue" 
-*/
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
-//								(c) Purdue Research Foundation
+//								 Copyright (1988-2020)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void GetScreenRect
@@ -818,23 +742,20 @@ UInt16 GetPopUpMenuBitsPerDataValue (
 //
 //	Coded By:			Larry L. Biehl			Date: 06/29/1995
 //	Revised By:			Larry L. Biehl			Date: 06/29/1995	
-// TODO: For Linux
 
 void GetScreenRect (
 				Rect*									screenRectPtr)
 
 {
-	#if defined multispec_win
-		::GetWindowRect (::GetDesktopWindow (), (tagRECT*)screenRectPtr);
-	#endif	// defined multispec_win
+	::GetWindowRect (::GetDesktopWindow (), (tagRECT*)screenRectPtr);
 	
 }	// end "GetScreenRect"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
-//								(c) Purdue Research Foundation
+//								 Copyright (1988-2020)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void GetScrollOffset
@@ -855,7 +776,6 @@ void GetScreenRect (
 //
 //	Coded By:			Larry L. Biehl			Date: 05/23/1996
 //	Revised By:			Larry L. Biehl			Date: 07/21/1998	
-// TODO: For Linux
 
 void GetScrollOffset (
 				Handle								windowInfoHandle,
@@ -899,64 +819,10 @@ void GetScrollOffset (
 }	// end "GetScrollOffset"
 
 
-/*     
-//------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
-//
-//	Function name:		SInt16 MGetLine
-//
-//	Software purpose:	The purpose of this routine is to call GetLine member of the
-//							CMFileStream class.
-//
-//	Parameters in:		
-//
-//	Parameters out:	None.
-//
-//	Value Returned:	None 				
-// 
-// Called By:
-//
-//	Coded By:			Larry L. Biehl			Date: 09/06/1995
-//	Revised By:			Larry L. Biehl			Date: 09/06/1995	
-
-SInt16 MGetLine (
-				UInt32								lineNumber,
-				SInt16								channelNumber,
-				UInt32								columnStart,
-				UInt32								columnEnd,
-				UInt32*								numberSamplesPtr,
-				HUCharPtr							fileIOBufferPtr,
-				FileInfoPtr							fileInfoPtr,
-				Boolean								BILSpecial)
-
-{  
-	SInt16								errCode;
-	
-
-			// Get the file stream pointer object for the input image window.
-
-	CMFileStream* fileStreamPtr = fileInfoPtr->fileStreamCPtr;
-
-	errCode = fileStreamPtr->GetLine (lineNumber,
-												 channelNumber, 
-												 columnStart,
-												 columnEnd, 
-												 numberSamplesPtr,
-												 fileIOBufferPtr, 
-												 fileInfoPtr,
-												 BILSpecial);
- 
-	return (errCode);                    
- 
-}	// end "MGetLine" 
-*/
-
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
-//								(c) Purdue Research Foundation
+//								 Copyright (1988-2020)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		CharPtr PtoCstr
@@ -999,8 +865,8 @@ CharPtr PtoCstr (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2017)
-//								(c) Purdue Research Foundation
+//								 Copyright (1988-2020)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		CharPtr StringToNum
@@ -1040,17 +906,18 @@ SInt16 TextWidth (
 				SInt16								byteCount)
 
 {
-	CSize									size;
-
 	USES_CONVERSION;
 
-	if (gCDCPointer != NULL)
-		size = gCDCPointer->GetTextExtent ((LPCTSTR)A2T((LPCSTR)&stringPtr[firstByte]), byteCount);
+	CSize									size;
 
-	else //
+
+	if (gCDCPointer != NULL)
+		size = gCDCPointer->GetTextExtent ((LPCTSTR)A2T((LPCSTR)&stringPtr[firstByte]),
+														byteCount);
+
+	else	//
 		size.cx = byteCount * 6;
 
 	return ((SInt16) size.cx);
 
 }	// end "TextWidth"
-

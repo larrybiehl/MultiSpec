@@ -1,77 +1,67 @@
-// WClusterDialog.cpp : implementation file
-//      
-// Revised by Larry Biehl on 12/21/2017
+//	 									MultiSpec
 //
-                   
-#include "SMultiSpec.h" 
-#include "WClusterDialog.h" 
-//#include	"SExtGlob.h" 
+//					Laboratory for Applications of Remote Sensing
+// 								Purdue University
+//								West Lafayette, IN 47907
+//								 Copyright (1995-2020)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	File:						WClusterDialog.cpp : implementation file
+//
+//	Authors:					Larry L. Biehl
+//
+//	Revision date:			01/04/2018
+//
+//	Language:				C++
+//
+//	System:					Windows Operating System
+//
+//	Brief description:	This file contains functions that relate to the
+//								CMClusterDialog class.
+//
+//------------------------------------------------------------------------------------
 
-extern void 	ClusterDialogInitialize (
-						DialogPtr							dialogPtr,
-						UInt16*								localFeaturesPtr, 
-						unsigned char*						localSymbolsPtr,
-						Boolean								newProjectFlag,
-						SInt16*								clusterModePtr,
-						Boolean*								modeSetFlagPtr,
-						SInt16*								classificationAreaPtr,
-						DialogSelectArea*					dialogSelectAreaPtr,
-						double*								classifyThresholdPtr,
-						SInt16*								channelSelectionPtr,
-						UInt16*								localNumberChannelsPtr,
-						SInt16*								symbolSelectionPtr,
-						SInt16*								saveStatisticsSelectionPtr,
-						Boolean*								outputWindowFlagPtr,
-						Boolean*								outputDiskFileFlagPtr,
-						Boolean*								clusterMaskFileFlagPtr,
-						SInt16*								maskFileFormatCodePtr,
-						Boolean*								createImageOverlayFlagPtr,
-						SInt16*								selectImageOverlaySelectionPtr,
-						Boolean*								thresholdFlagPtr,
-						double*								thresholdPercentPtr,
-						SInt32*								transparencyValuePtr);
+#include "SMultiSpec.h"
 
-extern void 	ClusterDialogOK (
-						DialogPtr							dialogPtr,
-						SInt16								clusterMode,
-						Boolean								trainingAreasFlag,
-						Boolean								selectedAreaFlag,
-						DialogSelectArea*					dialogSelectAreaPtr,
-						double								classifyThreshold,
-						SInt16								channelSelection,
-						SInt16								localNumberFeatures,
-						SInt16*								localFeaturesPtr,
-						SInt16								symbolSelection,
-						unsigned char*						localSymbolsPtr,
-						SInt16								saveStatisticsSelection,
-						Boolean								textWindowFlag,
-						Boolean								outputDiskFileFlag,
-						Boolean								clusterMaskFileFlag,
-						SInt16								maskFileFormatCode,
-						Boolean								createImageOverlayFlag,
-						SInt16								selectImageOverlaySelection,
-						Boolean								thresholdFlag,
-						double								thresholdPercent,
-						SInt32								transparencyValue);
-
-extern SInt16		CheckIfTextForTextWindowIsWithinLimits (
-							Handle								okHandle,
-							UInt32								possibleNumberChannels,
-							double								maxDataValue,
-							double								minDataValue,
-							Boolean								writeToDiskFileFlag);
+#include "WClusterDialog.h"
 
 #ifdef _DEBUG
-#undef THIS_FILE
-static char BASED_CODE THIS_FILE[] = __FILE__;
+	#undef THIS_FILE
+	static char BASED_CODE THIS_FILE[] = __FILE__;
 #endif
 
-/////////////////////////////////////////////////////////////////////////////
-// CMClusterDialog dialog
 
 
-CMClusterDialog::CMClusterDialog(CWnd* pParent /*=NULL*/)
-	: CMDialog(CMClusterDialog::IDD, pParent)
+BEGIN_MESSAGE_MAP (CMClusterDialog, CMDialog)
+	//{{AFX_MSG_MAP (CMClusterDialog)
+	ON_BN_CLICKED (IDC_ClassifySelectedArea, OnClassifySelectedArea)
+	ON_BN_CLICKED (IDC_ClassifyTrainingAreas, OnClassifySelectedArea)
+	ON_BN_CLICKED (IDC_CreateClusterMaskCheckBox, OnCreateMaskFile)
+	ON_BN_CLICKED (IDC_ImageOverlay, OnImageOverlay)
+	ON_BN_CLICKED (IDC_ISODATAAlgorithm, OnISODATAAlgorithm)
+	ON_BN_CLICKED (IDC_NoClassificationMap, OnClassifySelectedArea)
+	ON_BN_CLICKED (IDC_SinglePassAlgorithm, OnSinglePassAlgorithm)
+	ON_BN_CLICKED (IDEntireImage, ToEntireImage)
+	ON_BN_CLICKED (IDSelectedImage, ToSelectedImage)
+
+	ON_EN_CHANGE (IDC_ColumnEnd, CheckColumnEnd)
+	ON_EN_CHANGE (IDC_ColumnStart, CheckColumnStart)
+	ON_EN_CHANGE (IDC_LineEnd, CheckLineEnd)
+	ON_EN_CHANGE (IDC_LineStart, CheckLineStart)
+
+	ON_CBN_SELENDOK (IDC_ChannelCombo, OnSelendokChannelCombo)
+	ON_CBN_SELENDOK (IDC_DiskCombo, OnSelendokMaskFileDiskCombo)
+	ON_CBN_SELENDOK (IDC_ImageOverlayCombo, OnSelendokImageOverlayCombo)
+	//}}AFX_MSG_MAP
+END_MESSAGE_MAP ()
+
+
+
+CMClusterDialog::CMClusterDialog (
+				CWnd* 								pParent /*=NULL*/)
+		: CMDialog (CMClusterDialog::IDD, pParent)
+
 {
 	//{{AFX_DATA_INIT(CMClusterDialog)
 	m_thresholdFlag = FALSE;
@@ -103,52 +93,100 @@ CMClusterDialog::CMClusterDialog(CWnd* pParent /*=NULL*/)
 		{                          
 				// Get pointer to memory for temporary storage of channel list. 
 			                                                                       
-		m_localFeaturesPtr = (UInt16*)MNewPointer ( 
-				(UInt32)gImageWindowInfoPtr->totalNumberChannels * sizeof(UInt16) ); 
+		m_localFeaturesPtr = (UInt16*)MNewPointer (
+					(UInt32)gImageWindowInfoPtr->totalNumberChannels * sizeof (UInt16));
 	                                                       
 		m_initializedFlag = (m_localFeaturesPtr != NULL);
 		
-		}		// end "if (m_initializedFlag)"
+		}	// end "if (m_initializedFlag)"
 		
-}		// end "CMClusterDialog"  
+}	// end "CMClusterDialog"
 
 
 
-CMClusterDialog::~CMClusterDialog(void)
+CMClusterDialog::~CMClusterDialog (void)
+
 {                                                              
 	m_localFeaturesPtr = CheckAndDisposePtr (m_localFeaturesPtr); 
 	
-}		// end "~CMClusterDialog"
+}	// end "~CMClusterDialog"
 
 
 
-void CMClusterDialog::DoDataExchange(CDataExchange* pDX)
+void CMClusterDialog::ClassifyAreaSetting (
+				CDataExchange* 					pDX,
+				int 									nIDC,
+				int& 									value)
+
 {
-	CDialog::DoDataExchange(pDX);
-	//{{AFX_DATA_MAP(CMClusterDialog)
-	DDX_Check(pDX, IDC_UsePixelsThresholdFlag, m_thresholdFlag);
-	DDX_Check(pDX, IDC_TextWindow, m_textWindowFlag);
-	DDX_CBIndex(pDX, IDC_SymbolCombo, m_symbolSelection);
-	DDX_Radio(pDX, IDC_SinglePassAlgorithm, m_clusterProcedure);
-	DDX_Text2(pDX, IDC_UsePixelsThresholdValue, m_probabilityThreshold);
-	DDV_MinMaxDouble(pDX, m_probabilityThreshold, 0., 100.);
-	DDX_Text2(pDX, IDC_ClassifyThreshold, m_classifyThreshold);         
-	DDX_Check(pDX, IDC_DiskFile, m_diskFileFlag);
-	DDX_CBIndex(pDX, IDC_ClusterStatsCombo, m_saveStatisticsSelection);
-	DDX_Text(pDX, IDC_LineEnd, m_LineEnd);             
-	DDX_Text(pDX, IDC_LineInterval, m_LineInterval);         
-	DDX_Text(pDX, IDC_LineStart, m_LineStart);            
-	DDX_Text(pDX, IDC_ColumnEnd, m_ColumnEnd);             
-	DDX_Text(pDX, IDC_ColumnInterval, m_ColumnInterval);        
-	DDX_Text(pDX, IDC_ColumnStart, m_ColumnStart);            
-	DDX_CBIndex(pDX, IDC_ChannelCombo, m_channelSelection);
-	DDX_Check(pDX, IDC_CreateClusterMaskCheckBox, m_createClusterMaskFlag);
-	DDX_CBIndex(pDX, IDC_DiskCombo, m_maskFileFormatCode);
-	DDX_Check(pDX, IDC_ImageOverlay, m_createImageOverlayFlag);
-	DDX_CBIndex(pDX, IDC_ImageOverlayCombo, m_selectImageOverlaySelection);
+	BOOL									settingFlag;
+	
+	
+	if (pDX->m_bSaveAndValidate)
+		{
+				// Reading from radio group. Get index ignoring the disabled
+				// items.
+		
+		value = -1;
+		
+		DDX_Check (m_dialogFromPtr, IDC_NoClassificationMap, settingFlag);
+		if (settingFlag)
+			value = 0;
+		
+		DDX_Check (m_dialogFromPtr, IDC_ClassifyTrainingAreas, settingFlag);
+		if (settingFlag)
+			value = 1;
+		
+		DDX_Check (m_dialogFromPtr, IDC_ClassifySelectedArea, settingFlag);
+		if (settingFlag)
+			value = 2;
+		
+		}	// end "if (pDX->m_bSaveAndValidate)"
+	
+	else	// !pDX->m_bSaveAndValidate
+		{
+		int			localValue = value;
+		
+		DDX_Radio (pDX,
+						IDC_NoClassificationMap,
+						localValue);
+		
+		}	// end "else !pDX->m_bSaveAndValidate"
+	
+}	// end "ClassifyAreaSetting"
+
+
+
+void CMClusterDialog::DoDataExchange (
+				CDataExchange* 					pDX)
+
+{
+	CDialog::DoDataExchange (pDX);
+	
+	//{{AFX_DATA_MAP (CMClusterDialog)
+	DDX_Check (pDX, IDC_UsePixelsThresholdFlag, m_thresholdFlag);
+	DDX_Check (pDX, IDC_TextWindow, m_textWindowFlag);
+	DDX_CBIndex (pDX, IDC_SymbolCombo, m_symbolSelection);
+	DDX_Radio (pDX, IDC_SinglePassAlgorithm, m_clusterProcedure);
+	DDX_Text2 (pDX, IDC_UsePixelsThresholdValue, m_probabilityThreshold);
+	DDV_MinMaxDouble (pDX, m_probabilityThreshold, 0., 100.);
+	DDX_Text2 (pDX, IDC_ClassifyThreshold, m_classifyThreshold);         
+	DDX_Check (pDX, IDC_DiskFile, m_diskFileFlag);
+	DDX_CBIndex (pDX, IDC_ClusterStatsCombo, m_saveStatisticsSelection);
+	DDX_Text (pDX, IDC_LineEnd, m_LineEnd);             
+	DDX_Text (pDX, IDC_LineInterval, m_LineInterval);         
+	DDX_Text (pDX, IDC_LineStart, m_LineStart);            
+	DDX_Text (pDX, IDC_ColumnEnd, m_ColumnEnd);             
+	DDX_Text (pDX, IDC_ColumnInterval, m_ColumnInterval);        
+	DDX_Text (pDX, IDC_ColumnStart, m_ColumnStart);            
+	DDX_CBIndex (pDX, IDC_ChannelCombo, m_channelSelection);
+	DDX_Check (pDX, IDC_CreateClusterMaskCheckBox, m_createClusterMaskFlag);
+	DDX_CBIndex (pDX, IDC_DiskCombo, m_maskFileFormatCode);
+	DDX_Check (pDX, IDC_ImageOverlay, m_createImageOverlayFlag);
+	DDX_CBIndex (pDX, IDC_ImageOverlayCombo, m_selectImageOverlaySelection);
 	//}}AFX_DATA_MAP
 	
-	ClassifyAreaSetting(pDX, IDC_NoClassificationMap, m_classificationArea);
+	ClassifyAreaSetting (pDX, IDC_NoClassificationMap, m_classificationArea);
 	
 	if (m_classificationArea != 0 && pDX->m_bSaveAndValidate)
 		{                         
@@ -156,17 +194,17 @@ void CMClusterDialog::DoDataExchange(CDataExchange* pDX)
 		
 		VerifyLineColumnStartEndValues (pDX);
 		
-		DDV_MinMaxLong(pDX, m_LineStart, 1, m_maxNumberLines);                  
-		DDV_MinMaxLong(pDX, m_LineEnd, 1, m_maxNumberLines);
-		DDV_MinMaxLong(pDX, m_LineInterval, 1, m_maxNumberLines); 
+		DDV_MinMaxLong (pDX, m_LineStart, 1, m_maxNumberLines);                  
+		DDV_MinMaxLong (pDX, m_LineEnd, 1, m_maxNumberLines);
+		DDV_MinMaxLong (pDX, m_LineInterval, 1, m_maxNumberLines); 
 		
-		DDV_MinMaxLong(pDX, m_ColumnStart, 1, m_maxNumberColumns);
-		DDV_MinMaxLong(pDX, m_ColumnEnd, 1, m_maxNumberColumns); 
-		DDV_MinMaxLong(pDX, m_ColumnInterval, 1, m_maxNumberColumns);
+		DDV_MinMaxLong (pDX, m_ColumnStart, 1, m_maxNumberColumns);
+		DDV_MinMaxLong (pDX, m_ColumnEnd, 1, m_maxNumberColumns); 
+		DDV_MinMaxLong (pDX, m_ColumnInterval, 1, m_maxNumberColumns);
 	
-		DDV_MinMaxDouble(pDX, m_classifyThreshold, 0, mMaxClassifyThreshold);
+		DDV_MinMaxDouble (pDX, m_classifyThreshold, 0, mMaxClassifyThreshold);
 		
-		}		// end "if (m_classificationArea != 0 && ...)" 
+		}	// end "if (m_classificationArea != 0 && ...)" 
 	
 	if (pDX->m_bSaveAndValidate && !m_characterLimitDialogDisplayedFlag)
 		{
@@ -184,41 +222,18 @@ void CMClusterDialog::DoDataExchange(CDataExchange* pDX)
 													m_diskFileFlag) == 0)
 			{
 			m_characterLimitDialogDisplayedFlag = FALSE;
-			pDX->Fail();
+			pDX->Fail ();
 
-			}		// end "if (CheckIfTextForTextWindowIsWithinLimits (..."
+			}	// end "if (CheckIfTextForTextWindowIsWithinLimits (..."
 
-		}		// end "if (pDX->m_bSaveAndValidate && ..."
+		}	// end "if (pDX->m_bSaveAndValidate && ..."
 		
-}		// end "DoDataExchange"
-
-
-
-BEGIN_MESSAGE_MAP(CMClusterDialog, CMDialog)
-	//{{AFX_MSG_MAP(CMClusterDialog)
-	ON_CBN_SELENDOK(IDC_ChannelCombo, OnSelendokChannelCombo) 
-	ON_BN_CLICKED(IDC_NoClassificationMap, OnClassifySelectedArea) 
-	ON_BN_CLICKED(IDC_SinglePassAlgorithm, OnSinglePassAlgorithm)    
-	ON_BN_CLICKED(IDC_ISODATAAlgorithm, OnISODATAAlgorithm)
-	ON_EN_CHANGE(IDC_ColumnEnd, CheckColumnEnd)
-	ON_EN_CHANGE(IDC_ColumnStart, CheckColumnStart)
-	ON_EN_CHANGE(IDC_LineEnd, CheckLineEnd)
-	ON_EN_CHANGE(IDC_LineStart, CheckLineStart)
-	ON_BN_CLICKED(IDEntireImage, ToEntireImage)
-	ON_BN_CLICKED(IDSelectedImage, ToSelectedImage)
-	ON_BN_CLICKED(IDC_ClassifyTrainingAreas, OnClassifySelectedArea)
-	ON_BN_CLICKED(IDC_ClassifySelectedArea, OnClassifySelectedArea)
-	ON_BN_CLICKED(IDC_CreateClusterMaskCheckBox, OnCreateMaskFile)
-	ON_CBN_SELENDOK(IDC_DiskCombo, OnSelendokMaskFileDiskCombo)
-	ON_BN_CLICKED(IDC_ImageOverlay, OnImageOverlay)
-	ON_CBN_SELENDOK(IDC_ImageOverlayCombo, OnSelendokImageOverlayCombo) 
-	//}}AFX_MSG_MAP
-END_MESSAGE_MAP()  
+}	// end "DoDataExchange"
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2003)
-//								c Purdue Research Foundation
+//								 Copyright (1996-2020)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void DoDialog
@@ -234,26 +249,23 @@ END_MESSAGE_MAP()
 //
 //	Value Returned:	None		
 // 
-//	Called By:			Dialog in MDisMult.cpp
+//	Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 08/02/1996
 //	Revised By:			Larry L. Biehl			Date: 05/26/2017	
 
-SInt16 
-CMClusterDialog::DoDialog(
+SInt16 CMClusterDialog::DoDialog (
 				Boolean								newProjectFlag)
 
 {  
-	Boolean						continueFlag = FALSE;  
-	
 	INT_PTR						returnCode;
-								
-
-	                          
+	Boolean						continueFlag = FALSE;
+	
+	
 			// Make sure intialization has been completed.
 							                         
-	if ( !m_initializedFlag )
-																			return(FALSE);
+	if (!m_initializedFlag)
+																						return (FALSE);
 																			
 	m_newProjectFlag = newProjectFlag;
 																					
@@ -295,7 +307,7 @@ CMClusterDialog::DoDialog(
 								(double)m_probabilityThreshold,
 								(SInt32)m_transparencyValue);
 
-		}		// end "if (returnCode == IDOK)"
+		}	// end "if (returnCode == IDOK)"
 	
 			// Set the variable containing the pointer to the overlay combo box
 			// to NULL.
@@ -304,39 +316,101 @@ CMClusterDialog::DoDialog(
 		
 	return (continueFlag);
 		
-}		// end "DoDialog" 
+}	// end "DoDialog"
 
 
 
-/////////////////////////////////////////////////////////////////////////////
-// CMClusterDialog message handlers
+void CMClusterDialog::OnAlgorithm (
+				Boolean								returnFlag)
 
+{
+	if (returnFlag)
+		{
+		if (!m_clusterProcedureSetFlag)
+			GetDlgItem (IDOK)->EnableWindow (TRUE);
+		
+		m_clusterProcedureSetFlag = TRUE;
+
+		DDX_Radio (m_dialogFromPtr, IDC_SinglePassAlgorithm, m_clusterProcedure);
+		
+		}	// end "if (returnFlag)"
+
+	else	// !returnFlag
+		{
+		if (!m_clusterProcedureSetFlag)
+			m_clusterProcedure = -1;
+
+		DDX_Radio (m_dialogToPtr, IDC_SinglePassAlgorithm, m_clusterProcedure);
+
+		}	// end "else !returnFlag"
 	
-//	Coded By:			Larry L. Biehl			Date: xx/xx/xxxx
-//	Revised By:			Larry L. Biehl			Date: 05/15/2013	
+}	// end "OnAlgorithm"
 
-BOOL CMClusterDialog::OnInitDialog(void)
+
+
+void CMClusterDialog::OnClassifySelectedArea (void)
+
+{
+	ClassifyAreaSetting (m_dialogFromPtr,
+								IDC_NoClassificationMap,
+								m_classificationArea);
+	
+	UpdateClassificationItems (m_classificationArea);
+	
+}	// end "OnClassifySelectedArea"
+
+
+
+void CMClusterDialog::OnCreateMaskFile (void)
+
+{
+	DDX_Check (m_dialogFromPtr, IDC_CreateClusterMaskCheckBox, m_createClusterMaskFlag);
+	
+	if (!m_createClusterMaskFlag)
+		HideDialogItem (this, IDC_DiskCombo);
+	
+	else	// !m_createClusterMaskFlag)
+		ShowDialogItem (this, IDC_DiskCombo);
+	
+}	// end "OnCreateMaskFile"
+
+
+
+void CMClusterDialog::OnImageOverlay ()
+
+{
+	DDX_Check (m_dialogFromPtr, IDC_ImageOverlay, m_createImageOverlayFlag);
+
+	if (m_createImageOverlayFlag)
+		ShowDialogItem (this, IDC_ImageOverlayCombo);
+	
+	else	// m_createImageOverlayFlag
+		HideDialogItem (this, IDC_ImageOverlayCombo);
+	
+}	// end "OnImageOverlay"
+
+
+
+BOOL CMClusterDialog::OnInitDialog (void)
 
 {  
-	SInt16							channelSelection,
-										classificationArea,
-										clusterProcedure,
-										maskFileFormatCode,
-										saveStatisticsSelection,
-										selectImageOverlaySelection,
-										symbolSelection;
-										
-//	UInt16							index;
+	SInt16								channelSelection,
+											classificationArea,
+											clusterProcedure,
+											maskFileFormatCode,
+											saveStatisticsSelection,
+											selectImageOverlaySelection,
+											symbolSelection;
 	
-	Boolean							modeSetFlag;
+	Boolean								modeSetFlag;
 	
-	
-	CMDialog::OnInitDialog(); 
+
+	CMDialog::OnInitDialog ();
 	
 			// Make sure that we have the bitmaps for the entire image buttons.
 		
-	VERIFY(toEntireButton.AutoLoad(IDEntireImage, this));
-	VERIFY(toSelectedButton.AutoLoad(IDSelectedImage, this)); 	
+	VERIFY (toEntireButton.AutoLoad (IDEntireImage, this));
+	VERIFY (toSelectedButton.AutoLoad (IDSelectedImage, this));
 
 	ClusterDialogInitialize (this,
 										m_localFeaturesPtr,
@@ -388,19 +462,20 @@ BOOL CMClusterDialog::OnInitDialog(void)
 	m_clusterProcedureSetFlag = TRUE;
 	if (m_clusterProcedure == -1)
 		{                                            
-		GetDlgItem(IDOK)->EnableWindow(FALSE);
+		GetDlgItem (IDOK)->EnableWindow (FALSE);
 		m_clusterProcedureSetFlag = FALSE;
 		
-		}		// end "if (m_clusterProcedure == -1)" 
+		}	// end "if (m_clusterProcedure == -1)" 
 	 
 			// Cluster Mask File output to disk file.
 			//// Adjust for 0 base index.
 	
-	m_maskFileFormatCode = abs(maskFileFormatCode);	
+	m_maskFileFormatCode = abs (maskFileFormatCode);
 	m_maskFileFormatCode -= 1;
 		
 	if (!m_createClusterMaskFlag)
-		MHideDialogItem (this, IDC_DiskCombo);                 
+		MHideDialogItem (this, IDC_DiskCombo);
+	
 	m_LineStart = m_dialogSelectArea.lineStart;
 	m_LineEnd = m_dialogSelectArea.lineEnd;
 	m_LineInterval = m_dialogSelectArea.lineInterval;
@@ -409,7 +484,7 @@ BOOL CMClusterDialog::OnInitDialog(void)
 	m_ColumnInterval = m_dialogSelectArea.columnInterval; 
 		
 	UpdateClassificationItems (m_classificationArea);     
-	if (UpdateData(FALSE) )                   
+	if (UpdateData (FALSE))
 		PositionDialogWindow ();
 	
 			// Set default text selection to first edit text item	
@@ -418,291 +493,157 @@ BOOL CMClusterDialog::OnInitDialog(void)
 	
 	return FALSE;  // return TRUE  unless you set the focus to a control 
 	
-}		// end "OnInitDialog"
-
-
-
-void CMClusterDialog::OnSelendokChannelCombo(void)
-
-{                                                                               
-	HandleChannelsMenu(IDC_ChannelCombo, 
-								kNoTransformation,
-								(SInt16)gImageWindowInfoPtr->totalNumberChannels,
-								2,
-								m_clusterProcedureSetFlag); 
-	
-}		// end "OnSelendokChannelCombo"
-
-
-
-void CMClusterDialog::OnClassifySelectedArea(void)
-
-{                                                                                            
-	ClassifyAreaSetting(m_dialogFromPtr, 
-					IDC_NoClassificationMap, 
-					m_classificationArea); 
-					
-	UpdateClassificationItems (m_classificationArea); 
-	
-}		// end "OnClassifySelectedArea"                
-
-
-
-void CMClusterDialog::UpdateClassificationItems(
-				UInt16				classificationArea)
-
-{                                     
-	if (classificationArea == 0)
-		{                       
-		HideShowAreaItems(kHide);
-		                   
-		MHideDialogItem (this, IDC_ClassifyThresholdPrompt);
-		MHideDialogItem (this, IDC_ClassifyThreshold); 
-		
-		}		// end "if (classificationArea == 0)"                                     
-	
-	else if (classificationArea == 1)
-		{                       
-		HideShowAreaItems(kHide); 
-		                                                     
-		MShowDialogItem (this, IDC_StartEndInterval);
-		MShowDialogItem (this, IDC_LinePrompt);
-		MShowDialogItem (this, IDC_ColumnPrompt);  
-		MShowDialogItem (this, IDC_LineInterval);  
-		MShowDialogItem (this, IDC_ColumnInterval);
-		                   
-		MShowDialogItem (this, IDC_ClassifyThresholdPrompt);
-		MShowDialogItem (this, IDC_ClassifyThreshold);
-		
-		}		// end "else if (classificationArea == 1)"                                      
-	
-	else		// (classificationArea == 2)
-		{                       
-		HideShowAreaItems(kShow);  
-	
-		SetEntireImageButtons (
-						NULL, 
-						m_LineStart, 
-						m_LineEnd, 
-						m_ColumnStart, 
-						m_ColumnEnd);
-		                   
-		MShowDialogItem (this, IDC_ClassifyThresholdPrompt);
-		MShowDialogItem (this, IDC_ClassifyThreshold);
-		
-		}		// end "else if (classificationArea == 2)" 
-	
-}		// end "OnClassifySelectedArea"  
-
-
-
-void CMClusterDialog::ClassifyAreaSetting(
-				CDataExchange* 	pDX, 
-				int 					nIDC, 
-				int& 					value)
-
-{  
-	BOOL				settingFlag;
-	
-	         
-	if (pDX->m_bSaveAndValidate)
-		{
-				// Reading from radio group. Get index ignoring the disabled
-				// items.  
-					
-		value = -1;
-					 
-		DDX_Check(m_dialogFromPtr, IDC_NoClassificationMap, settingFlag);
-		if (settingFlag)
-			value = 0;
-				
-		DDX_Check(m_dialogFromPtr, IDC_ClassifyTrainingAreas, settingFlag);
-		if (settingFlag)
-			value = 1;
-			
-		DDX_Check(m_dialogFromPtr, IDC_ClassifySelectedArea, settingFlag);
-		if (settingFlag)
-			value = 2; 
-			
-		}		// end "if (pDX->m_bSaveAndValidate)"
-		
-	else		// !pDX->m_bSaveAndValidate
-		{
-		int			localValue = value;
-		
-		
-//		#ifndef _WIN32
-//					// Setting specific radio group item. Take into account any
-//					// disabled items.  
-//		     			
-//			if( localValue > 1 &&
-//					!GetDlgItem(IDC_ClassifyTrainingAreas)->IsWindowEnabled() )
-//				localValue--;
-//		#endif	// !_WIN32
-		                                                                                    
-		DDX_Radio(pDX, 
-					IDC_NoClassificationMap, 
-					localValue);
-		                  
-			
-		}		// end "else !pDX->m_bSaveAndValidate"
-	
-}		// end "ClassifyAreaSetting"     
+}	// end "OnInitDialog"
 
   
   
-void CMClusterDialog::OnISODATAAlgorithm(void)
+void CMClusterDialog::OnISODATAAlgorithm (void)
 
 {  
 	Boolean returnFlag = ISODATAClusterDialog (gImageFileInfoPtr, this);
 	
 	OnAlgorithm (returnFlag); 
 	
-}		// end "OnISODATAAlgorithm"    
+}	// end "OnISODATAAlgorithm"
 
-  
-  
-void CMClusterDialog::OnSinglePassAlgorithm(void)
 
-{  
-	Boolean returnFlag = OnePassClusterDialog (gImageFileInfoPtr, this);
+
+void CMClusterDialog::OnOK ()
+
+{
+	Boolean								okFlag = TRUE;
 	
-	OnAlgorithm (returnFlag); 
 	
-}		// end "OnSinglePassAlgorithm"   
-
-  
-  
-void CMClusterDialog::OnAlgorithm(
-				Boolean				returnFlag)
-
-{                                                                
-	if (returnFlag)
+	if (UpdateData (TRUE))
 		{
-		if (!m_clusterProcedureSetFlag) 
-			GetDlgItem(IDOK)->EnableWindow(TRUE); 
-		                                                       
-		m_clusterProcedureSetFlag = TRUE; 
-
-		DDX_Radio(m_dialogFromPtr, IDC_SinglePassAlgorithm, m_clusterProcedure);
-			
-		}		// end "if (returnFlag)"
-
-	else	// !returnFlag
-		{
-		if (!m_clusterProcedureSetFlag)
-			m_clusterProcedure = -1;
-
-		DDX_Radio(m_dialogToPtr, IDC_SinglePassAlgorithm, m_clusterProcedure);
-
-		}		// end "else !returnFlag"
+					// Check if the save statistics option will
+					// require the current project to be saved.  Set item hit to
+					// 0 if the user cancels from the save.
 		
-/*	else if (!m_clusterProcedureSetFlag)
-		{
-		m_clusterProcedure = -1;
-		DDX_Radio(m_dialogToPtr, IDC_SinglePassAlgorithm, m_clusterProcedure);
-		
-		}		// end "else if (!m_clusterProcedureSetFlag)"
-*/	
-}		// end "OnAlgorithm" 
-
-
-
-void CMClusterDialog::OnOK()
-{  
-	Boolean		okFlag = TRUE;
-	
-	                                  
-	if ( UpdateData(TRUE) ) 
-		{           
-				// Check if the save statistics option will	
-				// require the current project to be saved.  Set item hit to	
-				// 0 if the user cancels from the save.								
-						
 		if (m_saveStatisticsSelection == 1)		// To new project
 			{
 			if (gProjectInfoPtr->changedFlag)
-				if ( SaveProjectFile (2) != 0)
+				if (SaveProjectFile (2) != 0)
 					okFlag = FALSE;
-						
-			}		// end "if (m_saveStatisticsSelection == 1)" 
-					
-		else if (m_saveStatisticsSelection == 2)		// Add to project
+			
+			}	// end "if (m_saveStatisticsSelection == 1)"
+		
+		else if (m_saveStatisticsSelection == 2)
 			{
-			if (gImageFileInfoPtr->numberChannels != 
+					// Add to project
+			
+			if (gImageFileInfoPtr->numberChannels !=
 											gClusterSpecsPtr->numberChannels ||
-				gProjectInfoPtr->numberStatisticsChannels != 
-											(SInt16)gClusterSpecsPtr->numberChannels)
+							gProjectInfoPtr->numberStatisticsChannels !=
+													(SInt16)gClusterSpecsPtr->numberChannels)
 				{
-				SInt16		itemHit;
+				SInt16			itemHit;
 				
-				itemHit = DisplayAlert (kOKCancelAlertID, 
-													2, kAlertStrID, 
-													IDS_Alert11, 
-													0, 
-													NULL);
+				itemHit = DisplayAlert (kOKCancelAlertID,
+												2, kAlertStrID,
+												IDS_Alert11,
+												0,
+												NULL);
 				if (itemHit != 1)
 					okFlag = FALSE;
-							
-				}		// end "if (fileInfoPtr->numberChannels != ..." 
-						
-			}		// end "else if (m_saveStatisticsSelection == 2)"
+				
+				}	// end "if (fileInfoPtr->numberChannels != ..."
+			
+			}	// end "else if (m_saveStatisticsSelection == 2)"
 	
 		if (okFlag)
-			CMDialog::OnOK(); 
-			
-		}		// end "if ( UpdateData(TRUE) )" 
+			CMDialog::OnOK ();
 		
-}		// end "OnOK"  
+		}	// end "if (UpdateData (TRUE))"
+	
+}	// end "OnOK"
+
+
+
+void CMClusterDialog::OnSelendokChannelCombo (void)
+
+{
+	HandleChannelsMenu (IDC_ChannelCombo,
+								kNoTransformation,
+								(SInt16)gImageWindowInfoPtr->totalNumberChannels,
+								2,
+								m_clusterProcedureSetFlag);
+	
+}	// end "OnSelendokChannelCombo"
 
   
-  
-void CMClusterDialog::OnImageOverlay()
 
-{   
-	DDX_Check(m_dialogFromPtr, IDC_ImageOverlay, m_createImageOverlayFlag);
-
-	if (m_createImageOverlayFlag)
-		ShowDialogItem (this, IDC_ImageOverlayCombo);
-	else		// m_createImageOverlayFlag
-		HideDialogItem (this, IDC_ImageOverlayCombo);
-		
-}		// end "OnImageOverlay"
-
-  
-
-void 
-CMClusterDialog::OnSelendokImageOverlayCombo()
+void CMClusterDialog::OnSelendokImageOverlayCombo ()
 
 {                                                           
-	DDX_CBIndex(m_dialogFromPtr, IDC_ImageOverlayCombo, m_selectImageOverlaySelection);
+	DDX_CBIndex (m_dialogFromPtr, IDC_ImageOverlayCombo, m_selectImageOverlaySelection);
 	
-}		// end "OnSelendokImageOverlayCombo"
-
-
-
-void CMClusterDialog::OnCreateMaskFile(void)
-
-{                
-	DDX_Check(m_dialogFromPtr, IDC_CreateClusterMaskCheckBox, m_createClusterMaskFlag);         
-		
-	if (!m_createClusterMaskFlag) 
-		HideDialogItem (this, IDC_DiskCombo);         
-		
-	else		// !m_createClusterMaskFlag) 
-		ShowDialogItem (this, IDC_DiskCombo);
-	
-}		// end "OnCreateMaskFile"
+}	// end "OnSelendokImageOverlayCombo"
 
   
 
-void 
-CMClusterDialog::OnSelendokMaskFileDiskCombo()
+void CMClusterDialog::OnSelendokMaskFileDiskCombo ()
 
 {                                
-	DDX_CBIndex(m_dialogFromPtr, IDC_DiskCombo, m_maskFileFormatCode);			
+	DDX_CBIndex (m_dialogFromPtr, IDC_DiskCombo, m_maskFileFormatCode);
 	m_maskFileFormatCode++; 
 	
-}		// end "OnSelendokImageOverlayCombo"
+}	// end "OnSelendokImageOverlayCombo"
 
-			       
+
+
+void CMClusterDialog::OnSinglePassAlgorithm (void)
+
+{
+	Boolean returnFlag = OnePassClusterDialog (gImageFileInfoPtr, this);
+	
+	OnAlgorithm (returnFlag);
+	
+}	// end "OnSinglePassAlgorithm"
+
+
+
+void CMClusterDialog::UpdateClassificationItems (
+				UInt16								classificationArea)
+
+{
+	if (classificationArea == 0)
+		{
+		HideShowAreaItems (kHide);
+			
+		MHideDialogItem (this, IDC_ClassifyThresholdPrompt);
+		MHideDialogItem (this, IDC_ClassifyThreshold);
+		
+		}	// end "if (classificationArea == 0)"
+	
+	else if (classificationArea == 1)
+		{
+		HideShowAreaItems (kHide);
+		
+		MShowDialogItem (this, IDC_StartEndInterval);
+		MShowDialogItem (this, IDC_LinePrompt);
+		MShowDialogItem (this, IDC_ColumnPrompt);
+		MShowDialogItem (this, IDC_LineInterval);
+		MShowDialogItem (this, IDC_ColumnInterval);
+		
+		MShowDialogItem (this, IDC_ClassifyThresholdPrompt);
+		MShowDialogItem (this, IDC_ClassifyThreshold);
+		
+		}	// end "else if (classificationArea == 1)"
+	
+	else	// (classificationArea == 2)
+		{
+		HideShowAreaItems (kShow);
+	
+		SetEntireImageButtons (NULL,
+										m_LineStart,
+										m_LineEnd,
+										m_ColumnStart,
+										m_ColumnEnd);
+		
+		MShowDialogItem (this, IDC_ClassifyThresholdPrompt);
+		MShowDialogItem (this, IDC_ClassifyThreshold);
+		
+		}	// end "else if (classificationArea == 2)"
+	
+}	// end "UpdateClassificationItems"
