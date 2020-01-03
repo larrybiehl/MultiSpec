@@ -190,7 +190,7 @@ bool GH5_FetchAttribute( hid_t loc_id, const char *pszAttrName,
 
 // Following section added by Larry Biehl
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2012)
+//								 Copyright (1988-2020)
 //								© Purdue Research Foundation
 //									All rights reserved.
 //
