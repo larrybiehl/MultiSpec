@@ -22,6 +22,8 @@
 //	
 //------------------------------------------------------------------------------------
 
+#pragma once
+
 #if defined multispec_wx
 	#include <stdio.h>
 	#include "SDefines.h"

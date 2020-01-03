@@ -23,8 +23,7 @@
 //
 //------------------------------------------------------------------------------------
 
-#if !defined NU_TOOLS_NUMERICAL
-#define	NU_TOOLS_NUMERICAL
+#pragma once
 
 #define	NU_LINE_PLOT		1
 #define	NU_SCATTER_PLOT	2
@@ -540,5 +539,3 @@ void UpdateMaxMinV (
 				double*								min,
 				vector*								vect,
 				SInt32*								error);
-
-#endif	//	!defined NU_TOOLS_NUMERICAL   

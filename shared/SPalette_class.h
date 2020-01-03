@@ -21,9 +21,8 @@
 //	Brief description:	This file is the definition for the CMPalette class
 //
 //------------------------------------------------------------------------------------
-               
-#if !defined __MPALETTE_H__
-	#define	__MPALETTE_H__ 
+
+#pragma once
 
 #if defined multispec_wx
 	#include "SMultiSpec.h" 
@@ -102,4 +101,3 @@
 			Boolean					m_loadedFlag;
 			
 		};  
-#endif	// !defined __MPALETTE_H__

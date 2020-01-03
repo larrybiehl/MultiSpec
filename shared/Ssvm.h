@@ -1,5 +1,5 @@
-#ifndef _LIBSVM_H
-#define _LIBSVM_H
+
+#pragma once
 
 #define LIBSVM_VERSION 323
 
@@ -100,5 +100,3 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
-
-#endif /* _LIBSVM_H */

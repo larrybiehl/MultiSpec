@@ -25,8 +25,7 @@
 //	
 //------------------------------------------------------------------------------------
 
-#ifndef __SPROTOTYPE__
-#define __SPROTOTYPE__
+#pragma once
 
 #include "SGraphic.h"
 
@@ -11576,5 +11575,3 @@ inline void CopyPascalStringToC (ConstStr255Param src, char* dst)
 	PtoCstring ((char*) src, (char*) dst);
 	}
 #endif	// defined multispec_win
-
-#endif // defined __SPROTOTYPE__

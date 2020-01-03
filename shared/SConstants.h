@@ -23,8 +23,7 @@
 //	
 //------------------------------------------------------------------------------------
 
-#ifndef SCONSNT
-#define SCONSNT
+#pragma once
 
 #if defined multispec_wx
 	#include <time.h>
@@ -1886,5 +1885,3 @@
 
 #define	FS_DOUBLE		sizeof (double)
 #define	FS_FLOAT			sizeof (float)
-
-#endif	// ifndef SCONSNT

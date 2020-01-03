@@ -25,8 +25,7 @@
 //	
 //------------------------------------------------------------------------------------
 
-#ifndef __SDEFINES__
-	#define __SDEFINES__
+#pragma once
 
 #if include_gdal_capability
 	#if defined multispec_wxlin
@@ -5340,5 +5339,3 @@ typedef struct WorkFlowInfo
 	#define GetGValue(rgb)   ((BYTE) (((WORD) (rgb)) >> 8))
 	#define GetBValue(rgb)   ((BYTE) ((rgb) >> 16))
 #endif	// defined multispec_wx
-
-#endif	// ifndef __SDEFINES__

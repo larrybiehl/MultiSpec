@@ -21,9 +21,8 @@
 //	Brief description:	This file is the definition for the CMImageWindow class
 //
 //------------------------------------------------------------------------------------
-  
-#if !defined __MIMAGWIN_H__
-	#define __MIMAGWIN_H__
+
+#pragma once
 	 
 #include "SFileStream_class.h"
 #include "SWindowInfo_class.h"
@@ -119,4 +118,3 @@ class	CMImageWindow : public CMWindowInfo
 		CMFileStream*			mSupportFileStreamCPtr;
 
 	};   
-#endif	// !defined __MIMAGWIN_H__

@@ -27,6 +27,8 @@
 //	
 //------------------------------------------------------------------------------------
 
+#pragma once
+
 		// Structure for Pixel Information
 
 typedef struct 	pixel_information_def 

@@ -21,12 +21,11 @@
 //	Brief description:	This file is the definition for the CMDisplay class
 //
 //------------------------------------------------------------------------------------
-               
-#if !defined __MDISPLAY_H__
-	#define	__MDISPLAY_H__ 
 
-   #include "SMultiSpec.h"                        
-	#include "SPalette_class.h"
+#pragma once
+
+#include "SMultiSpec.h"
+#include "SPalette_class.h"
 
 class	CMDisplay //: public CMProcessor
 	{
@@ -77,4 +76,3 @@ class	CMDisplay //: public CMProcessor
 		static DisplaySpecsPtr	sDisplaySpecsPtr;
 		
 	};  
-#endif	// !defined __MDISPLAY_H__

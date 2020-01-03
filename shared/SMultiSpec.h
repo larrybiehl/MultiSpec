@@ -25,8 +25,7 @@
 //
 //------------------------------------------------------------------------------------
 
-#ifndef __SMulSpec__
-	#define __SMulSpec__
+#pragma once
 
 #if defined multispec_mac || defined multispec_mac_swift
 	#include "wchar.h"
@@ -109,6 +108,4 @@
 	#include <iostream>
 	#include <string>
 	#include "wx/gdicmn.h"
-#endif	// defined multispec_wx
-
-#endif // __SMulSpec__             
+#endif	// defined multispec_wx     

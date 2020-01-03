@@ -23,8 +23,7 @@
 //
 //------------------------------------------------------------------------------------
 
-#ifndef __SDECGLOBAL__
-#define __SDECGLOBAL__
+#pragma once
 
 #if defined multispec_wx
 	#include "wx/pen.h"
@@ -1802,4 +1801,3 @@ WorkFlowInfo					gMultiSpecWorkflowInfo;
 	
 	QDEndCGContextPtr						gQDEndCGContextPtr = NULL;
 #endif	// defined multispec_mac
-#endif	// ifndef __SDECGLOBAL__

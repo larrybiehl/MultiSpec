@@ -25,5 +25,7 @@
 //	
 //------------------------------------------------------------------------------------
 
+#pragma once
+
 #include "SEchoDefines.h"
 #include "SEchoPrototypes.h"

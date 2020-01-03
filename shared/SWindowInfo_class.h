@@ -22,8 +22,7 @@
 //
 //------------------------------------------------------------------------------------
 
-#if !defined __MWININFO_H__  
-	#define __MWININFO_H__ 
+#pragma once
 
 class	CMWindowInfo
 	{
@@ -48,4 +47,3 @@ class	CMWindowInfo
 		Handle					m_windowInfoHandle;
 		
 	};
-#endif	// !defined __MWININFO_H__ 

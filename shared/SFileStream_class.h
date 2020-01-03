@@ -23,8 +23,7 @@
 //
 //------------------------------------------------------------------------------------
 
-#if !defined __MFILESTR_H__
-	#define __MFILESTR_H__ 
+#pragma once
 	
 #define	kUndefined								-1
 
@@ -198,5 +197,3 @@
 			#endif	// defined multispec_win
 			
 		};	// end "class CMFileStream"
-
-#endif // !defined __MFILESTR_H__             

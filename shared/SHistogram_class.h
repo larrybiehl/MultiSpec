@@ -24,11 +24,10 @@
 //
 //------------------------------------------------------------------------------------
 
-#if !defined __MHISTGRM_H__  
-	#define __MHISTGRM_H__
+#pragma once
 	
-	#include "SMultiSpec.h"
-	//#include "CProcessor.h"
+#include "SMultiSpec.h"
+
 
 		// This structure defines the histogram for a channel in the image
 
@@ -60,4 +59,3 @@ class	CMHistogram // : public CMProcessor
 		static HistogramSummaryPtr	sHistogramSummaryPtr;
 		
 	};
-#endif	// !defined __MHISTGRM_H__ 

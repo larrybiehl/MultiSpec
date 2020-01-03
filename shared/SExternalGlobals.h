@@ -22,8 +22,7 @@
 //	
 //------------------------------------------------------------------------------------
 
-#ifndef __SExtGlob__
-#define __SExtGlob__
+#pragma once
 
 #if defined multispec_wx
 			// Storage for default (last used directory) for file input
@@ -1641,5 +1640,3 @@ extern int  gProbablilityColors2;
 	
 	extern QDEndCGContextPtr					gQDEndCGContextPtr;
 #endif	// defined multispec_mac
-
-#endif // __SExtGlob__  

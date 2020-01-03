@@ -24,8 +24,7 @@
 //	
 //------------------------------------------------------------------------------------
 
-#ifndef SRCONSNT
-#define SRCONSNT
+#pragma once
 
 #if defined multispec_mac || defined multispec_mac_swift
 	#pragma once
@@ -1331,4 +1330,3 @@
 	#define	kSQD32DisplayColumnLimit			308  
 	
 #endif  // defined multispec_wx || defined multispec_win 
-#endif // end of SRCONST
