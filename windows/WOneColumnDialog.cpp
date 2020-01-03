@@ -1,25 +1,63 @@
-// WOneColumnDialog.cpp : implementation file
-// Revised by Larry Biehl on 01/04/2018
-//                   
-                   
+//	 									MultiSpec
+//
+//					Laboratory for Applications of Remote Sensing
+// 								Purdue University
+//								West Lafayette, IN 47907
+//								 Copyright (1995-2020)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	File:						WOneColumnDialog.cpp : implementation file
+//
+//	Authors:					Larry L. Biehl
+//
+//	Revision date:			01/03/2018
+//
+//	Language:				C++
+//
+//	System:					Windows Operating System
+//
+//	Brief description:	This file contains functions that relate to the
+//								CMOneColDlg class.
+//
+//------------------------------------------------------------------------------------
+
 #include "SMultiSpec.h"
+#include "SImageWindow_class.h"
+
 #include "WOneColumnDialog.h"
-#include "CImageWindow.h"
-#include	"SExternalGlobals.h"
 
 #ifdef _DEBUG
-#undef THIS_FILE
-static char BASED_CODE THIS_FILE[] = __FILE__;
+	#undef THIS_FILE
+	static char BASED_CODE THIS_FILE[] = __FILE__;
 #endif
 
-/////////////////////////////////////////////////////////////////////////////
-// CMOneColDlg dialog
 
 
-CMOneColDlg::CMOneColDlg(CWnd* pParent /*=NULL*/)
-	: CMDialog(CMOneColDlg::IDD, pParent)
+BEGIN_MESSAGE_MAP (CMOneColDlg, CMDialog)
+	//{{AFX_MSG_MAP (CMOneColDlg)
+	ON_BN_CLICKED (IDC_AllSelected, OnAllSelected)
+	ON_BN_CLICKED (IDC_EnterNewRange, OnEnterNewRange)
+	ON_BN_CLICKED (IDC_NoneSelected, OnNoneSelected)
+
+	ON_EN_CHANGE (IDC_First, OnChangeFirst)
+	ON_EN_CHANGE (IDC_Interval, OnChangeInterval)
+	ON_EN_CHANGE (IDC_Last, OnChangeLast)
+
+	ON_LBN_SELCHANGE (IDC_List1, OnSelchangeList1)
+
+	ON_WM_SHOWWINDOW ()
+	//}}AFX_MSG_MAP
+END_MESSAGE_MAP ()
+
+
+
+CMOneColDlg::CMOneColDlg (
+				CWnd* 								pParent /*=NULL*/)
+		: CMDialog (CMOneColDlg::IDD, pParent)
+
 {
-	//{{AFX_DATA_INIT(CMOneColDlg)
+	//{{AFX_DATA_INIT (CMOneColDlg)
 	m_listStart = 1;
 	m_listInterval = 1;
 	m_listEnd = 1;
@@ -39,190 +77,154 @@ CMOneColDlg::CMOneColDlg(CWnd* pParent /*=NULL*/)
 	m_minimumItemsRequired = 1; 
 	                        
 	m_initializedFlag = CMDialog::m_initializedFlag;
-}
+	
+}	// end "CMOneColDlg"
 
-void CMOneColDlg::DoDataExchange(CDataExchange* pDX)
+
+
+void CMOneColDlg::CheckValue (
+				UInt16								itemNumber,
+				UINT									lastValue,
+				UINT*									lastValuePtr)
+
 {
-	CDialog::DoDataExchange(pDX);
-	//{{AFX_DATA_MAP(CMOneColDlg)
-	DDX_Text(pDX, IDC_First, m_listStart);
-	DDV_MinMaxUInt(pDX, m_listStart, 1, (UInt16)m_numberInputVecItems);
-	DDX_Text(pDX, IDC_Interval, m_listInterval);
-	DDV_MinMaxUInt(pDX, m_listInterval, 1, (UInt16)m_numberInputVecItems);
-	DDX_Text(pDX, IDC_Last, m_listEnd);
-	DDV_MinMaxUInt(pDX, m_listEnd, 1, (UInt16)m_numberInputVecItems);
-	DDX_Text(pDX, IDC_SelectionCount, m_selectionCount);
+	UINT									newValue;
+	
+	
+	DDX_Text (m_dialogFromPtr, itemNumber, newValue);
+	
+	if (newValue <= 0 || newValue > m_numberInputVecItems)
+		{
+		DDX_Text (m_dialogToPtr, itemNumber, lastValue);
+		
+		DDV_MinMaxUInt (m_dialogFromPtr, newValue, 1, (UInt16)m_numberInputVecItems);
+		
+		}	// end "if (m_listInterval <= 0 || ..."
+	
+	else	// newValue > 0 && newValue <= m_numberInputVecItems
+		*lastValuePtr = newValue;
+	
+	OnEnterNewRange ();
+	
+}	// end "CheckValue"
+
+
+
+void CMOneColDlg::DoDataExchange (
+				CDataExchange* 					pDX)
+
+{
+	CDialog::DoDataExchange (pDX);
+	
+	//{{AFX_DATA_MAP (CMOneColDlg)
+	DDX_Text (pDX, IDC_First, m_listStart);
+	DDV_MinMaxUInt (pDX, m_listStart, 1, (UInt16)m_numberInputVecItems);
+	DDX_Text (pDX, IDC_Interval, m_listInterval);
+	DDV_MinMaxUInt (pDX, m_listInterval, 1, (UInt16)m_numberInputVecItems);
+	DDX_Text (pDX, IDC_Last, m_listEnd);
+	DDV_MinMaxUInt (pDX, m_listEnd, 1, (UInt16)m_numberInputVecItems);
+	DDX_Text (pDX, IDC_SelectionCount, m_selectionCount);
 	//}}AFX_DATA_MAP
-}
-
-BEGIN_MESSAGE_MAP(CMOneColDlg, CMDialog)
-	//{{AFX_MSG_MAP(CMOneColDlg)
-	ON_BN_CLICKED(IDC_AllSelected, OnAllSelected)
-	ON_BN_CLICKED(IDC_NoneSelected, OnNoneSelected)
-	ON_EN_CHANGE(IDC_First, OnChangeFirst)
-	ON_EN_CHANGE(IDC_Interval, OnChangeInterval)
-	ON_EN_CHANGE(IDC_Last, OnChangeLast)
-	ON_LBN_SELCHANGE(IDC_List1, OnSelchangeList1)
-	ON_BN_CLICKED(IDC_EnterNewRange, OnEnterNewRange)
-	ON_WM_SHOWWINDOW()
-	//}}AFX_MSG_MAP
-END_MESSAGE_MAP() 
-
-
-
-/////////////////////////////////////////////////////////////////////////////
-// CMOneColDlg message handlers
-
-BOOL 
-CMOneColDlg::OnInitDialog(void)
-
-{									
-	CMDialog::OnInitDialog(); 
 	
-			// Initialize the channel range text edit items.
-			
-	m_listStart = 1;
-	m_listInterval = 1;
-	m_listEnd = (UInt16)m_numberInputVecItems; 
-	
-	return TRUE;  // return TRUE  unless you set the focus to a control
-	
-}		// end "OnInitDialog"
+}	// end "DoDataExchange"
 
 
 
-void CMOneColDlg::OnAllSelected()
+void CMOneColDlg::OnAllSelected ()
+
 {
-	UInt16			item;
+	UInt16								item;
 	
 	
 	for (item=0; item<m_numberInputVecItems; item++)
-		((CListBox*)GetDlgItem(IDC_List1))->SetSel(item, TRUE);
-		
+		((CListBox*)GetDlgItem (IDC_List1))->SetSel (item, TRUE);
+	
 	m_numberSelections = (UInt16)m_numberInputVecItems;
-										
-	UpdateNumberOfSelections();
 	
-}		// end "OnAllSelected" 
-
-
-
-void 
-CMOneColDlg::OnNoneSelected(void)
-
-{
-	UInt16			item;
+	UpdateNumberOfSelections ();
 	
-	
-	for (item=0; item<m_numberInputVecItems; item++)
-		((CListBox*)GetDlgItem(IDC_List1))->SetSel(item, FALSE);
-		
-	m_numberSelections = 0;
-					
-	UpdateNumberOfSelections();
-	
-}		// end "OnNoneSelected"
+}	// end "OnAllSelected"
 
 
 
-void 
-CMOneColDlg::OnChangeFirst(void)
+void CMOneColDlg::OnChangeFirst (void)
 
 {							                     
 	CheckValue (IDC_First, m_listStart, &m_listStart); 
 	
-}		// end "OnChangeFirst"
+}	// end "OnChangeFirst"
 
 
 
-void CMOneColDlg::OnChangeInterval(void)
+void CMOneColDlg::OnChangeInterval (void)
+
 {                     
 	CheckValue (IDC_Interval, m_listInterval, &m_listInterval);
 	
-}		// end "OnChangeInterval"
+}	// end "OnChangeInterval"
 
 
 
-void 
-CMOneColDlg::OnChangeLast(void)
+void CMOneColDlg::OnChangeLast (void)
 
 {                             
 	CheckValue (IDC_Last, m_listEnd, &m_listEnd);
 	
-}		// end "OnChangeLast"
+}	// end "OnChangeLast"
 
 
 
-void 
-CMOneColDlg::CheckValue(
-				UInt16					itemNumber,
-				UINT						lastValue,
-				UINT*						lastValuePtr)
-				
-{  
-	UINT		newValue;
-				
-				                  
-	DDX_Text(m_dialogFromPtr, itemNumber, newValue);                  
-	                              
-	if (newValue <= 0 || newValue > m_numberInputVecItems)
-		{                           
-		DDX_Text(m_dialogToPtr, itemNumber, lastValue);
-		
-		DDV_MinMaxUInt(m_dialogFromPtr, newValue, 1, (UInt16)m_numberInputVecItems);
-		
-		}		// end "if (m_listInterval <= 0 || ..."
-		
-	else		// newValue > 0 && newValue <= m_numberInputVecItems
-		*lastValuePtr = newValue;
-															
-	OnEnterNewRange();
-	
-}		// end "CheckValue"
-
- 
-
-void 
-CMOneColDlg::UpdateNumberOfSelections(void)
-
-{	                                          
-	if (m_listType != kItemsListOnly && 
-											m_listType != kSelectedItemsListOnly)
-		{	
-				// Hilite OK button depending on number of selections.	
-				
-		if (m_numberSelections >= m_minimumItemsRequired)
-			SetDLogControlHilite (this, IDOK, 0);
-			
-		else		// m_numberSelections < m_minimumItemsRequired 
-			SetDLogControlHilite (this, IDOK, 255);
-	
-				// Set the number of selected items.							
-				
-		::LoadDItemValue (this, IDC_SelectionCount, m_numberSelections);
-		
-		}		// end "if (m_listType != kChannelsListOnly && ..."
-		
-}		// end "UpdateNumberOfSelections"
- 
-
-
-void 
-CMOneColDlg::OnSelchangeList1(void)
+void CMOneColDlg::OnEnterNewRange (void)
 
 {
+	m_numberSelections = UpdateOneColListSelections ((UInt16)m_numberInputVecItems,
+																		m_listStart,
+																		m_listEnd,
+																		m_listInterval);
 	
-	m_numberSelections = ((CListBox*)GetDlgItem(IDC_List1))->GetSelCount();
+	UpdateNumberOfSelections ();
 	
-	UpdateNumberOfSelections();
+}	// end "OnEnterNewRange"
+
+
+
+BOOL CMOneColDlg::OnInitDialog (void)
+
+{
+	CMDialog::OnInitDialog ();
 	
-}		// end "OnSelchangeList1"
+			// Initialize the channel range text edit items.
+	
+	m_listStart = 1;
+	m_listInterval = 1;
+	m_listEnd = (UInt16)m_numberInputVecItems;
+	
+	return TRUE;  // return TRUE  unless you set the focus to a control
+	
+}	// end "OnInitDialog"
+
+
+
+void CMOneColDlg::OnNoneSelected (void)
+
+{
+	UInt16								item;
+	
+	
+	for (item=0; item<m_numberInputVecItems; item++)
+		((CListBox*)GetDlgItem (IDC_List1))->SetSel (item, FALSE);
+	
+	m_numberSelections = 0;
+	
+	UpdateNumberOfSelections ();
+	
+}	// end "OnNoneSelected"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-1998)
-//								© Purdue Research Foundation
+//								 Copyright (1995-2020)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void CMOneColDlg::OnOK
@@ -234,63 +236,61 @@ CMOneColDlg::OnSelchangeList1(void)
 //
 //	Parameters out:	None
 //
-// Value Returned:	None	
-// 
-// Called By:	
+// Value Returned:	None
 //
-//	Coded By:			Larry L. Biehl			Date: ??/??/??
-//	Revised By:			Larry L. Biehl			Date: 04/30/98
+// Called By:
+//
+//	Coded By:			Larry L. Biehl			Date: ??/??/19??
+//	Revised By:			Larry L. Biehl			Date: 04/30/1998
 
-void CMOneColDlg::OnOK()
-{                                                             
-			// Get items to use.	    
-				
-	if ( m_listType == kSelectItemsList || m_listType == kSelectPCList)
-		{		
+void CMOneColDlg::OnOK ()
+
+{
+			// Get items to use.
+	
+	if (m_listType == kSelectItemsList || m_listType == kSelectPCList)
+		{
 		UInt16 index = 0;
 		UInt16 item;
-					
-		for ( item=0; item<m_numberInputVecItems; item++)
-			{              
-			if ( ((CListBox*)GetDlgItem(IDC_List1))->GetSel(item) > 0 )
+			
+		for (item=0; item<m_numberInputVecItems; item++)
+			{
+			if (((CListBox*)GetDlgItem (IDC_List1))->GetSel (item) > 0)
 				{
 				m_selectedItemsPtr[index] = item + m_indexStart;
 				index++;
-								
-				}		// end "if ( LGetSelect (FALSE, &cell, ..." 
-								
-			}		// end "for ( channel=0; channel<..." 
-	                                     
-		m_numberSelections = index;
+				
+				}	// end "if (((CListBox*)GetDlgItem (IDC_List1))->GetSel ..."
 			
-		}		// end "if ( m_listType == kSelectItemsList || ..."
+			}	// end "for (channel=0; channel<..."
+		
+		m_numberSelections = index;
+		
+		}	// end "if (m_listType == kSelectItemsList || ..."
 	
-	CMDialog::OnOK();
+	CMDialog::OnOK ();
 	
-}		// end "OnOK"
+}	// end "OnOK"
+ 
 
 
+void CMOneColDlg::OnSelchangeList1 (void)
 
-void 
-CMOneColDlg::OnEnterNewRange(void)
-
-{   
-	m_numberSelections = UpdateOneColListSelections (
-															(UInt16)m_numberInputVecItems, 
-															m_listStart, 
-															m_listEnd, 
-															m_listInterval);
-															
-	UpdateNumberOfSelections();
-	
-}		// end "OnEnterNewRange"
-
-
-
-void 
-CMOneColDlg::OnShowWindow(BOOL bShow, UINT nStatus)
 {
-	CMDialog::OnShowWindow(bShow, nStatus);  
+	m_numberSelections = ((CListBox*)GetDlgItem (IDC_List1))->GetSelCount ();
+	
+	UpdateNumberOfSelections ();
+	
+}	// end "OnSelchangeList1"
+
+
+
+void CMOneColDlg::OnShowWindow (
+				BOOL 									bShow,
+				UINT 									nStatus)
+
+{
+	CMDialog::OnShowWindow (bShow, nStatus);
 	
 	if (bShow)
 		{
@@ -298,6 +298,29 @@ CMOneColDlg::OnShowWindow(BOOL bShow, UINT nStatus)
 			                                       
 		SelectDialogItemText (this, IDC_First, 0, SInt16_MAX);
 		
-		}		// end "if (bShow)"
+		}	// end "if (bShow)"
 	
-}		// end "OnShowWindow"
+}	// end "OnShowWindow"
+
+
+
+void CMOneColDlg::UpdateNumberOfSelections (void)
+
+{
+	if (m_listType != kItemsListOnly && m_listType != kSelectedItemsListOnly)
+		{
+				// Hilite OK button depending on number of selections.
+		
+		if (m_numberSelections >= m_minimumItemsRequired)
+			SetDLogControlHilite (this, IDOK, 0);
+		
+		else	// m_numberSelections < m_minimumItemsRequired
+			SetDLogControlHilite (this, IDOK, 255);
+	
+				// Set the number of selected items.
+		
+		::LoadDItemValue (this, IDC_SelectionCount, m_numberSelections);
+		
+		}	// end "if (m_listType != kChannelsListOnly && ..."
+	
+}	// end "UpdateNumberOfSelections"

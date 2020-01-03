@@ -1,51 +1,75 @@
-// WFalseColorDialog.h : header file
-//      
-#if !defined __WFCOLDLG_H__
-	#define	__WFCOLDLG_H__       
-	     
-	#include "WDialog.h"
+//	 									MultiSpec
+//
+//					Laboratory for Applications of Remote Sensing
+//									Purdue University
+//								West Lafayette, IN 47907
+//								 Copyright (1995-2020)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	File:						WFalseColorDialog.h
+//	Implementation:		WFalseColorDialog.cpp
+//
+//	Authors:					Larry L. Biehl
+//
+//	Language:				C++
+//
+//	System:					Windows Operating System
+//
+//	Brief description:	Header file for the CMFalseColorDlg class.
+//
+//	Written By:				Larry L. Biehl			Date: ??/??/1995?
+//	Revised By:				Larry L. Biehl			Date: 12/05/2019
+//
+//------------------------------------------------------------------------------------
 
-/////////////////////////////////////////////////////////////////////////////
-// CMFalseColorDlg dialog
+#pragma once
+	     
+#include "WDialog.h"
+
 
 class CMFalseColorDlg : public CMDialog
 {
-// Construction
-public:
-								CMFalseColorDlg(CWnd* pParent = NULL);	// standard constructor  
+	// Construction
+	public:
+		CMFalseColorDlg (	// standard constructor
+				CWnd* 								pParent = NULL);
 	
-	Boolean					DoDialog(void);
+		Boolean DoDialog (void);
+		
 
-// Dialog Data
-	//{{AFX_DATA(CMFalseColorDlg)
-	enum { IDD = IDD_FalseColor };
-	long	m_redChannel;
-	long	m_greenChannel;
-	long	m_blueChannel;
-	//}}AFX_DATA
+		// Dialog Data
+		//{{AFX_DATA (CMFalseColorDlg)
+		enum { IDD = IDD_FalseColor };
+	
+		long									m_blueChannel,
+												m_greenChannel,
+												m_redChannel;
+		//}}AFX_DATA
 
-// Implementation
-protected:
-	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV support
+	// Implementation
+	protected:
+		virtual void DoDataExchange (
+				CDataExchange* 					pDX);	// DDX/DDV support
 
-	// Generated message map functions
-	//{{AFX_MSG(CMFalseColorDlg)
-	virtual BOOL OnInitDialog();
-	virtual void OnOK();
-	//}}AFX_MSG
-	DECLARE_MESSAGE_MAP() 
-	                                       
-	LayerInfoPtr		m_layerInfoPtr;
-	FileInfoPtr			m_fileInfoPtr;        
+		// Generated message map functions
+		//{{AFX_MSG (CMFalseColorDlg)
+		virtual BOOL OnInitDialog ();
 	
-	Boolean				m_initializedFlag;
-	                                          
-	SInt16				m_blueChannelIndex; 
-	SInt16				m_greenChannelIndex;
-	SInt16				m_redChannelIndex;  
+		virtual void OnOK ();
+		//}}AFX_MSG
+		DECLARE_MESSAGE_MAP ()
 	
-	SInt32				m_maxChannelFeatureNum;  
 	
-};      
-  
-#endif // !defined __WFCOLDLG_H__
+		FileInfoPtr							m_fileInfoPtr;
+		LayerInfoPtr						m_layerInfoPtr;
+	
+		SInt32								m_maxChannelFeatureNum;
+	
+		SInt16								m_blueChannelIndex,
+												m_greenChannelIndex,
+												m_redChannelIndex;
+	
+		Boolean								m_initializedFlag;
+	
+};	// end class CMFalseColorDlg

@@ -1,144 +1,105 @@
-// WDrawObjects.h - interface for CDrawObj and derivatives 
+//	 									MultiSpec
+//
+//					Laboratory for Applications of Remote Sensing
+//									Purdue University
+//								West Lafayette, IN 47907
+//								 Copyright (1995-2020)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	File:						WDrawObjects.h
+//	Implementation:		WDrawObjects.cpp
+//
+//	Authors:					Larry L. Biehl
+//
+//	Language:				C++
+//
+//	System:					Windows Operating System
+//
+//	Brief description:	Header file for the CMDrawObject and CMOutlineArea classes.
+//
+//	Written By:				Larry L. Biehl			Date: ??/??/1995?
+//	Revised By:				Larry L. Biehl			Date: 12/05/2019
+//
+//------------------------------------------------------------------------------------
 
-
-#ifndef __MDRAWOBJ_H__
-	#define __MDRAWOBJ_H__
+#pragma once
 
 class CMImageView;
 class CMImageDoc;
 
 
 //----------------------------------------------------------------------------
-
-		// CMDrawObject - base class for all 'drawable objects'
+// CMDrawObject - base class for all 'drawable objects'
 
 class CMDrawObject : public CObject
-	{
-	protected:
-										CMDrawObject();
-	                       
+{
 	public:
-										CMDrawObject(
-											const CRect& 		position);
+		CMDrawObject (
+				const CRect& 						position);
 	                          
-		virtual 						~CMDrawObject();
+		virtual ~CMDrawObject ();
 				
-		virtual void 				Draw(
-											CDC* 					pDC,
-											CMImageView*		imageViewCPtr);  
+		virtual void Draw (
+				CDC* 									pDC,
+				CMImageView*						imageViewCPtr);
 		
-		void 							Invalidate(void);
+		void Invalidate (void);
 											
-		virtual void 				OnOpen(
-											CMImageView* 		pView); 
+		virtual void OnOpen (
+				CMImageView* 						pView);
 		                                        		
-		virtual void 				Remove(); 
+		virtual void Remove ();
 		
 		#ifdef _DEBUG
-			void AssertValid();
+			void AssertValid ();
 		#endif       
+	
+	
+		CMImageDoc* 						m_document;
 		
-		CMImageDoc* 				m_document; 
-		
-		Boolean						m_drawFlag; 
+		Boolean								m_drawFlag;
 		
 	protected:
-		CRect							m_position;
+		CMDrawObject ();
+	
+	
+		static Rect							s_viewRect;
+	
+		CRect									m_position;
+	
+		LOGBRUSH 							m_logbrush;
 		                       
-		LOGPEN 						m_logpen; 
-		 
-		LOGBRUSH 					m_logbrush; 
-		
-		static Rect					s_viewRect; 
+		LOGPEN 								m_logpen;
 
-	};		// end "class CMDrawObject"
+};	// end class CMDrawObject
 
 
 //----------------------------------------------------------------------------
-
-		// CMOutlineArea - class for outlining areas
+// CMOutlineArea - class for outlining areas
 
 class CMOutlineArea : public CMDrawObject
-	{           						
+{
 	public:                                 
-										CMOutlineArea();
+		CMOutlineArea ();
 										
-										CMOutlineArea(
-											const CRect& 		position);
+		CMOutlineArea (
+				const CRect& 						position);
 											
-		virtual 						~CMOutlineArea();
+		virtual ~CMOutlineArea ();
 	
-		void							Clear (
-											CMImageView*		imageViewCPtr);
+		void Clear (
+				CMImageView*						imageViewCPtr);
 				
-		virtual void 				Draw(
-											CDC* 					pDC,
-											CMImageView*		imageViewCPtr);  
-/*		
-		Boolean						GetLineColumnSelection (
-											CMImageView*						imageViewCPtr, 
-											LongRect*							selectionRectanglePtr, 
-											Boolean								clearSelectionFlag, 
-											Boolean								useThresholdFlag, 
-											Boolean								adjustToBaseImageFlag);
-											
-		Boolean						GetLineColumnSelection (          
-											LongRect*							selectionRectanglePtr);
-											
-		Boolean						GetOffscreenSelection ( 
-											Rect*									selectionRectanglePtr);
-*/											
-//		Boolean						GetSelectionExistsFlag (void);
-											
-//		SInt16						GetTypeCode (void);
-											
-		void							Invalidate (
-											CMImageView*						imageViewCPtr);  
-/*
-		void							SetType (
-											SInt16								type);
-		
-		virtual void				UpdateArea(                       
-											DisplaySpecsPtr					displaySpecsPtr,             
-											const SelectionInfoPtr 			selectionInfoPtr,
-											const HPFieldPointsPtr    		selectionPointsPtr,
-											SInt16								startChannel,
-											SInt16								selectType);
+		virtual void Draw (
+				CDC* 									pDC,
+				CMImageView*						imageViewCPtr);
+	
+		void Invalidate (
+				CMImageView*						imageViewCPtr);
 
-		virtual void				UpdateArea(
-											const Rect&							rectangle,
-											const LongRect&					lineColumnRect,
-											SInt16								selectType);
-*/
 		#ifdef _DEBUG
-			void AssertValid();
+			void AssertValid ();
 		#endif
 	
-	protected:  
-	
-//		Handle						m_selectInfoHandle; 				
-
-				// For now these will not be used. The SelectInfo Structure will be used instead.
-				// When the Mac version has been converted to classes then it will make sense
-				// to use these variables. For now the need for both the selectInfo structure
-				// and these member variables cause to much confusion.
-/*						
-		enum Style {selection, field};
-		Style							m_style;
-						
-		enum Type {none, rectangle, polygon};
-		Type							m_type;
-	
-		LongRect 					m_lineColumnRectangle; 
-				
-		Rect 							m_offscreenRectangle; 
-		
-		Handle						m_polygonCoordinatesHandle;
-
-		SInt16						m_numberPolyPoints;
-
-		static SInt32				s_ThresholdSize;
-*/		
-	};		// end "class CMOutlineArea"
-
-#endif // __MDRAWOBJ_H__
+};	// end class CMOutlineArea

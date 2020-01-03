@@ -1,45 +1,56 @@
-// WLeaveOneOutMixingDialog.cpp : implementation file
+//	 									MultiSpec
 //
-// Revised by Larry Biehl on 12/21/2017
+//					Laboratory for Applications of Remote Sensing
+// 								Purdue University
+//								West Lafayette, IN 47907
+//								 Copyright (1995-2020)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
 //
+//	File:						WLeaveOneOutMixingDialog.cpp : implementation file
+//
+//	Authors:					Larry L. Biehl
+//
+//	Revision date:			01/04/2018
+//
+//	Language:				C++
+//
+//	System:					Windows Operating System
+//
+//	Brief description:	This file contains functions that relate to the
+//								CMLOOMixingDialog class.
+//
+//------------------------------------------------------------------------------------
 
 #include "SMultiSpec.h"
-                     
-#include "WMultiSpec.h"
+
 #include "WLeaveOneOutMixingDialog.h"
-
-//#include	"SExtGlob.h"
-
-
-
-extern void 		LOOCOptionsDialogInitialize (
-							DialogPtr							dialogPtr,
-							SInt16								statsWindowMode,
-							SInt16*								mixingParameterCodePtr,
-							double*								loocMixingParameterPtr,
-							double*								userMixingParameterPtr);
-
-extern void 		LOOCOptionsDialogOK (
-							SInt16								statsWindowMode,
-							SInt16								mixingParameterCode,
-							double								userMixingParameter);
-
-
+#include "WMultiSpec.h"
 
 #ifdef _DEBUG
-#define new DEBUG_NEW
-#undef THIS_FILE
-static char THIS_FILE[] = __FILE__;
+	#define new DEBUG_NEW
+	#undef THIS_FILE
+	static char THIS_FILE[] = __FILE__;
 #endif
 
-/////////////////////////////////////////////////////////////////////////////
-// CMLOOMixingDialog dialog
 
 
-CMLOOMixingDialog::CMLOOMixingDialog(CWnd* pParent /*=NULL*/)
-	: CMDialog(CMLOOMixingDialog::IDD, pParent)
+BEGIN_MESSAGE_MAP (CMLOOMixingDialog, CMDialog)
+	//{{AFX_MSG_MAP (CMLOOMixingDialog)
+	ON_BN_CLICKED (IDC_IdentityMatrix, OnIdentityMatrix)
+	ON_BN_CLICKED (IDC_OptimumMixing, OnOptimumMixing)
+	ON_BN_CLICKED (IDC_UserMixing, OnUserMixing)
+	//}}AFX_MSG_MAP
+END_MESSAGE_MAP ()
+
+
+
+CMLOOMixingDialog::CMLOOMixingDialog (
+				CWnd* 								pParent /*=NULL*/)
+		: CMDialog (CMLOOMixingDialog::IDD, pParent)
+
 {
-	//{{AFX_DATA_INIT(CMLOOMixingDialog)
+	//{{AFX_DATA_INIT (CMLOOMixingDialog)
 	m_mixingParameterCode = -1;
 	m_userMixingParameter = 0.0;
 	//}}AFX_DATA_INIT
@@ -47,32 +58,29 @@ CMLOOMixingDialog::CMLOOMixingDialog(CWnd* pParent /*=NULL*/)
 	m_initializedFlag = CMDialog::m_initializedFlag;
 
 	m_loocMixingParameter = 0.0;
-}
+	
+}	// end "CMLOOMixingDialog"
 
 
-void CMLOOMixingDialog::DoDataExchange(CDataExchange* pDX)
+
+void CMLOOMixingDialog::DoDataExchange (
+				CDataExchange* 					pDX)
+
 {
-	CDialog::DoDataExchange(pDX);
-	//{{AFX_DATA_MAP(CMLOOMixingDialog)
-	DDX_Radio(pDX, IDC_OptimumMixing, m_mixingParameterCode);
-	DDX_Text2(pDX, IDC_UserValue, m_userMixingParameter);
-	DDV_MinMaxDouble(pDX, m_userMixingParameter, 0., 3.);
+	CDialog::DoDataExchange (pDX);
+	//{{AFX_DATA_MAP (CMLOOMixingDialog)
+	DDX_Radio (pDX, IDC_OptimumMixing, m_mixingParameterCode);
+	DDX_Text2 (pDX, IDC_UserValue, m_userMixingParameter);
+	DDV_MinMaxDouble (pDX, m_userMixingParameter, 0., 3.);
 	//}}AFX_DATA_MAP
-}
+	
+}	// end "DoDataExchange"
 
 
-BEGIN_MESSAGE_MAP(CMLOOMixingDialog, CMDialog)
-	//{{AFX_MSG_MAP(CMLOOMixingDialog)
-	ON_BN_CLICKED(IDC_UserMixing, OnUserMixing)
-	ON_BN_CLICKED(IDC_OptimumMixing, OnOptimumMixing)
-	ON_BN_CLICKED(IDC_IdentityMatrix, OnIdentityMatrix)
-	//}}AFX_MSG_MAP
-END_MESSAGE_MAP()   
 
-
-//-----------------------------------------------------------------------------
-//								 Copyright (1988-2000)
-//								c Purdue Research Foundation
+//------------------------------------------------------------------------------------
+//								 Copyright (2000-2020)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void DoDialog
@@ -93,21 +101,20 @@ END_MESSAGE_MAP()
 //	Coded By:			Larry L. Biehl			Date: 03/07/2000
 //	Revised By:			Larry L. Biehl			Date: 03/07/2000	
 
-Boolean 
-CMLOOMixingDialog::DoDialog(
-				SInt16									statsWindowMode)
+Boolean CMLOOMixingDialog::DoDialog (
+				SInt16								statsWindowMode)
 
 {                                 
-	INT_PTR						returnCode;
+	INT_PTR								returnCode;
 	
-	Boolean						continueFlag = FALSE;
+	Boolean								continueFlag = FALSE;
 								
 
 	                          
 			// Make sure intialization has been completed.
 							                         
 	if (!m_initializedFlag)
-																			return(continueFlag);
+																				return (continueFlag);
 																					
 	m_statsWindowMode = statsWindowMode;
 	
@@ -116,29 +123,37 @@ CMLOOMixingDialog::DoDialog(
 	if (returnCode == IDOK)
 		{		
 		LOOCOptionsDialogOK (statsWindowMode,
-										m_mixingParameterCode+1,
-										m_userMixingParameter);
+									m_mixingParameterCode+1,
+									m_userMixingParameter);
 
 		continueFlag = TRUE;
 									
-		}		// end "if (returnCode == IDOK)"
+		}	// end "if (returnCode == IDOK)"
 		
 	return (continueFlag);
 		
-}		// end "DoDialog" 
+}	// end "DoDialog"
 
 
 
-/////////////////////////////////////////////////////////////////////////////
-// CMLOOMixingDialog message handlers
+void CMLOOMixingDialog::OnIdentityMatrix ()
 
-BOOL CMLOOMixingDialog::OnInitDialog() 
 {
-	SInt16						mixingParameterCode;
+	HideDialogItem (this, IDC_UserValue);
 	
-	CMDialog::OnInitDialog();
+}	// end "OnIdentityMatrix"
+
+
+
+BOOL CMLOOMixingDialog::OnInitDialog ()
+
+{
+	SInt16								mixingParameterCode;
 	
-	// TODO: Add extra initialization here
+	
+	CMDialog::OnInitDialog ();
+	
+			// Add extra initialization here
 	
 	LOOCOptionsDialogInitialize (this,
 											m_statsWindowMode,
@@ -150,7 +165,7 @@ BOOL CMLOOMixingDialog::OnInitDialog()
 			
 	LoadDItemRealValue (this, IDC_OptimumValue, m_loocMixingParameter, 3);
 	                 
-	if (UpdateData(FALSE) )                   
+	if (UpdateData (FALSE))
 		PositionDialogWindow ();
 	
 			// Set default text selection to first edit text item	
@@ -160,32 +175,23 @@ BOOL CMLOOMixingDialog::OnInitDialog()
 	return FALSE;  // return TRUE unless you set the focus to a control
 	              // EXCEPTION: OCX Property Pages should return FALSE
 
-}		// end "OnInitDialog"
+}	// end "OnInitDialog"
 
 
 
-void 
-CMLOOMixingDialog::OnUserMixing() 
-	{
+void CMLOOMixingDialog::OnOptimumMixing ()
+
+{
+	HideDialogItem (this, IDC_UserValue);
+	
+}	// end "OnOptimumMixing"
+
+
+
+void CMLOOMixingDialog::OnUserMixing ()
+
+{
 	ShowDialogItem (this, IDC_UserValue);
 	SelectDialogItemText (this, IDC_UserValue, 0, SInt16_MAX);
 
-	}		// end "OnUserMixing"
-
-
-
-void 
-CMLOOMixingDialog::OnOptimumMixing() 
-	{
-	HideDialogItem (this, IDC_UserValue);
-	
-	}
-
-
-
-void 
-CMLOOMixingDialog::OnIdentityMatrix() 
-	{
-	HideDialogItem (this, IDC_UserValue);
-	
-	}
+}	// end "OnUserMixing"

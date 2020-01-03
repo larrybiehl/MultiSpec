@@ -1,106 +1,120 @@
-// WHistogramDialog.h : header file
-//                 
-#if !defined __MHISTDLG_H__
-	#define	__MHISTDLG_H__  
-	
-	// oul: added the condition of _AMD64_ to be compatible with x64
-	// _AMD64_ is the predefined macro for x64 machines according to MSDN
-	#if defined _X86_ || defined _AMD64_
-	     
-	#include "WDialog.h"
+//	 									MultiSpec
+//
+//					Laboratory for Applications of Remote Sensing
+//									Purdue University
+//								West Lafayette, IN 47907
+//								 Copyright (1995-2020)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	File:						WHistogramDialog.h
+//	Implementation:		WHistogramDialog.cpp
+//
+//	Authors:					Larry L. Biehl
+//
+//	Language:				C++
+//
+//	System:					Windows Operating System
+//
+//	Brief description:	Header file for the CMGraphFrame class.
+//
+//	Written By:				Larry L. Biehl			Date: ??/??/1995?
+//	Revised By:				Larry L. Biehl			Date: 12/12/2019
+//
+//------------------------------------------------------------------------------------
 
-/////////////////////////////////////////////////////////////////////////////
-// CMHistogramSpecsDlg dialog
+#pragma once
+
+	     
+#include "WDialog.h"
 
 class CMHistogramSpecsDlg : public CMDialog
 {
-// Construction
-public:
-						CMHistogramSpecsDlg(CWnd* pParent = NULL);	// standard constructor   
+	// Construction
+	public:
+		CMHistogramSpecsDlg (	// standard constructor
+				CWnd* 								pParent = NULL);
 	
-						~CMHistogramSpecsDlg(void);		// standard desctructor
+		~CMHistogramSpecsDlg (void);		// standard destructor
 	
-	Boolean			DoDialog(
-							HistogramSpecsPtr					histogramSpecsPtr,
-							WindowInfoPtr						windowInfoPtr,
-							FileInfoPtr							fileInfoPtr); 
+		Boolean DoDialog (
+				HistogramSpecsPtr					histogramSpecsPtr,
+				WindowInfoPtr						windowInfoPtr,
+				FileInfoPtr							fileInfoPtr);
 
-// Dialog Data
-	//{{AFX_DATA(CMHistogramSpecsDlg)
-	enum { IDD = IDD_HistogramSpecs };
-	BOOL		m_computeOnlyMinMaxFlag;
-	BOOL		m_includeEmptyBinsFlag;
-	BOOL		m_listHistogramValuesFlag;
-	BOOL		m_listHistogramSummaryFlag;
-	int		m_histogramMethod;
-	BOOL		m_textWindowFlag;
-	BOOL		m_diskFileFlag;
-	CString	m_fileName;
-	int		m_columnsLinesFormat;
-	CString	m_supportFileName;
-	//}}AFX_DATA
+		// Dialog Data
+		//{{AFX_DATA (CMHistogramSpecsDlg)
+		enum { IDD = IDD_HistogramSpecs };
+	
+		CString								m_fileName,
+												m_supportFileName;
+	
+		int									m_columnsLinesFormat,
+												m_histogramMethod;
+	
+		BOOL									m_computeOnlyMinMaxFlag,
+												m_diskFileFlag,
+												m_includeEmptyBinsFlag,
+												m_listHistogramValuesFlag,
+												m_listHistogramSummaryFlag,
+												m_textWindowFlag;
+		//}}AFX_DATA
 
-// Implementation
-protected:
-	void				CheckWriteResultsToSettings(void);
+	// Implementation
+	protected:
+		// Generated message map functions
+		//{{AFX_MSG (CMHistogramSpecsDlg)
+		afx_msg void OnComputeOnly ();
 	
-	virtual void 	DoDataExchange(CDataExchange* pDX);	// DDX/DDV support 
+		afx_msg void OnDiskFile ();
 	
-//	void				HideAreaHistogramItems (void); 
-							
-//	void				HideListHistogramItems (void);
+		afx_msg void OnEmptyBins ();
 	
-//	void				HistogramDialogStatisticsFile (
-//							HistogramSpecsPtr		histogramSpecsPtr); 
-							
-//	Boolean			Initialize(void);
+		virtual BOOL OnInitDialog ();
 	
-	void 				SetListAndEmptyBinsDialogBoxes (
-							DialogPtr				dialogPtr, 
-							Boolean					minMaxetcOnlyFlag, 
-							Boolean					listHistogramFlag, 
-							Boolean					includeEmptyBinsFlag, 
-							Boolean					lineFormatHistFlag);
+		afx_msg void OnListHistogram ();
 	
-	void				ShowAreaHistogramItems (void);  
-							
-//	void				ShowListHistogramItems (void);
+		afx_msg void OnSelendokChannels ();
 	
-	Boolean 			UpdateAllChannelsAtOnceFlag (
-							DialogPtr				dialogPtr, 
-							SInt16					numberChannels);
+		afx_msg void OnSelendokColumnLineFormat ();
+	
+		afx_msg void OnSelendokMethod ();
+	
+		afx_msg void OnTextWindow ();
+		//}}AFX_MSG
+		DECLARE_MESSAGE_MAP ()
 
-	void				UpdateListAndEmptyBinsDialogBoxes(void);
-			
-	// Generated message map functions
-	//{{AFX_MSG(CMHistogramSpecsDlg)
-	virtual BOOL OnInitDialog();
-	afx_msg void OnListHistogram();
-	afx_msg void OnComputeOnly();
-	afx_msg void OnSelendokColumnLineFormat();
-	afx_msg void OnEmptyBins();
-	afx_msg void OnDiskFile();
-	afx_msg void OnTextWindow();
-	afx_msg void OnSelendokMethod();
-	afx_msg void OnSelendokChannels();
-	//}}AFX_MSG
-	DECLARE_MESSAGE_MAP()
+		void CheckWriteResultsToSettings (void);
 	
-	HistogramSpecsPtr 	m_histogramSpecsPtr;
-	FileInfoPtr				m_fileInfoPtr;
-	WindowInfoPtr			m_windowInfoPtr;
-	                                                                 
-	Boolean					m_allChannelsAtOnceFlag;
-	Boolean					m_defaultStatFileChangedFlag;
-	Boolean					m_initializedFlag;
-	Boolean					m_lineFormatOnlyFlag;  
-	Boolean					m_updateListHistogramItemsFlag; 
-//	SInt16					m_methodOffset;
-	SInt16					m_histogramMethodCode;
+		virtual void DoDataExchange (
+				CDataExchange* 					pDX);	// DDX/DDV support
 	
-public:
-};  
+		void SetListAndEmptyBinsDialogBoxes (
+				DialogPtr							dialogPtr,
+				Boolean								minMaxetcOnlyFlag,
+				Boolean								listHistogramFlag,
+				Boolean								includeEmptyBinsFlag,
+				Boolean								lineFormatHistFlag);
 	
-	#endif // defined _X86_ || defined _AMD64_ 
-  
-#endif // !defined __MHISTDLG_H__
+		void ShowAreaHistogramItems (void);
+	
+		Boolean UpdateAllChannelsAtOnceFlag (
+				DialogPtr							dialogPtr,
+				SInt16								numberChannels);
+
+		void UpdateListAndEmptyBinsDialogBoxes (void);
+	
+	
+		FileInfoPtr							m_fileInfoPtr;
+		HistogramSpecsPtr 				m_histogramSpecsPtr;
+		WindowInfoPtr						m_windowInfoPtr;
+	
+		SInt16								m_histogramMethodCode;
+	
+		Boolean								m_allChannelsAtOnceFlag,
+												m_defaultStatFileChangedFlag,
+												m_initializedFlag,
+												m_lineFormatOnlyFlag,
+												m_updateListHistogramItemsFlag;
+	
+};	// end class CMHistogramSpecsDlg

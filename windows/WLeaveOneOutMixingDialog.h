@@ -1,60 +1,74 @@
-#if !defined(AFX_WLOOMDLG_H__337E2183_F42A_11D3_8D9B_00105AA88EE3__INCLUDED_)
-#define AFX_WLOOMDLG_H__337E2183_F42A_11D3_8D9B_00105AA88EE3__INCLUDED_
+//	 									MultiSpec
+//
+//					Laboratory for Applications of Remote Sensing
+//									Purdue University
+//								West Lafayette, IN 47907
+//								 Copyright (1995-2020)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	File:						WLeaveOneOutMixingDialog.h
+//	Implementation:		WLeaveOneOutMixingDialog.cpp
+//
+//	Authors:					Larry L. Biehl
+//
+//	Language:				C++
+//
+//	System:					Windows Operating System
+//
+//	Brief description:	Header file for the CMLOOMixingDialog class
+//
+//	Written By:				Larry L. Biehl			Date: ??/??/1995?
+//	Revised By:				Larry L. Biehl			Date: 12/12/2019
+//
+//------------------------------------------------------------------------------------
 
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
-// WLeaveOneOutMixingDialog.h : header file
-//           
-	     
+
 #include "WDialog.h"
 
-/////////////////////////////////////////////////////////////////////////////
-// CMLOOMixingDialog dialog
 
 class CMLOOMixingDialog : public CMDialog
 {
-// Construction
-public:
-	CMLOOMixingDialog(CWnd* pParent = NULL);   // standard constructor
+	// Construction
+	public:
+		CMLOOMixingDialog (	// standard constructor
+				CWnd* 								pParent = NULL);
+				
 
-// Dialog Data
-	//{{AFX_DATA(CMLOOMixingDialog)
-	enum { IDD = IDD_LOOMixingParameter };
-	int		m_mixingParameterCode;
-	double	m_userMixingParameter;
-	//}}AFX_DATA
-
-Boolean DoDialog(
-				SInt16									statsWindowMode);
-
-
-// Overrides
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CMLOOMixingDialog)
-	protected:
-	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-	//}}AFX_VIRTUAL
+		// Dialog Data
+		//{{AFX_DATA (CMLOOMixingDialog)
+		enum { IDD = IDD_LOOMixingParameter };
 	
-// Implementation
-protected:
+		double	m_userMixingParameter;
+	
+		int		m_mixingParameterCode;
+		//}}AFX_DATA
 
-	// Generated message map functions
-	//{{AFX_MSG(CMLOOMixingDialog)
-	virtual BOOL OnInitDialog();
-	afx_msg void OnUserMixing();
-	afx_msg void OnOptimumMixing();
-	afx_msg void OnIdentityMatrix();
-	//}}AFX_MSG
-	DECLARE_MESSAGE_MAP()
+		Boolean DoDialog (
+				SInt16								statsWindowMode);
 
-	double					m_loocMixingParameter;
 
-	SInt16					m_statsWindowMode;
+	// Implementation
+	protected:
+		virtual void DoDataExchange (
+				CDataExchange* 					pDX);    // DDX/DDV support
 
-};
+		// Generated message map functions
+		//{{AFX_MSG (CMLOOMixingDialog)
+		afx_msg void OnIdentityMatrix ();
+	
+		virtual BOOL OnInitDialog ();
+	
+		afx_msg void OnOptimumMixing ();
+	
+		afx_msg void OnUserMixing ();
+		//}}AFX_MSG
+		DECLARE_MESSAGE_MAP ()
+	
 
-//{{AFX_INSERT_LOCATION}}
-// Microsoft Visual C++ will insert additional declarations immediately before the previous line.
+		double								m_loocMixingParameter;
 
-#endif // !defined(AFX_WLOOMDLG_H__337E2183_F42A_11D3_8D9B_00105AA88EE3__INCLUDED_)
+		SInt16								m_statsWindowMode;
+
+};	// end class CMLOOMixingDialog

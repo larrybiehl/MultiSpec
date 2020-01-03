@@ -1,24 +1,51 @@
-// WEditClassGroupDialog.cpp : implementation file
-// 
-// Revised by Larry Biehl on 12/21/2017
+//	 									MultiSpec
 //
-#include "SMultiSpec.h"             
+//					Laboratory for Applications of Remote Sensing
+// 								Purdue University
+//								West Lafayette, IN 47907
+//								 Copyright (1995-2020)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	File:						WEditClassGroupDialog.cpp : implementation file
+//
+//	Authors:					Larry L. Biehl
+//
+//	Revision date:			01/04/2018
+//
+//	Language:				C++
+//
+//	System:					Windows Operating System
+//
+//	Brief description:	This file contains functions that relate to the
+//								CMEditClassGroupDlg class.
+//
+//------------------------------------------------------------------------------------
+
+#include "SMultiSpec.h"
+
 #include "WEditClassGroupDialog.h"
-//#include	"SExtGlob.h" 
 
 #ifdef _DEBUG
-#undef THIS_FILE
-static char BASED_CODE THIS_FILE[] = __FILE__;
+	#undef THIS_FILE
+	static char BASED_CODE THIS_FILE[] = __FILE__;
 #endif
 
-/////////////////////////////////////////////////////////////////////////////
-// CMEditClassGroupDlg dialog
 
 
-CMEditClassGroupDlg::CMEditClassGroupDlg(CWnd* pParent /*=NULL*/)
-	: CMDialog(CMEditClassGroupDlg::IDD, pParent)
+BEGIN_MESSAGE_MAP (CMEditClassGroupDlg, CMDialog)
+	//{{AFX_MSG_MAP (CMEditClassGroupDlg)
+	//}}AFX_MSG_MAP
+END_MESSAGE_MAP ()
+
+
+
+CMEditClassGroupDlg::CMEditClassGroupDlg (
+				CWnd* 								pParent /*=NULL*/)
+		: CMDialog (CMEditClassGroupDlg::IDD, pParent)
+
 {
-	//{{AFX_DATA_INIT(CMEditClassGroupDlg)
+	//{{AFX_DATA_INIT (CMEditClassGroupDlg)
 	m_classGroupName = "Class 1";
 	//}}AFX_DATA_INIT 
 	
@@ -33,108 +60,40 @@ CMEditClassGroupDlg::CMEditClassGroupDlg(CWnd* pParent /*=NULL*/)
 		{																			
 				//	Set the class or group name string.	
 			
-		m_classGroupCStringPtr = (TBYTE*)m_classGroupName.GetBufferSetLength(64); 
+		m_classGroupCStringPtr = (TBYTE*)m_classGroupName.GetBufferSetLength (64);
 				
 		}
 			
-	CATCH_ALL(e)
+	CATCH_ALL (e)
 		{
 		m_initializedFlag = FALSE;
-			
 		} 
 		
 	END_CATCH_ALL
 	
 	m_initializedFlag = TRUE;
 	
-}		// end "CMEditClassGroupDlg"
+}	// end "CMEditClassGroupDlg"
 
 
 
-void CMEditClassGroupDlg::DoDataExchange(CDataExchange* pDX)
+void CMEditClassGroupDlg::DoDataExchange (
+				CDataExchange* 					pDX)
+
 {
-	CMDialog::DoDataExchange(pDX);
-	//{{AFX_DATA_MAP(CMEditClassGroupDlg)
-	DDX_Text(pDX, IDC_ClassGroupName, m_classGroupName);
-	DDV_MaxChars(pDX, m_classGroupName, 31);
+	CMDialog::DoDataExchange (pDX);
+	//{{AFX_DATA_MAP (CMEditClassGroupDlg)
+	DDX_Text (pDX, IDC_ClassGroupName, m_classGroupName);
+	DDV_MaxChars (pDX, m_classGroupName, 31);
 	//}}AFX_DATA_MAP
-}
-
-BEGIN_MESSAGE_MAP(CMEditClassGroupDlg, CMDialog)
-	//{{AFX_MSG_MAP(CMEditClassGroupDlg)
-	//}}AFX_MSG_MAP
-END_MESSAGE_MAP()
-
-
-/////////////////////////////////////////////////////////////////////////////
-// CMEditClassGroupDlg message handlers
-
-BOOL CMEditClassGroupDlg::OnInitDialog()
-{  
-	char			textString[64];
-	char*			namePtr;
 	
-	Handle		nameHandle;
-	                              
-	CDialog::OnInitDialog(); 
-	
-			// Load the current default class or group name  
-	
-	if (m_newEditCode == kNewGroup)
-		{                                                     		
-		FileInfoPtr fileInfoPtr = (FileInfoPtr)GetHandlePointer (
-												m_fileInfoHandle, kNoLock, kNoMoveHi); 
-		nameHandle = fileInfoPtr->classDescriptionH;
-		
-		}		// end "if (m_newEditCode == kNewGroup)"
-		
-	else		// m_newEditCode != kNewGroup
-		{ 
-		nameHandle = m_nameHandle;
-		
-		}		// end "else m_newEditCode != kNewGroup"
-		
-	namePtr = (char*)GetHandlePointer (nameHandle, kLock, kNoMoveHi);
-	namePtr = &namePtr[m_classGroupIndex*32];
-	PtoCstring(namePtr, textString); 
-	
-	if (m_newEditCode == kNewGroup)
-		{
-		SetWindowText((LPCTSTR)_T("Enter New Thematic Group Name"));
-		LoadDItemString (IDC_ClassGroupName, textString);
-		CheckAndUnlockHandle (nameHandle);
-		
-		}		// end "if (m_newEditCode == kNewGroup)"
-		 
-	else if (m_newEditCode == kEditGroup)
-		{                             
-		SetWindowText((LPCTSTR)_T("Edit Thematic Group Name"));
-		LoadDItemString (IDC_ClassGroupName, textString);
-		
-		}		// end "else if (m_newEditCode == kEditGroup)" 
-		 
-	else		 // m_newEditCode == kEditClass
-		{               
-		SetWindowText((LPCTSTR)_T("Edit Thematic Class Name"));
-		LoadDItemString (IDC_ClassGroupName, textString);
-		
-		}		// end "else m_newEditCode == kEditGroup" 
-		
-	PositionDialogWindow ();
-		
-			// Set default text selection 
-	                                                 
-	SelectDialogItemText (this, IDC_ClassGroupName, 0, SInt16_MAX);  
-	
-	return FALSE;  // return TRUE  unless you set the focus to a control
-	
-}		// end "OnInitDialog"
+}	// end "DoDataExchange"
 
 
 
-//-----------------------------------------------------------------------------
-//								 Copyright (1988-1998)
-//								c Purdue Research Foundation
+//------------------------------------------------------------------------------------
+//								 Copyright (1997-2020)
+//							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void DoDialog
@@ -154,32 +113,29 @@ BOOL CMEditClassGroupDlg::OnInitDialog()
 //	Coded By:			Larry L. Biehl			Date: 01/07/1997
 //	Revised By:			Larry L. Biehl			Date: 05/26/2017	
 
-Boolean 
-CMEditClassGroupDlg::DoDialog(
-				CMLegendList*		legendListCPtr,
-				SInt16				selectedCell,
-				SInt16				newEditCode,
-				SInt16				classGroupIndex,
-				Handle				fileInfoHandle,
-				Handle				nameHandle)
+Boolean CMEditClassGroupDlg::DoDialog (
+				CMLegendList*						legendListCPtr,
+				SInt16								selectedCell,
+				SInt16								newEditCode,
+				SInt16								classGroupIndex,
+				Handle								fileInfoHandle,
+				Handle								nameHandle)
 
 {  
-	#if defined _UNICODE
-		USES_CONVERSION;
-	#endif              
+	USES_CONVERSION;
 
-	UInt8						string[255];
-	Str255					textString;
-	                            
-	Boolean					OKFlag = FALSE;
+	UInt8									string[255];
+	Str255								textString;
 	
-	INT_PTR					returnCode;
+	INT_PTR								returnCode;
+	                            
+	Boolean								OKFlag = FALSE;
 	
 	
 			// Make sure intialization has been completed.
 							                         
 	if (!m_initializedFlag)
-																			return(FALSE);
+																						return (FALSE);
 	
 	m_classGroupIndex = classGroupIndex;																		
 	m_newEditCode = newEditCode;
@@ -192,54 +148,104 @@ CMEditClassGroupDlg::DoDialog(
 		{ 
 		OKFlag = TRUE;   
 	            
-		#if defined _UNICODE
-			strcpy ((char*)string, T2A(m_classGroupCStringPtr));
-		#endif
-		#if !defined _UNICODE
-			strcpy ((char*)string, (const char*)m_classGroupCStringPtr);
-		#endif                       
+		strcpy ((char*)string, T2A (m_classGroupCStringPtr));
 		CtoPstring (string, textString);
 		  
 		EditGroupClassDialogOK (legendListCPtr,
-											m_newEditCode,
-											m_nameHandle,
-											m_fileInfoHandle,
-											(char*)&textString,
-											selectedCell,
-											m_numberClassesGroups,
-											m_classGroupIndex,
-											m_noChangeFlag);
+										m_newEditCode,
+										m_nameHandle,
+										m_fileInfoHandle,
+										(char*)&textString,
+										selectedCell,
+										m_numberClassesGroups,
+										m_classGroupIndex,
+										m_noChangeFlag);
 		
-		}		// end "if (returnCode == IDOK)" 
+		}	// end "if (returnCode == IDOK)"
 		
 	return (OKFlag);
 		
-}		// end "DoDialog"
+}	// end "DoDialog"
 
 
 
-void 
-CMEditClassGroupDlg::OnOK()
+BOOL CMEditClassGroupDlg::OnInitDialog ()
 
 {  
-	#if defined _UNICODE
-		USES_CONVERSION;
-	#endif              
+	char									textString[64];
+	
+	char*									namePtr;
+	
+	Handle								nameHandle;
+	
+	                              
+	CDialog::OnInitDialog (); 
+	
+			// Load the current default class or group name  
+	
+	if (m_newEditCode == kNewGroup)
+		{                                                     		
+		FileInfoPtr fileInfoPtr = (FileInfoPtr)GetHandlePointer (m_fileInfoHandle);
+		nameHandle = fileInfoPtr->classDescriptionH;
+		
+		}	// end "if (m_newEditCode == kNewGroup)"
+		
+	else	// m_newEditCode != kNewGroup
+		nameHandle = m_nameHandle;
+		
+	namePtr = (char*)GetHandlePointer (nameHandle, kLock);
+	namePtr = &namePtr[m_classGroupIndex*32];
+	PtoCstring (namePtr, textString); 
+	
+	if (m_newEditCode == kNewGroup)
+		{
+		SetWindowText ((LPCTSTR)_T("Enter New Thematic Group Name"));
+		LoadDItemString (IDC_ClassGroupName, textString);
+		CheckAndUnlockHandle (nameHandle);
+		
+		}	// end "if (m_newEditCode == kNewGroup)"
+		 
+	else if (m_newEditCode == kEditGroup)
+		{                             
+		SetWindowText ((LPCTSTR)_T("Edit Thematic Group Name"));
+		LoadDItemString (IDC_ClassGroupName, textString);
+		
+		}	// end "else if (m_newEditCode == kEditGroup)"
+		 
+	else	// m_newEditCode == kEditClass
+		{               
+		SetWindowText ((LPCTSTR)_T("Edit Thematic Class Name"));
+		LoadDItemString (IDC_ClassGroupName, textString);
+		
+		}	// end "else m_newEditCode == kEditGroup"
+		
+	PositionDialogWindow ();
+		
+			// Set default text selection 
+	                                                 
+	SelectDialogItemText (this, IDC_ClassGroupName, 0, SInt16_MAX);  
+	
+	return FALSE;  // return TRUE  unless you set the focus to a control
+	
+}	// end "OnInitDialog"
 
-	UInt8			string[256];
-	UInt8			textString[256];                                   
-	Boolean 		OKFlag = TRUE; 
+
+
+void CMEditClassGroupDlg::OnOK ()
+
+{  
+	USES_CONVERSION;
+
+	UInt8									string[256],
+											textString[256];
+	
+	Boolean 								OKFlag = TRUE;
 	
 	
-	if ( !UpdateData(TRUE) )
-																							return; 
+	if (!UpdateData (TRUE))
+																								return;
 	 
-	#if defined _UNICODE
-		strcpy ((char*)string, T2A(m_classGroupCStringPtr)); 
-	#endif                                 
-	#if !defined _UNICODE
-		strcpy ((char*)string, (const char*)m_classGroupCStringPtr); 
-	#endif                                 
+	strcpy ((char*)string, T2A (m_classGroupCStringPtr));
 	CtoPstring (string, textString);
 	
 	m_numberClassesGroups = CheckForDuplicateName (m_newEditCode,
@@ -258,15 +264,15 @@ CMEditClassGroupDlg::OnOK()
 		DupClassFieldNameAlert (classGroupCode, textString);
 		OKFlag = FALSE;                     
 			
-		}		// end "if (m_numberClassesGroups == 0)"  
+		}	// end "if (m_numberClassesGroups == 0)"
 	
 	if (OKFlag)
-		CMDialog::OnOK();
+		CMDialog::OnOK ();
 		
-	else		// !OKFlag
+	else	// !OKFlag
 		{                                       
 		SelectDialogItemText (this, IDC_ClassGroupName, 0, SInt16_MAX);  
 		
-		}		// end "else !OKFlag" 
+		}	// end "else !OKFlag"
 		
-}		// end "OnOK"
+}	// end "OnOK"

@@ -1,60 +1,85 @@
-// WNewClassFieldDialog.h : header file
-// 
-// Revised by Larry Biehl on 03/16/017
+//	 									MultiSpec
 //
-#if !defined __WNEWCLS_H__
-	#define	__WNEWCLS_H__  
-	
-	#include "WDialog.h"
+//					Laboratory for Applications of Remote Sensing
+//									Purdue University
+//								West Lafayette, IN 47907
+//								 Copyright (1995-2020)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	File:						WNewClassFieldDialog.h
+//	Implementation:		WNewClassFieldDialog.cpp
+//
+//	Authors:					Larry L. Biehl
+//
+//	Language:				C++
+//
+//	System:					Windows Operating System
+//
+//	Brief description:	Header file for the CMNewClassFieldDlg class
+//
+//	Written By:				Larry L. Biehl			Date: ??/??/1995?
+//	Revised By:				Larry L. Biehl			Date: 03/16/2017
+//
+//------------------------------------------------------------------------------------
 
-/////////////////////////////////////////////////////////////////////////////
-// WEditClassFieldDlg dialog
+#pragma once
+	
+#include "WDialog.h"
+
 
 class CMNewClassFieldDlg : public CMDialog
 {
-// Construction
-public:
-	CMNewClassFieldDlg(CWnd* pParent = NULL);	// standard constructor
+	// Construction
+	public:
+		CMNewClassFieldDlg (	// standard constructor
+				CWnd* 								pParent = NULL);
 
-// Dialog Data
-	//{{AFX_DATA(CMNewClassFieldDlg)
-	enum { IDD = IDD_ClassField };
-	int		m_classList;
-	CString	m_className;
-	CString	m_fieldName;
-	int		m_fieldType;
-	//}}AFX_DATA
+		// Dialog Data
+		//{{AFX_DATA (CMNewClassFieldDlg)
+		enum { IDD = IDD_ClassField };
 	
-	Boolean			DoDialog(
-							Boolean					newClassOnlyFlag, 
-							UCharPtr					classNamePtr,
-							UCharPtr					fieldNamePtr, 
-							SInt16*		 			fieldTypePtr);
+		CString								m_className,
+												m_fieldName;
+	
+		int									m_classList,
+												m_fieldType;
+		//}}AFX_DATA
+	
+		Boolean DoDialog (
+				Boolean								newClassOnlyFlag,
+				UCharPtr								classNamePtr,
+				UCharPtr								fieldNamePtr,
+				SInt16*		 						fieldTypePtr);
 
-// Implementation
-protected:
-	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV support
+	// Implementation
+	protected:
+		virtual void DoDataExchange (
+				CDataExchange* 					pDX);	// DDX/DDV support
 
-	// Generated message map functions
-	//{{AFX_MSG(CMNewClassFieldDlg)
-	virtual BOOL OnInitDialog();
-	virtual void OnOK();
-	afx_msg void OnSelendokClassList();
-	afx_msg void OnFieldType(); 
-	//}}AFX_MSG
-	DECLARE_MESSAGE_MAP()      
+		// Generated message map functions
+		//{{AFX_MSG (CMNewClassFieldDlg)
+		afx_msg void OnFieldType ();
 	
-	TBYTE*			m_classNameCStringPtr;
-	TBYTE*			m_fieldNameCStringPtr;
+		virtual BOOL OnInitDialog ();
 	
-	Boolean			m_initializedFlag;
-	Boolean			m_newClassOnlyFlag; 
-	UCharPtr			m_classNamePtr;
-	UCharPtr			m_fieldNamePtr;
-	SInt16*			m_fieldTypePtr;
+		virtual void OnOK ();
 	
-	SInt64			m_numberSelectionPixels; 
+		afx_msg void OnSelendokClassList ();
+		//}}AFX_MSG
+		DECLARE_MESSAGE_MAP ()
 	
-};  
-   
-#endif	// !defined __WNEWCLS_H__
+		SInt64								m_numberSelectionPixels;
+	
+		UCharPtr								m_classNamePtr,
+												m_fieldNamePtr;
+	
+		SInt16*								m_fieldTypePtr;
+	
+		TBYTE									*m_classNameCStringPtr,
+												*m_fieldNameCStringPtr;
+	
+		Boolean								m_initializedFlag,
+												m_newClassOnlyFlag;
+	
+};	// end class CMNewClassFieldDlg

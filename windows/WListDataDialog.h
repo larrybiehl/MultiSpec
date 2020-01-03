@@ -1,69 +1,97 @@
-// WListDataDialog.h : header file
-// 
-// Revised by Larry Biehl on 07/03/2018
+//	 									MultiSpec
+//
+//					Laboratory for Applications of Remote Sensing
+//									Purdue University
+//								West Lafayette, IN 47907
+//								 Copyright (1995-2020)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	File:						WListDataDialog.h
+//	Implementation:		WListDataDialog.cpp
+//
+//	Authors:					Larry L. Biehl
+//
+//	Language:				C++
+//
+//	System:					Windows Operating System
+//
+//	Brief description:	Header file for the CMListDataDialog class
+//
+//	Written By:				Larry L. Biehl			Date: ??/??/1995?
+//	Revised By:				Larry L. Biehl			Date: 07/03/2018
+//
+//------------------------------------------------------------------------------------
 
-#if !defined __WLSTDDLG_H__
-	#define	__WLSTDDLG_H__             
+#pragma once
 	     
-	#include "WDialog.h"
+#include "WDialog.h"
 
-/////////////////////////////////////////////////////////////////////////////
-// CMListDataDialog dialog
 
 class CMListDataDialog : public CMDialog
 {
-// Construction
-public:
-	CMListDataDialog(CWnd* pParent = NULL);	// standard constructor      
+	// Construction
+	public:
+		CMListDataDialog (	// standard constructor
+				CWnd* 								pParent = NULL);
 	
-							~CMListDataDialog();		// standard desctructor 
+		~CMListDataDialog ();		// standard desctructor
 	
-	SInt16				DoDialog(void);
+		SInt16 DoDialog (void);
 
-// Dialog Data
-	//{{AFX_DATA(CMListDataDialog)
-	enum { IDD = IDD_ListData };
-	BOOL	m_areaFlag;
-	BOOL	m_classFlag;
-	BOOL	m_diskFileFlag;
-	BOOL	m_graphDataFlag;
-	BOOL	m_localGraphDataFlag;
-	BOOL	m_includeClassFieldFlag;
-	BOOL	m_includeLineColumnFlag;
-	BOOL	m_includeLatLongFlag;
-	BOOL	m_textWindowFlag;
-	BOOL	m_trainingFlag;
-	BOOL	m_testFlag;
-	int	m_listDataFormatCode;
-	long	m_numberDecimalPlaces;
-	//}}AFX_DATA
+		// Dialog Data
+		//{{AFX_DATA (CMListDataDialog)
+		enum { IDD = IDD_ListData };
+	
+		int									m_listDataFormatCode;
+	
+		long									m_numberDecimalPlaces;
+	
+		BOOL									m_areaFlag,
+												m_classFlag,
+												m_diskFileFlag,
+												m_graphDataFlag,
+												m_includeClassFieldFlag,
+												m_includeLatLongFlag,
+												m_includeLineColumnFlag,
+												m_localGraphDataFlag,
+												m_testFlag,
+												m_textWindowFlag,
+												m_trainingFlag;
+		//}}AFX_DATA
 
-// Implementation
-protected:
-	virtual void 	DoDataExchange(CDataExchange* pDX);	// DDX/DDV support
+	// Implementation
+	protected:
+		void CheckClassItems (
+				Boolean								listClassDataFlag);
 	
-	void				CheckClassItems(
-							Boolean			listClassDataFlag);
-							
-	void				CheckOKButton (void);   
+		void CheckOKButton (void);
 	
-	Boolean			m_initializedFlag,
-						m_latLongPossibleFlag;
+		virtual void DoDataExchange (
+				CDataExchange* 					pDX);	// DDX/DDV support
 
-	// Generated message map functions
-	//{{AFX_MSG(CMListDataDialog)
-	virtual BOOL OnInitDialog();
-	afx_msg void OnSelendokChannelCombo();
-	afx_msg void OnSelendokClassCombo();
-	afx_msg void OnClasses();
-	afx_msg void OnArea();
-	afx_msg void OnGraphData();
-	//}}AFX_MSG
-	DECLARE_MESSAGE_MAP()
+		// Generated message map functions
+		//{{AFX_MSG (CMListDataDialog)
+		afx_msg void OnArea ();
 	
-public:
-	afx_msg void OnCbnSelendokListchannelsformatcombo();
-	afx_msg void OnEnChangeEdit1();
-};            
-  
-#endif // !defined __WLSTDDLG_H__
+		afx_msg void OnCbnSelendokListchannelsformatcombo ();
+	
+		afx_msg void OnClasses ();
+	
+		afx_msg void OnEnChangeEdit1 ();
+	
+		afx_msg void OnGraphData ();
+	
+		virtual BOOL OnInitDialog ();
+	
+		afx_msg void OnSelendokChannelCombo ();
+	
+		afx_msg void OnSelendokClassCombo ();
+		//}}AFX_MSG
+		DECLARE_MESSAGE_MAP ()
+
+
+		Boolean 								m_initializedFlag,
+												m_latLongPossibleFlag;
+	
+};	// end class CMListDataDialog

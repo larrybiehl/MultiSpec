@@ -1,59 +1,63 @@
-// WGraphDoc.h : header file
-//                       
-               
-#if !defined __WGRAFDOC_H__
-	#define __WGRAFDOC_H__ 
+//	 									MultiSpec
+//
+//					Laboratory for Applications of Remote Sensing
+//									Purdue University
+//								West Lafayette, IN 47907
+//								 Copyright (1995-2020)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	File:						WGraphDoc.h
+//	Implementation:		WGraphDoc.cpp
+//
+//	Authors:					Larry L. Biehl
+//
+//	Language:				C++
+//
+//	System:					Windows Operating System
+//
+//	Brief description:	Header file for the CMGraphDoc class.
+//
+//	Written By:				Larry L. Biehl			Date: ??/??/1995?
+//	Revised By:				Larry L. Biehl			Date: 12/12/2019
+//
+//------------------------------------------------------------------------------------
+
+#pragma once
                           
-   #include "WGraphFrame.h"
+#include "WGraphFrame.h"
    
-/////////////////////////////////////////////////////////////////////////////
-// CMGraphDoc document
 
 class CMGraphDoc : public CDocument
 {
-//	DECLARE_SERIAL(CMGraphDoc)
 	DECLARE_DYNCREATE(CMGraphDoc)
-protected:
-	CMGraphDoc();			// protected constructor used by dynamic creation
-              
-public:
-//	CSize				 	GetDocSize() { return m_sizeDoc; }
+	protected:
+		CMGraphDoc ();			// protected constructor used by dynamic creation
+	
+		virtual ~CMGraphDoc ();
+	
+		virtual BOOL OnNewDocument ();
 
-	CMGraphFrame*	 	GetGraphFrameCPtr() { return m_graphFrameCPtr; }
-	                  
-	CMGraphView*		GetGraphViewCPtr(void);
+		// Generated message map functions
+		//{{AFX_MSG (CMGraphDoc)
+			// NOTE - the ClassWizard will add and remove member functions here.
+		//}}AFX_MSG
+		DECLARE_MESSAGE_MAP ()
 	
-//	void					SetDocSize(
-//								SInt16				height,
-//								SInt16				width);
 	
-	void					SetGraphFrameCPtr(
-								CMGraphFrame*		graphFrameCPtr);                       
+		CMGraphFrame*						m_graphFrameCPtr;
+		CMGraphView*						m_graphViewCPtr;
 	
-	void					SetGraphViewCPtr(
-								CMGraphView*		graphViewCPtr); 
-
-
-// Implementation
-protected:
-	virtual ~CMGraphDoc();
-//	virtual void Serialize(CArchive& ar);	// overridden for document i/o
-	virtual	BOOL OnNewDocument();
-
-			// Generated message map functions
-	 
-	//{{AFX_MSG(CMGraphDoc)
-		// NOTE - the ClassWizard will add and remove member functions here.
-	//}}AFX_MSG
-	DECLARE_MESSAGE_MAP()    
+	public:
+		CMGraphFrame* GetGraphFrameCPtr () { return m_graphFrameCPtr; }
 	
-	CMGraphFrame*		m_graphFrameCPtr;
+		CMGraphView* GetGraphViewCPtr (void);
 	
-	CMGraphView*		m_graphViewCPtr;
+		void SetGraphFrameCPtr (
+				CMGraphFrame*						graphFrameCPtr);
 	
-//	CSize					m_sizeDoc;
+		void SetGraphViewCPtr (
+				CMGraphView*						graphViewCPtr);
 	
-};  
-
-#endif	// !defined __WGRAFDOC_H__
+};	// end class CMGraphDoc
 

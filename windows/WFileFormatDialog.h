@@ -1,98 +1,133 @@
-// WFileFormatDialog.h : header file
-//        
-#if !defined __MFORMDLG_H__
-	#define	__MFORMDLG_H__   
-	     
-	#include "WDialog.h"
+//	 									MultiSpec
+//
+//					Laboratory for Applications of Remote Sensing
+//									Purdue University
+//								West Lafayette, IN 47907
+//								 Copyright (1995-2020)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	File:						WFileFormatDialog.h
+//	Implementation:		WFileFormatDialog.cpp
+//
+//	Authors:					Larry L. Biehl
+//
+//	Language:				C++
+//
+//	System:					Windows Operating System
+//
+//	Brief description:	Header file for the CMFileFormatSpecsDlg class.
+//
+//	Written By:				Larry L. Biehl			Date: ??/??/1995?
+//	Revised By:				Larry L. Biehl			Date: 12/12/2019
+//
+//------------------------------------------------------------------------------------
 
-/////////////////////////////////////////////////////////////////////////////
-// CMFileFormatSpecsDlg dialog
+#pragma once
+	     
+#include "WDialog.h"
+
 
 class CMFileFormatSpecsDlg : public CMDialog
 {
-// Construction
-public:
-									CMFileFormatSpecsDlg(CWnd* pParent = NULL);	// standard constructor
+	// Construction
+	public:
+		CMFileFormatSpecsDlg (	// standard constructor
+				CWnd* 								pParent = NULL);
+			
+		Boolean DoDialog (
+				Handle								fileInfoHandle,
+				Handle								windowInfoHandle,
+				Handle*								mapInformationHandlePtr,
+				Handle*								hfaHandlePtr,
+				Handle*								newChannelToHdfDataSetHandlePtr,
+				Boolean*								parameterChangedFlagPtr);
+
+		// Dialog Data
+		//{{AFX_DATA (CMFileFormatSpecsDlg)
+		enum { IDD = IDD_FileFormatSpecs };
+	
+		CString								m_imageName;
+	
+		double								m_fillDataValue;
+	
+		SInt32								m_startColumnNumber,
+												m_startLineNumber;
+	
+		UInt32								m_blockHeight,
+												m_blockWidth,
+												m_headerBytes,
+												m_numberChannels,
+												m_numberColumns,
+												m_numberLines,
+												m_postChannelBytes,
+												m_postLineBytes,
+												m_preChannelBytes,
+												m_preLineBytes,
+												m_trailerBytes;
+	
+		int									m_bandInterleave,
+												m_collapseClassSelection,
+												m_dataValueType,
+												m_hdfDataSetSelection;
+	
+		BOOL									m_computeNumClasses,
+												m_fillDataValueExistsFlag,
+												m_linesBottomToTopFlag,
+												m_swapBytesFlag;
+		//}}AFX_DATA
 		
-	Boolean						DoDialog(
-										Handle								fileInfoHandle, 
-										Handle								windowInfoHandle,
-										Handle*								mapInformationHandlePtr,
-										Handle*								hfaHandlePtr,
-										Handle*								newChannelToHdfDataSetHandlePtr,
-										Boolean*								parameterChangedFlagPtr);
+		int			m_eightBitsPerDataSelection;
 
-// Dialog Data
-	//{{AFX_DATA(CMFileFormatSpecsDlg)
-	enum { IDD = IDD_FileFormatSpecs };
-	UInt32		m_blockHeight;
-	UInt32		m_blockWidth;
-	UInt32		m_numberLines;
-	UInt32		m_numberColumns;
-	UInt32		m_postChannelBytes;
-	UInt32		m_headerBytes;
-	UInt32		m_postLineBytes;
-	UInt32		m_preChannelBytes;
-	UInt32		m_preLineBytes;
-	UInt32		m_numberChannels;
-	SInt32		m_startColumnNumber;
-	SInt32		m_startLineNumber;
-	BOOL			m_swapBytesFlag;
-	BOOL			m_linesBottomToTopFlag;
-	BOOL			m_fillDataValueExistsFlag;
-	double		m_fillDataValue;
-	UInt32		m_trailerBytes;
-	CString		m_imageName;
-	BOOL			m_computeNumClasses;
-	int			m_dataValueType;
-	int			m_bandInterleave;
-	int			m_hdfDataSetSelection;
-	int			m_collapseClassSelection;
-	//}}AFX_DATA
+	// Implementation
+	protected:
+		virtual void DoDataExchange (
+				CDataExchange* 					pDX);	// DDX/DDV support
+
+		// Generated message map functions
+		//{{AFX_MSG (CMFileFormatSpecsDlg)
+		afx_msg void OnBnClickedFillDataValueExists ();
 	
-	int			m_eightBitsPerDataSelection;
-
-// Implementation
-protected:
-	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV support
+		afx_msg void OnBnClickedHdfdatasethelp ();
 	
-	Handle					m_fileInfoHandle,
-								m_hfaHandle,
-								m_mapInformationHandle,
-								m_newChannelToHdfDataSetHandle,
-								m_windowInfoHandle;
+		afx_msg void OnBnClickedLinebottomtotop ();
 	
-	UInt32					m_maxNumberChannelsClasses;
-										
-	FileInfoPtr				m_fileInfoPtr; 
-	WindowInfoPtr			m_windowInfoPtr;
-
-	SInt16					m_dataSetIndex,
-								m_gdalDataTypeCode;
-
-	UInt16					m_dataCompressionCode;
+		afx_msg void OnDetermineNumClasses ();
 	
-	Boolean					m_callGetHDFLineFlag,
-								m_forceGroupTableUpdateFlag,
-								m_showMessagesFlag;
-
-	// Generated message map functions
-	//{{AFX_MSG(CMFileFormatSpecsDlg)
-	virtual BOOL OnInitDialog();
-	afx_msg void OnSelendokBandInterleave();
-	afx_msg void OnSelendokDataValueType();
-	afx_msg void OnDetermineNumClasses();
-	afx_msg void OnSelendokHDFDataSet();
-	afx_msg void OnPaint();
-	//}}AFX_MSG
-	DECLARE_MESSAGE_MAP()
+		virtual BOOL OnInitDialog ();
 	
-	Boolean						m_initializedFlag;
-public:
-	afx_msg void OnBnClickedHdfdatasethelp();
-	afx_msg void OnBnClickedLinebottomtotop();
-	afx_msg void OnBnClickedFillDataValueExists();
-	afx_msg void OnStnClickedHdfdatasetprompt();
-};
+		afx_msg void OnPaint ();
+	
+		afx_msg void OnSelendokBandInterleave ();
+	
+		afx_msg void OnSelendokDataValueType ();
+	
+		afx_msg void OnSelendokHDFDataSet ();
+	
+		afx_msg void OnStnClickedHdfdatasetprompt ();
+		//}}AFX_MSG
+		DECLARE_MESSAGE_MAP ()
+	
+	
+		FileInfoPtr							m_fileInfoPtr;
+		WindowInfoPtr						m_windowInfoPtr;
+	
+		Handle								m_fileInfoHandle,
+												m_hfaHandle,
+												m_mapInformationHandle,
+												m_newChannelToHdfDataSetHandle,
+												m_windowInfoHandle;
+	
+		UInt32								m_maxNumberChannelsClasses;
 
-#endif	// !defined __MFORMDLG_H__
+		SInt16								m_dataSetIndex,
+												m_gdalDataTypeCode;
+
+		UInt16								m_dataCompressionCode;
+	
+		Boolean								m_callGetHDFLineFlag,
+												m_forceGroupTableUpdateFlag,
+												m_initializedFlag,
+												m_showMessagesFlag;
+	
+};	// end class CMFileFormatSpecsDlg

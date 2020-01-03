@@ -1,100 +1,121 @@
-#if !defined(AFX_WESTADLG_H__D64668B6_8D4C_11D3_8D48_00105AA88EE3__INCLUDED_)
-#define AFX_WESTADLG_H__D64668B6_8D4C_11D3_8D48_00105AA88EE3__INCLUDED_
-
-#if _MSC_VER > 1000
-#pragma once
-#endif // _MSC_VER > 1000
-// WEnhanceStatisticsDialog.h : header file
+//	 									MultiSpec
 //
+//					Laboratory for Applications of Remote Sensing
+//									Purdue University
+//								West Lafayette, IN 47907
+//								 Copyright (1995-2020)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	File:						WEnhanceStatisticsDialog.h
+//	Implementation:		WEnhanceStatisticsDialog.cpp
+//
+//	Authors:					Larry L. Biehl
+//
+//	Language:				C++
+//
+//	System:					Windows Operating System
+//
+//	Brief description:	Header file for the CMEnhanceStatisticsDialog class.
+//
+//	Written By:				Larry L. Biehl			Date: ??/??/1995?
+//	Revised By:				Larry L. Biehl			Date: 12/05/2019
+//
+//------------------------------------------------------------------------------------
 
-	#include "WDialog.h"
+#pragma once
 
-/////////////////////////////////////////////////////////////////////////////
-// CMEnhanceStatisticsDialog dialog
+#include "WDialog.h"
+
 
 class CMEnhanceStatisticsDialog : public CMDialog
 {
-// Construction
-public:
-				CMEnhanceStatisticsDialog(CWnd* pParent = NULL);   // standard constructor
+	// Construction
+	public:
+		CMEnhanceStatisticsDialog (	// standard constructor
+				CWnd* 								pParent = NULL);
 
-				~CMEnhanceStatisticsDialog(void);
+		~CMEnhanceStatisticsDialog (void);
 
-	SInt16			DoDialog(
-							StatEnhanceSpecsPtr				statEnhanceSpecsPtr);
+		SInt16 DoDialog (
+				StatEnhanceSpecsPtr				statEnhanceSpecsPtr);
 
-// Dialog Data
-	//{{AFX_DATA(CMEnhanceStatisticsDialog)
-	enum { IDD = IDD_EnhanceStatistics };
-	double	m_logLikeStopPercent;
-	long		m_iterationStopLength;
-	long		m_iterationMax;
-	double	m_labelWeight;
-	BOOL	m_useEnhancedStatisticsFlag;
-	BOOL	m_weightLabeledFlag;
-	int		m_weightsSelection;
-	double	m_softChiChiThreshold;
-	double	m_hardChiChiThreshold;
-	double	m_softPercentThreshold;
-	double	m_hardPercentThreshold;
-	int		m_softThresholdCode;
-	int		m_hardThresholdCode;
-	//}}AFX_DATA
+		// Dialog Data
+		//{{AFX_DATA (CMEnhanceStatisticsDialog)
+		enum { IDD = IDD_EnhanceStatistics };
+	
+		double								m_hardChiChiThreshold,
+												m_hardPercentThreshold,
+												m_labelWeight,
+												m_logLikeStopPercent,
+												m_softChiChiThreshold,
+												m_softPercentThreshold;
+	
+		int									m_hardThresholdCode,
+												m_softThresholdCode,
+												m_weightsSelection;
+	
+		long									m_iterationMax,
+												m_iterationStopLength;
+	
+		BOOL									m_useEnhancedStatisticsFlag,
+												m_weightLabeledFlag;
+		//}}AFX_DATA
 
-
-// Overrides
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CMEnhanceStatisticsDialog)
+	// Implementation
 	protected:
-	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-	//}}AFX_VIRTUAL
+		virtual void DoDataExchange (
+				CDataExchange* 					pDX);    // DDX/DDV support
 
-// Implementation
-protected:
-
-	// Generated message map functions
-	//{{AFX_MSG(CMEnhanceStatisticsDialog)
-	virtual BOOL OnInitDialog();
-	afx_msg void OnWeightLabeledSamples();
-	afx_msg void OnUseEnhancedStats();
-	afx_msg void OnSelchangeHardThresholdCombo();
-	afx_msg void OnSelchangeSoftThresholdCombo();
-	afx_msg void OnChangeHardPercentThreshold();
-	afx_msg void OnChangeSoftPercentThreshold();
-	afx_msg void OnChangeHardChiChiThreshold();
-	afx_msg void OnChangeSoftChiChiThreshold();
-	afx_msg void OnSelendokClassWeightsCombo();
-	//}}AFX_MSG
-	DECLARE_MESSAGE_MAP()
-	void					CheckColumnEnd(void);
-
-	void					CheckColumnInterval(void);
-	 
-	void					CheckColumnStart(void);
+		// Generated message map functions
+		//{{AFX_MSG (CMEnhanceStatisticsDialog)
+		virtual BOOL OnInitDialog ();
 	
-	void					CheckLineEnd(void);
-
-	void					CheckLineInterval(void);
+		afx_msg void OnChangeHardChiChiThreshold ();
 	
-	void					CheckLineStart(void);
-								
-	void 					OnSelendokClassCombo(void); 
-							
-	void					ToEntireImage(void);
-							
-	void					ToSelectedImage(void); 
-
-	float*								m_classWeightsPtr;
-	StatEnhanceSpecsPtr				m_statEnhanceSpecsPtr;
+		afx_msg void OnChangeHardPercentThreshold ();
 	
-	SInt16								m_classWeightSet;
-								
-	Boolean								m_initializedFlag,
-											m_updatingThresholdItemsFlag;
+		afx_msg void OnChangeSoftChiChiThreshold ();
 	
-};
+		afx_msg void OnChangeSoftPercentThreshold ();
+	
+		afx_msg void OnSelchangeHardThresholdCombo ();
+	
+		afx_msg void OnSelchangeSoftThresholdCombo ();
+	
+		afx_msg void OnSelendokClassWeightsCombo ();
+	
+		afx_msg void OnUseEnhancedStats ();
+	
+		afx_msg void OnWeightLabeledSamples ();
+		//}}AFX_MSG
+		DECLARE_MESSAGE_MAP ()
+	
+		void CheckColumnEnd (void);
 
-//{{AFX_INSERT_LOCATION}}
-// Microsoft Visual C++ will insert additional declarations immediately before the previous line.
+		void CheckColumnInterval (void);
+	
+		void CheckColumnStart (void);
+	
+		void CheckLineEnd (void);
 
-#endif // !defined(AFX_WESTADLG_H__D64668B6_8D4C_11D3_8D48_00105AA88EE3__INCLUDED_)
+		void CheckLineInterval (void);
+	
+		void CheckLineStart (void);
+	
+		void OnSelendokClassCombo (void);
+	
+		void ToEntireImage (void);
+	
+		void ToSelectedImage (void);
+	
+
+		float*								m_classWeightsPtr;
+		StatEnhanceSpecsPtr				m_statEnhanceSpecsPtr;
+	
+		SInt16								m_classWeightSet;
+	
+		Boolean								m_initializedFlag,
+												m_updatingThresholdItemsFlag;
+	
+};	// end class CMEnhanceStatisticsDialog

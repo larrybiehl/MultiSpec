@@ -1,83 +1,102 @@
-// WOpenFileDialog.h : header file
+//	 									MultiSpec
 //
+//					Laboratory for Applications of Remote Sensing
+//									Purdue University
+//								West Lafayette, IN 47907
+//								 Copyright (1995-2020)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	File:						WOpenFileDialog.h
+//	Implementation:		WOpenFileDialog.cpp
+//
+//	Authors:					Larry L. Biehl
+//
+//	Language:				C++
+//
+//	System:					Windows Operating System
+//
+//	Brief description:	Header file for the CMOpenFileDialog class
+//
+//	Written By:				Larry L. Biehl			Date: ??/??/1995?
+//	Revised By:				Larry L. Biehl			Date: 12/12/2019
+//
+//------------------------------------------------------------------------------------
 
-/////////////////////////////////////////////////////////////////////////////
-// CMOpenFileDialog dialog
+#pragma once
 
-//new
 #include <afxdlgs.h>
-//end new
 
-UINT_PTR CALLBACK HookProcedure (HWND hdlg, 
-											UINT uiMsg, 
-											WPARAM wParam, 
-											LPARAM lParam);
+UINT_PTR CALLBACK HookProcedure (
+			HWND 									hdlg,
+			UINT 									uiMsg,
+			WPARAM 								wParam,
+			LPARAM 								lParam);
 
 class CMOpenFileDialog : public CFileDialog
 {
-// Construction
-public:
-							CMOpenFileDialog(CWnd* pParent = NULL, TBYTE* filterString = NULL);	// standard constructor 
+	// Construction
+	public:
+		CMOpenFileDialog (
+				CWnd* 								pParent = NULL,
+				TBYTE* 								filterString = NULL);	// standard constructor
 	
-							~CMOpenFileDialog();		// standard desctructor
+		~CMOpenFileDialog ();	// standard desctructor
 	
-	Boolean				DoDialog(
-								SInt16				stringIndex);
+		Boolean DoDialog (
+				SInt16								stringIndex);
 
-// Dialog Data
-	//{{AFX_DATA(CMOpenFileDialog)
-//	enum { IDD = 1536 };
-		// NOTE: the ClassWizard will add data members here
-	CString		m_prompt;
-	int			m_imageType;
-	int			m_linkOption;
-	//}}AFX_DATA  
+		// Dialog Data
+		//{{AFX_DATA (CMOpenFileDialog)
+		//	enum { IDD = 1536 };
+			// NOTE: the ClassWizard will add data members here
+		CString								m_prompt;
 	
-	Boolean		m_initializedFlag;
-
-// Implementation
-protected:
-	virtual void 	DoDataExchange(CDataExchange* pDX);	// DDX/DDV support 
-
-	virtual void	OnFileNameChange (void);
+		int									m_imageType,
+												m_linkOption;
+		//}}AFX_DATA
 	
-	void				SetImageLinkToFalse(void);
-	
-	void				SetImageLinkToTrue(void);
-	
-	BOOL				GetItem11String(
-							UInt16							stringID,
-							CString*							stringPtr);
+		Boolean								m_initializedFlag;
 
-//	BOOL				PreTranslateMessage (MSG* pMsg);
-
-	// Generated message map functions
-	//{{AFX_MSG(CMOpenFileDialog)       
-	virtual BOOL OnInitDialog();  
-	afx_msg void OnSelendokImageType(); 
-	afx_msg void OnSelendokLinkOption();
-//	_afxMsgLBSELCHANGE OnLBSelChangedNotify	(
-//								UINT					nIDBox, 
-//								UINT					iCurSel, 
-//								UINT					nCode);
-	//}}AFX_MSG
-	DECLARE_MESSAGE_MAP()
+	// Implementation
+	protected:
+		virtual void DoDataExchange (
+				CDataExchange* 					pDX);	// DDX/DDV support
 	
-	CString		m_fileName;
-	TBYTE*		m_filenamesBuffer;
+		BOOL GetItem11String (
+				UInt16								stringID,
+				CString*								stringPtr);
+
+		virtual void OnFileNameChange (void);
 	
-	CDataExchange		*m_dialogFromPtr,
-							*m_dialogToPtr;
-							
-	SInt16            m_stringIndex;
+		void SetImageLinkToFalse (void);
+	
+		void SetImageLinkToTrue (void);
 
-	UInt32				m_linkOptionSelectionDataCode,
-							m_selectedFileCount;
+		// Generated message map functions
+		//{{AFX_MSG (CMOpenFileDialog)
+		virtual BOOL OnInitDialog ();
+	
+		afx_msg void OnSelendokImageType ();
+	
+		afx_msg void OnSelendokLinkOption ();
+		//}}AFX_MSG
+		DECLARE_MESSAGE_MAP ()
 
-	Boolean				m_initialLinkSelectedFilesFlag,
-							m_showLinkPopupMenuFlag,
-							m_userSetImageType;
-							
-public:
-//	afx_msg void OnCbnDropdown14();
-};
+		CString								m_fileName;
+	
+		CDataExchange						*m_dialogFromPtr,
+												*m_dialogToPtr;
+	
+		TBYTE*								m_filenamesBuffer;
+
+		UInt32								m_linkOptionSelectionDataCode,
+												m_selectedFileCount;
+	
+		SInt16            				m_stringIndex;
+
+		Boolean								m_initialLinkSelectedFilesFlag,
+												m_showLinkPopupMenuFlag,
+												m_userSetImageType;
+
+};	// end class CMOpenFileDialog
